@@ -1,759 +1,370 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
+From: JJ Ding <jj_ding@emc.com.tw>
 Subject: Re: [PATCH v5 7/8] Input: elantech - add v3 hardware support
-Date: Mon, 5 Sep 2011 12:35:28 +0800
-Message-ID: <CAGS+omCTDb-y7Gut=KgU5wz70R9=75gkmruYpOOS5JUECOK_UA@mail.gmail.com>
-References: <1315189007-2179-1-git-send-email-jj_ding@emc.com.tw> <1315189007-2179-8-git-send-email-jj_ding@emc.com.tw>
+Date: Mon, 05 Sep 2011 15:10:01 +0800
+Message-ID: <874o0rqxbq.fsf@emc.com.tw>
+References: <1315189007-2179-1-git-send-email-jj_ding@emc.com.tw> <1315189007-2179-8-git-send-email-jj_ding@emc.com.tw> <CAGS+omCTDb-y7Gut=KgU5wz70R9=75gkmruYpOOS5JUECOK_UA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:55696 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750717Ab1IEEfv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Sep 2011 00:35:51 -0400
-Received: from wpaz29.hot.corp.google.com (wpaz29.hot.corp.google.com [172.24.198.93])
-	by smtp-out.google.com with ESMTP id p854Zn6B003838
-	for <linux-input@vger.kernel.org>; Sun, 4 Sep 2011 21:35:49 -0700
-Received: from iagk10 (iagk10.prod.google.com [10.12.212.10])
-	by wpaz29.hot.corp.google.com with ESMTP id p854ZaDG016481
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Sun, 4 Sep 2011 21:35:48 -0700
-Received: by iagk10 with SMTP id k10so7335860iag.2
-        for <linux-input@vger.kernel.org>; Sun, 04 Sep 2011 21:35:48 -0700 (PDT)
-In-Reply-To: <1315189007-2179-8-git-send-email-jj_ding@emc.com.tw>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:24384 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750762Ab1IEHHs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Sep 2011 03:07:48 -0400
+In-Reply-To: <CAGS+omCTDb-y7Gut=KgU5wz70R9=75gkmruYpOOS5JUECOK_UA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?utf-8?Q?=C3=89ric?= Piel <E.A.B.Piel@tudelft.nl>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-Hi JJ,
-
-On Mon, Sep 5, 2011 at 10:16 AM, JJ Ding <jj_ding@emc.com.tw> wrote:
->
-> v3 hardware's packet format is almost identical to v2 (one/three fing=
-er touch),
-> except when sensing two finger touch, the hardware sends 12 bytes of =
-data.
->
-> Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
-> Acked-by: Daniel Kurtz <djkurtz@chromium.org>
-> Acked-by: =C9ric Piel <eric.piel@tremplin-utc.net>
-> ---
-> =A0Documentation/input/elantech.txt | =A0117 +++++++++++++++++++---
-> =A0drivers/input/mouse/elantech.c =A0 | =A0204 ++++++++++++++++++++++=
-++++++++++++---
-> =A0drivers/input/mouse/elantech.h =A0 | =A0 12 +++
-> =A03 files changed, 304 insertions(+), 29 deletions(-)
->
-> diff --git a/Documentation/input/elantech.txt b/Documentation/input/e=
-lantech.txt
-> index bce9941..cee08ee 100644
-> --- a/Documentation/input/elantech.txt
-> +++ b/Documentation/input/elantech.txt
-> @@ -16,15 +16,22 @@ Contents
->
-> =A01. Introduction
-> =A02. Extra knobs
-> - 3. Hardware version 1
-> - =A0 =A03.1 Registers
-> - =A0 =A03.2 Native relative mode 4 byte packet format
-> - =A0 =A03.3 Native absolute mode 4 byte packet format
-> - 4. Hardware version 2
-> + 3. Differentiating hardware versions
-> + 4. Hardware version 1
-> =A0 =A0 4.1 Registers
-> - =A0 =A04.2 Native absolute mode 6 byte packet format
-> - =A0 =A0 =A0 =A04.2.1 One finger touch
-> - =A0 =A0 =A0 =A04.2.2 Two finger touch
-> + =A0 =A04.2 Native relative mode 4 byte packet format
-> + =A0 =A04.3 Native absolute mode 4 byte packet format
-> + 5. Hardware version 2
-> + =A0 =A05.1 Registers
-> + =A0 =A05.2 Native absolute mode 6 byte packet format
-> + =A0 =A0 =A0 =A05.2.1 Parity checking and packet re-synchronization
-> + =A0 =A0 =A0 =A05.2.2 One/Three finger touch
-> + =A0 =A0 =A0 =A05.2.3 Two finger touch
-> + 6. Hardware version 3
-> + =A0 =A06.1 Registers
-> + =A0 =A06.2 Native absolute mode 6 byte packet format
-> + =A0 =A0 =A0 =A06.2.1 One/Three finger touch
-> + =A0 =A0 =A0 =A06.2.2 Two finger touch
->
->
->
-> @@ -375,7 +382,7 @@ For all the other ones, there are just a few cons=
-tant bits:
->
-> =A0In case an error is detected, all the packets are shifted by one (=
-and packet[0] is discarded).
->
-> -5.2.1 One/Three finger touch
-> +5.2.2 One/Three finger touch
-> =A0 =A0 =A0 ~~~~~~~~~~~~~~~~
->
-> =A0byte 0:
-> @@ -384,7 +391,7 @@ byte 0:
-> =A0 =A0 =A0 =A0 n1 =A0n0 =A0w3 =A0w2 =A0 . =A0 . =A0 R =A0 L
->
-> =A0 =A0 =A0 =A0 =A0L, R =3D 1 when Left, Right mouse button pressed
-> - =A0 =A0 =A0 =A0 n1..n0 =3D numbers of fingers on touchpad
-> + =A0 =A0 =A0 =A0 n1..n0 =3D number of fingers on touchpad
->
-> =A0byte 1:
->
-> @@ -432,7 +439,7 @@ byte 5:
-> =A0 =A0 =A0 =A0 =A0y11..y0 =3D absolute y value (vertical)
->
->
-> -4.2.2 Two finger touch
-> +5.2.3 Two finger touch
-> =A0 =A0 =A0 ~~~~~~~~~~~~~~~~
->
-> =A0Note that the two pairs of coordinates are not exactly the coordin=
-ates of the
-> @@ -446,7 +453,7 @@ byte 0:
-> =A0 =A0 =A0 =A0 n1 =A0n0 =A0ay8 ax8 =A0. =A0 . =A0 R =A0 L
->
-> =A0 =A0 =A0 =A0 =A0L, R =3D 1 when Left, Right mouse button pressed
-> - =A0 =A0 =A0 =A0 n1..n0 =3D numbers of fingers on touchpad
-> + =A0 =A0 =A0 =A0 n1..n0 =3D number of fingers on touchpad
->
-> =A0byte 1:
->
-> @@ -480,3 +487,89 @@ byte 5:
-> =A0 =A0 =A0 =A0 by7 by8 by5 by4 by3 by2 by1 by0
->
-> =A0 =A0 =A0 =A0 =A0by8..by0 =3D upper-right finger absolute y value
-> +
-> +////////////////////////////////////////////////////////////////////=
-/////////
-> +
-> +6. Hardware version 3
-> + =A0 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> +
-> +6.1 Registers
-> + =A0 =A0~~~~~~~~~
-> +* reg_10
-> +
-> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
-> + =A0 =A0 =A0 =A0 0 =A0 0 =A0 0 =A0 0 =A0 0 =A0 0 =A0 0 =A0 A
-> +
-> + =A0 =A0 =A0 =A0 A: 1 =3D enable absolute tracking
-> +
-> +6.2 Native absolute mode 6 byte packet format
-> + =A0 =A0~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> +1 and 3 finger touch shares the same 6-byte packet format, except th=
-at
-> +3 finger touch only reports the position of the center of all three =
-fingers.
-> +
-> +Firmware would send 12 bytes of data for 2 finger touch.
-> +
-> +Note on debounce:
-> +In case the box has unstable power supply or other electricity issue=
-s, or
-> +when number of finger changes, F/W would send "debounce packet" to i=
-nform
-> +driver that the hardware is in debounce status.
-> +The debouce packet has the following signature:
-> + =A0 =A0byte 0: 0xc4
-> + =A0 =A0byte 1: 0xff
-> + =A0 =A0byte 2: 0xff
-> + =A0 =A0byte 3: 0x02
-> + =A0 =A0byte 4: 0xff
-> + =A0 =A0byte 5: 0xff
-> +When we encounter this kind of packet, we just ignore it.
-> +
-> +6.2.1 One/Three finger touch
-> + =A0 =A0 =A0~~~~~~~~~~~~~~~~~~~~~~
-> +
-> +byte 0:
-> +
-> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
-> + =A0 =A0 =A0 =A0n1 =A0n0 =A0w3 =A0w2 =A0 0 =A0 1 =A0 R =A0 L
-> +
-> + =A0 =A0 =A0 =A0L, R =3D 1 when Left, Right mouse button pressed
-> + =A0 =A0 =A0 =A0n1..n0 =3D number of fingers on touchpad
-> +
-> +byte 1:
-> +
-> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
-> + =A0 =A0 =A0 =A0p7 =A0p6 =A0p5 =A0p4 x11 x10 =A0x9 =A0x8
-> +
-> +byte 2:
-> +
-> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
-> + =A0 =A0 =A0 =A0x7 =A0x6 =A0x5 =A0x4 =A0x3 =A0x2 =A0x1 =A0x0
-> +
-> + =A0 =A0 =A0 =A0x11..x0 =3D absolute x value (horizontal)
-> +
-> +byte 3:
-> +
-> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
-> + =A0 =A0 =A0 =A0 0 =A0 0 =A0w1 =A0w0 =A0 0 =A0 0 =A0 1 =A0 0
-> +
-> + =A0 =A0 =A0 =A0 w3..w0 =3D width of the finger touch
-> +
-> +byte 4:
-> +
-> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
-> + =A0 =A0 =A0 =A0p3 =A0p1 =A0p2 =A0p0 =A0y11 y10 y9 =A0y8
-> +
-> + =A0 =A0 =A0 =A0p7..p0 =3D pressure
-> +
-> +byte 5:
-> +
-> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
-> + =A0 =A0 =A0 =A0y7 =A0y6 =A0y5 =A0y4 =A0y3 =A0y2 =A0y1 =A0y0
-> +
-> + =A0 =A0 =A0 =A0y11..y0 =3D absolute y value (vertical)
-> +
-> +6.2.2 Two finger touch
-> + =A0 =A0 =A0~~~~~~~~~~~~~~~~
-> +
-> +The packet format is exactly the same for two finger touch, except t=
-he hardware
-> +sends two 6 byte packets. The first packet contains data for the fir=
-st finger,
-> +the second packet has data for the second finger. So for two finger =
-touch a
-> +total of 12 bytes are sent.
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/ela=
-ntech.c
-> index 2ae7c49..c4ceefd 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -108,6 +108,16 @@ static int elantech_read_reg(struct psmouse *psm=
-ouse, unsigned char reg,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rc =3D -1;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
-> +
-> + =A0 =A0 =A0 case 3:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (elantech_ps2_command(psmouse, NULL,=
- ETP_PS2_CUSTOM_COMMAND) ||
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
-ULL, ETP_REGISTER_READWRITE) ||
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
-ULL, ETP_PS2_CUSTOM_COMMAND) ||
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
-ULL, reg) ||
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, p=
-aram, PSMOUSE_CMD_GETINFO)) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rc =3D -1;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> =A0 =A0 =A0 =A0}
->
-> =A0 =A0 =A0 =A0if (rc)
-> @@ -154,6 +164,18 @@ static int elantech_write_reg(struct psmouse *ps=
-mouse, unsigned char reg,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rc =3D -1;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
-> +
-> + =A0 =A0 =A0 case 3:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (elantech_ps2_command(psmouse, NULL,=
- ETP_PS2_CUSTOM_COMMAND) ||
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
-ULL, ETP_REGISTER_READWRITE) ||
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
-ULL, ETP_PS2_CUSTOM_COMMAND) ||
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
-ULL, reg) ||
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
-ULL, ETP_PS2_CUSTOM_COMMAND) ||
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
-ULL, val) ||
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
-ULL, PSMOUSE_CMD_SETSCALE11)) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rc =3D -1;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> =A0 =A0 =A0 =A0}
->
-> =A0 =A0 =A0 =A0if (rc)
-> @@ -350,6 +372,84 @@ static void elantech_report_absolute_v2(struct p=
-smouse *psmouse)
-> =A0 =A0 =A0 =A0input_sync(dev);
-> =A0}
->
-> +/*
-> + * Interpret complete data packets and report absolute mode input ev=
-ents for
-> + * hardware version 3. (12 byte packets for two fingers)
-> + */
-> +static void elantech_report_absolute_v3(struct psmouse *psmouse,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 int packet_type)
-> +{
-> + =A0 =A0 =A0 struct input_dev *dev =3D psmouse->dev;
-> + =A0 =A0 =A0 struct elantech_data *etd =3D psmouse->private;
-> + =A0 =A0 =A0 unsigned char *packet =3D psmouse->packet;
-> + =A0 =A0 =A0 unsigned int fingers =3D 0, x1 =3D 0, y1 =3D 0, x2 =3D =
-0, y2 =3D 0;
-> + =A0 =A0 =A0 unsigned int width =3D 0, pres =3D 0;
-> +
-> + =A0 =A0 =A0 /* byte 0: n1 =A0n0 =A0 . =A0 . =A0 . =A0 . =A0 R =A0 L=
- */
-> + =A0 =A0 =A0 fingers =3D (packet[0] & 0xc0) >> 6;
-> +
-> + =A0 =A0 =A0 switch (fingers) {
-> + =A0 =A0 =A0 case 3:
-> + =A0 =A0 =A0 case 1:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 1: =A0. =A0 . =A0 . =A0 . =A0=
-x11 x10 x9 =A0x8
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 2: x7 =A0x6 =A0x5 =A0x4 =A0x4=
- =A0x2 =A0x1 =A0x0
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 x1 =3D ((packet[1] & 0x0f) << 8) | pack=
-et[2];
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 4: =A0. =A0 . =A0 . =A0 . =A0=
-y11 y10 y9 =A0y8
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 5: y7 =A0y6 =A0y5 =A0y4 =A0y3=
- =A0y2 =A0y1 =A0y0
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 y1 =3D etd->y_max - (((packet[4] & 0x0f=
-) << 8) | packet[5]);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> +
-> + =A0 =A0 =A0 case 2:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (packet_type =3D=3D PACKET_V3_HEAD) =
-{
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 1: =A0 . =A0 =
-=A0. =A0 =A0. =A0 =A0. =A0ax11 ax10 ax9 =A0ax8
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 2: ax7 =A0ax6=
- =A0ax5 =A0ax4 =A0ax3 =A0ax2 =A0ax1 =A0ax0
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 etd->prev_x =3D ((packe=
-t[1] & 0x0f) << 8) | packet[2];
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 4: =A0 . =A0 =
-=A0. =A0 =A0. =A0 =A0. =A0ay11 ay10 ay9 =A0ay8
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 5: ay7 =A0ay6=
- =A0ay5 =A0ay4 =A0ay3 =A0ay2 =A0ay1 =A0ay0
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 etd->prev_y =3D etd->y_=
-max -
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (((pack=
-et[4] & 0x0f) << 8) | packet[5]);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* wait for next pack=
-et
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* packet_type =3D=3D PACKET_V3_TAIL */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 x1 =3D etd->prev_x;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 y1 =3D etd->prev_y;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 x2 =3D ((packet[1] & 0x0f) << 8) | pack=
-et[2];
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 y2 =3D etd->y_max - (((packet[4] & 0x0f=
-) << 8) | packet[5]);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> + =A0 =A0 =A0 }
-> +
-> + =A0 =A0 =A0 pres =3D (packet[1] & 0xf0) | ((packet[4] & 0xf0) >> 4)=
-;
-> + =A0 =A0 =A0 width =3D ((packet[0] & 0x30) >> 2) | ((packet[3] & 0x3=
-0) >> 4);
-> +
-> + =A0 =A0 =A0 input_report_key(dev, BTN_TOUCH, fingers !=3D 0);
-> + =A0 =A0 =A0 if (fingers !=3D 0) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(dev, ABS_X, x1);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(dev, ABS_Y, y1);
-> + =A0 =A0 =A0 }
-> + =A0 =A0 =A0 elantech_report_semi_mt_data(dev, fingers, x1, y1, x2, =
-y2);
-
-Originally, v3 was using semi-mt, which reported corner coordinates of
-a box containing at least two of the N touches on the touchpad.  I
-thought this was due to hardware limitation.
-
-If the hardware really can report true positions for (up to) 3
-contacts, then using pure MT-B is a good approach.  This driver still
-seems to mix semi-mt and MT-B together a bit.
-
-Can you report all three contacts in their own slots, 0, 1 and 2,
-instead of just reoprting two of them with 0,1?
-
-Also, when reporting the 'legacy single touch' coordinate (ABS_X,
-ABS_Y), please use:
-input_mt_report_pointer_emulation(), instead of always reporting the
-last (x1,y1).  Otherwise the single touch point will bounce back and
-forth between 1st and 3rd touch.
-
-> + =A0 =A0 =A0 input_report_key(dev, BTN_TOOL_FINGER, fingers =3D=3D 1=
-);
-> + =A0 =A0 =A0 input_report_key(dev, BTN_TOOL_DOUBLETAP, fingers =3D=3D=
- 2);
-> + =A0 =A0 =A0 input_report_key(dev, BTN_TOOL_TRIPLETAP, fingers =3D=3D=
- 3);
-
-Use input_mt_report_pointer_emulation() with use_count =3D true.   This
-will also report ABS_PRESURE (but not ABS_TOOL_WIDTH, unfortunately).
-
-> + =A0 =A0 =A0 input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
-> + =A0 =A0 =A0 input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
-> + =A0 =A0 =A0 input_report_abs(dev, ABS_PRESSURE, pres);
-> + =A0 =A0 =A0 input_report_abs(dev, ABS_TOOL_WIDTH, width);
-> +
-> + =A0 =A0 =A0 input_sync(dev);
-> +}
-> +
-> =A0static int elantech_packet_check_v1(struct psmouse *psmouse)
-> =A0{
-> =A0 =A0 =A0 =A0struct elantech_data *etd =3D psmouse->private;
-> @@ -403,11 +503,37 @@ static int elantech_packet_check_v2(struct psmo=
-use *psmouse)
-> =A0}
->
-> =A0/*
-> + * We check the constant bits to determine what packet type we get,
-> + * so packet checking is mandatory for v3 hardware.
-> + */
-> +static int elantech_packet_check_v3(struct psmouse *psmouse)
-> +{
-> + =A0 =A0 =A0 const u8 debounce_packet[] =3D { 0xc4, 0xff, 0xff, 0x02=
-, 0xff, 0xff };
-> + =A0 =A0 =A0 unsigned char *packet =3D psmouse->packet;
-> +
-> + =A0 =A0 =A0 /*
-> + =A0 =A0 =A0 =A0* check debounce first, it has the same signature in=
- byte 0
-> + =A0 =A0 =A0 =A0* and byte 3 as PACKET_V3_HEAD.
-> + =A0 =A0 =A0 =A0*/
-> + =A0 =A0 =A0 if (!memcmp(packet, debounce_packet, sizeof(debounce_pa=
-cket)))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PACKET_DEBOUNCE;
-> +
-> + =A0 =A0 =A0 if ((packet[0] & 0x0c) =3D=3D 0x04 && (packet[3] & 0xcf=
-) =3D=3D 0x02)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PACKET_V3_HEAD;
-> +
-> + =A0 =A0 =A0 if ((packet[0] & 0x0c) =3D=3D 0x0c && (packet[3] & 0xce=
-) =3D=3D 0x0c)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PACKET_V3_TAIL;
-> +
-> + =A0 =A0 =A0 return PACKET_UNKNOWN;
-> +}
-> +
-> +/*
-> =A0* Process byte stream from mouse and handle complete packets
-> =A0*/
-> =A0static psmouse_ret_t elantech_process_byte(struct psmouse *psmouse=
-)
-> =A0{
-> =A0 =A0 =A0 =A0struct elantech_data *etd =3D psmouse->private;
-> + =A0 =A0 =A0 int packet_type;
->
-> =A0 =A0 =A0 =A0if (psmouse->pktcnt < psmouse->pktsize)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return PSMOUSE_GOOD_DATA;
-> @@ -429,6 +555,18 @@ static psmouse_ret_t elantech_process_byte(struc=
-t psmouse *psmouse)
->
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0elantech_report_absolute_v2(psmouse);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
-> +
-> + =A0 =A0 =A0 case 3:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 packet_type =3D elantech_packet_check_v=
-3(psmouse);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* ignore debounce */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (packet_type =3D=3D PACKET_DEBOUNCE)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PSMOUSE_FULL_PAC=
-KET;
-> +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (packet_type =3D=3D PACKET_UNKNOWN)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PSMOUSE_BAD_DATA=
-;
-> +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_report_absolute_v3(psmouse, pa=
-cket_type);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> =A0 =A0 =A0 =A0}
->
-> =A0 =A0 =A0 =A0return PSMOUSE_FULL_PACKET;
-> @@ -463,8 +601,15 @@ static int elantech_set_absolute_mode(struct psm=
-ouse *psmouse)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0elantech_write_reg(psmouse, 0x=
-11, etd->reg_11) ||
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0elantech_write_reg(psmouse, 0x=
-21, etd->reg_21)) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rc =3D -1;
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> +
-> + =A0 =A0 =A0 case 3:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 etd->reg_10 =3D 0x0b;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (elantech_write_reg(psmouse, 0x10, e=
-td->reg_10))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rc =3D -1;
-> +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> =A0 =A0 =A0 =A0}
->
-> =A0 =A0 =A0 =A0if (rc =3D=3D 0) {
-> @@ -498,11 +643,12 @@ static int elantech_set_absolute_mode(struct ps=
-mouse *psmouse)
-> =A0 =A0 =A0 =A0return rc;
-> =A0}
->
-> -static void set_range(struct psmouse *psmouse, unsigned int *x_min,
-> +static int set_range(struct psmouse *psmouse, unsigned int *x_min,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 unsigned int *y_min, unsigned=
- int *x_max,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 unsigned int *y_max)
-> =A0{
-> =A0 =A0 =A0 =A0struct elantech_data *etd =3D psmouse->private;
-> + =A0 =A0 =A0 unsigned char param[3];
-> =A0 =A0 =A0 =A0int i;
->
-> =A0 =A0 =A0 =A0switch (etd->hw_version) {
-> @@ -530,19 +676,30 @@ static void set_range(struct psmouse *psmouse, =
-unsigned int *x_min,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*y_max =3D (etd->capab=
-ilities[2] - i) * 64;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
-> +
-> + =A0 =A0 =A0 case 3:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (synaptics_send_cmd(psmouse, ETP_FW_=
-ID_QUERY, param))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -1;
-> +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 *x_max =3D (0x0f & param[0]) << 8 | par=
-am[1];
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 *y_max =3D (0xf0 & param[0]) << 4 | par=
-am[2];
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> =A0 =A0 =A0 =A0}
-> +
-> + =A0 =A0 =A0 return 0;
-> =A0}
->
-> =A0/*
-> =A0* Set the appropriate event bits for the input subsystem
-> =A0*/
-> -static void elantech_set_input_params(struct psmouse *psmouse)
-> +static int elantech_set_input_params(struct psmouse *psmouse)
-> =A0{
-> =A0 =A0 =A0 =A0struct input_dev *dev =3D psmouse->dev;
-> =A0 =A0 =A0 =A0struct elantech_data *etd =3D psmouse->private;
-> =A0 =A0 =A0 =A0unsigned int x_min =3D 0, y_min =3D 0, x_max =3D 0, y_=
-max =3D 0;
->
-> - =A0 =A0 =A0 set_range(psmouse, &x_min, &y_min, &x_max, &y_max);
-> + =A0 =A0 =A0 if (set_range(psmouse, &x_min, &y_min, &x_max, &y_max))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -1;
->
-> =A0 =A0 =A0 =A0__set_bit(EV_KEY, dev->evbit);
-> =A0 =A0 =A0 =A0__set_bit(EV_ABS, dev->evbit);
-> @@ -570,6 +727,9 @@ static void elantech_set_input_params(struct psmo=
-use *psmouse)
->
-> =A0 =A0 =A0 =A0case 2:
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(BTN_TOOL_QUADTAP, dev->keybi=
-t);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(INPUT_PROP_SEMI_MT, dev->prop=
-bit);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* fall through */
-> + =A0 =A0 =A0 case 3:
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(dev, ABS_X, x_min=
-, x_max, 0, 0);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(dev, ABS_Y, y_min=
-, y_max, 0, 0);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (etd->reports_pressure) {
-> @@ -578,7 +738,6 @@ static void elantech_set_input_params(struct psmo=
-use *psmouse)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(d=
-ev, ABS_TOOL_WIDTH, ETP_WMIN_V2,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 ETP_WMAX_V2, 0, 0);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(INPUT_PROP_SEMI_MT, dev->prop=
-bit);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_mt_init_slots(dev, 2);
-
-Should this be 3?
-
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(dev, ABS_MT_POSIT=
-ION_X, x_min, x_max, 0, 0);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(dev, ABS_MT_POSIT=
-ION_Y, y_min, y_max, 0, 0);
-> @@ -586,6 +745,8 @@ static void elantech_set_input_params(struct psmo=
-use *psmouse)
-> =A0 =A0 =A0 =A0}
->
-> =A0 =A0 =A0 =A0etd->y_max =3D y_max;
-> +
-> + =A0 =A0 =A0 return 0;
-> =A0}
->
-> =A0struct elantech_attr_data {
-> @@ -727,7 +888,8 @@ int elantech_detect(struct psmouse *psmouse, bool=
- set_properties)
-> =A0 =A0 =A0 =A0 * Report this in case there are Elantech models that =
-use a different
-> =A0 =A0 =A0 =A0 * set of magic numbers
-> =A0 =A0 =A0 =A0 */
-> - =A0 =A0 =A0 if (param[0] !=3D 0x3c || param[1] !=3D 0x03 || param[2=
-] !=3D 0xc8) {
-> + =A0 =A0 =A0 if (param[0] !=3D 0x3c || param[1] !=3D 0x03 ||
-> + =A0 =A0 =A0 =A0 =A0 (param[2] !=3D 0xc8 && param[2] !=3D 0x00)) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pr_debug("unexpected magic knock resul=
-t 0x%02x, 0x%02x, 0x%02x.\n",
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 param[0], param[1], p=
-aram[2]);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -1;
-> @@ -793,16 +955,16 @@ static int elantech_reconnect(struct psmouse *p=
-smouse)
-> =A0/*
-> =A0* determine hardware version and set some properties according to =
-it.
-> =A0*/
-> -static void elantech_set_properties(struct elantech_data *etd)
-> +static int elantech_set_properties(struct elantech_data *etd)
-> =A0{
-> - =A0 =A0 =A0 /*
-> - =A0 =A0 =A0 =A0* Assume every version greater than 0x020030 is new =
-EeePC style
-> - =A0 =A0 =A0 =A0* hardware with 6 byte packets, except 0x020600
-> - =A0 =A0 =A0 =A0*/
-> =A0 =A0 =A0 =A0if (etd->fw_version < 0x020030 || etd->fw_version =3D=3D=
- 0x020600)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0etd->hw_version =3D 1;
-> - =A0 =A0 =A0 else
-> + =A0 =A0 =A0 else if (etd->fw_version < 0x150600)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0etd->hw_version =3D 2;
-> + =A0 =A0 =A0 else if ((etd->fw_version & 0x0f0000) >> 16 =3D=3D 5)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 etd->hw_version =3D 3;
-> + =A0 =A0 =A0 else
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -1;
->
-> =A0 =A0 =A0 =A0/*
-> =A0 =A0 =A0 =A0 * Turn on packet checking by default.
-> @@ -817,13 +979,15 @@ static void elantech_set_properties(struct elan=
-tech_data *etd)
-> =A0 =A0 =A0 =A0etd->jumpy_cursor =3D
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(etd->fw_version =3D=3D 0x020022 || et=
-d->fw_version =3D=3D 0x020600);
->
-> - =A0 =A0 =A0 if (etd->hw_version =3D=3D 2) {
-> + =A0 =A0 =A0 if (etd->hw_version > 1) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* For now show extra debug informatio=
-n */
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0etd->debug =3D 1;
->
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (etd->fw_version >=3D 0x020800)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0etd->reports_pressure =
-=3D true;
-> =A0 =A0 =A0 =A0}
-> +
-> + =A0 =A0 =A0 return 0;
-> =A0}
->
-> =A0/*
-> @@ -850,9 +1014,12 @@ int elantech_init(struct psmouse *psmouse)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pr_err("failed to query firmware versi=
-on.\n");
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto init_fail;
-> =A0 =A0 =A0 =A0}
-> -
-> =A0 =A0 =A0 =A0etd->fw_version =3D (param[0] << 16) | (param[1] << 8)=
- | param[2];
-> - =A0 =A0 =A0 elantech_set_properties(etd);
-> +
-> + =A0 =A0 =A0 if (elantech_set_properties(etd)) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_err("unknown hardware version, abort=
-ing...\n");
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto init_fail;
-> + =A0 =A0 =A0 }
-> =A0 =A0 =A0 =A0pr_info("assuming hardware version %d "
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"(with firmware version 0x%02x%02x%02x=
-)\n",
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0etd->hw_version, param[0], param[1], p=
-aram[2]);
-> @@ -871,7 +1038,10 @@ int elantech_init(struct psmouse *psmouse)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto init_fail;
-> =A0 =A0 =A0 =A0}
->
-> - =A0 =A0 =A0 elantech_set_input_params(psmouse);
-> + =A0 =A0 =A0 if (elantech_set_input_params(psmouse)) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_err("failed to query touchpad range.=
-\n");
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto init_fail;
-> + =A0 =A0 =A0 }
->
-> =A0 =A0 =A0 =A0error =3D sysfs_create_group(&psmouse->ps2dev.serio->d=
-ev.kobj,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 &=
-elantech_attr_group);
-> @@ -883,7 +1053,7 @@ int elantech_init(struct psmouse *psmouse)
-> =A0 =A0 =A0 =A0psmouse->protocol_handler =3D elantech_process_byte;
-> =A0 =A0 =A0 =A0psmouse->disconnect =3D elantech_disconnect;
-> =A0 =A0 =A0 =A0psmouse->reconnect =3D elantech_reconnect;
-> - =A0 =A0 =A0 psmouse->pktsize =3D etd->hw_version =3D=3D 2 ? 6 : 4;
-> + =A0 =A0 =A0 psmouse->pktsize =3D etd->hw_version > 1 ? 6 : 4;
->
-> =A0 =A0 =A0 =A0return 0;
->
-> diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/ela=
-ntech.h
-> index d9e6144..236c33c 100644
-> --- a/drivers/input/mouse/elantech.h
-> +++ b/drivers/input/mouse/elantech.h
-> @@ -16,6 +16,7 @@
-> =A0/*
-> =A0* Command values for Synaptics style queries
-> =A0*/
-> +#define ETP_FW_ID_QUERY =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A00x00
-> =A0#define ETP_FW_VERSION_QUERY =A0 =A0 =A0 =A0 =A0 0x01
-> =A0#define ETP_CAPABILITIES_QUERY =A0 =A0 =A0 =A0 0x02
->
-> @@ -24,6 +25,7 @@
-> =A0*/
-> =A0#define ETP_REGISTER_READ =A0 =A0 =A0 =A0 =A0 =A0 =A00x10
-> =A0#define ETP_REGISTER_WRITE =A0 =A0 =A0 =A0 =A0 =A0 0x11
-> +#define ETP_REGISTER_READWRITE =A0 =A0 =A0 =A0 0x00
->
-> =A0/*
-> =A0* Hardware version 2 custom PS/2 command value
-> @@ -79,6 +81,14 @@
-> =A0#define ETP_WMIN_V2 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A00
-> =A0#define ETP_WMAX_V2 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A015
->
-> +/*
-> + * v3 hardware has 2 kinds of packet types.
-> + */
-> +#define PACKET_UNKNOWN =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x01
-> +#define PACKET_DEBOUNCE =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A00x02
-> +#define PACKET_V3_HEAD =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x03
-> +#define PACKET_V3_TAIL =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x04
-> +
-> =A0struct elantech_data {
-> =A0 =A0 =A0 =A0unsigned char reg_10;
-> =A0 =A0 =A0 =A0unsigned char reg_11;
-> @@ -98,6 +108,8 @@ struct elantech_data {
-> =A0 =A0 =A0 =A0unsigned int fw_version;
-> =A0 =A0 =A0 =A0unsigned int single_finger_reports;
-> =A0 =A0 =A0 =A0unsigned int y_max;
-> + =A0 =A0 =A0 unsigned int prev_x;
-> + =A0 =A0 =A0 unsigned int prev_y;
-> =A0 =A0 =A0 =A0unsigned char parity[256];
-> =A0};
->
-> --
-> 1.7.4.1
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+SGkgRGFuaWVsLA0KDQpPbiBNb24sIDUgU2VwIDIwMTEgMTI6MzU6MjggKzA4MDAsIERhbmllbCBL
+dXJ0eiA8ZGprdXJ0ekBjaHJvbWl1bS5vcmc+IHdyb3RlOg0KPiBIaSBKSiwNCj4gDQo+IE9uIE1v
+biwgU2VwIDUsIDIwMTEgYXQgMTA6MTYgQU0sIEpKIERpbmcgPGpqX2RpbmdAZW1jLmNvbS50dz4g
+d3JvdGU6DQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvbW91c2UvZWxhbnRlY2guYyBi
+L2RyaXZlcnMvaW5wdXQvbW91c2UvZWxhbnRlY2guYw0KPiA+IGluZGV4IDJhZTdjNDkuLmM0Y2Vl
+ZmQgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy9pbnB1dC9tb3VzZS9lbGFudGVjaC5jDQo+ID4g
+KysrIGIvZHJpdmVycy9pbnB1dC9tb3VzZS9lbGFudGVjaC5jDQo+ID4gQEAgLTEwOCw2ICsxMDgs
+MTYgQEAgc3RhdGljIGludCBlbGFudGVjaF9yZWFkX3JlZyhzdHJ1Y3QgcHNtb3VzZSAqcHNtb3Vz
+ZSwgdW5zaWduZWQgY2hhciByZWcsDQo+ID4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqByYyA9IC0xOw0KPiA+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgfQ0KPiA+IMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgYnJlYWs7DQo+ID4gKw0KPiA+ICsgwqAgwqAgwqAgY2FzZSAzOg0KPiA+
+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgaWYgKGVsYW50ZWNoX3BzMl9jb21tYW5kKHBzbW91c2Us
+IE5VTEwsIEVUUF9QUzJfQ1VTVE9NX0NPTU1BTkQpIHx8DQo+ID4gKyDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCBlbGFudGVjaF9wczJfY29tbWFuZChwc21vdXNlLCBOVUxMLCBFVFBfUkVHSVNU
+RVJfUkVBRFdSSVRFKSB8fA0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZWxhbnRl
+Y2hfcHMyX2NvbW1hbmQocHNtb3VzZSwgTlVMTCwgRVRQX1BTMl9DVVNUT01fQ09NTUFORCkgfHwN
+Cj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGVsYW50ZWNoX3BzMl9jb21tYW5kKHBz
+bW91c2UsIE5VTEwsIHJlZykgfHwNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGVs
+YW50ZWNoX3BzMl9jb21tYW5kKHBzbW91c2UsIHBhcmFtLCBQU01PVVNFX0NNRF9HRVRJTkZPKSkg
+ew0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcmMgPSAtMTsNCj4gPiAr
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIH0NCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGJyZWFr
+Ow0KPiA+IMKgIMKgIMKgIMKgfQ0KPiA+DQo+ID4gwqAgwqAgwqAgwqBpZiAocmMpDQo+ID4gQEAg
+LTE1NCw2ICsxNjQsMTggQEAgc3RhdGljIGludCBlbGFudGVjaF93cml0ZV9yZWcoc3RydWN0IHBz
+bW91c2UgKnBzbW91c2UsIHVuc2lnbmVkIGNoYXIgcmVnLA0KPiA+IMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgcmMgPSAtMTsNCj4gPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoH0N
+Cj4gPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGJyZWFrOw0KPiA+ICsNCj4gPiArIMKgIMKgIMKg
+IGNhc2UgMzoNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmIChlbGFudGVjaF9wczJfY29t
+bWFuZChwc21vdXNlLCBOVUxMLCBFVFBfUFMyX0NVU1RPTV9DT01NQU5EKSB8fA0KPiA+ICsgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZWxhbnRlY2hfcHMyX2NvbW1hbmQocHNtb3VzZSwgTlVM
+TCwgRVRQX1JFR0lTVEVSX1JFQURXUklURSkgfHwNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIGVsYW50ZWNoX3BzMl9jb21tYW5kKHBzbW91c2UsIE5VTEwsIEVUUF9QUzJfQ1VTVE9N
+X0NPTU1BTkQpIHx8DQo+ID4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBlbGFudGVjaF9w
+czJfY29tbWFuZChwc21vdXNlLCBOVUxMLCByZWcpIHx8DQo+ID4gKyDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCBlbGFudGVjaF9wczJfY29tbWFuZChwc21vdXNlLCBOVUxMLCBFVFBfUFMyX0NV
+U1RPTV9DT01NQU5EKSB8fA0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZWxhbnRl
+Y2hfcHMyX2NvbW1hbmQocHNtb3VzZSwgTlVMTCwgdmFsKSB8fA0KPiA+ICsgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgZWxhbnRlY2hfcHMyX2NvbW1hbmQocHNtb3VzZSwgTlVMTCwgUFNNT1VT
+RV9DTURfU0VUU0NBTEUxMSkpIHsNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIHJjID0gLTE7DQo+ID4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCB9DQo+ID4gKyDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCBicmVhazsNCj4gPiDCoCDCoCDCoCDCoH0NCj4gPg0KPiA+IMKgIMKgIMKg
+IMKgaWYgKHJjKQ0KPiA+IEBAIC0zNTAsNiArMzcyLDg0IEBAIHN0YXRpYyB2b2lkIGVsYW50ZWNo
+X3JlcG9ydF9hYnNvbHV0ZV92MihzdHJ1Y3QgcHNtb3VzZSAqcHNtb3VzZSkNCj4gPiDCoCDCoCDC
+oCDCoGlucHV0X3N5bmMoZGV2KTsNCj4gPiDCoH0NCj4gPg0KPiA+ICsvKg0KPiA+ICsgKiBJbnRl
+cnByZXQgY29tcGxldGUgZGF0YSBwYWNrZXRzIGFuZCByZXBvcnQgYWJzb2x1dGUgbW9kZSBpbnB1
+dCBldmVudHMgZm9yDQo+ID4gKyAqIGhhcmR3YXJlIHZlcnNpb24gMy4gKDEyIGJ5dGUgcGFja2V0
+cyBmb3IgdHdvIGZpbmdlcnMpDQo+ID4gKyAqLw0KPiA+ICtzdGF0aWMgdm9pZCBlbGFudGVjaF9y
+ZXBvcnRfYWJzb2x1dGVfdjMoc3RydWN0IHBzbW91c2UgKnBzbW91c2UsDQo+ID4gKyDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpbnQgcGFj
+a2V0X3R5cGUpDQo+ID4gK3sNCj4gPiArIMKgIMKgIMKgIHN0cnVjdCBpbnB1dF9kZXYgKmRldiA9
+IHBzbW91c2UtPmRldjsNCj4gPiArIMKgIMKgIMKgIHN0cnVjdCBlbGFudGVjaF9kYXRhICpldGQg
+PSBwc21vdXNlLT5wcml2YXRlOw0KPiA+ICsgwqAgwqAgwqAgdW5zaWduZWQgY2hhciAqcGFja2V0
+ID0gcHNtb3VzZS0+cGFja2V0Ow0KPiA+ICsgwqAgwqAgwqAgdW5zaWduZWQgaW50IGZpbmdlcnMg
+PSAwLCB4MSA9IDAsIHkxID0gMCwgeDIgPSAwLCB5MiA9IDA7DQo+ID4gKyDCoCDCoCDCoCB1bnNp
+Z25lZCBpbnQgd2lkdGggPSAwLCBwcmVzID0gMDsNCj4gPiArDQo+ID4gKyDCoCDCoCDCoCAvKiBi
+eXRlIDA6IG4xIMKgbjAgwqAgLiDCoCAuIMKgIC4gwqAgLiDCoCBSIMKgIEwgKi8NCj4gPiArIMKg
+IMKgIMKgIGZpbmdlcnMgPSAocGFja2V0WzBdICYgMHhjMCkgPj4gNjsNCj4gPiArDQo+ID4gKyDC
+oCDCoCDCoCBzd2l0Y2ggKGZpbmdlcnMpIHsNCj4gPiArIMKgIMKgIMKgIGNhc2UgMzoNCj4gPiAr
+IMKgIMKgIMKgIGNhc2UgMToNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIC8qDQo+ID4gKyDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCogYnl0ZSAxOiDCoC4gwqAgLiDCoCAuIMKgIC4gwqB4MTEg
+eDEwIHg5IMKgeDgNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgKiBieXRlIDI6IHg3IMKg
+eDYgwqB4NSDCoHg0IMKgeDQgwqB4MiDCoHgxIMKgeDANCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgKi8NCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHgxID0gKChwYWNrZXRbMV0gJiAw
+eDBmKSA8PCA4KSB8IHBhY2tldFsyXTsNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIC8qDQo+
+ID4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCogYnl0ZSA0OiDCoC4gwqAgLiDCoCAuIMKgIC4g
+wqB5MTEgeTEwIHk5IMKgeTgNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgKiBieXRlIDU6
+IHk3IMKgeTYgwqB5NSDCoHk0IMKgeTMgwqB5MiDCoHkxIMKgeTANCj4gPiArIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgKi8NCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHkxID0gZXRkLT55X21h
+eCAtICgoKHBhY2tldFs0XSAmIDB4MGYpIDw8IDgpIHwgcGFja2V0WzVdKTsNCj4gPiArIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIGJyZWFrOw0KPiA+ICsNCj4gPiArIMKgIMKgIMKgIGNhc2UgMjoNCj4g
+PiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmIChwYWNrZXRfdHlwZSA9PSBQQUNLRVRfVjNfSEVB
+RCkgew0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgLyoNCj4gPiArIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgKiBieXRlIDE6IMKgIC4gwqAgwqAuIMKg
+IMKgLiDCoCDCoC4gwqBheDExIGF4MTAgYXg5IMKgYXg4DQo+ID4gKyDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCogYnl0ZSAyOiBheDcgwqBheDYgwqBheDUgwqBheDQgwqBheDMg
+wqBheDIgwqBheDEgwqBheDANCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgKi8NCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGV0ZC0+cHJldl94
+ID0gKChwYWNrZXRbMV0gJiAweDBmKSA8PCA4KSB8IHBhY2tldFsyXTsNCj4gPiArIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIC8qDQo+ID4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCogYnl0ZSA0OiDCoCAuIMKgIMKgLiDCoCDCoC4gwqAgwqAuIMKgYXkxMSBh
+eTEwIGF5OSDCoGF5OA0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAq
+IGJ5dGUgNTogYXk3IMKgYXk2IMKgYXk1IMKgYXk0IMKgYXkzIMKgYXkyIMKgYXkxIMKgYXkwDQo+
+ID4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCovDQo+ID4gKyDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBldGQtPnByZXZfeSA9IGV0ZC0+eV9tYXggLQ0KPiA+
+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgKCgocGFja2V0
+WzRdICYgMHgwZikgPDwgOCkgfCBwYWNrZXRbNV0pOw0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgLyoNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgKiB3YWl0IGZvciBuZXh0IHBhY2tldA0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAqLw0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcmV0
+dXJuOw0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgfQ0KPiA+ICsNCj4gPiArIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIC8qIHBhY2tldF90eXBlID09IFBBQ0tFVF9WM19UQUlMICovDQo+ID4gKyDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCB4MSA9IGV0ZC0+cHJldl94Ow0KPiA+ICsgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgeTEgPSBldGQtPnByZXZfeTsNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHgy
+ID0gKChwYWNrZXRbMV0gJiAweDBmKSA8PCA4KSB8IHBhY2tldFsyXTsNCj4gPiArIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIHkyID0gZXRkLT55X21heCAtICgoKHBhY2tldFs0XSAmIDB4MGYpIDw8IDgp
+IHwgcGFja2V0WzVdKTsNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGJyZWFrOw0KPiA+ICsg
+wqAgwqAgwqAgfQ0KPiA+ICsNCj4gPiArIMKgIMKgIMKgIHByZXMgPSAocGFja2V0WzFdICYgMHhm
+MCkgfCAoKHBhY2tldFs0XSAmIDB4ZjApID4+IDQpOw0KPiA+ICsgwqAgwqAgwqAgd2lkdGggPSAo
+KHBhY2tldFswXSAmIDB4MzApID4+IDIpIHwgKChwYWNrZXRbM10gJiAweDMwKSA+PiA0KTsNCj4g
+PiArDQo+ID4gKyDCoCDCoCDCoCBpbnB1dF9yZXBvcnRfa2V5KGRldiwgQlROX1RPVUNILCBmaW5n
+ZXJzICE9IDApOw0KPiA+ICsgwqAgwqAgwqAgaWYgKGZpbmdlcnMgIT0gMCkgew0KPiA+ICsgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgaW5wdXRfcmVwb3J0X2FicyhkZXYsIEFCU19YLCB4MSk7DQo+ID4g
+KyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpbnB1dF9yZXBvcnRfYWJzKGRldiwgQUJTX1ksIHkxKTsN
+Cj4gPiArIMKgIMKgIMKgIH0NCj4gPiArIMKgIMKgIMKgIGVsYW50ZWNoX3JlcG9ydF9zZW1pX210
+X2RhdGEoZGV2LCBmaW5nZXJzLCB4MSwgeTEsIHgyLCB5Mik7DQo+IA0KPiBPcmlnaW5hbGx5LCB2
+MyB3YXMgdXNpbmcgc2VtaS1tdCwgd2hpY2ggcmVwb3J0ZWQgY29ybmVyIGNvb3JkaW5hdGVzIG9m
+DQo+IGEgYm94IGNvbnRhaW5pbmcgYXQgbGVhc3QgdHdvIG9mIHRoZSBOIHRvdWNoZXMgb24gdGhl
+IHRvdWNocGFkLiAgSQ0KPiB0aG91Z2h0IHRoaXMgd2FzIGR1ZSB0byBoYXJkd2FyZSBsaW1pdGF0
+aW9uLg0KPiANCj4gSWYgdGhlIGhhcmR3YXJlIHJlYWxseSBjYW4gcmVwb3J0IHRydWUgcG9zaXRp
+b25zIGZvciAodXAgdG8pIDMNCj4gY29udGFjdHMsIHRoZW4gdXNpbmcgcHVyZSBNVC1CIGlzIGEg
+Z29vZCBhcHByb2FjaC4gIFRoaXMgZHJpdmVyIHN0aWxsDQo+IHNlZW1zIHRvIG1peCBzZW1pLW10
+IGFuZCBNVC1CIHRvZ2V0aGVyIGEgYml0Lg0KPiANCj4gQ2FuIHlvdSByZXBvcnQgYWxsIHRocmVl
+IGNvbnRhY3RzIGluIHRoZWlyIG93biBzbG90cywgMCwgMSBhbmQgMiwNCj4gaW5zdGVhZCBvZiBq
+dXN0IHJlb3BydGluZyB0d28gb2YgdGhlbSB3aXRoIDAsMT8NCj4gDQo+IEFsc28sIHdoZW4gcmVw
+b3J0aW5nIHRoZSAnbGVnYWN5IHNpbmdsZSB0b3VjaCcgY29vcmRpbmF0ZSAoQUJTX1gsDQo+IEFC
+U19ZKSwgcGxlYXNlIHVzZToNCj4gaW5wdXRfbXRfcmVwb3J0X3BvaW50ZXJfZW11bGF0aW9uKCks
+IGluc3RlYWQgb2YgYWx3YXlzIHJlcG9ydGluZyB0aGUNCj4gbGFzdCAoeDEseTEpLiAgT3RoZXJ3
+aXNlIHRoZSBzaW5nbGUgdG91Y2ggcG9pbnQgd2lsbCBib3VuY2UgYmFjayBhbmQNCj4gZm9ydGgg
+YmV0d2VlbiAxc3QgYW5kIDNyZCB0b3VjaC4NCg0KdjMgY2FuIG9ubHkgdHJhY2sgdGhlIHRydWUg
+cG9zaXRpb25zIG9mIHR3byBmaW5nZXJzLiBXaXRoIDMgZmluZ2VyDQp0b3VjaCwgaXQgcmVwb3J0
+cyB0aGUgbG93ZXN0IHZhbHVlIG9mIHggYW5kIHRoZSBiaWdnZXN0IHZhbHVlIG9mIHksDQphbW9u
+ZyB0aGUgdGhyZWUgZmluZ2Vycy4gdjMgY2hhbmdlZCB0aGUgcHJvdG9jb2wgc28gaXQgY291bGQg
+cmVwb3J0DQoyLWZpbmdlciB0b3VjaCBkYXRhIHcvbyByZWR1Y2VkIHJlc29sdXRpb24gYW5kIGlt
+cHJvdmVkIHRoZSBoYXJkd2FyZSB0bw0KdHJ1bHkgdHJhY2sgMiBmaW5nZXJzIGluZGVwZW5kZW50
+bHksIG90aGVyd2lzZSBpdCdzIHByZXR0eSBtdWNoIHRoZSBzYW1lDQphcyB2Mi4NCg0KPiA+ICsg
+wqAgwqAgwqAgaW5wdXRfcmVwb3J0X2tleShkZXYsIEJUTl9UT09MX0ZJTkdFUiwgZmluZ2VycyA9
+PSAxKTsNCj4gPiArIMKgIMKgIMKgIGlucHV0X3JlcG9ydF9rZXkoZGV2LCBCVE5fVE9PTF9ET1VC
+TEVUQVAsIGZpbmdlcnMgPT0gMik7DQo+ID4gKyDCoCDCoCDCoCBpbnB1dF9yZXBvcnRfa2V5KGRl
+diwgQlROX1RPT0xfVFJJUExFVEFQLCBmaW5nZXJzID09IDMpOw0KPiANCj4gVXNlIGlucHV0X210
+X3JlcG9ydF9wb2ludGVyX2VtdWxhdGlvbigpIHdpdGggdXNlX2NvdW50ID0gdHJ1ZS4gICBUaGlz
+DQo+IHdpbGwgYWxzbyByZXBvcnQgQUJTX1BSRVNVUkUgKGJ1dCBub3QgQUJTX1RPT0xfV0lEVEgs
+IHVuZm9ydHVuYXRlbHkpLg0KPiANCj4gPiArIMKgIMKgIMKgIGlucHV0X3JlcG9ydF9rZXkoZGV2
+LCBCVE5fTEVGVCwgcGFja2V0WzBdICYgMHgwMSk7DQo+ID4gKyDCoCDCoCDCoCBpbnB1dF9yZXBv
+cnRfa2V5KGRldiwgQlROX1JJR0hULCBwYWNrZXRbMF0gJiAweDAyKTsNCj4gPiArIMKgIMKgIMKg
+IGlucHV0X3JlcG9ydF9hYnMoZGV2LCBBQlNfUFJFU1NVUkUsIHByZXMpOw0KPiA+ICsgwqAgwqAg
+wqAgaW5wdXRfcmVwb3J0X2FicyhkZXYsIEFCU19UT09MX1dJRFRILCB3aWR0aCk7DQo+ID4gKw0K
+PiA+ICsgwqAgwqAgwqAgaW5wdXRfc3luYyhkZXYpOw0KPiA+ICt9DQo+ID4gKw0KPiA+IMKgc3Rh
+dGljIGludCBlbGFudGVjaF9wYWNrZXRfY2hlY2tfdjEoc3RydWN0IHBzbW91c2UgKnBzbW91c2Up
+DQo+ID4gwqB7DQo+ID4gwqAgwqAgwqAgwqBzdHJ1Y3QgZWxhbnRlY2hfZGF0YSAqZXRkID0gcHNt
+b3VzZS0+cHJpdmF0ZTsNCj4gPiBAQCAtNDAzLDExICs1MDMsMzcgQEAgc3RhdGljIGludCBlbGFu
+dGVjaF9wYWNrZXRfY2hlY2tfdjIoc3RydWN0IHBzbW91c2UgKnBzbW91c2UpDQo+ID4gwqB9DQo+
+ID4NCj4gPiDCoC8qDQo+ID4gKyAqIFdlIGNoZWNrIHRoZSBjb25zdGFudCBiaXRzIHRvIGRldGVy
+bWluZSB3aGF0IHBhY2tldCB0eXBlIHdlIGdldCwNCj4gPiArICogc28gcGFja2V0IGNoZWNraW5n
+IGlzIG1hbmRhdG9yeSBmb3IgdjMgaGFyZHdhcmUuDQo+ID4gKyAqLw0KPiA+ICtzdGF0aWMgaW50
+IGVsYW50ZWNoX3BhY2tldF9jaGVja192MyhzdHJ1Y3QgcHNtb3VzZSAqcHNtb3VzZSkNCj4gPiAr
+ew0KPiA+ICsgwqAgwqAgwqAgY29uc3QgdTggZGVib3VuY2VfcGFja2V0W10gPSB7IDB4YzQsIDB4
+ZmYsIDB4ZmYsIDB4MDIsIDB4ZmYsIDB4ZmYgfTsNCj4gPiArIMKgIMKgIMKgIHVuc2lnbmVkIGNo
+YXIgKnBhY2tldCA9IHBzbW91c2UtPnBhY2tldDsNCj4gPiArDQo+ID4gKyDCoCDCoCDCoCAvKg0K
+PiA+ICsgwqAgwqAgwqAgwqAqIGNoZWNrIGRlYm91bmNlIGZpcnN0LCBpdCBoYXMgdGhlIHNhbWUg
+c2lnbmF0dXJlIGluIGJ5dGUgMA0KPiA+ICsgwqAgwqAgwqAgwqAqIGFuZCBieXRlIDMgYXMgUEFD
+S0VUX1YzX0hFQUQuDQo+ID4gKyDCoCDCoCDCoCDCoCovDQo+ID4gKyDCoCDCoCDCoCBpZiAoIW1l
+bWNtcChwYWNrZXQsIGRlYm91bmNlX3BhY2tldCwgc2l6ZW9mKGRlYm91bmNlX3BhY2tldCkpKQ0K
+PiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcmV0dXJuIFBBQ0tFVF9ERUJPVU5DRTsNCj4gPiAr
+DQo+ID4gKyDCoCDCoCDCoCBpZiAoKHBhY2tldFswXSAmIDB4MGMpID09IDB4MDQgJiYgKHBhY2tl
+dFszXSAmIDB4Y2YpID09IDB4MDIpDQo+ID4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCByZXR1cm4g
+UEFDS0VUX1YzX0hFQUQ7DQo+ID4gKw0KPiA+ICsgwqAgwqAgwqAgaWYgKChwYWNrZXRbMF0gJiAw
+eDBjKSA9PSAweDBjICYmIChwYWNrZXRbM10gJiAweGNlKSA9PSAweDBjKQ0KPiA+ICsgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgcmV0dXJuIFBBQ0tFVF9WM19UQUlMOw0KPiA+ICsNCj4gPiArIMKgIMKg
+IMKgIHJldHVybiBQQUNLRVRfVU5LTk9XTjsNCj4gPiArfQ0KPiA+ICsNCj4gPiArLyoNCj4gPiDC
+oCogUHJvY2VzcyBieXRlIHN0cmVhbSBmcm9tIG1vdXNlIGFuZCBoYW5kbGUgY29tcGxldGUgcGFj
+a2V0cw0KPiA+IMKgKi8NCj4gPiDCoHN0YXRpYyBwc21vdXNlX3JldF90IGVsYW50ZWNoX3Byb2Nl
+c3NfYnl0ZShzdHJ1Y3QgcHNtb3VzZSAqcHNtb3VzZSkNCj4gPiDCoHsNCj4gPiDCoCDCoCDCoCDC
+oHN0cnVjdCBlbGFudGVjaF9kYXRhICpldGQgPSBwc21vdXNlLT5wcml2YXRlOw0KPiA+ICsgwqAg
+wqAgwqAgaW50IHBhY2tldF90eXBlOw0KPiA+DQo+ID4gwqAgwqAgwqAgwqBpZiAocHNtb3VzZS0+
+cGt0Y250IDwgcHNtb3VzZS0+cGt0c2l6ZSkNCj4gPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoHJl
+dHVybiBQU01PVVNFX0dPT0RfREFUQTsNCj4gPiBAQCAtNDI5LDYgKzU1NSwxOCBAQCBzdGF0aWMg
+cHNtb3VzZV9yZXRfdCBlbGFudGVjaF9wcm9jZXNzX2J5dGUoc3RydWN0IHBzbW91c2UgKnBzbW91
+c2UpDQo+ID4NCj4gPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGVsYW50ZWNoX3JlcG9ydF9hYnNv
+bHV0ZV92Mihwc21vdXNlKTsNCj4gPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGJyZWFrOw0KPiA+
+ICsNCj4gPiArIMKgIMKgIMKgIGNhc2UgMzoNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHBh
+Y2tldF90eXBlID0gZWxhbnRlY2hfcGFja2V0X2NoZWNrX3YzKHBzbW91c2UpOw0KPiA+ICsgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgLyogaWdub3JlIGRlYm91bmNlICovDQo+ID4gKyDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCBpZiAocGFja2V0X3R5cGUgPT0gUEFDS0VUX0RFQk9VTkNFKQ0KPiA+ICsgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcmV0dXJuIFBTTU9VU0VfRlVMTF9QQUNLRVQ7
+DQo+ID4gKw0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgaWYgKHBhY2tldF90eXBlID09IFBB
+Q0tFVF9VTktOT1dOKQ0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcmV0
+dXJuIFBTTU9VU0VfQkFEX0RBVEE7DQo+ID4gKw0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+ZWxhbnRlY2hfcmVwb3J0X2Fic29sdXRlX3YzKHBzbW91c2UsIHBhY2tldF90eXBlKTsNCj4gPiAr
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIGJyZWFrOw0KPiA+IMKgIMKgIMKgIMKgfQ0KPiA+DQo+ID4g
+wqAgwqAgwqAgwqByZXR1cm4gUFNNT1VTRV9GVUxMX1BBQ0tFVDsNCj4gPiBAQCAtNDYzLDggKzYw
+MSwxNSBAQCBzdGF0aWMgaW50IGVsYW50ZWNoX3NldF9hYnNvbHV0ZV9tb2RlKHN0cnVjdCBwc21v
+dXNlICpwc21vdXNlKQ0KPiA+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgZWxhbnRlY2hf
+d3JpdGVfcmVnKHBzbW91c2UsIDB4MTEsIGV0ZC0+cmVnXzExKSB8fA0KPiA+IMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgZWxhbnRlY2hfd3JpdGVfcmVnKHBzbW91c2UsIDB4MjEsIGV0ZC0+
+cmVnXzIxKSkgew0KPiA+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgcmMgPSAt
+MTsNCj4gPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGJyZWFrOw0KPiA+IMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgfQ0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgYnJlYWs7
+DQo+ID4gKw0KPiA+ICsgwqAgwqAgwqAgY2FzZSAzOg0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgZXRkLT5yZWdfMTAgPSAweDBiOw0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgaWYgKGVs
+YW50ZWNoX3dyaXRlX3JlZyhwc21vdXNlLCAweDEwLCBldGQtPnJlZ18xMCkpDQo+ID4gKyDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCByYyA9IC0xOw0KPiA+ICsNCj4gPiArIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIGJyZWFrOw0KPiA+IMKgIMKgIMKgIMKgfQ0KPiA+DQo+ID4gwqAgwqAg
+wqAgwqBpZiAocmMgPT0gMCkgew0KPiA+IEBAIC00OTgsMTEgKzY0MywxMiBAQCBzdGF0aWMgaW50
+IGVsYW50ZWNoX3NldF9hYnNvbHV0ZV9tb2RlKHN0cnVjdCBwc21vdXNlICpwc21vdXNlKQ0KPiA+
+IMKgIMKgIMKgIMKgcmV0dXJuIHJjOw0KPiA+IMKgfQ0KPiA+DQo+ID4gLXN0YXRpYyB2b2lkIHNl
+dF9yYW5nZShzdHJ1Y3QgcHNtb3VzZSAqcHNtb3VzZSwgdW5zaWduZWQgaW50ICp4X21pbiwNCj4g
+PiArc3RhdGljIGludCBzZXRfcmFuZ2Uoc3RydWN0IHBzbW91c2UgKnBzbW91c2UsIHVuc2lnbmVk
+IGludCAqeF9taW4sDQo+ID4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgdW5zaWduZWQg
+aW50ICp5X21pbiwgdW5zaWduZWQgaW50ICp4X21heCwNCj4gPiDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCB1bnNpZ25lZCBpbnQgKnlfbWF4KQ0KPiA+IMKgew0KPiA+IMKgIMKgIMKgIMKg
+c3RydWN0IGVsYW50ZWNoX2RhdGEgKmV0ZCA9IHBzbW91c2UtPnByaXZhdGU7DQo+ID4gKyDCoCDC
+oCDCoCB1bnNpZ25lZCBjaGFyIHBhcmFtWzNdOw0KPiA+IMKgIMKgIMKgIMKgaW50IGk7DQo+ID4N
+Cj4gPiDCoCDCoCDCoCDCoHN3aXRjaCAoZXRkLT5od192ZXJzaW9uKSB7DQo+ID4gQEAgLTUzMCwx
+OSArNjc2LDMwIEBAIHN0YXRpYyB2b2lkIHNldF9yYW5nZShzdHJ1Y3QgcHNtb3VzZSAqcHNtb3Vz
+ZSwgdW5zaWduZWQgaW50ICp4X21pbiwNCj4gPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCp5X21heCA9IChldGQtPmNhcGFiaWxpdGllc1syXSAtIGkpICogNjQ7DQo+ID4gwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqB9DQo+ID4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqBicmVhazsN
+Cj4gPiArDQo+ID4gKyDCoCDCoCDCoCBjYXNlIDM6DQo+ID4gKyDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCBpZiAoc3luYXB0aWNzX3NlbmRfY21kKHBzbW91c2UsIEVUUF9GV19JRF9RVUVSWSwgcGFyYW0p
+KQ0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcmV0dXJuIC0xOw0KPiA+
+ICsNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgICp4X21heCA9ICgweDBmICYgcGFyYW1bMF0p
+IDw8IDggfCBwYXJhbVsxXTsNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgICp5X21heCA9ICgw
+eGYwICYgcGFyYW1bMF0pIDw8IDQgfCBwYXJhbVsyXTsNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIGJyZWFrOw0KPiA+IMKgIMKgIMKgIMKgfQ0KPiA+ICsNCj4gPiArIMKgIMKgIMKgIHJldHVy
+biAwOw0KPiA+IMKgfQ0KPiA+DQo+ID4gwqAvKg0KPiA+IMKgKiBTZXQgdGhlIGFwcHJvcHJpYXRl
+IGV2ZW50IGJpdHMgZm9yIHRoZSBpbnB1dCBzdWJzeXN0ZW0NCj4gPiDCoCovDQo+ID4gLXN0YXRp
+YyB2b2lkIGVsYW50ZWNoX3NldF9pbnB1dF9wYXJhbXMoc3RydWN0IHBzbW91c2UgKnBzbW91c2Up
+DQo+ID4gK3N0YXRpYyBpbnQgZWxhbnRlY2hfc2V0X2lucHV0X3BhcmFtcyhzdHJ1Y3QgcHNtb3Vz
+ZSAqcHNtb3VzZSkNCj4gPiDCoHsNCj4gPiDCoCDCoCDCoCDCoHN0cnVjdCBpbnB1dF9kZXYgKmRl
+diA9IHBzbW91c2UtPmRldjsNCj4gPiDCoCDCoCDCoCDCoHN0cnVjdCBlbGFudGVjaF9kYXRhICpl
+dGQgPSBwc21vdXNlLT5wcml2YXRlOw0KPiA+IMKgIMKgIMKgIMKgdW5zaWduZWQgaW50IHhfbWlu
+ID0gMCwgeV9taW4gPSAwLCB4X21heCA9IDAsIHlfbWF4ID0gMDsNCj4gPg0KPiA+IC0gwqAgwqAg
+wqAgc2V0X3JhbmdlKHBzbW91c2UsICZ4X21pbiwgJnlfbWluLCAmeF9tYXgsICZ5X21heCk7DQo+
+ID4gKyDCoCDCoCDCoCBpZiAoc2V0X3JhbmdlKHBzbW91c2UsICZ4X21pbiwgJnlfbWluLCAmeF9t
+YXgsICZ5X21heCkpDQo+ID4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCByZXR1cm4gLTE7DQo+ID4N
+Cj4gPiDCoCDCoCDCoCDCoF9fc2V0X2JpdChFVl9LRVksIGRldi0+ZXZiaXQpOw0KPiA+IMKgIMKg
+IMKgIMKgX19zZXRfYml0KEVWX0FCUywgZGV2LT5ldmJpdCk7DQo+ID4gQEAgLTU3MCw2ICs3Mjcs
+OSBAQCBzdGF0aWMgdm9pZCBlbGFudGVjaF9zZXRfaW5wdXRfcGFyYW1zKHN0cnVjdCBwc21vdXNl
+ICpwc21vdXNlKQ0KPiA+DQo+ID4gwqAgwqAgwqAgwqBjYXNlIDI6DQo+ID4gwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqBfX3NldF9iaXQoQlROX1RPT0xfUVVBRFRBUCwgZGV2LT5rZXliaXQpOw0KPiA+
+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgX19zZXRfYml0KElOUFVUX1BST1BfU0VNSV9NVCwgZGV2
+LT5wcm9wYml0KTsNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIC8qIGZhbGwgdGhyb3VnaCAq
+Lw0KPiA+ICsgwqAgwqAgwqAgY2FzZSAzOg0KPiA+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgaW5w
+dXRfc2V0X2Fic19wYXJhbXMoZGV2LCBBQlNfWCwgeF9taW4sIHhfbWF4LCAwLCAwKTsNCj4gPiDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoGlucHV0X3NldF9hYnNfcGFyYW1zKGRldiwgQUJTX1ksIHlf
+bWluLCB5X21heCwgMCwgMCk7DQo+ID4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqBpZiAoZXRkLT5y
+ZXBvcnRzX3ByZXNzdXJlKSB7DQo+ID4gQEAgLTU3OCw3ICs3MzgsNiBAQCBzdGF0aWMgdm9pZCBl
+bGFudGVjaF9zZXRfaW5wdXRfcGFyYW1zKHN0cnVjdCBwc21vdXNlICpwc21vdXNlKQ0KPiA+IMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgaW5wdXRfc2V0X2Fic19wYXJhbXMoZGV2
+LCBBQlNfVE9PTF9XSURUSCwgRVRQX1dNSU5fVjIsDQo+ID4gwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgRVRQX1dNQVhfVjIs
+IDAsIDApOw0KPiA+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgfQ0KPiA+IC0gwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgX19zZXRfYml0KElOUFVUX1BST1BfU0VNSV9NVCwgZGV2LT5wcm9wYml0KTsNCj4g
+PiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGlucHV0X210X2luaXRfc2xvdHMoZGV2LCAyKTsNCj4g
+DQo+IFNob3VsZCB0aGlzIGJlIDM/DQo+IA0KPiA+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgaW5w
+dXRfc2V0X2Fic19wYXJhbXMoZGV2LCBBQlNfTVRfUE9TSVRJT05fWCwgeF9taW4sIHhfbWF4LCAw
+LCAwKTsNCj4gPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGlucHV0X3NldF9hYnNfcGFyYW1zKGRl
+diwgQUJTX01UX1BPU0lUSU9OX1ksIHlfbWluLCB5X21heCwgMCwgMCk7DQo+ID4gQEAgLTU4Niw2
+ICs3NDUsOCBAQCBzdGF0aWMgdm9pZCBlbGFudGVjaF9zZXRfaW5wdXRfcGFyYW1zKHN0cnVjdCBw
+c21vdXNlICpwc21vdXNlKQ0KPiA+IMKgIMKgIMKgIMKgfQ0KPiA+DQo+ID4gwqAgwqAgwqAgwqBl
+dGQtPnlfbWF4ID0geV9tYXg7DQo+ID4gKw0KPiA+ICsgwqAgwqAgwqAgcmV0dXJuIDA7DQo+ID4g
+wqB9DQo+ID4NCj4gPiDCoHN0cnVjdCBlbGFudGVjaF9hdHRyX2RhdGEgew0KPiA+IEBAIC03Mjcs
+NyArODg4LDggQEAgaW50IGVsYW50ZWNoX2RldGVjdChzdHJ1Y3QgcHNtb3VzZSAqcHNtb3VzZSwg
+Ym9vbCBzZXRfcHJvcGVydGllcykNCj4gPiDCoCDCoCDCoCDCoCAqIFJlcG9ydCB0aGlzIGluIGNh
+c2UgdGhlcmUgYXJlIEVsYW50ZWNoIG1vZGVscyB0aGF0IHVzZSBhIGRpZmZlcmVudA0KPiA+IMKg
+IMKgIMKgIMKgICogc2V0IG9mIG1hZ2ljIG51bWJlcnMNCj4gPiDCoCDCoCDCoCDCoCAqLw0KPiA+
+IC0gwqAgwqAgwqAgaWYgKHBhcmFtWzBdICE9IDB4M2MgfHwgcGFyYW1bMV0gIT0gMHgwMyB8fCBw
+YXJhbVsyXSAhPSAweGM4KSB7DQo+ID4gKyDCoCDCoCDCoCBpZiAocGFyYW1bMF0gIT0gMHgzYyB8
+fCBwYXJhbVsxXSAhPSAweDAzIHx8DQo+ID4gKyDCoCDCoCDCoCDCoCDCoCAocGFyYW1bMl0gIT0g
+MHhjOCAmJiBwYXJhbVsyXSAhPSAweDAwKSkgew0KPiA+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+cHJfZGVidWcoInVuZXhwZWN0ZWQgbWFnaWMga25vY2sgcmVzdWx0IDB4JTAyeCwgMHglMDJ4LCAw
+eCUwMnguXG4iLA0KPiA+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHBhcmFt
+WzBdLCBwYXJhbVsxXSwgcGFyYW1bMl0pOw0KPiA+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgcmV0
+dXJuIC0xOw0KPiA+IEBAIC03OTMsMTYgKzk1NSwxNiBAQCBzdGF0aWMgaW50IGVsYW50ZWNoX3Jl
+Y29ubmVjdChzdHJ1Y3QgcHNtb3VzZSAqcHNtb3VzZSkNCj4gPiDCoC8qDQo+ID4gwqAqIGRldGVy
+bWluZSBoYXJkd2FyZSB2ZXJzaW9uIGFuZCBzZXQgc29tZSBwcm9wZXJ0aWVzIGFjY29yZGluZyB0
+byBpdC4NCj4gPiDCoCovDQo+ID4gLXN0YXRpYyB2b2lkIGVsYW50ZWNoX3NldF9wcm9wZXJ0aWVz
+KHN0cnVjdCBlbGFudGVjaF9kYXRhICpldGQpDQo+ID4gK3N0YXRpYyBpbnQgZWxhbnRlY2hfc2V0
+X3Byb3BlcnRpZXMoc3RydWN0IGVsYW50ZWNoX2RhdGEgKmV0ZCkNCj4gPiDCoHsNCj4gPiAtIMKg
+IMKgIMKgIC8qDQo+ID4gLSDCoCDCoCDCoCDCoCogQXNzdW1lIGV2ZXJ5IHZlcnNpb24gZ3JlYXRl
+ciB0aGFuIDB4MDIwMDMwIGlzIG5ldyBFZWVQQyBzdHlsZQ0KPiA+IC0gwqAgwqAgwqAgwqAqIGhh
+cmR3YXJlIHdpdGggNiBieXRlIHBhY2tldHMsIGV4Y2VwdCAweDAyMDYwMA0KPiA+IC0gwqAgwqAg
+wqAgwqAqLw0KPiA+IMKgIMKgIMKgIMKgaWYgKGV0ZC0+ZndfdmVyc2lvbiA8IDB4MDIwMDMwIHx8
+IGV0ZC0+ZndfdmVyc2lvbiA9PSAweDAyMDYwMCkNCj4gPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oGV0ZC0+aHdfdmVyc2lvbiA9IDE7DQo+ID4gLSDCoCDCoCDCoCBlbHNlDQo+ID4gKyDCoCDCoCDC
+oCBlbHNlIGlmIChldGQtPmZ3X3ZlcnNpb24gPCAweDE1MDYwMCkNCj4gPiDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoGV0ZC0+aHdfdmVyc2lvbiA9IDI7DQo+ID4gKyDCoCDCoCDCoCBlbHNlIGlmICgo
+ZXRkLT5md192ZXJzaW9uICYgMHgwZjAwMDApID4+IDE2ID09IDUpDQo+ID4gKyDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCBldGQtPmh3X3ZlcnNpb24gPSAzOw0KPiA+ICsgwqAgwqAgwqAgZWxzZQ0KPiA+
+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcmV0dXJuIC0xOw0KPiA+DQo+ID4gwqAgwqAgwqAgwqAv
+Kg0KPiA+IMKgIMKgIMKgIMKgICogVHVybiBvbiBwYWNrZXQgY2hlY2tpbmcgYnkgZGVmYXVsdC4N
+Cj4gPiBAQCAtODE3LDEzICs5NzksMTUgQEAgc3RhdGljIHZvaWQgZWxhbnRlY2hfc2V0X3Byb3Bl
+cnRpZXMoc3RydWN0IGVsYW50ZWNoX2RhdGEgKmV0ZCkNCj4gPiDCoCDCoCDCoCDCoGV0ZC0+anVt
+cHlfY3Vyc29yID0NCj4gPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoChldGQtPmZ3X3ZlcnNpb24g
+PT0gMHgwMjAwMjIgfHwgZXRkLT5md192ZXJzaW9uID09IDB4MDIwNjAwKTsNCj4gPg0KPiA+IC0g
+wqAgwqAgwqAgaWYgKGV0ZC0+aHdfdmVyc2lvbiA9PSAyKSB7DQo+ID4gKyDCoCDCoCDCoCBpZiAo
+ZXRkLT5od192ZXJzaW9uID4gMSkgew0KPiA+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgLyogRm9y
+IG5vdyBzaG93IGV4dHJhIGRlYnVnIGluZm9ybWF0aW9uICovDQo+ID4gwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqBldGQtPmRlYnVnID0gMTsNCj4gPg0KPiA+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+aWYgKGV0ZC0+ZndfdmVyc2lvbiA+PSAweDAyMDgwMCkNCj4gPiDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoGV0ZC0+cmVwb3J0c19wcmVzc3VyZSA9IHRydWU7DQo+ID4gwqAgwqAg
+wqAgwqB9DQo+ID4gKw0KPiA+ICsgwqAgwqAgwqAgcmV0dXJuIDA7DQo+ID4gwqB9DQo+ID4NCj4g
+PiDCoC8qDQo+ID4gQEAgLTg1MCw5ICsxMDE0LDEyIEBAIGludCBlbGFudGVjaF9pbml0KHN0cnVj
+dCBwc21vdXNlICpwc21vdXNlKQ0KPiA+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgcHJfZXJyKCJm
+YWlsZWQgdG8gcXVlcnkgZmlybXdhcmUgdmVyc2lvbi5cbiIpOw0KPiA+IMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgZ290byBpbml0X2ZhaWw7DQo+ID4gwqAgwqAgwqAgwqB9DQo+ID4gLQ0KPiA+IMKg
+IMKgIMKgIMKgZXRkLT5md192ZXJzaW9uID0gKHBhcmFtWzBdIDw8IDE2KSB8IChwYXJhbVsxXSA8
+PCA4KSB8IHBhcmFtWzJdOw0KPiA+IC0gwqAgwqAgwqAgZWxhbnRlY2hfc2V0X3Byb3BlcnRpZXMo
+ZXRkKTsNCj4gPiArDQo+ID4gKyDCoCDCoCDCoCBpZiAoZWxhbnRlY2hfc2V0X3Byb3BlcnRpZXMo
+ZXRkKSkgew0KPiA+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcHJfZXJyKCJ1bmtub3duIGhhcmR3
+YXJlIHZlcnNpb24sIGFib3J0aW5nLi4uXG4iKTsNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IGdvdG8gaW5pdF9mYWlsOw0KPiA+ICsgwqAgwqAgwqAgfQ0KPiA+IMKgIMKgIMKgIMKgcHJfaW5m
+bygiYXNzdW1pbmcgaGFyZHdhcmUgdmVyc2lvbiAlZCAiDQo+ID4gwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAiKHdpdGggZmlybXdhcmUgdmVyc2lvbiAweCUwMnglMDJ4JTAyeClcbiIsDQo+ID4gwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqBldGQtPmh3X3ZlcnNpb24sIHBhcmFtWzBdLCBwYXJhbVsxXSwg
+cGFyYW1bMl0pOw0KPiA+IEBAIC04NzEsNyArMTAzOCwxMCBAQCBpbnQgZWxhbnRlY2hfaW5pdChz
+dHJ1Y3QgcHNtb3VzZSAqcHNtb3VzZSkNCj4gPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGdvdG8g
+aW5pdF9mYWlsOw0KPiA+IMKgIMKgIMKgIMKgfQ0KPiA+DQo+ID4gLSDCoCDCoCDCoCBlbGFudGVj
+aF9zZXRfaW5wdXRfcGFyYW1zKHBzbW91c2UpOw0KPiA+ICsgwqAgwqAgwqAgaWYgKGVsYW50ZWNo
+X3NldF9pbnB1dF9wYXJhbXMocHNtb3VzZSkpIHsNCj4gPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IHByX2VycigiZmFpbGVkIHRvIHF1ZXJ5IHRvdWNocGFkIHJhbmdlLlxuIik7DQo+ID4gKyDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCBnb3RvIGluaXRfZmFpbDsNCj4gPiArIMKgIMKgIMKgIH0NCj4gPg0K
+PiA+IMKgIMKgIMKgIMKgZXJyb3IgPSBzeXNmc19jcmVhdGVfZ3JvdXAoJnBzbW91c2UtPnBzMmRl
+di5zZXJpby0+ZGV2LmtvYmosDQo+ID4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgJmVsYW50ZWNoX2F0dHJfZ3JvdXApOw0KPiA+IEBAIC04ODMsNyAr
+MTA1Myw3IEBAIGludCBlbGFudGVjaF9pbml0KHN0cnVjdCBwc21vdXNlICpwc21vdXNlKQ0KPiA+
+IMKgIMKgIMKgIMKgcHNtb3VzZS0+cHJvdG9jb2xfaGFuZGxlciA9IGVsYW50ZWNoX3Byb2Nlc3Nf
+Ynl0ZTsNCj4gPiDCoCDCoCDCoCDCoHBzbW91c2UtPmRpc2Nvbm5lY3QgPSBlbGFudGVjaF9kaXNj
+b25uZWN0Ow0KPiA+IMKgIMKgIMKgIMKgcHNtb3VzZS0+cmVjb25uZWN0ID0gZWxhbnRlY2hfcmVj
+b25uZWN0Ow0KPiA+IC0gwqAgwqAgwqAgcHNtb3VzZS0+cGt0c2l6ZSA9IGV0ZC0+aHdfdmVyc2lv
+biA9PSAyID8gNiA6IDQ7DQo+ID4gKyDCoCDCoCDCoCBwc21vdXNlLT5wa3RzaXplID0gZXRkLT5o
+d192ZXJzaW9uID4gMSA/IDYgOiA0Ow0KPiA+DQo+ID4gwqAgwqAgwqAgwqByZXR1cm4gMDsNCj4g
+Pg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21vdXNlL2VsYW50ZWNoLmggYi9kcml2
+ZXJzL2lucHV0L21vdXNlL2VsYW50ZWNoLmgNCj4gPiBpbmRleCBkOWU2MTQ0Li4yMzZjMzNjIDEw
+MDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMvaW5wdXQvbW91c2UvZWxhbnRlY2guaA0KPiA+ICsrKyBi
+L2RyaXZlcnMvaW5wdXQvbW91c2UvZWxhbnRlY2guaA0KPiA+IEBAIC0xNiw2ICsxNiw3IEBADQo+
+ID4gwqAvKg0KPiA+IMKgKiBDb21tYW5kIHZhbHVlcyBmb3IgU3luYXB0aWNzIHN0eWxlIHF1ZXJp
+ZXMNCj4gPiDCoCovDQo+ID4gKyNkZWZpbmUgRVRQX0ZXX0lEX1FVRVJZIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgMHgwMA0KPiA+IMKgI2RlZmluZSBFVFBfRldfVkVSU0lPTl9R
+VUVSWSDCoCDCoCDCoCDCoCDCoCAweDAxDQo+ID4gwqAjZGVmaW5lIEVUUF9DQVBBQklMSVRJRVNf
+UVVFUlkgwqAgwqAgwqAgwqAgMHgwMg0KPiA+DQo+ID4gQEAgLTI0LDYgKzI1LDcgQEANCj4gPiDC
+oCovDQo+ID4gwqAjZGVmaW5lIEVUUF9SRUdJU1RFUl9SRUFEIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+MHgxMA0KPiA+IMKgI2RlZmluZSBFVFBfUkVHSVNURVJfV1JJVEUgwqAgwqAgwqAgwqAgwqAgwqAg
+MHgxMQ0KPiA+ICsjZGVmaW5lIEVUUF9SRUdJU1RFUl9SRUFEV1JJVEUgwqAgwqAgwqAgwqAgMHgw
+MA0KPiA+DQo+ID4gwqAvKg0KPiA+IMKgKiBIYXJkd2FyZSB2ZXJzaW9uIDIgY3VzdG9tIFBTLzIg
+Y29tbWFuZCB2YWx1ZQ0KPiA+IEBAIC03OSw2ICs4MSwxNCBAQA0KPiA+IMKgI2RlZmluZSBFVFBf
+V01JTl9WMiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoDANCj4gPiDCoCNkZWZpbmUgRVRQ
+X1dNQVhfVjIgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAxNQ0KPiA+DQo+ID4gKy8qDQo+
+ID4gKyAqIHYzIGhhcmR3YXJlIGhhcyAyIGtpbmRzIG9mIHBhY2tldCB0eXBlcy4NCj4gPiArICov
+DQo+ID4gKyNkZWZpbmUgUEFDS0VUX1VOS05PV04gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgMHgw
+MQ0KPiA+ICsjZGVmaW5lIFBBQ0tFVF9ERUJPVU5DRSDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoDB4MDINCj4gPiArI2RlZmluZSBQQUNLRVRfVjNfSEVBRCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCAweDAzDQo+ID4gKyNkZWZpbmUgUEFDS0VUX1YzX1RBSUwgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgMHgwNA0KPiA+ICsNCj4gPiDCoHN0cnVjdCBlbGFudGVjaF9kYXRhIHsNCj4g
+PiDCoCDCoCDCoCDCoHVuc2lnbmVkIGNoYXIgcmVnXzEwOw0KPiA+IMKgIMKgIMKgIMKgdW5zaWdu
+ZWQgY2hhciByZWdfMTE7DQo+ID4gQEAgLTk4LDYgKzEwOCw4IEBAIHN0cnVjdCBlbGFudGVjaF9k
+YXRhIHsNCj4gPiDCoCDCoCDCoCDCoHVuc2lnbmVkIGludCBmd192ZXJzaW9uOw0KPiA+IMKgIMKg
+IMKgIMKgdW5zaWduZWQgaW50IHNpbmdsZV9maW5nZXJfcmVwb3J0czsNCj4gPiDCoCDCoCDCoCDC
+oHVuc2lnbmVkIGludCB5X21heDsNCj4gPiArIMKgIMKgIMKgIHVuc2lnbmVkIGludCBwcmV2X3g7
+DQo+ID4gKyDCoCDCoCDCoCB1bnNpZ25lZCBpbnQgcHJldl95Ow0KPiA+IMKgIMKgIMKgIMKgdW5z
+aWduZWQgY2hhciBwYXJpdHlbMjU2XTsNCj4gPiDCoH07DQo+ID4NCj4gPiAtLQ0KPiA+IDEuNy40
+LjENCj4gPg0KPiANCg==

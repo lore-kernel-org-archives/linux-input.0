@@ -1,74 +1,58 @@
-From: chris@cnpbagwell.com
-Subject: [PATCH] Input: wacom - fix touch on newer Bamboo's
-Date: Sun,  4 Sep 2011 21:44:21 -0500
-Message-ID: <1315190661-7133-1-git-send-email-chris@cnpbagwell.com>
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: Re: [PATCH 2/6] Input: elantech - use firmware provided x, y ranges
+Date: Mon, 05 Sep 2011 11:22:18 +0800
+Message-ID: <87sjobk711.fsf@emc.com.tw>
+References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw> <1313632629-23603-3-git-send-email-jj_ding@emc.com.tw> <20110818074756.GE10093@core.coreip.homeip.net> <4E5FCE58.9060906@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:37367 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751548Ab1IECo2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Sep 2011 22:44:28 -0400
-Received: by gwaa12 with SMTP id a12so2619211gwa.19
-        for <linux-input@vger.kernel.org>; Sun, 04 Sep 2011 19:44:27 -0700 (PDT)
+Received: from emcscan.emc.com.tw ([192.72.220.5]:31834 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751605Ab1IEDUF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Sep 2011 23:20:05 -0400
+In-Reply-To: <4E5FCE58.9060906@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Chris Bagwell <chris@cnpbagwell.com>
+To: Chase Douglas <chase.douglas@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-From: Chris Bagwell <chris@cnpbagwell.com>
+Hi Chase,
 
-Bamboo's with Product ID's > 0xD4 return values unrelated to pressure
-in touch 1 pressure field.  They also report touch 2's X/Y values
-shifted down 1 byte (where pressure was).  This results in jumpy
-1 finger touch and totally invalid 2nd finger data.
+On Thu, 01 Sep 2011 11:26:32 -0700, Chase Douglas <chase.douglas@canonical.com> wrote:
+> On 08/18/2011 12:47 AM, Dmitry Torokhov wrote:
+> > On Thu, Aug 18, 2011 at 09:57:05AM +0800, JJ Ding wrote:
+> >> +
+> >> +		i = (etd->fw_version > 0x020800 &&
+> >> +		     etd->fw_version < 0x020900) ? 1 : 2;
+> >> +		*x_max = (etd->capabilities[1] - i) * 64;
+> >> +		*y_max = (etd->capabilities[2] - i) * 64;
+> >> +		*y_2ft_max = (*y_max - i) * 64 / 4;
+> > 
+> > Hmm, we should have the same range for ST and MT data and scale MT data
+> > if it has lower resolution to match ST.
+> 
+> I saw this go by a while back and it made sense to me at the time.
+> However, I've had some thoughts that give me pause.
+> 
+> Seth Forshee has been working on getting a semi-mt driver for ALPS
+> devices. The ALPS devices have an interesting mechanism for providing
+> multitouch data, but it boils down to having a resolution of only 15
+> values in the X axis and 11 in the Y axis (it looks possible to
+> extrapolate and get double the resolution, but my point will remain).
+> 
+> Let's take the X synaptics module as an example of the repercussions of
+> in-kernel axis scaling. The X synaptics module translates two touch
+> drags into scroll events. Synaptics will want to use the highest
+> resolution axis for generating scroll events. If both the MT and ST axes
+> have the same resolution, it might pick the MT axes for scrolling. On
+> ALPS devices with in-kernel axis scaling that would be a bad choice.
+I don't know about the ALPS devices, but since we already report
+ABS_MT_POSITION_{X,Y} with elantech v2, we have to do the scaling in
+kernel anyway to adhere to multitouch protocol. So I would say it is
+still more appropriate to have the same resolution for ST and MT with
+respect to elantech v2. Maybe ALPS should be considered an exception to this?
+> It's trivial to project the MT and ST axes onto each other in userspace.
+> I suggest we report the real range and resolution of ST and MT axes
+> independently.
 
-For touch detection, switch to a Touch Present single bit that
-all versions of Bamboo support.
-
-For touch 2 offset, calculate offset based on a bit that is set
-different between the two packet layouts.
-
-Since touch pressure reports were removed from driver, there was
-no need to be reading pressure any more.
-
-Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
----
- drivers/input/tablet/wacom_wac.c |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 2d88316..651f109 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -800,20 +800,23 @@ static int wacom_bpt_touch(struct wacom_wac *wacom)
- 	int i;
- 
- 	for (i = 0; i < 2; i++) {
--		int p = data[9 * i + 2];
--		bool touch = p && !wacom->shared->stylus_in_proximity;
-+		int offset = (data[1] & 0x80) ? (8 * i) : (9 * i);
-+		bool touch = data[offset + 3] & 0x80;
- 
--		input_mt_slot(input, i);
--		input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
- 		/*
- 		 * Touch events need to be disabled while stylus is
- 		 * in proximity because user's hand is resting on touchpad
- 		 * and sending unwanted events.  User expects tablet buttons
- 		 * to continue working though.
- 		 */
-+		if (wacom->shared->stylus_in_proximity)
-+			touch = 0;
-+
-+		input_mt_slot(input, i);
-+		input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
- 		if (touch) {
--			int x = get_unaligned_be16(&data[9 * i + 3]) & 0x7ff;
--			int y = get_unaligned_be16(&data[9 * i + 5]) & 0x7ff;
-+			int x = get_unaligned_be16(&data[offset + 3]) & 0x7ff;
-+			int y = get_unaligned_be16(&data[offset + 5]) & 0x7ff;
- 			if (features->quirks & WACOM_QUIRK_BBTOUCH_LOWRES) {
- 				x <<= 5;
- 				y <<= 5;
--- 
-1.7.6
-
+> -- Chase

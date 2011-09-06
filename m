@@ -1,131 +1,90 @@
-From: John Sung <penmount.touch@gmail.com>
-Subject: [PATCH 3/3] Input: penmount - add PenMount 3000 support
-Date: Tue,  6 Sep 2011 14:36:20 +0800
-Message-ID: <1315290980-23608-1-git-send-email-penmount.touch@gmail.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: [PATCH v2 02/15] HID: wiimote: Add force-feedback support
+Date: Tue,  6 Sep 2011 13:50:27 +0200
+Message-ID: <1315309840-4664-3-git-send-email-dh.herrmann@googlemail.com>
+References: <1315309840-4664-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:43167 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752685Ab1IFGgb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Sep 2011 02:36:31 -0400
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:44212 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754163Ab1IFLvN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Sep 2011 07:51:13 -0400
+Received: by mail-fx0-f46.google.com with SMTP id 19so4508571fxh.19
+        for <linux-input@vger.kernel.org>; Tue, 06 Sep 2011 04:51:12 -0700 (PDT)
+In-Reply-To: <1315309840-4664-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, John Sung <penmount.touch@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-Add multi touch support for PenMount 3000 touch controller.
+The wiimote has a single rumble motor. This adds force feedback support for
+wiimote devices with FF_RUMBLE. The rumble motor is very simple and only
+supports an on/off switch so no complex ff-effects are supported.
 
-Signed-off-by: John Sung <penmount.touch@gmail.com>
+This also removes the event callback that was registered before but unused. The
+ff-device overwrites this callback, anyway.
+
+Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/input/touchscreen/penmount.c |   59 ++++++++++++++++++++++++++++++++++
- 1 files changed, 59 insertions(+), 0 deletions(-)
+ drivers/hid/hid-wiimote.c |   31 ++++++++++++++++++++++++++++---
+ 1 files changed, 28 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/penmount.c b/drivers/input/touchscreen/penmount.c
-index b60796b..bbb7a20 100644
---- a/drivers/input/touchscreen/penmount.c
-+++ b/drivers/input/touchscreen/penmount.c
-@@ -19,6 +19,7 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/input.h>
-+#include <linux/input/mt.h>
- #include <linux/serio.h>
- #include <linux/init.h>
+diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
+index 6809754..57faac5 100644
+--- a/drivers/hid/hid-wiimote.c
++++ b/drivers/hid/hid-wiimote.c
+@@ -305,9 +305,28 @@ static void wiimote_leds_set(struct led_classdev *led_dev,
+ 	}
+ }
  
-@@ -34,6 +35,16 @@ MODULE_LICENSE("GPL");
-  */
+-static int wiimote_input_event(struct input_dev *dev, unsigned int type,
+-						unsigned int code, int value)
++static int wiimote_ff_play(struct input_dev *dev, void *data,
++							struct ff_effect *eff)
+ {
++	struct wiimote_data *wdata = input_get_drvdata(dev);
++	__u8 value;
++	unsigned long flags;
++
++	/*
++	 * The wiimote supports only a single rumble motor so if any magnitude
++	 * is set to non-zero then we start the rumble motor. If both are set to
++	 * zero, we stop the rumble motor.
++	 */
++
++	if (eff->u.rumble.strong_magnitude || eff->u.rumble.weak_magnitude)
++		value = 1;
++	else
++		value = 0;
++
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	wiiproto_req_rumble(wdata, value);
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
++
+ 	return 0;
+ }
  
- #define	PM_MAX_LENGTH	6
-+#define	PM_MAX_MTSLOT	2
-+
-+/*
-+ * Multi-touch slot
-+ */
-+
-+struct mt_slot {
-+	unsigned short x, y;
-+	unsigned char state; /* is the touch valid? */
-+};
+@@ -480,7 +499,6 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
+ 	hid_set_drvdata(hdev, wdata);
  
- /*
-  * Per-touchscreen data.
-@@ -46,8 +57,32 @@ struct pm {
- 	unsigned char data[PM_MAX_LENGTH];
- 	char phys[32];
- 	unsigned char packetsize;
-+	unsigned char maxcontacts;
-+	struct mt_slot slots[PM_MAX_MTSLOT];
- };
+ 	input_set_drvdata(wdata->input, wdata);
+-	wdata->input->event = wiimote_input_event;
+ 	wdata->input->open = wiimote_input_open;
+ 	wdata->input->close = wiimote_input_close;
+ 	wdata->input->dev.parent = &wdata->hdev->dev;
+@@ -494,6 +512,13 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
+ 	for (i = 0; i < WIIPROTO_KEY_COUNT; ++i)
+ 		set_bit(wiiproto_keymap[i], wdata->input->keybit);
  
-+/*
-+ * pm_mtevent() sends mt events and also emulates pointer movement
-+ */
-+
-+static void pm_mtevent(struct pm *pm, struct input_dev *input)
-+{
-+	int i;
-+
-+	for (i = 0; i < pm->maxcontacts; ++i) {
-+		input_mt_slot(input, i);
-+		input_mt_report_slot_state(input, MT_TOOL_FINGER,
-+				pm->slots[i].state);
-+		if (pm->slots[i].state) {
-+			input_event(input, EV_ABS, ABS_MT_POSITION_X, pm->slots[i].x);
-+			input_event(input, EV_ABS, ABS_MT_POSITION_Y, pm->slots[i].y);
-+		}
++	set_bit(FF_RUMBLE, wdata->input->ffbit);
++	if (input_ff_create_memless(wdata->input, NULL, wiimote_ff_play)) {
++		input_free_device(wdata->input);
++		kfree(wdata);
++		return NULL;
 +	}
 +
-+	input_mt_report_pointer_emulation(input, true);
-+	input_sync(input);
-+}
-+
- static irqreturn_t pm_interrupt(struct serio *serio,
- 		unsigned char data, unsigned int flags)
- {
-@@ -79,6 +114,19 @@ static irqreturn_t pm_interrupt(struct serio *serio,
- 			}
- 		}
- 		break;
-+	case 0x3000:
-+		if ((pm->data[0] == 0x70) || (pm->data[0] == 0x40)
-+				|| (pm->data[0] == 0x71) || (pm->data[0] == 0x41)) {
-+			if (pm->packetsize == ++pm->idx) {
-+				int slotnum = pm->data[0] & 0x0F;
-+				pm->slots[slotnum].state = ((pm->data[0] & 0xF0) == 0x70);
-+				pm->slots[slotnum].x = pm->data[2] * 256 + pm->data[1];
-+				pm->slots[slotnum].y = pm->data[4] * 256 + pm->data[3];
-+				pm_mtevent(pm, dev);
-+				pm->idx = 0;
-+			}
-+		}
-+		break;
- 	}
+ 	spin_lock_init(&wdata->qlock);
+ 	INIT_WORK(&wdata->worker, wiimote_worker);
  
- 	return IRQ_HANDLED;
-@@ -135,6 +183,7 @@ static int pm_connect(struct serio *serio, struct serio_driver *drv)
- 	pm->serio = serio;
- 	pm->dev = input_dev;
- 	snprintf(pm->phys, sizeof(pm->phys), "%s/input0", serio->phys);
-+	pm->maxcontacts = 1;
- 
- 	input_dev->name = "PenMount Serial TouchScreen";
- 	input_dev->phys = pm->phys;
-@@ -160,6 +209,16 @@ static int pm_connect(struct serio *serio, struct serio_driver *drv)
- 		input_dev->id.product = 0x6000;
- 		pm_enable(serio);
- 		break;
-+	case 2:
-+		pm->packetsize = 6;
-+		input_dev->id.product = 0x3000;
-+		input_set_abs_params(pm->dev, ABS_X, 0, 0x7ff, 0, 0);
-+		input_set_abs_params(pm->dev, ABS_Y, 0, 0x7ff, 0, 0);
-+		pm->maxcontacts = PM_MAX_MTSLOT;
-+		input_mt_init_slots(pm->dev, PM_MAX_MTSLOT);
-+		input_set_abs_params(pm->dev, ABS_MT_POSITION_X, 0, 0x7ff, 0, 0);
-+		input_set_abs_params(pm->dev, ABS_MT_POSITION_Y, 0, 0x7ff, 0, 0);
-+		break;
- 	}
- 
- 	serio_set_drvdata(serio, pm);
 -- 
-1.7.4.1
+1.7.6.1
 

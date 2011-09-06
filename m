@@ -1,79 +1,69 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH v2 13/15] HID: wiimote: Add status request
-Date: Tue,  6 Sep 2011 13:50:38 +0200
-Message-ID: <1315309840-4664-14-git-send-email-dh.herrmann@googlemail.com>
+Subject: =?UTF-8?q?=5BPATCH=20v2=2015/15=5D=20HID=3A=20wiimote=3A=20Add=20MAINTAINERS=20entry?=
+Date: Tue,  6 Sep 2011 13:50:40 +0200
+Message-ID: <1315309840-4664-16-git-send-email-dh.herrmann@googlemail.com>
 References: <1315309840-4664-1-git-send-email-dh.herrmann@googlemail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-fx0-f46.google.com ([209.85.161.46]:32933 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754257Ab1IFLv1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Sep 2011 07:51:27 -0400
-Received: by fxh19 with SMTP id 19so4508762fxh.19
-        for <linux-input@vger.kernel.org>; Tue, 06 Sep 2011 04:51:26 -0700 (PDT)
+	with ESMTP id S1754248Ab1IFLv2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Sep 2011 07:51:28 -0400
+Received: by mail-fx0-f46.google.com with SMTP id 19so4508762fxh.19
+        for <linux-input@vger.kernel.org>; Tue, 06 Sep 2011 04:51:27 -0700 (PDT)
 In-Reply-To: <1315309840-4664-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-The wiimote does not send status reports continuously so this adds a helper
-function to request a status report and parses the battery charge level.
+Add entry to MAINTAINERS and also bump version level as the core driver=
+ is
+feature complete now.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote.c |   18 ++++++++++++++++++
- 1 files changed, 18 insertions(+), 0 deletions(-)
+ MAINTAINERS               |    6 ++++++
+ drivers/hid/hid-wiimote.c |    2 +-
+ 2 files changed, 7 insertions(+), 1 deletions(-)
 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 069ee3b..c250d2c 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -7133,6 +7133,12 @@ L:	linux-scsi@vger.kernel.org
+ S:	Maintained
+ F:	drivers/scsi/wd7000.c
+=20
++WIIMOTE HID DRIVER
++M:	David Herrmann <dh.herrmann@googlemail.com>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	drivers/hid/hid-wiimote*
++
+ WINBOND CIR DRIVER
+ M:	David H=C3=A4rdeman <david@hardeman.nu>
+ S:	Maintained
 diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index 6658398..48198cb 100644
+index c83cafa..76739c0 100644
 --- a/drivers/hid/hid-wiimote.c
 +++ b/drivers/hid/hid-wiimote.c
-@@ -41,6 +41,7 @@ struct wiimote_state {
- 	__u32 opt;
- 
- 	/* results of synchronous requests */
-+	__u8 cmd_battery;
- 	__u8 cmd_err;
- };
- 
-@@ -83,6 +84,7 @@ enum wiiproto_reqs {
- 	WIIPROTO_REQ_LED = 0x11,
- 	WIIPROTO_REQ_DRM = 0x12,
- 	WIIPROTO_REQ_IR1 = 0x13,
-+	WIIPROTO_REQ_SREQ = 0x15,
- 	WIIPROTO_REQ_WMEM = 0x16,
- 	WIIPROTO_REQ_RMEM = 0x17,
- 	WIIPROTO_REQ_IR2 = 0x1a,
-@@ -354,6 +356,17 @@ static void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm)
- 	wiimote_queue(wdata, cmd, sizeof(cmd));
- }
- 
-+static void wiiproto_req_status(struct wiimote_data *wdata)
-+{
-+	__u8 cmd[2];
-+
-+	cmd[0] = WIIPROTO_REQ_SREQ;
-+	cmd[1] = 0;
-+
-+	wiiproto_keep_rumble(wdata, &cmd[1]);
-+	wiimote_queue(wdata, cmd, sizeof(cmd));
-+}
-+
- static void wiiproto_req_accel(struct wiimote_data *wdata, __u8 accel)
- {
- 	accel = !!accel;
-@@ -805,6 +818,11 @@ static void handler_status(struct wiimote_data *wdata, const __u8 *payload)
- 
- 	/* on status reports the drm is reset so we need to resend the drm */
- 	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
-+
-+	if (wiimote_cmd_pending(wdata, WIIPROTO_REQ_SREQ, 0)) {
-+		wdata->state.cmd_battery = payload[5];
-+		wiimote_cmd_complete(wdata);
-+	}
- }
- 
- static void handler_data(struct wiimote_data *wdata, const __u8 *payload)
--- 
+@@ -21,7 +21,7 @@
+ #include <linux/spinlock.h>
+ #include "hid-ids.h"
+=20
+-#define WIIMOTE_VERSION "0.1"
++#define WIIMOTE_VERSION "0.2"
+ #define WIIMOTE_NAME "Nintendo Wii Remote"
+ #define WIIMOTE_BUFSIZE 32
+=20
+--=20
 1.7.6.1
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

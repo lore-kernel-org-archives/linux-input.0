@@ -1,28 +1,116 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 38/62] Input: irq: Remove IRQF_DISABLED
-Date: Wed, 7 Sep 2011 16:21:01 -0700
-Message-ID: <20110907232101.GA32566@core.coreip.homeip.net>
-References: <1315383059-3673-1-git-send-email-yong.zhang0@gmail.com>
- <1315383059-3673-39-git-send-email-yong.zhang0@gmail.com>
+Subject: Re: [PATCH 2/3] Input: penmount - add PenMount 6000 support
+Date: Wed, 7 Sep 2011 16:29:47 -0700
+Message-ID: <20110907232947.GB32566@core.coreip.homeip.net>
+References: <1315290961-23570-1-git-send-email-penmount.touch@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:64183 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756044Ab1IGXVK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2011 19:21:10 -0400
+Received: from mail-yi0-f46.google.com ([209.85.218.46]:46798 "EHLO
+	mail-yi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755892Ab1IGX3y (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2011 19:29:54 -0400
 Content-Disposition: inline
-In-Reply-To: <1315383059-3673-39-git-send-email-yong.zhang0@gmail.com>
+In-Reply-To: <1315290961-23570-1-git-send-email-penmount.touch@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yong Zhang <yong.zhang0@gmail.com>
-Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu, Michael Hennerich <michael.hennerich@analog.com>, Wan ZongShun <mcuos.com@gmail.com>, Alessandro Rubini <rubini@ipvvis.unipv.it>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, Axel Lin <axel.lin@gmail.com>, Eric Miao <eric.y.miao@gmail.com>, "Mark F. Brown" <mark.brown314@gmail.com>, Ben Hutchings <ben@decadent.org.uk>, Krzysztof =?utf-8?Q?Ha=C5=82asa?= <khc@pm.waw.pl>, Julia Lawall <julia@diku.dk>, Sylvestre Ledru <sylvestre.ledru@scilab.org>, Christoph Fritz <chf.fritz@googlemail.com>, Paul Mundt <lethal@linux-sh.org>, Tejun Heo <tj@kernel.org>, device-drivers-devel@blackfin.uclinux.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: John Sung <penmount.touch@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Sep 07, 2011 at 04:10:35PM +0800, Yong Zhang wrote:
-> This flag is a NOOP and can be removed now.
+Hi John,
+
+On Tue, Sep 06, 2011 at 02:36:01PM +0800, John Sung wrote:
+> Add support for PenMount 6000 touch controller.
 > 
+> Signed-off-by: John Sung <penmount.touch@gmail.com>
+> ---
+>  drivers/input/touchscreen/penmount.c |   58 +++++++++++++++++++++++++++++-----
+>  1 files changed, 50 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/penmount.c b/drivers/input/touchscreen/penmount.c
+> index 3342c6d..b60796b 100644
+> --- a/drivers/input/touchscreen/penmount.c
+> +++ b/drivers/input/touchscreen/penmount.c
+> @@ -33,7 +33,7 @@ MODULE_LICENSE("GPL");
+>   * Definitions & global arrays.
+>   */
+>  
+> -#define	PM_MAX_LENGTH	5
+> +#define	PM_MAX_LENGTH	6
+>  
+>  /*
+>   * Per-touchscreen data.
+> @@ -45,6 +45,7 @@ struct pm {
+>  	int idx;
+>  	unsigned char data[PM_MAX_LENGTH];
+>  	char phys[32];
+> +	unsigned char packetsize;
+>  };
+>  
+>  static irqreturn_t pm_interrupt(struct serio *serio,
+> @@ -55,20 +56,48 @@ static irqreturn_t pm_interrupt(struct serio *serio,
+>  
+>  	pm->data[pm->idx] = data;
+>  
+> -	if (pm->data[0] & 0x80) {
+> -		if (PM_MAX_LENGTH == ++pm->idx) {
+> -			input_report_abs(dev, ABS_X, pm->data[1] * 128 + pm->data[2]);
+> -			input_report_abs(dev, ABS_Y, pm->data[3] * 128 + pm->data[4]);
+> -			input_report_key(dev, BTN_TOUCH, !!(pm->data[0] & 0x40));
+> -			input_sync(dev);
+> -			pm->idx = 0;
+> +	switch (pm->dev->id.product) {
+> +	case 0x9000:
+> +		if (pm->data[0] & 0x80) {
+> +			if (pm->packetsize == ++pm->idx) {
+> +				input_report_abs(dev, ABS_X, pm->data[1] * 128 + pm->data[2]);
+> +				input_report_abs(dev, ABS_Y, pm->data[3] * 128 + pm->data[4]);
+> +				input_report_key(dev, BTN_TOUCH, !!(pm->data[0] & 0x40));
+> +				input_sync(dev);
+> +				pm->idx = 0;
+> +			}
+>  		}
+> +		break;
+> +	case 0x6000:
+> +		if ((pm->data[0] == 0x70) || (pm->data[0] == 0x30)) {
 
-Applied, thanks Yong.
+Should it be:
+
+		if ((pm->data[0] & 0xbf) == 0x30)
+
+to avoid 2 comparisons and branches?
+
+> +			if (pm->packetsize == ++pm->idx) {
+> +				input_report_abs(dev, ABS_X, pm->data[2] * 256 + pm->data[1]);
+> +				input_report_abs(dev, ABS_Y, pm->data[4] * 256 + pm->data[3]);
+> +				input_report_key(dev, BTN_TOUCH, (pm->data[0] == 0x70));
+> +				input_sync(dev);
+> +				pm->idx = 0;
+> +			}
+> +		}
+> +		break;
+>  	}
+>  
+>  	return IRQ_HANDLED;
+>  }
+>  
+>  /*
+> + * pm_enable() sends command that can enable the PenMount 6000 controller
+> + */
+> +
+> +static void pm_enable(struct serio *serio)
+> +{
+> +	int i = 0;
+> +	unsigned char command[6] = { 0xF1, 0x00, 0x00, 0x00, 0x00, 0x0E };
+> +
+> +	for (i = 0; i < 6; i++)
+> +		serio_write(serio, command[i]);
+> +}
+
+Initializing a device connected to a serport serio port is actually task
+of inputattach utility.
+
+Thanks.
 
 -- 
 Dmitry

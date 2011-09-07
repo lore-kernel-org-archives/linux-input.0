@@ -1,35 +1,42 @@
-From: simon@mungewell.org
-Subject: Re: [RFC] [BUG?] Sixaxis Value Ranges
-Date: Wed, 7 Sep 2011 14:58:58 -0400
-Message-ID: <c863ec6b1479d2b7c79b8e5b318371db.squirrel@host171.canaca.com>
-References: <CAEvUa7=KWnSFhWeOYf7wagRLODMNNKmdN_tpOnD1fuiwxN7aEg@mail.gmail.com>
-    <376b78c42d77683e0d9a03e4e392e5e2.squirrel@host171.canaca.com>
+From: Western Union <info@western.co.uk>
+Subject: Western Union Compensation
+Date: Wed, 07 Sep 2011 20:26:31 +0100
+Message-ID: <1d2d35f07385c2ec4baf6a5fa3b713ff@bancosol.ao>
+Reply-To: <benoprah1@hotmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:42955 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753344Ab1IGS7H (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2011 14:59:07 -0400
-In-Reply-To: <376b78c42d77683e0d9a03e4e392e5e2.squirrel@host171.canaca.com>
+Received: from mail.bancosol.ao ([196.216.51.201]:44695 "EHLO
+	solmail.bancosol.ao" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754420Ab1IGUKZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2011 16:10:25 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: David Michael <fedora.dm0@gmail.com>, linux-input@vger.kernel.org
 
 
-> You can look directly at the streaming HID bytes hex(although I can't
-> remember how, someone here suggested a method a couple of months back) to
-> confirm this.
 
-from http://www.pabr.org/sixlinux/sixlinux.en.html#inop:
-
-# hexdump -v -e '48/1 "%02x " "\n"' < /dev/hidraw1   # For kernels <  2.6.26
-# hexdump -v -e '49/1 "%02x " "\n"' < /dev/hidraw1   # For kernels >= 2.6.26
-00 00 00 00 00 74 7b 7c 7c 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 02 ee 10 00 00 00 00 02 b2 77 01 81 02 05 01 ed 01 a4 00 02
-
-Simon
+-- 
+ Western Union Money Transfer
+ 10101 Balaton way, Victoria island,
+ London, UK
 
 
+ This is from Western Union Money Transfer  in London, England 
+ compensation programmed. We are currently  compensating all scammed 
+ victim all over the world who have been involve in online internet scam. 
+ The government of Great Britain and Federal reserve Bank of United 
+ state has decided to compensate all scammed victim. This means that you 
+ shall be awarded $2,000,000.00 US Two Million United State dollars.
+
+ This is not only for those who have been scammed but to some lucky 
+ people all over the world. If you receive this mail, this means that you 
+ have been made one of the lucky beneficiary of the total sum of 
+ $2,000,000.00 US Two Million United State dollars.
+
+ To claim this, write me on my personal email on      
+ benoprah1@hotmail.com  with your Name, Address, Age, Phone.
+
+ Best regards,
+ Benjamin Oprah

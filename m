@@ -1,196 +1,304 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH 2/6] Input: elantech - use firmware provided x, y ranges
-Date: Wed, 7 Sep 2011 10:33:40 +0800
-Message-ID: <CAGS+omCWQk+mTXnYZRCWhH2wWrn5PfhEv414isN_r=NKAdcs1g@mail.gmail.com>
-References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw>
- <1313632629-23603-3-git-send-email-jj_ding@emc.com.tw> <20110818074756.GE10093@core.coreip.homeip.net>
- <4E5FCE58.9060906@canonical.com> <87sjobk711.fsf@emc.com.tw>
- <4E665249.2040602@canonical.com> <20110906173649.GA7419@core.coreip.homeip.net>
- <4E6660D7.9040800@canonical.com> <20110906182016.GB7419@core.coreip.homeip.net>
- <4E66749A.10009@canonical.com>
+From: Yong Zhang <yong.zhang0@gmail.com>
+Subject: [PATCH 38/62] Input: irq: Remove IRQF_DISABLED
+Date: Wed,  7 Sep 2011 16:10:35 +0800
+Message-ID: <1315383059-3673-39-git-send-email-yong.zhang0@gmail.com>
+References: <1315383059-3673-1-git-send-email-yong.zhang0@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:10940 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752322Ab1IGCeE convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Sep 2011 22:34:04 -0400
-Received: from hpaq12.eem.corp.google.com (hpaq12.eem.corp.google.com [172.25.149.12])
-	by smtp-out.google.com with ESMTP id p872Y2eL021445
-	for <linux-input@vger.kernel.org>; Tue, 6 Sep 2011 19:34:02 -0700
-Received: from ywb26 (ywb26.prod.google.com [10.192.2.26])
-	by hpaq12.eem.corp.google.com with ESMTP id p872XtVs030317
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Tue, 6 Sep 2011 19:34:00 -0700
-Received: by ywb26 with SMTP id 26so5520221ywb.21
-        for <linux-input@vger.kernel.org>; Tue, 06 Sep 2011 19:34:00 -0700 (PDT)
-In-Reply-To: <4E66749A.10009@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1315383059-3673-1-git-send-email-yong.zhang0@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: Julia Lawall <julia@diku.dk>, device-drivers-devel@blackfin.uclinux.org, "Mark F. Brown" <mark.brown314@gmail.com>, Kukjin Kim <kgene.kim@samsung.com>, Wan ZongShun <mcuos.com@gmail.com>, Sylvestre Ledru <sylvestre.ledru@scilab.org>, linux-input@vger.kernel.org, Axel Lin <axel.lin@gmail.com>, Ben Hutchings <ben@decadent.org.uk>, Michael Hennerich <michael.hennerich@analog.com>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, Alessandro Rubini <rubini@ipvvis.unipv.it>, Yong Zhang <yong.zhang0@gmail.com>, Ben Dooks <ben-linux@fluff.org>, tglx@linutronix.de, mingo@elte.hu, linux-arm-kernel@lists.infradead.org, Eric Miao <eric.y.miao@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christoph Fritz <chf.fritz@googlemail.com>, Paul Mundt <lethal@linux-sh.org>, Tejun Heo <tj@kernel.org>, =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khc@pm.waw.pl>
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, JJ Ding <jj_ding@emc.com.tw>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-Hi,
+This flag is a NOOP and can be removed now.
 
-On Wed, Sep 7, 2011 at 3:29 AM, Chase Douglas
-<chase.douglas@canonical.com> wrote:
->
-> On 09/06/2011 11:20 AM, Dmitry Torokhov wrote:
-> > On Tue, Sep 06, 2011 at 11:05:11AM -0700, Chase Douglas wrote:
-> >> On 09/06/2011 10:36 AM, Dmitry Torokhov wrote:
-> >>> On Tue, Sep 06, 2011 at 10:03:05AM -0700, Chase Douglas wrote:
-> >>>> On 09/04/2011 08:22 PM, JJ Ding wrote:
-> >>>>> Hi Chase,
-> >>>>>
-> >>>>> On Thu, 01 Sep 2011 11:26:32 -0700, Chase Douglas <chase.dougla=
-s@canonical.com> wrote:
-> >>>>>> On 08/18/2011 12:47 AM, Dmitry Torokhov wrote:
-> >>>>>>> On Thu, Aug 18, 2011 at 09:57:05AM +0800, JJ Ding wrote:
-> >>>>>>>> +
-> >>>>>>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0i =3D (etd->fw_version > 0x0208=
-00 &&
-> >>>>>>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 etd->fw_version < 0x02=
-0900) ? 1 : 2;
-> >>>>>>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0*x_max =3D (etd->capabilities[1=
-] - i) * 64;
-> >>>>>>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0*y_max =3D (etd->capabilities[2=
-] - i) * 64;
-> >>>>>>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0*y_2ft_max =3D (*y_max - i) * 6=
-4 / 4;
-> >>>>>>>
-> >>>>>>> Hmm, we should have the same range for ST and MT data and sca=
-le MT data
-> >>>>>>> if it has lower resolution to match ST.
-> >>>>>>
-> >>>>>> I saw this go by a while back and it made sense to me at the t=
-ime.
-> >>>>>> However, I've had some thoughts that give me pause.
-> >>>>>>
-> >>>>>> Seth Forshee has been working on getting a semi-mt driver for =
-ALPS
-> >>>>>> devices. The ALPS devices have an interesting mechanism for pr=
-oviding
-> >>>>>> multitouch data, but it boils down to having a resolution of o=
-nly 15
-> >>>>>> values in the X axis and 11 in the Y axis (it looks possible t=
-o
-> >>>>>> extrapolate and get double the resolution, but my point will r=
-emain).
-> >>>>>>
-> >>>>>> Let's take the X synaptics module as an example of the repercu=
-ssions of
-> >>>>>> in-kernel axis scaling. The X synaptics module translates two =
-touch
-> >>>>>> drags into scroll events. Synaptics will want to use the highe=
-st
-> >>>>>> resolution axis for generating scroll events. If both the MT a=
-nd ST axes
-> >>>>>> have the same resolution, it might pick the MT axes for scroll=
-ing. On
-> >>>>>> ALPS devices with in-kernel axis scaling that would be a bad c=
-hoice.
-> >>>>> I don't know about the ALPS devices, but since we already repor=
-t
-> >>>>> ABS_MT_POSITION_{X,Y} with elantech v2, we have to do the scali=
-ng in
-> >>>>> kernel anyway to adhere to multitouch protocol. So I would say =
-it is
-> >>>>> still more appropriate to have the same resolution for ST and M=
-T with
-> >>>>> respect to elantech v2. Maybe ALPS should be considered an exce=
-ption to this?
-> >>>>
-> >>>> The multitouch protocol doesn't require scaling of axes to match=
-, at
-> >>>> least not according to the protocol documentation.
-> >>>>
-> >>>> I see that the current code scales the coordinates for v2, but i=
-t's only
-> >>>> half-resolution. That's not a huge deal since the resolution of =
-modern
-> >>>> touchpads is very high. We could leave it scaled to not break ab=
-i, if
-> >>>> that was a concern. However, with new devices it makes sense to =
-state
-> >>>> the ranges in terms of what the device actually supports. Otherw=
-ise,
-> >>>> we're just masking out useful data that userspace could be using=
-=2E
-> >>>>
-> >>>
-> >>> I disagree. I believe that ST and MT ranges reported for the same
-> >>> working surface should match, especially since many devices deriv=
-e ST
-> >>> data from MT.
-> >>>
-> >>> As far as devices that have ranges 0-15 in MT mode - I am not sur=
-e how
-> >>> useful such MT steam anyway and if we are better of just ignore t=
-hem
-> >>> (maybe just use the data to report number of fingers on the surfa=
-ce but
-> >>> otherwise use standard ST protocol).
-> >>
-> >> The MT data could still be useful for pinch to zoom or potentially
-> >> rotate (though most low res devices probably are only semi-mt). I =
-don't
-> >> want to forsake pinch to zoom just because we can't pass on the
-> >> resolution of MT data properly.
-> >
-> > How would userspace know that MT data should only be used for gestu=
-res
-> > but nothign else? By examining range? What is the "too small range"
-> > then? It would be different for different devices. I do not want
-> > userspace portions of the drivers to turn into unmanageble collecti=
-on of
-> > quirks.
->
-> I wasn't suggesting that it have a big switch that enables or disable=
-s
-> gestures. I just want userspace to be able to figure out whether ST o=
-r
-> MT data would be better for a given task. If the range of the ST and =
-MT
-> axes could provide this data, then it makes sense to do so. The test
-> wouldn't be like "is MT range big enough", it would be "is MT range
-> better than ST or vice versa".
->
-> However, Henrik pointed out that some devices report ranges that aren=
-'t
-> representative of how accurate or precise they really are. That
-> invalidates this approach.
->
-> > Some hardware is just hopeless... And pinch to zoom is cute but har=
-dly
-> > most used function on a laptop (as opposed to phone/tablet), I'd ju=
-st
-> > leave it be.
->
-> Just because a piece of hardware is imprecise does not mean it is
-> useless for gestures. Sure, it may not work that great for precision
-> zooming, but it would be good enough for threshold matching. The Unit=
-y
-> window manager uses these thresholds to fire actions like spread (or
-> "expose" in OS X terms).
->
-> -- Chase
+Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
+---
+ drivers/input/keyboard/adp5588-keys.c      |    2 +-
+ drivers/input/keyboard/davinci_keyscan.c   |    2 +-
+ drivers/input/keyboard/ep93xx_keypad.c     |    2 +-
+ drivers/input/keyboard/imx_keypad.c        |    2 +-
+ drivers/input/keyboard/jornada720_kbd.c    |    2 +-
+ drivers/input/keyboard/matrix_keypad.c     |    1 -
+ drivers/input/keyboard/pxa27x_keypad.c     |    2 +-
+ drivers/input/keyboard/pxa930_rotary.c     |    2 +-
+ drivers/input/keyboard/w90p910_keypad.c    |    2 +-
+ drivers/input/misc/ixp4xx-beeper.c         |    2 +-
+ drivers/input/mouse/pxa930_trkball.c       |    2 +-
+ drivers/input/mouse/synaptics_i2c.c        |    2 +-
+ drivers/input/touchscreen/atmel_tsadcc.c   |    2 +-
+ drivers/input/touchscreen/h3600_ts_input.c |    4 ++--
+ drivers/input/touchscreen/hp680_ts_input.c |    2 +-
+ drivers/input/touchscreen/jornada720_ts.c  |    2 +-
+ drivers/input/touchscreen/lpc32xx_ts.c     |    2 +-
+ drivers/input/touchscreen/s3c2410_ts.c     |    2 +-
+ drivers/input/touchscreen/w90p910_ts.c     |    2 +-
+ 19 files changed, 19 insertions(+), 20 deletions(-)
 
-As far as I can tell, when the pad reports exactly 2 fingers, it
-reports them both with half the resolution with which it would report
-a single finger (in the 1 finger or 3 fingers cases).
-
-It sounded like Chase was recommending to report "ST" at full
-resolution and "MT" at half resolution.  Thus, if there is 1 finger,
-we would throw away 1 bit for the MT report.  If there were 2 fingers,
-we would inflate the ST reported finger by one bit.
-
-I prefer the original behavior of this patch, which just always
-reports ST and MT using the ST scale.
-
--Daniel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+index 7b404e5..b570ed3 100644
+--- a/drivers/input/keyboard/adp5588-keys.c
++++ b/drivers/input/keyboard/adp5588-keys.c
+@@ -550,7 +550,7 @@ static int __devinit adp5588_probe(struct i2c_client *client,
+ 	}
+ 
+ 	error = request_irq(client->irq, adp5588_irq,
+-			    IRQF_TRIGGER_FALLING | IRQF_DISABLED,
++			    IRQF_TRIGGER_FALLING,
+ 			    client->dev.driver->name, kpad);
+ 	if (error) {
+ 		dev_err(&client->dev, "irq %d busy?\n", client->irq);
+diff --git a/drivers/input/keyboard/davinci_keyscan.c b/drivers/input/keyboard/davinci_keyscan.c
+index cd89d17..9d82b3a 100644
+--- a/drivers/input/keyboard/davinci_keyscan.c
++++ b/drivers/input/keyboard/davinci_keyscan.c
+@@ -271,7 +271,7 @@ static int __init davinci_ks_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	error = request_irq(davinci_ks->irq, davinci_ks_interrupt,
+-			  IRQF_DISABLED, pdev->name, davinci_ks);
++			  0, pdev->name, davinci_ks);
+ 	if (error < 0) {
+ 		dev_err(dev, "unable to register davinci key scan interrupt\n");
+ 		goto fail5;
+diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
+index aa17e02..4662c5d 100644
+--- a/drivers/input/keyboard/ep93xx_keypad.c
++++ b/drivers/input/keyboard/ep93xx_keypad.c
+@@ -323,7 +323,7 @@ static int __devinit ep93xx_keypad_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, keypad);
+ 
+ 	err = request_irq(keypad->irq, ep93xx_keypad_irq_handler,
+-			  IRQF_DISABLED, pdev->name, keypad);
++			  0, pdev->name, keypad);
+ 	if (err)
+ 		goto failed_free_dev;
+ 
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index d92c15c..4b093fa 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -510,7 +510,7 @@ static int __devinit imx_keypad_probe(struct platform_device *pdev)
+ 	/* Ensure that the keypad will stay dormant until opened */
+ 	imx_keypad_inhibit(keypad);
+ 
+-	error = request_irq(irq, imx_keypad_irq_handler, IRQF_DISABLED,
++	error = request_irq(irq, imx_keypad_irq_handler, 0,
+ 			    pdev->name, keypad);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed to request IRQ\n");
+diff --git a/drivers/input/keyboard/jornada720_kbd.c b/drivers/input/keyboard/jornada720_kbd.c
+index 2cd3e1d..0aa6740 100644
+--- a/drivers/input/keyboard/jornada720_kbd.c
++++ b/drivers/input/keyboard/jornada720_kbd.c
+@@ -129,7 +129,7 @@ static int __devinit jornada720_kbd_probe(struct platform_device *pdev)
+ 
+ 	err = request_irq(IRQ_GPIO0,
+ 			  jornada720_kbd_interrupt,
+-			  IRQF_DISABLED | IRQF_TRIGGER_FALLING,
++			  IRQF_TRIGGER_FALLING,
+ 			  "jornadakbd", pdev);
+ 	if (err) {
+ 		printk(KERN_INFO "jornadakbd720_kbd: Unable to grab IRQ\n");
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+index b02e426..e2ae657 100644
+--- a/drivers/input/keyboard/matrix_keypad.c
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -343,7 +343,6 @@ static int __devinit init_matrix_gpio(struct platform_device *pdev,
+ 		for (i = 0; i < pdata->num_row_gpios; i++) {
+ 			err = request_irq(gpio_to_irq(pdata->row_gpios[i]),
+ 					matrix_keypad_interrupt,
+-					IRQF_DISABLED |
+ 					IRQF_TRIGGER_RISING |
+ 					IRQF_TRIGGER_FALLING,
+ 					"matrix-keypad", keypad);
+diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
+index 4b0ec35..eca6ae6 100644
+--- a/drivers/input/keyboard/pxa27x_keypad.c
++++ b/drivers/input/keyboard/pxa27x_keypad.c
+@@ -535,7 +535,7 @@ static int __devinit pxa27x_keypad_probe(struct platform_device *pdev)
+ 		input_dev->evbit[0] |= BIT_MASK(EV_REL);
+ 	}
+ 
+-	error = request_irq(irq, pxa27x_keypad_irq_handler, IRQF_DISABLED,
++	error = request_irq(irq, pxa27x_keypad_irq_handler, 0,
+ 			    pdev->name, keypad);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed to request IRQ\n");
+diff --git a/drivers/input/keyboard/pxa930_rotary.c b/drivers/input/keyboard/pxa930_rotary.c
+index b7123a4..35451bf 100644
+--- a/drivers/input/keyboard/pxa930_rotary.c
++++ b/drivers/input/keyboard/pxa930_rotary.c
+@@ -148,7 +148,7 @@ static int __devinit pxa930_rotary_probe(struct platform_device *pdev)
+ 	r->input_dev = input_dev;
+ 	input_set_drvdata(input_dev, r);
+ 
+-	err = request_irq(irq, rotary_irq, IRQF_DISABLED,
++	err = request_irq(irq, rotary_irq, 0,
+ 			"enhanced rotary", r);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "failed to request IRQ\n");
+diff --git a/drivers/input/keyboard/w90p910_keypad.c b/drivers/input/keyboard/w90p910_keypad.c
+index ee2bf6b..318586d 100644
+--- a/drivers/input/keyboard/w90p910_keypad.c
++++ b/drivers/input/keyboard/w90p910_keypad.c
+@@ -203,7 +203,7 @@ static int __devinit w90p910_keypad_probe(struct platform_device *pdev)
+ 				   input_dev->keycode, input_dev->keybit);
+ 
+ 	error = request_irq(keypad->irq, w90p910_keypad_irq_handler,
+-			    IRQF_DISABLED, pdev->name, keypad);
++			    0, pdev->name, keypad);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed to request IRQ\n");
+ 		goto failed_put_clk;
+diff --git a/drivers/input/misc/ixp4xx-beeper.c b/drivers/input/misc/ixp4xx-beeper.c
+index 1f38302..302ab46 100644
+--- a/drivers/input/misc/ixp4xx-beeper.c
++++ b/drivers/input/misc/ixp4xx-beeper.c
+@@ -111,7 +111,7 @@ static int __devinit ixp4xx_spkr_probe(struct platform_device *dev)
+ 	input_dev->event = ixp4xx_spkr_event;
+ 
+ 	err = request_irq(IRQ_IXP4XX_TIMER2, &ixp4xx_spkr_interrupt,
+-			  IRQF_DISABLED | IRQF_NO_SUSPEND, "ixp4xx-beeper",
++			  IRQF_NO_SUSPEND, "ixp4xx-beeper",
+ 			  (void *) dev->id);
+ 	if (err)
+ 		goto err_free_device;
+diff --git a/drivers/input/mouse/pxa930_trkball.c b/drivers/input/mouse/pxa930_trkball.c
+index 6c5d84f..ee3b0ca 100644
+--- a/drivers/input/mouse/pxa930_trkball.c
++++ b/drivers/input/mouse/pxa930_trkball.c
+@@ -183,7 +183,7 @@ static int __devinit pxa930_trkball_probe(struct platform_device *pdev)
+ 	/* held the module in reset, will be enabled in open() */
+ 	pxa930_trkball_disable(trkball);
+ 
+-	error = request_irq(irq, pxa930_trkball_interrupt, IRQF_DISABLED,
++	error = request_irq(irq, pxa930_trkball_interrupt, 0,
+ 			    pdev->name, trkball);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed to request irq: %d\n", error);
+diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
+index cba3c84..e28e9ce 100644
+--- a/drivers/input/mouse/synaptics_i2c.c
++++ b/drivers/input/mouse/synaptics_i2c.c
+@@ -570,7 +570,7 @@ static int __devinit synaptics_i2c_probe(struct i2c_client *client,
+ 			 "Requesting IRQ: %d\n", touch->client->irq);
+ 
+ 		ret = request_irq(touch->client->irq, synaptics_i2c_irq,
+-				  IRQF_DISABLED|IRQ_TYPE_EDGE_FALLING,
++				  IRQ_TYPE_EDGE_FALLING,
+ 				  DRIVER_NAME, touch);
+ 		if (ret) {
+ 			dev_warn(&touch->client->dev,
+diff --git a/drivers/input/touchscreen/atmel_tsadcc.c b/drivers/input/touchscreen/atmel_tsadcc.c
+index 432c69b..122a878 100644
+--- a/drivers/input/touchscreen/atmel_tsadcc.c
++++ b/drivers/input/touchscreen/atmel_tsadcc.c
+@@ -229,7 +229,7 @@ static int __devinit atmel_tsadcc_probe(struct platform_device *pdev)
+ 		goto err_release_mem;
+ 	}
+ 
+-	err = request_irq(ts_dev->irq, atmel_tsadcc_interrupt, IRQF_DISABLED,
++	err = request_irq(ts_dev->irq, atmel_tsadcc_interrupt, 0,
+ 			pdev->dev.driver->name, ts_dev);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "failed to allocate irq.\n");
+diff --git a/drivers/input/touchscreen/h3600_ts_input.c b/drivers/input/touchscreen/h3600_ts_input.c
+index 211811a..6107e56 100644
+--- a/drivers/input/touchscreen/h3600_ts_input.c
++++ b/drivers/input/touchscreen/h3600_ts_input.c
+@@ -396,14 +396,14 @@ static int h3600ts_connect(struct serio *serio, struct serio_driver *drv)
+ 	set_GPIO_IRQ_edge(GPIO_BITSY_NPOWER_BUTTON, GPIO_RISING_EDGE);
+ 
+ 	if (request_irq(IRQ_GPIO_BITSY_ACTION_BUTTON, action_button_handler,
+-			IRQF_SHARED | IRQF_DISABLED, "h3600_action", ts->dev)) {
++			IRQF_SHARED, "h3600_action", ts->dev)) {
+ 		printk(KERN_ERR "h3600ts.c: Could not allocate Action Button IRQ!\n");
+ 		err = -EBUSY;
+ 		goto fail1;
+ 	}
+ 
+ 	if (request_irq(IRQ_GPIO_BITSY_NPOWER_BUTTON, npower_button_handler,
+-			IRQF_SHARED | IRQF_DISABLED, "h3600_suspend", ts->dev)) {
++			IRQF_SHARED, "h3600_suspend", ts->dev)) {
+ 		printk(KERN_ERR "h3600ts.c: Could not allocate Power Button IRQ!\n");
+ 		err = -EBUSY;
+ 		goto fail2;
+diff --git a/drivers/input/touchscreen/hp680_ts_input.c b/drivers/input/touchscreen/hp680_ts_input.c
+index dd4e8f0..639a604 100644
+--- a/drivers/input/touchscreen/hp680_ts_input.c
++++ b/drivers/input/touchscreen/hp680_ts_input.c
+@@ -93,7 +93,7 @@ static int __init hp680_ts_init(void)
+ 	hp680_ts_dev->phys = "hp680_ts/input0";
+ 
+ 	if (request_irq(HP680_TS_IRQ, hp680_ts_interrupt,
+-			IRQF_DISABLED, MODNAME, 0) < 0) {
++			0, MODNAME, 0) < 0) {
+ 		printk(KERN_ERR "hp680_touchscreen.c: Can't allocate irq %d\n",
+ 		       HP680_TS_IRQ);
+ 		err = -EBUSY;
+diff --git a/drivers/input/touchscreen/jornada720_ts.c b/drivers/input/touchscreen/jornada720_ts.c
+index 4b0a061..50076c2 100644
+--- a/drivers/input/touchscreen/jornada720_ts.c
++++ b/drivers/input/touchscreen/jornada720_ts.c
+@@ -127,7 +127,7 @@ static int __devinit jornada720_ts_probe(struct platform_device *pdev)
+ 
+ 	error = request_irq(IRQ_GPIO9,
+ 			jornada720_ts_interrupt,
+-			IRQF_DISABLED | IRQF_TRIGGER_RISING,
++			IRQF_TRIGGER_RISING,
+ 			"HP7XX Touchscreen driver", pdev);
+ 	if (error) {
+ 		printk(KERN_INFO "HP7XX TS : Unable to acquire irq!\n");
+diff --git a/drivers/input/touchscreen/lpc32xx_ts.c b/drivers/input/touchscreen/lpc32xx_ts.c
+index dcf803f..0a484ed 100644
+--- a/drivers/input/touchscreen/lpc32xx_ts.c
++++ b/drivers/input/touchscreen/lpc32xx_ts.c
+@@ -276,7 +276,7 @@ static int __devinit lpc32xx_ts_probe(struct platform_device *pdev)
+ 	input_set_drvdata(input, tsc);
+ 
+ 	error = request_irq(tsc->irq, lpc32xx_ts_interrupt,
+-			    IRQF_DISABLED, pdev->name, tsc);
++			    0, pdev->name, tsc);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed requesting interrupt\n");
+ 		goto err_put_clock;
+diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
+index 8feb7f3..64ce697 100644
+--- a/drivers/input/touchscreen/s3c2410_ts.c
++++ b/drivers/input/touchscreen/s3c2410_ts.c
+@@ -328,7 +328,7 @@ static int __devinit s3c2410ts_probe(struct platform_device *pdev)
+ 	ts.shift = info->oversampling_shift;
+ 	ts.features = platform_get_device_id(pdev)->driver_data;
+ 
+-	ret = request_irq(ts.irq_tc, stylus_irq, IRQF_DISABLED,
++	ret = request_irq(ts.irq_tc, stylus_irq, 0,
+ 			  "s3c2410_ts_pen", ts.input);
+ 	if (ret) {
+ 		dev_err(dev, "cannot get TC interrupt\n");
+diff --git a/drivers/input/touchscreen/w90p910_ts.c b/drivers/input/touchscreen/w90p910_ts.c
+index 7a45d68..217aa51 100644
+--- a/drivers/input/touchscreen/w90p910_ts.c
++++ b/drivers/input/touchscreen/w90p910_ts.c
+@@ -279,7 +279,7 @@ static int __devinit w90x900ts_probe(struct platform_device *pdev)
+ 
+ 	w90p910_ts->irq_num = platform_get_irq(pdev, 0);
+ 	if (request_irq(w90p910_ts->irq_num, w90p910_ts_interrupt,
+-			IRQF_DISABLED, "w90p910ts", w90p910_ts)) {
++			0, "w90p910ts", w90p910_ts)) {
+ 		err = -EBUSY;
+ 		goto fail4;
+ 	}
+-- 
+1.7.4.1

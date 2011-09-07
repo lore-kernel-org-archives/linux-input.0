@@ -1,37 +1,54 @@
-From: simon@mungewell.org
-Subject: Re: [RFC] [BUG?] Sixaxis Value Ranges
-Date: Wed, 7 Sep 2011 14:48:32 -0400
-Message-ID: <376b78c42d77683e0d9a03e4e392e5e2.squirrel@host171.canaca.com>
-References: <CAEvUa7=KWnSFhWeOYf7wagRLODMNNKmdN_tpOnD1fuiwxN7aEg@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: INPUT_COMPAT_TEST
+Date: Wed, 7 Sep 2011 11:54:16 -0700
+Message-ID: <20110907185416.GC2874@core.coreip.homeip.net>
+References: <20110708204630.GA28623@core.coreip.homeip.net>
+ <4E178320.7050401@zytor.com>
+ <20110708223709.GB28623@core.coreip.homeip.net>
+ <4E179033.9050806@zytor.com>
+ <20110709003508.GC28623@core.coreip.homeip.net>
+ <4E180BA5.4080808@zytor.com>
+ <20110907181641.GA5678@core.coreip.homeip.net>
+ <4E67B652.5010406@zytor.com>
+ <20110907183745.GB2874@core.coreip.homeip.net>
+ <4E67BAAE.9060605@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:58302 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752194Ab1IGSsi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2011 14:48:38 -0400
-In-Reply-To: <CAEvUa7=KWnSFhWeOYf7wagRLODMNNKmdN_tpOnD1fuiwxN7aEg@mail.gmail.com>
+Received: from mail-yi0-f46.google.com ([209.85.218.46]:61859 "EHLO
+	mail-yi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756659Ab1IGSyW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Sep 2011 14:54:22 -0400
+Received: by yie30 with SMTP id 30so5201227yie.19
+        for <linux-input@vger.kernel.org>; Wed, 07 Sep 2011 11:54:21 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4E67BAAE.9060605@zytor.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Michael <fedora.dm0@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Philip Langdale <philipl@overt.org>, linux-input@vger.kernel.org, "H.J. Lu" <hjl.tools@gmail.com>
 
-> The sixaxis accelerometers/gyroscope from the joystick interface use a
-> "flat" value that causes an input range of length ~128 of 1024 to be
-> mapped to zero.
+On Wed, Sep 07, 2011 at 11:40:46AM -0700, H. Peter Anvin wrote:
+> On 09/07/2011 11:37 AM, Dmitry Torokhov wrote:
+> >>
+> >>I thought there were pointers, (or longs) there too.
+> >>
+> >>In fact, we might have had the worst of both worlds here...
+> >
+> >The pointers are in ioctl paths (upload of force-feedback effects with
+> >custom waveforms - noone actually uses them in real life).
+> >
+> 
+> Ah... we might have lucked out then!
+> 
+> The proc/sysfs issue is still HUGE, however, because that affects
+> all the read/write paths *indirectly*.
+> 
 
-> Thanks for any suggestions on the issue.
+Yeah, we are stuck with these unfortunately... Unless we want to say
+that x32 applications will be presented with bitmaps encoded with 64-bit
+segments instead of 32-bit ones. This would mostly matter to startup
+scripts... X and the others use ioctls, not proc/sysfs.
 
-Hi David,
-Are you sure that the dead zone is being applied in the device itself, and
-not by the '/dev/input/js0' system?
-
-You can look directly at the streaming HID bytes hex(although I can't
-remember how, someone here suggested a method a couple of months back) to
-confirm this.
-
-You could also try to completely disable the 'dead zone' on the joystick
-sub-system.
-Simon
-
+-- 
+Dmitry

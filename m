@@ -1,88 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 0/8] Input: elantech: add support for newer hardware
-Date: Fri, 9 Sep 2011 10:33:43 -0700
-Message-ID: <20110909173342.GB13555@core.coreip.homeip.net>
-References: <1315189007-2179-1-git-send-email-jj_ding@emc.com.tw>
+From: =?utf-8?B?5LuFMTDlhYPmr4/lpKk=?= <root@selvarox.com.br>
+Subject: =?utf-8?B?576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuisxMDnlsYrlub/kuqTkvJrkubDlrrY=?=
+	=?utf-8?B?44CB5rW35YWz5pWw5o2uLEIyQuivouebmOS5sOWutjUwMOS4h+OAgg==?=
+Date: Fri, 9 Sep 2011 17:51:50 +0000 (UTC)
+Message-ID: <20111210014702335188@selvarox.com.br>
+Reply-To: <1339625218@qq.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:48593 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759407Ab1IIRdu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Sep 2011 13:33:50 -0400
-Content-Disposition: inline
-In-Reply-To: <1315189007-2179-1-git-send-email-jj_ding@emc.com.tw>
+Received: from mail.selvarox.com.br ([184.106.179.198]:44914 "EHLO
+	mail.selvarox.com.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757736Ab1IIRvr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Sep 2011 13:51:47 -0400
+Date: Sat, 10 Dec 2011 01:46:48 +0800
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?iso-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-Hi JJ,
+576k5Y+R6L2v5Lu2KzEwOeWxiuW5v+S6pOS8muS5sOWutuOAgea1t+WFs+aVsOaNruOAgeaQnOe0
+ouW8leaTjuS5sOWutixCMkLor6Lnm5jkubDlrrblhbE1MDDkuIcs5LuFMTDlhYPmr4/lpKnjgIIg
+DQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIINCuS/neivgeavj+WkqemDveacieS5
+sOWutuWbnuWkjeOAgg0KDQoNCjHjgIHnvqTlj5Hova/ku7bvvJog5pON5L2c566A5Y2V77yM5Yqf
+6IO95by65aSn77yM5qih5Lu/5Lq65bel5pON5L2c5qih5byP77yM5Yiw6L6+546H6auY77yM5pel
+5Y+R6YCBNeS4h+WwgeS7peS4iuOAgiANCjLjgIE1MDDkuIfkubDlrrbotYTmupDvvJog6LWg6YCB
+55qENTAw5LiH5Lmw5a626LWE5rqQ5bqT77yM5pu05pawICjlj6/ku6XmjInnhafmgqjnmoTkuqfl
+k4Hmj5Dlj5blh7rmnaXvvIzmm7Tnsr7lh4blvIDlj5Ep44CCIA0KM+OAgei2hee6p+a1t+WkluS5
+sOWutkVtYWls5pCc57Si5py677yaIOWGhee9ruS6hjYwMOS4h+ihjOS4muWFs+mUruivje+8jOag
+ueaNrumVv+WwvuivjeaQnOe0ou+8jOe7k+aenOabtOeyvuehruWMuemFje+8m+avj+WkqeiDveaQ
+nOe0ojEtMuS4h+S7peS4iuS5sOWutuecn+WunkVNQUlM77yM5oiQ5Y2V546H6auY44CCIA0KIA0K
+DQropoHnmoTmipPntKfogZTns7tRUTogMTMzOTYyNTIxOCAgIOaIluiAheeri+WNs+WbnuWkjemC
+rueusTogMTMzOTYyNTIxOEBxcS5jb20NCuimgeeahOaKk+e0p+iBlOezu1FROiAxMzM5NjI1MjE4
+ICAg5oiW6ICF56uL5Y2z5Zue5aSN6YKu566xOiAxMzM5NjI1MjE4QHFxLmNvbQ0K6KaB55qE5oqT
+57Sn6IGU57O7UVE6IDEzMzk2MjUyMTggICDmiJbogIXnq4vljbPlm57lpI3pgq7nrrE6IDEzMzk2
+MjUyMThAcXEuY29tDQogDQrlhY3otLnotaDpgIE6DQrkuIDlhbE45Liq5YyFKOaVsOaNruaYr+WF
+qOihjOS4mueahO+8jOaMieeFp+ihjOS4muWIhuWlveexu++8jOW5tuS4lOWPr+S7peaMieeFp+WF
+s+mUruivjeafpeivoueahCnvvJogDQox77yMMjAxMeaYpeWtozEwOeWxiuW5v+S6pOS8muS5sOWu
+tueOsOWcuuivouebmOaVsOaNruW6k+aWsOmynOWHuueCie+8jOi2hee6p+aWsOmynOS5sOWutu+8
+jOaWsOmynOaVsOaNru+8jOWuueaYk+aIkOWNle+8gSANCjLvvIzotK3kubDlkI7lj6/ku6XlhY3o
+tLnmm7TmlrAyMDEx56eL5a2j5bm/5Lqk5LyaKzIwMTLmmKXlraPlub/kuqTkvJrkubDlrrbmlbDm
+ja7jgILlpKrotoXlgLzkuobjgIINCjPvvIzmnIDmlrDlhajnkIPkubDlrrblupMs5YWxNDUxNjYw
+5p2h5pWw5o2u44CCICjmnIDmlrDmm7TmlrDml6XmnJ8gMjAxMS0wNS0xNuaXpSkNCjTvvIwyMDA4
+5bm0LDIwMDnlubQsMjAxMOW5tCDmmKXlraMr56eL5a2j5bm/5Lqk5Lya5Lmw5a625ZCN5b2V77yM
+MTAzIDEwNCAxMDUgMTA2IDEwNyAxMDgg5YWx5YWt5bGKIOWFsTEyMC425LiH5pWw5o2u44CCDQo1
+77yMMjAxMOW5tOWbvemZheS/g+mUgOWNj+S8mu+8iFBQQUnvvInmiJDlkZjlkI3ljZUgUFBBSSBN
+ZW1iZXJzIERpcmVjdG9yee+8jOmdnuW4uOmHjeimgeeahOWkp+S5sOWutuOAgg0KNu+8jDIwMTDl
+ubTliLDpppnmuK/ph4fotK3nmoTlm73lpJblrqLkurrlkI3lvZUo6aaZ5riv6LS45Y+R5bGA5o+Q
+5L6bKe+8jOWFsTcuMuS4h+aVsOaNru+8jOi2hee6p+mHjeimgeeahOS5sOWutuOAgg0KN++8jDQ4
+LjY45LiH5p2h5pyA5paw5Lmw5a626K+i55uY77yM6LSt5Lmw5ZCO5q+P5pyI5pu05pawIDEtMuS4
+h+adoe+8jOWMheaLrDLpg6jliIbvvIwx77yM5pyA5paw55qE6K+i55uYIDLvvIzmnIDmlrDnmoTl
+sZXkvJrkubDlrrbjgILlhY3otLnmm7TmlrAzNuS4quaciOOAgg0KOO+8jDIwMDnlubTmtbflhbPm
+j5DljZXmlbDmja5waWVyc+eJiOaVsOaNriAx5Y2D5LiH44CCDQoNCg0K6K+a5L+h5Li65pys77yM
+5pSv5oyB5pSv5LuY5a6d5ouF5L+d5Lqk5piTICjlhYjlj5HotKflubblronoo4Xorr7nva7nvqTl
+j5Hova/ku7bvvIznhLblkI7ku5jmrL4pIOW9u+W6leaJk+a2iOaCqOeahCDpob7omZHjgIINCg0K
+IA0KDQoNCiANCg0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2uLeaI
+kOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2u
+LeaIkOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K
 
-On Mon, Sep 05, 2011 at 10:16:39AM +0800, JJ Ding wrote:
-> Hi Lists,
->=20
-> This is a series of patches to add support for newer generations of E=
-LAN
-> touchpad.
->=20
-> Patches #1~#6 are essentially fixes and cleanups that pave the way fo=
-r
-> patch #7 and patch #8, which really adds code for v3 and v4 hardware.
->=20
-> Any comments, suggestoins are welcome.
->=20
-> Please take a look at patch #8, which adds support for the latest tou=
-chpads from ELAN.
-> It is a true multi-touch capable touchpad that can track up to 5 fing=
-ers.
-> Support is implemented using MT-B protocol. I used synaptics and mult=
-itouch X
-> driver to test this driver, both worked fine.
->=20
-> Thank you very much.
->=20
-> Changes since v1:
-> - drop EC workaround patch.
-> - add patch #2, make ST and MT have the same range, as Dmitry suggest=
-ed.
-> - add patch #4, remove ETP_EDGE_FUZZ_V2, as =C9ric suggested.
-> - rename all packet checking functions so they are consistent.
-> - some code cleanup, and don't report ABS_[XY] when fingers =3D=3D 0,=
- as Seth suggested.
-> - add document for v3 debounce, and now check debounce in elantech_pa=
-cket_check_v3.
->=20
-> Changes since v2:
-> - fix v3 hardware packet checking (reported by Seth and fix by Dmitry=
-=2E)
->=20
-> Changes since v3:
-> - fix a tiny style problem (useless space on end-of-line, reported by=
- Seth)
-> - v3 hardware can track 2 fingers well, so do not set INPUT_PROP_SEMI=
-_MT on v3
->   (As suggested earlier by =C9ric.)
-> - add patch #8, which adds support for v4 hardware.
->=20
-> Changes since v4:
-> - patch #8: fix a typo (pressure, spotted by =C9ric)
-> - patch #8: add _v4 suffix for functions introduced in this patch (su=
-ggested by =C9ric)
-> - patch #8: simplify set_range switch for case 3 and case 4 (suggeste=
-d by =C9ric)
 
-OK, I applied all 8 patches to my 3.2 queue (and will push out once
-kernel.org is restored) so any followups needs to be sent relative to
-these 8.
-
-Thanks.
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

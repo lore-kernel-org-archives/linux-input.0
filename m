@@ -1,55 +1,118 @@
-From: WEBMAIL SUPPORT <helpdesk2445@gmail.com>
-Subject: =?ISO-8859-2?Q?Aktualizace_=FA=E8tu?=
-Date: Fri, 9 Sep 2011 00:48:34 +0100
-Message-ID: <CANROH_zuxjtWG0i+eFOUQ62_AiA1j_BRikJD-Lp0W9T8WM1uJA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f66.google.com ([74.125.82.66]:58059 "EHLO
-	mail-ww0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751381Ab1IHXsi convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Sep 2011 19:48:38 -0400
-Received: by wwg9 with SMTP id 9so7066wwg.1
-        for <linux-input@vger.kernel.org>; Thu, 08 Sep 2011 16:48:37 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: John Sung <penmount.touch@gmail.com>
+Subject: [PATCH 1/3] Input: penmount - add PenMount 6000 support
+Date: Fri,  9 Sep 2011 16:07:45 +0800
+Message-ID: <1315555667-5893-1-git-send-email-penmount.touch@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, John Sung <penmount.touch@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-U=BEivatel=E9 webmail,
+Add support for PenMount 6000 touch controller.
 
-Z=E1v=ECre=E8n=E1 Ozn=E1men=ED o veden=ED =FA=E8tu a aktualizovat
+Signed-off-by: John Sung <penmount.touch@gmail.com>
+---
+ drivers/input/touchscreen/penmount.c |   64 +++++++++++++++++++++++++++++----
+ 1 files changed, 56 insertions(+), 8 deletions(-)
 
-To je, aby v=E1s upozornil, =BEe budeme d=EClat n=ECjak=E9 z=E1sadn=ED =
-=FAdr=BEbu na=B9ich
-Webmail =FA=E8tu. V pr=F9b=EChu tohoto procesu byste mohli m=EDt loginp=
-roblems v podpisu
-do Webmail =FA=E8et, ale aby se zabr=E1nilo
-to, vy budete muset potvrdit sv=F9j =FA=E8et ihned po obdr=BEen=ED toho=
-to
-ozn=E1men=ED.
-
-Pro potvrzen=ED a aby se va=B9e Webmail =FA=E8et aktivn=ED b=EChem a
-Po tomto procesu, pros=EDm odpov=ECzte na tuto zpr=E1vu s n=ED=BEe =FA=E8=
-tu
-informations.Failure K tomu m=F9=BEe zp=F9sobit trval=E9 deaktivaci
-Va=B9e Webmail =FA=E8et z na=B9=ED datab=E1ze.
-
-Pro potvrzen=ED sv=E9ho =FA=E8tu, za=B9lete sv=E9 =FAdaje Webmail P=F8i=
-hl=E1sit
-uv=E1d=ED:
-
-U=BEivatelsk=E9 jm=E9no:
-Heslo:
-
-V=E1=B9 =FA=E8et z=F9st=E1v=E1 aktivn=ED po =FAsp=EC=B9n=E9m potvrzenou
-=FA=E8tu. Omlouv=E1me se za p=F8=EDpadn=E9 nep=F8=EDjemnosti.
-
-Webmail IT Help desk
-Webmail 2011
-
-V=B9echna pr=E1va vyhrazena
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/touchscreen/penmount.c b/drivers/input/touchscreen/penmount.c
+index 3342c6d..240f6a2 100644
+--- a/drivers/input/touchscreen/penmount.c
++++ b/drivers/input/touchscreen/penmount.c
+@@ -33,7 +33,7 @@ MODULE_LICENSE("GPL");
+  * Definitions & global arrays.
+  */
+ 
+-#define	PM_MAX_LENGTH	5
++#define	PM_MAX_LENGTH	6
+ 
+ /*
+  * Per-touchscreen data.
+@@ -45,8 +45,25 @@ struct pm {
+ 	int idx;
+ 	unsigned char data[PM_MAX_LENGTH];
+ 	char phys[32];
++	unsigned char packetsize;
+ };
+ 
++/*
++ * pm_checkpacket() checks if data packet is valid
++ */
++
++static int pm_checkpacket(unsigned char *packet) {
++	int i = 0;
++	int total = 0;
++	for (i = 0; i < 5; i++)
++		total += packet[i];
++
++	if (packet[5] == (unsigned char)~(total & 0xff))
++		return 1;
++
++	return 0;
++}
++
+ static irqreturn_t pm_interrupt(struct serio *serio,
+ 		unsigned char data, unsigned int flags)
+ {
+@@ -55,14 +72,33 @@ static irqreturn_t pm_interrupt(struct serio *serio,
+ 
+ 	pm->data[pm->idx] = data;
+ 
+-	if (pm->data[0] & 0x80) {
+-		if (PM_MAX_LENGTH == ++pm->idx) {
+-			input_report_abs(dev, ABS_X, pm->data[1] * 128 + pm->data[2]);
+-			input_report_abs(dev, ABS_Y, pm->data[3] * 128 + pm->data[4]);
+-			input_report_key(dev, BTN_TOUCH, !!(pm->data[0] & 0x40));
+-			input_sync(dev);
+-			pm->idx = 0;
++	switch (pm->dev->id.product) {
++	case 0x9000:
++		if (pm->data[0] & 0x80) {
++			if (pm->packetsize == ++pm->idx) {
++				input_report_abs(dev, ABS_X, pm->data[1] * 128 + pm->data[2]);
++				input_report_abs(dev, ABS_Y, pm->data[3] * 128 + pm->data[4]);
++				input_report_key(dev, BTN_TOUCH, !!(pm->data[0] & 0x40));
++				input_sync(dev);
++				pm->idx = 0;
++			}
++		}
++		break;
++	case 0x6000:
++		if ((pm->data[0] & 0xbf) == 0x30) {
++			if (pm->packetsize == ++pm->idx) {
++				if (pm_checkpacket(pm->data)) {
++					input_report_abs(dev, ABS_X,
++							pm->data[2] * 256 + pm->data[1]);
++					input_report_abs(dev, ABS_Y,
++							pm->data[4] * 256 + pm->data[3]);
++					input_report_key(dev, BTN_TOUCH, !!(pm->data[0] & 0x40));
++					input_sync(dev);
++				}
++				pm->idx = 0;
++			}
+ 		}
++		break;
+ 	}
+ 
+ 	return IRQ_HANDLED;
+@@ -120,6 +156,18 @@ static int pm_connect(struct serio *serio, struct serio_driver *drv)
+         input_set_abs_params(pm->dev, ABS_X, 0, 0x3ff, 0, 0);
+         input_set_abs_params(pm->dev, ABS_Y, 0, 0x3ff, 0, 0);
+ 
++	switch (serio->id.id) {
++	default:
++	case 0:
++		pm->packetsize = 5;
++		input_dev->id.product = 0x9000;
++		break;
++	case 1:
++		pm->packetsize = 6;
++		input_dev->id.product = 0x6000;
++		break;
++	}
++
+ 	serio_set_drvdata(serio, pm);
+ 
+ 	err = serio_open(serio, drv);
+-- 
+1.7.4.1

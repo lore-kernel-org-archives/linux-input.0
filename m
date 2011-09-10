@@ -1,80 +1,54 @@
-From: =?ISO-8859-1?Q?Richard_Sch=FCtz?= <r.schtz@t-online.de>
-Subject: Re: elantech touchpad issues
-Date: Thu, 08 Sep 2011 20:17:29 +0200
-Message-ID: <4E6906B9.1080205@t-online.de>
-References: <4E6633E5.6080108@t-online.de> <87sjo7oef3.fsf@emc.com.tw>
+From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@gmail.com>
+Subject: Use "hid-logitech" driver with Logitech Driving Force GT
+Date: Sat, 10 Sep 2011 21:28:23 +0200
+Message-ID: <1530359.8SD6lrfWuA@qosmio-x300>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout02.t-online.de ([194.25.134.17]:49501 "EHLO
-	mailout02.t-online.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932739Ab1IJOnQ (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:42507 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933797Ab1IJT21 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Sep 2011 10:43:16 -0400
-In-Reply-To: <87sjo7oef3.fsf@emc.com.tw>
+	Sat, 10 Sep 2011 15:28:27 -0400
+Received: by fxd22 with SMTP id 22so1726747fxd.19
+        for <linux-input@vger.kernel.org>; Sat, 10 Sep 2011 12:28:26 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: linux-input@vger.kernel.org, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org
 
-Am 08.09.2011 06:18, schrieb JJ Ding:
-> Hi Richard,
->
-> It turns out that v2 hardware has debounce packet, too. But with
-> different signature compared to v3. To the best of my knowledge, I ca=
-n
-> only say some models of v2 hardware have this, and others don't. So w=
-e
-> always check for debounce.
->
-> Please test this patch and see if it works for you.
-> Please apply this on up of my v5 series.
->
-> Thanks
-> ---
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/ela=
-ntech.c
-> index 38fb155..1e5ea1d 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -613,6 +613,13 @@ static int elantech_packet_check_v1(struct psmou=
-se *psmouse)
->   	       etd->parity[packet[3]] =3D=3D p3;
->   }
->
-> +static int elantech_check_debounce_v2(struct psmouse *psmouse)
-> +{
-> +	const u8 debounce_packet[] =3D { 0x84, 0xff, 0xff, 0x02, 0xff, 0xff=
- };
-> +	unsigned char *packet =3D psmouse->packet;
-> +	return !memcmp(packet, debounce_packet, sizeof(debounce_packet));
-> +}
-> +
->   static int elantech_packet_check_v2(struct psmouse *psmouse)
->   {
->   	struct elantech_data *etd =3D psmouse->private;
-> @@ -708,6 +715,9 @@ static psmouse_ret_t elantech_process_byte(struct=
- psmouse *psmouse)
->   		break;
->
->   	case 2:
-> +		if (elantech_check_debounce_v2(psmouse))
-> +			return PSMOUSE_FULL_PACKET;
-> +
->   		if (etd->paritycheck&&  !elantech_packet_check_v2(psmouse))
->   			return PSMOUSE_BAD_DATA;
-> --
-> jj
+There's been a small oversight when adding support for Logitech Driving=
+ Force GT. Entry in hid-core was missing so the generic driver instead =
+of hid-logitech was being used.
 
-Yeah, this fixes the annoying issue with multiple fingers.
+Signed-off-by: Michal Mal=FD <madcatxster@gmail.com>
 
-Now only the problem with the wrong axis ranges is remaining.
+---
+ drivers/hid/hid-core.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
---=20
-Regards,
-Richard Sch=FCtz
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 1a5cf0c..be1cda3 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1417,6 +1417,7 @@ static const struct hid_device_id hid_have_specia=
+l_driver[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOMO_=
+WHEEL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOMO_=
+WHEEL2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DFP_W=
+HEEL) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DFGT_=
+WHEEL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G25_W=
+HEEL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G27_W=
+HEEL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WII_W=
+HEEL) },
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

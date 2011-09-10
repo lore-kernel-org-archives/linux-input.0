@@ -1,73 +1,60 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Use "hid-logitech" driver with Logitech Driving Force GT
-Date: Sat, 10 Sep 2011 21:57:47 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1109102156100.13109@pobox.suse.cz>
-References: <1530359.8SD6lrfWuA@qosmio-x300>
+From: =?utf-8?B?5LuFMTDlhYPmr4/lpKk=?= <test@farmaciakino.com.mx>
+Subject: =?utf-8?B?576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuisxMDnlsYrlub/kuqTkvJrkubDlrrY=?=
+	=?utf-8?B?44CB5rW35YWz5pWw5o2uLEIyQuivouebmOS5sOWutjUwMOS4h+OAgg==?=
+Date: Sat, 10 Sep 2011 21:11:00 +0000 (UTC)
+Message-ID: <20111211045802840337@farmaciakino.com.mx>
+Reply-To: <1339625218@qq.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:42605 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751948Ab1IJT5t (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Sep 2011 15:57:49 -0400
-In-Reply-To: <1530359.8SD6lrfWuA@qosmio-x300>
+Received: from customer-189-254-207-178-sta.uninet-ide.com.mx ([189.254.207.178]:43424
+	"EHLO adkino.farmaciakino.com.mx" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S934090Ab1IJVK5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 10 Sep 2011 17:10:57 -0400
+Date: Sun, 11 Dec 2011 04:57:51 +0800
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-On Sat, 10 Sep 2011, Michal Mal=FD wrote:
+576k5Y+R6L2v5Lu2KzEwOeWxiuW5v+S6pOS8muS5sOWutuOAgea1t+WFs+aVsOaNruOAgeaQnOe0
+ouW8leaTjuS5sOWutixCMkLor6Lnm5jkubDlrrblhbE1MDDkuIcs5LuFMTDlhYPmr4/lpKnjgIIg
+DQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIINCuS/neivgeavj+WkqemDveacieS5
+sOWutuWbnuWkjeOAgg0KDQoNCjHjgIHnvqTlj5Hova/ku7bvvJog5pON5L2c566A5Y2V77yM5Yqf
+6IO95by65aSn77yM5qih5Lu/5Lq65bel5pON5L2c5qih5byP77yM5Yiw6L6+546H6auY77yM5pel
+5Y+R6YCBNeS4h+WwgeS7peS4iuOAgiANCjLjgIE1MDDkuIfkubDlrrbotYTmupDvvJog6LWg6YCB
+55qENTAw5LiH5Lmw5a626LWE5rqQ5bqT77yM5pu05pawICjlj6/ku6XmjInnhafmgqjnmoTkuqfl
+k4Hmj5Dlj5blh7rmnaXvvIzmm7Tnsr7lh4blvIDlj5Ep44CCIA0KM+OAgei2hee6p+a1t+WkluS5
+sOWutkVtYWls5pCc57Si5py677yaIOWGhee9ruS6hjYwMOS4h+ihjOS4muWFs+mUruivje+8jOag
+ueaNrumVv+WwvuivjeaQnOe0ou+8jOe7k+aenOabtOeyvuehruWMuemFje+8m+avj+WkqeiDveaQ
+nOe0ojEtMuS4h+S7peS4iuS5sOWutuecn+WunkVNQUlM77yM5oiQ5Y2V546H6auY44CCIA0KIA0K
+DQropoHnmoTmipPntKfogZTns7tRUTogMTMzOTYyNTIxOCAgIOaIluiAheeri+WNs+WbnuWkjemC
+rueusTogMTMzOTYyNTIxOEBxcS5jb20NCuimgeeahOaKk+e0p+iBlOezu1FROiAxMzM5NjI1MjE4
+ICAg5oiW6ICF56uL5Y2z5Zue5aSN6YKu566xOiAxMzM5NjI1MjE4QHFxLmNvbQ0K6KaB55qE5oqT
+57Sn6IGU57O7UVE6IDEzMzk2MjUyMTggICDmiJbogIXnq4vljbPlm57lpI3pgq7nrrE6IDEzMzk2
+MjUyMThAcXEuY29tDQogDQrlhY3otLnotaDpgIE6DQrkuIDlhbE45Liq5YyFKOaVsOaNruaYr+WF
+qOihjOS4mueahO+8jOaMieeFp+ihjOS4muWIhuWlveexu++8jOW5tuS4lOWPr+S7peaMieeFp+WF
+s+mUruivjeafpeivoueahCnvvJogDQox77yMMjAxMeaYpeWtozEwOeWxiuW5v+S6pOS8muS5sOWu
+tueOsOWcuuivouebmOaVsOaNruW6k+aWsOmynOWHuueCie+8jOi2hee6p+aWsOmynOS5sOWutu+8
+jOaWsOmynOaVsOaNru+8jOWuueaYk+aIkOWNle+8gSANCjLvvIzotK3kubDlkI7lj6/ku6XlhY3o
+tLnmm7TmlrAyMDEx56eL5a2j5bm/5Lqk5LyaKzIwMTLmmKXlraPlub/kuqTkvJrkubDlrrbmlbDm
+ja7jgILlpKrotoXlgLzkuobjgIINCjPvvIzmnIDmlrDlhajnkIPkubDlrrblupMs5YWxNDUxNjYw
+5p2h5pWw5o2u44CCICjmnIDmlrDmm7TmlrDml6XmnJ8gMjAxMS0wNS0xNuaXpSkNCjTvvIwyMDA4
+5bm0LDIwMDnlubQsMjAxMOW5tCDmmKXlraMr56eL5a2j5bm/5Lqk5Lya5Lmw5a625ZCN5b2V77yM
+MTAzIDEwNCAxMDUgMTA2IDEwNyAxMDgg5YWx5YWt5bGKIOWFsTEyMC425LiH5pWw5o2u44CCDQo1
+77yMMjAxMOW5tOWbvemZheS/g+mUgOWNj+S8mu+8iFBQQUnvvInmiJDlkZjlkI3ljZUgUFBBSSBN
+ZW1iZXJzIERpcmVjdG9yee+8jOmdnuW4uOmHjeimgeeahOWkp+S5sOWutuOAgg0KNu+8jDIwMTDl
+ubTliLDpppnmuK/ph4fotK3nmoTlm73lpJblrqLkurrlkI3lvZUo6aaZ5riv6LS45Y+R5bGA5o+Q
+5L6bKe+8jOWFsTcuMuS4h+aVsOaNru+8jOi2hee6p+mHjeimgeeahOS5sOWutuOAgg0KN++8jDQ4
+LjY45LiH5p2h5pyA5paw5Lmw5a626K+i55uY77yM6LSt5Lmw5ZCO5q+P5pyI5pu05pawIDEtMuS4
+h+adoe+8jOWMheaLrDLpg6jliIbvvIwx77yM5pyA5paw55qE6K+i55uYIDLvvIzmnIDmlrDnmoTl
+sZXkvJrkubDlrrbjgILlhY3otLnmm7TmlrAzNuS4quaciOOAgg0KOO+8jDIwMDnlubTmtbflhbPm
+j5DljZXmlbDmja5waWVyc+eJiOaVsOaNriAx5Y2D5LiH44CCDQoNCg0K6K+a5L+h5Li65pys77yM
+5pSv5oyB5pSv5LuY5a6d5ouF5L+d5Lqk5piTICjlhYjlj5HotKflubblronoo4Xorr7nva7nvqTl
+j5Hova/ku7bvvIznhLblkI7ku5jmrL4pIOW9u+W6leaJk+a2iOaCqOeahCDpob7omZHjgIINCg0K
+IA0KDQoNCiANCg0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2uLeaI
+kOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2u
+LeaIkOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K
 
-> There's been a small oversight when adding support for Logitech Drivi=
-ng Force GT. Entry in hid-core was missing so the generic driver instea=
-d of hid-logitech was being used.
->=20
-> Signed-off-by: Michal Mal=FD <madcatxster@gmail.com>
->=20
-> ---
->  drivers/hid/hid-core.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 1a5cf0c..be1cda3 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1417,6 +1417,7 @@ static const struct hid_device_id hid_have_spec=
-ial_driver[] =3D {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOM=
-O_WHEEL) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOM=
-O_WHEEL2) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DFP=
-_WHEEL) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DFG=
-T_WHEEL) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G25=
-_WHEEL) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G27=
-_WHEEL) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WII=
-_WHEEL) },
 
-Hi Michal,
-
-I don't recall the exact history of the original patch from top of my=20
-head, but what I have in my 'upstream' branch seems correct. It might b=
-e=20
-that I have noticed and fixed it on my side.
-
-If you still see any issues in the code I have in my tree, please let m=
-e=20
-know.
-
-Thanks,
-
---=20
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

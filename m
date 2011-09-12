@@ -1,64 +1,46 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH v2] Input: wacom - fix touch on newer Bamboo's
-Date: Sun, 11 Sep 2011 21:08:51 -0500
-Message-ID: <CAGzDe_aqxwvv0Q0-SP8xsDOja6PdyWbTZKHFkn9vn_ihp47toA@mail.gmail.com>
-References: <1315353406-8564-1-git-send-email-chris@cnpbagwell.com>
-	<20110909204112.GB9157@core.coreip.homeip.net>
+From: =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>
+Subject: Re: elantech touchpad issues
+Date: Mon, 12 Sep 2011 10:42:30 +0200
+Message-ID: <4E6DC5F6.7090008@tudelft.nl>
+References: <4E6633E5.6080108@t-online.de> <87sjo7oef3.fsf@emc.com.tw> <4E6906B9.1080205@t-online.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yi0-f46.google.com ([209.85.218.46]:52020 "EHLO
-	mail-yi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752579Ab1ILCIw convert rfc822-to-8bit (ORCPT
+Received: from mailservice.tudelft.nl ([130.161.131.5]:46220 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753438Ab1ILImh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Sep 2011 22:08:52 -0400
-Received: by yie30 with SMTP id 30so2298684yie.19
-        for <linux-input@vger.kernel.org>; Sun, 11 Sep 2011 19:08:52 -0700 (PDT)
-In-Reply-To: <20110909204112.GB9157@core.coreip.homeip.net>
+	Mon, 12 Sep 2011 04:42:37 -0400
+In-Reply-To: <4E6906B9.1080205@t-online.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, pinglinux@gmail.com, rydberg@euromail.se
+To: =?ISO-8859-1?Q?Richard_Sch=FCtz?= <r.schtz@t-online.de>
+Cc: JJ Ding <jj_ding@emc.com.tw>, linux-input@vger.kernel.org, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>
 
-On Fri, Sep 9, 2011 at 3:41 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Sep 06, 2011 at 06:56:46PM -0500, chris@cnpbagwell.com wrote:
->> From: Chris Bagwell <chris@cnpbagwell.com>
->>
->> Bamboo's with Product ID's > 0xD4 return values unrelated to pressur=
-e
->> in touch 1 pressure field. =A0They also report touch 2's X/Y values
->> shifted down 1 byte (where pressure was). =A0This results in jumpy
->> 1 finger touch and totally invalid 2nd finger data.
->>
->> For touch detection, switch to a Touch Present single bit that
->> all versions of Bamboo support.
->>
->> For touch 2 offset, calculate offset based on a bit that is set
->> different between the two packet layouts.
->>
->> Since touch pressure reports were removed from driver, there was
->> no need to be reading pressure any more.
->>
->> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
->> Reviewed-by: Ping Cheng <pinglinux@gmail.com>
+Op 08-09-11 20:17, Richard Sch=FCtz schreef:
+> Am 08.09.2011 06:18, schrieb JJ Ding:
 >
-> Applied, thanks Chris.
+> Yeah, this fixes the annoying issue with multiple fingers.
+>
+> Now only the problem with the wrong axis ranges is remaining.
 >
 
-I'm sorry, Dmitry, but I messed up this version #2 of patch.  Can you
-please revert or hand fix?
+I've tried with my version of the hardware (a old v2) and it doesn't=20
+seem to have the problem you describe.
 
-+               touch =3D touch && wacom->shared->stylus_in_proximity;
+Basically your problem is that the driver reports ranges as 0-1152 and=20
+0-576, but in reality, when you move your finger, the coordinates stay=20
+in the ranges 0-819, 171-576. So in practice the cursor moves as=20
+expected but the borders to allow the scrolling don't work. Is that rig=
+ht?
 
-Somewhere along the line, I lost a "!" on that stylus_in_proximity
-check.  So this v2 patch breaks touch support.
+I wonder if it's normal that the device has a range even smaller than=20
+what it reports, and whether something can be done. JJ Ding?
 
-If you revert, I am planning on submitting 2 or 3 new wacom clean up
-patches in next week.  I can resend with that batch.
-
-Chris
+Cheers,
+=C9ric
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

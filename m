@@ -1,37 +1,51 @@
-From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Subject: Re: [PATCH] Input: wacom - Add POINTER and DIRECT device properties
-Date: Tue, 13 Sep 2011 10:19:49 +0200
-Message-ID: <CAPHpN5NMpiwBz9LNLKrn=eqMxCCZYtWRvcXjmqtHP1WERGvmLg@mail.gmail.com>
-References: <1314892843-1475-1-git-send-email-killertofu@gmail.com> <20110913080911.GA4986@polaris.bitmath.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH V2 1/3] Input: cyttsp - Cypress TTSP capacitive
+ multi-touch screen support
+Date: Tue, 13 Sep 2011 10:24:48 +0200
+Message-ID: <20110913082448.GA5046@polaris.bitmath.org>
+References: <1315029042-27513-1-git-send-email-martinez.javier@gmail.com>
+ <1315029042-27513-2-git-send-email-martinez.javier@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f52.google.com ([209.85.212.52]:62609 "EHLO
-	mail-vw0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753963Ab1IMIUJ (ORCPT
+Received: from smtprelay-h21.telenor.se ([195.54.99.196]:57738 "EHLO
+	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753596Ab1IMIVV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Sep 2011 04:20:09 -0400
-Received: by vws16 with SMTP id 16so618354vws.11
-        for <linux-input@vger.kernel.org>; Tue, 13 Sep 2011 01:20:09 -0700 (PDT)
-In-Reply-To: <20110913080911.GA4986@polaris.bitmath.org>
+	Tue, 13 Sep 2011 04:21:21 -0400
+Content-Disposition: inline
+In-Reply-To: <1315029042-27513-2-git-send-email-martinez.javier@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, pinglinux@gmail.com, dmitry.torokhov@gmail.com
+To: Javier Martinez Canillas <martinez.javier@gmail.com>
+Cc: Kevin McNeely <kev@cypress.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+Hi Javier,
 
-On Tue, Sep 13, 2011 at 10:09 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> The question is then what behavior should be assigned to
-> a large tablet without an embedded screen. It should have POINTER set
-> for sure, but should it also have DIRECT set?
+> Cypress TrueTouch(tm) Standard Product controllers are found in
+> a wide range of embedded devices. This driver add support for a
+> variety of TTSP controllers.
+> 
+> The driver is composed of a core driver that process the data sent by
+> the contacts and a set of bus specific interface modules. This patch
+> adds the base core TTSP driver.
+> 
+> The original author of the driver is Kevin McNeely <kev@cypress.com>
+> 
+> Since the hardware is capable of tracking identifiable contacts and the
+> original driver used multi-touch protocol type A (stateless), multi-touch
+> protocol type B (stateful) support was added by Javier Martinez Canillas.
+> 
+> Signed-off-by: Javier Martinez Canillas <martinez.javier@gmail.com>
+> ---
+> Changes since v1: Fix issues called out by Dmitry Torokhov
+>      - Add msleep() delays between retries for read and write operations
+>      - Change cyttsp_core_init() to receive the IRQ from the client data 
+>        instead of obtaining from the platform_data
 
-Any large tablet without an embedded screen can be used in the 2 different ways:
-1. The projection on top of it so it becomes a direct device.
-(this case is also used when you project 3d 120hz on top of multitouch
-devices: iMuts)
+Compared to the staging version you sent earlier, this version seems
+to be a step back towards the original version regarding the MT
+implementation. Is this the right patch?
 
-2. Simple indirect device, even if it's large:
-http://10gui.com/video/
-
-i
+Thanks,
+Henrik

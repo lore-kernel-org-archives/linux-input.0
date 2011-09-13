@@ -1,48 +1,45 @@
-From: =?ISO-8859-15?Q?Richard_Sch=FCtz?= <r.schtz@t-online.de>
-Subject: Re: [PATCH 1/2] Input: elantech - better support all those v2 variants
-Date: Tue, 13 Sep 2011 12:24:50 +0200
-Message-ID: <4E6F2F72.6080403@t-online.de>
-References: <1315894549-24504-1-git-send-email-jj_ding@emc.com.tw> <1315894549-24504-2-git-send-email-jj_ding@emc.com.tw>
+From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
+Subject: Re: [PATCH 0/2] Better support old elantech v2 hardware
+Date: Tue, 13 Sep 2011 13:02:42 +0200
+Message-ID: <4E6F3852.1030106@tudelft.nl>
+References: <1315894549-24504-1-git-send-email-jj_ding@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15;
+Content-Type: text/plain; charset=UTF-8;
 	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout03.t-online.de ([194.25.134.81]:49942 "EHLO
-	mailout03.t-online.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751867Ab1IMKZK (ORCPT
+Received: from mailservice.tudelft.nl ([130.161.131.5]:47258 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752937Ab1IMLCq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Sep 2011 06:25:10 -0400
-In-Reply-To: <1315894549-24504-2-git-send-email-jj_ding@emc.com.tw>
+	Tue, 13 Sep 2011 07:02:46 -0400
+In-Reply-To: <1315894549-24504-1-git-send-email-jj_ding@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: JJ Ding <jj_ding@emc.com.tw>
-Cc: linux-input@vger.kernel.org, Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>, =?ISO-8859-15?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, =?UTF-8?B?UmljaGFyZCBTY2jDvHR6?= <r.schtz@t-online.de>, Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Am 13.09.2011 08:15, schrieb JJ Ding:
-> V2 hardware has many variants. This patch adddresses two issues:
+Op 13-09-11 08:15, JJ Ding schreef:
+> Hi everyone,
 >
->   - some model also has debounce packets, but with a different signat=
-ure
->     than v3. Now we just check debounce for all v2 hardware.
+> Thanks to Richard Sch=C3=BCtz's bug report, I did some more research =
+on elantech
+> v2 hardware. I asked our Windows driver team and firmware team about =
+the
+> _ancient histroy_ of the dark old days ;-) These two patches are the =
+results.
 >
->   - due to different scanning methods the hardware uses, x and y rang=
-es have
->     to be calculated differently. And for some specific versions, we =
-can just
->     see them as custom-made, so set {x, y} the same values as Windows=
- driver
->     does.
+> Hopefully with these 2 we can support v2 hardware as good as Windows =
+does.
 >
-> Signed-off-by: JJ Ding<jj_ding@emc.com.tw>
+> I can only get two old v2 (fw: 0x020800, 0x040201) to test. Those who=
+ have a elantech v2
+> hardware please do test, thank you very much.
+Thanks JJ Ding for the patches. They look good :-) I think my hardware=20
+is also 0x020800, but I'll test anyway and report back.
 
-Tested-by: Richard Sch=FCtz <r.schtz@t-online.de>
-
-Works like a charm now, thanks!
-
---=20
-Regards,
-Richard Sch=FCtz
+Cheers,
+=C3=89ric
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

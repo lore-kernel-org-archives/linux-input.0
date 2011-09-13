@@ -1,58 +1,141 @@
-From: =?utf-8?B?5LuFMTDlhYPmr4/lpKk=?= <test@amidress.com>
-Subject: =?utf-8?B?576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuisxMDnlsYrlub/kuqTkvJrkubDlrrY=?=
-	=?utf-8?B?44CB5rW35YWz5pWw5o2uLEIyQuivouebmOS5sOWutjUwMOS4h+OAgg==?=
-Date: Tue, 13 Sep 2011 18:47:46 +0000 (UTC)
-Message-ID: <20111213091120424433@amidress.com>
-Reply-To: <1339625218@qq.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH] Input: wacom - Add POINTER and DIRECT device properties
+Date: Tue, 13 Sep 2011 15:54:54 -0500
+Message-ID: <CAGzDe_b6kRc0p6sYiAJ0MkaJtHARN44AcoCG-N=xjLQtp8XA8w@mail.gmail.com>
+References: <1314892843-1475-1-git-send-email-killertofu@gmail.com>
+	<20110913080911.GA4986@polaris.bitmath.org>
+	<CAGzDe_Y1=1Duzr8=eE+wBEa40cD8uJ4hnE0ZzFHaKChAUUPPXg@mail.gmail.com>
+	<CAF8JNhJhOwZx9M++LMk2mY16CE23Mg6jf+ckX5W3yZfwuLDQXA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 184.172.211.66-static.reverse.softlayer.com ([184.172.211.66]:3119
-	"HELO amidress.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932294Ab1IMSrn (ORCPT
+Received: from mail-gx0-f170.google.com ([209.85.161.170]:48327 "EHLO
+	mail-gx0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932567Ab1IMUyz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Sep 2011 14:47:43 -0400
-Date: Tue, 13 Dec 2011 09:11:12 +0800
+	Tue, 13 Sep 2011 16:54:55 -0400
+Received: by gxk27 with SMTP id 27so1314271gxk.1
+        for <linux-input@vger.kernel.org>; Tue, 13 Sep 2011 13:54:55 -0700 (PDT)
+In-Reply-To: <CAF8JNhJhOwZx9M++LMk2mY16CE23Mg6jf+ckX5W3yZfwuLDQXA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, jeffbrown@android.com
 
-576k5Y+R6L2v5Lu2KzEwOeWxiuW5v+S6pOS8muS5sOWutuOAgea1t+WFs+aVsOaNruOAgeaQnOe0
-ouW8leaTjuS5sOWutixCMkLor6Lnm5jkubDlrrblhbE1MDDkuIcs5LuFMTDlhYPmr4/lpKnjgIIg
-DQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIINCuS/neivgeavj+WkqemDveacieS5
-sOWutuWbnuWkjeOAgg0KDQoNCjHjgIHnvqTlj5Hova/ku7bvvJog5pON5L2c566A5Y2V77yM5Yqf
-6IO95by65aSn77yM5qih5Lu/5Lq65bel5pON5L2c5qih5byP77yM5Yiw6L6+546H6auY77yM5pel
-5Y+R6YCBNeS4h+WwgeS7peS4iuOAgiANCjLjgIE1MDDkuIfkubDlrrbotYTmupDvvJog6LWg6YCB
-55qENTAw5LiH5Lmw5a626LWE5rqQ5bqT77yM5q+P5pyI5pu05pawIOOAgiANCjPjgIHotoXnuqfm
-tbflpJbkubDlrrZFbWFpbOaQnOe0ouacuu+8miDmr4/lpKnog73mkJzntKIxLTLkuIfku6XkuIrk
-ubDlrrbnnJ/lrp5FTUFJTO+8jOaIkOWNleeOh+mrmOOAgiANCiANCg0K6KaB55qE5oqT57Sn6IGU
-57O7UVE6IDEzMzk2MjUyMTggICDmiJbogIXnq4vljbPlm57lpI3pgq7nrrE6IDEzMzk2MjUyMThA
-cXEuY29tDQropoHnmoTmipPntKfogZTns7tRUTogMTMzOTYyNTIxOCAgIOaIluiAheeri+WNs+Wb
-nuWkjemCrueusTogMTMzOTYyNTIxOEBxcS5jb20NCuimgeeahOaKk+e0p+iBlOezu1FROiAxMzM5
-NjI1MjE4ICAg5oiW6ICF56uL5Y2z5Zue5aSN6YKu566xOiAxMzM5NjI1MjE4QHFxLmNvbQ0KDQrl
-hY3otLnotaDpgIE6DQrkuIDlhbE45Liq5YyFKOaVsOaNruaYr+WFqOihjOS4mueahO+8jOaMieeF
-p+ihjOS4muWIhuWlveexu++8jOW5tuS4lOWPr+S7peaMieeFp+WFs+mUruivjeafpeivoueahCnv
-vJogDQox77yMMjAxMeaYpeWtozEwOeWxiuW5v+S6pOS8muS5sOWutueOsOWcuuivouebmOaVsOaN
-ruW6k+aWsOmynOWHuueCie+8jOi2hee6p+aWsOmynOS5sOWutu+8jOaWsOmynOaVsOaNru+8jOWu
-ueaYk+aIkOWNle+8gSANCjLvvIzotK3kubDlkI7lj6/ku6XlhY3otLnmm7TmlrAyMDEx56eL5a2j
-5bm/5Lqk5LyaKzIwMTLmmKXlraPlub/kuqTkvJrkubDlrrbmlbDmja7jgILlpKrotoXlgLzkuobj
-gIINCjPvvIzmnIDmlrDlhajnkIPkubDlrrblupMs5YWxNDUxNjYw5p2h5pWw5o2u44CCICjmnIDm
-lrDmm7TmlrDml6XmnJ8gMjAxMS0wNS0xNuaXpSkNCjTvvIwyMDA45bm0LDIwMDnlubQsMjAxMOW5
-tCDmmKXlraMr56eL5a2j5bm/5Lqk5Lya5Lmw5a625ZCN5b2V77yMMTAzIDEwNCAxMDUgMTA2IDEw
-NyAxMDgg5YWx5YWt5bGKIOWFsTEyMC425LiH5pWw5o2u44CCDQo177yMMjAxMOW5tOWbvemZheS/
-g+mUgOWNj+S8mu+8iFBQQUnvvInmiJDlkZjlkI3ljZUgUFBBSSBNZW1iZXJzIERpcmVjdG9yee+8
-jOmdnuW4uOmHjeimgeeahOWkp+S5sOWutuOAgg0KNu+8jDIwMTDlubTliLDpppnmuK/ph4fotK3n
-moTlm73lpJblrqLkurrlkI3lvZUo6aaZ5riv6LS45Y+R5bGA5o+Q5L6bKe+8jOWFsTcuMuS4h+aV
-sOaNru+8jOi2hee6p+mHjeimgeeahOS5sOWutuOAgg0KN++8jDQ4LjY45LiH5p2h5pyA5paw5Lmw
-5a626K+i55uY77yM6LSt5Lmw5ZCO5q+P5pyI5pu05pawIDEtMuS4h+adoe+8jOWMheaLrDLpg6jl
-iIbvvIwx77yM5pyA5paw55qE6K+i55uYIDLvvIzmnIDmlrDnmoTlsZXkvJrkubDlrrbjgILlhY3o
-tLnmm7TmlrAzNuS4quaciOOAgg0KOO+8jDIwMDnlubTmtbflhbPmj5DljZXmlbDmja5waWVyc+eJ
-iOaVsOaNriAx5Y2D5LiH44CCDQoNCg0K6K+a5L+h5Li65pys77yM5pSv5oyB5pSv5LuY5a6d5ouF
-5L+d5Lqk5piTICjlhYjlj5HotKflubblronoo4Xorr7nva7nvqTlj5Hova/ku7bvvIznhLblkI7k
-u5jmrL4pIOW9u+W6leaJk+a2iOaCqOeahCDpob7omZHjgIINCg0KIA0KDQoNCiANCg0K57K+5YeG
-5pWw5o2uLeaIkOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K57K+
-5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K
-57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K
+On Tue, Sep 13, 2011 at 12:36 PM, Ping Cheng <pinglinux@gmail.com> wrot=
+e:
+> On Tue, Sep 13, 2011 at 7:13 AM, Chris Bagwell <chris@cnpbagwell.com>=
+ wrote:
+>> On Tue, Sep 13, 2011 at 3:09 AM, Henrik Rydberg <rydberg@euromail.se=
+> wrote:
+>>> Hi Jason,
+>>>
+>>>> Adds INPUT_PROP_POINTER or INPUT_PROP_DIRECT as necessary to the
+>>>> hardware supported by the Wacom driver. The DIRECT property is
+>>>> assigned to devices with an embedded screen (i.e. touchscreens
+>>>> and display tablets). The POINTER property is assigned to those
+>>>> without embedded screens.
+>>>>
+>>>> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+>>>> ---
+>>>
+>>> According to the discussion leading up to the properties interface
+>>> (https://lkml.org/lkml/2010/12/15/263), a tablet is a direct pointe=
+r
+>>> device, as opposed to a touchpad, which is an indirect pointer
+>>> device. The distinction determines the direction of two-finger scro=
+ll,
+>>> for instance. The question is then what behavior should be assigned=
+ to
+>>> a large tablet without an embedded screen. It should have POINTER s=
+et
+>>> for sure, but should it also have DIRECT set?
+>
+> We have discussed and debated the above before the patch was posted.
+>
+> As Ikbel pointed out, a standalone tablet can be DIRECT or INDIRECT,
+> depending on how it is used. So, it is more a property that is decide=
+d
+> by the client than by the kernel driver.
 
+I've a couple questions that would help me decide how things should be =
+declared.
 
+Can DIRECT be translated to mean treat coordinates as absolute
+coordinates mapped to screen?  Or is it meant to be reserved only for
+the more specific touchscreen-like application were the touch is laid
+directly on top of the object being manipulated (or picture is
+overlaid the touch for projector case)?
+
+If some company shipped a touchpad+projector, would that ideally
+declare DIRECT and not declare POINTER since user is directly touching
+objects and the display of a pointer would serve no purpose?
+
+What I'm getting at with the second question is if user pairs up a
+touch tablet/touchpad with a projector then declaring even POINTER may
+be just as wrong as not declaring DIRECT.
+
+I don't think we can every get custom HW applications declared
+correctly, so do we punish all cases and not declare anything?
+
+>
+>> Here are all the possible combinations based on my understanding of
+>> their intended usage.
+>>
+>> =A0* Touch interface without screen should have POINTER only to
+>> indicate pointer needed and to treat absolute coordinates as relativ=
+e
+>> movement. =A0Relative movement is product's default behavior as
+>> documented in its own manual and what I think should be advertised b=
+y
+>> default.
+>> =A0* Pen interface without screen should have both POINTER and DIREC=
+T to
+>> indicate pointer needed and to treat absolute coordinates as absolut=
+e
+>> movement.
+>
+> Reporting it as DIRECT indicates it can only be used as DIRECT. We
+> don't want client to make that assumption. User-land clients can
+> distinguish a touch POINTER from a pen POINTER by the tool types.
+
+I see your logic now and patch does follow that logic.
+
+I can actually buy into that although it seems to make the need for
+both POINTER and DIRECT redundant. Touchscreen =3D DIRECT while Tablet
+(pen, touch, or both) =3D POINTER.  No overlap.
+
+If we do allow DIRECT on tablets then I do see now it becomes a
+relaxed DIRECT since application will most likely still offer
+switching pens to relative mode.
+
+Chris
+
+>
+>> =A0* Touch interfaces with screen should have DIRECT only to indicat=
+e no
+>> pointer displayed and absolute coordinates as absolute movement.
+>> =A0* Pen interface with screen should have DIRECT only to indicate n=
+o
+>> pointer displayed and absolute coordinates as absolute movement.
+>> * A Pen+Touch touchscreen (only the wacom_w8001.c), should have DIRE=
+CT
+>> only to indicate no pointer displayed and absolute coordinates as
+>> absolute movement.
+>>
+>> Assuming we all agree on those combination, then in the patch the
+>> Graphire and Intuos tablets are missing a DIRECT, the touchscreens a=
+re
+>> correct, and the Bamboo's need to add DIRECT for the PEN interface
+>> only.
+>
+> I agree with all the other assumptions except this one.
+>
+> Ping
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

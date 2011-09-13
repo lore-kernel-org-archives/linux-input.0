@@ -1,51 +1,30 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH V2 1/3] Input: cyttsp - Cypress TTSP capacitive
- multi-touch screen support
-Date: Tue, 13 Sep 2011 10:24:48 +0200
-Message-ID: <20110913082448.GA5046@polaris.bitmath.org>
-References: <1315029042-27513-1-git-send-email-martinez.javier@gmail.com>
- <1315029042-27513-2-git-send-email-martinez.javier@gmail.com>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 0/3] TSC-40 touch screen driver
+Date: Tue, 13 Sep 2011 10:18:07 +0200
+Message-ID: <CAH9NwWca_AvyG=BdN9HeUKST1hi-L+Dos2T10SpZaLZjfdzJ6w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:57738 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753596Ab1IMIVV (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:40617 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753596Ab1IMIX4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Sep 2011 04:21:21 -0400
-Content-Disposition: inline
-In-Reply-To: <1315029042-27513-2-git-send-email-martinez.javier@gmail.com>
+	Tue, 13 Sep 2011 04:23:56 -0400
+Received: by yxm8 with SMTP id 8so240243yxm.19
+        for <linux-input@vger.kernel.org>; Tue, 13 Sep 2011 01:23:55 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <martinez.javier@gmail.com>
-Cc: Kevin McNeely <kev@cypress.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: bigeasy@linutronix.de
 
-Hi Javier,
+This patch series adds the TSC-40 serial touchscreen driver, which
+should be compatible
+with TSC-10 and TSC-25. The driver was written by Linutronix on behalf
+of Bachmann electronic GmbH.
+During development of our Linux based system some changes were made.
+I hope to get this driver into mainline and so every feedback is
+welcome and will be incorporated.
 
-> Cypress TrueTouch(tm) Standard Product controllers are found in
-> a wide range of embedded devices. This driver add support for a
-> variety of TTSP controllers.
-> 
-> The driver is composed of a core driver that process the data sent by
-> the contacts and a set of bus specific interface modules. This patch
-> adds the base core TTSP driver.
-> 
-> The original author of the driver is Kevin McNeely <kev@cypress.com>
-> 
-> Since the hardware is capable of tracking identifiable contacts and the
-> original driver used multi-touch protocol type A (stateless), multi-touch
-> protocol type B (stateful) support was added by Javier Martinez Canillas.
-> 
-> Signed-off-by: Javier Martinez Canillas <martinez.javier@gmail.com>
-> ---
-> Changes since v1: Fix issues called out by Dmitry Torokhov
->      - Add msleep() delays between retries for read and write operations
->      - Change cyttsp_core_init() to receive the IRQ from the client data 
->        instead of obtaining from the platform_data
-
-Compared to the staging version you sent earlier, this version seems
-to be a step back towards the original version regarding the MT
-implementation. Is this the right patch?
-
-Thanks,
-Henrik
+This work is sponsored by Bachmann electronic GmbH.
+--
+Christian Gmeiner, MSc

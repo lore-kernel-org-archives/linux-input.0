@@ -1,45 +1,55 @@
-From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
-Subject: Re: [PATCH 0/2] Better support old elantech v2 hardware
-Date: Tue, 13 Sep 2011 13:02:42 +0200
-Message-ID: <4E6F3852.1030106@tudelft.nl>
-References: <1315894549-24504-1-git-send-email-jj_ding@emc.com.tw>
+From: WEBMAIL SUPPORT <powell.thompson66@gmail.com>
+Subject: =?ISO-8859-2?Q?Aktualizace_=FA=E8t=F9?=
+Date: Tue, 13 Sep 2011 11:59:48 +0100
+Message-ID: <CAHTp2vcBt3QZgbBVAt4_sNBocZipQ0BVk63gZ3PyN++yEuULeA@mail.gmail.com>
+Reply-To: osanebidave@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailservice.tudelft.nl ([130.161.131.5]:47258 "EHLO
-	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752937Ab1IMLCq (ORCPT
+Received: from mail-bw0-f66.google.com ([209.85.214.66]:48286 "EHLO
+	mail-bw0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751211Ab1IMLOm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Sep 2011 07:02:46 -0400
-In-Reply-To: <1315894549-24504-1-git-send-email-jj_ding@emc.com.tw>
+	Tue, 13 Sep 2011 07:14:42 -0400
+Received: by bkbzs8 with SMTP id zs8so130555bkb.1
+        for <linux-input@vger.kernel.org>; Tue, 13 Sep 2011 04:14:41 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: linux-input@vger.kernel.org, =?UTF-8?B?UmljaGFyZCBTY2jDvHR6?= <r.schtz@t-online.de>, Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Op 13-09-11 08:15, JJ Ding schreef:
-> Hi everyone,
->
-> Thanks to Richard Sch=C3=BCtz's bug report, I did some more research =
-on elantech
-> v2 hardware. I asked our Windows driver team and firmware team about =
-the
-> _ancient histroy_ of the dark old days ;-) These two patches are the =
-results.
->
-> Hopefully with these 2 we can support v2 hardware as good as Windows =
-does.
->
-> I can only get two old v2 (fw: 0x020800, 0x040201) to test. Those who=
- have a elantech v2
-> hardware please do test, thank you very much.
-Thanks JJ Ding for the patches. They look good :-) I think my hardware=20
-is also 0x020800, but I'll test anyway and report back.
+U=BEivatel=E9 webmail,
 
-Cheers,
-=C3=89ric
+Z=E1v=ECre=E8n=E1 Ozn=E1men=ED o veden=ED =FA=E8tu a aktualizovat
+
+To je, aby v=E1s upozornil, =BEe budeme d=EClat n=ECjak=E9 z=E1sadn=ED =
+=FAdr=BEbu na=B9ich
+Webmail =FA=E8tu. V pr=F9b=EChu tohoto procesu byste mohli m=EDt loginp=
+roblems v podpisu
+do Webmail =FA=E8et, ale aby se zabr=E1nilo
+to, vy budete muset potvrdit sv=F9j =FA=E8et ihned po obdr=BEen=ED toho=
+to
+ozn=E1men=ED.
+
+Pro potvrzen=ED a aby se va=B9e Webmail =FA=E8et aktivn=ED b=EChem a
+Po tomto procesu, pros=EDm odpov=ECzte na tuto zpr=E1vu s n=ED=BEe =FA=E8=
+tu
+informations.Failure K tomu m=F9=BEe zp=F9sobit trval=E9 deaktivaci
+Va=B9e Webmail =FA=E8et z na=B9=ED datab=E1ze.
+
+Pro potvrzen=ED sv=E9ho =FA=E8tu, za=B9lete sv=E9 =FAdaje Webmail P=F8i=
+hl=E1sit
+uv=E1d=ED:
+
+U=BEivatelsk=E9 jm=E9no:
+Heslo:
+
+V=E1=B9 =FA=E8et z=F9st=E1v=E1 aktivn=ED po =FAsp=EC=B9n=E9m potvrzenou
+=FA=E8tu. Omlouv=E1me se za p=F8=EDpadn=E9 nep=F8=EDjemnosti.
+
+Webmail IT Help desk
+Webmail 2011
+
+V=B9echna pr=E1va vyhrazena
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

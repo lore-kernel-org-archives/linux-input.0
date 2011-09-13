@@ -1,53 +1,67 @@
-From: Thomas Abraham <thomas.abraham@linaro.org>
-Subject: [PATCH 1/2] input: samsung-keypad: Add HAVE_SAMSUNG_KEYPAD config
- option
-Date: Tue, 13 Sep 2011 17:56:18 +0530
-Message-ID: <1315916779-21793-2-git-send-email-thomas.abraham@linaro.org>
-References: <1315916779-21793-1-git-send-email-thomas.abraham@linaro.org>
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <1315916779-21793-1-git-send-email-thomas.abraham@linaro.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: devicetree-discuss@lists.ozlabs.org
-Cc: grant.likely@secretlab.ca, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kgene.kim@samsung.com, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jy0922.shim@samsung.com, dh09.lee@samsung.com
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH] Input: wacom - Add POINTER and DIRECT device properties
+Date: Tue, 13 Sep 2011 09:13:49 -0500
+Message-ID: <CAGzDe_Y1=1Duzr8=eE+wBEa40cD8uJ4hnE0ZzFHaKChAUUPPXg@mail.gmail.com>
+References: <1314892843-1475-1-git-send-email-killertofu@gmail.com>
+	<20110913080911.GA4986@polaris.bitmath.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:40765 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754460Ab1IMOTW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Sep 2011 10:19:22 -0400
+Received: by yxm8 with SMTP id 8so486721yxm.19
+        for <linux-input@vger.kernel.org>; Tue, 13 Sep 2011 07:19:20 -0700 (PDT)
+In-Reply-To: <20110913080911.GA4986@polaris.bitmath.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, pinglinux@gmail.com, dmitry.torokhov@gmail.com
 
-For platforms using device tree, the static keypad device instances
-are not required and SAMSUNG_DEV_KEYPAD is not selected. Since,
-samsung keypad driver has dependency on SAMSUNG_DEV_KEYPAD config
-option, the driver is left out of the compilation for dt enabled
-platforms.
+On Tue, Sep 13, 2011 at 3:09 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> Hi Jason,
+>
+>> Adds INPUT_PROP_POINTER or INPUT_PROP_DIRECT as necessary to the
+>> hardware supported by the Wacom driver. The DIRECT property is
+>> assigned to devices with an embedded screen (i.e. touchscreens
+>> and display tablets). The POINTER property is assigned to those
+>> without embedded screens.
+>>
+>> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+>> ---
+>
+> According to the discussion leading up to the properties interface
+> (https://lkml.org/lkml/2010/12/15/263), a tablet is a direct pointer
+> device, as opposed to a touchpad, which is an indirect pointer
+> device. The distinction determines the direction of two-finger scroll,
+> for instance. The question is then what behavior should be assigned to
+> a large tablet without an embedded screen. It should have POINTER set
+> for sure, but should it also have DIRECT set?
 
-An additional config option 'HAVE_SAMSUNG_KEYPAD' is added
-which the device tree based platforms can select. This config
-option is added as an alternative dependency for keypad driver.
+Here are all the possible combinations based on my understanding of
+their intended usage.
 
-Signed-off-by: Thomas Abraham <thomas.abraham@linaro.org>
----
- drivers/input/keyboard/Kconfig |    9 ++++++++-
- 1 files changed, 8 insertions(+), 1 deletions(-)
+  * Touch interface without screen should have POINTER only to
+indicate pointer needed and to treat absolute coordinates as relative
+movement.  Relative movement is product's default behavior as
+documented in its own manual and what I think should be advertised by
+default.
+ * Pen interface without screen should have both POINTER and DIRECT to
+indicate pointer needed and to treat absolute coordinates as absolute
+movement.
+ * Touch interfaces with screen should have DIRECT only to indicate no
+pointer displayed and absolute coordinates as absolute movement.
+ * Pen interface with screen should have DIRECT only to indicate no
+pointer displayed and absolute coordinates as absolute movement.
+* A Pen+Touch touchscreen (only the wacom_w8001.c), should have DIRECT
+only to indicate no pointer displayed and absolute coordinates as
+absolute movement.
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index b4dee9d..7c322a3 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -423,9 +423,16 @@ config KEYBOARD_PMIC8XXX
- 	  To compile this driver as a module, choose M here: the module will
- 	  be called pmic8xxx-keypad.
- 
-+config HAVE_SAMSUNG_KEYPAD
-+	bool
-+	help
-+	  This will include Samsung Keypad controller driver support. If you
-+	  want to include Samsung Keypad support for any machine, kindly
-+	  select this in the respective mach-xxxx/Kconfig file.
-+
- config KEYBOARD_SAMSUNG
- 	tristate "Samsung keypad support"
--	depends on SAMSUNG_DEV_KEYPAD
-+	depends on SAMSUNG_DEV_KEYPAD || HAVE_SAMSUNG_KEYPAD
- 	help
- 	  Say Y here if you want to use the Samsung keypad.
- 
--- 
-1.6.6.rc2
+Assuming we all agree on those combination, then in the patch the
+Graphire and Intuos tablets are missing a DIRECT, the touchscreens are
+correct, and the Bamboo's need to add DIRECT for the PEN interface
+only.
+
+Chris

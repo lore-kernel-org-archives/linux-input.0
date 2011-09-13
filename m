@@ -1,75 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: wacom - fix touch on newer Bamboo's
-Date: Mon, 12 Sep 2011 22:10:13 -0700
-Message-ID: <20110913051013.GA27416@core.coreip.homeip.net>
-References: <1315353406-8564-1-git-send-email-chris@cnpbagwell.com>
- <20110909204112.GB9157@core.coreip.homeip.net>
- <CAGzDe_aqxwvv0Q0-SP8xsDOja6PdyWbTZKHFkn9vn_ihp47toA@mail.gmail.com>
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: =?UTF-8?q?=5BPATCH=200/2=5D=20Better=20support=20old=20elantech=20v2=20hardware?=
+Date: Tue, 13 Sep 2011 14:15:47 +0800
+Message-ID: <1315894549-24504-1-git-send-email-jj_ding@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:34422 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752020Ab1IMFKU (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:38687 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754373Ab1IMGNX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Sep 2011 01:10:20 -0400
-Received: by ywb5 with SMTP id 5so143368ywb.19
-        for <linux-input@vger.kernel.org>; Mon, 12 Sep 2011 22:10:20 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CAGzDe_aqxwvv0Q0-SP8xsDOja6PdyWbTZKHFkn9vn_ihp47toA@mail.gmail.com>
+	Tue, 13 Sep 2011 02:13:23 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Bagwell <chris@cnpbagwell.com>
-Cc: linux-input@vger.kernel.org, pinglinux@gmail.com, rydberg@euromail.se
+To: linux-input@vger.kernel.org
+Cc: =?UTF-8?q?Richard=20Sch=C3=BCtz?= <r.schtz@t-online.de>, Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>, =?UTF-8?q?=C3=89ric=20Piel?= <E.A.B.Piel@tudelft.nl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, JJ Ding <jj_ding@emc.com.tw>
 
-On Sun, Sep 11, 2011 at 09:08:51PM -0500, Chris Bagwell wrote:
-> On Fri, Sep 9, 2011 at 3:41 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Tue, Sep 06, 2011 at 06:56:46PM -0500, chris@cnpbagwell.com wrot=
-e:
-> >> From: Chris Bagwell <chris@cnpbagwell.com>
-> >>
-> >> Bamboo's with Product ID's > 0xD4 return values unrelated to press=
-ure
-> >> in touch 1 pressure field. =A0They also report touch 2's X/Y value=
-s
-> >> shifted down 1 byte (where pressure was). =A0This results in jumpy
-> >> 1 finger touch and totally invalid 2nd finger data.
-> >>
-> >> For touch detection, switch to a Touch Present single bit that
-> >> all versions of Bamboo support.
-> >>
-> >> For touch 2 offset, calculate offset based on a bit that is set
-> >> different between the two packet layouts.
-> >>
-> >> Since touch pressure reports were removed from driver, there was
-> >> no need to be reading pressure any more.
-> >>
-> >> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
-> >> Reviewed-by: Ping Cheng <pinglinux@gmail.com>
-> >
-> > Applied, thanks Chris.
-> >
->=20
-> I'm sorry, Dmitry, but I messed up this version #2 of patch.  Can you
-> please revert or hand fix?
->=20
-> +               touch =3D touch && wacom->shared->stylus_in_proximity=
-;
->=20
-> Somewhere along the line, I lost a "!" on that stylus_in_proximity
-> check.  So this v2 patch breaks touch support.
->=20
-> If you revert, I am planning on submitting 2 or 3 new wacom clean up
-> patches in next week.  I can resend with that batch.
+Hi everyone,
 
-I just fixed it up locally, no need to resend.
+Thanks to Richard Sch=C3=BCtz's bug report, I did some more research on=
+ elantech
+v2 hardware. I asked our Windows driver team and firmware team about th=
+e
+_ancient histroy_ of the dark old days ;-) These two patches are the re=
+sults.
 
-Thanks.
+Hopefully with these 2 we can support v2 hardware as good as Windows do=
+es.
+
+I can only get two old v2 (fw: 0x020800, 0x040201) to test. Those who h=
+ave a elantech v2
+hardware please do test, thank you very much.
+
+Note:
+These 2 patches are on top of my previous v5 series.
+
+JJ Ding (2):
+  Input: elantech - better support all those v2 variants
+  Input: elantech - remove module parameter force_elantech
+
+ drivers/input/mouse/elantech.c |   58 +++++++++++++++++++++++++++++---=
+-------
+ drivers/input/mouse/elantech.h |    1 +
+ 2 files changed, 44 insertions(+), 15 deletions(-)
 
 --=20
-Dmitry
+1.7.4.1
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

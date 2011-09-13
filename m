@@ -1,52 +1,77 @@
-From: JJ Ding <jj_ding@emc.com.tw>
-Subject: Re: [PATCH v5 0/8] Input: elantech: add support for newer hardware
-Date: Tue, 13 Sep 2011 09:43:30 +0800
-Message-ID: <874o0h43p9.fsf@emc.com.tw>
-References: <1315189007-2179-1-git-send-email-jj_ding@emc.com.tw> <20110909173342.GB13555@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Input: wacom - fix touch on newer Bamboo's
+Date: Mon, 12 Sep 2011 22:10:13 -0700
+Message-ID: <20110913051013.GA27416@core.coreip.homeip.net>
+References: <1315353406-8564-1-git-send-email-chris@cnpbagwell.com>
+ <20110909204112.GB9157@core.coreip.homeip.net>
+ <CAGzDe_aqxwvv0Q0-SP8xsDOja6PdyWbTZKHFkn9vn_ihp47toA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:51421 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753094Ab1IMBlA (ORCPT
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:34422 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752020Ab1IMFKU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Sep 2011 21:41:00 -0400
-In-Reply-To: <20110909173342.GB13555@core.coreip.homeip.net>
+	Tue, 13 Sep 2011 01:10:20 -0400
+Received: by ywb5 with SMTP id 5so143368ywb.19
+        for <linux-input@vger.kernel.org>; Mon, 12 Sep 2011 22:10:20 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CAGzDe_aqxwvv0Q0-SP8xsDOja6PdyWbTZKHFkn9vn_ihp47toA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?utf-8?Q?=C3=89ric?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
+To: Chris Bagwell <chris@cnpbagwell.com>
+Cc: linux-input@vger.kernel.org, pinglinux@gmail.com, rydberg@euromail.se
 
-Hi Dmitry,
+On Sun, Sep 11, 2011 at 09:08:51PM -0500, Chris Bagwell wrote:
+> On Fri, Sep 9, 2011 at 3:41 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Tue, Sep 06, 2011 at 06:56:46PM -0500, chris@cnpbagwell.com wrot=
+e:
+> >> From: Chris Bagwell <chris@cnpbagwell.com>
+> >>
+> >> Bamboo's with Product ID's > 0xD4 return values unrelated to press=
+ure
+> >> in touch 1 pressure field. =A0They also report touch 2's X/Y value=
+s
+> >> shifted down 1 byte (where pressure was). =A0This results in jumpy
+> >> 1 finger touch and totally invalid 2nd finger data.
+> >>
+> >> For touch detection, switch to a Touch Present single bit that
+> >> all versions of Bamboo support.
+> >>
+> >> For touch 2 offset, calculate offset based on a bit that is set
+> >> different between the two packet layouts.
+> >>
+> >> Since touch pressure reports were removed from driver, there was
+> >> no need to be reading pressure any more.
+> >>
+> >> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+> >> Reviewed-by: Ping Cheng <pinglinux@gmail.com>
+> >
+> > Applied, thanks Chris.
+> >
+>=20
+> I'm sorry, Dmitry, but I messed up this version #2 of patch.  Can you
+> please revert or hand fix?
+>=20
+> +               touch =3D touch && wacom->shared->stylus_in_proximity=
+;
+>=20
+> Somewhere along the line, I lost a "!" on that stylus_in_proximity
+> check.  So this v2 patch breaks touch support.
+>=20
+> If you revert, I am planning on submitting 2 or 3 new wacom clean up
+> patches in next week.  I can resend with that batch.
 
-On Fri, 9 Sep 2011 10:33:43 -0700, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> Hi JJ,
-> 
-> On Mon, Sep 05, 2011 at 10:16:39AM +0800, JJ Ding wrote:
-> > Hi Lists,
-> > 
-> > This is a series of patches to add support for newer generations of ELAN
-> > touchpad.
-> > 
-> > Patches #1~#6 are essentially fixes and cleanups that pave the way for
-> > patch #7 and patch #8, which really adds code for v3 and v4 hardware.
-> > 
-> > Any comments, suggestoins are welcome.
-> > 
-> 
-> OK, I applied all 8 patches to my 3.2 queue (and will push out once
-> kernel.org is restored) so any followups needs to be sent relative to
-> these 8.
-> 
-> Thanks.
+I just fixed it up locally, no need to resend.
 
-Happy to hear that. Thank you very much.
-And thank all for reviewing and testing this series.
+Thanks.
 
-jj
-> -- 
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,55 +1,53 @@
-From: WEBMAIL SUPPORT <powell.thompson66@gmail.com>
-Subject: =?ISO-8859-2?Q?Aktualizace_=FA=E8t=F9?=
-Date: Tue, 13 Sep 2011 11:59:48 +0100
-Message-ID: <CAHTp2vcBt3QZgbBVAt4_sNBocZipQ0BVk63gZ3PyN++yEuULeA@mail.gmail.com>
-Reply-To: osanebidave@gmail.com
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: Re: [PATCH 1/2] Input: elantech - better support all those v2 variants
+Date: Tue, 13 Sep 2011 19:28:06 +0800
+Message-ID: <87ehzkel6h.fsf@emc.com.tw>
+References: <1315894549-24504-1-git-send-email-jj_ding@emc.com.tw> <1315894549-24504-2-git-send-email-jj_ding@emc.com.tw> <4E6F2F72.6080403@t-online.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f66.google.com ([209.85.214.66]:48286 "EHLO
-	mail-bw0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751211Ab1IMLOm convert rfc822-to-8bit (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:53416 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751431Ab1IMLZf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Sep 2011 07:14:42 -0400
-Received: by bkbzs8 with SMTP id zs8so130555bkb.1
-        for <linux-input@vger.kernel.org>; Tue, 13 Sep 2011 04:14:41 -0700 (PDT)
+	Tue, 13 Sep 2011 07:25:35 -0400
+In-Reply-To: <4E6F2F72.6080403@t-online.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Richard =?utf-8?Q?Sch=C3=BCtz?= <r.schtz@t-online.de>
+Cc: linux-input@vger.kernel.org, Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>, =?utf-8?Q?=C3=89ric?= Piel <E.A.B.Piel@tudelft.nl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-U=BEivatel=E9 webmail,
+On Tue, 13 Sep 2011 12:24:50 +0200, Richard Sch=C3=BCtz <r.schtz@t-onli=
+ne.de> wrote:
+> Am 13.09.2011 08:15, schrieb JJ Ding:
+> > V2 hardware has many variants. This patch adddresses two issues:
+> >
+> >   - some model also has debounce packets, but with a different sign=
+ature
+> >     than v3. Now we just check debounce for all v2 hardware.
+> >
+> >   - due to different scanning methods the hardware uses, x and y ra=
+nges have
+> >     to be calculated differently. And for some specific versions, w=
+e can just
+> >     see them as custom-made, so set {x, y} the same values as Windo=
+ws driver
+> >     does.
+> >
+> > Signed-off-by: JJ Ding<jj_ding@emc.com.tw>
+>=20
+> Tested-by: Richard Sch=C3=BCtz <r.schtz@t-online.de>
+>=20
+> Works like a charm now, thanks!
 
-Z=E1v=ECre=E8n=E1 Ozn=E1men=ED o veden=ED =FA=E8tu a aktualizovat
+Good to hear it works for you. Thanks for testing.
 
-To je, aby v=E1s upozornil, =BEe budeme d=EClat n=ECjak=E9 z=E1sadn=ED =
-=FAdr=BEbu na=B9ich
-Webmail =FA=E8tu. V pr=F9b=EChu tohoto procesu byste mohli m=EDt loginp=
-roblems v podpisu
-do Webmail =FA=E8et, ale aby se zabr=E1nilo
-to, vy budete muset potvrdit sv=F9j =FA=E8et ihned po obdr=BEen=ED toho=
-to
-ozn=E1men=ED.
+jj
 
-Pro potvrzen=ED a aby se va=B9e Webmail =FA=E8et aktivn=ED b=EChem a
-Po tomto procesu, pros=EDm odpov=ECzte na tuto zpr=E1vu s n=ED=BEe =FA=E8=
-tu
-informations.Failure K tomu m=F9=BEe zp=F9sobit trval=E9 deaktivaci
-Va=B9e Webmail =FA=E8et z na=B9=ED datab=E1ze.
-
-Pro potvrzen=ED sv=E9ho =FA=E8tu, za=B9lete sv=E9 =FAdaje Webmail P=F8i=
-hl=E1sit
-uv=E1d=ED:
-
-U=BEivatelsk=E9 jm=E9no:
-Heslo:
-
-V=E1=B9 =FA=E8et z=F9st=E1v=E1 aktivn=ED po =FAsp=EC=B9n=E9m potvrzenou
-=FA=E8tu. Omlouv=E1me se za p=F8=EDpadn=E9 nep=F8=EDjemnosti.
-
-Webmail IT Help desk
-Webmail 2011
-
-V=B9echna pr=E1va vyhrazena
+> --=20
+> Regards,
+> Richard Sch=C3=BCtz
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

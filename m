@@ -1,57 +1,48 @@
-From: JJ Ding <jj_ding@emc.com.tw>
-Subject: Re: [PATCH 0/2] Better support old elantech v2 hardware
-Date: Tue, 13 Sep 2011 19:32:15 +0800
-Message-ID: <87bouoekzk.fsf@emc.com.tw>
-References: <1315894549-24504-1-git-send-email-jj_ding@emc.com.tw> <4E6F3852.1030106@tudelft.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Thomas Abraham <thomas.abraham@linaro.org>
+Subject: [PATCH v2 0/2] Add device tree support for Samsung's keypad controller
+ driver
+Date: Tue, 13 Sep 2011 17:56:17 +0530
+Message-ID: <1315916779-21793-1-git-send-email-thomas.abraham@linaro.org>
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:32382 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752996Ab1IML3n convert rfc822-to-8bit (ORCPT
+Received: from mailout3.samsung.com ([203.254.224.33]:39853 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753198Ab1IMM1E (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Sep 2011 07:29:43 -0400
-In-Reply-To: <4E6F3852.1030106@tudelft.nl>
+	Tue, 13 Sep 2011 08:27:04 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?Q?=C3=89ric?= Piel <E.A.B.Piel@tudelft.nl>
-Cc: linux-input@vger.kernel.org, Richard =?utf-8?Q?Sch=C3=BCtz?= <r.schtz@t-online.de>, Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: devicetree-discuss@lists.ozlabs.org
+Cc: grant.likely@secretlab.ca, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kgene.kim@samsung.com, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jy0922.shim@samsung.com, dh09.lee@samsung.com
 
-On Tue, 13 Sep 2011 13:02:42 +0200, =C3=89ric Piel <E.A.B.Piel@tudelft.=
-nl> wrote:
-> Op 13-09-11 08:15, JJ Ding schreef:
-> > Hi everyone,
-> >
-> > Thanks to Richard Sch=C3=BCtz's bug report, I did some more researc=
-h on elantech
-> > v2 hardware. I asked our Windows driver team and firmware team abou=
-t the
-> > _ancient histroy_ of the dark old days ;-) These two patches are th=
-e results.
-> >
-> > Hopefully with these 2 we can support v2 hardware as good as Window=
-s does.
-> >
-> > I can only get two old v2 (fw: 0x020800, 0x040201) to test. Those w=
-ho have a elantech v2
-> > hardware please do test, thank you very much.
-> Thanks JJ Ding for the patches. They look good :-) I think my hardwar=
-e=20
+Changes since v1:
+- Addressed comments from Dmitry Torokhov.
+  - Type of controller is cached in driver's private data and the function
+    that determines the type of the controller for each keypad scan is
+    removed.
+  - pdata allocated during probe is explicitly freed after probe completes
+    without any error. In case of exit from probe due a error, no explicit
+    deallocation of pdata memory is performed and it is left to devres to
+    handle that.
+  - The generic code to translate KEY(x,y,code) is retained in the driver
+    itself. I am unsure of a right common place for it.
+  - Driver continues with the probe even if one or more gpio configuration
+    fails.
+  - Patch 1 that adds a new config option is still retained in this patchset.
 
-No problem ;-)
 
-> is also 0x020800, but I'll test anyway and report back.
->=20
-> Cheers,
-> =C3=89ric
+This patchset adds device tree support for samsung's keypad controller driver.
+First patch adds a new config option to be used by device tree enabled platforms
+for selecting the samsung's keypad controller driver. The second patch adds device
+tree support for the keypad driver.
 
-=C3=89ric, may I have your Reviewed-by after you test this?
-Thank you very much.
+Thomas Abraham (2):
+  input: samsung-keypad: Add HAVE_SAMSUNG_KEYPAD config option
+  input: samsung-keypad: Add device tree support
 
-jj
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ .../devicetree/bindings/input/samsung-keypad.txt   |   88 ++++++++++
+ drivers/input/keyboard/Kconfig                     |    9 +-
+ drivers/input/keyboard/samsung-keypad.c            |  177 ++++++++++++++++++--
+ 3 files changed, 261 insertions(+), 13 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/samsung-keypad.txt
+

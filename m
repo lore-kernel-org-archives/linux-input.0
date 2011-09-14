@@ -1,43 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: add EETI eGalax I2C capacitive multi touch driver.
-Date: Tue, 13 Sep 2011 21:57:25 -0700
-Message-ID: <20110914045725.GA12843@core.coreip.homeip.net>
-References: <20110812203003.GA8995@polaris.bitmath.org>
- <1315482029-13761-1-git-send-email-jiejing.zhang@freescale.com>
- <20110913091515.GA5658@polaris.bitmath.org>
- <CACrgxGAxntDkvgnz7Py=-e3i0C8qx0TMdLEiek6-3FJ3+8FWnA@mail.gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH] Input: wacom - Add POINTER and DIRECT device properties
+Date: Wed, 14 Sep 2011 09:15:24 +0200
+Message-ID: <20110914071524.GA3422@polaris.bitmath.org>
+References: <1314892843-1475-1-git-send-email-killertofu@gmail.com>
+ <20110913080911.GA4986@polaris.bitmath.org>
+ <CAPHpN5OAPdPQ1SmwrGT6pMvgWESBOSnRvb0jKUszkU_31MFXWg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:62987 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750828Ab1INE5b (ORCPT
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:40938 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755774Ab1INHLv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Sep 2011 00:57:31 -0400
-Received: by gyg10 with SMTP id 10so1117925gyg.19
-        for <linux-input@vger.kernel.org>; Tue, 13 Sep 2011 21:57:31 -0700 (PDT)
+	Wed, 14 Sep 2011 03:11:51 -0400
+Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
+	by smtprelay-b12.telenor.se (Postfix) with ESMTP id 5D570EA4EA
+	for <linux-input@vger.kernel.org>; Wed, 14 Sep 2011 09:11:49 +0200 (CEST)
 Content-Disposition: inline
-In-Reply-To: <CACrgxGAxntDkvgnz7Py=-e3i0C8qx0TMdLEiek6-3FJ3+8FWnA@mail.gmail.com>
+In-Reply-To: <CAPHpN5OAPdPQ1SmwrGT6pMvgWESBOSnRvb0jKUszkU_31MFXWg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Jiejing.Zhang " <kzjeef@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Zhang Jiejing <jiejing.zhang@freescale.com>, linux-input@vger.kernel.org
+To: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>
 
-On Wed, Sep 14, 2011 at 12:50:30PM +0800, Jiejing.Zhang  wrote:
+On Tue, Sep 13, 2011 at 10:18:28AM +0200, Mohamed Ikbel Boulabiar wrote:
+> Hi,
 > 
-> I double check the document, I can't know the Chip 's mode before the
-> the chip start report points.
+> On Tue, Sep 13, 2011 at 10:09 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> >
+> > . The question is then what behavior should be assigned to
+> > a large tablet without an embedded screen. It should have POINTER set
+> > for sure, but should it also have DIRECT set?
 > 
-> So, I think change the abs_params in runtime is not a good idea.
+> Any large tablet without an embedded screen can be used in the 2 different ways:
+> 1. The projection on top of it so it becomes a direct device.
+> (this case is also used when you project 3d 120hz on top of multitouch
+> devices: iMuts)
 > 
-> What about this driver only deal with MT point, and ignore the
-> MOUSE_MODE related code?
-> 
+> 2. Simple indirect device, even if it's large:
+> http://10gui.com/video/
 
-I think this woudl be the best, as we can easily emulate ST with MT
-data.
+Two-finger scroll is actually used in a direct manner in that
+video. (Which, btw, does display some fresh concepts. :-))
 
-Thanks.
+I think the bottom line is that even if the "directness" of a device
+is configurable, it still needs to have a default. Moreover, the
+notion of kernel mode settings could be applicable here too.
 
--- 
-Dmitry
+Henrik

@@ -1,435 +1,1176 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH 2/2] input: samsung-keypad: Add device tree support
-Date: Wed, 14 Sep 2011 10:11:44 -0600
-Message-ID: <20110914161144.GF3134@ponder.secretlab.ca>
-References: <1315916779-21793-1-git-send-email-thomas.abraham@linaro.org>
-	<1315916779-21793-2-git-send-email-thomas.abraham@linaro.org>
-	<1315916779-21793-3-git-send-email-thomas.abraham@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1315916779-21793-3-git-send-email-thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dh09.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Subject: [PATCH v5 1/1] HID: Add full support for Logitech Unifying receivers
+Date: Wed, 14 Sep 2011 18:48:25 +0200
+Message-ID: <1316018905-4175-1-git-send-email-nlopezcasad@logitech.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog121.obsmtp.com ([74.125.149.145]:53443 "HELO
+	na3sys009aog121.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1754825Ab1INQs7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Sep 2011 12:48:59 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.or
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>
 
-On Tue, Sep 13, 2011 at 05:56:19PM +0530, Thomas Abraham wrote:
-> Add device tree based discovery support for Samsung's keypad controller.
-> 
-> Cc: Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Cc: Donghwa Lee <dh09.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Signed-off-by: Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
->  .../devicetree/bindings/input/samsung-keypad.txt   |   88 ++++++++++
->  drivers/input/keyboard/samsung-keypad.c            |  177 ++++++++++++++++++--
->  2 files changed, 253 insertions(+), 12 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/samsung-keypad.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/samsung-keypad.txt b/Documentation/devicetree/bindings/input/samsung-keypad.txt
-> new file mode 100644
-> index 0000000..e1c7237
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/samsung-keypad.txt
-> @@ -0,0 +1,88 @@
-> +* Samsung's Keypad Controller device tree bindings
-> +
-> +Samsung's Keypad controller is used to interface a SoC with a matrix-type
-> +keypad device. The keypad controller supports multiple row and column lines.
-> +A key can be placed at each intersection of a unique row and a unique column.
-> +The keypad controller can sense a key-press and key-release and report the
-> +event using a interrupt to the cpu.
-> +
-> +Required SoC Specific Properties:
-> +- compatible: should be one of the following
-> +  - "samsung,s3c6410-keypad": For controllers compatible with s3c6410 keypad
-> +    controller.
-> +  - "samsung,s5pv210-keypad": For controllers compatible with s5pv210 keypad
-> +    controller.
-> +
-> +- reg: physical base address of the controller and length of memory mapped
-> +  region.
-> +
-> +- interrupts: The interrupt number to the cpu.
-> +
-> +Required Board Specific Properties:
-> +- samsung,keypad-num-rows: Number of row lines connected to the keypad
-> +  controller.
-> +
-> +- samsung,keypad-num-columns: Number of column lines connected to the
-> +  keypad controller.
-> +
-> +- row-gpios: List of gpios used as row lines. The gpio specifier for
-> +  this property depends on the gpio controller to which these row lines
-> +  are connected.
-> +
-> +- col-gpios: List of gpios used as column lines. The gpio specifier for
-> +  this property depends on the gpio controller to which these column
-> +  lines are connected.
+From: Nestor Lopez Casado <nlopezcasad@logitech.com>
 
-I know we've got overlapping terminology here.  When you say GPIOs
-here, does it refer to the pin multiplexing feature of the samsung
-parts, and thus how the keypad controller IO is routed to the pins?
-Or does the driver manipulate GPIO lines manually?
+With this driver, all the devices paired to a single Unifying
+receiver are exposed to user processes in separated /input/dev
+nodes.
 
-If it is pin multiplexing, then using the GPIO binding seems rather
-odd. It may be entirely appropriate, but it will need to play well
-with the pinmux stuff that linusw is working on.
+Keyboards with different layouts can be treated differently,
+Multiplayer games on single PC (like home theater PC) can
+differentiate input coming from different kbds paired to the
+same receiver.
 
-> +
-> +- Keys represented as child nodes: Each key connected to the keypad
-> +  controller is represented as a child node to the keypad controller
-> +  device node and should include the following properties.
-> +  - keypad,row: the row number to which the key is connected.
-> +  - keypad,column: the column number to which the key is connected.
-> +  - keypad,key-code: the key-code to be reported when the key is pressed
-> +    and released.
+Up to now, when Logitech Unifying receivers are connected to a
+Linux based system, a single keyboard and a single mouse are
+presented to the HID Layer, even if the Unifying receiver can
+pair up to six compatible devices. The Unifying receiver by default
+multiplexes all incoming events (from multiple keyboards/mice)
+into these two.
 
-What defines the meanings of the key codes?
+Signed-off-by: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+---
+Hi guys,
 
-> +
-> +Optional Properties specific to linux:
-> +- linux,keypad-no-autorepeat: do no enable autorepeat feature.
-> +- linux,keypad-wakeup: use any event on keypad as wakeup event.
+This is patch v5 of the dj bus driver. I addressed the comments
+from Jiri concerning the double (c) and the paragraph with author
+information on the file header.
 
-Is this really a linux-specific feature?
+Also changed the tmpstr[20] to tmpstr[3] with an additional check
+for the validity of the device_index returned by the receiver.
 
-> +
-> +
-> +Example:
-> +	keypad@100A0000 {
-> +		compatible = "samsung,s5pv210-keypad";
-> +		reg = <0x100A0000 0x100>;
-> +		interrupts = <173>;
-> +		samsung,keypad-num-rows = <2>;
-> +		samsung,keypad-num-columns = <8>;
-> +		linux,input-no-autorepeat;
-> +		linux,input-wakeup;
-> +
-> +		row-gpios = <&gpx2 0 3 3 0
-> +			     &gpx2 1 3 3 0>;
-> +
-> +		col-gpios = <&gpx1 0 3 0 0
-> +			     &gpx1 1 3 0 0
-> +			     &gpx1 2 3 0 0
-> +			     &gpx1 3 3 0 0
-> +			     &gpx1 4 3 0 0
-> +			     &gpx1 5 3 0 0
-> +			     &gpx1 6 3 0 0
-> +			     &gpx1 7 3 0 0>;
-> +
-> +		key_1 {
-> +			keypad,row = <0>;
-> +			keypad,column = <3>;
-> +			keypad,key-code = <2>;
-> +		};
-> +
-> +		key_2 {
-> +			keypad,row = <0>;
-> +			keypad,column = <4>;
-> +			keypad,key-code = <3>;
-> +		};
-> +
-> +		key_3 {
-> +			keypad,row = <0>;
-> +			keypad,column = <5>;
-> +			keypad,key-code = <4>;
-> +		};
-> +	};
-> diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-> index f689f49..cf01a56 100644
-> --- a/drivers/input/keyboard/samsung-keypad.c
-> +++ b/drivers/input/keyboard/samsung-keypad.c
-> @@ -21,6 +21,8 @@
->  #include <linux/module.h>
->  #include <linux/platform_device.h>
->  #include <linux/slab.h>
-> +#include <linux/of.h>
-> +#include <linux/of_gpio.h>
->  #include <linux/sched.h>
->  #include <plat/keypad.h>
->  
-> @@ -68,31 +70,26 @@ struct samsung_keypad {
->  	wait_queue_head_t wait;
->  	bool stopped;
->  	int irq;
-> +	enum samsung_keypad_type type;
->  	unsigned int row_shift;
->  	unsigned int rows;
->  	unsigned int cols;
->  	unsigned int row_state[SAMSUNG_MAX_COLS];
-> +#ifdef CONFIG_OF
-> +	int row_gpios[SAMSUNG_MAX_ROWS];
-> +	int col_gpios[SAMSUNG_MAX_COLS];
-> +#endif
->  	unsigned short keycodes[];
->  };
->  
-> -static int samsung_keypad_is_s5pv210(struct device *dev)
-> -{
-> -	struct platform_device *pdev = to_platform_device(dev);
-> -	enum samsung_keypad_type type =
-> -		platform_get_device_id(pdev)->driver_data;
-> -
-> -	return type == KEYPAD_TYPE_S5PV210;
-> -}
-> -
->  static void samsung_keypad_scan(struct samsung_keypad *keypad,
->  				unsigned int *row_state)
->  {
-> -	struct device *dev = keypad->input_dev->dev.parent;
->  	unsigned int col;
->  	unsigned int val;
->  
->  	for (col = 0; col < keypad->cols; col++) {
-> -		if (samsung_keypad_is_s5pv210(dev)) {
-> +		if (keypad->type == KEYPAD_TYPE_S5PV210) {
->  			val = S5PV210_KEYIFCOLEN_MASK;
->  			val &= ~(1 << col) << 8;
->  		} else {
-> @@ -235,6 +232,129 @@ static void samsung_keypad_close(struct input_dev *input_dev)
->  	samsung_keypad_stop(keypad);
->  }
->  
-> +#ifdef CONFIG_OF
-> +static
-> +struct samsung_keypad_platdata *samsung_keypad_parse_dt(struct device *dev)
+Cheers,
+Nestor.
 
-Nit: keep everything up to the function name on the same line.  It is
-more grep-friendly to make line breaks in the parameters list.
+drivers/hid/Kconfig           |    9 +
+ drivers/hid/Makefile          |    1 +
+ drivers/hid/hid-core.c        |    2 +
+ drivers/hid/hid-ids.h         |    2 +
+ drivers/hid/hid-logitech-dj.c |  925 +++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-logitech-dj.h |  120 ++++++
+ 6 files changed, 1059 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/hid/hid-logitech-dj.c
+ create mode 100644 drivers/hid/hid-logitech-dj.h
 
-> +{
-> +	struct samsung_keypad_platdata *pdata;
-> +	struct matrix_keymap_data *keymap_data;
-> +	uint32_t *keymap;
-> +	struct device_node *np = dev->of_node, *key_np;
-> +	unsigned int key_count = 0;
-> +
-> +	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
-> +	if (!pdata) {
-> +		dev_err(dev, "could not allocate memory for platform data\n");
-> +		return NULL;
-> +	}
-> +
-> +	of_property_read_u32(np, "samsung,keypad-num-rows", &pdata->rows);
-> +	of_property_read_u32(np, "samsung,keypad-num-columns", &pdata->cols);
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 306b15f..e0f1360 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -245,6 +245,15 @@ config HID_LOGITECH
+ 	---help---
+ 	Support for Logitech devices that are not fully compliant with HID standard.
+ 
++config HID_LOGITECH_DJ
++	tristate "Logitech Unifying receivers full support"
++	depends on HID_LOGITECH
++	default m
++	---help---
++	Say Y if you want support for Logitech Unifying receivers and devices.
++	Unifying receivers are capable of pairing up to 6 Logitech compliant
++	devices to the same receiver.
++
+ config LOGITECH_FF
+ 	bool "Logitech force feedback support"
+ 	depends on HID_LOGITECH
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 0a0a38e..ff36e489 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -43,6 +43,7 @@ obj-$(CONFIG_HID_KEYTOUCH)	+= hid-keytouch.o
+ obj-$(CONFIG_HID_KYE)		+= hid-kye.o
+ obj-$(CONFIG_HID_LCPOWER)       += hid-lcpower.o
+ obj-$(CONFIG_HID_LOGITECH)	+= hid-logitech.o
++obj-$(CONFIG_HID_LOGITECH_DJ)	+= hid-logitech-dj.o
+ obj-$(CONFIG_HID_MAGICMOUSE)    += hid-magicmouse.o
+ obj-$(CONFIG_HID_MICROSOFT)	+= hid-microsoft.o
+ obj-$(CONFIG_HID_MONTEREY)	+= hid-monterey.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 1a5cf0c..ab4ae12 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1419,6 +1419,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DFP_WHEEL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G25_WHEEL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G27_WHEEL) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WII_WHEEL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACETRAVELLER) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index db63ccf..64bd2df 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -443,6 +443,8 @@
+ #define USB_DEVICE_ID_S510_RECEIVER_2	0xc517
+ #define USB_DEVICE_ID_LOGITECH_CORDLESS_DESKTOP_LX500	0xc512
+ #define USB_DEVICE_ID_MX3000_RECEIVER	0xc513
++#define USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER	0xc52b
++#define USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER_2	0xc532
+ #define USB_DEVICE_ID_SPACETRAVELLER	0xc623
+ #define USB_DEVICE_ID_SPACENAVIGATOR	0xc626
+ #define USB_DEVICE_ID_DINOVO_DESKTOP	0xc704
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+new file mode 100644
+index 0000000..5bb6f42
+--- /dev/null
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -0,0 +1,925 @@
++/*
++ *  HID driver for Logitech Unifying receivers
++ *
++ *  Copyright (c) 2011 Logitech
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ */
++
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++#include <linux/usb.h>
++#include "usbhid/usbhid.h"
++#include "hid-ids.h"
++#include "hid-logitech-dj.h"
++
++/* Keyboard descriptor (1) */
++static const char kbd_descriptor[] = {
++	0x05, 0x01,		/* USAGE_PAGE (generic Desktop)     */
++	0x09, 0x06,		/* USAGE (Keyboard)         */
++	0xA1, 0x01,		/* COLLECTION (Application)     */
++	0x85, 0x01,		/* REPORT_ID (1)            */
++	0x95, 0x08,		/*   REPORT_COUNT (8)           */
++	0x75, 0x01,		/*   REPORT_SIZE (1)            */
++	0x15, 0x00,		/*   LOGICAL_MINIMUM (0)        */
++	0x25, 0x01,		/*   LOGICAL_MAXIMUM (1)        */
++	0x05, 0x07,		/*   USAGE_PAGE (Keyboard)      */
++	0x19, 0xE0,		/*   USAGE_MINIMUM (Left Control)   */
++	0x29, 0xE7,		/*   USAGE_MAXIMUM (Right GUI)      */
++	0x81, 0x02,		/*   INPUT (Data,Var,Abs)       */
++	0x95, 0x05,		/*   REPORT COUNT (5)           */
++	0x05, 0x08,		/*   USAGE PAGE (LED page)      */
++	0x19, 0x01,		/*   USAGE MINIMUM (1)          */
++	0x29, 0x05,		/*   USAGE MAXIMUM (5)          */
++	0x91, 0x02,		/*   OUTPUT (Data, Variable, Absolute)  */
++	0x95, 0x01,		/*   REPORT COUNT (1)           */
++	0x75, 0x03,		/*   REPORT SIZE (3)            */
++	0x91, 0x01,		/*   OUTPUT (Constant)          */
++	0x95, 0x06,		/*   REPORT_COUNT (6)           */
++	0x75, 0x08,		/*   REPORT_SIZE (8)            */
++	0x15, 0x00,		/*   LOGICAL_MINIMUM (0)        */
++	0x26, 0xFF, 0x00,	/*   LOGICAL_MAXIMUM (255)      */
++	0x05, 0x07,		/*   USAGE_PAGE (Keyboard)      */
++	0x19, 0x00,		/*   USAGE_MINIMUM (no event)       */
++	0x2A, 0xFF, 0x00,	/*   USAGE_MAXIMUM (reserved)       */
++	0x81, 0x00,		/*   INPUT (Data,Ary,Abs)       */
++	0xC0
++};
++
++/* Mouse descriptor (2)     */
++static const char mse_descriptor[] = {
++	0x05, 0x01,		/*  USAGE_PAGE (Generic Desktop)        */
++	0x09, 0x02,		/*  USAGE (Mouse)                       */
++	0xA1, 0x01,		/*  COLLECTION (Application)            */
++	0x85, 0x02,		/*    REPORT_ID = 2                     */
++	0x09, 0x01,		/*    USAGE (pointer)                   */
++	0xA1, 0x00,		/*    COLLECTION (physical)             */
++	0x05, 0x09,		/*      USAGE_PAGE (buttons)            */
++	0x19, 0x01,		/*      USAGE_MIN (1)                   */
++	0x29, 0x10,		/*      USAGE_MAX (16)                  */
++	0x15, 0x00,		/*      LOGICAL_MIN (0)                 */
++	0x25, 0x01,		/*      LOGICAL_MAX (1)                 */
++	0x95, 0x10,		/*      REPORT_COUNT (16)               */
++	0x75, 0x01,		/*      REPORT_SIZE (1)                 */
++	0x81, 0x02,		/*      INPUT (data var abs)            */
++	0x05, 0x01,		/*      USAGE_PAGE (generic desktop)    */
++	0x16, 0x01, 0xF8,	/*      LOGICAL_MIN (-2047)             */
++	0x26, 0xFF, 0x07,	/*      LOGICAL_MAX (2047)              */
++	0x75, 0x0C,		/*      REPORT_SIZE (12)                */
++	0x95, 0x02,		/*      REPORT_COUNT (2)                */
++	0x09, 0x30,		/*      USAGE (X)                       */
++	0x09, 0x31,		/*      USAGE (Y)                       */
++	0x81, 0x06,		/*      INPUT                           */
++	0x15, 0x81,		/*      LOGICAL_MIN (-127)              */
++	0x25, 0x7F,		/*      LOGICAL_MAX (127)               */
++	0x75, 0x08,		/*      REPORT_SIZE (8)                 */
++	0x95, 0x01,		/*      REPORT_COUNT (1)                */
++	0x09, 0x38,		/*      USAGE (wheel)                   */
++	0x81, 0x06,		/*      INPUT                           */
++	0x05, 0x0C,		/*      USAGE_PAGE(consumer)            */
++	0x0A, 0x38, 0x02,	/*      USAGE(AC Pan)                   */
++	0x95, 0x01,		/*      REPORT_COUNT (1)                */
++	0x81, 0x06,		/*      INPUT                           */
++	0xC0,			/*    END_COLLECTION                    */
++	0xC0,			/*  END_COLLECTION                      */
++};
++
++/* Consumer Control descriptor (3) */
++static const char consumer_descriptor[] = {
++	0x05, 0x0C,		/* USAGE_PAGE (Consumer Devices)       */
++	0x09, 0x01,		/* USAGE (Consumer Control)            */
++	0xA1, 0x01,		/* COLLECTION (Application)            */
++	0x85, 0x03,		/* REPORT_ID = 3                       */
++	0x75, 0x10,		/* REPORT_SIZE (16)                    */
++	0x95, 0x02,		/* REPORT_COUNT (2)                    */
++	0x15, 0x01,		/* LOGICAL_MIN (1)                     */
++	0x26, 0x8C, 0x02,	/* LOGICAL_MAX (652)                   */
++	0x19, 0x01,		/* USAGE_MIN (1)                       */
++	0x2A, 0x8C, 0x02,	/* USAGE_MAX (652)                     */
++	0x81, 0x00,		/* INPUT (Data Ary Abs)                */
++	0xC0,			/* END_COLLECTION                      */
++};				/*                                     */
++
++/* System control descriptor (4) */
++static const char syscontrol_descriptor[] = {
++	0x05, 0x01,		/*   USAGE_PAGE (Generic Desktop)      */
++	0x09, 0x80,		/*   USAGE (System Control)            */
++	0xA1, 0x01,		/*   COLLECTION (Application)          */
++	0x85, 0x04,		/*   REPORT_ID = 4                     */
++	0x75, 0x02,		/*   REPORT_SIZE (2)                   */
++	0x95, 0x01,		/*   REPORT_COUNT (1)                  */
++	0x15, 0x01,		/*   LOGICAL_MIN (1)                   */
++	0x25, 0x03,		/*   LOGICAL_MAX (3)                   */
++	0x09, 0x82,		/*   USAGE (System Sleep)              */
++	0x09, 0x81,		/*   USAGE (System Power Down)         */
++	0x09, 0x83,		/*   USAGE (System Wake Up)            */
++	0x81, 0x60,		/*   INPUT (Data Ary Abs NPrf Null)    */
++	0x75, 0x06,		/*   REPORT_SIZE (6)                   */
++	0x81, 0x03,		/*   INPUT (Cnst Var Abs)              */
++	0xC0,			/*   END_COLLECTION                    */
++};
++
++/* Media descriptor (8) */
++static const char media_descriptor[] = {
++	0x06, 0xbc, 0xff,	/* Usage Page 0xffbc                   */
++	0x09, 0x88,		/* Usage 0x0088                        */
++	0xa1, 0x01,		/* BeginCollection                     */
++	0x85, 0x08,		/*   Report ID 8                       */
++	0x19, 0x01,		/*   Usage Min 0x0001                  */
++	0x29, 0xff,		/*   Usage Max 0x00ff                  */
++	0x15, 0x01,		/*   Logical Min 1                     */
++	0x26, 0xff, 0x00,	/*   Logical Max 255                   */
++	0x75, 0x08,		/*   Report Size 8                     */
++	0x95, 0x01,		/*   Report Count 1                    */
++	0x81, 0x00,		/*   Input                             */
++	0xc0,			/* EndCollection                       */
++};				/*                                     */
++
++/* Maximum size of all defined hid reports in bytes (including report id) */
++#define MAX_REPORT_SIZE 8
++
++/* Number of possible hid report types that can be created by this driver.
++ *
++ * Right now, RF report types have the same report types (or report id's)
++ * than the hid report created from those RF reports. In the future
++ * this doesnt have to be true.
++ *
++ * For instance, RF report type 0x01 which has a size of 8 bytes, corresponds
++ * to hid report id 0x01, this is standard keyboard. Same thing applies to mice
++ * reports and consumer control, etc. If a new RF report is created, it doesn't
++ * has to have the same report id as its corresponding hid report, so an
++ * translation may have to take place for future report types.
++ */
++#define NUMBER_OF_HID_REPORTS 32
++static const u8 hid_reportid_size_map[NUMBER_OF_HID_REPORTS] = {
++	[1] = 8,		/* Standard keyboard */
++	[2] = 8,		/* Standard mouse */
++	[3] = 5,		/* Consumer control */
++	[4] = 2,		/* System control */
++	[8] = 2,		/* Media Center */
++};
++
++
++#define LOGITECH_DJ_INTERFACE_NUMBER 0x02
++
++#define DJ_DEVICE_INDEX_MIN 1
++#define DJ_DEVICE_INDEX_MAX 6
++
++static struct hid_ll_driver logi_dj_ll_driver;
++
++static int logi_dj_output_hidraw_report(struct hid_device *hid, u8 * buf,
++					size_t count,
++					unsigned char report_type);
++
++static void logi_dj_recv_destroy_djhid_device(struct dj_receiver_dev *djrcv_dev,
++						struct dj_report *dj_report)
++{
++	/* Called in delayed work context */
++	struct dj_device *dj_dev;
++	unsigned long flags;
++
++	spin_lock_irqsave(&djrcv_dev->lock, flags);
++	dj_dev = djrcv_dev->paired_dj_devices[dj_report->device_index];
++	djrcv_dev->paired_dj_devices[dj_report->device_index] = NULL;
++	spin_unlock_irqrestore(&djrcv_dev->lock, flags);
++
++	if (dj_dev != NULL) {
++		hid_destroy_device(dj_dev->hdev);
++		kfree(dj_dev);
++	} else {
++		dev_err(&djrcv_dev->hdev->dev, "%s: can't destroy a NULL device\n",
++			__func__);
++	}
++}
++
++static void logi_dj_recv_add_djhid_device(struct dj_receiver_dev *djrcv_dev,
++					  struct dj_report *dj_report)
++{
++	/* Called in delayed work context */
++	struct hid_device *djrcv_hdev = djrcv_dev->hdev;
++	struct usb_interface *intf = to_usb_interface(djrcv_hdev->dev.parent);
++	struct usb_device *usbdev = interface_to_usbdev(intf);
++	struct hid_device *dj_hiddev;
++	struct dj_device *dj_dev;
++
++	/* Device index goes from 1 to 6, we need 3 bytes to store the
++	 * semicolon, the index, and a null terminator
++	 */
++	unsigned char tmpstr[3];
++
++	if (dj_report->report_params[DEVICE_PAIRED_PARAM_SPFUNCTION] &
++	    SPFUNCTION_DEVICE_LIST_EMPTY) {
++		dbg_hid("%s: device list is empty\n", __func__);
++		return;
++	}
++
++	if ((dj_report->device_index < DJ_DEVICE_INDEX_MIN) ||
++	    (dj_report->device_index > DJ_DEVICE_INDEX_MAX)) {
++		dev_err(&djrcv_hdev->dev, "%s: invalid device index:%d\n",
++			__func__, dj_report->device_index);
++		return;
++	}
++
++	dj_hiddev = hid_allocate_device();
++	if (IS_ERR(dj_hiddev)) {
++		dev_err(&djrcv_hdev->dev, "%s: hid_allocate_device failed\n",
++			__func__);
++		return;
++	}
++
++	dj_hiddev->ll_driver = &logi_dj_ll_driver;
++	dj_hiddev->hid_output_raw_report = logi_dj_output_hidraw_report;
++
++	dj_hiddev->dev.parent = &djrcv_hdev->dev;
++	dj_hiddev->bus = BUS_USB;
++	dj_hiddev->vendor = le16_to_cpu(usbdev->descriptor.idVendor);
++	dj_hiddev->product = le16_to_cpu(usbdev->descriptor.idProduct);
++	snprintf(dj_hiddev->name, sizeof(dj_hiddev->name),
++		"Logitech Unifying Device. Wireless PID:%02x%02x",
++		dj_report->report_params[DEVICE_PAIRED_PARAM_EQUAD_ID_MSB],
++		dj_report->report_params[DEVICE_PAIRED_PARAM_EQUAD_ID_LSB]);
++
++	usb_make_path(usbdev, dj_hiddev->phys, sizeof(dj_hiddev->phys));
++	snprintf(tmpstr, sizeof(tmpstr), ":%d", dj_report->device_index);
++	strlcat(dj_hiddev->phys, tmpstr, sizeof(dj_hiddev->phys));
++
++	dj_dev = kzalloc(sizeof(struct dj_device), GFP_KERNEL);
++
++	if (!dj_dev) {
++		dev_err(&djrcv_hdev->dev, "%s: failed allocating dj_device\n",
++			__func__);
++		goto dj_device_allocate_fail;
++	}
++
++	dj_dev->reports_supported = le32_to_cpu(
++		dj_report->report_params[DEVICE_PAIRED_RF_REPORT_TYPE]);
++	dj_dev->hdev = dj_hiddev;
++	dj_dev->dj_receiver_dev = djrcv_dev;
++	dj_dev->device_index = dj_report->device_index;
++	dj_hiddev->driver_data = dj_dev;
++
++	djrcv_dev->paired_dj_devices[dj_report->device_index] = dj_dev;
++
++	if (hid_add_device(dj_hiddev)) {
++		dev_err(&djrcv_hdev->dev, "%s: failed adding dj_device\n",
++			__func__);
++		goto hid_add_device_fail;
++	}
++
++	return;
++
++hid_add_device_fail:
++	djrcv_dev->paired_dj_devices[dj_report->device_index] = NULL;
++	kfree(dj_dev);
++dj_device_allocate_fail:
++	hid_destroy_device(dj_hiddev);
++}
++
++static void delayedwork_callback(struct work_struct *work)
++{
++	struct dj_receiver_dev *djrcv_dev =
++		container_of(work, struct dj_receiver_dev, work);
++
++	struct dj_report dj_report;
++	unsigned long flags;
++	int count;
++
++	dbg_hid("%s\n", __func__);
++
++	spin_lock_irqsave(&djrcv_dev->lock, flags);
++
++	count = kfifo_out(&djrcv_dev->notif_fifo, &dj_report,
++				sizeof(struct dj_report));
++
++	if (count != sizeof(struct dj_report)) {
++		dev_err(&djrcv_dev->hdev->dev, "%s: workitem triggered without "
++			"notifications available\n", __func__);
++		spin_unlock_irqrestore(&djrcv_dev->lock, flags);
++		return;
++	}
++
++	if (!kfifo_is_empty(&djrcv_dev->notif_fifo)) {
++		if (schedule_work(&djrcv_dev->work) == 0) {
++			dbg_hid("%s: did not schedule the work item, was "
++				"already queued\n", __func__);
++		}
++	}
++
++	spin_unlock_irqrestore(&djrcv_dev->lock, flags);
++
++	switch (dj_report.report_type) {
++	case REPORT_TYPE_NOTIF_DEVICE_PAIRED:
++		logi_dj_recv_add_djhid_device(djrcv_dev, &dj_report);
++		break;
++	case REPORT_TYPE_NOTIF_DEVICE_UNPAIRED:
++		logi_dj_recv_destroy_djhid_device(djrcv_dev, &dj_report);
++		break;
++	default:
++		dbg_hid("%s: unexpected report type\n", __func__);
++	}
++}
++
++static void logi_dj_recv_queue_notification(struct dj_receiver_dev *djrcv_dev,
++					   struct dj_report *dj_report)
++{
++	/* We are called from atomic context (tasklet && djrcv->lock held) */
++
++	kfifo_in(&djrcv_dev->notif_fifo, dj_report, sizeof(struct dj_report));
++
++	if (schedule_work(&djrcv_dev->work) == 0) {
++		dbg_hid("%s: did not schedule the work item, was already "
++			"queued\n", __func__);
++	}
++}
++
++static void logi_dj_recv_forward_null_report(struct dj_receiver_dev *djrcv_dev,
++					     struct dj_report *dj_report)
++{
++	/* We are called from atomic context (tasklet && djrcv->lock held) */
++	unsigned int i;
++	u8 reportbuffer[MAX_REPORT_SIZE];
++	struct dj_device *djdev;
++
++	djdev = djrcv_dev->paired_dj_devices[dj_report->device_index];
++
++	if (!djdev) {
++		dbg_hid("djrcv_dev->paired_dj_devices[dj_report->device_index]"
++			" is NULL, index %d\n", dj_report->device_index);
++		return;
++	}
++
++	memset(reportbuffer, 0, sizeof(reportbuffer));
++
++	for (i = 0; i < NUMBER_OF_HID_REPORTS; i++) {
++		if (djdev->reports_supported & (1 << i)) {
++			reportbuffer[0] = i;
++			if (hid_input_report(djdev->hdev,
++					     HID_INPUT_REPORT,
++					     reportbuffer,
++					     hid_reportid_size_map[i], 1)) {
++				dbg_hid("hid_input_report error sending null "
++					"report\n");
++			}
++		}
++	}
++}
++
++static void logi_dj_recv_forward_report(struct dj_receiver_dev *djrcv_dev,
++					struct dj_report *dj_report)
++{
++	/* We are called from atomic context (tasklet && djrcv->lock held) */
++	struct dj_device *dj_device;
++
++	dj_device = djrcv_dev->paired_dj_devices[dj_report->device_index];
++
++	if (dj_device == NULL) {
++		dbg_hid("djrcv_dev->paired_dj_devices[dj_report->device_index]"
++			" is NULL, index %d\n", dj_report->device_index);
++		return;
++	}
++
++	if ((dj_report->report_type > ARRAY_SIZE(hid_reportid_size_map) - 1) ||
++	    (hid_reportid_size_map[dj_report->report_type] == 0)) {
++		dbg_hid("invalid report type:%x\n", dj_report->report_type);
++		return;
++	}
++
++	if (hid_input_report(dj_device->hdev,
++			HID_INPUT_REPORT, &dj_report->report_type,
++			hid_reportid_size_map[dj_report->report_type], 1)) {
++		dbg_hid("hid_input_report error\n");
++	}
++}
++
++
++static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
++				    struct dj_report *dj_report)
++{
++	struct hid_device *hdev = djrcv_dev->hdev;
++	int sent_bytes;
++
++	if (!hdev->hid_output_raw_report) {
++		dev_err(&hdev->dev, "%s:"
++			"hid_output_raw_report is null\n", __func__);
++		return -ENODEV;
++	}
++
++	sent_bytes = hdev->hid_output_raw_report(hdev, (u8 *) dj_report,
++						 sizeof(struct dj_report),
++						 HID_OUTPUT_REPORT);
++
++	return (sent_bytes < 0) ? sent_bytes : 0;
++}
++
++static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
++{
++	struct dj_report dj_report;
++
++	memset(&dj_report, 0, sizeof(dj_report));
++	dj_report.report_id = REPORT_ID_DJ_SHORT;
++	dj_report.device_index = 0xFF;
++	dj_report.report_type = REPORT_TYPE_CMD_GET_PAIRED_DEVICES;
++	return logi_dj_recv_send_report(djrcv_dev, &dj_report);
++}
++
++static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
++					  unsigned timeout)
++{
++	struct dj_report dj_report;
++
++	memset(&dj_report, 0, sizeof(dj_report));
++	dj_report.report_id = REPORT_ID_DJ_SHORT;
++	dj_report.device_index = 0xFF;
++	dj_report.report_type = REPORT_TYPE_CMD_SWITCH;
++	dj_report.report_params[CMD_SWITCH_PARAM_DEVBITFIELD] = 0x1F;
++	dj_report.report_params[CMD_SWITCH_PARAM_TIMEOUT_SECONDS] = (u8)timeout;
++	return logi_dj_recv_send_report(djrcv_dev, &dj_report);
++}
++
++
++static int logi_dj_ll_open(struct hid_device *hid)
++{
++	dbg_hid("%s:%s\n", __func__, hid->phys);
++	return 0;
++
++}
++
++static void logi_dj_ll_close(struct hid_device *hid)
++{
++	dbg_hid("%s:%s\n", __func__, hid->phys);
++}
++
++static int logi_dj_output_hidraw_report(struct hid_device *hid, u8 * buf,
++					size_t count,
++					unsigned char report_type)
++{
++	/* Called by hid raw to send data */
++	dbg_hid("%s\n", __func__);
++
++	return 0;
++}
++
++static int logi_dj_ll_parse(struct hid_device *hid)
++{
++	struct dj_device *djdev = hid->driver_data;
++	int retval;
++
++	dbg_hid("%s\n", __func__);
++
++	djdev->hdev->version = 0x0111;
++	djdev->hdev->country = 0x00;
++
++	if (djdev->reports_supported & STD_KEYBOARD) {
++		dbg_hid("%s: sending a kbd descriptor, reports_supported: %x\n",
++			__func__, djdev->reports_supported);
++		retval = hid_parse_report(hid,
++					  (u8 *) kbd_descriptor,
++					  sizeof(kbd_descriptor));
++		if (retval) {
++			dbg_hid("%s: sending a kbd descriptor, hid_parse failed"
++				" error: %d\n", __func__, retval);
++			return retval;
++		}
++	}
++
++	if (djdev->reports_supported & STD_MOUSE) {
++		dbg_hid("%s: sending a mouse descriptor, reports_supported: "
++			"%x\n", __func__, djdev->reports_supported);
++		retval = hid_parse_report(hid,
++					  (u8 *) mse_descriptor,
++					  sizeof(mse_descriptor));
++		if (retval) {
++			dbg_hid("%s: sending a mouse descriptor, hid_parse "
++				"failed error: %d\n", __func__, retval);
++			return retval;
++		}
++	}
++
++	if (djdev->reports_supported & MULTIMEDIA) {
++		dbg_hid("%s: sending a multimedia report descriptor: %x\n",
++			__func__, djdev->reports_supported);
++		retval = hid_parse_report(hid,
++					  (u8 *) consumer_descriptor,
++					  sizeof(consumer_descriptor));
++		if (retval) {
++			dbg_hid("%s: sending a consumer_descriptor, hid_parse "
++				"failed error: %d\n", __func__, retval);
++			return retval;
++		}
++	}
++
++	if (djdev->reports_supported & POWER_KEYS) {
++		dbg_hid("%s: sending a power keys report descriptor: %x\n",
++			__func__, djdev->reports_supported);
++		retval = hid_parse_report(hid,
++					  (u8 *) syscontrol_descriptor,
++					  sizeof(syscontrol_descriptor));
++		if (retval) {
++			dbg_hid("%s: sending a syscontrol_descriptor, "
++				"hid_parse failed error: %d\n",
++				__func__, retval);
++			return retval;
++		}
++	}
++
++	if (djdev->reports_supported & MEDIA_CENTER) {
++		dbg_hid("%s: sending a media center report descriptor: %x\n",
++			__func__, djdev->reports_supported);
++		retval = hid_parse_report(hid,
++					  (u8 *) media_descriptor,
++					  sizeof(media_descriptor));
++		if (retval) {
++			dbg_hid("%s: sending a media_descriptor, hid_parse "
++				"failed error: %d\n", __func__, retval);
++			return retval;
++		}
++	}
++
++	if (djdev->reports_supported & KBD_LEDS) {
++		dbg_hid("%s: need to send kbd leds report descriptor: %x\n",
++			__func__, djdev->reports_supported);
++	}
++
++	return 0;
++}
++
++static int logi_dj_ll_input_event(struct input_dev *dev, unsigned int type,
++				  unsigned int code, int value)
++{
++	/* Sent by the input layer to handle leds and Force Feedback */
++	struct hid_device *dj_hiddev = input_get_drvdata(dev);
++	struct dj_device *dj_dev = dj_hiddev->driver_data;
++
++	struct dj_receiver_dev *djrcv_dev =
++	    dev_get_drvdata(dj_hiddev->dev.parent);
++	struct hid_device *dj_rcv_hiddev = djrcv_dev->hdev;
++	struct hid_report_enum *output_report_enum;
++
++	struct hid_field *field;
++	struct hid_report *report;
++	unsigned char data[8];
++	int offset;
++
++	dbg_hid("%s: %s, type:%d | code:%d | value:%d\n",
++		__func__, dev->phys, type, code, value);
++
++	if (type != EV_LED)
++		return -1;
++
++	offset = hidinput_find_field(dj_hiddev, type, code, &field);
++
++	if (offset == -1) {
++		dev_warn(&dev->dev, "event field not found\n");
++		return -1;
++	}
++	hid_set_field(field, offset, value);
++	hid_output_report(field->report, &data[0]);
++
++	output_report_enum = &dj_rcv_hiddev->report_enum[HID_OUTPUT_REPORT];
++	report = output_report_enum->report_id_hash[REPORT_ID_DJ_SHORT];
++	hid_set_field(report->field[0], 0, dj_dev->device_index);
++	hid_set_field(report->field[0], 1, REPORT_TYPE_LEDS);
++	hid_set_field(report->field[0], 2, data[1]);
++
++	usbhid_submit_report(dj_rcv_hiddev, report, USB_DIR_OUT);
++
++	return 0;
++
++}
++
++static int logi_dj_ll_start(struct hid_device *hid)
++{
++	dbg_hid("%s\n", __func__);
++	return 0;
++}
++
++static void logi_dj_ll_stop(struct hid_device *hid)
++{
++	dbg_hid("%s\n", __func__);
++}
++
++
++static struct hid_ll_driver logi_dj_ll_driver = {
++	.parse = logi_dj_ll_parse,
++	.start = logi_dj_ll_start,
++	.stop = logi_dj_ll_stop,
++	.open = logi_dj_ll_open,
++	.close = logi_dj_ll_close,
++	.hidinput_input_event = logi_dj_ll_input_event,
++};
++
++
++static int logi_dj_raw_event(struct hid_device *hdev,
++			     struct hid_report *report, u8 *data,
++			     int size)
++{
++	struct dj_receiver_dev *djrcv_dev = hid_get_drvdata(hdev);
++	struct dj_report *dj_report = (struct dj_report *) data;
++	unsigned long flags;
++	bool report_processed = false;
++
++	dbg_hid("%s, size:%d\n", __func__, size);
++
++	/* Here we receive all data coming from iface 2, there are 4 cases:
++	 *
++	 * 1) Data should continue its normal processing i.e. data does not
++	 * come from the DJ collection, in which case we do nothing and
++	 * return 0, so hid-core can continue normal processing (will forward
++	 * to associated hidraw device)
++	 *
++	 * 2) Data is from DJ collection, and is intended for this driver i. e.
++	 * data contains arrival, departure, etc notifications, in which case
++	 * we queue them for delayed processing by the work queue. We return 1
++	 * to hid-core as no further processing is required from it.
++	 *
++	 * 3) Data is from DJ collection, and informs a connection change,
++	 * if the change means rf link loss, then we must send a null report
++	 * to the upper layer to discard potentially pressed keys that may be
++	 * repeated forever by the input layer. Return 1 to hid-core as no
++	 * further processing is required.
++	 *
++	 * 4) Data is from DJ collection and is an actual input event from
++	 * a paired DJ device in which case we forward it to the correct hid
++	 * device (via hid_input_report() ) and return 1 so hid-core does not do
++	 * anything else with it.
++	 */
++
++	spin_lock_irqsave(&djrcv_dev->lock, flags);
++	if (dj_report->report_id == REPORT_ID_DJ_SHORT) {
++		switch (dj_report->report_type) {
++		case REPORT_TYPE_NOTIF_DEVICE_PAIRED:
++		case REPORT_TYPE_NOTIF_DEVICE_UNPAIRED:
++			logi_dj_recv_queue_notification(djrcv_dev, dj_report);
++			break;
++		case REPORT_TYPE_NOTIF_CONNECTION_STATUS:
++			if (dj_report->report_params[CONNECTION_STATUS_PARAM_STATUS] ==
++			    STATUS_LINKLOSS) {
++				logi_dj_recv_forward_null_report(djrcv_dev, dj_report);
++			}
++			break;
++		default:
++			logi_dj_recv_forward_report(djrcv_dev, dj_report);
++		}
++		report_processed = true;
++	}
++	spin_unlock_irqrestore(&djrcv_dev->lock, flags);
++
++	return report_processed;
++}
++
++static int logi_dj_probe(struct hid_device *hdev,
++			 const struct hid_device_id *id)
++{
++	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
++	struct dj_receiver_dev *djrcv_dev;
++	int retval;
++
++	if (is_dj_device((struct dj_device *)hdev->driver_data))
++		return -ENODEV;
++
++	dbg_hid("%s called for ifnum %d\n", __func__,
++		intf->cur_altsetting->desc.bInterfaceNumber);
++
++	/* Ignore interfaces 0 and 1, they will not carry any data, dont create
++	 * any hid_device for them */
++	if (intf->cur_altsetting->desc.bInterfaceNumber !=
++	    LOGITECH_DJ_INTERFACE_NUMBER) {
++		dbg_hid("%s: ignoring ifnum %d\n", __func__,
++			intf->cur_altsetting->desc.bInterfaceNumber);
++		return -ENODEV;
++	}
++
++	/* Treat interface 2 */
++
++	djrcv_dev = kzalloc(sizeof(struct dj_receiver_dev), GFP_KERNEL);
++	if (!djrcv_dev) {
++		dev_err(&hdev->dev,
++			"%s:failed allocating dj_receiver_dev\n", __func__);
++		return -ENOMEM;
++	}
++	djrcv_dev->hdev = hdev;
++	INIT_WORK(&djrcv_dev->work, delayedwork_callback);
++	spin_lock_init(&djrcv_dev->lock);
++	if (kfifo_alloc(&djrcv_dev->notif_fifo,
++			DJ_MAX_NUMBER_NOTIFICATIONS * sizeof(struct dj_report),
++			GFP_KERNEL)) {
++		dev_err(&hdev->dev,
++			"%s:failed allocating notif_fifo\n", __func__);
++		kfree(djrcv_dev);
++		return -ENOMEM;
++	}
++	hid_set_drvdata(hdev, djrcv_dev);
++
++	/* Call  to usbhid to fetch the HID descriptors of interface 2 and
++	 * subsequently call to the hid/hid-core to parse the fetched
++	 * descriptors, this will in turn create the hidraw and hiddev nodes
++	 * for interface 2 of the receiver */
++	retval = hid_parse(hdev);
++	if (retval) {
++		dev_err(&hdev->dev,
++			"%s:parse of interface 2 failed\n", __func__);
++		goto hid_parse_fail;
++	}
++
++	/* Starts the usb device and connects to upper interfaces hiddev and
++	 * hidraw */
++	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (retval) {
++		dev_err(&hdev->dev,
++			"%s:hid_hw_start returned error\n", __func__);
++		goto hid_hw_start_fail;
++	}
++
++	retval = logi_dj_recv_switch_to_dj_mode(djrcv_dev, 0);
++	if (retval < 0) {
++		dev_err(&hdev->dev,
++			"%s:logi_dj_recv_switch_to_dj_mode returned error:%d\n",
++			__func__, retval);
++		goto switch_to_dj_mode_fail;
++	}
++
++	/* This is enabling the polling urb on the IN endpoint */
++	retval = hdev->ll_driver->open(hdev);
++	if (retval < 0) {
++		dev_err(&hdev->dev, "%s:hdev->ll_driver->open returned "
++			"error:%d\n", __func__, retval);
++		goto llopen_failed;
++	}
++
++	retval = logi_dj_recv_query_paired_devices(djrcv_dev);
++	if (retval < 0) {
++		dev_err(&hdev->dev, "%s:logi_dj_recv_query_paired_devices "
++			"error:%d\n", __func__, retval);
++		goto logi_dj_recv_query_paired_devices_failed;
++	}
++
++	return retval;
++
++logi_dj_recv_query_paired_devices_failed:
++	hdev->ll_driver->close(hdev);
++
++llopen_failed:
++switch_to_dj_mode_fail:
++	hid_hw_stop(hdev);
++
++hid_hw_start_fail:
++hid_parse_fail:
++	kfifo_free(&djrcv_dev->notif_fifo);
++	kfree(djrcv_dev);
++	hid_set_drvdata(hdev, NULL);
++	return retval;
++
++}
++
++#ifdef CONFIG_PM
++static int logi_dj_reset_resume(struct hid_device *hdev)
++{
++	int retval;
++	struct dj_receiver_dev *djrcv_dev = hid_get_drvdata(hdev);
++
++	retval = logi_dj_recv_switch_to_dj_mode(djrcv_dev, 0);
++	if (retval < 0) {
++		dev_err(&hdev->dev,
++			"%s:logi_dj_recv_switch_to_dj_mode returned error:%d\n",
++			__func__, retval);
++	}
++
++	return 0;
++}
++#endif
++
++static void logi_dj_remove(struct hid_device *hdev)
++{
++	struct dj_receiver_dev *djrcv_dev = hid_get_drvdata(hdev);
++	struct dj_device *dj_dev;
++	int i;
++
++	dbg_hid("%s\n", __func__);
++
++	cancel_work_sync(&djrcv_dev->work);
++
++	hdev->ll_driver->close(hdev);
++	hid_hw_stop(hdev);
++
++	/* I suppose that at this point the only context that can access
++	 * the djrecv_data is this thread as the work item is guaranteed to
++	 * have finished and no more raw_event callbacks should arrive after
++	 * the remove callback was triggered so no locks are put around the
++	 * code below */
++	for (i = 0; i < DJ_MAX_PAIRED_DEVICES; i++) {
++		dj_dev = djrcv_dev->paired_dj_devices[i];
++		if (dj_dev != NULL) {
++			hid_destroy_device(dj_dev->hdev);
++			kfree(dj_dev);
++			djrcv_dev->paired_dj_devices[i] = NULL;
++		}
++	}
++
++	kfifo_free(&djrcv_dev->notif_fifo);
++	kfree(djrcv_dev);
++	hid_set_drvdata(hdev, NULL);
++}
++
++static int logi_djdevice_probe(struct hid_device *hdev,
++			 const struct hid_device_id *id)
++{
++	int ret;
++	struct dj_device *dj_dev = hdev->driver_data;
++
++	if (!is_dj_device(dj_dev))
++		return -ENODEV;
++
++	ret = hid_parse(hdev);
++	if (!ret)
++		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++
++	return ret;
++}
++
++static const struct hid_device_id logi_dj_receivers[] = {
++	{HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
++		USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER)},
++	{HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
++		USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER_2)},
++	{}
++};
++
++MODULE_DEVICE_TABLE(hid, logi_dj_receivers);
++
++static struct hid_driver logi_djreceiver_driver = {
++	.name = "logitech-djreceiver",
++	.id_table = logi_dj_receivers,
++	.probe = logi_dj_probe,
++	.remove = logi_dj_remove,
++	.raw_event = logi_dj_raw_event,
++#ifdef CONFIG_PM
++	.reset_resume = logi_dj_reset_resume,
++#endif
++};
++
++
++static const struct hid_device_id logi_dj_devices[] = {
++	{HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
++		USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER)},
++	{HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
++		USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER_2)},
++	{}
++};
++
++static struct hid_driver logi_djdevice_driver = {
++	.name = "logitech-djdevice",
++	.id_table = logi_dj_devices,
++	.probe = logi_djdevice_probe,
++};
++
++
++static int __init logi_dj_init(void)
++{
++	int retval;
++
++	dbg_hid("Logitech-DJ:%s\n", __func__);
++
++	retval = hid_register_driver(&logi_djreceiver_driver);
++	if (retval)
++		return retval;
++
++	retval = hid_register_driver(&logi_djdevice_driver);
++	if (retval)
++		hid_unregister_driver(&logi_djreceiver_driver);
++
++	return retval;
++
++}
++
++static void __exit logi_dj_exit(void)
++{
++	dbg_hid("Logitech-DJ:%s\n", __func__);
++
++	hid_unregister_driver(&logi_djdevice_driver);
++	hid_unregister_driver(&logi_djreceiver_driver);
++
++}
++
++module_init(logi_dj_init);
++module_exit(logi_dj_exit);
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Logitech");
++MODULE_AUTHOR("Nestor Lopez Casado");
++MODULE_AUTHOR("nlopezcasad@logitech.com");
+diff --git a/drivers/hid/hid-logitech-dj.h b/drivers/hid/hid-logitech-dj.h
+new file mode 100644
+index 0000000..5982263
+--- /dev/null
++++ b/drivers/hid/hid-logitech-dj.h
+@@ -0,0 +1,120 @@
++#ifndef __HID_LOGITECH_DJ_H
++#define __HID_LOGITECH_DJ_H
++
++/*
++ *  HID driver for Logitech Unifying receivers
++ *
++ *  Copyright (c) 2011 Logitech
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ */
++
++#include <linux/kfifo.h>
++
++#define DJ_MAX_PAIRED_DEVICES			6
++#define DJ_MAX_NUMBER_NOTIFICATIONS		8
++
++#define DJREPORT_SHORT_LENGTH			15
++#define DJREPORT_LONG_LENGTH			32
++
++#define REPORT_ID_DJ_SHORT			0x20
++#define REPORT_ID_DJ_LONG			0x21
++
++#define REPORT_TYPE_RFREPORT_FIRST		0x01
++#define REPORT_TYPE_RFREPORT_LAST		0x1F
++
++/* Command Switch to DJ mode */
++#define REPORT_TYPE_CMD_SWITCH			0x80
++#define CMD_SWITCH_PARAM_DEVBITFIELD		0x00
++#define CMD_SWITCH_PARAM_TIMEOUT_SECONDS	0x01
++#define TIMEOUT_NO_KEEPALIVE			0x00
++
++/* Command to Get the list of Paired devices */
++#define REPORT_TYPE_CMD_GET_PAIRED_DEVICES	0x81
++
++/* Device Paired Notification */
++#define REPORT_TYPE_NOTIF_DEVICE_PAIRED		0x41
++#define SPFUNCTION_MORE_NOTIF_EXPECTED		0x01
++#define SPFUNCTION_DEVICE_LIST_EMPTY		0x02
++#define DEVICE_PAIRED_PARAM_SPFUNCTION		0x00
++#define DEVICE_PAIRED_PARAM_EQUAD_ID_LSB	0x01
++#define DEVICE_PAIRED_PARAM_EQUAD_ID_MSB	0x02
++#define DEVICE_PAIRED_RF_REPORT_TYPE		0x03
++
++/* Device Un-Paired Notification */
++#define REPORT_TYPE_NOTIF_DEVICE_UNPAIRED	0x40
++
++
++/* Connection Status Notification */
++#define REPORT_TYPE_NOTIF_CONNECTION_STATUS	0x42
++#define CONNECTION_STATUS_PARAM_STATUS		0x00
++#define STATUS_LINKLOSS				0x01
++
++/* Error Notification */
++#define REPORT_TYPE_NOTIF_ERROR			0x7F
++#define NOTIF_ERROR_PARAM_ETYPE			0x00
++#define ETYPE_KEEPALIVE_TIMEOUT			0x01
++
++/* supported DJ HID && RF report types */
++#define REPORT_TYPE_KEYBOARD			0x01
++#define REPORT_TYPE_MOUSE			0x02
++#define REPORT_TYPE_CONSUMER_CONTROL		0x03
++#define REPORT_TYPE_SYSTEM_CONTROL		0x04
++#define REPORT_TYPE_MEDIA_CENTER		0x08
++#define REPORT_TYPE_LEDS			0x0E
++
++/* RF Report types bitfield */
++#define STD_KEYBOARD				0x00000002
++#define STD_MOUSE				0x00000004
++#define MULTIMEDIA				0x00000008
++#define POWER_KEYS				0x00000010
++#define MEDIA_CENTER				0x00000100
++#define KBD_LEDS				0x00004000
++
++struct dj_report {
++	u8 report_id;
++	u8 device_index;
++	u8 report_type;
++	u8 report_params[DJREPORT_SHORT_LENGTH - 3];
++};
++
++struct dj_receiver_dev {
++	struct hid_device *hdev;
++	struct dj_device *paired_dj_devices[DJ_MAX_PAIRED_DEVICES];
++	struct work_struct work;
++	struct kfifo notif_fifo;
++	spinlock_t lock;
++};
++
++struct dj_device {
++	struct hid_device *hdev;
++	struct dj_receiver_dev *dj_receiver_dev;
++	u32 reports_supported;
++	u8 device_index;
++};
++
++/**
++ * is_dj_device - know if the given dj_device is not the receiver.
++ * @dj_dev: the dj device to test
++ *
++ * This macro tests if a struct dj_device pointer is a device created
++ * by the bus enumarator.
++ */
++#define is_dj_device(dj_dev) \
++	(&(dj_dev)->dj_receiver_dev->hdev->dev == (dj_dev)->hdev->dev.parent)
++
++#endif
+-- 
+1.7.5.3
 
-pdata->rows and ->cols needs to be changed to a u32 for this to be
-safe.
-
-> +	if (!pdata->rows || !pdata->cols) {
-> +		dev_err(dev, "number of keypad rows/columns not specified\n");
-> +		return NULL;
-> +	}
-> +
-> +	keymap_data = devm_kzalloc(dev, sizeof(*keymap_data), GFP_KERNEL);
-> +	if (!keymap_data) {
-> +		dev_err(dev, "could not allocate memory for keymap data\n");
-> +		return NULL;
-> +	}
-> +	pdata->keymap_data = keymap_data;
-> +
-> +	for_each_child_of_node(np, key_np)
-> +		key_count++;
-> +
-> +	keymap_data->keymap_size = key_count;
-> +	keymap = devm_kzalloc(dev, sizeof(uint32_t) * key_count, GFP_KERNEL);
-> +	if (!keymap) {
-> +		dev_err(dev, "could not allocate memory for keymap\n");
-> +		return NULL;
-> +	}
-> +	keymap_data->keymap = keymap;
-> +
-> +	for_each_child_of_node(np, key_np) {
-> +		unsigned int row, col, key_code;
-
-These need to be u32
-
-> +		of_property_read_u32(key_np, "keypad,row", &row);
-> +		of_property_read_u32(key_np, "keypad,column", &col);
-> +		of_property_read_u32(key_np, "keypad,key-code", &key_code);
-> +		*keymap++ = KEY(row, col, key_code);
-> +	}
-> +
-> +	if (of_get_property(np, "linux,input-no-autorepeat", NULL))
-> +		pdata->no_autorepeat = true;
-> +	if (of_get_property(np, "linux,input-wakeup", NULL))
-> +		pdata->wakeup = true;
-> +
-> +	return pdata;
-> +}
-> +
-> +static void samsung_keypad_parse_dt_gpio(struct device *dev,
-> +				struct samsung_keypad *keypad)
-> +{
-> +	struct device_node *np = dev->of_node;
-> +	int gpio, ret, row, col;
-> +
-> +	for (row = 0; row < keypad->rows; row++) {
-> +		gpio = of_get_named_gpio(np, "row-gpios", row);
-> +		keypad->row_gpios[row] = gpio;
-> +		if (!gpio_is_valid(gpio)) {
-> +			dev_err(dev, "keypad row[%d]: invalid gpio %d\n",
-> +					row, gpio);
-> +			continue;
-> +		}
-> +
-> +		ret = gpio_request(gpio, "keypad-row");
-> +		if (ret)
-> +			dev_err(dev, "keypad row[%d] gpio request failed\n",
-> +					row);
-> +	}
-> +
-> +	for (col = 0; col < keypad->cols; col++) {
-> +		gpio = of_get_named_gpio(np, "col-gpios", col);
-> +		keypad->col_gpios[col] = gpio;
-> +		if (!gpio_is_valid(gpio)) {
-> +			dev_err(dev, "keypad column[%d]: invalid gpio %d\n",
-> +					col, gpio);
-> +			continue;
-> +		}
-> +
-> +		ret = gpio_request(col, "keypad-col");
-> +		if (ret)
-> +			dev_err(dev, "keypad column[%d] gpio request failed\n",
-> +					col);
-> +	}
-> +}
-> +
-> +static void samsung_keypad_dt_gpio_free(struct samsung_keypad *keypad)
-> +{
-> +	int cnt;
-> +
-> +	for (cnt = 0; cnt < keypad->rows; cnt++)
-> +		if (gpio_is_valid(keypad->row_gpios[cnt]))
-> +			gpio_free(keypad->row_gpios[cnt]);
-> +
-> +	for (cnt = 0; cnt < keypad->cols; cnt++)
-> +		if (gpio_is_valid(keypad->col_gpios[cnt]))
-> +			gpio_free(keypad->col_gpios[cnt]);
-> +}
-> +#else
-> +static
-> +struct samsung_keypad_platdata *samsung_keypad_parse_dt(struct device *dev)
-> +{
-> +	return NULL;
-> +}
-> +
-> +static void samsung_keypad_parse_dt_gpio(struct device *dev,
-> +				struct samsung_keypad *keypad)
-> +{
-> +}
-> +
-> +static void samsung_keypad_dt_gpio_free(struct samsung_keypad *keypad)
-> +{
-> +}
-> +#endif
-> +
->  static int __devinit samsung_keypad_probe(struct platform_device *pdev)
->  {
->  	const struct samsung_keypad_platdata *pdata;
-> @@ -246,7 +366,10 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
->  	unsigned int keymap_size;
->  	int error;
->  
-> -	pdata = pdev->dev.platform_data;
-> +	if (pdev->dev.of_node)
-> +		pdata = samsung_keypad_parse_dt(&pdev->dev);
-> +	else
-> +		pdata = pdev->dev.platform_data;
->  	if (!pdata) {
->  		dev_err(&pdev->dev, "no platform data defined\n");
->  		return -EINVAL;
-> @@ -303,6 +426,16 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
->  	keypad->cols = pdata->cols;
->  	init_waitqueue_head(&keypad->wait);
->  
-> +	if (pdev->dev.of_node) {
-> +		samsung_keypad_parse_dt_gpio(&pdev->dev, keypad);
-> +#ifdef CONFIG_OF
-> +		keypad->type = of_device_is_compatible(pdev->dev.of_node,
-> +					"samsung,s5pv210-keypad");
-> +#endif
-
-It is odd having the #ifdef around only part of the if() block.
-
-> +	} else {
-> +		keypad->type = platform_get_device_id(pdev)->driver_data;
-> +	}
-> +
->  	input_dev->name = pdev->name;
->  	input_dev->id.bustype = BUS_HOST;
->  	input_dev->dev.parent = &pdev->dev;
-> @@ -343,12 +476,19 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
->  
->  	device_init_wakeup(&pdev->dev, pdata->wakeup);
->  	platform_set_drvdata(pdev, keypad);
-> +
-> +	if (pdev->dev.of_node) {
-> +		devm_kfree(&pdev->dev, (void *)pdata->keymap_data->keymap);
-> +		devm_kfree(&pdev->dev, (void *)pdata->keymap_data);
-> +		devm_kfree(&pdev->dev, (void *)pdata);
-> +	}
-
-Don't need to do this.  The driver core will take care of freeing the
-devm for you when removed.
-
-A few things that should be fixed up, but otherwise looks pretty good.
-
->  	return 0;
->  
->  err_free_irq:
->  	free_irq(keypad->irq, keypad);
->  err_put_clk:
->  	clk_put(keypad->clk);
-> +	samsung_keypad_dt_gpio_free(keypad);
->  err_unmap_base:
->  	iounmap(keypad->base);
->  err_free_mem:
-> @@ -374,6 +514,7 @@ static int __devexit samsung_keypad_remove(struct platform_device *pdev)
->  	free_irq(keypad->irq, keypad);
->  
->  	clk_put(keypad->clk);
-> +	samsung_keypad_dt_gpio_free(keypad);
->  
->  	iounmap(keypad->base);
->  	kfree(keypad);
-> @@ -447,6 +588,17 @@ static const struct dev_pm_ops samsung_keypad_pm_ops = {
->  };
->  #endif
->  
-> +#ifdef CONFIG_OF
-> +static const struct of_device_id samsung_keypad_dt_match[] = {
-> +	{ .compatible = "samsung,s3c6410-keypad" },
-> +	{ .compatible = "samsung,s5pv210-keypad" },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, samsung_keypad_dt_match);
-> +#else
-> +#define samsung_keypad_dt_match NULL
-> +#endif
-> +
->  static struct platform_device_id samsung_keypad_driver_ids[] = {
->  	{
->  		.name		= "samsung-keypad",
-> @@ -465,6 +617,7 @@ static struct platform_driver samsung_keypad_driver = {
->  	.driver		= {
->  		.name	= "samsung-keypad",
->  		.owner	= THIS_MODULE,
-> +		.of_match_table = samsung_keypad_dt_match,
->  #ifdef CONFIG_PM
->  		.pm	= &samsung_keypad_pm_ops,
->  #endif
-> -- 
-> 1.6.6.rc2
-> 

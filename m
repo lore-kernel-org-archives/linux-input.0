@@ -1,74 +1,61 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH 0/6] mc13783 cleanup
-Date: Thu, 15 Sep 2011 18:03:21 +0200
-Message-ID: <20110915160321.GA29357@pengutronix.de>
-References: <20110824132740.GA28197@pengutronix.de>
-	<201108250905.13168.philippe.retornaz@epfl.ch>
-	<20110915151213.GE32263@sortiz-mobl>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH] Input: wacom - Add POINTER and DIRECT device properties
+Date: Thu, 15 Sep 2011 09:16:49 -0700
+Message-ID: <CAF8JNhKFz8-bJ4HMguU2qReageX4WBB1bWR0amRbYmaujNVX8A@mail.gmail.com>
+References: <1314892843-1475-1-git-send-email-killertofu@gmail.com>
+	<20110913080911.GA4986@polaris.bitmath.org>
+	<CAPHpN5OAPdPQ1SmwrGT6pMvgWESBOSnRvb0jKUszkU_31MFXWg@mail.gmail.com>
+	<20110914071524.GA3422@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20110915151213.GE32263@sortiz-mobl>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: linux-input@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, Richard Purdie <rpurdie@rpsys.net>, kernel@pengutronix.de, David Jander <david@protonic.nl>, Jean Delvare <khali@linux-fr.org>, Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:56878 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934067Ab1IOQQu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Sep 2011 12:16:50 -0400
+Received: by ywb5 with SMTP id 5so2286045ywb.19
+        for <linux-input@vger.kernel.org>; Thu, 15 Sep 2011 09:16:49 -0700 (PDT)
+In-Reply-To: <20110914071524.GA3422@polaris.bitmath.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Linux Input <linux-input@vger.kernel.org>
 
-Hi Samuel,
+On Wed, Sep 14, 2011 at 12:15 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> On Tue, Sep 13, 2011 at 10:18:28AM +0200, Mohamed Ikbel Boulabiar wrote:
+>> Hi,
+>>
+>> On Tue, Sep 13, 2011 at 10:09 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+>> >
+>> > . The question is then what behavior should be assigned to
+>> > a large tablet without an embedded screen. It should have POINTER set
+>> > for sure, but should it also have DIRECT set?
+>>
+>> Any large tablet without an embedded screen can be used in the 2 different ways:
+>> 1. The projection on top of it so it becomes a direct device.
+>> (this case is also used when you project 3d 120hz on top of multitouch
+>> devices: iMuts)
+>>
+>> 2. Simple indirect device, even if it's large:
+>> http://10gui.com/video/
+>
+> Two-finger scroll is actually used in a direct manner in that
+> video. (Which, btw, does display some fresh concepts. :-))
+>
+> I think the bottom line is that even if the "directness" of a device
+> is configurable, it still needs to have a default. Moreover, the
+> notion of kernel mode settings could be applicable here too.
 
-On Thu, Sep 15, 2011 at 05:12:13PM +0200, Samuel Ortiz wrote:
-> On Thu, Aug 25, 2011 at 09:05:12AM +0200, Philippe R=E9tornaz wrote:
-> > Le mercredi 24 ao=FBt 2011 15:27:40, Uwe Kleine-K=F6nig a =E9crit :
-> > > Hello,
-> > > =
+Talking about default mode, there are cases that the mode is decided
+by the tools running on the device/tablet, instead of the tablet
+itself.
 
-> > > this series removes the long obsolte mc13783 API after fixing all
-> > > remaining users.
-> > =
+Take Wacom's Intuos and Graphire series for example, those tablets
+support both styli and mice. For styli, the default is absolute mode;
+while for mice, it is relative. So, only valid property the tablet can
+tell the user-land is: I am a tablet, i.e., not a touchscreen. Clients
+have to check the tool types to set the default mode to relative
+(BTN_TOOL_MOUSE/LENS) or absolute (BTN_TOOL_PEN/AIRBRUSH/RUBBER...).
 
-> > I posted a patch last month which was touching this MFD too.
-> > We will need to synchronize both patch. =
-
-> I applied Uwe's patchset now.
-Thanks.
-
->                               Could you please sync your code and send me=
- a
-> patchset that applies on top of:
-> =
-
-> git://git.infradead.org/users/sameo/mfd-2.6.git for-next
-You can fetch the updated series from
-
-	git://git.pengutronix.de/git/ukl/linux-2.6.git mc13783
-
-I also included the last patch that Sascha commented with:
-
-	Please ping once the rest is merged.
-
-This is OK as I'm currently substituting Sascha for imx maintainer
-duties while he is on vacation. Merging the above branch into the
-current imx/for-next branch yields a merge conflict in
-drivers/rtc/rtc-twl.c which is only touched on your side and in Linus'
-tree below imx/for-next.
-
-I guess you can drop 54d96ef785b5 as it is the same as dec35d19c4 +
-34d623d.
-
-Best regards
-Uwe
-
--- =
-
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Ping

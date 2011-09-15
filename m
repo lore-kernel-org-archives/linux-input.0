@@ -1,123 +1,74 @@
-From: James Hogan <james@albanarts.com>
-Subject: Re: [PATCH] hidraw : free list for all error in hidraw_open
-Date: Thu, 15 Sep 2011 16:34:13 +0100
-Message-ID: <CAAG0J9-6T6uVS2VSJu--09T32RL3j6XSHZ5mC8gHQ4o+qz2VJA@mail.gmail.com>
-References: <CA+F9FsBqeW9PEL9F5h4Rx+-2QY=PcFXW0MVyZPJJOjUo5zGeig@mail.gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH 0/6] mc13783 cleanup
+Date: Thu, 15 Sep 2011 18:03:21 +0200
+Message-ID: <20110915160321.GA29357@pengutronix.de>
+References: <20110824132740.GA28197@pengutronix.de>
+	<201108250905.13168.philippe.retornaz@epfl.ch>
+	<20110915151213.GE32263@sortiz-mobl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f45.google.com ([209.85.212.45]:62425 "EHLO
-	mail-vw0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934023Ab1IOPeO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Sep 2011 11:34:14 -0400
-In-Reply-To: <CA+F9FsBqeW9PEL9F5h4Rx+-2QY=PcFXW0MVyZPJJOjUo5zGeig@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <20110915151213.GE32263@sortiz-mobl>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Samuel Ortiz <sameo@linux.intel.com>
+Cc: linux-input@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, Richard Purdie <rpurdie@rpsys.net>, kernel@pengutronix.de, David Jander <david@protonic.nl>, Jean Delvare <khali@linux-fr.org>, Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Amit Nagal <helloin.amit@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Alan Ott <alan@signal11.us>
 
-On 2 September 2011 06:29, Amit Nagal <helloin.amit@gmail.com> wrote:
-> Hi ,
->
-> In function hidraw_open (linux-3.0.3/drivers/hid/hidraw.c ) , =A0stru=
-ct
-> hidraw_list *list should be freed for all error conditions .
-> Following is patch enclosed for the same :
->
-> Signed-off-by: Amit Nagal <helloin.amit@gmail.com>
+Hi Samuel,
 
-Another patch (3a22ebe9cc76acac2511b1d3979a35609924ce42 "HID: hidraw:
-fix hidraw_disconnect()", pasted below) tried to fix the same problem,
-but introduced a different problem where the device_destroy in
-hidraw_disconnect would cause the hidraw to get freed, and then
-hidraw_disconnect() would go and reference it then try and free it
-again. I believe that patch should now be reverted, as with this patch
-the device_destroy will free the list, and won't free the hidraw,
-allowing hidraw_disconnect to clean it up itself. Does that sound
-correct?
+On Thu, Sep 15, 2011 at 05:12:13PM +0200, Samuel Ortiz wrote:
+> On Thu, Aug 25, 2011 at 09:05:12AM +0200, Philippe R=E9tornaz wrote:
+> > Le mercredi 24 ao=FBt 2011 15:27:40, Uwe Kleine-K=F6nig a =E9crit :
+> > > Hello,
+> > > =
 
-Cheers
-James
+> > > this series removes the long obsolte mc13783 API after fixing all
+> > > remaining users.
+> > =
 
-commit 3a22ebe9cc76acac2511b1d3979a35609924ce42
-Author: Stefan Achatz <erazor_de@users.sourceforge.net>
-Date:   Sat Jan 29 02:17:30 2011 +0100
+> > I posted a patch last month which was touching this MFD too.
+> > We will need to synchronize both patch. =
 
-    HID: hidraw: fix hidraw_disconnect()
+> I applied Uwe's patchset now.
+Thanks.
 
-    hidraw_disconnect() first sets an entry in hidraw_table to NULL
-    and calls device_destroy() afterwards. The thereby called
-    hidraw_release() tries to read this already cleared value resulting
-    in never removing any device from the list.
-    This got fixed by changing the order of events.
+>                               Could you please sync your code and send me=
+ a
+> patchset that applies on top of:
+> =
 
-    Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
-    Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+> git://git.infradead.org/users/sameo/mfd-2.6.git for-next
+You can fetch the updated series from
 
-diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-index 468e87b..5516ea4 100644
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -428,12 +428,12 @@ void hidraw_disconnect(struct hid_device *hid)
+	git://git.pengutronix.de/git/ukl/linux-2.6.git mc13783
 
-        hidraw->exist =3D 0;
+I also included the last patch that Sascha commented with:
 
-+ device_destroy(hidraw_class, MKDEV(hidraw_major, hidraw->minor));
-+
-        mutex_lock(&minors_lock);
-        hidraw_table[hidraw->minor] =3D NULL;
-        mutex_unlock(&minors_lock);
+	Please ping once the rest is merged.
 
--   device_destroy(hidraw_class, MKDEV(hidraw_major, hidraw->minor));
--
-        if (hidraw->open) {
-                hid_hw_close(hid);
-                wake_up_interruptible(&hidraw->wait);
+This is OK as I'm currently substituting Sascha for imx maintainer
+duties while he is on vacation. Merging the above branch into the
+current imx/for-next branch yields a merge conflict in
+drivers/rtc/rtc-twl.c which is only touched on your side and in Linus'
+tree below imx/for-next.
 
+I guess you can drop 54d96ef785b5 as it is the same as dec35d19c4 +
+34d623d.
 
+Best regards
+Uwe
 
-> ---
->
-> diff -uprN linux-3.0.3/drivers/hid/hidraw.c.orig
-> linux-3.0.3/drivers/hid/hidraw.c
-> --- linux-3.0.3/drivers/hid/hidraw.c.orig =A0 =A0 =A0 2011-09-01
-> 13:23:19.000000000 -0400
-> +++ linux-3.0.3/drivers/hid/hidraw.c =A0 =A02011-09-02 06:25:08.00000=
-0000 -0400
-> @@ -259,7 +259,6 @@ static int hidraw_open(struct inode *ino
->
-> =A0 =A0 =A0 =A0mutex_lock(&minors_lock);
-> =A0 =A0 =A0 =A0if (!hidraw_table[minor]) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 kfree(list);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0err =3D -ENODEV;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto out_unlock;
-> =A0 =A0 =A0 =A0}
-> @@ -285,6 +284,8 @@ static int hidraw_open(struct inode *ino
-> =A0out_unlock:
-> =A0 =A0 =A0 =A0mutex_unlock(&minors_lock);
-> =A0out:
-> + =A0 =A0 =A0 if (err < 0)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 kfree(list);
-> =A0 =A0 =A0 =A0return err;
->
-> =A0}
->
-> --
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
+-- =
 
-
-
---=20
-James Hogan
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |

@@ -1,64 +1,79 @@
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: [PATCH 7/8] ASoC: omap-mcpdm: Correct the supported number of channels
-Date: Thu, 15 Sep 2011 15:59:20 +0300
-Message-ID: <1316091561-30899-8-git-send-email-peter.ujfalusi@ti.com>
+Subject: [PATCH 3/8] MFD: twl6040: function to query the vibra
+	status for clients
+Date: Thu, 15 Sep 2011 15:59:16 +0300
+Message-ID: <1316091561-30899-4-git-send-email-peter.ujfalusi@ti.com>
 References: <1316091561-30899-1-git-send-email-peter.ujfalusi@ti.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
 In-Reply-To: <1316091561-30899-1-git-send-email-peter.ujfalusi@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
 To: Samuel Ortiz <samuel.ortiz@intel.com>, Dmitry Torokhov <dtor@mail.ru>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@ti.com>
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
+Cc: alsa-devel@alsa-project.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-OMAP4 McPDM supports 5 downlink (playback), and
-3 uplink (capture) channels.
+If the client only interested, if any of the vibra channels enabled, or
+if any of the channels are set to receive audio data via PDM.
+
+This function targets mainly the vibra driver, so it can check if it is
+allowed to execute effects ot not.
 
 Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
 ---
- sound/soc/omap/omap-mcpdm.c |   14 ++++++++------
- 1 files changed, 8 insertions(+), 6 deletions(-)
+ drivers/mfd/twl6040-core.c  |   12 ++++++++++++
+ include/linux/mfd/twl6040.h |    3 +++
+ 2 files changed, 15 insertions(+), 0 deletions(-)
 
-diff --git a/sound/soc/omap/omap-mcpdm.c b/sound/soc/omap/omap-mcpdm.c
-index 23eaacb..41d1706 100644
---- a/sound/soc/omap/omap-mcpdm.c
-+++ b/sound/soc/omap/omap-mcpdm.c
-@@ -315,15 +315,17 @@ static int omap_mcpdm_dai_hw_params(struct snd_pcm_substream *substream,
+diff --git a/drivers/mfd/twl6040-core.c b/drivers/mfd/twl6040-core.c
+index 75987c8..268f80f 100644
+--- a/drivers/mfd/twl6040-core.c
++++ b/drivers/mfd/twl6040-core.c
+@@ -444,6 +444,18 @@ unsigned int twl6040_get_sysclk(struct twl6040 *twl6040)
+ }
+ EXPORT_SYMBOL(twl6040_get_sysclk);
  
- 	channels = params_channels(params);
- 	switch (channels) {
-+	case 5:
-+		if (stream == SNDRV_PCM_STREAM_CAPTURE)
-+			/* up to 3 channels for capture */
-+			return -EINVAL;
-+		link_mask |= 1 << 4;
- 	case 4:
- 		if (stream == SNDRV_PCM_STREAM_CAPTURE)
--			/* up to 2 channels for capture */
-+			/* up to 3 channels for capture */
- 			return -EINVAL;
- 		link_mask |= 1 << 3;
- 	case 3:
--		if (stream == SNDRV_PCM_STREAM_CAPTURE)
--			/* up to 2 channels for capture */
--			return -EINVAL;
- 		link_mask |= 1 << 2;
- 	case 2:
- 		link_mask |= 1 << 1;
-@@ -419,13 +421,13 @@ static struct snd_soc_dai_driver omap_mcpdm_dai = {
- 	.remove_order = SND_SOC_COMP_ORDER_EARLY,
- 	.playback = {
- 		.channels_min = 1,
--		.channels_max = 4,
-+		.channels_max = 5,
- 		.rates = OMAP_MCPDM_RATES,
- 		.formats = OMAP_MCPDM_FORMATS,
- 	},
- 	.capture = {
- 		.channels_min = 1,
--		.channels_max = 2,
-+		.channels_max = 3,
- 		.rates = OMAP_MCPDM_RATES,
- 		.formats = OMAP_MCPDM_FORMATS,
- 	},
++/* Get the combined status of the vibra control register */
++int twl6040_get_vibralr_status(struct twl6040 *twl6040)
++{
++	u8 status;
++
++	status = twl6040->vibra_ctrl_cache[0] | twl6040->vibra_ctrl_cache[1];
++	status &= (TWL6040_VIBENA | TWL6040_VIBSEL);
++
++	return status;
++}
++EXPORT_SYMBOL(twl6040_get_vibralr_status);
++
+ static struct resource twl6040_vibra_rsrc[] = {
+ 	{
+ 		.flags = IORESOURCE_IRQ,
+diff --git a/include/linux/mfd/twl6040.h b/include/linux/mfd/twl6040.h
+index 3ec9591..2463c261 100644
+--- a/include/linux/mfd/twl6040.h
++++ b/include/linux/mfd/twl6040.h
+@@ -210,10 +210,13 @@ int twl6040_get_pll(struct twl6040 *twl6040);
+ unsigned int twl6040_get_sysclk(struct twl6040 *twl6040);
+ int twl6040_irq_init(struct twl6040 *twl6040);
+ void twl6040_irq_exit(struct twl6040 *twl6040);
++/* Get the combined status of the vibra control register */
++int twl6040_get_vibralr_status(struct twl6040 *twl6040);
+ 
+ static inline int twl6040_get_revid(struct twl6040 *twl6040)
+ {
+ 	return twl6040->rev;
+ }
+ 
++
+ #endif  /* End of __TWL6040_CODEC_H__ */
 -- 
 1.7.6.1

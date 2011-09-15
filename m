@@ -1,61 +1,75 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH] Input: wacom - Add POINTER and DIRECT device properties
-Date: Thu, 15 Sep 2011 09:16:49 -0700
-Message-ID: <CAF8JNhKFz8-bJ4HMguU2qReageX4WBB1bWR0amRbYmaujNVX8A@mail.gmail.com>
-References: <1314892843-1475-1-git-send-email-killertofu@gmail.com>
-	<20110913080911.GA4986@polaris.bitmath.org>
-	<CAPHpN5OAPdPQ1SmwrGT6pMvgWESBOSnRvb0jKUszkU_31MFXWg@mail.gmail.com>
-	<20110914071524.GA3422@polaris.bitmath.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: [PATCH] Input: atmel_mxt_ts - Use snprintf for sysfs attribute show method
+Date: Thu, 15 Sep 2011 12:40:47 -0700
+Message-ID: <1316115647-1244-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:56878 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934067Ab1IOQQu (ORCPT
+Received: from smtp-out.google.com ([74.125.121.67]:12625 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934532Ab1IOTlG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Sep 2011 12:16:50 -0400
-Received: by ywb5 with SMTP id 5so2286045ywb.19
-        for <linux-input@vger.kernel.org>; Thu, 15 Sep 2011 09:16:49 -0700 (PDT)
-In-Reply-To: <20110914071524.GA3422@polaris.bitmath.org>
+	Thu, 15 Sep 2011 15:41:06 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Linux Input <linux-input@vger.kernel.org>
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
 
-On Wed, Sep 14, 2011 at 12:15 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> On Tue, Sep 13, 2011 at 10:18:28AM +0200, Mohamed Ikbel Boulabiar wrote:
->> Hi,
->>
->> On Tue, Sep 13, 2011 at 10:09 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
->> >
->> > . The question is then what behavior should be assigned to
->> > a large tablet without an embedded screen. It should have POINTER set
->> > for sure, but should it also have DIRECT set?
->>
->> Any large tablet without an embedded screen can be used in the 2 different ways:
->> 1. The projection on top of it so it becomes a direct device.
->> (this case is also used when you project 3d 120hz on top of multitouch
->> devices: iMuts)
->>
->> 2. Simple indirect device, even if it's large:
->> http://10gui.com/video/
->
-> Two-finger scroll is actually used in a direct manner in that
-> video. (Which, btw, does display some fresh concepts. :-))
->
-> I think the bottom line is that even if the "directness" of a device
-> is configurable, it still needs to have a default. Moreover, the
-> notion of kernel mode settings could be applicable here too.
+Sysfs attribute show methods are always passed a buffer of length
+PAGE_SIZE.  To keep from overwriting this buffer and causing havoc, use
+snprintf() to guarantee we never write more than the buffer can hold.
 
-Talking about default mode, there are cases that the mode is decided
-by the tools running on the device/tablet, instead of the tablet
-itself.
+In addition, at least for my touchscreen, the number and size of objects
+was far too big to fit in a single 4K page.  Therefore, this patch also
+trims some redundant framing text to leave more room for actual data.
 
-Take Wacom's Intuos and Graphire series for example, those tablets
-support both styli and mice. For styli, the default is absolute mode;
-while for mice, it is relative. So, only valid property the tablet can
-tell the user-land is: I am a tablet, i.e., not a touchscreen. Clients
-have to check the tool types to set the default mode to relative
-(BTN_TOOL_MOUSE/LENS) or absolute (BTN_TOOL_PEN/AIRBRUSH/RUBBER...).
+Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c |   21 +++++++++++++++------
+ 1 files changed, 15 insertions(+), 6 deletions(-)
 
-Ping
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index f5d6685..a596c27 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -910,12 +910,17 @@ static ssize_t mxt_object_show(struct device *dev,
+ 	for (i = 0; i < data->info.object_num; i++) {
+ 		object = data->object_table + i;
+ 
+-		count += sprintf(buf + count,
+-				"Object Table Element %d(Type %d)\n",
++		count += snprintf(buf + count, PAGE_SIZE - count,
++				"Object[%d] (Type %d)\n",
+ 				i + 1, object->type);
++		if (count >= PAGE_SIZE)
++			return PAGE_SIZE - 1;
+ 
+ 		if (!mxt_object_readable(object->type)) {
+-			count += sprintf(buf + count, "\n");
++			count += snprintf(buf + count, PAGE_SIZE - count,
++					"\n");
++			if (count >= PAGE_SIZE)
++				return PAGE_SIZE - 1;
+ 			continue;
+ 		}
+ 
+@@ -925,11 +930,15 @@ static ssize_t mxt_object_show(struct device *dev,
+ 			if (error)
+ 				return error;
+ 
+-			count += sprintf(buf + count,
+-					"  Byte %d: 0x%x (%d)\n", j, val, val);
++			count += snprintf(buf + count, PAGE_SIZE - count,
++					"\t[%2d]: %02x (%d)\n", j, val, val);
++			if (count >= PAGE_SIZE)
++				return PAGE_SIZE - 1;
+ 		}
+ 
+-		count += sprintf(buf + count, "\n");
++		count += snprintf(buf + count, PAGE_SIZE - count, "\n");
++		if (count >= PAGE_SIZE)
++			return PAGE_SIZE - 1;
+ 	}
+ 
+ 	return count;
+-- 
+1.7.3.1
+

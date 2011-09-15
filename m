@@ -1,7 +1,7 @@
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: [PATCH 1/8] Input: twl6040: Simplify vibra regsiter definitions
-Date: Thu, 15 Sep 2011 15:59:14 +0300
-Message-ID: <1316091561-30899-2-git-send-email-peter.ujfalusi@ti.com>
+Subject: [PATCH 6/8] ASoC: twl6040: Correct supported number of playback channels
+Date: Thu, 15 Sep 2011 15:59:19 +0300
+Message-ID: <1316091561-30899-7-git-send-email-peter.ujfalusi@ti.com>
 References: <1316091561-30899-1-git-send-email-peter.ujfalusi@ti.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1316091561-30899-1-git-send-email-peter.ujfalusi@ti.com>
@@ -10,92 +10,25 @@ To: Samuel Ortiz <samuel.ortiz@intel.com>, Dmitry Torokhov <dtor@mail.ru>, Mark 
 Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The bits within the two control registers (for left and right channel)
-are identical.
-Use common names for the bits acros the two register.
-Also add the missing definition for the path selection bit.
+twl6040 supports 5 playback, and 2 capture channels
 
 Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
 ---
- drivers/input/misc/twl6040-vibra.c |   12 ++++++------
- include/linux/mfd/twl6040.h        |   20 +++++++-------------
- 2 files changed, 13 insertions(+), 19 deletions(-)
+ sound/soc/codecs/twl6040.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
-index 154b7a3..cb74185 100644
---- a/drivers/input/misc/twl6040-vibra.c
-+++ b/drivers/input/misc/twl6040-vibra.c
-@@ -74,12 +74,12 @@ static irqreturn_t twl6040_vib_irq_handler(int irq, void *data)
- 	if (status & TWL6040_VIBLOCDET) {
- 		dev_warn(info->dev, "Left Vibrator overcurrent detected\n");
- 		twl6040_clear_bits(twl6040, TWL6040_REG_VIBCTLL,
--				   TWL6040_VIBENAL);
-+				   TWL6040_VIBENA);
- 	}
- 	if (status & TWL6040_VIBROCDET) {
- 		dev_warn(info->dev, "Right Vibrator overcurrent detected\n");
- 		twl6040_clear_bits(twl6040, TWL6040_REG_VIBCTLR,
--				   TWL6040_VIBENAR);
-+				   TWL6040_VIBENA);
- 	}
- 
- 	return IRQ_HANDLED;
-@@ -104,16 +104,16 @@ static void twl6040_vibra_enable(struct vibra_info *info)
- 		 * overcurrent detection
- 		 */
- 		twl6040_reg_write(twl6040, TWL6040_REG_VIBCTLL,
--				  TWL6040_VIBENAL | TWL6040_VIBCTRLL);
-+				  TWL6040_VIBENA | TWL6040_VIBCTRL);
- 		twl6040_reg_write(twl6040, TWL6040_REG_VIBCTLR,
--				  TWL6040_VIBENAR | TWL6040_VIBCTRLR);
-+				  TWL6040_VIBENA | TWL6040_VIBCTRL);
- 		usleep_range(3000, 3500);
- 	}
- 
- 	twl6040_reg_write(twl6040, TWL6040_REG_VIBCTLL,
--			  TWL6040_VIBENAL);
-+			  TWL6040_VIBENA);
- 	twl6040_reg_write(twl6040, TWL6040_REG_VIBCTLR,
--			  TWL6040_VIBENAR);
-+			  TWL6040_VIBENA);
- 
- 	info->enabled = true;
- }
-diff --git a/include/linux/mfd/twl6040.h b/include/linux/mfd/twl6040.h
-index 0bbb1e7..6059935 100644
---- a/include/linux/mfd/twl6040.h
-+++ b/include/linux/mfd/twl6040.h
-@@ -126,24 +126,18 @@
- #define TWL6040_HSDACMODE		(1 << 1)
- #define TWL6040_HSDRVMODE		(1 << 3)
- 
--/* VIBCTLL (0x18) fields */
-+/* VIBCTLL/R (0x18/0x1A) fields */
- 
--#define TWL6040_VIBENAL			0x01
--#define TWL6040_VIBCTRLL		0x04
--#define TWL6040_VIBCTRLLP		0x08
--#define TWL6040_VIBCTRLLN		0x10
-+#define TWL6040_VIBENA			(1 << 0)
-+#define TWL6040_VIBSEL			(1 << 1)
-+#define TWL6040_VIBCTRL			(1 << 2)
-+#define TWL6040_VIBCTRL_P		(1 << 3)
-+#define TWL6040_VIBCTRL_N		(1 << 4)
- 
--/* VIBDATL (0x19) fields */
-+/* VIBDATL/R (0x19/0x1B) fields */
- 
- #define TWL6040_VIBDAT_MAX		0x64
- 
--/* VIBCTLR (0x1A) fields */
--
--#define TWL6040_VIBENAR			0x01
--#define TWL6040_VIBCTRLR		0x04
--#define TWL6040_VIBCTRLRP		0x08
--#define TWL6040_VIBCTRLRN		0x10
--
- /* GPOCTL (0x1E) fields */
- 
- #define TWL6040_GPO1			0x01
+diff --git a/sound/soc/codecs/twl6040.c b/sound/soc/codecs/twl6040.c
+index a386cb3..70f9a64 100644
+--- a/sound/soc/codecs/twl6040.c
++++ b/sound/soc/codecs/twl6040.c
+@@ -1498,7 +1498,7 @@ static struct snd_soc_dai_driver twl6040_dai[] = {
+ 	.playback = {
+ 		.stream_name = "Playback",
+ 		.channels_min = 1,
+-		.channels_max = 2,
++		.channels_max = 5,
+ 		.rates = TWL6040_RATES,
+ 		.formats = TWL6040_FORMATS,
+ 	},
 -- 
 1.7.6.1

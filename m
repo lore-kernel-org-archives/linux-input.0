@@ -1,77 +1,98 @@
-From: Jaikumar Ganesh <jaikumarg@android.com>
-Subject: [PATCH] HID: magicmouse: Fix race in input mapping.
-Date: Fri, 16 Sep 2011 15:12:34 -0700
-Message-ID: <1316211154-9436-1-git-send-email-jaikumarg@android.com>
+From: Jaikumar Ganesh <jaikumarg@gmail.com>
+Subject: Re: hid-magicmouse driver race condition (second try)
+Date: Fri, 16 Sep 2011 15:15:04 -0700
+Message-ID: <CACMz=xi+5jPBCXjB2Kc5x31xRN1ebmQTCvjBH1jKUkLuf_xV9w@mail.gmail.com>
+References: <CACMz=xj=85kVEvu7RS5Zbaj2tE5ihu-owgUVDnq9u+0nPuC2+w@mail.gmail.com>
+ <CACMz=xiYUcGmot1RcBDste2nivt9pvXNRDOLMoX+CvdYGpmf_Q@mail.gmail.com> <CAOU-OAKYa2sWw1KQFQEfp5wjcXr1AW8gfEYUj5teLY6pQxvPjg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:9753 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754422Ab1IPWMn (ORCPT
+Received: from mail-gw0-f42.google.com ([74.125.83.42]:42135 "EHLO
+	mail-gw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755677Ab1IPWPY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Sep 2011 18:12:43 -0400
+	Fri, 16 Sep 2011 18:15:24 -0400
+Received: by gwb17 with SMTP id 17so5009264gwb.1
+        for <linux-input@vger.kernel.org>; Fri, 16 Sep 2011 15:15:24 -0700 (PDT)
+In-Reply-To: <CAOU-OAKYa2sWw1KQFQEfp5wjcXr1AW8gfEYUj5teLY6pQxvPjg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jaikumar Ganesh <jaikumarg@android.com>
+To: Michael Poole <mdpoole@troilus.org>
+Cc: linux-input@vger.kernel.org, Chase Douglas <chase.douglas@canonical.com>
 
-magicmouse_select_input was being called after device
-registration. Hence, any thread scanning "/dev" for new
-devices will see the input bits change on an open file
-descriptor. Fix this by calling select_input inside
-input_mapping.
+Hello,
 
-Based on discussions with Michael Poole <mdpoole@troilus.org>
+On Fri, Sep 16, 2011 at 12:23 PM, Michael Poole <mdpoole@troilus.org> w=
+rote:
+> On Fri, Sep 16, 2011 at 3:15 PM, Jaikumar Ganesh <jaikumarg@gmail.com=
+> wrote:
+>> Hello,
+>>
+>> On Thu, Sep 15, 2011 at 5:28 PM, Jaikumar Ganesh <jaikumarg@gmail.co=
+m> wrote:
+>>> Resending as the first email bounced.
+>>> --------
+>>> Folks,
+>>> =A0 There is a race condition in hid-magicmouse driver that I am
+>>> encountering. In the probe function, we call magicmouse_setup_input
+>>> after hid_hw_start which calls
+>>> hidinput_connect.
+>>>
+>>> So if a userspace thread scans "/dev" to see if there is a new inpu=
+t
+>>> device and on seeing the new magicmouse device added, makes the ioc=
+tl
+>>> call EVCIOGBIT for EV_ABS or EV_KEY or any other type it will get
+>>> wrong values as magicmouse_setup_input has not been called yet.
+>>>
+>>> So these keybits will change under the hood for the userspace progr=
+am
+>>> on an open file descriptor.
+>>>
+>>> I am able to reproduce this race condition easily. To verify the
+>>> above, as a hack, I called magicmouse_setup_input just before calli=
+ng
+>>> input_register_device in hidp_connect and things were fine.
+>>>
+>>> We were not using hidp-input parser but in the following commit we
+>>> moved to it which introduced the race condition:
+>>>
+>>> commit 64eb105d7f92fa48798106ac0d8bf17668eb2524
+>>> Author: Michael Poole <mdpoole@troilus.org>
+>>> Date: =A0 Fri Sep 24 13:58:18 2010 +0200
+>>>
+>>> =A0 =A0HID: magicmouse: Use hid-input parsing rather than bypassing=
+ it
+>>>
+>>> Any pointers for a clean fix ? Do we want to add a new field to
+>>> hid_driver structure so that we can use it to call from hid-input t=
+o
+>>> indicate parsing is done before the input device is registered ?
+>>
+>> I had a look at the hid-apple.c driver which also has a setup_input =
+function.
+>>
+>> But that function is called inside input_mapping - so that gets call=
+ed
+>> every single time input_mapping is called.
+>> That will fix this issue too, but seems like an overkill to call
+>> magicmouse_setup_input every single time in input_mapping.
+>
+> Perhaps it is worth doing that, but adding a flag so that the bulk of
+> magicmouse_setup_input() only runs once.
 
-Change-Id: I289a37a850977c2cbbc9eb76fbf6c9a28d1833c5
-Signed-off-by: Jaikumar Ganesh <jaikumarg@android.com>
----
- drivers/hid/hid-magicmouse.c |   13 +++++++------
- 1 files changed, 7 insertions(+), 6 deletions(-)
+I had a patch already ready with this flag, just sent to the list.
+Have referenced this discussion.
 
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index 56d0539..1175452 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -98,6 +98,7 @@ struct magicmouse_sc {
- 	int ntouches;
- 	int scroll_accel;
- 	unsigned long scroll_jiffies;
-+	bool setup_input;
- 
- 	struct {
- 		short x;
-@@ -437,6 +438,11 @@ static int magicmouse_input_mapping(struct hid_device *hdev,
- 	if (!msc->input)
- 		msc->input = hi->input;
- 
-+	if (!msc->setup_input) {
-+		magicmouse_setup_input(msc->input, hdev);
-+		msc->setup_input = true;
-+	}
-+
- 	/* Magic Trackpad does not give relative data after switching to MT */
- 	if (hi->input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD &&
- 	    field->flags & HID_MAIN_ITEM_RELATIVE)
-@@ -465,6 +471,7 @@ static int magicmouse_probe(struct hid_device *hdev,
- 	hid_set_drvdata(hdev, msc);
- 
- 	msc->single_touch_id = NO_TOUCHES;
-+	msc->setup_input = false;
- 
- 	ret = hid_parse(hdev);
- 	if (ret) {
-@@ -478,12 +485,6 @@ static int magicmouse_probe(struct hid_device *hdev,
- 		goto err_free;
- 	}
- 
--	/* We do this after hid-input is done parsing reports so that
--	 * hid-input uses the most natural button and axis IDs.
--	 */
--	if (msc->input)
--		magicmouse_setup_input(msc->input, hdev);
--
- 	if (id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
- 		report = hid_register_report(hdev, HID_INPUT_REPORT,
- 			MOUSE_REPORT_ID);
--- 
-1.7.3.1
-
+>
+> (I can write and test a patch on Monday, once I get network access at=
+ home.)
+>
+> Michael
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

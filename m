@@ -1,56 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.1-rc6
-Date: Thu, 15 Sep 2011 23:22:00 -0700
-Message-ID: <20110916062200.GA6731@core.coreip.homeip.net>
+Subject: Re: [PATCH 4/8] Input: twl6040-vibra: Check the selected path for
+ vibra
+Date: Thu, 15 Sep 2011 23:27:20 -0700
+Message-ID: <20110916062719.GB6731@core.coreip.homeip.net>
+References: <1316091561-30899-1-git-send-email-peter.ujfalusi@ti.com>
+ <1316091561-30899-5-git-send-email-peter.ujfalusi@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:50020 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752644Ab1IPG1Z (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Sep 2011 02:27:25 -0400
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <1316091561-30899-5-git-send-email-peter.ujfalusi@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: Samuel Ortiz <samuel.ortiz@intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@ti.com>, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
 
-Hi Linus,
+On Thu, Sep 15, 2011 at 03:59:17PM +0300, Peter Ujfalusi wrote:
+> The VIBSELL/R bit in the VIBCTLL/R register tells the source of the data,
+> which is going to be used to drive the attached motor(s).
+> Do not allow effect execution if any of the channels are set to receive
+> audio data.
+> 
+> Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+> ---
+>  drivers/input/misc/twl6040-vibra.c |    7 +++++++
+>  1 files changed, 7 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
+> index cb74185..fe624f2 100644
+> --- a/drivers/input/misc/twl6040-vibra.c
+> +++ b/drivers/input/misc/twl6040-vibra.c
+> @@ -201,6 +201,13 @@ static int vibra_play(struct input_dev *input, void *data,
+>  	struct vibra_info *info = input_get_drvdata(input);
+>  	int ret;
+>  
+> +	/* Do not allow effect, while the routing is set to use audio */
+> +	ret = twl6040_get_vibralr_status(info->twl6040);
+> +	if (ret & TWL6040_VIBSEL) {
+> +		dev_info(&input->dev, "Vibra is configured for audio\n");
+> +		return -EPERM;
+> +	}
+> +
 
-Please pull from:
+This is not very helpful for the application trying to use the device.
+Maybe we should zap the device when channels are routed through audio
+instead of dripping requests?
 
-	git://github.com/dtor/input.git for-linus
-
-to receive updates for the input subsystem.
-
-Changelog:
----------
-
-Axel Lin (2):
-      Input: cm109 - fix checking return value of usb_control_msg
-      Input: adp5588-keys - remove incorrect modalias
-
-Chris Bagwell (1):
-      Input: wacom - fix touch parsing on newer Bamboos
-
-Jason Gerecke (2):
-      Input: wacom - advertise BTN_TOOL_PEN and BTN_STYLUS for PenPartner
-      Input: wacom - add POINTER and DIRECT device properties
-
-Pieter-Augustijn Van Malleghem (1):
-      Input: bcm5974 - add MacBookAir4,1 trackpad support
-
-Ping Cheng (1):
-      Input: wacom - remove pressure for touch devices
-
-
-Diffstat:
---------
-
- drivers/hid/hid-wacom.c                 |    2 +
- drivers/input/keyboard/adp5588-keys.c   |    1 -
- drivers/input/misc/cm109.c              |    2 +-
- drivers/input/mouse/bcm5974.c           |   20 +++++++++++++
- drivers/input/tablet/wacom_sys.c        |   14 ---------
- drivers/input/tablet/wacom_wac.c        |   45 ++++++++++++++++++++++++-------
- drivers/input/touchscreen/wacom_w8001.c |    2 +
- 7 files changed, 60 insertions(+), 26 deletions(-)
+Thanks.
 
 -- 
 Dmitry

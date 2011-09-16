@@ -1,111 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: HID-multitouch: Add egalax ID for Acer Iconia W500
-Date: Thu, 15 Sep 2011 23:28:54 -0700
-Message-ID: <20110916062854.GC6731@core.coreip.homeip.net>
-References: <1315970147-11735-1-git-send-email-marek.vasut@gmail.com>
+From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: Re: [PATCH 4/8] Input: twl6040-vibra: Check the selected path for vibra
+Date: Fri, 16 Sep 2011 09:42:16 +0300
+Message-ID: <1525226.U1fKglfAtr@barack>
+References: <1316091561-30899-1-git-send-email-peter.ujfalusi@ti.com> <1316091561-30899-5-git-send-email-peter.ujfalusi@ti.com> <20110916062719.GB6731@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:32914 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752644Ab1IPG27 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Sep 2011 02:28:59 -0400
-Received: by ywb5 with SMTP id 5so2706072ywb.19
-        for <linux-input@vger.kernel.org>; Thu, 15 Sep 2011 23:28:59 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1315970147-11735-1-git-send-email-marek.vasut@gmail.com>
+Received: from na3sys009aog118.obsmtp.com ([74.125.149.244]:56290 "EHLO
+	na3sys009aog118.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752644Ab1IPGmT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Sep 2011 02:42:19 -0400
+In-Reply-To: <20110916062719.GB6731@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marek.vasut@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Samuel Ortiz <samuel.ortiz@intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@ti.com>, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
 
-Hi Marek,
+On Thursday 15 September 2011 23:27:20 Dmitry Torokhov wrote:
+> This is not very helpful for the application trying to use the device=
+=2E
+> Maybe we should zap the device when channels are routed through audio
+> instead of dripping requests?
 
-On Wed, Sep 14, 2011 at 05:15:47AM +0200, Marek Vasut wrote:
-> This patch adds USB ID for the touchpanel in Acer Iconia W500. The panel
-> supports up to five fingers, therefore the need for a new addition of panel
-> types.
-> 
-> Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
+Yes, I have thought about that as well, but it can cause other problems=
+=2E
+I have modified the fftest tool from:
+http://www.koders.com/c/fidF60D5962FCA8B937A6D0947AA81AE95A8C58FB36.asp=
+x
+for my needs.
+It opens the /dev/input/eventX, and it will keep it open as long as it =
+is=20
+running.
+It is OK for me, since the twl6040-vibra goes to low power mode when we=
+ do not=20
+have effects running.
+I can imagine, that real world application will do the same, and that m=
+ight=20
+cause some problems, if I try to zap the device.
+Can we zap a device, while it is open?
+How application will handle that event?
 
-This should actually go to Jiri (CCed).
-
-Thanks.
-
-> ---
->  drivers/hid/hid-core.c       |    1 +
->  drivers/hid/hid-ids.h        |    1 +
->  drivers/hid/hid-multitouch.c |   12 ++++++++++++
->  3 files changed, 14 insertions(+), 0 deletions(-)
-> 
-> NOTE: That checkpatch warning is there because I followed the pattern in
-> hid-core.c
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 242353d..6600ac7 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1377,6 +1377,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH5) },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2515) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 7484e1b..c2e9369 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -225,6 +225,7 @@
->  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2	0x72a1
->  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3	0x480e
->  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4	0x726b
-> +#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH5	0x7302
->  
->  #define USB_VENDOR_ID_ELECOM		0x056e
->  #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 58d0e7a..35c53db 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -96,6 +96,7 @@ struct mt_class {
->  #define MT_CLS_3M				0x0101
->  #define MT_CLS_CYPRESS				0x0102
->  #define MT_CLS_EGALAX				0x0103
-> +#define MT_CLS_EGALAX_5FINGER			0x0104
->  
->  #define MT_DEFAULT_MAXCONTACT	10
->  
-> @@ -173,6 +174,14 @@ struct mt_class mt_classes[] = {
->  		.sn_move = 4096,
->  		.sn_pressure = 32,
->  	},
-> +	{ .name = MT_CLS_EGALAX_5FINGER,
-> +		.quirks =  MT_QUIRK_SLOT_IS_CONTACTID |
-> +			MT_QUIRK_VALID_IS_INRANGE |
-> +			MT_QUIRK_EGALAX_XYZ_FIXUP,
-> +		.maxcontacts = 5,
-> +		.sn_move = 4096,
-> +		.sn_pressure = 32,
-> +	},
->  
->  	{ }
->  };
-> @@ -646,6 +655,9 @@ static const struct hid_device_id mt_devices[] = {
->  	{  .driver_data = MT_CLS_EGALAX,
->  		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
->  			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4) },
-> +	{  .driver_data = MT_CLS_EGALAX_5FINGER,
-> +		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-> +			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH5) },
->  
->  	/* Elo TouchSystems IntelliTouch Plus panel */
->  	{ .driver_data = MT_CLS_DUAL_NSMU_CONTACTID,
-> -- 
-> 1.7.5.4
-> 
-
--- 
-Dmitry
+--
+P=E9ter
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

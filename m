@@ -1,49 +1,64 @@
-From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: Re: [PATCH 4/8] Input: twl6040-vibra: Check the selected path for vibra
-Date: Fri, 16 Sep 2011 09:42:16 +0300
-Message-ID: <1525226.U1fKglfAtr@barack>
-References: <1316091561-30899-1-git-send-email-peter.ujfalusi@ti.com> <1316091561-30899-5-git-send-email-peter.ujfalusi@ti.com> <20110916062719.GB6731@core.coreip.homeip.net>
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: Re: [PATCH 0/2] Better support old elantech v2 hardware
+Date: Fri, 16 Sep 2011 16:56:05 +0800
+Message-ID: <87sjnw6f2y.fsf@emc.com.tw>
+References: <1315894549-24504-1-git-send-email-jj_ding@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog118.obsmtp.com ([74.125.149.244]:56290 "EHLO
-	na3sys009aog118.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752644Ab1IPGmT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Sep 2011 02:42:19 -0400
-In-Reply-To: <20110916062719.GB6731@core.coreip.homeip.net>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:56840 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754007Ab1IPIxb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Sep 2011 04:53:31 -0400
+In-Reply-To: <1315894549-24504-1-git-send-email-jj_ding@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Samuel Ortiz <samuel.ortiz@intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@ti.com>, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Richard =?utf-8?Q?Sch=C3=BCtz?= <r.schtz@t-online.de>, Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>, =?utf-8?Q?=C3=89ric?= Piel <E.A.B.Piel@tudelft.nl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Thursday 15 September 2011 23:27:20 Dmitry Torokhov wrote:
-> This is not very helpful for the application trying to use the device=
-=2E
-> Maybe we should zap the device when channels are routed through audio
-> instead of dripping requests?
+On Tue, 13 Sep 2011 14:15:47 +0800, JJ Ding <jj_ding@emc.com.tw> wrote:
+> Hi everyone,
+>=20
+> Thanks to Richard Sch=C3=BCtz's bug report, I did some more research =
+on elantech
+> v2 hardware. I asked our Windows driver team and firmware team about =
+the
+> _ancient histroy_ of the dark old days ;-) These two patches are the =
+results.
+>=20
+> Hopefully with these 2 we can support v2 hardware as good as Windows =
+does.
+>=20
+> I can only get two old v2 (fw: 0x020800, 0x040201) to test. Those who=
+ have a elantech v2
+> hardware please do test, thank you very much.
 
-Yes, I have thought about that as well, but it can cause other problems=
-=2E
-I have modified the fftest tool from:
-http://www.koders.com/c/fidF60D5962FCA8B937A6D0947AA81AE95A8C58FB36.asp=
-x
-for my needs.
-It opens the /dev/input/eventX, and it will keep it open as long as it =
-is=20
-running.
-It is OK for me, since the twl6040-vibra goes to low power mode when we=
- do not=20
-have effects running.
-I can imagine, that real world application will do the same, and that m=
-ight=20
-cause some problems, if I try to zap the device.
-Can we zap a device, while it is open?
-How application will handle that event?
+I just found an old v2 with firmware version 0x140200 to test, and it
+worked well.
 
---
-P=E9ter
+Dmitry, do you have any comment on these two changes? Do these two
+patches seem OK for your -next tree?
+
+Thank you,
+jj
+
+> Note:
+> These 2 patches are on top of my previous v5 series.
+>=20
+> JJ Ding (2):
+>   Input: elantech - better support all those v2 variants
+>   Input: elantech - remove module parameter force_elantech
+>=20
+>  drivers/input/mouse/elantech.c |   58 +++++++++++++++++++++++++++++-=
+---------
+>  drivers/input/mouse/elantech.h |    1 +
+>  2 files changed, 44 insertions(+), 15 deletions(-)
+>=20
+> --=20
+> 1.7.4.1
+>=20
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

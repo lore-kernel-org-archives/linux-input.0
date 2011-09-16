@@ -1,33 +1,56 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Temporary input tree
-Date: Thu, 15 Sep 2011 22:52:45 -0700
-Message-ID: <20110916055242.GA17815@core.coreip.homeip.net>
+Subject: [git pull] Input updates for 3.1-rc6
+Date: Thu, 15 Sep 2011 23:22:00 -0700
+Message-ID: <20110916062200.GA6731@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:47593 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752365Ab1IPFwy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Sep 2011 01:52:54 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
 
-All,
+Hi Linus,
 
-I've created a temporary input tree at
+Please pull from:
 
-    https://github.com/dtor/input
+	git://github.com/dtor/input.git for-linus
 
-The structure is the same as original input tree at kernel.org:
-'for-linus' branch for current work and 'next' branch for the next merge
-window.
+to receive updates for the input subsystem.
 
-Stephen, could you switch linux-next to this new location please?
+Changelog:
+---------
 
-Thanks.
+Axel Lin (2):
+      Input: cm109 - fix checking return value of usb_control_msg
+      Input: adp5588-keys - remove incorrect modalias
+
+Chris Bagwell (1):
+      Input: wacom - fix touch parsing on newer Bamboos
+
+Jason Gerecke (2):
+      Input: wacom - advertise BTN_TOOL_PEN and BTN_STYLUS for PenPartner
+      Input: wacom - add POINTER and DIRECT device properties
+
+Pieter-Augustijn Van Malleghem (1):
+      Input: bcm5974 - add MacBookAir4,1 trackpad support
+
+Ping Cheng (1):
+      Input: wacom - remove pressure for touch devices
+
+
+Diffstat:
+--------
+
+ drivers/hid/hid-wacom.c                 |    2 +
+ drivers/input/keyboard/adp5588-keys.c   |    1 -
+ drivers/input/misc/cm109.c              |    2 +-
+ drivers/input/mouse/bcm5974.c           |   20 +++++++++++++
+ drivers/input/tablet/wacom_sys.c        |   14 ---------
+ drivers/input/tablet/wacom_wac.c        |   45 ++++++++++++++++++++++++-------
+ drivers/input/touchscreen/wacom_w8001.c |    2 +
+ 7 files changed, 60 insertions(+), 26 deletions(-)
 
 -- 
 Dmitry

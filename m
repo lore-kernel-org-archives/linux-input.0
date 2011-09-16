@@ -1,56 +1,36 @@
-From: Liam Girdwood <lrg@ti.com>
-Subject: Re: [PATCH 4/8] Input: twl6040-vibra: Check the selected path for
- vibra
-Date: Fri, 16 Sep 2011 10:26:41 +0100
-Message-ID: <1316165201.3229.7.camel@odin>
-References: <1316091561-30899-1-git-send-email-peter.ujfalusi@ti.com>
-	 <1316091561-30899-5-git-send-email-peter.ujfalusi@ti.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH] Input: HID-multitouch: Add egalax ID for Acer Iconia W500
+Date: Fri, 16 Sep 2011 11:48:56 +0200
+Message-ID: <20110916094856.GA4276@polaris.bitmath.org>
+References: <1315970147-11735-1-git-send-email-marek.vasut@gmail.com>
+ <20110916062854.GC6731@core.coreip.homeip.net>
+ <CAN+gG=GTA69JzM=bWv8Z+wsCneiDA8cJNbPiVA5+6953e4jm0g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog102.obsmtp.com ([74.125.149.69]:54202 "EHLO
-	na3sys009aog102.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752506Ab1IPJ0p (ORCPT
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:56021 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752512Ab1IPJpO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Sep 2011 05:26:45 -0400
-In-Reply-To: <1316091561-30899-5-git-send-email-peter.ujfalusi@ti.com>
+	Fri, 16 Sep 2011 05:45:14 -0400
+Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
+	by smtprelay-b11.telenor.se (Postfix) with ESMTP id 98C2CEB268
+	for <linux-input@vger.kernel.org>; Fri, 16 Sep 2011 11:45:12 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=GTA69JzM=bWv8Z+wsCneiDA8cJNbPiVA5+6953e4jm0g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: Samuel Ortiz <samuel.ortiz@intel.com>, Dmitry Torokhov <dtor@mail.ru>, Mark Brown <broonie@opensource.wolfsonmicro.com>, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marek Vasut <marek.vasut@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>
 
-On Thu, 2011-09-15 at 15:59 +0300, Peter Ujfalusi wrote:
-> The VIBSELL/R bit in the VIBCTLL/R register tells the source of the data,
-> which is going to be used to drive the attached motor(s).
-> Do not allow effect execution if any of the channels are set to receive
-> audio data.
-> 
-> Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-> ---
->  drivers/input/misc/twl6040-vibra.c |    7 +++++++
->  1 files changed, 7 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
-> index cb74185..fe624f2 100644
-> --- a/drivers/input/misc/twl6040-vibra.c
-> +++ b/drivers/input/misc/twl6040-vibra.c
-> @@ -201,6 +201,13 @@ static int vibra_play(struct input_dev *input, void *data,
->  	struct vibra_info *info = input_get_drvdata(input);
->  	int ret;
->  
-> +	/* Do not allow effect, while the routing is set to use audio */
-> +	ret = twl6040_get_vibralr_status(info->twl6040);
-> +	if (ret & TWL6040_VIBSEL) {
-> +		dev_info(&input->dev, "Vibra is configured for audio\n");
-> +		return -EPERM;
-> +	}
+> Globally, the patch is clean. I don't really like it because a cleaner
+> way would be to just remove the field .maxcontacts in MT_CLS_EGALAX.
+> This would require tests from all the different eGalax owners, and
+> personally, I don't have the time to lead them.
 
-Sorry, missed this earlier.
+It is not too late to start now, though; testing this new device
+without maxcontacts would help when/if the ten-finger version comes
+along. Marek, would you care to try that?
 
-Probably best to return -EBUSY here otherwise it may look like a device
-permissions problem to some users.
-
-Liam
-
-
+Thanks,
+Henrik

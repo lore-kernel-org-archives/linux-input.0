@@ -1,104 +1,98 @@
-From: Joonyoung Shim <jy0922.shim@samsung.com>
+From: Daniel Kurtz <djkurtz@chromium.org>
 Subject: Re: [PATCH] Input: atmel_mxt_ts - Use snprintf for sysfs attribute
  show method
-Date: Fri, 16 Sep 2011 09:52:36 +0900
-Message-ID: <4E729DD4.8010208@samsung.com>
-References: <1316115647-1244-1-git-send-email-djkurtz@chromium.org>
+Date: Fri, 16 Sep 2011 13:10:29 +0800
+Message-ID: <CAGS+omBkpTi34diCrp_99FPHaTpTT35baX6veOX2+B-RhR6QqQ@mail.gmail.com>
+References: <1316115647-1244-1-git-send-email-djkurtz@chromium.org> <4E729DD4.8010208@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout2.samsung.com ([203.254.224.25]:11239 "EHLO
-	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750964Ab1IPAxX (ORCPT
+Received: from smtp-out.google.com ([74.125.121.67]:44341 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751825Ab1IPFKw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Sep 2011 20:53:23 -0400
-In-reply-to: <1316115647-1244-1-git-send-email-djkurtz@chromium.org>
+	Fri, 16 Sep 2011 01:10:52 -0400
+Received: from wpaz33.hot.corp.google.com (wpaz33.hot.corp.google.com [172.24.198.97])
+	by smtp-out.google.com with ESMTP id p8G5AoJC003658
+	for <linux-input@vger.kernel.org>; Thu, 15 Sep 2011 22:10:51 -0700
+Received: from iadj38 (iadj38.prod.google.com [10.12.136.38])
+	by wpaz33.hot.corp.google.com with ESMTP id p8G5AQKn008667
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Thu, 15 Sep 2011 22:10:49 -0700
+Received: by iadj38 with SMTP id j38so2221284iad.15
+        for <linux-input@vger.kernel.org>; Thu, 15 Sep 2011 22:10:49 -0700 (PDT)
+In-Reply-To: <4E729DD4.8010208@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
+To: Joonyoung Shim <jy0922.shim@samsung.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
-
-On 2011-09-16 =EC=98=A4=EC=A0=84 4:40, Daniel Kurtz wrote:
-> Sysfs attribute show methods are always passed a buffer of length
-> PAGE_SIZE.  To keep from overwriting this buffer and causing havoc, u=
-se
-> snprintf() to guarantee we never write more than the buffer can hold.
->
-> In addition, at least for my touchscreen, the number and size of obje=
-cts
-> was far too big to fit in a single 4K page.  Therefore, this patch al=
-so
-> trims some redundant framing text to leave more room for actual data.
->
-> Signed-off-by: Daniel Kurtz<djkurtz@chromium.org>
-
-This patch is working but original problem is object size is increasing
-as atmel touchscreen chip updates and we should consider also the
-instances of object.
-
-How about splitting attributes to each object?
-
-Iiro, do you have any update plans about atmel touchscreen driver?
-
-> ---
->   drivers/input/touchscreen/atmel_mxt_ts.c |   21 +++++++++++++++----=
---
->   1 files changed, 15 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input=
-/touchscreen/atmel_mxt_ts.c
-> index f5d6685..a596c27 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -910,12 +910,17 @@ static ssize_t mxt_object_show(struct device *d=
-ev,
->   	for (i =3D 0; i<  data->info.object_num; i++) {
->   		object =3D data->object_table + i;
->
-> -		count +=3D sprintf(buf + count,
-> -				"Object Table Element %d(Type %d)\n",
-> +		count +=3D snprintf(buf + count, PAGE_SIZE - count,
-> +				"Object[%d] (Type %d)\n",
->   				i + 1, object->type);
-> +		if (count>=3D PAGE_SIZE)
-> +			return PAGE_SIZE - 1;
->
->   		if (!mxt_object_readable(object->type)) {
-> -			count +=3D sprintf(buf + count, "\n");
-> +			count +=3D snprintf(buf + count, PAGE_SIZE - count,
-> +					"\n");
-> +			if (count>=3D PAGE_SIZE)
-> +				return PAGE_SIZE - 1;
->   			continue;
->   		}
->
-> @@ -925,11 +930,15 @@ static ssize_t mxt_object_show(struct device *d=
-ev,
->   			if (error)
->   				return error;
->
-> -			count +=3D sprintf(buf + count,
-> -					"  Byte %d: 0x%x (%d)\n", j, val, val);
-> +			count +=3D snprintf(buf + count, PAGE_SIZE - count,
-> +					"\t[%2d]: %02x (%d)\n", j, val, val);
-> +			if (count>=3D PAGE_SIZE)
-> +				return PAGE_SIZE - 1;
->   		}
->
-> -		count +=3D sprintf(buf + count, "\n");
-> +		count +=3D snprintf(buf + count, PAGE_SIZE - count, "\n");
-> +		if (count>=3D PAGE_SIZE)
-> +			return PAGE_SIZE - 1;
->   	}
->
->   	return count;
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+SGkgSm9vbnlvdW5nLAoKVGhhbmtzIGZvciByZXBseWluZy4KCk9uIEZyaSwgU2VwIDE2LCAyMDEx
+IGF0IDg6NTIgQU0sIEpvb255b3VuZyBTaGltIDxqeTA5MjIuc2hpbUBzYW1zdW5nLmNvbT4gd3Jv
+dGU6Cj4gSGksCj4KPiBPbiAyMDExLTA5LTE2IOyYpOyghCA0OjQwLCBEYW5pZWwgS3VydHogd3Jv
+dGU6Cj4+Cj4+IFN5c2ZzIGF0dHJpYnV0ZSBzaG93IG1ldGhvZHMgYXJlIGFsd2F5cyBwYXNzZWQg
+YSBidWZmZXIgb2YgbGVuZ3RoCj4+IFBBR0VfU0laRS4gwqBUbyBrZWVwIGZyb20gb3ZlcndyaXRp
+bmcgdGhpcyBidWZmZXIgYW5kIGNhdXNpbmcgaGF2b2MsIHVzZQo+PiBzbnByaW50ZigpIHRvIGd1
+YXJhbnRlZSB3ZSBuZXZlciB3cml0ZSBtb3JlIHRoYW4gdGhlIGJ1ZmZlciBjYW4gaG9sZC4KPj4K
+Pj4gSW4gYWRkaXRpb24sIGF0IGxlYXN0IGZvciBteSB0b3VjaHNjcmVlbiwgdGhlIG51bWJlciBh
+bmQgc2l6ZSBvZiBvYmplY3RzCj4+IHdhcyBmYXIgdG9vIGJpZyB0byBmaXQgaW4gYSBzaW5nbGUg
+NEsgcGFnZS4gwqBUaGVyZWZvcmUsIHRoaXMgcGF0Y2ggYWxzbwo+PiB0cmltcyBzb21lIHJlZHVu
+ZGFudCBmcmFtaW5nIHRleHQgdG8gbGVhdmUgbW9yZSByb29tIGZvciBhY3R1YWwgZGF0YS4KPj4K
+Pj4gU2lnbmVkLW9mZi1ieTogRGFuaWVsIEt1cnR6PGRqa3VydHpAY2hyb21pdW0ub3JnPgo+Cj4g
+VGhpcyBwYXRjaCBpcyB3b3JraW5nIGJ1dCBvcmlnaW5hbCBwcm9ibGVtIGlzIG9iamVjdCBzaXpl
+IGlzIGluY3JlYXNpbmcKPiBhcyBhdG1lbCB0b3VjaHNjcmVlbiBjaGlwIHVwZGF0ZXMgYW5kIHdl
+IHNob3VsZCBjb25zaWRlciBhbHNvIHRoZQo+IGluc3RhbmNlcyBvZiBvYmplY3QuCgoiVGhpcyBw
+YXRjaCBpcyB3b3JraW5nIiA9IEFja2VkLUJ5ID8KCj4gSG93IGFib3V0IHNwbGl0dGluZyBhdHRy
+aWJ1dGVzIHRvIGVhY2ggb2JqZWN0PwoKSSBhZ3JlZS4gIENhbiB3ZSBkbyB0aGF0IGluIGFub3Ro
+ZXIgcGF0Y2ggKHdpdGggaW5zdGFuY2UgcHJpbnRpbmcpPwoKPiBJaXJvLCBkbyB5b3UgaGF2ZSBh
+bnkgdXBkYXRlIHBsYW5zIGFib3V0IGF0bWVsIHRvdWNoc2NyZWVuIGRyaXZlcj8KCkkgaGF2ZSBz
+ZXZlcmFsIG1vcmUgcGF0Y2hlcyBjb21pbmcgZm9yIHRoaXMgZHJpdmVyLCBtb3N0bHkgdG8gc3Bl
+ZWQgdXAKc3RhcnR1cCB0aW1lLCBjbGVhbnVwIHRoZSBNVC1CIGltcGxlbWVudGF0aW9uLCBhbmQg
+b3B0aW1pemUgaW50ZXJydXB0CmhhbmRsaW5nLgoKVGhhbmtzLApEYW5pZWwKCj4+IC0tLQo+PiDC
+oGRyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vYXRtZWxfbXh0X3RzLmMgfCDCoCAyMSArKysrKysr
+KysrKysrKystLS0tLS0KPj4gwqAxIGZpbGVzIGNoYW5nZWQsIDE1IGluc2VydGlvbnMoKyksIDYg
+ZGVsZXRpb25zKC0pCj4+Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVu
+L2F0bWVsX214dF90cy5jCj4+IGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9hdG1lbF9teHRf
+dHMuYwo+PiBpbmRleCBmNWQ2Njg1Li5hNTk2YzI3IDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL2lu
+cHV0L3RvdWNoc2NyZWVuL2F0bWVsX214dF90cy5jCj4+ICsrKyBiL2RyaXZlcnMvaW5wdXQvdG91
+Y2hzY3JlZW4vYXRtZWxfbXh0X3RzLmMKPj4gQEAgLTkxMCwxMiArOTEwLDE3IEBAIHN0YXRpYyBz
+c2l6ZV90IG14dF9vYmplY3Rfc2hvdyhzdHJ1Y3QgZGV2aWNlICpkZXYsCj4+IMKgIMKgIMKgIMKg
+Zm9yIChpID0gMDsgaTwgwqBkYXRhLT5pbmZvLm9iamVjdF9udW07IGkrKykgewo+PiDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoG9iamVjdCA9IGRhdGEtPm9iamVjdF90YWJsZSArIGk7Cj4+Cj4+IC0g
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgY291bnQgKz0gc3ByaW50ZihidWYgKyBjb3VudCwKPj4gLSDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCAiT2JqZWN0IFRhYmxl
+IEVsZW1lbnQgJWQoVHlwZSAlZClcbiIsCj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgY291bnQg
+Kz0gc25wcmludGYoYnVmICsgY291bnQsIFBBR0VfU0laRSAtIGNvdW50LAo+PiArIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgICJPYmplY3RbJWRdIChUeXBlICVk
+KVxuIiwKPj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqBp
+ICsgMSwgb2JqZWN0LT50eXBlKTsKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAoY291bnQ+
+PSBQQUdFX1NJWkUpCj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcmV0dXJu
+IFBBR0VfU0laRSAtIDE7Cj4+Cj4+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgaWYgKCFteHRfb2Jq
+ZWN0X3JlYWRhYmxlKG9iamVjdC0+dHlwZSkpIHsKPj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCBjb3VudCArPSBzcHJpbnRmKGJ1ZiArIGNvdW50LCAiXG4iKTsKPj4gKyDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBjb3VudCArPSBzbnByaW50ZihidWYgKyBjb3Vu
+dCwgUEFHRV9TSVpFIC0gY291bnQsCj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgIlxuIik7Cj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgaWYgKGNvdW50Pj0gUEFHRV9TSVpFKQo+PiArIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHJldHVybiBQQUdFX1NJWkUgLSAxOwo+PiDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGNvbnRpbnVlOwo+PiDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoH0KPj4KPj4gQEAgLTkyNSwxMSArOTMwLDE1IEBAIHN0YXRpYyBzc2l6ZV90
+IG14dF9vYmplY3Rfc2hvdyhzdHJ1Y3QgZGV2aWNlICpkZXYsCj4+IMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgaWYgKGVycm9yKQo+PiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoHJldHVybiBlcnJvcjsKPj4KPj4gLSDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCBjb3VudCArPSBzcHJpbnRmKGJ1ZiArIGNvdW50LAo+PiAtIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgICIg
+wqBCeXRlICVkOiAweCV4ICglZClcbiIsIGosIHZhbCwKPj4gdmFsKTsKPj4gKyDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBjb3VudCArPSBzbnByaW50ZihidWYgKyBjb3VudCwgUEFH
+RV9TSVpFIC0gY291bnQsCj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgIlx0WyUyZF06ICUwMnggKCVkKVxuIiwgaiwgdmFsLAo+PiB2
+YWwpOwo+PiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmIChjb3VudD49IFBB
+R0VfU0laRSkKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCByZXR1cm4gUEFHRV9TSVpFIC0gMTsKPj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqB9Cj4+Cj4+
+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgY291bnQgKz0gc3ByaW50ZihidWYgKyBjb3VudCwgIlxu
+Iik7Cj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgY291bnQgKz0gc25wcmludGYoYnVmICsgY291
+bnQsIFBBR0VfU0laRSAtIGNvdW50LCAiXG4iKTsKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBp
+ZiAoY291bnQ+PSBQQUdFX1NJWkUpCj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgcmV0dXJuIFBBR0VfU0laRSAtIDE7Cj4+IMKgIMKgIMKgIMKgfQo+Pgo+PiDCoCDCoCDCoCDC
+oHJldHVybiBjb3VudDsK

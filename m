@@ -1,212 +1,90 @@
-From: Michael Tandy <lkml@mjt.me.uk>
-Subject: Re: ADXL34x.h minor documentation cleanup patch
-Date: Fri, 16 Sep 2011 20:27:57 +0100
-Message-ID: <CAHGSkqg3mHTJJBP0SiizpWJkfDSiGSYpBCd_mv5f3kgBU4Se7g@mail.gmail.com>
-References: <CAHGSkqjkQUOPt_5-Xkxtn+HUK69_dwSxx+dyjsbWxRo8MvCRSw@mail.gmail.com>
-	<544AC56F16B56944AEC3BD4E3D59177146E7206223@LIMKCMBX1.ad.analog.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH] Input: wacom - Add POINTER and DIRECT device properties
+Date: Fri, 16 Sep 2011 14:45:20 -0700
+Message-ID: <CANRwn3TstEAhgt5=Sxu6KMOyu3rtC9CCeQWU7Qa5-jRXUfgBdw@mail.gmail.com>
+References: <1314892843-1475-1-git-send-email-killertofu@gmail.com>
+	<20110913080911.GA4986@polaris.bitmath.org>
+	<CAPHpN5OAPdPQ1SmwrGT6pMvgWESBOSnRvb0jKUszkU_31MFXWg@mail.gmail.com>
+	<20110914071524.GA3422@polaris.bitmath.org>
+	<CAF8JNhKFz8-bJ4HMguU2qReageX4WBB1bWR0amRbYmaujNVX8A@mail.gmail.com>
+	<20110916105036.GA4455@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f43.google.com ([209.85.215.43]:63323 "EHLO
-	mail-ew0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932155Ab1IPTjD convert rfc822-to-8bit (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:65472 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754865Ab1IPVpV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Sep 2011 15:39:03 -0400
-Received: by ewy20 with SMTP id 20so3017382ewy.2
-        for <linux-input@vger.kernel.org>; Fri, 16 Sep 2011 12:39:01 -0700 (PDT)
-In-Reply-To: <544AC56F16B56944AEC3BD4E3D59177146E7206223@LIMKCMBX1.ad.analog.com>
+	Fri, 16 Sep 2011 17:45:21 -0400
+Received: by wwf22 with SMTP id 22so5617822wwf.1
+        for <linux-input@vger.kernel.org>; Fri, 16 Sep 2011 14:45:20 -0700 (PDT)
+In-Reply-To: <20110916105036.GA4455@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Ping Cheng <pinglinux@gmail.com>, Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Linux Input <linux-input@vger.kernel.org>
 
-diff --git a/include/linux/input/adxl34x.h b/include/linux/input/adxl34=
-x.h
-index df00d99..538e5d5 100644
---- a/include/linux/input/adxl34x.h
-+++ b/include/linux/input/adxl34x.h
-@@ -30,8 +30,9 @@ struct adxl34x_platform_data {
-        * Y, or Z participation in Tap detection. A '0' excludes the
-        * selected axis from participation in Tap detection.
-        * Setting the SUPPRESS bit suppresses Double Tap detection if
--        * acceleration greater than tap_threshold is present between
--        * taps.
-+        * acceleration greater than tap_threshold is present during th=
-e
-+        * tap_latency period, i.e. after the first tap but before the
-+        * opening of the second tap window.
-        */
-
- #define ADXL_SUPPRESS  (1 << 3)
-@@ -226,13 +227,13 @@ struct adxl34x_platform_data {
-        * detection will begin and prevent the detection of activity. T=
-his
-        * bit serially links the activity and inactivity functions. Whe=
-n '0'
-        * the inactivity and activity functions are concurrent. Additio=
-nal
--        * information can be found in the Application section under Li=
-nk
--        * Mode.
-+        * information can be found in the ADXL34x datasheet's Applicat=
-ion
-+        * section under Link Mode.
-        * AUTO_SLEEP: A '1' sets the ADXL34x to switch to Sleep Mode
-        * when inactivity (acceleration has been below inactivity_thres=
-hold
-        * for at least inactivity_time) is detected and the LINK bit is=
- set.
--        * A '0' disables automatic switching to Sleep Mode. See SLEEP
--        * for further description.
-+        * A '0' disables automatic switching to Sleep Mode. See the
-+        * Sleep Bit section of the ADXL34x datasheet for more informat=
-ion.
-        */
-
- #define ADXL_LINK      (1 << 5)
-@@ -266,6 +267,13 @@ struct adxl34x_platform_data {
-
-       u8 watermark;
-
-+       /*
-+        * When acceleration measurements are received from the ADXL34x
-+        * events are sent to the event subsystem. The following settin=
-gs
-+        * select the event type and event code for new x, y and z axis=
- data
-+        * respectively.
-+        */
-+
-       u32 ev_type;    /* EV_ABS or EV_REL */
-
-       u32 ev_code_x;  /* ABS_X,Y,Z or REL_X,Y,Z */
-@@ -289,7 +297,7 @@ struct adxl34x_platform_data {
-       u32 ev_code_act_inactivity;     /* EV_KEY */
-
-       /*
--        * Use ADXL34x INT2 instead of INT1
-+        * Use ADXL34x INT2 pin instead of INT1 pin for interrupt outpu=
-t
-        */
-       u8 use_int2;
-
-Signed-off-by: Michael Tandy <lkml@mkt.me.uk>
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
-
-
-On 16 September 2011 20:07, Hennerich, Michael
-<Michael.Hennerich@analog.com> wrote:
-> Michael Tandy wrote on 2011-09-16:
->> The attached patch just clarifies a few bits of documentation in the
->> header file for the adxl34x header file. Do let me know what you thi=
-nk.
+On Fri, Sep 16, 2011 at 3:50 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+>> > I think the bottom line is that even if the "directness" of a device
+>> > is configurable, it still needs to have a default. Moreover, the
+>> > notion of kernel mode settings could be applicable here too.
 >>
->> Thanks,
+>> Talking about default mode, there are cases that the mode is decided
+>> by the tools running on the device/tablet, instead of the tablet
+>> itself.
 >>
->> Michael Tandy
+>> Take Wacom's Intuos and Graphire series for example, those tablets
+>> support both styli and mice. For styli, the default is absolute mode;
+>> while for mice, it is relative. So, only valid property the tablet can
+>> tell the user-land is: I am a tablet, i.e., not a touchscreen. Clients
+>> have to check the tool types to set the default mode to relative
+>> (BTN_TOOL_MOUSE/LENS) or absolute (BTN_TOOL_PEN/AIRBRUSH/RUBBER...).
 >
-> Hi Michael,
+> And those modes can be determined using the available axes. However,
+> when all axes are the same, a statement like "I am a tablet" does not
+> exist. In that case, distinguishing between touchscreen, touchpad and
+> tablet becomes a question of interpreting the properties. Such a
+> distinction cannot be achieved using a single bit of information, and
+> that was never the intention.
 >
-> Looks good. Feel free to send on.
+It is certainly true that you cannot separate out the different cases
+with a single bit. The more properties and hints we can expose to
+userspace the better. However, at the device level, there's only so
+much information we *can* expose. We know if its a direct input device
+or not. We don't know if its relative or absolute, since that depends
+on the tool in use at any given moment.
+
+To be honest, I'm not sure why we need to further disambiguate
+touchpads and tablets (though I'd be interested in finding out). From
+what I can tell, the difference between a touchpad and a tablet is in
+the tools they use; identical tools (i.e. BTN_TOOL_FINGER) should have
+identical absoluteness. The absoluteness of tool would depends on what
+it is (BTN_TOOL_FINGER is relative, BTN_TOOL_PEN is absolute) and if
+the underlying device is a direct input device (if it is, all tools
+are absolute) -- not on some arbitrarily distinction between
+"touchpad" and "tablet".
+
+On Tue, Sep 13, 2011 at 1:54 PM, Chris Bagwell <chris@cnpbagwell.com> wrote:
+>> Reporting it as DIRECT indicates it can only be used as DIRECT. We
+>> don't want client to make that assumption. User-land clients can
+> > distinguish a touch POINTER from a pen POINTER by the tool types.
 >
-> TO: dmitry.torokhov@gmail.com
-> CC: linux-input@vger.kernel.org
+> I see your logic now and patch does follow that logic.
 >
-> Signed-off-by: Michael Tandy <lkml@mkt.me.uk>
-> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
->
->
->>
->> diff --git a/include/linux/input/adxl34x.h
->> b/include/linux/input/adxl34x.h index df00d99..538e5d5 100644 ---
->> a/include/linux/input/adxl34x.h +++ b/include/linux/input/adxl34x.h =
-@@
->> -30,8 +30,9 @@ struct adxl34x_platform_data {
->> =A0 =A0 =A0 =A0* Y, or Z participation in Tap detection. A '0' exclu=
-des the
->> =A0 =A0 =A0 =A0* selected axis from participation in Tap detection.
->> =A0 =A0 =A0 =A0* Setting the SUPPRESS bit suppresses Double Tap dete=
-ction if
->> - =A0 =A0 =A0* acceleration greater than tap_threshold is present be=
-tween
->> - =A0 =A0 =A0* taps.
->> + =A0 =A0 =A0* acceleration greater than tap_threshold is present du=
-ring the
->> + =A0 =A0 =A0* tap_latency period, i.e. after the first tap but befo=
-re the
->> + =A0 =A0 =A0* opening of the second tap window.
->> =A0 =A0 =A0 =A0*/
->>
->> =A0#define ADXL_SUPPRESS =A0 =A0 =A0 =A0(1 << 3) @@ -226,13 +227,13 =
-@@ struct
->> =A0adxl34x_platform_data { =A0 =A0 =A0 * detection will begin and pr=
-event the
->> =A0detection of activity. This =A0 * bit serially links the activity=
- and
->> =A0inactivity functions. When '0' =A0 =A0 =A0 =A0* the inactivity an=
-d activity
->> =A0functions are concurrent.
->> Additional - =A0 * information can be found in the Application secti=
-on
->> under Link - =A0 * Mode. + =A0 =A0 =A0 * information can be found in=
- the ADXL34x
->> datasheet's Application + =A0 =A0 =A0* section under Link Mode.
->> =A0 =A0 =A0 =A0* AUTO_SLEEP: A '1' sets the ADXL34x to switch to Sle=
-ep Mode =A0 =A0* when
->> =A0inactivity (acceleration has been below inactivity_threshold =A0 =
-=A0 =A0 =A0 =A0* for at
->> =A0least inactivity_time) is detected and the LINK bit is
->> set.
->> - =A0 =A0 =A0* A '0' disables automatic switching to Sleep Mode. See=
- SLEEP
->> - =A0 =A0 =A0* for further description.
->> + =A0 =A0 =A0* A '0' disables automatic switching to Sleep Mode. See=
- the
->> + =A0 =A0 =A0* Sleep Bit section of the ADXL34x datasheet for more
->> information.
->> =A0 =A0 =A0 =A0*/
->>
->> =A0#define ADXL_LINK =A0 =A0(1 << 5)
->> @@ -266,6 +267,13 @@ struct adxl34x_platform_data {
->>
->> =A0 =A0 =A0 u8 watermark;
->> + =A0 =A0 /* + =A0 =A0 * When acceleration measurements are received=
- from the ADXL34x
->> + =A0 =A0 =A0* events are sent to the event subsystem. The following=
- settings + =A0 =A0 =A0*
->> select the event type and event code for new x, y and z axis data + =
-=A0 =A0*
->> respectively. + =A0 =A0 =A0 =A0*/ +
->> =A0 =A0 =A0 u32 ev_type; =A0 =A0/* EV_ABS or EV_REL */
->>
->> =A0 =A0 =A0 u32 ev_code_x; =A0/* ABS_X,Y,Z or REL_X,Y,Z */ @@ -289,7=
- +297,7 @@ struct
->> =A0adxl34x_platform_data { =A0 =A0 =A0u32 ev_code_act_inactivity; =A0=
- =A0 /* EV_KEY */
->>
->> =A0 =A0 =A0 /*
->> - =A0 =A0 =A0* Use ADXL34x INT2 instead of INT1
->> + =A0 =A0 =A0* Use ADXL34x INT2 pin instead of INT1 pin for interrup=
-t output
->> =A0 =A0 =A0 =A0*/
->> =A0 =A0 =A0 u8 use_int2;
->> Signed-off-by: Michael Tandy <lkml@mkt.me.uk>
->
-> Greetings,
-> Michael
->
-> --
-> Analog Devices GmbH =A0 =A0 =A0Wilhelm-Wagenfeld-Str. 6 =A0 =A0 =A080=
-807 Muenchen
-> Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
-> Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Marti=
-n, Margaret Seif
->
->
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> I can actually buy into that although it seems to make the need for
+> both POINTER and DIRECT redundant. Touchscreen = DIRECT while Tablet
+> (pen, touch, or both) = POINTER.  No overlap.
+
+I agree that this interpretation makes having both POINTER and DIRECT
+set somewhat redundant. However, displaying a pointer for direct input
+devices can be useful provided the tool does not obscure the pointer.
+Devices which are designed for use with fine-tipped tools but suffer
+from parallax error may wish to display the pointer by default to
+improve usability.
+
+Jason
+
+---
+Day xee-nee-svsh duu-'ushtlh-ts'it;
+nuu-wee-ya' duu-xan' 'vm-nvshtlh-ts'it.
+Huu-chan xuu naa~-gha.

@@ -1,50 +1,42 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 0/3] Input: wacom bamboo improvements
-Date: Fri, 16 Sep 2011 13:32:11 +0200
-Message-ID: <20110916113211.GA4623@polaris.bitmath.org>
-References: <1316050588-13473-1-git-send-email-chris@cnpbagwell.com>
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: Re: [PATCH] Input: HID-multitouch: Add egalax ID for Acer Iconia W500
+Date: Fri, 16 Sep 2011 15:07:44 +0200
+Message-ID: <201109161507.44989.marek.vasut@gmail.com>
+References: <1315970147-11735-1-git-send-email-marek.vasut@gmail.com> <CAN+gG=GTA69JzM=bWv8Z+wsCneiDA8cJNbPiVA5+6953e4jm0g@mail.gmail.com> <20110916094856.GA4276@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:40382 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751073Ab1IPL21 (ORCPT
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:35553 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751683Ab1IPNHs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Sep 2011 07:28:27 -0400
-Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
-	by smtprelay-h22.telenor.se (Postfix) with ESMTP id C0C84C11F
-	for <linux-input@vger.kernel.org>; Fri, 16 Sep 2011 13:28:26 +0200 (CEST)
-Content-Disposition: inline
-In-Reply-To: <1316050588-13473-1-git-send-email-chris@cnpbagwell.com>
+	Fri, 16 Sep 2011 09:07:48 -0400
+Received: by bkbzt4 with SMTP id zt4so3439876bkb.19
+        for <linux-input@vger.kernel.org>; Fri, 16 Sep 2011 06:07:47 -0700 (PDT)
+In-Reply-To: <20110916094856.GA4276@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: chris@cnpbagwell.com
-Cc: linux-input@vger.kernel.org, pinglinux@gmail.com
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, =?iso-8859-1?q?St=E9phane_Chatty?= <chatty@enac.fr>
 
-Hi Chris,
-
-On Wed, Sep 14, 2011 at 08:36:25PM -0500, chris@cnpbagwell.com wrote:
-> From: Chris Bagwell <chris@cnpbagwell.com>
+On Friday, September 16, 2011 11:48:56 AM Henrik Rydberg wrote:
+> > Globally, the patch is clean. I don't really like it because a cleaner
+> > way would be to just remove the field .maxcontacts in MT_CLS_EGALAX.
+> > This would require tests from all the different eGalax owners, and
+> > personally, I don't have the time to lead them.
 > 
-> The need for patch 3 was recently discussed on linuxwacom
-> mailing list. During that discussion, I looked closer at pen
-> code and notice pressure cleanup needed (patch 1) and that
-> ABS_DISTANCE was not completely implemented (patch 2).
-> 
-> Chris Bagwell (3):
->   Input: wacom - remove unneeded touch pressure init
->   Input: wacom - add ABS_DISTANCE to Bamboo Pen reports
->   Input: wacom - correct max Y value on medium bamboos
-> 
->  drivers/input/tablet/wacom_wac.c |   47 +++++++++++++++++++++-----------------
->  1 files changed, 26 insertions(+), 21 deletions(-)
-> 
-> -- 
-> 1.7.6
+> It is not too late to start now, though; testing this new device
+> without maxcontacts would help when/if the ten-finger version comes
+> along. Marek, would you care to try that?
 
-    Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+Well I own only this one particular device, not the other ones.
 
-on all three patches.
+btw sorry about the CC.
 
-Thanks,
-Henrik
+Cheers
+
+> 
+> Thanks,
+> Henrik

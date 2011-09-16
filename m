@@ -1,98 +1,187 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH] Input: atmel_mxt_ts - Use snprintf for sysfs attribute
- show method
-Date: Fri, 16 Sep 2011 13:10:29 +0800
-Message-ID: <CAGS+omBkpTi34diCrp_99FPHaTpTT35baX6veOX2+B-RhR6QqQ@mail.gmail.com>
-References: <1316115647-1244-1-git-send-email-djkurtz@chromium.org> <4E729DD4.8010208@samsung.com>
+From: Mohan Pallaka <mpallaka@codeaurora.org>
+Subject: Re: [PATCH 1/3 v4] Input: atmel_mxt_ts - Make wait-after-reset period
+ compatible with all chips
+Date: Fri, 16 Sep 2011 10:58:23 +0530
+Message-ID: <4E72DE77.4000703@codeaurora.org>
+References: <4E2EF99A.2040702@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:44341 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751825Ab1IPFKw (ORCPT
+Received: from wolverine02.qualcomm.com ([199.106.114.251]:51979 "EHLO
+	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752100Ab1IPF21 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Sep 2011 01:10:52 -0400
-Received: from wpaz33.hot.corp.google.com (wpaz33.hot.corp.google.com [172.24.198.97])
-	by smtp-out.google.com with ESMTP id p8G5AoJC003658
-	for <linux-input@vger.kernel.org>; Thu, 15 Sep 2011 22:10:51 -0700
-Received: from iadj38 (iadj38.prod.google.com [10.12.136.38])
-	by wpaz33.hot.corp.google.com with ESMTP id p8G5AQKn008667
-	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Thu, 15 Sep 2011 22:10:49 -0700
-Received: by iadj38 with SMTP id j38so2221284iad.15
-        for <linux-input@vger.kernel.org>; Thu, 15 Sep 2011 22:10:49 -0700 (PDT)
-In-Reply-To: <4E729DD4.8010208@samsung.com>
+	Fri, 16 Sep 2011 01:28:27 -0400
+In-Reply-To: <4E2EF99A.2040702@atmel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Iiro Valkonen <iiro.valkonen@atmel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org
 
-SGkgSm9vbnlvdW5nLAoKVGhhbmtzIGZvciByZXBseWluZy4KCk9uIEZyaSwgU2VwIDE2LCAyMDEx
-IGF0IDg6NTIgQU0sIEpvb255b3VuZyBTaGltIDxqeTA5MjIuc2hpbUBzYW1zdW5nLmNvbT4gd3Jv
-dGU6Cj4gSGksCj4KPiBPbiAyMDExLTA5LTE2IOyYpOyghCA0OjQwLCBEYW5pZWwgS3VydHogd3Jv
-dGU6Cj4+Cj4+IFN5c2ZzIGF0dHJpYnV0ZSBzaG93IG1ldGhvZHMgYXJlIGFsd2F5cyBwYXNzZWQg
-YSBidWZmZXIgb2YgbGVuZ3RoCj4+IFBBR0VfU0laRS4gwqBUbyBrZWVwIGZyb20gb3ZlcndyaXRp
-bmcgdGhpcyBidWZmZXIgYW5kIGNhdXNpbmcgaGF2b2MsIHVzZQo+PiBzbnByaW50ZigpIHRvIGd1
-YXJhbnRlZSB3ZSBuZXZlciB3cml0ZSBtb3JlIHRoYW4gdGhlIGJ1ZmZlciBjYW4gaG9sZC4KPj4K
-Pj4gSW4gYWRkaXRpb24sIGF0IGxlYXN0IGZvciBteSB0b3VjaHNjcmVlbiwgdGhlIG51bWJlciBh
-bmQgc2l6ZSBvZiBvYmplY3RzCj4+IHdhcyBmYXIgdG9vIGJpZyB0byBmaXQgaW4gYSBzaW5nbGUg
-NEsgcGFnZS4gwqBUaGVyZWZvcmUsIHRoaXMgcGF0Y2ggYWxzbwo+PiB0cmltcyBzb21lIHJlZHVu
-ZGFudCBmcmFtaW5nIHRleHQgdG8gbGVhdmUgbW9yZSByb29tIGZvciBhY3R1YWwgZGF0YS4KPj4K
-Pj4gU2lnbmVkLW9mZi1ieTogRGFuaWVsIEt1cnR6PGRqa3VydHpAY2hyb21pdW0ub3JnPgo+Cj4g
-VGhpcyBwYXRjaCBpcyB3b3JraW5nIGJ1dCBvcmlnaW5hbCBwcm9ibGVtIGlzIG9iamVjdCBzaXpl
-IGlzIGluY3JlYXNpbmcKPiBhcyBhdG1lbCB0b3VjaHNjcmVlbiBjaGlwIHVwZGF0ZXMgYW5kIHdl
-IHNob3VsZCBjb25zaWRlciBhbHNvIHRoZQo+IGluc3RhbmNlcyBvZiBvYmplY3QuCgoiVGhpcyBw
-YXRjaCBpcyB3b3JraW5nIiA9IEFja2VkLUJ5ID8KCj4gSG93IGFib3V0IHNwbGl0dGluZyBhdHRy
-aWJ1dGVzIHRvIGVhY2ggb2JqZWN0PwoKSSBhZ3JlZS4gIENhbiB3ZSBkbyB0aGF0IGluIGFub3Ro
-ZXIgcGF0Y2ggKHdpdGggaW5zdGFuY2UgcHJpbnRpbmcpPwoKPiBJaXJvLCBkbyB5b3UgaGF2ZSBh
-bnkgdXBkYXRlIHBsYW5zIGFib3V0IGF0bWVsIHRvdWNoc2NyZWVuIGRyaXZlcj8KCkkgaGF2ZSBz
-ZXZlcmFsIG1vcmUgcGF0Y2hlcyBjb21pbmcgZm9yIHRoaXMgZHJpdmVyLCBtb3N0bHkgdG8gc3Bl
-ZWQgdXAKc3RhcnR1cCB0aW1lLCBjbGVhbnVwIHRoZSBNVC1CIGltcGxlbWVudGF0aW9uLCBhbmQg
-b3B0aW1pemUgaW50ZXJydXB0CmhhbmRsaW5nLgoKVGhhbmtzLApEYW5pZWwKCj4+IC0tLQo+PiDC
-oGRyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vYXRtZWxfbXh0X3RzLmMgfCDCoCAyMSArKysrKysr
-KysrKysrKystLS0tLS0KPj4gwqAxIGZpbGVzIGNoYW5nZWQsIDE1IGluc2VydGlvbnMoKyksIDYg
-ZGVsZXRpb25zKC0pCj4+Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVu
-L2F0bWVsX214dF90cy5jCj4+IGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9hdG1lbF9teHRf
-dHMuYwo+PiBpbmRleCBmNWQ2Njg1Li5hNTk2YzI3IDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL2lu
-cHV0L3RvdWNoc2NyZWVuL2F0bWVsX214dF90cy5jCj4+ICsrKyBiL2RyaXZlcnMvaW5wdXQvdG91
-Y2hzY3JlZW4vYXRtZWxfbXh0X3RzLmMKPj4gQEAgLTkxMCwxMiArOTEwLDE3IEBAIHN0YXRpYyBz
-c2l6ZV90IG14dF9vYmplY3Rfc2hvdyhzdHJ1Y3QgZGV2aWNlICpkZXYsCj4+IMKgIMKgIMKgIMKg
-Zm9yIChpID0gMDsgaTwgwqBkYXRhLT5pbmZvLm9iamVjdF9udW07IGkrKykgewo+PiDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoG9iamVjdCA9IGRhdGEtPm9iamVjdF90YWJsZSArIGk7Cj4+Cj4+IC0g
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgY291bnQgKz0gc3ByaW50ZihidWYgKyBjb3VudCwKPj4gLSDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCAiT2JqZWN0IFRhYmxl
-IEVsZW1lbnQgJWQoVHlwZSAlZClcbiIsCj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgY291bnQg
-Kz0gc25wcmludGYoYnVmICsgY291bnQsIFBBR0VfU0laRSAtIGNvdW50LAo+PiArIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgICJPYmplY3RbJWRdIChUeXBlICVk
-KVxuIiwKPj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqBp
-ICsgMSwgb2JqZWN0LT50eXBlKTsKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAoY291bnQ+
-PSBQQUdFX1NJWkUpCj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcmV0dXJu
-IFBBR0VfU0laRSAtIDE7Cj4+Cj4+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgaWYgKCFteHRfb2Jq
-ZWN0X3JlYWRhYmxlKG9iamVjdC0+dHlwZSkpIHsKPj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCBjb3VudCArPSBzcHJpbnRmKGJ1ZiArIGNvdW50LCAiXG4iKTsKPj4gKyDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBjb3VudCArPSBzbnByaW50ZihidWYgKyBjb3Vu
-dCwgUEFHRV9TSVpFIC0gY291bnQsCj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgIlxuIik7Cj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgaWYgKGNvdW50Pj0gUEFHRV9TSVpFKQo+PiArIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHJldHVybiBQQUdFX1NJWkUgLSAxOwo+PiDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGNvbnRpbnVlOwo+PiDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoH0KPj4KPj4gQEAgLTkyNSwxMSArOTMwLDE1IEBAIHN0YXRpYyBzc2l6ZV90
-IG14dF9vYmplY3Rfc2hvdyhzdHJ1Y3QgZGV2aWNlICpkZXYsCj4+IMKgIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgaWYgKGVycm9yKQo+PiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoHJldHVybiBlcnJvcjsKPj4KPj4gLSDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCBjb3VudCArPSBzcHJpbnRmKGJ1ZiArIGNvdW50LAo+PiAtIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgICIg
-wqBCeXRlICVkOiAweCV4ICglZClcbiIsIGosIHZhbCwKPj4gdmFsKTsKPj4gKyDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBjb3VudCArPSBzbnByaW50ZihidWYgKyBjb3VudCwgUEFH
-RV9TSVpFIC0gY291bnQsCj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgIlx0WyUyZF06ICUwMnggKCVkKVxuIiwgaiwgdmFsLAo+PiB2
-YWwpOwo+PiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmIChjb3VudD49IFBB
-R0VfU0laRSkKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCByZXR1cm4gUEFHRV9TSVpFIC0gMTsKPj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqB9Cj4+Cj4+
-IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgY291bnQgKz0gc3ByaW50ZihidWYgKyBjb3VudCwgIlxu
-Iik7Cj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgY291bnQgKz0gc25wcmludGYoYnVmICsgY291
-bnQsIFBBR0VfU0laRSAtIGNvdW50LCAiXG4iKTsKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBp
-ZiAoY291bnQ+PSBQQUdFX1NJWkUpCj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgcmV0dXJuIFBBR0VfU0laRSAtIDE7Cj4+IMKgIMKgIMKgIMKgfQo+Pgo+PiDCoCDCoCDCoCDC
-oHJldHVybiBjb3VudDsK
+  Hi Iiro,
+
+On one of our chipsets, we use mxt1386 and from the specification doc we 
+found
+that the software reset delay for this chip is ~250ms. With your patch 
+we observed
+the code to be looping in  timeout_counter for sometime but with ~250ms 
+change
+it avoids that loop. Please consider this change.
+
+I also have couple of review comments, please check.
+
+On 7/26/2011 11:00 PM, Iiro Valkonen wrote:
+> The delay before the chip can be accessed after reset varies between different
+> chips in maXTouch family. Waiting for 200ms and then monitoring the CHG (chip
+> is ready when the line is low) is guaranteed to work with all chips.
+>
+> v4: Adjust delay depending on the family ID of the chip. Also add a readback
+>      of command register after backup is issued, to make sure we are not proceeding
+>      too fast there.
+> v3: Add a check for NULL read_chg() function, and add the read_chg() to platform
+>      files using this driver (currently only mach-goni.c)
+> v2: At Dmitry's suggestion, add a timeout so we are not stuck looping
+>      endlessly in case the CHG is not going low.
+>
+> Signed-off-by: Iiro Valkonen<iiro.valkonen@atmel.com>
+> ---
+>   arch/arm/mach-s5pv210/mach-goni.c        |    6 ++++
+>   drivers/input/touchscreen/atmel_mxt_ts.c |   45 ++++++++++++++++++++++++++++-
+>   include/linux/i2c/atmel_mxt_ts.h         |    1 +
+>   3 files changed, 50 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/arm/mach-s5pv210/mach-goni.c b/arch/arm/mach-s5pv210/mach-goni.c
+> index 31d5aa7..196e92c 100644
+> --- a/arch/arm/mach-s5pv210/mach-goni.c
+> +++ b/arch/arm/mach-s5pv210/mach-goni.c
+> @@ -225,6 +225,11 @@ static void __init goni_radio_init(void)
+>   	gpio_direction_output(gpio, 1);
+>   }
+>
+> +static u8 read_chg(void)
+> +{
+> +	return gpio_get_value(S5PV210_GPJ0(5));
+> +}
+> +
+>   /* TSP */
+>   static struct mxt_platform_data qt602240_platform_data = {
+>   	.x_line		= 17,
+> @@ -236,6 +241,7 @@ static struct mxt_platform_data qt602240_platform_data = {
+>   	.voltage	= 2800000,              /* 2.8V */
+>   	.orient		= MXT_DIAGONAL,
+>   	.irqflags	= IRQF_TRIGGER_FALLING,
+> +	.read_chg	=&read_chg,
+>   };
+>
+>   static struct s3c2410_platform_i2c i2c2_data __initdata = {
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index ae00604..c5be826 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -21,6 +21,10 @@
+>   #include<linux/interrupt.h>
+>   #include<linux/slab.h>
+>
+> +/* Family ID */
+> +#define MXT224_ID		0x80
+> +#define MXT1386_ID		0xA0
+> +
+>   /* Version */
+>   #define MXT_VER_20		20
+>   #define MXT_VER_21		21
+> @@ -176,7 +180,10 @@
+>   #define MXT_BOOT_VALUE		0xa5
+>   #define MXT_BACKUP_VALUE	0x55
+>   #define MXT_BACKUP_TIME		25	/* msec */
+> -#define MXT_RESET_TIME		65	/* msec */
+> +#define MXT224_RESET_TIME       65      /* msec */
+> +#define MXT1386_RESET_TIME      200     /* msec */
+> +#define MXT_RESET_TIME		200	/* msec */
+> +#define MXT_RESET_NOCHGREAD     400     /* msec */
+>
+>   #define MXT_FWRESET_TIME	175	/* msec */
+>
+> @@ -814,7 +821,9 @@ static int mxt_initialize(struct mxt_data *data)
+>   	struct i2c_client *client = data->client;
+>   	struct mxt_info *info =&data->info;
+>   	int error;
+> +	int timeout_counter = 0;
+>   	u8 val;
+> +	u8 command_register;
+>
+>   	error = mxt_get_info(data);
+>   	if (error)
+> @@ -845,11 +854,43 @@ static int mxt_initialize(struct mxt_data *data)
+>   			MXT_COMMAND_BACKUPNV,
+>   			MXT_BACKUP_VALUE);
+>   	msleep(MXT_BACKUP_TIME);
+> +	do {
+> +                error =  mxt_read_object(data, MXT_GEN_COMMAND_T6,
+> +					MXT_COMMAND_BACKUPNV,
+> +					&command_register);
+> +                if (error)
+> +                        return error;
+> +		msleep(2);
+msleep(1~20) doesn't guarantee what we intend to do. Please check 
+Documentation/timers/timers-howto.txt.
+This doc suggests us to use usleep_range() for these smaller delays.
+> +        } while ((command_register != 0)&&  (timeout_counter++<= 100));
+> +	if (timeout_counter>= 100) {
+This condition has off-by-one error. If the loop succeeds at counter is 
+99 then as it is post-increment,
+the counter would be 100 by the time it comes to this condition. Though 
+we are successful, it
+still returns error. Please check and I suggest to use ">" rather than ">=".
+> +		dev_err(&client->dev, "No response after backup!\n");
+> +		return -EIO;
+> +	}
+>
+>   	/* Soft reset */
+>   	mxt_write_object(data, MXT_GEN_COMMAND_T6,
+>   			MXT_COMMAND_RESET, 1);
+> -	msleep(MXT_RESET_TIME);
+> +	if (data->pdata->read_chg == NULL) {
+> +		msleep(MXT_RESET_NOCHGREAD);
+> +	} else {
+> +		switch (info->family_id) {
+> +		case MXT224_ID:
+> +			msleep(MXT224_RESET_TIME);
+> +			break;
+> +		case MXT1386_ID:
+> +			msleep(MXT1386_RESET_TIME);
+> +			break;
+> +		default:
+> +			msleep(MXT_RESET_TIME);
+> +		}
+> +		timeout_counter = 0;
+> +		while ((timeout_counter++<= 100)&&  data->pdata->read_chg())
+> +			msleep(2);
+same here, use usleep_range.
+> +		if (timeout_counter>= 100) {
+Same here, one-by-off error.
+> +			dev_err(&client->dev, "No response after reset!\n");
+> +			return -EIO;
+> +		}
+> +	}
+>
+>   	/* Update matrix size at info struct */
+>   	error = mxt_read_reg(client, MXT_MATRIX_X_SIZE,&val);
+> diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
+> index f027f7a..ef59c22 100644
+> --- a/include/linux/i2c/atmel_mxt_ts.h
+> +++ b/include/linux/i2c/atmel_mxt_ts.h
+> @@ -39,6 +39,7 @@ struct mxt_platform_data {
+>   	unsigned int voltage;
+>   	unsigned char orient;
+>   	unsigned long irqflags;
+> +	u8(*read_chg) (void);
+>   };
+>
+>   #endif /* __LINUX_ATMEL_MXT_TS_H */
+--Mohan.
+
+-- 
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora
+Forum.

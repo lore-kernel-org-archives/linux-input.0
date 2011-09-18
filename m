@@ -1,69 +1,68 @@
-From: Samuel Ortiz <sameo@linux.intel.com>
-Subject: Re: [PATCH 0/6] mc13783 cleanup
-Date: Sun, 18 Sep 2011 18:33:51 +0200
-Message-ID: <20110918163351.GL32263@sortiz-mobl>
-References: <20110824132740.GA28197@pengutronix.de>
- <201108250905.13168.philippe.retornaz@epfl.ch>
- <20110915151213.GE32263@sortiz-mobl>
- <20110915160321.GA29357@pengutronix.de>
+From: Stephen Kitt <steve@sk2.org>
+Subject: Re: [PATCH 1/3] input: Add a driver TSC40 (serial)
+Date: Sun, 18 Sep 2011 19:49:34 +0200
+Message-ID: <20110918194934.30ea9d01@sk2.org>
+References: <CAH9NwWcYWPPShEC4tyH_VQJaNmcmaWHiApkxnKr=0HCnaqZuMw@mail.gmail.com>
+	<20110913163210.GA2915@core.coreip.homeip.net>
+	<CAH9NwWdee4u5uqzsHzssTBWc05Q6yxs29DYTO3_HxYDHznZ_cg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=PGP-SHA256;
+ boundary="Sig_/_mjNFfqqvF5REamworbHgCo"; protocol="application/pgp-signature"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:36403 "EHLO mga09.intel.com"
+Received: from smtp5-g21.free.fr ([212.27.42.5]:41115 "EHLO smtp5-g21.free.fr"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755233Ab1IRQbX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 Sep 2011 12:31:23 -0400
-Content-Disposition: inline
-In-Reply-To: <20110915160321.GA29357@pengutronix.de>
+	id S1755272Ab1IRRtu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 18 Sep 2011 13:49:50 -0400
+In-Reply-To: <CAH9NwWdee4u5uqzsHzssTBWc05Q6yxs29DYTO3_HxYDHznZ_cg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>, linux-arm-kernel@lists.infradead.org, Richard Purdie <rpurdie@rpsys.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Jean Delvare <khali@linux-fr.org>, David Jander <david@protonic.nl>, linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, kernel@pengutronix.de, linux-input@vger.kernel.org
+To: Christian Gmeiner <christian.gmeiner@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, bigeasy@linutronix.de
 
-Hi Uwe,
+--Sig_/_mjNFfqqvF5REamworbHgCo
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 15, 2011 at 06:03:21PM +0200, Uwe Kleine-K=F6nig wrote:
-> Hi Samuel,
+Hi Christian,
+
+On Wed, 14 Sep 2011 14:07:37 +0200, Christian Gmeiner
+<christian.gmeiner@gmail.com> wrote:
+> 2011/9/13 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> > All this initialization is much easier done in inputattach.
 >=20
-> On Thu, Sep 15, 2011 at 05:12:13PM +0200, Samuel Ortiz wrote:
-> > On Thu, Aug 25, 2011 at 09:05:12AM +0200, Philippe R=E9tornaz wrote=
-:
-> > > Le mercredi 24 ao=FBt 2011 15:27:40, Uwe Kleine-K=F6nig a =E9crit=
- :
-> > > > Hello,
-> > > >=20
-> > > > this series removes the long obsolte mc13783 API after fixing a=
-ll
-> > > > remaining users.
-> > >=20
-> > > I posted a patch last month which was touching this MFD too.
-> > > We will need to synchronize both patch.=20
-> > I applied Uwe's patchset now.
-> Thanks.
->=20
-> >                               Could you please sync your code and s=
-end me a
-> > patchset that applies on top of:
-> >=20
-> > git://git.infradead.org/users/sameo/mfd-2.6.git for-next
-> You can fetch the updated series from
->=20
-> 	git://git.pengutronix.de/git/ukl/linux-2.6.git mc13783
-I merged this one on top of my for-next branch. My MFD tree temporary l=
-ives on
-infradead:
+> Thats fine for me... is http://git.iplinux.org/inputattach.git the
+> official git repo for inputattach?
 
-git://git.infradead.org/users/sameo/mfd-2.6.git
+No, inputattach is maintained as part of the linuxconsole tools at
+https://sourceforge.net/projects/linuxconsole/ - I'm still using Subversion
+but I'll switch to git within the next few week or so, so if you want to se=
+nd
+a patch git send-email is fine.
 
-Cheers,
-Samuel.
+Regards,
 
---=20
-Intel Open Source Technology Centre
-http://oss.intel.com/
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Stephen
+
+--Sig_/_mjNFfqqvF5REamworbHgCo
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iQIcBAEBCAAGBQJOdi8uAAoJEHWXeKmja0lP17YP/RbAXw0ays9J7zEsbiucw/fv
+iO1MYWdPPk3Bo5D03trlyaK5+rosbA2KBFhe1GjegSvMo0cOajA9+cLxiELzdKaD
+EEVT6ULmuZvr9vF4BOKXPlLr6N8sB4Hq1HhnHnb8dNNe8Cbopf5X0J5S726PJ/qf
+cfl9baawHbpx/y7iWQh70p6GYL0UnUKDjnuGq1wBFQJZbaiXSxxHb5EjZe9YhfXc
+oVHWouIxlfSk6VijNUO5PHxG+yzsDJZRnXikIqWL3wXwJJR9ZccnQEJf6fnTsOWr
+dYldcnm1sCAlBhiQEkiQojJRj8LxxWart8kMokpMFqKx8/WEnFK3X4ud6x9ftBIS
+ZN2C6qsY56DqrXprSgLhPwtwUWiVFuCMZqCzNZmcKmy4Xk3vpDT8DgRe+yR7mgCh
+7T19+6qQSckX1MB01RlTzfRVPHE+L1yrmOE12cJcUGLfkDrhG7IvT6pr5cWYAM16
+d+ZPWyO4tRtQctlYMSS0io1XARK4N1mIIAgPtUQ6DREAnHHxBzVo+wudCGuN2Ayj
+Aa1e3DQCkrzksNpUJLZ0jTZ2aE/EdIgDgY9CYn6TQ1G8I3HnPOtv7MlS5JNOMVyg
+ukMbqwC9dpPnYJTXjVGhE1ikRmJvWGMZjlHSakeEdCAwp0aHWzUim/u1iRYhlFPz
+fj6zV3/0xEsZb2TPSssN
+=1Zq8
+-----END PGP SIGNATURE-----
+
+--Sig_/_mjNFfqqvF5REamworbHgCo--

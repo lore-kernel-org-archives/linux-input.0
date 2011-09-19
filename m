@@ -1,59 +1,86 @@
-From: =?utf-8?B?5LuFMTDlhYPmr4/lpKk=?= <test@amidress.com>
-Subject: =?utf-8?B?576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuisxMDnlsYrlub/kuqTkvJrkubDlrrY=?=
-	=?utf-8?B?44CB5rW35YWz5pWw5o2uLEIyQuivouebmOS5sOWutjUwMOS4h+OAgg==?=
-Date: Mon, 19 Sep 2011 09:02:20 +0000 (UTC)
-Message-ID: <20120918084113584270@amidress.com>
-Reply-To: <1339625218@qq.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Tobias Klauser <tklauser@distanz.ch>
+Subject: [PATCH v2] Input: gpio_keys - Use of_property_read_u32
+Date: Mon, 19 Sep 2011 11:09:51 +0200
+Message-ID: <1316423391-20219-1-git-send-email-tklauser@distanz.ch>
+References: <1314775945-6822-1-git-send-email-tklauser@distanz.ch>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 184.172.211.66-static.reverse.softlayer.com ([184.172.211.66]:3345
-	"HELO amidress.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753855Ab1ISJB4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Sep 2011 05:01:56 -0400
-Date: Tue, 18 Sep 2012 08:41:06 +0800
+Received: from mx1.zhaw.ch ([160.85.104.50]:52506 "EHLO mx1.zhaw.ch"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751896Ab1ISJJx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Sep 2011 05:09:53 -0400
+In-Reply-To: <1314775945-6822-1-git-send-email-tklauser@distanz.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linrenchun88@518ad.com, linshyan@21cn.com, lintaichaosheng@126.com, lintoalappat@yahoo.co, linus@labb.contactor.se, linux-advocacy@senator-bedfellow.mit.edu, linux-input
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-input@vger.kernel.org
 
-576k5Y+R6L2v5Lu2KzEwOeWxiuW5v+S6pOS8muS5sOWutuOAgea1t+WFs+aVsOaNruOAgeaQnOe0
-ouW8leaTjuS5sOWutixCMkLor6Lnm5jkubDlrrblhbE1MDDkuIcs5LuFMTDlhYPmr4/lpKnjgIIg
-DQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIINCuS/neivgeavj+WkqemDveacieS5
-sOWutuWbnuWkjeOAgg0KDQoNCjHjgIHnvqTlj5Hova/ku7bvvJog5pON5L2c566A5Y2V77yM5Yqf
-6IO95by65aSn77yM5qih5Lu/5Lq65bel5pON5L2c5qih5byP77yM5Yiw6L6+546H6auY77yM5pel
-5Y+R6YCBNeS4h+WwgeS7peS4iuOAgiANCjLjgIE1MDDkuIflub/kuqTkvJrkubDlrrbotYTmupDv
-vJog6LWg6YCB55qENTAw5LiH5Lmw5a626LWE5rqQ5bqT77yM5q+P5pyI5pu05pawIOOAgiANCjPj
-gIHotoXnuqfmtbflpJbkubDlrrZFbWFpbOaQnOe0ouacuu+8miDmr4/lpKnog73mkJzntKIxLTLk
-uIfku6XkuIrkubDlrrbnnJ/lrp5FTUFJTO+8jOaIkOWNleeOh+mrmOOAgiANCiANCg0K6KaB55qE
-5oqT57Sn6IGU57O7UVE6IDEzMzk2MjUyMTggICDmiJbogIXnq4vljbPlm57lpI3pgq7nrrE6IDEz
-Mzk2MjUyMThAcXEuY29tDQropoHnmoTmipPntKfogZTns7tRUTogMTMzOTYyNTIxOCAgIOaIluiA
-heeri+WNs+WbnuWkjemCrueusTogMTMzOTYyNTIxOEBxcS5jb20NCuimgeeahOaKk+e0p+iBlOez
-u1FROiAxMzM5NjI1MjE4ICAg5oiW6ICF56uL5Y2z5Zue5aSN6YKu566xOiAxMzM5NjI1MjE4QHFx
-LmNvbQ0KDQrlhY3otLnotaDpgIE6DQrkuIDlhbE45Liq5YyFKOaVsOaNruaYr+WFqOihjOS4muea
-hO+8jOaMieeFp+ihjOS4muWIhuWlveexu++8jOW5tuS4lOWPr+S7peaMieeFp+WFs+mUruivjeaf
-peivoueahCnvvJogDQox77yMMjAxMeaYpeWtozEwOeWxiuW5v+S6pOS8muS5sOWutueOsOWcuuiv
-ouebmOaVsOaNruW6k+aWsOmynOWHuueCie+8jOi2hee6p+aWsOmynOS5sOWutu+8jOaWsOmynOaV
-sOaNru+8jOWuueaYk+aIkOWNle+8gSANCjLvvIzotK3kubDlkI7lj6/ku6XlhY3otLnmm7TmlrAy
-MDEx56eL5a2j5bm/5Lqk5LyaKzIwMTLmmKXlraPlub/kuqTkvJrkubDlrrbmlbDmja7jgILlpKro
-toXlgLzkuobjgIINCjPvvIzmnIDmlrDlhajnkIPkubDlrrblupMs5YWxNDUxNjYw5p2h5pWw5o2u
-44CCICjmnIDmlrDmm7TmlrDml6XmnJ8gMjAxMS0wNS0xNuaXpSkNCjTvvIwyMDA45bm0LDIwMDnl
-ubQsMjAxMOW5tCDmmKXlraMr56eL5a2j5bm/5Lqk5Lya5Lmw5a625ZCN5b2V77yMMTAzIDEwNCAx
-MDUgMTA2IDEwNyAxMDgg5YWx5YWt5bGKIOWFsTEyMC425LiH5pWw5o2u44CCDQo177yMMjAxMOW5
-tOWbvemZheS/g+mUgOWNj+S8mu+8iFBQQUnvvInmiJDlkZjlkI3ljZUgUFBBSSBNZW1iZXJzIERp
-cmVjdG9yee+8jOmdnuW4uOmHjeimgeeahOWkp+S5sOWutuOAgg0KNu+8jDIwMTDlubTliLDpppnm
-uK/ph4fotK3nmoTlm73lpJblrqLkurrlkI3lvZUo6aaZ5riv6LS45Y+R5bGA5o+Q5L6bKe+8jOWF
-sTcuMuS4h+aVsOaNru+8jOi2hee6p+mHjeimgeeahOS5sOWutuOAgg0KN++8jDQ4LjY45LiH5p2h
-5pyA5paw5Lmw5a626K+i55uY77yM6LSt5Lmw5ZCO5q+P5pyI5pu05pawIDEtMuS4h+adoe+8jOWM
-heaLrDLpg6jliIbvvIwx77yM5pyA5paw55qE6K+i55uYIDLvvIzmnIDmlrDnmoTlsZXkvJrkubDl
-rrbjgILlhY3otLnmm7TmlrAzNuS4quaciOOAgg0KOO+8jDIwMDnlubTmtbflhbPmj5DljZXmlbDm
-ja5waWVyc+eJiOaVsOaNriAx5Y2D5LiH44CCDQoNCg0K6K+a5L+h5Li65pys77yM5pSv5oyB5pSv
-5LuY5a6d5ouF5L+d5Lqk5piTICjlhYjlj5HotKflubblronoo4Xorr7nva7nvqTlj5Hova/ku7bv
-vIznhLblkI7ku5jmrL4pIOW9u+W6leaJk+a2iOaCqOeahCDpob7omZHjgIINCg0KIA0KDQoNCiAN
-Cg0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+ae
-gemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeO
-h+aegemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K
+Use the of_property_read_u32 helper function to retreive u32 values
+from the device tree. Also do not pass the len parameter to
+of_get_property if it isn't checked afterwards.
 
+Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+---
+v2: Fix build failure caused by a missing opening brace (reported by
+    Stephen Rothwell)
+
+ drivers/input/keyboard/gpio_keys.c |   22 ++++++++++++----------
+ 1 files changed, 12 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 67df91a..e913294 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -462,7 +462,6 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
+ 	int i;
+ 	struct gpio_keys_button *buttons;
+ 	const u32 *reg;
+-	int len;
+ 
+ 	node = dev->of_node;
+ 	if (node == NULL)
+@@ -470,7 +469,7 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
+ 
+ 	memset(pdata, 0, sizeof *pdata);
+ 
+-	pdata->rep = !!of_get_property(node, "autorepeat", &len);
++	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
+ 
+ 	/* First count the subnodes */
+ 	pdata->nbuttons = 0;
+@@ -498,22 +497,25 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
+ 		buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
+ 		buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
+ 
+-		reg = of_get_property(pp, "linux,code", &len);
+-		if (!reg) {
++		if (of_property_read_u32(pp, "linux,code", &reg)) {
+ 			dev_err(dev, "Button without keycode: 0x%x\n", buttons[i].gpio);
+ 			goto out_fail;
+ 		}
+-		buttons[i].code = be32_to_cpup(reg);
++		buttons[i].code = reg;
+ 
+-		buttons[i].desc = of_get_property(pp, "label", &len);
++		buttons[i].desc = of_get_property(pp, "label", NULL);
+ 
+-		reg = of_get_property(pp, "linux,input-type", &len);
+-		buttons[i].type = reg ? be32_to_cpup(reg) : EV_KEY;
++		if (of_property_read_u32(pp, "linux,input-type", &reg) == 0)
++			buttons[i].type = reg;
++		else
++			buttons[i].type = EV_KEY;
+ 
+ 		buttons[i].wakeup = !!of_get_property(pp, "gpio-key,wakeup", NULL);
+ 
+-		reg = of_get_property(pp, "debounce-interval", &len);
+-		buttons[i].debounce_interval = reg ? be32_to_cpup(reg) : 5;
++		if (of_property_read_u32(pp, "debounce-interval", &reg) == 0)
++			buttons[i].debounce_interval = reg;
++		else
++			buttons[i].debounce_interval = 5;
+ 
+ 		i++;
+ 	}
+-- 
+1.7.5.4
 

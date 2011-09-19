@@ -1,99 +1,70 @@
-From: James Hogan <james@albanarts.com>
-Subject: Re: [RFC PATCH] hidraw: protect hidraw_disconnect() better
-Date: Mon, 19 Sep 2011 22:39:28 +0100
-Message-ID: <20110919213928.GA1957@balrog>
-References: <4E7754DA.30108@imgtec.com>
+From: Chase Douglas <chasedouglas@gmail.com>
+Subject: Re: [PATCH] Input: wacom - Add POINTER and DIRECT device properties
+Date: Mon, 19 Sep 2011 16:40:46 -0700
+Message-ID: <4E77D2FE.8060709@gmail.com>
+References: <1314892843-1475-1-git-send-email-killertofu@gmail.com> <20110913080911.GA4986@polaris.bitmath.org> <CAPHpN5OAPdPQ1SmwrGT6pMvgWESBOSnRvb0jKUszkU_31MFXWg@mail.gmail.com> <20110914071524.GA3422@polaris.bitmath.org> <CAF8JNhKFz8-bJ4HMguU2qReageX4WBB1bWR0amRbYmaujNVX8A@mail.gmail.com> <20110916105036.GA4455@polaris.bitmath.org> <CANRwn3TstEAhgt5=Sxu6KMOyu3rtC9CCeQWU7Qa5-jRXUfgBdw@mail.gmail.com> <20110917112114.GA3015@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:57196 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756490Ab1ISVqM (ORCPT
+Received: from mail-yi0-f46.google.com ([209.85.218.46]:34881 "EHLO
+	mail-yi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751666Ab1ISXkw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Sep 2011 17:46:12 -0400
-Content-Disposition: inline
-In-Reply-To: <4E7754DA.30108@imgtec.com>
+	Mon, 19 Sep 2011 19:40:52 -0400
+Received: by yie30 with SMTP id 30so4504341yie.19
+        for <linux-input@vger.kernel.org>; Mon, 19 Sep 2011 16:40:52 -0700 (PDT)
+In-Reply-To: <20110917112114.GA3015@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
-Cc: James Hogan <james.hogan@imgtec.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jason Gerecke <killertofu@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Linux Input <linux-input@vger.kernel.org>
 
-On Mon, Sep 19, 2011 at 03:42:34PM +0100, James Hogan wrote:
-> The following patch I think fixes a bug in hidraw_disconnect(). However I'm unsure whether it's safe to call device_destroy with the minors_lock held. can the device_destroy ever end up calling hidraw_release, resulting in recursive locking? I've never seen that happen, but I don't understand the inner workings on device_destroy.
+On 09/17/2011 04:21 AM, Henrik Rydberg wrote:
+> Hi Jason,
 > 
-> The bug can be revealed with SLAB debugging on (poisoning free'd memory), and:
-> cat /dev/hw_random > /dev/hidraw0
-> then unplug the device. the disconnect is called, the device_destroy seems to cause "cat"'s write syscall to return a timeout error, so it exits/closes, which frees the hidraw because hidraw->exists==0, then the disconnect function writes to hidraw_table[hidraw->minor] which blows up because hidraw->minor has been poisoned with 0x6b6b6b6b.
+>>>> Take Wacom's Intuos and Graphire series for example, those tablets
+>>>> support both styli and mice. For styli, the default is absolute mode;
+>>>> while for mice, it is relative. So, only valid property the tablet can
+>>>> tell the user-land is: I am a tablet, i.e., not a touchscreen. Clients
+>>>> have to check the tool types to set the default mode to relative
+>>>> (BTN_TOOL_MOUSE/LENS) or absolute (BTN_TOOL_PEN/AIRBRUSH/RUBBER...).
+>>>
+>>> And those modes can be determined using the available axes. However,
+>>> when all axes are the same, a statement like "I am a tablet" does not
+>>> exist. In that case, distinguishing between touchscreen, touchpad and
+>>> tablet becomes a question of interpreting the properties. Such a
+>>> distinction cannot be achieved using a single bit of information, and
+>>> that was never the intention.
+>>>
+>> It is certainly true that you cannot separate out the different cases
+>> with a single bit. The more properties and hints we can expose to
+>> userspace the better. However, at the device level, there's only so
+>> much information we *can* expose. We know if its a direct input device
+>> or not. We don't know if its relative or absolute, since that depends
+>> on the tool in use at any given moment.
 > 
-> This has been tested on 2.6.39 and appears to fix it, and I'll hopefully be able to test it on the latest kernel tonight.
+> It seems the various arguments we have seen in this thread are all
+> logical and well founded, but they originate in different assumptions
+> about the semantics of POINTER and DIRECT. Such a debate does
+> obviously not satisfy everyone.
+> 
+> The original intention of the properties are these:
+> 
+> POINTER - The device needs a visual guide in order to be useful. In
+> most cirumstances, this is equivalent to not having a screen directly
+> beneath the surface.
+> 
+> DIRECT - The input device is to be used as if it was overlaying a
+> sreen. It could be separate from the screen, but the expected behavior
+> should be the same.
+> 
+> From these definitions, it follows that a device could well be both
+> POINTER and DIRECT. For instance, a multitouch tablet designed to
+> replace the keyboard would fall into this category.
 
-I have now tested this on a PC with slub_debug on the command line and
-Linus' latest tree (3.1-rc6):
-$ while [ -e /dev/hidraw0 ]; do echo hello; done > /dev/hidraw0
-and unplugged the device.
+I think these are the clearest definitions I've seen of these
+properties. It would be good to get them documented in
+Documentation/input. Henrik, would you be able to do this?
 
-Before the patch it caused a fault with callstack etc. the first time I
-tried it. I tried 30 times with the patch and got no such errors. I
-haven't tried anything more hidraw related though.
-
-Cheers
-James
-
-> 
-> Cheers
-> James
-> 
-> The function hidraw_disconnect() only acquires the hidraw minors_lock
-> when clearing the entry in hidraw_table. However the device_destroy()
-> call can cause a userland read/write to return with an error. It may
-> cause the program to release the file descripter before the disconnect
-> is finished. hidraw_disconnect() has already set hidraw->exist to 0,
-> which makes hidraw_release() kfree the hidraw structure, which
-> hidraw_disconnect() continues to access and even tries to kfree again.
-> Similarly if a hidraw_release() occurs after setting hidraw->exist to 0,
-> the same thing can happen.
-> 
-> This is fixed by expanding the mutex critical section to cover the whole
-> function from setting hidraw->exist to 0 to freeing the hidraw
-> structure, preventing a hidraw_release() from interfering.
-> 
-> Signed-off-by: James Hogan <james.hogan@imgtec.com>
-> ---
->  drivers/hid/hidraw.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-> index c79578b..a8c2b7b 100644
-> --- a/drivers/hid/hidraw.c
-> +++ b/drivers/hid/hidraw.c
-> @@ -510,13 +510,12 @@ void hidraw_disconnect(struct hid_device *hid)
->  {
->  	struct hidraw *hidraw = hid->hidraw;
->  
-> +	mutex_lock(&minors_lock);
->  	hidraw->exist = 0;
->  
->  	device_destroy(hidraw_class, MKDEV(hidraw_major, hidraw->minor));
->  
-> -	mutex_lock(&minors_lock);
->  	hidraw_table[hidraw->minor] = NULL;
-> -	mutex_unlock(&minors_lock);
->  
->  	if (hidraw->open) {
->  		hid_hw_close(hid);
-> @@ -524,6 +523,7 @@ void hidraw_disconnect(struct hid_device *hid)
->  	} else {
->  		kfree(hidraw);
->  	}
-> +	mutex_unlock(&minors_lock);
->  }
->  EXPORT_SYMBOL_GPL(hidraw_disconnect);
->  
-> -- 
-> 1.7.2.3
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- Chase

@@ -1,68 +1,56 @@
-From: Stephen Kitt <steve@sk2.org>
-Subject: Re: [PATCH 1/3] input: Add a driver TSC40 (serial)
-Date: Sun, 18 Sep 2011 19:49:34 +0200
-Message-ID: <20110918194934.30ea9d01@sk2.org>
-References: <CAH9NwWcYWPPShEC4tyH_VQJaNmcmaWHiApkxnKr=0HCnaqZuMw@mail.gmail.com>
-	<20110913163210.GA2915@core.coreip.homeip.net>
-	<CAH9NwWdee4u5uqzsHzssTBWc05Q6yxs29DYTO3_HxYDHznZ_cg@mail.gmail.com>
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: Re: [PATCH 0/2] Better support old elantech v2 hardware
+Date: Mon, 19 Sep 2011 12:54:49 +0800
+Message-ID: <87pqixku7a.fsf@emc.com.tw>
+References: <1315894549-24504-1-git-send-email-jj_ding@emc.com.tw> <4E735B56.40400@tudelft.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA256;
- boundary="Sig_/_mjNFfqqvF5REamworbHgCo"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp5-g21.free.fr ([212.27.42.5]:41115 "EHLO smtp5-g21.free.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755272Ab1IRRtu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 Sep 2011 13:49:50 -0400
-In-Reply-To: <CAH9NwWdee4u5uqzsHzssTBWc05Q6yxs29DYTO3_HxYDHznZ_cg@mail.gmail.com>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:50202 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750773Ab1ISEwL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Sep 2011 00:52:11 -0400
+In-Reply-To: <4E735B56.40400@tudelft.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christian Gmeiner <christian.gmeiner@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, bigeasy@linutronix.de
+To: =?utf-8?Q?=C3=89ric?= Piel <E.A.B.Piel@tudelft.nl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Richard =?utf-8?Q?Sch=C3=BCtz?= <r.schtz@t-online.de>, Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>
 
---Sig_/_mjNFfqqvF5REamworbHgCo
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-
-Hi Christian,
-
-On Wed, 14 Sep 2011 14:07:37 +0200, Christian Gmeiner
-<christian.gmeiner@gmail.com> wrote:
-> 2011/9/13 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> > All this initialization is much easier done in inputattach.
+On Fri, 16 Sep 2011 16:21:10 +0200, =C3=89ric Piel <E.A.B.Piel@tudelft.=
+nl> wrote:
+> Op 13-09-11 08:15, JJ Ding schreef:
+> > Hi everyone,
+> >
+> > Thanks to Richard Sch=C3=BCtz's bug report, I did some more researc=
+h on elantech
+> > v2 hardware. I asked our Windows driver team and firmware team abou=
+t the
+> > _ancient histroy_ of the dark old days ;-) These two patches are th=
+e results.
+> >
+> > Hopefully with these 2 we can support v2 hardware as good as Window=
+s does.
+> >
+> > I can only get two old v2 (fw: 0x020800, 0x040201) to test. Those w=
+ho have a elantech v2
+> > hardware please do test, thank you very much.
+> Hello,
+> I've tested these patches on my hardware with version 0x020801.=20
+> Everything looks fine.
 >=20
-> Thats fine for me... is http://git.iplinux.org/inputattach.git the
-> official git repo for inputattach?
+>=20
+> Reviewed-by: =C3=89ric Piel <eric.piel@tremplin-utc.net>
+>=20
+> Cheers,
+> =C3=89ric
 
-No, inputattach is maintained as part of the linuxconsole tools at
-https://sourceforge.net/projects/linuxconsole/ - I'm still using Subversion
-but I'll switch to git within the next few week or so, so if you want to se=
-nd
-a patch git send-email is fine.
+Thank you, =C3=89ric, for testing and reviewing.
 
-Regards,
-
-Stephen
-
---Sig_/_mjNFfqqvF5REamworbHgCo
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBCAAGBQJOdi8uAAoJEHWXeKmja0lP17YP/RbAXw0ays9J7zEsbiucw/fv
-iO1MYWdPPk3Bo5D03trlyaK5+rosbA2KBFhe1GjegSvMo0cOajA9+cLxiELzdKaD
-EEVT6ULmuZvr9vF4BOKXPlLr6N8sB4Hq1HhnHnb8dNNe8Cbopf5X0J5S726PJ/qf
-cfl9baawHbpx/y7iWQh70p6GYL0UnUKDjnuGq1wBFQJZbaiXSxxHb5EjZe9YhfXc
-oVHWouIxlfSk6VijNUO5PHxG+yzsDJZRnXikIqWL3wXwJJR9ZccnQEJf6fnTsOWr
-dYldcnm1sCAlBhiQEkiQojJRj8LxxWart8kMokpMFqKx8/WEnFK3X4ud6x9ftBIS
-ZN2C6qsY56DqrXprSgLhPwtwUWiVFuCMZqCzNZmcKmy4Xk3vpDT8DgRe+yR7mgCh
-7T19+6qQSckX1MB01RlTzfRVPHE+L1yrmOE12cJcUGLfkDrhG7IvT6pr5cWYAM16
-d+ZPWyO4tRtQctlYMSS0io1XARK4N1mIIAgPtUQ6DREAnHHxBzVo+wudCGuN2Ayj
-Aa1e3DQCkrzksNpUJLZ0jTZ2aE/EdIgDgY9CYn6TQ1G8I3HnPOtv7MlS5JNOMVyg
-ukMbqwC9dpPnYJTXjVGhE1ikRmJvWGMZjlHSakeEdCAwp0aHWzUim/u1iRYhlFPz
-fj6zV3/0xEsZb2TPSssN
-=1Zq8
------END PGP SIGNATURE-----
-
---Sig_/_mjNFfqqvF5REamworbHgCo--
+jj
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

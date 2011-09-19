@@ -1,86 +1,49 @@
-From: Tobias Klauser <tklauser@distanz.ch>
-Subject: [PATCH v2] Input: gpio_keys - Use of_property_read_u32
-Date: Mon, 19 Sep 2011 11:09:51 +0200
-Message-ID: <1316423391-20219-1-git-send-email-tklauser@distanz.ch>
-References: <1314775945-6822-1-git-send-email-tklauser@distanz.ch>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.zhaw.ch ([160.85.104.50]:52506 "EHLO mx1.zhaw.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751896Ab1ISJJx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Sep 2011 05:09:53 -0400
-In-Reply-To: <1314775945-6822-1-git-send-email-tklauser@distanz.ch>
-Sender: linux-input-owner@vger.kernel.org
+From: Thomas Abraham <thomas.abraham@linaro.org>
+Subject: [PATCH v3 0/2] Add device tree support for Samsung's keypad controller
+ driver
+Date: Mon, 19 Sep 2011 15:49:11 +0530
+Message-ID: <1316427553-5033-1-git-send-email-thomas.abraham@linaro.org>
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: devicetree-discuss@lists.ozlabs.org, dmitry.torokhov@gmail.com
+Cc: grant.likely@secretlab.ca, linux-input@vger.kernel.org, kgene.kim@samsung.com, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jy0922.shim@samsung.com, dh09.lee@samsung.com
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-input@vger.kernel.org
 
-Use the of_property_read_u32 helper function to retreive u32 values
-from the device tree. Also do not pass the len parameter to
-of_get_property if it isn't checked afterwards.
+Changes since v2:
+- Addressed comments from Grant Likely.
+  - Renamed 'keypad,key-code' property name to 'linux,code'.
+  - Fixed incorrect data types for all instances of of_property+read_u32.
+  - linux,input-type binding was not added as suggested since the driver
+    supports only EV_KEY event type.
 
-Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
----
-v2: Fix build failure caused by a missing opening brace (reported by
-    Stephen Rothwell)
+Changes since v1:
+- Addressed comments from Dmitry Torokhov.
+  - Type of controller is cached in driver's private data and the function
+    that determines the type of the controller for each keypad scan is
+    removed.
+  - pdata allocated during probe is explicitly freed after probe completes
+    without any error. In case of exit from probe due a error, no explicit
+    deallocation of pdata memory is performed and it is left to devres to
+    handle that.
+  - The generic code to translate KEY(x,y,code) is retained in the driver
+    itself. I am unsure of a right common place for it.
+  - Driver continues with the probe even if one or more gpio configuration
+    fails.
+  - Patch 1 that adds a new config option is still retained in this patchset.
 
- drivers/input/keyboard/gpio_keys.c |   22 ++++++++++++----------
- 1 files changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 67df91a..e913294 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -462,7 +462,6 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
- 	int i;
- 	struct gpio_keys_button *buttons;
- 	const u32 *reg;
--	int len;
- 
- 	node = dev->of_node;
- 	if (node == NULL)
-@@ -470,7 +469,7 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
- 
- 	memset(pdata, 0, sizeof *pdata);
- 
--	pdata->rep = !!of_get_property(node, "autorepeat", &len);
-+	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
- 
- 	/* First count the subnodes */
- 	pdata->nbuttons = 0;
-@@ -498,22 +497,25 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
- 		buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
- 		buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
- 
--		reg = of_get_property(pp, "linux,code", &len);
--		if (!reg) {
-+		if (of_property_read_u32(pp, "linux,code", &reg)) {
- 			dev_err(dev, "Button without keycode: 0x%x\n", buttons[i].gpio);
- 			goto out_fail;
- 		}
--		buttons[i].code = be32_to_cpup(reg);
-+		buttons[i].code = reg;
- 
--		buttons[i].desc = of_get_property(pp, "label", &len);
-+		buttons[i].desc = of_get_property(pp, "label", NULL);
- 
--		reg = of_get_property(pp, "linux,input-type", &len);
--		buttons[i].type = reg ? be32_to_cpup(reg) : EV_KEY;
-+		if (of_property_read_u32(pp, "linux,input-type", &reg) == 0)
-+			buttons[i].type = reg;
-+		else
-+			buttons[i].type = EV_KEY;
- 
- 		buttons[i].wakeup = !!of_get_property(pp, "gpio-key,wakeup", NULL);
- 
--		reg = of_get_property(pp, "debounce-interval", &len);
--		buttons[i].debounce_interval = reg ? be32_to_cpup(reg) : 5;
-+		if (of_property_read_u32(pp, "debounce-interval", &reg) == 0)
-+			buttons[i].debounce_interval = reg;
-+		else
-+			buttons[i].debounce_interval = 5;
- 
- 		i++;
- 	}
--- 
-1.7.5.4
+This patchset adds device tree support for samsung's keypad controller driver.
+First patch adds a new config option to be used by device tree enabled platforms
+for selecting the samsung's keypad controller driver. The second patch adds device
+tree support for the keypad driver.
 
+Thomas Abraham (2):
+  input: samsung-keypad: Add HAVE_SAMSUNG_KEYPAD config option
+  input: samsung-keypad: Add device tree support
+
+ .../devicetree/bindings/input/samsung-keypad.txt   |   88 ++++++++++
+ drivers/input/keyboard/Kconfig                     |    9 +-
+ drivers/input/keyboard/samsung-keypad.c            |  179 ++++++++++++++++++--
+ 3 files changed, 263 insertions(+), 13 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/samsung-keypad.txt

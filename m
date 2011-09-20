@@ -1,43 +1,116 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [smatch stuff] hid-logitech-dj: off by one range checking
-Date: Tue, 20 Sep 2011 11:06:22 +0300
-Message-ID: <20110920080622.GA7611@elgon.mountain>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: [RFC PATCH] hidraw: protect hidraw_disconnect() better
+Date: Tue, 20 Sep 2011 10:36:48 +0200
+Message-ID: <CANq1E4QRkdd_nTORBKshBBX1tn8JxQ1U4OPaogBcrM7mOnuRhQ@mail.gmail.com>
+References: <4E7754DA.30108@imgtec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rcsinet15.oracle.com ([148.87.113.117]:33454 "EHLO
-	rcsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753890Ab1ITIGk (ORCPT
+Received: from mail-ww0-f42.google.com ([74.125.82.42]:33239 "EHLO
+	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754314Ab1ITIgu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Sep 2011 04:06:40 -0400
-Content-Disposition: inline
+	Tue, 20 Sep 2011 04:36:50 -0400
+In-Reply-To: <4E7754DA.30108@imgtec.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: James Hogan <james.hogan@imgtec.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
 
-Hi Nestor,
+Hi James
 
-Smatch complains about an off by one range check here.  It looks like
-a bug, but I'm not sure the correct fix.
+On Mon, Sep 19, 2011 at 4:42 PM, James Hogan <james.hogan@imgtec.com> w=
+rote:
+> The following patch I think fixes a bug in hidraw_disconnect(). Howev=
+er I'm unsure whether it's safe to call device_destroy with the minors_=
+lock held. can the device_destroy ever end up calling hidraw_release, r=
+esulting in recursive locking? I've never seen that happen, but I don't=
+ understand the inner workings on device_destroy.
+>
+> The bug can be revealed with SLAB debugging on (poisoning free'd memo=
+ry), and:
+> cat /dev/hw_random > /dev/hidraw0
+> then unplug the device. the disconnect is called, the device_destroy =
+seems to cause "cat"'s write syscall to return a timeout error, so it e=
+xits/closes, which frees the hidraw because hidraw->exists=3D=3D0, then=
+ the disconnect function writes to hidraw_table[hidraw->minor] which bl=
+ows up because hidraw->minor has been poisoned with 0x6b6b6b6b.
+>
+> This has been tested on 2.6.39 and appears to fix it, and I'll hopefu=
+lly be able to test it on the latest kernel tonight.
+>
+> Cheers
+> James
+>
+> The function hidraw_disconnect() only acquires the hidraw minors_lock
+> when clearing the entry in hidraw_table. However the device_destroy()
+> call can cause a userland read/write to return with an error. It may
+> cause the program to release the file descripter before the disconnec=
+t
+> is finished. hidraw_disconnect() has already set hidraw->exist to 0,
+> which makes hidraw_release() kfree the hidraw structure, which
+> hidraw_disconnect() continues to access and even tries to kfree again=
+=2E
+> Similarly if a hidraw_release() occurs after setting hidraw->exist to=
+ 0,
+> the same thing can happen.
+>
+> This is fixed by expanding the mutex critical section to cover the wh=
+ole
+> function from setting hidraw->exist to 0 to freeing the hidraw
+> structure, preventing a hidraw_release() from interfering.
+>
+> Signed-off-by: James Hogan <james.hogan@imgtec.com>
+> ---
+> =A0drivers/hid/hidraw.c | =A0 =A04 ++--
+> =A01 files changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+> index c79578b..a8c2b7b 100644
+> --- a/drivers/hid/hidraw.c
+> +++ b/drivers/hid/hidraw.c
+> @@ -510,13 +510,12 @@ void hidraw_disconnect(struct hid_device *hid)
+> =A0{
+> =A0 =A0 =A0 =A0struct hidraw *hidraw =3D hid->hidraw;
+>
+> + =A0 =A0 =A0 mutex_lock(&minors_lock);
+> =A0 =A0 =A0 =A0hidraw->exist =3D 0;
+>
+> =A0 =A0 =A0 =A0device_destroy(hidraw_class, MKDEV(hidraw_major, hidra=
+w->minor));
 
-drivers/hid/hid-logitech-dj.c +278 logi_dj_recv_add_djhid_device(66)
-	error: buffer overflow 'djrcv_dev->paired_dj_devices' 6 <= 6
+This does not destroy any open file descriptor and we haven't
+registered any kind of hook so hidraw_destroy() will not be called
+here.
+This seems safe to me.
+We also do not check for hidraw->exist on *_open() callback so
+including this in the critical section seems fine.
 
-   233          if ((dj_report->device_index < DJ_DEVICE_INDEX_MIN) ||
-   234              (dj_report->device_index > DJ_DEVICE_INDEX_MAX)) {
-   235                  dev_err(&djrcv_hdev->dev, "%s: invalid device index:%d\n",
-   236                          __func__, dj_report->device_index);
-   237                  return;
-   238          }
+> - =A0 =A0 =A0 mutex_lock(&minors_lock);
+> =A0 =A0 =A0 =A0hidraw_table[hidraw->minor] =3D NULL;
+> - =A0 =A0 =A0 mutex_unlock(&minors_lock);
+>
+> =A0 =A0 =A0 =A0if (hidraw->open) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0hid_hw_close(hid);
+> @@ -524,6 +523,7 @@ void hidraw_disconnect(struct hid_device *hid)
+> =A0 =A0 =A0 =A0} else {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0kfree(hidraw);
+> =A0 =A0 =A0 =A0}
+> + =A0 =A0 =A0 mutex_unlock(&minors_lock);
+> =A0}
+> =A0EXPORT_SYMBOL_GPL(hidraw_disconnect);
+>
+> --
+> 1.7.2.3
 
-DJ_DEVICE_INDEX_MIN is 1
-DJ_DEVICE_INDEX_MAX is 6
+Nice catch. I've tested it on linux-next tree and I can confirm the
+bug. The fix seems ok to me.
 
-   278          djrcv_dev->paired_dj_devices[dj_report->device_index] = dj_dev;
-
-->paired_dj_devices[] has 6 elements so if dj_report->device_index is
-6 we're one past the end of the array.
-
-regards,
-dan carpenter
+Regards
+David
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,39 +1,42 @@
-From: Liam Girdwood <lrg@ti.com>
-Subject: Re: [PATCH 7/8] ASoC: omap-mcpdm: Correct the
- supported number of channels
-Date: Tue, 20 Sep 2011 12:19:14 +0100
-Message-ID: <1316517554.8314.0.camel@odin>
-References: <1316091561-30899-1-git-send-email-peter.ujfalusi@ti.com>
-	<20110919221740.GI23179@opensource.wolfsonmicro.com>
-	<20110920105714.GA14609@sirena.org.uk>  <1661734.tddAioOORG@barack>
+From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: Re: Re: [alsa-devel] [PATCH 7/8] ASoC: omap-mcpdm: Correct the supported number of channels
+Date: Tue, 20 Sep 2011 14:24:05 +0300
+Message-ID: <1703825.IkgE7UOG84@barack>
+References: <1316091561-30899-1-git-send-email-peter.ujfalusi@ti.com> <20110920105714.GA14609@sirena.org.uk> <1661734.tddAioOORG@barack>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog105.obsmtp.com ([74.125.149.75]:33969 "EHLO
+	na3sys009aog105.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753019Ab1ITLYA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Sep 2011 07:24:00 -0400
 In-Reply-To: <1661734.tddAioOORG@barack>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: alsa-devel@alsa-project.org, Dmitry Torokhov <dtor@mail.ru>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Samuel Ortiz <samuel.ortiz@intel.com>, Misael Lopez Cruz <misael.lopez@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: alsa-devel@alsa-project.org, Dmitry Torokhov <dtor@mail.ru>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Samuel Ortiz <samuel.ortiz@intel.com>, Misael Lopez Cruz <misael.lopez@ti.com>, Liam Girdwood <lrg@ti.com>
 
-T24gVHVlLCAyMDExLTA5LTIwIGF0IDE0OjEwICswMzAwLCBQw6l0ZXIgVWpmYWx1c2kgd3JvdGU6
-Cj4gT24gVHVlc2RheSAyMCBTZXB0ZW1iZXIgMjAxMSAxMTo1NzoxNCBNYXJrIEJyb3duIHdyb3Rl
-Ogo+ID4gTm8gSSBkaWRuJ3QgLSBJIGd1ZXNzIHRoaXMgb25lIG9ubHkgYXBwbGllcyBhZ2FpbnN0
-IExpYW0ncyB0cmVlCj4gPiAKPiA+IEFja2VkLWJ5OiBNYXJrIEJyb3duIDxicm9vbmllQG9wZW5z
-b3VyY2Uud29sZnNvbm1pY3JvLmNvbT4KPiAKPiBIcm0sIEkgaGF2ZSB1c2VkIExpbnVzJ3MgdHJl
-ZSBmb3IgdGhpcyBzZXJpZXMsIGFuZCBBRkFJSyB0aGVyZSB3ZXJlIG5vIGNoYW5nZXMgCj4gcmVn
-YXJkaW5nIHRvIE1jUERNIGFwYXJ0IGZyb20gdGhlIHBhdGNoZXMgSSBoYXZlIHN1Ym1pdHRlZC4K
-PiAKPiBDb3VsZCB5b3UgZ2l2ZSBtZSBhIGhpbnQsIHdoeSBpdCBmYWlsZWQ/Cj4gCj4gLS0KPiBQ
-w6l0ZXIKCk1hcmssIGNvdWxkIHlvdSB0YWtlIGFsbCB0aGVzZSBkdWUgdG8gbXkgdXJnZW50IHRy
-YXZlbC4KClRoYW5rcyAhCgpMaWFtCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpBbHNhLWRldmVsIG1haWxpbmcgbGlzdApBbHNhLWRldmVsQGFsc2EtcHJv
-amVjdC5vcmcKaHR0cDovL21haWxtYW4uYWxzYS1wcm9qZWN0Lm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L2Fsc2EtZGV2ZWwK
+On Tuesday 20 September 2011 14:10:24 P=E9ter Ujfalusi wrote:
+> On Tuesday 20 September 2011 11:57:14 Mark Brown wrote:
+> > No I didn't - I guess this one only applies against Liam's tree
+> >=20
+> > Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+>=20
+> Hrm, I have used Linus's tree for this series, and AFAIK there were n=
+o
+> changes regarding to McPDM apart from the patches I have submitted.
+>=20
+> Could you give me a hint, why it failed?
+
+I know why it fails.
+We need to have the new McPDM driver patches for this to apply.
+
+--
+P=E9ter
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

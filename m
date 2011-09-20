@@ -1,92 +1,82 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Race with Bluetooth hid drivers?
-Date: Tue, 20 Sep 2011 02:35:33 +0100
-Message-ID: <1316482533.2468.6.camel@novo.hadess.net>
+From: Chase Douglas <chasedouglas@gmail.com>
+Subject: Re: [PATCH] Input: wacom - Add POINTER and DIRECT device properties
+Date: Mon, 19 Sep 2011 19:49:22 -0700
+Message-ID: <4E77FF32.5050806@gmail.com>
+References: <1314892843-1475-1-git-send-email-killertofu@gmail.com> <20110913080911.GA4986@polaris.bitmath.org> <CAPHpN5OAPdPQ1SmwrGT6pMvgWESBOSnRvb0jKUszkU_31MFXWg@mail.gmail.com> <20110914071524.GA3422@polaris.bitmath.org> <CAF8JNhKFz8-bJ4HMguU2qReageX4WBB1bWR0amRbYmaujNVX8A@mail.gmail.com> <20110916105036.GA4455@polaris.bitmath.org> <CANRwn3TstEAhgt5=Sxu6KMOyu3rtC9CCeQWU7Qa5-jRXUfgBdw@mail.gmail.com> <20110917112114.GA3015@polaris.bitmath.org> <4E77D2FE.8060709@gmail.com> <CAMu+ixh_Am6vNn6oz4NEiaZ6+4UYXp=smu7BCekYze7S_L0hng@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:53899 "EHLO
-	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752163Ab1ITBfi (ORCPT
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:53448 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752950Ab1ITCt2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Sep 2011 21:35:38 -0400
-Received: from mfilter11-d.gandi.net (mfilter11-d.gandi.net [217.70.178.131])
-	by relay3-d.mail.gandi.net (Postfix) with ESMTP id 80FFCA8079
-	for <linux-input@vger.kernel.org>; Tue, 20 Sep 2011 03:35:36 +0200 (CEST)
-Received: from relay3-d.mail.gandi.net ([217.70.183.195])
-	by mfilter11-d.gandi.net (mfilter11-d.gandi.net [10.0.15.180]) (amavisd-new, port 10024)
-	with ESMTP id At3DezhOYBAT for <linux-input@vger.kernel.org>;
-	Tue, 20 Sep 2011 03:35:35 +0200 (CEST)
-Received: from [192.168.1.65] (94-192-232-89.zone6.bethere.co.uk [94.192.232.89])
-	(Authenticated sender: hadess@hadess.net)
-	by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id 01BFBA8068
-	for <linux-input@vger.kernel.org>; Tue, 20 Sep 2011 03:35:34 +0200 (CEST)
+	Mon, 19 Sep 2011 22:49:28 -0400
+Received: by gxk6 with SMTP id 6so51463gxk.19
+        for <linux-input@vger.kernel.org>; Mon, 19 Sep 2011 19:49:27 -0700 (PDT)
+In-Reply-To: <CAMu+ixh_Am6vNn6oz4NEiaZ6+4UYXp=smu7BCekYze7S_L0hng@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Jeffrey Brown <jeffbrown@android.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Jason Gerecke <killertofu@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Linux Input <linux-input@vger.kernel.org>
 
-Heya,
+On 09/19/2011 06:05 PM, Jeffrey Brown wrote:
+> On Mon, Sep 19, 2011 at 4:40 PM, Chase Douglas <chasedouglas@gmail.com> wrote:
+>> I think these are the clearest definitions I've seen of these
+>> properties. It would be good to get them documented in
+>> Documentation/input. Henrik, would you be able to do this?
+> 
+> Agreed, but I feel we also need some clarity around the desired
+> interpretations of different tools in relation to direct / indirect
+> motion and these bits.
+> 
+> For example:
+> 
+> BTN_TOOL_FINGER / MT_FINGER:
+> - Positions are absolute is INPUT_PROP_DIRECT, or relative otherwise.
+> - Shows a pointer only if INPUT_PROP_POINTER is set.
 
-I'm pretty certain that's already been discussed, but can't seem to find
-the thread in question, or whether somebody sent patches for the issue.
+This is actually my main grip with INPUT_PROP_POINTER. It really means
+"the touchscreen and display are not integrated". A device may not have
+INPUT_PROP_POINTER set (touchscreen and display are integrated), but may
+still want to show the pointer (for example, you may want a cursor to
+show when you are hovering). But, the name is set now.
 
-The problem I see is that the input device is advertised really early in
-its creation, and seems to be missing information when udev (and layers
-above it in the stack) probes it.
+I suppose my point in bringing this up is that the properties are
+descriptions of the device, not specifications of what the evdev
+consumer must do with the data. We can provide best-practices
+guidelines, though, which is really what this list is.
 
-Using Linux 3.1.0 rc6
+> (IMHO, relative motion should be preferred for touch pads that are not
+> physically coupled to a particular display.  Trackpad-like vs.
+> tablet-like behavior, especially if "hovering" is not supported or if
+> the touch pad is small.)
+> 
+> BTN_TOOL_PEN / BTN_TOOL_BRUSH / MT_PEN:
+> - Positions are always one-to-one with screen coordinates regardless
+> of INPUT_PROP_DIRECT.  If INPUT_PROP_DIRECT is set then we can take it
+> as a stronger indication of the pen being coupled to a particular
+> display (rather than spanning all displays or being bound to a
+> specific window, perhaps).
 
-Turning on a Bluetooth Wacom tablet I see the following udev events:
-UDEV  [1890.604848] add      /devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1/1-1.1:1.0/bluetooth/hci0/hci0:42/input10 (input)
-UDEV_LOG=3
-ACTION=add
-DEVPATH=/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1/1-1.1:1.0/bluetooth/hci0/hci0:42/input10
-SUBSYSTEM=input
-PRODUCT=5/56a/81/100
-NAME="WACOM Pen Tablet"
-PHYS="00:13:EF:F1:42:B7"
-UNIQ="00:13:C2:03:3D:D6"
-PROP=0
-EV=17
-KEY=70000 0 0 0 0
-REL=103
-MSC=10
-MODALIAS=input:b0005v056Ap0081e0100-e0,1,2,4,k110,111,112,r0,1,8,am4,lsfw
-SEQNUM=2391
-ID_INPUT=1
-ID_INPUT_MOUSE=1
-ID_PATH=pci-0000:00:1a.0-usb-0:1.1:1.0
-ID_PATH_TAG=pci-0000_00_1a_0-usb-0_1_1_1_0
-ID_FOR_SEAT=input-pci-0000_00_1a_0-usb-0_1_1_1_0
-TAGS=:seat:
+Evdev doesn't know about displays, and it's well outside what it can do.
+I don't think it helps to say that INPUT_PROP_DIRECT has extra meaning
+in this case.
 
-If I do a udev database dump I see:
-P: /devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1/1-1.1:1.0/bluetooth/hci0/hci0:42/input10
-E: UDEV_LOG=3
-E: DEVPATH=/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1/1-1.1:1.0/bluetooth/hci0/hci0:42/input10
-E: PRODUCT=5/56a/81/100
-E: NAME="WACOM Pen Tablet"
-E: PHYS="00:13:EF:F1:42:B7"
-E: UNIQ="00:13:C2:03:3D:D6"
-E: PROP=0
-E: EV=1f
-E: KEY=1c63 70003 0 0 0 0
-E: REL=103
-E: ABS=3000003
-E: MSC=11
-E: MODALIAS=input:b0005v056Ap0081e0100-e0,1,2,3,4,k100,101,110,111,112,140,141,145,146,14A,14B,14C,r0,1,8,a0,1,18,19,m0,4,lsfw
-E: SUBSYSTEM=input
-E: ID_INPUT=1
-E: ID_INPUT_MOUSE=1
-E: ID_PATH=pci-0000:00:1a.0-usb-0:1.1:1.0
-E: ID_PATH_TAG=pci-0000_00_1a_0-usb-0_1_1_1_0
-E: ID_FOR_SEAT=input-pci-0000_00_1a_0-usb-0_1_1_1_0
-E: TAGS=:seat:
+> - Shows a pointer only if INPUT_PROP_POINTER is set.
+> 
+> BTN_TOOL_MOUSE / BTN_TOOL_LENS:
+> - Positions are always relative, regardless of INPUT_PROP_DIRECT.
+> - Shows a pointer, regardless of INPUT_PROP_POINTER.
 
-See the different KEY= value, and the presence of the ABS= key. If the
-tablet was probed at this point it would have the ID_INPUT_TABLET=1
-property (as running input_id by hand shows).
+To condense all of the above, we can generalize the rules to:
 
-Any ideas?
+* INPUT_PROP_DIRECT only has meaning for BTN_TOOL_FINGER etc.
+* INPUT_PROP_POINTER only has meaning for BTN_TOOL_PEN / BTN_TOOL_BRUSH etc.
 
+> We should also define heuristics for legacy devices that don't set
+> either INPUT_PROP_DIRECT or INPUT_PROP_POINTER.
+
+The above generalization should take care of this.
+
+-- Chase

@@ -1,32 +1,43 @@
-From: JJ Ding <jj_ding@emc.com.tw>
-Subject: Question about pass-through serio
-Date: Tue, 20 Sep 2011 15:06:59 +0800
-Message-ID: <87wrd3pu98.fsf@emc.com.tw>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [smatch stuff] hid-logitech-dj: off by one range checking
+Date: Tue, 20 Sep 2011 11:06:22 +0300
+Message-ID: <20110920080622.GA7611@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:15925 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750814Ab1ITHEO (ORCPT
+Received: from rcsinet15.oracle.com ([148.87.113.117]:33454 "EHLO
+	rcsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753890Ab1ITIGk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Sep 2011 03:04:14 -0400
-Received: from localhost ([192.168.81.59])
-	by emc.com.tw (8.13.7+Sun/8.13.7) with ESMTP id p8K74D9T000079
-	for <linux-input@vger.kernel.org>; Tue, 20 Sep 2011 15:04:13 +0800 (CST)
+	Tue, 20 Sep 2011 04:06:40 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-Hi everyone,
+Hi Nestor,
 
-I am trying to understand how serio works in Linux. When reading
-drivers/input/mouse/synaptics.c I found a special serio type:
-SERIO_PS_PSTHRU. I git-grep the source tree and it seems synaptics
-driver is the only user of the type. I cannot find any detailed docs
-explaining why the synaptics driver needs this, and what's the
-difference between this pass-through serio and psmouse->ps2dev.serio.
+Smatch complains about an off by one range check here.  It looks like
+a bug, but I'm not sure the correct fix.
 
-Can anyone help me with this? Any pointer or keyword is very much
-appreciated. Thank you very much.
+drivers/hid/hid-logitech-dj.c +278 logi_dj_recv_add_djhid_device(66)
+	error: buffer overflow 'djrcv_dev->paired_dj_devices' 6 <= 6
 
-jj
+   233          if ((dj_report->device_index < DJ_DEVICE_INDEX_MIN) ||
+   234              (dj_report->device_index > DJ_DEVICE_INDEX_MAX)) {
+   235                  dev_err(&djrcv_hdev->dev, "%s: invalid device index:%d\n",
+   236                          __func__, dj_report->device_index);
+   237                  return;
+   238          }
+
+DJ_DEVICE_INDEX_MIN is 1
+DJ_DEVICE_INDEX_MAX is 6
+
+   278          djrcv_dev->paired_dj_devices[dj_report->device_index] = dj_dev;
+
+->paired_dj_devices[] has 6 elements so if dj_report->device_index is
+6 we're one past the end of the array.
+
+regards,
+dan carpenter

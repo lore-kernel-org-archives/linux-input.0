@@ -1,59 +1,57 @@
-From: =?utf-8?B?5LuFMTDlhYPmr4/lpKk=?= <admin@valexkorea.com>
-Subject: =?utf-8?B?576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuisxMDnlsYrlub/kuqTkvJrkubDlrrY=?=
-	=?utf-8?B?44CB5rW35YWz5pWw5o2uLEIyQuivouebmOS5sOWutjUwMOS4h+OAgg==?=
-Date: Tue, 20 Sep 2011 03:49:13 +0000 (UTC)
-Message-ID: <20120920114820350465@valexkorea.com>
-Reply-To: <1339625218@qq.com>
+From: Tobias Klauser <tklauser@distanz.ch>
+Subject: Re: [PATCH v2] Input: gpio_keys - Use of_property_read_u32
+Date: Tue, 20 Sep 2011 08:25:24 +0200
+Message-ID: <20110920062524.GN11405@distanz.ch>
+References: <1314775945-6822-1-git-send-email-tklauser@distanz.ch> <1316423391-20219-1-git-send-email-tklauser@distanz.ch> <20110920112627.41b180e05dc6717beee0f5e8@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [211.195.73.250] ([211.195.73.250]:58997 "EHLO
-	valexkoreabackup.valexkorea.com" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754128Ab1ITDtK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Sep 2011 23:49:10 -0400
-Date: Thu, 20 Sep 2012 11:48:07 +0800
+Received: from symlink.to.noone.org ([85.10.207.172]:43561 "EHLO sym.noone.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752127Ab1ITGZZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Sep 2011 02:25:25 -0400
+Content-Disposition: inline
+In-Reply-To: <20110920112627.41b180e05dc6717beee0f5e8@canb.auug.org.au>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: lindsay.marie.schmitt@gmail.com, linux-alpha@vger.kernel.org, linux-input@vger.kernel.org, antti@case2000.com, linxiaoyun121@hotmail.com, linyongxian521@126.com, lion@963
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-576k5Y+R6L2v5Lu2KzEwOeWxiuW5v+S6pOS8muS5sOWutuOAgea1t+WFs+aVsOaNruOAgeaQnOe0
-ouW8leaTjuS5sOWutixCMkLor6Lnm5jkubDlrrblhbE1MDDkuIcs5LuFMTDlhYPmr4/lpKnjgIIg
-DQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIINCuS/neivgeavj+WkqemDveacieS5
-sOWutuWbnuWkjeOAgg0KDQoNCjHjgIHnvqTlj5Hova/ku7bvvJog5pON5L2c566A5Y2V77yM5Yqf
-6IO95by65aSn77yM5qih5Lu/5Lq65bel5pON5L2c5qih5byP77yM5Yiw6L6+546H6auY77yM5pel
-5Y+R6YCBNeS4h+WwgeS7peS4iuOAgiANCjLjgIE1MDDkuIflub/kuqTkvJrkubDlrrbotYTmupDv
-vJog6LWg6YCB55qENTAw5LiH5Lmw5a626LWE5rqQ5bqT77yM5q+P5pyI5pu05pawIOOAgiANCjPj
-gIHotoXnuqfmtbflpJbkubDlrrZFbWFpbOaQnOe0ouacuu+8miDmr4/lpKnog73mkJzntKIxLTLk
-uIfku6XkuIrkubDlrrbnnJ/lrp5FTUFJTO+8jOaIkOWNleeOh+mrmOOAgiANCiANCg0K6KaB55qE
-5oqT57Sn6IGU57O7UVE6IDEzMzk2MjUyMTggICDmiJbogIXnq4vljbPlm57lpI3pgq7nrrE6IDEz
-Mzk2MjUyMThAcXEuY29tDQropoHnmoTmipPntKfogZTns7tRUTogMTMzOTYyNTIxOCAgIOaIluiA
-heeri+WNs+WbnuWkjemCrueusTogMTMzOTYyNTIxOEBxcS5jb20NCuimgeeahOaKk+e0p+iBlOez
-u1FROiAxMzM5NjI1MjE4ICAg5oiW6ICF56uL5Y2z5Zue5aSN6YKu566xOiAxMzM5NjI1MjE4QHFx
-LmNvbQ0KDQrlhY3otLnotaDpgIE6DQrkuIDlhbE45Liq5YyFKOaVsOaNruaYr+WFqOihjOS4muea
-hO+8jOaMieeFp+ihjOS4muWIhuWlveexu++8jOW5tuS4lOWPr+S7peaMieeFp+WFs+mUruivjeaf
-peivoueahCnvvJogDQox77yMMjAxMeaYpeWtozEwOeWxiuW5v+S6pOS8muS5sOWutueOsOWcuuiv
-ouebmOaVsOaNruW6k+aWsOmynOWHuueCie+8jOi2hee6p+aWsOmynOS5sOWutu+8jOaWsOmynOaV
-sOaNru+8jOWuueaYk+aIkOWNle+8gSANCjLvvIzotK3kubDlkI7lj6/ku6XlhY3otLnmm7TmlrAy
-MDEx56eL5a2j5bm/5Lqk5LyaKzIwMTLmmKXlraPlub/kuqTkvJrkubDlrrbmlbDmja7jgILlpKro
-toXlgLzkuobjgIINCjPvvIzmnIDmlrDlhajnkIPkubDlrrblupMs5YWxNDUxNjYw5p2h5pWw5o2u
-44CCICjmnIDmlrDmm7TmlrDml6XmnJ8gMjAxMS0wNS0xNuaXpSkNCjTvvIwyMDA45bm0LDIwMDnl
-ubQsMjAxMOW5tCDmmKXlraMr56eL5a2j5bm/5Lqk5Lya5Lmw5a625ZCN5b2V77yMMTAzIDEwNCAx
-MDUgMTA2IDEwNyAxMDgg5YWx5YWt5bGKIOWFsTEyMC425LiH5pWw5o2u44CCDQo177yMMjAxMOW5
-tOWbvemZheS/g+mUgOWNj+S8mu+8iFBQQUnvvInmiJDlkZjlkI3ljZUgUFBBSSBNZW1iZXJzIERp
-cmVjdG9yee+8jOmdnuW4uOmHjeimgeeahOWkp+S5sOWutuOAgg0KNu+8jDIwMTDlubTliLDpppnm
-uK/ph4fotK3nmoTlm73lpJblrqLkurrlkI3lvZUo6aaZ5riv6LS45Y+R5bGA5o+Q5L6bKe+8jOWF
-sTcuMuS4h+aVsOaNru+8jOi2hee6p+mHjeimgeeahOS5sOWutuOAgg0KN++8jDQ4LjY45LiH5p2h
-5pyA5paw5Lmw5a626K+i55uY77yM6LSt5Lmw5ZCO5q+P5pyI5pu05pawIDEtMuS4h+adoe+8jOWM
-heaLrDLpg6jliIbvvIwx77yM5pyA5paw55qE6K+i55uYIDLvvIzmnIDmlrDnmoTlsZXkvJrkubDl
-rrbjgILlhY3otLnmm7TmlrAzNuS4quaciOOAgg0KOO+8jDIwMDnlubTmtbflhbPmj5DljZXmlbDm
-ja5waWVyc+eJiOaVsOaNriAx5Y2D5LiH44CCDQoNCg0K6K+a5L+h5Li65pys77yM5pSv5oyB5pSv
-5LuY5a6d5ouF5L+d5Lqk5piTICjlhYjlj5HotKflubblronoo4Xorr7nva7nvqTlj5Hova/ku7bv
-vIznhLblkI7ku5jmrL4pIOW9u+W6leaJk+a2iOaCqOeahCDpob7omZHjgIINCg0KIA0KDQoNCiAN
-Cg0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+ae
-gemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeO
-h+aegemrmA0K57K+5YeG5pWw5o2uLeaIkOWNleeOh+aegemrmA0K
+Hi Stephen
 
+Sorry for the messup!
 
+On 2011-09-20 at 03:26:27 +0200, Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+> On Mon, 19 Sep 2011 11:09:51 +0200 Tobias Klauser <tklauser@distanz.ch> wrote:
+> >
+> > Use the of_property_read_u32 helper function to retreive u32 values
+> > from the device tree. Also do not pass the len parameter to
+> > of_get_property if it isn't checked afterwards.
+> > 
+> > Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+> > ---
+> > v2: Fix build failure caused by a missing opening brace (reported by
+> >     Stephen Rothwell)
+> 
+> Sure, but it will still generate all the warnings I reported as "reg" is
+> the wrong type now.
+> 
+> drivers/input/keyboard/gpio_keys.c: In function 'gpio_keys_get_devtree_pdata':
+> drivers/input/keyboard/gpio_keys.c:500:3: warning: passing argument 3 of 'of_property_read_u32' from incompatible pointer type
+> include/linux/of.h:268:19: note: expected 'u32 *' but argument is of type 'const u32 **'
+> drivers/input/keyboard/gpio_keys.c:504:19: warning: assignment makes integer from pointer without a cast
+> drivers/input/keyboard/gpio_keys.c:508:3: warning: passing argument 3 of 'of_property_read_u32' from incompatible pointer type
+> include/linux/of.h:268:19: note: expected 'u32 *' but argument is of type 'const u32 **'
+> drivers/input/keyboard/gpio_keys.c:509:20: warning: assignment makes integer from pointer without a cast
+> drivers/input/keyboard/gpio_keys.c:515:3: warning: passing argument 3 of 'of_property_read_u32' from incompatible pointer type
+> include/linux/of.h:268:19: note: expected 'u32 *' but argument is of type 'const u32 **'
+> drivers/input/keyboard/gpio_keys.c:516:33: warning: assignment makes integer from pointer without a cast
+
+Stupid me was compiling iwht the wrong .config (which hasn't CONFIG_OF
+set) all the time, that's why I never noticed any of the
+errors/warnings in the part I actually changed.
+
+Sorry, I'll send another patch, hopefully the final one.
+
+Thanks a lot for your help
+Tobias

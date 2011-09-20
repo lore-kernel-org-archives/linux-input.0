@@ -1,34 +1,46 @@
-From: Iiro Valkonen <iiro.valkonen@atmel.com>
-Subject: Re: [PATCH] Input: atmel_mxt_ts - Use snprintf for sysfs attribute
- show method
-Date: Tue, 20 Sep 2011 15:57:11 +0300
-Message-ID: <4E788DA7.3020908@atmel.com>
-References: <1316115647-1244-1-git-send-email-djkurtz@chromium.org> <4E729DD4.8010208@samsung.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Input: HID-multitouch: Add egalax ID for Acer Iconia
+ W500
+Date: Tue, 20 Sep 2011 15:06:34 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1109201506110.13109@pobox.suse.cz>
+References: <1315970147-11735-1-git-send-email-marek.vasut@gmail.com> <201109161507.44989.marek.vasut@gmail.com> <20110916144700.GA5768@polaris.bitmath.org> <201109161723.56701.marek.vasut@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:15137 "EHLO
-	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751276Ab1ITM5d (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Sep 2011 08:57:33 -0400
-In-Reply-To: <4E729DD4.8010208@samsung.com>
+Received: from cantor2.suse.de ([195.135.220.15]:45596 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750696Ab1ITNGg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Sep 2011 09:06:36 -0400
+In-Reply-To: <201109161723.56701.marek.vasut@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Marek Vasut <marek.vasut@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
 
-Hi,
+On Fri, 16 Sep 2011, Marek Vasut wrote:
 
-On 09/16/2011 03:52 AM, Joonyoung Shim wrote:
+> > > > > Globally, the patch is clean. I don't really like it because a
+> > > > > cleaner way would be to just remove the field .maxcontacts in
+> > > > > MT_CLS_EGALAX. This would require tests from all the different
+> > > > > eGalax owners, and personally, I don't have the time to lead them.
+> > > > 
+> > > > It is not too late to start now, though; testing this new device
+> > > > without maxcontacts would help when/if the ten-finger version comes
+> > > > along. Marek, would you care to try that?
+> > > 
+> > > Well I own only this one particular device, not the other ones.
+> > 
+> > I meant removing .maxcontacts from _your_ patch, and testing on your
+> > particular device.
 > 
-> Iiro, do you have any update plans about atmel touchscreen driver?
+> Ah all right, yes, I can try it. But only _after_ my exam on wednesday (or 
+> before in case I start being tired of learning).
 > 
+> You're welcome!
 
-yes, there are plans to update the driver. While I have been on a longish
-vacation, the development work has continued in UK and new patches can be
-expected in the near future.
+So I will wait before merging this patch to see the results of Marek's 
+testing.
 
-Regards,
-Iiro
+-- 
+Jiri Kosina
+SUSE Labs

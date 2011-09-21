@@ -1,128 +1,90 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 2/2] decide if hid-multitouch needs to handle mt devices
-Date: Wed, 21 Sep 2011 16:56:55 +0200
-Message-ID: <1316617015-11648-3-git-send-email-benjamin.tissoires__26108.4239850335$1316617556$gmane$org@gmail.com>
+Subject: [PATCH 1/2] HID: add autodetection of multitouch devices
+Date: Wed, 21 Sep 2011 16:56:54 +0200
+Message-ID: <1316617015-11648-2-git-send-email-benjamin.tissoires__47125.004445161$1316617582$gmane$org@gmail.com>
 References: <1316617015-11648-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 88-230.252-81.static-ip.oleane.fr ([81.252.230.88]:53514 "EHLO
+Received: from 88-230.252-81.static-ip.oleane.fr ([81.252.230.88]:53512 "EHLO
 	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752005Ab1IUPEr (ORCPT
+	with ESMTP id S1751872Ab1IUPEq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Sep 2011 11:04:47 -0400
+	Wed, 21 Sep 2011 11:04:46 -0400
 In-Reply-To: <1316617015-11648-1-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
 Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-Now that hid-generic ignores all win7 compatible multitouch devices,
-this patch allows hid-multitouch to catch them.
-The idea is to rely on the quirk HID_QUIRK_MULTITOUCH to drop the
-device if no ContactID is given.
-There is the need for a blacklist here as other devices may need
-a special driver (ntrig for instance).
+As mentioned by http://www.microsoft.com/whdc/device/input/DigitizerDrvs_touch.mspx
+multitouch devices are those that have the input report HID_CONTACTID.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+This patch detects this and unload the generic-usb driver.
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 ---
- drivers/hid/hid-multitouch.c |   47 ++++++++++++++++++++++++++++++++++++++---
- 1 files changed, 43 insertions(+), 4 deletions(-)
+ drivers/hid/hid-core.c  |    6 ++++++
+ drivers/hid/hid-input.c |   11 +++++++++++
+ include/linux/hid.h     |    1 +
+ 3 files changed, 18 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index a2c4bda..b82b83d 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -291,6 +291,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			td->last_slot_field = usage->hid;
- 			td->last_field_index = field->index;
- 			td->last_mt_collection = usage->collection_index;
-+			hdev->quirks &= ~HID_QUIRK_MULTITOUCH;
- 			return 1;
- 		case HID_DG_WIDTH:
- 			hid_map_usage(hi, usage, bit, max,
-@@ -529,12 +530,44 @@ static void mt_set_input_mode(struct hid_device *hdev)
- 	}
- }
- 
-+/* a list of devices for which there is a specialized multitouch driver */
-+static const struct hid_device_id mt_have_special_driver[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, 0x0001) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, 0x0006) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA,
-+			USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA,
-+			USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
-+	{ }
-+};
-+
-+static bool mt_match_one_id(struct hid_device *hdev,
-+		const struct hid_device_id *id)
-+{
-+	return id->bus == hdev->bus &&
-+		(id->vendor == HID_ANY_ID || id->vendor == hdev->vendor) &&
-+		(id->product == HID_ANY_ID || id->product == hdev->product);
-+}
-+
-+static const struct hid_device_id *mt_match_id(struct hid_device *hdev,
-+		const struct hid_device_id *id)
-+{
-+	for (; id->bus; id++)
-+		if (mt_match_one_id(hdev, id))
-+			return id;
-+
-+	return NULL;
-+}
-+
- static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	int ret, i;
- 	struct mt_device *td;
- 	struct mt_class *mtclass = mt_classes; /* MT_CLS_DEFAULT */
- 
-+	if (mt_match_id(hdev, mt_have_special_driver))
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index af58e9c..7feac97 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1212,6 +1212,12 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+ 	if ((connect_mask & HID_CONNECT_HIDINPUT) && !hidinput_connect(hdev,
+ 				connect_mask & HID_CONNECT_HIDINPUT_FORCE))
+ 		hdev->claimed |= HID_CLAIMED_INPUT;
++	if (hdev->quirks & HID_QUIRK_MULTITOUCH) {
++		/* this device should be handled by hid-multitouch, skip it */
++		hdev->quirks &= ~HID_QUIRK_MULTITOUCH;
 +		return -ENODEV;
++	}
 +
- 	for (i = 0; mt_classes[i].name ; i++) {
- 		if (id->driver_data == mt_classes[i].name) {
- 			mtclass = &(mt_classes[i]);
-@@ -542,10 +575,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if ((connect_mask & HID_CONNECT_HIDDEV) && hdev->hiddev_connect &&
+ 			!hdev->hiddev_connect(hdev,
+ 				connect_mask & HID_CONNECT_HIDDEV_FORCE))
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 6559e2e..f333139 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -474,6 +474,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 			map_key_clear(BTN_STYLUS2);
+ 			break;
+ 
++		case 0x51: /* ContactID */
++			device->quirks |= HID_QUIRK_MULTITOUCH;
++			goto unknown;
++
+ 		default:  goto unknown;
+ 		}
+ 		break;
+@@ -978,6 +982,13 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
  		}
  	}
  
--	/* This allows the driver to correctly support devices
--	 * that emit events over several HID messages.
--	 */
--	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
- 
- 	td = kzalloc(sizeof(struct mt_device), GFP_KERNEL);
- 	if (!td) {
-@@ -561,10 +590,16 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (ret != 0)
- 		goto fail;
- 
-+	hdev->quirks |= HID_QUIRK_MULTITOUCH;
- 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- 	if (ret)
- 		goto fail;
- 
-+	/* This allows the driver to correctly support devices
-+	 * that emit events over several HID messages.
-+	 */
-+	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
++	if (hid->quirks & HID_QUIRK_MULTITOUCH) {
++		/* generic hid does not know how to handle multitouch devices */
++		if (hidinput)
++			goto out_cleanup;
++		goto out_unwind;
++	}
 +
- 	td->slots = kzalloc(td->maxcontacts * sizeof(struct mt_slot),
- 				GFP_KERNEL);
- 	if (!td->slots) {
-@@ -749,6 +784,10 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_USB_DEVICE(USB_VENDOR_ID_UNITEC,
- 			USB_DEVICE_ID_UNITEC_USB_TOUCH_0A19) },
+ 	if (hidinput && input_register_device(hidinput->input))
+ 		goto out_cleanup;
  
-+	/* Rest of the world */
-+	{ .driver_data = MT_CLS_DEFAULT,
-+		HID_USB_DEVICE(HID_ANY_ID, HID_ANY_ID) },
-+
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, mt_devices);
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 42f7e2f..e55a0f8 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -312,6 +312,7 @@ struct hid_item {
+ #define HID_QUIRK_BADPAD			0x00000020
+ #define HID_QUIRK_MULTI_INPUT			0x00000040
+ #define HID_QUIRK_HIDINPUT_FORCE		0x00000080
++#define HID_QUIRK_MULTITOUCH			0x00000100
+ #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
+ #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
+ #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
 -- 
 1.7.4.4
 

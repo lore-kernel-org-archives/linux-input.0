@@ -1,51 +1,55 @@
-From: David Michael <fedora.dm0@gmail.com>
-Subject: Re: [RFC] [BUG?] Sixaxis Value Ranges
-Date: Wed, 21 Sep 2011 11:59:27 -0400
-Message-ID: <CAEvUa7==YMJ97N33z9BRn9q2H2A4FETNWWGr8P29yTaQx4fFNQ@mail.gmail.com>
-References: <CAEvUa7=KWnSFhWeOYf7wagRLODMNNKmdN_tpOnD1fuiwxN7aEg@mail.gmail.com>
-	<376b78c42d77683e0d9a03e4e392e5e2.squirrel@host171.canaca.com>
-	<CAEvUa7mtD1+ciKRn-S4gX9jWwFnecpDf_8w_NS+U55MdSxez4w@mail.gmail.com>
-	<20110920125718.3243876084828c926b7e10dc@studenti.unina.it>
+From: <ihshis@cox.net>
+Subject: (unknown)
+Date: Wed, 21 Sep 2011 18:08:04 -0400
+Message-ID: <20110921180804.0VQN1.1815923.imail@eastrmwml41>
+Reply-To: update1@qatar.io
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:36307 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752618Ab1IUP72 (ORCPT
+Received: from eastrmfepi206.cox.net ([68.230.241.210]:38410 "EHLO
+	eastrmfepi206.cox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750964Ab1IUWWU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Sep 2011 11:59:28 -0400
-Received: by pzk1 with SMTP id 1so2411134pzk.1
-        for <linux-input@vger.kernel.org>; Wed, 21 Sep 2011 08:59:27 -0700 (PDT)
-In-Reply-To: <20110920125718.3243876084828c926b7e10dc@studenti.unina.it>
+	Wed, 21 Sep 2011 18:22:20 -0400
+Subject: 
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: simon@mungewell.org, linux-input@vger.kernel.org
 
-Hi,
+Greetings!
 
-On Tue, Sep 20, 2011 at 6:57 AM, Antonio Ospite
-<ospite@studenti.unina.it> wrote:
-> So David, did you solve this way?
-> I read in Documentation/input/joystick-api.txt that JSIOCSCORR should
-> not be used in a normal programs, only in calibration software.
+I have been waiting for you since to contact me for your Confirmable Bank Draft
+of $800,000.00 United States Dollars,but I did not hear from you since that
+time. Then I went and deposited the Draft with FedEx Courier Service,West
+Africa,
 
-I haven't added any ioctl calls to my programs yet, but I still
-consider it for the future.  They aren't being widely distributed
-(mostly on other operating systems where alternative input devices are
-used anyway), so I am content to monitor API changes to the
-calibration settings and adjust them as needed.
+What you have to do now is to contact the FedEx Courier Service as soon as
+possible to know when they will deliver your package to you because of the
+expiring date. For your information, I have paid for the delivering Charge,
+Insurance premium and Clearance Certificate Fees of the Cheque showing that
+it is not a Drug Money or meant to sponsor Terrorist attack
+in your Country.
 
-> Then I tried jstest-gtk and I was able to get all the values via the
-> joystick device too setting minimum and maximum values respectively to
-> 0 and 1023.
+The only money you will send to the FedEx Courier Service to deliver your Draft
+direct to your postal Address in your country is $85.00 US Dollars only being
+Security Keeping Fee of the Courier Company so far. Again,don't be deceived by
+anybody to pay any other money except $85.00 US Dollars. I would have paid
+that but they said no because they don't know when you will contact them and in
+case of demurrage.You have to contact the FedEx Courier Service now for the
+delivery of your Draft with this information bellow;
 
-Using jstest-gtk (and/or jscal) is where I settled for the time being,
-although I would like to eventually have better precision "out of the
-box", either by a calibration in my applications or changing the
-default correction values directly in the driver (which I think is
-justified in this case).
+Mr Terry William
+Tel: 00917838266917
 
-Thanks.
+Finally, make sure that you reconfirm your name, address, occupation and
+telephone number to them again to avoid any mistake on the Delivery and ask
+them to give you the tracking number to enable you track your package over
+there and know when it will get to your address. Let me repeat again,try to
+contact them as soon as you receive this mail to avoid any further delay and
+remember to pay them their Security Keeping fee of $85.00 US Dollars for their
+immediate action. You should also let me know through email as soon as you
 
-David
+receive your Draft.
+
+Yours Faithfully,
+Mrs Joaana Benz

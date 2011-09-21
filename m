@@ -1,55 +1,120 @@
-From: <ihshis@cox.net>
-Subject: (unknown)
-Date: Wed, 21 Sep 2011 18:08:04 -0400
-Message-ID: <20110921180804.0VQN1.1815923.imail@eastrmwml41>
-Reply-To: update1@qatar.io
+From: Jeff Mitchell <jeff@jefferai.org>
+Subject: [PATCH] This adds support for keyboards on mid-2011 MacBook Airs
+Date: Wed, 21 Sep 2011 18:35:30 -0400
+Message-ID: <efc66984043a292faa31fee381945d18@jefferai.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="=_ce6cce2552583c209a90b9ded5df3b51"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eastrmfepi206.cox.net ([68.230.241.210]:38410 "EHLO
-	eastrmfepi206.cox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750964Ab1IUWWU (ORCPT
+Received: from paravion.emailgoeshere.com ([46.4.199.70]:48228 "EHLO
+	paravion.emailgoeshere.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751825Ab1IUWng (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Sep 2011 18:22:20 -0400
-Subject: 
+	Wed, 21 Sep 2011 18:43:36 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jvdillon@gmail.com
 
-Greetings!
+--=_ce6cce2552583c209a90b9ded5df3b51
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
 
-I have been waiting for you since to contact me for your Confirmable Bank Draft
-of $800,000.00 United States Dollars,but I did not hear from you since that
-time. Then I went and deposited the Draft with FedEx Courier Service,West
-Africa,
+ Hello,
 
-What you have to do now is to contact the FedEx Courier Service as soon as
-possible to know when they will deliver your package to you because of the
-expiring date. For your information, I have paid for the delivering Charge,
-Insurance premium and Clearance Certificate Fees of the Cheque showing that
-it is not a Drug Money or meant to sponsor Terrorist attack
-in your Country.
+ (Please include me explicitly in replies as I'm not subscribed to the 
+ list.)
 
-The only money you will send to the FedEx Courier Service to deliver your Draft
-direct to your postal Address in your country is $85.00 US Dollars only being
-Security Keeping Fee of the Courier Company so far. Again,don't be deceived by
-anybody to pay any other money except $85.00 US Dollars. I would have paid
-that but they said no because they don't know when you will contact them and in
-case of demurrage.You have to contact the FedEx Courier Service now for the
-delivery of your Draft with this information bellow;
+ This patch adds proper keyboard support for both MacBook Air 4,1 and 
+ 4,2 models (11" and 13" mid-2011 releases). It is based mostly on work 
+ by Joshua Dillon.
 
-Mr Terry William
-Tel: 00917838266917
+ This fixes the issues with the previously-submitted patch by 
+ Pieter-Augustijn Van Malleghem (subject: [PATCH] Add MacBookAir4,1 
+ keyboard support), namely using an incorrect table, and also contains 
+ support for both the 4,1 and 4,2 models instead of just the 4,1 model.
 
-Finally, make sure that you reconfirm your name, address, occupation and
-telephone number to them again to avoid any mistake on the Delivery and ask
-them to give you the tracking number to enable you track your package over
-there and know when it will get to your address. Let me repeat again,try to
-contact them as soon as you receive this mail to avoid any further delay and
-remember to pay them their Security Keeping fee of $85.00 US Dollars for their
-immediate action. You should also let me know through email as soon as you
+ Thanks,
+ Jeff
+--=_ce6cce2552583c209a90b9ded5df3b51
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8;
+ name=0001-This-adds-support-for-keyboards-on-mid-2011-MacBook-.patch
+Content-Disposition: attachment;
+ filename=0001-This-adds-support-for-keyboards-on-mid-2011-MacBook-.patch
 
-receive your Draft.
+RnJvbSBlMGYzMWUzZDFhODk4MzEyMzk2NzZiYWE5YmIyNDRmZWVlMTUzMTMzIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBKZWZmIE1pdGNoZWxsIDxqZWZmQGplZmZlcmFpLm9yZz4KRGF0
+ZTogV2VkLCAyMSBTZXAgMjAxMSAxODoyMDowNiAtMDQwMApTdWJqZWN0OiBbUEFUQ0hdIFRoaXMg
+YWRkcyBzdXBwb3J0IGZvciBrZXlib2FyZHMgb24gbWlkLTIwMTEgTWFjQm9vayBBaXJzCiAoYm90
+aCB0aGUgMTEiIDQsMSBhbmQgMTMiIDQsMiBtb2RlbHMpLiBDb25mdXNpbmdseSwgNCwxCiBjb3Jy
+ZXNwb25kcyB0byBXRUxMU1BSSU5HNkEgYW5kIDQsMiBjb3JyZXNwb25kcyB0bwogV0VMTFNQUklO
+RzYuCgpUaGUgcGF0Y2ggaXMgYSBjbGVhbmVkIHVwIHZlcnNpb24gb2YgdGhhdCBjcmVhdGVkIGJ5
+IEpvc2ggRGlsbG9uIChqdmRpbGxvbkBnbWFpbC5jb20pLgoKU2lnbmVkLW9mZi1ieTogSmVmZiBN
+aXRjaGVsbCA8amVmZkBqZWZmZXJhaS5vcmc+Ci0tLQogZHJpdmVycy9oaWQvaGlkLWFwcGxlLmMg
+fCAgIDEyICsrKysrKysrKysrKwogZHJpdmVycy9oaWQvaGlkLWNvcmUuYyAgfCAgICA2ICsrKysr
+KwogZHJpdmVycy9oaWQvaGlkLWlkcy5oICAgfCAgICA2ICsrKysrKwogMyBmaWxlcyBjaGFuZ2Vk
+LCAyNCBpbnNlcnRpb25zKCspLCAwIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMv
+aGlkL2hpZC1hcHBsZS5jIGIvZHJpdmVycy9oaWQvaGlkLWFwcGxlLmMKaW5kZXggMThiM2JjNi4u
+MDNlNmZiMCAxMDA2NDQKLS0tIGEvZHJpdmVycy9oaWQvaGlkLWFwcGxlLmMKKysrIGIvZHJpdmVy
+cy9oaWQvaGlkLWFwcGxlLmMKQEAgLTQ5Myw2ICs0OTMsMTggQEAgc3RhdGljIGNvbnN0IHN0cnVj
+dCBoaWRfZGV2aWNlX2lkIGFwcGxlX2RldmljZXNbXSA9IHsKIAkJLmRyaXZlcl9kYXRhID0gQVBQ
+TEVfSEFTX0ZOIHwgQVBQTEVfSVNPX0tFWUJPQVJEIH0sCiAJeyBISURfVVNCX0RFVklDRShVU0Jf
+VkVORE9SX0lEX0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExFX1dFTExTUFJJTkc1X0pJUyksCiAJ
+CS5kcml2ZXJfZGF0YSA9IEFQUExFX0hBU19GTiB8IEFQUExFX1JERVNDX0pJUyB9LAorCXsgSElE
+X1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9XRUxM
+U1BSSU5HNkFfQU5TSSksCisJCS5kcml2ZXJfZGF0YSA9IEFQUExFX0hBU19GTiB9LAorCXsgSElE
+X1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9XRUxM
+U1BSSU5HNkFfSVNPKSwKKwkJLmRyaXZlcl9kYXRhID0gQVBQTEVfSEFTX0ZOIHwgQVBQTEVfSVNP
+X0tFWUJPQVJEIH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX0FQUExFLCBVU0Jf
+REVWSUNFX0lEX0FQUExFX1dFTExTUFJJTkc2QV9KSVMpLAorCQkuZHJpdmVyX2RhdGEgPSBBUFBM
+RV9IQVNfRk4gfCBBUFBMRV9SREVTQ19KSVMgfSwKKwl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5E
+T1JfSURfQVBQTEUsIFVTQl9ERVZJQ0VfSURfQVBQTEVfV0VMTFNQUklORzZfQU5TSSksCisJCS5k
+cml2ZXJfZGF0YSA9IEFQUExFX0hBU19GTiB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRP
+Ul9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9XRUxMU1BSSU5HNl9JU08pLAorCQkuZHJp
+dmVyX2RhdGEgPSBBUFBMRV9IQVNfRk4gfCBBUFBMRV9JU09fS0VZQk9BUkQgfSwKKwl7IEhJRF9V
+U0JfREVWSUNFKFVTQl9WRU5ET1JfSURfQVBQTEUsIFVTQl9ERVZJQ0VfSURfQVBQTEVfV0VMTFNQ
+UklORzZfSklTKSwKKwkJLmRyaXZlcl9kYXRhID0gQVBQTEVfSEFTX0ZOIHwgQVBQTEVfUkRFU0Nf
+SklTIH0sCiAJeyBISURfQkxVRVRPT1RIX0RFVklDRShVU0JfVkVORE9SX0lEX0FQUExFLCBVU0Jf
+REVWSUNFX0lEX0FQUExFX0FMVV9XSVJFTEVTU18yMDA5X0FOU0kpLAogCQkuZHJpdmVyX2RhdGEg
+PSBBUFBMRV9OVU1MT0NLX0VNVUxBVElPTiB8IEFQUExFX0hBU19GTiB9LAogCXsgSElEX0JMVUVU
+T09USF9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9BTFVf
+V0lSRUxFU1NfMjAwOV9JU08pLApkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLWNvcmUuYyBi
+L2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMKaW5kZXggMjQyMzUzZC4uOTYzNDRmZjAgMTAwNjQ0Ci0t
+LSBhL2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMKKysrIGIvZHJpdmVycy9oaWQvaGlkLWNvcmUuYwpA
+QCAtMTM0MCw2ICsxMzQwLDEyIEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgaGlkX2RldmljZV9pZCBo
+aWRfaGF2ZV9zcGVjaWFsX2RyaXZlcltdID0gewogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRP
+Ul9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9XRUxMU1BSSU5HNV9BTlNJKSB9LAogCXsg
+SElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9X
+RUxMU1BSSU5HNV9JU08pIH0sCiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX0FQUExF
+LCBVU0JfREVWSUNFX0lEX0FQUExFX1dFTExTUFJJTkc1X0pJUykgfSwKKwl7IEhJRF9VU0JfREVW
+SUNFKFVTQl9WRU5ET1JfSURfQVBQTEUsIFVTQl9ERVZJQ0VfSURfQVBQTEVfV0VMTFNQUklORzZB
+X0FOU0kpIH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX0FQUExFLCBVU0JfREVW
+SUNFX0lEX0FQUExFX1dFTExTUFJJTkc2QV9JU08pIH0sCisJeyBISURfVVNCX0RFVklDRShVU0Jf
+VkVORE9SX0lEX0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExFX1dFTExTUFJJTkc2QV9KSVMpIH0s
+CisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX0FQUExFLCBVU0JfREVWSUNFX0lEX0FQ
+UExFX1dFTExTUFJJTkc2X0FOU0kpIH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lE
+X0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExFX1dFTExTUFJJTkc2X0lTTykgfSwKKwl7IEhJRF9V
+U0JfREVWSUNFKFVTQl9WRU5ET1JfSURfQVBQTEUsIFVTQl9ERVZJQ0VfSURfQVBQTEVfV0VMTFNQ
+UklORzZfSklTKSB9LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNC
+X0RFVklDRV9JRF9BUFBMRV9BTFVfUkVWQl9BTlNJKSB9LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNC
+X1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9BTFVfUkVWQl9JU08pIH0sCiAJ
+eyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExF
+X0FMVV9SRVZCX0pJUykgfSwKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1pZHMuaCBiL2Ry
+aXZlcnMvaGlkL2hpZC1pZHMuaAppbmRleCA3NDg0ZTFiLi44YjM3MDM2IDEwMDY0NAotLS0gYS9k
+cml2ZXJzL2hpZC9oaWQtaWRzLmgKKysrIGIvZHJpdmVycy9oaWQvaGlkLWlkcy5oCkBAIC0xMDks
+NiArMTA5LDEyIEBACiAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfQVBQTEVfV0VMTFNQUklORzVfQU5T
+SQkweDAyNDUKICNkZWZpbmUgVVNCX0RFVklDRV9JRF9BUFBMRV9XRUxMU1BSSU5HNV9JU08JMHgw
+MjQ2CiAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfQVBQTEVfV0VMTFNQUklORzVfSklTCTB4MDI0Nwor
+I2RlZmluZSBVU0JfREVWSUNFX0lEX0FQUExFX1dFTExTUFJJTkc2QV9BTlNJCTB4MDI0OQorI2Rl
+ZmluZSBVU0JfREVWSUNFX0lEX0FQUExFX1dFTExTUFJJTkc2QV9JU08JMHgwMjRhCisjZGVmaW5l
+IFVTQl9ERVZJQ0VfSURfQVBQTEVfV0VMTFNQUklORzZBX0pJUwkweDAyNGIKKyNkZWZpbmUgVVNC
+X0RFVklDRV9JRF9BUFBMRV9XRUxMU1BSSU5HNl9BTlNJCTB4MDI0YworI2RlZmluZSBVU0JfREVW
+SUNFX0lEX0FQUExFX1dFTExTUFJJTkc2X0lTTwkweDAyNGQKKyNkZWZpbmUgVVNCX0RFVklDRV9J
+RF9BUFBMRV9XRUxMU1BSSU5HNl9KSVMJMHgwMjRlCiAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfQVBQ
+TEVfQUxVX1JFVkJfQU5TSQkweDAyNGYKICNkZWZpbmUgVVNCX0RFVklDRV9JRF9BUFBMRV9BTFVf
+UkVWQl9JU08JMHgwMjUwCiAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfQVBQTEVfQUxVX1JFVkJfSklT
+CTB4MDI1MQotLSAKMS43LjYuMgoK
+--=_ce6cce2552583c209a90b9ded5df3b51--
 
-Yours Faithfully,
-Mrs Joaana Benz

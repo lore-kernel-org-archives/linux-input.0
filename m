@@ -1,165 +1,46 @@
-From: Jaikumar Ganesh <jaikumarg@gmail.com>
-Subject: Re: [PATCH] HID: magicmouse: Fix race in input mapping.
-Date: Tue, 20 Sep 2011 17:14:15 -0700
-Message-ID: <CACMz=xgE6a6bzWv4hzThPF2CK3mMQLf==wYzV8BL5--++c6qRw@mail.gmail.com>
-References: <1316211154-9436-1-git-send-email-jaikumarg@android.com>
- <CANq1E4THfMs-iomjgBowLZGNihVe7kRSMXG1RYM=jfXBn2oAsA@mail.gmail.com> <CAA8bQNin=0hZTaL=sU-fh_G_n6nDXgVOfaVRKy8Hog0i_C2pqw@mail.gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH] Input: wacom - Add POINTER and DIRECT device properties
+Date: Wed, 21 Sep 2011 13:42:55 +0200
+Message-ID: <20110921114255.GA31611@polaris.bitmath.org>
+References: <20110913080911.GA4986@polaris.bitmath.org>
+ <CAPHpN5OAPdPQ1SmwrGT6pMvgWESBOSnRvb0jKUszkU_31MFXWg@mail.gmail.com>
+ <20110914071524.GA3422@polaris.bitmath.org>
+ <CAF8JNhKFz8-bJ4HMguU2qReageX4WBB1bWR0amRbYmaujNVX8A@mail.gmail.com>
+ <20110916105036.GA4455@polaris.bitmath.org>
+ <CANRwn3TstEAhgt5=Sxu6KMOyu3rtC9CCeQWU7Qa5-jRXUfgBdw@mail.gmail.com>
+ <20110917112114.GA3015@polaris.bitmath.org>
+ <4E77D2FE.8060709@gmail.com>
+ <CAMu+ixh_Am6vNn6oz4NEiaZ6+4UYXp=smu7BCekYze7S_L0hng@mail.gmail.com>
+ <4E77FF32.5050806@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f174.google.com ([209.85.216.174]:38200 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752107Ab1IUAOh convert rfc822-to-8bit (ORCPT
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:37902 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751523Ab1IULil (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Sep 2011 20:14:37 -0400
-Received: by qyk30 with SMTP id 30so4502413qyk.19
-        for <linux-input@vger.kernel.org>; Tue, 20 Sep 2011 17:14:36 -0700 (PDT)
-In-Reply-To: <CAA8bQNin=0hZTaL=sU-fh_G_n6nDXgVOfaVRKy8Hog0i_C2pqw@mail.gmail.com>
+	Wed, 21 Sep 2011 07:38:41 -0400
+Received: from iph5.telenor.se (iph5.telenor.se [195.54.127.136])
+	by smtprelay-b21.telenor.se (Postfix) with ESMTP id 07480EAC70
+	for <linux-input@vger.kernel.org>; Wed, 21 Sep 2011 13:38:37 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <4E77FF32.5050806@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jaikumar Ganesh <jaikumarg@android.com>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Chase Douglas <chasedouglas@gmail.com>
+Cc: Jeffrey Brown <jeffbrown@android.com>, Jason Gerecke <killertofu@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Linux Input <linux-input@vger.kernel.org>
 
-Hi David,
+> To condense all of the above, we can generalize the rules to:
+> 
+> * INPUT_PROP_DIRECT only has meaning for BTN_TOOL_FINGER etc.
+> * INPUT_PROP_POINTER only has meaning for BTN_TOOL_PEN / BTN_TOOL_BRUSH etc.
+> 
+> > We should also define heuristics for legacy devices that don't set
+> > either INPUT_PROP_DIRECT or INPUT_PROP_POINTER.
+> 
+> The above generalization should take care of this.
 
-On Tue, Sep 20, 2011 at 3:57 PM, Jaikumar Ganesh <jaikumarg@android.com=
-> wrote:
-> Hi David:
->
-> On Tue, Sep 20, 2011 at 3:43 PM, David Herrmann
-> <dh.herrmann@googlemail.com> wrote:
->> Hi Jaikumar
->>
->> On Sat, Sep 17, 2011 at 12:12 AM, Jaikumar Ganesh <jaikumarg@android=
-=2Ecom> wrote:
->>> magicmouse_select_input was being called after device
->>
->> This should be "*setup_input" not "*select_input".
->>
->>> registration. Hence, any thread scanning "/dev" for new
->>> devices will see the input bits change on an open file
->>> descriptor. Fix this by calling select_input inside
->>> input_mapping.
->>
->> Isn't input_mapped more appropriate here? Otherwise
->> hidinput_configure_usage could probably overwrite your abs values.
->>
->>> Based on discussions with Michael Poole <mdpoole@troilus.org>
->>>
->>> Change-Id: I289a37a850977c2cbbc9eb76fbf6c9a28d1833c5
->>> Signed-off-by: Jaikumar Ganesh <jaikumarg@android.com>
->>> ---
->>> =A0drivers/hid/hid-magicmouse.c | =A0 13 +++++++------
->>> =A01 files changed, 7 insertions(+), 6 deletions(-)
->>>
->>> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmo=
-use.c
->>> index 56d0539..1175452 100644
->>> --- a/drivers/hid/hid-magicmouse.c
->>> +++ b/drivers/hid/hid-magicmouse.c
->>> @@ -98,6 +98,7 @@ struct magicmouse_sc {
->>> =A0 =A0 =A0 =A0int ntouches;
->>> =A0 =A0 =A0 =A0int scroll_accel;
->>> =A0 =A0 =A0 =A0unsigned long scroll_jiffies;
->>> + =A0 =A0 =A0 bool setup_input;
->>>
->>> =A0 =A0 =A0 =A0struct {
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0short x;
->>> @@ -437,6 +438,11 @@ static int magicmouse_input_mapping(struct hid=
-_device *hdev,
->>> =A0 =A0 =A0 =A0if (!msc->input)
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0msc->input =3D hi->input;
->>>
->>> + =A0 =A0 =A0 if (!msc->setup_input) {
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 magicmouse_setup_input(msc->input, hd=
-ev);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 msc->setup_input =3D true;
->>> + =A0 =A0 =A0 }
->>> +
->>> =A0 =A0 =A0 =A0/* Magic Trackpad does not give relative data after =
-switching to MT */
->>> =A0 =A0 =A0 =A0if (hi->input->id.product =3D=3D USB_DEVICE_ID_APPLE=
-_MAGICTRACKPAD &&
->>> =A0 =A0 =A0 =A0 =A0 =A0field->flags & HID_MAIN_ITEM_RELATIVE)
->>> @@ -465,6 +471,7 @@ static int magicmouse_probe(struct hid_device *=
-hdev,
->>> =A0 =A0 =A0 =A0hid_set_drvdata(hdev, msc);
->>>
->>> =A0 =A0 =A0 =A0msc->single_touch_id =3D NO_TOUCHES;
->>> + =A0 =A0 =A0 msc->setup_input =3D false;
->>>
->>> =A0 =A0 =A0 =A0ret =3D hid_parse(hdev);
->>> =A0 =A0 =A0 =A0if (ret) {
->>> @@ -478,12 +485,6 @@ static int magicmouse_probe(struct hid_device =
-*hdev,
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto err_free;
->>> =A0 =A0 =A0 =A0}
->>>
->>> - =A0 =A0 =A0 /* We do this after hid-input is done parsing reports=
- so that
->>> - =A0 =A0 =A0 =A0* hid-input uses the most natural button and axis =
-IDs.
->>> - =A0 =A0 =A0 =A0*/
->>> - =A0 =A0 =A0 if (msc->input)
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 magicmouse_setup_input(msc->input, hd=
-ev);
->>> -
->>> =A0 =A0 =A0 =A0if (id->product =3D=3D USB_DEVICE_ID_APPLE_MAGICMOUS=
-E)
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0report =3D hid_register_report(hdev,=
- HID_INPUT_REPORT,
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0MOUSE_REPORT_ID);
->>> --
->>> 1.7.3.1
->>>
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe linux-inp=
-ut" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at =A0http://vger.kernel.org/majordomo-info.htm=
-l
->>>
->>
->> I think this is the same problem as:
->> http://thread.gmane.org/gmane.linux.kernel.input/21660/focus=3D21669
->>
->> Several drivers need to set additional flags on the input device. I'=
-d
->> recommend an "input_register" callback that is called after
->> hidinput_configure_usage() is called but before the input device is
->> registered. But it is only called once and not for every hid-descr
->> field. Then we could skip the "msc->setup_input" boolean flag.
->> However, until then this fix seems fine, although I'd use input_mapp=
-ed
->> instead of input_mapping.
->
-> This was one of my suggestions too in this thread"
-> "http://thread.gmane.org/gmane.linux.kernel.input/21604/"
->
-> This needs to be discussed on a more general basis since it will
-> affect many drivers.
->
+Yes, I believe this will work nicely.
 
-It will be good to have this callback added now. I have sent another
-patch to the mailing list,
-Have a look.
-
-Thanks
-Jaikumar
-
->>
->> Regards
->> David
->>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Henrik

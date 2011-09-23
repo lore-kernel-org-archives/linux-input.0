@@ -1,64 +1,57 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: [PATCH v2 5/6] ASoC: omap-mcpdm: Correct the supported number of channels
-Date: Fri, 23 Sep 2011 09:49:43 +0300
-Message-ID: <1316760584-27426-6-git-send-email-peter.ujfalusi@ti.com>
-References: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Samuel Ortiz <samuel.ortiz@intel.com>, Dmitry Torokhov <dtor@mail.ru>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@ti.com>
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [patch] Input: potential info leak in input_event_to_user()
+Date: Fri, 23 Sep 2011 00:29:57 -0700
+Message-ID: <20110923072957.GA613@core.coreip.homeip.net>
+References: <20110923062207.GF4387@elgon.mountain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:45141 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751076Ab1IWHaE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 23 Sep 2011 03:30:04 -0400
+Content-Disposition: inline
+In-Reply-To: <20110923062207.GF4387@elgon.mountain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-OMAP4 McPDM supports 5 downlink (playback), and
-3 uplink (capture) channels.
+On Fri, Sep 23, 2011 at 09:22:07AM +0300, Dan Carpenter wrote:
+> Smatch has a new check for Rosenberg type information leaks where
+> structs are copied to the user with uninitialized stack data in them.
+> 
+> The issue here is that struct input_event_compat has a hole in it.
+> 
+> struct input_event_compat {
+>         struct compat_timeval {
+>         } time;                             /*     0     0 */
+> 
+>         /* XXX 8 bytes hole, try to pack */
+> 
+>         short unsigned int         type;    /*     8     2 */
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
----
- sound/soc/omap/omap-mcpdm.c |   14 ++++++++------
- 1 files changed, 8 insertions(+), 6 deletions(-)
+Hm, are you sure? 8-bytes is way too much. I'd expect type to be aligned
+on 2-byte boundary, at least on x86_64...
 
-diff --git a/sound/soc/omap/omap-mcpdm.c b/sound/soc/omap/omap-mcpdm.c
-index 159a5e9..2c9fa51 100644
---- a/sound/soc/omap/omap-mcpdm.c
-+++ b/sound/soc/omap/omap-mcpdm.c
-@@ -299,15 +299,17 @@ static int omap_mcpdm_dai_hw_params(struct snd_pcm_substream *substream,
- 
- 	channels = params_channels(params);
- 	switch (channels) {
-+	case 5:
-+		if (stream == SNDRV_PCM_STREAM_CAPTURE)
-+			/* up to 3 channels for capture */
-+			return -EINVAL;
-+		link_mask |= 1 << 4;
- 	case 4:
- 		if (stream == SNDRV_PCM_STREAM_CAPTURE)
--			/* up to 2 channels for capture */
-+			/* up to 3 channels for capture */
- 			return -EINVAL;
- 		link_mask |= 1 << 3;
- 	case 3:
--		if (stream == SNDRV_PCM_STREAM_CAPTURE)
--			/* up to 2 channels for capture */
--			return -EINVAL;
- 		link_mask |= 1 << 2;
- 	case 2:
- 		link_mask |= 1 << 1;
-@@ -403,13 +405,13 @@ static struct snd_soc_dai_driver omap_mcpdm_dai = {
- 	.remove_order = SND_SOC_COMP_ORDER_EARLY,
- 	.playback = {
- 		.channels_min = 1,
--		.channels_max = 4,
-+		.channels_max = 5,
- 		.rates = OMAP_MCPDM_RATES,
- 		.formats = OMAP_MCPDM_FORMATS,
- 	},
- 	.capture = {
- 		.channels_min = 1,
--		.channels_max = 2,
-+		.channels_max = 3,
- 		.rates = OMAP_MCPDM_RATES,
- 		.formats = OMAP_MCPDM_FORMATS,
- 	},
+> 
+> 
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> 
+> diff --git a/drivers/input/input-compat.c b/drivers/input/input-compat.c
+> index e46a867..007850a 100644
+> --- a/drivers/input/input-compat.c
+> +++ b/drivers/input/input-compat.c
+> @@ -44,6 +44,8 @@ int input_event_to_user(char __user *buffer,
+>  	if (INPUT_COMPAT_TEST) {
+>  		struct input_event_compat compat_event;
+>  
+> +		memset(&compat_event, 0, sizeof(compat_event));
+> +
+>  		compat_event.time.tv_sec = event->time.tv_sec;
+>  		compat_event.time.tv_usec = event->time.tv_usec;
+>  		compat_event.type = event->type;
+
 -- 
-1.7.6.1
+Dmitry

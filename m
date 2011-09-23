@@ -1,65 +1,73 @@
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: [PATCH v2 0/6] ASoC/MFD/Input: twl6040: Support for audio driven vibra
-Date: Fri, 23 Sep 2011 09:49:38 +0300
-Message-ID: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com>
+Subject: [PATCH v2 3/6] MFD: twl6040: function to query the vibra status for clients
+Date: Fri, 23 Sep 2011 09:49:41 +0300
+Message-ID: <1316760584-27426-4-git-send-email-peter.ujfalusi@ti.com>
+References: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog103.obsmtp.com ([74.125.149.71]:34886 "EHLO
-	na3sys009aog103.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752580Ab1IWGuS (ORCPT
+Received: from na3sys009aog108.obsmtp.com ([74.125.149.199]:34633 "EHLO
+	na3sys009aog108.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752577Ab1IWGuS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Fri, 23 Sep 2011 02:50:18 -0400
+In-Reply-To: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Samuel Ortiz <samuel.ortiz@intel.com>, Dmitry Torokhov <dtor@mail.ru>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@ti.com>
 Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
 
-Hello,
+If the client only interested, if any of the vibra channels enabled, or
+if any of the channels are set to receive audio data via PDM.
 
-Changes since v1:
-- Patches already taken by Mark has been removed
-- Patch 4: Return -EBUSY instead of -EPERM
+This function targets mainly the vibra driver, so it can check if it is
+allowed to execute effects ot not.
 
-Intro mail form v1:
-The following series adds support for the soc driver to route audio (PCM
-stream) to the vibra ports of the twl6040.
-We have ALSA controls for the vibra source selection (PDM, or Input/FF).
-The route can not be changed from Input/FF to PDM during ongoing effect coming
-from Input/FF.
-The Input/FF driver can not execute new effect, while the vibra source is
-configured to be PDM.
-TO get things working in legacy mode the omap-mcpdm, and twl6040 soc codec
-driver's channel count needed to be fixed.
-
-To minimize the need for reads through the I2C bus, the MFD driver will cache
-the vibra control registers.
-
-With this series we can route PCM audio to drive the twl6040 vibra output.
-In order to that we need to play 5 channel audio, and place the vibra sample at
-the 5th channel. This will change with ABE support (change == simplified).
-
-The series has been created on top of:
-git://opensource.wolfsonmicro.com/linux-2.6-asoc, for-3.2 branch
-
-If there are no objections, it would be good if this series goes via audio.
-
-Regards,
-Peter
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
 ---
-Peter Ujfalusi (6):
-  Input: twl6040: Simplify vibra regsiter definitions
-  MFD: twl6040: Cache the vibra control registers
-  MFD: twl6040: function to query the vibra status for clients
-  Input: twl6040-vibra: Check the selected path for vibra
-  ASoC: omap-mcpdm: Correct the supported number of channels
-  ASoC: twl6040: Support for vibra output paths
+ drivers/mfd/twl6040-core.c  |   12 ++++++++++++
+ include/linux/mfd/twl6040.h |    3 +++
+ 2 files changed, 15 insertions(+), 0 deletions(-)
 
- drivers/input/misc/twl6040-vibra.c |   19 ++++++---
- drivers/mfd/twl6040-core.c         |   31 +++++++++++++--
- include/linux/mfd/twl6040.h        |   24 +++++------
- sound/soc/codecs/twl6040.c         |   72 ++++++++++++++++++++++++++++++++++++
- sound/soc/omap/omap-mcpdm.c        |   14 ++++---
- 5 files changed, 131 insertions(+), 29 deletions(-)
-
+diff --git a/drivers/mfd/twl6040-core.c b/drivers/mfd/twl6040-core.c
+index 75987c8..268f80f 100644
+--- a/drivers/mfd/twl6040-core.c
++++ b/drivers/mfd/twl6040-core.c
+@@ -444,6 +444,18 @@ unsigned int twl6040_get_sysclk(struct twl6040 *twl6040)
+ }
+ EXPORT_SYMBOL(twl6040_get_sysclk);
+ 
++/* Get the combined status of the vibra control register */
++int twl6040_get_vibralr_status(struct twl6040 *twl6040)
++{
++	u8 status;
++
++	status = twl6040->vibra_ctrl_cache[0] | twl6040->vibra_ctrl_cache[1];
++	status &= (TWL6040_VIBENA | TWL6040_VIBSEL);
++
++	return status;
++}
++EXPORT_SYMBOL(twl6040_get_vibralr_status);
++
+ static struct resource twl6040_vibra_rsrc[] = {
+ 	{
+ 		.flags = IORESOURCE_IRQ,
+diff --git a/include/linux/mfd/twl6040.h b/include/linux/mfd/twl6040.h
+index 2f8585a..87a4778 100644
+--- a/include/linux/mfd/twl6040.h
++++ b/include/linux/mfd/twl6040.h
+@@ -209,10 +209,13 @@ int twl6040_get_pll(struct twl6040 *twl6040);
+ unsigned int twl6040_get_sysclk(struct twl6040 *twl6040);
+ int twl6040_irq_init(struct twl6040 *twl6040);
+ void twl6040_irq_exit(struct twl6040 *twl6040);
++/* Get the combined status of the vibra control register */
++int twl6040_get_vibralr_status(struct twl6040 *twl6040);
+ 
+ static inline int twl6040_get_revid(struct twl6040 *twl6040)
+ {
+ 	return twl6040->rev;
+ }
+ 
++
+ #endif  /* End of __TWL6040_CODEC_H__ */
 -- 
 1.7.6.1
 

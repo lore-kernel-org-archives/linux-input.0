@@ -1,47 +1,48 @@
 From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch] Input: potential info leak in input_event_to_user()
-Date: Fri, 23 Sep 2011 09:22:07 +0300
-Message-ID: <20110923062207.GF4387@elgon.mountain>
+Subject: [patch] Input: potential info leak in uiput_ff_upload_to_user()
+Date: Fri, 23 Sep 2011 09:22:40 +0300
+Message-ID: <20110923062240.GG4387@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rcsinet15.oracle.com ([148.87.113.117]:48061 "EHLO
+Received: from rcsinet15.oracle.com ([148.87.113.117]:48645 "EHLO
 	rcsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752149Ab1IWGWQ (ORCPT
+	with ESMTP id S1752149Ab1IWGXC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Sep 2011 02:22:16 -0400
+	Fri, 23 Sep 2011 02:23:02 -0400
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+Cc: Henrik Rydberg <rydberg@euromail.se>, Ping Cheng <pingc@wacom.com>, Peter Hutterer <peter.hutterer@who-t.net>, Aristeu Rozanski <aris@ruivo.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
 Smatch has a new check for Rosenberg type information leaks where
 structs are copied to the user with uninitialized stack data in them.
 
-The issue here is that struct input_event_compat has a hole in it.
+The issue here is that struct uinput_ff_upload_compat has a hole in
+it.
 
-struct input_event_compat {
-        struct compat_timeval {
-        } time;                             /*     0     0 */
+struct uinput_ff_upload_compat {
+        int                        request_id;           /*     0     4 */
+        int                        retval;               /*     4     4 */
+        struct ff_effect_compat    effect;               /*     8     0 */
 
-        /* XXX 8 bytes hole, try to pack */
+        /* XXX 44 bytes hole, try to pack */
 
-        short unsigned int         type;    /*     8     2 */
-
+        struct ff_effect_compat    old;                  /*    52     0 */
 
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-diff --git a/drivers/input/input-compat.c b/drivers/input/input-compat.c
-index e46a867..007850a 100644
---- a/drivers/input/input-compat.c
-+++ b/drivers/input/input-compat.c
-@@ -44,6 +44,8 @@ int input_event_to_user(char __user *buffer,
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 7360568..40e2ba4 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -528,6 +528,8 @@ static int uinput_ff_upload_to_user(char __user *buffer,
  	if (INPUT_COMPAT_TEST) {
- 		struct input_event_compat compat_event;
+ 		struct uinput_ff_upload_compat ff_up_compat;
  
-+		memset(&compat_event, 0, sizeof(compat_event));
++		memset(&ff_up_compat, 0, sizeof(ff_up_compat));
 +
- 		compat_event.time.tv_sec = event->time.tv_sec;
- 		compat_event.time.tv_usec = event->time.tv_usec;
- 		compat_event.type = event->type;
+ 		ff_up_compat.request_id = ff_up->request_id;
+ 		ff_up_compat.retval = ff_up->retval;
+ 		/*

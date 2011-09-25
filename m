@@ -1,63 +1,44 @@
-From: =?utf-8?B?5L+d6K+B5pyJ5Lmw5a625Zue5aSN?= <root@inetview.net>
-Subject: =?utf-8?B?576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuivmnIDmlrDlub/kuqTkvJrkubDlrrbjgIHmtbc=?=
-	=?utf-8?B?5YWz5pWw5o2uLEIyQuivouebmOS5sOWutjUwMOS4h+OAgg==?=
-Date: Sun, 25 Sep 2011 12:38:50 +0000 (UTC)
-Message-ID: <20120925202111614750@inetview.net>
-Reply-To: <1339625218@qq.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+From: chris@cnpbagwell.com
+Subject: [PATCH v2 0/3] Input: wacom bamboo improvements
+Date: Sun, 25 Sep 2011 14:09:25 -0500
+Message-ID: <1316977768-823-1-git-send-email-chris@cnpbagwell.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [211.115.68.71] ([211.115.68.71]:58165 "EHLO ns1.inetview.net"
-	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1752363Ab1IYMio (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 25 Sep 2011 08:38:44 -0400
-Date: Tue, 25 Sep 2012 20:21:02 +0800
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:39118 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752402Ab1IYTJs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 25 Sep 2011 15:09:48 -0400
+Received: by ywb5 with SMTP id 5so3796333ywb.19
+        for <linux-input@vger.kernel.org>; Sun, 25 Sep 2011 12:09:48 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: link_technology@outgun.com, lintonelectronicstores@hotmail.com, lintton@163.com, linus@use_secure_linux.com, linusjen@mbox3.singnet.com, linux@87-196-95-18.net.novis.pt
+To: linux-input@vger.kernel.org
+Cc: Chris Bagwell <chris@cnpbagwell.com>
 
-576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuisxMDnlsYrlub/kuqTkvJrkubDlrrbjgIHlsZXk
-vJrkubDlrrbjgIHmtbflhbPmlbDmja4sQjJC6K+i55uY5Lmw5a62NTAw5LiH44CCDQoNCuS4gOWF
-sTjkuKrljIUo5pWw5o2u5piv5YWo6KGM5Lia55qE77yM5oyJ54Wn6KGM5Lia5YiG5aW957G777yM
-5bm25LiU5Y+v5Lul5oyJ54Wn5YWz6ZSu6K+N5p+l6K+i55qEKe+8miANCjHvvIwyMDEx5pil5a2j
-MTA55bGK5bm/5Lqk5Lya5Lmw5a625pWw5o2u5bqT5paw6bKc5Ye654KJ77yM6LaF57qn5paw6bKc
-5Lmw5a6277yM5paw6bKc5pWw5o2u77yM5a655piT5oiQ5Y2V77yBIA0KMu+8jOacgOaWsOWFqOeQ
-g+S5sOWutuW6kyzlhbE0NTE2NjDmnaHmlbDmja7jgIIgDQoz77yMMjAwOOW5tCwyMDA55bm0LDIw
-MTDlubQg5pil5a2jK+eni+Wto+W5v+S6pOS8muS5sOWutuWQjeW9le+8jDEwMyAxMDQgMTA1IDEw
-NiAxMDcgMTA4IOWFseWFreWxiiDlhbExMjAuNuS4h+aVsOaNruOAgg0KNO+8jDIwMTDlubTlm73p
-mYXkv4PplIDljY/kvJrvvIhQUEFJ77yJ5oiQ5ZGY5ZCN5Y2VIFBQQUkgTWVtYmVycyBEaXJlY3Rv
-cnnvvIzpnZ7luLjph43opoHnmoTlpKfkubDlrrbjgIINCjXvvIwyMDEw5bm05Yiw6aaZ5riv6YeH
-6LSt55qE5Zu95aSW5a6i5Lq65ZCN5b2VKOmmmea4r+i0uOWPkeWxgOaPkOS+mynvvIzlhbE3LjLk
-uIfmlbDmja7vvIzotoXnuqfph43opoHnmoTkubDlrrbjgIINCjbvvIw2MC445LiH5p2h5pyA5paw
-5Zu95aSWQjJC5Lmw5a626K+i55uY44CCDQo377yMMjAwOeW5tOa1t+WFs+aPkOWNleaVsOaNrnBp
-ZXJz54mI5pWw5o2uIDHljYPkuIfjgIINCjjvvIznvqTlj5Hova/ku7bvvIznvqTlj5Hova/ku7bn
-moTpg6jnvbLkuI7lronoo4XjgIINCg0K5YWxIDUwMOS4h+S4quS5sOWutu+8jOavj+S4quWdh+ac
-iUVtYWlsLiANCg0K5L+d6K+B5q+P5aSp6YO95pyJ5Lmw5a625Zue5aSN44CCDQrkv53or4Hmr4/l
-pKnpg73mnInkubDlrrblm57lpI3jgIINCg0K6KaB55qE5oqT57Sn6IGU57O7UVE6IDEzMzk2MjUy
-MTggICDmiJbogIXnq4vljbPlm57lpI3pgq7nrrE6IDEzMzk2MjUyMThAcXEuY29tDQropoHnmoTm
-ipPntKfogZTns7tRUTogMTMzOTYyNTIxOCAgIOaIluiAheeri+WNs+WbnuWkjemCrueusTogMTMz
-OTYyNTIxOEBxcS5jb20NCuimgeeahOaKk+e0p+iBlOezu1FROiAxMzM5NjI1MjE4ICAg5oiW6ICF
-56uL5Y2z5Zue5aSN6YKu566xOiAxMzM5NjI1MjE4QHFxLmNvbQ0KDQoNCuivmuS/oeS4uuacrO+8
-jOWmguaenOS4jeS/oeS7u+acrOS6uizlj6/ku6XotbDmt5jlrp3kuqTmmJMs5pS26LSn6aqM6K+B
-5ZCO5YaN5LuY5qy+LOi/meaYr+WvueaCqOacgOWlveeahOS/nemanOS6huOAgiANCg0K5L+d6K+B
-5q+P5aSp6YO95pyJ5Lmw5a625Zue5aSN44CCDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57l
-pI3jgIINCuS/neivgeavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0KDQoNCg0KDQrlub/kuqTk
-vJrkubDlrrbmjInkuqflk4HnsbvliKvliIbnsbvvvIzliIbkuLrku6XkuIvlh6DnsbvvvJoNCjEg
-5Yqe5YWs6K6+5aSHDQoyIOe8lue7h+WPiuiXpOmTgeW3peiJuuWTgQ0KMyDnjrvnkoMNCjQg6aSQ
-5Y6o55So5YW3DQo1IOi9pui+hg0KNiDlpKflnovmnLrmorDlj4rorr7lpIcNCjcg55S15a2Q55S1
-5rCUDQo4IOeUteWtkOa2iOi0ueWTgQ0KOSDnurrnu4cNCjEwIOacjeijhQ0KMTEg5Liq5Lq65oqk
-55CGDQoxMiDlt6XnqIvmnLrmorANCjEzIOW3peWFtw0KMTQg5YyW5belDQoxNSDorqHnrpfmnLrl
-j4rpgJrorq8NCjE2IOWutuWxheeUqOWTgQ0KMTcg5a625bGF6KOF6aWwDQoxOCDlrrblhbcNCjE5
-IOWutueUqOeUteWZqA0KMjAg5bu6562R5Y+K6KOF6aWw5p2Q5paZDQoyMSDoioLml6XnlKjlk4EN
-CjIyIOekvOWTgeWPiui1oOWTgQ0KMjMg5pGp5omY6L2mDQoyNCDmsb3ovabphY3ku7YNCjI1IOmj
-n+WTgQ0KMjYg6Zm255O3DQoyNyDpk4Hnn7MNCjI4IOeOqeWFtw0KMjkg5Y2r5rW0DQozMCDkupTp
-h5ENCjMxIOWwj+Wei+acuuaisA0KMzIg6Z6LDQozMyDkvJHpl7LnlKjlk4ENCjM0IOWMu+eWlw0K
-MzUg5rW05a6k5Lqn5ZOBDQozNiDlm63mnpcNCjM3IOeFp+aYjuS6p+WTgQ0KMzgg6ZKf6KGo55y8
-6ZWcDQozOSDoh6rooYzovaYNCjQwIOWMhQ0KDQoNCuS/neivgeavj+WkqemDveacieS5sOWutuWb
-nuWkjeOAgg0K5L+d6K+B5q+P5aSp6YO95pyJ5Lmw5a625Zue5aSN44CCDQrkv53or4Hmr4/lpKnp
-g73mnInkubDlrrblm57lpI3jgIINCuS/neivgeavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K
-5L+d6K+B5q+P5aSp6YO95pyJ5Lmw5a625Zue5aSN44CCDQo=
+From: Chris Bagwell <chris@cnpbagwell.com>
 
+There is no code changes in this v2.  Since I now have access
+to next tree on github, I thought it would help to resend
+patches relative to that tree.
+
+I also added the additional Reviewed-by and Acked-by tags from
+mailing list review.
+
+Old description:
+
+The need for patch 3 was recently discussed on linuxwacom
+mailing list. During that discussion, I looked closer at pen
+code and notice pressure cleanup needed (patch 1) and that
+ABS_DISTANCE was not completely implemented (patch 2).
+
+Chris Bagwell (3):
+  Input: wacom - remove unneeded touch pressure init
+  Input: wacom - add ABS_DISTANCE to Bamboo Pen reports
+  Input: wacom - correct max Y value on medium bamboos
+
+ drivers/input/tablet/wacom_wac.c |   47 +++++++++++++++++++++-----------------
+ 1 files changed, 26 insertions(+), 21 deletions(-)
+
+-- 
+1.7.6
 

@@ -1,58 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input/mc13xxx_ts.c: Add support for mc13892
-Date: Mon, 26 Sep 2011 10:54:19 -0700
-Message-ID: <20110926175418.GA4614@core.coreip.homeip.net>
-References: <1317049057-4936-1-git-send-email-u.kleine-koenig@pengutronix.de>
+From: Javier Martinez Canillas <martinez.javier@gmail.com>
+Subject: Re: [PATCH V3 0/3] Input: Cypress TTSP device driver
+Date: Mon, 26 Sep 2011 23:06:25 +0200
+Message-ID: <CAAwP0s2SKzkc-bMzv+MJRBYXmwDyA+ubkmP4fMvi9FpmgitF8w@mail.gmail.com>
+References: <1316311297-12765-1-git-send-email-martinez.javier@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:53986 "EHLO
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:47023 "EHLO
 	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751246Ab1IZRyY (ORCPT
+	with ESMTP id S1752401Ab1IZVGm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Sep 2011 13:54:24 -0400
-Received: by yxl31 with SMTP id 31so4496402yxl.19
-        for <linux-input@vger.kernel.org>; Mon, 26 Sep 2011 10:54:24 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1317049057-4936-1-git-send-email-u.kleine-koenig@pengutronix.de>
+	Mon, 26 Sep 2011 17:06:42 -0400
+In-Reply-To: <1316311297-12765-1-git-send-email-martinez.javier@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-input@vger.kernel.org, David Jander <david@protonic.nl>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Greg Kroah-Hartman <gregkh@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Uwe,
+On Sun, Sep 18, 2011 at 4:01 AM, Javier Martinez Canillas
+<martinez.javier@gmail.com> wrote:
+> Cypress TrueTouch(tm) Standard Product controllers are found in
+> a wide range of embedded devices. This patch-set adds support for a
+> variety of TTSP controllers.
+>
+> The original author of the driver is Kevin McNeely <kev@cypress.com>
+>
+> Since the hardware is capable of tracking identifiable contacts and t=
+he
+> original driver used multi-touch protocol type A (stateless), I've ad=
+ded
+> multi-touch protocol type B (stateful) support.
+>
+> The driver is composed of a core driver that process the data sent by
+> the contacts (fingers) and two bus specific interface modules (I2C an=
+d SPI).
+>
+> This is a third version of the driver that fixes issues called out by
+> Dmitry Torokhov, Henrik Rydberg and Mohan Pallaka
+>
+> The patchset is composed of the patches:
+>
+> [PATCH V3 1/3] Input: cyttsp - Cypress TTSP capacitive multi-touch sc=
+reen support
+> [PATCH V3 2/3] Input: cyttsp - add support for Cypress TTSP touchscre=
+en I2C bus interface
+> [PATCH V3 3/3] Input: cyttsp - add support for Cypress TTSP touchscre=
+en SPI bus interface
+>
 
-On Mon, Sep 26, 2011 at 04:57:37PM +0200, Uwe Kleine-K=F6nig wrote:
-> The mc13892 has almost the same touchscreen controller as the mc13783=
-=2E
-> This patch adds support for mc13892.
->=20
-> Based on an earlier patch by David Jander.
->=20
-> Cc: David Jander <david@protonic.nl>
-> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
-> ---
->  drivers/input/touchscreen/Kconfig      |   10 +-
->  drivers/input/touchscreen/Makefile     |    2 +-
->  drivers/input/touchscreen/mc13783_ts.c |  259 ----------------------=
--------
->  drivers/input/touchscreen/mc13xxx_ts.c |  282 ++++++++++++++++++++++=
-++++++++++
->  4 files changed, 288 insertions(+), 265 deletions(-)
->  delete mode 100644 drivers/input/touchscreen/mc13783_ts.c
->  create mode 100644 drivers/input/touchscreen/mc13xxx_ts.c
+Hello,
 
-This rename hides completely what was done to the driver to support the
-new chip. I also do not think that rename is that useful; I think if we
-simply update Kconfig text an driver description to reflectthe fact tha=
-t
-we now support 2 chips that shoudl be enough.
+Any feedback for this patch-set?
 
-Thanks.
+Best regards,
 
 --=20
-Dmitry
+Javier Mart=C3=ADnez Canillas
+(+34) 682 39 81 69
+Barcelona, Spain
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

@@ -1,649 +1,801 @@
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: [PATCH] input/mc13xxx_ts.c: Add support for mc13892
-Date: Mon, 26 Sep 2011 16:57:37 +0200
-Message-ID: <1317049057-4936-1-git-send-email-u.kleine-koenig@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: simon.budig@kernelconcepts.de
+Subject: [PATCH] Touchscreen driver for FT5x06 based EDT displays
+Date: Mon, 26 Sep 2011 18:06:29 +0200
+Message-ID: <1317053189-29831-2-git-send-email-simon.budig@kernelconcepts.de>
+References: <1317053189-29831-1-git-send-email-simon.budig@kernelconcepts.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:54946 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751794Ab1IZO5x (ORCPT
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:34387 "EHLO
+	smtprelay01.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751481Ab1IZQL4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Sep 2011 10:57:53 -0400
+	Mon, 26 Sep 2011 12:11:56 -0400
+In-Reply-To: <1317053189-29831-1-git-send-email-simon.budig@kernelconcepts.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Jander <david@protonic.nl>
+Cc: Simon Budig <simon@budig.de>
 
-The mc13892 has almost the same touchscreen controller as the mc13783.
-This patch adds support for mc13892.
+From: Simon Budig <simon@budig.de>
 
-Based on an earlier patch by David Jander.
-
-Cc: David Jander <david@protonic.nl>
-Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/touchscreen/Kconfig      |   10 +-
- drivers/input/touchscreen/Makefile     |    2 +-
- drivers/input/touchscreen/mc13783_ts.c |  259 ------------------------=
------
- drivers/input/touchscreen/mc13xxx_ts.c |  282 ++++++++++++++++++++++++=
-++++++++
- 4 files changed, 288 insertions(+), 265 deletions(-)
- delete mode 100644 drivers/input/touchscreen/mc13783_ts.c
- create mode 100644 drivers/input/touchscreen/mc13xxx_ts.c
+ drivers/input/touchscreen/Kconfig      |    5 +
+ drivers/input/touchscreen/Makefile     |    1 +
+ drivers/input/touchscreen/edt-ft5x06.c |  714 ++++++++++++++++++++++++++++++++
+ include/linux/input/edt-ft5x06.h       |   16 +
+ 4 files changed, 736 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/edt-ft5x06.c
+ create mode 100644 include/linux/input/edt-ft5x06.h
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscr=
-een/Kconfig
-index cabd9e5..3daeae6 100644
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 0b28adf..4c0672c 100644
 --- a/drivers/input/touchscreen/Kconfig
 +++ b/drivers/input/touchscreen/Kconfig
-@@ -548,17 +548,17 @@ config TOUCHSCREEN_USB_COMPOSITE
+@@ -339,6 +339,11 @@ config TOUCHSCREEN_PENMOUNT
  	  To compile this driver as a module, choose M here: the
- 	  module will be called usbtouchscreen.
-=20
--config TOUCHSCREEN_MC13783
--	tristate "Freescale MC13783 touchscreen input driver"
--	depends on MFD_MC13783
-+config TOUCHSCREEN_MC13XXX
-+	tristate "Freescale MC13783/MC13892 touchscreen input driver"
-+	depends on MFD_MC13XXX
- 	help
--	  Say Y here if you have an Freescale MC13783 PMIC on your
-+	  Say Y here if you have an Freescale MC13783/MC13892 PMIC on your
- 	  board and want to use its touchscreen
-=20
- 	  If unsure, say N.
-=20
- 	  To compile this driver as a module, choose M here: the
--	  module will be called mc13783_ts.
-+	  module will be called mc13xxx_ts.
-=20
- config TOUCHSCREEN_USB_EGALAX
- 	default y
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchsc=
-reen/Makefile
-index 282d6f7..2e90c01 100644
+ 	  module will be called penmount.
+ 
++config TOUCHSCREEN_EDT_FT5X06
++	tristate "EDT FocalTech FT5x06 I2C Touchscreen support"
++	help
++	  If unsure, say N.
++
+ config TOUCHSCREEN_QT602240
+ 	tristate "QT602240 I2C Touchscreen"
+ 	depends on I2C
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index bd54dfe..1288ab6 100644
 --- a/drivers/input/touchscreen/Makefile
 +++ b/drivers/input/touchscreen/Makefile
-@@ -28,7 +28,7 @@ obj-$(CONFIG_TOUCHSCREEN_INEXIO)	+=3D inexio.o
- obj-$(CONFIG_TOUCHSCREEN_INTEL_MID)	+=3D intel-mid-touch.o
- obj-$(CONFIG_TOUCHSCREEN_LPC32XX)	+=3D lpc32xx_ts.o
- obj-$(CONFIG_TOUCHSCREEN_MAX11801)	+=3D max11801_ts.o
--obj-$(CONFIG_TOUCHSCREEN_MC13783)	+=3D mc13783_ts.o
-+obj-$(CONFIG_TOUCHSCREEN_MC13XXX)	+=3D mc13xxx_ts.o
- obj-$(CONFIG_TOUCHSCREEN_MCS5000)	+=3D mcs5000_ts.o
- obj-$(CONFIG_TOUCHSCREEN_MIGOR)		+=3D migor_ts.o
- obj-$(CONFIG_TOUCHSCREEN_MTOUCH)	+=3D mtouch.o
-diff --git a/drivers/input/touchscreen/mc13783_ts.c b/drivers/input/tou=
-chscreen/mc13783_ts.c
-deleted file mode 100644
-index ede0274..0000000
---- a/drivers/input/touchscreen/mc13783_ts.c
-+++ /dev/null
-@@ -1,259 +0,0 @@
--/*
-- * Driver for the Freescale Semiconductor MC13783 touchscreen.
-- *
-- * Copyright 2004-2007 Freescale Semiconductor, Inc. All Rights Reserv=
-ed.
-- * Copyright (C) 2009 Sascha Hauer, Pengutronix
-- *
-- * Initial development of this code was funded by
-- * Phytec Messtechnik GmbH, http://www.phytec.de/
-- *
-- * This program is free software; you can redistribute it and/or modif=
-y it
-- * under the terms of the GNU General Public License version 2 as publ=
-ished by
-- * the Free Software Foundation.
-- */
--#include <linux/platform_device.h>
--#include <linux/mfd/mc13783.h>
--#include <linux/kernel.h>
--#include <linux/module.h>
--#include <linux/input.h>
--#include <linux/sched.h>
--#include <linux/slab.h>
--#include <linux/init.h>
--
--#define MC13783_TS_NAME	"mc13783-ts"
--
--#define DEFAULT_SAMPLE_TOLERANCE 300
--
--static unsigned int sample_tolerance =3D DEFAULT_SAMPLE_TOLERANCE;
--module_param(sample_tolerance, uint, S_IRUGO | S_IWUSR);
--MODULE_PARM_DESC(sample_tolerance,
--		"If the minimal and maximal value read out for one axis (out "
--		"of three) differ by this value (default: "
--		__stringify(DEFAULT_SAMPLE_TOLERANCE) ") or more, the reading "
--		"is supposed to be wrong and is discarded.  Set to 0 to "
--		"disable this check.");
--
--struct mc13783_ts_priv {
--	struct input_dev *idev;
--	struct mc13xxx *mc13xxx;
--	struct delayed_work work;
--	struct workqueue_struct *workq;
--	unsigned int sample[4];
--};
--
--static irqreturn_t mc13783_ts_handler(int irq, void *data)
--{
--	struct mc13783_ts_priv *priv =3D data;
--
--	mc13xxx_irq_ack(priv->mc13xxx, irq);
--
--	/*
--	 * Kick off reading coordinates. Note that if work happens already
--	 * be queued for future execution (it rearms itself) it will not
--	 * be rescheduled for immediate execution here. However the rearm
--	 * delay is HZ / 50 which is acceptable.
--	 */
--	queue_delayed_work(priv->workq, &priv->work, 0);
--
--	return IRQ_HANDLED;
--}
--
--#define sort3(a0, a1, a2) ({						\
--		if (a0 > a1)						\
--			swap(a0, a1);					\
--		if (a1 > a2)						\
--			swap(a1, a2);					\
--		if (a0 > a1)						\
--			swap(a0, a1);					\
--		})
--
--static void mc13783_ts_report_sample(struct mc13783_ts_priv *priv)
--{
--	struct input_dev *idev =3D priv->idev;
--	int x0, x1, x2, y0, y1, y2;
--	int cr0, cr1;
--
--	/*
--	 * the values are 10-bit wide only, but the two least significant
--	 * bits are for future 12 bit use and reading yields 0
--	 */
--	x0 =3D priv->sample[0] & 0xfff;
--	x1 =3D priv->sample[1] & 0xfff;
--	x2 =3D priv->sample[2] & 0xfff;
--	y0 =3D priv->sample[3] & 0xfff;
--	y1 =3D (priv->sample[0] >> 12) & 0xfff;
--	y2 =3D (priv->sample[1] >> 12) & 0xfff;
--	cr0 =3D (priv->sample[2] >> 12) & 0xfff;
--	cr1 =3D (priv->sample[3] >> 12) & 0xfff;
--
--	dev_dbg(&idev->dev,
--		"x: (% 4d,% 4d,% 4d) y: (% 4d, % 4d,% 4d) cr: (% 4d, % 4d)\n",
--		x0, x1, x2, y0, y1, y2, cr0, cr1);
--
--	sort3(x0, x1, x2);
--	sort3(y0, y1, y2);
--
--	cr0 =3D (cr0 + cr1) / 2;
--
--	if (!cr0 || !sample_tolerance ||
--			(x2 - x0 < sample_tolerance &&
--			 y2 - y0 < sample_tolerance)) {
--		/* report the median coordinate and average pressure */
--		if (cr0) {
--			input_report_abs(idev, ABS_X, x1);
--			input_report_abs(idev, ABS_Y, y1);
--
--			dev_dbg(&idev->dev, "report (%d, %d, %d)\n",
--					x1, y1, 0x1000 - cr0);
--			queue_delayed_work(priv->workq, &priv->work, HZ / 50);
--		} else
--			dev_dbg(&idev->dev, "report release\n");
--
--		input_report_abs(idev, ABS_PRESSURE,
--				cr0 ? 0x1000 - cr0 : cr0);
--		input_report_key(idev, BTN_TOUCH, cr0);
--		input_sync(idev);
--	} else
--		dev_dbg(&idev->dev, "discard event\n");
--}
--
--static void mc13783_ts_work(struct work_struct *work)
--{
--	struct mc13783_ts_priv *priv =3D
--		container_of(work, struct mc13783_ts_priv, work.work);
--	unsigned int mode =3D MC13XXX_ADC_MODE_TS;
--	unsigned int channel =3D 12;
--
--	if (mc13xxx_adc_do_conversion(priv->mc13xxx,
--				mode, channel, priv->sample) =3D=3D 0)
--		mc13783_ts_report_sample(priv);
--}
--
--static int mc13783_ts_open(struct input_dev *dev)
--{
--	struct mc13783_ts_priv *priv =3D input_get_drvdata(dev);
--	int ret;
--
--	mc13xxx_lock(priv->mc13xxx);
--
--	mc13xxx_irq_ack(priv->mc13xxx, MC13XXX_IRQ_TS);
--
--	ret =3D mc13xxx_irq_request(priv->mc13xxx, MC13XXX_IRQ_TS,
--		mc13783_ts_handler, MC13783_TS_NAME, priv);
--	if (ret)
--		goto out;
--
--	ret =3D mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
--			MC13XXX_ADC0_TSMOD_MASK, MC13XXX_ADC0_TSMOD0);
--	if (ret)
--		mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
--out:
--	mc13xxx_unlock(priv->mc13xxx);
--	return ret;
--}
--
--static void mc13783_ts_close(struct input_dev *dev)
--{
--	struct mc13783_ts_priv *priv =3D input_get_drvdata(dev);
--
--	mc13xxx_lock(priv->mc13xxx);
--	mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
--			MC13XXX_ADC0_TSMOD_MASK, 0);
--	mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
--	mc13xxx_unlock(priv->mc13xxx);
--
--	cancel_delayed_work_sync(&priv->work);
--}
--
--static int __init mc13783_ts_probe(struct platform_device *pdev)
--{
--	struct mc13783_ts_priv *priv;
--	struct input_dev *idev;
--	int ret =3D -ENOMEM;
--
--	priv =3D kzalloc(sizeof(*priv), GFP_KERNEL);
--	idev =3D input_allocate_device();
--	if (!priv || !idev)
--		goto err_free_mem;
--
--	INIT_DELAYED_WORK(&priv->work, mc13783_ts_work);
--	priv->mc13xxx =3D dev_get_drvdata(pdev->dev.parent);
--	priv->idev =3D idev;
--
--	/*
--	 * We need separate workqueue because mc13783_adc_do_conversion
--	 * uses keventd and thus would deadlock.
--	 */
--	priv->workq =3D create_singlethread_workqueue("mc13783_ts");
--	if (!priv->workq)
--		goto err_free_mem;
--
--	idev->name =3D MC13783_TS_NAME;
--	idev->dev.parent =3D &pdev->dev;
--
--	idev->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--	idev->keybit[BIT_WORD(BTN_TOUCH)] =3D BIT_MASK(BTN_TOUCH);
--	input_set_abs_params(idev, ABS_X, 0, 0xfff, 0, 0);
--	input_set_abs_params(idev, ABS_Y, 0, 0xfff, 0, 0);
--	input_set_abs_params(idev, ABS_PRESSURE, 0, 0xfff, 0, 0);
--
--	idev->open =3D mc13783_ts_open;
--	idev->close =3D mc13783_ts_close;
--
--	input_set_drvdata(idev, priv);
--
--	ret =3D input_register_device(priv->idev);
--	if (ret) {
--		dev_err(&pdev->dev,
--			"register input device failed with %d\n", ret);
--		goto err_destroy_wq;
--	}
--
--	platform_set_drvdata(pdev, priv);
--	return 0;
--
--err_destroy_wq:
--	destroy_workqueue(priv->workq);
--err_free_mem:
--	input_free_device(idev);
--	kfree(priv);
--	return ret;
--}
--
--static int __devexit mc13783_ts_remove(struct platform_device *pdev)
--{
--	struct mc13783_ts_priv *priv =3D platform_get_drvdata(pdev);
--
--	platform_set_drvdata(pdev, NULL);
--
--	destroy_workqueue(priv->workq);
--	input_unregister_device(priv->idev);
--	kfree(priv);
--
--	return 0;
--}
--
--static struct platform_driver mc13783_ts_driver =3D {
--	.remove		=3D __devexit_p(mc13783_ts_remove),
--	.driver		=3D {
--		.owner	=3D THIS_MODULE,
--		.name	=3D MC13783_TS_NAME,
--	},
--};
--
--static int __init mc13783_ts_init(void)
--{
--	return platform_driver_probe(&mc13783_ts_driver, &mc13783_ts_probe);
--}
--module_init(mc13783_ts_init);
--
--static void __exit mc13783_ts_exit(void)
--{
--	platform_driver_unregister(&mc13783_ts_driver);
--}
--module_exit(mc13783_ts_exit);
--
--MODULE_DESCRIPTION("MC13783 input touchscreen driver");
--MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
--MODULE_LICENSE("GPL v2");
--MODULE_ALIAS("platform:" MC13783_TS_NAME);
-diff --git a/drivers/input/touchscreen/mc13xxx_ts.c b/drivers/input/tou=
-chscreen/mc13xxx_ts.c
+@@ -18,6 +18,7 @@ obj-$(CONFIG_TOUCHSCREEN_BU21013)       += bu21013_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_CY8CTMG110)	+= cy8ctmg110_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_DA9034)	+= da9034-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_DYNAPRO)	+= dynapro.o
++obj-$(CONFIG_TOUCHSCREEN_EDT_FT5X06)	+= edt-ft5x06.o
+ obj-$(CONFIG_TOUCHSCREEN_HAMPSHIRE)	+= hampshire.o
+ obj-$(CONFIG_TOUCHSCREEN_GUNZE)		+= gunze.o
+ obj-$(CONFIG_TOUCHSCREEN_EETI)		+= eeti_ts.o
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
 new file mode 100644
-index 0000000..2eda31b
+index 0000000..7e2b04b
 --- /dev/null
-+++ b/drivers/input/touchscreen/mc13xxx_ts.c
-@@ -0,0 +1,282 @@
-+/*
-+ * Driver for the Freescale Semiconductor MC13783 touchscreen.
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -0,0 +1,714 @@
++/* drivers/input/touchscreen/edt-ft5x06.c
 + *
-+ * Copyright 2004-2007 Freescale Semiconductor, Inc. All Rights Reserv=
-ed.
-+ * Copyright (C) 2009 Sascha Hauer, Pengutronix
++ * Copyright (C) 2011 Simon Budig, <simon.budig@kernelconcepts.de>
 + *
-+ * Initial development of this code was funded by
-+ * Phytec Messtechnik GmbH, http://www.phytec.de/
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
 + *
-+ * This program is free software; you can redistribute it and/or modif=
-y it
-+ * under the terms of the GNU General Public License version 2 as publ=
-ished by
-+ * the Free Software Foundation.
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 + */
-+#include <linux/platform_device.h>
-+#include <linux/mfd/mc13783.h>
-+#include <linux/kernel.h>
++
++/*
++ * This is a driver for the EDT "Polytouch" family of touch controllers
++ * based on the FocalTech FT5x06 line of chips.
++ *
++ * Development of this driver has been sponsored by Glyn:
++ *    http://www.glyn.com/Products/Displays
++ */
++
 +#include <linux/module.h>
++#include <linux/interrupt.h>
 +#include <linux/input.h>
-+#include <linux/sched.h>
++#include <linux/i2c.h>
++#include <asm/uaccess.h>
++#include <linux/smp_lock.h>
++#include <linux/delay.h>
 +#include <linux/slab.h>
-+#include <linux/init.h>
 +
-+#define DRIVER_NAME	"mc13xxx-ts"
++#include <linux/gpio.h>
 +
-+#define DEFAULT_SAMPLE_TOLERANCE 300
++#include "linux/input/edt-ft5x06.h"
 +
-+static unsigned int sample_tolerance =3D DEFAULT_SAMPLE_TOLERANCE;
-+module_param(sample_tolerance, uint, S_IRUGO | S_IWUSR);
-+MODULE_PARM_DESC(sample_tolerance,
-+		"If the minimal and maximal value read out for one axis (out "
-+		"of three) differ by this value (default: "
-+		__stringify(DEFAULT_SAMPLE_TOLERANCE) ") or more, the reading "
-+		"is supposed to be wrong and is discarded.  Set to 0 to "
-+		"disable this check.");
++#define DRIVER_VERSION "v0.5"
 +
-+#define MC13XXX_TWO_SAMPLES	1
++#define WORK_REGISTER_THRESHOLD   0x00
++#define WORK_REGISTER_GAIN        0x30
++#define WORK_REGISTER_OFFSET      0x31
++#define WORK_REGISTER_NUM_X       0x33
++#define WORK_REGISTER_NUM_Y       0x34
 +
-+struct mc13783_ts_priv {
-+	struct platform_device *pdev;
-+	struct input_dev *idev;
-+	struct mc13xxx *mc13xxx;
-+	struct delayed_work work;
-+	struct workqueue_struct *workq;
-+	unsigned int sample[4];
++#define WORK_REGISTER_OPMODE      0x3c
++#define FACTORY_REGISTER_OPMODE   0x01
++
++static struct i2c_driver edt_ft5x06_i2c_ts_driver;
++
++struct edt_ft5x06_i2c_ts_data
++{
++	struct i2c_client *client;
++	struct input_dev *input;
++	int irq;
++	int irq_pin;
++	int reset_pin;
++	int num_x;
++	int num_y;
++
++	struct mutex mutex;
++	int factory_mode;
++	int threshold;
++	int gain;
++	int offset;
 +};
 +
-+static irqreturn_t mc13783_ts_handler(int irq, void *data)
++static int edt_ft5x06_ts_readwrite (struct i2c_client *client,
++                                    u16 wr_len, u8 *wr_buf,
++                                    u16 rd_len, u8 *rd_buf)
 +{
-+	struct mc13783_ts_priv *priv =3D data;
++	struct i2c_msg wrmsg[2];
++	int i, ret;
 +
-+	mc13xxx_irq_ack(priv->mc13xxx, irq);
++	i = 0;
++	if (wr_len) {
++		wrmsg[i].addr  = client->addr;
++		wrmsg[i].flags = 0;
++		wrmsg[i].len = wr_len;
++		wrmsg[i].buf = wr_buf;
++		i++;
++	}
++	if (rd_len) {
++		wrmsg[i].addr  = client->addr;
++		wrmsg[i].flags = I2C_M_RD;
++		wrmsg[i].len = rd_len;
++		wrmsg[i].buf = rd_buf;
++		i++;
++	}
 +
-+	/*
-+	 * Kick off reading coordinates. Note that if work happens already
-+	 * be queued for future execution (it rearms itself) it will not
-+	 * be rescheduled for immediate execution here. However the rearm
-+	 * delay is HZ / 50 which is acceptable.
-+	 */
-+	queue_delayed_work(priv->workq, &priv->work, 0);
++	ret = i2c_transfer (client->adapter, wrmsg, i);
++	if (ret < 0) {
++		dev_info (&client->dev, "i2c_transfer failed: %d\n", ret);
++		return ret;
++	}
 +
++	return ret;
++}
++
++
++static irqreturn_t edt_ft5x06_ts_isr (int irq, void *dev_id)
++{
++	struct edt_ft5x06_i2c_ts_data *tsdata = dev_id;
++	unsigned char touching = 0;
++	unsigned char rdbuf[26], wrbuf[1];
++	int i, have_abs, type, ret;
++
++	memset (wrbuf, 0, sizeof (wrbuf));
++	memset (rdbuf, 0, sizeof (rdbuf));
++
++	wrbuf[0] = 0xf9;
++
++	mutex_lock (&tsdata->mutex);
++	ret = edt_ft5x06_ts_readwrite (tsdata->client,
++	                               1, wrbuf,
++	                               sizeof (rdbuf), rdbuf);
++	mutex_unlock (&tsdata->mutex);
++	if (ret < 0) {
++		dev_err (&tsdata->client->dev, "Unable to write to i2c touchscreen!\n");
++		goto out;
++	}
++
++	if (rdbuf[0] != 0xaa || rdbuf[1] != 0xaa || rdbuf[2] != 26) {
++		dev_err (&tsdata->client->dev, "Unexpected header: %02x%02x%02x!\n", rdbuf[0], rdbuf[1], rdbuf[2]);
++	}
++
++	have_abs = 0;
++	touching = rdbuf[3];
++	for (i = 0; i < touching; i++) {
++		type = rdbuf[i*4+5] >> 6;
++		if (type == 0x01 || type == 0x03)  /* ignore Touch Down and Reserved events */
++			continue;
++
++		if (!have_abs) {
++			input_report_key (tsdata->input, BTN_TOUCH,    1);
++			input_report_abs (tsdata->input, ABS_PRESSURE, 1);
++			input_report_abs (tsdata->input, ABS_X, ((rdbuf[i*4+5] << 8) | rdbuf[i*4+6]) & 0x0fff);
++			input_report_abs (tsdata->input, ABS_Y, ((rdbuf[i*4+7] << 8) | rdbuf[i*4+8]) & 0x0fff);
++			have_abs = 1;
++		}
++		input_report_abs (tsdata->input, ABS_MT_POSITION_X, ((rdbuf[i*4+5] << 8) | rdbuf[i*4+6]) & 0x0fff);
++		input_report_abs (tsdata->input, ABS_MT_POSITION_Y, ((rdbuf[i*4+7] << 8) | rdbuf[i*4+8]) & 0x0fff);
++		input_report_abs (tsdata->input, ABS_MT_TRACKING_ID, (rdbuf[i*4+7] >> 4) & 0x0f);
++		input_mt_sync (tsdata->input);
++	}
++	if (!have_abs) {
++		input_report_key (tsdata->input, BTN_TOUCH,    0);
++		input_report_abs (tsdata->input, ABS_PRESSURE, 0);
++	}
++	input_sync (tsdata->input);
++
++out:
 +	return IRQ_HANDLED;
 +}
 +
-+#define sort3(a0, a1, a2) ({						\
-+		if (a0 > a1)						\
-+			swap(a0, a1);					\
-+		if (a1 > a2)						\
-+			swap(a1, a2);					\
-+		if (a0 > a1)						\
-+			swap(a0, a1);					\
-+		})
 +
-+static void mc13783_ts_report_sample(struct mc13783_ts_priv *priv)
++static int edt_ft5x06_i2c_register_write (struct edt_ft5x06_i2c_ts_data *tsdata,
++                                          u8 addr, u8 value)
 +{
-+	struct platform_device *pdev =3D priv->pdev;
-+	struct input_dev *idev =3D priv->idev;
-+	int x0, x1, x2, y0, y1, y2;
-+	int cr0, cr1;
-+
-+	/*
-+	 * the values are 10-bit wide only, but the two least significant
-+	 * bits are for future 12 bit use and reading yields 0
-+	 */
-+	x0 =3D priv->sample[0] & 0xfff;
-+	x1 =3D priv->sample[1] & 0xfff;
-+	x2 =3D priv->sample[2] & 0xfff;
-+	y0 =3D priv->sample[3] & 0xfff;
-+	y1 =3D (priv->sample[0] >> 12) & 0xfff;
-+	y2 =3D (priv->sample[1] >> 12) & 0xfff;
-+	cr0 =3D (priv->sample[2] >> 12) & 0xfff;
-+	cr1 =3D (priv->sample[3] >> 12) & 0xfff;
-+
-+	/* On the mc13892, x2 and y2 are invalid */
-+	if (platform_get_device_id(pdev)->driver_data & MC13XXX_TWO_SAMPLES) =
-{
-+		/* better use x2 =3D (x1 + x0) / 2 ? */
-+		x2 =3D x1;
-+		y2 =3D y1;
-+	}
-+
-+	dev_dbg(&idev->dev,
-+		"x: (% 4d,% 4d,% 4d) y: (% 4d, % 4d,% 4d) cr: (% 4d, % 4d)\n",
-+		x0, x1, x2, y0, y1, y2, cr0, cr1);
-+
-+	sort3(x0, x1, x2);
-+	sort3(y0, y1, y2);
-+
-+	cr0 =3D (cr0 + cr1) / 2;
-+
-+	if (!cr0 || !sample_tolerance ||
-+			(x2 - x0 < sample_tolerance &&
-+			 y2 - y0 < sample_tolerance)) {
-+		/* report the median coordinate and average pressure */
-+		if (cr0) {
-+			input_report_abs(idev, ABS_X, x1);
-+			input_report_abs(idev, ABS_Y, y1);
-+
-+			dev_dbg(&idev->dev, "report (%d, %d, %d)\n",
-+					x1, y1, 0x1000 - cr0);
-+			queue_delayed_work(priv->workq, &priv->work, HZ / 50);
-+		} else
-+			dev_dbg(&idev->dev, "report release\n");
-+
-+		input_report_abs(idev, ABS_PRESSURE,
-+				cr0 ? 0x1000 - cr0 : cr0);
-+		input_report_key(idev, BTN_TOUCH, cr0);
-+		input_sync(idev);
-+	} else
-+		dev_dbg(&idev->dev, "discard event\n");
-+}
-+
-+static void mc13783_ts_work(struct work_struct *work)
-+{
-+	struct mc13783_ts_priv *priv =3D
-+		container_of(work, struct mc13783_ts_priv, work.work);
-+	unsigned int mode =3D MC13XXX_ADC_MODE_TS;
-+	unsigned int channel =3D 12;
-+
-+	if (mc13xxx_adc_do_conversion(priv->mc13xxx,
-+				mode, channel, priv->sample) =3D=3D 0)
-+		mc13783_ts_report_sample(priv);
-+}
-+
-+static int mc13783_ts_open(struct input_dev *dev)
-+{
-+	struct mc13783_ts_priv *priv =3D input_get_drvdata(dev);
++	u8 wrbuf[4];
 +	int ret;
 +
-+	mc13xxx_lock(priv->mc13xxx);
++	wrbuf[0]  = tsdata->factory_mode ? 0xf3 : 0xfc;
++	wrbuf[1]  = tsdata->factory_mode ? addr & 0x7f : addr & 0x3f;
++	wrbuf[2]  = value;
++	wrbuf[3]  = wrbuf[0] ^ wrbuf[1] ^ wrbuf[2];
 +
-+	mc13xxx_irq_ack(priv->mc13xxx, MC13XXX_IRQ_TS);
++	disable_irq (tsdata->irq);
 +
-+	ret =3D mc13xxx_irq_request(priv->mc13xxx, MC13XXX_IRQ_TS,
-+		mc13783_ts_handler, DRIVER_NAME, priv);
-+	if (ret)
++	ret = edt_ft5x06_ts_readwrite (tsdata->client,
++	                               4, wrbuf,
++	                               0, NULL);
++
++	enable_irq (tsdata->irq);
++
++	return ret;
++}
++
++static int edt_ft5x06_i2c_register_read (struct edt_ft5x06_i2c_ts_data *tsdata,
++                                         u8 addr)
++{
++	u8 wrbuf[2], rdbuf[2];
++	int ret;
++
++	wrbuf[0]  = tsdata->factory_mode ? 0xf3 : 0xfc;
++	wrbuf[1]  = tsdata->factory_mode ? addr & 0x7f : addr & 0x3f;
++	wrbuf[1] |= tsdata->factory_mode ? 0x80 : 0x40;
++
++	disable_irq (tsdata->irq);
++
++	ret = edt_ft5x06_ts_readwrite (tsdata->client,
++	                               2, wrbuf,
++	                               2, rdbuf);
++
++	enable_irq (tsdata->irq);
++
++#if 0
++	dev_info (&tsdata->client->dev, "wr: %02x %02x -> rd: %02x %02x\n",
++	          wrbuf[0], wrbuf[1], rdbuf[0], rdbuf[1]);
++#endif
++
++	if ((wrbuf[0] ^ wrbuf[1] ^ rdbuf[0]) != rdbuf[1])
++		dev_err (&tsdata->client->dev, "crc error: 0x%02x expected, got 0x%02x\n",
++		         (wrbuf[0] ^ wrbuf[1] ^ rdbuf[0]), rdbuf[1]);
++
++	return ret < 0 ? ret : rdbuf[0];
++}
++
++static ssize_t edt_ft5x06_i2c_setting_show (struct device *dev,
++                                            struct device_attribute *attr,
++                                            char *buf)
++{
++	struct edt_ft5x06_i2c_ts_data *tsdata = dev_get_drvdata (dev);
++	struct i2c_client *client = tsdata->client;
++	int ret = 0;
++	int *value;
++	u8 addr;
++
++	switch (attr->attr.name[0]) {
++		case 't':    /* threshold */
++			addr = WORK_REGISTER_THRESHOLD;
++			value = &tsdata->threshold;
++			break;
++		case 'g':    /* gain */
++			addr = WORK_REGISTER_GAIN;
++			value = &tsdata->gain;
++			break;
++		case 'o':    /* offset */
++			addr = WORK_REGISTER_OFFSET;
++			value = &tsdata->offset;
++			break;
++		default:
++			dev_err (&client->dev, "unknown attribute for edt_ft5x06_i2c_setting_show: %s\n", attr->attr.name);
++			return -EINVAL;
++	}
++
++	mutex_lock (&tsdata->mutex);
++
++	if (tsdata->factory_mode == 1) {
++		dev_err (dev, "setting register not available in factory mode\n");
++		return -EIO;
++	}
++
++	ret = edt_ft5x06_i2c_register_read (tsdata, addr);
++	if (ret < 0) {
++		dev_err (&tsdata->client->dev, "Unable to write to i2c touchscreen!\n");
++		mutex_unlock (&tsdata->mutex);
++		return ret;
++	}
++	mutex_unlock (&tsdata->mutex);
++
++	if (ret != *value) {
++		dev_info (&tsdata->client->dev, "i2c read (%d) and stored value (%d) differ. Huh?\n", ret, *value);
++		*value = ret;
++	}
++
++	return sprintf (buf, "%d\n", ret);
++}
++
++static ssize_t edt_ft5x06_i2c_setting_store (struct device *dev,
++                                             struct device_attribute *attr,
++                                             const char *buf, size_t count)
++{
++	struct edt_ft5x06_i2c_ts_data *tsdata = dev_get_drvdata (dev);
++	struct i2c_client *client = tsdata->client;
++	int ret = 0;
++	u8 addr;
++	unsigned int val;
++
++	mutex_lock (&tsdata->mutex);
++
++	if (tsdata->factory_mode == 1) {
++		dev_err (dev, "setting register not available in factory mode\n");
++		ret = -EIO;
 +		goto out;
++	}
 +
-+	ret =3D mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
-+			MC13XXX_ADC0_TSMOD_MASK, MC13XXX_ADC0_TSMOD0);
-+	if (ret)
-+		mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
++	if (sscanf(buf, "%u", &val) != 1) {
++		dev_err (dev, "Invalid value for attribute %s\n", attr->attr.name);
++		ret = -EINVAL;
++		goto out;
++	}
++
++	switch (attr->attr.name[0]) {
++		case 't':    /* threshold */
++			addr = WORK_REGISTER_THRESHOLD;
++			val = val < 20 ? 20 : val > 80 ? 80 : val;
++			tsdata->threshold = val;
++			break;
++		case 'g':    /* gain */
++			addr = WORK_REGISTER_GAIN;
++			val = val < 0 ? 0 : val > 31 ? 31 : val;
++			tsdata->gain = val;
++			break;
++		case 'o':    /* offset */
++			addr = WORK_REGISTER_OFFSET;
++			val = val < 0 ? 0 : val > 31 ? 31 : val;
++			tsdata->offset = val;
++			break;
++		default:
++			dev_err (&client->dev, "unknown attribute for edt_ft5x06_i2c_setting_show: %s\n", attr->attr.name);
++			ret = -EINVAL;
++			goto out;
++	}
++
++	ret = edt_ft5x06_i2c_register_write (tsdata, addr, val);
++
++	if (ret < 0) {
++		dev_err (&tsdata->client->dev, "Unable to write to i2c touchscreen!\n");
++		goto out;
++	}
++
++	mutex_unlock (&tsdata->mutex);
++	return count;
++
 +out:
-+	mc13xxx_unlock(priv->mc13xxx);
++	mutex_unlock (&tsdata->mutex);
 +	return ret;
 +}
 +
-+static void mc13783_ts_close(struct input_dev *dev)
++
++static ssize_t edt_ft5x06_i2c_mode_show (struct device *dev,
++                                         struct device_attribute *attr,
++                                         char *buf)
 +{
-+	struct mc13783_ts_priv *priv =3D input_get_drvdata(dev);
-+
-+	mc13xxx_lock(priv->mc13xxx);
-+	mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
-+			MC13XXX_ADC0_TSMOD_MASK, 0);
-+	mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
-+	mc13xxx_unlock(priv->mc13xxx);
-+
-+	cancel_delayed_work_sync(&priv->work);
++	struct edt_ft5x06_i2c_ts_data *tsdata = dev_get_drvdata (dev);
++	return sprintf (buf, "%d\n", tsdata->factory_mode);
 +}
 +
-+static int __init mc13783_ts_probe(struct platform_device *pdev)
++static ssize_t edt_ft5x06_i2c_mode_store (struct device *dev,
++                                          struct device_attribute *attr,
++                                          const char *buf, size_t count)
 +{
-+	struct mc13783_ts_priv *priv;
-+	struct input_dev *idev;
-+	int ret =3D -ENOMEM;
++	struct edt_ft5x06_i2c_ts_data *tsdata = dev_get_drvdata (dev);
++	int i, ret = 0;
++	unsigned int mode;
 +
-+	priv =3D kzalloc(sizeof(*priv), GFP_KERNEL);
-+	idev =3D input_allocate_device();
-+	if (!priv || !idev)
-+		goto err_free_mem;
-+
-+	INIT_DELAYED_WORK(&priv->work, mc13783_ts_work);
-+	priv->pdev =3D pdev;
-+	priv->mc13xxx =3D dev_get_drvdata(pdev->dev.parent);
-+	priv->idev =3D idev;
-+
-+	/*
-+	 * We need separate workqueue because mc13783_adc_do_conversion
-+	 * uses keventd and thus would deadlock.
-+	 */
-+	priv->workq =3D create_singlethread_workqueue(pdev->name);
-+	if (!priv->workq)
-+		goto err_free_mem;
-+
-+	idev->name =3D pdev->name;
-+	idev->dev.parent =3D &pdev->dev;
-+
-+	idev->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+	idev->keybit[BIT_WORD(BTN_TOUCH)] =3D BIT_MASK(BTN_TOUCH);
-+	input_set_abs_params(idev, ABS_X, 0, 0xfff, 0, 0);
-+	input_set_abs_params(idev, ABS_Y, 0, 0xfff, 0, 0);
-+	input_set_abs_params(idev, ABS_PRESSURE, 0, 0xfff, 0, 0);
-+
-+	idev->open =3D mc13783_ts_open;
-+	idev->close =3D mc13783_ts_close;
-+
-+	input_set_drvdata(idev, priv);
-+
-+	ret =3D input_register_device(priv->idev);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"register input device failed with %d\n", ret);
-+		goto err_destroy_wq;
++	if (sscanf(buf, "%u", &mode) != 1 || (mode | 1) != 1) {
++		dev_err (dev, "Invalid value for operation mode\n");
++		return -EINVAL;
 +	}
 +
-+	platform_set_drvdata(pdev, priv);
-+	return 0;
++	/* no change, return without doing anything */
++	if (mode == tsdata->factory_mode)
++		return count;
 +
-+err_destroy_wq:
-+	destroy_workqueue(priv->workq);
-+err_free_mem:
-+	input_free_device(idev);
-+	kfree(priv);
-+	return ret;
-+}
++	mutex_lock (&tsdata->mutex);
++	if (tsdata->factory_mode == 0) { /* switch to factory mode */
++		disable_irq (tsdata->irq);
++		/* mode register is 0x3c when in the work mode */
++		ret = edt_ft5x06_i2c_register_write (tsdata, WORK_REGISTER_OPMODE, 0x03);
++		if (ret < 0) {
++			dev_err (dev, "failed to switch to factory mode (%d)\n", ret);
++		} else {
++			tsdata->factory_mode = 1;
++			for (i = 0; i < 10; i++) {
++				mdelay (5);
++				/* mode register is 0x01 when in the factory mode */
++				ret = edt_ft5x06_i2c_register_read (tsdata, FACTORY_REGISTER_OPMODE);
++				if (ret == 0x03)
++					break;
++			}
++			if (i == 10)
++				dev_err (dev, "not in factory mode after %dms.\n", i*5);
++		}
++	} else {  /* switch to work mode */
++		/* mode register is 0x01 when in the factory mode */
++		ret = edt_ft5x06_i2c_register_write (tsdata, FACTORY_REGISTER_OPMODE, 0x01);
++		if (ret < 0) {
++			dev_err (dev, "failed to switch to work mode (%d)\n", ret);
++		} else {
++			tsdata->factory_mode = 0;
++			for (i = 0; i < 10; i++) {
++				mdelay (5);
++				/* mode register is 0x01 when in the factory mode */
++				ret = edt_ft5x06_i2c_register_read (tsdata, WORK_REGISTER_OPMODE);
++				if (ret == 0x01)
++					break;
++			}
++			if (i == 10)
++				dev_err (dev, "not in work mode after %dms.\n", i*5);
 +
-+static int __devexit mc13783_ts_remove(struct platform_device *pdev)
-+{
-+	struct mc13783_ts_priv *priv =3D platform_get_drvdata(pdev);
++			/* restore parameters */
++			edt_ft5x06_i2c_register_write (tsdata, WORK_REGISTER_THRESHOLD, tsdata->threshold);
++			edt_ft5x06_i2c_register_write (tsdata, WORK_REGISTER_GAIN, tsdata->gain);
++			edt_ft5x06_i2c_register_write (tsdata, WORK_REGISTER_OFFSET, tsdata->offset);
 +
-+	platform_set_drvdata(pdev, NULL);
-+
-+	destroy_workqueue(priv->workq);
-+	input_unregister_device(priv->idev);
-+	kfree(priv);
-+
-+	return 0;
-+}
-+static const struct platform_device_id mc13xxx_ts_idtable[] =3D {
-+	{
-+		.name =3D "mc13783-ts",
-+	}, {
-+		.name =3D "mc13892-ts",
-+		.driver_data =3D MC13XXX_TWO_SAMPLES,
-+	}, {
-+		/* sentinel */
++			enable_irq (tsdata->irq);
++		}
 +	}
++
++	mutex_unlock (&tsdata->mutex);
++	return count;
++}
++
++
++static ssize_t edt_ft5x06_i2c_raw_data_show (struct device *dev,
++                                             struct device_attribute *attr,
++                                             char *buf)
++{
++	struct edt_ft5x06_i2c_ts_data *tsdata = dev_get_drvdata (dev);
++	int i, ret;
++	char *ptr, wrbuf[3];
++
++	if (tsdata->factory_mode == 0) {
++		dev_err (dev, "raw data not available in work mode\n");
++		return -EIO;
++	}
++
++	mutex_lock (&tsdata->mutex);
++	ret = edt_ft5x06_i2c_register_write (tsdata, 0x08, 0x01);
++	for (i = 0; i < 100; i++) {
++		ret = edt_ft5x06_i2c_register_read (tsdata, 0x08);
++		if (ret < 1)
++			break;
++		udelay (1000);
++	}
++
++	if (i == 100 || ret < 0) {
++		dev_err (dev, "waiting time exceeded or error: %d\n", ret);
++		mutex_unlock (&tsdata->mutex);
++		return ret || ETIMEDOUT;
++	}
++
++	ptr = buf;
++	wrbuf[0] = 0xf5;
++	wrbuf[1] = 0x0e;
++	for (i = 0; i <= tsdata->num_x; i++) {
++		wrbuf[2] = i;
++		ret = edt_ft5x06_ts_readwrite (tsdata->client,
++		                               3, wrbuf,
++		                               tsdata->num_y * 2, ptr);
++		if (ret < 0) {
++			mutex_unlock (&tsdata->mutex);
++			return ret;
++		}
++
++		ptr += tsdata->num_y * 2;
++	}
++
++	mutex_unlock (&tsdata->mutex);
++	return ptr - buf;
++}
++
++
++static DEVICE_ATTR(gain,      0664, edt_ft5x06_i2c_setting_show, edt_ft5x06_i2c_setting_store);
++static DEVICE_ATTR(offset,    0664, edt_ft5x06_i2c_setting_show, edt_ft5x06_i2c_setting_store);
++static DEVICE_ATTR(threshold, 0664, edt_ft5x06_i2c_setting_show, edt_ft5x06_i2c_setting_store);
++static DEVICE_ATTR(mode,      0664, edt_ft5x06_i2c_mode_show, edt_ft5x06_i2c_mode_store);
++static DEVICE_ATTR(raw_data,  0444, edt_ft5x06_i2c_raw_data_show, NULL);
++
++static struct attribute *edt_ft5x06_i2c_attrs[] = {
++	&dev_attr_gain.attr,
++	&dev_attr_offset.attr,
++	&dev_attr_threshold.attr,
++	&dev_attr_mode.attr,
++	&dev_attr_raw_data.attr,
++	NULL
 +};
-+MODULE_DEVICE_TABLE(platform, mc13xxx_ts_idtable);
 +
-+static struct platform_driver mc13783_ts_driver =3D {
-+	.id_table	=3D mc13xxx_ts_idtable,
-+	.remove		=3D __devexit_p(mc13783_ts_remove),
-+	.driver		=3D {
-+		.owner	=3D THIS_MODULE,
-+		.name	=3D DRIVER_NAME,
++static const struct attribute_group edt_ft5x06_i2c_attr_group = {
++	.attrs = edt_ft5x06_i2c_attrs,
++};
++
++static int edt_ft5x06_i2c_ts_probe (struct i2c_client *client,
++                                    const struct i2c_device_id *id)
++{
++
++	struct edt_ft5x06_i2c_ts_data *tsdata;
++	struct input_dev *input;
++	int error;
++	u8 rdbuf[23];
++	char *model_name = NULL;
++	char *fw_version = NULL;
++
++	dev_info (&client->dev, "probing for EDT FT5x06 I2C\n");
++
++	if (!client->irq) {
++		dev_dbg (&client->dev, "no IRQ?\n");
++		return -ENODEV;
++	}
++
++	if (!client->dev.platform_data) {
++		dev_dbg (&client->dev, "no reset pin in platform data?\n");
++		return -ENODEV;
++	}
++
++	tsdata = kzalloc (sizeof (*tsdata), GFP_KERNEL);
++	if (!tsdata) {
++		dev_err (&client->dev, "failed to allocate driver data!\n");
++		dev_set_drvdata (&client->dev, NULL);
++		return -ENOMEM;
++	}
++
++	dev_set_drvdata (&client->dev, tsdata);
++	tsdata->client = client;
++
++	tsdata->reset_pin = ((struct edt_ft5x06_platform_data *) client->dev.platform_data)->reset_pin;
++	mutex_init (&tsdata->mutex);
++
++	error = gpio_request (tsdata->reset_pin, NULL);
++	if (error < 0) {
++		dev_err (&client->dev,
++		         "Failed to request GPIO %d as reset pin, error %d\n",
++		         tsdata->reset_pin, error);
++		error = -ENOMEM;
++		goto err_free_tsdata;
++	}
++
++	/* this pulls reset down, enabling the low active reset */
++	if (gpio_direction_output (tsdata->reset_pin, 0) < 0) {
++		dev_info (&client->dev, "switching to output failed\n");
++		error = -ENOMEM;
++		goto err_free_reset_pin;
++	}
++
++	/* request IRQ pin */
++	tsdata->irq = client->irq;
++	tsdata->irq_pin = irq_to_gpio (tsdata->irq);
++
++	error = gpio_request (tsdata->irq_pin, NULL);
++	if (error < 0) {
++		dev_err (&client->dev,
++		         "Failed to request GPIO %d for IRQ %d, error %d\n",
++		         tsdata->irq_pin, tsdata->irq, error);
++		error = -ENOMEM;
++		goto err_free_reset_pin;
++	}
++	gpio_direction_input (tsdata->irq_pin);
++
++	/* release reset */
++	mdelay (50);
++	gpio_set_value (tsdata->reset_pin, 1);
++	mdelay (100);
++
++	mutex_lock (&tsdata->mutex);
++
++	tsdata->factory_mode = 0;
++
++	if (edt_ft5x06_ts_readwrite (client, 1, "\xbb", 22, rdbuf) < 0) {
++		dev_err (&client->dev, "probing failed\n");
++		error = -ENODEV;
++		goto err_free_irq_pin;
++	}
++
++	rdbuf[22] = '\0';
++	if (rdbuf[21] == '$')
++		rdbuf[21] = '\0';
++
++	model_name = rdbuf + 1;
++	fw_version = rdbuf;
++	/* look for Model/Version separator */
++	while (fw_version[0] != '\0' && fw_version[0] != '*')
++		fw_version++;
++
++	tsdata->threshold = edt_ft5x06_i2c_register_read (tsdata, WORK_REGISTER_THRESHOLD);
++	tsdata->gain      = edt_ft5x06_i2c_register_read (tsdata, WORK_REGISTER_GAIN);
++	tsdata->offset    = edt_ft5x06_i2c_register_read (tsdata, WORK_REGISTER_OFFSET);
++	tsdata->num_x     = edt_ft5x06_i2c_register_read (tsdata, WORK_REGISTER_NUM_X);
++	tsdata->num_y     = edt_ft5x06_i2c_register_read (tsdata, WORK_REGISTER_NUM_Y);
++
++	mutex_unlock (&tsdata->mutex);
++
++	if (fw_version[0] == '*') {
++		fw_version[0] = '\0';
++		fw_version++;
++		dev_info (&client->dev, "Model \"%s\", Rev. \"%s\", %dx%d sensors\n",
++		          model_name, fw_version, tsdata->num_x, tsdata->num_y);
++	} else {
++		dev_info (&client->dev, "Product ID \"%s\"\n", rdbuf + 1);
++	}
++
++	input = input_allocate_device ();
++	if (!input) {
++		dev_err (&client->dev, "failed to allocate input device!\n");
++		error = -ENOMEM;
++		goto err_free_irq_pin;
++	}
++
++	set_bit (EV_SYN, input->evbit);
++	set_bit (EV_KEY, input->evbit);
++	set_bit (EV_ABS, input->evbit);
++	set_bit (BTN_TOUCH, input->keybit);
++	input_set_abs_params (input, ABS_X, 0, tsdata->num_x * 64 - 1, 0, 0);
++	input_set_abs_params (input, ABS_Y, 0, tsdata->num_y * 64 - 1, 0, 0);
++	input_set_abs_params (input, ABS_PRESSURE, 0, 1, 0, 0);
++	input_set_abs_params (input, ABS_MT_POSITION_X, 0, tsdata->num_x * 64 - 1, 0, 0);
++	input_set_abs_params (input, ABS_MT_POSITION_Y, 0, tsdata->num_y * 64 - 1, 0, 0);
++	input_set_abs_params (input, ABS_MT_TRACKING_ID, 0, 15, 0, 0);
++
++	input->name = kstrdup (model_name, GFP_NOIO);
++	input->id.bustype = BUS_I2C;
++	input->dev.parent = &client->dev;
++
++	input_set_drvdata (input, tsdata);
++
++	tsdata->input = input;
++
++	if ((error = input_register_device (input)))
++		goto err_free_input_device;
++
++	if (request_threaded_irq (tsdata->irq, NULL, edt_ft5x06_ts_isr,
++	                          IRQF_TRIGGER_LOW | IRQF_ONESHOT,
++	                          client->name, tsdata)) {
++		dev_err (&client->dev, "Unable to request touchscreen IRQ.\n");
++		input = NULL;
++		error = -ENOMEM;
++		goto err_unregister_device;
++	}
++
++	error = sysfs_create_group (&client->dev.kobj, &edt_ft5x06_i2c_attr_group);
++	if (error)
++		goto err_free_irq;
++
++	device_init_wakeup (&client->dev, 1);
++
++	dev_info (&tsdata->client->dev,
++	          "EDT FT5x06 initialized: IRQ pin %d, Reset pin %d.\n",
++	          tsdata->irq_pin, tsdata->reset_pin);
++
++	return 0;
++
++err_free_irq:
++	free_irq (client->irq, tsdata);
++err_unregister_device:
++	input_unregister_device (input);
++err_free_input_device:
++	kfree (input->name);
++	input_free_device (input);
++err_free_irq_pin:
++	gpio_free (tsdata->irq_pin);
++err_free_reset_pin:
++	gpio_free (tsdata->reset_pin);
++err_free_tsdata:
++	kfree (tsdata);
++	return error;
++}
++
++static int edt_ft5x06_i2c_ts_remove (struct i2c_client *client)
++{
++	struct edt_ft5x06_i2c_ts_data *tsdata = dev_get_drvdata (&client->dev);
++
++	sysfs_remove_group (&client->dev.kobj, &edt_ft5x06_i2c_attr_group);
++
++	free_irq (client->irq, tsdata);
++	input_unregister_device (tsdata->input);
++	kfree (tsdata->input->name);
++	input_free_device (tsdata->input);
++	gpio_free (tsdata->irq_pin);
++	gpio_free (tsdata->reset_pin);
++	kfree (tsdata);
++
++	dev_set_drvdata (&client->dev, NULL);
++	return 0;
++}
++
++static int edt_ft5x06_i2c_ts_suspend (struct i2c_client *client, pm_message_t mesg)
++{
++	struct edt_ft5x06_i2c_ts_data *tsdata = dev_get_drvdata (&client->dev);
++
++	if (device_may_wakeup (&client->dev))
++		enable_irq_wake (tsdata->irq);
++
++	return 0;
++}
++
++static int edt_ft5x06_i2c_ts_resume (struct i2c_client *client)
++{
++	struct edt_ft5x06_i2c_ts_data *tsdata = dev_get_drvdata (&client->dev);
++
++	if (device_may_wakeup (&client->dev))
++		disable_irq_wake (tsdata->irq);
++
++	return 0;
++}
++
++static const struct i2c_device_id edt_ft5x06_i2c_ts_id[] =
++{
++	{ "edt-ft5x06", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE (i2c, edt_ft5x06_i2c_ts_id);
++
++static struct i2c_driver edt_ft5x06_i2c_ts_driver =
++{
++	.driver = {
++		.owner = THIS_MODULE,
++		.name = "edt_ft5x06_i2c",
 +	},
++	.id_table = edt_ft5x06_i2c_ts_id,
++	.probe    = edt_ft5x06_i2c_ts_probe,
++	.remove   = edt_ft5x06_i2c_ts_remove,
++	.suspend  = edt_ft5x06_i2c_ts_suspend,
++	.resume   = edt_ft5x06_i2c_ts_resume,
 +};
 +
-+static int __init mc13783_ts_init(void)
++static int __init edt_ft5x06_i2c_ts_init (void)
 +{
-+	return platform_driver_probe(&mc13783_ts_driver, &mc13783_ts_probe);
++	return i2c_add_driver (&edt_ft5x06_i2c_ts_driver);
 +}
-+module_init(mc13783_ts_init);
++module_init (edt_ft5x06_i2c_ts_init);
 +
-+static void __exit mc13783_ts_exit(void)
++static void __exit edt_ft5x06_i2c_ts_exit (void)
 +{
-+	platform_driver_unregister(&mc13783_ts_driver);
++	i2c_del_driver (&edt_ft5x06_i2c_ts_driver);
 +}
-+module_exit(mc13783_ts_exit);
++module_exit (edt_ft5x06_i2c_ts_exit);
 +
-+MODULE_DESCRIPTION("MC13783 input touchscreen driver");
-+MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
-+MODULE_LICENSE("GPL v2");
---=20
-1.7.6.3
++MODULE_AUTHOR ("Simon Budig <simon.budig@kernelconcepts.de>");
++MODULE_DESCRIPTION ("EDT FT5x06 I2C Touchscreen Driver");
++MODULE_LICENSE (GPL);
++
+diff --git a/include/linux/input/edt-ft5x06.h b/include/linux/input/edt-ft5x06.h
+new file mode 100644
+index 0000000..d7fd990
+--- /dev/null
++++ b/include/linux/input/edt-ft5x06.h
+@@ -0,0 +1,16 @@
++#ifndef _EDT_FT5X06_H
++#define _EDT_FT5X06_H
++
++/*
++ * Copyright (c) 2011 Simon Budig, <simon.budig@kernelconcepts.de>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++struct edt_ft5x06_platform_data {
++	unsigned int reset_pin;
++};
++
++#endif /* _EDT_FT5X06_H */
+-- 
+1.7.4.1
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

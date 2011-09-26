@@ -1,34 +1,25 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/2] autodetection of multitouch devices
-Date: Mon, 26 Sep 2011 14:20:08 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1109261419330.13109@pobox.suse.cz>
-References: <1316617015-11648-1-git-send-email-benjamin.tissoires@gmail.com>
+From: MamudaDiallo <mamudadiallo1958@gmail.com>
+Subject: dear friend,
+Date: Mon, 26 Sep 2011 14:16:19 +0100 (BST)
+Message-ID: <1317042979.20384.YahooMailClassic@web24613.mail.ird.yahoo.com>
+Reply-To: mamudadiallo2006@gmail.com
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40589 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752875Ab1IZMUM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Sep 2011 08:20:12 -0400
-In-Reply-To: <1316617015-11648-1-git-send-email-benjamin.tissoires@gmail.com>
+Received: from nm9-vm1.bullet.mail.ird.yahoo.com ([77.238.189.94]:20960 "HELO
+	nm9-vm1.bullet.mail.ird.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751343Ab1IZNQV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Sep 2011 09:16:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 21 Sep 2011, Benjamin Tissoires wrote:
-
-> Hi Guys,
-> 
-> These two patches finally enable the kernel to handle multitouch devices correctly.
-> If a device presents in its report descriptors the usage Contact ID, then it is considered as
-> a multitouch device and handled by hid-multitouch.
-
-Hi Banjamin,
-
-thanks a lot for working on this. I have now queued the patches in my 
-tree.
-
--- 
-Jiri Kosina
-SUSE Labs
+dear friend,
+I am working with one of the prime bank here in Burkina Faso, can you help me repatriate the sun of 14.3million dollars to your oversea account based on percentage.
+(1) Can you handle this project? 
+(2) Can I give you this trust? 
+(3) What will be your commission?
+I expect your urgent response if you can handle this project.
+Best Regard's,
+MR.MAMUDA  DIALLO. 

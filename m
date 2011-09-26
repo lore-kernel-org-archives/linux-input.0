@@ -1,48 +1,48 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: [PATCH 0/2] autodetection of multitouch devices
-Date: Mon, 26 Sep 2011 16:46:35 +0200
-Message-ID: <20110926144635.GA6921@polaris.bitmath.org>
-References: <1316617015-11648-1-git-send-email-benjamin.tissoires@gmail.com>
- <alpine.LNX.2.00.1109261419330.13109@pobox.suse.cz>
+Date: Mon, 26 Sep 2011 16:47:00 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1109261644250.24692@pobox.suse.cz>
+References: <1316617015-11648-1-git-send-email-benjamin.tissoires@gmail.com> <alpine.LNX.2.00.1109261419330.13109@pobox.suse.cz> <20110926144635.GA6921@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:43136 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751195Ab1IZOnM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Sep 2011 10:43:12 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1109261419330.13109@pobox.suse.cz>
+Received: from cantor2.suse.de ([195.135.220.15]:48112 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751429Ab1IZOrE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Sep 2011 10:47:04 -0400
+In-Reply-To: <20110926144635.GA6921@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
+To: Henrik Rydberg <rydberg@euromail.se>
 Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Sep 26, 2011 at 02:20:08PM +0200, Jiri Kosina wrote:
-> On Wed, 21 Sep 2011, Benjamin Tissoires wrote:
-> 
-> > Hi Guys,
+On Mon, 26 Sep 2011, Henrik Rydberg wrote:
+
+> > > These two patches finally enable the kernel to handle multitouch devices correctly.
+> > > If a device presents in its report descriptors the usage Contact ID, then it is considered as
+> > > a multitouch device and handled by hid-multitouch.
 > > 
-> > These two patches finally enable the kernel to handle multitouch devices correctly.
-> > If a device presents in its report descriptors the usage Contact ID, then it is considered as
-> > a multitouch device and handled by hid-multitouch.
+> > Hi Banjamin,
+> > 
+> > thanks a lot for working on this. I have now queued the patches in my 
+> > tree.
 > 
-> Hi Banjamin,
+> Hi Benjamin,
 > 
-> thanks a lot for working on this. I have now queued the patches in my 
-> tree.
+> Late as it seems, here are a couple of questions:
+> 
+> 1. How was this tested? By removing all white-listed devices in
+> hid-multitouch.c to see if the usual suspects are still picked up?
 
-Hi Benjamin,
+If we didn't have full test coverage (which I suppose to be the case), we 
+can still revert to the old method after the merge window if there reports 
+that this broke things on particular devices.
 
-Late as it seems, here are a couple of questions:
-
-1. How was this tested? By removing all white-listed devices in
-hid-multitouch.c to see if the usual suspects are still picked up?
-
-2. Having the device blacklist inside hid-multitouch.c seems awkward.
-I can see the benefits of putting it in a module, but is there any
-other rationale? Right now the blacklist duplicates the hid whitelist.
+Do you guys at least have report descriptor dumps from most of the 
+supported devices?
 
 Thanks,
-Henrik
+
+-- 
+Jiri Kosina
+SUSE Labs

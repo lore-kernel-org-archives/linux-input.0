@@ -1,278 +1,138 @@
 From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH v3] input: Add a driver TSC-40 (serial)
-Date: Tue, 27 Sep 2011 09:30:10 +0200
-Message-ID: <CAH9NwWetEaxzNihxRduvnWN0ADfJKADALmyeUVZnxr5cz-eU2A@mail.gmail.com>
+Subject: [PATCH] inputattach: add support for tsc40
+Date: Tue, 27 Sep 2011 09:40:13 +0200
+Message-ID: <CAH9NwWfm2YC4PrPWhm-A=OJOVyw3LApVw__OjfekeCMgQmaGKA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:52173 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:63803 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751676Ab1I0Haa (ORCPT
+	with ESMTP id S1751785Ab1I0Hkd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Sep 2011 03:30:30 -0400
-Received: by iaqq3 with SMTP id q3so5404559iaq.19
-        for <linux-input@vger.kernel.org>; Tue, 27 Sep 2011 00:30:30 -0700 (PDT)
+	Tue, 27 Sep 2011 03:40:33 -0400
+Received: by iaqq3 with SMTP id q3so5412781iaq.19
+        for <linux-input@vger.kernel.org>; Tue, 27 Sep 2011 00:40:33 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: linux-input@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Stephen Kitt <steve@sk2.org>
 
->From e90718a2fa33442c3897185653cbf5fd9a9d7bfe Mon Sep 17 00:00:00 2001
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Tue, 27 Sep 2011 11:22:25 +0200
-Subject: [PATCH v3] input: Add a driver TSC-40 (serial)
+This patch adds support for TSC-40 driver to inputattach.
 
-This patch adds the TSC-40 serial touchscreen driver and
-should be compatible with TSC-10 and TSC-25.
-
-The driver was written by Linutronix on behalf of
-Bachmann electronic GmbH.
-
-Changes v2 -> v3:
-- remove fake pressure reporting
-- incorporated feedback from Dmitry Torokhov
-
-Changes v1 -> v2:
-- initialisation of the controller moved to inputattach
-- incorporated feedback from Dmitry Torokhov and
- Sebastian Andrzej Siewior
-
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
 ---
- drivers/input/touchscreen/Kconfig  |   12 +++
- drivers/input/touchscreen/Makefile |    1 +
- drivers/input/touchscreen/tsc40.c  |  172 ++++++++++++++++++++++++++++++++++++
- include/linux/serio.h              |    1 +
- 4 files changed, 186 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/tsc40.c
 
-diff --git a/drivers/input/touchscreen/Kconfig
-b/drivers/input/touchscreen/Kconfig
-index cabd9e5..a51635c 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -651,6 +651,18 @@ config TOUCHSCREEN_TOUCHIT213
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called touchit213.
+diff -Nur linuxconsoletools-1.4.2/docs/inputattach.1
+linuxconsoletools-1.4.2_patched//docs/inputattach.1
+--- linuxconsoletools-1.4.2/docs/inputattach.1	2011-08-09
+07:35:02.000000000 +0200
++++ linuxconsoletools-1.4.2_patched//docs/inputattach.1	2011-09-27
+11:39:28.935479294 +0200
+@@ -108,6 +108,9 @@
+ .BR \-taos ", " \-\-taos\-evm
+ TAOS evaluation module.
+ .TP
++.BR \-tsc ", " \-\-tsc
++TSC-10/25/40 touch screen.
++.TP
+ .BR \-t213 ", " \-\-touchit213
+ Sahara Touch-iT213 Tablet PC.
+ .TP
+diff -Nur linuxconsoletools-1.4.2/utils/inputattach.c
+linuxconsoletools-1.4.2_patched//utils/inputattach.c
+--- linuxconsoletools-1.4.2/utils/inputattach.c	2011-08-09
+07:43:10.000000000 +0200
++++ linuxconsoletools-1.4.2_patched//utils/inputattach.c	2011-09-27
+11:38:01.071479288 +0200
+@@ -354,6 +354,82 @@
+ 	return 0;
+ }
 
-+config TOUCHSCREEN_TSC_SERIO
-+	tristate "TSC-10/25/40 serial touchscreen"
-+	select SERIO
-+	help
-+	  Say Y here if you have a TSC-10, 25 or 40 serial touchscreen connected
-+	  to your system.
++static int tsc40_init(int fd, unsigned long *id, unsigned long *extra)
++{
++	unsigned char cmd[2], data;
++	unsigned int eeprom;
++
++	/* Datasheet can be found here:
++	 * http://www.distec.de/PDF/Drivers/DMC/TSC40_Protocol_Description.pdf
++	 */
++
++#define TSC40_CMD_DATA1	0x01
++#define TSC40_CMD_RATE	0x05
++#define TSC40_CMD_ID	0x15
++#define TSC40_CMD_RESET	0x55
++
++#define TSC40_RATE_150	0x45
++#define TSC40_NACK	0x15
++
++	/* trigger a software reset to get into a well known state */
++	cmd[0] = TSC40_CMD_RESET;
++	if (write(fd, cmd, 1) != 1)
++		return -1;
 +	
-+	  If unsure, say N.
++	/* wait to settle down */
++	usleep(15 * 1000); /* 15 ms */	
++	
++	/* read panel ID to check if an EEPROM is used */
++	cmd[0] = TSC40_CMD_ID;
++	if (write(fd, cmd, 1) != 1)
++		return -1;
++	
++	if (readchar(fd, &data, 100))
++		return -1;
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called tsc40.
++	/* if bit7 is not set --> EEPROM is used */
++	eeprom = !((data & 0x80) >> 7);
++	
++	/* ignore 2nd byte of ID cmd */
++	if (readchar(fd, &data, 100))
++		return -1;
++	
++	/* set coordinate oupt rate setting */
++	cmd[0] = TSC40_CMD_RATE;
++	cmd[1] = TSC40_RATE_150;
++	if (write(fd, cmd, 2) != 2)
++		return -1;
++	
++	/* read response */
++	if (readchar(fd, &data, 100))
++		return -1;
++	
++	if ((data == TSC40_NACK) && (eeprom == 1)) {
++		/* get detailed failure information */
++		if (readchar(fd, &data, 100))
++			return -1;
 +
- config TOUCHSCREEN_TSC2005
-         tristate "TSC2005 based touchscreens"
-         depends on SPI_MASTER && GENERIC_HARDIRQS
-diff --git a/drivers/input/touchscreen/Makefile
-b/drivers/input/touchscreen/Makefile
-index 282d6f7..f957676 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -46,6 +46,7 @@ obj-$(CONFIG_TOUCHSCREEN_TNETV107X)	+= tnetv107x-ts.o
- obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+= touchit213.o
- obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
- obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+= touchwin.o
-+obj-$(CONFIG_TOUCHSCREEN_TSC_SERIO)	+= tsc40.o
- obj-$(CONFIG_TOUCHSCREEN_TSC2005)	+= tsc2005.o
- obj-$(CONFIG_TOUCHSCREEN_TSC2007)	+= tsc2007.o
- obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+= ucb1400_ts.o
-diff --git a/drivers/input/touchscreen/tsc40.c
-b/drivers/input/touchscreen/tsc40.c
-new file mode 100644
-index 0000000..3aa9048
---- /dev/null
-+++ b/drivers/input/touchscreen/tsc40.c
-@@ -0,0 +1,172 @@
-+/*
-+ * TSC-40 serial touchscreen driver. It should be compatiible with
-TSC-10 and 25.
-+ * Author: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-+ * License: GPLv2 as published by the FSF.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/input.h>
-+#include <linux/serio.h>
-+#include <linux/init.h>
-+
-+#define PACKET_LENGTH  5
-+struct tsc_ser {
-+	struct input_dev *dev;
-+	struct serio *serio;
-+	u32 idx;
-+	unsigned char data[PACKET_LENGTH];
-+	char phys[32];
-+};
-+
-+static void tsc_process_data(struct tsc_ser *ptsc)
-+{
-+	struct input_dev *dev = ptsc->dev;
-+	u8 *data = ptsc->data;
-+	u32 x;
-+	u32 y;
-+
-+	x = ((data[1] & 0x03) << 8) | data[2];
-+	y = ((data[3] & 0x03) << 8) | data[4];
-+
-+	input_report_abs(dev, ABS_X, x);
-+	input_report_abs(dev, ABS_Y, y);
-+	input_report_key(dev, BTN_TOUCH, 1);
-+
-+	input_sync(dev);
-+
-+	ptsc->idx = 0;
-+}
-+
-+static bool pen_is_up(u8 data)
-+{
-+	/* SW[01] are unknown */
-+	u8 val = data & 0x3f;
-+	u8 up_val = 1 << 4;
-+
-+	return val == up_val;
-+}
-+
-+static irqreturn_t tsc_interrupt(struct serio *serio,
-+		unsigned char data, unsigned int flags)
-+{
-+	struct tsc_ser *ptsc = serio_get_drvdata(serio);
-+	struct input_dev *dev = ptsc->dev;
-+
-+	if (!ptsc->idx && pen_is_up(data)) {
-+		input_report_key(dev, BTN_TOUCH, 0);
-+		input_sync(dev);
-+		return IRQ_HANDLED;
++		switch (data) {
++		case 0x02:	/* EEPROM data abnormal */
++		case 0x04:	/* EEPROM write error */
++		case 0x08:	/* Touch screen not connected */
++			return -1;
++			break;
++			
++		default:
++			/* 0x01: EEPROM data empty */
++			break;
++		}
 +	}
 +
-+	ptsc->data[ptsc->idx] = data;
-+	ptsc->idx++;
-+
-+	if (ptsc->idx < PACKET_LENGTH)
-+		return IRQ_HANDLED;
-+
-+	tsc_process_data(ptsc);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int tsc_connect(struct serio *serio, struct serio_driver *drv)
-+{
-+	struct tsc_ser *ptsc;
-+	struct input_dev *input_dev;
-+	int ret;
-+
-+	ptsc = kzalloc(sizeof(struct tsc_ser), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!ptsc || !input_dev) {
-+		ret = -ENOMEM;
-+		goto fail1;
-+	}
-+
-+	ptsc->serio = serio;
-+	ptsc->dev = input_dev;
-+	snprintf(ptsc->phys, sizeof(ptsc->phys), "%s/input0", serio->phys);
-+
-+	input_dev->name = "TSC-10/25/40 Serial TouchScreen";
-+	input_dev->phys = ptsc->phys;
-+	input_dev->id.bustype = BUS_RS232;
-+	input_dev->id.vendor = SERIO_TSC40;
-+	input_dev->id.product = 40;
-+	input_dev->id.version = 0x0001;
-+	input_dev->dev.parent = &serio->dev;
-+	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+	input_set_abs_params(ptsc->dev, ABS_X, 0, 0x3ff, 0, 0);
-+	input_set_abs_params(ptsc->dev, ABS_Y, 0, 0x3ff, 0, 0);
-+	input_set_abs_params(ptsc->dev, ABS_PRESSURE, 0, 0, 0, 0);
-+	serio_set_drvdata(serio, ptsc);
-+
-+	ret = serio_open(serio, drv);
-+	if (ret)
-+		goto fail2;
-+
-+	ret = input_register_device(ptsc->dev);
-+	if (ret)
-+		goto fail3;
++	/* start sending coordinate informations */
++	cmd[0] = TSC40_CMD_DATA1;
++	if (write(fd, cmd, 1) != 1)
++		return -1;
 +
 +	return 0;
-+fail3:
-+	serio_close(serio);
-+fail2:
-+	serio_set_drvdata(serio, NULL);
-+fail1:
-+	input_free_device(input_dev);
-+	kfree(ptsc);
-+	return ret;
 +}
 +
-+static void tsc_disconnect(struct serio *serio)
-+{
-+	struct tsc_ser *ptsc = serio_get_drvdata(serio);
-+
-+	serio_close(serio);
-+	input_unregister_device(ptsc->dev);
-+	kfree(ptsc);
-+	serio_set_drvdata(serio, NULL);
-+}
-+
-+static struct serio_device_id tsc_serio_ids[] = {
-+	{
-+		.type   = SERIO_RS232,
-+		.proto  = SERIO_TSC40,
-+		.id     = SERIO_ANY,
-+		.extra  = SERIO_ANY,
-+	},
-+	{ 0 }
-+};
-+MODULE_DEVICE_TABLE(serio, tsc_serio_ids);
-+
-+#define DRIVER_DESC    "TSC-10/25/40 serial touchscreen driver"
-+
-+static struct serio_driver tsc_drv = {
-+	.driver	= {
-+		.name   = "tsc40",
-+	},
-+	.description    = DRIVER_DESC,
-+	.id_table	= tsc_serio_ids,
-+	.interrupt      = tsc_interrupt,
-+	.connect	= tsc_connect,
-+	.disconnect     = tsc_disconnect,
-+};
-+
-+static int __init tsc_ser_init(void)
-+{
-+	return serio_register_driver(&tsc_drv);
-+}
-+module_init(tsc_ser_init);
-+
-+static void __exit tsc_exit(void)
-+{
-+	serio_unregister_driver(&tsc_drv);
-+}
-+module_exit(tsc_exit);
-+
-+MODULE_AUTHOR("Sebastian Andrzej Siewior <bigeasy@linutronix.de>");
-+MODULE_DESCRIPTION(DRIVER_DESC);
-+MODULE_LICENSE("GPLv2");
-diff --git a/include/linux/serio.h b/include/linux/serio.h
-index e26f478..be7dfb0 100644
---- a/include/linux/serio.h
-+++ b/include/linux/serio.h
-@@ -199,5 +199,6 @@ static inline void serio_continue_rx(struct serio *serio)
- #define SERIO_DYNAPRO	0x3a
- #define SERIO_HAMPSHIRE	0x3b
- #define SERIO_PS2MULT	0x3c
-+#define SERIO_TSC40	0x3d
-
- #endif
--- 
-1.7.4.1
+ static int t213_init(int fd, unsigned long *id, unsigned long *extra)
+ {
+ 	char cmd[]={0x0a,1,'A'};
+@@ -556,6 +632,9 @@
+ { "--mtouch",		"-mtouch",	"MicroTouch (3M) touchscreen",
+ 	B9600, CS8 | CRTSCTS,
+ 	SERIO_MICROTOUCH,	0x00,	0x00,	0,	NULL },
++{ "--tsc",		"-tsc",		"TSC-10/25/40 serial touchscreen",
++	B9600, CS8,
++	SERIO_TSC40,		0x00,	0x00,	0,	tsc40_init },
+ { "--touchit213",	"-t213",	"Sahara Touch-iT213 Tablet PC",
+ 	B9600, CS8,
+ 	SERIO_TOUCHIT213,	0x00,	0x00,	0,	t213_init },

@@ -1,59 +1,278 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [patch] HID: hiddev: potential info leak in hiddev_ioctl()
-Date: Tue, 27 Sep 2011 01:34:46 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1109270134210.24692@pobox.suse.cz>
-References: <20110923062113.GE4387@elgon.mountain>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH v3] input: Add a driver TSC-40 (serial)
+Date: Tue, 27 Sep 2011 09:30:10 +0200
+Message-ID: <CAH9NwWetEaxzNihxRduvnWN0ADfJKADALmyeUVZnxr5cz-eU2A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45569 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753073Ab1IZXer (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Sep 2011 19:34:47 -0400
-In-Reply-To: <20110923062113.GE4387@elgon.mountain>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:52173 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751676Ab1I0Haa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Sep 2011 03:30:30 -0400
+Received: by iaqq3 with SMTP id q3so5404559iaq.19
+        for <linux-input@vger.kernel.org>; Tue, 27 Sep 2011 00:30:30 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: linux-input@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-On Fri, 23 Sep 2011, Dan Carpenter wrote:
+>From e90718a2fa33442c3897185653cbf5fd9a9d7bfe Mon Sep 17 00:00:00 2001
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Date: Tue, 27 Sep 2011 11:22:25 +0200
+Subject: [PATCH v3] input: Add a driver TSC-40 (serial)
 
-> Smatch has a new check for Rosenberg type information leaks where
-> structs are copied to the user with uninitialized stack data in them.
-> 
-> In this case, the hiddev_devinfo struct has a two byte hole.
-> 
-> struct hiddev_devinfo {
->         __u32                      bustype;              /*     0     4 */
->         __u32                      busnum;               /*     4     4 */
->         __u32                      devnum;               /*     8     4 */
->         __u32                      ifnum;                /*    12     4 */
->         __s16                      vendor;               /*    16     2 */
->         __s16                      product;              /*    18     2 */
->         __s16                      version;              /*    20     2 */
-> 
->         /* XXX 2 bytes hole, try to pack */
-> 
->         __u32                      num_applications;     /*    24     4 */
-> 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> 
-> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-> index 7c1188b..4ef02b2 100644
-> --- a/drivers/hid/usbhid/hiddev.c
-> +++ b/drivers/hid/usbhid/hiddev.c
-> @@ -641,6 +641,8 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
->  			struct usb_device *dev = hid_to_usb_dev(hid);
->  			struct usbhid_device *usbhid = hid->driver_data;
->  
-> +			memset(&dinfo, 0, sizeof(dinfo));
-> +
->  			dinfo.bustype = BUS_USB;
->  			dinfo.busnum = dev->bus->busnum;
->  			dinfo.devnum = dev->devnum;
+This patch adds the TSC-40 serial touchscreen driver and
+should be compatible with TSC-10 and TSC-25.
 
-Applied, thanks Dan.
+The driver was written by Linutronix on behalf of
+Bachmann electronic GmbH.
 
+Changes v2 -> v3:
+- remove fake pressure reporting
+- incorporated feedback from Dmitry Torokhov
+
+Changes v1 -> v2:
+- initialisation of the controller moved to inputattach
+- incorporated feedback from Dmitry Torokhov and
+ Sebastian Andrzej Siewior
+
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+---
+ drivers/input/touchscreen/Kconfig  |   12 +++
+ drivers/input/touchscreen/Makefile |    1 +
+ drivers/input/touchscreen/tsc40.c  |  172 ++++++++++++++++++++++++++++++++++++
+ include/linux/serio.h              |    1 +
+ 4 files changed, 186 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/tsc40.c
+
+diff --git a/drivers/input/touchscreen/Kconfig
+b/drivers/input/touchscreen/Kconfig
+index cabd9e5..a51635c 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -651,6 +651,18 @@ config TOUCHSCREEN_TOUCHIT213
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called touchit213.
+
++config TOUCHSCREEN_TSC_SERIO
++	tristate "TSC-10/25/40 serial touchscreen"
++	select SERIO
++	help
++	  Say Y here if you have a TSC-10, 25 or 40 serial touchscreen connected
++	  to your system.
++	
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called tsc40.
++
+ config TOUCHSCREEN_TSC2005
+         tristate "TSC2005 based touchscreens"
+         depends on SPI_MASTER && GENERIC_HARDIRQS
+diff --git a/drivers/input/touchscreen/Makefile
+b/drivers/input/touchscreen/Makefile
+index 282d6f7..f957676 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -46,6 +46,7 @@ obj-$(CONFIG_TOUCHSCREEN_TNETV107X)	+= tnetv107x-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+= touchit213.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+= touchwin.o
++obj-$(CONFIG_TOUCHSCREEN_TSC_SERIO)	+= tsc40.o
+ obj-$(CONFIG_TOUCHSCREEN_TSC2005)	+= tsc2005.o
+ obj-$(CONFIG_TOUCHSCREEN_TSC2007)	+= tsc2007.o
+ obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+= ucb1400_ts.o
+diff --git a/drivers/input/touchscreen/tsc40.c
+b/drivers/input/touchscreen/tsc40.c
+new file mode 100644
+index 0000000..3aa9048
+--- /dev/null
++++ b/drivers/input/touchscreen/tsc40.c
+@@ -0,0 +1,172 @@
++/*
++ * TSC-40 serial touchscreen driver. It should be compatiible with
+TSC-10 and 25.
++ * Author: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
++ * License: GPLv2 as published by the FSF.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/serio.h>
++#include <linux/init.h>
++
++#define PACKET_LENGTH  5
++struct tsc_ser {
++	struct input_dev *dev;
++	struct serio *serio;
++	u32 idx;
++	unsigned char data[PACKET_LENGTH];
++	char phys[32];
++};
++
++static void tsc_process_data(struct tsc_ser *ptsc)
++{
++	struct input_dev *dev = ptsc->dev;
++	u8 *data = ptsc->data;
++	u32 x;
++	u32 y;
++
++	x = ((data[1] & 0x03) << 8) | data[2];
++	y = ((data[3] & 0x03) << 8) | data[4];
++
++	input_report_abs(dev, ABS_X, x);
++	input_report_abs(dev, ABS_Y, y);
++	input_report_key(dev, BTN_TOUCH, 1);
++
++	input_sync(dev);
++
++	ptsc->idx = 0;
++}
++
++static bool pen_is_up(u8 data)
++{
++	/* SW[01] are unknown */
++	u8 val = data & 0x3f;
++	u8 up_val = 1 << 4;
++
++	return val == up_val;
++}
++
++static irqreturn_t tsc_interrupt(struct serio *serio,
++		unsigned char data, unsigned int flags)
++{
++	struct tsc_ser *ptsc = serio_get_drvdata(serio);
++	struct input_dev *dev = ptsc->dev;
++
++	if (!ptsc->idx && pen_is_up(data)) {
++		input_report_key(dev, BTN_TOUCH, 0);
++		input_sync(dev);
++		return IRQ_HANDLED;
++	}
++
++	ptsc->data[ptsc->idx] = data;
++	ptsc->idx++;
++
++	if (ptsc->idx < PACKET_LENGTH)
++		return IRQ_HANDLED;
++
++	tsc_process_data(ptsc);
++
++	return IRQ_HANDLED;
++}
++
++static int tsc_connect(struct serio *serio, struct serio_driver *drv)
++{
++	struct tsc_ser *ptsc;
++	struct input_dev *input_dev;
++	int ret;
++
++	ptsc = kzalloc(sizeof(struct tsc_ser), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!ptsc || !input_dev) {
++		ret = -ENOMEM;
++		goto fail1;
++	}
++
++	ptsc->serio = serio;
++	ptsc->dev = input_dev;
++	snprintf(ptsc->phys, sizeof(ptsc->phys), "%s/input0", serio->phys);
++
++	input_dev->name = "TSC-10/25/40 Serial TouchScreen";
++	input_dev->phys = ptsc->phys;
++	input_dev->id.bustype = BUS_RS232;
++	input_dev->id.vendor = SERIO_TSC40;
++	input_dev->id.product = 40;
++	input_dev->id.version = 0x0001;
++	input_dev->dev.parent = &serio->dev;
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
++	input_set_abs_params(ptsc->dev, ABS_X, 0, 0x3ff, 0, 0);
++	input_set_abs_params(ptsc->dev, ABS_Y, 0, 0x3ff, 0, 0);
++	input_set_abs_params(ptsc->dev, ABS_PRESSURE, 0, 0, 0, 0);
++	serio_set_drvdata(serio, ptsc);
++
++	ret = serio_open(serio, drv);
++	if (ret)
++		goto fail2;
++
++	ret = input_register_device(ptsc->dev);
++	if (ret)
++		goto fail3;
++
++	return 0;
++fail3:
++	serio_close(serio);
++fail2:
++	serio_set_drvdata(serio, NULL);
++fail1:
++	input_free_device(input_dev);
++	kfree(ptsc);
++	return ret;
++}
++
++static void tsc_disconnect(struct serio *serio)
++{
++	struct tsc_ser *ptsc = serio_get_drvdata(serio);
++
++	serio_close(serio);
++	input_unregister_device(ptsc->dev);
++	kfree(ptsc);
++	serio_set_drvdata(serio, NULL);
++}
++
++static struct serio_device_id tsc_serio_ids[] = {
++	{
++		.type   = SERIO_RS232,
++		.proto  = SERIO_TSC40,
++		.id     = SERIO_ANY,
++		.extra  = SERIO_ANY,
++	},
++	{ 0 }
++};
++MODULE_DEVICE_TABLE(serio, tsc_serio_ids);
++
++#define DRIVER_DESC    "TSC-10/25/40 serial touchscreen driver"
++
++static struct serio_driver tsc_drv = {
++	.driver	= {
++		.name   = "tsc40",
++	},
++	.description    = DRIVER_DESC,
++	.id_table	= tsc_serio_ids,
++	.interrupt      = tsc_interrupt,
++	.connect	= tsc_connect,
++	.disconnect     = tsc_disconnect,
++};
++
++static int __init tsc_ser_init(void)
++{
++	return serio_register_driver(&tsc_drv);
++}
++module_init(tsc_ser_init);
++
++static void __exit tsc_exit(void)
++{
++	serio_unregister_driver(&tsc_drv);
++}
++module_exit(tsc_exit);
++
++MODULE_AUTHOR("Sebastian Andrzej Siewior <bigeasy@linutronix.de>");
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE("GPLv2");
+diff --git a/include/linux/serio.h b/include/linux/serio.h
+index e26f478..be7dfb0 100644
+--- a/include/linux/serio.h
++++ b/include/linux/serio.h
+@@ -199,5 +199,6 @@ static inline void serio_continue_rx(struct serio *serio)
+ #define SERIO_DYNAPRO	0x3a
+ #define SERIO_HAMPSHIRE	0x3b
+ #define SERIO_PS2MULT	0x3c
++#define SERIO_TSC40	0x3d
+
+ #endif
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.4.1

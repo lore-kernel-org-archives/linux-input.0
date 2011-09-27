@@ -1,138 +1,89 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH] inputattach: add support for tsc40
-Date: Tue, 27 Sep 2011 09:40:13 +0200
-Message-ID: <CAH9NwWfm2YC4PrPWhm-A=OJOVyw3LApVw__OjfekeCMgQmaGKA@mail.gmail.com>
+From: Thomas Abraham <thomas.abraham@linaro.org>
+Subject: Re: [PATCH v3 2/2] input: samsung-keypad: Add device tree support
+Date: Tue, 27 Sep 2011 13:39:58 +0530
+Message-ID: <CAJuYYwTgn2KqNr28MNEPEC7eVkuUA-dzVzJHMTy-MV+GBCn=zA@mail.gmail.com>
+References: <1316427553-5033-1-git-send-email-thomas.abraham@linaro.org>
+	<1316427553-5033-3-git-send-email-thomas.abraham@linaro.org>
+	<20110922174054.GO17168@ponder.secretlab.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:63803 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751785Ab1I0Hkd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Sep 2011 03:40:33 -0400
-Received: by iaqq3 with SMTP id q3so5412781iaq.19
-        for <linux-input@vger.kernel.org>; Tue, 27 Sep 2011 00:40:33 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20110922174054.GO17168@ponder.secretlab.ca>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: devicetree-discuss@lists.ozlabs.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kgene.kim@samsung.com, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jy0922.shim@samsung.com, dh09.lee@samsung.com
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Stephen Kitt <steve@sk2.org>
 
-This patch adds support for TSC-40 driver to inputattach.
+Hi Grant,
 
-Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
----
+On 22 September 2011 23:10, Grant Likely <grant.likely@secretlab.ca> wr=
+ote:
+> On Mon, Sep 19, 2011 at 03:49:13PM +0530, Thomas Abraham wrote:
+>> Add device tree based discovery support for Samsung's keypad control=
+ler.
+>>
+>> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+>> Cc: Donghwa Lee <dh09.lee@samsung.com>
+>> Signed-off-by: Thomas Abraham <thomas.abraham@linaro.org>
+>
+> A few things to fix below, but you can add my acked-by when you've
+> addressed them.
 
-diff -Nur linuxconsoletools-1.4.2/docs/inputattach.1
-linuxconsoletools-1.4.2_patched//docs/inputattach.1
---- linuxconsoletools-1.4.2/docs/inputattach.1	2011-08-09
-07:35:02.000000000 +0200
-+++ linuxconsoletools-1.4.2_patched//docs/inputattach.1	2011-09-27
-11:39:28.935479294 +0200
-@@ -108,6 +108,9 @@
- .BR \-taos ", " \-\-taos\-evm
- TAOS evaluation module.
- .TP
-+.BR \-tsc ", " \-\-tsc
-+TSC-10/25/40 touch screen.
-+.TP
- .BR \-t213 ", " \-\-touchit213
- Sahara Touch-iT213 Tablet PC.
- .TP
-diff -Nur linuxconsoletools-1.4.2/utils/inputattach.c
-linuxconsoletools-1.4.2_patched//utils/inputattach.c
---- linuxconsoletools-1.4.2/utils/inputattach.c	2011-08-09
-07:43:10.000000000 +0200
-+++ linuxconsoletools-1.4.2_patched//utils/inputattach.c	2011-09-27
-11:38:01.071479288 +0200
-@@ -354,6 +354,82 @@
- 	return 0;
- }
+Ok. Thanks for your review. I will fix as per your comments.
 
-+static int tsc40_init(int fd, unsigned long *id, unsigned long *extra)
-+{
-+	unsigned char cmd[2], data;
-+	unsigned int eeprom;
-+
-+	/* Datasheet can be found here:
-+	 * http://www.distec.de/PDF/Drivers/DMC/TSC40_Protocol_Description.pdf
-+	 */
-+
-+#define TSC40_CMD_DATA1	0x01
-+#define TSC40_CMD_RATE	0x05
-+#define TSC40_CMD_ID	0x15
-+#define TSC40_CMD_RESET	0x55
-+
-+#define TSC40_RATE_150	0x45
-+#define TSC40_NACK	0x15
-+
-+	/* trigger a software reset to get into a well known state */
-+	cmd[0] = TSC40_CMD_RESET;
-+	if (write(fd, cmd, 1) != 1)
-+		return -1;
-+	
-+	/* wait to settle down */
-+	usleep(15 * 1000); /* 15 ms */	
-+	
-+	/* read panel ID to check if an EEPROM is used */
-+	cmd[0] = TSC40_CMD_ID;
-+	if (write(fd, cmd, 1) != 1)
-+		return -1;
-+	
-+	if (readchar(fd, &data, 100))
-+		return -1;
-+
-+	/* if bit7 is not set --> EEPROM is used */
-+	eeprom = !((data & 0x80) >> 7);
-+	
-+	/* ignore 2nd byte of ID cmd */
-+	if (readchar(fd, &data, 100))
-+		return -1;
-+	
-+	/* set coordinate oupt rate setting */
-+	cmd[0] = TSC40_CMD_RATE;
-+	cmd[1] = TSC40_RATE_150;
-+	if (write(fd, cmd, 2) != 2)
-+		return -1;
-+	
-+	/* read response */
-+	if (readchar(fd, &data, 100))
-+		return -1;
-+	
-+	if ((data == TSC40_NACK) && (eeprom == 1)) {
-+		/* get detailed failure information */
-+		if (readchar(fd, &data, 100))
-+			return -1;
-+
-+		switch (data) {
-+		case 0x02:	/* EEPROM data abnormal */
-+		case 0x04:	/* EEPROM write error */
-+		case 0x08:	/* Touch screen not connected */
-+			return -1;
-+			break;
-+			
-+		default:
-+			/* 0x01: EEPROM data empty */
-+			break;
-+		}
-+	}
-+
-+	/* start sending coordinate informations */
-+	cmd[0] = TSC40_CMD_DATA1;
-+	if (write(fd, cmd, 1) != 1)
-+		return -1;
-+
-+	return 0;
-+}
-+
- static int t213_init(int fd, unsigned long *id, unsigned long *extra)
- {
- 	char cmd[]={0x0a,1,'A'};
-@@ -556,6 +632,9 @@
- { "--mtouch",		"-mtouch",	"MicroTouch (3M) touchscreen",
- 	B9600, CS8 | CRTSCTS,
- 	SERIO_MICROTOUCH,	0x00,	0x00,	0,	NULL },
-+{ "--tsc",		"-tsc",		"TSC-10/25/40 serial touchscreen",
-+	B9600, CS8,
-+	SERIO_TSC40,		0x00,	0x00,	0,	tsc40_init },
- { "--touchit213",	"-t213",	"Sahara Touch-iT213 Tablet PC",
- 	B9600, CS8,
- 	SERIO_TOUCHIT213,	0x00,	0x00,	0,	t213_init },
+[...]
+
+>
+>> diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input=
+/keyboard/samsung-keypad.c
+>> index f689f49..2a477bc 100644
+>> --- a/drivers/input/keyboard/samsung-keypad.c
+>> +++ b/drivers/input/keyboard/samsung-keypad.c
+
+[...]
+
+>> +
+>> + =A0 =A0 of_property_read_u32(np, "samsung,keypad-num-rows", &num_r=
+ows);
+>> + =A0 =A0 of_property_read_u32(np, "samsung,keypad-num-columns", &nu=
+m_cols);
+>
+> property_read doesn't touch the values of num_rows or num_cols on
+> failure. =A0The values need to be initialized if you're going to test
+> the result value.
+
+Ok. num_rows and num_cols variables will be set to zero before the
+property read call.
+
+>
+>> + =A0 =A0 if (!num_rows || !num_cols) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 dev_err(dev, "number of keypad rows/column=
+s not specified\n");
+>> + =A0 =A0 =A0 =A0 =A0 =A0 return NULL;
+>> + =A0 =A0 }
+
+[...]
+
+>>
+>> + =A0 =A0 if (pdev->dev.of_node) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 samsung_keypad_parse_dt_gpio(&pdev->dev, k=
+eypad);
+>> +#ifdef CONFIG_OF
+>> + =A0 =A0 =A0 =A0 =A0 =A0 keypad->type =3D of_device_is_compatible(p=
+dev->dev.of_node,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 "samsung,s5pv210-keypad");
+>> +#endif
+>
+> This still looks odd. =A0If you move the #ifdef up one line, then you
+> can remove the empty version of samsung_keypad_parse_dt_gpio(), and
+> this block won't look so weird.
+>
+
+That would be a better approach. Thanks for the suggestion.
+
+Regards,
+Thomas.
+
+[...]

@@ -1,64 +1,87 @@
-From: =?utf-8?B?5LuFMTDlhYPmr4/lpKk=?= <admin@pmlimited.com.hk>
-Subject: =?utf-8?B?576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuivmnIDmlrDlub/kuqTkvJrkubDlrrbjgIHmtbc=?=
-	=?utf-8?B?5YWz5pWw5o2uLEIyQuivouebmOS5sOWutjUwMOS4h+OAgg==?=
-Date: Wed, 28 Sep 2011 20:56:51 +0000 (UTC)
-Message-ID: <20120929043629734540@pmlimited.com.hk>
-Reply-To: <1339625218@qq.com>
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: Re: [PATCH 0/2] autodetection of multitouch devices
+Date: Wed, 28 Sep 2011 23:25:38 +0200
+Message-ID: <CAN+gG=HWJ0tXvS8nbmv4u0CyB6tQo36xnhXE0xoRYjpdm2h2NA@mail.gmail.com>
+References: <1316617015-11648-1-git-send-email-benjamin.tissoires@gmail.com>
+	<alpine.LNX.2.00.1109261419330.13109@pobox.suse.cz>
+	<20110926144635.GA6921@polaris.bitmath.org>
+	<alpine.LNX.2.00.1109261644250.24692@pobox.suse.cz>
+	<D3E37531-860E-415F-B2B9-58CEBB4E10A3@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.pmlimited.com.hk ([210.17.212.122]:61863 "EHLO
-	pmlsrv.pmlimited.com.hk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751602Ab1I1U4k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Sep 2011 16:56:40 -0400
-Date: Sat, 29 Sep 2012 04:36:18 +0800
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <D3E37531-860E-415F-B2B9-58CEBB4E10A3@enac.fr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, USB list <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linna413@yahoo.cn, linotom@aol.com, linqunhua@yahoo.com, linsav_64@live.com, linska@gmail.com, lintaylor@aol.com, lintonlee@163.com, linux@hotmail.com, linux-input@vg
 
-576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuisxMDnlsYrlub/kuqTkvJrkubDlrrbjgIHlsZXk
-vJrkubDlrrbjgIHmtbflhbPmlbDmja4sQjJC6K+i55uY5Lmw5a62NTAw5LiH44CCDQoNCuS4gOWF
-sTjkuKrljIUo5pWw5o2u5piv5YWo6KGM5Lia55qE77yM5oyJ54Wn6KGM5Lia5YiG5aW957G777yM
-5bm25LiU5Y+v5Lul5oyJ54Wn5YWz6ZSu6K+N5p+l6K+i55qEKe+8miANCjHvvIwyMDEx5pil5a2j
-MTA55bGK5bm/5Lqk5Lya5Lmw5a625pWw5o2u5bqT5paw6bKc5Ye654KJ77yM6LaF57qn5paw6bKc
-5Lmw5a6277yM5paw6bKc5pWw5o2u77yM5a655piT5oiQ5Y2V77yBIA0KMu+8jOacgOaWsOWFqOeQ
-g+S5sOWutuW6kyzlhbE0NTE2NjDmnaHmlbDmja7jgIIgDQoz77yMMjAwOOW5tCwyMDA55bm0LDIw
-MTDlubQg5pil5a2jK+eni+Wto+W5v+S6pOS8muS5sOWutuWQjeW9le+8jDEwMyAxMDQgMTA1IDEw
-NiAxMDcgMTA4IOWFseWFreWxiiDlhbExMjAuNuS4h+aVsOaNruOAgg0KNO+8jDIwMTDlubTlm73p
-mYXkv4PplIDljY/kvJrvvIhQUEFJ77yJ5oiQ5ZGY5ZCN5Y2VIFBQQUkgTWVtYmVycyBEaXJlY3Rv
-cnnvvIzpnZ7luLjph43opoHnmoTlpKfkubDlrrbjgIINCjXvvIwyMDEw5bm05Yiw6aaZ5riv6YeH
-6LSt55qE5Zu95aSW5a6i5Lq65ZCN5b2VKOmmmea4r+i0uOWPkeWxgOaPkOS+mynvvIzlhbE3LjLk
-uIfmlbDmja7vvIzotoXnuqfph43opoHnmoTkubDlrrbjgIINCjbvvIw2MC445LiH5p2h5pyA5paw
-5Zu95aSWQjJC5Lmw5a626K+i55uY44CCDQo377yMMjAwOeW5tOa1t+WFs+aPkOWNleaVsOaNrnBp
-ZXJz54mI5pWw5o2uIDHljYPkuIfjgIINCjjvvIznvqTlj5Hova/ku7bvvIznvqTlj5Hova/ku7bn
-moTpg6jnvbLkuI7lronoo4XjgIINCg0K5YWxIDUwMOS4h+S4quS5sOWutu+8jOavj+S4quWdh+ac
-iUVtYWlsLiANCg0K5L+d6K+B5q+P5aSp6YO95pyJ5Lmw5a625Zue5aSN44CCDQrkv53or4Hmr4/l
-pKnpg73mnInkubDlrrblm57lpI3jgIINCg0K6KaB55qE5oqT57Sn6IGU57O7UVE6IDEzMzk2MjUy
-MTggICDmiJbogIXnq4vljbPlm57lpI3pgq7nrrE6IDEzMzk2MjUyMThAcXEuY29tDQropoHnmoTm
-ipPntKfogZTns7tRUTogMTMzOTYyNTIxOCAgIOaIluiAheeri+WNs+WbnuWkjemCrueusTogMTMz
-OTYyNTIxOEBxcS5jb20NCuimgeeahOaKk+e0p+iBlOezu1FROiAxMzM5NjI1MjE4ICAg5oiW6ICF
-56uL5Y2z5Zue5aSN6YKu566xOiAxMzM5NjI1MjE4QHFxLmNvbQ0KIA0KDQror5rkv6HkuLrmnKzv
-vIzlpoLmnpzkuI3kv6Hku7vmnKzkuros5Y+v5Lul6LWw5reY5a6d5Lqk5piTLOaUtui0p+mqjOiv
-geWQjuWGjeS7mOasvizov5nmmK/lr7nmgqjmnIDlpb3nmoTkv53pmpzkuobjgIIgDQoNCuS/neiv
-geavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K5L+d6K+B5q+P5aSp6YO95pyJ5Lmw5a625Zue
-5aSN44CCDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIINCg0KDQoNCg0K5bm/5Lqk
-5Lya5Lmw5a625oyJ5Lqn5ZOB57G75Yir5YiG57G777yM5YiG5Li65Lul5LiL5Yeg57G777yaDQox
-IOWKnuWFrOiuvuWkhw0KMiDnvJbnu4flj4rol6Tpk4Hlt6Xoibrlk4ENCjMg546755KDDQo0IOmk
-kOWOqOeUqOWFtw0KNSDovabovoYNCjYg5aSn5Z6L5py65qKw5Y+K6K6+5aSHDQo3IOeUteWtkOeU
-teawlA0KOCDnlLXlrZDmtojotLnlk4ENCjkg57q657uHDQoxMCDmnI3oo4UNCjExIOS4quS6uuaK
-pOeQhg0KMTIg5bel56iL5py65qKwDQoxMyDlt6XlhbcNCjE0IOWMluW3pQ0KMTUg6K6h566X5py6
-5Y+K6YCa6K6vDQoxNiDlrrblsYXnlKjlk4ENCjE3IOWutuWxheijhemlsA0KMTgg5a625YW3DQox
-OSDlrrbnlKjnlLXlmagNCjIwIOW7uuetkeWPiuijhemlsOadkOaWmQ0KMjEg6IqC5pel55So5ZOB
-DQoyMiDnpLzlk4Hlj4rotaDlk4ENCjIzIOaRqeaJmOi9pg0KMjQg5rG96L2m6YWN5Lu2DQoyNSDp
-o5/lk4ENCjI2IOmZtueTtw0KMjcg6ZOB55+zDQoyOCDnjqnlhbcNCjI5IOWNq+a1tA0KMzAg5LqU
-6YeRDQozMSDlsI/lnovmnLrmorANCjMyIOmeiw0KMzMg5LyR6Zey55So5ZOBDQozNCDljLvnlpcN
-CjM1IOa1tOWupOS6p+WTgQ0KMzYg5Zut5p6XDQozNyDnhafmmI7kuqflk4ENCjM4IOmSn+ihqOec
-vOmVnA0KMzkg6Ieq6KGM6L2mDQo0MCDljIUNCg0KDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrbl
-m57lpI3jgIINCuS/neivgeavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K5L+d6K+B5q+P5aSp
-6YO95pyJ5Lmw5a625Zue5aSN44CCDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIIN
-CuS/neivgeavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg==
+On Wed, Sep 28, 2011 at 22:32, St=E9phane Chatty <chatty@enac.fr> wrote=
+:
+>
+> Le 26 sept. 2011 =E0 16:47, Jiri Kosina a =E9crit :
+>
+>> On Mon, 26 Sep 2011, Henrik Rydberg wrote:
+>>
+>>>>> These two patches finally enable the kernel to handle multitouch =
+devices correctly.
+>>>>> If a device presents in its report descriptors the usage Contact =
+ID, then it is considered as
+>>>>> a multitouch device and handled by hid-multitouch.
+>>>>
+>>>> Hi Banjamin,
+>>>>
+>>>> thanks a lot for working on this. I have now queued the patches in=
+ my
+>>>> tree.
+>>>
+>>> Hi Benjamin,
+>>>
+>>> Late as it seems, here are a couple of questions:
+>>>
+>>> 1. How was this tested? By removing all white-listed devices in
+>>> hid-multitouch.c to see if the usual suspects are still picked up?
+
+Well, nearly all the devices that has been included since March passed
+the first patch (I had it in my queue since a long time).
+=46or now, only Stantum products are known to not work with this patch
+if we remove them from hid_have_special_driver.
+
+As for the blacklist problem, we also know that this is not very
+beautiful, but we are working on a better solution. For the moment, it
+just allows people to have their device working out of the box
+(crossing fingers).
+
+Cheers,
+Benjamin
 
 
+>>
+>> If we didn't have full test coverage (which I suppose to be the case=
+), we
+>> can still revert to the old method after the merge window if there r=
+eports
+>> that this broke things on particular devices.
+>>
+>> Do you guys at least have report descriptor dumps from most of the
+>> supported devices?
+>
+>
+> Yes, we have report descriptors for about 20-30 different models now,=
+ and about 10 actual devices for testing purposes. Unfortunately, this =
+still does not tell us exactly how all these devices manage to work wit=
+h the same Win 7 driver, given their diversity. We are getting close, b=
+ut just not yet.
+>
+> BTW we gladly accept to receive sample panels from vendors, this usua=
+lly ensures fast support. Additionally, the panels are then reused by E=
+NAC students in their projects, so this stimulates the market of multit=
+ouch devices in aviation :-)
+>
+> Cheers,
+>
+> St.
+>
+>
+>

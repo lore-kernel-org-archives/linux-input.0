@@ -1,136 +1,80 @@
-From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Subject: Re: [PATCH] Input: psmouse - change log messages from psmouse.c to
- psmouse
-Date: Thu, 29 Sep 2011 13:17:53 +0800
-Message-ID: <4E83FF81.700@cn.fujitsu.com>
-References: <1317273295-4931-1-git-send-email-jj_ding@emc.com.tw>
-Reply-To: gaowanlong@cn.fujitsu.com
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 0/2] autodetection of multitouch devices
+Date: Thu, 29 Sep 2011 10:19:56 +0200
+Message-ID: <20110929081956.GA2282@polaris.bitmath.org>
+References: <1316617015-11648-1-git-send-email-benjamin.tissoires@gmail.com>
+ <alpine.LNX.2.00.1109261419330.13109@pobox.suse.cz>
+ <20110926144635.GA6921@polaris.bitmath.org>
+ <alpine.LNX.2.00.1109261644250.24692@pobox.suse.cz>
+ <D3E37531-860E-415F-B2B9-58CEBB4E10A3@enac.fr>
+ <CAN+gG=HWJ0tXvS8nbmv4u0CyB6tQo36xnhXE0xoRYjpdm2h2NA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cn.fujitsu.com ([222.73.24.84]:57948 "EHLO song.cn.fujitsu.com"
-	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1754478Ab1I2FS4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Sep 2011 01:18:56 -0400
-In-Reply-To: <1317273295-4931-1-git-send-email-jj_ding@emc.com.tw>
+Received: from smtprelay-h21.telenor.se ([195.54.99.196]:56137 "EHLO
+	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754816Ab1I2IOn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Sep 2011 04:14:43 -0400
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=HWJ0tXvS8nbmv4u0CyB6tQo36xnhXE0xoRYjpdm2h2NA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, JJ Ding <dgdunix@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, USB list <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
 
-On 09/29/2011 01:14 PM, JJ Ding wrote:
+On Wed, Sep 28, 2011 at 11:25:38PM +0200, Benjamin Tissoires wrote:
+> On Wed, Sep 28, 2011 at 22:32, St=E9phane Chatty <chatty@enac.fr> wro=
+te:
+> >
+> > Le 26 sept. 2011 =E0 16:47, Jiri Kosina a =E9crit :
+> >
+> >> On Mon, 26 Sep 2011, Henrik Rydberg wrote:
+> >>
+> >>>>> These two patches finally enable the kernel to handle multitouc=
+h devices correctly.
+> >>>>> If a device presents in its report descriptors the usage Contac=
+t ID, then it is considered as
+> >>>>> a multitouch device and handled by hid-multitouch.
+> >>>>
+> >>>> Hi Banjamin,
+> >>>>
+> >>>> thanks a lot for working on this. I have now queued the patches =
+in my
+> >>>> tree.
+> >>>
+> >>> Hi Benjamin,
+> >>>
+> >>> Late as it seems, here are a couple of questions:
+> >>>
+> >>> 1. How was this tested? By removing all white-listed devices in
+> >>> hid-multitouch.c to see if the usual suspects are still picked up=
+?
+>=20
+> Well, nearly all the devices that has been included since March passe=
+d
+> the first patch (I had it in my queue since a long time).
+> For now, only Stantum products are known to not work with this patch
+> if we remove them from hid_have_special_driver.
 
-> From: JJ Ding <dgdunix@gmail.com>
-> 
-> psmouse.c had long been renamed to psmouse-base.c back in 2003, when we
-> were still at Linux 2.5.xx. This change makes the log less misleading.
-> 
-> Signed-off-by: JJ Ding <dgdunix@gmail.com>
+I see, thanks.
 
-Reviewed-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+> As for the blacklist problem, we also know that this is not very
+> beautiful, but we are working on a better solution. For the moment, i=
+t
+> just allows people to have their device working out of the box
+> (crossing fingers).
 
-> ---
->  drivers/input/mouse/psmouse-base.c |   22 +++++++++++-----------
->  1 files changed, 11 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-> index 3f74bae..6a2584d 100644
-> --- a/drivers/input/mouse/psmouse-base.c
-> +++ b/drivers/input/mouse/psmouse-base.c
-> @@ -251,11 +251,11 @@ static int psmouse_handle_byte(struct psmouse *psmouse)
->  	switch (rc) {
->  	case PSMOUSE_BAD_DATA:
->  		if (psmouse->state == PSMOUSE_ACTIVATED) {
-> -			printk(KERN_WARNING "psmouse.c: %s at %s lost sync at byte %d\n",
-> +			printk(KERN_WARNING "psmouse: %s at %s lost sync at byte %d\n",
->  				psmouse->name, psmouse->phys, psmouse->pktcnt);
->  			if (++psmouse->out_of_sync_cnt == psmouse->resetafter) {
->  				__psmouse_set_state(psmouse, PSMOUSE_IGNORE);
-> -				printk(KERN_NOTICE "psmouse.c: issuing reconnect request\n");
-> +				printk(KERN_NOTICE "psmouse: issuing reconnect request\n");
->  				serio_reconnect(psmouse->ps2dev.serio);
->  				return -1;
->  			}
-> @@ -267,7 +267,7 @@ static int psmouse_handle_byte(struct psmouse *psmouse)
->  		psmouse->pktcnt = 0;
->  		if (psmouse->out_of_sync_cnt) {
->  			psmouse->out_of_sync_cnt = 0;
-> -			printk(KERN_NOTICE "psmouse.c: %s at %s - driver resynched.\n",
-> +			printk(KERN_NOTICE "psmouse: %s at %s - driver resynched.\n",
->  				psmouse->name, psmouse->phys);
->  		}
->  		break;
-> @@ -295,7 +295,7 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
->  		     ((flags & SERIO_PARITY) && !psmouse->ignore_parity))) {
->  
->  		if (psmouse->state == PSMOUSE_ACTIVATED)
-> -			printk(KERN_WARNING "psmouse.c: bad data from KBC -%s%s\n",
-> +			printk(KERN_WARNING "psmouse: bad data from KBC -%s%s\n",
->  				flags & SERIO_TIMEOUT ? " timeout" : "",
->  				flags & SERIO_PARITY ? " bad parity" : "");
->  		ps2_cmd_aborted(&psmouse->ps2dev);
-> @@ -315,7 +315,7 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
->  
->  	if (psmouse->state == PSMOUSE_ACTIVATED &&
->  	    psmouse->pktcnt && time_after(jiffies, psmouse->last + HZ/2)) {
-> -		printk(KERN_INFO "psmouse.c: %s at %s lost synchronization, throwing %d bytes away.\n",
-> +		printk(KERN_INFO "psmouse: %s at %s lost synchronization, throwing %d bytes away.\n",
->  		       psmouse->name, psmouse->phys, psmouse->pktcnt);
->  		psmouse->badbyte = psmouse->packet[0];
->  		__psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
-> @@ -943,7 +943,7 @@ static int psmouse_probe(struct psmouse *psmouse)
->   */
->  
->  	if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_RESET_DIS))
-> -		printk(KERN_WARNING "psmouse.c: Failed to reset mouse on %s\n", ps2dev->serio->phys);
-> +		printk(KERN_WARNING "psmouse: Failed to reset mouse on %s\n", ps2dev->serio->phys);
->  
->  	return 0;
->  }
-> @@ -1005,7 +1005,7 @@ static void psmouse_initialize(struct psmouse *psmouse)
->  static void psmouse_activate(struct psmouse *psmouse)
->  {
->  	if (ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE))
-> -		printk(KERN_WARNING "psmouse.c: Failed to enable mouse on %s\n",
-> +		printk(KERN_WARNING "psmouse: Failed to enable mouse on %s\n",
->  			psmouse->ps2dev.serio->phys);
->  
->  	psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
-> @@ -1020,7 +1020,7 @@ static void psmouse_activate(struct psmouse *psmouse)
->  static void psmouse_deactivate(struct psmouse *psmouse)
->  {
->  	if (ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_DISABLE))
-> -		printk(KERN_WARNING "psmouse.c: Failed to deactivate mouse on %s\n",
-> +		printk(KERN_WARNING "psmouse: Failed to deactivate mouse on %s\n",
->  			psmouse->ps2dev.serio->phys);
->  
->  	psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
-> @@ -1115,14 +1115,14 @@ static void psmouse_resync(struct work_struct *work)
->  	}
->  
->  	if (!enabled) {
-> -		printk(KERN_WARNING "psmouse.c: failed to re-enable mouse on %s\n",
-> +		printk(KERN_WARNING "psmouse: failed to re-enable mouse on %s\n",
->  			psmouse->ps2dev.serio->phys);
->  		failed = true;
->  	}
->  
->  	if (failed) {
->  		psmouse_set_state(psmouse, PSMOUSE_IGNORE);
-> -		printk(KERN_INFO "psmouse.c: resync failed, issuing reconnect request\n");
-> +		printk(KERN_INFO "psmouse: resync failed, issuing reconnect request\n");
->  		serio_reconnect(serio);
->  	} else
->  		psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
-> @@ -1155,7 +1155,7 @@ static void psmouse_cleanup(struct serio *serio)
->  	 * Disable stream mode so cleanup routine can proceed undisturbed.
->  	 */
->  	if (ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_DISABLE))
-> -		printk(KERN_WARNING "psmouse.c: Failed to disable mouse on %s\n",
-> +		printk(KERN_WARNING "psmouse: Failed to disable mouse on %s\n",
->  			psmouse->ps2dev.serio->phys);
->  
->  	if (psmouse->cleanup)
+It is great that you share a working solution for most cases, but it
+does not look like mainline material yet, does it. A clean solution
+should probably modify the driver selection mechanism on a deeper
+level, or at least make use of the current whitelist.
 
-
+Thanks,
+Henrik
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

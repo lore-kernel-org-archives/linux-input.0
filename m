@@ -1,78 +1,83 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 0/2] autodetection of multitouch devices
-Date: Thu, 29 Sep 2011 10:19:56 +0200
-Message-ID: <20110929081956.GA2282@polaris.bitmath.org>
-References: <1316617015-11648-1-git-send-email-benjamin.tissoires@gmail.com>
- <alpine.LNX.2.00.1109261419330.13109@pobox.suse.cz>
- <20110926144635.GA6921@polaris.bitmath.org>
- <alpine.LNX.2.00.1109261644250.24692@pobox.suse.cz>
- <D3E37531-860E-415F-B2B9-58CEBB4E10A3@enac.fr>
- <CAN+gG=HWJ0tXvS8nbmv4u0CyB6tQo36xnhXE0xoRYjpdm2h2NA@mail.gmail.com>
+From: =?ISO-8859-1?Q?Richard_Sch=FCtz?= <r.schtz@t-online.de>
+Subject: Re: [PATCH v5 1/1] HID: Add full support for Logitech Unifying receivers
+Date: Thu, 29 Sep 2011 17:22:17 +0200
+Message-ID: <4E848D29.4050405@t-online.de>
+References: <1316018905-4175-1-git-send-email-nlopezcasad@logitech.com> <4E77A221.1060909@t-online.de> <CAN+gG=EcaMrz2w-cVL-cCwi2NNVJ-NXOpOQpbjyFdCwn5+Bn+w@mail.gmail.com> <4E7BA605.3020908@t-online.de> <CAN+gG=EaHAW504Bi7PDtdsCT0pfs0=BAW5Pt+pSKkkyS5DXfhw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:56137 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754816Ab1I2IOn (ORCPT
+Received: from mailout04.t-online.de ([194.25.134.18]:40958 "EHLO
+	mailout04.t-online.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932123Ab1I2PWh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Sep 2011 04:14:43 -0400
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=HWJ0tXvS8nbmv4u0CyB6tQo36xnhXE0xoRYjpdm2h2NA@mail.gmail.com>
+	Thu, 29 Sep 2011 11:22:37 -0400
+In-Reply-To: <CAN+gG=EaHAW504Bi7PDtdsCT0pfs0=BAW5Pt+pSKkkyS5DXfhw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, USB list <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+To: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rtitmuss@logitech.com, ogay@logitech.com, jzanone@logitech.com
 
-On Wed, Sep 28, 2011 at 11:25:38PM +0200, Benjamin Tissoires wrote:
-> On Wed, Sep 28, 2011 at 22:32, St=E9phane Chatty <chatty@enac.fr> wro=
-te:
-> >
-> > Le 26 sept. 2011 =E0 16:47, Jiri Kosina a =E9crit :
-> >
-> >> On Mon, 26 Sep 2011, Henrik Rydberg wrote:
-> >>
-> >>>>> These two patches finally enable the kernel to handle multitouc=
-h devices correctly.
-> >>>>> If a device presents in its report descriptors the usage Contac=
-t ID, then it is considered as
-> >>>>> a multitouch device and handled by hid-multitouch.
-> >>>>
-> >>>> Hi Banjamin,
-> >>>>
-> >>>> thanks a lot for working on this. I have now queued the patches =
-in my
-> >>>> tree.
-> >>>
-> >>> Hi Benjamin,
-> >>>
-> >>> Late as it seems, here are a couple of questions:
-> >>>
-> >>> 1. How was this tested? By removing all white-listed devices in
-> >>> hid-multitouch.c to see if the usual suspects are still picked up=
-?
->=20
-> Well, nearly all the devices that has been included since March passe=
+Am 23.09.2011 00:21, schrieb Benjamin Tissoires:
+> On Thu, Sep 22, 2011 at 23:17, Richard Sch=FCtz<r.schtz@t-online.de> =
+ wrote:
+>> Am 22.09.2011 22:48, schrieb Benjamin Tissoires:
+>>>
+>>> Hi Richard,
+>>>
+>>> here, you'll find a small C program that allows you to do a pairing=
+ of
+>>> a new device to a receiver.
+>>
+>> Thanks.
+>>
+>> Could you also add the possibility to remove a pairing? It would be =
+nice if
+>> the program would print the product name of device detected during t=
+he
+>> pairing process, too.
+>
+> mmm... this would be more complicated:
+> - the first problem is a NDA and political one. As I worked in
+> Logitech, I had access to some internal (confidential) documentation.
+> I was able to release this piece of code as it can be easily retrieve=
 d
-> the first patch (I had it in my queue since a long time).
-> For now, only Stantum products are known to not work with this patch
-> if we remove them from hid_have_special_driver.
-
-I see, thanks.
-
-> As for the blacklist problem, we also know that this is not very
-> beautiful, but we are working on a better solution. For the moment, i=
+> by adding a spy on the usb stack when doing the pairing on windows.
+> Discovering the command that removes devices is not so easy (to my
+> mind), thus, I can not give it right now.  Please note that I asked
+> them if I could release this magic sequence, and it went quite high i=
+n
+> the hierarchy (but this piece of code has nothing to do with Logitech=
+,
+> just to be clear).
+> - the second problem is more a technical one. The removal of the
+> device would require you two know which device you want to remove. So
+> it would require the ability to know all the different devices and
+> their pairing number. This information shows up somewhere in the log
+> but there is no way to ask the receiver for this information with the
+> current status of the driver (without knowing internal commands).
+> Getting it from the list of devices would be quite complicated
+> depending on the number of receivers you have plugged, etc...
+> - Obtaining the name of the device can not be retrieved at the moment
+> without knowing the different commands to send to the device. As it's
+> confidential Logitech, I can not give them to you unless someone else
+> does the retro-engineering.
+>
+> So, to sum up, I agree this would be better, but today, this has to b=
+e
+> done by someone else, either officially at Logitech, or by someone no=
 t
-> just allows people to have their device working out of the box
-> (crossing fingers).
+> related to Logitech that does the retro-engineering.
 
-It is great that you share a working solution for most cases, but it
-does not look like mainline material yet, does it. A clean solution
-should probably modify the driver selection mechanism on a deeper
-level, or at least make use of the current whitelist.
+So what do the Logitech guys think about this? Without userspace tools=20
+for creating/removing pairings a Unifying receiver is quite useless for=
+=20
+Linux users.
 
-Thanks,
-Henrik
+--=20
+Regards,
+Richard Sch=FCtz
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

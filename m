@@ -1,122 +1,126 @@
-From: Kevin McNeely <kev@cypress.com>
-Subject: RE: [PATCH V3 1/3] Input: cyttsp - Cypress TTSP capacitive
- multi-touch screen support
-Date: Wed, 28 Sep 2011 19:50:05 -0400
-Message-ID: <332E958ABC555E44B6FC413E3DFEAA3D3C2AD90A7C@VMBX131.ihostexchange.net>
-References: <1316311297-12765-1-git-send-email-martinez.javier@gmail.com>
- <1316311297-12765-2-git-send-email-martinez.javier@gmail.com>
- <20110927115207.GA3701@polaris.bitmath.org>
- <CAAwP0s0Jrc4zRAw4RUBWvSpiKNT0TqxYizqQZVihkkEy5+gcMw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: [PATCH] Input: psmouse - change log messages from psmouse.c to psmouse
+Date: Thu, 29 Sep 2011 13:14:55 +0800
+Message-ID: <1317273295-4931-1-git-send-email-jj_ding@emc.com.tw>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay.ihostexchange.net ([66.46.182.51]:50088 "EHLO
-	relay.ihostexchange.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753996Ab1I1XzP (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:49665 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753271Ab1I2FMd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Sep 2011 19:55:15 -0400
-In-Reply-To: <CAAwP0s0Jrc4zRAw4RUBWvSpiKNT0TqxYizqQZVihkkEy5+gcMw@mail.gmail.com>
-Content-Language: en-US
+	Thu, 29 Sep 2011 01:12:33 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <martinez.javier@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@suse.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, JJ Ding <jj_ding@emc.com.tw>, JJ Ding <dgdunix@gmail.com>
 
-SGkgSmF2aWVyLA0KDQpZZXMsIHRoZSBoYXJkd2FyZSByZXBvcnRzIHRvdWNoZXMgaW4gdGhlIHJh
-bmdlIDEgdG8gMTQuDQoNCkJlc3QgcmVnYXJkcywNCktldmluDQoNCg0KPiAtLS0tLU9yaWdpbmFs
-IE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBKYXZpZXIgTWFydGluZXogQ2FuaWxsYXMgW21haWx0bzpt
-YXJ0aW5lei5qYXZpZXJAZ21haWwuY29tXQ0KPiBTZW50OiBXZWRuZXNkYXksIFNlcHRlbWJlciAy
-OCwgMjAxMSA0OjIzIFBNDQo+IFRvOiBIZW5yaWsgUnlkYmVyZw0KPiBDYzogRG1pdHJ5IFRvcm9r
-aG92OyBHcmVnIEtyb2FoLUhhcnRtYW47IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsNCj4g
-bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgS2V2aW4gTWNOZWVseQ0KPiBTdWJqZWN0OiBS
-ZTogW1BBVENIIFYzIDEvM10gSW5wdXQ6IGN5dHRzcCAtIEN5cHJlc3MgVFRTUCBjYXBhY2l0aXZl
-IG11bHRpLQ0KPiB0b3VjaCBzY3JlZW4gc3VwcG9ydA0KPg0KPiBPbiBUdWUsIFNlcCAyNywgMjAx
-MSBhdCAxOjUyIFBNLCBIZW5yaWsgUnlkYmVyZyA8cnlkYmVyZ0BldXJvbWFpbC5zZT4NCj4gd3Jv
-dGU6DQo+ID4gSGkgSmF2aWVyLA0KPiA+DQo+ID4+IEN5cHJlc3MgVHJ1ZVRvdWNoKHRtKSBTdGFu
-ZGFyZCBQcm9kdWN0IGNvbnRyb2xsZXJzIGFyZSBmb3VuZCBpbiBhDQo+ID4+IHdpZGUgcmFuZ2Ug
-b2YgZW1iZWRkZWQgZGV2aWNlcy4gVGhpcyBkcml2ZXIgYWRkIHN1cHBvcnQgZm9yIGEgdmFyaWV0
-eQ0KPiA+PiBvZiBUVFNQIGNvbnRyb2xsZXJzLg0KPiA+DQo+ID4gcGxlYXNlIGZpbmQgc29tZSBj
-b21tZW50cyBiZWxvdy4NCj4gPg0KPg0KPiBIZWxsbyBIZW5yaWssDQo+DQo+IFRoYW5rcyBhIGxv
-dCBmb3IgdGhlIHJldmlldw0KPg0KPiA+PiArLyogU2xvdHMgbWFuYWdlbWVudCAqLw0KPiA+PiAr
-I2RlZmluZSBDWV9NQVhfRklOR0VSICAgICAgICAgICAgICAgNCAjZGVmaW5lIENZX1VOVVNFRA0K
-PiA+PiArMCAjZGVmaW5lIENZX1VTRUQgICAgICAgICAgICAgICAgICAgICAxDQo+ID4NCj4gPiBU
-aGVzZSB0d28gbG9vayBsaWtlIGJvb2wsIHBsZWFzZSB1c2UgYXMgYm9vbCBpbnN0ZWFkLg0KPiA+
-DQo+ID4+ICsjZGVmaW5lIENZX01BWF9JRCAgICAgICAgICAgICAgICAgICAxNQ0KPiA+DQo+ID4g
-V2h5IG5vdCAxNiBoZXJlPw0KPiA+DQo+DQo+IEJlY2F1c2UgYXMgZmFyIGFzIEkga25vdyB0aGVy
-ZSBhcmUgb25seSAxNCBwb3NzaWJsZSB0cmFja2luZyBpZHMgKDEtMTQpLCBub3QgMTYuDQo+IDE1
-IGFuZCAwIGFyZSBub3QgdmFsaWQgdHJhY2sgaWRzLg0KPg0KPiBXaGVuIGEgY29udGFjdCBsaWZ0
-cyBvZmYgdGhlIGhhcmR3YXJlIHJlcG9ydHMgYSBtYWdpYyBudW1iZXIgKDE1KSBmb3IgaXQuDQo+
-IEFsc28sIHRoZSBzZXF1ZW5jZSBhbHdheXMgc3RhcnQgd2l0aCAxIHdoaWNoIGlzIHRoZSB0cmFj
-ayBpZCB0aGF0IGdldHMgdGhlIGZpcnN0DQo+IGNvbnRhY3QgcmVwb3J0ZWQgYnkgdGhlIHRvdWNo
-Lg0KPg0KPiA+PiArDQo+ID4+ICsvKiBUcnVlVG91Y2ggU3RhbmRhcmQgUHJvZHVjdCBHZW4zIGlu
-dGVyZmFjZSBkZWZpbml0aW9uICovIHN0cnVjdA0KPiA+PiArY3l0dHNwX3h5ZGF0YSB7DQo+ID4+
-ICsgICAgIHU4IGhzdF9tb2RlOw0KPiA+PiArICAgICB1OCB0dF9tb2RlOw0KPiA+PiArICAgICB1
-OCB0dF9zdGF0Ow0KPiA+PiArICAgICBzdHJ1Y3QgY3l0dHNwX3RjaCB0Y2gxOw0KPiA+PiArICAg
-ICB1OCB0b3VjaDEyX2lkOw0KPiA+PiArICAgICBzdHJ1Y3QgY3l0dHNwX3RjaCB0Y2gyOw0KPiA+
-PiArICAgICB1OCBnZXN0X2NudDsNCj4gPj4gKyAgICAgdTggZ2VzdF9pZDsNCj4gPj4gKyAgICAg
-c3RydWN0IGN5dHRzcF90Y2ggdGNoMzsNCj4gPj4gKyAgICAgdTggdG91Y2gzNF9pZDsNCj4gPj4g
-KyAgICAgc3RydWN0IGN5dHRzcF90Y2ggdGNoNDsNCj4gPj4gKyAgICAgdTggdHRfdW5kZWZbM107
-DQo+ID4+ICsgICAgIHU4IGFjdF9kaXN0Ow0KPiA+PiArICAgICB1OCB0dF9yZXNlcnZlZDsNCj4g
-Pj4gK30gX19wYWNrZWQ7DQo+ID4NCj4gPiBUb28gYmFkIHRoZSB0b3VjaGVzIGFyZSBub3QgYW4g
-YXJyYXkgaGVyZS4uLg0KPiA+DQo+DQo+IFllcywgdGhlIHByb2JsZW0gaXMgdGhhdCB0aGUgb2Zm
-c2V0IGJldHdlZW4gdG91Y2hlcyBpcyBub3QgdW5pZm9ybS4NCj4gRm9yIHRjaDEgYW5kIHRjaDIg
-aXMgb25seSA4IGJpdHMgYnV0IHRoZSBvZmZzZXQgYmV0d2VlbiB0Y2gyIGFuZCB0Y2gzIGlzIDE2
-ICh1OA0KPiAqIDIpIGZvciBleGFtcGxlLg0KPg0KPiA+PiArICAgICBpbnQgc2xvdF9jdXJyW0NZ
-X01BWF9JRF07DQo+ID4+ICsgICAgIGludCBzbG90X3ByZXZbQ1lfTUFYX0lEXTsNCj4gPg0KPiA+
-IFRoZXNlIHR3byBhcmUgbm90IG5lZWRlZDsgdGhlIGlucHV0IGNvcmUgd2lsbCB0YWtlIGNhcmUg
-b2YgZHVwbGljYXRlcywNCj4gPiBzbyBzbG90X3ByZXYgY2FuIGJlIHJlbW92ZWQuIEFsc28sIHRo
-ZSBzZXQgb2YgY3VycmVudCBzbG90cyBjYW4gYmUNCj4gPiB0cmFja2VkIHVzaW5nIGEgdGVtcG9y
-YXJ5IGJpdG1hc2ssIHNvIHNsb3RfY3VyciBjYW4gYmUgcmVtb3ZlZCBhcyB3ZWxsLg0KPg0KPiBQ
-ZXJmZWN0LCBJJ2xsIHJlbW92ZSBib3RoLiBJIGRpZG4ndCBrbm93IHRoYXQgdGhlIGlucHV0IGNv
-cmUgdG9vayBjYXJlIG9mDQo+IGR1cGxpY2F0ZXMsIHNvcnJ5IGZvciBub3QgZ2V0dGluZyB0aGlz
-IGZyb20gdGhlIGRvY3MuDQo+DQo+ID4+ICsNCj4gPj4gK3N0YXRpYyB2b2lkIGN5dHRzcF9nZXRf
-dGNoKHN0cnVjdCBjeXR0c3BfeHlkYXRhICp4eV9kYXRhLCBpbnQgaWR4LA0KPiA+PiArICAgICAg
-ICAgICAgICAgICAgICAgICAgc3RydWN0IGN5dHRzcF90Y2ggKip0Y2gpIHsNCj4gPj4gKyAgICAg
-c3dpdGNoIChpZHgpIHsNCj4gPj4gKyAgICAgY2FzZSAwOg0KPiA+PiArICAgICAgICAgICAgICp0
-Y2ggPSAmeHlfZGF0YS0+dGNoMTsNCj4gPj4gKyAgICAgICAgICAgICBicmVhazsNCj4gPj4gKyAg
-ICAgY2FzZSAxOg0KPiA+PiArICAgICAgICAgICAgICp0Y2ggPSAmeHlfZGF0YS0+dGNoMjsNCj4g
-Pj4gKyAgICAgICAgICAgICBicmVhazsNCj4gPj4gKyAgICAgY2FzZSAyOg0KPiA+PiArICAgICAg
-ICAgICAgICp0Y2ggPSAmeHlfZGF0YS0+dGNoMzsNCj4gPj4gKyAgICAgICAgICAgICBicmVhazsN
-Cj4gPj4gKyAgICAgY2FzZSAzOg0KPiA+PiArICAgICAgICAgICAgICp0Y2ggPSAmeHlfZGF0YS0+
-dGNoNDsNCj4gPj4gKyAgICAgICAgICAgICBicmVhazsNCj4gPj4gKyAgICAgfQ0KPiA+PiArfQ0K
-PiA+DQo+ID4gSG93IGFib3V0IHJldHVybmluZyBhIGNvbnN0IHN0cnVjdCBjeXR0c3BfdGNoKiBo
-ZXJlIGluc3RlYWQuDQo+ID4NCj4NCj4gT2ssIHdpbGwgcmV0dXJuIGEgc3RydWN0IHBvaW50ZXIg
-aW5zdGVhZC4NCj4NCj4gPj4gKw0KPiA+PiArICAgICBjeXR0c3BfZXh0cmFjdF90cmFja19pZHMo
-Jnh5X2RhdGEsIGlkcyk7DQo+ID4+ICsNCj4gPj4gKyAgICAgZm9yIChpID0gMDsgaSA8IG51bV9j
-dXJfdGNoOyBpKyspIHsNCj4gPj4gKyAgICAgICAgICAgICB0cy0+c2xvdF9jdXJyW2lkc1tpXSAt
-IDFdID0gQ1lfVVNFRDsNCj4gPg0KPiA+IFdoeSB0aGUgLTEgaGVyZT8gU2luY2UgdGhlIHZhbHVl
-cyBhcmUgcHJvdmFibHkgYmV0d2VlbiAwIGFuZCAxNSwgdGhlcmUNCj4gPiBpcyBubyBuZWVkIHRv
-IGNoYW5nZSB0aGVtIGZ1cnRoZXIuDQo+DQo+IEFzIEkgdG9sZCB5b3UgYmVmb3JlIGlzIGEgSFcg
-dGhpbmcuIEkgbG9va2VkIGF0IHRoZSB0cmFjayBpZHMgcmVwb3J0ZWQgYnkgdGhlDQo+IHRvdWNo
-c2NyZWVuIGFuZCB0aGVpciB2YWx1ZXMgYXJlIGFsd2F5cyBiZXR3ZWVuIDEgYW5kIDE0LiBTbyBJ
-IGRpZCB0aGUgLTEgdG8NCj4gYXZvaWQgaGF2aW5nIGFuZCB1bnVzZWQgZWxlbWVudCBpbiB0aGUg
-YXJyYXkuIChJIGRvbid0IGhhdmUgdGhlIEhXDQo+IGRhdGFzaGVldCBzbyBtYXliZSBJJ20gd3Jv
-bmcgd2l0aCB0aGlzKQ0KPg0KPiBLZXZpbj8NCj4NCj4gPg0KPiA+IEFsc28sIHRoZSBhYm92ZSBs
-aW5lIGNvdWxkIGJlIHJlcGxhY2VkIGJ5ICJ1c2VkIHw9IDEgPDwgaWRzW2ldIiwgZm9yIGluc3Rh
-bmNlLg0KPiA+DQo+ID4+ICsNCj4gPj4gKyAgICAgICAgICAgICBjeXR0c3BfZ2V0X3RjaCgmeHlf
-ZGF0YSwgaSwgJnRjaCk7DQo+ID4+ICsNCj4gPj4gKyAgICAgICAgICAgICB4ID0gYmUxNl90b19j
-cHUodGNoLT54KTsNCj4gPj4gKyAgICAgICAgICAgICB5ID0gYmUxNl90b19jcHUodGNoLT55KTsN
-Cj4gPj4gKyAgICAgICAgICAgICB6ID0gdGNoLT56Ow0KPiA+PiArDQo+ID4+ICsgICAgICAgICAg
-ICAgY3l0dHNwX3JlcG9ydF9zbG90KHRzLT5pbnB1dCwgaWRzW2ldIC0gMSwgeCwgeSwgeik7DQo+
-ID4NCj4gPiBEaXR0bywgLTEuDQo+ID4NCj4gPj4gKyAgICAgfQ0KPiA+PiArDQo+ID4+ICsgICAg
-IGZvciAoaSA9IDA7IGkgPCBDWV9NQVhfSUQ7IGkrKykgew0KPiA+PiArICAgICAgICAgICAgIGlm
-ICh0cy0+c2xvdF9wcmV2W2ldID09IENZX1VTRUQgJiYNCj4gPj4gKyAgICAgICAgICAgICAgICAg
-dHMtPnNsb3RfY3VycltpXSA9PSBDWV9VTlVTRUQpDQo+ID4+ICsgICAgICAgICAgICAgICAgICAg
-ICBjeXR0c3BfcmVwb3J0X3Nsb3RfZW1wdHkodHMtPmlucHV0LCBpKTsNCj4gPj4gKyAgICAgICAg
-ICAgICB0cy0+c2xvdF9wcmV2W2ldID0gdHMtPnNsb3RfY3VycltpXTsNCj4gPj4gKyAgICAgICAg
-ICAgICB0cy0+c2xvdF9jdXJyW2ldID0gQ1lfVU5VU0VEOw0KPiA+PiArICAgICB9DQo+ID4NCj4g
-PiBJbnB1dCBjb3JlIGhhbmRsZXMgZHVwbGljYXRlIGNhbGxzLCBzbyB0aGUgYWJvdmUgY291bGQg
-YmUgc2ltcGxpZmllZC4NCj4gPg0KPg0KPiBQZXJmZWN0LCB3aWxsIGNsZWFuIHRoaXMgY29kZS4N
-Cj4NCj4gPj4gKw0KPiA+PiArICAgICBmb3IgKGkgPSAwOyBpIDwgQ1lfTUFYX0lEOyBpKyspIHsN
-Cj4gPj4gKyAgICAgICAgICAgICB0cy0+c2xvdF9wcmV2W2ldID0gQ1lfVU5VU0VEOw0KPiA+PiAr
-ICAgICAgICAgICAgIHRzLT5zbG90X2N1cnJbaV0gPSBDWV9VTlVTRUQ7DQo+ID4+ICsgICAgIH0N
-Cj4gPg0KPiA+IENvdWxkIGJlIHJlbW92ZWQuDQo+ID4NCj4NCj4gWWVzLCBJJ2xsIGRvIHRoYXQu
-DQo+DQo+ID4NCj4gPiBUaGFua3MsDQo+ID4gSGVucmlrDQo+ID4NCj4NCj4gVGhhbmtzIGZvciB5
-b3VyIGNvbW1lbnRzLCBJIHdpbGwgd29yayBvbiB0aGVzZSBpc3N1ZXMgYW5kIHJlc3VibWl0IGEg
-bmV3DQo+IHZlcnNpb24gb2YgdGhlIHBhdGNoLXNldC4NCj4NCj4gQmVzdCByZWdhcmRzLA0KPg0K
-PiAtLQ0KPiBKYXZpZXIgTWFydMOtbmV6IENhbmlsbGFzDQo+ICgrMzQpIDY4MiAzOSA4MSA2OQ0K
-PiBCYXJjZWxvbmEsIFNwYWluDQoNClRoaXMgbWVzc2FnZSBhbmQgYW55IGF0dGFjaG1lbnRzIG1h
-eSBjb250YWluIEN5cHJlc3MgKG9yIGl0cyBzdWJzaWRpYXJpZXMpIGNvbmZpZGVudGlhbCBpbmZv
-cm1hdGlvbi4gSWYgaXQgaGFzIGJlZW4gcmVjZWl2ZWQgaW4gZXJyb3IsIHBsZWFzZSBhZHZpc2Ug
-dGhlIHNlbmRlciBhbmQgaW1tZWRpYXRlbHkgZGVsZXRlIHRoaXMgbWVzc2FnZS4NCg==
+From: JJ Ding <dgdunix@gmail.com>
+
+psmouse.c had long been renamed to psmouse-base.c back in 2003, when we
+were still at Linux 2.5.xx. This change makes the log less misleading.
+
+Signed-off-by: JJ Ding <dgdunix@gmail.com>
+---
+ drivers/input/mouse/psmouse-base.c |   22 +++++++++++-----------
+ 1 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 3f74bae..6a2584d 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -251,11 +251,11 @@ static int psmouse_handle_byte(struct psmouse *psmouse)
+ 	switch (rc) {
+ 	case PSMOUSE_BAD_DATA:
+ 		if (psmouse->state == PSMOUSE_ACTIVATED) {
+-			printk(KERN_WARNING "psmouse.c: %s at %s lost sync at byte %d\n",
++			printk(KERN_WARNING "psmouse: %s at %s lost sync at byte %d\n",
+ 				psmouse->name, psmouse->phys, psmouse->pktcnt);
+ 			if (++psmouse->out_of_sync_cnt == psmouse->resetafter) {
+ 				__psmouse_set_state(psmouse, PSMOUSE_IGNORE);
+-				printk(KERN_NOTICE "psmouse.c: issuing reconnect request\n");
++				printk(KERN_NOTICE "psmouse: issuing reconnect request\n");
+ 				serio_reconnect(psmouse->ps2dev.serio);
+ 				return -1;
+ 			}
+@@ -267,7 +267,7 @@ static int psmouse_handle_byte(struct psmouse *psmouse)
+ 		psmouse->pktcnt = 0;
+ 		if (psmouse->out_of_sync_cnt) {
+ 			psmouse->out_of_sync_cnt = 0;
+-			printk(KERN_NOTICE "psmouse.c: %s at %s - driver resynched.\n",
++			printk(KERN_NOTICE "psmouse: %s at %s - driver resynched.\n",
+ 				psmouse->name, psmouse->phys);
+ 		}
+ 		break;
+@@ -295,7 +295,7 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
+ 		     ((flags & SERIO_PARITY) && !psmouse->ignore_parity))) {
+ 
+ 		if (psmouse->state == PSMOUSE_ACTIVATED)
+-			printk(KERN_WARNING "psmouse.c: bad data from KBC -%s%s\n",
++			printk(KERN_WARNING "psmouse: bad data from KBC -%s%s\n",
+ 				flags & SERIO_TIMEOUT ? " timeout" : "",
+ 				flags & SERIO_PARITY ? " bad parity" : "");
+ 		ps2_cmd_aborted(&psmouse->ps2dev);
+@@ -315,7 +315,7 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
+ 
+ 	if (psmouse->state == PSMOUSE_ACTIVATED &&
+ 	    psmouse->pktcnt && time_after(jiffies, psmouse->last + HZ/2)) {
+-		printk(KERN_INFO "psmouse.c: %s at %s lost synchronization, throwing %d bytes away.\n",
++		printk(KERN_INFO "psmouse: %s at %s lost synchronization, throwing %d bytes away.\n",
+ 		       psmouse->name, psmouse->phys, psmouse->pktcnt);
+ 		psmouse->badbyte = psmouse->packet[0];
+ 		__psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
+@@ -943,7 +943,7 @@ static int psmouse_probe(struct psmouse *psmouse)
+  */
+ 
+ 	if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_RESET_DIS))
+-		printk(KERN_WARNING "psmouse.c: Failed to reset mouse on %s\n", ps2dev->serio->phys);
++		printk(KERN_WARNING "psmouse: Failed to reset mouse on %s\n", ps2dev->serio->phys);
+ 
+ 	return 0;
+ }
+@@ -1005,7 +1005,7 @@ static void psmouse_initialize(struct psmouse *psmouse)
+ static void psmouse_activate(struct psmouse *psmouse)
+ {
+ 	if (ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE))
+-		printk(KERN_WARNING "psmouse.c: Failed to enable mouse on %s\n",
++		printk(KERN_WARNING "psmouse: Failed to enable mouse on %s\n",
+ 			psmouse->ps2dev.serio->phys);
+ 
+ 	psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
+@@ -1020,7 +1020,7 @@ static void psmouse_activate(struct psmouse *psmouse)
+ static void psmouse_deactivate(struct psmouse *psmouse)
+ {
+ 	if (ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_DISABLE))
+-		printk(KERN_WARNING "psmouse.c: Failed to deactivate mouse on %s\n",
++		printk(KERN_WARNING "psmouse: Failed to deactivate mouse on %s\n",
+ 			psmouse->ps2dev.serio->phys);
+ 
+ 	psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
+@@ -1115,14 +1115,14 @@ static void psmouse_resync(struct work_struct *work)
+ 	}
+ 
+ 	if (!enabled) {
+-		printk(KERN_WARNING "psmouse.c: failed to re-enable mouse on %s\n",
++		printk(KERN_WARNING "psmouse: failed to re-enable mouse on %s\n",
+ 			psmouse->ps2dev.serio->phys);
+ 		failed = true;
+ 	}
+ 
+ 	if (failed) {
+ 		psmouse_set_state(psmouse, PSMOUSE_IGNORE);
+-		printk(KERN_INFO "psmouse.c: resync failed, issuing reconnect request\n");
++		printk(KERN_INFO "psmouse: resync failed, issuing reconnect request\n");
+ 		serio_reconnect(serio);
+ 	} else
+ 		psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
+@@ -1155,7 +1155,7 @@ static void psmouse_cleanup(struct serio *serio)
+ 	 * Disable stream mode so cleanup routine can proceed undisturbed.
+ 	 */
+ 	if (ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_DISABLE))
+-		printk(KERN_WARNING "psmouse.c: Failed to disable mouse on %s\n",
++		printk(KERN_WARNING "psmouse: Failed to disable mouse on %s\n",
+ 			psmouse->ps2dev.serio->phys);
+ 
+ 	if (psmouse->cleanup)
+-- 
+1.7.6.4
+

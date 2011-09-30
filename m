@@ -1,155 +1,93 @@
-From: Stephen Kitt <steve@sk2.org>
-Subject: Re: [PATCH] inputattach: add support for tsc40
-Date: Fri, 30 Sep 2011 06:55:28 +0200
-Message-ID: <20110930065528.31e766b8@sk2.org>
-References: <CAH9NwWfm2YC4PrPWhm-A=OJOVyw3LApVw__OjfekeCMgQmaGKA@mail.gmail.com>
+From: Hui Wang <jason77.wang@gmail.com>
+Subject: [PATCH] input/imx_keypad: add pm suspend and resume functions
+Date: Fri, 30 Sep 2011 15:54:14 +0800
+Message-ID: <1317369254-31146-1-git-send-email-jason77.wang@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp5-g21.free.fr ([212.27.42.5]:60470 "EHLO smtp5-g21.free.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754100Ab1I3Ezi (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Sep 2011 00:55:38 -0400
-In-Reply-To: <CAH9NwWfm2YC4PrPWhm-A=OJOVyw3LApVw__OjfekeCMgQmaGKA@mail.gmail.com>
+Received: from mail.windriver.com ([147.11.1.11]:39942 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754779Ab1I3Hya (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Sep 2011 03:54:30 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christian Gmeiner <christian.gmeiner@gmail.com>
-Cc: linux-input@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: dmitry.torokhov@gmail.com, s.hauer@pengutronix.de, maramaopercheseimorto@gmail.com
+Cc: linux-input@vger.kernel.org
 
-Hi Christian,
+The imx_keypad driver is set wake capable in the imx_keypad_probe(),
+but it doesn't implement suspend and reusme callback interface.
 
-I'm sorry I didn't get round to reviewing your earlier patch - the patch
-below is fine by me and will be in the next release of inputattach.
+>From the i.MX series MCU Reference Manual, the kpp (keypad port) is
+a major wake up source which can detect any key press even in low
+power modes and even when there is no clock.
 
-Regards,
+Now add suspend and resume callback functions for this driver.
 
-Stephen
+Signed-off-by: Hui Wang <jason77.wang@gmail.com>
+---
+Validated this patch both on i.MX51 PDK and i.MX31 PDK
 
+ drivers/input/keyboard/imx_keypad.c |   42 +++++++++++++++++++++++++++++++++++
+ 1 files changed, 42 insertions(+), 0 deletions(-)
 
-On Tue, 27 Sep 2011 09:40:13 +0200, Christian Gmeiner
-<christian.gmeiner@gmail.com> wrote:
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index d92c15c..9992617 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -567,10 +567,52 @@ static int __devexit imx_keypad_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM
++static int imx_kbd_suspend(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct imx_keypad *kbd = platform_get_drvdata(pdev);
++
++	clk_disable(kbd->clk);
++
++	if (device_may_wakeup(&pdev->dev))
++		enable_irq_wake(kbd->irq);
++
++	return 0;
++}
++
++static int imx_kbd_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct imx_keypad *kbd = platform_get_drvdata(pdev);
++	struct input_dev *input_dev = kbd->input_dev;
++
++	mutex_lock(&input_dev->mutex);
++
++	if (device_may_wakeup(&pdev->dev))
++		disable_irq_wake(kbd->irq);
++
++	if (input_dev->users)
++		clk_enable(kbd->clk);
++
++	mutex_unlock(&input_dev->mutex);
++
++	return 0;
++}
++
++static const struct dev_pm_ops imx_kbd_pm_ops = {
++	.suspend	= imx_kbd_suspend,
++	.resume		= imx_kbd_resume,
++};
++#endif
++
+ static struct platform_driver imx_keypad_driver = {
+ 	.driver		= {
+ 		.name	= "imx-keypad",
+ 		.owner	= THIS_MODULE,
++#ifdef CONFIG_PM
++		.pm	= &imx_kbd_pm_ops,
++#endif
+ 	},
+ 	.probe		= imx_keypad_probe,
+ 	.remove		= __devexit_p(imx_keypad_remove),
+-- 
+1.7.6
 
-> This patch adds support for TSC-40 driver to inputattach.
-> 
-> Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-> ---
-> 
-> diff -Nur linuxconsoletools-1.4.2/docs/inputattach.1
-> linuxconsoletools-1.4.2_patched//docs/inputattach.1
-> --- linuxconsoletools-1.4.2/docs/inputattach.1	2011-08-09
-> 07:35:02.000000000 +0200
-> +++ linuxconsoletools-1.4.2_patched//docs/inputattach.1	2011-09-27
-> 11:39:28.935479294 +0200
-> @@ -108,6 +108,9 @@
->  .BR \-taos ", " \-\-taos\-evm
->  TAOS evaluation module.
->  .TP
-> +.BR \-tsc ", " \-\-tsc
-> +TSC-10/25/40 touch screen.
-> +.TP
->  .BR \-t213 ", " \-\-touchit213
->  Sahara Touch-iT213 Tablet PC.
->  .TP
-> diff -Nur linuxconsoletools-1.4.2/utils/inputattach.c
-> linuxconsoletools-1.4.2_patched//utils/inputattach.c
-> --- linuxconsoletools-1.4.2/utils/inputattach.c	2011-08-09
-> 07:43:10.000000000 +0200
-> +++ linuxconsoletools-1.4.2_patched//utils/inputattach.c	2011-09-27
-> 11:38:01.071479288 +0200
-> @@ -354,6 +354,82 @@
->  	return 0;
->  }
-> 
-> +static int tsc40_init(int fd, unsigned long *id, unsigned long *extra)
-> +{
-> +	unsigned char cmd[2], data;
-> +	unsigned int eeprom;
-> +
-> +	/* Datasheet can be found here:
-> +	 *
-> http://www.distec.de/PDF/Drivers/DMC/TSC40_Protocol_Description.pdf
-> +	 */
-> +
-> +#define TSC40_CMD_DATA1	0x01
-> +#define TSC40_CMD_RATE	0x05
-> +#define TSC40_CMD_ID	0x15
-> +#define TSC40_CMD_RESET	0x55
-> +
-> +#define TSC40_RATE_150	0x45
-> +#define TSC40_NACK	0x15
-> +
-> +	/* trigger a software reset to get into a well known state */
-> +	cmd[0] = TSC40_CMD_RESET;
-> +	if (write(fd, cmd, 1) != 1)
-> +		return -1;
-> +	
-> +	/* wait to settle down */
-> +	usleep(15 * 1000); /* 15 ms */	
-> +	
-> +	/* read panel ID to check if an EEPROM is used */
-> +	cmd[0] = TSC40_CMD_ID;
-> +	if (write(fd, cmd, 1) != 1)
-> +		return -1;
-> +	
-> +	if (readchar(fd, &data, 100))
-> +		return -1;
-> +
-> +	/* if bit7 is not set --> EEPROM is used */
-> +	eeprom = !((data & 0x80) >> 7);
-> +	
-> +	/* ignore 2nd byte of ID cmd */
-> +	if (readchar(fd, &data, 100))
-> +		return -1;
-> +	
-> +	/* set coordinate oupt rate setting */
-> +	cmd[0] = TSC40_CMD_RATE;
-> +	cmd[1] = TSC40_RATE_150;
-> +	if (write(fd, cmd, 2) != 2)
-> +		return -1;
-> +	
-> +	/* read response */
-> +	if (readchar(fd, &data, 100))
-> +		return -1;
-> +	
-> +	if ((data == TSC40_NACK) && (eeprom == 1)) {
-> +		/* get detailed failure information */
-> +		if (readchar(fd, &data, 100))
-> +			return -1;
-> +
-> +		switch (data) {
-> +		case 0x02:	/* EEPROM data abnormal */
-> +		case 0x04:	/* EEPROM write error */
-> +		case 0x08:	/* Touch screen not connected */
-> +			return -1;
-> +			break;
-> +			
-> +		default:
-> +			/* 0x01: EEPROM data empty */
-> +			break;
-> +		}
-> +	}
-> +
-> +	/* start sending coordinate informations */
-> +	cmd[0] = TSC40_CMD_DATA1;
-> +	if (write(fd, cmd, 1) != 1)
-> +		return -1;
-> +
-> +	return 0;
-> +}
-> +
->  static int t213_init(int fd, unsigned long *id, unsigned long *extra)
->  {
->  	char cmd[]={0x0a,1,'A'};
-> @@ -556,6 +632,9 @@
->  { "--mtouch",		"-mtouch",	"MicroTouch (3M)
-> touchscreen", B9600, CS8 | CRTSCTS,
->  	SERIO_MICROTOUCH,	0x00,	0x00,	0,
-> NULL }, +{ "--tsc",		"-tsc",		"TSC-10/25/40
-> serial touchscreen",
-> +	B9600, CS8,
-> +	SERIO_TSC40,		0x00,	0x00,	0,
-> tsc40_init }, { "--touchit213",	"-t213",	"Sahara Touch-iT213
-> Tablet PC", B9600, CS8,
->  	SERIO_TOUCHIT213,	0x00,	0x00,	0,
-> t213_init },

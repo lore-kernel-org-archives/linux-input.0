@@ -1,47 +1,55 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] Revert "Input: wacom - Cintiq 21UX2 does not have menu strips"
-Date: Fri, 30 Sep 2011 17:12:02 -0700
-Message-ID: <1317427922-2277-1-git-send-email-killertofu@gmail.com>
+From: Jonathan Nieder <jrnieder@gmail.com>
+Subject: Re: Wishlist: Add support for software-rf-switch in Fujitsu-Siemens
+ notebook
+Date: Sun, 2 Oct 2011 17:12:54 -0500
+Message-ID: <20111002221253.GA18253@elie>
+References: <20110625211738.3615.21718.reportbug@lisa>
+ <1317441406.4068.43.camel@deadeye>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:43248 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754523Ab1JAAMg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Sep 2011 20:12:36 -0400
-Received: by iaqq3 with SMTP id q3so2317774iaq.19
-        for <linux-input@vger.kernel.org>; Fri, 30 Sep 2011 17:12:35 -0700 (PDT)
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:49359 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754036Ab1JBWNJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Oct 2011 18:13:09 -0400
+Received: by yxl31 with SMTP id 31so2940796yxl.19
+        for <linux-input@vger.kernel.org>; Sun, 02 Oct 2011 15:13:08 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1317441406.4068.43.camel@deadeye>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, pinglinux@gmail.com, Jason Gerecke <killertofu@gmail.com>
+To: Tino Schmidt <mailtinoshomepage@gmx.net>
+Cc: linux-input@vger.kernel.org, Miloslav Trmac <mitr@volny.cz>, Ben Hutchings <ben@decadent.org.uk>, Martin =?utf-8?B?VmXEjWXFmWE=?= <ja@marvec.org>, Jonathan Woithe <jwoithe@physics.adelaide.edu.au>, =?utf-8?B?w4lyaWM=?= Piel <eric.piel@tremplin-utc.net>
 
-This reverts commit 71c86ce59791bcd67af937bbea719a508079d7c2.
-The 21UX2 does have touchstrips, but they are in a somewhat-
-hidden location.
+Hi,
 
-Signed-off-by: Jason Gerecke <killertofu@gmail.com>
----
- drivers/input/tablet/wacom_wac.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
+Tino Schmidt wrote[1]:
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index c1c2f7b..57227b5 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -1120,11 +1120,8 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
- 		for (i = 0; i < 8; i++)
- 			__set_bit(BTN_0 + i, input_dev->keybit);
- 
--		if (wacom_wac->features.type != WACOM_21UX2) {
--			input_set_abs_params(input_dev, ABS_RX, 0, 4096, 0, 0);
--			input_set_abs_params(input_dev, ABS_RY, 0, 4096, 0, 0);
--		}
--
-+		input_set_abs_params(input_dev, ABS_RX, 0, 4096, 0, 0);
-+		input_set_abs_params(input_dev, ABS_RY, 0, 4096, 0, 0);
- 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
- 		wacom_setup_cintiq(wacom_wac);
- 		break;
--- 
-1.7.6
+> My notebook is an Fujitsu Siemens Amilo A1655G, which has a 
+> software-based RF-Switch. My wireless network card ( 
+> Broadcom Corporation BCM4318 [AirForce One 54g] 802.11g Wireless LAN 
+> Controller (rev 02), ID 14e4:4318) would be unusable if there wasn't a 
+> project like http://sourceforge.net/projects/fsaa1655g/ which brings 
+> support at least for kernel 2.6.26. But there isn't any support beyond 
+> kernel 2.6.26.
 
+I notice that the wistron_btns driver has support for some other Amilo
+laptops.  The source says:
+
+ /*
+  * If your machine is not here (which is currently rather likely), please send
+  * a list of buttons and their key codes (reported when loading this module
+  * with force=1) and the output of dmidecode to $MODULE_AUTHOR.
+  */
+
+Tino (or anyone with this hardware), could you send dmesg output from
+
+	modprobe wistron_btns force=1
+
+and dmidecode (or "grep . /sys/class/dmi/id/*_{vendor,name,version}"
+as Ben suggested)?
+
+Thanks,
+Jonathan
+
+[1] http://bugs.debian.org/631664

@@ -1,42 +1,66 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH] Input: evdev - use monotonic clock for event timestamps
-Date: Mon,  3 Oct 2011 14:43:20 +0800
-Message-ID: <1317624200-9762-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
+From: Tatsunosuke Tobita <junkpainting@gmail.com>
+Subject: [PATCH] Input:Modification on Kconfig&Makefile
+Date: Mon,  3 Oct 2011 17:26:55 +0900
+Message-ID: <1317630415-2449-1-git-send-email-tobita.tatsunosuke@wacom.co.jp>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pz0-f42.google.com ([209.85.210.42]:37998 "EHLO
+	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750775Ab1JCI1T (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Oct 2011 04:27:19 -0400
+Received: by pzk1 with SMTP id 1so11169122pzk.1
+        for <linux-input@vger.kernel.org>; Mon, 03 Oct 2011 01:27:19 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
 
-Using wallclock time for event timestamps subjects inter-event timing to
-ntp and other clock adjustments.  This complicates userspace drivers
-that use these timestamps to calculate velocities, or while processing
-state transitions.
+From: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
 
-Instead, use the kernel monotonic clock for event timestamps, which is
-at least guaranteed never to go backwards.
+Modify Kconfig&Makefile for Wacom Stylus I2C support
 
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+Signed-off-by: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
 ---
- drivers/input/evdev.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+ drivers/input/touchscreen/Kconfig  |   11 +++++++++++
+ drivers/input/touchscreen/Makefile |    2 ++
+ 2 files changed, 13 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 4cf2534..118f936 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -94,8 +94,11 @@ static void evdev_event(struct input_handle *handle,
- 	struct evdev *evdev = handle->private;
- 	struct evdev_client *client;
- 	struct input_event event;
-+	struct timespec now;
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index cabd9e5..ac7b08e 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -726,4 +726,15 @@ config TOUCHSCREEN_TPS6507X
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called tps6507x_ts.
  
--	do_gettimeofday(&event.time);
-+	getrawmonotonic(&now);
-+	event.time.tv_sec = now.tv_sec;
-+	event.time.tv_usec = now.tv_nsec/1000;
- 	event.type = type;
- 	event.code = code;
- 	event.value = value;
++config TOUCHSCREEN_WACOM_I2C
++	tristate "Wacom Tablet support(I2C)"
++	depends on I2C
++	help
++	 Say Y here if you want to use the I2C version of the Wacom Pen.
++	 Make sure to say Y to "Mouse support" (CONFIG_INPUT_MOUSEDEV)
++	 and/or "Event interface support" (CONFIG_INPUT_EVDEV) as well.
++
++	 To compile this driver as a module, choose M here: the module
++	 will be called wacom_i2c.
++
+ endif
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 282d6f7..c2b683b 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -5,6 +5,7 @@
+ # Each configuration option enables a list of files.
+ 
+ wm97xx-ts-y := wm97xx-core.o
++wacom_i2c-ts-objs := wacom_i2c_func.o wacom_i2c.o
+ 
+ obj-$(CONFIG_TOUCHSCREEN_88PM860X)	+= 88pm860x-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_AD7877)	+= ad7877.o
+@@ -60,3 +61,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
+ obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
+ obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
++obj-$(CONFIG_TOUCHSCREEN_WACOM_I2C)	+= wacom_i2c-ts.o
 -- 
-1.7.3.1
+1.7.1
+

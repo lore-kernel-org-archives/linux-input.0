@@ -1,155 +1,194 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [RFC 03/12] HID: wiimote: Add read-mem helpers
-Date: Tue,  4 Oct 2011 15:36:44 +0200
-Message-ID: <1317735413-17299-4-git-send-email-dh.herrmann@googlemail.com>
+Subject: [RFC 08/12] HID: wiimote: Register input devices for extensions
+Date: Tue,  4 Oct 2011 15:36:49 +0200
+Message-ID: <1317735413-17299-9-git-send-email-dh.herrmann@googlemail.com>
 References: <1317735413-17299-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:51678 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757170Ab1JDNh3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Oct 2011 09:37:29 -0400
-Received: by wyg34 with SMTP id 34so527686wyg.19
-        for <linux-input@vger.kernel.org>; Tue, 04 Oct 2011 06:37:27 -0700 (PDT)
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:37790 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757201Ab1JDNhd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Oct 2011 09:37:33 -0400
+Received: by mail-ey0-f174.google.com with SMTP id 28so476279eya.19
+        for <linux-input@vger.kernel.org>; Tue, 04 Oct 2011 06:37:32 -0700 (PDT)
 In-Reply-To: <1317735413-17299-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, David Herrmann <dh.herrmann@googlemail.com>
 
-Add helper functions similar to the write-mem helpers but for reading wiimote
-memory and eeprom.
+Motion+ and regular extensions are physical adapters for the wiimote so create
+one input device for each of them. This also allows to enable only opened
+extensions and turn unused extenions off to save battery power.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote-core.c |   77 ++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-wiimote.h      |    4 ++
- 2 files changed, 81 insertions(+), 0 deletions(-)
+ drivers/hid/hid-wiimote-ext.c |  109 +++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 106 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index c955d50..f7f8b7f 100644
---- a/drivers/hid/hid-wiimote-core.c
-+++ b/drivers/hid/hid-wiimote-core.c
-@@ -312,6 +312,37 @@ static void wiiproto_req_wmem(struct wiimote_data *wdata, bool eeprom,
- 	wiimote_queue(wdata, cmd, sizeof(cmd));
- }
+diff --git a/drivers/hid/hid-wiimote-ext.c b/drivers/hid/hid-wiimote-ext.c
+index ffd9066..5cb0909 100644
+--- a/drivers/hid/hid-wiimote-ext.c
++++ b/drivers/hid/hid-wiimote-ext.c
+@@ -19,6 +19,8 @@
+ struct wiimote_ext {
+ 	struct wiimote_data *wdata;
+ 	struct work_struct worker;
++	struct input_dev *input;
++	struct input_dev *mp_input;
  
-+#define wiiproto_req_rreg(wdata, os, sz) \
-+				wiiproto_req_rmem((wdata), false, (os), (sz))
+ 	atomic_t opened;
+ 	atomic_t mp_opened;
+@@ -58,6 +60,9 @@ static bool motionp_read(struct wiimote_ext *ext)
+ 	ssize_t ret;
+ 	bool avail = false;
+ 
++	if (!atomic_read(&ext->mp_opened))
++		return false;
 +
-+#define wiiproto_req_reeprom(wdata, os, sz) \
-+				wiiproto_req_rmem((wdata), true, (os), (sz))
-+
-+static void wiiproto_req_rmem(struct wiimote_data *wdata, bool eeprom,
-+						__u32 offset, __u16 size)
+ 	if (wiimote_cmd_acquire(ext->wdata))
+ 		return false;
+ 
+@@ -83,7 +88,7 @@ static __u8 ext_read(struct wiimote_ext *ext)
+ 	__u8 rmem[2], wmem;
+ 	__u8 type = WIIEXT_NONE;
+ 
+-	if (!ext->plugged)
++	if (!ext->plugged || !atomic_read(&ext->opened))
+ 		return WIIEXT_NONE;
+ 
+ 	if (wiimote_cmd_acquire(ext->wdata))
+@@ -243,6 +248,54 @@ static ssize_t wiiext_show(struct device *dev, struct device_attribute *attr,
+ 
+ static DEVICE_ATTR(extension, S_IRUGO, wiiext_show, NULL);
+ 
++static int wiiext_input_open(struct input_dev *dev)
 +{
-+	__u8 cmd[7];
++	struct wiimote_ext *ext = input_get_drvdata(dev);
++	int ret;
 +
-+	if (size == 0) {
-+		hid_warn(wdata->hdev, "Invalid length %d rmem request\n", size);
-+		return;
-+	}
++	ret = hid_hw_open(ext->wdata->hdev);
++	if (ret)
++		return ret;
 +
-+	cmd[0] = WIIPROTO_REQ_RMEM;
-+	cmd[1] = 0;
-+	cmd[2] = (offset >> 16) & 0xff;
-+	cmd[3] = (offset >> 8) & 0xff;
-+	cmd[4] = offset & 0xff;
-+	cmd[5] = (size >> 8) & 0xff;
-+	cmd[6] = size & 0xff;
++	atomic_inc(&ext->opened);
++	wiiext_schedule(ext);
 +
-+	if (!eeprom)
-+		cmd[1] |= 0x04;
-+
-+	wiiproto_keep_rumble(wdata, &cmd[1]);
-+	wiimote_queue(wdata, cmd, sizeof(cmd));
++	return 0;
 +}
 +
- /* requries the cmd-mutex to be held */
- int wiimote_cmd_write(struct wiimote_data *wdata, __u32 offset,
- 						const __u8 *wmem, __u8 size)
-@@ -331,6 +362,36 @@ int wiimote_cmd_write(struct wiimote_data *wdata, __u32 offset,
++static void wiiext_input_close(struct input_dev *dev)
++{
++	struct wiimote_ext *ext = input_get_drvdata(dev);
++
++	atomic_dec(&ext->opened);
++	wiiext_schedule(ext);
++	hid_hw_close(ext->wdata->hdev);
++}
++
++static int wiiext_mp_open(struct input_dev *dev)
++{
++	struct wiimote_ext *ext = input_get_drvdata(dev);
++	int ret;
++
++	ret = hid_hw_open(ext->wdata->hdev);
++	if (ret)
++		return ret;
++
++	atomic_inc(&ext->mp_opened);
++	wiiext_schedule(ext);
++
++	return 0;
++}
++
++static void wiiext_mp_close(struct input_dev *dev)
++{
++	struct wiimote_ext *ext = input_get_drvdata(dev);
++
++	atomic_dec(&ext->mp_opened);
++	wiiext_schedule(ext);
++	hid_hw_close(ext->wdata->hdev);
++}
++
+ /* Initializes the extension driver of a wiimote */
+ int wiiext_init(struct wiimote_data *wdata)
+ {
+@@ -257,9 +310,53 @@ int wiiext_init(struct wiimote_data *wdata)
+ 	ext->wdata = wdata;
+ 	INIT_WORK(&ext->worker, wiiext_worker);
+ 
++	ext->input = input_allocate_device();
++	if (!ext->input) {
++		ret = -ENOMEM;
++		goto err_input;
++	}
++
++	input_set_drvdata(ext->input, ext);
++	ext->input->open = wiiext_input_open;
++	ext->input->close = wiiext_input_close;
++	ext->input->dev.parent = &wdata->hdev->dev;
++	ext->input->id.bustype = wdata->hdev->bus;
++	ext->input->id.vendor = wdata->hdev->vendor;
++	ext->input->id.product = wdata->hdev->product;
++	ext->input->id.version = wdata->hdev->version;
++	ext->input->name = WIIMOTE_NAME " Extension";
++
++	ret = input_register_device(ext->input);
++	if (ret) {
++		input_free_device(ext->input);
++		goto err_input;
++	}
++
++	ext->mp_input = input_allocate_device();
++	if (!ext->mp_input) {
++		ret = -ENOMEM;
++		goto err_mp;
++	}
++
++	input_set_drvdata(ext->mp_input, ext);
++	ext->mp_input->open = wiiext_mp_open;
++	ext->mp_input->close = wiiext_mp_close;
++	ext->mp_input->dev.parent = &wdata->hdev->dev;
++	ext->mp_input->id.bustype = wdata->hdev->bus;
++	ext->mp_input->id.vendor = wdata->hdev->vendor;
++	ext->mp_input->id.product = wdata->hdev->product;
++	ext->mp_input->id.version = wdata->hdev->version;
++	ext->mp_input->name = WIIMOTE_NAME " Motion+";
++
++	ret = input_register_device(ext->mp_input);
++	if (ret) {
++		input_free_device(ext->mp_input);
++		goto err_mp;
++	}
++
+ 	ret = device_create_file(&wdata->hdev->dev, &dev_attr_extension);
+ 	if (ret)
+-		goto err;
++		goto err_dev;
+ 
+ 	spin_lock_irqsave(&wdata->state.lock, flags);
+ 	wdata->ext = ext;
+@@ -267,7 +364,11 @@ int wiiext_init(struct wiimote_data *wdata)
+ 
+ 	return 0;
+ 
+-err:
++err_dev:
++	input_unregister_device(ext->mp_input);
++err_mp:
++	input_unregister_device(ext->input);
++err_input:
+ 	kfree(ext);
  	return ret;
  }
+@@ -286,6 +387,8 @@ void wiiext_deinit(struct wiimote_data *wdata)
+ 	spin_unlock_irqrestore(&wdata->state.lock, flags);
  
-+/* requries the cmd-mutex to be held */
-+ssize_t wiimote_cmd_read(struct wiimote_data *wdata, __u32 offset, __u8 *rmem,
-+								__u8 size)
-+{
-+	unsigned long flags;
-+	ssize_t ret;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wdata->state.cmd_read_size = size;
-+	wdata->state.cmd_read_buf = rmem;
-+	wiimote_cmd_set(wdata, WIIPROTO_REQ_RMEM, offset & 0xffff);
-+	wiiproto_req_rreg(wdata, offset, size);
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	ret = wiimote_cmd_wait(wdata);
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wdata->state.cmd_read_buf = NULL;
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	if (!ret) {
-+		if (wdata->state.cmd_read_size == 0)
-+			ret = -EIO;
-+		else
-+			ret = wdata->state.cmd_read_size;
-+	}
-+
-+	return ret;
-+}
-+
- static int wiimote_battery_get_property(struct power_supply *psy,
- 						enum power_supply_property psp,
- 						union power_supply_propval *val)
-@@ -742,7 +803,23 @@ static void handler_status(struct wiimote_data *wdata, const __u8 *payload)
+ 	device_remove_file(&wdata->hdev->dev, &dev_attr_extension);
++	input_unregister_device(ext->mp_input);
++	input_unregister_device(ext->input);
  
- static void handler_data(struct wiimote_data *wdata, const __u8 *payload)
- {
-+	__u16 offset = payload[3] << 8 | payload[4];
-+	__u8 size = (payload[2] >> 4) + 1;
-+	__u8 err = payload[2] & 0x0f;
-+
- 	handler_keys(wdata, payload);
-+
-+	if (wiimote_cmd_pending(wdata, WIIPROTO_REQ_RMEM, offset)) {
-+		if (err)
-+			size = 0;
-+		else if (size > wdata->state.cmd_read_size)
-+			size = wdata->state.cmd_read_size;
-+
-+		wdata->state.cmd_read_size = size;
-+		if (wdata->state.cmd_read_buf)
-+			memcpy(wdata->state.cmd_read_buf, &payload[5], size);
-+		wiimote_cmd_complete(wdata);
-+	}
- }
- 
- static void handler_return(struct wiimote_data *wdata, const __u8 *payload)
-diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
-index d78f79c..865740d 100644
---- a/drivers/hid/hid-wiimote.h
-+++ b/drivers/hid/hid-wiimote.h
-@@ -62,6 +62,8 @@ struct wiimote_state {
- 	/* results of synchronous requests */
- 	__u8 cmd_battery;
- 	__u8 cmd_err;
-+	__u8 *cmd_read_buf;
-+	__u8 cmd_read_size;
- };
- 
- struct wiimote_data {
-@@ -113,6 +115,8 @@ enum wiiproto_reqs {
- extern void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm);
- extern int wiimote_cmd_write(struct wiimote_data *wdata, __u32 offset,
- 						const __u8 *wmem, __u8 size);
-+extern ssize_t wiimote_cmd_read(struct wiimote_data *wdata, __u32 offset,
-+							__u8 *rmem, __u8 size);
- 
- /* requires the state.lock spinlock to be held */
- static inline bool wiimote_cmd_pending(struct wiimote_data *wdata, int cmd,
+ 	cancel_work_sync(&ext->worker);
+ 	kfree(ext);
 -- 
 1.7.7
 

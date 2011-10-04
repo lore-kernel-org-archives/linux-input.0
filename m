@@ -1,139 +1,131 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [RFC 10/12] HID: wiimote: Parse motion+ data
-Date: Tue,  4 Oct 2011 15:36:51 +0200
-Message-ID: <1317735413-17299-11-git-send-email-dh.herrmann@googlemail.com>
+Subject: [RFC 07/12] HID: wiimote: Add extension sysfs attribute
+Date: Tue,  4 Oct 2011 15:36:48 +0200
+Message-ID: <1317735413-17299-8-git-send-email-dh.herrmann@googlemail.com>
 References: <1317735413-17299-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:55806 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757252Ab1JDNhf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Oct 2011 09:37:35 -0400
-Received: by mail-ww0-f44.google.com with SMTP id 22so815066wwf.1
-        for <linux-input@vger.kernel.org>; Tue, 04 Oct 2011 06:37:34 -0700 (PDT)
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:51678 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757187Ab1JDNhc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Oct 2011 09:37:32 -0400
+Received: by mail-wy0-f174.google.com with SMTP id 34so527686wyg.19
+        for <linux-input@vger.kernel.org>; Tue, 04 Oct 2011 06:37:31 -0700 (PDT)
 In-Reply-To: <1317735413-17299-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, David Herrmann <dh.herrmann@googlemail.com>
 
-Motion+ reports rotation gyro data which we report to userspace as ABS_RX/Y/Z
-values. The device reports them either in fast or slow mode. We adjust the
-values to get a linear scale so userspace does not need to know about slow and
-fast mode.
-
-The motion+ also reports whether an extension is connected to it. We keep track
-of this value and reinitialize the extensions if an extension is plugged or
-unplugged.
+Add new sysfs attribute "extension" which returns the currently connected and
+initialized extensions.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote-ext.c |   72 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 72 insertions(+), 0 deletions(-)
+ Documentation/ABI/testing/sysfs-driver-hid-wiimote |   12 +++++
+ drivers/hid/hid-wiimote-ext.c                      |   46 ++++++++++++++++++++
+ 2 files changed, 58 insertions(+), 0 deletions(-)
 
+diff --git a/Documentation/ABI/testing/sysfs-driver-hid-wiimote b/Documentation/ABI/testing/sysfs-driver-hid-wiimote
+index 5d5a16e..3d98009 100644
+--- a/Documentation/ABI/testing/sysfs-driver-hid-wiimote
++++ b/Documentation/ABI/testing/sysfs-driver-hid-wiimote
+@@ -8,3 +8,15 @@ Contact:	David Herrmann <dh.herrmann@googlemail.com>
+ Description:	Make it possible to set/get current led state. Reading from it
+ 		returns 0 if led is off and 1 if it is on. Writing 0 to it
+ 		disables the led, writing 1 enables it.
++
++What:		/sys/bus/hid/drivers/wiimote/<dev>/extension
++Date:		August 2011
++KernelVersion:	3.2
++Contact:	David Herrmann <dh.herrmann@googlemail.com>
++Description:	This file contains the currently connected and initialized
++		extensions. It can be one of: none, motionp, nunchuck, classic,
++		motionp+nunchuck, motionp+classic
++		motionp is the official Nintendo Motion+ extension, nunchuck is
++		the official Nintendo Nunchuck extension and classic is the
++		Nintendo Classic Controller extension. The motionp extension can
++		be combined with the other two.
 diff --git a/drivers/hid/hid-wiimote-ext.c b/drivers/hid/hid-wiimote-ext.c
-index a369a90..e710da8 100644
+index 5adfa93..ffd9066 100644
 --- a/drivers/hid/hid-wiimote-ext.c
 +++ b/drivers/hid/hid-wiimote-ext.c
-@@ -26,6 +26,7 @@ struct wiimote_ext {
- 	atomic_t mp_opened;
- 	atomic_t schedule;
- 	bool plugged;
-+	bool mp_plugged;
- 	bool motionp;
- 	__u8 ext_type;
- };
-@@ -191,6 +192,10 @@ void wiiext_event(struct wiimote_data *wdata, bool plugged)
- 		return;
- 
- 	wdata->ext->plugged = plugged;
-+
-+	if (!plugged)
-+		wdata->ext->mp_plugged = false;
-+
- 	/*
- 	 * We need to call wiiext_schedule(wdata->ext) here, however, the
- 	 * extension initialization logic is not fully understood and so
-@@ -215,6 +220,65 @@ bool wiiext_active(struct wiimote_data *wdata)
- 
- static void handler_motionp(struct wiimote_ext *ext, const __u8 *payload)
- {
-+	__s32 x, y, z;
-+	bool plugged;
-+
-+	/*        |   8    7    6    5    4    3 |  2  |  1  |
-+	 *   -----+------------------------------+-----+-----+
-+	 *    1   |               Yaw Speed <7:0>            |
-+	 *    2   |              Roll Speed <7:0>            |
-+	 *    3   |             Pitch Speed <7:0>            |
-+	 *   -----+------------------------------+-----+-----+
-+	 *    4   |       Yaw Speed <13:8>       | Yaw |Pitch|
-+	 *   -----+------------------------------+-----+-----+
-+	 *    5   |      Roll Speed <13:8>       |Roll | Ext |
-+	 *   -----+------------------------------+-----+-----+
-+	 *    6   |     Pitch Speed <13:8>       |  1  |  0  |
-+	 *   -----+------------------------------+-----+-----+
-+	 * The single bits Yaw, Roll, Pitch in the lower right corner specify
-+	 * whether the wiimote is rotating fast (0) or slow (1). Speed for slow
-+	 * roation is 440 deg/s and for fast rotation 2000 deg/s. To get a
-+	 * linear scale we multiply by 2000/440 = ~4.5454 which is 18 for fast
-+	 * and 9 for slow.
-+	 * If the wiimote is not rotating the sensor reports 2^13 = 8192.
-+	 * Ext specifies whether an extension is connected to the motionp.
-+	 */
-+
-+	x = payload[0];
-+	y = payload[1];
-+	z = payload[2];
-+
-+	x |= (((__u16)payload[3]) << 6) & 0xff00;
-+	y |= (((__u16)payload[4]) << 6) & 0xff00;
-+	z |= (((__u16)payload[5]) << 6) & 0xff00;
-+
-+	x -= 8192;
-+	y -= 8192;
-+	z -= 8192;
-+
-+	if (!(payload[3] & 0x02))
-+		x *= 18;
-+	else
-+		x *= 9;
-+	if (!(payload[4] & 0x02))
-+		y *= 18;
-+	else
-+		y *= 9;
-+	if (!(payload[3] & 0x01))
-+		z *= 18;
-+	else
-+		z *= 9;
-+
-+	input_report_abs(ext->mp_input, ABS_RX, x);
-+	input_report_abs(ext->mp_input, ABS_RY, y);
-+	input_report_abs(ext->mp_input, ABS_RZ, z);
-+	input_sync(ext->mp_input);
-+
-+	plugged = payload[5] & 0x01;
-+	if (plugged != ext->mp_plugged) {
-+		ext->mp_plugged = plugged;
-+		wiiext_schedule(ext);
-+	}
+@@ -208,11 +208,47 @@ bool wiiext_active(struct wiimote_data *wdata)
+ 	return wdata->ext->motionp || wdata->ext->ext_type;
  }
  
- static void handler_nunchuck(struct wiimote_ext *ext, const __u8 *payload)
-@@ -377,6 +441,14 @@ int wiiext_init(struct wiimote_data *wdata)
- 	ext->mp_input->id.version = wdata->hdev->version;
- 	ext->mp_input->name = WIIMOTE_NAME " Motion+";
- 
-+	set_bit(EV_ABS, ext->mp_input->evbit);
-+	set_bit(ABS_RX, ext->mp_input->absbit);
-+	set_bit(ABS_RY, ext->mp_input->absbit);
-+	set_bit(ABS_RZ, ext->mp_input->absbit);
-+	input_set_abs_params(ext->mp_input, ABS_RX, -160000, 160000, 4, 8);
-+	input_set_abs_params(ext->mp_input, ABS_RY, -160000, 160000, 4, 8);
-+	input_set_abs_params(ext->mp_input, ABS_RZ, -160000, 160000, 4, 8);
++static ssize_t wiiext_show(struct device *dev, struct device_attribute *attr,
++								char *buf)
++{
++	struct wiimote_data *wdata = dev_to_wii(dev);
++	__u8 type = WIIEXT_NONE;
++	bool motionp = false;
++	unsigned long flags;
 +
- 	ret = input_register_device(ext->mp_input);
- 	if (ret) {
- 		input_free_device(ext->mp_input);
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	if (wdata->ext) {
++		motionp = wdata->ext->motionp;
++		type = wdata->ext->ext_type;
++	}
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
++
++	if (type == WIIEXT_NUNCHUCK) {
++		if (motionp)
++			return sprintf(buf, "motionp+nunchuck\n");
++		else
++			return sprintf(buf, "nunchuck\n");
++	} else if (type == WIIEXT_CLASSIC) {
++		if (motionp)
++			return sprintf(buf, "motionp+classic\n");
++		else
++			return sprintf(buf, "classic\n");
++	} else {
++		if (motionp)
++			return sprintf(buf, "motionp\n");
++		else
++			return sprintf(buf, "none\n");
++	}
++}
++
++static DEVICE_ATTR(extension, S_IRUGO, wiiext_show, NULL);
++
+ /* Initializes the extension driver of a wiimote */
+ int wiiext_init(struct wiimote_data *wdata)
+ {
+ 	struct wiimote_ext *ext;
+ 	unsigned long flags;
++	int ret;
+ 
+ 	ext = kzalloc(sizeof(*ext), GFP_KERNEL);
+ 	if (!ext)
+@@ -221,11 +257,19 @@ int wiiext_init(struct wiimote_data *wdata)
+ 	ext->wdata = wdata;
+ 	INIT_WORK(&ext->worker, wiiext_worker);
+ 
++	ret = device_create_file(&wdata->hdev->dev, &dev_attr_extension);
++	if (ret)
++		goto err;
++
+ 	spin_lock_irqsave(&wdata->state.lock, flags);
+ 	wdata->ext = ext;
+ 	spin_unlock_irqrestore(&wdata->state.lock, flags);
+ 
+ 	return 0;
++
++err:
++	kfree(ext);
++	return ret;
+ }
+ 
+ /* Deinitializes the extension driver of a wiimote */
+@@ -241,6 +285,8 @@ void wiiext_deinit(struct wiimote_data *wdata)
+ 	wdata->ext = NULL;
+ 	spin_unlock_irqrestore(&wdata->state.lock, flags);
+ 
++	device_remove_file(&wdata->hdev->dev, &dev_attr_extension);
++
+ 	cancel_work_sync(&ext->worker);
+ 	kfree(ext);
+ }
 -- 
 1.7.7
 

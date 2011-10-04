@@ -1,318 +1,219 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [RFC 04/12] HID: wiimote: Add extension support stub
-Date: Tue,  4 Oct 2011 15:36:45 +0200
-Message-ID: <1317735413-17299-5-git-send-email-dh.herrmann@googlemail.com>
+Subject: [RFC 12/12] HID: wiimote: Parse classic controller data
+Date: Tue,  4 Oct 2011 15:36:53 +0200
+Message-ID: <1317735413-17299-13-git-send-email-dh.herrmann@googlemail.com>
 References: <1317735413-17299-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-ww0-f44.google.com ([74.125.82.44]:55806 "EHLO
 	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757187Ab1JDNh3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Oct 2011 09:37:29 -0400
+	with ESMTP id S1757252Ab1JDNhh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Oct 2011 09:37:37 -0400
 Received: by mail-ww0-f44.google.com with SMTP id 22so815066wwf.1
-        for <linux-input@vger.kernel.org>; Tue, 04 Oct 2011 06:37:28 -0700 (PDT)
+        for <linux-input@vger.kernel.org>; Tue, 04 Oct 2011 06:37:36 -0700 (PDT)
 In-Reply-To: <1317735413-17299-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, David Herrmann <dh.herrmann@googlemail.com>
 
-The wiimote supports several extensions. This adds a separate source file which
-handles all extensions and can be disabled at compile-time.
-
-The driver reacts on "plug"-events on the extension port and starts a worker
-which initializes or deinitializes the extensions. The worker thread must not
-run twice simultaneously so use an atomic counter to prevent that. The worker
-reschedules itself if any events occurred during ext-initialization.
-However, if multiple "plug"-events occurred, it reschedules only once.
-
-Currently, the initialization logic is not fully understood and we can only
-detect and enable all extensions when all extensions are deactivated. Therefore,
-we need to disable all extensions, then detect and activate them again to react
-on "plug"-events.
-However, deactivating extensions will generate a new "plug"-event and we will
-never leave that loop. Hence, we only support extensions if they are plugged
-before the wiimote is connected (or before the ext-input device is opened). In
-the future we may support full extension hotplug support, but
-reverse-engineering this may take a while.
+Nintendo Classic Controller extension reports lots of keys, two analog sticks
+and two analog buttons. We report all data through extension input device to
+userspace.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/Kconfig            |    9 +++
- drivers/hid/Makefile           |    3 +
- drivers/hid/hid-wiimote-core.c |   23 ++++++-
- drivers/hid/hid-wiimote-ext.c  |  131 ++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-wiimote.h      |   17 +++++
- 5 files changed, 179 insertions(+), 4 deletions(-)
- create mode 100644 drivers/hid/hid-wiimote-ext.c
+ drivers/hid/hid-wiimote-ext.c |  156 +++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 156 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 9907dc9..ccfdf34 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -594,6 +594,15 @@ config HID_WIIMOTE
- 	---help---
- 	Support for the Nintendo Wii Remote bluetooth device.
+diff --git a/drivers/hid/hid-wiimote-ext.c b/drivers/hid/hid-wiimote-ext.c
+index 8127207..8e3b6ce 100644
+--- a/drivers/hid/hid-wiimote-ext.c
++++ b/drivers/hid/hid-wiimote-ext.c
+@@ -40,12 +40,42 @@ enum wiiext_type {
+ enum wiiext_keys {
+ 	WIIEXT_KEY_C,
+ 	WIIEXT_KEY_Z,
++	WIIEXT_KEY_A,
++	WIIEXT_KEY_B,
++	WIIEXT_KEY_X,
++	WIIEXT_KEY_Y,
++	WIIEXT_KEY_ZL,
++	WIIEXT_KEY_ZR,
++	WIIEXT_KEY_PLUS,
++	WIIEXT_KEY_MINUS,
++	WIIEXT_KEY_HOME,
++	WIIEXT_KEY_LEFT,
++	WIIEXT_KEY_RIGHT,
++	WIIEXT_KEY_UP,
++	WIIEXT_KEY_DOWN,
++	WIIEXT_KEY_LT,
++	WIIEXT_KEY_RT,
+ 	WIIEXT_KEY_COUNT
+ };
  
-+config HID_WIIMOTE_EXT
-+	bool "Nintendo Wii Remote Extension support" if EXPERT
-+	depends on HID_WIIMOTE
-+	default !EXPERT
-+	---help---
-+	Support for extension controllers of the Nintendo Wii Remote. Say yes
-+	here if you want to use the Nintendo Motion+, Nunchuck or Classic
-+	extension controllers with your Wii Remote.
-+
- config HID_ZEROPLUS
- 	tristate "Zeroplus based game controller support"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 07e750a..57d46e6 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -26,6 +26,9 @@ ifdef CONFIG_LOGIWII_FF
- endif
+ static __u16 wiiext_keymap[] = {
+ 	BTN_C,		/* WIIEXT_KEY_C */
+ 	BTN_Z,		/* WIIEXT_KEY_Z */
++	BTN_A,		/* WIIEXT_KEY_A */
++	BTN_B,		/* WIIEXT_KEY_B */
++	BTN_X,		/* WIIEXT_KEY_X */
++	BTN_Y,		/* WIIEXT_KEY_Y */
++	BTN_TL2,	/* WIIEXT_KEY_ZL */
++	BTN_TR2,	/* WIIEXT_KEY_ZR */
++	KEY_NEXT,	/* WIIEXT_KEY_PLUS */
++	KEY_PREVIOUS,	/* WIIEXT_KEY_MINUS */
++	BTN_MODE,	/* WIIEXT_KEY_HOME */
++	KEY_LEFT,	/* WIIEXT_KEY_LEFT */
++	KEY_RIGHT,	/* WIIEXT_KEY_RIGHT */
++	KEY_UP,		/* WIIEXT_KEY_UP */
++	KEY_DOWN,	/* WIIEXT_KEY_DOWN */
++	BTN_TL,		/* WIIEXT_KEY_LT */
++	BTN_TR,		/* WIIEXT_KEY_RT */
+ };
  
- hid-wiimote-y		:= hid-wiimote-core.o
-+ifdef CONFIG_HID_WIIMOTE_EXT
-+	hid-wiimote-y	+= hid-wiimote-ext.o
-+endif
+ /* diable all extensions */
+@@ -374,6 +404,120 @@ static void handler_nunchuck(struct wiimote_ext *ext, const __u8 *payload)
  
- obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
- obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
-diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index f7f8b7f..2ca8bfd 100644
---- a/drivers/hid/hid-wiimote-core.c
-+++ b/drivers/hid/hid-wiimote-core.c
-@@ -201,6 +201,7 @@ static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
- static __u8 select_drm(struct wiimote_data *wdata)
+ static void handler_classic(struct wiimote_ext *ext, const __u8 *payload)
  {
- 	__u8 ir = wdata->state.flags & WIIPROTO_FLAGS_IR;
-+	bool ext = wiiext_active(wdata);
- 
- 	if (ir == WIIPROTO_FLAG_IR_BASIC) {
- 		if (wdata->state.flags & WIIPROTO_FLAG_ACCEL)
-@@ -212,10 +213,17 @@ static __u8 select_drm(struct wiimote_data *wdata)
- 	} else if (ir == WIIPROTO_FLAG_IR_FULL) {
- 		return WIIPROTO_REQ_DRM_SKAI1;
- 	} else {
--		if (wdata->state.flags & WIIPROTO_FLAG_ACCEL)
--			return WIIPROTO_REQ_DRM_KA;
--		else
--			return WIIPROTO_REQ_DRM_K;
-+		if (wdata->state.flags & WIIPROTO_FLAG_ACCEL) {
-+			if (ext)
-+				return WIIPROTO_REQ_DRM_KAE;
-+			else
-+				return WIIPROTO_REQ_DRM_KA;
-+		} else {
-+			if (ext)
-+				return WIIPROTO_REQ_DRM_KE;
-+			else
-+				return WIIPROTO_REQ_DRM_K;
-+		}
- 	}
++	__s8 rx, ry, lx, ly, lt, rt;
++
++	/*   Byte |  8  |  7  |  6  |  5  |  4  |  3  |  2  |  1  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    1   | RX <5:4>  |              LX <5:0>             |
++	 *    2   | RX <3:2>  |              LY <5:0>             |
++	 *   -----+-----+-----+-----+-----------------------------+
++	 *    3   |RX<1>| LT <5:4>  |         RY <5:1>            |
++	 *   -----+-----+-----------+-----------------------------+
++	 *    4   |     LT <3:1>    |         RT <5:1>            |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    5   | BDR | BDD | BLT | B-  | BH  | B+  | BRT |  1  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    6   | BZL | BB  | BY  | BA  | BX  | BZR | BDL | BDU |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 * All buttons are 0 if pressed
++	 * RX and RY are right analog stick
++	 * LX and LY are left analog stick
++	 * LT is left trigger, RT is right trigger
++	 * BLT is 0 if left trigger is fully pressed
++	 * BRT is 0 if right trigger is fully pressed
++	 * BDR, BDD, BDL, BDU form the D-Pad with right, down, left, up buttons
++	 * BZL is left Z button and BZR is right Z button
++	 * B-, BH, B+ are +, HOME and - buttons
++	 * BB, BY, BA, BX are A, B, X, Y buttons
++	 * LSB of RX, RY, LT, and RT are not transmitted and always 0.
++	 *
++	 * With motionp enabled it changes slightly to this:
++	 *   Byte |  8  |  7  |  6  |  5  |  4  |  3  |  2  |  1  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    1   | RX <4:3>  |          LX <5:1>           | BDU |
++	 *    2   | RX <2:1>  |          LY <5:1>           | BDL |
++	 *   -----+-----+-----+-----+-----------------------+-----+
++	 *    3   |RX<0>| LT <4:3>  |         RY <4:0>            |
++	 *   -----+-----+-----------+-----------------------------+
++	 *    4   |     LT <2:0>    |         RT <4:0>            |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    5   | BDR | BDD | BLT | B-  | BH  | B+  | BRT | EXT |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    6   | BZL | BB  | BY  | BA  | BX  | BZR |  0  |  0  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 * Only the LSBs of LX and LY are lost. BDU and BDL are moved, the rest
++	 * is the same as before.
++	 */
++
++	if (ext->motionp) {
++		lx = payload[0] & 0x3e;
++		ly = payload[0] & 0x3e;
++	} else {
++		lx = payload[0] & 0x3f;
++		ly = payload[0] & 0x3f;
++	}
++
++	rx = (payload[0] >> 3) & 0x14;
++	rx |= (payload[1] >> 5) & 0x06;
++	rx |= (payload[2] >> 7) & 0x01;
++	ry = payload[2] & 0x1f;
++
++	rt = payload[3] & 0x1f;
++	lt = (payload[2] >> 2) & 0x18;
++	lt |= (payload[3] >> 5) & 0x07;
++
++	rx <<= 1;
++	ry <<= 1;
++	rt <<= 1;
++	lt <<= 1;
++
++	input_report_abs(ext->input, ABS_HAT1X, lx - 0x20);
++	input_report_abs(ext->input, ABS_HAT1Y, ly - 0x20);
++	input_report_abs(ext->input, ABS_HAT2X, rx - 0x20);
++	input_report_abs(ext->input, ABS_HAT2Y, ry - 0x20);
++	input_report_abs(ext->input, ABS_HAT3X, rt - 0x20);
++	input_report_abs(ext->input, ABS_HAT3Y, lt - 0x20);
++
++	input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_RIGHT],
++							!!(payload[4] & 0x80));
++	input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_DOWN],
++							!!(payload[4] & 0x40));
++	input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_LT],
++							!!(payload[4] & 0x20));
++	input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_MINUS],
++							!!(payload[4] & 0x10));
++	input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_HOME],
++							!!(payload[4] & 0x08));
++	input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_PLUS],
++							!!(payload[4] & 0x04));
++	input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_RT],
++							!!(payload[4] & 0x02));
++	input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_ZL],
++							!!(payload[5] & 0x80));
++	input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_B],
++							!!(payload[5] & 0x40));
++	input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_Y],
++							!!(payload[5] & 0x20));
++	input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_A],
++							!!(payload[5] & 0x10));
++	input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_X],
++							!!(payload[5] & 0x08));
++	input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_ZR],
++							!!(payload[5] & 0x04));
++
++	if (ext->motionp) {
++		input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_UP],
++							!!(payload[0] & 0x01));
++		input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_LEFT],
++							!!(payload[1] & 0x01));
++	} else {
++		input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_UP],
++							!!(payload[5] & 0x01));
++		input_report_key(ext->input, wiiext_keymap[WIIEXT_KEY_LEFT],
++							!!(payload[5] & 0x02));
++	}
++
++	input_sync(ext->input);
  }
  
-@@ -795,6 +803,8 @@ static void handler_status(struct wiimote_data *wdata, const __u8 *payload)
- 	/* on status reports the drm is reset so we need to resend the drm */
- 	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
- 
-+	wiiext_event(wdata, payload[2] & 0x02);
-+
- 	if (wiimote_cmd_pending(wdata, WIIPROTO_REQ_SREQ, 0)) {
- 		wdata->state.cmd_battery = payload[5];
- 		wiimote_cmd_complete(wdata);
-@@ -1145,6 +1155,7 @@ err:
- 
- static void wiimote_destroy(struct wiimote_data *wdata)
- {
-+	wiiext_deinit(wdata);
- 	wiimote_leds_destroy(wdata);
- 
- 	power_supply_unregister(&wdata->battery);
-@@ -1216,6 +1227,10 @@ static int wiimote_hid_probe(struct hid_device *hdev,
- 	if (ret)
- 		goto err_free;
- 
-+	ret = wiiext_init(wdata);
-+	if (ret)
-+		goto err_free;
-+
- 	hid_info(hdev, "New device registered\n");
- 
- 	/* by default set led1 after device initialization */
-diff --git a/drivers/hid/hid-wiimote-ext.c b/drivers/hid/hid-wiimote-ext.c
-new file mode 100644
-index 0000000..1def9bc
---- /dev/null
-+++ b/drivers/hid/hid-wiimote-ext.c
-@@ -0,0 +1,131 @@
-+/*
-+ * HID driver for Nintendo Wiimote extension devices
-+ * Copyright (c) 2011 David Herrmann
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/atomic.h>
-+#include <linux/module.h>
-+#include <linux/spinlock.h>
-+#include <linux/workqueue.h>
-+#include "hid-wiimote.h"
-+
-+struct wiimote_ext {
-+	struct wiimote_data *wdata;
-+	struct work_struct worker;
-+
-+	atomic_t opened;
-+	atomic_t mp_opened;
-+	atomic_t schedule;
-+	bool plugged;
-+	bool motionp;
-+	__u8 ext_type;
-+};
-+
-+enum wiiext_type {
-+	WIIEXT_NONE,		/* placeholder */
-+	WIIEXT_CLASSIC,		/* Nintendo classic controller */
-+	WIIEXT_NUNCHUCK,	/* Nintendo nunchuck controller */
-+};
-+
-+static void wiiext_worker(struct work_struct *work)
-+{
-+	struct wiimote_ext *ext = container_of(work, struct wiimote_ext,
-+									worker);
-+
-+	/* fresh worker needs no reschedule so reset schedule count */
-+	atomic_set(&ext->schedule, 1);
-+
-+	/* worker done; check for reschedule */
-+	if (!atomic_dec_and_test(&ext->schedule))
-+		schedule_work(work);
-+}
-+
-+/* schedule work only once, otherwise mark for reschedule */
-+static void wiiext_schedule(struct wiimote_ext *ext)
-+{
-+	if (atomic_inc_return(&ext->schedule) == 1)
-+		schedule_work(&ext->worker);
-+}
-+
-+/*
-+ * Reacts on extension port events
-+ * Whenever the driver gets an event from the wiimote that an extension has been
-+ * plugged or unplugged, this funtion shall be called. It checks what extensions
-+ * are connected and initializes and activates them.
-+ * This can be called in atomic context. The initialization is done in a
-+ * separate worker thread. The state.lock spinlock must be held by the caller.
-+ */
-+void wiiext_event(struct wiimote_data *wdata, bool plugged)
-+{
-+	if (!wdata->ext)
-+		return;
-+
-+	if (wdata->ext->plugged == plugged)
-+		return;
-+
-+	wdata->ext->plugged = plugged;
-+	/*
-+	 * We need to call wiiext_schedule(wdata->ext) here, however, the
-+	 * extension initialization logic is not fully understood and so
-+	 * automatic initialization is not supported, yet.
-+	 */
-+}
-+
-+/*
-+ * Returns true if the current DRM mode should contain extension data and false
-+ * if there is no interest in extension data.
-+ * All supported extensions send 6 byte extension data so any DRM that contains
-+ * extension bytes is fine.
-+ * The caller must hold the state.lock spinlock.
-+ */
-+bool wiiext_active(struct wiimote_data *wdata)
-+{
-+	if (!wdata->ext)
-+		return false;
-+
-+	return wdata->ext->motionp || wdata->ext->ext_type;
-+}
-+
-+/* Initializes the extension driver of a wiimote */
-+int wiiext_init(struct wiimote_data *wdata)
-+{
-+	struct wiimote_ext *ext;
-+	unsigned long flags;
-+
-+	ext = kzalloc(sizeof(*ext), GFP_KERNEL);
-+	if (!ext)
-+		return -ENOMEM;
-+
-+	ext->wdata = wdata;
-+	INIT_WORK(&ext->worker, wiiext_worker);
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wdata->ext = ext;
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	return 0;
-+}
-+
-+/* Deinitializes the extension driver of a wiimote */
-+void wiiext_deinit(struct wiimote_data *wdata)
-+{
-+	struct wiimote_ext *ext = wdata->ext;
-+	unsigned long flags;
-+
-+	if (!ext)
-+		return;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wdata->ext = NULL;
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	cancel_work_sync(&ext->worker);
-+	kfree(ext);
-+}
-diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
-index 865740d..abbfab8 100644
---- a/drivers/hid/hid-wiimote.h
-+++ b/drivers/hid/hid-wiimote.h
-@@ -73,6 +73,7 @@ struct wiimote_data {
- 	struct input_dev *accel;
- 	struct input_dev *ir;
- 	struct power_supply battery;
-+	struct wiimote_ext *ext;
- 
- 	spinlock_t qlock;
- 	__u8 head;
-@@ -118,6 +119,22 @@ extern int wiimote_cmd_write(struct wiimote_data *wdata, __u32 offset,
- extern ssize_t wiimote_cmd_read(struct wiimote_data *wdata, __u32 offset,
- 							__u8 *rmem, __u8 size);
- 
-+#ifdef CONFIG_HID_WIIMOTE_EXT
-+
-+extern int wiiext_init(struct wiimote_data *wdata);
-+extern void wiiext_deinit(struct wiimote_data *wdata);
-+extern void wiiext_event(struct wiimote_data *wdata, bool plugged);
-+extern bool wiiext_active(struct wiimote_data *wdata);
-+
-+#else
-+
-+static inline int wiiext_init(void *u) { return 0; }
-+static inline void wiiext_deinit(void *u) { }
-+static inline void wiiext_event(void *u, bool p) { }
-+static inline bool wiiext_active(void *u) { return false; }
-+
-+#endif
-+
- /* requires the state.lock spinlock to be held */
- static inline bool wiimote_cmd_pending(struct wiimote_data *wdata, int cmd,
- 								__u32 opt)
+ /* call this with state.lock spinlock held */
+@@ -513,8 +657,20 @@ int wiiext_init(struct wiimote_data *wdata)
+ 	set_bit(EV_ABS, ext->input->evbit);
+ 	set_bit(ABS_HAT0X, ext->input->absbit);
+ 	set_bit(ABS_HAT0Y, ext->input->absbit);
++	set_bit(ABS_HAT1X, ext->input->absbit);
++	set_bit(ABS_HAT1Y, ext->input->absbit);
++	set_bit(ABS_HAT2X, ext->input->absbit);
++	set_bit(ABS_HAT2Y, ext->input->absbit);
++	set_bit(ABS_HAT3X, ext->input->absbit);
++	set_bit(ABS_HAT3Y, ext->input->absbit);
+ 	input_set_abs_params(ext->input, ABS_HAT0X, -120, 120, 2, 4);
+ 	input_set_abs_params(ext->input, ABS_HAT0Y, -120, 120, 2, 4);
++	input_set_abs_params(ext->input, ABS_HAT1X, -30, 30, 1, 1);
++	input_set_abs_params(ext->input, ABS_HAT1Y, -30, 30, 1, 1);
++	input_set_abs_params(ext->input, ABS_HAT2X, -30, 30, 1, 1);
++	input_set_abs_params(ext->input, ABS_HAT2Y, -30, 30, 1, 1);
++	input_set_abs_params(ext->input, ABS_HAT3X, -30, 30, 1, 1);
++	input_set_abs_params(ext->input, ABS_HAT3Y, -30, 30, 1, 1);
+ 	set_bit(ABS_RX, ext->input->absbit);
+ 	set_bit(ABS_RY, ext->input->absbit);
+ 	set_bit(ABS_RZ, ext->input->absbit);
 -- 
 1.7.7
 

@@ -1,194 +1,139 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [RFC 08/12] HID: wiimote: Register input devices for extensions
-Date: Tue,  4 Oct 2011 15:36:49 +0200
-Message-ID: <1317735413-17299-9-git-send-email-dh.herrmann@googlemail.com>
+Subject: [RFC 10/12] HID: wiimote: Parse motion+ data
+Date: Tue,  4 Oct 2011 15:36:51 +0200
+Message-ID: <1317735413-17299-11-git-send-email-dh.herrmann@googlemail.com>
 References: <1317735413-17299-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:37790 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757201Ab1JDNhd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Oct 2011 09:37:33 -0400
-Received: by mail-ey0-f174.google.com with SMTP id 28so476279eya.19
-        for <linux-input@vger.kernel.org>; Tue, 04 Oct 2011 06:37:32 -0700 (PDT)
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:55806 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757252Ab1JDNhf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Oct 2011 09:37:35 -0400
+Received: by mail-ww0-f44.google.com with SMTP id 22so815066wwf.1
+        for <linux-input@vger.kernel.org>; Tue, 04 Oct 2011 06:37:34 -0700 (PDT)
 In-Reply-To: <1317735413-17299-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, David Herrmann <dh.herrmann@googlemail.com>
 
-Motion+ and regular extensions are physical adapters for the wiimote so create
-one input device for each of them. This also allows to enable only opened
-extensions and turn unused extenions off to save battery power.
+Motion+ reports rotation gyro data which we report to userspace as ABS_RX/Y/Z
+values. The device reports them either in fast or slow mode. We adjust the
+values to get a linear scale so userspace does not need to know about slow and
+fast mode.
+
+The motion+ also reports whether an extension is connected to it. We keep track
+of this value and reinitialize the extensions if an extension is plugged or
+unplugged.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote-ext.c |  109 +++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 106 insertions(+), 3 deletions(-)
+ drivers/hid/hid-wiimote-ext.c |   72 +++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 72 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote-ext.c b/drivers/hid/hid-wiimote-ext.c
-index ffd9066..5cb0909 100644
+index a369a90..e710da8 100644
 --- a/drivers/hid/hid-wiimote-ext.c
 +++ b/drivers/hid/hid-wiimote-ext.c
-@@ -19,6 +19,8 @@
- struct wiimote_ext {
- 	struct wiimote_data *wdata;
- 	struct work_struct worker;
-+	struct input_dev *input;
-+	struct input_dev *mp_input;
- 
- 	atomic_t opened;
+@@ -26,6 +26,7 @@ struct wiimote_ext {
  	atomic_t mp_opened;
-@@ -58,6 +60,9 @@ static bool motionp_read(struct wiimote_ext *ext)
- 	ssize_t ret;
- 	bool avail = false;
+ 	atomic_t schedule;
+ 	bool plugged;
++	bool mp_plugged;
+ 	bool motionp;
+ 	__u8 ext_type;
+ };
+@@ -191,6 +192,10 @@ void wiiext_event(struct wiimote_data *wdata, bool plugged)
+ 		return;
  
-+	if (!atomic_read(&ext->mp_opened))
-+		return false;
+ 	wdata->ext->plugged = plugged;
 +
- 	if (wiimote_cmd_acquire(ext->wdata))
- 		return false;
++	if (!plugged)
++		wdata->ext->mp_plugged = false;
++
+ 	/*
+ 	 * We need to call wiiext_schedule(wdata->ext) here, however, the
+ 	 * extension initialization logic is not fully understood and so
+@@ -215,6 +220,65 @@ bool wiiext_active(struct wiimote_data *wdata)
  
-@@ -83,7 +88,7 @@ static __u8 ext_read(struct wiimote_ext *ext)
- 	__u8 rmem[2], wmem;
- 	__u8 type = WIIEXT_NONE;
- 
--	if (!ext->plugged)
-+	if (!ext->plugged || !atomic_read(&ext->opened))
- 		return WIIEXT_NONE;
- 
- 	if (wiimote_cmd_acquire(ext->wdata))
-@@ -243,6 +248,54 @@ static ssize_t wiiext_show(struct device *dev, struct device_attribute *attr,
- 
- static DEVICE_ATTR(extension, S_IRUGO, wiiext_show, NULL);
- 
-+static int wiiext_input_open(struct input_dev *dev)
-+{
-+	struct wiimote_ext *ext = input_get_drvdata(dev);
-+	int ret;
-+
-+	ret = hid_hw_open(ext->wdata->hdev);
-+	if (ret)
-+		return ret;
-+
-+	atomic_inc(&ext->opened);
-+	wiiext_schedule(ext);
-+
-+	return 0;
-+}
-+
-+static void wiiext_input_close(struct input_dev *dev)
-+{
-+	struct wiimote_ext *ext = input_get_drvdata(dev);
-+
-+	atomic_dec(&ext->opened);
-+	wiiext_schedule(ext);
-+	hid_hw_close(ext->wdata->hdev);
-+}
-+
-+static int wiiext_mp_open(struct input_dev *dev)
-+{
-+	struct wiimote_ext *ext = input_get_drvdata(dev);
-+	int ret;
-+
-+	ret = hid_hw_open(ext->wdata->hdev);
-+	if (ret)
-+		return ret;
-+
-+	atomic_inc(&ext->mp_opened);
-+	wiiext_schedule(ext);
-+
-+	return 0;
-+}
-+
-+static void wiiext_mp_close(struct input_dev *dev)
-+{
-+	struct wiimote_ext *ext = input_get_drvdata(dev);
-+
-+	atomic_dec(&ext->mp_opened);
-+	wiiext_schedule(ext);
-+	hid_hw_close(ext->wdata->hdev);
-+}
-+
- /* Initializes the extension driver of a wiimote */
- int wiiext_init(struct wiimote_data *wdata)
+ static void handler_motionp(struct wiimote_ext *ext, const __u8 *payload)
  {
-@@ -257,9 +310,53 @@ int wiiext_init(struct wiimote_data *wdata)
- 	ext->wdata = wdata;
- 	INIT_WORK(&ext->worker, wiiext_worker);
- 
-+	ext->input = input_allocate_device();
-+	if (!ext->input) {
-+		ret = -ENOMEM;
-+		goto err_input;
++	__s32 x, y, z;
++	bool plugged;
++
++	/*        |   8    7    6    5    4    3 |  2  |  1  |
++	 *   -----+------------------------------+-----+-----+
++	 *    1   |               Yaw Speed <7:0>            |
++	 *    2   |              Roll Speed <7:0>            |
++	 *    3   |             Pitch Speed <7:0>            |
++	 *   -----+------------------------------+-----+-----+
++	 *    4   |       Yaw Speed <13:8>       | Yaw |Pitch|
++	 *   -----+------------------------------+-----+-----+
++	 *    5   |      Roll Speed <13:8>       |Roll | Ext |
++	 *   -----+------------------------------+-----+-----+
++	 *    6   |     Pitch Speed <13:8>       |  1  |  0  |
++	 *   -----+------------------------------+-----+-----+
++	 * The single bits Yaw, Roll, Pitch in the lower right corner specify
++	 * whether the wiimote is rotating fast (0) or slow (1). Speed for slow
++	 * roation is 440 deg/s and for fast rotation 2000 deg/s. To get a
++	 * linear scale we multiply by 2000/440 = ~4.5454 which is 18 for fast
++	 * and 9 for slow.
++	 * If the wiimote is not rotating the sensor reports 2^13 = 8192.
++	 * Ext specifies whether an extension is connected to the motionp.
++	 */
++
++	x = payload[0];
++	y = payload[1];
++	z = payload[2];
++
++	x |= (((__u16)payload[3]) << 6) & 0xff00;
++	y |= (((__u16)payload[4]) << 6) & 0xff00;
++	z |= (((__u16)payload[5]) << 6) & 0xff00;
++
++	x -= 8192;
++	y -= 8192;
++	z -= 8192;
++
++	if (!(payload[3] & 0x02))
++		x *= 18;
++	else
++		x *= 9;
++	if (!(payload[4] & 0x02))
++		y *= 18;
++	else
++		y *= 9;
++	if (!(payload[3] & 0x01))
++		z *= 18;
++	else
++		z *= 9;
++
++	input_report_abs(ext->mp_input, ABS_RX, x);
++	input_report_abs(ext->mp_input, ABS_RY, y);
++	input_report_abs(ext->mp_input, ABS_RZ, z);
++	input_sync(ext->mp_input);
++
++	plugged = payload[5] & 0x01;
++	if (plugged != ext->mp_plugged) {
++		ext->mp_plugged = plugged;
++		wiiext_schedule(ext);
 +	}
-+
-+	input_set_drvdata(ext->input, ext);
-+	ext->input->open = wiiext_input_open;
-+	ext->input->close = wiiext_input_close;
-+	ext->input->dev.parent = &wdata->hdev->dev;
-+	ext->input->id.bustype = wdata->hdev->bus;
-+	ext->input->id.vendor = wdata->hdev->vendor;
-+	ext->input->id.product = wdata->hdev->product;
-+	ext->input->id.version = wdata->hdev->version;
-+	ext->input->name = WIIMOTE_NAME " Extension";
-+
-+	ret = input_register_device(ext->input);
-+	if (ret) {
-+		input_free_device(ext->input);
-+		goto err_input;
-+	}
-+
-+	ext->mp_input = input_allocate_device();
-+	if (!ext->mp_input) {
-+		ret = -ENOMEM;
-+		goto err_mp;
-+	}
-+
-+	input_set_drvdata(ext->mp_input, ext);
-+	ext->mp_input->open = wiiext_mp_open;
-+	ext->mp_input->close = wiiext_mp_close;
-+	ext->mp_input->dev.parent = &wdata->hdev->dev;
-+	ext->mp_input->id.bustype = wdata->hdev->bus;
-+	ext->mp_input->id.vendor = wdata->hdev->vendor;
-+	ext->mp_input->id.product = wdata->hdev->product;
-+	ext->mp_input->id.version = wdata->hdev->version;
-+	ext->mp_input->name = WIIMOTE_NAME " Motion+";
-+
-+	ret = input_register_device(ext->mp_input);
-+	if (ret) {
-+		input_free_device(ext->mp_input);
-+		goto err_mp;
-+	}
-+
- 	ret = device_create_file(&wdata->hdev->dev, &dev_attr_extension);
- 	if (ret)
--		goto err;
-+		goto err_dev;
- 
- 	spin_lock_irqsave(&wdata->state.lock, flags);
- 	wdata->ext = ext;
-@@ -267,7 +364,11 @@ int wiiext_init(struct wiimote_data *wdata)
- 
- 	return 0;
- 
--err:
-+err_dev:
-+	input_unregister_device(ext->mp_input);
-+err_mp:
-+	input_unregister_device(ext->input);
-+err_input:
- 	kfree(ext);
- 	return ret;
  }
-@@ -286,6 +387,8 @@ void wiiext_deinit(struct wiimote_data *wdata)
- 	spin_unlock_irqrestore(&wdata->state.lock, flags);
  
- 	device_remove_file(&wdata->hdev->dev, &dev_attr_extension);
-+	input_unregister_device(ext->mp_input);
-+	input_unregister_device(ext->input);
+ static void handler_nunchuck(struct wiimote_ext *ext, const __u8 *payload)
+@@ -377,6 +441,14 @@ int wiiext_init(struct wiimote_data *wdata)
+ 	ext->mp_input->id.version = wdata->hdev->version;
+ 	ext->mp_input->name = WIIMOTE_NAME " Motion+";
  
- 	cancel_work_sync(&ext->worker);
- 	kfree(ext);
++	set_bit(EV_ABS, ext->mp_input->evbit);
++	set_bit(ABS_RX, ext->mp_input->absbit);
++	set_bit(ABS_RY, ext->mp_input->absbit);
++	set_bit(ABS_RZ, ext->mp_input->absbit);
++	input_set_abs_params(ext->mp_input, ABS_RX, -160000, 160000, 4, 8);
++	input_set_abs_params(ext->mp_input, ABS_RY, -160000, 160000, 4, 8);
++	input_set_abs_params(ext->mp_input, ABS_RZ, -160000, 160000, 4, 8);
++
+ 	ret = input_register_device(ext->mp_input);
+ 	if (ret) {
+ 		input_free_device(ext->mp_input);
 -- 
 1.7.7
 

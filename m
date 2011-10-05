@@ -1,71 +1,33 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.1-rc9
-Date: Tue, 4 Oct 2011 23:29:44 -0700
-Message-ID: <20111005062944.GA31646@core.coreip.homeip.net>
+Subject: Re: [PATCH 3/4] input: wacom - add LED support for Cintiq 21ux2
+Date: Tue, 4 Oct 2011 23:53:37 -0700
+Message-ID: <20111005065337.GA11260@core.coreip.homeip.net>
+References: <1317686605-29648-1-git-send-email-pinglinux@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:56870 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:44324 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753750Ab1JEG3u (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2011 02:29:50 -0400
+	with ESMTP id S1750925Ab1JEGxn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2011 02:53:43 -0400
+Received: by iakk32 with SMTP id k32so1468310iak.19
+        for <linux-input@vger.kernel.org>; Tue, 04 Oct 2011 23:53:42 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <1317686605-29648-1-git-send-email-pinglinux@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
+On Mon, Oct 03, 2011 at 05:03:25PM -0700, Ping Cheng wrote:
+>  
+> -What:		/sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/status_led_select
+> +What:		/sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/status_led0_select
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hmm, normally ABI does not change. I guess since we have not released an
+official kernel with this interface it is ok...
 
-Hi Linus,
+Applied (and the other 3 as well).
 
-Please pull from:
-
-	git://github.com/dtor/input.git for-linus
-
-to receive a fixup to wacom driver.
-
-Changelog:
----------
-
-Jason Gerecke (1):
-      Input: wacom - revert "Cintiq 21UX2 does not have menu strips"
-
-
-Diffstat:
---------
-
- drivers/input/tablet/wacom_wac.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
-
---=20
+-- 
 Dmitry
-
-
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBAgAGBQJOi/lXAAoJEH70+W8r6ZYqA9EP/RPOHA8Al6+mtacHFGp4KSm/
-ZHAjKCE1qjb1+aFm1UL4VFWe9g5b1khwRFK5CsgIOR2/04zqA2iOQ0Wdrk4s5PKy
-uv3/lP5gIBAdUzAF8ew54IV7hpzV3ABUl7yGaaLBJjRL1srCcdOVH9FEqgAXm5RG
-/lTYi7E83Aw2wDah/xAqaXyx3JdNmG5sTOKcbkAo+8zx+nKfOpXgB/biLSokBjdu
-KSJeGO7lBSGxttQ/aq6Tybwdr1Q1ORb+uYVS1/Bpvi6AgFNrYHcOTP9qS9/DpOuW
-REf40yDfSivgrd1qZlB0VTtbfxULBNyn1+3nA2POsD2+Op2lxFISgZDXm1TFsPKa
-KXl+mldRUhWyzrcbwi2ETo6t9MtvF8H92hhYV33anKUxSHPyFhfH0cyWDgHSgdzq
-T62/AB7ORYnv773sJZAsGUMiUZnADkQVRq4lXXcb8VpCBBNGLtXaCQjO5rinkS+y
-lfb6CR/v41WXJO4x29OO8GCUdd+LtqgMG/8goxb3GpjJPxM4vbiu9sMgoyhxATRG
-7j3bYCkIziKnAWoAfAwVcL2WsogIXa453waLdtdKzyPF+SHeKG9RsrI2cwJDU9ML
-lIn7Fo/Eb8yezEbE7DDGL10hB5wwB6nBvDpEQfFLbKF/qQ6P4VCwtprmv8pW9QUE
-yf2HXSXLMuJAyG1Sb6Tf
-=QJ/y
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--

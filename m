@@ -1,64 +1,71 @@
-From: =?utf-8?B?5LuFMTDlhYPmr4/lpKk=?= <admin@com.dealwithapro.com>
-Subject: =?utf-8?B?576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuisxMDnlsYrlub/kuqTkvJrkubDlrrY=?=
-	=?utf-8?B?44CB5rW35YWz5pWw5o2uLEIyQuivouebmOS5sOWutjUwMOS4h+OAgg==?=
-Date: Wed, 5 Oct 2011 05:50:23 +0000 (UTC)
-Message-ID: <EE6C73C7B5E24278F156E8299A363775@ijrlk>
-Reply-To: <911585605@qq.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.1-rc9
+Date: Tue, 4 Oct 2011 23:29:44 -0700
+Message-ID: <20111005062944.GA31646@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from dealwithapro.com ([173.165.92.17]:44895 "HELO
-	dealwithapro.local" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with SMTP id S932862Ab1JEFuS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2011 01:50:18 -0400
-Date: Wed, 26 Sep 2012 18:30:29 +0800
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:56870 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753750Ab1JEG3u (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2011 02:29:50 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linjianquan_619@hotmail.com, linoleummunki@hotmail.com, lintlbiz@gs2.revnet.com, linu@geodesic.com, linux@java.blackdown.org, linux-input@vger.kernel.org, linwsh@sjtu.edu
-
-576k5Y+R6L2v5Lu2KzEwOeWxiuW5v+S6pOS8muS5sOWutuOAgea1t+WFs+aVsOaNruOAgeaQnOe0
-ouW8leaTjuS5sOWutixCMkLor6Lnm5jkubDlrrblhbE1MDDkuIcs5LuFMTDlhYPmr4/lpKnjgIIg
-DQrnvqTlj5Hova/ku7YrMTA55bGK5bm/5Lqk5Lya5Lmw5a6244CB5rW35YWz5pWw5o2u44CB5pCc
-57Si5byV5pOO5Lmw5a62LEIyQuivouebmOS5sOWutuWFsTUwMOS4hyzku4UxMOWFg+avj+WkqeOA
-giANCuS/neivgeavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K5L+d6K+B5q+P5aSp6YO95pyJ
-5Lmw5a625Zue5aSN44CCDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIINCg0KMeOA
-gee+pOWPkei9r+S7tu+8miDmk43kvZznroDljZXvvIzlip/og73lvLrlpKfvvIzmqKHku7/kurrl
-t6Xmk43kvZzmqKHlvI/vvIzliLDovr7njofpq5jvvIzml6Xlj5HpgIE15LiH5bCB5Lul5LiK44CC
-IA0KMuOAgTUwMOS4h+S5sOWutui1hOa6kO+8miDotaDpgIHnmoQ1MDDkuIfkubDlrrbotYTmupDl
-upPvvIzmm7TmlrAgKOWPr+S7peaMieeFp+aCqOeahOS6p+WTgeaPkOWPluWHuuadpe+8jOabtOey
-vuWHhuW8gOWPkSnjgIIgDQoz44CB6LaF57qn5rW35aSW5Lmw5a62RW1haWzmkJzntKLmnLrvvJog
-5YaF572u5LqGNjAw5LiH6KGM5Lia5YWz6ZSu6K+N77yM5qC55o2u6ZW/5bC+6K+N5pCc57Si77yM
-57uT5p6c5pu057K+56Gu5Yy56YWN77yb5q+P5aSp6IO95pCc57SiMS0y5LiH5Lul5LiK5Lmw5a62
-55yf5a6eRU1BSUzvvIzmiJDljZXnjofpq5jjgIIgDQogDQoNCuimgeeahOaKk+e0p+iBlOezu1FR
-OiA5MTE1ODU2MDUgICDmiJbogIXnq4vljbPlm57lpI3pgq7nrrE6IDkxMTU4NTYwNUBxcS5jb20N
-CuimgeeahOaKk+e0p+iBlOezu1FROiA5MTE1ODU2MDUgICDmiJbogIXnq4vljbPlm57lpI3pgq7n
-rrE6IDkxMTU4NTYwNUBxcS5jb20NCuimgeeahOaKk+e0p+iBlOezu1FROiA5MTE1ODU2MDUgICDm
-iJbogIXnq4vljbPlm57lpI3pgq7nrrE6IDkxMTU4NTYwNUBxcS5jb20NCiANCuWFjei0uei1oOmA
-gToNCuS4gOWFsTjkuKrljIUo5pWw5o2u5piv5YWo6KGM5Lia55qE77yM5oyJ54Wn6KGM5Lia5YiG
-5aW957G777yM5bm25LiU5Y+v5Lul5oyJ54Wn5YWz6ZSu6K+N5p+l6K+i55qEKe+8miANCjHvvIwy
-MDEx5pil5a2jMTA55bGK5bm/5Lqk5Lya5Lmw5a62546w5Zy66K+i55uY5pWw5o2u5bqT5paw6bKc
-5Ye654KJ77yM6LaF57qn5paw6bKc5Lmw5a6277yM5paw6bKc5pWw5o2u77yM5a655piT5oiQ5Y2V
-77yBIA0KMu+8jOi0reS5sOWQjuWPr+S7peWFjei0ueabtOaWsDIwMTHnp4vlraPlub/kuqTkvJor
-MjAxMuaYpeWto+W5v+S6pOS8muS5sOWutuaVsOaNruOAguWkqui2heWAvOS6huOAgg0KM++8jOac
-gOaWsOWFqOeQg+S5sOWutuW6kyzlhbE0NTE2NjDmnaHmlbDmja7jgIIgKOacgOaWsOabtOaWsOaX
-peacnyAyMDExLTA1LTE25pelKQ0KNO+8jDIwMDjlubQsMjAwOeW5tCwyMDEw5bm0IOaYpeWtoyvn
-p4vlraPlub/kuqTkvJrkubDlrrblkI3lvZXvvIwxMDMgMTA0IDEwNSAxMDYgMTA3IDEwOCDlhbHl
-ha3lsYog5YWxMTIwLjbkuIfmlbDmja7jgIINCjXvvIwyMDEw5bm05Zu96ZmF5L+D6ZSA5Y2P5Lya
-77yIUFBBSe+8ieaIkOWRmOWQjeWNlSBQUEFJIE1lbWJlcnMgRGlyZWN0b3J577yM6Z2e5bi46YeN
-6KaB55qE5aSn5Lmw5a6244CCDQo277yMMjAxMOW5tOWIsOmmmea4r+mHh+i0reeahOWbveWkluWu
-ouS6uuWQjeW9lSjpppnmuK/otLjlj5HlsYDmj5Dkvpsp77yM5YWxNy4y5LiH5pWw5o2u77yM6LaF
-57qn6YeN6KaB55qE5Lmw5a6244CCDQo377yMNDguNjjkuIfmnaHmnIDmlrDkubDlrrbor6Lnm5jv
-vIzotK3kubDlkI7mr4/mnIjmm7TmlrAgMS0y5LiH5p2h77yM5YyF5ousMumDqOWIhu+8jDHvvIzm
-nIDmlrDnmoTor6Lnm5ggMu+8jOacgOaWsOeahOWxleS8muS5sOWutuOAguWFjei0ueabtOaWsDM2
-5Liq5pyI44CCDQo477yMMjAwOeW5tOa1t+WFs+aPkOWNleaVsOaNrnBpZXJz54mI5pWw5o2uIDHl
-jYPkuIfjgIINCg0KDQror5rkv6HkuLrmnKzvvIzmlK/mjIHmlK/ku5jlrp3mi4Xkv53kuqTmmJMg
-KOWFiOWPkei0p+W5tuWuieijheiuvue9rue+pOWPkei9r+S7tu+8jOeEtuWQjuS7mOasvikg5b27
-5bqV5omT5raI5oKo55qEIOmhvuiZkeOAgg0KDQogDQoNCg0KIA0KDQrnsr7lh4bmlbDmja4t5oiQ
-5Y2V546H5p6B6auYDQrnsr7lh4bmlbDmja4t5oiQ5Y2V546H5p6B6auYDQrnsr7lh4bmlbDmja4t
-5oiQ5Y2V546H5p6B6auYDQrnsr7lh4bmlbDmja4t5oiQ5Y2V546H5p6B6auYDQrnsr7lh4bmlbDm
-ja4t5oiQ5Y2V546H5p6B6auYDQo=
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
 
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hi Linus,
+
+Please pull from:
+
+	git://github.com/dtor/input.git for-linus
+
+to receive a fixup to wacom driver.
+
+Changelog:
+---------
+
+Jason Gerecke (1):
+      Input: wacom - revert "Cintiq 21UX2 does not have menu strips"
+
+
+Diffstat:
+--------
+
+ drivers/input/tablet/wacom_wac.c |    7 ++-----
+ 1 files changed, 2 insertions(+), 5 deletions(-)
+
+--=20
+Dmitry
+
+
+--n8g4imXOkfNTN/H1
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iQIcBAEBAgAGBQJOi/lXAAoJEH70+W8r6ZYqA9EP/RPOHA8Al6+mtacHFGp4KSm/
+ZHAjKCE1qjb1+aFm1UL4VFWe9g5b1khwRFK5CsgIOR2/04zqA2iOQ0Wdrk4s5PKy
+uv3/lP5gIBAdUzAF8ew54IV7hpzV3ABUl7yGaaLBJjRL1srCcdOVH9FEqgAXm5RG
+/lTYi7E83Aw2wDah/xAqaXyx3JdNmG5sTOKcbkAo+8zx+nKfOpXgB/biLSokBjdu
+KSJeGO7lBSGxttQ/aq6Tybwdr1Q1ORb+uYVS1/Bpvi6AgFNrYHcOTP9qS9/DpOuW
+REf40yDfSivgrd1qZlB0VTtbfxULBNyn1+3nA2POsD2+Op2lxFISgZDXm1TFsPKa
+KXl+mldRUhWyzrcbwi2ETo6t9MtvF8H92hhYV33anKUxSHPyFhfH0cyWDgHSgdzq
+T62/AB7ORYnv773sJZAsGUMiUZnADkQVRq4lXXcb8VpCBBNGLtXaCQjO5rinkS+y
+lfb6CR/v41WXJO4x29OO8GCUdd+LtqgMG/8goxb3GpjJPxM4vbiu9sMgoyhxATRG
+7j3bYCkIziKnAWoAfAwVcL2WsogIXa453waLdtdKzyPF+SHeKG9RsrI2cwJDU9ML
+lIn7Fo/Eb8yezEbE7DDGL10hB5wwB6nBvDpEQfFLbKF/qQ6P4VCwtprmv8pW9QUE
+yf2HXSXLMuJAyG1Sb6Tf
+=QJ/y
+-----END PGP SIGNATURE-----
+
+--n8g4imXOkfNTN/H1--

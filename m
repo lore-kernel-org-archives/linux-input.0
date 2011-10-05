@@ -1,56 +1,72 @@
-From: Chase Douglas <chasedouglas@gmail.com>
-Subject: Re: [PATCH] Input: evdev - use monotonic clock for event timestamps
-Date: Wed, 05 Oct 2011 15:35:11 +0100
-Message-ID: <4E8C6B1F.4090904@gmail.com>
-References: <1317624200-9762-1-git-send-email-djkurtz@chromium.org> <20111003090641.GA5615@polaris.bitmath.org> <CAGS+omAj9z2-Au2HABtDKHQGRBNVxXygF2cz+L8UMeTHRrMjbA@mail.gmail.com> <20111005092341.GB6840@polaris.bitmath.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:46509 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934462Ab1JEOfQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2011 10:35:16 -0400
-In-Reply-To: <20111005092341.GB6840@polaris.bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Dave Martin <dave.martin@linaro.org>
+Subject: [PATCH 00/16] ARM: amba: Enable module alias autogeneration for AMBA drivers
+Date: Wed,  5 Oct 2011 17:04:51 +0100
+Message-ID: <1317830707-17517-1-git-send-email-dave.martin@linaro.org>
+Return-path: <linux-serial-owner@vger.kernel.org>
+Sender: linux-serial-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: patches@linaro.org, =?UTF-8?q?Pawe=C5=82=20Moll?= <Pawel.Moll@arm.com>, Alan Cox <alan@linux.intel.com>, Alessandro Rubini <rubini@unipv.it>, Alessandro Zummo <a.zummo@towertech.it>, alsa-devel@alsa-project.org, Chris Ball <cjb@laptop.org>, Dan Williams <dan.j.williams@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, Jaroslav Kysela <perex@perex.cz>, Julia Lawall <julia@diku.dk>, Linus Walleij <linus.walleij@linaro.org>, linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org, Paul Mundt <lethal@linux-sh.org>, rtc-linux@googlegroups.com, Russell King <linux@arm.linux.org.uk>, spi-devel-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>, Vinod Koul <vinod.koul@intel.com>, Wim Van Sebroeck <wim@iguana.be>
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 10/05/2011 10:23 AM, Henrik Rydberg wrote:
->> I understand your concern about breaking random drivers, and am hoping
->> that someon on this list could indicate whether this is a real concern
->> or not.  To get a better feeling for possible regressions, I checked
->> xf86-input-evdev & -synaptics, and neither uses the evdev timestamp in
->> their current incarnations.  Any idea what else might be a good place
->> to check?
-> 
-> The input system is used for all sorts of events - switches, for
-> instance. The point is that it is nearly impossible to know if
-> something will break or not, hence the reluctance to modify interfaces.
-> 
->> One option is to make the evdev timestamp clock source a per-driver
->> configuration option (controllable from userspace?).  This sounds like
->> it is doable, but would be significantly more complicated.
->>
->> Another option would be to timestamp with monotonicraw + boottime +
->> sleeptime.  This would be approximately wall clock time, but without
->> ntp and slew adjustments.  But, I fear this would just make the rare
->> driver issue less obvious, since it would only become obvious when the
->> two clock sources started drifting apart.
-> 
-> I agree, the problem is not really solvable. Dmitry?
+There's no special reason why AMBA device drivers should not be
+auto-loadable via udev, but udev currently has no way to map AMBA
+device IDs to drivers.
 
-We could put it into the -next tree early on in the cycle, and then it
-will be in -next for a cycle and in Linus' tree for the real dev cycle.
-By that time we would hope any issues would have emerged.
+As part of the effort to help enable the building of multiple
+ARM platforms into a single kernel image in the future, it's desirable
+to be able to build any non-critical platform-specific drivers as
+modules.
 
-I'm not sure if that is a responsible approach. I agree that the change
-would be good, but how sure would we be that nothing would break based
-only on testing in development trees?
+A straightforward solution is to use modaliases to allow udev to
+identify the correct driver module to load.
 
-My personal thoughts are that I doubt it would cause issues. Based on
-that gut feel, I would say that this approach is reasonable. However,
-I'm just one voice in all this :).
+This series enables the general infrastructure for modalias generation
+to work for AMBA devices, and enables it in the affected drivers.
 
--- Chase
+Briefly tested on Versatile Express, including aaci, mmci and amba-clcd
+(which appears to have the most interesting modalias match pattern).
+For me, the appropiate modules now get loaded at udev trigger time.
+
+Any comments and feedback are welcome.
+
+Dave Martin (16):
+  ARM: amba: Move definition of struct amba_id to mod_devicetable.h
+  ARM: amba: Auto-generate AMBA driver module aliases during modpost
+  hwrng: nomadik: Enable module alias autogeneration for AMBA drivers
+  dmaengine: pl08x: Enable module alias autogeneration for AMBA drivers
+  dmaengine: pl330: Enable module alias autogeneration for AMBA drivers
+  gpio: pl061: Enable module alias autogeneration for AMBA drivers
+  input: ambakmi: Enable module alias autogeneration for AMBA drivers
+  mmc: mmci: Enable module alias autogeneration for AMBA drivers
+  rtc: pl030: Enable module alias autogeneration for AMBA drivers
+  rtc: pl031: Enable module alias autogeneration for AMBA drivers
+  spi: pl022: Enable module alias autogeneration for AMBA drivers
+  serial: pl010: Enable module alias autogeneration for AMBA drivers
+  serial: pl011: Enable module alias autogeneration for AMBA drivers
+  fbdev: amba: Enable module alias autogeneration for AMBA drivers
+  watchdog: sp805: Enable module alias autogeneration for AMBA drivers
+  sound: aaci: Enable module alias autogeneration for AMBA drivers
+
+ drivers/amba/bus.c                   |    9 ++++-
+ drivers/char/hw_random/nomadik-rng.c |    2 +
+ drivers/dma/amba-pl08x.c             |    2 +
+ drivers/dma/pl330.c                  |    2 +
+ drivers/gpio/gpio-pl061.c            |    2 +
+ drivers/input/serio/ambakmi.c        |    2 +
+ drivers/mmc/host/mmci.c              |    2 +
+ drivers/rtc/rtc-pl030.c              |    2 +
+ drivers/rtc/rtc-pl031.c              |    2 +
+ drivers/spi/spi-pl022.c              |    2 +
+ drivers/tty/serial/amba-pl010.c      |    2 +
+ drivers/tty/serial/amba-pl011.c      |    2 +
+ drivers/video/amba-clcd.c            |    2 +
+ drivers/watchdog/sp805_wdt.c         |    2 +
+ include/linux/amba/bus.h             |    7 +---
+ include/linux/mod_devicetable.h      |   18 ++++++++
+ scripts/mod/file2alias.c             |   72 ++++++++++++++++++++++++++++++++++
+ sound/arm/aaci.c                     |    2 +
+ 18 files changed, 127 insertions(+), 7 deletions(-)
+
+-- 
+1.7.4.1
+

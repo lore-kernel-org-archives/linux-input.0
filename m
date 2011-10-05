@@ -1,51 +1,56 @@
-From: Jeff Mitchell <jeff@jefferai.org>
-Subject: Re: [PATCH] This adds support for keyboards on mid-2011 MacBook Airs
-Date: Wed, 05 Oct 2011 10:16:34 -0400
-Message-ID: <4E8C66C2.6010503@jefferai.org>
-References: <efc66984043a292faa31fee381945d18@jefferai.org> <20111005090735.GA6840@polaris.bitmath.org> <alpine.LNX.2.00.1110051103140.31654@pobox.suse.cz> <20111005094851.GA7261@polaris.bitmath.org> <alpine.LNX.2.00.1110051212320.31654@pobox.suse.cz>
+From: Chase Douglas <chasedouglas@gmail.com>
+Subject: Re: [PATCH] Input: evdev - use monotonic clock for event timestamps
+Date: Wed, 05 Oct 2011 15:35:11 +0100
+Message-ID: <4E8C6B1F.4090904@gmail.com>
+References: <1317624200-9762-1-git-send-email-djkurtz@chromium.org> <20111003090641.GA5615@polaris.bitmath.org> <CAGS+omAj9z2-Au2HABtDKHQGRBNVxXygF2cz+L8UMeTHRrMjbA@mail.gmail.com> <20111005092341.GB6840@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from paravion.emailgoeshere.com ([46.4.199.70]:54278 "EHLO
-	paravion.emailgoeshere.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753981Ab1JEOQj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 5 Oct 2011 10:16:39 -0400
-In-Reply-To: <alpine.LNX.2.00.1110051212320.31654@pobox.suse.cz>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:46509 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934462Ab1JEOfQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2011 10:35:16 -0400
+In-Reply-To: <20111005092341.GB6840@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, jvdillon@gmail.com, Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Daniel Kurtz <djkurtz@chromium.org>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 10/05/2011 06:13 AM, Jiri Kosina wrote:
-> On Wed, 5 Oct 2011, Henrik Rydberg wrote:
+On 10/05/2011 10:23 AM, Henrik Rydberg wrote:
+>> I understand your concern about breaking random drivers, and am hoping
+>> that someon on this list could indicate whether this is a real concern
+>> or not.  To get a better feeling for possible regressions, I checked
+>> xf86-input-evdev & -synaptics, and neither uses the evdev timestamp in
+>> their current incarnations.  Any idea what else might be a good place
+>> to check?
 > 
->>> please check what is in my hid tree (included in linux-next as well) and 
->>> let me know whether there is anything that need to be applied on top of 
->>> that. I believe all the HID-related 4,1 and 4,2 bits are already in there.
+> The input system is used for all sorts of events - switches, for
+> instance. The point is that it is nearly impossible to know if
+> something will break or not, hence the reluctance to modify interfaces.
+> 
+>> One option is to make the evdev timestamp clock source a per-driver
+>> configuration option (controllable from userspace?).  This sounds like
+>> it is doable, but would be significantly more complicated.
 >>
->> Finding the right tree is the big challenge these days. ;-)
+>> Another option would be to timestamp with monotonicraw + boottime +
+>> sleeptime.  This would be approximately wall clock time, but without
+>> ntp and slew adjustments.  But, I fear this would just make the rare
+>> driver issue less obvious, since it would only become obvious when the
+>> two clock sources started drifting apart.
 > 
-> Indeed :)
-> 
-> I will be moving my trees back to kernel.org as soon as it is possible.
+> I agree, the problem is not really solvable. Dmitry?
 
-Yep, sorry -- I honestly had no idea where to look for the "right" tree.
+We could put it into the -next tree early on in the cycle, and then it
+will be in -next for a cycle and in Linus' tree for the real dev cycle.
+By that time we would hope any issues would have emerged.
 
->> Looking at the twin.jikos.cz tree, the upstream and for-next branches 
->> have the same content with regard to these devices. Both 4,1 and 4,2 are 
->> included in the special driver and mouse ignore lists. Whether the 
->> keyboard handling is correct, I cannot say, but it looks consistent.
-> 
-> Perfect, thanks for verification.
+I'm not sure if that is a responsible approach. I agree that the change
+would be good, but how sure would we be that nothing would break based
+only on testing in development trees?
 
-Great.
+My personal thoughts are that I doubt it would cause issues. Based on
+that gut feel, I would say that this approach is reasonable. However,
+I'm just one voice in all this :).
 
-To clear up an earlier point: AFAIK the new MBAs have the same keyboard
-layout as normal MacBooks and hence uses the same table. An earlier
-patch that was floating around added another table for the new MBAs but
-if you looked at the mappings it was the exact same table as the normal
-MacBook one.
-
---Jeff
+-- Chase

@@ -1,108 +1,122 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH] Input: evdev - use monotonic clock for event timestamps
-Date: Wed, 5 Oct 2011 15:55:05 +0800
-Message-ID: <CAGS+omAj9z2-Au2HABtDKHQGRBNVxXygF2cz+L8UMeTHRrMjbA@mail.gmail.com>
-References: <1317624200-9762-1-git-send-email-djkurtz@chromium.org> <20111003090641.GA5615@polaris.bitmath.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH] This adds support for keyboards on mid-2011 MacBook Airs
+Date: Wed, 5 Oct 2011 11:07:35 +0200
+Message-ID: <20111005090735.GA6840@polaris.bitmath.org>
+References: <efc66984043a292faa31fee381945d18@jefferai.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:31963 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757895Ab1JEHz1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2011 03:55:27 -0400
-Received: from wpaz17.hot.corp.google.com (wpaz17.hot.corp.google.com [172.24.198.81])
-	by smtp-out.google.com with ESMTP id p957tRxZ015976
-	for <linux-input@vger.kernel.org>; Wed, 5 Oct 2011 00:55:27 -0700
-Received: from iadj38 (iadj38.prod.google.com [10.12.136.38])
-	by wpaz17.hot.corp.google.com with ESMTP id p957tPOl021798
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Wed, 5 Oct 2011 00:55:25 -0700
-Received: by iadj38 with SMTP id j38so2566473iad.5
-        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2011 00:55:25 -0700 (PDT)
-In-Reply-To: <20111003090641.GA5615@polaris.bitmath.org>
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:47893 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933622Ab1JEJBa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2011 05:01:30 -0400
+Received: from iph2.telenor.se (iph2.telenor.se [195.54.127.133])
+	by smtprelay-b21.telenor.se (Postfix) with ESMTP id 0CB4BE9E26
+	for <linux-input@vger.kernel.org>; Wed,  5 Oct 2011 11:01:28 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <efc66984043a292faa31fee381945d18@jefferai.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jeff Mitchell <jeff@jefferai.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, jvdillon@gmail.com
 
-Hi Henrik,
+Hi Jeff,
 
-On Mon, Oct 3, 2011 at 5:06 PM, Henrik Rydberg <rydberg@euromail.se> wr=
-ote:
->
-> Hi Daniel,
->
-> > Using wallclock time for event timestamps subjects inter-event timi=
-ng to
-> > ntp and other clock adjustments. =A0This complicates userspace driv=
-ers
-> > that use these timestamps to calculate velocities, or while process=
-ing
-> > state transitions.
-> >
-> > Instead, use the kernel monotonic clock for event timestamps, which=
- is
-> > at least guaranteed never to go backwards.
-> >
-> > Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-> > ---
-> > =A0drivers/input/evdev.c | =A0 =A05 ++++-
-> > =A01 files changed, 4 insertions(+), 1 deletions(-)
-> >
-> > diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> > index 4cf2534..118f936 100644
-> > --- a/drivers/input/evdev.c
-> > +++ b/drivers/input/evdev.c
-> > @@ -94,8 +94,11 @@ static void evdev_event(struct input_handle *han=
-dle,
-> > =A0 =A0 =A0 struct evdev *evdev =3D handle->private;
-> > =A0 =A0 =A0 struct evdev_client *client;
-> > =A0 =A0 =A0 struct input_event event;
-> > + =A0 =A0 struct timespec now;
-> >
-> > - =A0 =A0 do_gettimeofday(&event.time);
-> > + =A0 =A0 getrawmonotonic(&now);
-> > + =A0 =A0 event.time.tv_sec =3D now.tv_sec;
-> > + =A0 =A0 event.time.tv_usec =3D now.tv_nsec/1000;
-> > =A0 =A0 =A0 event.type =3D type;
-> > =A0 =A0 =A0 event.code =3D code;
-> > =A0 =A0 =A0 event.value =3D value;
-> > --
-> > 1.7.3.1
->
-> Good thing per se, but reporting time relative to boot instead of
-> using real time, for all input events, may cause regression on some
-> obscure systems. Perhaps it is possible to improve on the desired
-> monotonicity in most cases, without such a drastic change.
->
-> Thanks,
-> Henrik
+> This patch adds proper keyboard support for both MacBook Air 4,1 and
+> 4,2 models (11" and 13" mid-2011 releases). It is based mostly on
+> work by Joshua Dillon.
+> 
+> This fixes the issues with the previously-submitted patch by
+> Pieter-Augustijn Van Malleghem (subject: [PATCH] Add MacBookAir4,1
+> keyboard support), namely using an incorrect table, and also
+> contains support for both the 4,1 and 4,2 models instead of just the
+> 4,1 model.
 
-Thanks for responding!  This is the smallest possible patch that I
-could think of that illustrates what I'd like to see.  What other
-options do we have to achieve the same affect?
+This patch makes no changes to the table logic at all - is that how it
+is supposed to be?
 
-I understand your concern about breaking random drivers, and am hoping
-that someon on this list could indicate whether this is a real concern
-or not.  To get a better feeling for possible regressions, I checked
-xf86-input-evdev & -synaptics, and neither uses the evdev timestamp in
-their current incarnations.  Any idea what else might be a good place
-to check?
+Jiri, it seems the bcm5974 part for these devices has already landed,
+meaning (some version of) the below is needed in order to have a
+functional touchpad. Any chance of squeezing it in?
 
-One option is to make the evdev timestamp clock source a per-driver
-configuration option (controllable from userspace?).  This sounds like
-it is doable, but would be significantly more complicated.
+Thanks,
+Henrik
 
-Another option would be to timestamp with monotonicraw + boottime +
-sleeptime.  This would be approximately wall clock time, but without
-ntp and slew adjustments.  But, I fear this would just make the rare
-driver issue less obvious, since it would only become obvious when the
-two clock sources started drifting apart.
+> From e0f31e3d1a89831239676baa9bb244feee153133 Mon Sep 17 00:00:00 2001
+> From: Jeff Mitchell <jeff@jefferai.org>
+> Date: Wed, 21 Sep 2011 18:20:06 -0400
+> Subject: [PATCH] This adds support for keyboards on mid-2011 MacBook Airs
+>  (both the 11" 4,1 and 13" 4,2 models). Confusingly, 4,1
+>  corresponds to WELLSPRING6A and 4,2 corresponds to
+>  WELLSPRING6.
+> 
+> The patch is a cleaned up version of that created by Josh Dillon (jvdillon@gmail.com).
+> 
+> Signed-off-by: Jeff Mitchell <jeff@jefferai.org>
+> ---
+>  drivers/hid/hid-apple.c |   12 ++++++++++++
+>  drivers/hid/hid-core.c  |    6 ++++++
+>  drivers/hid/hid-ids.h   |    6 ++++++
+>  3 files changed, 24 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+> index 18b3bc6..03e6fb0 100644
+> --- a/drivers/hid/hid-apple.c
+> +++ b/drivers/hid/hid-apple.c
+> @@ -493,6 +493,18 @@ static const struct hid_device_id apple_devices[] = {
+>  		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5_JIS),
+>  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6A_ANSI),
+> +		.driver_data = APPLE_HAS_FN },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6A_ISO),
+> +		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6A_JIS),
+> +		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6_ANSI),
+> +		.driver_data = APPLE_HAS_FN },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6_ISO),
+> +		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6_JIS),
+> +		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
+>  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 242353d..96344ff0 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1340,6 +1340,12 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5_ANSI) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5_ISO) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5_JIS) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6A_ANSI) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6A_ISO) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6A_JIS) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6_ANSI) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6_ISO) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6_JIS) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_REVB_ANSI) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_REVB_ISO) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_REVB_JIS) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 7484e1b..8b37036 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -109,6 +109,12 @@
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING5_ANSI	0x0245
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING5_ISO	0x0246
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING5_JIS	0x0247
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING6A_ANSI	0x0249
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING6A_ISO	0x024a
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING6A_JIS	0x024b
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING6_ANSI	0x024c
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING6_ISO	0x024d
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING6_JIS	0x024e
+>  #define USB_DEVICE_ID_APPLE_ALU_REVB_ANSI	0x024f
+>  #define USB_DEVICE_ID_APPLE_ALU_REVB_ISO	0x0250
+>  #define USB_DEVICE_ID_APPLE_ALU_REVB_JIS	0x0251
+> -- 
+> 1.7.6.2
+> 
 
--Dan
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

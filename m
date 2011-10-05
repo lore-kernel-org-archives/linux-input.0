@@ -1,46 +1,45 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] This adds support for keyboards on mid-2011 MacBook
- Airs
-Date: Wed, 5 Oct 2011 12:13:27 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1110051212320.31654@pobox.suse.cz>
-References: <efc66984043a292faa31fee381945d18@jefferai.org> <20111005090735.GA6840@polaris.bitmath.org> <alpine.LNX.2.00.1110051103140.31654@pobox.suse.cz> <20111005094851.GA7261@polaris.bitmath.org>
+From: "Patil, Rachna" <rachna@ti.com>
+Subject: FW: Touchscreen co-ordinates swap
+Date: Wed, 5 Oct 2011 17:38:19 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB59302578FAB8A@dbde02.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34855 "EHLO mx2.suse.de"
+Received: from comal.ext.ti.com ([198.47.26.152]:44552 "EHLO comal.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933122Ab1JEKNa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 5 Oct 2011 06:13:30 -0400
-In-Reply-To: <20111005094851.GA7261@polaris.bitmath.org>
+	id S934481Ab1JEMIY convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2011 08:08:24 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jeff Mitchell <jeff@jefferai.org>, linux-input@vger.kernel.org, jvdillon@gmail.com, Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 
-On Wed, 5 Oct 2011, Henrik Rydberg wrote:
+Hi,
 
-> > please check what is in my hid tree (included in linux-next as well) and 
-> > let me know whether there is anything that need to be applied on top of 
-> > that. I believe all the HID-related 4,1 and 4,2 bits are already in there.
-> 
-> Finding the right tree is the big challenge these days. ;-)
+I have a 4 wire resistive touchscreen, which I am working on. I have a =
+query and require some advice on the same.
+On an interrupt, I get set of x and y co-ordinates.
+At =A0frame buffer (0, 0) my touchscreen reports a (max ,max) and frame=
+ buffer (max, max) reports a (min ,min) on=20
+touchscreen. The values are diagonally swapped. =A0
 
-Indeed :)
+If I run ts_calib and then do a ts_test. I do not face an issues. I can=
+ do a drag/draw as expected.
+But if I run any other matrix GUI applications I see that the cursor po=
+sition is swapped(as mentioned above).
 
-I will be moving my trees back to kernel.org as soon as it is possible.
+Should the touchscreen also take care of calibration as a part of the d=
+river
+Or the application(user space) needs to do this ?
 
-> Looking at the twin.jikos.cz tree, the upstream and for-next branches 
-> have the same content with regard to these devices. Both 4,1 and 4,2 are 
-> included in the special driver and mouse ignore lists. Whether the 
-> keyboard handling is correct, I cannot say, but it looks consistent.
 
-Perfect, thanks for verification.
+Regards,
+Rachna.
 
-> All good for now, it other words. Sorry about the fuzz.
-
-No problem at all, the situation with the trees is now simply too 
-confusing. Thanks a lot for checking.
-
--- 
-Jiri Kosina
-SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

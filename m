@@ -1,124 +1,93 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 7/9] Input: serio_raw - explicitly mark disconnected ports as dead
-Date: Wed,  5 Oct 2011 22:08:14 -0700
-Message-ID: <1317877696-7719-7-git-send-email-dmitry.torokhov@gmail.com>
+Subject: [PATCH 8/9] Input: serio_raw - kick clients when disconnecting port
+Date: Wed,  5 Oct 2011 22:08:15 -0700
+Message-ID: <1317877696-7719-8-git-send-email-dmitry.torokhov@gmail.com>
 References: <1317877696-7719-1-git-send-email-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:40708 "EHLO
+Received: from mail-pz0-f42.google.com ([209.85.210.42]:41354 "EHLO
 	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753187Ab1JFFIa (ORCPT
+	with ESMTP id S1753444Ab1JFFIa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2011 01:08:30 -0400
-Received: by mail-pz0-f42.google.com with SMTP id 1so5956160pzk.1
-        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2011 22:08:29 -0700 (PDT)
+Received: by mail-pz0-f42.google.com with SMTP id 1so5956148pzk.1
+        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2011 22:08:30 -0700 (PDT)
 In-Reply-To: <1317877696-7719-1-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Thomas Tuttle <ttuttle@chromium.org>
 
-Instead of relying on setting serio_raw->serio to NULL upon disconnecting
-ports mark them explicitly as "dead". Also take and carry reference to
-underlying serio port to make sure it does not go away until we are done
-with it.
+Send SIGIO/POLL_HUP and otherwise wake up waiters when corresponding serio
+port is being disconnected. Also check if port is dead in serio_raw_poll
+and signal POLLHUP|POLLERR.
+
+This should speed up process of releasing dead devices by userspace
+applications.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/input/serio/serio_raw.c |   21 +++++++++++++--------
- 1 files changed, 13 insertions(+), 8 deletions(-)
+ drivers/input/serio/serio_raw.c |   29 +++++++++++++++++++++++------
+ 1 files changed, 23 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/input/serio/serio_raw.c b/drivers/input/serio/serio_raw.c
-index 64fcefb..30ff963 100644
+index 30ff963..830e2fe 100644
 --- a/drivers/input/serio/serio_raw.c
 +++ b/drivers/input/serio/serio_raw.c
-@@ -40,6 +40,7 @@ struct serio_raw {
- 	wait_queue_head_t wait;
- 	struct list_head client_list;
- 	struct list_head node;
-+	bool dead;
- };
+@@ -232,9 +232,11 @@ static unsigned int serio_raw_poll(struct file *file, poll_table *wait)
+ {
+ 	struct serio_raw_client *client = file->private_data;
+ 	struct serio_raw *serio_raw = client->serio_raw;
++	unsigned int mask;
  
- struct serio_raw_client {
-@@ -91,7 +92,7 @@ static int serio_raw_open(struct inode *inode, struct file *file)
- 		goto out;
- 	}
+ 	poll_wait(file, &serio_raw->wait, wait);
  
--	if (!serio_raw->serio) {
-+	if (serio_raw->dead) {
- 		retval = -ENODEV;
- 		goto out;
- 	}
-@@ -123,6 +124,8 @@ static void serio_raw_cleanup(struct kref *kref)
++	mask = serio_raw->dead ? POLLHUP | POLLERR : POLLOUT | POLLWRNORM;
+ 	if (serio_raw->head != serio_raw->tail)
+ 		return POLLIN | POLLRDNORM;
  
- 	misc_deregister(&serio_raw->dev);
- 	list_del_init(&serio_raw->node);
-+
-+	put_device(&serio_raw->serio->dev);
- 	kfree(serio_raw);
+@@ -359,22 +361,37 @@ static int serio_raw_reconnect(struct serio *serio)
+ 	return 0;
  }
  
-@@ -164,19 +167,18 @@ static ssize_t serio_raw_read(struct file *file, char __user *buffer,
- 	char uninitialized_var(c);
- 	ssize_t retval = 0;
- 
--	if (!serio_raw->serio)
-+	if (serio_raw->dead)
- 		return -ENODEV;
- 
- 	if (serio_raw->head == serio_raw->tail && (file->f_flags & O_NONBLOCK))
- 		return -EAGAIN;
- 
- 	retval = wait_event_interruptible(serio_raw->wait,
--					  serio_raw->head != serio_raw->tail ||
--						!serio_raw->serio);
-+			serio_raw->head != serio_raw->tail || serio_raw->dead);
- 	if (retval)
- 		return retval;
- 
--	if (!serio_raw->serio)
-+	if (serio_raw->dead)
- 		return -ENODEV;
- 
- 	while (retval < count && serio_raw_fetch_byte(serio_raw, &c)) {
-@@ -201,7 +203,7 @@ static ssize_t serio_raw_write(struct file *file, const char __user *buffer,
- 	if (retval)
- 		return retval;
- 
--	if (!serio_raw->serio) {
-+	if (serio_raw->dead) {
- 		retval = -ENODEV;
- 		goto out;
- 	}
-@@ -291,10 +293,12 @@ static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
- 	snprintf(serio_raw->name, sizeof(serio_raw->name),
- 		 "serio_raw%d", serio_raw_no++);
- 	kref_init(&serio_raw->kref);
--	serio_raw->serio = serio;
- 	INIT_LIST_HEAD(&serio_raw->client_list);
- 	init_waitqueue_head(&serio_raw->wait);
- 
-+	serio_raw->serio = serio;
-+	get_device(&serio->dev);
++/*
++ * Wake up users waiting for IO so they can disconnect from
++ * dead device.
++ */
++static void serio_raw_hangup(struct serio_raw *serio_raw)
++{
++	struct serio_raw_client *client;
 +
- 	serio_set_drvdata(serio, serio_raw);
++	serio_pause_rx(serio_raw->serio);
++	list_for_each_entry(client, &serio_raw->client_list, node)
++		kill_fasync(&client->fasync, SIGIO, POLL_HUP);
++	serio_continue_rx(serio_raw->serio);
++
++	wake_up_interruptible(&serio_raw->wait);
++}
++
++
+ static void serio_raw_disconnect(struct serio *serio)
+ {
+-	struct serio_raw *serio_raw;
++	struct serio_raw *serio_raw = serio_get_drvdata(serio);
  
- 	err = serio_open(serio, drv);
-@@ -330,6 +334,7 @@ out_close:
- 	list_del_init(&serio_raw->node);
- out_free:
- 	serio_set_drvdata(serio, NULL);
-+	put_device(&serio->dev);
- 	kfree(serio_raw);
- out:
- 	mutex_unlock(&serio_raw_mutex);
-@@ -365,7 +370,7 @@ static void serio_raw_disconnect(struct serio *serio)
+ 	mutex_lock(&serio_raw_mutex);
+ 
+-	serio_raw = serio_get_drvdata(serio);
+-
  	serio_close(serio);
- 	serio_set_drvdata(serio, NULL);
- 
--	serio_raw->serio = NULL;
-+	serio_raw->dead = true;
- 	wake_up_interruptible(&serio_raw->wait);
+-	serio_set_drvdata(serio, NULL);
+-
+ 	serio_raw->dead = true;
+-	wake_up_interruptible(&serio_raw->wait);
++	serio_raw_hangup(serio_raw);
  	kref_put(&serio_raw->kref, serio_raw_cleanup);
  
+ 	mutex_unlock(&serio_raw_mutex);
++
++	serio_set_drvdata(serio, NULL);
+ }
+ 
+ static struct serio_device_id serio_raw_serio_ids[] = {
 -- 
 1.7.6.4
 

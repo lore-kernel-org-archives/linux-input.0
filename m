@@ -1,14 +1,14 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 6/9] Input: serio_raw - fix coding style issues
-Date: Wed,  5 Oct 2011 22:08:13 -0700
-Message-ID: <1317877696-7719-6-git-send-email-dmitry.torokhov@gmail.com>
+Subject: [PATCH 5/9] Input: serio_raw - use dev_*() for messages
+Date: Wed,  5 Oct 2011 22:08:12 -0700
+Message-ID: <1317877696-7719-5-git-send-email-dmitry.torokhov@gmail.com>
 References: <1317877696-7719-1-git-send-email-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:41354 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753256Ab1JFFI1 (ORCPT
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:37992 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753187Ab1JFFI1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2011 01:08:27 -0400
-Received: by mail-pz0-f42.google.com with SMTP id 1so5956148pzk.1
+Received: by mail-yw0-f46.google.com with SMTP id 5so2265031ywb.19
         for <linux-input@vger.kernel.org>; Wed, 05 Oct 2011 22:08:27 -0700 (PDT)
 In-Reply-To: <1317877696-7719-1-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
@@ -16,65 +16,54 @@ List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Thomas Tuttle <ttuttle@chromium.org>
 
-This makes checkpatch.pl happy with the driver
+This will ensure our reporting is consistent with the rest of the system.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/input/serio/serio_raw.c |   14 +++++++++-----
- 1 files changed, 9 insertions(+), 5 deletions(-)
+ drivers/input/serio/serio_raw.c |   12 +++++++-----
+ 1 files changed, 7 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/input/serio/serio_raw.c b/drivers/input/serio/serio_raw.c
-index 396a17f..64fcefb 100644
+index a5afc7c..396a17f 100644
 --- a/drivers/input/serio/serio_raw.c
 +++ b/drivers/input/serio/serio_raw.c
-@@ -156,7 +156,8 @@ static bool serio_raw_fetch_byte(struct serio_raw *serio_raw, char *c)
- 	return !empty;
- }
- 
--static ssize_t serio_raw_read(struct file *file, char __user *buffer, size_t count, loff_t *ppos)
-+static ssize_t serio_raw_read(struct file *file, char __user *buffer,
-+			      size_t count, loff_t *ppos)
- {
- 	struct serio_raw_client *client = file->private_data;
- 	struct serio_raw *serio_raw = client->serio_raw;
-@@ -187,7 +188,8 @@ static ssize_t serio_raw_read(struct file *file, char __user *buffer, size_t cou
- 	return retval;
- }
- 
--static ssize_t serio_raw_write(struct file *file, const char __user *buffer, size_t count, loff_t *ppos)
-+static ssize_t serio_raw_write(struct file *file, const char __user *buffer,
-+			       size_t count, loff_t *ppos)
- {
- 	struct serio_raw_client *client = file->private_data;
- 	struct serio_raw *serio_raw = client->serio_raw;
-@@ -250,7 +252,7 @@ static const struct file_operations serio_raw_fops = {
- 
- 
- /*********************************************************************
-- *                   Interface with serio port   	             *
-+ *                   Interface with serio port                       *
-  *********************************************************************/
- 
- static irqreturn_t serio_raw_interrupt(struct serio *serio, unsigned char data,
-@@ -278,14 +280,16 @@ static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
- 	struct serio_raw *serio_raw;
+@@ -279,7 +279,7 @@ static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
  	int err;
  
--	if (!(serio_raw = kzalloc(sizeof(struct serio_raw), GFP_KERNEL))) {
-+	serio_raw = kzalloc(sizeof(struct serio_raw), GFP_KERNEL);
-+	if (!serio_raw) {
- 		dev_dbg(&serio->dev, "can't allocate memory for a device\n");
+ 	if (!(serio_raw = kzalloc(sizeof(struct serio_raw), GFP_KERNEL))) {
+-		printk(KERN_ERR "serio_raw.c: can't allocate memory for a device\n");
++		dev_dbg(&serio->dev, "can't allocate memory for a device\n");
  		return -ENOMEM;
  	}
  
- 	mutex_lock(&serio_raw_mutex);
+@@ -311,13 +311,14 @@ static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
+ 	}
  
--	snprintf(serio_raw->name, sizeof(serio_raw->name), "serio_raw%d", serio_raw_no++);
-+	snprintf(serio_raw->name, sizeof(serio_raw->name),
-+		 "serio_raw%d", serio_raw_no++);
- 	kref_init(&serio_raw->kref);
- 	serio_raw->serio = serio;
- 	INIT_LIST_HEAD(&serio_raw->client_list);
+ 	if (err) {
+-		printk(KERN_INFO "serio_raw: failed to register raw access device for %s\n",
++		dev_err(&serio->dev,
++			"failed to register raw access device for %s\n",
+ 			serio->phys);
+ 		goto out_close;
+ 	}
+ 
+-	printk(KERN_INFO "serio_raw: raw access enabled on %s (%s, minor %d)\n",
+-		serio->phys, serio_raw->name, serio_raw->dev.minor);
++	dev_info(&serio->dev, "raw access enabled on %s (%s, minor %d)\n",
++		 serio->phys, serio_raw->name, serio_raw->dev.minor);
+ 	goto out;
+ 
+ out_close:
+@@ -337,7 +338,8 @@ static int serio_raw_reconnect(struct serio *serio)
+ 	struct serio_driver *drv = serio->drv;
+ 
+ 	if (!drv || !serio_raw) {
+-		printk(KERN_DEBUG "serio_raw: reconnect request, but serio is disconnected, ignoring...\n");
++		dev_dbg(&serio->dev,
++			"reconnect request, but serio is disconnected, ignoring...\n");
+ 		return -1;
+ 	}
+ 
 -- 
 1.7.6.4
 

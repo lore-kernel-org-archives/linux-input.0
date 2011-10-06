@@ -1,343 +1,43 @@
-From: Javier Martinez Canillas <martinez.javier@gmail.com>
-Subject: [PATCH v4 3/3] Input: cyttsp - add support for Cypress TTSP touchscreen SPI bus interface
-Date: Wed,  5 Oct 2011 23:26:05 +0200
-Message-ID: <1317849965-18557-4-git-send-email-martinez.javier@gmail.com>
-References: <1317849965-18557-1-git-send-email-martinez.javier@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: New "ABS_WHEEL2" axis?
+Date: Wed, 5 Oct 2011 20:34:52 -0700
+Message-ID: <201110052034.52397.dmitry.torokhov@gmail.com>
+References: <CANRwn3SH9VO-1P_zAkDopVJRjApnZWpEZWP3YpuXg3cbiCQffg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:47816 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754076Ab1JEV0c (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2011 17:26:32 -0400
-Received: by mail-ww0-f44.google.com with SMTP id 22so3201070wwf.1
-        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2011 14:26:32 -0700 (PDT)
-In-Reply-To: <1317849965-18557-1-git-send-email-martinez.javier@gmail.com>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:42861 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752250Ab1JFDfB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2011 23:35:01 -0400
+Received: by iakk32 with SMTP id k32so2495550iak.19
+        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2011 20:35:00 -0700 (PDT)
+In-Reply-To: <CANRwn3SH9VO-1P_zAkDopVJRjApnZWpEZWP3YpuXg3cbiCQffg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org, Javier Martinez Canillas <martinez.javier@gmail.com>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>
 
-The driver is composed of a core driver that process the data sent by
-the contacts and a set of bus specific interface modules.
+On Wednesday, October 05, 2011 12:44:40 PM Jason Gerecke wrote:
+> I'm working on adding support for the recently-announced Cintiq 24HD,
+> and am hashing out most of the details on the linuxwacom mailing list.
+> In the discussions there, it was suggested that we add a new e.g.
+> "ABS_WHEEL2" axis to the input.h header to represent the second touch
+> ring available on the 24HD. I think it's a good idea, but wanted to
+> get some opinions from over here before making a patch. The other
+> option we have available is to use an axis not already in use by the
+> wacom driver (such as ABS_RUDDER), but none have a matching semantic
+> meaning.
 
-This patch add supports for the Cypress TTSP SPI bus interface.
+And what if next device adds another wheel? And another...
 
-The original author of the driver is Kevin McNeely <kev@cypress.com>
+Do these rings only make sense in the context of entire Cintiq device,
+or maybe they should be treated as ancillary devices (with separate
+input_dev from the main tablet device)?
 
-Signed-off-by: Javier Martinez Canillas <martinez.javier@gmail.com>
----
+Thanks.
 
-v2: Fix issues called out by Dmitry Torokhov
-     - Extract the IRQ from the spi client data and pass to cyttsp_core_init
-     - Remove the extra retries and limit the retries to the cyttsp_core.c
-       read/write block functions.
-     - Cleanup cyttsp_spi_xfer(), check ACK in write operation and fix special
-       EIO case to show its meaning.
-
-v3: Fix issues called out by Henrik Rydberg and Mohan Pallaka
-    - Remove bus type info since it is not used
-
- drivers/input/touchscreen/cyttsp/cyttsp_spi.c |  292 +++++++++++++++++++++++++
- 1 files changed, 292 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/cyttsp/cyttsp_spi.c
-
-diff --git a/drivers/input/touchscreen/cyttsp/cyttsp_spi.c b/drivers/input/touchscreen/cyttsp/cyttsp_spi.c
-new file mode 100644
-index 0000000..5567859
---- /dev/null
-+++ b/drivers/input/touchscreen/cyttsp/cyttsp_spi.c
-@@ -0,0 +1,292 @@
-+/*
-+ * Source for:
-+ * Cypress TrueTouch(TM) Standard Product (TTSP) SPI touchscreen driver.
-+ * For use with Cypress Txx3xx parts.
-+ * Supported parts include:
-+ * CY8CTST341
-+ * CY8CTMA340
-+ *
-+ * Copyright (C) 2009, 2010, 2011 Cypress Semiconductor, Inc.
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * version 2, and only version 2, as published by the
-+ * Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along
-+ * with this program; if not, write to the Free Software Foundation, Inc.,
-+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-+ *
-+ * Contact Cypress Semiconductor at www.cypress.com <kev@cypress.com>
-+ *
-+ */
-+
-+#include "cyttsp_core.h"
-+
-+#include <linux/spi/spi.h>
-+#include <linux/delay.h>
-+
-+#define CY_SPI_WR_OP      0x00 /* r/~w */
-+#define CY_SPI_RD_OP      0x01
-+#define CY_SPI_CMD_BYTES  4
-+#define CY_SPI_SYNC_BYTE  2
-+#define CY_SPI_SYNC_ACK1  0x62 /* from protocol v.2 */
-+#define CY_SPI_SYNC_ACK2  0x9D /* from protocol v.2 */
-+#define CY_SPI_DATA_SIZE  128
-+#define CY_SPI_DATA_BUF_SIZE (CY_SPI_CMD_BYTES + CY_SPI_DATA_SIZE)
-+#define CY_SPI_BITS_PER_WORD 8
-+
-+struct cyttsp_spi {
-+	struct cyttsp_bus_ops bus_ops;
-+	struct spi_device *spi_client;
-+	void *ttsp_client;
-+	u8 wr_buf[CY_SPI_DATA_BUF_SIZE];
-+	u8 rd_buf[CY_SPI_DATA_BUF_SIZE];
-+};
-+
-+static int cyttsp_spi_xfer(u8 op, struct cyttsp_spi *ts,
-+			   u8 reg, u8 *buf, int length)
-+{
-+	struct spi_message msg;
-+	struct spi_transfer xfer[2];
-+	u8 *wr_buf = ts->wr_buf;
-+	u8 *rd_buf = ts->rd_buf;
-+	int retval;
-+
-+	if (length > CY_SPI_DATA_SIZE) {
-+		dev_dbg(ts->bus_ops.dev,
-+			"%s: length %d is too big.\n",
-+			__func__, length);
-+		return -EINVAL;
-+	}
-+
-+	memset(wr_buf, 0, CY_SPI_DATA_BUF_SIZE);
-+	memset(rd_buf, 0, CY_SPI_DATA_BUF_SIZE);
-+
-+	wr_buf[0] = 0x00; /* header byte 0 */
-+	wr_buf[1] = 0xFF; /* header byte 1 */
-+	wr_buf[2] = reg;  /* reg index */
-+	wr_buf[3] = op;   /* r/~w */
-+	if (op == CY_SPI_WR_OP)
-+		memcpy(wr_buf + CY_SPI_CMD_BYTES, buf, length);
-+
-+	memset((void *)xfer, 0, sizeof(xfer));
-+	spi_message_init(&msg);
-+
-+	/*
-+	  We set both TX and RX buffers because Cypress TTSP
-+	  requires full duplex operation.
-+	*/
-+	xfer[0].tx_buf = wr_buf;
-+	xfer[0].rx_buf = rd_buf;
-+	if (op == CY_SPI_WR_OP) {
-+		xfer[0].len = length + CY_SPI_CMD_BYTES;
-+		spi_message_add_tail(&xfer[0], &msg);
-+	} else if (op == CY_SPI_RD_OP) {
-+		xfer[0].len = CY_SPI_CMD_BYTES;
-+		spi_message_add_tail(&xfer[0], &msg);
-+
-+		xfer[1].rx_buf = buf;
-+		xfer[1].len = length;
-+		spi_message_add_tail(&xfer[1], &msg);
-+	}
-+
-+	retval = spi_sync(ts->spi_client, &msg);
-+	if (retval < 0) {
-+		dev_dbg(ts->bus_ops.dev,
-+			"%s: spi_sync() error %d, len=%d, op=%d\n",
-+			__func__, retval, xfer[1].len, op);
-+
-+		/*
-+		 * do not return here since was a bad ACK sequence
-+		 * let the following ACK check handle any errors and
-+		 * allow silent retries
-+		 */
-+	}
-+
-+	if ((rd_buf[CY_SPI_SYNC_BYTE] == CY_SPI_SYNC_ACK1) &&
-+	    (rd_buf[CY_SPI_SYNC_BYTE+1] == CY_SPI_SYNC_ACK2))
-+		retval = 0;
-+	else {
-+		int i;
-+		for (i = 0; i < (CY_SPI_CMD_BYTES); i++)
-+			dev_dbg(ts->bus_ops.dev,
-+				"%s: test rd_buf[%d]:0x%02x\n",
-+				__func__, i, rd_buf[i]);
-+		for (i = 0; i < (length); i++)
-+			dev_dbg(ts->bus_ops.dev,
-+				"%s: test buf[%d]:0x%02x\n",
-+				__func__, i, buf[i]);
-+
-+		/* signal ACK error so silent retry */
-+		retval = 1;
-+	}
-+
-+	return retval;
-+}
-+
-+static s32 ttsp_spi_read_block_data(void *handle, u8 addr,
-+				    u8 length, void *data)
-+{
-+	struct cyttsp_spi *ts =
-+		container_of(handle, struct cyttsp_spi, bus_ops);
-+	int retval;
-+
-+	retval = cyttsp_spi_xfer(CY_SPI_RD_OP, ts, addr, data, length);
-+	if (retval < 0)
-+		pr_err("%s: ttsp_spi_read_block_data failed\n",
-+		       __func__);
-+
-+	/*
-+	 * Do not print the above error if the data sync bytes were not found.
-+	 * This is a normal condition for the bootloader loader startup and need
-+	 * to retry until data sync bytes are found.
-+	 */
-+	if (retval > 0)
-+		retval = -EIO;  /* now signal fail; so retry can be done */
-+
-+	return retval;
-+}
-+
-+static s32 ttsp_spi_write_block_data(void *handle, u8 addr,
-+				     u8 length, const void *data)
-+{
-+	struct cyttsp_spi *ts =
-+		container_of(handle, struct cyttsp_spi, bus_ops);
-+	int retval;
-+
-+	retval = cyttsp_spi_xfer(CY_SPI_WR_OP, ts, addr, (void *)data, length);
-+	if (retval < 0)
-+		pr_err("%s: ttsp_spi_write_block_data failed\n",
-+		       __func__);
-+
-+	/*
-+	 * Do not print the above error if the data sync bytes were not found.
-+	 * This is a normal condition for the bootloader loader startup and need
-+	 * to retry until data sync bytes are found.
-+	 */
-+	if (retval > 0)
-+		retval = -EIO;  /* now signal fail; so retry can be done */
-+
-+	return retval;
-+}
-+
-+static s32 ttsp_spi_tch_ext(void *handle, void *values)
-+{
-+	struct cyttsp_spi *ts =
-+		container_of(handle, struct cyttsp_spi, bus_ops);
-+	int retval = 0;
-+
-+	/*
-+	 * TODO: Add custom touch extension handling code here
-+	 * set: retval < 0 for any returned system errors,
-+	 *	retval = 0 if normal touch handling is required,
-+	 *	retval > 0 if normal touch handling is *not* required
-+	 */
-+
-+	if (!ts || !values)
-+		retval = -EINVAL;
-+
-+	return retval;
-+}
-+
-+static int __devinit cyttsp_spi_probe(struct spi_device *spi)
-+{
-+	struct cyttsp_spi *ts;
-+	int retval;
-+
-+	/* Set up SPI*/
-+	spi->bits_per_word = CY_SPI_BITS_PER_WORD;
-+	spi->mode = SPI_MODE_0;
-+	retval = spi_setup(spi);
-+	if (retval < 0) {
-+		dev_dbg(&spi->dev, "%s: SPI setup error %d\n",
-+			__func__, retval);
-+		return retval;
-+	}
-+
-+	ts = kzalloc(sizeof(*ts), GFP_KERNEL);
-+	if (!ts) {
-+		dev_dbg(&spi->dev, "%s: Error, kzalloc\n", __func__);
-+		return -ENOMEM;
-+	}
-+
-+	ts->spi_client = spi;
-+	dev_set_drvdata(&spi->dev, ts);
-+	ts->bus_ops.write = ttsp_spi_write_block_data;
-+	ts->bus_ops.read = ttsp_spi_read_block_data;
-+	ts->bus_ops.ext = ttsp_spi_tch_ext;
-+	ts->bus_ops.dev = &spi->dev;
-+
-+	ts->ttsp_client = cyttsp_core_init(&ts->bus_ops, &spi->dev, spi->irq);
-+	if (IS_ERR(ts->ttsp_client)) {
-+		int retval = PTR_ERR(ts->ttsp_client);
-+		kfree(ts);
-+		return retval;
-+	}
-+
-+	dev_dbg(ts->bus_ops.dev, "%s: Registration complete\n", __func__);
-+
-+	return 0;
-+}
-+
-+static int __devexit cyttsp_spi_remove(struct spi_device *spi)
-+{
-+	struct cyttsp_spi *ts = dev_get_drvdata(&spi->dev);
-+
-+	cyttsp_core_release(ts->ttsp_client);
-+	kfree(ts);
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static int cyttsp_spi_suspend(struct spi_device *spi, pm_message_t message)
-+{
-+	struct cyttsp_spi *ts = dev_get_drvdata(&spi->dev);
-+
-+	return cyttsp_suspend(ts->ttsp_client);
-+}
-+
-+static int cyttsp_spi_resume(struct spi_device *spi)
-+{
-+	struct cyttsp_spi *ts = dev_get_drvdata(&spi->dev);
-+
-+	return cyttsp_resume(ts->ttsp_client);
-+}
-+#endif
-+
-+static struct spi_driver cyttsp_spi_driver = {
-+	.driver = {
-+		.name = CY_SPI_NAME,
-+		.owner = THIS_MODULE,
-+	},
-+	.probe = cyttsp_spi_probe,
-+	.remove = __devexit_p(cyttsp_spi_remove),
-+#ifdef CONFIG_PM
-+	.suspend = cyttsp_spi_suspend,
-+	.resume = cyttsp_spi_resume,
-+#endif
-+};
-+
-+static int __init cyttsp_spi_init(void)
-+{
-+	return spi_register_driver(&cyttsp_spi_driver);
-+}
-+module_init(cyttsp_spi_init);
-+
-+static void __exit cyttsp_spi_exit(void)
-+{
-+	spi_unregister_driver(&cyttsp_spi_driver);
-+}
-+module_exit(cyttsp_spi_exit);
-+
-+MODULE_ALIAS("spi:cyttsp");
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Cypress TrueTouch(R) Standard Product (TTSP) SPI driver");
-+MODULE_AUTHOR("Cypress");
-+
 -- 
-1.7.4.1
-
+Dmitry

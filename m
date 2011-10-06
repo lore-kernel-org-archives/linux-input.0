@@ -1,93 +1,171 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 8/9] Input: serio_raw - kick clients when disconnecting port
-Date: Wed,  5 Oct 2011 22:08:15 -0700
-Message-ID: <1317877696-7719-8-git-send-email-dmitry.torokhov@gmail.com>
+Subject: [PATCH 9/9] Input: serio_raw - fix memory leak when closing char device
+Date: Wed,  5 Oct 2011 22:08:16 -0700
+Message-ID: <1317877696-7719-9-git-send-email-dmitry.torokhov@gmail.com>
 References: <1317877696-7719-1-git-send-email-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:41354 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753444Ab1JFFIa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2011 01:08:30 -0400
-Received: by mail-pz0-f42.google.com with SMTP id 1so5956148pzk.1
-        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2011 22:08:30 -0700 (PDT)
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:36527 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753444Ab1JFFId (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Oct 2011 01:08:33 -0400
+Received: by yxl31 with SMTP id 31so2268529yxl.19
+        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2011 22:08:33 -0700 (PDT)
 In-Reply-To: <1317877696-7719-1-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Thomas Tuttle <ttuttle@chromium.org>
 
-Send SIGIO/POLL_HUP and otherwise wake up waiters when corresponding serio
-port is being disconnected. Also check if port is dead in serio_raw_poll
-and signal POLLHUP|POLLERR.
+Apparently we never freed memory allocated when users open our char
+devices nor removed old users from the list of connected clients.
 
-This should speed up process of releasing dead devices by userspace
-applications.
+Also unregister misc device immediately upon disconnecting the port
+instead of waiting until last user drops off (refcounting in misc
+device code will make sure needed pieces stay around while they
+are needed) and make sure we are not holing holding serio_raw_mutex
+when registering/unregistering misc device. This should fix potential
+deadlock between serio_raw and misc device code uncovered by lockdep
+and reported by Thomas Tuttle.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/input/serio/serio_raw.c |   29 +++++++++++++++++++++++------
- 1 files changed, 23 insertions(+), 6 deletions(-)
+ drivers/input/serio/serio_raw.c |   54 +++++++++++++++++++++------------------
+ 1 files changed, 29 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/input/serio/serio_raw.c b/drivers/input/serio/serio_raw.c
-index 30ff963..830e2fe 100644
+index 830e2fe..4d4cd14 100644
 --- a/drivers/input/serio/serio_raw.c
 +++ b/drivers/input/serio/serio_raw.c
-@@ -232,9 +232,11 @@ static unsigned int serio_raw_poll(struct file *file, poll_table *wait)
+@@ -51,7 +51,6 @@ struct serio_raw_client {
+ 
+ static DEFINE_MUTEX(serio_raw_mutex);
+ static LIST_HEAD(serio_raw_list);
+-static unsigned int serio_raw_no;
+ 
+ /*********************************************************************
+  *             Interface with userspace (file operations)            *
+@@ -117,14 +116,11 @@ out:
+ 	return retval;
+ }
+ 
+-static void serio_raw_cleanup(struct kref *kref)
++static void serio_raw_free(struct kref *kref)
  {
+ 	struct serio_raw *serio_raw =
+ 			container_of(kref, struct serio_raw, kref);
+ 
+-	misc_deregister(&serio_raw->dev);
+-	list_del_init(&serio_raw->node);
+-
+ 	put_device(&serio_raw->serio->dev);
+ 	kfree(serio_raw);
+ }
+@@ -134,11 +130,14 @@ static int serio_raw_release(struct inode *inode, struct file *file)
  	struct serio_raw_client *client = file->private_data;
  	struct serio_raw *serio_raw = client->serio_raw;
-+	unsigned int mask;
  
- 	poll_wait(file, &serio_raw->wait, wait);
+-	mutex_lock(&serio_raw_mutex);
++	serio_pause_rx(serio_raw->serio);
++	list_del(&client->node);
++	serio_continue_rx(serio_raw->serio);
  
-+	mask = serio_raw->dead ? POLLHUP | POLLERR : POLLOUT | POLLWRNORM;
- 	if (serio_raw->head != serio_raw->tail)
- 		return POLLIN | POLLRDNORM;
+-	kref_put(&serio_raw->kref, serio_raw_cleanup);
++	kfree(client);
++
++	kref_put(&serio_raw->kref, serio_raw_free);
  
-@@ -359,22 +361,37 @@ static int serio_raw_reconnect(struct serio *serio)
+-	mutex_unlock(&serio_raw_mutex);
  	return 0;
  }
  
-+/*
-+ * Wake up users waiting for IO so they can disconnect from
-+ * dead device.
-+ */
-+static void serio_raw_hangup(struct serio_raw *serio_raw)
-+{
-+	struct serio_raw_client *client;
-+
-+	serio_pause_rx(serio_raw->serio);
-+	list_for_each_entry(client, &serio_raw->client_list, node)
-+		kill_fasync(&client->fasync, SIGIO, POLL_HUP);
-+	serio_continue_rx(serio_raw->serio);
-+
-+	wake_up_interruptible(&serio_raw->wait);
-+}
-+
-+
- static void serio_raw_disconnect(struct serio *serio)
+@@ -281,6 +280,7 @@ static irqreturn_t serio_raw_interrupt(struct serio *serio, unsigned char data,
+ 
+ static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
  {
--	struct serio_raw *serio_raw;
-+	struct serio_raw *serio_raw = serio_get_drvdata(serio);
++	static atomic_t serio_raw_no = ATOMIC_INIT(0);
+ 	struct serio_raw *serio_raw;
+ 	int err;
  
- 	mutex_lock(&serio_raw_mutex);
+@@ -290,10 +290,8 @@ static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
+ 		return -ENOMEM;
+ 	}
  
--	serio_raw = serio_get_drvdata(serio);
+-	mutex_lock(&serio_raw_mutex);
 -
- 	serio_close(serio);
--	serio_set_drvdata(serio, NULL);
--
- 	serio_raw->dead = true;
--	wake_up_interruptible(&serio_raw->wait);
-+	serio_raw_hangup(serio_raw);
- 	kref_put(&serio_raw->kref, serio_raw_cleanup);
+ 	snprintf(serio_raw->name, sizeof(serio_raw->name),
+-		 "serio_raw%d", serio_raw_no++);
++		 "serio_raw%ld", (long)atomic_inc_return(&serio_raw_no) - 1);
+ 	kref_init(&serio_raw->kref);
+ 	INIT_LIST_HEAD(&serio_raw->client_list);
+ 	init_waitqueue_head(&serio_raw->wait);
+@@ -305,9 +303,14 @@ static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
  
- 	mutex_unlock(&serio_raw_mutex);
+ 	err = serio_open(serio, drv);
+ 	if (err)
+-		goto out_free;
++		goto err_free;
 +
-+	serio_set_drvdata(serio, NULL);
++	err = mutex_lock_killable(&serio_raw_mutex);
++	if (err)
++		goto err_close;
+ 
+ 	list_add_tail(&serio_raw->node, &serio_raw_list);
++	mutex_unlock(&serio_raw_mutex);
+ 
+ 	serio_raw->dev.minor = PSMOUSE_MINOR;
+ 	serio_raw->dev.name = serio_raw->name;
+@@ -324,22 +327,20 @@ static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
+ 		dev_err(&serio->dev,
+ 			"failed to register raw access device for %s\n",
+ 			serio->phys);
+-		goto out_close;
++		goto err_unlink;
+ 	}
+ 
+ 	dev_info(&serio->dev, "raw access enabled on %s (%s, minor %d)\n",
+ 		 serio->phys, serio_raw->name, serio_raw->dev.minor);
+-	goto out;
++	return 0;
+ 
+-out_close:
+-	serio_close(serio);
++err_unlink:
+ 	list_del_init(&serio_raw->node);
+-out_free:
++err_close:
++	serio_close(serio);
++err_free:
+ 	serio_set_drvdata(serio, NULL);
+-	put_device(&serio->dev);
+-	kfree(serio_raw);
+-out:
+-	mutex_unlock(&serio_raw_mutex);
++	kref_put(&serio_raw->kref, serio_raw_free);
+ 	return err;
  }
  
- static struct serio_device_id serio_raw_serio_ids[] = {
+@@ -382,14 +383,17 @@ static void serio_raw_disconnect(struct serio *serio)
+ {
+ 	struct serio_raw *serio_raw = serio_get_drvdata(serio);
+ 
+-	mutex_lock(&serio_raw_mutex);
++	misc_deregister(&serio_raw->dev);
+ 
+-	serio_close(serio);
++	mutex_lock(&serio_raw_mutex);
+ 	serio_raw->dead = true;
++	list_del_init(&serio_raw->node);
++	mutex_unlock(&serio_raw_mutex);
++
+ 	serio_raw_hangup(serio_raw);
+-	kref_put(&serio_raw->kref, serio_raw_cleanup);
+ 
+-	mutex_unlock(&serio_raw_mutex);
++	serio_close(serio);
++	kref_put(&serio_raw->kref, serio_raw_free);
+ 
+ 	serio_set_drvdata(serio, NULL);
+ }
 -- 
 1.7.6.4
 

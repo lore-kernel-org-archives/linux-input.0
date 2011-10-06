@@ -1,52 +1,41 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH] Input: atmel_mxt_ts - Use snprintf for sysfs attribute
- show method
-Date: Thu, 06 Oct 2011 10:59:23 +0100
-Message-ID: <4E8D7BFB.4070706@itdev.co.uk>
-References: <1316115647-1244-1-git-send-email-djkurtz@chromium.org>
+From: Jeff Mitchell <jeff@jefferai.org>
+Subject: Re: [PATCH] This adds support for keyboards on mid-2011 MacBook Airs
+Date: Thu, 06 Oct 2011 10:56:00 -0400
+Message-ID: <4E8DC180.6060300@jefferai.org>
+References: <efc66984043a292faa31fee381945d18@jefferai.org> <20111005090735.GA6840@polaris.bitmath.org> <alpine.LNX.2.00.1110051103140.31654@pobox.suse.cz> <20111005094851.GA7261@polaris.bitmath.org> <alpine.LNX.2.00.1110051212320.31654@pobox.suse.cz> <4E8C66C2.6010503@jefferai.org> <20111005172857.GA2195@polaris.bitmath.org> <alpine.LNX.2.00.1110051927340.31654@pobox.suse.cz> <20111005174347.GA28287@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [89.21.227.130] ([89.21.227.130]:57096 "EHLO
-	mail.epsilon.itdev.co.uk" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1755286Ab1JFKId (ORCPT
+Received: from paravion.emailgoeshere.com ([46.4.199.70]:53186 "EHLO
+	paravion.emailgoeshere.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754024Ab1JFO4F (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Oct 2011 06:08:33 -0400
-In-Reply-To: <1316115647-1244-1-git-send-email-djkurtz@chromium.org>
+	Thu, 6 Oct 2011 10:56:05 -0400
+In-Reply-To: <20111005174347.GA28287@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, jvdillon@gmail.com, Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 
-Hi Daniel-
+On 10/05/2011 01:43 PM, Henrik Rydberg wrote:
+> On Wed, Oct 05, 2011 at 07:28:31PM +0200, Jiri Kosina wrote:
+>> On Wed, 5 Oct 2011, Henrik Rydberg wrote:
+>>
+>>>> To clear up an earlier point: AFAIK the new MBAs have the same keyboard
+>>>> layout as normal MacBooks and hence uses the same table. An earlier
+>>>> patch that was floating around added another table for the new MBAs but
+>>>> if you looked at the mappings it was the exact same table as the normal
+>>>> MacBook one.
+>>>
+>>> I see. The current tree actually contains two identical tables. Yikes.
+>>> Using your patch would have prevented this, but it might be too late
+>>> now. If so, the (untested) patch below might fix things up. Does it
+>>> still work for you?
 
-Just to introduce myself, I'm working for Atmel in UK on the 
-atmel_mxt_ts driver.
+I believe that that patch should remove the duplication without any
+problem, so everything should still work so long as the other bits are
+still there (adding the wellspring6/6a entries to the other files).
 
-Daniel Kurtz wrote:
- > Sysfs attribute show methods are always passed a buffer of length
- > PAGE_SIZE.  To keep from overwriting this buffer and causing havoc,
- > use snprintf() to guarantee we never write more than the buffer can
- > hold.
- >
- > In addition, at least for my touchscreen, the number and size of
- > objects was far too big to fit in a single 4K page.  Therefore, this
- > patch also trims some redundant framing text to leave more room for
- > actual data.
-
-Yes, I'd noticed this problem as well. I was planning to address it by 
-splitting up the file, but your patch looks like a good solution for now.
-
-I've tested it successfully on several chips.
-
-Acked-by: Nick Dyer <nick.dyer@itdev.co.uk>
-
--- 
-Nick Dyer
-Software Engineer, ITDev  Ltd
-
-Hardware and Software Development Consultancy
-
-Email:   nick.dyer@itdev.co.uk
-Website: http://www.itdev.co.uk
+Thanks,
+Jeff

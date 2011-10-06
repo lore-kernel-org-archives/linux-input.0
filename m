@@ -1,43 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: New "ABS_WHEEL2" axis?
-Date: Wed, 5 Oct 2011 20:34:52 -0700
-Message-ID: <201110052034.52397.dmitry.torokhov@gmail.com>
-References: <CANRwn3SH9VO-1P_zAkDopVJRjApnZWpEZWP3YpuXg3cbiCQffg@mail.gmail.com>
+Subject: Re: [PATCH 07/16] input: ambakmi: Enable module alias autogeneration
+ for AMBA drivers
+Date: Wed, 5 Oct 2011 20:37:03 -0700
+Message-ID: <20111006033702.GB20217@core.coreip.homeip.net>
+References: <1317830707-17517-1-git-send-email-dave.martin@linaro.org>
+ <1317830707-17517-8-git-send-email-dave.martin@linaro.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:42861 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:48121 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752250Ab1JFDfB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2011 23:35:01 -0400
-Received: by iakk32 with SMTP id k32so2495550iak.19
-        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2011 20:35:00 -0700 (PDT)
-In-Reply-To: <CANRwn3SH9VO-1P_zAkDopVJRjApnZWpEZWP3YpuXg3cbiCQffg@mail.gmail.com>
+	with ESMTP id S1753223Ab1JFDhL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Oct 2011 23:37:11 -0400
+Received: by iakk32 with SMTP id k32so2496894iak.19
+        for <linux-input@vger.kernel.org>; Wed, 05 Oct 2011 20:37:10 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1317830707-17517-8-git-send-email-dave.martin@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>
+To: Dave Martin <dave.martin@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, patches@linaro.org, =?utf-8?B?UGF3ZcWC?= Moll <Pawel.Moll@arm.com>, Russell King <linux@arm.linux.org.uk>, linux-input@vger.kernel.org
 
-On Wednesday, October 05, 2011 12:44:40 PM Jason Gerecke wrote:
-> I'm working on adding support for the recently-announced Cintiq 24HD,
-> and am hashing out most of the details on the linuxwacom mailing list.
-> In the discussions there, it was suggested that we add a new e.g.
-> "ABS_WHEEL2" axis to the input.h header to represent the second touch
-> ring available on the 24HD. I think it's a good idea, but wanted to
-> get some opinions from over here before making a patch. The other
-> option we have available is to use an axis not already in use by the
-> wacom driver (such as ABS_RUDDER), but none have a matching semantic
-> meaning.
+On Wed, Oct 05, 2011 at 05:04:58PM +0100, Dave Martin wrote:
+> Signed-off-by: Dave Martin <dave.martin@linaro.org>
 
-And what if next device adds another wheel? And another...
+Acked-by: Dmitry Torokhov <dtor@mail.ru>
 
-Do these rings only make sense in the context of entire Cintiq device,
-or maybe they should be treated as ancillary devices (with separate
-input_dev from the main tablet device)?
-
-Thanks.
+> ---
+>  drivers/input/serio/ambakmi.c |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
+> index 12abc50..8407d5b 100644
+> --- a/drivers/input/serio/ambakmi.c
+> +++ b/drivers/input/serio/ambakmi.c
+> @@ -195,6 +195,8 @@ static struct amba_id amba_kmi_idtable[] = {
+>  	{ 0, 0 }
+>  };
+>  
+> +MODULE_DEVICE_TABLE(amba, amba_kmi_idtable);
+> +
+>  static struct amba_driver ambakmi_driver = {
+>  	.drv		= {
+>  		.name	= "kmi-pl050",
+> -- 
+> 1.7.4.1
+> 
 
 -- 
 Dmitry

@@ -1,67 +1,78 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: Busted keyboard, fix, and Question about default HID device
- plumbing
-Date: Sat, 8 Oct 2011 08:19:01 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1110080812170.14901@pobox.suse.cz>
-References: <CAA_E9NGQC1Jy-MqRbMEj1cetuFktknBmtU91N7gPv1_rApzX6Q@mail.gmail.com> <20111007220745.GA30273@core.coreip.homeip.net> <CAA_E9NEDVynFfVBfkXPW6viAsGT3_ffBVfD309eSAeqq6QGj3w@mail.gmail.com> <20111008002524.GB30273@core.coreip.homeip.net>
- <CAA_E9NEi_gxb4px1344ChsAMmTEkUGSP8Vj=X31fBnQgwJ4c0g@mail.gmail.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: Race with Bluetooth hid drivers?
+Date: Sat, 8 Oct 2011 15:04:55 +0200
+Message-ID: <CANq1E4Qh123MKXv07aJ6=9zHQunEQOrikNP2=5nyF5BVj9uBpw@mail.gmail.com>
+References: <1316482533.2468.6.camel@novo.hadess.net>
+	<CANq1E4TCT=jbWJPERaiARzRgnKf6Ep3oiiNQ2Jofn1QnVEvbOQ@mail.gmail.com>
+	<1316542298.2591.2.camel@novo.hadess.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAA_E9NEi_gxb4px1344ChsAMmTEkUGSP8Vj=X31fBnQgwJ4c0g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Terry Lambert <tlambert-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:62438 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752206Ab1JHNE5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 8 Oct 2011 09:04:57 -0400
+Received: by wyg34 with SMTP id 34so4664450wyg.19
+        for <linux-input@vger.kernel.org>; Sat, 08 Oct 2011 06:04:56 -0700 (PDT)
+In-Reply-To: <1316542298.2591.2.camel@novo.hadess.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Fri, 7 Oct 2011, Terry Lambert wrote:
+Hi
 
-> You make a very good point on the key remapping.
-> 
-> ...
-> 
-> Are we sure that there isn't a field in the keyboard information in
-> the USB that reports the keyboard does this?
-> 
-> The only other alternative seems to be to quirk the keyboard as
-> reporting keys down when they are down, up when they are up, and
-> generating pseudo events for "keycode not present in report".
-> 
-> I guess I'm willing to write a "hosed keyboard driver" driver if
-> necessary.  This apparently effects about 5-10% of keyboards,
-> predominantly laptops with internal USB (some dell inspiron, some
-> samsung), and the folding keyboards people like to use with android
-> tablets.
-> 
-> I'm willing to take any advice about where I can get a handle on all
-> the keys in a given report to implement a general quirk on this
-> hardware.
-> 
-> If necessary, we can always write a driver, I suppose, if you can
-> point me at an example?
+*CC'ing Jiri*
 
-So if I understood the situation correctly (Dmitry, thanks for adding me 
-to CC), what you want to do is to write a very simple driver that has a 
-hook called every time HID event occurs on the keyboard, and have it do 
-modifier magic before it's reported to the input subsystem.
+On Tue, Sep 20, 2011 at 8:11 PM, Bastien Nocera <hadess@hadess.net> wrote:
+> On Tue, 2011-09-20 at 11:00 +0200, David Herrmann wrote:
+>> Hi Bastien
+>>
+>> On Tue, Sep 20, 2011 at 3:35 AM, Bastien Nocera <hadess@hadess.net> wrote:
+>> > Heya,
+>> >
+>> > I'm pretty certain that's already been discussed, but can't seem to find
+>> > the thread in question, or whether somebody sent patches for the issue.
+>> >
+>> > The problem I see is that the input device is advertised really early in
+>> > its creation, and seems to be missing information when udev (and layers
+>> > above it in the stack) probes it.
+> <snip>
+>> The hid-wacom.c driver should probably use the input_mapped() callback
+>> instead of setting the input flags in wacom_probe(). input_mapped() is
+>> called for every descriptor field so there must at least be one valid
+>> field to make it work. I don't have the device so I can't test it, but
+>> try something like this:
+>>
+>> From 2f91a998b1bca4b654903e41394fae19dfed1a3c Mon Sep 17 00:00:00 2001
+>> From: David Herrmann <dh.herrmann@googlemail.com>
+>> Date: Tue, 20 Sep 2011 10:54:06 +0200
+>> Subject: [PATCH] HID: wacom: Set input bits before registration
+>>
+>> We shouldn't change the event flags of input devices after they get registered.
+>> Otherwise, udev will not get notified of these flags and cannot setup the
+>> devices properly.
+>> This fixes the probing to set the input event flags on the input_mapped callback
+>> instead of the probe function.
+>>
+>> Reported-by: Bastien Nocera <hadess@hadess.net>
+>> Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+>
+> Works beautifully.
+> Tested-by: Bastien Nocera <hadess@hadess.net>
+>
+> Jiri, Dmitry, feel free to add a
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> if you think this is the right fix for the problem.
+>
+> /Bastien, can't even fix his own driver
+>
+>
 
-There are various existing drivers which are doing exactly this that can 
-serve as an example. The simplest one probably is hid-microsoft, the more 
-sophisticated one is hid-apple. These two are registering ->event 
-callback, so they are obtaining already pre-parsed information.
+Any update on this issue? There are several other drivers which suffer
+from this bug. This fix seems not perfect as stated above and we
+probably need another HID-callback to fix it nicely. But still I think
+this fix is better than the previous version.
 
-If you'd need to receive information that hasn't been parsed yet by the 
-HID parser, you'd rather register ->raw_event callback. There are various 
-drivers that to this as well -- hid-zydacron being a really simple one and 
-hid-magicmouse being a sophisticated one.
-
-I believe those drivers should serve as a perfect example for what you 
-need.
-
--- 
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards
+David

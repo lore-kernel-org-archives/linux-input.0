@@ -1,170 +1,63 @@
-From: Terry Lambert <tlambert@chromium.org>
-Subject: Re: Busted keyboard, fix, and Question about default HID device plumbing
-Date: Fri, 7 Oct 2011 19:56:54 -0700
-Message-ID: <CAA_E9NEi_gxb4px1344ChsAMmTEkUGSP8Vj=X31fBnQgwJ4c0g@mail.gmail.com>
-References: <CAA_E9NGQC1Jy-MqRbMEj1cetuFktknBmtU91N7gPv1_rApzX6Q@mail.gmail.com>
-	<20111007220745.GA30273@core.coreip.homeip.net>
-	<CAA_E9NEDVynFfVBfkXPW6viAsGT3_ffBVfD309eSAeqq6QGj3w@mail.gmail.com>
-	<20111008002524.GB30273@core.coreip.homeip.net>
+From: =?utf-8?B?5LuFMTDlhYPmr4/lpKk=?= <admin@jj-port.com>
+Subject: =?utf-8?B?576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuivmnIDmlrDlub/kuqTkvJrkubDlrrbjgIHmtbc=?=
+	=?utf-8?B?5YWz5pWw5o2uLEIyQuivouebmOS5sOWutjUwMOS4h+OAgg==?=
+Date: Sat, 8 Oct 2011 05:57:02 +0000 (UTC)
+Message-ID: <20121008134227753066@jj-port.com>
+Reply-To: <1339625218@qq.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:2192 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752898Ab1JHC46 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2011 22:56:58 -0400
-Received: from hpaq7.eem.corp.google.com (hpaq7.eem.corp.google.com [172.25.149.7])
-	by smtp-out.google.com with ESMTP id p982uu2f018186
-	for <linux-input@vger.kernel.org>; Fri, 7 Oct 2011 19:56:56 -0700
-Received: from gyg4 (gyg4.prod.google.com [10.243.50.132])
-	by hpaq7.eem.corp.google.com with ESMTP id p982uNhQ016943
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Fri, 7 Oct 2011 19:56:55 -0700
-Received: by gyg4 with SMTP id 4so5811645gyg.5
-        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2011 19:56:55 -0700 (PDT)
-In-Reply-To: <20111008002524.GB30273@core.coreip.homeip.net>
+Received: from [218.65.3.196] ([218.65.3.196]:46021 "EHLO mail.jj-port.com"
+	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1750974Ab1JHF47 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 8 Oct 2011 01:56:59 -0400
+Date: Mon, 8 Oct 2012 13:42:13 +0800
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-usb@vger.kernel.org, Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: linkleisure@hotmail.com, linky9290@gmail.com, linliping123@gmail.com, linnaexpo@126.com, linpingye123@livemail.tw, linshaowei@yideli.com.cn, lintecllc@aol.com, linus_dk
 
-You make a very good point on the key remapping.
+576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuisxMDnlsYrlub/kuqTkvJrkubDlrrbjgIHlsZXk
+vJrkubDlrrbjgIHmtbflhbPmlbDmja4sQjJC6K+i55uY5Lmw5a62NTAw5LiH44CCDQoNCuS4gOWF
+sTjkuKrljIUo5pWw5o2u5piv5YWo6KGM5Lia55qE77yM5oyJ54Wn6KGM5Lia5YiG5aW957G777yM
+5bm25LiU5Y+v5Lul5oyJ54Wn5YWz6ZSu6K+N5p+l6K+i55qEKe+8miANCjHvvIwyMDEx5pil5a2j
+MTA55bGK5bm/5Lqk5Lya5Lmw5a625pWw5o2u5bqT5paw6bKc5Ye654KJ77yM6LaF57qn5paw6bKc
+5Lmw5a6277yM5paw6bKc5pWw5o2u77yM5a655piT5oiQ5Y2V77yBIA0KMu+8jOacgOaWsOWFqOeQ
+g+S5sOWutuW6kyzlhbE0NTE2NjDmnaHmlbDmja7jgIIgDQoz77yMMjAwOOW5tCwyMDA55bm0LDIw
+MTDlubQg5pil5a2jK+eni+Wto+W5v+S6pOS8muS5sOWutuWQjeW9le+8jDEwMyAxMDQgMTA1IDEw
+NiAxMDcgMTA4IOWFseWFreWxiiDlhbExMjAuNuS4h+aVsOaNruOAgg0KNO+8jDIwMTDlubTlm73p
+mYXkv4PplIDljY/kvJrvvIhQUEFJ77yJ5oiQ5ZGY5ZCN5Y2VIFBQQUkgTWVtYmVycyBEaXJlY3Rv
+cnnvvIzpnZ7luLjph43opoHnmoTlpKfkubDlrrbjgIINCjXvvIwyMDEw5bm05Yiw6aaZ5riv6YeH
+6LSt55qE5Zu95aSW5a6i5Lq65ZCN5b2VKOmmmea4r+i0uOWPkeWxgOaPkOS+mynvvIzlhbE3LjLk
+uIfmlbDmja7vvIzotoXnuqfph43opoHnmoTkubDlrrbjgIINCjbvvIw2MC445LiH5p2h5pyA5paw
+5Zu95aSWQjJC5Lmw5a626K+i55uY44CCDQo377yMMjAwOeW5tOa1t+WFs+aPkOWNleaVsOaNrnBp
+ZXJz54mI5pWw5o2uIDHljYPkuIfjgIINCjjvvIznvqTlj5Hova/ku7bvvIznvqTlj5Hova/ku7bn
+moTpg6jnvbLkuI7lronoo4XjgIINCg0K5YWxIDUwMOS4h+S4quS5sOWutu+8jOavj+S4quWdh+ac
+iUVtYWlsLiANCg0K5L+d6K+B5q+P5aSp6YO95pyJ5Lmw5a625Zue5aSN44CCDQrkv53or4Hmr4/l
+pKnpg73mnInkubDlrrblm57lpI3jgIINCg0K6KaB55qE5oqT57Sn6IGU57O7UVE6IDEzMzk2MjUy
+MTggICAg5oiW6ICF56uL5Y2z5Zue5aSN6YKu566xOiAxMzM5NjI1MjE4QHFxLmNvbQ0K6KaB55qE
+5oqT57Sn6IGU57O7UVE6IDEzMzk2MjUyMTggICAg5oiW6ICF56uL5Y2z5Zue5aSN6YKu566xOiAx
+MzM5NjI1MjE4QHFxLmNvbQ0K6KaB55qE5oqT57Sn6IGU57O7UVE6IDEzMzk2MjUyMTggICAg5oiW
+6ICF56uL5Y2z5Zue5aSN6YKu566xOiAxMzM5NjI1MjE4QHFxLmNvbQ0KDQror5rkv6HkuLrmnKzv
+vIzlpoLmnpzkuI3kv6Hku7vmnKzkuros5Y+v5Lul6LWw5reY5a6d5Lqk5piTLOaUtui0p+mqjOiv
+geWQjuWGjeS7mOasvizov5nmmK/lr7nmgqjmnIDlpb3nmoTkv53pmpzkuobjgIIgDQoNCuS/neiv
+geavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K5L+d6K+B5q+P5aSp6YO95pyJ5Lmw5a625Zue
+5aSN44CCDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIINCg0KDQoNCg0K5bm/5Lqk
+5Lya5Lmw5a625oyJ5Lqn5ZOB57G75Yir5YiG57G777yM5YiG5Li65Lul5LiL5Yeg57G777yaDQox
+IOWKnuWFrOiuvuWkhw0KMiDnvJbnu4flj4rol6Tpk4Hlt6Xoibrlk4ENCjMg546755KDDQo0IOmk
+kOWOqOeUqOWFtw0KNSDovabovoYNCjYg5aSn5Z6L5py65qKw5Y+K6K6+5aSHDQo3IOeUteWtkOeU
+teawlA0KOCDnlLXlrZDmtojotLnlk4ENCjkg57q657uHDQoxMCDmnI3oo4UNCjExIOS4quS6uuaK
+pOeQhg0KMTIg5bel56iL5py65qKwDQoxMyDlt6XlhbcNCjE0IOWMluW3pQ0KMTUg6K6h566X5py6
+5Y+K6YCa6K6vDQoxNiDlrrblsYXnlKjlk4ENCjE3IOWutuWxheijhemlsA0KMTgg5a625YW3DQox
+OSDlrrbnlKjnlLXlmagNCjIwIOW7uuetkeWPiuijhemlsOadkOaWmQ0KMjEg6IqC5pel55So5ZOB
+DQoyMiDnpLzlk4Hlj4rotaDlk4ENCjIzIOaRqeaJmOi9pg0KMjQg5rG96L2m6YWN5Lu2DQoyNSDp
+o5/lk4ENCjI2IOmZtueTtw0KMjcg6ZOB55+zDQoyOCDnjqnlhbcNCjI5IOWNq+a1tA0KMzAg5LqU
+6YeRDQozMSDlsI/lnovmnLrmorANCjMyIOmeiw0KMzMg5LyR6Zey55So5ZOBDQozNCDljLvnlpcN
+CjM1IOa1tOWupOS6p+WTgQ0KMzYg5Zut5p6XDQozNyDnhafmmI7kuqflk4ENCjM4IOmSn+ihqOec
+vOmVnA0KMzkg6Ieq6KGM6L2mDQo0MCDljIUNCg0KDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrbl
+m57lpI3jgIINCuS/neivgeavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K5L+d6K+B5q+P5aSp
+6YO95pyJ5Lmw5a625Zue5aSN44CCDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIIN
+CuS/neivgeavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K
 
-=2E..
 
-Are we sure that there isn't a field in the keyboard information in
-the USB that reports the keyboard does this?
-
-The only other alternative seems to be to quirk the keyboard as
-reporting keys down when they are down, up when they are up, and
-generating pseudo events for "keycode not present in report".
-
-I guess I'm willing to write a "hosed keyboard driver" driver if
-necessary.  This apparently effects about 5-10% of keyboards,
-predominantly laptops with internal USB (some dell inspiron, some
-samsung), and the folding keyboards people like to use with android
-tablets.
-
-I'm willing to take any advice about where I can get a handle on all
-the keys in a given report to implement a general quirk on this
-hardware.
-
-If necessary, we can always write a driver, I suppose, if you can
-point me at an example?
-
-Thanks,
--- Terry
-
-
-
-On Fri, Oct 7, 2011 at 5:25 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> On Fri, Oct 07, 2011 at 04:01:19PM -0700, Terry Lambert wrote:
-> > Thanks for replying, Dmitry...
-> >
-> > I guess I need to clarify a point or two.
-> >
-> > On Fri, Oct 7, 2011 at 3:07 PM, Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> > >
-> > > Hi Terry,
-> > >
-> > > On Fri, Oct 07, 2011 at 01:44:29PM -0700, Terry Lambert wrote:
-> > > > I have a USB keyboard that needs a workaround. =A0I know what t=
-he
-> > > > workaround is, but not where to plumb it in.
-> > > >
-> > > > This is apparently an issue with a number of keyboards from a n=
-umber
-> > > > of vendors, and Mac OS X and Windows both work around it. =A0It=
- impacts
-> > > > all Linux desktops, Android, and Chrome OS for a number of popu=
-lar
-> > > > folding keyboards, as well as other keyboards.
-> > > >
-> > > > I'm perfectly able to write the workaround, and have done so us=
-ing the
-> > > > boot protocol, but now I want to fix the issue in the default s=
-tack
-> > > > used for the console.
-> > > >
-> > > > I don't care about the UHCI/EHCI plumbing, or anything up to hi=
-ddev;
-> > > > but from there it gets murky as to how an event in the raw driv=
-er ends
-> > > > up getting turned into a keyboard key. =A0It appears to be lost=
- in
-> > > > callbacks I'm having a hard time tracing through.
-> > > >
-> > > > I've read three books on the Linux USB system, two of them very=
- out of
-> > > > date, and they're all written from the perspective of "So, you =
-want to
-> > > > write a device driver", rather than the perspective of "This bo=
-ok
-> > > > documents the plumbing between the driver and userspace and how=
- to
-> > > > figure it out".
-> > > >
-> > > > So the question is: how are things plumbed between hiddev and t=
-he
-> > > > console driver,
-> > >
-> > >
-> > > They aren't. Or maybe we are talking about different "hiddev"s. T=
-he
-> > > generic HID driver binds devices to hid-input which registers the=
-m with
-> > > input core as separate input devices. The legacy console register=
-s a
-> > > separate input handler (see drivers/tty/vt/keyboard.c) that binds=
- to all
-> > > keyboard-like devices, listens to input events and converts them =
-to
-> > > keystrokes and sends them to tty.
-> >
-> > My question is "who processes USB report packets from a USB keyboar=
-d
-> > into EV_KEY events?"
->
-> drivers/hid/hid-input.c
->
-> >
-> > I understand that there's a separate evdev handler that publishes r=
-aw
-> > events as /dev/input/eventX. =A0It's handling the events from somew=
-here,
-> > but it's not clear to me how a hidraw1 event turns into a console
-> > input event.
-> >
-> > Somewhere someone is translating a USB 1.11 section 8.3 report into=
- an
-> > EV_KEY, and I need to do the modifier magic to alter the contents o=
-f
-> > the reports before it gets to whoever that is.
-> > You seem to be saying hid-input.c ... but I'm not seeing the modifi=
-er
-> > bits being processed out of the report?
->
-> I do not believe we pay attention to these modifier bits as we keep
-> track of keys pressed ourselves (and keys could be remapped anyway).
->
-> Anyway, it looks like the devicde should not be reportign LeftShift
-> together with 1 in the 2nd report as it makes hhid-input think that
-> (accounding to the rules of 8.3) it is being released.
->
-> I wonder if the fix is to not replrt released when we get newly press=
-ed
-> keys in the report.
->
-> Thanks.
->
-> --
-> Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

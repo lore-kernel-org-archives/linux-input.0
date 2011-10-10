@@ -1,50 +1,82 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [PATCH V2] input: Fix USB autosuspend on bcm5974
-Date: Mon, 10 Oct 2011 16:42:49 +0200
-Message-ID: <201110101642.49145.oneukum@suse.de>
-References: <1318254086-22752-1-git-send-email-mjg@redhat.com> <201110101634.39018.oneukum@suse.de> <20111010143802.GA18364@srcf.ucam.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+From: Matthew Garrett <mjg@redhat.com>
+Subject: [PATCH V3] input: Fix USB autosuspend on bcm5974
+Date: Mon, 10 Oct 2011 11:47:10 -0400
+Message-ID: <1318261630-24044-1-git-send-email-mjg@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38874 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:43411 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750746Ab1JJOma (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Oct 2011 10:42:30 -0400
-In-Reply-To: <20111010143802.GA18364@srcf.ucam.org>
+	id S1750810Ab1JJPrB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Oct 2011 11:47:01 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-input@vger.kernel.org, rydberg@euromail.se, dtor@mail.ru
+To: linux-input@vger.kernel.org
+Cc: rydberg@euromail.se, dtor@mail.ru, Matthew Garrett <mjg@redhat.com>
 
-Am Montag, 10. Oktober 2011, 16:38:02 schrieb Matthew Garrett:
-> On Mon, Oct 10, 2011 at 04:34:38PM +0200, Oliver Neukum wrote:
-> > Am Montag, 10. Oktober 2011, 16:16:35 schrieb Matthew Garrett:
-> > > On Mon, Oct 10, 2011 at 04:06:37PM +0200, Oliver Neukum wrote:
-> > > 
-> > > > This is odd, because the hardware shouldn't generate remote wakeups unless you
-> > > > request them, like this (usbhid)
-> > > 
-> > > I thought needs_remote_wakeup was a hint to the kernel that remote 
-> > > wakeup ability was required for the hardware to autosuspend? In theory I
-> > 
-> > It fulfills that role, but it is not its sole function.
-> > 
-> > > guess it should be set, but in practice all the hardware supported by 
-> > > this driver generates them so it'd be a noop. No objection to adding it 
-> > > in the name of correctness (or if some future version is broken, I 
-> > > guess...), though.
-> > 
-> > It is used in usb_port_suspend in form of do_remote_wakeup which
-> > is computed from it. And we send a real control message.
-> 
-> do_remote_wakeup will be set if device_may_wakeup is true, regardless of 
-> whether the driver asks for it. Or am I misreading choose_wakeup()?
+The bcm5974 code takes a USB autosuspend reference on device open and
+releases it on device close. This means that the hardware won't sleep when
+anything holds it open. This is sensible for input devices that don't
+support remote wakeups on normal use (like most mice), but this hardware
+trigger wakeups on touch and so can suspend transparently to the user. Doing
+so allows the USB host controller to sleep when the machine is idle, giving
+measurable power savings.
 
-Indeed things have changed. Arguably this raises power consumption.
-Anyway, you ought to set it so usbcore will refuse should remote wakeup
-fail to be enabled.
+Signed-off-by: Matthew Garrett <mjg@redhat.com>
+---
 
-	Regards
-		Oliver
+Correctly flag needs_remote_wake.
+
+ drivers/input/mouse/bcm5974.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index 5ec617e..4ca5523 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -631,6 +631,7 @@ static void bcm5974_irq_button(struct urb *urb)
+ 
+ 	switch (urb->status) {
+ 	case 0:
++		usb_mark_last_busy(dev->udev);
+ 		break;
+ 	case -EOVERFLOW:
+ 	case -ECONNRESET:
+@@ -660,6 +661,7 @@ static void bcm5974_irq_trackpad(struct urb *urb)
+ 
+ 	switch (urb->status) {
+ 	case 0:
++		usb_mark_last_busy(dev->udev);
+ 		break;
+ 	case -EOVERFLOW:
+ 	case -ECONNRESET:
+@@ -764,8 +766,7 @@ static int bcm5974_open(struct input_dev *input)
+ 
+ 	mutex_unlock(&dev->pm_mutex);
+ 
+-	if (error)
+-		usb_autopm_put_interface(dev->intf);
++	usb_autopm_put_interface(dev->intf);
+ 
+ 	return error;
+ }
+@@ -780,8 +781,6 @@ static void bcm5974_close(struct input_dev *input)
+ 	dev->opened = 0;
+ 
+ 	mutex_unlock(&dev->pm_mutex);
+-
+-	usb_autopm_put_interface(dev->intf);
+ }
+ 
+ static int bcm5974_suspend(struct usb_interface *iface, pm_message_t message)
+@@ -870,6 +869,9 @@ static int bcm5974_probe(struct usb_interface *iface,
+ 			 dev->tp_data, dev->cfg.tp_datalen,
+ 			 bcm5974_irq_trackpad, dev, 1);
+ 
++	/* Required for autosuspend */
++	iface->needs_remote_wakeup = 1;
++
+ 	/* create bcm5974 device */
+ 	usb_make_path(udev, dev->phys, sizeof(dev->phys));
+ 	strlcat(dev->phys, "/input0", sizeof(dev->phys));
+-- 
+1.7.6.4
+

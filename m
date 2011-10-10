@@ -1,19 +1,20 @@
 From: Samuel Ortiz <samuel.ortiz@intel.com>
-Subject: Re: [PATCH v2 2/6] MFD: twl6040: Cache the vibra control registers
-Date: Mon, 10 Oct 2011 21:04:08 +0200
-Message-ID: <20111010190407.GD2592@sortiz-mobl>
+Subject: Re: [PATCH v2 3/6] MFD: twl6040: function to query the vibra status
+ for clients
+Date: Mon, 10 Oct 2011 21:05:29 +0200
+Message-ID: <20111010190527.GE2592@sortiz-mobl>
 References: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com>
- <1316760584-27426-3-git-send-email-peter.ujfalusi@ti.com>
+ <1316760584-27426-4-git-send-email-peter.ujfalusi@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([143.182.124.37]:57263 "EHLO mga14.intel.com"
+Received: from mga14.intel.com ([143.182.124.37]:63228 "EHLO mga14.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753219Ab1JJTBC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Oct 2011 15:01:02 -0400
+	id S1752564Ab1JJTCT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Oct 2011 15:02:19 -0400
 Content-Disposition: inline
-In-Reply-To: <1316760584-27426-3-git-send-email-peter.ujfalusi@ti.com>
+In-Reply-To: <1316760584-27426-4-git-send-email-peter.ujfalusi@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Peter Ujfalusi <peter.ujfalusi@ti.com>
@@ -21,14 +22,17 @@ Cc: Dmitry Torokhov <dtor@mail.ru>, Mark Brown <broonie@opensource.wolfsonmicro.
 
 Hi Peter,
 
-On Fri, Sep 23, 2011 at 09:49:40AM +0300, Peter Ujfalusi wrote:
-> The vibra control register will be used from the ASoC codec driver as well.
-> In order to avoid latency issues caused by I2C read access, cache the two
-> control register within the core driver, so we do not need to reach out
-> to the chip to read it back.
+On Fri, Sep 23, 2011 at 09:49:41AM +0300, Peter Ujfalusi wrote:
+> If the client only interested, if any of the vibra channels enabled, or
+> if any of the channels are set to receive audio data via PDM.
+> 
+> This function targets mainly the vibra driver, so it can check if it is
+> allowed to execute effects ot not.
 > 
 > Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Acked-by: Samuel Ortiz <sameo@linux.intel.com>
+
+I assume those 2 go upstream through the ASoC tree, right ?
 
 Cheers,
 Samuel.

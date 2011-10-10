@@ -1,57 +1,35 @@
-From: Oliver Neukum <oneukum@suse.de>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
 Subject: Re: [PATCH V2] input: Fix USB autosuspend on bcm5974
-Date: Mon, 10 Oct 2011 16:06:37 +0200
-Message-ID: <201110101606.37878.oneukum@suse.de>
+Date: Mon, 10 Oct 2011 15:16:35 +0100
+Message-ID: <20111010141635.GA17889@srcf.ucam.org>
 References: <1318254086-22752-1-git-send-email-mjg@redhat.com>
+ <201110101606.37878.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:36947 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754429Ab1JJOGU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Oct 2011 10:06:20 -0400
-In-Reply-To: <1318254086-22752-1-git-send-email-mjg@redhat.com>
+Received: from cavan.codon.org.uk ([93.93.128.6]:55929 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754104Ab1JJOQi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Oct 2011 10:16:38 -0400
+Content-Disposition: inline
+In-Reply-To: <201110101606.37878.oneukum@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg@redhat.com>
+To: Oliver Neukum <oneukum@suse.de>
 Cc: linux-input@vger.kernel.org, rydberg@euromail.se, dtor@mail.ru
 
-Am Montag, 10. Oktober 2011, 15:41:26 schrieb Matthew Garrett:
-> The bcm5974 code takes a USB autosuspend reference on device open and
-> releases it on device close. This means that the hardware won't sleep when
-> anything holds it open. This is sensible for input devices that don't
-> support remote wakeups on normal use (like most mice), but this hardware
-> trigger wakeups on touch and so can suspend transparently to the user. Doing
-> so allows the USB host controller to sleep when the machine is idle, giving
-> measurable power savings.
-> 
-> Signed-off-by: Matthew Garrett <mjg@redhat.com>
-> ---
-> 
-> Got rid of the unbalanced put on the close path, and added usb_mark_last_busy()
-> calls to make sure the device doesn't go to sleep while in use. This works fine
-> on my hardware now, and I don't see any warning messages being generated.
+On Mon, Oct 10, 2011 at 04:06:37PM +0200, Oliver Neukum wrote:
 
-This is odd, because the hardware shouldn't generate remote wakeups unless you
-request them, like this (usbhid)
+> This is odd, because the hardware shouldn't generate remote wakeups unless you
+> request them, like this (usbhid)
 
-int usbhid_open(struct hid_device *hid)
-{
-        struct usbhid_device *usbhid = hid->driver_data;
-        int res;
+I thought needs_remote_wakeup was a hint to the kernel that remote 
+wakeup ability was required for the hardware to autosuspend? In theory I 
+guess it should be set, but in practice all the hardware supported by 
+this driver generates them so it'd be a noop. No objection to adding it 
+in the name of correctness (or if some future version is broken, I 
+guess...), though.
 
-        mutex_lock(&hid_open_mut);
-        if (!hid->open++) {
-                res = usb_autopm_get_interface(usbhid->intf);
-                /* the device must be awake to reliably request remote wakeup */
-                if (res < 0) {
-                        hid->open--;
-                        mutex_unlock(&hid_open_mut);
-                        return -EIO;
-                }
-                usbhid->intf->needs_remote_wakeup = 1;
-
-	Regards
-		Oliver
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

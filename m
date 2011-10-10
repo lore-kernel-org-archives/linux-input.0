@@ -1,34 +1,48 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: [patch] Input: force feedback - potential integer wrap in
- input_ff_create()
-Date: Mon, 10 Oct 2011 23:48:30 +0300
-Message-ID: <20111010204830.GV30887@longonot.mountain>
-References: <20111009162524.GA14049@elgon.mountain>
- <20111010050852.GA18794@core.coreip.homeip.net>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
+Date: Mon, 10 Oct 2011 23:05:34 +0200
+Message-ID: <20111010210534.GA2223@polaris.bitmath.org>
+References: <1318261630-24044-1-git-send-email-mjg@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rcsinet15.oracle.com ([148.87.113.117]:33965 "EHLO
-	rcsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750702Ab1JJUvU (ORCPT
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:47152 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750748Ab1JJU6t (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Oct 2011 16:51:20 -0400
+	Mon, 10 Oct 2011 16:58:49 -0400
+Received: from iph4.telenor.se (iph4.telenor.se [195.54.127.135])
+	by smtprelay-b21.telenor.se (Postfix) with ESMTP id 35803EAAA6
+	for <linux-input@vger.kernel.org>; Mon, 10 Oct 2011 22:58:48 +0200 (CEST)
 Content-Disposition: inline
-In-Reply-To: <20111010050852.GA18794@core.coreip.homeip.net>
+In-Reply-To: <1318261630-24044-1-git-send-email-mjg@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Matthew Garrett <mjg@redhat.com>
+Cc: linux-input@vger.kernel.org, dtor@mail.ru
 
-On Sun, Oct 09, 2011 at 10:08:52PM -0700, Dmitry Torokhov wrote:
-> Instead of doing this why don't we mark all relevant fields as unsigned
-> int?
+Hi Matthew,
+
+> The bcm5974 code takes a USB autosuspend reference on device open and
+> releases it on device close. This means that the hardware won't sleep when
+> anything holds it open. This is sensible for input devices that don't
+> support remote wakeups on normal use (like most mice), but this hardware
+> trigger wakeups on touch and so can suspend transparently to the user. Doing
+> so allows the USB host controller to sleep when the machine is idle, giving
+> measurable power savings.
 > 
+> Signed-off-by: Matthew Garrett <mjg@redhat.com>
+> ---
+> 
+> Correctly flag needs_remote_wake.
 
-Sure.  We'd still have to check for wrapping on 32bit I think...
+With this patch, autosuspend seems to work correctly after boot, while
+keeping a device file open. When all device files are closed, the
+looping suspend/resume behavior is still there. Moreover, when coming
+back from a user suspend, rpm_suspend fails with EBUSY on my machine,
+and the device will not autosuspend thereafter.
 
-I'll sent a patch for this tomorrow.
+IOW, getting closer, but still no cigar, sorry.
 
-regards,
-dan carpenter
-
+Cheers,
+Henrik

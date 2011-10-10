@@ -1,37 +1,41 @@
-From: Matthew Garrett <mjg59-1xO5oi07KQx4cg9Nei1l7Q@public.gmane.org>
-Subject: Re: [PATCH] usb: Keep track of actual LED state
-Date: Mon, 10 Oct 2011 18:14:40 +0100
-Message-ID: <20111010171440.GA22288@srcf.ucam.org>
-References: <1318262100-24166-1-git-send-email-mjg@redhat.com>
- <20111010171314.GA2089@polaris.bitmath.org>
+From: "Ujfalusi, Peter" <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH v2 0/6] ASoC/MFD/Input: twl6040: Support for audio driven vibra
+Date: Mon, 10 Oct 2011 21:36:57 +0300
+Message-ID: <CAPo=G1xD0=UrSvdckEU2n-W8LqSQxQwxVPfnVF0WOd2wUrjuFA@mail.gmail.com>
+References: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20111010171314.GA2089-cSxB8VliqGEUVQd64OLqbEB+6BGkLq7r@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Henrik Rydberg <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, oneukum-l3A5Bk7waGM@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog121.obsmtp.com ([74.125.149.145]:45300 "EHLO
+	na3sys009aog121.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752947Ab1JJSg7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Oct 2011 14:36:59 -0400
+In-Reply-To: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Samuel Ortiz <samuel.ortiz@intel.com>, Dmitry Torokhov <dtor@mail.ru>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@ti.com>
+Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
 
-On Mon, Oct 10, 2011 at 07:13:14PM +0200, Henrik Rydberg wrote:
+Hi Samuel, Dmitry,
 
-> > -		usbhid->ledcount--;
-> > +		usbhid->ledstate &= ~(1 << code);
-> 
-> Could simply check for ledcount > 0 here instead, but it is even uglier.
+On Fri, Sep 23, 2011 at 9:49 AM, Peter Ujfalusi <peter.ujfalusi@ti.com>=
+ wrote:
+> Hello,
+>
+> Changes since v1:
+> - Patches already taken by Mark has been removed
+> - Patch 4: Return -EBUSY instead of -EPERM
 
-That'd still fail if we had one led turned on and two turned off - 
-depending on the order we'd potentially think that suspend was safe.
+Would you be able to comment on this series?
+I need to send v3 since ASoC moved ahead, and this series no longer
+applies cleanly.
 
-> Why not test the actual input_dev state here instead? Adding a set/get
-> led state function to input core could resolve this cleanly.
-
-That might well be a better approach.
-
--- 
-Matthew Garrett | mjg59-1xO5oi07KQx4cg9Nei1l7Q@public.gmane.org
+Thank you,
+P=E9ter
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,43 +1,40 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: Problem statement: Opportunistic suspend and i8042 wakeups
-Date: Mon, 10 Oct 2011 20:10:19 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1110102008160.28007-100000@netrider.rowland.org>
-References: <CAMLZHHQH=vWDnQH-Gnz01yDFv=wqG1de5nezb2B+H6VSJieg5A@mail.gmail.com>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
+Date: Tue, 11 Oct 2011 01:11:03 +0100
+Message-ID: <20111011001102.GA28157@srcf.ucam.org>
+References: <1318261630-24044-1-git-send-email-mjg@redhat.com>
+ <20111010210534.GA2223@polaris.bitmath.org>
+ <20111010211231.GA26359@srcf.ucam.org>
+ <20111010224431.GA2377@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:38347 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753731Ab1JKAKU (ORCPT
+Received: from cavan.codon.org.uk ([93.93.128.6]:45353 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752675Ab1JKALG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Oct 2011 20:10:20 -0400
-In-Reply-To: <CAMLZHHQH=vWDnQH-Gnz01yDFv=wqG1de5nezb2B+H6VSJieg5A@mail.gmail.com>
+	Mon, 10 Oct 2011 20:11:06 -0400
+Content-Disposition: inline
+In-Reply-To: <20111010224431.GA2377@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Drake <dsd@laptop.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, rjw@sisk.pl, Paul Fox <pgf@laptop.org>, linux-input@vger.kernel.org, linux-pm@lists.linux-foundation.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, dtor@mail.ru
 
-On Mon, 10 Oct 2011, Daniel Drake wrote:
-
-> In my most recent set of patches I took the following approach:
-> http://www.spinics.net/lists/linux-input/msg16599.html
-> http://www.spinics.net/lists/linux-input/msg16600.html
+On Tue, Oct 11, 2011 at 12:44:31AM +0200, Henrik Rydberg wrote:
+> On Mon, Oct 10, 2011 at 10:12:31PM +0100, Matthew Garrett wrote:
+> > Is this with the patch I sent for usbhid earlier applied? Right now the 
+> > keyboard will fail to suspend after system suspend, which will keep the 
+> > entire composite device awake. I'm looking into your other issue now.
 > 
-> 1. The 'wakeup' property is enabled on the i8042, serio and input
-> devices. Before going into suspend where input wakeups are desired,
-> userspace must enable wakeup in sysfs on: i8042, serio0, the mouse
-> input device, serio1, and the keyboard input device.
-> 2. In the suspend/resume handlers, each of the three layers above
-> checks to see if wakeups are enabled on its own device, and if so, the
-> suspend/resume handlers effectively do nothing, avoiding the triple
-> layer resetting described above.
-> 3. The i8042 driver wakeup property is also used to call
-> olpc_ec_wakeup_set() in order to tell the EC to wake up the CPU on
-> input events when in suspend.
+> Ahh, yes, the suspend failure was due to the keyboard interface,
+> thanks. The loop-on-closed is still present, though (as expected,
+> since there is no usb_mark_last_busy() call).
 
-It's not clear why this should be connected to the "wakeup" property.  
-In principle, even if the keyboard & mouse are not enabled for wakeup, 
-you still want to avoid losing input events (if possible).
+Ah, right, sorry - I wasn't trying to use the device after it had been 
+closed. In an ideal world we'd really want to be able to indicate that 
+we don't want a remote wakeup in that situation. Otherwise, the patch 
+looks good. Thank you!
 
-Alan Stern
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

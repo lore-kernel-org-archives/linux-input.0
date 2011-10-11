@@ -1,46 +1,48 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Input tree moved back to kernel.org
-Date: Tue, 11 Oct 2011 08:54:33 -0700
-Message-ID: <201110110854.34037.dmitry.torokhov@gmail.com>
-References: <20111011011224.GA11832@core.coreip.homeip.net> <20111011174014.f9e23daea8f8c8526096131a@canb.auug.org.au>
+Subject: Re: [PATCH v2 2/6] MFD: twl6040: Cache the vibra control registers
+Date: Tue, 11 Oct 2011 09:01:42 -0700
+Message-ID: <20111011160142.GB10286@core.coreip.homeip.net>
+References: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com>
+ <1316760584-27426-3-git-send-email-peter.ujfalusi@ti.com>
+ <20111011144824.GE1098@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f174.google.com ([209.85.216.174]:59778 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753874Ab1JKPym (ORCPT
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:53674 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754859Ab1JKQBt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Oct 2011 11:54:42 -0400
-In-Reply-To: <20111011174014.f9e23daea8f8c8526096131a@canb.auug.org.au>
+	Tue, 11 Oct 2011 12:01:49 -0400
+Content-Disposition: inline
+In-Reply-To: <20111011144824.GE1098@sirena.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>, Samuel Ortiz <samuel.ortiz@intel.com>, Liam Girdwood <lrg@ti.com>, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
 
-On Monday, October 10, 2011 11:40:14 PM Stephen Rothwell wrote:
-> Hi Dmitry,
-> 
-> On Mon, 10 Oct 2011 18:12:24 -0700 Dmitry Torokhov 
-<dmitry.torokhov@gmail.com> wrote:
-> > I have moved input tree back to its original place on kernel.org:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+On Tue, Oct 11, 2011 at 03:48:24PM +0100, Mark Brown wrote:
+> On Fri, Sep 23, 2011 at 09:49:40AM +0300, Peter Ujfalusi wrote:
+> > The vibra control register will be used from the ASoC codec driver as well.
+> > In order to avoid latency issues caused by I2C read access, cache the two
+> > control register within the core driver, so we do not need to reach out
+> > to the chip to read it back.
 > > 
-> > The structure is still the same: 'for-linus' branch for current work
-> > and 'next' (same as master) branch for the next merge window. I will
-> > try keeping version on github up to date as well.
-> > 
-> > Stephen, could you please update linux-next once more?
+> > Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
 > 
-> I will switch back tomorrow.
+> It strikes me that it might be useful to just convert the driver to
+> regmap and get cache for everything...
 > 
-> > BTW, does anyone know how one can update project description with
-> > gitolite?
+> Anyway, could you please restructure this series to minimize the
+> dependency on the input subsystem?  Then we can get the rest of it
+> applied.
 > 
-> echo <description> | ssh gitolite@ra.kernel.org setdesc <repo>
 
-That worked. Thanks Stephen!
+I'm OK with all patches going through MFD - I do not believe it will
+cause any merge issues.
+
+For the record I still do not like returning EBUSY when device is not
+available - I think if device can't serve any requests it should not
+exists at all.
 
 -- 
 Dmitry

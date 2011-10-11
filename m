@@ -1,48 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 2/6] MFD: twl6040: Cache the vibra control registers
-Date: Tue, 11 Oct 2011 09:01:42 -0700
-Message-ID: <20111011160142.GB10286@core.coreip.homeip.net>
-References: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com>
- <1316760584-27426-3-git-send-email-peter.ujfalusi@ti.com>
- <20111011144824.GE1098@sirena.org.uk>
+Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
+Date: Tue, 11 Oct 2011 09:05:44 -0700
+Message-ID: <20111011160544.GC10286@core.coreip.homeip.net>
+References: <1318261630-24044-1-git-send-email-mjg@redhat.com>
+ <20111010224431.GA2377@polaris.bitmath.org>
+ <20111011001102.GA28157@srcf.ucam.org>
+ <201110110610.12999.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:53674 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754859Ab1JKQBt (ORCPT
+Received: from mail-pz0-f42.google.com ([209.85.210.42]:40492 "EHLO
+	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754883Ab1JKQFv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Oct 2011 12:01:49 -0400
+	Tue, 11 Oct 2011 12:05:51 -0400
+Received: by pzk1 with SMTP id 1so19206255pzk.1
+        for <linux-input@vger.kernel.org>; Tue, 11 Oct 2011 09:05:50 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20111011144824.GE1098@sirena.org.uk>
+In-Reply-To: <201110110610.12999.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>, Samuel Ortiz <samuel.ortiz@intel.com>, Liam Girdwood <lrg@ti.com>, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Alan Stern <stern@rowland.harvard.edu>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-On Tue, Oct 11, 2011 at 03:48:24PM +0100, Mark Brown wrote:
-> On Fri, Sep 23, 2011 at 09:49:40AM +0300, Peter Ujfalusi wrote:
-> > The vibra control register will be used from the ASoC codec driver as well.
-> > In order to avoid latency issues caused by I2C read access, cache the two
-> > control register within the core driver, so we do not need to reach out
-> > to the chip to read it back.
-> > 
-> > Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+On Tue, Oct 11, 2011 at 06:10:12AM +0200, Oliver Neukum wrote:
+> Am Dienstag, 11. Oktober 2011, 02:11:03 schrieb Matthew Garrett:
 > 
-> It strikes me that it might be useful to just convert the driver to
-> regmap and get cache for everything...
+> > Ah, right, sorry - I wasn't trying to use the device after it had been 
+> > closed. In an ideal world we'd really want to be able to indicate that 
+> > we don't want a remote wakeup in that situation. Otherwise, the patch 
+> > looks good. Thank you!
 > 
-> Anyway, could you please restructure this series to minimize the
-> dependency on the input subsystem?  Then we can get the rest of it
-> applied.
+> It looks like we had exactly that capability until
+> 48826626263d4a61d06fd8c5805da31f925aefa0
+> removed it.
 > 
 
-I'm OK with all patches going through MFD - I do not believe it will
-cause any merge issues.
+Hmm, reading Alan's comment I can see why wakeup might be beneficial
+when system is in the sleep state, but while it is running and there is
+no driver or driver wants to disable wakeups I think we should
+accommodate it.
 
-For the record I still do not like returning EBUSY when device is not
-available - I think if device can't serve any requests it should not
-exists at all.
+Thanks.
 
 -- 
 Dmitry

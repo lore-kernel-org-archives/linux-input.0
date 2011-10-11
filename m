@@ -1,93 +1,65 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch v2] Input: force feedback - potential integer wrap in
- input_ff_create()
-Date: Wed, 12 Oct 2011 00:19:49 +0300
-Message-ID: <20111011211949.GB30887@longonot.mountain>
-References: <20111009162524.GA14049@elgon.mountain>
- <20111010050852.GA18794@core.coreip.homeip.net>
- <20111010204830.GV30887@longonot.mountain>
+From: Philip Rakity <prakity@marvell.com>
+Subject: [PATCH] touchscreen: tsc2007.c  x_plat_ohms must be > 0 for touch
+ to  work
+Date: Tue, 11 Oct 2011 14:28:05 -0700
+Message-ID: <37B624E6-712E-4909-988F-62E5526180DA@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rcsinet15.oracle.com ([148.87.113.117]:40430 "EHLO
-	rcsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750747Ab1JKVWn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Oct 2011 17:22:43 -0400
-Content-Disposition: inline
-In-Reply-To: <20111010204830.GV30887@longonot.mountain>
+Received: from na3sys009aog123.obsmtp.com ([74.125.149.149]:52420 "EHLO
+	na3sys009aog123.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750791Ab1JKV2Q convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Oct 2011 17:28:16 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-The problem here is that max_effects can wrap on 32 bits systems.
-We'd allocate a smaller amount of data than sizeof(struct ff_device).
-The call to kcalloc() on the next line would fail but it would write
-the NULL return outside of the memory we just allocated causing data
-corruption.
+Touch events are not processed unless pressure > 0.
+x_plat_ohms is used in pressure calculation.  ensure driver
+will not start if zero value and indicate reason why there is
+a failure
 
-The call path is that uinput_setup_device() get ->ff_effects_max from
-the user and sets the value in the ->private_data struct.  From there
-it is:
--> uinput_ioctl_handler()
-   -> uinput_create_device()
-      -> input_ff_create(dev, udev->ff_effects_max);
-
-I've also changed ff_effects_max so it's an unsigned int instead of
-a signed int as a cleanup.
-
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Philip Rakity <prakity@marvell.com>
 ---
-V2: made max_effects unsigned
+ drivers/input/touchscreen/tsc2007.c |    6 ++++++
+ include/linux/i2c/tsc2007.h         |    2 +-
+ 2 files changed, 7 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
-index 3367f76..3051c84 100644
---- a/drivers/input/ff-core.c
-+++ b/drivers/input/ff-core.c
-@@ -309,7 +309,7 @@ EXPORT_SYMBOL_GPL(input_ff_event);
-  * Once ff device is created you need to setup its upload, erase,
-  * playback and other handlers before registering input device
-  */
--int input_ff_create(struct input_dev *dev, int max_effects)
-+int input_ff_create(struct input_dev *dev, unsigned int max_effects)
- {
- 	struct ff_device *ff;
- 	int i;
-@@ -319,6 +319,10 @@ int input_ff_create(struct input_dev *dev, int max_effects)
- 		return -EINVAL;
- 	}
+diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
+index 0acca68..628261b 100644
+--- a/drivers/input/touchscreen/tsc2007.c
++++ b/drivers/input/touchscreen/tsc2007.c
+@@ -310,6 +310,12 @@ static int __devinit tsc2007_probe(struct i2c_client *client,
+ 	ts->get_pendown_state = pdata->get_pendown_state;
+ 	ts->clear_penirq      = pdata->clear_penirq;
  
-+	if (sizeof(struct ff_device) + max_effects * sizeof(struct file *) <
-+			max_effects)
-+		return -EINVAL;
++	if (pdata->x_plate_ohms == 0) {
++		dev_err(&client->dev, "pdata->x_plate_ohms must be > 0");
++		err = -EINVAL;
++		goto err_free_mem;
++	}
 +
- 	ff = kzalloc(sizeof(struct ff_device) +
- 		     max_effects * sizeof(struct file *), GFP_KERNEL);
- 	if (!ff)
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 57add32..6d5eddb 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -1610,7 +1610,7 @@ struct ff_device {
- 	struct file *effect_owners[];
- };
+ 	snprintf(ts->phys, sizeof(ts->phys),
+ 		 "%s/input0", dev_name(&client->dev));
  
--int input_ff_create(struct input_dev *dev, int max_effects);
-+int input_ff_create(struct input_dev *dev, unsigned int max_effects);
- void input_ff_destroy(struct input_dev *dev);
+diff --git a/include/linux/i2c/tsc2007.h b/include/linux/i2c/tsc2007.h
+index 591427a..506a9f7 100644
+--- a/include/linux/i2c/tsc2007.h
++++ b/include/linux/i2c/tsc2007.h
+@@ -5,7 +5,7 @@
  
- int input_ff_event(struct input_dev *dev, unsigned int type, unsigned int code, int value);
-diff --git a/include/linux/uinput.h b/include/linux/uinput.h
-index d28c726..2aa2881 100644
---- a/include/linux/uinput.h
-+++ b/include/linux/uinput.h
-@@ -68,7 +68,7 @@ struct uinput_device {
- 	unsigned char		head;
- 	unsigned char		tail;
- 	struct input_event	buff[UINPUT_BUFFER_SIZE];
--	int			ff_effects_max;
-+	unsigned int		ff_effects_max;
- 
- 	struct uinput_request	*requests[UINPUT_NUM_REQUESTS];
- 	wait_queue_head_t	requests_waitq;
+ struct tsc2007_platform_data {
+ 	u16	model;				/* 2007. */
+-	u16	x_plate_ohms;
++	u16	x_plate_ohms;	/* must be non-zero value */
+ 	u16	max_rt; /* max. resistance above which samples are ignored */
+ 	unsigned long poll_delay; /* delay (in ms) after pen-down event
+ 				     before polling starts */
+-- 
+1.7.6
+
+

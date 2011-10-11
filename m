@@ -1,40 +1,46 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH v2 2/6] MFD: twl6040: Cache the vibra
-	control registers
-Date: Tue, 11 Oct 2011 15:48:24 +0100
-Message-ID: <20111011144824.GE1098@sirena.org.uk>
-References: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com>
-	<1316760584-27426-3-git-send-email-peter.ujfalusi@ti.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Input tree moved back to kernel.org
+Date: Tue, 11 Oct 2011 08:54:33 -0700
+Message-ID: <201110110854.34037.dmitry.torokhov@gmail.com>
+References: <20111011011224.GA11832@core.coreip.homeip.net> <20111011174014.f9e23daea8f8c8526096131a@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-Content-Disposition: inline
-In-Reply-To: <1316760584-27426-3-git-send-email-peter.ujfalusi@ti.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: alsa-devel@alsa-project.org, Dmitry Torokhov <dtor@mail.ru>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Samuel Ortiz <samuel.ortiz@intel.com>, Misael Lopez Cruz <misael.lopez@ti.com>, Liam Girdwood <lrg@ti.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qy0-f174.google.com ([209.85.216.174]:59778 "EHLO
+	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753874Ab1JKPym (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Oct 2011 11:54:42 -0400
+In-Reply-To: <20111011174014.f9e23daea8f8c8526096131a@canb.auug.org.au>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-On Fri, Sep 23, 2011 at 09:49:40AM +0300, Peter Ujfalusi wrote:
-> The vibra control register will be used from the ASoC codec driver as well.
-> In order to avoid latency issues caused by I2C read access, cache the two
-> control register within the core driver, so we do not need to reach out
-> to the chip to read it back.
+On Monday, October 10, 2011 11:40:14 PM Stephen Rothwell wrote:
+> Hi Dmitry,
 > 
-> Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+> On Mon, 10 Oct 2011 18:12:24 -0700 Dmitry Torokhov 
+<dmitry.torokhov@gmail.com> wrote:
+> > I have moved input tree back to its original place on kernel.org:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+> > 
+> > The structure is still the same: 'for-linus' branch for current work
+> > and 'next' (same as master) branch for the next merge window. I will
+> > try keeping version on github up to date as well.
+> > 
+> > Stephen, could you please update linux-next once more?
+> 
+> I will switch back tomorrow.
+> 
+> > BTW, does anyone know how one can update project description with
+> > gitolite?
+> 
+> echo <description> | ssh gitolite@ra.kernel.org setdesc <repo>
 
-It strikes me that it might be useful to just convert the driver to
-regmap and get cache for everything...
+That worked. Thanks Stephen!
 
-Anyway, could you please restructure this series to minimize the
-dependency on the input subsystem?  Then we can get the rest of it
-applied.
+-- 
+Dmitry

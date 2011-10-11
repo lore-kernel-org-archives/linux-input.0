@@ -1,42 +1,34 @@
-From: "Ujfalusi, Peter" <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH v2 3/6] MFD: twl6040: function to query the vibra status
- for clients
-Date: Tue, 11 Oct 2011 06:49:43 +0300
-Message-ID: <CAPo=G1z55uNk+tfEq1pBWxiTxLayHNPZux_qkzJ6QpJfFVKTcQ@mail.gmail.com>
-References: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com>
-	<1316760584-27426-4-git-send-email-peter.ujfalusi@ti.com>
-	<20111010190527.GE2592@sortiz-mobl>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
+Date: Tue, 11 Oct 2011 06:10:12 +0200
+Message-ID: <201110110610.12999.oliver@neukum.org>
+References: <1318261630-24044-1-git-send-email-mjg@redhat.com> <20111010224431.GA2377@polaris.bitmath.org> <20111011001102.GA28157@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog116.obsmtp.com ([74.125.149.240]:40228 "EHLO
-	na3sys009aog116.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752619Ab1JKDto convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Oct 2011 23:49:44 -0400
-In-Reply-To: <20111010190527.GE2592@sortiz-mobl>
+Received: from smtp-out003.kontent.com ([81.88.40.217]:50126 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750776Ab1JKEJy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Oct 2011 00:09:54 -0400
+In-Reply-To: <20111011001102.GA28157@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Ortiz <samuel.ortiz@intel.com>
-Cc: Dmitry Torokhov <dtor@mail.ru>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@ti.com>, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
+To: Matthew Garrett <mjg59@srcf.ucam.org>, Alan Stern <stern@rowland.harvard.edu>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, dtor@mail.ru
 
-Hi Samuel,
+Am Dienstag, 11. Oktober 2011, 02:11:03 schrieb Matthew Garrett:
 
-On Mon, Oct 10, 2011 at 10:05 PM, Samuel Ortiz <samuel.ortiz@intel.com>=
- wrote:
-> Acked-by: Samuel Ortiz <sameo@linux.intel.com>
+> Ah, right, sorry - I wasn't trying to use the device after it had been 
+> closed. In an ideal world we'd really want to be able to indicate that 
+> we don't want a remote wakeup in that situation. Otherwise, the patch 
+> looks good. Thank you!
 
-Thank you.
+It looks like we had exactly that capability until
+48826626263d4a61d06fd8c5805da31f925aefa0
+removed it.
 
-> I assume those 2 go upstream through the ASoC tree, right ?
-
-Yes, that's the plan.
-
---=20
-P=E9ter
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	Regards
+		Oliver

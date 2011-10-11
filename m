@@ -1,69 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: psmouse - change log messages from psmouse.c to
- psmouse
-Date: Mon, 10 Oct 2011 18:22:47 -0700
-Message-ID: <20111011012247.GB11832@core.coreip.homeip.net>
-References: <1317273295-4931-1-git-send-email-jj_ding@emc.com.tw>
- <4E83FF81.700@cn.fujitsu.com>
- <20111007063926.GA32142@core.coreip.homeip.net>
- <CAGS+omACkwB1GSxcFHiuvi43Q5dzx_m-K_85VHOJSKc3YUXSnA@mail.gmail.com>
+From: "Ujfalusi, Peter" <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH v2 3/6] MFD: twl6040: function to query the vibra status
+ for clients
+Date: Tue, 11 Oct 2011 06:49:43 +0300
+Message-ID: <CAPo=G1z55uNk+tfEq1pBWxiTxLayHNPZux_qkzJ6QpJfFVKTcQ@mail.gmail.com>
+References: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com>
+	<1316760584-27426-4-git-send-email-peter.ujfalusi@ti.com>
+	<20111010190527.GE2592@sortiz-mobl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:39550 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750748Ab1JKBWx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Oct 2011 21:22:53 -0400
-Received: by gyg10 with SMTP id 10so5958977gyg.19
-        for <linux-input@vger.kernel.org>; Mon, 10 Oct 2011 18:22:52 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CAGS+omACkwB1GSxcFHiuvi43Q5dzx_m-K_85VHOJSKc3YUXSnA@mail.gmail.com>
+Received: from na3sys009aog116.obsmtp.com ([74.125.149.240]:40228 "EHLO
+	na3sys009aog116.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752619Ab1JKDto convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Oct 2011 23:49:44 -0400
+In-Reply-To: <20111010190527.GE2592@sortiz-mobl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>, JJ Ding <jj_ding@emc.com.tw>, linux-input@vger.kernel.org, JJ Ding <dgdunix@gmail.com>
+To: Samuel Ortiz <samuel.ortiz@intel.com>
+Cc: Dmitry Torokhov <dtor@mail.ru>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@ti.com>, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
 
-Hi Daniel,
+Hi Samuel,
 
-On Fri, Oct 07, 2011 at 06:07:28PM +0800, Daniel Kurtz wrote:
-> Hi Dmitry,
->=20
-> On Fri, Oct 7, 2011 at 2:39 PM, Dmitry Torokhov
-> >
-> > -static int synaptics_validate_byte(unsigned char packet[], int idx=
-, unsigned char pkt_type)
->=20
-> Why pass idx if we already have psmouse?
->=20
-> static int synaptics_validate_byte(struct psmouse *psmouse, unsigned
-> char pkt_type)
+On Mon, Oct 10, 2011 at 10:05 PM, Samuel Ortiz <samuel.ortiz@intel.com>=
+ wrote:
+> Acked-by: Samuel Ortiz <sameo@linux.intel.com>
 
-We are checking specific byte... If you look down we call the function
-in a cycle over entire packet to fugure whether we need to do strict or
-relaxed checking.
+Thank you.
 
-=2E..
+> I assume those 2 go upstream through the ASoC tree, right ?
 
-> >
-> > =A0 =A0 =A0 =A0if (synaptics_query_hardware(psmouse)) {
-> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(KERN_ERR "Unable to query Syna=
-ptics hardware.\n");
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 psmouse_err(psmouse, "Unable to query=
- Synaptics hardware.\n");
->  =A0 =A0 =A0 =A0 =A0 =A0 =A0 psmouse_err(psmouse, "unable to query de=
-vice.\n");
->=20
-> We can get rid of some more redundant "Synaptics"...
->=20
-
-Good idea, I'll update the messages.
-
-Thanks.
+Yes, that's the plan.
 
 --=20
-Dmitry
+P=E9ter
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

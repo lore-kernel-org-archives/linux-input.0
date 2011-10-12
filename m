@@ -1,59 +1,56 @@
-From: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
-Subject: possible race between reset and error handling in usbhid
-Date: Wed, 12 Oct 2011 16:14:23 +0200
-Message-ID: <201110121614.23410.oneukum@suse.de>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
+Date: Wed, 12 Oct 2011 10:18:32 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1110121014550.2093-100000@iolanthe.rowland.org>
+References: <20111012135439.GA25266@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from iolanthe.rowland.org ([192.131.102.54]:33708 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1750990Ab1JLOSd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 12 Oct 2011 10:18:33 -0400
+In-Reply-To: <20111012135439.GA25266@srcf.ucam.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Oliver Neukum <oliver@neukum.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-Hi,
+On Wed, 12 Oct 2011, Matthew Garrett wrote:
 
-looking at the usbhid code it seems to me that there is no protection
-between the error handling code and pre_reset() racing.
+> On Wed, Oct 12, 2011 at 09:03:00AM +0200, Oliver Neukum wrote:
+> > Am Dienstag, 11. Oktober 2011, 18:43:55 schrieb Alan Stern:
+> > > On Tue, 11 Oct 2011, Dmitry Torokhov wrote:
+> >  
+> > > > Hmm, reading Alan's comment I can see why wakeup might be beneficial
+> > > > when system is in the sleep state, but while it is running and there is
+> > > > no driver or driver wants to disable wakeups I think we should
+> > > > accommodate it.
+> > > 
+> > > Currently, wakeup is enabled for USB devices during autosuspend if and
+> > > only if one or more of the interface drivers has set the
+> > > intf->needs_remote_wakeup flag.  Therefore all that usbhid should need 
+> > > to do is clear that flag when the device file is closed.
+> > 
+> > Now I am confused because Matthew reported that his device generated
+> > remote wakeups without setting needs_remote_wakeup at all.
+> > Matthew, could you clarify?
+> 
+> I /think/ Alan's wrong here - do_remote_wakeup is set to
+> device_may_wakeup(), which will be true if the device can generate 
+> remote wakeups even if nothing's asked for them. I'm basing this on 
+> autosuspend_check() and choose_wakeup(). Alan, am I misinterpreting this 
+> code?
 
-In particular there seems to be no protection from hid_retry_timeout() calling
-hid_start_in() which would start IO after hid_pre_reset() has already called
-hid_cease_io() because that uses del_timer(), not del_timer_sync()
+We may be talking about different things.  choose_wakeup() is called
+for system suspend, whereas autosuspend_check() is called (obviously!)
+for autosuspend.
 
-What do you think about this patch?
+Yes, choose_wakeup() uses device_may_wakeup().  But I was referring
+only to autosuspend (as was Dmitry).  In autosuspend_check(),
+do_remote_wakeup is set to w, which is the result of or'ing all the
+intf->needs_remote_wakeup values.
 
-	Regards
-		Oliver
+Alan Stern
 
->From d13b3b42669cfbed3716d040cc8ce489fecd6963 Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Date: Wed, 12 Oct 2011 10:54:54 +0200
-Subject: [PATCH] USB: usbhid: cancel timer for retry synchronously
-
-This makes sure IO is never restarted while a reset is going on
-
-Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
----
- drivers/hid/usbhid/hid-core.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index ad978f5..77e705c 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -1270,7 +1270,7 @@ static void hid_cancel_delayed_stuff(struct usbhid_device *usbhid)
- 
- static void hid_cease_io(struct usbhid_device *usbhid)
- {
--	del_timer(&usbhid->io_retry);
-+	del_timer_sync(&usbhid->io_retry);
- 	usb_kill_urb(usbhid->urbin);
- 	usb_kill_urb(usbhid->urbctrl);
- 	usb_kill_urb(usbhid->urbout);
--- 
-1.7.1
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

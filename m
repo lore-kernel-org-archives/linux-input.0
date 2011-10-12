@@ -1,50 +1,63 @@
-From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: Re: [PATCH v2 2/6] MFD: twl6040: Cache the vibra control registers
-Date: Wed, 12 Oct 2011 11:05:06 +0300
-Message-ID: <2188183.hGjzCdyui0@barack>
-References: <1316760584-27426-1-git-send-email-peter.ujfalusi@ti.com> <20111011144824.GE1098@sirena.org.uk> <20111011160142.GB10286@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: [PATCH v3 0/5] ASoC/MFD/Input: twl6040: Support for audio driven vibra
+Date: Wed, 12 Oct 2011 11:57:52 +0300
+Message-ID: <1318409877-21681-1-git-send-email-peter.ujfalusi@ti.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog120.obsmtp.com ([74.125.149.140]:58887 "EHLO
-	na3sys009aog120.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752511Ab1JLIFG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Oct 2011 04:05:06 -0400
-In-Reply-To: <20111011160142.GB10286@core.coreip.homeip.net>
+Received: from na3sys009aog109.obsmtp.com ([74.125.149.201]:54436 "EHLO
+	na3sys009aog109.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750957Ab1JLI6L (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 12 Oct 2011 04:58:11 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <samuel.ortiz@intel.com>, Liam Girdwood <lrg@ti.com>, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@ti.com>, Samuel Ortiz <samuel.ortiz@intel.com>, Dmitry Torokhov <dtor@mail.ru>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, alsa-devel@alsa-project.org, Misael Lopez Cruz <misael.lopez@ti.com>
 
-On Tuesday 11 October 2011 09:01:42 Dmitry Torokhov wrote:
-> I'm OK with all patches going through MFD - I do not believe it will
-> cause any merge issues.
+Hello,
 
-Thanks Dmitry.
+Changes since v2:
+- Rebased on git://opensource.wolfsonmicro.com/linux-2.6-asoc, for-3.2 branch
+- Acked-by lines added to patches.
 
-> For the record I still do not like returning EBUSY when device is not
-> available - I think if device can't serve any requests it should not
-> exists at all.
+Intro mail form v1:
+The following series adds support for the soc driver to route audio (PCM
+stream) to the vibra ports of the twl6040.
+We have ALSA controls for the vibra source selection (PDM, or Input/FF).
+The route can not be changed from Input/FF to PDM during ongoing effect coming
+from Input/FF.
+The Input/FF driver can not execute new effect, while the vibra source is
+configured to be PDM.
+TO get things working in legacy mode the omap-mcpdm, and twl6040 soc codec
+driver's channel count needed to be fixed.
 
-While I tend to agree with this, in embedded systems this might (not=20
-certainly) cause issues. Embedded SW (middleware, high level) tends to =
-take=20
-the underlaying HW as static.
-Before I can do the dynamic input device creation/destruction I need to=
- make=20
-sure that the userspace is ready for this.
-I'm planning to address your concern regarding to twl6040, and at the s=
-ame=20
-time I'm going to change the twl4030 vibra/MFD/audio driver to behave i=
-n a=20
-same way.
+To minimize the need for reads through the I2C bus, the MFD driver will cache
+the vibra control registers.
 
---
-P=E9ter
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+With this series we can route PCM audio to drive the twl6040 vibra output.
+In order to that we need to play 5 channel audio, and place the vibra sample at
+the 5th channel. This will change with ABE support (change == simplified).
+
+The series has been created on top of:
+git://opensource.wolfsonmicro.com/linux-2.6-asoc, for-3.2 branch
+
+If there are no objections, it would be good if this series goes via audio.
+
+Regards,
+Peter
+---
+Peter Ujfalusi (5):
+  Input: twl6040: Simplify vibra regsiter definitions
+  MFD: twl6040: Cache the vibra control registers
+  MFD: twl6040: function to query the vibra status for clients
+  Input: twl6040-vibra: Check the selected path for vibra
+  ASoC: twl6040: Support for vibra output paths
+
+ drivers/input/misc/twl6040-vibra.c |   19 ++++++---
+ drivers/mfd/twl6040-core.c         |   31 +++++++++++++--
+ include/linux/mfd/twl6040.h        |   24 +++++------
+ sound/soc/codecs/twl6040.c         |   72 ++++++++++++++++++++++++++++++++++++
+ 4 files changed, 123 insertions(+), 23 deletions(-)
+
+-- 
+1.7.7
+

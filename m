@@ -1,45 +1,51 @@
 From: Alan Stern <stern@rowland.harvard.edu>
 Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
-Date: Wed, 12 Oct 2011 15:18:27 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1110121452500.2093-100000@iolanthe.rowland.org>
-References: <201110121911.53918.oliver@neukum.org>
+Date: Wed, 12 Oct 2011 15:21:55 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1110121518510.2093-100000@iolanthe.rowland.org>
+References: <20111012183306.GA10397@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:32892 "HELO
+Received: from iolanthe.rowland.org ([192.131.102.54]:32902 "HELO
 	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753132Ab1JLTS2 (ORCPT
+	with SMTP id S1751988Ab1JLTV4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Oct 2011 15:18:28 -0400
-In-Reply-To: <201110121911.53918.oliver@neukum.org>
+	Wed, 12 Oct 2011 15:21:56 -0400
+In-Reply-To: <20111012183306.GA10397@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, dtor@mail.ru
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Oliver Neukum <oliver@neukum.org>, linux-input@vger.kernel.org, dtor@mail.ru
 
-On Wed, 12 Oct 2011, Oliver Neukum wrote:
+On Wed, 12 Oct 2011, Henrik Rydberg wrote:
 
-> Am Mittwoch, 12. Oktober 2011, 17:28:06 schrieb Alan Stern:
-> > > Arguably a driver is the wrong layer to do this.
+> On Wed, Oct 12, 2011 at 05:59:05PM +0100, Matthew Garrett wrote:
+> > On Wed, Oct 12, 2011 at 06:56:32PM +0200, Oliver Neukum wrote:
+> > > Am Mittwoch, 12. Oktober 2011, 18:16:51 schrieb Matthew Garrett:
+> > > > Yeah. Plausibly the model we have in hid is wrong at the moment - rather 
+> > > > than set flags that block suspend, it might make more sense to take 
+> > > > references. It'd complicate things a little, in that we'd have to take 
+> > > > more care in terms of keeping track of the state.
+> > > 
+> > > I am afraid references are very hard to take there because it needs to be done
+> > > in interrupt.
 > > 
-> > Are you suggesting the usb_runtime_suspend() should call 
-> > usb_mark_last_busy() and pm_runtime_autosuspend() if usb_suspend_both() 
-> > returns -EBUSY or -EAGAIN?
+> > True. That makes things rather more awkward.
 > 
-> Yes.
+> I was looking at usb_autopm_get_interface_no_resume() yesterday for
+> the same reason, it seemed light-weight enough. No?
+> 
+> Btw, I wonder if the patch below would make sense or if calling put*()
+> is always a bug at zero usage count.
 
-I just sent a trial patch to Matthew.  And after a little checking, I
-found the reason for the problem.
+It's always a bug.  However, the patch I sent to Matthew should fix the 
+immediate problem.
 
-Originally usbcore did this automatically.  When we switched over to 
-the runtime PM framework, the PM core did it.  But the code to retry 
-failed autosuspends was removed by Rafael Wysocki in commit 
-f71648d73c1650b8b4aceb3856bebbde6daa3b86 (PM / Runtime: Remove idle 
-notification after failing suspend), and the USB subsystem wasn't 
-updated accordingly.  I even Acked that patch -- apparently I had 
-forgotten about the need for this mechanism.
-
-So it looks like putting it back into usbcore is the right thing to do.
+In fact, the original autosuspend design intended to allow drivers to 
+do this -- keep devices awake by failing suspend requests even though 
+the usage count is 0.  Under some conditions, that's the approach with 
+the least overhead.  But the code to handle this got lost by mistake, 
+so now it needs to be added back.
 
 Alan Stern
 

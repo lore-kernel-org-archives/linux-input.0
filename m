@@ -1,47 +1,59 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
-Date: Wed, 12 Oct 2011 14:54:39 +0100
-Message-ID: <20111012135439.GA25266@srcf.ucam.org>
-References: <Pine.LNX.4.44L0.1110111240210.2177-100000@iolanthe.rowland.org>
- <201110120903.00651.oliver@neukum.org>
+From: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+Subject: possible race between reset and error handling in usbhid
+Date: Wed, 12 Oct 2011 16:14:23 +0200
+Message-ID: <201110121614.23410.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:38170 "EHLO
-	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752329Ab1JLNyn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Oct 2011 09:54:43 -0400
-Content-Disposition: inline
-In-Reply-To: <201110120903.00651.oliver@neukum.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-On Wed, Oct 12, 2011 at 09:03:00AM +0200, Oliver Neukum wrote:
-> Am Dienstag, 11. Oktober 2011, 18:43:55 schrieb Alan Stern:
-> > On Tue, 11 Oct 2011, Dmitry Torokhov wrote:
->  
-> > > Hmm, reading Alan's comment I can see why wakeup might be beneficial
-> > > when system is in the sleep state, but while it is running and there is
-> > > no driver or driver wants to disable wakeups I think we should
-> > > accommodate it.
-> > 
-> > Currently, wakeup is enabled for USB devices during autosuspend if and
-> > only if one or more of the interface drivers has set the
-> > intf->needs_remote_wakeup flag.  Therefore all that usbhid should need 
-> > to do is clear that flag when the device file is closed.
-> 
-> Now I am confused because Matthew reported that his device generated
-> remote wakeups without setting needs_remote_wakeup at all.
-> Matthew, could you clarify?
+Hi,
 
-I /think/ Alan's wrong here - do_remote_wakeup is set to
-device_may_wakeup(), which will be true if the device can generate 
-remote wakeups even if nothing's asked for them. I'm basing this on 
-autosuspend_check() and choose_wakeup(). Alan, am I misinterpreting this 
-code?
+looking at the usbhid code it seems to me that there is no protection
+between the error handling code and pre_reset() racing.
 
+In particular there seems to be no protection from hid_retry_timeout() calling
+hid_start_in() which would start IO after hid_pre_reset() has already called
+hid_cease_io() because that uses del_timer(), not del_timer_sync()
+
+What do you think about this patch?
+
+	Regards
+		Oliver
+
+>From d13b3b42669cfbed3716d040cc8ce489fecd6963 Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Date: Wed, 12 Oct 2011 10:54:54 +0200
+Subject: [PATCH] USB: usbhid: cancel timer for retry synchronously
+
+This makes sure IO is never restarted while a reset is going on
+
+Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+---
+ drivers/hid/usbhid/hid-core.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index ad978f5..77e705c 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -1270,7 +1270,7 @@ static void hid_cancel_delayed_stuff(struct usbhid_device *usbhid)
+ 
+ static void hid_cease_io(struct usbhid_device *usbhid)
+ {
+-	del_timer(&usbhid->io_retry);
++	del_timer_sync(&usbhid->io_retry);
+ 	usb_kill_urb(usbhid->urbin);
+ 	usb_kill_urb(usbhid->urbctrl);
+ 	usb_kill_urb(usbhid->urbout);
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+1.7.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

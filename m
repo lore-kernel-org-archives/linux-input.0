@@ -1,55 +1,101 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: [PATCH v3 4/5] Input: twl6040-vibra: Check the
-	selected path for vibra
-Date: Wed, 12 Oct 2011 11:57:56 +0300
-Message-ID: <1318409877-21681-5-git-send-email-peter.ujfalusi@ti.com>
-References: <1318409877-21681-1-git-send-email-peter.ujfalusi@ti.com>
+From: Hui Wang <jason77.wang@gmail.com>
+Subject: [v2] input/imx_keypad: add pm suspend and resume functions
+Date: Wed, 12 Oct 2011 17:39:16 +0800
+Message-ID: <1318412356-19719-1-git-send-email-jason77.wang@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <1318409877-21681-1-git-send-email-peter.ujfalusi@ti.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@ti.com>, Samuel Ortiz <samuel.ortiz@intel.com>, Dmitry Torokhov <dtor@mail.ru>
-Cc: alsa-devel@alsa-project.org, Misael Lopez Cruz <misael.lopez@ti.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.windriver.com ([147.11.1.11]:64691 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751216Ab1JLJjg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 12 Oct 2011 05:39:36 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, s.hauer@pengutronix.de, maramaopercheseimorto@gmail.com, gaowanlong@cn.fujitsu.com
+Cc: linux-input@vger.kernel.org
 
-The VIBSELL/R bit in the VIBCTLL/R register tells the source of the data,
-which is going to be used to drive the attached motor(s).
-Do not allow effect execution if any of the channels are set to receive
-audio data.
+The imx_keypad driver is set wake capable in the imx_keypad_probe(),
+but it doesn't implement suspend and reusme callback interface.
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Acked-by: Dmitry Torokhov <dtor@mail.ru>
+>From the i.MX series MCU Reference Manual, the kpp (keypad port) is
+a major wake up source which can detect any key press even in low
+power modes and even when there is no clock.
+
+Now add suspend and resume callback functions for this driver.
+
+Signed-off-by: Hui Wang <jason77.wang@gmail.com>
 ---
- drivers/input/misc/twl6040-vibra.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
-index cb74185..2a828e5 100644
---- a/drivers/input/misc/twl6040-vibra.c
-+++ b/drivers/input/misc/twl6040-vibra.c
-@@ -201,6 +201,13 @@ static int vibra_play(struct input_dev *input, void *data,
- 	struct vibra_info *info = input_get_drvdata(input);
- 	int ret;
+In the V2:
+1) add a check for input->users before disable clock.
+2) add mutex_lock/unlock to protect input->users checking.
+3) use SIMPLE_DEV_PM_OPS.
+
+ drivers/input/keyboard/imx_keypad.c |   46 +++++++++++++++++++++++++++++++++++
+ 1 files changed, 46 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index d92c15c..c43fa97 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -567,10 +567,56 @@ static int __devexit imx_keypad_remove(struct platform_device *pdev)
+ 	return 0;
+ }
  
-+	/* Do not allow effect, while the routing is set to use audio */
-+	ret = twl6040_get_vibralr_status(info->twl6040);
-+	if (ret & TWL6040_VIBSEL) {
-+		dev_info(&input->dev, "Vibra is configured for audio\n");
-+		return -EBUSY;
-+	}
++#ifdef CONFIG_PM
++static int imx_kbd_suspend(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct imx_keypad *kbd = platform_get_drvdata(pdev);
++	struct input_dev *input_dev = kbd->input_dev;
 +
- 	info->weak_speed = effect->u.rumble.weak_magnitude;
- 	info->strong_speed = effect->u.rumble.strong_magnitude;
- 	info->direction = effect->direction < EFFECT_DIR_180_DEG ? 1 : -1;
++	/* imx kbd can wake up system even clock is disabled */
++	mutex_lock(&input_dev->mutex);
++
++	if (input_dev->users)
++		clk_disable(kbd->clk);
++
++	mutex_unlock(&input_dev->mutex);
++
++	if (device_may_wakeup(&pdev->dev))
++		enable_irq_wake(kbd->irq);
++
++	return 0;
++}
++
++static int imx_kbd_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct imx_keypad *kbd = platform_get_drvdata(pdev);
++	struct input_dev *input_dev = kbd->input_dev;
++
++	if (device_may_wakeup(&pdev->dev))
++		disable_irq_wake(kbd->irq);
++
++	mutex_lock(&input_dev->mutex);
++
++	if (input_dev->users)
++		clk_enable(kbd->clk);
++
++	mutex_unlock(&input_dev->mutex);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(imx_kbd_pm_ops, imx_kbd_suspend, imx_kbd_resume);
++#endif
++
+ static struct platform_driver imx_keypad_driver = {
+ 	.driver		= {
+ 		.name	= "imx-keypad",
+ 		.owner	= THIS_MODULE,
++#ifdef CONFIG_PM
++		.pm	= &imx_kbd_pm_ops,
++#endif
+ 	},
+ 	.probe		= imx_keypad_probe,
+ 	.remove		= __devexit_p(imx_keypad_remove),
 -- 
-1.7.7
+1.7.6
+

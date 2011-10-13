@@ -1,105 +1,45 @@
-From: Hui Wang <jason77.wang@gmail.com>
-Subject: [PATCH v2] input/imx_keypad: add pm suspend and resume functions
-Date: Thu, 13 Oct 2011 10:13:33 +0800
-Message-ID: <1318472013-32517-1-git-send-email-jason77.wang@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [v2] input/imx_keypad: add pm suspend and resume functions
+Date: Wed, 12 Oct 2011 21:13:29 -0700
+Message-ID: <20111013041328.GA11763@core.coreip.homeip.net>
+References: <1318412356-19719-1-git-send-email-jason77.wang@gmail.com>
+ <4E956271.3040002@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:57198 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752075Ab1JMCNs (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:49783 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751030Ab1JMENg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Oct 2011 22:13:48 -0400
+	Thu, 13 Oct 2011 00:13:36 -0400
+Received: by iaek3 with SMTP id k3so791411iae.19
+        for <linux-input@vger.kernel.org>; Wed, 12 Oct 2011 21:13:36 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4E956271.3040002@cn.fujitsu.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, s.hauer@pengutronix.de, maramaopercheseimorto@gmail.com, gaowanlong@cn.fujitsu.com
-Cc: linux-input@vger.kernel.org
+To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Cc: Hui Wang <jason77.wang@gmail.com>, s.hauer@pengutronix.de, maramaopercheseimorto@gmail.com, linux-input@vger.kernel.org
 
-The imx_keypad driver is set wake capable in the imx_keypad_probe(),
-but it doesn't implement suspend and reusme callback interface.
+On Wed, Oct 12, 2011 at 05:48:33PM +0800, Wanlong Gao wrote:
+> On 10/12/2011 05:39 PM, Hui Wang wrote:
+> 
+> > The imx_keypad driver is set wake capable in the imx_keypad_probe(),
+> > but it doesn't implement suspend and reusme callback interface.
+> > 
+> >>From the i.MX series MCU Reference Manual, the kpp (keypad port) is
+> > a major wake up source which can detect any key press even in low
+> > power modes and even when there is no clock.
+> > 
+> > Now add suspend and resume callback functions for this driver.
+> > 
+> > Signed-off-by: Hui Wang <jason77.wang@gmail.com>
+> 
+> 
+> Looks good to me. Thanks
+> Reviewed-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
 
->From the i.MX series MCU Reference Manual, the kpp (keypad port) is
-a major wake up source which can detect any key press even in low
-power modes and even when there is no clock.
+Applied, thanks.
 
-Now add suspend and resume callback functions for this driver.
-
-Signed-off-by: Hui Wang <jason77.wang@gmail.com>
----
-
-Sorry for resending this patch, the previous sent patch with [v2]
-as a prefix, i am afraid that patch was filtered out from mailing list.
-Now resending this patch with [PATCH v2] as a prefix.
-
-In the V2:
-1) add a check for input->users before disable clock.
-2) add mutex_lock/unlock to protect input->users checking.
-3) use SIMPLE_DEV_PM_OPS.
-
- drivers/input/keyboard/imx_keypad.c |   46 +++++++++++++++++++++++++++++++++++
- 1 files changed, 46 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index d92c15c..c43fa97 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -567,10 +567,56 @@ static int __devexit imx_keypad_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+#ifdef CONFIG_PM
-+static int imx_kbd_suspend(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct imx_keypad *kbd = platform_get_drvdata(pdev);
-+	struct input_dev *input_dev = kbd->input_dev;
-+
-+	/* imx kbd can wake up system even clock is disabled */
-+	mutex_lock(&input_dev->mutex);
-+
-+	if (input_dev->users)
-+		clk_disable(kbd->clk);
-+
-+	mutex_unlock(&input_dev->mutex);
-+
-+	if (device_may_wakeup(&pdev->dev))
-+		enable_irq_wake(kbd->irq);
-+
-+	return 0;
-+}
-+
-+static int imx_kbd_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct imx_keypad *kbd = platform_get_drvdata(pdev);
-+	struct input_dev *input_dev = kbd->input_dev;
-+
-+	if (device_may_wakeup(&pdev->dev))
-+		disable_irq_wake(kbd->irq);
-+
-+	mutex_lock(&input_dev->mutex);
-+
-+	if (input_dev->users)
-+		clk_enable(kbd->clk);
-+
-+	mutex_unlock(&input_dev->mutex);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(imx_kbd_pm_ops, imx_kbd_suspend, imx_kbd_resume);
-+#endif
-+
- static struct platform_driver imx_keypad_driver = {
- 	.driver		= {
- 		.name	= "imx-keypad",
- 		.owner	= THIS_MODULE,
-+#ifdef CONFIG_PM
-+		.pm	= &imx_kbd_pm_ops,
-+#endif
- 	},
- 	.probe		= imx_keypad_probe,
- 	.remove		= __devexit_p(imx_keypad_remove),
 -- 
-1.7.6
-
+Dmitry

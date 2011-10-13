@@ -1,66 +1,104 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH v1 1/1] hid-magicmouse: Magic Trackpad has 1 button, not
- 2
-Date: Thu, 13 Oct 2011 09:28:32 -0700
-Message-ID: <4E9711B0.3070708@canonical.com>
-References: <4E96B7D8.3030005@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
+Date: Thu, 13 Oct 2011 19:21:36 +0200
+Message-ID: <20111013172136.GA2234@polaris.bitmath.org>
+References: <20111013082016.GA2209@polaris.bitmath.org>
+ <Pine.LNX.4.44L0.1110131134270.2026-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:37142 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756213Ab1JMQ2g (ORCPT
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:46792 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753793Ab1JMROc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Oct 2011 12:28:36 -0400
-In-Reply-To: <4E96B7D8.3030005@gmail.com>
+	Thu, 13 Oct 2011 13:14:32 -0400
+Received: from iph4.telenor.se (iph4.telenor.se [195.54.127.135])
+	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 27058E9C5F
+	for <linux-input@vger.kernel.org>; Thu, 13 Oct 2011 19:14:30 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.1110131134270.2026-100000@iolanthe.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel van Vugt <vanvugt@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Oliver Neukum <oliver@neukum.org>, linux-input@vger.kernel.org, dtor@mail.ru
 
-On 10/13/2011 03:05 AM, Daniel van Vugt wrote:
-> hid-magicmouse was advertising the Apple Magic Trackpad as having 2
-> buttons (left and right) when it actually only has 1 button.
+> > I tried the patch out, unfortunately it did not work. The second
+> > suspend request returns with a -EINPROGRESS, here:
+> > 
+> > 	if (dev->power.runtime_status == RPM_SUSPENDING) {
+> > 		DEFINE_WAIT(wait);
+> > 
+> > 		if (rpmflags & (RPM_ASYNC | RPM_NOWAIT)) {
+> > 			retval = -EINPROGRESS;
+> > 			goto out;
+> > 		}
+> > 
+> > 		/* Wait for the other suspend running in parallel with us. */
+> > 		for (;;) {
+> > 
+> > The reason is above my horizon, although RPM_ASYNC looks suspicious.
+> > In general, we are re-entering rpm_suspend from within the driver
+> > handler, so the exit condition of rpm_suspend may not have been
+> > satisfied yet.
 > 
-> Advertising multiple buttons in turn makes the xorg synaptics code
-> disable all button 2 and 3 emulation (using multi-finger clicks). So
-> xorg users don't get working right/middle-click emulation out of the box.
+> Ah yes, I vaguely remember thinking that another part would have to be
+> fixed.  But it's not just the part you identified; the error actually
+> occurred higher up.  The patch below ought to help.
+
+Yes, this works nicely, thank you. I attached my tested-by at the end,
+presuming there will be a formal patch. :-)
+
+>  drivers/base/power/runtime.c |   18 ++++++++++++------
+>  1 file changed, 12 insertions(+), 6 deletions(-)
 > 
-> This patch makes hid-magicmouse correctly only report one real button
-> for Magic Trackpad, which in turn makes xorg enable multi-finger click
-> support to emulate right/middle buttons.
-> 
-> [http://launchpad.net/bugs/862094]
-> 
-> Signed-off-by: Daniel van Vugt <vanvugt@gmail.com>
-> ---
-> drivers/hid/hid-magicmouse.c |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index f0fbd7b..12200e6 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -405,6 +405,8 @@ static void magicmouse_setup_input(struct input_dev
-> *input, struct hid_device *h
->  			__set_bit(REL_HWHEEL, input->relbit);
+> Index: usb-3.1/drivers/base/power/runtime.c
+> ===================================================================
+> --- usb-3.1.orig/drivers/base/power/runtime.c
+> +++ usb-3.1/drivers/base/power/runtime.c
+> @@ -278,8 +278,9 @@ static int rpm_callback(int (*cb)(struct
+>   * @rpmflags: Flag bits.
+>   *
+>   * Check if the device's runtime PM status allows it to be suspended.  If
+> - * another suspend has been started earlier, either return immediately or wait
+> - * for it to finish, depending on the RPM_NOWAIT and RPM_ASYNC flags.  Cancel a
+> + * another suspend has been started earlier and the RPM_ASYNC flag isn't set,
+> + * either return immediately or wait for it to finish, depending on the
+> + * RPM_NOWAIT flag.  Cancel a
+>   * pending idle notification.  If the RPM_ASYNC flag is set then queue a
+>   * suspend request; otherwise run the ->runtime_suspend() callback directly.
+>   * If a deferred resume was requested while the callback was running then carry
+> @@ -311,8 +312,7 @@ static int rpm_suspend(struct device *de
+>  		goto out;
+>  
+>  	/* If the autosuspend_delay time hasn't expired yet, reschedule. */
+> -	if ((rpmflags & RPM_AUTO)
+> -	    && dev->power.runtime_status != RPM_SUSPENDING) {
+> +	if (rpmflags & RPM_AUTO) {
+>  		unsigned long expires = pm_runtime_autosuspend_expiration(dev);
+>  
+>  		if (expires != 0) {
+> @@ -339,10 +339,16 @@ static int rpm_suspend(struct device *de
+>  	/* Other scheduled or pending requests need to be canceled. */
+>  	pm_runtime_cancel_pending(dev);
+>  
+> -	if (dev->power.runtime_status == RPM_SUSPENDING) {
+> +	/*
+> +	 * If the request is synchronous, wait for a concurrent suspend attempt
+> +	 * to finish.  Allow asynchronous requests to go through; they will be
+> +	 * cancelled if the concurrent suspend succeeds.
+> +	 */
+> +	if (dev->power.runtime_status == RPM_SUSPENDING &&
+> +			!(rpmflags & RPM_ASYNC)) {
+>  		DEFINE_WAIT(wait);
+>  
+> -		if (rpmflags & (RPM_ASYNC | RPM_NOWAIT)) {
+> +		if (rpmflags & RPM_NOWAIT) {
+>  			retval = -EINPROGRESS;
+>  			goto out;
 >  		}
->  	} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> +		__clear_bit(BTN_RIGHT, input->keybit);
-> +		__clear_bit(BTN_MIDDLE, input->keybit);
->  		__set_bit(BTN_MOUSE, input->keybit);
->  		__set_bit(BTN_TOOL_FINGER, input->keybit);
->  		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
+> 
 
-Please put a comment above these lines stating that when the trackpad is
-put into multitouch mode, the right and middle buttons are not emitted.
-I can see someone later wondering why the clearing was there, and if
-commenting them out would magically make right and middle button events
-be emitted.
+    Tested-by: Henrik Rydberg <rydberg@euromail.se>
 
-With that comment:
-
-Reviewed-by: Chase Douglas <chase.douglas@canonical.com>
-
-Thanks!
+Thanks,
+Henrik

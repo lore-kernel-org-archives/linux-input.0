@@ -1,105 +1,67 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
-Date: Thu, 13 Oct 2011 11:49:27 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1110131134270.2026-100000@iolanthe.rowland.org>
-References: <20111013082016.GA2209@polaris.bitmath.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: possible race between reset and error handling in usbhid
+Date: Thu, 13 Oct 2011 18:20:52 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1110131819500.14768@pobox.suse.cz>
+References: <201110121614.23410.oneukum@suse.de>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:59298 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754300Ab1JMPt1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Oct 2011 11:49:27 -0400
-In-Reply-To: <20111013082016.GA2209@polaris.bitmath.org>
+Received: from cantor2.suse.de ([195.135.220.15]:36382 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756018Ab1JMQUx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Oct 2011 12:20:53 -0400
+In-Reply-To: <201110121614.23410.oneukum@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Oliver Neukum <oliver@neukum.org>, linux-input@vger.kernel.org, dtor@mail.ru
+To: Oliver Neukum <oneukum@suse.de>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Thu, 13 Oct 2011, Henrik Rydberg wrote:
+On Wed, 12 Oct 2011, Oliver Neukum wrote:
 
-> > It's always a bug.  However, the patch I sent to Matthew should fix the 
-> > immediate problem.
-> > 
-> > In fact, the original autosuspend design intended to allow drivers to 
-> > do this -- keep devices awake by failing suspend requests even though 
-> > the usage count is 0.  Under some conditions, that's the approach with 
-> > the least overhead.  But the code to handle this got lost by mistake, 
-> > so now it needs to be added back.
+> looking at the usbhid code it seems to me that there is no protection
+> between the error handling code and pre_reset() racing.
 > 
-> I tried the patch out, unfortunately it did not work. The second
-> suspend request returns with a -EINPROGRESS, here:
+> In particular there seems to be no protection from hid_retry_timeout() calling
+> hid_start_in() which would start IO after hid_pre_reset() has already called
+> hid_cease_io() because that uses del_timer(), not del_timer_sync()
 > 
-> 	if (dev->power.runtime_status == RPM_SUSPENDING) {
-> 		DEFINE_WAIT(wait);
+> What do you think about this patch?
+
+Looks like you made a good catch, thanks. Out of curiosity -- did you 
+encounter this happening for real, or have you find out by code reading?
+
 > 
-> 		if (rpmflags & (RPM_ASYNC | RPM_NOWAIT)) {
-> 			retval = -EINPROGRESS;
-> 			goto out;
-> 		}
+> 	Regards
+> 		Oliver
 > 
-> 		/* Wait for the other suspend running in parallel with us. */
-> 		for (;;) {
+> From d13b3b42669cfbed3716d040cc8ce489fecd6963 Mon Sep 17 00:00:00 2001
+> From: Oliver Neukum <oliver@neukum.org>
+> Date: Wed, 12 Oct 2011 10:54:54 +0200
+> Subject: [PATCH] USB: usbhid: cancel timer for retry synchronously
 > 
-> The reason is above my horizon, although RPM_ASYNC looks suspicious.
-> In general, we are re-entering rpm_suspend from within the driver
-> handler, so the exit condition of rpm_suspend may not have been
-> satisfied yet.
+> This makes sure IO is never restarted while a reset is going on
+> 
+> Signed-off-by: Oliver Neukum <oneukum@suse.de>
+> ---
+>  drivers/hid/usbhid/hid-core.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index ad978f5..77e705c 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -1270,7 +1270,7 @@ static void hid_cancel_delayed_stuff(struct usbhid_device *usbhid)
+>  
+>  static void hid_cease_io(struct usbhid_device *usbhid)
+>  {
+> -	del_timer(&usbhid->io_retry);
+> +	del_timer_sync(&usbhid->io_retry);
+>  	usb_kill_urb(usbhid->urbin);
+>  	usb_kill_urb(usbhid->urbctrl);
+>  	usb_kill_urb(usbhid->urbout);
 
-Ah yes, I vaguely remember thinking that another part would have to be
-fixed.  But it's not just the part you identified; the error actually
-occurred higher up.  The patch below ought to help.
+Will queue this up. Thanks again,
 
-Alan Stern
-
-
- drivers/base/power/runtime.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
-
-Index: usb-3.1/drivers/base/power/runtime.c
-===================================================================
---- usb-3.1.orig/drivers/base/power/runtime.c
-+++ usb-3.1/drivers/base/power/runtime.c
-@@ -278,8 +278,9 @@ static int rpm_callback(int (*cb)(struct
-  * @rpmflags: Flag bits.
-  *
-  * Check if the device's runtime PM status allows it to be suspended.  If
-- * another suspend has been started earlier, either return immediately or wait
-- * for it to finish, depending on the RPM_NOWAIT and RPM_ASYNC flags.  Cancel a
-+ * another suspend has been started earlier and the RPM_ASYNC flag isn't set,
-+ * either return immediately or wait for it to finish, depending on the
-+ * RPM_NOWAIT flag.  Cancel a
-  * pending idle notification.  If the RPM_ASYNC flag is set then queue a
-  * suspend request; otherwise run the ->runtime_suspend() callback directly.
-  * If a deferred resume was requested while the callback was running then carry
-@@ -311,8 +312,7 @@ static int rpm_suspend(struct device *de
- 		goto out;
- 
- 	/* If the autosuspend_delay time hasn't expired yet, reschedule. */
--	if ((rpmflags & RPM_AUTO)
--	    && dev->power.runtime_status != RPM_SUSPENDING) {
-+	if (rpmflags & RPM_AUTO) {
- 		unsigned long expires = pm_runtime_autosuspend_expiration(dev);
- 
- 		if (expires != 0) {
-@@ -339,10 +339,16 @@ static int rpm_suspend(struct device *de
- 	/* Other scheduled or pending requests need to be canceled. */
- 	pm_runtime_cancel_pending(dev);
- 
--	if (dev->power.runtime_status == RPM_SUSPENDING) {
-+	/*
-+	 * If the request is synchronous, wait for a concurrent suspend attempt
-+	 * to finish.  Allow asynchronous requests to go through; they will be
-+	 * cancelled if the concurrent suspend succeeds.
-+	 */
-+	if (dev->power.runtime_status == RPM_SUSPENDING &&
-+			!(rpmflags & RPM_ASYNC)) {
- 		DEFINE_WAIT(wait);
- 
--		if (rpmflags & (RPM_ASYNC | RPM_NOWAIT)) {
-+		if (rpmflags & RPM_NOWAIT) {
- 			retval = -EINPROGRESS;
- 			goto out;
- 		}
-
+-- 
+Jiri Kosina
+SUSE Labs

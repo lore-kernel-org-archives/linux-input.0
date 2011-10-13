@@ -1,41 +1,54 @@
-From: Oliver Neukum <oliver@neukum.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
 Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
-Date: Thu, 13 Oct 2011 08:47:33 +0200
-Message-ID: <201110130847.33353.oliver@neukum.org>
-References: <20111012135439.GA25266@srcf.ucam.org> <201110121638.38747.oliver@neukum.org> <20111012185003.GB10397@polaris.bitmath.org>
+Date: Thu, 13 Oct 2011 10:20:16 +0200
+Message-ID: <20111013082016.GA2209@polaris.bitmath.org>
+References: <20111012183306.GA10397@polaris.bitmath.org>
+ <Pine.LNX.4.44L0.1110121518510.2093-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:54410 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751535Ab1JMGrM (ORCPT
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:47303 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753605Ab1JMINQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Oct 2011 02:47:12 -0400
-In-Reply-To: <20111012185003.GB10397@polaris.bitmath.org>
+	Thu, 13 Oct 2011 04:13:16 -0400
+Received: from iph5.telenor.se (iph5.telenor.se [195.54.127.136])
+	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 642EAE9EFC
+	for <linux-input@vger.kernel.org>; Thu, 13 Oct 2011 10:13:14 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.1110121518510.2093-100000@iolanthe.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Alan Stern <stern@rowland.harvard.edu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Oliver Neukum <oliver@neukum.org>, linux-input@vger.kernel.org, dtor@mail.ru
 
-Am Mittwoch, 12. Oktober 2011, 20:50:03 schrieb Henrik Rydberg:
-> On Wed, Oct 12, 2011 at 04:38:38PM +0200, Oliver Neukum wrote:
-> > Am Mittwoch, 12. Oktober 2011, 16:26:21 schrieb Matthew Garrett:
-> > > Sorry, yes, you're right. In that case it's probably working for me 
-> > > because the keyboard is another interface on the same device, so the 
-> > > wakeup bit is being set from there.
-> > 
-> > Very good. A mystery is solved. Indeed you may have found
-> > a deficiency in the USB spec.
+> It's always a bug.  However, the patch I sent to Matthew should fix the 
+> immediate problem.
 > 
-> Glad you sorted this out. So we can really only treat a device as one
-> (auto)power unit, due to remote wakeup being requested at the device level,
-> rather than at the interface level.
+> In fact, the original autosuspend design intended to allow drivers to 
+> do this -- keep devices awake by failing suspend requests even though 
+> the usage count is 0.  Under some conditions, that's the approach with 
+> the least overhead.  But the code to handle this got lost by mistake, 
+> so now it needs to be added back.
 
-Yes, when in doubt we must request it, even at the cost of unnecessary wakeups.
-This also means that only Matthew's latest patch is correct. We cannot depend
-on the usbhid always be loaded and requesting remote wakeups.
+I tried the patch out, unfortunately it did not work. The second
+suspend request returns with a -EINPROGRESS, here:
 
-	Regards
-		Oliver
+	if (dev->power.runtime_status == RPM_SUSPENDING) {
+		DEFINE_WAIT(wait);
+
+		if (rpmflags & (RPM_ASYNC | RPM_NOWAIT)) {
+			retval = -EINPROGRESS;
+			goto out;
+		}
+
+		/* Wait for the other suspend running in parallel with us. */
+		for (;;) {
+
+The reason is above my horizon, although RPM_ASYNC looks suspicious.
+In general, we are re-entering rpm_suspend from within the driver
+handler, so the exit condition of rpm_suspend may not have been
+satisfied yet.
+
+Thanks,
+Henrik

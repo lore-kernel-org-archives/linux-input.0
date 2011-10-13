@@ -1,51 +1,66 @@
-From: Daniel van Vugt <vanvugt@gmail.com>
-Subject: [PATCH v1 1/1] hid-magicmouse: Magic Trackpad has 1 button, not 2
-Date: Thu, 13 Oct 2011 18:05:12 +0800
-Message-ID: <4E96B7D8.3030005@gmail.com>
+From: Javier Martinez Canillas <martinez.javier@gmail.com>
+Subject: Re: [PATCH v5 0/3] Input: Cypress TTSP device driver
+Date: Thu, 13 Oct 2011 16:06:33 +0200
+Message-ID: <CAAwP0s0iQtsmf6=2H17o_k6UagTdHeTffkaFWuB4UMPgb=WdxA@mail.gmail.com>
+References: <1318099080-26227-1-git-send-email-martinez.javier@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:45580 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752274Ab1JMKFS (ORCPT
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:56901 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755632Ab1JMOGy convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Oct 2011 06:05:18 -0400
-Received: by vcbgb30 with SMTP id gb30so1343312vcb.19
-        for <linux-input@vger.kernel.org>; Thu, 13 Oct 2011 03:05:18 -0700 (PDT)
+	Thu, 13 Oct 2011 10:06:54 -0400
+In-Reply-To: <1318099080-26227-1-git-send-email-martinez.javier@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-hid-magicmouse was advertising the Apple Magic Trackpad as having 2
-buttons (left and right) when it actually only has 1 button.
+On Sat, Oct 8, 2011 at 8:37 PM, Javier Martinez Canillas
+<martinez.javier@gmail.com> wrote:
+> Cypress TrueTouch(tm) Standard Product controllers are found in
+> a wide range of embedded devices. This patch-set adds support for a
+> variety of TTSP controllers.
+>
+> The original author of the driver is Kevin McNeely <kev@cypress.com>
+>
+> Since the hardware is capable of tracking identifiable contacts and t=
+he
+> original driver used multi-touch protocol type A (stateless), I've ad=
+ded
+> multi-touch protocol type B (stateful) support.
+>
+> The driver is composed of a core driver that process the data sent by
+> the contacts (fingers) and two bus specific interface modules (I2C an=
+d SPI).
+>
+> This is a fifth version of the driver that fixes issues called out by
+> Dmitry Torokhov, Henrik Rydberg and Mohan Pallaka and Kevin McNeely.
+>
+> The patchset is composed of the patches:
+>
+> [PATCH v5 1/3] Input: cyttsp - Cypress TTSP capacitive multi-touch sc=
+reen support
+> [PATCH v5 2/3] Input: cyttsp - add support for Cypress TTSP touchscre=
+en I2C bus interface
+> [PATCH v5 3/3] Input: cyttsp - add support for Cypress TTSP touchscre=
+en SPI bus interface
+>
 
-Advertising multiple buttons in turn makes the xorg synaptics code
-disable all button 2 and 3 emulation (using multi-finger clicks). So
-xorg users don't get working right/middle-click emulation out of the box.
+Hi Henrik,
 
-This patch makes hid-magicmouse correctly only report one real button
-for Magic Trackpad, which in turn makes xorg enable multi-finger click
-support to emulate right/middle buttons.
+Any feedback from this patch-set?
 
-[http://launchpad.net/bugs/862094]
+Thank you and best regards,
 
-Signed-off-by: Daniel van Vugt <vanvugt@gmail.com>
----
-drivers/hid/hid-magicmouse.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index f0fbd7b..12200e6 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -405,6 +405,8 @@ static void magicmouse_setup_input(struct input_dev
-*input, struct hid_device *h
- 			__set_bit(REL_HWHEEL, input->relbit);
- 		}
- 	} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-+		__clear_bit(BTN_RIGHT, input->keybit);
-+		__clear_bit(BTN_MIDDLE, input->keybit);
- 		__set_bit(BTN_MOUSE, input->keybit);
- 		__set_bit(BTN_TOOL_FINGER, input->keybit);
- 		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
+--=20
+Javier Mart=C3=ADnez Canillas
+(+34) 682 39 81 69
+Barcelona, Spain
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,104 +1,287 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
-Date: Thu, 13 Oct 2011 19:21:36 +0200
-Message-ID: <20111013172136.GA2234@polaris.bitmath.org>
-References: <20111013082016.GA2209@polaris.bitmath.org>
- <Pine.LNX.4.44L0.1110131134270.2026-100000@iolanthe.rowland.org>
+Subject: Re: [PATCH v5 1/3] Input: cyttsp - Cypress TTSP capacitive
+ multi-touch screen support
+Date: Thu, 13 Oct 2011 20:03:20 +0200
+Message-ID: <20111013180319.GA2308@polaris.bitmath.org>
+References: <1318099080-26227-1-git-send-email-martinez.javier@gmail.com>
+ <1318099080-26227-2-git-send-email-martinez.javier@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:46792 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753793Ab1JMROc (ORCPT
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:57042 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756622Ab1JMR4Q (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Oct 2011 13:14:32 -0400
-Received: from iph4.telenor.se (iph4.telenor.se [195.54.127.135])
-	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 27058E9C5F
-	for <linux-input@vger.kernel.org>; Thu, 13 Oct 2011 19:14:30 +0200 (CEST)
+	Thu, 13 Oct 2011 13:56:16 -0400
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.1110131134270.2026-100000@iolanthe.rowland.org>
+In-Reply-To: <1318099080-26227-2-git-send-email-martinez.javier@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Oliver Neukum <oliver@neukum.org>, linux-input@vger.kernel.org, dtor@mail.ru
+To: Javier Martinez Canillas <martinez.javier@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> > I tried the patch out, unfortunately it did not work. The second
-> > suspend request returns with a -EINPROGRESS, here:
-> > 
-> > 	if (dev->power.runtime_status == RPM_SUSPENDING) {
-> > 		DEFINE_WAIT(wait);
-> > 
-> > 		if (rpmflags & (RPM_ASYNC | RPM_NOWAIT)) {
-> > 			retval = -EINPROGRESS;
-> > 			goto out;
-> > 		}
-> > 
-> > 		/* Wait for the other suspend running in parallel with us. */
-> > 		for (;;) {
-> > 
-> > The reason is above my horizon, although RPM_ASYNC looks suspicious.
-> > In general, we are re-entering rpm_suspend from within the driver
-> > handler, so the exit condition of rpm_suspend may not have been
-> > satisfied yet.
-> 
-> Ah yes, I vaguely remember thinking that another part would have to be
-> fixed.  But it's not just the part you identified; the error actually
-> occurred higher up.  The patch below ought to help.
+Hi Javier,
 
-Yes, this works nicely, thank you. I attached my tested-by at the end,
-presuming there will be a formal patch. :-)
+some more comments on the code. Presumable Dmitry will have additional
+ones later on. Thank you for your patience.
 
->  drivers/base/power/runtime.c |   18 ++++++++++++------
->  1 file changed, 12 insertions(+), 6 deletions(-)
-> 
-> Index: usb-3.1/drivers/base/power/runtime.c
-> ===================================================================
-> --- usb-3.1.orig/drivers/base/power/runtime.c
-> +++ usb-3.1/drivers/base/power/runtime.c
-> @@ -278,8 +278,9 @@ static int rpm_callback(int (*cb)(struct
->   * @rpmflags: Flag bits.
->   *
->   * Check if the device's runtime PM status allows it to be suspended.  If
-> - * another suspend has been started earlier, either return immediately or wait
-> - * for it to finish, depending on the RPM_NOWAIT and RPM_ASYNC flags.  Cancel a
-> + * another suspend has been started earlier and the RPM_ASYNC flag isn't set,
-> + * either return immediately or wait for it to finish, depending on the
-> + * RPM_NOWAIT flag.  Cancel a
->   * pending idle notification.  If the RPM_ASYNC flag is set then queue a
->   * suspend request; otherwise run the ->runtime_suspend() callback directly.
->   * If a deferred resume was requested while the callback was running then carry
-> @@ -311,8 +312,7 @@ static int rpm_suspend(struct device *de
->  		goto out;
->  
->  	/* If the autosuspend_delay time hasn't expired yet, reschedule. */
-> -	if ((rpmflags & RPM_AUTO)
-> -	    && dev->power.runtime_status != RPM_SUSPENDING) {
-> +	if (rpmflags & RPM_AUTO) {
->  		unsigned long expires = pm_runtime_autosuspend_expiration(dev);
->  
->  		if (expires != 0) {
-> @@ -339,10 +339,16 @@ static int rpm_suspend(struct device *de
->  	/* Other scheduled or pending requests need to be canceled. */
->  	pm_runtime_cancel_pending(dev);
->  
-> -	if (dev->power.runtime_status == RPM_SUSPENDING) {
-> +	/*
-> +	 * If the request is synchronous, wait for a concurrent suspend attempt
-> +	 * to finish.  Allow asynchronous requests to go through; they will be
-> +	 * cancelled if the concurrent suspend succeeds.
-> +	 */
-> +	if (dev->power.runtime_status == RPM_SUSPENDING &&
-> +			!(rpmflags & RPM_ASYNC)) {
->  		DEFINE_WAIT(wait);
->  
-> -		if (rpmflags & (RPM_ASYNC | RPM_NOWAIT)) {
-> +		if (rpmflags & RPM_NOWAIT) {
->  			retval = -EINPROGRESS;
->  			goto out;
->  		}
-> 
+> +/* Slots management */
+> +#define CY_MAX_FINGER               4
+> +#define CY_MAX_ID                   15
 
-    Tested-by: Henrik Rydberg <rydberg@euromail.se>
+I realize the firmware reports ids in the range [1..14], but it is not
+visible from the code. Allowing all 16 values makes correctness
+obvious.
 
-Thanks,
+> +static int cyttsp_load_bl_regs(struct cyttsp *ts)
+> +{
+> +	int retval;
+> +
+> +	memset(&(ts->bl_data), 0, sizeof(struct cyttsp_bootloader_data));
+> +
+> +	ts->bl_data.bl_status = 0x10;
+> +
+> +	retval =  ttsp_read_block_data(ts, CY_REG_BASE,
+> +		sizeof(ts->bl_data), &(ts->bl_data));
+> +
+> +	return retval;
+> +}
+
+Looks like you missed the removal of retval here.
+
+> +
+> +static int cyttsp_bl_app_valid(struct cyttsp *ts)
+> +{
+> +	int retval;
+> +
+> +	retval = cyttsp_load_bl_regs(ts);
+> +
+> +	if (retval < 0) {
+> +		retval = -ENODEV;
+> +		goto done;
+> +	}
+> +
+> +	if (GET_BOOTLOADERMODE(ts->bl_data.bl_status)) {
+> +		if (IS_VALID_APP(ts->bl_data.bl_status)) {
+> +			dev_dbg(ts->dev, "%s: App found; normal boot\n",
+> +				__func__);
+> +			return 0;
+> +		} else {
+> +			dev_dbg(ts->dev, "%s: NO APP; load firmware!!\n",
+> +				__func__);
+> +			return -ENODEV;
+> +		}
+> +	}
+> +
+> +	if (GET_HSTMODE(ts->bl_data.bl_file) == CY_OPERATE_MODE) {
+> +		if (!(IS_OPERATIONAL_ERR(ts->bl_data.bl_status))) {
+> +			dev_dbg(ts->dev, "%s: Operational\n",
+> +				__func__);
+> +			return 1;
+> +		} else {
+> +			dev_dbg(ts->dev, "%s: Operational failure\n",
+> +				__func__);
+> +			return -ENODEV;
+> +		}
+> +	}
+> +
+> +	dev_dbg(ts->dev, "%s: Non-Operational failure\n",
+> +		__func__);
+> +	retval = -ENODEV;
+> +done:
+> +	return retval;
+> +
+> +}
+
+Are the debug paths still necessary? There are a lot of them.
+
+> +static int cyttsp_exit_bl_mode(struct cyttsp *ts)
+> +{
+> +	int retval;
+> +	int tries;
+> +	u8 bl_cmd[sizeof(bl_command)];
+> +
+> +	memcpy(bl_cmd, bl_command, sizeof(bl_command));
+> +	if (ts->platform_data->bl_keys)
+> +		memcpy(&bl_cmd[sizeof(bl_command) - CY_NUM_BL_KEYS],
+> +			ts->platform_data->bl_keys, sizeof(bl_command));
+> +
+> +	dev_dbg(ts->dev,
+> +		"%s: bl_cmd= "
+> +		"%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n",
+> +		__func__, bl_cmd[0], bl_cmd[1], bl_cmd[2],
+> +		bl_cmd[3], bl_cmd[4], bl_cmd[5], bl_cmd[6],
+> +		bl_cmd[7], bl_cmd[8], bl_cmd[9], bl_cmd[10]);
+> +
+> +	retval = ttsp_write_block_data(ts, CY_REG_BASE,
+> +		sizeof(bl_cmd), (void *)bl_cmd);
+> +	if (retval < 0)
+> +		return retval;
+> +
+> +	/* wait for TTSP Device to complete switch to Operational mode */
+> +	tries = 0;
+> +	do {
+> +		msleep(CY_DELAY_DFLT);
+> +		retval = cyttsp_load_bl_regs(ts);
+> +	} while (!((retval == 0) &&
+> +		!GET_BOOTLOADERMODE(ts->bl_data.bl_status)) &&
+> +		(tries++ < CY_DELAY_MAX));
+> +
+> +	dev_dbg(ts->dev, "%s: check bl ready tries=%d ret=%d stat=%02X\n",
+> +		__func__, tries, retval, ts->bl_data.bl_status);
+> +
+> +	if (retval < 0)
+> +		return retval;
+> +	else if (GET_BOOTLOADERMODE(ts->bl_data.bl_status))
+> +		return -ENODEV;
+> +	else
+> +		return 0;
+> +}
+
+Regardless of if it can ever happen, programatically the (retval > 0)
+&& GET_BOOTLOADERMODE(ts->bl_data.bl_status) case is slipping through here.
+
+> +static int cyttsp_set_operational_mode(struct cyttsp *ts)
+> +{
+> +	struct cyttsp_xydata xy_data;
+> +	int retval;
+> +	int tries;
+> +	u8 cmd = CY_OPERATE_MODE;
+> +
+> +	retval = ttsp_write_block_data(ts, CY_REG_BASE, sizeof(cmd), &cmd);
+> +
+> +	if (retval < 0)
+> +		return retval;
+> +
+> +	/* wait for TTSP Device to complete switch to Operational mode */
+> +	tries = 0;
+> +	do {
+> +		retval = ttsp_read_block_data(ts, CY_REG_BASE,
+> +			sizeof(xy_data), &(xy_data));
+> +	} while (!((retval == 0) &&
+> +		(xy_data.act_dist == CY_ACT_DIST_DFLT)) &&
+> +		(tries++ < CY_DELAY_MAX));
+> +
+> +	dev_dbg(ts->dev, "%s: check op ready tries=%d ret=%d dist=%02X\n",
+> +		__func__, tries, retval, xy_data.act_dist);
+> +
+> +	return retval;
+> +}
+
+So (xy_data.act_dist == CY_ACT_DIST_DFL) here is not an error?
+
+> +static int cyttsp_set_sysinfo_mode(struct cyttsp *ts)
+> +{
+> +	int retval;
+> +	int tries;
+> +	u8 cmd = CY_SYSINFO_MODE;
+> +
+> +	memset(&(ts->sysinfo_data), 0, sizeof(struct cyttsp_sysinfo_data));
+> +
+> +	/* switch to sysinfo mode */
+> +	retval = ttsp_write_block_data(ts, CY_REG_BASE, sizeof(cmd), &cmd);
+> +	if (retval < 0)
+> +		return retval;
+> +
+> +	/* read sysinfo registers */
+> +	tries = 0;
+> +	do {
+> +		msleep(CY_DELAY_DFLT);
+> +		retval = ttsp_read_block_data(ts, CY_REG_BASE,
+> +			sizeof(ts->sysinfo_data), &(ts->sysinfo_data));
+> +	} while (!((retval == 0) &&
+> +		!((ts->sysinfo_data.tts_verh == 0) &&
+> +		(ts->sysinfo_data.tts_verl == 0))) &&
+> +		(tries++ < CY_DELAY_MAX));
+
+Expands to (retval ||  !ts->sysinfo_data.tts_verh &&
+!ts->sysinfo_data.tts_verl) && (tries++ < CY_DELAY_MAX), which seems a
+bit simpler to me. Also, &ts->sysinfo_data could be a pointer here.
+
+Coding verh+verl as a 16-bit value?
+
+Are the timeouted (tries >= CY_DELAY_MAX) cases not errors here either?
+
+<snip>
+
+> +static int cyttsp_soft_reset(struct cyttsp *ts)
+> +{
+> +	int retval;
+> +	u8 cmd = CY_SOFT_RESET_MODE;
+> +	long wait_jiffies = msecs_to_jiffies(CY_DELAY_DFLT * CY_DELAY_MAX);
+> +	/* wait for interrupt to set ready completion */
+> +	INIT_COMPLETION(ts->bl_ready);
+> +
+> +	retval = ttsp_write_block_data(ts, CY_REG_BASE, sizeof(cmd), &cmd);
+> +	if (retval < 0)
+> +		return retval;
+> +
+> +	retval = wait_for_completion_timeout(&ts->bl_ready, wait_jiffies);
+> +
+> +	if (retval > 0)
+> +		retval = 0;
+
+Seems this one slipped.
+
+> +
+> +	return retval;
+> +}
+> +
+> +static int cyttsp_hndshk(struct cyttsp *ts, u8 hst_mode)
+> +{
+> +	int retval;
+> +	u8 cmd;
+> +
+> +	cmd = hst_mode & CY_HNDSHK_BIT ?
+> +		hst_mode ^ CY_HNDSHK_BIT :
+> +		hst_mode | CY_HNDSHK_BIT;
+
+Whoa, please redo this one correctly.
+
+> +
+> +	retval = ttsp_write_block_data(ts, CY_REG_BASE,
+> +		sizeof(cmd), (u8 *)&cmd);
+> +
+> +	return retval;
+> +}
+
+> +int cyttsp_resume(void *handle)
+> +{
+> +	struct cyttsp *ts = handle;
+> +	int retval = 0;
+> +	struct cyttsp_xydata xydata;
+> +
+> +	if (ts) {
+
+Neater if returning on (!ts) here instead.
+
+> +		if (ts->platform_data->use_sleep && (ts->power_state !=
+> +						     CY_ACTIVE_STATE)) {
+> +			if (ts->platform_data->wakeup) {
+> +				retval = ts->platform_data->wakeup();
+> +				if (retval < 0)
+> +					dev_dbg(ts->dev, "%s: Error, wakeup failed!\n",
+> +						__func__);
+> +			} else {
+> +				dev_dbg(ts->dev, "%s: Error, wakeup not implemented "
+> +					"(check board file).\n", __func__);
+> +				retval = -ENOSYS;
+> +			}
+> +			if (!(retval < 0)) {
+> +				retval = ttsp_read_block_data(ts, CY_REG_BASE,
+> +							      sizeof(xydata),
+> +							      &xydata);
+> +				if (!(retval < 0) &&
+> +				    !GET_HSTMODE(xydata.hst_mode))
+> +					ts->power_state = CY_ACTIVE_STATE;
+> +			}
+> +		}
+> +		dev_dbg(ts->dev, "%s: Wake Up %s\n", __func__,
+> +			(retval < 0) ? "FAIL" : "PASS");
+> +	}
+> +	return retval;
+> +}
+> +EXPORT_SYMBOL_GPL(cyttsp_resume);
+
+Thanks.
 Henrik

@@ -1,51 +1,105 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
-Date: Wed, 12 Oct 2011 15:21:55 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1110121518510.2093-100000@iolanthe.rowland.org>
-References: <20111012183306.GA10397@polaris.bitmath.org>
+From: Hui Wang <jason77.wang@gmail.com>
+Subject: [PATCH v2] input/imx_keypad: add pm suspend and resume functions
+Date: Thu, 13 Oct 2011 10:13:33 +0800
+Message-ID: <1318472013-32517-1-git-send-email-jason77.wang@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:32902 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751988Ab1JLTV4 (ORCPT
+Received: from mail.windriver.com ([147.11.1.11]:57198 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752075Ab1JMCNs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Oct 2011 15:21:56 -0400
-In-Reply-To: <20111012183306.GA10397@polaris.bitmath.org>
+	Wed, 12 Oct 2011 22:13:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Oliver Neukum <oliver@neukum.org>, linux-input@vger.kernel.org, dtor@mail.ru
+To: dmitry.torokhov@gmail.com, s.hauer@pengutronix.de, maramaopercheseimorto@gmail.com, gaowanlong@cn.fujitsu.com
+Cc: linux-input@vger.kernel.org
 
-On Wed, 12 Oct 2011, Henrik Rydberg wrote:
+The imx_keypad driver is set wake capable in the imx_keypad_probe(),
+but it doesn't implement suspend and reusme callback interface.
 
-> On Wed, Oct 12, 2011 at 05:59:05PM +0100, Matthew Garrett wrote:
-> > On Wed, Oct 12, 2011 at 06:56:32PM +0200, Oliver Neukum wrote:
-> > > Am Mittwoch, 12. Oktober 2011, 18:16:51 schrieb Matthew Garrett:
-> > > > Yeah. Plausibly the model we have in hid is wrong at the moment - rather 
-> > > > than set flags that block suspend, it might make more sense to take 
-> > > > references. It'd complicate things a little, in that we'd have to take 
-> > > > more care in terms of keeping track of the state.
-> > > 
-> > > I am afraid references are very hard to take there because it needs to be done
-> > > in interrupt.
-> > 
-> > True. That makes things rather more awkward.
-> 
-> I was looking at usb_autopm_get_interface_no_resume() yesterday for
-> the same reason, it seemed light-weight enough. No?
-> 
-> Btw, I wonder if the patch below would make sense or if calling put*()
-> is always a bug at zero usage count.
+>From the i.MX series MCU Reference Manual, the kpp (keypad port) is
+a major wake up source which can detect any key press even in low
+power modes and even when there is no clock.
 
-It's always a bug.  However, the patch I sent to Matthew should fix the 
-immediate problem.
+Now add suspend and resume callback functions for this driver.
 
-In fact, the original autosuspend design intended to allow drivers to 
-do this -- keep devices awake by failing suspend requests even though 
-the usage count is 0.  Under some conditions, that's the approach with 
-the least overhead.  But the code to handle this got lost by mistake, 
-so now it needs to be added back.
+Signed-off-by: Hui Wang <jason77.wang@gmail.com>
+---
 
-Alan Stern
+Sorry for resending this patch, the previous sent patch with [v2]
+as a prefix, i am afraid that patch was filtered out from mailing list.
+Now resending this patch with [PATCH v2] as a prefix.
+
+In the V2:
+1) add a check for input->users before disable clock.
+2) add mutex_lock/unlock to protect input->users checking.
+3) use SIMPLE_DEV_PM_OPS.
+
+ drivers/input/keyboard/imx_keypad.c |   46 +++++++++++++++++++++++++++++++++++
+ 1 files changed, 46 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index d92c15c..c43fa97 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -567,10 +567,56 @@ static int __devexit imx_keypad_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM
++static int imx_kbd_suspend(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct imx_keypad *kbd = platform_get_drvdata(pdev);
++	struct input_dev *input_dev = kbd->input_dev;
++
++	/* imx kbd can wake up system even clock is disabled */
++	mutex_lock(&input_dev->mutex);
++
++	if (input_dev->users)
++		clk_disable(kbd->clk);
++
++	mutex_unlock(&input_dev->mutex);
++
++	if (device_may_wakeup(&pdev->dev))
++		enable_irq_wake(kbd->irq);
++
++	return 0;
++}
++
++static int imx_kbd_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct imx_keypad *kbd = platform_get_drvdata(pdev);
++	struct input_dev *input_dev = kbd->input_dev;
++
++	if (device_may_wakeup(&pdev->dev))
++		disable_irq_wake(kbd->irq);
++
++	mutex_lock(&input_dev->mutex);
++
++	if (input_dev->users)
++		clk_enable(kbd->clk);
++
++	mutex_unlock(&input_dev->mutex);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(imx_kbd_pm_ops, imx_kbd_suspend, imx_kbd_resume);
++#endif
++
+ static struct platform_driver imx_keypad_driver = {
+ 	.driver		= {
+ 		.name	= "imx-keypad",
+ 		.owner	= THIS_MODULE,
++#ifdef CONFIG_PM
++		.pm	= &imx_kbd_pm_ops,
++#endif
+ 	},
+ 	.probe		= imx_keypad_probe,
+ 	.remove		= __devexit_p(imx_keypad_remove),
+-- 
+1.7.6
 

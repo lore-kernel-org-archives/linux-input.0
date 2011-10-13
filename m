@@ -1,38 +1,41 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch] Input: CMA3000 - signedness bug in cma3000_thread_irq()
-Date: Thu, 13 Oct 2011 09:42:57 +0300
-Message-ID: <20111013064257.GA11651@elgon.mountain>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
+Date: Thu, 13 Oct 2011 08:47:33 +0200
+Message-ID: <201110130847.33353.oliver@neukum.org>
+References: <20111012135439.GA25266@srcf.ucam.org> <201110121638.38747.oliver@neukum.org> <20111012185003.GB10397@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from acsinet15.oracle.com ([141.146.126.227]:51892 "EHLO
-	acsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751287Ab1JMGnQ (ORCPT
+Received: from smtp-out003.kontent.com ([81.88.40.217]:54410 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751535Ab1JMGrM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Oct 2011 02:43:16 -0400
-Content-Disposition: inline
+	Thu, 13 Oct 2011 02:47:12 -0400
+In-Reply-To: <20111012185003.GB10397@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Shubhrajyoti <Shubhrajyoti@ti.com>, Sergio Aguirre <saaguirre@ti.com>, Jonathan Cameron <jic23@cam.ac.uk>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Alan Stern <stern@rowland.harvard.edu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-The ->read() function returns an int; negative error codes on error
-or a byte of data on success.  intr_status needs to be signed here
-for the error handling to work.
+Am Mittwoch, 12. Oktober 2011, 20:50:03 schrieb Henrik Rydberg:
+> On Wed, Oct 12, 2011 at 04:38:38PM +0200, Oliver Neukum wrote:
+> > Am Mittwoch, 12. Oktober 2011, 16:26:21 schrieb Matthew Garrett:
+> > > Sorry, yes, you're right. In that case it's probably working for me 
+> > > because the keyboard is another interface on the same device, so the 
+> > > wakeup bit is being set from there.
+> > 
+> > Very good. A mystery is solved. Indeed you may have found
+> > a deficiency in the USB spec.
+> 
+> Glad you sorted this out. So we can really only treat a device as one
+> (auto)power unit, due to remote wakeup being requested at the device level,
+> rather than at the interface level.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Yes, when in doubt we must request it, even at the cost of unnecessary wakeups.
+This also means that only Matthew's latest patch is correct. We cannot depend
+on the usbhid always be loaded and requesting remote wakeups.
 
-diff --git a/drivers/input/misc/cma3000_d0x.c b/drivers/input/misc/cma3000_d0x.c
-index 80793f1..2a42b53 100644
---- a/drivers/input/misc/cma3000_d0x.c
-+++ b/drivers/input/misc/cma3000_d0x.c
-@@ -116,7 +116,8 @@ static irqreturn_t cma3000_thread_irq(int irq, void *dev_id)
- {
- 	struct cma3000_accl_data *data = dev_id;
- 	int datax, datay, dataz;
--	u8 ctrl, mode, range, intr_status;
-+	u8 ctrl, mode, range;
-+	int intr_status;
- 
- 	intr_status = CMA3000_READ(data, CMA3000_INTSTATUS, "interrupt status");
- 	if (intr_status < 0)
+	Regards
+		Oliver

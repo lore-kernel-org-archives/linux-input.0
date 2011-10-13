@@ -1,54 +1,51 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH V3] input: Fix USB autosuspend on bcm5974
-Date: Thu, 13 Oct 2011 10:20:16 +0200
-Message-ID: <20111013082016.GA2209@polaris.bitmath.org>
-References: <20111012183306.GA10397@polaris.bitmath.org>
- <Pine.LNX.4.44L0.1110121518510.2093-100000@iolanthe.rowland.org>
+From: Daniel van Vugt <vanvugt@gmail.com>
+Subject: [PATCH v1 1/1] hid-magicmouse: Magic Trackpad has 1 button, not 2
+Date: Thu, 13 Oct 2011 18:05:12 +0800
+Message-ID: <4E96B7D8.3030005@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:47303 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753605Ab1JMINQ (ORCPT
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:45580 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752274Ab1JMKFS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Oct 2011 04:13:16 -0400
-Received: from iph5.telenor.se (iph5.telenor.se [195.54.127.136])
-	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 642EAE9EFC
-	for <linux-input@vger.kernel.org>; Thu, 13 Oct 2011 10:13:14 +0200 (CEST)
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.1110121518510.2093-100000@iolanthe.rowland.org>
+	Thu, 13 Oct 2011 06:05:18 -0400
+Received: by vcbgb30 with SMTP id gb30so1343312vcb.19
+        for <linux-input@vger.kernel.org>; Thu, 13 Oct 2011 03:05:18 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Oliver Neukum <oliver@neukum.org>, linux-input@vger.kernel.org, dtor@mail.ru
+To: linux-input@vger.kernel.org
 
-> It's always a bug.  However, the patch I sent to Matthew should fix the 
-> immediate problem.
-> 
-> In fact, the original autosuspend design intended to allow drivers to 
-> do this -- keep devices awake by failing suspend requests even though 
-> the usage count is 0.  Under some conditions, that's the approach with 
-> the least overhead.  But the code to handle this got lost by mistake, 
-> so now it needs to be added back.
+hid-magicmouse was advertising the Apple Magic Trackpad as having 2
+buttons (left and right) when it actually only has 1 button.
 
-I tried the patch out, unfortunately it did not work. The second
-suspend request returns with a -EINPROGRESS, here:
+Advertising multiple buttons in turn makes the xorg synaptics code
+disable all button 2 and 3 emulation (using multi-finger clicks). So
+xorg users don't get working right/middle-click emulation out of the box.
 
-	if (dev->power.runtime_status == RPM_SUSPENDING) {
-		DEFINE_WAIT(wait);
+This patch makes hid-magicmouse correctly only report one real button
+for Magic Trackpad, which in turn makes xorg enable multi-finger click
+support to emulate right/middle buttons.
 
-		if (rpmflags & (RPM_ASYNC | RPM_NOWAIT)) {
-			retval = -EINPROGRESS;
-			goto out;
-		}
+[http://launchpad.net/bugs/862094]
 
-		/* Wait for the other suspend running in parallel with us. */
-		for (;;) {
+Signed-off-by: Daniel van Vugt <vanvugt@gmail.com>
+---
+drivers/hid/hid-magicmouse.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-The reason is above my horizon, although RPM_ASYNC looks suspicious.
-In general, we are re-entering rpm_suspend from within the driver
-handler, so the exit condition of rpm_suspend may not have been
-satisfied yet.
-
-Thanks,
-Henrik
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index f0fbd7b..12200e6 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -405,6 +405,8 @@ static void magicmouse_setup_input(struct input_dev
+*input, struct hid_device *h
+ 			__set_bit(REL_HWHEEL, input->relbit);
+ 		}
+ 	} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
++		__clear_bit(BTN_RIGHT, input->keybit);
++		__clear_bit(BTN_MIDDLE, input->keybit);
+ 		__set_bit(BTN_MOUSE, input->keybit);
+ 		__set_bit(BTN_TOOL_FINGER, input->keybit);
+ 		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);

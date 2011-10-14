@@ -1,58 +1,43 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Driver for Primax keyboards violating USB HID spec
-Date: Fri, 14 Oct 2011 11:30:20 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1110141127240.14768@pobox.suse.cz>
-References: <1318548517-5289-1-git-send-email-tlambert@chromium.org> <alpine.LNX.2.00.1110140134200.14768@pobox.suse.cz> <CAA_E9NHi4mS+J5VrxS915S3TD-157D=hMG7b-PMT2c1RYvnwVQ@mail.gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH] HID: usbhid: enable remote wakeup for mice
+Date: Fri, 14 Oct 2011 09:56:27 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1110140955030.2036-100000@iolanthe.rowland.org>
+References: <201110141018.28446.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:50511 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753951Ab1JNJaV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Oct 2011 05:30:21 -0400
-In-Reply-To: <CAA_E9NHi4mS+J5VrxS915S3TD-157D=hMG7b-PMT2c1RYvnwVQ@mail.gmail.com>
+Received: from iolanthe.rowland.org ([192.131.102.54]:41433 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752621Ab1JNN42 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 Oct 2011 09:56:28 -0400
+In-Reply-To: <201110141018.28446.oneukum@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Terry Lambert <tlambert@chromium.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Oliver Neukum <oneukum@suse.de>
+Cc: Benson Leung <bleung@chromium.org>, jkosina@suse.cz, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 13 Oct 2011, Terry Lambert wrote:
+On Fri, 14 Oct 2011, Oliver Neukum wrote:
 
-> Hi Jiri; thanks for looking so promptly!
->=20
-> The routine right now just caches the hi->input for later look up
-> during the raw input report, which I suppose could be done inline on
-> each report with a couple function calls.
+> Am Freitag, 14. Oktober 2011, 09:54:48 schrieb Benson Leung:
+> > This patch enables remote wakeup by default on USB mouse
+> > devices. This only covers USB mice that support
+> > the boot protocol. See commit 3d61510f for the
+> > equivalent patch for USB keyboard devices.
+> 
+> This doesn't loo like a very good idea.
+> Firstly your patch introduces gratious change in the hid driver.
+> Secondly you are changing the usbmouse driver, which is to
+> be used under special circumstances only, only.
+> Thirdly a fundamental change like that needs a commit entry
+> explaining the reason for the change.
 
-Well yes, but even in px_raw_event() the px_device *px is only=20
-initialized, but never used. So I'd just remove the whole px_device thi=
-ng=20
-altogether, I don't think it's needed.
+In addition, unlike keyboards, a lot of mice don't work very well when 
+they are suspended.  For example, many won't wake up when they are 
+moved (especially optical mice) and some don't even wake up when a 
+button is pressed.
 
-> I don't have one of the folding keyboards people are complaining abou=
-t
-> not being able to use for Android tablets on hand, or the unhappy Del=
-l
-> Inspiron laptop, both of which use the controller  =A0That's to expla=
-in
-> why the remapping code and the product ID for them are missing from
-> this patch.
+This patch definitely should not be merged.
 
-I see.
+Alan Stern
 
-I'd like to ask you though to only submit patches containing code that =
-is=20
-actually used. Whenever the remapping part is needed for some other=20
-keyboard, we'll just add it at the very time it's needed.
-
-Thanks,
-
---=20
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

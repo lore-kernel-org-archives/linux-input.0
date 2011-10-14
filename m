@@ -1,57 +1,41 @@
-From: Daniel van Vugt <vanvugt@gmail.com>
-Subject: [PATCH v2] hid-magicmouse: Magic Trackpad has 1 button, not 2
-Date: Fri, 14 Oct 2011 13:39:34 +0800
-Message-ID: <4E97CB16.2040806@gmail.com>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: possible race between reset and error handling in usbhid
+Date: Fri, 14 Oct 2011 08:37:29 +0200
+Message-ID: <201110140837.29660.oneukum@suse.de>
+References: <201110121614.23410.oneukum@suse.de> <alpine.LNX.2.00.1110131819500.14768@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f174.google.com ([209.85.216.174]:61285 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932397Ab1JNFjk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Oct 2011 01:39:40 -0400
-Received: by qyk30 with SMTP id 30so787708qyk.19
-        for <linux-input@vger.kernel.org>; Thu, 13 Oct 2011 22:39:39 -0700 (PDT)
+Received: from cantor2.suse.de ([195.135.220.15]:40420 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751379Ab1JNGhJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 Oct 2011 02:37:09 -0400
+In-Reply-To: <alpine.LNX.2.00.1110131819500.14768@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-hid-magicmouse was advertising the Apple Magic Trackpad as having 2
-buttons (left and right) when it actually only has 1 button.
+Am Donnerstag, 13. Oktober 2011, 18:20:52 schrieb Jiri Kosina:
+> On Wed, 12 Oct 2011, Oliver Neukum wrote:
+> 
+> > looking at the usbhid code it seems to me that there is no protection
+> > between the error handling code and pre_reset() racing.
+> > 
+> > In particular there seems to be no protection from hid_retry_timeout() calling
+> > hid_start_in() which would start IO after hid_pre_reset() has already called
+> > hid_cease_io() because that uses del_timer(), not del_timer_sync()
+> > 
+> > What do you think about this patch?
+> 
+> Looks like you made a good catch, thanks. Out of curiosity -- did you 
+> encounter this happening for real, or have you find out by code reading?
 
-Advertising multiple buttons makes Xorg disable all button 2 and 3
-emulation (using multi-finger clicks). So Xorg users don't get working
-right/middle-click emulation out of the box.
+A bit of both. I was looking for causes of a mysterious bug report that
+just mentions HID devices and resets and is known to be a race.
+So I may have indirectly encountered it.
 
-This patch makes hid-magicmouse correctly only report one real button
-for Magic Trackpad, which in turn makes Xorg enable multi-finger click
-support to emulate right/middle buttons.
-
-[http://launchpad.net/bugs/862094]
-
-Signed-off-by: Daniel van Vugt <vanvugt@gmail.com>
-Reviewed-by: Chase Douglas <chase.douglas@canonical.com>
----
- drivers/hid/hid-magicmouse.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index f0fbd7b..2ab7175 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -405,6 +405,13 @@ static void magicmouse_setup_input(struct input_dev
-*input, struct hid_device *h
- 			__set_bit(REL_HWHEEL, input->relbit);
- 		}
- 	} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-+		/* input->keybit is initialized with incorrect button info
-+		 * for Magic Trackpad. There really is only one physical
-+		 * button (BTN_LEFT == BTN_MOUSE). Make sure we don't
-+		 * advertise buttons that don't exist...
-+		 */
-+		__clear_bit(BTN_RIGHT, input->keybit);
-+		__clear_bit(BTN_MIDDLE, input->keybit);
- 		__set_bit(BTN_MOUSE, input->keybit);
- 		__set_bit(BTN_TOOL_FINGER, input->keybit);
- 		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
+	Regards
+		Oliver

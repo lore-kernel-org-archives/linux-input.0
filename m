@@ -1,43 +1,38 @@
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: [PATCH] HID: usbhid: enable remote wakeup for mice
-Date: Fri, 14 Oct 2011 09:56:27 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1110140955030.2036-100000@iolanthe.rowland.org>
-References: <201110141018.28446.oneukum@suse.de>
+Date: Fri, 14 Oct 2011 16:00:24 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1110141559220.14768@pobox.suse.cz>
+References: <Pine.LNX.4.44L0.1110140955030.2036-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:41433 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752621Ab1JNN42 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Oct 2011 09:56:28 -0400
-In-Reply-To: <201110141018.28446.oneukum@suse.de>
+Received: from cantor2.suse.de ([195.135.220.15]:38285 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751447Ab1JNOA0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 Oct 2011 10:00:26 -0400
+In-Reply-To: <Pine.LNX.4.44L0.1110140955030.2036-100000@iolanthe.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: Benson Leung <bleung@chromium.org>, jkosina@suse.cz, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Oliver Neukum <oneukum@suse.de>, Benson Leung <bleung@chromium.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 14 Oct 2011, Oliver Neukum wrote:
+On Fri, 14 Oct 2011, Alan Stern wrote:
 
-> Am Freitag, 14. Oktober 2011, 09:54:48 schrieb Benson Leung:
-> > This patch enables remote wakeup by default on USB mouse
-> > devices. This only covers USB mice that support
-> > the boot protocol. See commit 3d61510f for the
-> > equivalent patch for USB keyboard devices.
-> 
-> This doesn't loo like a very good idea.
-> Firstly your patch introduces gratious change in the hid driver.
-> Secondly you are changing the usbmouse driver, which is to
-> be used under special circumstances only, only.
-> Thirdly a fundamental change like that needs a commit entry
-> explaining the reason for the change.
+> In addition, unlike keyboards, a lot of mice don't work very well when 
+> they are suspended.  For example, many won't wake up when they are 
+> moved (especially optical mice) and some don't even wake up when a 
+> button is pressed.
 
-In addition, unlike keyboards, a lot of mice don't work very well when 
-they are suspended.  For example, many won't wake up when they are 
-moved (especially optical mice) and some don't even wake up when a 
-button is pressed.
+To stress it even more, I have tried with various types and brands of 
+optical mouse, and I haven't encountered a single one that would wake up 
+when moved.
 
-This patch definitely should not be merged.
+> This patch definitely should not be merged.
 
-Alan Stern
+I am not planning to do that.
 
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

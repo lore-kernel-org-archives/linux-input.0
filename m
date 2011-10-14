@@ -1,63 +1,65 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH v2] hid-magicmouse: Magic Trackpad has 1 button, not 2
-Date: Fri, 14 Oct 2011 10:08:33 -0700
-Message-ID: <4E986C91.4030801@canonical.com>
-References: <4E97CB16.2040806@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid: flesh out support for tivo slide remote
+Date: Fri, 14 Oct 2011 19:43:34 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1110141942290.14768@pobox.suse.cz>
+References: <1306259656-11391-1-git-send-email-jarod@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:42035 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755236Ab1JNRIi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Oct 2011 13:08:38 -0400
-In-Reply-To: <4E97CB16.2040806@gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:50178 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750789Ab1JNRng (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 Oct 2011 13:43:36 -0400
+In-Reply-To: <1306259656-11391-1-git-send-email-jarod@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Daniel van Vugt <vanvugt@gmail.com>, linux-input@vger.kernel.org
+To: Jarod Wilson <jarod@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-On 10/13/2011 10:39 PM, Daniel van Vugt wrote:
-> hid-magicmouse was advertising the Apple Magic Trackpad as having 2
-> buttons (left and right) when it actually only has 1 button.
+On Tue, 24 May 2011, Jarod Wilson wrote:
+
+> This patch finishes off adding full support for the TiVo Slide remote,
+> which is a mostly pure HID device from the perspective of the kernel.
+> There are a few mappings that use a vendor-specific usage page, and a
+> few keys in the consumer usage page that I think make sense to remap
+> slightly, to better fit their key labels' intended use. Doing this in a
+> stand-alone hid-tivo.c makes the modifications only matter for this
+> specific device.
 > 
-> Advertising multiple buttons makes Xorg disable all button 2 and 3
-> emulation (using multi-finger clicks). So Xorg users don't get working
-> right/middle-click emulation out of the box.
+> What's actually connected to the computer is a Broadcom-made usb dongle,
+> which has an embedded hub, bluetooth adapter, mouse and keyboard
+> devices. You pair with the dongle, then the remote sends data that its
+> converted into HID on the keyboard interface (the mouse interface
+> doesn't do anything interesting, so far as I can tell).
 > 
-> This patch makes hid-magicmouse correctly only report one real button
-> for Magic Trackpad, which in turn makes Xorg enable multi-finger click
-> support to emulate right/middle buttons.
+> lsusb for this device:
+> Bus 004 Device 005: ID 0a5c:2190 Broadcom Corp.
+> Bus 004 Device 004: ID 0a5c:4503 Broadcom Corp.
+> Bus 004 Device 003: ID 150a:1201
+> Bus 004 Device 002: ID 0a5c:4500 Broadcom Corp. BCM2046B1 USB 2.0 Hub (part of BCM2046 Bluetooth)
 > 
-> [http://launchpad.net/bugs/862094]
+> Speaking of the keyboard interface, the remote actually does contain a
+> keyboard as well. The top slides away, revealing a reasonably functional
+> qwerty keyboard (not unlike many slide cell phones), thus the product
+> name.
 > 
-> Signed-off-by: Daniel van Vugt <vanvugt@gmail.com>
-> Reviewed-by: Chase Douglas <chase.douglas@canonical.com>
+> Applies cleanly to hid master, tested w/a 2.6.38.3-based Fedora kernel
+> and a 2.6.32-based Red Hat Enterprise Linux 6 kernel.
+> 
+> CC: Jiri Kosina <jkosina@suse.cz>
+> Signed-off-by: Jarod Wilson <jarod@redhat.com>
 > ---
->  drivers/hid/hid-magicmouse.c |    7 +++++++
->  1 files changed, 7 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index f0fbd7b..2ab7175 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -405,6 +405,13 @@ static void magicmouse_setup_input(struct input_dev
-> *input, struct hid_device *h
->  			__set_bit(REL_HWHEEL, input->relbit);
->  		}
->  	} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> +		/* input->keybit is initialized with incorrect button info
-> +		 * for Magic Trackpad. There really is only one physical
-> +		 * button (BTN_LEFT == BTN_MOUSE). Make sure we don't
-> +		 * advertise buttons that don't exist...
-> +		 */
-> +		__clear_bit(BTN_RIGHT, input->keybit);
-> +		__clear_bit(BTN_MIDDLE, input->keybit);
->  		__set_bit(BTN_MOUSE, input->keybit);
->  		__set_bit(BTN_TOOL_FINGER, input->keybit);
->  		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
+>  drivers/hid/Kconfig    |    6 +++
+>  drivers/hid/Makefile   |    1 +
+>  drivers/hid/hid-ids.h  |    3 ++
+>  drivers/hid/hid-tivo.c |   89 ++++++++++++++++++++++++++++++++++++++++++++++++
 
-To'ing Jiri Kosina, the HID maintainer.
+The patch doesn't add the entry to hid_have_special_driver[] and thus the 
+driver will not be automatically bound to the device. Could you please fix 
+that up?
 
-Thanks again Daniel!
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

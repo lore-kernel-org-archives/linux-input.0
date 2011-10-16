@@ -1,133 +1,85 @@
-From: Jakub =?UTF-8?B?S2ljacWEc2tp?= <moorray@wp.pl>
-Subject: Genius Ergomedia 700 USB keyboard hangs up after GET_STATUS
-Date: Sun, 16 Oct 2011 16:44:52 +0200
-Message-ID: <20111016164452.51b21a31@north>
+From: Tino Schmidt <mailtinoshomepage@gmx.net>
+Subject: Re: Wishlist: Add support for software-rf-switch in Fujitsu-Siemens
+ notebook
+Date: Sun, 16 Oct 2011 22:25:48 +0200
+Message-ID: <4E9B3DCC.7050106@gmx.net>
+References: <20110625211738.3615.21718.reportbug@lisa> <1317441406.4068.43.camel@deadeye> <20111002221253.GA18253@elie>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx3.wp.pl ([212.77.101.7]:54226 "EHLO mx3.wp.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753705Ab1JPOvf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 16 Oct 2011 10:51:35 -0400
-Received: from 89-69-158-229.dynamic.chello.pl (HELO north) (moorray@[89.69.158.229])
-          (envelope-sender <moorray@wp.pl>)
-          by smtp.wp.pl (WP-SMTPD) with AES128-SHA encrypted SMTP
-          for <linux-input@vger.kernel.org>; 16 Oct 2011 16:44:52 +0200
+Received: from mailout-de.gmx.net ([213.165.64.23]:42848 "HELO
+	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751198Ab1JPUY5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 16 Oct 2011 16:24:57 -0400
+In-Reply-To: <20111002221253.GA18253@elie>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Jonathan Nieder <jrnieder@gmail.com>
+Cc: linux-input@vger.kernel.org, Miloslav Trmac <mitr@volny.cz>, Ben Hutchings <ben@decadent.org.uk>, =?UTF-8?B?TWFydGluIFZlxI1lxZlh?= <ja@marvec.org>, Jonathan Woithe <jwoithe@physics.adelaide.edu.au>, =?UTF-8?B?w4lyaWMgUGllbA==?= <eric.piel@tremplin-utc.net>, 631664@bugs.debian.org
 
-Hello,
-I've got Genius Ergomedia 700 keyboard which hangs up after waking up
-from suspend or running `ls -v'. I seems that what makes the device
-misbehave is GET_STATUS request. Issuing it with piece of libusb code
-caused exactly the same type of hang up - device responds to all
-control requests but interrupt requests return -EPIPE.
+Jonathan Nieder wrote:
+> Hi,
+>
+> Tino Schmidt wrote[1]:
+>
+>    
+>> My notebook is an Fujitsu Siemens Amilo A1655G, which has a
+>> software-based RF-Switch. My wireless network card (
+>> Broadcom Corporation BCM4318 [AirForce One 54g] 802.11g Wireless LAN
+>> Controller (rev 02), ID 14e4:4318) would be unusable if there wasn't a
+>> project like http://sourceforge.net/projects/fsaa1655g/ which brings
+>> support at least for kernel 2.6.26. But there isn't any support beyond
+>> kernel 2.6.26.
+>>      
+> I notice that the wistron_btns driver has support for some other Amilo
+> laptops.  The source says:
+>
+>   /*
+>    * If your machine is not here (which is currently rather likely), please send
+>    * a list of buttons and their key codes (reported when loading this module
+>    * with force=1) and the output of dmidecode to $MODULE_AUTHOR.
+>    */
+>
+> Tino (or anyone with this hardware), could you send dmesg output from
+>
+> 	modprobe wistron_btns force=1
+>
+> and dmidecode (or "grep . /sys/class/dmi/id/*_{vendor,name,version}"
+> as Ben suggested)?
+>
+> Thanks,
+> Jonathan
+>
+> [1] http://bugs.debian.org/631664
+>
+>    
+Hi,
+I'm sorry for the long delay but I can use the laptop only on weekend. 
+Here is the output:
 
-Is it even possible for device to have buggy implementation of such a
-basic request? Truth be said I failed to force Windows to use it...
+# modprobe wistron_btns force=1
+FATAL: Error inserting wistron_btns 
+(/lib/modules/2.6.26-2-686/kernel/drivers/input/misc/wistron_btns.ko): 
+No such device
 
-Can you suggest any procedure which may bring the device back to life?
-Reloading usbhid does not help, reloading whole USB (*hci_hcd) does. I
-tried setting configuration and playing with (boot) protocol but it
-doesn't help either.
+# dmesg
+[  168.628474] wistron_btns: BIOS entry point not found
 
--Jakub
+and
+# grep . /sys/class/dmi/id/*_{vendor,name,version}
+/sys/class/dmi/id/bios_vendor:FUJITSU SIEMENS
+/sys/class/dmi/id/board_vendor:FUJITSU SIEMENS
+/sys/class/dmi/id/chassis_vendor:FUJITSU SIEMENS
+/sys/class/dmi/id/sys_vendor:FUJITSU SIEMENS
+/sys/class/dmi/id/board_name:AMILO A1655
+/sys/class/dmi/id/product_name:AMILO A Series
+/sys/class/dmi/id/bios_version:1.0C-8044-8A20
+/sys/class/dmi/id/board_version:Rev0.4b
+/sys/class/dmi/id/chassis_version:N/A
+/sys/class/dmi/id/product_version:0100
 
+Thanks,
+Tino
 
-
-# lsusb -v -d"05d5:8001"
-
-Bus 004 Device 005: ID 05d5:8001 Super Gate Technology Co., Ltd 
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               1.10
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0 
-  bDeviceProtocol         0 
-  bMaxPacketSize0         8
-  idVendor           0x05d5 Super Gate Technology Co., Ltd
-  idProduct          0x8001 
-  bcdDevice            1.00
-  iManufacturer           1 KYE 4D device
-  iProduct                2 Ergomedia
-  iSerial                 0 
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           59
-    bNumInterfaces          2
-    bConfigurationValue     1
-    iConfiguration          2 Ergomedia
-    bmAttributes         0xa0
-      (Bus Powered)
-      Remote Wakeup
-    MaxPower              100mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      1 Boot Interface Subclass
-      bInterfaceProtocol      1 Keyboard
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.10
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      65
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0008  1x 8 bytes
-        bInterval              10
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      1 Boot Interface Subclass
-      bInterfaceProtocol      2 Mouse
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.10
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      50
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0008  1x 8 bytes
-        bInterval              10
-Device Status:     0xffff
-  Self Powered
-  Remote Wakeup Enabled
-  Test Mode
-  Debug Mode

@@ -1,46 +1,65 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+From: Gopal <gtiwari@redhat.com>
 Subject: Re: patch for Dell ST220T Touch Screen Monitor
-Date: Mon, 17 Oct 2011 09:08:57 +0200
-Message-ID: <CAN+gG=FsAwnQH-KjmLCvYpB_MVoe0zyBOLNu1zn3YwduC37p2A@mail.gmail.com>
-References: <4E9BB353.70606@redhat.com>
+Date: Mon, 17 Oct 2011 13:24:35 +0530
+Message-ID: <4E9BDF3B.6080602@redhat.com>
+References: <4E9BB353.70606@redhat.com> <CAN+gG=FsAwnQH-KjmLCvYpB_MVoe0zyBOLNu1zn3YwduC37p2A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:48153 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751806Ab1JQHI7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Oct 2011 03:08:59 -0400
-In-Reply-To: <4E9BB353.70606@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:64437 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754804Ab1JQHzF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Oct 2011 03:55:05 -0400
+In-Reply-To: <CAN+gG=FsAwnQH-KjmLCvYpB_MVoe0zyBOLNu1zn3YwduC37p2A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gopal <gtiwari@redhat.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Glenn Sommer <gsommer@datanordisk.dk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Hi Gopal,
+Hi Benjamin,
 
-well, the device 0x1fd2:0x0064 is already supported by hid-multitouch
-since mid-August. It has been included in the for-next branch of
-Jiri's tree (see
-http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=commit;h=c50bb1a4005630f47b5da26336f74a485033a515
-).
+Thanks for Informing...I think i have missed by some day may be. But i 
+have fwded my patch some where around 9th Aug. 2011 also but didn't got 
+any feedback on that so tried again.
 
-As the device is a standard (Win7 compatible) hid multitouch device,
-it's better to handle it that way: you'll get multitouch support and
-there will be no cost to maintain it ;-)
+thanks for informing.
 
-Cheers,
-Benjamin
+gopal.
 
-On Mon, Oct 17, 2011 at 06:47, Gopal <gtiwari@redhat.com> wrote:
-> Hello Everybody,
+
+
+
+
+
+
+
+On 10/17/2011 12:38 PM, Benjamin Tissoires wrote:
+> Hi Gopal,
 >
-> We have recently created Support for Dell ST2220T Touch screen monitor with
-> in the kernel hierarchy driver/input/touchscreen patch for this attach with
-> this mail.
-> Please find the attachment. I have previously also send the patch didn't got
-> any feedback so sending it again.
+> well, the device 0x1fd2:0x0064 is already supported by hid-multitouch
+> since mid-August. It has been included in the for-next branch of
+> Jiri's tree (see
+> http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=commit;h=c50bb1a4005630f47b5da26336f74a485033a515
+> ).
 >
-> thanks
-> Gopal
+> As the device is a standard (Win7 compatible) hid multitouch device,
+> it's better to handle it that way: you'll get multitouch support and
+> there will be no cost to maintain it ;-)
 >
+> Cheers,
+> Benjamin
+>
+> On Mon, Oct 17, 2011 at 06:47, Gopal<gtiwari@redhat.com>  wrote:
+>> Hello Everybody,
+>>
+>> We have recently created Support for Dell ST2220T Touch screen monitor with
+>> in the kernel hierarchy driver/input/touchscreen patch for this attach with
+>> this mail.
+>> Please find the attachment. I have previously also send the patch didn't got
+>> any feedback so sending it again.
+>>
+>> thanks
+>> Gopal
+>>
+

@@ -1,65 +1,59 @@
-From: Gopal <gtiwari@redhat.com>
-Subject: Re: patch for Dell ST220T Touch Screen Monitor
-Date: Mon, 17 Oct 2011 13:24:35 +0530
-Message-ID: <4E9BDF3B.6080602@redhat.com>
-References: <4E9BB353.70606@redhat.com> <CAN+gG=FsAwnQH-KjmLCvYpB_MVoe0zyBOLNu1zn3YwduC37p2A@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Driver for Primax keyboards violating USB HID spec
+Date: Mon, 17 Oct 2011 17:11:50 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1110171710570.3541@pobox.suse.cz>
+References: <1318637934-30006-1-git-send-email-tlambert@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:64437 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:58764 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754804Ab1JQHzF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Oct 2011 03:55:05 -0400
-In-Reply-To: <CAN+gG=FsAwnQH-KjmLCvYpB_MVoe0zyBOLNu1zn3YwduC37p2A@mail.gmail.com>
+	id S1756111Ab1JQPLw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Oct 2011 11:11:52 -0400
+In-Reply-To: <1318637934-30006-1-git-send-email-tlambert@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Glenn Sommer <gsommer@datanordisk.dk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Terry Lambert <tlambert@chromium.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
+On Fri, 14 Oct 2011, Terry Lambert wrote:
 
-Thanks for Informing...I think i have missed by some day may be. But i 
-have fwded my patch some where around 9th Aug. 2011 also but didn't got 
-any feedback on that so tried again.
+> Primax keyboards with the issue this driver addresses report modifier
+> keys as in band key events instead of as out of band modifier bits,
+> resulting in the modifier keys generating key up events immediately
+> before the keys they are intended to modify.  This driver rewrites
+> the raw report data from such keyboards into USB HID 1.11 compliant
+> report data.  It only matches the USB vendor and product IDs for the
+> keyboard it has been tested on. Since there are several keyboards,
+> notably a number of laptops and folding USB keyboards known to have
+> similar unresolved problem reports, the list is expected to grow.
+> 
+> Signed-off-by: Terry Lambert <tlambert@chromium.org>
+> ---
+>  drivers/hid/Kconfig      |    8 +++
+>  drivers/hid/Makefile     |    1 +
+>  drivers/hid/hid-core.c   |    1 +
+>  drivers/hid/hid-ids.h    |    3 +
+>  drivers/hid/hid-primax.c |  117 ++++++++++++++++++++++++++++++++++++++++++++++
+>  5 files changed, 130 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/hid/hid-primax.c
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 1130a89..a097e17 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -441,6 +441,14 @@ config HID_PICOLCD_LEDS
+>  	---help---
+>  	  Provide access to PicoLCD's GPO pins via leds class.
+>  
+> +config HID_PRIMAX
+> +	tristate "Primax non-fully HID-compliant devices" if EXPERT
+> +	depends on USB_HID
+> +	default !EXPERT
 
-thanks for informing.
+I have removed thi 'EXPERT' dependency (please see changelog of commit 
+73d5e8f77e8 for rationale behind that) and applied. Thanks,
 
-gopal.
-
-
-
-
-
-
-
-
-On 10/17/2011 12:38 PM, Benjamin Tissoires wrote:
-> Hi Gopal,
->
-> well, the device 0x1fd2:0x0064 is already supported by hid-multitouch
-> since mid-August. It has been included in the for-next branch of
-> Jiri's tree (see
-> http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=commit;h=c50bb1a4005630f47b5da26336f74a485033a515
-> ).
->
-> As the device is a standard (Win7 compatible) hid multitouch device,
-> it's better to handle it that way: you'll get multitouch support and
-> there will be no cost to maintain it ;-)
->
-> Cheers,
-> Benjamin
->
-> On Mon, Oct 17, 2011 at 06:47, Gopal<gtiwari@redhat.com>  wrote:
->> Hello Everybody,
->>
->> We have recently created Support for Dell ST2220T Touch screen monitor with
->> in the kernel hierarchy driver/input/touchscreen patch for this attach with
->> this mail.
->> Please find the attachment. I have previously also send the patch didn't got
->> any feedback so sending it again.
->>
->> thanks
->> Gopal
->>
-
+-- 
+Jiri Kosina
+SUSE Labs

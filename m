@@ -1,97 +1,45 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 1/1] Staging: hv: mousevsc: Move the mouse driver out of
- staging
-Date: Sun, 16 Oct 2011 16:03:07 -0700
-Message-ID: <1318806187.1985.23.camel@Joe-Laptop>
-References: <1318658907-16698-1-git-send-email-kys@microsoft.com>
-	 <1318660596.6035.27.camel@Joe-Laptop>
-	 <20111016222847.GM18470@longonot.mountain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20111016222847.GM18470@longonot.mountain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, dmitry.torokhov@gmail.com, Haiyang Zhang <haiyangz@microsoft.com>, gregkh@suse.de, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, linux-input@vger.kernel.org, devel@linuxdriverproject.org
+From: chris@cnpbagwell.com
+Subject: [PATCH 0/6] Add support for new (3rd generation) Bamboo P&T's.
+Date: Sun, 16 Oct 2011 20:29:35 -0500
+Message-ID: <1318814981-30607-1-git-send-email-chris@cnpbagwell.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:41288 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752227Ab1JQB3s (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 16 Oct 2011 21:29:48 -0400
+Received: by gyb13 with SMTP id 13so2513599gyb.19
+        for <linux-input@vger.kernel.org>; Sun, 16 Oct 2011 18:29:47 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, pinglinux@gmail.com
+Cc: Chris Bagwell <chris@cnpbagwell.com>
 
-On Mon, 2011-10-17 at 01:28 +0300, Dan Carpenter wrote:
-> On Fri, Oct 14, 2011 at 11:36:36PM -0700, Joe Perches wrote:
-[]
-> > 	case 0:
-> > 		if (bytes_recvd <= 0)
-> > 			goto loop;
-> In the original we called break here (which is equivelent to a
-> return).  Btw setting a stack variable and then returning immediately
-> like the original code did is pointless.
+From: Chris Bagwell <chris@cnpbagwell.com>
 
-OK, return it is.
+[ resending to correct mailing list.  Sorry for duplat linux-kernel. ]
 
-Perhaps this is better.  (two of the breaks could be goto loop)
+Wacom has released in the last month a 3rd generation of their
+Bamboo Pen and Touch line and this patch series adds support
+for them all. There are 3 new models.  2 include stylus and touch
+support and can track up to 16 touches.  1 is a stylus only tablet.
 
-I did add a couple of checks to make sure kmalloc'd
-memory was always freed.
+A squashed version of this patch series has been tested by 1 user
+for each tablet type over at linuxwacom-discuss mailing list.
 
-Another possible simplification is to always use kmalloc
-instead of using stack and/or kmalloc.
+Chris Bagwell (6):
+  Input: wacom - cleanup feature report for bamboos
+  Input: wacom - remove unused bamboo HID parsing
+  Input: wacom - add some comments to wacom_parse_hid
+  Input: wacom - relax Bamboo stylus ID check
+  Input: wacom - read 3rd gen Bamboo Touch HID data
+  Input: wacom - 3rd gen Bamboo P&Touch packet support
 
-static void mousevsc_on_channel_callback(void *context)
-{
-	static const int packetSize = 0x100;
-	unsigned char packet[packetSize];
-	int ret;
-	struct hv_device *device = (struct hv_device *)context;
-	u32 bytes_recvd;
-	u64 req_id;
-	struct vmpacket_descriptor *desc;
-	unsigned char *buffer = packet;
-	int bufferlen = packetSize;
-	bool malloced =  false;
+ drivers/input/tablet/wacom_sys.c |   94 ++++++++++++++++++++++++++++++++---
+ drivers/input/tablet/wacom_wac.c |  101 ++++++++++++++++++++++++++++++++++----
+ drivers/input/tablet/wacom_wac.h |    4 +-
+ 3 files changed, 179 insertions(+), 20 deletions(-)
 
-loop:
-	ret = vmbus_bus_recvpacket_raw(device->channel, buffer, bufferlen,
-				       &bytes_recvd, &req_id);
-	switch (ret) {
-	case -ENOBUFS:		/* Handle large packet */
+-- 
+1.7.6.4
 
-		if (malloced)	/* Maybe repeated -ENOBUFS ? */
-			kfree(buffer);
-
-		bufferlen = bytes_recvd;
-		buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
-		if (!buffer)
-			return;
-		malloced = true;
-		break;
-
-	case 0:
-		if (bytes_recvd <= 0) {
-			if (malloced)
-				kfree(buffer);
-			return;
-		}
-
-		desc = (struct vmpacket_descriptor *)buffer;
-
-		switch (desc->type) {
-		case VM_PKT_DATA_INBAND:
-			mousevsc_on_receive(device, desc);
-			break;
-		default:
-			pr_err("unhandled packet type %d, tid %llx len %d\n",
-			       desc->type, req_id, bytes_recvd);
-			break;
-		}
-		/* reset to original buffers */
-		if (malloced) {
-			kfree(buffer);
-			malloced = false;
-			buffer = packet;
-			bufferlen = packetSize;
-		}
-		break;
-	}
-
-	goto loop;
-}

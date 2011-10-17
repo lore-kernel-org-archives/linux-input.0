@@ -1,146 +1,237 @@
-From: Ben Hutchings <ben@decadent.org.uk>
-Subject: Re: Wishlist: Add support for software-rf-switch in Fujitsu-Siemens
- notebook
-Date: Mon, 17 Oct 2011 05:03:47 +0100
-Message-ID: <1318824232.3340.1.camel@deadeye>
-References: <20110625211738.3615.21718.reportbug@lisa>
-	 <1317441406.4068.43.camel@deadeye> <20111002221253.GA18253@elie>
-	 <4E9B3DCC.7050106@gmx.net>
+From: Gopal <gtiwari@redhat.com>
+Subject: patch for Dell ST220T Touch Screen Monitor
+Date: Mon, 17 Oct 2011 10:17:15 +0530
+Message-ID: <4E9BB353.70606@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-2lKckFK/YtNx6n0D08BW"
+Content-Type: multipart/mixed;
+ boundary="------------050701080200060603080805"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:41264 "EHLO
-	shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750982Ab1JQEEL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Oct 2011 00:04:11 -0400
-In-Reply-To: <4E9B3DCC.7050106@gmx.net>
+Received: from mx1.redhat.com ([209.132.183.28]:17265 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752715Ab1JQErb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Oct 2011 00:47:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tino Schmidt <mailtinoshomepage@gmx.net>
-Cc: Jonathan Nieder <jrnieder@gmail.com>, linux-input@vger.kernel.org, Miloslav Trmac <mitr@volny.cz>, Martin =?UTF-8?Q?Ve=C4=8De=C5=99a?= <ja@marvec.org>, Jonathan Woithe <jwoithe@physics.adelaide.edu.au>, =?ISO-8859-1?Q?=C9ric?= Piel <eric.piel@tremplin-utc.net>, 631664@bugs.debian.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Glenn Sommer <gsommer@datanordisk.dk>, gopal <gtiwari@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+
+This is a multi-part message in MIME format.
+--------------050701080200060603080805
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hello Everybody,
+
+We have recently created Support for Dell ST2220T Touch screen monitor 
+with in the kernel hierarchy driver/input/touchscreen patch for this 
+attach with this mail.
+Please find the attachment. I have previously also send the patch didn't 
+got any feedback so sending it again.
+
+thanks
+Gopal
+
+--------------050701080200060603080805
+Content-Type: text/plain;
+ name="0001-We-have-created-Support-for-DELL-ST2220T-TochScreen-.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-We-have-created-Support-for-DELL-ST2220T-TochScreen-.pa";
+ filename*1="tch"
+
+>From 9f4e8d811c1b9fc9552f243fb1d577b2cc67553f Mon Sep 17 00:00:00 2001
+From: gopal <gtiwari@redhat.com>
+Date: Tue, 9 Aug 2011 15:15:51 +0530
+Subject: [PATCH] We have created Support for DELL-ST2220T TochScreen Monitor
+
+Signed-off-by: gopal <gtiwari@redhat.com>
+---
+ drivers/input/touchscreen/usbtouchscreen.c |   99 +++++++++++++++++++++++++++-
+ 1 files changed, 98 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index 73fd664..beef39f 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -59,6 +59,8 @@
+ #define DRIVER_AUTHOR		"Daniel Ritz <daniel.ritz@gmx.ch>"
+ #define DRIVER_DESC		"USB Touchscreen Driver"
+ 
++#define CONFIG_TOUCHSCREEN_USB_DELL_ST2220T
++
+ static int swap_xy;
+ module_param(swap_xy, bool, 0644);
+ MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
+@@ -138,6 +140,7 @@ enum {
+ 	DEVTYPE_ZYTRONIC,
+ 	DEVTYPE_TC45USB,
+ 	DEVTYPE_NEXIO,
++	DEVTYPE_DELL_ST2220T,
+ };
+ 
+ #define USB_DEVICE_HID_CLASS(vend, prod) \
+@@ -238,6 +241,10 @@ static const struct usb_device_id usbtouch_devices[] = {
+ 	{USB_DEVICE_AND_INTERFACE_INFO(0x1870, 0x0001, 0x0a, 0x00, 0x00),
+ 		.driver_info = DEVTYPE_NEXIO},
+ #endif
++#ifdef CONFIG_TOUCHSCREEN_USB_DELL_ST2220T
++/*Dell-st2220t*/
++{USB_DEVICE(0x1fd2, 0x0064), .driver_info = DEVTYPE_DELL_ST2220T},
++#endif
+ 
+ 	{}
+ };
+@@ -335,6 +342,84 @@ static int panjit_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
+ }
+ #endif
+ 
++/*****************************************************************************
++*	Dell-ST2220T
++*/
++#ifdef CONFIG_TOUCHSCREEN_USB_DELL_ST2220T
++#define ST2220T_VENDOR_REQ      0x22
++static int st2220t_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
++{
++	if (pkt[9] != 0xff && pkt[11]) {
++		dev->x = (pkt[10] << 8) | pkt[9];
++		dev->y = (pkt[12] << 8) | pkt[11];
++		dev->x =  ((dev->x) * 9) - 0x200;
++		dev->y =  (dev->y) * 15;
++		input_report_abs(dev->input, ABS_X, dev->x)
++		input_report_abs(dev->input, ABS_Y, dev->y);
++	}
++	dev->x = (pkt[4] << 8) | pkt[3];
++	dev->y = (pkt[6] << 8) | pkt[5];
++	dev->x =  ((dev->x) * 9) - 0x200;
++	dev->y =  (dev->y) * 15;
++	return 1;
++}
++
++static int st2220t_init(struct usbtouch_usb *usbtouch)
++{
++	int ret, i;
++	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
++	char *ctrl_buf;
++
++	/*Allocate Memory For Control transfer Buffer */
++
++	ctrl_buf = kmalloc(64, GFP_KERNEL);
++	if (ctrl_buf == NULL) {
++		dbg("%s - Failed : to Get Memory",
++		__func__);
++		return -1;
++	}
++
++	/* Following Control Request is Very Imp
++	To Start USB Interrupt transaction
++	this request is SET_REPORT H->D with Data as 07,02,02 */
++
++	ctrl_buf[0] = 0x07;
++	ctrl_buf[1] = 0x02;
++	ctrl_buf[2] = 0x02;
++	for (i = 0; i < 3; i++) {
++		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0), 0x09,
++		0x21, 0x0307, 0x00, ctrl_buf,
++		0x03, USB_CTRL_SET_TIMEOUT);
++		dbg("%s - usb_control_msg - 0x21 0x09 - bytes|err: %d\n",
++		__func__, ret);
++
++		if (ret == 0)
++			break;
++		msleep(150);
++	}
++
++	if (ret < 0) {
++		dbg("%s - Failed to Initialize the DELL-ST2220 Touch Monitor\n",
++		__func__);
++		return -1;
++	}
++
++	msleep(150);
++	for (i = 0; i < 6; i++) {
++		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++		0x01, 0xA1, 0x308, 0x00, ctrl_buf, 2,
++		USB_CTRL_SET_TIMEOUT);
++
++		dbg("%s - usb_control_msg - bytes|err: %d",
++		__func__, ret);
++		dbg(" %x %x\n", ctrl_buf[0], ctrl_buf[1]);
++		msleep(50);
++	}
++
++	kfree(ctrl_buf);
++	return 0;
++}
++#endif
+ 
+ /*****************************************************************************
+  * 3M/Microtouch Part
+@@ -1139,8 +1224,20 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
+ 		.exit		= nexio_exit,
+ 	},
+ #endif
+-};
+ 
++#ifdef CONFIG_TOUCHSCREEN_USB_DELL_ST2220T
++
++	[DEVTYPE_DELL_ST2220T] = {
++		.min_xc         = 0x0,
++		.max_xc         = 0x4000,
++		.min_yc         = 0x0,
++		.max_yc         = 0x4000,
++		.rept_size      = 0x0e,
++		.read_data      = st2220t_read_data,
++		.init           = st2220t_init,
++	},
++#endif
++};
+ 
+ /*****************************************************************************
+  * Generic Part
+-- 
+1.7.6
 
 
---=-2lKckFK/YtNx6n0D08BW
-Content-Type: multipart/mixed; boundary="=-F/UWe4dnxjf6AAXZntAe"
+--------------050701080200060603080805
+Content-Type: text/plain;
+ name="0001-Blacklist-the-ST2220T-from-the-hid-core-so-as-to-get.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-Blacklist-the-ST2220T-from-the-hid-core-so-as-to-get.pa";
+ filename*1="tch"
+
+>From 5ef1836407a6c44f889a64e9935069f3820f4e3e Mon Sep 17 00:00:00 2001
+From: gopal <gtiwari@redhat.com>
+Date: Mon, 17 Oct 2011 10:06:50 +0530
+Subject: [PATCH] Blacklist the ST2220T from the hid core so as to get the
+ driver access from the driver/input/touchscreen hierarchy
+
+Signed-off-by: gopal <gtiwari@redhat.com>
+---
+ drivers/hid/hid-core.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 242353d..00a8b3a 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1511,6 +1511,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
++	{ HID_USB_DEVICE(0x1fd2, 0x0064) },
+ 
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
+@@ -1894,6 +1895,7 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5_JIS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
++	{ HID_USB_DEVICE(0x1fd2, 0x0064) },
+ 	{ }
+ };
+ 
+-- 
+1.7.6
 
 
---=-F/UWe4dnxjf6AAXZntAe
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, 2011-10-16 at 22:25 +0200, Tino Schmidt wrote:
-[...] =20
-> Hi,
-> I'm sorry for the long delay but I can use the laptop only on weekend.=
-=20
-> Here is the output:
->=20
-> # modprobe wistron_btns force=3D1
-> FATAL: Error inserting wistron_btns=20
-> (/lib/modules/2.6.26-2-686/kernel/drivers/input/misc/wistron_btns.ko):=
-=20
-> No such device
-
-It looks like this model is rather different, maybe not a Wistron design
-at all.
-
-I would prefer you to test against Linux 3.0, but it appears that the
-model detection has not changed since 2.6.26.
-
-> # dmesg
-> [  168.628474] wistron_btns: BIOS entry point not found
->=20
-> and
-> # grep . /sys/class/dmi/id/*_{vendor,name,version}
-> /sys/class/dmi/id/bios_vendor:FUJITSU SIEMENS
-> /sys/class/dmi/id/board_vendor:FUJITSU SIEMENS
-> /sys/class/dmi/id/chassis_vendor:FUJITSU SIEMENS
-> /sys/class/dmi/id/sys_vendor:FUJITSU SIEMENS
-> /sys/class/dmi/id/board_name:AMILO A1655
-> /sys/class/dmi/id/product_name:AMILO A Series
-> /sys/class/dmi/id/bios_version:1.0C-8044-8A20
-> /sys/class/dmi/id/board_version:Rev0.4b
-> /sys/class/dmi/id/chassis_version:N/A
-> /sys/class/dmi/id/product_version:0100
-
-Please build and test the attached driver (make && insmod
-amilo-rfkill.ko).  It provides a standard rfkill device which you can
-control with e.g. the 'rfkill' command, and will only bind to specific
-models.
-
-If this works, I'll submit the code upstream.
-
-Ben.
-
---=20
-Ben Hutchings
-No political challenge can be met by shopping. - George Monbiot
-
-
---=-F/UWe4dnxjf6AAXZntAe
-Content-Type: application/x-compressed-tar; name="amilo-rfkill.tar.gz"
-Content-Disposition: attachment; filename="amilo-rfkill.tar.gz"
-Content-Transfer-Encoding: base64
-
-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
-
-
---=-F/UWe4dnxjf6AAXZntAe--
-
---=-2lKckFK/YtNx6n0D08BW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIVAwUATpupI+e/yOyVhhEJAQpUzQ/+Mo/eHBObSfFrYxS8UiNkf4XF3XN3i36N
-BehSetgTEemuu4bGbtvVpB6sKamyg+cackCC0+63Tjx2ljYsp1ViWqtq/D4kG/VD
-B3XMcGZnxFSVK5IyM2VrBu3MnrxVByNmYOHfF8BGb83VJc2vpXJRRbvFPWsvb7ez
-ICNow4+Txv0N/Ub84a7FTmcZX51o/N5qQfjiSXtPM1YmZsWBfmoOm15InS6LydBx
-/SEzokbu1Ak9NWbVzgTRlrSwKrW22R30JsbVYjBqIRiuZ9/J9nRYAbwjRY6dxEk9
-7JaFZyBhAHYwfuBwG3QzdMOmjuJu1jCietF6iGFuoFHe0/fdSAlRWieymQcE71H9
-TM6mHfBFdacojSt4hqEYC0yDWbpZNgVju8A2BvJ0fn7cqJT1KXBW41nWfA5GTexF
-EUdTZ7AVRDRKOsl10xV/UTBxT7LOO6Fbd/qBdXLcW6iIVw0vvUipjKEClaWt7ZJT
-xwE4KuIYv2apl19dBUF47DYaK6VvquWsA4n3Ik9qjyBnrjh6po9eFi3zCKQoNVqq
-nNB/6LXcybkp+/LOXc7Mcw7+35cEl7lMiZGm2n1SoxYKMdNvw3JL1EjhVPiIjIJ0
-CsSxaI4AoMDTZwlReuElsSYRpgj5Do0muX8u7gJYqyimNJIJuLYctvMYtCvvK7Ps
-71xhjREmv9Q=
-=yJ3f
------END PGP SIGNATURE-----
-
---=-2lKckFK/YtNx6n0D08BW--
+--------------050701080200060603080805--

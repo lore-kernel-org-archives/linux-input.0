@@ -1,280 +1,352 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: [PATCH 4/5] input/cma3000_d0x: Add CMA3000 spi support
-Date: Tue, 18 Oct 2011 09:44:38 +0100
-Message-ID: <4E9D3C76.2010008@cam.ac.uk>
-References: <1318926486-10330-1-git-send-email-ricardo.ribalda@gmail.com> <1318926486-10330-5-git-send-email-ricardo.ribalda@gmail.com>
+From: Javier Martinez Canillas <martinez.javier@gmail.com>
+Subject: Re: [PATCH v6 3/3] Input: cyttsp - add support for Cypress TTSP
+ touchscreen SPI bus interface
+Date: Tue, 18 Oct 2011 10:48:11 +0200
+Message-ID: <CAAwP0s0GhCXHUrVC2_PKC8pyTiRq_fdCZa3x6mStwuROLJOGQA@mail.gmail.com>
+References: <4e99d2db.473ce30a.3c78.7a57@mx.google.com> <CAM=Q2cuHY3Xi_3J8y5iDoXnQZORv9WHhmthEX-GH1jXCd++8UA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-50.csi.cam.ac.uk ([131.111.8.150]:54030 "EHLO
-	ppsw-50.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751331Ab1JRIoi (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:63509 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751831Ab1JRIsc convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Oct 2011 04:44:38 -0400
-In-Reply-To: <1318926486-10330-5-git-send-email-ricardo.ribalda@gmail.com>
+	Tue, 18 Oct 2011 04:48:32 -0400
+In-Reply-To: <CAM=Q2cuHY3Xi_3J8y5iDoXnQZORv9WHhmthEX-GH1jXCd++8UA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Cc: dmitry.torokhov@gmail.com, sameo@linux.intel.com, peter.ujfalusi@ti.com, aghayal@codeaurora.org, david@hardeman.nu, Shubhrajyoti@ti.com, saaguirre@ti.com, hemanthv@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 10/18/11 09:28, Ricardo Ribalda Delgado wrote:
-> Add support for SPI communication.
-> 
-Fix that cacheline issue and some tidying up and this is fine.
+On Tue, Oct 18, 2011 at 10:27 AM, Shubhrajyoti Datta
+<omaplinuxkernel@gmail.com> wrote:
+>
+>
+> On Sun, Oct 16, 2011 at 12:07 AM, <martinez.javier@gmail.com> wrote:
+>>
+>> From: Javier Martinez Canillas <martinez.javier@gmail.com>
+>>
+>> The driver is composed of a core driver that process the data sent b=
+y
+>> the contacts and a set of bus specific interface modules.
+>>
+>> This patch add supports for the Cypress TTSP SPI bus interface.
+>>
+>> Signed-off-by: Javier Martinez Canillas <martinez.javier@gmail.com>
+>> ---
+>>
+>> v2: Fix issues called out by Dmitry Torokhov
+>> =C2=A0 =C2=A0 - Extract the IRQ from the spi client data and pass to
+>> cyttsp_core_init()
+>> =C2=A0 =C2=A0 - Remove the extra retries and limit the retries to th=
+e cyttsp_core.c
+>> =C2=A0 =C2=A0 =C2=A0 read/write block functions.
+>> =C2=A0 =C2=A0 - Cleanup cyttsp_spi_xfer(), check ACK in write operat=
+ion and fix
+>> special
+>> =C2=A0 =C2=A0 =C2=A0 EIO case to show its meaning.
+>>
+>> v3: Fix issues called out by Henrik Rydberg and Mohan Pallaka
+>> =C2=A0 =C2=A0- Remove bus type info since it is not used.
+>>
+>> =C2=A0drivers/input/touchscreen/cyttsp/cyttsp_spi.c | =C2=A0295
+>> +++++++++++++++++++++++++
+>> =C2=A01 files changed, 295 insertions(+), 0 deletions(-)
+>> =C2=A0create mode 100644 drivers/input/touchscreen/cyttsp/cyttsp_spi=
+=2Ec
+>>
+>> diff --git a/drivers/input/touchscreen/cyttsp/cyttsp_spi.c
+>> b/drivers/input/touchscreen/cyttsp/cyttsp_spi.c
+>> new file mode 100644
+>> index 0000000..66d6dc3
+>> --- /dev/null
+>> +++ b/drivers/input/touchscreen/cyttsp/cyttsp_spi.c
+>> @@ -0,0 +1,295 @@
+>> +/*
+>> + * Source for:
+>> + * Cypress TrueTouch(TM) Standard Product (TTSP) SPI touchscreen dr=
+iver.
+>> + * For use with Cypress Txx3xx parts.
+>> + * Supported parts include:
+>> + * CY8CTST341
+>> + * CY8CTMA340
+>> + *
+>> + * Copyright (C) 2009, 2010, 2011 Cypress Semiconductor, Inc.
+>> + * Copyright (C) 2011 Javier Martinez Canillas
+>> <martinez.javier@gmail.com>
+>> + *
+>> + * Multi-touch protocol type B support and cleanups by Javier Marti=
+nez
+>> Canillas
+>> + *
+>> + * This program is free software; you can redistribute it and/or
+>> + * modify it under the terms of the GNU General Public License
+>> + * version 2, and only version 2, as published by the
+>> + * Free Software Foundation.
+>> + *
+>> + * This program is distributed in the hope that it will be useful,
+>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. =C2=A0See t=
+he
+>> + * GNU General Public License for more details.
+>> + *
+>> + * You should have received a copy of the GNU General Public Licens=
+e
+>> along
+>> + * with this program; if not, write to the Free Software Foundation=
+,
+>> Inc.,
+>> + * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+>> + *
+>> + * Contact Cypress Semiconductor at www.cypress.com <kev@cypress.co=
+m>
+>> + *
+>> + */
+>> +
+>> +#include "cyttsp_core.h"
+>> +
+>> +#include <linux/spi/spi.h>
+>> +#include <linux/delay.h>
+>> +
+>> +#define CY_SPI_WR_OP =C2=A0 =C2=A0 =C2=A00x00 /* r/~w */
+>> +#define CY_SPI_RD_OP =C2=A0 =C2=A0 =C2=A00x01
+>> +#define CY_SPI_CMD_BYTES =C2=A04
+>> +#define CY_SPI_SYNC_BYTE =C2=A02
+>> +#define CY_SPI_SYNC_ACK1 =C2=A00x62 /* from protocol v.2 */
+>> +#define CY_SPI_SYNC_ACK2 =C2=A00x9D /* from protocol v.2 */
+>> +#define CY_SPI_DATA_SIZE =C2=A0128
+>> +#define CY_SPI_DATA_BUF_SIZE (CY_SPI_CMD_BYTES + CY_SPI_DATA_SIZE)
+>> +#define CY_SPI_BITS_PER_WORD 8
+>> +
+>> +struct cyttsp_spi {
+>> + =C2=A0 =C2=A0 =C2=A0 struct cyttsp_bus_ops bus_ops;
+>> + =C2=A0 =C2=A0 =C2=A0 struct spi_device *spi_client;
+>> + =C2=A0 =C2=A0 =C2=A0 void *ttsp_client;
+>> + =C2=A0 =C2=A0 =C2=A0 u8 wr_buf[CY_SPI_DATA_BUF_SIZE];
+>> + =C2=A0 =C2=A0 =C2=A0 u8 rd_buf[CY_SPI_DATA_BUF_SIZE];
+>> +};
+>> +
+>> +static int cyttsp_spi_xfer(u8 op, struct cyttsp_spi *ts,
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0u8 reg, u8 *buf, int length)
+>> +{
+>> + =C2=A0 =C2=A0 =C2=A0 struct spi_message msg;
+>> + =C2=A0 =C2=A0 =C2=A0 struct spi_transfer xfer[2];
+>> + =C2=A0 =C2=A0 =C2=A0 u8 *wr_buf =3D ts->wr_buf;
+>> + =C2=A0 =C2=A0 =C2=A0 u8 *rd_buf =3D ts->rd_buf;
+>> + =C2=A0 =C2=A0 =C2=A0 int retval;
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 if (length > CY_SPI_DATA_SIZE) {
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 dev_dbg(ts->bus_o=
+ps.dev,
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 "%s: length %d is too big.\n",
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 __func__, length);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return -EINVAL;
+>> + =C2=A0 =C2=A0 =C2=A0 }
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 memset(wr_buf, 0, CY_SPI_DATA_BUF_SIZE);
+>> + =C2=A0 =C2=A0 =C2=A0 memset(rd_buf, 0, CY_SPI_DATA_BUF_SIZE);
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 wr_buf[0] =3D 0x00; /* header byte 0 */
+>> + =C2=A0 =C2=A0 =C2=A0 wr_buf[1] =3D 0xFF; /* header byte 1 */
+>> + =C2=A0 =C2=A0 =C2=A0 wr_buf[2] =3D reg; =C2=A0/* reg index */
+>> + =C2=A0 =C2=A0 =C2=A0 wr_buf[3] =3D op; =C2=A0 /* r/~w */
+>> + =C2=A0 =C2=A0 =C2=A0 if (op =3D=3D CY_SPI_WR_OP)
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 memcpy(wr_buf + C=
+Y_SPI_CMD_BYTES, buf, length);
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 memset((void *)xfer, 0, sizeof(xfer));
+>> + =C2=A0 =C2=A0 =C2=A0 spi_message_init(&msg);
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 /*
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 We set both TX and RX buffers because =
+Cypress TTSP
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 requires full duplex operation.
+>> + =C2=A0 =C2=A0 =C2=A0 */
+>> + =C2=A0 =C2=A0 =C2=A0 xfer[0].tx_buf =3D wr_buf;
+>> + =C2=A0 =C2=A0 =C2=A0 xfer[0].rx_buf =3D rd_buf;
+>> + =C2=A0 =C2=A0 =C2=A0 if (op =3D=3D CY_SPI_WR_OP) {
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 xfer[0].len =3D l=
+ength + CY_SPI_CMD_BYTES;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 spi_message_add_t=
+ail(&xfer[0], &msg);
+>> + =C2=A0 =C2=A0 =C2=A0 } else if (op =3D=3D CY_SPI_RD_OP) {
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 xfer[0].len =3D C=
+Y_SPI_CMD_BYTES;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 spi_message_add_t=
+ail(&xfer[0], &msg);
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 xfer[1].rx_buf =3D=
+ buf;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 xfer[1].len =3D l=
+ength;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 spi_message_add_t=
+ail(&xfer[1], &msg);
+>> + =C2=A0 =C2=A0 =C2=A0 }
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 retval =3D spi_sync(ts->spi_client, &msg);
+>> + =C2=A0 =C2=A0 =C2=A0 if (retval < 0) {
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 dev_dbg(ts->bus_o=
+ps.dev,
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 "%s: spi_sync() error %d, len=3D%d, op=3D%d\n",
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 __func__, retval, xfer[1].len, op);
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /*
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0* do not re=
+turn here since was a bad ACK sequence
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0* let the f=
+ollowing ACK check handle any errors and
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0* allow sil=
+ent retries
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0*/
+>> + =C2=A0 =C2=A0 =C2=A0 }
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 if ((rd_buf[CY_SPI_SYNC_BYTE] =3D=3D CY_SPI_S=
+YNC_ACK1) &&
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 (rd_buf[CY_SPI_SYNC_BYTE+1] =3D=
+=3D CY_SPI_SYNC_ACK2))
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 retval =3D 0;
+>> + =C2=A0 =C2=A0 =C2=A0 else {
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 int i;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 for (i =3D 0; i <=
+ (CY_SPI_CMD_BYTES); i++)
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 dev_dbg(ts->bus_ops.dev,
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 "%s: test rd_buf[%d]:0x%02x\n",
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 __func__, i, rd_buf[i]);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 for (i =3D 0; i <=
+ (length); i++)
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 dev_dbg(ts->bus_ops.dev,
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 "%s: test buf[%d]:0x%02x\n",
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 __func__, i, buf[i]);
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /* signal ACK err=
+or so silent retry */
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 retval =3D 1;
+>> + =C2=A0 =C2=A0 =C2=A0 }
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 return retval;
+>> +}
+>> +
+>> +static s32 ttsp_spi_read_block_data(void *handle, u8 addr,
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 u8 length, void *d=
+ata)
+>> +{
+>> + =C2=A0 =C2=A0 =C2=A0 struct cyttsp_spi *ts =3D
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 container_of(hand=
+le, struct cyttsp_spi, bus_ops);
+>> + =C2=A0 =C2=A0 =C2=A0 int retval;
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 retval =3D cyttsp_spi_xfer(CY_SPI_RD_OP, ts, =
+addr, data, length);
+>> + =C2=A0 =C2=A0 =C2=A0 if (retval < 0)
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 pr_err("%s: ttsp_=
+spi_read_block_data failed\n",
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0__func__);
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 /*
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0* Do not print the above error if the d=
+ata sync bytes were not
+>> found.
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0* This is a normal condition for the bo=
+otloader loader startup
+>> and need
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0* to retry until data sync bytes are fo=
+und.
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0*/
+>> + =C2=A0 =C2=A0 =C2=A0 if (retval > 0)
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 retval =3D -EIO; =
+=C2=A0/* now signal fail; so retry can be done
+>> */
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 return retval;
+>> +}
+>> +
+>> +static s32 ttsp_spi_write_block_data(void *handle, u8 addr,
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0u8 length, c=
+onst void *data)
+>> +{
+>> + =C2=A0 =C2=A0 =C2=A0 struct cyttsp_spi *ts =3D
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 container_of(hand=
+le, struct cyttsp_spi, bus_ops);
+>> + =C2=A0 =C2=A0 =C2=A0 int retval;
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 retval =3D cyttsp_spi_xfer(CY_SPI_WR_OP, ts, =
+addr, (void *)data,
+>> length);
+>> + =C2=A0 =C2=A0 =C2=A0 if (retval < 0)
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 pr_err("%s: ttsp_=
+spi_write_block_data failed\n",
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0__func__);
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 /*
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0* Do not print the above error if the d=
+ata sync bytes were not
+>> found.
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0* This is a normal condition for the bo=
+otloader loader startup
+>> and need
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0* to retry until data sync bytes are fo=
+und.
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0*/
+>> + =C2=A0 =C2=A0 =C2=A0 if (retval > 0)
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 retval =3D -EIO; =
+=C2=A0/* now signal fail; so retry can be done
+>> */
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 return retval;
+>> +}
+>> +
+>> +static s32 ttsp_spi_tch_ext(void *handle, void *values)
+>> +{
+>> + =C2=A0 =C2=A0 =C2=A0 struct cyttsp_spi *ts =3D
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 container_of(hand=
+le, struct cyttsp_spi, bus_ops);
+>> + =C2=A0 =C2=A0 =C2=A0 int retval =3D 0;
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 /*
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0* TODO: Add custom touch extension hand=
+ling code here
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0* set: retval < 0 for any returned syst=
+em errors,
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0* =C2=A0 =C2=A0 =C2=A0retval =3D 0 if n=
+ormal touch handling is required,
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0* =C2=A0 =C2=A0 =C2=A0retval > 0 if nor=
+mal touch handling is *not* required
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0*/
+>> +
+>
+> This is an empty function and could be removed?
+>
+>
 
-> Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-> ---
->  drivers/input/misc/Kconfig           |   14 +++-
->  drivers/input/misc/Makefile          |    1 +
->  drivers/input/misc/cma3000_d0x_spi.c |  178 ++++++++++++++++++++++++++++++++++
->  3 files changed, 191 insertions(+), 2 deletions(-)
->  create mode 100644 drivers/input/misc/cma3000_d0x_spi.c
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index c9104bb..b9f2e93 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -496,8 +496,8 @@ config INPUT_CMA3000
->  	  Say Y here if you want to use VTI CMA3000_D0x Accelerometer
->  	  driver
->  
-> -	  This driver currently only supports I2C interface to the
-> -	  controller. Also select the I2C method.
-> +	  This driver supports I2C and SPI interface to the
-> +	  controller. Also select the I2C method and/or the SPI method.
->  
->  	  If unsure, say N
->  
-> @@ -514,6 +514,16 @@ config INPUT_CMA3000_I2C
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called cma3000_d0x_i2c.
->  
-> +config INPUT_CMA3000_SPI
-> +	tristate "Support SPI bus connection"
-> +	depends on INPUT_CMA3000 && SPI
-> +	help
-> +	  Say Y here if you want to use VTI CMA3000_D0x Accelerometer
-> +	  through SPI interface.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called cma3000_d0x_spi.
-> +
->  config INPUT_XEN_KBDDEV_FRONTEND
->  	tristate "Xen virtual keyboard and mouse support"
->  	depends on XEN_FBDEV_FRONTEND
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index 299ad5e..7305f6f 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -20,6 +20,7 @@ obj-$(CONFIG_INPUT_BFIN_ROTARY)		+= bfin_rotary.o
->  obj-$(CONFIG_INPUT_CM109)		+= cm109.o
->  obj-$(CONFIG_INPUT_CMA3000)		+= cma3000_d0x.o
->  obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
-> +obj-$(CONFIG_INPUT_CMA3000_SPI)		+= cma3000_d0x_spi.o
->  obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
->  obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
->  obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
-> diff --git a/drivers/input/misc/cma3000_d0x_spi.c b/drivers/input/misc/cma3000_d0x_spi.c
-> new file mode 100644
-> index 0000000..49ad373
-> --- /dev/null
-> +++ b/drivers/input/misc/cma3000_d0x_spi.c
-> @@ -0,0 +1,178 @@
-> +/*
-> + * Implements SPI interface for VTI CMA300_D0x Accelerometer driver
-> + *
-> + * Copyright (C) 2011 Qtechnology
-> + * Author: Ricardo Ribalda <ricardo.ribalda@gmail.com.com>
-> + * Based on:
-You wrote a patch based on some people?  You might want to say what
-was written by these two that you used.
-> + *		Hemanth V <hemanthv@ti.com>
-> + *		Michael Hennerich <hennerich@blackfin.uclinux.org>
-> + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License version 2 as published by
-> + * the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful, but WITHOUT
-> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-> + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-> + * more details.
-> + *
-> + * You should have received a copy of the GNU General Public License along with
-> + * this program.  If not, see <http://www.gnu.org/licenses/>.
-> + */
-> +
-> +#include <linux/delay.h>
-> +#include <linux/module.h>
-> +#include <linux/spi/spi.h>
-> +#include <linux/input/cma3000.h>
-> +#include "cma3000_d0x.h"
-> +
-> +enum { DO_READ = 0, DO_WRITE };
-> +
-Looking at this function, I'd have thought it might be simpler to review
-as separate read and write functions.  This is particularly true as there
-are only two call sites and they are one of each so just roll it into the
-set and read functions.
+Hi Shubhrajyoti,
 
-Passing an error message string in is also very ugly. If you want to
-report errors then do it at the call sites, not in this fucntion.
-Also some incorrect spacing so another case for checkpatch.
-> +static int cma3000_spi_cmd(struct spi_device *spi, u8 reg, u8 * val, int cmd,
-> +			   char *msg)
-> +{
-> +	int ret;
-> +	unsigned char tx_buf[2];
-> +	unsigned char rx_buf[2];
-Please look up cacheline issues with spi transfers.  These need to be
-dynamically assigned.  Easiest is probably just to assign the with
-kmalloc right here.  Otherwise you'll need to put these buffers in an
-appropriate structure being careful about alignment.
-> +	struct spi_transfer t = {
-> +		.rx_buf = rx_buf,
-> +		.tx_buf = tx_buf,
-> +		.len = 2,
-> +	};
-> +	struct spi_message m;
-> +
-> +	if (cmd == DO_WRITE) {
-> +		tx_buf[0] = (reg << 2) | 2;
-> +		tx_buf[1] = *val;
-> +	} else {
-> +		tx_buf[0] = reg << 2;
-> +		tx_buf[1] = 0;
-> +	}
-> +	spi_message_init(&m);
-> +	spi_message_add_tail(&t, &m);
-> +	ret = spi_sync(spi, &m);
-> +	if (ret < 0) {
-> +		dev_err(&spi->dev, "%s failed (%s, %d)\n", __func__, msg, ret);
-> +		return ret;
-> +	}
-> +	if (cmd == DO_READ)
-> +		*val = rx_buf[1];
-> +
-> +	if (rx_buf[0] & 0xc1)
-> +		dev_err(&spi->dev,
-> +			"%s Invalid Zero mask(0x%x)\n", __func__, rx_buf[0]);
-That's a pretty weird and cryptic error message.  Does this meant the read
-failed?  If so just say that, we really don't care how it failed!
-> +
-> +	if ((rx_buf[0] & 0x2) != 0x2)
-> +		dev_err(&spi->dev,
-> +			"%s Invalid One mask (0x%x)\n", __func__, rx_buf[0]);
-> + 
+Yes, I'll remove it and also fix the other issues called out by you
+and resend the patch-set as v7.
 
-> +	return 0;
-> +}
-> +
-> +static int cma3000_spi_set(struct device *dev, u8 reg, u8 val, char *msg)
-> +{
-> +
-> +	struct spi_device *spi = to_spi_device(dev);
-> +
-> +	return cma3000_spi_cmd(spi, reg, &val, DO_WRITE, msg);
-> +}
-> +
-> +static int cma3000_spi_read(struct device *dev, u8 reg, char *msg)
-> +{
-> +	struct spi_device *spi = to_spi_device(dev);
-> +	int ret;
-> +	u8 val;
-> +
-> +	ret = cma3000_spi_cmd(spi, reg, &val, DO_READ, msg);
-> +	if (ret)
-> +		return ret;
-> +	return val;
-> +}
-> +
-> +static const struct cma3000_bus_ops cma3000_spi_bops = {
-> +	.bustype = BUS_SPI,
-> +#define CMA3000_BUSSPI     (1 << 4)
-> +	.ctrl_mod = CMA3000_BUSSPI,
-> +	.read = cma3000_spi_read,
-> +	.write = cma3000_spi_set,
-why not just call it write and match the semantics here?
-> +};
-> +
-> +static int __devinit cma3000_spi_probe(struct spi_device *spi)
-> +{
-> +	struct cma3000_accl_data *data;
-> +
-> +	data = cma3000_init(&spi->dev, spi->irq, &cma3000_spi_bops);
-> +	if (IS_ERR(data))
-> +		return PTR_ERR(data);
-> +
-> +	spi_set_drvdata(spi, data);
-> +
-> +	return 0;
-> +}
-> +
-> +static int __devexit cma3000_spi_remove(struct spi_device *spi)
-> +{
-> +	struct cma3000_accl_data *data = dev_get_drvdata(&spi->dev);
-> +
-> +	cma3000_exit(data);
-> +
-> +	return 0;
-> +}
-> +
-> +#ifdef CONFIG_PM
-> +static int cma3000_spi_suspend(struct device *dev)
-> +{
-> +	struct spi_device *spi = to_spi_device(dev);
-> +	struct cma3000_accl_data *data = dev_get_drvdata(&spi->dev);
-> +
-> +	cma3000_suspend(data);
-> +
-> +	return 0;
-> +}
-> +
-> +static int cma3000_spi_resume(struct device *dev)
-> +{
-> +	struct spi_device *spi = to_spi_device(dev);
-> +	struct cma3000_accl_data *data = dev_get_drvdata(&spi->dev);
-> +
-> +	cma3000_resume(data);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct dev_pm_ops cma3000_spi_pm_ops = {
-> +	.suspend = cma3000_spi_suspend,
-> +	.resume = cma3000_spi_resume,
-> +};
-> +#endif
-> +
-> +static SIMPLE_DEV_PM_OPS(cma3000_spi_pm, cma3000_spi_suspend,
-> +			 cma3000_spi_resume);
-> +
-> +static struct spi_driver cma3000_driver = {
-> +	.driver = {
-> +		   .name = "cma3000_d01",
-> +		   .bus = &spi_bus_type,
-> +		   .owner = THIS_MODULE,
-> +		   .pm = &cma3000_spi_pm,
-> +		   },
-> +	.probe = cma3000_spi_probe,
-> +	.remove = __devexit_p(cma3000_spi_remove),
-> +};
-> +
-> +static int __init cma3000_spi_init(void)
-> +{
-> +	return spi_register_driver(&cma3000_driver);
-> +}
-> +
-> +static void __exit cma3000_spi_exit(void)
-> +{
-> +	spi_unregister_driver(&cma3000_driver);
-> +}
-> +
-> +module_init(cma3000_spi_init);
-> +module_exit(cma3000_spi_exit);
-> +
-> +MODULE_DESCRIPTION("CMA3000-D0x Accelerometer SPI Driver");
-> +MODULE_LICENSE("GPL");
-> +MODULE_AUTHOR("Ricardo Ribalda <ricardo.ribalda@gmail.com>");
+Thanks a lot for the review and best regards,
 
+--=20
+Javier Mart=C3=ADnez Canillas
+(+34) 682 39 81 69
+Barcelona, Spain
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,58 +1,40 @@
 From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Subject: [PATCHv3 3/7] input/cma3000_d0x: Keep configuration on poweroff
-Date: Tue, 18 Oct 2011 17:48:02 +0200
-Message-ID: <1318952886-835-4-git-send-email-ricardo.ribalda__11820.4302773394$1318952990$gmane$org@gmail.com>
+Subject: [PATCHv3 6/7] input/cma3000_d0x: Unwind reverse order of init
+Date: Tue, 18 Oct 2011 17:48:05 +0200
+Message-ID: <1318952886-835-7-git-send-email-ricardo.ribalda__2772.66670386798$1318952990$gmane$org@gmail.com>
 References: <1318952886-835-1-git-send-email-ricardo.ribalda@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-bw0-f46.google.com ([209.85.214.46]:36602 "EHLO
 	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932699Ab1JRPsW (ORCPT
+	with ESMTP id S932891Ab1JRPsb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Oct 2011 11:48:22 -0400
+	Tue, 18 Oct 2011 11:48:31 -0400
 In-Reply-To: <1318952886-835-1-git-send-email-ricardo.ribalda@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, sameo@linux.intel.com, peter.ujfalusi@ti.com, aghayal@codeaurora.org, david@hardeman.nu, Shubhrajyoti@ti.com, saaguirre@ti.com, jic23@cam.ac.uk, hemanthv@ti
 Cc: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
 
-When the device goes to poweroff keep the spi/i2c configuration.
-Otherwhise the device could not wake up if it was in spi mode.
-
----
-
-v2: Fixes suggested by Jonathan Cameron
-    -Code Style
 
 Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
 ---
- drivers/input/misc/cma3000_d0x.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
+ drivers/input/misc/cma3000_d0x.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/input/misc/cma3000_d0x.c b/drivers/input/misc/cma3000_d0x.c
-index 18ac912..bbda34c 100644
+index bbda34c..96a46d4 100644
 --- a/drivers/input/misc/cma3000_d0x.c
 +++ b/drivers/input/misc/cma3000_d0x.c
-@@ -45,6 +45,7 @@
- #define CMA3000_RANGE2G    (1 << 7)
- #define CMA3000_RANGE8G    (0 << 7)
- #define CMA3000_BUSI2C     (0 << 4)
-+#define CMA3000_BUSSPI     (1 << 4)
- #define CMA3000_MODEMASK   (7 << 1)
- #define CMA3000_GRANGEMASK (1 << 7)
+@@ -459,8 +459,8 @@ EXPORT_SYMBOL(cma3000_init);
  
-@@ -231,8 +232,11 @@ static int cma3000_poweron(struct cma3000_accl_data *data)
- static int cma3000_poweroff(struct cma3000_accl_data *data)
+ void cma3000_exit(struct cma3000_accl_data *data)
  {
- 	int ret;
-+	u8 ctrl = CMAMODE_POFF;
- 
--	ret = CMA3000_SET(data, CMA3000_CTRL, CMAMODE_POFF, "Mode setting");
-+	ctrl |= data->bus_ops->ctrl_mod;
-+
-+	ret = CMA3000_SET(data, CMA3000_CTRL, ctrl, "Mode setting");
- 	msleep(CMA3000_SETDELAY);
- 
- 	return ret;
+-	free_irq(data->irq, data);
+ 	input_unregister_device(data->input_dev);
++	free_irq(data->irq, data);
+ 	kfree(data);
+ }
+ EXPORT_SYMBOL(cma3000_exit);
 -- 
 1.7.7
 

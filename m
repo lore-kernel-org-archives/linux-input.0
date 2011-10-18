@@ -1,89 +1,88 @@
 From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Subject: Re: [PATCH 1/5] input/cma3000_d0x: Support devices without pdata
-Date: Tue, 18 Oct 2011 14:07:04 +0200
-Message-ID: <CAPybu_0_31N-v2h2oM3-yEod=gAu1dn2gG2mO2UFgDWNN9kQuQ@mail.gmail.com>
+Subject: Re: [PATCH 5/5] Input: add CMR3000 gyrsocope driver
+Date: Tue, 18 Oct 2011 14:07:32 +0200
+Message-ID: <CAPybu_1nfTQd1ZbKJOwoxyZuPvKkCh8z2tdrcpwuzQSz5CM4Rg@mail.gmail.com>
 References: <1318926486-10330-1-git-send-email-ricardo.ribalda@gmail.com>
- <1318926486-10330-2-git-send-email-ricardo.ribalda@gmail.com> <4E9D3999.1080802@cam.ac.uk>
+ <1318926486-10330-6-git-send-email-ricardo.ribalda@gmail.com> <4E9D3EAE.9020003@cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4E9D3999.1080802@cam.ac.uk>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:35420 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932291Ab1JRMIM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Oct 2011 08:08:12 -0400
+In-Reply-To: <4E9D3EAE.9020003@cam.ac.uk>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Jonathan Cameron <jic23@cam.ac.uk>
 Cc: dmitry.torokhov@gmail.com, sameo@linux.intel.com, peter.ujfalusi@ti.com, aghayal@codeaurora.org, david@hardeman.nu, Shubhrajyoti@ti.com, saaguirre@ti.com, hemanthv@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
 Hello Jonathan
 
- Thanks for your fast reply :)
+On Tue, Oct 18, 2011 at 10:54, Jonathan Cameron <jic23@cam.ac.uk> wrote=
+:
+> On 10/18/11 09:28, Ricardo Ribalda Delgado wrote:
 
-> I'm not that familiar with DT yet, but surely there is a means to sup=
-plying
-> the equivalent data? =A0I'd prefer to see that provided here as well.
+> Quick review done below. =A0Quite a bit of overlap with earlier revie=
+ws.
+> Sorry I couldn't take a closer look.
 
-If you check the file drivers/of/of_spi.c you can see that only reg,
-spi-cpha, spi-cpol, spi-cs-high, spi-max-freq and irq is imported
-straight from the DT, that is why I created the default configuration.
+I am fixing also previous errors
 
-I can give it a second thought, but I think it wont hurt to have a
-per-default configuration.
+> accl? =A0I thought this was a gyro so this seems odd.
+copy paste :), fixing it
 
+> I'd much rather see these done explicity in the code.
+> This sort of macro just obscures the works to save a few lines
+> of code.
+>> +#define CMR3000_READ(data, reg, msg) \
+>> + =A0 =A0 (data->bus_ops->read(data->dev, reg, msg))
+>> +#define CMR3000_SET(data, reg, val, msg) \
+>> + =A0 =A0 ((data)->bus_ops->write(data->dev, reg, val, msg))
 >> +
->> =A0struct cma3000_accl_data {
->> =A0 =A0 =A0 const struct cma3000_bus_ops *bus_ops;
->> =A0 =A0 =A0 const struct cma3000_platform_data *pdata;
->> @@ -283,19 +295,24 @@ EXPORT_SYMBOL(cma3000_resume);
->> =A0struct cma3000_accl_data *cma3000_init(struct device *dev, int ir=
-q,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0const struct cma3000_bus_ops *bops)
->> =A0{
->> - =A0 =A0 const struct cma3000_platform_data *pdata =3D dev->platfor=
-m_data;
->> + =A0 =A0 const struct cma3000_platform_data *pdata;
-> Leave this line alone....
->> =A0 =A0 =A0 struct cma3000_accl_data *data;
->> =A0 =A0 =A0 struct input_dev *input_dev;
->> =A0 =A0 =A0 int rev;
->> =A0 =A0 =A0 int error;
->>
->> + =A0 =A0 if (!dev->platform_data) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 dev_info(dev, "platform data not found, us=
-ing default\n");
->> + =A0 =A0 =A0 =A0 =A0 =A0 pdata =3D &cma3000_default_pdata;
->> + =A0 =A0 } else
->> + =A0 =A0 =A0 =A0 =A0 =A0 pdata =3D dev->platform_data;
->> +
-> and this becomes
->
-> if (pdata =3D=3D NULL) {
-> =A0 =A0 =A0 =A0dev_info(dev, "platform data not found, using default\=
-n");
-> =A0 =A0 =A0 =A0pdata =3D &cma3000_default_pdata;
-> }
->
->> =A0 =A0 =A0 if (!pdata) {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(dev, "platform data not found\n"=
-);
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D -EINVAL;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_out;
->> =A0 =A0 =A0 }
-> This can't happen now so get rid of the test.
->>
->> -
->> =A0 =A0 =A0 /* if no IRQ return error */
->> =A0 =A0 =A0 if (irq =3D=3D 0) {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D -EINVAL;
->
->
 
-Ready on the new version of the patch.
+=46ixing it
 
 
- Thanks again
+>> +void cmr3000_exit(struct cmr3000_accl_data *data)
+>> +{
+>> + =A0 =A0 free_irq(data->irq, data);
+>> + =A0 =A0 input_unregister_device(data->input_dev);
+> cleaner to unwind in reverse order of setup unless you have
+> a good reason and that should be commented.
+
+=46ixing it, and also fixing it on the cma3000
+
+> Match comment to name fo structure.
+>> + * struct cmr3000_i2c_platform_data - CMR3000 Platform data
+>> + * @fuzz_x: Noise on X Axis
+>> + * @fuzz_y: Noise on Y Axis
+>> + * @fuzz_z: Noise on Z Axis
+>> + * @mode: Operating mode
+>> + * @irq_level: Irq level
+>> + */
+>> +struct cmr3000_platform_data {
+>> + =A0 =A0 int fuzz_x;
+>> + =A0 =A0 int fuzz_y;
+>> + =A0 =A0 int fuzz_z;
+>> + =A0 =A0 uint8_t irq_level;
+>> + =A0 =A0 uint8_t mode;
+>> + =A0 =A0 unsigned long irqflags;
+>> +};
+
+=46ixing it, and also fixing it on the cma3000
+
+
+Thanks!
 
 
 
 --=20
 Ricardo Ribalda
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

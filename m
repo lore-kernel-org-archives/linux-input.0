@@ -1,41 +1,50 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: [PATCHv2 7/7] input/cma3000_d0x: Match comment to name of struct
-Date: Tue, 18 Oct 2011 14:16:42 +0100
-Message-ID: <4E9D7C3A.1020309@cam.ac.uk>
-References: <1318939596-27330-1-git-send-email-ricardo.ribalda@gmail.com> <1318939596-27330-8-git-send-email-ricardo.ribalda@gmail.com>
+From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+Subject: Re: [PATCHv2 4/7] input/cma3000_d0x: Add CMA3000 spi support
+Date: Tue, 18 Oct 2011 15:43:28 +0200
+Message-ID: <CAPybu_0kxqfo9Lx9V_oOXfBjOG2dnR0NLCV6=PM6cnUYmVb_iQ@mail.gmail.com>
+References: <1318939596-27330-1-git-send-email-ricardo.ribalda@gmail.com>
+ <1318939596-27330-5-git-send-email-ricardo.ribalda@gmail.com> <4E9D7BD2.8090101@cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-50.csi.cam.ac.uk ([131.111.8.150]:58879 "EHLO
-	ppsw-50.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754968Ab1JRNQj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Oct 2011 09:16:39 -0400
-In-Reply-To: <1318939596-27330-8-git-send-email-ricardo.ribalda@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4E9D7BD2.8090101@cam.ac.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jonathan Cameron <jic23@cam.ac.uk>
 Cc: dmitry.torokhov@gmail.com, sameo@linux.intel.com, peter.ujfalusi@ti.com, aghayal@codeaurora.org, david@hardeman.nu, Shubhrajyoti@ti.com, saaguirre@ti.com, hemanthv@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On 10/18/11 13:06, Ricardo Ribalda Delgado wrote:
-> Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Acked-by: Jonathan Cameron <jic23@cam.ac.uk>
-> ---
->  include/linux/input/cma3000.h |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/include/linux/input/cma3000.h b/include/linux/input/cma3000.h
-> index cbbaac2..e8c28e8 100644
-> --- a/include/linux/input/cma3000.h
-> +++ b/include/linux/input/cma3000.h
-> @@ -33,7 +33,7 @@
->  #define CMARANGE_8G   8000
->  
->  /**
-> - * struct cma3000_i2c_platform_data - CMA3000 Platform data
-> + * struct cma3000_platform_data - CMA3000 Platform data
->   * @fuzz_x: Noise on X Axis
->   * @fuzz_y: Noise on Y Axis
->   * @fuzz_z: Noise on Z Axis
+Hello Jonathan
 
+  First of all, thanks for your messages :).
+
+> To make my point about these functions being more complex than needed
+> in more detail....
+>
+> If this were two functions and you drop the zero and 1 mask
+> (which I'm not convinced make any sense. I've also killed the message.
+> We both agree it is the wrong way to go, so post a patch fixing the i2c
+> interface as well.
+
+Of course your functions are much more simpler and beautiful than the
+fat one I wrote, no doubt about it :). Just three comments
+
+- Checking the one mask and the zero mask is the only way we have to
+know if the chip is still there, The absense of that reply should
+trigger an IO error or at least a retry. As you point out, the
+zero/one mask is only violated on startup.  I just wanted to make it
+more risk free, but if you believe it is more clear that way, lets
+remove it
+
+- I am not very fun of kmallocing data per write, specially when it is
+part of the irq handler, and you expect this to be low latency. What
+about allocating a buffer on init time, and use it with a mutex?
+
+-I dont like the push error message to the bottom, but that will mean
+a rewrite of the cma3000 driver, shall I go for it?
+
+
+Thanks again, and  I will post the new version when you reply this :)
+
+
+-- 
+Ricardo Ribalda

@@ -1,178 +1,63 @@
 From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: [PATCHv3 1/7] input/cma3000_d0x: Support devices without pdata
-Date: Tue, 18 Oct 2011 16:59:31 +0100
-Message-ID: <4E9DA263.9000205@cam.ac.uk>
-References: <1318952886-835-1-git-send-email-ricardo.ribalda@gmail.com> <1318952886-835-2-git-send-email-ricardo.ribalda@gmail.com>
+Subject: Re: [PATCHv3 2/7] input/cma3000_d0x: Check silicon version
+Date: Tue, 18 Oct 2011 17:01:22 +0100
+Message-ID: <4E9DA2D2.20800@cam.ac.uk>
+References: <1318952886-835-1-git-send-email-ricardo.ribalda@gmail.com> <1318952886-835-3-git-send-email-ricardo.ribalda@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1318952886-835-2-git-send-email-ricardo.ribalda@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ppsw-41.csi.cam.ac.uk ([131.111.8.141]:41114 "EHLO
+	ppsw-41.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754743Ab1JRQBU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Oct 2011 12:01:20 -0400
+In-Reply-To: <1318952886-835-3-git-send-email-ricardo.ribalda@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
 Cc: dmitry.torokhov@gmail.com, sameo@linux.intel.com, peter.ujfalusi@ti.com, aghayal@codeaurora.org, david@hardeman.nu, Shubhrajyoti@ti.com, saaguirre@ti.com, hemanthv@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
 On 10/18/11 16:48, Ricardo Ribalda Delgado wrote:
-> Architectures based on device-tree does not have platform data
-> associated to the spi/i2c devices. Instead they can have some of
-> the options embedded in the device tree.
+> Improve probing of the cma3000 chip, by checking the revision of the
+> device.
+Please carry acks forward with new versions if the patch hasn't changed
+significantly.
 > 
-> This patch allows the cma3000  driver to get the configuration
-> from the platform_data, the device tree, or in the wort case,
-> just use a default configuration.
-> 
-Looks good to me but you'll need an ack from someone more
-familiar with DT.
 > ---
 > 
-> v3: Fixes suggested by Jonathan Cameron
->     -Add support for the device tree
-> 
 > v2: Fixes suggested by Jonathan Cameron
->     -Spelling
->     -Simplify pdata!=NULL check
+> 	-Remove WhoamI pr_info
 > 
 > Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
 > ---
->  drivers/input/misc/cma3000_d0x.c |   84 +++++++++++++++++++++++++++++++++-----
->  1 files changed, 73 insertions(+), 11 deletions(-)
+>  drivers/input/misc/cma3000_d0x.c |    8 +++++++-
+>  1 files changed, 7 insertions(+), 1 deletions(-)
 > 
 > diff --git a/drivers/input/misc/cma3000_d0x.c b/drivers/input/misc/cma3000_d0x.c
-> index 1633b63..604a32f 100644
+> index 604a32f..18ac912 100644
 > --- a/drivers/input/misc/cma3000_d0x.c
 > +++ b/drivers/input/misc/cma3000_d0x.c
-> @@ -23,6 +23,7 @@
->  #include <linux/slab.h>
->  #include <linux/input.h>
->  #include <linux/input/cma3000.h>
-> +#include <linux/of.h>
+> @@ -27,6 +27,8 @@
 >  
 >  #include "cma3000_d0x.h"
 >  
-> @@ -62,9 +63,21 @@
->  #define BIT_TO_2G  18
->  #define BIT_TO_8G  71
->  
-> +static struct cma3000_platform_data cma3000_default_pdata = {
-> +	.mdthr = 0x8,
-> +	.mdfftmr = 0x33,
-> +	.ffthr = 0x8,
-> +	.mode = CMAMODE_MEAS400,
-> +	.g_range = CMARANGE_2G,
-> +	.fuzz_x = BIT_TO_2G,
-> +	.fuzz_y = BIT_TO_2G,
-> +	.fuzz_z = BIT_TO_2G,
-> +	.irqflags = 0,
-> +};
+> +#define CMA3000_REV         0x10
 > +
->  struct cma3000_accl_data {
->  	const struct cma3000_bus_ops *bus_ops;
-> -	const struct cma3000_platform_data *pdata;
-> +	struct cma3000_platform_data pdata;
->  
->  	struct device *dev;
->  	struct input_dev *input_dev;
-> @@ -182,7 +195,7 @@ static int cma3000_reset(struct cma3000_accl_data *data)
->  
->  static int cma3000_poweron(struct cma3000_accl_data *data)
->  {
-> -	const struct cma3000_platform_data *pdata = data->pdata;
-> +	struct cma3000_platform_data *pdata = &data->pdata;
->  	u8 ctrl = 0;
->  	int ret;
->  
-> @@ -280,22 +293,57 @@ void cma3000_resume(struct cma3000_accl_data *data)
->  }
->  EXPORT_SYMBOL(cma3000_resume);
->  
-> +#ifdef CONFIG_OF
-> +void cma3000_get_pdata_of(struct device *dev, struct cma3000_accl_data *data)
-> +{
-> +	const __be32 *property;
-> +	int len;
-> +
-> +	property = of_get_property(dev->of_node, "vti,mdthr", &len);
-> +	if (property && len == sizeof(int))
-> +		data->pdata.mdthr = be32_to_cpup(property);
-> +
-> +	property = of_get_property(dev->of_node, "vti,mdfftmr", &len);
-> +	if (property && len == sizeof(int))
-> +		data->pdata.mdfftmr = be32_to_cpup(property);
-> +
-> +	property = of_get_property(dev->of_node, "vti,mode", &len);
-> +	if (property && len == sizeof(int))
-> +		data->pdata.mode = be32_to_cpup(property);
-> +
-> +	property = of_get_property(dev->of_node, "vti,g_range", &len);
-> +	if (property && len == sizeof(int))
-> +		data->pdata.g_range = be32_to_cpup(property);
-> +
-> +	property = of_get_property(dev->of_node, "vti,fuzz_x", &len);
-> +	if (property && len == sizeof(int))
-> +		data->pdata.fuzz_x = be32_to_cpup(property);
-> +
-> +	property = of_get_property(dev->of_node, "vti,fuzz_y", &len);
-> +	if (property && len == sizeof(int))
-> +		data->pdata.fuzz_y = be32_to_cpup(property);
-> +
-> +	property = of_get_property(dev->of_node, "vti,fuzz_z", &len);
-> +	if (property && len == sizeof(int))
-> +		data->pdata.fuzz_z = be32_to_cpup(property);
-> +
-> +	property = of_get_property(dev->of_node, "vti,irqflags", &len);
-> +	if (property && len == sizeof(int))
-> +		data->pdata.irqflags = be32_to_cpup(property);
-> +
-> +	return;
-> +}
-> +#endif
-> +
->  struct cma3000_accl_data *cma3000_init(struct device *dev, int irq,
->  				       const struct cma3000_bus_ops *bops)
->  {
-> -	const struct cma3000_platform_data *pdata = dev->platform_data;
-> +	struct cma3000_platform_data *pdata;
->  	struct cma3000_accl_data *data;
->  	struct input_dev *input_dev;
->  	int rev;
->  	int error;
->  
-> -	if (!pdata) {
-> -		dev_err(dev, "platform data not found\n");
-> -		error = -EINVAL;
-> -		goto err_out;
-> -	}
-> -
-> -
->  	/* if no IRQ return error */
->  	if (irq == 0) {
->  		error = -EINVAL;
-> @@ -309,10 +357,24 @@ struct cma3000_accl_data *cma3000_init(struct device *dev, int irq,
+>  #define CMA3000_WHOAMI      0x00
+>  #define CMA3000_REVID       0x01
+>  #define CMA3000_CTRL        0x02
+> @@ -418,7 +420,11 @@ struct cma3000_accl_data *cma3000_init(struct device *dev, int irq,
+>  		error = rev;
 >  		goto err_free_mem;
 >  	}
->  
-> +	/*Init platform data*/
-> +	if (dev->platform_data != NULL) {
-> +		memcpy(&data->pdata, dev->platform_data, sizeof(data->pdata));
-> +	} else {
-> +		memcpy(&data->pdata, &cma3000_default_pdata,
-> +				sizeof(data->pdata));
-> +		#ifdef CONFIG_OF
-> +		if (dev->of_node != NULL)
-> +			cma3000_get_pdata_of(dev, data);
-> +		 else
-Alignment is a little strange here, + for consistency of formatting
-I'd just double the next line and use a #else 
-> +		#endif
-> +		dev_info(dev, "platform data not found, using default\n");
+> -
+> +	if (rev != CMA3000_REV) {
+> +		error = -EINVAL;
+> +		pr_err("CMA3000 Accelerometer: Unknown Revision %x\n", rev);
+> +		goto err_free_mem;
 > +	}
-> +	pdata = &data->pdata;
-> +
->  	data->dev = dev;
->  	data->input_dev = input_dev;
->  	data->bus_ops = bops;
-> -	data->pdata = pdata;
->  	data->irq = irq;
->  	mutex_init(&data->mutex);
+>  	pr_info("CMA3000 Accelerometer: Revision %x\n", rev);
 >  
+>  	error = request_threaded_irq(irq, NULL, cma3000_thread_irq,
+

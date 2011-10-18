@@ -1,237 +1,178 @@
 From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Subject: [PATCHv3 4/7] input/cma3000_d0x: Add CMA3000 spi support
-Date: Tue, 18 Oct 2011 17:48:03 +0200
-Message-ID: <1318952886-835-5-git-send-email-ricardo.ribalda__48030.224387958$1318953025$gmane$org@gmail.com>
+Subject: [PATCHv3 1/7] input/cma3000_d0x: Support devices without pdata
+Date: Tue, 18 Oct 2011 17:48:00 +0200
+Message-ID: <1318952886-835-2-git-send-email-ricardo.ribalda__12242.8372306333$1318953026$gmane$org@gmail.com>
 References: <1318952886-835-1-git-send-email-ricardo.ribalda@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-bw0-f46.google.com ([209.85.214.46]:36602 "EHLO
 	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932722Ab1JRPsZ (ORCPT
+	with ESMTP id S932699Ab1JRPsQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Oct 2011 11:48:25 -0400
+	Tue, 18 Oct 2011 11:48:16 -0400
 In-Reply-To: <1318952886-835-1-git-send-email-ricardo.ribalda@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, sameo@linux.intel.com, peter.ujfalusi@ti.com, aghayal@codeaurora.org, david@hardeman.nu, Shubhrajyoti@ti.com, saaguirre@ti.com, jic23@cam.ac.uk, hemanthv@ti
 Cc: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
 
-Add support for SPI communication.
+Architectures based on device-tree does not have platform data
+associated to the spi/i2c devices. Instead they can have some of
+the options embedded in the device tree.
+
+This patch allows the cma3000  driver to get the configuration
+from the platform_data, the device tree, or in the wort case,
+just use a default configuration.
 
 ---
 
 v3: Fixes suggested by Jonathan Cameron
-	-Separate write/read commands
-	-Do not check 1/0 mask
-	-Use spi_w8r8 and spi_write_then_read functions
+    -Add support for the device tree
+
 v2: Fixes suggested by Jonathan Cameron
-	-Add filename to based on header
-	-Rename set with write
-	-Set spi buffers as cache aligned
-	-Code Style
+    -Spelling
+    -Simplify pdata!=NULL check
 
 Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
 ---
- drivers/input/misc/Kconfig           |   14 +++-
- drivers/input/misc/Makefile          |    1 +
- drivers/input/misc/cma3000_d0x_spi.c |  145 ++++++++++++++++++++++++++++++++++
- 3 files changed, 158 insertions(+), 2 deletions(-)
- create mode 100644 drivers/input/misc/cma3000_d0x_spi.c
+ drivers/input/misc/cma3000_d0x.c |   84 +++++++++++++++++++++++++++++++++-----
+ 1 files changed, 73 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index c9104bb..b9f2e93 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -496,8 +496,8 @@ config INPUT_CMA3000
- 	  Say Y here if you want to use VTI CMA3000_D0x Accelerometer
- 	  driver
+diff --git a/drivers/input/misc/cma3000_d0x.c b/drivers/input/misc/cma3000_d0x.c
+index 1633b63..604a32f 100644
+--- a/drivers/input/misc/cma3000_d0x.c
++++ b/drivers/input/misc/cma3000_d0x.c
+@@ -23,6 +23,7 @@
+ #include <linux/slab.h>
+ #include <linux/input.h>
+ #include <linux/input/cma3000.h>
++#include <linux/of.h>
  
--	  This driver currently only supports I2C interface to the
--	  controller. Also select the I2C method.
-+	  This driver supports I2C and SPI interface to the
-+	  controller. Also select the I2C method and/or the SPI method.
+ #include "cma3000_d0x.h"
  
- 	  If unsure, say N
+@@ -62,9 +63,21 @@
+ #define BIT_TO_2G  18
+ #define BIT_TO_8G  71
  
-@@ -514,6 +514,16 @@ config INPUT_CMA3000_I2C
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called cma3000_d0x_i2c.
- 
-+config INPUT_CMA3000_SPI
-+	tristate "Support SPI bus connection"
-+	depends on INPUT_CMA3000 && SPI
-+	help
-+	  Say Y here if you want to use VTI CMA3000_D0x Accelerometer
-+	  through SPI interface.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called cma3000_d0x_spi.
-+
- config INPUT_XEN_KBDDEV_FRONTEND
- 	tristate "Xen virtual keyboard and mouse support"
- 	depends on XEN_FBDEV_FRONTEND
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 299ad5e..7305f6f 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -20,6 +20,7 @@ obj-$(CONFIG_INPUT_BFIN_ROTARY)		+= bfin_rotary.o
- obj-$(CONFIG_INPUT_CM109)		+= cm109.o
- obj-$(CONFIG_INPUT_CMA3000)		+= cma3000_d0x.o
- obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
-+obj-$(CONFIG_INPUT_CMA3000_SPI)		+= cma3000_d0x_spi.o
- obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
- obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
- obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
-diff --git a/drivers/input/misc/cma3000_d0x_spi.c b/drivers/input/misc/cma3000_d0x_spi.c
-new file mode 100644
-index 0000000..c91a552
---- /dev/null
-+++ b/drivers/input/misc/cma3000_d0x_spi.c
-@@ -0,0 +1,145 @@
-+/*
-+ * Implements SPI interface for VTI CMA300_D0x Accelerometer driver
-+ *
-+ * Copyright (C) 2011 Qtechnology
-+ * Author: Ricardo Ribalda <ricardo.ribalda@gmail.com.com>
-+ * Based on:
-+ *	drivers/input/misc/cma3000_d0x_i2c.c by Hemanth V
-+ *	drivers/input/mis/adxl34x-spi.c	by Michael Hennerich
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program.  If not, see <http://www.gnu.org/licenses/>.
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/module.h>
-+#include <linux/spi/spi.h>
-+#include <linux/input/cma3000.h>
-+#include "cma3000_d0x.h"
-+
-+static int cma3000_spi_write(struct device *dev, u8 reg, u8 val, char *msg)
-+{
-+	struct spi_device *spi = to_spi_device(dev);
-+	int ret;
-+	u8 tmp[2];
-+
-+	tmp[0] = (reg << 2) | 2;
-+	tmp[1] = val;
-+
-+	ret = spi_write_then_read(spi, tmp, sizeof(tmp), NULL, 0);
-+	if (ret < 0) {
-+		dev_err(dev, "%s failed (%s, %d)\n", __func__, msg, ret);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int cma3000_spi_read(struct device *dev, u8 reg, char *msg)
-+{
-+	struct spi_device *spi = to_spi_device(dev);
-+	int ret;
-+
-+	ret = spi_w8r8(spi, reg << 2);
-+	if (ret < 0)
-+		dev_err(dev, "%s failed (%s, %d)\n", __func__, msg, ret);
-+
-+	return ret;
-+}
-+
-+static const struct cma3000_bus_ops cma3000_spi_bops = {
-+	.bustype = BUS_SPI,
-+#define CMA3000_BUSSPI     (1 << 4)
-+	.ctrl_mod = CMA3000_BUSSPI,
-+	.read = cma3000_spi_read,
-+	.write = cma3000_spi_write,
++static struct cma3000_platform_data cma3000_default_pdata = {
++	.mdthr = 0x8,
++	.mdfftmr = 0x33,
++	.ffthr = 0x8,
++	.mode = CMAMODE_MEAS400,
++	.g_range = CMARANGE_2G,
++	.fuzz_x = BIT_TO_2G,
++	.fuzz_y = BIT_TO_2G,
++	.fuzz_z = BIT_TO_2G,
++	.irqflags = 0,
 +};
 +
-+static int __devinit cma3000_spi_probe(struct spi_device *spi)
+ struct cma3000_accl_data {
+ 	const struct cma3000_bus_ops *bus_ops;
+-	const struct cma3000_platform_data *pdata;
++	struct cma3000_platform_data pdata;
+ 
+ 	struct device *dev;
+ 	struct input_dev *input_dev;
+@@ -182,7 +195,7 @@ static int cma3000_reset(struct cma3000_accl_data *data)
+ 
+ static int cma3000_poweron(struct cma3000_accl_data *data)
+ {
+-	const struct cma3000_platform_data *pdata = data->pdata;
++	struct cma3000_platform_data *pdata = &data->pdata;
+ 	u8 ctrl = 0;
+ 	int ret;
+ 
+@@ -280,22 +293,57 @@ void cma3000_resume(struct cma3000_accl_data *data)
+ }
+ EXPORT_SYMBOL(cma3000_resume);
+ 
++#ifdef CONFIG_OF
++void cma3000_get_pdata_of(struct device *dev, struct cma3000_accl_data *data)
 +{
-+	struct cma3000_accl_data *data;
++	const __be32 *property;
++	int len;
 +
-+	data = cma3000_init(&spi->dev, spi->irq, &cma3000_spi_bops);
-+	if (IS_ERR(data))
-+		return PTR_ERR(data);
++	property = of_get_property(dev->of_node, "vti,mdthr", &len);
++	if (property && len == sizeof(int))
++		data->pdata.mdthr = be32_to_cpup(property);
 +
-+	spi_set_drvdata(spi, data);
++	property = of_get_property(dev->of_node, "vti,mdfftmr", &len);
++	if (property && len == sizeof(int))
++		data->pdata.mdfftmr = be32_to_cpup(property);
 +
-+	return 0;
++	property = of_get_property(dev->of_node, "vti,mode", &len);
++	if (property && len == sizeof(int))
++		data->pdata.mode = be32_to_cpup(property);
++
++	property = of_get_property(dev->of_node, "vti,g_range", &len);
++	if (property && len == sizeof(int))
++		data->pdata.g_range = be32_to_cpup(property);
++
++	property = of_get_property(dev->of_node, "vti,fuzz_x", &len);
++	if (property && len == sizeof(int))
++		data->pdata.fuzz_x = be32_to_cpup(property);
++
++	property = of_get_property(dev->of_node, "vti,fuzz_y", &len);
++	if (property && len == sizeof(int))
++		data->pdata.fuzz_y = be32_to_cpup(property);
++
++	property = of_get_property(dev->of_node, "vti,fuzz_z", &len);
++	if (property && len == sizeof(int))
++		data->pdata.fuzz_z = be32_to_cpup(property);
++
++	property = of_get_property(dev->of_node, "vti,irqflags", &len);
++	if (property && len == sizeof(int))
++		data->pdata.irqflags = be32_to_cpup(property);
++
++	return;
 +}
-+
-+static int __devexit cma3000_spi_remove(struct spi_device *spi)
-+{
-+	struct cma3000_accl_data *data = dev_get_drvdata(&spi->dev);
-+
-+	cma3000_exit(data);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static int cma3000_spi_suspend(struct device *dev)
-+{
-+	struct spi_device *spi = to_spi_device(dev);
-+	struct cma3000_accl_data *data = dev_get_drvdata(&spi->dev);
-+
-+	cma3000_suspend(data);
-+
-+	return 0;
-+}
-+
-+static int cma3000_spi_resume(struct device *dev)
-+{
-+	struct spi_device *spi = to_spi_device(dev);
-+	struct cma3000_accl_data *data = dev_get_drvdata(&spi->dev);
-+
-+	cma3000_resume(data);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops cma3000_spi_pm_ops = {
-+	.suspend = cma3000_spi_suspend,
-+	.resume = cma3000_spi_resume,
-+};
 +#endif
 +
-+static SIMPLE_DEV_PM_OPS(cma3000_spi_pm, cma3000_spi_suspend,
-+			 cma3000_spi_resume);
+ struct cma3000_accl_data *cma3000_init(struct device *dev, int irq,
+ 				       const struct cma3000_bus_ops *bops)
+ {
+-	const struct cma3000_platform_data *pdata = dev->platform_data;
++	struct cma3000_platform_data *pdata;
+ 	struct cma3000_accl_data *data;
+ 	struct input_dev *input_dev;
+ 	int rev;
+ 	int error;
+ 
+-	if (!pdata) {
+-		dev_err(dev, "platform data not found\n");
+-		error = -EINVAL;
+-		goto err_out;
+-	}
+-
+-
+ 	/* if no IRQ return error */
+ 	if (irq == 0) {
+ 		error = -EINVAL;
+@@ -309,10 +357,24 @@ struct cma3000_accl_data *cma3000_init(struct device *dev, int irq,
+ 		goto err_free_mem;
+ 	}
+ 
++	/*Init platform data*/
++	if (dev->platform_data != NULL) {
++		memcpy(&data->pdata, dev->platform_data, sizeof(data->pdata));
++	} else {
++		memcpy(&data->pdata, &cma3000_default_pdata,
++				sizeof(data->pdata));
++		#ifdef CONFIG_OF
++		if (dev->of_node != NULL)
++			cma3000_get_pdata_of(dev, data);
++		 else
++		#endif
++		dev_info(dev, "platform data not found, using default\n");
++	}
++	pdata = &data->pdata;
 +
-+static struct spi_driver cma3000_driver = {
-+	.driver = {
-+		   .name = "cma3000_d01",
-+		   .bus = &spi_bus_type,
-+		   .owner = THIS_MODULE,
-+		   .pm = &cma3000_spi_pm,
-+		   },
-+	.probe = cma3000_spi_probe,
-+	.remove = __devexit_p(cma3000_spi_remove),
-+};
-+
-+static int __init cma3000_spi_init(void)
-+{
-+	return spi_register_driver(&cma3000_driver);
-+}
-+
-+static void __exit cma3000_spi_exit(void)
-+{
-+	spi_unregister_driver(&cma3000_driver);
-+}
-+
-+module_init(cma3000_spi_init);
-+module_exit(cma3000_spi_exit);
-+
-+MODULE_DESCRIPTION("CMA3000-D0x Accelerometer SPI Driver");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Ricardo Ribalda <ricardo.ribalda@gmail.com>");
+ 	data->dev = dev;
+ 	data->input_dev = input_dev;
+ 	data->bus_ops = bops;
+-	data->pdata = pdata;
+ 	data->irq = irq;
+ 	mutex_init(&data->mutex);
+ 
 -- 
 1.7.7
 

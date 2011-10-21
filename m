@@ -1,68 +1,112 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2] input:ad7879-i2c use swapped varient of
- i2c_smbus_read_word_data
-Date: Fri, 21 Oct 2011 09:21:00 -0700
-Message-ID: <20111021162059.GB19153@core.coreip.homeip.net>
-References: <544AC56F16B56944AEC3BD4E3D59177146E75C18DC@LIMKCMBX1.ad.analog.com>
- <1319198236-2085-1-git-send-email-jic23@cam.ac.uk>
- <20111021160923.GA19153@core.coreip.homeip.net>
- <4EA19A75.6010907@cam.ac.uk>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 2/6] Input: wacom - remove unused bamboo HID parsing
+Date: Fri, 21 Oct 2011 12:26:29 -0500
+Message-ID: <CAGzDe_Yr1nbAj1BZJa5Pvk3vqH8Rny664HS_hvgv5fcXVGFkfw@mail.gmail.com>
+References: <1318814981-30607-1-git-send-email-chris@cnpbagwell.com>
+	<1318814981-30607-3-git-send-email-chris@cnpbagwell.com>
+	<CAF8JNhJyJP4sffrqO=_jt5C56T6WsC843pOF7AyWww14k1vLKw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:44009 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752900Ab1JUQVJ (ORCPT
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:47939 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754411Ab1JUR0b convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Oct 2011 12:21:09 -0400
-Content-Disposition: inline
-In-Reply-To: <4EA19A75.6010907@cam.ac.uk>
+	Fri, 21 Oct 2011 13:26:31 -0400
+Received: by eye27 with SMTP id 27so4071996eye.19
+        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2011 10:26:29 -0700 (PDT)
+In-Reply-To: <CAF8JNhJyJP4sffrqO=_jt5C56T6WsC843pOF7AyWww14k1vLKw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@cam.ac.uk>
-Cc: linux-input@vger.kernel.org, Michael.Hennerich@analog.com, Linux I2C <linux-i2c@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On Fri, Oct 21, 2011 at 05:14:45PM +0100, Jonathan Cameron wrote:
-> On 10/21/11 17:09, Dmitry Torokhov wrote:
-> > On Fri, Oct 21, 2011 at 12:57:16PM +0100, Jonathan Cameron wrote:
-> >> This varient was introduced in
-> >> i2c: boilerplate function for byte swapped smbus_write/read_word_data
-> >>
-> >> This also has the side effect of ensuring any errors from the i2c
-> >> read and no longer mangled.
-> >>
-> >> Signed-off-by: Jonathan Cameron <jic23@cam.ac.uk>
-> >> ---
-> >> V2: include the write function as pointed out by Michael Hennerich.
-> >>
-> >> The patch introducing this swapped function is working its way through the i2c
-> >> tree.
-> >>
-> >>  drivers/input/touchscreen/ad7879-i2c.c |    4 ++--
-> >>  1 files changed, 2 insertions(+), 2 deletions(-)
-> >>
-> >> diff --git a/drivers/input/touchscreen/ad7879-i2c.c b/drivers/input/touchscreen/ad7879-i2c.c
-> >> index 4e4e58c..cc51392 100644
-> >> --- a/drivers/input/touchscreen/ad7879-i2c.c
-> >> +++ b/drivers/input/touchscreen/ad7879-i2c.c
-> >> @@ -47,7 +47,7 @@ static int ad7879_i2c_read(struct device *dev, u8 reg)
-> >>  {
-> >>  	struct i2c_client *client = to_i2c_client(dev);
-> >>  
-> >> -	return swab16(i2c_smbus_read_word_data(client, reg));
-> >> +	return i2c_smbus_read_word_swapped(client, reg);
-> > 
-> > This is still not endian-safe. I wonder if introducing
-> > i2c_smbus_read_word_swapped() just makes the metter worse by hiding
-> > this...
-> > 
-> > I'd prefer if we had i2c_smbus_read_be16() instead.
-> smbus spec says that all transfers must be little endian.
-> Hence it is type safe because the smbus controllers are guaranteed to have made
-> that assumption and converted to cpu endianess.  If not they are buggy.
-> Hence, this is endian safe.
+On Thu, Oct 20, 2011 at 4:17 PM, Ping Cheng <pinglinux@gmail.com> wrote=
+:
+> On Sun, Oct 16, 2011 at 6:29 PM, =A0<chris@cnpbagwell.com> wrote:
+>> From: Chris Bagwell <chris@cnpbagwell.com>
+>>
+>> Bamboo's do not declared a Digitizer-Stylus so the if() was
+>> never executed. =A0wacom_features already contains correct stylus
+>> packet length.
+>
+> Since this change affects all Bamboo series, I assume you have tested
+> it with your old Bamboo pen and touch. If so,
 
-Ah, right... OK then.
+Yes, been tested with 1st gen Bamboo as well.
 
--- 
-Dmitry
+>
+>> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+>
+> Acked-by: Ping Cheng <pingc@wacom.com> for the whole set.
+
+Thanks,
+Chris
+
+>
+> Ping
+>
+>> ---
+>> =A0drivers/input/tablet/wacom_sys.c | =A0 =A04 ----
+>> =A01 files changed, 0 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet=
+/wacom_sys.c
+>> index 4f35473..620f0c3 100644
+>> --- a/drivers/input/tablet/wacom_sys.c
+>> +++ b/drivers/input/tablet/wacom_sys.c
+>> @@ -245,8 +245,6 @@ static int wacom_parse_hid(struct usb_interface =
+*intf, struct hid_descriptor *hi
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0/* penabled only accepts exact bytes of data=
+ */
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0if (features->type =3D=3D TABLETPC2FG)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->pktlen =3D WACOM_P=
+KGLEN_GRAPHIRE;
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 if (features->type =3D=3D BAMBOO_PT)
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->pktlen =3D WACOM_PKG=
+LEN_BBFUN;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0features->device_type =3D BTN_TOOL_PEN;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0features->x_max =3D
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0get_unaligned_le16(&report[i=
+ + 3]);
+>> @@ -295,8 +293,6 @@ static int wacom_parse_hid(struct usb_interface =
+*intf, struct hid_descriptor *hi
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0/* penabled only accepts exact bytes of data=
+ */
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0if (features->type =3D=3D TABLETPC2FG)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->pktlen =3D WACOM_P=
+KGLEN_GRAPHIRE;
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 if (features->type =3D=3D BAMBOO_PT)
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->pktlen =3D WACOM_PKG=
+LEN_BBFUN;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0features->device_type =3D BTN_TOOL_PEN;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0features->y_max =3D
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0get_unaligned_le16(&report[i=
+ + 3]);
+>> --
+>> 1.7.6.4
+>>
+>>
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

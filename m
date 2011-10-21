@@ -1,109 +1,88 @@
 From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH 2/6] Input: wacom - remove unused bamboo HID parsing
-Date: Fri, 21 Oct 2011 12:26:29 -0500
-Message-ID: <CAGzDe_Yr1nbAj1BZJa5Pvk3vqH8Rny664HS_hvgv5fcXVGFkfw@mail.gmail.com>
+Subject: Re: [PATCH 5/6] Input: wacom - read 3rd gen Bamboo Touch HID data
+Date: Fri, 21 Oct 2011 12:29:21 -0500
+Message-ID: <CAGzDe_ZFkbfwCCZ4vQDA9mSkGOBSiuoP=jj12MswsvZ5kg+RkA@mail.gmail.com>
 References: <1318814981-30607-1-git-send-email-chris@cnpbagwell.com>
-	<1318814981-30607-3-git-send-email-chris@cnpbagwell.com>
-	<CAF8JNhJyJP4sffrqO=_jt5C56T6WsC843pOF7AyWww14k1vLKw@mail.gmail.com>
+	<1318814981-30607-6-git-send-email-chris@cnpbagwell.com>
+	<201110201953.16567.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:47939 "EHLO
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:64080 "EHLO
 	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754411Ab1JUR0b convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1754098Ab1JUR3W convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Oct 2011 13:26:31 -0400
-Received: by eye27 with SMTP id 27so4071996eye.19
-        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2011 10:26:29 -0700 (PDT)
-In-Reply-To: <CAF8JNhJyJP4sffrqO=_jt5C56T6WsC843pOF7AyWww14k1vLKw@mail.gmail.com>
+	Fri, 21 Oct 2011 13:29:22 -0400
+Received: by eye27 with SMTP id 27so4074099eye.19
+        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2011 10:29:21 -0700 (PDT)
+In-Reply-To: <201110201953.16567.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, pinglinux@gmail.com
 
-On Thu, Oct 20, 2011 at 4:17 PM, Ping Cheng <pinglinux@gmail.com> wrote=
-:
-> On Sun, Oct 16, 2011 at 6:29 PM, =A0<chris@cnpbagwell.com> wrote:
+On Thu, Oct 20, 2011 at 9:53 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Sunday, October 16, 2011 06:29:40 PM chris@cnpbagwell.com wrote:
 >> From: Chris Bagwell <chris@cnpbagwell.com>
 >>
->> Bamboo's do not declared a Digitizer-Stylus so the if() was
->> never executed. =A0wacom_features already contains correct stylus
->> packet length.
->
-> Since this change affects all Bamboo series, I assume you have tested
-> it with your old Bamboo pen and touch. If so,
-
-Yes, been tested with 1st gen Bamboo as well.
-
->
 >> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+>> ---
+>> =A0drivers/input/tablet/wacom_sys.c | =A0 48
+>> ++++++++++++++++++++++++++++++++++++- 1 files changed, 46
+>> insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/input/tablet/wacom_sys.c
+>> b/drivers/input/tablet/wacom_sys.c index 5e1539c..d19886a 100644
+>> --- a/drivers/input/tablet/wacom_sys.c
+>> +++ b/drivers/input/tablet/wacom_sys.c
+>> @@ -28,7 +28,9 @@
+>> =A0#define HID_USAGE_Y_TILT =A0 =A0 =A0 =A0 =A0 =A0 0x3e
+>> =A0#define HID_USAGE_FINGER =A0 =A0 =A0 =A0 =A0 =A0 0x22
+>> =A0#define HID_USAGE_STYLUS =A0 =A0 =A0 =A0 =A0 =A0 0x20
+>> -#define HID_COLLECTION =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+0xc0
+>> +#define HID_COLLECTION =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+0xa1
+>> +#define HID_COLLECTION_LOGICAL =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x02
+>> +#define HID_COLLECTION_END =A0 =A0 =A0 =A0 =A0 0xc0
+>>
+>> =A0enum {
+>> =A0 =A0 =A0 WCM_UNDEFINED =3D 0,
+>> @@ -165,6 +167,34 @@ static void wacom_close(struct input_dev *dev)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 usb_autopm_put_interface(wacom->intf);
+>> =A0}
+>>
+>> +static int wacom_parse_logical_collection(unsigned char *report,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 struct wacom_features *features)
+>> +{
+>> + =A0 =A0 int length =3D 0;
+>> +
+>> + =A0 =A0 if (features->type =3D=3D BAMBOO_PT) {
+>> +
+>> + =A0 =A0 =A0 =A0 =A0 =A0 /* Logical collection is only used by 3rd =
+gen Bamboo Touch */
+>> + =A0 =A0 =A0 =A0 =A0 =A0 features->pktlen =3D WACOM_PKGLEN_BBTOUCH3=
+;
 >
-> Acked-by: Ping Cheng <pingc@wacom.com> for the whole set.
+> Compile dies here because WACOM_PKGLEN_BBTOUCH3 is defined in the
+> next patch.
+>
+> Please make sure the series is bisectable.
 
-Thanks,
+Ah, yes.  I will resend.  I reordered this one patch right before
+submitting.  I should have compiled each patch after that.
+
+Thank you for feedback,
 Chris
 
 >
-> Ping
+> Thanks.
 >
->> ---
->> =A0drivers/input/tablet/wacom_sys.c | =A0 =A04 ----
->> =A01 files changed, 0 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet=
-/wacom_sys.c
->> index 4f35473..620f0c3 100644
->> --- a/drivers/input/tablet/wacom_sys.c
->> +++ b/drivers/input/tablet/wacom_sys.c
->> @@ -245,8 +245,6 @@ static int wacom_parse_hid(struct usb_interface =
-*intf, struct hid_descriptor *hi
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0/* penabled only accepts exact bytes of data=
- */
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0if (features->type =3D=3D TABLETPC2FG)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->pktlen =3D WACOM_P=
-KGLEN_GRAPHIRE;
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 if (features->type =3D=3D BAMBOO_PT)
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->pktlen =3D WACOM_PKG=
-LEN_BBFUN;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0features->device_type =3D BTN_TOOL_PEN;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0features->x_max =3D
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0get_unaligned_le16(&report[i=
- + 3]);
->> @@ -295,8 +293,6 @@ static int wacom_parse_hid(struct usb_interface =
-*intf, struct hid_descriptor *hi
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0/* penabled only accepts exact bytes of data=
- */
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0if (features->type =3D=3D TABLETPC2FG)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->pktlen =3D WACOM_P=
-KGLEN_GRAPHIRE;
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 if (features->type =3D=3D BAMBOO_PT)
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->pktlen =3D WACOM_PKG=
-LEN_BBFUN;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0features->device_type =3D BTN_TOOL_PEN;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0features->y_max =3D
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0get_unaligned_le16(&report[i=
- + 3]);
->> --
->> 1.7.6.4
->>
->>
+> --
+> Dmitry
 >
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

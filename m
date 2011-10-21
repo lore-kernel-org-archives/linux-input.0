@@ -1,77 +1,552 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] hid-magicmouse: Magic Trackpad has 1 button, not 2
-Date: Fri, 21 Oct 2011 10:15:18 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1110211014420.3541@pobox.suse.cz>
-References: <4E97CB16.2040806@gmail.com> <4E986C91.4030801@canonical.com> <4EA0BC7B.2010002@gmail.com>
+From: Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
+Subject: [PATCH] Add generic GPIO-tilt driver
+Date: Fri, 21 Oct 2011 10:43:47 +0200
+Message-ID: <201110211043.47742.heiko@sntech.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33801 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753634Ab1JUIPT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Oct 2011 04:15:19 -0400
-In-Reply-To: <4EA0BC7B.2010002@gmail.com>
+Received: from h1778886.stratoserver.net ([85.214.133.74]:41384 "EHLO
+	h1778886.stratoserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753731Ab1JUInv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Oct 2011 04:43:51 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chasedouglas@gmail.com>
-Cc: Daniel van Vugt <vanvugt@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
 
-On Thu, 20 Oct 2011, Chase Douglas wrote:
+There exist tilt switches that simply report their tilt-state via some gpios.
 
-> Ping, Jiri?
+The number and orientation of their axes can vary depending on the switch
+used and the build of the device. Also two or more one-axis switches
+could be combined to provide multi-dimensional orientation.
 
-Somehow I haven't seen the patch in my mailbox. Applied now, thanks.
+One example of a device using such a switch is the family of Qisda
+ebook readers, where the switch provides information about the
+landscape / portrait orientation of the device. The example in
+Documentation/input/gpio-tilt.txt documents exactly this one-axis device.
 
-(Daniel, please fix your mail client for future patch submissions, so that 
-it doesn't wrap lines, I had to fix that up by hand).
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+---
+ Documentation/input/gpio-tilt.txt     |  103 ++++++++++++
+ drivers/input/misc/Kconfig            |   14 ++
+ drivers/input/misc/Makefile           |    1 +
+ drivers/input/misc/gpio_tilt_polled.c |  276 +++++++++++++++++++++++++++++++++
+ include/linux/gpio_tilt.h             |   73 +++++++++
+ 5 files changed, 467 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/input/gpio-tilt.txt
+ create mode 100644 drivers/input/misc/gpio_tilt_polled.c
+ create mode 100644 include/linux/gpio_tilt.h
 
-> 
-> On 10/14/2011 10:08 AM, Chase Douglas wrote:
-> > On 10/13/2011 10:39 PM, Daniel van Vugt wrote:
-> >> hid-magicmouse was advertising the Apple Magic Trackpad as having 2
-> >> buttons (left and right) when it actually only has 1 button.
-> >>
-> >> Advertising multiple buttons makes Xorg disable all button 2 and 3
-> >> emulation (using multi-finger clicks). So Xorg users don't get working
-> >> right/middle-click emulation out of the box.
-> >>
-> >> This patch makes hid-magicmouse correctly only report one real button
-> >> for Magic Trackpad, which in turn makes Xorg enable multi-finger click
-> >> support to emulate right/middle buttons.
-> >>
-> >> [http://launchpad.net/bugs/862094]
-> >>
-> >> Signed-off-by: Daniel van Vugt <vanvugt@gmail.com>
-> >> Reviewed-by: Chase Douglas <chase.douglas@canonical.com>
-> >> ---
-> >>  drivers/hid/hid-magicmouse.c |    7 +++++++
-> >>  1 files changed, 7 insertions(+), 0 deletions(-)
-> >>
-> >> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> >> index f0fbd7b..2ab7175 100644
-> >> --- a/drivers/hid/hid-magicmouse.c
-> >> +++ b/drivers/hid/hid-magicmouse.c
-> >> @@ -405,6 +405,13 @@ static void magicmouse_setup_input(struct input_dev
-> >> *input, struct hid_device *h
-> >>  			__set_bit(REL_HWHEEL, input->relbit);
-> >>  		}
-> >>  	} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> >> +		/* input->keybit is initialized with incorrect button info
-> >> +		 * for Magic Trackpad. There really is only one physical
-> >> +		 * button (BTN_LEFT == BTN_MOUSE). Make sure we don't
-> >> +		 * advertise buttons that don't exist...
-> >> +		 */
-> >> +		__clear_bit(BTN_RIGHT, input->keybit);
-> >> +		__clear_bit(BTN_MIDDLE, input->keybit);
-> >>  		__set_bit(BTN_MOUSE, input->keybit);
-> >>  		__set_bit(BTN_TOOL_FINGER, input->keybit);
-> >>  		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
-> > 
-> > To'ing Jiri Kosina, the HID maintainer.
-> > 
-> > Thanks again Daniel!
-> 
-
+diff --git a/Documentation/input/gpio-tilt.txt b/Documentation/input/gpio-tilt.txt
+new file mode 100644
+index 0000000..06d60c3
+--- /dev/null
++++ b/Documentation/input/gpio-tilt.txt
+@@ -0,0 +1,103 @@
++Driver for tilt-switches connected via GPIOs
++============================================
++
++Generic driver to read data from tilt switches connected via gpios.
++Orientation can be provided by one or more than one tilt switches,
++i.e. each tilt switch providing one axis, and the number of axes
++is also not limited.
++
++
++Data structures:
++----------------
++
++The array of struct gpio in the gpios field is used to list the gpios
++that represent the current tilt state.
++
++The array of struct gpio_tilt_axis describes the axes that are reported
++to the input system. The values set therein are used for the
++input_set_abs_params calls needed to init the axes.
++
++The array of struct gpio_tilt_state maps gpio states to the corresponding
++values to report. The gpio state is represented as a bitfield where the
++bit-index corresponds to the index of the gpio in the struct gpio array.
++In the same manner the values stored in the axes array correspond to
++the elements of the gpio_tilt_axis-array.
++
++
++Example:
++--------
++
++Example configuration for a single TS1003 tilt switch that rotates around
++one axis in 4 steps and emitts the current tilt via two GPIOs.
++
++static int sg060_tilt_enable(struct device *dev) {
++	/* code to enable the sensors */
++};
++
++static void sg060_tilt_disable(struct device *dev) {
++	/* code to disable the sensors */
++};
++
++static struct gpio sg060_tilt_gpios[] = {
++	{ SG060_TILT_GPIO_SENSOR1, GPIOF_IN, "tilt_sensor1" },
++	{ SG060_TILT_GPIO_SENSOR2, GPIOF_IN, "tilt_sensor2" },
++};
++
++static struct gpio_tilt_state sg060_tilt_states[] = {
++	{
++		.gpios = (0 << 1) | (0 << 0),
++		.axes = (int[]) {
++			0,
++		},
++	}, {
++		.gpios = (0 << 1) | (1 << 0),
++		.axes = (int[]) {
++			1, /* 90 degrees */
++		},
++	}, {
++		.gpios = (1 << 1) | (1 << 0),
++		.axes = (int[]) {
++			2, /* 180 degrees */
++		},
++	}, {
++		.gpios = (1 << 1) | (0 << 0),
++		.axes = (int[]) {
++			3, /* 270 degrees */
++		},
++	},
++};
++
++static struct gpio_tilt_axis sg060_tilt_axes[] = {
++	{
++		.axis = ABS_RY,
++		.min = 0,
++		.max = 3,
++		.fuzz = 0,
++		.flat = 0,
++	},
++};
++
++static struct gpio_tilt_platform_data sg060_tilt_pdata= {
++	.gpios = sg060_tilt_gpios,
++	.nr_gpios = ARRAY_SIZE(sg060_tilt_gpios),
++
++	.axes = sg060_tilt_axes,
++	.nr_axes = ARRAY_SIZE(sg060_tilt_axes),
++
++	.states = sg060_tilt_states,
++	.nr_states = ARRAY_SIZE(sg060_tilt_states),
++
++	.debounce_interval = 100,
++
++	.poll_interval = 1000,
++	.enable = sg060_tilt_enable,
++	.disable = sg060_tilt_disable,
++};
++
++static struct platform_device sg060_device_tilt = {
++	.name = "gpio-tilt-polled",
++	.id = -1,
++	.dev = {
++		.platform_data = &sg060_tilt_pdata,
++	},
++};
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 22d875f..e53b443 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -179,6 +179,20 @@ config INPUT_APANEL
+ 	 To compile this driver as a module, choose M here: the module will
+ 	 be called apanel.
+ 
++config INPUT_GPIO_TILT_POLLED
++	tristate "Polled GPIO tilt switch"
++	depends on GENERIC_GPIO
++	select INPUT_POLLDEV
++	help
++	  This driver implements support for tilt switches connected
++	  to GPIO pins that are not capable of generating interrupts.
++
++	  The list of gpios to use and the mapping of their states
++	  to specific angles is done via platform data.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called gpio_tilt_polled.
++
+ config INPUT_IXP4XX_BEEPER
+ 	tristate "IXP4XX Beeper support"
+ 	depends on ARCH_IXP4XX
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index a244fc6..90070c1 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -23,6 +23,7 @@ obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
+ obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
+ obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
+ obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
++obj-$(CONFIG_INPUT_GPIO_TILT_POLLED)	+= gpio_tilt_polled.o
+ obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
+ obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
+ obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
+diff --git a/drivers/input/misc/gpio_tilt_polled.c b/drivers/input/misc/gpio_tilt_polled.c
+new file mode 100644
+index 0000000..15ab935
+--- /dev/null
++++ b/drivers/input/misc/gpio_tilt_polled.c
+@@ -0,0 +1,276 @@
++/*
++ *  Driver for tilt switches connected via GPIO lines
++ *  not capable of generating interrupts
++ *
++ *  Copyright (C) 2011 Heiko Stuebner <heiko@sntech.de>
++ *
++ *  based on: /drivers/input/keyboard/gpio_keys_polled.c
++ *
++ *  Copyright (C) 2007-2010 Gabor Juhos <juhosg@openwrt.org>
++ *  Copyright (C) 2010 Nuno Goncalves <nunojpg@gmail.com>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/input-polldev.h>
++#include <linux/ioport.h>
++#include <linux/platform_device.h>
++#include <linux/gpio.h>
++#include <linux/gpio_tilt.h>
++
++#define DRV_NAME	"gpio-tilt-polled"
++
++struct gpio_tilt_polled_dev {
++	struct input_polled_dev *poll_dev;
++	struct device *dev;
++
++	struct gpio *gpios;
++	int nr_gpios;
++
++	struct gpio_tilt_state *states;
++	int nr_states;
++
++	int *axes;
++	int nr_axes;
++
++	int last_state;
++
++	int threshold;
++	int count;
++
++	int (*enable)(struct device *dev);
++	void (*disable)(struct device *dev);
++};
++
++static void gpio_tilt_polled_poll(struct input_polled_dev *dev)
++{
++	struct gpio_tilt_polled_dev *bdev = dev->private;
++	struct input_dev *input = dev->input;
++	struct gpio_tilt_state *tilt_state = NULL;
++	int state, i;
++
++	if (bdev->count < bdev->threshold) {
++		bdev->count++;
++	} else {
++		state = 0;
++		for (i = 0; i < bdev->nr_gpios; i++)
++			state |= (!!gpio_get_value(bdev->gpios[i].gpio) << i);
++
++		if (state != bdev->last_state) {
++			for (i = 0; i < bdev->nr_states; i++)
++				if (bdev->states[i].gpios == state)
++					tilt_state = &bdev->states[i];
++
++			if (tilt_state) {
++				for (i = 0; i < bdev->nr_axes; i++)
++					input_report_abs(input, bdev->axes[i],
++							 tilt_state->axes[i]);
++
++				input_sync(input);
++			}
++
++			bdev->count = 0;
++			bdev->last_state = state;
++		}
++	}
++}
++
++static void gpio_tilt_polled_open(struct input_polled_dev *dev)
++{
++	struct gpio_tilt_polled_dev *bdev = dev->private;
++
++	if (bdev->enable)
++		bdev->enable(bdev->dev);
++}
++
++static void gpio_tilt_polled_close(struct input_polled_dev *dev)
++{
++	struct gpio_tilt_polled_dev *bdev = dev->private;
++
++	if (bdev->disable)
++		bdev->disable(bdev->dev);
++}
++
++static int __devinit gpio_tilt_polled_probe(struct platform_device *pdev)
++{
++	struct gpio_tilt_platform_data *pdata = pdev->dev.platform_data;
++	struct device *dev = &pdev->dev;
++	struct gpio_tilt_polled_dev *bdev;
++	struct input_polled_dev *poll_dev;
++	struct input_dev *input;
++	int error, i;
++
++	if (!pdata || !pdata->poll_interval)
++		return -EINVAL;
++
++	bdev = kzalloc(sizeof(struct gpio_tilt_polled_dev), GFP_KERNEL);
++	if (!bdev) {
++		dev_err(dev, "no memory for private data\n");
++		return -ENOMEM;
++	}
++
++	bdev->gpios = kmemdup(pdata->gpios,
++				 pdata->nr_gpios * sizeof(struct gpio),
++				 GFP_KERNEL);
++	if (bdev->gpios == NULL) {
++		dev_err(&pdev->dev, "Failed to allocate gpio data\n");
++		error = -ENOMEM;
++		goto err_free_bdev;
++	}
++	bdev->nr_gpios = pdata->nr_gpios;
++
++	error = gpio_request_array(bdev->gpios, bdev->nr_gpios);
++	if (error) {
++		dev_err(dev,
++		   "Could not request tilt GPIOs: %d\n", error);
++		goto err_free_gpiomem;
++	}
++
++	bdev->states = kmemdup(pdata->states,
++				pdata->nr_states *
++					 sizeof(struct gpio_tilt_state),
++				GFP_KERNEL);
++	if (bdev->states == NULL) {
++		dev_err(dev, "Failed to allocate state data\n");
++		error = -ENOMEM;
++		goto err_free_gpios;
++	}
++	bdev->nr_states = pdata->nr_states;
++
++	bdev->axes = kzalloc(pdata->nr_axes * sizeof(int), GFP_KERNEL);
++	if (!bdev->axes) {
++		dev_err(dev, "no memory for axes data\n");
++		error = -ENOMEM;
++		goto err_free_states;
++	}
++
++	poll_dev = input_allocate_polled_device();
++	if (!poll_dev) {
++		dev_err(dev, "no memory for polled device\n");
++		error = -ENOMEM;
++		goto err_free_axes;
++	}
++
++	poll_dev->private = bdev;
++	poll_dev->poll = gpio_tilt_polled_poll;
++	poll_dev->poll_interval = pdata->poll_interval;
++	poll_dev->open = gpio_tilt_polled_open;
++	poll_dev->close = gpio_tilt_polled_close;
++
++	input = poll_dev->input;
++
++	input->name = pdev->name;
++	input->phys = DRV_NAME"/input0";
++	input->dev.parent = &pdev->dev;
++
++	input->id.bustype = BUS_HOST;
++	input->id.vendor = 0x0001;
++	input->id.product = 0x0001;
++	input->id.version = 0x0100;
++
++	__set_bit(EV_ABS, input->evbit);
++	for (i = 0; i < pdata->nr_axes; i++) {
++		input_set_abs_params(input, pdata->axes[i].axis,
++				     pdata->axes[i].min, pdata->axes[i].max,
++				     pdata->axes[i].fuzz, pdata->axes[i].flat);
++
++		bdev->axes[i] = pdata->axes[i].axis;
++	}
++	bdev->nr_axes = pdata->nr_axes;
++
++	bdev->threshold = DIV_ROUND_UP(pdata->debounce_interval,
++				       pdata->poll_interval);
++
++	bdev->poll_dev = poll_dev;
++	bdev->dev = dev;
++
++	bdev->enable = pdata->enable;
++	bdev->disable = pdata->disable;
++
++	error = input_register_polled_device(poll_dev);
++	if (error) {
++		dev_err(dev, "unable to register polled device, err=%d\n",
++			error);
++		goto err_free_polldev;
++	}
++
++	platform_set_drvdata(pdev, bdev);
++
++	/* report initial state of the buttons */
++	bdev->last_state = -1;
++	bdev->count = bdev->threshold;
++	gpio_tilt_polled_poll(poll_dev);
++
++	return 0;
++
++err_free_polldev:
++	input_free_polled_device(poll_dev);
++err_free_axes:
++	kfree(bdev->axes);
++err_free_states:
++	kfree(bdev->states);
++err_free_gpios:
++	gpio_free_array(bdev->gpios, bdev->nr_gpios);
++err_free_gpiomem:
++	kfree(bdev->gpios);
++err_free_bdev:
++	kfree(bdev);
++
++	return error;
++}
++
++static int __devexit gpio_tilt_polled_remove(struct platform_device *pdev)
++{
++	struct gpio_tilt_polled_dev *bdev = platform_get_drvdata(pdev);
++
++	platform_set_drvdata(pdev, NULL);
++
++	input_unregister_polled_device(bdev->poll_dev);
++	input_free_polled_device(bdev->poll_dev);
++
++	kfree(bdev->axes);
++
++	kfree(bdev->states);
++
++	gpio_free_array(bdev->gpios, bdev->nr_gpios);
++
++	kfree(bdev->gpios);
++
++	kfree(bdev);
++
++	return 0;
++}
++
++static struct platform_driver gpio_tilt_polled_driver = {
++	.probe	= gpio_tilt_polled_probe,
++	.remove	= __devexit_p(gpio_tilt_polled_remove),
++	.driver	= {
++		.name	= DRV_NAME,
++		.owner	= THIS_MODULE,
++	},
++};
++
++static int __init gpio_tilt_polled_init(void)
++{
++	return platform_driver_register(&gpio_tilt_polled_driver);
++}
++
++static void __exit gpio_tilt_polled_exit(void)
++{
++	platform_driver_unregister(&gpio_tilt_polled_driver);
++}
++
++module_init(gpio_tilt_polled_init);
++module_exit(gpio_tilt_polled_exit);
++
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("Heiko Stuebner <heiko@sntech.de>");
++MODULE_DESCRIPTION("Polled GPIO tilt driver");
++MODULE_ALIAS("platform:" DRV_NAME);
+diff --git a/include/linux/gpio_tilt.h b/include/linux/gpio_tilt.h
+new file mode 100644
+index 0000000..809fe93
+--- /dev/null
++++ b/include/linux/gpio_tilt.h
+@@ -0,0 +1,73 @@
++#ifndef _GPIO_TILT_H
++#define _GPIO_TILT_H
++
++/**
++ * struct gpio_tilt_axis - Axis used by the tilt switch
++ * @axis:		Constant describing the axis, e.g. ABS_X
++ * @min:		minimum value for abs_param
++ * @max:		maximum value for abs_param
++ * @fuzz:		fuzz value for abs_param
++ * @flat:		flat value for abs_param
++ */
++struct gpio_tilt_axis {
++	int axis;
++	int min;
++	int max;
++	int fuzz;
++	int flat;
++};
++
++/**
++ * struct gpio_tilt_state - state description
++ * @gpios:		bitfield of gpio target-states for the value
++ * @axes:		array containing the axes settings for the gpio state
++ *			The array indizes must correspond to the axes defined
++ *			in platform_data
++ *
++ * This structure describes a supported axis settings
++ * and the necessary gpio-state which represent it.
++ *
++ * The n-th bit in the bitfield describes the state of the n-th GPIO
++ * from the gpios-array defined in gpio_regulator_config below.
++ */
++struct gpio_tilt_state {
++	int gpios;
++	int *axes;
++};
++
++/**
++ * struct gpio_tilt_platform_data
++ * @gpios:		Array containing the gpios determining the tilt state
++ * @nr_gpios:		Number of gpios
++ * @axes:		Array of gpio_tilt_axis descriptions
++ * @nr_axes:		Number of axes
++ * @states:		Array of gpio_tilt_state entries describing
++ *			the gpio state for specific tilts
++ * @nr_states:		Number of states available
++ * @debounce_interval:	debounce ticks interval in msecs
++ * @poll_interval:	polling interval in msecs - for polling driver only
++ * @enable:		callback to enable the tilt switch
++ * @disable:		callback to disable the tilt switch
++ *
++ * This structure contains gpio-tilt-switch configuration
++ * information that must be passed by platform code to the
++ * gpio-tilt input driver.
++ */
++struct gpio_tilt_platform_data {
++	struct gpio *gpios;
++	int nr_gpios;
++
++	struct gpio_tilt_axis *axes;
++	int nr_axes;
++
++	struct gpio_tilt_state *states;
++	int nr_states;
++
++	int debounce_interval;
++
++	unsigned int poll_interval;
++	int (*enable)(struct device *dev);
++	void (*disable)(struct device *dev);
++};
++
++#endif
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.5.4
+

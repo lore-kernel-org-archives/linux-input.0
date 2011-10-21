@@ -1,89 +1,117 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH 5/6] Input: wacom - read 3rd gen Bamboo Touch HID data
-Date: Fri, 21 Oct 2011 12:29:21 -0500
-Message-ID: <CAGzDe_ZFkbfwCCZ4vQDA9mSkGOBSiuoP=jj12MswsvZ5kg+RkA@mail.gmail.com>
-References: <1318814981-30607-1-git-send-email-chris@cnpbagwell.com>
-	<1318814981-30607-6-git-send-email-chris@cnpbagwell.com>
-	<201110201953.16567.dmitry.torokhov@gmail.com>
+From: =?UTF-8?q?G=C3=B6k=C3=A7en=20Eraslan?= <gokcen@pardus.org.tr>
+Subject: [PATCH] HID: Add support for Macbook Pro 8 keyboards.
+Date: Fri, 21 Oct 2011 21:13:58 +0300
+Message-ID: <1319220838-3297-1-git-send-email-gokcen@pardus.org.tr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:64080 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754098Ab1JUR3W convert rfc822-to-8bit (ORCPT
+Received: from lider.pardus.org.tr ([193.140.100.216]:42938 "EHLO
+	lider.pardus.org.tr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750759Ab1JUSYO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Oct 2011 13:29:22 -0400
-Received: by eye27 with SMTP id 27so4074099eye.19
-        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2011 10:29:21 -0700 (PDT)
-In-Reply-To: <201110201953.16567.dmitry.torokhov@gmail.com>
+	Fri, 21 Oct 2011 14:24:14 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, pinglinux@gmail.com
+To: linux-input@vger.kernel.org
+Cc: =?UTF-8?q?G=C3=B6k=C3=A7en=20Eraslan?= <gokcen@pardus.org.tr>
 
-On Thu, Oct 20, 2011 at 9:53 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Sunday, October 16, 2011 06:29:40 PM chris@cnpbagwell.com wrote:
->> From: Chris Bagwell <chris@cnpbagwell.com>
->>
->> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
->> ---
->> =A0drivers/input/tablet/wacom_sys.c | =A0 48
->> ++++++++++++++++++++++++++++++++++++- 1 files changed, 46
->> insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/input/tablet/wacom_sys.c
->> b/drivers/input/tablet/wacom_sys.c index 5e1539c..d19886a 100644
->> --- a/drivers/input/tablet/wacom_sys.c
->> +++ b/drivers/input/tablet/wacom_sys.c
->> @@ -28,7 +28,9 @@
->> =A0#define HID_USAGE_Y_TILT =A0 =A0 =A0 =A0 =A0 =A0 0x3e
->> =A0#define HID_USAGE_FINGER =A0 =A0 =A0 =A0 =A0 =A0 0x22
->> =A0#define HID_USAGE_STYLUS =A0 =A0 =A0 =A0 =A0 =A0 0x20
->> -#define HID_COLLECTION =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-0xc0
->> +#define HID_COLLECTION =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-0xa1
->> +#define HID_COLLECTION_LOGICAL =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x02
->> +#define HID_COLLECTION_END =A0 =A0 =A0 =A0 =A0 0xc0
->>
->> =A0enum {
->> =A0 =A0 =A0 WCM_UNDEFINED =3D 0,
->> @@ -165,6 +167,34 @@ static void wacom_close(struct input_dev *dev)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 usb_autopm_put_interface(wacom->intf);
->> =A0}
->>
->> +static int wacom_parse_logical_collection(unsigned char *report,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 struct wacom_features *features)
->> +{
->> + =A0 =A0 int length =3D 0;
->> +
->> + =A0 =A0 if (features->type =3D=3D BAMBOO_PT) {
->> +
->> + =A0 =A0 =A0 =A0 =A0 =A0 /* Logical collection is only used by 3rd =
-gen Bamboo Touch */
->> + =A0 =A0 =A0 =A0 =A0 =A0 features->pktlen =3D WACOM_PKGLEN_BBTOUCH3=
-;
->
-> Compile dies here because WACOM_PKGLEN_BBTOUCH3 is defined in the
-> next patch.
->
-> Please make sure the series is bisectable.
+This patch adds keyboard support for Macbook Pro 8 models which has
+WELLSPRING5A model name and 0x0252, 0x0253 and 0x0254 USB IDs. Trackpad
+support for those models are added to bcm5974 in
+c331eb580a0a7906c0cdb8dbae3cfe99e3c0e555.
 
-Ah, yes.  I will resend.  I reordered this one patch right before
-submitting.  I should have compiled each patch after that.
+Signed-off-by: G=C3=B6k=C3=A7en Eraslan <gokcen@pardus.org.tr>
+---
+ drivers/hid/hid-apple.c |    6 ++++++
+ drivers/hid/hid-core.c  |    6 ++++++
+ drivers/hid/hid-ids.h   |    3 +++
+ 3 files changed, 15 insertions(+), 0 deletions(-)
 
-Thank you for feedback,
-Chris
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 18b3bc6..4d8458e 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -493,6 +493,12 @@ static const struct hid_device_id apple_devices[] =
+=3D {
+ 		.driver_data =3D APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_JIS),
+ 		.driver_data =3D APPLE_HAS_FN | APPLE_RDESC_JIS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_ANSI),
++		.driver_data =3D APPLE_HAS_FN },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_ISO),
++		.driver_data =3D APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_JIS),
++		.driver_data =3D APPLE_HAS_FN | APPLE_RDESC_JIS },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_W=
+IRELESS_2009_ANSI),
+ 		.driver_data =3D APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_W=
+IRELESS_2009_ISO),
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 242353d..9a3fcc5 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1340,6 +1340,9 @@ static const struct hid_device_id hid_have_specia=
+l_driver[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_ISO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_JIS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_ANSI) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_ISO) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_JIS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_REVB_AN=
+SI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_REVB_IS=
+O) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_REVB_JI=
+S) },
+@@ -1892,6 +1895,9 @@ static const struct hid_device_id hid_mouse_ignor=
+e_list[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_ISO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_JIS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_ANSI) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_ISO) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_JIS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP=
+_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_=
+ONLY) },
+ 	{ }
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 7d27d2b..ffa7a85 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -112,6 +112,9 @@
+ #define USB_DEVICE_ID_APPLE_ALU_REVB_ANSI	0x024f
+ #define USB_DEVICE_ID_APPLE_ALU_REVB_ISO	0x0250
+ #define USB_DEVICE_ID_APPLE_ALU_REVB_JIS	0x0251
++#define USB_DEVICE_ID_APPLE_WELLSPRING5A_ANSI	0x0252
++#define USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO	0x0253
++#define USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS	0x0254
+ #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI  0x0239
+ #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO   0x023a
+ #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
+--=20
+1.7.7
 
->
-> Thanks.
->
-> --
-> Dmitry
->
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

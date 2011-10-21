@@ -1,70 +1,75 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 5/6] Input: wacom - read 3rd gen Bamboo Touch HID data
-Date: Thu, 20 Oct 2011 19:53:16 -0700
-Message-ID: <201110201953.16567.dmitry.torokhov@gmail.com>
-References: <1318814981-30607-1-git-send-email-chris@cnpbagwell.com> <1318814981-30607-6-git-send-email-chris@cnpbagwell.com>
+From: Chow Loong Jin <hyperair@ubuntu.com>
+Subject: Re: Thinkpad Edge E220S trackpoint detection [was: Re: Lenovo X220
+ Touchpad + Trackpoint BIOS issue workaround ?]
+Date: Fri, 21 Oct 2011 14:50:54 +0800
+Message-ID: <4EA1164E.90408@ubuntu.com>
+References: <4E8ADD98.5000402@ubuntu.com> <20111005065627.GB11260@core.coreip.homeip.net> <4E8C2AEA.2090503@ubuntu.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigF0A4C197E8FD6986393DCEA2"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:48685 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752687Ab1JUCx0 (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:56818 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751477Ab1JUGvJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Oct 2011 22:53:26 -0400
-Received: by pzk36 with SMTP id 36so8491653pzk.1
-        for <linux-input@vger.kernel.org>; Thu, 20 Oct 2011 19:53:26 -0700 (PDT)
-In-Reply-To: <1318814981-30607-6-git-send-email-chris@cnpbagwell.com>
+	Fri, 21 Oct 2011 02:51:09 -0400
+Received: by yxl42 with SMTP id 42so1010730yxl.19
+        for <linux-input@vger.kernel.org>; Thu, 20 Oct 2011 23:51:08 -0700 (PDT)
+In-Reply-To: <4E8C2AEA.2090503@ubuntu.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: chris@cnpbagwell.com
-Cc: linux-input@vger.kernel.org, pinglinux@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Sunday, October 16, 2011 06:29:40 PM chris@cnpbagwell.com wrote:
-> From: Chris Bagwell <chris@cnpbagwell.com>
-> 
-> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
-> ---
->  drivers/input/tablet/wacom_sys.c |   48
-> ++++++++++++++++++++++++++++++++++++- 1 files changed, 46
-> insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/tablet/wacom_sys.c
-> b/drivers/input/tablet/wacom_sys.c index 5e1539c..d19886a 100644
-> --- a/drivers/input/tablet/wacom_sys.c
-> +++ b/drivers/input/tablet/wacom_sys.c
-> @@ -28,7 +28,9 @@
->  #define HID_USAGE_Y_TILT		0x3e
->  #define HID_USAGE_FINGER		0x22
->  #define HID_USAGE_STYLUS		0x20
-> -#define HID_COLLECTION			0xc0
-> +#define HID_COLLECTION			0xa1
-> +#define HID_COLLECTION_LOGICAL		0x02
-> +#define HID_COLLECTION_END		0xc0
-> 
->  enum {
->  	WCM_UNDEFINED = 0,
-> @@ -165,6 +167,34 @@ static void wacom_close(struct input_dev *dev)
->  		usb_autopm_put_interface(wacom->intf);
->  }
-> 
-> +static int wacom_parse_logical_collection(unsigned char *report,
-> +					  struct wacom_features *features)
-> +{
-> +	int length = 0;
-> +
-> +	if (features->type == BAMBOO_PT) {
-> +
-> +		/* Logical collection is only used by 3rd gen Bamboo Touch */
-> +		features->pktlen = WACOM_PKGLEN_BBTOUCH3;
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigF0A4C197E8FD6986393DCEA2
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Compile dies here because WACOM_PKGLEN_BBTOUCH3 is defined in the
-next patch.
+On 05/10/2011 18:01, Chow Loong Jin wrote:
+> On 05/10/2011 14:56, Dmitry Torokhov wrote:
+>> It looks like you forgot to actually attached the files...
+>=20
+> Whoops! Here they are.
 
-Please make sure the series is bisectable.
+Okay, it's been some time since I sent that last message, but it looks li=
+ke it
+never made it to the list because I don't see it in the archives. I'm ass=
+uming
+that majordomo didn't like my attachments, so I've uploaded them elsewher=
+e instead:
 
-Thanks.
+http://people.ubuntu.com/~hyperair/modprobe-psmouse-until-settle.log
+http://people.ubuntu.com/~hyperair/touch-trackpoint-until-settle2.log
 
--- 
-Dmitry
+--=20
+Kind regards,
+Loong Jin
+
+
+--------------enigF0A4C197E8FD6986393DCEA2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iQIcBAEBAgAGBQJOoRZSAAoJEPvVIltYh1KhS0wP/3X1vUctyAeVVkTgz+IKsJgf
+Ks0Z+5Fed+X7o0EdCbFo0jnA5NeTPf9gidDHGvspkPM7Bbiq4SxkKFG11J9SmX5v
+S0Vpv9dDLUiJ4D7mX3nffnNR9Tr665C0n7kappixajfHwhbyJwgcdn+H+XRoLrVq
+U9VQ2+sc+4mdFUk6mnP8ckyCP14CY+h2dIdLVzR9UP23KsVLr2ykpmeNhFk+LeMC
+OMzarhAKiO8kv2MG1ABhHer++EcEZJd3dwccTdkYX64C7GEETjRu5hTsCCzA1FDJ
+UnjBO02Y+WtHIHhrFjUaaY3CknIvztuP8kXbqJrPU3fIRTnIH/EXkr21YywU0jHV
+YCNxIHac6gVC1wxHGjJXNMGJb8+1hLzdq0/JhygMr3QxqYvYxd8zd4jr0nYOEimQ
+mVCeywZ7vGCCORsN9kaMhWAHEPOIDig8mxEd6IZu3tlBtxsEfVFIMWm7HTT9ktoJ
+eiCJPJHqaFr8KGQ74G0j153ddnV+ZjfWiUpJdy0GCqe12IUNXMqA7HNTn1CzogpM
+9Xo1DA5ZfHdtFlQFPvspWPhB91MFO0pmJAzP/vRDmPCo9Z3TgaKyHKowEU5rfvFy
+qZ5g/J/rKfyFliq1kBpGyfWO2BOzQefo3hcKDS6BR7VdSHLUKhoGH8mFF5UtaoxE
+UDyKqnHtp1ByyOk2ERJZ
+=r6C/
+-----END PGP SIGNATURE-----
+
+--------------enigF0A4C197E8FD6986393DCEA2--

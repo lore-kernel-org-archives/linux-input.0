@@ -1,170 +1,156 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 2/3] Input: wacom: Add support for Cintiq 24HD
-Date: Fri, 21 Oct 2011 18:35:51 -0700
-Message-ID: <1319247352-2006-2-git-send-email-killertofu@gmail.com>
-References: <1319247352-2006-1-git-send-email-killertofu@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:39632 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751738Ab1JVBgK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Oct 2011 21:36:10 -0400
-Received: by mail-pz0-f42.google.com with SMTP id 36so10922996pzk.1
-        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2011 18:36:09 -0700 (PDT)
-In-Reply-To: <1319247352-2006-1-git-send-email-killertofu@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: =?utf-8?Q?Denilson_Figueiredo_de_S=C3=A1?= <denilsonsa@gmail.com>
+Subject: Linux USB HID should ignore values outside Logical Minimum/Maximum
+ range
+Date: Sat, 22 Oct 2011 09:42:11 -0200
+Message-ID: <op.v3q34la3dsdv5o@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8;
+	format=flowed	delsp=yes
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jason Gerecke <killertofu@gmail.com>
 
-Adds support for the Cintiq 24HD. There are two quirks about this
-model that haven't been seen in prior tablets. First, a second
-touch ring is present on this display; it is being exposed via the
-ABS_WHEEL2 axis. Second, three capacitive buttons at the top of
-the unit are available; though physically a touch strip, we report
-the use of these buttons with generic KEY_ events.
+Short description:
 
-Signed-off-by: Jason Gerecke <killertofu@gmail.com>
----
- drivers/input/tablet/wacom_wac.c |   77 +++++++++++++++++++++++++++++++++++++-
- drivers/input/tablet/wacom_wac.h |    1 +
- 2 files changed, 77 insertions(+), 1 deletions(-)
+An absolute pointing device using USB HID defines a LOGICAL_MINIMUM and
+a LOGICAL_MAXIMUM for X, Y axes, and then sends a HID report containing
+values outside that range.
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 7fefd93..b830190 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -452,7 +452,7 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
- 	if ((data[1] & 0xb8) == 0xa0) {
- 		t = (data[6] << 2) | ((data[7] >> 6) & 3);
- 		if ((features->type >= INTUOS4S && features->type <= INTUOS4L) ||
--		    features->type == WACOM_21UX2) {
-+		    features->type == WACOM_21UX2 || features->type == WACOM_24HD) {
- 			t = (t << 1) | (data[1] & 1);
- 		}
- 		input_report_abs(input, ABS_PRESSURE, t);
-@@ -519,6 +519,56 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 				input_report_key(input, wacom->tool[1], 0);
- 				input_report_abs(input, ABS_MISC, 0);
- 			}
-+		} else if (features->type == WACOM_24HD) {
-+			input_report_key(input, BTN_0, (data[6] & 0x01));
-+			input_report_key(input, BTN_1, (data[6] & 0x02));
-+			input_report_key(input, BTN_2, (data[6] & 0x04));
-+			input_report_key(input, BTN_3, (data[6] & 0x08));
-+			input_report_key(input, BTN_4, (data[6] & 0x10));
-+			input_report_key(input, BTN_5, (data[6] & 0x20));
-+			input_report_key(input, BTN_6, (data[6] & 0x40));
-+			input_report_key(input, BTN_7, (data[6] & 0x80));
-+			input_report_key(input, BTN_8, (data[8] & 0x01));
-+			input_report_key(input, BTN_9, (data[8] & 0x02));
-+			input_report_key(input, BTN_A, (data[8] & 0x04));
-+			input_report_key(input, BTN_B, (data[8] & 0x08));
-+			input_report_key(input, BTN_C, (data[8] & 0x10));
-+			input_report_key(input, BTN_X, (data[8] & 0x20));
-+			input_report_key(input, BTN_Y, (data[8] & 0x40));
-+			input_report_key(input, BTN_Z, (data[8] & 0x80));
-+
-+			/*
-+			 * Three "buttons" are available on the 24HD which are
-+			 * physically implemented as a touchstrip. Each button
-+			 * is approximately 3 bits wide with a 2 bit spacing.
-+			 * The raw touchstrip bits are stored at:
-+			 *    ((data[3] & 0x1f) << 8) | data[4])
-+			 */
-+			input_report_key(input, KEY_PROG1, data[4] & 0x07);
-+			input_report_key(input, KEY_PROG2, data[4] & 0xE0);
-+			input_report_key(input, KEY_PROG3, data[3] & 0x1C);
-+
-+			if (data[1] & 0x80) {
-+				input_report_abs(input, ABS_WHEEL, (data[1] & 0x7f));
-+			} else {
-+				/* Out of proximity, clear wheel value. */
-+				input_report_abs(input, ABS_WHEEL, 0);
-+			}
-+
-+			if (data[2] & 0x80) {
-+				input_report_abs(input, ABS_WHEEL2, (data[2] & 0x7f));
-+			} else {
-+				/* Out of proximity, clear wheel value. */
-+				input_report_abs(input, ABS_WHEEL2, 0);
-+			}
-+
-+			if (data[1] | data[2] | (data[3] & 0x1f) | data[4] | data[6] | data[8]) {
-+				input_report_key(input, wacom->tool[1], 1);
-+				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
-+			} else {
-+				input_report_key(input, wacom->tool[1], 0);
-+				input_report_abs(input, ABS_MISC, 0);
-+			}
- 		} else {
- 			if (features->type == WACOM_21UX2) {
- 				input_report_key(input, BTN_0, (data[5] & 0x01));
-@@ -954,6 +1004,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 	case CINTIQ:
- 	case WACOM_BEE:
- 	case WACOM_21UX2:
-+	case WACOM_24HD:
- 		sync = wacom_intuos_irq(wacom_wac);
- 		break;
- 
-@@ -1106,6 +1157,26 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
- 		__set_bit(BTN_STYLUS2, input_dev->keybit);
- 		break;
- 
-+	case WACOM_24HD:
-+		__set_bit(BTN_A, input_dev->keybit);
-+		__set_bit(BTN_B, input_dev->keybit);
-+		__set_bit(BTN_C, input_dev->keybit);
-+		__set_bit(BTN_X, input_dev->keybit);
-+		__set_bit(BTN_Y, input_dev->keybit);
-+		__set_bit(BTN_Z, input_dev->keybit);
-+
-+		for (i = 0; i < 10; i++)
-+			__set_bit(BTN_0 + i, input_dev->keybit);
-+
-+		__set_bit(KEY_PROG1, input_dev->keybit);
-+		__set_bit(KEY_PROG2, input_dev->keybit);
-+		__set_bit(KEY_PROG3, input_dev->keybit);
-+
-+		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
-+		input_set_abs_params(input_dev, ABS_WHEEL2, 0, 71, 0, 0);
-+		wacom_setup_cintiq(wacom_wac);
-+		break;
-+
- 	case WACOM_21UX2:
- 		__set_bit(BTN_A, input_dev->keybit);
- 		__set_bit(BTN_B, input_dev->keybit);
-@@ -1403,6 +1474,9 @@ static const struct wacom_features wacom_features_0xBB =
- static const struct wacom_features wacom_features_0xBC =
- 	{ "Wacom Intuos4 WL",     WACOM_PKGLEN_INTUOS,    40840, 25400, 2047,
- 	  63, INTUOS4, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
-+static const struct wacom_features wacom_features_0xF4 =
-+	{ "Wacom Cintiq 24HD",    WACOM_PKGLEN_INTUOS,   104480, 65600, 2047,
-+	  63, WACOM_24HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
- static const struct wacom_features wacom_features_0x3F =
- 	{ "Wacom Cintiq 21UX",    WACOM_PKGLEN_INTUOS,    87200, 65600, 1023,
- 	  63, CINTIQ, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
-@@ -1590,6 +1664,7 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0xE3) },
- 	{ USB_DEVICE_WACOM(0xE6) },
- 	{ USB_DEVICE_WACOM(0x47) },
-+	{ USB_DEVICE_WACOM(0xF4) },
- 	{ USB_DEVICE_LENOVO(0x6004) },
- 	{ }
- };
-diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index 53eb71b..cc45d9b 100644
---- a/drivers/input/tablet/wacom_wac.h
-+++ b/drivers/input/tablet/wacom_wac.h
-@@ -57,6 +57,7 @@ enum {
- 	INTUOS4S,
- 	INTUOS4,
- 	INTUOS4L,
-+	WACOM_24HD,
- 	WACOM_21UX2,
- 	CINTIQ,
- 	WACOM_BEE,
--- 
-1.7.6
+Linux kernel should ignore values outside that range, as they are not
+meaningful.
 
+Just for comparison, Windows ignores such values. (and I hate this kind
+of comparison)
+
+
+Long description:
+
+I'm building a homebrew USB Absolute Pointing Device using an AVR
+ATmega8 and the V-USB firmware. This device will work almost like a
+mouse, with one (obvious) difference: while a mouse sends "relative"
+movements (move the pointer x,y units, relative to its current
+position), an absolute pointing device sends "absolute" positions (move
+the mouse exactly to this x,y location).
+
+This device is using two 16-bit fields to report the X and Y axes, and
+limit the meaningful values to those within the [0..32767] range. This
+is the relevant part of the USB HID Descriptor:
+
+	0x09, 0x30,        //     USAGE (X)
+	0x09, 0x31,        //     USAGE (Y)
+	0x15, 0x00,        //     LOGICAL_MINIMUM (0)
+	0x26, 0xff, 0x7f,  //     LOGICAL_MAXIMUM (32767)
+	0x75, 0x10,        //     REPORT_SIZE (16)
+	0x95, 0x02,        //     REPORT_COUNT (2)
+	0x81, 0x42,        //     INPUT (Data,Var,Abs,Null)
+
+However, Linux kernel is not behaving as expected when receiving
+out-of-range values. Instead of ignoring such coordinates, it moves the
+pointer to the bottom-right corner of the screen.
+
+Each HID report for this device has 1 byte for the Report ID (with valu=
+e
+02), 2 bytes for the X position, 2 bytes for the Y position, and finall=
+y
+1 byte for the button presses. They shows up as "02XXXXYY YYbb" in
+usbmon.
+
+Look at this usbmon output:
+
+ffff88000c9a0600 1465973871 C Ii:5:093:1 0:8 6 =3D 02ff0fff 0f00
+ffff88000c9a0600 1465973936 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1467317888 C Ii:5:093:1 0:8 6 =3D 02ff1fff 1f00
+ffff88000c9a0600 1467317950 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1467725888 C Ii:5:093:1 0:8 6 =3D 02ff2fff 2f00
+ffff88000c9a0600 1467725931 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1468661905 C Ii:5:093:1 0:8 6 =3D 02ff3fff 3f00
+ffff88000c9a0600 1468661961 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1469429914 C Ii:5:093:1 0:8 6 =3D 02ff4fff 4f00
+ffff88000c9a0600 1469429969 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1470133907 C Ii:5:093:1 0:8 6 =3D 02ff5fff 5f00
+ffff88000c9a0600 1470133948 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1470837931 C Ii:5:093:1 0:8 6 =3D 02ff6fff 6f00
+ffff88000c9a0600 1470837986 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1471445923 C Ii:5:093:1 0:8 6 =3D 02ff7fff 7f00
+ffff88000c9a0600 1471445981 S Ii:5:093:1 -115:8 6 <
+
+Here, the pointer is moving from 0x0fff, 0x0fff (near the top-left of
+the screen) up to the maximum possible value: 0x7fff, 0x7fff (the
+bottom-right corner). When receiving these reports, the pointer was
+correctly moving diagonally across my screen.
+
+Up until here, no problem yet. The problem starts now:
+
+ffff88000c9a0600 1472261948 C Ii:5:093:1 0:8 6 =3D 02ff8fff 8f00
+ffff88000c9a0600 1472262007 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1472965956 C Ii:5:093:1 0:8 6 =3D 02ff9fff 9f00
+ffff88000c9a0600 1472966010 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1473621964 C Ii:5:093:1 0:8 6 =3D 02ffafff af00
+ffff88000c9a0600 1473622019 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1474285972 C Ii:5:093:1 0:8 6 =3D 02ffbfff bf00
+ffff88000c9a0600 1474286027 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1474885980 C Ii:5:093:1 0:8 6 =3D 02ffcfff cf00
+ffff88000c9a0600 1474886034 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1475517975 C Ii:5:093:1 0:8 6 =3D 02ffdfff df00
+ffff88000c9a0600 1475518040 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1476333997 C Ii:5:093:1 0:8 6 =3D 02ffefff ef00
+ffff88000c9a0600 1476334055 S Ii:5:093:1 -115:8 6 <
+ffff88000c9a0600 1477366011 C Ii:5:093:1 0:8 6 =3D 02ffffff ff00
+ffff88000c9a0600 1477366069 S Ii:5:093:1 -115:8 6 <
+
+These reports send values outside the range defined in the HID
+Descriptor. The values here go from 0x8fff up to 0xffff. All of these
+values are invalid and should have been ignored by the Linux kernel.
+Instead, what happened was that the kernel insisted into moving the
+pointer to the bottom-right corner of the screen.
+
+Just to be sure about what I'm saying, I used my touchpad to move the
+pointer away from the corner before each one of those reports, and upon
+receiving them, the pointer went back to the corner.
+
+It is worth noting that changing this:
+
+	0x81, 0x42,        //     INPUT (Data,Var,Abs,Null)
+
+to this:
+
+	0x81, 0x02,        //     INPUT (Data,Var,Abs)
+
+makes no difference at all.
+
+
+I've also tried this device on a Windows XP system, and it works as
+expected there (out-of-range values are ignored and don't move the
+pointer).
+
+
+It's also important to remember that an out-of-range value should be
+ignored, but not the full report. For instance, the device could have
+sent "02 ffff ffff 01", meaning an invalid X,Y position (which should b=
+e
+ignored), but a valid button press of the first button (which should be
+processed). In this case, the kernel should send a button_press event,
+but not a motion event.
+
+It may even happen to send an out-of-range value for one axis, but a
+valid value for another axis. The code should be prepared for that
+(ignore one, but keep the other).
+
+
+=46ound this bug in Linux kernel 2.6.38
+
+
+If someone wants to build the hardware to reproduce this bug, go to the
+revision 662baa542e07 of this project:
+https://bitbucket.org/denilsonsa/atmega8-magnetometer-usb-mouse/
+It will probably need a few tweaks, though. Basically, after removing
+the non-relevant portions of the code (sensor, menu, keyemu), it should
+work using a fairly minimalistic ATmega8 circuit.
+
+
+--=20
+Denilson Figueiredo de S=C3=A1
+Rio de Janeiro - Brasil

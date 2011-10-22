@@ -1,156 +1,52 @@
-From: =?utf-8?Q?Denilson_Figueiredo_de_S=C3=A1?= <denilsonsa@gmail.com>
-Subject: Linux USB HID should ignore values outside Logical Minimum/Maximum
- range
-Date: Sat, 22 Oct 2011 09:42:11 -0200
-Message-ID: <op.v3q34la3dsdv5o@localhost>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH] HID: Add support for Macbook Pro 8 keyboards.
+Date: Sat, 22 Oct 2011 14:04:26 +0200
+Message-ID: <20111022120426.GA2281@polaris.bitmath.org>
+References: <1319220838-3297-1-git-send-email-gokcen@pardus.org.tr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed	delsp=yes
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:35700 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753462Ab1JVL4V (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 22 Oct 2011 07:56:21 -0400
+Received: from iph3.telenor.se (iph3.telenor.se [195.54.127.134])
+	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 10294EAC64
+	for <linux-input@vger.kernel.org>; Sat, 22 Oct 2011 13:56:19 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <1319220838-3297-1-git-send-email-gokcen@pardus.org.tr>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?iso-8859-1?B?R/Zr52Vu?= Eraslan <gokcen@pardus.org.tr>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-Short description:
+Hi G=F6k=E7en,
 
-An absolute pointing device using USB HID defines a LOGICAL_MINIMUM and
-a LOGICAL_MAXIMUM for X, Y axes, and then sends a HID report containing
-values outside that range.
+looks good, except
 
-Linux kernel should ignore values outside that range, as they are not
-meaningful.
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 7d27d2b..ffa7a85 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -112,6 +112,9 @@
+>  #define USB_DEVICE_ID_APPLE_ALU_REVB_ANSI	0x024f
+>  #define USB_DEVICE_ID_APPLE_ALU_REVB_ISO	0x0250
+>  #define USB_DEVICE_ID_APPLE_ALU_REVB_JIS	0x0251
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING5A_ANSI	0x0252
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO	0x0253
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS	0x0254
+>  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI  0x0239
+>  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO   0x023a
+>  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
 
-Just for comparison, Windows ignores such values. (and I hate this kind
-of comparison)
+which is not sorted.
 
-
-Long description:
-
-I'm building a homebrew USB Absolute Pointing Device using an AVR
-ATmega8 and the V-USB firmware. This device will work almost like a
-mouse, with one (obvious) difference: while a mouse sends "relative"
-movements (move the pointer x,y units, relative to its current
-position), an absolute pointing device sends "absolute" positions (move
-the mouse exactly to this x,y location).
-
-This device is using two 16-bit fields to report the X and Y axes, and
-limit the meaningful values to those within the [0..32767] range. This
-is the relevant part of the USB HID Descriptor:
-
-	0x09, 0x30,        //     USAGE (X)
-	0x09, 0x31,        //     USAGE (Y)
-	0x15, 0x00,        //     LOGICAL_MINIMUM (0)
-	0x26, 0xff, 0x7f,  //     LOGICAL_MAXIMUM (32767)
-	0x75, 0x10,        //     REPORT_SIZE (16)
-	0x95, 0x02,        //     REPORT_COUNT (2)
-	0x81, 0x42,        //     INPUT (Data,Var,Abs,Null)
-
-However, Linux kernel is not behaving as expected when receiving
-out-of-range values. Instead of ignoring such coordinates, it moves the
-pointer to the bottom-right corner of the screen.
-
-Each HID report for this device has 1 byte for the Report ID (with valu=
-e
-02), 2 bytes for the X position, 2 bytes for the Y position, and finall=
-y
-1 byte for the button presses. They shows up as "02XXXXYY YYbb" in
-usbmon.
-
-Look at this usbmon output:
-
-ffff88000c9a0600 1465973871 C Ii:5:093:1 0:8 6 =3D 02ff0fff 0f00
-ffff88000c9a0600 1465973936 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1467317888 C Ii:5:093:1 0:8 6 =3D 02ff1fff 1f00
-ffff88000c9a0600 1467317950 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1467725888 C Ii:5:093:1 0:8 6 =3D 02ff2fff 2f00
-ffff88000c9a0600 1467725931 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1468661905 C Ii:5:093:1 0:8 6 =3D 02ff3fff 3f00
-ffff88000c9a0600 1468661961 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1469429914 C Ii:5:093:1 0:8 6 =3D 02ff4fff 4f00
-ffff88000c9a0600 1469429969 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1470133907 C Ii:5:093:1 0:8 6 =3D 02ff5fff 5f00
-ffff88000c9a0600 1470133948 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1470837931 C Ii:5:093:1 0:8 6 =3D 02ff6fff 6f00
-ffff88000c9a0600 1470837986 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1471445923 C Ii:5:093:1 0:8 6 =3D 02ff7fff 7f00
-ffff88000c9a0600 1471445981 S Ii:5:093:1 -115:8 6 <
-
-Here, the pointer is moving from 0x0fff, 0x0fff (near the top-left of
-the screen) up to the maximum possible value: 0x7fff, 0x7fff (the
-bottom-right corner). When receiving these reports, the pointer was
-correctly moving diagonally across my screen.
-
-Up until here, no problem yet. The problem starts now:
-
-ffff88000c9a0600 1472261948 C Ii:5:093:1 0:8 6 =3D 02ff8fff 8f00
-ffff88000c9a0600 1472262007 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1472965956 C Ii:5:093:1 0:8 6 =3D 02ff9fff 9f00
-ffff88000c9a0600 1472966010 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1473621964 C Ii:5:093:1 0:8 6 =3D 02ffafff af00
-ffff88000c9a0600 1473622019 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1474285972 C Ii:5:093:1 0:8 6 =3D 02ffbfff bf00
-ffff88000c9a0600 1474286027 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1474885980 C Ii:5:093:1 0:8 6 =3D 02ffcfff cf00
-ffff88000c9a0600 1474886034 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1475517975 C Ii:5:093:1 0:8 6 =3D 02ffdfff df00
-ffff88000c9a0600 1475518040 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1476333997 C Ii:5:093:1 0:8 6 =3D 02ffefff ef00
-ffff88000c9a0600 1476334055 S Ii:5:093:1 -115:8 6 <
-ffff88000c9a0600 1477366011 C Ii:5:093:1 0:8 6 =3D 02ffffff ff00
-ffff88000c9a0600 1477366069 S Ii:5:093:1 -115:8 6 <
-
-These reports send values outside the range defined in the HID
-Descriptor. The values here go from 0x8fff up to 0xffff. All of these
-values are invalid and should have been ignored by the Linux kernel.
-Instead, what happened was that the kernel insisted into moving the
-pointer to the bottom-right corner of the screen.
-
-Just to be sure about what I'm saying, I used my touchpad to move the
-pointer away from the corner before each one of those reports, and upon
-receiving them, the pointer went back to the corner.
-
-It is worth noting that changing this:
-
-	0x81, 0x42,        //     INPUT (Data,Var,Abs,Null)
-
-to this:
-
-	0x81, 0x02,        //     INPUT (Data,Var,Abs)
-
-makes no difference at all.
-
-
-I've also tried this device on a Windows XP system, and it works as
-expected there (out-of-range values are ignored and don't move the
-pointer).
-
-
-It's also important to remember that an out-of-range value should be
-ignored, but not the full report. For instance, the device could have
-sent "02 ffff ffff 01", meaning an invalid X,Y position (which should b=
-e
-ignored), but a valid button press of the first button (which should be
-processed). In this case, the kernel should send a button_press event,
-but not a motion event.
-
-It may even happen to send an out-of-range value for one axis, but a
-valid value for another axis. The code should be prepared for that
-(ignore one, but keep the other).
-
-
-=46ound this bug in Linux kernel 2.6.38
-
-
-If someone wants to build the hardware to reproduce this bug, go to the
-revision 662baa542e07 of this project:
-https://bitbucket.org/denilsonsa/atmega8-magnetometer-usb-mouse/
-It will probably need a few tweaks, though. Basically, after removing
-the non-relevant portions of the code (sensor, menu, keyemu), it should
-work using a fairly minimalistic ATmega8 circuit.
-
-
---=20
-Denilson Figueiredo de S=C3=A1
-Rio de Janeiro - Brasil
+Thanks,
+Henrik
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

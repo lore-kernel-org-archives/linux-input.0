@@ -1,103 +1,170 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 3/3] Input: wacom: Add LED support for Cintiq 24HD
-Date: Fri, 21 Oct 2011 18:35:52 -0700
-Message-ID: <1319247352-2006-3-git-send-email-killertofu@gmail.com>
+Subject: [PATCH 2/3] Input: wacom: Add support for Cintiq 24HD
+Date: Fri, 21 Oct 2011 18:35:51 -0700
+Message-ID: <1319247352-2006-2-git-send-email-killertofu@gmail.com>
 References: <1319247352-2006-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:46903 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751738Ab1JVBgM (ORCPT
+Received: from mail-pz0-f42.google.com ([209.85.210.42]:39632 "EHLO
+	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751738Ab1JVBgK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Oct 2011 21:36:12 -0400
-Received: by ywm3 with SMTP id 3so122619ywm.19
-        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2011 18:36:11 -0700 (PDT)
+	Fri, 21 Oct 2011 21:36:10 -0400
+Received: by mail-pz0-f42.google.com with SMTP id 36so10922996pzk.1
+        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2011 18:36:09 -0700 (PDT)
 In-Reply-To: <1319247352-2006-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jason Gerecke <killertofu@gmail.com>
 
-The Cintiq 24HD has three LEDs on the left side of the tablet and
-three LEDs on the right side of the tablet. Switching to LED 0,
-1, or 2 will enable the top, middle, or bottom LED for the respective
-side. Switching to LED 3 turns off the LEDs on the respective side.
+Adds support for the Cintiq 24HD. There are two quirks about this
+model that haven't been seen in prior tablets. First, a second
+touch ring is present on this display; it is being exposed via the
+ABS_WHEEL2 axis. Second, three capacitive buttons at the top of
+the unit are available; though physically a touch strip, we report
+the use of these buttons with generic KEY_ events.
 
 Signed-off-by: Jason Gerecke <killertofu@gmail.com>
 ---
- Documentation/ABI/testing/sysfs-driver-wacom |   17 +++++++++--------
- drivers/input/tablet/wacom_sys.c             |    5 ++++-
- 2 files changed, 13 insertions(+), 9 deletions(-)
+ drivers/input/tablet/wacom_wac.c |   77 +++++++++++++++++++++++++++++++++++++-
+ drivers/input/tablet/wacom_wac.h |    1 +
+ 2 files changed, 77 insertions(+), 1 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-wacom b/Documentation/ABI/testing/sysfs-driver-wacom
-index 82d4df1..0130d66 100644
---- a/Documentation/ABI/testing/sysfs-driver-wacom
-+++ b/Documentation/ABI/testing/sysfs-driver-wacom
-@@ -15,9 +15,9 @@ Contact:	linux-input@vger.kernel.org
- Description:
- 		Attribute group for control of the status LEDs and the OLEDs.
- 		This attribute group is only available for Intuos 4 M, L,
--		and XL (with LEDs and OLEDs) and Cintiq 21UX2 (LEDs only).
--		Therefore its presence implicitly signifies the presence of
--		said LEDs and OLEDs on the tablet device.
-+		and XL (with LEDs and OLEDs) and Cintiq 21UX2 and Cintiq 24HD
-+		(LEDs only). Therefore its presence implicitly signifies the
-+		presence of said LEDs and OLEDs on the tablet device.
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 7fefd93..b830190 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -452,7 +452,7 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
+ 	if ((data[1] & 0xb8) == 0xa0) {
+ 		t = (data[6] << 2) | ((data[7] >> 6) & 3);
+ 		if ((features->type >= INTUOS4S && features->type <= INTUOS4L) ||
+-		    features->type == WACOM_21UX2) {
++		    features->type == WACOM_21UX2 || features->type == WACOM_24HD) {
+ 			t = (t << 1) | (data[1] & 1);
+ 		}
+ 		input_report_abs(input, ABS_PRESSURE, t);
+@@ -519,6 +519,56 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 				input_report_key(input, wacom->tool[1], 0);
+ 				input_report_abs(input, ABS_MISC, 0);
+ 			}
++		} else if (features->type == WACOM_24HD) {
++			input_report_key(input, BTN_0, (data[6] & 0x01));
++			input_report_key(input, BTN_1, (data[6] & 0x02));
++			input_report_key(input, BTN_2, (data[6] & 0x04));
++			input_report_key(input, BTN_3, (data[6] & 0x08));
++			input_report_key(input, BTN_4, (data[6] & 0x10));
++			input_report_key(input, BTN_5, (data[6] & 0x20));
++			input_report_key(input, BTN_6, (data[6] & 0x40));
++			input_report_key(input, BTN_7, (data[6] & 0x80));
++			input_report_key(input, BTN_8, (data[8] & 0x01));
++			input_report_key(input, BTN_9, (data[8] & 0x02));
++			input_report_key(input, BTN_A, (data[8] & 0x04));
++			input_report_key(input, BTN_B, (data[8] & 0x08));
++			input_report_key(input, BTN_C, (data[8] & 0x10));
++			input_report_key(input, BTN_X, (data[8] & 0x20));
++			input_report_key(input, BTN_Y, (data[8] & 0x40));
++			input_report_key(input, BTN_Z, (data[8] & 0x80));
++
++			/*
++			 * Three "buttons" are available on the 24HD which are
++			 * physically implemented as a touchstrip. Each button
++			 * is approximately 3 bits wide with a 2 bit spacing.
++			 * The raw touchstrip bits are stored at:
++			 *    ((data[3] & 0x1f) << 8) | data[4])
++			 */
++			input_report_key(input, KEY_PROG1, data[4] & 0x07);
++			input_report_key(input, KEY_PROG2, data[4] & 0xE0);
++			input_report_key(input, KEY_PROG3, data[3] & 0x1C);
++
++			if (data[1] & 0x80) {
++				input_report_abs(input, ABS_WHEEL, (data[1] & 0x7f));
++			} else {
++				/* Out of proximity, clear wheel value. */
++				input_report_abs(input, ABS_WHEEL, 0);
++			}
++
++			if (data[2] & 0x80) {
++				input_report_abs(input, ABS_WHEEL2, (data[2] & 0x7f));
++			} else {
++				/* Out of proximity, clear wheel value. */
++				input_report_abs(input, ABS_WHEEL2, 0);
++			}
++
++			if (data[1] | data[2] | (data[3] & 0x1f) | data[4] | data[6] | data[8]) {
++				input_report_key(input, wacom->tool[1], 1);
++				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
++			} else {
++				input_report_key(input, wacom->tool[1], 0);
++				input_report_abs(input, ABS_MISC, 0);
++			}
+ 		} else {
+ 			if (features->type == WACOM_21UX2) {
+ 				input_report_key(input, BTN_0, (data[5] & 0x01));
+@@ -954,6 +1004,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
+ 	case CINTIQ:
+ 	case WACOM_BEE:
+ 	case WACOM_21UX2:
++	case WACOM_24HD:
+ 		sync = wacom_intuos_irq(wacom_wac);
+ 		break;
  
- What:		/sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/status0_luminance
- Date:		August 2011
-@@ -41,16 +41,17 @@ Date:		August 2011
- Contact:	linux-input@vger.kernel.org
- Description:
- 		Writing to this file sets which one of the four (for Intuos 4)
--		or of the right four (for Cintiq 21UX2) status LEDs is active (0..3).
--		The other three LEDs on the same side are always inactive.
-+		or of the right four (for Cintiq 21UX2 and Cintiq 24HD) status
-+		LEDs is active (0..3). The other three LEDs on the same side are
-+		always inactive.
- 
- What:		/sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/status_led1_select
- Date:		September 2011
- Contact:	linux-input@vger.kernel.org
- Description:
--		Writing to this file sets which one of the left four (for Cintiq 21UX2)
--		status LEDs is active (0..3). The other three LEDs on the left are always
--		inactive.
-+		Writing to this file sets which one of the left four (for Cintiq 21UX2
-+		and Cintiq 24HD) status LEDs is active (0..3). The other three LEDs on
-+		the left are always inactive.
- 
- What:		/sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/buttons_luminance
- Date:		August 2011
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index a205055..b75e006 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -499,7 +499,8 @@ static int wacom_led_control(struct wacom *wacom)
- 	if (!buf)
- 		return -ENOMEM;
- 
--	if (wacom->wacom_wac.features.type == WACOM_21UX2)
-+	if (wacom->wacom_wac.features.type == WACOM_21UX2 ||
-+	    wacom->wacom_wac.features.type == WACOM_24HD)
- 		led = (wacom->led.select[1] << 4) | 0x40;
- 
- 	led |=  wacom->led.select[0] | 0x4;
-@@ -718,6 +719,7 @@ static int wacom_initialize_leds(struct wacom *wacom)
- 					   &intuos4_led_attr_group);
+@@ -1106,6 +1157,26 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 		__set_bit(BTN_STYLUS2, input_dev->keybit);
  		break;
  
 +	case WACOM_24HD:
++		__set_bit(BTN_A, input_dev->keybit);
++		__set_bit(BTN_B, input_dev->keybit);
++		__set_bit(BTN_C, input_dev->keybit);
++		__set_bit(BTN_X, input_dev->keybit);
++		__set_bit(BTN_Y, input_dev->keybit);
++		__set_bit(BTN_Z, input_dev->keybit);
++
++		for (i = 0; i < 10; i++)
++			__set_bit(BTN_0 + i, input_dev->keybit);
++
++		__set_bit(KEY_PROG1, input_dev->keybit);
++		__set_bit(KEY_PROG2, input_dev->keybit);
++		__set_bit(KEY_PROG3, input_dev->keybit);
++
++		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
++		input_set_abs_params(input_dev, ABS_WHEEL2, 0, 71, 0, 0);
++		wacom_setup_cintiq(wacom_wac);
++		break;
++
  	case WACOM_21UX2:
- 		wacom->led.select[0] = 0;
- 		wacom->led.select[1] = 0;
-@@ -752,6 +754,7 @@ static void wacom_destroy_leds(struct wacom *wacom)
- 				   &intuos4_led_attr_group);
- 		break;
- 
-+	case WACOM_24HD:
- 	case WACOM_21UX2:
- 		sysfs_remove_group(&wacom->intf->dev.kobj,
- 				   &cintiq_led_attr_group);
+ 		__set_bit(BTN_A, input_dev->keybit);
+ 		__set_bit(BTN_B, input_dev->keybit);
+@@ -1403,6 +1474,9 @@ static const struct wacom_features wacom_features_0xBB =
+ static const struct wacom_features wacom_features_0xBC =
+ 	{ "Wacom Intuos4 WL",     WACOM_PKGLEN_INTUOS,    40840, 25400, 2047,
+ 	  63, INTUOS4, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
++static const struct wacom_features wacom_features_0xF4 =
++	{ "Wacom Cintiq 24HD",    WACOM_PKGLEN_INTUOS,   104480, 65600, 2047,
++	  63, WACOM_24HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
+ static const struct wacom_features wacom_features_0x3F =
+ 	{ "Wacom Cintiq 21UX",    WACOM_PKGLEN_INTUOS,    87200, 65600, 1023,
+ 	  63, CINTIQ, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
+@@ -1590,6 +1664,7 @@ const struct usb_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0xE3) },
+ 	{ USB_DEVICE_WACOM(0xE6) },
+ 	{ USB_DEVICE_WACOM(0x47) },
++	{ USB_DEVICE_WACOM(0xF4) },
+ 	{ USB_DEVICE_LENOVO(0x6004) },
+ 	{ }
+ };
+diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+index 53eb71b..cc45d9b 100644
+--- a/drivers/input/tablet/wacom_wac.h
++++ b/drivers/input/tablet/wacom_wac.h
+@@ -57,6 +57,7 @@ enum {
+ 	INTUOS4S,
+ 	INTUOS4,
+ 	INTUOS4L,
++	WACOM_24HD,
+ 	WACOM_21UX2,
+ 	CINTIQ,
+ 	WACOM_BEE,
 -- 
 1.7.6
 

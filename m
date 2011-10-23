@@ -1,16 +1,16 @@
 From: chris@cnpbagwell.com
-Subject: [PATCH v3 5/6] Input: wacom - read 3rd gen Bamboo Touch HID data
-Date: Sun, 23 Oct 2011 17:28:59 -0500
-Message-ID: <1319408940-2345-6-git-send-email-chris@cnpbagwell.com>
+Subject: [PATCH v3 6/6] Input: wacom - 3rd gen Bamboo P&Touch packet support
+Date: Sun, 23 Oct 2011 17:29:00 -0500
+Message-ID: <1319408940-2345-7-git-send-email-chris@cnpbagwell.com>
 References: <1319408940-2345-1-git-send-email-chris@cnpbagwell.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:58252 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752412Ab1JWW3U (ORCPT
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:49006 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752467Ab1JWW3W (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 Oct 2011 18:29:20 -0400
-Received: by mail-gx0-f174.google.com with SMTP id b1so5195119ggn.19
-        for <linux-input@vger.kernel.org>; Sun, 23 Oct 2011 15:29:20 -0700 (PDT)
+	Sun, 23 Oct 2011 18:29:22 -0400
+Received: by ywm3 with SMTP id 3so945029ywm.19
+        for <linux-input@vger.kernel.org>; Sun, 23 Oct 2011 15:29:22 -0700 (PDT)
 In-Reply-To: <1319408940-2345-1-git-send-email-chris@cnpbagwell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,116 +19,186 @@ Cc: Chris Bagwell <chris@cnpbagwell.com>
 
 From: Chris Bagwell <chris@cnpbagwell.com>
 
-Override invalid pen based pktlen and x/y_max with touch
-values from HID report.
+3rd generation Bamboo Pen and Touch tablets reuse the older
+stylus packet but add an extra fixed zero pad byte to end.
 
-Since active area of pen and touch are same on these
-devices, set physical x/y size while pen x/y_max and
-resolution are still valid.
+The touch packets are quite different since it supports tracking
+of up to 16 touches. The packet is 64-byte fixed size but contains
+up to 15 smaller messages indicating data for a single touch or
+for tablet button presses.
 
 Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
 Acked-by: Ping Cheng <pingc@wacom.com>
 ---
 
-New in v3: Added packet size of Touch device to this patch to make
-bisectable.
+New in v3: Add comments and fix some style issues. Also removed
+unneeded message count check.  All pointed out by Henrik.
 
- drivers/input/tablet/wacom_sys.c |   48 ++++++++++++++++++++++++++++++++++++-
- drivers/input/tablet/wacom_wac.h |    1 +
- 2 files changed, 47 insertions(+), 2 deletions(-)
+New in v2: Fixed a couple of indentation issues.
 
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 5e1539c..d19886a 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -28,7 +28,9 @@
- #define HID_USAGE_Y_TILT		0x3e
- #define HID_USAGE_FINGER		0x22
- #define HID_USAGE_STYLUS		0x20
--#define HID_COLLECTION			0xc0
-+#define HID_COLLECTION			0xa1
-+#define HID_COLLECTION_LOGICAL		0x02
-+#define HID_COLLECTION_END		0xc0
- 
- enum {
- 	WCM_UNDEFINED = 0,
-@@ -165,6 +167,34 @@ static void wacom_close(struct input_dev *dev)
- 		usb_autopm_put_interface(wacom->intf);
+ drivers/input/tablet/wacom_wac.c |   94 ++++++++++++++++++++++++++++++++++++--
+ drivers/input/tablet/wacom_wac.h |    3 +-
+ 2 files changed, 92 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index d1ced32..164bb55 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -836,6 +836,64 @@ static int wacom_bpt_touch(struct wacom_wac *wacom)
+ 	return 0;
  }
  
-+static int wacom_parse_logical_collection(unsigned char *report,
-+					  struct wacom_features *features)
++static void wacom_bpt3_touch_msg(struct wacom_wac *wacom, unsigned char *data)
 +{
-+	int length = 0;
++	struct input_dev *input = wacom->input;
++	int slot_id = data[0] - 2;  /* data[0] is between 2 and 17 */
++	bool touch = data[1] & 0x80;
 +
-+	if (features->type == BAMBOO_PT) {
++	touch = touch && !wacom->shared->stylus_in_proximity;
 +
-+		/* Logical collection is only used by 3rd gen Bamboo Touch */
-+		features->pktlen = WACOM_PKGLEN_BBTOUCH3;
-+		features->device_type = BTN_TOOL_DOUBLETAP;
++	input_mt_slot(input, slot_id);
++	input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
 +
-+		/*
-+		 * Stylus and Touch have same active area
-+		 * so compute physical size based on stylus
-+		 * data before its overwritten.
-+		 */
-+		features->x_phy = (features->x_max * features->x_resolution)
-+			/ 100;
-+		features->y_phy = (features->y_max * features->y_resolution)
-+			/ 100;
++	if (touch) {
++		int x = (data[2] << 4) | (data[4] >> 4);
++		int y = (data[3] << 4) | (data[4] & 0x0f);
++		int w = data[6];
 +
-+		features->x_max = features->y_max =
-+			get_unaligned_le16(&report[10]);
-+		length = 11;
++		input_report_abs(input, ABS_MT_POSITION_X, x);
++		input_report_abs(input, ABS_MT_POSITION_Y, y);
++		input_report_abs(input, ABS_MT_TOUCH_MAJOR, w);
 +	}
-+	return length;
 +}
 +
- /* Interface Descriptor of wacom devices can be incomplete and
-  * inconsistent so wacom_features table is used to store stylus
-  * device's packet lengths, various maximum values, and tablet
-@@ -192,6 +222,10 @@ static void wacom_close(struct input_dev *dev)
-  * X/Y maximum as well as the physical size of tablet. Since touch
-  * interfaces haven't supported pressure or distance, this is enough
-  * information to override invalid values in the wacom_features table.
-+ *
-+ * 3rd gen Bamboo Touch no longer define a Digitizer-Finger Pysical
-+ * Collection. Instead they define a Logical Collection with a single
-+ * Logical Maximum for both X and Y.
-  */
- static int wacom_parse_hid(struct usb_interface *intf,
- 			   struct hid_descriptor *hid_desc,
-@@ -354,10 +388,20 @@ static int wacom_parse_hid(struct usb_interface *intf,
- 			}
- 			break;
- 
--		case HID_COLLECTION:
-+		case HID_COLLECTION_END:
- 			/* reset UsagePage and Finger */
- 			finger = usage = 0;
- 			break;
++static void wacom_bpt3_button_msg(struct wacom_wac *wacom, unsigned char *data)
++{
++	struct input_dev *input = wacom->input;
 +
-+		case HID_COLLECTION:
-+			i++;
-+			switch (report[i]) {
-+			case HID_COLLECTION_LOGICAL:
-+				i += wacom_parse_logical_collection(&report[i],
-+								    features);
-+				break;
-+			}
-+			break;
- 		}
- 	}
++	input_report_key(input, BTN_LEFT, (data[1] & 0x08) != 0);
++	input_report_key(input, BTN_FORWARD, (data[1] & 0x04) != 0);
++	input_report_key(input, BTN_BACK, (data[1] & 0x02) != 0);
++	input_report_key(input, BTN_RIGHT, (data[1] & 0x01) != 0);
++}
++
++static int wacom_bpt3_touch(struct wacom_wac *wacom)
++{
++	struct input_dev *input = wacom->input;
++	unsigned char *data = wacom->data;
++	int count = data[1] & 0x03;
++	int i;
++
++	/* data has up to 7 fixed sized 8-byte messages starting at data[2] */
++	for (i = 0; i < count; i++) {
++		int offset = (8 * i) + 2;
++		int msg_id = data[offset];
++
++		if (msg_id >= 2 && msg_id <= 17)
++			wacom_bpt3_touch_msg(wacom, data + offset);
++		else if (msg_id == 128)
++			wacom_bpt3_button_msg(wacom, data + offset);
++
++	}
++
++	input_mt_report_pointer_emulation(input, true);
++
++	input_sync(input);
++
++	return 0;
++}
++
+ static int wacom_bpt_pen(struct wacom_wac *wacom)
+ {
+ 	struct input_dev *input = wacom->input;
+@@ -906,7 +964,9 @@ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
+ {
+ 	if (len == WACOM_PKGLEN_BBTOUCH)
+ 		return wacom_bpt_touch(wacom);
+-	else if (len == WACOM_PKGLEN_BBFUN)
++	else if (len == WACOM_PKGLEN_BBTOUCH3)
++		return wacom_bpt3_touch(wacom);
++	else if (len == WACOM_PKGLEN_BBFUN || len == WACOM_PKGLEN_BBPEN)
+ 		return wacom_bpt_pen(wacom);
  
+ 	return 0;
+@@ -1025,9 +1085,9 @@ void wacom_setup_device_quirks(struct wacom_features *features)
+ 	    features->type == BAMBOO_PT)
+ 		features->quirks |= WACOM_QUIRK_MULTI_INPUT;
+ 
+-	/* quirks for bamboo touch */
++	/* quirk for bamboo touch with 2 low res touches */
+ 	if (features->type == BAMBOO_PT &&
+-	    features->device_type == BTN_TOOL_DOUBLETAP) {
++	    features->pktlen == WACOM_PKGLEN_BBTOUCH) {
+ 		features->x_max <<= 5;
+ 		features->y_max <<= 5;
+ 		features->x_fuzz <<= 5;
+@@ -1213,7 +1273,21 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 			__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+ 			__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+ 
+-			input_mt_init_slots(input_dev, 2);
++			if (features->pktlen == WACOM_PKGLEN_BBTOUCH3) {
++				__set_bit(BTN_TOOL_TRIPLETAP,
++					  input_dev->keybit);
++				__set_bit(BTN_TOOL_QUADTAP,
++					  input_dev->keybit);
++
++				input_mt_init_slots(input_dev, 16);
++
++				input_set_abs_params(input_dev,
++						     ABS_MT_TOUCH_MAJOR,
++						     0, 255, 0, 0);
++			} else {
++				input_mt_init_slots(input_dev, 2);
++			}
++
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+ 					     0, features->x_max,
+ 					     features->x_fuzz, 0);
+@@ -1479,6 +1553,15 @@ static const struct wacom_features wacom_features_0xDA =
+ static struct wacom_features wacom_features_0xDB =
+ 	{ "Wacom Bamboo 2FG 6x8 SE", WACOM_PKGLEN_BBFUN,  21648, 13700, 1023,
+ 	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++static const struct wacom_features wacom_features_0xDD =
++        { "Wacom Bamboo Connect", WACOM_PKGLEN_BBPEN,     14720,  9200, 1023,
++          31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++static const struct wacom_features wacom_features_0xDE =
++        { "Wacom Bamboo 16FG 4x5", WACOM_PKGLEN_BBPEN,    14720,  9200, 1023,
++          31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++static const struct wacom_features wacom_features_0xDF =
++        { "Wacom Bamboo 16FG 6x8", WACOM_PKGLEN_BBPEN,    21648, 13700, 1023,
++          31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0x6004 =
+ 	{ "ISD-V4",               WACOM_PKGLEN_GRAPHIRE,  12800,  8000,  255,
+ 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+@@ -1574,6 +1657,9 @@ const struct usb_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0xD8) },
+ 	{ USB_DEVICE_WACOM(0xDA) },
+ 	{ USB_DEVICE_WACOM(0xDB) },
++	{ USB_DEVICE_WACOM(0xDD) },
++	{ USB_DEVICE_WACOM(0xDE) },
++	{ USB_DEVICE_WACOM(0xDF) },
+ 	{ USB_DEVICE_WACOM(0xF0) },
+ 	{ USB_DEVICE_WACOM(0xCC) },
+ 	{ USB_DEVICE_WACOM(0x90) },
 diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index 53eb71b..af94e6d 100644
+index af94e6d..27f1d1c 100644
 --- a/drivers/input/tablet/wacom_wac.h
 +++ b/drivers/input/tablet/wacom_wac.h
-@@ -22,6 +22,7 @@
- #define WACOM_PKGLEN_TPC1FG	 5
+@@ -12,7 +12,7 @@
+ #include <linux/types.h>
+ 
+ /* maximum packet length for USB devices */
+-#define WACOM_PKGLEN_MAX	32
++#define WACOM_PKGLEN_MAX	64
+ 
+ /* packet length for individual models */
+ #define WACOM_PKGLEN_PENPRTN	 7
+@@ -23,6 +23,7 @@
  #define WACOM_PKGLEN_TPC2FG	14
  #define WACOM_PKGLEN_BBTOUCH	20
-+#define WACOM_PKGLEN_BBTOUCH3	64
+ #define WACOM_PKGLEN_BBTOUCH3	64
++#define WACOM_PKGLEN_BBPEN	10
  
  /* device IDs */
  #define STYLUS_DEVICE_ID	0x02

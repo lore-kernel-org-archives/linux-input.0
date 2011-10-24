@@ -1,58 +1,62 @@
 From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Subject: [PATCHv4 3/6] input/cma3000_d0x: Keep configuration on poweroff
-Date: Mon, 24 Oct 2011 22:21:13 +0200
-Message-ID: <1319487676-27181-4-git-send-email-ricardo.ribalda__5636.89790801636$1319487767$gmane$org@gmail.com>
+Subject: [PATCHv4 2/6] input/cma3000_d0x: Check silicon version
+Date: Mon, 24 Oct 2011 22:21:12 +0200
+Message-ID: <1319487676-27181-3-git-send-email-ricardo.ribalda__48931.6361527473$1319487784$gmane$org@gmail.com>
 References: <1319487676-27181-1-git-send-email-ricardo.ribalda@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-bw0-f46.google.com ([209.85.214.46]:59894 "EHLO
 	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754169Ab1JXUVd (ORCPT
+	with ESMTP id S1755899Ab1JXUV3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Oct 2011 16:21:33 -0400
+	Mon, 24 Oct 2011 16:21:29 -0400
 In-Reply-To: <1319487676-27181-1-git-send-email-ricardo.ribalda@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, grant.likely@secretlab.ca, sameo@linux.intel.com, peter.ujfalusi@ti.com, jic23@cam.ac.uk, aghayal@codeaurora.org, david@hardeman.nu, Shubhrajyoti@ti.comsa
 Cc: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
 
-When the device goes to poweroff keep the spi/i2c configuration.
-Otherwhise the device could not wake up if it was in spi mode.
+Improve probing of the cma3000 chip, by checking the revision of the
+device.
 
+Acked-by: Jonathan Cameron <jic23@cam.ac.uk>
 ---
 
+v4: Add ACKs to patch
+
 v2: Fixes suggested by Jonathan Cameron
-    -Code Style
+	-Remove WhoamI pr_info
 
 Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
 ---
- drivers/input/misc/cma3000_d0x.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
+ drivers/input/misc/cma3000_d0x.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/input/misc/cma3000_d0x.c b/drivers/input/misc/cma3000_d0x.c
-index 97e36fa..35d2577 100644
+index e66036d..97e36fa 100644
 --- a/drivers/input/misc/cma3000_d0x.c
 +++ b/drivers/input/misc/cma3000_d0x.c
-@@ -45,6 +45,7 @@
- #define CMA3000_RANGE2G    (1 << 7)
- #define CMA3000_RANGE8G    (0 << 7)
- #define CMA3000_BUSI2C     (0 << 4)
-+#define CMA3000_BUSSPI     (1 << 4)
- #define CMA3000_MODEMASK   (7 << 1)
- #define CMA3000_GRANGEMASK (1 << 7)
+@@ -27,6 +27,8 @@
  
-@@ -231,8 +232,11 @@ static int cma3000_poweron(struct cma3000_accl_data *data)
- static int cma3000_poweroff(struct cma3000_accl_data *data)
- {
- 	int ret;
-+	u8 ctrl = CMAMODE_POFF;
+ #include "cma3000_d0x.h"
  
--	ret = CMA3000_SET(data, CMA3000_CTRL, CMAMODE_POFF, "Mode setting");
-+	ctrl |= data->bus_ops->ctrl_mod;
++#define CMA3000_REV         0x10
 +
-+	ret = CMA3000_SET(data, CMA3000_CTRL, ctrl, "Mode setting");
- 	msleep(CMA3000_SETDELAY);
+ #define CMA3000_WHOAMI      0x00
+ #define CMA3000_REVID       0x01
+ #define CMA3000_CTRL        0x02
+@@ -420,7 +422,11 @@ struct cma3000_accl_data *cma3000_init(struct device *dev, int irq,
+ 		error = rev;
+ 		goto err_free_mem;
+ 	}
+-
++	if (rev != CMA3000_REV) {
++		error = -EINVAL;
++		pr_err("CMA3000 Accelerometer: Unknown Revision %x\n", rev);
++		goto err_free_mem;
++	}
+ 	pr_info("CMA3000 Accelerometer: Revision %x\n", rev);
  
- 	return ret;
+ 	error = request_threaded_irq(irq, NULL, cma3000_thread_irq,
 -- 
 1.7.7
 

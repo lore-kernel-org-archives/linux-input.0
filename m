@@ -1,28 +1,57 @@
-From: =?UTF-8?Q?Denilson_Figueiredo_de_S=C3=A1?= <denilsonsa@gmail.com>
-Subject: Re: Linux USB HID should ignore values outside Logical
- Minimum/Maximum range
-Date: Mon, 24 Oct 2011 15:04:24 -0200
-Message-ID: <CACGt9ynNh84DOM-vDxNCF96O4m9KQ1PKpePO6_2X_8deVZQexQ@mail.gmail.com>
-References: <op.v3q34la3dsdv5o@localhost>
-	<1319476183.3210.12.camel@lovely>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1319476183.3210.12.camel@lovely>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christoph Fritz <chf.fritz@googlemail.com>
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+Subject: [PATCHv4 0/6] Add spi support for CMA3000 driver and new driver CMR3000
+Date: Mon, 24 Oct 2011 22:21:10 +0200
+Message-ID: <1319487676-27181-1-git-send-email-ricardo.ribalda@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:59894 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754169Ab1JXUVY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Oct 2011 16:21:24 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, grant.likely@secretlab.ca, sameo@linux.intel.com, peter.ujfalusi@ti.com, jic23@cam.ac.uk, aghayal@codeaurora.org, david@hardeman.nu, Shubhrajyoti@ti.comsa
+Cc: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
 
-On Mon, Oct 24, 2011 at 15:09, Christoph Fritz <chf.fritz@googlemail.co=
-m> wrote:
->
-> =C2=A0* Note that input core does not clamp reported values to the
-> =C2=A0* [minimum, maximum] limits, such task is left to userspace.
 
-That means this is a bug in X.org, instead?
+The following set of patches add spi and device tree support for the cma3000 driver and also
+add support for the cmr3000 gyroscope.
 
---=20
-Denilson Figueiredo de S=C3=A1
-Rio de Janeiro - Brasil
+v4 of the set.
+
+Changelog:
+
+  v4: -Changes propossed by Dmitry Torokhov
+  v3: -Support for device tree
+      -Separate read/write spi
+
+  v2: -Changes propossed by Jonathan Cameron
+      -More fixes for the cma3000 driver
+
+Ricardo Ribalda Delgado (6):
+  input/cma3000_d0x: Support devices without pdata
+  input/cma3000_d0x: Check silicon version
+  input/cma3000_d0x: Keep configuration on poweroff
+  input/cma3000_d0x: Add CMA3000 spi support
+  Input: add CMR3000 gyrsocope driver
+  input/cma3000_d0x: Match comment to name of struct
+
+ drivers/input/misc/Kconfig           |   38 +++-
+ drivers/input/misc/Makefile          |    3 +
+ drivers/input/misc/cma3000_d0x.c     |  100 +++++++-
+ drivers/input/misc/cma3000_d0x_spi.c |  145 ++++++++++++
+ drivers/input/misc/cmr3000_d0x.c     |  426 ++++++++++++++++++++++++++++++++++
+ drivers/input/misc/cmr3000_d0x.h     |   45 ++++
+ drivers/input/misc/cmr3000_d0x_spi.c |  144 ++++++++++++
+ include/linux/input/cma3000.h        |    2 +-
+ include/linux/input/cmr3000.h        |   54 +++++
+ 9 files changed, 941 insertions(+), 16 deletions(-)
+ create mode 100644 drivers/input/misc/cma3000_d0x_spi.c
+ create mode 100644 drivers/input/misc/cmr3000_d0x.c
+ create mode 100644 drivers/input/misc/cmr3000_d0x.h
+ create mode 100644 drivers/input/misc/cmr3000_d0x_spi.c
+ create mode 100644 include/linux/input/cmr3000.h
+
+-- 
+1.7.7
+

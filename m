@@ -1,65 +1,63 @@
-From: =?UTF-8?Q?Denilson_Figueiredo_de_S=C3=A1?= <denilsonsa@gmail.com>
+From: Christoph Fritz <chf.fritz@googlemail.com>
 Subject: Re: Linux USB HID should ignore values outside Logical
  Minimum/Maximum range
-Date: Mon, 24 Oct 2011 14:39:31 -0200
-Message-ID: <CACGt9ymGUAzjkZJCePnO+7cyKsi8-rtpno9ebjKtoCXj-tCALg@mail.gmail.com>
+Date: Mon, 24 Oct 2011 19:09:43 +0200
+Message-ID: <1319476183.3210.12.camel@lovely>
 References: <op.v3q34la3dsdv5o@localhost>
-	<4EA5913D.7090004@genband.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:61865 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933013Ab1JXQjd convert rfc822-to-8bit (ORCPT
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:37051 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755399Ab1JXRCa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Oct 2011 12:39:33 -0400
-In-Reply-To: <4EA5913D.7090004@genband.com>
+	Mon, 24 Oct 2011 13:02:30 -0400
+In-Reply-To: <op.v3q34la3dsdv5o@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Friesen <chris.friesen@genband.com>
+To: Denilson Figueiredo de =?ISO-8859-1?Q?S=E1?= <denilsonsa@gmail.com>
 Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Mon, Oct 24, 2011 at 14:24, Chris Friesen <chris.friesen@genband.com=
-> wrote:
-> On 10/22/2011 05:42 AM, Denilson Figueiredo de S=C3=A1 wrote:
->
->> It may even happen to send an out-of-range value for one axis, but a
->> valid value for another axis. The code should be prepared for that
->> (ignore one, but keep the other).
->
-> In this case what should be used for the "invalid" axis value? =C2=A0=
-The previous
-> value?
+Hi Denilson,
 
-If that's an absolute pointing device, can we supply only one axis? I
-mean, can we do this: "move the pointer to this X position, but leave
-the Y position where it currently is". (note that the pointer might
-have moved since last input from this device, due to other devices
-also being present)
+ please see my comment below.
 
-If that's not possible, then I'm not sure about what should be the
-correct behavior. Should we ignore both axes if one of them is
-invalid? Should we use the last good value from the other axis? (note
-that relative pointing devices like proper mice shouldn't have this
-issue, as we can just use zero for invalid values, which means "no
-movement")
+On Sat, 2011-10-22 at 09:42 -0200, Denilson Figueiredo de S=C3=A1 wrote=
+:
+> Short description:
+>=20
+> An absolute pointing device using USB HID defines a LOGICAL_MINIMUM a=
+nd
+> a LOGICAL_MAXIMUM for X, Y axes, and then sends a HID report containi=
+ng
+> values outside that range.
+>=20
+> Linux kernel should ignore values outside that range, as they are not
+> meaningful.
 
-I haven't tested that on Windows (yet), so I don't know how it
-behaves. If I test it, I'll post my results here.
+To answer with a quote from the comment above input.h:"struct
+input_absinfo":
 
-I know, this is a corner case difficult to decide about.
+ *
+ * Note that input core does not clamp reported values to the
+ * [minimum, maximum] limits, such task is left to userspace.
+ *
 
+to do so, use this from input.h:
 
-
-By the way, my report was about absolute pointing devices, but I
-haven't tested how Linux USB HID behaves for other kinds of devices
-(keyboards, gamepads, anything else).
+#define EVIOCGABS(abs)		_IOR('E', 0x40 + (abs), struct input_absinfo)	/=
+* get abs value/limits */
+#define EVIOCSABS(abs)		_IOW('E', 0xc0 + (abs), struct input_absinfo)	/=
+* set abs value/limits */
 
 
---=20
-Denilson Figueiredo de S=C3=A1
-Rio de Janeiro - Brasil
+> <SNIP>
+
+Thanks,
+ -- chf
+
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

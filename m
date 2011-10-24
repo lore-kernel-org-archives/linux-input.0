@@ -1,38 +1,67 @@
-From: Chris Friesen <chris.friesen-b7o/lNNmKxtBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: Linux USB HID should ignore values outside Logical Minimum/Maximum
- range
-Date: Mon, 24 Oct 2011 10:24:29 -0600
-Message-ID: <4EA5913D.7090004@genband.com>
+From: =?UTF-8?Q?Denilson_Figueiredo_de_S=C3=A1?= <denilsonsa@gmail.com>
+Subject: Re: Linux USB HID should ignore values outside Logical
+ Minimum/Maximum range
+Date: Mon, 24 Oct 2011 14:39:31 -0200
+Message-ID: <CACGt9ymGUAzjkZJCePnO+7cyKsi8-rtpno9ebjKtoCXj-tCALg@mail.gmail.com>
 References: <op.v3q34la3dsdv5o@localhost>
+	<4EA5913D.7090004@genband.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <op.v3q34la3dsdv5o@localhost>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?ISO-8859-1?Q?Denilson_Figueiredo_de_S=E1?= <denilsonsa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:61865 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933013Ab1JXQjd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Oct 2011 12:39:33 -0400
+In-Reply-To: <4EA5913D.7090004@genband.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chris Friesen <chris.friesen@genband.com>
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On 10/22/2011 05:42 AM, Denilson Figueiredo de S=E1 wrote:
+On Mon, Oct 24, 2011 at 14:24, Chris Friesen <chris.friesen@genband.com=
+> wrote:
+> On 10/22/2011 05:42 AM, Denilson Figueiredo de S=C3=A1 wrote:
+>
+>> It may even happen to send an out-of-range value for one axis, but a
+>> valid value for another axis. The code should be prepared for that
+>> (ignore one, but keep the other).
+>
+> In this case what should be used for the "invalid" axis value? =C2=A0=
+The previous
+> value?
 
-> It may even happen to send an out-of-range value for one axis, but a
-> valid value for another axis. The code should be prepared for that
-> (ignore one, but keep the other).
+If that's an absolute pointing device, can we supply only one axis? I
+mean, can we do this: "move the pointer to this X position, but leave
+the Y position where it currently is". (note that the pointer might
+have moved since last input from this device, due to other devices
+also being present)
 
-In this case what should be used for the "invalid" axis value?  The=20
-previous value?
+If that's not possible, then I'm not sure about what should be the
+correct behavior. Should we ignore both axes if one of them is
+invalid? Should we use the last good value from the other axis? (note
+that relative pointing devices like proper mice shouldn't have this
+issue, as we can just use zero for invalid values, which means "no
+movement")
 
-Chris
+I haven't tested that on Windows (yet), so I don't know how it
+behaves. If I test it, I'll post my results here.
+
+I know, this is a corner case difficult to decide about.
+
+
+
+By the way, my report was about absolute pointing devices, but I
+haven't tested how Linux USB HID behaves for other kinds of devices
+(keyboards, gamepads, anything else).
+
 
 --=20
-Chris Friesen
-Software Developer
-GENBAND
-chris.friesen-b7o/lNNmKxtBDgjK7y7TUQ@public.gmane.org
-www.genband.com
+Denilson Figueiredo de S=C3=A1
+Rio de Janeiro - Brasil
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

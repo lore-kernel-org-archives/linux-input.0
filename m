@@ -1,7 +1,7 @@
 From: Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH 3/7] Input: ALPS - Add protocol version field in alps_model_info
-Date: Wed, 26 Oct 2011 16:14:37 -0500
-Message-ID: <1319663681-11244-4-git-send-email-seth.forshee@canonical.com>
+Subject: [PATCH 6/7] Input: ALPS - Add semi-MT support for v3 protocol
+Date: Wed, 26 Oct 2011 16:14:40 -0500
+Message-ID: <1319663681-11244-7-git-send-email-seth.forshee@canonical.com>
 References: <1319663681-11244-1-git-send-email-seth.forshee@canonical.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1319663681-11244-1-git-send-email-seth.forshee@canonical.com>
@@ -10,107 +10,331 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, Andrew Skalski <askalski@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-In preparation for adding support for more ALPS protocol versions,
-add a field for the protocol version to the model info instead of
-using a field in the flags. OLDPROTO and !OLDPROTO are now called
-version 1 and version 2, repsectively.
-
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 ---
- drivers/input/mouse/alps.c |   47 +++++++++++++++++++++----------------------
- drivers/input/mouse/alps.h |    4 +++
- 2 files changed, 27 insertions(+), 24 deletions(-)
+ drivers/input/mouse/alps.c |  233 ++++++++++++++++++++++++++++++++++++++++----
+ drivers/input/mouse/alps.h |    1 +
+ 2 files changed, 215 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index ad15e7c..572cb21 100644
+index 5400fb4..60061a0 100644
 --- a/drivers/input/mouse/alps.c
 +++ b/drivers/input/mouse/alps.c
-@@ -30,7 +30,6 @@
- #define dbg(format, arg...) do {} while (0)
- #endif
+@@ -17,6 +17,7 @@
  
--#define ALPS_OLDPROTO		0x01	/* old style input */
- #define ALPS_DUALPOINT		0x02	/* touchpad has trackstick */
- #define ALPS_PASS		0x04	/* device has a pass-through port */
+ #include <linux/slab.h>
+ #include <linux/input.h>
++#include <linux/input/mt.h>
+ #include <linux/serio.h>
+ #include <linux/libps2.h>
  
-@@ -42,30 +41,30 @@
- 					   6-byte ALPS packet */
- 
- static const struct alps_model_info alps_model_data[] = {
--	{ { 0x32, 0x02, 0x14 },	0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* Toshiba Salellite Pro M10 */
--	{ { 0x33, 0x02, 0x0a },	0x88, 0xf8, ALPS_OLDPROTO },		  /* UMAX-530T */
--	{ { 0x53, 0x02, 0x0a },	0xf8, 0xf8, 0 },
--	{ { 0x53, 0x02, 0x14 },	0xf8, 0xf8, 0 },
--	{ { 0x60, 0x03, 0xc8 }, 0xf8, 0xf8, 0 },			  /* HP ze1115 */
--	{ { 0x63, 0x02, 0x0a },	0xf8, 0xf8, 0 },
--	{ { 0x63, 0x02, 0x14 },	0xf8, 0xf8, 0 },
--	{ { 0x63, 0x02, 0x28 },	0xf8, 0xf8, ALPS_FW_BK_2 },		  /* Fujitsu Siemens S6010 */
--	{ { 0x63, 0x02, 0x3c },	0x8f, 0x8f, ALPS_WHEEL },		  /* Toshiba Satellite S2400-103 */
--	{ { 0x63, 0x02, 0x50 },	0xef, 0xef, ALPS_FW_BK_1 },		  /* NEC Versa L320 */
--	{ { 0x63, 0x02, 0x64 },	0xf8, 0xf8, 0 },
--	{ { 0x63, 0x03, 0xc8 }, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* Dell Latitude D800 */
--	{ { 0x73, 0x00, 0x0a },	0xf8, 0xf8, ALPS_DUALPOINT },		  /* ThinkPad R61 8918-5QG */
--	{ { 0x73, 0x02, 0x0a },	0xf8, 0xf8, 0 },
--	{ { 0x73, 0x02, 0x14 },	0xf8, 0xf8, ALPS_FW_BK_2 },		  /* Ahtec Laptop */
--	{ { 0x20, 0x02, 0x0e },	0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* XXX */
--	{ { 0x22, 0x02, 0x0a },	0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT },
--	{ { 0x22, 0x02, 0x14 }, 0xff, 0xff, ALPS_PASS | ALPS_DUALPOINT }, /* Dell Latitude D600 */
-+	{ { 0x32, 0x02, 0x14 },	ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* Toshiba Salellite Pro M10 */
-+	{ { 0x33, 0x02, 0x0a },	ALPS_PROTO_V1, 0x88, 0xf8, 0 },				 /* UMAX-530T */
-+	{ { 0x53, 0x02, 0x0a },	ALPS_PROTO_V2, 0xf8, 0xf8, 0 },
-+	{ { 0x53, 0x02, 0x14 },	ALPS_PROTO_V2, 0xf8, 0xf8, 0 },
-+	{ { 0x60, 0x03, 0xc8 }, ALPS_PROTO_V2, 0xf8, 0xf8, 0 },				 /* HP ze1115 */
-+	{ { 0x63, 0x02, 0x0a },	ALPS_PROTO_V2, 0xf8, 0xf8, 0 },
-+	{ { 0x63, 0x02, 0x14 },	ALPS_PROTO_V2, 0xf8, 0xf8, 0 },
-+	{ { 0x63, 0x02, 0x28 },	ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_FW_BK_2 },		 /* Fujitsu Siemens S6010 */
-+	{ { 0x63, 0x02, 0x3c },	ALPS_PROTO_V2, 0x8f, 0x8f, ALPS_WHEEL },		 /* Toshiba Satellite S2400-103 */
-+	{ { 0x63, 0x02, 0x50 },	ALPS_PROTO_V2, 0xef, 0xef, ALPS_FW_BK_1 },		 /* NEC Versa L320 */
-+	{ { 0x63, 0x02, 0x64 },	ALPS_PROTO_V2, 0xf8, 0xf8, 0 },
-+	{ { 0x63, 0x03, 0xc8 }, ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* Dell Latitude D800 */
-+	{ { 0x73, 0x00, 0x0a },	ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_DUALPOINT },		 /* ThinkPad R61 8918-5QG */
-+	{ { 0x73, 0x02, 0x0a },	ALPS_PROTO_V2, 0xf8, 0xf8, 0 },
-+	{ { 0x73, 0x02, 0x14 },	ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_FW_BK_2 },		 /* Ahtec Laptop */
-+	{ { 0x20, 0x02, 0x0e },	ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* XXX */
-+	{ { 0x22, 0x02, 0x0a },	ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT },
-+	{ { 0x22, 0x02, 0x14 }, ALPS_PROTO_V2, 0xff, 0xff, ALPS_PASS | ALPS_DUALPOINT }, /* Dell Latitude D600 */
- 	/* Dell Latitude E5500, E6400, E6500, Precision M4400 */
--	{ { 0x62, 0x02, 0x14 }, 0xcf, 0xcf,
-+	{ { 0x62, 0x02, 0x14 }, ALPS_PROTO_V2, 0xcf, 0xcf,
- 		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },
--	{ { 0x73, 0x02, 0x50 }, 0xcf, 0xcf, ALPS_FOUR_BUTTONS },	  /* Dell Vostro 1400 */
--	{ { 0x52, 0x01, 0x14 }, 0xff, 0xff,
--		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },	  /* Toshiba Tecra A11-11L */
-+	{ { 0x73, 0x02, 0x50 }, ALPS_PROTO_V2, 0xcf, 0xcf, ALPS_FOUR_BUTTONS },		 /* Dell Vostro 1400 */
-+	{ { 0x52, 0x01, 0x14 }, ALPS_PROTO_V2, 0xff, 0xff,
-+		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },			 /* Toshiba Tecra A11-11L */
- };
- 
+@@ -33,6 +34,12 @@
  /*
-@@ -119,7 +118,7 @@ static void alps_process_packet(struct psmouse *psmouse)
- 	int x, y, z, ges, fin, left, right, middle;
- 	int back = 0, forward = 0;
+  * Definitions for ALPS version 3 and 4 command mode protocol
+  */
++#define ALPS_V3_X_MAX	2000
++#define ALPS_V3_Y_MAX	1400
++
++#define ALPS_BITMAP_X_BITS	15
++#define ALPS_BITMAP_Y_BITS	11
++
+ #define ALPS_CMD_NIBBLE_10	0x01f2
  
--	if (model->flags & ALPS_OLDPROTO) {
-+	if (model->proto_version == ALPS_PROTO_V1) {
- 		left = packet[2] & 0x10;
- 		right = packet[2] & 0x08;
- 		middle = 0;
+ static const struct alps_nibble_commands alps_v3_nibble_commands[] = {
+@@ -257,6 +264,137 @@ static void alps_process_packet_v1_v2(struct psmouse *psmouse)
+ 	input_sync(dev);
+ }
+ 
++/*
++ * Process bitmap data from v3 and v4 protocols. Returns the number of
++ * fingers detected. A return value of 0 means at least one of the
++ * bitmaps was empty.
++ *
++ * The bitmaps don't have enough data to track fingers, so this function
++ * only generates points representing a bounding box of all contacts.
++ * These points are returned in x1, y1, x2, and y2 when the return value
++ * is greater than 0.
++ */
++static int alps_process_bitmap(unsigned int x_map, unsigned int y_map,
++			       int *x1, int *y1, int *x2, int *y2)
++{
++	struct alps_bitmap_point {
++		int start_bit;
++		int num_bits;
++	};
++
++	int fingers_x = 0, fingers_y = 0, fingers;
++	int i, bit, prev_bit;
++	struct alps_bitmap_point x_low = {0,}, x_high = {0,};
++	struct alps_bitmap_point y_low = {0,}, y_high = {0,};
++	struct alps_bitmap_point *point;
++
++	if (!x_map || !y_map)
++		return 0;
++
++	*x1 = *y1 = *x2 = *y2 = 0;
++
++	prev_bit = 0;
++	point = &x_low;
++	for (i = 0; x_map != 0; i++, x_map >>= 1) {
++		bit = x_map & 1;
++		if (bit) {
++			if (!prev_bit) {
++				point->start_bit = i;
++				fingers_x++;
++			}
++			point->num_bits++;
++		} else {
++			if (prev_bit)
++				point = &x_high;
++			else
++				point->num_bits = 0;
++		}
++		prev_bit = bit;
++	}
++
++	/*
++	 * y bitmap is reversed for what we need (lower positions are in
++	 * higher bits), so we process from the top end.
++	 */
++	y_map = y_map << (sizeof(y_map) * BITS_PER_BYTE - ALPS_BITMAP_Y_BITS);
++	prev_bit = 0;
++	point = &y_low;
++	for (i = 0; y_map != 0; i++, y_map <<= 1) {
++		bit = y_map & (1 << (sizeof(y_map) * BITS_PER_BYTE - 1));
++		if (bit) {
++			if (!prev_bit) {
++				point->start_bit = i;
++				fingers_y++;
++			}
++			point->num_bits++;
++		} else {
++			if (prev_bit)
++				point = &y_high;
++			else
++				point->num_bits = 0;
++		}
++		prev_bit = bit;
++	}
++
++	/*
++	 * Fingers can overlap, so we use the maximum count of fingers
++	 * on either axis as the finger count.
++	 */
++	fingers = max(fingers_x, fingers_y);
++
++	/*
++	 * If total fingers is > 1 but either axis reports only a single
++	 * contact, we have overlapping or adjacent fingers. For the
++	 * purposes of creating a bounding box, divide the single contact
++	 * (roughly) equally between the two points.
++	 */
++	if (fingers > 1) {
++		if (fingers_x == 1) {
++			i = x_low.num_bits / 2;
++			x_low.num_bits = x_low.num_bits - i;
++			x_high.start_bit = x_low.start_bit + i;
++			x_high.num_bits = max(i, 1);
++		} else if (fingers_y == 1) {
++			i = y_low.num_bits / 2;
++			y_low.num_bits = y_low.num_bits - i;
++			y_high.start_bit = y_low.start_bit + i;
++			y_high.num_bits = max(i, 1);
++		}
++	}
++
++	*x1 = (ALPS_V3_X_MAX * (2 * x_low.start_bit + x_low.num_bits - 1)) /
++	      (2 * (ALPS_BITMAP_X_BITS - 1));
++	*y1 = (ALPS_V3_Y_MAX * (2 * y_low.start_bit + y_low.num_bits - 1)) /
++	      (2 * (ALPS_BITMAP_Y_BITS - 1));
++
++	if (fingers > 1) {
++		*x2 = (ALPS_V3_X_MAX * (2 * x_high.start_bit + x_high.num_bits - 1)) /
++		      (2 * (ALPS_BITMAP_X_BITS - 1));
++		*y2 = (ALPS_V3_Y_MAX * (2 * y_high.start_bit + y_high.num_bits - 1)) /
++		      (2 * (ALPS_BITMAP_Y_BITS - 1));
++	}
++
++	return fingers;
++}
++
++static void alps_set_slot(struct input_dev *dev, int slot, bool active,
++			  int x, int y)
++{
++	input_mt_slot(dev, slot);
++	input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
++	if (active) {
++		input_report_abs(dev, ABS_MT_POSITION_X, x);
++		input_report_abs(dev, ABS_MT_POSITION_Y, y);
++	}
++}
++
++static void alps_report_semi_mt_data(struct input_dev *dev, int num_fingers,
++				     int x1, int y1, int x2, int y2)
++{
++	alps_set_slot(dev, 0, num_fingers != 0, x1, y1);
++	alps_set_slot(dev, 1, num_fingers == 2, x2, y2);
++}
++
+ static void alps_process_trackstick_packet_v3(struct psmouse *psmouse)
+ {
+ 	struct alps_data *priv = psmouse->private;
+@@ -325,16 +463,17 @@ static void alps_process_touchpad_packet_v3(struct psmouse *psmouse)
+ 	struct input_dev *dev2 = priv->dev2;
+ 	int x, y, z;
+ 	int left, right, middle;
++	int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
++	int fingers = 0, bmap_fingers;
++	unsigned int x_bitmap, y_bitmap;
+ 
+ 	/*
+-	 * There's no single feature of touchpad position and bitmap
+-	 * packets that can be used to distinguish between them. We
+-	 * rely on the fact that a bitmap packet should always follow
+-	 * a position packet with bit 6 of packet[4] set.
++	 * There's no single feature of touchpad position and bitmap packets
++	 * that can be used to distinguish between them. We rely on the fact
++	 * that a bitmap packet should always follow a position packet with
++	 * bit 6 of packet[4] set.
+ 	 */
+ 	if (priv->multi_packet) {
+-		priv->multi_packet = 0;
+-
+ 		/*
+ 		 * Sometimes a position packet will indicate a multi-packet
+ 		 * sequence, but then what follows is another position
+@@ -342,18 +481,49 @@ static void alps_process_touchpad_packet_v3(struct psmouse *psmouse)
+ 		 * position packet as usual.
+ 		 */
+ 		if (packet[0] & 0x40) {
++			fingers = (packet[5] & 0x3) + 1;
++			x_bitmap = ((packet[4] & 0x7e) << 8) |
++				   ((packet[1] & 0x7f) << 2) |
++				   ((packet[0] & 0x30) >> 4);
++			y_bitmap = ((packet[3] & 0x70) << 4) |
++				   ((packet[2] & 0x7f) << 1) |
++				   (packet[4] & 0x01);
++
++			bmap_fingers = alps_process_bitmap(x_bitmap, y_bitmap,
++							   &x1, &y1, &x2, &y2);
++
+ 			/*
+-			 * Bitmap packets are not yet supported, so for now
+-			 * just ignore them.
++			 * We shouldn't report more than one finger if
++			 * we don't have two coordinates.
+ 			 */
+-			return;
++			if (fingers > 1 && bmap_fingers < 2)
++				fingers = bmap_fingers;
++
++			/* Now process position packet */
++			packet = priv->multi_data;
++		} else {
++			priv->multi_packet = 0;
+ 		}
+ 	}
+ 
+-	if (!priv->multi_packet && (packet[4] & 0x40))
++	/*
++	 * Bit 6 of byte 0 is not usually set in position packets. The only
++	 * times it seems to be set is in situations where the data is
++	 * suspect anyway, e.g. a palm resting flat on the touchpad. Given
++	 * this combined with the fact that this bit is useful for filtering
++	 * out misidentified bitmap packets, we reject anything with this
++	 * bit set.
++	 */
++	if (packet[0] & 0x40)
++		return;
++
++	if (!priv->multi_packet && (packet[4] & 0x40)) {
+ 		priv->multi_packet = 1;
+-	else
+-		priv->multi_packet = 0;
++		memcpy(priv->multi_data, packet, sizeof(priv->multi_data));
++		return;
++	}
++
++	priv->multi_packet = 0;
+ 
+ 	left = packet[3] & 0x01;
+ 	right = packet[3] & 0x02;
+@@ -373,22 +543,38 @@ static void alps_process_touchpad_packet_v3(struct psmouse *psmouse)
+ 	if (x && y && !z)
+ 		return;
+ 
++	/*
++	 * If we don't have MT data or the bitmaps were empty, we have
++	 * to rely on ST data.
++	 */
++	if (!fingers) {
++		x1 = x;
++		y1 = y;
++		fingers = z > 0 ? 1 : 0;
++	}
++
+ 	if (z >= 64)
+ 		input_report_key(dev, BTN_TOUCH, 1);
+ 	else
+ 		input_report_key(dev, BTN_TOUCH, 0);
+ 
++	alps_report_semi_mt_data(dev, fingers, x1, y1, x2, y2);
++
++	input_report_key(dev, BTN_TOOL_FINGER, fingers == 1);
++	input_report_key(dev, BTN_TOOL_DOUBLETAP, fingers == 2);
++	input_report_key(dev, BTN_TOOL_TRIPLETAP, fingers == 3);
++	input_report_key(dev, BTN_TOOL_QUADTAP, fingers == 4);
++
++	input_report_key(dev, BTN_LEFT, left);
++	input_report_key(dev, BTN_RIGHT, right);
++	input_report_key(dev, BTN_MIDDLE, middle);
++
+ 	if (z > 0) {
+ 		input_report_abs(dev, ABS_X, x);
+ 		input_report_abs(dev, ABS_Y, y);
+ 	}
+ 	input_report_abs(dev, ABS_PRESSURE, z);
+ 
+-	input_report_key(dev, BTN_TOOL_FINGER, z > 0);
+-	input_report_key(dev, BTN_LEFT, left);
+-	input_report_key(dev, BTN_RIGHT, right);
+-	input_report_key(dev, BTN_MIDDLE, middle);
+-
+ 	input_sync(dev);
+ 
+ 	if (!(priv->quirks & ALPS_QUIRK_TRACKSTICK_BUTTONS)) {
+@@ -1373,9 +1559,18 @@ int alps_init(struct psmouse *psmouse)
+ 		input_set_abs_params(dev1, ABS_Y, 0, 767, 0, 0);
+ 		break;
+ 	case ALPS_PROTO_V3:
++		set_bit(INPUT_PROP_SEMI_MT, dev1->propbit);
++		input_mt_init_slots(dev1, 2);
++		input_set_abs_params(dev1, ABS_MT_POSITION_X, 0, ALPS_V3_X_MAX, 0, 0);
++		input_set_abs_params(dev1, ABS_MT_POSITION_Y, 0, ALPS_V3_Y_MAX, 0, 0);
++
++		set_bit(BTN_TOOL_DOUBLETAP, dev1->keybit);
++		set_bit(BTN_TOOL_TRIPLETAP, dev1->keybit);
++		set_bit(BTN_TOOL_QUADTAP, dev1->keybit);
++		/* fall through */
+ 	case ALPS_PROTO_V4:
+-		input_set_abs_params(dev1, ABS_X, 0, 2000, 0, 0);
+-		input_set_abs_params(dev1, ABS_Y, 0, 1400, 0, 0);
++		input_set_abs_params(dev1, ABS_X, 0, ALPS_V3_X_MAX, 0, 0);
++		input_set_abs_params(dev1, ABS_Y, 0, ALPS_V3_Y_MAX, 0, 0);
+ 		break;
+ 	}
+ 
 diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
-index 904ed8b..4ce9bba 100644
+index 62db7f4..a00a4ab 100644
 --- a/drivers/input/mouse/alps.h
 +++ b/drivers/input/mouse/alps.h
-@@ -12,8 +12,12 @@
- #ifndef _ALPS_H
- #define _ALPS_H
- 
-+#define ALPS_PROTO_V1	0
-+#define ALPS_PROTO_V2	1
-+
- struct alps_model_info {
-         unsigned char signature[3];
-+	unsigned char proto_version;
-         unsigned char byte0, mask0;
-         unsigned char flags;
+@@ -38,6 +38,7 @@ struct alps_data {
+ 	int addr_command;		/* Command to set register address */
+ 	int prev_fin;			/* Finger bit from previous packet */
+ 	int multi_packet;		/* Multi-packet data in progress */
++	unsigned char multi_data[6];	/* Saved multi-packet data */
+ 	u8 quirks;
+ 	struct timer_list timer;
  };
 -- 
 1.7.5.4

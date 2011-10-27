@@ -1,51 +1,78 @@
-From: Sean Young <sean@mess.org>
-Subject: BUG: hid-multitouch causes 10 second delay and error
-Date: Wed, 26 Oct 2011 22:37:05 +0100
-Message-ID: <20111026213705.GA32664@pequod.mess.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] Staging: hv: mousevsc: Move the mouse driver out of
+ staging
+Date: Wed, 26 Oct 2011 17:09:27 -0700
+Message-ID: <20111027000926.GB6804@core.coreip.homeip.net>
+References: <1318658907-16698-1-git-send-email-kys@microsoft.com>
+ <20111023072427.GA13268@core.coreip.homeip.net>
+ <6E21E5352C11B742B20C142EB499E0481AA3369B@TK5EX14MBXC126.redmond.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from pequod.mess.org ([188.220.58.213]:44692 "EHLO pequod.mess.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752960Ab1JZVgs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Oct 2011 17:36:48 -0400
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:53381 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751178Ab1J0AJm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Oct 2011 20:09:42 -0400
 Content-Disposition: inline
+In-Reply-To: <6E21E5352C11B742B20C142EB499E0481AA3369B@TK5EX14MBXC126.redmond.corp.microsoft.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: KY Srinivasan <kys@microsoft.com>
+Cc: "gregkh@suse.de" <gregkh@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>, Jiri Kosina <jkosina@suse.cz>
 
-Since this commit:
+On Sun, Oct 23, 2011 at 03:45:14PM +0000, KY Srinivasan wrote:
+> > > +
+> > > +	t = wait_for_completion_timeout(&input_dev->wait_event, 5*HZ);
+> > > +	if (t == 0) {
+> > > +		ret = -ETIMEDOUT;
+> > > +		goto cleanup;
+> > > +	}
+> > > +
+> > > +	response = &input_dev->protocol_resp;
+> > > +
+> > > +	if (!response->response.approved) {
+> > > +		pr_err("synthhid protocol request failed (version %d)",
+> > > +		       SYNTHHID_INPUT_VERSION);
+> > > +		ret = -ENODEV;
+> > > +		goto cleanup;
+> > > +	}
+> > > +
+> > > +	t = wait_for_completion_timeout(&input_dev->wait_event, 5*HZ);
+> > 
+> > We just completed the wait for this completion, why are we waiting on
+> > the same completion again?
+> 
+> In response to our initial query, we expect the host to respond back with two
+> distinct pieces of information; we wait for both these responses.
 
-	commit 0db3bfc72adf0cb70f08dfe92e4040f64e25e205
+I think you misunderstand how completion works in Linux. IIRC about
+Windows events they are different ;) You can not signal completion
+several times and then expect to wait corrsponding number of times. Once
+you signal completion is it, well, complete.
 
-	HID: multitouch: decide if hid-multitouch needs to handle mt devices
-    
-I get the following when I insert a smartjoy device (hid-sjoy driver):
+>  
+> > 
+> > > +	if (t == 0) {
+> > > +		ret = -ETIMEDOUT;
+> > > +		goto cleanup;
+> > > +	}
+> > > +
+> > > +	/*
+> > > +	 * We should have gotten the device attr, hid desc and report
+> > > +	 * desc at this point
+> > > +	 */
+> > > +	if (input_dev->dev_info_status)
+> > > +		ret = -ENOMEM;
+> > 
+> > -ENOMEM seems wrong.
+> > 
+> There are many failures here and not being able to allocate memory is the 
+> primary one; and so I chose to capture that.
 
-[ 3727.405037] usb 7-1: new low speed USB device number 2 using uhci_hcd
-[ 3727.709082] usb 7-1: New USB device found, idVendor=6666, idProduct=8802
-[ 3727.709087] usb 7-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[ 3727.709092] usb 7-1: Product: TigerGame PS/PS2 Game Controller Adapter
-[ 3727.709095] usb 7-1: Manufacturer: WiseGroup.,Ltd
-[ 3738.002095] hid-multitouch 0003:6666:8802.0005: timeout initializing reports
-[ 3738.007861] input: WiseGroup.,Ltd TigerGame PS/PS2 Game Controller Adapter as /devices/pci0000:00/0000:00:1d.1/usb7/7-1/7-1:1.0/input/input17
-[ 3738.008137] smartjoyplus 0003:6666:8802.0005: input,hidraw4: USB HID v1.00 Joystick [WiseGroup.,Ltd TigerGame PS/PS2 Game Controller Adapter] on usb-0000:00:1d.1-1/input0
-[ 3738.008163] smartjoyplus 0003:6666:8802.0005: Force feedback for SmartJoy PLUS PS2/USB adapter
+Any chance that these failures have their own exit paths?
 
-Note the 10 second delay caused by the hid-multitouch error.
+Thanks.
 
-If I understand it correctly, the problem is that hid-multitouch now has 
-a catch-all usb-id field, and does a usbhid_init_reports() on the device 
-without the quirk HID_QUIRK_NOGET. 
-
-The HID_QUIRK_NOGET for this device is listed in the hid-sjoy.c driver itself 
-rather than in hid-quirks.c; presumably the latter is handled correctly.
-
-Is there a different way of handling this rather than hid-multitouch 
-messing with every usb device which identifies itself as hid? Alternatively,
-should all quirks for all devices be specified in hid-quirks.c and not in
-individual drivers?
-
-
-Sean
+-- 
+Dmitry

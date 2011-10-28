@@ -1,102 +1,158 @@
-From: Sascha Hauer <s.hauer@pengutronix.de>
-Subject: Re: [PATCH v2] input/imx_keypad: add pm suspend and resume functions
-Date: Thu, 27 Oct 2011 23:55:20 +0200
-Message-ID: <20111027215520.GA23421@pengutronix.de>
-References: <1318472013-32517-1-git-send-email-jason77.wang@gmail.com>
- <20111026075800.GW23421@pengutronix.de>
- <4EA7C7C5.3000803@gmail.com>
+From: =?UTF-8?B?R8O2a8OnZW4gRXJhc2xhbg==?= <gokcen@pardus.org.tr>
+Subject: Re: [PATCH] HID: Add support for Macbook Pro 8 keyboards and sort
+ entries.
+Date: Fri, 28 Oct 2011 08:13:30 +0300
+Message-ID: <4EAA39FA.8040006@pardus.org.tr>
+References: <20111022120426.GA2281@polaris.bitmath.org> <1319312346-2676-1-git-send-email-gokcen@pardus.org.tr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigA75E7EEE4B2CBE095063FFF7"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:55393 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752788Ab1J0VzY (ORCPT
+Received: from lider.pardus.org.tr ([193.140.100.216]:34123 "EHLO
+	lider.pardus.org.tr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751253Ab1J1FNu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Oct 2011 17:55:24 -0400
-Content-Disposition: inline
-In-Reply-To: <4EA7C7C5.3000803@gmail.com>
+	Fri, 28 Oct 2011 01:13:50 -0400
+In-Reply-To: <1319312346-2676-1-git-send-email-gokcen@pardus.org.tr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hui Wang <jason77.wang@gmail.com>
-Cc: dmitry.torokhov@gmail.com, maramaopercheseimorto@gmail.com, gaowanlong@cn.fujitsu.com, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz
 
-On Wed, Oct 26, 2011 at 04:41:41PM +0800, Hui Wang wrote:
-> Sascha Hauer wrote:
-> >On Thu, Oct 13, 2011 at 10:13:33AM +0800, Hui Wang wrote:
-> >>The imx_keypad driver is set wake capable in the imx_keypad_probe(),
-> >>but it doesn't implement suspend and reusme callback interface.
-> >>
-> >>From the i.MX series MCU Reference Manual, the kpp (keypad port) is
-> >>a major wake up source which can detect any key press even in low
-> >>power modes and even when there is no clock.
-> >>
-> >>Now add suspend and resume callback functions for this driver.
-> >>
-> >>Signed-off-by: Hui Wang <jason77.wang@gmail.com>
-> >>---
-> >>
-> >>Sorry for resending this patch, the previous sent patch with [v2]
-> >>as a prefix, i am afraid that patch was filtered out from mailing list.
-> >>Now resending this patch with [PATCH v2] as a prefix.
-> >>
-> >>In the V2:
-> >>1) add a check for input->users before disable clock.
-> >>2) add mutex_lock/unlock to protect input->users checking.
-> >>3) use SIMPLE_DEV_PM_OPS.
-> >>
-> >> drivers/input/keyboard/imx_keypad.c |   46 +++++++++++++++++++++++++++++++++++
-> >> 1 files changed, 46 insertions(+), 0 deletions(-)
-> >>
-> >>diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-> >>index d92c15c..c43fa97 100644
-> >>--- a/drivers/input/keyboard/imx_keypad.c
-> >>+++ b/drivers/input/keyboard/imx_keypad.c
-> >>@@ -567,10 +567,56 @@ static int __devexit imx_keypad_remove(struct platform_device *pdev)
-> >> 	return 0;
-> >> }
-> >>+#ifdef CONFIG_PM
-> >>+static int imx_kbd_suspend(struct device *dev)
-> >>+{
-> >>+	struct platform_device *pdev = to_platform_device(dev);
-> >>+	struct imx_keypad *kbd = platform_get_drvdata(pdev);
-> >>+	struct input_dev *input_dev = kbd->input_dev;
-> >>+
-> >>+	/* imx kbd can wake up system even clock is disabled */
-> >>+	mutex_lock(&input_dev->mutex);
-> >>+
-> >>+	if (input_dev->users)
-> >>+		clk_disable(kbd->clk);
-> >>+
-> >>+	mutex_unlock(&input_dev->mutex);
-> >>+
-> >>+	if (device_may_wakeup(&pdev->dev))
-> >>+		enable_irq_wake(kbd->irq);
-> >
-> >enable_irq_wake can fail. More specifically it *will* fail on all non
-> >tzic i.MX boards as this function is not yet implemented for the avic
-> >irq controller.
-> >You should check the return value.
-> >
-> Hi Sascha,
-> 
-> I have sent a patch to change plat-mxc/avic.c to use generic irq
-> chip, in this patch, two lines to handle wakeup_set issues:
-> 
-> gc->wake_enabled = IRQ_MSK(32);
-> ct->chip.irq_set_wake = irq_gc_set_wake;
-> 
-> These two lines will make enable_irq_wake successful unconditionally.
-> 
-> And i recall you have sent this patch to Arnd through a pull request.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigA75E7EEE4B2CBE095063FFF7
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Ok, so currently this function can't fail, but this a very bad excuse for
-not checking error values.
+G=C3=B6k=C3=A7en Eraslan wrote On 10/22/2011 10:39 PM:
+> This patch adds keyboard support for Macbook Pro 8 models which has
+> WELLSPRING5A model name and 0x0252, 0x0253 and 0x0254 USB IDs. Trackpad=
 
-Sascha
+> support for those models are added to bcm5974 in
+> c331eb580a0a7906c0cdb8dbae3cfe99e3c0e555.
+>=20
+
+Any feedback on that?
+
+> Signed-off-by: G=C3=B6k=C3=A7en Eraslan <gokcen@pardus.org.tr>
+> ---
+>  drivers/hid/hid-apple.c |    6 ++++++
+>  drivers/hid/hid-core.c  |    6 ++++++
+>  drivers/hid/hid-ids.h   |    9 ++++++---
+>  3 files changed, 18 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+> index 18b3bc6..4d8458e 100644
+> --- a/drivers/hid/hid-apple.c
+> +++ b/drivers/hid/hid-apple.c
+> @@ -493,6 +493,12 @@ static const struct hid_device_id apple_devices[] =
+=3D {
+>  		.driver_data =3D APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_JIS),
+>  		.driver_data =3D APPLE_HAS_FN | APPLE_RDESC_JIS },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_ANSI),
+> +		.driver_data =3D APPLE_HAS_FN },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_ISO),
+> +		.driver_data =3D APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_JIS),
+> +		.driver_data =3D APPLE_HAS_FN | APPLE_RDESC_JIS },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_W=
+IRELESS_2009_ANSI),
+>  		.driver_data =3D APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_W=
+IRELESS_2009_ISO),
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 242353d..9a3fcc5 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1340,6 +1340,9 @@ static const struct hid_device_id hid_have_specia=
+l_driver[] =3D {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_ANSI) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_ISO) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_JIS) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_ANSI) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_ISO) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_JIS) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_REVB_AN=
+SI) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_REVB_IS=
+O) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_REVB_JI=
+S) },
+> @@ -1892,6 +1895,9 @@ static const struct hid_device_id hid_mouse_ignor=
+e_list[] =3D {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_ANSI) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_ISO) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+_JIS) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_ANSI) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_ISO) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5=
+A_JIS) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP=
+_ONLY) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_=
+ONLY) },
+>  	{ }
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 7d27d2b..2c281b6 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -100,6 +100,9 @@
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING3_ISO	0x0237
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING3_JIS	0x0238
+> +#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI  0x0239
+> +#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO   0x023a
+> +#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI	0x023f
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING4_ISO	0x0240
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING4_JIS	0x0241
+> @@ -112,9 +115,9 @@
+>  #define USB_DEVICE_ID_APPLE_ALU_REVB_ANSI	0x024f
+>  #define USB_DEVICE_ID_APPLE_ALU_REVB_ISO	0x0250
+>  #define USB_DEVICE_ID_APPLE_ALU_REVB_JIS	0x0251
+> -#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI  0x0239
+> -#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO   0x023a
+> -#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING5A_ANSI	0x0252
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO	0x0253
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS	0x0254
+>  #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
+>  #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+>  #define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
 
 
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+--=20
+G=C3=B6k=C3=A7en Eraslan
+
+
+--------------enigA75E7EEE4B2CBE095063FFF7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (GNU/Linux)
+
+iEYEARECAAYFAk6qOgEACgkQZ/1oBRJ7GWtGwACgktzXC8mZ6oF7dOWHu9RpAJrC
+GaMAniOYn8gnE7ZFk31KnO7HY/TbwPnd
+=l5cr
+-----END PGP SIGNATURE-----
+
+--------------enigA75E7EEE4B2CBE095063FFF7--

@@ -1,8 +1,8 @@
 From: Julia Lawall <julia@diku.dk>
-Subject: Re: [PATCH 3/5 v2] drivers/hid/hid-roccat.c: eliminate a null pointer
+Subject: [PATCH 3/5 v3] drivers/hid/hid-roccat.c: eliminate a null pointer
  dereference
-Date: Sat, 29 Oct 2011 20:18:26 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1110292016290.10808@ask.diku.dk>
+Date: Sat, 29 Oct 2011 20:45:37 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1110292045180.10808@ask.diku.dk>
 References: <1319846297-2985-3-git-send-email-julia@diku.dk>
  <20111029062412.GG14881@longonot.mountain> <4EABC937.60600@broadcom.com>
  <CANq1E4QJoM+NYub9hfs3KnL1w212FK0MHo8ez2p1nyGmNVb-=A@mail.gmail.com>
@@ -10,91 +10,111 @@ References: <1319846297-2985-3-git-send-email-julia@diku.dk>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mgw2.diku.dk ([130.225.96.92]:35076 "EHLO mgw2.diku.dk"
+Received: from mgw2.diku.dk ([130.225.96.92]:42092 "EHLO mgw2.diku.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932323Ab1J2SSd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 29 Oct 2011 14:18:33 -0400
+	id S933848Ab1J2Spo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 29 Oct 2011 14:45:44 -0400
 In-Reply-To: <alpine.LNX.2.00.1110291857310.3541@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
 Cc: David Herrmann <dh.herrmann@googlemail.com>, Arend van Spriel <arend@broadcom.com>, Dan Carpenter <dan.carpenter@oracle.com>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Sat, 29 Oct 2011, Jiri Kosina wrote:
+>From nobody Sat Oct 29 01:38:55 CEST 2011
+From: Julia Lawall <julia@diku.dk>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org,linux-kernel@vger.kernel.org
+Subject: [PATCH 3/5 v3] drivers/hid/hid-roccat.c: eliminate a null pointer dereference
 
-> On Sat, 29 Oct 2011, Julia Lawall wrote:
-> 
-> > From: Julia Lawall <julia@diku.dk>
-> > 
-> > It is not possible to take the lock in device if device is NULL.
-> > The mutex_lock is thus moved after the NULL test, and the relevant part of
-> > the shared error handling code is moved up.
-> > 
-> > The semantic match that finds this problem is as follows:
-> > (http://coccinelle.lip6.fr/)
-> > 
-> > // <smpl>
-> > @r@
-> > expression E, E1;
-> > identifier f;
-> > statement S1,S2,S3;
-> > @@
-> > 
-> > if (E == NULL)
-> > {
-> >   ... when != if (E == NULL || ...) S1 else S2
-> >       when != E = E1
-> > *E->f
-> >   ... when any
-> >   return ...;
-> > }
-> > else S3
-> > // </smpl>
-> > 
-> > Signed-off-by: Julia Lawall <julia@diku.dk>
-> > 
-> > ---
-> > mutex_lock changed to mutex_unlock in error handling code
-> > 
-> >  drivers/hid/hid-roccat.c |    9 +++++----
-> >  1 file changed, 5 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-> > index 2596321..36a28b8 100644
-> > --- a/drivers/hid/hid-roccat.c
-> > +++ b/drivers/hid/hid-roccat.c
-> > @@ -163,14 +163,15 @@ static int roccat_open(struct inode *inode, struct file *file)
-> >  
-> >  	device = devices[minor];
-> >  
-> > -	mutex_lock(&device->readers_lock);
-> > -
-> >  	if (!device) {
-> >  		pr_emerg("roccat device with minor %d doesn't exist\n", minor);
-> > -		error = -ENODEV;
-> > -		goto exit_err;
-> > +		kfree(reader);
-> > +		mutex_unlock(&devices_lock);
-> > +		return -ENODEV;
-> >  	}
-> >  
-> > +	mutex_lock(&device->readers_lock);
-> > +
-> >  	if (!device->open++) {
-> >  		/* power on device on adding first reader */
-> >  		error = hid_hw_power(device->hid, PM_HINT_FULLON);
-> 
-> Julia,
-> 
-> thanks a lot for fixing this.
-> 
-> Could you please redo the patch in a way that it adds second 
-> 'exit_unlock1' label (and renames 'exit_unlock' to 'exit_unlock2') (or 
-> any appropriate variation of the names) and preserve error path using goto 
-> instead of mixture of returns and gotos that this patch would introduce?
+From: Julia Lawall <julia@diku.dk>
 
-OK.  At first I couldn't see how to do this without duplicating the 
-unlocks in the success and failure cases, but perhaps there is a solution 
-by adding more gotos.  I'll try for that.
+It is not possible to take the lock in device if device is NULL.
+The mutex_lock is thus moved after the NULL test.  New error handling
+labels are added at the end to differentiate between the cases where
+different sets of locks should be unlocks, and between whether or not
+reader should be freed (only on error).
 
-julia
+The semantic match that finds this problem is as follows:
+(http://coccinelle.lip6.fr/)
+
+// <smpl>
+@r@
+expression E, E1;
+identifier f;
+statement S1,S2,S3;
+@@
+
+if (E == NULL)
+{
+  ... when != if (E == NULL || ...) S1 else S2
+      when != E = E1
+*E->f
+  ... when any
+  return ...;
+}
+else S3
+// </smpl>
+
+Signed-off-by: Julia Lawall <julia@diku.dk>
+
+---
+Moved the error handling code back to the end.
+
+ drivers/hid/hid-roccat.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index 2596321..b685b04 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -163,27 +163,27 @@ static int roccat_open(struct inode *inode, struct file *file)
+ 
+ 	device = devices[minor];
+ 
+-	mutex_lock(&device->readers_lock);
+-
+ 	if (!device) {
+ 		pr_emerg("roccat device with minor %d doesn't exist\n", minor);
+ 		error = -ENODEV;
+-		goto exit_err;
++		goto exit_err_devices;
+ 	}
+ 
++	mutex_lock(&device->readers_lock);
++
+ 	if (!device->open++) {
+ 		/* power on device on adding first reader */
+ 		error = hid_hw_power(device->hid, PM_HINT_FULLON);
+ 		if (error < 0) {
+ 			--device->open;
+-			goto exit_err;
++			goto exit_err_readers;
+ 		}
+ 
+ 		error = hid_hw_open(device->hid);
+ 		if (error < 0) {
+ 			hid_hw_power(device->hid, PM_HINT_NORMAL);
+ 			--device->open;
+-			goto exit_err;
++			goto exit_err_readers;
+ 		}
+ 	}
+ 
+@@ -194,13 +194,13 @@ static int roccat_open(struct inode *inode, struct file *file)
+ 	list_add_tail(&reader->node, &device->readers);
+ 	file->private_data = reader;
+ 
+-exit_unlock:
++exit_err_readers:
+ 	mutex_unlock(&device->readers_lock);
++exit_err_devices:
+ 	mutex_unlock(&devices_lock);
++	if (error)
++		kfree(reader);
+ 	return error;
+-exit_err:
+-	kfree(reader);
+-	goto exit_unlock;
+ }
+ 
+ static int roccat_release(struct inode *inode, struct file *file)

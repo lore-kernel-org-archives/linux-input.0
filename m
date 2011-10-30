@@ -1,120 +1,32 @@
-From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 3/5 v3] drivers/hid/hid-roccat.c: eliminate a null pointer
- dereference
-Date: Sat, 29 Oct 2011 20:45:37 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1110292045180.10808@ask.diku.dk>
-References: <1319846297-2985-3-git-send-email-julia@diku.dk>
- <20111029062412.GG14881@longonot.mountain> <4EABC937.60600@broadcom.com>
- <CANq1E4QJoM+NYub9hfs3KnL1w212FK0MHo8ez2p1nyGmNVb-=A@mail.gmail.com>
- <Pine.LNX.4.64.1110291411150.17700@ask.diku.dk> <alpine.LNX.2.00.1110291857310.3541@pobox.suse.cz>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 1/7] Input: ALPS - Move protocol information to Documentation
+Date: Sun, 30 Oct 2011 11:33:10 -0400
+Message-ID: <4EAD6E36.4070502@canonical.com>
+References: <1319663681-11244-1-git-send-email-seth.forshee@canonical.com> <1319663681-11244-2-git-send-email-seth.forshee@canonical.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mgw2.diku.dk ([130.225.96.92]:42092 "EHLO mgw2.diku.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933848Ab1J2Spo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 29 Oct 2011 14:45:44 -0400
-In-Reply-To: <alpine.LNX.2.00.1110291857310.3541@pobox.suse.cz>
+Received: from youngberry.canonical.com ([91.189.89.112]:58144 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755617Ab1J3PdQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 30 Oct 2011 11:33:16 -0400
+In-Reply-To: <1319663681-11244-2-git-send-email-seth.forshee@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, Arend van Spriel <arend@broadcom.com>, Dan Carpenter <dan.carpenter@oracle.com>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Seth Forshee <seth.forshee@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alessandro Rubini <rubini@cvml.unipv.it>, Henrik Rydberg <rydberg@euromail.se>, Andrew Skalski <askalski@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
->From nobody Sat Oct 29 01:38:55 CEST 2011
-From: Julia Lawall <julia@diku.dk>
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org,linux-kernel@vger.kernel.org
-Subject: [PATCH 3/5 v3] drivers/hid/hid-roccat.c: eliminate a null pointer dereference
+On 10/26/2011 05:14 PM, Seth Forshee wrote:
+> In preparation for new protocol support, move the protocol
+> information currently documented in alps.c to
+> Documentation/input/alps.txt, where it can be expanded without
+> cluttering up the driver.
+> 
+> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 
-From: Julia Lawall <julia@diku.dk>
+Makes sense. Only question is whether we should create a subdir for
+device protocols (Documentation/input/devices/alps.txt)?
 
-It is not possible to take the lock in device if device is NULL.
-The mutex_lock is thus moved after the NULL test.  New error handling
-labels are added at the end to differentiate between the cases where
-different sets of locks should be unlocks, and between whether or not
-reader should be freed (only on error).
-
-The semantic match that finds this problem is as follows:
-(http://coccinelle.lip6.fr/)
-
-// <smpl>
-@r@
-expression E, E1;
-identifier f;
-statement S1,S2,S3;
-@@
-
-if (E == NULL)
-{
-  ... when != if (E == NULL || ...) S1 else S2
-      when != E = E1
-*E->f
-  ... when any
-  return ...;
-}
-else S3
-// </smpl>
-
-Signed-off-by: Julia Lawall <julia@diku.dk>
-
----
-Moved the error handling code back to the end.
-
- drivers/hid/hid-roccat.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-index 2596321..b685b04 100644
---- a/drivers/hid/hid-roccat.c
-+++ b/drivers/hid/hid-roccat.c
-@@ -163,27 +163,27 @@ static int roccat_open(struct inode *inode, struct file *file)
- 
- 	device = devices[minor];
- 
--	mutex_lock(&device->readers_lock);
--
- 	if (!device) {
- 		pr_emerg("roccat device with minor %d doesn't exist\n", minor);
- 		error = -ENODEV;
--		goto exit_err;
-+		goto exit_err_devices;
- 	}
- 
-+	mutex_lock(&device->readers_lock);
-+
- 	if (!device->open++) {
- 		/* power on device on adding first reader */
- 		error = hid_hw_power(device->hid, PM_HINT_FULLON);
- 		if (error < 0) {
- 			--device->open;
--			goto exit_err;
-+			goto exit_err_readers;
- 		}
- 
- 		error = hid_hw_open(device->hid);
- 		if (error < 0) {
- 			hid_hw_power(device->hid, PM_HINT_NORMAL);
- 			--device->open;
--			goto exit_err;
-+			goto exit_err_readers;
- 		}
- 	}
- 
-@@ -194,13 +194,13 @@ static int roccat_open(struct inode *inode, struct file *file)
- 	list_add_tail(&reader->node, &device->readers);
- 	file->private_data = reader;
- 
--exit_unlock:
-+exit_err_readers:
- 	mutex_unlock(&device->readers_lock);
-+exit_err_devices:
- 	mutex_unlock(&devices_lock);
-+	if (error)
-+		kfree(reader);
- 	return error;
--exit_err:
--	kfree(reader);
--	goto exit_unlock;
- }
- 
- static int roccat_release(struct inode *inode, struct file *file)
+Acked-by: Chase Douglas <chase.douglas@canonical.com>

@@ -1,99 +1,33 @@
-From: Tino Schmidt <mailtinoshomepage@gmx.net>
-Subject: Re: Wishlist: Add support for software-rf-switch in Fujitsu-Siemens
- notebook
-Date: Mon, 31 Oct 2011 18:30:02 +0100
-Message-ID: <4EAEDB1A.3070906@gmx.net>
-References: <20110625211738.3615.21718.reportbug@lisa>	 <1317441406.4068.43.camel@deadeye> <20111002221253.GA18253@elie>	 <4E9B3DCC.7050106@gmx.net> <1318824232.3340.1.camel@deadeye>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: [PATCH 1/7] Input: ALPS - Move protocol information to
+ Documentation
+Date: Mon, 31 Oct 2011 14:15:26 -0400
+Message-ID: <20111031181525.GA12205@thinkpad-t410>
+References: <1319663681-11244-1-git-send-email-seth.forshee@canonical.com>
+ <1319663681-11244-2-git-send-email-seth.forshee@canonical.com>
+ <4EAD6E36.4070502@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.23]:45695 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932861Ab1JaR3M (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Oct 2011 13:29:12 -0400
-In-Reply-To: <1318824232.3340.1.camel@deadeye>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4EAD6E36.4070502@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alessandro Rubini <rubini@cvml.unipv.it>, Henrik Rydberg <rydberg@euromail.se>, Andrew Skalski <askalski@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Hutchings <ben@decadent.org.uk>
-Cc: Jonathan Nieder <jrnieder@gmail.com>, linux-input@vger.kernel.org, Miloslav Trmac <mitr@volny.cz>, =?UTF-8?B?TWFydGluIFZlxI1lxZlh?= <ja@marvec.org>, Jonathan Woithe <jwoithe@physics.adelaide.edu.au>, =?UTF-8?B?w4lyaWMgUGllbA==?= <eric.piel@tremplin-utc.net>, 631664@bugs.debian.org
 
+On Sun, Oct 30, 2011 at 11:33:10AM -0400, Chase Douglas wrote:
+> On 10/26/2011 05:14 PM, Seth Forshee wrote:
+> > In preparation for new protocol support, move the protocol
+> > information currently documented in alps.c to
+> > Documentation/input/alps.txt, where it can be expanded without
+> > cluttering up the driver.
+> > 
+> > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> 
+> Makes sense. Only question is whether we should create a subdir for
+> device protocols (Documentation/input/devices/alps.txt)?
 
-> On Sun, 2011-10-16 at 22:25 +0200, Tino Schmidt wrote:
-> [...]
->    
->> Hi,
->> I'm sorry for the long delay but I can use the laptop only on weekend.
->> Here is the output:
->>
->> # modprobe wistron_btns force=1
->> FATAL: Error inserting wistron_btns
->> (/lib/modules/2.6.26-2-686/kernel/drivers/input/misc/wistron_btns.ko):
->> No such device
->>      
-> It looks like this model is rather different, maybe not a Wistron design
-> at all.
->
-> I would prefer you to test against Linux 3.0, but it appears that the
-> model detection has not changed since 2.6.26.
->
->    
->> # dmesg
->> [  168.628474] wistron_btns: BIOS entry point not found
->>
->> and
->> # grep . /sys/class/dmi/id/*_{vendor,name,version}
->> /sys/class/dmi/id/bios_vendor:FUJITSU SIEMENS
->> /sys/class/dmi/id/board_vendor:FUJITSU SIEMENS
->> /sys/class/dmi/id/chassis_vendor:FUJITSU SIEMENS
->> /sys/class/dmi/id/sys_vendor:FUJITSU SIEMENS
->> /sys/class/dmi/id/board_name:AMILO A1655
->> /sys/class/dmi/id/product_name:AMILO A Series
->> /sys/class/dmi/id/bios_version:1.0C-8044-8A20
->> /sys/class/dmi/id/board_version:Rev0.4b
->> /sys/class/dmi/id/chassis_version:N/A
->> /sys/class/dmi/id/product_version:0100
->>      
-> Please build and test the attached driver (make&&  insmod
-> amilo-rfkill.ko).  It provides a standard rfkill device which you can
-> control with e.g. the 'rfkill' command, and will only bind to specific
-> models.
->
-> If this works, I'll submit the code upstream.
->
-> Ben.
->
->    
-Hi Ben,
-Thank you for your code!
-
-Before I built the module (Kernel 2.6.32) I had to insert the include 
-line #include <asm/io.h> ( -> inb()-function ?)
-With Kernel 2.6.26 I couldn't even built the module.
-
-But loading of the module failed:
-# insmod amilo-rfkill.ko
-insmod: error inserting 'amilo-rfkill.ko': -1 No such device
-
-In kernel 2.6.32 exists /dev/rfkill but
-
-# rfkill list
-0: phy0: Wireless LAN
-    Soft blocked: no
-    Hard blocked: yes
-
-# rfkill unblock all
-
-# rfkill list
-0: phy0: Wireless LAN
-    Soft blocked: no
-    Hard blocked: yes
-
-doesn't work here. Nothing changed.
-
-Thanks,
-Tino
-
-
-
+That's probably a good idea if protocol documentation is going to
+proliferate, but currently these docs are in Documentation/input. If we
+want to move them it's a subject for a separate patch.

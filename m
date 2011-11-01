@@ -1,174 +1,129 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [RFC] Input: Remove unsafe device module references
-Date: Tue, 1 Nov 2011 19:16:05 +0100
-Message-ID: <CANq1E4RLGF1nhpL8TdBUq5SPGN03zWjP7OSqUsnJkp58g-NNqQ@mail.gmail.com>
-References: <1320162100-13494-1-git-send-email-dh.herrmann@googlemail.com>
-	<20111101170156.GA8925@suse.de>
-	<CANq1E4S07S2kNTmAxQRa4mEVKrGnS7cTHKqPoHEzLOyu3Mfqzw@mail.gmail.com>
-	<20111101180519.GB15216@core.coreip.homeip.net>
+From: Alon Bar-Lev <alon.barlev@gmail.com>
+Subject: Re: Sony DualShock3 - Detected but no events
+Date: Tue, 1 Nov 2011 20:16:51 +0200
+Message-ID: <CAOazyz1N4QmrC4MN6M532_3m_gVC+7PBBOUU+Mu8Qq7_eX5iZA@mail.gmail.com>
+References: <CAOazyz0GNJKFWNsaFiwheMjhBVJrcP-p8QBcsSvS3V97iuZFtQ@mail.gmail.com>
+	<20111101011854.5e0e87b561f6b18dcc09a988@studenti.unina.it>
+	<CAOazyz1EfHdg4gExfeVaQ_8mMV=1Tu-aYBTEo_j4MjLnNC4kHA@mail.gmail.com>
+	<20111101090645.0d3abeac5909f87dae8bec58@studenti.unina.it>
+	<CAOazyz0pBZE_qE3NYbz6n54kCA30dU2Z3PaT3_ufZv2egpj=cg@mail.gmail.com>
+	<20111101124258.744fdba3f854ce81b4e0c8be@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20111101180519.GB15216@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Greg KH <gregkh@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vw0-f52.google.com ([209.85.212.52]:53379 "EHLO
+	mail-vw0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754567Ab1KASQx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Nov 2011 14:16:53 -0400
+Received: by vws10 with SMTP id 10so2701402vws.11
+        for <linux-input@vger.kernel.org>; Tue, 01 Nov 2011 11:16:52 -0700 (PDT)
+In-Reply-To: <20111101124258.744fdba3f854ce81b4e0c8be@studenti.unina.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Nov 1, 2011 at 7:05 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Nov 01, 2011 at 06:52:11PM +0100, David Herrmann wrote:
->> Hi Greg
->>
->> On Tue, Nov 1, 2011 at 6:01 PM, Greg KH <gregkh@suse.de> wrote:
->> > On Tue, Nov 01, 2011 at 04:41:40PM +0100, David Herrmann wrote:
->> >> Hi Dmitry and Greg
->> >>
->> >> It doesn't make sense to take a reference to our own module. When=
- we call
->> >> module_put(THIS_MODULE) we cannot make sure that our module is st=
-ill alive when
->> >> this function returns. Therefore, module_put() will return to inv=
-alid memory and
->> >> our input_dev_release() function is no longer available.
->> >>
->> >> It would be interesting if Greg could elaborate what else we coul=
-d do to replace
->> >> this module-refcount as it is definitely needed here. However, "s=
-truct device"
->> >> doesn't provide an owner field so there is no way for us to let t=
-he device core
->> >> keep a reference to our module.
->> >
->> > For a bus module, yes, this is needed, so don't remove these calls=
-, it's
->> > wrong to do so.
->> >
->> >> I have no clue what to do here but the current implementation is =
-definitely
->> >> unsafe so this is marked as RFC. Currently, the device_attributes=
- probably
->> >> already keep a reference to our module so applying this patch wou=
-ld probably not
->> >> break anything, however, this does not look like something we can=
- trust on.
->> >
->> > Yes it is, why do you think it isn't?
->> >
->> >> My bug-thread kind of died (https://lkml.org/lkml/2011/10/29/75) =
-so I now try to
->> >> show this with an example here.
->> >
->> > It died due to me traveling, sorry, I'll respond to them now.
->>
->> No problem. This is why I've resent this with an example.
->>
->> > I fail to see what the real problem you are trying to solve here i=
-s. =A0Is
->> > there something with the way the kernel works today that you are h=
-aving
->> > problems with? =A0What is driving this?
->>
->> I am working on converting the hci stack to properly use sysfs APIs =
-+
->> struct device. And my problem simply is the following:
->>
->> @@ -1417,8 +1417,6 @@ static void input_dev_release(struct device *d=
-evice)
->> =A0 =A0 =A0 =A0input_mt_destroy_slots(dev);
->> =A0 =A0 =A0 =A0kfree(dev->absinfo);
->> =A0 =A0 =A0 =A0kfree(dev);
->> -
->> - =A0 =A0 =A0 module_put(THIS_MODULE);
->> =A0}
->>
->> If this module_put(THIS_MODULE) is needed as you said, then I can be
->> sure that this call does not release the last module-reference, can =
-I?
->> Otherwise, this call may return to invalid memory.
->>
->> But, if I can be sure that this doesn't release the last reference,
->> why take this reference at all?
->>
->> The only reason I can think of is, that some other code calls
->> __get_module() after I called it, and it calls put_module() after I
->> call it. In all other cases, taking/releasing this reference is
->> needless as we can trust that our caller protects us.
->>
->> In other words, which code does this module_get/put() protect? It
->> cannot protect input_dev_release() because module_put(THIS_MODULE) i=
-s
->> called *inside* input_dev_release(). I need some way to protect the
->> input_dev_release() callback-code outside of this callback.
->> Or can I go sure that the caller of the input_dev_callback() takes a
->> reference to my module before calling this and releases it after? (B=
-ut
->> then I wonder how does it know what module I am?)
->>
->> If this is the recommended way to protect the device_release
->> callbacks, I will just copy it into hci_dev, but currently I really
->> don't get why these are needed.
->> If you can tell me an example why the input-core breaks if this patc=
-h
->> is applied, I can probably better explain to you, why I think it sti=
-ll
->> breaks without this patch applied.
->>
->>
->>
->> For instance see my example:
->>
->> 1)
->> input-core-module is loaded
->> 2)
->> input-core-module creates a new input device and increases
->> module-refcnt inside input_allocate_device()
->> 4)
->> another subsystem grabs the "struct device" and increases its refcnt
->> (for any reason...)
->> 5)
->> input-core-module destroys the input-device but it still stays alive
->> until the other subsystem releases its refcnt of the "struct device"=
-=2E
->> 6)
->> input-core-module is unloaded
->> This doesn't succeed as the still living input-device has a module-r=
-efcnt
->> 7)
->> the other subsystem releases its refcnt of the input-device
->> 8)
->> The input-device is destroyed and its _release_ function is called
->> The release function destroys the input-device *and* frees the last
->> module-refcnt. Then *boom*, the release function cannot return as it
->> is no longer available as described above.
->
-> The analysis is right except that this condition is very unlikely to
-> trigger. By removing __module_get/module_put you are making this prob=
-lem
-> much much easier to hit.
+On Tue, Nov 1, 2011 at 1:42 PM, Antonio Ospite <ospite@studenti.unina.it> wrote:
+> It does work for me, vanilla linux-3.1, no userspace support needed for
+> basic USB HID operation.
 
-I was aware of that, this is why I marked it as RFC and included some
-comment, that another locking is needed. I don't know any trivial way,
-though.
+This is great to hear!
 
->>
->> My solution: Some parent subsystem of us must take and release this
->> module-refcnt instead of us, so this bug doesn't occur.
->> Or: We simply wait for all these input_devices to be released before
->> exiting input_exit().
->
-> How would you know that all input devices are released in the sense
-> that all threads left (as in exited) all code in input.c completely?
+Unfortunatally, not working for me.
+And as the hid-sony is the same for usb and bluetooth I guess I need
+to solve the bluetooth issue first...
 
-I rethought this and all ideas (like completion_t or waitqueues) I
-have will trigger the same race-condition as with the module_put()
-thing we currently use.
-So I am left with the parent-subsystem to take care of the module
-refcount. Or just accepting this race-condition.
+As I wrote at the beginning of this thread, the js0 and event15
+devices are there, but no events.
 
-> --
-> Dmitry
->
+usbmon also does not show any event while pressing buttons etc...
 
-David
+usbmon output is attached.
+
+Any idea what is the difference? Is there firmware revision or
+something similar?
+
+Thanks!
+Alon.
+
+---
+ffff88013651e180 1674790755 C Ii:3:001:1 0:128 1 = 02
+ffff88013651e180 1674790761 S Ii:3:001:1 -115:128 2 <
+ffff8800b935b300 1674841238 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
+ffff8800b935b300 1674841247 C Ci:3:001:0 0 4 = 01010100
+ffff8800b935b300 1674841249 S Co:3:001:0 s 23 01 0010 0001 0000 0
+ffff8800b935b300 1674841252 C Co:3:001:0 0 0
+ffff8800b935b300 1674841254 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
+ffff8800b935b300 1674841260 C Ci:3:001:0 0 4 = 01010000
+ffff8800b935b300 1674867208 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
+ffff8800b935b300 1674867217 C Ci:3:001:0 0 4 = 01010000
+ffff8800b935b300 1674893222 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
+ffff8800b935b300 1674893230 C Ci:3:001:0 0 4 = 01010000
+ffff8800b935b300 1674919192 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
+ffff8800b935b300 1674919200 C Ci:3:001:0 0 4 = 01010000
+ffff8800b935b300 1674945225 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
+ffff8800b935b300 1674945231 C Ci:3:001:0 0 4 = 01010000
+ffff8800b935b300 1674945238 S Co:3:001:0 s 23 03 0004 0001 0000 0
+ffff8800b935b300 1674945244 C Co:3:001:0 0 0
+ffff8800b4bf2180 1674996208 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
+ffff8800b4bf2180 1674996237 C Ci:3:001:0 0 4 = 03010000
+ffff8800b4bf2180 1675047195 S Co:3:001:0 s 23 01 0014 0001 0000 0
+ffff8800b4bf2180 1675047197 C Co:3:001:0 0 0
+ffff8800b4bf2180 1675047205 S Ci:3:000:0 s 80 06 0100 0000 0040 64 <
+ffff8800b4bf2180 1675050782 C Ci:3:000:0 0 18 = 12010002 00000040
+4c056802 00010102 0001
+ffff8800b4bf2180 1675050814 S Co:3:001:0 s 23 03 0004 0001 0000 0
+ffff8800b4bf2180 1675050822 C Co:3:001:0 0 0
+ffff8800b4bf2180 1675101206 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
+ffff8800b4bf2180 1675101232 C Ci:3:001:0 0 4 = 03010000
+ffff8800b4bf2180 1675152214 S Co:3:001:0 s 23 01 0014 0001 0000 0
+ffff8800b4bf2180 1675152218 C Co:3:001:0 0 0
+ffff8800b4bf2180 1675152222 S Co:3:000:0 s 00 05 0009 0000 0000 0
+ffff8800b4bf2180 1675154792 C Co:3:000:0 0 0
+ffff8800b92aa3c0 1675167191 S Ci:3:009:0 s 80 06 0100 0000 0012 18 <
+ffff8800b92aa3c0 1675170784 C Ci:3:009:0 0 18 = 12010002 00000040
+4c056802 00010102 0001
+ffff8800b92aa3c0 1675170798 S Ci:3:009:0 s 80 06 0600 0000 000a 10 <
+ffff8800b92aa3c0 1675172785 C Ci:3:009:0 -32 0
+ffff8800b92aa3c0 1675172795 S Ci:3:009:0 s 80 06 0600 0000 000a 10 <
+ffff8800b92aa3c0 1675174784 C Ci:3:009:0 -32 0
+ffff8800b92aa3c0 1675174814 S Ci:3:009:0 s 80 06 0600 0000 000a 10 <
+ffff8800b92aa3c0 1675176781 C Ci:3:009:0 -32 0
+ffff8800b92aa3c0 1675176816 S Ci:3:009:0 s 80 06 0200 0000 0009 9 <
+ffff8800b92aa3c0 1675180784 C Ci:3:009:0 0 9 = 09022900 01010080 fa
+ffff8800b92aa3c0 1675180795 S Ci:3:009:0 s 80 06 0200 0000 0029 41 <
+ffff8800b92aa3c0 1675183781 C Ci:3:009:0 0 41 = 09022900 01010080
+fa090400 00020300 00000921 11010001 22940007 05020340
+ffff8800b92aa3c0 1675183819 S Ci:3:009:0 s 80 06 0300 0000 00ff 255 <
+ffff8800b92aa3c0 1675186784 C Ci:3:009:0 0 4 = 04030904
+ffff8800b92aa3c0 1675186816 S Ci:3:009:0 s 80 06 0302 0409 00ff 255 <
+ffff8800b92aa3c0 1675191784 C Ci:3:009:0 0 28 = 1c035000 53002800
+52002900 20004700 61006d00 65007000 61006400
+ffff8800b92aa3c0 1675191796 S Ci:3:009:0 s 80 06 0301 0409 00ff 255 <
+ffff8800b92aa3c0 1675196783 C Ci:3:009:0 0 28 = 1c034700 61007300
+69006100 20004300 6f002e00 2c004c00 74006400
+ffff880085644540 1675196923 S Co:3:009:0 s 00 09 0001 0000 0000 0
+ffff880085644540 1675198785 C Co:3:009:0 0 0
+ffff8800856443c0 1675198867 S Co:3:009:0 s 21 0a 0000 0000 0000 0
+ffff8800856443c0 1675200790 C Co:3:009:0 -32 0
+ffff8800856443c0 1675200814 S Ci:3:009:0 s 81 06 2200 0000 0094 148 <
+ffff8800856443c0 1675201791 C Ci:3:009:0 0 148 = 05010904 a101a102
+85017508 95011500 26ff0081 03750195 13150025 01350045
+ffff8800b4af06c0 1675202027 S Ci:3:009:0 s a1 01 0101 0000 0031 64 <
+ffff8800b4af06c0 1675202786 C Ci:3:009:0 -32 0
+ffff8800b4af06c0 1675202788 S Ci:3:009:0 s a1 01 0302 0000 0031 64 <
+ffff8800b4af06c0 1675203791 C Ci:3:009:0 0 49 = 0201db02 100205ff
+14230002 dc020f00 00020202 00030000 02040302 62010201
+ffff8800b4af06c0 1675203825 S Ci:3:009:0 s a1 01 03ee 0000 0031 64 <
+ffff8800b4af06c0 1675204791 C Ci:3:009:0 0 49 = 0201db02 100205ff
+14230002 dc020f00 00020202 00030000 02040302 62010201
+ffff8800b4af06c0 1675204822 S Ci:3:009:0 s a1 01 03ef 0000 0031 64 <
+ffff8800b4af06c0 1675205791 C Ci:3:009:0 -32 0
+ffff88012746d480 1675205929 S Ci:3:009:0 s a1 01 03f2 0000 0011 17 <
+ffff88012746d480 1675206763 C Ci:3:009:0 0 17 = f2ffff00 00265c31
+e2790003 30801801 8a
+ffff8800b4af0900 1675416597 S Ii:3:009:1 -115:1 49 <
+ffff8800b4af0900 1675422780 C Ii:3:009:1 -2:1 0
+ffff8800b4af0900 1675425228 S Ii:3:009:1 -115:1 49 <
+ffff8800b4af0900 1675429788 C Ii:3:009:1 -2:1 0
+---

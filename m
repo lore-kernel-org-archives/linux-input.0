@@ -1,129 +1,50 @@
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-Subject: Re: Sony DualShock3 - Detected but no events
-Date: Tue, 1 Nov 2011 20:16:51 +0200
-Message-ID: <CAOazyz1N4QmrC4MN6M532_3m_gVC+7PBBOUU+Mu8Qq7_eX5iZA@mail.gmail.com>
-References: <CAOazyz0GNJKFWNsaFiwheMjhBVJrcP-p8QBcsSvS3V97iuZFtQ@mail.gmail.com>
-	<20111101011854.5e0e87b561f6b18dcc09a988@studenti.unina.it>
-	<CAOazyz1EfHdg4gExfeVaQ_8mMV=1Tu-aYBTEo_j4MjLnNC4kHA@mail.gmail.com>
-	<20111101090645.0d3abeac5909f87dae8bec58@studenti.unina.it>
-	<CAOazyz0pBZE_qE3NYbz6n54kCA30dU2Z3PaT3_ufZv2egpj=cg@mail.gmail.com>
-	<20111101124258.744fdba3f854ce81b4e0c8be@studenti.unina.it>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC] Input: Remove unsafe device module references
+Date: Tue, 1 Nov 2011 11:18:21 -0700
+Message-ID: <20111101181820.GC15216@core.coreip.homeip.net>
+References: <1320162100-13494-1-git-send-email-dh.herrmann@googlemail.com>
+ <20111101170156.GA8925@suse.de>
+ <CANq1E4S07S2kNTmAxQRa4mEVKrGnS7cTHKqPoHEzLOyu3Mfqzw@mail.gmail.com>
+ <20111101180038.GB4241@suse.de>
+ <CANq1E4T6urGVLC7xEa_4D=sCGYD0zsiVbH9u_E6O_xwuhR2Z4g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f52.google.com ([209.85.212.52]:53379 "EHLO
-	mail-vw0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754567Ab1KASQx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Nov 2011 14:16:53 -0400
-Received: by vws10 with SMTP id 10so2701402vws.11
-        for <linux-input@vger.kernel.org>; Tue, 01 Nov 2011 11:16:52 -0700 (PDT)
-In-Reply-To: <20111101124258.744fdba3f854ce81b4e0c8be@studenti.unina.it>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:54894 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755463Ab1KASSf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Nov 2011 14:18:35 -0400
+Content-Disposition: inline
+In-Reply-To: <CANq1E4T6urGVLC7xEa_4D=sCGYD0zsiVbH9u_E6O_xwuhR2Z4g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: Greg KH <gregkh@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Nov 1, 2011 at 1:42 PM, Antonio Ospite <ospite@studenti.unina.it> wrote:
-> It does work for me, vanilla linux-3.1, no userspace support needed for
-> basic USB HID operation.
+On Tue, Nov 01, 2011 at 07:09:27PM +0100, David Herrmann wrote:
+> On Tue, Nov 1, 2011 at 7:00 PM, Greg KH <gregkh@suse.de> wrote:
+> > On Tue, Nov 01, 2011 at 06:52:11PM +0100, David Herrmann wrote:
+> >> My solution: Some parent subsystem of us must take and release this
+> >> module-refcnt instead of us, so this bug doesn't occur.
+> >
+> > Yes, that is the ultimate solution for something like this.
+> >
+> > But, in reality, we don't care about module unloading races as there are
+> > plenty of other issues involved there where things can go bad, so we
+> > just try the best we can :)
+> 
+> Ah, I am kind of relieved that I got this right. I almost started
+> thinking I am insane.. ;)
+> 
+> So your answer is that this is so unlikely that it won't be fixed? I
+> am fine with that, even though I wonder why stuff like "struct
+> file_operations" include "owner" fields to protect callbacks but
+> "struct device_type" does *not* include any protection of it's
+> "release" callback.
 
-This is great to hear!
+I think adding owner to device_type might not be a bad idea at all...
 
-Unfortunatally, not working for me.
-And as the hid-sony is the same for usb and bluetooth I guess I need
-to solve the bluetooth issue first...
+Thanks.
 
-As I wrote at the beginning of this thread, the js0 and event15
-devices are there, but no events.
-
-usbmon also does not show any event while pressing buttons etc...
-
-usbmon output is attached.
-
-Any idea what is the difference? Is there firmware revision or
-something similar?
-
-Thanks!
-Alon.
-
----
-ffff88013651e180 1674790755 C Ii:3:001:1 0:128 1 = 02
-ffff88013651e180 1674790761 S Ii:3:001:1 -115:128 2 <
-ffff8800b935b300 1674841238 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
-ffff8800b935b300 1674841247 C Ci:3:001:0 0 4 = 01010100
-ffff8800b935b300 1674841249 S Co:3:001:0 s 23 01 0010 0001 0000 0
-ffff8800b935b300 1674841252 C Co:3:001:0 0 0
-ffff8800b935b300 1674841254 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
-ffff8800b935b300 1674841260 C Ci:3:001:0 0 4 = 01010000
-ffff8800b935b300 1674867208 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
-ffff8800b935b300 1674867217 C Ci:3:001:0 0 4 = 01010000
-ffff8800b935b300 1674893222 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
-ffff8800b935b300 1674893230 C Ci:3:001:0 0 4 = 01010000
-ffff8800b935b300 1674919192 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
-ffff8800b935b300 1674919200 C Ci:3:001:0 0 4 = 01010000
-ffff8800b935b300 1674945225 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
-ffff8800b935b300 1674945231 C Ci:3:001:0 0 4 = 01010000
-ffff8800b935b300 1674945238 S Co:3:001:0 s 23 03 0004 0001 0000 0
-ffff8800b935b300 1674945244 C Co:3:001:0 0 0
-ffff8800b4bf2180 1674996208 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
-ffff8800b4bf2180 1674996237 C Ci:3:001:0 0 4 = 03010000
-ffff8800b4bf2180 1675047195 S Co:3:001:0 s 23 01 0014 0001 0000 0
-ffff8800b4bf2180 1675047197 C Co:3:001:0 0 0
-ffff8800b4bf2180 1675047205 S Ci:3:000:0 s 80 06 0100 0000 0040 64 <
-ffff8800b4bf2180 1675050782 C Ci:3:000:0 0 18 = 12010002 00000040
-4c056802 00010102 0001
-ffff8800b4bf2180 1675050814 S Co:3:001:0 s 23 03 0004 0001 0000 0
-ffff8800b4bf2180 1675050822 C Co:3:001:0 0 0
-ffff8800b4bf2180 1675101206 S Ci:3:001:0 s a3 00 0000 0001 0004 4 <
-ffff8800b4bf2180 1675101232 C Ci:3:001:0 0 4 = 03010000
-ffff8800b4bf2180 1675152214 S Co:3:001:0 s 23 01 0014 0001 0000 0
-ffff8800b4bf2180 1675152218 C Co:3:001:0 0 0
-ffff8800b4bf2180 1675152222 S Co:3:000:0 s 00 05 0009 0000 0000 0
-ffff8800b4bf2180 1675154792 C Co:3:000:0 0 0
-ffff8800b92aa3c0 1675167191 S Ci:3:009:0 s 80 06 0100 0000 0012 18 <
-ffff8800b92aa3c0 1675170784 C Ci:3:009:0 0 18 = 12010002 00000040
-4c056802 00010102 0001
-ffff8800b92aa3c0 1675170798 S Ci:3:009:0 s 80 06 0600 0000 000a 10 <
-ffff8800b92aa3c0 1675172785 C Ci:3:009:0 -32 0
-ffff8800b92aa3c0 1675172795 S Ci:3:009:0 s 80 06 0600 0000 000a 10 <
-ffff8800b92aa3c0 1675174784 C Ci:3:009:0 -32 0
-ffff8800b92aa3c0 1675174814 S Ci:3:009:0 s 80 06 0600 0000 000a 10 <
-ffff8800b92aa3c0 1675176781 C Ci:3:009:0 -32 0
-ffff8800b92aa3c0 1675176816 S Ci:3:009:0 s 80 06 0200 0000 0009 9 <
-ffff8800b92aa3c0 1675180784 C Ci:3:009:0 0 9 = 09022900 01010080 fa
-ffff8800b92aa3c0 1675180795 S Ci:3:009:0 s 80 06 0200 0000 0029 41 <
-ffff8800b92aa3c0 1675183781 C Ci:3:009:0 0 41 = 09022900 01010080
-fa090400 00020300 00000921 11010001 22940007 05020340
-ffff8800b92aa3c0 1675183819 S Ci:3:009:0 s 80 06 0300 0000 00ff 255 <
-ffff8800b92aa3c0 1675186784 C Ci:3:009:0 0 4 = 04030904
-ffff8800b92aa3c0 1675186816 S Ci:3:009:0 s 80 06 0302 0409 00ff 255 <
-ffff8800b92aa3c0 1675191784 C Ci:3:009:0 0 28 = 1c035000 53002800
-52002900 20004700 61006d00 65007000 61006400
-ffff8800b92aa3c0 1675191796 S Ci:3:009:0 s 80 06 0301 0409 00ff 255 <
-ffff8800b92aa3c0 1675196783 C Ci:3:009:0 0 28 = 1c034700 61007300
-69006100 20004300 6f002e00 2c004c00 74006400
-ffff880085644540 1675196923 S Co:3:009:0 s 00 09 0001 0000 0000 0
-ffff880085644540 1675198785 C Co:3:009:0 0 0
-ffff8800856443c0 1675198867 S Co:3:009:0 s 21 0a 0000 0000 0000 0
-ffff8800856443c0 1675200790 C Co:3:009:0 -32 0
-ffff8800856443c0 1675200814 S Ci:3:009:0 s 81 06 2200 0000 0094 148 <
-ffff8800856443c0 1675201791 C Ci:3:009:0 0 148 = 05010904 a101a102
-85017508 95011500 26ff0081 03750195 13150025 01350045
-ffff8800b4af06c0 1675202027 S Ci:3:009:0 s a1 01 0101 0000 0031 64 <
-ffff8800b4af06c0 1675202786 C Ci:3:009:0 -32 0
-ffff8800b4af06c0 1675202788 S Ci:3:009:0 s a1 01 0302 0000 0031 64 <
-ffff8800b4af06c0 1675203791 C Ci:3:009:0 0 49 = 0201db02 100205ff
-14230002 dc020f00 00020202 00030000 02040302 62010201
-ffff8800b4af06c0 1675203825 S Ci:3:009:0 s a1 01 03ee 0000 0031 64 <
-ffff8800b4af06c0 1675204791 C Ci:3:009:0 0 49 = 0201db02 100205ff
-14230002 dc020f00 00020202 00030000 02040302 62010201
-ffff8800b4af06c0 1675204822 S Ci:3:009:0 s a1 01 03ef 0000 0031 64 <
-ffff8800b4af06c0 1675205791 C Ci:3:009:0 -32 0
-ffff88012746d480 1675205929 S Ci:3:009:0 s a1 01 03f2 0000 0011 17 <
-ffff88012746d480 1675206763 C Ci:3:009:0 0 17 = f2ffff00 00265c31
-e2790003 30801801 8a
-ffff8800b4af0900 1675416597 S Ii:3:009:1 -115:1 49 <
-ffff8800b4af0900 1675422780 C Ii:3:009:1 -2:1 0
-ffff8800b4af0900 1675425228 S Ii:3:009:1 -115:1 49 <
-ffff8800b4af0900 1675429788 C Ii:3:009:1 -2:1 0
----
+-- 
+Dmitry

@@ -1,65 +1,89 @@
-From: Jonathan Nieder <jrnieder@gmail.com>
-Subject: psmouse: "bad data from KBD - bad parity" every 2ms with synaptics
- touchpad
-Date: Tue, 1 Nov 2011 03:02:11 -0500
-Message-ID: <20111101080210.GB4566@elie.hsd1.il.comcast.net>
-References: <20111030195253.3248.82914.reportbug@debian>
- <20111030203044.GB18681@elie.hsd1.il.comcast.net>
- <CAAyXcGAC5W5md17=V5rx-kaL7PTmBig4a-4ZhRvAVLVZ7wWzSg@mail.gmail.com>
- <20111031092748.GB24978@elie.hsd1.il.comcast.net>
- <CAAyXcGCz0Z8xkEin5DVhTa8p6Jc8oOtgghH2EWoSaLrRqCzWdg@mail.gmail.com>
- <CAAyXcGDOsmp+PVhHZx3JFjApF2_UbE8dr8jnHKJNDEm5=bWrzA@mail.gmail.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: Sony DualShock3 - Detected but no events
+Date: Tue, 1 Nov 2011 09:06:45 +0100
+Message-ID: <20111101090645.0d3abeac5909f87dae8bec58@studenti.unina.it>
+References: <CAOazyz0GNJKFWNsaFiwheMjhBVJrcP-p8QBcsSvS3V97iuZFtQ@mail.gmail.com>
+	<20111101011854.5e0e87b561f6b18dcc09a988@studenti.unina.it>
+	<CAOazyz1EfHdg4gExfeVaQ_8mMV=1Tu-aYBTEo_j4MjLnNC4kHA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Tue__1_Nov_2011_09_06_45_+0100_YmL_ZzTsCZWH2DOy"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:42796 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752166Ab1KAICQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Nov 2011 04:02:16 -0400
-Received: by gyb13 with SMTP id 13so6776864gyb.19
-        for <linux-input@vger.kernel.org>; Tue, 01 Nov 2011 01:02:15 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CAAyXcGDOsmp+PVhHZx3JFjApF2_UbE8dr8jnHKJNDEm5=bWrzA@mail.gmail.com>
+Received: from smtp209.alice.it ([82.57.200.105]:42995 "EHLO smtp209.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751940Ab1KAIG7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Nov 2011 04:06:59 -0400
+In-Reply-To: <CAOazyz1EfHdg4gExfeVaQ_8mMV=1Tu-aYBTEo_j4MjLnNC4kHA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Arvind K <arvindkhadri@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Damjan Jovanovic <damjan.jov@gmail.com>
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-(cc-ing some people in case they have clues)
-Hi Dmitry et al,
+--Signature=_Tue__1_Nov_2011_09_06_45_+0100_YmL_ZzTsCZWH2DOy
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Arvind K explains at [1]:
+On Tue, 1 Nov 2011 02:31:54 +0200
+Alon Bar-Lev <alon.barlev@gmail.com> wrote:
 
-He owns a Synaptics touchpad and has been using it for a while.  Every
-once in a while it stops responding.  Running "modprobe -r psmouse &&
-modprobe psmouse" gets it working again.
+> Hello Antonio,
+>
 
-On investigation, we learn that the message
+Please try to avoid top-posting.
 
-	psmouse.c: bad data from KBC - bad parity
+> Thank you so much for your reply!
+> Unfortunately within the mbox there are no attachments, so I cannot
+> proceed and patch my bluez.
+>
 
-appears in dmesg approximately every 2 milliseconds when this happens.
+But there are links to patches and instructions on how to get them and
+apply them.
 
-The touchpad worked without trouble since this system was installed,
-in February.  The bug only surfaced recently, when he changed the X
-configuration somehow.
+> In the mean while I would like first to see it work with plain USB,
+> which should be much simpler, no?
+> If you connect the device to the USB port, does it work? Do yo see
+> activity when you do cat /dev/input/js0?
+>
 
-Userland is Debian 6.0.x (squeeze).
+You need to press the PS button to make the device start sending input
+events. To see events you can use 'jstest' on the jsX device node or
+'evtest' on the eventX device node.
 
-The problem is reproducible with:
+If this does not work either we can investigate further.
 
- - Debian's 2.6.32-38 (which is based on v2.6.32.43)
- - 2.6.39-3~bpo60+1 (based on v2.6.39.2)
- - 3.1.0~rc7-1~experimental.1 (very close to v3.1-rc7)
+> At Windows the following[1] drivers are working correctly in USB and
+> bluetooth....
+>=20
+> Thanks!
+> Alon.
+>=20
+> [1] http://www.motioninjoy.com/download
+>=20
 
-Hardware:
+Regards,
+   Antonio
 
-	Synaptics Touchpad, model: 1, fw: 7.2, id: 0x1c0b1, caps: 0xd04731/0xa40000/0xa0000
+--=20
+Antonio Ospite
+http://ao2.it
 
-More details are in the original report at [1].  Any ideas for
-tracking this down?
+PGP public key ID: 0x4553B001
 
-Thanks for keeping the input subsystem in good shape.
-Jonathan
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
 
-[1] http://bugs.debian.org/647136
+--Signature=_Tue__1_Nov_2011_09_06_45_+0100_YmL_ZzTsCZWH2DOy
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk6vqJUACgkQ5xr2akVTsAFxyQCeOAwFUdogNeQCPaghtR2j72fL
+GG8An3SSASvi3CvKJKOHPXzwfxWKdoVx
+=9ohu
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__1_Nov_2011_09_06_45_+0100_YmL_ZzTsCZWH2DOy--

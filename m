@@ -1,57 +1,55 @@
-From: Jonathan Nieder <jrnieder@gmail.com>
-Subject: Re: psmouse: "bad data from KBD - bad parity" every 2ms with
- synaptics touchpad
-Date: Tue, 1 Nov 2011 14:34:58 -0500
-Message-ID: <20111101193458.GA10933@elie.hsd1.il.comcast.net>
-References: <20111030195253.3248.82914.reportbug@debian>
- <20111030203044.GB18681@elie.hsd1.il.comcast.net>
- <CAAyXcGAC5W5md17=V5rx-kaL7PTmBig4a-4ZhRvAVLVZ7wWzSg@mail.gmail.com>
- <20111031092748.GB24978@elie.hsd1.il.comcast.net>
- <CAAyXcGCz0Z8xkEin5DVhTa8p6Jc8oOtgghH2EWoSaLrRqCzWdg@mail.gmail.com>
- <CAAyXcGDOsmp+PVhHZx3JFjApF2_UbE8dr8jnHKJNDEm5=bWrzA@mail.gmail.com>
- <20111101080210.GB4566@elie.hsd1.il.comcast.net>
- <CAJm2B-kA63Tifyifd0mRwhaVcr-vdrvk+UGnFHnKwX4=77WL+A@mail.gmail.com>
+From: Alon Bar-Lev <alon.barlev@gmail.com>
+Subject: Re: Sony DualShock3 - Detected but no events
+Date: Tue, 1 Nov 2011 22:14:10 +0200
+Message-ID: <CAOazyz1xOjJxXytp+1JzrDvd3o7f6uySu3fvpxOKz_VSEZwvEA@mail.gmail.com>
+References: <CAOazyz0GNJKFWNsaFiwheMjhBVJrcP-p8QBcsSvS3V97iuZFtQ@mail.gmail.com>
+	<20111101011854.5e0e87b561f6b18dcc09a988@studenti.unina.it>
+	<CAOazyz1EfHdg4gExfeVaQ_8mMV=1Tu-aYBTEo_j4MjLnNC4kHA@mail.gmail.com>
+	<20111101090645.0d3abeac5909f87dae8bec58@studenti.unina.it>
+	<CAOazyz0pBZE_qE3NYbz6n54kCA30dU2Z3PaT3_ufZv2egpj=cg@mail.gmail.com>
+	<20111101124258.744fdba3f854ce81b4e0c8be@studenti.unina.it>
+	<CAOazyz1N4QmrC4MN6M532_3m_gVC+7PBBOUU+Mu8Qq7_eX5iZA@mail.gmail.com>
+	<20111101201142.af88469abf03d8a9779c4e46@studenti.unina.it>
+	<CAOazyz03G1ofwh-GnLDECUqC1qgO0tXzSVjjdwML_JdXZR_9ug@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f181.google.com ([209.85.216.181]:36721 "EHLO
-	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752616Ab1KATfI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Nov 2011 15:35:08 -0400
-Received: by qyk27 with SMTP id 27so7636706qyk.19
-        for <linux-input@vger.kernel.org>; Tue, 01 Nov 2011 12:35:08 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CAJm2B-kA63Tifyifd0mRwhaVcr-vdrvk+UGnFHnKwX4=77WL+A@mail.gmail.com>
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:44112 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755076Ab1KAUOM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Nov 2011 16:14:12 -0400
+Received: by vcge1 with SMTP id e1so6077243vcg.19
+        for <linux-input@vger.kernel.org>; Tue, 01 Nov 2011 13:14:11 -0700 (PDT)
+In-Reply-To: <CAOazyz03G1ofwh-GnLDECUqC1qgO0tXzSVjjdwML_JdXZR_9ug@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Damjan Jovanovic <damjan.jov@gmail.com>
-Cc: linux-input@vger.kernel.org, Arvind K <arvindkhadri@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Peter Hutterer <peter.hutterer@who-t.net>
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: linux-input@vger.kernel.org
 
-Damjan Jovanovic wrote:
+On Tue, Nov 1, 2011 at 9:24 PM, Alon Bar-Lev <alon.barlev@gmail.com> wrote:
+>> and is it an _original_ controller?
+>
+> I am sure hope so!
+> How can I determine?
+> Written Sony all over.
 
-> Maybe that touchpad doesn't send proper parity. See what we did in commit
-> 6b9d363c49d22395d0cf8729c5963f83cfbb6d69, and try to disable parity
-> checking for that touchpad the same way?
+Well, found this[1] thread.
 
-Sure, though it would be nice to understand the problem better first.
+This is gasia copy, it has some differences...
 
-So:
+One of them relates to sdp:
+#ifdef GASIA_GAMEPAD_HACKS
+    req.vendor  = 0x054c;
+    req.product = 0x0268;
+    req.version = 0x0100;
+    req.parser  = 0x0100;
 
- - Arvind, could you say a little more about when this started
-   happening[1]?  Did you change your configuration, or was there any
-   upgrade around the same time (/var/log/dpkg.log* should say)?  Any
-   idea why this wasn't always happening from the start?
+    strcpy(req.name, "Gasia Gamepad experimental driver");
+#else
+    get_sdp_device_info(&addr_src, &addr_dst, &req);
+#endif
 
- - Others, any idea what information would be useful to track this
-   further?  Are there tools or patches for tracing what the kernel
-   gets told by the touchpad, so we could see the nature of these
-   parity errors?
+And I guess the other is at initialization time.
+How can I find this?
 
- - Is there a dump or cache of bugzilla.kernel.org available anywhere?
-   I would like to look at bug#6105 (referred to by 6b9d363c) in case
-   it points to some hints or useful debugging tools.
-
-Please forgive my laziness.
-Jonathan
-
-[1] http://bugs.debian.org/647136
+[1] http://ubuntuforums.org/showthread.php?t=1190061&page=93

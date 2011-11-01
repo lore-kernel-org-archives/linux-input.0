@@ -1,50 +1,79 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Input: Remove unsafe device module references
-Date: Tue, 1 Nov 2011 11:18:21 -0700
-Message-ID: <20111101181820.GC15216@core.coreip.homeip.net>
-References: <1320162100-13494-1-git-send-email-dh.herrmann@googlemail.com>
- <20111101170156.GA8925@suse.de>
- <CANq1E4S07S2kNTmAxQRa4mEVKrGnS7cTHKqPoHEzLOyu3Mfqzw@mail.gmail.com>
- <20111101180038.GB4241@suse.de>
- <CANq1E4T6urGVLC7xEa_4D=sCGYD0zsiVbH9u_E6O_xwuhR2Z4g@mail.gmail.com>
+From: Javier Martinez Canillas <martinez.javier@gmail.com>
+Subject: Re: [PATCH v7 0/3] Input: Cypress TTSP device driver
+Date: Tue, 1 Nov 2011 19:51:39 +0100
+Message-ID: <CAAwP0s3qfTKFngj3bXgZdOHVqDPEuqNB2MxezkCp7+WTaiEwLw@mail.gmail.com>
+References: <1319396024-28558-1-git-send-email-martinez.javier@gmail.com>
+ <CAAwP0s0g8pu8zz8J+wEeD6iqH8XN8bqzT-rOQwPYA9jyw8RL7g@mail.gmail.com> <20111101152015.GA2183@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:54894 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755463Ab1KASSf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Nov 2011 14:18:35 -0400
-Content-Disposition: inline
-In-Reply-To: <CANq1E4T6urGVLC7xEa_4D=sCGYD0zsiVbH9u_E6O_xwuhR2Z4g@mail.gmail.com>
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:65467 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755724Ab1KASwA convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Nov 2011 14:52:00 -0400
+Received: by gyb13 with SMTP id 13so7328366gyb.19
+        for <linux-input@vger.kernel.org>; Tue, 01 Nov 2011 11:52:00 -0700 (PDT)
+In-Reply-To: <20111101152015.GA2183@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: Greg KH <gregkh@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org
 
-On Tue, Nov 01, 2011 at 07:09:27PM +0100, David Herrmann wrote:
-> On Tue, Nov 1, 2011 at 7:00 PM, Greg KH <gregkh@suse.de> wrote:
-> > On Tue, Nov 01, 2011 at 06:52:11PM +0100, David Herrmann wrote:
-> >> My solution: Some parent subsystem of us must take and release this
-> >> module-refcnt instead of us, so this bug doesn't occur.
-> >
-> > Yes, that is the ultimate solution for something like this.
-> >
-> > But, in reality, we don't care about module unloading races as there are
-> > plenty of other issues involved there where things can go bad, so we
-> > just try the best we can :)
-> 
-> Ah, I am kind of relieved that I got this right. I almost started
-> thinking I am insane.. ;)
-> 
-> So your answer is that this is so unlikely that it won't be fixed? I
-> am fine with that, even though I wonder why stuff like "struct
-> file_operations" include "owner" fields to protect callbacks but
-> "struct device_type" does *not* include any protection of it's
-> "release" callback.
+On Tue, Nov 1, 2011 at 4:20 PM, Henrik Rydberg <rydberg@euromail.se> wr=
+ote:
+> Hi Javier,
+>
+>> Any comments on this version of the driver?
+>
+> I am still looking at them, sorry. =C2=A0I take it the patches have b=
+een
+> tested and work well for you?
 
-I think adding owner to device_type might not be a bad idea at all...
+Thank you Henrik.
 
-Thanks.
+Yes I test the driver before every resubmission.
 
--- 
-Dmitry
+But probably the driver has bugs that I didn't catch and needs more
+testing. On every submit I only make sure that the driver is still
+working and the input layer is receiving the information correctly.
+
+>
+>> Is the driver still too far away for being in a merge-able state? Do
+>> you think would be a better approach to try to pushing it through
+>> staging or should I keep resending to merge it via drivers/input?
+>
+> I still worry about some of error states, so I can only sign off the
+> MT part for now. Perhaps Dmitry would like to answer the general
+> question.
+>
+
+Ok, thank you Henrik. I will work on every issue that you find with
+the error states.
+
+Lets wait for Dmitry to answer what approach he thinks is better to
+get the driver merged.
+
+>> I can make it either way, whatever works better for you.
+>>
+>> Thanks a lot and best regards,
+>
+> Thank you, too.
+>
+> Henrik
+>
+
+I have no problem to keep resending as many times as necessary until
+the driver get accepted.
+
+Best regards,
+
+--=20
+Javier Mart=C3=ADnez Canillas
+(+34) 682 39 81 69
+Barcelona, Spain
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

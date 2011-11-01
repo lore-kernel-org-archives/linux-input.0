@@ -1,40 +1,67 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: BUG: hid-multitouch causes 10 second delay and error
-Date: Tue, 1 Nov 2011 16:33:48 +0100
-Message-ID: <20111101153348.GB2191@polaris.bitmath.org>
-References: <20111026213705.GA32664@pequod.mess.org>
- <CAN+gG=E0sUd3WOzAuT1LOTz_U9jLrGg2Bq_jRjha8Dcptk6Zcw@mail.gmail.com>
- <4EA9466F.4000508@gmail.com>
- <20111028111605.GA23693@polaris.bitmath.org>
- <CAN+gG=EiJJR464q_eoJuJYpWOPMsk61W6sAKD18SdT+2tQfmQA@mail.gmail.com>
- <20111028140033.GA2155@polaris.bitmath.org>
- <alpine.LNX.2.00.1110281913010.3541@pobox.suse.cz>
- <20111101141704.GA2135@polaris.bitmath.org>
- <alpine.LNX.2.00.1111011526350.348@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: [RFC] Input: Remove unsafe device module references
+Date: Tue,  1 Nov 2011 16:41:40 +0100
+Message-ID: <1320162100-13494-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b11.telenor.se ([62.127.194.20]:44623 "EHLO
-	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752209Ab1KAPYd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Nov 2011 11:24:33 -0400
-Received: from iph1.telenor.se (iph1.telenor.se [195.54.127.132])
-	by smtprelay-b11.telenor.se (Postfix) with ESMTP id 92309D97F
-	for <linux-input@vger.kernel.org>; Tue,  1 Nov 2011 16:24:32 +0100 (CET)
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1111011526350.348@pobox.suse.cz>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:54432 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752092Ab1KAPmR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Nov 2011 11:42:17 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Sean Young <sean@mess.org>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, gregkh@suse.de, linux-kernel@vger.kernel.org, David Herrmann <dh.herrmann@googlemail.com>
 
-> > 1. It still does not resolve the
-> > hid-multitouch-gets-loaded-for-every-hid-device problem, and
-> 
-> Hmm, I thought it should work. What is the catch?
+Hi Dmitry and Greg
 
-Everyone with an umatched hid device, even completely unrelated to
-touch, will be surprised to find the hid-multitouch module loaded.
+It doesn't make sense to take a reference to our own module. When we call
+module_put(THIS_MODULE) we cannot make sure that our module is still alive when
+this function returns. Therefore, module_put() will return to invalid memory and
+our input_dev_release() function is no longer available.
 
-Thanks,
-Henrik
+It would be interesting if Greg could elaborate what else we could do to replace
+this module-refcount as it is definitely needed here. However, "struct device"
+doesn't provide an owner field so there is no way for us to let the device core
+keep a reference to our module.
+
+I have no clue what to do here but the current implementation is definitely
+unsafe so this is marked as RFC. Currently, the device_attributes probably
+already keep a reference to our module so applying this patch would probably not
+break anything, however, this does not look like something we can trust on.
+
+My bug-thread kind of died (https://lkml.org/lkml/2011/10/29/75) so I now try to
+show this with an example here.
+
+Regards
+David
+
+Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+---
+ drivers/input/input.c |    4 ----
+ 1 files changed, 0 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index da38d97..f691502 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1417,8 +1417,6 @@ static void input_dev_release(struct device *device)
+ 	input_mt_destroy_slots(dev);
+ 	kfree(dev->absinfo);
+ 	kfree(dev);
+-
+-	module_put(THIS_MODULE);
+ }
+ 
+ /*
+@@ -1657,8 +1655,6 @@ struct input_dev *input_allocate_device(void)
+ 		spin_lock_init(&dev->event_lock);
+ 		INIT_LIST_HEAD(&dev->h_list);
+ 		INIT_LIST_HEAD(&dev->node);
+-
+-		__module_get(THIS_MODULE);
+ 	}
+ 
+ 	return dev;
+-- 
+1.7.7.1
+

@@ -1,50 +1,62 @@
 From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Subject: [PATCHv5 0/5]  Add spi support for CMA3000 driver
-Date: Wed,  2 Nov 2011 15:49:08 +0100
-Message-ID: <1320245353-32125-1-git-send-email-ricardo.ribalda__29212.2438354001$1320245462$gmane$org@gmail.com>
+Subject: Re: [PATCHv4 1/6] input/cma3000_d0x: Support devices without pdata
+Date: Wed, 2 Nov 2011 15:51:42 +0100
+Message-ID: <CAPybu_30aorqCzvXhUWHZeBc7D1mfqzAR0c13R5rKL3GL1-WVA@mail.gmail.com>
+References: <1319487676-27181-1-git-send-email-ricardo.ribalda@gmail.com>
+ <1319487676-27181-2-git-send-email-ricardo.ribalda@gmail.com>
+ <20111024213104.GA4394@ponder.secretlab.ca> <CAPybu_3EPJYd1EdzgF1oF6_k8u5nr4Kx1zmdPRXNZ_zcACrUEw@mail.gmail.com>
+ <CACxGe6uAMugBRAqeN5D-HfX4G+DysLFjfp7=ZeC378cAdwOAwA@mail.gmail.com> <CAPybu_0eY2HGQNgXOeH13v5Ba47JiO-oY2mSxnfyLQTegQDzNQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:64630 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755735Ab1KBOtX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Nov 2011 10:49:23 -0400
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:33607 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755664Ab1KBOwX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Nov 2011 10:52:23 -0400
+In-Reply-To: <CAPybu_0eY2HGQNgXOeH13v5Ba47JiO-oY2mSxnfyLQTegQDzNQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: grant.likely@secretlab.ca, rob.herring@calxeda.com, rdunlap@xenotime.net, dmitry.torokhov@gmail.com, jic23@cam.ac.uk, aghayal@codeaurora.org, sameo@linux.intel.com, peter.ujfalusi@ti.
-Cc: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: dmitry.torokhov@gmail.com, sameo@linux.intel.com, peter.ujfalusi@ti.com, jic23@cam.ac.uk, aghayal@codeaurora.org, david@hardeman.nu, Shubhrajyoti@ti.com, saaguirre@ti.com, hemanthv@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The following set of patches add spi and device tree support for the cma3000 driver.
+Ok, found it, and implement it.... Please check the new patchset :)
 
-v5 of the set.
+Thanks
 
-Changelog:
+On Wed, Nov 2, 2011 at 13:41, Ricardo Ribalda Delgado
+<ricardo.ribalda@gmail.com> wrote:
+> Hello Grant
+> =A0Thanks for your feedback
+>
+>>>> No of_device_id match table to match against compatible values?
+>>>
+>>> I think it is not needed, the device will be matched against the
+>>> driver cma3000_d0x_spi.c and AFAIK on the spi/i2c devices you dont
+>>> need the device_id match. But you know much more about this :). =A0=
+Can
+>>> you point me to a example where a spi driver uses of_device-id matc=
+h.
+>>
+>> Use an of_device_id table. =A0It's the right thing to do.
+>>
+> Can you point me to a file where of_device_id is used in a spi/i2c
+> driver? I thought that was only for mmaped drivers....
+>
+>
+> Thanks!
+>
+>
+> --
+> Ricardo Ribalda
+>
 
-  v5: -Changes propossed by Grant Likely
-      -Remove crm300 driver from the set
-  v4: -Changes propossed by Dmitry Torokhov
-  v3: -Support for device tree
-      -Separate read/write spi
 
-  v2: -Changes propossed by Jonathan Cameron
-      -More fixes for the cma3000 driver
 
-Ricardo Ribalda Delgado (5):
-  input/cma3000_d0x: Support devices without pdata
-  input/cma3000_d0x: Check silicon version
-  input/cma3000_d0x: Keep configuration on poweroff
-  input/cma3000_d0x: Add CMA3000 spi support
-  input/cma3000_d0x: Match comment to name of struct
-
- .../devicetree/bindings/input/cma3000_d0x.txt      |   71 +++++++++
- drivers/input/misc/Kconfig                         |   14 ++-
- drivers/input/misc/Makefile                        |    1 +
- drivers/input/misc/cma3000_d0x.c                   |  100 +++++++++++--
- drivers/input/misc/cma3000_d0x_i2c.c               |    7 +
- drivers/input/misc/cma3000_d0x_spi.c               |  153 ++++++++++++++++++++
- include/linux/input/cma3000.h                      |    2 +-
- 7 files changed, 332 insertions(+), 16 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/cma3000_d0x.txt
- create mode 100644 drivers/input/misc/cma3000_d0x_spi.c
-
--- 
-1.7.7.1
-
+--=20
+Ricardo Ribalda
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

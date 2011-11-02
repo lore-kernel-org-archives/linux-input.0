@@ -1,57 +1,50 @@
 From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Subject: Re: [PATCHv4 4/6] input/cma3000_d0x: Add CMA3000 spi support
-Date: Wed, 2 Nov 2011 13:38:29 +0100
-Message-ID: <CAPybu_2qfZqjE87Sm+b5TcxNf=F=Z+oM7cGpt8dYRiWydsYC7Q@mail.gmail.com>
+Subject: Re: [PATCHv4 1/6] input/cma3000_d0x: Support devices without pdata
+Date: Wed, 2 Nov 2011 13:41:49 +0100
+Message-ID: <CAPybu_0eY2HGQNgXOeH13v5Ba47JiO-oY2mSxnfyLQTegQDzNQ@mail.gmail.com>
 References: <1319487676-27181-1-git-send-email-ricardo.ribalda@gmail.com>
- <1319487676-27181-5-git-send-email-ricardo.ribalda@gmail.com>
- <20111024213635.GB4394@ponder.secretlab.ca> <CAPybu_3pF6u10JMmcbho1e7=8EPHMq8LQ1+uHpyVMOmbRMUsHA@mail.gmail.com>
- <4EA6741B.6090508@cam.ac.uk> <20111025083633.GB31508@opensource.wolfsonmicro.com>
+ <1319487676-27181-2-git-send-email-ricardo.ribalda@gmail.com>
+ <20111024213104.GA4394@ponder.secretlab.ca> <CAPybu_3EPJYd1EdzgF1oF6_k8u5nr4Kx1zmdPRXNZ_zcACrUEw@mail.gmail.com>
+ <CACxGe6uAMugBRAqeN5D-HfX4G+DysLFjfp7=ZeC378cAdwOAwA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20111025083633.GB31508@opensource.wolfsonmicro.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Jonathan Cameron <jic23@cam.ac.uk>, Grant Likely <grant.likely@secretlab.ca>, dmitry.torokhov@gmail.com, sameo@linux.intel.com, peter.ujfalusi@ti.com, aghayal@codeaurora.org, david@hardeman.nu, Shubhrajyoti@ti.com, saaguirre@ti.com, hemanthv@ti.com, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:59819 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754924Ab1KBMma convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Nov 2011 08:42:30 -0400
+In-Reply-To: <CACxGe6uAMugBRAqeN5D-HfX4G+DysLFjfp7=ZeC378cAdwOAwA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: dmitry.torokhov@gmail.com, sameo@linux.intel.com, peter.ujfalusi@ti.com, jic23@cam.ac.uk, aghayal@codeaurora.org, david@hardeman.nu, Shubhrajyoti@ti.com, saaguirre@ti.com, hemanthv@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello Mark
+Hello Grant
+  Thanks for your feedback
 
-  I will wait until your patches arrive to linux-next. And then I will
-port mine in top of yours. It will be great to get your feedback then.
+>>> No of_device_id match table to match against compatible values?
+>>
+>> I think it is not needed, the device will be matched against the
+>> driver cma3000_d0x_spi.c and AFAIK on the spi/i2c devices you dont
+>> need the device_id match. But you know much more about this :). =A0C=
+an
+>> you point me to a example where a spi driver uses of_device-id match=
+=2E
+>
+> Use an of_device_id table. =A0It's the right thing to do.
+>
+Can you point me to a file where of_device_id is used in a spi/i2c
+driver? I thought that was only for mmaped drivers....
+
+
 Thanks!
-
-On Tue, Oct 25, 2011 at 10:36, Mark Brown
-<broonie@opensource.wolfsonmicro.com> wrote:
-> On Tue, Oct 25, 2011 at 09:32:27AM +0100, Jonathan Cameron wrote:
->> On 10/25/11 08:24, Ricardo Ribalda Delgado wrote:
->
->> > It is not on linux-next, and also it cannot be used directly, in o=
-rder
->> > to read you have to do set reg=3D (reg << 2) | 2; And AFAIK it is =
-not
->> > supported by the regmap
->
->> My gut feeling is it would easy enough to add if it can't currently
->> be done. Mark?
->
-> That should be trivial to add - the | 2 bit is already supported in
-> -next and will be sent to Linus this merge window, adding the shift i=
-s
-> just a simple matter of programming.
->
->> Gains here are leveraging the bus abstractions from there. =A0There =
-aren't
->> enough registers to gain from caching etc.
->
-> Depends on the workload more than the number of registers - if you're
-> able to eliminate enough reads then it can give a bit of a performanc=
-e
-> boost. =A0But it's completely optional either way.
->
-
 
 
 --=20
 Ricardo Ribalda
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

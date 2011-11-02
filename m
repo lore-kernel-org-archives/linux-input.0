@@ -1,50 +1,35 @@
-From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Subject: Re: [PATCHv4 1/6] input/cma3000_d0x: Support devices without pdata
-Date: Wed, 2 Nov 2011 13:41:49 +0100
-Message-ID: <CAPybu_0eY2HGQNgXOeH13v5Ba47JiO-oY2mSxnfyLQTegQDzNQ@mail.gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCHv4 4/6] input/cma3000_d0x: Add CMA3000 spi support
+Date: Wed, 2 Nov 2011 12:49:26 +0000
+Message-ID: <20111102124926.GC27100@sirena.org.uk>
 References: <1319487676-27181-1-git-send-email-ricardo.ribalda@gmail.com>
- <1319487676-27181-2-git-send-email-ricardo.ribalda@gmail.com>
- <20111024213104.GA4394@ponder.secretlab.ca> <CAPybu_3EPJYd1EdzgF1oF6_k8u5nr4Kx1zmdPRXNZ_zcACrUEw@mail.gmail.com>
- <CACxGe6uAMugBRAqeN5D-HfX4G+DysLFjfp7=ZeC378cAdwOAwA@mail.gmail.com>
+ <1319487676-27181-5-git-send-email-ricardo.ribalda@gmail.com>
+ <20111024213635.GB4394@ponder.secretlab.ca>
+ <CAPybu_3pF6u10JMmcbho1e7=8EPHMq8LQ1+uHpyVMOmbRMUsHA@mail.gmail.com>
+ <4EA6741B.6090508@cam.ac.uk>
+ <20111025083633.GB31508@opensource.wolfsonmicro.com>
+ <CAPybu_2qfZqjE87Sm+b5TcxNf=F=Z+oM7cGpt8dYRiWydsYC7Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:59819 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754924Ab1KBMma convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Nov 2011 08:42:30 -0400
-In-Reply-To: <CACxGe6uAMugBRAqeN5D-HfX4G+DysLFjfp7=ZeC378cAdwOAwA@mail.gmail.com>
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:49912 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752177Ab1KBMtl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Nov 2011 08:49:41 -0400
+Content-Disposition: inline
+In-Reply-To: <CAPybu_2qfZqjE87Sm+b5TcxNf=F=Z+oM7cGpt8dYRiWydsYC7Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: dmitry.torokhov@gmail.com, sameo@linux.intel.com, peter.ujfalusi@ti.com, jic23@cam.ac.uk, aghayal@codeaurora.org, david@hardeman.nu, Shubhrajyoti@ti.com, saaguirre@ti.com, hemanthv@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+Cc: Jonathan Cameron <jic23@cam.ac.uk>, Grant Likely <grant.likely@secretlab.ca>, dmitry.torokhov@gmail.com, sameo@linux.intel.com, peter.ujfalusi@ti.com, aghayal@codeaurora.org, david@hardeman.nu, Shubhrajyoti@ti.com, saaguirre@ti.com, hemanthv@ti.com, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-Hello Grant
-  Thanks for your feedback
+On Wed, Nov 02, 2011 at 01:38:29PM +0100, Ricardo Ribalda Delgado wrote:
 
->>> No of_device_id match table to match against compatible values?
->>
->> I think it is not needed, the device will be matched against the
->> driver cma3000_d0x_spi.c and AFAIK on the spi/i2c devices you dont
->> need the device_id match. But you know much more about this :). =A0C=
-an
->> you point me to a example where a spi driver uses of_device-id match=
-=2E
->
-> Use an of_device_id table. =A0It's the right thing to do.
->
-Can you point me to a file where of_device_id is used in a spi/i2c
-driver? I thought that was only for mmaped drivers....
+Don't top post.
 
+>   I will wait until your patches arrive to linux-next. And then I will
+> port mine in top of yours. It will be great to get your feedback then.
 
-Thanks!
-
-
---=20
-Ricardo Ribalda
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I've no immediate intention of working on supporting devices like this,
+apart from anything else I don't have access to any hardware which needs
+this stuff.  

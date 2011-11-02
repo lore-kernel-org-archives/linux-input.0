@@ -1,59 +1,81 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: psmouse: "bad data from KBD - bad parity" every 2ms with
- synaptics touchpad
-Date: Wed, 2 Nov 2011 07:46:34 +0100
-Message-ID: <20111102064634.GA4559@polaris.bitmath.org>
-References: <20111030195253.3248.82914.reportbug@debian>
- <20111030203044.GB18681@elie.hsd1.il.comcast.net>
- <CAAyXcGAC5W5md17=V5rx-kaL7PTmBig4a-4ZhRvAVLVZ7wWzSg@mail.gmail.com>
- <20111031092748.GB24978@elie.hsd1.il.comcast.net>
- <CAAyXcGCz0Z8xkEin5DVhTa8p6Jc8oOtgghH2EWoSaLrRqCzWdg@mail.gmail.com>
- <CAAyXcGDOsmp+PVhHZx3JFjApF2_UbE8dr8jnHKJNDEm5=bWrzA@mail.gmail.com>
- <20111101080210.GB4566@elie.hsd1.il.comcast.net>
- <CAJm2B-kA63Tifyifd0mRwhaVcr-vdrvk+UGnFHnKwX4=77WL+A@mail.gmail.com>
- <20111101193458.GA10933@elie.hsd1.il.comcast.net>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: BUG: hid-multitouch causes 10 second delay and error
+Date: Wed, 2 Nov 2011 09:23:43 +0100
+Message-ID: <CAN+gG=FOJv=J9=DF4HKsZT5HcLBkBM4rAWE7peOGLo4XZJ4GNg@mail.gmail.com>
+References: <20111026213705.GA32664@pequod.mess.org>
+	<CAN+gG=E0sUd3WOzAuT1LOTz_U9jLrGg2Bq_jRjha8Dcptk6Zcw@mail.gmail.com>
+	<4EA9466F.4000508@gmail.com>
+	<20111028111605.GA23693@polaris.bitmath.org>
+	<CAN+gG=EiJJR464q_eoJuJYpWOPMsk61W6sAKD18SdT+2tQfmQA@mail.gmail.com>
+	<20111028140033.GA2155@polaris.bitmath.org>
+	<alpine.LNX.2.00.1110281913010.3541@pobox.suse.cz>
+	<20111101141704.GA2135@polaris.bitmath.org>
+	<alpine.LNX.2.00.1111011526350.348@pobox.suse.cz>
+	<20111101153348.GB2191@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:60221 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750813Ab1KBGhR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Nov 2011 02:37:17 -0400
-Received: from iph1.telenor.se (iph1.telenor.se [195.54.127.132])
-	by smtprelay-h21.telenor.se (Postfix) with ESMTP id 0F03DE9359
-	for <linux-input@vger.kernel.org>; Wed,  2 Nov 2011 07:37:15 +0100 (CET)
-Content-Disposition: inline
-In-Reply-To: <20111101193458.GA10933@elie.hsd1.il.comcast.net>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:37253 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754416Ab1KBIXp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Nov 2011 04:23:45 -0400
+Received: by wyh15 with SMTP id 15so1196411wyh.19
+        for <linux-input@vger.kernel.org>; Wed, 02 Nov 2011 01:23:43 -0700 (PDT)
+In-Reply-To: <20111101153348.GB2191@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Nieder <jrnieder@gmail.com>
-Cc: Damjan Jovanovic <damjan.jov@gmail.com>, linux-input@vger.kernel.org, Arvind K <arvindkhadri@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Peter Hutterer <peter.hutterer@who-t.net>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>, Sean Young <sean@mess.org>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
 
-On Tue, Nov 01, 2011 at 02:34:58PM -0500, Jonathan Nieder wrote:
-> Damjan Jovanovic wrote:
-> 
-> > Maybe that touchpad doesn't send proper parity. See what we did in commit
-> > 6b9d363c49d22395d0cf8729c5963f83cfbb6d69, and try to disable parity
-> > checking for that touchpad the same way?
-> 
-> Sure, though it would be nice to understand the problem better first.
-> 
-> So:
-> 
->  - Arvind, could you say a little more about when this started
->    happening[1]?  Did you change your configuration, or was there any
->    upgrade around the same time (/var/log/dpkg.log* should say)?  Any
->    idea why this wasn't always happening from the start?
-> 
->  - Others, any idea what information would be useful to track this
->    further?  Are there tools or patches for tracing what the kernel
->    gets told by the touchpad, so we could see the nature of these
->    parity errors?
-> 
->  - Is there a dump or cache of bugzilla.kernel.org available anywhere?
->    I would like to look at bug#6105 (referred to by 6b9d363c) in case
->    it points to some hints or useful debugging tools.
+Hi Henrik
 
-I would check for spurious DKMS packages as well.
+On Tue, Nov 1, 2011 at 16:33, Henrik Rydberg <rydberg@euromail.se> wrote:
+>> > 1. It still does not resolve the
+>> > hid-multitouch-gets-loaded-for-every-hid-device problem, and
+>>
+>> Hmm, I thought it should work. What is the catch?
+>
+> Everyone with an umatched hid device, even completely unrelated to
+> touch, will be surprised to find the hid-multitouch module loaded.
+>
 
-Henrik
+Well, this is a problem that can not be easily solved: IIRC, we can
+not force the load of an external driver from within the kernel.
+The best solution would be to merge hid-input and hid-multitouch.
+Indeed both systems aim at handling generic devices.However, I'd
+rather not doing it now as we are not as "good" as the Win 7 driver
+(i.e. there are some fallback modes that allow every devices to be
+handled even if they don't send clean hid reports).
+
+And, even if hid-multitouch is loaded, only 2 or 3 lines of codes will
+be executed to reject the driver in mt_probe, which won't be very time
+consuming for end user.
+
+For your second point:
+>> > 2. It did not work after removing the tested device from the hid core
+>> > whitelist; the device quirk seemed to get lost in the process.
+
+Didn't you forget to remove the following line?
+
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1230,7 +1230,6 @@ int hid_connect(struct hid_device *hdev,
+unsigned int connect_mask)
+               hdev->claimed |= HID_CLAIMED_INPUT;
+       if (hdev->quirks & HID_QUIRK_MULTITOUCH) {
+               /* this device should be handled by hid-multitouch, skip it */
+-               hdev->quirks &= ~HID_QUIRK_MULTITOUCH;
+               return -ENODEV;
+       }
+
+
+If not, that's maybe that you encountered the only case that is not
+correctly handled:
+if you register hid-multitouch before hid, then it will be the first
+driver tested, and hid-input won't set the quirk correctly.
+BTW, it's not a big deal, because if systems do have this behavior, we
+can easily put the device from the user space by using
+/sys/module/hid_multitouch/drivers/hid\:hid-multitouch/new_id
+
+Cheers,
+Benjamin

@@ -1,8 +1,8 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
 Subject: Re: psmouse: "bad data from KBD - bad parity" every 2ms with
  synaptics touchpad
-Date: Tue, 1 Nov 2011 23:00:12 -0700
-Message-ID: <20111102060012.GB29035@core.coreip.homeip.net>
+Date: Wed, 2 Nov 2011 07:46:34 +0100
+Message-ID: <20111102064634.GA4559@polaris.bitmath.org>
 References: <20111030195253.3248.82914.reportbug@debian>
  <20111030203044.GB18681@elie.hsd1.il.comcast.net>
  <CAAyXcGAC5W5md17=V5rx-kaL7PTmBig4a-4ZhRvAVLVZ7wWzSg@mail.gmail.com>
@@ -15,18 +15,19 @@ References: <20111030195253.3248.82914.reportbug@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:63691 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752504Ab1KBGAS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Nov 2011 02:00:18 -0400
-Received: by ggnb2 with SMTP id b2so229812ggn.19
-        for <linux-input@vger.kernel.org>; Tue, 01 Nov 2011 23:00:18 -0700 (PDT)
+Received: from smtprelay-h21.telenor.se ([195.54.99.196]:60221 "EHLO
+	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750813Ab1KBGhR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Nov 2011 02:37:17 -0400
+Received: from iph1.telenor.se (iph1.telenor.se [195.54.127.132])
+	by smtprelay-h21.telenor.se (Postfix) with ESMTP id 0F03DE9359
+	for <linux-input@vger.kernel.org>; Wed,  2 Nov 2011 07:37:15 +0100 (CET)
 Content-Disposition: inline
 In-Reply-To: <20111101193458.GA10933@elie.hsd1.il.comcast.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jonathan Nieder <jrnieder@gmail.com>
-Cc: Damjan Jovanovic <damjan.jov@gmail.com>, linux-input@vger.kernel.org, Arvind K <arvindkhadri@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Damjan Jovanovic <damjan.jov@gmail.com>, linux-input@vger.kernel.org, Arvind K <arvindkhadri@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Peter Hutterer <peter.hutterer@who-t.net>
 
 On Tue, Nov 01, 2011 at 02:34:58PM -0500, Jonathan Nieder wrote:
 > Damjan Jovanovic wrote:
@@ -43,20 +44,16 @@ On Tue, Nov 01, 2011 at 02:34:58PM -0500, Jonathan Nieder wrote:
 >    happening[1]?  Did you change your configuration, or was there any
 >    upgrade around the same time (/var/log/dpkg.log* should say)?  Any
 >    idea why this wasn't always happening from the start?
-
-If this was working and then stopped I'd try removing the keyboard and
-cleaning and reseating the touchpad connector.
-
 > 
 >  - Others, any idea what information would be useful to track this
 >    further?  Are there tools or patches for tracing what the kernel
 >    gets told by the touchpad, so we could see the nature of these
 >    parity errors?
+> 
+>  - Is there a dump or cache of bugzilla.kernel.org available anywhere?
+>    I would like to look at bug#6105 (referred to by 6b9d363c) in case
+>    it points to some hints or useful debugging tools.
 
-Booting with i8042.debug=1 or doing
-"echo 1 > /sys/module/i8042/parameters/debug" will dump all data from
-the keyboard controller to dmesg. It is quite a bit though (80 pps @ 6
-bytes/packet).
+I would check for spurious DKMS packages as well.
 
--- 
-Dmitry
+Henrik

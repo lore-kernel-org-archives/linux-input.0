@@ -1,64 +1,59 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 1/3] Input: Add new ABS_WHEEL2 axis
-Date: Wed, 2 Nov 2011 17:08:52 -0700
-Message-ID: <CAF8JNhLH1JhZb93KQ3mmOVW_HJEXzVN_VoKjfTWHBu2LH+aVJg@mail.gmail.com>
-References: <1319247352-2006-1-git-send-email-killertofu@gmail.com>
-	<CANRwn3TO6X9ABZJj+O+LW6W8RxB3mf5gpj7UUtCu46AkVtkU+g@mail.gmail.com>
+From: Tomas =?utf-8?B?TWlsamVub3ZpxIc=?= <TomasM@tomasm.tk>
+Subject: [PATCH]  Input: add newer HP Pavilion dv4s to 'notimeout' and 'nomux' blacklists
+Date: Thu, 03 Nov 2011 12:37:26 +1000
+Message-ID: <1536567.07NNFmgTxM@hp-tmm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:34497 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752742Ab1KCAIx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Nov 2011 20:08:53 -0400
-Received: by ywf7 with SMTP id 7so705635ywf.19
-        for <linux-input@vger.kernel.org>; Wed, 02 Nov 2011 17:08:52 -0700 (PDT)
-In-Reply-To: <CANRwn3TO6X9ABZJj+O+LW6W8RxB3mf5gpj7UUtCu46AkVtkU+g@mail.gmail.com>
+Received: from 60-242-0-245.static.tpgi.com.au ([60.242.0.245]:53416 "EHLO
+	mail.tomasm.tk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754465Ab1KCCqo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Nov 2011 22:46:44 -0400
+Received: from hp-tmm.localnet (unknown [192.168.0.42])
+	by mail.tomasm.tk (Postfix) with ESMTPS id 7AD4D200E5B
+	for <linux-input@vger.kernel.org>; Thu,  3 Nov 2011 12:34:06 +1000 (EST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Jason Gerecke <killertofu@gmail.com>
+To: linux-input@vger.kernel.org
 
-On Wed, Nov 2, 2011 at 12:46 PM, Jason Gerecke <killertofu@gmail.com> w=
-rote:
-> On Fri, Oct 21, 2011 at 6:35 PM, Jason Gerecke <killertofu@gmail.com>=
- wrote:
->> Provides a new ABS_WHEEL2 axis in input.h for use by drivers who
->> need to represent hardware with dual wheels.
->>
->> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
->> ---
->> =A0include/linux/input.h | =A0 =A01 +
->> =A01 files changed, 1 insertions(+), 0 deletions(-)
->>
->> diff --git a/include/linux/input.h b/include/linux/input.h
->> index 6d5eddb..117c68d 100644
->> --- a/include/linux/input.h
->> +++ b/include/linux/input.h
->> @@ -768,6 +768,7 @@ struct input_keymap_entry {
->> =A0#define ABS_TILT_X =A0 =A0 =A0 =A0 =A0 =A0 0x1a
->> =A0#define ABS_TILT_Y =A0 =A0 =A0 =A0 =A0 =A0 0x1b
->> =A0#define ABS_TOOL_WIDTH =A0 =A0 =A0 =A0 0x1c
->> +#define ABS_WHEEL2 =A0 =A0 =A0 =A0 =A0 =A0 0x1d
->>
->> =A0#define ABS_VOLUME =A0 =A0 =A0 =A0 =A0 =A0 0x20
->>
->> --
->> 1.7.6
->>
->>
->
-> We're coming up on two weeks without activity on this patchset. Any
-> comments or ACKs?
+Touchpad input doesn't work with newer HP Pavilion dv4 laptops due to bad i8042
+timeout data.  Booting with i8042.notimeout and i8042.nomux successfully works
+around the problem.
 
-Here is my acked-by in case you are waiting for it:
+This patch adds the devices to the i8042 notimeout and nomux blacklists.
 
-Acked-by: Ping Cheng <pingc@wacom.com>
+Signed-off-by: Tomas Miljenovic <TomasM@tomasm.tk>
+---
+diff -up a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+--- a/drivers/input/serio/i8042-x86ia64io.h	2011-07-22 12:17:23.000000000 +1000
++++ b/drivers/input/serio/i8042-x86ia64io.h	2011-11-03 00:09:07.701073695 +1000
+@@ -431,6 +431,13 @@ static const struct dmi_system_id __init
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V13"),
+ 		},
+ 	},
++        {
++                /* Newer HP Pavilion dv4 models */
++                .matches = {
++                        DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++                        DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion dv4 Notebook PC"),
++                },
++        },
+ 	{ }
+ };
+ 
+@@ -560,6 +567,13 @@ static const struct dmi_system_id __init
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V13"),
+ 		},
+ 	},
++                {
++                /* Newer HP Pavilion dv4 models */
++                .matches = {
++                        DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++                        DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion dv4 Notebook PC"),
++                },
++        },
+ 	{ }
+ };
+ 
 
-Ping
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

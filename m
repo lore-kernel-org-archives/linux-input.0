@@ -1,28 +1,125 @@
 From: Michael Gebetsroither <michael@mgeb.org>
-Subject: Add support for elo intellitouch 2700 touchscreen to usbtouchscreen.c
-Date: Thu,  3 Nov 2011 11:15:17 +0100
-Message-ID: <1320315318-15998-1-git-send-email-michael@mgeb.org>
+Subject: [PATCH] usbtouchscreen: add elo intellitouch 2700 support
+Date: Thu,  3 Nov 2011 11:15:18 +0100
+Message-ID: <1320315318-15998-2-git-send-email-michael@mgeb.org>
+References: <1320315318-15998-1-git-send-email-michael@mgeb.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.mgeb.org ([178.63.91.126]:58088 "EHLO mail.mgeb.org"
+Received: from mail.mgeb.org ([178.63.91.126]:58089 "EHLO mail.mgeb.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752670Ab1KCKZX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	id S1752784Ab1KCKZX (ORCPT <rfc822;linux-input@vger.kernel.org>);
 	Thu, 3 Nov 2011 06:25:23 -0400
+In-Reply-To: <1320315318-15998-1-git-send-email-michael@mgeb.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Gebetsroither <michael@mgeb.org>
 
-Hi all,
 
-I've added support for the elo intellitouch 2700 touchscreen
-to the usbtouchscreen driver.
+Signed-off-by: Michael Gebetsroither <michael@mgeb.org>
+---
+ drivers/input/touchscreen/Kconfig          |    6 ++++
+ drivers/input/touchscreen/usbtouchscreen.c |   36 ++++++++++++++++++++++++++++
+ 2 files changed, 42 insertions(+), 0 deletions(-)
 
-The driver is used since a few months in production without
-any problems reported. Hope i did get things right as this is
-my first patch sent to linux kernel directly.
-All information needed for this patch where take from the serial
-implementation for elo touchscreens (elo.c).
-
-Kind Regards,
-Michael Gebetsroither
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index cabd9e5..9dfb340 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -541,6 +541,7 @@ config TOUCHSCREEN_USB_COMPOSITE
+ 	  - GoTop Super_Q2/GogoPen/PenPower tablets
+ 	  - JASTEC USB Touch Controller/DigiTech DTR-02U
+ 	  - Zytronic controllers
++	  - Elo TouchSystems 2700 IntelliTouch
+ 
+ 	  Have a look at <http://linux.chapter7.ch/touchkit/> for
+ 	  a usage description and the required user-space stuff.
+@@ -620,6 +621,11 @@ config TOUCHSCREEN_USB_JASTEC
+ 	bool "JASTEC/DigiTech DTR-02U USB touch controller device support" if EXPERT
+ 	depends on TOUCHSCREEN_USB_COMPOSITE
+ 
++config TOUCHSCREEN_USB_ELO
++	default y
++	bool "Elo TouchSystems 2700 IntelliTouch controller device support" if EXPERT
++	depends on TOUCHSCREEN_USB_COMPOSITE
++
+ config TOUCHSCREEN_USB_E2I
+ 	default y
+ 	bool "e2i Touchscreen controller (e.g. from Mimo 740)"
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index 73fd664..e2b63d9 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -16,6 +16,7 @@
+  *  - JASTEC USB touch controller/DigiTech DTR-02U
+  *  - Zytronic capacitive touchscreen
+  *  - NEXIO/iNexio
++ *  - Elo TouchSystems 2700 IntelliTouch
+  *
+  * Copyright (C) 2004-2007 by Daniel Ritz <daniel.ritz@gmx.ch>
+  * Copyright (C) by Todd E. Johnson (mtouchusb.c)
+@@ -138,6 +139,7 @@ enum {
+ 	DEVTYPE_ZYTRONIC,
+ 	DEVTYPE_TC45USB,
+ 	DEVTYPE_NEXIO,
++	DEVTYPE_ELO,
+ };
+ 
+ #define USB_DEVICE_HID_CLASS(vend, prod) \
+@@ -239,6 +241,10 @@ static const struct usb_device_id usbtouch_devices[] = {
+ 		.driver_info = DEVTYPE_NEXIO},
+ #endif
+ 
++#ifdef CONFIG_TOUCHSCREEN_USB_ELO
++	{USB_DEVICE(0x04e7, 0x0020), .driver_info = DEVTYPE_ELO},
++#endif
++
+ 	{}
+ };
+ 
+@@ -278,6 +284,24 @@ static int e2i_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
+ 
+ 
+ /*****************************************************************************
++ * ELO part
++ */
++
++#ifdef CONFIG_TOUCHSCREEN_USB_ELO
++
++static int elo_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
++{
++	dev->x = ((pkt[3] << 8) | pkt[2]);
++	dev->y = ((pkt[5] << 8) | pkt[4]);
++	dev->touch = (pkt[6] > 0);
++	dev->press = pkt[6];
++	return 1;
++
++}
++#endif
++
++
++/*****************************************************************************
+  * eGalax part
+  */
+ 
+@@ -953,6 +977,18 @@ static void usbtouch_process_multi(struct usbtouch_usb *usbtouch,
+ #endif
+ 
+ static struct usbtouch_device_info usbtouch_dev_info[] = {
++#ifdef CONFIG_TOUCHSCREEN_USB_ELO
++	[DEVTYPE_ELO] = {
++		.min_xc		= 0x0,
++		.max_xc		= 0x0fff,
++		.min_yc		= 0x0,
++		.max_yc		= 0x0fff,
++		.max_press	= 0xff,
++		.rept_size	= 8,
++		.read_data	= elo_read_data,
++	},
++#endif
++
+ #ifdef CONFIG_TOUCHSCREEN_USB_EGALAX
+ 	[DEVTYPE_EGALAX] = {
+ 		.min_xc		= 0x0,
+-- 
+1.7.5.4
 

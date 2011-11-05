@@ -1,47 +1,46 @@
-From: Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH] Add generic GPIO-tilt driver
-Date: Fri, 4 Nov 2011 12:53:11 +0100
-Message-ID: <201111041253.11738.heiko@sntech.de>
-References: <201110211043.47742.heiko@sntech.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] usbtouchscreen: add elo intellitouch 2700 support
+Date: Fri, 4 Nov 2011 23:56:31 -0700
+Message-ID: <20111105065631.GB31111@core.coreip.homeip.net>
+References: <1320315318-15998-1-git-send-email-michael@mgeb.org>
+ <1320315318-15998-2-git-send-email-michael@mgeb.org>
+ <4EB335A1.7010809@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from s15407518.onlinehome-server.info ([82.165.136.167]:47448 "EHLO
-	s15407518.onlinehome-server.info" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751657Ab1KDMXk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Nov 2011 08:23:40 -0400
-In-Reply-To: <201110211043.47742.heiko@sntech.de>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:63232 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750810Ab1KEG4g (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Nov 2011 02:56:36 -0400
+Received: by iage36 with SMTP id e36so3464304iag.19
+        for <linux-input@vger.kernel.org>; Fri, 04 Nov 2011 23:56:36 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4EB335A1.7010809@cn.fujitsu.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
+To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Cc: Michael Gebetsroither <michael@mgeb.org>, linux-input@vger.kernel.org
 
-Am Freitag 21 Oktober 2011, 10:43:47 schrieb Heiko St=FCbner:
-> There exist tilt switches that simply report their tilt-state via som=
-e
-> gpios.
->=20
-> The number and orientation of their axes can vary depending on the sw=
-itch
-> used and the build of the device. Also two or more one-axis switches
-> could be combined to provide multi-dimensional orientation.
->=20
-> One example of a device using such a switch is the family of Qisda
-> ebook readers, where the switch provides information about the
-> landscape / portrait orientation of the device. The example in
-> Documentation/input/gpio-tilt.txt documents exactly this one-axis dev=
-ice.
->=20
-> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-> ---
-ping ... comments?
+On Fri, Nov 04, 2011 at 08:45:21AM +0800, Wanlong Gao wrote:
+> >  
+> >  static struct usbtouch_device_info usbtouch_dev_info[] = {
+> > +#ifdef CONFIG_TOUCHSCREEN_USB_ELO
+> > +	[DEVTYPE_ELO] = {
+> > +		.min_xc		= 0x0,
+> > +		.max_xc		= 0x0fff,
+> > +		.min_yc		= 0x0,
+> > +		.max_yc		= 0x0fff,
+> > +		.max_press	= 0xff,
+> > +		.rept_size	= 8,
+> > +		.read_data	= elo_read_data,
+> > +	},
+> > +#endif
+> 
+> 
+> Maybe you can move this *dev_info* to end to be consistent with the order of *enum*?
+> 
 
-Thanks
-Heiko
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I did that locally and applied to my 3.3 queue; thanks everyone.
+
+-- 
+Dmitry

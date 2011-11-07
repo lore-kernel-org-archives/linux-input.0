@@ -1,117 +1,202 @@
 From: Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v2 3/7] Input: ALPS - Add protocol version field in alps_model_info
-Date: Mon,  7 Nov 2011 14:52:36 -0600
-Message-ID: <1320699160-28492-4-git-send-email-seth.forshee@canonical.com>
+Subject: [PATCH v2 7/7] Input: ALPS - Add documentation for protocol versions 3 and 4
+Date: Mon,  7 Nov 2011 14:52:40 -0600
+Message-ID: <1320699160-28492-8-git-send-email-seth.forshee@canonical.com>
 References: <1320699160-28492-1-git-send-email-seth.forshee@canonical.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:36667 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754831Ab1KGUxJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2011 15:53:09 -0500
 In-Reply-To: <1320699160-28492-1-git-send-email-seth.forshee@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, Andrew Skalski <askalski@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-In preparation for adding support for more ALPS protocol versions,
-add a field for the protocol version to the model info instead of
-using a field in the flags. OLDPROTO and !OLDPROTO are now called
-version 1 and version 2, repsectively.
+Also converts from using "old" and "new" to describe the already-known
+protocols to using "version 1" and "version 2" to match the code.
 
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 Acked-by: Chase Douglas <chase.douglas@canonical.com>
 ---
- drivers/input/mouse/alps.c |   47 +++++++++++++++++++++----------------------
- drivers/input/mouse/alps.h |    4 +++
- 2 files changed, 27 insertions(+), 24 deletions(-)
+ Documentation/input/alps.txt |  135 ++++++++++++++++++++++++++++++++++++++----
+ 1 files changed, 124 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 19d0943..77b776d 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -23,7 +23,6 @@
- #include "psmouse.h"
- #include "alps.h"
+diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
+index ab5478f..f274c28 100644
+--- a/Documentation/input/alps.txt
++++ b/Documentation/input/alps.txt
+@@ -4,12 +4,9 @@ ALPS Touchpad Protocol
+ Introduction
+ ------------
  
--#define ALPS_OLDPROTO		0x01	/* old style input */
- #define ALPS_DUALPOINT		0x02	/* touchpad has trackstick */
- #define ALPS_PASS		0x04	/* device has a pass-through port */
+-Currently the ALPS touchpad driver supports two protocol versions in use by
+-ALPS touchpads, the "old" and "new" protocol versions. Fundamentally these
+-differ only in the format of their event packets (in reality many features may
+-be found on new protocol devices that aren't found on the old protocol
+-devices, but these are handled transparently as feature differences rather
+-than protocol differences).
++Currently the ALPS touchpad driver supports four protocol versions in use by
++ALPS touchpads, called versions 1, 2, 3, and 4. Information about the various
++protocol versions is contained in the following sections.
  
-@@ -35,30 +34,30 @@
- 					   6-byte ALPS packet */
+ Detection
+ ---------
+@@ -22,10 +19,37 @@ If the E6 report is successful, the touchpad model is identified using the "E7
+ report" sequence: E8-E7-E7-E7-E9. The response is the model signature and is
+ matched against known models in the alps_model_data_array.
  
- static const struct alps_model_info alps_model_data[] = {
--	{ { 0x32, 0x02, 0x14 },	0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* Toshiba Salellite Pro M10 */
--	{ { 0x33, 0x02, 0x0a },	0x88, 0xf8, ALPS_OLDPROTO },		  /* UMAX-530T */
--	{ { 0x53, 0x02, 0x0a },	0xf8, 0xf8, 0 },
--	{ { 0x53, 0x02, 0x14 },	0xf8, 0xf8, 0 },
--	{ { 0x60, 0x03, 0xc8 }, 0xf8, 0xf8, 0 },			  /* HP ze1115 */
--	{ { 0x63, 0x02, 0x0a },	0xf8, 0xf8, 0 },
--	{ { 0x63, 0x02, 0x14 },	0xf8, 0xf8, 0 },
--	{ { 0x63, 0x02, 0x28 },	0xf8, 0xf8, ALPS_FW_BK_2 },		  /* Fujitsu Siemens S6010 */
--	{ { 0x63, 0x02, 0x3c },	0x8f, 0x8f, ALPS_WHEEL },		  /* Toshiba Satellite S2400-103 */
--	{ { 0x63, 0x02, 0x50 },	0xef, 0xef, ALPS_FW_BK_1 },		  /* NEC Versa L320 */
--	{ { 0x63, 0x02, 0x64 },	0xf8, 0xf8, 0 },
--	{ { 0x63, 0x03, 0xc8 }, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* Dell Latitude D800 */
--	{ { 0x73, 0x00, 0x0a },	0xf8, 0xf8, ALPS_DUALPOINT },		  /* ThinkPad R61 8918-5QG */
--	{ { 0x73, 0x02, 0x0a },	0xf8, 0xf8, 0 },
--	{ { 0x73, 0x02, 0x14 },	0xf8, 0xf8, ALPS_FW_BK_2 },		  /* Ahtec Laptop */
--	{ { 0x20, 0x02, 0x0e },	0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* XXX */
--	{ { 0x22, 0x02, 0x0a },	0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT },
--	{ { 0x22, 0x02, 0x14 }, 0xff, 0xff, ALPS_PASS | ALPS_DUALPOINT }, /* Dell Latitude D600 */
-+	{ { 0x32, 0x02, 0x14 },	ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* Toshiba Salellite Pro M10 */
-+	{ { 0x33, 0x02, 0x0a },	ALPS_PROTO_V1, 0x88, 0xf8, 0 },				 /* UMAX-530T */
-+	{ { 0x53, 0x02, 0x0a },	ALPS_PROTO_V2, 0xf8, 0xf8, 0 },
-+	{ { 0x53, 0x02, 0x14 },	ALPS_PROTO_V2, 0xf8, 0xf8, 0 },
-+	{ { 0x60, 0x03, 0xc8 }, ALPS_PROTO_V2, 0xf8, 0xf8, 0 },				 /* HP ze1115 */
-+	{ { 0x63, 0x02, 0x0a },	ALPS_PROTO_V2, 0xf8, 0xf8, 0 },
-+	{ { 0x63, 0x02, 0x14 },	ALPS_PROTO_V2, 0xf8, 0xf8, 0 },
-+	{ { 0x63, 0x02, 0x28 },	ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_FW_BK_2 },		 /* Fujitsu Siemens S6010 */
-+	{ { 0x63, 0x02, 0x3c },	ALPS_PROTO_V2, 0x8f, 0x8f, ALPS_WHEEL },		 /* Toshiba Satellite S2400-103 */
-+	{ { 0x63, 0x02, 0x50 },	ALPS_PROTO_V2, 0xef, 0xef, ALPS_FW_BK_1 },		 /* NEC Versa L320 */
-+	{ { 0x63, 0x02, 0x64 },	ALPS_PROTO_V2, 0xf8, 0xf8, 0 },
-+	{ { 0x63, 0x03, 0xc8 }, ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* Dell Latitude D800 */
-+	{ { 0x73, 0x00, 0x0a },	ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_DUALPOINT },		 /* ThinkPad R61 8918-5QG */
-+	{ { 0x73, 0x02, 0x0a },	ALPS_PROTO_V2, 0xf8, 0xf8, 0 },
-+	{ { 0x73, 0x02, 0x14 },	ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_FW_BK_2 },		 /* Ahtec Laptop */
-+	{ { 0x20, 0x02, 0x0e },	ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* XXX */
-+	{ { 0x22, 0x02, 0x0a },	ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT },
-+	{ { 0x22, 0x02, 0x14 }, ALPS_PROTO_V2, 0xff, 0xff, ALPS_PASS | ALPS_DUALPOINT }, /* Dell Latitude D600 */
- 	/* Dell Latitude E5500, E6400, E6500, Precision M4400 */
--	{ { 0x62, 0x02, 0x14 }, 0xcf, 0xcf,
-+	{ { 0x62, 0x02, 0x14 }, ALPS_PROTO_V2, 0xcf, 0xcf,
- 		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },
--	{ { 0x73, 0x02, 0x50 }, 0xcf, 0xcf, ALPS_FOUR_BUTTONS },	  /* Dell Vostro 1400 */
--	{ { 0x52, 0x01, 0x14 }, 0xff, 0xff,
--		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },	  /* Toshiba Tecra A11-11L */
-+	{ { 0x73, 0x02, 0x50 }, ALPS_PROTO_V2, 0xcf, 0xcf, ALPS_FOUR_BUTTONS },		 /* Dell Vostro 1400 */
-+	{ { 0x52, 0x01, 0x14 }, ALPS_PROTO_V2, 0xff, 0xff,
-+		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },			 /* Toshiba Tecra A11-11L */
- };
- 
- /*
-@@ -112,7 +111,7 @@ static void alps_process_packet(struct psmouse *psmouse)
- 	int x, y, z, ges, fin, left, right, middle;
- 	int back = 0, forward = 0;
- 
--	if (model->flags & ALPS_OLDPROTO) {
-+	if (model->proto_version == ALPS_PROTO_V1) {
- 		left = packet[2] & 0x10;
- 		right = packet[2] & 0x08;
- 		middle = 0;
-diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
-index 904ed8b..4ce9bba 100644
---- a/drivers/input/mouse/alps.h
-+++ b/drivers/input/mouse/alps.h
-@@ -12,8 +12,12 @@
- #ifndef _ALPS_H
- #define _ALPS_H
- 
-+#define ALPS_PROTO_V1	0
-+#define ALPS_PROTO_V2	1
++With protocol versions 3 and 4, the E7 report model signature is always
++73-02-64. To differentiate between these versions, the response from the
++"Enter Command Mode" sequence must be inspected as described below.
 +
- struct alps_model_info {
-         unsigned char signature[3];
-+	unsigned char proto_version;
-         unsigned char byte0, mask0;
-         unsigned char flags;
- };
++Command Mode
++------------
++
++Protocol versions 3 and 4 have a command mode that is used to read and write
++one-byte device registers in a 16-bit address space. The command sequence
++EC-EC-EC-E9 places the device in command mode, and the device will respond
++with 88-07 followed by a third byte. This third byte can be used to determine
++whether the devices uses the version 3 or 4 protocol.
++
++To exit command mode, PSMOUSE_CMD_SETSTREAM (EA) is sent to the touchpad.
++
++While in command mode, register addresses can be set by first sending a
++specific command, either EC for v3 devices or F5 for v4 devices. Then the
++address is sent one nibble at a time, where each nibble is encoded as a
++command with optional data. This enoding differs slightly between the v3 and
++v4 protocols.
++
++Once an address has been set, the addressed register can be read by sending
++PSMOUSE_CMD_GETINFO (E9). The first two bytes of the response contains the
++address of the register being read, and the third contains the value of the
++register. Registers are written by writing the value one nibble at a time
++using the same encoding used for addresses.
++
+ Packet Format
+ -------------
+ 
+-In the following tables, the following notation us used.
++In the following tables, the following notation is used.
+ 
+  CAPITALS = stick, miniscules = touchpad
+ 
+@@ -41,8 +65,8 @@ PS/2 packet format
+ 
+ Note that the device never signals overflow condition.
+ 
+-ALPS Absolute Mode - Old Format
+--------------------------------
++ALPS Absolute Mode - Protocol Verion 1
++--------------------------------------
+ 
+  byte 0:  1    0    0    0    1   x9   x8   x7
+  byte 1:  0   x6   x5   x4   x3   x2   x1   x0
+@@ -51,8 +75,8 @@ ALPS Absolute Mode - Old Format
+  byte 4:  0   y6   y5   y4   y3   y2   y1   y0
+  byte 5:  0   z6   z5   z4   z3   z2   z1   z0
+ 
+-ALPS Absolute Mode - New Format
+--------------------------------
++ALPS Absolute Mode - Protocol Version 2
++---------------------------------------
+ 
+  byte 0:  1    ?    ?    ?    1    ?    ?    ?
+  byte 1:  0   x6   x5   x4   x3   x2   x1   x0
+@@ -73,3 +97,92 @@ Dualpoint device -- interleaved packet format
+  byte 6:    0   y9   y8   y7    1    m    r    l
+  byte 7:    0   y6   y5   y4   y3   y2   y1   y0
+  byte 8:    0   z6   z5   z4   z3   z2   z1   z0
++
++ALPS Absolute Mode - Protocol Version 3
++---------------------------------------
++
++ALPS protocol version 3 has three different packet formats. The first two are
++associated with touchpad events, and the third is associatd with trackstick
++events.
++
++The first type is the touchpad position packet.
++
++ byte 0:    1    ?   x1   x0    1    1    1    1
++ byte 1:    0  x10   x9   x8   x7   x6   x5   x4
++ byte 2:    0  y10   y9   y8   y7   y6   y5   y4
++ byte 3:    0    M    R    L    1    m    r    l
++ byte 4:    0   mt   x3   x2   y3   y2   y1   y0
++ byte 5:    0   z6   z5   z4   z3   z2   z1   z0
++
++Note that for some devices the trackstick buttons are reported in this packet,
++and on others it is reported in the trackstick packets.
++
++The second packet type contains bitmaps representing the x and y axes. In the
++bitmaps a given bit is set if there is a finger covering that position on the
++given axis. Thus the bitmap packet can be used for low-resolution multi-touch
++data, although finger tracking is not possible.  This packet also encodes the
++number of contacts (f1 and f0 in the table below).
++
++ byte 0:    1    1   x1   x0    1    1    1    1
++ byte 1:    0   x8   x7   x6   x5   x4   x3   x2
++ byte 2:    0   y7   y6   y5   y4   y3   y2   y1
++ byte 3:    0  y10   y9   y8    1    1    1    1
++ byte 4:    0  x14  x13  x12  x11  x10   x9   y0
++ byte 5:    0    1    ?    ?    ?    ?   f1   f0
++
++This packet only appears after a position packet with the mt bit set, and
++ususally only appears when there are two or more contacts (although
++ocassionally it's seen with only a single contact).
++
++The final v3 packet type is the trackstick packet.
++
++ byte 0:    1    1   x7   y7    1    1    1    1
++ byte 1:    0   x6   x5   x4   x3   x2   x1   x0
++ byte 2:    0   y6   y5   y4   y3   y2   y1   y0
++ byte 3:    0    1    0    0    1    0    0    0
++ byte 4:    0   z4   z3   z2   z1   z0    ?    ?
++ byte 5:    0    0    1    1    1    1    1    1
++
++ALPS Absolute Mode - Protocol Version 4
++---------------------------------------
++
++Protocol version 4 has an 8-byte packet format.
++
++ byte 0:    1    ?   x1   x0    1    1    1    1
++ byte 1:    0  x10   x9   x8   x7   x6   x5   x4
++ byte 2:    0  y10   y9   y8   y7   y6   y5   y4
++ byte 3:    0    1   x3   x2   y3   y2   y1   y0
++ byte 4:    0    ?    ?    ?    1    ?    r    l
++ byte 5:    0   z6   z5   z4   z3   z2   z1   z0
++ byte 6:    bitmap data (described below)
++ byte 7:    bitmap data (described below)
++
++The last two bytes represent a partial bitmap packet, with 3 full packets
++required to construct a complete bitmap packet.  Once assembled, the 6-byte
++bitmap packet has the following format:
++
++ byte 0:    0    1   x7   x6   x5   x4   x3   x2
++ byte 1:    0   x1   x0   y4   y3   y2   y1   y0
++ byte 2:    0    0    ?  x14  x13  x12  x11  x10
++ byte 3:    0   x9   x8   y9   y8   y7   y6   y5
++ byte 4:    0    0    0    0    0    0    0    0
++ byte 5:    0    0    0    0    0    0    0  y10
++
++There are several things worth noting here.
++
++ 1) In the bitmap data, bit 6 of byte 0 serves as a sync byte to
++    identify the first fragment of a bitmap packet.
++
++ 2) The bitmaps represent the same data as in the v3 bitmap packets, although
++    the packet layout is different.
++
++ 3) There doesn't seem to be a count of the contact points anywhere in the v4
++    protocol packets. Deriving a count of contact points must be done by
++    analyzing the bitmaps.
++
++ 4) There is a 3 to 1 ratio of position packets to bitmap packets. Therefore
++    MT position can only be updated for every third ST position update, and
++    the count of contact points can only be updated every third packet as
++    well.
++
++So far no v4 devices with tracksticks have been encountered.
 -- 
 1.7.5.4
+

@@ -1,94 +1,79 @@
-From: Tino Schmidt <mailtinoshomepage@gmx.net>
-Subject: Re: Wishlist: Add support for software-rf-switch in Fujitsu-Siemens
- notebook
-Date: Sun, 06 Nov 2011 22:04:19 +0100
-Message-ID: <4EB6F653.50901@gmx.net>
-References: <20110625211738.3615.21718.reportbug@lisa>		 <1317441406.4068.43.camel@deadeye> <20111002221253.GA18253@elie>		 <4E9B3DCC.7050106@gmx.net> <1318824232.3340.1.camel@deadeye>	 <4EAEDB1A.3070906@gmx.net> <1320122005.30281.18.camel@deadeye>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: chris@cnpbagwell.com
+Subject: [PATCH] Input: wacom - ignore unwanted bamboo packets
+Date: Sun,  6 Nov 2011 19:22:15 -0600
+Message-ID: <1320628935-14540-1-git-send-email-chris@cnpbagwell.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.23]:57152 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1750957Ab1KFVDY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Nov 2011 16:03:24 -0500
-In-Reply-To: <1320122005.30281.18.camel@deadeye>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:41558 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754853Ab1KGBWb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Nov 2011 20:22:31 -0500
+Received: by ywf7 with SMTP id 7so4711130ywf.19
+        for <linux-input@vger.kernel.org>; Sun, 06 Nov 2011 17:22:30 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Hutchings <ben@decadent.org.uk>
-Cc: Jonathan Nieder <jrnieder@gmail.com>, linux-input@vger.kernel.org, Miloslav Trmac <mitr@volny.cz>, =?UTF-8?B?TWFydGluIFZlxI1lxZlh?= <ja@marvec.org>, Jonathan Woithe <jwoithe@physics.adelaide.edu.au>, =?UTF-8?B?w4lyaWMgUGllbA==?= <eric.piel@tremplin-utc.net>, 631664@bugs.debian.org
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: Chris Bagwell <chris@cnpbagwell.com>
 
+From: Chris Bagwell <chris@cnpbagwell.com>
 
-> On Mon, 2011-10-31 at 18:30 +0100, Tino Schmidt wrote:
->    
->>> On Sun, 2011-10-16 at 22:25 +0200, Tino Schmidt wrote:
->>> [...]
->>>
->>>        
->>>> Hi,
->>>> I'm sorry for the long delay but I can use the laptop only on weekend.
->>>> Here is the output:
->>>>
->>>> # modprobe wistron_btns force=1
->>>> FATAL: Error inserting wistron_btns
->>>> (/lib/modules/2.6.26-2-686/kernel/drivers/input/misc/wistron_btns.ko):
->>>> No such device
->>>>
->>>>          
->>> It looks like this model is rather different, maybe not a Wistron design
->>> at all.
->>>
->>> I would prefer you to test against Linux 3.0, but it appears that the
->>> model detection has not changed since 2.6.26.
->>>
->>>
->>>        
->>>> # dmesg
->>>> [  168.628474] wistron_btns: BIOS entry point not found
->>>>
->>>> and
->>>> # grep . /sys/class/dmi/id/*_{vendor,name,version}
->>>> /sys/class/dmi/id/bios_vendor:FUJITSU SIEMENS
->>>> /sys/class/dmi/id/board_vendor:FUJITSU SIEMENS
->>>> /sys/class/dmi/id/chassis_vendor:FUJITSU SIEMENS
->>>> /sys/class/dmi/id/sys_vendor:FUJITSU SIEMENS
->>>> /sys/class/dmi/id/board_name:AMILO A1655
->>>> /sys/class/dmi/id/product_name:AMILO A Series
->>>> /sys/class/dmi/id/bios_version:1.0C-8044-8A20
->>>> /sys/class/dmi/id/board_version:Rev0.4b
->>>> /sys/class/dmi/id/chassis_version:N/A
->>>> /sys/class/dmi/id/product_version:0100
->>>>
->>>>          
->>> Please build and test the attached driver (make&&   insmod
->>> amilo-rfkill.ko).  It provides a standard rfkill device which you can
->>> control with e.g. the 'rfkill' command, and will only bind to specific
->>> models.
->>>
->>> If this works, I'll submit the code upstream.
->>>
->>> Ben.
->>>
->>>
->>>        
->> Hi Ben,
->> Thank you for your code!
->>
->> Before I built the module (Kernel 2.6.32) I had to insert the include
->> line #include<asm/io.h>  ( ->  inb()-function ?)
->>      
-> That should be<linux/io.h>, actually.
->
->    
->> With Kernel 2.6.26 I couldn't even built the module.
->>
->> But loading of the module failed:
->> # insmod amilo-rfkill.ko
->> insmod: error inserting 'amilo-rfkill.ko': -1 No such device
->>      
-> Sorry, I made the driver look for product name "AMILO A1655" but that is
-> actually the board name.  Could you try changing DMI_PRODUCT_NAME to
-> DMI_BOARD_NAME?
->
->    
-Yep, that's it. Runs fine!
+Bamboo's Pen and Touch packets always start with a value
+of 0x02 in first byte.  In 3rd gen Bamboo's, the hw is now
+periodically sending some additional packets with unrelated data
+and uses a value other than 0x02 to inform driver this.
+
+Ignore those packets now.
+
+This was reported by users as bad behavior in Gimp. The
+invalid packets being processed made the stylus report
+out of proximity for the 1 packet and this triggered some
+secondary bug which caused Gimp to stop drawing until
+user really took pen out of proximity of tablet.
+
+Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+---
+
+This patch is for next branch; were 3rd gen Bamboo patches
+are.
+
+It was tested on 1st gen and 3rd gen Bamboo.
+
+ drivers/input/tablet/wacom_wac.c |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 164bb55..6b9adc7 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -799,6 +799,9 @@ static int wacom_bpt_touch(struct wacom_wac *wacom)
+ 	unsigned char *data = wacom->data;
+ 	int i;
+ 
++	if (data[0] != 0x02)
++	    return 0;
++
+ 	for (i = 0; i < 2; i++) {
+ 		int p = data[9 * i + 2];
+ 		bool touch = p && !wacom->shared->stylus_in_proximity;
+@@ -875,6 +878,9 @@ static int wacom_bpt3_touch(struct wacom_wac *wacom)
+ 	int count = data[1] & 0x03;
+ 	int i;
+ 
++	if (data[0] != 0x02)
++	    return 0;
++
+ 	/* data has up to 7 fixed sized 8-byte messages starting at data[2] */
+ 	for (i = 0; i < count; i++) {
+ 		int offset = (8 * i) + 2;
+@@ -900,6 +906,9 @@ static int wacom_bpt_pen(struct wacom_wac *wacom)
+ 	unsigned char *data = wacom->data;
+ 	int prox = 0, x = 0, y = 0, p = 0, d = 0, pen = 0, btn1 = 0, btn2 = 0;
+ 
++	if (data[0] != 0x02)
++	    return 0;
++
+ 	prox = (data[1] & 0x20) == 0x20;
+ 
+ 	/*
+-- 
+1.7.7
+

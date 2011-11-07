@@ -1,45 +1,43 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [PATCH 3/3] HID: usbhid: defer LED setting to a workqueue
-Date: Mon, 7 Nov 2011 15:48:04 +0100
-Message-ID: <201111071548.04483.oneukum@suse.de>
-References: <1320139547-7921-1-git-send-email-djkurtz@chromium.org> <1320139547-7921-4-git-send-email-djkurtz@chromium.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: [PATCH] HID: bump maximum global item tag report size to 96 bytes
+Date: Mon,  7 Nov 2011 11:08:05 -0800
+Message-ID: <1320692885-25733-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:48447 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932220Ab1KGOrN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 7 Nov 2011 09:47:13 -0500
-In-Reply-To: <1320139547-7921-4-git-send-email-djkurtz@chromium.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:40104 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752933Ab1KGTIL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2011 14:08:11 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: jkosina@suse.cz, bleung@chromium.org, stern@rowland.harvard.edu, olofj@chromium.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-Am Dienstag, 1. November 2011, 10:25:47 schrieb Daniel Kurtz:
-> Defer LED setting action to a workqueue.
-> This is more likely to perform all LED change events in a single URB.
-> 
-> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-> ---
->  drivers/hid/hid-input.c       |   42 ++++++++++++++++++++++++++++++++++++++++
->  drivers/hid/usbhid/hid-core.c |   43 +++++++++++++++++++++++++++++++---------
->  drivers/hid/usbhid/usbhid.h   |    2 +
->  include/linux/hid.h           |    2 +
+This allows the latest N-Trig devices to function properly.
 
-> @@ -1292,6 +1314,7 @@ static void hid_cancel_delayed_stuff(struct usbhid_device *usbhid)
->  {
->  	del_timer_sync(&usbhid->io_retry);
->  	cancel_work_sync(&usbhid->reset_work);
-> +	cancel_work_sync(&usbhid->led_work);
->  }
+BugLink: https://bugs.launchpad.net/bugs/724831
 
-Hi,
+Cc: stable@vger.kernel.org
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+---
+I have no clue if this is according to spec or not. I only know that this
+change makes two users' N-Trig devices work properly in the above bug.
 
-this seems to introduce a race in usbhid_stop() which might fail to kill the urb
-used to change the LEDs.
+ drivers/hid/hid-core.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-	Regards
-		Oliver
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 848a56c..6113996 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -362,7 +362,7 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
+ 
+ 	case HID_GLOBAL_ITEM_TAG_REPORT_SIZE:
+ 		parser->global.report_size = item_udata(item);
+-		if (parser->global.report_size > 32) {
++		if (parser->global.report_size > 96) {
+ 			dbg_hid("invalid report_size %d\n",
+ 					parser->global.report_size);
+ 			return -1;
+-- 
+1.7.5.4
+

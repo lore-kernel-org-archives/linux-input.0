@@ -1,43 +1,39 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: [PATCH] HID: bump maximum global item tag report size to 96 bytes
-Date: Mon,  7 Nov 2011 11:08:05 -0800
-Message-ID: <1320692885-25733-1-git-send-email-chase.douglas@canonical.com>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH v2 0/7] Additional ALPS touchpad protocol support
+Date: Mon,  7 Nov 2011 14:52:33 -0600
+Message-ID: <1320699160-28492-1-git-send-email-seth.forshee@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:40104 "EHLO
+Received: from youngberry.canonical.com ([91.189.89.112]:45748 "EHLO
 	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752933Ab1KGTIL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2011 14:08:11 -0500
+	with ESMTP id S1751546Ab1KGUww (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2011 15:52:52 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, Andrew Skalski <askalski@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This allows the latest N-Trig devices to function properly.
+Minor updates to previous patches to address review comments and to
+rebase onto ALPS driver changes in 3.2.
 
-BugLink: https://bugs.launchpad.net/bugs/724831
+Changes since v1:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
----
-I have no clue if this is according to spec or not. I only know that this
-change makes two users' N-Trig devices work properly in the above bug.
+ - Changed to use stack-allocated buffer instead of kmalloced buffer in
+   alps_poll.
+ - Rebased onto alps.c changes merged in 3.2 merge window, changing all
+   debug and error messages to use psmouse_* print statements.
 
- drivers/hid/hid-core.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Seth Forshee (7):
+      Input: ALPS - Move protocol information to Documentation
+      Input: psmouse - Add PSMOUSE_CMD_RESET_WRAP
+      Input: ALPS - Add protocol version field in alps_model_info
+      Input: ALPS - Remove assumptions about packet size
+      Input: ALPS - Add support for protocol versions 3 and 4
+      Input: ALPS - Add semi-MT support for v3 protocol
+      Input: ALPS - Add documentation for protocol versions 3 and 4
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 848a56c..6113996 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -362,7 +362,7 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
- 
- 	case HID_GLOBAL_ITEM_TAG_REPORT_SIZE:
- 		parser->global.report_size = item_udata(item);
--		if (parser->global.report_size > 32) {
-+		if (parser->global.report_size > 96) {
- 			dbg_hid("invalid report_size %d\n",
- 					parser->global.report_size);
- 			return -1;
--- 
-1.7.5.4
-
+ Documentation/input/alps.txt  |  188 ++++++++
+ drivers/input/mouse/alps.c    | 1036 +++++++++++++++++++++++++++++++++++++----
+ drivers/input/mouse/alps.h    |   19 +
+ drivers/input/mouse/psmouse.h |    1 +
+ 4 files changed, 1163 insertions(+), 81 deletions(-)
+ create mode 100644 Documentation/input/alps.txt

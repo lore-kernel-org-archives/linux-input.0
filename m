@@ -1,34 +1,30 @@
-From: Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v2 2/7] Input: psmouse - Add PSMOUSE_CMD_RESET_WRAP
-Date: Mon,  7 Nov 2011 14:52:35 -0600
-Message-ID: <1320699160-28492-3-git-send-email-seth.forshee@canonical.com>
-References: <1320699160-28492-1-git-send-email-seth.forshee@canonical.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1320699160-28492-1-git-send-email-seth.forshee@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, Andrew Skalski <askalski@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH v2 4/7] Input: ALPS - Remove assumptions about packet
+ size
+Date: Mon, 07 Nov 2011 13:31:59 -0800
+Message-ID: <4EB84E4F.5020502@canonical.com>
+References: <1320699160-28492-1-git-send-email-seth.forshee@canonical.com> <1320699160-28492-5-git-send-email-seth.forshee@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:42216 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751319Ab1KGVcG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2011 16:32:06 -0500
+In-Reply-To: <1320699160-28492-5-git-send-email-seth.forshee@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Seth Forshee <seth.forshee@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alessandro Rubini <rubini@cvml.unipv.it>, Henrik Rydberg <rydberg@euromail.se>, Andrew Skalski <askalski@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Add this command in preparation for new ALPS protocol support.
+On 11/07/2011 12:52 PM, Seth Forshee wrote:
+> In preparation for version 4 protocol support, which has 8-byte
+> data packets, remove all hard-coded assumptions about packet size
+> and use psmouse->pktsize instead.
+> 
+> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 
-Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+The stack allocated buffer is much cleaner :).
+
 Acked-by: Chase Douglas <chase.douglas@canonical.com>
----
- drivers/input/mouse/psmouse.h |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-index 9b84b0c..11a9c6c 100644
---- a/drivers/input/mouse/psmouse.h
-+++ b/drivers/input/mouse/psmouse.h
-@@ -8,6 +8,7 @@
- #define PSMOUSE_CMD_SETSTREAM	0x00ea
- #define PSMOUSE_CMD_SETPOLL	0x00f0
- #define PSMOUSE_CMD_POLL	0x00eb	/* caller sets number of bytes to receive */
-+#define PSMOUSE_CMD_RESET_WRAP	0x00ec
- #define PSMOUSE_CMD_GETID	0x02f2
- #define PSMOUSE_CMD_SETRATE	0x10f3
- #define PSMOUSE_CMD_ENABLE	0x00f4
--- 
-1.7.5.4

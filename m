@@ -1,76 +1,47 @@
-From: JJ Ding <jj_ding@emc.com.tw>
-Subject: [PATCH] Input: elantech: adjust hw_version detection logic
-Date: Tue,  8 Nov 2011 20:08:19 +0800
-Message-ID: <1320754099-2669-1-git-send-email-jj_ding@emc.com.tw>
+From: Michael Gebetsroither <michael@mgeb.org>
+Subject: Re: [PATCH] usbtouchscreen: add elo intellitouch 2700 support
+Date: Tue, 08 Nov 2011 17:54:27 +0100
+Message-ID: <4EB95EC3.8070205@mgeb.org>
+References: <1320315318-15998-1-git-send-email-michael@mgeb.org> <1320315318-15998-2-git-send-email-michael@mgeb.org> <4EB335A1.7010809@cn.fujitsu.com> <20111105065631.GB31111@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:22132 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752888Ab1KHMKv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2011 07:10:51 -0500
+Received: from mail.mgeb.org ([178.63.91.126]:56269 "EHLO mail.mgeb.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751901Ab1KHQya (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 8 Nov 2011 11:54:30 -0500
+In-Reply-To: <20111105065631.GB31111@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marc Dietrich <marvin24@gmx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?q?=C3=89ric=20Piel?= <E.A.B.Piel@tudelft.nl>
-Cc: linux-input@vger.kernel.org, JJ Ding <jj_ding@emc.com.tw>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>, linux-input@vger.kernel.org
 
-This patch fixes some v3 hardware (fw_version: 0x150500) wrongly detected
-as v2 hardware.
+On 2011-11-05 07:56, Dmitry Torokhov wrote:
+> On Fri, Nov 04, 2011 at 08:45:21AM +0800, Wanlong Gao wrote:
+>>>  
+>>>  static struct usbtouch_device_info usbtouch_dev_info[] = {
+>>> +#ifdef CONFIG_TOUCHSCREEN_USB_ELO
+>>> +	[DEVTYPE_ELO] = {
+>>> +		.min_xc		= 0x0,
+>>> +		.max_xc		= 0x0fff,
+>>> +		.min_yc		= 0x0,
+>>> +		.max_yc		= 0x0fff,
+>>> +		.max_press	= 0xff,
+>>> +		.rept_size	= 8,
+>>> +		.read_data	= elo_read_data,
+>>> +	},
+>>> +#endif
+>>
+>>
+>> Maybe you can move this *dev_info* to end to be consistent with the order of *enum*?
+>>
+> 
+> I did that locally and applied to my 3.3 queue; thanks everyone.
 
-Reported-by: Marc Dietrich <marvin24@gmx.de>
-Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
----
-Hi list,
+Thx dimitry!
 
-This is patched against v3.2-rc1.
+Kind Regards,
+Michael Gebetsroither
 
-Marc, could you please test this again? Thanks a lot.
-
-br,
-jj
-
- drivers/input/mouse/elantech.c |   26 ++++++++++++++++++--------
- 1 files changed, 18 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 09b93b1..e2a9867 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1210,18 +1210,28 @@ static int elantech_reconnect(struct psmouse *psmouse)
-  */
- static int elantech_set_properties(struct elantech_data *etd)
- {
-+	/* This represents the version of IC body. */
- 	int ver = (etd->fw_version & 0x0f0000) >> 16;
- 
-+	/* Early version of Elan touchpads doesn't obey the rule. */
- 	if (etd->fw_version < 0x020030 || etd->fw_version == 0x020600)
- 		etd->hw_version = 1;
--	else if (etd->fw_version < 0x150600)
--		etd->hw_version = 2;
--	else if (ver == 5)
--		etd->hw_version = 3;
--	else if (ver == 6)
--		etd->hw_version = 4;
--	else
--		return -1;
-+	else {
-+		switch (ver) {
-+		case 2:
-+		case 4:
-+			etd->hw_version = 2;
-+			break;
-+		case 5:
-+			etd->hw_version = 3;
-+			break;
-+		case 6:
-+			etd->hw_version = 4;
-+			break;
-+		default:
-+			return -1;
-+		}
-+	}
- 
- 	/*
- 	 * Turn on packet checking by default.
--- 
-1.7.8.rc1
 

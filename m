@@ -1,89 +1,58 @@
-From: Marc Dietrich <marvin24@gmx.de>
-Subject: Re: [PATCH] Input: elantech: adjust hw_version detection logic
-Date: Tue, 08 Nov 2011 18:55:37 +0100
-Message-ID: <1998016.KAbb3SKMtM@ax5200p>
-References: <1320754099-2669-1-git-send-email-jj_ding@emc.com.tw>
+From: Daniel Drake <dsd@laptop.org>
+Subject: Re: [PATCH v2] synaptics: add support for Relative mode
+Date: Tue, 8 Nov 2011 12:36:46 -0600
+Message-ID: <CAMLZHHSKXvcC6NasLS9wcRfoD3v4KdE486_fRGgEHBKq+PiZRg@mail.gmail.com>
+References: <20111027164420.91B1A9D401E@zog.reactivated.net>
+	<20111108063445.GB1837@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.23]:54151 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932652Ab1KHRz6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2011 12:55:58 -0500
-In-Reply-To: <1320754099-2669-1-git-send-email-jj_ding@emc.com.tw>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:55632 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756290Ab1KHSh3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2011 13:37:29 -0500
+Received: by ywf7 with SMTP id 7so855532ywf.19
+        for <linux-input@vger.kernel.org>; Tue, 08 Nov 2011 10:37:28 -0800 (PST)
+In-Reply-To: <20111108063445.GB1837@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?ISO-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, pgf@laptop.org, djkurtz@google.com
 
-hi Jj,
+On Tue, Nov 8, 2011 at 12:34 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>> @@ -968,11 +1030,29 @@ int synaptics_init(struct psmouse *psmouse)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 psmouse->rate =3D 40;
+>> =A0 =A0 =A0 }
+>>
+>> + =A0 =A0 err =3D sysfs_create_file(&psmouse->ps2dev.serio->dev.kobj=
+,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 &psmouse_a=
+ttr_synaptics_disable_gesture.dattr.attr);
+>> + =A0 =A0 if (err) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&psmouse->ps2dev.serio->dev,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "Failed to create disable_=
+gesture attribute (%d)", err);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 goto init_fail;
+>> + =A0 =A0 }
+>
+> This attribute does not make sense in absolute mode so we should only
+> create it when relative mode is requested.
 
-On Tuesday 08 November 2011 20:08:19 JJ Ding wrote:
-> This patch fixes some v3 hardware (fw_version: 0x150500) wrongly detected
-> as v2 hardware.
-> 
-> Reported-by: Marc Dietrich <marvin24@gmx.de>
-> Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
-> ---
-> Hi list,
-> 
-> This is patched against v3.2-rc1.
-> 
-> Marc, could you please test this again? Thanks a lot.
+I think it could make some sense - to me it seems possible that there
+would be a use case where absolute input is requested but the software
+chooses to let the hardware do the gesture detection. But I don't know
+of such a use case, and it isn't interesting for OLPC, so either way
+is fine with me.
 
-patch works fine here. You may add:
+> Does the version of the patch below still work for you? Thanks!
 
-	Tested-By: Marc Dietrich <marvin24@gmx.de>
+Yes, it works fine. Thanks for touching it up.
 
-Btw, are there any known issues with suspend/resume? The touchpad doesn't seem 
-to wakeup again after resume, but that's propably a problem of our kbd 
-controller driver. Just in case there's something known...
-
-Thanks Marc
-
-> 
->  drivers/input/mouse/elantech.c |   26 ++++++++++++++++++--------
->  1 files changed, 18 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index 09b93b1..e2a9867 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -1210,18 +1210,28 @@ static int elantech_reconnect(struct psmouse
-> *psmouse) */
->  static int elantech_set_properties(struct elantech_data *etd)
->  {
-> +	/* This represents the version of IC body. */
->  	int ver = (etd->fw_version & 0x0f0000) >> 16;
-> 
-> +	/* Early version of Elan touchpads doesn't obey the rule. */
->  	if (etd->fw_version < 0x020030 || etd->fw_version == 0x020600)
->  		etd->hw_version = 1;
-> -	else if (etd->fw_version < 0x150600)
-> -		etd->hw_version = 2;
-> -	else if (ver == 5)
-> -		etd->hw_version = 3;
-> -	else if (ver == 6)
-> -		etd->hw_version = 4;
-> -	else
-> -		return -1;
-> +	else {
-> +		switch (ver) {
-> +		case 2:
-> +		case 4:
-> +			etd->hw_version = 2;
-> +			break;
-> +		case 5:
-> +			etd->hw_version = 3;
-> +			break;
-> +		case 6:
-> +			etd->hw_version = 4;
-> +			break;
-> +		default:
-> +			return -1;
-> +		}
-> +	}
-> 
->  	/*
->  	 * Turn on packet checking by default.
+Daniel
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

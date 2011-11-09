@@ -1,36 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: ams_delta_serio: include linux/module.h
-Date: Wed, 9 Nov 2011 10:14:17 -0800
-Message-ID: <20111109181417.GB26633@core.coreip.homeip.net>
-References: <1320862005-6049-1-git-send-email-aaro.koskinen@iki.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+Subject: [PATCHv6_input/next 0/5]  Add spi support for CMA3000 driver
+Date: Wed,  9 Nov 2011 22:37:27 +0100
+Message-ID: <1320874652-18371-1-git-send-email-ricardo.ribalda@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:56722 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751243Ab1KISOX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Nov 2011 13:14:23 -0500
-Content-Disposition: inline
-In-Reply-To: <1320862005-6049-1-git-send-email-aaro.koskinen@iki.fi>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:62281 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750961Ab1KIVhl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Nov 2011 16:37:41 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+To: rdunlap@xenotime.net, dmitry.torokhov@gmail.com, grant.likely@secretlab.ca, ricardo.ribalda@gmail.com, jic23@cam.ac.uk, aghayal@codeaurora.org, sameo@linux.intel.com, peter.ujfalusi@t
 
-On Wed, Nov 09, 2011 at 08:06:45PM +0200, Aaro Koskinen wrote:
-> Fix the following compilation failure with v3.2-rc1 by including module.h:
-> 
->   CC      drivers/input/serio/ams_delta_serio.o
-> drivers/input/serio/ams_delta_serio.c:33:15: error: expected declaration specifiers or '...' before string constant
-> drivers/input/serio/ams_delta_serio.c:34:20: error: expected declaration specifiers or '...' before string constant
-> drivers/input/serio/ams_delta_serio.c:35:16: error: expected declaration specifiers or '...' before string constant
-> drivers/input/serio/ams_delta_serio.c: In function 'ams_delta_serio_init':
-> drivers/input/serio/ams_delta_serio.c:155:2: error: 'THIS_MODULE' undeclared (first use in this function)
-> drivers/input/serio/ams_delta_serio.c:155:2: note: each undeclared identifier is reported only once for each function it appears in
-> 
-> Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+The following set of patches add spi and device tree support for the cma3000 driver.
 
-Thank you Aaro.
+v6 of the set.
+
+Changelog:
+
+  v6: -Rebase to input/next
+  v5: -Changes propossed by Grant Likely
+      -Remove crm300 driver from the set
+  v4: -Changes propossed by Dmitry Torokhov
+  v3: -Support for device tree
+      -Separate read/write spi
+  v2: -Changes propossed by Jonathan Cameron
+      -More fixes for the cma3000 driver
+
+Ricardo Ribalda Delgado (5):
+  input/cma3000_d0x: Support devices without pdata
+  input/cma3000_d0x: Check silicon version
+  input/cma3000_d0x: Keep configuration on poweroff
+  input/cma3000_d0x: Add CMA3000 spi support
+  input/cma3000_d0x: Match comment to name of struct
+
+
+
+Ricardo Ribalda Delgado (5):
+  input/cma3000_d0x: Support devices without pdata
+  input/cma3000_d0x: Check silicon version
+  input/cma3000_d0x: Keep configuration on poweroff
+  input/cma3000_d0x: Add CMA3000 spi support
+  input/cma3000_d0x: Match comment to name of struct
+
+ .../devicetree/bindings/input/cma3000_d0x.txt      |   71 +++++++++
+ drivers/input/misc/Kconfig                         |   14 ++-
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/cma3000_d0x.c                   |  100 +++++++++++--
+ drivers/input/misc/cma3000_d0x_i2c.c               |    7 +
+ drivers/input/misc/cma3000_d0x_spi.c               |  153 ++++++++++++++++++++
+ include/linux/input/cma3000.h                      |    2 +-
+ 7 files changed, 332 insertions(+), 16 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/cma3000_d0x.txt
+ create mode 100644 drivers/input/misc/cma3000_d0x_spi.c
 
 -- 
-Dmitry
+1.7.7.2
+

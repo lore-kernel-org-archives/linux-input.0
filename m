@@ -1,38 +1,36 @@
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: [PATCH] input: ams_delta_serio: include linux/module.h
-Date: Wed,  9 Nov 2011 20:06:45 +0200
-Message-ID: <1320862005-6049-1-git-send-email-aaro.koskinen@iki.fi>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: ams_delta_serio: include linux/module.h
+Date: Wed, 9 Nov 2011 10:14:17 -0800
+Message-ID: <20111109181417.GB26633@core.coreip.homeip.net>
+References: <1320862005-6049-1-git-send-email-aaro.koskinen@iki.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:56722 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751243Ab1KISOX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Nov 2011 13:14:23 -0500
+Content-Disposition: inline
+In-Reply-To: <1320862005-6049-1-git-send-email-aaro.koskinen@iki.fi>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 
-Fix the following compilation failure with v3.2-rc1 by including module.h:
+On Wed, Nov 09, 2011 at 08:06:45PM +0200, Aaro Koskinen wrote:
+> Fix the following compilation failure with v3.2-rc1 by including module.h:
+> 
+>   CC      drivers/input/serio/ams_delta_serio.o
+> drivers/input/serio/ams_delta_serio.c:33:15: error: expected declaration specifiers or '...' before string constant
+> drivers/input/serio/ams_delta_serio.c:34:20: error: expected declaration specifiers or '...' before string constant
+> drivers/input/serio/ams_delta_serio.c:35:16: error: expected declaration specifiers or '...' before string constant
+> drivers/input/serio/ams_delta_serio.c: In function 'ams_delta_serio_init':
+> drivers/input/serio/ams_delta_serio.c:155:2: error: 'THIS_MODULE' undeclared (first use in this function)
+> drivers/input/serio/ams_delta_serio.c:155:2: note: each undeclared identifier is reported only once for each function it appears in
+> 
+> Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
 
-  CC      drivers/input/serio/ams_delta_serio.o
-drivers/input/serio/ams_delta_serio.c:33:15: error: expected declaration specifiers or '...' before string constant
-drivers/input/serio/ams_delta_serio.c:34:20: error: expected declaration specifiers or '...' before string constant
-drivers/input/serio/ams_delta_serio.c:35:16: error: expected declaration specifiers or '...' before string constant
-drivers/input/serio/ams_delta_serio.c: In function 'ams_delta_serio_init':
-drivers/input/serio/ams_delta_serio.c:155:2: error: 'THIS_MODULE' undeclared (first use in this function)
-drivers/input/serio/ams_delta_serio.c:155:2: note: each undeclared identifier is reported only once for each function it appears in
+Thank you Aaro.
 
-Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
----
- drivers/input/serio/ams_delta_serio.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/serio/ams_delta_serio.c b/drivers/input/serio/ams_delta_serio.c
-index 4b2a42f..d4d08bd 100644
---- a/drivers/input/serio/ams_delta_serio.c
-+++ b/drivers/input/serio/ams_delta_serio.c
-@@ -24,6 +24,7 @@
- #include <linux/irq.h>
- #include <linux/serio.h>
- #include <linux/slab.h>
-+#include <linux/module.h>
- 
- #include <asm/mach-types.h>
- #include <plat/board-ams-delta.h>
 -- 
-1.7.2.5
+Dmitry

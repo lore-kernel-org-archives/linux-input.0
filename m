@@ -1,35 +1,43 @@
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-Subject: Re: Sony DualShock3 - Detected but no events
-Date: Thu, 10 Nov 2011 00:16:54 +0200
-Message-ID: <CAOazyz13OeA7-mo130+JK8JMLy0AhLgeO5m8eM9t4yBQ8LPtcQ@mail.gmail.com>
-References: <CAOazyz0GNJKFWNsaFiwheMjhBVJrcP-p8QBcsSvS3V97iuZFtQ@mail.gmail.com>
-	<20111101011854.5e0e87b561f6b18dcc09a988@studenti.unina.it>
-	<CAOazyz1EfHdg4gExfeVaQ_8mMV=1Tu-aYBTEo_j4MjLnNC4kHA@mail.gmail.com>
-	<20111101090645.0d3abeac5909f87dae8bec58@studenti.unina.it>
-	<CAOazyz0pBZE_qE3NYbz6n54kCA30dU2Z3PaT3_ufZv2egpj=cg@mail.gmail.com>
-	<20111101124258.744fdba3f854ce81b4e0c8be@studenti.unina.it>
-	<CAOazyz1N4QmrC4MN6M532_3m_gVC+7PBBOUU+Mu8Qq7_eX5iZA@mail.gmail.com>
-	<20111101201142.af88469abf03d8a9779c4e46@studenti.unina.it>
-	<CAOazyz03G1ofwh-GnLDECUqC1qgO0tXzSVjjdwML_JdXZR_9ug@mail.gmail.com>
-	<CAOazyz1xOjJxXytp+1JzrDvd3o7f6uySu3fvpxOKz_VSEZwvEA@mail.gmail.com>
-	<CAOazyz1NLwD5AA7CuLfwwy=gRyfE9o4zD9bvtsNVSQVjNUm4xA@mail.gmail.com>
-	<CAOazyz1KrCqm=O-ftttVQEGLbC+R_4LV_tbNaFvw1y1wV+4UMg@mail.gmail.com>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH] Input: htcpen - add #ifdef CONFIG_PNP guard for pnp_ids
+Date: Thu, 10 Nov 2011 12:24:51 +0800
+Message-ID: <1320899091.6118.0.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f181.google.com ([209.85.216.181]:55504 "EHLO
-	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750704Ab1KIWQz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Nov 2011 17:16:55 -0500
-Received: by qyk2 with SMTP id 2so2119031qyk.19
-        for <linux-input@vger.kernel.org>; Wed, 09 Nov 2011 14:16:54 -0800 (PST)
-In-Reply-To: <CAOazyz1KrCqm=O-ftttVQEGLbC+R_4LV_tbNaFvw1y1wV+4UMg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Pau Oliva Fora <pof@eslack.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: linux-input@vger.kernel.org
 
-Got real sony device.
-USB is working!
-Thanks for your help.
-Is there anywhere organized I can fetch the bluez patches?
+Fix below build warning if CONFIG_PNP is disabled.
+
+  CC      drivers/input/touchscreen/htcpen.o
+drivers/input/touchscreen/htcpen.c:50: warning: 'pnp_ids' defined but not used
+
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/input/touchscreen/htcpen.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/touchscreen/htcpen.c b/drivers/input/touchscreen/htcpen.c
+index 62811de..7acc928 100644
+--- a/drivers/input/touchscreen/htcpen.c
++++ b/drivers/input/touchscreen/htcpen.c
+@@ -47,11 +47,13 @@ static int invert_y;
+ module_param(invert_y, bool, 0644);
+ MODULE_PARM_DESC(invert_y, "If set, Y axis is inverted");
+ 
++#ifdef CONFIG_PNP
+ static struct pnp_device_id pnp_ids[] = {
+ 	{ .id = "PNP0cc0" },
+ 	{ .id = "" }
+ };
+ MODULE_DEVICE_TABLE(pnp, pnp_ids);
++#endif
+ 
+ static irqreturn_t htcpen_interrupt(int irq, void *handle)
+ {
+-- 
+1.7.5.4

@@ -1,379 +1,355 @@
-From: Zhang Jiejing <jiejing.zhang@freescale.com>
-Subject: [PATCH V3] input: add EETI eGalax I2C capacitive multi touch driver.
-Date: Thu, 10 Nov 2011 18:01:42 +0800
-Message-ID: <1320919302-31730-1-git-send-email-jiejing.zhang@freescale.com>
-References: <CACrgxGAxntDkvgnz7Py=-e3i0C8qx0TMdLEiek6-3FJ3+8FWnA@mail.gmail.com>
+From: <oskar.andero@sonyericsson.com>
+Subject: [PATCH] input: add driver support for Sharp gp2ap002a00f proximity sensor
+Date: Thu, 10 Nov 2011 17:07:53 +0100
+Message-ID: <1320941273-21228-1-git-send-email-oskar.andero@sonyericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tx2ehsobe005.messaging.microsoft.com ([65.55.88.15]:20197 "EHLO
-	TX2EHSOBE010.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752931Ab1KJKFO (ORCPT
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:14376 "EHLO
+	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S934881Ab1KJQHb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Nov 2011 05:05:14 -0500
-In-Reply-To: <CACrgxGAxntDkvgnz7Py=-e3i0C8qx0TMdLEiek6-3FJ3+8FWnA@mail.gmail.com>
+	Thu, 10 Nov 2011 11:07:31 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rydberg@euromail.se
-Cc: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jic23@cam.ac.uk, aghayal@codeaurora.org, Courtney Cavin <courtney.cavin@sonyericsson.com>, Oskar Andero <oskar.andero@sonyericsson.com>
 
-This patch adds the EETI eGalax serial multi touch controller driver.
+From: Courtney Cavin <courtney.cavin@sonyericsson.com>
 
-EETI eGalax serial touch screen controller is a I2C based multiple
-capacitive touch screen controller, it can support 5 touch events maximum.
-
-Signed-off-by: Zhang Jiejing <jiejing.zhang@freescale.com>
-
+Signed-off-by: Courtney Cavin <courtney.cavin@sonyericsson.com>
+Signed-off-by: Oskar Andero <oskar.andero@sonyericsson.com>
 ---
-V1 changes:
-* use mt protocol B for report pointer.
-* get the pressure value from pointer.
-* use macro to define X,Y max value.
+ drivers/input/misc/Kconfig        |   11 ++
+ drivers/input/misc/Makefile       |    1 +
+ drivers/input/misc/gp2ap002a00f.c |  265 +++++++++++++++++++++++++++++++++++++
+ include/linux/gp2ap002a00f.h      |   13 ++
+ 4 files changed, 290 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/gp2ap002a00f.c
+ create mode 100644 include/linux/gp2ap002a00f.h
 
-V2 changes:
-* change MODE_SINGLE to a meanful name MODE_MOUSE
-* add some comment on each mode to avoid misunderstand
-
-V3 changes:
-* some typo fix
-* remove MODE_MOUSE, since it can't support both mode 100% well.
-  also use this chip as MODE_MOUSE is very rare case.
----
- drivers/input/touchscreen/Kconfig     |   10 ++
- drivers/input/touchscreen/Makefile    |    1 +
- drivers/input/touchscreen/egalax_ts.c |  289 +++++++++++++++++++++++++++++++++
- 3 files changed, 300 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/egalax_ts.c
-
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index cabd9e5..92f02b0 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -177,6 +177,16 @@ config TOUCHSCREEN_EETI
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 22d875f..dee96a0 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -544,4 +544,15 @@ config INPUT_XEN_KBDDEV_FRONTEND
  	  To compile this driver as a module, choose M here: the
- 	  module will be called eeti_ts.
+ 	  module will be called xen-kbdfront.
  
-+config TOUCHSCREEN_EGALAX
-+	tristate "EETI eGalax multi-touch panel support"
++config INPUT_GP2A
++	tristate "Sharp GP2AP002A00F I2C Proximity/Opto sensor driver"
 +	depends on I2C
++	default n
 +	help
-+	  Say Y here to enable support for I2C connected EETI
-+	  eGalax multi-touch panels.
++	  Say Y here if you have a Sharp GP2AP002A00F proximity/als combo-chip
++	  hooked to an I2C bus.
 +
 +	  To compile this driver as a module, choose M here: the
-+	  module will be called egalax_ts.
++	  module will be called gp2ap002a00f.
 +
- config TOUCHSCREEN_FUJITSU
- 	tristate "Fujitsu serial touchscreen"
- 	select SERIO
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 282d6f7..a787ebc 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -23,6 +23,7 @@ obj-$(CONFIG_TOUCHSCREEN_HAMPSHIRE)	+= hampshire.o
- obj-$(CONFIG_TOUCHSCREEN_GUNZE)		+= gunze.o
- obj-$(CONFIG_TOUCHSCREEN_EETI)		+= eeti_ts.o
- obj-$(CONFIG_TOUCHSCREEN_ELO)		+= elo.o
-+obj-$(CONFIG_TOUCHSCREEN_EGALAX)	+= egalax_ts.o
- obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
- obj-$(CONFIG_TOUCHSCREEN_INEXIO)	+= inexio.o
- obj-$(CONFIG_TOUCHSCREEN_INTEL_MID)	+= intel-mid-touch.o
-diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+ endif
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index a244fc6..1681993 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -22,6 +22,7 @@ obj-$(CONFIG_INPUT_CMA3000)		+= cma3000_d0x.o
+ obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
+ obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
+ obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
++obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
+ obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
+ obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
+ obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
+diff --git a/drivers/input/misc/gp2ap002a00f.c b/drivers/input/misc/gp2ap002a00f.c
 new file mode 100644
-index 0000000..10623e8
+index 0000000..b1af83a
 --- /dev/null
-+++ b/drivers/input/touchscreen/egalax_ts.c
-@@ -0,0 +1,289 @@
++++ b/drivers/input/misc/gp2ap002a00f.c
+@@ -0,0 +1,265 @@
 +/*
-+ * Driver for EETI eGalax Multiple Touch Controller
++ * Copyright (C) 2009,2010 Sony Ericsson Mobile Communications Inc.
 + *
-+ * Copyright (C) 2011 Freescale Semiconductor, Inc.
-+ *
-+ * based on max11801_ts.c
++ * Author: Courtney Cavin <courtney.cavin@sonyericsson.com>
++ * Prepared for up-stream by: Oskar Andero <oskar.andero@sonyericsson.com>
 + *
 + * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
++ * it under the terms of the GNU General Public License version 2, as
 + * published by the Free Software Foundation.
 + */
 +
-+/* EETI eGalax serial touch screen controller is a I2C based multiple
-+ * touch screen controller, it can supports 5 pointer multiple touch. */
-+
-+/* TODO:
-+  - auto idle mode support
-+*/
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
 +#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/input.h>
 +#include <linux/irq.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/module.h>
++#include <linux/workqueue.h>
++#include <linux/interrupt.h>
 +#include <linux/gpio.h>
 +#include <linux/delay.h>
-+#include <linux/slab.h>
-+#include <linux/bitops.h>
-+#include <linux/input/mt.h>
++#include <linux/gp2ap002a00f.h>
 +
-+/* Mouse Mode: some panel may configure the controller to mouse mode,
-+ * which can only report one point at a given time.
-+ * This driver will ignore events in this mode.
-+ */
-+#define REPORT_MODE_MOUSE		0x1
-+/* Vendor Mode: this mode is used to transfer some vendor specify
-+ * messages, it was ignore in this driver.
-+ * This driver will ignore events in this mode.
-+ */
-+#define REPORT_MODE_VENDOR		0x3
-+/* Multiple Touch Mode */
-+#define REPORT_MODE_MTTOUCH		0x4
-+
-+#define MAX_SUPPORT_POINTS		5
-+
-+#define EVENT_VALID_OFFSET	7
-+#define EVENT_VALID_MASK	(0x1 << EVENT_VALID_OFFSET)
-+#define EVENT_ID_OFFSET		2
-+#define EVENT_ID_MASK		(0xf << EVENT_ID_OFFSET)
-+#define EVENT_IN_RANGE		(0x1 << 1)
-+#define EVENT_DOWN_UP		(0X1 << 0)
-+
-+#define MAX_I2C_DATA_LEN	10
-+
-+#define EGALAX_MAX_X	32760
-+#define EGALAX_MAX_Y	32760
-+
-+struct egalax_ts {
-+	struct i2c_client		*client;
-+	struct input_dev		*input_dev;
++struct gp2a_data {
++	struct input_dev *device;
++	struct gp2a_platform_data *pdata;
++	struct i2c_client *i2c_client;
 +};
 +
-+static irqreturn_t egalax_ts_interrupt(int irq, void *dev_id)
++enum gp2a_addr {
++	GP2A_ADDR_PROX	= 0x0,
++	GP2A_ADDR_GAIN	= 0x1,
++	GP2A_ADDR_HYS	= 0x2,
++	GP2A_ADDR_CYCLE	= 0x3,
++	GP2A_ADDR_OPMOD	= 0x4,
++	GP2A_ADDR_CON	= 0x6
++};
++
++enum gp2a_controls {
++	GP2A_CTRL_SSD	= 0x01
++};
++
++#define NUM_TRIES 5
++static int gp2a_write_byte(struct gp2a_data *dt, u8 reg, u8 val)
 +{
-+	struct egalax_ts *data = dev_id;
-+	struct input_dev *input_dev = data->input_dev;
-+	struct i2c_client *client = data->client;
-+	u8 buf[MAX_I2C_DATA_LEN];
-+	int id, ret, x, y, z;
-+	bool down, valid;
-+	u8 state;
++	int error;
++	int n;
++	struct device *dev = &dt->i2c_client->dev;
 +
-+retry:
-+	ret = i2c_master_recv(client, buf, MAX_I2C_DATA_LEN);
-+	if (ret == -EAGAIN)
-+		goto retry;
-+
-+	if (ret < 0)
-+		return IRQ_HANDLED;
-+
-+	if (buf[0] != REPORT_MODE_MTTOUCH) {
-+		/* ignore mouse events and vendor events */
-+		return IRQ_HANDLED;
++	for (n = 0; n < NUM_TRIES; n++) {
++		error = i2c_smbus_write_byte_data(dt->i2c_client, reg, val);
++		if (error < 0)
++			dev_err(dev, "i2c_smbus write failed, %d\n", error);
++		else
++			return 0;
++		msleep(10);
 +	}
++	return error;
++}
 +
-+	state = buf[1];
-+	x = (buf[3] << 8) | buf[2];
-+	y = (buf[5] << 8) | buf[4];
-+	z = (buf[7] << 8) | buf[6];
++static int gp2a_initialize(struct gp2a_data *dt)
++{
++	int error;
 +
-+	valid = state & EVENT_VALID_MASK;
-+	id = (state & EVENT_ID_MASK) >> EVENT_ID_OFFSET;
-+	down = state & EVENT_DOWN_UP;
++	error = gp2a_write_byte(dt, GP2A_ADDR_GAIN, 0x08);
++	if (error < 0)
++		return error;
 +
-+	if (!valid || id > MAX_SUPPORT_POINTS) {
-+		dev_dbg(&client->dev, "point invalid\n");
-+		return IRQ_HANDLED;
-+	}
++	error = gp2a_write_byte(dt, GP2A_ADDR_HYS, 0xc2);
++	if (error < 0)
++		return error;
 +
-+	input_mt_slot(input_dev, id);
-+	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, down);
++	error = gp2a_write_byte(dt, GP2A_ADDR_CYCLE, 0x04);
++	if (error < 0)
++		return error;
 +
-+	dev_dbg(&client->dev, "%s id:%d x:%d y:%d z:%d",
-+		(down ? "down" : "up"), id, x, y, z);
++	error = gp2a_write_byte(dt, GP2A_ADDR_OPMOD, 0x00);
 +
-+	if (down) {
-+		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
-+		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
-+		input_report_abs(input_dev, ABS_MT_PRESSURE, z);
-+	}
++	return error;
++}
 +
-+	input_mt_report_pointer_emulation(input_dev, true);
-+	input_sync(input_dev);
++static int gp2a_report(struct gp2a_data *dt)
++{
++	int vo = gpio_get_value(dt->pdata->gpio);
++
++	input_report_abs(dt->device, ABS_DISTANCE, vo ? 255 : 0);
++	input_sync(dt->device);
++
++	return 0;
++}
++
++static irqreturn_t gp2a_irq(int irq, void *dev_id)
++{
++	struct device *dev = dev_id;
++	struct gp2a_data *dt = dev_get_drvdata(dev);
++
++	gp2a_report(dt);
++
 +	return IRQ_HANDLED;
 +}
 +
-+/* wake up controller by an falling edge of interrupt gpio.  */
-+static int egalax_wake_up_device(struct i2c_client *client)
++static int gp2a_device_open(struct input_dev *dev)
 +{
-+	int gpio = irq_to_gpio(client->irq);
-+	int ret;
++	struct gp2a_data *dt = input_get_drvdata(dev);
++	int error;
 +
-+	ret = gpio_request(gpio, "egalax_irq");
-+	if (ret < 0) {
-+		dev_err(&client->dev, "request gpio failed,"
-+			"cannot wake up controller:%d\n", ret);
-+		return ret;
-+	}
-+	/* wake up controller via an falling edge on IRQ gpio. */
-+	gpio_direction_output(gpio, 0);
-+	gpio_set_value(gpio, 1);
-+	/* controller should be waken up, return irq.  */
-+	gpio_direction_input(gpio);
-+	gpio_free(gpio);
-+	return 0;
-+}
-+
-+static int egalax_firmware_version(struct i2c_client *client)
-+{
-+	static const u8 cmd[MAX_I2C_DATA_LEN] = { 0x03, 0x03, 0xa, 0x01, 0x41 };
-+	int ret;
-+	ret = i2c_master_send(client, cmd, MAX_I2C_DATA_LEN);
-+	if (ret < 0)
-+		return ret;
-+	return 0;
-+}
-+
-+static int __devinit egalax_ts_probe(struct i2c_client *client,
-+				       const struct i2c_device_id *id)
-+{
-+	struct egalax_ts *data;
-+	struct input_dev *input_dev;
-+	int ret;
-+
-+	data = kzalloc(sizeof(struct egalax_ts), GFP_KERNEL);
-+	if (!data) {
-+		dev_err(&client->dev, "Failed to allocate memory\n");
-+		return -ENOMEM;
++	error = gp2a_write_byte(dt, GP2A_ADDR_OPMOD, GP2A_CTRL_SSD);
++	if (error < 0) {
++		dev_err(&dev->dev, "Unable to activate, err %d\n", error);
++		return error;
 +	}
 +
-+	input_dev = input_allocate_device();
-+	if (!input_dev) {
-+		dev_err(&client->dev, "Failed to allocate memory\n");
-+		ret = -ENOMEM;
-+		goto err_free_data;
-+	}
++	enable_irq(gpio_to_irq(dt->i2c_client->irq));
 +
-+	data->client = client;
-+	data->input_dev = input_dev;
-+	/* controller may be in sleep, wake it up. */
-+	egalax_wake_up_device(client);
-+	ret = egalax_firmware_version(client);
-+	if (ret < 0) {
-+		dev_err(&client->dev,
-+			"egalax_ts: failed to read firmware version\n");
-+		ret = -EIO;
-+		goto err_free_dev;
-+	}
++	if (dt->pdata->wake)
++		enable_irq_wake(gpio_to_irq(dt->i2c_client->irq));
 +
-+	input_dev->name = "EETI eGalax Touch Screen";
-+	input_dev->phys = "I2C",
-+	input_dev->id.bustype = BUS_I2C;
-+	input_dev->dev.parent = &client->dev;
-+
-+	__set_bit(EV_ABS, input_dev->evbit);
-+	__set_bit(EV_KEY, input_dev->evbit);
-+	__set_bit(BTN_TOUCH, input_dev->keybit);
-+	__set_bit(EV_SYN, input_dev->evbit);
-+	__set_bit(ABS_X, input_dev->absbit);
-+	__set_bit(ABS_Y, input_dev->absbit);
-+
-+	input_set_abs_params(input_dev, ABS_X, 0, EGALAX_MAX_X, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y, 0, EGALAX_MAX_Y, 0, 0);
-+	input_set_abs_params(input_dev,
-+			     ABS_MT_POSITION_X, 0, EGALAX_MAX_X, 0, 0);
-+	input_set_abs_params(input_dev,
-+			     ABS_MT_POSITION_X, 0, EGALAX_MAX_Y, 0, 0);
-+	input_mt_init_slots(input_dev, MAX_SUPPORT_POINTS);
-+
-+	input_set_drvdata(input_dev, data);
-+
-+	ret = request_threaded_irq(client->irq, NULL, egalax_ts_interrupt,
-+				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+				   "egalax_ts", data);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "Failed to register interrupt\n");
-+		goto err_free_dev;
-+	}
-+
-+	ret = input_register_device(data->input_dev);
-+	if (ret < 0)
-+		goto err_free_irq;
-+	i2c_set_clientdata(client, data);
-+	return 0;
-+
-+err_free_irq:
-+	free_irq(client->irq, data);
-+err_free_dev:
-+	input_free_device(input_dev);
-+err_free_data:
-+	kfree(data);
-+
-+	return ret;
-+}
-+
-+static __devexit int egalax_ts_remove(struct i2c_client *client)
-+{
-+	struct egalax_ts *data = i2c_get_clientdata(client);
-+
-+	free_irq(client->irq, data);
-+	input_unregister_device(data->input_dev);
-+	input_free_device(data->input_dev);
-+	kfree(data);
++	gp2a_report(dt);
 +
 +	return 0;
 +}
 +
-+static const struct i2c_device_id egalax_ts_id[] = {
-+	{"egalax_ts", 0},
++static void gp2a_device_close(struct input_dev *dev)
++{
++	struct gp2a_data *dt = input_get_drvdata(dev);
++	int error;
++
++	if (dt->pdata->wake)
++		disable_irq_wake(gpio_to_irq(dt->i2c_client->irq));
++
++	disable_irq(gpio_to_irq(dt->i2c_client->irq));
++	error = gp2a_write_byte(dt, GP2A_ADDR_OPMOD, 0);
++	if (error < 0)
++		dev_err(&dev->dev, "Unable to deactivate, err %d\n", error);
++}
++
++static int gp2a_probe(struct i2c_client *client,
++		      const struct i2c_device_id *id);
++static int gp2a_remove(struct i2c_client *client);
++
++static const struct i2c_device_id gp2a_i2c_id[] = {
++	{GP2A_I2C_NAME, 0},
 +	{}
 +};
-+MODULE_DEVICE_TABLE(i2c, egalax_ts_id);
 +
-+#ifdef CONFIG_PM_SLEEP
-+static int egalax_ts_suspend(struct device *dev)
-+{
-+	int ret;
-+	u8 suspend_cmd[MAX_I2C_DATA_LEN] = {0x3, 0x6, 0xa, 0x3, 0x36,
-+					    0x3f, 0x2, 0, 0, 0};
-+	struct i2c_client *client = to_i2c_client(dev);
-+	ret = i2c_master_send(client, suspend_cmd, MAX_I2C_DATA_LEN);
-+	return ret > 0 ? 0 : ret;
-+}
-+
-+static int egalax_ts_resume(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	return egalax_wake_up_device(client);
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(egalax_ts_pm_ops, egalax_ts_suspend, egalax_ts_resume);
-+static struct i2c_driver egalax_ts_driver = {
++static struct i2c_driver gp2a_i2c_driver = {
 +	.driver = {
-+		.name = "egalax_ts",
-+		.pm	= &egalax_ts_pm_ops,
++		.name	= GP2A_I2C_NAME,
++		.owner	= THIS_MODULE
 +	},
-+	.id_table	= egalax_ts_id,
-+	.probe		= egalax_ts_probe,
-+	.remove		= __devexit_p(egalax_ts_remove),
++	.probe		= gp2a_probe,
++	.remove		= __devexit_p(gp2a_remove),
++	.id_table	= gp2a_i2c_id
 +};
 +
-+static int __init egalax_ts_init(void)
++static int gp2a_probe(struct i2c_client *client, const struct i2c_device_id *id)
 +{
-+	return i2c_add_driver(&egalax_ts_driver);
++	struct gp2a_platform_data *pdata;
++	struct gp2a_data *dt;
++	int error;
++
++	pdata = client->dev.platform_data;
++	if (!pdata)
++		return -EINVAL;
++
++	if (pdata->gpio_setup) {
++		error = pdata->gpio_setup();
++		if (error < 0)
++			return error;
++	}
++
++	error = gpio_direction_input(pdata->gpio);
++	if (error < 0)
++		goto err_gpio_shutdown;
++
++	dt = kzalloc(sizeof(struct gp2a_data), GFP_KERNEL);
++	if (!dt) {
++		error = -ENOMEM;
++		goto err_gpio_shutdown;
++	}
++
++	client->driver = &gp2a_i2c_driver;
++	dt->pdata = pdata;
++	dt->i2c_client = client;
++	i2c_set_clientdata(client, dt);
++
++	error = gp2a_initialize(dt);
++	if (error < 0)
++		goto err_free_dt;
++
++	dt->device = input_allocate_device();
++	if (!dt->device) {
++		error = -ENOMEM;
++		goto err_free_dt;
++	}
++
++	input_set_drvdata(dt->device, dt);
++
++	dt->device->open = gp2a_device_open;
++	dt->device->close = gp2a_device_close;
++	dt->device->name = GP2A_I2C_NAME;
++	dt->device->id.bustype = BUS_I2C;
++	set_bit(EV_ABS, dt->device->evbit);
++	set_bit(ABS_DISTANCE, dt->device->absbit);
++
++	input_set_abs_params(dt->device, ABS_DISTANCE, 0, 255, 0, 0);
++
++	error = input_register_device(dt->device);
++	if (error) {
++		dev_err(&dt->device->dev, "device registration failed\n");
++		input_free_device(dt->device);
++		goto err_free_dt;
++	}
++
++	error = request_threaded_irq(gpio_to_irq(dt->i2c_client->irq), NULL,
++			gp2a_irq, IRQF_TRIGGER_RISING |
++			IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
++			GP2A_I2C_NAME, &dt->i2c_client->dev);
++	if (error) {
++		dev_err(&dt->device->dev, "irq request failed\n");
++		goto err_unreg_input;
++	}
++	disable_irq(gpio_to_irq(dt->i2c_client->irq));
++
++	return 0;
++
++err_unreg_input:
++	input_unregister_device(dt->device);
++err_free_dt:
++	kfree(dt);
++err_gpio_shutdown:
++	if (pdata->gpio_shutdown)
++		pdata->gpio_shutdown();
++	return error;
 +}
 +
-+static void __exit egalax_ts_exit(void)
++static int gp2a_remove(struct i2c_client *client)
 +{
-+	i2c_del_driver(&egalax_ts_driver);
++	struct gp2a_data *dt = i2c_get_clientdata(client);
++
++	device_init_wakeup(&client->dev, 0);
++	if (dt->pdata->gpio_shutdown)
++		dt->pdata->gpio_shutdown();
++	free_irq(gpio_to_irq(dt->i2c_client->irq), &dt->i2c_client->dev);
++	input_unregister_device(dt->device);
++	kfree(dt);
++
++	return 0;
 +}
 +
-+module_init(egalax_ts_init);
-+module_exit(egalax_ts_exit);
++static int __init gp2a_init(void)
++{
++	return i2c_add_driver(&gp2a_i2c_driver);
++}
 +
-+MODULE_AUTHOR("Freescale Semiconductor, Inc.");
-+MODULE_DESCRIPTION("Touchscreen driver for EETI eGalax touch controller");
-+MODULE_LICENSE("GPL");
++static void __exit gp2a_exit(void)
++{
++	i2c_del_driver(&gp2a_i2c_driver);
++}
++
++module_init(gp2a_init);
++module_exit(gp2a_exit);
++
++MODULE_AUTHOR("Courtney Cavin <courtney.cavin@sonyericsson.com>");
++MODULE_DESCRIPTION("Sharp GP2AP002A00F I2C Proximity/Opto sensor driver");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/gp2ap002a00f.h b/include/linux/gp2ap002a00f.h
+new file mode 100644
+index 0000000..74e2610
+--- /dev/null
++++ b/include/linux/gp2ap002a00f.h
+@@ -0,0 +1,13 @@
++#ifndef _GP2AP002A00F_H_
++#define _GP2AP002A00F_H_
++
++#define GP2A_I2C_NAME   "gp2ap002a00f"
++
++struct gp2a_platform_data {
++	int gpio;
++	int wake;
++	int (*gpio_setup)(void);
++	int (*gpio_shutdown)(void);
++};
++
++#endif
 -- 
-1.7.1
-
+1.7.7
 

@@ -1,62 +1,78 @@
-From: Daniel Drake <dsd@laptop.org>
-Subject: [PATCH v2] Input: synaptics - update OLPC XO exclusion
-Date: Fri, 11 Nov 2011 18:42:19 +0000 (GMT)
-Message-ID: <20111111184220.03CC49D401E@zog.reactivated.net>
+From: chris@cnpbagwell.com
+Subject: [PATCH] HID: hid-multitouch - add another eGalax id
+Date: Fri, 11 Nov 2011 14:21:08 -0600
+Message-ID: <1321042868-13836-1-git-send-email-chris@cnpbagwell.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:5968 "EHLO
-	mtaout01-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754116Ab1KKSmZ (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:43327 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753933Ab1KKUV2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Nov 2011 13:42:25 -0500
+	Fri, 11 Nov 2011 15:21:28 -0500
+Received: by gyc15 with SMTP id 15so3265178gyc.19
+        for <linux-input@vger.kernel.org>; Fri, 11 Nov 2011 12:21:28 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, dtor@mail.ru
-Cc: linux-input@vger.kernel.org, pgf@laptop.org, dilinger@queued.net
+To: linux-input@vger.kernel.org, jkosina@suse.cz
+Cc: Chris Bagwell <chris@cnpbagwell.com>
 
-We have determined that the jumpiness previously seen when using
-the synaptics kernel mouse driver on OLPC XO was due to not using
-the synaptics X11 userspace driver - the xf86-input-evdev driver was
-interpreting 'finger near pad' signals as movements. Newer versions
-of xf86-input-evdev fix this issue.
+From: Chris Bagwell <chris@cnpbagwell.com>
 
-Additionally, the synaptics kernel driver is now usable on this
-platform, but only when run in relative mode.
+This allows ASUS Eee Slate touchscreens to work.
 
-Update the comment and refine the check to allow the synaptics driver
-to run on OLPC XO in relative mode.
-
-We will continue investigating the EC issue as time becomes available.
-
-Signed-off-by: Daniel Drake <dsd@laptop.org>
+Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
 ---
- drivers/input/mouse/synaptics.c |   13 +++++--------
- 1 files changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index a3bb49c..06c9ee5 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1389,15 +1389,12 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
- 	int err = -1;
+I do not have one of these to test the patch but I helped a user
+debug why his new touchscreen was being treated as a touchpad.
+He reported success after adding this ID.
+
+I'm sending this since I'm unsure status of patch to auto-assign
+multitouch devices to hid-multitouch. That would probably have
+solved issue as well.
+
+ drivers/hid/hid-core.c       |    1 +
+ drivers/hid/hid-ids.h        |    1 +
+ drivers/hid/hid-multitouch.c |    3 +++
+ 3 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 848a56c..f973d33 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1409,6 +1409,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH5) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2515) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 06ce996..7bb5227 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -235,6 +235,7 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2	0x72a1
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3	0x480e
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4	0x726b
++#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH5	0xa001
  
- 	/*
--	 * The OLPC XO has issues with Synaptics' absolute mode; similarly to
--	 * the HGPK, it quickly degrades and the hardware becomes jumpy and
--	 * overly sensitive.  Not only that, but the constant packet spew
--	 * (even at a lowered 40pps rate) overloads the EC such that key
--	 * presses on the keyboard are missed.  Given all of that, don't
--	 * even attempt to use Synaptics mode.  Relative mode seems to work
--	 * just fine.
-+	 * The OLPC XO has issues with Synaptics' absolute mode; the constant
-+	 * packet spew overloads the EC such that key presses on the keyboard
-+	 * are missed.  Given that, don't even attempt to use Absolute mode.
-+	 * Relative mode seems to work just fine.
- 	 */
--	if (broken_olpc_ec) {
-+	if (absolute_mode && broken_olpc_ec) {
- 		psmouse_info(psmouse,
- 			     "OLPC XO detected, not enabling Synaptics protocol.\n");
- 		return -ENODEV;
+ #define USB_VENDOR_ID_ELECOM		0x056e
+ #define USB_DEVICE_ID_ELECOM_BM084	0x0061
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index f1c909f..a59d939 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -662,6 +662,9 @@ static const struct hid_device_id mt_devices[] = {
+ 	{  .driver_data = MT_CLS_EGALAX,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4) },
++	{  .driver_data = MT_CLS_EGALAX,
++		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH5) },
+ 
+ 	/* Elo TouchSystems IntelliTouch Plus panel */
+ 	{ .driver_data = MT_CLS_DUAL_NSMU_CONTACTID,
 -- 
-1.7.7.1
+1.7.7
 

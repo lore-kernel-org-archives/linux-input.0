@@ -1,53 +1,60 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: hid-lg4ff: Casting (void *) value returned by
- kmalloc is useless
-Date: Fri, 11 Nov 2011 15:10:07 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1111111509580.3923@pobox.suse.cz>
-References: <1320779660.8062.141.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Daniel Drake <dsd@laptop.org>
+Subject: [PATCH] Input: synaptics - update OLPC XO exclusion
+Date: Fri, 11 Nov 2011 17:49:56 +0000 (GMT)
+Message-ID: <20111111174957.0FE289D401E@zog.reactivated.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57980 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751352Ab1KKOKI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Nov 2011 09:10:08 -0500
-In-Reply-To: <1320779660.8062.141.camel@localhost.localdomain>
+Received: from mtaout02-winn.ispmail.ntl.com ([81.103.221.48]:53295 "EHLO
+	mtaout02-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751603Ab1KKRuD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Nov 2011 12:50:03 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thomas Meyer <thomas@m3y3r.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, dtor@mail.ru
+Cc: linux-input@vger.kernel.org, pgf@laptop.org, dilinger@queued.net
 
-On Tue, 8 Nov 2011, Thomas Meyer wrote:
+We have determined that the jumpiness previously seen when using
+the synaptics kernel mouse driver on OLPC XO was due to not using
+the synaptics X11 userspace driver - the xf86-input-evdev driver was
+interpreting 'finger near pad' signals as movements. Newer versions
+of xf86-input-evdev fix this issue.
 
-> From: Thomas Meyer <thomas@m3y3r.de>
-> 
->  Casting (void *) value returned by kmalloc is useless
->  as mentioned in Documentation/CodingStyle, Chap 14.
-> 
->  The semantic patch that makes this change is available
->  in scripts/coccinelle/api/alloc/drop_kmalloc_cast.cocci.
-> 
->  More information about semantic patching is available at
->  http://coccinelle.lip6.fr/
-> 
-> Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
-> ---
-> 
-> diff -u -p a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-> --- a/drivers/hid/hid-lg4ff.c 2011-11-07 19:37:44.816570939 +0100
-> +++ b/drivers/hid/hid-lg4ff.c 2011-11-08 09:03:29.394045138 +0100
-> @@ -430,7 +430,7 @@ int lg4ff_init(struct hid_device *hid)
->  	}
->  
->  	/* Add the device to device_list */
-> -	entry = (struct lg4ff_device_entry *)kzalloc(sizeof(struct lg4ff_device_entry), GFP_KERNEL);
-> +	entry = kzalloc(sizeof(struct lg4ff_device_entry), GFP_KERNEL);
->  	if (!entry) {
->  		hid_err(hid, "Cannot add device, insufficient memory.\n");
->  		return -ENOMEM;
+Additionally, the synaptics kernel driver is now usable on this
+platform, but only when run in relative mode.
 
-Applied, thanks Thomas.
+Update the comment and refine the check to allow the synaptics driver
+to run on OLPC XO in relative mode.
 
+We will continue investigating the EC issue as time becomes available.
+---
+ drivers/input/mouse/synaptics.c |   13 +++++--------
+ 1 files changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index a3bb49c..06c9ee5 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -1389,15 +1389,12 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+ 	int err = -1;
+ 
+ 	/*
+-	 * The OLPC XO has issues with Synaptics' absolute mode; similarly to
+-	 * the HGPK, it quickly degrades and the hardware becomes jumpy and
+-	 * overly sensitive.  Not only that, but the constant packet spew
+-	 * (even at a lowered 40pps rate) overloads the EC such that key
+-	 * presses on the keyboard are missed.  Given all of that, don't
+-	 * even attempt to use Synaptics mode.  Relative mode seems to work
+-	 * just fine.
++	 * The OLPC XO has issues with Synaptics' absolute mode; the constant
++	 * packet spew overloads the EC such that key presses on the keyboard
++	 * are missed.  Given that, don't even attempt to use Absolute mode.
++	 * Relative mode seems to work just fine.
+ 	 */
+-	if (broken_olpc_ec) {
++	if (absolute_mode && broken_olpc_ec) {
+ 		psmouse_info(psmouse,
+ 			     "OLPC XO detected, not enabling Synaptics protocol.\n");
+ 		return -ENODEV;
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.7.1
+

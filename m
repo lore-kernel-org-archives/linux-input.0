@@ -1,67 +1,115 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: hid-multitouch - add another eGalax id
-Date: Sat, 12 Nov 2011 16:01:12 +0100
-Message-ID: <CAN+gG=GUvGMYrJPbjOYy=EzhZ5FOv3_hvPDW_tpUXK03bsA-gw@mail.gmail.com>
-References: <1321042868-13836-1-git-send-email-chris@cnpbagwell.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: Annoying touchpad behavior
+Date: Sat, 12 Nov 2011 12:15:00 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.1111121210500.9110-100000@netrider.rowland.org>
+References: <20111112060505.GA20411@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:64825 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753994Ab1KLPBO convert rfc822-to-8bit (ORCPT
+Received: from netrider.rowland.org ([192.131.102.5]:58864 "HELO
+	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1754824Ab1KLRPB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 12 Nov 2011 10:01:14 -0500
-Received: by wyh15 with SMTP id 15so4669730wyh.19
-        for <linux-input@vger.kernel.org>; Sat, 12 Nov 2011 07:01:12 -0800 (PST)
-In-Reply-To: <1321042868-13836-1-git-send-email-chris@cnpbagwell.com>
+	Sat, 12 Nov 2011 12:15:01 -0500
+In-Reply-To: <20111112060505.GA20411@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: chris@cnpbagwell.com
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Chris,
+On Fri, 11 Nov 2011, Dmitry Torokhov wrote:
 
-On Fri, Nov 11, 2011 at 21:21,  <chris@cnpbagwell.com> wrote:
-> From: Chris Bagwell <chris@cnpbagwell.com>
->
-> This allows ASUS Eee Slate touchscreens to work.
->
-> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
-> ---
->
-> I do not have one of these to test the patch but I helped a user
-> debug why his new touchscreen was being treated as a touchpad.
-> He reported success after adding this ID.
->
+> Hi Alan,
+> 
+> On Fri, Nov 11, 2011 at 11:10:46PM -0500, Alan Stern wrote:
+> > Dmitry:
+> > 
+> > My laptop has a Synaptics touchpad:
+> > 
+> > [    2.528474] Synaptics Touchpad, model: 1, fw: 7.2, id: 0x1c0b1, caps: 0xd04731/0xa40000/0xa0000
+> > [    2.566383] input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio4/input/input4
+> > 
+> > Under circumstances which I can't pin down (they generally involve my
+> > thumb brushing over the trackpad, which happens fairly often as I
+> > type), the touchpad reports a right-click.  This causes gnome-terminal
+> > to pop up its menu, which is very annoying.
+> > 
+> > Why does the trackpad report a right-click instead of a normal 
+> > left-click?  How can I fix this?
+> 
+> You probably have corner taps or multi-finger taps enabled on your box.
+> What does "synclient' has to say about your setup?
 
-The patch looks good.
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Here's the output from "synclient -l":
 
-> I'm sending this since I'm unsure status of patch to auto-assign
-> multitouch devices to hid-multitouch. That would probably have
-> solved issue as well.
+Parameter settings:
+    LeftEdge                = 1762
+    RightEdge               = 5334
+    TopEdge                 = 1642
+    BottomEdge              = 4520
+    FingerLow               = 24
+    FingerHigh              = 29
+    FingerPress             = 255
+    MaxTapTime              = 180
+    MaxTapMove              = 234
+    MaxDoubleTapTime        = 180
+    SingleTapTimeout        = 180
+    ClickTime               = 100
+    FastTaps                = 0
+    EmulateMidButtonTime    = 75
+    EmulateTwoFingerMinZ    = 29
+    EmulateTwoFingerMinW    = 7
+    VertScrollDelta         = 106
+    HorizScrollDelta        = 106
+    VertEdgeScroll          = 1
+    HorizEdgeScroll         = 0
+    CornerCoasting          = 0
+    VertTwoFingerScroll     = 0
+    HorizTwoFingerScroll    = 0
+    MinSpeed                = 1
+    MaxSpeed                = 1.75
+    AccelFactor             = 0.0375094
+    TrackstickSpeed         = 40
+    EdgeMotionMinZ          = 29
+    EdgeMotionMaxZ          = 159
+    EdgeMotionMinSpeed      = 1
+    EdgeMotionMaxSpeed      = 426
+    EdgeMotionUseAlways     = 0
+    TouchpadOff             = 0
+    LockedDrags             = 0
+    LockedDragTimeout       = 5000
+    RTCornerButton          = 0
+    RBCornerButton          = 0
+    LTCornerButton          = 0
+    LBCornerButton          = 0
+    TapButton1              = 1
+    TapButton2              = 3
+    TapButton3              = 2
+    ClickFinger1            = 1
+    ClickFinger2            = 1
+    ClickFinger3            = 1
+    CircularScrolling       = 0
+    CircScrollDelta         = 0.1
+    CircScrollTrigger       = 0
+    CircularPad             = 0
+    PalmDetect              = 0
+    PalmMinWidth            = 10
+    PalmMinZ                = 199
+    CoastingSpeed           = 20
+    CoastingFriction        = 50
+    PressureMotionMinZ      = 29
+    PressureMotionMaxZ      = 159
+    PressureMotionMinFactor = 1
+    PressureMotionMaxFactor = 1
+    GrabEventDevice         = 1
+    TapAndDragGesture       = 1
+    AreaLeftEdge            = 0
+    AreaRightEdge           = 0
+    AreaTopEdge             = 0
+    AreaBottomEdge          = 0
 
-Well, as of today, the auto-detection is partly included in 3.2-rc1:
-the generic hid layer will release the device (ie, it's not needed
-anymore to patch hid-core.c while adding a multitouch device to its
-list), but hid-multitouch is not capable of handling it after the
-release of the generic part.
-BTW, egalax devices need a special handling, and we may have to add
-them one by one.
+A few of the fields are suggestive, but I don't really understand much
+of it.  If you need anything else, let me know.
 
-Alternatively, we could use:
- + =A0 =A0 =A0 { =A0.driver_data =3D MT_CLS_EGALAX,
- + =A0 =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_DEVICE(USB_VENDOR_ID_DWAV, HID_A=
-NY_ID) },
-but that's hoping that DWAV won't do any other things than multitouch p=
-anels.
-Jiri, have you an idea on this?
+Alan Stern
 
-Cheers,
-Benjamin
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

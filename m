@@ -1,57 +1,65 @@
-From: Jiejing Zhang <kzjeef@gmail.com>
-Subject: Re: [PATCH V4] input: add EETI eGalax I2C capacitive multi touch driver.
-Date: Sat, 12 Nov 2011 16:45:32 +0800
-Message-ID: <E5ED6E6E-90D2-4047-B246-F6BB85C572F1@gmail.com>
-References: <20111110183819.GB18002@core.coreip.homeip.net> <1321078357-19317-1-git-send-email-jiejing.zhang@freescale.com> <20111112080206.GB20411@core.coreip.homeip.net>
-Mime-Version: 1.0 (Apple Message framework v1251.1)
-Content-Type: text/plain; charset=GB2312
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: hid-multitouch - add another eGalax id
+Date: Sat, 12 Nov 2011 16:01:12 +0100
+Message-ID: <CAN+gG=GUvGMYrJPbjOYy=EzhZ5FOv3_hvPDW_tpUXK03bsA-gw@mail.gmail.com>
+References: <1321042868-13836-1-git-send-email-chris@cnpbagwell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:60023 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752858Ab1KLIps convert rfc822-to-8bit (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:64825 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753994Ab1KLPBO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 12 Nov 2011 03:45:48 -0500
-Received: by iage36 with SMTP id e36so4991815iag.19
-        for <linux-input@vger.kernel.org>; Sat, 12 Nov 2011 00:45:47 -0800 (PST)
-In-Reply-To: <20111112080206.GB20411@core.coreip.homeip.net>
+	Sat, 12 Nov 2011 10:01:14 -0500
+Received: by wyh15 with SMTP id 15so4669730wyh.19
+        for <linux-input@vger.kernel.org>; Sat, 12 Nov 2011 07:01:12 -0800 (PST)
+In-Reply-To: <1321042868-13836-1-git-send-email-chris@cnpbagwell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Zhang Jiejing <jiejing.zhang@freescale.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
+To: chris@cnpbagwell.com
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz
 
-Hi Dmitry,
+Hi Chris,
 
-On 2011-11-12=A3=ACPM4:02=A3=AC Dmitry Torokhov wrote=A3=BA
+On Fri, Nov 11, 2011 at 21:21,  <chris@cnpbagwell.com> wrote:
+> From: Chris Bagwell <chris@cnpbagwell.com>
+>
+> This allows ASUS Eee Slate touchscreens to work.
+>
+> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+> ---
+>
+> I do not have one of these to test the patch but I helped a user
+> debug why his new touchscreen was being treated as a touchpad.
+> He reported success after adding this ID.
+>
 
-> On Sat, Nov 12, 2011 at 02:12:37PM +0800, Zhang Jiejing wrote
->>=20
->> V4 changes:
->> * fix some typo
->> * don't let i2c_master_recv spin indefinitely
->> * clean up the bit set of probe function
->> * clean up egalax_ts_remove  input_unregister_device order
->=20
-> No, it is not the order I complained about, input_free_device() shoud=
-l
-> not be called at all after calling input_unregister_device().
->=20
+The patch looks good.
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-I know the input_free_device call after input_unregister_device() maybe=
- cause NULL pointer reference, sorry for I don't tested rmmod this modu=
-le, I always buildin this module in my test env.
+> I'm sending this since I'm unsure status of patch to auto-assign
+> multitouch devices to hid-multitouch. That would probably have
+> solved issue as well.
 
-I will pay attention to it.
+Well, as of today, the auto-detection is partly included in 3.2-rc1:
+the generic hid layer will release the device (ie, it's not needed
+anymore to patch hid-core.c while adding a multitouch device to its
+list), but hid-multitouch is not capable of handling it after the
+release of the generic part.
+BTW, egalax devices need a special handling, and we may have to add
+them one by one.
 
-Thanks for your review.
+Alternatively, we could use:
+ + =A0 =A0 =A0 { =A0.driver_data =3D MT_CLS_EGALAX,
+ + =A0 =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_DEVICE(USB_VENDOR_ID_DWAV, HID_A=
+NY_ID) },
+but that's hoping that DWAV won't do any other things than multitouch p=
+anels.
+Jiri, have you an idea on this?
 
-> Fixed up locally and applied.
->=20
-Thanks.
-
-Best Regards
-Jiejing
-
+Cheers,
+Benjamin
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

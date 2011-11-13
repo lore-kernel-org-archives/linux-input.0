@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Subject: Re: [PATCH] HID: hid-multitouch - add another eGalax id
-Date: Sun, 13 Nov 2011 22:59:41 +0100
-Message-ID: <CAN+gG=GHjbZ12zYz6OTWAhE0TtRp2tBYGFjFkRc4_=6OjKGgOA@mail.gmail.com>
+Date: Sun, 13 Nov 2011 23:03:22 +0100
+Message-ID: <CAN+gG=GCTYu+0eA6gdns3dxOL4ZU_8TLUJ0x7sOiLtOJ-AWN5A@mail.gmail.com>
 References: <1321042868-13836-1-git-send-email-chris@cnpbagwell.com>
 	<CAN+gG=GUvGMYrJPbjOYy=EzhZ5FOv3_hvPDW_tpUXK03bsA-gw@mail.gmail.com>
 	<alpine.LNX.2.00.1111132130150.15187@pobox.suse.cz>
@@ -9,13 +9,13 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f42.google.com ([74.125.82.42]:38408 "EHLO
-	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752184Ab1KMV7m convert rfc822-to-8bit (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:37489 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751554Ab1KMWDY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Nov 2011 16:59:42 -0500
-Received: by wwi18 with SMTP id 18so4105212wwi.1
-        for <linux-input@vger.kernel.org>; Sun, 13 Nov 2011 13:59:41 -0800 (PST)
+	Sun, 13 Nov 2011 17:03:24 -0500
+Received: by wwe5 with SMTP id 5so3570783wwe.1
+        for <linux-input@vger.kernel.org>; Sun, 13 Nov 2011 14:03:23 -0800 (PST)
 In-Reply-To: <alpine.LNX.2.00.1111132130150.15187@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -67,12 +67,21 @@ bad.
 > If the number of device IDs starts to grow rapidly, we should start
 > thinking about this, but I think we are not there yet.
 >
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+
+Hi Jiri,
+
+as you can see, on
+http://lii-enac.fr/en/architecture/linux-input/multitouch-devices.html
+we currently have 13 different PID for egalax.... But we currently
+support 7 (we missed some users and tests/feedback).
+
+If it's good for you to have PID added one by one, I'm fine with that.
+
+Cheers,
+Benjamin
+
+PS: sorry for the previous miss sent mail, I clicked on send too early =
+;-)
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

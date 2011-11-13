@@ -1,307 +1,156 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 04/16] HID: wiimote: Add extension support stub
-Date: Sun, 13 Nov 2011 14:27:07 +0100
-Message-ID: <1321190839-3517-5-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 03/16] HID: wiimote: Add read-mem helpers
+Date: Sun, 13 Nov 2011 14:27:06 +0100
+Message-ID: <1321190839-3517-4-git-send-email-dh.herrmann@googlemail.com>
 References: <1321190839-3517-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:48117 "EHLO
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:43554 "EHLO
 	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752908Ab1KMN2A (ORCPT
+	with ESMTP id S1752296Ab1KMN17 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Nov 2011 08:28:00 -0500
-Received: by mail-bw0-f46.google.com with SMTP id 11so4910943bke.19
-        for <linux-input@vger.kernel.org>; Sun, 13 Nov 2011 05:27:59 -0800 (PST)
+	Sun, 13 Nov 2011 08:27:59 -0500
+Received: by mail-bw0-f46.google.com with SMTP id 11so4910956bke.19
+        for <linux-input@vger.kernel.org>; Sun, 13 Nov 2011 05:27:58 -0800 (PST)
 In-Reply-To: <1321190839-3517-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-The wiimote supports several extensions. This adds a separate source file which
-handles all extensions and can be disabled at compile-time.
-
-The driver reacts on "plug"-events on the extension port and starts a worker
-which initializes or deinitializes the extensions.
-
-Currently, the initialization logic is not fully understood and we can only
-detect and enable all extensions when all extensions are deactivated. Therefore,
-we need to disable all extensions, then detect and activate them again to react
-on "plug"-events.
-However, deactivating extensions will generate a new "plug"-event and we will
-never leave that loop. Hence, we only support extensions if they are plugged
-before the wiimote is connected (or before the ext-input device is opened). In
-the future we may support full extension hotplug support, but
-reverse-engineering this may take a while.
+Add helper functions similar to the write-mem helpers but for reading wiimote
+memory and eeprom.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/Kconfig            |    9 +++
- drivers/hid/Makefile           |    3 +
- drivers/hid/hid-wiimote-core.c |   23 ++++++-
- drivers/hid/hid-wiimote-ext.c  |  122 ++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-wiimote.h      |   17 ++++++
- 5 files changed, 170 insertions(+), 4 deletions(-)
- create mode 100644 drivers/hid/hid-wiimote-ext.c
+ drivers/hid/hid-wiimote-core.c |   77 ++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-wiimote.h      |    4 ++
+ 2 files changed, 81 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 9907dc9..edf2b2b 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -594,6 +594,15 @@ config HID_WIIMOTE
- 	---help---
- 	Support for the Nintendo Wii Remote bluetooth device.
- 
-+config HID_WIIMOTE_EXT
-+	bool "Nintendo Wii Remote Extension support"
-+	depends on HID_WIIMOTE
-+	default HID_WIIMOTE
-+	---help---
-+	Support for extension controllers of the Nintendo Wii Remote. Say yes
-+	here if you want to use the Nintendo Motion+, Nunchuck or Classic
-+	extension controllers with your Wii Remote.
-+
- config HID_ZEROPLUS
- 	tristate "Zeroplus based game controller support"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 07e750a..57d46e6 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -26,6 +26,9 @@ ifdef CONFIG_LOGIWII_FF
- endif
- 
- hid-wiimote-y		:= hid-wiimote-core.o
-+ifdef CONFIG_HID_WIIMOTE_EXT
-+	hid-wiimote-y	+= hid-wiimote-ext.o
-+endif
- 
- obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
- obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
 diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index f7f8b7f..2ca8bfd 100644
+index c955d50..f7f8b7f 100644
 --- a/drivers/hid/hid-wiimote-core.c
 +++ b/drivers/hid/hid-wiimote-core.c
-@@ -201,6 +201,7 @@ static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
- static __u8 select_drm(struct wiimote_data *wdata)
- {
- 	__u8 ir = wdata->state.flags & WIIPROTO_FLAGS_IR;
-+	bool ext = wiiext_active(wdata);
- 
- 	if (ir == WIIPROTO_FLAG_IR_BASIC) {
- 		if (wdata->state.flags & WIIPROTO_FLAG_ACCEL)
-@@ -212,10 +213,17 @@ static __u8 select_drm(struct wiimote_data *wdata)
- 	} else if (ir == WIIPROTO_FLAG_IR_FULL) {
- 		return WIIPROTO_REQ_DRM_SKAI1;
- 	} else {
--		if (wdata->state.flags & WIIPROTO_FLAG_ACCEL)
--			return WIIPROTO_REQ_DRM_KA;
--		else
--			return WIIPROTO_REQ_DRM_K;
-+		if (wdata->state.flags & WIIPROTO_FLAG_ACCEL) {
-+			if (ext)
-+				return WIIPROTO_REQ_DRM_KAE;
-+			else
-+				return WIIPROTO_REQ_DRM_KA;
-+		} else {
-+			if (ext)
-+				return WIIPROTO_REQ_DRM_KE;
-+			else
-+				return WIIPROTO_REQ_DRM_K;
-+		}
- 	}
+@@ -312,6 +312,37 @@ static void wiiproto_req_wmem(struct wiimote_data *wdata, bool eeprom,
+ 	wiimote_queue(wdata, cmd, sizeof(cmd));
  }
  
-@@ -795,6 +803,8 @@ static void handler_status(struct wiimote_data *wdata, const __u8 *payload)
- 	/* on status reports the drm is reset so we need to resend the drm */
- 	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
- 
-+	wiiext_event(wdata, payload[2] & 0x02);
++#define wiiproto_req_rreg(wdata, os, sz) \
++				wiiproto_req_rmem((wdata), false, (os), (sz))
 +
- 	if (wiimote_cmd_pending(wdata, WIIPROTO_REQ_SREQ, 0)) {
- 		wdata->state.cmd_battery = payload[5];
- 		wiimote_cmd_complete(wdata);
-@@ -1145,6 +1155,7 @@ err:
++#define wiiproto_req_reeprom(wdata, os, sz) \
++				wiiproto_req_rmem((wdata), true, (os), (sz))
++
++static void wiiproto_req_rmem(struct wiimote_data *wdata, bool eeprom,
++						__u32 offset, __u16 size)
++{
++	__u8 cmd[7];
++
++	if (size == 0) {
++		hid_warn(wdata->hdev, "Invalid length %d rmem request\n", size);
++		return;
++	}
++
++	cmd[0] = WIIPROTO_REQ_RMEM;
++	cmd[1] = 0;
++	cmd[2] = (offset >> 16) & 0xff;
++	cmd[3] = (offset >> 8) & 0xff;
++	cmd[4] = offset & 0xff;
++	cmd[5] = (size >> 8) & 0xff;
++	cmd[6] = size & 0xff;
++
++	if (!eeprom)
++		cmd[1] |= 0x04;
++
++	wiiproto_keep_rumble(wdata, &cmd[1]);
++	wiimote_queue(wdata, cmd, sizeof(cmd));
++}
++
+ /* requries the cmd-mutex to be held */
+ int wiimote_cmd_write(struct wiimote_data *wdata, __u32 offset,
+ 						const __u8 *wmem, __u8 size)
+@@ -331,6 +362,36 @@ int wiimote_cmd_write(struct wiimote_data *wdata, __u32 offset,
+ 	return ret;
+ }
  
- static void wiimote_destroy(struct wiimote_data *wdata)
++/* requries the cmd-mutex to be held */
++ssize_t wiimote_cmd_read(struct wiimote_data *wdata, __u32 offset, __u8 *rmem,
++								__u8 size)
++{
++	unsigned long flags;
++	ssize_t ret;
++
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	wdata->state.cmd_read_size = size;
++	wdata->state.cmd_read_buf = rmem;
++	wiimote_cmd_set(wdata, WIIPROTO_REQ_RMEM, offset & 0xffff);
++	wiiproto_req_rreg(wdata, offset, size);
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
++
++	ret = wiimote_cmd_wait(wdata);
++
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	wdata->state.cmd_read_buf = NULL;
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
++
++	if (!ret) {
++		if (wdata->state.cmd_read_size == 0)
++			ret = -EIO;
++		else
++			ret = wdata->state.cmd_read_size;
++	}
++
++	return ret;
++}
++
+ static int wiimote_battery_get_property(struct power_supply *psy,
+ 						enum power_supply_property psp,
+ 						union power_supply_propval *val)
+@@ -742,7 +803,23 @@ static void handler_status(struct wiimote_data *wdata, const __u8 *payload)
+ 
+ static void handler_data(struct wiimote_data *wdata, const __u8 *payload)
  {
-+	wiiext_deinit(wdata);
- 	wiimote_leds_destroy(wdata);
++	__u16 offset = payload[3] << 8 | payload[4];
++	__u8 size = (payload[2] >> 4) + 1;
++	__u8 err = payload[2] & 0x0f;
++
+ 	handler_keys(wdata, payload);
++
++	if (wiimote_cmd_pending(wdata, WIIPROTO_REQ_RMEM, offset)) {
++		if (err)
++			size = 0;
++		else if (size > wdata->state.cmd_read_size)
++			size = wdata->state.cmd_read_size;
++
++		wdata->state.cmd_read_size = size;
++		if (wdata->state.cmd_read_buf)
++			memcpy(wdata->state.cmd_read_buf, &payload[5], size);
++		wiimote_cmd_complete(wdata);
++	}
+ }
  
- 	power_supply_unregister(&wdata->battery);
-@@ -1216,6 +1227,10 @@ static int wiimote_hid_probe(struct hid_device *hdev,
- 	if (ret)
- 		goto err_free;
- 
-+	ret = wiiext_init(wdata);
-+	if (ret)
-+		goto err_free;
-+
- 	hid_info(hdev, "New device registered\n");
- 
- 	/* by default set led1 after device initialization */
-diff --git a/drivers/hid/hid-wiimote-ext.c b/drivers/hid/hid-wiimote-ext.c
-new file mode 100644
-index 0000000..631566d
---- /dev/null
-+++ b/drivers/hid/hid-wiimote-ext.c
-@@ -0,0 +1,122 @@
-+/*
-+ * HID driver for Nintendo Wiimote extension devices
-+ * Copyright (c) 2011 David Herrmann
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/atomic.h>
-+#include <linux/module.h>
-+#include <linux/spinlock.h>
-+#include <linux/workqueue.h>
-+#include "hid-wiimote.h"
-+
-+struct wiimote_ext {
-+	struct wiimote_data *wdata;
-+	struct work_struct worker;
-+
-+	atomic_t opened;
-+	atomic_t mp_opened;
-+	bool plugged;
-+	bool motionp;
-+	__u8 ext_type;
-+};
-+
-+enum wiiext_type {
-+	WIIEXT_NONE,		/* placeholder */
-+	WIIEXT_CLASSIC,		/* Nintendo classic controller */
-+	WIIEXT_NUNCHUCK,	/* Nintendo nunchuck controller */
-+};
-+
-+static void wiiext_worker(struct work_struct *work)
-+{
-+	struct wiimote_ext *ext = container_of(work, struct wiimote_ext,
-+									worker);
-+}
-+
-+/* schedule work only once, otherwise mark for reschedule */
-+static void wiiext_schedule(struct wiimote_ext *ext)
-+{
-+	queue_work(system_nrt_wq, &ext->worker);
-+}
-+
-+/*
-+ * Reacts on extension port events
-+ * Whenever the driver gets an event from the wiimote that an extension has been
-+ * plugged or unplugged, this funtion shall be called. It checks what extensions
-+ * are connected and initializes and activates them.
-+ * This can be called in atomic context. The initialization is done in a
-+ * separate worker thread. The state.lock spinlock must be held by the caller.
-+ */
-+void wiiext_event(struct wiimote_data *wdata, bool plugged)
-+{
-+	if (!wdata->ext)
-+		return;
-+
-+	if (wdata->ext->plugged == plugged)
-+		return;
-+
-+	wdata->ext->plugged = plugged;
-+	/*
-+	 * We need to call wiiext_schedule(wdata->ext) here, however, the
-+	 * extension initialization logic is not fully understood and so
-+	 * automatic initialization is not supported, yet.
-+	 */
-+}
-+
-+/*
-+ * Returns true if the current DRM mode should contain extension data and false
-+ * if there is no interest in extension data.
-+ * All supported extensions send 6 byte extension data so any DRM that contains
-+ * extension bytes is fine.
-+ * The caller must hold the state.lock spinlock.
-+ */
-+bool wiiext_active(struct wiimote_data *wdata)
-+{
-+	if (!wdata->ext)
-+		return false;
-+
-+	return wdata->ext->motionp || wdata->ext->ext_type;
-+}
-+
-+/* Initializes the extension driver of a wiimote */
-+int wiiext_init(struct wiimote_data *wdata)
-+{
-+	struct wiimote_ext *ext;
-+	unsigned long flags;
-+
-+	ext = kzalloc(sizeof(*ext), GFP_KERNEL);
-+	if (!ext)
-+		return -ENOMEM;
-+
-+	ext->wdata = wdata;
-+	INIT_WORK(&ext->worker, wiiext_worker);
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wdata->ext = ext;
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	return 0;
-+}
-+
-+/* Deinitializes the extension driver of a wiimote */
-+void wiiext_deinit(struct wiimote_data *wdata)
-+{
-+	struct wiimote_ext *ext = wdata->ext;
-+	unsigned long flags;
-+
-+	if (!ext)
-+		return;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wdata->ext = NULL;
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	cancel_work_sync(&ext->worker);
-+	kfree(ext);
-+}
+ static void handler_return(struct wiimote_data *wdata, const __u8 *payload)
 diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
-index 865740d..abbfab8 100644
+index d78f79c..865740d 100644
 --- a/drivers/hid/hid-wiimote.h
 +++ b/drivers/hid/hid-wiimote.h
-@@ -73,6 +73,7 @@ struct wiimote_data {
- 	struct input_dev *accel;
- 	struct input_dev *ir;
- 	struct power_supply battery;
-+	struct wiimote_ext *ext;
+@@ -62,6 +62,8 @@ struct wiimote_state {
+ 	/* results of synchronous requests */
+ 	__u8 cmd_battery;
+ 	__u8 cmd_err;
++	__u8 *cmd_read_buf;
++	__u8 cmd_read_size;
+ };
  
- 	spinlock_t qlock;
- 	__u8 head;
-@@ -118,6 +119,22 @@ extern int wiimote_cmd_write(struct wiimote_data *wdata, __u32 offset,
- extern ssize_t wiimote_cmd_read(struct wiimote_data *wdata, __u32 offset,
- 							__u8 *rmem, __u8 size);
+ struct wiimote_data {
+@@ -113,6 +115,8 @@ enum wiiproto_reqs {
+ extern void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm);
+ extern int wiimote_cmd_write(struct wiimote_data *wdata, __u32 offset,
+ 						const __u8 *wmem, __u8 size);
++extern ssize_t wiimote_cmd_read(struct wiimote_data *wdata, __u32 offset,
++							__u8 *rmem, __u8 size);
  
-+#ifdef CONFIG_HID_WIIMOTE_EXT
-+
-+extern int wiiext_init(struct wiimote_data *wdata);
-+extern void wiiext_deinit(struct wiimote_data *wdata);
-+extern void wiiext_event(struct wiimote_data *wdata, bool plugged);
-+extern bool wiiext_active(struct wiimote_data *wdata);
-+
-+#else
-+
-+static inline int wiiext_init(void *u) { return 0; }
-+static inline void wiiext_deinit(void *u) { }
-+static inline void wiiext_event(void *u, bool p) { }
-+static inline bool wiiext_active(void *u) { return false; }
-+
-+#endif
-+
  /* requires the state.lock spinlock to be held */
  static inline bool wiimote_cmd_pending(struct wiimote_data *wdata, int cmd,
- 								__u32 opt)
 -- 
 1.7.7.3
 

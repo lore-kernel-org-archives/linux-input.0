@@ -1,195 +1,168 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 08/16] HID: wiimote: Register input devices for extensions
-Date: Sun, 13 Nov 2011 14:27:11 +0100
-Message-ID: <1321190839-3517-9-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 11/16] HID: wiimote: Parse nunchuck data
+Date: Sun, 13 Nov 2011 14:27:14 +0100
+Message-ID: <1321190839-3517-12-git-send-email-dh.herrmann@googlemail.com>
 References: <1321190839-3517-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:48117 "EHLO
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:43554 "EHLO
 	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753512Ab1KMN2G (ORCPT
+	with ESMTP id S1753566Ab1KMN2L (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Nov 2011 08:28:06 -0500
-Received: by mail-bw0-f46.google.com with SMTP id 11so4910943bke.19
-        for <linux-input@vger.kernel.org>; Sun, 13 Nov 2011 05:28:06 -0800 (PST)
+	Sun, 13 Nov 2011 08:28:11 -0500
+Received: by mail-bw0-f46.google.com with SMTP id 11so4910956bke.19
+        for <linux-input@vger.kernel.org>; Sun, 13 Nov 2011 05:28:10 -0800 (PST)
 In-Reply-To: <1321190839-3517-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-Motion+ and regular extensions are physical adapters for the wiimote so create
-one input device for each of them. This also allows to enable only opened
-extensions and turn unused extenions off to save battery power.
+The Nintendo Nunchuck extension reports accelerometer values, one analog stick
+and two buttons. See inline comments for data layout.
+We report all data to userspace through extension input device.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote-ext.c |  109 +++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 106 insertions(+), 3 deletions(-)
+ drivers/hid/hid-wiimote-ext.c |  105 ++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 104 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote-ext.c b/drivers/hid/hid-wiimote-ext.c
-index a290ef2..cbfb655 100644
+index 5953862..bac2e45 100644
 --- a/drivers/hid/hid-wiimote-ext.c
 +++ b/drivers/hid/hid-wiimote-ext.c
-@@ -19,6 +19,8 @@
- struct wiimote_ext {
- 	struct wiimote_data *wdata;
- 	struct work_struct worker;
-+	struct input_dev *input;
-+	struct input_dev *mp_input;
+@@ -36,6 +36,17 @@ enum wiiext_type {
+ 	WIIEXT_NUNCHUCK,	/* Nintendo nunchuck controller */
+ };
  
- 	atomic_t opened;
- 	atomic_t mp_opened;
-@@ -57,6 +59,9 @@ static bool motionp_read(struct wiimote_ext *ext)
- 	ssize_t ret;
- 	bool avail = false;
- 
-+	if (!atomic_read(&ext->mp_opened))
-+		return false;
++enum wiiext_keys {
++	WIIEXT_KEY_C,
++	WIIEXT_KEY_Z,
++	WIIEXT_KEY_COUNT
++};
 +
- 	if (wiimote_cmd_acquire(ext->wdata))
- 		return false;
- 
-@@ -82,7 +87,7 @@ static __u8 ext_read(struct wiimote_ext *ext)
- 	__u8 rmem[2], wmem;
- 	__u8 type = WIIEXT_NONE;
- 
--	if (!ext->plugged)
-+	if (!ext->plugged || !atomic_read(&ext->opened))
- 		return WIIEXT_NONE;
- 
- 	if (wiimote_cmd_acquire(ext->wdata))
-@@ -234,6 +239,54 @@ static ssize_t wiiext_show(struct device *dev, struct device_attribute *attr,
- 
- static DEVICE_ATTR(extension, S_IRUGO, wiiext_show, NULL);
- 
-+static int wiiext_input_open(struct input_dev *dev)
-+{
-+	struct wiimote_ext *ext = input_get_drvdata(dev);
-+	int ret;
++static __u16 wiiext_keymap[] = {
++	BTN_C,		/* WIIEXT_KEY_C */
++	BTN_Z,		/* WIIEXT_KEY_Z */
++};
 +
-+	ret = hid_hw_open(ext->wdata->hdev);
-+	if (ret)
-+		return ret;
-+
-+	atomic_inc(&ext->opened);
-+	wiiext_schedule(ext);
-+
-+	return 0;
-+}
-+
-+static void wiiext_input_close(struct input_dev *dev)
-+{
-+	struct wiimote_ext *ext = input_get_drvdata(dev);
-+
-+	atomic_dec(&ext->opened);
-+	wiiext_schedule(ext);
-+	hid_hw_close(ext->wdata->hdev);
-+}
-+
-+static int wiiext_mp_open(struct input_dev *dev)
-+{
-+	struct wiimote_ext *ext = input_get_drvdata(dev);
-+	int ret;
-+
-+	ret = hid_hw_open(ext->wdata->hdev);
-+	if (ret)
-+		return ret;
-+
-+	atomic_inc(&ext->mp_opened);
-+	wiiext_schedule(ext);
-+
-+	return 0;
-+}
-+
-+static void wiiext_mp_close(struct input_dev *dev)
-+{
-+	struct wiimote_ext *ext = input_get_drvdata(dev);
-+
-+	atomic_dec(&ext->mp_opened);
-+	wiiext_schedule(ext);
-+	hid_hw_close(ext->wdata->hdev);
-+}
-+
- /* Initializes the extension driver of a wiimote */
- int wiiext_init(struct wiimote_data *wdata)
+ /* diable all extensions */
+ static void ext_disable(struct wiimote_ext *ext)
  {
-@@ -248,9 +301,53 @@ int wiiext_init(struct wiimote_data *wdata)
- 	ext->wdata = wdata;
- 	INIT_WORK(&ext->worker, wiiext_worker);
+@@ -272,6 +283,82 @@ static void handler_motionp(struct wiimote_ext *ext, const __u8 *payload)
  
-+	ext->input = input_allocate_device();
-+	if (!ext->input) {
-+		ret = -ENOMEM;
-+		goto err_input;
+ static void handler_nunchuck(struct wiimote_ext *ext, const __u8 *payload)
+ {
++	__s16 x, y, z, bx, by;
++
++	/*   Byte |   8    7 |  6    5 |  4    3 |  2 |  1  |
++	 *   -----+----------+---------+---------+----+-----+
++	 *    1   |              Button X <7:0>             |
++	 *    2   |              Button Y <7:0>             |
++	 *   -----+----------+---------+---------+----+-----+
++	 *    3   |               Speed X <9:2>             |
++	 *    4   |               Speed Y <9:2>             |
++	 *    5   |               Speed Z <9:2>             |
++	 *   -----+----------+---------+---------+----+-----+
++	 *    6   | Z <1:0>  | Y <1:0> | X <1:0> | BC | BZ  |
++	 *   -----+----------+---------+---------+----+-----+
++	 * Button X/Y is the analog stick. Speed X, Y and Z are the
++	 * accelerometer data in the same format as the wiimote's accelerometer.
++	 * The 6th byte contains the LSBs of the accelerometer data.
++	 * BC and BZ are the C and Z buttons: 0 means pressed
++	 *
++	 * If reported interleaved with motionp, then the layout changes. The
++	 * 5th and 6th byte changes to:
++	 *   -----+-----------------------------------+-----+
++	 *    5   |            Speed Z <9:3>          | EXT |
++	 *   -----+--------+-----+-----+----+----+----+-----+
++	 *    6   |Z <2:1> |Y <1>|X <1>| BC | BZ | 0  |  0  |
++	 *   -----+--------+-----+-----+----+----+----+-----+
++	 * All three accelerometer values lose their LSB. The other data is
++	 * still available but slightly moved.
++	 *
++	 * Center data for button values is 128. Center value for accelerometer
++	 * values it 512 / 0x200
++	 */
++
++	bx = payload[0];
++	by = payload[1];
++	bx -= 128;
++	by -= 128;
++
++	x = payload[2] << 2;
++	y = payload[3] << 2;
++	z = payload[4] << 2;
++
++	if (ext->motionp) {
++		x |= (payload[5] >> 3) & 0x02;
++		y |= (payload[5] >> 4) & 0x02;
++		z &= ~0x4;
++		z |= (payload[5] >> 5) & 0x06;
++	} else {
++		x |= (payload[5] >> 2) & 0x03;
++		y |= (payload[5] >> 4) & 0x03;
++		z |= (payload[5] >> 6) & 0x03;
 +	}
 +
-+	input_set_drvdata(ext->input, ext);
-+	ext->input->open = wiiext_input_open;
-+	ext->input->close = wiiext_input_close;
-+	ext->input->dev.parent = &wdata->hdev->dev;
-+	ext->input->id.bustype = wdata->hdev->bus;
-+	ext->input->id.vendor = wdata->hdev->vendor;
-+	ext->input->id.product = wdata->hdev->product;
-+	ext->input->id.version = wdata->hdev->version;
-+	ext->input->name = WIIMOTE_NAME " Extension";
++	x -= 0x200;
++	y -= 0x200;
++	z -= 0x200;
 +
-+	ret = input_register_device(ext->input);
-+	if (ret) {
-+		input_free_device(ext->input);
-+		goto err_input;
++	input_report_abs(ext->input, ABS_HAT0X, bx);
++	input_report_abs(ext->input, ABS_HAT0Y, by);
++
++	input_report_abs(ext->input, ABS_RX, x);
++	input_report_abs(ext->input, ABS_RY, y);
++	input_report_abs(ext->input, ABS_RZ, z);
++
++	if (ext->motionp) {
++		input_report_key(ext->input,
++			wiiext_keymap[WIIEXT_KEY_Z], !!(payload[5] & 0x04));
++		input_report_key(ext->input,
++			wiiext_keymap[WIIEXT_KEY_C], !!(payload[5] & 0x08));
++	} else {
++		input_report_key(ext->input,
++			wiiext_keymap[WIIEXT_KEY_Z], !!(payload[5] & 0x01));
++		input_report_key(ext->input,
++			wiiext_keymap[WIIEXT_KEY_C], !!(payload[5] & 0x02));
 +	}
 +
-+	ext->mp_input = input_allocate_device();
-+	if (!ext->mp_input) {
-+		ret = -ENOMEM;
-+		goto err_mp;
-+	}
-+
-+	input_set_drvdata(ext->mp_input, ext);
-+	ext->mp_input->open = wiiext_mp_open;
-+	ext->mp_input->close = wiiext_mp_close;
-+	ext->mp_input->dev.parent = &wdata->hdev->dev;
-+	ext->mp_input->id.bustype = wdata->hdev->bus;
-+	ext->mp_input->id.vendor = wdata->hdev->vendor;
-+	ext->mp_input->id.product = wdata->hdev->product;
-+	ext->mp_input->id.version = wdata->hdev->version;
-+	ext->mp_input->name = WIIMOTE_NAME " Motion+";
-+
-+	ret = input_register_device(ext->mp_input);
-+	if (ret) {
-+		input_free_device(ext->mp_input);
-+		goto err_mp;
-+	}
-+
- 	ret = device_create_file(&wdata->hdev->dev, &dev_attr_extension);
- 	if (ret)
--		goto err;
-+		goto err_dev;
- 
- 	spin_lock_irqsave(&wdata->state.lock, flags);
- 	wdata->ext = ext;
-@@ -258,7 +355,11 @@ int wiiext_init(struct wiimote_data *wdata)
- 
- 	return 0;
- 
--err:
-+err_dev:
-+	input_unregister_device(ext->mp_input);
-+err_mp:
-+	input_unregister_device(ext->input);
-+err_input:
- 	kfree(ext);
- 	return ret;
++	input_sync(ext->input);
  }
-@@ -277,6 +378,8 @@ void wiiext_deinit(struct wiimote_data *wdata)
- 	spin_unlock_irqrestore(&wdata->state.lock, flags);
  
- 	device_remove_file(&wdata->hdev->dev, &dev_attr_extension);
-+	input_unregister_device(ext->mp_input);
-+	input_unregister_device(ext->input);
+ static void handler_classic(struct wiimote_ext *ext, const __u8 *payload)
+@@ -383,7 +470,7 @@ int wiiext_init(struct wiimote_data *wdata)
+ {
+ 	struct wiimote_ext *ext;
+ 	unsigned long flags;
+-	int ret;
++	int ret, i;
  
- 	cancel_work_sync(&ext->worker);
- 	kfree(ext);
+ 	ext = kzalloc(sizeof(*ext), GFP_KERNEL);
+ 	if (!ext)
+@@ -408,6 +495,22 @@ int wiiext_init(struct wiimote_data *wdata)
+ 	ext->input->id.version = wdata->hdev->version;
+ 	ext->input->name = WIIMOTE_NAME " Extension";
+ 
++	set_bit(EV_KEY, ext->input->evbit);
++	for (i = 0; i < WIIEXT_KEY_COUNT; ++i)
++		set_bit(wiiext_keymap[i], ext->input->keybit);
++
++	set_bit(EV_ABS, ext->input->evbit);
++	set_bit(ABS_HAT0X, ext->input->absbit);
++	set_bit(ABS_HAT0Y, ext->input->absbit);
++	input_set_abs_params(ext->input, ABS_HAT0X, -120, 120, 2, 4);
++	input_set_abs_params(ext->input, ABS_HAT0Y, -120, 120, 2, 4);
++	set_bit(ABS_RX, ext->input->absbit);
++	set_bit(ABS_RY, ext->input->absbit);
++	set_bit(ABS_RZ, ext->input->absbit);
++	input_set_abs_params(ext->input, ABS_RX, -500, 500, 2, 4);
++	input_set_abs_params(ext->input, ABS_RY, -500, 500, 2, 4);
++	input_set_abs_params(ext->input, ABS_RZ, -500, 500, 2, 4);
++
+ 	ret = input_register_device(ext->input);
+ 	if (ret) {
+ 		input_free_device(ext->input);
 -- 
 1.7.7.3
 

@@ -1,46 +1,70 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: Annoying touchpad behavior
-Date: Sat, 12 Nov 2011 21:22:26 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.1111122117470.15550-100000@netrider.rowland.org>
-References: <20111113005854.GA10446@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: [PATCH 00/16] Wiimote: Extension and Debug Support
+Date: Sun, 13 Nov 2011 14:27:03 +0100
+Message-ID: <1321190839-3517-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:57732 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751416Ab1KMCW1 (ORCPT
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:48117 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751963Ab1KMN14 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 12 Nov 2011 21:22:27 -0500
-In-Reply-To: <20111113005854.GA10446@core.coreip.homeip.net>
+	Sun, 13 Nov 2011 08:27:56 -0500
+Received: by bke11 with SMTP id 11so4910943bke.19
+        for <linux-input@vger.kernel.org>; Sun, 13 Nov 2011 05:27:55 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Kurtz <djkurtz@google.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-On Sat, 12 Nov 2011, Dmitry Torokhov wrote:
+Hi
 
-> > The synclient program does the job.  However there is no Synaptics 
-> > section in xorg.conf.  In fact, there isn't any xorg.conf file at all; 
-> > the /etc/X11/xorg.conf.d directory contains only 
-> > 00-system-setup-keyboard.conf, which talks about the keyboard but not 
-> > the touchpad.
-> > 
-> > Presumably I can add a similar file with config information for the 
-> > touchpad driver, but I'm not sure what it should say.  Any suggestions?
-> 
-> I think the following link explains it fairly well:
-> 
-> 	http://fedoraproject.org/wiki/Input_device_configuration
-> 
-> Hope this helps.
+This is the revised patchset for extension support. I didn't change much
+compared to the previously sent patchset apart from some cleanups and
+simplifications.
 
-Yes, it does ... sort of.  I set it up and it works correctly.  But the
-gnome-mouse-properties trackpad settings override my changes whenever I
-log in or resume from suspend!  And there's no way to customize those
-settings; the TapButton* things are either all on or all off.
+I added 4 more patches which add debugfs support. They should be trivial,
+though.
 
-Oh well.  At least now I know what the problem is and what needs to be 
-done.  Thanks to both of you for your help.
+The first three patches split the driver into multiple files and add simple
+helper functions.
 
-Alan Stern
+The following patches add the basic extension-support layout and add protocol
+parsers. I'd appreciate any feedback on that.
+
+
+Regards
+David
+
+David Herrmann (16):
+  HID: wiimote: Rename driver to allow multiple source files
+  HID: wiimote: Move common symbols into header
+  HID: wiimote: Add read-mem helpers
+  HID: wiimote: Add extension support stub
+  HID: wiimote: Add extension initializer stubs
+  HID: wiimote: Add extension initializers
+  HID: wiimote: Add extension sysfs attribute
+  HID: wiimote: Register input devices for extensions
+  HID: wiimote: Add extension handler stubs
+  HID: wiimote: Parse motion+ data
+  HID: wiimote: Parse nunchuck data
+  HID: wiimote: Parse classic controller data
+  HID: wiimote: Add debugfs support stubs
+  HID: wiimote: Allow direct eeprom access
+  HID: wiimote: Allow direct DRM debug access
+  HID: wiimote: Enable NO_INIT_REPORTS quirk
+
+ Documentation/ABI/testing/sysfs-driver-hid-wiimote |   12 +
+ drivers/hid/Kconfig                                |    9 +
+ drivers/hid/Makefile                               |    8 +
+ drivers/hid/{hid-wiimote.c => hid-wiimote-core.c}  |  245 +++----
+ drivers/hid/hid-wiimote-debug.c                    |  227 ++++++
+ drivers/hid/hid-wiimote-ext.c                      |  744 ++++++++++++++++++++
+ drivers/hid/hid-wiimote.h                          |  208 ++++++
+ 7 files changed, 1317 insertions(+), 136 deletions(-)
+ rename drivers/hid/{hid-wiimote.c => hid-wiimote-core.c} (90%)
+ create mode 100644 drivers/hid/hid-wiimote-debug.c
+ create mode 100644 drivers/hid/hid-wiimote-ext.c
+ create mode 100644 drivers/hid/hid-wiimote.h
+
+-- 
+1.7.7.3
 

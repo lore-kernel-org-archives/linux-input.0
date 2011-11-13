@@ -1,138 +1,182 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 10/16] HID: wiimote: Parse motion+ data
-Date: Sun, 13 Nov 2011 14:27:13 +0100
-Message-ID: <1321190839-3517-11-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 14/16] HID: wiimote: Allow direct eeprom access
+Date: Sun, 13 Nov 2011 14:27:17 +0100
+Message-ID: <1321190839-3517-15-git-send-email-dh.herrmann@googlemail.com>
 References: <1321190839-3517-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-bw0-f46.google.com ([209.85.214.46]:48117 "EHLO
 	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753496Ab1KMN2K (ORCPT
+	with ESMTP id S1753673Ab1KMN2O (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Nov 2011 08:28:10 -0500
+	Sun, 13 Nov 2011 08:28:14 -0500
 Received: by mail-bw0-f46.google.com with SMTP id 11so4910943bke.19
-        for <linux-input@vger.kernel.org>; Sun, 13 Nov 2011 05:28:09 -0800 (PST)
+        for <linux-input@vger.kernel.org>; Sun, 13 Nov 2011 05:28:14 -0800 (PST)
 In-Reply-To: <1321190839-3517-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-Motion+ reports rotation gyro data which we report to userspace as ABS_RX/Y/Z
-values. The device reports them either in fast or slow mode. We adjust the
-values to get a linear scale so userspace does not need to know about slow and
-fast mode.
+The wiimote provides direct access to parts of its eeprom. This implements read
+support for small chunks of the eeprom. This isn't very fast but prevents the
+reader from blocking the wiimote stream for too long.
 
-The motion+ also reports whether an extension is connected to it. We keep track
-of this value and reinitialize the extensions if an extension is plugged or
-unplugged.
+Write support is not yet supported as the wiimote breaks if we overwrite its
+memory. Use hidraw to reverse-engineer the eeprom before implementing write
+support here.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote-ext.c |   70 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 70 insertions(+), 0 deletions(-)
+ drivers/hid/hid-wiimote-core.c  |   10 +----
+ drivers/hid/hid-wiimote-debug.c |   76 +++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-wiimote.h       |    7 ++++
+ 3 files changed, 85 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/hid-wiimote-ext.c b/drivers/hid/hid-wiimote-ext.c
-index e108f0c..5953862 100644
---- a/drivers/hid/hid-wiimote-ext.c
-+++ b/drivers/hid/hid-wiimote-ext.c
-@@ -25,6 +25,7 @@ struct wiimote_ext {
- 	atomic_t opened;
- 	atomic_t mp_opened;
- 	bool plugged;
-+	bool mp_plugged;
- 	bool motionp;
- 	__u8 ext_type;
- };
-@@ -182,6 +183,10 @@ void wiiext_event(struct wiimote_data *wdata, bool plugged)
- 		return;
- 
- 	wdata->ext->plugged = plugged;
-+
-+	if (!plugged)
-+		wdata->ext->mp_plugged = false;
-+
- 	/*
- 	 * We need to call wiiext_schedule(wdata->ext) here, however, the
- 	 * extension initialization logic is not fully understood and so
-@@ -206,6 +211,63 @@ bool wiiext_active(struct wiimote_data *wdata)
- 
- static void handler_motionp(struct wiimote_ext *ext, const __u8 *payload)
- {
-+	__s32 x, y, z;
-+	bool plugged;
-+
-+	/*        |   8    7    6    5    4    3 |  2  |  1  |
-+	 *   -----+------------------------------+-----+-----+
-+	 *    1   |               Yaw Speed <7:0>            |
-+	 *    2   |              Roll Speed <7:0>            |
-+	 *    3   |             Pitch Speed <7:0>            |
-+	 *   -----+------------------------------+-----+-----+
-+	 *    4   |       Yaw Speed <13:8>       | Yaw |Pitch|
-+	 *   -----+------------------------------+-----+-----+
-+	 *    5   |      Roll Speed <13:8>       |Roll | Ext |
-+	 *   -----+------------------------------+-----+-----+
-+	 *    6   |     Pitch Speed <13:8>       |  1  |  0  |
-+	 *   -----+------------------------------+-----+-----+
-+	 * The single bits Yaw, Roll, Pitch in the lower right corner specify
-+	 * whether the wiimote is rotating fast (0) or slow (1). Speed for slow
-+	 * roation is 440 deg/s and for fast rotation 2000 deg/s. To get a
-+	 * linear scale we multiply by 2000/440 = ~4.5454 which is 18 for fast
-+	 * and 9 for slow.
-+	 * If the wiimote is not rotating the sensor reports 2^13 = 8192.
-+	 * Ext specifies whether an extension is connected to the motionp.
-+	 */
-+
-+	x = payload[0];
-+	y = payload[1];
-+	z = payload[2];
-+
-+	x |= (((__u16)payload[3]) << 6) & 0xff00;
-+	y |= (((__u16)payload[4]) << 6) & 0xff00;
-+	z |= (((__u16)payload[5]) << 6) & 0xff00;
-+
-+	x -= 8192;
-+	y -= 8192;
-+	z -= 8192;
-+
-+	if (!(payload[3] & 0x02))
-+		x *= 18;
-+	else
-+		x *= 9;
-+	if (!(payload[4] & 0x02))
-+		y *= 18;
-+	else
-+		y *= 9;
-+	if (!(payload[3] & 0x01))
-+		z *= 18;
-+	else
-+		z *= 9;
-+
-+	input_report_abs(ext->mp_input, ABS_RX, x);
-+	input_report_abs(ext->mp_input, ABS_RY, y);
-+	input_report_abs(ext->mp_input, ABS_RZ, z);
-+	input_sync(ext->mp_input);
-+
-+	plugged = payload[5] & 0x01;
-+	if (plugged != ext->mp_plugged)
-+		ext->mp_plugged = plugged;
+diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+index 919abba..2fd2f03 100644
+--- a/drivers/hid/hid-wiimote-core.c
++++ b/drivers/hid/hid-wiimote-core.c
+@@ -320,14 +320,8 @@ static void wiiproto_req_wmem(struct wiimote_data *wdata, bool eeprom,
+ 	wiimote_queue(wdata, cmd, sizeof(cmd));
  }
  
- static void handler_nunchuck(struct wiimote_ext *ext, const __u8 *payload)
-@@ -368,6 +430,14 @@ int wiiext_init(struct wiimote_data *wdata)
- 	ext->mp_input->id.version = wdata->hdev->version;
- 	ext->mp_input->name = WIIMOTE_NAME " Motion+";
+-#define wiiproto_req_rreg(wdata, os, sz) \
+-				wiiproto_req_rmem((wdata), false, (os), (sz))
+-
+-#define wiiproto_req_reeprom(wdata, os, sz) \
+-				wiiproto_req_rmem((wdata), true, (os), (sz))
+-
+-static void wiiproto_req_rmem(struct wiimote_data *wdata, bool eeprom,
+-						__u32 offset, __u16 size)
++void wiiproto_req_rmem(struct wiimote_data *wdata, bool eeprom, __u32 offset,
++								__u16 size)
+ {
+ 	__u8 cmd[7];
  
-+	set_bit(EV_ABS, ext->mp_input->evbit);
-+	set_bit(ABS_RX, ext->mp_input->absbit);
-+	set_bit(ABS_RY, ext->mp_input->absbit);
-+	set_bit(ABS_RZ, ext->mp_input->absbit);
-+	input_set_abs_params(ext->mp_input, ABS_RX, -160000, 160000, 4, 8);
-+	input_set_abs_params(ext->mp_input, ABS_RY, -160000, 160000, 4, 8);
-+	input_set_abs_params(ext->mp_input, ABS_RZ, -160000, 160000, 4, 8);
+diff --git a/drivers/hid/hid-wiimote-debug.c b/drivers/hid/hid-wiimote-debug.c
+index 6282e3c..f81243c 100644
+--- a/drivers/hid/hid-wiimote-debug.c
++++ b/drivers/hid/hid-wiimote-debug.c
+@@ -10,12 +10,80 @@
+  * any later version.
+  */
+ 
++#include <linux/debugfs.h>
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
++#include <linux/uaccess.h>
+ #include "hid-wiimote.h"
+ 
+ struct wiimote_debug {
+ 	struct wiimote_data *wdata;
++	struct dentry *eeprom;
++};
 +
- 	ret = input_register_device(ext->mp_input);
- 	if (ret) {
- 		input_free_device(ext->mp_input);
++static int wiidebug_eeprom_open(struct inode *i, struct file *f)
++{
++	f->private_data = i->i_private;
++	return 0;
++}
++
++static ssize_t wiidebug_eeprom_read(struct file *f, char __user *u, size_t s,
++								loff_t *off)
++{
++	struct wiimote_debug *dbg = f->private_data;
++	struct wiimote_data *wdata = dbg->wdata;
++	unsigned long flags;
++	ssize_t ret;
++	char buf[16];
++	__u16 size;
++
++	if (s == 0)
++		return -EINVAL;
++	if (*off > 0xffffff)
++		return 0;
++	if (s > 16)
++		s = 16;
++
++	ret = wiimote_cmd_acquire(wdata);
++	if (ret)
++		return ret;
++
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	wdata->state.cmd_read_size = s;
++	wdata->state.cmd_read_buf = buf;
++	wiimote_cmd_set(wdata, WIIPROTO_REQ_RMEM, *off & 0xffff);
++	wiiproto_req_reeprom(wdata, *off, s);
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
++
++	ret = wiimote_cmd_wait(wdata);
++	if (!ret)
++		size = wdata->state.cmd_read_size;
++
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	wdata->state.cmd_read_buf = NULL;
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
++
++	wiimote_cmd_release(wdata);
++
++	if (ret)
++		return ret;
++	else if (size == 0)
++		return -EIO;
++
++	if (copy_to_user(u, buf, size))
++		return -EFAULT;
++
++	*off += size;
++	ret = size;
++
++	return ret;
++}
++
++static const struct file_operations wiidebug_eeprom_fops = {
++	.owner = THIS_MODULE,
++	.open = wiidebug_eeprom_open,
++	.read = wiidebug_eeprom_read,
++	.llseek = generic_file_llseek,
+ };
+ 
+ int wiidebug_init(struct wiimote_data *wdata)
+@@ -29,6 +97,13 @@ int wiidebug_init(struct wiimote_data *wdata)
+ 
+ 	dbg->wdata = wdata;
+ 
++	dbg->eeprom = debugfs_create_file("eeprom", S_IRUSR,
++		dbg->wdata->hdev->debug_dir, dbg, &wiidebug_eeprom_fops);
++	if (!dbg->eeprom) {
++		kfree(dbg);
++		return -ENOMEM;
++	}
++
+ 	spin_lock_irqsave(&wdata->state.lock, flags);
+ 	wdata->debug = dbg;
+ 	spin_unlock_irqrestore(&wdata->state.lock, flags);
+@@ -48,5 +123,6 @@ void wiidebug_deinit(struct wiimote_data *wdata)
+ 	wdata->debug = NULL;
+ 	spin_unlock_irqrestore(&wdata->state.lock, flags);
+ 
++	debugfs_remove(dbg->eeprom);
+ 	kfree(dbg);
+ }
+diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
+index 89b8851..7b67657 100644
+--- a/drivers/hid/hid-wiimote.h
++++ b/drivers/hid/hid-wiimote.h
+@@ -120,6 +120,13 @@ extern int wiimote_cmd_write(struct wiimote_data *wdata, __u32 offset,
+ extern ssize_t wiimote_cmd_read(struct wiimote_data *wdata, __u32 offset,
+ 							__u8 *rmem, __u8 size);
+ 
++#define wiiproto_req_rreg(wdata, os, sz) \
++				wiiproto_req_rmem((wdata), false, (os), (sz))
++#define wiiproto_req_reeprom(wdata, os, sz) \
++				wiiproto_req_rmem((wdata), true, (os), (sz))
++extern void wiiproto_req_rmem(struct wiimote_data *wdata, bool eeprom,
++						__u32 offset, __u16 size);
++
+ #ifdef CONFIG_HID_WIIMOTE_EXT
+ 
+ extern int wiiext_init(struct wiimote_data *wdata);
 -- 
 1.7.7.3
 

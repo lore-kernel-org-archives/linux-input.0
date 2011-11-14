@@ -1,82 +1,96 @@
-From: Nuno Santos <nsantos@edigma.com>
-Subject: Re: Interacting with a input kernel driver from user space
-Date: Mon, 14 Nov 2011 16:31:57 +0000
-Message-ID: <4EC1427D.2090703@edigma.com>
-References: <4EC10878.20109@edigma.com> <CANq1E4SZnv0yNbmKqV-my3wanKGe4R4UW6_=z-awO6ci14xyRA@mail.gmail.com> <4EC13B0F.2080509@edigma.com> <CANq1E4SMr1HWXSV3Fc6mB8oCWEJv63i_QZFQLMYCBqCdYsDZxA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: [PATCH] Input: HID-multitouch: Add egalax ID for Acer Iconia W500
+Date: Mon, 14 Nov 2011 17:41:45 +0100
+Message-ID: <1321288906-14289-1-git-send-email-marek.vasut@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx01.edigma.com ([195.22.21.235]:52940 "EHLO mx01.edigma.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751459Ab1KNQcD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Nov 2011 11:32:03 -0500
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mx01.edigma.com (Postfix) with ESMTP id F052D37618E3
-	for <linux-input@vger.kernel.org>; Mon, 14 Nov 2011 16:31:59 +0000 (WET)
-Received: from mx01.edigma.com ([127.0.0.1])
-	by localhost (mx01.edigma.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OODOK2drazBn for <linux-input@vger.kernel.org>;
-	Mon, 14 Nov 2011 16:31:59 +0000 (WET)
-Received: from [192.168.3.103] (unknown [62.28.174.82])
-	by mx01.edigma.com (Postfix) with ESMTPSA id E2E0437618E0
-	for <linux-input@vger.kernel.org>; Mon, 14 Nov 2011 16:31:58 +0000 (WET)
-In-Reply-To: <CANq1E4SMr1HWXSV3Fc6mB8oCWEJv63i_QZFQLMYCBqCdYsDZxA@mail.gmail.com>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:55778 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750934Ab1KNQly (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Nov 2011 11:41:54 -0500
+Received: by fagn18 with SMTP id n18so3190424fag.19
+        for <linux-input@vger.kernel.org>; Mon, 14 Nov 2011 08:41:53 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: Marek Vasut <marek.vasut@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, chris@cnpbagwell.com
 
-On 11/14/2011 04:09 PM, David Herrmann wrote:
-> On Mon, Nov 14, 2011 at 5:00 PM, Nuno Santos<nsantos@edigma.com>  wrote:
->> Hi David,
->>
->> Thanks for your reply.
->>
->> The best way probably is using sysfs. Register one sysfs attribute per
->> value and configure your callbacks.
->> There are several other subsystems that provide wrappers for them. If
->> you could be more specific about the user-space interaction or
->> configuration values, then we could also be more specific (hopefully
->> ;)).
->>
->> sysfs? Need to dig about it. Is there any typical example I can look in
->> kernel source? If you could point me one that would be great.
-> Almost every driver uses it. Look for "DEVICE_ATTR" in the driver
-> sources or drivers/input/input.c for instance.
-Ok. I'll look for that.
->> What do I need to exchange between the kernel and the user space is between
->> a simple byte exchange and a whole structure of several bytes.
->>
->> Do you know the concept of IOCTLS in windows? Basicly that's what looking
->> after.
-> No, sorry. I don't.
-No problem.
->
->> I need to be able to communicate to and from the device from the an
->> application build in Qt. So, there must be something really generic that I
->> can call from the application environment. In windows I use window API to
->> call IOCTLS interaction.
-> Why? I thought this thing is an input device? Why does an application
-> have to modify a running device? Is this modification local to the
-> application<->device interface or does it also affect all other
-> running applications that use this device?
-Yes, it is an multitouch overlay input device. However all the 
-processing is done on the host side. The device delivers raw data into 
-the system and all the tracking and touch information is processed on 
-the kernel side. The control panel for this device shows the input data 
-and permits some parameter change. In order to visualize that data I 
-need to be able to get a complete structure from it. When I change a 
-parameter it will reflect the change to the input being reported to all 
-the applications that use that input device.
->
-> If it is a configuration value to put the device into a different
-> state or similar, then you can use a sysfs attribute. The user can
-> change this with "echo<value>  >/sys/class/input/inputX/<attribute>"
-For setting new simple values I see I can use this interface, but two 
-questions arise. How can I send a structure with this interface? Can I 
-fopen this sys file and send the whole structure thru this mechanism. 
-What about receiving data from the device?
+This patch adds USB ID for the touchpanel in Acer Iconia W500. The panel
+supports up to five fingers, therefore the need for a new addition of panel
+types.
 
-Regards,
+Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: chris@cnpbagwell.com
+---
+ drivers/hid/hid-core.c       |    1 +
+ drivers/hid/hid-ids.h        |    1 +
+ drivers/hid/hid-multitouch.c |   12 ++++++++++++
+ 3 files changed, 14 insertions(+), 0 deletions(-)
 
-Nuno
+NOTE: That checkpatch warning is there because I followed the pattern in
+hid-core.c
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 242353d..6600ac7 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1377,6 +1377,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH5) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2515) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 7484e1b..c2e9369 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -225,6 +225,7 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2	0x72a1
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3	0x480e
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4	0x726b
++#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH5	0x7302
+ 
+ #define USB_VENDOR_ID_ELECOM		0x056e
+ #define USB_DEVICE_ID_ELECOM_BM084	0x0061
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 58d0e7a..35c53db 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -96,6 +96,7 @@ struct mt_class {
+ #define MT_CLS_3M				0x0101
+ #define MT_CLS_CYPRESS				0x0102
+ #define MT_CLS_EGALAX				0x0103
++#define MT_CLS_EGALAX_5FINGER			0x0104
+ 
+ #define MT_DEFAULT_MAXCONTACT	10
+ 
+@@ -173,6 +174,13 @@ struct mt_class mt_classes[] = {
+ 		.sn_move = 4096,
+ 		.sn_pressure = 32,
+ 	},
++	{ .name = MT_CLS_EGALAX_5FINGER,
++		.quirks =  MT_QUIRK_SLOT_IS_CONTACTID |
++			MT_QUIRK_VALID_IS_INRANGE |
++			MT_QUIRK_EGALAX_XYZ_FIXUP,
++		.sn_move = 4096,
++		.sn_pressure = 32,
++	},
+ 
+ 	{ }
+ };
+@@ -646,6 +655,9 @@ static const struct hid_device_id mt_devices[] = {
+ 	{  .driver_data = MT_CLS_EGALAX,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4) },
++	{  .driver_data = MT_CLS_EGALAX_5FINGER,
++		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH5) },
+ 
+ 	/* Elo TouchSystems IntelliTouch Plus panel */
+ 	{ .driver_data = MT_CLS_DUAL_NSMU_CONTACTID,
+-- 
+1.7.5.4
+

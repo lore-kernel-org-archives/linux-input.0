@@ -1,74 +1,67 @@
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-Subject: Re: Sony DualShock3 - Detected but no events
-Date: Mon, 14 Nov 2011 14:32:44 +0200
-Message-ID: <CAOazyz1EbaDdHi1hgeHqSQq=g6Sf0_4ph2paL0=oJ9+sjWq1vg@mail.gmail.com>
-References: <CAOazyz0GNJKFWNsaFiwheMjhBVJrcP-p8QBcsSvS3V97iuZFtQ@mail.gmail.com>
-	<20111101011854.5e0e87b561f6b18dcc09a988@studenti.unina.it>
-	<CAOazyz1EfHdg4gExfeVaQ_8mMV=1Tu-aYBTEo_j4MjLnNC4kHA@mail.gmail.com>
-	<20111101090645.0d3abeac5909f87dae8bec58@studenti.unina.it>
-	<CAOazyz0pBZE_qE3NYbz6n54kCA30dU2Z3PaT3_ufZv2egpj=cg@mail.gmail.com>
-	<20111101124258.744fdba3f854ce81b4e0c8be@studenti.unina.it>
-	<CAOazyz1N4QmrC4MN6M532_3m_gVC+7PBBOUU+Mu8Qq7_eX5iZA@mail.gmail.com>
-	<20111101201142.af88469abf03d8a9779c4e46@studenti.unina.it>
-	<CAOazyz03G1ofwh-GnLDECUqC1qgO0tXzSVjjdwML_JdXZR_9ug@mail.gmail.com>
-	<CAOazyz1xOjJxXytp+1JzrDvd3o7f6uySu3fvpxOKz_VSEZwvEA@mail.gmail.com>
-	<CAOazyz1NLwD5AA7CuLfwwy=gRyfE9o4zD9bvtsNVSQVjNUm4xA@mail.gmail.com>
-	<CAOazyz1KrCqm=O-ftttVQEGLbC+R_4LV_tbNaFvw1y1wV+4UMg@mail.gmail.com>
-	<CAOazyz13OeA7-mo130+JK8JMLy0AhLgeO5m8eM9t4yBQ8LPtcQ@mail.gmail.com>
-	<20111114130802.baca1cf201cac865f167eb06@studenti.unina.it>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: Interacting with a input kernel driver from user space
+Date: Mon, 14 Nov 2011 16:37:47 +0100
+Message-ID: <CANq1E4SZnv0yNbmKqV-my3wanKGe4R4UW6_=z-awO6ci14xyRA@mail.gmail.com>
+References: <4EC10878.20109@edigma.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:38286 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754024Ab1KNMcp convert rfc822-to-8bit (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:63099 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753792Ab1KNPhs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Nov 2011 07:32:45 -0500
-Received: by vcbgb30 with SMTP id gb30so403366vcb.19
-        for <linux-input@vger.kernel.org>; Mon, 14 Nov 2011 04:32:45 -0800 (PST)
-In-Reply-To: <20111114130802.baca1cf201cac865f167eb06@studenti.unina.it>
+	Mon, 14 Nov 2011 10:37:48 -0500
+Received: by wwe5 with SMTP id 5so4549711wwe.1
+        for <linux-input@vger.kernel.org>; Mon, 14 Nov 2011 07:37:47 -0800 (PST)
+In-Reply-To: <4EC10878.20109@edigma.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
+To: Nuno Santos <nsantos@edigma.com>
 Cc: linux-input@vger.kernel.org
 
-On Mon, Nov 14, 2011 at 2:08 PM, Antonio Ospite
-<ospite@studenti.unina.it> wrote:
->
-> On Thu, 10 Nov 2011 00:16:54 +0200
-> Alon Bar-Lev <alon.barlev@gmail.com> wrote:
->
-> > Got real sony device.
-> > USB is working!
-> > Thanks for your help.
->
-> Ah, so it was a (not so much) compatible controller, wasn't it?
->
-> Can you test the attached patch to see it it makes the non-Sony devic=
-e
-> work too? Some other user reported a compatible controller not sendin=
-g
-> events, and it turned out that to be made operational it was expectin=
-g
-> the interrupt endpoint to be queried at least once. I don't see this
-> behavior in USB dumps of communication with PS3 tho.
->
-> > Is there anywhere organized I can fetch the bluez patches?
-> >
->
-> I will send them to you off-list.
->
-> Thanks,
-> =C2=A0 Antonio
+Hi Nuno
 
-Thanks!
-But I returned my devices, as found out that even if fix USB the
-bluetooth LCP won't work correctly.
+On Mon, Nov 14, 2011 at 1:24 PM, Nuno Santos <nsantos@edigma.com> wrote:
+> Hi,
+>
+> I'm developing a linux kernel driver for a multitouch device. Right now I
+> have already touch being injected to the linux kernel subsystem and it is
+> working. The problem is that I also need to interact with the device to
+> change settings an so on.
+>
+> While the kernel is grabbing the device I can't grab it in user space, so I
+> need to find a way to interact with the kernel driver.
+>
+> My first driver test (missile laucnher example found on the internet) had
+> some extra operations that I can't find on the current model i'm using
+> (usbtouchscreen driver was my starting point).
+>
+> It had open, close, read, write operations that I could perform from user
+> space.
 
-Alon.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+There are open/close callbacks but they are only called for the first
+and last application that opens/closes the device.
+You should avoid character-devices with special ioctl()s if you
+thought about that, though.
+
+> How can I do such things with input drivers? Is there any official way?
+
+The best way probably is using sysfs. Register one sysfs attribute per
+value and configure your callbacks.
+There are several other subsystems that provide wrappers for them. If
+you could be more specific about the user-space interaction or
+configuration values, then we could also be more specific (hopefully
+;)).
+
+Per driver values can be provided with module-parameters. Per device
+values can be provided by sysfs attributes. For per-application/user
+values you probably need special character-devices.
+
+> Thanks in advance,
+>
+> With my best regards,
+>
+> Nuno Santos
+
+Regards
+David

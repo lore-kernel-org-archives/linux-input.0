@@ -1,184 +1,183 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 7/7] Input: cyttsp - consolidate PM methods
-Date: Mon, 14 Nov 2011 00:16:17 -0800
-Message-ID: <20111114081617.10141.41781.stgit@hammer.corenet.prv>
-References: <20111114080939.10141.46174.stgit@hammer.corenet.prv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] Input: ad7879 - consolidate PM methods
+Date: Mon, 14 Nov 2011 00:21:31 -0800
+Message-ID: <1321258891-10398-1-git-send-email-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:34009 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:49802 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752507Ab1KNIQV (ORCPT
+	with ESMTP id S1752269Ab1KNIVg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Nov 2011 03:16:21 -0500
-Received: by mail-iy0-f174.google.com with SMTP id e36so6951500iag.19
-        for <linux-input@vger.kernel.org>; Mon, 14 Nov 2011 00:16:20 -0800 (PST)
-In-Reply-To: <20111114080939.10141.46174.stgit@hammer.corenet.prv>
+	Mon, 14 Nov 2011 03:21:36 -0500
+Received: by iage36 with SMTP id e36so6956454iag.19
+        for <linux-input@vger.kernel.org>; Mon, 14 Nov 2011 00:21:35 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <martinez.javier@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org
+To: Michael Hennerich <michael.hennerich@analog.com>
+Cc: linux-input@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org
 
 The PM methods are basically the same for SPI and I2C busses, so let's
 use the same dev_pm_ops for both of them.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
+ drivers/input/touchscreen/ad7879-i2c.c |   26 +-------------------------
+ drivers/input/touchscreen/ad7879-spi.c |   26 +-------------------------
+ drivers/input/touchscreen/ad7879.c     |   19 +++++++++++++++----
+ drivers/input/touchscreen/ad7879.h     |    4 ++--
+ 4 files changed, 19 insertions(+), 56 deletions(-)
 
- drivers/input/touchscreen/cyttsp_core.c |   22 ++++++++++------------
- drivers/input/touchscreen/cyttsp_core.h |    6 ++----
- drivers/input/touchscreen/cyttsp_i2c.c  |   22 +---------------------
- drivers/input/touchscreen/cyttsp_spi.c  |   20 +-------------------
- 4 files changed, 14 insertions(+), 56 deletions(-)
-
-diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
-index ccdfa10..cd0fe40 100644
---- a/drivers/input/touchscreen/cyttsp_core.c
-+++ b/drivers/input/touchscreen/cyttsp_core.c
-@@ -504,16 +504,13 @@ bypass:
- }
+diff --git a/drivers/input/touchscreen/ad7879-i2c.c b/drivers/input/touchscreen/ad7879-i2c.c
+index c789b97..c4b5117 100644
+--- a/drivers/input/touchscreen/ad7879-i2c.c
++++ b/drivers/input/touchscreen/ad7879-i2c.c
+@@ -16,30 +16,6 @@
  
- #ifdef CONFIG_PM_SLEEP
--int cyttsp_resume(struct cyttsp *ts)
-+static int cyttsp_resume(struct device *dev)
- {
-+	struct cyttsp *ts = dev_get_drvdata(dev);
- 	int retval = 0;
- 	struct cyttsp_xydata xydata;
- 
--	if (!ts)
--		return retval;
--
--	if (ts->pdata->use_sleep && (ts->power_state !=
--					     CY_ACTIVE_STATE)) {
-+	if (ts->pdata->use_sleep && ts->power_state != CY_ACTIVE_STATE) {
- 
- 		if (ts->pdata->wakeup)
- 			retval = ts->pdata->wakeup();
-@@ -532,16 +529,15 @@ int cyttsp_resume(struct cyttsp *ts)
- 
- 	return retval;
- }
--EXPORT_SYMBOL_GPL(cyttsp_resume);
- 
--int cyttsp_suspend(struct cyttsp *ts)
-+static int cyttsp_suspend(struct device *dev)
- {
-+	struct cyttsp *ts = dev_get_drvdata(dev);
- 	u8 sleep_mode = 0;
- 	int retval = 0;
- 
--	if (ts->pdata->use_sleep &&
--		(ts->power_state == CY_ACTIVE_STATE)) {
--		sleep_mode = ts->pdata->use_sleep;
-+	if (ts->pdata->use_sleep && ts->power_state == CY_ACTIVE_STATE) {
-+		sleep_mode = ts->platform_data->use_sleep;
- 		retval = ttsp_write_block_data(ts,
- 			CY_REG_BASE, sizeof(sleep_mode), &sleep_mode);
- 		if (retval >= 0)
-@@ -550,9 +546,11 @@ int cyttsp_suspend(struct cyttsp *ts)
- 
- 	return retval;
- }
--EXPORT_SYMBOL_GPL(cyttsp_suspend);
- #endif
- 
-+SIMPLE_DEV_PM_OPS(cyttsp_pm_ops, cyttsp_suspend, cyttsp_resume);
-+EXPORT_SYMBOL_GPL(cyttsp_pm_ops);
-+
- static int cyttsp_open(struct input_dev *dev)
- {
- 	struct cyttsp *ts = input_get_drvdata(dev);
-diff --git a/drivers/input/touchscreen/cyttsp_core.h b/drivers/input/touchscreen/cyttsp_core.h
-index 1d9f185..5087b2b 100644
---- a/drivers/input/touchscreen/cyttsp_core.h
-+++ b/drivers/input/touchscreen/cyttsp_core.h
-@@ -134,9 +134,7 @@ struct cyttsp {
- struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
- 			    struct device *dev, int irq, size_t xfer_buf_size);
- void cyttsp_remove(struct cyttsp *ts);
--#ifdef CONFIG_PM_SLEEP
--int cyttsp_resume(struct cyttsp *ts);
--int cyttsp_suspend(struct cyttsp *ts);
--#endif
-+
-+extern const struct dev_pm_ops cyttsp_pm_ops;
- 
- #endif /* __CYTTSP_CORE_H__ */
-diff --git a/drivers/input/touchscreen/cyttsp_i2c.c b/drivers/input/touchscreen/cyttsp_i2c.c
-index b476441..2b6acf4 100644
---- a/drivers/input/touchscreen/cyttsp_i2c.c
-+++ b/drivers/input/touchscreen/cyttsp_i2c.c
-@@ -107,26 +107,6 @@ static int __devexit cyttsp_i2c_remove(struct i2c_client *client)
- 	return 0;
- }
+ #define AD7879_DEVID		0x79	/* AD7879-1/AD7889-1 */
  
 -#ifdef CONFIG_PM_SLEEP
--static int cyttsp_i2c_suspend(struct device *dev)
+-static int ad7879_i2c_suspend(struct device *dev)
 -{
 -	struct i2c_client *client = to_i2c_client(dev);
--	struct cyttsp *ts = i2c_get_clientdata(client);
+-	struct ad7879 *ts = i2c_get_clientdata(client);
 -
--	return cyttsp_suspend(ts);
+-	ad7879_suspend(ts);
+-
+-	return 0;
 -}
 -
--static int cyttsp_i2c_resume(struct device *dev)
+-static int ad7879_i2c_resume(struct device *dev)
 -{
 -	struct i2c_client *client = to_i2c_client(dev);
--	struct cyttsp *ts = i2c_get_clientdata(client);
+-	struct ad7879 *ts = i2c_get_clientdata(client);
 -
--	return cyttsp_resume(ts);
+-	ad7879_resume(ts);
+-
+-	return 0;
 -}
 -#endif
 -
--static SIMPLE_DEV_PM_OPS(cyttsp_i2c_pm, cyttsp_i2c_suspend, cyttsp_i2c_resume);
+-static SIMPLE_DEV_PM_OPS(ad7879_i2c_pm, ad7879_i2c_suspend, ad7879_i2c_resume);
 -
- static const struct i2c_device_id cyttsp_i2c_id[] = {
- 	{ CY_I2C_NAME, 0 },
- 	{ }
-@@ -137,7 +117,7 @@ static struct i2c_driver cyttsp_i2c_driver = {
+ /* All registers are word-sized.
+  * AD7879 uses a high-byte first convention.
+  */
+@@ -119,7 +95,7 @@ static struct i2c_driver ad7879_i2c_driver = {
  	.driver = {
- 		.name	= CY_I2C_NAME,
+ 		.name	= "ad7879",
  		.owner	= THIS_MODULE,
--		.pm	= &cyttsp_i2c_pm,
-+		.pm	= &cyttsp_pm_ops,
+-		.pm	= &ad7879_i2c_pm,
++		.pm	= &ad7879_pm_ops,
  	},
- 	.probe		= cyttsp_i2c_probe,
- 	.remove		= __devexit_p(cyttsp_i2c_remove),
-diff --git a/drivers/input/touchscreen/cyttsp_spi.c b/drivers/input/touchscreen/cyttsp_spi.c
-index eafa357..61a2e6c 100644
---- a/drivers/input/touchscreen/cyttsp_spi.c
-+++ b/drivers/input/touchscreen/cyttsp_spi.c
-@@ -215,29 +215,11 @@ static int __devexit cyttsp_spi_remove(struct spi_device *spi)
- 	return 0;
- }
+ 	.probe		= ad7879_i2c_probe,
+ 	.remove		= __devexit_p(ad7879_i2c_remove),
+diff --git a/drivers/input/touchscreen/ad7879-spi.c b/drivers/input/touchscreen/ad7879-spi.c
+index ddf732f..8b44fc7 100644
+--- a/drivers/input/touchscreen/ad7879-spi.c
++++ b/drivers/input/touchscreen/ad7879-spi.c
+@@ -21,30 +21,6 @@
+ #define AD7879_WRITECMD(reg) (AD7879_CMD(reg))
+ #define AD7879_READCMD(reg)  (AD7879_CMD(reg) | AD7879_CMD_READ)
  
 -#ifdef CONFIG_PM_SLEEP
--static int cyttsp_spi_suspend(struct device *dev)
+-static int ad7879_spi_suspend(struct device *dev)
 -{
--	struct cyttsp *ts = dev_get_drvdata(dev);
+-	struct spi_device *spi = to_spi_device(dev);
+-	struct ad7879 *ts = spi_get_drvdata(spi);
 -
--	return cyttsp_suspend(ts);
+-	ad7879_suspend(ts);
+-
+-	return 0;
 -}
 -
--static int cyttsp_spi_resume(struct device *dev)
+-static int ad7879_spi_resume(struct device *dev)
 -{
--	struct cyttsp *ts = dev_get_drvdata(dev);
+-	struct spi_device *spi = to_spi_device(dev);
+-	struct ad7879 *ts = spi_get_drvdata(spi);
 -
--	return cyttsp_resume(ts);
+-	ad7879_resume(ts);
+-
+-	return 0;
 -}
 -#endif
 -
--static SIMPLE_DEV_PM_OPS(cyttsp_spi_pm, cyttsp_spi_suspend, cyttsp_spi_resume);
+-static SIMPLE_DEV_PM_OPS(ad7879_spi_pm, ad7879_spi_suspend, ad7879_spi_resume);
 -
- static struct spi_driver cyttsp_spi_driver = {
- 	.driver = {
- 		.name	= CY_SPI_NAME,
+ /*
+  * ad7879_read/write are only used for initial setup and for sysfs controls.
+  * The main traffic is done in ad7879_collect().
+@@ -175,7 +151,7 @@ static struct spi_driver ad7879_spi_driver = {
+ 		.name	= "ad7879",
+ 		.bus	= &spi_bus_type,
  		.owner	= THIS_MODULE,
--		.pm	= &cyttsp_spi_pm,
-+		.pm	= &cyttsp_pm_ops,
+-		.pm	= &ad7879_spi_pm,
++		.pm	= &ad7879_pm_ops,
  	},
- 	.probe	= cyttsp_spi_probe,
- 	.remove = __devexit_p(cyttsp_spi_remove),
+ 	.probe		= ad7879_spi_probe,
+ 	.remove		= __devexit_p(ad7879_spi_remove),
+diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+index 76f5cb4..dce60b8 100644
+--- a/drivers/input/touchscreen/ad7879.c
++++ b/drivers/input/touchscreen/ad7879.c
+@@ -280,8 +280,11 @@ static void ad7879_close(struct input_dev* input)
+ 		__ad7879_disable(ts);
+ }
+ 
+-void ad7879_suspend(struct ad7879 *ts)
++#ifdef CONFIG_PM_SLEEP
++static int ad7879_suspend(struct device *dev)
+ {
++	struct ad7879 *ts = dev_get_drvdata(dev);
++
+ 	mutex_lock(&ts->input->mutex);
+ 
+ 	if (!ts->suspended && !ts->disabled && ts->input->users)
+@@ -290,11 +293,14 @@ void ad7879_suspend(struct ad7879 *ts)
+ 	ts->suspended = true;
+ 
+ 	mutex_unlock(&ts->input->mutex);
++
++	return 0;
+ }
+-EXPORT_SYMBOL(ad7879_suspend);
+ 
+-void ad7879_resume(struct ad7879 *ts)
++static int ad7879_resume(struct device *dev)
+ {
++	struct ad7879 *ts = dev_get_drvdata(dev);
++
+ 	mutex_lock(&ts->input->mutex);
+ 
+ 	if (ts->suspended && !ts->disabled && ts->input->users)
+@@ -303,8 +309,13 @@ void ad7879_resume(struct ad7879 *ts)
+ 	ts->suspended = false;
+ 
+ 	mutex_unlock(&ts->input->mutex);
++
++	return 0;
+ }
+-EXPORT_SYMBOL(ad7879_resume);
++#endif
++
++SIMPLE_DEV_PM_OPS(ad7879_pm_ops, ad7879_suspend, ad7879_resume);
++EXPORT_SYMBOL(ad7879_pm_ops);
+ 
+ static void ad7879_toggle(struct ad7879 *ts, bool disable)
+ {
+diff --git a/drivers/input/touchscreen/ad7879.h b/drivers/input/touchscreen/ad7879.h
+index 6b45a27..6fd13c4 100644
+--- a/drivers/input/touchscreen/ad7879.h
++++ b/drivers/input/touchscreen/ad7879.h
+@@ -21,8 +21,8 @@ struct ad7879_bus_ops {
+ 	int (*write)(struct device *dev, u8 reg, u16 val);
+ };
+ 
+-void ad7879_suspend(struct ad7879 *);
+-void ad7879_resume(struct ad7879 *);
++extern const struct dev_pm_ops ad7879_pm_ops;
++
+ struct ad7879 *ad7879_probe(struct device *dev, u8 devid, unsigned irq,
+ 			    const struct ad7879_bus_ops *bops);
+ void ad7879_remove(struct ad7879 *);
+-- 
+1.7.6.4
 

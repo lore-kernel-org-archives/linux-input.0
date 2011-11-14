@@ -1,579 +1,488 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: FW: [PATCH] Input:Add Wacom Stylus support for I2C
-Date: Mon, 14 Nov 2011 09:14:06 -0800
-Message-ID: <20111114171406.GC12659@core.coreip.homeip.net>
-References: <4ec0d42f.e32c440a.043b.20d7SMTPIN_ADDED@mx.google.com>
- <CA+MtpR1VGAwYjmKaVmMvAidapMq9mgyYtqBxCwQy8+VHFMJ7zw@mail.gmail.com>
- <CA+MtpR1BixrC+SF3wurjtiD3j0hYZH_rJoZkKODQXjjW7b8BTw@mail.gmail.com>
+Subject: Re: [PATCH] edt_ts: EDT Touchscreen driver
+Date: Mon, 14 Nov 2011 09:28:09 -0800
+Message-ID: <20111114172809.GD12659@core.coreip.homeip.net>
+References: <1320795279-2018-1-git-send-email-yanok@emcraft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:37678 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751589Ab1KNROR (ORCPT
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:36432 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751826Ab1KNR2Q (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Nov 2011 12:14:17 -0500
-Received: by pzk36 with SMTP id 36so12867330pzk.1
-        for <linux-input@vger.kernel.org>; Mon, 14 Nov 2011 09:14:17 -0800 (PST)
+	Mon, 14 Nov 2011 12:28:16 -0500
+Received: by ggnb2 with SMTP id b2so6398044ggn.19
+        for <linux-input@vger.kernel.org>; Mon, 14 Nov 2011 09:28:16 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <CA+MtpR1BixrC+SF3wurjtiD3j0hYZH_rJoZkKODQXjjW7b8BTw@mail.gmail.com>
+In-Reply-To: <1320795279-2018-1-git-send-email-yanok@emcraft.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?B?6aOb55Sw6b6N5LmL5LuL?= <junkpainting@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Ilya Yanok <yanok@emcraft.com>
+Cc: linux-input@vger.kernel.org, wd@denx.de, dzu@denx.de, sasha_d@emcraft.com, Anatolij Gustshin <agust@denx.de>
 
-Hi Tobita,
+Hi Ilya,
 
-On Mon, Nov 14, 2011 at 05:51:18PM +0900, =E9=A3=9B=E7=94=B0=E9=BE=8D=E4=
-=B9=8B=E4=BB=8B wrote:
-> Hi all
->=20
-> I hope this mail will work.
-> Please help to review wacom_i2c driver for wacom stylus with I2C inte=
-rface.
-
-It is in my queue to review, sorry for the delay...
-
-> Thanks!
-> Tats
->=20
-> 2011/11/14 Tobita Tatsunosuke <tobita.tatsunosuke@wacom.co.jp>
-> >
-> >
-> > -----Original Message-----
-> > From: Tobita Tatsunosuke [mailto:tobita.tatsunosuke@wacom.co.jp]
-> > Sent: Friday, November 04, 2011 9:44 PM
-> > To: 'linux-input@vger.kernel.org'
-> > Cc: 'Dmitry Torokhov'; 'Ping Cheng'; 'Jason Gerecke'
-> > Subject: RE: [PATCH] Input:Add Wacom Stylus support for I2C
-> >
-> > Hello all
-> >
-> > It seems like my E-mail server didn't work well.
-> > I sent this again in case it doesn't really send the message.
-> >
-> > I posted two patches a week ago; one is for modification Kconfig an=
-d
-> > Makefile(attached txt) and the other is below the driver and the he=
-ader
-> > files.
-> > However, I haven't gotten any comment and am even not sure if those=
- files
-> > are going to be included in next release.
-> > Would you please help to review them?
-> > Thanks!
-> >
-> > Regards,
-> >
-> > Tats
-> >
-> > -----Original Message-----
-> > From: linux-input-owner@vger.kernel.org
-> > [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Tatsunosuke=
- Tobita
-> > Sent: Wednesday, October 19, 2011 3:36 PM
-> > To: linux-input@vger.kernel.org
-> > Cc: Tatsunosuke Tobita
-> > Subject: [PATCH] Input:Add Wacom Stylus support for I2C
-> >
-> > From: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
-> >
-> > Adding support for Wacom Stylus with I2C interface.
-> >
-> > Signed-off-by: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
-> > ---
-> > =C2=A0drivers/input/touchscreen/wacom_i2c.c | =C2=A0261
-> > +++++++++++++++++++++++++++++++++
-> > =C2=A0drivers/input/touchscreen/wacom_i2c.h | =C2=A0 72 +++++++++
-> > =C2=A02 files changed, 333 insertions(+), 0 deletions(-) =C2=A0crea=
-te mode 100644
-> > drivers/input/touchscreen/wacom_i2c.c
-> > =C2=A0create mode 100644 drivers/input/touchscreen/wacom_i2c.h
-> >
-> > diff --git a/drivers/input/touchscreen/wacom_i2c.c
-> > b/drivers/input/touchscreen/wacom_i2c.c
-> > new file mode 100644
-> > index 0000000..3f16f93
-> > --- /dev/null
-> > +++ b/drivers/input/touchscreen/wacom_i2c.c
-> > @@ -0,0 +1,260 @@
-> > +/*
-> > + * Wacom Penabled Driver for I2C
-> > + *
-> > + * Copyright (c) 2011 Tatsunosuke Tobita, Wacom.
-> > + * <tobita.tatsunosuke@wacom.co.jp>
-> > + *
-> > + * This program is free software; you can redistribute it
-> > + * and/or modify it under the terms of the GNU General
-> > + * Public License as published by the Free Software
-> > + * Foundation; either version of 2 of the License,
-> > + * or (at your option) any later version.
-> > + */
-> > +
-> > +#include "wacom_i2c.h"
-> > +
-> > +static int wacom_send_query(struct wacom_i2c *wac_i2c) {
-> > + =C2=A0 =C2=A0 =C2=A0 int ret;
-> > + =C2=A0 =C2=A0 =C2=A0 u8 cmd[4] =3D {CMD_QUERY0, CMD_QUERY1, CMD_Q=
-UERY2, CMD_QUERY3};
-> > + =C2=A0 =C2=A0 =C2=A0 u8 data[COM_COORD_NUM];
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 ret =3D i2c_master_send(wac_i2c->client, cmd=
-, sizeof(cmd));
-> > + =C2=A0 =C2=A0 =C2=A0 if (ret < 0) {
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 dev_printk(KERN_=
-ERR, &wac_i2c->client->dev,
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0"Sending 1st Query failed \n");
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return -1;
-> > + =C2=A0 =C2=A0 =C2=A0 }
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 cmd[0] =3D CMD_THROW0; cmd[1] =3D CMD_THROW1=
-;
-> > + =C2=A0 =C2=A0 =C2=A0 ret =3D i2c_master_send(wac_i2c->client, cmd=
-, 2);
-> > + =C2=A0 =C2=A0 =C2=A0 if (ret < 0) {
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 dev_printk(KERN_=
-ERR, &wac_i2c->client->dev,
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0"Sending 2nd Query failed \n");
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return -1;
-> > + =C2=A0 =C2=A0 =C2=A0 }
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 ret =3D i2c_master_recv(wac_i2c->client, dat=
-a, QUERY_SIZE);
-> > + =C2=A0 =C2=A0 =C2=A0 if (ret < 0) {
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 dev_printk(KERN_=
-ERR, &wac_i2c->client->dev,
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0"Receiving data failed 1\n");
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return -1;
-> > + =C2=A0 =C2=A0 =C2=A0 }
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->wac_feature.x_max =3D get_unaligned=
-_le16(&data[3]);
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->wac_feature.y_max =3D get_unaligned=
-_le16(&data[5]);
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->wac_feature.pressure_max =3D get_un=
-aligned_le16(&data[11]);
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->wac_feature.fw_version =3D get_unal=
-igned_le16(&data[13]);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 dev_printk(KERN_INFO, &wac_i2c->client->dev,
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0"x_=
-max:%d, y_max:%d, pressure:%d, fw:%d\n",
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0wac=
-_i2c->wac_feature.x_max, wac_i2c->wac_feature.y_max,
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0wac=
-_i2c->wac_feature.pressure_max,
-> > +wac_i2c->wac_feature.fw_version);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 return 0;
-> > +}
-> > +
-> > +static void wacom_set_coordination(struct wacom_i2c *wac_i2c) {
-> > + =C2=A0 =C2=A0 =C2=A0 int ret;
-> > + =C2=A0 =C2=A0 =C2=A0 unsigned int x, y, pressure;
-> > + =C2=A0 =C2=A0 =C2=A0 unsigned char tsw, f1, f2, ers;
-> > + =C2=A0 =C2=A0 =C2=A0 u8 data[COM_COORD_NUM];
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 do {
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ret =3D i2c_mast=
-er_recv(wac_i2c->client, data, QUERY_SIZE);
-> > + =C2=A0 =C2=A0 =C2=A0 } while (gpio_get_value(GPIO) <=3D 0);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 if (ret >=3D 0) {
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 tsw =3D data[3]&=
-0x01;
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ers =3D data[3]&=
-0x04;
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 f1 =3D data[3]&0=
-x02;
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 f2 =3D data[3]&0=
-x10;
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 x =3D le16_to_cp=
-up((__le16 *)&data[4]);
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 y =3D le16_to_cp=
-up((__le16 *)&data[6]);
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 pressure =3D le1=
-6_to_cpup((__le16 *)&data[8]);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_report_abs=
-(wac_i2c->input, ABS_X, x);
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_report_abs=
-(wac_i2c->input, ABS_Y, y);
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_report_key=
-(wac_i2c->input, BTN_TOOL_PEN, tsw);
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_report_key=
-(wac_i2c->input, BTN_TOOL_RUBBER, ers);
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_report_abs=
-(wac_i2c->input, ABS_PRESSURE, pressure);
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_report_key=
-(wac_i2c->input, BTN_TOUCH, (tsw || ers));
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_report_key=
-(wac_i2c->input, BTN_STYLUS, f1);
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_report_key=
-(wac_i2c->input, BTN_STYLUS2, f2);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_sync(wac_i=
-2c->input);
-> > + =C2=A0 =C2=A0 =C2=A0 }
-> > +}
-> > +
-> > +static irqreturn_t wacom_i2c_irq(int irqno, void *param) {
-> > + =C2=A0 =C2=A0 =C2=A0 struct wacom_i2c *wac_i2c =3D param;
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 wacom_set_coordination(wac_i2c);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 return IRQ_HANDLED;
-> > +}
-> > +
-> > +
-> > +static int wacom_i2c_input_open(struct input_dev *dev) {
-> > + =C2=A0 =C2=A0 =C2=A0 struct wacom_i2c *wac_i2c =3D input_get_drvd=
-ata(dev);
-> > + =C2=A0 =C2=A0 =C2=A0 int ret;
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 __set_bit(ABS_X, wac_i2c->input->absbit);
-> > + =C2=A0 =C2=A0 =C2=A0 __set_bit(ABS_Y, wac_i2c->input->absbit);
-> > + =C2=A0 =C2=A0 =C2=A0 __set_bit(ABS_PRESSURE, wac_i2c->input->absb=
-it);
-> > + =C2=A0 =C2=A0 =C2=A0 __set_bit(BTN_TOOL_PEN, wac_i2c->input->keyb=
-it);
-> > + =C2=A0 =C2=A0 =C2=A0 __set_bit(BTN_TOOL_RUBBER, wac_i2c->input->k=
-eybit);
-> > + =C2=A0 =C2=A0 =C2=A0 __set_bit(BTN_STYLUS, wac_i2c->input->keybit=
-);
-> > + =C2=A0 =C2=A0 =C2=A0 __set_bit(BTN_STYLUS2, wac_i2c->input->keybi=
-t);
-> > + =C2=A0 =C2=A0 =C2=A0 __set_bit(BTN_TOUCH, wac_i2c->input->keybit)=
-;
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 ret =3D wacom_send_query(wac_i2c);
-> > + =C2=A0 =C2=A0 =C2=A0 if (ret < 0)
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return -EIO;
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->input->id.version =3D wac_i2c->wac_=
-feature.fw_version;
-> > + =C2=A0 =C2=A0 =C2=A0 input_set_abs_params(wac_i2c->input, ABS_X, =
-0,
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0wac_i2c->wac_feature.x_max, 0, 0);
-> > + =C2=A0 =C2=A0 =C2=A0 input_set_abs_params(wac_i2c->input, ABS_Y, =
-0,
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0wac_i2c->wac_feature.y_max, 0, 0);
-> > + =C2=A0 =C2=A0 =C2=A0 input_set_abs_params(wac_i2c->input, ABS_PRE=
-SSURE, 0,
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0wac_i2c->wac_feature.pressure_max, 0, 0)=
-;
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 if (request_threaded_irq(EMR_IRQ, NULL,
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0wacom_i2c_irq, IRQF_TRIGGE=
-R_FALLING,
-> > "WACOM_I2C_IRQ", wac_i2c)) {
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 dev_printk(KERN_=
-ERR, &wac_i2c->client->dev, "Failed to
-> > enable IRQ for EMR \n");
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return -EIO;
-> > + =C2=A0 =C2=A0 =C2=A0 }
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 /*Clear the buffer in the firmware*/
-> > + =C2=A0 =C2=A0 =C2=A0 wacom_set_coordination(wac_i2c);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 return 0;
-> > +}
-> > +
-> > +static void wacom_i2c_input_close(struct input_dev *dev) {
-> > + =C2=A0 =C2=A0 =C2=A0 disable_irq(EMR_IRQ);
-> > +}
-> > +
-> > +static int wacom_i2c_probe(struct i2c_client *client,
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0const struct i2c_device_id *id)
-> > +{
-> > + =C2=A0 =C2=A0 =C2=A0 struct wacom_i2c *wac_i2c;
-> > + =C2=A0 =C2=A0 =C2=A0 int err;
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 if (!i2c_check_functionality(client->adapter=
-, I2C_FUNC_I2C)) {
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 err =3D -EIO;
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto fail1;
-> > + =C2=A0 =C2=A0 =C2=A0 }
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c =3D kzalloc(sizeof(struct wacom_i2c)=
-, GFP_KERNEL);
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->input =3D input_allocate_device();
-> > + =C2=A0 =C2=A0 =C2=A0 if (wac_i2c =3D=3D NULL || wac_i2c->input =3D=
-=3D NULL) {
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 err =3D -ENOMEM;
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto fail2;
-> > + =C2=A0 =C2=A0 =C2=A0 }
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->client =3D client;
-> > + =C2=A0 =C2=A0 =C2=A0 i2c_set_clientdata(client, wac_i2c);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 mutex_init(&wac_i2c->lock);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->input->name =3D "WACOM_I2C_DIGITIZE=
-R";
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->input->id.bustype =3D BUS_I2C;
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->input->id.vendor =3D 0x56a;
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->input->dev.parent =3D &client->dev;
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->input->open =3D wacom_i2c_input_ope=
-n;
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->input->close =3D wacom_i2c_input_cl=
-ose;
-> > + =C2=A0 =C2=A0 =C2=A0 wac_i2c->input->evbit[0] |=3D BIT_MASK(EV_KE=
-Y) | BIT_MASK(EV_ABS);
-> > + =C2=A0 =C2=A0 =C2=A0 input_set_drvdata(wac_i2c->input, wac_i2c);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 if (input_register_device(wac_i2c->input)) {
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 dev_printk(KERN_=
-ERR, &wac_i2c->client->dev, "Failed to
-> > register input device \n");
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 err =3D -ENODEV;
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto fail3;
-> > + =C2=A0 =C2=A0 =C2=A0 }
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 return 0;
-> > +
-> > + fail3:
-> > + =C2=A0 =C2=A0 =C2=A0 input_free_device(wac_i2c->input);
-> > + fail2:
-> > + =C2=A0 =C2=A0 =C2=A0 kfree(wac_i2c);
-> > + =C2=A0 =C2=A0 =C2=A0 dev_printk(KERN_ERR, &wac_i2c->client->dev, =
-"Freeing device \n");
-> > + fail1:
-> > + =C2=A0 =C2=A0 =C2=A0 printk(KERN_ERR "wacom_i2c: No I2C functiona=
-lity found \n");
-> > + =C2=A0 =C2=A0 =C2=A0 return err;
-> > +}
-> > +
-> > +static int wacom_i2c_remove(struct i2c_client *client) {
-> > + =C2=A0 =C2=A0 =C2=A0 struct wacom_i2c *wac_i2c =3D i2c_get_client=
-data(client);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 free_irq(EMR_IRQ, wac_i2c);
-> > + =C2=A0 =C2=A0 =C2=A0 input_unregister_device(wac_i2c->input);
-> > + =C2=A0 =C2=A0 =C2=A0 kfree(wac_i2c);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 return 0;
-> > +}
-> > +
-> > +#ifdef CONFIG_PM
-> > +static int wacom_i2c_suspend(struct device *dev) {
-> > + =C2=A0 =C2=A0 =C2=A0 disable_irq(EMR_IRQ);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 return 0;
-> > +}
-> > +
-> > +static int wacom_i2c_resume(struct device *dev) {
-> > + =C2=A0 =C2=A0 =C2=A0 enable_irq(EMR_IRQ);
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 return 0;
-> > +}
-> > +
-> > +static const struct dev_pm_ops wacom_i2c_pm =3D {
-> > + =C2=A0 =C2=A0 =C2=A0 .suspend =3D wacom_i2c_suspend,
-> > + =C2=A0 =C2=A0 =C2=A0 .resume =3D wacom_i2c_resume,
-> > +};
-> > +#endif
-> > +
-> > +static const struct i2c_device_id wacom_i2c_id[] =3D {
-> > + =C2=A0 =C2=A0 =C2=A0 {WACNAME, 0},
-> > + =C2=A0 =C2=A0 =C2=A0 {},
-> > +};
-> > +MODULE_DEVICE_TABLE(i2c, wacom_i2c_id);
-> > +
-> > +static struct i2c_driver wacom_i2c_driver =3D {
-> > + =C2=A0 =C2=A0 =C2=A0 .driver =3D {
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 .name =3D "wacom=
-_i2c",
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 .owner =3D THIS_=
-MODULE,
-> > +#ifdef CONFIG_PM
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 .pm =3D &wacom_i=
-2c_pm,
-> > +#endif
-> > + =C2=A0 =C2=A0 =C2=A0 },
-> > +
-> > + =C2=A0 =C2=A0 =C2=A0 .probe =3D wacom_i2c_probe,
-> > + =C2=A0 =C2=A0 =C2=A0 .remove =3D wacom_i2c_remove,
-> > + =C2=A0 =C2=A0 =C2=A0 .id_table =3D wacom_i2c_id,
-> > +};
-> > +
-> > +static int __init wacom_i2c_init(void)
-> > +{
-> > + =C2=A0 =C2=A0 =C2=A0 return i2c_add_driver(&wacom_i2c_driver);
-> > +}
-> > +
-> > +static void __exit wacom_i2c_exit(void) {
-> > + =C2=A0 =C2=A0 =C2=A0 i2c_del_driver(&wacom_i2c_driver);
-> > +}
-> > +
-> > +module_init(wacom_i2c_init);
-> > +module_exit(wacom_i2c_exit);
-> > +
-> > +MODULE_AUTHOR("Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>=
-");
-> > +MODULE_DESCRIPTION("WACOM EMR I2C Driver"); MODULE_LICENSE("GPL");
-> > diff --git a/drivers/input/touchscreen/wacom_i2c.h
-> > b/drivers/input/touchscreen/wacom_i2c.h
-> > new file mode 100644
-> > index 0000000..13d86f9
-> > --- /dev/null
-> > +++ b/drivers/input/touchscreen/wacom_i2c.h
-> > @@ -0,0 +1,72 @@
-> > +/*
-> > + * Wacom Penabled Driver for I2C
-> > + *
-> > + * Copyright (c) 2011 Tatsunosuke Tobita, Wacom.
-> > + * <tobita.tatsunosuke@wacom.co.jp>
-> > + *
-> > + * This program is free software; you can redistribute it
-> > + * and/or modify it under the terms of the GNU General
-> > + * Public License as published by the Free Software
-> > + * Foundation; either version of 2 of the License,
-> > + * or (at your option) any later version.
-> > + */
-> > +
-> > +#ifndef WACOM_I2C_H
-> > +#define WACOM_I2C_H
-> > +
-> > +#include <linux/module.h>
-> > +#include <linux/init.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/input.h>
-> > +#include <linux/i2c.h>
-> > +#include <linux/slab.h>
-> > +#include <linux/delay.h>
-> > +#include <linux/uaccess.h>
-> > +#include <linux/device.h>
-> > +#include <linux/irq.h>
-> > +#include <linux/interrupt.h>
-> > +#include <linux/gpio.h>
-> > +#include <asm/unaligned.h>
-> > +#include <asm/system.h>
-> > +
-> > +#define NAMEBUF 12
-> > +#define WACNAME "WAC_I2C_EMR"
-> > +
-> > +/*Wacom Command*/
-> > +#define COM_COORD_NUM =C2=A0 =C2=A0 =C2=A0256
-> > +#define COM_SAMPLERATE_40 =C2=A00x33
-> > +#define COM_SAMPLERATE_80 =C2=A00x32
-> > +#define COM_SAMPLERATE_133 0x31
-> > +#define CMD_QUERY0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 0x04
-> > +#define CMD_QUERY1 =C2=A0 =C2=A0 =C2=A0 =C2=A0 0x00
-> > +#define CMD_QUERY2 =C2=A0 =C2=A0 =C2=A0 =C2=A0 0x33
-> > +#define CMD_QUERY3 =C2=A0 =C2=A0 =C2=A0 =C2=A0 0x02
-> > +#define CMD_THROW0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 0x05
-> > +#define CMD_THROW1 =C2=A0 =C2=A0 =C2=A0 =C2=A0 0x00
-> > +#define QUERY_SIZE =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 19
-> > +
-> > +/*I2C address for digitizer*/
-> > +#define WACOM_I2C_ADDR =C2=A0 0x09
-> > +
-> > +/*Set a specific pin number on GPI for IRQ*/ #define GPIO 1 #defin=
-e
-> > +EMR_IRQ gpio_to_irq(GPIO)
-> > +
-> > +/*Parameters for wacom own features*/
-> > +struct wacom_features {
-> > + =C2=A0 =C2=A0 =C2=A0 int x_max;
-> > + =C2=A0 =C2=A0 =C2=A0 int y_max;
-> > + =C2=A0 =C2=A0 =C2=A0 int pressure_max;
-> > + =C2=A0 =C2=A0 =C2=A0 char fw_version;
-> > +};
-> > +
-> > +/*Parameters for i2c driver*/
-> > +struct wacom_i2c {
-> > + =C2=A0 =C2=A0 =C2=A0 struct i2c_client *client;
-> > + =C2=A0 =C2=A0 =C2=A0 struct input_dev *input;
-> > + =C2=A0 =C2=A0 =C2=A0 struct mutex lock;
-> > + =C2=A0 =C2=A0 =C2=A0 struct wacom_features wac_feature;
-> > + =C2=A0 =C2=A0 =C2=A0 int type;
-> > + =C2=A0 =C2=A0 =C2=A0 const char name[NAMEBUF];
-> > +};
-> > +#endif
-> > 1.7.1
-> >
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-inp=
-ut" in
-> > the body of a message to majordomo@vger.kernel.org More majordomo i=
-nfo at
-> > http://vger.kernel.org/majordomo-info.html
-
-> =E5=B7=AE=E5=87=BA=E4=BA=BA:	linux-input-owner@vger.kernel.org =E3=81=
-=AF Tatsunosuke Tobita [junkpainting@gmail.com] =E3=81=AE
-> =E4=BB=A3=E7=90=86
-> =E9=80=81=E4=BF=A1=E6=97=A5=E6=99=82:	2011=E5=B9=B410=E6=9C=8819=E6=97=
-=A5=E6=B0=B4=E6=9B=9C=E6=97=A5 15:36
-> =E5=AE=9B=E5=85=88:	linux-input@vger.kernel.org
-> =EF=BC=A3=EF=BC=A3:	Tatsunosuke Tobita
-> =E4=BB=B6=E5=90=8D:	[PATCH] Input: Modified on Kconfig and Makefile f=
-or adding  Wacom Stylus for I2C
->=20
-> From: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
->=20
->=20
-> Signed-off-by: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
+On Wed, Nov 09, 2011 at 12:34:39AM +0100, Ilya Yanok wrote:
+> From: Anatolij Gustshin <agust@denx.de>
+> 
+> Driver for touchscreen controllers found on EDT Displays. Originally
+> developed by Anatolij Gustshin.
+> 
+> Cc: Anatolij Gustshin <agust@denx.de>
+> Signed-off-by: Ilya Yanok <yanok@emcraft.com>
 > ---
->  drivers/input/touchscreen/Kconfig  |   11 +++++++++++
+>  drivers/input/touchscreen/Kconfig  |   11 ++
 >  drivers/input/touchscreen/Makefile |    1 +
->  2 files changed, 12 insertions(+), 0 deletions(-)
->=20
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchs=
-creen/Kconfig
-> index 3488ffe..cae448e 100644
+>  drivers/input/touchscreen/edt_ts.c |  340 ++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c/edt_ts.h         |   20 ++
+>  4 files changed, 372 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/touchscreen/edt_ts.c
+>  create mode 100644 include/linux/i2c/edt_ts.h
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 3488ffe..934e6d3 100644
 > --- a/drivers/input/touchscreen/Kconfig
 > +++ b/drivers/input/touchscreen/Kconfig
 > @@ -738,4 +738,15 @@ config TOUCHSCREEN_TPS6507X
 >  	  To compile this driver as a module, choose M here: the
 >  	  module will be called tps6507x_ts.
-> =20
-> +config TOUCHSCREEN_WACOM_I2C
-> +	tristate "Wacom Tablet support(I2C)"
+>  
+> +config TOUCHSCREEN_EDT
+> +	tristate "EDT touchscreen"
 > +	depends on I2C
 > +	help
-> +	 Say Y here if you want to use the I2C version of the Wacom Pen.
-> +	 Make sure to say Y to "Mouse support" (CONFIG_INPUT_MOUSEDEV)
-> +	 and/or "Event interface support" (CONFIG_INPUT_EVDEV) as well.
+> +	  Say Y here to enable EDT touchscreen support.
 > +
-> +	 To compile this driver as a module, choose M here: the module
-> +	 will be called wacom_i2c.
+> +	  If unsure, say N.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called edt_ts.
 > +
 >  endif
-> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touch=
-screen/Makefile
-> index f957676..61bbfc8 100644
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index f957676..78ca164 100644
 > --- a/drivers/input/touchscreen/Makefile
 > +++ b/drivers/input/touchscreen/Makefile
-> @@ -61,3 +61,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+=3D=20
-> mainstone-wm97xx.o
->  obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+=3D zylonite-wm97xx.o
->  obj-$(CONFIG_TOUCHSCREEN_W90X900)	+=3D w90p910_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+=3D tps6507x-ts.o
-> +obj-$(CONFIG_TOUCHSCREEN_WACOM_I2C)	+=3D wacom_i2c.o
-> --
-> 1.7.1
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in the body of=20
-> a message to majordomo@vger.kernel.org More majordomo info at =20
-> http://vger.kernel.org/majordomo-info.html
+> @@ -61,3 +61,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
+>  obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
+>  obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
+> +obj-$(CONFIG_TOUCHSCREEN_EDT)		+= edt_ts.o
+> diff --git a/drivers/input/touchscreen/edt_ts.c b/drivers/input/touchscreen/edt_ts.c
+> new file mode 100644
+> index 0000000..2bf0adc
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/edt_ts.c
+> @@ -0,0 +1,340 @@
+> +/*
+> + * Touch Screen driver for EDT ET070003DM6 display
+> + *
+> + * Mostly derived from migor_ts driver,
+> + * Copyright (c) 2008 Magnus Damm
+> + * Copyright (c) 2007 Ujjwal Pande <ujjwal@kenati.com>
+> + *
+> + * Copyright (c) 2011 DENX Software Engineering,
+> + * Anatolij Gustschin <agust@denx.de>
+> + *
+> + * This file is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU  General Public
+> + * License as published by the Free Software Foundation; either
+> + * version 2 of the License, or (at your option) any later version.
+> + */
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/i2c.h>
+> +#include <linux/slab.h>
+> +#include <linux/gpio.h>
+> +#include <linux/i2c/edt_ts.h>
+> +
+> +#define EDT_EVENT_TOUCH_DOWN	0x0
+> +#define EDT_EVENT_TOUCH_UP	0x4
+> +#define EDT_EVENT_TOUCH_ON	0x8
+> +
+> +#define EDT_TS_PENUP_TIMEOUT_MS		40
+> +
+> +struct edt_ts_priv {
+> +	struct i2c_client *client;
+> +	struct timer_list timer;
+> +	struct input_dev *input;
+> +	struct delayed_work work;
+> +	unsigned int up_reported;
+> +	int irq;
+> +	unsigned irq_gpio;
+> +};
+> +
+> +void edt_ts_release_event(struct edt_ts_priv *priv)
+> +{
+> +	input_report_abs(priv->input, ABS_PRESSURE, 0);
+> +	input_report_key(priv->input, BTN_TOUCH, 0);
+> +	input_sync(priv->input);
+> +	priv->up_reported = 1;
+> +}
+> +
+> +static void edt_ts_read(struct work_struct *work)
+> +{
+> +	struct edt_ts_priv *priv;
+> +	unsigned short xpos[2];
+> +	unsigned short ypos[2];
+> +	unsigned char buf[26], sendbuf[1];
+> +	int event, touch_id;
+> +	int ret;
+> +
+> +	sendbuf[0] = 0xf9;
+> +
+> +	priv = container_of(work, struct edt_ts_priv, work.work);
+> +	memset(buf, 0, sizeof(buf));
+> +
+> +	/* skip reading touch data if gpio irq input is high */
+> +	if (gpio_get_value(priv->irq_gpio))
+> +		goto fixup_timer;
+> +
+> +	ret = i2c_master_send(priv->client, sendbuf, sizeof(sendbuf));
+> +	if (ret != sizeof(sendbuf)) {
+> +		dev_err(&priv->client->dev, "can't send 0xf9\n");
+> +		return;
+> +	}
+> +
+> +	ret = i2c_master_recv(priv->client, buf, sizeof(buf));
+> +	if (ret != sizeof(buf)) {
+> +		dev_err(&priv->client->dev, "can't read pos. data\n");
+> +		return;
+> +	}
+> +
+> +	for (ret = 0; ret < sizeof(buf); ret++)
+> +		dev_dbg(&priv->client->dev, "%d: 0x%x\n", ret, buf[ret]);
+> +
+> +	event = (buf[5] & 0xf0) >> 4;
+> +	touch_id = (buf[7] & 0xf0) >> 4;
+> +
+> +	dev_dbg(&priv->client->dev, "Event %d, TouchID %d\n", event, touch_id);
+> +
+> +	xpos[0] = (((buf[5] & 0xf) << 8) | buf[6]) >> 1;
+> +	ypos[0] = (((buf[7] & 0xf) << 8) | buf[8]) >> 1;
+> +
+> +	if (touch_id == 0 && event & EDT_EVENT_TOUCH_UP) {
+> +		if (!priv->up_reported)
+> +			edt_ts_release_event(priv);
+> +		goto done;
+> +	}
+> +
+> +	if (touch_id == 0 && event & EDT_EVENT_TOUCH_ON) {
+> +		priv->up_reported = 0;
+> +		input_report_key(priv->input, BTN_TOUCH, 1);
+> +		input_report_abs(priv->input, ABS_X, xpos[0]);
+> +		input_report_abs(priv->input, ABS_Y, ypos[0]);
+> +		input_report_abs(priv->input, ABS_PRESSURE, 255);
+> +		input_sync(priv->input);
+> +	}
+> +
+> +fixup_timer:
+> +	mod_timer(&priv->timer,
+> +		  jiffies + msecs_to_jiffies(EDT_TS_PENUP_TIMEOUT_MS));
+> +done:
+> +	enable_irq(priv->irq);
+> +}
+> +
+> +static void edt_ts_penup_timer(unsigned long handle)
+> +{
+> +	struct edt_ts_priv *priv = (void *)handle;
+> +
+> +	edt_ts_release_event(priv);
+> +}
+> +
+> +static irqreturn_t edt_ts_isr(int irq, void *dev_id)
+> +{
+> +	struct edt_ts_priv *priv = dev_id;
+> +
+> +	/* the touch screen controller chip is hooked up to the cpu
+> +	 * using i2c and a single interrupt line. the interrupt line
+> +	 * is pulled low whenever someone taps the screen.
+> +	 *
+> +	 * we can't read touch data from interrupt context since the i2c
+> +	 * bus controller may sleep, so we just disable the interrupt
+> +	 * here and handle it using delayed work.
+> +	 */
+> +	disable_irq_nosync(irq);
+> +	schedule_delayed_work(&priv->work, 0);
 
+We now have nice threaded IRQs that eliminate the need for
+manually-created work items, please convert the driver to use them
+(see request_threaded_irq).
 
---=20
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +
+> +static int edt_ts_open(struct input_dev *dev)
+> +{
+> +	struct edt_ts_priv *priv = input_get_drvdata(dev);
+> +	int ret;
+> +	char buf[2];
+> +
+> +	/* check the controller access */
+> +	ret = i2c_master_recv(priv->client, buf, sizeof(buf));
+> +	if (ret != sizeof(buf)) {
+> +		dev_err(&priv->client->dev, "controller access failed\n");
+> +		return -EIO;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static void edt_ts_close(struct input_dev *dev)
+> +{
+> +	struct edt_ts_priv *priv = input_get_drvdata(dev);
+> +
+> +	disable_irq(priv->irq);
+> +
+> +	/* cancel pending work and wait for edt_ts_read() to finish */
+> +	if (cancel_delayed_work_sync(&priv->work)) {
+> +		/*
+> +		 * if edt_ts_read() was canceled we need to enable IRQ
+> +		 * here to balance disable done in edt_ts_isr().
+> +		 */
+> +		enable_irq(priv->irq);
+> +	}
+> +
+> +	if (del_timer_sync(&priv->timer))
+> +		edt_ts_release_event(priv);
+> +
+> +	enable_irq(priv->irq);
+> +}
+> +
+> +static int edt_ts_probe(struct i2c_client *client,
+> +			   const struct i2c_device_id *id)
+
+__devinit.
+
+> +{
+> +	struct edt_ts_priv *priv;
+> +	struct input_dev *input;
+> +	struct edt_platform_data *pdata = client->dev.platform_data;
+> +	int error, irq;
+> +
+> +	if (!pdata) {
+> +		dev_err(&client->dev, "no platform data\n");
+> +		error = -ENODEV;
+> +		goto err0;
+> +	}
+> +
+> +	if (!gpio_is_valid(pdata->irq_gpio)) {
+> +		dev_err(&client->dev, "invalid IRQ GPIO number\n");
+> +		error = -EINVAL;
+> +		goto err0;
+> +	}
+> +
+> +	irq = gpio_to_irq(pdata->irq_gpio);
+> +	if (irq < 0) {
+> +		dev_err(&client->dev, "can't get IRQ for GPIO\n");
+> +		error = -EINVAL;
+> +		goto err0;
+> +	}
+
+Why can't we use client->irq?
+
+> +
+> +	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+> +	if (!priv) {
+> +		dev_err(&client->dev, "can't allocate driver data\n");
+> +		error = -ENOMEM;
+> +		goto err0;
+> +	}
+> +
+> +	dev_set_drvdata(&client->dev, priv);
+> +
+> +	input = input_allocate_device();
+> +	if (!input) {
+> +		dev_err(&client->dev, "can't allocate input device.\n");
+> +		error = -ENOMEM;
+> +		goto err1;
+> +	}
+> +
+> +	input->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> +	input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> +
+> +	input_set_abs_params(input, ABS_X, 0, 800, 0, 0);
+> +	input_set_abs_params(input, ABS_Y, 0, 480, 0, 0);
+> +	input_set_abs_params(input, ABS_PRESSURE, 0, 255, 0, 0);
+> +
+> +	input->name = client->name;
+> +	input->id.bustype = BUS_I2C;
+> +	input->dev.parent = &client->dev;
+> +
+> +	input->open = edt_ts_open;
+> +	input->close = edt_ts_close;
+> +
+> +	input_set_drvdata(input, priv);
+> +
+> +	priv->client = client;
+> +	priv->input = input;
+> +	INIT_DELAYED_WORK(&priv->work, edt_ts_read);
+> +	priv->irq = irq;
+> +	priv->irq_gpio = pdata->irq_gpio;
+> +
+> +	error = input_register_device(input);
+> +	if (error)
+> +		goto err1;
+> +
+> +	error = request_irq(priv->irq, edt_ts_isr, IRQF_TRIGGER_FALLING,
+> +			    client->name, priv);
+> +	if (error) {
+> +		dev_err(&client->dev, "can't request IRQ.\n");
+> +		goto err2;
+> +	}
+> +
+> +	setup_timer(&priv->timer, edt_ts_penup_timer, (unsigned long)priv);
+
+I think this is racy... IRQ may fire and work get scheduled and executed
+before you set up the timer.
+
+> +
+> +	device_init_wakeup(&client->dev, 1);
+> +	return 0;
+> +
+> +err2:
+> +	input_unregister_device(input);
+> +	input = NULL; /* don't free, unregister is enough */
+
+If you register input device last you won't need this...
+
+> +err1:
+> +	input_free_device(input);
+> +	kfree(priv);
+> +err0:
+> +	dev_set_drvdata(&client->dev, NULL);
+
+Not needed.
+
+> +	return error;
+> +}
+> +
+> +static int edt_ts_remove(struct i2c_client *client)
+
+__devexit.
+
+> +{
+> +	struct edt_ts_priv *priv = dev_get_drvdata(&client->dev);
+> +
+> +	free_irq(priv->irq, priv);
+> +	input_unregister_device(priv->input);
+> +	kfree(priv);
+> +	dev_set_drvdata(&client->dev, NULL);
+> +	device_init_wakeup(&client->dev, 0);
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM
+
+CONFIG_PM_SLEEP.
+
+> +static int edt_ts_suspend(struct device *dev)
+> +{
+> +	struct edt_ts_priv *priv = dev_get_drvdata(dev);
+> +
+> +	if (device_may_wakeup(dev))
+> +		enable_irq_wake(priv->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static int edt_ts_resume(struct device *dev)
+> +{
+> +	struct edt_ts_priv *priv = dev_get_drvdata(dev);
+> +
+> +	if (device_may_wakeup(dev))
+> +		disable_irq_wake(priv->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct dev_pm_ops edt_pm_ops = {
+> +	.suspend = edt_ts_suspend,
+> +	.resume = edt_ts_resume,
+> +};
+> +#endif
+
+static SIMPLE_DEV_PM_OPS(edt_pm_ops, edt_ts_suspend, edt_ts_resume);
+
+> +
+> +static const struct i2c_device_id edt_ts_idtbl[] = {
+> +	{ "edt_ts", 0 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, edt_ts_idtbl);
+> +
+> +static struct i2c_driver edt_ts_driver = {
+> +	.driver = {
+> +		.name = "edt_ts",
+> +		.owner = THIS_MODULE,
+> +#ifdef CONFIG_PM
+> +		.pm = &edt_pm_ops,
+> +#endif
+
+Lose ifdef here. 
+
+> +	},
+> +	.probe = edt_ts_probe,
+> +	.remove = edt_ts_remove,
+
+__devexit_p().
+
+> +	.id_table = edt_ts_idtbl,
+> +};
+> +
+> +static int __init edt_ts_init(void)
+> +{
+> +	return i2c_add_driver(&edt_ts_driver);
+> +}
+> +module_init(edt_ts_init);
+> +
+> +static void __exit edt_ts_exit(void)
+> +{
+> +	i2c_del_driver(&edt_ts_driver);
+> +}
+> +module_exit(edt_ts_exit);
+> +
+> +MODULE_DESCRIPTION("EDT Display Touchscreen driver");
+> +MODULE_AUTHOR("Anatolij Gustschin <agust@denx.de>");
+> +MODULE_LICENSE("GPL");
+> diff --git a/include/linux/i2c/edt_ts.h b/include/linux/i2c/edt_ts.h
+> new file mode 100644
+> index 0000000..87048e6
+> --- /dev/null
+> +++ b/include/linux/i2c/edt_ts.h
+> @@ -0,0 +1,20 @@
+> +/*
+> + * EDT Touchscreen driver
+> + *
+> + * Copyright (C) 2011 Ilya Yanok, EmCraft Systems
+> + *
+> + * This program is free software; you can redistribute  it and/or modify it
+> + * under  the terms of  the GNU General  Public License as published by the
+> + * Free Software Foundation;  either version 2 of the  License, or (at your
+> + * option) any later version.
+> + */
+> +
+> +#ifndef __LINUX_I2C_EDT_TS_H
+> +#define __LINUX_I2C_EDT_TS_H
+> +
+> +/* The platform data for the EDT touchscreen driver */
+> +struct edt_platform_data {
+> +	unsigned irq_gpio;
+> +};
+> +
+> +#endif /* __LINUX_I2C_EDT_TS_H */
+> -- 
+> 1.7.6.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

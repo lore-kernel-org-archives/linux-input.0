@@ -1,39 +1,48 @@
-From: Ilya Yanok <yanok@emcraft.com>
-Subject: Re: [PATCH] edt_ts: EDT Touchscreen driver
-Date: Tue, 15 Nov 2011 01:07:57 +0400
-Message-ID: <4EC1832D.3080405@emcraft.com>
-References: <1320795279-2018-1-git-send-email-yanok@emcraft.com> <20111114172809.GD12659@core.coreip.homeip.net>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: Interacting with a input kernel driver from user space
+Date: Tue, 15 Nov 2011 00:17:17 +0100
+Message-ID: <201111150017.17985.oneukum@suse.de>
+References: <4EC10878.20109@edigma.com> <4EC15CD1.2010409@edigma.com> <201111141057.42310.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ocean.emcraft.com ([213.221.7.182]:38317 "EHLO
-	ocean.emcraft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755759Ab1KNVrJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Nov 2011 16:47:09 -0500
-In-Reply-To: <20111114172809.GD12659@core.coreip.homeip.net>
+Received: from cantor2.suse.de ([195.135.220.15]:40416 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756545Ab1KNXQU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Nov 2011 18:16:20 -0500
+In-Reply-To: <201111141057.42310.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, wd@denx.de, dzu@denx.de, sasha_d@emcraft.com, Anatolij Gustshin <agust@denx.de>
+Cc: Nuno Santos <nsantos@edigma.com>, linux-input@vger.kernel.org
 
-Hi Dmitry,
-
-On 14.11.2011 21:28, Dmitry Torokhov wrote:
->> +	irq = gpio_to_irq(pdata->irq_gpio);
->> +	if (irq < 0) {
->> +		dev_err(&client->dev, "can't get IRQ for GPIO\n");
->> +		error = -EINVAL;
->> +		goto err0;
->> +	}
+Am Montag, 14. November 2011, 19:57:41 schrieb Dmitry Torokhov:
+> On Monday, November 14, 2011 10:24:17 AM Nuno Santos wrote:
+> > Hi,
+> > 
+> > I have defined my first attribute in the following way:
+> > 
+> > static ssize_t usbtouchscreen_update_sensibility(struct device *dev,
+> >                                          struct device_attribute *attr,
+> >                                          const char *buf, size_t count)
+> > {
+> > 
+> >      printk(KERN_INFO "update sensibility called");
+> > 
 > 
-> Why can't we use client->irq?
+> Updating sensibility is always a good thing but I gather you mean 
+> sensitivity here...
+> 
+> BTW this should probably be a per-user setting and belong to the X driver, 
+> not kernel driver. I.e. kernel streams all data and userspace (X) decides 
+> what data do discard according to current user preferences.
 
-Well, my idea was to avoid duplication (passing both GPIO and IRQ
-numbers) and I can't pass only client->irq as we need GPIO number also
-and irq_to_gpio is not guaranteed to work with arbitrary IRQ number.
+Hi,
 
-Thanks for your comments! I'll address them and repost the patch.
+before we define yet another interface specific to a driver, could we discuss
+whether this interface could be applicable to a wider range of devices?
 
-Regards, Ilya.
+	Regards
+		Oliver

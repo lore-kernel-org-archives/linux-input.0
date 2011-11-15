@@ -1,40 +1,45 @@
-From: Nuno Santos <nsantos@edigma.com>
-Subject: Changing the settings of the device driver
-Date: Tue, 15 Nov 2011 16:34:26 +0000
-Message-ID: <4EC29492.5030209@edigma.com>
+From: Shubhrajyoti <shubhrajyoti@ti.com>
+Subject: Re: Changing the settings of the device driver
+Date: Tue, 15 Nov 2011 22:29:21 +0530
+Message-ID: <4EC29A69.8080102@ti.com>
+References: <4EC29492.5030209@edigma.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx01.edigma.com ([195.22.21.235]:40305 "EHLO mx01.edigma.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756540Ab1KOQea (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Nov 2011 11:34:30 -0500
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mx01.edigma.com (Postfix) with ESMTP id 93BBD3761926
-	for <linux-input@vger.kernel.org>; Tue, 15 Nov 2011 16:34:27 +0000 (WET)
-Received: from mx01.edigma.com ([127.0.0.1])
-	by localhost (mx01.edigma.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9K3cYvnpJbYR for <linux-input@vger.kernel.org>;
-	Tue, 15 Nov 2011 16:34:27 +0000 (WET)
-Received: from [192.168.3.103] (unknown [62.28.174.82])
-	by mx01.edigma.com (Postfix) with ESMTPSA id 0B2373761923
-	for <linux-input@vger.kernel.org>; Tue, 15 Nov 2011 16:34:26 +0000 (WET)
+Received: from na3sys009aog102.obsmtp.com ([74.125.149.69]:51758 "EHLO
+	na3sys009aog102.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756661Ab1KOQ7d (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Nov 2011 11:59:33 -0500
+Received: by mail-pz0-f48.google.com with SMTP id 32so17575382pzk.7
+        for <linux-input@vger.kernel.org>; Tue, 15 Nov 2011 08:59:27 -0800 (PST)
+In-Reply-To: <4EC29492.5030209@edigma.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Nuno Santos <nsantos@edigma.com>
+Cc: linux-input@vger.kernel.org
 
-Hi,
+On Tuesday 15 November 2011 10:04 PM, Nuno Santos wrote:
+> Hi,
+>
+> I have been reading about linux kernel development and ioctl seems to
+> be discouraged by kernel developers.
+>
+> However ioctl is precisely what i'm looking for to mimic what I have
+> in my Windows driver version.
+>
+> Should I consider an option to implement ioctl's to change my device
+> settings?
 
-I have been reading about linux kernel development and ioctl seems to be 
-discouraged by kernel developers.
+What kind of settings?
+By the way give sysfs a thought.
+>
+> Thanks,
+>
+> Nuno
+> -- 
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-However ioctl is precisely what i'm looking for to mimic what I have in 
-my Windows driver version.
-
-Should I consider an option to implement ioctl's to change my device 
-settings?
-
-Thanks,
-
-Nuno

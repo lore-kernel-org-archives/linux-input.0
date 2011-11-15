@@ -1,79 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input: add driver support for Sharp gp2ap002a00f
- proximity sensor
-Date: Tue, 15 Nov 2011 00:46:09 -0800
-Message-ID: <20111115084609.GB13157@core.coreip.homeip.net>
-References: <1321285158-7123-1-git-send-email-oskar.andero@sonyericsson.com>
- <20111114170352.GA12659@core.coreip.homeip.net>
- <20111115075629.GE9307@caracas.corpusers.net>
- <20111115082926.GA13157@core.coreip.homeip.net>
- <20111115083454.GE6492@legolas.emea.dhcp.ti.com>
+From: Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
+Subject: Re: [PATCH] Add generic GPIO-tilt driver
+Date: Tue, 15 Nov 2011 10:02:04 +0100
+Message-ID: <201111151002.07286.heiko@sntech.de>
+References: <201110211043.47742.heiko@sntech.de> <201111041253.11738.heiko@sntech.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20111115083454.GE6492@legolas.emea.dhcp.ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: oskar.andero@sonyericsson.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jic23@cam.ac.uk" <jic23@cam.ac.uk>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "Cavin, Courtney" <Courtney.Cavin@sonyericsson.com>
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from h1778886.stratoserver.net ([85.214.133.74]:51382 "EHLO
+	h1778886.stratoserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753761Ab1KOJCK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Nov 2011 04:02:10 -0500
+In-Reply-To: <201111041253.11738.heiko@sntech.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Felipe,
+Am Freitag, 4. November 2011, 12:53:11 schrieb Heiko St=FCbner:
+> Am Freitag 21 Oktober 2011, 10:43:47 schrieb Heiko St=FCbner:
+> > There exist tilt switches that simply report their tilt-state via s=
+ome
+> > gpios.
+> >=20
+> > The number and orientation of their axes can vary depending on the =
+switch
+> > used and the build of the device. Also two or more one-axis switche=
+s
+> > could be combined to provide multi-dimensional orientation.
+> >=20
+> > One example of a device using such a switch is the family of Qisda
+> > ebook readers, where the switch provides information about the
+> > landscape / portrait orientation of the device. The example in
+> > Documentation/input/gpio-tilt.txt documents exactly this one-axis d=
+evice.
+> >=20
+> > Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+> > ---
+>=20
+another ping ... comments?
 
-On Tue, Nov 15, 2011 at 10:34:55AM +0200, Felipe Balbi wrote:
-> Hi,
-> 
-> On Tue, Nov 15, 2011 at 12:29:26AM -0800, Dmitry Torokhov wrote:
-> > > > > +	error = input_register_device(dt->device);
-> > > > > +	if (error) {
-> > > > > +		dev_err(&dt->device->dev, "device registration failed\n");
-> > > > > +		input_free_device(dt->device);
-> > > > 
-> > > > If you swap request_threaded_irq() and input_register_device() so that
-> > > > registration is the last action error handling will be much simpler.
-> > > >
-> > > 
-> > > I am getting a bit confused here, since you asked me to swap the order
-> > > of request_threaded_irq() and input_register_device() in my previous
-> > > version as well. Swapping again will take us back to square one or maybe
-> > > I am misinterpreting your comment?
-> > 
-> > Gah, sorry, a bit of boilerplate slipped in. You already have the calls
-> > in right order, you just need proper labels.
-> > 
-> > 
-> > 	input_dev = input_allocate_device();
-> > 	if (!input_dev) {
-> > 		dev_err(...);
-> > 		error = -ENOMEM;
-> > 		goto err_free_mem;
-> > 	}
-> > 
-> > 	... set up input device fully ...
-> > 
-> > 	error = request_threaded_irq(...);
-> > 	if (error) {
-> > 		dev_err(...);
-> > 		goto err_free_input_dev;
-> > 	}
-> > 
-> > 	error = input_register_device(input_dev);
-> > 	if (error) {
-> > 		dev_err(...);
-> > 		goto err_free_irq;
-> > 	}
-> 
-> are you sure this is right order ? Won't this create a very small
-> timeframe where we could try to call input_report_switch() and
-> input_sync() on an unregistered input device ??
-> 
+Thanks
+Heiko
 
-Yes, this is fine. As long as input device was allocated with
-input_allocate_device() it can be used by input_report_*() and
-input_sync() even tough device may not be registered yet - the events
-will simply be dropped.
-
-Thanks.
-
--- 
-Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

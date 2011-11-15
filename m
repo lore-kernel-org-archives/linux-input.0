@@ -1,415 +1,388 @@
-From: <oskar.andero@sonyericsson.com>
-Subject: Re: [PATCH v3] input: add driver support for Sharp gp2ap002a00f
- proximity sensor
-Date: Tue, 15 Nov 2011 13:53:52 +0100
-Message-ID: <20111115125352.GA23767@caracas.corpusers.net>
-References: <1321349160-2931-1-git-send-email-oskar.andero@sonyericsson.com>
- <20111115094342.GD13157@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Add support for pressure sensitive buttons
+Date: Tue, 15 Nov 2011 15:27:42 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1111151523500.15187@pobox.suse.cz>
+References: <1321304314-17424-1-git-send-email-sean@mess.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20111115094342.GD13157@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jic23@cam.ac.uk" <jic23@cam.ac.uk>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "Cavin, Courtney" <Courtney.Cavin@sonyericsson.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:55747 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755870Ab1KOO1o (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Nov 2011 09:27:44 -0500
+In-Reply-To: <1321304314-17424-1-git-send-email-sean@mess.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sean Young <sean@mess.org>
+Cc: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, linux-input@vger.kernel.org
 
-On 10:43 Tue 15 Nov     , Dmitry Torokhov wrote:
-> On Tue, Nov 15, 2011 at 10:26:00AM +0100, oskar.andero@sonyericsson.com wrote:
-> > From: Courtney Cavin <courtney.cavin@sonyericsson.com>
-> > 
-> > Signed-off-by: Courtney Cavin <courtney.cavin@sonyericsson.com>
-> > Signed-off-by: Oskar Andero <oskar.andero@sonyericsson.com>
-> > ---
-> >  drivers/input/misc/Kconfig         |   10 ++
-> >  drivers/input/misc/Makefile        |    1 +
-> >  drivers/input/misc/gp2ap002a00f.c  |  300 ++++++++++++++++++++++++++++++++++++
-> >  include/linux/input/gp2ap002a00f.h |   22 +++
-> >  4 files changed, 333 insertions(+), 0 deletions(-)
-> >  create mode 100644 drivers/input/misc/gp2ap002a00f.c
-> >  create mode 100644 include/linux/input/gp2ap002a00f.h
-> > 
-> > diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> > index c9104bb..3c15c52 100644
-> > --- a/drivers/input/misc/Kconfig
-> > +++ b/drivers/input/misc/Kconfig
-> > @@ -527,4 +527,14 @@ config INPUT_XEN_KBDDEV_FRONTEND
-> >  	  To compile this driver as a module, choose M here: the
-> >  	  module will be called xen-kbdfront.
-> >  
-> > +config INPUT_GP2A
-> > +	tristate "Sharp GP2AP002A00F I2C Proximity/Opto sensor driver"
-> > +	depends on I2C
-> > +	help
-> > +	  Say Y here if you have a Sharp GP2AP002A00F proximity/als combo-chip
-> > +	  hooked to an I2C bus.
-> > +
-> > +	  To compile this driver as a module, choose M here: the
-> > +	  module will be called gp2ap002a00f.
-> > +
-> >  endif
-> > diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> > index 299ad5e..361cf49 100644
-> > --- a/drivers/input/misc/Makefile
-> > +++ b/drivers/input/misc/Makefile
-> > @@ -22,6 +22,7 @@ obj-$(CONFIG_INPUT_CMA3000)		+= cma3000_d0x.o
-> >  obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
-> >  obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
-> >  obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
-> > +obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
-> >  obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
-> >  obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
-> >  obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
-> > diff --git a/drivers/input/misc/gp2ap002a00f.c b/drivers/input/misc/gp2ap002a00f.c
-> > new file mode 100644
-> > index 0000000..73f866b
-> > --- /dev/null
-> > +++ b/drivers/input/misc/gp2ap002a00f.c
-> > @@ -0,0 +1,300 @@
-> > +/*
-> > + * Copyright (C) 2011 Sony Ericsson Mobile Communications Inc.
-> > + *
-> > + * Author: Courtney Cavin <courtney.cavin@sonyericsson.com>
-> > + * Prepared for up-stream by: Oskar Andero <oskar.andero@sonyericsson.com>
-> > + *
-> > + * This program is free software; you can redistribute it and/or modify
-> > + * it under the terms of the GNU General Public License version 2, as
-> > + * published by the Free Software Foundation.
-> > + */
-> > +
-> > +#include <linux/i2c.h>
-> > +#include <linux/irq.h>
-> > +#include <linux/slab.h>
-> > +#include <linux/input.h>
-> > +#include <linux/module.h>
-> > +#include <linux/interrupt.h>
-> > +#include <linux/gpio.h>
-> > +#include <linux/delay.h>
-> > +#include <linux/input/gp2ap002a00f.h>
-> > +
-> > +struct gp2a_data {
-> > +	struct input_dev *device;
-> > +	const struct gp2a_platform_data *pdata;
-> > +	struct i2c_client *i2c_client;
-> > +};
-> > +
-> > +enum gp2a_addr {
-> > +	GP2A_ADDR_PROX	= 0x0,
-> > +	GP2A_ADDR_GAIN	= 0x1,
-> > +	GP2A_ADDR_HYS	= 0x2,
-> > +	GP2A_ADDR_CYCLE	= 0x3,
-> > +	GP2A_ADDR_OPMOD	= 0x4,
-> > +	GP2A_ADDR_CON	= 0x6
-> > +};
-> > +
-> > +enum gp2a_controls {
-> > +	/* Software Shutdown control: 0 = shutdown, 1 = normal operation */
-> > +	GP2A_CTRL_SSD	= 0x01
-> > +};
-> > +
-> > +static int gp2a_enable(struct gp2a_data *dt)
-> > +{
-> > +	return i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_OPMOD,
-> > +					 GP2A_CTRL_SSD);
-> > +}
-> > +
-> > +static int gp2a_disable(struct gp2a_data *dt)
-> > +{
-> > +	return i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_OPMOD,
-> > +					 0x00);
-> > +}
-> > +
-> > +static int __devinit gp2a_initialize(struct gp2a_data *dt)
-> > +{
-> > +	int error;
-> > +
-> > +	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_GAIN,
-> > +					  0x08);
-> > +	if (error < 0)
-> > +		return error;
-> > +
-> > +	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_HYS,
-> > +					  0xc2);
-> > +	if (error < 0)
-> > +		return error;
-> > +
-> > +	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_CYCLE,
-> > +					  0x04);
-> > +	if (error < 0)
-> > +		return error;
-> > +
-> > +	error = gp2a_disable(dt);
-> > +
-> > +	return error;
-> > +}
-> > +
-> > +static int gp2a_report(struct gp2a_data *dt)
-> > +{
-> > +	int vo = gpio_get_value(dt->pdata->vout_gpio);
-> > +
-> > +	input_report_switch(dt->device, SW_FRONT_PROXIMITY, !vo);
-> > +	input_sync(dt->device);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static irqreturn_t gp2a_irq(int irq, void *handle)
-> > +{
-> > +	struct gp2a_data *dt = handle;
-> > +
-> > +	gp2a_report(dt);
-> > +
-> > +	return IRQ_HANDLED;
-> > +}
-> > +
-> > +static int gp2a_device_open(struct input_dev *dev)
-> > +{
-> > +	struct gp2a_data *dt = input_get_drvdata(dev);
-> > +	int error;
-> > +
-> > +	error = gp2a_enable(dt);
-> > +	if (error < 0) {
-> > +		dev_err(&dev->dev, "unable to activate, err %d\n", error);
-> > +		return error;
-> > +	}
-> > +
-> > +	gp2a_report(dt);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static void gp2a_device_close(struct input_dev *dev)
-> > +{
-> > +	struct gp2a_data *dt = input_get_drvdata(dev);
-> > +	int error;
-> > +
-> > +	error = gp2a_disable(dt);
-> > +	if (error < 0)
-> > +		dev_err(&dev->dev, "unable to deactivate, err %d\n", error);
-> > +}
-> > +
-> > +static int __devinit gp2a_probe(struct i2c_client *client,
-> > +				const struct i2c_device_id *id)
-> > +{
-> > +	const struct gp2a_platform_data *pdata;
-> > +	struct gp2a_data *dt;
-> > +	int error;
-> > +
-> > +	pdata = client->dev.platform_data;
-> > +	if (!pdata)
-> > +		return -EINVAL;
-> > +
-> > +	if (pdata->hw_setup) {
-> > +		error = pdata->hw_setup(client);
-> > +		if (error < 0)
-> > +			return error;
-> > +	}
-> > +
-> > +	error = gpio_direction_input(pdata->vout_gpio);
-> > +	if (error < 0)
-> > +		goto err_hw_shutdown;
-> > +
-> > +	dt = kzalloc(sizeof(struct gp2a_data), GFP_KERNEL);
-> > +	if (!dt) {
-> > +		error = -ENOMEM;
-> > +		goto err_hw_shutdown;
-> > +	}
-> > +
-> > +	dt->pdata = pdata;
-> > +	dt->i2c_client = client;
-> > +	i2c_set_clientdata(client, dt);
-> > +
-> > +	error = gp2a_initialize(dt);
-> > +	if (error < 0)
-> > +		goto err_free_mem;
-> > +
-> > +	dt->device = input_allocate_device();
-> > +	if (!dt->device) {
-> > +		error = -ENOMEM;
-> > +		goto err_free_mem;
-> > +	}
-> > +	input_set_drvdata(dt->device, dt);
-> > +
-> > +	dt->device->open = gp2a_device_open;
-> > +	dt->device->close = gp2a_device_close;
-> > +	dt->device->name = GP2A_I2C_NAME;
-> > +	dt->device->id.bustype = BUS_I2C;
-> > +
-> > +	input_set_capability(dt->device, EV_SW, SW_FRONT_PROXIMITY);
-> > +
-> > +	error = request_threaded_irq(client->irq, NULL,
-> > +			gp2a_irq, IRQF_TRIGGER_RISING |
-> > +			IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-> > +			GP2A_I2C_NAME, dt);
-> > +	if (error) {
-> > +		dev_err(&dt->device->dev, "irq request failed\n");
-> > +		goto err_free_input_dev;
-> > +	}
-> > +
-> > +	error = input_register_device(dt->device);
-> > +	if (error) {
-> > +		dev_err(&dt->device->dev, "device registration failed\n");
-> > +		input_free_device(dt->device);
+On Mon, 14 Nov 2011, Sean Young wrote:
+
+> This driver needs drvdata for each input device, but this has already
+> been used for storing a pointer to the hid device. The drvdata of the
+> hid device could be used if there was one for each input device, but
+> this is not so (HID_QUIRK_MULTI_INPUT with up to four ports). So I've
+> reused the private data of the forced feedback to store the data.
+
+First, thanks a lot for your patch. Please find a few comments below.
+
 > 
-> Here you end up trying to free input device twice.
-
-Of course! Thanks!
-
-> > +		goto err_free_irq;
-> > +	}
-> > +
-> > +	device_init_wakeup(&client->dev, pdata->wakeup);
-> > +
-> > +	return 0;
-> > +
-> > +err_free_irq:
-> > +	free_irq(client->irq, dt);
-> > +err_free_input_dev:
-> > +	input_free_device(dt->device);
-> > +err_free_mem:
-> > +	kfree(dt);
-> > +err_hw_shutdown:
-> > +	if (pdata->hw_shutdown)
-> > +		pdata->hw_shutdown(client);
-> > +	return error;
-> > +}
-> > +
-> > +static int __devexit gp2a_remove(struct i2c_client *client)
-> > +{
-> > +	struct gp2a_data *dt = i2c_get_clientdata(client);
-> > +
-> > +	device_init_wakeup(&client->dev, false);
-> > +
-> > +	free_irq(client->irq, dt);
-> > +	input_unregister_device(dt->device);
-> > +	if (dt->pdata->hw_shutdown)
-> > +		dt->pdata->hw_shutdown(client);
-> > +	kfree(dt);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +#ifdef CONFIG_PM_SLEEP
-> > +static int gp2a_suspend(struct device *dev)
-> > +{
-> > +	struct i2c_client *client = to_i2c_client(dev);
-> > +	struct gp2a_data *dt = i2c_get_clientdata(client);
-> > +	int error;
-> > +
-> > +	mutex_lock(&dt->device->mutex);
-> > +
-> > +	if (dt->device->users) {
-> > +		if (device_may_wakeup(&client->dev)) {
-> > +			enable_irq_wake(client->irq);
+> Signed-off-by: Sean Young <sean@mess.org>
+> ---
+>  drivers/hid/Kconfig        |    3 +-
+>  drivers/hid/hid-sjoy.c     |  221 +++++++++++++++++++++++++++++++++++++++++++-
+>  drivers/input/ff-memless.c |    8 ++
+>  include/linux/input.h      |    1 +
+>  4 files changed, 228 insertions(+), 5 deletions(-)
 > 
-> I think this part should happen regardless of whether device has users,
-> only non wakeup source case needs it.
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 4d07288..92b1e9c 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -549,8 +549,7 @@ config HID_SMARTJOYPLUS
+>  	Support for SmartJoy PLUS PS2/USB adapter, Super Dual Box,
+>  	Super Joy Box 3 Pro, Super Dual Box Pro, and Super Joy Box 5 Pro.
+>  
+> -	Note that DDR (Dance Dance Revolution) mode is not supported, nor
+> -	is pressure sensitive buttons on the pro models.
+> +	Note that DDR (Dance Dance Revolution) mode is not supported.
+>  
+>  config SMARTJOYPLUS_FF
+>  	bool "SmartJoy PLUS PS2/USB adapter force feedback support"
+> diff --git a/drivers/hid/hid-sjoy.c b/drivers/hid/hid-sjoy.c
+> index 670da91..b458470 100644
+> --- a/drivers/hid/hid-sjoy.c
+> +++ b/drivers/hid/hid-sjoy.c
+> @@ -35,8 +35,25 @@
+>  #ifdef CONFIG_SMARTJOYPLUS_FF
+>  #include "usbhid/usbhid.h"
+>  
+> +enum mode {
+> +	MODE_AUTO,
+> +	MODE_ANALOG,
+> +	MODE_DIGITAL,
+> +	MODE_PRESSURE
+> +};
+> +
+> +static const char * const mode_names[] = {
+> +	"auto", "analog", "digital", "pressure"
+> +};
+> +
+> +static const char * const button_names[] = {
+> +	"triangle", "circle", "cross", "square", "l1", "r1", "l2", "r2"
+> +};
+> +
+>  struct sjoyff_device {
+>  	struct hid_report *report;
+> +	enum mode mode;
+> +	int buttons[2];
+>  };
+>  
+>  static int hid_sjoyff_play(struct input_dev *dev, void *data,
+> @@ -53,14 +70,170 @@ static int hid_sjoyff_play(struct input_dev *dev, void *data,
+>  	left = left * 0xff / 0xffff;
+>  	right = (right != 0); /* on/off only */
+>  
+> +	sjoyff->report->field[0]->value[0] = 1;
+>  	sjoyff->report->field[0]->value[1] = right;
+>  	sjoyff->report->field[0]->value[2] = left;
 
-Hmm.. why would one want to enable irq_wake when there are no users?
-Wouldn't this cause the device to wakeup at every irq and report an
-switch event that no one listens to?
+General comment to the whole patch applicable on many other places as 
+well: it'd be nice if you could stick a short comment to the places which 
+contain magic contants mandated by the device protocol, so that anyone 
+else looking at the driver gets at least a basic idea why are individial 
+fields initialized the way they are.
 
-> > +		} else {
-> > +			error = gp2a_disable(dt);
-> > +			if (error < 0)
-> > +				return error;
-> > +		}
-> > +	}
-> > +
-> > +	mutex_unlock(&dt->device->mutex);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int gp2a_resume(struct device *dev)
-> > +{
-> > +	struct i2c_client *client = to_i2c_client(dev);
-> > +	struct gp2a_data *dt = i2c_get_clientdata(client);
-> > +	int error;
-> > +
-> > +	mutex_lock(&dt->device->mutex);
-> > +
-> > +	if (dt->device->users) {
-> > +		if (device_may_wakeup(&client->dev)) {
-> > +			disable_irq_wake(client->irq);
-> > +		} else {
-> > +			error = gp2a_enable(dt);
-> > +			if (error < 0)
-> > +				return error;
-> > +		}
-> > +	}
-> > +
-> > +	mutex_unlock(&dt->device->mutex);
-> > +
-> > +	return 0;
-> > +}
-> > +#endif
-> > +
-> > +static SIMPLE_DEV_PM_OPS(gp2a_pm, gp2a_suspend, gp2a_resume);
-> > +
-> > +static const struct i2c_device_id gp2a_i2c_id[] = {
-> > +	{ GP2A_I2C_NAME, 0 },
-> > +	{ }
-> > +};
-> > +
-> > +static struct i2c_driver gp2a_i2c_driver = {
-> > +	.driver = {
-> > +		.name	= GP2A_I2C_NAME,
-> > +		.owner	= THIS_MODULE,
-> > +		.pm	= &gp2a_pm
-> > +	},
-> > +	.probe		= gp2a_probe,
-> > +	.remove		= __devexit_p(gp2a_remove),
-> > +	.id_table	= gp2a_i2c_id
-> > +};
-> > +
-> > +static int __init gp2a_init(void)
-> > +{
-> > +	return i2c_add_driver(&gp2a_i2c_driver);
-> > +}
-> > +
-> > +static void __exit gp2a_exit(void)
-> > +{
-> > +	i2c_del_driver(&gp2a_i2c_driver);
-> > +}
-> > +
-> > +module_init(gp2a_init);
-> > +module_exit(gp2a_exit);
-> > +
-> > +MODULE_AUTHOR("Courtney Cavin <courtney.cavin@sonyericsson.com>");
-> > +MODULE_DESCRIPTION("Sharp GP2AP002A00F I2C Proximity/Opto sensor driver");
-> > +MODULE_LICENSE("GPL v2");
-> > diff --git a/include/linux/input/gp2ap002a00f.h b/include/linux/input/gp2ap002a00f.h
-> > new file mode 100644
-> > index 0000000..aad2fd4
-> > --- /dev/null
-> > +++ b/include/linux/input/gp2ap002a00f.h
-> > @@ -0,0 +1,22 @@
-> > +#ifndef _GP2AP002A00F_H_
-> > +#define _GP2AP002A00F_H_
-> > +
-> > +#include <linux/i2c.h>
-> > +
-> > +#define GP2A_I2C_NAME "gp2ap002a00f"
-> > +
-> > +/**
-> > + * struct gp2a_platform_data - Sharp gp2ap002a00f proximity platform data
-> > + * @vout_gpio: The gpio connected to the object detected pin (VOUT)
-> > + * @wakeup: Set to true if the proximity can wake the device from suspend
-> > + * @hw_setup: Callback for setting up hardware such as gpios and vregs
-> > + * @hw_shutdown: Callback for properly shutting down hardware
-> > + */
-> > +struct gp2a_platform_data {
-> > +	int vout_gpio;
-> > +	bool wakeup;
-> > +	int (*hw_setup)(struct i2c_client *client);
-> > +	int (*hw_shutdown)(struct i2c_client *client);
-> > +};
-> > +
-> > +#endif
-> > -- 
-> > 1.7.7
-> > 
+> -	dev_dbg(&dev->dev, "running with 0x%02x 0x%02x\n", left, right);
+> +	dev_dbg(&dev->dev, "port %u running with 0x%02x 0x%02x\n",
+> +					sjoyff->report->id, left, right);
+>  	usbhid_submit_report(hid, sjoyff->report, USB_DIR_OUT);
+>  
+>  	return 0;
+>  }
+>  
+> +static void hid_sjoy_set_buttons(struct device *dev)
+> +{
+> +	struct input_dev *idev = to_input_dev(dev);
+> +	struct sjoyff_device *sjoy = input_ff_get_data(idev);
+> +	struct hid_device *hid = input_get_drvdata(idev);
+> +	struct hid_report *report = sjoy->report;
+> +
+> +	report->field[0]->value[0] = 6;
+> +	report->field[0]->value[1] = sjoy->buttons[0] | (sjoy->buttons[1] << 4);
+> +	report->field[0]->value[2] = 1; /* if this field is 0, then pressure
+> +		buttons won't be reported as digital button presses any more */
 
--Oskar
+Please make this comment more compliant with the style we usually follow 
+in the kernel code.
+
+> +	report->field[0]->value[3] = 0;
+> +
+> +	usbhid_submit_report(hid, report, USB_DIR_OUT);
+> +}
+> +
+> +static void hid_sjoy_set_mode(struct device *dev, enum mode mode)
+> +{
+> +	struct input_dev *idev = to_input_dev(dev);
+> +	struct sjoyff_device *sjoy = input_ff_get_data(idev);
+> +	struct hid_device *hid = input_get_drvdata(idev);
+> +	struct hid_report *report = sjoy->report;
+> +
+> +	sjoy->mode = mode;
+> +
+> +	report->field[0]->value[0] = 3;
+> +
+> +	switch (mode) {
+> +	case MODE_AUTO:
+> +		report->field[0]->value[1] = 0;
+> +		report->field[0]->value[2] = 2;
+> +		report->field[0]->value[3] = 0;
+> +		break;
+> +	case MODE_ANALOG:
+> +		report->field[0]->value[1] = 1;
+> +		report->field[0]->value[2] = 3;
+> +		report->field[0]->value[3] = 0;
+> +		break;
+> +	case MODE_DIGITAL:
+> +		report->field[0]->value[1] = 0;
+> +		report->field[0]->value[2] = 3;
+> +		report->field[0]->value[3] = 0;
+> +		break;
+> +	case MODE_PRESSURE:
+> +		report->field[0]->value[1] = 1;
+> +		report->field[0]->value[2] = 3;
+> +		report->field[0]->value[3] = 1;
+> +		break;
+> +	}
+> +
+> +	dev_dbg(&hid->dev, "switching port %u mode to %s\n", report->id,
+> +							mode_names[mode]);
+> +	usbhid_submit_report(hid, report, USB_DIR_OUT);
+> +}
+> +
+> +static ssize_t store_mode(struct device *dev, struct device_attribute *attr,
+> +						const char *buf, size_t count)
+> +{
+> +	int i, rc = -EINVAL;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(mode_names); i++) {
+> +		if (sysfs_streq(mode_names[i], buf)) {
+> +			hid_sjoy_set_mode(dev, i);
+> +			rc = count;
+> +			break;
+> +		}
+> +	}
+> +
+> +	return rc;
+> +}
+> +
+> +#define store_button(button)	\
+> +static ssize_t store_button_##button(struct device *dev,		\
+> +		struct device_attribute *attr, const char *buf, size_t count) \
+> +{									      \
+> +	struct input_dev *idev = to_input_dev(dev);			      \
+> +	struct sjoyff_device *sjoy = input_ff_get_data(idev);		      \
+> +	struct hid_device *hid = input_get_drvdata(idev);		      \
+> +	int i, rc = -EINVAL;						      \
+> +									      \
+> +	for (i = 0; i < ARRAY_SIZE(button_names); i++) {		      \
+> +		if (sysfs_streq(button_names[i], buf)) {		      \
+> +			if (sjoy->buttons[!button] == i)		      \
+> +				break;					      \
+> +									      \
+> +			dev_dbg(&hid->dev, "port %u pressure button %d: %s\n",\
+> +				sjoy->report->id, button, button_names[i]);   \
+> +			sjoy->buttons[button] = i;			      \
+> +			hid_sjoy_set_buttons(dev);			      \
+> +			rc = count;					      \
+> +			break;						      \
+> +		}							      \
+> +	}								      \
+> +									      \
+> +	return rc;							      \
+> +}									      \
+> +									      \
+> +static ssize_t show_button_##button(struct device *dev,			      \
+> +				struct device_attribute *attr, char *buf)     \
+> +{									      \
+> +	struct input_dev *idev = to_input_dev(dev);			      \
+> +	struct sjoyff_device *sjoy = input_ff_get_data(idev);		      \
+> +									      \
+> +	return snprintf(buf, PAGE_SIZE, "%s\n",				      \
+> +				button_names[sjoy->buttons[button]]);	      \
+> +}
+> +
+> +store_button(0);
+> +store_button(1);
+> +
+> +static ssize_t show_mode(struct device *dev, struct device_attribute *attr,
+> +								char *buf)
+> +{
+> +	struct input_dev *idev = to_input_dev(dev);
+> +	struct sjoyff_device *sjoy = input_ff_get_data(idev);
+> +
+> +	return snprintf(buf, PAGE_SIZE, "%s\n", mode_names[sjoy->mode]);
+> +}
+> +
+> +static ssize_t show_modes(struct device *dev, struct device_attribute *attr,
+> +								char *buf)
+> +{
+> +	return snprintf(buf, PAGE_SIZE, "%s\n", "auto analog digital pressure");
+> +}
+> +
+> +static ssize_t show_buttons(struct device *dev, struct device_attribute *attr,
+> +								char *buf)
+> +{
+> +	return snprintf(buf, PAGE_SIZE, "%s\n",
+> +		"triangle circle cross square l1 r1 l2 r2");
+> +}
+> +
+> +static DEVICE_ATTR(pressure_button_0, S_IRUGO | S_IWUSR | S_IWGRP,
+> +						show_button_0, store_button_0);
+> +static DEVICE_ATTR(pressure_button_1, S_IRUGO | S_IWUSR | S_IWGRP,
+> +						show_button_1, store_button_1);
+> +static DEVICE_ATTR(available_pressure_buttons, S_IRUGO, show_buttons, NULL);
+> +static DEVICE_ATTR(controller_mode, S_IRUGO | S_IWUSR | S_IWGRP, show_mode,
+> +							store_mode);
+> +static DEVICE_ATTR(available_controller_modes, S_IRUGO, show_modes, NULL);
+
+You are adding sysfs attributes, so you need to document those in 
+Documentation/ABI
+
+> +
+> +static struct attribute *sysfs_attrs[] = {
+> +	&dev_attr_controller_mode.attr,
+> +	&dev_attr_available_controller_modes.attr,
+> +	&dev_attr_pressure_button_0.attr,
+> +	&dev_attr_pressure_button_1.attr,
+> +	&dev_attr_available_pressure_buttons.attr,
+> +	NULL
+> +};
+> +
+> +static struct attribute_group sjoy_attribute_group = {
+> +	.attrs = sysfs_attrs
+> +};
+> +
+>  static int sjoyff_init(struct hid_device *hid)
+>  {
+>  	struct sjoyff_device *sjoyff;
+> @@ -115,17 +288,57 @@ static int sjoyff_init(struct hid_device *hid)
+>  		sjoyff->report->field[0]->value[1] = 0x00;
+>  		sjoyff->report->field[0]->value[2] = 0x00;
+>  		usbhid_submit_report(hid, sjoyff->report, USB_DIR_OUT);
+> +
+> +		/*
+> +		 * Only the pro models support changing mode, and the
+> +		 * same devices also have the noget quirk.
+> +		 */
+> +		if (!(hid->quirks & HID_QUIRK_NOGET))
+> +			continue;
+> +
+> +		if (report->field[0]->report_count < 4) {
+> +			hid_err(hid, "not enough values in the field\n");
+> +			continue;
+> +		}
+> +
+> +		hid_sjoy_set_mode(&dev->dev, MODE_AUTO);
+> +
+> +		sjoyff->buttons[0] = 2; /* cross */
+> +		sjoyff->buttons[1] = 3; /* square */
+> +
+> +		hid_sjoy_set_buttons(&dev->dev);
+> +
+> +		error = sysfs_create_group(&dev->dev.kobj,
+> +							&sjoy_attribute_group);
+> +		if (error)
+> +			hid_warn(hid, "failed to create sysfs attributes: %d\n",
+> +									error);
+>  	}
+>  
+>  	hid_info(hid, "Force feedback for SmartJoy PLUS PS2/USB adapter\n");
+>  
+>  	return 0;
+>  }
+> +
+> +static void sjoy_remove(struct hid_device *hid)
+> +{
+> +	struct hid_input *hidinput;
+> +	struct input_dev *dev;
+> +
+> +	list_for_each_entry(hidinput, &hid->inputs, list) {
+> +		dev = hidinput->input;
+> +		sysfs_remove_group(&dev->dev.kobj, &sjoy_attribute_group);
+> +	}
+> +
+> +	hid_hw_stop(hid);
+> +}
+>  #else
+>  static inline int sjoyff_init(struct hid_device *hid)
+>  {
+>  	return 0;
+>  }
+> +
+> +#define sjoy_remove NULL
+>  #endif
+>  
+>  static int sjoy_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> @@ -154,7 +367,8 @@ err:
+>  }
+>  
+>  static const struct hid_device_id sjoy_devices[] = {
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_JOY_BOX_3_PRO) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_JOY_BOX_3_PRO),
+> +		.driver_data = HID_QUIRK_NOGET },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_DUAL_BOX_PRO),
+>  		.driver_data = HID_QUIRK_MULTI_INPUT | HID_QUIRK_NOGET |
+>  			       HID_QUIRK_SKIP_OUTPUT_REPORTS },
+> @@ -163,7 +377,7 @@ static const struct hid_device_id sjoy_devices[] = {
+>  			       HID_QUIRK_SKIP_OUTPUT_REPORTS },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD),
+> -		.driver_data = HID_QUIRK_MULTI_INPUT | HID_QUIRK_NOGET |
+> +		.driver_data = HID_QUIRK_MULTI_INPUT |
+>  			       HID_QUIRK_SKIP_OUTPUT_REPORTS },
+>  	{ }
+>  };
+> @@ -173,6 +387,7 @@ static struct hid_driver sjoy_driver = {
+>  	.name = "smartjoyplus",
+>  	.id_table = sjoy_devices,
+>  	.probe = sjoy_probe,
+> +	.remove = sjoy_remove
+>  };
+>  
+>  static int __init sjoy_init(void)
+> diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+> index 117a59a..42c83a5 100644
+> --- a/drivers/input/ff-memless.c
+> +++ b/drivers/input/ff-memless.c
+> @@ -544,3 +544,11 @@ int input_ff_create_memless(struct input_dev *dev, void *data,
+>  	return 0;
+>  }
+>  EXPORT_SYMBOL_GPL(input_ff_create_memless);
+> +
+> +void *input_ff_get_data(struct input_dev *input)
+> +{
+> +	struct ml_device *ml = input->ff->private;
+> +
+> +	return ml->private;
+> +}
+> +EXPORT_SYMBOL_GPL(input_ff_get_data);
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index 771d6d8..d7a1ce2 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -1617,6 +1617,7 @@ int input_ff_erase(struct input_dev *dev, int effect_id, struct file *file);
+>  
+>  int input_ff_create_memless(struct input_dev *dev, void *data,
+>  		int (*play_effect)(struct input_dev *, void *, struct ff_effect *));
+> +void *input_ff_get_data(struct input_dev *dev);
+>  
+>  #endif
+>  #endif
+> -- 
+> 1.7.7.1
+> 
+
+-- 
+Jiri Kosina
+SUSE Labs

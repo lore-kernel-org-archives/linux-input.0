@@ -1,58 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] input: add driver support for Sharp gp2ap002a00f
- proximity sensor
-Date: Tue, 15 Nov 2011 10:29:10 -0800
-Message-ID: <20111115182909.GB6410@core.coreip.homeip.net>
-References: <1321349160-2931-1-git-send-email-oskar.andero@sonyericsson.com>
- <20111115094342.GD13157@core.coreip.homeip.net>
- <20111115125352.GA23767@caracas.corpusers.net>
+From: Nuno Santos <nsantos@edigma.com>
+Subject: Re: Interacting with a input kernel driver from user space
+Date: Tue, 15 Nov 2011 18:41:53 +0000
+Message-ID: <4EC2B271.90209@edigma.com>
+References: <4EC10878.20109@edigma.com> <CANq1E4SVHvkaPqOR2Mfm7e-74yenvvkEoZz1MPkCHEh-dwSveg@mail.gmail.com> <4EC15CD1.2010409@edigma.com> <201111141057.42310.dmitry.torokhov@gmail.com> <4EC23252.8030003@edigma.com> <20111115182331.GA6410@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:56951 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757150Ab1KOS3T (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Nov 2011 13:29:19 -0500
-Content-Disposition: inline
-In-Reply-To: <20111115125352.GA23767@caracas.corpusers.net>
+Received: from mx01.edigma.com ([195.22.21.235]:47168 "EHLO mx01.edigma.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752286Ab1KOSl7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Nov 2011 13:41:59 -0500
+In-Reply-To: <20111115182331.GA6410@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: oskar.andero@sonyericsson.com
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jic23@cam.ac.uk" <jic23@cam.ac.uk>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "Cavin, Courtney" <Courtney.Cavin@sonyericsson.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Nov 15, 2011 at 01:53:52PM +0100, oskar.andero@sonyericsson.com wrote:
-> On 10:43 Tue 15 Nov     , Dmitry Torokhov wrote:
-> > On Tue, Nov 15, 2011 at 10:26:00AM +0100, oskar.andero@sonyericsson.com wrote:
-> > > From: Courtney Cavin <courtney.cavin@sonyericsson.com>
-> > > +
-> > > +#ifdef CONFIG_PM_SLEEP
-> > > +static int gp2a_suspend(struct device *dev)
-> > > +{
-> > > +	struct i2c_client *client = to_i2c_client(dev);
-> > > +	struct gp2a_data *dt = i2c_get_clientdata(client);
-> > > +	int error;
-> > > +
-> > > +	mutex_lock(&dt->device->mutex);
-> > > +
-> > > +	if (dt->device->users) {
-> > > +		if (device_may_wakeup(&client->dev)) {
-> > > +			enable_irq_wake(client->irq);
-> > 
-> > I think this part should happen regardless of whether device has users,
-> > only non wakeup source case needs it.
-> 
-> Hmm.. why would one want to enable irq_wake when there are no users?
-> Wouldn't this cause the device to wakeup at every irq and report an
-> switch event that no one listens to?
+Generally we restrict access to sysfs attributes to root since they
+control behavior for all users, not only one why is changin sysfs
+attribute.
 
-You are suspending the system and want to have this device as a wakeup
-source. Note: not wake up _device_ at every IRQ but wake up the whole
-_system_ when device generates an IRQ while system is asleep.
-It does not matter whether there are users for the events; you
-want the system to wake up.
 
-At least this is the usual semantics.
+Hummm... that leads me to a question. How can I make use of such attributes inside an application without having root access? Imagine that I open the control panel of the device in a user account, the contol panel itself will not have access to the attributes and it will not work. How do I overcome this problem?
 
--- 
-Dmitry
+Imagine that my device is a soundcard and it has a beautifull control panel to control non general parameters. What would be the interface used by the control panel to access the kernel driver and modify the soundcard parameters?
+
+
+BTW, please use "reply-all" on linux kernel mailing lists - it is most
+preferred method. This way you ensure faster responses from people who
+already participating in the thread as I scan my inbox is much more
+often than folder where I save linux-input mails.
+
+:) I noticed that all of you were replying that way but couldn't understand why. Thanks.
+
+Regards,
+
+Nuno
+

@@ -1,68 +1,41 @@
-From: Nuno Santos <nsantos@edigma.com>
-Subject: Re: Interacting with a input kernel driver from user space
-Date: Tue, 15 Nov 2011 10:40:11 +0000
-Message-ID: <4EC2418B.9010706@edigma.com>
-References: <4EC10878.20109@edigma.com> <CANq1E4SZnv0yNbmKqV-my3wanKGe4R4UW6_=z-awO6ci14xyRA@mail.gmail.com> <4EC13B0F.2080509@edigma.com> <CANq1E4SMr1HWXSV3Fc6mB8oCWEJv63i_QZFQLMYCBqCdYsDZxA@mail.gmail.com> <4EC1427D.2090703@edigma.com> <20111114171300.GB12659@core.coreip.homeip.net> <20111115103225.GA8074@polaris.bitmath.org>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [PATCH] Input: ad7879 - consolidate PM methods
+Date: Tue, 15 Nov 2011 11:41:15 +0000
+Message-ID: <544AC56F16B56944AEC3BD4E3D59177146E77CA17B@LIMKCMBX1.ad.analog.com>
+References: <1321258891-10398-1-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx01.edigma.com ([195.22.21.235]:56756 "EHLO mx01.edigma.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754927Ab1KOKkR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Nov 2011 05:40:17 -0500
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mx01.edigma.com (Postfix) with ESMTP id 3D0913761911
-	for <linux-input@vger.kernel.org>; Tue, 15 Nov 2011 10:40:15 +0000 (WET)
-Received: from mx01.edigma.com ([127.0.0.1])
-	by localhost (mx01.edigma.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KUqtmLBkFwI0 for <linux-input@vger.kernel.org>;
-	Tue, 15 Nov 2011 10:40:15 +0000 (WET)
-Received: from [192.168.3.103] (unknown [62.28.174.82])
-	by mx01.edigma.com (Postfix) with ESMTPSA id B9EEF3761903
-	for <linux-input@vger.kernel.org>; Tue, 15 Nov 2011 10:40:14 +0000 (WET)
-In-Reply-To: <20111115103225.GA8074@polaris.bitmath.org>
+Received: from ch1ehsobe005.messaging.microsoft.com ([216.32.181.185]:50714
+	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755103Ab1KOLlY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Nov 2011 06:41:24 -0500
+In-Reply-To: <1321258891-10398-1-git-send-email-dmitry.torokhov@gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
 
-But my device isn't an HID device. My device is a vendor specific device:
+Dmitry Torokhov wrote on 2011-11-14:
+> The PM methods are basically the same for SPI and I2C busses, so let's
+> use the same dev_pm_ops for both of them.
+>
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-bNumEndpoints           2
-       bInterfaceClass       255 Vendor Specific Class
-       bInterfaceSubClass    255 Vendor Specific Subclass
-       bInterfaceProtocol    255 Vendor Specific Protocol
-       iInterface              0
-       Endpoint Descriptor:
-         bLength                 7
-         bDescriptorType         5
-         bEndpointAddress     0x86  EP 6 IN
-         bmAttributes            2
-           Transfer Type            Bulk
-           Synch Type               None
-           Usage Type               Data
-         wMaxPacketSize     0x0200  1x 512 bytes
-         bInterval               0
-       Endpoint Descriptor:
-         bLength                 7
-         bDescriptorType         5
-         bEndpointAddress     0x02  EP 2 OUT
-         bmAttributes            2
-           Transfer Type            Bulk
-           Synch Type               None
-           Usage Type               Data
-         wMaxPacketSize     0x0200  1x 512 bytes
-         bInterval               0
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
 
+> ---
+>  drivers/input/touchscreen/ad7879-i2c.c |   26 +-----------------------
 
-I need bulk transfers for data in and out.
+Greetings,
+Michael
 
 --
-
-Right. Unless we are talking about haptic feedback or leds, information 
-really flows one way, so there should be no reason to send anything back 
-to the kernel. For detected but anonymous touches, we have MT protocol A 
-in the input subsystem. If your raw data does not even contain detected 
-touches, I would try hidraw, as Dmitry suggested. Thanks, Henrik
+Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
+Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin, Margaret Seif
 
 

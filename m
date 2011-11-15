@@ -1,398 +1,78 @@
-From: <oskar.andero@sonyericsson.com>
-Subject: [PATCH v3] input: add driver support for Sharp gp2ap002a00f proximity sensor
-Date: Tue, 15 Nov 2011 10:26:00 +0100
-Message-ID: <1321349160-2931-1-git-send-email-oskar.andero@sonyericsson.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] edt_ts: EDT Touchscreen driver
+Date: Tue, 15 Nov 2011 01:30:14 -0800
+Message-ID: <20111115093013.GC13157@core.coreip.homeip.net>
+References: <1320795279-2018-1-git-send-email-yanok@emcraft.com>
+ <20111114172809.GD12659@core.coreip.homeip.net>
+ <4EC1832D.3080405@emcraft.com>
+ <20111114213241.GA26418@core.coreip.homeip.net>
+ <20111115101715.7b330e1d@wker>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:19641 "EHLO
-	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754059Ab1KOJZL (ORCPT
+Received: from mail-pz0-f42.google.com ([209.85.210.42]:36495 "EHLO
+	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754378Ab1KOJaU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Nov 2011 04:25:11 -0500
+	Tue, 15 Nov 2011 04:30:20 -0500
+Received: by pzk36 with SMTP id 36so14943701pzk.1
+        for <linux-input@vger.kernel.org>; Tue, 15 Nov 2011 01:30:19 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20111115101715.7b330e1d@wker>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jic23@cam.ac.uk, aghayal@codeaurora.org, Courtney Cavin <courtney.cavin@sonyericsson.com>, Oskar Andero <oskar.andero@sonyericsson.com>
+To: Anatolij Gustschin <agust@denx.de>
+Cc: Ilya Yanok <yanok@emcraft.com>, linux-input@vger.kernel.org, wd@denx.de, dzu@denx.de, sasha_d@emcraft.com
 
-From: Courtney Cavin <courtney.cavin@sonyericsson.com>
+On Tue, Nov 15, 2011 at 10:17:15AM +0100, Anatolij Gustschin wrote:
+> Hi Dmitry,
+> 
+> On Mon, 14 Nov 2011 13:32:42 -0800
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> 
+> > On Tue, Nov 15, 2011 at 01:07:57AM +0400, Ilya Yanok wrote:
+> > > Hi Dmitry,
+> > > 
+> > > On 14.11.2011 21:28, Dmitry Torokhov wrote:
+> > > >> +	irq = gpio_to_irq(pdata->irq_gpio);
+> > > >> +	if (irq < 0) {
+> > > >> +		dev_err(&client->dev, "can't get IRQ for GPIO\n");
+> > > >> +		error = -EINVAL;
+> > > >> +		goto err0;
+> > > >> +	}
+> > > > 
+> > > > Why can't we use client->irq?
+> > > 
+> > > Well, my idea was to avoid duplication (passing both GPIO and IRQ
+> > > numbers) and I can't pass only client->irq as we need GPIO number also
+> > > and irq_to_gpio is not guaranteed to work with arbitrary IRQ number.
+> > 
+> > Do you really need to read gpio state in IRQ? Can't you simply rely on
+> > 'event' do decide whether to emit input events?
+> 
+> We can't rely on the 'event' only. The peculiar behaviour of the
+> touch controller enforces this. The touch controller toggles the
+> interrupt line when you keep the finger down. The rate is not exactly
+> specified by the the manufacturer (~80/sec). Measured rate deviates
+> from this specified rate. Valid touch packet data can be read when
+> interrupt line is pulled down. The designer of the target device
+> insisted on driver implementation reading touch packet data only
+> when irq line is pulled down.
+> 
+> > Also:
+> > 
+> > - please do not report fake pressure events since the device does
+> > not seem to support true pressure reading (tslib has been fixed ages
+> > ago).
+> 
+> Many projects still use tslib-1.0 (e.g. distributions based on
+> recent yoctoproject releases). Removing pressure event reporting
+> will certainly break touch screen support there.
 
-Signed-off-by: Courtney Cavin <courtney.cavin@sonyericsson.com>
-Signed-off-by: Oskar Andero <oskar.andero@sonyericsson.com>
----
- drivers/input/misc/Kconfig         |   10 ++
- drivers/input/misc/Makefile        |    1 +
- drivers/input/misc/gp2ap002a00f.c  |  300 ++++++++++++++++++++++++++++++++++++
- include/linux/input/gp2ap002a00f.h |   22 +++
- 4 files changed, 333 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/gp2ap002a00f.c
- create mode 100644 include/linux/input/gp2ap002a00f.h
+Then I recommend notifying yoctoproject that they need to update tslib
+to something not so ancient.
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index c9104bb..3c15c52 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -527,4 +527,14 @@ config INPUT_XEN_KBDDEV_FRONTEND
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called xen-kbdfront.
- 
-+config INPUT_GP2A
-+	tristate "Sharp GP2AP002A00F I2C Proximity/Opto sensor driver"
-+	depends on I2C
-+	help
-+	  Say Y here if you have a Sharp GP2AP002A00F proximity/als combo-chip
-+	  hooked to an I2C bus.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called gp2ap002a00f.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 299ad5e..361cf49 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -22,6 +22,7 @@ obj-$(CONFIG_INPUT_CMA3000)		+= cma3000_d0x.o
- obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
- obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
- obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
-+obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
- obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
- obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
- obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
-diff --git a/drivers/input/misc/gp2ap002a00f.c b/drivers/input/misc/gp2ap002a00f.c
-new file mode 100644
-index 0000000..73f866b
---- /dev/null
-+++ b/drivers/input/misc/gp2ap002a00f.c
-@@ -0,0 +1,300 @@
-+/*
-+ * Copyright (C) 2011 Sony Ericsson Mobile Communications Inc.
-+ *
-+ * Author: Courtney Cavin <courtney.cavin@sonyericsson.com>
-+ * Prepared for up-stream by: Oskar Andero <oskar.andero@sonyericsson.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2, as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/irq.h>
-+#include <linux/slab.h>
-+#include <linux/input.h>
-+#include <linux/module.h>
-+#include <linux/interrupt.h>
-+#include <linux/gpio.h>
-+#include <linux/delay.h>
-+#include <linux/input/gp2ap002a00f.h>
-+
-+struct gp2a_data {
-+	struct input_dev *device;
-+	const struct gp2a_platform_data *pdata;
-+	struct i2c_client *i2c_client;
-+};
-+
-+enum gp2a_addr {
-+	GP2A_ADDR_PROX	= 0x0,
-+	GP2A_ADDR_GAIN	= 0x1,
-+	GP2A_ADDR_HYS	= 0x2,
-+	GP2A_ADDR_CYCLE	= 0x3,
-+	GP2A_ADDR_OPMOD	= 0x4,
-+	GP2A_ADDR_CON	= 0x6
-+};
-+
-+enum gp2a_controls {
-+	/* Software Shutdown control: 0 = shutdown, 1 = normal operation */
-+	GP2A_CTRL_SSD	= 0x01
-+};
-+
-+static int gp2a_enable(struct gp2a_data *dt)
-+{
-+	return i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_OPMOD,
-+					 GP2A_CTRL_SSD);
-+}
-+
-+static int gp2a_disable(struct gp2a_data *dt)
-+{
-+	return i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_OPMOD,
-+					 0x00);
-+}
-+
-+static int __devinit gp2a_initialize(struct gp2a_data *dt)
-+{
-+	int error;
-+
-+	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_GAIN,
-+					  0x08);
-+	if (error < 0)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_HYS,
-+					  0xc2);
-+	if (error < 0)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_CYCLE,
-+					  0x04);
-+	if (error < 0)
-+		return error;
-+
-+	error = gp2a_disable(dt);
-+
-+	return error;
-+}
-+
-+static int gp2a_report(struct gp2a_data *dt)
-+{
-+	int vo = gpio_get_value(dt->pdata->vout_gpio);
-+
-+	input_report_switch(dt->device, SW_FRONT_PROXIMITY, !vo);
-+	input_sync(dt->device);
-+
-+	return 0;
-+}
-+
-+static irqreturn_t gp2a_irq(int irq, void *handle)
-+{
-+	struct gp2a_data *dt = handle;
-+
-+	gp2a_report(dt);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int gp2a_device_open(struct input_dev *dev)
-+{
-+	struct gp2a_data *dt = input_get_drvdata(dev);
-+	int error;
-+
-+	error = gp2a_enable(dt);
-+	if (error < 0) {
-+		dev_err(&dev->dev, "unable to activate, err %d\n", error);
-+		return error;
-+	}
-+
-+	gp2a_report(dt);
-+
-+	return 0;
-+}
-+
-+static void gp2a_device_close(struct input_dev *dev)
-+{
-+	struct gp2a_data *dt = input_get_drvdata(dev);
-+	int error;
-+
-+	error = gp2a_disable(dt);
-+	if (error < 0)
-+		dev_err(&dev->dev, "unable to deactivate, err %d\n", error);
-+}
-+
-+static int __devinit gp2a_probe(struct i2c_client *client,
-+				const struct i2c_device_id *id)
-+{
-+	const struct gp2a_platform_data *pdata;
-+	struct gp2a_data *dt;
-+	int error;
-+
-+	pdata = client->dev.platform_data;
-+	if (!pdata)
-+		return -EINVAL;
-+
-+	if (pdata->hw_setup) {
-+		error = pdata->hw_setup(client);
-+		if (error < 0)
-+			return error;
-+	}
-+
-+	error = gpio_direction_input(pdata->vout_gpio);
-+	if (error < 0)
-+		goto err_hw_shutdown;
-+
-+	dt = kzalloc(sizeof(struct gp2a_data), GFP_KERNEL);
-+	if (!dt) {
-+		error = -ENOMEM;
-+		goto err_hw_shutdown;
-+	}
-+
-+	dt->pdata = pdata;
-+	dt->i2c_client = client;
-+	i2c_set_clientdata(client, dt);
-+
-+	error = gp2a_initialize(dt);
-+	if (error < 0)
-+		goto err_free_mem;
-+
-+	dt->device = input_allocate_device();
-+	if (!dt->device) {
-+		error = -ENOMEM;
-+		goto err_free_mem;
-+	}
-+	input_set_drvdata(dt->device, dt);
-+
-+	dt->device->open = gp2a_device_open;
-+	dt->device->close = gp2a_device_close;
-+	dt->device->name = GP2A_I2C_NAME;
-+	dt->device->id.bustype = BUS_I2C;
-+
-+	input_set_capability(dt->device, EV_SW, SW_FRONT_PROXIMITY);
-+
-+	error = request_threaded_irq(client->irq, NULL,
-+			gp2a_irq, IRQF_TRIGGER_RISING |
-+			IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-+			GP2A_I2C_NAME, dt);
-+	if (error) {
-+		dev_err(&dt->device->dev, "irq request failed\n");
-+		goto err_free_input_dev;
-+	}
-+
-+	error = input_register_device(dt->device);
-+	if (error) {
-+		dev_err(&dt->device->dev, "device registration failed\n");
-+		input_free_device(dt->device);
-+		goto err_free_irq;
-+	}
-+
-+	device_init_wakeup(&client->dev, pdata->wakeup);
-+
-+	return 0;
-+
-+err_free_irq:
-+	free_irq(client->irq, dt);
-+err_free_input_dev:
-+	input_free_device(dt->device);
-+err_free_mem:
-+	kfree(dt);
-+err_hw_shutdown:
-+	if (pdata->hw_shutdown)
-+		pdata->hw_shutdown(client);
-+	return error;
-+}
-+
-+static int __devexit gp2a_remove(struct i2c_client *client)
-+{
-+	struct gp2a_data *dt = i2c_get_clientdata(client);
-+
-+	device_init_wakeup(&client->dev, false);
-+
-+	free_irq(client->irq, dt);
-+	input_unregister_device(dt->device);
-+	if (dt->pdata->hw_shutdown)
-+		dt->pdata->hw_shutdown(client);
-+	kfree(dt);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int gp2a_suspend(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct gp2a_data *dt = i2c_get_clientdata(client);
-+	int error;
-+
-+	mutex_lock(&dt->device->mutex);
-+
-+	if (dt->device->users) {
-+		if (device_may_wakeup(&client->dev)) {
-+			enable_irq_wake(client->irq);
-+		} else {
-+			error = gp2a_disable(dt);
-+			if (error < 0)
-+				return error;
-+		}
-+	}
-+
-+	mutex_unlock(&dt->device->mutex);
-+
-+	return 0;
-+}
-+
-+static int gp2a_resume(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct gp2a_data *dt = i2c_get_clientdata(client);
-+	int error;
-+
-+	mutex_lock(&dt->device->mutex);
-+
-+	if (dt->device->users) {
-+		if (device_may_wakeup(&client->dev)) {
-+			disable_irq_wake(client->irq);
-+		} else {
-+			error = gp2a_enable(dt);
-+			if (error < 0)
-+				return error;
-+		}
-+	}
-+
-+	mutex_unlock(&dt->device->mutex);
-+
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(gp2a_pm, gp2a_suspend, gp2a_resume);
-+
-+static const struct i2c_device_id gp2a_i2c_id[] = {
-+	{ GP2A_I2C_NAME, 0 },
-+	{ }
-+};
-+
-+static struct i2c_driver gp2a_i2c_driver = {
-+	.driver = {
-+		.name	= GP2A_I2C_NAME,
-+		.owner	= THIS_MODULE,
-+		.pm	= &gp2a_pm
-+	},
-+	.probe		= gp2a_probe,
-+	.remove		= __devexit_p(gp2a_remove),
-+	.id_table	= gp2a_i2c_id
-+};
-+
-+static int __init gp2a_init(void)
-+{
-+	return i2c_add_driver(&gp2a_i2c_driver);
-+}
-+
-+static void __exit gp2a_exit(void)
-+{
-+	i2c_del_driver(&gp2a_i2c_driver);
-+}
-+
-+module_init(gp2a_init);
-+module_exit(gp2a_exit);
-+
-+MODULE_AUTHOR("Courtney Cavin <courtney.cavin@sonyericsson.com>");
-+MODULE_DESCRIPTION("Sharp GP2AP002A00F I2C Proximity/Opto sensor driver");
-+MODULE_LICENSE("GPL v2");
-diff --git a/include/linux/input/gp2ap002a00f.h b/include/linux/input/gp2ap002a00f.h
-new file mode 100644
-index 0000000..aad2fd4
---- /dev/null
-+++ b/include/linux/input/gp2ap002a00f.h
-@@ -0,0 +1,22 @@
-+#ifndef _GP2AP002A00F_H_
-+#define _GP2AP002A00F_H_
-+
-+#include <linux/i2c.h>
-+
-+#define GP2A_I2C_NAME "gp2ap002a00f"
-+
-+/**
-+ * struct gp2a_platform_data - Sharp gp2ap002a00f proximity platform data
-+ * @vout_gpio: The gpio connected to the object detected pin (VOUT)
-+ * @wakeup: Set to true if the proximity can wake the device from suspend
-+ * @hw_setup: Callback for setting up hardware such as gpios and vregs
-+ * @hw_shutdown: Callback for properly shutting down hardware
-+ */
-+struct gp2a_platform_data {
-+	int vout_gpio;
-+	bool wakeup;
-+	int (*hw_setup)(struct i2c_client *client);
-+	int (*hw_shutdown)(struct i2c_client *client);
-+};
-+
-+#endif
+Thanks.
+
 -- 
-1.7.7
-
+Dmitry

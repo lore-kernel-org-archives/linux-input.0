@@ -1,18 +1,18 @@
 From: <oskar.andero@sonyericsson.com>
 Subject: Re: [PATCH v2] input: add driver support for Sharp gp2ap002a00f
  proximity sensor
-Date: Tue, 15 Nov 2011 08:34:00 +0100
-Message-ID: <20111115073400.GD9307@caracas.corpusers.net>
+Date: Tue, 15 Nov 2011 08:56:29 +0100
+Message-ID: <20111115075629.GE9307@caracas.corpusers.net>
 References: <1321285158-7123-1-git-send-email-oskar.andero@sonyericsson.com>
  <20111114170352.GA12659@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:5897 "EHLO
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:11279 "EHLO
 	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752695Ab1KOHdJ (ORCPT
+	by vger.kernel.org with ESMTP id S1752857Ab1KOHzh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Nov 2011 02:33:09 -0500
+	Tue, 15 Nov 2011 02:55:37 -0500
 Content-Disposition: inline
 In-Reply-To: <20111114170352.GA12659@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
@@ -20,7 +20,9 @@ List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jic23@cam.ac.uk" <jic23@cam.ac.uk>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "Cavin, Courtney" <Courtney.Cavin@sonyericsson.com>
 
-Hi Dmitry,
+Hi again Dmitry,
+
+Just a quick question before I post v3.
 
 On 18:03 Mon 14 Nov     , Dmitry Torokhov wrote:
 > Hi Courtney,
@@ -108,9 +110,7 @@ On 18:03 Mon 14 Nov     , Dmitry Torokhov wrote:
 > > +	input_report_key(dt->device, SW_FRONT_PROXIMITY, !vo);
 > 
 > Switch is not a key, so please use input_report_switch().
-
-Ok. Agreed.
-
+> 
 > > +	input_sync(dt->device);
 > > +
 > > +	return 0;
@@ -202,9 +202,7 @@ Ok. Agreed.
 > 
 > You are leaking dt->device here. Please add a separate label for
 > input_free_device(dt->device).
-
-Yes, you are right.
-
+> 
 > > +		goto err_free_dt;
 > > +	}
 > > +
@@ -225,150 +223,38 @@ Yes, you are right.
 > 
 > If you swap request_threaded_irq() and input_register_device() so that
 > registration is the last action error handling will be much simpler.
+>
 
-Sure. I'll look in to it.
+I am getting a bit confused here, since you asked me to swap the order
+of request_threaded_irq() and input_register_device() in my previous
+version as well. Swapping again will take us back to square one or maybe
+I am misinterpreting your comment?
 
-> > +		goto err_free_irq;
-> > +	}
-> > +
-> > +	device_init_wakeup(&client->dev, pdata->wakeup);
-> > +
-> > +	return 0;
-> > +
-> > +err_free_irq:
-> > +	free_irq(client->irq, dt);
-> > +err_free_dt:
-> > +	kfree(dt);
-> > +err_hw_shutdown:
-> > +	if (pdata->hw_shutdown)
-> > +		pdata->hw_shutdown(client);
-> > +	return error;
-> > +}
-> > +
-> > +static int __devexit gp2a_remove(struct i2c_client *client)
-> > +{
-> > +	struct gp2a_data *dt = i2c_get_clientdata(client);
-> > +
-> > +	device_init_wakeup(&client->dev, false);
-> > +
-> > +	free_irq(client->irq, dt);
-> > +	input_unregister_device(dt->device);
-> > +	if (dt->pdata->hw_shutdown)
-> > +		dt->pdata->hw_shutdown(client);
-> > +	kfree(dt);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +#ifdef CONFIG_PM_SLEEP
-> > +static int gp2a_suspend(struct device *dev)
-> > +{
-> > +	struct i2c_client *client = to_i2c_client(dev);
-> > +	struct gp2a_data *dt = i2c_get_clientdata(client);
-> > +	int error;
-> > +
-> > +	if (device_may_wakeup(&client->dev)) {
-> > +		enable_irq_wake(client->irq);
-> > +	} else {
-> 
-> This needs locking WRT open/close. Please acquire dt->device->mutex and
-> only disable if dt->device->users != 0. Similar shoudl be done for
-> resume.
+Anyways, this is what I am planning to do for v3:
 
-I see what you mean. I will fix it.
+error = input_register_device(dt->device);
+if (error) {
+	...
+	goto err_free_dt;
+}
+...
+error = request_threaded_irq(client->irq, NULL, ...
+if (error) {
+	...
+	goto err_free_unregister;
+}
+...
+err_free_unregister:
+        input_unregister_device(dt->device);
+err_free_dt:
+        kfree(dt);
+err_hw_shutdown:
+        if (pdata->hw_shutdown)
+                pdata->hw_shutdown(client);
+        return error;
 
-> > +		error = gp2a_disable(dt);
-> > +		if (error < 0)
-> > +			return error;
-> > +	}
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int gp2a_resume(struct device *dev)
-> > +{
-> > +	struct i2c_client *client = to_i2c_client(dev);
-> > +	struct gp2a_data *dt = i2c_get_clientdata(client);
-> > +	int error;
-> > +
-> > +	if (device_may_wakeup(&client->dev)) {
-> > +		disable_irq_wake(client->irq);
-> > +	} else {
-> > +		error = gp2a_enable(dt);
-> > +		if (error < 0)
-> > +			return error;
-> > +	}
-> > +
-> > +	return 0;
-> > +}
-> > +#endif
-> > +
-> > +static SIMPLE_DEV_PM_OPS(gp2a_pm, gp2a_suspend, gp2a_resume);
-> > +
-> > +static const struct i2c_device_id gp2a_i2c_id[] = {
-> > +	{ GP2A_I2C_NAME, 0 },
-> > +	{ }
-> > +};
-> > +
-> > +static struct i2c_driver gp2a_i2c_driver = {
-> > +	.driver = {
-> > +		.name	= GP2A_I2C_NAME,
-> > +		.owner	= THIS_MODULE,
-> > +		.pm	= &gp2a_pm
-> > +	},
-> > +	.probe		= gp2a_probe,
-> > +	.remove		= __devexit_p(gp2a_remove),
-> > +	.id_table	= gp2a_i2c_id
-> > +};
-> > +
-> > +static int __init gp2a_init(void)
-> > +{
-> > +	return i2c_add_driver(&gp2a_i2c_driver);
-> > +}
-> > +
-> > +static void __exit gp2a_exit(void)
-> > +{
-> > +	i2c_del_driver(&gp2a_i2c_driver);
-> > +}
-> > +
-> > +module_init(gp2a_init);
-> > +module_exit(gp2a_exit);
-> > +
-> > +MODULE_AUTHOR("Courtney Cavin <courtney.cavin@sonyericsson.com>");
-> > +MODULE_DESCRIPTION("Sharp GP2AP002A00F I2C Proximity/Opto sensor driver");
-> > +MODULE_LICENSE("GPL v2");
-> > diff --git a/include/linux/input/gp2ap002a00f.h b/include/linux/input/gp2ap002a00f.h
-> > new file mode 100644
-> > index 0000000..aad2fd4
-> > --- /dev/null
-> > +++ b/include/linux/input/gp2ap002a00f.h
-> > @@ -0,0 +1,22 @@
-> > +#ifndef _GP2AP002A00F_H_
-> > +#define _GP2AP002A00F_H_
-> > +
-> > +#include <linux/i2c.h>
-> > +
-> > +#define GP2A_I2C_NAME "gp2ap002a00f"
-> > +
-> > +/**
-> > + * struct gp2a_platform_data - Sharp gp2ap002a00f proximity platform data
-> > + * @vout_gpio: The gpio connected to the object detected pin (VOUT)
-> > + * @wakeup: Set to true if the proximity can wake the device from suspend
-> > + * @hw_setup: Callback for setting up hardware such as gpios and vregs
-> > + * @hw_shutdown: Callback for properly shutting down hardware
-> > + */
-> > +struct gp2a_platform_data {
-> > +	int vout_gpio;
-> > +	bool wakeup;
-> > +	int (*hw_setup)(struct i2c_client *client);
-> > +	int (*hw_shutdown)(struct i2c_client *client);
-> > +};
-> > +
-> > +#endif
-> > -- 
-> > 1.7.7
-> > 
-
-Thanks for your comments! I'll prepare v3 later today.
+The above takes care of the leaking input_device and keeps the error handling
+pretty compact.
+Does this sound reasonable?
 
 -Oskar

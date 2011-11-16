@@ -1,62 +1,387 @@
-From: Cedric Sodhi <manday@gmx.net>
-Subject: Re: HID: Dead ./debug/hid/xxx/events
-Date: Wed, 16 Nov 2011 15:55:18 +0100
-Message-ID: <20111116145518.GA7080@slate>
-References: <20111116095030.GC3335@slate>
- <CAN+gG=F2aFTkhUVp4Sf8p-PdAj5ft1eotuWbnP=WaYAugA8tVw@mail.gmail.com>
- <20111116102514.GA3831@slate>
- <CAGzDe_bdyvOnMJb12gQN9wPSn_dk-g_HxgkEP-x_3DRtB+gP1g@mail.gmail.com>
+From: anish kumar <anish198519851985@gmail.com>
+Subject: Re: [PATCH v2] input: add driver support for Sharp gp2ap002a00f
+ proximity sensor
+Date: Thu, 17 Nov 2011 00:39:12 +0900
+Message-ID: <1321457952.1790.16.camel@anish-Inspiron-N5050>
+References: <1321285158-7123-1-git-send-email-oskar.andero@sonyericsson.com>
+	 <20111114170352.GA12659@core.coreip.homeip.net>
+	 <20111115073400.GD9307@caracas.corpusers.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.22]:52834 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754872Ab1KPOzl (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:52903 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751819Ab1KPPjU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Nov 2011 09:55:41 -0500
-Content-Disposition: inline
-In-Reply-To: <CAGzDe_bdyvOnMJb12gQN9wPSn_dk-g_HxgkEP-x_3DRtB+gP1g@mail.gmail.com>
+	Wed, 16 Nov 2011 10:39:20 -0500
+In-Reply-To: <20111115073400.GD9307@caracas.corpusers.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Bagwell <chris@cnpbagwell.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org
+To: oskar.andero@sonyericsson.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jic23@cam.ac.uk" <jic23@cam.ac.uk>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "Cavin, Courtney" <Courtney.Cavin@sonyericsson.com>
 
-On Wed, Nov 16, 2011 at 07:41:04AM -0600, Chris Bagwell wrote:
-> And a little extra info.  Cedric tested the patch that is now in
-> Jiri's upstream-fixes branch for this new 0xa0001 and got success so I
-> sent in patch.  After several days, he tested closer and realized it
-> was getting X/Y movement and what I'll call unpredictable Touch
-> behaviour.  It would either act like a stylus hovering but never
-> touching or it would always act like touching and never release.
+On Tue, 2011-11-15 at 08:34 +0100, oskar.andero@sonyericsson.com wrote:
+> Hi Dmitry,
 > 
-> Events are working and you can test with evtest.  I've verified at
-> least one test stream he emailed that it is not correctly sending
-> BTN_TOUCH but it is sending good X/Y using MT and pointer emulation
-> events.
+> On 18:03 Mon 14 Nov     , Dmitry Torokhov wrote:
+> > Hi Courtney,
+> > 
+> > On Mon, Nov 14, 2011 at 04:39:18PM +0100, oskar.andero@sonyericsson.com wrote:
+> > > From: Courtney Cavin <courtney.cavin@sonyericsson.com>
+> > > 
+> > 
+> > The driver looks much better, a few more comments still.
+> > 
+> > > +
+> > > +#include <linux/i2c.h>
+> > > +#include <linux/irq.h>
+> > > +#include <linux/slab.h>
+> > > +#include <linux/input.h>
+> > > +#include <linux/module.h>
+> > > +#include <linux/workqueue.h>
+> > 
+> > As Shubhrajyoti mentioned workqueue.h is probably not needed.
+> > 
+> > > +#include <linux/interrupt.h>
+> > > +#include <linux/gpio.h>
+> > > +#include <linux/delay.h>
+> > > +#include <linux/input/gp2ap002a00f.h>
+> > > +
+> > > +struct gp2a_data {
+> > > +	struct input_dev *device;
+> > > +	const struct gp2a_platform_data *pdata;
+> > > +	struct i2c_client *i2c_client;
+> > > +};
+> > > +
+> > > +enum gp2a_addr {
+> > > +	GP2A_ADDR_PROX	= 0x0,
+> > > +	GP2A_ADDR_GAIN	= 0x1,
+> > > +	GP2A_ADDR_HYS	= 0x2,
+> > > +	GP2A_ADDR_CYCLE	= 0x3,
+> > > +	GP2A_ADDR_OPMOD	= 0x4,
+> > > +	GP2A_ADDR_CON	= 0x6
+> > > +};
+> > > +
+> > > +enum gp2a_controls {
+> > > +	GP2A_CTRL_SSD	= 0x01
+> > > +};
+> > > +
+> > > +static int gp2a_enable(struct gp2a_data *dt)
+> > > +{
+> > > +	return i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_OPMOD,
+> > > +					 GP2A_CTRL_SSD);
+> > > +}
+> > > +
+> > > +static int gp2a_disable(struct gp2a_data *dt)
+> > > +{
+> > > +	return i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_OPMOD,
+> > > +					 0x00);
+> > > +}
+> > > +
+> > > +static int __devinit gp2a_initialize(struct gp2a_data *dt)
+> > > +{
+> > > +	int error;
+> > > +
+> > > +	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_GAIN,
+> > > +					  0x08);
+> > > +	if (error < 0)
+> > > +		return error;
+> > > +
+> > > +	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_HYS,
+> > > +					  0xc2);
+> > > +	if (error < 0)
+> > > +		return error;
+> > > +
+> > > +	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_CYCLE,
+> > > +					  0x04);
+> > > +	if (error < 0)
+> > > +		return error;
+> > > +
+> > > +	error = gp2a_disable(dt);
+> > > +
+> > > +	return error;
+> > > +}
+> > > +
+> > > +static int gp2a_report(struct gp2a_data *dt)
+> > > +{
+> > > +	int vo = gpio_get_value(dt->pdata->vout_gpio);
+> > > +
+> > > +	input_report_key(dt->device, SW_FRONT_PROXIMITY, !vo);
+> > 
+> > Switch is not a key, so please use input_report_switch().
 > 
-> It would probably be easy to see the issue if debug/hid/*/events were
-> being displayed but for some reason "cat rdesc" outputs stuff but "cat
-> events" does not.  I couldn't come up with more ideas remotely.
+> Ok. Agreed.
 > 
-> The redesc shows it reports ContactID's range of 0-16 and features
-> says only 10 touches max (seen in above paste link).  So my last guess
-> is that we may be using the wrong quirk for this one since it sounds
-> like ContactID is not 1-to-1 with touches.  Hard to tell without
-> sample events though.
+> > > +	input_sync(dt->device);
+> > > +
+> > > +	return 0;
+> > > +}
+> > > +
+> > > +static irqreturn_t gp2a_irq(int irq, void *handle)
+> > > +{
+> > > +	struct gp2a_data *dt = handle;
+> > > +
+> > > +	gp2a_report(dt);
+> > > +
+> > > +	return IRQ_HANDLED;
+> > > +}
+> > > +
+> > > +static int gp2a_device_open(struct input_dev *dev)
+> > > +{
+> > > +	struct gp2a_data *dt = input_get_drvdata(dev);
+> > > +	int error;
+> > > +
+> > > +	error = gp2a_enable(dt);
+> > > +	if (error < 0) {
+> > > +		dev_err(&dev->dev, "unable to activate, err %d\n", error);
+> > > +		return error;
+> > > +	}
+> > > +
+> > > +	gp2a_report(dt);
+> > > +
+> > > +	return 0;
+> > > +}
+> > > +
+> > > +static void gp2a_device_close(struct input_dev *dev)
+> > > +{
+> > > +	struct gp2a_data *dt = input_get_drvdata(dev);
+> > > +	int error;
+> > > +
+> > > +	error = gp2a_disable(dt);
+> > > +	if (error < 0)
+> > > +		dev_err(&dev->dev, "unable to deactivate, err %d\n", error);
+> > > +}
+> > > +
+> > > +static int __devinit gp2a_probe(struct i2c_client *client,
+> > > +				const struct i2c_device_id *id)
+> > > +{
+> > > +	const struct gp2a_platform_data *pdata;
+> > > +	struct gp2a_data *dt;
+> > > +	int error;
+> > > +
+> > > +	pdata = client->dev.platform_data;
+> > > +	if (!pdata)
+> > > +		return -EINVAL;
+> > > +
+> > > +	if (pdata->hw_setup) {
+> > > +		error = pdata->hw_setup(client);
+> > > +		if (error < 0)
+> > > +			return error;
+> > > +	}
+> > > +
+> > > +	error = gpio_direction_input(pdata->vout_gpio);
+> > > +	if (error < 0)
+> > > +		goto err_hw_shutdown;
+> > > +
+> > > +	dt = kzalloc(sizeof(struct gp2a_data), GFP_KERNEL);
+> > > +	if (!dt) {
+> > > +		error = -ENOMEM;
+> > > +		goto err_hw_shutdown;
+> > > +	}
+> > > +
+> > > +	dt->pdata = pdata;
+> > > +	dt->i2c_client = client;
+> > > +	i2c_set_clientdata(client, dt);
+> > > +
+> > > +	error = gp2a_initialize(dt);
+> > > +	if (error < 0)
+> > > +		goto err_free_dt;
+> > > +
+> > > +	dt->device = input_allocate_device();
+> > > +	if (!dt->device) {
+> > > +		error = -ENOMEM;
+> > > +		goto err_free_dt;
+> > > +	}
+> > > +	input_set_drvdata(dt->device, dt);
+> > > +
+> > > +	error = request_threaded_irq(client->irq, NULL,
+> > > +			gp2a_irq, IRQF_TRIGGER_RISING |
+> > > +			IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> > > +			GP2A_I2C_NAME, dt);
+> > > +	if (error) {
+> > > +		dev_err(&dt->device->dev, "irq request failed\n");
+> > 
+> > You are leaking dt->device here. Please add a separate label for
+> > input_free_device(dt->device).
 > 
-> Chris
+> Yes, you are right.
+> 
+> > > +		goto err_free_dt;
+> > > +	}
+> > > +
+> > > +	dt->device->open = gp2a_device_open;
+> > > +	dt->device->close = gp2a_device_close;
+> > > +	dt->device->name = GP2A_I2C_NAME;
+> > > +	dt->device->id.bustype = BUS_I2C;
+> > > +
+> > > +	input_set_capability(dt->device, EV_KEY, SW_FRONT_PROXIMITY);
+> > 
+> > Should be EV_SW instead of EV_KEY.
+> > 
+> > > +
+> > > +	error = input_register_device(dt->device);
+> > > +	if (error) {
+> > > +		dev_err(&dt->device->dev, "device registration failed\n");
+> > > +		input_free_device(dt->device);
+> > 
+> > If you swap request_threaded_irq() and input_register_device() so that
+> > registration is the last action error handling will be much simpler.
+> 
+> Sure. I'll look in to it.
+> 
+> > > +		goto err_free_irq;
+> > > +	}
+> > > +
+> > > +	device_init_wakeup(&client->dev, pdata->wakeup);
+> > > +
+> > > +	return 0;
+> > > +
+> > > +err_free_irq:
+> > > +	free_irq(client->irq, dt);
+> > > +err_free_dt:
+> > > +	kfree(dt);
+> > > +err_hw_shutdown:
+> > > +	if (pdata->hw_shutdown)
+> > > +		pdata->hw_shutdown(client);
+> > > +	return error;
+> > > +}
+> > > +
+> > > +static int __devexit gp2a_remove(struct i2c_client *client)
+> > > +{
+> > > +	struct gp2a_data *dt = i2c_get_clientdata(client);
+> > > +
+> > > +	device_init_wakeup(&client->dev, false);
+> > > +
+> > > +	free_irq(client->irq, dt);
+> > > +	input_unregister_device(dt->device);
+> > > +	if (dt->pdata->hw_shutdown)
+> > > +		dt->pdata->hw_shutdown(client);
+> > > +	kfree(dt);
+> > > +
+> > > +	return 0;
+> > > +}
+> > > +
+> > > +#ifdef CONFIG_PM_SLEEP
+> > > +static int gp2a_suspend(struct device *dev)
+> > > +{
+> > > +	struct i2c_client *client = to_i2c_client(dev);
+> > > +	struct gp2a_data *dt = i2c_get_clientdata(client);
+> > > +	int error;
+> > > +
+> > > +	if (device_may_wakeup(&client->dev)) {
+> > > +		enable_irq_wake(client->irq);
+> > > +	} else {
+> > 
+> > This needs locking WRT open/close. Please acquire dt->device->mutex and
+> > only disable if dt->device->users != 0. Similar shoudl be done for
+> > resume.
+> 
+> I see what you mean. I will fix it. 
+Is my understanding correct?You are going to disable the device 
+only when there are users of the driver and not disable the device
+otherwise.As anyway if there are no users the driver would have been
+already disabled right?
+> 
+> > > +		error = gp2a_disable(dt);
+> > > +		if (error < 0)
+> > > +			return error;
+> > > +	}
+> > > +
+> > > +	return 0;
+> > > +}
+> > > +
+> > > +static int gp2a_resume(struct device *dev)
+> > > +{
+> > > +	struct i2c_client *client = to_i2c_client(dev);
+> > > +	struct gp2a_data *dt = i2c_get_clientdata(client);
+> > > +	int error;
+> > > +
+> > > +	if (device_may_wakeup(&client->dev)) {
+> > > +		disable_irq_wake(client->irq);
+> > > +	} else {
+> > > +		error = gp2a_enable(dt);
+> > > +		if (error < 0)
+> > > +			return error;
+> > > +	}
+> > > +
+> > > +	return 0;
+> > > +}
+> > > +#endif
+> > > +
+> > > +static SIMPLE_DEV_PM_OPS(gp2a_pm, gp2a_suspend, gp2a_resume);
+> > > +
+> > > +static const struct i2c_device_id gp2a_i2c_id[] = {
+> > > +	{ GP2A_I2C_NAME, 0 },
+> > > +	{ }
+> > > +};
+> > > +
+> > > +static struct i2c_driver gp2a_i2c_driver = {
+> > > +	.driver = {
+> > > +		.name	= GP2A_I2C_NAME,
+> > > +		.owner	= THIS_MODULE,
+> > > +		.pm	= &gp2a_pm
+> > > +	},
+> > > +	.probe		= gp2a_probe,
+> > > +	.remove		= __devexit_p(gp2a_remove),
+> > > +	.id_table	= gp2a_i2c_id
+> > > +};
+> > > +
+> > > +static int __init gp2a_init(void)
+> > > +{
+> > > +	return i2c_add_driver(&gp2a_i2c_driver);
+> > > +}
+> > > +
+> > > +static void __exit gp2a_exit(void)
+> > > +{
+> > > +	i2c_del_driver(&gp2a_i2c_driver);
+> > > +}
+> > > +
+> > > +module_init(gp2a_init);
+> > > +module_exit(gp2a_exit);
+> > > +
+> > > +MODULE_AUTHOR("Courtney Cavin <courtney.cavin@sonyericsson.com>");
+> > > +MODULE_DESCRIPTION("Sharp GP2AP002A00F I2C Proximity/Opto sensor driver");
+> > > +MODULE_LICENSE("GPL v2");
+> > > diff --git a/include/linux/input/gp2ap002a00f.h b/include/linux/input/gp2ap002a00f.h
+> > > new file mode 100644
+> > > index 0000000..aad2fd4
+> > > --- /dev/null
+> > > +++ b/include/linux/input/gp2ap002a00f.h
+> > > @@ -0,0 +1,22 @@
+> > > +#ifndef _GP2AP002A00F_H_
+> > > +#define _GP2AP002A00F_H_
+> > > +
+> > > +#include <linux/i2c.h>
+> > > +
+> > > +#define GP2A_I2C_NAME "gp2ap002a00f"
+> > > +
+> > > +/**
+> > > + * struct gp2a_platform_data - Sharp gp2ap002a00f proximity platform data
+> > > + * @vout_gpio: The gpio connected to the object detected pin (VOUT)
+> > > + * @wakeup: Set to true if the proximity can wake the device from suspend
+> > > + * @hw_setup: Callback for setting up hardware such as gpios and vregs
+> > > + * @hw_shutdown: Callback for properly shutting down hardware
+> > > + */
+> > > +struct gp2a_platform_data {
+> > > +	int vout_gpio;
+> > > +	bool wakeup;
+> > > +	int (*hw_setup)(struct i2c_client *client);
+> > > +	int (*hw_shutdown)(struct i2c_client *client);
+> > > +};
+> > > +
+> > > +#endif
+> > > -- 
+> > > 1.7.7
+> > > 
+> 
+> Thanks for your comments! I'll prepare v3 later today.
+> 
+> -Oskar
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Chris, it might interest you that the event node now fires and outputs
-events, when letting hid-multitouch handle the device through Benjamin's
-patch (Writing "3 0eef a001 1" to new_id).
 
-I think when adding the MULTITOUCH5 in the source in the exact same
-manner MULTITOUCH[1-4] are added I must have copied some quirks which
-interfere with the event node. Now, adding the device by Benjamin's way
-does not load any quirks by default, so the event node works.
-
-Either Benjamin or I will tell you more once we discovered something
-definite.
-
-regards,
-Cedric

@@ -1,7 +1,7 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
 Subject: Re: HID: Dead ./debug/hid/xxx/events
-Date: Wed, 16 Nov 2011 22:22:58 +0100
-Message-ID: <CAN+gG=H18JdRBJeXAYPuOa97HbjYsUzTYMvnuAdddjLW30eckg@mail.gmail.com>
+Date: Wed, 16 Nov 2011 15:23:50 -0600
+Message-ID: <CAGzDe_ak_xzjJkpQcNwwgL+pu94qfhAixjS=9TF3679cpcPFpw@mail.gmail.com>
 References: <20111116095030.GC3335@slate>
 	<CAN+gG=F2aFTkhUVp4Sf8p-PdAj5ft1eotuWbnP=WaYAugA8tVw@mail.gmail.com>
 	<20111116102514.GA3831@slate>
@@ -15,44 +15,41 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:54169 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751383Ab1KPVW7 convert rfc822-to-8bit (ORCPT
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:35087 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752506Ab1KPVXv convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Nov 2011 16:22:59 -0500
-Received: by wyh11 with SMTP id 11so1085297wyh.19
-        for <linux-input@vger.kernel.org>; Wed, 16 Nov 2011 13:22:58 -0800 (PST)
+	Wed, 16 Nov 2011 16:23:51 -0500
+Received: by eye27 with SMTP id 27so975743eye.19
+        for <linux-input@vger.kernel.org>; Wed, 16 Nov 2011 13:23:50 -0800 (PST)
 In-Reply-To: <20111116204759.GA2153@slate>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Cedric Sodhi <manday@gmx.net>
-Cc: Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
 
-Hi Chris,
+One update on my side.  I was looking at hid-multitouch.c from
+Dmitri's next branch and didn't see that ALWAYS_VALID.  So I thought
+it was a typo and manually mapping your "18" value to
+VALID_IS_INRANGE; which we were previously setting it to.  Thats why I
+mentioned I thought you were setting to same quirks.
 
-it looks like the quirks were not taken into account.
-Normally, you don't need to manually add the VID:PID with the sysfs as
-you already registered your device in the list.
+Thanks for diff.  Often a diff is worth a thousand words.
 
-1) What is the value of the quirks sysfs attrib ? (according to your
-logs, it should show 1, instead of 18)
+OK, now back to your email.  I'm confused about your logs.  The URL
+points to the tar file with multiple logs and the evtest_twofinger.log
+inside it is the one I was talking about having issues.
 
-2) did you do depmod and are you sure the hid-multitouch module loaded
-is the one with USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH5?
-to be sure, please provide the outputs of:
-$ modinfo hid-multitouch
-$ modinfo <path to jiri-hid>/drivers/hid/hid-multitouch.ko
+Now you've attached a new evtest_twofinger.log and its values look
+good.  So your saying this new log is from a version based on the
+diff?
 
-If you added your device through the sysfs because it was not taken by
-hid-multitouch, replace the last parameter by 104:
-$ echo 3 0eef a001 104 > new_id
-But again, this is not the right way as you registered it.
+If so, I'll chalk it up to some debug issue and sounds like
+ALWAYS_VALID is indeed the key to this.
 
-Cheers,
-Benjamin
+Chris
 
-
-On Wed, Nov 16, 2011 at 21:48, Cedric Sodhi <manday@gmx.net> wrote:
+On Wed, Nov 16, 2011 at 2:48 PM, Cedric Sodhi <manday@gmx.net> wrote:
 > Dear Benjamin,
 >
 > I applied your patch tp 3.2-jikos (uname shows 3.1, though). The

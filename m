@@ -1,188 +1,162 @@
-From: Javier Martinez Canillas <martinez.javier@gmail.com>
-Subject: Re: [PATCH 0/7] A few patches to cyttsp
-Date: Wed, 16 Nov 2011 21:17:18 +0100
-Message-ID: <CAAwP0s1mgZVjJKTSU8yZXo90QK41a3wv0-Xb1qwKsGg7YZfnUg@mail.gmail.com>
-References: <20111114080939.10141.46174.stgit@hammer.corenet.prv>
- <CAAwP0s0eSfxgXWtZXZCm6dY_gtaoyu7QQpEJs7odHTMn2amxTg@mail.gmail.com> <20111116193826.GB26909@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Add generic GPIO-tilt driver
+Date: Wed, 16 Nov 2011 12:40:40 -0800
+Message-ID: <201111161240.40673.dmitry.torokhov@gmail.com>
+References: <201110211043.47742.heiko@sntech.de> <20111116191800.GA26812@core.coreip.homeip.net> <201111162056.44813.heiko@sntech.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: Text/Plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:52293 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751831Ab1KPURj convert rfc822-to-8bit (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:60664 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753208Ab1KPUk7 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Nov 2011 15:17:39 -0500
-Received: by ywt32 with SMTP id 32so118423ywt.19
-        for <linux-input@vger.kernel.org>; Wed, 16 Nov 2011 12:17:39 -0800 (PST)
-In-Reply-To: <20111116193826.GB26909@core.coreip.homeip.net>
+	Wed, 16 Nov 2011 15:40:59 -0500
+Received: by iage36 with SMTP id e36so1130762iag.19
+        for <linux-input@vger.kernel.org>; Wed, 16 Nov 2011 12:40:58 -0800 (PST)
+In-Reply-To: <201111162056.44813.heiko@sntech.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org
+To: Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
+Cc: linux-input@vger.kernel.org
 
-On Wed, Nov 16, 2011 at 8:38 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Nov 16, 2011 at 08:17:02PM +0100, Javier Martinez Canillas wr=
-ote:
->> On Mon, Nov 14, 2011 at 9:15 AM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->> > Hi Javier,
->> >
->> > I am sending a few patches that I made while trying to understand =
-the
->> > Cypress TTSP driver. I am still not quite happy with the SPI read =
-method
->> > and I am also wondering if cyttsp_power_on could be made less mess=
+On Wednesday, November 16, 2011 11:56:43 AM Heiko St=FCbner wrote:
+> Am Mittwoch 16 November 2011, 20:18:00 schrieben Sie:
+> > On Wed, Nov 16, 2011 at 07:28:35PM +0100, Heiko St=FCbner wrote:
+> > > Am Mittwoch 16 November 2011, 17:48:07 schrieb Dmitry Torokhov:
+> > > > On Wed, Nov 16, 2011 at 12:02:07PM +0100, Heiko St=FCbner wrote=
+:
+> > > > > Hi Dmitry,
+> > > > >=20
+> > > > > Am Mittwoch 16 November 2011, 08:18:22 schrieb Dmitry Torokho=
+v:
+> > > > > > Hi Heiko,
+> > > > > >=20
+> > > > > > On Fri, Oct 21, 2011 at 10:43:47AM +0200, Heiko St=FCbner w=
+rote:
+> > > > > > > There exist tilt switches that simply report their
+> > > > > > > tilt-state via some gpios.
+> > > > > > >=20
+> > > > > > > The number and orientation of their axes can vary dependi=
+ng
+> > > > > > > on the switch used and the build of the device. Also two =
+or
+> > > > > > > more one-axis switches could be combined to provide
+> > > > > > > multi-dimensional orientation.
+> > > > > > >=20
+> > > > > > > One example of a device using such a switch is the family=
+ of
+> > > > > > > Qisda ebook readers, where the switch provides informatio=
+n
+> > > > > > > about the landscape / portrait orientation of the device.
+> > > > > > > The example in Documentation/input/gpio-tilt.txt document=
+s
+> > > > > > > exactly this one-axis device.
+> > > > > >=20
+> > > > > > Looks very nice, just a few comments below.
+> > > > >=20
+> > > > > thanks for your review, comments below
+> > > > >=20
+> > > > > [...]
+> > > > >=20
+> > > > > > > +static void gpio_tilt_polled_poll(struct input_polled_de=
+v
+> > > > > > > *dev) +{
+> > > > > > > +	struct gpio_tilt_polled_dev *bdev =3D dev->private;
+> > > > > >=20
+> > > > > > Call it tdev or tilt or tilt_dev or something? bdev is not
+> > > > > > very fitting here.
+> > > > >=20
+> > > > > ok, will change this
+> > > > >=20
+> > > > > [...]
+> > > > >=20
+> > > > > > > +static int __devinit gpio_tilt_polled_probe(struct
+> > > > > > > platform_device *pdev) +{
+> > > > > > > +	struct gpio_tilt_platform_data *pdata =3D
+> > > > > > > pdev->dev.platform_data; +	struct device *dev =3D &pdev->=
+dev;
+> > > > > > > +	struct gpio_tilt_polled_dev *bdev;
+> > > > > > > +	struct input_polled_dev *poll_dev;
+> > > > > > > +	struct input_dev *input;
+> > > > > > > +	int error, i;
+> > > > > > > +
+> > > > > > > +	if (!pdata || !pdata->poll_interval)
+> > > > > > > +		return -EINVAL;
+> > > > > > > +
+> > > > > > > +	bdev =3D kzalloc(sizeof(struct gpio_tilt_polled_dev),
+> > > > > > > GFP_KERNEL); +	if (!bdev) {
+> > > > > > > +		dev_err(dev, "no memory for private data\n");
+> > > > > > > +		return -ENOMEM;
+> > > > > > > +	}
+> > > > > > > +
+> > > > > > > +	bdev->gpios =3D kmemdup(pdata->gpios,
+> > > > > > > +				 pdata->nr_gpios * sizeof(struct gpio),
+> > > > > > > +				 GFP_KERNEL);
+> > > > > > > +	if (bdev->gpios =3D=3D NULL) {
+> > > > > > > +		dev_err(&pdev->dev, "Failed to allocate gpio=20
+data\n");
+> > > > > > > +		error =3D -ENOMEM;
+> > > > > > > +		goto err_free_bdev;
+> > > > > > > +	}
+> > > > > > > +	bdev->nr_gpios =3D pdata->nr_gpios;
+> > > > > >=20
+> > > > > > Do you actually need to do this? Can't you just store the
+> > > > > > pointer to the platform data and use it instead? Same goes
+> > > > > > for the rest of items you are cloning.
+> > > > >=20
+> > > > > As I understand it from previous patches, platform data shoul=
+d
+> > > > > be markable as initdata which means the kernel discards it
+> > > > > after boot. Therefore it cannot be
+> > > >=20
+> > > > Absolutely not. Consider what happens if your driver is a modul=
+e
+> > > > and is loaded after boot is complete. Or you unload and reload
+> > > > it; platform_data has to stay there, it  later must not be mark=
+ed
+> > > > initdata and freed.
+> > >=20
+> > > I don't claim to grasp every bit the initdata routines do :-) . B=
+ut
+> > > I was under the impression that allowing people to make it initda=
+ta
+> > > if necessary and not building stuff as modules was the correct wa=
 y.
->> >
->>
->> Hi Dmitry,
->>
->> Thank you very much for the review and the patches. One question, wh=
-en
->> sending new versions of the patch-set, do you want me to keep the
->> history of your patches or should I merge all of them and submit jus=
+> >=20
+> > Huh? Forcing non-modular build is "the correct way"?
+> >=20
+> > > Last time I submitted a regulator patch Mark Brown wrote:
+> > >=20
+> > > Monday 29 August 2011, 11:18:07 Mark Brown wrote
+> > > [...]
+> > >=20
+> > > > This also fixes the use of platform data after probe - platform
+> > > > data should be able to be marked as initdata which may mean tha=
 t
->> three patches (core, i2c, spi) to make easier future revisions?
->
-> You may merge them, I think it will be easier.
->
+> > > > the kernel discards it after boot.
+> > >=20
+> > > The bq24022 driver in question can be build as a module.
+> >=20
+> > Quoting Russell King "That's totally buggered, and that's putting i=
+t
+> > kindly.":
+> >=20
+> > http://www.spinics.net/lists/linux-input/msg16335.html
+> :
+> :-), still strange to see two differing opinions
 
-Ok, thanks.
+No, one is just wrong. I guess we need to revert patch you mentioned.
+Unless we prohibit modules and hotplug platform data should stay.
 
->>
->> Sure, Kevin will cleanup the SPI read method and I will make
->> cyttsp_power_on more cleaner.
->
-> Thanks.
->
->>
->> > Current open/close methods seem to be not very useful: even though=
- we
->> > stop interrupts we do not put the chip into low power mode. Is the=
-re a
->> > way to do so?
->> >
->>
->> Yes, the controller can be put to sleep (low power mode). I will add
->> that to the close function for the next version of the patch-set.
->
-> Excellent.
->
->>
->> > Regarding PM methods - why do we have conditional 'use sleep' and =
-what
->> > exactly wakeup() method is supposed to do? Why is it a platform me=
-thod?
->> >
->>
->> It was meant to let each board to decide if it wants to go sleep and
->> to define a specific handler for wakeup.
->
-> Why would a board not want to go to sleep? Normally boards want to
-> specify whether they want to have device as a wakeup source and such
-> devices, instead of shutting down in suspend method, just configure
-> their IRQ as a wakeup IRQ and that is it.
->
+>=20
+> But I will get rid of the cloned platform data.
+>=20
 
-Yes, you are right. Also, the chip has different low power modes
-(light, medium and deep) and use_sleep was also thought so board code
-could decide on which low power mode the device has to enter on
-suspend.
-
-But, yes. The sleep shouldn't be conditional and we should have a low
-power mode by default. Also if the user defines a wakeup() handler,
-then the device should enter in a low power mode where interrupts are
-still fired (so the board can use this device as a wakeup source).
-
->> This is for example the board
->> file of the OMAP Encore machine type (B & N Nook's color)
->>
->> static struct cyttsp_platform_data cyttsp_i2c_platform_data =3D {
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 .wakeup =3D cyttsp_i2c_wakeup,
->
-> OK, so in this particular case what does cyttsp_i2c_wakeup actually
-> does?
->
-
-In this case in particular, nothing...
-
-static int cyttsp_i2c_wakeup(void)
-{
-        return 0;
-}
-
-I think is because the resume code returned -ENOSYS if use_sleep was
-set and not wakeup handler was defined. So a dummy handler was
-defined.
-
-int cyttsp_resume(void *handle)
-{
-=2E..
-		if (ts->platform_data->wakeup)
-			retval =3D ts->platform_data->wakeup();
-		else
-			retval =3D -ENOSYS;
-=2E..
-}
-
-
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 .init =3D cyttsp_i2c_init,
->> .....
->> }
->>
->> In the same way it exists an init board specific function that gets
->> called from cyttsp_core_init() if the board has defined one:
->>
->> void *cyttsp_core_init(struct cyttsp_bus_ops *bus_ops,
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0struct device *dev, int irq)
->> {
->> ....
->> =C2=A0 =C2=A0 =C2=A0 if (ts->platform_data->init) {
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (ts->platform_da=
-ta->init()) {
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 dev_dbg(ts->dev, "%s: Error, platform init failed!\n",
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 __func__);
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 goto error_init;
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }
->> =C2=A0 =C2=A0 =C2=A0 }
->> ....
->> }
->>
->> This is necessary because each board may need to configure different=
-ly
->> the connection with the chip. For example, OMAP boards will have to
->> configure the mux pins and so on.
->>
->> Is this correct? or the driver should not have these handlers and
->> trust that the platform specific code did all the set up before?
->
-> I think it depends on the kind of set up is happening. Static setup
-> (such as registering memory regsions, configuring IRQ type, etc) is
-> probably done upfront; if you need to talk to the hardware then custo=
-m
-> method is fine.
->
-
-Great, I'll keep this init handler then.
-
-> Thanks.
->
-> --
-> Dmitry
->
-
-Thank you and best regards,
+Thanks.
 
 --=20
-Javier Mart=C3=ADnez Canillas
-(+34) 682 39 81 69
-Barcelona, Spain
+Dmitry
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

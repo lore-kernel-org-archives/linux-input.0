@@ -1,78 +1,134 @@
-From: <oskar.andero@sonyericsson.com>
-Subject: Re: [PATCH v3] input: add driver support for Sharp gp2ap002a00f
- proximity sensor
-Date: Wed, 16 Nov 2011 13:18:03 +0100
-Message-ID: <20111116121803.GB14696@caracas.corpusers.net>
-References: <1321349160-2931-1-git-send-email-oskar.andero@sonyericsson.com>
- <20111115094342.GD13157@core.coreip.homeip.net>
- <20111115125352.GA23767@caracas.corpusers.net>
- <20111115182909.GB6410@core.coreip.homeip.net>
- <20111116103705.GA14696@caracas.corpusers.net>
- <4EC39E7B.7020706@ti.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: HID: Dead ./debug/hid/xxx/events
+Date: Wed, 16 Nov 2011 07:41:04 -0600
+Message-ID: <CAGzDe_bdyvOnMJb12gQN9wPSn_dk-g_HxgkEP-x_3DRtB+gP1g@mail.gmail.com>
+References: <20111116095030.GC3335@slate>
+	<CAN+gG=F2aFTkhUVp4Sf8p-PdAj5ft1eotuWbnP=WaYAugA8tVw@mail.gmail.com>
+	<20111116102514.GA3831@slate>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:14970 "EHLO
-	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756613Ab1KPMRL (ORCPT
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:57832 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756861Ab1KPNlG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Nov 2011 07:17:11 -0500
-Content-Disposition: inline
-In-Reply-To: <4EC39E7B.7020706@ti.com>
+	Wed, 16 Nov 2011 08:41:06 -0500
+Received: by eye27 with SMTP id 27so431296eye.19
+        for <linux-input@vger.kernel.org>; Wed, 16 Nov 2011 05:41:04 -0800 (PST)
+In-Reply-To: <20111116102514.GA3831@slate>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shubhrajyoti <shubhrajyoti@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jic23@cam.ac.uk" <jic23@cam.ac.uk>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "Cavin, Courtney" <Courtney.Cavin@sonyericsson.com>
+To: Cedric Sodhi <manday@gmx.net>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org
 
-On 12:28 Wed 16 Nov     , Shubhrajyoti wrote:
-> On Wednesday 16 November 2011 04:07 PM, oskar.andero@sonyericsson.com
-> wrote:
-> > On 19:29 Tue 15 Nov     , Dmitry Torokhov wrote:
-> >> On Tue, Nov 15, 2011 at 01:53:52PM +0100, oskar.andero@sonyericsson.com wrote:
-> >>> On 10:43 Tue 15 Nov     , Dmitry Torokhov wrote:
-> >>>> On Tue, Nov 15, 2011 at 10:26:00AM +0100, oskar.andero@sonyericsson.com wrote:
-> >>>>> From: Courtney Cavin <courtney.cavin@sonyericsson.com>
-> >>>>> +
-> >>>>> +#ifdef CONFIG_PM_SLEEP
-> >>>>> +static int gp2a_suspend(struct device *dev)
-> >>>>> +{
-> >>>>> +	struct i2c_client *client = to_i2c_client(dev);
-> >>>>> +	struct gp2a_data *dt = i2c_get_clientdata(client);
-> >>>>> +	int error;
-> >>>>> +
-> >>>>> +	mutex_lock(&dt->device->mutex);
-> >>>>> +
-> >>>>> +	if (dt->device->users) {
-> >>>>> +		if (device_may_wakeup(&client->dev)) {
-> >>>>> +			enable_irq_wake(client->irq);
-> >>>> I think this part should happen regardless of whether device has users,
-> >>>> only non wakeup source case needs it.
-> >>> Hmm.. why would one want to enable irq_wake when there are no users?
-> >>> Wouldn't this cause the device to wakeup at every irq and report an
-> >>> switch event that no one listens to?
-> >> You are suspending the system and want to have this device as a wakeup
-> >> source. Note: not wake up _device_ at every IRQ but wake up the whole
-> >> _system_ when device generates an IRQ while system is asleep.
-> >> It does not matter whether there are users for the events; you
-> >> want the system to wake up.
-> >>
-> >> At least this is the usual semantics.
-> > I see you point. However, the way we use the proximity sensor we can only wake up
-> > the system when we have an application that is actually interested in the change.
-> > This is for power save reasons.
-> > If we use the "usual semantic", we would wake up the system at every proximity
-> > detection regardlessly. For instance, I wouldn't want to wake up a cell phone laying
-> > on the desk when I put my hand over it. That would hurt the battery time.
-> Even in that case it shouldn't harm the power if no user is there the
-> close would have been called
-> and you should  be in the shut down mode? Am I missing something?
+On Wed, Nov 16, 2011 at 4:25 AM, Cedric Sodhi <manday@gmx.net> wrote:
+> Dear Benjamin,
+>
+> On Wed, Nov 16, 2011 at 11:17:57AM +0100, Benjamin Tissoires wrote:
+>> Hi Cedric,
+>>
+>> If I understand correctly, your device is an eGalax one with a Wacom
+>> VendorID... ;-)
+>
+> No. The VID is that of DWAV, as it should be. It might have been
+> misleading to mention Wacom here, which is - at least with regard to the
+> issue at hand - not related. I was just lucky the guys (esp. Chris) at
+> linuxwacom-devel would take a look at the issue, since obviously, they
+> are experts on touchscreens.
+>>
+>> I assume that you're the first of a long list that will encounter this
+>> kind of problem:
+>
+> You are right. I'm not the first, either, though. The eGalax is the
+> touchdevice of the ASUS EEE Slate, in conjunction with a Wacom for the
+> pen (yes, two devices: eGalax for finger and Wacom for pen).
+>>
+>> Now, hid (the generic hid input layer) can detect if your device is a
+>> multitouch one (by relying on the ContactID field in the report
+>> descriptor), and it will release it if it's detected.
+>> The counter part of this autodetection (in hid-multitouch) has not
+>> been judged as enough mature to be included in the kernel, and
+>> hid-multitouch can't handle your device automatically.
+>>
+>> That's why you don't see any event* unless you add the VID:PID in
+>> hid-multitouch.
+>
+> That's what I already did, as I tried to describe by saying that I added
+> "MULTITOUCH5" in line with the other MULTITOUCH[1-4] of DWAV VID.
+>
+>>
+>> I'm currently working on a solution to allow end-user to test more
+>> efficiently their device with hid-multitouch.
+>> If you want to be my guinea pig, it would help me.
+>
+> I'd happily be your guinea pig. I suggest you browse through the thread
+> which I referred to, where Chris helped me solve a bulk of the problems
+> already and also told me how to add the VID:PID to the whitelist of
+> hid-multitouch.
+>
+> regards,
+> Cedric
+>>
+>> Cheers,
+>> Benjamin
+>>
+>> On Wed, Nov 16, 2011 at 10:50, Cedric Sodhi <manday@gmx.net> wrote:
+>> > Hello everyone,
+>> >
+>> > the context for this problem is getting the eGalax USB Touchscreen, ID
+>> > 056a:0090, to work as such, as it is discussed on the linuxwacom-devel
+>> > list (see [1]).
+>> >
+>> > Quickly summarized:
+>> >
+>> > Adding the device as USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH5, in line with
+>> > the ..._MULTITOUCH[1-4], succeeds in thus far, as that it appears as a
+>> > HID Touchscreen. However, as of 3.1.x, clicking, id est touching "jams"
+>> > as in the click is never released.
+>> >
+>> > Updating to 3.2.x-torvalds' kernel should have resolved that jamming,
+>> > but instead no clicks or releases are recognized at all.
+>> >
+>> > The real problem with debugging that, though, is that
+>> >
+>> > /sys/kernel/debug/hid/<eGalax>/events
+>> >
+>> > remains dead, in any kernel, 3.1.x-gentoo, 3.1.x-vanilla and
+>> > 3.2.x-torvalds alike.
+>> >
+>> > I hope that you may have an idea as for any of the problems, especially
+>> > why there appears no output on the ./events node (the according node for
+>> > my keyboard reports events just fine).
+>> >
+>> > Pasted is .config [2] for 3.2.x-torvalds and ./hid/<eGalax>/rdesc [3] on
+>> > 3.2.x-torvalds.
+>> >
+>> > [1]
+>> > http://sourceforge.net/mailarchive/forum.php?thread_name=CAGzDe_Y2cSMxVPm-rcNSrMsew2V5Y0vbVyhXJBFCKraq7EaZ8g@mail.gmail.com&forum_name=linuxwacom-devel
+>> > [2] http://paste.pocoo.org/show/508548/
+>> > [3] http://paste.pocoo.org/show/508550/
+>> > --
 
-You are right - the chip will only generate interrupts when it's opened, so the case
-I described shouldn't actually be a problem. However, does it make sense to enable irq_wake
-for a device that will never generate interrupts?
+And a little extra info.  Cedric tested the patch that is now in
+Jiri's upstream-fixes branch for this new 0xa0001 and got success so I
+sent in patch.  After several days, he tested closer and realized it
+was getting X/Y movement and what I'll call unpredictable Touch
+behaviour.  It would either act like a stylus hovering but never
+touching or it would always act like touching and never release.
 
-Also, how does this correspond to the semantics that Dmitry described, especially:
-> >> It does not matter whether there are users for the events; you
-> >> want the system to wake up.
+Events are working and you can test with evtest.  I've verified at
+least one test stream he emailed that it is not correctly sending
+BTN_TOUCH but it is sending good X/Y using MT and pointer emulation
+events.
 
--Oskar
+It would probably be easy to see the issue if debug/hid/*/events were
+being displayed but for some reason "cat rdesc" outputs stuff but "cat
+events" does not.  I couldn't come up with more ideas remotely.
+
+The redesc shows it reports ContactID's range of 0-16 and features
+says only 10 touches max (seen in above paste link).  So my last guess
+is that we may be using the wrong quirk for this one since it sounds
+like ContactID is not 1-to-1 with touches.  Hard to tell without
+sample events though.
+
+Chris

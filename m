@@ -1,68 +1,51 @@
-From: Shubhrajyoti <shubhrajyoti@ti.com>
-Subject: Re: [PATCH v3] input: add driver support for Sharp gp2ap002a00f proximity
- sensor
-Date: Wed, 16 Nov 2011 16:58:59 +0530
-Message-ID: <4EC39E7B.7020706@ti.com>
-References: <1321349160-2931-1-git-send-email-oskar.andero@sonyericsson.com> <20111115094342.GD13157@core.coreip.homeip.net> <20111115125352.GA23767@caracas.corpusers.net> <20111115182909.GB6410@core.coreip.homeip.net> <20111116103705.GA14696@caracas.corpusers.net>
+From: Nuno Santos <nsantos@edigma.com>
+Subject: Findind input event device path with libudev
+Date: Wed, 16 Nov 2011 12:02:30 +0000
+Message-ID: <4EC3A656.7050800@edigma.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog120.obsmtp.com ([74.125.149.140]:46803 "EHLO
-	na3sys009aog120.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756090Ab1KPL3H (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Nov 2011 06:29:07 -0500
-In-Reply-To: <20111116103705.GA14696@caracas.corpusers.net>
+Received: from mx01.edigma.com ([195.22.21.235]:47689 "EHLO mx01.edigma.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756388Ab1KPMCc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Nov 2011 07:02:32 -0500
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mx01.edigma.com (Postfix) with ESMTP id 1777F3761915
+	for <linux-input@vger.kernel.org>; Wed, 16 Nov 2011 12:02:31 +0000 (WET)
+Received: from mx01.edigma.com ([127.0.0.1])
+	by localhost (mx01.edigma.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Po+t1VVy5e69 for <linux-input@vger.kernel.org>;
+	Wed, 16 Nov 2011 12:02:30 +0000 (WET)
+Received: from [192.168.3.103] (unknown [62.28.174.82])
+	by mx01.edigma.com (Postfix) with ESMTPSA id 704BF3761889
+	for <linux-input@vger.kernel.org>; Wed, 16 Nov 2011 12:02:30 +0000 (WET)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: oskar.andero@sonyericsson.com
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jic23@cam.ac.uk" <jic23@cam.ac.uk>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "Cavin, Courtney" <Courtney.Cavin@sonyericsson.com>
+To: linux-input@vger.kernel.org
 
-On Wednesday 16 November 2011 04:07 PM, oskar.andero@sonyericsson.com
-wrote:
-> On 19:29 Tue 15 Nov     , Dmitry Torokhov wrote:
->> On Tue, Nov 15, 2011 at 01:53:52PM +0100, oskar.andero@sonyericsson.com wrote:
->>> On 10:43 Tue 15 Nov     , Dmitry Torokhov wrote:
->>>> On Tue, Nov 15, 2011 at 10:26:00AM +0100, oskar.andero@sonyericsson.com wrote:
->>>>> From: Courtney Cavin <courtney.cavin@sonyericsson.com>
->>>>> +
->>>>> +#ifdef CONFIG_PM_SLEEP
->>>>> +static int gp2a_suspend(struct device *dev)
->>>>> +{
->>>>> +	struct i2c_client *client = to_i2c_client(dev);
->>>>> +	struct gp2a_data *dt = i2c_get_clientdata(client);
->>>>> +	int error;
->>>>> +
->>>>> +	mutex_lock(&dt->device->mutex);
->>>>> +
->>>>> +	if (dt->device->users) {
->>>>> +		if (device_may_wakeup(&client->dev)) {
->>>>> +			enable_irq_wake(client->irq);
->>>> I think this part should happen regardless of whether device has users,
->>>> only non wakeup source case needs it.
->>> Hmm.. why would one want to enable irq_wake when there are no users?
->>> Wouldn't this cause the device to wakeup at every irq and report an
->>> switch event that no one listens to?
->> You are suspending the system and want to have this device as a wakeup
->> source. Note: not wake up _device_ at every IRQ but wake up the whole
->> _system_ when device generates an IRQ while system is asleep.
->> It does not matter whether there are users for the events; you
->> want the system to wake up.
->>
->> At least this is the usual semantics.
-> I see you point. However, the way we use the proximity sensor we can only wake up
-> the system when we have an application that is actually interested in the change.
-> This is for power save reasons.
-> If we use the "usual semantic", we would wake up the system at every proximity
-> detection regardlessly. For instance, I wouldn't want to wake up a cell phone laying
-> on the desk when I put my hand over it. That would hurt the battery time.
-Even in that case it shouldn't harm the power if no user is there the
-close would have been called
-and you should  be in the shut down mode? Am I missing something?
-> -Oskar
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hi,
+
+I found an example on how to use libudev to iterate over devices present 
+in the system to find its precise path since the path can be different 
+everytime we plug a device into the system.
+
+http://www.signal11.us/oss/udev/
+
+In this example, the type of device searched is hidraw, however I have 
+already tried input, event, etc and none of this match criterias in the 
+following function:
+
+|*udev_enumerate_add_match_subsystem*(enumerate,*"hidraw"*);|
+
+
+Only hidraw seems to work.
+
+Can I use this technic to found the path a of input event device?
+
+Thanks,
+
+With my best regards,
+
+Nuno
 

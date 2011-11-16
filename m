@@ -1,121 +1,56 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Add generic GPIO-tilt driver
-Date: Wed, 16 Nov 2011 08:48:07 -0800
-Message-ID: <20111116164807.GA19305@core.coreip.homeip.net>
-References: <201110211043.47742.heiko@sntech.de>
- <20111116071822.GA19407@core.coreip.homeip.net>
- <201111161202.08131.heiko@sntech.de>
+Subject: Re: [PATCH v2] input: add driver support for Sharp gp2ap002a00f
+ proximity sensor
+Date: Wed, 16 Nov 2011 08:50:43 -0800
+Message-ID: <20111116165043.GB19305@core.coreip.homeip.net>
+References: <1321285158-7123-1-git-send-email-oskar.andero@sonyericsson.com>
+ <20111114170352.GA12659@core.coreip.homeip.net>
+ <20111115073400.GD9307@caracas.corpusers.net>
+ <1321457952.1790.16.camel@anish-Inspiron-N5050>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:53982 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756243Ab1KPQsW (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:44879 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753612Ab1KPQu6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Nov 2011 11:48:22 -0500
-Received: by pzk36 with SMTP id 36so19319509pzk.1
-        for <linux-input@vger.kernel.org>; Wed, 16 Nov 2011 08:48:21 -0800 (PST)
+	Wed, 16 Nov 2011 11:50:58 -0500
 Content-Disposition: inline
-In-Reply-To: <201111161202.08131.heiko@sntech.de>
+In-Reply-To: <1321457952.1790.16.camel@anish-Inspiron-N5050>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Cc: linux-input@vger.kernel.org
+To: anish kumar <anish198519851985@gmail.com>
+Cc: oskar.andero@sonyericsson.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jic23@cam.ac.uk" <jic23@cam.ac.uk>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "Cavin, Courtney" <Courtney.Cavin@sonyericsson.com>
 
-On Wed, Nov 16, 2011 at 12:02:07PM +0100, Heiko St=FCbner wrote:
-> Hi Dmitry,
->=20
-> Am Mittwoch 16 November 2011, 08:18:22 schrieb Dmitry Torokhov:
-> > Hi Heiko,
-> >=20
-> > On Fri, Oct 21, 2011 at 10:43:47AM +0200, Heiko St=FCbner wrote:
-> > > There exist tilt switches that simply report their tilt-state via=
- some
-> > > gpios.
-> > >=20
-> > > The number and orientation of their axes can vary depending on th=
-e switch
-> > > used and the build of the device. Also two or more one-axis switc=
-hes
-> > > could be combined to provide multi-dimensional orientation.
-> > >=20
-> > > One example of a device using such a switch is the family of Qisd=
-a
-> > > ebook readers, where the switch provides information about the
-> > > landscape / portrait orientation of the device. The example in
-> > > Documentation/input/gpio-tilt.txt documents exactly this one-axis=
- device.
-> >=20
-> > Looks very nice, just a few comments below.
-> thanks for your review, comments below
->=20
-> [...]
->=20
-> > > +static void gpio_tilt_polled_poll(struct input_polled_dev *dev)
-> > > +{
-> > > +	struct gpio_tilt_polled_dev *bdev =3D dev->private;
-> >=20
-> > Call it tdev or tilt or tilt_dev or something? bdev is not very fit=
-ting
-> > here.
-> ok, will change this
->=20
-> [...]
->=20
-> > > +static int __devinit gpio_tilt_polled_probe(struct platform_devi=
-ce
-> > > *pdev) +{
-> > > +	struct gpio_tilt_platform_data *pdata =3D pdev->dev.platform_da=
-ta;
-> > > +	struct device *dev =3D &pdev->dev;
-> > > +	struct gpio_tilt_polled_dev *bdev;
-> > > +	struct input_polled_dev *poll_dev;
-> > > +	struct input_dev *input;
-> > > +	int error, i;
-> > > +
-> > > +	if (!pdata || !pdata->poll_interval)
-> > > +		return -EINVAL;
-> > > +
-> > > +	bdev =3D kzalloc(sizeof(struct gpio_tilt_polled_dev), GFP_KERNE=
-L);
-> > > +	if (!bdev) {
-> > > +		dev_err(dev, "no memory for private data\n");
-> > > +		return -ENOMEM;
-> > > +	}
-> > > +
-> > > +	bdev->gpios =3D kmemdup(pdata->gpios,
-> > > +				 pdata->nr_gpios * sizeof(struct gpio),
-> > > +				 GFP_KERNEL);
-> > > +	if (bdev->gpios =3D=3D NULL) {
-> > > +		dev_err(&pdev->dev, "Failed to allocate gpio data\n");
-> > > +		error =3D -ENOMEM;
-> > > +		goto err_free_bdev;
-> > > +	}
-> > > +	bdev->nr_gpios =3D pdata->nr_gpios;
-> >=20
-> > Do you actually need to do this? Can't you just store the pointer t=
-o
-> > the platform data and use it instead? Same goes for the rest of ite=
-ms
-> > you are cloning.
->=20
-> As I understand it from previous patches, platform data should be mar=
-kable as=20
-> initdata which means the kernel discards it after boot. Therefore it =
-cannot be=20
+On Thu, Nov 17, 2011 at 12:39:12AM +0900, anish kumar wrote:
+> On Tue, 2011-11-15 at 08:34 +0100, oskar.andero@sonyericsson.com wrote:
+> > > > +#ifdef CONFIG_PM_SLEEP
+> > > > +static int gp2a_suspend(struct device *dev)
+> > > > +{
+> > > > +	struct i2c_client *client = to_i2c_client(dev);
+> > > > +	struct gp2a_data *dt = i2c_get_clientdata(client);
+> > > > +	int error;
+> > > > +
+> > > > +	if (device_may_wakeup(&client->dev)) {
+> > > > +		enable_irq_wake(client->irq);
+> > > > +	} else {
+> > > 
+> > > This needs locking WRT open/close. Please acquire dt->device->mutex and
+> > > only disable if dt->device->users != 0. Similar shoudl be done for
+> > > resume.
+> > 
+> > I see what you mean. I will fix it. 
+> Is my understanding correct?You are going to disable the device 
+> only when there are users of the driver and not disable the device
+> otherwise.As anyway if there are no users the driver would have been
+> already disabled right?
 
-Absolutely not. Consider what happens if your driver is a module and is
-loaded after boot is complete. Or you unload and reload it;
-platform_data has to stay there, it  later must not be marked initdata
-and freed.
+Right, if there are no usrs device should already be in low power mode
+and we do not need anything to do here. Additionally, if device has no
+users we do not wantt o power it on in esume() as this will only cause
+us to waste power.
 
 Thanks.
 
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,47 +1,93 @@
-From: Nuno Santos <nsantos@edigma.com>
-Subject: Re: Interacting with a input kernel driver from user space
-Date: Thu, 17 Nov 2011 16:58:36 +0000
-Message-ID: <4EC53D3C.9030900@edigma.com>
-References: <4EC10878.20109@edigma.com> <CANq1E4SZnv0yNbmKqV-my3wanKGe4R4UW6_=z-awO6ci14xyRA@mail.gmail.com> <4EC13B0F.2080509@edigma.com> <CANq1E4SMr1HWXSV3Fc6mB8oCWEJv63i_QZFQLMYCBqCdYsDZxA@mail.gmail.com> <4EC3F2AD.5080505@edigma.com> <20111116192749.GA26909@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] input: add driver support for Sharp gp2ap002a00f
+ proximity sensor
+Date: Thu, 17 Nov 2011 13:43:51 -0800
+Message-ID: <20111117214343.GB31479@core.coreip.homeip.net>
+References: <1321349160-2931-1-git-send-email-oskar.andero@sonyericsson.com>
+ <20111115094342.GD13157@core.coreip.homeip.net>
+ <20111115125352.GA23767@caracas.corpusers.net>
+ <20111115182909.GB6410@core.coreip.homeip.net>
+ <20111116103705.GA14696@caracas.corpusers.net>
+ <4EC39E7B.7020706@ti.com>
+ <20111116121803.GB14696@caracas.corpusers.net>
+ <20111117112219.GA14781@caracas.corpusers.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx01.edigma.com ([195.22.21.235]:41106 "EHLO mx01.edigma.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932294Ab1KQQ6k (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Nov 2011 11:58:40 -0500
-In-Reply-To: <20111116192749.GA26909@core.coreip.homeip.net>
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:38353 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752554Ab1KQVoG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Nov 2011 16:44:06 -0500
+Content-Disposition: inline
+In-Reply-To: <20111117112219.GA14781@caracas.corpusers.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, linux-input@vger.kernel.org
+To: oskar.andero@sonyericsson.com
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jic23@cam.ac.uk" <jic23@cam.ac.uk>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "Cavin, Courtney" <Courtney.Cavin@sonyericsson.com>, Shubhrajyoti <shubhrajyoti@ti.com>
 
- > Now that i'm copying the proper amount of data I have another
- > problem. I'm actually reading this attribute constantly when I open
- > my control panel, however it seems that I can only have reading
- > results from second to second. Is there anything that limits the
- > amount of times I can push attribute data per second? I would
- > definitily need at least 40 readings per second in order to have my
- > data visualized in control panel.
+On Thu, Nov 17, 2011 at 12:22:19PM +0100, oskar.andero@sonyericsson.com wrote:
+> Hi Dmitry,
+> 
+> On 13:18 Wed 16 Nov     , Oskar Andero wrote:
+> > On 12:28 Wed 16 Nov     , Shubhrajyoti wrote:
+> > > On Wednesday 16 November 2011 04:07 PM, oskar.andero@sonyericsson.com
+> > > wrote:
+> > > > On 19:29 Tue 15 Nov     , Dmitry Torokhov wrote:
+> > > >> On Tue, Nov 15, 2011 at 01:53:52PM +0100, oskar.andero@sonyericsson.com wrote:
+> > > >>> On 10:43 Tue 15 Nov     , Dmitry Torokhov wrote:
+> > > >>>> On Tue, Nov 15, 2011 at 10:26:00AM +0100, oskar.andero@sonyericsson.com wrote:
+> > > >>>>> From: Courtney Cavin <courtney.cavin@sonyericsson.com>
+> > > >>>>> +
+> > > >>>>> +#ifdef CONFIG_PM_SLEEP
+> > > >>>>> +static int gp2a_suspend(struct device *dev)
+> > > >>>>> +{
+> > > >>>>> +	struct i2c_client *client = to_i2c_client(dev);
+> > > >>>>> +	struct gp2a_data *dt = i2c_get_clientdata(client);
+> > > >>>>> +	int error;
+> > > >>>>> +
+> > > >>>>> +	mutex_lock(&dt->device->mutex);
+> > > >>>>> +
+> > > >>>>> +	if (dt->device->users) {
+> > > >>>>> +		if (device_may_wakeup(&client->dev)) {
+> > > >>>>> +			enable_irq_wake(client->irq);
+> > > >>>> I think this part should happen regardless of whether device has users,
+> > > >>>> only non wakeup source case needs it.
+> > > >>> Hmm.. why would one want to enable irq_wake when there are no users?
+> > > >>> Wouldn't this cause the device to wakeup at every irq and report an
+> > > >>> switch event that no one listens to?
+> > > >> You are suspending the system and want to have this device as a wakeup
+> > > >> source. Note: not wake up _device_ at every IRQ but wake up the whole
+> > > >> _system_ when device generates an IRQ while system is asleep.
+> > > >> It does not matter whether there are users for the events; you
+> > > >> want the system to wake up.
+> > > >>
+> > > >> At least this is the usual semantics.
+> > > > I see you point. However, the way we use the proximity sensor we can only wake up
+> > > > the system when we have an application that is actually interested in the change.
+> > > > This is for power save reasons.
+> > > > If we use the "usual semantic", we would wake up the system at every proximity
+> > > > detection regardlessly. For instance, I wouldn't want to wake up a cell phone laying
+> > > > on the desk when I put my hand over it. That would hurt the battery time.
+> > > Even in that case it shouldn't harm the power if no user is there the
+> > > close would have been called
+> > > and you should  be in the shut down mode? Am I missing something?
+> > 
+> > You are right - the chip will only generate interrupts when it's opened, so the case
+> > I described shouldn't actually be a problem. However, does it make sense to enable irq_wake
+> > for a device that will never generate interrupts?
+> 
+> Do you have any input on my question above? My suggestion is to keep the code as it is,
+> unless you see a reason for enabling wake_irq on an irq that will never happen.
 
-I had overcome this problem using binary attributes. It's blazing fast now.
+So let me get it straight - with your particular device (as in phone)
+you do not expect the sensor to be used as a wakeup source for the
+system. If this is correct then it does not really matter what suspend
+and resume callbacks are doing. Other devices using the same sensor
+might have different requirements, including being a wakeup source for
+the system.
 
-First I tried with a 4096 length attribute. But when I tried to transfer 
-the whole state variable, the one that size is 40k length, I got kernel 
-error at the middle of the transfer. My guess in that case is that the 
-operation is not atomic and the variable was written between bin 
-attribute read calls. Does this make sense?
+Thanks.
 
-Having such an attribute would really spare me a lot of time doing the 
-control panel interaction and it would make me windows version and linux 
-version very similiar, therefore I would use the very mechanisms.
-
-With this said, i'm not discarding all the thing that you guys I have 
-been telling me in the last emails and with the time I can make my head 
-clear for structural changes in order to make this become better with 
-the time in both OS's.
-
-Thanks,
-
-Nuno
+-- 
+Dmitry

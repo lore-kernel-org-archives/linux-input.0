@@ -1,57 +1,55 @@
-From: Anatolij Gustschin <agust@denx.de>
-Subject: Re: [PATCH] edt_ts: EDT Touchscreen driver
-Date: Thu, 17 Nov 2011 13:20:41 +0100
-Message-ID: <20111117132041.0b581ac0@wker>
-References: <1320795279-2018-1-git-send-email-yanok@emcraft.com>
-	<20111114172809.GD12659@core.coreip.homeip.net>
-	<4EC1832D.3080405@emcraft.com>
-	<20111114213241.GA26418@core.coreip.homeip.net>
-	<20111115101715.7b330e1d@wker>
-	<20111115174137.GB15129@core.coreip.homeip.net>
-	<4EC420A1.7080502@emcraft.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: [PATCH 16/16] HID: wiimote: Enable NO_INIT_REPORTS quirk
+Date: Thu, 17 Nov 2011 14:11:50 +0100
+Message-ID: <CANq1E4QAWqE0Ag+-pVSgHZAR=WKw9d8WQ2505SKM7wnf0sK3hg@mail.gmail.com>
+References: <1321190839-3517-1-git-send-email-dh.herrmann@googlemail.com>
+	<1321190839-3517-17-git-send-email-dh.herrmann@googlemail.com>
+	<alpine.LNX.2.00.1111161805250.15187@pobox.suse.cz>
+	<CANq1E4T-mMYgEZFSEcZnWZvPCBRg1J=f8zJSc-OOqVK9bJ9dsA@mail.gmail.com>
+	<alpine.LNX.2.00.1111161938430.15187@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:48583 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757070Ab1KQMUo (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:48113 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756345Ab1KQNLw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Nov 2011 07:20:44 -0500
-In-Reply-To: <4EC420A1.7080502@emcraft.com>
+	Thu, 17 Nov 2011 08:11:52 -0500
+Received: by wwe5 with SMTP id 5so2878372wwe.1
+        for <linux-input@vger.kernel.org>; Thu, 17 Nov 2011 05:11:51 -0800 (PST)
+In-Reply-To: <alpine.LNX.2.00.1111161938430.15187@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ilya Yanok <yanok@emcraft.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, wd@denx.de, dzu@denx.de, sasha_d@emcraft.com
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-Hi Ilya,
+On Wed, Nov 16, 2011 at 7:39 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Wed, 16 Nov 2011, David Herrmann wrote:
+>
+>> >> -#define WIIMOTE_VERSION "0.2"
+>> >> +#define WIIMOTE_VERSION "0.3"
+>> >
+>> > Do we really need this?
+>> >
+>> > I generally prefer not having any file versioning for the files that are
+>> > implicitly tracked by kernel git.
+>>
+>> No, not at all. But I thought this was common practice. I have removed
+>> it all together. The next series will be updated.
+>
+> It definitely might make sense for your internal tracking during driver
+> development. I just would like to have it dropped for final merge.
+>
+> Otherwise, I have just finished first round of review, and overall the
+> driver looks fine, thanks!
 
-On Thu, 17 Nov 2011 00:44:17 +0400
-Ilya Yanok <yanok@emcraft.com> wrote:
+Great. I've resent the revised patches. Let me know if there are any
+other issues.
 
-> Hi Dmitry, Anatolij,
-> 
-> On 15.11.2011 21:41, Dmitry Torokhov wrote:
-> >>> Do you really need to read gpio state in IRQ? Can't you simply rely on
-> >>> 'event' do decide whether to emit input events?
-> >>
-> >> We can't rely on the 'event' only. The peculiar behaviour of the
-> >> touch controller enforces this. The touch controller toggles the
-> >> interrupt line when you keep the finger down. The rate is not exactly
-> >> specified by the the manufacturer (~80/sec). Measured rate deviates
-> >> from this specified rate. Valid touch packet data can be read when
-> >> interrupt line is pulled down.
-> > 
-> > So what ensures that the gpio line stays low between the check and the
-> > time you get access to i2c bus and get around reading the data.
-> 
-> Anatolij, could you please comment on this? What can we do about this?
-> Check the pin state after i2c read maybe?
+> --
+> Jiri Kosina
+> SUSE Labs
+>
 
-I received a suggestion to look at the time elapsed since falling
-edge of the GPIO IRQ before reading the touch packet data and
-skip reading if it is too late. I'll also check what the touch
-packet data looks like when reading it while finger is down but
-the line stays high. 
-
-Anatolij
+Cheers
+David

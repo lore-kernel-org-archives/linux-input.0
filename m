@@ -1,7 +1,7 @@
 From: Cedric Sodhi <manday@gmx.net>
 Subject: Re: HID: Dead ./debug/hid/xxx/events
-Date: Thu, 17 Nov 2011 07:58:04 +0100
-Message-ID: <20111117065804.GA2110@slate>
+Date: Thu, 17 Nov 2011 07:59:55 +0100
+Message-ID: <20111117065955.GB2110@slate>
 References: <20111116095030.GC3335@slate>
  <CAN+gG=F2aFTkhUVp4Sf8p-PdAj5ft1eotuWbnP=WaYAugA8tVw@mail.gmail.com>
  <20111116102514.GA3831@slate>
@@ -11,71 +11,58 @@ References: <20111116095030.GC3335@slate>
  <CAGzDe_ahR9pVkZa8BQkfCq2zeVCojkX=t6WBcQYkrv3z91fb+Q@mail.gmail.com>
  <4EC3EC63.4020700@gmail.com>
  <20111116204759.GA2153@slate>
- <CAN+gG=H18JdRBJeXAYPuOa97HbjYsUzTYMvnuAdddjLW30eckg@mail.gmail.com>
+ <CAGzDe_ak_xzjJkpQcNwwgL+pu94qfhAixjS=9TF3679cpcPFpw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.22]:52589 "HELO
+Received: from mailout-de.gmx.net ([213.165.64.23]:55727 "HELO
 	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751709Ab1KQG61 (ORCPT
+	with SMTP id S1751709Ab1KQHAP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Nov 2011 01:58:27 -0500
+	Thu, 17 Nov 2011 02:00:15 -0500
 Content-Disposition: inline
-In-Reply-To: <CAN+gG=H18JdRBJeXAYPuOa97HbjYsUzTYMvnuAdddjLW30eckg@mail.gmail.com>
+In-Reply-To: <CAGzDe_ak_xzjJkpQcNwwgL+pu94qfhAixjS=9TF3679cpcPFpw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
+To: Chris Bagwell <chris@cnpbagwell.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
 
-On Wed, Nov 16, 2011 at 10:22:58PM +0100, Benjamin Tissoires wrote:
-> Hi Chris,
+On Wed, Nov 16, 2011 at 03:23:50PM -0600, Chris Bagwell wrote:
+> One update on my side.  I was looking at hid-multitouch.c from
+> Dmitri's next branch and didn't see that ALWAYS_VALID.  So I thought
+> it was a typo and manually mapping your "18" value to
+> VALID_IS_INRANGE; which we were previously setting it to.  Thats why =
+I
+> mentioned I thought you were setting to same quirks.
 >=20
-> it looks like the quirks were not taken into account.
-> Normally, you don't need to manually add the VID:PID with the sysfs a=
-s
-> you already registered your device in the list.
-
-Assuming that it was me who you were addressing: I'm aware of that. As
-the diff shows, I added the device to the "hardcoded" whitelist as
-MULTITOUCH5, using the quirks SLOT_IS_CONTACTID and ALWAYS_VALID.
+> Thanks for diff.  Often a diff is worth a thousand words.
 >=20
-> 1) What is the value of the quirks sysfs attrib ? (according to your
-> logs, it should show 1, instead of 18)
+> OK, now back to your email.  I'm confused about your logs.  The URL
+> points to the tar file with multiple logs and the evtest_twofinger.lo=
+g
+> inside it is the one I was talking about having issues.
 
-Cat'ing quirks returns 18. Conclusion ahead: I think I must have taken
-those logs in the TAR file before I added the device to the whitelist
-and then forgot to write out the quirks to sysfs, while manually adding
-it.
+Indeed. Those logs in the TAR file were created when I was still
+manually adding the device to sysfs (that is, before that very diff
+which includes changes to the whitelist). It looks like I neglected to
+set the quirks back then. Sorry.
 
 >=20
-> 2) did you do depmod and are you sure the hid-multitouch module loade=
-d
-> is the one with USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH5?
-> to be sure, please provide the outputs of:
-> $ modinfo hid-multitouch
-> $ modinfo <path to jiri-hid>/drivers/hid/hid-multitouch.ko
->=20
-> If you added your device through the sysfs because it was not taken b=
-y
-> hid-multitouch, replace the last parameter by 104:
-> $ echo 3 0eef a001 104 > new_id
-> But again, this is not the right way as you registered it.
->=20
+> Now you've attached a new evtest_twofinger.log and its values look
+> good.  So your saying this new log is from a version based on the
+> diff?
 
-Therefore, no, everything seems to work now. The device is picked up
-through the patch and, according to Chris, returns the correct values.
-
-The log which I attached to my last email was the one I took after
-making the changes to the code. I forgot to specify that.
+Exactly.
 
 Cedric
 
-> Cheers,
-> Benjamin
+> If so, I'll chalk it up to some debug issue and sounds like
+> ALWAYS_VALID is indeed the key to this.
 >=20
+> Chris
 >=20
-> On Wed, Nov 16, 2011 at 21:48, Cedric Sodhi <manday@gmx.net> wrote:
+> On Wed, Nov 16, 2011 at 2:48 PM, Cedric Sodhi <manday@gmx.net> wrote:
 > > Dear Benjamin,
 > >
 > > I applied your patch tp 3.2-jikos (uname shows 3.1, though). The
@@ -118,6 +105,11 @@ ming
 > >
 > > Cedric
 > >
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

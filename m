@@ -1,93 +1,125 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] input: add driver support for Sharp gp2ap002a00f
- proximity sensor
-Date: Thu, 17 Nov 2011 13:43:51 -0800
-Message-ID: <20111117214343.GB31479@core.coreip.homeip.net>
-References: <1321349160-2931-1-git-send-email-oskar.andero@sonyericsson.com>
- <20111115094342.GD13157@core.coreip.homeip.net>
- <20111115125352.GA23767@caracas.corpusers.net>
- <20111115182909.GB6410@core.coreip.homeip.net>
- <20111116103705.GA14696@caracas.corpusers.net>
- <4EC39E7B.7020706@ti.com>
- <20111116121803.GB14696@caracas.corpusers.net>
- <20111117112219.GA14781@caracas.corpusers.net>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH 2/2] Input: elantech - add resolution query support for v4 hardware
+Date: Fri, 18 Nov 2011 16:08:53 +0800
+Message-ID: <CAGS+omCnQGyw3j=B7JxTwtsu0Vn+_iT1+y8tN72_zxo4Z09=bQ@mail.gmail.com>
+References: <1321524994-5513-1-git-send-email-jj_ding@emc.com.tw> <1321524994-5513-3-git-send-email-jj_ding@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=Big5
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:38353 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752554Ab1KQVoG (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:46903 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751001Ab1KRIJP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Nov 2011 16:44:06 -0500
-Content-Disposition: inline
-In-Reply-To: <20111117112219.GA14781@caracas.corpusers.net>
+	Fri, 18 Nov 2011 03:09:15 -0500
+Received: by iage36 with SMTP id e36so3286073iag.19
+        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2011 00:09:14 -0800 (PST)
+In-Reply-To: <1321524994-5513-3-git-send-email-jj_ding@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: oskar.andero@sonyericsson.com
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jic23@cam.ac.uk" <jic23@cam.ac.uk>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "Cavin, Courtney" <Courtney.Cavin@sonyericsson.com>, Shubhrajyoti <shubhrajyoti@ti.com>
+To: JJ Ding <jj_ding@emc.com.tw>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>, linux-input@vger.kernel.org
 
-On Thu, Nov 17, 2011 at 12:22:19PM +0100, oskar.andero@sonyericsson.com wrote:
-> Hi Dmitry,
-> 
-> On 13:18 Wed 16 Nov     , Oskar Andero wrote:
-> > On 12:28 Wed 16 Nov     , Shubhrajyoti wrote:
-> > > On Wednesday 16 November 2011 04:07 PM, oskar.andero@sonyericsson.com
-> > > wrote:
-> > > > On 19:29 Tue 15 Nov     , Dmitry Torokhov wrote:
-> > > >> On Tue, Nov 15, 2011 at 01:53:52PM +0100, oskar.andero@sonyericsson.com wrote:
-> > > >>> On 10:43 Tue 15 Nov     , Dmitry Torokhov wrote:
-> > > >>>> On Tue, Nov 15, 2011 at 10:26:00AM +0100, oskar.andero@sonyericsson.com wrote:
-> > > >>>>> From: Courtney Cavin <courtney.cavin@sonyericsson.com>
-> > > >>>>> +
-> > > >>>>> +#ifdef CONFIG_PM_SLEEP
-> > > >>>>> +static int gp2a_suspend(struct device *dev)
-> > > >>>>> +{
-> > > >>>>> +	struct i2c_client *client = to_i2c_client(dev);
-> > > >>>>> +	struct gp2a_data *dt = i2c_get_clientdata(client);
-> > > >>>>> +	int error;
-> > > >>>>> +
-> > > >>>>> +	mutex_lock(&dt->device->mutex);
-> > > >>>>> +
-> > > >>>>> +	if (dt->device->users) {
-> > > >>>>> +		if (device_may_wakeup(&client->dev)) {
-> > > >>>>> +			enable_irq_wake(client->irq);
-> > > >>>> I think this part should happen regardless of whether device has users,
-> > > >>>> only non wakeup source case needs it.
-> > > >>> Hmm.. why would one want to enable irq_wake when there are no users?
-> > > >>> Wouldn't this cause the device to wakeup at every irq and report an
-> > > >>> switch event that no one listens to?
-> > > >> You are suspending the system and want to have this device as a wakeup
-> > > >> source. Note: not wake up _device_ at every IRQ but wake up the whole
-> > > >> _system_ when device generates an IRQ while system is asleep.
-> > > >> It does not matter whether there are users for the events; you
-> > > >> want the system to wake up.
-> > > >>
-> > > >> At least this is the usual semantics.
-> > > > I see you point. However, the way we use the proximity sensor we can only wake up
-> > > > the system when we have an application that is actually interested in the change.
-> > > > This is for power save reasons.
-> > > > If we use the "usual semantic", we would wake up the system at every proximity
-> > > > detection regardlessly. For instance, I wouldn't want to wake up a cell phone laying
-> > > > on the desk when I put my hand over it. That would hurt the battery time.
-> > > Even in that case it shouldn't harm the power if no user is there the
-> > > close would have been called
-> > > and you should  be in the shut down mode? Am I missing something?
-> > 
-> > You are right - the chip will only generate interrupts when it's opened, so the case
-> > I described shouldn't actually be a problem. However, does it make sense to enable irq_wake
-> > for a device that will never generate interrupts?
-> 
-> Do you have any input on my question above? My suggestion is to keep the code as it is,
-> unless you see a reason for enabling wake_irq on an irq that will never happen.
+Hi JJ,
 
-So let me get it straight - with your particular device (as in phone)
-you do not expect the sensor to be used as a wakeup source for the
-system. If this is correct then it does not really matter what suspend
-and resume callbacks are doing. Other devices using the same sensor
-might have different requirements, including being a wakeup source for
-the system.
+On Thu, Nov 17, 2011 at 6:16 PM, JJ Ding <jj_ding@emc.com.tw> wrote:
+> It turns out that v4's firmware provides a command so we can query
+> the resolution. Let's use it.
+>
+> Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
+> ---
+>  drivers/input/mouse/elantech.c |   32 ++++++++++++++++++++++++++++++++
+>  drivers/input/mouse/elantech.h |    1 +
+>  2 files changed, 33 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index dae020c..7c00c1a 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -931,6 +931,30 @@ static int elantech_set_range(struct psmouse *psmouse,
+>  }
+>
+>  /*
+> + * (value from firmware) * 10 + 790 = dpi
+> + * we also have to convert dpi to dots/mm (*10/254 to avoid floating point)
+> + */
+> +static inline unsigned int convert_res(unsigned int val)
+> +{
+> +       return (val * 10 + 790) * 10 / 254;
+> +}
+> +
+> +static int set_resolution_v4(struct psmouse *psmouse,
+> +                            unsigned int *x_res,
+> +                            unsigned int *y_res)
+> +{
+> +       unsigned char param[3];
+> +
+> +       if (elantech_send_cmd(psmouse, ETP_RESOLUTION_QUERY, param))
+> +               return -1;
+> +
+> +       *x_res = convert_res(param[1] & 0x0f);
+> +       *y_res = convert_res((param[1] & 0xf0) >> 4);
+> +
+> +       return 0;
+> +}
+> +
+> +/*
+>  * Set the appropriate event bits for the input subsystem
+>  */
+>  static int elantech_set_input_params(struct psmouse *psmouse)
+> @@ -938,6 +962,7 @@ static int elantech_set_input_params(struct psmouse *psmouse)
+>        struct input_dev *dev = psmouse->dev;
+>        struct elantech_data *etd = psmouse->private;
+>        unsigned int x_min = 0, y_min = 0, x_max = 0, y_max = 0, width = 0;
+> +       unsigned int x_res = 0, y_res = 0;
+>
+>        if (elantech_set_range(psmouse, &x_min, &y_min, &x_max, &y_max, &width))
+>                return -1;
+> @@ -985,10 +1010,15 @@ static int elantech_set_input_params(struct psmouse *psmouse)
+>                break;
+>
+>        case 4:
+> +               if (set_resolution_v4(psmouse, &x_res, &y_res))
+> +                       return -1;
 
-Thanks.
+You might consider allowing this command to fail, but just log a
+warning message.
+Then only do the input_abs_set_res() if x_res / y_res != 0.
 
--- 
-Dmitry
+Otherwise, for both patches in this set:
+
+Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
+
+> +
+>                __set_bit(BTN_TOOL_QUADTAP, dev->keybit);
+>                /* For X to recognize me as touchpad. */
+>                input_set_abs_params(dev, ABS_X, x_min, x_max, 0, 0);
+>                input_set_abs_params(dev, ABS_Y, y_min, y_max, 0, 0);
+> +               input_abs_set_res(dev, ABS_X, x_res);
+> +               input_abs_set_res(dev, ABS_Y, y_res);
+>                /*
+>                 * range of pressure and width is the same as v2,
+>                 * report ABS_PRESSURE, ABS_TOOL_WIDTH for compatibility.
+> @@ -1001,6 +1031,8 @@ static int elantech_set_input_params(struct psmouse *psmouse)
+>                input_mt_init_slots(dev, ETP_MAX_FINGERS);
+>                input_set_abs_params(dev, ABS_MT_POSITION_X, x_min, x_max, 0, 0);
+>                input_set_abs_params(dev, ABS_MT_POSITION_Y, y_min, y_max, 0, 0);
+> +               input_abs_set_res(dev, ABS_MT_POSITION_X, x_res);
+> +               input_abs_set_res(dev, ABS_MT_POSITION_Y, y_res);
+>                input_set_abs_params(dev, ABS_MT_PRESSURE, ETP_PMIN_V2,
+>                                     ETP_PMAX_V2, 0, 0);
+>                /*
+> diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
+> index 08d00bd..46db3be 100644
+> --- a/drivers/input/mouse/elantech.h
+> +++ b/drivers/input/mouse/elantech.h
+> @@ -20,6 +20,7 @@
+>  #define ETP_FW_VERSION_QUERY           0x01
+>  #define ETP_CAPABILITIES_QUERY         0x02
+>  #define ETP_SAMPLE_QUERY               0x03
+> +#define ETP_RESOLUTION_QUERY           0x04
+>
+>  /*
+>  * Command values for register reading or writing
+> --
+> 1.7.8-rc2

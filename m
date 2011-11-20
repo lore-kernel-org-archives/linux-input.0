@@ -1,31 +1,50 @@
-From: Ilya Yanok <yanok@emcraft.com>
-Subject: Re: [PATCH] edt_ts: EDT Touchscreen driver
-Date: Sun, 20 Nov 2011 23:22:11 +0400
-Message-ID: <4EC95363.7040300@emcraft.com>
-References: <1320795279-2018-1-git-send-email-yanok@emcraft.com> <20111114172809.GD12659@core.coreip.homeip.net> <4EC94254.8000700@emcraft.com> <20111120183607.GA18116@core.coreip.homeip.net>
+From: Felix Zweig <f.zweig@yahoo.de>
+Subject: ALPS touchpad recognized as Generic Wheel Mouse
+Date: Sun, 20 Nov 2011 21:03:23 +0100
+Message-ID: <4EC95D0B.4070407@yahoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ocean.emcraft.com ([213.221.7.182]:46219 "EHLO
-	ocean.emcraft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753720Ab1KTTWF (ORCPT
+Received: from nm1-vm1.bullet.mail.ne1.yahoo.com ([98.138.91.36]:30837 "HELO
+	nm1-vm1.bullet.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752322Ab1KTUJy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Nov 2011 14:22:05 -0500
-In-Reply-To: <20111120183607.GA18116@core.coreip.homeip.net>
+	Sun, 20 Nov 2011 15:09:54 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, wd@denx.de, dzu@denx.de, sasha_d@emcraft.com, Anatolij Gustshin <agust@denx.de>
+To: linux-input@vger.kernel.org
 
-Hi Dmitry,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On 20.11.2011 22:36, Dmitry Torokhov wrote:
->> Do you really think leaving a pointer to a non-existing structure is a
->> good idea?
-> 
-> I2C core takes care of clearing it after remove() or failed probe().
+The following refers to the same Touchpad as in bug #15893 (ALPS in an
+Acer Aspire 532h).
 
-Ah.. I see. Thanks!
+The device is recognized as "ImPS/2 Generic Wheel Mouse as
+/devices/platform/i8042/serio1/input/input5" instead of a touchpad; at
+least since Linux 3.0 (and up to 3.2-rc2).
 
-Regards, Ilya.
+As one result, middle mouse button emulation doesn't work. IIRC, evdev
+disabled it for non-touchpad inputs a while ago.
+
+Is there a way to have the device recognized correctly as a touchpad (as
+it used to be a few versions earlier, unfortunately I can't remember
+which versions worked).
+
+Regards,
+Felix Zweig
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iQEcBAEBAgAGBQJOyV0LAAoJEPkIdpkG1yBb/8EH/1io1OFfpkvSDHF65niOcwk7
+n7Sy7Ui+c/3WTusqdYl9cyQVoAy2UK3i9MmxWmhxw00vIl65sxZPBinrDJ8JNwnk
+jSNhNSRVw1SLY7qtJ5o4bkg6mezOYYkNSOxlXKF+fRD29fbJnJc8ED3cibZVZFjp
+Roj11DT8DjyR6xLOD6gT2CgLZcpsTUPdP2t0hjGKakNM0ZzDconEYFGetAmpeEgc
+kkB6l0Fe+fntFBuaz3Ltah6I0l8bxlEnDEvcut5IUwrSJJgW7gJpZQjqen7O1O9E
+Tab76U0QBSkvndLeRzRlubNYG7XpgucKifKmg+SD6Yjg5OViMViu3uPc4+i+p8I=
+=wJyt
+-----END PGP SIGNATURE-----

@@ -1,50 +1,40 @@
-From: Felix Zweig <f.zweig@yahoo.de>
-Subject: ALPS touchpad recognized as Generic Wheel Mouse
-Date: Sun, 20 Nov 2011 21:03:23 +0100
-Message-ID: <4EC95D0B.4070407@yahoo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: [PATCH v2 0/2] some updates for newer elantech touchpads
+Date: Mon, 21 Nov 2011 13:53:04 +0800
+Message-ID: <1321854786-6666-1-git-send-email-jj_ding@emc.com.tw>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nm1-vm1.bullet.mail.ne1.yahoo.com ([98.138.91.36]:30837 "HELO
-	nm1-vm1.bullet.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752322Ab1KTUJy (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:39099 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753233Ab1KUFzX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Nov 2011 15:09:54 -0500
+	Mon, 21 Nov 2011 00:55:23 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?UTF-8?q?=C3=89ric=20Piel?= <E.A.B.Piel@tudelft.nl>
+Cc: linux-input@vger.kernel.org, JJ Ding <jj_ding@emc.com.tw>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-The following refers to the same Touchpad as in bug #15893 (ALPS in an
-Acer Aspire 532h).
+These two are my last pending patches for newer elantech touchpads.
+The first patch adds support for a shorter and faster send_cmd, available
+since v3 hardware. The other one teaches the driver to query resolution
+data from v4 hardware.
 
-The device is recognized as "ImPS/2 Generic Wheel Mouse as
-/devices/platform/i8042/serio1/input/input5" instead of a touchpad; at
-least since Linux 3.0 (and up to 3.2-rc2).
+Patches are against Dmitry's current -next tree.
 
-As one result, middle mouse button emulation doesn't work. IIRC, evdev
-disabled it for non-touchpad inputs a while ago.
+Any comment is welcome, thank you very much.
 
-Is there a way to have the device recognized correctly as a touchpad (as
-it used to be a few versions earlier, unfortunately I can't remember
-which versions worked).
+Change in v2:
+ - allow resolution query to fail, print a warning if so. (Daniel)
 
-Regards,
-Felix Zweig
+JJ Ding (2):
+  Input: elantech - add support for elantech fast command
+  Input: elantech - add resolution query support for v4 hardware
 
+ drivers/input/mouse/elantech.c |   75 +++++++++++++++++++++++++++++++++++----
+ drivers/input/mouse/elantech.h |    2 +
+ 2 files changed, 69 insertions(+), 8 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+-- 
+1.7.8-rc2
 
-iQEcBAEBAgAGBQJOyV0LAAoJEPkIdpkG1yBb/8EH/1io1OFfpkvSDHF65niOcwk7
-n7Sy7Ui+c/3WTusqdYl9cyQVoAy2UK3i9MmxWmhxw00vIl65sxZPBinrDJ8JNwnk
-jSNhNSRVw1SLY7qtJ5o4bkg6mezOYYkNSOxlXKF+fRD29fbJnJc8ED3cibZVZFjp
-Roj11DT8DjyR6xLOD6gT2CgLZcpsTUPdP2t0hjGKakNM0ZzDconEYFGetAmpeEgc
-kkB6l0Fe+fntFBuaz3Ltah6I0l8bxlEnDEvcut5IUwrSJJgW7gJpZQjqen7O1O9E
-Tab76U0QBSkvndLeRzRlubNYG7XpgucKifKmg+SD6Yjg5OViMViu3uPc4+i+p8I=
-=wJyt
------END PGP SIGNATURE-----

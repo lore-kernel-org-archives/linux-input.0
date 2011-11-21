@@ -1,65 +1,90 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: Supporting Battery Strength from my Bluetooth Mouse
-Date: Mon, 21 Nov 2011 08:38:21 -0800
-Message-ID: <4ECA7E7D.80207@goop.org>
-References: <4EC75224.7070207@goop.org> <alpine.LNX.2.00.1111191212140.15187@pobox.suse.cz> <4EC820F8.4070900@goop.org> <alpine.LNX.2.00.1111201110480.15187@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: matrix_keyboard based driver
+Date: Mon, 21 Nov 2011 09:27:15 -0800
+Message-ID: <20111121172715.GA2362@core.coreip.homeip.net>
+References: <CAH9NwWd+40pC=UQFZnQcXoYp7J_Ui=cfcGh0WLaXV6niOjfF4g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from claw.goop.org ([74.207.240.146]:46969 "EHLO claw.goop.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751517Ab1KUQi1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Nov 2011 11:38:27 -0500
-In-Reply-To: <alpine.LNX.2.00.1111201110480.15187@pobox.suse.cz>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:55373 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753048Ab1KUR1V (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Nov 2011 12:27:21 -0500
+Received: by iage36 with SMTP id e36so7556059iag.19
+        for <linux-input@vger.kernel.org>; Mon, 21 Nov 2011 09:27:21 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <CAH9NwWd+40pC=UQFZnQcXoYp7J_Ui=cfcGh0WLaXV6niOjfF4g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, vojtech@ucw.cz, Przemo Firszt <przemo@firszt.eu>
+To: Christian Gmeiner <christian.gmeiner@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On 11/20/2011 02:26 AM, Jiri Kosina wrote:
->> Given that this is a generic HID thing, where should it go?  Should 
->> hid-core.c go around trying to create new power supplies?
-> If devices which present the battery status in a standard way start to 
-> appear, we definitely should make it more generic compared to the add-hoc 
-> handling we currently have in Wacom and Wiimote drivers.
+Hi CHristian,
 
-OK.
+On Mon, Nov 21, 2011 at 02:52:17PM +0100, Christian Gmeiner wrote:
+> Hi all,
+> 
+> today I started with a basic matrix_keyboard based keypad driver. It
+> seems to work quite
+> well but I have some questions.
+> 
+> Is it possible to define following values from user space?
+> 
+> * debounce time in [ms]
 
-> This would however force us to have a separate driver on HID bus for
-> such devices. I'd prefer to have this in generic code (we are handling
-> gazillions of devices just by hid-core/hid-input without any need for
-> additional hidbus driver) if possible. I haven't personally came
-> across many devices that would present bogus Battery status in their
-> report descriptor, but it'll probably require some more investigation.
+No as it is mostly hardware property, not user preference.
 
-I have no problem just doing it for all devices unconditionally (well,
-conditional on Battery Strength) if you don't think it would be a problem.
+> * auto repeat time in [ms]
 
->> Bluetooth, for example, has a separate descriptor entry about whether 
->> the device is battery powered which is much more likely to be accurate 
->> than the generic HID descriptor, and it can call the power supply helper 
->> as part of the HID setup.
->>
->> Does that sound reasonable?
-> Making the battery / power_supply initialization part of low-level HID 
-> transport initialization (usb/bluetooth) makes probably the most sense, 
-> yes.
+Yes: EVIOCSREP (kbdrate or similar). Note that X ignores kernel
+autorepeat and implements its own.
 
-Though unfortunately it looks like the SDP data that contains that
-information is only parsed by usermode, and so isn't available to the
-kernel.  That makes a generic HID-wide approach look more appealing.
+> * multi click abort time in [ms]
 
-> That depends a bit on the type of the event (EV_KEY has to handle 
-> auto-repeat for example, etc). See the switch in input_handle_event() 
-> which contains the logic behind what is happening when 'duplicate' event 
-> is coming through input core.
+I have no idea what that is, so apparently no ;)
 
-In this case, it will be EV_ABS/ABS_MISC which does have duplicates
-suppressed.
+> 
+> I am also not sure about the default keymap I should use in the
+> platform_data. At
+> the moment it looks like:
+> 
+> static const uint32_t ot200_keymap[] = {
+> 	KEY(0, 1, 0x01),
+> 	KEY(0, 2, 0x02),
+> 	KEY(0, 3, 0x03),
+> 	KEY(0, 4, 0x04),
+> 	KEY(0, 5, 0x05),
+> 	KEY(0, 6, 0x06),
+> 	KEY(0, 7, 0x07),
+> 	KEY(0, 8, 0x08),
+> 	KEY(0, 9, 0x09),
+> ...
+> ...
+> 	KEY(9, 6, 0x96),
+> 	KEY(9, 7, 0x97),
+> 	KEY(9, 8, 0x98),
+> 	KEY(9, 9, 0x99),
 
-Now I need to work out the control flow.  What's the best place to hook
-in "register something if something is present in the descriptor"?
+The last items in triplets should be KEY_* constant defined in
+include/linux/input.h
 
-    J
+> };
+> 
+> I need to configure the mapping from userspace and it is be done via loadkeys
+> if I am not wrong.
 
+To adjust mapping of the input device itself one should use 'setkeycode'
+or some other utility issuing EVIOCGKEYCODE/EVIOCSKEYCODE ioctls.
+
+loadkeys adjusts higher level keymap used by the console.
+
+> Does the input core handle cases like SHIFT key and
+> CAPS lock?
+
+No, that is the task for higher layers (console, X, etc...).
+
+Thanks.
+
+-- 
+Dmitry

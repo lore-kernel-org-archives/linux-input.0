@@ -1,59 +1,45 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: matrix_keyboard based driver
-Date: Mon, 21 Nov 2011 14:52:17 +0100
-Message-ID: <CAH9NwWd+40pC=UQFZnQcXoYp7J_Ui=cfcGh0WLaXV6niOjfF4g@mail.gmail.com>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: ALPS touchpad recognized as Generic Wheel Mouse
+Date: Mon, 21 Nov 2011 08:47:59 -0600
+Message-ID: <20111121144759.GB6736@thinkpad-t410>
+References: <4EC95D0B.4070407@yahoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:40136 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753465Ab1KUNwj (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:57152 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753323Ab1KUOsC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Nov 2011 08:52:39 -0500
-Received: by ghbz2 with SMTP id z2so2794172ghb.19
-        for <linux-input@vger.kernel.org>; Mon, 21 Nov 2011 05:52:38 -0800 (PST)
+	Mon, 21 Nov 2011 09:48:02 -0500
+Content-Disposition: inline
+In-Reply-To: <4EC95D0B.4070407@yahoo.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Felix Zweig <f.zweig@yahoo.de>
+Cc: linux-input@vger.kernel.org
 
-Hi all,
+On Sun, Nov 20, 2011 at 09:03:23PM +0100, Felix Zweig wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> The following refers to the same Touchpad as in bug #15893 (ALPS in an
+> Acer Aspire 532h).
+> 
+> The device is recognized as "ImPS/2 Generic Wheel Mouse as
+> /devices/platform/i8042/serio1/input/input5" instead of a touchpad; at
+> least since Linux 3.0 (and up to 3.2-rc2).
+> 
+> As one result, middle mouse button emulation doesn't work. IIRC, evdev
+> disabled it for non-touchpad inputs a while ago.
+> 
+> Is there a way to have the device recognized correctly as a touchpad (as
+> it used to be a few versions earlier, unfortunately I can't remember
+> which versions worked).
 
-today I started with a basic matrix_keyboard based keypad driver. It
-seems to work quite
-well but I have some questions.
+I sent some patches that should be in 3.3 that will get your touchpad
+working, with the exception of multitouch (the 532h is one of the
+machines I used to develop the patches). You can find the patches in the
+following locations if you'd like to give them a try.
 
-Is it possible to define following values from user space?
-
-* debounce time in [ms]
-* auto repeat time in [ms]
-* multi click abort time in [ms]
-
-I am also not sure about the default keymap I should use in the
-platform_data. At
-the moment it looks like:
-
-static const uint32_t ot200_keymap[] = {
-	KEY(0, 1, 0x01),
-	KEY(0, 2, 0x02),
-	KEY(0, 3, 0x03),
-	KEY(0, 4, 0x04),
-	KEY(0, 5, 0x05),
-	KEY(0, 6, 0x06),
-	KEY(0, 7, 0x07),
-	KEY(0, 8, 0x08),
-	KEY(0, 9, 0x09),
-...
-...
-	KEY(9, 6, 0x96),
-	KEY(9, 7, 0x97),
-	KEY(9, 8, 0x98),
-	KEY(9, 9, 0x99),
-};
-
-I need to configure the mapping from userspace and it is be done via loadkeys
-if I am not wrong. Does the input core handle cases like SHIFT key and
-CAPS lock?
-
-thanks
---
-Christian Gmeiner, MSc
+  https://lkml.org/lkml/2011/11/7/433
+  http://git.kernel.org/?p=linux/kernel/git/dtor/input.git

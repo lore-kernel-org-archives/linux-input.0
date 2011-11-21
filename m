@@ -1,42 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 0/2] some updates for newer elantech touchpads
-Date: Sun, 20 Nov 2011 22:37:25 -0800
-Message-ID: <20111121063725.GB20521@core.coreip.homeip.net>
-References: <1321854786-6666-1-git-send-email-jj_ding@emc.com.tw>
+From: Anatolij Gustschin <agust@denx.de>
+Subject: Re: [PATCH] edt_ts: EDT Touchscreen driver
+Date: Mon, 21 Nov 2011 10:24:20 +0100
+Message-ID: <20111121102420.0171df46@wker>
+References: <1320795279-2018-1-git-send-email-yanok@emcraft.com>
+	<CAM=Q2cuv_OFdrHpmf-fSRkiaz0X07vHpbpWH=MzfR_3S4OADjg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:32822 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752799Ab1KUGhf (ORCPT
+Received: from mail-out.m-online.net ([212.18.0.10]:51229 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752059Ab1KUJY1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Nov 2011 01:37:35 -0500
-Received: by iage36 with SMTP id e36so6881007iag.19
-        for <linux-input@vger.kernel.org>; Sun, 20 Nov 2011 22:37:34 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1321854786-6666-1-git-send-email-jj_ding@emc.com.tw>
+	Mon, 21 Nov 2011 04:24:27 -0500
+In-Reply-To: <CAM=Q2cuv_OFdrHpmf-fSRkiaz0X07vHpbpWH=MzfR_3S4OADjg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?iso-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, linux-input@vger.kernel.org
+To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Cc: Ilya Yanok <yanok@emcraft.com>, linux-input@vger.kernel.org, wd@denx.de, dzu@denx.de, sasha_d@emcraft.com
 
-On Mon, Nov 21, 2011 at 01:53:04PM +0800, JJ Ding wrote:
-> Hi,
-> 
-> These two are my last pending patches for newer elantech touchpads.
-> The first patch adds support for a shorter and faster send_cmd, available
-> since v3 hardware. The other one teaches the driver to query resolution
-> data from v4 hardware.
-> 
-> Patches are against Dmitry's current -next tree.
-> 
-> Any comment is welcome, thank you very much.
-> 
-> Change in v2:
->  - allow resolution query to fail, print a warning if so. (Daniel)
-> 
+Hello,
 
-Applied both, thanks JJ.
+On Mon, 21 Nov 2011 14:20:57 +0530
+Shubhrajyoti Datta <omaplinuxkernel@gmail.com> wrote:
+...
+> > +       error = request_irq(priv->irq, edt_ts_isr, IRQF_TRIGGER_FALLING,
+> > +                           client->name, priv);
+> >
+> 
+> Could we move to threaded irq instead?
+> Or is there a specific reason for the delayed work stuff?
 
--- 
-Dmitry
+It is already done in an updated patch that will be posted to
+the list soon.
+
+Thanks,
+Anatolij

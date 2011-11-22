@@ -1,74 +1,49 @@
-From: simon@mungewell.org
-Subject: Re: joydev: support for Saitek PS1000 gamepad
-Date: Tue, 22 Nov 2011 12:13:39 -0500
-Message-ID: <95ab6669b51867deb14cdd81c79dead1.squirrel@host171.canaca.com>
-References: <20111122102832.GA22152@v36691.1blu.de>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2] HID: Add support for pressure sensitive buttons
+Date: Tue, 22 Nov 2011 18:17:49 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1111221817070.28728@pobox.suse.cz>
+References: <1321393219-19394-1-git-send-email-sean@mess.org> <20111121095818.GA3568@pip.mess.org> <20111121133428.99064g5drrymryww@www.81.fi> <20111122114725.GA13107@pip.mess.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:51939 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757978Ab1KVRNk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Nov 2011 12:13:40 -0500
-In-Reply-To: <20111122102832.GA22152@v36691.1blu.de>
+Received: from cantor2.suse.de ([195.135.220.15]:35114 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750997Ab1KVRRv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Nov 2011 12:17:51 -0500
+In-Reply-To: <20111122114725.GA13107@pip.mess.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?=22Andreas_H=FCbner=22?= <andreas@k4n.de>
-Cc: linux-input@vger.kernel.org
+To: Sean Young <sean@mess.org>
+Cc: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, simon@mungewell.org
 
-Hi Andreas,
-I'm not involved with that bit of code, but here are some hints for you...
+On Tue, 22 Nov 2011, Sean Young wrote:
 
-> I was trying to contact who I think is the maintainer of the joydev
-> module (vojtech@suze.cz), but had no success. Apologies if this list is
-> not the right target audience, I would appreciate any hints about who is
-> currently maintaining the module.
+> > >I sent this almost a week ago. Any review comments please or is it
+> > >good for merging?
+> > >
+> > >Sean
+> > 
+> > Sorry for not replying earlier. To me patch looks ok. But I don't
+> > have working PS2 controller atm (well I have DDR-pad in storage, but
+> > I'm too lazy to move that monster around), so I can't really test
+> > this.
+> > 
+> > So I'd like to ask that would you like to take over maintaining of
+> > this driver? You seem to have access to more hardware anyway.
+> 
+> I do have four of the five usb controllers which the driver supports. I'd
+> be more than happy to maintain this driver, but I'm not sure I can do 
+> this while I'm not getting any other response on my patches.
+> 
+> Jiri, Dmitry: any review comments?
 
-You are asking in exactly the right place :-)
+I'd like to at least get Dmitry's ack for the ff-memless change.
 
-> It's also possible, that the issue is not related to joydev module
-> itself. usb-hid could also be involved.
+Also, is there please any userspace application making use of the newly 
+added sysfs atributes already?
 
-If the device is a HID device, it is quite possible that the HID
-descriptor it is providing is 'wrong' (not properly understood by Linux).
-We have to 'correct' these on a number of devices.
+Thanks,
 
-If you can post/decode the descriptor that might provide some insight into
-the problem.
-
-On newer kernels the descriptor can be found under the '/sys' directory.
-
-For example (a HID gaming wheel I have):
---
-simon@ubuntu:/sys/bus/hid/devices/0003:046D:C294.000B$ ls
-driver  hidraw  power  range  report_descriptor  subsystem  uevent
-simon@ubuntu:/sys/bus/hid/devices/0003:046D:C294.000B$ hexdump -C
-report_descriptor
-00000000  05 01 09 04 a1 01 a1 02  95 01 75 0a 15 00 26 ff 
-|..........u...&.|
-00000010  03 35 00 46 ff 03 09 30  81 02 95 0c 75 01 25 01 
-|.5.F...0....u.%.|
-00000020  45 01 05 09 19 01 29 0c  81 02 95 02 06 00 ff 09 
-|E.....).........|
-00000030  01 81 02 05 01 09 31 26  ff 00 46 ff 00 95 01 75 
-|......1&..F....u|
-00000040  08 81 02 25 07 46 3b 01  75 04 65 14 09 39 81 42 
-|...%.F;.u.e..9.B|
-00000050  75 01 95 04 65 00 06 00  ff 09 01 25 01 45 01 81 
-|u...e......%.E..|
-00000060  02 95 02 75 08 26 ff 00  46 ff 00 09 02 81 02 c0 
-|...u.&..F.......|
-00000070  a1 02 26 ff 00 46 ff 00  95 07 75 08 09 03 91 02 
-|..&..F....u.....|
-00000080  c0 0a ff ff 95 08 b1 02  c0                       |.........|
-00000089
---
-
-There are tools to capture and decode the binary block here:
-http://digimend.sourceforge.net/
-
-Simon
-
-
+-- 
+Jiri Kosina
+SUSE Labs

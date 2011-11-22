@@ -1,60 +1,61 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH TRIVIAL 1/5] Input: keyboard: use macro module_platform_driver()
-Date: Tue, 22 Nov 2011 10:23:06 +0100
-Message-ID: <CACRpkdadvJN2P-imOmNFMiYHTh6Vkoadbd4SEyWNQi76kAoVUw@mail.gmail.com>
-References: <1321952446-7591-1-git-send-email-jj_ding@emc.com.tw>
-	<1321952446-7591-2-git-send-email-jj_ding@emc.com.tw>
+From: Nuno Santos <nsantos@edigma.com>
+Subject: Re: Saving kernel module parameters settings
+Date: Tue, 22 Nov 2011 10:02:27 +0000
+Message-ID: <4ECB7333.5090202@edigma.com>
+References: <4ECA20F4.5040503@edigma.com> <20111121173036.GB2362@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1321952446-7591-2-git-send-email-jj_ding@emc.com.tw>
-Sender: linux-kernel-owner@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@suse.de>, Grant Likely <grant.likely@secretlab.ca>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, JJ Ding <dgdunix@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx01.edigma.com ([195.22.21.235]:50700 "EHLO mx01.edigma.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753000Ab1KVKCc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Nov 2011 05:02:32 -0500
+In-Reply-To: <20111121173036.GB2362@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Nov 22, 2011 at 10:00 AM, JJ Ding <jj_ding@emc.com.tw> wrote:
+Hi Dimitry,
 
-> Commit 940ab88962bc1aff3273a8356d64577a6e386736 introduced a new macr=
-o to
-> save some platform_driver boilerplate code. Use it.
+Thanks for your reply.
+
+Just to contextualize. I ended up implementing the communication between 
+userspace and kernel space with binary attributes. I have only needed to 
+implement two of them.
+
+One of those binary attributes is responsible for getting the state to 
+be shown on controlpanel and setting the state back to the device based 
+on control panel changes.
+
+Basicly, what I need is to have a copy of that binary attribute saved in 
+order to load it into module internal state variable when module loads.
+
+Do you think is possible to achieve this goal?
+
+Thanks,
+
+With my best regards,
+
+Nuno
+
+
+On 11/21/2011 05:30 PM, Dmitry Torokhov wrote:
+> On Mon, Nov 21, 2011 at 09:59:16AM +0000, Nuno Santos wrote:
+>> Hi,
+>>
+>> Is there any mechanism to save kernel module parameters/settings in
+>> a persistent way?
+>>
+> If kernel module is built-in then you'd have to adjust kernel command
+> line. If module is built as a loadable module then you can stick needed
+> settings in a file in /etc/modprobe.d/
 >
-> Signed-off-by: JJ Ding <dgdunix@gmail.com>
-(...)
-> diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/in=
-put/keyboard/nomadik-ske-keypad.c
-> index fcdec5e..6c4828f 100644
-> --- a/drivers/input/keyboard/nomadik-ske-keypad.c
-> +++ b/drivers/input/keyboard/nomadik-ske-keypad.c
-> @@ -390,18 +390,7 @@ struct platform_driver ske_keypad_driver =3D {
-> =A0 =A0 =A0 =A0.probe =3D ske_keypad_probe,
-> =A0 =A0 =A0 =A0.remove =3D __devexit_p(ske_keypad_remove),
-> =A0};
-> -
-> -static int __init ske_keypad_init(void)
-> -{
-> - =A0 =A0 =A0 return platform_driver_probe(&ske_keypad_driver, ske_ke=
-ypad_probe);
-> -}
-> -module_init(ske_keypad_init);
-> -
-> -static void __exit ske_keypad_exit(void)
-> -{
-> - =A0 =A0 =A0 platform_driver_unregister(&ske_keypad_driver);
-> -}
-> -module_exit(ske_keypad_exit);
-> +module_platform_driver(ske_keypad_driver);
+> Depending on the parameters (i.e. if they programmed to take effect
+> immediately - as opposed to, for example, only during new device
+> binding) you can have a program adjust them after you boot.
 >
-> =A0MODULE_LICENSE("GPL v2");
-> =A0MODULE_AUTHOR("Naveen Kumar <naveen.gaddipati@stericsson.com> / Su=
-ndar Iyer <sundar.iyer@stericsson.com>");
+> Thanks.
+>
 
-This actually also fixes a bug since platform_driver_probe() was used e=
-ven
-though there is a .probe member in the driver struct, so thanks.
-
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-
-Yours,
-Linus Walleij

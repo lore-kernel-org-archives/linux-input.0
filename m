@@ -1,52 +1,135 @@
-From: Dave Martin <dave.martin@linaro.org>
-Subject: Re: [GIT PULL] ARM: amba: Enable module alias autogeneration for
- AMBA drivers
-Date: Tue, 22 Nov 2011 12:07:56 +0000
-Message-ID: <20111122120756.GF2066@localhost.localdomain>
-References: <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
- <20111122115632.GA5165@mail.gnudd.com>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: Re: matrix_keyboard based driver
+Date: Tue, 22 Nov 2011 13:52:44 +0100
+Message-ID: <CAH9NwWf1GhyOW-VWatT6j6ucAJPcE+ODajxCukTgqz_p-XnidA@mail.gmail.com>
+References: <CAH9NwWd+40pC=UQFZnQcXoYp7J_Ui=cfcGh0WLaXV6niOjfF4g@mail.gmail.com>
+ <20111121172715.GA2362@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:39728 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753936Ab1KVMIC (ORCPT
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:42401 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754858Ab1KVMxF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Nov 2011 07:08:02 -0500
-Content-Disposition: inline
-In-Reply-To: <20111122115632.GA5165@mail.gnudd.com>
+	Tue, 22 Nov 2011 07:53:05 -0500
+Received: by ywt32 with SMTP id 32so116959ywt.19
+        for <linux-input@vger.kernel.org>; Tue, 22 Nov 2011 04:53:05 -0800 (PST)
+In-Reply-To: <20111121172715.GA2362@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alessandro Rubini <rubini@unipv.it>
-Cc: linux@arm.linux.org.uk, patches@linaro.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, alan@linux.intel.com, a.zummo@towertech.it, alsa-devel@alsa-project.org, cjb@laptop.org, dan.j.williams@intel.com, dmitry.torokhov@gmail.com, grant.likely@secretlab.ca, perex@perex.cz, jassisinghbrar@gmail.com, julia@diku.dk, linus.walleij@linaro.org, linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org, lethal@linux-sh.org, Pawel.Moll@arm.com, rtc-linux@googlegroups.com, spi-devel-general@lists.sourceforge.net, tiwai@suse.de, vinod.koul@intel.com, wim@iguana.be
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Nov 22, 2011 at 12:56:32PM +0100, Alessandro Rubini wrote:
-> > I have Acks on some of the driver patches and no comments on the
-> > rest.  I've been circulating these for some time, so if you're
-> > happy to pull those driver patches via your tree, please go ahead.
-> 
-> Sure I have no problem with the nomadik-rng.c, (so please have my
-> Acked-by: -- sorry for not noting it earlier) but I think this
+Hi Dmitry,
+
+2011/11/21 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> Hi CHristian,
+>
+> On Mon, Nov 21, 2011 at 02:52:17PM +0100, Christian Gmeiner wrote:
+>> Hi all,
+>>
+>> today I started with a basic matrix_keyboard based keypad driver. It
+>> seems to work quite
+>> well but I have some questions.
+>>
+>> Is it possible to define following values from user space?
+>>
+>> * debounce time in [ms]
+>
+> No as it is mostly hardware property, not user preference.
+
+Okay... lets see If i need to do this in hardware.
+
+>
+>> * auto repeat time in [ms]
+>
+> Yes: EVIOCSREP (kbdrate or similar). Note that X ignores kernel
+> autorepeat and implements its own.
+
+=46ine.
+
+>
+>> * multi click abort time in [ms]
+>
+> I have no idea what that is, so apparently no ;)
+
+At the moment I have a uinput based user space program,
+which gets the matrix coordinates and send back the pressed
+key. And there it is possible to enter a handy-like input method.
+
+press 3 times in a short time the letter 1 on the keypad and the
+uinput based program sends a 'c' to the kernel.
+
+
+>
+>>
+>> I am also not sure about the default keymap I should use in the
+>> platform_data. At
+>> the moment it looks like:
+>>
+>> static const uint32_t ot200_keymap[] =3D {
+>> =C2=A0 =C2=A0 =C2=A0 KEY(0, 1, 0x01),
+>> =C2=A0 =C2=A0 =C2=A0 KEY(0, 2, 0x02),
+>> =C2=A0 =C2=A0 =C2=A0 KEY(0, 3, 0x03),
+>> =C2=A0 =C2=A0 =C2=A0 KEY(0, 4, 0x04),
+>> =C2=A0 =C2=A0 =C2=A0 KEY(0, 5, 0x05),
+>> =C2=A0 =C2=A0 =C2=A0 KEY(0, 6, 0x06),
+>> =C2=A0 =C2=A0 =C2=A0 KEY(0, 7, 0x07),
+>> =C2=A0 =C2=A0 =C2=A0 KEY(0, 8, 0x08),
+>> =C2=A0 =C2=A0 =C2=A0 KEY(0, 9, 0x09),
+>> ...
+>> ...
+>> =C2=A0 =C2=A0 =C2=A0 KEY(9, 6, 0x96),
+>> =C2=A0 =C2=A0 =C2=A0 KEY(9, 7, 0x97),
+>> =C2=A0 =C2=A0 =C2=A0 KEY(9, 8, 0x98),
+>> =C2=A0 =C2=A0 =C2=A0 KEY(9, 9, 0x99),
+>
+> The last items in triplets should be KEY_* constant defined in
+> include/linux/input.h
+>
+
+Okay.. this should be doable... my company offers a way to have their
+own mapping of some universal keys on the keypad. for instance it is
+possible to assign to a key the action to sending ALT + TAB.
+
+>> };
+>>
+>> I need to configure the mapping from userspace and it is be done via=
+ loadkeys
+>> if I am not wrong.
+>
+> To adjust mapping of the input device itself one should use 'setkeyco=
+de'
+> or some other utility issuing EVIOCGKEYCODE/EVIOCSKEYCODE ioctls.
+>
+
+So these two ioctls are changing the last value in the triplets of the =
+keymap?
+
+>> static const uint32_t ot200_keymap[] =3D {
+>>       KEY(0, 1, 0x01),
+
+In this case 0x01 will get replaced?
+
+> loadkeys adjusts higher level keymap used by the console.
+>
+
+ah okay.
+
+>> Does the input core handle cases like SHIFT key and
+>> CAPS lock?
+>
+> No, that is the task for higher layers (console, X, etc...).
+>
+
+Need to play a little bit with I think.
 
 thanks
-
-> file2alias thing needs a serious rework to split each bus in a
-> different file, using ELF sections like we do elsewhere.
-> 
-> I posted a patch last week but I got no comment at all. Maybe this
-> is the time to ask for comments? I can rebase and repost if needed.
-> 
->   lkml.org/lkml/2011/11/4/125 (0/2: description of the work)
->   lkml.org/lkml/2011/11/4/126 (1/2: turn the if plethora to table lookup)
->   lkml.org/lkml/2011/11/4/127 (2/2: partial split to type-specific files).
-
-Splitting this up doesn't look like a silly idea -- I thought it was
-unfortunate to have to patch a core file just to add a bus type.
-
-I guess the question is how many new buses we get over time.  If they
-only get added gradually, people might not be too concerned.  Of course,
-this is one of those maintenance issues which can only get worse as time
-goes on.
-
-Cheers
----Dave
+--
+Christian Gmeiner, MSc
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

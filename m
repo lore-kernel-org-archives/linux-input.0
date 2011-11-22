@@ -1,114 +1,129 @@
 From: JJ Ding <jj_ding@emc.com.tw>
-Subject: [PATCH TRIVIAL 0/5] Input: use new macro module_platform_driver to save some boilerplate code
-Date: Tue, 22 Nov 2011 17:00:41 +0800
-Message-ID: <1321952446-7591-1-git-send-email-jj_ding@emc.com.tw>
+Subject: [PATCH TRIVIAL 4/5] Input: serio: use macro module_platform_driver()
+Date: Tue, 22 Nov 2011 17:00:45 +0800
+Message-ID: <1321952446-7591-5-git-send-email-jj_ding@emc.com.tw>
+References: <1321952446-7591-1-git-send-email-jj_ding@emc.com.tw>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:44290 "EHLO
+Received: from emcscan.emc.com.tw ([192.72.220.5]:24345 "EHLO
 	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751495Ab1KVJCx (ORCPT
+	with ESMTP id S1756011Ab1KVJC4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Nov 2011 04:02:53 -0500
+	Tue, 22 Nov 2011 04:02:56 -0500
+In-Reply-To: <1321952446-7591-1-git-send-email-jj_ding@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@suse.de>, Grant Likely <grant.likely@secretlab.ca>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, JJ Ding <jj_ding@emc.com.tw>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, JJ Ding <jj_ding@emc.com.tw>, JJ Ding <dgdunix@gmail.com>
 
-Hi List,
+From: JJ Ding <dgdunix@gmail.com>
 
-With commit 940ab88962bc1aff3273a8356d64577a6e386736 Grant Likely added a new
-macro module_platform_driver to save some boilerplate code for platform_driver.
-This patchset converts these platform_driver's in input subsystem to use it.
+Commit 940ab88962bc1aff3273a8356d64577a6e386736 introduced a new macro to
+save some platform_driver boilerplate code. Use it.
 
-I am not quite sure if it's worth it to convert all these drivers, but I did it
-anyway, because:
- - by converting we encourage new code to use it.
- - as a kernel newbie I take it as exercises.
+Signed-off-by: JJ Ding <dgdunix@gmail.com>
+---
+ drivers/input/serio/altera_ps2.c |   13 +------------
+ drivers/input/serio/at32psif.c   |   14 +-------------
+ drivers/input/serio/rpckbd.c     |   14 +-------------
+ drivers/input/serio/xilinx_ps2.c |   14 +-------------
+ 4 files changed, 4 insertions(+), 51 deletions(-)
 
-Patches are against Linus' latest tree, I split the whole converting into 5
-patches for easier reviewing. Please take a look, thank you very much.
-
--jj
-
-JJ Ding (5):
-  Input: keyboard: use macro module_platform_driver()
-  Input: misc: use macro module_platform_driver()
-  Input: mouse: use macro module_platform_driver()
-  Input: serio: use macro module_platform_driver()
-  Input: touchscreen: use macro module_platform_driver()
-
- drivers/input/keyboard/adp5520-keys.c        |   13 +------------
- drivers/input/keyboard/amikbd.c              |   15 +--------------
- drivers/input/keyboard/bf54x-keys.c          |   14 +-------------
- drivers/input/keyboard/davinci_keyscan.c     |   13 +------------
- drivers/input/keyboard/ep93xx_keypad.c       |   14 +-------------
- drivers/input/keyboard/gpio_keys_polled.c    |   14 +-------------
- drivers/input/keyboard/imx_keypad.c          |   14 +-------------
- drivers/input/keyboard/jornada680_kbd.c      |   14 +-------------
- drivers/input/keyboard/jornada720_kbd.c      |   14 +-------------
- drivers/input/keyboard/matrix_keypad.c       |   14 +-------------
- drivers/input/keyboard/nomadik-ske-keypad.c  |   13 +------------
- drivers/input/keyboard/omap-keypad.c         |   15 +--------------
- drivers/input/keyboard/omap4-keypad.c        |   13 +------------
- drivers/input/keyboard/opencores-kbd.c       |   13 +------------
- drivers/input/keyboard/pmic8xxx-keypad.c     |   13 +------------
- drivers/input/keyboard/pxa27x_keypad.c       |   14 +-------------
- drivers/input/keyboard/pxa930_rotary.c       |   13 +------------
- drivers/input/keyboard/samsung-keypad.c      |   13 +------------
- drivers/input/keyboard/sh_keysc.c            |   14 +-------------
- drivers/input/keyboard/spear-keyboard.c      |   13 +------------
- drivers/input/keyboard/stmpe-keypad.c        |   13 +------------
- drivers/input/keyboard/tc3589x-keypad.c      |   13 +------------
- drivers/input/keyboard/tegra-kbc.c           |   13 +------------
- drivers/input/keyboard/tnetv107x-keypad.c    |   14 +-------------
- drivers/input/keyboard/twl4030_keypad.c      |   13 +------------
- drivers/input/keyboard/w90p910_keypad.c      |   14 +-------------
- drivers/input/misc/88pm860x_onkey.c          |   13 +------------
- drivers/input/misc/ab8500-ponkey.c           |   13 +------------
- drivers/input/misc/bfin_rotary.c             |   13 +------------
- drivers/input/misc/cobalt_btns.c             |   14 +-------------
- drivers/input/misc/dm355evm_keys.c           |   13 +------------
- drivers/input/misc/ixp4xx-beeper.c           |   13 +------------
- drivers/input/misc/max8925_onkey.c           |   13 +------------
- drivers/input/misc/pcap_keys.c               |   14 +-------------
- drivers/input/misc/pcf50633-input.c          |   13 +------------
- drivers/input/misc/pcspkr.c                  |   14 +-------------
- drivers/input/misc/pm8xxx-vibrator.c         |   13 +------------
- drivers/input/misc/pmic8xxx-pwrkey.c         |   13 +------------
- drivers/input/misc/pwm-beeper.c              |   13 +------------
- drivers/input/misc/rb532_button.c            |   14 +-------------
- drivers/input/misc/rotary_encoder.c          |   14 +-------------
- drivers/input/misc/sgi_btns.c                |   13 +------------
- drivers/input/misc/twl4030-pwrbutton.c       |   15 ++-------------
- drivers/input/misc/twl4030-vibra.c           |   14 +-------------
- drivers/input/misc/twl6040-vibra.c           |   13 +------------
- drivers/input/misc/wm831x-on.c               |   13 +------------
- drivers/input/mouse/amimouse.c               |   16 ++--------------
- drivers/input/mouse/gpio_mouse.c             |   13 +------------
- drivers/input/mouse/pxa930_trkball.c         |   14 +-------------
- drivers/input/serio/altera_ps2.c             |   13 +------------
- drivers/input/serio/at32psif.c               |   14 +-------------
- drivers/input/serio/rpckbd.c                 |   14 +-------------
- drivers/input/serio/xilinx_ps2.c             |   14 +-------------
- drivers/input/touchscreen/88pm860x-ts.c      |   13 +------------
- drivers/input/touchscreen/atmel-wm97xx.c     |   13 +------------
- drivers/input/touchscreen/atmel_tsadcc.c     |   15 +--------------
- drivers/input/touchscreen/da9034-ts.c        |   13 +------------
- drivers/input/touchscreen/intel-mid-touch.c  |   13 +------------
- drivers/input/touchscreen/jornada720_ts.c    |   14 +-------------
- drivers/input/touchscreen/lpc32xx_ts.c       |   13 +------------
- drivers/input/touchscreen/mainstone-wm97xx.c |   14 +-------------
- drivers/input/touchscreen/mc13783_ts.c       |   13 +------------
- drivers/input/touchscreen/pcap_ts.c          |   14 +-------------
- drivers/input/touchscreen/s3c2410_ts.c       |   14 +-------------
- drivers/input/touchscreen/stmpe-ts.c         |   15 +--------------
- drivers/input/touchscreen/tnetv107x-ts.c     |   14 +-------------
- drivers/input/touchscreen/tps6507x-ts.c      |   13 +------------
- drivers/input/touchscreen/ucb1400_ts.c       |   14 +-------------
- drivers/input/touchscreen/w90p910_ts.c       |   14 +-------------
- drivers/input/touchscreen/wm831x-ts.c        |   13 +------------
- drivers/input/touchscreen/zylonite-wm97xx.c  |   14 +-------------
- 71 files changed, 73 insertions(+), 892 deletions(-)
-
+diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/altera_ps2.c
+index d363dc4..35864c6 100644
+--- a/drivers/input/serio/altera_ps2.c
++++ b/drivers/input/serio/altera_ps2.c
+@@ -196,18 +196,7 @@ static struct platform_driver altera_ps2_driver = {
+ 		.of_match_table = altera_ps2_match,
+ 	},
+ };
+-
+-static int __init altera_ps2_init(void)
+-{
+-	return platform_driver_register(&altera_ps2_driver);
+-}
+-module_init(altera_ps2_init);
+-
+-static void __exit altera_ps2_exit(void)
+-{
+-	platform_driver_unregister(&altera_ps2_driver);
+-}
+-module_exit(altera_ps2_exit);
++module_platform_driver(altera_ps2_driver);
+ 
+ MODULE_DESCRIPTION("Altera University Program PS2 controller driver");
+ MODULE_AUTHOR("Thomas Chou <thomas@wytron.com.tw>");
+diff --git a/drivers/input/serio/at32psif.c b/drivers/input/serio/at32psif.c
+index 95280f9..421a744 100644
+--- a/drivers/input/serio/at32psif.c
++++ b/drivers/input/serio/at32psif.c
+@@ -358,19 +358,7 @@ static struct platform_driver psif_driver = {
+ 	.suspend	= psif_suspend,
+ 	.resume		= psif_resume,
+ };
+-
+-static int __init psif_init(void)
+-{
+-	return platform_driver_probe(&psif_driver, psif_probe);
+-}
+-
+-static void __exit psif_exit(void)
+-{
+-	platform_driver_unregister(&psif_driver);
+-}
+-
+-module_init(psif_init);
+-module_exit(psif_exit);
++module_platform_driver(psif_driver);
+ 
+ MODULE_AUTHOR("Hans-Christian Egtvedt <egtvedt@samfundet.no>");
+ MODULE_DESCRIPTION("Atmel AVR32 PSIF PS/2 driver");
+diff --git a/drivers/input/serio/rpckbd.c b/drivers/input/serio/rpckbd.c
+index 7ec3c97..8b44ddc 100644
+--- a/drivers/input/serio/rpckbd.c
++++ b/drivers/input/serio/rpckbd.c
+@@ -143,16 +143,4 @@ static struct platform_driver rpckbd_driver = {
+ 		.owner	= THIS_MODULE,
+ 	},
+ };
+-
+-static int __init rpckbd_init(void)
+-{
+-	return platform_driver_register(&rpckbd_driver);
+-}
+-
+-static void __exit rpckbd_exit(void)
+-{
+-	platform_driver_unregister(&rpckbd_driver);
+-}
+-
+-module_init(rpckbd_init);
+-module_exit(rpckbd_exit);
++module_platform_driver(rpckbd_driver);
+diff --git a/drivers/input/serio/xilinx_ps2.c b/drivers/input/serio/xilinx_ps2.c
+index d64c5a4..127c391 100644
+--- a/drivers/input/serio/xilinx_ps2.c
++++ b/drivers/input/serio/xilinx_ps2.c
+@@ -369,19 +369,7 @@ static struct platform_driver xps2_of_driver = {
+ 	.probe		= xps2_of_probe,
+ 	.remove		= __devexit_p(xps2_of_remove),
+ };
+-
+-static int __init xps2_init(void)
+-{
+-	return platform_driver_register(&xps2_of_driver);
+-}
+-
+-static void __exit xps2_cleanup(void)
+-{
+-	platform_driver_unregister(&xps2_of_driver);
+-}
+-
+-module_init(xps2_init);
+-module_exit(xps2_cleanup);
++module_platform_driver(xps2_of_driver);
+ 
+ MODULE_AUTHOR("Xilinx, Inc.");
+ MODULE_DESCRIPTION("Xilinx XPS PS/2 driver");
 -- 
 1.7.8-rc2
 

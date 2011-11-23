@@ -1,107 +1,99 @@
-From: Paul Parsons <lost.distance@yahoo.com>
-Subject: [PATCH v3 2/2] pxa/hx4700: Add Synaptics NavPoint (PXA27x SSP/SPI)
- driver
-Date: Wed, 23 Nov 2011 16:46:39 +0000 (GMT)
-Message-ID: <1322066799.17556.YahooMailClassic@web29016.mail.ird.yahoo.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 8/8] hid-multitouch: correct eGalax a001 protocol
+Date: Wed, 23 Nov 2011 12:20:22 -0600
+Message-ID: <CAGzDe_aMHb6Uy7Mw7bBcKbmTY_aTLprY44W3-95KxDtUUg3zPw@mail.gmail.com>
+References: <1322042074-3759-1-git-send-email-benjamin.tissoires@enac.fr>
+	<1322042074-3759-9-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
-Cc: koen@dominion.thruhere.net, dmitry.torokhov@gmail.com, eric.y.miao@gmail.com, philipp.zabel@gmail.com, mad_soft@inbox.ru
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:36653 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755757Ab1KWSUX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Nov 2011 13:20:23 -0500
+In-Reply-To: <1322042074-3759-9-git-send-email-benjamin.tissoires@enac.fr>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Cedric Sodhi <manday@gmx.net>
 
-Add support for the Synaptics NavPoint touchpad connected to a PXA27x SSP port
-in SPI slave mode. The driver implements a simple navigation pad. The four
-raised dots are mapped to UP/DOWN/LEFT/RIGHT buttons and the centre of the
-touchpad is mapped to the ENTER button.
+On Wed, Nov 23, 2011 at 3:54 AM, Benjamin Tissoires
+<benjamin.tissoires@enac.fr> wrote:
+> From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>
+> This device use another protocol while sending the events.
+> It's the same as the one described as "serial" by Microsoft.
+> We are keeping here the sn_move and sn_pressure parameters for
+> egalax devices.
+>
+> CC: Cedric Sodhi <manday@gmx.net>
+> CC: Chris Bagwell <chris@cnpbagwell.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> ---
 
-Signed-off-by: Paul Parsons <lost.distance@yahoo.com>
----
+Thanks for sending this patch.  If you like, you can add this for all
+the patches except #2.  I'm not the best for reviewing sysfs code.
 
-V3:
-Patch numbered 2/n because hx4700 platform glue depends on driver.
-GPIO102 configuration moved from mfp-pxa27x.h to hx4700.c.
-Renamed GPIO102_HX4700_SYNAPTICS_POWER_ON to keep global_gpios[] within 80 cols.
+Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
 
-diff -uprN clean-3.2-rc2/arch/arm/mach-pxa/hx4700.c linux-3.2-rc2/arch/arm/mach-pxa/hx4700.c
---- clean-3.2-rc2/arch/arm/mach-pxa/hx4700.c	2011-11-15 17:02:59.000000000 +0000
-+++ linux-3.2-rc2/arch/arm/mach-pxa/hx4700.c	2011-11-20 00:14:05.252421407 +0000
-@@ -22,6 +22,7 @@
- #include <linux/gpio.h>
- #include <linux/gpio_keys.h>
- #include <linux/input.h>
-+#include <linux/input/navpoint.h>
- #include <linux/lcd.h>
- #include <linux/mfd/htc-egpio.h>
- #include <linux/mfd/asic3.h>
-@@ -111,7 +112,7 @@ static unsigned long hx4700_pin_config[]
- 	GPIO113_I2S_SYSCLK,
- 
- 	/* SSP 1 (NavPoint) */
--	GPIO23_SSP1_SCLK,
-+	GPIO23_SSP1_SCLK_IN,
- 	GPIO24_SSP1_SFRM,
- 	GPIO25_SSP1_TXD,
- 	GPIO26_SSP1_RXD,
-@@ -181,6 +182,23 @@ static struct platform_device gpio_keys
- };
- 
- /*
-+ * Synaptics NavPoint connected to SSP1
-+ */
-+
-+static struct navpoint_platform_data navpoint_platform_data = {
-+	.port	= 1,
-+	.gpio	= GPIO102_HX4700_SYNAPTICS_ON,
-+};
-+
-+static struct platform_device navpoint = {
-+	.name	= "navpoint",
-+	.id	= -1,
-+	.dev = {
-+		.platform_data = &navpoint_platform_data,
-+	},
-+};
-+
-+/*
-  * ASIC3
-  */
- 
-@@ -782,6 +800,7 @@ static struct platform_device pcmcia = {
- static struct platform_device *devices[] __initdata = {
- 	&asic3,
- 	&gpio_keys,
-+	&navpoint,
- 	&backlight,
- 	&w3220,
- 	&hx4700_lcd,
-@@ -806,6 +825,7 @@ static struct gpio global_gpios[] = {
- 	{ GPIO32_HX4700_RS232_ON,         GPIOF_OUT_INIT_HIGH, "RS232_ON" },
- 	{ GPIO71_HX4700_ASIC3_nRESET,     GPIOF_OUT_INIT_HIGH, "ASIC3_nRESET" },
- 	{ GPIO82_HX4700_EUART_RESET,      GPIOF_OUT_INIT_HIGH, "EUART_RESET" },
-+	{ GPIO102_HX4700_SYNAPTICS_ON,    GPIOF_OUT_INIT_LOW,  "SYNAPTICS_ON" },
- 	{ GPIO105_HX4700_nIR_ON,          GPIOF_OUT_INIT_HIGH, "nIR_EN" },
- };
- 
-diff -uprN clean-3.2-rc2/arch/arm/mach-pxa/include/mach/hx4700.h linux-3.2-rc2/arch/arm/mach-pxa/include/mach/hx4700.h
---- clean-3.2-rc2/arch/arm/mach-pxa/include/mach/hx4700.h	2011-11-15 17:02:59.000000000 +0000
-+++ linux-3.2-rc2/arch/arm/mach-pxa/include/mach/hx4700.h	2011-11-20 00:14:44.968709678 +0000
-@@ -62,7 +62,7 @@
- #define GPIO97_HX4700_nBL_DETECT		97
- #define GPIO99_HX4700_KEY_CONTACTS		99
- #define GPIO100_HX4700_AUTO_SENSE		100 /* BL auto brightness */
--#define GPIO102_HX4700_SYNAPTICS_POWER_ON	102
-+#define GPIO102_HX4700_SYNAPTICS_ON		102
- #define GPIO103_HX4700_SYNAPTICS_INT		103
- #define GPIO105_HX4700_nIR_ON			105
- #define GPIO106_HX4700_CPU_BT_nRESET		106
+3-5 are nice cleanups to have.
+
+Chris
+
+> =A0drivers/hid/hid-multitouch.c | =A0 =A09 ++++++++-
+> =A01 files changed, 8 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouc=
+h.c
+> index 77210d6..f0f3632 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -97,6 +97,7 @@ struct mt_device {
+> =A0#define MT_CLS_3M =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A00x0101
+> =A0#define MT_CLS_CYPRESS =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 0x0102
+> =A0#define MT_CLS_EGALAX =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A00x0103
+> +#define MT_CLS_EGALAX_SERIAL =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x0=
+104
+>
+> =A0#define MT_DEFAULT_MAXCONTACT =A010
+>
+> @@ -174,6 +175,12 @@ static struct mt_class mt_classes[] =3D {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.sn_move =3D 4096,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.sn_pressure =3D 32,
+> =A0 =A0 =A0 =A0},
+> + =A0 =A0 =A0 { .name =3D MT_CLS_EGALAX_SERIAL,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .quirks =3D =A0MT_QUIRK_SLOT_IS_CONTACT=
+ID |
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 MT_QUIRK_ALWAYS_VALID,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .sn_move =3D 4096,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .sn_pressure =3D 32,
+> + =A0 =A0 =A0 },
+>
+> =A0 =A0 =A0 =A0{ }
+> =A0};
+> @@ -705,7 +712,7 @@ static const struct hid_device_id mt_devices[] =3D=
+ {
+> =A0 =A0 =A0 =A0{ .driver_data =3D MT_CLS_EGALAX,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0USB_DEVICE_ID_DWAV_EGA=
+LAX_MULTITOUCH_7302) },
+> - =A0 =A0 =A0 { .driver_data =3D MT_CLS_EGALAX,
+> + =A0 =A0 =A0 { .driver_data =3D MT_CLS_EGALAX_SERIAL,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0USB_DEVICE_ID_DWAV_EGA=
+LAX_MULTITOUCH_A001) },
+>
+> --
+> 1.7.4.4
+>
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

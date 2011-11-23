@@ -1,73 +1,37 @@
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH 6/8] HID-multitouch: Add egalax ID for Acer Iconia W500
-Date: Wed, 23 Nov 2011 10:54:32 +0100
-Message-ID: <1322042074-3759-7-git-send-email-benjamin.tissoires@enac.fr>
-References: <1322042074-3759-1-git-send-email-benjamin.tissoires@enac.fr>
+Subject: [PATCH 0/8] multitouch updates (mainly eGalax)
+Date: Wed, 23 Nov 2011 10:54:26 +0100
+Message-ID: <1322042074-3759-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 88-230.252-81.static-ip.oleane.fr ([81.252.230.88]:41676 "EHLO
+Received: from 88-230.252-81.static-ip.oleane.fr ([81.252.230.88]:41677 "EHLO
 	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756913Ab1KWKB0 (ORCPT
+	with ESMTP id S1757245Ab1KWKB0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Wed, 23 Nov 2011 05:01:26 -0500
-In-Reply-To: <1322042074-3759-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Marek Vasut <marek.vasut@gmail.com>
 
-From: Marek Vasut <marek.vasut@gmail.com>
+Hi Guys,
 
-This patch adds USB ID for the touchpanel in Acer Iconia W500. The panel
-supports up to five fingers, therefore the need for a new addition of panel
-types.
+Here are some multitouch updates.
+Jiri, the first one is already in your upstream-fixes branch, but not in
+your for-next branch...
 
-originally Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
-CC: Marek Vasut <marek.vasut@gmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
----
- drivers/hid/hid-core.c       |    1 +
- drivers/hid/hid-ids.h        |    1 +
- drivers/hid/hid-multitouch.c |    3 +++
- 3 files changed, 5 insertions(+), 0 deletions(-)
+Patch 0002 will help end-users to test their device without recompiling the
+hid-multitouch between each test.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index b776bfb..e3c9e61 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1409,6 +1409,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_720C) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_726B) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_72A1) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7302) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2515) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index a9526fd..fc49ab3 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -235,6 +235,7 @@
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_720C	0x720c
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_726B	0x726b
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_72A1	0x72a1
-+#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7302	0x7302
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
- 
- #define USB_VENDOR_ID_ELECOM		0x056e
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index db39228..8e920cd 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -701,6 +701,9 @@ static const struct hid_device_id mt_devices[] = {
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_72A1) },
- 	{ .driver_data = MT_CLS_EGALAX,
- 		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7302) },
-+	{ .driver_data = MT_CLS_EGALAX,
-+		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
- 
- 	/* Elo TouchSystems IntelliTouch Plus panel */
--- 
-1.7.4.4
+Patches 0003-0008 are focused on eGalax: 
+* I made some cleanup in the #defines for the PIDS.
+* I removed the MT_QUIRK_EGALAX_XYZ_FIXUP as I understood why it was needed
+* I also removed the .maxcontact field in EGALAX as it is not necessary
+  (it was tested on 3 devices: Acer Iconia W500 by Marek, 0xa001 by Cedric,
+   and Windpad 110W by me)
+* I added a few new devices (I included the one reported by Marek and I kept
+  his "From")
+* I included the new protocol for a001 devices (reported by Cedric)
+
+Cheers,
+Benjamin
+
 

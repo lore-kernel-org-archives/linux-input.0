@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH 4/8] hid-multitouch: remove .maxcontacts field for eGalax
-Date: Wed, 23 Nov 2011 10:54:30 +0100
-Message-ID: <1322042074-3759-5-git-send-email-benjamin.tissoires@enac.fr>
+Subject: [PATCH 3/8] hid-multitouch: cleanup eGalax quirks
+Date: Wed, 23 Nov 2011 10:54:29 +0100
+Message-ID: <1322042074-3759-4-git-send-email-benjamin.tissoires@enac.fr>
 References: <1322042074-3759-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1322042074-3759-1-git-send-email-benjamin.tissoires@enac.fr>
@@ -9,25 +9,87 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Some eGalax devices are 4 or 5 fingers touches, wereas others are 2.
-This patch removes the limit in which all eGalax presents 2 touches.
+The previous implementation of eGalax protocol was not satisfying as
+we had to manually set x/y ranges as they were corrupted after reading
+the report descriptor.
+Indeed, the report descriptor provided a stylus input interface which
+override the correct values.
+
+This patch omits this input, thus leaving the correct value untouched,
+and the MT_QUIRK_EGALAX_XYZ_FIXUP not required anymore.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 ---
- drivers/hid/hid-multitouch.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ drivers/hid/hid-multitouch.c |   17 +++++++----------
+ 1 files changed, 7 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 8250f3c..354a5cd 100644
+index f41bcea..8250f3c 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -171,7 +171,6 @@ static struct mt_class mt_classes[] = {
+@@ -50,7 +50,6 @@ MODULE_LICENSE("GPL");
+ #define MT_QUIRK_ALWAYS_VALID		(1 << 4)
+ #define MT_QUIRK_VALID_IS_INRANGE	(1 << 5)
+ #define MT_QUIRK_VALID_IS_CONFIDENCE	(1 << 6)
+-#define MT_QUIRK_EGALAX_XYZ_FIXUP	(1 << 7)
+ #define MT_QUIRK_SLOT_IS_CONTACTID_MINUS_ONE	(1 << 8)
+ 
+ struct mt_slot {
+@@ -171,8 +170,7 @@ static struct mt_class mt_classes[] = {
+ 		.maxcontacts = 10 },
  	{ .name = MT_CLS_EGALAX,
  		.quirks =  MT_QUIRK_SLOT_IS_CONTACTID |
- 			MT_QUIRK_VALID_IS_INRANGE,
--		.maxcontacts = 2,
+-			MT_QUIRK_VALID_IS_INRANGE |
+-			MT_QUIRK_EGALAX_XYZ_FIXUP,
++			MT_QUIRK_VALID_IS_INRANGE,
+ 		.maxcontacts = 2,
  		.sn_move = 4096,
  		.sn_pressure = 32,
- 	},
+@@ -253,7 +251,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ {
+ 	struct mt_device *td = hid_get_drvdata(hdev);
+ 	struct mt_class *cls = &td->mtclass;
+-	__s32 quirks = cls->quirks;
+ 
+ 	/* Only map fields from TouchScreen or TouchPad collections.
+          * We need to ignore fields that belong to other collections
+@@ -265,13 +262,17 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	else
+ 		return 0;
+ 
++	/* eGalax devices provide a Digitizer.Stylus input which overrides
++	 * the correct Digitizers.Finger X/Y ranges.
++	 * Let's just ignore this input. */
++	if (field->physical == HID_DG_STYLUS)
++		return -1;
++
+ 	switch (usage->hid & HID_USAGE_PAGE) {
+ 
+ 	case HID_UP_GENDESK:
+ 		switch (usage->hid) {
+ 		case HID_GD_X:
+-			if (quirks & MT_QUIRK_EGALAX_XYZ_FIXUP)
+-				field->logical_maximum = 32760;
+ 			hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_POSITION_X);
+ 			set_abs(hi->input, ABS_MT_POSITION_X, field,
+@@ -284,8 +285,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			}
+ 			return 1;
+ 		case HID_GD_Y:
+-			if (quirks & MT_QUIRK_EGALAX_XYZ_FIXUP)
+-				field->logical_maximum = 32760;
+ 			hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_POSITION_Y);
+ 			set_abs(hi->input, ABS_MT_POSITION_Y, field,
+@@ -353,8 +352,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			}
+ 			return 1;
+ 		case HID_DG_TIPPRESSURE:
+-			if (quirks & MT_QUIRK_EGALAX_XYZ_FIXUP)
+-				field->logical_minimum = 0;
+ 			hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_PRESSURE);
+ 			set_abs(hi->input, ABS_MT_PRESSURE, field,
 -- 
 1.7.4.4

@@ -1,62 +1,61 @@
-From: simon@mungewell.org
-Subject: Re: Saitek PS1000 gamepad - HID descriptor wonky
-Date: Wed, 23 Nov 2011 10:45:24 -0500
-Message-ID: <3b70c0a60fd5821240583b7b5c1412b0.squirrel@host171.canaca.com>
-References: <20111122102832.GA22152@v36691.1blu.de>
-    <95ab6669b51867deb14cdd81c79dead1.squirrel@host171.canaca.com>
-    <20111123084340.GA18805@tapura>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH RFC] hid-input: add support for HID devices reporting
+ Battery Strength
+Date: Wed, 23 Nov 2011 08:36:11 -0800
+Message-ID: <4ECD20FB.7030705@canonical.com>
+References: <4EC75224.7070207@goop.org> <alpine.LNX.2.00.1111191212140.15187@pobox.suse.cz> <4EC820F8.4070900@goop.org> <alpine.LNX.2.00.1111201110480.15187@pobox.suse.cz> <4ECA7E7D.80207@goop.org> <alpine.LNX.2.00.1111220028130.28728@pobox.suse.cz> <4ECAE019.4000409@goop.org> <alpine.LNX.2.00.1111220049470.28728@pobox.suse.cz> <4ECCB38A.8000503@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:55155 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756635Ab1KWPp0 (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:48804 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753688Ab1KWQgW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Nov 2011 10:45:26 -0500
-In-Reply-To: <20111123084340.GA18805@tapura>
+	Wed, 23 Nov 2011 11:36:22 -0500
+In-Reply-To: <4ECCB38A.8000503@goop.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?=22Andreas_H=FCbner=22?= <andreas@k4n.de>
-Cc: linux-input@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, vojtech@ucw.cz, Przemo Firszt <przemo@firszt.eu>
 
-Hi Andreas,
+On 11/23/2011 12:49 AM, Jeremy Fitzhardinge wrote:
+> Some HID devices, such as my Bluetooth mouse, report their battery
+> strength as an event.  Rather than passing it through as a strange
+> absolute input event, this patch registers it with the power_supply
+> subsystem as a battery, so that the device's Battery Strength can be
+> reported to usermode.
+> 
+> The battery appears in sysfs names
+> /sys/class/power_supply/hid-<UNIQ>-battery, and it is a child of the
+> battery-containing device, so it should be clear what it's the battery of.
+> 
+> Unfortunately on my current Fedora 16 system, while the battery does
+> appear in the UI, it is listed as a Laptop Battery with 0% charge (since
+> it ignores the "capacity" property of the battery and instead computes
+> it from the "energy*" fields, which we can't supply given the limited
+> information contained within the HID Report).
+> 
+> Still, this patch is the first step.
+> 
+> Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 22a4a05..3a97f1f 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -31,6 +31,11 @@ config HID
+>  
+>  	  If unsure, say Y.
+>  
+> +config HID_BATTERY_STRENGTH
+> +	bool
+> +	depends on POWER_SUPPLY
+> +	default y
 
-> I've attached the hid report descriptor in binary and spec format.
+This functionality will be great to have :). I'm curious why you made a
+config option for it, though. It's not a big patch, I can't think of any
+reason people wouldn't want it, and this could lead to dependency issues
+(i.e. needing to sprinkle #ifdef HID_BATTERY_STRENGTH in drivers).
 
-As you probably noticed this HID descriptor is a little 'weird'.
-
-First it defines 6 usages
---
-        Usage (X),                  ; X (30h, dynamic value)
-        Usage (Y),                  ; Y (31h, dynamic value)
-        Usage (Z),                  ; Z (32h, dynamic value)
-        Usage (Rz),                 ; Rz (35h, dynamic value)
-        Usage (Rx),                 ; Rx (33h, dynamic value)
-        Usage (Slider),             ; Slider (36h, dynamic value)
---
-
-but then only says they are 5 inputs
---
-        Report Count (5),
---
-
-I'm guessing that if you adjust the report count to '6' then your 6th axis
-might start working, and possibly the hat-switch and buttons too...
-
-So the next question has to be how committed to your ($15??) game pad are
-you, and are you will to go through the pain of building/submitting
-patches? It's a great opportunity to put 'kernel dev' on your resume ;-)
-
-
-I'll have to defer to the other kernel devs....
-
-Q. Is there a way of patching a HID descriptor without writing a driver?
-
-
-Otherwise you could look at 'drivers/hid/hid-elecom.c' as a template for
-your patch.
-
-Good luck, and feel free to ask questions,
-Simon.
-
+-- Chase

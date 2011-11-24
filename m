@@ -1,79 +1,98 @@
-From: Daniel Nicoletti <dantti12@gmail.com>
-Subject: Apple Magic TrackPad battery level
-Date: Thu, 24 Nov 2011 08:49:32 -0200
-Message-ID: <CACo8zOcBgqD_iGpH=dQuEbM2DuMXD-hZCO2R0gfStMjgpZBxQQ@mail.gmail.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
+Subject: [PATCH 03/11] Input: Remove redundant spi driver bus initialization
+Date: Thu, 24 Nov 2011 16:29:13 +0100
+Message-ID: <1322148561-25138-3-git-send-email-lars@metafoo.de>
+References: <1322148561-25138-1-git-send-email-lars@metafoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:46701 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752698Ab1KXKtd (ORCPT
+Received: from ch1ehsobe001.messaging.microsoft.com ([216.32.181.181]:24640
+	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752024Ab1KXP2f (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Nov 2011 05:49:33 -0500
-Received: by iage36 with SMTP id e36so2818539iag.19
-        for <linux-input@vger.kernel.org>; Thu, 24 Nov 2011 02:49:32 -0800 (PST)
+	Thu, 24 Nov 2011 10:28:35 -0500
+In-Reply-To: <1322148561-25138-1-git-send-email-lars@metafoo.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Lars-Peter Clausen <lars@metafoo.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org
 
-Hi,
-I've been following some of the discussions about
-battery level stuff on bluetooth devices. As
-recently I bought a bt device with this capability
-and I also have an apple keyboard that can
-do this too.
+In ancient times it was necessary to manually initialize the bus field of an
+spi_driver to spi_bus_type. These days this is done in spi_driver_register(),
+so we can drop the manual assignment.
 
-Most people I talked believed the device itself
-send events with the battery status, and after
-some investigation I found how to probe the
-device. But I have a problem (of cours), running
-hcidump it shows that my request is the same
-as Mac OSX does it sends a GetFeature(report_id)
-* I runned PacketLogger.app to be sure it worked the way HID spec says so.
-which turns in 0x43 0x47 (0x47 being the report id),
-but the call does not return the value, so I wonder
-that maybe some code in hid-core or usbhid-core
-is filtering the data somehow, or maybe I even found
-a bug on the hidraw stuff.
+The patch was generated using the following coccinelle semantic patch:
+// <smpl>
+@@
+identifier _driver;
+@@
+struct spi_driver _driver = {
+	.driver = {
+-		.bus = &spi_bus_type,
+	},
+};
+// </smpl>
 
-My code added to hid-magicmouse.c into the probe function:
-    __u8 *buf;
-    unsigned char report_number = 0x47;
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Michael Hennerich <michael.hennerich@analog.com>
+Cc: linux-input@vger.kernel.org
+---
+ drivers/input/misc/adxl34x-spi.c       |    1 -
+ drivers/input/touchscreen/ad7877.c     |    1 -
+ drivers/input/touchscreen/ad7879-spi.c |    1 -
+ drivers/input/touchscreen/ads7846.c    |    1 -
+ 4 files changed, 0 insertions(+), 4 deletions(-)
 
-    buf = kmalloc(3 * sizeof(__u8), GFP_KERNEL);
-    if (!buf) {
-        ret = -ENOMEM;
-        goto err_stop_hw;
-    }
+diff --git a/drivers/input/misc/adxl34x-spi.c b/drivers/input/misc/adxl34x-spi.c
+index f29de22..34d401e 100644
+--- a/drivers/input/misc/adxl34x-spi.c
++++ b/drivers/input/misc/adxl34x-spi.c
+@@ -122,7 +122,6 @@ static SIMPLE_DEV_PM_OPS(adxl34x_spi_pm, adxl34x_spi_suspend,
+ static struct spi_driver adxl34x_driver = {
+ 	.driver = {
+ 		.name = "adxl34x",
+-		.bus = &spi_bus_type,
+ 		.owner = THIS_MODULE,
+ 		.pm = &adxl34x_spi_pm,
+ 	},
+diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
+index 2da9f18..42ae7a2 100644
+--- a/drivers/input/touchscreen/ad7877.c
++++ b/drivers/input/touchscreen/ad7877.c
+@@ -853,7 +853,6 @@ static SIMPLE_DEV_PM_OPS(ad7877_pm, ad7877_suspend, ad7877_resume);
+ static struct spi_driver ad7877_driver = {
+ 	.driver = {
+ 		.name	= "ad7877",
+-		.bus	= &spi_bus_type,
+ 		.owner	= THIS_MODULE,
+ 		.pm	= &ad7877_pm,
+ 	},
+diff --git a/drivers/input/touchscreen/ad7879-spi.c b/drivers/input/touchscreen/ad7879-spi.c
+index 8f391ff..9b2e1c2 100644
+--- a/drivers/input/touchscreen/ad7879-spi.c
++++ b/drivers/input/touchscreen/ad7879-spi.c
+@@ -150,7 +150,6 @@ static int __devexit ad7879_spi_remove(struct spi_device *spi)
+ static struct spi_driver ad7879_spi_driver = {
+ 	.driver = {
+ 		.name	= "ad7879",
+-		.bus	= &spi_bus_type,
+ 		.owner	= THIS_MODULE,
+ 		.pm	= &ad7879_pm_ops,
+ 	},
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 4cedae6..23fd901 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -1426,7 +1426,6 @@ static int __devexit ads7846_remove(struct spi_device *spi)
+ static struct spi_driver ads7846_driver = {
+ 	.driver = {
+ 		.name	= "ads7846",
+-		.bus	= &spi_bus_type,
+ 		.owner	= THIS_MODULE,
+ 		.pm	= &ads7846_pm,
+ 	},
+-- 
+1.7.7.1
 
-    memset(buf, 0, sizeof(buf));
 
-    ret = hdev->hid_get_raw_report(hdev, report_number, buf,
-sizeof(buf), HID_FEATURE_REPORT);
-    if (ret != -EIO && ret != sizeof(report_number)) {
-        hid_err(hdev, "unable to request BATTERY feature data (%d)\n", ret);
-        goto err_stop_hw;
-    }
-    dbg_hid("PROBING BATTERY (%d), (%s), (%d)\n", buf[0], buf, buf[1]);
-
-
------ It produces the following on the hcidump which is what I need, but the buf
-only contains the 0x43 value (which is espected as the report number
-is stored there);
-
-< ACL data: handle 11 flags 0x02 dlen 6
-    L2CAP(d): cid 0x0042 len 2 [psm 17]
-      HIDP: Get report: Feature report
-      47
-> ACL data: handle 11 flags 0x02 dlen 7
-    L2CAP(d): cid 0x0040 len 3 [psm 17]
-      HIDP: Data: Feature report
-      47 44
-
-As you can see my battery at the report 47 is 44 (68%), also the
-hcidump show some random stuff
-before the get and response but I guess it might be part of the protocol.
-
-Any hints on how do I get the data that the device is actually sending now?
-
-Thanks.

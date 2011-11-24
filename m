@@ -1,86 +1,55 @@
-From: Paul Parsons <lost.distance@yahoo.com>
-Subject: Re: [PATCH v3 1/2] pxa/hx4700: Add Synaptics NavPoint (PXA27x SSP/SPI) driver
-Date: Thu, 24 Nov 2011 02:53:27 +0000 (GMT)
-Message-ID: <1322103207.2627.YahooMailClassic@web29004.mail.ird.yahoo.com>
-References: <20111123230138.GL9581@n2100.arm.linux.org.uk>
+From: Andreas =?iso-8859-1?Q?H=FCbner?= <andreas@k4n.de>
+Subject: Re: Saitek PS1000 gamepad - HID descriptor wonky
+Date: Thu, 24 Nov 2011 09:12:24 +0100
+Message-ID: <20111124081205.GA22623@tapura>
+References: <20111122102832.GA22152@v36691.1blu.de>
+ <95ab6669b51867deb14cdd81c79dead1.squirrel@host171.canaca.com>
+ <20111123084340.GA18805@tapura>
+ <3b70c0a60fd5821240583b7b5c1412b0.squirrel@host171.canaca.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nm3-vm0.bullet.mail.ird.yahoo.com ([77.238.189.213]:35125 "HELO
-	nm3-vm0.bullet.mail.ird.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752766Ab1KXCx3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Nov 2011 21:53:29 -0500
-In-Reply-To: <20111123230138.GL9581@n2100.arm.linux.org.uk>
+Received: from v36691.1blu.de ([89.202.1.191]:43997 "EHLO v36691.1blu.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753454Ab1KXIMk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Nov 2011 03:12:40 -0500
+Content-Disposition: inline
+In-Reply-To: <3b70c0a60fd5821240583b7b5c1412b0.squirrel@host171.canaca.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, koen@dominion.thruhere.net, dmitry.torokhov@gmail.com, eric.y.miao@gmail.com, philipp.zabel@gmail.com, mad_soft@inbox.ru
+To: simon@mungewell.org
+Cc: linux-input@vger.kernel.org
 
---- On Wed, 23/11/11, Russell King - ARM Linux <linux@arm.linux.org.uk> wrote:
-> So 'dev' is a driver_data structure.
-> but you pass it to dev_warn().  This is not what
-> dev_warn() is expecting.
+Hi Simon,
 
-Correct; alas Philipp discovered this the hard way. I'm on it.
+> As you probably noticed this HID descriptor is a little 'weird'.
+>
+> First it defines 6 usages
+> [...]
+> but then only says they are 5 inputs
 
-> > +int navpoint_suspend(struct device *dev)
-> 
-> static?
+Indeed. Actually, the controller only has 5 axes. Two analog sticks (4 axes)
+and a throttle that is linked to the trigger buttons. Pressing the left
+trigger yields a negative axis value and the right trigger produces
+positive values. (I assume it's for controlling the acceleration, etc.)
+This axis also has a threshold in the positive and negative range each
+triggering a button press.
 
-Yes, will do.
+> So the next question has to be how committed to your ($15??) game pad are
+> you, and are you will to go through the pain of building/submitting
+> patches? It's a great opportunity to put 'kernel dev' on your resume ;-)
 
-> > +int navpoint_resume(struct device *dev)
-> 
-> static?
+Well, I'm always happy when I can hack some code, so count me in. :)
+Usually, the only problem for me is to get a decent setup to start
+debugging.
 
-Ditto.
+But I guess, I'll have to learn a bit more about HID descriptors before
+I can start hacking.
 
-> > +    /* Wait until SSP port is ready
-> for slave clock operations */
-> > +    while (pxa_ssp_read_reg(ssp, SSSR)
-> & SSSR_CSS)
-> > +        msleep(1);
-> 
-> What if it never becomes ready?  Should this time
-> out?
+> Otherwise you could look at 'drivers/hid/hid-elecom.c' as a template for
+> your patch.
 
-This loop was an early sanity check which I never removed. But I agree that broken hardware might cause it to hang. So I'll either remove it or, more usefully, add a timeout with error message.
+Will take a look at it - thanks!
 
-> > +    drv_data = kzalloc(sizeof(struct
-> driver_data), GFP_KERNEL);
-> 
-> We normally like to see sizeof(*drv_data) now.
 
-OK.
-
-> > +    ret = request_irq(ssp->irq,
-> navpoint_int, 0, pdev->name, drv_data);
-> > +    if (ret)
-> > +        goto ret2;
-> 
-> What if you immediately receive an interrupt right now,
-> after requesting
-> this interrupt?  Will your handler try to dereference
-> anything in
-> drv_data which is -currently- NULL ?  (I think you'll
-> oops when
-> dereferencing drv_data->ssp->something.)
-
-Shouldn't happen because the SSP port is not enabled until the later call to navpoint_resume(). However, Philipp has discovered spurious interrupts with the haret bootloader; perhaps it already enabled the SSP port. I'm on it.
-
-> > +    (void)
-> navpoint_resume(&pdev->dev);
-> 
-> That cast to 'void' is not required.
-
-True, but that function must return a value and I was just documenting the fact that it's being intentionally ignored here. I'm happy to remove it.
-
-> > +    (void)
-> navpoint_suspend(&pdev->dev);
-> 
-> Cast to void is not required.
-
-Ditto.
-
+Andreas

@@ -1,70 +1,45 @@
-From: Feng Tang <feng.tang@intel.com>
-Subject: [PATCH 2/2] Input: tsc2007 - Add a z1_low_threshhold platform data parameter
-Date: Tue, 29 Nov 2011 16:12:58 +0800
-Message-ID: <1322554378-348-2-git-send-email-feng.tang@intel.com>
-References: <1322554378-348-1-git-send-email-feng.tang@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1322554378-348-1-git-send-email-feng.tang@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dtor@mail.ru, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kwlee@mtekvision.com
-Cc: joel.clark@intel.com, Feng Tang <feng.tang@intel.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 0/8] multitouch updates (mainly eGalax)
+Date: Tue, 29 Nov 2011 09:56:06 +0100
+Message-ID: <20111129085606.GA2354@polaris.bitmath.org>
+References: <1322042074-3759-1-git-send-email-benjamin.tissoires@enac.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:58513 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751958Ab1K2I4K (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Nov 2011 03:56:10 -0500
+Content-Disposition: inline
+In-Reply-To: <1322042074-3759-1-git-send-email-benjamin.tissoires@enac.fr>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This originates from a patch in Meego IVI kernel with the name
-	linux-2.6.37-connext-0027-tsc2007.patch
-There is no author info excepte a line "From  MeeGo <kernel@meego.com>"
+On Wed, Nov 23, 2011 at 10:54:26AM +0100, Benjamin Tissoires wrote:
+> Hi Guys,
+> 
+> Here are some multitouch updates.
+> Jiri, the first one is already in your upstream-fixes branch, but not in
+> your for-next branch...
+> 
+> Patch 0002 will help end-users to test their device without recompiling the
+> hid-multitouch between each test.
+> 
+> Patches 0003-0008 are focused on eGalax: 
+> * I made some cleanup in the #defines for the PIDS.
+> * I removed the MT_QUIRK_EGALAX_XYZ_FIXUP as I understood why it was needed
+> * I also removed the .maxcontact field in EGALAX as it is not necessary
+>   (it was tested on 3 devices: Acer Iconia W500 by Marek, 0xa001 by Cedric,
+>    and Windpad 110W by me)
+> * I added a few new devices (I included the one reported by Marek and I kept
+>   his "From")
+> * I included the new protocol for a001 devices (reported by Cedric)
 
-When integrating tsc2007 on Intel IVI platform, there are a lot of noise
-data whose z1 value is around 10 which is not a sane "z1". So add
-a "z1_low_threshhold" to filter those nosie data, to make the device work
-properly.
+    Acked-by: Henrik Rydberg <rydberg@euromail.se>
 
-Signed-off-by: Feng Tang <feng.tang@intel.com>
----
- drivers/input/touchscreen/tsc2007.c |    4 +++-
- include/linux/i2c/tsc2007.h         |    1 +
- 2 files changed, 4 insertions(+), 1 deletions(-)
+Thanks, Benjamin.
 
-diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
-index 789f216..1bf3503 100644
---- a/drivers/input/touchscreen/tsc2007.c
-+++ b/drivers/input/touchscreen/tsc2007.c
-@@ -72,6 +72,7 @@ struct tsc2007 {
- 	u16			model;
- 	u16			x_plate_ohms;
- 	u16			max_rt;
-+	u16			z1_low_threshhold;
- 	unsigned long		poll_delay;
- 	unsigned long		poll_period;
- 
-@@ -130,7 +131,7 @@ static u32 tsc2007_calculate_pressure(struct tsc2007 *tsc, struct ts_event *tc)
- 	if (tc->x == MAX_12BIT)
- 		tc->x = 0;
- 
--	if (likely(tc->x && tc->z1)) {
-+	if (likely(tc->x && tc->z1 > tsc->z1_low_threshhold)) {
- 		/* compute touch pressure resistance using equation #1 */
- 		rt = tc->z2 - tc->z1;
- 		rt *= tc->x;
-@@ -313,6 +314,7 @@ static int __devinit tsc2007_probe(struct i2c_client *client,
- 	ts->model             = pdata->model;
- 	ts->x_plate_ohms      = pdata->x_plate_ohms;
- 	ts->max_rt            = pdata->max_rt ? : MAX_12BIT;
-+	ts->z1_low_threshhold = pdata->z1_low_threshhold ? : 1;
- 	ts->poll_delay        = pdata->poll_delay ? : 1;
- 	ts->poll_period       = pdata->poll_period ? : 1;
- 	ts->get_pendown_state = pdata->get_pendown_state;
-diff --git a/include/linux/i2c/tsc2007.h b/include/linux/i2c/tsc2007.h
-index 506a9f7..638c6c7 100644
---- a/include/linux/i2c/tsc2007.h
-+++ b/include/linux/i2c/tsc2007.h
-@@ -7,6 +7,7 @@ struct tsc2007_platform_data {
- 	u16	model;				/* 2007. */
- 	u16	x_plate_ohms;	/* must be non-zero value */
- 	u16	max_rt; /* max. resistance above which samples are ignored */
-+	u16	z1_low_threshhold; /* threshhold to prevent some noise data */
- 	unsigned long poll_delay; /* delay (in ms) after pen-down event
- 				     before polling starts */
- 	unsigned long poll_period; /* time (in ms) between samples */
--- 
-1.7.1
+Henrik

@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH 2/3] HID: multitouch: use input_register callback
-Date: Tue, 29 Nov 2011 13:13:11 +0100
-Message-ID: <1322568792-4432-3-git-send-email-benjamin.tissoires@enac.fr>
+Subject: [PATCH 3/3] hid-multitouch: add support for new Hanvon panels
+Date: Tue, 29 Nov 2011 13:13:12 +0100
+Message-ID: <1322568792-4432-4-git-send-email-benjamin.tissoires@enac.fr>
 References: <1322568792-4432-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1322568792-4432-1-git-send-email-benjamin.tissoires@enac.fr>
@@ -10,75 +10,54 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromai
 Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 List-Id: linux-input@vger.kernel.org
 
-Use the input_register mechanism to avoid a race in which the device
-may emit events before the slots are ready.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 ---
- drivers/hid/hid-multitouch.c |   37 ++++++++++++++++++++++++-------------
- 1 files changed, 24 insertions(+), 13 deletions(-)
+ drivers/hid/hid-core.c       |    1 +
+ drivers/hid/hid-ids.h        |    3 +++
+ drivers/hid/hid-multitouch.c |    5 +++++
+ 3 files changed, 9 insertions(+), 0 deletions(-)
 
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index e3c9e61..24b6d4b 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1425,6 +1425,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HANVON, USB_DEVICE_ID_HANVON_MULTITOUCH) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HANVON_ALT, USB_DEVICE_ID_HANVON_ALT_MULTITOUCH) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6650) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK, USB_DEVICE_ID_HOLTEK_ON_LINE_GRIP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ILITEK, USB_DEVICE_ID_ILITEK_MULTITOUCH) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index ebfad17..4b4f346 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -359,6 +359,9 @@
+ #define USB_VENDOR_ID_HANVON		0x20b3
+ #define USB_DEVICE_ID_HANVON_MULTITOUCH	0x0a18
+ 
++#define USB_VENDOR_ID_HANVON_ALT	0x22ed
++#define USB_DEVICE_ID_HANVON_ALT_MULTITOUCH	0x1010
++
+ #define USB_VENDOR_ID_HAPP		0x078b
+ #define USB_DEVICE_ID_UGCI_DRIVING	0x0010
+ #define USB_DEVICE_ID_UGCI_FLYING	0x0020
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 91c13bc..bd6e410 100644
+index bd6e410..2d321a5 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -574,6 +574,29 @@ static void mt_set_input_mode(struct hid_device *hdev)
- 	}
- }
+@@ -745,6 +745,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_USB_DEVICE(USB_VENDOR_ID_GOODTOUCH,
+ 			USB_DEVICE_ID_GOODTOUCH_000f) },
  
-+static int mt_input_register(struct hid_device *hdev,
-+		struct hid_input *hidinput)
-+{
-+	int ret;
-+	struct mt_device *td = hid_get_drvdata(hdev);
++	/* Hanvon panels */
++	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
++		HID_USB_DEVICE(USB_VENDOR_ID_HANVON_ALT,
++			USB_DEVICE_ID_HANVON_ALT_MULTITOUCH) },
 +
-+	td->slots = kzalloc(td->maxcontacts * sizeof(struct mt_slot),
-+				GFP_KERNEL);
-+	if (!td->slots) {
-+		dev_err(&hdev->dev, "cannot allocate multitouch slots\n");
-+		return -ENOMEM;
-+	}
-+
-+	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
-+	if (ret)
-+		hid_warn(hdev,
-+			 "can't create sysfs quirks attribute err: %d\n", ret);
-+
-+	mt_set_input_mode(hdev);
-+
-+	return 0;
-+}
-+
- static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	int ret, i;
-@@ -610,19 +633,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (ret)
- 		goto fail;
- 
--	td->slots = kzalloc(td->maxcontacts * sizeof(struct mt_slot),
--				GFP_KERNEL);
--	if (!td->slots) {
--		dev_err(&hdev->dev, "cannot allocate multitouch slots\n");
--		hid_hw_stop(hdev);
--		ret = -ENOMEM;
--		goto fail;
--	}
--
--	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
--
--	mt_set_input_mode(hdev);
--
- 	return 0;
- 
- fail:
-@@ -843,6 +853,7 @@ static struct hid_driver mt_driver = {
- 	.input_mapping = mt_input_mapping,
- 	.input_mapped = mt_input_mapped,
- 	.feature_mapping = mt_feature_mapping,
-+	.input_register = mt_input_register,
- 	.usage_table = mt_grabbed_usages,
- 	.event = mt_event,
- #ifdef CONFIG_PM
+ 	/* Ideacom panel */
+ 	{ .driver_data = MT_CLS_SERIAL,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM,
 -- 
 1.7.4.4

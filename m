@@ -1,47 +1,40 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH RFC] hid-input: add support for HID devices reporting
- Battery Strength
-Date: Mon, 28 Nov 2011 22:33:02 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1111281111510.15446@pobox.suse.cz>
-References: <4EC75224.7070207@goop.org> <alpine.LNX.2.00.1111191212140.15187@pobox.suse.cz> <4EC820F8.4070900@goop.org> <alpine.LNX.2.00.1111201110480.15187@pobox.suse.cz> <4ECA7E7D.80207@goop.org> <alpine.LNX.2.00.1111220028130.28728@pobox.suse.cz>
- <4ECAE019.4000409@goop.org> <alpine.LNX.2.00.1111220049470.28728@pobox.suse.cz> <4ECCB38A.8000503@goop.org>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH 1/2] Input: ad7879-i2c - remove redundant MODULE_ALIAS
+Date: Tue, 29 Nov 2011 10:07:52 +0800
+Message-ID: <1322532472.3213.0.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:39447 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751048Ab1K1VdH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Nov 2011 16:33:07 -0500
-In-Reply-To: <4ECCB38A.8000503@goop.org>
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:59440 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751662Ab1K2CIE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Nov 2011 21:08:04 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-input@vger.kernel.org, vojtech@ucw.cz, Przemo Firszt <przemo@firszt.eu>
+To: linux-kernel@vger.kernel.org
+Cc: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Wed, 23 Nov 2011, Jeremy Fitzhardinge wrote:
+MODULE_DEVICE_TABLE will setup the module alias for us, thus adding
+MODULE_ALIAS for an entry already in MODULE_DEVICE_TABLE is redundant.
 
-> Some HID devices, such as my Bluetooth mouse, report their battery
-> strength as an event.  Rather than passing it through as a strange
-> absolute input event, this patch registers it with the power_supply
-> subsystem as a battery, so that the device's Battery Strength can be
-> reported to usermode.
-> 
-> The battery appears in sysfs names
-> /sys/class/power_supply/hid-<UNIQ>-battery, and it is a child of the
-> battery-containing device, so it should be clear what it's the battery of.
-> 
-> Unfortunately on my current Fedora 16 system, while the battery does
-> appear in the UI, it is listed as a Laptop Battery with 0% charge (since
-> it ignores the "capacity" property of the battery and instead computes
-> it from the "energy*" fields, which we can't supply given the limited
-> information contained within the HID Report).
-> 
-> Still, this patch is the first step.
-> 
-> Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/input/touchscreen/ad7879-i2c.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-Thanks Jeremy, I am going to queue this for 3.3.
-
+diff --git a/drivers/input/touchscreen/ad7879-i2c.c b/drivers/input/touchscreen/ad7879-i2c.c
+index c4b5117..b746702 100644
+--- a/drivers/input/touchscreen/ad7879-i2c.c
++++ b/drivers/input/touchscreen/ad7879-i2c.c
+@@ -117,4 +117,3 @@ module_exit(ad7879_i2c_exit);
+ MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+ MODULE_DESCRIPTION("AD7879(-1) touchscreen I2C bus driver");
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS("i2c:ad7879");
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.5.4
+
+
+

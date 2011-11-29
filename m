@@ -1,27 +1,37 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH v3] Add generic GPIO-tilt driver
-Date: Tue, 29 Nov 2011 18:42:03 +0000
-Message-ID: <20111129184203.GE12111@sirena.org.uk>
+Date: Tue, 29 Nov 2011 10:56:23 -0800
+Message-ID: <20111129185623.GJ4241@core.coreip.homeip.net>
 References: <201111291324.34045.heiko@sntech.de>
  <20111129182326.GF4241@core.coreip.homeip.net>
+ <20111129184203.GE12111@sirena.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:34224 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756086Ab1K2SmF (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:40365 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754334Ab1K2S4a (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Nov 2011 13:42:05 -0500
+	Tue, 29 Nov 2011 13:56:30 -0500
+Received: by iage36 with SMTP id e36so10998615iag.19
+        for <linux-input@vger.kernel.org>; Tue, 29 Nov 2011 10:56:29 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20111129182326.GF4241@core.coreip.homeip.net>
+In-Reply-To: <20111129184203.GE12111@sirena.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Cc: Heiko St?bner <heiko@sntech.de>, linux-input@vger.kernel.org
 
-On Tue, Nov 29, 2011 at 10:23:26AM -0800, Dmitry Torokhov wrote:
+On Tue, Nov 29, 2011 at 06:42:03PM +0000, Mark Brown wrote:
+> On Tue, Nov 29, 2011 at 10:23:26AM -0800, Dmitry Torokhov wrote:
+> 
+> > Could you please separate this change? I applied previous version to my
+> > tree and I am not sure when module_driver changes will hit mainline...
+> 
+> module_platform_driver is in Linus' tree already.
 
-> Could you please separate this change? I applied previous version to my
-> tree and I am not sure when module_driver changes will hit mainline...
+Ah, indeed, its the rest of the buses that are missing. Anyway, could I
+still get a separate patch, please?
 
-module_platform_driver is in Linus' tree already.
+-- 
+Dmitry

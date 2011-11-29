@@ -1,42 +1,52 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH 2/2] Input: samsung-keypad - remove redundant MODULE_ALIAS
-Date: Tue, 29 Nov 2011 10:08:54 +0800
-Message-ID: <1322532534.3213.1.camel@phoenix>
-References: <1322532472.3213.0.camel@phoenix>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Feng Tang <feng.tang@intel.com>
+Subject: [PATCH 1/2] Input: tsc2007 - Disable irq when the irq thread is handling data
+Date: Tue, 29 Nov 2011 16:12:57 +0800
+Message-ID: <1322554378-348-1-git-send-email-feng.tang@intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:48807 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751150Ab1K2CJA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Nov 2011 21:09:00 -0500
-In-Reply-To: <1322532472.3213.0.camel@phoenix>
+Received: from mga14.intel.com ([143.182.124.37]:47418 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752055Ab1K2IMR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Nov 2011 03:12:17 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>, Donghwa Lee <dh09.lee@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: dtor@mail.ru, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kwlee@mtekvision.com
+Cc: joel.clark@intel.com, Feng Tang <feng.tang@intel.com>
 
-MODULE_DEVICE_TABLE will setup the module alias for us, thus adding
-MODULE_ALIAS for an entry already in MODULE_DEVICE_TABLE is redundant.
+The TSC2007 data sheet say in some case the HW may fire some false
+interrrupt, which I also met during integrating one TSC2007 device.
+So add the disable_irq/enable_irq protection around data handling.
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
+Signed-off-by: Feng Tang <feng.tang@intel.com>
 ---
- drivers/input/keyboard/samsung-keypad.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ drivers/input/touchscreen/tsc2007.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-index adfdcb4..6fc54b1 100644
---- a/drivers/input/keyboard/samsung-keypad.c
-+++ b/drivers/input/keyboard/samsung-keypad.c
-@@ -634,4 +634,3 @@ MODULE_DESCRIPTION("Samsung keypad driver");
- MODULE_AUTHOR("Joonyoung Shim <jy0922.shim@samsung.com>");
- MODULE_AUTHOR("Donghwa Lee <dh09.lee@samsung.com>");
- MODULE_LICENSE("GPL");
--MODULE_ALIAS("platform:samsung-keypad");
+diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
+index 1f674cb..789f216 100644
+--- a/drivers/input/touchscreen/tsc2007.c
++++ b/drivers/input/touchscreen/tsc2007.c
+@@ -171,6 +171,13 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
+ 	struct ts_event tc;
+ 	u32 rt;
+ 
++	/*
++	 * Disable the irq, as it may fire several other IRQs during
++	 * this thread is handling data, as suggested by the TSC2007
++	 * datasheet, p19, "Touch Detect" chapter
++	 */
++	disable_irq_nosync(irq);
++
+ 	while (!ts->stopped && tsc2007_is_pen_down(ts)) {
+ 
+ 		/* pen is down, continue with the measurement */
+@@ -221,6 +228,7 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
+ 	if (ts->clear_penirq)
+ 		ts->clear_penirq();
+ 
++	enable_irq(irq);
+ 	return IRQ_HANDLED;
+ }
+ 
 -- 
-1.7.5.4
-
-
+1.7.1
 

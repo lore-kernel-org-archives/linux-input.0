@@ -1,142 +1,129 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: [PATCH 2/3] HID: multitouch: use input_register callback
-Date: Wed, 30 Nov 2011 15:56:49 +0100
-Message-ID: <CAN+gG=FObDG8zj0VqswXvjPCfNdFOt3oNcZhgaanSQ89a4_WGw@mail.gmail.com>
-References: <1322568792-4432-1-git-send-email-benjamin.tissoires@enac.fr>
-	<1322568792-4432-3-git-send-email-benjamin.tissoires@enac.fr>
-	<alpine.LNX.2.00.1111301534540.4648@pobox.suse.cz>
+From: Daniel Manrique <daniel.manrique@canonical.com>
+Subject: Re: Bug: touchpad unresponsive after resume from S3 (psmouse driver)
+Date: Wed, 30 Nov 2011 10:18:10 -0500
+Message-ID: <4ED64932.90407@canonical.com>
+References: <4ED507AB.6040905@canonical.com> <20111129175333.GE4241@core.coreip.homeip.net> <4ED535E7.5030108@canonical.com> <20111130001748.GA2270@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:39157 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753042Ab1K3O4u convert rfc822-to-8bit (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:45666 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752333Ab1K3PSN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Nov 2011 09:56:50 -0500
-In-Reply-To: <alpine.LNX.2.00.1111301534540.4648@pobox.suse.cz>
+	Wed, 30 Nov 2011 10:18:13 -0500
+In-Reply-To: <20111130001748.GA2270@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Wed, Nov 30, 2011 at 15:37, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Tue, 29 Nov 2011, Benjamin Tissoires wrote:
->
->> Use the input_register mechanism to avoid a race in which the device
->> may emit events before the slots are ready.
+On 11-11-29 07:17 PM, Dmitry Torokhov wrote:
+> On Tue, Nov 29, 2011 at 02:43:35PM -0500, Daniel Manrique wrote:
+>> On 11-11-29 12:53 PM, Dmitry Torokhov wrote:
+>>> Hi Daniel,
+>>>
+>>> On Tue, Nov 29, 2011 at 11:26:19AM -0500, Daniel Manrique wrote:
+>>>> Hello,
+>>>>
+>>>> I apologize for sending this bug report directly; with the kernel.org bugtracker
+>>>> down I was told this was the best option for the time being. If this is not
+>>>> correct, could you please let me know of a good place to submit this bug report?
+>>>>
+>>>> I have several Dell laptops with Synaptics touchpads, particularly a group of
+>>>> Vostro V13 systems. On these, after a suspend/resume cycle, the touchpad
+>>>> (Synaptics) is unresponsive; a workaround is to rmmod psmouse; modprobe psmouse.
+>>>>
+>>>> This was first reported on kernel 2.6.38, although I think the issue has been
+>>>> present from as early as 2.6.32. I verified it for sure with Ubuntu 2.6.38
+>>>> kernels, 3.0.0 kernels, and a 3.2.0 kernel from the development release, as well
+>>>> as a "mainline" 3.1.0-rc10 kernel.
+>>>>
+>>>> Since this problem was seen on Ubuntu, it's filed on the Launchpad bug tracker.
+>>>> The first report I can find is this one:
+>>>>
+>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/715267
+>>>>
+>>>> This includes a series of log messages I don't see on my systems. I then filed
+>>>> this other bug:
+>>>>
+>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/879650
+>>>>
+>>>> The last one contains specific information from one of my systems (a Vostro V13).
+>>>>
+>>>> I'd really appreciate any help or guidance on how to solve this problem. If you
+>>>> need me to collect any information or run any tests on these machines, please
+>>>> don't hesitate to ask, these systems are primarily used for testing.
+>>>>
+>>>
+>>> Please do:
+>>>
+>>>  - enable i8042 debug (echo 1 > /sys/module/i8042/parameters/debug)
+>>>  - rmmod psmouse;
+>>>  - suspend/resume;
+>>>  - collect dmesg;
+>>>  - suspend/resume;
+>>>  - collect dmesg again
+>>>
+>>> and we'll have to try and find what we do differently.
+>>>
+>>> Thanks.
+>>>
 >>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
->> ---
->> =A0drivers/hid/hid-multitouch.c | =A0 37 ++++++++++++++++++++++++---=
-----------
->> =A01 files changed, 24 insertions(+), 13 deletions(-)
+>> Hi Dmitry,
 >>
->> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitou=
-ch.c
->> index 91c13bc..bd6e410 100644
->> --- a/drivers/hid/hid-multitouch.c
->> +++ b/drivers/hid/hid-multitouch.c
->> @@ -574,6 +574,29 @@ static void mt_set_input_mode(struct hid_device=
- *hdev)
->> =A0 =A0 =A0 }
->> =A0}
+>> Thanks so much for the quick reply!
 >>
->> +static int mt_input_register(struct hid_device *hdev,
->> + =A0 =A0 =A0 =A0 =A0 =A0 struct hid_input *hidinput)
->> +{
->> + =A0 =A0 int ret;
->> + =A0 =A0 struct mt_device *td =3D hid_get_drvdata(hdev);
->> +
->> + =A0 =A0 td->slots =3D kzalloc(td->maxcontacts * sizeof(struct mt_s=
-lot),
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 GFP_KERNEL=
-);
->> + =A0 =A0 if (!td->slots) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&hdev->dev, "cannot allocate multi=
-touch slots\n");
->> + =A0 =A0 =A0 =A0 =A0 =A0 return -ENOMEM;
->> + =A0 =A0 }
->> +
->> + =A0 =A0 ret =3D sysfs_create_group(&hdev->dev.kobj, &mt_attribute_=
-group);
->> + =A0 =A0 if (ret)
->> + =A0 =A0 =A0 =A0 =A0 =A0 hid_warn(hdev,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"can't create sysfs qui=
-rks attribute err: %d\n", ret);
->> +
->> + =A0 =A0 mt_set_input_mode(hdev);
->> +
->> + =A0 =A0 return 0;
->> +}
->> +
->> =A0static int mt_probe(struct hid_device *hdev, const struct hid_dev=
-ice_id *id)
->> =A0{
->> =A0 =A0 =A0 int ret, i;
->> @@ -610,19 +633,6 @@ static int mt_probe(struct hid_device *hdev, co=
-nst struct hid_device_id *id)
->> =A0 =A0 =A0 if (ret)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail;
+>> I just ran the tests you requested with some extra steps which I hope won't
+>> confuse things. Here's the sequence I followed:
 >>
->> - =A0 =A0 td->slots =3D kzalloc(td->maxcontacts * sizeof(struct mt_s=
-lot),
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 GFP_KERNEL=
-);
->> - =A0 =A0 if (!td->slots) {
->> - =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&hdev->dev, "cannot allocate multi=
-touch slots\n");
->> - =A0 =A0 =A0 =A0 =A0 =A0 hid_hw_stop(hdev);
->> - =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ENOMEM;
->> - =A0 =A0 =A0 =A0 =A0 =A0 goto fail;
->> - =A0 =A0 }
->> -
->> - =A0 =A0 ret =3D sysfs_create_group(&hdev->dev.kobj, &mt_attribute_=
-group);
->> -
->> - =A0 =A0 mt_set_input_mode(hdev);
->> -
->> =A0 =A0 =A0 return 0;
+>> - Enabled i8042 debug
+>> - sudo rmmod psmouse. Touchpad of course becomes unresponsive.
+>> - sudo pm-suspend
+>> - Wake the machine by pressing power
+>> - At this point touchpad is unresponsive.
+>> - Collected dmesg-1.txt
+>> - sudo pm-suspend
+>> - wake the machine by pressing power
+>> - At this point touchpad is still unresponsive.
+>> - Collected dmesg-2.txt
+>> - sudo modprobe psmouse. Touchpad begins responding.
+>> - Collected dmesg-3.txt
+>> - sudo pm-suspend
+>> - wake the machine by pressing power
+>> - At this point touchpad is again unresponsive.
+>> - Collected dmesg-4.txt
 >>
->> =A0fail:
->> @@ -843,6 +853,7 @@ static struct hid_driver mt_driver =3D {
->> =A0 =A0 =A0 .input_mapping =3D mt_input_mapping,
->> =A0 =A0 =A0 .input_mapped =3D mt_input_mapped,
->> =A0 =A0 =A0 .feature_mapping =3D mt_feature_mapping,
->> + =A0 =A0 .input_register =3D mt_input_register,
->
-> Umm, where does this come from? My memory is famous for not being rea=
-lly
-> excellent, but I don't immediately remember any patchset adding such
-> callback to hid_driver struct.
->
-> And it's not anywhere in my applied queue anyway.
+>> To avoid attaching largish files to this email, I put the logs on a
+>> publically-accessible http server at:
+>> http://people.canonical.com/~roadmr/lp715267/. Please let me know if you prefer
+>> something else.
+>>
+> 
+> Hmm, it just does not want to admit that it is synaptics after reset.
+> Does the patch below help any?
 
-Indeed, your memory is perfectly working: I had some hallucinations.
-I was sure you accepted the following patch:
-http://article.gmane.org/gmane.linux.kernel.input/21692
+Hi Dmitry,
 
-It was when Jaikumar Ganesh tried to fix a race in the init of hid-magi=
-cmouse.
+I applied the patch to a 3.2-series kernel (based off 3.2-rc3 I think). It
+applied cleanly to psmouse.c, and after compiling the driver and putting it in
+place of the old psmouse.ko, the touchpad works after resuming from suspend!
 
-As the input_register callback is not queued, you can drop this.
+I did a comparison test by swapping drivers (old vs. new) without rebooting, by
+rmmodding the existing psmouse driver, putting the old/new file in place,
+reloading the driver and doing a suspend/resume cycle. Consistently, with the
+old/original driver I still see the problem, but with the new/patched driver the
+touchpad is always enabled after resume.
 
-Cheers,
-Benjamin
+i only tested this on one of the failing Vostro V13, please let me know if I
+should test for anything like possible misbehaviors on other previously-working
+systems or some other kind of regression.
 
->
->> =A0 =A0 =A0 .usage_table =3D mt_grabbed_usages,
->> =A0 =A0 =A0 .event =3D mt_event,
->> =A0#ifdef CONFIG_PM
->> --
->> 1.7.4.4
->>
->
-> --
-> Jiri Kosina
-> SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+But still, this patch seems to work fine, thanks for this! What's the next step
+for getting this fix into the official kernel? Anything I can do to help?
+
+Thanks again,
+
+- Daniel
+
+

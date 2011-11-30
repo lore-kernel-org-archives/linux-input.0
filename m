@@ -1,129 +1,113 @@
-From: Daniel Manrique <daniel.manrique@canonical.com>
-Subject: Re: Bug: touchpad unresponsive after resume from S3 (psmouse driver)
-Date: Wed, 30 Nov 2011 10:18:10 -0500
-Message-ID: <4ED64932.90407@canonical.com>
-References: <4ED507AB.6040905@canonical.com> <20111129175333.GE4241@core.coreip.homeip.net> <4ED535E7.5030108@canonical.com> <20111130001748.GA2270@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:45666 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752333Ab1K3PSN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Nov 2011 10:18:13 -0500
-In-Reply-To: <20111130001748.GA2270@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+From: riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+Subject: [PATCH v1] Input: tegra-kbc - report wakeup key for some platforms.
+Date: Wed, 30 Nov 2011 12:43:31 -0800
+Message-ID: <1322685811-14060-1-git-send-email-riyer@nvidia.com>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-On 11-11-29 07:17 PM, Dmitry Torokhov wrote:
-> On Tue, Nov 29, 2011 at 02:43:35PM -0500, Daniel Manrique wrote:
->> On 11-11-29 12:53 PM, Dmitry Torokhov wrote:
->>> Hi Daniel,
->>>
->>> On Tue, Nov 29, 2011 at 11:26:19AM -0500, Daniel Manrique wrote:
->>>> Hello,
->>>>
->>>> I apologize for sending this bug report directly; with the kernel.org bugtracker
->>>> down I was told this was the best option for the time being. If this is not
->>>> correct, could you please let me know of a good place to submit this bug report?
->>>>
->>>> I have several Dell laptops with Synaptics touchpads, particularly a group of
->>>> Vostro V13 systems. On these, after a suspend/resume cycle, the touchpad
->>>> (Synaptics) is unresponsive; a workaround is to rmmod psmouse; modprobe psmouse.
->>>>
->>>> This was first reported on kernel 2.6.38, although I think the issue has been
->>>> present from as early as 2.6.32. I verified it for sure with Ubuntu 2.6.38
->>>> kernels, 3.0.0 kernels, and a 3.2.0 kernel from the development release, as well
->>>> as a "mainline" 3.1.0-rc10 kernel.
->>>>
->>>> Since this problem was seen on Ubuntu, it's filed on the Launchpad bug tracker.
->>>> The first report I can find is this one:
->>>>
->>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/715267
->>>>
->>>> This includes a series of log messages I don't see on my systems. I then filed
->>>> this other bug:
->>>>
->>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/879650
->>>>
->>>> The last one contains specific information from one of my systems (a Vostro V13).
->>>>
->>>> I'd really appreciate any help or guidance on how to solve this problem. If you
->>>> need me to collect any information or run any tests on these machines, please
->>>> don't hesitate to ask, these systems are primarily used for testing.
->>>>
->>>
->>> Please do:
->>>
->>>  - enable i8042 debug (echo 1 > /sys/module/i8042/parameters/debug)
->>>  - rmmod psmouse;
->>>  - suspend/resume;
->>>  - collect dmesg;
->>>  - suspend/resume;
->>>  - collect dmesg again
->>>
->>> and we'll have to try and find what we do differently.
->>>
->>> Thanks.
->>>
->>
->> Hi Dmitry,
->>
->> Thanks so much for the quick reply!
->>
->> I just ran the tests you requested with some extra steps which I hope won't
->> confuse things. Here's the sequence I followed:
->>
->> - Enabled i8042 debug
->> - sudo rmmod psmouse. Touchpad of course becomes unresponsive.
->> - sudo pm-suspend
->> - Wake the machine by pressing power
->> - At this point touchpad is unresponsive.
->> - Collected dmesg-1.txt
->> - sudo pm-suspend
->> - wake the machine by pressing power
->> - At this point touchpad is still unresponsive.
->> - Collected dmesg-2.txt
->> - sudo modprobe psmouse. Touchpad begins responding.
->> - Collected dmesg-3.txt
->> - sudo pm-suspend
->> - wake the machine by pressing power
->> - At this point touchpad is again unresponsive.
->> - Collected dmesg-4.txt
->>
->> To avoid attaching largish files to this email, I put the logs on a
->> publically-accessible http server at:
->> http://people.canonical.com/~roadmr/lp715267/. Please let me know if you prefer
->> something else.
->>
-> 
-> Hmm, it just does not want to admit that it is synaptics after reset.
-> Does the patch below help any?
+From: Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-Hi Dmitry,
+Tegra kbc cannot detect exact keypress causing wakeup in interrupt mode.
+Allow wakeup keypress to be reported for certain platforms.
 
-I applied the patch to a 3.2-series kernel (based off 3.2-rc3 I think). It
-applied cleanly to psmouse.c, and after compiling the driver and putting it in
-place of the old psmouse.ko, the touchpad works after resuming from suspend!
+Signed-off-by: Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+ arch/arm/mach-tegra/include/mach/kbc.h |    1 +
+ drivers/input/keyboard/tegra-kbc.c     |   20 ++++++++++++++++----
+ 2 files changed, 17 insertions(+), 4 deletions(-)
 
-I did a comparison test by swapping drivers (old vs. new) without rebooting, by
-rmmodding the existing psmouse driver, putting the old/new file in place,
-reloading the driver and doing a suspend/resume cycle. Consistently, with the
-old/original driver I still see the problem, but with the new/patched driver the
-touchpad is always enabled after resume.
-
-i only tested this on one of the failing Vostro V13, please let me know if I
-should test for anything like possible misbehaviors on other previously-working
-systems or some other kind of regression.
-
-But still, this patch seems to work fine, thanks for this! What's the next step
-for getting this fix into the official kernel? Anything I can do to help?
-
-Thanks again,
-
-- Daniel
-
-
+diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
+index 4f3572a..20bb054 100644
+--- a/arch/arm/mach-tegra/include/mach/kbc.h
++++ b/arch/arm/mach-tegra/include/mach/kbc.h
+@@ -53,6 +53,7 @@ struct tegra_kbc_platform_data {
+ 	struct tegra_kbc_pin_cfg pin_cfg[KBC_MAX_GPIO];
+ 	const struct matrix_keymap_data *keymap_data;
+ 
++	u32 wakeup_key;
+ 	bool wakeup;
+ 	bool use_fn_map;
+ 	bool use_ghost_filter;
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index cf3228b..ceb1185 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -52,6 +52,7 @@
+ /* KBC Interrupt Register */
+ #define KBC_INT_0	0x4
+ #define KBC_INT_FIFO_CNT_INT_STATUS	(1 << 2)
++#define KBC_INT_KEYPRESS_INT_STATUS	(1 << 0)
+ 
+ #define KBC_ROW_CFG0_0	0x8
+ #define KBC_COL_CFG0_0	0x18
+@@ -74,10 +75,12 @@ struct tegra_kbc {
+ 	unsigned int cp_to_wkup_dly;
+ 	bool use_fn_map;
+ 	bool use_ghost_filter;
++	bool keypress_caused_wake;
+ 	const struct tegra_kbc_platform_data *pdata;
+ 	unsigned short keycode[KBC_MAX_KEY * 2];
+ 	unsigned short current_keys[KBC_MAX_KPENT];
+ 	unsigned int num_pressed_keys;
++	u32 wakeup_key;
+ 	struct timer_list timer;
+ 	struct clk *clk;
+ };
+@@ -409,6 +412,9 @@ static irqreturn_t tegra_kbc_isr(int irq, void *args)
+ 		 */
+ 		tegra_kbc_set_fifo_interrupt(kbc, false);
+ 		mod_timer(&kbc->timer, jiffies + kbc->cp_dly_jiffies);
++	} else if (val & KBC_INT_KEYPRESS_INT_STATUS) {
++		/* We can be here only through system resume path */
++		kbc->keypress_caused_wake = true;
+ 	}
+ 
+ 	spin_unlock_irqrestore(&kbc->lock, flags);
+@@ -674,9 +680,10 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 	keymap_data = pdata->keymap_data ?: &tegra_kbc_default_keymap_data;
+ 	matrix_keypad_build_keymap(keymap_data, KBC_ROW_SHIFT,
+ 				   input_dev->keycode, input_dev->keybit);
++	kbc->wakeup_key = pdata->wakeup_key;
+ 
+-	err = request_irq(kbc->irq, tegra_kbc_isr, IRQF_TRIGGER_HIGH,
+-			  pdev->name, kbc);
++	err = request_irq(kbc->irq, tegra_kbc_isr,
++			  IRQF_NO_SUSPEND | IRQF_TRIGGER_HIGH, pdev->name, kbc);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "failed to request keyboard IRQ\n");
+ 		goto err_put_clk;
+@@ -738,7 +745,6 @@ static int tegra_kbc_suspend(struct device *dev)
+ 
+ 	mutex_lock(&kbc->idev->mutex);
+ 	if (device_may_wakeup(&pdev->dev)) {
+-		disable_irq(kbc->irq);
+ 		del_timer_sync(&kbc->timer);
+ 		tegra_kbc_set_fifo_interrupt(kbc, false);
+ 
+@@ -754,6 +760,7 @@ static int tegra_kbc_suspend(struct device *dev)
+ 		tegra_kbc_setup_wakekeys(kbc, true);
+ 		msleep(30);
+ 
++		kbc->keypress_caused_wake = false;
+ 		enable_irq_wake(kbc->irq);
+ 	} else {
+ 		if (kbc->idev->users)
+@@ -780,7 +787,12 @@ static int tegra_kbc_resume(struct device *dev)
+ 
+ 		tegra_kbc_set_fifo_interrupt(kbc, true);
+ 
+-		enable_irq(kbc->irq);
++		if (kbc->keypress_caused_wake && kbc->wakeup_key) {
++			input_report_key(kbc->idev, kbc->wakeup_key, 1);
++			input_sync(kbc->idev);
++			input_report_key(kbc->idev, kbc->wakeup_key, 0);
++			input_sync(kbc->idev);
++		}
+ 	} else {
+ 		if (kbc->idev->users)
+ 			err = tegra_kbc_start(kbc);
+-- 
+1.7.4.1

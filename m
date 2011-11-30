@@ -1,54 +1,52 @@
-From: Feng Tang <feng.tang@intel.com>
-Subject: Re: [PATCH 2/2] Input: tsc2007 - Add a z1_low_threshhold platform
- data parameter
-Date: Wed, 30 Nov 2011 10:34:18 +0800
-Message-ID: <20111130103418.4514b630@feng-i7>
-References: <1322554378-348-1-git-send-email-feng.tang@intel.com>
-	<1322554378-348-2-git-send-email-feng.tang@intel.com>
-	<20111129092310.GB21758@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+From: =?iso-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH 0/3] last merge in hid-multitouch
+Date: Wed, 30 Nov 2011 09:10:07 +0100
+Message-ID: <226E0B80-B664-422B-8075-7D817932CABF@enac.fr>
+References: <1322568792-4432-1-git-send-email-benjamin.tissoires@enac.fr> <20111130001956.GA3276@polaris.bitmath.org>
+Mime-Version: 1.0 (Apple Message framework v1084)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([143.182.124.37]:37395 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754633Ab1K3CfA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Nov 2011 21:35:00 -0500
-In-Reply-To: <20111129092310.GB21758@core.coreip.homeip.net>
+Received: from 88-230.252-81.static-ip.oleane.fr ([81.252.230.88]:55143 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751522Ab1K3IQ0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Nov 2011 03:16:26 -0500
+In-Reply-To: <20111130001956.GA3276@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, feng.tang@intel.com, "Clark, Joel" <joel.clark@intel.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 29 Nov 2011 17:23:10 +0800
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+OK, granted. Tonight our research group goes together to a restaurant, =
+so it will be easily resolved :-)
 
-> On Tue, Nov 29, 2011 at 04:12:58PM +0800, Feng Tang wrote:
-> > This originates from a patch in Meego IVI kernel with the name
-> > 	linux-2.6.37-connext-0027-tsc2007.patch
-> > There is no author info excepte a line "From  MeeGo
-> > <kernel@meego.com>"
-> > 
-> > When integrating tsc2007 on Intel IVI platform, there are a lot of
-> > noise data whose z1 value is around 10 which is not a sane "z1". So
-> > add a "z1_low_threshhold" to filter those nosie data, to make the
-> > device work properly.
-> 
-> Sounds like a task for userspace to ignore pressure that is too low.
-> Bonus points for making it configurable so user can adjust
-> sensitivity.
+Cheers,
 
-Actually, there is one more point :), without this patch, the driver won't
-work on our platforms.
+St.
 
-The tsc2007_soft_irq will keep reading the input data unless there is no
-valid pressure data. In our case, those noise data will be seen as valid
-data during tsc2007_calculate_pressure(), and the tsc2007_soft_irq will
-run endlessly.
 
-Thanks,
-Feng 
 
-> 
-> Thanks.
-> 
+Le 30 nov. 2011 =E0 01:19, Henrik Rydberg a =E9crit :
+
+>> Here are some multitouch updates.
+>> The first one is the last merge to handle all win7 compliant multito=
+uch
+>> devices in hid-multitouch (finally, we've got it!).
+>> The others are the migration to input_register to allocate items bef=
+ore
+>> the input is ready, and another VID/PID.
+>=20
+> I believe Stephane owes you a beer now. ;-)
+>=20
+>    Acked-by: Henrik Rydberg <rydberg@euromail.se>
+>=20
+> Thanks, Benjamin.
+>=20
+> Henrik
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

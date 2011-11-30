@@ -1,129 +1,105 @@
-From: Rakesh Iyer <riyer@nvidia.com>
-Subject: RE: [PATCH v1] Input: tegra-kbc - report wakeup key for some
- platforms.
-Date: Wed, 30 Nov 2011 14:14:03 -0800
-Message-ID: <1FC56210173BB445BD77F608D6FB8D034F3D1BB4BD@HQMAIL03.nvidia.com>
-References: <1322685811-14060-1-git-send-email-riyer@nvidia.com>
- <20111130212022.GB3108@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: New "ABS_WHEEL2" axis?
+Date: Wed, 30 Nov 2011 14:15:47 -0800
+Message-ID: <20111130221547.GC3108@core.coreip.homeip.net>
+References: <CANRwn3SH9VO-1P_zAkDopVJRjApnZWpEZWP3YpuXg3cbiCQffg@mail.gmail.com>
+ <201110052034.52397.dmitry.torokhov@gmail.com>
+ <CANRwn3S4XJT=KS1yp8YqAT0e3Da7hfBq2Aen2QzsdzdjTiZQXw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20111130212022.GB3108@core.coreip.homeip.net>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: "rydberg@euromail.se" <rydberg@euromail.se>, Stephen Warren <swarren@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:48517 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751457Ab1K3WPy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Nov 2011 17:15:54 -0500
+Received: by ggnr5 with SMTP id r5so1127900ggn.19
+        for <linux-input@vger.kernel.org>; Wed, 30 Nov 2011 14:15:53 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <CANRwn3S4XJT=KS1yp8YqAT0e3Da7hfBq2Aen2QzsdzdjTiZQXw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pingc@wacom.com>
 
-Thanks Dmitry.
+Hi Jason,
 
-Since there can be multiple wake causes I wanted to isolate wake key generation to the case where keyboard actually generated the wake interrupt.
-If the system was woken by some other source and keypress occurs before resume is invoked we will pass on an unintended wake key.
+Sorry for not replying earlier.
 
-Leaving the disable_irq as is,  can I can enable the interrupts at the end of the suspend routine?
+On Thu, Oct 06, 2011 at 01:31:09PM -0700, Jason Gerecke wrote:
+> On Wed, Oct 5, 2011 at 8:34 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Wednesday, October 05, 2011 12:44:40 PM Jason Gerecke wrote:
+> >> I'm working on adding support for the recently-announced Cintiq 24HD,
+> >> and am hashing out most of the details on the linuxwacom mailing list.
+> >> In the discussions there, it was suggested that we add a new e.g.
+> >> "ABS_WHEEL2" axis to the input.h header to represent the second touch
+> >> ring available on the 24HD. I think it's a good idea, but wanted to
+> >> get some opinions from over here before making a patch. The other
+> >> option we have available is to use an axis not already in use by the
+> >> wacom driver (such as ABS_RUDDER), but none have a matching semantic
+> >> meaning.
 
-Note with the FIFO interrupt disabled, there will be no interrupt after that point from the device unless it's a Wake interrupt.
+Looking at this once more ABS_WHEEL does not semantically match to what
+Wacom driver users it for either. ABS_WHEEL is not "an abstract
+circular-shaped sensor on a device" for rather a "steering wheel"-like
+control on a game controller. So Wacom needs to move away from using this
+event.
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Wednesday, November 30, 2011 1:20 PM
-> To: Rakesh Iyer
-> Cc: rydberg@euromail.se; Stephen Warren; Laxman Dewangan; linux-
-> kernel@vger.kernel.org; linux-input@vger.kernel.org; linux-tegra@vger.kernel.org
-> Subject: Re: [PATCH v1] Input: tegra-kbc - report wakeup key for some platforms.
+> >
+> > And what if next device adds another wheel? And another...
+> >
+> > Do these rings only make sense in the context of entire Cintiq device,
+> > or maybe they should be treated as ancillary devices (with separate
+> > input_dev from the main tablet device)?
+> >
+> > Thanks.
+> >
+> > --
+> > Dmitry
+> >
 > 
-> Hi Rakesh,
+> The rings are controls built into the "pad" -- the hardware you bring
+> the stylus in proximity to. Along with the touch rings, there are also
+> buttons and touch strips. Now, some devices have controls on only the
+> left-hand side of the pad, while others have the controls on both
+> sides of the pad. While one could argue that this makes each "side" a
+> complete context that can be broken apart into separate devices, that
+> doesn't really solve anything. What's stopping us from grouping
+> several rings together?
+
+Well, there are several topics here...
+
+What you apparently have is a group of unclassified, as far as Linux
+input subsystem concerned, sensors. When I say unclassified I mean that
+there is no appropriate event code we can assign to the control to allow
+a generic consumer determine the purpose of that sensor. You need help
+of a specialized driver to decide what to do with the data or, in case
+of generic driver, user has to explicitly map it to some action, but
+there is no way for automatic discovery/configuration which is the goal
+of input core. The only and closest event that we have that is suitable
+here is ABS_MISC.
+
+Here however is a problem: there is only one ABS_MISC and we often have
+several such sensors on a device. I do not want to have ABS_MISCx as
+again, it does not solve anything, manufactures always come with bigger
+and bigger devices (there some music controllers with dozens of
+sliders). Encoding data into ABS_MISC (let's say highest byte denotes
+sensor number) is awkward as well. So that is why I propose splitting
+them into separate input devices and have driver discover and handle
+them as it sees fit.
+
 > 
-> On Wed, Nov 30, 2011 at 12:43:31PM -0800, riyer@nvidia.com wrote:
-> > From: Rakesh Iyer <riyer@nvidia.com>
-> >
-> > Tegra kbc cannot detect exact keypress causing wakeup in interrupt mode.
-> > Allow wakeup keypress to be reported for certain platforms.
-> >
-> > Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
-> > ---
-> >  arch/arm/mach-tegra/include/mach/kbc.h |    1 +
-> >  drivers/input/keyboard/tegra-kbc.c     |   20 ++++++++++++++++----
-> >  2 files changed, 17 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-
-> tegra/include/mach/kbc.h
-> > index 4f3572a..20bb054 100644
-> > --- a/arch/arm/mach-tegra/include/mach/kbc.h
-> > +++ b/arch/arm/mach-tegra/include/mach/kbc.h
-> > @@ -53,6 +53,7 @@ struct tegra_kbc_platform_data {
-> >  	struct tegra_kbc_pin_cfg pin_cfg[KBC_MAX_GPIO];
-> >  	const struct matrix_keymap_data *keymap_data;
-> >
-> > +	u32 wakeup_key;
-> >  	bool wakeup;
-> >  	bool use_fn_map;
-> >  	bool use_ghost_filter;
-> > diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-> > index cf3228b..ceb1185 100644
-> > --- a/drivers/input/keyboard/tegra-kbc.c
-> > +++ b/drivers/input/keyboard/tegra-kbc.c
-> > @@ -52,6 +52,7 @@
-> >  /* KBC Interrupt Register */
-> >  #define KBC_INT_0	0x4
-> >  #define KBC_INT_FIFO_CNT_INT_STATUS	(1 << 2)
-> > +#define KBC_INT_KEYPRESS_INT_STATUS	(1 << 0)
-> >
-> >  #define KBC_ROW_CFG0_0	0x8
-> >  #define KBC_COL_CFG0_0	0x18
-> > @@ -74,10 +75,12 @@ struct tegra_kbc {
-> >  	unsigned int cp_to_wkup_dly;
-> >  	bool use_fn_map;
-> >  	bool use_ghost_filter;
-> > +	bool keypress_caused_wake;
-> >  	const struct tegra_kbc_platform_data *pdata;
-> >  	unsigned short keycode[KBC_MAX_KEY * 2];
-> >  	unsigned short current_keys[KBC_MAX_KPENT];
-> >  	unsigned int num_pressed_keys;
-> > +	u32 wakeup_key;
-> >  	struct timer_list timer;
-> >  	struct clk *clk;
-> >  };
-> > @@ -409,6 +412,9 @@ static irqreturn_t tegra_kbc_isr(int irq, void *args)
-> >  		 */
-> >  		tegra_kbc_set_fifo_interrupt(kbc, false);
-> >  		mod_timer(&kbc->timer, jiffies + kbc->cp_dly_jiffies);
-> > +	} else if (val & KBC_INT_KEYPRESS_INT_STATUS) {
-> > +		/* We can be here only through system resume path */
-> > +		kbc->keypress_caused_wake = true;
-> >  	}
-> >
-> >  	spin_unlock_irqrestore(&kbc->lock, flags);
-> > @@ -674,9 +680,10 @@ static int __devinit tegra_kbc_probe(struct platform_device
-> *pdev)
-> >  	keymap_data = pdata->keymap_data ?: &tegra_kbc_default_keymap_data;
-> >  	matrix_keypad_build_keymap(keymap_data, KBC_ROW_SHIFT,
-> >  				   input_dev->keycode, input_dev->keybit);
-> > +	kbc->wakeup_key = pdata->wakeup_key;
-> >
-> > -	err = request_irq(kbc->irq, tegra_kbc_isr, IRQF_TRIGGER_HIGH,
-> > -			  pdev->name, kbc);
-> > +	err = request_irq(kbc->irq, tegra_kbc_isr,
-> > +			  IRQF_NO_SUSPEND | IRQF_TRIGGER_HIGH, pdev->name,
-> kbc);
-> >  	if (err) {
-> >  		dev_err(&pdev->dev, "failed to request keyboard IRQ\n");
-> >  		goto err_put_clk;
-> > @@ -738,7 +745,6 @@ static int tegra_kbc_suspend(struct device *dev)
-> >
-> >  	mutex_lock(&kbc->idev->mutex);
-> >  	if (device_may_wakeup(&pdev->dev)) {
-> > -		disable_irq(kbc->irq);
-> >  		del_timer_sync(&kbc->timer);
-> >  		tegra_kbc_set_fifo_interrupt(kbc, false);
-> 
-> This disturbs locking rules and allows timer to run past this point.
-> Instead of keeping interrupt enabled can't you simply read controller
-> state in tegra_kbc_resume (before enabling interrupt) and emit the
-> keycode if you detect KBC_INT_KEYPRESS_INT_STATUS condition?
-> 
-> Thanks.
-> 
-> --
-> Dmitry
+> From a practical standpoint, I don't see tablets with more than two
+> rings on the horizon. The rings already have mode-switch buttons,
+> obviating the need for more than one ring per hand. And since the user
+> only has two hands, it makes the need for more than two rings somewhat
+> difficult to imagine...
+
+For a tablet... But world is not only limited to tablets and so I loathe
+to have the same conversation about ABS_WHEEL5 in the future.
+
+Thanks.
+
+-- 
+Dmitry

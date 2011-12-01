@@ -1,138 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Bug: touchpad unresponsive after resume from S3 (psmouse driver)
-Date: Wed, 30 Nov 2011 21:15:34 -0800
-Message-ID: <20111201051534.GB16816@core.coreip.homeip.net>
-References: <4ED507AB.6040905@canonical.com>
- <20111129175333.GE4241@core.coreip.homeip.net>
- <4ED535E7.5030108@canonical.com>
- <20111130001748.GA2270@core.coreip.homeip.net>
- <4ED64932.90407@canonical.com>
+Subject: Re: [PATCH 2/2] Input: tsc2007 - Add a z1_low_threshhold platform
+ data parameter
+Date: Wed, 30 Nov 2011 21:47:26 -0800
+Message-ID: <20111201054726.GC16816@core.coreip.homeip.net>
+References: <1322554378-348-1-git-send-email-feng.tang@intel.com>
+ <1322554378-348-2-git-send-email-feng.tang@intel.com>
+ <20111129092310.GB21758@core.coreip.homeip.net>
+ <20111130103418.4514b630@feng-i7>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:48264 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:41445 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750703Ab1LAFPk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2011 00:15:40 -0500
-Received: by iage36 with SMTP id e36so1906174iag.19
-        for <linux-input@vger.kernel.org>; Wed, 30 Nov 2011 21:15:39 -0800 (PST)
+	with ESMTP id S1751169Ab1LAFrd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2011 00:47:33 -0500
 Content-Disposition: inline
-In-Reply-To: <4ED64932.90407@canonical.com>
+In-Reply-To: <20111130103418.4514b630@feng-i7>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Manrique <daniel.manrique@canonical.com>
-Cc: linux-input@vger.kernel.org
+To: Feng Tang <feng.tang@intel.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Clark, Joel" <joel.clark@intel.com>
 
-On Wed, Nov 30, 2011 at 10:18:10AM -0500, Daniel Manrique wrote:
-> On 11-11-29 07:17 PM, Dmitry Torokhov wrote:
-> > On Tue, Nov 29, 2011 at 02:43:35PM -0500, Daniel Manrique wrote:
-> >> On 11-11-29 12:53 PM, Dmitry Torokhov wrote:
-> >>> Hi Daniel,
-> >>>
-> >>> On Tue, Nov 29, 2011 at 11:26:19AM -0500, Daniel Manrique wrote:
-> >>>> Hello,
-> >>>>
-> >>>> I apologize for sending this bug report directly; with the kernel.org bugtracker
-> >>>> down I was told this was the best option for the time being. If this is not
-> >>>> correct, could you please let me know of a good place to submit this bug report?
-> >>>>
-> >>>> I have several Dell laptops with Synaptics touchpads, particularly a group of
-> >>>> Vostro V13 systems. On these, after a suspend/resume cycle, the touchpad
-> >>>> (Synaptics) is unresponsive; a workaround is to rmmod psmouse; modprobe psmouse.
-> >>>>
-> >>>> This was first reported on kernel 2.6.38, although I think the issue has been
-> >>>> present from as early as 2.6.32. I verified it for sure with Ubuntu 2.6.38
-> >>>> kernels, 3.0.0 kernels, and a 3.2.0 kernel from the development release, as well
-> >>>> as a "mainline" 3.1.0-rc10 kernel.
-> >>>>
-> >>>> Since this problem was seen on Ubuntu, it's filed on the Launchpad bug tracker.
-> >>>> The first report I can find is this one:
-> >>>>
-> >>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/715267
-> >>>>
-> >>>> This includes a series of log messages I don't see on my systems. I then filed
-> >>>> this other bug:
-> >>>>
-> >>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/879650
-> >>>>
-> >>>> The last one contains specific information from one of my systems (a Vostro V13).
-> >>>>
-> >>>> I'd really appreciate any help or guidance on how to solve this problem. If you
-> >>>> need me to collect any information or run any tests on these machines, please
-> >>>> don't hesitate to ask, these systems are primarily used for testing.
-> >>>>
-> >>>
-> >>> Please do:
-> >>>
-> >>>  - enable i8042 debug (echo 1 > /sys/module/i8042/parameters/debug)
-> >>>  - rmmod psmouse;
-> >>>  - suspend/resume;
-> >>>  - collect dmesg;
-> >>>  - suspend/resume;
-> >>>  - collect dmesg again
-> >>>
-> >>> and we'll have to try and find what we do differently.
-> >>>
-> >>> Thanks.
-> >>>
-> >>
-> >> Hi Dmitry,
-> >>
-> >> Thanks so much for the quick reply!
-> >>
-> >> I just ran the tests you requested with some extra steps which I hope won't
-> >> confuse things. Here's the sequence I followed:
-> >>
-> >> - Enabled i8042 debug
-> >> - sudo rmmod psmouse. Touchpad of course becomes unresponsive.
-> >> - sudo pm-suspend
-> >> - Wake the machine by pressing power
-> >> - At this point touchpad is unresponsive.
-> >> - Collected dmesg-1.txt
-> >> - sudo pm-suspend
-> >> - wake the machine by pressing power
-> >> - At this point touchpad is still unresponsive.
-> >> - Collected dmesg-2.txt
-> >> - sudo modprobe psmouse. Touchpad begins responding.
-> >> - Collected dmesg-3.txt
-> >> - sudo pm-suspend
-> >> - wake the machine by pressing power
-> >> - At this point touchpad is again unresponsive.
-> >> - Collected dmesg-4.txt
-> >>
-> >> To avoid attaching largish files to this email, I put the logs on a
-> >> publically-accessible http server at:
-> >> http://people.canonical.com/~roadmr/lp715267/. Please let me know if you prefer
-> >> something else.
-> >>
+On Wed, Nov 30, 2011 at 10:34:18AM +0800, Feng Tang wrote:
+> On Tue, 29 Nov 2011 17:23:10 +0800
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> 
+> > On Tue, Nov 29, 2011 at 04:12:58PM +0800, Feng Tang wrote:
+> > > This originates from a patch in Meego IVI kernel with the name
+> > > 	linux-2.6.37-connext-0027-tsc2007.patch
+> > > There is no author info excepte a line "From  MeeGo
+> > > <kernel@meego.com>"
+> > > 
+> > > When integrating tsc2007 on Intel IVI platform, there are a lot of
+> > > noise data whose z1 value is around 10 which is not a sane "z1". So
+> > > add a "z1_low_threshhold" to filter those nosie data, to make the
+> > > device work properly.
 > > 
-> > Hmm, it just does not want to admit that it is synaptics after reset.
-> > Does the patch below help any?
+> > Sounds like a task for userspace to ignore pressure that is too low.
+> > Bonus points for making it configurable so user can adjust
+> > sensitivity.
 > 
-> Hi Dmitry,
+> Actually, there is one more point :), without this patch, the driver won't
+> work on our platforms.
 > 
-> I applied the patch to a 3.2-series kernel (based off 3.2-rc3 I think). It
-> applied cleanly to psmouse.c, and after compiling the driver and putting it in
-> place of the old psmouse.ko, the touchpad works after resuming from suspend!
-> 
-> I did a comparison test by swapping drivers (old vs. new) without rebooting, by
-> rmmodding the existing psmouse driver, putting the old/new file in place,
-> reloading the driver and doing a suspend/resume cycle. Consistently, with the
-> old/original driver I still see the problem, but with the new/patched driver the
-> touchpad is always enabled after resume.
-> 
-> i only tested this on one of the failing Vostro V13, please let me know if I
-> should test for anything like possible misbehaviors on other previously-working
-> systems or some other kind of regression.
-> 
-> But still, this patch seems to work fine, thanks for this! What's the next step
-> for getting this fix into the official kernel? Anything I can do to help?
-> 
+> The tsc2007_soft_irq will keep reading the input data unless there is no
+> valid pressure data. In our case, those noise data will be seen as valid
+> data during tsc2007_calculate_pressure(), and the tsc2007_soft_irq will
+> run endlessly.
 
-Could you please try removing either ssleep(1) or querying of device ID
-from the patch and see which one of them actually fixes the issue?
+Even if we add the pressure threshold would not that noise cause endless
+stream of interrupts?
 
-Thanks!
+Also, what kind of z2 is reported with low z1? And do you implement
+get_pendown_state()?
+
+Thanks.
 
 -- 
 Dmitry

@@ -1,93 +1,97 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: tsc2007 - Add a z1_low_threshhold platform
- data parameter
-Date: Thu, 1 Dec 2011 00:45:24 -0800
-Message-ID: <20111201084524.GB31610@core.coreip.homeip.net>
+Subject: Re: [PATCH 1/2] Input: tsc2007 - Disable irq when the irq thread is
+ handling data
+Date: Thu, 1 Dec 2011 00:48:18 -0800
+Message-ID: <20111201084818.GC31610@core.coreip.homeip.net>
 References: <1322554378-348-1-git-send-email-feng.tang@intel.com>
- <1322554378-348-2-git-send-email-feng.tang@intel.com>
- <20111129092310.GB21758@core.coreip.homeip.net>
- <20111130103418.4514b630@feng-i7>
- <20111201054726.GC16816@core.coreip.homeip.net>
- <20111201141948.13162071@feng-i7>
+ <20111129092208.GA21758@core.coreip.homeip.net>
+ <20111130100824.535c7e16@feng-i7>
+ <20111201061015.GD16816@core.coreip.homeip.net>
+ <20111201143012.498c506c@feng-i7>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:56229 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753218Ab1LAIpa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2011 03:45:30 -0500
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:51462 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752047Ab1LAIsX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2011 03:48:23 -0500
 Content-Disposition: inline
-In-Reply-To: <20111201141948.13162071@feng-i7>
+In-Reply-To: <20111201143012.498c506c@feng-i7>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Feng Tang <feng.tang@intel.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Clark, Joel" <joel.clark@intel.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kwlee@mtekvision.com" <kwlee@mtekvision.com>, "Clark, Joel" <joel.clark@intel.com>, Thomas Gleixner <tglx@linutronix.de>
 
-On Thu, Dec 01, 2011 at 02:19:48PM +0800, Feng Tang wrote:
-> On Thu, 1 Dec 2011 13:47:26 +0800
+On Thu, Dec 01, 2011 at 02:30:12PM +0800, Feng Tang wrote:
+> Hi Dmitry,
+> 
+> On Thu, 1 Dec 2011 14:10:15 +0800
 > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > 
-> > On Wed, Nov 30, 2011 at 10:34:18AM +0800, Feng Tang wrote:
-> > > On Tue, 29 Nov 2011 17:23:10 +0800
+> > On Wed, Nov 30, 2011 at 10:08:24AM +0800, Feng Tang wrote:
+> > > Hi Dmitry,
+> > > 
+> > > Thanks for the review.
+> > > 
+> > > On Tue, 29 Nov 2011 17:22:08 +0800
 > > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > > > 
-> > > > On Tue, Nov 29, 2011 at 04:12:58PM +0800, Feng Tang wrote:
-> > > > > This originates from a patch in Meego IVI kernel with the name
-> > > > > 	linux-2.6.37-connext-0027-tsc2007.patch
-> > > > > There is no author info excepte a line "From  MeeGo
-> > > > > <kernel@meego.com>"
-> > > > > 
-> > > > > When integrating tsc2007 on Intel IVI platform, there are a lot
-> > > > > of noise data whose z1 value is around 10 which is not a sane
-> > > > > "z1". So add a "z1_low_threshhold" to filter those nosie data,
-> > > > > to make the device work properly.
+> > > > Hi Feng,
 > > > > 
-> > > > Sounds like a task for userspace to ignore pressure that is too
-> > > > low. Bonus points for making it configurable so user can adjust
-> > > > sensitivity.
+> > > > On Tue, Nov 29, 2011 at 04:12:57PM +0800, Feng Tang wrote:
+> > > > > The TSC2007 data sheet say in some case the HW may fire some
+> > > > > false interrrupt, which I also met during integrating one
+> > > > > TSC2007 device. So add the disable_irq/enable_irq protection
+> > > > > around data handling.
+> > > > 
+> > > > IRQF_ONESHOT should prevent IRQ from firing again while thread is
+> > > > servicing it. Did you actually observe it not working?
 > > > 
-> > > Actually, there is one more point :), without this patch, the
-> > > driver won't work on our platforms.
-> > > 
-> > > The tsc2007_soft_irq will keep reading the input data unless there
-> > > is no valid pressure data. In our case, those noise data will be
-> > > seen as valid data during tsc2007_calculate_pressure(), and the
-> > > tsc2007_soft_irq will run endlessly.
+> > > You are right, the tsc's threaded IRQ function is not re-entered,
+> > > and the driver is working actually. My bad not stating the problem
+> > > clearly. The real problem I want solve is, many platforms including
+> > > ours use a GPIO line as the tsc2007's IRQ line, and when these
+> > > extra tsc2007 IRQ is triggered on the gpio line, that GPIO
+> > > controller will fire up extra noise IRQ accordingly, causing its
+> > > ISR to be called. And my patch is trying to let the GPIO controller
+> > > driver disable that specific IRQ pin from tsc2007. As disable_irq
+> > > will call GPIO irq_chip's irq_disable() or mask() hook.
 > > 
-> > Even if we add the pressure threshold would not that noise cause
-> > endless stream of interrupts?
+> > But ONESHOT interrupt handler will not unmask interrupt until thead
+> > finishes servicing it so we should not be seeing these extra IRQs.
+> > I'm adding Thomas in case I misunderstand how it threaded IRQ
+> > supposed to work.
 > 
-> No, there is no endless interrupts for tsc2007. Without the z1
-> threshold, the while circle in tsc2007_soft_irq will run endlessly
-> as the noise data will be seen as a valid data:
+> I did see these extra IRQs. As the tsc2007 datasheet says, the PENIRQ may
+> be falsely triggered, and that signal is passed to the GPIO controller, if
+> the tsc2007 specific pin is not disabled in GPIOC level, then the GPIOC HW
+> will send out a IRQ anyway. 
 > 
-> 		rt = tsc2007_calculate_pressure(ts, &tc);
-> 		if (rt == 0 && !ts->get_pendown_state) {
-> 			/*
-> 			 * If pressure reported is 0 and we don't have
-> 			 * callback to check pendown state, we have to
-> 			 * assume that pen was lifted up.
-> 			 */
-> 			break;
-> 		}
+> While calling the disable_irq(), it will call the irq_chip's (implemented by
+> GPIO controller) irq_disable() or irq_mask() hook to disable that specific
+> line for tsc2007.
 > 
-> With the z1 threshold check, the rt will be 0 for noise data, and the
-> code flow broke out.
+> I did check the original tsc2007 driver, which used the disable_irq/enable_irq
+> too, which means this problem is a general one and has been seen before.
+> 
 
-What I meant is with the threshold check we'll break out of the ISR but
-why won't IRQ be raised again?
+No, the original had disable/enable IRQ because it was the only way to
+stop interrupt storm with combination of hard IRQ + workqueue or thread.
 
+BTW, do you have it configured as level or edge interrupt?
+
+> Or should we have a another flag in tsc2007 platform data, to let each platform
+> chose whether or not to use the disable/enable_irq according to their platform
+> need.
 > 
 > > 
-> > Also, what kind of z2 is reported with low z1? And do you implement
-> > get_pendown_state()?
+> > Also, there is clear_penirq() platform method that is called to clean
+> > penirq state, if needed.
 > 
-> z2 seems normal as some data between 3000-4000. We don't have a
-> get_pendown_state().
+> Sadly we don't have a way to clear the irq from TSC2007 on our platform :(
+>
 
-OK, there is max_rt platform parameter. I think we should employ it
-instead and break out if we get several incorrect samples in a row. Too
-bad you do not have a dedicate method.
+Thanks.
 
 -- 
 Dmitry

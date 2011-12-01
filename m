@@ -1,41 +1,117 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v1] Input: tegra-kbc - report wakeup key for some
- platforms.
-Date: Wed, 30 Nov 2011 23:26:49 -0800
-Message-ID: <20111201072649.GE16816@core.coreip.homeip.net>
-References: <1322685811-14060-1-git-send-email-riyer@nvidia.com>
- <20111130212022.GB3108@core.coreip.homeip.net>
- <1FC56210173BB445BD77F608D6FB8D034F3D1BB4BD@HQMAIL03.nvidia.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: i8042 - do not leak driver on error on Sparc
+Date: Thu, 1 Dec 2011 00:40:40 -0800
+Message-ID: <20111201084040.GA31610@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:55789 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752047Ab1LAIkp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2011 03:40:45 -0500
+Received: by iage36 with SMTP id e36so2151604iag.19
+        for <linux-input@vger.kernel.org>; Thu, 01 Dec 2011 00:40:45 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1FC56210173BB445BD77F608D6FB8D034F3D1BB4BD-lR+7xdUAJVNDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: "rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org" <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linux Input <linux-input@vger.kernel.org>
+Cc: "David S. Miller" <davem@davemloft.net>, Grant Likely <grant.likely@secretlab.ca>
 
-On Wed, Nov 30, 2011 at 02:14:03PM -0800, Rakesh Iyer wrote:
-> Thanks Dmitry.
-> 
-> Since there can be multiple wake causes I wanted to isolate wake key
-> generation to the case where keyboard actually generated the wake
-> interrupt.
+If we did not find OF nodes describing AUX or KBD ports we'd bail
+out but forget to unregister sparc_i8042_driver platform driver.
 
-I do not think you can guarantee this though because if user touches
-keyboard "too early", before your resume method had a chance to disable
-kbc interrupt as a wakeup source, you are still going to get that
-interrupt and deliver KEY_POWER even though KBC is not the actual wakeup
-source.
+Switch over to platform_driver_probe() instead which automatically
+unregisters driver if it does not bind to any device; it also has
+a side effect of suppressing "bind" and "unbind" sysfs attributes
+ensuring that we do not unmap IO registers while i8042 core is
+running. This also allows us to switch annotations from
+__devinit/__devexit to __init/__exit and maybe save some memory.
 
-So don't over-complicate it. If hardware can't detect actual key pressed
-just emit KEY_POWER if a key was at any time between calls to
-tegra_kbc_suspend() and tegra_kbc_resume().
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-BTW, could you please have your MUA wrap long lines around 75 column or so?
+1. This haven't even been compiled - I lost my sparc cross-compile
+toolchain - but I hope I did not screw up.
+
+2. I do not understand how it all even work - we register
+sparc_i8042_driver which is a platform driver with 'i8042' name;
+i8042 core also registers platform driver with exactly the same name.
+Surely the core one will fail since it would be a duplicate...
 
 Thanks.
 
+ drivers/input/serio/i8042-sparcio.h |   30 ++++++++++++++++--------------
+ 1 files changed, 16 insertions(+), 14 deletions(-)
+
+
+diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/i8042-sparcio.h
+index 395a9af..be6512b 100644
+--- a/drivers/input/serio/i8042-sparcio.h
++++ b/drivers/input/serio/i8042-sparcio.h
+@@ -49,7 +49,7 @@ static inline void i8042_write_command(int val)
+ #define OBP_PS2MS_NAME1		"kdmouse"
+ #define OBP_PS2MS_NAME2		"mouse"
+ 
+-static int __devinit sparc_i8042_probe(struct platform_device *op)
++static int __init sparc_i8042_probe(struct platform_device *op)
+ {
+ 	struct device_node *dp = op->dev.of_node;
+ 
+@@ -77,12 +77,23 @@ static int __devinit sparc_i8042_probe(struct platform_device *op)
+ 		dp = dp->sibling;
+ 	}
+ 
++	if (i8042_kbd_irq == -1 || i8042_aux_irq == -1) {
++		i8042_kbd_irq = i8042_aux_irq = -1;
++		if (kbd_iobase) {
++			of_iounmap(kbd_res, kbd_iobase, 8);
++			kbd_iobase = (void __iomem *) NULL;
++		}
++		return -ENODEV;
++	}
++
+ 	return 0;
+ }
+ 
+-static int __devexit sparc_i8042_remove(struct platform_device *op)
++static int __exit sparc_i8042_remove(struct platform_device *op)
+ {
+ 	of_iounmap(kbd_res, kbd_iobase, 8);
++	kbd_iobase = (void __iomem *) NULL;
++	i8042_kbd_irq = i8042_aux_irq = -1;
+ 
+ 	return 0;
+ }
+@@ -101,8 +112,7 @@ static struct platform_driver sparc_i8042_driver = {
+ 		.owner = THIS_MODULE,
+ 		.of_match_table = sparc_i8042_match,
+ 	},
+-	.probe		= sparc_i8042_probe,
+-	.remove		= __devexit_p(sparc_i8042_remove),
++	.remove		= __exit_p(sparc_i8042_remove),
+ };
+ 
+ static int __init i8042_platform_init(void)
+@@ -116,18 +126,10 @@ static int __init i8042_platform_init(void)
+ 		if (!kbd_iobase)
+ 			return -ENODEV;
+ 	} else {
+-		int err = platform_driver_register(&sparc_i8042_driver);
++		int err = platform_driver_probe(&sparc_i8042_driver,
++						sparc_i8042_probe);
+ 		if (err)
+ 			return err;
+-
+-		if (i8042_kbd_irq == -1 ||
+-		    i8042_aux_irq == -1) {
+-			if (kbd_iobase) {
+-				of_iounmap(kbd_res, kbd_iobase, 8);
+-				kbd_iobase = (void __iomem *) NULL;
+-			}
+-			return -ENODEV;
+-		}
+ 	}
+ 
+ 	i8042_reset = 1;
 -- 
 Dmitry

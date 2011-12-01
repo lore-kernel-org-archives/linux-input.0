@@ -1,146 +1,77 @@
-From: Daniel Manrique <daniel.manrique@canonical.com>
-Subject: Re: Bug: touchpad unresponsive after resume from S3 (psmouse driver)
-Date: Thu, 01 Dec 2011 15:39:43 -0500
-Message-ID: <4ED7E60F.7020306@canonical.com>
-References: <4ED507AB.6040905@canonical.com> <20111129175333.GE4241@core.coreip.homeip.net> <4ED535E7.5030108@canonical.com> <20111130001748.GA2270@core.coreip.homeip.net> <4ED64932.90407@canonical.com> <20111201051534.GB16816@core.coreip.homeip.net>
+From: Rakesh Iyer <riyer@nvidia.com>
+Subject: RE: [PATCH v1] Input: tegra-kbc - report wakeup key for some
+ platforms.
+Date: Thu, 1 Dec 2011 13:09:59 -0800
+Message-ID: <1FC56210173BB445BD77F608D6FB8D034F3D1BB4C9@HQMAIL03.nvidia.com>
+References: <1322685811-14060-1-git-send-email-riyer@nvidia.com>
+ <20111130212022.GB3108@core.coreip.homeip.net>
+ <1FC56210173BB445BD77F608D6FB8D034F3D1BB4BD@HQMAIL03.nvidia.com>
+ <20111201072649.GE16816@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:56132 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752413Ab1LAUjq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2011 15:39:46 -0500
-In-Reply-To: <20111201051534.GB16816@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20111201072649.GE16816@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: "rydberg@euromail.se" <rydberg@euromail.se>, Stephen Warren <swarren@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-On 11-12-01 12:15 AM, Dmitry Torokhov wrote:
-> On Wed, Nov 30, 2011 at 10:18:10AM -0500, Daniel Manrique wrote:
->> On 11-11-29 07:17 PM, Dmitry Torokhov wrote:
->>> On Tue, Nov 29, 2011 at 02:43:35PM -0500, Daniel Manrique wrote:
->>>> On 11-11-29 12:53 PM, Dmitry Torokhov wrote:
->>>>> Hi Daniel,
->>>>>
->>>>> On Tue, Nov 29, 2011 at 11:26:19AM -0500, Daniel Manrique wrote:
->>>>>> Hello,
->>>>>>
->>>>>> I apologize for sending this bug report directly; with the kernel.org bugtracker
->>>>>> down I was told this was the best option for the time being. If this is not
->>>>>> correct, could you please let me know of a good place to submit this bug report?
->>>>>>
->>>>>> I have several Dell laptops with Synaptics touchpads, particularly a group of
->>>>>> Vostro V13 systems. On these, after a suspend/resume cycle, the touchpad
->>>>>> (Synaptics) is unresponsive; a workaround is to rmmod psmouse; modprobe psmouse.
->>>>>>
->>>>>> This was first reported on kernel 2.6.38, although I think the issue has been
->>>>>> present from as early as 2.6.32. I verified it for sure with Ubuntu 2.6.38
->>>>>> kernels, 3.0.0 kernels, and a 3.2.0 kernel from the development release, as well
->>>>>> as a "mainline" 3.1.0-rc10 kernel.
->>>>>>
->>>>>> Since this problem was seen on Ubuntu, it's filed on the Launchpad bug tracker.
->>>>>> The first report I can find is this one:
->>>>>>
->>>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/715267
->>>>>>
->>>>>> This includes a series of log messages I don't see on my systems. I then filed
->>>>>> this other bug:
->>>>>>
->>>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/879650
->>>>>>
->>>>>> The last one contains specific information from one of my systems (a Vostro V13).
->>>>>>
->>>>>> I'd really appreciate any help or guidance on how to solve this problem. If you
->>>>>> need me to collect any information or run any tests on these machines, please
->>>>>> don't hesitate to ask, these systems are primarily used for testing.
->>>>>>
->>>>>
->>>>> Please do:
->>>>>
->>>>>  - enable i8042 debug (echo 1 > /sys/module/i8042/parameters/debug)
->>>>>  - rmmod psmouse;
->>>>>  - suspend/resume;
->>>>>  - collect dmesg;
->>>>>  - suspend/resume;
->>>>>  - collect dmesg again
->>>>>
->>>>> and we'll have to try and find what we do differently.
->>>>>
->>>>> Thanks.
->>>>>
->>>>
->>>> Hi Dmitry,
->>>>
->>>> Thanks so much for the quick reply!
->>>>
->>>> I just ran the tests you requested with some extra steps which I hope won't
->>>> confuse things. Here's the sequence I followed:
->>>>
->>>> - Enabled i8042 debug
->>>> - sudo rmmod psmouse. Touchpad of course becomes unresponsive.
->>>> - sudo pm-suspend
->>>> - Wake the machine by pressing power
->>>> - At this point touchpad is unresponsive.
->>>> - Collected dmesg-1.txt
->>>> - sudo pm-suspend
->>>> - wake the machine by pressing power
->>>> - At this point touchpad is still unresponsive.
->>>> - Collected dmesg-2.txt
->>>> - sudo modprobe psmouse. Touchpad begins responding.
->>>> - Collected dmesg-3.txt
->>>> - sudo pm-suspend
->>>> - wake the machine by pressing power
->>>> - At this point touchpad is again unresponsive.
->>>> - Collected dmesg-4.txt
->>>>
->>>> To avoid attaching largish files to this email, I put the logs on a
->>>> publically-accessible http server at:
->>>> http://people.canonical.com/~roadmr/lp715267/. Please let me know if you prefer
->>>> something else.
->>>>
->>>
->>> Hmm, it just does not want to admit that it is synaptics after reset.
->>> Does the patch below help any?
->>
->> Hi Dmitry,
->>
->> I applied the patch to a 3.2-series kernel (based off 3.2-rc3 I think). It
->> applied cleanly to psmouse.c, and after compiling the driver and putting it in
->> place of the old psmouse.ko, the touchpad works after resuming from suspend!
->>
->> I did a comparison test by swapping drivers (old vs. new) without rebooting, by
->> rmmodding the existing psmouse driver, putting the old/new file in place,
->> reloading the driver and doing a suspend/resume cycle. Consistently, with the
->> old/original driver I still see the problem, but with the new/patched driver the
->> touchpad is always enabled after resume.
->>
->> i only tested this on one of the failing Vostro V13, please let me know if I
->> should test for anything like possible misbehaviors on other previously-working
->> systems or some other kind of regression.
->>
->> But still, this patch seems to work fine, thanks for this! What's the next step
->> for getting this fix into the official kernel? Anything I can do to help?
->>
+Hello Dmitry.
+
+Sorry for the wrap issue, my Outlook does not seem to obey the settings.
+
+I wanted to explain the tegra system resume path implementation so I can justify 
+why I am doing this complicated fix and why I feel it will guarantee the resume 
+is due to keypress.
+
+The tegra wake resume code is registered as a syscore ops.
+When the system is resumed due to a wake event, the suspend_enter (after wakeup) 
+routine will invoke the tegra syscoreops_resume method and that routine will propagate 
+the wake event to the individual ISR's through genirq.
+If kbc was wake source, kbc_isr will be invoked in this execution path.
+
+If system is resumed due to other reason, the tegra_syscoreops_resume code will not 
+find the event.
+
+In the kbc we ignore all keypresses until kbc_resume re-enables the fifo interrupt.
+So the only way to generate this key would be if the tegra_syscoreops_resume 
+finds that kbc was wake source
+
+Maybe my understanding is wrong. Please feel free to correct me.
+
+Regards
+Rakesh
+
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: Wednesday, November 30, 2011 11:27 PM
+> To: Rakesh Iyer
+> Cc: rydberg@euromail.se; Stephen Warren; Laxman Dewangan; linux-
+> kernel@vger.kernel.org; linux-input@vger.kernel.org; linux-tegra@vger.kernel.org
+> Subject: Re: [PATCH v1] Input: tegra-kbc - report wakeup key for some platforms.
 > 
-> Could you please try removing either ssleep(1) or querying of device ID
-> from the patch and see which one of them actually fixes the issue?
-
-Hi Dmitry,
-
-Certainly! I compiled and tested two new versions of the module, one with the
-"delaying after reset" code commented out, the other with the "querying ID"
-block commented out.
-
-The ssleep(1); line is what appears to do the trick; the version that just
-queries the ID exhibits the same problem I reported initially, while the one
-that just ssleeps works fine, with the touchpad working OK after resuming.
-
-I'll await further instructions on this, thanks so much for your help!
-
-- Daniel
-
-> Thanks!
+> On Wed, Nov 30, 2011 at 02:14:03PM -0800, Rakesh Iyer wrote:
+> > Thanks Dmitry.
+> >
+> > Since there can be multiple wake causes I wanted to isolate wake key
+> > generation to the case where keyboard actually generated the wake
+> > interrupt.
 > 
-
+> I do not think you can guarantee this though because if user touches
+> keyboard "too early", before your resume method had a chance to disable
+> kbc interrupt as a wakeup source, you are still going to get that
+> interrupt and deliver KEY_POWER even though KBC is not the actual wakeup
+> source.
+> 
+> So don't over-complicate it. If hardware can't detect actual key pressed
+> just emit KEY_POWER if a key was at any time between calls to
+> tegra_kbc_suspend() and tegra_kbc_resume().
+> 
+> BTW, could you please have your MUA wrap long lines around 75 column or so?
+> 
+> Thanks.
+> 
+> --
+> Dmitry

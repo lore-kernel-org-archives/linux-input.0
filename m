@@ -1,154 +1,41 @@
-From: Feng Tang <feng.tang@intel.com>
-Subject: Re: [PATCH 1/2] Input: tsc2007 - Disable irq when the irq thread is
- handling data
-Date: Thu, 1 Dec 2011 14:30:12 +0800
-Message-ID: <20111201143012.498c506c@feng-i7>
-References: <1322554378-348-1-git-send-email-feng.tang@intel.com>
-	<20111129092208.GA21758@core.coreip.homeip.net>
-	<20111130100824.535c7e16@feng-i7>
-	<20111201061015.GD16816@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v1] Input: tegra-kbc - report wakeup key for some
+ platforms.
+Date: Wed, 30 Nov 2011 23:26:49 -0800
+Message-ID: <20111201072649.GE16816@core.coreip.homeip.net>
+References: <1322685811-14060-1-git-send-email-riyer@nvidia.com>
+ <20111130212022.GB3108@core.coreip.homeip.net>
+ <1FC56210173BB445BD77F608D6FB8D034F3D1BB4BD@HQMAIL03.nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:39432 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751169Ab1LAGaj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 1 Dec 2011 01:30:39 -0500
-In-Reply-To: <20111201061015.GD16816@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1FC56210173BB445BD77F608D6FB8D034F3D1BB4BD-lR+7xdUAJVNDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: "rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org" <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kwlee@mtekvision.com" <kwlee@mtekvision.com>, "Clark, Joel" <joel.clark@intel.com>, Thomas Gleixner <tglx@linutronix.de>
 
-Hi Dmitry,
-
-On Thu, 1 Dec 2011 14:10:15 +0800
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-
-> On Wed, Nov 30, 2011 at 10:08:24AM +0800, Feng Tang wrote:
-> > Hi Dmitry,
-> > 
-> > Thanks for the review.
-> > 
-> > On Tue, 29 Nov 2011 17:22:08 +0800
-> > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > 
-> > > Hi Feng,
-> > > 
-> > > On Tue, Nov 29, 2011 at 04:12:57PM +0800, Feng Tang wrote:
-> > > > The TSC2007 data sheet say in some case the HW may fire some
-> > > > false interrrupt, which I also met during integrating one
-> > > > TSC2007 device. So add the disable_irq/enable_irq protection
-> > > > around data handling.
-> > > 
-> > > IRQF_ONESHOT should prevent IRQ from firing again while thread is
-> > > servicing it. Did you actually observe it not working?
-> > 
-> > You are right, the tsc's threaded IRQ function is not re-entered,
-> > and the driver is working actually. My bad not stating the problem
-> > clearly. The real problem I want solve is, many platforms including
-> > ours use a GPIO line as the tsc2007's IRQ line, and when these
-> > extra tsc2007 IRQ is triggered on the gpio line, that GPIO
-> > controller will fire up extra noise IRQ accordingly, causing its
-> > ISR to be called. And my patch is trying to let the GPIO controller
-> > driver disable that specific IRQ pin from tsc2007. As disable_irq
-> > will call GPIO irq_chip's irq_disable() or mask() hook.
+On Wed, Nov 30, 2011 at 02:14:03PM -0800, Rakesh Iyer wrote:
+> Thanks Dmitry.
 > 
-> But ONESHOT interrupt handler will not unmask interrupt until thead
-> finishes servicing it so we should not be seeing these extra IRQs.
-> I'm adding Thomas in case I misunderstand how it threaded IRQ
-> supposed to work.
+> Since there can be multiple wake causes I wanted to isolate wake key
+> generation to the case where keyboard actually generated the wake
+> interrupt.
 
-I did see these extra IRQs. As the tsc2007 datasheet says, the PENIRQ may
-be falsely triggered, and that signal is passed to the GPIO controller, if
-the tsc2007 specific pin is not disabled in GPIOC level, then the GPIOC HW
-will send out a IRQ anyway. 
+I do not think you can guarantee this though because if user touches
+keyboard "too early", before your resume method had a chance to disable
+kbc interrupt as a wakeup source, you are still going to get that
+interrupt and deliver KEY_POWER even though KBC is not the actual wakeup
+source.
 
-While calling the disable_irq(), it will call the irq_chip's (implemented by
-GPIO controller) irq_disable() or irq_mask() hook to disable that specific
-line for tsc2007.
+So don't over-complicate it. If hardware can't detect actual key pressed
+just emit KEY_POWER if a key was at any time between calls to
+tegra_kbc_suspend() and tegra_kbc_resume().
 
-I did check the original tsc2007 driver, which used the disable_irq/enable_irq
-too, which means this problem is a general one and has been seen before.
+BTW, could you please have your MUA wrap long lines around 75 column or so?
 
-Or should we have a another flag in tsc2007 platform data, to let each platform
-chose whether or not to use the disable/enable_irq according to their platform
-need.
+Thanks.
 
-> 
-> Also, there is clear_penirq() platform method that is called to clean
-> penirq state, if needed.
-
-Sadly we don't have a way to clear the irq from TSC2007 on our platform :(
-
-Thanks,
-Feng
-
-> 
-> 
-> > 
-> > By grep the tsc2007_platform_data in kernel, I see most of the most
-> > of the tsc2007 platforms are using GPIO line as tsc2007 IRQ ine. So
-> > this should be a general problem.
-> > 
-> > Following is patch with updated log and comments.
-> > 
-> > Thanks,
-> > Feng
-> > 
-> > -----------------
-> > 
-> > From 16585020d27a066d2908959e370ea4f8905a0d34 Mon Sep 17 00:00:00
-> > 2001 From: Feng Tang <feng.tang@intel.com>
-> > Date: Tue, 29 Nov 2011 15:48:42 +0800
-> > Subject: [PATCH 1/2] Input: tsc2007 - Disable irq when the irq
-> > thread is handling data
-> > 
-> > The TSC2007 data sheet say in some case the HW may fire some false
-> > interrrupt, which I also met during integrating one TSC2007 device.
-> > Most of the tsc2007 platforms including ours are using a gpio line
-> > as tsc2007's irq line, so calling disable_irq_nosync() to actually
-> > prevent the gpio controller from firing IRQ for tsc2007 in such
-> > case.
-> > 
-> > Signed-off-by: Feng Tang <feng.tang@intel.com>
-> > ---
-> >  drivers/input/touchscreen/tsc2007.c |   13 +++++++++++++
-> >  1 files changed, 13 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/drivers/input/touchscreen/tsc2007.c
-> > b/drivers/input/touchscreen/tsc2007.c index 1f674cb..03c1961 100644
-> > --- a/drivers/input/touchscreen/tsc2007.c
-> > +++ b/drivers/input/touchscreen/tsc2007.c
-> > @@ -171,6 +171,18 @@ static irqreturn_t tsc2007_soft_irq(int irq,
-> > void *handle) struct ts_event tc;
-> >  	u32 rt;
-> >  
-> > +	/*
-> > +	 * Disable the irq, as it may fire several other IRQs
-> > during
-> > +	 * this thread is handling data, as suggested by the
-> > TSC2007
-> > +	 * datasheet, p19, "Touch Detect" chapter.
-> > +	 *
-> > +	 * Most of the tsc2007 platforms are using a gpio line as
-> > +	 * tsc2007's irq line, so calling disable_irq_nosync() will
-> > +	 * actually prevent the gpio controller from firing IRQ for
-> > +	 * this tsc2007 line in such case.
-> > +	 */
-> > +	disable_irq_nosync(irq);
-> > +
-> >  	while (!ts->stopped && tsc2007_is_pen_down(ts)) {
-> >  
-> >  		/* pen is down, continue with the measurement */
-> > @@ -221,6 +233,7 @@ static irqreturn_t tsc2007_soft_irq(int irq,
-> > void *handle) if (ts->clear_penirq)
-> >  		ts->clear_penirq();
-> >  
-> > +	enable_irq(irq);
-> >  	return IRQ_HANDLED;
-> >  }
-> >  
-> > -- 
-> > 1.7.1
+-- 
+Dmitry

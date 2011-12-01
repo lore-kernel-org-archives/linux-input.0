@@ -1,60 +1,165 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: tsc2007 - Add a z1_low_threshhold platform
- data parameter
-Date: Wed, 30 Nov 2011 21:47:26 -0800
-Message-ID: <20111201054726.GC16816@core.coreip.homeip.net>
+Subject: Re: [PATCH 1/2] Input: tsc2007 - Disable irq when the irq thread is
+ handling data
+Date: Wed, 30 Nov 2011 22:10:15 -0800
+Message-ID: <20111201061015.GD16816@core.coreip.homeip.net>
 References: <1322554378-348-1-git-send-email-feng.tang@intel.com>
- <1322554378-348-2-git-send-email-feng.tang@intel.com>
- <20111129092310.GB21758@core.coreip.homeip.net>
- <20111130103418.4514b630@feng-i7>
+ <20111129092208.GA21758@core.coreip.homeip.net>
+ <20111130100824.535c7e16@feng-i7>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:41445 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:41479 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751169Ab1LAFrd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2011 00:47:33 -0500
+	with ESMTP id S1751692Ab1LAGKV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2011 01:10:21 -0500
 Content-Disposition: inline
-In-Reply-To: <20111130103418.4514b630@feng-i7>
+In-Reply-To: <20111130100824.535c7e16@feng-i7>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Feng Tang <feng.tang@intel.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Clark, Joel" <joel.clark@intel.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kwlee@mtekvision.com" <kwlee@mtekvision.com>, "Clark, Joel" <joel.clark@intel.com>, Thomas Gleixner <tglx@linutronix.de>
 
-On Wed, Nov 30, 2011 at 10:34:18AM +0800, Feng Tang wrote:
-> On Tue, 29 Nov 2011 17:23:10 +0800
+On Wed, Nov 30, 2011 at 10:08:24AM +0800, Feng Tang wrote:
+> Hi Dmitry,
+> 
+> Thanks for the review.
+> 
+> On Tue, 29 Nov 2011 17:22:08 +0800
 > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > 
-> > On Tue, Nov 29, 2011 at 04:12:58PM +0800, Feng Tang wrote:
-> > > This originates from a patch in Meego IVI kernel with the name
-> > > 	linux-2.6.37-connext-0027-tsc2007.patch
-> > > There is no author info excepte a line "From  MeeGo
-> > > <kernel@meego.com>"
-> > > 
-> > > When integrating tsc2007 on Intel IVI platform, there are a lot of
-> > > noise data whose z1 value is around 10 which is not a sane "z1". So
-> > > add a "z1_low_threshhold" to filter those nosie data, to make the
-> > > device work properly.
+> > Hi Feng,
 > > 
-> > Sounds like a task for userspace to ignore pressure that is too low.
-> > Bonus points for making it configurable so user can adjust
-> > sensitivity.
+> > On Tue, Nov 29, 2011 at 04:12:57PM +0800, Feng Tang wrote:
+> > > The TSC2007 data sheet say in some case the HW may fire some false
+> > > interrrupt, which I also met during integrating one TSC2007 device.
+> > > So add the disable_irq/enable_irq protection around data handling.
+> > 
+> > IRQF_ONESHOT should prevent IRQ from firing again while thread is
+> > servicing it. Did you actually observe it not working?
 > 
-> Actually, there is one more point :), without this patch, the driver won't
-> work on our platforms.
+> You are right, the tsc's threaded IRQ function is not re-entered, and
+> the driver is working actually. My bad not stating the problem clearly.
+> The real problem I want solve is, many platforms including ours use a
+> GPIO line as the tsc2007's IRQ line, and when these extra tsc2007 IRQ 
+> is triggered on the gpio line, that GPIO controller will fire up extra
+> noise IRQ accordingly, causing its ISR to be called. And my patch is
+>  trying to let the GPIO controller driver disable that specific IRQ pin
+> from tsc2007. As disable_irq will call GPIO irq_chip's irq_disable() or
+> mask() hook.
+
+But ONESHOT interrupt handler will not unmask interrupt until thead
+finishes servicing it so we should not be seeing these extra IRQs.
+I'm adding Thomas in case I misunderstand how it threaded IRQ supposed to
+work.
+
+Also, there is clear_penirq() platform method that is called to clean
+penirq state, if needed.
+
+
 > 
-> The tsc2007_soft_irq will keep reading the input data unless there is no
-> valid pressure data. In our case, those noise data will be seen as valid
-> data during tsc2007_calculate_pressure(), and the tsc2007_soft_irq will
-> run endlessly.
-
-Even if we add the pressure threshold would not that noise cause endless
-stream of interrupts?
-
-Also, what kind of z2 is reported with low z1? And do you implement
-get_pendown_state()?
-
-Thanks.
+> By grep the tsc2007_platform_data in kernel, I see most of the most of
+> the tsc2007 platforms are using GPIO line as tsc2007 IRQ ine. So this
+> should be a general problem.
+> 
+> Following is patch with updated log and comments.
+> 
+> Thanks,
+> Feng
+> 
+> -----------------
+> 
+> From 16585020d27a066d2908959e370ea4f8905a0d34 Mon Sep 17 00:00:00 2001
+> From: Feng Tang <feng.tang@intel.com>
+> Date: Tue, 29 Nov 2011 15:48:42 +0800
+> Subject: [PATCH 1/2] Input: tsc2007 - Disable irq when the irq thread is handling data
+> 
+> The TSC2007 data sheet say in some case the HW may fire some false
+> interrrupt, which I also met during integrating one TSC2007 device.
+> Most of the tsc2007 platforms including ours are using a gpio line as
+> tsc2007's irq line, so calling disable_irq_nosync() to actually
+> prevent the gpio controller from firing IRQ for tsc2007 in such case.
+> 
+> Signed-off-by: Feng Tang <feng.tang@intel.com>
+> ---
+>  drivers/input/touchscreen/tsc2007.c |   13 +++++++++++++
+>  1 files changed, 13 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
+> index 1f674cb..03c1961 100644
+> --- a/drivers/input/touchscreen/tsc2007.c
+> +++ b/drivers/input/touchscreen/tsc2007.c
+> @@ -171,6 +171,18 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
+>  	struct ts_event tc;
+>  	u32 rt;
+>  
+> +	/*
+> +	 * Disable the irq, as it may fire several other IRQs during
+> +	 * this thread is handling data, as suggested by the TSC2007
+> +	 * datasheet, p19, "Touch Detect" chapter.
+> +	 *
+> +	 * Most of the tsc2007 platforms are using a gpio line as
+> +	 * tsc2007's irq line, so calling disable_irq_nosync() will
+> +	 * actually prevent the gpio controller from firing IRQ for
+> +	 * this tsc2007 line in such case.
+> +	 */
+> +	disable_irq_nosync(irq);
+> +
+>  	while (!ts->stopped && tsc2007_is_pen_down(ts)) {
+>  
+>  		/* pen is down, continue with the measurement */
+> @@ -221,6 +233,7 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
+>  	if (ts->clear_penirq)
+>  		ts->clear_penirq();
+>  
+> +	enable_irq(irq);
+>  	return IRQ_HANDLED;
+>  }
+>  
+> -- 
+> 1.7.1
+> > 
+> > Thanks.
+> > 
+> > > 
+> > > Signed-off-by: Feng Tang <feng.tang@intel.com>
+> > > ---
+> > >  drivers/input/touchscreen/tsc2007.c |    8 ++++++++
+> > >  1 files changed, 8 insertions(+), 0 deletions(-)
+> > > 
+> > > diff --git a/drivers/input/touchscreen/tsc2007.c
+> > > b/drivers/input/touchscreen/tsc2007.c index 1f674cb..789f216 100644
+> > > --- a/drivers/input/touchscreen/tsc2007.c
+> > > +++ b/drivers/input/touchscreen/tsc2007.c
+> > > @@ -171,6 +171,13 @@ static irqreturn_t tsc2007_soft_irq(int irq,
+> > > void *handle) struct ts_event tc;
+> > >  	u32 rt;
+> > >  
+> > > +	/*
+> > > +	 * Disable the irq, as it may fire several other IRQs
+> > > during
+> > > +	 * this thread is handling data, as suggested by the
+> > > TSC2007
+> > > +	 * datasheet, p19, "Touch Detect" chapter
+> > > +	 */
+> > > +	disable_irq_nosync(irq);
+> > > +
+> > >  	while (!ts->stopped && tsc2007_is_pen_down(ts)) {
+> > >  
+> > >  		/* pen is down, continue with the measurement */
+> > > @@ -221,6 +228,7 @@ static irqreturn_t tsc2007_soft_irq(int irq,
+> > > void *handle) if (ts->clear_penirq)
+> > >  		ts->clear_penirq();
+> > >  
+> > > +	enable_irq(irq);
+> > >  	return IRQ_HANDLED;
+> > >  }
+> > >  
+> > > -- 
+> > > 1.7.1
+> > > 
+> > > 
+> > 
 
 -- 
 Dmitry

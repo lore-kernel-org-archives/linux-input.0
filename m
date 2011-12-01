@@ -1,183 +1,146 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: New "ABS_WHEEL2" axis?
-Date: Thu, 1 Dec 2011 11:13:22 -0600
-Message-ID: <CAGzDe_bVjBv-JkUA7dJe1wGk2eo8R0fA6QL+D12KftauEKtCgQ@mail.gmail.com>
-References: <CANRwn3SH9VO-1P_zAkDopVJRjApnZWpEZWP3YpuXg3cbiCQffg@mail.gmail.com>
-	<201110052034.52397.dmitry.torokhov@gmail.com>
-	<CANRwn3S4XJT=KS1yp8YqAT0e3Da7hfBq2Aen2QzsdzdjTiZQXw@mail.gmail.com>
-	<20111130221547.GC3108@core.coreip.homeip.net>
-	<CAF8JNh+zKrTfZ131JYmZSRZtMKNf9ymuzGuM6ow=QT9cnM_ijg@mail.gmail.com>
-	<20111130231910.GA3220@core.coreip.homeip.net>
-	<CANRwn3R36zTfxN=M9XxSnfn==jcJY48B3gRdemNyFyS8BNUohA@mail.gmail.com>
-	<20111201051102.GA16816@core.coreip.homeip.net>
+From: Daniel Manrique <daniel.manrique@canonical.com>
+Subject: Re: Bug: touchpad unresponsive after resume from S3 (psmouse driver)
+Date: Thu, 01 Dec 2011 15:39:43 -0500
+Message-ID: <4ED7E60F.7020306@canonical.com>
+References: <4ED507AB.6040905@canonical.com> <20111129175333.GE4241@core.coreip.homeip.net> <4ED535E7.5030108@canonical.com> <20111130001748.GA2270@core.coreip.homeip.net> <4ED64932.90407@canonical.com> <20111201051534.GB16816@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:52867 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751142Ab1LARNY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2011 12:13:24 -0500
-Received: by eaak14 with SMTP id k14so2388497eaa.19
-        for <linux-input@vger.kernel.org>; Thu, 01 Dec 2011 09:13:23 -0800 (PST)
-In-Reply-To: <20111201051102.GA16816@core.coreip.homeip.net>
+Received: from youngberry.canonical.com ([91.189.89.112]:56132 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752413Ab1LAUjq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2011 15:39:46 -0500
+In-Reply-To: <20111201051534.GB16816@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jason Gerecke <killertofu@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>
+Cc: linux-input@vger.kernel.org
 
-On Wed, Nov 30, 2011 at 11:11 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Nov 30, 2011 at 03:52:55PM -0800, Jason Gerecke wrote:
->> On Wed, Nov 30, 2011 at 3:19 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->> > On Wed, Nov 30, 2011 at 02:42:09PM -0800, Ping Cheng wrote:
->> >> > On Thu, Oct 06, 2011 at 01:31:09PM -0700, Jason Gerecke wrote:
->> >> >> On Wed, Oct 5, 2011 at 8:34 PM, Dmitry Torokhov
->> >> >> <dmitry.torokhov@gmail.com> wrote:
->> >> >> > On Wednesday, October 05, 2011 12:44:40 PM Jason Gerecke wrote:
->> >> >> >> I'm working on adding support for the recently-announced Cintiq 24HD,
->> >> >> >> and am hashing out most of the details on the linuxwacom mailing list.
->> >> >> >> In the discussions there, it was suggested that we add a new e.g.
->> >> >> >> "ABS_WHEEL2" axis to the input.h header to represent the second touch
->> >> >> >> ring available on the 24HD. I think it's a good idea, but wanted to
->> >> >> >> get some opinions from over here before making a patch. The other
->> >> >> >> option we have available is to use an axis not already in use by the
->> >> >> >> wacom driver (such as ABS_RUDDER), but none have a matching semantic
->> >> >> >> meaning.
->> >> >
->> >> > Looking at this once more ABS_WHEEL does not semantically match to what
->> >> > Wacom driver users it for either. ABS_WHEEL is not "an abstract
->> >> > circular-shaped sensor on a device" for rather a "steering wheel"-like
->> >> > control on a game controller. So Wacom needs to move away from using this
->> >> > event.
->> >>
->> >> We can move away from using the WHEEL. But, we do still need to use
->> >> something to report the values. We need a constructive suggestion to
->> >> "move away" ;).
->> >>
->> >> >> The rings are controls built into the "pad" -- the hardware you bring
->> >> >> the stylus in proximity to. Along with the touch rings, there are also
->> >> >> buttons and touch strips. Now, some devices have controls on only the
->> >> >> left-hand side of the pad, while others have the controls on both
->> >> >> sides of the pad. While one could argue that this makes each "side" a
->> >> >> complete context that can be broken apart into separate devices, that
->> >> >> doesn't really solve anything. What's stopping us from grouping
->> >> >> several rings together?
->> >> >
->> >> > Well, there are several topics here...
->> >> >
->> >> > What you apparently have is a group of unclassified, as far as Linux
->> >> > input subsystem concerned, sensors. When I say unclassified I mean that
->> >> > there is no appropriate event code we can assign to the control to allow
->> >> > a generic consumer determine the purpose of that sensor. You need help
->> >> > of a specialized driver to decide what to do with the data or, in case
->> >> > of generic driver, user has to explicitly map it to some action, but
->> >> > there is no way for automatic discovery/configuration which is the goal
->> >> > of input core. The only and closest event that we have that is suitable
->> >> > here is ABS_MISC.
->> >> >
->> >> > Here however is a problem: there is only one ABS_MISC and we often have
->> >> > several such sensors on a device. I do not want to have ABS_MISCx as
->> >> > again, it does not solve anything, manufactures always come with bigger
->> >> > and bigger devices (there some music controllers with dozens of
->> >> > sliders). Encoding data into ABS_MISC (let's say highest byte denotes
->> >> > sensor number) is awkward as well. So that is why I propose splitting
->> >> > them into separate input devices and have driver discover and handle
->> >> > them as it sees fit.
->> >>
->> >> The rings are on the tablet. Events from them are combined with the
->> >> events from the other tools moving on the tablet. Splitting the
->> >> wheels/expresskeys from the tablet would only complicate the
->> >> situation. We would have to link the wheels back to the tablet in the
->> >> user land, an unnecessary step that we should/could avoid in the
->> >> kernel.
->> >
->> > The fact that they are in the same physical package does not mean that
->> > they are necessarily mapped to a single input device. For example my USB
->> > keyboard consists of 3 logical devices.
->> >
->> > I understand that having data from them in the same event stream would
->> > be nice and if you have an idea how to achieve that in a generic way
->> > without resorting to ABS_MISC55 - that would be great. Maybe we
->> > need something similar to multitouch protocol solution, but for
->> > unclassified data.
->> >
->> > OTOH separate input devices complicate userland in cases when driver
->> > wants to handle them together but is really flexible.
->> >
->> > --
->> > Dmitry
+On 11-12-01 12:15 AM, Dmitry Torokhov wrote:
+> On Wed, Nov 30, 2011 at 10:18:10AM -0500, Daniel Manrique wrote:
+>> On 11-11-29 07:17 PM, Dmitry Torokhov wrote:
+>>> On Tue, Nov 29, 2011 at 02:43:35PM -0500, Daniel Manrique wrote:
+>>>> On 11-11-29 12:53 PM, Dmitry Torokhov wrote:
+>>>>> Hi Daniel,
+>>>>>
+>>>>> On Tue, Nov 29, 2011 at 11:26:19AM -0500, Daniel Manrique wrote:
+>>>>>> Hello,
+>>>>>>
+>>>>>> I apologize for sending this bug report directly; with the kernel.org bugtracker
+>>>>>> down I was told this was the best option for the time being. If this is not
+>>>>>> correct, could you please let me know of a good place to submit this bug report?
+>>>>>>
+>>>>>> I have several Dell laptops with Synaptics touchpads, particularly a group of
+>>>>>> Vostro V13 systems. On these, after a suspend/resume cycle, the touchpad
+>>>>>> (Synaptics) is unresponsive; a workaround is to rmmod psmouse; modprobe psmouse.
+>>>>>>
+>>>>>> This was first reported on kernel 2.6.38, although I think the issue has been
+>>>>>> present from as early as 2.6.32. I verified it for sure with Ubuntu 2.6.38
+>>>>>> kernels, 3.0.0 kernels, and a 3.2.0 kernel from the development release, as well
+>>>>>> as a "mainline" 3.1.0-rc10 kernel.
+>>>>>>
+>>>>>> Since this problem was seen on Ubuntu, it's filed on the Launchpad bug tracker.
+>>>>>> The first report I can find is this one:
+>>>>>>
+>>>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/715267
+>>>>>>
+>>>>>> This includes a series of log messages I don't see on my systems. I then filed
+>>>>>> this other bug:
+>>>>>>
+>>>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/879650
+>>>>>>
+>>>>>> The last one contains specific information from one of my systems (a Vostro V13).
+>>>>>>
+>>>>>> I'd really appreciate any help or guidance on how to solve this problem. If you
+>>>>>> need me to collect any information or run any tests on these machines, please
+>>>>>> don't hesitate to ask, these systems are primarily used for testing.
+>>>>>>
+>>>>>
+>>>>> Please do:
+>>>>>
+>>>>>  - enable i8042 debug (echo 1 > /sys/module/i8042/parameters/debug)
+>>>>>  - rmmod psmouse;
+>>>>>  - suspend/resume;
+>>>>>  - collect dmesg;
+>>>>>  - suspend/resume;
+>>>>>  - collect dmesg again
+>>>>>
+>>>>> and we'll have to try and find what we do differently.
+>>>>>
+>>>>> Thanks.
+>>>>>
+>>>>
+>>>> Hi Dmitry,
+>>>>
+>>>> Thanks so much for the quick reply!
+>>>>
+>>>> I just ran the tests you requested with some extra steps which I hope won't
+>>>> confuse things. Here's the sequence I followed:
+>>>>
+>>>> - Enabled i8042 debug
+>>>> - sudo rmmod psmouse. Touchpad of course becomes unresponsive.
+>>>> - sudo pm-suspend
+>>>> - Wake the machine by pressing power
+>>>> - At this point touchpad is unresponsive.
+>>>> - Collected dmesg-1.txt
+>>>> - sudo pm-suspend
+>>>> - wake the machine by pressing power
+>>>> - At this point touchpad is still unresponsive.
+>>>> - Collected dmesg-2.txt
+>>>> - sudo modprobe psmouse. Touchpad begins responding.
+>>>> - Collected dmesg-3.txt
+>>>> - sudo pm-suspend
+>>>> - wake the machine by pressing power
+>>>> - At this point touchpad is again unresponsive.
+>>>> - Collected dmesg-4.txt
+>>>>
+>>>> To avoid attaching largish files to this email, I put the logs on a
+>>>> publically-accessible http server at:
+>>>> http://people.canonical.com/~roadmr/lp715267/. Please let me know if you prefer
+>>>> something else.
+>>>>
+>>>
+>>> Hmm, it just does not want to admit that it is synaptics after reset.
+>>> Does the patch below help any?
 >>
->> Confound my slow reply speeds... I was just about to hit the "send"
->> button too! :D
+>> Hi Dmitry,
 >>
->> I'm not sure there is a good solution given the current expectations
->> of and by the input subsystem. Abusing/ignoring semantic meaning of
->> axes can confuse the userland. Arbitrarily adding new axes is not
->> sustainable. Splitting the hardware into per-sensor devices requires
->> additional needlesly-difficult re-unification code.
+>> I applied the patch to a 3.2-series kernel (based off 3.2-rc3 I think). It
+>> applied cleanly to psmouse.c, and after compiling the driver and putting it in
+>> place of the old psmouse.ko, the touchpad works after resuming from suspend!
 >>
->> Augmenting the input subsystem with something similar to the MT
->> protocol would be one possible way of "properly" tackling the issue.
->> You'd have to figure out a way to deal with arbitrary tool types
->> though. For instance, say the touch strip on the 24HD were exposed to
->> the user as a strip and not faux-buttons. Two of the three
->> unclassified sensors producing the same "kind" of data, while the
->> third sensor produces a different "kind" of data.
->
-> Right, this requires knowledge in userspace driver as to how use the
-> data from different sensors. But that is not different from
-> ABS_WHEEL/ABS_WHEEL2 - _your_ driver knows what they mean but a generic
-> either has no idea or even a wrong idea.
->
+>> I did a comparison test by swapping drivers (old vs. new) without rebooting, by
+>> rmmodding the existing psmouse driver, putting the old/new file in place,
+>> reloading the driver and doing a suspend/resume cycle. Consistently, with the
+>> old/original driver I still see the problem, but with the new/patched driver the
+>> touchpad is always enabled after resume.
 >>
->> Regardless, how should we handle the issue that presents itself in the
->> here-and-now? Even if refactoring things to split the tablet into more
->> devices is the route we ultimately decide on, that's going to take
->> some time to implement. It'd be nice if 24HD support weren't stalled
->> waiting for yet-to-be-written code to appear, and preferable if the
->> hardware worked in its entirety (meaning substituting ABS_WHEEL2 with
->> e.g. ABS_THROTTLE for the time being).
+>> i only tested this on one of the failing Vostro V13, please let me know if I
+>> should test for anything like possible misbehaviors on other previously-working
+>> systems or some other kind of regression.
 >>
->
-> Probably multiplexing through ABS_MISC would be not too painful as an
-> interim solution.
->
+>> But still, this patch seems to work fine, thanks for this! What's the next step
+>> for getting this fix into the official kernel? Anything I can do to help?
+>>
+> 
+> Could you please try removing either ssleep(1) or querying of device ID
+> from the patch and see which one of them actually fixes the issue?
 
-Here are a few thoughts I have on it.
+Hi Dmitry,
 
-First, I think that REL_WHEEL is closest meaning the ring has to user
-land expectations.  Its advertised in user manual to do things you'd
-often do with scroll wheel on a mouse.  The default mode is sending
-generic zooming/scrolling events.  The extended usages of the wheel
-seem only to be directing the zooming/scrolling to application
-specific features.  For example, push button 1 and ring zooms whole
-canvas.  Press button 2 and it zooms size of brush.  I think mapping
-movement to keystroke feature is outside scope of this thread so I'll
-ignore that part.
+Certainly! I compiled and tested two new versions of the module, one with the
+"delaying after reset" code commented out, the other with the "querying ID"
+block commented out.
 
-I do not think user land apps cares much about exact position user is
-touching like they would with a steering wheel so I don't think
-ABS_WHEEL is needed.   There is the tapping specific parts of ring
-feature to do minor increments but I think driver can hide that by
-sending REL_WHEEL with +5/-5 for scrolls and +1/-1 for taps.
+The ssleep(1); line is what appears to do the trick; the version that just
+queries the ID exhibits the same problem I reported initially, while the one
+that just ssleeps works fine, with the touchpad working OK after resuming.
 
-Above part was for the semantic part of thread.  It still doesn't
-address needing a REL_WHEEL1/2/3/4 for this device and maybe to be
-used by one of those crazy gaming mice that has way to many buttons
-and wheels.
+I'll await further instructions on this, thanks so much for your help!
 
-I don't have much to provide here other than I'd also suggest Dmitry's
-idea of multiplex both rings onto 1 REL_WHEEL.  I'm not even sure I'd
-do multiplexing so much as reporting both as if they were a single
-ring.  Sure, I'd like to use one ring for zooming canvas and one for
-zooming paint brush some day but I'd prefer a working driver today
-that has both rings zooming the same thing.
+- Daniel
 
-If we move to MT approach for reporting wheels, I suspect we will also
-have the "pointer emulation" concept where REL_WHEEL has some hybrid
-meaning to work nicely with older applications and
-REL_MULTI_WHEEL/REL_MULTI_WHEEL_SLOT for multiplexing wheel data.  So
-an intermediate step of merging doesn't sound like a dead end.
+> Thanks!
+> 
 
-Chris

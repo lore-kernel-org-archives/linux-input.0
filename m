@@ -1,117 +1,93 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: i8042 - do not leak driver on error on Sparc
-Date: Thu, 1 Dec 2011 00:40:40 -0800
-Message-ID: <20111201084040.GA31610@core.coreip.homeip.net>
+Subject: Re: [PATCH 2/2] Input: tsc2007 - Add a z1_low_threshhold platform
+ data parameter
+Date: Thu, 1 Dec 2011 00:45:24 -0800
+Message-ID: <20111201084524.GB31610@core.coreip.homeip.net>
+References: <1322554378-348-1-git-send-email-feng.tang@intel.com>
+ <1322554378-348-2-git-send-email-feng.tang@intel.com>
+ <20111129092310.GB21758@core.coreip.homeip.net>
+ <20111130103418.4514b630@feng-i7>
+ <20111201054726.GC16816@core.coreip.homeip.net>
+ <20111201141948.13162071@feng-i7>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:55789 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:56229 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752047Ab1LAIkp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2011 03:40:45 -0500
-Received: by iage36 with SMTP id e36so2151604iag.19
-        for <linux-input@vger.kernel.org>; Thu, 01 Dec 2011 00:40:45 -0800 (PST)
+	with ESMTP id S1753218Ab1LAIpa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2011 03:45:30 -0500
 Content-Disposition: inline
+In-Reply-To: <20111201141948.13162071@feng-i7>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Input <linux-input@vger.kernel.org>
-Cc: "David S. Miller" <davem@davemloft.net>, Grant Likely <grant.likely@secretlab.ca>
+To: Feng Tang <feng.tang@intel.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Clark, Joel" <joel.clark@intel.com>
 
-If we did not find OF nodes describing AUX or KBD ports we'd bail
-out but forget to unregister sparc_i8042_driver platform driver.
+On Thu, Dec 01, 2011 at 02:19:48PM +0800, Feng Tang wrote:
+> On Thu, 1 Dec 2011 13:47:26 +0800
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> 
+> > On Wed, Nov 30, 2011 at 10:34:18AM +0800, Feng Tang wrote:
+> > > On Tue, 29 Nov 2011 17:23:10 +0800
+> > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > > 
+> > > > On Tue, Nov 29, 2011 at 04:12:58PM +0800, Feng Tang wrote:
+> > > > > This originates from a patch in Meego IVI kernel with the name
+> > > > > 	linux-2.6.37-connext-0027-tsc2007.patch
+> > > > > There is no author info excepte a line "From  MeeGo
+> > > > > <kernel@meego.com>"
+> > > > > 
+> > > > > When integrating tsc2007 on Intel IVI platform, there are a lot
+> > > > > of noise data whose z1 value is around 10 which is not a sane
+> > > > > "z1". So add a "z1_low_threshhold" to filter those nosie data,
+> > > > > to make the device work properly.
+> > > > 
+> > > > Sounds like a task for userspace to ignore pressure that is too
+> > > > low. Bonus points for making it configurable so user can adjust
+> > > > sensitivity.
+> > > 
+> > > Actually, there is one more point :), without this patch, the
+> > > driver won't work on our platforms.
+> > > 
+> > > The tsc2007_soft_irq will keep reading the input data unless there
+> > > is no valid pressure data. In our case, those noise data will be
+> > > seen as valid data during tsc2007_calculate_pressure(), and the
+> > > tsc2007_soft_irq will run endlessly.
+> > 
+> > Even if we add the pressure threshold would not that noise cause
+> > endless stream of interrupts?
+> 
+> No, there is no endless interrupts for tsc2007. Without the z1
+> threshold, the while circle in tsc2007_soft_irq will run endlessly
+> as the noise data will be seen as a valid data:
+> 
+> 		rt = tsc2007_calculate_pressure(ts, &tc);
+> 		if (rt == 0 && !ts->get_pendown_state) {
+> 			/*
+> 			 * If pressure reported is 0 and we don't have
+> 			 * callback to check pendown state, we have to
+> 			 * assume that pen was lifted up.
+> 			 */
+> 			break;
+> 		}
+> 
+> With the z1 threshold check, the rt will be 0 for noise data, and the
+> code flow broke out.
 
-Switch over to platform_driver_probe() instead which automatically
-unregisters driver if it does not bind to any device; it also has
-a side effect of suppressing "bind" and "unbind" sysfs attributes
-ensuring that we do not unmap IO registers while i8042 core is
-running. This also allows us to switch annotations from
-__devinit/__devexit to __init/__exit and maybe save some memory.
+What I meant is with the threshold check we'll break out of the ISR but
+why won't IRQ be raised again?
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+> 
+> > 
+> > Also, what kind of z2 is reported with low z1? And do you implement
+> > get_pendown_state()?
+> 
+> z2 seems normal as some data between 3000-4000. We don't have a
+> get_pendown_state().
 
-1. This haven't even been compiled - I lost my sparc cross-compile
-toolchain - but I hope I did not screw up.
+OK, there is max_rt platform parameter. I think we should employ it
+instead and break out if we get several incorrect samples in a row. Too
+bad you do not have a dedicate method.
 
-2. I do not understand how it all even work - we register
-sparc_i8042_driver which is a platform driver with 'i8042' name;
-i8042 core also registers platform driver with exactly the same name.
-Surely the core one will fail since it would be a duplicate...
-
-Thanks.
-
- drivers/input/serio/i8042-sparcio.h |   30 ++++++++++++++++--------------
- 1 files changed, 16 insertions(+), 14 deletions(-)
-
-
-diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/i8042-sparcio.h
-index 395a9af..be6512b 100644
---- a/drivers/input/serio/i8042-sparcio.h
-+++ b/drivers/input/serio/i8042-sparcio.h
-@@ -49,7 +49,7 @@ static inline void i8042_write_command(int val)
- #define OBP_PS2MS_NAME1		"kdmouse"
- #define OBP_PS2MS_NAME2		"mouse"
- 
--static int __devinit sparc_i8042_probe(struct platform_device *op)
-+static int __init sparc_i8042_probe(struct platform_device *op)
- {
- 	struct device_node *dp = op->dev.of_node;
- 
-@@ -77,12 +77,23 @@ static int __devinit sparc_i8042_probe(struct platform_device *op)
- 		dp = dp->sibling;
- 	}
- 
-+	if (i8042_kbd_irq == -1 || i8042_aux_irq == -1) {
-+		i8042_kbd_irq = i8042_aux_irq = -1;
-+		if (kbd_iobase) {
-+			of_iounmap(kbd_res, kbd_iobase, 8);
-+			kbd_iobase = (void __iomem *) NULL;
-+		}
-+		return -ENODEV;
-+	}
-+
- 	return 0;
- }
- 
--static int __devexit sparc_i8042_remove(struct platform_device *op)
-+static int __exit sparc_i8042_remove(struct platform_device *op)
- {
- 	of_iounmap(kbd_res, kbd_iobase, 8);
-+	kbd_iobase = (void __iomem *) NULL;
-+	i8042_kbd_irq = i8042_aux_irq = -1;
- 
- 	return 0;
- }
-@@ -101,8 +112,7 @@ static struct platform_driver sparc_i8042_driver = {
- 		.owner = THIS_MODULE,
- 		.of_match_table = sparc_i8042_match,
- 	},
--	.probe		= sparc_i8042_probe,
--	.remove		= __devexit_p(sparc_i8042_remove),
-+	.remove		= __exit_p(sparc_i8042_remove),
- };
- 
- static int __init i8042_platform_init(void)
-@@ -116,18 +126,10 @@ static int __init i8042_platform_init(void)
- 		if (!kbd_iobase)
- 			return -ENODEV;
- 	} else {
--		int err = platform_driver_register(&sparc_i8042_driver);
-+		int err = platform_driver_probe(&sparc_i8042_driver,
-+						sparc_i8042_probe);
- 		if (err)
- 			return err;
--
--		if (i8042_kbd_irq == -1 ||
--		    i8042_aux_irq == -1) {
--			if (kbd_iobase) {
--				of_iounmap(kbd_res, kbd_iobase, 8);
--				kbd_iobase = (void __iomem *) NULL;
--			}
--			return -ENODEV;
--		}
- 	}
- 
- 	i8042_reset = 1;
 -- 
 Dmitry

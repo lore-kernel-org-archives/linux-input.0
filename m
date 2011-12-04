@@ -1,100 +1,122 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: tsc2007 - Add a z1_low_threshhold platform
- data parameter
-Date: Sun, 4 Dec 2011 00:54:05 -0800
-Message-ID: <20111204085405.GD14593@core.coreip.homeip.net>
-References: <1322554378-348-1-git-send-email-feng.tang@intel.com>
- <1322554378-348-2-git-send-email-feng.tang@intel.com>
- <20111129092310.GB21758@core.coreip.homeip.net>
- <20111130103418.4514b630@feng-i7>
- <20111201054726.GC16816@core.coreip.homeip.net>
- <20111201141948.13162071@feng-i7>
- <20111201084524.GB31610@core.coreip.homeip.net>
- <20111201170455.2e8ebcfc@feng-i7>
+From: Christoph Fritz <chf.fritz@googlemail.com>
+Subject: Re: adp5588-keys datasheet and driver question
+Date: Sun, 04 Dec 2011 12:39:40 +0100
+Message-ID: <1322998781.3023.17.camel@mars>
+References: <1322928007.11453.32.camel@mars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:63801 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752109Ab1LDIyM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2011 03:54:12 -0500
-Content-Disposition: inline
-In-Reply-To: <20111201170455.2e8ebcfc@feng-i7>
+Received: from mail-ww0-f42.google.com ([74.125.82.42]:33192 "EHLO
+	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753262Ab1LDLjp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2011 06:39:45 -0500
+Received: by wgbds13 with SMTP id ds13so4623337wgb.1
+        for <linux-input@vger.kernel.org>; Sun, 04 Dec 2011 03:39:44 -0800 (PST)
+In-Reply-To: <1322928007.11453.32.camel@mars>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Feng Tang <feng.tang@intel.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Clark, Joel" <joel.clark@intel.com>
+To: Michael Hennerich <michael.hennerich@analog.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, device-drivers-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
 
-On Thu, Dec 01, 2011 at 05:04:55PM +0800, Feng Tang wrote:
-> Hi Dmitry,
-> 
-> 
-> On Thu, 1 Dec 2011 16:45:24 +0800
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> 
-> > > > 
-> > > > Even if we add the pressure threshold would not that noise cause
-> > > > endless stream of interrupts?
-> > > 
-> > > No, there is no endless interrupts for tsc2007. Without the z1
-> > > threshold, the while circle in tsc2007_soft_irq will run endlessly
-> > > as the noise data will be seen as a valid data:
-> > > 
-> > > 		rt = tsc2007_calculate_pressure(ts, &tc);
-> > > 		if (rt == 0 && !ts->get_pendown_state) {
-> > > 			/*
-> > > 			 * If pressure reported is 0 and we don't
-> > > have
-> > > 			 * callback to check pendown state, we have
-> > > to
-> > > 			 * assume that pen was lifted up.
-> > > 			 */
-> > > 			break;
-> > > 		}
-> > > 
-> > > With the z1 threshold check, the rt will be 0 for noise data, and
-> > > the code flow broke out.
-> > 
-> > What I meant is with the threshold check we'll break out of the ISR
-> > but why won't IRQ be raised again?
-> 
-> The IRQ will be fired again after we exist the tsc2007_soft_irq in my
-> test, as I re-enable the irq before existing the code.
-> 
-> > 
-> > > 
-> > > > 
-> > > > Also, what kind of z2 is reported with low z1? And do you
-> > > > implement get_pendown_state()?
-> > > 
-> > > z2 seems normal as some data between 3000-4000. We don't have a
-> > > get_pendown_state().
-> > 
-> > OK, there is max_rt platform parameter. I think we should employ it
-> > instead and break out if we get several incorrect samples in a row.
-> > Too bad you do not have a dedicate method.
-> > 
-> No, the max_rt won't help here, if the rt > max_rt, it won't break the
-> while loop, but just issue a warning message
-> 
-> 		if (rt <= ts->max_rt) {
-> 			.......
-> 
-> 		} else {
-> 			/*
-> 			 * Sample found inconsistent by debouncing or pressure is
-> 			 * beyond the maximum. Don't report it to user space,
-> 			 * repeat at least once more the measurement.
-> 			 */
-> 			dev_dbg(&ts->client->dev, "ignored pressure %d\n", rt);
-> 		}
 
-What I meant that we need to ajust the logic to _exit_ the loop if we
-receive several samples with rt > max_rt instead of adding a new
-parameter.
+forgot to add to commit:
+-	unsigned short keycode[ADP5588_KEYMAPSIZE];
++	unsigned short keycode[ADP5588_KEYMAPSIZE + 1];
 
-Thanks.
+On Sat, 2011-12-03 at 17:00 +0100, Christoph Fritz wrote:
+> Hi Michael,
+> 
+>  I had a look at the adp5588-keys driver and its datasheet.
+> 
+> There are some "slips of the pen" in it (adp5588 Rev.b):
+>   - Page 8, Table 12, "E4 pressed" refers to binary 1000 instead of 100
+>   - Page 17, Table 22, Register Descriptions are mostly wrong
+> 
+> Another thing I'm curious about is in adp5588_report_events():
+> 
+> int key = adp5588_read(kpad->client, Key_EVENTA + i);
+> int key_val = key & KEY_EV_MASK;
+> [...]
+> input_report_key(kpad->input, kpad->keycode[key_val - 1], key & KEY_EV_PRESSED);
+> 
+> Why is there a -1 for key_val?
+> 
+> Due to lack of hardware and understanding the datasheet, I'm unsure
+> about my patch below.
+> 
+> Thanks,
+>    Christoph
+> 
+---
+Subject: [PATCH] Input: adp5588-keys - fix handling of Key A0
 
+This patch removes a -1 subtraction from the device its transmitted key
+event register.  This allows correct handling of Key A0 which reports 0.
+---
+ drivers/input/keyboard/adp5588-keys.c |   12 ++++++------
+ include/linux/i2c/adp5588.h           |    1 +
+ 2 files changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+index 4a7f534..c0f0276 100644
+--- a/drivers/input/keyboard/adp5588-keys.c
++++ b/drivers/input/keyboard/adp5588-keys.c
+@@ -43,7 +43,7 @@ struct adp5588_kpad {
+ 	struct input_dev *input;
+ 	struct delayed_work work;
+ 	unsigned long delay;
+-	unsigned short keycode[ADP5588_KEYMAPSIZE];
++	unsigned short keycode[ADP5588_KEYMAPSIZE + 1];
+ 	const struct adp5588_gpi_map *gpimap;
+ 	unsigned short gpimapsize;
+ #ifdef CONFIG_GPIOLIB
+@@ -261,8 +261,8 @@ static void adp5588_report_events(struct adp5588_kpad *kpad, int ev_cnt)
+ 	int i, j;
+ 
+ 	for (i = 0; i < ev_cnt; i++) {
+-		int key = adp5588_read(kpad->client, Key_EVENTA + i);
+-		int key_val = key & KEY_EV_MASK;
++		unsigned int key = adp5588_read(kpad->client, Key_EVENTA + i);
++		unsigned int key_val = key & KEY_EV_MASK;
+ 
+ 		if (key_val >= GPI_PIN_BASE && key_val <= GPI_PIN_END) {
+ 			for (j = 0; j < kpad->gpimapsize; j++) {
+@@ -273,9 +273,9 @@ static void adp5588_report_events(struct adp5588_kpad *kpad, int ev_cnt)
+ 					break;
+ 				}
+ 			}
+-		} else {
++		} else if (key_val <= ADP5588_KEYMAPSIZE) {
+ 			input_report_key(kpad->input,
+-					 kpad->keycode[key_val - 1],
++					 kpad->keycode[key_val],
+ 					 key & KEY_EV_PRESSED);
+ 		}
+ 	}
+@@ -295,7 +295,7 @@ static void adp5588_work(struct work_struct *work)
+ 
+ 	if (status & ADP5588_KE_INT) {
+ 		ev_cnt = adp5588_read(client, KEY_LCK_EC_STAT) & ADP5588_KEC;
+-		if (ev_cnt) {
++		if (ev_cnt && ev_cnt <= ADP5588_MAXEVENTS) {
+ 			adp5588_report_events(kpad, ev_cnt);
+ 			input_sync(kpad->input);
+ 		}
+diff --git a/include/linux/i2c/adp5588.h b/include/linux/i2c/adp5588.h
+index cec17cf..394c07f 100644
+--- a/include/linux/i2c/adp5588.h
++++ b/include/linux/i2c/adp5588.h
+@@ -103,6 +103,7 @@
+ 
+ /* Put one of these structures in i2c_board_info platform_data */
+ 
++#define ADP5588_MAXEVENTS	10
+ #define ADP5588_KEYMAPSIZE	80
+ 
+ #define GPI_PIN_ROW0 97
 -- 
-Dmitry
+1.7.2.5
+
+
+

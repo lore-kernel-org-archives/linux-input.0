@@ -1,64 +1,83 @@
-From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Subject: RE: adp5588-keys datasheet and driver question
-Date: Sun, 4 Dec 2011 21:12:17 +0000
-Message-ID: <544AC56F16B56944AEC3BD4E3D59177148733EAB39@LIMKCMBX1.ad.analog.com>
-References: <1322928007.11453.32.camel@mars>
+From: riyer <riyer@nvidia.com>
+Subject: Re: [PATCH v1] Input: tegra-kbc - report wakeup key for some
+	platforms.
+Date: Sun, 4 Dec 2011 17:18:17 -0800
+Message-ID: <1323047897.3056.14.camel@riyer-dt2.nvidia.com>
+References: <1322685811-14060-1-git-send-email-riyer@nvidia.com>
+	 <20111130212022.GB3108@core.coreip.homeip.net>
+	 <1FC56210173BB445BD77F608D6FB8D034F3D1BB4BD@HQMAIL03.nvidia.com>
+	 <20111201072649.GE16816@core.coreip.homeip.net>
+	 <1FC56210173BB445BD77F608D6FB8D034F3D1BB4C9@HQMAIL03.nvidia.com>
+	 <20111204085038.GC14593@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from va3ehsobe006.messaging.microsoft.com ([216.32.180.16]:12333
-	"EHLO VA3EHSOBE007.bigfish.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754521Ab1LDVL4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 4 Dec 2011 16:11:56 -0500
-In-Reply-To: <1322928007.11453.32.camel@mars>
-Content-Language: en-US
+Received: from hqemgate04.nvidia.com ([216.228.121.35]:7772 "EHLO
+	hqemgate04.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755896Ab1LEBSR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2011 20:18:17 -0500
+In-Reply-To: <20111204085038.GC14593@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christoph Fritz <chf.fritz@googlemail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "rydberg@euromail.se" <rydberg@euromail.se>, Stephen Warren <swarren@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
 
-Christoph Fritz wrote on 2011-12-03:
-> Hi Michael,
->
->  I had a look at the adp5588-keys driver and its datasheet.
-> There are some "slips of the pen" in it (adp5588 Rev.b):
+Hello Dmitry.
+Please find replies inline.
 
-Hi Christoph,
+On Sun, 2011-12-04 at 00:50 -0800, Dmitry Torokhov wrote:
+> Hi Rakesh,
+> 
+> On Thu, Dec 01, 2011 at 01:09:59PM -0800, Rakesh Iyer wrote:
+> > Hello Dmitry.
+> > 
+> > Sorry for the wrap issue, my Outlook does not seem to obey the settings.
+> > 
+> > I wanted to explain the tegra system resume path implementation so I can justify 
+> > why I am doing this complicated fix and why I feel it will guarantee the resume 
+> > is due to keypress.
+> > 
+> > The tegra wake resume code is registered as a syscore ops.
+> > When the system is resumed due to a wake event, the suspend_enter (after wakeup) 
+> > routine will invoke the tegra syscoreops_resume method and that routine will propagate 
+> > the wake event to the individual ISR's through genirq.
+> > If kbc was wake source, kbc_isr will be invoked in this execution path.
+> > 
+> > If system is resumed due to other reason, the tegra_syscoreops_resume code will not 
+> > find the event.
+> 
+> Consider the following sequence:
+> 
+> 1. Something other than keyboard generates wakeup event
+> 2. It's IRQ fires up and gets serviced
+At this point syscoreops_resume has finished all its wakeup processing.
 
-Good catch - however typos in datasheets shouldn't be discussed here, unless it
-influences the vital state of this driver.
+> 3. System starts resuming devices
+> 4. User presses a key on the keypad while it is still suspended _and_
+>    registered as a wakeup source
+This will have no impact on the system and keypad ISR will not be
+invoked.
+> 5. Keypad's ISR runs as well and you decide that KEY_POWER should be
+>    reported even though keypad wasn't the real reason the system
+>    woke up.
+The interrupt line we use to detect wakeup processing is the keypress
+interrupt which is disabled and will never cause the ISR invocation from
+a device interrupt(i.e. the PIC).
 
->   - Page 8, Table 12, "E4 pressed" refers to binary 1000 instead of 100
+In other words KBC isr gets invoked for 2 reasons
+a) FIFO interrupt is generated, which will not happen as long as
+scanning logic is disabled until kbc_resume executes.
+b) The syscoreops_resume codepath calls into the ISR after finding KBC
+was a wakesource. If this happens it will happen only when the kernel
+resumes from its suspend code path.
+> 
+> Is this scenario not possible?
+> 
+> Thanks.
+> 
+With that being the case do you think the fix makes sense?
 
-Not only this obvious one - all others are wrong as well...
-
->   - Page 17, Table 22, Register Descriptions are mostly wrong
-
-What's wrong with Table 22?
-
-
-> Another thing I'm curious about is in adp5588_report_events():
->
-> int key = adp5588_read(kpad->client, Key_EVENTA + i); int key_val = key
-> & KEY_EV_MASK; [...] input_report_key(kpad->input, kpad->keycode[key_val
-> - 1], key & KEY_EV_PRESSED);
->
-> Why is there a -1 for key_val?
-
-Key_val == 0, is not a valid event code!
-The part emits 1..80 for keys and 97..114 for GPI events.
-
-So bottom line - the driver is correct but Table 12 is completely wrong.
-
-Best regards,
-Michael
-
---
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
-Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin, Margaret Seif
-
-
+Regards
+Rakesh
 

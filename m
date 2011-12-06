@@ -1,46 +1,122 @@
-From: Richard Hughes <hughsient@gmail.com>
-Subject: Re: [GIT PULL RFC] directly poll battery strength when reading power_supply
-Date: Tue, 6 Dec 2011 09:56:35 +0000
-Message-ID: <CAD2FfiE-rg-1bMmVpYzBhnQcBMKKKO4WPnu0bvx+pvdFnpARrQ@mail.gmail.com>
-References: <4EC75224.7070207@goop.org>
-	<alpine.LNX.2.00.1111191212140.15187@pobox.suse.cz>
-	<4EC820F8.4070900@goop.org>
-	<alpine.LNX.2.00.1111201110480.15187@pobox.suse.cz>
-	<4ECA7E7D.80207@goop.org>
-	<alpine.LNX.2.00.1111220028130.28728@pobox.suse.cz>
-	<4ECAE019.4000409@goop.org>
-	<alpine.LNX.2.00.1111220049470.28728@pobox.suse.cz>
-	<4ECCB38A.8000503@goop.org>
-	<alpine.LNX.2.00.1111281111510.15446@pobox.suse.cz>
-	<CACo8zOd45i3EnCVMyJoDPP4bx2AnD9mEjDiC=bJKvmX=TWfXGg@mail.gmail.com>
-	<4ED90E6D.8090402@goop.org>
-	<CACo8zOcvKwr0wDkytvJfqyx4kV0ceYyCt+qnDqiSgxNywpzeHg@mail.gmail.com>
-	<4ED9BDF8.3010600@goop.org>
+From: aaron_tian@pixart.com.tw
+Subject: [PATCH] Input: hid-multitouch- support PixArt optical touch screen
+Date: Tue, 6 Dec 2011 18:12:19 +0800
+Message-ID: <OF2AC9FD94.4CE4D9FB-ON4825795E.0037FF42-4825795E.00380F71@pixart.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:33765 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933093Ab1LFJ4g (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Dec 2011 04:56:36 -0500
-Received: by eaak14 with SMTP id k14so4903525eaa.19
-        for <linux-input@vger.kernel.org>; Tue, 06 Dec 2011 01:56:35 -0800 (PST)
-In-Reply-To: <4ED9BDF8.3010600@goop.org>
+Received: from mail.pixart.com.tw ([210.202.126.7]:54654 "HELO mg.pixart.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S933074Ab1LFKM2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 6 Dec 2011 05:12:28 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, vojtech@ucw.cz, Przemo Firszt <przemo@firszt.eu>, Richard Hughes <richard@hughsie.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
 
-On 3 December 2011 06:13, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-> The only functional change I made from Daniel's patch is keeping the power_supply type as BATTERY rather
-> than USB.
+From: Aaron Tian <aaron_tian@pixart.com.tw>
 
-How is upower supposed to know that the device is:
+Hello,
 
-a) a mouse
-b) not powering the computer
+This ia Aaron Tian in Pixart. We have modified the hid-multitouch driver 
+for 
+supporting PixArt optical touch screen and it works well. Because of the 
+device 
+does not have to set initial report, we apply "HID_QUIRK_NO_INIT_REPORTS" 
+quirk and add the device into hid_blacklist in 
+drivers/hid/usbhid/hid-quirks.c 
 
-Any ideas welcome. I suppose we could look at the hid device, but this
-seems like a hack. Thanks.
+The patch is according to commit 45e713efe2fa574b6662e7fb63fae9497c5e03d4 
+of 
+Linux mainline git (3.2.0-rc4+)
 
-Richard.
+
+Signed-off-by: Aaron Tian <aaron_tian@pixart.com.tw>
+---
+ drivers/hid/Kconfig             |    1 +
+ drivers/hid/hid-core.c          |    1 +
+ drivers/hid/hid-ids.h           |    3 +++
+ drivers/hid/hid-multitouch.c    |    5 +++++
+ drivers/hid/usbhid/hid-quirks.c |    1 +
+ 5 files changed, 11 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 22a4a05..eda54b6 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -349,6 +349,7 @@ config HID_MULTITOUCH
+          - Lumio CrystalTouch panels
+          - MosArt dual-touch panels
+          - PenMount dual touch panels
++         - PixArt optical touch screen
+          - Pixcir dual touch panels
+          - eGalax dual-touch panels, including the Joojoo and Wetab 
+tablets
+          - Stantum multitouch panels
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index af35384..e9280ef 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1498,6 +1498,7 @@ static const struct hid_device_id 
+hid_have_special_driver[] = {
+        { HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) 
+},
+        { HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, 
+USB_DEVICE_ID_PENMOUNT_PCI) },
+        { HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, 
+USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
++       { HID_USB_DEVICE(USB_VENDOR_TYPE_PIXART, 
+USB_DEVICE_TYPE_PIXART_OPTICAL_TOUCH_SCREEN) },
+        { HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, 
+USB_DEVICE_ID_PRIMAX_KEYBOARD) },
+        { HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, 
+USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
+        { HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, 
+USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 4a441a6..869911b 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -571,6 +571,9 @@
+ #define USB_VENDOR_ID_PI_ENGINEERING   0x05f3
+ #define USB_DEVICE_ID_PI_ENGINEERING_VEC_USB_FOOTPEDAL 0xff
+ 
++#define USB_VENDOR_TYPE_PIXART                         0x093a
++#define USB_DEVICE_TYPE_PIXART_OPTICAL_TOUCH_SCREEN    0x8001
++
+ #define USB_VENDOR_ID_PLAYDOTCOM       0x0b43
+ #define USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII     0x0003
+ 
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index f1c909f..2f338b1 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -722,6 +722,11 @@ static const struct hid_device_id mt_devices[] = {
+                HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT,
+                        USB_DEVICE_ID_PENMOUNT_PCI) },
+ 
++       /* PixArt optical touch screen */
++       { .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
++               HID_USB_DEVICE(USB_VENDOR_ID_PIXART,
++                       USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN) },
++
+        /* PixCir-based panels */
+        { .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
+                HID_USB_DEVICE(USB_VENDOR_ID_HANVON,
+diff --git a/drivers/hid/usbhid/hid-quirks.c 
+b/drivers/hid/usbhid/hid-quirks.c
+index 5028d60..99324eb 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -67,6 +67,7 @@ static const struct hid_blacklist {
+        { USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_AXIS_295, HID_QUIRK_NOGET },
+        { USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
+        { USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
++       { USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN, 
+HID_QUIRK_NO_INIT_REPORTS },
+        { USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, 
+HID_QUIRK_NOGET },
+        { USB_VENDOR_ID_QUANTA, 
+USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NOGET },
+        { USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, 
+HID_QUIRK_NOGET },

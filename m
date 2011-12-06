@@ -1,935 +1,623 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Driver for AUO In-Cell touchscreens using pixcir ICs
-Date: Mon, 5 Dec 2011 21:56:37 -0800
-Message-ID: <20111206055637.GB21617@core.coreip.homeip.net>
-References: <201112052105.31757.heiko@sntech.de>
+Subject: Re: [PATCH 1/1] input: add support for TI Touchscreen controller.
+Date: Mon, 5 Dec 2011 22:44:35 -0800
+Message-ID: <20111206064434.GC21617@core.coreip.homeip.net>
+References: <1321963947-17057-1-git-send-email-rachna@ti.com>
+ <4CE347531D4CA947960AF71FF095B932016FA9@DBDE01.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:54528 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752318Ab1LFF4n (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Dec 2011 00:56:43 -0500
-Received: by iakc1 with SMTP id c1so3187458iak.19
-        for <linux-input@vger.kernel.org>; Mon, 05 Dec 2011 21:56:42 -0800 (PST)
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:35221 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750747Ab1LFGon (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Dec 2011 01:44:43 -0500
+Received: by yenm1 with SMTP id m1so2548617yen.19
+        for <linux-input@vger.kernel.org>; Mon, 05 Dec 2011 22:44:42 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <201112052105.31757.heiko@sntech.de>
+In-Reply-To: <4CE347531D4CA947960AF71FF095B932016FA9@DBDE01.ent.ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: "Patil, Rachna" <rachna@ti.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Heiko,
+Hi Rachna,
 
-On Mon, Dec 05, 2011 at 09:05:30PM +0100, Heiko St=FCbner wrote:
-> Some displays from AUO have a so called in-cell touchscreen, meaning =
-it
-> is built directly into the display unit.
->=20
-> Touchdata is gathered through PIXCIR Tango-ICs and processed in an
-> Atmel ATmega168P with custom firmware. Communication between the host
-> system and ATmega is done via I2C.
->=20
-> Devices using this touch solution include the Dell Streak5 and the fa=
-mily
-> of Qisda ebook readers.
->=20
-> The driver reports single- and multi-touch events including touch are=
-a
-> values.
->=20
-> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-> ---
-> changes since v1: address comments from Christoph Fritz
-> (wrong type for error checks, wrong call to input_free_device)
->=20
->  drivers/input/touchscreen/Kconfig         |   14 +
->  drivers/input/touchscreen/Makefile        |    1 +
->  drivers/input/touchscreen/auo-pixcir-ts.c |  656 +++++++++++++++++++=
-++++++++++
->  include/linux/input/auo-pixcir-ts.h       |   57 +++
->  4 files changed, 728 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/touchscreen/auo-pixcir-ts.c
->  create mode 100644 include/linux/input/auo-pixcir-ts.h
->=20
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchs=
-creen/Kconfig
-> index 2b456a9..7da474e 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -98,6 +98,20 @@ config TOUCHSCREEN_ATMEL_MXT
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called atmel_mxt_ts.
-> =20
-> +config TOUCHSCREEN_AUO_PIXCIR
-> +	tristate "AUO in-cell touchscreen using Pixcir ICs"
-> +	depends on I2C
-> +	depends on GPIOLIB
-> +	default n
+On Wed, Nov 23, 2011 at 11:42:34AM +0000, Patil, Rachna wrote:
+> Hi Dmitry,
+> 
+> 
+> On Tue, Nov 22, 2011 at 17:42:27, Patil, Rachna wrote:
+> > From: Rachna Patil <rachna@ti.com>
+> > 
+> > This patch adds support for TI's touchscreen controller for a 4/5/8 wire resistive panel that is directly fed to the ADC.
+> > 
+> > This touchscreen controller will be part of AM335x TI SoC. The TRM can be found at:
+> > http://www.ti.com/lit/ug/spruh73a/spruh73a.pdf
+> > 
+> > Signed-off-by: Patil, Rachna <rachna@ti.com>
+> > ---
+> > There was an earlier version of this driver submitted.
+> > As the patch has evolved tremendously, I am not submitting this patch as v2.
+> > 
+> 
+> I had submitted this patch to the Linux input community, however it does not appear in the
+> archive. Did you receive a copy of this?
+>  
 
-No need for "default n"
+Yes, I did, it was in my TODO queue.
 
-> +	help
-> +	  Say Y here if you have a AUO display with in-cell touchscreen
-> +	  using Pixcir ICs.
-> +
-> +	  If unsure, say N.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called auo-pixcir-ts.
-> +
->  config TOUCHSCREEN_BITSY
->  	tristate "Compaq iPAQ H3600 (Bitsy) touchscreen"
->  	depends on SA1100_BITSY
-> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touch=
-screen/Makefile
-> index a09c546..f0b4d16 100644
-> --- a/drivers/input/touchscreen/Makefile
-> +++ b/drivers/input/touchscreen/Makefile
-> @@ -14,6 +14,7 @@ obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI)	+=3D ad7879-sp=
-i.o
->  obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+=3D ads7846.o
->  obj-$(CONFIG_TOUCHSCREEN_ATMEL_MXT)	+=3D atmel_mxt_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_ATMEL_TSADCC)	+=3D atmel_tsadcc.o
-> +obj-$(CONFIG_TOUCHSCREEN_AUO_PIXCIR)	+=3D auo-pixcir-ts.o
->  obj-$(CONFIG_TOUCHSCREEN_BITSY)		+=3D h3600_ts_input.o
->  obj-$(CONFIG_TOUCHSCREEN_BU21013)       +=3D bu21013_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_CY8CTMG110)	+=3D cy8ctmg110_ts.o
-> diff --git a/drivers/input/touchscreen/auo-pixcir-ts.c b/drivers/inpu=
-t/touchscreen/auo-pixcir-ts.c
-> new file mode 100644
-> index 0000000..91a06d2
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/auo-pixcir-ts.c
-> @@ -0,0 +1,656 @@
-> +/* drivers/input/touchscreen/auo-pixcir-ts.c
+Actaully on July 31 I gave you my freedback to the previous version of
+the patch and send I new version of the patch correctig several issues.
+It looks like you have missed it as these issues are still present in
+this version.
 
-Please no file names in files - this way you don't need to change it
-here if you rename it later.
+Also a cuple of comments below.
 
-> + *
-> + * Copyright (c) 2011 Heiko Stuebner <heiko@sntech.de>
-> + *
-> + * loosely based on auo_touch.c from Dell Streak vendor-kernel
-> + *
-> + * Copyright (c) 2008 QUALCOMM Incorporated.
-> + * Copyright (c) 2008 QUALCOMM USA, INC.
-> + *
-> + *
-> + * This software is licensed under the terms of the GNU General Publ=
-ic
-> + * License version 2, as published by the Free Software Foundation, =
-and
-> + * may be copied, distributed, and modified under those terms.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/slab.h>
-> +#include <linux/input.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/jiffies.h>
-> +#include <linux/io.h>
-> +#include <linux/uaccess.h>
+> >  drivers/input/touchscreen/Kconfig     |   12 +
+> >  drivers/input/touchscreen/Makefile    |    1 +
+> >  drivers/input/touchscreen/ti_tscadc.c |  491 +++++++++++++++++++++++++++++++++
+> >  include/linux/input/ti_tscadc.h       |   12 +
+> >  4 files changed, 516 insertions(+), 0 deletions(-)  create mode 100644 drivers/input/touchscreen/ti_tscadc.c
+> >  create mode 100644 include/linux/input/ti_tscadc.h
+> > 
+> > diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> > index cabd9e5..de4ee06 100644
+> > --- a/drivers/input/touchscreen/Kconfig
+> > +++ b/drivers/input/touchscreen/Kconfig
+> > @@ -407,6 +407,18 @@ config TOUCHSCREEN_TOUCHWIN
+> >  	  To compile this driver as a module, choose M here: the
+> >  	  module will be called touchwin.
+> >  
+> > +config TOUCHSCREEN_TI_TSCADC
+> > +	tristate "TI Touchscreen Interface"
+> > +	depends on ARCH_OMAP2PLUS
+> > +	help
+> > +	  Say Y here if you have 4/5/8 wire touchscreen controller
+> > +	  to be connected to the ADC controller on your TI AM335x SoC.
+> > +
+> > +	  If unsure, say N.
+> > +
+> > +	  To compile this driver as a module, choose M here: the
+> > +	  module will be called ti_tscadc.
+> > +
+> >  config TOUCHSCREEN_ATMEL_TSADCC
+> >  	tristate "Atmel Touchscreen Interface"
+> >  	depends on ARCH_AT91SAM9RL || ARCH_AT91SAM9G45 diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> > index 282d6f7..e353bcb 100644
+> > --- a/drivers/input/touchscreen/Makefile
+> > +++ b/drivers/input/touchscreen/Makefile
+> > @@ -42,6 +42,7 @@ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
+> >  obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
+> >  obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
+> >  obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
+> > +obj-$(CONFIG_TOUCHSCREEN_TI_TSCADC)	+= ti_tscadc.o
+> >  obj-$(CONFIG_TOUCHSCREEN_TNETV107X)	+= tnetv107x-ts.o
+> >  obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+= touchit213.o
+> >  obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
+> > diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
+> > new file mode 100644
+> > index 0000000..937dea2
+> > --- /dev/null
+> > +++ b/drivers/input/touchscreen/ti_tscadc.c
+> > @@ -0,0 +1,491 @@
+> > +/*
+> > + * TI Touch Screen driver
+> > + *
+> > + * Copyright (C) 2011 Texas Instruments Incorporated - 
+> > +http://www.ti.com/
+> > + *
+> > + * This program is free software; you can redistribute it and/or
+> > + * modify it under the terms of the GNU General Public License as
+> > + * published by the Free Software Foundation version 2.
+> > + *
+> > + * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+> > + * kind, whether express or implied; without even the implied warranty
+> > + * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> > + * GNU General Public License for more details.
+> > + */
+> > +
+> > +
+> > +#include <linux/init.h>
+> > +#include <linux/kernel.h>
+> > +#include <linux/err.h>
+> > +#include <linux/module.h>
+> > +#include <linux/input.h>
+> > +#include <linux/slab.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/clk.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/io.h>
+> > +#include <linux/input/ti_tscadc.h>
+> > +#include <linux/delay.h>
+> > +
+> > +#define REG_IRQEOI		0x020
+> > +#define REG_RAWIRQSTATUS	0x024
+> > +#define REG_IRQSTATUS		0x028
+> > +#define REG_IRQENABLE		0x02C
+> > +#define REG_IRQWAKEUP		0x034
+> > +#define REG_CTRL		0x040
+> > +#define REG_ADCFSM		0x044
+> > +#define REG_CLKDIV		0x04C
+> > +#define REG_SE			0x054
+> > +#define REG_IDLECONFIG		0x058
+> > +#define REG_CHARGECONFIG	0x05C
+> > +#define REG_CHARGEDELAY		0x060
+> > +#define REG_STEPCONFIG(n)	(0x64 + ((n - 1) * 8))
+> > +#define REG_STEPDELAY(n)	(0x68 + ((n - 1) * 8))
+> > +#define REG_STEPCONFIG13	0x0C4
+> > +#define REG_STEPDELAY13		0x0C8
+> > +#define REG_STEPCONFIG14	0x0CC
+> > +#define REG_STEPDELAY14		0x0D0
+> > +#define REG_FIFO0CNT		0xE4
+> > +#define REG_FIFO1THR		0xF4
+> > +#define REG_FIFO0		0x100
+> > +#define REG_FIFO1		0x200
+> > +
+> > +/*	Register Bitfields	*/
+> > +#define IRQWKUP_ENB		BIT(0)
+> > +#define STPENB_STEPENB		0x7FFF
+> > +#define IRQENB_FIFO1THRES	BIT(5)
+> > +#define IRQENB_PENUP		BIT(9)
+> > +#define STEPCONFIG_MODE_HWSYNC	0x2
+> > +#define STEPCONFIG_SAMPLES_AVG	(1 << 4)
+> > +#define STEPCONFIG_XPP		(1 << 5)
+> > +#define STEPCONFIG_XNN		(1 << 6)
+> > +#define STEPCONFIG_YPP		(1 << 7)
+> > +#define STEPCONFIG_YNN		(1 << 8)
+> > +#define STEPCONFIG_XNP		(1 << 9)
+> > +#define STEPCONFIG_YPN		(1 << 10)
+> > +#define STEPCONFIG_INM		(1 << 18)
+> > +#define STEPCONFIG_INP		(1 << 20)
+> > +#define STEPCONFIG_INP_5	(1 << 21)
+> > +#define STEPCONFIG_FIFO1	(1 << 26)
+> > +#define STEPCONFIG_OPENDLY	0x90
+> > +#define STEPCONFIG_Z1		(3 << 19)
+> > +#define STEPIDLE_INP		(1 << 22)
+> > +#define STEPCHARGE_RFP		(1 << 12)
+> > +#define STEPCHARGE_INM		(1 << 15)
+> > +#define STEPCHARGE_INP		(1 << 19)
+> > +#define STEPCHARGE_RFM		(1 << 23)
+> > +#define STEPCHARGE_DELAY	0x1
+> > +#define CNTRLREG_TSCSSENB	(1 << 0)
+> > +#define CNTRLREG_STEPID		(1 << 1)
+> > +#define CNTRLREG_STEPCONFIGWRT	(1 << 2)
+> > +#define CNTRLREG_4WIRE		(1 << 5)
+> > +#define CNTRLREG_5WIRE		(1 << 6)
+> > +#define CNTRLREG_8WIRE		(3 << 5)
+> > +#define CNTRLREG_TSCENB		(1 << 7)
+> > +#define ADCFSM_STEPID		0x10
+> > +
+> > +#define SEQ_SETTLE		315
+> > +#define ADC_CLK			3000000
+> > +#define MAX_12BIT		((1 << 12) - 1)
+> > +
+> > +struct tscadc {
+> > +	struct input_dev	*input;
+> > +	int			wires;
+> > +	int			x_plate_resistance;
+> > +	struct clk		*tsc_ick;
+> > +	int			irq;
+> > +	void __iomem		*tsc_base;
+> > +};
+> > +
+> > +int pen = 1;
+> > +unsigned int bckup_x = 0, bckup_y = 0;
 
-Do you need this?
+Drivers should not use globals variables, especially ones with scope
+exceeding module.
 
-> +#include <linux/miscdevice.h>
+> > +
+> > +static unsigned int tscadc_readl(struct tscadc *ts, unsigned int reg) {
+> > +	return readl(ts->tsc_base + reg);
+> > +}
+> > +
+> > +static void tscadc_writel(struct tscadc *tsc, unsigned int reg,
+> > +					unsigned int val)
+> > +{
+> > +	writel(val, tsc->tsc_base + reg);
+> > +}
+> > +
+> > +static void tsc_step_config(struct tscadc *ts_dev) {
+> > +	unsigned int	config;
+> > +	int i;
+> > +
+> > +	/* Configure the Step registers */
+> > +
+> > +	config = STEPCONFIG_MODE_HWSYNC |
+> > +			STEPCONFIG_SAMPLES_AVG | STEPCONFIG_XPP;
+> > +	switch (ts_dev->wires) {
+> > +	case 4:
+> > +		config |= STEPCONFIG_INP |
+> > +				STEPCONFIG_XNN;
+> > +		break;
+> > +	case 5:
+> > +		config |= STEPCONFIG_YNN |
+> > +				STEPCONFIG_INP_5 | STEPCONFIG_XNN |
+> > +				STEPCONFIG_YPP;
+> > +		break;
+> > +	case 8:
+> > +		config |= STEPCONFIG_INP |
+> > +				STEPCONFIG_XNN;
+> > +		break;
+> > +	}
+> > +	for (i = 1; i < 7; i++) {
+> > +		tscadc_writel(ts_dev, REG_STEPCONFIG(i), config);
+> > +		tscadc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+> > +	}
+> > +
+> > +	config = 0;
+> > +	config = STEPCONFIG_MODE_HWSYNC |
+> > +			STEPCONFIG_SAMPLES_AVG | STEPCONFIG_YNN |
+> > +			STEPCONFIG_INM | STEPCONFIG_FIFO1;
+> > +	switch (ts_dev->wires) {
+> > +	case 4:
+> > +		config |= STEPCONFIG_YPP;
+> > +		break;
+> > +	case 5:
+> > +		config |= STEPCONFIG_XPP | STEPCONFIG_INP_5 |
+> > +				STEPCONFIG_XNP | STEPCONFIG_YPN;
+> > +		break;
+> > +	case 8:
+> > +		config |= STEPCONFIG_YPP;
+> > +		break;
+> > +	}
+> > +	for (i = 7; i < 13; i++) {
+> > +		tscadc_writel(ts_dev, REG_STEPCONFIG(i), config);
+> > +		tscadc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+> > +	}
+> > +
+> > +	config = 0;
+> > +	/* Charge step configuration */
+> > +	config = STEPCONFIG_XPP | STEPCONFIG_YNN |
+> > +			STEPCHARGE_RFP | STEPCHARGE_RFM |
+> > +			STEPCHARGE_INM | STEPCHARGE_INP;
+> > +
+> > +	tscadc_writel(ts_dev, REG_CHARGECONFIG, config);
+> > +	tscadc_writel(ts_dev, REG_CHARGEDELAY, STEPCHARGE_DELAY);
+> > +
+> > +	config = 0;
+> > +	/* Configure to calculate pressure */
+> > +	config = STEPCONFIG_MODE_HWSYNC |
+> > +			STEPCONFIG_SAMPLES_AVG | STEPCONFIG_YPP |
+> > +			STEPCONFIG_XNN | STEPCONFIG_INM;
+> > +	tscadc_writel(ts_dev, REG_STEPCONFIG13, config);
+> > +	tscadc_writel(ts_dev, REG_STEPDELAY13, STEPCONFIG_OPENDLY);
+> > +
+> > +	config |= STEPCONFIG_Z1 | STEPCONFIG_FIFO1;
+> > +	tscadc_writel(ts_dev, REG_STEPCONFIG14, config);
+> > +	tscadc_writel(ts_dev, REG_STEPDELAY14, STEPCONFIG_OPENDLY);
+> > +
+> > +	tscadc_writel(ts_dev, REG_SE, STPENB_STEPENB); }
+> > +
+> > +static void tsc_idle_config(struct tscadc *ts_config) {
+> > +	unsigned int	 idleconfig;
+> > +
+> > +	idleconfig = STEPCONFIG_YNN |
+> > +			STEPCONFIG_INM |
+> > +			STEPCONFIG_YPN | STEPIDLE_INP;
+> > +	tscadc_writel(ts_config, REG_IDLECONFIG, idleconfig); }
+> > +
+> > +static irqreturn_t interrupt(int irq, void *dev) {
+> > +	struct tscadc		*ts_dev = (struct tscadc *)dev;
+> > +	struct input_dev	*input_dev = ts_dev->input;
+> > +	unsigned int		status, irqclr = 0;
+> > +	int			i, fsm, fifocount;
+> > +	unsigned int		read, diff;
+> > +	unsigned int		prev_val_x = ~0, prev_val_y = ~0;
+> > +	unsigned int		prev_diff_x = ~0, prev_diff_y = ~0;
+> > +	unsigned int		val_x = 0, val_y = 0, diffx = 0, diffy = 0;
+> > +	unsigned int		z1 = 0, z2 = 0, z = 0;
+> > +
+> > +	status = tscadc_readl(ts_dev, REG_IRQSTATUS);
+> > +	if (status & IRQENB_FIFO1THRES) {
+> > +		fifocount = tscadc_readl(ts_dev, REG_FIFO0CNT);
+> > +
+> > +		/* Comparing 2 consecutive X/Y co-ordinates
+> > +		 * to discard random unwanted samples from ADC.
+> > +		 */
+> > +		for (i = 0; i < (fifocount-1); i++) {
+> > +			read = ((tscadc_readl(ts_dev, REG_FIFO0)) & 0xfff);
+> > +			diff = abs(read - prev_val_x);
+> > +			if (diff < prev_diff_x) {
+> > +				prev_diff_x = diff;
+> > +				val_x = read;
+> > +			}
+> > +			prev_val_x = read;
+> > +
+> > +			read = 0;
+> > +			read = ((tscadc_readl(ts_dev, REG_FIFO1)) & 0xfff);
+> > +			diff = abs(read - prev_val_y);
+> > +			if (diff < prev_diff_y) {
+> > +				prev_diff_y = diff;
+> > +				val_y = read;
+> > +			}
+> > +			prev_val_y = read;
+> > +		}
+> > +
+> > +		diffx = abs(val_x - bckup_x);
+> > +		diffy = abs(val_y - bckup_y);
+> > +		bckup_x = val_x;
+> > +		bckup_y = val_y;
+> > +
+> > +		z1 = ((tscadc_readl(ts_dev, REG_FIFO0)) & 0xfff);
+> > +		z2 = ((tscadc_readl(ts_dev, REG_FIFO1)) & 0xfff);
+> > +
+> > +		if (pen == 0) {
+> > +			if ((z1 != 0) && (z2 != 0)) {
+> > +				/* cal pressure using formula
+> > +				 * Resistance(touch) = x plate resistance *
+> > +				 * x postion/4096 * ((z2 / z1) - 1)
+> > +				 */
+> > +				z = z2 - z1;
+> > +				z *= val_x;
+> > +				z *= ts_dev->x_plate_resistance;
+> > +				z /= z1;
+> > +				z = (z + 2047) >> 12;
+> > +
+> > +				 /*
+> > +				  * Sample found inconsistent by debouncing
+> > +				  * or pressure is beyond the maximum.
+> > +				  * Don't report it to user space.
+> > +				  */
+> > +				if ((diffx < 15) && (diffy < 15)
 
-And this?
+If you set up 'fuzz' on appropriate axis input core will do filtering
+for you, there is not need to reimplement this in your driver.
 
-> +#include <linux/i2c.h>
-> +#include <linux/semaphore.h>
-
-I think you want mutex.h instead.
-
-> +#include <linux/delay.h>
-> +#include <linux/gpio.h>
-> +#include <linux/input/auo-pixcir-ts.h>
-> +
-> +/*
-> + * Coordinate calculation:
-> + * X1 =3D X1_LSB + X1_MSB*256
-> + * Y1 =3D Y1_LSB + Y1_MSB*256
-> + * X2 =3D X2_LSB + X2_MSB*256
-> + * Y2 =3D Y2_LSB + Y2_MSB*256
-> + */
-> +#define AUO_PIXCIR_REG_X1_LSB		0x00
-> +#define AUO_PIXCIR_REG_X1_MSB		0x01
-> +#define AUO_PIXCIR_REG_Y1_LSB		0x02
-> +#define AUO_PIXCIR_REG_Y1_MSB		0x03
-> +#define AUO_PIXCIR_REG_X2_LSB		0x04
-> +#define AUO_PIXCIR_REG_X2_MSB		0x05
-> +#define AUO_PIXCIR_REG_Y2_LSB		0x06
-> +#define AUO_PIXCIR_REG_Y2_MSB		0x07
-> +
-> +#define AUO_PIXCIR_REG_STRENGTH		0x0d
-> +#define AUO_PIXCIR_REG_STRENGTH_X1_LSB	0x0e
-> +#define AUO_PIXCIR_REG_STRENGTH_X1_MSB	0x0f
-> +
-> +#define AUO_PIXCIR_REG_RAW_DATA_X	0x2b
-> +#define AUO_PIXCIR_REG_RAW_DATA_Y	0x4f
-> +
-> +#define AUO_PIXCIR_REG_X_SENSITIVITY	0x6f
-> +#define AUO_PIXCIR_REG_Y_SENSITIVITY	0x70
-> +#define AUO_PIXCIR_REG_INT_SETTING	0x71
-> +#define AUO_PIXCIR_REG_INT_WIDTH	0x72
-> +#define AUO_PIXCIR_REG_POWER_MODE	0x73
-> +
-> +#define AUO_PIXCIR_REG_VERSION		0x77
-> +#define AUO_PIXCIR_REG_CALIBRATE	0x78
-> +
-> +#define AUO_PIXCIR_REG_TOUCHAREA_X1	0x1e
-> +#define AUO_PIXCIR_REG_TOUCHAREA_Y1	0x1f
-> +#define AUO_PIXCIR_REG_TOUCHAREA_X2	0x20
-> +#define AUO_PIXCIR_REG_TOUCHAREA_Y2	0x21
-> +
-> +#define AUO_PIXCIR_REG_EEPROM_CALIB_X	0x42
-> +#define AUO_PIXCIR_REG_EEPROM_CALIB_Y	0xad
-> +
-> +#define AUO_PIXCIR_INT_TPNUM_MASK	0xe0
-> +#define AUO_PIXCIR_INT_TPNUM_SHIFT	5
-> +#define AUO_PIXCIR_INT_RELEASE		(1 << 4)
-> +#define AUO_PIXCIR_INT_ENABLE		(1 << 3)
-> +#define AUO_PIXCIR_INT_POL_HIGH		(1 << 2)
-> +#define AUO_PIXCIR_INT_MODE_MASK	0x03
-> +
-> +/*
-> + * Power modes:
-> + * active:	scan speed 60Hz
-> + * sleep:	scan speed 10Hz can be auto-activated, wakeup on 1st touch
-> + * deep sleep:	scan speed 1Hz can only be entered or left manually.
-> + */
-> +#define AUO_PIXCIR_POWER_ACTIVE		0x00
-> +#define AUO_PIXCIR_POWER_SLEEP		0x01
-> +#define AUO_PIXCIR_POWER_DEEP_SLEEP	0x02
-> +#define AUO_PIXCIR_POWER_MASK		0x03
-> +
-> +#define AUO_PIXCIR_POWER_ALLOW_SLEEP	(1 << 2)
-> +#define AUO_PIXCIR_POWER_IDLE_TIME(ms)	((ms & 0xf) << 4)
-> +
-> +#define AUO_PIXCIR_CALIBRATE		0x03
-> +
-> +#define AUO_PIXCIR_EEPROM_CALIB_X_LEN	62
-> +#define AUO_PIXCIR_EEPROM_CALIB_Y_LEN	36
-> +
-> +#define AUO_PIXCIR_RAW_DATA_X_LEN	18
-> +#define AUO_PIXCIR_RAW_DATA_Y_LEN	11
-> +
-> +#define AUO_PIXCIR_STRENGTH_ENABLE	(1 << 0)
-> +
-> +/* Touchscreen absolute values */
-> +#define AUO_PIXCIR_REPORT_POINTS	2
-> +#define AUO_PIXCIR_MAX_AREA		0xff
-> +#define AUO_PIXCIR_PENUP_TIMEOUT_MS	10
-> +
-> +struct auo_pixcir_ts {
-> +	struct i2c_client	*client;
-> +	struct input_dev	*input;
-> +	char			phys[32];
-> +
-> +	/* special handling for touch_indicate interupt mode */
-> +	bool			touch_ind_mode;
-> +
-> +	wait_queue_head_t	wait;
-> +	bool			stopped;
-> +	bool			is_open;
-> +};
-> +
-> +struct auo_point_t {
-> +	int	coord_x;
-> +	int	coord_y;
-> +	int	area_major;
-> +	int	area_minor;
-> +	int	orientation;
-> +};
-> +
-> +static int auo_pixcir_collect_data(struct auo_pixcir_ts *ts,
-> +				   struct auo_point_t *point)
-> +{
-> +	struct i2c_client *client =3D ts->client;
-> +	struct auo_pixcir_ts_platdata *pdata =3D client->dev.platform_data;
-> +	uint8_t raw_coord[8];
-> +	uint8_t raw_area[4];
-> +	int i, ret;
-> +
-> +	/* touch coordinates */
-> +	ret =3D i2c_smbus_read_i2c_block_data(client, AUO_PIXCIR_REG_X1_LSB=
-,
-> +					    8, raw_coord);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "failed to read coordinate, %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	/* touch area */
-> +	ret =3D i2c_smbus_read_i2c_block_data(client, AUO_PIXCIR_REG_TOUCHA=
-REA_X1,
-> +					    4, raw_area);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "could not read touch area, %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	for (i =3D 0; i < AUO_PIXCIR_REPORT_POINTS; i++) {
-> +		point[i].coord_x =3D raw_coord[4*i+1] << 8 | raw_coord[4*i];
-> +		point[i].coord_y =3D raw_coord[4*i+3] << 8 | raw_coord[4*i+2];
-> +
-> +		if (point[i].coord_x > pdata->x_max ||
-> +		    point[i].coord_y > pdata->y_max) {
-> +			dev_warn(&client->dev, "coordinates (%d,%d) invalid\n",
-> +				point[i].coord_x, point[i].coord_y);
-> +			point[i].coord_x =3D point[i].coord_y =3D 0;
-> +		}
-> +
-> +		/* determine touch major, minor and orientation */
-> +		point[i].area_major =3D max(raw_area[2*i], raw_area[2*i+1]);
-> +		point[i].area_minor =3D min(raw_area[2*i], raw_area[2*i+1]);
-> +		point[i].orientation =3D (raw_area[2*i] > raw_area[2*i+1]);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static irqreturn_t auo_pixcir_interrupt(int irq, void *dev_id)
-> +{
-> +	struct auo_pixcir_ts *ts =3D dev_id;
-> +	struct i2c_client *client =3D ts->client;
-> +	struct auo_pixcir_ts_platdata *pdata =3D client->dev.platform_data;
-> +	struct auo_point_t point[AUO_PIXCIR_REPORT_POINTS];
-> +	int i;
-> +	int ret;
-> +	int fingers =3D 0;
-> +	int abs =3D -1;
-> +
-> +	while (!ts->stopped) {
-> +
-> +		/* check for up event in touch touch_ind_mode */
-> +		if (ts->touch_ind_mode) {
-> +			if (gpio_get_value(pdata->gpio_int) =3D=3D 0) {
-> +				input_mt_sync(ts->input);
-> +				input_report_key(ts->input, BTN_TOUCH, 0);
-> +				input_sync(ts->input);
-> +				break;
-> +			}
-> +		}
-> +
-> +		ret =3D auo_pixcir_collect_data(ts, point);
-> +		if (ret < 0) {
-> +			/* we want to loop only in touch_ind_mode */
-> +			if (!ts->touch_ind_mode)
-> +				break;
-> +
-> +			wait_event_timeout(ts->wait, ts->stopped,
-> +				msecs_to_jiffies(AUO_PIXCIR_PENUP_TIMEOUT_MS));
-> +			continue;
-> +		}
-> +
-> +		for (i =3D 0; i < AUO_PIXCIR_REPORT_POINTS; i++) {
-> +			if (point[i].coord_x > 0 || point[i].coord_y > 0) {
-> +				input_report_abs(ts->input, ABS_MT_POSITION_X,
-> +						 point[i].coord_x);
-> +				input_report_abs(ts->input, ABS_MT_POSITION_Y,
-> +						 point[i].coord_y);
-> +				input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR,
-> +						 point[i].area_major);
-> +				input_report_abs(ts->input, ABS_MT_TOUCH_MINOR,
-> +						 point[i].area_minor);
-> +				input_report_abs(ts->input, ABS_MT_ORIENTATION,
-> +						 point[i].orientation);
-> +				input_mt_sync(ts->input);
-
-Is there a way to track the contacts and switch to protocol B by any
-chance?
-
-> +
-> +				/* use first finger as source for singletouch */
-> +				if (fingers =3D=3D 0)
-> +					abs =3D i;
-> +
-> +				/* number of touch points could also be queried
-> +				 * via i2c but would require an additional call
-> +				 */
-> +				fingers++;
-> +			}
-> +		}
-> +
-> +		input_report_key(ts->input, BTN_TOUCH, fingers > 0);
-> +
-> +		if (abs > -1) {
-> +			input_report_abs(ts->input, ABS_X, point[abs].coord_x);
-> +			input_report_abs(ts->input, ABS_Y, point[abs].coord_y);
-> +		}
-> +
-> +		input_sync(ts->input);
-> +
-> +		/* we want to loop only in touch_ind_mode */
-> +		if (!ts->touch_ind_mode)
-> +			break;
-> +
-> +		wait_event_timeout(ts->wait, ts->stopped,
-> +				 msecs_to_jiffies(AUO_PIXCIR_PENUP_TIMEOUT_MS));
-> +	}
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +/*
-> + * Set the power mode of the device.
-> + * Valid modes are
-> + * - AUO_PIXCIR_POWER_ACTIVE
-> + * - AUO_PIXCIR_POWER_SLEEP - automatically left on first touch
-> + * - AUO_PIXCIR_POWER_DEEP_SLEEP
-> + */
-> +static int auo_pixcir_power_mode(struct auo_pixcir_ts *ts, int mode)
-> +{
-> +	struct i2c_client *client =3D ts->client;
-> +	int ret;
-> +
-> +	ret =3D i2c_smbus_read_byte_data(client, AUO_PIXCIR_REG_POWER_MODE)=
-;
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "unable to read reg %Xh, %d\n",
-> +			AUO_PIXCIR_REG_POWER_MODE, ret);
-> +		return ret;
-> +	}
-> +
-> +	ret &=3D (~AUO_PIXCIR_POWER_MASK);
-> +	ret |=3D mode;
-> +
-> +	ret =3D i2c_smbus_write_byte_data(client, AUO_PIXCIR_REG_POWER_MODE=
-, ret);
-> +	if (ret) {
-> +		dev_err(&client->dev, "unable to write reg %Xh, %d\n",
-> +			AUO_PIXCIR_REG_POWER_MODE, ret);
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int auo_pixcir_int_config(struct auo_pixcir_ts *ts, int int_s=
-etting)
-
-__devinit?
-
-> +{
-> +	struct i2c_client *client =3D ts->client;
-> +	struct auo_pixcir_ts_platdata *pdata =3D client->dev.platform_data;
-> +	int ret;
-> +
-> +	ret =3D i2c_smbus_read_byte_data(client, AUO_PIXCIR_REG_INT_SETTING=
-);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "unable to read reg %Xh, %d\n",
-> +			AUO_PIXCIR_REG_INT_SETTING, ret);
-> +		return ret;
-> +	}
-> +
-> +	ret &=3D (~AUO_PIXCIR_INT_MODE_MASK);
-> +	ret |=3D int_setting;
-> +	ret |=3D AUO_PIXCIR_INT_POL_HIGH; /* always use high for interrupts=
- */
-> +
-> +	ret =3D i2c_smbus_write_byte_data(client, AUO_PIXCIR_REG_INT_SETTIN=
-G,
-> +					ret);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "unable to write reg %Xh, %d\n",
-> +			AUO_PIXCIR_REG_INT_SETTING, ret);
-> +		return ret;
-> +	}
-> +
-> +	if (pdata->int_setting =3D=3D AUO_PIXCIR_INT_TOUCH_IND)
-> +		ts->touch_ind_mode =3D 1;
-> +	else
-> +		ts->touch_ind_mode =3D 0;
-
-	ts->touch_ind_mode =3D pdata->int_setting =3D=3D AUO_PIXCIR_INT_TOUCH_=
-IND;
-> +
-> +	return 0;
-> +}
-> +
-> +/* controll the generation of interrupts on the device side */
-
-Typo: control
-
-> +static int auo_pixcir_int_enable(struct auo_pixcir_ts *ts, int enabl=
-e)
-
-bool enable
-
-Probably call it "auo_pixcir_int_toggle".
-
-> +{
-> +	struct i2c_client *client =3D ts->client;
-> +	int ret;
-> +
-> +	ret =3D i2c_smbus_read_byte_data(client, AUO_PIXCIR_REG_INT_SETTING=
-);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "unable to read reg %Xh, %d\n",
-> +			AUO_PIXCIR_REG_INT_SETTING, ret);
-> +		disable_irq(client->irq);
-
-This looks like wrong place for disable_irq(). Caller should do it IMO.
-
-> +		return ret;
-> +	}
-> +
-> +	if (enable)
-> +		ret |=3D AUO_PIXCIR_INT_ENABLE;
-> +	else
-> +		ret &=3D ~AUO_PIXCIR_INT_ENABLE;
-> +
-> +	ret =3D i2c_smbus_write_byte_data(client, AUO_PIXCIR_REG_INT_SETTIN=
-G,
-> +					ret);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "unable to write reg %Xh, %d\n",
-> +			AUO_PIXCIR_REG_INT_SETTING, ret);
-> +		disable_irq(client->irq);
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int auo_pixcir_start(struct auo_pixcir_ts *ts)
-> +{
-> +	struct i2c_client *client =3D ts->client;
-> +	int ret;
-> +
-> +	ret =3D auo_pixcir_power_mode(ts, AUO_PIXCIR_POWER_ACTIVE);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "could not set power mode, %d\n",
-> +			ret);
-> +		return ret;
-> +	}
-> +
-> +	ts->stopped =3D false;
-> +	mb();
-> +	enable_irq(client->irq);
-> +
-> +	ret =3D auo_pixcir_int_enable(ts, 1);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "could not enable interrupt, %d\n",
-> +			ret);
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int auo_pixcir_stop(struct auo_pixcir_ts *ts)
-> +{
-> +	struct i2c_client *client =3D ts->client;
-> +	int ret;
-> +
-> +	ret =3D auo_pixcir_int_enable(ts, 0);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "could not disable interrupt, %d\n",
-> +			ret);
-> +		return ret;
-> +	}
-> +
-> +	/* disable receiving of interrupts */
-> +	disable_irq(client->irq);
-> +	ts->stopped =3D true;
-> +	mb();
-> +	wake_up(&ts->wait);
-> +
-> +	return auo_pixcir_power_mode(ts, AUO_PIXCIR_POWER_DEEP_SLEEP);
-> +}
-> +
-> +static int auo_pixcir_input_open(struct input_dev *dev)
-> +{
-> +	struct auo_pixcir_ts *ts =3D input_get_drvdata(dev);
-> +	int ret;
-> +
-> +	ret =3D auo_pixcir_start(ts);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ts->is_open =3D true;
-> +
-> +	return 0;
-> +}
-> +
-> +static void auo_pixcir_input_close(struct input_dev *dev)
-> +{
-> +	struct auo_pixcir_ts *ts =3D input_get_drvdata(dev);
-> +
-> +	ts->is_open =3D false;
-> +
-> +	auo_pixcir_stop(ts);
-> +
-> +	return;
-> +}
-> +
-> +#ifdef CONFIG_PM_SLEEP
-> +static int auo_pixcir_suspend(struct device *dev)
-> +{
-> +	struct i2c_client *client =3D to_i2c_client(dev);
-> +	struct auo_pixcir_ts *ts =3D (struct auo_pixcir_ts *)
-
-The cast is not needed.
-
-> +						i2c_get_clientdata(client);
-> +
-> +	/* if device isn't open it's stopped already */
-> +	if (ts->is_open) {
-> +		if (device_may_wakeup(&client->dev)) {
-> +			enable_irq_wake(client->irq);
-> +			return auo_pixcir_power_mode(ts,
-> +						     AUO_PIXCIR_POWER_SLEEP);
-> +		} else {
-> +			auo_pixcir_stop(ts);
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int auo_pixcir_resume(struct device *dev)
-> +{
-> +	struct i2c_client *client =3D to_i2c_client(dev);
-> +	struct auo_pixcir_ts *ts =3D (struct auo_pixcir_ts *)
-
-The cast is not needed.
-
-> +						i2c_get_clientdata(client);
-> +
-> +	/* if device isn't open it was stopped and should stay that way */
-
-If it is configured as wakeup source it should still wake up the system=
-=2E
-
-> +	if (ts->is_open) {
-> +		if (device_may_wakeup(&client->dev)) {
-> +			disable_irq_wake(client->irq);
-> +			/* automatic wakeup on first-touch */
-> +		} else if (ts->is_open) {
-
-This needs locking WRT open/close. You can use input->users and
-input->mutex instead of ts->is_open.
-
-> +			return auo_pixcir_start(ts);
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +SIMPLE_DEV_PM_OPS(auo_pixcir_pm_ops, auo_pixcir_suspend, auo_pixcir_=
-resume);
-
-static and pull it out of #ifdef and you can drop #ifdef in driver
-definition as well.
-
-> +#endif
-> +
-> +static int __devinit auo_pixcir_probe(struct i2c_client *client,
-> +				      const struct i2c_device_id *id)
-> +{
-> +	struct auo_pixcir_ts *ts;
-> +	struct auo_pixcir_ts_platdata *pdata =3D client->dev.platform_data;
-> +	struct input_dev *input_dev;
-> +	int ret;
-> +
-> +	if (!pdata)
-> +		return -EINVAL;
-> +
-> +	ts =3D kzalloc(sizeof(struct auo_pixcir_ts), GFP_KERNEL);
-> +	if (!ts)
-> +		return -ENOMEM;
-> +
-> +	ret =3D gpio_request(pdata->gpio_int, "auo_pixcir_ts_int");
-> +	if (ret) {
-> +		dev_err(&client->dev, "request of gpio %d failed, %d\n",
-> +			pdata->gpio_int, ret);
-> +		goto err_gpio_int;
-> +	}
-> +
-> +	ret =3D gpio_request(pdata->gpio_rst, "auo_pixcir_ts_rst");
-> +	if (ret) {
-> +		dev_err(&client->dev, "request of gpio %d failed, %d\n",
-> +			pdata->gpio_int, ret);
-> +		goto err_gpio_rst;
-> +	}
-
-I do not see it actually being used?
-
-> +
-> +	if (pdata->init_hw)
-> +		pdata->init_hw();
-> +
-> +	ts->client =3D client;
-> +	ts->touch_ind_mode =3D 0;
-> +	init_waitqueue_head(&ts->wait);
-> +
-> +	snprintf(ts->phys, sizeof(ts->phys),
-> +		 "%s/input0", dev_name(&client->dev));
-> +
-> +	input_dev =3D input_allocate_device();
-> +	if (!input_dev) {
-> +		dev_err(&client->dev, "could not allocate input device\n");
-> +		goto err_input_alloc;
-> +	}
-> +
-> +	ts->input =3D input_dev;
-> +
-> +	input_dev->name =3D "auo_pixcir_ts";
-
-Could do with a better name I think. It does not need to resemble file
-name.
-
-> +	input_dev->phys =3D ts->phys;
-> +	input_dev->id.bustype =3D BUS_I2C;
-> +	input_dev->dev.parent =3D &client->dev;
-> +
-> +	input_dev->open =3D auo_pixcir_input_open;
-> +	input_dev->close =3D auo_pixcir_input_close;
-> +
-> +	__set_bit(EV_ABS, input_dev->evbit);
-> +	__set_bit(EV_KEY, input_dev->evbit);
-> +
-> +	__set_bit(BTN_TOUCH, input_dev->keybit);
-> +
-> +	/* For single touch */
-> +	input_set_abs_params(input_dev, ABS_X, 0, pdata->x_max, 0, 0);
-> +	input_set_abs_params(input_dev, ABS_Y, 0, pdata->y_max, 0, 0);
-> +
-> +	/* For multi touch */
-> +	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0,
-> +			     pdata->x_max, 0, 0);
-> +	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0,
-> +			     pdata->y_max, 0, 0);
-> +	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0,
-> +			     AUO_PIXCIR_MAX_AREA, 0, 0);
-> +	input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR, 0,
-> +			     AUO_PIXCIR_MAX_AREA, 0, 0);
-> +	input_set_abs_params(input_dev, ABS_MT_ORIENTATION, 0, 1, 0, 0);
-> +
-> +	ret =3D i2c_smbus_read_byte_data(client, AUO_PIXCIR_REG_VERSION);
-> +	if (ret < 0)
-> +		goto err_fw_vers;
-> +	dev_info(&client->dev, "firmware version 0x%X\n", ret);
-> +
-> +	ret =3D auo_pixcir_int_config(ts, pdata->int_setting);
-> +	if (ret)
-> +		goto err_fw_vers;
-> +
-> +	/* disable irqs on the device side before irq-request */
-> +	auo_pixcir_int_enable(ts, 0);
-> +	ts->stopped =3D true;
-> +	ts->is_open =3D false;
-> +
-> +	ret =3D request_threaded_irq(client->irq, NULL, auo_pixcir_interrup=
-t,
-> +				   IRQF_TRIGGER_RISING | IRQF_ONESHOT,
-> +				   input_dev->name, ts);
-> +	if (ret) {
-> +		dev_err(&client->dev, "irq %d requested failed\n", client->irq);
-> +		goto err_fw_vers;
-> +	}
-> +
-> +	/* stop device and put it into deep sleep until it is opened */
-> +	ret =3D auo_pixcir_stop(ts);
-> +	if (ret < 0)
-> +		goto err_input_register;
-> +
-> +	ret =3D input_register_device(input_dev);
-> +	if (ret) {
-> +		dev_err(&client->dev, "could not register input device\n");
-> +		goto err_input_register;
-> +	}
-> +
-> +	input_set_drvdata(ts->input, ts);
-
-Just do this earlier and then auo_pixcir_stop() is enough, you won't
-need to call auo_pixcir_int_enable() before registering IRQ.
-
-> +
-> +	i2c_set_clientdata(client, ts);
-> +
-> +	return 0;
-> +
-> +err_input_register:
-> +	free_irq(client->irq, ts);
-> +err_fw_vers:
-> +	input_free_device(input_dev);
-> +err_input_alloc:
-> +	if (pdata->exit_hw)
-> +		pdata->exit_hw();
-> +	gpio_free(pdata->gpio_rst);
-> +err_gpio_rst:
-> +	gpio_free(pdata->gpio_int);
-> +err_gpio_int:
-> +	kfree(ts);
-> +
-> +	return ret;
-> +}
-> +
-> +static int __devexit auo_pixcir_remove(struct i2c_client *client)
-> +{
-> +	struct auo_pixcir_ts *ts =3D (struct auo_pixcir_ts *)
-
-No need to cast.
-
-> +						i2c_get_clientdata(client);
-> +	struct auo_pixcir_ts_platdata *pdata =3D client->dev.platform_data;
-
-const.
-
-> +
-> +	auo_pixcir_stop(ts);
-
-This should not be needed as the device should be closed at this point.
-
-> +
-> +	free_irq(client->irq, ts);
-> +
-> +	input_unregister_device(ts->input);
-> +
-> +	if (pdata->exit_hw)
-> +		pdata->exit_hw();
-> +
-> +	gpio_free(pdata->gpio_int);
-> +	gpio_free(pdata->gpio_rst);
-> +
-> +	kfree(ts);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct i2c_device_id auo_pixcir_idtable[] =3D {
-> +	{ "auo_pixcir_ts", 0 },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(i2c, auo_pixcir_idtable);
-> +
-> +static struct i2c_driver auo_pixcir_driver =3D {
-> +	.driver =3D {
-> +		.owner	=3D THIS_MODULE,
-> +		.name	=3D "auo_pixcir_ts",
-> +#ifdef CONFIG_PM
-> +		.pm	=3D &auo_pixcir_pm_ops,
-> +#endif
-> +	},
-> +	.probe		=3D auo_pixcir_probe,
-> +	.remove		=3D __devexit_p(auo_pixcir_remove),
-> +	.id_table	=3D auo_pixcir_idtable,
-> +};
-> +
-> +static int __init auo_pixcir_init(void)
-> +{
-> +	return i2c_add_driver(&auo_pixcir_driver);
-> +}
-> +module_init(auo_pixcir_init);
-> +
-> +static void __exit auo_pixcir_exit(void)
-> +{
-> +	i2c_del_driver(&auo_pixcir_driver);
-> +}
-> +module_exit(auo_pixcir_exit);
-> +
-> +MODULE_DESCRIPTION("AUO-PIXCIR touchscreen driver");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_AUTHOR("Heiko Stuebner <heiko@sntech.de>");
-> diff --git a/include/linux/input/auo-pixcir-ts.h b/include/linux/inpu=
-t/auo-pixcir-ts.h
-> new file mode 100644
-> index 0000000..d4221be
-> --- /dev/null
-> +++ b/include/linux/input/auo-pixcir-ts.h
-> @@ -0,0 +1,57 @@
-> +/* drivers/input/touchscreen/auo-pixcir-ts.h
-> + *
-> + * Copyright (c) 2011 Heiko Stuebner <heiko@sntech.de>
-> + *
-> + * based on auo_touch.h from Dell Streak kernel
-> + *
-> + * Copyright (c) 2008 QUALCOMM Incorporated.
-> + * Copyright (c) 2008 QUALCOMM USA, INC.
-> + *
-> + *
-> + * This software is licensed under the terms of the GNU General Publ=
-ic
-> + * License version 2, as published by the Free Software Foundation, =
-and
-> + * may be copied, distributed, and modified under those terms.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + */
-> +
-> +#ifndef __AUO_PIXCIR_TS_H__
-> +#define __AUO_PIXCIR_TS_H__
-> +
-> +/*
-> + * Interrupt modes:
-> + * periodical:		interrupt is asserted periodicaly
-> + * compare coordinates:	interrupt is asserted when coordinates chang=
-e
-> + * indicate touch:	interrupt is asserted during touch
-> + */
-> +#define AUO_PIXCIR_INT_PERIODICAL	0x00
-> +#define AUO_PIXCIR_INT_COMP_COORD	0x01
-> +#define AUO_PIXCIR_INT_TOUCH_IND	0x02
-> +
-> +/*
-> + * @gpio_int		interrupt gpio
-> + * @gpio_rst		reset gpio, used in init_hw and exit_hw
-
-OK, if it is used by platform code only then it should not be here.
-
-> + * @int_setting		one of AUO_PIXCIR_INT_*
-> + * @init_hw		hardwarespecific init
-> + * @exit_hw		hardwarespecific shutdown
-> + * @x_max		x-resolution
-> + * @y_max		y-resolution
-> + */
-> +struct auo_pixcir_ts_platdata {
-> +	int gpio_int;
-> +	int gpio_rst;
-> +
-> +	int int_setting;
-> +
-> +	void (*init_hw)(void);
-
-Maybe pass client or device so that we could theoretically handle
-multiple devices?
-
-> +	void (*exit_hw)(void);
-> +
-> +	unsigned int x_max;
-> +	unsigned int y_max;
-> +};
-> +
-> +#endif
-> --=20
-> 1.7.5.4
->=20
+> > +						&& (z <= MAX_12BIT)) {
+> > +					input_report_abs(input_dev,
+> > +							ABS_X, val_x);
+> > +					input_report_abs(input_dev,
+> > +							ABS_Y, val_y);
+> > +					input_report_abs(input_dev,
+> > +							ABS_PRESSURE, z);
+> > +					input_report_key(input_dev,
+> > +							BTN_TOUCH, 1);
+> > +					input_sync(input_dev);
+> > +				}
+> > +			}
+> > +		}
+> > +		irqclr |= IRQENB_FIFO1THRES;
+> > +	}
+> > +
+> > +	/*
+> > +	 * Time for sequencer to settle,
+> > +	 * So that correct state of the
+> > +	 * sequencer can be read.
+> > +	 */
+> > +	udelay(SEQ_SETTLE);
+> > +
+> > +	status = tscadc_readl(ts_dev, REG_RAWIRQSTATUS);
+> > +	if (status & IRQENB_PENUP) {
+> > +		/* Pen up event */
+> > +		fsm = tscadc_readl(ts_dev, REG_ADCFSM);
+> > +		if (fsm == ADCFSM_STEPID) {
+> > +			pen = 1;
+> > +			bckup_x = 0;
+> > +			bckup_y = 0;
+> > +			input_report_key(input_dev, BTN_TOUCH, 0);
+> > +			input_report_abs(input_dev, ABS_PRESSURE, 0);
+> > +			input_sync(input_dev);
+> > +		} else {
+> > +			pen = 0;
+> > +		}
+> > +		irqclr |= IRQENB_PENUP;
+> > +	}
+> > +
+> > +	tscadc_writel(ts_dev, REG_IRQSTATUS, irqclr);
+> > +	/* check pending interrupts */
+> > +	tscadc_writel(ts_dev, REG_IRQEOI, 0x0);
+> > +
+> > +	tscadc_writel(ts_dev, REG_SE, STPENB_STEPENB);
+> > +	return IRQ_HANDLED;
+> > +}
+> > +
+> > +/*
+> > +* The functions for inserting/removing driver as a module.
+> > +*/
+> > +
+> > +static	int __devinit tscadc_probe(struct platform_device *pdev)
+> > +{
+> > +	struct tscadc			*ts_dev;
+> > +	struct input_dev		*input_dev;
+> > +	int				err;
+> > +	int				clk_value, ctrl;
+> > +	struct	tsc_data		*pdata = pdev->dev.platform_data;
+> > +	struct resource			*res;
+> > +	struct clk			*clk;
+> > +
+> > +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +	if (!res) {
+> > +		dev_err(&pdev->dev, "no memory resource defined.\n");
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	/* Allocate memory for device */
+> > +	ts_dev = kzalloc(sizeof(struct tscadc), GFP_KERNEL);
+> > +	if (!ts_dev) {
+> > +		dev_err(&pdev->dev, "failed to allocate memory.\n");
+> > +		return -ENOMEM;
+> > +	}
+> > +
+> > +	ts_dev->irq = platform_get_irq(pdev, 0);
+> > +	if (ts_dev->irq < 0) {
+> > +		dev_err(&pdev->dev, "no irq ID is specified.\n");
+> > +		err = -ENODEV;
+> > +		goto err_free_mem;
+> > +	}
+> > +
+> > +	input_dev = input_allocate_device();
+> > +	if (!input_dev) {
+> > +		dev_err(&pdev->dev, "failed to allocate input device.\n");
+> > +		err = -ENOMEM;
+> > +		goto err_free_mem;
+> > +	}
+> > +	ts_dev->input = input_dev;
+> > +
+> > +	ts_dev->tsc_base = ioremap(res->start, resource_size(res));
+> > +	if (!ts_dev->tsc_base) {
+> > +		dev_err(&pdev->dev, "failed to map registers.\n");
+> > +		err = -ENOMEM;
+> > +		goto err_release_mem;
+> > +	}
+> > +
+> > +	err = request_irq(ts_dev->irq, interrupt, IRQF_DISABLED,
+> > +			pdev->dev.driver->name, ts_dev);
+> > +	if (err) {
+> > +		dev_err(&pdev->dev, "failed to allocate irq.\n");
+> > +		goto err_unmap_regs;
+> > +	}
+> > +
+> > +	ts_dev->tsc_ick = clk_get(&pdev->dev, "adc_tsc_ick");
+> > +	if (IS_ERR(ts_dev->tsc_ick)) {
+> > +		dev_err(&pdev->dev, "failed to get TSC ick\n");
+> > +		goto err_free_irq;
+> > +	}
+> > +	clk_enable(ts_dev->tsc_ick);
+> > +
+> > +	clk = clk_get(&pdev->dev, "adc_tsc_fck");
+> > +	if (IS_ERR(clk)) {
+> > +		dev_err(&pdev->dev, "failed to get TSC fck\n");
+> > +		err = PTR_ERR(clk);
+> > +		goto err_fail;
+> > +	}
+> > +
+> > +	clk_value = clk_get_rate(clk) / ADC_CLK;
+> > +	if (clk_value < 7) {
+> > +		dev_err(&pdev->dev, "clock input less than min clock requirement\n");
+> > +		goto err_fail;
+> > +	}
+> > +	/* CLKDIV needs to be configured to the value minus 1 */
+> > +	clk_value = clk_value - 1;
+> > +	tscadc_writel(ts_dev, REG_CLKDIV, clk_value);
+> > +
+> > +	 /* Enable wake-up of the SoC using touchscreen */
+> > +	tscadc_writel(ts_dev, REG_IRQWAKEUP, IRQWKUP_ENB);
+> > +
+> > +	ts_dev->wires = pdata->wires;
+> > +	ts_dev->x_plate_resistance = pdata->x_plate_resistance;
+> > +
+> > +	ctrl = CNTRLREG_STEPCONFIGWRT |
+> > +			CNTRLREG_TSCENB |
+> > +			CNTRLREG_STEPID;
+> > +	switch (ts_dev->wires) {
+> > +	case 4:
+> > +		ctrl |= CNTRLREG_4WIRE;
+> > +		break;
+> > +	case 5:
+> > +		ctrl |= CNTRLREG_5WIRE;
+> > +		break;
+> > +	case 8:
+> > +		ctrl |= CNTRLREG_8WIRE;
+> > +		break;
+> > +	}
+> > +	tscadc_writel(ts_dev, REG_CTRL, ctrl);
+> > +
+> > +	tsc_idle_config(ts_dev);
+> > +	tscadc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO1THRES);
+> > +	tsc_step_config(ts_dev);
+> > +	tscadc_writel(ts_dev, REG_FIFO1THR, 6);
+> > +
+> > +	ctrl |= CNTRLREG_TSCSSENB;
+> > +	tscadc_writel(ts_dev, REG_CTRL, ctrl);
+> > +
+> > +	input_dev->name = "ti-tsc-adc";
+> > +	input_dev->dev.parent = &pdev->dev;
+> > +
+> > +	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> > +	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> > +
+> > +	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
+> > +	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
+> > +	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT, 0, 0);
+> > +
+> > +	/* register to the input system */
+> > +	err = input_register_device(input_dev);
+> > +	if (err)
+> > +		goto err_fail;
+> > +
+> > +	return 0;
+> > +
+> > +err_fail:
+> > +	clk_disable(ts_dev->tsc_ick);
+> > +	clk_put(ts_dev->tsc_ick);
+> > +err_free_irq:
+> > +	free_irq(ts_dev->irq, ts_dev);
+> > +err_unmap_regs:
+> > +	iounmap(ts_dev->tsc_base);
+> > +err_release_mem:
+> > +	release_mem_region(res->start, resource_size(res));
+> > +	input_free_device(ts_dev->input);
+> > +err_free_mem:
+> > +	kfree(ts_dev);
+> > +	return err;
+> > +}
+> > +
+> > +static int __devexit tscadc_remove(struct platform_device *pdev) {
+> > +	struct tscadc		*ts_dev = dev_get_drvdata(&pdev->dev);
+> > +	struct resource		*res;
+> > +
+> > +	free_irq(ts_dev->irq, ts_dev);
+> > +
+> > +	input_unregister_device(ts_dev->input);
+> > +
+> > +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +	iounmap(ts_dev->tsc_base);
+> > +	release_mem_region(res->start, resource_size(res));
+> > +
+> > +	clk_disable(ts_dev->tsc_ick);
+> > +	clk_put(ts_dev->tsc_ick);
+> > +
+> > +	kfree(ts_dev);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static struct platform_driver ti_tsc_driver = {
+> > +	.probe	= tscadc_probe,
+> > +	.remove	= __devexit_p(tscadc_remove),
+> > +	.driver	= {
+> > +			.name   = "tsc",
+> > +	},
+> > +};
+> > +
+> > +static int __init ti_tsc_init(void)
+> > +{
+> > +	return platform_driver_register(&ti_tsc_driver);
+> > +}
+> > +
+> > +static void __exit ti_tsc_exit(void)
+> > +{
+> > +	platform_driver_unregister(&ti_tsc_driver);
+> > +}
+> > +
+> > +module_init(ti_tsc_init);
+> > +module_exit(ti_tsc_exit);
+> > diff --git a/include/linux/input/ti_tscadc.h b/include/linux/input/ti_tscadc.h new file mode 100644 index 0000000..b315baa
+> > --- /dev/null
+> > +++ b/include/linux/input/ti_tscadc.h
+> > @@ -0,0 +1,12 @@
+> > +/**
+> > + * struct tsc_data	Touchscreen wire configuration
+> > + * @wires:		Wires refer to application modes
+> > + *			i.e. 4/5/8 wire touchscreen support
+> > + *			on the platform.
+> > + * @x_plate_resistance:	X plate resistance.
+> > + */
+> > +
+> > +struct tsc_data {
+> > +	int wires;
+> > +	int x_plate_resistance;
+> > +};
+> > --
+> > 1.7.1
+> > 
+> > 
+> 
+> Regards,
+> Rachna.
 
 Thanks.
 
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

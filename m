@@ -1,146 +1,89 @@
-From: JJ Ding <jj_ding@emc.com.tw>
-Subject: Re: [PATCH] Input: hid-multitouch- support PixArt optical touch screen
-Date: Tue, 06 Dec 2011 19:27:45 +0800
-Message-ID: <87borm549a.fsf@emc.com.tw>
-References: <OF2AC9FD94.4CE4D9FB-ON4825795E.0037FF42-4825795E.00380F71@pixart.com.tw>
+From: Dave Martin <dave.martin@linaro.org>
+Subject: [GIT PULL] ARM: amba: Enable module alias autogeneration for AMBA
+ drivers
+Date: Tue, 6 Dec 2011 15:15:41 +0000
+Message-ID: <20111206151541.GA13774@linaro.org>
+References: <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:43391 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753731Ab1LFL3W (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Dec 2011 06:29:22 -0500
-In-Reply-To: <OF2AC9FD94.4CE4D9FB-ON4825795E.0037FF42-4825795E.00380F71@pixart.com.tw>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-mmc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
+Sender: linux-mmc-owner@vger.kernel.org
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: patches@linaro.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Alan Cox <alan@linux.intel.com>, Alessandro Rubini <rubini@unipv.it>, Alessandro Zummo <a.zummo@towertech.it>, alsa-devel@alsa-project.org, Chris Ball <cjb@laptop.org>, Dan Williams <dan.j.williams@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, Jaroslav Kysela <perex@perex.cz>, Jassi Brar <jassisinghbrar@gmail.com>, Julia Lawall <julia@diku.dk>, Linus Walleij <linus.walleij@linaro.org>, linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org, Paul Mundt <lethal@linux-sh.org>, =?utf-8?B?UGF3ZcWC?= Moll <Pawel.Moll@arm.com>, rtc-linux@googlegroups.com, spi-devel-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>, Vinod Koul <vinod.>
 List-Id: linux-input@vger.kernel.org
-To: aaron_tian@pixart.com.tw, linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com
 
-Hi Aaron,
+Hi Russell,
 
-I can't apply your patch. Your MUA seems to wrap the mail. Maybe you
-want to use "git send-email" instead.
+Further to my previous pull request:
 
-Btw, the fisrt part of the mail should be your commit message. You can
-put your explanation below the "---" line. And hid drivers are
-maintained by Jiri Kosina <jkosina@suse.cz>, you might also CC Jiri next
-time.
-
-Thanks.
-
-br,
-jj
-
-On Tue, 6 Dec 2011 18:12:19 +0800, aaron_tian@pixart.com.tw wrote:
-> From: Aaron Tian <aaron_tian@pixart.com.tw>
+> The following changes since commit cfcfc9eca2bcbd26a8e206baeb005b055dbf8e37:
 > 
-> Hello,
+>   Linux 3.2-rc2 (2011-11-15 15:02:59 -0200)
 > 
-> This ia Aaron Tian in Pixart. We have modified the hid-multitouch driver 
-> for 
-> supporting PixArt optical touch screen and it works well. Because of the 
-> device 
-> does not have to set initial report, we apply "HID_QUIRK_NO_INIT_REPORTS" 
-> quirk and add the device into hid_blacklist in 
-> drivers/hid/usbhid/hid-quirks.c 
+> are available in the git repository at:
+>   git://git.linaro.org/people/dmart/linux-2.6-arm.git arm/amba-modalias+for-rmk
 > 
-> The patch is according to commit 45e713efe2fa574b6662e7fb63fae9497c5e03d4 
-> of 
-> Linux mainline git (3.2.0-rc4+)
-> 
-> 
-> Signed-off-by: Aaron Tian <aaron_tian@pixart.com.tw>
-> ---
+> Dave Martin (16):
+>       ARM: amba: Move definition of struct amba_id to mod_devicetable.h
+>       ARM: amba: Auto-generate AMBA driver module aliases during modpost
+[...]
 
+... it looks like Alessandro's proposed change to tidy up scripts/mod/
+ile2alias.c may get merged soon -- if that happens, you will get a
+conflict with the second patch of the series referenced by the previous
+pull request.  Fixing it up is straightforward -- if you prefer to
+resolve the conflict yourself, that's fine by me.  Alternatively, you
+can pull the following modified series instead.
 
->  drivers/hid/Kconfig             |    1 +
->  drivers/hid/hid-core.c          |    1 +
->  drivers/hid/hid-ids.h           |    3 +++
->  drivers/hid/hid-multitouch.c    |    5 +++++
->  drivers/hid/usbhid/hid-quirks.c |    1 +
->  5 files changed, 11 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 22a4a05..eda54b6 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -349,6 +349,7 @@ config HID_MULTITOUCH
->           - Lumio CrystalTouch panels
->           - MosArt dual-touch panels
->           - PenMount dual touch panels
-> +         - PixArt optical touch screen
->           - Pixcir dual touch panels
->           - eGalax dual-touch panels, including the Joojoo and Wetab 
-> tablets
->           - Stantum multitouch panels
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index af35384..e9280ef 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1498,6 +1498,7 @@ static const struct hid_device_id 
-> hid_have_special_driver[] = {
->         { HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) 
-> },
->         { HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, 
-> USB_DEVICE_ID_PENMOUNT_PCI) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, 
-> USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
-> +       { HID_USB_DEVICE(USB_VENDOR_TYPE_PIXART, 
-> USB_DEVICE_TYPE_PIXART_OPTICAL_TOUCH_SCREEN) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, 
-> USB_DEVICE_ID_PRIMAX_KEYBOARD) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, 
-> USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, 
-> USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 4a441a6..869911b 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -571,6 +571,9 @@
->  #define USB_VENDOR_ID_PI_ENGINEERING   0x05f3
->  #define USB_DEVICE_ID_PI_ENGINEERING_VEC_USB_FOOTPEDAL 0xff
->  
-> +#define USB_VENDOR_TYPE_PIXART                         0x093a
-> +#define USB_DEVICE_TYPE_PIXART_OPTICAL_TOUCH_SCREEN    0x8001
-> +
->  #define USB_VENDOR_ID_PLAYDOTCOM       0x0b43
->  #define USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII     0x0003
->  
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index f1c909f..2f338b1 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -722,6 +722,11 @@ static const struct hid_device_id mt_devices[] = {
->                 HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT,
->                         USB_DEVICE_ID_PENMOUNT_PCI) },
->  
-> +       /* PixArt optical touch screen */
-> +       { .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
-> +               HID_USB_DEVICE(USB_VENDOR_ID_PIXART,
-> +                       USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN) },
-> +
->         /* PixCir-based panels */
->         { .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
->                 HID_USB_DEVICE(USB_VENDOR_ID_HANVON,
-> diff --git a/drivers/hid/usbhid/hid-quirks.c 
-> b/drivers/hid/usbhid/hid-quirks.c
-> index 5028d60..99324eb 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -67,6 +67,7 @@ static const struct hid_blacklist {
->         { USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_AXIS_295, HID_QUIRK_NOGET },
->         { USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
->         { USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
-> +       { USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN, 
-> HID_QUIRK_NO_INIT_REPORTS },
->         { USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, 
-> HID_QUIRK_NOGET },
->         { USB_VENDOR_ID_QUANTA, 
-> USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NOGET },
->         { USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, 
-> HID_QUIRK_NOGET },
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The only difference is in the second patch
+("ARM: amba: Auto-generate AMBA driver module aliases during modpost").
+
+Cheers
+---Dave
+
+The following changes since commit 114339d31aa813995461866c659bbf07e1cf2267:
+
+  modpost: use table-lookup to build module aliases (2011-12-02 15:18:08 +0000)
+
+are available in the git repository at:
+  git://git.linaro.org/people/dmart/linux-2.6-arm.git arm/amba-modalias+alessandro-modalias-v2+for-rmk
+
+Dave Martin (16):
+      ARM: amba: Move definition of struct amba_id to mod_devicetable.h
+      ARM: amba: Auto-generate AMBA driver module aliases during modpost
+      hwrng: nomadik: Enable module alias autogeneration for AMBA drivers
+      dmaengine: pl08x: Enable module alias autogeneration for AMBA drivers
+      dmaengine: pl330: Enable module alias autogeneration for AMBA drivers
+      gpio: pl061: Enable module alias autogeneration for AMBA drivers
+      input: ambakmi: Enable module alias autogeneration for AMBA drivers
+      mmc: mmci: Enable module alias autogeneration for AMBA drivers
+      rtc: pl030: Enable module alias autogeneration for AMBA drivers
+      rtc: pl031: Enable module alias autogeneration for AMBA drivers
+      spi: pl022: Enable module alias autogeneration for AMBA drivers
+      serial: pl010: Enable module alias autogeneration for AMBA drivers
+      serial: pl011: Enable module alias autogeneration for AMBA drivers
+      fbdev: amba: Enable module alias autogeneration for AMBA drivers
+      watchdog: sp805: Enable module alias autogeneration for AMBA drivers
+      sound: aaci: Enable module alias autogeneration for AMBA drivers
+
+ drivers/amba/bus.c                   |    4 ++
+ drivers/char/hw_random/nomadik-rng.c |    2 +
+ drivers/dma/amba-pl08x.c             |    2 +
+ drivers/dma/pl330.c                  |    2 +
+ drivers/gpio/gpio-pl061.c            |    2 +
+ drivers/input/serio/ambakmi.c        |    2 +
+ drivers/mmc/host/mmci.c              |    2 +
+ drivers/rtc/rtc-pl030.c              |    2 +
+ drivers/rtc/rtc-pl031.c              |    2 +
+ drivers/spi/spi-pl022.c              |    2 +
+ drivers/tty/serial/amba-pl010.c      |    2 +
+ drivers/tty/serial/amba-pl011.c      |    2 +
+ drivers/video/amba-clcd.c            |    2 +
+ drivers/watchdog/sp805_wdt.c         |    2 +
+ include/linux/amba/bus.h             |    7 +---
+ include/linux/mod_devicetable.h      |   18 +++++++++
+ scripts/mod/file2alias.c             |   71 +++++++++++++++++++++++++++++++++-
+ sound/arm/aaci.c                     |    2 +
+ 18 files changed, 121 insertions(+), 7 deletions(-)

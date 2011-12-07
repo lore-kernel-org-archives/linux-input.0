@@ -1,42 +1,23 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
+From: simon@mungewell.org
 Subject: Re: [PATCH] HID: wiimote: Select INPUT_FF_MEMLESS
-Date: Wed, 07 Dec 2011 13:51:48 -0800
-Message-ID: <4EDFDFF4.1090307@xenotime.net>
-References: <4EDFD23D.4030703@xenotime.net> <1323290039-28073-1-git-send-email-dh.herrmann@googlemail.com>
+Date: Wed, 7 Dec 2011 16:07:38 -0500
+Message-ID: <b92a2d1d30910b75f3354926d9fa26f6.squirrel@host171.canaca.com>
+References: <4EDFD23D.4030703@xenotime.net>
+    <1323290039-28073-1-git-send-email-dh.herrmann@googlemail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host171.canaca.com ([67.55.55.225]:36473 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757725Ab1LGVHl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Dec 2011 16:07:41 -0500
 In-Reply-To: <1323290039-28073-1-git-send-email-dh.herrmann@googlemail.com>
-Sender: linux-next-owner@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: linux-input@vger.kernel.org, linux-next@vger.kernel.org, jkosina@suse.cz, linux-kernel@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, rdunlap@xenotime.net, linux-next@vger.kernel.org, jkosina@suse.cz, linux-kernel@vger.kernel.org, David Herrmann <dh.herrmann@googlemail.com>
 
-On 12/07/2011 12:33 PM, David Herrmann wrote:
-> We depend on memless force-feedback support, therefore correctly select the
-> related config options.
-> 
-> Reported-by: Randy Dunlap <rdunlap@xenotime.net>
-> Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 
-Acked-by: Randy Dunlap <rdunlap@xenotime.net>
-
-Thanks.
-
-> ---
-> Hi Randy
-> 
-> Thanks for reporting this. This patch should fix this. I don't know whether such
-> fixes belong to stable tree, if they do, Jiri could you CC stable when applying
-> it?
-> 
-> Cheers
-> David
-> 
->  drivers/hid/Kconfig |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
-> 
 > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
 > index edf2b2b..dae04a0 100644
 > --- a/drivers/hid/Kconfig
@@ -48,9 +29,14 @@ Thanks.
 > +	select INPUT_FF_MEMLESS
 >  	---help---
 >  	Support for the Nintendo Wii Remote bluetooth device.
->  
 
+I don't mean to be a complainer, but shouldn't the WiiMote module depend
+on FF_MEMLESS rather than just forcing it on.
 
--- 
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+The module could also #define the appropriate bits so that FF_MEMLESS was
+only used when available, the rumble motor is a very small part of the
+WiiMote's feature set.
+
+Some people might not want FF_MEMLESS enabled.
+Simon.
+

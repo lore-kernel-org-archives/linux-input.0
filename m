@@ -1,57 +1,434 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/3 v2] usb/hid-core: drain URB queue when going to
- suspend
-Date: Wed, 7 Dec 2011 10:27:44 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1112071026440.21970@pobox.suse.cz>
-References: <1321529030-7845-1-git-send-email-djkurtz@chromium.org> <CAGS+omBvSWz4vBsMDkwk3oge_+k64tqSkrHyF5-C5_LZte_hDw@mail.gmail.com>
+From: <oskar.andero@sonyericsson.com>
+Subject: Re: [PATCH v5] input: add driver support for Sharp gp2ap002a00f
+ proximity sensor
+Date: Wed, 7 Dec 2011 10:53:09 +0100
+Message-ID: <20111207095309.GK18981@caracas.corpusers.net>
+References: <1322055635-3622-1-git-send-email-oskar.andero@sonyericsson.com>
+ <20111204082447.GA14593@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAGS+omBvSWz4vBsMDkwk3oge_+k64tqSkrHyF5-C5_LZte_hDw@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20111204082447.GA14593@core.coreip.homeip.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: oneukum@suse.de, bleung@chromium.org, stern@rowland.harvard.edu, olofj@chromium.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jic23@cam.ac.uk" <jic23@cam.ac.uk>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "Cavin, Courtney" <Courtney.Cavin@sonyericsson.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 7 Dec 2011, Daniel Kurtz wrote:
+On 09:24 Sun 04 Dec     , Dmitry Torokhov wrote:
+> Hi Oskar,
+> 
+> On Wed, Nov 23, 2011 at 02:40:35PM +0100, oskar.andero@sonyericsson.com wrote:
+> > From: Courtney Cavin <courtney.cavin@sonyericsson.com>
+> > 
+> > This driver adds support for Sharp's GP2AP002A00F proximity sensor. The
+> > proximity is measured as a binary switch, i.e. an object is either
+> > detected or not detected. Hence, this driver is implemented as a switch
+> > that reports SW_FRONT_PROXIMITY.
+> > 
+> 
+> I was looking at the driver before applying it to my tree and I realized
+> that there are a few issues I'd like to have fixed:
+> 
+> - we may exit suspend/resume methods with mutex held if enable/disable
+>   fails;
+> - we need to do gpio_regiest/gpio_free on the vout_gpio;
+> - the driver should depend on GENERIC_GPIO;
+> - we need to use the same "dev" when reporting errors/warnings and not
+>   mix up i2c_client->dev and input->dev;
+> - we need to set up client->dev as parent of our input device.
 
-> > In some situations, trying to suspend a laptop with an attached USB=
- keyboard
-> > would fail if both NumLock and CapsLock LEDs were lit.
-> > This was due to a race condition between asynchronously submitted
-> > LED-manipulating CTRL URBs and the suspend process.
-> >
-> > This is a different solution to the same problem highlighted here:
-> > https://lkml.org/lkml/2011/9/2/391
-> >
-> > These patches are against Jiri's hid/for-next branch.
-> >
-> > Daniel Kurtz (3):
-> > =A0HID: usbhid: remove LED_ON
-> > =A0HID: usbhid: hid-core: submit queued urbs before suspend
-> > =A0HID: usbhid: defer LED setting to a workqueue
-> >
-> > Differences since v1:
-> > =A0* Rebase on hid/for-next
-> > =A0* Solve race with usbhid_stop() [reported by Oliver Neukum]
-> >
->=20
-> Hi Jiri,
->=20
-> Any chance you can take a look at this patch set?
+That's great input Dmitry! Thanks!
 
-Hi Dan,
+> Does the patch below applied on top of your patch works for you?
 
-it's still in my queue, sorry for delay; it absolutely hasn't been lost=
-, I=20
-just haven't gotten to it yet.
+I applied it and did some testing last night and everything seems to be
+working as it should, so go right ahead!
 
-Oliver, did you have a chance to review it, please? I'd apprecite your=20
-eventual Ack on this.
+Thanks!
 
-Thanks,
+-Oskar
 
---=20
-Jiri Kosina
-SUSE Labs
+> 
+> Input: gp2ap002a00f - misc changes
+> 
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+> 
+>  drivers/input/misc/Kconfig        |   21 ++--
+>  drivers/input/misc/Makefile       |    2 
+>  drivers/input/misc/gp2ap002a00f.c |  174 +++++++++++++++++++------------------
+>  3 files changed, 101 insertions(+), 96 deletions(-)
+> 
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index a62fcdc..7b46781 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -179,6 +179,17 @@ config INPUT_APANEL
+>  	 To compile this driver as a module, choose M here: the module will
+>  	 be called apanel.
+>  
+> +config INPUT_GP2A
+> +	tristate "Sharp GP2AP002A00F I2C Proximity/Opto sensor driver"
+> +	depends on I2C
+> +	depends on GENERIC_GPIO
+> +	help
+> +	  Say Y here if you have a Sharp GP2AP002A00F proximity/als combo-chip
+> +	  hooked to an I2C bus.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called gp2ap002a00f.
+> +
+>  config INPUT_GPIO_TILT_POLLED
+>  	tristate "Polled GPIO tilt switch"
+>  	depends on GENERIC_GPIO
+> @@ -558,14 +569,4 @@ config INPUT_XEN_KBDDEV_FRONTEND
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called xen-kbdfront.
+>  
+> -config INPUT_GP2A
+> -	tristate "Sharp GP2AP002A00F I2C Proximity/Opto sensor driver"
+> -	depends on I2C
+> -	help
+> -	  Say Y here if you have a Sharp GP2AP002A00F proximity/als combo-chip
+> -	  hooked to an I2C bus.
+> -
+> -	  To compile this driver as a module, choose M here: the
+> -	  module will be called gp2ap002a00f.
+> -
+>  endif
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index dd99a75..46671a8 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -23,8 +23,8 @@ obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
+>  obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
+>  obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
+>  obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
+> -obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
+>  obj-$(CONFIG_INPUT_GPIO_TILT_POLLED)	+= gpio_tilt_polled.o
+> +obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
+>  obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
+>  obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
+>  obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
+> diff --git a/drivers/input/misc/gp2ap002a00f.c b/drivers/input/misc/gp2ap002a00f.c
+> index 5689a2b..71fba8c 100644
+> --- a/drivers/input/misc/gp2ap002a00f.c
+> +++ b/drivers/input/misc/gp2ap002a00f.c
+> @@ -20,7 +20,7 @@
+>  #include <linux/input/gp2ap002a00f.h>
+>  
+>  struct gp2a_data {
+> -	struct input_dev *device;
+> +	struct input_dev *input;
+>  	const struct gp2a_platform_data *pdata;
+>  	struct i2c_client *i2c_client;
+>  };
+> @@ -39,48 +39,12 @@ enum gp2a_controls {
+>  	GP2A_CTRL_SSD	= 0x01
+>  };
+>  
+> -static int gp2a_enable(struct gp2a_data *dt)
+> -{
+> -	return i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_OPMOD,
+> -					 GP2A_CTRL_SSD);
+> -}
+> -
+> -static int gp2a_disable(struct gp2a_data *dt)
+> -{
+> -	return i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_OPMOD,
+> -					 0x00);
+> -}
+> -
+> -static int __devinit gp2a_initialize(struct gp2a_data *dt)
+> -{
+> -	int error;
+> -
+> -	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_GAIN,
+> -					  0x08);
+> -	if (error < 0)
+> -		return error;
+> -
+> -	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_HYS,
+> -					  0xc2);
+> -	if (error < 0)
+> -		return error;
+> -
+> -	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_CYCLE,
+> -					  0x04);
+> -	if (error < 0)
+> -		return error;
+> -
+> -	error = gp2a_disable(dt);
+> -
+> -	return error;
+> -}
+> -
+>  static int gp2a_report(struct gp2a_data *dt)
+>  {
+>  	int vo = gpio_get_value(dt->pdata->vout_gpio);
+>  
+> -	input_report_switch(dt->device, SW_FRONT_PROXIMITY, !vo);
+> -	input_sync(dt->device);
+> +	input_report_switch(dt->input, SW_FRONT_PROXIMITY, !vo);
+> +	input_sync(dt->input);
+>  
+>  	return 0;
+>  }
+> @@ -94,6 +58,18 @@ static irqreturn_t gp2a_irq(int irq, void *handle)
+>  	return IRQ_HANDLED;
+>  }
+>  
+> +static int gp2a_enable(struct gp2a_data *dt)
+> +{
+> +	return i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_OPMOD,
+> +					 GP2A_CTRL_SSD);
+> +}
+> +
+> +static int gp2a_disable(struct gp2a_data *dt)
+> +{
+> +	return i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_OPMOD,
+> +					 0x00);
+> +}
+> +
+>  static int gp2a_device_open(struct input_dev *dev)
+>  {
+>  	struct gp2a_data *dt = input_get_drvdata(dev);
+> @@ -101,7 +77,8 @@ static int gp2a_device_open(struct input_dev *dev)
+>  
+>  	error = gp2a_enable(dt);
+>  	if (error < 0) {
+> -		dev_err(&dev->dev, "unable to activate, err %d\n", error);
+> +		dev_err(&dt->i2c_client->dev,
+> +			"unable to activate, err %d\n", error);
+>  		return error;
+>  	}
+>  
+> @@ -117,17 +94,41 @@ static void gp2a_device_close(struct input_dev *dev)
+>  
+>  	error = gp2a_disable(dt);
+>  	if (error < 0)
+> -		dev_err(&dev->dev, "unable to deactivate, err %d\n", error);
+> +		dev_err(&dt->i2c_client->dev,
+> +			"unable to deactivate, err %d\n", error);
+> +}
+> +
+> +static int __devinit gp2a_initialize(struct gp2a_data *dt)
+> +{
+> +	int error;
+> +
+> +	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_GAIN,
+> +					  0x08);
+> +	if (error < 0)
+> +		return error;
+> +
+> +	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_HYS,
+> +					  0xc2);
+> +	if (error < 0)
+> +		return error;
+> +
+> +	error = i2c_smbus_write_byte_data(dt->i2c_client, GP2A_ADDR_CYCLE,
+> +					  0x04);
+> +	if (error < 0)
+> +		return error;
+> +
+> +	error = gp2a_disable(dt);
+> +
+> +	return error;
+>  }
+>  
+>  static int __devinit gp2a_probe(struct i2c_client *client,
+>  				const struct i2c_device_id *id)
+>  {
+> -	const struct gp2a_platform_data *pdata;
+> +	const struct gp2a_platform_data *pdata = client->dev.platform_data;
+>  	struct gp2a_data *dt;
+>  	int error;
+>  
+> -	pdata = client->dev.platform_data;
+>  	if (!pdata)
+>  		return -EINVAL;
+>  
+> @@ -137,63 +138,67 @@ static int __devinit gp2a_probe(struct i2c_client *client,
+>  			return error;
+>  	}
+>  
+> -	error = gpio_direction_input(pdata->vout_gpio);
+> -	if (error < 0)
+> +	error = gpio_request_one(pdata->vout_gpio, GPIOF_IN, GP2A_I2C_NAME);
+> +	if (error)
+>  		goto err_hw_shutdown;
+>  
+>  	dt = kzalloc(sizeof(struct gp2a_data), GFP_KERNEL);
+>  	if (!dt) {
+>  		error = -ENOMEM;
+> -		goto err_hw_shutdown;
+> +		goto err_free_gpio;
+>  	}
+>  
+>  	dt->pdata = pdata;
+>  	dt->i2c_client = client;
+> -	i2c_set_clientdata(client, dt);
+>  
+>  	error = gp2a_initialize(dt);
+>  	if (error < 0)
+>  		goto err_free_mem;
+>  
+> -	dt->device = input_allocate_device();
+> -	if (!dt->device) {
+> +	dt->input = input_allocate_device();
+> +	if (!dt->input) {
+>  		error = -ENOMEM;
+>  		goto err_free_mem;
+>  	}
+> -	input_set_drvdata(dt->device, dt);
+>  
+> -	dt->device->open = gp2a_device_open;
+> -	dt->device->close = gp2a_device_close;
+> -	dt->device->name = GP2A_I2C_NAME;
+> -	dt->device->id.bustype = BUS_I2C;
+> +	input_set_drvdata(dt->input, dt);
+> +
+> +	dt->input->open = gp2a_device_open;
+> +	dt->input->close = gp2a_device_close;
+> +	dt->input->name = GP2A_I2C_NAME;
+> +	dt->input->id.bustype = BUS_I2C;
+> +	dt->input->dev.parent = &client->dev;
+>  
+> -	input_set_capability(dt->device, EV_SW, SW_FRONT_PROXIMITY);
+> +	input_set_capability(dt->input, EV_SW, SW_FRONT_PROXIMITY);
+>  
+> -	error = request_threaded_irq(client->irq, NULL,
+> -			gp2a_irq, IRQF_TRIGGER_RISING |
+> -			IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> +	error = request_threaded_irq(client->irq, NULL, gp2a_irq,
+> +			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING |
+> +				IRQF_ONESHOT,
+>  			GP2A_I2C_NAME, dt);
+>  	if (error) {
+>  		dev_err(&client->dev, "irq request failed\n");
+>  		goto err_free_input_dev;
+>  	}
+>  
+> -	error = input_register_device(dt->device);
+> +	error = input_register_device(dt->input);
+>  	if (error) {
+>  		dev_err(&client->dev, "device registration failed\n");
+>  		goto err_free_irq;
+>  	}
+>  
+>  	device_init_wakeup(&client->dev, pdata->wakeup);
+> +	i2c_set_clientdata(client, dt);
+>  
+>  	return 0;
+>  
+>  err_free_irq:
+>  	free_irq(client->irq, dt);
+>  err_free_input_dev:
+> -	input_free_device(dt->device);
+> +	input_free_device(dt->input);
+>  err_free_mem:
+>  	kfree(dt);
+> +err_free_gpio:
+> +	gpio_free(pdata->vout_gpio);
+>  err_hw_shutdown:
+>  	if (pdata->hw_shutdown)
+>  		pdata->hw_shutdown(client);
+> @@ -203,15 +208,20 @@ err_hw_shutdown:
+>  static int __devexit gp2a_remove(struct i2c_client *client)
+>  {
+>  	struct gp2a_data *dt = i2c_get_clientdata(client);
+> +	const struct gp2a_platform_data *pdata = dt->pdata;
+>  
+>  	device_init_wakeup(&client->dev, false);
+>  
+>  	free_irq(client->irq, dt);
+> -	input_unregister_device(dt->device);
+> -	if (dt->pdata->hw_shutdown)
+> -		dt->pdata->hw_shutdown(client);
+> +
+> +	input_unregister_device(dt->input);
+>  	kfree(dt);
+>  
+> +	gpio_free(pdata->vout_gpio);
+> +
+> +	if (pdata->hw_shutdown)
+> +		pdata->hw_shutdown(client);
+> +
+>  	return 0;
+>  }
+>  
+> @@ -220,42 +230,36 @@ static int gp2a_suspend(struct device *dev)
+>  {
+>  	struct i2c_client *client = to_i2c_client(dev);
+>  	struct gp2a_data *dt = i2c_get_clientdata(client);
+> -	int error;
+> -
+> -	mutex_lock(&dt->device->mutex);
+> +	int retval = 0;
+>  
+>  	if (device_may_wakeup(&client->dev)) {
+>  		enable_irq_wake(client->irq);
+> -	} else if (dt->device->users) {
+> -		error = gp2a_disable(dt);
+> -		if (error < 0)
+> -			return error;
+> +	} else {
+> +		mutex_lock(&dt->input->mutex);
+> +		if (dt->input->users)
+> +			retval = gp2a_disable(dt);
+> +		mutex_unlock(&dt->input->mutex);
+>  	}
+>  
+> -	mutex_unlock(&dt->device->mutex);
+> -
+> -	return 0;
+> +	return retval;
+>  }
+>  
+>  static int gp2a_resume(struct device *dev)
+>  {
+>  	struct i2c_client *client = to_i2c_client(dev);
+>  	struct gp2a_data *dt = i2c_get_clientdata(client);
+> -	int error;
+> -
+> -	mutex_lock(&dt->device->mutex);
+> +	int retval = 0;
+>  
+>  	if (device_may_wakeup(&client->dev)) {
+>  		disable_irq_wake(client->irq);
+> -	} else if (dt->device->users) {
+> -		error = gp2a_enable(dt);
+> -		if (error < 0)
+> -			return error;
+> +	} else {
+> +		mutex_lock(&dt->input->mutex);
+> +		if (dt->input->users)
+> +			retval = gp2a_enable(dt);
+> +		mutex_unlock(&dt->input->mutex);
+>  	}
+>  
+> -	mutex_unlock(&dt->device->mutex);
+> -
+> -	return 0;
+> +	return retval;
+>  }
+>  #endif
+>  
+> @@ -270,11 +274,11 @@ static struct i2c_driver gp2a_i2c_driver = {
+>  	.driver = {
+>  		.name	= GP2A_I2C_NAME,
+>  		.owner	= THIS_MODULE,
+> -		.pm	= &gp2a_pm
+> +		.pm	= &gp2a_pm,
+>  	},
+>  	.probe		= gp2a_probe,
+>  	.remove		= __devexit_p(gp2a_remove),
+> -	.id_table	= gp2a_i2c_id
+> +	.id_table	= gp2a_i2c_id,
+>  };
+>  
+>  static int __init gp2a_init(void)

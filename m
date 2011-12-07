@@ -1,123 +1,80 @@
-From: Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH v2] Driver for AUO In-Cell touchscreens using pixcir ICs
-Date: Wed, 7 Dec 2011 15:31:20 +0100
-Message-ID: <201112071531.21157.heiko@sntech.de>
-References: <201112052105.31757.heiko@sntech.de> <20111206055637.GB21617@core.coreip.homeip.net>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH] Input: wacom - add product id used by Samsung Slate 7
+Date: Wed, 7 Dec 2011 06:56:47 -0800
+Message-ID: <CAF8JNhJznE_N0vCpHV+SasW8VJ-zGoO8B9HXgMHwZR3BWZZjNw@mail.gmail.com>
+References: <1323228457-18735-1-git-send-email-chris@cnpbagwell.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from h1778886.stratoserver.net ([85.214.133.74]:47022 "EHLO
-	h1778886.stratoserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756064Ab1LGObY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Dec 2011 09:31:24 -0500
-In-Reply-To: <20111206055637.GB21617@core.coreip.homeip.net>
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:51208 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756255Ab1LGO4s convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Dec 2011 09:56:48 -0500
+Received: by ghbz2 with SMTP id z2so559851ghb.19
+        for <linux-input@vger.kernel.org>; Wed, 07 Dec 2011 06:56:47 -0800 (PST)
+In-Reply-To: <1323228457-18735-1-git-send-email-chris@cnpbagwell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: chris@cnpbagwell.com
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, stable@kernel.org, mail@harveybraun.com
 
-Hi Dmitry,
+On Tue, Dec 6, 2011 at 7:27 PM,  <chris@cnpbagwell.com> wrote:
+> From: Chris Bagwell <chris@cnpbagwell.com>
+>
+> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
 
-thanks for the review
+Acked-by: Ping Cheng <pinglinux@gmail.com>
 
-Am Dienstag, 6. Dezember 2011, 06:56:37 schrieb Dmitry Torokhov:
-> On Mon, Dec 05, 2011 at 09:05:30PM +0100, Heiko St=FCbner wrote:
-> > Some displays from AUO have a so called in-cell touchscreen, meanin=
-g it
-> > is built directly into the display unit.
-> >=20
-> > Touchdata is gathered through PIXCIR Tango-ICs and processed in an
-> > Atmel ATmega168P with custom firmware. Communication between the ho=
-st
-> > system and ATmega is done via I2C.
-> >=20
-> > Devices using this touch solution include the Dell Streak5 and the =
-family
-> > of Qisda ebook readers.
-> >=20
-> > The driver reports single- and multi-touch events including touch a=
-rea
-> > values.
-> >=20
-> > Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-> > ---
-> > changes since v1: address comments from Christoph Fritz
-> > (wrong type for error checks, wrong call to input_free_device)
-> >=20
-> >  drivers/input/touchscreen/Kconfig         |   14 +
-> >  drivers/input/touchscreen/Makefile        |    1 +
-> >  drivers/input/touchscreen/auo-pixcir-ts.c |  656
-> >  +++++++++++++++++++++++++++++ include/linux/input/auo-pixcir-ts.h =
-    =20
-> >  |   57 +++
-> >  4 files changed, 728 insertions(+), 0 deletions(-)
-> >  create mode 100644 drivers/input/touchscreen/auo-pixcir-ts.c
-> >  create mode 100644 include/linux/input/auo-pixcir-ts.h
-> >=20
+Thank you, Chris.
 
-[ ... small corrections, thanks for finding them ... ]
+Ping
 
-> > +
-> > +		for (i =3D 0; i < AUO_PIXCIR_REPORT_POINTS; i++) {
-> > +			if (point[i].coord_x > 0 || point[i].coord_y > 0) {
-> > +				input_report_abs(ts->input, ABS_MT_POSITION_X,
-> > +						 point[i].coord_x);
-> > +				input_report_abs(ts->input, ABS_MT_POSITION_Y,
-> > +						 point[i].coord_y);
-> > +				input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR,
-> > +						 point[i].area_major);
-> > +				input_report_abs(ts->input, ABS_MT_TOUCH_MINOR,
-> > +						 point[i].area_minor);
-> > +				input_report_abs(ts->input, ABS_MT_ORIENTATION,
-> > +						 point[i].orientation);
-> > +				input_mt_sync(ts->input);
->=20
-> Is there a way to track the contacts and switch to protocol B by any
-> chance?
-I'm not sure, but will check how the device handles changing the number=
- of=20
-touching fingers and if it would be possible to switch.
-
-> > +
-> > +				/* use first finger as source for singletouch */
-> > +				if (fingers =3D=3D 0)
-> > +					abs =3D i;
-> > +
-> > +				/* number of touch points could also be queried
-> > +				 * via i2c but would require an additional call
-> > +				 */
-> > +				fingers++;
-> > +			}
-> > +		}
-
-[ ... more small stuff for me to fix ... ]
-
-> > +
-> > +	ret =3D input_register_device(input_dev);
-> > +	if (ret) {
-> > +		dev_err(&client->dev, "could not register input device\n");
-> > +		goto err_input_register;
-> > +	}
-> > +
-> > +	input_set_drvdata(ts->input, ts);
->=20
-> Just do this earlier and then auo_pixcir_stop() is enough, you won't
-> need to call auo_pixcir_int_enable() before registering IRQ.
-
-Just to be sure, you mean moving the input_set_drvdata before the irq-
-registration?
-
-> > +
-> > +	i2c_set_clientdata(client, ts);
-> > +
-> > +	return 0;
-> > +
-
-[ ... and still more small stuff ]
-
-Thanks
-Heiko
+> ---
+>
+> New product ID reported by Harvey Braun on linuxwacom mailing list
+> and also tested this patch with new hardware. Link to report plus
+> results:
+>
+> http://sourceforge.net/mailarchive/forum.php?thread_name=3DCAGzDe_bTo=
+DXsztnDsyPiVAmEKXd60aG2zA2%2BTCf3M_X6Z%2BLtTg%40mail.gmail.com&forum_na=
+me=3Dlinuxwacom-discuss
+>
+> =A0drivers/input/tablet/wacom_wac.c | =A0 =A04 ++++
+> =A01 files changed, 4 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/=
+wacom_wac.c
+> index da0d876..2ee47d0 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -1470,6 +1470,9 @@ static const struct wacom_features wacom_featur=
+es_0xE3 =3D
+> =A0static const struct wacom_features wacom_features_0xE6 =3D
+> =A0 =A0 =A0 =A0{ "Wacom ISDv4 E6", =A0 =A0 =A0 WACOM_PKGLEN_TPC2FG, =A0=
+ =A027760, 15694, =A0255,
+> =A0 =A0 =A0 =A0 =A00, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES=
+ };
+> +static const struct wacom_features wacom_features_0xEC =3D
+> + =A0 =A0 =A0 { "Wacom ISDv4 EC", =A0 =A0 =A0 WACOM_PKGLEN_GRAPHIRE, =
+=A025710, 14500, =A0255,
+> + =A0 =A0 =A0 =A0 0, TABLETPC, =A0 =A0WACOM_INTUOS_RES, WACOM_INTUOS_=
+RES };
+> =A0static const struct wacom_features wacom_features_0x47 =3D
+> =A0 =A0 =A0 =A0{ "Wacom Intuos2 6x8", =A0 =A0WACOM_PKGLEN_INTUOS, =A0=
+ =A020320, 16240, 1023,
+> =A0 =A0 =A0 =A0 =A031, INTUOS, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+> @@ -1611,6 +1614,7 @@ const struct usb_device_id wacom_ids[] =3D {
+> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xE2) },
+> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xE3) },
+> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xE6) },
+> + =A0 =A0 =A0 { USB_DEVICE_WACOM(0xEC) },
+> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0x47) },
+> =A0 =A0 =A0 =A0{ USB_DEVICE_LENOVO(0x6004) },
+> =A0 =A0 =A0 =A0{ }
+> --
+> 1.7.7.4
+>
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

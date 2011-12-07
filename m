@@ -1,82 +1,99 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH] Input: wacom - add product id used by Samsung Slate 7
-Date: Wed, 7 Dec 2011 06:56:47 -0800
-Message-ID: <CAF8JNhJznE_N0vCpHV+SasW8VJ-zGoO8B9HXgMHwZR3BWZZjNw@mail.gmail.com>
-References: <1323228457-18735-1-git-send-email-chris@cnpbagwell.com>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [GIT PULL RFC] directly poll battery strength when reading power_supply
+Date: Wed, 07 Dec 2011 09:25:38 -0800
+Message-ID: <4EDFA192.7000602@goop.org>
+References: <4EC75224.7070207@goop.org> <alpine.LNX.2.00.1111191212140.15187@pobox.suse.cz> <4EC820F8.4070900@goop.org> <alpine.LNX.2.00.1111201110480.15187@pobox.suse.cz> <4ECA7E7D.80207@goop.org> <alpine.LNX.2.00.1111220028130.28728@pobox.suse.cz> <4ECAE019.4000409@goop.org> <alpine.LNX.2.00.1111220049470.28728@pobox.suse.cz> <4ECCB38A.8000503@goop.org> <alpine.LNX.2.00.1111281111510.15446@pobox.suse.cz> <CACo8zOd45i3EnCVMyJoDPP4bx2AnD9mEjDiC=bJKvmX=TWfXGg@mail.gmail.com> <4ED90E6D.8090402@goop.org> <CACo8zOcvKwr0wDkytvJfqyx4kV0ceYyCt+qnDqiSgxNywpzeHg@mail.gmail.com> <4ED9BDF8.3010600@goop.org> <CAD2FfiE-rg-1bMmVpYzBhnQcBMKKKO4WPnu0bvx+pvdFnpARrQ@mail.gmail.com> <4EDE4C7A.1010802@goop.org> <CAD2FfiHWuEmVTa54YqfJDk5zHpSQuM_nwPT=mR6NoWpajpydpg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:51208 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756255Ab1LGO4s convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Dec 2011 09:56:48 -0500
-Received: by ghbz2 with SMTP id z2so559851ghb.19
-        for <linux-input@vger.kernel.org>; Wed, 07 Dec 2011 06:56:47 -0800 (PST)
-In-Reply-To: <1323228457-18735-1-git-send-email-chris@cnpbagwell.com>
+Received: from claw.goop.org ([74.207.240.146]:57632 "EHLO claw.goop.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755166Ab1LGRZn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 7 Dec 2011 12:25:43 -0500
+In-Reply-To: <CAD2FfiHWuEmVTa54YqfJDk5zHpSQuM_nwPT=mR6NoWpajpydpg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: chris@cnpbagwell.com
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, stable@kernel.org, mail@harveybraun.com
+To: Richard Hughes <hughsient@gmail.com>
+Cc: Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, vojtech@ucw.cz, Przemo Firszt <przemo@firszt.eu>, Richard Hughes <richard@hughsie.com>, Anton Vorontsov <cbou@mail.ru>, David Woodhouse <dwmw2@infradead.org>
 
-On Tue, Dec 6, 2011 at 7:27 PM,  <chris@cnpbagwell.com> wrote:
-> From: Chris Bagwell <chris@cnpbagwell.com>
->
-> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+On 12/07/2011 04:51 AM, Richard Hughes wrote:
+> On 6 December 2011 17:10, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>> Something like  HID UPS would appear to be in the middle of the USB
+>> devices, but actually powers the whole machine (or more).
+> Right, although I think we still need an explicit
+> "is_powering_computer" flag or something exposed to userspace
+> ortherwise we're back to heuristics and hand coded quirks.
 
-Acked-by: Ping Cheng <pinglinux@gmail.com>
+Something like this?
 
-Thank you, Chris.
-
-Ping
-
-> ---
->
-> New product ID reported by Harvey Braun on linuxwacom mailing list
-> and also tested this patch with new hardware. Link to report plus
-> results:
->
-> http://sourceforge.net/mailarchive/forum.php?thread_name=3DCAGzDe_bTo=
-DXsztnDsyPiVAmEKXd60aG2zA2%2BTCf3M_X6Z%2BLtTg%40mail.gmail.com&forum_na=
-me=3Dlinuxwacom-discuss
->
-> =A0drivers/input/tablet/wacom_wac.c | =A0 =A04 ++++
-> =A01 files changed, 4 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/=
-wacom_wac.c
-> index da0d876..2ee47d0 100644
-> --- a/drivers/input/tablet/wacom_wac.c
-> +++ b/drivers/input/tablet/wacom_wac.c
-> @@ -1470,6 +1470,9 @@ static const struct wacom_features wacom_featur=
-es_0xE3 =3D
-> =A0static const struct wacom_features wacom_features_0xE6 =3D
-> =A0 =A0 =A0 =A0{ "Wacom ISDv4 E6", =A0 =A0 =A0 WACOM_PKGLEN_TPC2FG, =A0=
- =A027760, 15694, =A0255,
-> =A0 =A0 =A0 =A0 =A00, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES=
+diff --git a/drivers/power/power_supply_sysfs.c b/drivers/power/power_supply_sysfs.c
+index e15d4c9..21178eb 100644
+--- a/drivers/power/power_supply_sysfs.c
++++ b/drivers/power/power_supply_sysfs.c
+@@ -63,6 +63,9 @@ static ssize_t power_supply_show_property(struct device *dev,
+ 	static char *capacity_level_text[] = {
+ 		"Unknown", "Critical", "Low", "Normal", "High", "Full"
+ 	};
++	static char *scope_text[] = {
++		"Unknown", "System", "Device"
++	};
+ 	ssize_t ret = 0;
+ 	struct power_supply *psy = dev_get_drvdata(dev);
+ 	const ptrdiff_t off = attr - power_supply_attrs;
+@@ -95,6 +98,8 @@ static ssize_t power_supply_show_property(struct device *dev,
+ 		return sprintf(buf, "%s\n", capacity_level_text[value.intval]);
+ 	else if (off == POWER_SUPPLY_PROP_TYPE)
+ 		return sprintf(buf, "%s\n", type_text[value.intval]);
++	else if (off == POWER_SUPPLY_PROP_SCOPE)
++		return sprintf(buf, "%s\n", scope_text[value.intval]);
+ 	else if (off >= POWER_SUPPLY_PROP_MODEL_NAME)
+ 		return sprintf(buf, "%s\n", value.strval);
+ 
+@@ -167,6 +172,7 @@ static struct device_attribute power_supply_attrs[] = {
+ 	POWER_SUPPLY_ATTR(time_to_full_now),
+ 	POWER_SUPPLY_ATTR(time_to_full_avg),
+ 	POWER_SUPPLY_ATTR(type),
++	POWER_SUPPLY_ATTR(scope),
+ 	/* Properties of type `const char *' */
+ 	POWER_SUPPLY_ATTR(model_name),
+ 	POWER_SUPPLY_ATTR(manufacturer),
+diff --git a/include/linux/power_supply.h b/include/linux/power_supply.h
+index a28f2df..2e3c827 100644
+--- a/include/linux/power_supply.h
++++ b/include/linux/power_supply.h
+@@ -74,6 +74,12 @@ enum {
+ 	POWER_SUPPLY_CAPACITY_LEVEL_FULL,
  };
-> +static const struct wacom_features wacom_features_0xEC =3D
-> + =A0 =A0 =A0 { "Wacom ISDv4 EC", =A0 =A0 =A0 WACOM_PKGLEN_GRAPHIRE, =
-=A025710, 14500, =A0255,
-> + =A0 =A0 =A0 =A0 0, TABLETPC, =A0 =A0WACOM_INTUOS_RES, WACOM_INTUOS_=
-RES };
-> =A0static const struct wacom_features wacom_features_0x47 =3D
-> =A0 =A0 =A0 =A0{ "Wacom Intuos2 6x8", =A0 =A0WACOM_PKGLEN_INTUOS, =A0=
- =A020320, 16240, 1023,
-> =A0 =A0 =A0 =A0 =A031, INTUOS, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-> @@ -1611,6 +1614,7 @@ const struct usb_device_id wacom_ids[] =3D {
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xE2) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xE3) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xE6) },
-> + =A0 =A0 =A0 { USB_DEVICE_WACOM(0xEC) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0x47) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_LENOVO(0x6004) },
-> =A0 =A0 =A0 =A0{ }
-> --
-> 1.7.7.4
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ 
++enum {
++	POWER_SUPPLY_SCOPE_UNKNOWN = 0,
++	POWER_SUPPLY_SCOPE_SYSTEM,
++	POWER_SUPPLY_SCOPE_DEVICE,
++};
++
+ enum power_supply_property {
+ 	/* Properties of type `int' */
+ 	POWER_SUPPLY_PROP_STATUS = 0,
+@@ -116,6 +122,7 @@ enum power_supply_property {
+ 	POWER_SUPPLY_PROP_TIME_TO_FULL_NOW,
+ 	POWER_SUPPLY_PROP_TIME_TO_FULL_AVG,
+ 	POWER_SUPPLY_PROP_TYPE, /* use power_supply.type instead */
++	POWER_SUPPLY_PROP_SCOPE,
+ 	/* Properties of type `const char *' */
+ 	POWER_SUPPLY_PROP_MODEL_NAME,
+ 	POWER_SUPPLY_PROP_MANUFACTURER,
+
+
+>> And if the device being pointed to is a mouse, then upower knows its
+>> powering a mouse.
+> Define "mouse" -- an input devices with two axis? I think an explicit
+> type might be clearer.
+
+Well, what are you really trying to represent?  Is it enough for upower
+to say "here are some devices with batteries, this is everything I know
+about them", and let its clients work out what they really are?  Does
+upower need to work out what kind of device it is?
+
+Thanks,
+    J

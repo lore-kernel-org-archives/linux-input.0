@@ -1,13 +1,13 @@
 From: JJ Ding <jj_ding@emc.com.tw>
-Subject: [RFC PATCH 1/2] Input: psmouse - work around EC buffer
-Date: Wed,  7 Dec 2011 19:38:43 +0800
-Message-ID: <1323257924-12773-2-git-send-email-jj_ding@emc.com.tw>
+Subject: [RFC PATCH 2/2] Input: elantech - convert v1 ~ v3 hardware to use PSMOUSE_SHIFT_PACKET
+Date: Wed,  7 Dec 2011 19:38:44 +0800
+Message-ID: <1323257924-12773-3-git-send-email-jj_ding@emc.com.tw>
 References: <1323257924-12773-1-git-send-email-jj_ding@emc.com.tw>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from emcscan.emc.com.tw ([192.72.220.5]:15410 "EHLO
 	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754992Ab1LGLkY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Dec 2011 06:40:24 -0500
+	with ESMTP id S1755139Ab1LGLk3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Dec 2011 06:40:29 -0500
 In-Reply-To: <1323257924-12773-1-git-send-email-jj_ding@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -16,49 +16,45 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, JJ Ding <jj_ding@emc.com.tw>, J
 
 From: JJ Ding <dgdunix@gmail.com>
 
-With some EC chips, when we resync due to bad packets, those bad bytes would
-still remain in EC's buffer area. That makes us always get bad data back,
-no matter what.
-
-So shift packet for 1 byte when encounter bad packet, until we get rid of
-those bytes.
+This makes the driver resemble the bebavior documented in
+Documentation/input/elantech.txt
 
 Signed-off-by: JJ Ding <dgdunix@gmail.com>
 ---
- drivers/input/mouse/psmouse-base.c |    5 +++++
- drivers/input/mouse/psmouse.h      |    3 ++-
- 2 files changed, 7 insertions(+), 1 deletions(-)
+ drivers/input/mouse/elantech.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index 200be9c..b849cec 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -279,6 +279,11 @@ static int psmouse_handle_byte(struct psmouse *psmouse)
- 		}
- 		break;
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index d2c0db1..674cd78 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -728,7 +728,7 @@ static psmouse_ret_t elantech_process_byte(struct psmouse *psmouse)
+ 	switch (etd->hw_version) {
+ 	case 1:
+ 		if (etd->paritycheck && !elantech_packet_check_v1(psmouse))
+-			return PSMOUSE_BAD_DATA;
++			return PSMOUSE_SHIFT_PACKET;
  
-+	case PSMOUSE_SHIFT_PACKET:
-+		memmove(psmouse->packet, psmouse->packet + 1, psmouse->pktsize - 1);
-+		psmouse->pktcnt--;
-+		break;
-+
- 	case PSMOUSE_GOOD_DATA:
+ 		elantech_report_absolute_v1(psmouse);
  		break;
- 	}
-diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-index 6a41709..1742c1b 100644
---- a/drivers/input/mouse/psmouse.h
-+++ b/drivers/input/mouse/psmouse.h
-@@ -33,7 +33,8 @@ enum psmouse_state {
- typedef enum {
- 	PSMOUSE_BAD_DATA,
- 	PSMOUSE_GOOD_DATA,
--	PSMOUSE_FULL_PACKET
-+	PSMOUSE_FULL_PACKET,
-+	PSMOUSE_SHIFT_PACKET
- } psmouse_ret_t;
+@@ -739,7 +739,7 @@ static psmouse_ret_t elantech_process_byte(struct psmouse *psmouse)
+ 			return PSMOUSE_FULL_PACKET;
  
- struct psmouse {
+ 		if (etd->paritycheck && !elantech_packet_check_v2(psmouse))
+-			return PSMOUSE_BAD_DATA;
++			return PSMOUSE_SHIFT_PACKET;
+ 
+ 		elantech_report_absolute_v2(psmouse);
+ 		break;
+@@ -751,7 +751,7 @@ static psmouse_ret_t elantech_process_byte(struct psmouse *psmouse)
+ 			return PSMOUSE_FULL_PACKET;
+ 
+ 		if (packet_type == PACKET_UNKNOWN)
+-			return PSMOUSE_BAD_DATA;
++			return PSMOUSE_SHIFT_PACKET;
+ 
+ 		elantech_report_absolute_v3(psmouse, packet_type);
+ 		break;
 -- 
 1.7.8
 

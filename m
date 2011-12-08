@@ -1,77 +1,73 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [GIT PULL] power_supply: add power supply scope
-Date: Thu, 08 Dec 2011 08:53:15 -0800
-Message-ID: <4EE0EB7B.6060807@goop.org>
-References: <CACo8zOd45i3EnCVMyJoDPP4bx2AnD9mEjDiC=bJKvmX=TWfXGg@mail.gmail.com> <4ED90E6D.8090402@goop.org> <CACo8zOcvKwr0wDkytvJfqyx4kV0ceYyCt+qnDqiSgxNywpzeHg@mail.gmail.com> <4ED9BDF8.3010600@goop.org> <CAD2FfiE-rg-1bMmVpYzBhnQcBMKKKO4WPnu0bvx+pvdFnpARrQ@mail.gmail.com> <4EDE4C7A.1010802@goop.org> <CAD2FfiHWuEmVTa54YqfJDk5zHpSQuM_nwPT=mR6NoWpajpydpg@mail.gmail.com> <4EDFA192.7000602@goop.org> <CAD2FfiF+fVoLPWpPyGGKdnoGhx1f=Loh2Ju-vdU58Y=2kf6C3g@mail.gmail.com> <4EE015D1.5070005@goop.org> <20111208104127.GA1753@oksana.dev.rtsoft.ru>
+From: Sean Young <sean@mess.org>
+Subject: Re: [PATCH] HID: wiimote: Select INPUT_FF_MEMLESS
+Date: Thu, 8 Dec 2011 22:43:23 +0000
+Message-ID: <20111208224323.GA29342@pip.mess.org>
+References: <4EDFD23D.4030703@xenotime.net>
+ <1323290039-28073-1-git-send-email-dh.herrmann@googlemail.com>
+ <b92a2d1d30910b75f3354926d9fa26f6.squirrel@host171.canaca.com>
+ <CANq1E4T6uoezonoaBk6agD4-6A7QMSiP0ySDPg+5r50G8LYWTA@mail.gmail.com>
+ <80063840e8a9778675e9a63db6f1d956.squirrel@host171.canaca.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from claw.goop.org ([74.207.240.146]:60210 "EHLO claw.goop.org"
+Received: from pip.mess.org ([212.110.186.137]:43109 "EHLO pip.mess.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752138Ab1LHQxU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 8 Dec 2011 11:53:20 -0500
-In-Reply-To: <20111208104127.GA1753@oksana.dev.rtsoft.ru>
+	id S1751938Ab1LHWnZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 Dec 2011 17:43:25 -0500
+Content-Disposition: inline
+In-Reply-To: <80063840e8a9778675e9a63db6f1d956.squirrel@host171.canaca.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anton Vorontsov <cbouatmailru@gmail.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Hughes <hughsient@gmail.com>, Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, vojtech@ucw.cz, Przemo Firszt <przemo@firszt.eu>, Richard Hughes <richard@hughsie.com>
+To: simon@mungewell.org
+Cc: David Herrmann <dh.herrmann@googlemail.com>, linux-input@vger.kernel.org, rdunlap@xenotime.net, linux-next@vger.kernel.org, jkosina@suse.cz, linux-kernel@vger.kernel.org
 
-On 12/08/2011 02:41 AM, Anton Vorontsov wrote:
-> On Wed, Dec 07, 2011 at 05:41:37PM -0800, Jeremy Fitzhardinge wrote:
-> [...]
->> diff --git a/drivers/acpi/ac.c b/drivers/acpi/ac.c
->> index 6512b20..ec36c82 100644
->> --- a/drivers/acpi/ac.c
->> +++ b/drivers/acpi/ac.c
->> @@ -142,6 +142,9 @@ static int get_ac_property(struct power_supply *psy,
->>  	case POWER_SUPPLY_PROP_ONLINE:
->>  		val->intval = ac->state;
->>  		break;
->> +	case POWER_SUPPLY_PROP_SCOPE:
->> +		val->intval = POWER_SUPPLY_SCOPE_SYSTEM;
->> +		break;
->>  	default:
->>  		return -EINVAL;
->>  	}
-> Mm... how about the rest of the drivers? I.e. drivers/power/*battery.c?
->
-> I think it's not a great idea to patch every driver, would be better to make
-> it similar to how we handle power_supply.type (w/ default value 'SYSTEM').
+On Thu, Dec 08, 2011 at 11:23:26AM -0500, simon@mungewell.org wrote:
+> 
+> >> I don't mean to be a complainer, but shouldn't the WiiMote module depend
+> >> on FF_MEMLESS rather than just forcing it on.
+> > > > I have considered that but "grep -r FF_MEMLESS" returned no other
+> > driver using "depend" so I decided to use "select", too.
+> 
+> If you look at 'Kconfig' every other driver is fragmented into a 'driver'
+> and 'driver_ff', it is only the 'driver_ff' bit which does the
+> force-feedback and all the 'drivers' would appear to work OK (as pure
+> input devices) with FF disabled.
 
-Yes.  That patch was mostly so I could test the mechanism.  Certainly
-general rule is that if there's no scope attribute then assume System.
+Which also requires these drivers to have #ifdef's in their code, they
+would be much cleaner without those.
 
-> But, thinking more about it... personally, from the ABI point of view, I'd
-> like to just see some kind of 'supplicants' directory in the power_supply
-> instances, with symlinks to an appropriate devices.
+> Someone here will be able to comment whether that is policy, convention or
+> just historic....
+> 
+> >> Some people might not want FF_MEMLESS enabled.
+> >
+> > Why? It is a really small feature that depends only on CONFIG_INPUT.
+> > Just 600 lines of code. I don't see why someone who wants to enable
+> > the way bigger wiimote driver and HID core would bother about
+> > FF_MEMLESS? Why should someone want to disable the rumble-feature of
+> > the wiimote?
+> 
+> 600 lines where? What's the other costs to the system when enabling the FF
+> code in the kernel.
 
-Yes, that was my first proposal, and I have a patch to allow Device
-scope power supplies to indicate which "device" it is (which may be a
-root of a subtree of devices).  I'm not too sure about making it
-multiple devices; at that point I'd be tempted to introduce the notion
-of a "power bus" which points to multiple devices and make power
-supplies point to that.
+There is just ff-memless.c which will be compiled into a module (unless 
+not configured to so of of course), which is less than 600 lines including 
+comments. Nothing else changes.
 
-> I.e.
-> /sys/class/power_supply/battery/supplicants/<device_name>
-> is a symlink to /sys/class/HID/.../device.
->
-> With a special meaning of an empty directory (or non-existent, or w/ a
-> symlink pointing to '/sys/devices/system') -- system power.
+The fact that these drivers can be built without force feedback enabled 
+is an analomy. If every feature a piece of hardware provides were 
+configurable with #ifdef's, the code would not be very maintainable.
 
-Yes.  That's awkward to implement because the kobj isn't exported from
-device/base.  But aside from that, its a somewhat awkward interface for
-usermode, because it has to end up following symlink and resolving their
-paths, and then having special hardcoded knowledge of what particular
-paths mean.  When all upower really wants to know is "do I need to
-suspend when this supply gets low?".
+> > I cannot see any real use-case here. Maybe you can explain a bit more.
+> 
+> Again I'm not here to kick up a fuss; it just looked different from the
+> norm, so I was flagging it.
 
-> That way we may describe any possible power hierarchy.
->
-> From the implementation point of view, for now power_supply may just
-> conditionally (by introducing power_supply.not_system_power flag)
+I guess once upon time people considered force feedback not useful enough
+to compile in.
 
-How is that different from scope?
+I'm hoping that patches for removing the CONFIG_*_FF #ifdefs would be 
+accepted.
 
-    J
+
+Sean

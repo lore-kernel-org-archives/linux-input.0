@@ -1,58 +1,58 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [GIT PULL RFC] directly poll battery strength when reading power_supply
-Date: Wed, 07 Dec 2011 17:56:06 -0800
-Message-ID: <4EE01936.70807@goop.org>
-References: <4EC75224.7070207@goop.org> <alpine.LNX.2.00.1111191212140.15187@pobox.suse.cz> <4EC820F8.4070900@goop.org> <alpine.LNX.2.00.1111201110480.15187@pobox.suse.cz> <4ECA7E7D.80207@goop.org> <alpine.LNX.2.00.1111220028130.28728@pobox.suse.cz> <4ECAE019.4000409@goop.org> <alpine.LNX.2.00.1111220049470.28728@pobox.suse.cz> <4ECCB38A.8000503@goop.org> <alpine.LNX.2.00.1111281111510.15446@pobox.suse.cz> <CACo8zOd45i3EnCVMyJoDPP4bx2AnD9mEjDiC=bJKvmX=TWfXGg@mail.gmail.com> <4ED90E6D.8090402@goop.org> <CACo8zOcvKwr0wDkytvJfqyx4kV0ceYyCt+qnDqiSgxNywpzeHg@mail.gmail.com> <4ED9BDF8.3010600@goop.org> <alpine.LNX.2.00.1112061016020.18207@pobox.suse.cz>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: [PATCH] HID: wiimote: Select INPUT_FF_MEMLESS
+Date: Thu, 8 Dec 2011 09:31:20 +0100
+Message-ID: <CANq1E4T6uoezonoaBk6agD4-6A7QMSiP0ySDPg+5r50G8LYWTA@mail.gmail.com>
+References: <4EDFD23D.4030703@xenotime.net>
+	<1323290039-28073-1-git-send-email-dh.herrmann@googlemail.com>
+	<b92a2d1d30910b75f3354926d9fa26f6.squirrel@host171.canaca.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from claw.goop.org ([74.207.240.146]:58610 "EHLO claw.goop.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756792Ab1LHCHC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 7 Dec 2011 21:07:02 -0500
-In-Reply-To: <alpine.LNX.2.00.1112061016020.18207@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <b92a2d1d30910b75f3354926d9fa26f6.squirrel@host171.canaca.com>
+Sender: linux-next-owner@vger.kernel.org
+To: simon@mungewell.org
+Cc: linux-input@vger.kernel.org, rdunlap@xenotime.net, linux-next@vger.kernel.org, jkosina@suse.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org, vojtech@ucw.cz, Przemo Firszt <przemo@firszt.eu>, Richard Hughes <richard@hughsie.com>
 
-On 12/06/2011 01:17 AM, Jiri Kosina wrote:
-> On Fri, 2 Dec 2011, Jeremy Fitzhardinge wrote:
+On Wed, Dec 7, 2011 at 10:07 PM,  <simon@mungewell.org> wrote:
 >
->> This series of patches includes Daniel's patch to directly poll for the battery strength rather than
->> hoping the device will happen to send it, along with some cleanup patches from me.
->>
->> The only functional change I made from Daniel's patch is keeping the 
->> power_supply type as BATTERY rather than USB.
->>
->> 	J
->>
->> The following changes since commit 1b2bdc70c10f9bf1455ea76a558261d7431b533c:
->>
->>   hid-input: add support for HID devices reporting Battery Strength (2011-11-23 00:38:25 -0800)
->>
->> are available in the git repository at:
->>   git://git.kernel.org/pub/scm/linux/kernel/git/jeremy/xen.git hid-battery
->>
->> Daniel Nicoletti (1):
->>       hid-input: add support for HID devices reporting Battery Strength
->>
->> Jeremy Fitzhardinge (7):
->>       hid-input: fix compile for !HID_BATTERY_STRENGTH
->>       hid-input/battery: remove apparently redundant kmalloc
->>       hid-input/battery: add quirks for battery
->>       hid-input/battery: deal with both FEATURE and INPUT report batteries
->>       hid-input/battery: make the battery setup common for INPUTs and FEATUREs
->>       hid-input/battery: power-supply type really *is* a battery
->>       hid-input/battery: remove battery_val
-> I actually like the series. The only objection I'd have is that Daniel's 
-> patch is not properly Signed-off-by:, and therefore I am not pulling it 
-> now.
+>> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+>> index edf2b2b..dae04a0 100644
+>> --- a/drivers/hid/Kconfig
+>> +++ b/drivers/hid/Kconfig
+>> @@ -591,6 +591,7 @@ config HID_WIIMOTE
+>> =A0 =A0 =A0 depends on BT_HIDP
+>> =A0 =A0 =A0 depends on LEDS_CLASS
+>> =A0 =A0 =A0 select POWER_SUPPLY
+>> + =A0 =A0 select INPUT_FF_MEMLESS
+>> =A0 =A0 =A0 ---help---
+>> =A0 =A0 =A0 Support for the Nintendo Wii Remote bluetooth device.
+>
+> I don't mean to be a complainer, but shouldn't the WiiMote module dep=
+end
+> on FF_MEMLESS rather than just forcing it on.
 
-OK.  Daniel, can I add your S-O-B to your patch?
+I have considered that but "grep -r FF_MEMLESS" returned no other
+driver using "depend" so I decided to use "select", too.
 
-It also seems that it doesn't work with Apple devices yet, so it needs
-another iteration or so.
+> The module could also #define the appropriate bits so that FF_MEMLESS=
+ was
+> only used when available, the rumble motor is a very small part of th=
+e
+> WiiMote's feature set.
+>
+> Some people might not want FF_MEMLESS enabled.
 
-    J
+Why? It is a really small feature that depends only on CONFIG_INPUT.
+Just 600 lines of code. I don't see why someone who wants to enable
+the way bigger wiimote driver and HID core would bother about
+=46F_MEMLESS? Why should someone want to disable the rumble-feature of
+the wiimote?
+I cannot see any real use-case here. Maybe you can explain a bit more.
+
+> Simon.
+>
+
+Cheers
+David

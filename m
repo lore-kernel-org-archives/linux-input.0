@@ -1,46 +1,55 @@
-From: Anton Vorontsov <cbouatmailru@gmail.com>
-Subject: Re: [GIT PULL] power_supply: add power supply scope
-Date: Thu, 8 Dec 2011 14:42:35 +0400
-Message-ID: <20111208104235.GB1753@oksana.dev.rtsoft.ru>
-References: <CACo8zOcvKwr0wDkytvJfqyx4kV0ceYyCt+qnDqiSgxNywpzeHg@mail.gmail.com>
- <4ED9BDF8.3010600@goop.org>
- <CAD2FfiE-rg-1bMmVpYzBhnQcBMKKKO4WPnu0bvx+pvdFnpARrQ@mail.gmail.com>
- <4EDE4C7A.1010802@goop.org>
- <CAD2FfiHWuEmVTa54YqfJDk5zHpSQuM_nwPT=mR6NoWpajpydpg@mail.gmail.com>
- <4EDFA192.7000602@goop.org>
- <CAD2FfiF+fVoLPWpPyGGKdnoGhx1f=Loh2Ju-vdU58Y=2kf6C3g@mail.gmail.com>
- <4EE015D1.5070005@goop.org>
- <20111208100204.GA31434@oksana.dev.rtsoft.ru>
- <CAD2FfiF5iPDhqQmvvS82xkuCh_HSeFJtPMBQdRuCCfz-9F6AFg@mail.gmail.com>
+From: simon@mungewell.org
+Subject: Re: [PATCH] HID: wiimote: Select INPUT_FF_MEMLESS
+Date: Thu, 8 Dec 2011 11:23:26 -0500
+Message-ID: <80063840e8a9778675e9a63db6f1d956.squirrel@host171.canaca.com>
+References: <4EDFD23D.4030703@xenotime.net>
+    <1323290039-28073-1-git-send-email-dh.herrmann@googlemail.com>
+    <b92a2d1d30910b75f3354926d9fa26f6.squirrel@host171.canaca.com>
+    <CANq1E4T6uoezonoaBk6agD4-6A7QMSiP0ySDPg+5r50G8LYWTA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:62394 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751057Ab1LHKmj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Dec 2011 05:42:39 -0500
-Content-Disposition: inline
-In-Reply-To: <CAD2FfiF5iPDhqQmvvS82xkuCh_HSeFJtPMBQdRuCCfz-9F6AFg@mail.gmail.com>
+Received: from host171.canaca.com ([67.55.55.225]:47925 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750715Ab1LHQX3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Dec 2011 11:23:29 -0500
+In-Reply-To: <CANq1E4T6uoezonoaBk6agD4-6A7QMSiP0ySDPg+5r50G8LYWTA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Richard Hughes <hughsient@gmail.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, David Woodhouse <dwmw2@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, vojtech@ucw.cz, Przemo Firszt <przemo@firszt.eu>, Richard Hughes <richard@hughsie.com>
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: simon@mungewell.org, linux-input@vger.kernel.org, rdunlap@xenotime.net, linux-next@vger.kernel.org, jkosina@suse.cz, linux-kernel@vger.kernel.org
 
-On Thu, Dec 08, 2011 at 10:05:46AM +0000, Richard Hughes wrote:
-> On 8 December 2011 10:02, Anton Vorontsov <cbouatmailru@gmail.com> wrote:
-> > I see one problem with this approach. Userland will need patching
-> > to distinguish system and device power supplies. So, even with
-> > the patch applied, old userland will behave incorrectly.
-> 
-> Userland will need patching anyway, as old versions of upower assumed
-> anything showing up in /sys/class/power_supply was powering the
-> system.
 
-Oh, makes sense then. But see my other email regarding a bit more
-universal scheme.
+>> I don't mean to be a complainer, but shouldn't the WiiMote module depend
+>> on FF_MEMLESS rather than just forcing it on.
+>
+> I have considered that but "grep -r FF_MEMLESS" returned no other
+> driver using "depend" so I decided to use "select", too.
 
-Thanks,
+If you look at 'Kconfig' every other driver is fragmented into a 'driver'
+and 'driver_ff', it is only the 'driver_ff' bit which does the
+force-feedback and all the 'drivers' would appear to work OK (as pure
+input devices) with FF disabled.
 
--- 
-Anton Vorontsov
-Email: cbouatmailru@gmail.com
+Someone here will be able to comment whether that is policy, convention or
+just historic....
+
+>> Some people might not want FF_MEMLESS enabled.
+>
+> Why? It is a really small feature that depends only on CONFIG_INPUT.
+> Just 600 lines of code. I don't see why someone who wants to enable
+> the way bigger wiimote driver and HID core would bother about
+> FF_MEMLESS? Why should someone want to disable the rumble-feature of
+> the wiimote?
+
+600 lines where? What's the other costs to the system when enabling the FF
+code in the kernel.
+
+> I cannot see any real use-case here. Maybe you can explain a bit more.
+
+Again I'm not here to kick up a fuss; it just looked different from the
+norm, so I was flagging it.
+
+Simon
+

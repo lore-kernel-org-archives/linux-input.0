@@ -1,58 +1,49 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH] HID: wiimote: Select INPUT_FF_MEMLESS
-Date: Thu, 8 Dec 2011 09:31:20 +0100
-Message-ID: <CANq1E4T6uoezonoaBk6agD4-6A7QMSiP0ySDPg+5r50G8LYWTA@mail.gmail.com>
-References: <4EDFD23D.4030703@xenotime.net>
-	<1323290039-28073-1-git-send-email-dh.herrmann@googlemail.com>
-	<b92a2d1d30910b75f3354926d9fa26f6.squirrel@host171.canaca.com>
+From: Anton Vorontsov <cbouatmailru@gmail.com>
+Subject: Re: [GIT PULL] power_supply: add power supply scope
+Date: Thu, 8 Dec 2011 14:02:24 +0400
+Message-ID: <20111208100204.GA31434@oksana.dev.rtsoft.ru>
+References: <CACo8zOd45i3EnCVMyJoDPP4bx2AnD9mEjDiC=bJKvmX=TWfXGg@mail.gmail.com>
+ <4ED90E6D.8090402@goop.org>
+ <CACo8zOcvKwr0wDkytvJfqyx4kV0ceYyCt+qnDqiSgxNywpzeHg@mail.gmail.com>
+ <4ED9BDF8.3010600@goop.org>
+ <CAD2FfiE-rg-1bMmVpYzBhnQcBMKKKO4WPnu0bvx+pvdFnpARrQ@mail.gmail.com>
+ <4EDE4C7A.1010802@goop.org>
+ <CAD2FfiHWuEmVTa54YqfJDk5zHpSQuM_nwPT=mR6NoWpajpydpg@mail.gmail.com>
+ <4EDFA192.7000602@goop.org>
+ <CAD2FfiF+fVoLPWpPyGGKdnoGhx1f=Loh2Ju-vdU58Y=2kf6C3g@mail.gmail.com>
+ <4EE015D1.5070005@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <b92a2d1d30910b75f3354926d9fa26f6.squirrel@host171.canaca.com>
-Sender: linux-next-owner@vger.kernel.org
-To: simon@mungewell.org
-Cc: linux-input@vger.kernel.org, rdunlap@xenotime.net, linux-next@vger.kernel.org, jkosina@suse.cz, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:38302 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751904Ab1LHKCa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Dec 2011 05:02:30 -0500
+Content-Disposition: inline
+In-Reply-To: <4EE015D1.5070005@goop.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Hughes <hughsient@gmail.com>, Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, vojtech@ucw.cz, Przemo Firszt <przemo@firszt.eu>, Richard Hughes <richard@hughsie.com>
 
-On Wed, Dec 7, 2011 at 10:07 PM,  <simon@mungewell.org> wrote:
->
->> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
->> index edf2b2b..dae04a0 100644
->> --- a/drivers/hid/Kconfig
->> +++ b/drivers/hid/Kconfig
->> @@ -591,6 +591,7 @@ config HID_WIIMOTE
->> =A0 =A0 =A0 depends on BT_HIDP
->> =A0 =A0 =A0 depends on LEDS_CLASS
->> =A0 =A0 =A0 select POWER_SUPPLY
->> + =A0 =A0 select INPUT_FF_MEMLESS
->> =A0 =A0 =A0 ---help---
->> =A0 =A0 =A0 Support for the Nintendo Wii Remote bluetooth device.
->
-> I don't mean to be a complainer, but shouldn't the WiiMote module dep=
-end
-> on FF_MEMLESS rather than just forcing it on.
+Hello Jeremy,
 
-I have considered that but "grep -r FF_MEMLESS" returned no other
-driver using "depend" so I decided to use "select", too.
+On Wed, Dec 07, 2011 at 05:41:37PM -0800, Jeremy Fitzhardinge wrote:
+> This series adds a "scope" property to power supplies, so that a power
+> supply can indicate whether it powers the whole system, or just a
+> device.  This allows upowerd to distinguish between actual system power
+> supplies, and self-powered devices such as wireless mice.
 
-> The module could also #define the appropriate bits so that FF_MEMLESS=
- was
-> only used when available, the rumble motor is a very small part of th=
-e
-> WiiMote's feature set.
->
-> Some people might not want FF_MEMLESS enabled.
+I see one problem with this approach. Userland will need patching
+to distinguish system and device power supplies. So, even with
+the patch applied, old userland will behave incorrectly.
 
-Why? It is a really small feature that depends only on CONFIG_INPUT.
-Just 600 lines of code. I don't see why someone who wants to enable
-the way bigger wiimote driver and HID core would bother about
-=46F_MEMLESS? Why should someone want to disable the rumble-feature of
-the wiimote?
-I cannot see any real use-case here. Maybe you can explain a bit more.
+So, instead of the new 'scope' property, how about adding another
+power supply type? I.e. DEVICE_BATTERY ? That type would be unknown
+to the current userland, and thus should be ignored.
 
-> Simon.
->
+Thanks,
 
-Cheers
-David
+-- 
+Anton Vorontsov
+Email: cbouatmailru@gmail.com

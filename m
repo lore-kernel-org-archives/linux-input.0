@@ -1,73 +1,59 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH RFC V2 2/4] power_supply: allow a power supply to explicitly point to powered device
-Date: Fri,  9 Dec 2011 14:43:17 -0800
-Message-ID: <8351665195cec6d2b73cce8b66f02d6dde246a8e.1323454016.git.jeremy@goop.org>
-References: <cover.1323454016.git.jeremy@goop.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from claw.goop.org ([74.207.240.146]:35589 "EHLO claw.goop.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754693Ab1LIWnd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 9 Dec 2011 17:43:33 -0500
-In-Reply-To: <cover.1323454016.git.jeremy@goop.org>
-In-Reply-To: <cover.1323454016.git.jeremy@goop.org>
-References: <cover.1323454016.git.jeremy@goop.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Stephen Warren <swarren@nvidia.com>
+Subject: RE: [PATCH 1/1] input: keyboard: Set configuration registers
+Date: Fri, 9 Dec 2011 15:17:54 -0800
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF17518605E5@HQMAIL01.nvidia.com>
+References: <1323415758-16822-1-git-send-email-srasal@nvidia.com>
+ <74CDBE0F657A3D45AFBB94109FB122FF1751860550@HQMAIL01.nvidia.com>
+ <3849551.l2KNPKMSmh@dtor-d630.eng.vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3849551.l2KNPKMSmh@dtor-d630.eng.vmware.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Shridhar Rasal <srasal@nvidia.com>, "rydberg@euromail.se" <rydberg@euromail.se>, Rakesh Iyer <riyer@nvidia.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Anton Vorontsov <cbouatmailru@gmail.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Hughes <hughsient@gmail.com>, Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jeremy Fitzhardinge <jeremy@goop.org>, Richard Hughes <richard@hughsie.com>
 
-If a power supply has a scope of "Device", then allow the power supply
-to indicate what device it actually powers. This is represented in the
-power supply's sysfs directory as a symlink named "powers", which points to
-the sysfs directory of the powered device.
+Dmitry Torokhov wrote at Friday, December 09, 2011 2:25 PM:
+> On Friday, December 09, 2011 12:10:43 PM Stephen Warren wrote:
+> > Shridhar Rasal wrote at Friday, December 09, 2011 12:29 AM:
+> > > To: dmitry.torokhov@gmail.com
+> > > Cc: rydberg@euromail.se; Stephen Warren; Rakesh Iyer;
+> > > linux-kernel@vger.kernel.org; linux- input@vger.kernel.org;
+> > > linux-tegra@vger.kernel.org; Shridhar Rasal Subject: [PATCH 1/1] input:
+> > > keyboard: Set configuration registers
+> > >
+> > > -Set only REQUIRED row and column configuration register to
+> > > PROPER values to avoid continuously generating KBC input events.
+> > > -Use *en* field in pin_cfg, to check GPIO_x_ROW_EN register
+> > > should be set or clear.
+> > >
+> > > Signed-off-by: Shridhar Rasal <srasal@nvidia.com>
+> >
+> > I wondered if num==0 could be used instead of a new en field, but 0 is a
+> > valid row/column number, so no. As such,
+> >
+> > Acked-by: Stephen Warren <swarren@nvidia.com>
+> 
+> Can we pass in number of pin_cfg instances in pdata and simply do not
+> mention unneeded pins instead?
 
-If the device has children, then the sub-devices are also powered by
-the same power supply.
+IIUC, the array is currently a fixed size (based on the set of pins
+Supported by the KBC), hence that won't work; there's an entry for each
+pin saying which row/column it is.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Richard Hughes <richard@hughsie.com>
----
- drivers/power/power_supply_core.c |    7 +++++++
- include/linux/power_supply.h      |    1 +
- 2 files changed, 8 insertions(+), 0 deletions(-)
+However, I suppose if we were to change the structure of the pdata to be:
 
-diff --git a/drivers/power/power_supply_core.c b/drivers/power/power_supply_core.c
-index 329b46b..b10c121 100644
---- a/drivers/power/power_supply_core.c
-+++ b/drivers/power/power_supply_core.c
-@@ -147,6 +147,12 @@ struct power_supply *power_supply_get_by_name(char *name)
- }
- EXPORT_SYMBOL_GPL(power_supply_get_by_name);
- 
-+int power_supply_powers(struct power_supply *psy, struct device *dev)
-+{
-+	return sysfs_create_link_nowarn(&psy->dev->kobj, &dev->kobj, "powers");
-+}
-+EXPORT_SYMBOL_GPL(power_supply_powers);
-+
- static void power_supply_dev_release(struct device *dev)
- {
- 	pr_debug("device: '%s': %s\n", dev_name(dev), __func__);
-@@ -202,6 +208,7 @@ EXPORT_SYMBOL_GPL(power_supply_register);
- void power_supply_unregister(struct power_supply *psy)
- {
- 	cancel_work_sync(&psy->changed_work);
-+	sysfs_remove_link(&psy->dev->kobj, "powers");
- 	power_supply_remove_triggers(psy);
- 	device_unregister(psy->dev);
- }
-diff --git a/include/linux/power_supply.h b/include/linux/power_supply.h
-index 040a7b0..2e3c827 100644
---- a/include/linux/power_supply.h
-+++ b/include/linux/power_supply.h
-@@ -218,6 +218,7 @@ static inline int power_supply_is_system_supplied(void) { return -ENOSYS; }
- extern int power_supply_register(struct device *parent,
- 				 struct power_supply *psy);
- extern void power_supply_unregister(struct power_supply *psy);
-+extern int power_supply_powers(struct power_supply *psy, struct device *dev);
- 
- /* For APM emulation, think legacy userspace. */
- extern struct class *power_supply_class;
+struct tegra_kbc_pin_cfg {
+    bool is_row;
+    u8 row_col_id;
+    u8 pin_id;
+};
+
+Then struct tegra_kbc_platform_data could indeed have a pointer to a
+variable-sized array of these, which would avoid the "en" member.
+
 -- 
-1.7.7.3
-
+nvpublic

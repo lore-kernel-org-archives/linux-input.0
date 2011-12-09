@@ -1,98 +1,50 @@
 From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: [PATCH RFC V2 3/4] power_supply: add scope properties to some self-powered HID devices
-Date: Fri,  9 Dec 2011 14:43:18 -0800
-Message-ID: <73db88137bc732d01b615af9a9cdb24f3e47e78d.1323454016.git.jeremy@goop.org>
-References: <cover.1323454016.git.jeremy@goop.org>
+Subject: [PATCH RFC V2 0/4] Add "scope" to power supplies
+Date: Fri,  9 Dec 2011 14:43:15 -0800
+Message-ID: <cover.1323454016.git.jeremy@goop.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from claw.goop.org ([74.207.240.146]:35574 "EHLO claw.goop.org"
+Received: from claw.goop.org ([74.207.240.146]:35589 "EHLO claw.goop.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751205Ab1LIWnc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 9 Dec 2011 17:43:32 -0500
-In-Reply-To: <cover.1323454016.git.jeremy@goop.org>
-In-Reply-To: <cover.1323454016.git.jeremy@goop.org>
-References: <cover.1323454016.git.jeremy@goop.org>
+	id S1752616Ab1LIWnd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 9 Dec 2011 17:43:33 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Anton Vorontsov <cbouatmailru@gmail.com>
 Cc: David Woodhouse <dwmw2@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Hughes <hughsient@gmail.com>, Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jeremy Fitzhardinge <jeremy@goop.org>
 
-The Wacom and Wiimote HID drivers register power supplies for themselves
-to indicate their battery levels.  Make those power supplies device scope.
+This series adds a "scope" attribute to power supplies, to indicate
+whether it powers the whole system ("System") or just some subset of
+the devices ("Device").  This allows upowerd to distinguish between
+system-wide power supplies and self-powered devices such as cordless
+mice.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Jiri Kosina <jkosina@suse.cz>
----
- drivers/hid/hid-wacom.c   |   12 ++++++++++--
- drivers/hid/hid-wiimote.c |    8 +++++++-
- 2 files changed, 17 insertions(+), 3 deletions(-)
+This series also adds a "powers" link to power supplies, so that if
+they're scope=Device, they can specifically indicate which device
+tree they power.
 
-diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-index 17bb88f..ad39777 100644
---- a/drivers/hid/hid-wacom.c
-+++ b/drivers/hid/hid-wacom.c
-@@ -47,12 +47,14 @@ static unsigned short batcap[8] = { 1, 15, 25, 35, 50, 70, 100, 0 };
- 
- static enum power_supply_property wacom_battery_props[] = {
- 	POWER_SUPPLY_PROP_PRESENT,
--	POWER_SUPPLY_PROP_CAPACITY
-+	POWER_SUPPLY_PROP_CAPACITY,
-+	POWER_SUPPLY_PROP_SCOPE,
- };
- 
- static enum power_supply_property wacom_ac_props[] = {
- 	POWER_SUPPLY_PROP_PRESENT,
--	POWER_SUPPLY_PROP_ONLINE
-+	POWER_SUPPLY_PROP_ONLINE,
-+	POWER_SUPPLY_PROP_SCOPE,
- };
- 
- static int wacom_battery_get_property(struct power_supply *psy,
-@@ -68,6 +70,9 @@ static int wacom_battery_get_property(struct power_supply *psy,
- 	case POWER_SUPPLY_PROP_PRESENT:
- 		val->intval = 1;
- 		break;
-+	case POWER_SUPPLY_PROP_SCOPE:
-+		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
-+		break;
- 	case POWER_SUPPLY_PROP_CAPACITY:
- 		/* show 100% battery capacity when charging */
- 		if (power_state == 0)
-@@ -99,6 +104,9 @@ static int wacom_ac_get_property(struct power_supply *psy,
- 		else
- 			val->intval = 0;
- 		break;
-+	case POWER_SUPPLY_PROP_SCOPE:
-+		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		break;
-diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index 76739c0..98e4828 100644
---- a/drivers/hid/hid-wiimote.c
-+++ b/drivers/hid/hid-wiimote.c
-@@ -136,7 +136,8 @@ static __u16 wiiproto_keymap[] = {
- };
- 
- static enum power_supply_property wiimote_battery_props[] = {
--	POWER_SUPPLY_PROP_CAPACITY
-+	POWER_SUPPLY_PROP_CAPACITY,
-+	POWER_SUPPLY_PROP_SCOPE,
- };
- 
- /* requires the state.lock spinlock to be held */
-@@ -468,6 +469,11 @@ static int wiimote_battery_get_property(struct power_supply *psy,
- 	int ret = 0, state;
- 	unsigned long flags;
- 
-+	if (psp == POWER_SUPPLY_PROP_SCOPE) {
-+		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
-+		return 0;
-+	}
-+
- 	ret = wiimote_cmd_acquire(wdata);
- 	if (ret)
- 		return ret;
+Updates since last post:
+ - Add more complete documentation to scope and "powers" links
+ - Remove unnecessary scopes on System power supplies
+ - Make HID battery supplies Device, and add "powers" pointers
+   for them.
+
+This can also be pulled from:
+	git://git.kernel.org/pub/scm/linux/kernel/git/jeremy/xen.git power-supply-scope
+
+Jeremy Fitzhardinge (4):
+  power_supply: add SCOPE attribute to power supplies
+  power_supply: allow a power supply to explicitly point to powered
+    device
+  power_supply: add scope properties to some self-powered HID devices
+  power_supply: add "powers" links to self-powered HID devices
+
+ drivers/hid/hid-wacom.c            |   16 ++++++++++++++--
+ drivers/hid/hid-wiimote.c          |   10 +++++++++-
+ drivers/power/power_supply_core.c  |    7 +++++++
+ drivers/power/power_supply_sysfs.c |    6 ++++++
+ include/linux/power_supply.h       |    8 ++++++++
+ 5 files changed, 44 insertions(+), 3 deletions(-)
+
 -- 
 1.7.7.3
 

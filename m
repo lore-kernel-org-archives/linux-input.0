@@ -1,46 +1,98 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] input: keyboard: Set configuration registers
-Date: Fri, 09 Dec 2011 13:25:06 -0800
-Message-ID: <3849551.l2KNPKMSmh@dtor-d630.eng.vmware.com>
-References: <1323415758-16822-1-git-send-email-srasal@nvidia.com> <74CDBE0F657A3D45AFBB94109FB122FF1751860550@HQMAIL01.nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: [PATCH RFC V2 3/4] power_supply: add scope properties to some self-powered HID devices
+Date: Fri,  9 Dec 2011 14:43:18 -0800
+Message-ID: <73db88137bc732d01b615af9a9cdb24f3e47e78d.1323454016.git.jeremy@goop.org>
+References: <cover.1323454016.git.jeremy@goop.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:60216 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752027Ab1LIVZQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Dec 2011 16:25:16 -0500
-In-Reply-To: <74CDBE0F657A3D45AFBB94109FB122FF1751860550@HQMAIL01.nvidia.com>
+Received: from claw.goop.org ([74.207.240.146]:35574 "EHLO claw.goop.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751205Ab1LIWnc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 9 Dec 2011 17:43:32 -0500
+In-Reply-To: <cover.1323454016.git.jeremy@goop.org>
+In-Reply-To: <cover.1323454016.git.jeremy@goop.org>
+References: <cover.1323454016.git.jeremy@goop.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@nvidia.com>
-Cc: Shridhar Rasal <srasal@nvidia.com>, "rydberg@euromail.se" <rydberg@euromail.se>, Rakesh Iyer <riyer@nvidia.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+To: Anton Vorontsov <cbouatmailru@gmail.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Hughes <hughsient@gmail.com>, Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jeremy Fitzhardinge <jeremy@goop.org>
 
-On Friday, December 09, 2011 12:10:43 PM Stephen Warren wrote:
-> Shridhar Rasal wrote at Friday, December 09, 2011 12:29 AM:
-> > To: dmitry.torokhov@gmail.com
-> > Cc: rydberg@euromail.se; Stephen Warren; Rakesh Iyer;
-> > linux-kernel@vger.kernel.org; linux- input@vger.kernel.org;
-> > linux-tegra@vger.kernel.org; Shridhar Rasal Subject: [PATCH 1/1] input:
-> > keyboard: Set configuration registers
-> > 
-> > -Set only REQUIRED row and column configuration register to
-> > PROPER values to avoid continuously generating KBC input events.
-> > -Use *en* field in pin_cfg, to check GPIO_x_ROW_EN register
-> > should be set or clear.
-> > 
-> > Signed-off-by: Shridhar Rasal <srasal@nvidia.com>
-> 
-> I wondered if num==0 could be used instead of a new en field, but 0 is a
-> valid row/column number, so no. As such,
-> 
-> Acked-by: Stephen Warren <swarren@nvidia.com>
+The Wacom and Wiimote HID drivers register power supplies for themselves
+to indicate their battery levels.  Make those power supplies device scope.
 
-Can we pass in number of pin_cfg instances in pdata and simply do not
-mention unneeded pins instead?
+Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-wacom.c   |   12 ++++++++++--
+ drivers/hid/hid-wiimote.c |    8 +++++++-
+ 2 files changed, 17 insertions(+), 3 deletions(-)
 
-Thanks.
-
+diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+index 17bb88f..ad39777 100644
+--- a/drivers/hid/hid-wacom.c
++++ b/drivers/hid/hid-wacom.c
+@@ -47,12 +47,14 @@ static unsigned short batcap[8] = { 1, 15, 25, 35, 50, 70, 100, 0 };
+ 
+ static enum power_supply_property wacom_battery_props[] = {
+ 	POWER_SUPPLY_PROP_PRESENT,
+-	POWER_SUPPLY_PROP_CAPACITY
++	POWER_SUPPLY_PROP_CAPACITY,
++	POWER_SUPPLY_PROP_SCOPE,
+ };
+ 
+ static enum power_supply_property wacom_ac_props[] = {
+ 	POWER_SUPPLY_PROP_PRESENT,
+-	POWER_SUPPLY_PROP_ONLINE
++	POWER_SUPPLY_PROP_ONLINE,
++	POWER_SUPPLY_PROP_SCOPE,
+ };
+ 
+ static int wacom_battery_get_property(struct power_supply *psy,
+@@ -68,6 +70,9 @@ static int wacom_battery_get_property(struct power_supply *psy,
+ 	case POWER_SUPPLY_PROP_PRESENT:
+ 		val->intval = 1;
+ 		break;
++	case POWER_SUPPLY_PROP_SCOPE:
++		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
++		break;
+ 	case POWER_SUPPLY_PROP_CAPACITY:
+ 		/* show 100% battery capacity when charging */
+ 		if (power_state == 0)
+@@ -99,6 +104,9 @@ static int wacom_ac_get_property(struct power_supply *psy,
+ 		else
+ 			val->intval = 0;
+ 		break;
++	case POWER_SUPPLY_PROP_SCOPE:
++		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
++		break;
+ 	default:
+ 		ret = -EINVAL;
+ 		break;
+diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
+index 76739c0..98e4828 100644
+--- a/drivers/hid/hid-wiimote.c
++++ b/drivers/hid/hid-wiimote.c
+@@ -136,7 +136,8 @@ static __u16 wiiproto_keymap[] = {
+ };
+ 
+ static enum power_supply_property wiimote_battery_props[] = {
+-	POWER_SUPPLY_PROP_CAPACITY
++	POWER_SUPPLY_PROP_CAPACITY,
++	POWER_SUPPLY_PROP_SCOPE,
+ };
+ 
+ /* requires the state.lock spinlock to be held */
+@@ -468,6 +469,11 @@ static int wiimote_battery_get_property(struct power_supply *psy,
+ 	int ret = 0, state;
+ 	unsigned long flags;
+ 
++	if (psp == POWER_SUPPLY_PROP_SCOPE) {
++		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
++		return 0;
++	}
++
+ 	ret = wiimote_cmd_acquire(wdata);
+ 	if (ret)
+ 		return ret;
 -- 
-Dmitry
+1.7.7.3
+

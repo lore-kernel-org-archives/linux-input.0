@@ -1,57 +1,64 @@
 From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH 2/2] Input: keyboard: Staticise non-exported symbols
-Date: Fri, 09 Dec 2011 09:39:12 +0800
-Message-ID: <1323394752.3740.3.camel@phoenix>
-References: <1323394677.3740.2.camel@phoenix>
+Subject: [PATCH] Input: mc13783-pwrbutton - convert to use
+ module_platform_driver()
+Date: Fri, 09 Dec 2011 10:14:06 +0800
+Message-ID: <1323396846.3740.10.camel@phoenix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:49526 "EHLO
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:39028 "EHLO
 	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750797Ab1LIBjU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Dec 2011 20:39:20 -0500
-In-Reply-To: <1323394677.3740.2.camel@phoenix>
+	with ESMTP id S1751721Ab1LICOO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Dec 2011 21:14:14 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Michael Hennerich <hennerich@blackfin.uclinux.org>, Naveen Kumar G <naveen.gaddipati@stericsson.com>, Sundar Iyer <sundar.iyer@stericsson.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org
 
-These symbols are not used outside it's driver so no need to
-make the symbol global.
+This patch converts mc13783-pwrbutton to use the module_platform_driver()
+macro which makes the code smaller and a bit simpler.
+
+Also staticise mc13783_pwrbutton_driver which is not used outside
+this driver so no need to make the symbol global.
 
 Signed-off-by: Axel Lin <axel.lin@gmail.com>
 ---
- drivers/input/keyboard/bf54x-keys.c         |    2 +-
- drivers/input/keyboard/nomadik-ske-keypad.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/misc/mc13783-pwrbutton.c |   14 ++------------
+ 1 files changed, 2 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/input/keyboard/bf54x-keys.c b/drivers/input/keyboard/bf54x-keys.c
-index 683e314..8eb9116 100644
---- a/drivers/input/keyboard/bf54x-keys.c
-+++ b/drivers/input/keyboard/bf54x-keys.c
-@@ -384,7 +384,7 @@ static int bfin_kpad_resume(struct platform_device *pdev)
- # define bfin_kpad_resume  NULL
- #endif
+diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
+index 09b0522..8428f1e 100644
+--- a/drivers/input/misc/mc13783-pwrbutton.c
++++ b/drivers/input/misc/mc13783-pwrbutton.c
+@@ -255,7 +255,7 @@ static int __devexit mc13783_pwrbutton_remove(struct platform_device *pdev)
+ 	return 0;
+ }
  
--struct platform_driver bfin_kpad_device_driver = {
-+static struct platform_driver bfin_kpad_device_driver = {
+-struct platform_driver mc13783_pwrbutton_driver = {
++static struct platform_driver mc13783_pwrbutton_driver = {
+ 	.probe		= mc13783_pwrbutton_probe,
+ 	.remove		= __devexit_p(mc13783_pwrbutton_remove),
  	.driver		= {
- 		.name	= DRV_NAME,
- 		.owner	= THIS_MODULE,
-diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/input/keyboard/nomadik-ske-keypad.c
-index 6c4828f..5a71e55 100644
---- a/drivers/input/keyboard/nomadik-ske-keypad.c
-+++ b/drivers/input/keyboard/nomadik-ske-keypad.c
-@@ -379,7 +379,7 @@ static const struct dev_pm_ops ske_keypad_dev_pm_ops = {
+@@ -264,17 +264,7 @@ struct platform_driver mc13783_pwrbutton_driver = {
+ 	},
  };
- #endif
  
--struct platform_driver ske_keypad_driver = {
-+static struct platform_driver ske_keypad_driver = {
- 	.driver = {
- 		.name = "nmk-ske-keypad",
- 		.owner  = THIS_MODULE,
+-static int __init mc13783_pwrbutton_init(void)
+-{
+-	return platform_driver_register(&mc13783_pwrbutton_driver);
+-}
+-module_init(mc13783_pwrbutton_init);
+-
+-static void __exit mc13783_pwrbutton_exit(void)
+-{
+-	platform_driver_unregister(&mc13783_pwrbutton_driver);
+-}
+-module_exit(mc13783_pwrbutton_exit);
++module_platform_driver(mc13783_pwrbutton_driver);
+ 
+ MODULE_ALIAS("platform:mc13783-pwrbutton");
+ MODULE_DESCRIPTION("MC13783 Power Button");
 -- 
 1.7.5.4
 

@@ -1,105 +1,617 @@
-From: Anton Vorontsov <cbouatmailru@gmail.com>
-Subject: Re: [GIT PULL] power_supply: add power supply scope
-Date: Fri, 9 Dec 2011 14:17:00 +0400
-Message-ID: <20111209101700.GA20100@oksana.dev.rtsoft.ru>
-References: <CACo8zOd45i3EnCVMyJoDPP4bx2AnD9mEjDiC=bJKvmX=TWfXGg@mail.gmail.com>
- <4ED90E6D.8090402@goop.org>
- <CACo8zOcvKwr0wDkytvJfqyx4kV0ceYyCt+qnDqiSgxNywpzeHg@mail.gmail.com>
- <4ED9BDF8.3010600@goop.org>
- <CAD2FfiE-rg-1bMmVpYzBhnQcBMKKKO4WPnu0bvx+pvdFnpARrQ@mail.gmail.com>
- <4EDE4C7A.1010802@goop.org>
- <CAD2FfiHWuEmVTa54YqfJDk5zHpSQuM_nwPT=mR6NoWpajpydpg@mail.gmail.com>
- <4EDFA192.7000602@goop.org>
- <CAD2FfiF+fVoLPWpPyGGKdnoGhx1f=Loh2Ju-vdU58Y=2kf6C3g@mail.gmail.com>
- <4EE015D1.5070005@goop.org>
+From: "Patil, Rachna" <rachna@ti.com>
+Subject: [PATCH v2] input: add support for TI Touchscreen controller
+Date: Fri, 9 Dec 2011 16:59:42 +0530
+Message-ID: <1323430182-27626-1-git-send-email-rachna@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:62628 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750758Ab1LIKRG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Dec 2011 05:17:06 -0500
-Content-Disposition: inline
-In-Reply-To: <4EE015D1.5070005@goop.org>
+Received: from devils.ext.ti.com ([198.47.26.153]:46618 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751429Ab1LIL3x (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Dec 2011 06:29:53 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Hughes <hughsient@gmail.com>, Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, vojtech@ucw.cz, Przemo Firszt <przemo@firszt.eu>, Richard Hughes <richard@hughsie.com>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Rachna Patil <rachna@ti.com>
 
-A few more minor nits...
+From: Rachna Patil <rachna@ti.com>
 
-On Wed, Dec 07, 2011 at 05:41:37PM -0800, Jeremy Fitzhardinge wrote:
-[...]
-> diff --git a/drivers/power/power_supply_core.c b/drivers/power/power_supply_core.c
-> index 329b46b..bacf327 100644
-> --- a/drivers/power/power_supply_core.c
-> +++ b/drivers/power/power_supply_core.c
-> @@ -147,6 +147,12 @@ struct power_supply *power_supply_get_by_name(char *name)
->  }
->  EXPORT_SYMBOL_GPL(power_supply_get_by_name);
->  
-> +
+This patch adds support for TI's touchscreen
+controller for a 4/5/8 wire resistive panel
+that is directly fed to the ADC.
 
-Needless newline. :-)
+This touchscreen controller will be part of
+AM335x TI SoC. The TRM can be found at:
+http://www.ti.com/lit/ug/spruh73a/spruh73a.pdf
 
-> +int power_supply_powers(struct power_supply *psy, struct device *dev)
-> +{
-> +	return sysfs_create_link_nowarn(&psy->dev->kobj, &dev->kobj, "powers");
-> +}
+Signed-off-by: Patil, Rachna <rachna@ti.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+v2: Fixed comments by Dmitry.
+Have not included Fuzz, because it does not
+solve the problem. I have also added a brief description
+inside the interrupt handler to explain what is done.
 
-- This surely creates an important ABI to the userland. This has to be
-  documented via Documentation/ABI (or at least via commit message that
-  I don't see in this email :-).
+ drivers/input/touchscreen/Kconfig     |   12 +
+ drivers/input/touchscreen/Makefile    |    1 +
+ drivers/input/touchscreen/ti_tscadc.c |  508 +++++++++++++++++++++++++++++++++
+ include/linux/input/ti_tscadc.h       |   17 ++
+ 4 files changed, 538 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/ti_tscadc.c
+ create mode 100644 include/linux/input/ti_tscadc.h
 
-- This functionality isn't used anywhere as of now (i.e. I don't see
-  anyone calling this function), so let's omit it for now?
-
-- I still don't think that this should be a single symlink, to me the
-  more universal (so that we don't have to break ABI in the future)
-  way would be 'powers' directory with symlinks in it.
-  But maybe I'm not following where exactly the link will be created?
-  Documentation or an example of the new sysfs structure would help.
-
-> +
->  static void power_supply_dev_release(struct device *dev)
->  {
->  	pr_debug("device: '%s': %s\n", dev_name(dev), __func__);
-> @@ -202,6 +208,7 @@ EXPORT_SYMBOL_GPL(power_supply_register);
->  void power_supply_unregister(struct power_supply *psy)
->  {
->  	cancel_work_sync(&psy->changed_work);
-> +	sysfs_remove_link(&psy->dev->kobj, "powers");
->  	power_supply_remove_triggers(psy);
->  	device_unregister(psy->dev);
->  }
-> diff --git a/drivers/power/power_supply_sysfs.c b/drivers/power/power_supply_sysfs.c
-> index e15d4c9..21178eb 100644
-> --- a/drivers/power/power_supply_sysfs.c
-> +++ b/drivers/power/power_supply_sysfs.c
-> @@ -63,6 +63,9 @@ static ssize_t power_supply_show_property(struct device *dev,
->  	static char *capacity_level_text[] = {
->  		"Unknown", "Critical", "Low", "Normal", "High", "Full"
->  	};
-> +	static char *scope_text[] = {
-> +		"Unknown", "System", "Device"
-> +	};
->  	ssize_t ret = 0;
->  	struct power_supply *psy = dev_get_drvdata(dev);
->  	const ptrdiff_t off = attr - power_supply_attrs;
-> @@ -95,6 +98,8 @@ static ssize_t power_supply_show_property(struct device *dev,
->  		return sprintf(buf, "%s\n", capacity_level_text[value.intval]);
->  	else if (off == POWER_SUPPLY_PROP_TYPE)
->  		return sprintf(buf, "%s\n", type_text[value.intval]);
-> +	else if (off == POWER_SUPPLY_PROP_SCOPE)
-> +		return sprintf(buf, "%s\n", scope_text[value.intval]);
-
-Should we really handle the PROP_SCOPE as a dynamic property?
-Maybe do it similar to PROP_TYPE, so that drivers will only need to
-specity the scope during registration, and not bother w/ handling
-it in theirs get_property() callbacks?
-
-Thanks!
-
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index cabd9e5..de4ee06 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -407,6 +407,18 @@ config TOUCHSCREEN_TOUCHWIN
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called touchwin.
+ 
++config TOUCHSCREEN_TI_TSCADC
++	tristate "TI Touchscreen Interface"
++	depends on ARCH_OMAP2PLUS
++	help
++	  Say Y here if you have 4/5/8 wire touchscreen controller
++	  to be connected to the ADC controller on your TI AM335x SoC.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called ti_tscadc.
++
+ config TOUCHSCREEN_ATMEL_TSADCC
+ 	tristate "Atmel Touchscreen Interface"
+ 	depends on ARCH_AT91SAM9RL || ARCH_AT91SAM9G45
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 282d6f7..e353bcb 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -42,6 +42,7 @@ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
+ obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
+ obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
++obj-$(CONFIG_TOUCHSCREEN_TI_TSCADC)	+= ti_tscadc.o
+ obj-$(CONFIG_TOUCHSCREEN_TNETV107X)	+= tnetv107x-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+= touchit213.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
+diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
+new file mode 100644
+index 0000000..ed6f1eb
+--- /dev/null
++++ b/drivers/input/touchscreen/ti_tscadc.c
+@@ -0,0 +1,508 @@
++/*
++ * TI Touch Screen driver
++ *
++ * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation version 2.
++ *
++ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
++ * kind, whether express or implied; without even the implied warranty
++ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/err.h>
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/interrupt.h>
++#include <linux/clk.h>
++#include <linux/platform_device.h>
++#include <linux/io.h>
++#include <linux/input/ti_tscadc.h>
++#include <linux/delay.h>
++
++#define REG_IRQEOI		0x020
++#define REG_RAWIRQSTATUS	0x024
++#define REG_IRQSTATUS		0x028
++#define REG_IRQENABLE		0x02C
++#define REG_IRQWAKEUP		0x034
++#define REG_CTRL		0x040
++#define REG_ADCFSM		0x044
++#define REG_CLKDIV		0x04C
++#define REG_SE			0x054
++#define REG_IDLECONFIG		0x058
++#define REG_CHARGECONFIG	0x05C
++#define REG_CHARGEDELAY		0x060
++#define REG_STEPCONFIG(n)	(0x64 + ((n - 1) * 8))
++#define REG_STEPDELAY(n)	(0x68 + ((n - 1) * 8))
++#define REG_STEPCONFIG13	0x0C4
++#define REG_STEPDELAY13		0x0C8
++#define REG_STEPCONFIG14	0x0CC
++#define REG_STEPDELAY14		0x0D0
++#define REG_FIFO0CNT		0xE4
++#define REG_FIFO1THR		0xF4
++#define REG_FIFO0		0x100
++#define REG_FIFO1		0x200
++
++/*	Register Bitfields	*/
++#define IRQWKUP_ENB		BIT(0)
++#define STPENB_STEPENB		0x7FFF
++#define IRQENB_FIFO1THRES	BIT(5)
++#define IRQENB_PENUP		BIT(9)
++#define STEPCONFIG_MODE_HWSYNC	0x2
++#define STEPCONFIG_SAMPLES_AVG	(1 << 4)
++#define STEPCONFIG_XPP		(1 << 5)
++#define STEPCONFIG_XNN		(1 << 6)
++#define STEPCONFIG_YPP		(1 << 7)
++#define STEPCONFIG_YNN		(1 << 8)
++#define STEPCONFIG_XNP		(1 << 9)
++#define STEPCONFIG_YPN		(1 << 10)
++#define STEPCONFIG_INM		(1 << 18)
++#define STEPCONFIG_INP		(1 << 20)
++#define STEPCONFIG_INP_5	(1 << 21)
++#define STEPCONFIG_FIFO1	(1 << 26)
++#define STEPCONFIG_OPENDLY	0xff
++#define STEPCONFIG_Z1		(3 << 19)
++#define STEPIDLE_INP		(1 << 22)
++#define STEPCHARGE_RFP		(1 << 12)
++#define STEPCHARGE_INM		(1 << 15)
++#define STEPCHARGE_INP		(1 << 19)
++#define STEPCHARGE_RFM		(1 << 23)
++#define STEPCHARGE_DELAY	0x1
++#define CNTRLREG_TSCSSENB	(1 << 0)
++#define CNTRLREG_STEPID		(1 << 1)
++#define CNTRLREG_STEPCONFIGWRT	(1 << 2)
++#define CNTRLREG_4WIRE		(1 << 5)
++#define CNTRLREG_5WIRE		(1 << 6)
++#define CNTRLREG_8WIRE		(3 << 5)
++#define CNTRLREG_TSCENB		(1 << 7)
++#define ADCFSM_STEPID		0x10
++
++#define SEQ_SETTLE		275
++#define ADC_CLK			3000000
++#define MAX_12BIT		((1 << 12) - 1)
++
++struct tscadc {
++	struct input_dev	*input;
++	struct clk		*tsc_ick;
++	int			irq;
++	int			pen;
++	int			wires;
++	int			x_plate_resistance;
++	unsigned int		bckup_x;
++	unsigned int		bckup_y;
++	void __iomem		*tsc_base;
++};
++
++static unsigned int tscadc_readl(struct tscadc *ts, unsigned int reg)
++{
++	return readl(ts->tsc_base + reg);
++}
++
++static void tscadc_writel(struct tscadc *tsc, unsigned int reg,
++					unsigned int val)
++{
++	writel(val, tsc->tsc_base + reg);
++}
++
++static void tsc_step_config(struct tscadc *ts_dev)
++{
++	unsigned int	config;
++	int i;
++
++	/* Configure the Step registers */
++
++	config = STEPCONFIG_MODE_HWSYNC |
++			STEPCONFIG_SAMPLES_AVG | STEPCONFIG_XPP;
++	switch (ts_dev->wires) {
++	case 4:
++		config |= STEPCONFIG_INP |
++				STEPCONFIG_XNN;
++		break;
++	case 5:
++		config |= STEPCONFIG_YNN |
++				STEPCONFIG_INP_5 | STEPCONFIG_XNN |
++				STEPCONFIG_YPP;
++		break;
++	case 8:
++		config |= STEPCONFIG_INP |
++				STEPCONFIG_XNN;
++		break;
++	}
++	for (i = 1; i < 7; i++) {
++		tscadc_writel(ts_dev, REG_STEPCONFIG(i), config);
++		tscadc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
++	}
++
++	config = 0;
++	config = STEPCONFIG_MODE_HWSYNC |
++			STEPCONFIG_SAMPLES_AVG | STEPCONFIG_YNN |
++			STEPCONFIG_INM | STEPCONFIG_FIFO1;
++	switch (ts_dev->wires) {
++	case 4:
++		config |= STEPCONFIG_YPP;
++		break;
++	case 5:
++		config |= STEPCONFIG_XPP | STEPCONFIG_INP_5 |
++				STEPCONFIG_XNP | STEPCONFIG_YPN;
++		break;
++	case 8:
++		config |= STEPCONFIG_YPP;
++		break;
++	}
++	for (i = 7; i < 13; i++) {
++		tscadc_writel(ts_dev, REG_STEPCONFIG(i), config);
++		tscadc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
++	}
++
++	config = 0;
++	/* Charge step configuration */
++	config = STEPCONFIG_XPP | STEPCONFIG_YNN |
++			STEPCHARGE_RFP | STEPCHARGE_RFM |
++			STEPCHARGE_INM | STEPCHARGE_INP;
++
++	tscadc_writel(ts_dev, REG_CHARGECONFIG, config);
++	tscadc_writel(ts_dev, REG_CHARGEDELAY, STEPCHARGE_DELAY);
++
++	config = 0;
++	/* Configure to calculate pressure */
++	config = STEPCONFIG_MODE_HWSYNC |
++			STEPCONFIG_SAMPLES_AVG | STEPCONFIG_YPP |
++			STEPCONFIG_XNN | STEPCONFIG_INM;
++	tscadc_writel(ts_dev, REG_STEPCONFIG13, config);
++	tscadc_writel(ts_dev, REG_STEPDELAY13, STEPCONFIG_OPENDLY);
++
++	config |= STEPCONFIG_Z1 | STEPCONFIG_FIFO1;
++	tscadc_writel(ts_dev, REG_STEPCONFIG14, config);
++	tscadc_writel(ts_dev, REG_STEPDELAY14, STEPCONFIG_OPENDLY);
++
++	tscadc_writel(ts_dev, REG_SE, STPENB_STEPENB);
++}
++
++static void tsc_idle_config(struct tscadc *ts_config)
++{
++	unsigned int	 idleconfig;
++
++	idleconfig = STEPCONFIG_YNN |
++			STEPCONFIG_INM |
++			STEPCONFIG_YPN | STEPIDLE_INP;
++	tscadc_writel(ts_config, REG_IDLECONFIG, idleconfig);
++}
++
++static irqreturn_t interrupt(int irq, void *dev)
++{
++	struct tscadc		*ts_dev = (struct tscadc *)dev;
++	struct input_dev	*input_dev = ts_dev->input;
++	unsigned int		status, irqclr = 0;
++	unsigned int		read, diff;
++	unsigned int		prev_val_x = ~0, prev_val_y = ~0;
++	unsigned int		prev_diff_x = ~0, prev_diff_y = ~0;
++	unsigned int		val_x = 0, val_y = 0, diffx = 0, diffy = 0;
++	unsigned int		z1 = 0, z2 = 0, z = 0;
++	int			i, fsm, fifocount;
++
++	status = tscadc_readl(ts_dev, REG_IRQSTATUS);
++	if (status & IRQENB_FIFO1THRES) {
++		fifocount = tscadc_readl(ts_dev, REG_FIFO0CNT);
++
++		/* Delta filter is used to remove large variations
++		 * in sampled values from ADC. The filter tries to
++		 * predict where the next coordinate could be.
++		 * This is done by taking a previous coordinate and
++		 * subtracting it form current one. Further the
++		 * algorithm compares the difference with that of
++		 * a present value, if true the value is reported
++		 * to the sub system.
++		 */
++		for (i = 0; i < (fifocount-1); i++) {
++			read = ((tscadc_readl(ts_dev, REG_FIFO0)) & 0xfff);
++			diff = abs(read - prev_val_x);
++			if (diff < prev_diff_x) {
++				prev_diff_x = diff;
++				val_x = read;
++			}
++			prev_val_x = read;
++
++			read = 0;
++			diff = 0;
++			read = ((tscadc_readl(ts_dev, REG_FIFO1)) & 0xfff);
++			diff = abs(read - prev_val_y);
++			if (diff < prev_diff_y) {
++				prev_diff_y = diff;
++				val_y = read;
++			}
++			prev_val_y = read;
++		}
++
++		diffx = abs(val_x - (ts_dev->bckup_x));
++		diffy = abs(val_y - (ts_dev->bckup_y));
++		ts_dev->bckup_x = val_x;
++		ts_dev->bckup_y = val_y;
++
++		z1 = ((tscadc_readl(ts_dev, REG_FIFO0)) & 0xfff);
++		z2 = ((tscadc_readl(ts_dev, REG_FIFO1)) & 0xfff);
++
++		if (ts_dev->pen == 0) {
++			if ((z1 != 0) && (z2 != 0)) {
++				/* cal pressure using formula
++				 * Resistance(touch) = x plate resistance *
++				 * x postion/4096 * ((z2 / z1) - 1)
++				 */
++				z = z2 - z1;
++				z *= val_x;
++				z *= ts_dev->x_plate_resistance;
++				z /= z1;
++				z = (z + 2047) >> 12;
++
++				if ((diffx < 15) && (diffy < 15)
++						&& (z <= MAX_12BIT)) {
++					input_report_abs(input_dev,
++							ABS_X, val_x);
++					input_report_abs(input_dev,
++							ABS_Y, val_y);
++					input_report_abs(input_dev,
++							ABS_PRESSURE, z);
++					input_report_key(input_dev,
++							BTN_TOUCH, 1);
++					input_sync(input_dev);
++				}
++			}
++		}
++		irqclr |= IRQENB_FIFO1THRES;
++	}
++
++	/*
++	 * Time for sequencer to settle, to read
++	 * correct state of the sequencer.
++	 */
++	udelay(SEQ_SETTLE);
++
++	status = tscadc_readl(ts_dev, REG_RAWIRQSTATUS);
++	if (status & IRQENB_PENUP) {
++		/* Pen up event */
++		fsm = tscadc_readl(ts_dev, REG_ADCFSM);
++		if (fsm == ADCFSM_STEPID) {
++			ts_dev->pen = 1;
++			ts_dev->bckup_x = 0;
++			ts_dev->bckup_y = 0;
++			input_report_key(input_dev, BTN_TOUCH, 0);
++			input_report_abs(input_dev, ABS_PRESSURE, 0);
++			input_sync(input_dev);
++		} else {
++			ts_dev->pen = 0;
++		}
++		irqclr |= IRQENB_PENUP;
++	}
++
++	tscadc_writel(ts_dev, REG_IRQSTATUS, irqclr);
++	/* check pending interrupts */
++	tscadc_writel(ts_dev, REG_IRQEOI, 0x0);
++
++	tscadc_writel(ts_dev, REG_SE, STPENB_STEPENB);
++	return IRQ_HANDLED;
++}
++
++/*
++* The functions for inserting/removing driver as a module.
++*/
++
++static	int __devinit tscadc_probe(struct platform_device *pdev)
++{
++	const struct tsc_data		*pdata = pdev->dev.platform_data;
++	struct resource			*res;
++	struct tscadc			*ts_dev;
++	struct input_dev		*input_dev;
++	struct clk			*clk;
++	int				err;
++	int				clk_value, ctrl;
++
++	if (!pdata) {
++		dev_err(&pdev->dev, "missing platform data.\n");
++		return -EINVAL;
++	}
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res) {
++		dev_err(&pdev->dev, "no memory resource defined.\n");
++		return -EINVAL;
++	}
++
++	/* Allocate memory for device */
++	ts_dev = kzalloc(sizeof(struct tscadc), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!ts_dev || !input_dev) {
++		dev_err(&pdev->dev, "failed to allocate memory.\n");
++		err = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	ts_dev->irq = platform_get_irq(pdev, 0);
++	if (ts_dev->irq < 0) {
++		dev_err(&pdev->dev, "no irq ID is specified.\n");
++		err = -ENODEV;
++		goto err_free_mem;
++	}
++
++	ts_dev->input = input_dev;
++	ts_dev->wires = pdata->wires;
++	ts_dev->x_plate_resistance = pdata->x_plate_resistance;
++	ts_dev->pen = 1;
++
++	res =  request_mem_region(res->start, resource_size(res), pdev->name);
++	if (!res) {
++		dev_err(&pdev->dev, "failed to reserve registers.\n");
++		err = -EBUSY;
++		goto err_free_mem;
++	}
++
++	ts_dev->tsc_base = ioremap(res->start, resource_size(res));
++	if (!ts_dev->tsc_base) {
++		dev_err(&pdev->dev, "failed to map registers.\n");
++		err = -ENOMEM;
++		goto err_release_mem_region;
++	}
++
++	err = request_irq(ts_dev->irq, interrupt, IRQF_DISABLED,
++			pdev->dev.driver->name, ts_dev);
++	if (err) {
++		dev_err(&pdev->dev, "failed to allocate irq.\n");
++		goto err_unmap_regs;
++	}
++
++	ts_dev->tsc_ick = clk_get(&pdev->dev, "adc_tsc_ick");
++	if (IS_ERR(ts_dev->tsc_ick)) {
++		dev_err(&pdev->dev, "failed to get TSC ick\n");
++		goto err_free_irq;
++	}
++	clk_enable(ts_dev->tsc_ick);
++
++	clk = clk_get(&pdev->dev, "adc_tsc_fck");
++	if (IS_ERR(clk)) {
++		dev_err(&pdev->dev, "failed to get TSC fck\n");
++		err = PTR_ERR(clk);
++		goto err_disable_clk;
++	}
++
++	clk_value = clk_get_rate(clk) / ADC_CLK;
++	if (clk_value < 7) {
++		dev_err(&pdev->dev, "clock input less than min clock requirement\n");
++		goto err_disable_clk;
++	}
++	/* CLKDIV needs to be configured to the value minus 1 */
++	clk_value = clk_value - 1;
++	tscadc_writel(ts_dev, REG_CLKDIV, clk_value);
++
++	 /* Enable wake-up of the SoC using touchscreen */
++	tscadc_writel(ts_dev, REG_IRQWAKEUP, IRQWKUP_ENB);
++
++
++	ctrl = CNTRLREG_STEPCONFIGWRT |
++			CNTRLREG_TSCENB |
++			CNTRLREG_STEPID;
++	switch (ts_dev->wires) {
++	case 4:
++		ctrl |= CNTRLREG_4WIRE;
++		break;
++	case 5:
++		ctrl |= CNTRLREG_5WIRE;
++		break;
++	case 8:
++		ctrl |= CNTRLREG_8WIRE;
++		break;
++	}
++	tscadc_writel(ts_dev, REG_CTRL, ctrl);
++
++	tsc_idle_config(ts_dev);
++	tscadc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO1THRES);
++	tsc_step_config(ts_dev);
++	tscadc_writel(ts_dev, REG_FIFO1THR, 6);
++
++	ctrl |= CNTRLREG_TSCSSENB;
++	tscadc_writel(ts_dev, REG_CTRL, ctrl);
++
++	input_dev->name = "ti-tsc-adc";
++	input_dev->dev.parent = &pdev->dev;
++
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
++
++	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
++	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT, 0, 0);
++
++	/* register to the input system */
++	err = input_register_device(input_dev);
++	if (err)
++		goto err_disable_clk;
++
++	platform_set_drvdata(pdev, ts_dev);
++	return 0;
++
++err_disable_clk:
++	clk_disable(ts_dev->tsc_ick);
++	clk_put(ts_dev->tsc_ick);
++err_free_irq:
++	free_irq(ts_dev->irq, ts_dev);
++err_unmap_regs:
++	iounmap(ts_dev->tsc_base);
++err_release_mem_region:
++	release_mem_region(res->start, resource_size(res));
++err_free_mem:
++	input_free_device(input_dev);
++	kfree(ts_dev);
++	return err;
++}
++
++static int __devexit tscadc_remove(struct platform_device *pdev)
++{
++	struct tscadc		*ts_dev = platform_get_drvdata(pdev);
++	struct resource		*res;
++
++	free_irq(ts_dev->irq, ts_dev);
++
++	input_unregister_device(ts_dev->input);
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	iounmap(ts_dev->tsc_base);
++	release_mem_region(res->start, resource_size(res));
++
++	clk_disable(ts_dev->tsc_ick);
++	clk_put(ts_dev->tsc_ick);
++
++	kfree(ts_dev);
++
++	platform_set_drvdata(pdev, NULL);
++	return 0;
++}
++
++static struct platform_driver ti_tsc_driver = {
++	.probe	= tscadc_probe,
++	.remove	= __devexit_p(tscadc_remove),
++	.driver	= {
++			.name   = "tsc",
++			.owner	= THIS_MODULE,
++	},
++};
++
++static int __init ti_tsc_init(void)
++{
++	return platform_driver_register(&ti_tsc_driver);
++}
++module_init(ti_tsc_init);
++
++static void __exit ti_tsc_exit(void)
++{
++	platform_driver_unregister(&ti_tsc_driver);
++}
++module_exit(ti_tsc_exit);
++
++MODULE_DESCRIPTION("TI touchscreen controller driver");
++MODULE_AUTHOR("Rachna Patil <rachna@ti.com>");
++MODULE_LICENSE("GPL");
++
+diff --git a/include/linux/input/ti_tscadc.h b/include/linux/input/ti_tscadc.h
+new file mode 100644
+index 0000000..b10a527
+--- /dev/null
++++ b/include/linux/input/ti_tscadc.h
+@@ -0,0 +1,17 @@
++#ifndef __LINUX_TI_TSCADC_H
++#define __LINUX_TI_TSCADC_H
++
++/**
++ * struct tsc_data	Touchscreen wire configuration
++ * @wires:		Wires refer to application modes
++ *			i.e. 4/5/8 wire touchscreen support
++ *			on the platform.
++ * @x_plate_resistance:	X plate resistance.
++ */
++
++struct tsc_data {
++	int wires;
++	int x_plate_resistance;
++};
++
++#endif
 -- 
-Anton Vorontsov
-Email: cbouatmailru@gmail.com
+1.7.1
+

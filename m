@@ -1,66 +1,64 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: mc13783-pwrbutton - convert to use
- module_platform_driver()
-Date: Fri, 09 Dec 2011 10:14:06 +0800
-Message-ID: <1323396846.3740.10.camel@phoenix>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Shridhar Rasal <srasal@nvidia.com>
+Subject: [PATCH 1/1] input: keyboard: Set configuration registers
+Date: Fri,  9 Dec 2011 12:59:18 +0530
+Message-ID: <1323415758-16822-1-git-send-email-srasal@nvidia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:39028 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751721Ab1LICOO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Dec 2011 21:14:14 -0500
+Received: from hqemgate04.nvidia.com ([216.228.121.35]:18639 "EHLO
+	hqemgate04.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750842Ab1LIH0L (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Dec 2011 02:26:11 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: rydberg@euromail.se, swarren@nvidia.com, riyer@nvidia.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, Shridhar Rasal <srasal@nvidia.com>
 
-This patch converts mc13783-pwrbutton to use the module_platform_driver()
-macro which makes the code smaller and a bit simpler.
+-Set only REQUIRED row and column configuration register to
+PROPER values to avoid continuously generating KBC input events.
+-Use *en* field in pin_cfg, to check GPIO_x_ROW_EN register
+should be set or clear.
 
-Also staticise mc13783_pwrbutton_driver which is not used outside
-this driver so no need to make the symbol global.
-
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
+Signed-off-by: Shridhar Rasal <srasal@nvidia.com>
 ---
- drivers/input/misc/mc13783-pwrbutton.c |   14 ++------------
- 1 files changed, 2 insertions(+), 12 deletions(-)
+ arch/arm/mach-tegra/include/mach/kbc.h |    1 +
+ drivers/input/keyboard/tegra-kbc.c     |   13 ++++++++-----
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
-index 09b0522..8428f1e 100644
---- a/drivers/input/misc/mc13783-pwrbutton.c
-+++ b/drivers/input/misc/mc13783-pwrbutton.c
-@@ -255,7 +255,7 @@ static int __devexit mc13783_pwrbutton_remove(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
+index 4f3572a..2212284 100644
+--- a/arch/arm/mach-tegra/include/mach/kbc.h
++++ b/arch/arm/mach-tegra/include/mach/kbc.h
+@@ -38,6 +38,7 @@
  
--struct platform_driver mc13783_pwrbutton_driver = {
-+static struct platform_driver mc13783_pwrbutton_driver = {
- 	.probe		= mc13783_pwrbutton_probe,
- 	.remove		= __devexit_p(mc13783_pwrbutton_remove),
- 	.driver		= {
-@@ -264,17 +264,7 @@ struct platform_driver mc13783_pwrbutton_driver = {
- 	},
+ struct tegra_kbc_pin_cfg {
+ 	bool is_row;
++	bool en;
+ 	unsigned char num;
  };
  
--static int __init mc13783_pwrbutton_init(void)
--{
--	return platform_driver_register(&mc13783_pwrbutton_driver);
--}
--module_init(mc13783_pwrbutton_init);
--
--static void __exit mc13783_pwrbutton_exit(void)
--{
--	platform_driver_unregister(&mc13783_pwrbutton_driver);
--}
--module_exit(mc13783_pwrbutton_exit);
-+module_platform_driver(mc13783_pwrbutton_driver);
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index cf3228b..faf4f3e 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -447,11 +447,14 @@ static void tegra_kbc_config_pins(struct tegra_kbc *kbc)
+ 		row_cfg &= ~r_mask;
+ 		col_cfg &= ~c_mask;
  
- MODULE_ALIAS("platform:mc13783-pwrbutton");
- MODULE_DESCRIPTION("MC13783 Power Button");
+-		if (pdata->pin_cfg[i].is_row)
+-			row_cfg |= ((pdata->pin_cfg[i].num << 1) | 1) << r_shft;
+-		else
+-			col_cfg |= ((pdata->pin_cfg[i].num << 1) | 1) << c_shft;
+-
++		if (pdata->pin_cfg[i].en) {
++			if (pdata->pin_cfg[i].is_row)
++				row_cfg |= ((pdata->pin_cfg[i].num << 1) | 1)
++						<< r_shft;
++			else
++				col_cfg |= ((pdata->pin_cfg[i].num << 1) | 1)
++						<< c_shft;
++		}
+ 		writel(row_cfg, kbc->mmio + r_offs);
+ 		writel(col_cfg, kbc->mmio + c_offs);
+ 	}
 -- 
-1.7.5.4
-
-
+1.7.1
 

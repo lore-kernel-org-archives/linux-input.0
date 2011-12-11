@@ -1,11 +1,11 @@
 From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
 Subject: [PATCH 09/10] input: serio: ams-delta: Toggle keyboard power over GPIO
 Date: Sun, 11 Dec 2011 21:12:07 +0100
-Message-ID: <1323634328-856-10-git-send-email-jkrzyszt@tis.icnet.pl>
+Message-ID: <1323634328-856-10-git-send-email-jkrzyszt__23552.5954551578$1323634661$gmane$org@tis.icnet.pl>
 References: <1323634328-856-1-git-send-email-jkrzyszt@tis.icnet.pl>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-omap-owner@vger.kernel.org>
 In-Reply-To: <1323634328-856-1-git-send-email-jkrzyszt@tis.icnet.pl>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-omap-owner@vger.kernel.org
 To: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -149,3 +149,4 @@ index d4d08bd..1499c7d 100644
  module_exit(ams_delta_serio_exit);
 -- 
 1.7.3.4
+

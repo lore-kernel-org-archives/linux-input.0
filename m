@@ -1,30 +1,27 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: mc13783-pwrbutton - convert to use
- module_platform_driver()
-Date: Sun, 11 Dec 2011 23:43:58 -0800
-Message-ID: <20111212074358.GB4682@core.coreip.homeip.net>
-References: <1323396846.3740.10.camel@phoenix>
+Subject: Re: [PATCH 2/2] Input: keyboard: Staticise non-exported symbols
+Date: Sun, 11 Dec 2011 23:45:47 -0800
+Message-ID: <20111212074547.GC4682@core.coreip.homeip.net>
+References: <1323394677.3740.2.camel@phoenix>
+ <1323394752.3740.3.camel@phoenix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:57857 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:49924 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750953Ab1LLHoF (ORCPT
+	with ESMTP id S1751131Ab1LLHpy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Dec 2011 02:44:05 -0500
+	Mon, 12 Dec 2011 02:45:54 -0500
 Content-Disposition: inline
-In-Reply-To: <1323396846.3740.10.camel@phoenix>
+In-Reply-To: <1323394752.3740.3.camel@phoenix>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Michael Hennerich <hennerich@blackfin.uclinux.org>, Naveen Kumar G <naveen.gaddipati@stericsson.com>, Sundar Iyer <sundar.iyer@stericsson.com>, linux-input@vger.kernel.org
 
-On Fri, Dec 09, 2011 at 10:14:06AM +0800, Axel Lin wrote:
-> This patch converts mc13783-pwrbutton to use the module_platform_driver()
-> macro which makes the code smaller and a bit simpler.
-> 
-> Also staticise mc13783_pwrbutton_driver which is not used outside
-> this driver so no need to make the symbol global.
+On Fri, Dec 09, 2011 at 09:39:12AM +0800, Axel Lin wrote:
+> These symbols are not used outside it's driver so no need to
+> make the symbol global.
 > 
 
 Applied, thank you Axel.

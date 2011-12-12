@@ -1,44 +1,48 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH] Input: bcm5974 - Fix USB autosuspend
-Date: Mon, 12 Dec 2011 11:26:30 +0100
-Message-ID: <20111212102630.GA2479@polaris.bitmath.org>
-References: <1323680764-2155-1-git-send-email-rydberg@euromail.se>
- <201112121002.53004.oneukum@suse.de>
+From: Felipe Contreras <felipe.contreras@gmail.com>
+Subject: Interrupt issue in twl4030_keypad
+Date: Mon, 12 Dec 2011 20:30:49 +0200
+Message-ID: <CAMP44s2xhZaoM4KVT0jC5RpdW7Ezp9YAHMG1pC+30Bbqjno7jg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:53305 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750856Ab1LLKML (ORCPT
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:59898 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751461Ab1LLSau (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Dec 2011 05:12:11 -0500
-Content-Disposition: inline
-In-Reply-To: <201112121002.53004.oneukum@suse.de>
+	Mon, 12 Dec 2011 13:30:50 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Garrett <mjg@redhat.com>
+To: linux-omap@vger.kernel.org, stable@kernel.org, Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-input@vger.kernel.org, Felipe Balbi <balbi@ti.com>
 
-On Mon, Dec 12, 2011 at 10:02:52AM +0100, Oliver Neukum wrote:
-> Am Montag, 12. Dezember 2011, 10:06:04 schrieb Henrik Rydberg:
-> > @@ -895,6 +857,10 @@ static int bcm5974_probe(struct usb_interface *iface,
-> >         /* save our data pointer in this interface device */
-> >         usb_set_intfdata(iface, dev);
-> >  
-> > +       error = bcm5974_start_traffic(dev);
-> > +       if (error)
-> > +               goto err_free_buffer;
-> > +
-> >         return 0;
-> >  
-> >  err_free_buffer:
-> > -- 
-> 
-> Why do you want to start traffic before open() in probe() ?
-> It doesn't make sense to ask a device to deliver data nobody
-> wants.
+Hi,
 
-Seems I was a bit trigger happy here, will send another one.
+The short version is this: either we revert this patch[1], or we apply
+this patch series[2], as well as its essential fixes[3].
 
-Thanks,
-Henrik
+The long version is this. There's a synchronization issue with the
+current keypad driver and twl core; the irq is marked as handled even
+though the thread that is supposed to handle it hasn't run yet, and
+since it's clear-on-read, and it hasn't been read, it's detected
+again, so they keypad driver receives two interrupt callbacks instead
+of one, and in the second one reads nothing from the i2c register, so
+a key release is assumed. This makes key-presses as simple as shift+a
+impossible.
+
+In other words, it's totally unreliable. This might not be isolated to
+the keypard driver, but other "nested" interrupts from twl core that
+started using request_threaded_irq prematurely (before it was
+supported by the twl core). But at least I haven't tried those.
+
+This patch was applied on 2.6.33, which means all versions before 3.2
+are affected, including 3.1.
+
+What do you think about fixing this on stable kernels?
+
+Cheers.
+
+[1] http://article.gmane.org/gmane.linux.kernel/932255
+[2] http://article.gmane.org/gmane.linux.ports.arm.omap/59958
+[3] http://article.gmane.org/gmane.linux.ports.arm.omap/67333
+-- 
+Felipe Contreras

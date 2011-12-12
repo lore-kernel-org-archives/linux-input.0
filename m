@@ -1,48 +1,76 @@
-From: Felipe Contreras <felipe.contreras@gmail.com>
-Subject: Interrupt issue in twl4030_keypad
-Date: Mon, 12 Dec 2011 20:30:49 +0200
-Message-ID: <CAMP44s2xhZaoM4KVT0jC5RpdW7Ezp9YAHMG1pC+30Bbqjno7jg@mail.gmail.com>
+From: simon@mungewell.org
+Subject: Re: Saitek PS1000 gamepad - HID descriptor wonky
+Date: Mon, 12 Dec 2011 13:49:59 -0500
+Message-ID: <98f3f0015149c06f45aa0af8e5851777.squirrel@host171.canaca.com>
+References: <20111122102832.GA22152@v36691.1blu.de>
+    <95ab6669b51867deb14cdd81c79dead1.squirrel@host171.canaca.com>
+    <20111123084340.GA18805@tapura>
+    <3b70c0a60fd5821240583b7b5c1412b0.squirrel@host171.canaca.com>
+    <20111124081205.GA22623@tapura>
+    <30cc35606560d634477e2a288bdf6db3.squirrel@host171.canaca.com>
+    <20111208123424.GA1298@tapura>
+    <a8799dfc5b69fd158ec54b099d231961.squirrel@host171.canaca.com>
+    <20111210131702.GA5620@tapura>
+    <d13c53ac7f835eaff26cfc2aae0fac6c.squirrel@mungewell.org>
+    <20111211214010.GA14046@tapura>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:59898 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751461Ab1LLSau (ORCPT
+Received: from host171.canaca.com ([67.55.55.225]:52752 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753848Ab1LLSuC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Dec 2011 13:30:50 -0500
+	Mon, 12 Dec 2011 13:50:02 -0500
+In-Reply-To: <20111211214010.GA14046@tapura>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-omap@vger.kernel.org, stable@kernel.org, Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-input@vger.kernel.org, Felipe Balbi <balbi@ti.com>
+To: =?iso-8859-1?Q?=22Andreas_H=FCbner=22?= <andreas@k4n.de>
+Cc: linux-input@vger.kernel.org
 
-Hi,
+>> You have to check the rsize, otherwise you might have problems writing
+>> outside the size of the original descriptor.
+>
+> That's exactly what I've been doing, or did I miss something?
 
-The short version is this: either we revert this patch[1], or we apply
-this patch series[2], as well as its essential fixes[3].
+> In fact, I wanted to be absolutely sure and only mess with the descriptor
+> when the sizes match.  (*rsize == 137)
 
-The long version is this. There's a synchronization issue with the
-current keypad driver and twl core; the irq is marked as handled even
-though the thread that is supposed to handle it hasn't run yet, and
-since it's clear-on-read, and it hasn't been read, it's detected
-again, so they keypad driver receives two interrupt callbacks instead
-of one, and in the second one reads nothing from the i2c register, so
-a key release is assumed. This makes key-presses as simple as shift+a
-impossible.
+Err.. must have been sleepy when I looked over your code. Don't know
+whether '>=' is better than '==', all other modules do this and I wonder
+whether the kernel can get a larger descriptor block by some mechanism.
 
-In other words, it's totally unreliable. This might not be isolated to
-the keypard driver, but other "nested" interrupts from twl core that
-started using request_threaded_irq prematurely (before it was
-supported by the twl core). But at least I haven't tried those.
 
-This patch was applied on 2.6.33, which means all versions before 3.2
-are affected, including 3.1.
+> Should already be on the list. And I was able to identify the culprit so
+> no need to bother you.
+>
+> The problem is the following code in hidinput_configure_usage
+> (drivers/hid/hid-input.c):
+>
+> 	if (field->flags & HID_MAIN_ITEM_CONSTANT)
+> 		goto ignore;
+>
+> The buttons and the hat are defined with the constant flag enabled.
+> Now I might be reading the spec wrong, but I'm not so sure that we can
+> simply skip constant values.
 
-What do you think about fixing this on stable kernels?
+Quite obviously if the buttons change value in the HID stream then they
+are not 'CONSTANT', personally I would patch this part of the HID
+descriptor so they are just defined as 'input variable'.
 
-Cheers.
+> Well, I need to patch the descriptor nevertheless because it defines a
+> non-existing sixth axis. Might as well remove the constant flag on the
+> buttons and hat. However, other devices might be affected as well, so
+> I'd like to get some input on how to deal with the situation.
 
-[1] http://article.gmane.org/gmane.linux.kernel/932255
-[2] http://article.gmane.org/gmane.linux.ports.arm.omap/59958
-[3] http://article.gmane.org/gmane.linux.ports.arm.omap/67333
--- 
-Felipe Contreras
+Not sure why you would think other devices might be affected. Patching the
+HID descriptor should be limited to this USBID pair, and even only active
+if the device provided matches the template you use to trigger patching.
+
+Some drivers provide a complete/new descriptor where patching is
+complicated, although you gain extra hacker-points if you can achieve the
+same with a minimal patch :-)
+
+Simon.
+
+

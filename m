@@ -1,58 +1,71 @@
-From: Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH v3] Driver for AUO In-Cell touchscreens using pixcir ICs
-Date: Tue, 13 Dec 2011 11:03:19 +0100
-Message-ID: <201112131103.19427.heiko@sntech.de>
-References: <201112072348.04578.heiko@sntech.de>
+From: Grazvydas Ignotas <notasas@gmail.com>
+Subject: Re: Interrupt issue in twl4030_keypad
+Date: Tue, 13 Dec 2011 15:15:41 +0200
+Message-ID: <CANOLnON4bEx-g+WhfJ9qQTmeDOMNoFnbF6CnkO9r33W14PnuJQ@mail.gmail.com>
+References: <CAMP44s2xhZaoM4KVT0jC5RpdW7Ezp9YAHMG1pC+30Bbqjno7jg@mail.gmail.com>
+	<20111212191241.GC3408@legolas.emea.dhcp.ti.com>
+	<CAMP44s1X_KDbzu2CLO0fzM=7rozTQ4K10AtQkc0Ww8uDg8Z-mw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from h1778886.stratoserver.net ([85.214.133.74]:52600 "EHLO
-	h1778886.stratoserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753457Ab1LMKDW convert rfc822-to-8bit (ORCPT
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:35470 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751606Ab1LMNPn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Dec 2011 05:03:22 -0500
-In-Reply-To: <201112072348.04578.heiko@sntech.de>
+	Tue, 13 Dec 2011 08:15:43 -0500
+In-Reply-To: <CAMP44s1X_KDbzu2CLO0fzM=7rozTQ4K10AtQkc0Ww8uDg8Z-mw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Felipe Contreras <felipe.contreras@gmail.com>
+Cc: balbi@ti.com, linux-omap@vger.kernel.org, stable@kernel.org, Greg Kroah-Hartman <gregkh@suse.de>, linux-input@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>
 
-Hi Dmitry,
+On Mon, Dec 12, 2011 at 10:55 PM, Felipe Contreras
+<felipe.contreras@gmail.com> wrote:
+> On Mon, Dec 12, 2011 at 9:12 PM, Felipe Balbi <balbi@ti.com> wrote:
+>> On Mon, Dec 12, 2011 at 08:30:49PM +0200, Felipe Contreras wrote:
+>>> The short version is this: either we revert this patch[1], or we ap=
+ply
+>>> this patch series[2], as well as its essential fixes[3].
+>>>
+>>> The long version is this. There's a synchronization issue with the
+>>> current keypad driver and twl core; the irq is marked as handled ev=
+en
+>>> though the thread that is supposed to handle it hasn't run yet, and
+>>> since it's clear-on-read, and it hasn't been read, it's detected
+>>> again, so they keypad driver receives two interrupt callbacks inste=
+ad
+>>> of one, and in the second one reads nothing from the i2c register, =
+so
+>>> a key release is assumed. This makes key-presses as simple as shift=
++a
+>>> impossible.
+>>>
+>>> In other words, it's totally unreliable. This might not be isolated=
+ to
+>>> the keypard driver, but other "nested" interrupts from twl core tha=
+t
+>>> started using request_threaded_irq prematurely (before it was
+>>> supported by the twl core). But at least I haven't tried those.
+>>>
+>>> This patch was applied on 2.6.33, which means all versions before 3=
+=2E2
+>>> are affected, including 3.1.
+>>>
+>>> What do you think about fixing this on stable kernels?
+>>
+>> I believe Samuel has already applied those to the MFD tree.
+>
+> Yeap, I think Linus' tree is going to be fine (3.2), but I'm trying t=
+o
+> find out what to do with previous kernels: as in, what should be done
+> for stable trees.
 
-Am Mittwoch, 7. Dezember 2011, 23:48:04 schrieb Heiko St=FCbner:
-> Some displays from AUO have a so called in-cell touchscreen, meaning =
-it
-> is built directly into the display unit.
->=20
-> Touchdata is gathered through PIXCIR Tango-ICs and processed in an
-> Atmel ATmega168P with custom firmware. Communication between the host
-> system and ATmega is done via I2C.
->=20
-> Devices using this touch solution include the Dell Streak5 and the fa=
-mily
-> of Qisda ebook readers.
->=20
-> The driver reports single- and multi-touch events including touch are=
-a
-> values.
->=20
-> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-> ---
-> changes since v2: address comments from Dmitry Torokhov
-> especially suspend/resume handling
->=20
-> changes since v1: address comments from Christoph Fritz
-> (wrong type for error checks, wrong call to input_free_device)
+I only see this in his -next branch, so 3.2 is still affected.
 
-ping for this?
 
-As I wrote in the other thread, the device is not capable of tracking t=
-he=20
-individual fingers, so this v3 should hopefully address all your commen=
-ts.
-
-Heiko
+--=20
+Gra=C5=BEvydas
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

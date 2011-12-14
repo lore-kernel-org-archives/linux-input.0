@@ -1,65 +1,51 @@
-From: Andreas =?iso-8859-1?Q?H=FCbner?= <andreas@k4n.de>
-Subject: Re: Saitek PS1000 gamepad - HID descriptor wonky
-Date: Tue, 13 Dec 2011 20:09:31 +0100
-Message-ID: <20111213190931.GA32329@v36691.1blu.de>
-References: <20111123084340.GA18805@tapura>
- <3b70c0a60fd5821240583b7b5c1412b0.squirrel@host171.canaca.com>
- <20111124081205.GA22623@tapura>
- <30cc35606560d634477e2a288bdf6db3.squirrel@host171.canaca.com>
- <20111208123424.GA1298@tapura>
- <a8799dfc5b69fd158ec54b099d231961.squirrel@host171.canaca.com>
- <20111210131702.GA5620@tapura>
- <d13c53ac7f835eaff26cfc2aae0fac6c.squirrel@mungewell.org>
- <20111211214010.GA14046@tapura>
- <98f3f0015149c06f45aa0af8e5851777.squirrel@host171.canaca.com>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: [PATCH 2/3] HID: usbhid: hid-core: submit queued urbs before suspend
+Date: Wed, 14 Dec 2011 08:55:39 +0100
+Message-ID: <201112140855.40050.oneukum@suse.de>
+References: <1321529030-7845-1-git-send-email-djkurtz@chromium.org> <1321529030-7845-3-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from v36691.1blu.de ([89.202.1.191]:56549 "EHLO v36691.1blu.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751984Ab1LMTJm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Dec 2011 14:09:42 -0500
-Content-Disposition: inline
-In-Reply-To: <98f3f0015149c06f45aa0af8e5851777.squirrel@host171.canaca.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: Text/Plain; charset=iso-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1321529030-7845-3-git-send-email-djkurtz@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: jkosina@suse.cz, bleung@chromium.org, stern@rowland.harvard.edu, olofj@chromium.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: linux-input@vger.kernel.org
 
-On Mon, Dec 12, 2011 at 01:49:59PM -0500, simon@mungewell.org wrote:
-> Err.. must have been sleepy when I looked over your code. Don't know
-> whether '>=' is better than '==', all other modules do this and I wonder
-> whether the kernel can get a larger descriptor block by some mechanism.
+Am Donnerstag, 17. November 2011, 12:23:49 schrieb Daniel Kurtz:
+> Unfortunately, this usually happens while the first LED request is
+> actually still being processed.  Thus when the completion handler tri=
+es
+> to submit the second LED request it fails, since REPORTED_IDLE is
+> already set!  This REPORTED_IDLE check failure causes the completion
+> handler to complete, however without clearing the CTRL_RUNNING flag.
+> This, in turn, means that the suspend() handler's wait_io() condition
+> is never satisfied, and instead it times out after 10 seconds, aborti=
+ng
+> the original system suspend.
+>=20
+> This patch changes the behavior to the following:
+>   (1) allow completion handler to finish submitting all queued URBs, =
+even if
+>       REPORTED_IDLE is set.  This guarantees that all URBs queued bef=
+ore the
+>       hid-core suspend() call will be submitted before the system is
+>       suspended.
 
-Well, this would be kind of strange, wouldn't it?
-But I can change it to '>=' if it makes you happy. :)
+Hi,
 
+why is this desirable? You'd want to requests to be executed at resumpt=
+ion.
+A system suspend will alter the LED state anyway.
 
-> Quite obviously if the buttons change value in the HID stream then they
-> are not 'CONSTANT', personally I would patch this part of the HID
-> descriptor so they are just defined as 'input variable'.
-
-While I personally agree with that interpretation, the spec only states
-that constant fields can not be written by the host. (I know, this
-doesn't make any sense for an input report.)
-
-Somewhere I read that a constant field with no usage assigned to it
-should be treated as padding. But in this case, there is a usage
-assigned to.
-And this is what I'd actually do in hidinput_configure_usage: only goto
-ignore if there is no usage associated with the field.
-
-On the other hand, the gamepad example in the HID Usage Tables doesn't
-use the constant flag for buttons.
-
-
-> Not sure why you would think other devices might be affected. Patching the
-> HID descriptor should be limited to this USBID pair, and even only active
-> if the device provided matches the template you use to trigger patching.
-
-I was worrying that other devices might declare some non-padding input
-fields as constants. So if you fix this problem in the generic part
-(i. e. hid-input.c) those devices will also start working correctly.
-
-
-Andreas
+	Regards
+		Oliver
+--=20
+- - -=20
+SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imend=F6=
+rffer, HRB 16746 (AG N=FCrnberg)=20
+Maxfeldstra=DFe 5                        =20
+90409 N=FCrnberg=20
+Germany=20
+- - -=20

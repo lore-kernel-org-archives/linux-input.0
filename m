@@ -1,49 +1,38 @@
-From: Vladimir Zapolskiy <vladimir.zapolskiy@nokia.com>
-Subject: Re: [PATCH] OMAP3: RX-51: complete tsc2005 controller support
-Date: Wed, 14 Dec 2011 17:59:10 +0200
-Message-ID: <4EE8C7CE.3030009@nokia.com>
-References: <1323867676-15956-1-git-send-email-vladimir.zapolskiy@nokia.com> <alpine.DEB.2.00.1112141742530.28200@kernel.research.nokia.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH v3] OMAP3: RX-51: complete tsc2005 controller support
+Date: Wed, 14 Dec 2011 09:31:53 -0800
+Message-ID: <20111214173152.GY32251@atomide.com>
+References: <1323877279-10275-1-git-send-email-vladimir.zapolskiy@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([147.243.1.47]:55270 "EHLO mgw-sa01.nokia.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752045Ab1LNP7N (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Dec 2011 10:59:13 -0500
-In-Reply-To: <alpine.DEB.2.00.1112141742530.28200@kernel.research.nokia.com>
+Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:48531 "EHLO
+	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755373Ab1LNRb4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Dec 2011 12:31:56 -0500
+Content-Disposition: inline
+In-Reply-To: <1323877279-10275-1-git-send-email-vladimir.zapolskiy@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aaro Koskinen <aaro.koskinen@nokia.com>
-Cc: linux-omap@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>
+To: Vladimir Zapolskiy <vladimir.zapolskiy@nokia.com>
+Cc: linux-omap@vger.kernel.org, linux-input@vger.kernel.org, Aaro Koskinen <aaro.koskinen@nokia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
 Hi,
 
-On 12/14/2011 05:45 PM, Aaro Koskinen wrote:
-> Hi,
->
-> On Wed, 14 Dec 2011, Vladimir Zapolskiy wrote:
->> This change adds initialization of TSC2005 touchscreen controller
->> found on Nokia RX-51 board.
->>
->> The change is taken from MeeGo kernel adaptation for Nokia N900,
->> it repeats the work of Aaro Koskinen and Mika Laitio, the original
->> discussion is at
->> http://www.mail-archive.com/linux-omap@vger.kernel.org/msg26749.html
->
-> I think Tony applied this already:
->
-> http://git.kernel.org/?p=linux/kernel/git/tmlind/linux-omap.git;a=commit;h=3dad5356aa47097cf67027cf0a07298b4f5baef6
->
+* Vladimir Zapolskiy <vladimir.zapolskiy@nokia.com> [111214 07:09]:
+> This change adds initialization of TSC2005 touchscreen controller found on Nokia
+> RX-51 board.
+> 
+> The change is taken from MeeGo kernel adaptation for Nokia N900, it repeats the
+> work of Aaro Koskinen and Mika Laitio, the original discussion is at
+> http://www.mail-archive.com/linux-omap@vger.kernel.org/msg26749.html
 
-great, I haven't noticed that initially. In that case please ignore the 
-duplicate.
+We already have commit 3dad5356aa47097cf67027cf0a07298b4f5baef6
+queued up in linux-omap board branch. Can you please make this
+and incremental patch to that one? Looks like you got some additional
+changes like the muxing of the pins.
 
->
-> And that patch was from Maemo, not MeeGo kernel...
->
-> A.
+Regards,
 
---
-With best wishes,
-Vladimir
+Tony

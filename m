@@ -1,12 +1,14 @@
 From: Vladimir Zapolskiy <vladimir.zapolskiy@nokia.com>
-Subject: [PATCH] OMAP3: RX-51: complete tsc2005 controller support
-Date: Wed, 14 Dec 2011 15:01:16 +0200
-Message-ID: <1323867676-15956-1-git-send-email-vladimir.zapolskiy@nokia.com>
+Subject: [PATCH v2] OMAP3: RX-51: complete tsc2005 controller support
+Date: Wed, 14 Dec 2011 15:02:55 +0200
+Message-ID: <1323867775-16031-1-git-send-email-vladimir.zapolskiy@nokia.com>
+References: <1323867676-15956-1-git-send-email-vladimir.zapolskiy@nokia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([147.243.1.48]:17427 "EHLO mgw-sa02.nokia.com"
+Received: from smtp.nokia.com ([147.243.128.26]:38004 "EHLO mgw-da02.nokia.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756583Ab1LNNBx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Dec 2011 08:01:53 -0500
+	id S1755048Ab1LNNDQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Dec 2011 08:03:16 -0500
+In-Reply-To: <1323867676-15956-1-git-send-email-vladimir.zapolskiy@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-omap@vger.kernel.org, linux-input@vger.kernel.org
@@ -24,6 +26,9 @@ Cc: Tony Lindgren <tony@atomide.com>
 Cc: Aaro Koskinen <aaro.koskinen@nokia.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
+Changes from v1 to v2:
+* whitespace fix
+
  arch/arm/mach-omap2/board-rx51-peripherals.c |   45 ++++++++++++++++++++++++-
  1 files changed, 43 insertions(+), 2 deletions(-)
 
@@ -96,7 +101,7 @@ index ba1aa07..f30484e 100644
 +	r = gpio_request(RX51_TSC2005_IRQ_GPIO, "tsc2005 IRQ");
 +	if (r >= 0)
 +		gpio_direction_input(RX51_TSC2005_IRQ_GPIO);
-+        else
++	else
 +		printk(KERN_ERR "unable to get %s GPIO\n", "tsc2005 IRQ");
 +
 +	r = gpio_request(RX51_TSC2005_RESET_GPIO, "tsc2005 reset");

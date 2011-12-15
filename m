@@ -1,138 +1,43 @@
-From: Aaron Tian <aaron_tian@pixart.com.tw>
-Subject: [PATCH v2] input: hid-multitouch- support PixArt optical touch screen
-Date: Thu, 15 Dec 2011 11:09:06 +0800
-Message-ID: <4EE964D2.5030707@pixart.com.tw>
+From: Valdis.Kletnieks@vt.edu
+Subject: Re: [PATCH] input: signedness bug in cma3000_thread_irq()
+Date: Wed, 14 Dec 2011 22:21:00 -0500
+Message-ID: <3797.1323919260@turing-police.cc.vt.edu>
+References: <1323672566-16738-1-git-send-email-xi.wang@gmail.com> <12775.1323916035@turing-police.cc.vt.edu>
+            <ECD4A42B-AC97-417B-99CA-3856B5DAFAC6@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; boundary="==_Exmh_1323919260_3689P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.pixart.com.tw ([210.202.126.7]:4759 "EHLO
-	PXIM01.pixart.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758599Ab1LODJK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Dec 2011 22:09:10 -0500
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: Your message of "Wed, 14 Dec 2011 21:35:22 EST."
+             <ECD4A42B-AC97-417B-99CA-3856B5DAFAC6@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Xi Wang <xi.wang@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: benjamin.tissoires@gmail.com, jkosina@suse.cz, dmitry.torokhov@gmail.com
 
-From: Aaron Tian <aaron_tian@pixart.com.tw>
+--==_Exmh_1323919260_3689P
+Content-Type: text/plain; charset=us-ascii
 
-This patch modifies hid-multitouch driver for supporting PixArt optical
-touch screen.
-Because of the device does not have to set initial report, we apply
-"HID_QUIRK_NO_INIT_REPORTS" quirk
-and add the device into hid_blacklist in drivers/hid/usbhid/hid-quirks.c.
+On Wed, 14 Dec 2011 21:35:22 EST, Xi Wang said:
+> On Dec 14, 2011, at 9:27 PM, Valdis.Kletnieks@vt.edu wrote:
+> > That will fix the signed/unsigned issue.  However, was there a reason
+> > the field was an 8-bit-wide to begin with?
+>
+> Which field?  The ->read() function pointer?
 
-The patch is according to commit 45e713efe2fa574b6662e7fb63fae9497c5e03d4
-of Linux mainline git (3.2.0-rc4+)
+No, the variable that used to be a u8 - was it 8 bits wide for a reason?
 
+--==_Exmh_1323919260_3689P
+Content-Type: application/pgp-signature
 
-Signed-off-by: Aaron Tian <aaron_tian@pixart.com.tw>
----
-v2: Fixed comments by Benjamin's suggestion.
-Add MT_CLS_INRANGE_CONTACTNUMBER class.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
- drivers/hid/Kconfig             |    1 +
- drivers/hid/hid-core.c          |    3 +++
- drivers/hid/hid-ids.h           |    5 +++++
- drivers/hid/hid-multitouch.c    |   15 +++++++++++++++
- drivers/hid/usbhid/hid-quirks.c |    3 +++
- 5 files changed, 27 insertions(+), 0 deletions(-)
+iD8DBQFO6WeccC3lWbTT17ARAl/dAKDZxg4rTZak3KJBZLvQLzCCxJIBiwCghJiq
+9f1CjeffPASHIzxSOkxpr/c=
+=yKs9
+-----END PGP SIGNATURE-----
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 22a4a05..eda54b6 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -349,6 +349,7 @@ config HID_MULTITOUCH
- 	  - Lumio CrystalTouch panels
- 	  - MosArt dual-touch panels
- 	  - PenMount dual touch panels
-+	  - PixArt optical touch screen
- 	  - Pixcir dual touch panels
- 	  - eGalax dual-touch panels, including the Joojoo and Wetab tablets
- 	  - Stantum multitouch panels
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index af35384..5968764 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1498,6 +1498,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_PCI) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 4a441a6..7188e12 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -571,6 +571,11 @@
- #define USB_VENDOR_ID_PI_ENGINEERING	0x05f3
- #define USB_DEVICE_ID_PI_ENGINEERING_VEC_USB_FOOTPEDAL	0xff
- 
-+#define USB_VENDOR_ID_PIXART				0x093a
-+#define USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN	0x8001
-+#define USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1	0x8002
-+#define USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN2	0x8003
-+
- #define USB_VENDOR_ID_PLAYDOTCOM	0x0b43
- #define USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII	0x0003
- 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index f1c909f..9755afb 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -93,6 +93,7 @@ struct mt_class {
- #define MT_CLS_DUAL_INRANGE_CONTACTID		0x0005
- #define MT_CLS_DUAL_INRANGE_CONTACTNUMBER	0x0006
- #define MT_CLS_DUAL_NSMU_CONTACTID		0x0007
-+#define MT_CLS_INRANGE_CONTACTNUMBER		0x0008
- 
- /* vendor specific classes */
- #define MT_CLS_3M				0x0101
-@@ -155,6 +156,9 @@ struct mt_class mt_classes[] = {
- 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
- 			MT_QUIRK_SLOT_IS_CONTACTID,
- 		.maxcontacts = 2 },
-+	{ .name = MT_CLS_INRANGE_CONTACTNUMBER,
-+		.quirks = MT_QUIRK_VALID_IS_INRANGE |
-+			MT_QUIRK_SLOT_IS_CONTACTNUMBER },
- 
- 	/*
- 	 * vendor specific classes
-@@ -722,6 +726,17 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT,
- 			USB_DEVICE_ID_PENMOUNT_PCI) },
- 
-+	/* PixArt optical touch screen */
-+	{ .driver_data = MT_CLS_INRANGE_CONTACTNUMBER,
-+		HID_USB_DEVICE(USB_VENDOR_ID_PIXART,
-+			USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN) },
-+	{ .driver_data = MT_CLS_INRANGE_CONTACTNUMBER,
-+		HID_USB_DEVICE(USB_VENDOR_ID_PIXART,
-+			USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1) },
-+	{ .driver_data = MT_CLS_INRANGE_CONTACTNUMBER,
-+		HID_USB_DEVICE(USB_VENDOR_ID_PIXART,
-+			USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN2) },
-+
- 	/* PixCir-based panels */
- 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
- 		HID_USB_DEVICE(USB_VENDOR_ID_HANVON,
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index 5028d60..f1f167f 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -67,6 +67,9 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_AXIS_295, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
-+	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NO_INIT_REPORTS },
-+	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1, HID_QUIRK_NO_INIT_REPORTS },
-+	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN2, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
+--==_Exmh_1323919260_3689P--

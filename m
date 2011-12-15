@@ -1,75 +1,26 @@
-From: Simon Budig <simon.budig@kernelconcepts.de>
-Subject: Re: [PATCH v2] Touchscreen driver for FT5x06 based EDT displays
-Date: Thu, 15 Dec 2011 14:41:59 +0100
-Message-ID: <4EE9F927.7070609@kernelconcepts.de>
-References: <1317311577-29742-1-git-send-email-simon.budig@kernelconcepts.de> <1317311577-29742-2-git-send-email-simon.budig@kernelconcepts.de> <20111202145146.33d5b8be@wker> <4EE9D333.8050107@kernelconcepts.de> <20111215131727.83266xhan7tbcl8g@webmail.mnet-online.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Xi Wang <xi.wang@gmail.com>
+Subject: Re: [PATCH] input: signedness bug in cma3000_thread_irq()
+Date: Thu, 15 Dec 2011 17:17:02 -0500
+Message-ID: <F920F5EE-FA61-4FFC-948C-97D6834823B6@gmail.com>
+References: <1323672566-16738-1-git-send-email-xi.wang@gmail.com> <12775.1323916035@turing-police.cc.vt.edu> <ECD4A42B-AC97-417B-99CA-3856B5DAFAC6@gmail.com> <3797.1323919260@turing-police.cc.vt.edu>
+Mime-Version: 1.0 (Apple Message framework v1084)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernelconcepts.de ([212.60.202.196]:46270 "EHLO
-	mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751294Ab1LONmG (ORCPT
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:37573 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756377Ab1LOWRT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Dec 2011 08:42:06 -0500
-In-Reply-To: <20111215131727.83266xhan7tbcl8g@webmail.mnet-online.de>
+	Thu, 15 Dec 2011 17:17:19 -0500
+In-Reply-To: <3797.1323919260@turing-police.cc.vt.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: agust@denx.de
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Ilya Yanok <yanok@emcraft.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Dec 14, 2011, at 10:21 PM, Valdis.Kletnieks@vt.edu wrote:
+> No, the variable that used to be a u8 - was it 8 bits wide for a reason?
 
-On 12/15/2011 01:17 PM, agust@denx.de wrote:
-> My understanding is that CodingStyle insists on tabs for
-> indentation and tabs are always 8 characters wide. Additional
-> indentation for alignment of function arguments is done by
-> spaces, i.e.:
-> 
-> <tab>function(arg1,
-> <tab><tab>    arg2);
+The return value of CMA3000_READ?  I don't see any particular reason.  
 
-Hrm, in my perception arg2 should be on the same indentation level as
-function(, since it is within the same block.
-
-Anyway, I'll ignore the whitespace complaints of checkpatch.pl for now.
-I am then down to three warnings about >80 character lines, which are
-not easy to fix.
-
-However, when trying my patch against the latest mainline it complains
-about an implicit declaration of function irq_to_gpio().
-
-I understand that irq_to_gpio() is a potentially nasty thing to do and
-that there has been some cleanup. But I am unsure how to fix this:
-
-Currently I use the .irq field of the i2c_board_info struct to define
-the irq to respond to. I expect this to be a gpio irq and hence use
-irq_to_gpio to configure the resp. gpio as input.
-
-If I am not supposed to use irq_to_gpio, then how do I solve this?
-
-* expect the board file to set up the resp. GPIO direction?
-
-or
-
-* use an entry in my platform data (next to the reset pin) for the gpio
-number and then try to map this to an irq number?
-
-or did I miss the best solution?
-
-Thanks,
-        Simon
-- -- 
-       Simon Budig                        kernel concepts GmbH
-       simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
-       +49-271-771091-17                  D-57072 Siegen
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk7p+SYACgkQO2O/RXesiHB0FwCdEyxPVx+yQx8lVmP7cXdWwk14
-KhwAn2uR935Ev8Ej1Q2GdEcV95RwA+lc
-=GsVE
------END PGP SIGNATURE-----
+- xi

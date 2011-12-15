@@ -1,106 +1,73 @@
-From: "Jiejing.Zhang " <kzjeef@gmail.com>
-Subject: Re: [PATCH] input: egalax_ts: optmize driver for more fluency touch feelling
-Date: Thu, 15 Dec 2011 14:24:24 +0800
-Message-ID: <CACrgxGA3mV8MpkPOumpbofSdsb+4AEAxBevLn=dJ1x68qzH+dQ@mail.gmail.com>
-References: <1323249002-28397-1-git-send-email-jiejing.zhang@freescale.com>
- <20111212083415.GH4682@core.coreip.homeip.net> <CACrgxGAUYW0E3cLradFJ8SAYBjszWjYdsfrFBAZN6R7a0NO41w@mail.gmail.com>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH 3/3] HID: usbhid: defer LED setting to a workqueue
+Date: Thu, 15 Dec 2011 14:43:09 +0800
+Message-ID: <CAGS+omB8kmALYg+m__WpiGzcpTdFEzHz1x3gFFkyqofpnANvNQ@mail.gmail.com>
+References: <1321529030-7845-1-git-send-email-djkurtz@chromium.org>
+ <201112140901.35203.oneukum@suse.de> <CAGS+omA=9qfqDYtaLp67Xz+WhcpW_=jn9hoiaad43Z+oexjsFQ@mail.gmail.com>
+ <201112141222.41006.oneukum@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:56421 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755670Ab1LOGYp convert rfc822-to-8bit (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:44202 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753469Ab1LOGnb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Dec 2011 01:24:45 -0500
-Received: by vbbfc26 with SMTP id fc26so1263149vbb.19
-        for <linux-input@vger.kernel.org>; Wed, 14 Dec 2011 22:24:45 -0800 (PST)
-In-Reply-To: <CACrgxGAUYW0E3cLradFJ8SAYBjszWjYdsfrFBAZN6R7a0NO41w@mail.gmail.com>
+	Thu, 15 Dec 2011 01:43:31 -0500
+Received: by iaeh11 with SMTP id h11so2339132iae.19
+        for <linux-input@vger.kernel.org>; Wed, 14 Dec 2011 22:43:31 -0800 (PST)
+In-Reply-To: <201112141222.41006.oneukum@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Zhang Jiejing <jiejing.zhang@freescale.com>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: Oliver Neukum <oneukum@suse.de>
+Cc: jkosina@suse.cz, bleung@chromium.org, stern@rowland.harvard.edu, olofj@chromium.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-Hi Dimitry,
-
-2011/12/12 Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Wed, Dec 14, 2011 at 7:22 PM, Oliver Neukum <oneukum@suse.de> wrote:
+> Am Mittwoch, 14. Dezember 2011, 11:33:03 schrieb Daniel Kurtz:
+>> On Wed, Dec 14, 2011 at 4:01 PM, Oliver Neukum <oneukum@suse.de> wro=
+te:
+>> > Am Donnerstag, 17. November 2011, 12:23:50 schrieb Daniel Kurtz:
+>> >> Defer LED setting action to a workqueue.
+>> >> This is more likely to send all LED change events in a single URB=
+=2E
+>> >
+>> > Hi,
+>> >
+>> > I hope I am looking at the correct version of this patch.
+>> > But as far as I can see the work for handling LEDs is not delayed
+>> > while a reset is going on. That is wrong.
+>>
+>> Actually, I'm not sure why this is wrong. =A0I find the reset handli=
+ng
+>> quite confusing in this driver.
+>> Can you point out what will fail, and recommend how to fix it?
 >
-> Hi Zhang,
->
-> On Wed, Dec 07, 2011 at 05:10:02PM +0800, Zhang Jiejing wrote:
-> > egalax_ts use threaded_irq to report touch event, it will wake up t=
-he
-> > irq thread and stop the thread irq after process one touch event, s=
-o
-> > even user touch the screen very fast, the fastest event report spee=
-d
-> > is depends on the scheduler, so the event reported is a uniform spe=
-ed.
->
-> I am not sure what you mean by "the event reported is a uniform speed=
-"
-> but since I2C operations generally sleep you are at the mercy of
-> scheduler anyways. But since IRQ thread is a real-time one it should =
-get
-> scheduled immediately.
+> That is part of the workings of a USB driver. After you return from
+> pre_reset() you don't do IO to the device. After post_reset() the
+> device should be in its default state whose LED states won't match
+> what they ought to be.
 
-I'm using 2.6.38 kernel and Android 4.0 and with a Freescale ARM
-A9(1.0GHz) Soc doing this test, but in my test, if I sweep on the
-touch screen with very fast speed, my UI can't move as fast as my
-finger,
-I first suspect our GPU not powerful to drive UI, but after test with
-USB mouse doing same sweep operation, the UI was moving quite fast.
+Hi Oliver,
 
-So I made this change, after made this change, I can't feed any lay
-between finger and the UI animation.
-I think the threaded_irq not quite real time.
+I'm sorry, I'm not seeing how using a workqueue to set the LEDs
+changes anything with respect to how the driver deals with USB reset.
 
-I checked kernel/irq/handle.c file,
-I found in handle_IRQ_event() functin, it will use
-wake_up_processs(action->thread);=A0 and the thread was created by
-kthread_create() in __setup_irq() function.
+With or without a workqueue, LED control urbs are being queued and/or
+submitted asynchronously to reset.  AFAICT, the only thing that
+changes here is exactly when __usbhid_submit_report() is called.  In
+the original case, this happens directly in the input event handler.
+In the workqueue case, it happens in a system worker thread some short
+time after the input handler finishes.
 
-I think in this implementation, it will be not so realtime, it depends
-on schedule time.
->
->
-> >
-> > This patch will let thread irq check the gpio's status, if the gpio
-> > is down, means still have more events, it will not exit the irq han=
-dler
-> > and continue process another new event, it can improve user experie=
-nce.
->
-> Does it really or it is your opinion that it would?
->
-As I mentioned in above, I got this result with a real machine and
-environment=A0 test.
->
-> Also, your change means that the driver can not be stopped/unloaded a=
-s
-> long as user had finger on the touchpad. This would need to be correc=
-ted
-> (but first you need to prove that the change is actually needed).
->
+Could you please be more specific about what this patch breaks and
+perhaps give some guidance on how to fix it?
 
-
-I need test in the driver unload case and suspend case.
-
-Thanks for you advance.
-
-BR,
-Jiejing
+Thanks and Best Regards,
+-Daniel
 
 >
-> Thanks.
->
-> --
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+> =A0 =A0 =A0 =A0Regards
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0Oliver
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

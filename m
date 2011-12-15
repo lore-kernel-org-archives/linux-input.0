@@ -1,7 +1,7 @@
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH 2/3] input: mpu3050: Configure the sampling method
-Date: Thu, 15 Dec 2011 22:18:47 +0000
-Message-ID: <20111215221845.8657.17958.stgit@bob.linux.org.uk>
+Subject: [PATCH 1/3] input: mpu3050: Support for polled input device
+Date: Thu, 15 Dec 2011 22:18:34 +0000
+Message-ID: <20111215221829.8657.37926.stgit@bob.linux.org.uk>
 References: <20111215221732.8657.63987.stgit@bob.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -9,9 +9,9 @@ Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:58665 "EHLO
 	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932606Ab1LOWWt (ORCPT
+	with ESMTP id S932606Ab1LOWWu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Dec 2011 17:22:49 -0500
+	Thu, 15 Dec 2011 17:22:50 -0500
 In-Reply-To: <20111215221732.8657.63987.stgit@bob.linux.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,149 +19,285 @@ To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
 From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-This will improve the output of the sensor.
+The driver does not need to depend on interrupts.
 
 Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Signed-off-by: Alan Cox <alan@linux.intel.com>
 ---
 
- drivers/input/misc/mpu3050.c |  101 ++++++++++++++++++++++++++++++++++++++++--
- 1 files changed, 96 insertions(+), 5 deletions(-)
+ drivers/input/misc/mpu3050.c |  189 +++++++++++++++++++++++++++++++-----------
+ 1 files changed, 141 insertions(+), 48 deletions(-)
 
 
 diff --git a/drivers/input/misc/mpu3050.c b/drivers/input/misc/mpu3050.c
-index da47b10..89c7160 100644
+index f71dc72..da47b10 100644
 --- a/drivers/input/misc/mpu3050.c
 +++ b/drivers/input/misc/mpu3050.c
-@@ -42,12 +42,7 @@
+@@ -37,6 +37,7 @@
+ #include <linux/err.h>
+ #include <linux/i2c.h>
+ #include <linux/input.h>
++#include <linux/input-polldev.h>
+ #include <linux/delay.h>
  #include <linux/slab.h>
  #include <linux/pm_runtime.h>
- 
--#define MPU3050_CHIP_ID_REG	0x00
- #define MPU3050_CHIP_ID		0x69
--#define MPU3050_XOUT_H		0x1D
--#define MPU3050_PWR_MGM		0x3E
--#define MPU3050_PWR_MGM_POS	6
--#define MPU3050_PWR_MGM_MASK	0x40
- 
- #define MPU3050_AUTO_DELAY	1000
- 
-@@ -55,6 +50,58 @@
+@@ -53,6 +54,8 @@
+ #define MPU3050_MIN_VALUE	-32768
  #define MPU3050_MAX_VALUE	32767
  
- #define MPU3050_DEFAULT_POLL_INTERVAL	200
-+#define MPU3050_DEFAULT_FS_RANGE	3
++#define MPU3050_DEFAULT_POLL_INTERVAL	200
 +
-+/* Register map */
-+#define MPU3050_CHIP_ID_REG	0x00
-+#define MPU3050_SMPLRT_DIV	0x15
-+#define MPU3050_DLPF_FS_SYNC	0x16
-+#define MPU3050_INT_CFG		0x17
-+#define MPU3050_XOUT_H		0x1D
-+#define MPU3050_PWR_MGM		0x3E
-+#define MPU3050_PWR_MGM_POS	6
-+
-+/* Register bits */
-+
-+/* DLPF_FS_SYNC */
-+#define MPU3050_EXT_SYNC_NONE		0x00
-+#define MPU3050_EXT_SYNC_TEMP		0x20
-+#define MPU3050_EXT_SYNC_GYROX		0x40
-+#define MPU3050_EXT_SYNC_GYROY		0x60
-+#define MPU3050_EXT_SYNC_GYROZ		0x80
-+#define MPU3050_EXT_SYNC_ACCELX		0xA0
-+#define MPU3050_EXT_SYNC_ACCELY		0xC0
-+#define MPU3050_EXT_SYNC_ACCELZ		0xE0
-+#define MPU3050_EXT_SYNC_MASK		0xE0
-+#define MPU3050_FS_250DPS		0x00
-+#define MPU3050_FS_500DPS		0x08
-+#define MPU3050_FS_1000DPS		0x10
-+#define MPU3050_FS_2000DPS		0x18
-+#define MPU3050_FS_MASK			0x18
-+#define MPU3050_DLPF_CFG_256HZ_NOLPF2	0x00
-+#define MPU3050_DLPF_CFG_188HZ		0x01
-+#define MPU3050_DLPF_CFG_98HZ		0x02
-+#define MPU3050_DLPF_CFG_42HZ		0x03
-+#define MPU3050_DLPF_CFG_20HZ		0x04
-+#define MPU3050_DLPF_CFG_10HZ		0x05
-+#define MPU3050_DLPF_CFG_5HZ		0x06
-+#define MPU3050_DLPF_CFG_2100HZ_NOLPF	0x07
-+#define MPU3050_DLPF_CFG_MASK		0x07
-+/* INT_CFG */
-+#define MPU3050_RAW_RDY_EN		0x01
-+#define MPU3050_MPU_RDY_EN		0x02
-+#define MPU3050_LATCH_INT_EN		0x04
-+/* PWR_MGM */
-+#define MPU3050_PWR_MGM_PLL_X		0x01
-+#define MPU3050_PWR_MGM_PLL_Y		0x02
-+#define MPU3050_PWR_MGM_PLL_Z		0x03
-+#define MPU3050_PWR_MGM_CLKSEL		0x07
-+#define MPU3050_PWR_MGM_STBY_ZG		0x08
-+#define MPU3050_PWR_MGM_STBY_YG		0x10
-+#define MPU3050_PWR_MGM_STBY_XG		0x20
-+#define MPU3050_PWR_MGM_SLEEP		0x40
-+#define MPU3050_PWR_MGM_RESET		0x80
-+#define MPU3050_PWR_MGM_MASK		0x40
- 
  struct axis_data {
  	s16 x;
-@@ -219,6 +266,46 @@ static irqreturn_t mpu3050_interrupt_thread(int irq, void *data)
- 	return IRQ_HANDLED;
+ 	s16 y;
+@@ -63,6 +66,7 @@ struct mpu3050_sensor {
+ 	struct i2c_client *client;
+ 	struct device *dev;
+ 	struct input_dev *idev;
++	struct input_polled_dev *input_polled;
+ };
+ 
+ /**
+@@ -168,6 +172,38 @@ static void mpu3050_input_close(struct input_dev *input)
+ 	pm_runtime_put(sensor->dev);
  }
  
-+/* Configures the sampling method */
-+static int mpu3050_hw_init(struct mpu3050_sensor *sensor)
++static void mpu3050_poll_open(struct input_polled_dev *ipoll_dev)
 +{
-+	struct i2c_client *client = sensor->client;
-+	int ret;
-+	u8 reg;
++	struct mpu3050_sensor *sensor = ipoll_dev->private;
 +
-+	/* Reset */
-+	ret = i2c_smbus_write_byte_data(client, MPU3050_PWR_MGM,
-+					MPU3050_PWR_MGM_RESET);
-+	if (ret < 0)
-+		return ret;
++	mpu3050_set_power_mode(sensor->client, 1);
++	msleep(100);  /* wait for gyro chip resume */
++}
 +
-+	ret = i2c_smbus_read_byte_data(client, MPU3050_PWR_MGM);
-+	if (ret < 0)
-+		return ret;
++static void mpu3050_poll_close(struct input_polled_dev *ipoll_dev)
++{
++	struct mpu3050_sensor *sensor = ipoll_dev->private;
 +
-+	ret &= ~MPU3050_PWR_MGM_CLKSEL;
-+	ret |= MPU3050_PWR_MGM_PLL_Z;
-+	ret = i2c_smbus_write_byte_data(client, MPU3050_PWR_MGM, ret);
-+	if (ret < 0)
-+		return ret;
++	mpu3050_set_power_mode(sensor->client, 1);
++}
 +
-+	/* Output frequency divider. The poll interval */
-+	ret = i2c_smbus_write_byte_data(client, MPU3050_SMPLRT_DIV,
-+					MPU3050_DEFAULT_POLL_INTERVAL - 1);
-+	if (ret < 0)
-+		return ret;
++static void mpu3050_report_xyz(struct mpu3050_sensor *sensor)
++{
++	struct axis_data axis;
 +
-+	/* Set low pass filter and full scale */
-+	reg = MPU3050_DEFAULT_FS_RANGE;
-+	reg |= MPU3050_DLPF_CFG_42HZ << 3;
-+	reg |= MPU3050_EXT_SYNC_NONE << 5;
-+	ret = i2c_smbus_write_byte_data(client, MPU3050_DLPF_FS_SYNC, reg);
-+	if (ret < 0)
-+		return ret;
++	mpu3050_read_xyz(sensor->client, &axis);
++
++	input_report_abs(sensor->idev, ABS_X, axis.x);
++	input_report_abs(sensor->idev, ABS_Y, axis.y);
++	input_report_abs(sensor->idev, ABS_Z, axis.z);
++	input_sync(sensor->idev);
++}
++
++static void mpu3050_poll(struct input_polled_dev *dev)
++{
++	mpu3050_report_xyz(dev->private);
++}
++
+ /**
+  *	mpu3050_interrupt_thread	-	handle an IRQ
+  *	@irq: interrupt numner
+@@ -178,17 +214,82 @@ static void mpu3050_input_close(struct input_dev *input)
+  */
+ static irqreturn_t mpu3050_interrupt_thread(int irq, void *data)
+ {
+-	struct mpu3050_sensor *sensor = data;
+-	struct axis_data axis;
++	mpu3050_report_xyz(data);
+ 
+-	mpu3050_read_xyz(sensor->client, &axis);
++	return IRQ_HANDLED;
++}
+ 
+-	input_report_abs(sensor->idev, ABS_X, axis.x);
+-	input_report_abs(sensor->idev, ABS_Y, axis.y);
+-	input_report_abs(sensor->idev, ABS_Z, axis.z);
+-	input_sync(sensor->idev);
++static void __devinit mpu3050_init_idev(struct mpu3050_sensor *sensor,
++						struct input_dev *idev)
++{
++	idev->name = "MPU3050";
++	idev->id.bustype = BUS_I2C;
++	idev->dev.parent = &sensor->client->dev;
+ 
+-	return IRQ_HANDLED;
++	__set_bit(EV_ABS, idev->evbit);
++	input_set_abs_params(idev, ABS_X,
++			     MPU3050_MIN_VALUE, MPU3050_MAX_VALUE, 0, 0);
++	input_set_abs_params(idev, ABS_Y,
++			     MPU3050_MIN_VALUE, MPU3050_MAX_VALUE, 0, 0);
++	input_set_abs_params(idev, ABS_Z,
++			     MPU3050_MIN_VALUE, MPU3050_MAX_VALUE, 0, 0);
++}
++
++static int __devinit mpu3050_create_idev(struct mpu3050_sensor *sensor)
++{
++	struct input_dev *idev;
++	int err;
++
++	idev = input_allocate_device();
++	if (!idev)
++		return -ENODEV;
++
++	mpu3050_init_idev(sensor, idev);
++
++	idev->open = mpu3050_input_open;
++	idev->close = mpu3050_input_close;
++	input_set_drvdata(idev, sensor);
++
++	err = input_register_device(idev);
++	if (err) {
++		input_free_device(idev);
++		return err;
++	}
++
++	sensor->idev = idev;
 +
 +	return 0;
 +}
 +
- static void __devinit mpu3050_init_idev(struct mpu3050_sensor *sensor,
- 						struct input_dev *idev)
- {
-@@ -336,6 +423,10 @@ static int __devinit mpu3050_probe(struct i2c_client *client,
++static int __devinit mpu3050_create_polled_idev(struct mpu3050_sensor *sensor)
++{
++	struct input_polled_dev *ipoll_dev;
++	int err;
++
++	ipoll_dev = input_allocate_polled_device();
++	if (!ipoll_dev)
++		return -ENOMEM;
++
++	ipoll_dev->private = sensor;
++	ipoll_dev->open = mpu3050_poll_open;
++	ipoll_dev->close = mpu3050_poll_close;
++	ipoll_dev->poll = mpu3050_poll;
++	ipoll_dev->poll_interval = MPU3050_DEFAULT_POLL_INTERVAL;
++	ipoll_dev->poll_interval_min = 10;
++	ipoll_dev->poll_interval_max = MPU3050_DEFAULT_POLL_INTERVAL;
++
++	mpu3050_init_idev(sensor, ipoll_dev->input);
++
++	err = input_register_polled_device(ipoll_dev);
++	if (err) {
++		input_free_polled_device(ipoll_dev);
++		return err;
++	}
++
++	sensor->input_polled = ipoll_dev;
++	sensor->idev = ipoll_dev->input;
++
++	return 0;
+ }
  
+ /**
+@@ -205,21 +306,17 @@ static int __devinit mpu3050_probe(struct i2c_client *client,
+ 				   const struct i2c_device_id *id)
+ {
+ 	struct mpu3050_sensor *sensor;
+-	struct input_dev *idev;
+ 	int ret;
+ 	int error;
+ 
+ 	sensor = kzalloc(sizeof(struct mpu3050_sensor), GFP_KERNEL);
+-	idev = input_allocate_device();
+-	if (!sensor || !idev) {
++	if (!sensor) {
+ 		dev_err(&client->dev, "failed to allocate driver data\n");
+-		error = -ENOMEM;
+-		goto err_free_mem;
++		return -ENOMEM;
+ 	}
+ 
+ 	sensor->client = client;
+ 	sensor->dev = &client->dev;
+-	sensor->idev = idev;
+ 
+ 	mpu3050_set_power_mode(client, 1);
+ 	msleep(10);
+@@ -237,39 +334,31 @@ static int __devinit mpu3050_probe(struct i2c_client *client,
+ 		goto err_free_mem;
+ 	}
+ 
+-	idev->name = "MPU3050";
+-	idev->id.bustype = BUS_I2C;
+-	idev->dev.parent = &client->dev;
+-
+-	idev->open = mpu3050_input_open;
+-	idev->close = mpu3050_input_close;
+-
+-	__set_bit(EV_ABS, idev->evbit);
+-	input_set_abs_params(idev, ABS_X,
+-			     MPU3050_MIN_VALUE, MPU3050_MAX_VALUE, 0, 0);
+-	input_set_abs_params(idev, ABS_Y,
+-			     MPU3050_MIN_VALUE, MPU3050_MAX_VALUE, 0, 0);
+-	input_set_abs_params(idev, ABS_Z,
+-			     MPU3050_MIN_VALUE, MPU3050_MAX_VALUE, 0, 0);
+-
+-	input_set_drvdata(idev, sensor);
+-
  	pm_runtime_set_active(&client->dev);
  
-+	error = mpu3050_hw_init(sensor);
-+	if (error)
-+		goto err_free_mem;
+-	error = request_threaded_irq(client->irq,
+-				     NULL, mpu3050_interrupt_thread,
+-				     IRQF_TRIGGER_RISING,
+-				     "mpu_int", sensor);
+-	if (error) {
+-		dev_err(&client->dev,
+-			"can't get IRQ %d, error %d\n", client->irq, error);
+-		goto err_pm_set_suspended;
+-	}
+-
+-	error = input_register_device(idev);
+-	if (error) {
+-		dev_err(&client->dev, "failed to register input device\n");
+-		goto err_free_irq;
++	if (client->irq > 0) {
++		error = mpu3050_create_idev(sensor);
++		if (error) {
++			dev_err(&client->dev, "failed to register input device\n");
++			goto err_free_irq;
++		}
 +
- 	if (client->irq > 0) {
- 		error = mpu3050_create_idev(sensor);
- 		if (error) {
++		error = request_threaded_irq(client->irq,
++				NULL, mpu3050_interrupt_thread,
++				IRQF_TRIGGER_RISING,
++				"mpu_int", sensor);
++		if (error) {
++			dev_err(&client->dev, "can't get IRQ %d, error %d\n",
++					client->irq, error);
++			goto err_pm_set_suspended;
++		}
++	} else {
++		error = mpu3050_create_polled_idev(sensor);
++		if (error) {
++			dev_err(&client->dev,
++				"failed to register polled input device");
++			goto err_pm_set_suspended;
++		}
+ 	}
+ 
+ 	pm_runtime_enable(&client->dev);
+@@ -282,7 +371,6 @@ err_free_irq:
+ err_pm_set_suspended:
+ 	pm_runtime_set_suspended(&client->dev);
+ err_free_mem:
+-	input_free_device(idev);
+ 	kfree(sensor);
+ 	return error;
+ }
+@@ -300,8 +388,13 @@ static int __devexit mpu3050_remove(struct i2c_client *client)
+ 	pm_runtime_disable(&client->dev);
+ 	pm_runtime_set_suspended(&client->dev);
+ 
+-	free_irq(client->irq, sensor);
+-	input_unregister_device(sensor->idev);
++	if (client->irq > 0) {
++		free_irq(client->irq, sensor);
++		input_unregister_device(sensor->idev);
++	} else {
++		input_unregister_polled_device(sensor->input_polled);
++		input_free_polled_device(sensor->input_polled);
++	}
+ 	kfree(sensor);
+ 
+ 	return 0;
 

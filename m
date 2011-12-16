@@ -1,48 +1,50 @@
-From: Felipe Contreras <felipe.contreras@gmail.com>
-Subject: Re: Interrupt issue in twl4030_keypad
-Date: Fri, 16 Dec 2011 03:36:08 +0200
-Message-ID: <CAMP44s3u61qgqLXz4t8rSZAkZoqp06Uu6eo6cikLiY3vS=urfQ@mail.gmail.com>
-References: <CAMP44s2xhZaoM4KVT0jC5RpdW7Ezp9YAHMG1pC+30Bbqjno7jg@mail.gmail.com>
-	<20111212191241.GC3408@legolas.emea.dhcp.ti.com>
-	<CAMP44s1X_KDbzu2CLO0fzM=7rozTQ4K10AtQkc0Ww8uDg8Z-mw@mail.gmail.com>
-	<20111212213359.GB4349@legolas.emea.dhcp.ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Tai-hwa Liang <avatar@sentelic.com>
+Subject: [PATCH 1/1] input: sentelic: Releasing mutex upon register writing failure
+Date: Fri, 16 Dec 2011 15:07:54 +0800
+Message-ID: <1324019274-15508-1-git-send-email-avatar@sentelic.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:41131 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751922Ab1LPBgJ (ORCPT
+Received: from hermod.sentelic.com ([203.69.18.19]:19984 "EHLO
+	hermod.sentelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756405Ab1LPHVS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Dec 2011 20:36:09 -0500
-In-Reply-To: <20111212213359.GB4349@legolas.emea.dhcp.ti.com>
+	Fri, 16 Dec 2011 02:21:18 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: balbi@ti.com
-Cc: linux-omap@vger.kernel.org, stable@kernel.org, Greg Kroah-Hartman <gregkh@suse.de>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Tai-hwa Liang <avatar@sentelic.com>, Paul Fox <pgf@laptop.org>
 
-On Mon, Dec 12, 2011 at 11:34 PM, Felipe Balbi <balbi@ti.com> wrote:
-> On Mon, Dec 12, 2011 at 10:55:11PM +0200, Felipe Contreras wrote:
->> > Samuel assumed it was ok and, like I said above, it worked for my simple GPIO
->> > usecase with beagleboard.
->>
->> Well, for 3.2 I think the situation is fine, but that's not what I'm
->> talking about. About your GPIO tests, are you sure you got the
->> interrupts through twl4030 irq handling?
->
-> Card detect GPIO on beagleboard is a TWL GPIO. Checking that
-> removing/adding the card actually triggers an IRQ, should be enough. No?
+Making sure that mutex is released upon register writing failure.
+This fixes boot freezing observed on ARM based OLPC
+(http://dev.laptop.org/ticket/11357).
 
-Perhaps the reason that worked is because
-drivers/mmc/host/omap_hsmmc.c is not requesting a threaded IRQ, so the
-action handler was able to run while in handle_twl4030_pih() was still
-running (handle_nested_irq), but everything else that was using
-request_threaded_irq() didn't have an action handler, but a
-thread_fn(), so they were scheduled to run after handle_twl4030_pih().
+Signed-off-by: Paul Fox <pgf@laptop.org>
+Acked-by: Tai-hwa Liang <avatar@sentelic.com>
+---
+ drivers/input/mouse/sentelic.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-That's also why you didn't notice the endless loop while pressing a key.
-
-The lesson to learn from this is; don't mix threaded and non-threaded
-irq handling.
-
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index 5babc47..7e96a5d 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -162,7 +162,7 @@ static int fsp_reg_write(struct psmouse *psmouse, int reg_addr, int reg_val)
+ 	ps2_sendbyte(ps2dev, v, FSP_CMD_TIMEOUT2);
+ 
+ 	if (ps2_sendbyte(ps2dev, 0xf3, FSP_CMD_TIMEOUT) < 0)
+-		return -1;
++		goto out;
+ 
+ 	if ((v = fsp_test_invert_cmd(reg_val)) != reg_val) {
+ 		/* inversion is required */
+@@ -261,7 +261,7 @@ static int fsp_page_reg_write(struct psmouse *psmouse, int reg_val)
+ 	ps2_sendbyte(ps2dev, 0x88, FSP_CMD_TIMEOUT2);
+ 
+ 	if (ps2_sendbyte(ps2dev, 0xf3, FSP_CMD_TIMEOUT) < 0)
+-		return -1;
++		goto out;
+ 
+ 	if ((v = fsp_test_invert_cmd(reg_val)) != reg_val) {
+ 		ps2_sendbyte(ps2dev, 0x47, FSP_CMD_TIMEOUT2);
 -- 
-Felipe Contreras
+1.7.7.3
+

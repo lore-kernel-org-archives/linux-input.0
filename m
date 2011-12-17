@@ -1,58 +1,90 @@
-From: Dima Zavin <dima@android.com>
-Subject: [PATCH 3/3] input: evdev: do not block waiting for an event if fd is nonblock
-Date: Fri, 16 Dec 2011 10:07:06 -0800
-Message-ID: <1324058826-12891-3-git-send-email-dima@android.com>
-References: <1324058826-12891-1-git-send-email-dima@android.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/4] input: wacom - use BTN_TOOL_FINGER to indicate touch device type
+Date: Fri, 16 Dec 2011 16:36:59 -0800
+Message-ID: <1324082219-32686-1-git-send-email-pinglinux@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f74.google.com ([209.85.213.74]:43852 "EHLO
-	mail-yw0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760353Ab1LPSHO (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:59961 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750963Ab1LQAfM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Dec 2011 13:07:14 -0500
-Received: by yhjj51 with SMTP id j51so535206yhj.1
-        for <linux-input@vger.kernel.org>; Fri, 16 Dec 2011 10:07:13 -0800 (PST)
-In-Reply-To: <1324058826-12891-1-git-send-email-dima@android.com>
+	Fri, 16 Dec 2011 19:35:12 -0500
+Received: by iaeh11 with SMTP id h11so5096129iae.19
+        for <linux-input@vger.kernel.org>; Fri, 16 Dec 2011 16:35:11 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dima Zavin <dima@android.com>, Jeff Brown <jeffbrown@android.com>
+To: linux-input@vger.kernel.org
+Cc: Ping Cheng <pinglinux@gmail.com>, Ping Cheng <pingc@wacom.com>
 
-If there is a full packet in the buffer, and we overflow that buffer
-right after checking for that condition, it would have been possible
-for us to block indefinitely (rather, until the next full packet) even if
-the file was marked as O_NONBLOCK.
-
-Cc: Jeff Brown <jeffbrown@android.com>
-Signed-off-by: Dima Zavin <dima@android.com>
+Signed-off-by: Ping Cheng <pingc@wacom.com>
 ---
- drivers/input/evdev.c |   14 ++++++--------
- 1 files changed, 6 insertions(+), 8 deletions(-)
+ drivers/input/tablet/wacom_sys.c |    6 +-----
+ drivers/input/tablet/wacom_wac.c |    4 ++--
+ 2 files changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 2e563af..2fb77e1 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -391,14 +391,12 @@ static ssize_t evdev_read(struct file *file, char __user *buffer,
- 	if (count < input_event_size())
- 		return -EINVAL;
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 7e63183..c9588ee 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -176,7 +176,7 @@ static int wacom_parse_logical_collection(unsigned char *report,
  
--	if (client->packet_head == client->tail && evdev->exist &&
--	    (file->f_flags & O_NONBLOCK))
--		return -EAGAIN;
--
--	retval = wait_event_interruptible(evdev->wait,
--		client->packet_head != client->tail || !evdev->exist);
--	if (retval)
--		return retval;
-+	if (!(file->f_flags & O_NONBLOCK)) {
-+		retval = wait_event_interruptible(evdev->wait,
-+			 client->packet_head != client->tail || !evdev->exist);
-+		if (retval)
-+			return retval;
-+	}
+ 		/* Logical collection is only used by 3rd gen Bamboo Touch */
+ 		features->pktlen = WACOM_PKGLEN_BBTOUCH3;
+-		features->device_type = BTN_TOOL_DOUBLETAP;
++		features->device_type = BTN_TOOL_FINGER;
  
- 	if (!evdev->exist)
- 		return -ENODEV;
+ 		/*
+ 		 * Stylus and Touch have same active area
+@@ -286,12 +286,10 @@ static int wacom_parse_hid(struct usb_interface *intf,
+ 						if (features->type == TABLETPC2FG) {
+ 							/* need to reset back */
+ 							features->pktlen = WACOM_PKGLEN_TPC2FG;
+-							features->device_type = BTN_TOOL_DOUBLETAP;
+ 						}
+ 						if (features->type == BAMBOO_PT) {
+ 							/* need to reset back */
+ 							features->pktlen = WACOM_PKGLEN_BBTOUCH;
+-							features->device_type = BTN_TOOL_DOUBLETAP;
+ 							features->x_phy =
+ 								get_unaligned_le16(&report[i + 5]);
+ 							features->x_max =
+@@ -325,7 +323,6 @@ static int wacom_parse_hid(struct usb_interface *intf,
+ 						if (features->type == TABLETPC2FG) {
+ 							/* need to reset back */
+ 							features->pktlen = WACOM_PKGLEN_TPC2FG;
+-							features->device_type = BTN_TOOL_DOUBLETAP;
+ 							features->y_max =
+ 								get_unaligned_le16(&report[i + 3]);
+ 							features->y_phy =
+@@ -334,7 +331,6 @@ static int wacom_parse_hid(struct usb_interface *intf,
+ 						} else if (features->type == BAMBOO_PT) {
+ 							/* need to reset back */
+ 							features->pktlen = WACOM_PKGLEN_BBTOUCH;
+-							features->device_type = BTN_TOOL_DOUBLETAP;
+ 							features->y_phy =
+ 								get_unaligned_le16(&report[i + 3]);
+ 							features->y_max =
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index a22e778..e18f362 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -1317,7 +1317,7 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 		break;
+ 
+ 	case TABLETPC2FG:
+-		if (features->device_type == BTN_TOOL_DOUBLETAP) {
++		if (features->device_type == BTN_TOOL_FINGER) {
+ 
+ 			input_mt_init_slots(input_dev, 2);
+ 			input_set_abs_params(input_dev, ABS_MT_TOOL_TYPE,
+@@ -1366,7 +1366,7 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 
+ 		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+ 
+-		if (features->device_type == BTN_TOOL_DOUBLETAP) {
++		if (features->device_type == BTN_TOOL_FINGER) {
+ 			__set_bit(BTN_LEFT, input_dev->keybit);
+ 			__set_bit(BTN_FORWARD, input_dev->keybit);
+ 			__set_bit(BTN_BACK, input_dev->keybit);
 -- 
-1.7.3.1
+1.7.6.4
 

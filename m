@@ -1,39 +1,33 @@
-From: "Sgt Luguard Edmund" <info@yahoo.com>
-Subject: (unknown)
-Date: Mon, 19 Dec 2011 08:36:55 -0500 (EST)
-Message-ID: <65011.210.195.3.149.1324301815.squirrel@webmail.jlab.org>
-Reply-To: sgtlugaurdedmund@xnmsn.com
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [GIT PULL] ARM: amba: Enable module alias autogeneration for
+	AMBA drivers
+Date: Mon, 19 Dec 2011 21:39:42 +0000
+Message-ID: <20111219213942.GM14542@n2100.arm.linux.org.uk>
+References: <20111206151541.GA13774@linaro.org> <1321961573-4562-1-git-send-email-dave.martin@linaro.org> <20111206155911.GA11902@mail.gnudd.com> <20111206161815.GD13769@linaro.org> <20111219132409.GB2031@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sm1.jlab.org ([129.57.52.19]:36382 "EHLO sm1.jlab.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752218Ab1LSUud (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Dec 2011 15:50:33 -0500
-Subject: 
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20111219132409.GB2031@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dave Martin <dave.martin@linaro.org>
+Cc: Alessandro Rubini <rubini@unipv.it>, patches@linaro.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, alan@linux.intel.com, a.zummo@towertech.it, alsa-devel@alsa-project.org, cjb@laptop.org, dan.j.williams@intel.com, dmitry.torokhov@gmail.com, grant.likely@secretlab.ca, perex@perex.cz, jassisinghbrar@gmail.com, julia@diku.dk, linus.walleij@linaro.org, linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org, lethal@linux-sh.org, Pawel.Moll@arm.com, rtc-linux@googlegroups.com, spi-devel-general@lists.sourceforge.net, tiwai@suse.de, vinod.koul@intel.com, wim@iguana.be
 List-Id: linux-input@vger.kernel.org
 
+On Mon, Dec 19, 2011 at 01:24:09PM +0000, Dave Martin wrote:
+> Hi Russell,
+> 
+> This one isn't urgent, but I'm not seeing the amba modalias patches
+> anywhere yet.  Did you have any outstanding concerns which need to be
+> resolved?
+> 
+> If you can suggest when/if these are likely to merge that would be great.
+> 
+> Since Alessandro is now expecting to have to rebase on top of the amba
+> additions anyway, we shouldn't need to worry about conflicting with his
+> patches.
+> 
+> Of course, if you've already merged these somewhere, then there's no
+> problem.
 
-
-
-Good Day From Libya,
-
-My name is (Sgt Luguard Edmund),I am one of the US NATO soldier, for peace
-keeping in Libya, and I am seeking your kind assistance to move the sum 
-Twenty Five Million Dollar($25 million U.S Dollars) which  already
-Deposited with a Diplomatic Company for security and Safety Purpose,I want
-to hand over this funds to a Trust Worth Person that we help me keep it
-till I am back from the TRIPOLI in JULY  2012, Since Our Final Troops is
-leaving Tripoli 2012.If you are Interested in this Offer  Kindly Send Your
-Reply To My Email: sgtlugaurdedmund@xnmsn.com
-
-If you are interested kindly send me your reply and i shall provide you
-with further details.
-
-Regards,
-Sgt Luguard Edmund
-
-
-
+I have pulled it, I just haven't merged it in anywhere yet.

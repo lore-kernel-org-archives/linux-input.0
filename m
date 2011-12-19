@@ -1,36 +1,31 @@
-From: Dave Martin <dave.martin@linaro.org>
-Subject: Re: [GIT PULL] ARM: amba: Enable module alias autogeneration for
- AMBA drivers
-Date: Mon, 19 Dec 2011 13:24:09 +0000
-Message-ID: <20111219132409.GB2031@linaro.org>
-References: <20111206151541.GA13774@linaro.org>
- <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
- <20111206155911.GA11902@mail.gnudd.com>
- <20111206161815.GD13769@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-mmc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20111206161815.GD13769@linaro.org>
-Sender: linux-mmc-owner@vger.kernel.org
-To: Alessandro Rubini <rubini@unipv.it>
-Cc: linux@arm.linux.org.uk, patches@linaro.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, alan@linux.intel.com, a.zummo@towertech.it, alsa-devel@alsa-project.org, cjb@laptop.org, dan.j.williams@intel.com, dmitry.torokhov@gmail.com, grant.likely@secretlab.ca, perex@perex.cz, jassisinghbrar@gmail.com, julia@diku.dk, linus.walleij@linaro.org, linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org, lethal@linux-sh.org, Pawel.Moll@arm.com, rtc-linux@googlegroups.com, spi-devel-general@lists.sourceforge.net, tiwai@suse.de, vinod.koul@intel.com, wim@iguana.be
+From: Wanlong Gao <wanlong.gao@gmail.com>
+Subject: [PATCH 0/7] input:use module_i2c{spi}_driver in input drivers
+Date: Mon, 19 Dec 2011 22:23:18 +0800
+Message-ID: <1324304605-18193-1-git-send-email-gaowanlong@cn.fujitsu.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:40758 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751779Ab1LSOYl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Dec 2011 09:24:41 -0500
+Received: by iaeh11 with SMTP id h11so8615511iae.19
+        for <linux-input@vger.kernel.org>; Mon, 19 Dec 2011 06:24:40 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dtor@mail.ru>, Greg Kroah-Hartman <gregkh@suse.de>, Wanlong Gao <gaowanlong@cn.fujitsu.com>
 
-Hi Russell,
+Hi Dmitry,all:
+Since Greg has queued this patchset to driver-core-next.
+http://git.kernel.org/?p=linux/kernel/git/gregkh/driver-core.git;a=commitdiff;h=907d0ed1c84114d4e8dafd66af982515d3739c90
+http://git.kernel.org/?p=linux/kernel/git/gregkh/driver-core.git;a=commitdiff;h=7c92784a546d2945b6d6973a30f7134be78eb7a4
+http://git.kernel.org/?p=linux/kernel/git/gregkh/driver-core.git;a=commitdiff;h=3acbb0142d48713a8f65cde678a54f419801c189
 
-This one isn't urgent, but I'm not seeing the amba modalias patches
-anywhere yet.  Did you have any outstanding concerns which need to be
-resolved?
+So, is it time to queue these pathes to input-next, too?
 
-If you can suggest when/if these are likely to merge that would be great.
+Just use module_i2c_driver() and module_spi_driver() in input i2c
+and spi drivers instead.
 
-Since Alessandro is now expecting to have to rebase on top of the amba
-additions anyway, we shouldn't need to worry about conflicting with his
-patches.
 
-Of course, if you've already merged these somewhere, then there's no
-problem.
-
-Cheers
----Dave
+Thanks
+-Wanlong Gao

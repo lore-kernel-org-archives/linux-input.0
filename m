@@ -1,16 +1,16 @@
 From: Wanlong Gao <wanlong.gao@gmail.com>
-Subject: [PATCH 6/7] input: use module_spi_driver in misc spi drivers
-Date: Mon, 19 Dec 2011 22:23:24 +0800
-Message-ID: <1324304605-18193-7-git-send-email-gaowanlong@cn.fujitsu.com>
+Subject: [PATCH 7/7] input: use module_spi_driver in touchscreen spi drivers
+Date: Mon, 19 Dec 2011 22:23:25 +0800
+Message-ID: <1324304605-18193-8-git-send-email-gaowanlong@cn.fujitsu.com>
 References: <1324304605-18193-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-iy0-f174.google.com ([209.85.210.174]:40758 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752835Ab1LSOZA (ORCPT
+	with ESMTP id S1753191Ab1LSOZE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Dec 2011 09:25:00 -0500
+	Mon, 19 Dec 2011 09:25:04 -0500
 Received: by mail-iy0-f174.google.com with SMTP id h11so8615511iae.19
-        for <linux-input@vger.kernel.org>; Mon, 19 Dec 2011 06:25:00 -0800 (PST)
+        for <linux-input@vger.kernel.org>; Mon, 19 Dec 2011 06:25:04 -0800 (PST)
 In-Reply-To: <1324304605-18193-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -23,56 +23,104 @@ in driver-core-next.
 
 Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
 ---
- drivers/input/misc/ad714x-spi.c  |   12 +-----------
- drivers/input/misc/adxl34x-spi.c |   12 +-----------
- 2 files changed, 2 insertions(+), 22 deletions(-)
+ drivers/input/touchscreen/ad7877.c     |   12 +-----------
+ drivers/input/touchscreen/ad7879-spi.c |   12 +-----------
+ drivers/input/touchscreen/ads7846.c    |   12 +-----------
+ drivers/input/touchscreen/tsc2005.c    |   12 +-----------
+ 4 files changed, 4 insertions(+), 44 deletions(-)
 
-diff --git a/drivers/input/misc/ad714x-spi.c b/drivers/input/misc/ad714x-spi.c
-index 875b508..75f6136 100644
---- a/drivers/input/misc/ad714x-spi.c
-+++ b/drivers/input/misc/ad714x-spi.c
-@@ -123,17 +123,7 @@ static struct spi_driver ad714x_spi_driver = {
- 	.remove		= __devexit_p(ad714x_spi_remove),
+diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
+index 42ae7a2..532d5eb 100644
+--- a/drivers/input/touchscreen/ad7877.c
++++ b/drivers/input/touchscreen/ad7877.c
+@@ -860,17 +860,7 @@ static struct spi_driver ad7877_driver = {
+ 	.remove		= __devexit_p(ad7877_remove),
  };
  
--static __init int ad714x_spi_init(void)
+-static int __init ad7877_init(void)
 -{
--	return spi_register_driver(&ad714x_spi_driver);
+-	return spi_register_driver(&ad7877_driver);
 -}
--module_init(ad714x_spi_init);
+-module_init(ad7877_init);
 -
--static __exit void ad714x_spi_exit(void)
+-static void __exit ad7877_exit(void)
 -{
--	spi_unregister_driver(&ad714x_spi_driver);
+-	spi_unregister_driver(&ad7877_driver);
 -}
--module_exit(ad714x_spi_exit);
-+module_spi_driver(ad714x_spi_driver);
- 
- MODULE_DESCRIPTION("Analog Devices AD714X Capacitance Touch Sensor SPI Bus Driver");
- MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
-diff --git a/drivers/input/misc/adxl34x-spi.c b/drivers/input/misc/adxl34x-spi.c
-index 34d401e..820a802 100644
---- a/drivers/input/misc/adxl34x-spi.c
-+++ b/drivers/input/misc/adxl34x-spi.c
-@@ -129,17 +129,7 @@ static struct spi_driver adxl34x_driver = {
- 	.remove  = __devexit_p(adxl34x_spi_remove),
- };
- 
--static int __init adxl34x_spi_init(void)
--{
--	return spi_register_driver(&adxl34x_driver);
--}
--module_init(adxl34x_spi_init);
--
--static void __exit adxl34x_spi_exit(void)
--{
--	spi_unregister_driver(&adxl34x_driver);
--}
--module_exit(adxl34x_spi_exit);
-+module_spi_driver(adxl34x_driver);
+-module_exit(ad7877_exit);
++module_spi_driver(ad7877_driver);
  
  MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
- MODULE_DESCRIPTION("ADXL345/346 Three-Axis Digital Accelerometer SPI Bus Driver");
+ MODULE_DESCRIPTION("AD7877 touchscreen Driver");
+diff --git a/drivers/input/touchscreen/ad7879-spi.c b/drivers/input/touchscreen/ad7879-spi.c
+index 9b2e1c2..db49abf 100644
+--- a/drivers/input/touchscreen/ad7879-spi.c
++++ b/drivers/input/touchscreen/ad7879-spi.c
+@@ -157,17 +157,7 @@ static struct spi_driver ad7879_spi_driver = {
+ 	.remove		= __devexit_p(ad7879_spi_remove),
+ };
+ 
+-static int __init ad7879_spi_init(void)
+-{
+-	return spi_register_driver(&ad7879_spi_driver);
+-}
+-module_init(ad7879_spi_init);
+-
+-static void __exit ad7879_spi_exit(void)
+-{
+-	spi_unregister_driver(&ad7879_spi_driver);
+-}
+-module_exit(ad7879_spi_exit);
++module_spi_driver(ad7879_spi_driver);
+ 
+ MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+ MODULE_DESCRIPTION("AD7879(-1) touchscreen SPI bus driver");
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 23fd901..f02028e 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -1433,17 +1433,7 @@ static struct spi_driver ads7846_driver = {
+ 	.remove		= __devexit_p(ads7846_remove),
+ };
+ 
+-static int __init ads7846_init(void)
+-{
+-	return spi_register_driver(&ads7846_driver);
+-}
+-module_init(ads7846_init);
+-
+-static void __exit ads7846_exit(void)
+-{
+-	spi_unregister_driver(&ads7846_driver);
+-}
+-module_exit(ads7846_exit);
++module_spi_driver(ads7846_driver);
+ 
+ MODULE_DESCRIPTION("ADS7846 TouchScreen Driver");
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
+index cbf0ff3..a7dc23a 100644
+--- a/drivers/input/touchscreen/tsc2005.c
++++ b/drivers/input/touchscreen/tsc2005.c
+@@ -747,17 +747,7 @@ static struct spi_driver tsc2005_driver = {
+ 	.remove	= __devexit_p(tsc2005_remove),
+ };
+ 
+-static int __init tsc2005_init(void)
+-{
+-	return spi_register_driver(&tsc2005_driver);
+-}
+-module_init(tsc2005_init);
+-
+-static void __exit tsc2005_exit(void)
+-{
+-	spi_unregister_driver(&tsc2005_driver);
+-}
+-module_exit(tsc2005_exit);
++module_spi_driver(tsc2005_driver);
+ 
+ MODULE_AUTHOR("Lauri Leukkunen <lauri.leukkunen@nokia.com>");
+ MODULE_DESCRIPTION("TSC2005 Touchscreen Driver");
 -- 
 1.7.8
 

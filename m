@@ -1,68 +1,36 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH RFC V2 0/4] Add "scope" to power supplies
-Date: Mon, 19 Dec 2011 11:25:07 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1112191124190.8727@pobox.suse.cz>
-References: <cover.1323454016.git.jeremy@goop.org> <4EEED923.9000706@goop.org>
+From: Dave Martin <dave.martin@linaro.org>
+Subject: Re: [GIT PULL] ARM: amba: Enable module alias autogeneration for
+ AMBA drivers
+Date: Mon, 19 Dec 2011 13:24:09 +0000
+Message-ID: <20111219132409.GB2031@linaro.org>
+References: <20111206151541.GA13774@linaro.org>
+ <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
+ <20111206155911.GA11902@mail.gnudd.com>
+ <20111206161815.GD13769@linaro.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33810 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751557Ab1LSKZL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Dec 2011 05:25:11 -0500
-In-Reply-To: <4EEED923.9000706@goop.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-mmc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20111206161815.GD13769@linaro.org>
+Sender: linux-mmc-owner@vger.kernel.org
+To: Alessandro Rubini <rubini@unipv.it>
+Cc: linux@arm.linux.org.uk, patches@linaro.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, alan@linux.intel.com, a.zummo@towertech.it, alsa-devel@alsa-project.org, cjb@laptop.org, dan.j.williams@intel.com, dmitry.torokhov@gmail.com, grant.likely@secretlab.ca, perex@perex.cz, jassisinghbrar@gmail.com, julia@diku.dk, linus.walleij@linaro.org, linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org, lethal@linux-sh.org, Pawel.Moll@arm.com, rtc-linux@googlegroups.com, spi-devel-general@lists.sourceforge.net, tiwai@suse.de, vinod.koul@intel.com, wim@iguana.be
 List-Id: linux-input@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Anton Vorontsov <cbouatmailru@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Hughes <hughsient@gmail.com>, Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org
 
-On Sun, 18 Dec 2011, Jeremy Fitzhardinge wrote:
+Hi Russell,
 
-> Ping?
+This one isn't urgent, but I'm not seeing the amba modalias patches
+anywhere yet.  Did you have any outstanding concerns which need to be
+resolved?
 
-Anton, if you are not going to take this patchset for whatever reason, but 
-are fine with the changes, feel free to just provide Ack for the patches 
-touching drivers/power, and I'll take them through hid tree.
+If you can suggest when/if these are likely to merge that would be great.
 
-Thanks.
+Since Alessandro is now expecting to have to rebase on top of the amba
+additions anyway, we shouldn't need to worry about conflicting with his
+patches.
 
-> 
-> On 12/09/2011 02:43 PM, Jeremy Fitzhardinge wrote:
-> > This series adds a "scope" attribute to power supplies, to indicate
-> > whether it powers the whole system ("System") or just some subset of
-> > the devices ("Device").  This allows upowerd to distinguish between
-> > system-wide power supplies and self-powered devices such as cordless
-> > mice.
-> >
-> > This series also adds a "powers" link to power supplies, so that if
-> > they're scope=Device, they can specifically indicate which device
-> > tree they power.
-> >
-> > Updates since last post:
-> >  - Add more complete documentation to scope and "powers" links
-> >  - Remove unnecessary scopes on System power supplies
-> >  - Make HID battery supplies Device, and add "powers" pointers
-> >    for them.
-> >
-> > This can also be pulled from:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/jeremy/xen.git power-supply-scope
-> >
-> > Jeremy Fitzhardinge (4):
-> >   power_supply: add SCOPE attribute to power supplies
-> >   power_supply: allow a power supply to explicitly point to powered
-> >     device
-> >   power_supply: add scope properties to some self-powered HID devices
-> >   power_supply: add "powers" links to self-powered HID devices
-> >
-> >  drivers/hid/hid-wacom.c            |   16 ++++++++++++++--
-> >  drivers/hid/hid-wiimote.c          |   10 +++++++++-
-> >  drivers/power/power_supply_core.c  |    7 +++++++
-> >  drivers/power/power_supply_sysfs.c |    6 ++++++
-> >  include/linux/power_supply.h       |    8 ++++++++
-> >  5 files changed, 44 insertions(+), 3 deletions(-)
-> >
-> 
+Of course, if you've already merged these somewhere, then there's no
+problem.
 
--- 
-Jiri Kosina
-SUSE Labs
+Cheers
+---Dave

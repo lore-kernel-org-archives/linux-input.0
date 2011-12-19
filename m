@@ -1,51 +1,39 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2] Input: bcm5974 - Fix USB autosuspend
-Date: Mon, 19 Dec 2011 21:30:59 +0100
-Message-ID: <20111219203059.GA6749@polaris.bitmath.org>
-References: <1324314123-2200-1-git-send-email-rydberg@euromail.se>
- <201112191842.08635.oliver@neukum.org>
+From: "Sgt Luguard Edmund" <info@yahoo.com>
+Subject: (unknown)
+Date: Mon, 19 Dec 2011 08:36:55 -0500 (EST)
+Message-ID: <65011.210.195.3.149.1324301815.squirrel@webmail.jlab.org>
+Reply-To: sgtlugaurdedmund@xnmsn.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b11.telenor.se ([62.127.194.20]:37578 "EHLO
-	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752951Ab1LSUPo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Dec 2011 15:15:44 -0500
-Content-Disposition: inline
-In-Reply-To: <201112191842.08635.oliver@neukum.org>
+Received: from sm1.jlab.org ([129.57.52.19]:36382 "EHLO sm1.jlab.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752218Ab1LSUud (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Dec 2011 15:50:33 -0500
+Subject: 
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Garrett <mjg@redhat.com>
 
-On Mon, Dec 19, 2011 at 06:42:08PM +0100, Oliver Neukum wrote:
-> Am Montag, 19. Dezember 2011, 18:02:03 schrieb Henrik Rydberg:
-> >  static int bcm5974_suspend(struct usb_interface *iface, pm_message_t message)
-> > @@ -870,6 +884,9 @@ static int bcm5974_probe(struct usb_interface *iface,
-> >                          dev->tp_data, dev->cfg.tp_datalen,
-> >                          bcm5974_irq_trackpad, dev, 1);
-> >  
-> > +       /* Required for autosuspend */
-> > +       iface->needs_remote_wakeup = 1;
-> > +
-> >         /* create bcm5974 device */
-> >         usb_make_path(udev, dev->phys, sizeof(dev->phys));
-> >         strlcat(dev->phys, "/input0", sizeof(dev->phys));
-> 
-> It is not nice to set needs_remote_wakeup on suspend() because
-> it influences the decision of usbcore to suspend at all, in particular
-> manually set quirks will not be fully honored if you do it this way.
-> In addition it will never be reset, even as the device is closed.
-> 
-> Please set it in open() and clear it in close()
 
-Oliver: thanks for the advice, and thanks for the review.
 
-Matthew: There seems to be a problem with the hardware wake-up in
-response to short taps on the trackpad. Too much of a regression to be
-acceptable, I am afraid. Unless this laptop (MBA 3.1) turns out to be
-a special case, I think we will have to let this patch rest.
 
-Thanks,
-Henrik
+Good Day From Libya,
+
+My name is (Sgt Luguard Edmund),I am one of the US NATO soldier, for peace
+keeping in Libya, and I am seeking your kind assistance to move the sum 
+Twenty Five Million Dollar($25 million U.S Dollars) which  already
+Deposited with a Diplomatic Company for security and Safety Purpose,I want
+to hand over this funds to a Trust Worth Person that we help me keep it
+till I am back from the TRIPOLI in JULY  2012, Since Our Final Troops is
+leaving Tripoli 2012.If you are Interested in this Offer  Kindly Send Your
+Reply To My Email: sgtlugaurdedmund@xnmsn.com
+
+If you are interested kindly send me your reply and i shall provide you
+with further details.
+
+Regards,
+Sgt Luguard Edmund
+
+
+

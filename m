@@ -1,80 +1,56 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.2-rc6
-Date: Sun, 18 Dec 2011 22:22:10 -0800
-Message-ID: <20111219062210.GA5086@core.coreip.homeip.net>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH RFC V2 0/4] Add "scope" to power supplies
+Date: Sun, 18 Dec 2011 22:26:43 -0800
+Message-ID: <4EEED923.9000706@goop.org>
+References: <cover.1323454016.git.jeremy@goop.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:50287 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751793Ab1LSGWQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Dec 2011 01:22:16 -0500
-Content-Disposition: inline
+Received: from claw.goop.org ([74.207.240.146]:54517 "EHLO claw.goop.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751793Ab1LSG0r (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Dec 2011 01:26:47 -0500
+In-Reply-To: <cover.1323454016.git.jeremy@goop.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Anton Vorontsov <cbouatmailru@gmail.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, David Woodhouse <dwmw2@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Hughes <hughsient@gmail.com>, Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
+Ping?
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 12/09/2011 02:43 PM, Jeremy Fitzhardinge wrote:
+> This series adds a "scope" attribute to power supplies, to indicate
+> whether it powers the whole system ("System") or just some subset of
+> the devices ("Device").  This allows upowerd to distinguish between
+> system-wide power supplies and self-powered devices such as cordless
+> mice.
+>
+> This series also adds a "powers" link to power supplies, so that if
+> they're scope=Device, they can specifically indicate which device
+> tree they power.
+>
+> Updates since last post:
+>  - Add more complete documentation to scope and "powers" links
+>  - Remove unnecessary scopes on System power supplies
+>  - Make HID battery supplies Device, and add "powers" pointers
+>    for them.
+>
+> This can also be pulled from:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/jeremy/xen.git power-supply-scope
+>
+> Jeremy Fitzhardinge (4):
+>   power_supply: add SCOPE attribute to power supplies
+>   power_supply: allow a power supply to explicitly point to powered
+>     device
+>   power_supply: add scope properties to some self-powered HID devices
+>   power_supply: add "powers" links to self-powered HID devices
+>
+>  drivers/hid/hid-wacom.c            |   16 ++++++++++++++--
+>  drivers/hid/hid-wiimote.c          |   10 +++++++++-
+>  drivers/power/power_supply_core.c  |    7 +++++++
+>  drivers/power/power_supply_sysfs.c |    6 ++++++
+>  include/linux/power_supply.h       |    8 ++++++++
+>  5 files changed, 44 insertions(+), 3 deletions(-)
+>
 
-Hi Linus,
-
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem.
-
-Changelog:
----------
-
-Chris Bagwell (1):
-      Input: wacom - add product id used by Samsung Slate 7
-
-Dmitry Torokhov (1):
-      Input: synaptics - fix touchpad not working after S2R on Vostro V13
-
-Xi Wang (1):
-      Input: cma3000_d0x - fix signedness bug in cma3000_thread_irq()
-
-
-Diffstat:
---------
-
- drivers/input/misc/cma3000_d0x.c |    4 ++--
- drivers/input/mouse/synaptics.c  |   11 +++++++++++
- drivers/input/tablet/wacom_wac.c |    4 ++++
- 3 files changed, 17 insertions(+), 2 deletions(-)
-
---=20
-Dmitry
-
-
---UugvWAfsgieZRqgk
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBAgAGBQJO7tgSAAoJEH70+W8r6ZYqbiIP/A53xLMwW/mVWzbs1Xb76Xf4
-nESGc9N7Y6FbL5OFtAFVGI043x5RRMZ3Rfvg5cQVUB1uOwe7/RU0lZumJu9Jda5T
-AKFugjY6PYk6Nmho3r8aw9VM+Ejex8vPRDMFx9b/9Fg9Ntgje6U84LdIXU6Dl9Q1
-seIMJ32Sa7Ni7jb+K5pkrHNcQn0TYNc2kJALz/v/jCMVlczLtzJNnnKvwO/yQia6
-eCtkr6huBMRsFzouC7pql7EtmLIU2WnOSFByP8a3Koogh+w3Dr3s97cqRhYNr2cO
-VYtpN4mBzpfoCIdySD6dNxlOnV741tHOAUkAc9HHSm9lmTvgVKltMqC0uxoSWLq/
-S6TfpaTyHyRyU8pyWP+38wmUug02DM4USJuUBPFZEba5BIZWR30kiHSKQ8B65JxE
-exYc+WW09t1zbGrelEx4LpXCdu7ZqMh7GBf/HZnZ6yE5GdFuO5bNTHmU1CMGATkt
-R3zHw7pfUBgt2jyrfZTcOUF5X+ngY3Vll4loDwMM4ZLrLmwulk3ZEOgLHFNh15+W
-1KC5CT5zo8Fl+iK63qauOBxdU+t/K7PMyasirvwz/LEv8pWntiRJvRW/rWIBsAp9
-Kpc825ZGZ5VS3Q7IwpnVTdhEGdL9yiFrooj+0rViWfIWv+YnODawItsJlsxe8SuO
-yhjAmTDPtKL7dvPKEjXi
-=IcQP
------END PGP SIGNATURE-----
-
---UugvWAfsgieZRqgk--

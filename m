@@ -1,126 +1,112 @@
-From: Wanlong Gao <wanlong.gao@gmail.com>
-Subject: [PATCH 7/7] input: use module_spi_driver in touchscreen spi drivers
-Date: Mon, 19 Dec 2011 22:23:25 +0800
-Message-ID: <1324304605-18193-8-git-send-email-gaowanlong@cn.fujitsu.com>
-References: <1324304605-18193-1-git-send-email-gaowanlong@cn.fujitsu.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:40758 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753191Ab1LSOZE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Dec 2011 09:25:04 -0500
-Received: by mail-iy0-f174.google.com with SMTP id h11so8615511iae.19
-        for <linux-input@vger.kernel.org>; Mon, 19 Dec 2011 06:25:04 -0800 (PST)
-In-Reply-To: <1324304605-18193-1-git-send-email-gaowanlong@cn.fujitsu.com>
-Sender: linux-input-owner@vger.kernel.org
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH v2] Input: bcm5974 - Fix USB autosuspend
+Date: Mon, 19 Dec 2011 18:02:03 +0100
+Message-ID: <1324314123-2200-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Garrett <mjg@redhat.com>, Henrik Rydberg <rydberg@euromail.se>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dtor@mail.ru>, Greg Kroah-Hartman <gregkh@suse.de>, Wanlong Gao <gaowanlong@cn.fujitsu.com>
 
-module_spi_driver has been queued by commit:
-http://git.kernel.org/?p=linux/kernel/git/gregkh/driver-core.git;a=commitdiff;h=3acbb0142d48713a8f65cde678a54f419801c189
-in driver-core-next.
+From: Matthew Garrett <mjg@redhat.com>
 
-Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+The bcm5974 code takes a USB autosuspend reference on device open and
+releases it on device close. This means that the hardware won't sleep
+when anything holds it open. This is sensible for input devices that
+don't support remote wakeups on normal use (like most mice), but this
+hardware trigger wakeups on touch and so can suspend transparently to
+the user. Doing so allows the USB host controller to sleep when the
+machine is idle, giving measurable power savings.
+
+[rydberg@euromail.se: wakeup before mode switch]
+Signed-off-by: Matthew Garrett <mjg@redhat.com>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/input/touchscreen/ad7877.c     |   12 +-----------
- drivers/input/touchscreen/ad7879-spi.c |   12 +-----------
- drivers/input/touchscreen/ads7846.c    |   12 +-----------
- drivers/input/touchscreen/tsc2005.c    |   12 +-----------
- 4 files changed, 4 insertions(+), 44 deletions(-)
+ drivers/input/mouse/bcm5974.c |   27 ++++++++++++++++++++++-----
+ 1 files changed, 22 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
-index 42ae7a2..532d5eb 100644
---- a/drivers/input/touchscreen/ad7877.c
-+++ b/drivers/input/touchscreen/ad7877.c
-@@ -860,17 +860,7 @@ static struct spi_driver ad7877_driver = {
- 	.remove		= __devexit_p(ad7877_remove),
- };
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index 5ec617e..4f0b10d 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -631,6 +631,7 @@ static void bcm5974_irq_button(struct urb *urb)
  
--static int __init ad7877_init(void)
--{
--	return spi_register_driver(&ad7877_driver);
--}
--module_init(ad7877_init);
--
--static void __exit ad7877_exit(void)
--{
--	spi_unregister_driver(&ad7877_driver);
--}
--module_exit(ad7877_exit);
-+module_spi_driver(ad7877_driver);
+ 	switch (urb->status) {
+ 	case 0:
++		usb_mark_last_busy(dev->udev);
+ 		break;
+ 	case -EOVERFLOW:
+ 	case -ECONNRESET:
+@@ -660,6 +661,7 @@ static void bcm5974_irq_trackpad(struct urb *urb)
  
- MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
- MODULE_DESCRIPTION("AD7877 touchscreen Driver");
-diff --git a/drivers/input/touchscreen/ad7879-spi.c b/drivers/input/touchscreen/ad7879-spi.c
-index 9b2e1c2..db49abf 100644
---- a/drivers/input/touchscreen/ad7879-spi.c
-+++ b/drivers/input/touchscreen/ad7879-spi.c
-@@ -157,17 +157,7 @@ static struct spi_driver ad7879_spi_driver = {
- 	.remove		= __devexit_p(ad7879_spi_remove),
- };
+ 	switch (urb->status) {
+ 	case 0:
++		usb_mark_last_busy(dev->udev);
+ 		break;
+ 	case -EOVERFLOW:
+ 	case -ECONNRESET:
+@@ -732,10 +734,15 @@ err_out:
+ 	return error;
+ }
  
--static int __init ad7879_spi_init(void)
--{
--	return spi_register_driver(&ad7879_spi_driver);
--}
--module_init(ad7879_spi_init);
--
--static void __exit ad7879_spi_exit(void)
--{
--	spi_unregister_driver(&ad7879_spi_driver);
--}
--module_exit(ad7879_spi_exit);
-+module_spi_driver(ad7879_spi_driver);
+-static void bcm5974_pause_traffic(struct bcm5974 *dev)
++static void bcm5974_kill_urbs(struct bcm5974 *dev)
+ {
+ 	usb_kill_urb(dev->tp_urb);
+ 	usb_kill_urb(dev->bt_urb);
++}
++
++static void bcm5974_pause_traffic(struct bcm5974 *dev)
++{
++	bcm5974_kill_urbs(dev);
+ 	bcm5974_wellspring_mode(dev, false);
+ }
  
- MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
- MODULE_DESCRIPTION("AD7879(-1) touchscreen SPI bus driver");
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 23fd901..f02028e 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -1433,17 +1433,7 @@ static struct spi_driver ads7846_driver = {
- 	.remove		= __devexit_p(ads7846_remove),
- };
+@@ -764,8 +771,7 @@ static int bcm5974_open(struct input_dev *input)
  
--static int __init ads7846_init(void)
--{
--	return spi_register_driver(&ads7846_driver);
--}
--module_init(ads7846_init);
--
--static void __exit ads7846_exit(void)
--{
--	spi_unregister_driver(&ads7846_driver);
--}
--module_exit(ads7846_exit);
-+module_spi_driver(ads7846_driver);
+ 	mutex_unlock(&dev->pm_mutex);
  
- MODULE_DESCRIPTION("ADS7846 TouchScreen Driver");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
-index cbf0ff3..a7dc23a 100644
---- a/drivers/input/touchscreen/tsc2005.c
-+++ b/drivers/input/touchscreen/tsc2005.c
-@@ -747,17 +747,7 @@ static struct spi_driver tsc2005_driver = {
- 	.remove	= __devexit_p(tsc2005_remove),
- };
+-	if (error)
+-		usb_autopm_put_interface(dev->intf);
++	usb_autopm_put_interface(dev->intf);
  
--static int __init tsc2005_init(void)
--{
--	return spi_register_driver(&tsc2005_driver);
--}
--module_init(tsc2005_init);
--
--static void __exit tsc2005_exit(void)
--{
--	spi_unregister_driver(&tsc2005_driver);
--}
--module_exit(tsc2005_exit);
-+module_spi_driver(tsc2005_driver);
+ 	return error;
+ }
+@@ -773,15 +779,23 @@ static int bcm5974_open(struct input_dev *input)
+ static void bcm5974_close(struct input_dev *input)
+ {
+ 	struct bcm5974 *dev = input_get_drvdata(input);
++	int error;
++
++	error = usb_autopm_get_interface(dev->intf);
  
- MODULE_AUTHOR("Lauri Leukkunen <lauri.leukkunen@nokia.com>");
- MODULE_DESCRIPTION("TSC2005 Touchscreen Driver");
+ 	mutex_lock(&dev->pm_mutex);
+ 
+-	bcm5974_pause_traffic(dev);
++	bcm5974_kill_urbs(dev);
+ 	dev->opened = 0;
++	if (error)
++		err("bcm5974: wakeup failed during close: %d\n", error);
++	else
++		bcm5974_wellspring_mode(dev, false);
+ 
+ 	mutex_unlock(&dev->pm_mutex);
+ 
+-	usb_autopm_put_interface(dev->intf);
++	if (!error)
++		usb_autopm_put_interface(dev->intf);
+ }
+ 
+ static int bcm5974_suspend(struct usb_interface *iface, pm_message_t message)
+@@ -870,6 +884,9 @@ static int bcm5974_probe(struct usb_interface *iface,
+ 			 dev->tp_data, dev->cfg.tp_datalen,
+ 			 bcm5974_irq_trackpad, dev, 1);
+ 
++	/* Required for autosuspend */
++	iface->needs_remote_wakeup = 1;
++
+ 	/* create bcm5974 device */
+ 	usb_make_path(udev, dev->phys, sizeof(dev->phys));
+ 	strlcat(dev->phys, "/input0", sizeof(dev->phys));
 -- 
 1.7.8
-

@@ -1,45 +1,38 @@
-From: Ilya Yanok <yanok@emcraft.com>
-Subject: Re: [PATCH v2] Touchscreen driver for FT5x06 based EDT displays
-Date: Wed, 21 Dec 2011 02:47:31 +0400
-Message-ID: <4EF11083.8050100@emcraft.com>
-References: <1317311577-29742-1-git-send-email-simon.budig@kernelconcepts.de> <1317311577-29742-2-git-send-email-simon.budig@kernelconcepts.de> <20111202145146.33d5b8be@wker> <4EE9D333.8050107@kernelconcepts.de> <20111215131727.83266xhan7tbcl8g@webmail.mnet-online.de> <4EE9F927.7070609@kernelconcepts.de>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Enable HID_QUIRK_MULTI_INPUT for Trio Linker Plus II
+Date: Wed, 21 Dec 2011 00:28:00 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1112210027550.8727@pobox.suse.cz>
+References: <4EEC8839.1010801@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ocean.emcraft.com ([213.221.7.182]:44093 "EHLO
-	ocean.emcraft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752037Ab1LTWrB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Dec 2011 17:47:01 -0500
-In-Reply-To: <4EE9F927.7070609@kernelconcepts.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4EEC8839.1010801@gmx.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ignaz Forster <ignaz.forster@gmx.de>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Budig <simon.budig@kernelconcepts.de>
-Cc: agust@denx.de, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-Hi Simon,
+On Sat, 17 Dec 2011, Ignaz Forster wrote:
 
-On 15.12.2011 17:41, Simon Budig wrote:
-> If I am not supposed to use irq_to_gpio, then how do I solve this?
+> Add quirk for the Trio Linker Plus II - the adapter supports several controllers simultaneously, generating a new HID entry for each connected device.
 > 
-> * expect the board file to set up the resp. GPIO direction?
+> Signed-off-by: Ignaz Forster <ignaz.forster@gmx.de>
+> ---
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index 5028d60..4d256a7 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -47,6 +47,7 @@ static const struct hid_blacklist {
+>  
+>  	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_FULLSPEED_INTERVAL },
+>  
+> +	{ USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II, HID_QUIRK_MULTI_INPUT },
+>  	{ USB_VENDOR_ID_ETURBOTOUCH, USB_DEVICE_ID_ETURBOTOUCH, HID_QUIRK_MULTI_INPUT },
+>  	{ USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD, HID_QUIRK_MULTI_INPUT },
+>  	{ USB_VENDOR_ID_PANTHERLORD, USB_DEVICE_ID_PANTHERLORD_TWIN_USB_JOYSTICK, HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
 
-If you don't need GPIO number for anything else (e.g. reading GPIO state
-manually) I'd go that way. This introduces a bit of code duplication as
-Anatolij already said but I think this is acceptable. If your code wants
-IRQ number than pass IRQ number to it. I can't see any reason for the
-driver to "know" that IRQ comes from GPIO.
+Applied, thanks.
 
-> or
-> 
-> * use an entry in my platform data (next to the reset pin) for the gpio
-> number and then try to map this to an irq number?
-> 
-> or did I miss the best solution?
-
-Probably it makes sense to configure GPIO as input when the
-corresponding interrupt is requested from GPIO driver internally.
-However, this will require some rework.
-
-Regards, Ilya.
+-- 
+Jiri Kosina
+SUSE Labs

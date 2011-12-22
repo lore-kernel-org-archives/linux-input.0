@@ -1,36 +1,54 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH v2 1/7 v2] ARM: OMAP1: ams-delta: register latch
- dependent devices later
-Date: Thu, 22 Dec 2011 11:10:33 +0000
-Message-ID: <20111222111032.GK4546@opensource.wolfsonmicro.com>
-References: <201112200028.32947.jkrzyszt@tis.icnet.pl>
- <201112212051.13113.jkrzyszt@tis.icnet.pl>
- <20111221200728.GG24444@atomide.com>
- <201112221139.16317.jkrzyszt@tis.icnet.pl>
- <4EF30F9C.7030708@bitmer.com>
+From: Dave Martin <dave.martin@linaro.org>
+Subject: Re: [GIT PULL] ARM: amba: Enable module alias autogeneration for
+ AMBA drivers
+Date: Thu, 22 Dec 2011 11:21:25 +0000
+Message-ID: <20111222112125.GA2573@localhost>
+References: <20111206151541.GA13774@linaro.org>
+ <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
+ <20111206155911.GA11902@mail.gnudd.com>
+ <20111206161815.GD13769@linaro.org>
+ <20111219132409.GB2031@linaro.org>
+ <20111219213942.GM14542@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:37278 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753370Ab1LVLTm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 22 Dec 2011 06:19:42 -0500
 Content-Disposition: inline
-In-Reply-To: <4EF30F9C.7030708@bitmer.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@bitmer.com>
-Cc: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>, Liam Girdwood <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, linux-input@vger.kernel.org
+In-Reply-To: <20111219213942.GM14542@n2100.arm.linux.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Alessandro Rubini <rubini@unipv.it>, patches@linaro.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, alan@linux.intel.com, a.zummo@towertech.it, alsa-devel@alsa-project.org, cjb@laptop.org, dan.j.williams@intel.com, dmitry.torokhov@gmail.com, grant.likely@secretlab.ca, perex@perex.cz, jassisinghbrar@gmail.com, julia@diku.dk, linus.walleij@linaro.org, linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org, lethal@linux-sh.org, Pawel.Moll@arm.com, rtc-linux@googlegroups.com, spi-devel-general@lists.sourceforge.net, tiwai@suse.de, vinod.koul@intel.com, wim@iguana.be
 
-On Thu, Dec 22, 2011 at 01:08:12PM +0200, Jarkko Nikula wrote:
-> On 12/22/2011 12:39 PM, Janusz Krzysztofik wrote:
+On Mon, Dec 19, 2011 at 09:39:42PM +0000, Russell King - ARM Linux wrote:
+> On Mon, Dec 19, 2011 at 01:24:09PM +0000, Dave Martin wrote:
+> > Hi Russell,
+> > 
+> > This one isn't urgent, but I'm not seeing the amba modalias patches
+> > anywhere yet.  Did you have any outstanding concerns which need to be
+> > resolved?
+> > 
+> > If you can suggest when/if these are likely to merge that would be great.
+> > 
+> > Since Alessandro is now expecting to have to rebase on top of the amba
+> > additions anyway, we shouldn't need to worry about conflicting with his
+> > patches.
+> > 
+> > Of course, if you've already merged these somewhere, then there's no
+> > problem.
+> 
+> I have pulled it, I just haven't merged it in anywhere yet.
 
-Guys *please* delete irrelevant context from mails.  I wasn't reading
-any of the rest of it since nothing about the subject line says anything
-about anything relevant and there was no content anywhere near the start
-of the actual mails.  I only saw this because Jarkko did trim the
-context.
+OK, great -- thanks.
 
-> >Jarkko, Mark or Liam, care to ack this change, moving the Amstrad Delta
-> >sound card registration to late_initcall?
+I wasn't too familiar with the procedure, so I just wanted
+to be sure that I hadn't done things wrong.
 
-> Unfortunately I haven't had time to look at the series but I'm fine
-> with sound/soc/omap/ams-delta.c change.
+Have a good Christmas in the meantime!
 
-Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cheers
+---Dave

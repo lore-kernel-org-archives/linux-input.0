@@ -1,70 +1,50 @@
-From: Tai-hwa Liang <avatar@sentelic.com>
-Subject: Re: [PATCH 1/1] input: sentelic: Releasing mutex upon register
- writing failure
-Date: Fri, 23 Dec 2011 09:08:26 +0800 (CST)
-Message-ID: <11122309072018.21736@cnaqrzbavhz.fragryvp.pbz>
-References: <1324019274-15508-1-git-send-email-avatar@sentelic.com>
- <20111222175206.GD21103@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Olof Johansson <olof@lixom.net>
+Subject: [PATCH] Input: mpu3050: add of_match table for device-tree probing
+Date: Thu, 22 Dec 2011 18:39:52 -0800
+Message-ID: <1324607992-2919-1-git-send-email-olof@lixom.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hermod.sentelic.com ([203.69.18.19]:9223 "EHLO
-	hermod.sentelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753854Ab1LWBIf (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:34858 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754162Ab1LWCkD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Dec 2011 20:08:35 -0500
-In-Reply-To: <20111222175206.GD21103@core.coreip.homeip.net>
+	Thu, 22 Dec 2011 21:40:03 -0500
+Received: by iaeh11 with SMTP id h11so14366728iae.19
+        for <linux-input@vger.kernel.org>; Thu, 22 Dec 2011 18:40:02 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Paul Fox <pgf@laptop.org>
+Cc: linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, Olof Johansson <olof@lixom.net>
 
-On Thu, 22 Dec 2011, Dmitry Torokhov wrote:
-> Hi Tai-hwa,
-> 
-> On Fri, Dec 16, 2011 at 03:07:54PM +0800, Tai-hwa Liang wrote:
-> > Making sure that mutex is released upon register writing failure.
-> > This fixes boot freezing observed on ARM based OLPC
-> > (http://dev.laptop.org/ticket/11357).
-> > 
-> > Signed-off-by: Paul Fox <pgf@laptop.org>
-> > Acked-by: Tai-hwa Liang <avatar@sentelic.com>
-> 
-> Since you are actually passing the patch to me there should be your
-> "Signed-off-by:.. " instead of (or in addtion to) your "Acked-by".
-> 
-> Thanks!
+Adding invn,mpu3050 as the initial id.
 
-   Sure.  Thank you.
+Signed-off-by: Olof Johansson <olof@lixom.net>
+---
+ drivers/input/misc/mpu3050.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
-Signed-off-by:	Tai-hwa Liang <avatar@sentelic.com>
+diff --git a/drivers/input/misc/mpu3050.c b/drivers/input/misc/mpu3050.c
+index f71dc72..e9a57e3 100644
+--- a/drivers/input/misc/mpu3050.c
++++ b/drivers/input/misc/mpu3050.c
+@@ -348,11 +348,18 @@ static const struct i2c_device_id mpu3050_ids[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, mpu3050_ids);
+ 
++static const struct of_device_id mpu3050_of_match[] = {
++	{ .compatible = "invn,mpu3050", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, mpu3050_of_match);
++
+ static struct i2c_driver mpu3050_i2c_driver = {
+ 	.driver	= {
+ 		.name	= "mpu3050",
+ 		.owner	= THIS_MODULE,
+ 		.pm	= &mpu3050_pm,
++		.of_match_table = mpu3050_of_match,
+ 	},
+ 	.probe		= mpu3050_probe,
+ 	.remove		= __devexit_p(mpu3050_remove),
+-- 
+1.7.8.GIT
 
-> 
-> > ---
-> >  drivers/input/mouse/sentelic.c |    4 ++--
-> >  1 files changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
-> > index 5babc47..7e96a5d 100644
-> > --- a/drivers/input/mouse/sentelic.c
-> > +++ b/drivers/input/mouse/sentelic.c
-> > @@ -162,7 +162,7 @@ static int fsp_reg_write(struct psmouse *psmouse, int reg_addr, int reg_val)
-> >  	ps2_sendbyte(ps2dev, v, FSP_CMD_TIMEOUT2);
-> > 
-> >  	if (ps2_sendbyte(ps2dev, 0xf3, FSP_CMD_TIMEOUT) < 0)
-> > -		return -1;
-> > +		goto out;
-> > 
-> >  	if ((v = fsp_test_invert_cmd(reg_val)) != reg_val) {
-> >  		/* inversion is required */
-> > @@ -261,7 +261,7 @@ static int fsp_page_reg_write(struct psmouse *psmouse, int reg_val)
-> >  	ps2_sendbyte(ps2dev, 0x88, FSP_CMD_TIMEOUT2);
-> > 
-> >  	if (ps2_sendbyte(ps2dev, 0xf3, FSP_CMD_TIMEOUT) < 0)
-> > -		return -1;
-> > +		goto out;
-> > 
-> >  	if ((v = fsp_test_invert_cmd(reg_val)) != reg_val) {
-> >  		ps2_sendbyte(ps2dev, 0x47, FSP_CMD_TIMEOUT2);
-> > -- 
-> > 1.7.7.3

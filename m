@@ -1,47 +1,56 @@
-From: Chase Douglas <chasedouglas@gmail.com>
-Subject: Re: [PATCH 1/2] HID: multitouch: add support of Atmel multitouch
- panels
-Date: Fri, 23 Dec 2011 10:54:02 -0800
-Message-ID: <4EF4CE4A.1020907@gmail.com>
-References: <1324651260-4067-1-git-send-email-benjamin.tissoires@gmail.com> <1324651260-4067-2-git-send-email-benjamin.tissoires@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/3] input: mpu3050: Configure the sampling method
+Date: Sat, 24 Dec 2011 00:07:52 -0800
+Message-ID: <20111224080752.GA13020@core.coreip.homeip.net>
+References: <20111215221732.8657.63987.stgit@bob.linux.org.uk>
+ <20111215221845.8657.17958.stgit@bob.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:56318 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:36084 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753852Ab1LWSxZ (ORCPT
+	with ESMTP id S1753238Ab1LXIIC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Dec 2011 13:53:25 -0500
-In-Reply-To: <1324651260-4067-2-git-send-email-benjamin.tissoires@gmail.com>
+	Sat, 24 Dec 2011 03:08:02 -0500
+Received: by iaeh11 with SMTP id h11so16252198iae.19
+        for <linux-input@vger.kernel.org>; Sat, 24 Dec 2011 00:08:00 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20111215221845.8657.17958.stgit@bob.linux.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-input@vger.kernel.org
 
-On 12/23/2011 06:40 AM, Benjamin Tissoires wrote:
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> ---
->  drivers/hid/Kconfig          |    1 +
->  drivers/hid/hid-ids.h        |    3 +++
->  drivers/hid/hid-multitouch.c |    5 +++++
->  3 files changed, 9 insertions(+), 0 deletions(-)
+Hi Alan,
+
+On Thu, Dec 15, 2011 at 10:18:47PM +0000, Alan Cox wrote:
+> From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 > 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 5d6eb4e..e95b07c 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -335,6 +335,7 @@ config HID_MULTITOUCH
->  	  Say Y here if you have one of the following devices:
->  	  - 3M PCT touch screens
->  	  - ActionStar dual touch panels
-> +	  - Atmel panels
->  	  - Cando dual touch panels
->  	  - Chunghwa panels
->  	  - CVTouch panels
+> This will improve the output of the sensor.
+> 
 
-I'm guessing this is different than the Atmel maXTouch chips. If so, can
-you figure out a model name so people aren't confused on which driver to
-use?
+...
 
--- Chase
+>  
+> +/* Configures the sampling method */
+> +static int mpu3050_hw_init(struct mpu3050_sensor *sensor)
+
+This should be __devinit.
+
+...
+> @@ -336,6 +423,10 @@ static int __devinit mpu3050_probe(struct i2c_client *client,
+>  
+>  	pm_runtime_set_active(&client->dev);
+>  
+> +	error = mpu3050_hw_init(sensor);
+> +	if (error)
+> +		goto err_free_mem;
+
+We should go to err_pm_set_suspended, not err_free_mem.
+
+I fixed it up locally.
+
+Thanks.
+
+-- 
+Dmitry

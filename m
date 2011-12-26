@@ -1,86 +1,55 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH 1/1] hid_wiimote: add INPUT_FF_MEMLESS dependency
-Date: Mon, 26 Dec 2011 11:04:57 +0100
-Message-ID: <CANq1E4SzAVfHoU9YpzAyA5UmNv_Lk5kfvxPZjUUTgrt+RdunBw@mail.gmail.com>
-References: <1324744926-24793-1-git-send-email-alecmn@gmail.com>
-	<CANq1E4Qab2sO2QagwmU-66+kUWhpStxVWawEGX=1HCdrM7bgLA@mail.gmail.com>
-	<20111225161320.GA12841@thinkpad>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] Input: wm831x-on - Convert to devm_kzalloc()
+Date: Mon, 26 Dec 2011 18:45:28 +0000
+Message-ID: <1324925128-9161-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:44583 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753955Ab1LZKE7 convert rfc822-to-8bit (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:38353 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751345Ab1LZSpb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Dec 2011 05:04:59 -0500
-In-Reply-To: <20111225161320.GA12841@thinkpad>
+	Mon, 26 Dec 2011 13:45:31 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alec Moskvin <alecmn@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-On Sun, Dec 25, 2011 at 5:13 PM, Alec Moskvin <alecmn@gmail.com> wrote:
-> Hi David,
->
-> On Sunday 25 December 2011 11:06:58, David Herrmann wrote:
->> Hi Alec
->>
->> On Sat, Dec 24, 2011 at 5:42 PM, Alec Moskvin <alecmn@gmail.com> wro=
-te:
->> > This fixes build error:
->> > ...
->> > CRC 17a7c33e
->> > Kernel: arch/x86/boot/bzImage is ready =A0(#1)
->> > =A0Building modules, stage 2.
->> > =A0MODPOST 7 modules
->> > ERROR: "input_ff_create_memless" [drivers/hid/hid-wiimote.ko]
->> > undefined!
->> > make[1]: *** [__modpost] Error 1
->> > make: *** [modules] Error 2
->> >
->> > Signed-off-by: Alec Moskvin <alecmn@gmail.com>
->> > ---
->> > =A0drivers/hid/Kconfig | =A0 =A01 +
->> > =A01 files changed, 1 insertions(+), 0 deletions(-)
->> >
->> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
->> > index 22a4a05..332c22a 100644
->> > --- a/drivers/hid/Kconfig
->> > +++ b/drivers/hid/Kconfig
->> > @@ -620,6 +620,7 @@ config HID_WIIMOTE
->> > =A0 =A0 =A0 =A0depends on BT_HIDP
->> > =A0 =A0 =A0 =A0depends on LEDS_CLASS
->> > =A0 =A0 =A0 =A0select POWER_SUPPLY
->> > + =A0 =A0 =A0 select INPUT_FF_MEMLESS
->> > =A0 =A0 =A0 =A0---help---
->> > =A0 =A0 =A0 =A0Support for the Nintendo Wii Remote bluetooth devic=
-e.
->> >
->>
->> This fix is already in Jiri's tree. See here:
->> http://git.kernel.org/?p=3Dlinux/kernel/git/jikos/hid.git;a=3Dcommit=
-diff;h=3Def6f41157f3864d9bf42671b2ed66062dcafb72e
->>
->> Regards
->> David
->
-> I wasn't aware of that. Shouldn't it be pushed to the main tree, then=
-?
+Saves a small amount of code and reduces the potential for leaks.
 
-It's CC'ed to stable. I think Jiri will push it to linus soon. But
-during Christmas some stuff may get lost so ping him if he missed
-something ;)
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/input/misc/wm831x-on.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
 
-> It's not in 3.2-rc7 (released yesterday), which is why I reported it.
->
-> Thanks,
-> Alec
+diff --git a/drivers/input/misc/wm831x-on.c b/drivers/input/misc/wm831x-on.c
+index 47f18d6..aee53fb 100644
+--- a/drivers/input/misc/wm831x-on.c
++++ b/drivers/input/misc/wm831x-on.c
+@@ -76,7 +76,8 @@ static int __devinit wm831x_on_probe(struct platform_device *pdev)
+ 	int irq = platform_get_irq(pdev, 0);
+ 	int ret;
+ 
+-	wm831x_on = kzalloc(sizeof(struct wm831x_on), GFP_KERNEL);
++	wm831x_on = devm_kzalloc(&pdev->dev, sizeof(struct wm831x_on),
++				 GFP_KERNEL);
+ 	if (!wm831x_on) {
+ 		dev_err(&pdev->dev, "Can't allocate data\n");
+ 		return -ENOMEM;
+@@ -120,7 +121,6 @@ err_irq:
+ err_input_dev:
+ 	input_free_device(wm831x_on->dev);
+ err:
+-	kfree(wm831x_on);
+ 	return ret;
+ }
+ 
+@@ -132,7 +132,6 @@ static int __devexit wm831x_on_remove(struct platform_device *pdev)
+ 	free_irq(irq, wm831x_on);
+ 	cancel_delayed_work_sync(&wm831x_on->work);
+ 	input_unregister_device(wm831x_on->dev);
+-	kfree(wm831x_on);
+ 
+ 	return 0;
+ }
+-- 
+1.7.7.3
 
-Cheers
-David
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

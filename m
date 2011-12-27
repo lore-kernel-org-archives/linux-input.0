@@ -1,29 +1,49 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] Input: wm831x-on - Convert to devm_kzalloc()
-Date: Mon, 26 Dec 2011 19:26:31 +0000
-Message-ID: <20111226192631.GO8722@opensource.wolfsonmicro.com>
-References: <1324925128-9161-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <201112262008.46507.marek.vasut@gmail.com>
+From: Rob Herring <robherring2@gmail.com>
+Subject: Re: [PATCH] Input: mpu3050: add of_match table for device-tree probing
+Date: Tue, 27 Dec 2011 10:07:42 -0600
+Message-ID: <4EF9ED4E.6000408@gmail.com>
+References: <1324607992-2919-1-git-send-email-olof@lixom.net> <20111223092246.GA7120@core.coreip.homeip.net> <CAOesGMiGJmc6FhsDcsmROUgoLD4eDFKK=LE7yYjkJn1O7oiL8Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:60273 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752261Ab1LZT0e (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:54733 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754106Ab1L0QHq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Dec 2011 14:26:34 -0500
-Content-Disposition: inline
-In-Reply-To: <201112262008.46507.marek.vasut@gmail.com>
+	Tue, 27 Dec 2011 11:07:46 -0500
+Received: by ghbg21 with SMTP id g21so1535025ghb.19
+        for <linux-input@vger.kernel.org>; Tue, 27 Dec 2011 08:07:45 -0800 (PST)
+In-Reply-To: <CAOesGMiGJmc6FhsDcsmROUgoLD4eDFKK=LE7yYjkJn1O7oiL8Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marek.vasut@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Olof Johansson <olof@lixom.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree-discuss@lists.ozlabs.org, linux-input@vger.kernel.org
 
-On Mon, Dec 26, 2011 at 08:08:46PM +0100, Marek Vasut wrote:
-> > Saves a small amount of code and reduces the potential for leaks.
+On 12/23/2011 09:58 AM, Olof Johansson wrote:
+> Hi,
+> 
+> On Fri, Dec 23, 2011 at 1:22 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> Hi Olof,
+>>
+>> On Thu, Dec 22, 2011 at 06:39:52PM -0800, Olof Johansson wrote:
+>>> Adding invn,mpu3050 as the initial id.
+>>>
+>>
+>> I believe you also need to add this to
+>> Documentation/devicetree/bindings/input/
+> 
+> For simple i2c devices that only have a name, address and possibly an
+> interrupt, there's no need to document a binding (it hasn't been done
+> in the past for the vast majority of those devices).
 
-> Shouldn't you still be kind and free the memory anyway?
+But then how do you find out if there is a existing binding for a device
+without searching in the kernel source tree? The binding docs are
+planned to be moved out as they are not Linux specific. There needs to
+be 1 location to find binding information.
 
-There doesn't seem to be much point if it's going to be freed
-immediately anyway and half the point of the helpers is to avoid having
-to write the cleanup code.
+I do wonder if we should have a more structured registry or database of
+bindings than free form text files...
+
+Rob

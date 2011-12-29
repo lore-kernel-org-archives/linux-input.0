@@ -1,130 +1,70 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v1] Input: tegra-kbc - report wakeup key for some
- platforms.
-Date: Thu, 29 Dec 2011 02:32:28 -0800
-Message-ID: <20111229103228.GA25774@core.coreip.homeip.net>
-References: <1322685811-14060-1-git-send-email-riyer@nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Tai-hwa Liang <avatar@sentelic.com>
+Subject: [PATCH] Input: sentelic: Fixing wrong register offset
+Date: Thu, 29 Dec 2011 21:00:05 +0800
+Message-ID: <1325163605-30670-1-git-send-email-avatar@sentelic.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:40245 "EHLO
-	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752549Ab1L2Kcf (ORCPT
+Received: from hermod.sentelic.com ([203.69.18.19]:10906 "EHLO
+	hermod.sentelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754008Ab1L2NC1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Dec 2011 05:32:35 -0500
-Content-Disposition: inline
-In-Reply-To: <1322685811-14060-1-git-send-email-riyer@nvidia.com>
+	Thu, 29 Dec 2011 08:02:27 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: riyer@nvidia.com
-Cc: rydberg@euromail.se, swarren@nvidia.com, ldewangan@nvidia.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Tai-hwa Liang <avatar@sentelic.com>
 
-Hi Rakesh,
+Fixing wrong register offset which is used to retrieve the number of buttons
+attached to the hardware.
 
-On Wed, Nov 30, 2011 at 12:43:31PM -0800, riyer@nvidia.com wrote:
-> From: Rakesh Iyer <riyer@nvidia.com>
-> 
-> Tegra kbc cannot detect exact keypress causing wakeup in interrupt mode.
-> Allow wakeup keypress to be reported for certain platforms.
-> 
-> Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
-> ---
->  arch/arm/mach-tegra/include/mach/kbc.h |    1 +
->  drivers/input/keyboard/tegra-kbc.c     |   20 ++++++++++++++++----
->  2 files changed, 17 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
-> index 4f3572a..20bb054 100644
-> --- a/arch/arm/mach-tegra/include/mach/kbc.h
-> +++ b/arch/arm/mach-tegra/include/mach/kbc.h
-> @@ -53,6 +53,7 @@ struct tegra_kbc_platform_data {
->  	struct tegra_kbc_pin_cfg pin_cfg[KBC_MAX_GPIO];
->  	const struct matrix_keymap_data *keymap_data;
->  
-> +	u32 wakeup_key;
->  	bool wakeup;
->  	bool use_fn_map;
->  	bool use_ghost_filter;
-> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-> index cf3228b..ceb1185 100644
-> --- a/drivers/input/keyboard/tegra-kbc.c
-> +++ b/drivers/input/keyboard/tegra-kbc.c
-> @@ -52,6 +52,7 @@
->  /* KBC Interrupt Register */
->  #define KBC_INT_0	0x4
->  #define KBC_INT_FIFO_CNT_INT_STATUS	(1 << 2)
-> +#define KBC_INT_KEYPRESS_INT_STATUS	(1 << 0)
->  
->  #define KBC_ROW_CFG0_0	0x8
->  #define KBC_COL_CFG0_0	0x18
-> @@ -74,10 +75,12 @@ struct tegra_kbc {
->  	unsigned int cp_to_wkup_dly;
->  	bool use_fn_map;
->  	bool use_ghost_filter;
-> +	bool keypress_caused_wake;
->  	const struct tegra_kbc_platform_data *pdata;
->  	unsigned short keycode[KBC_MAX_KEY * 2];
->  	unsigned short current_keys[KBC_MAX_KPENT];
->  	unsigned int num_pressed_keys;
-> +	u32 wakeup_key;
->  	struct timer_list timer;
->  	struct clk *clk;
->  };
-> @@ -409,6 +412,9 @@ static irqreturn_t tegra_kbc_isr(int irq, void *args)
->  		 */
->  		tegra_kbc_set_fifo_interrupt(kbc, false);
->  		mod_timer(&kbc->timer, jiffies + kbc->cp_dly_jiffies);
-> +	} else if (val & KBC_INT_KEYPRESS_INT_STATUS) {
-> +		/* We can be here only through system resume path */
-> +		kbc->keypress_caused_wake = true;
->  	}
->  
->  	spin_unlock_irqrestore(&kbc->lock, flags);
-> @@ -674,9 +680,10 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
->  	keymap_data = pdata->keymap_data ?: &tegra_kbc_default_keymap_data;
->  	matrix_keypad_build_keymap(keymap_data, KBC_ROW_SHIFT,
->  				   input_dev->keycode, input_dev->keybit);
-> +	kbc->wakeup_key = pdata->wakeup_key;
->  
-> -	err = request_irq(kbc->irq, tegra_kbc_isr, IRQF_TRIGGER_HIGH,
-> -			  pdev->name, kbc);
-> +	err = request_irq(kbc->irq, tegra_kbc_isr,
-> +			  IRQF_NO_SUSPEND | IRQF_TRIGGER_HIGH, pdev->name, kbc);
->  	if (err) {
->  		dev_err(&pdev->dev, "failed to request keyboard IRQ\n");
->  		goto err_put_clk;
-> @@ -738,7 +745,6 @@ static int tegra_kbc_suspend(struct device *dev)
->  
->  	mutex_lock(&kbc->idev->mutex);
->  	if (device_may_wakeup(&pdev->dev)) {
-> -		disable_irq(kbc->irq);
->  		del_timer_sync(&kbc->timer);
->  		tegra_kbc_set_fifo_interrupt(kbc, false);
->  
-> @@ -754,6 +760,7 @@ static int tegra_kbc_suspend(struct device *dev)
->  		tegra_kbc_setup_wakekeys(kbc, true);
->  		msleep(30);
->  
-> +		kbc->keypress_caused_wake = false;
->  		enable_irq_wake(kbc->irq);
->  	} else {
->  		if (kbc->idev->users)
-> @@ -780,7 +787,12 @@ static int tegra_kbc_resume(struct device *dev)
->  
->  		tegra_kbc_set_fifo_interrupt(kbc, true);
->  
-> -		enable_irq(kbc->irq);
-> +		if (kbc->keypress_caused_wake && kbc->wakeup_key) {
-> +			input_report_key(kbc->idev, kbc->wakeup_key, 1);
-> +			input_sync(kbc->idev);
-> +			input_report_key(kbc->idev, kbc->wakeup_key, 0);
-> +			input_sync(kbc->idev);
+Signed-off-by: Tai-hwa Liang <avatar@sentelic.com>
+---
+ drivers/input/mouse/sentelic.c |    4 ++--
+ drivers/input/mouse/sentelic.h |    3 ++-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-Would you mind moving this block into the ISR itself? If we leave ISR
-running then there is no reason to postpone event generation, is there?
-If not then we can get rid of kbc->keypress_caused_wake.
-
-Thanks.
-
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index 5babc47..c8a73b9 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -2,7 +2,7 @@
+  * Finger Sensing Pad PS/2 mouse driver.
+  *
+  * Copyright (C) 2005-2007 Asia Vital Components Co., Ltd.
+- * Copyright (C) 2005-2010 Tai-hwa Liang, Sentelic Corporation.
++ * Copyright (C) 2005-2011 Tai-hwa Liang, Sentelic Corporation.
+  *
+  *   This program is free software; you can redistribute it and/or
+  *   modify it under the terms of the GNU General Public License
+@@ -309,7 +309,7 @@ static int fsp_get_buttons(struct psmouse *psmouse, int *btn)
+ 	};
+ 	int val;
+ 
+-	if (fsp_reg_read(psmouse, FSP_REG_TMOD_STATUS1, &val) == -1)
++	if (fsp_reg_read(psmouse, FSP_REG_TMOD_STATUS, &val) == -1)
+ 		return -EIO;
+ 
+ 	*btn = buttons[(val & 0x30) >> 4];
+diff --git a/drivers/input/mouse/sentelic.h b/drivers/input/mouse/sentelic.h
+index ed1395a..2e4af24 100644
+--- a/drivers/input/mouse/sentelic.h
++++ b/drivers/input/mouse/sentelic.h
+@@ -2,7 +2,7 @@
+  * Finger Sensing Pad PS/2 mouse driver.
+  *
+  * Copyright (C) 2005-2007 Asia Vital Components Co., Ltd.
+- * Copyright (C) 2005-2009 Tai-hwa Liang, Sentelic Corporation.
++ * Copyright (C) 2005-2011 Tai-hwa Liang, Sentelic Corporation.
+  *
+  *   This program is free software; you can redistribute it and/or
+  *   modify it under the terms of the GNU General Public License
+@@ -33,6 +33,7 @@
+ /* Finger-sensing Pad control registers */
+ #define	FSP_REG_SYSCTL1		0x10
+ #define	FSP_BIT_EN_REG_CLK	BIT(5)
++#define	FSP_REG_TMOD_STATUS	0x20
+ #define	FSP_REG_OPC_QDOWN	0x31
+ #define	FSP_BIT_EN_OPC_TAG	BIT(7)
+ #define	FSP_REG_OPTZ_XLO	0x34
 -- 
-Dmitry
+1.7.7.3
+

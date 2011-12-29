@@ -1,31 +1,69 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: sentelic: Fixing wrong register offset
-Date: Thu, 29 Dec 2011 09:48:19 -0800
-Message-ID: <20111229174819.GA26072@core.coreip.homeip.net>
-References: <1325163605-30670-1-git-send-email-avatar@sentelic.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 1/2] HID: multitouch: add support of Atmel multitouch panels
+Date: Thu, 29 Dec 2011 19:26:47 +0100
+Message-ID: <CAN+gG=HgdgNt4x8V7XgN5J-enQDWfDP3urEn8e7QTipWpFNL9A@mail.gmail.com>
+References: <1324651260-4067-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1324651260-4067-2-git-send-email-benjamin.tissoires@gmail.com>
+	<4EF4CE4A.1020907@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:43820 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752748Ab1L2Rs0 (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:48125 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751460Ab1L2S0u convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Dec 2011 12:48:26 -0500
-Received: by iaeh11 with SMTP id h11so23959849iae.19
-        for <linux-input@vger.kernel.org>; Thu, 29 Dec 2011 09:48:26 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1325163605-30670-1-git-send-email-avatar@sentelic.com>
+	Thu, 29 Dec 2011 13:26:50 -0500
+In-Reply-To: <4EF4CE4A.1020907@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tai-hwa Liang <avatar@sentelic.com>
-Cc: linux-input@vger.kernel.org
+To: Chase Douglas <chasedouglas@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Dec 29, 2011 at 09:00:05PM +0800, Tai-hwa Liang wrote:
-> Fixing wrong register offset which is used to retrieve the number of buttons
-> attached to the hardware.
-> 
+Hello Chase,
 
-Applied, thank you Tai-hwa.
+Well, this is the "Atmel maXTouch Digitizer" found on Samsung "Series
+7 Slate" XE700T1A.
 
--- 
-Dmitry
+Same device here:
+http://www.spinics.net/lists/xorg/msg53376.html
+
+Cheers,
+ and happy new year,
+Benjamin
+
+On Fri, Dec 23, 2011 at 19:54, Chase Douglas <chasedouglas@gmail.com> w=
+rote:
+> On 12/23/2011 06:40 AM, Benjamin Tissoires wrote:
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>> ---
+>> =A0drivers/hid/Kconfig =A0 =A0 =A0 =A0 =A0| =A0 =A01 +
+>> =A0drivers/hid/hid-ids.h =A0 =A0 =A0 =A0| =A0 =A03 +++
+>> =A0drivers/hid/hid-multitouch.c | =A0 =A05 +++++
+>> =A03 files changed, 9 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+>> index 5d6eb4e..e95b07c 100644
+>> --- a/drivers/hid/Kconfig
+>> +++ b/drivers/hid/Kconfig
+>> @@ -335,6 +335,7 @@ config HID_MULTITOUCH
+>> =A0 =A0 =A0 =A0 Say Y here if you have one of the following devices:
+>> =A0 =A0 =A0 =A0 - 3M PCT touch screens
+>> =A0 =A0 =A0 =A0 - ActionStar dual touch panels
+>> + =A0 =A0 =A0 - Atmel panels
+>> =A0 =A0 =A0 =A0 - Cando dual touch panels
+>> =A0 =A0 =A0 =A0 - Chunghwa panels
+>> =A0 =A0 =A0 =A0 - CVTouch panels
+>
+> I'm guessing this is different than the Atmel maXTouch chips. If so, =
+can
+> you figure out a model name so people aren't confused on which driver=
+ to
+> use?
+>
+> -- Chase
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

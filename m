@@ -1,105 +1,50 @@
-From: Paul Parsons <lost.distance@yahoo.com>
-Subject: [PATCH v5 2/2] pxa/hx4700: Add Synaptics NavPoint (PXA27x SSP/SPI)
- driver
-Date: Sat, 31 Dec 2011 13:48:15 +0000 (GMT)
-Message-ID: <1325339295.30846.YahooMailClassic@web29006.mail.ird.yahoo.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] Driver for AUO In-Cell touchscreens using pixcir ICs
+Date: Sat, 31 Dec 2011 15:29:43 -0800
+Message-ID: <20111231232943.GA8078@core.coreip.homeip.net>
+References: <201112072348.04578.heiko@sntech.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
-Cc: koen@dominion.thruhere.net, dmitry.torokhov@gmail.com, eric.y.miao@gmail.com, philipp.zabel@gmail.com, mad_soft@inbox.ru
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:39907 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753251Ab1LaX3w (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 31 Dec 2011 18:29:52 -0500
+Received: by iaeh11 with SMTP id h11so27346780iae.19
+        for <linux-input@vger.kernel.org>; Sat, 31 Dec 2011 15:29:51 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <201112072348.04578.heiko@sntech.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Cc: linux-input@vger.kernel.org
 
-Add support for the Synaptics NavPoint touchpad connected to a PXA27x SSP port
-in SPI slave mode. The driver implements a simple navigation pad. The four
-raised dots are mapped to UP/DOWN/LEFT/RIGHT buttons and the centre of the
-touchpad is mapped to the ENTER button.
+On Wed, Dec 07, 2011 at 11:48:04PM +0100, Heiko St=FCbner wrote:
+> Some displays from AUO have a so called in-cell touchscreen, meaning =
+it
+> is built directly into the display unit.
+>=20
+> Touchdata is gathered through PIXCIR Tango-ICs and processed in an
+> Atmel ATmega168P with custom firmware. Communication between the host
+> system and ATmega is done via I2C.
+>=20
+> Devices using this touch solution include the Dell Streak5 and the fa=
+mily
+> of Qisda ebook readers.
+>=20
+> The driver reports single- and multi-touch events including touch are=
+a
+> values.
+>=20
 
-Signed-off-by: Paul Parsons <lost.distance@yahoo.com>
----
+Applied, thank you Heiko.
 
-V5:
-Rebased to linux-3.2-rc7.
-
-diff -uprN clean-3.2-rc7/arch/arm/mach-pxa/hx4700.c linux-3.2-rc7/arch/arm/mach-pxa/hx4700.c
---- clean-3.2-rc7/arch/arm/mach-pxa/hx4700.c	2011-12-24 05:51:06.000000000 +0000
-+++ linux-3.2-rc7/arch/arm/mach-pxa/hx4700.c	2011-12-31 12:03:24.543580181 +0000
-@@ -22,6 +22,7 @@
- #include <linux/gpio.h>
- #include <linux/gpio_keys.h>
- #include <linux/input.h>
-+#include <linux/input/navpoint.h>
- #include <linux/lcd.h>
- #include <linux/mfd/htc-egpio.h>
- #include <linux/mfd/asic3.h>
-@@ -111,7 +112,7 @@ static unsigned long hx4700_pin_config[]
- 	GPIO113_I2S_SYSCLK,
- 
- 	/* SSP 1 (NavPoint) */
--	GPIO23_SSP1_SCLK,
-+	GPIO23_SSP1_SCLK_IN,
- 	GPIO24_SSP1_SFRM,
- 	GPIO25_SSP1_TXD,
- 	GPIO26_SSP1_RXD,
-@@ -181,6 +182,23 @@ static struct platform_device gpio_keys
- };
- 
- /*
-+ * Synaptics NavPoint connected to SSP1
-+ */
-+
-+static struct navpoint_platform_data navpoint_platform_data = {
-+	.port	= 1,
-+	.gpio	= GPIO102_HX4700_SYNAPTICS_ON,
-+};
-+
-+static struct platform_device navpoint = {
-+	.name	= "navpoint",
-+	.id	= -1,
-+	.dev = {
-+		.platform_data = &navpoint_platform_data,
-+	},
-+};
-+
-+/*
-  * ASIC3
-  */
- 
-@@ -782,6 +800,7 @@ static struct platform_device pcmcia = {
- static struct platform_device *devices[] __initdata = {
- 	&asic3,
- 	&gpio_keys,
-+	&navpoint,
- 	&backlight,
- 	&w3220,
- 	&hx4700_lcd,
-@@ -806,6 +825,7 @@ static struct gpio global_gpios[] = {
- 	{ GPIO32_HX4700_RS232_ON,         GPIOF_OUT_INIT_HIGH, "RS232_ON" },
- 	{ GPIO71_HX4700_ASIC3_nRESET,     GPIOF_OUT_INIT_HIGH, "ASIC3_nRESET" },
- 	{ GPIO82_HX4700_EUART_RESET,      GPIOF_OUT_INIT_HIGH, "EUART_RESET" },
-+	{ GPIO102_HX4700_SYNAPTICS_ON,    GPIOF_OUT_INIT_LOW,  "SYNAPTICS_ON" },
- 	{ GPIO105_HX4700_nIR_ON,          GPIOF_OUT_INIT_HIGH, "nIR_EN" },
- };
- 
-diff -uprN clean-3.2-rc7/arch/arm/mach-pxa/include/mach/hx4700.h linux-3.2-rc7/arch/arm/mach-pxa/include/mach/hx4700.h
---- clean-3.2-rc7/arch/arm/mach-pxa/include/mach/hx4700.h	2011-12-24 05:51:06.000000000 +0000
-+++ linux-3.2-rc7/arch/arm/mach-pxa/include/mach/hx4700.h	2011-12-31 12:03:24.543580181 +0000
-@@ -62,7 +62,7 @@
- #define GPIO97_HX4700_nBL_DETECT		97
- #define GPIO99_HX4700_KEY_CONTACTS		99
- #define GPIO100_HX4700_AUTO_SENSE		100 /* BL auto brightness */
--#define GPIO102_HX4700_SYNAPTICS_POWER_ON	102
-+#define GPIO102_HX4700_SYNAPTICS_ON		102
- #define GPIO103_HX4700_SYNAPTICS_INT		103
- #define GPIO105_HX4700_nIR_ON			105
- #define GPIO106_HX4700_CPU_BT_nRESET		106
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

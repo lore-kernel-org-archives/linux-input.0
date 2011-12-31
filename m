@@ -1,278 +1,118 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: q40kbd - convert driver to the split model
-Date: Fri, 30 Dec 2011 17:11:11 -0800
-Message-ID: <20111231010814.7392.52389.stgit@hammer.corenet.prv>
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: Re: [PATCH 1/6] Input: ucb1400_ts - convert to use dev_pm_ops
+Date: Sat, 31 Dec 2011 04:13:22 +0100
+Message-ID: <201112310413.22654.marek.vasut@gmail.com>
+References: <1321259771-10925-1-git-send-email-dmitry.torokhov@gmail.com> <201111141804.12519.marek.vasut@gmail.com> <20111230231754.GA4172@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:41344 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751939Ab1LaBLR (ORCPT
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:57992 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752572Ab1LaDN0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Dec 2011 20:11:17 -0500
-Received: by iaeh11 with SMTP id h11so26071472iae.19
-        for <linux-input@vger.kernel.org>; Fri, 30 Dec 2011 17:11:16 -0800 (PST)
+	Fri, 30 Dec 2011 22:13:26 -0500
+Received: by eekc4 with SMTP id c4so14039643eek.19
+        for <linux-input@vger.kernel.org>; Fri, 30 Dec 2011 19:13:24 -0800 (PST)
+In-Reply-To: <20111230231754.GA4172@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-m68k@lists.linux-m68k.org, Geert Uytterhoeven <geert@linux-m68k.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Convert the driver to standard spilt model arch-specific code registers
-platform device to which driver code can bind later.
+> On Mon, Nov 14, 2011 at 06:04:12PM +0100, Marek Vasut wrote:
+> > > On Mon, Nov 14, 2011 at 11:39:17AM +0100, Marek Vasut wrote:
+> > > > > Instead of using legacy PM interfaces switch to using dev_pm_ops.
+> > > > > 
+> > > > > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> > > > > ---
+> > > > > 
+> > > > >  drivers/input/touchscreen/ucb1400_ts.c |   12 ++++++------
+> > > > >  1 files changed, 6 insertions(+), 6 deletions(-)
+> > > > > 
+> > > > > diff --git a/drivers/input/touchscreen/ucb1400_ts.c
+> > > > > b/drivers/input/touchscreen/ucb1400_ts.c index 3b5b5df..ead7123
+> > > > > 100644 --- a/drivers/input/touchscreen/ucb1400_ts.c
+> > > > > +++ b/drivers/input/touchscreen/ucb1400_ts.c
+> > > > > @@ -428,10 +428,10 @@ static int ucb1400_ts_remove(struct
+> > > > > platform_device *dev) return 0;
+> > > > > 
+> > > > >  }
+> > > > > 
+> > > > > -#ifdef CONFIG_PM
+> > > > > -static int ucb1400_ts_resume(struct platform_device *dev)
+> > > > > +#ifdef CONFIG_PM_SLEEP
+> > > > > +static int ucb1400_ts_resume(struct device *dev)
+> > > > > 
+> > > > >  {
+> > > > > 
+> > > > > -	struct ucb1400_ts *ucb = dev->dev.platform_data;
+> > > > > +	struct ucb1400_ts *ucb = dev->platform_data;
+> > > > > 
+> > > > >  	if (ucb->ts_task) {
+> > > > >  	
+> > > > >  		/*
+> > > > > 
+> > > > > @@ -444,16 +444,16 @@ static int ucb1400_ts_resume(struct
+> > > > > platform_device *dev) }
+> > > > > 
+> > > > >  	return 0;
+> > > > >  
+> > > > >  }
+> > > > > 
+> > > > > -#else
+> > > > > -#define ucb1400_ts_resume NULL
+> > > > > 
+> > > > >  #endif
+> > > > > 
+> > > > > +static SIMPLE_DEV_PM_OPS(ucb1400_ts_pm_ops, NULL,
+> > > > > ucb1400_ts_resume); +
+> > > > > 
+> > > > >  static struct platform_driver ucb1400_ts_driver = {
+> > > > >  
+> > > > >  	.probe	= ucb1400_ts_probe,
+> > > > >  	.remove	= ucb1400_ts_remove,
+> > > > > 
+> > > > > -	.resume	= ucb1400_ts_resume,
+> > > > > 
+> > > > >  	.driver	= {
+> > > > >  	
+> > > > >  		.name	= "ucb1400_ts",
+> > > > > 
+> > > > > +		.pm	= &ucb1400_ts_pm_ops,
+> > > > > 
+> > > > >  	},
+> > > > >  
+> > > > >  };
+> > > > 
+> > > > Hi,
+> > > > 
+> > > > I went through the patchset, but didn't test it. Though the changes
+> > > > look reasonable. I'll have time to test this sometimes next week
+> > > > MAYBE, or it MIGHT tell someone else to test, I can't promise
+> > > > anything here though.
+> > > > 
+> > > > Please add to all patches my:
+> > > > 
+> > > > Reviewed-by: Marek Vasut <marek.vasut@gmail.com>
+> > > 
+> > > Thanks Marek. I have not tested these either so it would be nice to
+> > > find someone who could. However there is no urgency as we have some
+> > > time before 3.3 merge window opens.
+> > 
+> > I can, I have devices with this chip available ... just not now, real
+> > life is haunting me :)
+> 
+> Hi Marek,
+> 
+> Any chance you will be able to try these patches before 3.3 merge window
+> opens?
+> 
+> Thanks,
 
-Also request IRQ immediately upon binding to the device instead of doing
-this when serio port is being opened.
+Hi Dmitry.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+Honestly, reality is just crap. But, I'm fine with these, please add my:
 
-Not tested as I don't have the hardware...
-
- arch/m68k/q40/config.c       |   12 ++++
- drivers/input/serio/q40kbd.c |  134 ++++++++++++++++++++++++------------------
- 2 files changed, 87 insertions(+), 59 deletions(-)
-
-diff --git a/arch/m68k/q40/config.c b/arch/m68k/q40/config.c
-index ad10fec..27d3f76 100644
---- a/arch/m68k/q40/config.c
-+++ b/arch/m68k/q40/config.c
-@@ -24,6 +24,7 @@
- #include <linux/rtc.h>
- #include <linux/vt_kern.h>
- #include <linux/bcd.h>
-+#include <linux/platform_device.h>
- 
- #include <asm/io.h>
- #include <asm/rtc.h>
-@@ -329,3 +330,14 @@ static int q40_set_rtc_pll(struct rtc_pll_info *pll)
- 	} else
- 		return -EINVAL;
- }
-+
-+static struct platform_device q40_kbd_pdev = {
-+	.name	= "q40kbd",
-+	.id	= -1,
-+};
-+
-+static __init int q40_add_kbd_device(void)
-+{
-+	return platform_device_register(&q40_kbd_pdev);
-+}
-+arch_initcall(q40_add_kbd_device);
-diff --git a/drivers/input/serio/q40kbd.c b/drivers/input/serio/q40kbd.c
-index 5eb84b3..1e61dd4 100644
---- a/drivers/input/serio/q40kbd.c
-+++ b/drivers/input/serio/q40kbd.c
-@@ -44,26 +44,31 @@
- #include <asm/irq.h>
- #include <asm/q40ints.h>
- 
-+#define DRV_NAME	"q40kbd"
-+
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
- MODULE_DESCRIPTION("Q40 PS/2 keyboard controller driver");
- MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:" DRV_NAME);
- 
--static DEFINE_SPINLOCK(q40kbd_lock);
--static struct serio *q40kbd_port;
--static struct platform_device *q40kbd_device;
-+struct q40kbd {
-+	struct serio *port;
-+	spinlock_t lock;
-+};
- 
- static irqreturn_t q40kbd_interrupt(int irq, void *dev_id)
- {
-+	struct q40kbd *q40kbd = dev_id;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&q40kbd_lock, flags);
-+	spin_lock_irqsave(&q40kbd->lock, flags);
- 
- 	if (Q40_IRQ_KEYB_MASK & master_inb(INTERRUPT_REG))
--		serio_interrupt(q40kbd_port, master_inb(KEYCODE_REG), 0);
-+		serio_interrupt(q40kbd->port, master_inb(KEYCODE_REG), 0);
- 
- 	master_outb(-1, KEYBOARD_UNLOCK_REG);
- 
--	spin_unlock_irqrestore(&q40kbd_lock, flags);
-+	spin_unlock_irqrestore(&q40kbd->lock, flags);
- 
- 	return IRQ_HANDLED;
- }
-@@ -72,17 +77,23 @@ static irqreturn_t q40kbd_interrupt(int irq, void *dev_id)
-  * q40kbd_flush() flushes all data that may be in the keyboard buffers
-  */
- 
--static void q40kbd_flush(void)
-+static void q40kbd_flush(struct q40kbd *q40kbd)
- {
- 	int maxread = 100;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&q40kbd_lock, flags);
-+	spin_lock_irqsave(&q40kbd->lock, flags);
- 
- 	while (maxread-- && (Q40_IRQ_KEYB_MASK & master_inb(INTERRUPT_REG)))
- 		master_inb(KEYCODE_REG);
- 
--	spin_unlock_irqrestore(&q40kbd_lock, flags);
-+	spin_unlock_irqrestore(&q40kbd->lock, flags);
-+}
-+
-+static void q40kbd_stop(struct q40kbd *q40kbd)
-+{
-+	master_outb(0, KEY_IRQ_ENABLE_REG);
-+	master_outb(-1, KEYBOARD_UNLOCK_REG);
- }
- 
- /*
-@@ -92,12 +103,9 @@ static void q40kbd_flush(void)
- 
- static int q40kbd_open(struct serio *port)
- {
--	q40kbd_flush();
-+	struct q40kbd *q40kbd = port->port_data;
- 
--	if (request_irq(Q40_IRQ_KEYBOARD, q40kbd_interrupt, 0, "q40kbd", NULL)) {
--		printk(KERN_ERR "q40kbd.c: Can't get irq %d.\n", Q40_IRQ_KEYBOARD);
--		return -EBUSY;
--	}
-+	q40kbd_flush(q40kbd);
- 
- 	/* off we go */
- 	master_outb(-1, KEYBOARD_UNLOCK_REG);
-@@ -108,35 +116,68 @@ static int q40kbd_open(struct serio *port)
- 
- static void q40kbd_close(struct serio *port)
- {
--	master_outb(0, KEY_IRQ_ENABLE_REG);
--	master_outb(-1, KEYBOARD_UNLOCK_REG);
--	free_irq(Q40_IRQ_KEYBOARD, NULL);
-+	struct q40kbd *q40kbd = port->port_data;
- 
--	q40kbd_flush();
-+	q40kbd_stop(q40kbd);
-+	q40kbd_flush(q40kbd);
- }
- 
--static int __devinit q40kbd_probe(struct platform_device *dev)
-+static int __devinit q40kbd_probe(struct platform_device *pdev)
- {
--	q40kbd_port = kzalloc(sizeof(struct serio), GFP_KERNEL);
--	if (!q40kbd_port)
--		return -ENOMEM;
--
--	q40kbd_port->id.type	= SERIO_8042;
--	q40kbd_port->open	= q40kbd_open;
--	q40kbd_port->close	= q40kbd_close;
--	q40kbd_port->dev.parent	= &dev->dev;
--	strlcpy(q40kbd_port->name, "Q40 Kbd Port", sizeof(q40kbd_port->name));
--	strlcpy(q40kbd_port->phys, "Q40", sizeof(q40kbd_port->phys));
--
--	serio_register_port(q40kbd_port);
-+	struct q40kbd *q40kbd;
-+	struct serio *port;
-+	int error;
-+
-+	q40kbd = kzalloc(sizeof(struct q40kbd), GFP_KERNEL);
-+	port = kzalloc(sizeof(struct serio), GFP_KERNEL);
-+	if (!q40kbd || !port) {
-+		error = -ENOMEM;
-+		goto err_free_mem;
-+	}
-+
-+	q40kbd->port = port;
-+	spin_lock_init(&q40kbd->lock);
-+
-+	port->id.type = SERIO_8042;
-+	port->open = q40kbd_open;
-+	port->close = q40kbd_close;
-+	port->port_data = q40kbd;
-+	port->dev.parent = &pdev->dev;
-+	strlcpy(port->name, "Q40 Kbd Port", sizeof(port->name));
-+	strlcpy(port->phys, "Q40", sizeof(port->phys));
-+
-+	q40kbd_stop(q40kbd);
-+
-+	error = request_irq(Q40_IRQ_KEYBOARD, q40kbd_interrupt, 0,
-+			    DRV_NAME, q40kbd);
-+	if (error) {
-+		dev_err(&pdev->dev, "Can't get irq %d.\n", Q40_IRQ_KEYBOARD);
-+		goto err_free_mem;
-+	}
-+
-+	serio_register_port(q40kbd->port);
-+
-+	platform_set_drvdata(pdev, q40kbd);
- 	printk(KERN_INFO "serio: Q40 kbd registered\n");
- 
- 	return 0;
-+
-+err_free_mem:
-+	kfree(port);
-+	kfree(q40kbd);
-+	return error;
- }
- 
--static int __devexit q40kbd_remove(struct platform_device *dev)
-+static int __devexit q40kbd_remove(struct platform_device *pdev)
- {
--	serio_unregister_port(q40kbd_port);
-+	struct q40kbd *q40kbd = platform_get_drvdata(pdev);
-+
-+	free_irq(Q40_IRQ_KEYBOARD, q40kbd);
-+
-+	serio_unregister_port(q40kbd->port);
-+	kfree(q40kbd);
-+
-+	platform_set_drvdata(pdev, NULL);
- 
- 	return 0;
- }
-@@ -146,41 +187,16 @@ static struct platform_driver q40kbd_driver = {
- 		.name	= "q40kbd",
- 		.owner	= THIS_MODULE,
- 	},
--	.probe		= q40kbd_probe,
- 	.remove		= __devexit_p(q40kbd_remove),
- };
- 
- static int __init q40kbd_init(void)
- {
--	int error;
--
--	if (!MACH_IS_Q40)
--		return -ENODEV;
--
--	error = platform_driver_register(&q40kbd_driver);
--	if (error)
--		return error;
--
--	q40kbd_device = platform_device_alloc("q40kbd", -1);
--	if (!q40kbd_device)
--		goto err_unregister_driver;
--
--	error = platform_device_add(q40kbd_device);
--	if (error)
--		goto err_free_device;
--
--	return 0;
--
-- err_free_device:
--	platform_device_put(q40kbd_device);
-- err_unregister_driver:
--	platform_driver_unregister(&q40kbd_driver);
--	return error;
-+	return platform_driver_probe(&q40kbd_driver, q40kbd_probe);
- }
- 
- static void __exit q40kbd_exit(void)
- {
--	platform_device_unregister(q40kbd_device);
- 	platform_driver_unregister(&q40kbd_driver);
- }
- 
-
+Acked-by: Marek Vasut <marek.vasut@gmail.com>

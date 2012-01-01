@@ -1,50 +1,32 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] Driver for AUO In-Cell touchscreens using pixcir ICs
-Date: Sat, 31 Dec 2011 15:29:43 -0800
-Message-ID: <20111231232943.GA8078@core.coreip.homeip.net>
-References: <201112072348.04578.heiko@sntech.de>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [RFC PATCH 00/11] input: Synaptics RMI4 Touchscreen Driver
+Date: Sun, 1 Jan 2012 14:51:39 +0100
+Message-ID: <CACRpkdbcK9SGtQf9g55h_PGPenrvc9kxPYfZXNV1-4K8NvdAgg@mail.gmail.com>
+References: <1324519802-23894-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:39907 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:33138 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753251Ab1LaX3w (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Dec 2011 18:29:52 -0500
-Received: by iaeh11 with SMTP id h11so27346780iae.19
-        for <linux-input@vger.kernel.org>; Sat, 31 Dec 2011 15:29:51 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <201112072348.04578.heiko@sntech.de>
+	with ESMTP id S1752186Ab2AANvj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Jan 2012 08:51:39 -0500
+In-Reply-To: <1324519802-23894-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Cc: linux-input@vger.kernel.org
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-On Wed, Dec 07, 2011 at 11:48:04PM +0100, Heiko St=FCbner wrote:
-> Some displays from AUO have a so called in-cell touchscreen, meaning =
-it
-> is built directly into the display unit.
->=20
-> Touchdata is gathered through PIXCIR Tango-ICs and processed in an
-> Atmel ATmega168P with custom firmware. Communication between the host
-> system and ATmega is done via I2C.
->=20
-> Devices using this touch solution include the Dell Streak5 and the fa=
-mily
-> of Qisda ebook readers.
->=20
-> The driver reports single- and multi-touch events including touch are=
-a
-> values.
->=20
+On Thu, Dec 22, 2011 at 3:09 AM, Christopher Heiny <cheiny@synaptics.com> wrote:
 
-Applied, thank you Heiko.
+> This patch implements a driver supporting Synaptics ClearPad and other
+> touchscreen sensors that use the RMI4 protocol, as defined here:
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This looks like a fundamental rewrite an huge improvement over the
+previous RMI4 patches, good job!
+
+I am not very deeply versed in the input subsystem but overall it looks
+good to me, nice structure etc. I hope to be able to get back to a detailed
+review and per-patch Acked-by:s ASAP.
+
+Yours,
+Linus Walleij

@@ -1,487 +1,186 @@
-From: "Patil, Rachna" <rachna@ti.com>
-Subject: RE: [PATCH v2] input: add support for TI Touchscreen controller
-Date: Mon, 2 Jan 2012 12:21:59 +0000
-Message-ID: <4CE347531D4CA947960AF71FF095B93201B58E@DBDE01.ent.ti.com>
-References: <1323430182-27626-1-git-send-email-rachna@ti.com>
- <20111230035521.GD17850@core.coreip.homeip.net>
+From: Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v3] Input: keyboard - add device tree bindings for simple
+ key matrixes
+Date: Mon, 2 Jan 2012 10:39:04 -0800
+Message-ID: <CAPnjgZ1ngJrqB5FgOZDmc-H9KBE0-W75rqTHEPX4D+q0FjYumg@mail.gmail.com>
+References: <1325184146-3527-1-git-send-email-olof@lixom.net>
+	<1325484557-27695-1-git-send-email-olof@lixom.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:37918 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751703Ab2ABMWF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2012 07:22:05 -0500
-In-Reply-To: <20111230035521.GD17850@core.coreip.homeip.net>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1325484557-27695-1-git-send-email-olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, U-Boot Mailing List <u-boot-0aAXYlwwYIKGBzrmiIFOJg@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Dmitry,
-Thanks for the patch.
-Please find my comments inline.
+Hi Olof,
 
-On Fri, Dec 30, 2011 at 09:25:21, Dmitry Torokhov wrote:
-> Hi Rachna,
-> 
-> 
-> On Fri, Dec 09, 2011 at 04:59:42PM +0530, Patil, Rachna wrote:
-> > From: Rachna Patil <rachna@ti.com>
-> > 
-> > This patch adds support for TI's touchscreen controller for a 4/5/8 
-> > wire resistive panel that is directly fed to the ADC.
-> > 
-> > This touchscreen controller will be part of AM335x TI SoC. The TRM can 
-> > be found at:
-> > http://www.ti.com/lit/ug/spruh73a/spruh73a.pdf
-> > 
-> 
-> This looks mostly good, could you also try the patch below (on top of
-> yours) and let me know if the driver still works?
-> 
-> Thanks!
-> 
-> --
-> Dmitry
-> 
-> 
-> Input: ti_tscadc - misc changes
-> 
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> - rely on input core to implement defuzzing (filtering out smaller
->   variations in coordinates); 
-> - release the 2nd clock after getting its rate;
-> - IRQF_DISABLE is obsolete;
-> - split filtering of measurements into a separate function;
-> - misc formatting changes;
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+On Sun, Jan 1, 2012 at 10:09 PM, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org> wrote:
+> This adds a simple device tree binding for simple key matrix data and
+> a helper to fill in the platform data.
+>
+> The implementation is in a shared file outside if drivers/input/keybo=
+ard
+> since some drivers in drivers/input/misc might be making use of it
+> as well.
+>
+> Changes since v2:
+> =A0* Removed reference to "legacy" format with a subnode per key
+> =A0* Changed to a packed format with one cell per key instead of 3.
+> =A0* Moved new OF helper to separate file
+> =A0* Misc fixups based on comments
+>
+> Changes since v1:
+> =A0* Removed samsung-style binding support
+> =A0* Added linux,fn-keymap and linux,fn-key optional properties
+>
+> Signed-off-by: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
 > ---
-> 
->  drivers/input/touchscreen/ti_tscadc.c |  244 ++++++++++++++++-----------------
->  1 files changed, 115 insertions(+), 129 deletions(-)
-> 
-> 
-> diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
-> index ed6f1eb..8d23f5f 100644
-> --- a/drivers/input/touchscreen/ti_tscadc.c
-> +++ b/drivers/input/touchscreen/ti_tscadc.c
-> @@ -87,17 +87,17 @@
->  #define SEQ_SETTLE		275
->  #define ADC_CLK			3000000
->  #define MAX_12BIT		((1 << 12) - 1)
-> +#define TSCADC_FUZZ_X		15
-> +#define TSCADC_FUZZ_Y		15
->  
->  struct tscadc {
->  	struct input_dev	*input;
->  	struct clk		*tsc_ick;
-> -	int			irq;
-> -	int			pen;
-> -	int			wires;
-> -	int			x_plate_resistance;
-> -	unsigned int		bckup_x;
-> -	unsigned int		bckup_y;
->  	void __iomem		*tsc_base;
-> +	unsigned int		irq;
-> +	unsigned int		wires;
-> +	unsigned int		x_plate_resistance;
-> +	bool			pen_down;
->  };
->  
->  static unsigned int tscadc_readl(struct tscadc *ts, unsigned int reg)
-> @@ -111,7 +111,7 @@ static void tscadc_writel(struct tscadc *tsc, unsigned int reg,
->  	writel(val, tsc->tsc_base + reg);
->  }
->  
-> -static void tsc_step_config(struct tscadc *ts_dev)
-> +static void tscadc_step_config(struct tscadc *ts_dev)
->  {
->  	unsigned int	config;
->  	int i;
-> @@ -122,8 +122,7 @@ static void tsc_step_config(struct tscadc *ts_dev)
->  			STEPCONFIG_SAMPLES_AVG | STEPCONFIG_XPP;
->  	switch (ts_dev->wires) {
->  	case 4:
-> -		config |= STEPCONFIG_INP |
-> -				STEPCONFIG_XNN;
-> +		config |= STEPCONFIG_INP | STEPCONFIG_XNN;
->  		break;
->  	case 5:
->  		config |= STEPCONFIG_YNN |
-> @@ -131,10 +130,10 @@ static void tsc_step_config(struct tscadc *ts_dev)
->  				STEPCONFIG_YPP;
->  		break;
->  	case 8:
-> -		config |= STEPCONFIG_INP |
-> -				STEPCONFIG_XNN;
-> +		config |= STEPCONFIG_INP | STEPCONFIG_XNN;
->  		break;
->  	}
+> =A0.../devicetree/bindings/input/matrix-keymap.txt =A0 =A0| =A0 27 ++=
+++++
+> =A0drivers/input/Kconfig =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0| =A0 =A04 +
+> =A0drivers/input/Makefile =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 | =A0 =A01 +
+> =A0drivers/input/keyboard/Kconfig =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 | =A0 =A01 +
+> =A0drivers/input/of_keymap.c =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0| =A0 87 ++++++++++++++++++++
+> =A0include/linux/input/matrix_keypad.h =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+| =A0 19 ++++
+> =A06 files changed, 139 insertions(+), 0 deletions(-)
+> =A0create mode 100644 Documentation/devicetree/bindings/input/matrix-=
+keymap.txt
+> =A0create mode 100644 drivers/input/of_keymap.c
+>
+> diff --git a/Documentation/devicetree/bindings/input/matrix-keymap.tx=
+t b/Documentation/devicetree/bindings/input/matrix-keymap.txt
+> new file mode 100644
+> index 0000000..1db8e12
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/matrix-keymap.txt
+> @@ -0,0 +1,27 @@
+> +A simple common binding for matrix-connected key boards. Currently t=
+argeted at
+> +defining the keys in the scope of linux key codes since that is a st=
+able and
+> +standardized interface at this time.
 > +
->  	for (i = 1; i < 7; i++) {
->  		tscadc_writel(ts_dev, REG_STEPCONFIG(i), config);
->  		tscadc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
-> @@ -156,6 +155,7 @@ static void tsc_step_config(struct tscadc *ts_dev)
->  		config |= STEPCONFIG_YPP;
->  		break;
->  	}
-> +
->  	for (i = 7; i < 13; i++) {
->  		tscadc_writel(ts_dev, REG_STEPCONFIG(i), config);
->  		tscadc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
-> @@ -185,9 +185,9 @@ static void tsc_step_config(struct tscadc *ts_dev)
->  	tscadc_writel(ts_dev, REG_SE, STPENB_STEPENB);
->  }
->  
-> -static void tsc_idle_config(struct tscadc *ts_config)
-> +static void tscadc_idle_config(struct tscadc *ts_config)
->  {
-> -	unsigned int	 idleconfig;
-> +	unsigned int idleconfig;
->  
->  	idleconfig = STEPCONFIG_YNN |
->  			STEPCONFIG_INM |
-> @@ -195,83 +195,78 @@ static void tsc_idle_config(struct tscadc *ts_config)
->  	tscadc_writel(ts_config, REG_IDLECONFIG, idleconfig);
->  }
->  
-> -static irqreturn_t interrupt(int irq, void *dev)
-> +static void tscadc_read_coordinates(struct tscadc *ts_dev,
-> +				    unsigned int *x, unsigned int *y)
->  {
-> -	struct tscadc		*ts_dev = (struct tscadc *)dev;
-> -	struct input_dev	*input_dev = ts_dev->input;
-> -	unsigned int		status, irqclr = 0;
-> -	unsigned int		read, diff;
-> -	unsigned int		prev_val_x = ~0, prev_val_y = ~0;
-> -	unsigned int		prev_diff_x = ~0, prev_diff_y = ~0;
-> -	unsigned int		val_x = 0, val_y = 0, diffx = 0, diffy = 0;
-> -	unsigned int		z1 = 0, z2 = 0, z = 0;
-> -	int			i, fsm, fifocount;
-> +	unsigned int fifocount = tscadc_readl(ts_dev, REG_FIFO0CNT);
-> +	unsigned int prev_val_x = ~0, prev_val_y = ~0;
-> +	unsigned int prev_diff_x = ~0, prev_diff_y = ~0;
-> +	unsigned int read, diff;
-> +	unsigned int i;
->  
-> -	status = tscadc_readl(ts_dev, REG_IRQSTATUS);
-> -	if (status & IRQENB_FIFO1THRES) {
-> -		fifocount = tscadc_readl(ts_dev, REG_FIFO0CNT);
-> -
-> -		/* Delta filter is used to remove large variations
-> -		 * in sampled values from ADC. The filter tries to
-> -		 * predict where the next coordinate could be.
-> -		 * This is done by taking a previous coordinate and
-> -		 * subtracting it form current one. Further the
-> -		 * algorithm compares the difference with that of
-> -		 * a present value, if true the value is reported
-> -		 * to the sub system.
-> -		 */
-> -		for (i = 0; i < (fifocount-1); i++) {
-> -			read = ((tscadc_readl(ts_dev, REG_FIFO0)) & 0xfff);
-> -			diff = abs(read - prev_val_x);
-> -			if (diff < prev_diff_x) {
-> -				prev_diff_x = diff;
-> -				val_x = read;
-> -			}
-> -			prev_val_x = read;
-> -
-> -			read = 0;
-> -			diff = 0;
-> -			read = ((tscadc_readl(ts_dev, REG_FIFO1)) & 0xfff);
-> -			diff = abs(read - prev_val_y);
-> -			if (diff < prev_diff_y) {
-> -				prev_diff_y = diff;
-> -				val_y = read;
-> -			}
-> -			prev_val_y = read;
-> +	/*
-> +	 * Delta filter is used to remove large variations
-> +	 * in sampled values from ADC. The filter tries to
-> +	 * predict where the next coordinate could be.
-> +	 * This is done by taking a previous coordinate and
-> +	 * subtracting it form current one. Further the
-> +	 * algorithm compares the difference with that of
-> +	 * a present value, if true the value is reported
-> +	 * to the sub system.
-> +	 */
-> +	for (i = 0; i < fifocount - 1; i++) {
-> +		read = tscadc_readl(ts_dev, REG_FIFO0) & 0xfff;
-> +		diff = abs(read - prev_val_x);
-> +		if (diff < prev_diff_x) {
-> +			prev_diff_x = diff;
-> +			*x = read;
->  		}
-> +		prev_val_x = read;
->  
-> -		diffx = abs(val_x - (ts_dev->bckup_x));
-> -		diffy = abs(val_y - (ts_dev->bckup_y));
-> -		ts_dev->bckup_x = val_x;
-> -		ts_dev->bckup_y = val_y;
-> -
-> -		z1 = ((tscadc_readl(ts_dev, REG_FIFO0)) & 0xfff);
-> -		z2 = ((tscadc_readl(ts_dev, REG_FIFO1)) & 0xfff);
-> -
-> -		if (ts_dev->pen == 0) {
-> -			if ((z1 != 0) && (z2 != 0)) {
-> -				/* cal pressure using formula
-> -				 * Resistance(touch) = x plate resistance *
-> -				 * x postion/4096 * ((z2 / z1) - 1)
-> -				 */
-> -				z = z2 - z1;
-> -				z *= val_x;
-> -				z *= ts_dev->x_plate_resistance;
-> -				z /= z1;
-> -				z = (z + 2047) >> 12;
-> -
-> -				if ((diffx < 15) && (diffy < 15)
-> -						&& (z <= MAX_12BIT)) {
+> +Required properties:
+> +- compatible: "matrix-keyboard-controller"
+> +- linux,keymap: an array of packed 1-cell entries containing the equ=
+ivalent
+> + =A0of row, column and linux key-code. The 32-bit big endian cell is=
+ packed
+> + =A0as:
+> + =A0 =A0 =A0 row << 24 | column << 16 | key-code
 
-Using defuzz alone does not solve the problem. I am trying to
-filter out odd random values from the ADC that are incorrect
-(Not only noise). Hence as explained I am using delta algorithm.
-As a part of this algorithm I am checking for value being less than 15.
+This looks much better than the Samsung binding and the original 3-cell=
+ one.
 
-> -					input_report_abs(input_dev,
-> -							ABS_X, val_x);
-> -					input_report_abs(input_dev,
-> -							ABS_Y, val_y);
-> -					input_report_abs(input_dev,
-> -							ABS_PRESSURE, z);
-> -					input_report_key(input_dev,
-> -							BTN_TOUCH, 1);
-> -					input_sync(input_dev);
-> -				}
-> +		read = tscadc_readl(ts_dev, REG_FIFO1) & 0xfff;
-> +		diff = abs(read - prev_val_y);
-> +		if (diff < prev_diff_y) {
-> +			prev_diff_y = diff;
-> +			*y = read;
-> +		}
-> +		prev_val_y = read;
-> +	}
-> +}
-> +
-> +static irqreturn_t tscadc_irq(int irq, void *dev)
-> +{
-> +	struct tscadc *ts_dev = dev;
-> +	struct input_dev *input_dev = ts_dev->input;
-> +	unsigned int status, irqclr = 0;
-> +	unsigned int x = 0, y = 0;
-> +	unsigned int z1, z2, z;
-> +	unsigned int fsm;
-> +
-> +	status = tscadc_readl(ts_dev, REG_IRQSTATUS);
-> +	if (status & IRQENB_FIFO1THRES) {
-> +		tscadc_read_coordinates(ts_dev, &x, &y);
-> +
-> +		z1 = tscadc_readl(ts_dev, REG_FIFO0) & 0xfff;
-> +		z2 = tscadc_readl(ts_dev, REG_FIFO1) & 0xfff;
-> +
-> +		if (ts_dev->pen_down && z1 != 0 && z2 != 0) {
-> +			/*
-> +			 * Calculate pressure using formula
-> +			 * Resistance(touch) = x plate resistance *
-> +			 * x postion/4096 * ((z2 / z1) - 1)
-> +			 */
-> +			z = z2 - z1;
-> +			z *= x;
-> +			z *= ts_dev->x_plate_resistance;
-> +			z /= z1;
-> +			z = (z + 2047) >> 12;
-> +
-> +			if (z <= MAX_12BIT) {
-> +				input_report_abs(input_dev, ABS_X, x);
-> +				input_report_abs(input_dev, ABS_Y, y);
-> +				input_report_abs(input_dev, ABS_PRESSURE, z);
-> +				input_report_key(input_dev, BTN_TOUCH, 1);
-> +				input_sync(input_dev);
->  			}
->  		}
->  		irqclr |= IRQENB_FIFO1THRES;
-> @@ -288,14 +283,12 @@ static irqreturn_t interrupt(int irq, void *dev)
->  		/* Pen up event */
->  		fsm = tscadc_readl(ts_dev, REG_ADCFSM);
->  		if (fsm == ADCFSM_STEPID) {
-> -			ts_dev->pen = 1;
-> -			ts_dev->bckup_x = 0;
-> -			ts_dev->bckup_y = 0;
-> +			ts_dev->pen_down = false;
->  			input_report_key(input_dev, BTN_TOUCH, 0);
->  			input_report_abs(input_dev, ABS_PRESSURE, 0);
->  			input_sync(input_dev);
->  		} else {
-> -			ts_dev->pen = 0;
-> +			ts_dev->pen_down = true;
->  		}
->  		irqclr |= IRQENB_PENUP;
->  	}
-> @@ -309,18 +302,18 @@ static irqreturn_t interrupt(int irq, void *dev)
->  }
->  
->  /*
-> -* The functions for inserting/removing driver as a module.
-> -*/
-> + * The functions for inserting/removing driver as a module.
-> + */
->  
-> -static	int __devinit tscadc_probe(struct platform_device *pdev)
-> +static int __devinit tscadc_probe(struct platform_device *pdev)
->  {
-> -	const struct tsc_data		*pdata = pdev->dev.platform_data;
-> -	struct resource			*res;
-> -	struct tscadc			*ts_dev;
-> -	struct input_dev		*input_dev;
-> -	struct clk			*clk;
-> -	int				err;
-> -	int				clk_value, ctrl;
-> +	const struct tsc_data *pdata = pdev->dev.platform_data;
-> +	struct resource *res;
-> +	struct tscadc *ts_dev;
-> +	struct input_dev *input_dev;
-> +	struct clk *clk;
-> +	int err;
-> +	int clk_value, ctrl, irq;
->  
->  	if (!pdata) {
->  		dev_err(&pdev->dev, "missing platform data.\n");
-> @@ -333,6 +326,12 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
->  		return -EINVAL;
->  	}
->  
-> +	irq = platform_get_irq(pdev, 0);
-> +	if (irq < 0) {
-> +		dev_err(&pdev->dev, "no irq ID is specified.\n");
-> +		return -EINVAL;
-> +	}
-> +
->  	/* Allocate memory for device */
->  	ts_dev = kzalloc(sizeof(struct tscadc), GFP_KERNEL);
->  	input_dev = input_allocate_device();
-> @@ -342,7 +341,6 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
->  		goto err_free_mem;
->  	}
->  
-> -	ts_dev->irq = platform_get_irq(pdev, 0);
->  	if (ts_dev->irq < 0) {
->  		dev_err(&pdev->dev, "no irq ID is specified.\n");
->  		err = -ENODEV;
-> @@ -350,11 +348,11 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
->  	}
->  
->  	ts_dev->input = input_dev;
-> +	ts_dev->irq = irq;
->  	ts_dev->wires = pdata->wires;
->  	ts_dev->x_plate_resistance = pdata->x_plate_resistance;
-> -	ts_dev->pen = 1;
->  
-> -	res =  request_mem_region(res->start, resource_size(res), pdev->name);
-> +	res = request_mem_region(res->start, resource_size(res), pdev->name);
->  	if (!res) {
->  		dev_err(&pdev->dev, "failed to reserve registers.\n");
->  		err = -EBUSY;
-> @@ -368,8 +366,8 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
->  		goto err_release_mem_region;
->  	}
->  
-> -	err = request_irq(ts_dev->irq, interrupt, IRQF_DISABLED,
-> -			pdev->dev.driver->name, ts_dev);
-> +	err = request_irq(ts_dev->irq, tscadc_irq,
-> +			  0, pdev->dev.driver->name, ts_dev);
->  	if (err) {
->  		dev_err(&pdev->dev, "failed to allocate irq.\n");
->  		goto err_unmap_regs;
-> @@ -390,18 +388,18 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
->  	}
->  
->  	clk_value = clk_get_rate(clk) / ADC_CLK;
-> +	clk_put(clk);
-> +
->  	if (clk_value < 7) {
->  		dev_err(&pdev->dev, "clock input less than min clock requirement\n");
->  		goto err_disable_clk;
->  	}
->  	/* CLKDIV needs to be configured to the value minus 1 */
-> -	clk_value = clk_value - 1;
-> -	tscadc_writel(ts_dev, REG_CLKDIV, clk_value);
-> +	tscadc_writel(ts_dev, REG_CLKDIV, clk_value - 1);
->  
->  	 /* Enable wake-up of the SoC using touchscreen */
->  	tscadc_writel(ts_dev, REG_IRQWAKEUP, IRQWKUP_ENB);
->  
-> -
->  	ctrl = CNTRLREG_STEPCONFIGWRT |
->  			CNTRLREG_TSCENB |
->  			CNTRLREG_STEPID;
-> @@ -418,9 +416,9 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
->  	}
->  	tscadc_writel(ts_dev, REG_CTRL, ctrl);
->  
-> -	tsc_idle_config(ts_dev);
-> +	tscadc_idle_config(ts_dev);
->  	tscadc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO1THRES);
-> -	tsc_step_config(ts_dev);
-> +	tscadc_step_config(ts_dev);
->  	tscadc_writel(ts_dev, REG_FIFO1THR, 6);
->  
->  	ctrl |= CNTRLREG_TSCSSENB;
-> @@ -432,8 +430,8 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
->  	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
->  	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
->  
-> -	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
-> -	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
-> +	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, TSCADC_FUZZ_X, 0);
-> +	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, TSCADC_FUZZ_Y, 0);
->  	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT, 0, 0);
->  
->  	/* register to the input system */
-> @@ -461,8 +459,8 @@ err_free_mem:
->  
->  static int __devexit tscadc_remove(struct platform_device *pdev)
->  {
-> -	struct tscadc		*ts_dev = platform_get_drvdata(pdev);
-> -	struct resource		*res;
-> +	struct tscadc *ts_dev = platform_get_drvdata(pdev);
-> +	struct resource *res;
->  
->  	free_irq(ts_dev->irq, ts_dev);
->  
-> @@ -485,24 +483,12 @@ static struct platform_driver ti_tsc_driver = {
->  	.probe	= tscadc_probe,
->  	.remove	= __devexit_p(tscadc_remove),
->  	.driver	= {
-> -			.name   = "tsc",
-> -			.owner	= THIS_MODULE,
-> +		.name   = "tsc",
-> +		.owner	= THIS_MODULE,
->  	},
->  };
-> -
-> -static int __init ti_tsc_init(void)
-> -{
-> -	return platform_driver_register(&ti_tsc_driver);
-> -}
-> -module_init(ti_tsc_init);
-> -
-> -static void __exit ti_tsc_exit(void)
-> -{
-> -	platform_driver_unregister(&ti_tsc_driver);
-> -}
-> -module_exit(ti_tsc_exit);
-> +module_platform_driver(ti_tsc_driver);
->  
->  MODULE_DESCRIPTION("TI touchscreen controller driver");
->  MODULE_AUTHOR("Rachna Patil <rachna@ti.com>");
->  MODULE_LICENSE("GPL");
-> -
-> 
+U-Boot Tegra (keyboard patch series) currently uses a 16x8 matrix, and
+uses a single byte (the ASCII character) for a total of 128 bytes per
+keymap. Since U-Boot does not have (or apparently want) the concept of
+key codes or the added code and intermediate data this requires, the
+binding presented here will not suit U-Boot so far.
 
+These rows and columns embedded in the cell make it more of a pain to
+write the fdt description. If you just set up the cells in (column,
+row) order and set the matrix size (rows, columns) then you end up
+with 128 entries on Tegra. If you use uint16 then this could be 256
+bytes instead of 512. The binding you present for Tegra would be 109 *
+4 =3D 436 bytes. However I take your point that Fn maps are much more
+sparse, so overall this is likely to be similar (512 bytes for either
+method once Fn mappings are taken into account).
+
+But going back to U-Boot, it does not have the intermediate table that
+you malloc and decant into, it does not understand key codes so
+doesn't know what to do when Shift is pressed, doesn't understand
+languages, etc. In order to use these Linux bindings in U-Boot we
+would need to add new input layer, extra decode code and intermediate
+tables. I can almost hear the NAKs already (bear in mind fdt only went
+into U-Boot in the December release and people are more sensitive to
+code size / performance there than in Linux). I did ask about this on
+this list a few weeks ago but no response yet.
+
+We could perhaps add an alternative direct ASCII binding like this
+example (which would have to be in a separate node):
+
+                /* Use a packed binding which doesn't include
+row,column numbers in each cell */
+                packed-binding;
+                matrix-columns =3D <8>;
+                matrix-rows =3D <16>;
+                ascii-binding;  /* ASCII characters instead of keycodes=
+ */
+		u-boot,keymap  =3D /size/ 8 <00  00  'w' 's' 'a' 'z' 00  DE
+				    00  00  00  00  00  00  00  00
+				    00  00  00  00  00  00  00  00
+				    '5' '4' 'r' 'e' 'f' 'd' 'x' 00
+				    '7' '6' 't' 'h' 'g' 'v' 'c' ' '
+				    '9' '8' 'u' 'y' 'j' 'n' 'b' 5C
+				    '-' '0' 'o' 'i' 'l' 'k' ',' 'm'
+				    00  '=3D' ']' 0D  00  00  00  00
+				    00  00  00  00  DF  DF  00  00
+				    00  00  00  00  00  DC  00  DD
+				    00  00  00  00  00  00  00  00
+				    '[' 'p' 27  ';' '/' '.' 00  00
+				    00  00  08  '3' '2' 1E  00  00
+				    00  7F  00  00  00  1D  1F  1C
+				    00  00  00  'q' 00  00  '1' 00
+				    1B  '`' 00  09  00  00  00  00>;
+		u-boot,keymap-DF =3D /size/ 8 <00  00  'W' 'S' 'A' 'Z' 00  00
+				    00  00  00  00  00  00  00  00
+				    00  00  00  00  00  00  00  00
+=2E..
+
+The DC-DF codes codes denote Shift, Fn and Ctrl keys which would need
+a separate keymap - although we could probably calculate the Ctrl one.
+
+=46rom a point of view of efficiency, drivers can simply keep a pointer
+to the appropriate property and read out the codes based on
+(row,column) position.
+
+If we have something like this, then in order for the keyboard to work
+in U-Boot, vendors would need to create a completely separate ASCII
+mapping. Yes I agree this is a bit of a pain, but the above map is
+fairly easy to type in, and quite compact.
+
+Given the push-back on the U-Boot list from Linux people about my
+bindings, I would like to work out the U-Boot side in this thread if
+possible, since it seems to be dependent on what Linux does. But I
+hope what is created is efficient enough not to bloat U-Boot or
+require an new input layer to be added just to use fdt.
 
 Regards,
-Rachna.
+Simon
 
+> +
+> +Optional properties:
+> +- linux,fn-keymap: A separate array of packed 1-cell entries similar=
+ to
+> + =A0linux,keymap but only to be used when the function key modifier =
+is
+> + =A0active. This is used for keyboards that have a software-based mo=
+difier
+> + =A0key for 'Fn' but that need to describe the custom layout that sh=
+ould
+> + =A0be used when said modifier key is active.
+> +
+> +- linux,fn-key: a 2-cell entry containing the < row column > of the
+> + =A0function modifier key used to switch to the above linux,fn-keyma=
+p
+> + =A0layout.
+> +
+> +Example:
+> + =A0 =A0 =A0 linux,keymap =3D < 0x00030012
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A00x0102003a >;
+> + =A0 =A0 =A0 linux,fn-key =3D < 2 1 >;
+> + =A0 =A0 =A0 linux,fn-keymap =3D < 0x0002004a >;
+
+[snip]
+
+Regards,
+Simon

@@ -1,240 +1,445 @@
-From: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Subject: [PATCH v3] Input: keyboard - add device tree bindings for simple key matrixes
-Date: Sun,  1 Jan 2012 22:09:17 -0800
-Message-ID: <1325484557-27695-1-git-send-email-olof@lixom.net>
-References: <1325184146-3527-1-git-send-email-olof@lixom.net>
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1325184146-3527-1-git-send-email-olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+From: Shubhrajyoti <shubhrajyoti@ti.com>
+Subject: Re: [PATCH v5 1/2] pxa/hx4700: Add Synaptics NavPoint (PXA27x SSP/SPI)
+ driver
+Date: Mon, 02 Jan 2012 11:56:52 +0530
+Message-ID: <4F014E2C.4000402@ti.com>
+References: <1325339211.59301.YahooMailClassic@web29007.mail.ird.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog119.obsmtp.com ([74.125.149.246]:60406 "EHLO
+	na3sys009aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750789Ab2ABG1B (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Jan 2012 01:27:01 -0500
+Received: by mail-tul01m020-f175.google.com with SMTP id wn6so16146015obc.34
+        for <linux-input@vger.kernel.org>; Sun, 01 Jan 2012 22:27:00 -0800 (PST)
+In-Reply-To: <1325339211.59301.YahooMailClassic@web29007.mail.ird.yahoo.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Paul Parsons <lost.distance@yahoo.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, philipp.zabel@gmail.com, eric.y.miao@gmail.com, mad_soft@inbox.ru, koen@dominion.thruhere.net, dmitry.torokhov@gmail.com
 
-This adds a simple device tree binding for simple key matrix data and
-a helper to fill in the platform data.
+Hi Paul,
+Some minor comments / suggestions
 
-The implementation is in a shared file outside if drivers/input/keyboard
-since some drivers in drivers/input/misc might be making use of it
-as well.
+On Saturday 31 December 2011 07:16 PM, Paul Parsons wrote:
+> Add support for the Synaptics NavPoint touchpad connected to a PXA27x SSP port
+> in SPI slave mode. The driver implements a simple navigation pad. The four
+> raised dots are mapped to UP/DOWN/LEFT/RIGHT buttons and the centre of the
+> touchpad is mapped to the ENTER button.
+>
+> Signed-off-by: Paul Parsons <lost.distance@yahoo.com>
+> ---
+>
+> V5:
+> Workaround for HaRET, which does not disable devices before jumping into Linux.
+> Rebased to linux-3.2-rc7.
+>
+> diff -uprN clean-3.2-rc7/arch/arm/mach-pxa/include/mach/mfp-pxa27x.h linux-3.2-rc7/arch/arm/mach-pxa/include/mach/mfp-pxa27x.h
+> --- clean-3.2-rc7/arch/arm/mach-pxa/include/mach/mfp-pxa27x.h	2011-12-24 05:51:06.000000000 +0000
+> +++ linux-3.2-rc7/arch/arm/mach-pxa/include/mach/mfp-pxa27x.h	2011-12-31 11:54:02.859594707 +0000
+> @@ -206,6 +206,7 @@
+>  #define GPIO113_I2S_SYSCLK	MFP_CFG_OUT(GPIO113, AF1, DRIVE_LOW)
+>  
+>  /* SSP 1 */
+> +#define GPIO23_SSP1_SCLK_IN	MFP_CFG_IN(GPIO23, AF2)
+>  #define GPIO23_SSP1_SCLK	MFP_CFG_OUT(GPIO23, AF2, DRIVE_LOW)
+>  #define GPIO29_SSP1_SCLK	MFP_CFG_IN(GPIO29, AF3)
+>  #define GPIO27_SSP1_SYSCLK	MFP_CFG_OUT(GPIO27, AF1, DRIVE_LOW)
+> diff -uprN clean-3.2-rc7/drivers/input/mouse/Kconfig linux-3.2-rc7/drivers/input/mouse/Kconfig
+> --- clean-3.2-rc7/drivers/input/mouse/Kconfig	2011-12-24 05:51:06.000000000 +0000
+> +++ linux-3.2-rc7/drivers/input/mouse/Kconfig	2011-12-31 11:54:02.859594707 +0000
+> @@ -322,4 +322,13 @@ config MOUSE_SYNAPTICS_I2C
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called synaptics_i2c.
+>  
+> +config MOUSE_NAVPOINT_PXA27x
+> +	tristate "Synaptics NavPoint (PXA27x SSP/SPI)"
+> +	depends on PXA27x && PXA_SSP
+> +	help
+> +	  This option enables support for the Synaptics NavPoint connected to
+> +	  a PXA27x SSP port in SPI slave mode. The driver implements a simple
+> +	  navigation pad. The four raised dots are mapped to UP/DOWN/LEFT/RIGHT
+> +	  buttons and the centre of the touchpad is mapped to the ENTER button.
+Maybe some help on module building as tristate.
+> +
+>  endif
+> diff -uprN clean-3.2-rc7/drivers/input/mouse/Makefile linux-3.2-rc7/drivers/input/mouse/Makefile
+> --- clean-3.2-rc7/drivers/input/mouse/Makefile	2011-12-24 05:51:06.000000000 +0000
+> +++ linux-3.2-rc7/drivers/input/mouse/Makefile	2011-12-31 11:54:02.859594707 +0000
+> @@ -12,6 +12,7 @@ obj-$(CONFIG_MOUSE_GPIO)		+= gpio_mouse.
+>  obj-$(CONFIG_MOUSE_INPORT)		+= inport.o
+>  obj-$(CONFIG_MOUSE_LOGIBM)		+= logibm.o
+>  obj-$(CONFIG_MOUSE_MAPLE)		+= maplemouse.o
+> +obj-$(CONFIG_MOUSE_NAVPOINT_PXA27x)	+= navpoint.o
+>  obj-$(CONFIG_MOUSE_PC110PAD)		+= pc110pad.o
+>  obj-$(CONFIG_MOUSE_PS2)			+= psmouse.o
+>  obj-$(CONFIG_MOUSE_PXA930_TRKBALL)	+= pxa930_trkball.o
+> diff -uprN clean-3.2-rc7/drivers/input/mouse/navpoint.c linux-3.2-rc7/drivers/input/mouse/navpoint.c
+> --- clean-3.2-rc7/drivers/input/mouse/navpoint.c	1970-01-01 01:00:00.000000000 +0100
+> +++ linux-3.2-rc7/drivers/input/mouse/navpoint.c	2011-12-31 11:58:45.563587396 +0000
+> @@ -0,0 +1,337 @@
+> +/*
+> + *  Copyright (C) 2011 Paul Parsons <lost.distance@yahoo.com>
+> + *
+> + *  This program is free software; you can redistribute it and/or modify
+> + *  it under the terms of the GNU General Public License version 2 as
+> + *  published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/init.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/clk.h>
+> +#include <linux/delay.h>
+> +#include <linux/gpio.h>
+> +#include <linux/input.h>
+> +#include <linux/input/navpoint.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/pxa2xx_ssp.h>
+> +#include <linux/slab.h>
+> +
+> +/*
+> + *	Synaptics NavPoint (PXA27x SSP/SPI) driver.
+> + */
+> +
+> +/*
+> + *	Synaptics Modular Embedded Protocol: Module Packet Format.
+> + *	Module header byte 2:0 = Length (# bytes that follow)
+> + *	Module header byte 4:3 = Control
+> + *	Module header byte 7:5 = Module Address
+> + */
+> +#define HEADER_LENGTH(byte)	((byte) & 0x07)
+> +#define HEADER_CONTROL(byte)	(((byte) >> 3) & 0x03)
+> +#define HEADER_ADDRESS(byte)	((byte) >> 5)
+> +
+> +struct driver_data {
+> +	struct ssp_device	*ssp;
+> +	int			gpio;
+> +	struct input_dev	*input;
+> +	int			index;
+> +	uint8_t			data[1+HEADER_LENGTH(0xff)];
+> +	int			pressed;	/* 1 = pressed, 0 = released */
+Could this be bool ?
+> +	unsigned		code;		/* Code of last key pressed */
+> +};
+> +
+> +static const u32 sscr0 = 0
+> +	| SSCR0_TUM		/* TIM = 1; No TUR interrupts */
+> +	| SSCR0_RIM		/* RIM = 1; No ROR interrupts */
+> +	| SSCR0_SSE		/* SSE = 1; SSP enabled */
+> +	| SSCR0_Motorola	/* FRF = 0; Motorola SPI */
+> +	| SSCR0_DataSize(16)	/* DSS = 15; Data size = 16-bit */
+> +	;
+> +static const u32 sscr1 = 0
+> +	| SSCR1_SCFR		/* SCFR = 1; SSPSCLK only during transfers */
+> +	| SSCR1_SCLKDIR		/* SCLKDIR = 1; Slave mode */
+> +	| SSCR1_SFRMDIR		/* SFRMDIR = 1; Slave mode */
+> +	| SSCR1_RWOT		/* RWOT = 1; Receive without transmit mode */
+> +	| SSCR1_RxTresh(1)	/* RFT = 0; Receive FIFO threshold = 1 */
+> +	| SSCR1_SPH		/* SPH = 1; SSPSCLK inactive 0.5 + 1 cycles */
+> +	| SSCR1_RIE		/* RIE = 1; Receive FIFO interrupt enabled */
+> +	;
+> +static const u32 sssr = 0
+> +	| SSSR_BCE		/* BCE = 1; Clear BCE */
+> +	| SSSR_TUR		/* TUR = 1; Clear TUR */
+> +	| SSSR_EOC		/* EOC = 1; Clear EOC */
+> +	| SSSR_TINT		/* TINT = 1; Clear TINT */
+> +	| SSSR_PINT		/* PINT = 1; Clear PINT */
+> +	| SSSR_ROR		/* ROR = 1; Clear ROR */
+> +	;
+> +
+> +/*
+> + *	MEP Query $22: Touchpad Coordinate Range Query is not supported by
+> + *	the NavPoint module, so sampled values provide the default limits.
+> + */
+> +
+> +static int west = 2416;		/* 1/3 width */
+> +module_param(west, int, 0644);
+> +MODULE_PARM_DESC(west, "X coordinate limit for KEY_LEFT. Default = 2416");
+> +static int east = 3904;		/* 2/3 width */
+> +module_param(east, int, 0644);
+> +MODULE_PARM_DESC(east, "X coordinate limit for KEY_RIGHT. Default = 3904");
+> +static int south = 2480;	/* 1/3 height */
+> +module_param(south, int, 0644);
+> +MODULE_PARM_DESC(south, "Y coordinate limit for KEY_DOWN. Default = 2480");
+> +static int north = 3424;	/* 2/3 height */
+> +module_param(north, int, 0644);
+> +MODULE_PARM_DESC(north, "Y coordinate limit for KEY_UP. Default = 3424");
+> +
+> +static void navpoint_packet(struct device *dev)
+> +{
+> +	struct driver_data *drv_data = dev_get_drvdata(dev);
+> +	int pressed;
+> +	unsigned x, y;
+> +	unsigned code;
+> +
+> +	switch (drv_data->data[0]) {
+> +	case 0xff:	/* Garbage (packet?) between reset and Hello packet */
+> +	case 0x00:	/* Module 0, NULL packet */
+> +		break;
+> +	case 0x0e:	/* Module 0, Absolute packet */
+> +		pressed = (drv_data->data[1] & 0x01);
+> +		if ((drv_data->pressed ^ pressed) == 0)	/* No change */
+> +			break;
+> +		drv_data->pressed = pressed;
+> +		x = ((drv_data->data[2] & 0x1f) << 8) | drv_data->data[3];
+> +		y = ((drv_data->data[4] & 0x1f) << 8) | drv_data->data[5];
+> +		if (x < west)
+> +			code = KEY_LEFT;
+> +		else if (x > east)
+> +			code = KEY_RIGHT;
+> +		else if (y < south)
+> +			code = KEY_DOWN;
+> +		else if (y > north)
+> +			code = KEY_UP;
+> +		else
+> +			code = KEY_ENTER;
+> +		if (pressed)
+> +			drv_data->code = code;
+> +		input_report_key(drv_data->input, drv_data->code, pressed);
+> +		input_sync(drv_data->input);
+> +		break;
+> +	case 0x19:	/* Module 0, Hello packet */
+> +		if ((drv_data->data[1] & 0xf0) == 0x10)
+> +			break;
+> +		/* FALLTHROUGH */
+> +	default:
+> +		dev_warn(dev, "spurious packet: 0x%02x,0x%02x,...\n",
+> +			drv_data->data[0],
+> +			drv_data->data[1]);
+> +		break;
+> +	}
+> +
+> +	drv_data->index = 0;
+> +}
+> +
+> +static irqreturn_t navpoint_int(int irq, void *dev_id)
+> +{
+> +	struct device *dev = dev_id;
+> +	struct driver_data *drv_data = dev_get_drvdata(dev);
+> +	struct ssp_device *ssp = drv_data->ssp;
+> +	u32 status;
+> +	irqreturn_t ret;
+> +
+> +	status = pxa_ssp_read_reg(ssp, SSSR);
+> +	ret = IRQ_NONE;
+> +
+> +	if (status & sssr) {
+> +		dev_warn(dev, "spurious interrupt: 0x%02x\n", status);
+> +		pxa_ssp_write_reg(ssp, SSSR, (status & sssr));
+> +		ret = IRQ_HANDLED;
+> +	}
+> +
+> +	if (status & SSSR_RFS) {
+> +		while (status & SSSR_RNE) {
+> +			u32 data;
+> +
+> +			data = pxa_ssp_read_reg(ssp, SSDR);
+> +			drv_data->data[drv_data->index + 0] = (data >> 8);
+> +			drv_data->data[drv_data->index + 1] = data;
+> +			drv_data->index += 2;
+> +			if (HEADER_LENGTH(drv_data->data[0]) < drv_data->index)
+> +				navpoint_packet(dev);
+> +			status = pxa_ssp_read_reg(ssp, SSSR);
+> +		}
+> +		ret = IRQ_HANDLED;
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static int navpoint_suspend(struct device *dev)
+> +{
+> +	struct driver_data *drv_data = dev_get_drvdata(dev);
+> +	struct ssp_device *ssp = drv_data->ssp;
+> +
+> +	gpio_set_value(drv_data->gpio, 0);
+> +
+> +	pxa_ssp_write_reg(ssp, SSCR0, 0);
+> +
+> +	clk_disable(ssp->clk);
+> +
+> +	return 0;
+> +}
+> +
+> +static int navpoint_resume(struct device *dev)
+> +{
+> +	struct driver_data *drv_data = dev_get_drvdata(dev);
+> +	struct ssp_device *ssp = drv_data->ssp;
+> +	int timeout;
+> +
+> +	clk_enable(ssp->clk);
+> +
+> +	pxa_ssp_write_reg(ssp, SSCR1, sscr1);
+> +	pxa_ssp_write_reg(ssp, SSSR, sssr);
+> +	pxa_ssp_write_reg(ssp, SSTO, 0);
+> +	pxa_ssp_write_reg(ssp, SSCR0, sscr0);	/* SSCR0_SSE written last */
+> +
+> +	/* Wait until SSP port is ready for slave clock operations */
+> +	for (timeout = 100; timeout != 0; --timeout) {
+> +		if (!(pxa_ssp_read_reg(ssp, SSSR) & SSSR_CSS))
+> +			break;
+> +		msleep(1);
+> +	}
+> +	if (timeout == 0)
+> +		dev_err(dev, "timeout waiting for SSSR[CSS] to clear\n");
+> +
+> +	gpio_set_value(drv_data->gpio, 1);
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_SUSPEND
+> +static const struct dev_pm_ops navpoint_pm_ops = {
+> +	.suspend	= navpoint_suspend,
+> +	.resume		= navpoint_resume,
+> +};
+> +#endif
+> +
+> +static int __devinit navpoint_probe(struct platform_device *pdev)
+> +{
+> +	struct navpoint_platform_data *pdata = pdev->dev.platform_data;
+> +	int ret;
+> +	struct driver_data *drv_data;
+> +	struct ssp_device *ssp;
+> +	struct input_dev *input;
+> +
+> +	drv_data = kzalloc(sizeof(*drv_data), GFP_KERNEL);
+> +	if (!drv_data) {
+> +		ret = -ENOMEM;
+> +		goto ret0;
+> +	}
+> +
+> +	ssp = pxa_ssp_request(pdata->port, pdev->name);
+> +	if (!ssp) {
+> +		ret = -ENODEV;
+> +		goto ret1;
+> +	}
+> +
+> +	/* HaRET does not disable devices before jumping into Linux */
+> +	if (pxa_ssp_read_reg(ssp, SSCR0) & SSCR0_SSE) {
+> +		gpio_set_value(pdata->gpio, 0);
+> +		pxa_ssp_write_reg(ssp, SSCR0, 0);
+> +		dev_warn(&pdev->dev, "ssp%d already enabled\n", pdata->port);
+> +	}
+> +
+> +	input = input_allocate_device();
+> +	if (!input) {
+> +		ret = -ENOMEM;
+> +		goto ret2;
+> +	}
+> +	input->name = pdev->name;
+> +	__set_bit(EV_KEY, input->evbit);
+> +	__set_bit(KEY_ENTER, input->keybit);
+> +	__set_bit(KEY_UP, input->keybit);
+> +	__set_bit(KEY_LEFT, input->keybit);
+> +	__set_bit(KEY_RIGHT, input->keybit);
+> +	__set_bit(KEY_DOWN, input->keybit);
+> +	input->dev.parent = &pdev->dev;
+> +	ret = input_register_device(input);
+> +	if (ret) {
+> +		input_free_device(input);
+> +		goto ret2;
+> +	}
+> +
+> +	drv_data->ssp = ssp;
+> +	drv_data->gpio = pdata->gpio;
+> +	drv_data->input = input;
+> +
+> +	platform_set_drvdata(pdev, drv_data);
+> +
+> +	ret = request_irq(ssp->irq, navpoint_int, 0, pdev->name, &pdev->dev);
+Could this be a threadded irq?
+> +	if (ret)
+> +		goto ret3;
+> +
+> +	navpoint_resume(&pdev->dev);
+Could this be pushed to open instead?
+> +
+> +	dev_info(&pdev->dev, "ssp%d, irq %d\n", pdata->port, ssp->irq);
+> +
+> +	return 0;
+> +
+> +ret3:
+> +	input_unregister_device(input);
+> +ret2:
+> +	pxa_ssp_free(ssp);
+> +ret1:
+> +	kfree(drv_data);
+> +ret0:
+> +	return ret;
+> +}
+> +
+> +static int __devexit navpoint_remove(struct platform_device *pdev)
+> +{
+> +	struct driver_data *drv_data = platform_get_drvdata(pdev);
+> +	struct ssp_device *ssp = drv_data->ssp;
+> +	struct input_dev *input = drv_data->input;
+> +
+> +	navpoint_suspend(&pdev->dev);
+> +
+> +	free_irq(ssp->irq, drv_data);
+> +
+> +	input_unregister_device(input);
+> +
+> +	pxa_ssp_free(ssp);
+> +
+> +	kfree(drv_data);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver navpoint_driver = {
+> +	.probe		= navpoint_probe,
+> +	.remove		= __devexit_p(navpoint_remove),
+> +	.driver = {
+> +		.name	= "navpoint",
+> +		.owner	= THIS_MODULE,
+> +#ifdef CONFIG_SUSPEND
+> +		.pm	= &navpoint_pm_ops,
+> +#endif
+> +	},
+> +};
+> +
+> +static int __init navpoint_init(void)
+> +{
+> +	return platform_driver_register(&navpoint_driver);
+> +}
+> +
+> +static void __exit navpoint_exit(void)
+> +{
+> +	platform_driver_unregister(&navpoint_driver);
+> +}
+> +
+> +module_init(navpoint_init);
+> +module_exit(navpoint_exit);
+> +
+> +MODULE_AUTHOR("Paul Parsons <lost.distance@yahoo.com>");
+> +MODULE_DESCRIPTION("Synaptics NavPoint (PXA27x SSP/SPI) driver");
+> +MODULE_LICENSE("GPL");
+> diff -uprN clean-3.2-rc7/include/linux/input/navpoint.h linux-3.2-rc7/include/linux/input/navpoint.h
+> --- clean-3.2-rc7/include/linux/input/navpoint.h	1970-01-01 01:00:00.000000000 +0100
+> +++ linux-3.2-rc7/include/linux/input/navpoint.h	2011-12-31 11:54:02.859594707 +0000
+> @@ -0,0 +1,12 @@
+> +/*
+> + *  Copyright (C) 2011 Paul Parsons <lost.distance@yahoo.com>
+> + *
+> + *  This program is free software; you can redistribute it and/or modify
+> + *  it under the terms of the GNU General Public License version 2 as
+> + *  published by the Free Software Foundation.
+> + */
+> +
+> +struct navpoint_platform_data {
+> +	int		port;		/* PXA SSP port for pxa_ssp_request() */
+> +	int		gpio;		/* GPIO for power on/off */
+> +};
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Changes since v2:
- * Removed reference to "legacy" format with a subnode per key
- * Changed to a packed format with one cell per key instead of 3.
- * Moved new OF helper to separate file
- * Misc fixups based on comments
-
-Changes since v1:
- * Removed samsung-style binding support
- * Added linux,fn-keymap and linux,fn-key optional properties
-
-Signed-off-by: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
----
- .../devicetree/bindings/input/matrix-keymap.txt    |   27 ++++++
- drivers/input/Kconfig                              |    4 +
- drivers/input/Makefile                             |    1 +
- drivers/input/keyboard/Kconfig                     |    1 +
- drivers/input/of_keymap.c                          |   87 ++++++++++++++++++++
- include/linux/input/matrix_keypad.h                |   19 ++++
- 6 files changed, 139 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/matrix-keymap.txt
- create mode 100644 drivers/input/of_keymap.c
-
-diff --git a/Documentation/devicetree/bindings/input/matrix-keymap.txt b/Documentation/devicetree/bindings/input/matrix-keymap.txt
-new file mode 100644
-index 0000000..1db8e12
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/matrix-keymap.txt
-@@ -0,0 +1,27 @@
-+A simple common binding for matrix-connected key boards. Currently targeted at
-+defining the keys in the scope of linux key codes since that is a stable and
-+standardized interface at this time.
-+
-+Required properties:
-+- compatible: "matrix-keyboard-controller"
-+- linux,keymap: an array of packed 1-cell entries containing the equivalent
-+  of row, column and linux key-code. The 32-bit big endian cell is packed
-+  as:
-+	row << 24 | column << 16 | key-code
-+
-+Optional properties:
-+- linux,fn-keymap: A separate array of packed 1-cell entries similar to
-+  linux,keymap but only to be used when the function key modifier is
-+  active. This is used for keyboards that have a software-based modifier
-+  key for 'Fn' but that need to describe the custom layout that should
-+  be used when said modifier key is active.
-+
-+- linux,fn-key: a 2-cell entry containing the < row column > of the
-+  function modifier key used to switch to the above linux,fn-keymap
-+  layout.
-+
-+Example:
-+	linux,keymap = < 0x00030012
-+			 0x0102003a >;
-+	linux,fn-key = < 2 1 >;
-+	linux,fn-keymap = < 0x0002004a >;
-diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
-index 001b147..3325979 100644
---- a/drivers/input/Kconfig
-+++ b/drivers/input/Kconfig
-@@ -25,6 +25,10 @@ config INPUT
- 
- if INPUT
- 
-+config INPUT_OF_MATRIX_KEYMAP
-+	depends on USE_OF
-+	bool
-+
- config INPUT_FF_MEMLESS
- 	tristate "Support for memoryless force-feedback devices"
- 	help
-diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-index 0c78949..b173a13a 100644
---- a/drivers/input/Makefile
-+++ b/drivers/input/Makefile
-@@ -24,3 +24,4 @@ obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
- obj-$(CONFIG_INPUT_MISC)	+= misc/
- 
- obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
-+obj-$(CONFIG_INPUT_OF_MATRIX_KEYMAP) += of_keymap.o
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index cdc385b..3371954c 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -394,6 +394,7 @@ config KEYBOARD_NOMADIK
- config KEYBOARD_TEGRA
- 	tristate "NVIDIA Tegra internal matrix keyboard controller support"
- 	depends on ARCH_TEGRA
-+	select INPUT_OF_MATRIX_KEYMAP if USE_OF
- 	help
- 	  Say Y here if you want to use a matrix keyboard connected directly
- 	  to the internal keyboard controller on Tegra SoCs.
-diff --git a/drivers/input/of_keymap.c b/drivers/input/of_keymap.c
-new file mode 100644
-index 0000000..b33627d
---- /dev/null
-+++ b/drivers/input/of_keymap.c
-@@ -0,0 +1,87 @@
-+/*
-+ * Helpers for open firmware matrix keyboard bindings
-+ *
-+ * Copyright (C) 2012 Google, Inc
-+ *
-+ * Author:
-+ * 	Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/input.h>
-+#include <linux/of.h>
-+#include <linux/input/matrix_keypad.h>
-+#include <linux/export.h>
-+#include <linux/gfp.h>
-+#include <linux/slab.h>
-+
-+struct matrix_keymap_data *
-+matrix_keyboard_of_fill_keymap(struct device_node *np)
-+{
-+	struct matrix_keymap_data *kd;
-+	int proplen = 0, i;
-+	u32 *keymap;
-+	const __be32 *prop;
-+
-+	if (!np)
-+		return NULL;
-+
-+	prop = of_get_property(np, "linux,keymap", &proplen);
-+
-+	if (!of_device_is_compatible(np, "matrix-keyboard-controller"))
-+		return NULL;
-+
-+	if (proplen % 4) {
-+		pr_warn("Malformed linux,keymap property in %s\n",
-+			np->full_name);
-+		return NULL;
-+	}
-+
-+	kd = kmalloc(sizeof(*kd), GFP_KERNEL);
-+	if (!kd)
-+		return NULL;
-+	kd->keymap_size = proplen / sizeof(u32);
-+
-+	keymap = kzalloc(kd->keymap_size * sizeof(u32), GFP_KERNEL);
-+	if (!keymap) {
-+		kfree(kd);
-+		return NULL;
-+	}
-+
-+	kd->keymap = keymap;
-+
-+	for (i = 0; i < kd->keymap_size; i++) {
-+		u32 tmp = be32_to_cpup(prop+i);
-+		int key_code, row, col;
-+
-+		row = (tmp >> 24) & 0xff;
-+		col = (tmp >> 16) & 0xff;
-+		key_code = tmp & 0xffff;
-+		*keymap++ = KEY(row, col, key_code);
-+	}
-+
-+	/* FIXME: Need to add handling of the linux,fn-keymap property here */
-+
-+	return kd;
-+}
-+EXPORT_SYMBOL_GPL(matrix_keyboard_of_fill_keymap);
-+
-+void matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd)
-+{
-+	if (!kd)
-+		return;
-+	kfree(kd->keymap);
-+	kfree(kd);
-+}
-+EXPORT_SYMBOL_GPL(matrix_keyboard_of_free_keymap);
-diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
-index fe7c4b9..fcf45ec 100644
---- a/include/linux/input/matrix_keypad.h
-+++ b/include/linux/input/matrix_keypad.h
-@@ -3,6 +3,7 @@
- 
- #include <linux/types.h>
- #include <linux/input.h>
-+#include <linux/of.h>
- 
- #define MATRIX_MAX_ROWS		32
- #define MATRIX_MAX_COLS		32
-@@ -106,4 +107,22 @@ matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
- 	__clear_bit(KEY_RESERVED, keybit);
- }
- 
-+#ifdef CONFIG_INPUT_OF_MATRIX_KEYMAP
-+struct matrix_keymap_data *
-+matrix_keyboard_of_fill_keymap(struct device_node *np);
-+
-+void matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd);
-+#else
-+static inline struct matrix_keymap_data *
-+matrix_keyboard_of_fill_keymap(struct device_node *np)
-+{
-+	return NULL;
-+}
-+
-+static inline void
-+matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd)
-+{
-+}
-+#endif
-+
- #endif /* _MATRIX_KEYPAD_H */
--- 
-1.7.8.GIT

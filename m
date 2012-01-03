@@ -1,51 +1,67 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [PATCH v3] Input: keyboard - add device tree bindings for
- simple key matrixes
-Date: Tue, 3 Jan 2012 17:06:15 +0000
-Message-ID: <20120103170615.GZ2914@n2100.arm.linux.org.uk>
-References: <1325184146-3527-1-git-send-email-olof@lixom.net>
- <1325484557-27695-1-git-send-email-olof@lixom.net>
- <CAPnjgZ1ngJrqB5FgOZDmc-H9KBE0-W75rqTHEPX4D+q0FjYumg@mail.gmail.com>
- <20120103154317.GA27061@quad.lixom.net>
- <CAPnjgZ3xN8+Ve28bcg1OQ4mv5rWvA-9ijP57UsuMQ5D1d=7Xxw@mail.gmail.com>
- <20120103162929.GY2914@n2100.arm.linux.org.uk>
- <20120103164431.GA31647@core.coreip.homeip.net>
+From: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Subject: Re: [PATCH] Input: keyboard - add device tree bindings for simple key matrixes
+Date: Tue, 3 Jan 2012 09:44:15 -0800
+Message-ID: <CAOesGMjxS+AECmZu9pSusmhT+edXkrRYUnOSSs6QAJ7n45sRyA@mail.gmail.com>
+References: <1325112771-31941-1-git-send-email-olof@lixom.net>
+	<74CDBE0F657A3D45AFBB94109FB122FF17755DC8D2@HQMAIL01.nvidia.com>
+	<CAOesGMiNuW3mexN_8PtunZkaVX4Uph-OgZFr5zLhaB1nih_EEw@mail.gmail.com>
+	<74CDBE0F657A3D45AFBB94109FB122FF17755DC8DB@HQMAIL01.nvidia.com>
+	<CAOesGMjZoP+FsGWo9cWKvgs8KD9tT6KBHbK5qKX8NTGOY3HUjQ@mail.gmail.com>
+	<20120102072121.GB13015@ponder.secretlab.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120103164431.GA31647-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, U-Boot Mailing List <u-boot-0aAXYlwwYIKGBzrmiIFOJg@public.gmane.org>, riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120102072121.GB13015-e0URQFbLeQY2iJbIjFUEsiwD8/FfD2ys@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Simon Glass (sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org)" <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jan 03, 2012 at 08:44:32AM -0800, Dmitry Torokhov wrote:
-> On Tue, Jan 03, 2012 at 04:29:30PM +0000, Russell King - ARM Linux wrote:
-> > On Tue, Jan 03, 2012 at 08:22:21AM -0800, Simon Glass wrote:
-> > > Can the Linux key codes fit in 8 bits?
-> > 
-> > That depends on your point of view.
-> > 
-> > If you hack on X, then the answer is yes and you ignore the squeels of
-> > your users when certain key presses get misinterpreted.  (The Psion LX
-> > platform, otherwise known as the Netbook Pro, suffered with this problem.)
-> > 
-> > If you are a kernel hacker, the answer is no, because key codes currently
-> > go all the way to 0x300.
-> 
-> For bootloader environment 0-255 range is probably sufficient though,
-> the upper keys are somewhat recent additions to the maps...
+On Sun, Jan 1, 2012 at 11:21 PM, Grant Likely <grant.likely@secretlab.c=
+a> wrote:
+> On Wed, Dec 28, 2011 at 11:06:02PM -0800, Olof Johansson wrote:
+>> On Wed, Dec 28, 2011 at 11:01 PM, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org=
+> wrote:
+>> > Can we deprecate the Samsung format, and only allow it for that Sa=
+msung
+>> > device (and allow both there), and require a single format for any=
+ other
+>> > keyboard?
+>>
+>> I'm definitely ok with that. Thomas, Grant, Rob? The code in questio=
+n
+>> is queued for 3.3, so it hasn't been out in a real release yet.
+>>
+>> Adding Kukjin as well since it's getting merged through his tree.
+>
+> Yeah, I'm okay with that.
+>
+> BTW, please drop the "compatible" value for this binding. =A0This bin=
+ding
+> describes a common way of describing key mappings, but it isn't a com=
+plete
+> device binding in and of itself. =A0Rather, it is a binding used by o=
+ther
+> bindings; and as such no driver should ever bind against it directly.=
+ =A0The
+> samsung driver can continue to use the other format if it so desires;=
+ there
+> is no harm in it doing so.
+>
+> Instead, a driver that expects the binding can just call the
+> matrix_keyboard_of_fill_keymap() library function without checking
+> the compatible list.
 
-I assume you deem 'recent' to mean 8 years ago - they've been there since
-at least 2.6.9, which is where the problem I refer to above was first
-noticed.
+The main reason I had it there today was to make it easier to do a
+versioned binding in case of future revisions, but I guess it's not
+worth the hassle.
+
+So, in that case I will move out the fn management out of the common
+code as well, and pass in the property name to
+matrix_keyboard_of_fill_keymap. That way, the drivers that need to do
+a fn-keymap can do so outside of the shared code (and it gets rid of
+the FIXME in that case as well). Revised patch in a bit.
+
+
+-Olof

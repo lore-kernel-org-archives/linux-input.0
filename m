@@ -1,55 +1,62 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 1/2] HID: multitouch: add support of Atmel multitouch
- panels
-Date: Tue, 03 Jan 2012 13:09:43 +0000
-Message-ID: <4F02FE17.2000800@itdev.co.uk>
-References: <1324651260-4067-1-git-send-email-benjamin.tissoires@gmail.com> <1324651260-4067-2-git-send-email-benjamin.tissoires@gmail.com> <4EF4CE4A.1020907@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH RFC V2 0/4] Add "scope" to power supplies
+Date: Tue, 3 Jan 2012 15:57:04 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1201031556460.24984@pobox.suse.cz>
+References: <cover.1323454016.git.jeremy@goop.org> <4EEED923.9000706@goop.org> <alpine.LNX.2.00.1112191124190.8727@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [89.21.227.130] ([89.21.227.130]:36277 "EHLO
-	mail.epsilon.itdev.co.uk" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752181Ab2ACNSC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Jan 2012 08:18:02 -0500
-In-Reply-To: <4EF4CE4A.1020907@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1112191124190.8727@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Anton Vorontsov <cbouatmailru@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Hughes <hughsient@gmail.com>, Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chasedouglas@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Chase Douglas wrote:
-> On 12/23/2011 06:40 AM, Benjamin Tissoires wrote:
->> Signed-off-by: Benjamin Tissoires<benjamin.tissoires@gmail.com>
->> ---
->>   drivers/hid/Kconfig          |    1 +
->>   drivers/hid/hid-ids.h        |    3 +++
->>   drivers/hid/hid-multitouch.c |    5 +++++
->>   3 files changed, 9 insertions(+), 0 deletions(-)
->>
->> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
->> index 5d6eb4e..e95b07c 100644
->> --- a/drivers/hid/Kconfig
->> +++ b/drivers/hid/Kconfig
->> @@ -335,6 +335,7 @@ config HID_MULTITOUCH
->>   	  Say Y here if you have one of the following devices:
->>   	  - 3M PCT touch screens
->>   	  - ActionStar dual touch panels
->> +	  - Atmel panels
->>   	  - Cando dual touch panels
->>   	  - Chunghwa panels
->>   	  - CVTouch panels
->
-> I'm guessing this is different than the Atmel maXTouch chips. If so, can
-> you figure out a model name so people aren't confused on which driver to
-> use?
+On Mon, 19 Dec 2011, Jiri Kosina wrote:
 
-It is in fact a maXTouch chip - there are several different chips which 
-are able to register as a USB digitizer device using that VID/PID.
+> > Ping?
+> 
+> Anton, if you are not going to take this patchset for whatever reason, but 
+> are fine with the changes, feel free to just provide Ack for the patches 
+> touching drivers/power, and I'll take them through hid tree.
+
+Anton, hello?
+
+> > On 12/09/2011 02:43 PM, Jeremy Fitzhardinge wrote:
+> > > This series adds a "scope" attribute to power supplies, to indicate
+> > > whether it powers the whole system ("System") or just some subset of
+> > > the devices ("Device").  This allows upowerd to distinguish between
+> > > system-wide power supplies and self-powered devices such as cordless
+> > > mice.
+> > >
+> > > This series also adds a "powers" link to power supplies, so that if
+> > > they're scope=Device, they can specifically indicate which device
+> > > tree they power.
+> > >
+> > > Updates since last post:
+> > >  - Add more complete documentation to scope and "powers" links
+> > >  - Remove unnecessary scopes on System power supplies
+> > >  - Make HID battery supplies Device, and add "powers" pointers
+> > >    for them.
+> > >
+> > > This can also be pulled from:
+> > > 	git://git.kernel.org/pub/scm/linux/kernel/git/jeremy/xen.git power-supply-scope
+> > >
+> > > Jeremy Fitzhardinge (4):
+> > >   power_supply: add SCOPE attribute to power supplies
+> > >   power_supply: allow a power supply to explicitly point to powered
+> > >     device
+> > >   power_supply: add scope properties to some self-powered HID devices
+> > >   power_supply: add "powers" links to self-powered HID devices
+> > >
+> > >  drivers/hid/hid-wacom.c            |   16 ++++++++++++++--
+> > >  drivers/hid/hid-wiimote.c          |   10 +++++++++-
+> > >  drivers/power/power_supply_core.c  |    7 +++++++
+> > >  drivers/power/power_supply_sysfs.c |    6 ++++++
+> > >  include/linux/power_supply.h       |    8 ++++++++
+> > >  5 files changed, 44 insertions(+), 3 deletions(-)
+> > >
 
 -- 
-Nick Dyer
-Software Engineer, ITDev Ltd
-Hardware and Software Development Consultancy
-Website: http://www.itdev.co.uk
+Jiri Kosina
+SUSE Labs

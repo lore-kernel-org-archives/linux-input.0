@@ -1,243 +1,256 @@
-From: Olof Johansson <olof@lixom.net>
-Subject: [PATCH v4] Input: keyboard - add device tree bindings for simple key matrixes
-Date: Tue,  3 Jan 2012 13:37:28 -0800
-Message-ID: <1325626648-9425-1-git-send-email-olof@lixom.net>
+From: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Subject: [PATCH] Input: tegra-kbc - add device tree support
+Date: Tue,  3 Jan 2012 14:28:22 -0800
+Message-ID: <1325629702-10307-1-git-send-email-olof@lixom.net>
 References: <1325484557-27695-1-git-send-email-olof@lixom.net>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:42647 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754125Ab2ACVhx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Jan 2012 16:37:53 -0500
-In-Reply-To: <1325484557-27695-1-git-send-email-olof@lixom.net>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1325484557-27695-1-git-send-email-olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <rob.herring@calxeda.com>
-Cc: linux-arm-kernel@lists.infradead.org, devicetree-discuss@lists.ozlabs.org, riyer@nvidia.com, linux-tegra@vger.kernel.org, linux-input@vger.kernel.org, thomas.abraham@linaro.org, sjg@chromium.org, swarren@nvidia.com, grant.likely@secretlab.ca, Olof Johansson <olof@lixom.net>
 
-This adds a simple device tree binding for simple key matrix data and
-a helper to fill in the platform data.
+This includes an optional "linux,fn-keymap" binding that is not yet implemented,
+that will be used to specify the Fn-key modifier layout if needed.
 
-The implementation is in a shared file outside if drivers/input/keyboard
-since some drivers in drivers/input/misc might be making use of it
-as well.
-
-Changes since v3:
- * Dropped compatible field in matrix-keymap.txt
- * Dropped linux,fn-key
- * Dropped linux,fn-keymap optional property but included guideline on
-   naming convention
- * Now passing property name in to the helper function (or will assume
-   "linux,keymap" if passed NULL)
-
-Changes since v2:
- * Removed reference to "legacy" format with a subnode per key
- * Changed to a packed format with one cell per key instead of 3.
- * Moved new OF helper to separate file
- * Misc fixups based on comments
-
-Changes since v1:
- * Removed samsung-style binding support
- * Added linux,fn-keymap and linux,fn-key optional properties
-
-Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 ---
- .../devicetree/bindings/input/matrix-keymap.txt    |   19 +++++
- drivers/input/Kconfig                              |    4 +
- drivers/input/Makefile                             |    1 +
- drivers/input/keyboard/Kconfig                     |    1 +
- drivers/input/of_keymap.c                          |   85 ++++++++++++++++++++
- include/linux/input/matrix_keypad.h                |   19 +++++
- 6 files changed, 129 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/matrix-keymap.txt
- create mode 100644 drivers/input/of_keymap.c
 
-diff --git a/Documentation/devicetree/bindings/input/matrix-keymap.txt b/Documentation/devicetree/bindings/input/matrix-keymap.txt
+This patch depends on "Input: keyboard - add device tree bindings for
+simple key matrixes".
+
+
+-Olof
+ .../devicetree/bindings/input/tegra-kbc.txt        |   23 +++++
+ drivers/input/keyboard/tegra-kbc.c                 |  103 ++++++++++++++++++--
+ 2 files changed, 118 insertions(+), 8 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/tegra-kbc.txt
+
+diff --git a/Documentation/devicetree/bindings/input/tegra-kbc.txt b/Documentation/devicetree/bindings/input/tegra-kbc.txt
 new file mode 100644
-index 0000000..3cd8b98
+index 0000000..b630eeb4
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/input/matrix-keymap.txt
-@@ -0,0 +1,19 @@
-+A simple common binding for matrix-connected key boards. Currently targeted at
-+defining the keys in the scope of linux key codes since that is a stable and
-+standardized interface at this time.
++++ b/Documentation/devicetree/bindings/input/tegra-kbc.txt
+@@ -0,0 +1,23 @@
++* Tegra keyboard controller
 +
 +Required properties:
-+- linux,keymap: an array of packed 1-cell entries containing the equivalent
-+  of row, column and linux key-code. The 32-bit big endian cell is packed
-+  as:
-+	row << 24 | column << 16 | key-code
++- compatible: "nvidia,tegra20-kbc", "matrix-keyboard-controller"
 +
-+Optional properties:
-+Some users of this binding might choose to specify secondary keymaps for
-+cases where there is a modifier key such as a Fn key. Proposed names
-+for said properties are "linux,fn-keymap" or with another descriptive
-+word for the modifier other from "Fn".
++Optional properties, in addition to those specified by
++"matrix-keyboard-controller" bindings:
++
++- linux,fn-keymap: a second keymap, same specification as the
++matrix-keyboard-controller spec but to be used when the KEY_FN modifier
++key is pressed.
++- nvidia,debounce-delay-ms: delay in milliseconds per row scan for debouncing
++- nvidia,repeat-delay-ms: delay in milliseconds before repeat starts
++- nvidia,ghost-filter: enable ghost filtering for this device
++- nvidia,wakeup-source: configure keyboard as a wakeup source for suspend/resume
 +
 +Example:
-+	linux,keymap = < 0x00030012
-+			 0x0102003a >;
-diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
-index 001b147..3325979 100644
---- a/drivers/input/Kconfig
-+++ b/drivers/input/Kconfig
-@@ -25,6 +25,10 @@ config INPUT
- 
- if INPUT
- 
-+config INPUT_OF_MATRIX_KEYMAP
-+	depends on USE_OF
-+	bool
 +
- config INPUT_FF_MEMLESS
- 	tristate "Support for memoryless force-feedback devices"
- 	help
-diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-index 0c78949..b173a13a 100644
---- a/drivers/input/Makefile
-+++ b/drivers/input/Makefile
-@@ -24,3 +24,4 @@ obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
- obj-$(CONFIG_INPUT_MISC)	+= misc/
- 
- obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
-+obj-$(CONFIG_INPUT_OF_MATRIX_KEYMAP) += of_keymap.o
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index cdc385b..3371954c 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -394,6 +394,7 @@ config KEYBOARD_NOMADIK
- config KEYBOARD_TEGRA
- 	tristate "NVIDIA Tegra internal matrix keyboard controller support"
- 	depends on ARCH_TEGRA
-+	select INPUT_OF_MATRIX_KEYMAP if USE_OF
- 	help
- 	  Say Y here if you want to use a matrix keyboard connected directly
- 	  to the internal keyboard controller on Tegra SoCs.
-diff --git a/drivers/input/of_keymap.c b/drivers/input/of_keymap.c
-new file mode 100644
-index 0000000..7f11f6d
---- /dev/null
-+++ b/drivers/input/of_keymap.c
-@@ -0,0 +1,85 @@
-+/*
-+ * Helpers for open firmware matrix keyboard bindings
-+ *
-+ * Copyright (C) 2012 Google, Inc
-+ *
-+ * Author:
-+ * 	Olof Johansson <olof@lixom.net>
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/input.h>
++keyboard: keyboard {
++	compatible = "nvidia,tegra20-kbc";
++	reg = <0x7000e200 0x100>;
++	nvidia,ghost-filter;
++};
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 08d02f2..0794879 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -26,6 +26,7 @@
+ #include <linux/delay.h>
+ #include <linux/io.h>
+ #include <linux/interrupt.h>
 +#include <linux/of.h>
-+#include <linux/input/matrix_keypad.h>
-+#include <linux/export.h>
-+#include <linux/gfp.h>
-+#include <linux/slab.h>
-+
-+struct matrix_keymap_data *
-+matrix_keyboard_of_fill_keymap(struct device_node *np, char *propname)
+ #include <linux/clk.h>
+ #include <linux/slab.h>
+ #include <mach/clk.h>
+@@ -82,7 +83,7 @@ struct tegra_kbc {
+ 	struct clk *clk;
+ };
+ 
+-static const u32 tegra_kbc_default_keymap[] = {
++static const u32 tegra_kbc_default_keymap[] __devinitdata = {
+ 	KEY(0, 2, KEY_W),
+ 	KEY(0, 3, KEY_S),
+ 	KEY(0, 4, KEY_A),
+@@ -217,7 +218,8 @@ static const u32 tegra_kbc_default_keymap[] = {
+ 	KEY(31, 4, KEY_HELP),
+ };
+ 
+-static const struct matrix_keymap_data tegra_kbc_default_keymap_data = {
++static const
++struct matrix_keymap_data tegra_kbc_default_keymap_data __devinitdata = {
+ 	.keymap		= tegra_kbc_default_keymap,
+ 	.keymap_size	= ARRAY_SIZE(tegra_kbc_default_keymap),
+ };
+@@ -576,6 +578,62 @@ tegra_kbc_check_pin_cfg(const struct tegra_kbc_platform_data *pdata,
+ 	return true;
+ }
+ 
++#ifdef CONFIG_OF
++static struct tegra_kbc_platform_data * __devinit
++tegra_kbc_dt_parse_pdata(struct platform_device *pdev)
 +{
-+	struct matrix_keymap_data *kd;
-+	int proplen = 0, i;
-+	u32 *keymap;
-+	const __be32 *prop;
++	struct tegra_kbc_platform_data *pdata;
++	struct device_node *np = pdev->dev.of_node;
++	u32 prop;
++	int i;
 +
 +	if (!np)
 +		return NULL;
 +
-+	if (!propname)
-+		propname = "linux,keymap";
-+
-+	prop = of_get_property(np, propname, &proplen);
-+
-+	if (proplen % 4) {
-+		pr_warn("Malformed keymap property %s in %s\n",
-+			propname, np->full_name);
++	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
++	if (!pdata)
 +		return NULL;
++
++	if (!of_property_read_u32(np, "nvidia,debounce-delay-ms", &prop))
++		pdata->debounce_cnt = prop;
++
++	if (!of_property_read_u32(np, "nvidia,repeat-delay-ms", &prop))
++		pdata->repeat_cnt = prop;
++
++	if (of_find_property(np, "nvidia,needs-ghost-filter", NULL))
++		pdata->use_ghost_filter = true;
++
++	if (of_find_property(np, "nvidia,wakeup-source", NULL))
++		pdata->wakeup = true;
++
++	/*
++	 * All currently known keymaps with device tree support use the same
++	 * pin_cfg, so set it up here.
++	 */
++	for (i = 0; i < KBC_MAX_ROW; i++) {
++		pdata->pin_cfg[i].num = i;
++		pdata->pin_cfg[i].is_row = true;
 +	}
 +
-+	kd = kmalloc(sizeof(*kd), GFP_KERNEL);
-+	if (!kd)
-+		return NULL;
-+	kd->keymap_size = proplen / sizeof(u32);
-+
-+	keymap = kzalloc(kd->keymap_size * sizeof(u32), GFP_KERNEL);
-+	if (!keymap) {
-+		kfree(kd);
-+		return NULL;
++	for (i = 0; i < KBC_MAX_COL; i++) {
++		pdata->pin_cfg[KBC_MAX_ROW + i].num = i;
++		pdata->pin_cfg[KBC_MAX_ROW + i].is_row = false;
 +	}
 +
-+	kd->keymap = keymap;
++	pdata->keymap_data = matrix_keyboard_of_fill_keymap(np, "linux,keymap");
 +
-+	for (i = 0; i < kd->keymap_size; i++) {
-+		u32 tmp = be32_to_cpup(prop+i);
-+		int key_code, row, col;
++	/* FIXME: Add handling of linux,fn-keymap here */
 +
-+		row = (tmp >> 24) & 0xff;
-+		col = (tmp >> 16) & 0xff;
-+		key_code = tmp & 0xffff;
-+		*keymap++ = KEY(row, col, key_code);
-+	}
-+
-+	return kd;
++	return pdata;
 +}
-+EXPORT_SYMBOL_GPL(matrix_keyboard_of_fill_keymap);
-+
-+void matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd)
-+{
-+	if (!kd)
-+		return;
-+	kfree(kd->keymap);
-+	kfree(kd);
-+}
-+EXPORT_SYMBOL_GPL(matrix_keyboard_of_free_keymap);
-diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
-index fe7c4b9..b54fd87 100644
---- a/include/linux/input/matrix_keypad.h
-+++ b/include/linux/input/matrix_keypad.h
-@@ -3,6 +3,7 @@
- 
- #include <linux/types.h>
- #include <linux/input.h>
-+#include <linux/of.h>
- 
- #define MATRIX_MAX_ROWS		32
- #define MATRIX_MAX_COLS		32
-@@ -106,4 +107,22 @@ matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
- 	__clear_bit(KEY_RESERVED, keybit);
- }
- 
-+#ifdef CONFIG_INPUT_OF_MATRIX_KEYMAP
-+struct matrix_keymap_data *
-+matrix_keyboard_of_fill_keymap(struct device_node *np, char *propname);
-+
-+void matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd);
 +#else
-+static inline struct matrix_keymap_data *
-+matrix_keyboard_of_fill_keymap(struct device_node *np, char *propname)
++static inline struct tegra_kbc_platform_data *tegra_kbc_dt_parse_pdata(
++	struct platform_device *pdev)
 +{
 +	return NULL;
 +}
-+
-+static inline void
-+matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd)
-+{
-+}
 +#endif
 +
- #endif /* _MATRIX_KEYPAD_H */
+ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ {
+ 	const struct tegra_kbc_platform_data *pdata = pdev->dev.platform_data;
+@@ -590,21 +648,28 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 	unsigned int scan_time_rows;
+ 
+ 	if (!pdata)
+-		return -EINVAL;
++		pdata = tegra_kbc_dt_parse_pdata(pdev);
+ 
+-	if (!tegra_kbc_check_pin_cfg(pdata, &pdev->dev, &num_rows))
++	if (!pdata)
+ 		return -EINVAL;
+ 
++	if (!tegra_kbc_check_pin_cfg(pdata, &pdev->dev, &num_rows)) {
++		err = -EINVAL;
++		goto err_free_pdata;
++	}
++
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (!res) {
+ 		dev_err(&pdev->dev, "failed to get I/O memory\n");
+-		return -ENXIO;
++		err = -ENXIO;
++		goto err_free_pdata;
+ 	}
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+ 		dev_err(&pdev->dev, "failed to get keyboard IRQ\n");
+-		return -ENXIO;
++		err = -ENXIO;
++		goto err_free_pdata;
+ 	}
+ 
+ 	kbc = kzalloc(sizeof(*kbc), GFP_KERNEL);
+@@ -693,6 +758,9 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, kbc);
+ 	device_init_wakeup(&pdev->dev, pdata->wakeup);
+ 
++	if (!pdev->dev.platform_data)
++		matrix_keyboard_of_free_keymap(pdata->keymap_data);
++
+ 	return 0;
+ 
+ err_free_irq:
+@@ -706,6 +774,11 @@ err_free_mem_region:
+ err_free_mem:
+ 	input_free_device(input_dev);
+ 	kfree(kbc);
++err_free_pdata:
++	if (!pdev->dev.platform_data) {
++		matrix_keyboard_of_free_keymap(pdata->keymap_data);
++		kfree(pdata);
++	}
+ 
+ 	return err;
+ }
+@@ -715,6 +788,8 @@ static int __devexit tegra_kbc_remove(struct platform_device *pdev)
+ 	struct tegra_kbc *kbc = platform_get_drvdata(pdev);
+ 	struct resource *res;
+ 
++	platform_set_drvdata(pdev, NULL);
++
+ 	free_irq(kbc->irq, pdev);
+ 	clk_put(kbc->clk);
+ 
+@@ -723,9 +798,14 @@ static int __devexit tegra_kbc_remove(struct platform_device *pdev)
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	release_mem_region(res->start, resource_size(res));
+ 
+-	kfree(kbc);
++	/*
++	 * If we do not have platform data attached to the device we
++	 * allocated it ourselves and thus need to free it.
++	 */
++	if (!pdev->dev.platform_data)
++		kfree(kbc->pdata);
+ 
+-	platform_set_drvdata(pdev, NULL);
++	kfree(kbc);
+ 
+ 	return 0;
+ }
+@@ -793,6 +873,12 @@ static int tegra_kbc_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(tegra_kbc_pm_ops, tegra_kbc_suspend, tegra_kbc_resume);
+ 
++static const struct of_device_id tegra_kbc_of_match[] = {
++	{ .compatible = "nvidia,tegra20-kbc", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, tegra_kbc_of_match);
++
+ static struct platform_driver tegra_kbc_driver = {
+ 	.probe		= tegra_kbc_probe,
+ 	.remove		= __devexit_p(tegra_kbc_remove),
+@@ -800,6 +886,7 @@ static struct platform_driver tegra_kbc_driver = {
+ 		.name	= "tegra-kbc",
+ 		.owner  = THIS_MODULE,
+ 		.pm	= &tegra_kbc_pm_ops,
++		.of_match_table = tegra_kbc_of_match,
+ 	},
+ };
+ module_platform_driver(tegra_kbc_driver);
 -- 
 1.7.8.GIT
-

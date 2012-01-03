@@ -1,67 +1,50 @@
-From: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Subject: Re: [PATCH] Input: keyboard - add device tree bindings for simple key matrixes
-Date: Tue, 3 Jan 2012 09:44:15 -0800
-Message-ID: <CAOesGMjxS+AECmZu9pSusmhT+edXkrRYUnOSSs6QAJ7n45sRyA@mail.gmail.com>
-References: <1325112771-31941-1-git-send-email-olof@lixom.net>
-	<74CDBE0F657A3D45AFBB94109FB122FF17755DC8D2@HQMAIL01.nvidia.com>
-	<CAOesGMiNuW3mexN_8PtunZkaVX4Uph-OgZFr5zLhaB1nih_EEw@mail.gmail.com>
-	<74CDBE0F657A3D45AFBB94109FB122FF17755DC8DB@HQMAIL01.nvidia.com>
-	<CAOesGMjZoP+FsGWo9cWKvgs8KD9tT6KBHbK5qKX8NTGOY3HUjQ@mail.gmail.com>
-	<20120102072121.GB13015@ponder.secretlab.ca>
+From: Stephen Warren <swarren@nvidia.com>
+Subject: RE: [PATCH v3] Input: keyboard - add device tree bindings for
+ simple key matrixes
+Date: Tue, 3 Jan 2012 09:46:42 -0800
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF17761F10DC@HQMAIL01.nvidia.com>
+References: <1325184146-3527-1-git-send-email-olof@lixom.net>
+ <1325484557-27695-1-git-send-email-olof@lixom.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120102072121.GB13015-e0URQFbLeQY2iJbIjFUEsiwD8/FfD2ys@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Simon Glass (sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org)" <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from hqemgate03.nvidia.com ([216.228.121.140]:6659 "EHLO
+	hqemgate03.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754447Ab2ACRq7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Jan 2012 12:46:59 -0500
+In-Reply-To: <1325484557-27695-1-git-send-email-olof@lixom.net>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Olof Johansson <olof@lixom.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <rob.herring@calxeda.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, Rakesh Iyer <riyer@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "thomas.abraham@linaro.org" <thomas.abraham@linaro.org>, "sjg@chromium.org" <sjg@chromium.org>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>
 
-On Sun, Jan 1, 2012 at 11:21 PM, Grant Likely <grant.likely@secretlab.c=
-a> wrote:
-> On Wed, Dec 28, 2011 at 11:06:02PM -0800, Olof Johansson wrote:
->> On Wed, Dec 28, 2011 at 11:01 PM, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org=
-> wrote:
->> > Can we deprecate the Samsung format, and only allow it for that Sa=
-msung
->> > device (and allow both there), and require a single format for any=
- other
->> > keyboard?
->>
->> I'm definitely ok with that. Thomas, Grant, Rob? The code in questio=
-n
->> is queued for 3.3, so it hasn't been out in a real release yet.
->>
->> Adding Kukjin as well since it's getting merged through his tree.
->
-> Yeah, I'm okay with that.
->
-> BTW, please drop the "compatible" value for this binding. =A0This bin=
-ding
-> describes a common way of describing key mappings, but it isn't a com=
-plete
-> device binding in and of itself. =A0Rather, it is a binding used by o=
-ther
-> bindings; and as such no driver should ever bind against it directly.=
- =A0The
-> samsung driver can continue to use the other format if it so desires;=
- there
-> is no harm in it doing so.
->
-> Instead, a driver that expects the binding can just call the
-> matrix_keyboard_of_fill_keymap() library function without checking
-> the compatible list.
+Olof Johansson wrote at Sunday, January 01, 2012 11:09 PM:
+> This adds a simple device tree binding for simple key matrix data and
+> a helper to fill in the platform data.
+> 
+> The implementation is in a shared file outside if drivers/input/keyboard
+> since some drivers in drivers/input/misc might be making use of it
+> as well.
+> 
+> Changes since v2:
+>  * Removed reference to "legacy" format with a subnode per key
+>  * Changed to a packed format with one cell per key instead of 3.
+>  * Moved new OF helper to separate file
+>  * Misc fixups based on comments
+> 
+> Changes since v1:
+>  * Removed samsung-style binding support
+>  * Added linux,fn-keymap and linux,fn-key optional properties
+> 
+> Signed-off-by: Olof Johansson <olof@lixom.net>
 
-The main reason I had it there today was to make it easier to do a
-versioned binding in case of future revisions, but I guess it's not
-worth the hassle.
+Acked-by: Stephen Warren <swarren@nvidia.com>
 
-So, in that case I will move out the fn management out of the common
-code as well, and pass in the property name to
-matrix_keyboard_of_fill_keymap. That way, the drivers that need to do
-a fn-keymap can do so outside of the shared code (and it gets rid of
-the FIXME in that case as well). Revised patch in a bit.
+The new binding looks good to me. I assume the FIXME in the code was
+deliberate.
 
+-- 
+nvpublic
 
--Olof

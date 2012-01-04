@@ -1,77 +1,92 @@
-From: Paul Parsons <lost.distance@yahoo.com>
-Subject: Re: [PATCH v5 1/2] pxa/hx4700: Add Synaptics NavPoint (PXA27x SSP/SPI) driver
-Date: Wed, 4 Jan 2012 16:21:33 +0000 (GMT)
-Message-ID: <1325694093.98137.YahooMailClassic@web29006.mail.ird.yahoo.com>
-References: <4F014E2C.4000402@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/4 v2] input: wacom - use BTN_TOOL_FINGER to indicate touch device type
+Date: Wed,  4 Jan 2012 14:43:05 -0800
+Message-ID: <1325716985-6301-1-git-send-email-pinglinux@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nm14.bullet.mail.ird.yahoo.com ([77.238.189.67]:37303 "HELO
-	nm14.bullet.mail.ird.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1756211Ab2ADQVf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Jan 2012 11:21:35 -0500
-In-Reply-To: <4F014E2C.4000402@ti.com>
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:36836 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757163Ab2ADWlQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Jan 2012 17:41:16 -0500
+Received: by obcwo16 with SMTP id wo16so14325951obc.19
+        for <linux-input@vger.kernel.org>; Wed, 04 Jan 2012 14:41:16 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shubhrajyoti <shubhrajyoti@ti.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, philipp.zabel@gmail.com, eric.y.miao@gmail.com, mad_soft@inbox.ru, koen@dominion.thruhere.net, dmitry.torokhov@gmail.com
+To: linux-input@vger.kernel.org
+Cc: Ping Cheng <pinglinux@gmail.com>, Ping Cheng <pingc@wacom.com>
 
-Hi Shubhrajyoti,
+Tested-by: Chris Bagwell <chris@cnpbagwell.com>
+Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/input/tablet/wacom_sys.c |    6 +-----
+ drivers/input/tablet/wacom_wac.c |    4 ++--
+ 2 files changed, 3 insertions(+), 7 deletions(-)
 
---- On Mon, 2/1/12, Shubhrajyoti <shubhrajyoti@ti.com> wrote:
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 7e63183..c9588ee 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -176,7 +176,7 @@ static int wacom_parse_logical_collection(unsigned char *report,
+ 
+ 		/* Logical collection is only used by 3rd gen Bamboo Touch */
+ 		features->pktlen = WACOM_PKGLEN_BBTOUCH3;
+-		features->device_type = BTN_TOOL_DOUBLETAP;
++		features->device_type = BTN_TOOL_FINGER;
+ 
+ 		/*
+ 		 * Stylus and Touch have same active area
+@@ -286,12 +286,10 @@ static int wacom_parse_hid(struct usb_interface *intf,
+ 						if (features->type == TABLETPC2FG) {
+ 							/* need to reset back */
+ 							features->pktlen = WACOM_PKGLEN_TPC2FG;
+-							features->device_type = BTN_TOOL_DOUBLETAP;
+ 						}
+ 						if (features->type == BAMBOO_PT) {
+ 							/* need to reset back */
+ 							features->pktlen = WACOM_PKGLEN_BBTOUCH;
+-							features->device_type = BTN_TOOL_DOUBLETAP;
+ 							features->x_phy =
+ 								get_unaligned_le16(&report[i + 5]);
+ 							features->x_max =
+@@ -325,7 +323,6 @@ static int wacom_parse_hid(struct usb_interface *intf,
+ 						if (features->type == TABLETPC2FG) {
+ 							/* need to reset back */
+ 							features->pktlen = WACOM_PKGLEN_TPC2FG;
+-							features->device_type = BTN_TOOL_DOUBLETAP;
+ 							features->y_max =
+ 								get_unaligned_le16(&report[i + 3]);
+ 							features->y_phy =
+@@ -334,7 +331,6 @@ static int wacom_parse_hid(struct usb_interface *intf,
+ 						} else if (features->type == BAMBOO_PT) {
+ 							/* need to reset back */
+ 							features->pktlen = WACOM_PKGLEN_BBTOUCH;
+-							features->device_type = BTN_TOOL_DOUBLETAP;
+ 							features->y_phy =
+ 								get_unaligned_le16(&report[i + 3]);
+ 							features->y_max =
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index a22e778..e18f362 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -1317,7 +1317,7 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 		break;
+ 
+ 	case TABLETPC2FG:
+-		if (features->device_type == BTN_TOOL_DOUBLETAP) {
++		if (features->device_type == BTN_TOOL_FINGER) {
+ 
+ 			input_mt_init_slots(input_dev, 2);
+ 			input_set_abs_params(input_dev, ABS_MT_TOOL_TYPE,
+@@ -1366,7 +1366,7 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 
+ 		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+ 
+-		if (features->device_type == BTN_TOOL_DOUBLETAP) {
++		if (features->device_type == BTN_TOOL_FINGER) {
+ 			__set_bit(BTN_LEFT, input_dev->keybit);
+ 			__set_bit(BTN_FORWARD, input_dev->keybit);
+ 			__set_bit(BTN_BACK, input_dev->keybit);
+-- 
+1.7.6.4
 
-> > +    int  =20
->       =20
-> pressed;    /* 1 =3D pressed, 0 =3D released */
-> Could this be bool ?
-
-OK.
-
-> > +config MOUSE_NAVPOINT_PXA27x
-> > +=A0=A0=A0 tristate "Synaptics NavPoint
-> (PXA27x SSP/SPI)"
-> > +=A0=A0=A0 depends on PXA27x &&
-> PXA_SSP
-> > +=A0=A0=A0 help
-> > +=A0=A0=A0 =A0 This option enables support
-> for the Synaptics NavPoint connected to
-> > +=A0=A0=A0 =A0 a PXA27x SSP port in SPI
-> slave mode. The driver implements a simple
-> > +=A0=A0=A0 =A0 navigation pad. The four
-> raised dots are mapped to UP/DOWN/LEFT/RIGHT
-> > +=A0=A0=A0 =A0 buttons and the centre of
-> the touchpad is mapped to the ENTER button.
-> Maybe some help on module building as tristate.
-
-OK.
-
-> > +=A0=A0=A0 ret =3D request_irq(ssp->irq,
-> navpoint_int, 0, pdev->name, &pdev->dev);
-> Could this be a threadded irq?
-
-The reading of the SSDR could not, because that is needed to clear the
-interrupt.
-The initial processing of navpoint_packet() could, but would require a =
-new FIFO between the hard irq and threaded irq handlers to buffer the 1=
-6-bit data from the SSDR. Since most of the data is ultimately discarde=
-d I can avoid the FIFO by keeping this initial processing in the hard i=
-rq handler.
-The final processing of navpoint_packet(), the calls to input_report_ke=
-y() and input_sync(), could and should. I presume this was your main co=
-ncern.
-
-> navpoint_resume(&pdev->dev);
-> Could this be pushed to open instead?
-
-It could. In practice the navpoint device would only be opened by the X=
- server, and thus would remain open for the duration of the system anyw=
-ay.
-But I'm happy to add a new open function.
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,288 +1,267 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: Synaptics USB device driver
-Date: Wed, 4 Jan 2012 02:05:53 -0800
-Message-ID: <20120104100553.GA29131@core.coreip.homeip.net>
-References: <20120103194033.779cb829@greyhound>
- <201201041020.41795.oneukum@suse.de>
- <20120104094103.GA29069@core.coreip.homeip.net>
- <201201041056.20226.oneukum@suse.de>
+From: Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
+Subject: [PATCH] auo-pixcir-ts: expose some properties via sysfs
+Date: Wed, 4 Jan 2012 13:02:58 +0100
+Message-ID: <201201041302.58890.heiko@sntech.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:47155 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754880Ab2ADKGA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Jan 2012 05:06:00 -0500
-Content-Disposition: inline
-In-Reply-To: <201201041056.20226.oneukum@suse.de>
+Received: from h1778886.stratoserver.net ([85.214.133.74]:35299 "EHLO
+	h1778886.stratoserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754063Ab2ADMDE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Jan 2012 07:03:04 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: Jiri Kosina <jkosina@suse.cz>, Jan Steinhoff <mail@jan-steinhoff.de>, Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Wed, Jan 04, 2012 at 10:56:20AM +0100, Oliver Neukum wrote:
-> Am Mittwoch, 4. Januar 2012, 10:41:03 schrieb Dmitry Torokhov:
-> 
-> 
-> > +static void synusb_irq(struct urb *urb)
-> > +{
-> > +	struct synusb *synusb = urb->context;
-> > +	int error;
-> > +
-> > +	/* Check our status in case we need to bail out early. */
-> > +	switch (urb->status) {
-> > +	case 0:
-> > +		usb_mark_last_busy(synusb->udev);
-> > +		break;
-> > +
-> > +	case -EOVERFLOW:
-> > +		dev_err(&synusb->intf->dev,
-> > +			"%s: OVERFLOW with data length %d, actual length is %d\n",
-> > +			__func__, SYNUSB_RECV_SIZE, urb->actual_length);
-> 
-> Do you really want to fall through here?
+The controller contains some properties that could be interesting to users:
 
-Probably not.
+autosleep: after a configurable idle time, enter the sleep mode
+           automatically; wakeup is done on the first touch.
+sensitivity: touch-sensitivity for the x and y axes
+powermode: the current power mode the device is in (read only), this
+           also shows the current state in autosleep mode
+firmware_version: read only
 
-> 
-> > +
-> > +	/* Device went away so don't keep trying to read from it. */
-> > +	case -ECONNRESET:
-> > +	case -ENOENT:
-> > +	case -ESHUTDOWN:
-> > +		return;
-> > +
-> > +	default:
-> > +		goto resubmit;
-> > +		break;
-> > +	}
-> > +
-> > +	if (synusb->flags & SYNUSB_STICK)
-> > +		synusb_report_stick(synusb);
-> > +	else
-> > +		synusb_report_touchpad(synusb);
-> > +
-> > +resubmit:
-> > +	error = usb_submit_urb(urb, GFP_ATOMIC);
-> > +	if (error && error != -EPERM)
-> > +		dev_err(&synusb->intf->dev,
-> > +			"%s - usb_submit_urb failed with result: %d",
-> > +			__func__, error);
-> > +}
-> > +
-> 
-> [..]
-> > +static int synusb_open(struct input_dev *dev)
-> > +{
-> > +	struct synusb *synusb = input_get_drvdata(dev);
-> > +	int retval = 0;
-> > +
-> > +	dev_err(&synusb->intf->dev, "%s\n", __func__);
-> > +
-> > +	if (usb_autopm_get_interface(synusb->intf) < 0)
-> > +		return -EIO;
-> > +
-> > +	if (usb_submit_urb(synusb->urb, GFP_KERNEL)) {
-> > +		dev_err(&synusb->intf->dev,
-> > +			"%s - usb_submit_urb failed", __func__);
-> > +		retval = -EIO;
-> > +		goto out;
-> > +	}
-> > +
-> > +	synusb->intf->needs_remote_wakeup = 1;
-> > +
-> > +out:
-> > +	usb_autopm_put_interface(synusb->intf);
-> > +	dev_err(&synusb->intf->dev, "%s done: %d\n", __func__, retval);
-> > +	return retval;
-> > +}
-> > +
-> > +static void synusb_close(struct input_dev *dev)
-> > +{
-> > +	struct synusb *synusb = input_get_drvdata(dev);
-> > +	int autopm_error;
-> > +
-> > +	autopm_error = usb_autopm_get_interface(synusb->intf);
-> > +
-> > +	usb_kill_urb(synusb->urb);
-> > +	synusb->intf->needs_remote_wakeup = 0;
-> > +
-> > +	if (!autopm_error)
-> > +		usb_autopm_put_interface(synusb->intf);
-> > +}
-> > +
-> > +static int synusb_probe(struct usb_interface *intf,
-> > +			const struct usb_device_id *id)
-> > +{
-> > +	struct usb_device *udev = interface_to_usbdev(intf);
-> > +	struct usb_endpoint_descriptor *ep;
-> > +	struct synusb *synusb;
-> > +	struct input_dev *input_dev;
-> > +	unsigned int intf_num = intf->cur_altsetting->desc.bInterfaceNumber;
-> > +	unsigned int altsetting = min(intf->num_altsetting, 1U);
-> > +	int error;
-> > +
-> > +	error = usb_set_interface(udev, intf_num, altsetting);
-> > +	if (error) {
-> > +		dev_err(&udev->dev,
-> > +			"Can not set alternate setting to %i, error: %i",
-> > +			altsetting, error);
-> > +		return error;
-> > +	}
-> > +
-> > +	ep = synusb_get_in_endpoint(intf->cur_altsetting);
-> > +	if (!ep)
-> > +		return -ENODEV;
-> > +
-> > +	synusb = kzalloc(sizeof(*synusb), GFP_KERNEL);
-> > +	input_dev = input_allocate_device();
-> > +	if (!synusb || !input_dev) {
-> > +		error = -ENOMEM;
-> > +		goto err_free_mem;
-> > +	}
-> > +
-> > +	synusb->udev = udev;
-> > +	synusb->intf = intf;
-> > +	synusb->input = input_dev;
-> > +
-> > +	synusb->flags = id->driver_info;
-> > +	if (test_bit(SYNUSB_STICK, &synusb->flags) &&
-> > +	    test_bit(SYNUSB_STICK, &synusb->flags)) {
-> 
-> ??? Voodoo ???
+This patch exposes these via sysfs and lets the user configure
+sensitivity and autosleep delay.
 
-Yeah, 2nd should be test_bit(SYNUSB_TOUCHPAD, ...)
-> 
-> > +		/*
-> > +		 * This is a combo device, we need to leave only proper
-> > +		 * capability, depending on the interface.
-> > +		 */
-> > +		clear_bit(intf_num == 1 ? SYNUSB_TOUCHPAD : SYNUSB_STICK,
-> > +			  &synusb->flags);
-> > +	}
-> > +
-> > +	synusb->urb = usb_alloc_urb(0, GFP_KERNEL);
-> > +	if (!synusb->urb) {
-> > +		error = -ENOMEM;
-> > +		goto err_free_mem;
-> > +	}
-> > +
-> > +	synusb->data = usb_alloc_coherent(udev, SYNUSB_RECV_SIZE, GFP_KERNEL,
-> > +					  &synusb->urb->transfer_dma);
-> > +	if (!synusb->data) {
-> > +		error = -ENOMEM;
-> > +		goto err_free_urb;
-> > +	}
-> > +
-> > +	usb_fill_int_urb(synusb->urb, udev,
-> > +			 usb_rcvintpipe(udev, ep->bEndpointAddress),
-> > +			 synusb->data, SYNUSB_RECV_SIZE,
-> > +			 synusb_irq, synusb,
-> > +			 ep->bInterval);
-> > +	synusb->urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-> 
-> According to the comment in the original driver you must submit the URB.
-> Are you sure not doing so is save?
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+---
+ drivers/input/touchscreen/auo-pixcir-ts.c |  189 +++++++++++++++++++++++++++++
+ 1 files changed, 189 insertions(+), 0 deletions(-)
 
-Seems to work here...
-
-> 
-> > +
-> > +	if (udev->manufacturer)
-> > +		strlcpy(synusb->name, udev->manufacturer,
-> > +			sizeof(synusb->name));
-> > +
-> > +	if (udev->product) {
-> > +		if (udev->manufacturer)
-> > +			strlcat(synusb->name, " ", sizeof(synusb->name));
-> > +		strlcat(synusb->name, udev->product, sizeof(synusb->name));
-> > +	}
-> > +
-> > +	if (!strlen(synusb->name))
-> > +		snprintf(synusb->name, sizeof(synusb->name),
-> > +			 "USB Synaptics Device %04x:%04x",
-> > +			 le16_to_cpu(udev->descriptor.idVendor),
-> > +			 le16_to_cpu(udev->descriptor.idProduct));
-> > +
-> > +	if (synusb->flags & SYNUSB_STICK)
-> > +		strlcat(synusb->name, " (Stick) ", sizeof(synusb->name));
-> > +
-> > +	usb_make_path(udev, synusb->phys, sizeof(synusb->phys));
-> > +	strlcat(synusb->phys, "/input0", sizeof(synusb->phys));
-> > +
-> > +	input_dev->name = synusb->name; // synusb_get_name(synusb);
-> > +	input_dev->phys = synusb->phys;
-> > +	usb_to_input_id(udev, &input_dev->id);
-> > +	input_dev->dev.parent = &synusb->intf->dev;
-> > +
-> > +	input_dev->open = synusb_open;
-> > +	input_dev->close = synusb_close;
-> > +
-> > +	input_set_drvdata(input_dev, synusb);
-> > +
-> > +	__set_bit(EV_ABS, input_dev->evbit);
-> > +	__set_bit(EV_KEY, input_dev->evbit);
-> > +
-> > +	if (synusb->flags & SYNUSB_STICK) {
-> > +		__set_bit(EV_REL, input_dev->evbit);
-> > +		__set_bit(REL_X, input_dev->relbit);
-> > +		__set_bit(REL_Y, input_dev->relbit);
-> > +		input_set_abs_params(input_dev, ABS_PRESSURE, 0, 127, 0, 0);
-> > +	} else {
-> > +		input_set_abs_params(input_dev, ABS_X, xmin, xmax, 0, 0);
-> > +		input_set_abs_params(input_dev, ABS_Y, ymin, ymax, 0, 0);
-> > +		input_set_abs_params(input_dev, ABS_PRESSURE, 0, 255, 0, 0);
-> > +		input_set_abs_params(input_dev, ABS_TOOL_WIDTH, 0, 15, 0, 0);
-> > +		__set_bit(BTN_TOUCH, input_dev->keybit);
-> > +		__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
-> > +		__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
-> > +		__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
-> > +	}
-> > +
-> > +	__set_bit(BTN_LEFT, input_dev->keybit);
-> > +	__set_bit(BTN_RIGHT, input_dev->keybit);
-> > +	__set_bit(BTN_MIDDLE, input_dev->keybit);
-> > +	if (synusb->flags & SYNUSB_AUXDISPLAY)
-> > +		__set_bit(BTN_MISC, input_dev->keybit);
-> > +
-> > +	error = input_register_device(input_dev);
-> > +	if (error) {
-> > +		dev_err(&udev->dev, "Failed to register input device, error %d\n",
-> > +			error);
-> > +		goto err_free_dma;
-> > +	}
-> > +
-> > +	usb_set_intfdata(intf, synusb);
-> > +	return 0;
-> > +
-> > +err_free_dma:
-> > +	usb_free_coherent(udev, SYNUSB_RECV_SIZE, synusb->data,
-> > +			  synusb->urb->transfer_dma);
-> > +err_free_urb:
-> > +	usb_free_urb(synusb->urb);
-> > +err_free_mem:
-> > +	input_free_device(input_dev);
-> > +	kfree(synusb);
-> > +
-> > +	return error;
-> > +}
-> > +
-> 
-> [..]
-> > +static struct usb_driver synusb_driver = {
-> > +	.name		= "synaptics_usb",
-> > +	.probe		= synusb_probe,
-> > +	.disconnect	= synusb_disconnect,
-> > +	.id_table	= synusb_idtable,
-> > +	.suspend	= synusb_suspend,
-> > +	.resume		= synusb_resume,
-> > +	.reset_resume	= synusb_reset_resume,
-> 
-> You've killed the support for reset. That is not cool.
-
-OK.
-
-Thanks.
-
+diff --git a/drivers/input/touchscreen/auo-pixcir-ts.c b/drivers/input/touchscreen/auo-pixcir-ts.c
+index 94fb9fb..3b3ec68 100644
+--- a/drivers/input/touchscreen/auo-pixcir-ts.c
++++ b/drivers/input/touchscreen/auo-pixcir-ts.c
+@@ -91,6 +91,7 @@
+ #define AUO_PIXCIR_POWER_MASK		0x03
+ 
+ #define AUO_PIXCIR_POWER_ALLOW_SLEEP	(1 << 2)
++#define AUO_PIXCIR_POWER_IDLE_SHIFT	4
+ #define AUO_PIXCIR_POWER_IDLE_TIME(ms)	((ms & 0xf) << 4)
+ 
+ #define AUO_PIXCIR_CALIBRATE		0x03
+@@ -286,6 +287,37 @@ static int auo_pixcir_power_mode(struct auo_pixcir_ts *ts, int mode)
+ 	return 0;
+ }
+ 
++static int auo_pixcir_autosleep(struct auo_pixcir_ts *ts, unsigned int ms)
++{
++	struct i2c_client *client = ts->client;
++	int ret;
++
++	ret = i2c_smbus_read_byte_data(client, AUO_PIXCIR_REG_POWER_MODE);
++	if (ret < 0) {
++		dev_err(&client->dev, "unable to read reg %Xh, %d\n",
++			AUO_PIXCIR_REG_POWER_MODE, ret);
++		return ret;
++	}
++
++	if (ms > 0) {
++		dev_dbg(&client->dev, "activating autosleep\n");
++		ret |= AUO_PIXCIR_POWER_ALLOW_SLEEP;
++		ret |= AUO_PIXCIR_POWER_IDLE_TIME(ms);
++	} else {
++		dev_dbg(&client->dev, "deactivating autosleep\n");
++		ret &= ~AUO_PIXCIR_POWER_ALLOW_SLEEP;
++	}
++
++	ret = i2c_smbus_write_byte_data(client, AUO_PIXCIR_REG_POWER_MODE, ret);
++	if (ret) {
++		dev_err(&client->dev, "unable to write reg %Xh, %d\n",
++			AUO_PIXCIR_REG_POWER_MODE, ret);
++		return ret;
++	}
++
++	return 0;
++}
++
+ static __devinit int auo_pixcir_int_config(struct auo_pixcir_ts *ts,
+ 					   int int_setting)
+ {
+@@ -415,6 +447,155 @@ static void auo_pixcir_input_close(struct input_dev *dev)
+ 	return;
+ }
+ 
++/*
++ * sysfs-attributes
++ */
++
++static ssize_t auo_pixcir_autosleep_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int ret;
++
++	ret = i2c_smbus_read_byte_data(client, AUO_PIXCIR_REG_POWER_MODE);
++	if (ret < 0) {
++		dev_err(&client->dev, "unable to read reg %Xh, %d\n",
++			AUO_PIXCIR_REG_POWER_MODE, ret);
++		return ret;
++	}
++
++	ret = (ret & AUO_PIXCIR_POWER_ALLOW_SLEEP)
++			? ret >> AUO_PIXCIR_POWER_IDLE_SHIFT
++			: 0;
++
++	return sprintf(buf, "%d\n", ret);
++}
++
++static ssize_t auo_pixcir_autosleep_store(struct device *dev,
++					  struct device_attribute *attr,
++					  const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct auo_pixcir_ts *ts = i2c_get_clientdata(client);
++	unsigned int val;
++	int ret;
++
++	ret = kstrtouint(buf, 10, &val);
++	if (ret)
++		return ret;
++
++	ret = auo_pixcir_autosleep(ts, val);
++	if (ret)
++		return ret;
++
++	return count;
++}
++
++static ssize_t auo_pixcir_powermode_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int ret;
++
++	ret = i2c_smbus_read_byte_data(client, AUO_PIXCIR_REG_POWER_MODE);
++	if (ret < 0) {
++		dev_err(&client->dev, "unable to read reg %Xh, %d\n",
++			AUO_PIXCIR_REG_POWER_MODE, ret);
++		return ret;
++	}
++
++	ret &= AUO_PIXCIR_POWER_MASK;
++
++	return sprintf(buf, "%d\n", ret);
++}
++
++static ssize_t auo_pixcir_firmware_version_show(struct device *dev,
++						struct device_attribute *attr,
++						char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int ret;
++
++	ret = i2c_smbus_read_byte_data(client, AUO_PIXCIR_REG_VERSION);
++	if (ret < 0) {
++		dev_err(&client->dev, "unable to read reg %Xh, %d\n",
++			AUO_PIXCIR_REG_VERSION, ret);
++		return ret;
++	}
++
++	return sprintf(buf, "%d\n", ret);
++}
++
++static ssize_t auo_pixcir_sensitivity_show(struct device *dev,
++					   struct device_attribute *attr,
++					   char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int reg, ret;
++
++	reg = strncmp(attr->attr.name, "sensitivity_x", 13)
++				? AUO_PIXCIR_REG_Y_SENSITIVITY
++				: AUO_PIXCIR_REG_X_SENSITIVITY;
++
++	ret = i2c_smbus_read_byte_data(client, reg);
++	if (ret < 0) {
++		dev_err(&client->dev, "unable to read reg %Xh, %d\n", reg, ret);
++		return ret;
++	}
++
++	return sprintf(buf, "%d\n", ret);
++}
++
++static ssize_t auo_pixcir_sensitivity_store(struct device *dev,
++					    struct device_attribute *attr,
++					    const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int reg, ret, val;
++
++	ret = kstrtouint(buf, 10, &val);
++	if (ret)
++		return ret;
++
++	reg = strncmp(attr->attr.name, "sensitivity_x", 13)
++				? AUO_PIXCIR_REG_Y_SENSITIVITY
++				: AUO_PIXCIR_REG_X_SENSITIVITY;
++
++	ret = i2c_smbus_write_byte_data(client, reg, val);
++	if (ret < 0) {
++		dev_err(&client->dev, "unable to write reg %Xh, %d\n",
++			reg, ret);
++		return ret;
++	}
++
++	return count;
++}
++
++static DEVICE_ATTR(autosleep, 0644, auo_pixcir_autosleep_show,
++		   auo_pixcir_autosleep_store);
++static DEVICE_ATTR(powermode, 0444, auo_pixcir_powermode_show, NULL);
++static DEVICE_ATTR(firmware_version, 0444, auo_pixcir_firmware_version_show,
++		   NULL);
++static DEVICE_ATTR(sensitivity_x, 0644, auo_pixcir_sensitivity_show,
++		   auo_pixcir_sensitivity_store);
++static DEVICE_ATTR(sensitivity_y, 0644, auo_pixcir_sensitivity_show,
++		   auo_pixcir_sensitivity_store);
++
++static struct attribute *auo_pixcir_attributes[] = {
++	&dev_attr_autosleep.attr,
++	&dev_attr_powermode.attr,
++	&dev_attr_firmware_version.attr,
++	&dev_attr_sensitivity_x.attr,
++	&dev_attr_sensitivity_y.attr,
++	NULL
++};
++
++static const struct attribute_group auo_pixcir_attr_group = {
++	.attrs		= auo_pixcir_attributes,
++};
++
+ #ifdef CONFIG_PM_SLEEP
+ static int auo_pixcir_suspend(struct device *dev)
+ {
+@@ -583,8 +764,14 @@ static int __devinit auo_pixcir_probe(struct i2c_client *client,
+ 
+ 	i2c_set_clientdata(client, ts);
+ 
++	ret = sysfs_create_group(&client->dev.kobj, &auo_pixcir_attr_group);
++	if (ret)
++		goto err_sysfs_register;
++
+ 	return 0;
+ 
++err_sysfs_register:
++	input_unregister_device(ts->input);
+ err_input_register:
+ 	free_irq(client->irq, ts);
+ err_fw_vers:
+@@ -604,6 +791,8 @@ static int __devexit auo_pixcir_remove(struct i2c_client *client)
+ 	struct auo_pixcir_ts *ts = i2c_get_clientdata(client);
+ 	const struct auo_pixcir_ts_platdata *pdata = client->dev.platform_data;
+ 
++	sysfs_remove_group(&client->dev.kobj, &auo_pixcir_attr_group);
++
+ 	free_irq(client->irq, ts);
+ 
+ 	input_unregister_device(ts->input);
 -- 
-Dmitry
+1.7.5.4
+

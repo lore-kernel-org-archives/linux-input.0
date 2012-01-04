@@ -1,267 +1,65 @@
-From: Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
-Subject: [PATCH] auo-pixcir-ts: expose some properties via sysfs
-Date: Wed, 4 Jan 2012 13:02:58 +0100
-Message-ID: <201201041302.58890.heiko@sntech.de>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH RFC V2 0/4] Add "scope" to power supplies
+Date: Wed, 4 Jan 2012 13:48:40 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1201041347530.24984@pobox.suse.cz>
+References: <cover.1323454016.git.jeremy@goop.org> <20120104051139.GA8081@oksana.dev.rtsoft.ru>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from h1778886.stratoserver.net ([85.214.133.74]:35299 "EHLO
-	h1778886.stratoserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754063Ab2ADMDE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Jan 2012 07:03:04 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120104051139.GA8081@oksana.dev.rtsoft.ru>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Anton Vorontsov <cbouatmailru@gmail.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, David Woodhouse <dwmw2@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Hughes <hughsient@gmail.com>, Daniel Nicoletti <dantti12@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-The controller contains some properties that could be interesting to users:
+On Wed, 4 Jan 2012, Anton Vorontsov wrote:
 
-autosleep: after a configurable idle time, enter the sleep mode
-           automatically; wakeup is done on the first touch.
-sensitivity: touch-sensitivity for the x and y axes
-powermode: the current power mode the device is in (read only), this
-           also shows the current state in autosleep mode
-firmware_version: read only
+> > This series adds a "scope" attribute to power supplies, to indicate
+> > whether it powers the whole system ("System") or just some subset of
+> > the devices ("Device").  This allows upowerd to distinguish between
+> > system-wide power supplies and self-powered devices such as cordless
+> > mice.
+> > 
+> > This series also adds a "powers" link to power supplies, so that if
+> > they're scope=Device, they can specifically indicate which device
+> > tree they power.
+> > 
+> > Updates since last post:
+> >  - Add more complete documentation to scope and "powers" links
+> >  - Remove unnecessary scopes on System power supplies
+> >  - Make HID battery supplies Device, and add "powers" pointers
+> >    for them.
+> > 
+> > This can also be pulled from:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/jeremy/xen.git power-supply-scope
+> > 
+> > Jeremy Fitzhardinge (4):
+> >   power_supply: add SCOPE attribute to power supplies
+> >   power_supply: allow a power supply to explicitly point to powered
+> >     device
+> >   power_supply: add scope properties to some self-powered HID devices
+> >   power_supply: add "powers" links to self-powered HID devices
+> > 
+> >  drivers/hid/hid-wacom.c            |   16 ++++++++++++++--
+> >  drivers/hid/hid-wiimote.c          |   10 +++++++++-
+> >  drivers/power/power_supply_core.c  |    7 +++++++
+> >  drivers/power/power_supply_sysfs.c |    6 ++++++
+> >  include/linux/power_supply.h       |    8 ++++++++
+> >  5 files changed, 44 insertions(+), 3 deletions(-)
+> 
+> Pulled into battery-2.6.git, thank you!
 
-This patch exposes these via sysfs and lets the user configure
-sensitivity and autosleep delay.
+Thanks. Looking at the tree ... in case you are going to rebase the 
+branch, please add
 
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
----
- drivers/input/touchscreen/auo-pixcir-ts.c |  189 +++++++++++++++++++++++++++++
- 1 files changed, 189 insertions(+), 0 deletions(-)
+	Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 
-diff --git a/drivers/input/touchscreen/auo-pixcir-ts.c b/drivers/input/touchscreen/auo-pixcir-ts.c
-index 94fb9fb..3b3ec68 100644
---- a/drivers/input/touchscreen/auo-pixcir-ts.c
-+++ b/drivers/input/touchscreen/auo-pixcir-ts.c
-@@ -91,6 +91,7 @@
- #define AUO_PIXCIR_POWER_MASK		0x03
- 
- #define AUO_PIXCIR_POWER_ALLOW_SLEEP	(1 << 2)
-+#define AUO_PIXCIR_POWER_IDLE_SHIFT	4
- #define AUO_PIXCIR_POWER_IDLE_TIME(ms)	((ms & 0xf) << 4)
- 
- #define AUO_PIXCIR_CALIBRATE		0x03
-@@ -286,6 +287,37 @@ static int auo_pixcir_power_mode(struct auo_pixcir_ts *ts, int mode)
- 	return 0;
- }
- 
-+static int auo_pixcir_autosleep(struct auo_pixcir_ts *ts, unsigned int ms)
-+{
-+	struct i2c_client *client = ts->client;
-+	int ret;
-+
-+	ret = i2c_smbus_read_byte_data(client, AUO_PIXCIR_REG_POWER_MODE);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "unable to read reg %Xh, %d\n",
-+			AUO_PIXCIR_REG_POWER_MODE, ret);
-+		return ret;
-+	}
-+
-+	if (ms > 0) {
-+		dev_dbg(&client->dev, "activating autosleep\n");
-+		ret |= AUO_PIXCIR_POWER_ALLOW_SLEEP;
-+		ret |= AUO_PIXCIR_POWER_IDLE_TIME(ms);
-+	} else {
-+		dev_dbg(&client->dev, "deactivating autosleep\n");
-+		ret &= ~AUO_PIXCIR_POWER_ALLOW_SLEEP;
-+	}
-+
-+	ret = i2c_smbus_write_byte_data(client, AUO_PIXCIR_REG_POWER_MODE, ret);
-+	if (ret) {
-+		dev_err(&client->dev, "unable to write reg %Xh, %d\n",
-+			AUO_PIXCIR_REG_POWER_MODE, ret);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
- static __devinit int auo_pixcir_int_config(struct auo_pixcir_ts *ts,
- 					   int int_setting)
- {
-@@ -415,6 +447,155 @@ static void auo_pixcir_input_close(struct input_dev *dev)
- 	return;
- }
- 
-+/*
-+ * sysfs-attributes
-+ */
-+
-+static ssize_t auo_pixcir_autosleep_show(struct device *dev,
-+					 struct device_attribute *attr,
-+					 char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	int ret;
-+
-+	ret = i2c_smbus_read_byte_data(client, AUO_PIXCIR_REG_POWER_MODE);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "unable to read reg %Xh, %d\n",
-+			AUO_PIXCIR_REG_POWER_MODE, ret);
-+		return ret;
-+	}
-+
-+	ret = (ret & AUO_PIXCIR_POWER_ALLOW_SLEEP)
-+			? ret >> AUO_PIXCIR_POWER_IDLE_SHIFT
-+			: 0;
-+
-+	return sprintf(buf, "%d\n", ret);
-+}
-+
-+static ssize_t auo_pixcir_autosleep_store(struct device *dev,
-+					  struct device_attribute *attr,
-+					  const char *buf, size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct auo_pixcir_ts *ts = i2c_get_clientdata(client);
-+	unsigned int val;
-+	int ret;
-+
-+	ret = kstrtouint(buf, 10, &val);
-+	if (ret)
-+		return ret;
-+
-+	ret = auo_pixcir_autosleep(ts, val);
-+	if (ret)
-+		return ret;
-+
-+	return count;
-+}
-+
-+static ssize_t auo_pixcir_powermode_show(struct device *dev,
-+					 struct device_attribute *attr,
-+					 char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	int ret;
-+
-+	ret = i2c_smbus_read_byte_data(client, AUO_PIXCIR_REG_POWER_MODE);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "unable to read reg %Xh, %d\n",
-+			AUO_PIXCIR_REG_POWER_MODE, ret);
-+		return ret;
-+	}
-+
-+	ret &= AUO_PIXCIR_POWER_MASK;
-+
-+	return sprintf(buf, "%d\n", ret);
-+}
-+
-+static ssize_t auo_pixcir_firmware_version_show(struct device *dev,
-+						struct device_attribute *attr,
-+						char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	int ret;
-+
-+	ret = i2c_smbus_read_byte_data(client, AUO_PIXCIR_REG_VERSION);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "unable to read reg %Xh, %d\n",
-+			AUO_PIXCIR_REG_VERSION, ret);
-+		return ret;
-+	}
-+
-+	return sprintf(buf, "%d\n", ret);
-+}
-+
-+static ssize_t auo_pixcir_sensitivity_show(struct device *dev,
-+					   struct device_attribute *attr,
-+					   char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	int reg, ret;
-+
-+	reg = strncmp(attr->attr.name, "sensitivity_x", 13)
-+				? AUO_PIXCIR_REG_Y_SENSITIVITY
-+				: AUO_PIXCIR_REG_X_SENSITIVITY;
-+
-+	ret = i2c_smbus_read_byte_data(client, reg);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "unable to read reg %Xh, %d\n", reg, ret);
-+		return ret;
-+	}
-+
-+	return sprintf(buf, "%d\n", ret);
-+}
-+
-+static ssize_t auo_pixcir_sensitivity_store(struct device *dev,
-+					    struct device_attribute *attr,
-+					    const char *buf, size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	int reg, ret, val;
-+
-+	ret = kstrtouint(buf, 10, &val);
-+	if (ret)
-+		return ret;
-+
-+	reg = strncmp(attr->attr.name, "sensitivity_x", 13)
-+				? AUO_PIXCIR_REG_Y_SENSITIVITY
-+				: AUO_PIXCIR_REG_X_SENSITIVITY;
-+
-+	ret = i2c_smbus_write_byte_data(client, reg, val);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "unable to write reg %Xh, %d\n",
-+			reg, ret);
-+		return ret;
-+	}
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(autosleep, 0644, auo_pixcir_autosleep_show,
-+		   auo_pixcir_autosleep_store);
-+static DEVICE_ATTR(powermode, 0444, auo_pixcir_powermode_show, NULL);
-+static DEVICE_ATTR(firmware_version, 0444, auo_pixcir_firmware_version_show,
-+		   NULL);
-+static DEVICE_ATTR(sensitivity_x, 0644, auo_pixcir_sensitivity_show,
-+		   auo_pixcir_sensitivity_store);
-+static DEVICE_ATTR(sensitivity_y, 0644, auo_pixcir_sensitivity_show,
-+		   auo_pixcir_sensitivity_store);
-+
-+static struct attribute *auo_pixcir_attributes[] = {
-+	&dev_attr_autosleep.attr,
-+	&dev_attr_powermode.attr,
-+	&dev_attr_firmware_version.attr,
-+	&dev_attr_sensitivity_x.attr,
-+	&dev_attr_sensitivity_y.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group auo_pixcir_attr_group = {
-+	.attrs		= auo_pixcir_attributes,
-+};
-+
- #ifdef CONFIG_PM_SLEEP
- static int auo_pixcir_suspend(struct device *dev)
- {
-@@ -583,8 +764,14 @@ static int __devinit auo_pixcir_probe(struct i2c_client *client,
- 
- 	i2c_set_clientdata(client, ts);
- 
-+	ret = sysfs_create_group(&client->dev.kobj, &auo_pixcir_attr_group);
-+	if (ret)
-+		goto err_sysfs_register;
-+
- 	return 0;
- 
-+err_sysfs_register:
-+	input_unregister_device(ts->input);
- err_input_register:
- 	free_irq(client->irq, ts);
- err_fw_vers:
-@@ -604,6 +791,8 @@ static int __devexit auo_pixcir_remove(struct i2c_client *client)
- 	struct auo_pixcir_ts *ts = i2c_get_clientdata(client);
- 	const struct auo_pixcir_ts_platdata *pdata = client->dev.platform_data;
- 
-+	sysfs_remove_group(&client->dev.kobj, &auo_pixcir_attr_group);
-+
- 	free_irq(client->irq, ts);
- 
- 	input_unregister_device(ts->input);
+or at least
+
+	Acked-by: Jiri Kosina <jkosina@suse.cz>
+
+to patches touching drivers/hid. Thanks,
+
 -- 
-1.7.5.4
-
+Jiri Kosina
+SUSE Labs

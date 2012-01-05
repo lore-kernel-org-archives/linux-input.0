@@ -1,58 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC PATCH 00/11] input: Synaptics RMI4 Touchscreen Driver
-Date: Wed, 4 Jan 2012 23:58:55 -0800
-Message-ID: <20120105075855.GD31895@core.coreip.homeip.net>
-References: <1324519802-23894-1-git-send-email-cheiny@synaptics.com>
+From: Anisha Kaul <born.rebel.83@gmail.com>
+Subject: How to physically rotate the joystick wheel through the code/terminal.
+Date: Thu, 5 Jan 2012 14:51:37 +0530
+Message-ID: <CAM1yFZ9kHjJBhWH3NFTTaOJ3NdBYMH599U0=FXZ_AQVsYoJkUQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:33487 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751310Ab2AEH7B (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Jan 2012 02:59:01 -0500
-Content-Disposition: inline
-In-Reply-To: <1324519802-23894-1-git-send-email-cheiny@synaptics.com>
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:51000 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754501Ab2AEJVh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 5 Jan 2012 04:21:37 -0500
+Received: by obcwo16 with SMTP id wo16so317491obc.19
+        for <linux-input@vger.kernel.org>; Thu, 05 Jan 2012 01:21:37 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+To: linux-input@vger.kernel.org
 
-On Wed, Dec 21, 2011 at 06:09:51PM -0800, Christopher Heiny wrote:
-> This patch implements a driver supporting Synaptics ClearPad and other
-> touchscreen sensors that use the RMI4 protocol, as defined here:
-> 
->     http://www.synaptics.com/sites/default/files/511-000136-01-Rev-E-RMI4%20Intrfacing%20Guide.pdf
-> 
-> as well as successor documents that haven't made their way through to
-> publication yet.
-> 
-> This code represents a complete refactoring and rewrite of the previously
-> submitted patches, and supersedes all those patches.  We believe that all
-> outstanding issues arising from the previous submissions have been addressed.
-> However, because of the quantity of new code, we are submitting this patch
-> as an RFC and requesting feedback from the kernel community.
-> 
-> 
-> This patch is against the v2.6.38 tag of Linus' kernel tree, commit
-> 521cb40b0c44418a4fd36dc633f575813d59a43d.
-> 
-> 
-> Included in this patch are:
->     - full support for an RMI virtual bus as a standard kernel bus
-> 
->     - physical layer implementations for I2C and SPI
-> 
->     - function implementations for the following RMI4 functions:
->         * F01 device control
->         * F09 self test (aka BIST)
->         * F11 multifinger pointing
->         * F19 capacitive buttons
->         * F34 device reflash
->         * F54 analog data reporting
-> 
->     - character device access to the RMI4 register map via rmidev
+I wish to physically rotate the joystick wheel through the code/termina=
+l.
+I mean if I run a command, the wheel should rotate to the left/right.
 
-Could you please tell me why this facility is needed?
+I looked in here:=A0http://www.mjmwired.net/kernel/Documentation/input/=
+ff.txt
 
--- 
-Dmitry
+Is ioctl() system call as shown in the above link appropriate for the t=
+ask
+or I am barking at the wrong tree?
+
+Any hints on how to achieve this from userspace?
+
+Regards,
+-Anisha
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

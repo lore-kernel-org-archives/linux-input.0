@@ -1,290 +1,108 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: [PATCH v8 3/3] Input: cyttsp - add support for Cypress TTSP touchscreen SPI bus interface
-Date: Thu,  5 Jan 2012 01:16:26 +0100
-Message-ID: <1325722586-12886-4-git-send-email-javier@dowhile0.org>
-References: <1325722586-12886-1-git-send-email-javier@dowhile0.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:60477 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757472Ab2AEAPu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Jan 2012 19:15:50 -0500
-In-Reply-To: <1325722586-12886-1-git-send-email-javier@dowhile0.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Jan Steinhoff <mail-PhEc8kca6jU1QSD89PPpzQ@public.gmane.org>
+Subject: Re: [PATCH] input: Synaptics USB device driver
+Date: Thu, 5 Jan 2012 02:46:34 +0000
+Message-ID: <20120105024634.5c594566@greyhound>
+References: <20120103194033.779cb829@greyhound>
+	<201201040926.00117.oneukum@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201201040926.00117.oneukum-l3A5Bk7waGM@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+Cc: Alessandro Rubini <rubini-JCs+bAQazDroPXhRcRtihA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@dowhile0.org>
 
-The driver is composed of a core driver that process the data sent by
-the contacts and a set of bus specific interface modules.
+On Wed, 4 Jan 2012 09:25:59 +0100
+Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org> wrote:
 
-This patch add supports for the Cypress TTSP SPI bus interface.
+> Am Dienstag, 3. Januar 2012, 19:40:33 schrieb Jan Steinhoff:  
+> > From: Jan Steinhoff <mail-PhEc8kca6jU1QSD89PPpzQ@public.gmane.org>
+> > 
+> > This patch adds a driver for Synaptics USB touchpad or pointing
+> > stick devices. These USB devices emulate an USB mouse by default,
+> > so one can also use the usbhid driver. However, in combination with
+> > special user space drivers this kernel driver allows one to
+> > customize the behaviour of the device.  
+> 
+> Hi,
+> 
+> thank you for this driver. There are a few issues which I have
+> commented on in the text.  
 
-Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
----
+Hi,
 
-Changes for v8:
-	Javier Martinez Canillas (2):
-        - struct cyttsp is inside struct device not struct spi_device
-	- Add error msg when capability is not supported
+I agree with most of the comments, but I have some further
+questions/remarks below.
 
-	Kevin McNeely (1):
-	- SPI xfer function cleanups
+Best,
+Jan
 
- drivers/input/touchscreen/cyttsp_spi.c |  245 ++++++++++++++++++++++++++++++++
- 1 files changed, 245 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/cyttsp_spi.c
+[...]
+> [..]  
+> > +
+> > +/*
+> > + * initialization of usb data structures
+> > + */
+> > +
+> > +static int synusb_setup_iurb(struct synusb *synusb,
+> > +			     struct usb_endpoint_descriptor
+> > *endpoint) +{
+> > +	char *buf;
+> > +
+> > +	if (endpoint->wMaxPacketSize < 8)
+> > +		return 0;  
+> 
+> How could this happen?  
 
-diff --git a/drivers/input/touchscreen/cyttsp_spi.c b/drivers/input/touchscreen/cyttsp_spi.c
-new file mode 100644
-index 0000000..3238c7d
---- /dev/null
-+++ b/drivers/input/touchscreen/cyttsp_spi.c
-@@ -0,0 +1,245 @@
-+/*
-+ * Source for:
-+ * Cypress TrueTouch(TM) Standard Product (TTSP) SPI touchscreen driver.
-+ * For use with Cypress Txx3xx parts.
-+ * Supported parts include:
-+ * CY8CTST341
-+ * CY8CTMA340
-+ *
-+ * Copyright (C) 2009, 2010, 2011 Cypress Semiconductor, Inc.
-+ * Copyright (C) 2012 Javier Martinez Canillas <javier@dowhile0.org>
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * version 2, and only version 2, as published by the
-+ * Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along
-+ * with this program; if not, write to the Free Software Foundation, Inc.,
-+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-+ *
-+ * Contact Cypress Semiconductor at www.cypress.com <kev@cypress.com>
-+ *
-+ */
-+
-+#include "cyttsp_core.h"
-+
-+#include <linux/delay.h>
-+#include <linux/input.h>
-+#include <linux/spi/spi.h>
-+
-+#define CY_SPI_WR_OP      0x00 /* r/~w */
-+#define CY_SPI_RD_OP      0x01
-+#define CY_SPI_CMD_BYTES  4
-+#define CY_SPI_SYNC_BYTE  2
-+#define CY_SPI_SYNC_ACK1  0x62 /* from protocol v.2 */
-+#define CY_SPI_SYNC_ACK2  0x9D /* from protocol v.2 */
-+#define CY_SPI_DATA_SIZE  128
-+#define CY_SPI_DATA_BUF_SIZE (CY_SPI_CMD_BYTES + CY_SPI_DATA_SIZE)
-+#define CY_SPI_BITS_PER_WORD 8
-+
-+static int cyttsp_spi_xfer(u8 op, struct spi_device *spi,
-+			   u8 reg, u8 *buf, int length)
-+{
-+	struct cyttsp *ts = spi_get_drvdata(spi);
-+	struct spi_message msg;
-+	struct spi_transfer xfer[2];
-+	u8 *wr_buf = &ts->xfer_buf[0];
-+	u8 *rd_buf = &ts->xfer_buf[CY_SPI_DATA_BUF_SIZE];
-+	int retval;
-+
-+	if (length > CY_SPI_DATA_SIZE) {
-+		dev_dbg(&spi->dev, "%s: length %d is too big.\n",
-+			__func__, length);
-+		return -EINVAL;
-+	}
-+
-+	memset(wr_buf, 0, CY_SPI_DATA_BUF_SIZE);
-+	memset(rd_buf, 0, CY_SPI_DATA_BUF_SIZE);
-+
-+	wr_buf[0] = 0x00; /* header byte 0 */
-+	wr_buf[1] = 0xFF; /* header byte 1 */
-+	wr_buf[2] = reg;  /* reg index */
-+	wr_buf[3] = op;   /* r/~w */
-+	if (op == CY_SPI_WR_OP)
-+		memcpy(wr_buf + CY_SPI_CMD_BYTES, buf, length);
-+
-+	memset(xfer, 0, sizeof(xfer));
-+	spi_message_init(&msg);
-+
-+	/*
-+	  We set both TX and RX buffers because Cypress TTSP
-+	  requires full duplex operation.
-+	*/
-+	xfer[0].tx_buf = wr_buf;
-+	xfer[0].rx_buf = rd_buf;
-+	switch (op) {
-+	case CY_SPI_WR_OP:
-+		xfer[0].len = length + CY_SPI_CMD_BYTES;
-+		spi_message_add_tail(&xfer[0], &msg);
-+		break;
-+
-+	case CY_SPI_RD_OP:
-+		xfer[0].len = CY_SPI_CMD_BYTES;
-+		spi_message_add_tail(&xfer[0], &msg);
-+
-+		xfer[1].rx_buf = buf;
-+		xfer[1].len = length;
-+		spi_message_add_tail(&xfer[1], &msg);
-+		break;
-+
-+	default:
-+		dev_dbg(&spi->dev,
-+			"%s: bad operation code=%d\n", __func__, op);
-+		return -EINVAL;
-+	}
-+
-+	retval = spi_sync(spi, &msg);
-+	if (retval < 0) {
-+		dev_dbg(&spi->dev,
-+			"%s: spi_sync() error %d, len=%d, op=%d\n",
-+			__func__, retval, xfer[1].len, op);
-+
-+		/*
-+		 * do not return here since was a bad ACK sequence
-+		 * let the following ACK check handle any errors and
-+		 * allow silent retries
-+		 */
-+	}
-+
-+	if (rd_buf[CY_SPI_SYNC_BYTE] != CY_SPI_SYNC_ACK1 ||
-+	    rd_buf[CY_SPI_SYNC_BYTE + 1] != CY_SPI_SYNC_ACK2) {
-+		int i;
-+		for (i = 0; i < CY_SPI_CMD_BYTES; i++)
-+			dev_dbg(&spi->dev,
-+				"%s: test rd_buf[%d]:0x%02x\n",
-+				__func__, i, rd_buf[i]);
-+		for (i = 0; i < length; i++)
-+			dev_dbg(&spi->dev,
-+				"%s: test buf[%d]:0x%02x\n",
-+				__func__, i, buf[i]);
-+
-+		/* signal ACK error so silent retry */
-+		return 1;
-+	}
-+
-+	return 0;
-+}
-+
-+static int cyttsp_spi_read_block_data(struct device *dev,
-+				      u8 addr, u8 length, void *data)
-+{
-+	struct spi_device *spi = to_spi_device(dev);
-+	int retval;
-+
-+	retval = cyttsp_spi_xfer(CY_SPI_RD_OP, spi, addr, data, length);
-+	if (retval < 0)
-+		dev_err(dev, "cyttsp_spi_read_block_data failed, err: %d\n",
-+			retval);
-+
-+	/*
-+	 * Do not print the above error if the data sync bytes were not found.
-+	 * This is a normal condition for the bootloader loader startup and need
-+	 * to retry until data sync bytes are found.
-+	 */
-+	if (retval > 0)
-+		retval = -EIO;  /* now signal fail; so retry can be done */
-+
-+	return retval;
-+}
-+
-+static int cyttsp_spi_write_block_data(struct device *dev,
-+				       u8 addr, u8 length, const void *data)
-+{
-+	struct spi_device *spi = to_spi_device(dev);
-+	int retval;
-+
-+	retval = cyttsp_spi_xfer(CY_SPI_WR_OP, spi, addr, (void *)data, length);
-+	if (retval < 0)
-+		dev_err(dev, "cyttsp_spi_write_block_data failed, err: %d\n",
-+			retval);
-+
-+	/*
-+	 * Do not print the above error if the data sync bytes were not found.
-+	 * This is a normal condition for the bootloader loader startup and need
-+	 * to retry until data sync bytes are found.
-+	 */
-+	if (retval > 0)
-+		retval = -EIO;  /* now signal fail; so retry can be done */
-+
-+	return retval;
-+}
-+
-+static const struct cyttsp_bus_ops cyttsp_spi_bus_ops = {
-+	.bustype        = BUS_SPI,
-+	.write          = cyttsp_spi_write_block_data,
-+	.read           = cyttsp_spi_read_block_data,
-+};
-+
-+static int __devinit cyttsp_spi_probe(struct spi_device *spi)
-+{
-+	struct cyttsp *ts;
-+	int error;
-+
-+	/* Set up SPI*/
-+	spi->bits_per_word = CY_SPI_BITS_PER_WORD;
-+	spi->mode = SPI_MODE_0;
-+	error = spi_setup(spi);
-+	if (error < 0) {
-+		dev_err(&spi->dev, "%s: SPI setup error %d\n",
-+			__func__, error);
-+		return error;
-+	}
-+
-+	ts = cyttsp_probe(&cyttsp_spi_bus_ops, &spi->dev, spi->irq,
-+			  CY_SPI_DATA_BUF_SIZE * 2);
-+	if (IS_ERR(ts))
-+		return PTR_ERR(ts);
-+
-+	spi_set_drvdata(spi, ts);
-+
-+	return 0;
-+}
-+
-+static int __devexit cyttsp_spi_remove(struct spi_device *spi)
-+{
-+	struct cyttsp *ts = dev_get_drvdata(&spi->dev);
-+
-+	cyttsp_remove(ts);
-+
-+	return 0;
-+}
-+
-+static struct spi_driver cyttsp_spi_driver = {
-+	.driver = {
-+		.name   = CY_SPI_NAME,
-+		.owner  = THIS_MODULE,
-+		.pm     = &cyttsp_pm_ops,
-+	},
-+	.probe  = cyttsp_spi_probe,
-+	.remove = __devexit_p(cyttsp_spi_remove),
-+};
-+
-+static int __init cyttsp_spi_init(void)
-+{
-+	return spi_register_driver(&cyttsp_spi_driver);
-+}
-+module_init(cyttsp_spi_init);
-+
-+static void __exit cyttsp_spi_exit(void)
-+{
-+	spi_unregister_driver(&cyttsp_spi_driver);
-+}
-+module_exit(cyttsp_spi_exit);
-+
-+MODULE_ALIAS("spi:cyttsp");
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Cypress TrueTouch(R) Standard Product (TTSP) SPI driver");
-+MODULE_AUTHOR("Cypress");
-+MODULE_ALIAS("spi:cyttsp");
-+
--- 
-1.7.4.1
+The id table can be modified via sysfs, so it is easily possible to try
+this driver with officially unsupported devices. (At least for Synaptics
+devices, there is a good chance this driver works just the same.) The
+condition I put there was the only one I could think of to select when
+it is not worth trying.
 
+[...]
+> > +static int synusb_suspend(struct usb_interface *intf, pm_message_t
+> > message) +{
+> > +	struct synusb *synusb = usb_get_intfdata(intf);
+> > +
+> > +	if (synusb == NULL)
+> > +		return 0;  
+> 
+> How can this happen?  
+
+According to the Documentation this can not happen. However, this check
+is present in usb-skeleton.c, so I put it there just in case I
+overlooked something.
+
+[...]
+> > +static struct usb_driver synusb_driver = {
+> > +	.name =		"synaptics_usb",
+> > +	.probe =	synusb_probe,
+> > +	.disconnect =	synusb_disconnect,
+> > +	.id_table =	synusb_idtable,
+> > +	.suspend =	synusb_suspend,
+> > +	.resume =	synusb_resume,
+> > +	.pre_reset =	synusb_pre_reset,
+> > +	.post_reset =	synusb_post_reset,
+> > +	.reset_resume = synusb_reset_resume,
+> > +	.supports_autosuspend = 1,  
+> 
+> Yet you do not manage the busy state. Do you really want to play
+> ping-pong with the power state?  
+
+The last time I tested autosuspend its timer was reseted "automatically"
+every time an int urb arrived. Isn't this all that is needed for an
+input device?
+
+The autosuspend delay should of course be set to a reasonably large
+value. Then there should be no ping-pong with the power state while the
+device is actually used/touched. On the other hand, if the pad is not
+touched for a while, then no int urb arrives and the device will
+autosuspend (and, thanks to remote wakeup, autoresume nicely when
+touched again).
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

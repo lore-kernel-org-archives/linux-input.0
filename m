@@ -1,440 +1,102 @@
-From: Donggeun Kim <dg77.kim@samsung.com>
-Subject: [PATCH 2/2] input: add driver support for MAX8997-haptic
-Date: Thu, 05 Jan 2012 19:04:36 +0900
-Message-ID: <1325757876-17659-3-git-send-email-dg77.kim@samsung.com>
-References: <1325757876-17659-1-git-send-email-dg77.kim@samsung.com>
+From: Jan Steinhoff <mail@jan-steinhoff.de>
+Subject: Re: [PATCH] input: Synaptics USB device driver
+Date: Thu, 5 Jan 2012 14:22:57 +0000
+Message-ID: <20120105142257.7adbd098@guest>
+References: <20120103194033.779cb829@greyhound>
+	<201201041020.41795.oneukum@suse.de>
+	<20120104094103.GA29069@core.coreip.homeip.net>
+	<201201041056.20226.oneukum@suse.de>
+	<20120104100553.GA29131@core.coreip.homeip.net>
+	<20120105060138.704cfb16@greyhound>
+	<20120105063611.GB31895@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:55285 "EHLO
-	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754820Ab2AEKE6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Jan 2012 05:04:58 -0500
-In-reply-to: <1325757876-17659-1-git-send-email-dg77.kim@samsung.com>
+Received: from unserver.de ([88.198.20.135]:34812 "EHLO unserver.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756740Ab2AEOXI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 5 Jan 2012 09:23:08 -0500
+In-Reply-To: <20120105063611.GB31895@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, sameo@linux.intel.com, broonie@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, myungjoo.ham@samsung.com, dg77.kim@samsung.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Oliver Neukum <oneukum@suse.de>, Jiri Kosina <jkosina@suse.cz>, Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The MAX8997-haptic function can be used to control motor.
-User can control the haptic driver by using force feedback framework.
-This patch supports the haptic function in MAX8997.
+On Wed, 4 Jan 2012 22:36:11 -0800
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On Thu, Jan 05, 2012 at 06:01:38AM +0000, Jan Steinhoff wrote:
+> > On Wed, 4 Jan 2012 02:05:53 -0800
+> > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > > On Wed, Jan 04, 2012 at 10:56:20AM +0100, Oliver Neukum wrote:
+> > > > Am Mittwoch, 4. Januar 2012, 10:41:03 schrieb Dmitry Torokhov:
+> > > > > +static int synusb_probe(struct usb_interface *intf,
+> > > > > +			const struct usb_device_id *id)
+> > > > > +{
+> > [...]
+> > > > > +	synusb->urb = usb_alloc_urb(0, GFP_KERNEL);
+> > > > > +	if (!synusb->urb) {
+> > > > > +		error = -ENOMEM;
+> > > > > +		goto err_free_mem;
+> > > > > +	}
+> > > > > +
+> > > > > +	synusb->data = usb_alloc_coherent(udev,
+> > > > > SYNUSB_RECV_SIZE, GFP_KERNEL,
+> > > > > +
+> > > > > &synusb->urb->transfer_dma);
+> > > > > +	if (!synusb->data) {
+> > > > > +		error = -ENOMEM;
+> > > > > +		goto err_free_urb;
+> > > > > +	}
+> > > > > +
+> > > > > +	usb_fill_int_urb(synusb->urb, udev,
+> > > > > +			 usb_rcvintpipe(udev,
+> > > > > ep->bEndpointAddress),
+> > > > > +			 synusb->data, SYNUSB_RECV_SIZE,
+> > > > > +			 synusb_irq, synusb,
+> > > > > +			 ep->bInterval);
+> > > > > +	synusb->urb->transfer_flags |=
+> > > > > URB_NO_TRANSFER_DMA_MAP;
+> > > > 
+> > > > According to the comment in the original driver you must submit
+> > > > the URB. Are you sure not doing so is save?
+> > > 
+> > > Seems to work here...
+> > 
+> > Let me comment on this issue in more detail, so you can better judge
+> > what is the "right" solution here.
+> > 
+> > Both ways actually work. But, at least for the cPad, the device will
+> > pretend it got reconnected if the int urb is not fetched (while not
+> > suspended, of course). This means it would disconnect if no input
+> > device is opened (AFAIK most X.org input drivers close the devices
+> > when one switches to console) and one touches the pad (actually, a
+> > slight breeze of air might be enough, it is very sensitive!).
+> > Another annoying side effect in the case of the cPad is that the
+> > background light flashes on every reconnect.
+> 
+> OK, then maybe we should have cPad start transfers immediately and let
+> other devices do it in open. There is no reason to do work if nobody
+> interested in it...
 
-Signed-off-by: Donggeun Kim <dg77.kim@samsung.com>
-Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
-Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
----
- drivers/input/misc/Kconfig          |   12 ++
- drivers/input/misc/Makefile         |    1 +
- drivers/input/misc/max8997_haptic.c |  366 +++++++++++++++++++++++++++++++++++
- 3 files changed, 379 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/max8997_haptic.c
+Given that the devices are very similar, I expect that also the other
+devices may behave like this. So this is maybe not only a cPad
+related problem. But I have never investigated this for other devices,
+so I am not sure.
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 22d875f..695e1fd 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -134,6 +134,18 @@ config INPUT_MAX8925_ONKEY
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called max8925_onkey.
- 
-+config INPUT_MAX8997_HAPTIC
-+	tristate "MAXIM MAX8997 haptic controller support"
-+	depends on HAVE_PWM && MFD_MAX8997
-+	select INPUT_FF_MEMLESS
-+	help
-+	  This option enables device driver support for the haptic controller
-+	  on MAXIM MAX8997 chip. This driver supports ff-memless interface
-+	  from input framework.
-+
-+	  To compile this driver as module, choose M here: the
-+	  module will be called max8997-haptic.
-+
- config INPUT_MC13783_PWRBUTTON
- 	tristate "MC13783 ON buttons"
- 	depends on MFD_MC13783
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index a244fc6..083df5a 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -28,6 +28,7 @@ obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
- obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
- obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
- obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
-+obj-$(CONFIG_INPUT_MAX8997_HAPTIC)	+= max8997_haptic.o
- obj-$(CONFIG_INPUT_MC13783_PWRBUTTON)	+= mc13783-pwrbutton.o
- obj-$(CONFIG_INPUT_MMA8450)		+= mma8450.o
- obj-$(CONFIG_INPUT_MPU3050)		+= mpu3050.o
-diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
-new file mode 100644
-index 0000000..d7114ad
---- /dev/null
-+++ b/drivers/input/misc/max8997_haptic.c
-@@ -0,0 +1,366 @@
-+/*
-+ *  max8997_haptic.c - MAX8997-haptic controller driver
-+ *
-+ *  Copyright (C) 2012 Samsung Electronics
-+ *  Donggeun Kim <dg77.kim@samsung.com>
-+ *
-+ * This program is not provided / owned by Maxim Integrated Products.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/platform_device.h>
-+#include <linux/err.h>
-+#include <linux/pwm.h>
-+#include <linux/input.h>
-+#include <linux/mfd/max8997-private.h>
-+#include <linux/mfd/max8997.h>
-+#include <linux/regulator/consumer.h>
-+
-+/* Haptic configuration 2 register */
-+#define MAX8997_MOTOR_TYPE_SHIFT	7
-+#define MAX8997_ENABLE_SHIFT		6
-+#define MAX8997_MODE_SHIFT		5
-+
-+/* Haptic driver configuration register */
-+#define MAX8997_CYCLE_SHIFT		6
-+#define MAX8997_SIG_PERIOD_SHIFT	4
-+#define MAX8997_SIG_DUTY_SHIFT		2
-+#define MAX8997_PWM_DUTY_SHIFT		0
-+
-+struct max8997_haptic {
-+	struct device *dev;
-+	struct i2c_client *client;
-+	struct input_dev *input_dev;
-+	struct regulator *regulator;
-+
-+	bool enabled;
-+
-+	int level;
-+
-+	struct pwm_device *pwm;
-+	int pwm_period;
-+	enum max8997_haptic_pwm_divisor pwm_divisor;
-+
-+	enum max8997_haptic_motor_type type;
-+	enum max8997_haptic_pulse_mode mode;
-+
-+	int internal_mode_pattern;
-+	int pattern_cycle;
-+	int pattern_signal_period;
-+};
-+
-+static int max8997_haptic_set_duty_cycle(struct max8997_haptic *chip)
-+{
-+	int duty, i;
-+	int ret;
-+	u8 duty_index;
-+
-+	if (chip->mode == MAX8997_EXTERNAL_MODE) {
-+		duty = chip->pwm_period * chip->level / 100;
-+		ret = pwm_config(chip->pwm, duty, chip->pwm_period);
-+	} else {
-+		for (i = 0; i <= 64; i++) {
-+			if (chip->level <= i * 100 / 64) {
-+				duty_index = i;
-+				break;
-+			}
-+		}
-+		switch (chip->internal_mode_pattern) {
-+		case 0:
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGPWMDC1, duty_index);
-+			break;
-+		case 1:
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGPWMDC2, duty_index);
-+			break;
-+		case 2:
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGPWMDC3, duty_index);
-+			break;
-+		case 3:
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGPWMDC4, duty_index);
-+			break;
-+		default:
-+			break;
-+		}
-+	}
-+	return ret;
-+}
-+
-+static void max8997_haptic_configure(struct max8997_haptic *chip)
-+{
-+	u8 value;
-+
-+	value = chip->type << MAX8997_MOTOR_TYPE_SHIFT |
-+		chip->enabled << MAX8997_ENABLE_SHIFT |
-+		chip->mode << MAX8997_MODE_SHIFT | chip->pwm_divisor;
-+	max8997_write_reg(chip->client, MAX8997_HAPTIC_REG_CONF2, value);
-+
-+	if (chip->mode == MAX8997_INTERNAL_MODE && chip->enabled) {
-+		value = chip->internal_mode_pattern << MAX8997_CYCLE_SHIFT |
-+		      chip->internal_mode_pattern << MAX8997_SIG_PERIOD_SHIFT |
-+		      chip->internal_mode_pattern << MAX8997_SIG_DUTY_SHIFT |
-+		      chip->internal_mode_pattern << MAX8997_PWM_DUTY_SHIFT;
-+		max8997_write_reg(chip->client,
-+			MAX8997_HAPTIC_REG_DRVCONF, value);
-+
-+		switch (chip->internal_mode_pattern) {
-+		case 0:
-+			value = chip->pattern_cycle << 4;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_CYCLECONF1, value);
-+			value = chip->pattern_signal_period;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGCONF1, value);
-+			break;
-+		case 1:
-+			value = chip->pattern_cycle;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_CYCLECONF1, value);
-+			value = chip->pattern_signal_period;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGCONF2, value);
-+			break;
-+		case 2:
-+			value = chip->pattern_cycle << 4;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_CYCLECONF2, value);
-+			value = chip->pattern_signal_period;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGCONF3, value);
-+			break;
-+		case 3:
-+			value = chip->pattern_cycle;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_CYCLECONF2, value);
-+			value = chip->pattern_signal_period;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGCONF4, value);
-+			break;
-+		default:
-+			break;
-+		}
-+	}
-+}
-+
-+static void max8997_haptic_enable(struct max8997_haptic *chip, bool enable)
-+{
-+	if (chip->enabled == enable)
-+		return;
-+
-+	chip->enabled = enable;
-+
-+	if (enable) {
-+		regulator_enable(chip->regulator);
-+		max8997_haptic_configure(chip);
-+		if (chip->mode == MAX8997_EXTERNAL_MODE)
-+			pwm_enable(chip->pwm);
-+	} else {
-+		max8997_haptic_configure(chip);
-+		if (chip->mode == MAX8997_EXTERNAL_MODE)
-+			pwm_disable(chip->pwm);
-+		regulator_disable(chip->regulator);
-+	}
-+}
-+
-+static void max8997_haptic_close(struct input_dev *dev)
-+{
-+	struct max8997_haptic *chip = input_get_drvdata(dev);
-+
-+	if (chip->enabled)
-+		max8997_haptic_enable(chip, false);
-+}
-+
-+static int max8997_haptic_play_effect(struct input_dev *dev, void *data,
-+				  struct ff_effect *effect)
-+{
-+	struct max8997_haptic *chip = input_get_drvdata(dev);
-+	int ret;
-+
-+	chip->level = effect->u.rumble.strong_magnitude;
-+	if (!chip->level)
-+		chip->level = effect->u.rumble.weak_magnitude;
-+
-+	if (chip->level) {
-+		ret = max8997_haptic_set_duty_cycle(chip);
-+		if (ret) {
-+			dev_err(chip->dev, "set_pwm_cycle failed\n");
-+			return ret;
-+		}
-+		max8997_haptic_enable(chip, true);
-+	} else {
-+		max8997_haptic_enable(chip, false);
-+	}
-+
-+	return 0;
-+}
-+
-+static int __devinit max8997_haptic_probe(struct platform_device *pdev)
-+{
-+	struct max8997_dev *iodev = dev_get_drvdata(pdev->dev.parent);
-+	struct max8997_platform_data *pdata = dev_get_platdata(iodev->dev);
-+	struct max8997_haptic_platform_data *haptic_pdata =
-+						pdata->haptic_pdata;
-+	struct max8997_haptic *chip;
-+	struct input_dev *input_dev;
-+	int ret;
-+
-+	if (!haptic_pdata) {
-+		dev_err(&pdev->dev, "no haptic platform data\n");
-+		return -EINVAL;
-+	}
-+
-+	chip = kzalloc(sizeof(struct max8997_haptic), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!chip || !input_dev) {
-+		dev_err(&pdev->dev, "unable to allocate memory\n");
-+		return -ENOMEM;
-+	}
-+
-+	chip->client = iodev->haptic;
-+	chip->dev = &pdev->dev;
-+	chip->input_dev = input_dev;
-+	chip->pwm_period = haptic_pdata->pwm_period;
-+	chip->type = haptic_pdata->type;
-+	chip->mode = haptic_pdata->mode;
-+	chip->pwm_divisor = haptic_pdata->pwm_divisor;
-+	if (chip->mode == MAX8997_INTERNAL_MODE) {
-+		chip->internal_mode_pattern =
-+				haptic_pdata->internal_mode_pattern;
-+		chip->pattern_cycle = haptic_pdata->pattern_cycle;
-+		chip->pattern_signal_period =
-+				haptic_pdata->pattern_signal_period;
-+	}
-+
-+	if (chip->mode == MAX8997_EXTERNAL_MODE) {
-+		chip->pwm = pwm_request(haptic_pdata->pwm_channel_id,
-+					"max8997-haptic");
-+		if (IS_ERR(chip->pwm)) {
-+			dev_err(&pdev->dev,
-+				"unable to request PWM for haptic\n");
-+			ret = PTR_RET(chip->pwm);
-+			goto err_pwm;
-+		}
-+	}
-+
-+	chip->regulator = regulator_get(&pdev->dev, "inmotor");
-+	if (IS_ERR(chip->regulator)) {
-+		dev_err(&pdev->dev, "unable to get regulator\n");
-+		ret = PTR_RET(chip->regulator);
-+		goto err_regulator;
-+	}
-+
-+	platform_set_drvdata(pdev, chip);
-+
-+	input_dev->name = "max8997-haptic";
-+	input_dev->id.version = 1;
-+	input_dev->dev.parent = &pdev->dev;
-+	input_dev->close = max8997_haptic_close;
-+	input_set_drvdata(input_dev, chip);
-+	input_set_capability(input_dev, EV_FF, FF_RUMBLE);
-+
-+	ret = input_ff_create_memless(input_dev, NULL,
-+				max8997_haptic_play_effect);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"unable to create FF device(ret : %d)\n", ret);
-+		goto err_ff_memless;
-+	}
-+
-+	ret = input_register_device(input_dev);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"unable to register input device(ret : %d)\n", ret);
-+		goto err_input_register;
-+	}
-+
-+	return 0;
-+
-+err_input_register:
-+	input_ff_destroy(input_dev);
-+err_ff_memless:
-+	regulator_put(chip->regulator);
-+err_regulator:
-+	if (chip->mode == MAX8997_EXTERNAL_MODE)
-+		pwm_free(chip->pwm);
-+err_pwm:
-+	kfree(chip);
-+
-+	return ret;
-+}
-+
-+static int __devexit max8997_haptic_remove(struct platform_device *pdev)
-+{
-+	struct max8997_haptic *chip = platform_get_drvdata(pdev);
-+
-+	input_unregister_device(chip->input_dev);
-+	regulator_put(chip->regulator);
-+
-+	if (chip->mode == MAX8997_EXTERNAL_MODE)
-+		pwm_free(chip->pwm);
-+
-+	kfree(chip);
-+
-+	return 0;
-+}
-+
-+static int max8997_haptic_suspend(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct max8997_haptic *chip = platform_get_drvdata(pdev);
-+
-+	max8997_haptic_enable(chip, false);
-+
-+	return 0;
-+}
-+
-+static int max8997_haptic_resume(struct device *dev)
-+{
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(max8997_haptic_pm_ops, max8997_haptic_suspend,
-+	max8997_haptic_resume);
-+
-+static const struct platform_device_id max8997_haptic_id[] = {
-+	{ "max8997-haptic", 0 },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(i2c, max8997_haptic_id);
-+
-+static struct platform_driver max8997_haptic_driver = {
-+	.driver	= {
-+		.name	= "max8997-haptic",
-+		.owner	= THIS_MODULE,
-+		.pm	= &max8997_haptic_pm_ops,
-+	},
-+	.probe		= max8997_haptic_probe,
-+	.remove		= __devexit_p(max8997_haptic_remove),
-+	.id_table	= max8997_haptic_id,
-+};
-+
-+module_platform_driver(max8997_haptic_driver);
-+
-+MODULE_ALIAS("platform:max8997-haptic");
-+MODULE_AUTHOR("Donggeun Kim <dg77.kim@samsung.com>");
-+MODULE_DESCRIPTION("max8997_haptic driver");
-+MODULE_LICENSE("GPL");
--- 
-1.7.4.1
+Regarding the extra amount of work, I thought it is finally less
+expensive to run through the callback and drop the 8 bytes of data,
+than to let the device trigger a disconnect, probe, and associated
+device deletion/creation by udev every 60 sec or so (it maybe even
+produces more USB traffic).
 
+> Another option is to move configuring interface to open()?
+
+The reconnect will always happen if the int endpoint is not "in use". So
+configuring the device not in probe will not help, will it?
+
+I think the best way would be to immediately suspend the device, if
+there is an easy way to trigger this using the driver or usb core. (And
+if there is no easy way, it is still possible to do it via sysfs if
+someone is annoyed by this minor "reconnect bug".) Further, this should
+be fine for all devices, whether they have this "reconnect bug" or not.

@@ -1,39 +1,100 @@
-From: Anisha Kaul <born.rebel.83@gmail.com>
-Subject: How to physically rotate the joystick wheel through the code/terminal.
-Date: Thu, 5 Jan 2012 14:51:37 +0530
-Message-ID: <CAM1yFZ9kHjJBhWH3NFTTaOJ3NdBYMH599U0=FXZ_AQVsYoJkUQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Donggeun Kim <dg77.kim@samsung.com>
+Subject: [PATCH 1/2] mfd: add platform data for MAX8997 haptic driver
+Date: Thu, 05 Jan 2012 19:04:35 +0900
+Message-ID: <1325757876-17659-2-git-send-email-dg77.kim@samsung.com>
+References: <1325757876-17659-1-git-send-email-dg77.kim@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:51000 "EHLO
-	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754501Ab2AEJVh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 5 Jan 2012 04:21:37 -0500
-Received: by obcwo16 with SMTP id wo16so317491obc.19
-        for <linux-input@vger.kernel.org>; Thu, 05 Jan 2012 01:21:37 -0800 (PST)
+Received: from mailout3.samsung.com ([203.254.224.33]:55285 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754672Ab2AEKE5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Jan 2012 05:04:57 -0500
+In-reply-to: <1325757876-17659-1-git-send-email-dg77.kim@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, sameo@linux.intel.com, broonie@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, myungjoo.ham@samsung.com, dg77.kim@samsung.com
 
-I wish to physically rotate the joystick wheel through the code/termina=
-l.
-I mean if I run a command, the wheel should rotate to the left/right.
+MAX8997 device does not support haptic function of it.
+This patch adds platform data for MAX8997 haptic driver.
 
-I looked in here:=A0http://www.mjmwired.net/kernel/Documentation/input/=
-ff.txt
+Signed-off-by: Donggeun Kim <dg77.kim@samsung.com>
+Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
+Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+---
+ include/linux/mfd/max8997.h |   53 ++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 52 insertions(+), 1 deletions(-)
 
-Is ioctl() system call as shown in the above link appropriate for the t=
-ask
-or I am barking at the wrong tree?
+diff --git a/include/linux/mfd/max8997.h b/include/linux/mfd/max8997.h
+index fff5905..9d8006b 100644
+--- a/include/linux/mfd/max8997.h
++++ b/include/linux/mfd/max8997.h
+@@ -153,6 +153,55 @@ struct max8997_led_platform_data {
+ 	u8 brightness[2];
+ };
+ 
++enum max8997_haptic_motor_type {
++	MAX8997_HAPTIC_ERM,
++	MAX8997_HAPTIC_LRA,
++};
++
++enum max8997_haptic_pulse_mode {
++	MAX8997_EXTERNAL_MODE,
++	MAX8997_INTERNAL_MODE,
++};
++
++enum max8997_haptic_pwm_divisor {
++	MAX8997_PWM_DIVISOR_32,
++	MAX8997_PWM_DIVISOR_64,
++	MAX8997_PWM_DIVISOR_128,
++	MAX8997_PWM_DIVISOR_256,
++};
++
++/*
++ * max8997_haptic_platform_data
++ * @pwm_channel_id: channel number of PWM device
++ *		    valid for MAX8997_EXTERNAL_MODE
++ * @pwm_period: period in nano second for PWM device
++ *		valid for MAX8997_EXTERNAL_MODE
++ * @type: motor type
++ * @mode: pulse mode
++ *     MAX8997_EXTERNAL_MODE: external PWM device is used to control motor
++ *     MAX8997_INTERNAL_MODE: internal pulse generator is used to control motor
++ * @pwm_divisor: divisor for external PWM device
++ * @internal_mode_pattern: internal mode pattern for internal mode
++ *     [0 - 3]: valid pattern number
++ * @pattern_cycle: the number of cycles of the waveform
++ *		   for the internal mode pattern
++ *     [0 - 15]: available cycles
++ * @pattern_signal_period: period of the waveform for the internal mode pattern
++ *     [0 - 255]: available period
++ */
++struct max8997_haptic_platform_data {
++	int pwm_channel_id;
++	int pwm_period;
++
++	enum max8997_haptic_motor_type type;
++	enum max8997_haptic_pulse_mode mode;
++	enum max8997_haptic_pwm_divisor pwm_divisor;
++
++	int internal_mode_pattern;
++	int pattern_cycle;
++	int pattern_signal_period;
++};
++
+ struct max8997_platform_data {
+ 	/* IRQ */
+ 	int irq_base;
+@@ -192,7 +241,9 @@ struct max8997_platform_data {
+ 	/* ---- MUIC ---- */
+ 	struct max8997_muic_platform_data *muic_pdata;
+ 
+-	/* HAPTIC: Not implemented */
++	/* ---- HAPTIC ---- */
++	struct max8997_haptic_platform_data *haptic_pdata;
++
+ 	/* RTC: Not implemented */
+ 	/* ---- LED ---- */
+ 	struct max8997_led_platform_data *led_pdata;
+-- 
+1.7.4.1
 
-Any hints on how to achieve this from userspace?
-
-Regards,
--Anisha
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

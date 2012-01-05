@@ -1,58 +1,42 @@
-From: simon@mungewell.org
-Subject: Re: How to physically rotate the joystick wheel through the
- code/terminal.
-Date: Thu, 5 Jan 2012 10:07:37 -0500
-Message-ID: <c66035e82efa0d09c54a1cec3f06cfae.squirrel@mungewell.org>
-References: <CAM1yFZ9kHjJBhWH3NFTTaOJ3NdBYMH599U0=FXZ_AQVsYoJkUQ@mail.gmail.com>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [RFC PATCH 00/11] input: Synaptics RMI4 Touchscreen Driver
+Date: Thu, 5 Jan 2012 12:09:44 -0800
+Message-ID: <4F060388.80802@synaptics.com>
+References: <1324519802-23894-1-git-send-email-cheiny@synaptics.com> <20120105075855.GD31895@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:38773 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754399Ab2AEPHi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Jan 2012 10:07:38 -0500
-In-Reply-To: <CAM1yFZ9kHjJBhWH3NFTTaOJ3NdBYMH599U0=FXZ_AQVsYoJkUQ@mail.gmail.com>
+Received: from us-mx3.synaptics.com ([12.239.217.85]:9618 "EHLO
+	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932448Ab2AEUJp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Jan 2012 15:09:45 -0500
+In-Reply-To: <20120105075855.GD31895@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anisha Kaul <born.rebel.83@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-> I wish to physically rotate the joystick wheel through the code/termi=
-nal.
-> I mean if I run a command, the wheel should rotate to the left/right.
+On 01/04/2012 11:58 PM, Dmitry Torokhov wrote:
+> On Wed, Dec 21, 2011 at 06:09:51PM -0800, Christopher Heiny wrote:
+>> This patch implements a driver supporting Synaptics ClearPad and other
+>> touchscreen sensors that use the RMI4 protocol, as defined here:
+>>
+>>      http://www.synaptics.com/sites/default/files/511-000136-01-Rev-E-RMI4%20Intrfacing%20Guide.pdf
+>>
+>> as well as successor documents that haven't made their way through to
+>> publication yet.
+
+[snip]
+
+
+>>      - character device access to the RMI4 register map via rmidev
 >
-> I looked in
-> here:=A0http://www.mjmwired.net/kernel/Documentation/input/ff.txt
->
-> Is ioctl() system call as shown in the above link appropriate for the=
- task
-> or I am barking at the wrong tree?
->
-> Any hints on how to achieve this from userspace?
+> Could you please tell me why this facility is needed?
 
-Hi Anisha,
-You don't mention which distro you are on, but some/most have a test
-application 'ffcfstress' which cycles the position of a wheel/joystick.
+In conjunction with an Android application (Synaptics RED), this allows 
+the PC-based Design Studio 4 configuration and diagnostic tool to access 
+the RMI4 sensor via USB, Wifi, Bluetooth, etc.  We figured it might also 
+be useful to the general development community, so we included it here.
 
-There is a 'spring force' which has an adjustable center, but most whee=
-ls
-don't support this. 'ffcfstress' uses a 'constant force' (to the left o=
-r
-right) and monitors the position of the wheel.
-
-Thus using a control loop it modulates the amount of force, lowering it=
- as
-the wheel approaches it's target.
-
-If you don't want to use the icotl interface, then you could look at a
-userspace lib such as SDL1.3 which (mostly) supports ForceFeedback.
-
-Cheers,
-Simon
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+					Chris

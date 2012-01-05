@@ -1,102 +1,58 @@
-From: Jan Steinhoff <mail@jan-steinhoff.de>
-Subject: Re: [PATCH] input: Synaptics USB device driver
-Date: Thu, 5 Jan 2012 14:22:57 +0000
-Message-ID: <20120105142257.7adbd098@guest>
-References: <20120103194033.779cb829@greyhound>
-	<201201041020.41795.oneukum@suse.de>
-	<20120104094103.GA29069@core.coreip.homeip.net>
-	<201201041056.20226.oneukum@suse.de>
-	<20120104100553.GA29131@core.coreip.homeip.net>
-	<20120105060138.704cfb16@greyhound>
-	<20120105063611.GB31895@core.coreip.homeip.net>
+From: simon@mungewell.org
+Subject: Re: How to physically rotate the joystick wheel through the
+ code/terminal.
+Date: Thu, 5 Jan 2012 10:07:37 -0500
+Message-ID: <c66035e82efa0d09c54a1cec3f06cfae.squirrel@mungewell.org>
+References: <CAM1yFZ9kHjJBhWH3NFTTaOJ3NdBYMH599U0=FXZ_AQVsYoJkUQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from unserver.de ([88.198.20.135]:34812 "EHLO unserver.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756740Ab2AEOXI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 5 Jan 2012 09:23:08 -0500
-In-Reply-To: <20120105063611.GB31895@core.coreip.homeip.net>
+Received: from host171.canaca.com ([67.55.55.225]:38773 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754399Ab2AEPHi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Jan 2012 10:07:38 -0500
+In-Reply-To: <CAM1yFZ9kHjJBhWH3NFTTaOJ3NdBYMH599U0=FXZ_AQVsYoJkUQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Oliver Neukum <oneukum@suse.de>, Jiri Kosina <jkosina@suse.cz>, Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Anisha Kaul <born.rebel.83@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Wed, 4 Jan 2012 22:36:11 -0800
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On Thu, Jan 05, 2012 at 06:01:38AM +0000, Jan Steinhoff wrote:
-> > On Wed, 4 Jan 2012 02:05:53 -0800
-> > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > > On Wed, Jan 04, 2012 at 10:56:20AM +0100, Oliver Neukum wrote:
-> > > > Am Mittwoch, 4. Januar 2012, 10:41:03 schrieb Dmitry Torokhov:
-> > > > > +static int synusb_probe(struct usb_interface *intf,
-> > > > > +			const struct usb_device_id *id)
-> > > > > +{
-> > [...]
-> > > > > +	synusb->urb = usb_alloc_urb(0, GFP_KERNEL);
-> > > > > +	if (!synusb->urb) {
-> > > > > +		error = -ENOMEM;
-> > > > > +		goto err_free_mem;
-> > > > > +	}
-> > > > > +
-> > > > > +	synusb->data = usb_alloc_coherent(udev,
-> > > > > SYNUSB_RECV_SIZE, GFP_KERNEL,
-> > > > > +
-> > > > > &synusb->urb->transfer_dma);
-> > > > > +	if (!synusb->data) {
-> > > > > +		error = -ENOMEM;
-> > > > > +		goto err_free_urb;
-> > > > > +	}
-> > > > > +
-> > > > > +	usb_fill_int_urb(synusb->urb, udev,
-> > > > > +			 usb_rcvintpipe(udev,
-> > > > > ep->bEndpointAddress),
-> > > > > +			 synusb->data, SYNUSB_RECV_SIZE,
-> > > > > +			 synusb_irq, synusb,
-> > > > > +			 ep->bInterval);
-> > > > > +	synusb->urb->transfer_flags |=
-> > > > > URB_NO_TRANSFER_DMA_MAP;
-> > > > 
-> > > > According to the comment in the original driver you must submit
-> > > > the URB. Are you sure not doing so is save?
-> > > 
-> > > Seems to work here...
-> > 
-> > Let me comment on this issue in more detail, so you can better judge
-> > what is the "right" solution here.
-> > 
-> > Both ways actually work. But, at least for the cPad, the device will
-> > pretend it got reconnected if the int urb is not fetched (while not
-> > suspended, of course). This means it would disconnect if no input
-> > device is opened (AFAIK most X.org input drivers close the devices
-> > when one switches to console) and one touches the pad (actually, a
-> > slight breeze of air might be enough, it is very sensitive!).
-> > Another annoying side effect in the case of the cPad is that the
-> > background light flashes on every reconnect.
-> 
-> OK, then maybe we should have cPad start transfers immediately and let
-> other devices do it in open. There is no reason to do work if nobody
-> interested in it...
+> I wish to physically rotate the joystick wheel through the code/termi=
+nal.
+> I mean if I run a command, the wheel should rotate to the left/right.
+>
+> I looked in
+> here:=A0http://www.mjmwired.net/kernel/Documentation/input/ff.txt
+>
+> Is ioctl() system call as shown in the above link appropriate for the=
+ task
+> or I am barking at the wrong tree?
+>
+> Any hints on how to achieve this from userspace?
 
-Given that the devices are very similar, I expect that also the other
-devices may behave like this. So this is maybe not only a cPad
-related problem. But I have never investigated this for other devices,
-so I am not sure.
+Hi Anisha,
+You don't mention which distro you are on, but some/most have a test
+application 'ffcfstress' which cycles the position of a wheel/joystick.
 
-Regarding the extra amount of work, I thought it is finally less
-expensive to run through the callback and drop the 8 bytes of data,
-than to let the device trigger a disconnect, probe, and associated
-device deletion/creation by udev every 60 sec or so (it maybe even
-produces more USB traffic).
+There is a 'spring force' which has an adjustable center, but most whee=
+ls
+don't support this. 'ffcfstress' uses a 'constant force' (to the left o=
+r
+right) and monitors the position of the wheel.
 
-> Another option is to move configuring interface to open()?
+Thus using a control loop it modulates the amount of force, lowering it=
+ as
+the wheel approaches it's target.
 
-The reconnect will always happen if the int endpoint is not "in use". So
-configuring the device not in probe will not help, will it?
+If you don't want to use the icotl interface, then you could look at a
+userspace lib such as SDL1.3 which (mostly) supports ForceFeedback.
 
-I think the best way would be to immediately suspend the device, if
-there is an easy way to trigger this using the driver or usb core. (And
-if there is no easy way, it is still possible to do it via sysfs if
-someone is annoyed by this minor "reconnect bug".) Further, this should
-be fine for all devices, whether they have this "reconnect bug" or not.
+Cheers,
+Simon
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

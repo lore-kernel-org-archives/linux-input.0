@@ -1,60 +1,87 @@
-From: Anisha Kaul <born.rebel.83@gmail.com>
-Subject: Re: How to physically rotate the joystick wheel through the code/terminal.
-Date: Fri, 6 Jan 2012 09:46:38 +0530
-Message-ID: <CAM1yFZ9771JoKDr0Y0YQeQOzQKZwFxTBudRHY4V0LXFzwCkbUg@mail.gmail.com>
-References: <CAM1yFZ9kHjJBhWH3NFTTaOJ3NdBYMH599U0=FXZ_AQVsYoJkUQ@mail.gmail.com>
-	<c66035e82efa0d09c54a1cec3f06cfae.squirrel@mungewell.org>
-	<CAM1yFZ8ni1C9PJ4_1nsi7smT1rCT7i8hU26zJK8qMqUAYUgxnA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC PATCH 1/11] input: RMI4 public header file and
+ documentation.
+Date: Thu, 5 Jan 2012 22:35:46 -0800
+Message-ID: <20120106063546.GA10447@core.coreip.homeip.net>
+References: <1324519802-23894-1-git-send-email-cheiny@synaptics.com>
+ <1324519802-23894-2-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:33377 "EHLO
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:50391 "EHLO
 	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758151Ab2AFEQj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 5 Jan 2012 23:16:39 -0500
-Received: by obcwo16 with SMTP id wo16so1430096obc.19
-        for <linux-input@vger.kernel.org>; Thu, 05 Jan 2012 20:16:38 -0800 (PST)
-In-Reply-To: <CAM1yFZ8ni1C9PJ4_1nsi7smT1rCT7i8hU26zJK8qMqUAYUgxnA@mail.gmail.com>
+	by vger.kernel.org with ESMTP id S1751447Ab2AFGfx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Jan 2012 01:35:53 -0500
+Content-Disposition: inline
+In-Reply-To: <1324519802-23894-2-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: linux-input@vger.kernel.org
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-On 5 January 2012 20:37, <simon@mungewell.org> wrote:
->
-> Hi Anisha,
-> You don't mention which distro you are on, but some/most have a test
-> application 'ffcfstress' which cycles the position of a wheel/joystic=
-k.
->
-> There is a 'spring force' which has an adjustable center, but most wh=
-eels
-> don't support this. 'ffcfstress' uses a 'constant force' (to the left=
- or
-> right) and monitors the position of the wheel.
->
-> Thus using a control loop it modulates the amount of force, lowering =
-it as
-> the wheel approaches it's target.
->
-> If you don't want to use the icotl interface, then you could look at =
-a
-> userspace lib such as SDL1.3 which (mostly) supports ForceFeedback.
->
-> Cheers,
-> Simon
+On Wed, Dec 21, 2011 at 06:09:52PM -0800, Christopher Heiny wrote:
+> +
+> +/* Helper fn to convert a byte array representing a short in the RMI
+> + * endian-ness to a short in the native processor's specific endianness.
+> + * We don't use ntohs/htons here because, well, we're not dealing with
+> + * a pair of shorts. And casting dest to short* wouldn't work, because
+> + * that would imply knowing the byte order of short in the first place.
+> + */
+> +static inline void batohs(unsigned short *dest, unsigned char *src)
+> +{
+> +	*dest = src[1] * 0x100 + src[0];
+> +}
+> +
+> +/* Helper function to convert a short (in host processor endianess) to
+> + * a byte array in the RMI endianess for shorts.  See above comment for
+> + * why we dont us htons or something like that.
+> + */
+> +static inline void hstoba(unsigned char *dest, unsigned short src)
+> +{
+> +	dest[0] = src % 0x100;
+> +	dest[1] = src / 0x100;
+> +}
 
+We have nice set of be/le16_to_cpu and cpu_to_be/le16 helpers that do
+just that and in much more efficient way.
 
-Thanks for following up, Simon. I am grateful to you.
-"ffcfstress" does indeed look=A0promising. The distro is OpenSuse 11.3
-and this program
-is already there. I'll take a look. :)
+> +
+> +/* Utility routine to handle writes to read-only attributes.  Hopefully
+> + * this will never happen, but if the user does something stupid, we don't
+> + * want to accept it quietly (which is what can happen if you just put NULL
+> + * for the attribute's store function).
+> + */
+> +static inline ssize_t rmi_store_error(struct device *dev,
+> +			struct device_attribute *attr,
+> +			const char *buf, size_t count)
+> +{
+> +	dev_warn(dev,
+> +		 "RMI4 WARNING: Attempt to write %d characters to read-only "
+> +		 "attribute %s.", count, attr->attr.name);
+> +	return -EPERM;
+> +}
+> +
+> +/* Utility routine to handle reads of write-only attributes.  Hopefully
+> + * this will never happen, but if the user does something stupid, we don't
+> + * want to accept it quietly (which is what can happen if you just put NULL
+> + * for the attribute's show function).
+> + */
+> +static inline ssize_t rmi_show_error(struct device *dev,
+> +		       struct device_attribute *attr,
+> +		       char *buf)
+> +{
+> +	dev_warn(dev,
+> +		 "RMI4 WARNING: Attempt to read from write-only attribute %s.",
+> +		 attr->attr.name);
+> +	return -EPERM;
+> +}
 
--Anisha
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Although these methods are not needed, a general comment nonetheless: do
+not put in header files and mark inline functions which address is taken
+and used elsewhere.
+
+Thanks.
+
+-- 
+Dmitry

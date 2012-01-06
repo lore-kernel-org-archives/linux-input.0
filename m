@@ -1,87 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC PATCH 1/11] input: RMI4 public header file and
- documentation.
-Date: Thu, 5 Jan 2012 22:35:46 -0800
-Message-ID: <20120106063546.GA10447@core.coreip.homeip.net>
-References: <1324519802-23894-1-git-send-email-cheiny@synaptics.com>
- <1324519802-23894-2-git-send-email-cheiny@synaptics.com>
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Subject: Re: [PATCH 0/7] input:use module_i2c{spi}_driver in input drivers
+Date: Fri, 06 Jan 2012 15:50:08 +0800
+Message-ID: <4F06A7B0.3050904@cn.fujitsu.com>
+References: <1324304605-18193-1-git-send-email-gaowanlong@cn.fujitsu.com>
+Reply-To: gaowanlong@cn.fujitsu.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:50391 "EHLO
-	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751447Ab2AFGfx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 6 Jan 2012 01:35:53 -0500
-Content-Disposition: inline
-In-Reply-To: <1324519802-23894-2-git-send-email-cheiny@synaptics.com>
+Received: from cn.fujitsu.com ([222.73.24.84]:50588 "EHLO song.cn.fujitsu.com"
+	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1751974Ab2AFHvL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Jan 2012 02:51:11 -0500
+In-Reply-To: <1324304605-18193-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+To: Dmitry Torokhov <dtor@mail.ru>
+Cc: Wanlong Gao <wanlong.gao@gmail.com>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>
 
-On Wed, Dec 21, 2011 at 06:09:52PM -0800, Christopher Heiny wrote:
-> +
-> +/* Helper fn to convert a byte array representing a short in the RMI
-> + * endian-ness to a short in the native processor's specific endianness.
-> + * We don't use ntohs/htons here because, well, we're not dealing with
-> + * a pair of shorts. And casting dest to short* wouldn't work, because
-> + * that would imply knowing the byte order of short in the first place.
-> + */
-> +static inline void batohs(unsigned short *dest, unsigned char *src)
-> +{
-> +	*dest = src[1] * 0x100 + src[0];
-> +}
-> +
-> +/* Helper function to convert a short (in host processor endianess) to
-> + * a byte array in the RMI endianess for shorts.  See above comment for
-> + * why we dont us htons or something like that.
-> + */
-> +static inline void hstoba(unsigned char *dest, unsigned short src)
-> +{
-> +	dest[0] = src % 0x100;
-> +	dest[1] = src / 0x100;
-> +}
+Hi Dmitry=EF=BC=9A
 
-We have nice set of be/le16_to_cpu and cpu_to_be/le16 helpers that do
-just that and in much more efficient way.
+Will you pick this patch set through this merge window?
 
-> +
-> +/* Utility routine to handle writes to read-only attributes.  Hopefully
-> + * this will never happen, but if the user does something stupid, we don't
-> + * want to accept it quietly (which is what can happen if you just put NULL
-> + * for the attribute's store function).
-> + */
-> +static inline ssize_t rmi_store_error(struct device *dev,
-> +			struct device_attribute *attr,
-> +			const char *buf, size_t count)
-> +{
-> +	dev_warn(dev,
-> +		 "RMI4 WARNING: Attempt to write %d characters to read-only "
-> +		 "attribute %s.", count, attr->attr.name);
-> +	return -EPERM;
-> +}
-> +
-> +/* Utility routine to handle reads of write-only attributes.  Hopefully
-> + * this will never happen, but if the user does something stupid, we don't
-> + * want to accept it quietly (which is what can happen if you just put NULL
-> + * for the attribute's show function).
-> + */
-> +static inline ssize_t rmi_show_error(struct device *dev,
-> +		       struct device_attribute *attr,
-> +		       char *buf)
-> +{
-> +	dev_warn(dev,
-> +		 "RMI4 WARNING: Attempt to read from write-only attribute %s.",
-> +		 attr->attr.name);
-> +	return -EPERM;
-> +}
+Thanks
+-Wanlong Gao
 
-Although these methods are not needed, a general comment nonetheless: do
-not put in header files and mark inline functions which address is taken
-and used elsewhere.
+> Hi Dmitry,all:
+> Since Greg has queued this patchset to driver-core-next.
+> http://git.kernel.org/?p=3Dlinux/kernel/git/gregkh/driver-core.git;a=3D=
+commitdiff;h=3D907d0ed1c84114d4e8dafd66af982515d3739c90
+> http://git.kernel.org/?p=3Dlinux/kernel/git/gregkh/driver-core.git;a=3D=
+commitdiff;h=3D7c92784a546d2945b6d6973a30f7134be78eb7a4
+> http://git.kernel.org/?p=3Dlinux/kernel/git/gregkh/driver-core.git;a=3D=
+commitdiff;h=3D3acbb0142d48713a8f65cde678a54f419801c189
+>=20
+> So, is it time to queue these pathes to input-next, too?
+>=20
+> Just use module_i2c_driver() and module_spi_driver() in input i2c
+> and spi drivers instead.
+>=20
+>=20
+> Thanks
+> -Wanlong Gao
+>=20
 
-Thanks.
 
--- 
-Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

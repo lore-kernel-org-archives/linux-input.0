@@ -1,68 +1,39 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH] Documented input device properties.
-Date: Tue, 10 Jan 2012 10:59:50 +0100
-Message-ID: <4F0C0C16.20005@canonical.com>
-References: <1326127454-11695-1-git-send-email-jussi.pakkanen@canonical.com> <20120109175551.GC15083@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Jussi Pakkanen <jussi.pakkanen@canonical.com>
+Subject: [PATCH v2] Set buttonpad property on those bcm5974 devices that have a physical button.
+Date: Tue, 10 Jan 2012 12:08:30 +0200
+Message-ID: <1326190110-6991-1-git-send-email-jussi.pakkanen@canonical.com>
+References: <20120110094520.GA7582@polaris.bitmath.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:49182 "EHLO
+Received: from youngberry.canonical.com ([91.189.89.112]:49220 "EHLO
 	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755952Ab2AJJ7w (ORCPT
+	with ESMTP id S1754617Ab2AJKIc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Jan 2012 04:59:52 -0500
-In-Reply-To: <20120109175551.GC15083@core.coreip.homeip.net>
+	Tue, 10 Jan 2012 05:08:32 -0500
+In-Reply-To: <20120110094520.GA7582@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jussi Pakkanen <jussi.pakkanen@canonical.com>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: rydberg@euromail.se, linux-input@vger.kernel.org
 
-On 01/09/2012 06:55 PM, Dmitry Torokhov wrote:
-> Hi Jussi,
-> 
-> On Mon, Jan 09, 2012 at 06:44:14PM +0200, Jussi Pakkanen wrote:
->> ---
->>  Documentation/input/event-codes.txt |   27 +++++++++++++++++++++++++++
->>  1 files changed, 27 insertions(+), 0 deletions(-)
->>
->> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
->> index 23fcb05..7c515a5 100644
->> --- a/Documentation/input/event-codes.txt
->> +++ b/Documentation/input/event-codes.txt
->> @@ -220,6 +220,33 @@ EV_PWR:
->>  EV_PWR events are a special type of event used specifically for power
->>  mangement. Its usage is not well defined. To be addressed later.
->>  
->> +Device properties:
->> +=================
->> +
->> +INPUT_PROP_POINTER:
->> +------------------
->> +There is a one to one mapping between the device coordinates and
->> +screen coordinates.
-> 
-> This is not correct as touchpads fall firmly into INPUT_PROP_POINTER
-> land and certainly do not have 1:1 relationship between on-screen and
-> device coordinates.
+---
+ drivers/input/mouse/bcm5974.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-Yeah, the definition of this should be inverted. (This is my mistake, as
-I gave Jussi the wrong definition when he was writing this up.)
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index 5ec617e..88fabfb 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -434,6 +434,10 @@ static void setup_events_to_report(struct input_dev *input_dev,
+ 	__set_bit(BTN_LEFT, input_dev->keybit);
+ 
+ 	input_set_events_per_packet(input_dev, 60);
++
++	if (cfg->caps & HAS_INTEGRATED_BUTTON) {
++		__set_bit(INPUT_PROP_BUTTONPAD, input_dev->propbit);
++	}
+ }
+ 
+ /* report button data as logical button state */
+-- 
+1.7.5.4
 
->> This property only has meaning for non-touch based
->> +input such as a pen or an eraser. A drawing tablet would have this property
->> +set.
-> 
-> Wacom Bamboo touch can be said is touch based but still is a pointer
-> device. Basically pointer device is one that requires use of an
-> on-screen pointer to reflect user's movement while with direct devices
-> touching object itself serves as a pointer to the user.
-
-This definition, while usually correct, is mixing properties and policy.
-We had a discussion about this:
-
-http://thread.gmane.org/gmane.linux.kernel.input/21565/focus=21658
-
-The definitions in this patch try to reflect the outcome of that discussion.
-
--- Chase

@@ -1,79 +1,95 @@
-From: JJ Ding <jj_ding@emc.com.tw>
-Subject: Re: [PATCH TRIVIAL 1/5] Input: keyboard: use macro module_platform_driver()
-Date: Wed, 11 Jan 2012 10:07:38 +0800
-Message-ID: <87lipf9el1.fsf@emc.com.tw>
-References: <1321952446-7591-1-git-send-email-jj_ding@emc.com.tw> <1321952446-7591-2-git-send-email-jj_ding@emc.com.tw> <CAMuHMdWVedppkaO5sF4WH78e8rdVJKXJknFVEZQo+VD2Rxmk=A@mail.gmail.com> <CAMuHMdU1fv-Qx1dRstFjBkqcKswWCu34Hkeusk1vW3ReXB7CDA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.3-rc0 (part 2)
+Date: Tue, 10 Jan 2012 23:28:03 -0800
+Message-ID: <20120111072802.GA19831@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:61607 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757035Ab2AKCIU convert rfc822-to-8bit (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:38658 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753720Ab2AKH2I (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Jan 2012 21:08:20 -0500
-In-Reply-To: <CAMuHMdU1fv-Qx1dRstFjBkqcKswWCu34Hkeusk1vW3ReXB7CDA@mail.gmail.com>
+	Wed, 11 Jan 2012 02:28:08 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@suse.de>, Grant Likely <grant.likely@secretlab.ca>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, JJ Ding <dgdunix@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Geert,
 
-On Tue, 10 Jan 2012 21:57:08 +0100, Geert Uytterhoeven <geert@linux-m68=
-k.org> wrote:
-> On Tue, Jan 10, 2012 at 21:47, Geert Uytterhoeven <geert@linux-m68k.o=
-rg> wrote:
->=20
-> And looking for platform_driver_probe() in recent changesets, I found
-> a few more:
->=20
-> drivers/input/touchscreen/atmel-wm97xx.c atmel_wm97xx_probe
-> drivers/input/touchscreen/mc13783_ts.c mc13783_ts_probe
-> drivers/input/serio/at32psif.c psif_probe
-> drivers/input/mouse/amimouse.c amimouse_probe
->=20
-> Interestingly, in drivers/input/misc/twl4030-pwrbutton.c you did make
-> platform_driver.probe point to twl4030_pwrbutton_probe().
-> But that one is also broken, as twl4030_pwrbutton_probe() is marked _=
-_init,
-> which is no longer correct.
->=20
-> Still, setting up platform_driver.probe and removing __init from all =
-probe
-> functions is not the right thing to do, as this make (non-__init) ker=
-nel code
-> size bigger, while none of these devices are hotpluggable and thus ca=
-nnot
-> appear after bootup. That's why we have platform_driver_probe() in th=
-e
-> first place. So I think all of this should be reverted for non-hotplu=
-ggable
-> drivers.
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for explaining this.
-I am sorry for the trouble.
+Hi Linus,
 
-jj
+Please pull from:
 
-> Gr{oetje,eeting}s,
->=20
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 Geert
->=20
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linu=
-x-m68k.org
->=20
-> In personal conversations with technical people, I call myself a hack=
-er. But
-> when I'm talking to journalists I just say "programmer" or something =
-like that.
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 =C2=A0 =C2=A0=C2=A0 =C2=A0=C2=A0 -- Linus Torvalds
->=20
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive more updates for the input subsystem. This pull corrects
+problem of overzealous conversion to module_platform_driver() introduced
+in previous pull (called out by Geert), a couple of fixups to serio_raw
+driver and a small change to bcm5974 driver.
+
+Thanks!
+
+Changelog:
+---------
+
+Che-Liang Chiou (1):
+      Input: serio_raw - remove stray semicolon
+
+Dmitry Torokhov (3):
+      Input: revert some over-zealous conversions to module_platform_driver=
+()
+      Input: serio_raw - really signal HUP upon disconnect
+      Input: serio_raw - return proper result when serio_raw_write fails
+
+Jussi Pakkanen (1):
+      Input: bcm5974 - set BUTTONPAD property
+
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/amikbd.c             |   15 ++++++++++++++-
+ drivers/input/keyboard/davinci_keyscan.c    |   13 ++++++++++++-
+ drivers/input/keyboard/nomadik-ske-keypad.c |   13 ++++++++++++-
+ drivers/input/misc/twl4030-pwrbutton.c      |   15 +++++++++++++--
+ drivers/input/mouse/amimouse.c              |   16 ++++++++++++++--
+ drivers/input/mouse/bcm5974.c               |    3 +++
+ drivers/input/serio/at32psif.c              |   14 +++++++++++++-
+ drivers/input/serio/serio_raw.c             |    8 ++++----
+ drivers/input/touchscreen/atmel-wm97xx.c    |   13 ++++++++++++-
+ drivers/input/touchscreen/mc13783_ts.c      |   13 ++++++++++++-
+ 10 files changed, 109 insertions(+), 14 deletions(-)
+
+--=20
+Dmitry
+
+
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iQIcBAEBAgAGBQJPDToCAAoJEH70+W8r6ZYqtdgP/1EmmZPcIio0sM5UyY0ovnI9
+DVDwb8isaxXn/MA7Tt6TNbpbF61qNglmjb1+duWIUaiTtZeve2n4cD1A3cGDj8bW
+XArbaNs1ZLLDuV3mfnGcw8lXBZl/3Ohtp6B0dctIulCN1z87i8R5mFiHlxO2QyK8
+6QHfVE5lzRbfAJSLyfnYzAE/tNWZCiigrggQOhkY4QchivmXz0M/zYDcec9WdWDO
+vyRZMLf6eo3J7XH+pKS10PVFju8e88F5LrpW2CI7KM3EHEUPWuDriPg8ggOtBdRF
+XwWmPxsvcjmxqSSAYs9fDtBvvK9hhbGgvNRdwEZNbhLiJUOxL/BB4OCq2vCQ19ds
+XsXerw6G274qi/bUft88Mnrgm/IyCy6svGB/wrfHvZiF3WAlFOoxbf1PR4Ts+kr4
+ApDNWPWFB4L9yGIEmU9eqR6BiQOxd/2qIVfHeicjT+uzHFAxP201c6XANLfVg8EA
+2FYg4Yn9eQvLZ6LPogPyZJ+c1ZjQ+2ZwxRk3u4M32jKwjJBLmDPogpSqx6ilIr69
+0BLRlBz6fWxpy7Z+mLVYxXpFklUoNUdkvcZRfNYS/uv09Vdak08l4imok/EipUYy
+nyYWJTmwlqpEqTTQ81k86XLqpeXoldaQaqH+H40exFB2sF+AQpzx1zJYDW9BOhRP
+mYmSWKO9s8j+jY1F0oWW
+=Yhr6
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--

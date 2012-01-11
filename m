@@ -1,67 +1,110 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] bcm5974: Set BUTTONPAD property
-Date: Tue, 10 Jan 2012 23:38:12 -0800
-Message-ID: <20120111073812.GB18668@core.coreip.homeip.net>
-References: <20120110102211.GA7682@polaris.bitmath.org>
- <1326193009-7361-1-git-send-email-jussi.pakkanen@canonical.com>
- <20120110114212.GA2142@polaris.bitmath.org>
+Subject: [PATCH] Input: at32psif - convert to dev_pm_ops
+Date: Tue, 10 Jan 2012 23:33:12 -0800
+Message-ID: <20120111073312.18812.71134.stgit@hammer.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:65440 "EHLO
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:43291 "EHLO
 	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752498Ab2AKHiS (ORCPT
+	by vger.kernel.org with ESMTP id S1754634Ab2AKHkU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Jan 2012 02:38:18 -0500
-Received: by obbup16 with SMTP id up16so474837obb.19
-        for <linux-input@vger.kernel.org>; Tue, 10 Jan 2012 23:38:18 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20120110114212.GA2142@polaris.bitmath.org>
+	Wed, 11 Jan 2012 02:40:20 -0500
+Received: by obbup16 with SMTP id up16so476580obb.19
+        for <linux-input@vger.kernel.org>; Tue, 10 Jan 2012 23:40:20 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jussi Pakkanen <jussi.pakkanen@canonical.com>, linux-input@vger.kernel.org
+To: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Jan 10, 2012 at 12:42:12PM +0100, Henrik Rydberg wrote:
-> On Tue, Jan 10, 2012 at 12:56:49PM +0200, Jussi Pakkanen wrote:
-> > Some bcm5974 trackpads have a physical button beneath the physical surface.
-> > This patch sets the property bit so user space applications can
-> > detect the trackpad type and act accordingly.
-> > 
-> > Signed-off-by: Jussi Pakkanen <jussi.pakkanen@canonical.com>
-> > Cc: stable@vger.kernel.org
+Convert driver to use dev_pm_ops instead of legacy PM infrastructure.
+Also make 'open' a bool since it is really a boolean.
 
-Applied, however I removed stable notation as this change IMO does not
-qualify for the stable since it does not address a regression.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-Thanks.
+ drivers/input/serio/at32psif.c |   22 +++++++++++-----------
+ 1 files changed, 11 insertions(+), 11 deletions(-)
 
-> > ---
-> >  drivers/input/mouse/bcm5974.c |    3 +++
-> >  1 files changed, 3 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-> > index 5ec617e..913e9fa 100644
-> > --- a/drivers/input/mouse/bcm5974.c
-> > +++ b/drivers/input/mouse/bcm5974.c
-> > @@ -433,6 +433,9 @@ static void setup_events_to_report(struct input_dev *input_dev,
-> >  	__set_bit(BTN_TOOL_QUADTAP, input_dev->keybit);
-> >  	__set_bit(BTN_LEFT, input_dev->keybit);
-> >  
-> > +	if (cfg->caps & HAS_INTEGRATED_BUTTON)
-> > +		__set_bit(INPUT_PROP_BUTTONPAD, input_dev->propbit);
-> > +
-> >  	input_set_events_per_packet(input_dev, 60);
-> >  }
-> >  
-> > -- 
-> > 1.7.5.4
-> > 
-> 
->     Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
-> 
-> Thanks,
-> Henrik
+diff --git a/drivers/input/serio/at32psif.c b/drivers/input/serio/at32psif.c
+index 95280f9..36e799c 100644
+--- a/drivers/input/serio/at32psif.c
++++ b/drivers/input/serio/at32psif.c
+@@ -98,9 +98,9 @@ struct psif {
+ 	struct serio		*io;
+ 	void __iomem		*regs;
+ 	unsigned int		irq;
+-	unsigned int		open;
+ 	/* Prevent concurrent writes to PSIF THR. */
+ 	spinlock_t		lock;
++	bool			open;
+ };
+ 
+ static irqreturn_t psif_interrupt(int irq, void *_ptr)
+@@ -164,7 +164,7 @@ static int psif_open(struct serio *io)
+ 	psif_writel(psif, CR, PSIF_BIT(CR_TXEN) | PSIF_BIT(CR_RXEN));
+ 	psif_writel(psif, IER, PSIF_BIT(RXRDY));
+ 
+-	psif->open = 1;
++	psif->open = true;
+ out:
+ 	return retval;
+ }
+@@ -173,7 +173,7 @@ static void psif_close(struct serio *io)
+ {
+ 	struct psif *psif = io->port_data;
+ 
+-	psif->open = 0;
++	psif->open = false;
+ 
+ 	psif_writel(psif, IDR, ~0UL);
+ 	psif_writel(psif, CR, PSIF_BIT(CR_TXDIS) | PSIF_BIT(CR_RXDIS));
+@@ -319,9 +319,10 @@ static int __exit psif_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_PM
+-static int psif_suspend(struct platform_device *pdev, pm_message_t state)
++#ifdef CONFIG_PM_SLEEP
++static int psif_suspend(struct device *dev)
+ {
++	struct platform_device *pdev = to_platform_device(dev);
+ 	struct psif *psif = platform_get_drvdata(pdev);
+ 
+ 	if (psif->open) {
+@@ -332,8 +333,9 @@ static int psif_suspend(struct platform_device *pdev, pm_message_t state)
+ 	return 0;
+ }
+ 
+-static int psif_resume(struct platform_device *pdev)
++static int psif_resume(struct device *dev)
+ {
++	struct platform_device *pdev = to_platform_device(dev);
+ 	struct psif *psif = platform_get_drvdata(pdev);
+ 
+ 	if (psif->open) {
+@@ -344,19 +346,17 @@ static int psif_resume(struct platform_device *pdev)
+ 
+ 	return 0;
+ }
+-#else
+-#define psif_suspend	NULL
+-#define psif_resume	NULL
+ #endif
+ 
++static SIMPLE_DEV_PM_OPS(psif_pm_ops, psif_suspend, psif_resume);
++
+ static struct platform_driver psif_driver = {
+ 	.remove		= __exit_p(psif_remove),
+ 	.driver		= {
+ 		.name	= "atmel_psif",
+ 		.owner	= THIS_MODULE,
++		.pm	= &psif_pm_ops,
+ 	},
+-	.suspend	= psif_suspend,
+-	.resume		= psif_resume,
+ };
+ 
+ static int __init psif_init(void)
 
--- 
-Dmitry

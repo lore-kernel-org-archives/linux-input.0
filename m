@@ -1,55 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Documented input device properties.
-Date: Wed, 11 Jan 2012 09:43:14 -0800
-Message-ID: <20120111174313.GD21047@core.coreip.homeip.net>
-References: <1326282991-4715-1-git-send-email-jussi.pakkanen@canonical.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v2] input/mc13783-ts: add pdata to set conversion delay
+Date: Wed, 11 Jan 2012 20:21:14 +0100
+Message-ID: <20120111192114.GP14252@pengutronix.de>
+References: <1326278963-22510-1-git-send-email-michael.thalmeier@hale.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:45490 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757907Ab2AKRnT (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:50492 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933763Ab2AKTVU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Jan 2012 12:43:19 -0500
-Received: by iabz25 with SMTP id z25so1394660iab.19
-        for <linux-input@vger.kernel.org>; Wed, 11 Jan 2012 09:43:19 -0800 (PST)
+	Wed, 11 Jan 2012 14:21:20 -0500
 Content-Disposition: inline
-In-Reply-To: <1326282991-4715-1-git-send-email-jussi.pakkanen@canonical.com>
+In-Reply-To: <1326278963-22510-1-git-send-email-michael.thalmeier@hale.at>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jussi Pakkanen <jussi.pakkanen@canonical.com>
-Cc: linux-input@vger.kernel.org
+To: Michael Thalmeier <michael.thalmeier@hale.at>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, michael@thalmeier.at
 
-On Wed, Jan 11, 2012 at 01:56:31PM +0200, Jussi Pakkanen wrote:
-> Signed-off-by: Jussi Pakkanen <jussi.pakkanen@canonical.com>
-> ---
->  Documentation/input/event-codes.txt |   34 ++++++++++++++++++++++++++++++++++
->  1 files changed, 34 insertions(+), 0 deletions(-)
-> 
-> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
-> index 23fcb05..2c4add3 100644
-> --- a/Documentation/input/event-codes.txt
-> +++ b/Documentation/input/event-codes.txt
-> @@ -220,6 +220,40 @@ EV_PWR:
->  EV_PWR events are a special type of event used specifically for power
->  mangement. Its usage is not well defined. To be addressed later.
->  
-> +Device properties:
-> +=================
-> +
-> +INPUT_PROP_POINTER:
-> +------------------
-> +
-> +There does not exist a one to one mapping between the device
-> +coordinates and screen coordinates. This property only has meaning for
-> +non-touch based input such as a pen or an eraser.
+On Wed, Jan 11, 2012 at 11:49:23AM +0100, Michael Thalmeier wrote:
+> MC13783 can be programmed to wait some clock cycles between the touch=
+ screen
+> polarization and the resistance conversion. This is needed to adjust =
+for
+> touchscreens with high capacitance between plates.
+>=20
+> Signed-off-by: Michael Thalmeier <michael.thalmeier@hale.at>
+Looks good for me.
 
-What exactly do you mean by "touch-based input"? Is a touchpad
-touch-based or not? Going by this paragraph it should not have
-INPUT_PROP_POINTER property, but in fact we do set it at least on
-Synaptics touchpads.
+Acked-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
 
-Thanks.
-
--- 
-Dmitry
+Thanks
+Uwe
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

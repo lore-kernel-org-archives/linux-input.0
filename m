@@ -1,95 +1,63 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.3-rc0 (part 2)
-Date: Tue, 10 Jan 2012 23:28:03 -0800
-Message-ID: <20120111072802.GA19831@core.coreip.homeip.net>
+Subject: [PATCH 1/2] Input: nomadik-ske-keypad - do not assign driver's
+ probe() method
+Date: Tue, 10 Jan 2012 23:35:31 -0800
+Message-ID: <20120111073531.18870.48568.stgit@hammer.corenet.prv>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:38658 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:43800 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753720Ab2AKH2I (ORCPT
+	with ESMTP id S1752457Ab2AKHfg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Jan 2012 02:28:08 -0500
-Content-Disposition: inline
+	Wed, 11 Jan 2012 02:35:36 -0500
+Received: by iabz25 with SMTP id z25so710880iab.19
+        for <linux-input@vger.kernel.org>; Tue, 10 Jan 2012 23:35:35 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Sundar Iyer <sundar.iyer@stericsson.com>
+Cc: linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 
+Because we are using platform_device_probe() to register the driver
+we do not need to assign driver's probe method. We also can mark
+ske_keypad_probe(), together with ske_keypad_chip_init(), as __init
+instead of __devinit.
 
---T4sUOijqQbZv57TR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-Hi Linus,
+ drivers/input/keyboard/nomadik-ske-keypad.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
 
-Please pull from:
+diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/input/keyboard/nomadik-ske-keypad.c
+index e35566a..bc9f339 100644
+--- a/drivers/input/keyboard/nomadik-ske-keypad.c
++++ b/drivers/input/keyboard/nomadik-ske-keypad.c
+@@ -88,7 +88,7 @@ static void ske_keypad_set_bits(struct ske_keypad *keypad, u16 addr,
+  *
+  * Enable Multi key press detection, auto scan mode
+  */
+-static int __devinit ske_keypad_chip_init(struct ske_keypad *keypad)
++static int __init ske_keypad_chip_init(struct ske_keypad *keypad)
+ {
+ 	u32 value;
+ 	int timeout = 50;
+@@ -198,7 +198,7 @@ static irqreturn_t ske_keypad_irq(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static int __devinit ske_keypad_probe(struct platform_device *pdev)
++static int __init ske_keypad_probe(struct platform_device *pdev)
+ {
+ 	const struct ske_keypad_platform_data *plat = pdev->dev.platform_data;
+ 	struct ske_keypad *keypad;
+@@ -387,7 +387,6 @@ static struct platform_driver ske_keypad_driver = {
+ 		.pm = &ske_keypad_dev_pm_ops,
+ #endif
+ 	},
+-	.probe = ske_keypad_probe,
+ 	.remove = __devexit_p(ske_keypad_remove),
+ };
+ 
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive more updates for the input subsystem. This pull corrects
-problem of overzealous conversion to module_platform_driver() introduced
-in previous pull (called out by Geert), a couple of fixups to serio_raw
-driver and a small change to bcm5974 driver.
-
-Thanks!
-
-Changelog:
----------
-
-Che-Liang Chiou (1):
-      Input: serio_raw - remove stray semicolon
-
-Dmitry Torokhov (3):
-      Input: revert some over-zealous conversions to module_platform_driver=
-()
-      Input: serio_raw - really signal HUP upon disconnect
-      Input: serio_raw - return proper result when serio_raw_write fails
-
-Jussi Pakkanen (1):
-      Input: bcm5974 - set BUTTONPAD property
-
-
-Diffstat:
---------
-
- drivers/input/keyboard/amikbd.c             |   15 ++++++++++++++-
- drivers/input/keyboard/davinci_keyscan.c    |   13 ++++++++++++-
- drivers/input/keyboard/nomadik-ske-keypad.c |   13 ++++++++++++-
- drivers/input/misc/twl4030-pwrbutton.c      |   15 +++++++++++++--
- drivers/input/mouse/amimouse.c              |   16 ++++++++++++++--
- drivers/input/mouse/bcm5974.c               |    3 +++
- drivers/input/serio/at32psif.c              |   14 +++++++++++++-
- drivers/input/serio/serio_raw.c             |    8 ++++----
- drivers/input/touchscreen/atmel-wm97xx.c    |   13 ++++++++++++-
- drivers/input/touchscreen/mc13783_ts.c      |   13 ++++++++++++-
- 10 files changed, 109 insertions(+), 14 deletions(-)
-
---=20
-Dmitry
-
-
---T4sUOijqQbZv57TR
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPDToCAAoJEH70+W8r6ZYqtdgP/1EmmZPcIio0sM5UyY0ovnI9
-DVDwb8isaxXn/MA7Tt6TNbpbF61qNglmjb1+duWIUaiTtZeve2n4cD1A3cGDj8bW
-XArbaNs1ZLLDuV3mfnGcw8lXBZl/3Ohtp6B0dctIulCN1z87i8R5mFiHlxO2QyK8
-6QHfVE5lzRbfAJSLyfnYzAE/tNWZCiigrggQOhkY4QchivmXz0M/zYDcec9WdWDO
-vyRZMLf6eo3J7XH+pKS10PVFju8e88F5LrpW2CI7KM3EHEUPWuDriPg8ggOtBdRF
-XwWmPxsvcjmxqSSAYs9fDtBvvK9hhbGgvNRdwEZNbhLiJUOxL/BB4OCq2vCQ19ds
-XsXerw6G274qi/bUft88Mnrgm/IyCy6svGB/wrfHvZiF3WAlFOoxbf1PR4Ts+kr4
-ApDNWPWFB4L9yGIEmU9eqR6BiQOxd/2qIVfHeicjT+uzHFAxP201c6XANLfVg8EA
-2FYg4Yn9eQvLZ6LPogPyZJ+c1ZjQ+2ZwxRk3u4M32jKwjJBLmDPogpSqx6ilIr69
-0BLRlBz6fWxpy7Z+mLVYxXpFklUoNUdkvcZRfNYS/uv09Vdak08l4imok/EipUYy
-nyYWJTmwlqpEqTTQ81k86XLqpeXoldaQaqH+H40exFB2sF+AQpzx1zJYDW9BOhRP
-mYmSWKO9s8j+jY1F0oWW
-=Yhr6
------END PGP SIGNATURE-----
-
---T4sUOijqQbZv57TR--

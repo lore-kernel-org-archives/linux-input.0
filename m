@@ -1,95 +1,44 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] Input: q40kbd - convert driver to the split model
-Date: Wed, 11 Jan 2012 10:25:20 +0100
-Message-ID: <CAMuHMdXfs2ru7KG-xFRoKPso5Y+UuAnOOUie8HoOZHYyoVeyaA@mail.gmail.com>
-References: <20111231010814.7392.52389.stgit@hammer.corenet.prv>
-	<CAMuHMdV+FFPG8TVA7NwfpCvA3+FrVixE4bfdOu8a_1=xTaKiRg@mail.gmail.com>
-	<20120111081118.GC18668@core.coreip.homeip.net>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v3] bcm5974: Set BUTTONPAD property
+Date: Wed, 11 Jan 2012 11:04:44 +0100
+Message-ID: <20120111100444.GA5573@polaris.bitmath.org>
+References: <20120110102211.GA7682@polaris.bitmath.org>
+ <1326193009-7361-1-git-send-email-jussi.pakkanen@canonical.com>
+ <20120110114212.GA2142@polaris.bitmath.org>
+ <20120111073812.GB18668@core.coreip.homeip.net>
+ <4F0D5521.5030808@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-m68k-owner@vger.kernel.org>
-In-Reply-To: <20120111081118.GC18668@core.coreip.homeip.net>
-Sender: linux-m68k-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-m68k@lists.linux-m68k.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:46722 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757367Ab2AKKFF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Jan 2012 05:05:05 -0500
+Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
+	by smtprelay-b22.telenor.se (Postfix) with ESMTP id 6929AD95D
+	for <linux-input@vger.kernel.org>; Wed, 11 Jan 2012 11:05:03 +0100 (CET)
+Content-Disposition: inline
+In-Reply-To: <4F0D5521.5030808@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jussi Pakkanen <jussi.pakkanen@canonical.com>, linux-input@vger.kernel.org
 
-On Wed, Jan 11, 2012 at 09:11, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Jan 11, 2012 at 08:55:54AM +0100, Geert Uytterhoeven wrote:
->> On Sat, Dec 31, 2011 at 02:11, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
+> > Applied, however I removed stable notation as this change IMO does not
+> > qualify for the stable since it does not address a regression.
+> 
+> It's not a regression per-se, but we want to fix buttonpad support, and
+> we can't do that without this patch. It's a clear bug that when the
+> property was added we did not set the property in the devices that need it.
 
->> > +static struct platform_device q40_kbd_pdev =3D {
->> > +       .name   =3D "q40kbd",
->> > + =C2=A0 =C2=A0 =C2=A0 .id =C2=A0 =C2=A0 =3D -1,
->> > +};
->> > +
->> > +static __init int q40_add_kbd_device(void)
->> > +{
->> > + =C2=A0 =C2=A0 =C2=A0 return platform_device_register(&q40_kbd_pd=
-ev);
->>
->> If you would use platform_device_register_simple(), you don't need t=
-he
->> q40_kbd_pdev above, reducing memory consumption on non-Q40 platforms=
-=2E
->
-> Isn't this file only compiled on q40 platforms?
+The current behavior depends on userspace and is not a kernel bug,
+please stop the nonsense already.
 
-No, m68k does support multi-platform kernels.
+For bcm5974 devices, extracting buttonpad properties has been possible
+since early 2009 (158e9287). The mechanism, predating the input
+properties interface by nearly two years, has been used in the
+multitouch and mtrack X drivers ever since. To those users, the
+present patch has no effect at all.
 
->> > +}
->> > +arch_initcall(q40_add_kbd_device);
->>
->> For the Amiga platform drivers, I used device_initcall().
->
-> Won't it potentially race with initialization of q40kbd? It looks lik=
-e
-> module_initcall is the same as device_initcall() when module is compi=
-led
-> in. Given that q40kbd uses platform_dveice_probe() losing race might =
-be
-> fatal.
-
-So far I haven't encountered any problems on Amiga.
-I'll look into this.
-
->> > -static int __devexit q40kbd_remove(struct platform_device *dev)
->> > +static int __devexit q40kbd_remove(struct platform_device *pdev)
->> > =C2=A0{
->> > - =C2=A0 =C2=A0 =C2=A0 serio_unregister_port(q40kbd_port);
->> > + =C2=A0 =C2=A0 =C2=A0 struct q40kbd *q40kbd =3D platform_get_drvd=
-ata(pdev);
->> > +
->> > + =C2=A0 =C2=A0 =C2=A0 free_irq(Q40_IRQ_KEYBOARD, q40kbd);
->> > +
->> > + =C2=A0 =C2=A0 =C2=A0 serio_unregister_port(q40kbd->port);
->>
->> Should the unregister be done before freeing the IRQ, i.e. reverse
->> order compared to probe?
->
-> Unregister will most likely cause memory being freed; you don't want =
-to
-> chance IRQ firing here.
-
-And in the probe case that can't happen when request_irq() is called?
-
-Can a call to q40kbd_stop() first fix that?
-
-Gr{oetje,eeting}s,
-
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-=
-m68k.org
-
-In personal conversations with technical people, I call myself a hacker=
-=2E But
-when I'm talking to journalists I just say "programmer" or something li=
-ke that.
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0=C2=A0 =C2=A0=C2=A0 -- Linus Torvalds
+Henrik

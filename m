@@ -1,68 +1,93 @@
-From: Jussi Pakkanen <jussi.pakkanen@canonical.com>
-Subject: [PATCH v2] Documented input device properties.
-Date: Wed, 11 Jan 2012 13:56:31 +0200
-Message-ID: <1326282991-4715-1-git-send-email-jussi.pakkanen@canonical.com>
+From: Ferenc Wagner <wferi@niif.hu>
+Subject: Re: [PATCH v2] Documented input device properties.
+Date: Wed, 11 Jan 2012 16:51:36 +0100
+Message-ID: <87hb02w83b.fsf@tac.ki.iif.hu>
+References: <1326282991-4715-1-git-send-email-jussi.pakkanen@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:54041 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757092Ab2AKL4c (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Jan 2012 06:56:32 -0500
+Received: from tac.ki.iif.hu ([193.6.222.43]:36833 "EHLO tac.ki.iif.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757584Ab2AKPvk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Jan 2012 10:51:40 -0500
+In-Reply-To: <1326282991-4715-1-git-send-email-jussi.pakkanen@canonical.com>
+	(Jussi Pakkanen's message of "Wed, 11 Jan 2012 13:56:31 +0200")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
+To: Jussi Pakkanen <jussi.pakkanen@canonical.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Signed-off-by: Jussi Pakkanen <jussi.pakkanen@canonical.com>
----
- Documentation/input/event-codes.txt |   34 ++++++++++++++++++++++++++++++++++
- 1 files changed, 34 insertions(+), 0 deletions(-)
+Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
 
-diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
-index 23fcb05..2c4add3 100644
---- a/Documentation/input/event-codes.txt
-+++ b/Documentation/input/event-codes.txt
-@@ -220,6 +220,40 @@ EV_PWR:
- EV_PWR events are a special type of event used specifically for power
- mangement. Its usage is not well defined. To be addressed later.
- 
-+Device properties:
-+=================
-+
-+INPUT_PROP_POINTER:
-+------------------
-+
-+There does not exist a one to one mapping between the device
-+coordinates and screen coordinates. This property only has meaning for
-+non-touch based input such as a pen or an eraser.
-+
-+INPUT_PROP_DIRECT:
-+------------------
-+
-+The device coordinates can be directly mapped to screen coordinates
-+(i.e. the opposite of INPUT_PROP_POINTER) This property only has
-+meaning for touch-based input. An example would be a touchscreen.
-+
-+INPUT_PROP_BUTTONPAD:
-+--------------------
-+
-+The device has one or more physical buttons beneath the active surface
-+area.  This means that you can generate button clicks by pressing down
-+on the trackpad area. Examples include aluminium body MacBook
-+trackpads and Synaptics clickpads.
-+
-+INPUT_PROP_SEMI_MT:
-+------------------
-+
-+The device is a semi multitouch device. This means that it does not
-+provide proper touch locations; it only reports the total number of
-+touches and a bounding box that is defined by two of the
-+touches. There is no way to know which two touches the device chooses
-+to report.
-+
- Guidelines:
- ==========
- The guidelines below ensure proper single-touch and multi-finger functionality.
+>> +INPUT_PROP_POINTER:
+>> +------------------
+>> +There is a one to one mapping between the device coordinates and
+>> +screen coordinates.
+>
+> This is not correct as touchpads fall firmly into INPUT_PROP_POINTER
+> land and certainly do not have 1:1 relationship between on-screen and
+> device coordinates.
+>
+>> This property only has meaning for non-touch based
+>> +input such as a pen or an eraser. A drawing tablet would have this property
+>> +set.
+>
+> Wacom Bamboo touch can be said is touch based but still is a pointer
+> device. Basically pointer device is one that requires use of an
+> on-screen pointer to reflect user's movement while with direct devices
+> touching object itself serves as a pointer to the user.
+
+So, does the above mean something like this?
+
+device         I_P_POINTER  I_P_DIRECT  1:1
+===========================================
+tablet           present     present    yes
+touchpad         present     missing    no
+touchscreen      missing     present    yes
+<impossible>     missing     missing    no
+
+Jussi Pakkanen <jussi.pakkanen@canonical.com> writes:
+
+> +INPUT_PROP_POINTER:
+> +------------------
+> +
+> +There does not exist a one to one mapping between the device
+> +coordinates and screen coordinates.
+
+If I understood Dmitry right, the existence of a 1:1 mapping has nothing
+to do with a device being I_P_POINTER: the presence of this property
+means that an on-screen pointer is required to reflect the user's
+movement.  (In practice, non direct devices probably always require a
+pointer, or maybe I just lack imagination.)
+
+> This property only has meaning for non-touch based input such as a pen
+> or an eraser.
+
+And what's its meaning then?  Sorry, maybe it's just me, but I don't
+understand such sentences.  In my understanding, a device either carries
+a property or not; the meaning of a given property is always the same,
+and it's the very role of the documentation to define these meanings.
+
+> +INPUT_PROP_DIRECT:
+> +------------------
+> +
+> +The device coordinates can be directly mapped to screen coordinates
+
+Cool.
+
+> +(i.e. the opposite of INPUT_PROP_POINTER)
+
+Not cool, according to my interpretation of Dmitry's previous review:
+see above.
+
+> This property only has meaning for touch-based input.
+
+See my other paragraph above.
+
+Jussi, please don't take this personal!  I'm no expert of this, and I'm
+not a native English speaker.  Still I think documentation should be
+clear even for such dummies like me, that's why I chimed in.  Hopefully
+it isn't considered bikeshedding.
 -- 
-1.7.5.4
-
+Thanks,
+Feri.

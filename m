@@ -1,168 +1,166 @@
-From: Michael Thalmeier <michael.thalmeier@hale.at>
-Subject: [PATCH v3] input/mc13783-ts: add pdata to set conversion delay
-Date: Thu, 12 Jan 2012 10:29:27 +0100
-Message-ID: <1326360567-2757-1-git-send-email-michael.thalmeier@hale.at>
-Mime-Version: 1.0
+From: Ming Lei <tom.leiming@gmail.com>
+Subject: [PATCH] HID: usbhid: fix dead lock between open and disconect
+Date: Thu, 12 Jan 2012 17:42:22 +0800
+Message-ID: <1326361342-4141-1-git-send-email-tom.leiming@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx19.lb01.inode.at ([62.99.145.21]:28853 "EHLO mx.inode.at"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753197Ab2ALJ1a (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Jan 2012 04:27:30 -0500
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:56332 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752859Ab2ALJmh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Jan 2012 04:42:37 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Michael Thalmeier <michael.thalmeier@hale.at>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, michael@thalmeier.at
+To: Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Ming Lei <tom.leiming@gmail.com>, Ming Lei <ming.lei@canonical.com>
 
-MC13783 can be programmed to wait some clock cycles between the touch screen
-polarization and the resistance conversion. This is needed to adjust for
-touchscreens with high capacitance between plates.
+There is no reason to hold hiddev->existancelock before
+calling usb_deregister_dev, so move it out of the lock.
 
-Signed-off-by: Michael Thalmeier <michael.thalmeier@hale.at>
+The patch fixes the lockdep warning below [1].
+
+[1], lockdep warning
+
+[ 5733.386271] ======================================================
+[ 5733.386274] [ INFO: possible circular locking dependency detected ]
+[ 5733.386278] 3.2.0-custom-next-20120111+ #1 Not tainted
+[ 5733.386281] -------------------------------------------------------
+[ 5733.386284] khubd/186 is trying to acquire lock:
+[ 5733.386288]  (minor_rwsem){++++.+}, at: [<ffffffffa0011a04>] usb_deregister_dev+0x37/0x9e [usbcore]
+[ 5733.386311]
+[ 5733.386312] but task is already holding lock:
+[ 5733.386315]  (&hiddev->existancelock){+.+...}, at: [<ffffffffa0094d17>] hiddev_disconnect+0x26/0x87 [usbhid]
+[ 5733.386328]
+[ 5733.386329] which lock already depends on the new lock.
+[ 5733.386330]
+[ 5733.386333]
+[ 5733.386334] the existing dependency chain (in reverse order) is:
+[ 5733.386336]
+[ 5733.386337] -> #1 (&hiddev->existancelock){+.+...}:
+[ 5733.386346]        [<ffffffff81082d26>] lock_acquire+0xcb/0x10e
+[ 5733.386357]        [<ffffffff813df961>] __mutex_lock_common+0x60/0x465
+[ 5733.386366]        [<ffffffff813dfe4d>] mutex_lock_nested+0x36/0x3b
+[ 5733.386371]        [<ffffffffa0094ad6>] hiddev_open+0x113/0x193 [usbhid]
+[ 5733.386378]        [<ffffffffa0011971>] usb_open+0x66/0xc2 [usbcore]
+[ 5733.386390]        [<ffffffff8111a8b5>] chrdev_open+0x12b/0x154
+[ 5733.386402]        [<ffffffff811159a8>] __dentry_open.isra.16+0x20b/0x355
+[ 5733.386408]        [<ffffffff811165dc>] nameidata_to_filp+0x43/0x4a
+[ 5733.386413]        [<ffffffff81122ed5>] do_last+0x536/0x570
+[ 5733.386419]        [<ffffffff8112300b>] path_openat+0xce/0x301
+[ 5733.386423]        [<ffffffff81123327>] do_filp_open+0x33/0x81
+[ 5733.386427]        [<ffffffff8111664d>] do_sys_open+0x6a/0xfc
+[ 5733.386431]        [<ffffffff811166fb>] sys_open+0x1c/0x1e
+[ 5733.386434]        [<ffffffff813e7c79>] system_call_fastpath+0x16/0x1b
+[ 5733.386441]
+[ 5733.386441] -> #0 (minor_rwsem){++++.+}:
+[ 5733.386448]        [<ffffffff8108255d>] __lock_acquire+0xa80/0xd74
+[ 5733.386454]        [<ffffffff81082d26>] lock_acquire+0xcb/0x10e
+[ 5733.386458]        [<ffffffff813e01f5>] down_write+0x44/0x77
+[ 5733.386464]        [<ffffffffa0011a04>] usb_deregister_dev+0x37/0x9e [usbcore]
+[ 5733.386475]        [<ffffffffa0094d2d>] hiddev_disconnect+0x3c/0x87 [usbhid]
+[ 5733.386483]        [<ffffffff8132df51>] hid_disconnect+0x3f/0x54
+[ 5733.386491]        [<ffffffff8132dfb4>] hid_device_remove+0x4e/0x7a
+[ 5733.386496]        [<ffffffff812c0957>] __device_release_driver+0x81/0xcd
+[ 5733.386502]        [<ffffffff812c09c3>] device_release_driver+0x20/0x2d
+[ 5733.386507]        [<ffffffff812c0564>] bus_remove_device+0x114/0x128
+[ 5733.386512]        [<ffffffff812bdd6f>] device_del+0x131/0x183
+[ 5733.386519]        [<ffffffff8132def3>] hid_destroy_device+0x1e/0x3d
+[ 5733.386525]        [<ffffffffa00916b0>] usbhid_disconnect+0x36/0x42 [usbhid]
+[ 5733.386530]        [<ffffffffa000fb60>] usb_unbind_interface+0x57/0x11f [usbcore]
+[ 5733.386542]        [<ffffffff812c0957>] __device_release_driver+0x81/0xcd
+[ 5733.386547]        [<ffffffff812c09c3>] device_release_driver+0x20/0x2d
+[ 5733.386552]        [<ffffffff812c0564>] bus_remove_device+0x114/0x128
+[ 5733.386557]        [<ffffffff812bdd6f>] device_del+0x131/0x183
+[ 5733.386562]        [<ffffffffa000de61>] usb_disable_device+0xa8/0x1d8 [usbcore]
+[ 5733.386573]        [<ffffffffa0006bd2>] usb_disconnect+0xab/0x11f [usbcore]
+[ 5733.386583]        [<ffffffffa0008aa0>] hub_thread+0x73b/0x1157 [usbcore]
+[ 5733.386593]        [<ffffffff8105dc0f>] kthread+0x95/0x9d
+[ 5733.386601]        [<ffffffff813e90b4>] kernel_thread_helper+0x4/0x10
+[ 5733.386607]
+[ 5733.386608] other info that might help us debug this:
+[ 5733.386609]
+[ 5733.386612]  Possible unsafe locking scenario:
+[ 5733.386613]
+[ 5733.386615]        CPU0                    CPU1
+[ 5733.386618]        ----                    ----
+[ 5733.386620]   lock(&hiddev->existancelock);
+[ 5733.386625]                                lock(minor_rwsem);
+[ 5733.386630]                                lock(&hiddev->existancelock);
+[ 5733.386635]   lock(minor_rwsem);
+[ 5733.386639]
+[ 5733.386640]  *** DEADLOCK ***
+[ 5733.386641]
+[ 5733.386644] 6 locks held by khubd/186:
+[ 5733.386646]  #0:  (&__lockdep_no_validate__){......}, at: [<ffffffffa00084af>] hub_thread+0x14a/0x1157 [usbcore]
+[ 5733.386661]  #1:  (&__lockdep_no_validate__){......}, at: [<ffffffffa0006b77>] usb_disconnect+0x50/0x11f [usbcore]
+[ 5733.386677]  #2:  (hcd->bandwidth_mutex){+.+.+.}, at: [<ffffffffa0006bc8>] usb_disconnect+0xa1/0x11f [usbcore]
+[ 5733.386693]  #3:  (&__lockdep_no_validate__){......}, at: [<ffffffff812c09bb>] device_release_driver+0x18/0x2d
+[ 5733.386704]  #4:  (&__lockdep_no_validate__){......}, at: [<ffffffff812c09bb>] device_release_driver+0x18/0x2d
+[ 5733.386714]  #5:  (&hiddev->existancelock){+.+...}, at: [<ffffffffa0094d17>] hiddev_disconnect+0x26/0x87 [usbhid]
+[ 5733.386727]
+[ 5733.386727] stack backtrace:
+[ 5733.386731] Pid: 186, comm: khubd Not tainted 3.2.0-custom-next-20120111+ #1
+[ 5733.386734] Call Trace:
+[ 5733.386741]  [<ffffffff81062881>] ? up+0x34/0x3b
+[ 5733.386747]  [<ffffffff813d9ef3>] print_circular_bug+0x1f8/0x209
+[ 5733.386752]  [<ffffffff8108255d>] __lock_acquire+0xa80/0xd74
+[ 5733.386756]  [<ffffffff810808b4>] ? trace_hardirqs_on_caller+0x15d/0x1a3
+[ 5733.386763]  [<ffffffff81043a3f>] ? vprintk+0x3f4/0x419
+[ 5733.386774]  [<ffffffffa0011a04>] ? usb_deregister_dev+0x37/0x9e [usbcore]
+[ 5733.386779]  [<ffffffff81082d26>] lock_acquire+0xcb/0x10e
+[ 5733.386789]  [<ffffffffa0011a04>] ? usb_deregister_dev+0x37/0x9e [usbcore]
+[ 5733.386797]  [<ffffffff813e01f5>] down_write+0x44/0x77
+[ 5733.386807]  [<ffffffffa0011a04>] ? usb_deregister_dev+0x37/0x9e [usbcore]
+[ 5733.386818]  [<ffffffffa0011a04>] usb_deregister_dev+0x37/0x9e [usbcore]
+[ 5733.386825]  [<ffffffffa0094d2d>] hiddev_disconnect+0x3c/0x87 [usbhid]
+[ 5733.386830]  [<ffffffff8132df51>] hid_disconnect+0x3f/0x54
+[ 5733.386834]  [<ffffffff8132dfb4>] hid_device_remove+0x4e/0x7a
+[ 5733.386839]  [<ffffffff812c0957>] __device_release_driver+0x81/0xcd
+[ 5733.386844]  [<ffffffff812c09c3>] device_release_driver+0x20/0x2d
+[ 5733.386848]  [<ffffffff812c0564>] bus_remove_device+0x114/0x128
+[ 5733.386854]  [<ffffffff812bdd6f>] device_del+0x131/0x183
+[ 5733.386859]  [<ffffffff8132def3>] hid_destroy_device+0x1e/0x3d
+[ 5733.386865]  [<ffffffffa00916b0>] usbhid_disconnect+0x36/0x42 [usbhid]
+[ 5733.386876]  [<ffffffffa000fb60>] usb_unbind_interface+0x57/0x11f [usbcore]
+[ 5733.386882]  [<ffffffff812c0957>] __device_release_driver+0x81/0xcd
+[ 5733.386886]  [<ffffffff812c09c3>] device_release_driver+0x20/0x2d
+[ 5733.386890]  [<ffffffff812c0564>] bus_remove_device+0x114/0x128
+[ 5733.386895]  [<ffffffff812bdd6f>] device_del+0x131/0x183
+[ 5733.386905]  [<ffffffffa000de61>] usb_disable_device+0xa8/0x1d8 [usbcore]
+[ 5733.386916]  [<ffffffffa0006bd2>] usb_disconnect+0xab/0x11f [usbcore]
+[ 5733.386921]  [<ffffffff813dff82>] ? __mutex_unlock_slowpath+0x130/0x141
+[ 5733.386929]  [<ffffffffa0008aa0>] hub_thread+0x73b/0x1157 [usbcore]
+[ 5733.386935]  [<ffffffff8106a51d>] ? finish_task_switch+0x78/0x150
+[ 5733.386941]  [<ffffffff8105e396>] ? __init_waitqueue_head+0x4c/0x4c
+[ 5733.386950]  [<ffffffffa0008365>] ? usb_remote_wakeup+0x56/0x56 [usbcore]
+[ 5733.386955]  [<ffffffff8105dc0f>] kthread+0x95/0x9d
+[ 5733.386961]  [<ffffffff813e90b4>] kernel_thread_helper+0x4/0x10
+[ 5733.386966]  [<ffffffff813e24b8>] ? retint_restore_args+0x13/0x13
+[ 5733.386970]  [<ffffffff8105db7a>] ? __init_kthread_worker+0x55/0x55
+[ 5733.386974]  [<ffffffff813e90b0>] ? gs_change+0x13/0x13
+
+Signed-off-by: Ming Lei <ming.lei@canonical.com>
 ---
- drivers/hwmon/mc13783-adc.c            |    2 +-
- drivers/input/touchscreen/mc13783_ts.c |   11 ++++++++++-
- drivers/mfd/mc13xxx-core.c             |   11 +++++++++--
- include/linux/mfd/mc13xxx.h            |   16 +++++++++++++++-
- 4 files changed, 35 insertions(+), 5 deletions(-)
+ drivers/hid/usbhid/hiddev.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hwmon/mc13783-adc.c b/drivers/hwmon/mc13783-adc.c
-index ef65ab5..6acd044 100644
---- a/drivers/hwmon/mc13783-adc.c
-+++ b/drivers/hwmon/mc13783-adc.c
-@@ -53,7 +53,7 @@ static int mc13783_adc_read(struct device *dev,
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index 7c297d3..b1ec0e2 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -922,11 +922,11 @@ void hiddev_disconnect(struct hid_device *hid)
+ 	struct hiddev *hiddev = hid->hiddev;
+ 	struct usbhid_device *usbhid = hid->driver_data;
  
- 	ret = mc13xxx_adc_do_conversion(priv->mc13xxx,
- 			MC13XXX_ADC_MODE_MULT_CHAN,
--			channel, sample);
-+			channel, 0, 0, sample);
- 	if (ret)
- 		return ret;
- 
-diff --git a/drivers/input/touchscreen/mc13783_ts.c b/drivers/input/touchscreen/mc13783_ts.c
-index 68f86f7..e3bd398 100644
---- a/drivers/input/touchscreen/mc13783_ts.c
-+++ b/drivers/input/touchscreen/mc13783_ts.c
-@@ -39,6 +39,7 @@ struct mc13783_ts_priv {
- 	struct delayed_work work;
- 	struct workqueue_struct *workq;
- 	unsigned int sample[4];
-+	struct mc13xxx_ts_platform_data *touch;
- };
- 
- static irqreturn_t mc13783_ts_handler(int irq, void *data)
-@@ -125,7 +126,9 @@ static void mc13783_ts_work(struct work_struct *work)
- 	unsigned int channel = 12;
- 
- 	if (mc13xxx_adc_do_conversion(priv->mc13xxx,
--				mode, channel, priv->sample) == 0)
-+				mode, channel,
-+				priv->touch->ato, priv->touch->atox,
-+				priv->sample) == 0)
- 		mc13783_ts_report_sample(priv);
- }
- 
-@@ -179,6 +182,12 @@ static int __init mc13783_ts_probe(struct platform_device *pdev)
- 	INIT_DELAYED_WORK(&priv->work, mc13783_ts_work);
- 	priv->mc13xxx = dev_get_drvdata(pdev->dev.parent);
- 	priv->idev = idev;
-+	priv->touch = dev_get_platdata(&pdev->dev);
-+	if (!priv->touch) {
-+		dev_err(&pdev->dev, "missing platform data\n");
-+		ret = -ENODEV;
-+		goto err_free_mem;
-+	}
- 
- 	/*
- 	 * We need separate workqueue because mc13783_adc_do_conversion
-diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
-index e9619ac..2bd01ae 100644
---- a/drivers/mfd/mc13xxx-core.c
-+++ b/drivers/mfd/mc13xxx-core.c
-@@ -559,6 +559,8 @@ EXPORT_SYMBOL(mc13xxx_get_flags);
- 
- #define MC13XXX_ADC1_CHAN0_SHIFT	5
- #define MC13XXX_ADC1_CHAN1_SHIFT	8
-+#define MC13783_ADC1_ATO_SHIFT		11
-+#define MC13783_ADC1_ATOX		(1 << 19)
- 
- struct mc13xxx_adcdone_data {
- 	struct mc13xxx *mc13xxx;
-@@ -579,7 +581,8 @@ static irqreturn_t mc13xxx_handler_adcdone(int irq, void *data)
- #define MC13XXX_ADC_WORKING (1 << 0)
- 
- int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
--		unsigned int channel, unsigned int *sample)
-+		unsigned int channel, u8 ato, bool atox,
-+		unsigned int *sample)
- {
- 	u32 adc0, adc1, old_adc0;
- 	int i, ret;
-@@ -630,6 +633,9 @@ int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
- 		return -EINVAL;
- 	}
- 
-+	adc1 |= ato << MC13783_ADC1_ATO_SHIFT;
-+	if (atox)
-+		adc1 |= MC13783_ADC1_ATOX;
- 	dev_dbg(&mc13xxx->spidev->dev, "%s: request irq\n", __func__);
- 	mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
- 			mc13xxx_handler_adcdone, __func__, &adcdone_data);
-@@ -762,7 +768,8 @@ err_revision:
- 		mc13xxx_add_subdevice(mc13xxx, "%s-rtc");
- 
- 	if (pdata->flags & MC13XXX_USE_TOUCHSCREEN)
--		mc13xxx_add_subdevice(mc13xxx, "%s-ts");
-+		mc13xxx_add_subdevice_pdata(mc13xxx, "%s-ts",
-+				&pdata->touch, sizeof(pdata->touch));
- 
- 	if (pdata->leds)
- 		mc13xxx_add_subdevice_pdata(mc13xxx, "%s-led",
-diff --git a/include/linux/mfd/mc13xxx.h b/include/linux/mfd/mc13xxx.h
-index a98e2a3..aefa384 100644
---- a/include/linux/mfd/mc13xxx.h
-+++ b/include/linux/mfd/mc13xxx.h
-@@ -38,7 +38,8 @@ int mc13xxx_irq_ack(struct mc13xxx *mc13xxx, int irq);
- int mc13xxx_get_flags(struct mc13xxx *mc13xxx);
- 
- int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx,
--		unsigned int mode, unsigned int channel, unsigned int *sample);
-+		unsigned int mode, unsigned int channel,
-+		u8 ato, bool atox, unsigned int *sample);
- 
- #define MC13XXX_IRQ_ADCDONE	0
- #define MC13XXX_IRQ_ADCBISDONE	1
-@@ -157,6 +158,18 @@ struct mc13xxx_buttons_platform_data {
- 	unsigned short b3on_key;
- };
- 
-+struct mc13xxx_ts_platform_data {
-+	/* Delay between Touchscreen polarization and ADC Conversion.
-+	 * Given in clock ticks of a 32 kHz clock which gives a granularity of
-+	 * about 30.5ms */
-+	u8 ato;
++	usb_deregister_dev(usbhid->intf, &hiddev_class);
 +
-+#define MC13783_TS_ATO_FIRST false
-+#define MC13783_TS_ATO_EACH  true
-+	/* Use the ATO delay only for the first conversion or for each one */
-+	bool atox;
-+};
-+
- struct mc13xxx_platform_data {
- #define MC13XXX_USE_TOUCHSCREEN (1 << 0)
- #define MC13XXX_USE_CODEC	(1 << 1)
-@@ -167,6 +180,7 @@ struct mc13xxx_platform_data {
- 	struct mc13xxx_regulator_platform_data regulators;
- 	struct mc13xxx_leds_platform_data *leds;
- 	struct mc13xxx_buttons_platform_data *buttons;
-+	struct mc13xxx_ts_platform_data touch;
- };
+ 	mutex_lock(&hiddev->existancelock);
+ 	hiddev->exist = 0;
  
- #define MC13XXX_ADC_MODE_TS		1
+-	usb_deregister_dev(usbhid->intf, &hiddev_class);
+-
+ 	if (hiddev->open) {
+ 		mutex_unlock(&hiddev->existancelock);
+ 		usbhid_close(hiddev->hid);
 -- 
-1.7.7.5
-
-
-
---
-Scanned by MailScanner.
+1.7.5.4
 

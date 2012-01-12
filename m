@@ -1,58 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Key mapping question
-Date: Thu, 12 Jan 2012 10:20:36 -0800
-Message-ID: <1981809.NxLeYEmSmg@dtor-d630.eng.vmware.com>
-References: <20120111223550.202a9604@pyramind.ukuu.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH 1/2] Input: Use accessor for MT events
+Date: Thu, 12 Jan 2012 20:21:05 +0100
+Message-ID: <1326396065-2448-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:64916 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751988Ab2ALSUu (ORCPT
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:41024 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753452Ab2ALTVV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Jan 2012 13:20:50 -0500
-Received: by iabz25 with SMTP id z25so3067964iab.19
-        for <linux-input@vger.kernel.org>; Thu, 12 Jan 2012 10:20:50 -0800 (PST)
-In-Reply-To: <20120111223550.202a9604@pyramind.ukuu.org.uk>
+	Thu, 12 Jan 2012 14:21:21 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-input@vger.kernel.org, khnz@users.sourceforge.net, Matthew Garrett <mjg59@srcf.ucam.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-Hi Alan,
+Add an accessor function for the actual MT event types, and use
+it everywhere.
 
-On Wednesday, January 11, 2012 10:35:50 PM Alan Cox wrote:
-> I'm currently adding the Fujitsu Q550 to the fujitsu-tablet driver
-> (http://sourceforge.net/projects/fjbtndrv/files/fjbtndrv/)
-> 
-> The Q550 has 3 buttons - a direction flipping button, a keyboard button
-> and a ctrl-alt-delete button.
-> 
-> It's labelled as such, it acts as such and I'm tempted to map it as such
-> including modifiers but that does rather violate the usual behaviour we
-> expect.
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/input.c    |    2 +-
+ include/linux/input/mt.h |    8 ++++++--
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
-Reading manual it looks like it is a dedicated SAK button. While we do
-not currently have a dedicated key code for it we could easily add one.
-
-> 
-> So how should it be mapped ?
-> 
-> I'll send Robert Gerlach a patch once I have a good answer on that one.
-> It would also be nice to get the kernel bits for this driver upstream.
-> Barring some trivial printk/pr_debug things it looks to me to be in
-> perfectly good shape to go upstream, and it's kind of handy when the
-> buttons work on your tablet !
-
-Yes, the driver indeed looks nice, changing a few printk and making sure
-we do not leak ACPI statuses into the other layers (like what happens in
-fujitsu_module_init() - should convert acpi status to linux errno upon
-failure - if acpi_bus_register_driver() really returns acpi status) should
-make it ready for mainline. I think tt should go to Matthew's
-drivers/platform subtree though.
-
-Thanks.
-
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index da38d97..ba6839f 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -180,7 +180,7 @@ static int input_handle_abs_event(struct input_dev *dev,
+ 		return INPUT_IGNORE_EVENT;
+ 	}
+ 
+-	is_mt_event = code >= ABS_MT_FIRST && code <= ABS_MT_LAST;
++	is_mt_event = input_is_mt_value(code);
+ 
+ 	if (!is_mt_event) {
+ 		pold = &dev->absinfo[code].value;
+diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
+index 318bb82..f867375 100644
+--- a/include/linux/input/mt.h
++++ b/include/linux/input/mt.h
+@@ -48,10 +48,14 @@ static inline void input_mt_slot(struct input_dev *dev, int slot)
+ 	input_event(dev, EV_ABS, ABS_MT_SLOT, slot);
+ }
+ 
++static inline bool input_is_mt_value(int axis)
++{
++	return axis >= ABS_MT_FIRST && axis <= ABS_MT_LAST;
++}
++
+ static inline bool input_is_mt_axis(int axis)
+ {
+-	return axis == ABS_MT_SLOT ||
+-		(axis >= ABS_MT_FIRST && axis <= ABS_MT_LAST);
++	return axis == ABS_MT_SLOT || input_is_mt_value(axis);
+ }
+ 
+ void input_mt_report_slot_state(struct input_dev *dev,
 -- 
-Dmitry
+1.7.8.1
+

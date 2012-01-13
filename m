@@ -1,140 +1,146 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: Two devices, same USB ID: one needs HID, the other doesn't. How to solve this?
-Date: Fri, 13 Jan 2012 15:21:49 +0100
-Message-ID: <201201131521.49882.hverkuil@xs4all.nl>
-References: <201201131142.33779.hverkuil@xs4all.nl> <4F1032F9.8020505@iki.fi>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: [PATCH 1/2] hid-multitouch: add support for trackpads
+Date: Fri, 13 Jan 2012 16:45:30 +0100
+Message-ID: <1326469531-26808-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-vbr14.xs4all.nl ([194.109.24.34]:4840 "EHLO
-	smtp-vbr14.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753393Ab2AMOWy (ORCPT
+Received: from 88-230.252-81.static-ip.oleane.fr ([81.252.230.88]:34573 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932140Ab2AMPxb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Jan 2012 09:22:54 -0500
-In-Reply-To: <4F1032F9.8020505@iki.fi>
+	Fri, 13 Jan 2012 10:53:31 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@iki.fi>
-Cc: linux-input@vger.kernel.org, linux-media <linux-media@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Friday, January 13, 2012 14:34:49 Anssi Hannula wrote:
-> On 13.01.2012 12:42, Hans Verkuil wrote:
-> > Hi!
-> 
-> Hi!
-> 
-> Adding Jiri Kosina, the HID maintainer.
-> 
-> > I've made a video4linux driver for the USB Keene FM Transmitter. See:
-> > 
-> > http://www.amazon.co.uk/Keene-Electronics-USB-FM-Transmitter/dp/B003GCHPDY/ref=sr_1_1?ie=UTF8&qid=1326450476&sr=8-1
-> > 
-> > The driver code is here:
-> > 
-> > http://git.linuxtv.org/hverkuil/media_tree.git/shortlog/refs/heads/keene
-> > 
-> > Unfortunately this device has exactly the same USB ID as the Logitech AudioHub
-> > USB speaker (http://www.logitech.com/en-us/439/3503).
-> > 
-> > The AudioHub has HID support for volume keys, but the FM transmitter needs
-> > a custom V4L2 driver instead.
-> > 
-> > I've attached the full lsusb -v output of both devices, but this is the diff of
-> > the two:
-> > 
-> > $ diff keene.txt audiohub.txt -u
-> [...]
-> > @@ -152,7 +151,7 @@
-> >            bCountryCode            0 Not supported
-> >            bNumDescriptors         1
-> >            bDescriptorType        34 Report
-> > -          wDescriptorLength      22
-> > +          wDescriptorLength      31
-> >           Report Descriptors: 
-> >             ** UNAVAILABLE **
-> >        Endpoint Descriptor:
-> > 
-> > As you can see, the differences are very small.
-> 
-> The HID Report descriptors could be interesting as they differ. You can
-> look at them in:
-> /sys/kernel/debug/hid/*/rdesc
-> 
-> I guess one option would be to make this a "regular" HID driver like
-> those in drivers/hid/hid-*.c (and just set the v4l things up if the
-> descriptor is as expected, otherwise let standard HID-input handle
-> them), but there is the issue of where to place the driver, then, as it
-> can't be both in drivers/hid and drivers/media...
-> 
-> Probably the easy way out is to simply add the device into
-> drivers/hid/hid-core.c:hid_ignore(), by checking e.g.
-> vendor+product+name, and hope all "B-LINK USB Audio" devices are FM
-> transmitters (the name suggests that may not necessarily be the case,
-> though). Report descriptor contents are not available at hid_ignore()
-> point yet.
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-I've done this and this works fine.
+* some multitouch trackpads present the touch usage. This needs to be
+filtered as it will conflict with mt-implementation.
+* trackpads send BTN_TOOL_* to notify how many fingers are present
+(this is used by xorg to use synaptics instead of generic evdev)
+* trackpads like Perixx 701 are not different from a hid point of view
+from a touchscreen, and we need to manually set them as touchpad.
 
-I googled for "B-LINK USB Audio" and found only references to the Keene
-transmitter.
-
-Here is my patch for drivers/hid that solves this issue:
-
-
-[RFC PATCH] hid-core: ignore the Keene FM transmitter.
-
-The Keene FM transmitter USB device has the same USB ID as
-the Logitech AudioHub Speaker, but it should ignore the hid.
-Check if the name is that of the Keene device.
-
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 ---
- drivers/hid/hid-core.c |   10 ++++++++++
- drivers/hid/hid-ids.h  |    1 +
- 2 files changed, 11 insertions(+), 0 deletions(-)
+ drivers/hid/hid-multitouch.c |   44 ++++++++++++++++++++++++++++++++++++-----
+ 1 files changed, 38 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index af35384..f02d197 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1973,6 +1973,16 @@ static bool hid_ignore(struct hid_device *hdev)
- 		if (hdev->product >= USB_DEVICE_ID_LOGITECH_HARMONY_FIRST &&
- 				hdev->product <= USB_DEVICE_ID_LOGITECH_HARMONY_LAST)
- 			return true;
-+		/*
-+		 * The Keene FM transmitter USB device has the same USB ID as
-+		 * the Logitech AudioHub Speaker, but it should ignore the hid.
-+		 * Check if the name is that of the Keene device.
-+		 * For reference: the name of the AudioHub is
-+		 * "HOLTEK  AudioHub Speaker".
-+		 */
-+		if (hdev->product == USB_DEVICE_ID_LOGITECH_AUDIOHUB &&
-+			!strcmp(hdev->name, "HOLTEK  B-LINK USB Audio  "))
-+				return true;
- 		break;
- 	case USB_VENDOR_ID_SOUNDGRAPH:
- 		if (hdev->product >= USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST &&
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 4a441a6..2f6dc92 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -440,6 +440,7 @@
- #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 24fc442..1ba60d3 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1,9 +1,9 @@
+ /*
+  *  HID driver for multitouch panels
+  *
+- *  Copyright (c) 2010-2011 Stephane Chatty <chatty@enac.fr>
+- *  Copyright (c) 2010-2011 Benjamin Tissoires <benjamin.tissoires@gmail.com>
+- *  Copyright (c) 2010-2011 Ecole Nationale de l'Aviation Civile, France
++ *  Copyright (c) 2010-2012 Stephane Chatty <chatty@enac.fr>
++ *  Copyright (c) 2010-2012 Benjamin Tissoires <benjamin.tissoires@gmail.com>
++ *  Copyright (c) 2010-2012 Ecole Nationale de l'Aviation Civile, France
+  *
+  *  This code is partly based on hid-egalax.c:
+  *
+@@ -67,6 +67,7 @@ struct mt_class {
+ 	__s32 sn_height;	/* Signal/noise ratio for height events */
+ 	__s32 sn_pressure;	/* Signal/noise ratio for pressure events */
+ 	__u8 maxcontacts;
++	bool is_indirect;	/* true for touchpads */
+ };
  
- #define USB_VENDOR_ID_LOGITECH		0x046d
-+#define USB_DEVICE_ID_LOGITECH_AUDIOHUB 0x0a0e
- #define USB_DEVICE_ID_LOGITECH_RECEIVER	0xc101
- #define USB_DEVICE_ID_LOGITECH_HARMONY_FIRST  0xc110
- #define USB_DEVICE_ID_LOGITECH_HARMONY_LAST 0xc14f
+ struct mt_device {
+@@ -265,17 +266,31 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ {
+ 	struct mt_device *td = hid_get_drvdata(hdev);
+ 	struct mt_class *cls = &td->mtclass;
++	int code;
+ 
+ 	/* Only map fields from TouchScreen or TouchPad collections.
+          * We need to ignore fields that belong to other collections
+          * such as Mouse that might have the same GenericDesktop usages. */
+ 	if (field->application == HID_DG_TOUCHSCREEN)
+ 		set_bit(INPUT_PROP_DIRECT, hi->input->propbit);
+-	else if (field->application == HID_DG_TOUCHPAD)
+-		set_bit(INPUT_PROP_POINTER, hi->input->propbit);
+-	else
++	else if (field->application != HID_DG_TOUCHPAD)
+ 		return 0;
+ 
++	/* In case of an indirect device (touchpad), we need to add
++	 * specific BTN_TOOL_* to be handled by the synaptics xorg
++	 * driver.
++	 * We also consider that touchscreens providing buttons are touchpads.
++	 */
++	if (field->application == HID_DG_TOUCHPAD ||
++	    (usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON ||
++	    cls->is_indirect) {
++		set_bit(INPUT_PROP_POINTER, hi->input->propbit);
++		set_bit(BTN_TOOL_FINGER, hi->input->keybit);
++		set_bit(BTN_TOOL_DOUBLETAP, hi->input->keybit);
++		set_bit(BTN_TOOL_TRIPLETAP, hi->input->keybit);
++		set_bit(BTN_TOOL_QUADTAP, hi->input->keybit);
++	}
++
+ 	/* eGalax devices provide a Digitizer.Stylus input which overrides
+ 	 * the correct Digitizers.Finger X/Y ranges.
+ 	 * Let's just ignore this input. */
+@@ -389,9 +404,20 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 				td->last_field_index = field->index;
+ 			return -1;
+ 		}
++		case HID_DG_TOUCH:
++			/* Legacy devices use TIPSWITCH and not TOUCH.
++			 * Let's just ignore this field. */
++			return -1;
+ 		/* let hid-input decide for the others */
+ 		return 0;
+ 
++	case HID_UP_BUTTON:
++		code = ((usage->hid - 1) & HID_USAGE);
++		code += BTN_MOUSE;
++		hid_map_usage(hi, usage, bit, max, EV_KEY, code);
++		input_set_capability(hi->input, EV_KEY, code);
++		return 1;
++
+ 	case 0xff000000:
+ 		/* we do not want to map these: no input-oriented meaning */
+ 		return -1;
+@@ -453,6 +479,7 @@ static void mt_complete_slot(struct mt_device *td)
+ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
+ {
+ 	int i;
++	int finger_count = 0;
+ 
+ 	for (i = 0; i < td->maxcontacts; ++i) {
+ 		struct mt_slot *s = &(td->slots[i]);
+@@ -477,12 +504,14 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
+ 			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
+ 			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
+ 			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
++			finger_count++;
+ 		}
+ 		s->seen_in_this_frame = false;
+ 
+ 	}
+ 
+ 	input_mt_report_pointer_emulation(input, true);
++	input_mt_report_finger_count(input, finger_count);
+ 	input_sync(input);
+ 	td->num_received = 0;
+ }
+@@ -538,6 +567,9 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 			if (value)
+ 				td->num_expected = value;
+ 			break;
++		case HID_DG_TOUCH:
++			/* do nothing */
++			break;
+ 
+ 		default:
+ 			/* fallback to the generic hidinput handling */
 -- 
-1.7.7.3
+1.7.4.4
 
-Comments? Or even better, an Acked-by?
-
-I'd like to get this driver in for v3.4, that would be nice.
-
-Regards,
-
-	Hans

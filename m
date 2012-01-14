@@ -1,40 +1,46 @@
-From: Matthew Garrett <mjg@redhat.com>
-Subject: Re: Handling special keys in platform drivers
-Date: Fri, 13 Jan 2012 22:42:11 +0000
-Message-ID: <20120113224211.GB29022@srcf.ucam.org>
-References: <CAHR064jAJkQCd_Tsrx7NHe_RbaBbNcX4sMwy=zkZCZNUNo=fAw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Alexander Tarasikov <alexander.tarasikov@gmail.com>
+Subject: [PATCH] Allow kxtj9 accelerometer driver to work on kxtf9
+Date: Sat, 14 Jan 2012 04:56:57 +0400
+Message-ID: <1326502617-26879-1-git-send-email-alexander.tarasikov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:56065 "EHLO
-	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753897Ab2AMWmO (ORCPT
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:53383 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751841Ab2ANA5U (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Jan 2012 17:42:14 -0500
-Content-Disposition: inline
-In-Reply-To: <CAHR064jAJkQCd_Tsrx7NHe_RbaBbNcX4sMwy=zkZCZNUNo=fAw@mail.gmail.com>
+	Fri, 13 Jan 2012 19:57:20 -0500
+Received: by bkuw12 with SMTP id w12so375845bku.19
+        for <linux-input@vger.kernel.org>; Fri, 13 Jan 2012 16:57:19 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Corentin Chary <corentin.chary@gmail.com>
-Cc: platform-driver-x86@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Alexander Tarasikov <alexander.tarasikov@gmail.com>
 
-On Mon, Jan 09, 2012 at 07:24:14AM +0100, Corentin Chary wrote:
+	Kionix kxtj9 is a pin- and register-compatible replacement
+	for the kxtf9 accelerometer. This patch makes the kxtj9 driver
+	probe routine accept kxtf9. This has been tested briefly on
+	a kxtf9 accelerometer and seems to report correct results.
 
-> The real problem is that for keyboard backlight to work, it needs DE
-> cooperation, and only gnome as implemented that right now, and other
-> (except KDE) will probably neither have the resources to handle all
-> the possible keys correctly. And of course, who should handle the keys
-> when there is no DE running at all ?
+Signed-off-by: Alexander Tarasikov <alexander.tarasikov@gmail.com>
+---
+ drivers/input/misc/kxtj9.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-The problem with handling this in kernel is that there isn't an 
-obviously correct policy. ACPI will typically only expose 16 or so 
-backlight levels so the behaviour is easy enough, but (depending on how 
-the hardware is wired up) i915 may expose around 20,000. Further, one 
-machine may expose different backlight controls for different displays, 
-and in that situation you need to know which one the input event is 
-expected to correspond to.
-
-Doing backlight control properly involves a lot of policy work, and I'm 
-reluctant to argue that that ought to be in the kernel.
+diff --git a/drivers/input/misc/kxtj9.c b/drivers/input/misc/kxtj9.c
+index 783597a..c54fe18 100644
+--- a/drivers/input/misc/kxtj9.c
++++ b/drivers/input/misc/kxtj9.c
+@@ -487,7 +487,10 @@ static int __devinit kxtj9_verify(struct kxtj9_data *tj9)
+ 		goto out;
+ 	}
+ 
+-	retval = retval != 0x06 ? -EIO : 0;
++	if (retval == 0x6 || retval == 0x1)
++		retval = 0;
++	else
++		retval = -EIO;
+ 
+ out:
+ 	kxtj9_device_power_off(tj9);
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+1.7.7.3
+

@@ -1,41 +1,72 @@
-From: Corentin Chary <corentin.chary@gmail.com>
-Subject: Re: Handling special keys in platform drivers
-Date: Sat, 14 Jan 2012 09:58:58 +0100
-Message-ID: <CAHR064gU8MA9SuBFnGf47qH=AmKEeXA=NfsJAZ=YR9hWZxXAuA@mail.gmail.com>
-References: <CAHR064jAJkQCd_Tsrx7NHe_RbaBbNcX4sMwy=zkZCZNUNo=fAw@mail.gmail.com>
-	<20120113224211.GB29022@srcf.ucam.org>
+From: Robert Gerlach <khnz@gmx.de>
+Subject: Re: Key mapping question
+Date: Sat, 14 Jan 2012 19:07:37 +0100
+Message-ID: <20120114190737.49172w3qj2psmi04@kolab.lan>
+References: <20120111223550.202a9604@pyramind.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <20120113224211.GB29022@srcf.ucam.org>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Matthew Garrett <mjg@redhat.com>
-Cc: platform-driver-x86@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Content-Type: text/plain;
+ charset=UTF-8;
+ DelSp="Yes";
+ format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout-de.gmx.net ([213.165.64.22]:57192 "HELO
+	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1756031Ab2ANSHp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 14 Jan 2012 13:07:45 -0500
+Received: from localhost (localhost [127.0.0.1])
+	by kolab.lan (Postfix) with ESMTP id 4953E1666A
+	for <linux-input@vger.kernel.org>; Sat, 14 Jan 2012 19:07:40 +0100 (CET)
+Received: from kolab.lan ([127.0.0.1])
+	by localhost (kolab.lan [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id aM38Al+hagLF for <linux-input@vger.kernel.org>;
+	Sat, 14 Jan 2012 19:07:39 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+	by kolab.lan (Postfix) with ESMTP id CDE0F1666E
+	for <linux-input@vger.kernel.org>; Sat, 14 Jan 2012 19:07:38 +0100 (CET)
+In-Reply-To: <20120111223550.202a9604@pyramind.ukuu.org.uk>
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-input@vger.kernel.org, khnz@users.sourceforge.net, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arobase CHAC <arobase40@gmail.com>, Ryan Lewis <me@ryanlewis.net>
 
-On Fri, Jan 13, 2012 at 11:42 PM, Matthew Garrett <mjg@redhat.com> wrote:
-> On Mon, Jan 09, 2012 at 07:24:14AM +0100, Corentin Chary wrote:
->
->> The real problem is that for keyboard backlight to work, it needs DE
->> cooperation, and only gnome as implemented that right now, and other
->> (except KDE) will probably neither have the resources to handle all
->> the possible keys correctly. And of course, who should handle the keys
->> when there is no DE running at all ?
->
-> The problem with handling this in kernel is that there isn't an
-> obviously correct policy. ACPI will typically only expose 16 or so
-> backlight levels so the behaviour is easy enough, but (depending on how
-> the hardware is wired up) i915 may expose around 20,000. Further, one
-> machine may expose different backlight controls for different displays,
-> and in that situation you need to know which one the input event is
-> expected to correspond to.
->
-> Doing backlight control properly involves a lot of policy work, and I'm
-> reluctant to argue that that ought to be in the kernel.
 
-But in the case of asus-wmi, that handle both the keys and the
-keyboard_backlight, could such handling be done in the kernel ?
+Quoting Alan Cox <alan@lxorguk.ukuu.org.uk>:
 
--- 
-Corentin Chary
-http://xf.iksaif.net
+> I'm currently adding the Fujitsu Q550 to the fujitsu-tablet driver
+> (http://sourceforge.net/projects/fjbtndrv/files/fjbtndrv/)
+>
+> The Q550 has 3 buttons - a direction flipping button, a keyboard button
+> and a ctrl-alt-delete button.
+>
+> It's labelled as such, it acts as such and I'm tempted to map it as such
+> including modifiers but that does rather violate the usual behaviour we
+> expect.
+>
+> So how should it be mapped ?
+
+My Lifebook has 5 buttons - scroll up and down, direction flipping, FN  
+and ALT.
+I prefer to use the ALT button as modifier for the other buttons (like FN), so
+ALT + scroll up could start a program. Press and hold ALT for 3 seconds could
+report SAK. The modifier buttons must be sticky for one-finger use. I  
+think this
+needs userspace support to hold the module clean and simple, but I do not know
+how to do this right. Currently, I use KEY_LEFTCTRL and KEY_LEFTALT for the FN
+and ALT buttons and grab the entire device in userspace (xinput). I'm open to
+suggestions and would be happy to implement a real solution.
+
+> I'll send Robert Gerlach a patch once I have a good answer on that one.
+> It would also be nice to get the kernel bits for this driver upstream.
+> Barring some trivial printk/pr_debug things it looks to me to be in
+> perfectly good shape to go upstream, and it's kind of handy when the
+> buttons work on your tablet !
+
+I already improved code cleanness. This version has removed printk's  
+and passed
+checkpatch. I will send it to platform-driver-x86 list shortly.
+
+   Robert
+

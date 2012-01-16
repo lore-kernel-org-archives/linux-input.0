@@ -1,18 +1,19 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 1/2] hid-multitouch: add support for trackpads
-Date: Mon, 16 Jan 2012 15:53:04 +0100
-Message-ID: <20120116145304.GA9828@polaris.bitmath.org>
+Subject: Re: [PATCH 2/2] HID: multitouch: support Perixx PERIPAD 701
+Date: Mon, 16 Jan 2012 16:04:27 +0100
+Message-ID: <20120116150427.GB9828@polaris.bitmath.org>
 References: <1326469531-26808-1-git-send-email-benjamin.tissoires@enac.fr>
+ <1326469531-26808-2-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:42583 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752188Ab2APOxI (ORCPT
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:55996 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754891Ab2APPEY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Jan 2012 09:53:08 -0500
+	Mon, 16 Jan 2012 10:04:24 -0500
 Content-Disposition: inline
-In-Reply-To: <1326469531-26808-1-git-send-email-benjamin.tissoires@enac.fr>
+In-Reply-To: <1326469531-26808-2-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
@@ -20,111 +21,179 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, 
 
 Hi Benjamin,
 
-> * some multitouch trackpads present the touch usage. This needs to be
-> filtered as it will conflict with mt-implementation.
-> * trackpads send BTN_TOOL_* to notify how many fingers are present
-> (this is used by xorg to use synaptics instead of generic evdev)
-> * trackpads like Perixx 701 are not different from a hid point of view
-> from a touchscreen, and we need to manually set them as touchpad.
+> Perrix Peripad 701 is an hybrid device which presents a touchpad and
+> a keyboard on the same surface. The switch between the two is controlled
+> by a physical switch, and the firmware sends the events on the right
+> interface (mouse, keyboard or multitouch).
+> This patch enables the multitouch interface of this device to work.
+> 
+> We need to manually set the device as a trackpad (we cannot infer it
+> from the reports descriptors as the device works under Windows, a system
+> that does not allow multitouch touchpad).
+> We also need to set the hid feature MAX CONTACT NUMBER to 2 or the device
+> stops sending events once it has been pressed by two touches.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
+>  drivers/hid/Kconfig          |    1 +
+>  drivers/hid/hid-ids.h        |    1 +
+>  drivers/hid/hid-multitouch.c |   47 ++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 49 insertions(+), 0 deletions(-)
 
-Missing subject line?
+What tree does this patch apply to?
 
-> @@ -265,17 +266,31 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  {
->  	struct mt_device *td = hid_get_drvdata(hdev);
->  	struct mt_class *cls = &td->mtclass;
-> +	int code;
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index a421abd..f7c43b6 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -355,6 +355,7 @@ config HID_MULTITOUCH
+>  	  - Lumio CrystalTouch panels
+>  	  - MosArt dual-touch panels
+>  	  - PenMount dual touch panels
+> +	  - Perixx Peripad 701 touchpad
+>  	  - PixArt optical touch screen
+>  	  - Pixcir dual touch panels
+>  	  - Quanta panels
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index b8574cd..662a0b6 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -659,6 +659,7 @@
 >  
->  	/* Only map fields from TouchScreen or TouchPad collections.
->           * We need to ignore fields that belong to other collections
->           * such as Mouse that might have the same GenericDesktop usages. */
->  	if (field->application == HID_DG_TOUCHSCREEN)
->  		set_bit(INPUT_PROP_DIRECT, hi->input->propbit);
-> -	else if (field->application == HID_DG_TOUCHPAD)
-> -		set_bit(INPUT_PROP_POINTER, hi->input->propbit);
-> -	else
-> +	else if (field->application != HID_DG_TOUCHPAD)
->  		return 0;
+>  #define USB_VENDOR_ID_TOPSEED2		0x1784
+>  #define USB_DEVICE_ID_TOPSEED2_RF_COMBO	0x0004
+> +#define USB_DEVICE_ID_TOPSEED2_PERIPAD_701	0x0016
 >  
-> +	/* In case of an indirect device (touchpad), we need to add
-> +	 * specific BTN_TOOL_* to be handled by the synaptics xorg
-> +	 * driver.
-> +	 * We also consider that touchscreens providing buttons are touchpads.
-> +	 */
-> +	if (field->application == HID_DG_TOUCHPAD ||
-> +	    (usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON ||
-> +	    cls->is_indirect) {
-> +		set_bit(INPUT_PROP_POINTER, hi->input->propbit);
-> +		set_bit(BTN_TOOL_FINGER, hi->input->keybit);
-> +		set_bit(BTN_TOOL_DOUBLETAP, hi->input->keybit);
-> +		set_bit(BTN_TOOL_TRIPLETAP, hi->input->keybit);
-> +		set_bit(BTN_TOOL_QUADTAP, hi->input->keybit);
-> +	}
-> +
->  	/* eGalax devices provide a Digitizer.Stylus input which overrides
->  	 * the correct Digitizers.Finger X/Y ranges.
->  	 * Let's just ignore this input. */
-> @@ -389,9 +404,20 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  				td->last_field_index = field->index;
->  			return -1;
->  		}
-> +		case HID_DG_TOUCH:
-> +			/* Legacy devices use TIPSWITCH and not TOUCH.
-> +			 * Let's just ignore this field. */
-> +			return -1;
->  		/* let hid-input decide for the others */
->  		return 0;
->  
-> +	case HID_UP_BUTTON:
-> +		code = ((usage->hid - 1) & HID_USAGE);
-> +		code += BTN_MOUSE;
+>  #define USB_VENDOR_ID_TOPMAX		0x0663
+>  #define USB_DEVICE_ID_TOPMAX_COBRAPAD	0x0103
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 1ba60d3..a3fa874 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -77,6 +77,8 @@ struct mt_device {
+>  	unsigned last_slot_field;	/* the last field of a slot */
+>  	int last_mt_collection;	/* last known mt-related collection */
+>  	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
+> +	__s8 maxcontactnumber;		/* Maximum Contact Number HID feature,
+> +				   -1 if non-existent */
 
-Any reason not to write ((usage->hid - 1) & HID_USAGE) | BTN_MOUSE?
+How about separating this addition from the device patch?
 
-> +		hid_map_usage(hi, usage, bit, max, EV_KEY, code);
-> +		input_set_capability(hi->input, EV_KEY, code);
-> +		return 1;
-> +
->  	case 0xff000000:
->  		/* we do not want to map these: no input-oriented meaning */
->  		return -1;
-> @@ -453,6 +479,7 @@ static void mt_complete_slot(struct mt_device *td)
->  static void mt_emit_event(struct mt_device *td, struct input_dev *input)
->  {
->  	int i;
-> +	int finger_count = 0;
+>  	__u8 num_received;	/* how many contacts we received */
+>  	__u8 num_expected;	/* expected last contact index */
+>  	__u8 maxcontacts;
+> @@ -101,6 +103,7 @@ struct mt_device {
+>  #define MT_CLS_CYPRESS				0x0102
+>  #define MT_CLS_EGALAX				0x0103
+>  #define MT_CLS_EGALAX_SERIAL			0x0104
+> +#define MT_CLS_TOPSEED				0x0105
 >  
->  	for (i = 0; i < td->maxcontacts; ++i) {
->  		struct mt_slot *s = &(td->slots[i]);
-> @@ -477,12 +504,14 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
->  			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
->  			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
->  			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
-> +			finger_count++;
->  		}
->  		s->seen_in_this_frame = false;
+>  #define MT_DEFAULT_MAXCONTACT	10
 >  
+> @@ -190,6 +193,11 @@ static struct mt_class mt_classes[] = {
+>  		.sn_move = 4096,
+>  		.sn_pressure = 32,
+>  	},
+> +	{ .name = MT_CLS_TOPSEED,
+> +		.quirks = MT_QUIRK_ALWAYS_VALID,
+> +		.is_indirect = true,
+> +		.maxcontacts = 2,
+> +	},
+>  
+>  	{ }
+>  };
+> @@ -242,6 +250,7 @@ static void mt_feature_mapping(struct hid_device *hdev,
+>  		td->inputmode = field->report->id;
+>  		break;
+>  	case HID_DG_CONTACTMAX:
+> +		td->maxcontactnumber = field->report->id;
+>  		td->maxcontacts = field->value[0];
+>  		if (td->mtclass.maxcontacts)
+>  			/* check if the maxcontacts is given by the class */
+
+Contactnumber is a bit unclear, easily mistaken for maxcontacts
+semantic. How about a maxcontact_(id|rid|report_id) instead?
+
+> @@ -610,6 +619,36 @@ static void mt_set_input_mode(struct hid_device *hdev)
 >  	}
->  
->  	input_mt_report_pointer_emulation(input, true);
-> +	input_mt_report_finger_count(input, finger_count);
->  	input_sync(input);
->  	td->num_received = 0;
 >  }
-> @@ -538,6 +567,9 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->  			if (value)
->  				td->num_expected = value;
->  			break;
-> +		case HID_DG_TOUCH:
-> +			/* do nothing */
-> +			break;
 >  
->  		default:
->  			/* fallback to the generic hidinput handling */
+> +static void mt_set_maxcontacts(struct hid_device *hdev)
+> +{
+> +	struct mt_device *td = hid_get_drvdata(hdev);
+> +	struct hid_report *r;
+> +	struct hid_report_enum *re;
+> +	int fieldmax, max;
+> +
+> +	if (td->maxcontactnumber < 0)
+> +		return;
+> +
+> +	if (!td->mtclass.maxcontacts)
+> +		return;
+> +
+> +	re = &(hdev->report_enum[HID_FEATURE_REPORT]);
+> +	r = re->report_id_hash[td->maxcontactnumber];
+> +	if (r) {
+> +		max = td->mtclass.maxcontacts;
+> +		fieldmax = r->field[0]->logical_maximum;
+> +		hid_info(hdev, "%s: value = %d / %d / %d\n", __func__,
+> +			r->field[0]->value[0],
+> +			td->mtclass.maxcontacts,
+> +			fieldmax);
+> +		max = fieldmax < max ? fieldmax : max;
+> +		if (r->field[0]->value[0] != max) {
+> +			r->field[0]->value[0] = max;
+> +			usbhid_submit_report(hdev, r, USB_DIR_OUT);
+> +		}
+> +	}
+> +}
+> +
+
+This seems to execute for all devices, not only for the present device?
+
+>  static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  {
+>  	int ret, i;
+> @@ -635,6 +674,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  	}
+>  	td->mtclass = *mtclass;
+>  	td->inputmode = -1;
+> +	td->maxcontactnumber = -1;
+>  	td->last_mt_collection = -1;
+>  	hid_set_drvdata(hdev, td);
+>  
+> @@ -657,6 +697,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  
+>  	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
+>  
+> +	mt_set_maxcontacts(hdev);
+>  	mt_set_input_mode(hdev);
+>  
+>  	return 0;
+> @@ -669,6 +710,7 @@ fail:
+>  #ifdef CONFIG_PM
+>  static int mt_reset_resume(struct hid_device *hdev)
+>  {
+> +	mt_set_maxcontacts(hdev);
+>  	mt_set_input_mode(hdev);
+>  	return 0;
+>  }
+> @@ -869,6 +911,11 @@ static const struct hid_device_id mt_devices[] = {
+>  		HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX,
+>  			USB_DEVICE_ID_MTP_SITRONIX)},
+>  
+> +	/* TopSeed panels */
+> +	{ .driver_data = MT_CLS_TOPSEED,
+> +		HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED2,
+> +			USB_DEVICE_ID_TOPSEED2_PERIPAD_701) },
+> +
+>  	/* Touch International panels */
+>  	{ .driver_data = MT_CLS_DEFAULT,
+>  		HID_USB_DEVICE(USB_VENDOR_ID_TOUCH_INTL,
 > -- 
 > 1.7.4.4
-
-Looks good otherwise.
+> 
 
 Thanks,
 Henrik

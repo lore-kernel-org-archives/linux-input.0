@@ -1,61 +1,130 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v9 1/3] Input: cyttsp - Cypress TTSP capacitive
- multi-touch screen support
-Date: Mon, 16 Jan 2012 14:14:24 +0100
-Message-ID: <20120116131424.GA6113@polaris.bitmath.org>
-References: <1326508373-23444-1-git-send-email-javier@dowhile0.org>
+Subject: Re: [PATCH 1/2] hid-multitouch: add support for trackpads
+Date: Mon, 16 Jan 2012 15:53:04 +0100
+Message-ID: <20120116145304.GA9828@polaris.bitmath.org>
+References: <1326469531-26808-1-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:42472 "EHLO
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:42583 "EHLO
 	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752066Ab2APNOa (ORCPT
+	with ESMTP id S1752188Ab2APOxI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Jan 2012 08:14:30 -0500
-Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
-	by smtprelay-b12.telenor.se (Postfix) with ESMTP id 5A8DCDEF7
-	for <linux-input@vger.kernel.org>; Mon, 16 Jan 2012 14:14:20 +0100 (CET)
+	Mon, 16 Jan 2012 09:53:08 -0500
 Content-Disposition: inline
-In-Reply-To: <1326508373-23444-1-git-send-email-javier@dowhile0.org>
+In-Reply-To: <1326469531-26808-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier@dowhile0.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-Hi Javier,
+Hi Benjamin,
 
-> Cypress TrueTouch(tm) Standard Product controllers are found in
-> a wide range of embedded devices. This driver add support for a
-> variety of TTSP controllers.
-> 
-> Since the hardware is capable of tracking identifiable contacts, multi-touch
-> protocol type B (stateful) is used to report contact information.
-> 
-> The driver is composed of a core driver that process the data sent by
-> the contacts and a set of bus specific interface modules. This patch
-> adds the base core TTSP driver.
-> 
-> Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
-> ---
-> 
-> Changes for v9 suggested by Henrik Rydberg:
->     - Simplify cyttsp_bl_app_valid() function
->     - Remove retry logic since is already done in ttsp[read | write]_block_data
-> 
->  drivers/input/touchscreen/Kconfig       |   31 ++
->  drivers/input/touchscreen/Makefile      |    3 +
->  drivers/input/touchscreen/cyttsp_core.c |  703 +++++++++++++++++++++++++++++++
->  drivers/input/touchscreen/cyttsp_core.h |  141 ++++++
->  include/linux/input/cyttsp.h            |   69 +++
->  5 files changed, 947 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/touchscreen/cyttsp_core.c
->  create mode 100644 drivers/input/touchscreen/cyttsp_core.h
->  create mode 100644 include/linux/input/cyttsp.h
+> * some multitouch trackpads present the touch usage. This needs to be
+> filtered as it will conflict with mt-implementation.
+> * trackpads send BTN_TOOL_* to notify how many fingers are present
+> (this is used by xorg to use synaptics instead of generic evdev)
+> * trackpads like Perixx 701 are not different from a hid point of view
+> from a touchscreen, and we need to manually set them as touchpad.
 
-Looks reasonable now, so
+Missing subject line?
 
-    Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+> @@ -265,17 +266,31 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  {
+>  	struct mt_device *td = hid_get_drvdata(hdev);
+>  	struct mt_class *cls = &td->mtclass;
+> +	int code;
+>  
+>  	/* Only map fields from TouchScreen or TouchPad collections.
+>           * We need to ignore fields that belong to other collections
+>           * such as Mouse that might have the same GenericDesktop usages. */
+>  	if (field->application == HID_DG_TOUCHSCREEN)
+>  		set_bit(INPUT_PROP_DIRECT, hi->input->propbit);
+> -	else if (field->application == HID_DG_TOUCHPAD)
+> -		set_bit(INPUT_PROP_POINTER, hi->input->propbit);
+> -	else
+> +	else if (field->application != HID_DG_TOUCHPAD)
+>  		return 0;
+>  
+> +	/* In case of an indirect device (touchpad), we need to add
+> +	 * specific BTN_TOOL_* to be handled by the synaptics xorg
+> +	 * driver.
+> +	 * We also consider that touchscreens providing buttons are touchpads.
+> +	 */
+> +	if (field->application == HID_DG_TOUCHPAD ||
+> +	    (usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON ||
+> +	    cls->is_indirect) {
+> +		set_bit(INPUT_PROP_POINTER, hi->input->propbit);
+> +		set_bit(BTN_TOOL_FINGER, hi->input->keybit);
+> +		set_bit(BTN_TOOL_DOUBLETAP, hi->input->keybit);
+> +		set_bit(BTN_TOOL_TRIPLETAP, hi->input->keybit);
+> +		set_bit(BTN_TOOL_QUADTAP, hi->input->keybit);
+> +	}
+> +
+>  	/* eGalax devices provide a Digitizer.Stylus input which overrides
+>  	 * the correct Digitizers.Finger X/Y ranges.
+>  	 * Let's just ignore this input. */
+> @@ -389,9 +404,20 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  				td->last_field_index = field->index;
+>  			return -1;
+>  		}
+> +		case HID_DG_TOUCH:
+> +			/* Legacy devices use TIPSWITCH and not TOUCH.
+> +			 * Let's just ignore this field. */
+> +			return -1;
+>  		/* let hid-input decide for the others */
+>  		return 0;
+>  
+> +	case HID_UP_BUTTON:
+> +		code = ((usage->hid - 1) & HID_USAGE);
+> +		code += BTN_MOUSE;
 
-Thanks for your patience.
+Any reason not to write ((usage->hid - 1) & HID_USAGE) | BTN_MOUSE?
 
+> +		hid_map_usage(hi, usage, bit, max, EV_KEY, code);
+> +		input_set_capability(hi->input, EV_KEY, code);
+> +		return 1;
+> +
+>  	case 0xff000000:
+>  		/* we do not want to map these: no input-oriented meaning */
+>  		return -1;
+> @@ -453,6 +479,7 @@ static void mt_complete_slot(struct mt_device *td)
+>  static void mt_emit_event(struct mt_device *td, struct input_dev *input)
+>  {
+>  	int i;
+> +	int finger_count = 0;
+>  
+>  	for (i = 0; i < td->maxcontacts; ++i) {
+>  		struct mt_slot *s = &(td->slots[i]);
+> @@ -477,12 +504,14 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
+>  			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
+>  			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
+>  			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
+> +			finger_count++;
+>  		}
+>  		s->seen_in_this_frame = false;
+>  
+>  	}
+>  
+>  	input_mt_report_pointer_emulation(input, true);
+> +	input_mt_report_finger_count(input, finger_count);
+>  	input_sync(input);
+>  	td->num_received = 0;
+>  }
+> @@ -538,6 +567,9 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+>  			if (value)
+>  				td->num_expected = value;
+>  			break;
+> +		case HID_DG_TOUCH:
+> +			/* do nothing */
+> +			break;
+>  
+>  		default:
+>  			/* fallback to the generic hidinput handling */
+> -- 
+> 1.7.4.4
+
+Looks good otherwise.
+
+Thanks,
 Henrik

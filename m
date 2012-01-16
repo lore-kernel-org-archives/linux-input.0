@@ -1,28 +1,49 @@
-From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Subject: Re: [PATCH 2/2] HID: multitouch: support Perixx PERIPAD 701
-Date: Mon, 16 Jan 2012 16:15:04 +0100
-Message-ID: <CAPHpN5N8omqUJuCFqCLfHEMkj5H1eQbDJ=4bpZ4niPbEEwtnww@mail.gmail.com>
-References: <1326469531-26808-1-git-send-email-benjamin.tissoires@enac.fr> <1326469531-26808-2-git-send-email-benjamin.tissoires@enac.fr>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [RFC PATCH 2/3] radio-keene: add a driver for the Keene FM
+ Transmitter.
+Date: Mon, 16 Jan 2012 17:28:13 +0000
+Message-ID: <20120116172813.39bd4da6@pyramind.ukuu.org.uk>
+References: <1326716960-4424-1-git-send-email-hverkuil@xs4all.nl>
+	<201201161344.37499.oneukum@suse.de>
+	<201201161402.06027.hverkuil@xs4all.nl>
+	<201201161411.20514.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:63860 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754320Ab2APPP1 (ORCPT
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:34310 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754152Ab2APR07 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Jan 2012 10:15:27 -0500
-In-Reply-To: <1326469531-26808-2-git-send-email-benjamin.tissoires@enac.fr>
+	Mon, 16 Jan 2012 12:26:59 -0500
+In-Reply-To: <201201161411.20514.oneukum@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: Oliver Neukum <oneukum@suse.de>
+Cc: Hans Verkuil <hverkuil@xs4all.nl>, linux-media@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Hans Verkuil <hans.verkuil@cisco.com>
 
-Hi All,
+On Mon, 16 Jan 2012 14:11:20 +0100
+Oliver Neukum <oneukum@suse.de> wrote:
 
-On Fri, Jan 13, 2012 at 4:45 PM, Benjamin Tissoires
-<benjamin.tissoires@enac.fr> wrote:
-> Perrix Peripad 701 is an hybrid device which presents a touchpad and
+> Am Montag, 16. Januar 2012, 14:02:05 schrieb Hans Verkuil:
+> > > > +/* Set frequency (if non-0), PA, mute and turn on/off the FM
+> > > > transmitter. */ +static int keene_cmd_main(struct keene_device *radio,
+> > > > unsigned freq, bool play) +{
+> > > > +   unsigned short freq_send = freq ? (freq - 76 * 16000) / 800 : 0;
+> > > > +   int ret;
+> > > > +
+> > > > +   radio->buffer[0] = 0x00;
+> > > > +   radio->buffer[1] = 0x50;
+> > > > +   radio->buffer[2] = (freq_send >> 8) & 0xff;
+> > > > +   radio->buffer[3] = freq_send & 0xff;
+> > > 
+> > > Please use the endianness macro appropriate here
+> > 
+> > I don't see any endianness issues here, but perhaps I missed something.
+> 
+> You are doing the endianness conversion by hand. We have a nice macro
 
-There is also a small typo in the subject, it's "Perixx" not "Perrix"
+No - it's packing bytes into a buffer from a u16. That doesn't have a
+macro.
 
-i
+Alan

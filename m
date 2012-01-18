@@ -1,34 +1,57 @@
-From: Anisha Kaul <born.rebel.83@gmail.com>
-Subject: Re: fftest: Force feedback doesn't work in native mode
-Date: Wed, 18 Jan 2012 13:28:31 +0530
-Message-ID: <CAM1yFZ8_VEhsY9qe6Rt_8Ojb89CUUMskQdGDv5GomEVGNBDvxQ@mail.gmail.com>
+From: aamb@uci.edu
+Subject: =?utf-8?q?Shanghai=E2=84=A2_Industrial_Holdings_Limited=2E?=
+Date: Wed, 18 Jan 2012 16:31:51 +0800
+Message-ID: <UM-TSMTPOUT1TvCv3uS00013766@um-tsmtpout1.um.umsystem.edu>
+Reply-To: sholdingslimited@yahoo.com.hk
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:55673 "EHLO
-	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753023Ab2ARH6c (ORCPT
+Received: from mxnip01.um.umsystem.edu ([209.106.229.21]:32629 "EHLO
+	mxnip01.um.umsystem.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755622Ab2ARIlx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Jan 2012 02:58:32 -0500
-Received: by obcva7 with SMTP id va7so6855768obc.19
-        for <linux-input@vger.kernel.org>; Tue, 17 Jan 2012 23:58:31 -0800 (PST)
+	Wed, 18 Jan 2012 03:41:53 -0500
+Content-Description: Mail message body
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: linux-input@vger.kernel.org
+To: Recipients <aamb@uci.edu>
 
-On 18 January 2012 03:58,  <simon@mungewell.org> wrote:
-> Do you have the appropriate FF module built and loading in your kernel, it
-> was recently moved to be enabled with 'LOGIWHEELS_FF' and is supported by
-> the code in 'drivers/hid/hid-lg4ff.c'
+=2E..COMPANY 2012 E-MAIL AWARDS..
 
-And also, I don't have "hid-lg4ff.c" in this
-"linux-dopx:/usr/src/linux-2.6.34-12/drivers/hid" path. I have
-"hid-lg3ff.c" etc.
-Is it responsible for the force feedback not working in the native mode?
-Will I have to compile the kernel or something? :( :(
+ Dear E-mail User,
 
-Ah, or simply download that file and put its name in the respective
-Makefile? Not sure.
+We the Shanghai Group board of directors like to officially congratulat=
+e / inform=20
+you that your email address with MICROS ID( SIHL-20120-CHI-324TM-1KL )=20
+emerge our third  place winner of $498,000.00  from the SHANGHAI=E2=84=A2=
+ INDUSTRIAL HLDG LTD=20
+NEW YEAR PROMOTIONAL DRAW.Please confirm your status by Contacting Agen=
+t:
+ Mr.Tong Hin Wor , with info below..
 
--Anisha
+ ***Full Name
+ ***Country
+ ***Phone
+ ***Age
+ ***Gender
+ ***Occupation
+
+NB: No tickets were sold and you do not need to purchase any ticket to =
+redeem your cash prize.
+
+ Information and Payment Bureau:
+Malaysia Representative Office.
+Mr.Tong Hin Wor=20
+Phone Number: (+60)-164-316-980.
+Email: sholdingslimited@yahoo.com.hk
+
+
+ Signed,
+Ms. Nazirah Wo.
+SHANGHAI=E2=84=A2 INDUSTRIAL HLDG LTD
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,102 +1,111 @@
-From: Javier Martinez Canillas <martinez.javier@gmail.com>
-Subject: Re: [PATCH v9 1/3] Input: cyttsp - Cypress TTSP capacitive
- multi-touch screen support
-Date: Wed, 18 Jan 2012 22:35:48 +0100
-Message-ID: <CAAwP0s1Zu5cswyjCeZjm8PRHCVF9j551J=JzNrUgWAjw6xYqOg@mail.gmail.com>
-References: <1326508373-23444-1-git-send-email-javier@dowhile0.org>
- <20120118091253.GC32285@core.coreip.homeip.net> <CAAwP0s2=WtBS53o7nYTF512nCHJrtZZJQ88nLUsmDrRVuZ6-Qw@mail.gmail.com>
- <CAAwP0s1VGAe0q5cZ=DVRABP46RpfuJ=+Z-EQaNVZe0xnhDXqLw@mail.gmail.com> <20120118174722.GA9022@core.coreip.homeip.net>
+From: Andi <andi.shyti@gmail.com>
+Subject: Re: [PATCH] lis3lv02d: Add STMicroelectronics lis33ldlh digital
+Date: Wed, 18 Jan 2012 22:36:37 +0100
+Message-ID: <20120118213635.GB3401@gmail.com>
+References: <1324617892-14576-1-git-send-email-anilkumar@ti.com>
+ <331ABD5ECB02734CA317220B2BBEABC13177CDA4@DBDE01.ent.ti.com>
+ <201201181403.47806.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:62983 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751433Ab2ARVgJ convert rfc822-to-8bit (ORCPT
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:58543 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751433Ab2ARVhO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Jan 2012 16:36:09 -0500
-Received: by yenm6 with SMTP id m6so1082797yen.19
-        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2012 13:36:09 -0800 (PST)
-In-Reply-To: <20120118174722.GA9022@core.coreip.homeip.net>
+	Wed, 18 Jan 2012 16:37:14 -0500
+Content-Disposition: inline
+In-Reply-To: <201201181403.47806.arnd@arndb.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "AnilKumar, Chimata" <anilkumar@ti.com>, "greg@kroah.com" <greg@kroah.com>, "eric.piel@tremplin-utc.net" <eric.piel@tremplin-utc.net>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "broonie@opensource.wolfsonmicro.com" <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Nori, Sekhar" <nsekhar@ti.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
 
-On Wed, Jan 18, 2012 at 6:47 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Jan 18, 2012 at 11:35:28AM +0100, Javier Martinez Canillas wr=
-ote:
->> On Wed, Jan 18, 2012 at 10:20 AM, Javier Martinez Canillas
->> <martinez.javier@gmail.com> wrote:
->> > On Wed, Jan 18, 2012 at 10:12 AM, Dmitry Torokhov
->> > <dmitry.torokhov@gmail.com> wrote:
->> >> Hi Javier,
->> >>
->> >> On Sat, Jan 14, 2012 at 03:32:51AM +0100, Javier Martinez Canilla=
-s wrote:
->> >>> +
->> >>> +static int __cyttsp_disable(struct cyttsp *ts)
->> >>> +{
->> >>> + =C2=A0 =C2=A0 u8 sleep_mode =3D 0;
->> >>> + =C2=A0 =C2=A0 int retval =3D 0;
->> >>> +
->> >>> + =C2=A0 =C2=A0 if (ts->pdata->use_sleep && ts->power_state =3D=3D=
- CY_ACTIVE_STATE) {
->> >>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 sleep_mode =3D ts->p=
-data->use_sleep;
->> >>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 retval =3D ttsp_writ=
-e_block_data(ts, CY_REG_BASE,
->> >>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0sizeof(sleep_mode), &sleep_mode);
->> >>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (retval >=3D 0) {
->> >>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 ts->power_state =3D CY_SLEEP_STATE;
->> >>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 disable_irq(ts->irq);
->> >>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }
->> >>
->> >> I thought we agreed that we should put the device to sleep
->> >> unconditionally and not have use_sleep option?
->> >
->> > Yes, we did. Sorry, I've missed that. I'll change it and resend.
->> >
->> >>
->> >> Thanks.
->> >>
->> >> --
->> >> Dmitry
->> >> --
->>
->> Thanks Dmitry for the review.
->>
->> Any more issues you have found? So I can fix all of them for the nex=
-t
->> version of the patch.
->
-> I am still not quite happy with the flow of power_on function. Maybe =
-you
-> should fold cyttsp_bl_app_valid() into it to avoid dealing with negat=
-ive,
-> 0 and 1 return codes. If you also pull printing of the status out of =
-it
-> and into cyttsp_open() you'll be able to do early returns and avoid
-> Fortran-style control flow of gotos.
->
-> Thanks.
->
+Hi Arnd,
+
+ 
+What do you mean with "kernel-wide policy for accelerometer drivers"?
+As far as I know, accelerometer drivers are written between the i2c driver and the
+input driver.
+The input driver provides already some accelerometer specific event types, ABS_X, ABS_Y, ABS_Z,
+in your opinion isn't it enough?
+If you mean something like collecting common properties like g range or frequency or whatever in a
+standard interface, then I think that accelerometers are quite different as devices and sometimes
+it could be difficult to arrange a common interface.
+
+Andi
+
+
+On Wed, Jan 18, 2012 at 02:03:47PM +0000, Arnd Bergmann wrote:
+> On Tuesday 17 January 2012, AnilKumar, Chimata wrote:
+> > Hi All,
+> > 
+> > Recalling the patch, provide the comments if there are any if not please include
+> > this patch to v3.3 kernel.
+> 
+> As Mark and Greg said, 3.4 would be appropriate.
+> 
+> > +static ssize_t lis3lv02d_range_set(struct device *dev,
+> > +				struct device_attribute *attr, const char *buf,
+> > +				size_t count)
+> > +{
+> > +	unsigned long range;
+> > +
+> > +	if (strict_strtoul(buf, 0, &range))
+> > +		return -EINVAL;
+> > +
+> > +	lis3_dev.g_range = range;
+> > +	lis3lv02d_update_g_range(&lis3_dev);
+> > +
+> > +	return count;
+> > +}
+> > +
+> >  static DEVICE_ATTR(selftest, S_IRUSR, lis3lv02d_selftest_show, NULL);
+> >  static DEVICE_ATTR(position, S_IRUGO, lis3lv02d_position_show, NULL);
+> >  static DEVICE_ATTR(rate, S_IRUGO | S_IWUSR, lis3lv02d_rate_show,
+> >  					    lis3lv02d_rate_set);
+> > +static DEVICE_ATTR(range, S_IRUGO | S_IWUSR, lis3lv02d_range_show,
+> > +					    lis3lv02d_range_set);
+> 
+> I think you need to document this new attribute in the Documentation
+> directory, unless I missed the other patch doing this.
+> 
+> On a more general topic, do we have a kernel-wide policy for accelerometer
+> drivers? AFAICT, we currently have three subsystems that contain 
+> accelerometer drivers, plus a few ad-hoc ones like this, which is a
+> rather unpleasant situation. What I found are these:
+> 
+> $ git grep -l accelerometer drivers/ | manual_grep
+> drivers/hwmon/applesmc.c
+>    (one hwmon sysfs attribute for x/y/z)
+> drivers/input/misc/adxl34x.c
+>    (lots of sysfs attributes, input_report_key)
+> drivers/input/misc/cma3000_d0x.c
+>    (input_report_abs)
+> drivers/input/misc/kxtj9.c
+>    (input_report_abs, plus one aux sysfs attribute)
+> drivers/macintosh/ams/ams-core.c
+>    (one sysfs attribute for x/y/z)
+> drivers/misc/lis3lv02d/
+>    (multiple sysfs attributes)
+> drivers/platform/x86/hdaps.c
+>    (multiple sysfs attributes, only x/y)
+> drivers/platform/x86/hp_accel.c
+>    (hooks into drivers/misc/lis3lv02d/)
+> drivers/staging/iio/accel/kxsd9.c
+>    (iio)
+> drivers/staging/iio/accel/sca3000_core.c
+>    (iio plus extra attributes)
+> 
+> While I'm not blaming you for the current situation, but I think the
+> situation is no longer sustainable and we need to decide on one place
+> and interface for these to go in the long run so we don't grow even
+> more nonstandard interfaces.
+> 
+> Any opinions where they should live? input, iio or a new subsystem?
+> 
+> 	Arnd
 > --
-> Dmitry
-
-Ok, I'll change those functions as you suggest besides removing the
-use_sleep to unconditionally put in low mode the device and resend a
-new version.
-
-Thanks and best regards,
-Javier
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,98 +1,89 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH v2 3/3] HID: multitouch: support Perixx PERIPAD 701
-Date: Wed, 18 Jan 2012 12:51:08 +0100
-Message-ID: <1326887468-5148-4-git-send-email-benjamin.tissoires@enac.fr>
-References: <1326887468-5148-1-git-send-email-benjamin.tissoires@enac.fr>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] lis3lv02d: Add STMicroelectronics lis33ldlh digital
+Date: Wed, 18 Jan 2012 14:03:47 +0000
+Message-ID: <201201181403.47806.arnd@arndb.de>
+References: <1324617892-14576-1-git-send-email-anilkumar@ti.com> <331ABD5ECB02734CA317220B2BBEABC13177CDA4@DBDE01.ent.ti.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 88-230.252-81.static-ip.oleane.fr ([81.252.230.88]:58458 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752979Ab2ARLvj (ORCPT
+Received: from moutng.kundenserver.de ([212.227.126.187]:53416 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757529Ab2AROEJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Jan 2012 06:51:39 -0500
-In-Reply-To: <1326887468-5148-1-git-send-email-benjamin.tissoires@enac.fr>
+	Wed, 18 Jan 2012 09:04:09 -0500
+In-Reply-To: <331ABD5ECB02734CA317220B2BBEABC13177CDA4@DBDE01.ent.ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "AnilKumar, Chimata" <anilkumar@ti.com>
+Cc: "greg@kroah.com" <greg@kroah.com>, "eric.piel@tremplin-utc.net" <eric.piel@tremplin-utc.net>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "broonie@opensource.wolfsonmicro.com" <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Nori, Sekhar" <nsekhar@ti.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
 
-Perixx Peripad 701 is an hybrid device which presents a touchpad and
-a keyboard on the same surface. The switch between the two is controlled
-by a physical switch, and the firmware sends the events on the right
-interface (mouse, keyboard or multitouch).
-This patch enables the multitouch interface of this device to work.
+On Tuesday 17 January 2012, AnilKumar, Chimata wrote:
+> Hi All,
+> 
+> Recalling the patch, provide the comments if there are any if not please include
+> this patch to v3.3 kernel.
 
-We need to manually declare the device as a trackpad (we cannot infer it
-from the reports descriptors as the device works under Windows, a system
-that does not allow multitouch touchpad).
-We also need to set the hid feature MAX CONTACT NUMBER to 2 or the device
-stops sending events once it has been pressed by two touches.
+As Mark and Greg said, 3.4 would be appropriate.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
----
- drivers/hid/Kconfig          |    1 +
- drivers/hid/hid-ids.h        |    1 +
- drivers/hid/hid-multitouch.c |   11 +++++++++++
- 3 files changed, 13 insertions(+), 0 deletions(-)
+> +static ssize_t lis3lv02d_range_set(struct device *dev,
+> +				struct device_attribute *attr, const char *buf,
+> +				size_t count)
+> +{
+> +	unsigned long range;
+> +
+> +	if (strict_strtoul(buf, 0, &range))
+> +		return -EINVAL;
+> +
+> +	lis3_dev.g_range = range;
+> +	lis3lv02d_update_g_range(&lis3_dev);
+> +
+> +	return count;
+> +}
+> +
+>  static DEVICE_ATTR(selftest, S_IRUSR, lis3lv02d_selftest_show, NULL);
+>  static DEVICE_ATTR(position, S_IRUGO, lis3lv02d_position_show, NULL);
+>  static DEVICE_ATTR(rate, S_IRUGO | S_IWUSR, lis3lv02d_rate_show,
+>  					    lis3lv02d_rate_set);
+> +static DEVICE_ATTR(range, S_IRUGO | S_IWUSR, lis3lv02d_range_show,
+> +					    lis3lv02d_range_set);
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index a421abd..f7c43b6 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -355,6 +355,7 @@ config HID_MULTITOUCH
- 	  - Lumio CrystalTouch panels
- 	  - MosArt dual-touch panels
- 	  - PenMount dual touch panels
-+	  - Perixx Peripad 701 touchpad
- 	  - PixArt optical touch screen
- 	  - Pixcir dual touch panels
- 	  - Quanta panels
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b8574cd..662a0b6 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -659,6 +659,7 @@
- 
- #define USB_VENDOR_ID_TOPSEED2		0x1784
- #define USB_DEVICE_ID_TOPSEED2_RF_COMBO	0x0004
-+#define USB_DEVICE_ID_TOPSEED2_PERIPAD_701	0x0016
- 
- #define USB_VENDOR_ID_TOPMAX		0x0663
- #define USB_DEVICE_ID_TOPMAX_COBRAPAD	0x0103
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index fd978c9..8a6b823 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -103,6 +103,7 @@ struct mt_device {
- #define MT_CLS_CYPRESS				0x0102
- #define MT_CLS_EGALAX				0x0103
- #define MT_CLS_EGALAX_SERIAL			0x0104
-+#define MT_CLS_TOPSEED				0x0105
- 
- #define MT_DEFAULT_MAXCONTACT	10
- 
-@@ -192,6 +193,11 @@ static struct mt_class mt_classes[] = {
- 		.sn_move = 4096,
- 		.sn_pressure = 32,
- 	},
-+	{ .name = MT_CLS_TOPSEED,
-+		.quirks = MT_QUIRK_ALWAYS_VALID,
-+		.is_indirect = true,
-+		.maxcontacts = 2,
-+	},
- 
- 	{ }
- };
-@@ -904,6 +910,11 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX,
- 			USB_DEVICE_ID_MTP_SITRONIX)},
- 
-+	/* TopSeed panels */
-+	{ .driver_data = MT_CLS_TOPSEED,
-+		HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED2,
-+			USB_DEVICE_ID_TOPSEED2_PERIPAD_701) },
-+
- 	/* Touch International panels */
- 	{ .driver_data = MT_CLS_DEFAULT,
- 		HID_USB_DEVICE(USB_VENDOR_ID_TOUCH_INTL,
--- 
-1.7.4.4
+I think you need to document this new attribute in the Documentation
+directory, unless I missed the other patch doing this.
 
+On a more general topic, do we have a kernel-wide policy for accelerometer
+drivers? AFAICT, we currently have three subsystems that contain 
+accelerometer drivers, plus a few ad-hoc ones like this, which is a
+rather unpleasant situation. What I found are these:
+
+$ git grep -l accelerometer drivers/ | manual_grep
+drivers/hwmon/applesmc.c
+   (one hwmon sysfs attribute for x/y/z)
+drivers/input/misc/adxl34x.c
+   (lots of sysfs attributes, input_report_key)
+drivers/input/misc/cma3000_d0x.c
+   (input_report_abs)
+drivers/input/misc/kxtj9.c
+   (input_report_abs, plus one aux sysfs attribute)
+drivers/macintosh/ams/ams-core.c
+   (one sysfs attribute for x/y/z)
+drivers/misc/lis3lv02d/
+   (multiple sysfs attributes)
+drivers/platform/x86/hdaps.c
+   (multiple sysfs attributes, only x/y)
+drivers/platform/x86/hp_accel.c
+   (hooks into drivers/misc/lis3lv02d/)
+drivers/staging/iio/accel/kxsd9.c
+   (iio)
+drivers/staging/iio/accel/sca3000_core.c
+   (iio plus extra attributes)
+
+While I'm not blaming you for the current situation, but I think the
+situation is no longer sustainable and we need to decide on one place
+and interface for these to go in the long run so we don't grow even
+more nonstandard interfaces.
+
+Any opinions where they should live? input, iio or a new subsystem?
+
+	Arnd

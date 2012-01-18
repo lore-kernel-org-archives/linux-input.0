@@ -1,57 +1,48 @@
-From: aamb@uci.edu
-Subject: =?utf-8?q?Shanghai=E2=84=A2_Industrial_Holdings_Limited=2E?=
-Date: Wed, 18 Jan 2012 16:31:51 +0800
-Message-ID: <UM-TSMTPOUT1TvCv3uS00013766@um-tsmtpout1.um.umsystem.edu>
-Reply-To: sholdingslimited@yahoo.com.hk
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v9 1/3] Input: cyttsp - Cypress TTSP capacitive
+ multi-touch screen support
+Date: Wed, 18 Jan 2012 01:12:53 -0800
+Message-ID: <20120118091253.GC32285@core.coreip.homeip.net>
+References: <1326508373-23444-1-git-send-email-javier@dowhile0.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mxnip01.um.umsystem.edu ([209.106.229.21]:32629 "EHLO
-	mxnip01.um.umsystem.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755622Ab2ARIlx convert rfc822-to-8bit (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:61573 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757194Ab2ARJM7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Jan 2012 03:41:53 -0500
-Content-Description: Mail message body
+	Wed, 18 Jan 2012 04:12:59 -0500
+Received: by iagf6 with SMTP id f6so5694721iag.19
+        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2012 01:12:58 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1326508373-23444-1-git-send-email-javier@dowhile0.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Recipients <aamb@uci.edu>
+To: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org
 
-=2E..COMPANY 2012 E-MAIL AWARDS..
+Hi Javier,
 
- Dear E-mail User,
+On Sat, Jan 14, 2012 at 03:32:51AM +0100, Javier Martinez Canillas wrote:
+> +
+> +static int __cyttsp_disable(struct cyttsp *ts)
+> +{
+> +	u8 sleep_mode = 0;
+> +	int retval = 0;
+> +
+> +	if (ts->pdata->use_sleep && ts->power_state == CY_ACTIVE_STATE) {
+> +		sleep_mode = ts->pdata->use_sleep;
+> +		retval = ttsp_write_block_data(ts, CY_REG_BASE,
+> +					       sizeof(sleep_mode), &sleep_mode);
+> +		if (retval >= 0) {
+> +			ts->power_state = CY_SLEEP_STATE;
+> +			disable_irq(ts->irq);
+> +		}
 
-We the Shanghai Group board of directors like to officially congratulat=
-e / inform=20
-you that your email address with MICROS ID( SIHL-20120-CHI-324TM-1KL )=20
-emerge our third  place winner of $498,000.00  from the SHANGHAI=E2=84=A2=
- INDUSTRIAL HLDG LTD=20
-NEW YEAR PROMOTIONAL DRAW.Please confirm your status by Contacting Agen=
-t:
- Mr.Tong Hin Wor , with info below..
+I thought we agreed that we should put the device to sleep
+unconditionally and not have use_sleep option?
 
- ***Full Name
- ***Country
- ***Phone
- ***Age
- ***Gender
- ***Occupation
+Thanks.
 
-NB: No tickets were sold and you do not need to purchase any ticket to =
-redeem your cash prize.
-
- Information and Payment Bureau:
-Malaysia Representative Office.
-Mr.Tong Hin Wor=20
-Phone Number: (+60)-164-316-980.
-Email: sholdingslimited@yahoo.com.hk
-
-
- Signed,
-Ms. Nazirah Wo.
-SHANGHAI=E2=84=A2 INDUSTRIAL HLDG LTD
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

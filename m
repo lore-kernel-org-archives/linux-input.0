@@ -1,31 +1,56 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] lis3lv02d: Add STMicroelectronics lis33ldlh digital
-Date: Thu, 19 Jan 2012 17:29:33 +0000
-Message-ID: <20120119172933.GI3178@opensource.wolfsonmicro.com>
-References: <1324617892-14576-1-git-send-email-anilkumar@ti.com>
- <201201181711.15751.arnd@arndb.de>
- <331ABD5ECB02734CA317220B2BBEABC13177DFF6@DBDE01.ent.ti.com>
- <201201191710.45862.arnd@arndb.de>
+From: Rakesh Iyer <riyer@nvidia.com>
+Subject: RE: [PATCH v1] Input: tegra-kbc - enable key interrupt for wakeup
+Date: Thu, 19 Jan 2012 10:21:43 -0800
+Message-ID: <1FC56210173BB445BD77F608D6FB8D034F401D296F@HQMAIL03.nvidia.com>
+References: <1326925981-14723-1-git-send-email-riyer@nvidia.com>
+ <4F17AE75.6000605@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <201201191710.45862.arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "AnilKumar, Chimata" <anilkumar@ti.com>, Jonathan Cameron <jic23@cam.ac.uk>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>, "eric.piel@tremplin-utc.net" <eric.piel@tremplin-utc.net>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Nori, Sekhar" <nsekhar@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from hqemgate03.nvidia.com ([216.228.121.140]:14385 "EHLO
+	hqemgate03.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932532Ab2ASSVs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Jan 2012 13:21:48 -0500
+In-Reply-To: <4F17AE75.6000605@ti.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Shubhrajyoti <shubhrajyoti@ti.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Stephen Warren <swarren@nvidia.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Thu, Jan 19, 2012 at 05:10:45PM +0000, Arnd Bergmann wrote:
+>  	if (device_may_wakeup(&pdev->dev)) {
+>  		disable_irq_wake(kbc->irq);
+>  		tegra_kbc_setup_wakekeys(kbc, false);
+> +		/* We will use fifo interrupts for key detection. */
+> +		tegra_kbc_set_keypress_interrupt(kbc, false);
+Why do yo disable on resume why not have it enabled always?
 
-> Having custom user interfaces inside an input driver however is very
-> bad. I'm sure that other accelerometers will have the same requirements
-> regarding polling frequency and enable/disable in android as well as
-> anytwhere else and it should absolutely not be handled by a user space
-> HAL but instead inside of the kernel, using a common method for all
-> available drivers.
+>  
+>  		/* Restore the resident time of continuous polling mode. */
+>  		writel(kbc->cp_to_wkup_dly, kbc->mmio + KBC_TO_CNT_0);
 
-The polling frequency thing isn't even accelerometer specific, there's a
-general need for this on a wide range of other things like touchscreens
-(where controlling the sample rate is interesting for power, there are
-widely varying requirements depending on what the screen is doing).
+For the relevant discussion, Tegra KBC provides the following interrupts - 
+a) The keypress interrupt which is generated as soon as a key is pressed, 
+      before matrix scanning begins.
+b) FIFO interrupt which is generated when actual keys are decoded from the matrix, 
+     and put into the FIFO. 
+
+During normal operation the keypress interrupt is not useful as we have to wait for the 
+keys to make it into the FIFO before reporting it to the higher layers.
+
+Since we have turned off scanning(in the following commit) we cannot use the FIFO interrupt 
+during the resume, so we rely on the keypress interrupt and generate the wakeup key.
+
+Commit that turned off scanning
+
+    Input: tegra-kbc - fix wakeup from suspend
+
+    For wakeup to be reliable, kbc needs to be in interrupt mode before suspend.
+    Created common routine to control the FIFO interrupt.
+    Added synchronization to ensure orderly suspend.
+
+
+Regards
+Rakesh

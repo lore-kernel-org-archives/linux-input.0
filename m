@@ -1,71 +1,45 @@
-From: Keng-Yu Lin <kengyu@canonical.com>
-Subject: [PATCH] HID: add extra hotkeys in Asus AIO keyboards
-Date: Thu, 19 Jan 2012 13:47:50 +0800
-Message-ID: <1326952070-5680-1-git-send-email-kengyu@canonical.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: sylee@canonical.com, Keng-Yu Lin <kengyu@canonical.com>
+From: Anisha Kaul <born.rebel.83@gmail.com>
+Subject: Re: fftest: Force feedback doesn't work in native mode
+Date: Thu, 19 Jan 2012 11:57:06 +0530
+Message-ID: <CAM1yFZ82ZqJ+DAh2fU+Lqijcm=r6DE_EmCR8OX7M7ubNRMxyyg@mail.gmail.com>
+References: <CAM1yFZ8_VEhsY9qe6Rt_8Ojb89CUUMskQdGDv5GomEVGNBDvxQ@mail.gmail.com>
+	<2a8f304621a47c9b8468f5aa0ae7f4c5.squirrel@mungewell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:50504 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751373Ab2ASG1H (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Jan 2012 01:27:07 -0500
+Received: by obcva7 with SMTP id va7so8241844obc.19
+        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2012 22:27:06 -0800 (PST)
+In-Reply-To: <2a8f304621a47c9b8468f5aa0ae7f4c5.squirrel@mungewell.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: simon@mungewell.org
+Cc: linux-input@vger.kernel.org
 
-The Asus All-In-One PC has a wireless keyboard with wifi toggle,
-brightness up, brightness down and display off hotkeys.
+On 18 January 2012 22:09,  <simon@mungewell.org> wrote:
+> 'hid-lg4ff' was improved by Michal back in August to include support for
+> all Logitech wheel and run them in the native mode (to get 900' rotation
+> etc).
 
-This patch adds suppoort for these hotkeys.
+Thanks for the reply, Simon.
 
-Signed-off-by: Keng-Yu Lin <kengyu@canonical.com>
----
- drivers/hid/hid-chicony.c |    5 +++++
- drivers/hid/hid-core.c    |    1 +
- drivers/hid/hid-ids.h     |    1 +
- 3 files changed, 7 insertions(+), 0 deletions(-)
+So, today I installed OpenSuse 12.1 which has the kernel version 3.1.0.
+Thankfully the file hid-lg4ff "is" present there in the hid directoy.
 
-diff --git a/drivers/hid/hid-chicony.c b/drivers/hid/hid-chicony.c
-index 8965ad9..4162505 100644
---- a/drivers/hid/hid-chicony.c
-+++ b/drivers/hid/hid-chicony.c
-@@ -45,6 +45,10 @@ static int ch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	case 0xff09: ch_map_key_clear(BTN_9);	break;
- 	case 0xff0a: ch_map_key_clear(BTN_A);	break;
- 	case 0xff0b: ch_map_key_clear(BTN_B);	break;
-+	case 0x00f1: ch_map_key_clear(KEY_WLAN);	break;
-+	case 0x00f2: ch_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
-+	case 0x00f3: ch_map_key_clear(KEY_BRIGHTNESSUP);	break;
-+	case 0x00f4: ch_map_key_clear(KEY_DISPLAY_OFF);	break;
- 	default:
- 		return 0;
- 	}
-@@ -53,6 +57,7 @@ static int ch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 
- static const struct hid_device_id ch_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_TACTICAL_PAD) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS2) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, ch_devices);
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index af08ce7..75dbe34 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1396,6 +1396,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION_SOLAR) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_TACTICAL_PAD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHUNGHWAT, USB_DEVICE_ID_CHUNGHWAT_MULTITOUCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CREATIVELABS, USB_DEVICE_ID_PRODIKEYS_PCMIDI) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CVTOUCH, USB_DEVICE_ID_CVTOUCH_SCREEN) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b8574cd..fb9e61f 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -190,6 +190,7 @@
- #define USB_DEVICE_ID_CHICONY_TACTICAL_PAD	0x0418
- #define USB_DEVICE_ID_CHICONY_MULTI_TOUCH	0xb19d
- #define USB_DEVICE_ID_CHICONY_WIRELESS	0x0618
-+#define USB_DEVICE_ID_CHICONY_WIRELESS2	0x1123
- 
- #define USB_VENDOR_ID_CHUNGHWAT		0x2247
- #define USB_DEVICE_ID_CHUNGHWAT_MULTITOUCH	0x0001
--- 
-1.7.5.4
+I saw the same file with extended code here:
+http://lingrok.org/source/xref/linux-2.6-linus/drivers/hid/hid-lg4ff.c
+
+The above linked 'hid-lg4ff' file does contain the function for the
+native mode etc. and is lengthy too.
+I was very much surprised on noticing that the 'hid-lg4ff' file
+present in kernel version 3.1.0 of Suse 12.1 is quite small and does
+NOT seem to have any function for native mode etc!
+
+Sorry, I don't know how to use that git link which you gave. I'll try
+to figure that out.
+
+-Anisha

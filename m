@@ -1,51 +1,44 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
-Subject: RE: [PATCH V1] input: keyboard: Add interrupt keyboard driver.
-Date: Thu, 19 Jan 2012 13:09:24 +0530
-Message-ID: <96C9D994977DD0439FB6D3FE3B13DD907DC3DCC241@BGMAIL01.nvidia.com>
-References: <1326778915-2678-1-git-send-email-ldewangan@nvidia.com>
- <20120119072941.GA9668@core.coreip.homeip.net>
+From: Anisha Kaul <born.rebel.83@gmail.com>
+Subject: Re: fftest: Force feedback doesn't work in native mode
+Date: Thu, 19 Jan 2012 13:17:27 +0530
+Message-ID: <CAM1yFZ_eD2gV-vEwQp+BmD5OJxhH7ov3hqYRUBLtNm-Cp8GLGg@mail.gmail.com>
+References: <CAM1yFZ8_VEhsY9qe6Rt_8Ojb89CUUMskQdGDv5GomEVGNBDvxQ@mail.gmail.com>
+	<2a8f304621a47c9b8468f5aa0ae7f4c5.squirrel@mungewell.org>
+	<CAM1yFZ82ZqJ+DAh2fU+Lqijcm=r6DE_EmCR8OX7M7ubNRMxyyg@mail.gmail.com>
+	<07591daed833aaf50ea155c918cd04e0.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate04.nvidia.com ([216.228.121.35]:9509 "EHLO
-	hqemgate04.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752707Ab2ASHj2 convert rfc822-to-8bit (ORCPT
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:62385 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752707Ab2ASHr2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Jan 2012 02:39:28 -0500
-In-Reply-To: <20120119072941.GA9668@core.coreip.homeip.net>
-Content-Language: en-US
+	Thu, 19 Jan 2012 02:47:28 -0500
+Received: by obcva7 with SMTP id va7so8305284obc.19
+        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2012 23:47:27 -0800 (PST)
+In-Reply-To: <07591daed833aaf50ea155c918cd04e0.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "tsoni@codeaurora.org" <tsoni@codeaurora.org>, "kyle.manna@fuel7.com" <kyle.manna@fuel7.com>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "vapier@gentoo.org" <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: simon@mungewell.org
+Cc: linux-input@vger.kernel.org
 
-On Thursday, January 19, 2012 1:00 PM, Dmitry Torokhov wrote:
+On 19 January 2012 12:59,  <simon@mungewell.org> wrote:
+> Regarding SuSE's kernel, I'm not sure which version Michal changes got
+> into the mainline. It could be that you're looking at the early version of
+> 'hid-lg4ff' which only supported the Logitech Wii Speedforce Wireless.
 
-> On Tue, Jan 17, 2012 at 11:11:55AM +0530, Laxman Dewangan wrote:
-> > This driver enables the key detection of the keys which
-> > are connected to interrupt lines.
-> > Each key is capable of generating an interrupt, and the
-> > statesi (pressed or released) cannot be found by any
-> > mechanism.
-> > A key press event generated when interrupt occurs, and
-> > based on the debounce time setting, a key release event
-> > is generated. There is no need to read the state of the
-> > keys.
-> 
-> 
-> Is it possible to modify gpio_keys to skip requesting and settin up
-> certain gpios and and use it instead of a brand new driver?
+Thanks again, Simon.
 
-I first tried this approach and found that this makes the gpio_keys
-driver very complex because almost all places where gpio-apis are
-getting called need to put under if condition.
-Also there is some special handling for auto key release events
-Which makes gpio-key driver again complex.
+So, since this wheel works on your system, can you tell me your kernel
+version number? That'll help me to decide to which kernel version should I
+upgrade to.
 
+> There are some 'bleeding edge' kernels packages here:
+> http://kernel.opensuse.org/packages
+> http://download.opensuse.org/repositories/Kernel:/HEAD/standard/i586/
 
+I too was thinking of getting a "pre-compiled" kernel version 3.2, and directly
+booting from it (on Suse 12.1). Not sure if it makes sense.
 
-
-> 
-> --
-> Dmitry
+Thanks again.
+-Anisha

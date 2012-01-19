@@ -1,63 +1,80 @@
-From: "AnilKumar, Chimata" <anilkumar@ti.com>
-Subject: RE: [PATCH] lis3lv02d: Add STMicroelectronics lis33ldlh digital
-Date: Thu, 19 Jan 2012 05:30:52 +0000
-Message-ID: <331ABD5ECB02734CA317220B2BBEABC13177DFF6@DBDE01.ent.ti.com>
-References: <1324617892-14576-1-git-send-email-anilkumar@ti.com>
- <201201181403.47806.arnd@arndb.de>
- <b659db7b-2ef1-49b8-9752-a0601226cc6e@email.android.com>
- <201201181711.15751.arnd@arndb.de>
+From: Shubhrajyoti <shubhrajyoti@ti.com>
+Subject: Re: [PATCH v1] Input: tegra-kbc - enable key interrupt for wakeup
+Date: Thu, 19 Jan 2012 11:17:33 +0530
+Message-ID: <4F17AE75.6000605@ti.com>
+References: <1326925981-14723-1-git-send-email-riyer@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <201201181711.15751.arnd@arndb.de>
-Content-Language: en-US
-Sender: linux-omap-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, Jonathan Cameron <jic23@cam.ac.uk>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: "greg@kroah.com" <greg@kroah.com>, "eric.piel@tremplin-utc.net" <eric.piel@tremplin-utc.net>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "broonie@opensource.wolfsonmicro.com" <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Nori, Sekhar" <nsekhar@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog111.obsmtp.com ([74.125.149.205]:50077 "EHLO
+	na3sys009aog111.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751589Ab2ASFrm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Jan 2012 00:47:42 -0500
+In-Reply-To: <1326925981-14723-1-git-send-email-riyer@nvidia.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Rakesh Iyer <riyer@nvidia.com>
+Cc: dmitry.torokhov@gmail.com, swarren@nvidia.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-SGkgQXJuZCwNCg0KT24gV2VkLCBKYW4gMTgsIDIwMTIgYXQgMjI6NDE6MTUsIEFybmQgQmVyZ21h
-bm4gd3JvdGU6DQo+IE9uIFdlZG5lc2RheSAxOCBKYW51YXJ5IDIwMTIsIEpvbmF0aGFuIENhbWVy
-b24gd3JvdGU6DQo+ID4gQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4gd3JvdGU6DQo+ID4N
-Cj4gPiA+QW55IG9waW5pb25zIHdoZXJlIHRoZXkgc2hvdWxkIGxpdmU/IGlucHV0LCBpaW8gb3Ig
-YSBuZXcgc3Vic3lzdGVtPw0KPiA+ID4NCj4gPiBQZXJzb25hbCB0aG91Z2h0IGlzIHRoYXQgc3Ry
-YWlnaHQgM2QgZGV2aWNlcyB2ZXJ5IGRpcmVjdGVkIGF0IGlucHV0DQo+ID4gc2hvdWxkIGdvIHRo
-ZXJlLiBJaW8gaGFzIGEgZmV3IHdyaW5rbGVzIGxlZnQgZm9yIHRoZSBpbiBrZXJuZWwNCj4gPiBp
-bnRlcmZhY2VzIG5lZWRlZCBmb3IgYSBicmlkZ2UgdG8gaW5wdXQuIEZvciBzdGFydGVycyB0aGUg
-cHVsbCANCj4gPiBhbmQgcHVzaCBkYXRhIGludGVyZmFjZXMgaGF2ZSBub3QgbWVyZ2VkIHlldCAo
-aW4gc3RhZ2luZykgYW5kIHdlDQo+ID4gaGF2ZSBub3Qgc3RhcnRlZCBvbiBpbiBrZXJuZWwgYWNl
-c3MgdG8gbm9uIGRhdGEgZXZlbnRzIHlldCh0aHJlc2hvbGRzKS4NCj4gPiBTdGlsbCBoYXBweSB0
-byB0YWtlIHRoZW0gd2hlbiB3ZSBjYW4gc3VwcG9ydCB1c2VjYXNlcyBmdWxseS4gDQo+IA0KPiBP
-aywgdGhhbmtzIGZvciB0aGUgaW5mb3JtYXRpb24sIHNvdW5kcyBhbGwgcmVhc29uYWJsZS4gSSB0
-aGluayB3ZQ0KPiBjYW4gZGVmaW5pdGVseSBzYXkgbm8gdG8gbmV3IGFjY2VsZXJvbWV0ZXIgZHJp
-dmVycyBpbiBkcml2ZXJzL21pc2MNCj4gdGhlbiBhbmQgcmVmZXIgdGhlbSB0byBpaW8gYW5kIGlu
-cHV0Lg0KPiANCj4gSW4gY2FzZSBvZiBsaXMzM2xkbGgsIEkgd291bGQgbGlrZSB0byBzZWUgaXQg
-bW92ZSBvdXQgYXQgc29tZSBwb2ludA0KPiBvbmNlIHRoZSBuZWNlc3NhcnkgcGFydHMgb2YgaWlv
-IGhhdmUgZ3JhZHVhdGVkIG91dCBvZiBzdGFnaW5nLg0KPiBIb3BlZnVsbHkgaXQgd29uJ3QgYmUg
-YSBsYXJnZSBhbW91bnQgb2Ygd29yayB0byBjb252ZXJ0IGl0IHRvDQo+IGEgZGlmZmVyZW50IGlu
-dGVybmFsIEFQSS4NCj4gDQo+IEFuaWxLdW1hciwgd2hhdCBhcmUgdGhlIGV4aXN0aW5nIHVzZXJz
-IG9mIHRoZSBkcml2ZXI/IElzIGl0IHN0aWxsDQo+IHBvc3NpYmxlIHRvIGNvbnZlcnQgdGhlbSB0
-byB1c2UgaWlvIHdpdGhvdXQgY2F1c2luZyBwcm9ibGVtcyBmb3INCj4gcGVvcGxlIHRoYXQgcmVs
-eSBvbiB0aGlzIGRyaXZlciwgb3IgZG8gd2UgaGF2ZSB0byBrZWVwIHN1cHBvcnRpbmcgdGhlDQo+
-IGN1cnJlbnQgaW50ZXJmYWNlPw0KDQpBbmRyb2lkIHVzZXJzcGFjZSBydW5uaW5nIG9uIFRJIEFN
-MzM1eCBFVk0gaXMgdXNpbmcgdGhlIGludGVyZmFjZQ0KcHJvdmlkZWQgYnkgbGlzM2x2MDJkLiBU
-aGV5IHdlcmUgYXNraW5nIHNvbWUgbW9yZSBpbnRlcmZhY2VzIGZyb20NCmxpczNsdm8yZCBkcml2
-ZXIuDQoNClRoZXJlIGFyZSBtdWx0aXBsZSB3YXlzIHdlIGNhbiBpbnRlcmZhY2UgYWNjZWxlcm9t
-ZXRlciB0byBBbmRyb2lkIGxheWVycywNCndoaWNoIGlzIGltcGxlbWVudGVkIG9uIGhhcmR3YXJl
-IGFic3RyYWN0aW9uIGxheWVyIChIQUwpIGluIEFuZHJpb2QuDQoNCjEpIEludGVycnVwdCBtb2Rl
-DQoyKSBQb2xsaW5nIG1vZGUNCiAgIDJhKSBLZXJuZWwgcG9sbGluZw0KICAgMmIpIFRpbWVyIHBv
-bGxpbmcNCg0KQmFzZWQgb24gdGhlIGludGVyZmFjZXMgcHJvdmlkZWQgYnkgdGhlIGxpczNsdjAy
-ZCBhcyB3ZWxsIGFzDQpsaXMzMzFkbGggKEgvVyBub3Qgc3VwcG9ydGluZyB0aGUgaW50ZXJydXB0
-cykgdGhleSB3ZXJlIGltcGxlbWVudGluZw0KdGhlIGtlcm5lbCBwb2xsaW5nIG1lY2hhbmlzbS4N
-Cg0KU28gaW1wbGVtZW50YXRpb24gb24gSEFMIGlzIGxpa2UgdGhpcyBpZiBhY2NlbGVyb21ldGVy
-IGludGVyZmFjZSBpcw0Kb3BlbmVkIHRoZW4ga2VybmVsIHdpbGwgc3RhcnQgcG9sbGluZyB0aGlz
-IGRyaXZlciBwZXJpb2RpY2FsbHkgYW5kDQpwYXNzIGV2ZW50cyB0byBpbnB1dCBzdWJzeXN0ZW0u
-IChJdCdzIGEgbGl0dGxlIGJpdCBvdmVyIGhlYWQpDQoNCkdlbmVyYWxseSB0aGUgZGV2aWNlIHNo
-b3VsZCBiZSBvcGVuIGJ1dCBrZXJuZWwgc2hvdWxkIG9ubHkgcG9sbA0Kd2hlbiBhbiBhcHAgdGhh
-dCB1c2VzIGFjY2VsZXJvbWV0ZXIgaXMgc3RhcnRlZC4NCg0KVGhlIGJpZ2dlc3QgcmVxdWlyZW1l
-bnQgZm9yIHRoZW0gKEFuZHJpb2QgcGVvcGxlKSBpcyB0byBhbGxvdyB1c2VyIHRvDQplbmFibGUg
-LyBkaXNhYmxlIGFjY2VsZXJvbWV0ZXIgZnJvbSB1c2VyIHNwYWNlIGFuZCB0byBjb25maWd1cmUN
-CnRoZSBhY2NlbGVyb21ldGVyIHBvbGxpbmcgZnJlcXVlbmN5Lg0KDQpUb2RheSB0aGVyZSBpcyBu
-byBvcHRpb24gaW4gbGlzM2x2bzJkIGRyaXZlciB0byBwcm92aWRlIHRoaXMga2luZA0Kb2YgZnVu
-Y3Rpb25hbGl0aWVzDQoNCj4gDQo+IAlBcm5kDQo+IA0KDQpSZWdhcmRzDQpBbmlsS3VtYXINCg==
+On Thursday 19 January 2012 04:03 AM, Rakesh Iyer wrote:
+> Enable keypress interrupt to support wakeup from low power state.
+>
+> Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
+> ---
+>  drivers/input/keyboard/tegra-kbc.c |   17 +++++++++++++++++
+>  1 files changed, 17 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+> index a136e2e..b307a46 100644
+> --- a/drivers/input/keyboard/tegra-kbc.c
+> +++ b/drivers/input/keyboard/tegra-kbc.c
+> @@ -48,6 +48,7 @@
+>  #define KBC_FIFO_TH_CNT_SHIFT(cnt)	(cnt << 14)
+>  #define KBC_DEBOUNCE_CNT_SHIFT(cnt)	(cnt << 4)
+>  #define KBC_CONTROL_FIFO_CNT_INT_EN	(1 << 3)
+> +#define KBC_CONTROL_KEYPRESS_INT_EN	(1 << 1)
+>  #define KBC_CONTROL_KBC_EN		(1 << 0)
+>  
+>  /* KBC Interrupt Register */
+> @@ -356,6 +357,18 @@ static void tegra_kbc_set_fifo_interrupt(struct tegra_kbc *kbc, bool enable)
+>  	writel(val, kbc->mmio + KBC_CONTROL_0);
+>  }
+>  
+> +static void tegra_kbc_set_keypress_interrupt(struct tegra_kbc *kbc, bool enable)
+> +{
+> +	u32 val;
+> +
+> +	val = readl(kbc->mmio + KBC_CONTROL_0);
+> +	if (enable)
+> +		val |= KBC_CONTROL_KEYPRESS_INT_EN;
+> +	else
+> +		val &= ~KBC_CONTROL_KEYPRESS_INT_EN;
+> +	writel(val, kbc->mmio + KBC_CONTROL_0);
+> +}
+> +
+>  static void tegra_kbc_keypress_timer(unsigned long data)
+>  {
+>  	struct tegra_kbc *kbc = (struct tegra_kbc *)data;
+> @@ -831,6 +844,8 @@ static int tegra_kbc_suspend(struct device *dev)
+>  		msleep(30);
+>  
+>  		kbc->keypress_caused_wake = false;
+> +		/* Enable keypress interrupt before going into suspend. */
+> +		tegra_kbc_set_keypress_interrupt(kbc, true);
+>  		enable_irq(kbc->irq);
+>  		enable_irq_wake(kbc->irq);
+>  	} else {
+> @@ -852,6 +867,8 @@ static int tegra_kbc_resume(struct device *dev)
+>  	if (device_may_wakeup(&pdev->dev)) {
+>  		disable_irq_wake(kbc->irq);
+>  		tegra_kbc_setup_wakekeys(kbc, false);
+> +		/* We will use fifo interrupts for key detection. */
+> +		tegra_kbc_set_keypress_interrupt(kbc, false);
+Why do yo disable on resume why not have it enabled always?
+
+>  
+>  		/* Restore the resident time of continuous polling mode. */
+>  		writel(kbc->cp_to_wkup_dly, kbc->mmio + KBC_TO_CNT_0);
+

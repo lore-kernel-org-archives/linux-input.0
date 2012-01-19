@@ -1,44 +1,62 @@
-From: Anisha Kaul <born.rebel.83@gmail.com>
-Subject: Re: fftest: Force feedback doesn't work in native mode
-Date: Thu, 19 Jan 2012 13:17:27 +0530
-Message-ID: <CAM1yFZ_eD2gV-vEwQp+BmD5OJxhH7ov3hqYRUBLtNm-Cp8GLGg@mail.gmail.com>
-References: <CAM1yFZ8_VEhsY9qe6Rt_8Ojb89CUUMskQdGDv5GomEVGNBDvxQ@mail.gmail.com>
-	<2a8f304621a47c9b8468f5aa0ae7f4c5.squirrel@mungewell.org>
-	<CAM1yFZ82ZqJ+DAh2fU+Lqijcm=r6DE_EmCR8OX7M7ubNRMxyyg@mail.gmail.com>
-	<07591daed833aaf50ea155c918cd04e0.squirrel@mungewell.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] lis3lv02d: Add STMicroelectronics lis33ldlh digital
+Date: Thu, 19 Jan 2012 14:26:45 +0000
+Message-ID: <201201191426.45923.arnd@arndb.de>
+References: <1324617892-14576-1-git-send-email-anilkumar@ti.com> <201201181403.47806.arnd@arndb.de> <20120118213635.GB3401@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:62385 "EHLO
-	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752707Ab2ASHr2 (ORCPT
+Received: from moutng.kundenserver.de ([212.227.126.187]:58919 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751240Ab2ASO1z (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Jan 2012 02:47:28 -0500
-Received: by obcva7 with SMTP id va7so8305284obc.19
-        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2012 23:47:27 -0800 (PST)
-In-Reply-To: <07591daed833aaf50ea155c918cd04e0.squirrel@mungewell.org>
+	Thu, 19 Jan 2012 09:27:55 -0500
+In-Reply-To: <20120118213635.GB3401@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: linux-input@vger.kernel.org
+To: Andi <andi.shyti@gmail.com>
+Cc: "AnilKumar, Chimata" <anilkumar@ti.com>, "greg@kroah.com" <greg@kroah.com>, "eric.piel@tremplin-utc.net" <eric.piel@tremplin-utc.net>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "broonie@opensource.wolfsonmicro.com" <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Nori, Sekhar" <nsekhar@ti.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
 
-On 19 January 2012 12:59,  <simon@mungewell.org> wrote:
-> Regarding SuSE's kernel, I'm not sure which version Michal changes got
-> into the mainline. It could be that you're looking at the early version of
-> 'hid-lg4ff' which only supported the Logitech Wii Speedforce Wireless.
+On Wednesday 18 January 2012, Andi wrote:
+> What do you mean with "kernel-wide policy for accelerometer drivers"?
+> As far as I know, accelerometer drivers are written between the i2c driver and the
+> input driver.
+> The input driver provides already some accelerometer specific event types, ABS_X, ABS_Y, ABS_Z,
+> in your opinion isn't it enough?
+> If you mean something like collecting common properties like g range or frequency or whatever in a
+> standard interface, then I think that accelerometers are quite different as devices and sometimes
+> it could be difficult to arrange a common interface.
 
-Thanks again, Simon.
+The problem is that we have some drivers using the input subsystem, some
+drivers using the iio subsystem and some drivers using none of these but
+interfacing with user space using some homegrown method, see my list:
 
-So, since this wheel works on your system, can you tell me your kernel
-version number? That'll help me to decide to which kernel version should I
-upgrade to.
+> > $ git grep -l accelerometer drivers/ | manual_grep
+> > drivers/hwmon/applesmc.c
+> >    (one hwmon sysfs attribute for x/y/z)
+> > drivers/input/misc/adxl34x.c
+> >    (lots of sysfs attributes, input_report_key)
+> > drivers/input/misc/cma3000_d0x.c
+> >    (input_report_abs)
+> > drivers/input/misc/kxtj9.c
+> >    (input_report_abs, plus one aux sysfs attribute)
+> > drivers/macintosh/ams/ams-core.c
+> >    (one sysfs attribute for x/y/z)
+> > drivers/misc/lis3lv02d/
+> >    (multiple sysfs attributes)
+> > drivers/platform/x86/hdaps.c
+> >    (multiple sysfs attributes, only x/y)
+> > drivers/platform/x86/hp_accel.c
+> >    (hooks into drivers/misc/lis3lv02d/)
+> > drivers/staging/iio/accel/kxsd9.c
+> >    (iio)
+> > drivers/staging/iio/accel/sca3000_core.c
+> >    (iio plus extra attributes)
 
-> There are some 'bleeding edge' kernels packages here:
-> http://kernel.opensuse.org/packages
-> http://download.opensuse.org/repositories/Kernel:/HEAD/standard/i586/
+If all drivers were using the input subsystem in the way you describe,
+that would be a good solution, but right now the majority of the
+drivers don't do this.
 
-I too was thinking of getting a "pre-compiled" kernel version 3.2, and directly
-booting from it (on Suse 12.1). Not sure if it makes sense.
-
-Thanks again.
--Anisha
+	Arnd

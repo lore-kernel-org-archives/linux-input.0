@@ -1,19 +1,20 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2 1/3] hid-multitouch: add support for trackpads
-Date: Fri, 20 Jan 2012 17:09:48 +0100
-Message-ID: <20120120160948.GA18530@polaris.bitmath.org>
+Subject: Re: [PATCH v2 2/3] HID: multitouch: add control of the feature
+ "Maximum Contact Number"
+Date: Fri, 20 Jan 2012 17:19:56 +0100
+Message-ID: <20120120161956.GB18530@polaris.bitmath.org>
 References: <1326887468-5148-1-git-send-email-benjamin.tissoires@enac.fr>
- <1326887468-5148-2-git-send-email-benjamin.tissoires@enac.fr>
+ <1326887468-5148-3-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b11.telenor.se ([62.127.194.20]:55846 "EHLO
-	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753193Ab2ATQJ1 (ORCPT
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:42177 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754489Ab2ATQTe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Jan 2012 11:09:27 -0500
+	Fri, 20 Jan 2012 11:19:34 -0500
 Content-Disposition: inline
-In-Reply-To: <1326887468-5148-2-git-send-email-benjamin.tissoires@enac.fr>
+In-Reply-To: <1326887468-5148-3-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
@@ -21,55 +22,55 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, 
 
 Hi Benjamin,
 
-> @@ -389,9 +404,19 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  				td->last_field_index = field->index;
->  			return -1;
->  		}
-> +		case HID_DG_TOUCH:
-> +			/* Legacy devices use TIPSWITCH and not TOUCH.
-> +			 * Let's just ignore this field. */
-> +			return -1;
->  		/* let hid-input decide for the others */
->  		return 0;
->  
-> +	case HID_UP_BUTTON:
-> +		code = ((usage->hid - 1) & HID_USAGE) + BTN_MOUSE;
+> If the programmer fills the field maxcontacts in the mt_class,
+> then the driver will set the feature to this value. It is safe
+> for current drivers as the feature is read/right in the HID norm
 
-Why '+' here instead of '|' is  beyond me...
+read/write, I presume.
 
-> +		hid_map_usage(hi, usage, bit, max, EV_KEY, code);
-> +		input_set_capability(hi->input, EV_KEY, code);
-> +		return 1;
-> +
->  	case 0xff000000:
->  		/* we do not want to map these: no input-oriented meaning */
->  		return -1;
-> @@ -453,6 +478,7 @@ static void mt_complete_slot(struct mt_device *td)
->  static void mt_emit_event(struct mt_device *td, struct input_dev *input)
->  {
->  	int i;
-> +	int finger_count = 0;
->  
->  	for (i = 0; i < td->maxcontacts; ++i) {
->  		struct mt_slot *s = &(td->slots[i]);
-> @@ -477,12 +503,14 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
->  			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
->  			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
->  			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
-> +			finger_count++;
->  		}
->  		s->seen_in_this_frame = false;
->  
+> @@ -609,6 +612,36 @@ static void mt_set_input_mode(struct hid_device *hdev)
 >  	}
->  
->  	input_mt_report_pointer_emulation(input, true);
-> +	input_mt_report_finger_count(input, finger_count);
-
-This function is already called from input_mt_report_pointer_emulation().
-
->  	input_sync(input);
->  	td->num_received = 0;
 >  }
+>  
+> +static void mt_set_maxcontacts(struct hid_device *hdev)
+> +{
+> +	struct mt_device *td = hid_get_drvdata(hdev);
+> +	struct hid_report *r;
+> +	struct hid_report_enum *re;
+> +	int fieldmax, max;
+> +
+> +	if (td->maxcontact_report_id < 0)
+> +		return;
+> +
+> +	if (!td->mtclass.maxcontacts)
+> +		return;
+> +
+> +	re = &(hdev->report_enum[HID_FEATURE_REPORT]);
+
+Why parenthesis here?
+
+> +	r = re->report_id_hash[td->maxcontact_report_id];
+> +	if (r) {
+> +		max = td->mtclass.maxcontacts;
+> +		fieldmax = r->field[0]->logical_maximum;
+> +		hid_info(hdev, "%s: value = %d / %d / %d\n", __func__,
+> +			r->field[0]->value[0],
+> +			td->mtclass.maxcontacts,
+> +			fieldmax);
+
+Looks like debug information, please downplay or remove.
+
+> +		max = fieldmax < max ? fieldmax : max;
+
+There are kernel variants of min/max functions to consider here.
+
+> +		if (r->field[0]->value[0] != max) {
+> +			r->field[0]->value[0] = max;
+> +			usbhid_submit_report(hdev, r, USB_DIR_OUT);
+> +		}
+
+So the report is in fact only set when different... Do we know for
+which current devices this is true?
 
 Thanks,
 Henrik

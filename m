@@ -1,52 +1,46 @@
-From: simon@mungewell.org
-Subject: Re: fftest: Force feedback doesn't work in native mode
-Date: Fri, 20 Jan 2012 13:50:01 -0500
-Message-ID: <e79444a78f0412701e85c030f4d2b4e1.squirrel@mungewell.org>
-References: <CAM1yFZ8_VEhsY9qe6Rt_8Ojb89CUUMskQdGDv5GomEVGNBDvxQ@mail.gmail.com>
-    <2a8f304621a47c9b8468f5aa0ae7f4c5.squirrel@mungewell.org>
-    <CAM1yFZ82ZqJ+DAh2fU+Lqijcm=r6DE_EmCR8OX7M7ubNRMxyyg@mail.gmail.com>
-    <07591daed833aaf50ea155c918cd04e0.squirrel@mungewell.org>
-    <CAM1yFZ_eD2gV-vEwQp+BmD5OJxhH7ov3hqYRUBLtNm-Cp8GLGg@mail.gmail.com>
-    <747fc1e52c224cb3cc1c4b37c9de9bb7.squirrel@mungewell.org>
-    <CAM1yFZ_FWMrRH6a_nW1AW6vZcmC67LNKO0rsCWc1G1KSg9Z8bQ@mail.gmail.com>
+From: Padfoot <padfoot@exemail.com.au>
+Subject: Re: PROBLEM: Kernel version 3.2.1 usb touchscreen device not recognised
+ [UDEV? USBINPUT? HOOK]
+Date: Sat, 21 Jan 2012 07:13:58 +1100
+Message-ID: <4F19CB06.6040801@exemail.com.au>
+References: <4F192242.1070909@exemail.com.au> <20120120160210.GA21565@kroah.com>
+Reply-To: padfoot@exemail.com.au
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:53004 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753577Ab2ATSuC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Jan 2012 13:50:02 -0500
-In-Reply-To: <CAM1yFZ_FWMrRH6a_nW1AW6vZcmC67LNKO0rsCWc1G1KSg9Z8bQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120120160210.GA21565@kroah.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anisha Kaul <born.rebel.83@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-
->> On that machine I have a kernel version '3.0+dfp' which is a patched
->> build
->> made when I was testing Michal's changes.
+On 21/01/12 03:02, Greg KH wrote:
+> On Fri, Jan 20, 2012 at 07:13:54PM +1100, Padfoot wrote:
+>> Upgrade from kernel 3.1.9 to 3.2.1 eGalax usb touchscreen device is
+>> no longer recognised.
+>>
+>> Device is an Acer Iconia Tab w501 with inbuilt touchscreen. Screen
+>> is a pci device but is connected on boot as a usb input device.
+>> Issue appears to be with either UDEV or USBINPUT boot hook failing
+>> to recognise the device as can be seen in the dmesg.3.2.1
+>> attachment.
+>>
+>> Downgrading to kernel 3.1.9 corrects the issue.
+> Can you run 'git bisect' between 3.1.0 and 3.2.0 to find the problem
+> commit here?
 >
-> Would you please post the link of that patch here?
+> Also, you might want to cc: the linux-input developers, they can help
+> you out much better than the general list can.
+>
+> greg k-h
+>
+Hi Greg,
 
-It was like 8 months ago that I built it.... :-( The patches (if you need
-them) are on the kernel mailing list.
+I am not a kernel dev, nor have I ever compiled a kernel, so I don't 
+think I am able to help with a git bisect to locate the offending 
+commit. I am just a regular user running pre-compiled packages on my 
+Arch Linux distro. But, of course I am happy to assist wherever I can.
 
-> Reason - To make this wheel work on 10 computers, we'll have to compile
-> the
-> kernel 10 times since the old configuration will have to be copied for
-> "make oldconfig".
-
-I don't really understand why you would want to build seperately on each
-machine, either grab a binary kernel RPM from the site I linked before ()
-or use one machine to create your own kernel package (either RPM or just
-TAR).
-
-Does anyone really have machine specific builds these days (given disk
-space is cheap and the modules system works really well)?
-
-Simon
-
-
+Cheers.
+Lachlan

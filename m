@@ -1,56 +1,176 @@
-From: Rakesh Iyer <riyer@nvidia.com>
-Subject: RE: [PATCH v1] Input: tegra-kbc - enable key interrupt for wakeup
-Date: Thu, 19 Jan 2012 10:21:43 -0800
-Message-ID: <1FC56210173BB445BD77F608D6FB8D034F401D296F@HQMAIL03.nvidia.com>
-References: <1326925981-14723-1-git-send-email-riyer@nvidia.com>
- <4F17AE75.6000605@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: [PATCH v10 2/3] Input: cyttsp - add support for Cypress TTSP touchscreen I2C bus interface
+Date: Fri, 20 Jan 2012 01:57:25 +0100
+Message-ID: <1327021046-18024-2-git-send-email-javier@dowhile0.org>
+References: <1327021046-18024-1-git-send-email-javier@dowhile0.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate03.nvidia.com ([216.228.121.140]:14385 "EHLO
-	hqemgate03.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932532Ab2ASSVs convert rfc822-to-8bit (ORCPT
+Received: from mail-we0-f174.google.com ([74.125.82.174]:63102 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751367Ab2ATA6c (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Jan 2012 13:21:48 -0500
-In-Reply-To: <4F17AE75.6000605@ti.com>
-Content-Language: en-US
+	Thu, 19 Jan 2012 19:58:32 -0500
+Received: by werb13 with SMTP id b13so29765wer.19
+        for <linux-input@vger.kernel.org>; Thu, 19 Jan 2012 16:58:31 -0800 (PST)
+In-Reply-To: <1327021046-18024-1-git-send-email-javier@dowhile0.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shubhrajyoti <shubhrajyoti@ti.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Stephen Warren <swarren@nvidia.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org, Javier Martinez Canillas <javier@dowhile0.org>
 
->  	if (device_may_wakeup(&pdev->dev)) {
->  		disable_irq_wake(kbc->irq);
->  		tegra_kbc_setup_wakekeys(kbc, false);
-> +		/* We will use fifo interrupts for key detection. */
-> +		tegra_kbc_set_keypress_interrupt(kbc, false);
-Why do yo disable on resume why not have it enabled always?
+The driver is composed of a core driver that process the data sent by
+the contacts and a set of bus specific interface modules.
 
->  
->  		/* Restore the resident time of continuous polling mode. */
->  		writel(kbc->cp_to_wkup_dly, kbc->mmio + KBC_TO_CNT_0);
+This patch add supports for the Cypress TTSP I2C bus interface.
 
-For the relevant discussion, Tegra KBC provides the following interrupts - 
-a) The keypress interrupt which is generated as soon as a key is pressed, 
-      before matrix scanning begins.
-b) FIFO interrupt which is generated when actual keys are decoded from the matrix, 
-     and put into the FIFO. 
+Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
+---
+ drivers/input/touchscreen/cyttsp_i2c.c |  137 ++++++++++++++++++++++++++++++++
+ 1 files changed, 137 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/cyttsp_i2c.c
 
-During normal operation the keypress interrupt is not useful as we have to wait for the 
-keys to make it into the FIFO before reporting it to the higher layers.
+diff --git a/drivers/input/touchscreen/cyttsp_i2c.c b/drivers/input/touchscreen/cyttsp_i2c.c
+new file mode 100644
+index 0000000..cdbf61d
+--- /dev/null
++++ b/drivers/input/touchscreen/cyttsp_i2c.c
+@@ -0,0 +1,137 @@
++/*
++ * Source for:
++ * Cypress TrueTouch(TM) Standard Product (TTSP) I2C touchscreen driver.
++ * For use with Cypress Txx3xx parts.
++ * Supported parts include:
++ * CY8CTST341
++ * CY8CTMA340
++ *
++ * Copyright (C) 2009, 2010, 2011 Cypress Semiconductor, Inc.
++ * Copyright (C) 2012 Javier Martinez Canillas <javier@dowhile0.org>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2, and only version 2, as published by the
++ * Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
++ *
++ * Contact Cypress Semiconductor at www.cypress.com <kev@cypress.com>
++ *
++ */
++
++#include "cyttsp_core.h"
++
++#include <linux/i2c.h>
++#include <linux/input.h>
++
++#define CY_I2C_DATA_SIZE  128
++
++static int cyttsp_i2c_read_block_data(struct device *dev,
++				      u8 addr, u8 length, void *values)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int retval;
++
++	retval = i2c_master_send(client, &addr, 1);
++	if (retval < 0)
++		return retval;
++
++	retval = i2c_master_recv(client, values, length);
++
++	if (retval < 0)
++		return retval;
++
++	return (retval != length) ? -EIO : 0;
++}
++
++static int cyttsp_i2c_write_block_data(struct device *dev,
++				       u8 addr, u8 length, const void *values)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct cyttsp *ts = i2c_get_clientdata(client);
++	int retval;
++
++	ts->xfer_buf[0] = addr;
++	memcpy(&ts->xfer_buf[1], values, length);
++	retval = i2c_master_send(client, ts->xfer_buf, length + 1);
++
++	return (retval < 0) ? retval : 0;
++}
++
++static const struct cyttsp_bus_ops cyttsp_i2c_bus_ops = {
++	.bustype        = BUS_I2C,
++	.write          = cyttsp_i2c_write_block_data,
++	.read           = cyttsp_i2c_read_block_data,
++};
++
++static int __devinit cyttsp_i2c_probe(struct i2c_client *client,
++				      const struct i2c_device_id *id)
++{
++	struct cyttsp *ts;
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&client->dev, "I2C functionality not Supported\n");
++		return -EIO;
++	}
++
++	ts = cyttsp_probe(&cyttsp_i2c_bus_ops, &client->dev, client->irq,
++			  CY_I2C_DATA_SIZE);
++
++	if (IS_ERR(ts))
++		return PTR_ERR(ts);
++
++	i2c_set_clientdata(client, ts);
++
++	return 0;
++}
++
++static int __devexit cyttsp_i2c_remove(struct i2c_client *client)
++{
++	struct cyttsp *ts = i2c_get_clientdata(client);
++
++	cyttsp_remove(ts);
++
++	return 0;
++}
++
++static const struct i2c_device_id cyttsp_i2c_id[] = {
++	{ CY_I2C_NAME, 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, cyttsp_i2c_id);
++
++static struct i2c_driver cyttsp_i2c_driver = {
++	.driver = {
++		.name   = CY_I2C_NAME,
++		.owner  = THIS_MODULE,
++		.pm     = &cyttsp_pm_ops,
++	},
++	.probe          = cyttsp_i2c_probe,
++	.remove         = __devexit_p(cyttsp_i2c_remove),
++	.id_table       = cyttsp_i2c_id,
++};
++
++static int __init cyttsp_i2c_init(void)
++{
++	return i2c_add_driver(&cyttsp_i2c_driver);
++}
++module_init(cyttsp_i2c_init);
++
++static void __exit cyttsp_i2c_exit(void)
++{
++	return i2c_del_driver(&cyttsp_i2c_driver);
++}
++module_exit(cyttsp_i2c_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("Cypress TrueTouch(R) Standard Product (TTSP) I2C driver");
++MODULE_AUTHOR("Cypress");
++MODULE_ALIAS("i2c:cyttsp");
+-- 
+1.7.7.5
 
-Since we have turned off scanning(in the following commit) we cannot use the FIFO interrupt 
-during the resume, so we rely on the keypress interrupt and generate the wakeup key.
-
-Commit that turned off scanning
-
-    Input: tegra-kbc - fix wakeup from suspend
-
-    For wakeup to be reliable, kbc needs to be in interrupt mode before suspend.
-    Created common routine to control the FIFO interrupt.
-    Added synchronization to ensure orderly suspend.
-
-
-Regards
-Rakesh

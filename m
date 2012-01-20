@@ -1,53 +1,36 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/3] hid-multitouch: add support for trackpads
-Date: Fri, 20 Jan 2012 08:48:49 -0800
-Message-ID: <20120120164849.GA6520@core.coreip.homeip.net>
-References: <1326887468-5148-1-git-send-email-benjamin.tissoires@enac.fr>
- <1326887468-5148-2-git-send-email-benjamin.tissoires@enac.fr>
- <20120120160948.GA18530@polaris.bitmath.org>
+Subject: Re: [PATCH 1/2] Input: convert drivers/input/* to use
+ module_i2c_driver()
+Date: Fri, 20 Jan 2012 08:53:22 -0800
+Message-ID: <20120120165322.GB6520@core.coreip.homeip.net>
+References: <1327064484.15205.1.camel@phoenix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:58357 "EHLO
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:37445 "EHLO
 	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754519Ab2ATQs7 (ORCPT
+	with ESMTP id S1752509Ab2ATQxb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Jan 2012 11:48:59 -0500
+	Fri, 20 Jan 2012 11:53:31 -0500
 Content-Disposition: inline
-In-Reply-To: <20120120160948.GA18530@polaris.bitmath.org>
+In-Reply-To: <1327064484.15205.1.camel@phoenix>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Fabien Marteau <fabien.marteau@armadeus.com>, Michael Hennerich <hennerich@blackfin.uclinux.org>, Felipe Balbi <balbi@ti.com>, Kim Kyuwon <q1.kim@samsung.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Zhang Jiejing <jiejing.zhang@freescale.com>, Bo Shen <voice.shen@atmel.com>, Raphael Derosso Pereira <raphaelpereira@gmail.com>, Barry Song <21cnbao@gmail.com>, Albert Zhang <xu.zhang@bosch-sensortec.com>, Hemanth V <hemanthv@ti.com>, Chris Hudson <chudson@kionix.com>, Samuli Konttila <samuli.konttila@aavamobile.com>, Mike Rapoport <mike@compulab.co.il>, Daniel Mack <daniel@caiaq.de>, Magnus Damm <damm@opensource.se>, Jianchun Bian <jcbian@pixcir.com.cn>, Dequan Meng <dqmeng@pixcir.com.cn>, Tony SIM <chinyeow.sim.xt@renesas.com>, Kwangwoo Lee <kwlee@mtekvision.com>, linux-input@vger.kernel.org
 
-On Fri, Jan 20, 2012 at 05:09:48PM +0100, Henrik Rydberg wrote:
-> Hi Benjamin,
+Hi Axel,
+
+On Fri, Jan 20, 2012 at 09:01:24PM +0800, Axel Lin wrote:
+> This patch converts the drivers in drivers/input/* to use the
+> module_i2c_driver() macro which makes the code smaller and a bit simpler.
 > 
-> > @@ -389,9 +404,19 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
-> >  				td->last_field_index = field->index;
-> >  			return -1;
-> >  		}
-> > +		case HID_DG_TOUCH:
-> > +			/* Legacy devices use TIPSWITCH and not TOUCH.
-> > +			 * Let's just ignore this field. */
-> > +			return -1;
-> >  		/* let hid-input decide for the others */
-> >  		return 0;
-> >  
-> > +	case HID_UP_BUTTON:
-> > +		code = ((usage->hid - 1) & HID_USAGE) + BTN_MOUSE;
-> 
-> Why '+' here instead of '|' is  beyond me...
 
-Because it is an offset for the range. The fact that it is on power 2
-boundary and we can use "|" is purely coincidential here.
+I ialready have your patch in my queue, I am just waiting for -rc3 to
+merge winth mainline and bring module_i2c_driver() and module_spi_driver()
+in and will merge your patches at that time.
 
-Maybe we should even write it as:
-
-		code = BTN_MOUSE + ((usage->hid - 1) & HID_USAGE);
-
-Thanks,
-Dmitry
+Thanks.
 
 -- 
 Dmitry

@@ -1,173 +1,33 @@
-From: =?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?= <arve@android.com>
-Subject: [PATCH] Input: Add ioctl to block suspend while event queue is not empty.
-Date: Fri, 20 Jan 2012 18:24:16 -0800
-Message-ID: <1327112659-31145-1-git-send-email-arve@android.com>
+From: Anisha Kaul <born.rebel.83@gmail.com>
+Subject: Re: fftest: Force feedback doesn't work in native mode
+Date: Sat, 21 Jan 2012 13:39:37 +0530
+Message-ID: <CAM1yFZ-K7696wZWBYLJr+n7i+N=y2_7v3PmoZ3R_YjHtiDwjbQ@mail.gmail.com>
+References: <CAM1yFZ8_VEhsY9qe6Rt_8Ojb89CUUMskQdGDv5GomEVGNBDvxQ@mail.gmail.com>
+	<2a8f304621a47c9b8468f5aa0ae7f4c5.squirrel@mungewell.org>
+	<CAM1yFZ82ZqJ+DAh2fU+Lqijcm=r6DE_EmCR8OX7M7ubNRMxyyg@mail.gmail.com>
+	<07591daed833aaf50ea155c918cd04e0.squirrel@mungewell.org>
+	<CAM1yFZ_eD2gV-vEwQp+BmD5OJxhH7ov3hqYRUBLtNm-Cp8GLGg@mail.gmail.com>
+	<747fc1e52c224cb3cc1c4b37c9de9bb7.squirrel@mungewell.org>
+	<CAM1yFZ_FWMrRH6a_nW1AW6vZcmC67LNKO0rsCWc1G1KSg9Z8bQ@mail.gmail.com>
+	<e79444a78f0412701e85c030f4d2b4e1.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:64653 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754715Ab2AUCYl (ORCPT
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:47387 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752312Ab2AUIJh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Jan 2012 21:24:41 -0500
+	Sat, 21 Jan 2012 03:09:37 -0500
+Received: by obcva7 with SMTP id va7so1557230obc.19
+        for <linux-input@vger.kernel.org>; Sat, 21 Jan 2012 00:09:37 -0800 (PST)
+In-Reply-To: <e79444a78f0412701e85c030f4d2b4e1.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-pm@vger.kernel.org, =?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?= <arve@android.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg@redhat.com>, Chase Douglas <chase.douglas@canonical.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org
+To: simon@mungewell.org
+Cc: linux-input@vger.kernel.org
 
-Add an ioctl, EVIOCSSUSPENDBLOCK, to block suspend while the event
-queue is not empty. This allows userspace code to process input
-events while the device appears to be asleep.
+So, finally I tested this wheel on kernel 3.2.1, force feedback does
+work indeed smoothly in the native mode.
+Thanks to Simon for all the clues and patience.
 
-Signed-off-by: Arve Hj=C3=B8nnev=C3=A5g <arve@android.com>
----
- drivers/input/evdev.c |   63 +++++++++++++++++++++++++++++++++++++++++=
-++++++++
- include/linux/input.h |    3 ++
- 2 files changed, 66 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 76457d5..e212757 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -43,6 +43,7 @@ struct evdev_client {
- 	unsigned int tail;
- 	unsigned int packet_head; /* [future] position of the first element o=
-f next packet */
- 	spinlock_t buffer_lock; /* protects access to buffer, head and tail *=
-/
-+	struct wakeup_source *wakeup_source;
- 	struct fasync_struct *fasync;
- 	struct evdev *evdev;
- 	struct list_head node;
-@@ -75,10 +76,14 @@ static void evdev_pass_event(struct evdev_client *c=
-lient,
- 		client->buffer[client->tail].value =3D 0;
-=20
- 		client->packet_head =3D client->tail;
-+		if (client->wakeup_source)
-+			__pm_relax(client->wakeup_source);
- 	}
-=20
- 	if (event->type =3D=3D EV_SYN && event->code =3D=3D SYN_REPORT) {
- 		client->packet_head =3D client->head;
-+		if (client->wakeup_source)
-+			__pm_stay_awake(client->wakeup_source);
- 		kill_fasync(&client->fasync, SIGIO, POLL_IN);
- 	}
-=20
-@@ -255,6 +260,10 @@ static int evdev_release(struct inode *inode, stru=
-ct file *file)
- 	mutex_unlock(&evdev->mutex);
-=20
- 	evdev_detach_client(evdev, client);
-+	if (client->wakeup_source) {
-+		__pm_relax(client->wakeup_source);
-+		wakeup_source_unregister(client->wakeup_source);
-+	}
- 	kfree(client);
-=20
- 	evdev_close_device(evdev);
-@@ -373,6 +382,9 @@ static int evdev_fetch_next_event(struct evdev_clie=
-nt *client,
- 	if (have_event) {
- 		*event =3D client->buffer[client->tail++];
- 		client->tail &=3D client->bufsize - 1;
-+		if (client->wakeup_source &&
-+		    client->packet_head =3D=3D client->tail)
-+			__pm_relax(client->wakeup_source);
- 	}
-=20
- 	spin_unlock_irq(&client->buffer_lock);
-@@ -623,6 +635,48 @@ static int evdev_handle_set_keycode_v2(struct inpu=
-t_dev *dev, void __user *p)
- 	return input_set_keycode(dev, &ke);
- }
-=20
-+static int evdev_enable_suspend_block(struct evdev *evdev,
-+				      struct evdev_client *client)
-+{
-+	struct wakeup_source *ws;
-+	char name[28];
-+
-+	if (client->wakeup_source)
-+		return 0;
-+
-+	snprintf(name, sizeof(name), "%s-%d",
-+		 dev_name(&evdev->dev), task_tgid_vnr(current));
-+
-+	ws =3D wakeup_source_register(name);
-+	if (!ws)
-+		return -ENOMEM;
-+
-+	spin_lock_irq(&client->buffer_lock);
-+	client->wakeup_source =3D ws;
-+	if (client->packet_head !=3D client->tail)
-+		__pm_stay_awake(client->wakeup_source);
-+	spin_unlock_irq(&client->buffer_lock);
-+	return 0;
-+}
-+
-+static int evdev_disable_suspend_block(struct evdev *evdev,
-+				       struct evdev_client *client)
-+{
-+	struct wakeup_source *ws;
-+
-+	spin_lock_irq(&client->buffer_lock);
-+	ws =3D client->wakeup_source;
-+	client->wakeup_source =3D NULL;
-+	spin_unlock_irq(&client->buffer_lock);
-+
-+	if (ws) {
-+		__pm_relax(ws);
-+		wakeup_source_unregister(ws);
-+	}
-+
-+	return 0;
-+}
-+
- static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 			   void __user *p, int compat_mode)
- {
-@@ -696,6 +750,15 @@ static long evdev_do_ioctl(struct file *file, unsi=
-gned int cmd,
-=20
- 	case EVIOCSKEYCODE_V2:
- 		return evdev_handle_set_keycode_v2(dev, p);
-+
-+	case EVIOCGSUSPENDBLOCK:
-+		return put_user(!!client->wakeup_source, ip);
-+
-+	case EVIOCSSUSPENDBLOCK:
-+		if (p)
-+			return evdev_enable_suspend_block(evdev, client);
-+		else
-+			return evdev_disable_suspend_block(evdev, client);
- 	}
-=20
- 	size =3D _IOC_SIZE(cmd);
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 3862e32..daf0177 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -129,6 +129,9 @@ struct input_keymap_entry {
-=20
- #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
-=20
-+#define EVIOCGSUSPENDBLOCK	_IOR('E', 0x91, int)			/* get suspend block=
- enable */
-+#define EVIOCSSUSPENDBLOCK	_IOW('E', 0x91, int)			/* set suspend block=
- enable */
-+
- /*
-  * Device properties and quirks
-  */
---=20
-1.7.7.3
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-Anisha

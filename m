@@ -1,33 +1,102 @@
-From: Anisha Kaul <born.rebel.83@gmail.com>
-Subject: Re: fftest: Force feedback doesn't work in native mode
-Date: Sat, 21 Jan 2012 13:39:37 +0530
-Message-ID: <CAM1yFZ-K7696wZWBYLJr+n7i+N=y2_7v3PmoZ3R_YjHtiDwjbQ@mail.gmail.com>
-References: <CAM1yFZ8_VEhsY9qe6Rt_8Ojb89CUUMskQdGDv5GomEVGNBDvxQ@mail.gmail.com>
-	<2a8f304621a47c9b8468f5aa0ae7f4c5.squirrel@mungewell.org>
-	<CAM1yFZ82ZqJ+DAh2fU+Lqijcm=r6DE_EmCR8OX7M7ubNRMxyyg@mail.gmail.com>
-	<07591daed833aaf50ea155c918cd04e0.squirrel@mungewell.org>
-	<CAM1yFZ_eD2gV-vEwQp+BmD5OJxhH7ov3hqYRUBLtNm-Cp8GLGg@mail.gmail.com>
-	<747fc1e52c224cb3cc1c4b37c9de9bb7.squirrel@mungewell.org>
-	<CAM1yFZ_FWMrRH6a_nW1AW6vZcmC67LNKO0rsCWc1G1KSg9Z8bQ@mail.gmail.com>
-	<e79444a78f0412701e85c030f4d2b4e1.squirrel@mungewell.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] Input: q40kbd - convert driver to the split model
+Date: Sun, 22 Jan 2012 12:16:40 +0100 (CET)
+Message-ID: <alpine.DEB.2.00.1201221214160.28391@ayla.of.borg>
+References: <20111231010814.7392.52389.stgit@hammer.corenet.prv> <CAMuHMdV+FFPG8TVA7NwfpCvA3+FrVixE4bfdOu8a_1=xTaKiRg@mail.gmail.com> <20120111081118.GC18668@core.coreip.homeip.net> <CAMuHMdXfs2ru7KG-xFRoKPso5Y+UuAnOOUie8HoOZHYyoVeyaA@mail.gmail.com>
+ <20120111173051.GB21047@core.coreip.homeip.net> <20120118092548.GD32285@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:47387 "EHLO
-	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752312Ab2AUIJh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 21 Jan 2012 03:09:37 -0500
-Received: by obcva7 with SMTP id va7so1557230obc.19
-        for <linux-input@vger.kernel.org>; Sat, 21 Jan 2012 00:09:37 -0800 (PST)
-In-Reply-To: <e79444a78f0412701e85c030f4d2b4e1.squirrel@mungewell.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=ISO-8859-7
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-m68k-owner@vger.kernel.org>
+In-Reply-To: <20120118092548.GD32285@core.coreip.homeip.net>
+Sender: linux-m68k-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-m68k@lists.linux-m68k.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: linux-input@vger.kernel.org
 
-So, finally I tested this wheel on kernel 3.2.1, force feedback does
-work indeed smoothly in the native mode.
-Thanks to Simon for all the clues and patience.
+On Wed, 18 Jan 2012, Dmitry Torokhov wrote:
+> Input: q40kbd - convert driver to the split model
+>=20
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>=20
+> Convert the driver to standard spilt model arch-specific code registe=
+rs
+> platform device to which driver code can bind later.
+>=20
+> Also request IRQ immediately upon binding to the device instead of do=
+ing
+> this when serio port is being opened.
+>=20
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+>=20
+>  arch/m68k/q40/config.c       |    7 ++
+>  drivers/input/serio/q40kbd.c |  139 ++++++++++++++++++++++++--------=
+----------
+>  2 files changed, 86 insertions(+), 60 deletions(-)
+>=20
+>=20
+> diff --git a/arch/m68k/q40/config.c b/arch/m68k/q40/config.c
+> index ad10fec..c72a3ed 100644
+> --- a/arch/m68k/q40/config.c
+> +++ b/arch/m68k/q40/config.c
+> @@ -24,6 +24,7 @@
+>  #include <linux/rtc.h>
+>  #include <linux/vt_kern.h>
+>  #include <linux/bcd.h>
+> +#include <linux/platform_device.h>
+> =20
+>  #include <asm/io.h>
+>  #include <asm/rtc.h>
+> @@ -329,3 +330,9 @@ static int q40_set_rtc_pll(struct rtc_pll_info *p=
+ll)
+>  	} else
+>  		return -EINVAL;
+>  }
+> +
+> +static __init int q40_add_kbd_device(void)
+> +{
+> +	return platform_device_register_simple("q40kbd", -1, NULL, 0);
 
--Anisha
+arch/m68k/q40/config.c: In function =A1q40_add_kbd_device=A2:
+arch/m68k/q40/config.c:336: warning: return makes integer from pointer =
+without a cast
+
+Either ignore the error and always return 0, or:
+
+diff --git a/arch/m68k/q40/config.c b/arch/m68k/q40/config.c
+index c72a3ed..be93648 100644
+--- a/arch/m68k/q40/config.c
++++ b/arch/m68k/q40/config.c
+@@ -333,6 +333,12 @@ static int q40_set_rtc_pll(struct rtc_pll_info *pl=
+l)
+=20
+ static __init int q40_add_kbd_device(void)
+ {
+-	return platform_device_register_simple("q40kbd", -1, NULL, 0);
++	struct platform_device *pdev;
++
++	pdev =3D platform_device_register_simple("q40kbd", -1, NULL, 0);
++	if (IS_ERR(pdev))
++		return PTR_ERR(pdev);
++
++	return 0;
+ }
+ arch_initcall(q40_add_kbd_device);
+
+The rest is
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-=
+m68k.org
+
+In personal conversations with technical people, I call myself a hacker=
+=2E But
+when I'm talking to journalists I just say "programmer" or something li=
+ke that.
+							    -- Linus Torvalds

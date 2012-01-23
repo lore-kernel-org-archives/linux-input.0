@@ -1,61 +1,49 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [RFCv2 PATCH 2/2] hid-core: ignore the Keene FM transmitter.
-Date: Mon, 23 Jan 2012 08:53:20 +0100
-Message-ID: <6a631f8625a923609e598226be5c588d50a2e325.1327305074.git.hans.verkuil@cisco.com>
-References: <1327305200-3012-1-git-send-email-hverkuil@xs4all.nl>
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <1327305200-3012-1-git-send-email-hverkuil@xs4all.nl>
-In-Reply-To: <cc03ba62a0c7373b83212036e152c76c1ef07047.1327305074.git.hans.verkuil@cisco.com>
-References: <cc03ba62a0c7373b83212036e152c76c1ef07047.1327305074.git.hans.verkuil@cisco.com>
-Sender: linux-media-owner@vger.kernel.org
-To: linux-media@vger.kernel.org
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Oliver Neukum <oneukum@suse.de>, Hans Verkuil <hans.verkuil@cisco.com>
+Subject: [RFCv2 PATCH 0/2] New driver for the Keene USB FM Transmitter
+Date: Mon, 23 Jan 2012 08:53:18 +0100
+Message-ID: <1327305200-3012-1-git-send-email-hverkuil@xs4all.nl>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp-vbr16.xs4all.nl ([194.109.24.36]:4364 "EHLO
+	smtp-vbr16.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751833Ab2AWHxo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Jan 2012 02:53:44 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-media@vger.kernel.org
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Oliver Neukum <oneukum@suse.de>
 
-From: Hans Verkuil <hans.verkuil@cisco.com>
+Hi all,
 
-The Keene FM transmitter USB device has the same USB ID as
-the Logitech AudioHub Speaker, but it should ignore the hid.
-Check if the name is that of the Keene device.
+Here is a V4L2 driver for the Keene USB FM Transmitter:
 
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
----
- drivers/hid/hid-core.c |   10 ++++++++++
- drivers/hid/hid-ids.h  |    1 +
- 2 files changed, 11 insertions(+), 0 deletions(-)
+http://www.amazon.co.uk/Keene-Electronics-USB-FM-Transmitter/dp/B003GCHPDY
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index af08ce7..dd1bab4 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1993,6 +1993,16 @@ static bool hid_ignore(struct hid_device *hdev)
- 		if (hdev->product >= USB_DEVICE_ID_LOGITECH_HARMONY_FIRST &&
- 				hdev->product <= USB_DEVICE_ID_LOGITECH_HARMONY_LAST)
- 			return true;
-+		/*
-+		 * The Keene FM transmitter USB device has the same USB ID as
-+		 * the Logitech AudioHub Speaker, but it should ignore the hid.
-+		 * Check if the name is that of the Keene device.
-+		 * For reference: the name of the AudioHub is
-+		 * "HOLTEK  AudioHub Speaker".
-+		 */
-+		if (hdev->product == USB_DEVICE_ID_LOGITECH_AUDIOHUB &&
-+			!strcmp(hdev->name, "HOLTEK  B-LINK USB Audio  "))
-+				return true;
- 		break;
- 	case USB_VENDOR_ID_SOUNDGRAPH:
- 		if (hdev->product >= USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST &&
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b8574cd..e1c4535 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -451,6 +451,7 @@
- #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
- 
- #define USB_VENDOR_ID_LOGITECH		0x046d
-+#define USB_DEVICE_ID_LOGITECH_AUDIOHUB 0x0a0e
- #define USB_DEVICE_ID_LOGITECH_RECEIVER	0xc101
- #define USB_DEVICE_ID_LOGITECH_HARMONY_FIRST  0xc110
- #define USB_DEVICE_ID_LOGITECH_HARMONY_LAST 0xc14f
--- 
-1.7.7.3
+Changes from v1:
+
+Incorporated comments from Oliver Neukum:
+
+- Use kmalloc to allocate the DMA buffer
+- Check the product name in the keene driver as well in case it is loaded
+  before the usbhid driver.
+
+It's been very useful to test V4L2 FM radio receivers.
+
+Note that the Keene FM transmitter USB device has the same USB ID as
+the Logitech AudioHub Speaker. Since the radio-keene driver needs to
+hijack the HID something needed to be done to differentiate the two.
+
+So hid-core was modified to decide this based on the product name.
+
+I have tested that this works with both a Keene device and a Logitech
+AudioHub device hooked up at the same time.
+
+Jiri, can you look at the last patch and let me know if it is OK
+from a HID point of view? If there are no more comments then I'd like
+to have it merged in the linux-media tree for v3.4 by the end of the week,
+but I need you Ack for the hid-core patch in order to do that.
+
+Regards,
+
+        Hans
+

@@ -1,51 +1,146 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [hid-multitouch] supported device details
-Date: Mon, 23 Jan 2012 10:44:51 +0100
-Message-ID: <CAN+gG=HaoL5Nd2NTctBfdSE5Mt4Nz9zAhuTJwAz9ZFrEsKoxcg@mail.gmail.com>
-References: <1327304925.2789.2.camel@localhost.localdomain>
+Subject: Re: PROBLEM: Kernel version 3.2.1 usb touchscreen device not
+ recognised [UDEV? USBINPUT? HOOK]
+Date: Mon, 23 Jan 2012 10:50:28 +0100
+Message-ID: <CAN+gG=HzKftg=ZmKy0cXy4=ZNwpDNpM9r9xZk+n4xjUgre+LKw@mail.gmail.com>
+References: <4F192242.1070909@exemail.com.au>
+	<20120120160210.GA21565@kroah.com>
+	<4F19CB06.6040801@exemail.com.au>
+	<CAN+gG=EOLQwqRwVV_PreOoGR887x_KfsjFBpK7a=bj0uj9Tc5A@mail.gmail.com>
+	<4F19E35F.1000201@exemail.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:35239 "EHLO
+Received: from mail-we0-f174.google.com ([74.125.82.174]:36410 "EHLO
 	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752227Ab2AWJow convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1752681Ab2AWJua convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Jan 2012 04:44:52 -0500
-Received: by werb13 with SMTP id b13so1936940wer.19
-        for <linux-input@vger.kernel.org>; Mon, 23 Jan 2012 01:44:51 -0800 (PST)
-In-Reply-To: <1327304925.2789.2.camel@localhost.localdomain>
+	Mon, 23 Jan 2012 04:50:30 -0500
+In-Reply-To: <4F19E35F.1000201@exemail.com.au>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gustavo <gjasso@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: padfoot@exemail.com.au
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Gustavo,
+Hi Lachlan,
 
-thanks for the pid.
-
-Out of curiosity, why do you need the vendor driver?
-I tested it, and the only thinks it does with my eGalax is to invert Y =
-axis.
+thanks for the feedback.
+The pid you provided is already included for 3.3, and has been
+scheduled in stable too (3.2 and 3.0).
+So this command won't be required soon.
 
 Cheers,
 Benjamin
 
-On Mon, Jan 23, 2012 at 08:48, Gustavo <gjasso@gmail.com> wrote:
-> Hi, here is the lsusb output for an eGalax touchscreen properly detec=
-ted
-> by hid-multitouch (also needs vendor driver):
+On Fri, Jan 20, 2012 at 22:57, Padfoot <padfoot@exemail.com.au> wrote:
+> On 21/01/12 07:50, Benjamin Tissoires wrote:
+>>
+>> Hi Lachlan,
+>>
+>> Well, many eGalax devices are multitouch devices, and can not be
+>> handled by the generic input hid layer without having strange issues=
+=2E
+>> We have a patch in 3.2 that auto detect such devices and release the=
+m
+>> from the generic input stack.
+>> Then, it's easier for people to handle the devices through
+>> hid-multitouch as the recompilation of the kernel is not required
+>> anymore.
+>> I also submitted a patch to catch multitouch devices in
+>> hid-multitouch, but it has not been accepted as it would require
+>> everybody to load hid-multitouch for every hid device.
+>>
+>> To enable your device, do (as root)
+>> # modprobe hid-multitouch
+>> # echo 3 VID PID 104>
+>> /sys/module/hid_multitouch/drivers/hid\:hid-multitouch/new_id
+>>
+>> where:
+>> - 3 is the bus, usb here
+>> - VID: vendor ID (must be 0eef in your case)
+>> - PID: product ID
+>> - 104 is the number of the right class of multitouch device to use
+>> (see MT_CLS_* definitions in hid-multitouch)
+>> VID/PID =A0can be retrieved from lsusb.
+>>
+>> If it's working, then you should also give us your PID so that we ca=
+n
+>> add it in the source of hid-multitouch.
+>>
+>> Cheers,
+>> Benjamin
+>>
+>>
+>> On Fri, Jan 20, 2012 at 21:13, Padfoot<padfoot@exemail.com.au> =A0wr=
+ote:
+>>>
+>>> On 21/01/12 03:02, Greg KH wrote:
+>>>>
+>>>> On Fri, Jan 20, 2012 at 07:13:54PM +1100, Padfoot wrote:
+>>>>>
+>>>>> Upgrade from kernel 3.1.9 to 3.2.1 eGalax usb touchscreen device =
+is
+>>>>> no longer recognised.
+>>>>>
+>>>>> Device is an Acer Iconia Tab w501 with inbuilt touchscreen. Scree=
+n
+>>>>> is a pci device but is connected on boot as a usb input device.
+>>>>> Issue appears to be with either UDEV or USBINPUT boot hook failin=
+g
+>>>>> to recognise the device as can be seen in the dmesg.3.2.1
+>>>>> attachment.
+>>>>>
+>>>>> Downgrading to kernel 3.1.9 corrects the issue.
+>>>>
+>>>> Can you run 'git bisect' between 3.1.0 and 3.2.0 to find the probl=
+em
+>>>> commit here?
+>>>>
+>>>> Also, you might want to cc: the linux-input developers, they can h=
+elp
+>>>> you out much better than the general list can.
+>>>>
+>>>> greg k-h
+>>>>
+>>> Hi Greg,
+>>>
+>>> I am not a kernel dev, nor have I ever compiled a kernel, so I don'=
+t
+>>> think I
+>>> am able to help with a git bisect to locate the offending commit. I=
+ am
+>>> just
+>>> a regular user running pre-compiled packages on my Arch Linux distr=
+o.
+>>> But,
+>>> of course I am happy to assist wherever I can.
+>>>
+>>> Cheers.
+>>> Lachlan
+>>> --
+>>> To unsubscribe from this list: send the line "unsubscribe linux-inp=
+ut" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at =A0http://vger.kernel.org/majordomo-info.htm=
+l
 >
-> Bus 004 Device 002: ID 0eef:725e D-WAV Scientific Co., Ltd
+> Hi Benjamin,
 >
-> --
-> Gustavo
+> Thankyou very much. Your solution has worked brilliantly.
 >
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+> The device parameters I had to pass to hid-multitouch are as follows:
+>
+> echo 3 0eef 7302 259 > /sys/mod........
+>
+> I also have to use the binary daemon driver from eGalax for the devic=
+e to
+> work:
+> http://home.eeti.com.tw/web20/eGalaxTouchDriver/linuxDriver.htm
+>
+> Cheers.
+> Lachlan.
+>
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

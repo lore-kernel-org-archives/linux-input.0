@@ -1,47 +1,40 @@
-From: Anisha Kaul <born.rebel.83@gmail.com>
-Subject: Re: fftest: Force feedback doesn't work in native mode
-Date: Tue, 24 Jan 2012 18:08:56 +0530
-Message-ID: <CAM1yFZ9wZ4+G0kENq0p=SyDPTkzC3nXp2Jqrk83cj_1fyoprEw@mail.gmail.com>
-References: <CAM1yFZ8_VEhsY9qe6Rt_8Ojb89CUUMskQdGDv5GomEVGNBDvxQ@mail.gmail.com>
-	<2a8f304621a47c9b8468f5aa0ae7f4c5.squirrel@mungewell.org>
-	<CAM1yFZ82ZqJ+DAh2fU+Lqijcm=r6DE_EmCR8OX7M7ubNRMxyyg@mail.gmail.com>
-	<07591daed833aaf50ea155c918cd04e0.squirrel@mungewell.org>
-	<CAM1yFZ_eD2gV-vEwQp+BmD5OJxhH7ov3hqYRUBLtNm-Cp8GLGg@mail.gmail.com>
-	<747fc1e52c224cb3cc1c4b37c9de9bb7.squirrel@mungewell.org>
-	<CAM1yFZ_FWMrRH6a_nW1AW6vZcmC67LNKO0rsCWc1G1KSg9Z8bQ@mail.gmail.com>
-	<e79444a78f0412701e85c030f4d2b4e1.squirrel@mungewell.org>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [PATCH v2] input: Hanvon Art Master I and Rollick tablet support (USB)
+Date: Tue, 24 Jan 2012 13:41:10 +0100
+Message-ID: <201201241341.10614.oliver@neukum.org>
+References: <alpine.LRH.2.00.1201230211440.12906@linux.fjfi.cvut.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:64599 "EHLO
-	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752923Ab2AXMi5 (ORCPT
+Received: from smtp-out002.kontent.com ([81.88.40.216]:38510 "EHLO
+	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753230Ab2AXMjR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Jan 2012 07:38:57 -0500
-Received: by obcva7 with SMTP id va7so4222198obc.19
-        for <linux-input@vger.kernel.org>; Tue, 24 Jan 2012 04:38:56 -0800 (PST)
-In-Reply-To: <e79444a78f0412701e85c030f4d2b4e1.squirrel@mungewell.org>
+	Tue, 24 Jan 2012 07:39:17 -0500
+In-Reply-To: <alpine.LRH.2.00.1201230211440.12906@linux.fjfi.cvut.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: linux-input@vger.kernel.org
+To: ondra.havel@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On 21 January 2012 00:20,  <simon@mungewell.org> wrote:
-> I don't really understand why you would want to build seperately on each
-> machine, either grab a binary kernel RPM from the site I linked before ()
-> or use one machine to create your own kernel package (either RPM or just
-> TAR).
+Am Montag, 23. Januar 2012, 02:22:07 schrieb ondra.havel@gmail.com:
+> +static void hanvon_disconnect(struct usb_interface *intf)
+> +{
+> +       struct hanvon *hanvon = usb_get_intfdata(intf);
+> +
+> +       usb_set_intfdata(intf, NULL);
+> +       usb_kill_urb(hanvon->irq);
 
-:redface:
+What happens if there's a call to open() here?
 
-What I did was to copy the hid-lg4ff.c file on kernel 3.0.0 and change
-that variable's name in the Kconfig file.
-Recompiled the kernel successfully.
+> +       input_unregister_device(hanvon->dev);
+> +       usb_free_urb(hanvon->irq);
+> +       usb_free_coherent(interface_to_usbdev(intf), USB_AM_PACKET_LEN, hanvon->data, hanvon->data_dma);
+> +       kfree(hanvon);
+> +}
+> +
 
-To my horror, after rebooting the recompiled kernel I found that
-`fftest` doesn't produce the force feedback even in the "default"
-mode. :banghead:
-
-You have any idea what could I have messed up?
-
--Anisha
+	Regards
+		Oliver

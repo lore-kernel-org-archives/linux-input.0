@@ -1,101 +1,100 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 2/5] Dynamic ID addition doesn't need get_driver()
-Date: Tue, 24 Jan 2012 13:34:41 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.1201241310400.1200-100000@iolanthe.rowland.org>
+From: Oskari Saarenmaa <os@ohmu.fi>
+Subject: [PATCH 1/2] Input: sentelic: fix fsp_packet_debug() arguments and add more debug info.
+Date: Wed, 25 Jan 2012 01:21:03 +0200
+Message-ID: <20120124232103.GA4905@timantti.taisia.fi>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Jesse Barnes <jbarnes@virtuousgeek.org>, Dominik Brodowski <linux@dominikbrodowski.net>, linux-input@vger.kernel.org, linux-pci@vger.kernel.org, linux-pcmcia@lists.infradead.org, USB list <linux-usb@vger.kernel.org>, Kernel development list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from timantti.taisia.fi ([213.157.67.233]:43364 "EHLO mail.taisia.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753821Ab2AXXru (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Jan 2012 18:47:50 -0500
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-As part of the removal of get_driver()/put_driver(), this patch
-(as1511) changes all the places that add dynamic IDs for drivers.
-Since these additions are done by writing to the drivers' sysfs
-attribute files, and the attributes are removed when the drivers are
-unregistered, there is no reason to take an extra reference to the
-drivers.
-
-The one exception is the pci-stub driver, which calls pci_add_dynid()
-as part of its registration.  But again, there's no reason to take an
-extra reference here, because the driver can't be unloaded while it is
-being registered.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-CC: Jiri Kosina <jkosina@suse.cz>
-CC: Jesse Barnes <jbarnes@virtuousgeek.org>
-CC: Dominik Brodowski <linux@dominikbrodowski.net>
-
+Signed-off-by: Oskari Saarenmaa <os@ohmu.fi>
 ---
+ drivers/input/mouse/sentelic.c |   36 +++++++++++++++++++++++++++++-------
+ 1 files changed, 29 insertions(+), 7 deletions(-)
 
- drivers/hid/hid-core.c    |    6 +-----
- drivers/pci/pci-driver.c  |    2 --
- drivers/pcmcia/ds.c       |    5 +----
- drivers/usb/core/driver.c |    5 +----
- 4 files changed, 3 insertions(+), 15 deletions(-)
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index e36847d..87c910d 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -620,18 +620,40 @@ static struct attribute_group fsp_attribute_group = {
+ };
+ 
+ #ifdef FSP_DEBUG
+-static void fsp_packet_debug(unsigned char packet[])
++static void fsp_packet_debug(struct psmouse *psmouse, unsigned char packet[])
+ {
+ 	static unsigned int ps2_packet_cnt;
+ 	static unsigned int ps2_last_second;
+ 	unsigned int jiffies_msec;
++	const char *packet_type = "UNKNOWN";
++	int abs_x = 0, abs_y = 0;
++
++	/* Interpret & dump the packet data. */
++	switch (psmouse->packet[0] >> FSP_PKT_TYPE_SHIFT) {
++	case FSP_PKT_TYPE_ABS:
++		packet_type = "Absolute";
++		abs_x = (packet[1] << 2) | ((packet[3] >> 2) & 0x03);
++		abs_y = (packet[2] << 2) | (packet[3] & 0x03);
++		break;
++	case FSP_PKT_TYPE_NORMAL:
++		packet_type = "Normal";
++		break;
++	case FSP_PKT_TYPE_NOTIFY:
++		packet_type = "Notify";
++		break;
++	case FSP_PKT_TYPE_NORMAL_OPC:
++		packet_type = "Normal-OPC";
++		break;
++	}
+ 
+ 	ps2_packet_cnt++;
+ 	jiffies_msec = jiffies_to_msecs(jiffies);
+ 	psmouse_dbg(psmouse,
+-		    "%08dms PS/2 packets: %02x, %02x, %02x, %02x\n",
+-		    jiffies_msec, packet[0], packet[1], packet[2], packet[3]);
+-
++		    "%08dms %s packet: %02x, %02x, %02x, %02x;"
++		    "abs_x: %d, abs_y: %d\n",
++		    jiffies_msec, packet_type,
++		    packet[0], packet[1], packet[2], packet[3],
++		    abs_x, abs_y);
+ 	if (jiffies_msec - ps2_last_second > 1000) {
+ 		psmouse_dbg(psmouse, "PS/2 packets/sec = %d\n", ps2_packet_cnt);
+ 		ps2_packet_cnt = 0;
+@@ -639,7 +661,7 @@ static void fsp_packet_debug(unsigned char packet[])
+ 	}
+ }
+ #else
+-static void fsp_packet_debug(unsigned char packet[])
++static void fsp_packet_debug(struct psmouse *psmouse, unsigned char packet[])
+ {
+ }
+ #endif
+@@ -659,6 +681,8 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
+ 	 * Full packet accumulated, process it
+ 	 */
+ 
++	fsp_packet_debug(psmouse, packet);
++
+ 	switch (psmouse->packet[0] >> FSP_PKT_TYPE_SHIFT) {
+ 	case FSP_PKT_TYPE_ABS:
+ 		dev_warn(&psmouse->ps2dev.serio->dev,
+@@ -715,8 +739,6 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
+ 
+ 	input_sync(dev);
+ 
+-	fsp_packet_debug(packet);
+-
+ 	return PSMOUSE_FULL_PACKET;
+ }
+ 
+-- 
+1.7.7.6
 
-Index: usb-3.3/drivers/hid/hid-core.c
-===================================================================
---- usb-3.3.orig/drivers/hid/hid-core.c
-+++ usb-3.3/drivers/hid/hid-core.c
-@@ -1619,11 +1619,7 @@ static ssize_t store_new_id(struct devic
- 	list_add_tail(&dynid->list, &hdrv->dyn_list);
- 	spin_unlock(&hdrv->dyn_lock);
- 
--	ret = 0;
--	if (get_driver(&hdrv->driver)) {
--		ret = driver_attach(&hdrv->driver);
--		put_driver(&hdrv->driver);
--	}
-+	ret = driver_attach(&hdrv->driver);
- 
- 	return ret ? : count;
- }
-Index: usb-3.3/drivers/pci/pci-driver.c
-===================================================================
---- usb-3.3.orig/drivers/pci/pci-driver.c
-+++ usb-3.3/drivers/pci/pci-driver.c
-@@ -72,9 +72,7 @@ int pci_add_dynid(struct pci_driver *drv
- 	list_add_tail(&dynid->node, &drv->dynids.list);
- 	spin_unlock(&drv->dynids.lock);
- 
--	get_driver(&drv->driver);
- 	retval = driver_attach(&drv->driver);
--	put_driver(&drv->driver);
- 
- 	return retval;
- }
-Index: usb-3.3/drivers/pcmcia/ds.c
-===================================================================
---- usb-3.3.orig/drivers/pcmcia/ds.c
-+++ usb-3.3/drivers/pcmcia/ds.c
-@@ -127,10 +127,7 @@ pcmcia_store_new_id(struct device_driver
- 	list_add_tail(&dynid->node, &pdrv->dynids.list);
- 	mutex_unlock(&pdrv->dynids.lock);
- 
--	if (get_driver(&pdrv->drv)) {
--		retval = driver_attach(&pdrv->drv);
--		put_driver(&pdrv->drv);
--	}
-+	retval = driver_attach(&pdrv->drv);
- 
- 	if (retval)
- 		return retval;
-Index: usb-3.3/drivers/usb/core/driver.c
-===================================================================
---- usb-3.3.orig/drivers/usb/core/driver.c
-+++ usb-3.3/drivers/usb/core/driver.c
-@@ -71,10 +71,7 @@ ssize_t usb_store_new_id(struct usb_dyni
- 	list_add_tail(&dynid->node, &dynids->list);
- 	spin_unlock(&dynids->lock);
- 
--	if (get_driver(driver)) {
--		retval = driver_attach(driver);
--		put_driver(driver);
--	}
-+	retval = driver_attach(driver);
- 
- 	if (retval)
- 		return retval;

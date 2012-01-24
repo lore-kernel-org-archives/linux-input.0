@@ -1,54 +1,52 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Hints needed for iCade driver
-Date: Tue, 24 Jan 2012 13:03:15 +0000
-Message-ID: <1327410195.31947.6.camel@novo.hadess.net>
+From: Bernhard Seibold <lists@e404.de>
+Subject: Re: Lenovo Keyboard with TrackPoint
+Date: Tue, 24 Jan 2012 14:37:10 +0100
+Message-ID: <20120124143710.5242ae0c@e404.de>
+References: <CAH4eiUgTN7GvWE_bw0aVBKNipJpgg7euFGmWSY=o9i6FkSp3Vw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:52613 "EHLO
-	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754894Ab2AXNDT (ORCPT
+Received: from mcp.e404.de ([78.47.239.181]:56616 "EHLO mcp.e404.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755116Ab2AXNos convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Jan 2012 08:03:19 -0500
-Received: from mfilter7-d.gandi.net (mfilter7-d.gandi.net [217.70.178.136])
-	by relay4-d.mail.gandi.net (Postfix) with ESMTP id DAC0A1720A5
-	for <linux-input@vger.kernel.org>; Tue, 24 Jan 2012 14:03:17 +0100 (CET)
-Received: from relay4-d.mail.gandi.net ([217.70.183.196])
-	by mfilter7-d.gandi.net (mfilter7-d.gandi.net [10.0.15.180]) (amavisd-new, port 10024)
-	with ESMTP id hA5tQl4AcfOg for <linux-input@vger.kernel.org>;
-	Tue, 24 Jan 2012 14:03:16 +0100 (CET)
-Received: from [192.168.1.94] (94-192-232-89.zone6.bethere.co.uk [94.192.232.89])
-	(Authenticated sender: hadess@hadess.net)
-	by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id 7E1CE1720A1
-	for <linux-input@vger.kernel.org>; Tue, 24 Jan 2012 14:03:16 +0100 (CET)
+	Tue, 24 Jan 2012 08:44:48 -0500
+In-Reply-To: <CAH4eiUgTN7GvWE_bw0aVBKNipJpgg7euFGmWSY=o9i6FkSp3Vw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: CC <ccomren@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Neat! A Bluetooth input device:
-http://www.ionaudio.com/products/details/icade
-I've had this machine sitting in its box by my desk for 6 months, and
-finally opened it.
+On Fri, 20 Jan 2012 17:06:25 +0100
+CC <ccomren@gmail.com> wrote:
 
-After writing a better pairing mechanism, I'd like to see what's needed
-to make this device into a "proper" joystick.
+> I couldn't find a follow-up thread to
+> http://www.spinics.net/lists/linux-input/msg15423.html
+>=20
+> Is there a reason this was not commited into the main kernel?
+>=20
+> Thanks, =A0CC
 
->From the developer manual:
-http://www.ionaudio.com/downloads/iCade_Dev_Resource_v1.3.pdf
+Hi!
 
-The device is a Bluetooth HID device. Once paired, the various buttons
-and directions will generate a key press/release for each key press and
-key release. For example, pressing the first button will generate:
-KEY_Y press
-KEY_Y release
-Releasing that same first button will generate:
-KEY_T press
-KEY_T release
+I didn't get much feedback on my patch, and since 2.6.30 had a patch
+that made it possible to set the sensitivity from userspace using
+hidraw, I had no reason to further try getting this patch in.
+There's a slightly updated version available on github.
 
-What would be the best way to handle that sort of device? Do we have any
-good example of devices that behave this way, and of a barebones
-joystick driver?
+https://github.com/bseibold/linux-2.6/tree/tpkbd
 
-Cheers
+It also includes support for controlling the LEDs in the mute keys, but
+this has a few problems regarding naming of the registered LEDs.
 
+If someone wants to get this patch in, please give me some feedback and
+I'll try to update it accordingly and resubmit it.
+
+Regards,
+Bernhard
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

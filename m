@@ -1,112 +1,50 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: [PATCH v2 2/3] HID: multitouch: add control of the feature
- "Maximum Contact Number"
-Date: Tue, 24 Jan 2012 15:39:09 +0100
-Message-ID: <CAN+gG=ERwqDgydj-LLnv2GPLSiW8cC4QZS2f7shxxnNLzJY+xg@mail.gmail.com>
-References: <1326887468-5148-1-git-send-email-benjamin.tissoires@enac.fr>
-	<1326887468-5148-3-git-send-email-benjamin.tissoires@enac.fr>
-	<20120120161956.GB18530@polaris.bitmath.org>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 0/5] Get rid of get_driver() and put_driver()
+Date: Tue, 24 Jan 2012 13:33:37 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.1201241158540.1200-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:54261 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756569Ab2AXOjK convert rfc822-to-8bit (ORCPT
+Received: from iolanthe.rowland.org ([192.131.102.54]:59152 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752038Ab2AXSdi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Jan 2012 09:39:10 -0500
-In-Reply-To: <20120120161956.GB18530@polaris.bitmath.org>
+	Tue, 24 Jan 2012 13:33:38 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kyungmin Park <kyungmin.park@samsung.com>, Andy Walls <awalls@md.metrocast.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jiri Kosina <jkosina@suse.cz>, Jesse Barnes <jbarnes@virtuousgeek.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Sebastian Ott <sebott@linux.vnet.ibm.com>, "David S. Miller" <davem@davemloft.net>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Michael Buesch <m@bues.ch>, Joerg Roedel <joerg.roedel@amd.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, netdev@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-s390@vger.kernel.org, USB list <linux-usb@vger.kernel.org>, xen-devel@lists.xensource.com, Kernel development list <linux-kernel@vger.kernel.org>
 
-Hi Henrik,
+Greg:
 
-On Fri, Jan 20, 2012 at 17:19, Henrik Rydberg <rydberg@euromail.se> wro=
-te:
-> Hi Benjamin,
->
->> If the programmer fills the field maxcontacts in the mt_class,
->> then the driver will set the feature to this value. It is safe
->> for current drivers as the feature is read/right in the HID norm
->
-> read/write, I presume.
+This patch series removes the get_driver() and put_driver() routines
+from the kernel.
 
-you're right... ;-)
+Those routines don't do anything useful.  Their comments say that they
+increment and decrement the driver's reference count, just like
+get_device()/put_device() and a lot of other utility routines.  But a
+struct driver is _not_ like a struct device!  It resembles a piece of
+code more than a piece of data -- it acts as an encapsulation of a
+driver.  Incrementing its refcount doesn't have much meaning because a
+driver's lifetime isn't determined by the structure's refcount; it's
+determined by when the driver's module gets unloaded.
 
->
->> @@ -609,6 +612,36 @@ static void mt_set_input_mode(struct hid_device=
- *hdev)
->> =A0 =A0 =A0 }
->> =A0}
->>
->> +static void mt_set_maxcontacts(struct hid_device *hdev)
->> +{
->> + =A0 =A0 struct mt_device *td =3D hid_get_drvdata(hdev);
->> + =A0 =A0 struct hid_report *r;
->> + =A0 =A0 struct hid_report_enum *re;
->> + =A0 =A0 int fieldmax, max;
->> +
->> + =A0 =A0 if (td->maxcontact_report_id < 0)
->> + =A0 =A0 =A0 =A0 =A0 =A0 return;
->> +
->> + =A0 =A0 if (!td->mtclass.maxcontacts)
->> + =A0 =A0 =A0 =A0 =A0 =A0 return;
->> +
->> + =A0 =A0 re =3D &(hdev->report_enum[HID_FEATURE_REPORT]);
->
-> Why parenthesis here?
+What really matters for a driver is whether or not it is registered.  
+Drivers expect, for example, that none of their methods will be called
+after driver_unregister() returns.  It doesn't matter if some other
+thread still holds a reference to the driver structure; that reference
+mustn't be used for accessing the driver code after unregistration.  
+get_driver() does not do any checking for this.
 
-ok
+People may have been misled by the kerneldoc into thinking that the
+references obtained by get_driver() do somehow pin the driver structure
+in memory.  This simply isn't true; all it pins is the associated
+private structure.  Code that needs to pin a driver must do it some
+other way (probably by calling try_module_get()).
 
->
->> + =A0 =A0 r =3D re->report_id_hash[td->maxcontact_report_id];
->> + =A0 =A0 if (r) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 max =3D td->mtclass.maxcontacts;
->> + =A0 =A0 =A0 =A0 =A0 =A0 fieldmax =3D r->field[0]->logical_maximum;
->> + =A0 =A0 =A0 =A0 =A0 =A0 hid_info(hdev, "%s: value =3D %d / %d / %d=
-\n", __func__,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 r->field[0]->value[0],
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 td->mtclass.maxcontacts,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 fieldmax);
->
-> Looks like debug information, please downplay or remove.
+In short, these routines don't do anything useful and they can actively 
+mislead people.  Removing them won't introduce any bugs that aren't 
+already present.  There is no reason to keep them.
 
-I can remove them if you need.
+Alan Stern
 
->
->> + =A0 =A0 =A0 =A0 =A0 =A0 max =3D fieldmax < max ? fieldmax : max;
->
-> There are kernel variants of min/max functions to consider here.
-
-I'll look for them.
-
->
->> + =A0 =A0 =A0 =A0 =A0 =A0 if (r->field[0]->value[0] !=3D max) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 r->field[0]->value[0] =3D =
-max;
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 usbhid_submit_report(hdev,=
- r, USB_DIR_OUT);
->> + =A0 =A0 =A0 =A0 =A0 =A0 }
->
-> So the report is in fact only set when different... Do we know for
-> which current devices this is true?
-
-Currently, I've got only the Perixx touchpad that needs this feature
-to be set. The initial value is 0 whereas it should be 2.
-
-Maybe some drivers that used the DUAL_MT_CLS_* can handle more, but I
-have no idea has I don't have many of them.
-
-Cheers,
-Benjamin
-
->
-> Thanks,
-> Henrik
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

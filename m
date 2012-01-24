@@ -1,77 +1,77 @@
-From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Subject: Re: [PATCH v1] Input: tegra-kbc - enable key interrupt for wakeup
-Date: Tue, 24 Jan 2012 10:54:54 +0530
-Message-ID: <CANQgH-beKYUpRigRRgzDmWajoSd7ZT_k_EaWkUax2XzqHKg8og@mail.gmail.com>
-References: <1326925981-14723-1-git-send-email-riyer@nvidia.com>
-	<4F17AE75.6000605@ti.com>
-	<1FC56210173BB445BD77F608D6FB8D034F401D296F@HQMAIL03.nvidia.com>
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: Re: [PATCH v10 1/3] Input: cyttsp - Cypress TTSP capacitive
+ multi-touch screen support
+Date: Tue, 24 Jan 2012 08:26:39 +0100
+Message-ID: <CABxcv=kE4-8mGVw9F0sFu_DsC2fU_HNsU-Q4+QEs_FDDqMzKTw@mail.gmail.com>
+References: <1327021046-18024-1-git-send-email-javier@dowhile0.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog124.obsmtp.com ([74.125.149.151]:41780 "EHLO
-	na3sys009aog124.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750713Ab2AXFY4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Jan 2012 00:24:56 -0500
-In-Reply-To: <1FC56210173BB445BD77F608D6FB8D034F401D296F@HQMAIL03.nvidia.com>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:48146 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754781Ab2AXH0j convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Jan 2012 02:26:39 -0500
+Received: by iacb35 with SMTP id b35so4970511iac.19
+        for <linux-input@vger.kernel.org>; Mon, 23 Jan 2012 23:26:39 -0800 (PST)
+In-Reply-To: <1327021046-18024-1-git-send-email-javier@dowhile0.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rakesh Iyer <riyer@nvidia.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Stephen Warren <swarren@nvidia.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org, Javier Martinez Canillas <javier@dowhile0.org>
 
-Hi Rakesh,
+On Fri, Jan 20, 2012 at 1:57 AM, Javier Martinez Canillas
+<javier@dowhile0.org> wrote:
+> Cypress TrueTouch(tm) Standard Product controllers are found in
+> a wide range of embedded devices. This driver add support for a
+> variety of TTSP controllers.
+>
+> Since the hardware is capable of tracking identifiable contacts, mult=
+i-touch
+> protocol type B (stateful) is used to report contact information.
+>
+> The driver is composed of a core driver that process the data sent by
+> the contacts and a set of bus specific interface modules. This patch
+> adds the base core TTSP driver.
+>
+> Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
+> ---
+>
+> Changes for v10: Fix issues called out by Dmitry Torokhov
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0- Remove use_sleep and put device to sleep=
+ unconditionally on suspend
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0- Cleanup cyttsp_power_on() and remove cyt=
+tsp_bl_app_valid() function
+>
+> =C2=A0drivers/input/touchscreen/Kconfig =C2=A0 =C2=A0 =C2=A0 | =C2=A0=
+ 31 ++
+> =C2=A0drivers/input/touchscreen/Makefile =C2=A0 =C2=A0 =C2=A0| =C2=A0=
+ =C2=A03 +
+> =C2=A0drivers/input/touchscreen/cyttsp_core.c | =C2=A0682 +++++++++++=
+++++++++++++++++++++
+> =C2=A0drivers/input/touchscreen/cyttsp_core.h | =C2=A0141 +++++++
+> =C2=A0include/linux/input/cyttsp.h =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0| =C2=A0 68 +++
+> =C2=A05 files changed, 925 insertions(+), 0 deletions(-)
 
-On Thu, Jan 19, 2012 at 11:51 PM, Rakesh Iyer <riyer@nvidia.com> wrote:
->> =A0 =A0 =A0 if (device_may_wakeup(&pdev->dev)) {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 disable_irq_wake(kbc->irq);
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 tegra_kbc_setup_wakekeys(kbc, false);
->> + =A0 =A0 =A0 =A0 =A0 =A0 /* We will use fifo interrupts for key det=
-ection. */
->> + =A0 =A0 =A0 =A0 =A0 =A0 tegra_kbc_set_keypress_interrupt(kbc, fals=
-e);
-> Why do yo disable on resume why not have it enabled always?
->
->>
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Restore the resident time of continuo=
-us polling mode. */
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 writel(kbc->cp_to_wkup_dly, kbc->mmio + =
-KBC_TO_CNT_0);
->
-> For the relevant discussion, Tegra KBC provides the following interru=
-pts -
-> a) The keypress interrupt which is generated as soon as a key is pres=
-sed,
-> =A0 =A0 =A0before matrix scanning begins.
-> b) FIFO interrupt which is generated when actual keys are decoded fro=
-m the matrix,
-> =A0 =A0 and put into the FIFO.
->
-> During normal operation the keypress interrupt is not useful as we ha=
-ve to wait for the
-> keys to make it into the FIFO before reporting it to the higher layer=
-s.
->
-> Since we have turned off scanning(in the following commit) we cannot =
-use the FIFO interrupt
-> during the resume, so we rely on the keypress interrupt and generate =
-the wakeup key.
->
-> Commit that turned off scanning
->
-> =A0 =A0Input: tegra-kbc - fix wakeup from suspend
->
-> =A0 =A0For wakeup to be reliable, kbc needs to be in interrupt mode b=
-efore suspend.
+Hello Dmitry,
 
-Does it need to be disabled at resume?
+Any comments on this version?
 
-> =A0 =A0Created common routine to control the FIFO interrupt.
-> =A0 =A0Added synchronization to ensure orderly suspend.
->
->
-> Regards
-> Rakesh
+Thanks for your patience
+
+Henrik,
+
+I didn't know if I should add your:
+
+Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+
+Since it is a new version of the patch-set. The only changes were
+those asked by Dmitry though.
+
+Thanks a lot and best regards,
+Javier
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

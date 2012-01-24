@@ -1,87 +1,40 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
 Subject: Re: [PATCH v10 1/3] Input: cyttsp - Cypress TTSP capacitive
  multi-touch screen support
-Date: Tue, 24 Jan 2012 09:09:43 +0100
-Message-ID: <CABxcv=m3P_27GQanNYRaAXkE=Wiepp4NpvG=j8g3jqosi60GOw@mail.gmail.com>
+Date: Tue, 24 Jan 2012 10:26:29 +0100
+Message-ID: <20120124092629.GA4335@polaris.bitmath.org>
 References: <1327021046-18024-1-git-send-email-javier@dowhile0.org>
-	<CABxcv=kE4-8mGVw9F0sFu_DsC2fU_HNsU-Q4+QEs_FDDqMzKTw@mail.gmail.com>
-	<20120124075430.GA9775@core.coreip.homeip.net>
+ <CABxcv=kE4-8mGVw9F0sFu_DsC2fU_HNsU-Q4+QEs_FDDqMzKTw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:41169 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751235Ab2AXIJo convert rfc822-to-8bit (ORCPT
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:55024 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755210Ab2AXJ0b (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Jan 2012 03:09:44 -0500
-Received: by iacb35 with SMTP id b35so5020618iac.19
-        for <linux-input@vger.kernel.org>; Tue, 24 Jan 2012 00:09:43 -0800 (PST)
-In-Reply-To: <20120124075430.GA9775@core.coreip.homeip.net>
+	Tue, 24 Jan 2012 04:26:31 -0500
+Received: from ipb3.telenor.se (ipb3.telenor.se [195.54.127.166])
+	by smtprelay-b11.telenor.se (Postfix) with ESMTP id 7A88CC9E5
+	for <linux-input@vger.kernel.org>; Tue, 24 Jan 2012 10:26:29 +0100 (CET)
+Content-Disposition: inline
+In-Reply-To: <CABxcv=kE4-8mGVw9F0sFu_DsC2fU_HNsU-Q4+QEs_FDDqMzKTw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org
+To: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org
 
-On Tue, Jan 24, 2012 at 8:54 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Jan 24, 2012 at 08:26:39AM +0100, Javier Martinez Canillas wr=
-ote:
->> On Fri, Jan 20, 2012 at 1:57 AM, Javier Martinez Canillas
->> <javier@dowhile0.org> wrote:
->> > Cypress TrueTouch(tm) Standard Product controllers are found in
->> > a wide range of embedded devices. This driver add support for a
->> > variety of TTSP controllers.
->> >
->> > Since the hardware is capable of tracking identifiable contacts, m=
-ulti-touch
->> > protocol type B (stateful) is used to report contact information.
->> >
->> > The driver is composed of a core driver that process the data sent=
- by
->> > the contacts and a set of bus specific interface modules. This pat=
-ch
->> > adds the base core TTSP driver.
->> >
->> > Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
->> > ---
->> >
->> > Changes for v10: Fix issues called out by Dmitry Torokhov
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0- Remove use_sleep and put device to sl=
-eep unconditionally on suspend
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0- Cleanup cyttsp_power_on() and remove =
-cyttsp_bl_app_valid() function
->> >
->> > =C2=A0drivers/input/touchscreen/Kconfig =C2=A0 =C2=A0 =C2=A0 | =C2=
-=A0 31 ++
->> > =C2=A0drivers/input/touchscreen/Makefile =C2=A0 =C2=A0 =C2=A0| =C2=
-=A0 =C2=A03 +
->> > =C2=A0drivers/input/touchscreen/cyttsp_core.c | =C2=A0682 ++++++++=
-+++++++++++++++++++++++
->> > =C2=A0drivers/input/touchscreen/cyttsp_core.h | =C2=A0141 +++++++
->> > =C2=A0include/linux/input/cyttsp.h =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0| =C2=A0 68 +++
->> > =C2=A05 files changed, 925 insertions(+), 0 deletions(-)
->>
->> Hello Dmitry,
->>
->> Any comments on this version?
->
-> Looking at it... If you do not hear from me by Wednesday please ping
-> me again.
->
-> Thanks.
->
-> --
-> Dmitry
+Hi Javier,
 
-Perfect, will do.
+> Henrik,
+> 
+> I didn't know if I should add your:
+> 
+> Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+> 
+> Since it is a new version of the patch-set. The only changes were
+> those asked by Dmitry though.
 
-Thanks Dmitry!
---
-Javier
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Dmitry will most likely put it back in the final version, thanks for
+asking.
+
+Henrik

@@ -1,74 +1,38 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [RFC] Microsoft Touch Mouse driver [was: Re: your mail]
-Date: Wed, 25 Jan 2012 16:00:35 +0100
-Message-ID: <20120125150035.GA4222@polaris.bitmath.org>
-References: <BROWNM3h3vLgAusVxON00000cfa@brown.emailprod.vodafone.se>
- <20120125132612.GA3890@polaris.bitmath.org>
- <4F200D14.80702@gmail.com>
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: Re: [PATCH 2/5] Dynamic ID addition doesn't need get_driver()
+Date: Wed, 25 Jan 2012 20:33:46 +0100
+Message-ID: <20120125193346.GB9192@comet.dominikbrodowski.net>
+References: <Pine.LNX.4.44L0.1201241310400.1200-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b11.telenor.se ([62.127.194.20]:40669 "EHLO
-	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752648Ab2AYPAg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Jan 2012 10:00:36 -0500
-Received: from ipb5.telenor.se (ipb5.telenor.se [195.54.127.168])
-	by smtprelay-b11.telenor.se (Postfix) with ESMTP id 3942BEBC24
-	for <linux-input@vger.kernel.org>; Wed, 25 Jan 2012 16:00:34 +0100 (CET)
+Return-path: <linux-pci-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4F200D14.80702@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L0.1201241310400.1200-100000@iolanthe.rowland.org>
+Sender: linux-pci-owner@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg KH <greg@kroah.com>, linux-input@vger.kernel.org, linux-pcmcia@lists.infradead.org, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kernel development list <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, Jesse Barnes <jbarnes@virtuousgeek.org>, linux-pci@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maurus Cuelenaere <mcuelenaere@gmail.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-> In my first tests, I was doing readouts in userspace using hidraw,
-> which performed quite well.
+On Tue, Jan 24, 2012 at 01:34:41PM -0500, Alan Stern wrote:
+> As part of the removal of get_driver()/put_driver(), this patch
+> (as1511) changes all the places that add dynamic IDs for drivers.
+> Since these additions are done by writing to the drivers' sysfs
+> attribute files, and the attributes are removed when the drivers are
+> unregistered, there is no reason to take an extra reference to the
+> drivers.
 > 
-> Bandwidth could be an issue, but I'd like to use the current APIs as
-> much as possible so I don't need to go modifying mtdev, X, ...
-
-Unless you do clustering, filtering and what not in-kernel, something
-will have to change for sure.
-
-> >One possible option could be to use the
-> >slots, but only send ABS_MT_TOUCH_MAJOR or ABS_MT_PRESSURE, nothing
-> >else. The device would (rightfully) not be recognized as MT since the
-> >position is missing, all data would be available for processing in
-> >userspace, and bandwidth would be minimized since there could only be
-> >so many changes coming in per millisecond.
+> The one exception is the pci-stub driver, which calls pci_add_dynid()
+> as part of its registration.  But again, there's no reason to take an
+> extra reference here, because the driver can't be unloaded while it is
+> being registered.
 > 
-> So how does userspace then finds out where these pressure points are
-> located?
-> Or do you mean to just dump all data to user space (15 * 13 *
-> sizeof(ABS_MT_PRESSURE value) + overhead)?
+> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> CC: Jiri Kosina <jkosina@suse.cz>
+> CC: Jesse Barnes <jbarnes@virtuousgeek.org>
+> CC: Dominik Brodowski <linux@dominikbrodowski.net>
 
-Having each pressure point represented by one slot id was the idea.
-Userspace would have to know how the points are mapped, of
-course. Still not overly happy about the general fit, though. Dmitry?
-
-> >>+	/* HACK: get rid of ABS_MT_* params */
-> >>+	if ((usage->hid&  HID_USAGE_PAGE) == HID_UP_GENDESK)
-> >>+		return -1;
-> >I am not sure about the hack here, nor its explanation. ;-)
-> 
-> The HID tables specify some ABS_MT_* values and I didn't know
-> whether these were going to conflict with the ones I report above,
-> so I just discard all GenericDesktop fields.
-> 
-> root@hp4530s:~# grep MT /sys/kernel/debug/hid/0003\:045E\:0773.0006/rdesc
-> GenericDesktop.MultiAxis ---> Absolute.MTMajor
-> GenericDesktop.0009 ---> Absolute.MTMinor
-> GenericDesktop.000a ---> Absolute.MTMajorW
-> GenericDesktop.000b ---> Absolute.MTMinorW
-> GenericDesktop.000c ---> Absolute.MTOrientation
-> GenericDesktop.000d ---> Absolute.MTPositionX
-> GenericDesktop.000e ---> Absolute.MTPositionY
-> GenericDesktop.000f ---> Absolute.MTToolType
-> GenericDesktop.0010 ---> Absolute.MTBlobID
-
-Right, they would conflict. You can also use the input_mapped() hook.
+For the PCMCIA part: Acked-by: Dominik Brodowski <linux@dominikbrodowski.net>
 
 Thanks,
-Henrik
+	Dominik

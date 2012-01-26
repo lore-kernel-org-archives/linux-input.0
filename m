@@ -1,86 +1,76 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: Re: [PATCH v10 1/3] Input: cyttsp - Cypress TTSP capacitive
- multi-touch screen support
-Date: Thu, 26 Jan 2012 01:12:50 +0100
-Message-ID: <CABxcv=k_e3Pdx=OaLWW-xTGoDXEQKKGWYzcLLWvZEnYBPSv6qw@mail.gmail.com>
-References: <1327021046-18024-1-git-send-email-javier@dowhile0.org>
-	<CABxcv=kE4-8mGVw9F0sFu_DsC2fU_HNsU-Q4+QEs_FDDqMzKTw@mail.gmail.com>
-	<20120124075430.GA9775@core.coreip.homeip.net>
+From: Laxman Dewangan <ldewangan@nvidia.com>
+Subject: Re: [PATCH V1] input: keyboard: Add interrupt keyboard driver.
+Date: Thu, 26 Jan 2012 07:41:29 +0530
+Message-ID: <4F20B651.4050609@nvidia.com>
+References: <1326778915-2678-1-git-send-email-ldewangan@nvidia.com> <20120119072941.GA9668@core.coreip.homeip.net> <AE833E40769D9441BEBD31E18A33543503A71ECB3B@BGMAIL01.nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:65191 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750865Ab2AZAMu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Jan 2012 19:12:50 -0500
-Received: by iacb35 with SMTP id b35so21949iac.19
-        for <linux-input@vger.kernel.org>; Wed, 25 Jan 2012 16:12:50 -0800 (PST)
-In-Reply-To: <20120124075430.GA9775@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <AE833E40769D9441BEBD31E18A33543503A71ECB3B@BGMAIL01.nvidia.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org
+Cc: "tsoni@codeaurora.org" <tsoni@codeaurora.org>, "kyle.manna@fuel7.com" <kyle.manna@fuel7.com>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "vapier@gentoo.org" <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-On Tue, Jan 24, 2012 at 8:54 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Jan 24, 2012 at 08:26:39AM +0100, Javier Martinez Canillas wr=
-ote:
->> On Fri, Jan 20, 2012 at 1:57 AM, Javier Martinez Canillas
->> <javier@dowhile0.org> wrote:
->> > Cypress TrueTouch(tm) Standard Product controllers are found in
->> > a wide range of embedded devices. This driver add support for a
->> > variety of TTSP controllers.
->> >
->> > Since the hardware is capable of tracking identifiable contacts, m=
-ulti-touch
->> > protocol type B (stateful) is used to report contact information.
->> >
->> > The driver is composed of a core driver that process the data sent=
- by
->> > the contacts and a set of bus specific interface modules. This pat=
-ch
->> > adds the base core TTSP driver.
->> >
->> > Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
->> > ---
->> >
->> > Changes for v10: Fix issues called out by Dmitry Torokhov
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0- Remove use_sleep and put device to sl=
-eep unconditionally on suspend
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0- Cleanup cyttsp_power_on() and remove =
-cyttsp_bl_app_valid() function
->> >
->> > =C2=A0drivers/input/touchscreen/Kconfig =C2=A0 =C2=A0 =C2=A0 | =C2=
-=A0 31 ++
->> > =C2=A0drivers/input/touchscreen/Makefile =C2=A0 =C2=A0 =C2=A0| =C2=
-=A0 =C2=A03 +
->> > =C2=A0drivers/input/touchscreen/cyttsp_core.c | =C2=A0682 ++++++++=
-+++++++++++++++++++++++
->> > =C2=A0drivers/input/touchscreen/cyttsp_core.h | =C2=A0141 +++++++
->> > =C2=A0include/linux/input/cyttsp.h =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0| =C2=A0 68 +++
->> > =C2=A05 files changed, 925 insertions(+), 0 deletions(-)
+On Thursday 19 January 2012 01:09 PM, Laxman Dewangan wrote:
+> On Thursday, January 19, 2012 1:00 PM, Dmitry Torokhov wrote:
+>
+>> On Tue, Jan 17, 2012 at 11:11:55AM +0530, Laxman Dewangan wrote:
+>>> This driver enables the key detection of the keys which
+>>> are connected to interrupt lines.
+>>> Each key is capable of generating an interrupt, and the
+>>> statesi (pressed or released) cannot be found by any
+>>> mechanism.
+>>> A key press event generated when interrupt occurs, and
+>>> based on the debounce time setting, a key release event
+>>> is generated. There is no need to read the state of the
+>>> keys.
 >>
->> Hello Dmitry,
->>
->> Any comments on this version?
+>> Is it possible to modify gpio_keys to skip requesting and settin up
+>> certain gpios and and use it instead of a brand new driver?
+> I first tried this approach and found that this makes the gpio_keys
+> driver very complex because almost all places where gpio-apis are
+> getting called need to put under if condition.
+> Also there is some special handling for auto key release events
+> Which makes gpio-key driver again complex.
 >
-> Looking at it... If you do not hear from me by Wednesday please ping
-> me again.
 >
-> Thanks.
 >
-> --
-> Dmitry
 
-ping :)
+Hi  Dmitry,
+Do you have any further comment on above approach?  Here is little bit 
+background which can help on understanding.
+I am working on some MFD devices and to tried to support the onkey from 
+single driver to avoid having driver for each mfd-pmic driver.
 
-Regards,
-Javier
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+When developing this driver, I though of following behaviors of the pmic 
+device for power-btn/onkey switches:
+1. Separate Interrupt for press and release: (Falling and rising 
+interrupt, no level interrupt) So two different interrupt will get 
+registered and based on interrupt number the key code and key value will 
+get reported to input system. Device like AB8500 (ab8500-ponkey.c).
+
+2. Generates interrupt for only key press, no interrupt for the key 
+release (only one interrupt i.e. Falling edge) In this case, it need to 
+send the release event automatically after sending press event. So 
+whenever there is falling edge on keys, the interrupt get generated, No 
+interrupt on pressed level. Devices like ricoh583,  max77663.
+
+3. Keep generating interrupt if key is pressed but no interrupt after 
+release (Kind on level (low) interrupt and so multiple interrupts till 
+key pressed.) Devices like tps65910..
+In this case, the device generates level interrupt and if it acked, 
+again generates interrupt. So if we send the key press/release together 
+without waiting, we will endup with sending the key event multiple time. 
+To avoid this I used the debaince logic as follows:
+detect first interrupt, send press event and start timer and wait for 
+timer to expire for sending release events. If interrupt again occurs 
+before timer expires, restart timer again. Keep doing this until user 
+release the key. Once he release the key, there will be no interrupt and 
+so timer will be expire after some time i.e. debounce time and then 
+report key released.
+
+
+>> --
+>> Dmitry

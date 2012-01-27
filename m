@@ -1,663 +1,183 @@
-From: zitev <zitev-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
-Subject: Re: not supported hardware: Gigabyte K8100 Aivia USB Gaming Keyboard
-Date: Fri, 27 Jan 2012 21:33:30 +0100
-Message-ID: <4F230A1A.7080508@freemail.hu>
-References: <4D55AE81.3030805@freemail.hu> <20120126002100.GA4495@burratino> <4F21C49D.2010906@freemail.hu> <20120126213939.GA5179@burratino>
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: Re: [PATCH v10 1/3] Input: cyttsp - Cypress TTSP capacitive
+ multi-touch screen support
+Date: Fri, 27 Jan 2012 22:01:22 +0100
+Message-ID: <CABxcv=n8kFJiL01WEVdFat5Y=W9xQeG6_2oNV=_45UUFr+0gtw@mail.gmail.com>
+References: <1327021046-18024-1-git-send-email-javier@dowhile0.org>
+	<CABxcv=kE4-8mGVw9F0sFu_DsC2fU_HNsU-Q4+QEs_FDDqMzKTw@mail.gmail.com>
+	<20120124075430.GA9775@core.coreip.homeip.net>
+	<CABxcv=k_e3Pdx=OaLWW-xTGoDXEQKKGWYzcLLWvZEnYBPSv6qw@mail.gmail.com>
+	<20120127081833.GA21903@core.coreip.homeip.net>
+	<CABxcv=muzq2d+hJZCc0+r-wnE6vLBYwr4jOvXNiJG9_-nY9uEA@mail.gmail.com>
+	<20120127181846.GA22462@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------030306010905010500070409"
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120126213939.GA5179@burratino>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Nieder <jrnieder-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:50644 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752598Ab2A0VBX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Jan 2012 16:01:23 -0500
+Received: by obcva7 with SMTP id va7so2093091obc.19
+        for <linux-input@vger.kernel.org>; Fri, 27 Jan 2012 13:01:22 -0800 (PST)
+In-Reply-To: <20120127181846.GA22462@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030306010905010500070409
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-
-Hello Everyone!
-
-I attached the lsusb output!
-
-
-2012-01-26 22:39 keltezéssel, Jonathan Nieder írta:
-> Hi,
+On Fri, Jan 27, 2012 at 7:18 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Fri, Jan 27, 2012 at 04:57:12PM +0100, Javier Martinez Canillas wr=
+ote:
+>> On Fri, Jan 27, 2012 at 9:18 AM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>> > On Thu, Jan 26, 2012 at 01:12:50AM +0100, Javier Martinez Canillas=
+ wrote:
+>> >> On Tue, Jan 24, 2012 at 8:54 AM, Dmitry Torokhov
+>> >> <dmitry.torokhov@gmail.com> wrote:
+>> >> > On Tue, Jan 24, 2012 at 08:26:39AM +0100, Javier Martinez Canil=
+las wrote:
+>> >> >> On Fri, Jan 20, 2012 at 1:57 AM, Javier Martinez Canillas
+>> >> >> <javier@dowhile0.org> wrote:
+>> >> >> > Cypress TrueTouch(tm) Standard Product controllers are found=
+ in
+>> >> >> > a wide range of embedded devices. This driver add support fo=
+r a
+>> >> >> > variety of TTSP controllers.
+>> >> >> >
+>> >> >> > Since the hardware is capable of tracking identifiable conta=
+cts, multi-touch
+>> >> >> > protocol type B (stateful) is used to report contact informa=
+tion.
+>> >> >> >
+>> >> >> > The driver is composed of a core driver that process the dat=
+a sent by
+>> >> >> > the contacts and a set of bus specific interface modules. Th=
+is patch
+>> >> >> > adds the base core TTSP driver.
+>> >> >> >
+>> >> >> > Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org=
 >
-> zitev wrote:
+>> >> >> > ---
+>> >> >> >
+>> >> >> > Changes for v10: Fix issues called out by Dmitry Torokhov
+>> >> >> > =C2=A0 =C2=A0 =C2=A0 =C2=A0- Remove use_sleep and put device=
+ to sleep unconditionally on suspend
+>> >> >> > =C2=A0 =C2=A0 =C2=A0 =C2=A0- Cleanup cyttsp_power_on() and r=
+emove cyttsp_bl_app_valid() function
+>> >> >> >
+>> >> >> > =C2=A0drivers/input/touchscreen/Kconfig =C2=A0 =C2=A0 =C2=A0=
+ | =C2=A0 31 ++
+>> >> >> > =C2=A0drivers/input/touchscreen/Makefile =C2=A0 =C2=A0 =C2=A0=
+| =C2=A0 =C2=A03 +
+>> >> >> > =C2=A0drivers/input/touchscreen/cyttsp_core.c | =C2=A0682 ++=
++++++++++++++++++++++++++++++
+>> >> >> > =C2=A0drivers/input/touchscreen/cyttsp_core.h | =C2=A0141 ++=
++++++
+>> >> >> > =C2=A0include/linux/input/cyttsp.h =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0| =C2=A0 68 +++
+>> >> >> > =C2=A05 files changed, 925 insertions(+), 0 deletions(-)
+>> >> >>
+>> >> >> Hello Dmitry,
+>> >> >>
+>> >> >> Any comments on this version?
+>> >> >
+>> >> > Looking at it... If you do not hear from me by Wednesday please=
+ ping
+>> >> > me again.
+>> >> >
+>> >> > Thanks.
+>> >> >
+>> >> > --
+>> >> > Dmitry
+>> >>
+>> >> ping :)
+>> >
+>> > Is it still Wednesday by any chance? ;)
+>> >
+>>
+>> Hi Dmitry,
+>>
+>> Thanks for the review and the cleanup patch!
+>>
+>> > Anyway, the driver looks pretty good, still below are some changes=
+ that
+>> > I'd like to get in as well:
+>> >
+>> > - do not return EAGAIN when operation times out, EIO I believe sui=
+ts
+>> > =C2=A0better.
+>> > - introduce ttsp_send_command() to replace host of custom function=
+s.
+>> > - reduce numver of states to 3 - IDLE, ACTIVE and BL mode.
+>> > =C2=A0Suspended/full power is already covered by "suspended" attri=
+bute.
+>> > - streamline some functions.
+>> >
+>>
+>> Seems that your patch handlers all these issues.
+>>
+>> > Please see the FIXME comment in cyttsp_enable() - is there a gener=
+ic way
+>> > to wake up the device, similarly to the way we put it to sleep?
+>> >
+>>
+>> I guess that CY_OPERATE_MODE works but I have to try it since I don'=
+t
+>> have the hw data-sheet.
+>>
+>> > Please tell me if the device still works with this patch.
+>> >
+>> > Thanks!
+>> >
+>> > --
+>> > Dmitry
+>> >
+>>
+>> Strange enough, it doesn't apply cleanly on my tree...
+>>
+>> with patch -p1 < your_patch
+>>
+>> It should since only the files for this driver are modified and I've
+>> only applied the v10 patches I sent to you.
+>> Anyway I will manually do the changes, try it and resend to you.
 >
->> Thanks for your respond! I did try to probe again with the latest
->> sid kernel (Linux version 3.2.0-1-686-pae (Debian 3.2.1-2)
->> (ben-/+tVBieCtBitmTQ+vhA3Yw@public.gmane.org) (gcc version 4.6.2 (Debian 4.6.2-12) ) #1 SMP
->> Tue Jan 24 06:09:30 UTC 2012), but the problem's very same.
->> What more can I help you?
-> Here's some context.
+> Hmm, not sure why it gives you trouble, I tried not to change anythin=
+g
+> when applying your v10 patches except for folding them all together.
 >
-> Csaba noticed[1] that his keyboard (a "Gigabyte K8100 Aivia USB Gaming
-> Keyboard") does not work correctly on Linux.  It is claimed by the
-> usbhid driver and:
+> I am attaching the version of the driver I've used as a base - maybe =
+it
+> will save you some time instead of applying the changes manually.
 >
->> all keys absolutely not working, but led's does light.
-> When I search for information about Linux support for this keyboard
-> elsewhere, I see that the backspace key and multimedia keys are said
-> to work but nothing else[2]:
+> Also, could you please send changes needed to make my patch work as
+> incremental patch so that I can apply on top of mime locally and fold
+> all 3 together? It will be easier to see what exactly changed.
 >
-> | papibe	June 4th, 2011, 09:51 PM
-> |
-> | Try to see if xev registers an event while pressing the backspace key:
-> | $ xev
-> | Regards.
-> |
-> | Peckles	June 4th, 2011, 10:07 PM
-> | Thanks for the command, very useful. Thats going in the memory bank...
-> |
-> | The backspace key registers a backspace. Also all of the multimedia
-> | keys and special 5 mappable keys work as well. (very strange...)
+> Thanks!
 >
-> The question becomes: where to go from here?  Any idea about how we
-> can find out what how to drive this device?  Does it have a driver for
-> Windows we could investigate?  Is there perhaps some way to trace what
-> it sends over the wire in order to mock something up?
->
-> Csaba, please attach "lsusb -v" output.
->
-> Others: hints?
->
-> Thanks,
-> Jonathan
->
-> [1] http://bugs.debian.org/610467
-> [2] http://ubuntuforums.org/archive/index.php/t-1775541.html
->
->
+> --
+> Dmitry
 
---------------030306010905010500070409
-Content-Type: text/plain;
- name="lsusb"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="lsusb"
+Hi Dmitry,
 
+Using that merged patch as a base your patch applies cleanly (not sure
+what happened with my branch)
 
-Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            9 Hub
-  bDeviceSubClass         0 Unused
-  bDeviceProtocol         0 Full speed (or root) hub
-  bMaxPacketSize0        64
-  idVendor           0x1d6b Linux Foundation
-  idProduct          0x0002 2.0 root hub
-  bcdDevice            3.02
-  iManufacturer           3 Linux 3.2.0-1-686-pae ehci_hcd
-  iProduct                2 EHCI Host Controller
-  iSerial                 1 0000:00:1a.0
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           25
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xe0
-      Self Powered
-      Remote Wakeup
-    MaxPower                0mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         9 Hub
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0 Full speed (or root) hub
-      iInterface              0 
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0004  1x 4 bytes
-        bInterval              12
-Hub Descriptor:
-  bLength               9
-  bDescriptorType      41
-  nNbrPorts             2
-  wHubCharacteristic 0x000a
-    No power switching (usb 1.0)
-    Per-port overcurrent protection
-  bPwrOn2PwrGood       10 * 2 milli seconds
-  bHubContrCurrent      0 milli Ampere
-  DeviceRemovable    0x00
-  PortPwrCtrlMask    0xff
- Hub Port Status:
-   Port 1: 0000.0503 highspeed power enable connect
-   Port 2: 0000.0100 power
-Device Status:     0x0001
-  Self Powered
+Sadly the driver is not working with your modifications. I'll make it
+work changing as less as possible what was in your patch. Only to make
+the device work again and will send you as an incremental patch as you
+suggested.
 
-Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            9 Hub
-  bDeviceSubClass         0 Unused
-  bDeviceProtocol         0 Full speed (or root) hub
-  bMaxPacketSize0        64
-  idVendor           0x1d6b Linux Foundation
-  idProduct          0x0002 2.0 root hub
-  bcdDevice            3.02
-  iManufacturer           3 Linux 3.2.0-1-686-pae ehci_hcd
-  iProduct                2 EHCI Host Controller
-  iSerial                 1 0000:00:1d.0
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           25
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xe0
-      Self Powered
-      Remote Wakeup
-    MaxPower                0mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         9 Hub
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0 Full speed (or root) hub
-      iInterface              0 
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0004  1x 4 bytes
-        bInterval              12
-Hub Descriptor:
-  bLength               9
-  bDescriptorType      41
-  nNbrPorts             2
-  wHubCharacteristic 0x000a
-    No power switching (usb 1.0)
-    Per-port overcurrent protection
-  bPwrOn2PwrGood       10 * 2 milli seconds
-  bHubContrCurrent      0 milli Ampere
-  DeviceRemovable    0x00
-  PortPwrCtrlMask    0xff
- Hub Port Status:
-   Port 1: 0000.0507 highspeed power suspend enable connect
-   Port 2: 0000.0100 power
-Device Status:     0x0001
-  Self Powered
+Just to be clear, do you want me to send as an incremental patch of my
+series (v10) or as an incremental patch of your last patch?
 
-Bus 001 Device 002: ID 8087:0020 Intel Corp. Integrated Rate Matching Hub
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            9 Hub
-  bDeviceSubClass         0 Unused
-  bDeviceProtocol         1 Single TT
-  bMaxPacketSize0        64
-  idVendor           0x8087 Intel Corp.
-  idProduct          0x0020 Integrated Rate Matching Hub
-  bcdDevice            0.00
-  iManufacturer           0 
-  iProduct                0 
-  iSerial                 0 
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           25
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xe0
-      Self Powered
-      Remote Wakeup
-    MaxPower                0mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         9 Hub
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0 Full speed (or root) hub
-      iInterface              0 
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0001  1x 1 bytes
-        bInterval              12
-Hub Descriptor:
-  bLength               9
-  bDescriptorType      41
-  nNbrPorts             6
-  wHubCharacteristic 0x0089
-    Per-port power switching
-    Per-port overcurrent protection
-    TT think time 8 FS bits
-    Port indicators
-  bPwrOn2PwrGood       50 * 2 milli seconds
-  bHubContrCurrent      0 milli Ampere
-  DeviceRemovable    0x00
-  PortPwrCtrlMask    0xff
- Hub Port Status:
-   Port 1: 0000.0100 power
-   Port 2: 0000.0503 highspeed power enable connect
-   Port 3: 0000.0100 power
-   Port 4: 0000.0100 power
-   Port 5: 0000.0100 power
-   Port 6: 0000.0100 power
-Device Qualifier (for other device speed):
-  bLength                10
-  bDescriptorType         6
-  bcdUSB               2.00
-  bDeviceClass            9 Hub
-  bDeviceSubClass         0 Unused
-  bDeviceProtocol         0 Full speed (or root) hub
-  bMaxPacketSize0        64
-  bNumConfigurations      1
-Device Status:     0x0001
-  Self Powered
-
-Bus 002 Device 002: ID 8087:0020 Intel Corp. Integrated Rate Matching Hub
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            9 Hub
-  bDeviceSubClass         0 Unused
-  bDeviceProtocol         1 Single TT
-  bMaxPacketSize0        64
-  idVendor           0x8087 Intel Corp.
-  idProduct          0x0020 Integrated Rate Matching Hub
-  bcdDevice            0.00
-  iManufacturer           0 
-  iProduct                0 
-  iSerial                 0 
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           25
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xe0
-      Self Powered
-      Remote Wakeup
-    MaxPower                0mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         9 Hub
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0 Full speed (or root) hub
-      iInterface              0 
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0002  1x 2 bytes
-        bInterval              12
-Hub Descriptor:
-  bLength              11
-  bDescriptorType      41
-  nNbrPorts             8
-  wHubCharacteristic 0x0089
-    Per-port power switching
-    Per-port overcurrent protection
-    TT think time 8 FS bits
-    Port indicators
-  bPwrOn2PwrGood       50 * 2 milli seconds
-  bHubContrCurrent      0 milli Ampere
-  DeviceRemovable    0x00 0x00
-  PortPwrCtrlMask    0xff 0xff
- Hub Port Status:
-   Port 1: 0000.0100 power
-   Port 2: 0000.0100 power
-   Port 3: 0000.0100 power
-   Port 4: 0000.0100 power
-   Port 5: 0000.0100 power
-   Port 6: 0000.0100 power
-   Port 7: 0000.0100 power
-   Port 8: 0000.0100 power
-Device Qualifier (for other device speed):
-  bLength                10
-  bDescriptorType         6
-  bcdUSB               2.00
-  bDeviceClass            9 Hub
-  bDeviceSubClass         0 Unused
-  bDeviceProtocol         0 Full speed (or root) hub
-  bMaxPacketSize0        64
-  bNumConfigurations      1
-Device Status:     0x0001
-  Self Powered
-
-Bus 001 Device 003: ID 05e3:0608 Genesys Logic, Inc. USB-2.0 4-Port HUB
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            9 Hub
-  bDeviceSubClass         0 Unused
-  bDeviceProtocol         1 Single TT
-  bMaxPacketSize0        64
-  idVendor           0x05e3 Genesys Logic, Inc.
-  idProduct          0x0608 USB-2.0 4-Port HUB
-  bcdDevice           77.63
-  iManufacturer           0 
-  iProduct                1 USB2.0 Hub
-  iSerial                 0 
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           25
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xe0
-      Self Powered
-      Remote Wakeup
-    MaxPower              100mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         9 Hub
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0 Full speed (or root) hub
-      iInterface              0 
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0001  1x 1 bytes
-        bInterval              12
-Hub Descriptor:
-  bLength               9
-  bDescriptorType      41
-  nNbrPorts             4
-  wHubCharacteristic 0x00ed
-    Per-port power switching
-    Compound device
-    Per-port overcurrent protection
-    TT think time 32 FS bits
-    Port indicators
-  bPwrOn2PwrGood       50 * 2 milli seconds
-  bHubContrCurrent    100 milli Ampere
-  DeviceRemovable    0x14
-  PortPwrCtrlMask    0xff
- Hub Port Status:
-   Port 1: 0000.0100 power
-   Port 2: 0000.0103 power enable connect
-   Port 3: 0000.0100 power
-   Port 4: 0000.0303 lowspeed power enable connect
-Device Qualifier (for other device speed):
-  bLength                10
-  bDescriptorType         6
-  bcdUSB               2.00
-  bDeviceClass            9 Hub
-  bDeviceSubClass         0 Unused
-  bDeviceProtocol         0 Full speed (or root) hub
-  bMaxPacketSize0        64
-  bNumConfigurations      1
-Device Status:     0x0001
-  Self Powered
-
-Bus 001 Device 004: ID 1044:7a02 Chu Yuen Enterprise Co., Ltd 
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0 
-  bDeviceProtocol         0 
-  bMaxPacketSize0         8
-  idVendor           0x1044 Chu Yuen Enterprise Co., Ltd
-  idProduct          0x7a02 
-  bcdDevice            0.00
-  iManufacturer           0 
-  iProduct                0 
-  iSerial                 0 
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           84
-    bNumInterfaces          3
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0x80
-      (Bus Powered)
-    MaxPower              100mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              2 KB
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.11
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      42
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0010  1x 16 bytes
-        bInterval               1
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              3 Mouse
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.11
-          bCountryCode           33 US
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength     147
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0008  1x 8 bytes
-        bInterval               1
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        2
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              4 K8100 Interface
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.11
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      25
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x83  EP 3 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               1
-Device Status:     0x0000
-  (Bus Powered)
-
-Bus 001 Device 005: ID 060b:2270 Solid Year 
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               1.10
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0 
-  bDeviceProtocol         0 
-  bMaxPacketSize0         8
-  idVendor           0x060b Solid Year
-  idProduct          0x2270 
-  bcdDevice            2.20
-  iManufacturer           1 KB
-  iProduct                2 USB Keyboard
-  iSerial                 0 
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           59
-    bNumInterfaces          2
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xa0
-      (Bus Powered)
-      Remote Wakeup
-    MaxPower              100mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      1 Boot Interface Subclass
-      bInterfaceProtocol      1 Keyboard
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.10
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      75
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0008  1x 8 bytes
-        bInterval              10
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.10
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength     108
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0008  1x 8 bytes
-        bInterval              10
-Device Status:     0x0000
-  (Bus Powered)
-
---------------030306010905010500070409--
+Thanks a lot and best regards,
+Javier
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

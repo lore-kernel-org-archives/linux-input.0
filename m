@@ -1,274 +1,73 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH 2/4 v2] input : wacom - retrieve maximum number of touch points
-Date: Fri, 27 Jan 2012 20:51:26 -0600
-Message-ID: <CAGzDe_Zy6sT-V3vDn0oqP6=Z=L7_H5JP8qf-dDNFQ=JDCiyR8g@mail.gmail.com>
-References: <1325717032-6378-1-git-send-email-pinglinux@gmail.com>
+From: Jonathan Nieder <jrnieder@gmail.com>
+Subject: Re: not supported hardware: Gigabyte K8100 Aivia USB Gaming Keyboard
+Date: Sat, 28 Jan 2012 01:12:23 -0600
+Message-ID: <20120128071223.GA27331@burratino>
+References: <4D55AE81.3030805@freemail.hu>
+ <20120126002100.GA4495@burratino>
+ <4F21C49D.2010906@freemail.hu>
+ <20120126213939.GA5179@burratino>
+ <4F230A1A.7080508@freemail.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lpp01m010-f46.google.com ([209.85.215.46]:37041 "EHLO
-	mail-lpp01m010-f46.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754090Ab2A1Cv2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Jan 2012 21:51:28 -0500
-Received: by lagu2 with SMTP id u2so1313659lag.19
-        for <linux-input@vger.kernel.org>; Fri, 27 Jan 2012 18:51:26 -0800 (PST)
-In-Reply-To: <1325717032-6378-1-git-send-email-pinglinux@gmail.com>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:61178 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751477Ab2A1HMi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 28 Jan 2012 02:12:38 -0500
+Content-Disposition: inline
+In-Reply-To: <4F230A1A.7080508@freemail.hu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
+To: zitev <zitev@freemail.hu>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, jkosina@suse.cz
 
-On Wed, Jan 4, 2012 at 4:43 PM, Ping Cheng <pinglinux@gmail.com> wrote:
-> From the HID usage table when it is supported.
->
-> Tested-by: Chris Bagwell <chris@cnpbagwell.com>
-> Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
+zitev wrote:
 
-Hi Dmitry,
+> I attached the lsusb output!
 
-Any ack/naks on this patch series from Ping?  I'm asking because of
-patch 1/4 (I must have deleted that email so I'm reply to 2/4) because
-it makes a change that all new Wacom touch drivers need to align with.
+Perfect, thanks.
 
-I have a patch for Wireless Bamboo support to submit and my patch
-looks slightly different depending on if it comes before or after that
-patch.
+> Bus 001 Device 004: ID 1044:7a02 Chu Yuen Enterprise Co., Ltd 
+[...]
+>     bNumInterfaces          3
+[...]
+>     Interface Descriptor:
+>       bInterfaceClass         3 Human Interface Device
+>       iInterface              2 KB
+[...]
+>     Interface Descriptor:
+>       bInterfaceClass         3 Human Interface Device
+>       iInterface              3 Mouse
+[...]
+>     Interface Descriptor:
+>       bInterfaceClass         3 Human Interface Device
+>       iInterface              4 K8100 Interface
 
-Thanks,
-Chris
+Can you set up usbmon and get a trace of e.g., pressing, holding,
+then releasing the "a" key?  See Documentation/usb/usbmon.txt
+in the Linux source or the doc directory of the linux-doc-3.2
+package for details.
 
-> ---
->
-> v2: updated with Chris' comments.
->
-> =A0drivers/input/tablet/wacom_sys.c | =A0 31 ++++++++++++++++++++++++=
-++++++-
-> =A0drivers/input/tablet/wacom_wac.c | =A0 10 ++++------
-> =A0drivers/input/tablet/wacom_wac.h | =A0 =A01 +
-> =A03 files changed, 35 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/=
-wacom_sys.c
-> index c9588ee..f7fe091 100644
-> --- a/drivers/input/tablet/wacom_sys.c
-> +++ b/drivers/input/tablet/wacom_sys.c
-> @@ -28,6 +28,7 @@
-> =A0#define HID_USAGE_Y_TILT =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x3e
-> =A0#define HID_USAGE_FINGER =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x22
-> =A0#define HID_USAGE_STYLUS =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x20
-> +#define HID_USAGE_CONTACTMAX =A0 =A0 =A0 =A0 =A0 0x55
-> =A0#define HID_COLLECTION =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0xa1
-> =A0#define HID_COLLECTION_LOGICAL =A0 =A0 =A0 =A0 0x02
-> =A0#define HID_COLLECTION_END =A0 =A0 =A0 =A0 =A0 =A0 0xc0
-> @@ -191,11 +192,30 @@ static int wacom_parse_logical_collection(unsig=
-ned char *report,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->x_max =3D features->y_max =3D
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0get_unaligned_le16(&re=
-port[10]);
->
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->touch_max =3D 16;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0length =3D 11;
-> =A0 =A0 =A0 =A0}
-> =A0 =A0 =A0 =A0return length;
-> =A0}
->
-> +static void wacom_retrieve_report_data(struct usb_interface *intf,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0struct wacom_features *features)
-> +{
-> + =A0 =A0 =A0 int result =3D 0;
-> + =A0 =A0 =A0 unsigned char *rep_data;
-> +
-> + =A0 =A0 =A0 rep_data =3D kmalloc(2, GFP_KERNEL);
-> + =A0 =A0 =A0 if (!rep_data)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return;
-> +
-> + =A0 =A0 =A0 rep_data[0] =3D 12;
-> + =A0 =A0 =A0 result =3D wacom_get_report(intf, WAC_HID_FEATURE_REPOR=
-T,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rep_data[0], rep_data, 2, WAC_MSG_RE=
-TRIES);
-> +
-> + =A0 =A0 =A0 if ((result >=3D 0) && (rep_data[1] > 2))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->touch_max =3D rep_data[1];
-> +}
-> +
-> =A0/*
-> =A0* Interface Descriptor of wacom devices can be incomplete and
-> =A0* inconsistent so wacom_features table is used to store stylus
-> @@ -286,16 +306,19 @@ static int wacom_parse_hid(struct usb_interface=
- *intf,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0if (features->type =3D=3D TABLETPC2FG) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* need to reset back */
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->pktlen =3D WACOM_PKGL=
-EN_TPC2FG;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->touch_max =3D 2;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0}
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0if (features->type =3D=3D BAMBOO_PT) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* need to reset back */
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->pktlen =3D WACOM_PKGL=
-EN_BBTOUCH;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->touch_max =3D 2;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->x_phy =3D
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0get_unaligned_l=
-e16(&report[i + 5]);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->x_max =3D
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0get_unaligned_l=
-e16(&report[i + 8]);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i +=3D 15;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0} else {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->touch_max =3D 1;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->x_max =3D
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0get_unaligned_l=
-e16(&report[i + 3]);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->x_phy =3D
-> @@ -369,6 +392,11 @@ static int wacom_parse_hid(struct usb_interface =
-*intf,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pen =3D=
- 1;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i++;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
-> +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 case HID_USAGE_CONTACTM=
-AX:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom_r=
-etrieve_report_data(intf, features);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 i++;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
->
-> @@ -873,7 +901,8 @@ static int wacom_probe(struct usb_interface *intf=
-, const struct usb_device_id *i
->
-> =A0 =A0 =A0 =A0endpoint =3D &intf->cur_altsetting->endpoint[0].desc;
->
-> - =A0 =A0 =A0 /* Retrieve the physical and logical size for OEM devic=
-es */
-> + =A0 =A0 =A0 /* Retrieve the physical and logical size for touch dev=
-ices */
-> + =A0 =A0 =A0 features->touch_max =3D 0;
-> =A0 =A0 =A0 =A0error =3D wacom_retrieve_hid_descriptor(intf, features=
-);
-> =A0 =A0 =A0 =A0if (error)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto fail3;
-> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/=
-wacom_wac.c
-> index e18f362..33a4359 100644
-> --- a/drivers/input/tablet/wacom_wac.c
-> +++ b/drivers/input/tablet/wacom_wac.c
-> @@ -830,7 +830,8 @@ static int wacom_tpc_irq(struct wacom_wac *wacom,=
- size_t len)
-> =A0{
-> =A0 =A0 =A0 =A0char *data =3D wacom->data;
->
-> - =A0 =A0 =A0 dbg("wacom_tpc_irq: received report #%d", data[0]);
-> + =A0 =A0 =A0 dbg("wacom_tpc_irq: received report #%d with %d contact=
-s",
-> + =A0 =A0 =A0 =A0 =A0 =A0data[0], wacom->features.touch_max);
->
-> =A0 =A0 =A0 =A0if (len =3D=3D WACOM_PKGLEN_TPC1FG || data[0] =3D=3D W=
-ACOM_REPORT_TPC1FG)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return wacom_tpc_single_touch(wacom, l=
-en);
-> @@ -1319,7 +1320,7 @@ void wacom_setup_input_capabilities(struct inpu=
-t_dev *input_dev,
-> =A0 =A0 =A0 =A0case TABLETPC2FG:
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (features->device_type =3D=3D BTN_T=
-OOL_FINGER) {
->
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_mt_init_slots(inp=
-ut_dev, 2);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_mt_init_slots(inp=
-ut_dev, features->touch_max);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(i=
-nput_dev, ABS_MT_TOOL_TYPE,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A00, MT_TOOL_MAX, 0, 0);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(i=
-nput_dev, ABS_MT_POSITION_X,
-> @@ -1374,6 +1375,7 @@ void wacom_setup_input_capabilities(struct inpu=
-t_dev *input_dev,
->
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(BTN_TOOL_FIN=
-GER, input_dev->keybit);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(BTN_TOOL_DOU=
-BLETAP, input_dev->keybit);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_mt_init_slots(inp=
-ut_dev, features->touch_max);
->
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (features->pktlen =3D=
-=3D WACOM_PKGLEN_BBTOUCH3) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_=
-bit(BTN_TOOL_TRIPLETAP,
-> @@ -1381,13 +1383,9 @@ void wacom_setup_input_capabilities(struct inp=
-ut_dev *input_dev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_=
-bit(BTN_TOOL_QUADTAP,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0input_dev->keybit);
->
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_m=
-t_init_slots(input_dev, 16);
-> -
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_=
-set_abs_params(input_dev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ABS_MT_TOUCH_MAJOR,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0, 255, 0, 0);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_m=
-t_init_slots(input_dev, 2);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
->
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(i=
-nput_dev, ABS_MT_POSITION_X,
-> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/=
-wacom_wac.h
-> index 050acae..6ddd2e4 100644
-> --- a/drivers/input/tablet/wacom_wac.h
-> +++ b/drivers/input/tablet/wacom_wac.h
-> @@ -89,6 +89,7 @@ struct wacom_features {
-> =A0 =A0 =A0 =A0int pressure_fuzz;
-> =A0 =A0 =A0 =A0int distance_fuzz;
-> =A0 =A0 =A0 =A0unsigned quirks;
-> + =A0 =A0 =A0 unsigned touch_max;
-> =A0};
->
-> =A0struct wacom_shared {
-> --
-> 1.7.6.4
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+It works roughly like this:
+
+1. Mount debugfs and load the usbmon module:
+
+  mount -t debugfs debugfs /sys/kernel/debug
+  modprobe usbmon
+
+2. Start tracing:
+
+  {
+    sleep 1; # one second of quiet
+    cat /sys/kernel/debug/usb/usbmon/1u >/tmp/mon.out &
+    sleep 20; # twenty seconds or so to run the test
+    kill $!; # and then stop collecting data
+  }
+
+3. Somehow summarize the output.  If it is fairly small, an
+attachment is fine; otherwise, excerpts and maybe a link to a
+copy that can be downloaded online might work.
+
+Hope that helps,
+Jonathan

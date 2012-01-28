@@ -1,311 +1,225 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: sentelic: Absolute mode and multitouch
- support for Cx+ hardware.
-Date: Sat, 28 Jan 2012 12:56:29 -0800
-Message-ID: <20120128205629.GA23595@core.coreip.homeip.net>
-References: <20120124232254.GB4905@timantti.taisia.fi>
+Subject: Re: [PATCH 1/5] Driver core: driver_find() drops reference before
+ returning
+Date: Sat, 28 Jan 2012 12:57:32 -0800
+Message-ID: <20120128205732.GB23595@core.coreip.homeip.net>
+References: <Pine.LNX.4.44L0.1201241258510.1200-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:35714 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752062Ab2A1U4f (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:61327 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752054Ab2A1U5h (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Jan 2012 15:56:35 -0500
-Received: by dadi2 with SMTP id i2so2420676dad.19
-        for <linux-input@vger.kernel.org>; Sat, 28 Jan 2012 12:56:35 -0800 (PST)
+	Sat, 28 Jan 2012 15:57:37 -0500
 Content-Disposition: inline
-In-Reply-To: <20120124232254.GB4905@timantti.taisia.fi>
+In-Reply-To: <Pine.LNX.4.44L0.1201241258510.1200-100000@iolanthe.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oskari Saarenmaa <os@ohmu.fi>
-Cc: linux-input@vger.kernel.org, Tai-hwa Liang <avatar@sentelic.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg KH <greg@kroah.com>, Kyungmin Park <kyungmin.park@samsung.com>, Andy Walls <awalls@md.metrocast.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>
 
-Hi Oskari,
-
-On Wed, Jan 25, 2012 at 01:22:54AM +0200, Oskari Saarenmaa wrote:
-> - Implement absolute position mode and multitouch support for Cx+ revision
->   hardware based on latest documentation provided by Sentelic.
-> - Supports two-finger horizontal and vertical scrolling, edge scrolling and
->   clicks on the clickpad.  Hardware click-on-tap is disabled.
+On Tue, Jan 24, 2012 at 01:34:24PM -0500, Alan Stern wrote:
+> As part of the removal of get_driver()/put_driver(), this patch
+> (as1510) changes driver_find(); it now drops the reference it acquires
+> before returning.  The patch also adjusts all the callers of
+> driver_find() to remove the now unnecessary calls to put_driver().
 > 
-> The patch was developed and tested on an ASUS Zenbook UX21E.
+> In addition, the patch adds a warning to driver_find(): Callers must
+> make sure the driver they are searching for does not get unloaded
+> while they are using it.  This has always been the case; driver_find()
+> has never prevented a driver from being unregistered or unloaded.
+> Hence the patch will not introduce any new bugs.  The existing callers
+> all seem to be okay in this respect, however I don't understand the
+> video drivers well enough to be certain about them.
 > 
-> Signed-off-by: Oskari Saarenmaa <os@ohmu.fi>
+> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> CC: Kyungmin Park <kyungmin.park@samsung.com>
+> CC: Andy Walls <awalls@md.metrocast.net>
+> CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> 
 
-Adding Tai-hwa Liang so he has a chance to comment. Also some comments
-below...
+Acked-by: Dmitry Torokhov <dtor@mail.ru>
+
+for serio and gameport parts.
 
 > ---
->  drivers/input/mouse/sentelic.c |  149 +++++++++++++++++++++++++++++++++++++---
->  drivers/input/mouse/sentelic.h |    8 ++
->  2 files changed, 148 insertions(+), 9 deletions(-)
 > 
-> diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
-> index 87c910d..e851cf5 100644
-> --- a/drivers/input/mouse/sentelic.c
-> +++ b/drivers/input/mouse/sentelic.c
-> @@ -21,6 +21,7 @@
+>  drivers/base/driver.c                       |    7 +++++--
+>  drivers/input/gameport/gameport.c           |    1 -
+>  drivers/input/serio/serio.c                 |    1 -
+>  drivers/media/video/cx18/cx18-alsa-main.c   |    1 -
+>  drivers/media/video/ivtv/ivtvfb.c           |    2 --
+>  drivers/media/video/s5p-fimc/fimc-mdevice.c |    5 +----
+>  drivers/media/video/s5p-tv/mixer_video.c    |    1 -
+>  drivers/s390/net/smsgiucv_app.c             |    9 ++++-----
+>  8 files changed, 10 insertions(+), 17 deletions(-)
+> 
+> Index: usb-3.3/drivers/base/driver.c
+> ===================================================================
+> --- usb-3.3.orig/drivers/base/driver.c
+> +++ usb-3.3/drivers/base/driver.c
+> @@ -234,7 +234,6 @@ int driver_register(struct device_driver
 >  
->  #include <linux/module.h>
->  #include <linux/input.h>
-> +#include <linux/input/mt.h>
->  #include <linux/ctype.h>
->  #include <linux/libps2.h>
->  #include <linux/serio.h>
-> @@ -37,7 +38,7 @@
->  #define	FSP_CMD_TIMEOUT2	30
+>  	other = driver_find(drv->name, drv->bus);
+>  	if (other) {
+> -		put_driver(other);
+>  		printk(KERN_ERR "Error: Driver '%s' is already registered, "
+>  			"aborting...\n", drv->name);
+>  		return -EBUSY;
+> @@ -275,7 +274,9 @@ EXPORT_SYMBOL_GPL(driver_unregister);
+>   * Call kset_find_obj() to iterate over list of drivers on
+>   * a bus to find driver by name. Return driver if found.
+>   *
+> - * Note that kset_find_obj increments driver's reference count.
+> + * This routine provides no locking to prevent the driver it returns
+> + * from being unregistered or unloaded while the caller is using it.
+> + * The caller is responsible for preventing this.
+>   */
+>  struct device_driver *driver_find(const char *name, struct bus_type *bus)
+>  {
+> @@ -283,6 +284,8 @@ struct device_driver *driver_find(const
+>  	struct driver_private *priv;
 >  
->  /** Driver version. */
-> -static const char fsp_drv_ver[] = "1.0.0-K";
-> +static const char fsp_drv_ver[] = "1.0.0-K-OS1";
+>  	if (k) {
+> +		/* Drop reference added by kset_find_obj() */
+> +		kobject_put(k);
+>  		priv = to_driver(k);
+>  		return priv->driver;
+>  	}
+> Index: usb-3.3/drivers/input/gameport/gameport.c
+> ===================================================================
+> --- usb-3.3.orig/drivers/input/gameport/gameport.c
+> +++ usb-3.3/drivers/input/gameport/gameport.c
+> @@ -449,7 +449,6 @@ static ssize_t gameport_rebind_driver(st
+>  	} else if ((drv = driver_find(buf, &gameport_bus)) != NULL) {
+>  		gameport_disconnect_port(gameport);
+>  		error = gameport_bind_driver(gameport, to_gameport_driver(drv));
+> -		put_driver(drv);
+>  	} else {
+>  		error = -EINVAL;
+>  	}
+> Index: usb-3.3/drivers/input/serio/serio.c
+> ===================================================================
+> --- usb-3.3.orig/drivers/input/serio/serio.c
+> +++ usb-3.3/drivers/input/serio/serio.c
+> @@ -441,7 +441,6 @@ static ssize_t serio_rebind_driver(struc
+>  	} else if ((drv = driver_find(buf, &serio_bus)) != NULL) {
+>  		serio_disconnect_port(serio);
+>  		error = serio_bind_driver(serio, to_serio_driver(drv));
+> -		put_driver(drv);
+>  		serio_remove_duplicate_events(serio, SERIO_RESCAN_PORT);
+>  	} else {
+>  		error = -EINVAL;
+> Index: usb-3.3/drivers/media/video/cx18/cx18-alsa-main.c
+> ===================================================================
+> --- usb-3.3.orig/drivers/media/video/cx18/cx18-alsa-main.c
+> +++ usb-3.3/drivers/media/video/cx18/cx18-alsa-main.c
+> @@ -285,7 +285,6 @@ static void __exit cx18_alsa_exit(void)
 >  
->  /*
->   * Make sure that the value being sent to FSP will not conflict with
-> @@ -671,8 +672,11 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
->  	struct input_dev *dev = psmouse->dev;
->  	struct fsp_data *ad = psmouse->private;
->  	unsigned char *packet = psmouse->packet;
-> -	unsigned char button_status = 0, lscroll = 0, rscroll = 0;
-> +	unsigned short abs_x, abs_y, fingers = 0;
-> +	unsigned short vscroll = 0, hscroll = 0, lscroll = 0, rscroll = 0;
-> +	unsigned short l_btn, r_btn, m_btn;
->  	int rel_x, rel_y;
-> +	static bool lifted;
+>  	drv = driver_find("cx18", &pci_bus_type);
+>  	ret = driver_for_each_device(drv, NULL, NULL, cx18_alsa_exit_callback);
+> -	put_driver(drv);
 >  
->  	if (psmouse->pktcnt < 4)
->  		return PSMOUSE_GOOD_DATA;
-> @@ -684,9 +688,97 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
->  	fsp_packet_debug(psmouse, packet);
+>  	cx18_ext_init = NULL;
+>  	printk(KERN_INFO "cx18-alsa: module unload complete\n");
+> Index: usb-3.3/drivers/media/video/ivtv/ivtvfb.c
+> ===================================================================
+> --- usb-3.3.orig/drivers/media/video/ivtv/ivtvfb.c
+> +++ usb-3.3/drivers/media/video/ivtv/ivtvfb.c
+> @@ -1293,7 +1293,6 @@ static int __init ivtvfb_init(void)
 >  
->  	switch (psmouse->packet[0] >> FSP_PKT_TYPE_SHIFT) {
-> +	case FSP_PKT_TYPE_NOTIFY:
-> +		/* Notify packets are sent with Cx and newer
-> +		 * touchpads if register 0x90 bit 1 is set.
-> +		 */
-> +		switch (packet[2]) {
-> +		case 0x86:
-> +			vscroll =  1;
-> +			break;
-> +		case 0x82:
-> +			vscroll = -1;
-> +			break;
-> +		case 0x84:
-> +			hscroll =  1;
-> +			break;
-> +		case 0x80:
-> +			hscroll = -1;
-> +			break;
-> +		}
-> +		input_report_rel(dev, REL_WHEEL, vscroll);
-> +		input_report_rel(dev, REL_HWHEEL, hscroll);
-> +		break;
-
-Do we need to support the non-absolute mode if we can support absolute
-mode for the device? Users expect to have true multi-touch support
-nowadays, I think we should keep the driver as simple as possible and
-support only absolute mode for MT devices.
-
-> +
->  	case FSP_PKT_TYPE_ABS:
-> -		dev_warn(&psmouse->ps2dev.serio->dev,
-> -			 "Unexpected absolute mode packet, ignored.\n");
-> +		/* Absolute packets are sent with version Cx and newer
-> +		 * touchpads if register 0x90 bit 0 is set.
-> +		 */
-> +		abs_x = (packet[1] << 2) | ((packet[3] >> 2) & 0x03);
-> +		abs_y = (packet[2] << 2) | (packet[3] & 0x03);
-> +
-> +		l_btn = packet[0] & BIT(0);
-> +		r_btn = packet[0] & BIT(1);
-> +		m_btn = packet[0] & BIT(2);
-> +
-> +		if (packet[1] || packet[2] || packet[3]) {
-> +			/* at least one finger is down */
-> +			fingers++;
-> +			lifted = false;
-> +		} else {
-> +			if (lifted == false) {
-> +				lifted = true;
-> +				return PSMOUSE_FULL_PACKET;
-> +			}
-> +		}
-> +
-> +		if ((packet[0] & (BIT(4)|BIT(5))) == 0 && l_btn) {
-> +			/* on pad click, let other components handle this.
-> +			 * NOTE: do not filter out on-pad clicks when
-> +			 * we're in multitouch mode, BIT(5), they are real
-> +			 * clickpad-clicks, not just single finger taps.
-> +			 */
-> +			l_btn = 0;
-
-Hmm, so this is a clickpad device? We need to set clickpad property
-then.
-
-> +		}
-> +
-> +		if (packet[0] & BIT(5)) {
-> +			/* multitouch mode: two fingers down */
-> +			fingers++;
-> +			if ((packet[0] & BIT(4)) == 0 && l_btn && r_btn) {
-> +				/* middle-click in multitouch mode */
-> +				l_btn = 0;
-> +				r_btn = 0;
-> +				m_btn = 1;
-> +			}
-
-The middle button emulation should be handled in userspace. Let
-synaptics X driver deal with it.
-
-> +			if (packet[0] & BIT(2)) {
-> +				/* right finger down, ignore the event */
-
-Needs better comment.
-
-> +				return PSMOUSE_FULL_PACKET;
-> +			}
-> +		}
-> +
-> +		input_report_key(dev, BTN_TOUCH, fingers > 0);
-> +		input_report_abs(dev, ABS_X, abs_x);
-> +		input_report_abs(dev, ABS_Y, abs_y);
-> +
-> +		input_mt_slot(dev, 0);
-> +		input_mt_report_slot_state(dev, MT_TOOL_FINGER, fingers >= 1);
-> +		if (fingers >= 1) {
-> +			input_report_abs(dev, ABS_MT_POSITION_X, abs_x);
-> +			input_report_abs(dev, ABS_MT_POSITION_Y, abs_y);
-> +		}
-> +
-> +		input_mt_slot(dev, 1);
-> +		input_mt_report_slot_state(dev, MT_TOOL_FINGER, fingers >= 2);
-> +		if (fingers >= 2) {
-> +			input_report_abs(dev, ABS_MT_POSITION_X, abs_x);
-> +			input_report_abs(dev, ABS_MT_POSITION_Y, abs_y);
-> +		}
-> +
-> +		input_report_key(dev, BTN_TOOL_FINGER, fingers == 1);
-> +		input_report_key(dev, BTN_TOOL_DOUBLETAP, fingers == 2);
-> +		input_report_key(dev, BTN_LEFT, l_btn);
-> +		input_report_key(dev, BTN_MIDDLE, m_btn);
-> +		input_report_key(dev, BTN_RIGHT, r_btn);
->  		break;
+>  	drv = driver_find("ivtv", &pci_bus_type);
+>  	err = driver_for_each_device(drv, NULL, &registered, ivtvfb_callback_init);
+> -	put_driver(drv);
+>  	if (!registered) {
+>  		printk(KERN_ERR "ivtvfb:  no cards found\n");
+>  		return -ENODEV;
+> @@ -1310,7 +1309,6 @@ static void ivtvfb_cleanup(void)
 >  
->  	case FSP_PKT_TYPE_NORMAL_OPC:
-> @@ -699,6 +791,7 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
->  		/* normal packet */
->  		/* special packet data translation from on-pad packets */
->  		if (packet[3] != 0) {
-> +			unsigned char button_status = 0;
->  			if (packet[3] & BIT(0))
->  				button_status |= 0x01;	/* wheel down */
->  			if (packet[3] & BIT(1))
-> @@ -776,6 +869,7 @@ static int fsp_activate_protocol(struct psmouse *psmouse)
->  	val &= ~(FSP_BIT_EN_MSID7 | FSP_BIT_EN_MSID8 | FSP_BIT_EN_AUTO_MSID8);
->  	/* Ensure we are not in absolute mode */
->  	val &= ~FSP_BIT_EN_PKT_G0;
-> +
->  	if (pad->buttons == 0x06) {
->  		/* Left/Middle/Right & Scroll Up/Down/Right/Left */
->  		val |= FSP_BIT_EN_MSID6;
-> @@ -799,6 +893,19 @@ static int fsp_activate_protocol(struct psmouse *psmouse)
->  	fsp_onpad_vscr(psmouse, true);
->  	fsp_onpad_hscr(psmouse, true);
->  
-> +	/* Enable absolute positioning, two finger mode and continuous output
-> +	 * on Cx and newer pads (version ID 0xE0+)
-> +	 */
-> +	if (pad->ver >= 0xE0) {
-> +		val = FSP_CX_ABSOLUTE_MODE |
-> +			FSP_CX_2FINGERS_OUTPUT |
-> +			FSP_CX_CONTINUOUS_MODE;
-> +		if (fsp_reg_write(psmouse, FSP_REG_SWREG1, val)) {
-> +			dev_warn(&psmouse->ps2dev.serio->dev,
-> +				 "Failed to enable multitouch settings.\n");
-> +		}
-> +	}
-> +
->  	return 0;
+>  	drv = driver_find("ivtv", &pci_bus_type);
+>  	err = driver_for_each_device(drv, NULL, NULL, ivtvfb_callback_cleanup);
+> -	put_driver(drv);
 >  }
 >  
-> @@ -854,6 +961,7 @@ static int fsp_reconnect(struct psmouse *psmouse)
+>  module_init(ivtvfb_init);
+> Index: usb-3.3/drivers/media/video/s5p-fimc/fimc-mdevice.c
+> ===================================================================
+> --- usb-3.3.orig/drivers/media/video/s5p-fimc/fimc-mdevice.c
+> +++ usb-3.3/drivers/media/video/s5p-fimc/fimc-mdevice.c
+> @@ -344,16 +344,13 @@ static int fimc_md_register_platform_ent
+>  		return -ENODEV;
+>  	ret = driver_for_each_device(driver, NULL, fmd,
+>  				     fimc_register_callback);
+> -	put_driver(driver);
+>  	if (ret)
+>  		return ret;
 >  
->  int fsp_init(struct psmouse *psmouse)
->  {
-> +	struct input_dev *dev = psmouse->dev;
->  	struct fsp_data *priv;
->  	int ver, rev, buttons;
->  	int error;
-> @@ -880,11 +988,34 @@ int fsp_init(struct psmouse *psmouse)
->  	priv->flags |= FSPDRV_FLAG_EN_OPC;
+>  	driver = driver_find(CSIS_DRIVER_NAME, &platform_bus_type);
+> -	if (driver) {
+> +	if (driver)
+>  		ret = driver_for_each_device(driver, NULL, fmd,
+>  					     csis_register_callback);
+> -		put_driver(driver);
+> -	}
+>  	return ret;
+>  }
 >  
->  	/* Set up various supported input event bits */
-> -	__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
-> -	__set_bit(BTN_BACK, psmouse->dev->keybit);
-> -	__set_bit(BTN_FORWARD, psmouse->dev->keybit);
-> -	__set_bit(REL_WHEEL, psmouse->dev->relbit);
-> -	__set_bit(REL_HWHEEL, psmouse->dev->relbit);
-> +	__set_bit(BTN_MIDDLE, dev->keybit);
-> +	__set_bit(BTN_BACK, dev->keybit);
-> +	__set_bit(BTN_FORWARD, dev->keybit);
-> +	__set_bit(REL_WHEEL, dev->relbit);
-> +	__set_bit(REL_HWHEEL, dev->relbit);
-> +
-> +	/* Set up multitouch mode on Cx+ version hardware (reg value 0xE0+)
-> +	 * for example ASUS Zenbook UX21E has Sentelic touchpad version 0xE3
-> +	 */
-> +	if (ver >= 0xE0) {
-> +		/* NOTE: maximum values are not documented anywhere and are
-> +		 * not available in any register, these are the maximum
-> +		 * values reported by a Zenbook.
-> +		 */
-> +		int abs_x = 965, abs_y = 705;
-> +
-> +		__set_bit(EV_ABS, dev->evbit);
-> +		__clear_bit(EV_REL, dev->evbit);
-> +		__set_bit(BTN_TOUCH, dev->keybit);
-> +		__set_bit(BTN_TOOL_FINGER, dev->keybit);
-> +		__set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
-> +
-> +		input_set_abs_params(dev, ABS_X, 0, abs_x, 0, 0);
-> +		input_set_abs_params(dev, ABS_Y, 0, abs_y, 0, 0);
-> +		input_mt_init_slots(dev, 2);
-> +		input_set_abs_params(dev, ABS_MT_POSITION_X, 0, abs_x, 0, 0);
-> +		input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, abs_y, 0, 0);
-> +	}
+> Index: usb-3.3/drivers/media/video/s5p-tv/mixer_video.c
+> ===================================================================
+> --- usb-3.3.orig/drivers/media/video/s5p-tv/mixer_video.c
+> +++ usb-3.3/drivers/media/video/s5p-tv/mixer_video.c
+> @@ -58,7 +58,6 @@ static struct v4l2_subdev *find_and_regi
+>  	}
 >  
->  	psmouse->protocol_handler = fsp_process_byte;
->  	psmouse->disconnect = fsp_disconnect;
-> diff --git a/drivers/input/mouse/sentelic.h b/drivers/input/mouse/sentelic.h
-> index 2e4af24..c72ca5e 100644
-> --- a/drivers/input/mouse/sentelic.h
-> +++ b/drivers/input/mouse/sentelic.h
-> @@ -41,6 +41,7 @@
->  #define	FSP_REG_OPTZ_YLO	0x36
->  #define	FSP_REG_OPTZ_YHI	0x37
->  #define	FSP_REG_SYSCTL5		0x40
-> +#define	FSP_REG_SWREG1		0x90
->  #define	FSP_BIT_90_DEGREE	BIT(0)
->  #define	FSP_BIT_EN_MSID6	BIT(1)
->  #define	FSP_BIT_EN_MSID7	BIT(2)
-> @@ -64,6 +65,13 @@
->  #define	FSP_PKT_TYPE_NORMAL_OPC	(0x03)
->  #define	FSP_PKT_TYPE_SHIFT	(6)
+>  done:
+> -	put_driver(drv);
+>  	return sd;
+>  }
 >  
-> +/* swreg1 values, supported in Cx hardware */
-> +#define FSP_CX_ABSOLUTE_MODE	BIT(0)
-> +#define FSP_CX_GESTURE_OUTPUT	BIT(1)
-> +#define FSP_CX_2FINGERS_OUTPUT	BIT(2)
-> +#define FSP_CX_FINGER_UP_OUTPUT	BIT(3)
-> +#define FSP_CX_CONTINUOUS_MODE	BIT(4)
-> +
->  #ifdef __KERNEL__
+> Index: usb-3.3/drivers/s390/net/smsgiucv_app.c
+> ===================================================================
+> --- usb-3.3.orig/drivers/s390/net/smsgiucv_app.c
+> +++ usb-3.3/drivers/s390/net/smsgiucv_app.c
+> @@ -168,7 +168,7 @@ static int __init smsgiucv_app_init(void
+>  	rc = dev_set_name(smsg_app_dev, KMSG_COMPONENT);
+>  	if (rc) {
+>  		kfree(smsg_app_dev);
+> -		goto fail_put_driver;
+> +		goto fail;
+>  	}
+>  	smsg_app_dev->bus = &iucv_bus;
+>  	smsg_app_dev->parent = iucv_root;
+> @@ -177,7 +177,7 @@ static int __init smsgiucv_app_init(void
+>  	rc = device_register(smsg_app_dev);
+>  	if (rc) {
+>  		put_device(smsg_app_dev);
+> -		goto fail_put_driver;
+> +		goto fail;
+>  	}
 >  
->  struct fsp_data {
-> -- 
-> 1.7.7.6
+>  	/* convert sender to uppercase characters */
+> @@ -191,12 +191,11 @@ static int __init smsgiucv_app_init(void
+>  	rc = smsg_register_callback(SMSG_PREFIX, smsg_app_callback);
+>  	if (rc) {
+>  		device_unregister(smsg_app_dev);
+> -		goto fail_put_driver;
+> +		goto fail;
+>  	}
+>  
+>  	rc = 0;
+> -fail_put_driver:
+> -	put_driver(smsgiucv_drv);
+> +fail:
+>  	return rc;
+>  }
+>  module_init(smsgiucv_app_init);
 > 
-Thanks.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
 Dmitry

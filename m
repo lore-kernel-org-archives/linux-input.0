@@ -1,173 +1,274 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v10 1/3] Input: cyttsp - Cypress TTSP capacitive multi-touch screen support
-Date: Fri, 27 Jan 2012 13:26:45 -0800
-Message-ID: <3249126.MSECh6D9S6@dtor-d630.eng.vmware.com>
-References: <1327021046-18024-1-git-send-email-javier@dowhile0.org> <20120127181846.GA22462@core.coreip.homeip.net> <CABxcv=n8kFJiL01WEVdFat5Y=W9xQeG6_2oNV=_45UUFr+0gtw@mail.gmail.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 2/4 v2] input : wacom - retrieve maximum number of touch points
+Date: Fri, 27 Jan 2012 20:51:26 -0600
+Message-ID: <CAGzDe_Zy6sT-V3vDn0oqP6=Z=L7_H5JP8qf-dDNFQ=JDCiyR8g@mail.gmail.com>
+References: <1325717032-6378-1-git-send-email-pinglinux@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:40519 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751419Ab2A0V0v (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Jan 2012 16:26:51 -0500
-Received: by dadi2 with SMTP id i2so1748628dad.19
-        for <linux-input@vger.kernel.org>; Fri, 27 Jan 2012 13:26:51 -0800 (PST)
-In-Reply-To: <CABxcv=n8kFJiL01WEVdFat5Y=W9xQeG6_2oNV=_45UUFr+0gtw@mail.gmail.com>
+Received: from mail-lpp01m010-f46.google.com ([209.85.215.46]:37041 "EHLO
+	mail-lpp01m010-f46.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754090Ab2A1Cv2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Jan 2012 21:51:28 -0500
+Received: by lagu2 with SMTP id u2so1313659lag.19
+        for <linux-input@vger.kernel.org>; Fri, 27 Jan 2012 18:51:26 -0800 (PST)
+In-Reply-To: <1325717032-6378-1-git-send-email-pinglinux@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier@dowhile0.org>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Mohan Pallaka <mpallaka@codeaurora.org>, Kevin McNeely <kev@cypress.com>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-On Friday, January 27, 2012 10:01:22 PM Javier Martinez Canillas wrote:
-> On Fri, Jan 27, 2012 at 7:18 PM, Dmitry Torokhov
-> 
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Fri, Jan 27, 2012 at 04:57:12PM +0100, Javier Martinez Canillas wrote:
-> >> On Fri, Jan 27, 2012 at 9:18 AM, Dmitry Torokhov
-> >> 
-> >> <dmitry.torokhov@gmail.com> wrote:
-> >> > On Thu, Jan 26, 2012 at 01:12:50AM +0100, Javier Martinez Canillas 
-wrote:
-> >> >> On Tue, Jan 24, 2012 at 8:54 AM, Dmitry Torokhov
-> >> >> 
-> >> >> <dmitry.torokhov@gmail.com> wrote:
-> >> >> > On Tue, Jan 24, 2012 at 08:26:39AM +0100, Javier Martinez Canillas 
-wrote:
-> >> >> >> On Fri, Jan 20, 2012 at 1:57 AM, Javier Martinez Canillas
-> >> >> >> 
-> >> >> >> <javier@dowhile0.org> wrote:
-> >> >> >> > Cypress TrueTouch(tm) Standard Product controllers are
-> >> >> >> > found in
-> >> >> >> > a wide range of embedded devices. This driver add
-> >> >> >> > support for a
-> >> >> >> > variety of TTSP controllers.
-> >> >> >> > 
-> >> >> >> > Since the hardware is capable of tracking identifiable
-> >> >> >> > contacts, multi-touch protocol type B (stateful) is
-> >> >> >> > used to report contact information.
-> >> >> >> > 
-> >> >> >> > The driver is composed of a core driver that process
-> >> >> >> > the data sent by the contacts and a set of bus
-> >> >> >> > specific interface modules. This patch adds the base
-> >> >> >> > core TTSP driver.
-> >> >> >> > 
-> >> >> >> > Signed-off-by: Javier Martinez Canillas
-> >> >> >> > <javier@dowhile0.org>
-> >> >> >> > ---
-> >> >> >> > 
-> >> >> >> > Changes for v10: Fix issues called out by Dmitry
-> >> >> >> > Torokhov
-> >> >> >> >        - Remove use_sleep and put device to sleep
-> >> >> >> > unconditionally on suspend - Cleanup
-> >> >> >> > cyttsp_power_on() and remove cyttsp_bl_app_valid()
-> >> >> >> > function
-> >> >> >> > 
-> >> >> >> >  drivers/input/touchscreen/Kconfig       |   31 ++
-> >> >> >> >  drivers/input/touchscreen/Makefile      |    3 +
-> >> >> >> >  drivers/input/touchscreen/cyttsp_core.c |  682
-> >> >> >> > +++++++++++++++++++++++++++++++
-> >> >> >> > drivers/input/touchscreen/cyttsp_core.h |  141
-> >> >> >> > +++++++ include/linux/input/cyttsp.h            |  
-> >> >> >> > 68 +++
-> >> >> >> >  5 files changed, 925 insertions(+), 0 deletions(-)
-> >> >> >> 
-> >> >> >> Hello Dmitry,
-> >> >> >> 
-> >> >> >> Any comments on this version?
-> >> >> > 
-> >> >> > Looking at it... If you do not hear from me by Wednesday
-> >> >> > please ping me again.
-> >> >> > 
-> >> >> > Thanks.
-> >> >> > 
-> >> >> > --
-> >> >> > Dmitry
-> >> >> 
-> >> >> ping :)
-> >> > 
-> >> > Is it still Wednesday by any chance? ;)
-> >> 
-> >> Hi Dmitry,
-> >> 
-> >> Thanks for the review and the cleanup patch!
-> >> 
-> >> > Anyway, the driver looks pretty good, still below are some changes
-> >> > that I'd like to get in as well:
-> >> > 
-> >> > - do not return EAGAIN when operation times out, EIO I believe
-> >> > suits
-> >> >  better.
-> >> > - introduce ttsp_send_command() to replace host of custom
-> >> > functions.
-> >> > - reduce numver of states to 3 - IDLE, ACTIVE and BL mode.
-> >> >  Suspended/full power is already covered by "suspended" attribute.
-> >> > - streamline some functions.
-> >> 
-> >> Seems that your patch handlers all these issues.
-> >> 
-> >> > Please see the FIXME comment in cyttsp_enable() - is there a
-> >> > generic way to wake up the device, similarly to the way we put it
-> >> > to sleep?>> 
-> >> I guess that CY_OPERATE_MODE works but I have to try it since I don't
-> >> have the hw data-sheet.
-> >> 
-> >> > Please tell me if the device still works with this patch.
-> >> > 
-> >> > Thanks!
-> >> > 
-> >> > --
-> >> > Dmitry
-> >> 
-> >> Strange enough, it doesn't apply cleanly on my tree...
-> >> 
-> >> with patch -p1 < your_patch
-> >> 
-> >> It should since only the files for this driver are modified and I've
-> >> only applied the v10 patches I sent to you.
-> >> Anyway I will manually do the changes, try it and resend to you.
-> > 
-> > Hmm, not sure why it gives you trouble, I tried not to change anything
-> > when applying your v10 patches except for folding them all together.
-> > 
-> > I am attaching the version of the driver I've used as a base - maybe it
-> > will save you some time instead of applying the changes manually.
-> > 
-> > Also, could you please send changes needed to make my patch work as
-> > incremental patch so that I can apply on top of mime locally and fold
-> > all 3 together? It will be easier to see what exactly changed.
-> > 
-> > Thanks!
-> > 
-> > --
-> > Dmitry
-> 
-> Hi Dmitry,
-> 
-> Using that merged patch as a base your patch applies cleanly (not sure
-> what happened with my branch)
-> 
-> Sadly the driver is not working with your modifications.
+On Wed, Jan 4, 2012 at 4:43 PM, Ping Cheng <pinglinux@gmail.com> wrote:
+> From the HID usage table when it is supported.
+>
+> Tested-by: Chris Bagwell <chris@cnpbagwell.com>
+> Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
 
-I was afraid it could happen - hazards of chaging the code without the way of 
-testing it...  I'll try to double check and see what I might have done wrong. 
-What device did you test - I2C or SPI? Or do they both fail?
+Hi Dmitry,
 
-> I'll make it
-> work changing as less as possible what was in your patch. Only to make
-> the device work again and will send you as an incremental patch as you
-> suggested.
+Any ack/naks on this patch series from Ping?  I'm asking because of
+patch 1/4 (I must have deleted that email so I'm reply to 2/4) because
+it makes a change that all new Wacom touch drivers need to align with.
 
-Thank you for your patience with me.
+I have a patch for Wireless Bamboo support to submit and my patch
+looks slightly different depending on if it comes before or after that
+patch.
 
-> 
-> Just to be clear, do you want me to send as an incremental patch of my
-> series (v10) or as an incremental patch of your last patch?
-> 
+Thanks,
+Chris
 
-Incremental to mine please - so in your working branch you should have the 
-original change + my patch as a separate commit + your commit fixing my mess.
-
--- 
-Dmitry
+> ---
+>
+> v2: updated with Chris' comments.
+>
+> =A0drivers/input/tablet/wacom_sys.c | =A0 31 ++++++++++++++++++++++++=
+++++++-
+> =A0drivers/input/tablet/wacom_wac.c | =A0 10 ++++------
+> =A0drivers/input/tablet/wacom_wac.h | =A0 =A01 +
+> =A03 files changed, 35 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/=
+wacom_sys.c
+> index c9588ee..f7fe091 100644
+> --- a/drivers/input/tablet/wacom_sys.c
+> +++ b/drivers/input/tablet/wacom_sys.c
+> @@ -28,6 +28,7 @@
+> =A0#define HID_USAGE_Y_TILT =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x3e
+> =A0#define HID_USAGE_FINGER =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x22
+> =A0#define HID_USAGE_STYLUS =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x20
+> +#define HID_USAGE_CONTACTMAX =A0 =A0 =A0 =A0 =A0 0x55
+> =A0#define HID_COLLECTION =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0xa1
+> =A0#define HID_COLLECTION_LOGICAL =A0 =A0 =A0 =A0 0x02
+> =A0#define HID_COLLECTION_END =A0 =A0 =A0 =A0 =A0 =A0 0xc0
+> @@ -191,11 +192,30 @@ static int wacom_parse_logical_collection(unsig=
+ned char *report,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->x_max =3D features->y_max =3D
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0get_unaligned_le16(&re=
+port[10]);
+>
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->touch_max =3D 16;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0length =3D 11;
+> =A0 =A0 =A0 =A0}
+> =A0 =A0 =A0 =A0return length;
+> =A0}
+>
+> +static void wacom_retrieve_report_data(struct usb_interface *intf,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0struct wacom_features *features)
+> +{
+> + =A0 =A0 =A0 int result =3D 0;
+> + =A0 =A0 =A0 unsigned char *rep_data;
+> +
+> + =A0 =A0 =A0 rep_data =3D kmalloc(2, GFP_KERNEL);
+> + =A0 =A0 =A0 if (!rep_data)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return;
+> +
+> + =A0 =A0 =A0 rep_data[0] =3D 12;
+> + =A0 =A0 =A0 result =3D wacom_get_report(intf, WAC_HID_FEATURE_REPOR=
+T,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rep_data[0], rep_data, 2, WAC_MSG_RE=
+TRIES);
+> +
+> + =A0 =A0 =A0 if ((result >=3D 0) && (rep_data[1] > 2))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->touch_max =3D rep_data[1];
+> +}
+> +
+> =A0/*
+> =A0* Interface Descriptor of wacom devices can be incomplete and
+> =A0* inconsistent so wacom_features table is used to store stylus
+> @@ -286,16 +306,19 @@ static int wacom_parse_hid(struct usb_interface=
+ *intf,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0if (features->type =3D=3D TABLETPC2FG) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* need to reset back */
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->pktlen =3D WACOM_PKGL=
+EN_TPC2FG;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->touch_max =3D 2;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0}
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0if (features->type =3D=3D BAMBOO_PT) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* need to reset back */
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->pktlen =3D WACOM_PKGL=
+EN_BBTOUCH;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->touch_max =3D 2;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->x_phy =3D
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0get_unaligned_l=
+e16(&report[i + 5]);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->x_max =3D
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0get_unaligned_l=
+e16(&report[i + 8]);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i +=3D 15;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0} else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->touch_max =3D 1;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->x_max =3D
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0get_unaligned_l=
+e16(&report[i + 3]);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->x_phy =3D
+> @@ -369,6 +392,11 @@ static int wacom_parse_hid(struct usb_interface =
+*intf,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pen =3D=
+ 1;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i++;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 case HID_USAGE_CONTACTM=
+AX:
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom_r=
+etrieve_report_data(intf, features);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 i++;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
+>
+> @@ -873,7 +901,8 @@ static int wacom_probe(struct usb_interface *intf=
+, const struct usb_device_id *i
+>
+> =A0 =A0 =A0 =A0endpoint =3D &intf->cur_altsetting->endpoint[0].desc;
+>
+> - =A0 =A0 =A0 /* Retrieve the physical and logical size for OEM devic=
+es */
+> + =A0 =A0 =A0 /* Retrieve the physical and logical size for touch dev=
+ices */
+> + =A0 =A0 =A0 features->touch_max =3D 0;
+> =A0 =A0 =A0 =A0error =3D wacom_retrieve_hid_descriptor(intf, features=
+);
+> =A0 =A0 =A0 =A0if (error)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto fail3;
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/=
+wacom_wac.c
+> index e18f362..33a4359 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -830,7 +830,8 @@ static int wacom_tpc_irq(struct wacom_wac *wacom,=
+ size_t len)
+> =A0{
+> =A0 =A0 =A0 =A0char *data =3D wacom->data;
+>
+> - =A0 =A0 =A0 dbg("wacom_tpc_irq: received report #%d", data[0]);
+> + =A0 =A0 =A0 dbg("wacom_tpc_irq: received report #%d with %d contact=
+s",
+> + =A0 =A0 =A0 =A0 =A0 =A0data[0], wacom->features.touch_max);
+>
+> =A0 =A0 =A0 =A0if (len =3D=3D WACOM_PKGLEN_TPC1FG || data[0] =3D=3D W=
+ACOM_REPORT_TPC1FG)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return wacom_tpc_single_touch(wacom, l=
+en);
+> @@ -1319,7 +1320,7 @@ void wacom_setup_input_capabilities(struct inpu=
+t_dev *input_dev,
+> =A0 =A0 =A0 =A0case TABLETPC2FG:
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (features->device_type =3D=3D BTN_T=
+OOL_FINGER) {
+>
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_mt_init_slots(inp=
+ut_dev, 2);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_mt_init_slots(inp=
+ut_dev, features->touch_max);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(i=
+nput_dev, ABS_MT_TOOL_TYPE,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A00, MT_TOOL_MAX, 0, 0);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(i=
+nput_dev, ABS_MT_POSITION_X,
+> @@ -1374,6 +1375,7 @@ void wacom_setup_input_capabilities(struct inpu=
+t_dev *input_dev,
+>
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(BTN_TOOL_FIN=
+GER, input_dev->keybit);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(BTN_TOOL_DOU=
+BLETAP, input_dev->keybit);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_mt_init_slots(inp=
+ut_dev, features->touch_max);
+>
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (features->pktlen =3D=
+=3D WACOM_PKGLEN_BBTOUCH3) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_=
+bit(BTN_TOOL_TRIPLETAP,
+> @@ -1381,13 +1383,9 @@ void wacom_setup_input_capabilities(struct inp=
+ut_dev *input_dev,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_=
+bit(BTN_TOOL_QUADTAP,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0input_dev->keybit);
+>
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_m=
+t_init_slots(input_dev, 16);
+> -
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_=
+set_abs_params(input_dev,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ABS_MT_TOUCH_MAJOR,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0, 255, 0, 0);
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else {
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_m=
+t_init_slots(input_dev, 2);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+>
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(i=
+nput_dev, ABS_MT_POSITION_X,
+> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/=
+wacom_wac.h
+> index 050acae..6ddd2e4 100644
+> --- a/drivers/input/tablet/wacom_wac.h
+> +++ b/drivers/input/tablet/wacom_wac.h
+> @@ -89,6 +89,7 @@ struct wacom_features {
+> =A0 =A0 =A0 =A0int pressure_fuzz;
+> =A0 =A0 =A0 =A0int distance_fuzz;
+> =A0 =A0 =A0 =A0unsigned quirks;
+> + =A0 =A0 =A0 unsigned touch_max;
+> =A0};
+>
+> =A0struct wacom_shared {
+> --
+> 1.7.6.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,218 +1,400 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1][INCREMENTAL] Input: cyttsp - Fixes to clean-up patch
-Date: Sat, 28 Jan 2012 22:18:02 -0800
-Message-ID: <20120129061802.GA25977@core.coreip.homeip.net>
-References: <1327816430-19887-1-git-send-email-javier@dowhile0.org>
+Subject: Re: [PATCH v2] input: Hanvon Art Master I and Rollick tablet support
+ (USB)
+Date: Sat, 28 Jan 2012 22:38:02 -0800
+Message-ID: <20120129063802.GE23595@core.coreip.homeip.net>
+References: <alpine.LRH.2.00.1201230211440.12906@linux.fjfi.cvut.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:35250 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751005Ab2A2GSI (ORCPT
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:64257 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751082Ab2A2GiI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Jan 2012 01:18:08 -0500
-Received: by pbaa10 with SMTP id a10so2849215pba.19
-        for <linux-input@vger.kernel.org>; Sat, 28 Jan 2012 22:18:07 -0800 (PST)
+	Sun, 29 Jan 2012 01:38:08 -0500
 Content-Disposition: inline
-In-Reply-To: <1327816430-19887-1-git-send-email-javier@dowhile0.org>
+In-Reply-To: <alpine.LRH.2.00.1201230211440.12906@linux.fjfi.cvut.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier@dowhile0.org>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org
+To: ondra.havel@gmail.com
+Cc: oliver@neukum.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Sun, Jan 29, 2012 at 06:53:50AM +0100, Javier Martinez Canillas wrote:
-> This is patch fixes two bugs in Dmitry's last cleanup patch.
+Hi Ondra,
+
+On Mon, Jan 23, 2012 at 02:22:07AM +0100, ondra.havel@gmail.com wrote:
+> This driver supports multiple Hanvon tablets (USB).
+> They are:
 > 
-> 1- The hardware tracking ids are stored in the ids array and the information for
->    each contact is obtained calling cyttsp_get_tch() with an index. In the clean-up
->    patch the value of the tracking id was used instead of the contact index.
+> Artmaster I: AM0806, AM1107, AM1209
+> Rollick: RL0604
 > 
-
-Oops, thank you for fixing that.
-
-> 2- i2c_set_clientdata() is called after the generic cyttsp_probe() function and
->    this function calls cyttsp_power_on() that sends an ttsp command to the device
->    and needs the client data before is set. The fix is to execute cyttsp_power_on
->    inside the transport specific probe function (I2C, SPI) after the generic probe
->    function is executed and the client data is set.
+> Updated upon Oliver Neukum's review. Thanks a lot.
 > 
+> 
+> Signed-off-by: Ondra Havel <ondra.havel@gmail.com>
 
-Not quite happy about this one, how about we pass cyttsp directly to bus
-methods instead of relying on drvdata (as in the patch below)?
+[dtor@hammer work]$ ./scripts/checkpatch.pl hanvon.patch
+...
+
+total: 39 errors, 19 warnings, 287 lines checked
+
+hanvon.patch has style problems, please review.
+
+If any of these errors are false positives, please report
+them to the maintainer, see CHECKPATCH in MAINTAINERS.
+
+Also:
+
+> ---
+> 
+> 
+>  drivers/input/tablet/Kconfig  |   11 ++
+>  drivers/input/tablet/Makefile |    1
+>  drivers/input/tablet/hanvon.c |  263 +++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 275 insertions(+), 0 deletions(-)
+> 
+> 
+> 
+> diff --git a/drivers/input/tablet/Kconfig b/drivers/input/tablet/Kconfig
+> index 58a8775..25481e9 100644
+> --- a/drivers/input/tablet/Kconfig
+> +++ b/drivers/input/tablet/Kconfig
+> @@ -49,6 +49,17 @@ config TABLET_USB_GTCO
+>            To compile this driver as a module, choose M here: the
+>            module will be called gtco.
+> 
+> +config TABLET_USB_HANVON
+> +	tristate "Hanvon Art Master I and Rollick tablet support (USB)"
+> +	depends on USB_ARCH_HAS_HCD
+> +	select USB
+> +	help
+> +	  Say Y here if you want to use the USB version of the Hanvon Art
+> +	  Master I or Rollick tablets.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called hanvon.
+> +
+>  config TABLET_USB_HANWANG
+>  	tristate "Hanwang Art Master III tablet support (USB)"
+>  	depends on USB_ARCH_HAS_HCD
+> diff --git a/drivers/input/tablet/Makefile b/drivers/input/tablet/Makefile
+> index 3f6c252..d159383 100644
+> --- a/drivers/input/tablet/Makefile
+> +++ b/drivers/input/tablet/Makefile
+> @@ -8,6 +8,7 @@ wacom-objs	:= wacom_wac.o wacom_sys.o
+>  obj-$(CONFIG_TABLET_USB_ACECAD)	+= acecad.o
+>  obj-$(CONFIG_TABLET_USB_AIPTEK)	+= aiptek.o
+>  obj-$(CONFIG_TABLET_USB_GTCO)	+= gtco.o
+> +obj-$(CONFIG_TABLET_USB_HANVON) += hanvon.o
+>  obj-$(CONFIG_TABLET_USB_HANWANG) += hanwang.o
+>  obj-$(CONFIG_TABLET_USB_KBTAB)	+= kbtab.o
+>  obj-$(CONFIG_TABLET_USB_WACOM)	+= wacom.o
+> diff --git a/drivers/input/tablet/hanvon.c b/drivers/input/tablet/hanvon.c
+> new file mode 100644
+> index 0000000..2f34582
+> --- /dev/null
+> +++ b/drivers/input/tablet/hanvon.c
+> @@ -0,0 +1,263 @@
+> +#include <linux/kernel.h>
+> +#include <linux/slab.h>
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+
+#include <linux/input.h>
+
+Does it need gfp.h too?
+
+> +#include <linux/usb/input.h>
+> +
+> +#define DRIVER_VERSION "0.4a"
+> +#define DRIVER_AUTHOR "Ondra Havel <ondra.havel@gmail.com>"
+> +#define DRIVER_DESC "USB Hanvon tablet driver"
+> +#define DRIVER_LICENSE "GPL"
+> +
+> +MODULE_AUTHOR(DRIVER_AUTHOR);
+> +MODULE_DESCRIPTION(DRIVER_DESC);
+> +MODULE_LICENSE(DRIVER_LICENSE);
+> +
+> +#define USB_VENDOR_ID_HANVON	0x0b57
+> +#define USB_PRODUCT_ID_AM0806	0x8502
+> +#define USB_PRODUCT_ID_AM1107	0x8505
+> +#define USB_PRODUCT_ID_AM1209	0x8501
+> +#define USB_PRODUCT_ID_RL0604	0x851f
+> +#define USB_AM_PACKET_LEN	10
+> +
+> +static int lbuttons[]={BTN_0,BTN_1,BTN_2,BTN_3};	/* reported on all AMs */
+> +static int rbuttons[]={BTN_4,BTN_5,BTN_6,BTN_7};	/* reported on AM1107+ */
+> +
+> +#define AM_WHEEL_THRESHOLD	4
+> +
+> +#define AM_MAX_ABS_X	0x27de
+> +#define AM_MAX_ABS_Y	0x1cfe
+> +#define AM_MAX_TILT_X	0x3f
+> +#define AM_MAX_TILT_Y	0x7f
+> +#define AM_MAX_PRESSURE	0x400
+> +
+> +struct hanvon {
+> +	unsigned char *data;
+> +	dma_addr_t data_dma;
+> +	struct mutex mutex;
+
+Does not seem to be needed, open() and close() are already serialized.
+
+> +	struct input_dev *dev;
+> +	struct usb_device *usbdev;
+> +	struct urb *irq;
+> +	int old_wheel_pos;
+> +	char phys[32];
+> +};
+> +
+> +static void report_buttons(struct hanvon *hanvon, int buttons[],unsigned char dta)
+> +{
+> +	struct input_dev *dev = hanvon->dev;
+> +
+> +	if((dta & 0xf0) == 0xa0) {
+> +		input_report_key(dev, buttons[1], dta & 0x02);
+> +		input_report_key(dev, buttons[2], dta & 0x04);
+> +		input_report_key(dev, buttons[3], dta & 0x08);
+> +	} else {
+> +		if(dta <= 0x3f) {	/* slider area active */
+
+} else if () {
+}
+
+> +			int diff = dta - hanvon->old_wheel_pos;
+> +			if(abs(diff) < AM_WHEEL_THRESHOLD)
+> +				input_report_rel(dev, REL_WHEEL, diff);
+
+Why less? I'd think you want changes above the threshold. Also, we have
+ABS_WHEEL which seems to be what you need here.
+
+> +
+> +			hanvon->old_wheel_pos = dta;
+> +		}
+> +	}
+> +}
+> +
+> +static void hanvon_irq(struct urb *urb)
+> +{
+> +	struct hanvon *hanvon = urb->context;
+> +	unsigned char *data = hanvon->data;
+> +	struct input_dev *dev = hanvon->dev;
+> +	int ret;
+> +
+> +	switch (urb->status) {
+> +		case 0:
+> +			/* success */
+> +			break;
+> +		case -ECONNRESET:
+> +		case -ENOENT:
+> +		case -ESHUTDOWN:
+> +			/* this urb is terminated, clean up */
+> +			dbg("%s - urb shutting down with status: %d", __func__, urb->status);
+> +			return;
+> +		default:
+> +			dbg("%s - nonzero urb status received: %d", __func__, urb->status);
+> +			goto exit;
+> +	}
+> +
+> +	switch(data[0]) {
+> +		case 0x01:	/* button press */
+> +			if(data[1]==0x55)	/* left side */
+> +				report_buttons(hanvon,lbuttons,data[2]);
+> +
+> +			if(data[3]==0xaa)	/* right side (am1107, am1209) */
+> +				report_buttons(hanvon,rbuttons,data[4]);
+> +			break;
+> +		case 0x02:	/* position change */
+> +			if((data[1] & 0xf0) != 0) {
+> +				input_report_abs(dev, ABS_X, be16_to_cpup((__be16 *)&data[2]));
+> +				input_report_abs(dev, ABS_Y, be16_to_cpup((__be16 *)&data[4]));
+> +				input_report_abs(dev, ABS_TILT_X, data[7] & 0x3f);
+> +				input_report_abs(dev, ABS_TILT_Y, data[8]);
+> +				input_report_abs(dev, ABS_PRESSURE, be16_to_cpup((__be16 *)&data[6])>>6);
+> +			}
+> +
+> +		input_report_key(dev, BTN_LEFT, data[1] & 0x1);
+> +		input_report_key(dev, BTN_RIGHT, data[1] & 0x2);		/* stylus button pressed (right click) */
+> +		input_report_key(dev, lbuttons[0], data[1] & 0x20);
+> +		break;
+> +	}
+> +
+> +	input_sync(dev);
+> +
+> +exit:
+> +	ret = usb_submit_urb (urb, GFP_ATOMIC);
+> +	if (ret)
+> +		err("%s - usb_submit_urb failed with result %d", __func__, ret);
+> +}
+> +
+> +static struct usb_device_id hanvon_ids[] = {
+> +	{ USB_DEVICE(USB_VENDOR_ID_HANVON, USB_PRODUCT_ID_AM1209) },
+> +	{ USB_DEVICE(USB_VENDOR_ID_HANVON, USB_PRODUCT_ID_AM1107) },
+> +	{ USB_DEVICE(USB_VENDOR_ID_HANVON, USB_PRODUCT_ID_AM0806) },
+> +	{ USB_DEVICE(USB_VENDOR_ID_HANVON, USB_PRODUCT_ID_RL0604) },
+> +	{ }
+> +};
+> +
+> +MODULE_DEVICE_TABLE(usb, hanvon_ids);
+> +
+> +static int hanvon_open(struct input_dev *dev)
+> +{
+> +	int ret=0;
+> +	struct hanvon *hanvon = input_get_drvdata(dev);
+> +
+> +	hanvon->old_wheel_pos = -AM_WHEEL_THRESHOLD-1;
+> +	hanvon->irq->dev = hanvon->usbdev;
+> +	mutex_lock(&hanvon->mutex);
+> +	if(usb_submit_urb(hanvon->irq, GFP_KERNEL))
+> +		ret = -EIO;
+> +	mutex_unlock(&hanvon->mutex);
+> +	return ret;
+> +}
+> +
+> +static void hanvon_close(struct input_dev *dev)
+> +{
+> +	struct hanvon *hanvon = input_get_drvdata(dev);
+> +
+> +	mutex_lock(&hanvon->mutex);
+> +	usb_kill_urb(hanvon->irq);
+> +	mutex_unlock(&hanvon->mutex);
+> +}
+> +
+> +static int hanvon_probe(struct usb_interface *intf, const struct usb_device_id *id)
+> +{
+> +	struct usb_device *dev = interface_to_usbdev(intf);
+> +	struct usb_endpoint_descriptor *endpoint;
+> +	struct hanvon *hanvon;
+> +	struct input_dev *input_dev;
+> +	int error = -ENOMEM, i;
+> +
+> +	hanvon = kzalloc(sizeof(struct hanvon), GFP_KERNEL);
+> +	input_dev = input_allocate_device();
+> +	if (!hanvon || !input_dev)
+> +		goto fail1;
+> +
+> +	hanvon->data = (unsigned char *)usb_alloc_coherent(dev, USB_AM_PACKET_LEN, GFP_KERNEL, &hanvon->data_dma);
+
+Why cast?
+
+> +	if (!hanvon->data)
+> +		goto fail1;
+> +
+> +	hanvon->irq = usb_alloc_urb(0, GFP_KERNEL);
+> +	if (!hanvon->irq)
+> +		goto fail2;
+> +
+> +	hanvon->usbdev = dev;
+> +	hanvon->dev = input_dev;
+> +
+> +	usb_make_path(dev, hanvon->phys, sizeof(hanvon->phys));
+> +	strlcat(hanvon->phys, "/input0", sizeof(hanvon->phys));
+> +
+> +	input_dev->name = "Hanvon Artmaster I tablet";
+> +	input_dev->phys = hanvon->phys;
+> +	usb_to_input_id(dev, &input_dev->id);
+> +	input_dev->dev.parent = &intf->dev;
+> +
+> +	input_set_drvdata(input_dev, hanvon);
+> +
+> +	input_dev->open = hanvon_open;
+> +	input_dev->close = hanvon_close;
+> +
+> +	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS) | BIT_MASK(EV_REL);
+> +	input_dev->keybit[BIT_WORD(BTN_DIGI)] |= BIT_MASK(BTN_TOOL_PEN) | BIT_MASK(BTN_TOUCH);
+> +	input_dev->keybit[BIT_WORD(BTN_LEFT)] |= BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_RIGHT);
+
+Maybe use __set_bit() or input_set_capability() here as well?
+
+> +	for(i=0;i<sizeof(lbuttons)/sizeof(lbuttons[0]);i++)
+> +		__set_bit(lbuttons[i], input_dev->keybit);
+> +	for(i=0;i<sizeof(rbuttons)/sizeof(rbuttons[0]);i++)
+> +		__set_bit(rbuttons[i], input_dev->keybit);
+> +
+> +	input_set_abs_params(input_dev, ABS_X, 0, AM_MAX_ABS_X, 4, 0);
+> +	input_set_abs_params(input_dev, ABS_Y, 0, AM_MAX_ABS_Y, 4, 0);
+> +	input_set_abs_params(input_dev, ABS_TILT_X, 0, AM_MAX_TILT_X, 0, 0);
+> +	input_set_abs_params(input_dev, ABS_TILT_Y, 0, AM_MAX_TILT_Y, 0, 0);
+> +	input_set_abs_params(input_dev, ABS_PRESSURE, 0, AM_MAX_PRESSURE, 0, 0);
+> +	input_set_capability(input_dev, EV_REL, REL_WHEEL);
+> +
+> +	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+> +
+> +	usb_fill_int_urb(hanvon->irq, dev,
+> +			 usb_rcvintpipe(dev, endpoint->bEndpointAddress),
+> +			 hanvon->data, USB_AM_PACKET_LEN,
+> +			 hanvon_irq, hanvon, endpoint->bInterval);
+> +	hanvon->irq->transfer_dma = hanvon->data_dma;
+> +	hanvon->irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+> +
+> +	error = input_register_device(hanvon->dev);
+> +	if (error)
+> +		goto fail3;
+> +
+> +	usb_set_intfdata(intf, hanvon);
+> +	mutex_init(&hanvon->mutex);
+
+If this mutex was needed this place is tool late to initialize it as
+open() and close() can get called the moment you initialize input
+device.
+
+> +	return 0;
+> +
+> +fail3:	usb_free_urb(hanvon->irq);
+> +fail2:	usb_free_coherent(dev, USB_AM_PACKET_LEN, hanvon->data, hanvon->data_dma);
+> +fail1:	input_free_device(input_dev);
+> +	kfree(hanvon);
+> +	return error;
+> +}
+> +
+> +static void hanvon_disconnect(struct usb_interface *intf)
+> +{
+> +	struct hanvon *hanvon = usb_get_intfdata(intf);
+> +
+> +	usb_set_intfdata(intf, NULL);
+> +	usb_kill_urb(hanvon->irq);
+
+No need to do it here - close() will be called if needed.
+
+> +	input_unregister_device(hanvon->dev);
+> +	usb_free_urb(hanvon->irq);
+> +	usb_free_coherent(interface_to_usbdev(intf), USB_AM_PACKET_LEN, hanvon->data, hanvon->data_dma);
+> +	kfree(hanvon);
+> +}
+> +
+> +static struct usb_driver hanvon_driver = {
+> +	.name =	"hanvon",
+> +	.probe = hanvon_probe,
+> +	.disconnect = hanvon_disconnect,
+> +	.id_table = hanvon_ids,
+> +};
+> +
+> +static int __init hanvon_init(void)
+> +{
+> +	int ret;
+> +
+> +	if((ret = usb_register(&hanvon_driver)) != 0)
+> +		return ret;
+
+Just say:
+
+	return usb_register(&hanvon_driver);
+
+> +
+> +	printk(DRIVER_DESC " " DRIVER_VERSION "\n");
+> +
+> +	return 0;
+> +}
+> +
+> +static void __exit hanvon_exit(void)
+> +{
+> +	usb_deregister(&hanvon_driver);
+> +}
+> +
+> +module_init(hanvon_init);
+> +module_exit(hanvon_exit);
 
 Thanks.
 
 -- 
 Dmitry
-
-Input: cyttsp - pass cyttsp structure to bus methods
-
-We may not have set drvdata by the time we try to access the bus,
-so let's pass cyttsp structure directly instead.
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/touchscreen/cyttsp_core.c |    4 ++--
- drivers/input/touchscreen/cyttsp_core.h |    6 ++++--
- drivers/input/touchscreen/cyttsp_i2c.c  |    9 ++++-----
- drivers/input/touchscreen/cyttsp_spi.c  |   28 ++++++++++++++--------------
- 4 files changed, 24 insertions(+), 23 deletions(-)
-
-
-diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
-index ff74a33..12cd1da 100644
---- a/drivers/input/touchscreen/cyttsp_core.c
-+++ b/drivers/input/touchscreen/cyttsp_core.c
-@@ -84,7 +84,7 @@ static int ttsp_read_block_data(struct cyttsp *ts, u8 command,
- 	int tries;
- 
- 	for (tries = 0; tries < CY_NUM_RETRY; tries++) {
--		error = ts->bus_ops->read(ts->dev, command, length, buf);
-+		error = ts->bus_ops->read(ts, command, length, buf);
- 		if (!error)
- 			return 0;
- 
-@@ -101,7 +101,7 @@ static int ttsp_write_block_data(struct cyttsp *ts, u8 command,
- 	int tries;
- 
- 	for (tries = 0; tries < CY_NUM_RETRY; tries++) {
--		error = ts->bus_ops->write(ts->dev, command, length, buf);
-+		error = ts->bus_ops->write(ts, command, length, buf);
- 		if (!error)
- 			return 0;
- 
-diff --git a/drivers/input/touchscreen/cyttsp_core.h b/drivers/input/touchscreen/cyttsp_core.h
-index 560f959..1aa3c69 100644
---- a/drivers/input/touchscreen/cyttsp_core.h
-+++ b/drivers/input/touchscreen/cyttsp_core.h
-@@ -108,11 +108,13 @@ struct cyttsp_bootloader_data {
- 	u8 cid_2;
- };
- 
-+struct cyttsp;
-+
- struct cyttsp_bus_ops {
- 	u16 bustype;
--	int (*write)(struct device *dev,
-+	int (*write)(struct cyttsp *ts,
- 		     u8 addr, u8 length, const void *values);
--	int (*read)(struct device *dev, u8 addr, u8 length, void *values);
-+	int (*read)(struct cyttsp *ts, u8 addr, u8 length, void *values);
- };
- 
- enum cyttsp_state {
-diff --git a/drivers/input/touchscreen/cyttsp_i2c.c b/drivers/input/touchscreen/cyttsp_i2c.c
-index 6394c8e..c7110cc 100644
---- a/drivers/input/touchscreen/cyttsp_i2c.c
-+++ b/drivers/input/touchscreen/cyttsp_i2c.c
-@@ -34,10 +34,10 @@
- 
- #define CY_I2C_DATA_SIZE	128
- 
--static int cyttsp_i2c_read_block_data(struct device *dev,
-+static int cyttsp_i2c_read_block_data(struct cyttsp *ts,
- 				      u8 addr, u8 length, void *values)
- {
--	struct i2c_client *client = to_i2c_client(dev);
-+	struct i2c_client *client = to_i2c_client(ts->dev);
- 	struct i2c_msg msgs[] = {
- 		{
- 			.addr = client->addr,
-@@ -61,11 +61,10 @@ static int cyttsp_i2c_read_block_data(struct device *dev,
- 	return retval != ARRAY_SIZE(msgs) ? -EIO : 0;
- }
- 
--static int cyttsp_i2c_write_block_data(struct device *dev,
-+static int cyttsp_i2c_write_block_data(struct cyttsp *ts,
- 				       u8 addr, u8 length, const void *values)
- {
--	struct i2c_client *client = to_i2c_client(dev);
--	struct cyttsp *ts = i2c_get_clientdata(client);
-+	struct i2c_client *client = to_i2c_client(ts->dev);
- 	int retval;
- 
- 	ts->xfer_buf[0] = addr;
-diff --git a/drivers/input/touchscreen/cyttsp_spi.c b/drivers/input/touchscreen/cyttsp_spi.c
-index d404cd2..9db5f87 100644
---- a/drivers/input/touchscreen/cyttsp_spi.c
-+++ b/drivers/input/touchscreen/cyttsp_spi.c
-@@ -43,11 +43,10 @@
- #define CY_SPI_DATA_BUF_SIZE	(CY_SPI_CMD_BYTES + CY_SPI_DATA_SIZE)
- #define CY_SPI_BITS_PER_WORD	8
- 
--static int cyttsp_spi_xfer(u8 op, struct device *dev,
--			   u8 reg, u8 *buf, int length)
-+static int cyttsp_spi_xfer(struct cyttsp *ts,
-+			   u8 op, u8 reg, u8 *buf, int length)
- {
--	struct spi_device *spi = to_spi_device(dev);
--	struct cyttsp *ts = spi_get_drvdata(spi);
-+	struct spi_device *spi = to_spi_device(ts->dev);
- 	struct spi_message msg;
- 	struct spi_transfer xfer[2];
- 	u8 *wr_buf = &ts->xfer_buf[0];
-@@ -56,7 +55,8 @@ static int cyttsp_spi_xfer(u8 op, struct device *dev,
- 	int i;
- 
- 	if (length > CY_SPI_DATA_SIZE) {
--		dev_err(dev, "%s: length %d is too big.\n", __func__, length);
-+		dev_err(ts->dev, "%s: length %d is too big.\n",
-+			__func__, length);
- 		return -EINVAL;
- 	}
- 
-@@ -95,13 +95,13 @@ static int cyttsp_spi_xfer(u8 op, struct device *dev,
- 		break;
- 
- 	default:
--		dev_err(dev, "%s: bad operation code=%d\n", __func__, op);
-+		dev_err(ts->dev, "%s: bad operation code=%d\n", __func__, op);
- 		return -EINVAL;
- 	}
- 
- 	retval = spi_sync(spi, &msg);
- 	if (retval < 0) {
--		dev_dbg(dev, "%s: spi_sync() error %d, len=%d, op=%d\n",
-+		dev_dbg(ts->dev, "%s: spi_sync() error %d, len=%d, op=%d\n",
- 			__func__, retval, xfer[1].len, op);
- 
- 		/*
-@@ -114,13 +114,13 @@ static int cyttsp_spi_xfer(u8 op, struct device *dev,
- 	if (rd_buf[CY_SPI_SYNC_BYTE] != CY_SPI_SYNC_ACK1 ||
- 	    rd_buf[CY_SPI_SYNC_BYTE + 1] != CY_SPI_SYNC_ACK2) {
- 
--		dev_dbg(dev, "%s: operation %d failed\n", __func__, op);
-+		dev_dbg(ts->dev, "%s: operation %d failed\n", __func__, op);
- 
- 		for (i = 0; i < CY_SPI_CMD_BYTES; i++)
--			dev_dbg(dev, "%s: test rd_buf[%d]:0x%02x\n",
-+			dev_dbg(ts->dev, "%s: test rd_buf[%d]:0x%02x\n",
- 				__func__, i, rd_buf[i]);
- 		for (i = 0; i < length; i++)
--			dev_dbg(dev, "%s: test buf[%d]:0x%02x\n",
-+			dev_dbg(ts->dev, "%s: test buf[%d]:0x%02x\n",
- 				__func__, i, buf[i]);
- 
- 		return -EIO;
-@@ -129,16 +129,16 @@ static int cyttsp_spi_xfer(u8 op, struct device *dev,
- 	return 0;
- }
- 
--static int cyttsp_spi_read_block_data(struct device *dev,
-+static int cyttsp_spi_read_block_data(struct cyttsp *ts,
- 				      u8 addr, u8 length, void *data)
- {
--	return cyttsp_spi_xfer(CY_SPI_RD_OP, dev, addr, data, length);
-+	return cyttsp_spi_xfer(ts, CY_SPI_RD_OP, addr, data, length);
- }
- 
--static int cyttsp_spi_write_block_data(struct device *dev,
-+static int cyttsp_spi_write_block_data(struct cyttsp *ts,
- 				       u8 addr, u8 length, const void *data)
- {
--	return cyttsp_spi_xfer(CY_SPI_WR_OP, dev, addr, (void *)data, length);
-+	return cyttsp_spi_xfer(ts, CY_SPI_WR_OP, addr, (void *)data, length);
- }
- 
- static const struct cyttsp_bus_ops cyttsp_spi_bus_ops = {

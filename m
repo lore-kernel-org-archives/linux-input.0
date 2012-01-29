@@ -1,236 +1,218 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: Re: [PATCH v10 1/3] Input: cyttsp - Cypress TTSP capacitive
- multi-touch screen support
-Date: Sun, 29 Jan 2012 07:08:45 +0100
-Message-ID: <CABxcv==L=F4+jkJ9Q-BFmsovH+k+-AH7sD0vhCi6rFAjno+V5g@mail.gmail.com>
-References: <1327021046-18024-1-git-send-email-javier@dowhile0.org>
-	<20120127181846.GA22462@core.coreip.homeip.net>
-	<CABxcv=n8kFJiL01WEVdFat5Y=W9xQeG6_2oNV=_45UUFr+0gtw@mail.gmail.com>
-	<3249126.MSECh6D9S6@dtor-d630.eng.vmware.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1][INCREMENTAL] Input: cyttsp - Fixes to clean-up patch
+Date: Sat, 28 Jan 2012 22:18:02 -0800
+Message-ID: <20120129061802.GA25977@core.coreip.homeip.net>
+References: <1327816430-19887-1-git-send-email-javier@dowhile0.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:48834 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751114Ab2A2GIq convert rfc822-to-8bit (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:35250 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751005Ab2A2GSI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Jan 2012 01:08:46 -0500
-Received: by iacb35 with SMTP id b35so3770797iac.19
-        for <linux-input@vger.kernel.org>; Sat, 28 Jan 2012 22:08:46 -0800 (PST)
-In-Reply-To: <3249126.MSECh6D9S6@dtor-d630.eng.vmware.com>
+	Sun, 29 Jan 2012 01:18:08 -0500
+Received: by pbaa10 with SMTP id a10so2849215pba.19
+        for <linux-input@vger.kernel.org>; Sat, 28 Jan 2012 22:18:07 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1327816430-19887-1-git-send-email-javier@dowhile0.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org
 
-On Fri, Jan 27, 2012 at 10:26 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Friday, January 27, 2012 10:01:22 PM Javier Martinez Canillas wrot=
-e:
->> On Fri, Jan 27, 2012 at 7:18 PM, Dmitry Torokhov
->>
->> <dmitry.torokhov@gmail.com> wrote:
->> > On Fri, Jan 27, 2012 at 04:57:12PM +0100, Javier Martinez Canillas=
- wrote:
->> >> On Fri, Jan 27, 2012 at 9:18 AM, Dmitry Torokhov
->> >>
->> >> <dmitry.torokhov@gmail.com> wrote:
->> >> > On Thu, Jan 26, 2012 at 01:12:50AM +0100, Javier Martinez Canil=
-las
-> wrote:
->> >> >> On Tue, Jan 24, 2012 at 8:54 AM, Dmitry Torokhov
->> >> >>
->> >> >> <dmitry.torokhov@gmail.com> wrote:
->> >> >> > On Tue, Jan 24, 2012 at 08:26:39AM +0100, Javier Martinez Ca=
-nillas
-> wrote:
->> >> >> >> On Fri, Jan 20, 2012 at 1:57 AM, Javier Martinez Canillas
->> >> >> >>
->> >> >> >> <javier@dowhile0.org> wrote:
->> >> >> >> > Cypress TrueTouch(tm) Standard Product controllers are
->> >> >> >> > found in
->> >> >> >> > a wide range of embedded devices. This driver add
->> >> >> >> > support for a
->> >> >> >> > variety of TTSP controllers.
->> >> >> >> >
->> >> >> >> > Since the hardware is capable of tracking identifiable
->> >> >> >> > contacts, multi-touch protocol type B (stateful) is
->> >> >> >> > used to report contact information.
->> >> >> >> >
->> >> >> >> > The driver is composed of a core driver that process
->> >> >> >> > the data sent by the contacts and a set of bus
->> >> >> >> > specific interface modules. This patch adds the base
->> >> >> >> > core TTSP driver.
->> >> >> >> >
->> >> >> >> > Signed-off-by: Javier Martinez Canillas
->> >> >> >> > <javier@dowhile0.org>
->> >> >> >> > ---
->> >> >> >> >
->> >> >> >> > Changes for v10: Fix issues called out by Dmitry
->> >> >> >> > Torokhov
->> >> >> >> > =C2=A0 =C2=A0 =C2=A0 =C2=A0- Remove use_sleep and put dev=
-ice to sleep
->> >> >> >> > unconditionally on suspend - Cleanup
->> >> >> >> > cyttsp_power_on() and remove cyttsp_bl_app_valid()
->> >> >> >> > function
->> >> >> >> >
->> >> >> >> > =C2=A0drivers/input/touchscreen/Kconfig =C2=A0 =C2=A0 =C2=
-=A0 | =C2=A0 31 ++
->> >> >> >> > =C2=A0drivers/input/touchscreen/Makefile =C2=A0 =C2=A0 =C2=
-=A0| =C2=A0 =C2=A03 +
->> >> >> >> > =C2=A0drivers/input/touchscreen/cyttsp_core.c | =C2=A0682
->> >> >> >> > +++++++++++++++++++++++++++++++
->> >> >> >> > drivers/input/touchscreen/cyttsp_core.h | =C2=A0141
->> >> >> >> > +++++++ include/linux/input/cyttsp.h =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 =C2=A0|
->> >> >> >> > 68 +++
->> >> >> >> > =C2=A05 files changed, 925 insertions(+), 0 deletions(-)
->> >> >> >>
->> >> >> >> Hello Dmitry,
->> >> >> >>
->> >> >> >> Any comments on this version?
->> >> >> >
->> >> >> > Looking at it... If you do not hear from me by Wednesday
->> >> >> > please ping me again.
->> >> >> >
->> >> >> > Thanks.
->> >> >> >
->> >> >> > --
->> >> >> > Dmitry
->> >> >>
->> >> >> ping :)
->> >> >
->> >> > Is it still Wednesday by any chance? ;)
->> >>
->> >> Hi Dmitry,
->> >>
->> >> Thanks for the review and the cleanup patch!
->> >>
->> >> > Anyway, the driver looks pretty good, still below are some chan=
-ges
->> >> > that I'd like to get in as well:
->> >> >
->> >> > - do not return EAGAIN when operation times out, EIO I believe
->> >> > suits
->> >> > =C2=A0better.
->> >> > - introduce ttsp_send_command() to replace host of custom
->> >> > functions.
->> >> > - reduce numver of states to 3 - IDLE, ACTIVE and BL mode.
->> >> > =C2=A0Suspended/full power is already covered by "suspended" at=
-tribute.
->> >> > - streamline some functions.
->> >>
->> >> Seems that your patch handlers all these issues.
->> >>
->> >> > Please see the FIXME comment in cyttsp_enable() - is there a
->> >> > generic way to wake up the device, similarly to the way we put =
-it
->> >> > to sleep?>>
->> >> I guess that CY_OPERATE_MODE works but I have to try it since I d=
-on't
->> >> have the hw data-sheet.
->> >>
->> >> > Please tell me if the device still works with this patch.
->> >> >
->> >> > Thanks!
->> >> >
->> >> > --
->> >> > Dmitry
->> >>
->> >> Strange enough, it doesn't apply cleanly on my tree...
->> >>
->> >> with patch -p1 < your_patch
->> >>
->> >> It should since only the files for this driver are modified and I=
-'ve
->> >> only applied the v10 patches I sent to you.
->> >> Anyway I will manually do the changes, try it and resend to you.
->> >
->> > Hmm, not sure why it gives you trouble, I tried not to change anyt=
-hing
->> > when applying your v10 patches except for folding them all togethe=
-r.
->> >
->> > I am attaching the version of the driver I've used as a base - may=
-be it
->> > will save you some time instead of applying the changes manually.
->> >
->> > Also, could you please send changes needed to make my patch work a=
-s
->> > incremental patch so that I can apply on top of mime locally and f=
-old
->> > all 3 together? It will be easier to see what exactly changed.
->> >
->> > Thanks!
->> >
->> > --
->> > Dmitry
->>
->> Hi Dmitry,
->>
->> Using that merged patch as a base your patch applies cleanly (not su=
-re
->> what happened with my branch)
->>
->> Sadly the driver is not working with your modifications.
->
-> I was afraid it could happen - hazards of chaging the code without th=
-e way of
-> testing it... =C2=A0I'll try to double check and see what I might hav=
-e done wrong.
-> What device did you test - I2C or SPI? Or do they both fail?
->
+On Sun, Jan 29, 2012 at 06:53:50AM +0100, Javier Martinez Canillas wrote:
+> This is patch fixes two bugs in Dmitry's last cleanup patch.
+> 
+> 1- The hardware tracking ids are stored in the ids array and the information for
+>    each contact is obtained calling cyttsp_get_tch() with an index. In the clean-up
+>    patch the value of the tracking id was used instead of the contact index.
+> 
 
-Hi Dmitry,
+Oops, thank you for fixing that.
 
-Just sent an email with the fix of the two bugs I found in your
-clean-up patch. With those two fixes the device is working again.
+> 2- i2c_set_clientdata() is called after the generic cyttsp_probe() function and
+>    this function calls cyttsp_power_on() that sends an ttsp command to the device
+>    and needs the client data before is set. The fix is to execute cyttsp_power_on
+>    inside the transport specific probe function (I2C, SPI) after the generic probe
+>    function is executed and the client data is set.
+> 
 
-Also I remove the wakeup() platform function. That function told me
-Kevin that was in the original Android driver because the device can
-be wakeup by flipping the direction of the GPIO ping connected to the
-touchscreen IRQ line. But also the device wakes up when there is an
-I2C or SPI slave memory address match and by reading one of the device
-registers. So trying to read will fail if the device is in sleep mode
-but it will wake up the device so the first retry will succeed. I
-documented that hardware behavior in the driver to make it clear.
+Not quite happy about this one, how about we pass cyttsp directly to bus
+methods instead of relying on drvdata (as in the patch below)?
 
-I have only an device connected through I2C device but Kevin has been
-testing with a device using SPI.
+Thanks.
 
->> I'll make it
->> work changing as less as possible what was in your patch. Only to ma=
-ke
->> the device work again and will send you as an incremental patch as y=
-ou
->> suggested.
->
-> Thank you for your patience with me.
->
+-- 
+Dmitry
 
-Thank you for your patience and your reviews.
+Input: cyttsp - pass cyttsp structure to bus methods
 
->>
->> Just to be clear, do you want me to send as an incremental patch of =
-my
->> series (v10) or as an incremental patch of your last patch?
->>
->
-> Incremental to mine please - so in your working branch you should hav=
-e the
-> original change + my patch as a separate commit + your commit fixing =
-my mess.
->
-> --
-> Dmitry
+We may not have set drvdata by the time we try to access the bus,
+so let's pass cyttsp structure directly instead.
 
-Perfect, the patch I sent is an incremental one on top of my three
-last patches (v10) + your clean-up patch.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-Best regards,
-Javier
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ drivers/input/touchscreen/cyttsp_core.c |    4 ++--
+ drivers/input/touchscreen/cyttsp_core.h |    6 ++++--
+ drivers/input/touchscreen/cyttsp_i2c.c  |    9 ++++-----
+ drivers/input/touchscreen/cyttsp_spi.c  |   28 ++++++++++++++--------------
+ 4 files changed, 24 insertions(+), 23 deletions(-)
+
+
+diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
+index ff74a33..12cd1da 100644
+--- a/drivers/input/touchscreen/cyttsp_core.c
++++ b/drivers/input/touchscreen/cyttsp_core.c
+@@ -84,7 +84,7 @@ static int ttsp_read_block_data(struct cyttsp *ts, u8 command,
+ 	int tries;
+ 
+ 	for (tries = 0; tries < CY_NUM_RETRY; tries++) {
+-		error = ts->bus_ops->read(ts->dev, command, length, buf);
++		error = ts->bus_ops->read(ts, command, length, buf);
+ 		if (!error)
+ 			return 0;
+ 
+@@ -101,7 +101,7 @@ static int ttsp_write_block_data(struct cyttsp *ts, u8 command,
+ 	int tries;
+ 
+ 	for (tries = 0; tries < CY_NUM_RETRY; tries++) {
+-		error = ts->bus_ops->write(ts->dev, command, length, buf);
++		error = ts->bus_ops->write(ts, command, length, buf);
+ 		if (!error)
+ 			return 0;
+ 
+diff --git a/drivers/input/touchscreen/cyttsp_core.h b/drivers/input/touchscreen/cyttsp_core.h
+index 560f959..1aa3c69 100644
+--- a/drivers/input/touchscreen/cyttsp_core.h
++++ b/drivers/input/touchscreen/cyttsp_core.h
+@@ -108,11 +108,13 @@ struct cyttsp_bootloader_data {
+ 	u8 cid_2;
+ };
+ 
++struct cyttsp;
++
+ struct cyttsp_bus_ops {
+ 	u16 bustype;
+-	int (*write)(struct device *dev,
++	int (*write)(struct cyttsp *ts,
+ 		     u8 addr, u8 length, const void *values);
+-	int (*read)(struct device *dev, u8 addr, u8 length, void *values);
++	int (*read)(struct cyttsp *ts, u8 addr, u8 length, void *values);
+ };
+ 
+ enum cyttsp_state {
+diff --git a/drivers/input/touchscreen/cyttsp_i2c.c b/drivers/input/touchscreen/cyttsp_i2c.c
+index 6394c8e..c7110cc 100644
+--- a/drivers/input/touchscreen/cyttsp_i2c.c
++++ b/drivers/input/touchscreen/cyttsp_i2c.c
+@@ -34,10 +34,10 @@
+ 
+ #define CY_I2C_DATA_SIZE	128
+ 
+-static int cyttsp_i2c_read_block_data(struct device *dev,
++static int cyttsp_i2c_read_block_data(struct cyttsp *ts,
+ 				      u8 addr, u8 length, void *values)
+ {
+-	struct i2c_client *client = to_i2c_client(dev);
++	struct i2c_client *client = to_i2c_client(ts->dev);
+ 	struct i2c_msg msgs[] = {
+ 		{
+ 			.addr = client->addr,
+@@ -61,11 +61,10 @@ static int cyttsp_i2c_read_block_data(struct device *dev,
+ 	return retval != ARRAY_SIZE(msgs) ? -EIO : 0;
+ }
+ 
+-static int cyttsp_i2c_write_block_data(struct device *dev,
++static int cyttsp_i2c_write_block_data(struct cyttsp *ts,
+ 				       u8 addr, u8 length, const void *values)
+ {
+-	struct i2c_client *client = to_i2c_client(dev);
+-	struct cyttsp *ts = i2c_get_clientdata(client);
++	struct i2c_client *client = to_i2c_client(ts->dev);
+ 	int retval;
+ 
+ 	ts->xfer_buf[0] = addr;
+diff --git a/drivers/input/touchscreen/cyttsp_spi.c b/drivers/input/touchscreen/cyttsp_spi.c
+index d404cd2..9db5f87 100644
+--- a/drivers/input/touchscreen/cyttsp_spi.c
++++ b/drivers/input/touchscreen/cyttsp_spi.c
+@@ -43,11 +43,10 @@
+ #define CY_SPI_DATA_BUF_SIZE	(CY_SPI_CMD_BYTES + CY_SPI_DATA_SIZE)
+ #define CY_SPI_BITS_PER_WORD	8
+ 
+-static int cyttsp_spi_xfer(u8 op, struct device *dev,
+-			   u8 reg, u8 *buf, int length)
++static int cyttsp_spi_xfer(struct cyttsp *ts,
++			   u8 op, u8 reg, u8 *buf, int length)
+ {
+-	struct spi_device *spi = to_spi_device(dev);
+-	struct cyttsp *ts = spi_get_drvdata(spi);
++	struct spi_device *spi = to_spi_device(ts->dev);
+ 	struct spi_message msg;
+ 	struct spi_transfer xfer[2];
+ 	u8 *wr_buf = &ts->xfer_buf[0];
+@@ -56,7 +55,8 @@ static int cyttsp_spi_xfer(u8 op, struct device *dev,
+ 	int i;
+ 
+ 	if (length > CY_SPI_DATA_SIZE) {
+-		dev_err(dev, "%s: length %d is too big.\n", __func__, length);
++		dev_err(ts->dev, "%s: length %d is too big.\n",
++			__func__, length);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -95,13 +95,13 @@ static int cyttsp_spi_xfer(u8 op, struct device *dev,
+ 		break;
+ 
+ 	default:
+-		dev_err(dev, "%s: bad operation code=%d\n", __func__, op);
++		dev_err(ts->dev, "%s: bad operation code=%d\n", __func__, op);
+ 		return -EINVAL;
+ 	}
+ 
+ 	retval = spi_sync(spi, &msg);
+ 	if (retval < 0) {
+-		dev_dbg(dev, "%s: spi_sync() error %d, len=%d, op=%d\n",
++		dev_dbg(ts->dev, "%s: spi_sync() error %d, len=%d, op=%d\n",
+ 			__func__, retval, xfer[1].len, op);
+ 
+ 		/*
+@@ -114,13 +114,13 @@ static int cyttsp_spi_xfer(u8 op, struct device *dev,
+ 	if (rd_buf[CY_SPI_SYNC_BYTE] != CY_SPI_SYNC_ACK1 ||
+ 	    rd_buf[CY_SPI_SYNC_BYTE + 1] != CY_SPI_SYNC_ACK2) {
+ 
+-		dev_dbg(dev, "%s: operation %d failed\n", __func__, op);
++		dev_dbg(ts->dev, "%s: operation %d failed\n", __func__, op);
+ 
+ 		for (i = 0; i < CY_SPI_CMD_BYTES; i++)
+-			dev_dbg(dev, "%s: test rd_buf[%d]:0x%02x\n",
++			dev_dbg(ts->dev, "%s: test rd_buf[%d]:0x%02x\n",
+ 				__func__, i, rd_buf[i]);
+ 		for (i = 0; i < length; i++)
+-			dev_dbg(dev, "%s: test buf[%d]:0x%02x\n",
++			dev_dbg(ts->dev, "%s: test buf[%d]:0x%02x\n",
+ 				__func__, i, buf[i]);
+ 
+ 		return -EIO;
+@@ -129,16 +129,16 @@ static int cyttsp_spi_xfer(u8 op, struct device *dev,
+ 	return 0;
+ }
+ 
+-static int cyttsp_spi_read_block_data(struct device *dev,
++static int cyttsp_spi_read_block_data(struct cyttsp *ts,
+ 				      u8 addr, u8 length, void *data)
+ {
+-	return cyttsp_spi_xfer(CY_SPI_RD_OP, dev, addr, data, length);
++	return cyttsp_spi_xfer(ts, CY_SPI_RD_OP, addr, data, length);
+ }
+ 
+-static int cyttsp_spi_write_block_data(struct device *dev,
++static int cyttsp_spi_write_block_data(struct cyttsp *ts,
+ 				       u8 addr, u8 length, const void *data)
+ {
+-	return cyttsp_spi_xfer(CY_SPI_WR_OP, dev, addr, (void *)data, length);
++	return cyttsp_spi_xfer(ts, CY_SPI_WR_OP, addr, (void *)data, length);
+ }
+ 
+ static const struct cyttsp_bus_ops cyttsp_spi_bus_ops = {

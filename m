@@ -1,96 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/4 v2] input : wacom - retrieve maximum number of touch
- points
-Date: Sat, 28 Jan 2012 23:04:48 -0800
-Message-ID: <20120129070448.GF23595@core.coreip.homeip.net>
-References: <1325717032-6378-1-git-send-email-pinglinux@gmail.com>
+From: Marc Dietrich <marvin24@gmx.de>
+Subject: Re: [RFC PATCH 0/2] Input: psmouse - new mechanism for bad packet handling
+Date: Sun, 29 Jan 2012 12:11:18 +0100
+Message-ID: <1472111.M4pyp9dHMJ@ax5200p>
+References: <1323257924-12773-1-git-send-email-jj_ding@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:56519 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751133Ab2A2HEy (ORCPT
+Received: from mailout-de.gmx.net ([213.165.64.22]:55947 "HELO
+	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751220Ab2A2LLc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Jan 2012 02:04:54 -0500
-Received: by pbaa10 with SMTP id a10so2866278pba.19
-        for <linux-input@vger.kernel.org>; Sat, 28 Jan 2012 23:04:54 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1325717032-6378-1-git-send-email-pinglinux@gmail.com>
+	Sun, 29 Jan 2012 06:11:32 -0500
+In-Reply-To: <1323257924-12773-1-git-send-email-jj_ding@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
+To: JJ Ding <jj_ding@emc.com.tw>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Wed, Jan 04, 2012 at 02:43:52PM -0800, Ping Cheng wrote:
-> From the HID usage table when it is supported.
-> 
-> Tested-by: Chris Bagwell <chris@cnpbagwell.com>
-> Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
-> ---
-> 
-> v2: updated with Chris' comments.
-> 
->  drivers/input/tablet/wacom_sys.c |   31 ++++++++++++++++++++++++++++++-
->  drivers/input/tablet/wacom_wac.c |   10 ++++------
->  drivers/input/tablet/wacom_wac.h |    1 +
->  3 files changed, 35 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-> index c9588ee..f7fe091 100644
-> --- a/drivers/input/tablet/wacom_sys.c
-> +++ b/drivers/input/tablet/wacom_sys.c
-> @@ -28,6 +28,7 @@
->  #define HID_USAGE_Y_TILT		0x3e
->  #define HID_USAGE_FINGER		0x22
->  #define HID_USAGE_STYLUS		0x20
-> +#define HID_USAGE_CONTACTMAX		0x55
->  #define HID_COLLECTION			0xa1
->  #define HID_COLLECTION_LOGICAL		0x02
->  #define HID_COLLECTION_END		0xc0
-> @@ -191,11 +192,30 @@ static int wacom_parse_logical_collection(unsigned char *report,
->  		features->x_max = features->y_max =
->  			get_unaligned_le16(&report[10]);
->  
-> +		features->touch_max = 16;
->  		length = 11;
->  	}
->  	return length;
->  }
->  
-> +static void wacom_retrieve_report_data(struct usb_interface *intf,
-> +				       struct wacom_features *features)
-> +{
-> +	int result = 0;
-> +	unsigned char *rep_data;
-> +
-> +	rep_data = kmalloc(2, GFP_KERNEL);
-> +	if (!rep_data)
-> +		return;
-> +
-> +	rep_data[0] = 12;
-> +	result = wacom_get_report(intf, WAC_HID_FEATURE_REPORT,
-> +		 rep_data[0], rep_data, 2, WAC_MSG_RETRIES);
-> +
-> +	if ((result >= 0) && (rep_data[1] > 2))
-> +		features->touch_max = rep_data[1];
-> +}
-> +
->  /*
->   * Interface Descriptor of wacom devices can be incomplete and
->   * inconsistent so wacom_features table is used to store stylus
-> @@ -286,16 +306,19 @@ static int wacom_parse_hid(struct usb_interface *intf,
->  						if (features->type == TABLETPC2FG) {
->  							/* need to reset back */
->  							features->pktlen = WACOM_PKGLEN_TPC2FG;
-> +							features->touch_max = 2;
+Hi,
 
-Why do we set it dynamically for devices where number of contacts is
-constant? Or, even if it is not constant, we could seed it in the
-features that we set in driver_info and only adjust when we encounter
-HID_USAGE_CONTACTMAX?
+On Wednesday 07 December 2011 19:38:42 JJ Ding wrote:
+> Hi list,
+> 
+> The first patch adds a new way to deal with bad packets. This mechanism is
+> used in our original driver. When I first sent the patches to support elan's
+> v3 and v4 hardware, Dmitry suggested this should be done in psmouse core,
+> so here is another try.
+> 
+> I am not sure if this is the prefered way to handle bad packets, so I
+> introduce PSMOUSE_SHIFT_PACKET for psmouse_ret_t, and convert elan driver
+> to use this.
+> 
+> These patches are sent to gather feedback and comments, please take a look,
+> and let me know if this new mechanism is OK. Thank you very much.
 
-Thanks.
+what is the status of these patches? They are not it the input tree AFAICS.
 
--- 
-Dmitry
+Marc
+
+> P.S. patches are against Dmitry's -next tree.
+> 
+> Best regards,
+> -JJ
+> 
+> JJ Ding (2):
+>   Input: psmouse - work around EC buffer
+>   Input: elantech - convert v1 ~ v3 hardware to use
+>     PSMOUSE_SHIFT_PACKET
+> 
+>  drivers/input/mouse/elantech.c     |    6 +++---
+>  drivers/input/mouse/psmouse-base.c |    5 +++++
+>  drivers/input/mouse/psmouse.h      |    3 ++-
+>  3 files changed, 10 insertions(+), 4 deletions(-)

@@ -1,162 +1,236 @@
 From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: [PATCH 1/1][INCREMENTAL] Input: cyttsp - Fixes to clean-up patch
-Date: Sun, 29 Jan 2012 06:53:50 +0100
-Message-ID: <1327816430-19887-1-git-send-email-javier@dowhile0.org>
+Subject: Re: [PATCH v10 1/3] Input: cyttsp - Cypress TTSP capacitive
+ multi-touch screen support
+Date: Sun, 29 Jan 2012 07:08:45 +0100
+Message-ID: <CABxcv==L=F4+jkJ9Q-BFmsovH+k+-AH7sD0vhCi6rFAjno+V5g@mail.gmail.com>
+References: <1327021046-18024-1-git-send-email-javier@dowhile0.org>
+	<20120127181846.GA22462@core.coreip.homeip.net>
+	<CABxcv=n8kFJiL01WEVdFat5Y=W9xQeG6_2oNV=_45UUFr+0gtw@mail.gmail.com>
+	<3249126.MSECh6D9S6@dtor-d630.eng.vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:51879 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751005Ab2A2Fxu (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:48834 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751114Ab2A2GIq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Jan 2012 00:53:50 -0500
-Received: by wgbed3 with SMTP id ed3so3417671wgb.1
-        for <linux-input@vger.kernel.org>; Sat, 28 Jan 2012 21:53:49 -0800 (PST)
+	Sun, 29 Jan 2012 01:08:46 -0500
+Received: by iacb35 with SMTP id b35so3770797iac.19
+        for <linux-input@vger.kernel.org>; Sat, 28 Jan 2012 22:08:46 -0800 (PST)
+In-Reply-To: <3249126.MSECh6D9S6@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org, Javier Martinez Canillas <javier@dowhile0.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-This is patch fixes two bugs in Dmitry's last cleanup patch.
+On Fri, Jan 27, 2012 at 10:26 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Friday, January 27, 2012 10:01:22 PM Javier Martinez Canillas wrot=
+e:
+>> On Fri, Jan 27, 2012 at 7:18 PM, Dmitry Torokhov
+>>
+>> <dmitry.torokhov@gmail.com> wrote:
+>> > On Fri, Jan 27, 2012 at 04:57:12PM +0100, Javier Martinez Canillas=
+ wrote:
+>> >> On Fri, Jan 27, 2012 at 9:18 AM, Dmitry Torokhov
+>> >>
+>> >> <dmitry.torokhov@gmail.com> wrote:
+>> >> > On Thu, Jan 26, 2012 at 01:12:50AM +0100, Javier Martinez Canil=
+las
+> wrote:
+>> >> >> On Tue, Jan 24, 2012 at 8:54 AM, Dmitry Torokhov
+>> >> >>
+>> >> >> <dmitry.torokhov@gmail.com> wrote:
+>> >> >> > On Tue, Jan 24, 2012 at 08:26:39AM +0100, Javier Martinez Ca=
+nillas
+> wrote:
+>> >> >> >> On Fri, Jan 20, 2012 at 1:57 AM, Javier Martinez Canillas
+>> >> >> >>
+>> >> >> >> <javier@dowhile0.org> wrote:
+>> >> >> >> > Cypress TrueTouch(tm) Standard Product controllers are
+>> >> >> >> > found in
+>> >> >> >> > a wide range of embedded devices. This driver add
+>> >> >> >> > support for a
+>> >> >> >> > variety of TTSP controllers.
+>> >> >> >> >
+>> >> >> >> > Since the hardware is capable of tracking identifiable
+>> >> >> >> > contacts, multi-touch protocol type B (stateful) is
+>> >> >> >> > used to report contact information.
+>> >> >> >> >
+>> >> >> >> > The driver is composed of a core driver that process
+>> >> >> >> > the data sent by the contacts and a set of bus
+>> >> >> >> > specific interface modules. This patch adds the base
+>> >> >> >> > core TTSP driver.
+>> >> >> >> >
+>> >> >> >> > Signed-off-by: Javier Martinez Canillas
+>> >> >> >> > <javier@dowhile0.org>
+>> >> >> >> > ---
+>> >> >> >> >
+>> >> >> >> > Changes for v10: Fix issues called out by Dmitry
+>> >> >> >> > Torokhov
+>> >> >> >> > =C2=A0 =C2=A0 =C2=A0 =C2=A0- Remove use_sleep and put dev=
+ice to sleep
+>> >> >> >> > unconditionally on suspend - Cleanup
+>> >> >> >> > cyttsp_power_on() and remove cyttsp_bl_app_valid()
+>> >> >> >> > function
+>> >> >> >> >
+>> >> >> >> > =C2=A0drivers/input/touchscreen/Kconfig =C2=A0 =C2=A0 =C2=
+=A0 | =C2=A0 31 ++
+>> >> >> >> > =C2=A0drivers/input/touchscreen/Makefile =C2=A0 =C2=A0 =C2=
+=A0| =C2=A0 =C2=A03 +
+>> >> >> >> > =C2=A0drivers/input/touchscreen/cyttsp_core.c | =C2=A0682
+>> >> >> >> > +++++++++++++++++++++++++++++++
+>> >> >> >> > drivers/input/touchscreen/cyttsp_core.h | =C2=A0141
+>> >> >> >> > +++++++ include/linux/input/cyttsp.h =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0|
+>> >> >> >> > 68 +++
+>> >> >> >> > =C2=A05 files changed, 925 insertions(+), 0 deletions(-)
+>> >> >> >>
+>> >> >> >> Hello Dmitry,
+>> >> >> >>
+>> >> >> >> Any comments on this version?
+>> >> >> >
+>> >> >> > Looking at it... If you do not hear from me by Wednesday
+>> >> >> > please ping me again.
+>> >> >> >
+>> >> >> > Thanks.
+>> >> >> >
+>> >> >> > --
+>> >> >> > Dmitry
+>> >> >>
+>> >> >> ping :)
+>> >> >
+>> >> > Is it still Wednesday by any chance? ;)
+>> >>
+>> >> Hi Dmitry,
+>> >>
+>> >> Thanks for the review and the cleanup patch!
+>> >>
+>> >> > Anyway, the driver looks pretty good, still below are some chan=
+ges
+>> >> > that I'd like to get in as well:
+>> >> >
+>> >> > - do not return EAGAIN when operation times out, EIO I believe
+>> >> > suits
+>> >> > =C2=A0better.
+>> >> > - introduce ttsp_send_command() to replace host of custom
+>> >> > functions.
+>> >> > - reduce numver of states to 3 - IDLE, ACTIVE and BL mode.
+>> >> > =C2=A0Suspended/full power is already covered by "suspended" at=
+tribute.
+>> >> > - streamline some functions.
+>> >>
+>> >> Seems that your patch handlers all these issues.
+>> >>
+>> >> > Please see the FIXME comment in cyttsp_enable() - is there a
+>> >> > generic way to wake up the device, similarly to the way we put =
+it
+>> >> > to sleep?>>
+>> >> I guess that CY_OPERATE_MODE works but I have to try it since I d=
+on't
+>> >> have the hw data-sheet.
+>> >>
+>> >> > Please tell me if the device still works with this patch.
+>> >> >
+>> >> > Thanks!
+>> >> >
+>> >> > --
+>> >> > Dmitry
+>> >>
+>> >> Strange enough, it doesn't apply cleanly on my tree...
+>> >>
+>> >> with patch -p1 < your_patch
+>> >>
+>> >> It should since only the files for this driver are modified and I=
+'ve
+>> >> only applied the v10 patches I sent to you.
+>> >> Anyway I will manually do the changes, try it and resend to you.
+>> >
+>> > Hmm, not sure why it gives you trouble, I tried not to change anyt=
+hing
+>> > when applying your v10 patches except for folding them all togethe=
+r.
+>> >
+>> > I am attaching the version of the driver I've used as a base - may=
+be it
+>> > will save you some time instead of applying the changes manually.
+>> >
+>> > Also, could you please send changes needed to make my patch work a=
+s
+>> > incremental patch so that I can apply on top of mime locally and f=
+old
+>> > all 3 together? It will be easier to see what exactly changed.
+>> >
+>> > Thanks!
+>> >
+>> > --
+>> > Dmitry
+>>
+>> Hi Dmitry,
+>>
+>> Using that merged patch as a base your patch applies cleanly (not su=
+re
+>> what happened with my branch)
+>>
+>> Sadly the driver is not working with your modifications.
+>
+> I was afraid it could happen - hazards of chaging the code without th=
+e way of
+> testing it... =C2=A0I'll try to double check and see what I might hav=
+e done wrong.
+> What device did you test - I2C or SPI? Or do they both fail?
+>
 
-1- The hardware tracking ids are stored in the ids array and the information for
-   each contact is obtained calling cyttsp_get_tch() with an index. In the clean-up
-   patch the value of the tracking id was used instead of the contact index.
+Hi Dmitry,
 
-2- i2c_set_clientdata() is called after the generic cyttsp_probe() function and
-   this function calls cyttsp_power_on() that sends an ttsp command to the device
-   and needs the client data before is set. The fix is to execute cyttsp_power_on
-   inside the transport specific probe function (I2C, SPI) after the generic probe
-   function is executed and the client data is set.
+Just sent an email with the fix of the two bugs I found in your
+clean-up patch. With those two fixes the device is working again.
 
-This patch is an incremental one to be applied on top of:
+Also I remove the wakeup() platform function. That function told me
+Kevin that was in the original Android driver because the device can
+be wakeup by flipping the direction of the GPIO ping connected to the
+touchscreen IRQ line. But also the device wakes up when there is an
+I2C or SPI slave memory address match and by reading one of the device
+registers. So trying to read will fail if the device is in sleep mode
+but it will wake up the device so the first retry will succeed. I
+documented that hardware behavior in the driver to make it clear.
 
-Javier Martinez Canillas (3):
-      Input: cyttsp - Cypress TTSP capacitive multi-touch screen support
-      Input: cyttsp - add support for Cypress TTSP touchscreen I2C bus interface
-      Input: cyttsp - add support for Cypress TTSP touchscreen SPI bus interface
+I have only an device connected through I2C device but Kevin has been
+testing with a device using SPI.
 
-Dmitry Torokhov (1):
-      Input: cyttsp - random edits
+>> I'll make it
+>> work changing as less as possible what was in your patch. Only to ma=
+ke
+>> the device work again and will send you as an incremental patch as y=
+ou
+>> suggested.
+>
+> Thank you for your patience with me.
+>
 
-Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
----
- drivers/input/touchscreen/cyttsp_core.c |   25 +++++++++----------------
- drivers/input/touchscreen/cyttsp_core.h |    1 +
- drivers/input/touchscreen/cyttsp_i2c.c  |    5 ++++-
- drivers/input/touchscreen/cyttsp_spi.c  |    4 +++-
- 4 files changed, 17 insertions(+), 18 deletions(-)
+Thank you for your patience and your reviews.
 
-diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
-index ff74a33..cee8c05 100644
---- a/drivers/input/touchscreen/cyttsp_core.c
-+++ b/drivers/input/touchscreen/cyttsp_core.c
-@@ -305,7 +305,7 @@ static void cyttsp_report_tchdata(struct cyttsp *ts)
- 	bitmap_zero(used, CY_MAX_ID);
- 
- 	for (i = 0; i < num_tch; i++) {
--		tch = cyttsp_get_tch(xy_data, ids[i]);
-+		tch = cyttsp_get_tch(xy_data, i);
- 
- 		input_mt_slot(input, ids[i]);
- 		input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
-@@ -374,7 +374,7 @@ out:
- 	return IRQ_HANDLED;
- }
- 
--static int cyttsp_power_on(struct cyttsp *ts)
-+int cyttsp_power_on(struct cyttsp *ts)
- {
- 	int error;
- 
-@@ -419,21 +419,18 @@ static int cyttsp_power_on(struct cyttsp *ts)
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(cyttsp_power_on);
- 
- static int cyttsp_enable(struct cyttsp *ts)
- {
- 	int error;
- 
--	// FIXME: Why do we need wakeup? The system is already woken up
--	// so I assume this is device wakeup. It should be generic, just
--	// like suspend is generic.
--	// Is there CY_FULL_POWER_MODE that is opposite to CY_LOW_POWER_MODE?
--	if (ts->pdata->wakeup) {
--		error = ts->pdata->wakeup();
--		if (error)
--			return error;
--	}
--
-+	/*
-+	 * The device firmware can wake on an I2C or SPI memory slave address
-+	 * match. So just reading a register is sufficient to wake up the device
-+	 * The first read attempt will fail but it will wake it up making the
-+	 * second read attempt successful.
-+	 */
- 	error = ttsp_read_block_data(ts, CY_REG_BASE,
- 				     sizeof(ts->xy_data), &ts->xy_data);
- 	if (error)
-@@ -586,10 +583,6 @@ struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
- 		goto err_platform_exit;
- 	}
- 
--	error = cyttsp_power_on(ts);
--	if (error)
--		goto err_free_irq;
--
- 	disable_irq(ts->irq);
- 
- 	error = input_register_device(input_dev);
-diff --git a/drivers/input/touchscreen/cyttsp_core.h b/drivers/input/touchscreen/cyttsp_core.h
-index b16582e..ad7aaf0 100644
---- a/drivers/input/touchscreen/cyttsp_core.h
-+++ b/drivers/input/touchscreen/cyttsp_core.h
-@@ -141,6 +141,7 @@ struct cyttsp {
- struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
- 			    struct device *dev, int irq, size_t xfer_buf_size);
- void cyttsp_remove(struct cyttsp *ts);
-+int cyttsp_power_on(struct cyttsp *ts);
- 
- extern const struct dev_pm_ops cyttsp_pm_ops;
- 
-diff --git a/drivers/input/touchscreen/cyttsp_i2c.c b/drivers/input/touchscreen/cyttsp_i2c.c
-index 6394c8e..6e39b8b 100644
---- a/drivers/input/touchscreen/cyttsp_i2c.c
-+++ b/drivers/input/touchscreen/cyttsp_i2c.c
-@@ -86,6 +86,7 @@ static int __devinit cyttsp_i2c_probe(struct i2c_client *client,
- 				      const struct i2c_device_id *id)
- {
- 	struct cyttsp *ts;
-+	int ret;
- 
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
- 		dev_err(&client->dev, "I2C functionality not Supported\n");
-@@ -100,7 +101,9 @@ static int __devinit cyttsp_i2c_probe(struct i2c_client *client,
- 
- 	i2c_set_clientdata(client, ts);
- 
--	return 0;
-+	ret = cyttsp_power_on(ts);
-+
-+	return ret;
- }
- 
- static int __devexit cyttsp_i2c_remove(struct i2c_client *client)
-diff --git a/drivers/input/touchscreen/cyttsp_spi.c b/drivers/input/touchscreen/cyttsp_spi.c
-index d404cd2..bc26300 100644
---- a/drivers/input/touchscreen/cyttsp_spi.c
-+++ b/drivers/input/touchscreen/cyttsp_spi.c
-@@ -169,7 +169,9 @@ static int __devinit cyttsp_spi_probe(struct spi_device *spi)
- 
- 	spi_set_drvdata(spi, ts);
- 
--	return 0;
-+	error = cyttsp_power_on(ts);
-+
-+	return error;
- }
- 
- static int __devexit cyttsp_spi_remove(struct spi_device *spi)
--- 
-1.7.7.5
+>>
+>> Just to be clear, do you want me to send as an incremental patch of =
+my
+>> series (v10) or as an incremental patch of your last patch?
+>>
+>
+> Incremental to mine please - so in your working branch you should hav=
+e the
+> original change + my patch as a separate commit + your commit fixing =
+my mess.
+>
+> --
+> Dmitry
 
+Perfect, the patch I sent is an incremental one on top of my three
+last patches (v10) + your clean-up patch.
+
+Best regards,
+Javier
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

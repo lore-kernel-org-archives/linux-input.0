@@ -1,64 +1,44 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: Re: [PATCH 1/4] input: mc13783_ts: rename to mc13xxx_ts
-Date: Mon, 30 Jan 2012 00:52:59 -0200
-Message-ID: <CAOMZO5C4CfUXWZqSn+0g_gi6wEmv7L+mKhfggcV8evdUJEtVhg@mail.gmail.com>
-References: <1327877464-23526-1-git-send-email-marc@cpdesign.com.au>
-	<1327877464-23526-2-git-send-email-marc@cpdesign.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Keng-Yu Lin <kengyu@canonical.com>
+Subject: [PATCH v2] HID: add more hotkeys in Asus AIO keyboards
+Date: Mon, 30 Jan 2012 14:25:45 +0800
+Message-ID: <1327904745-4592-1-git-send-email-kengyu@canonical.com>
+References: <1326957135-6958-1-git-send-email-kengyu@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:54914 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754464Ab2A3CxA convert rfc822-to-8bit (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:37707 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752584Ab2A3G0K (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Jan 2012 21:53:00 -0500
-Received: by eekc14 with SMTP id c14so1271360eek.19
-        for <linux-input@vger.kernel.org>; Sun, 29 Jan 2012 18:52:59 -0800 (PST)
-In-Reply-To: <1327877464-23526-2-git-send-email-marc@cpdesign.com.au>
+	Mon, 30 Jan 2012 01:26:10 -0500
+In-Reply-To: <1326957135-6958-1-git-send-email-kengyu@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marc Reilly <marc@cpdesign.com.au>
-Cc: linux-input@vger.kernel.org, s.hauer@pengutronuix.de, linux-arm-kernel@lists.infradead.org, u.kleine-koenig@pengutronix.de
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: sylee@canonical.com, Keng-Yu Lin <kengyu@canonical.com>
 
-Hi Marc,
+Add support for the camera key. The hotkey for
+Asus S.H.E(Super Hybrid Engine) mode is mapped to KEY_KEY_PROG1
+just for notifying the userspace.
 
-On Sun, Jan 29, 2012 at 8:51 PM, Marc Reilly <marc@cpdesign.com.au> wro=
-te:
-> Start moving this driver towards support for both mc13892 and mc13783=
-=2E
->
-> This patch simply renames mc13783 specific identifiers to the generic
-> mc13xxx. A platform_device_id table is also added so that the driver
-> is still created correctly for the mc13783 only.
->
-> Signed-off-by: Marc Reilly <marc@cpdesign.com.au>
-> ---
-> =C2=A0drivers/input/touchscreen/Kconfig =C2=A0 =C2=A0 =C2=A0| =C2=A0 =
-=C2=A08 +-
-> =C2=A0drivers/input/touchscreen/Makefile =C2=A0 =C2=A0 | =C2=A0 =C2=A0=
-2 +-
-> =C2=A0drivers/input/touchscreen/mc13783_ts.c | =C2=A0259 ------------=
--------------------
-> =C2=A0drivers/input/touchscreen/mc13xxx_ts.c | =C2=A0267 ++++++++++++=
-++++++++++++++++++++
-> =C2=A04 files changed, 272 insertions(+), 264 deletions(-)
-> =C2=A0delete mode 100644 drivers/input/touchscreen/mc13783_ts.c
-> =C2=A0create mode 100644 drivers/input/touchscreen/mc13xxx_ts.c
+Signed-off-by: Keng-Yu Lin <kengyu@canonical.com>
+---
+ drivers/hid/hid-chicony.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-=46or the rename, it is better to do:
-git mv  drivers/input/touchscreen/mc13783_ts.c
-drivers/input/touchscreen/mc13xxx_ts.c
+V2: fix typo KEY_KEY_PROG1
 
-git commit -a
+diff --git a/drivers/hid/hid-chicony.c b/drivers/hid/hid-chicony.c
+index 4162505..b99af34 100644
+--- a/drivers/hid/hid-chicony.c
++++ b/drivers/hid/hid-chicony.c
+@@ -49,6 +49,8 @@ static int ch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	case 0x00f2: ch_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
+ 	case 0x00f3: ch_map_key_clear(KEY_BRIGHTNESSUP);	break;
+ 	case 0x00f4: ch_map_key_clear(KEY_DISPLAY_OFF);	break;
++	case 0x00f7: ch_map_key_clear(KEY_CAMERA);	break;
++	case 0x00f8: ch_map_key_clear(KEY_PROG1);	break;
+ 	default:
+ 		return 0;
+ 	}
+-- 
+1.7.5.4
 
-and then git format -M -1 , as it will detect the rename.
-
-Regards,
-
-=46abio Estevam
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

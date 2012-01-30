@@ -1,61 +1,77 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Microsoft Touch Mouse driver [was: Re: your mail]
-Date: Sun, 29 Jan 2012 23:27:32 -0800
-Message-ID: <20120130072732.GA1855@core.coreip.homeip.net>
-References: <BROWNM3h3vLgAusVxON00000cfa@brown.emailprod.vodafone.se>
- <20120125132612.GA3890@polaris.bitmath.org>
- <4F200D14.80702@gmail.com>
- <20120125150035.GA4222@polaris.bitmath.org>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH 1/4] input: mc13783_ts: rename to mc13xxx_ts
+Date: Mon, 30 Jan 2012 08:33:39 +0100
+Message-ID: <20120130073339.GI6305@pengutronix.de>
+References: <1327877464-23526-1-git-send-email-marc@cpdesign.com.au>
+ <1327877464-23526-2-git-send-email-marc@cpdesign.com.au>
+ <CAOMZO5C4CfUXWZqSn+0g_gi6wEmv7L+mKhfggcV8evdUJEtVhg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:40002 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752561Ab2A3H1j (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:54514 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751882Ab2A3Hdq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jan 2012 02:27:39 -0500
-Received: by iacb35 with SMTP id b35so4809975iac.19
-        for <linux-input@vger.kernel.org>; Sun, 29 Jan 2012 23:27:39 -0800 (PST)
+	Mon, 30 Jan 2012 02:33:46 -0500
 Content-Disposition: inline
-In-Reply-To: <20120125150035.GA4222@polaris.bitmath.org>
+In-Reply-To: <CAOMZO5C4CfUXWZqSn+0g_gi6wEmv7L+mKhfggcV8evdUJEtVhg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Maurus Cuelenaere <mcuelenaere@gmail.com>, linux-input@vger.kernel.org
+To: Fabio Estevam <festevam@gmail.com>
+Cc: Marc Reilly <marc@cpdesign.com.au>, linux-input@vger.kernel.org, s.hauer@pengutronuix.de, linux-arm-kernel@lists.infradead.org
 
-On Wed, Jan 25, 2012 at 04:00:35PM +0100, Henrik Rydberg wrote:
-> > In my first tests, I was doing readouts in userspace using hidraw,
-> > which performed quite well.
-> > 
-> > Bandwidth could be an issue, but I'd like to use the current APIs as
-> > much as possible so I don't need to go modifying mtdev, X, ...
-> 
-> Unless you do clustering, filtering and what not in-kernel, something
-> will have to change for sure.
-> 
-> > >One possible option could be to use the
-> > >slots, but only send ABS_MT_TOUCH_MAJOR or ABS_MT_PRESSURE, nothing
-> > >else. The device would (rightfully) not be recognized as MT since the
-> > >position is missing, all data would be available for processing in
-> > >userspace, and bandwidth would be minimized since there could only be
-> > >so many changes coming in per millisecond.
-> > 
-> > So how does userspace then finds out where these pressure points are
-> > located?
-> > Or do you mean to just dump all data to user space (15 * 13 *
-> > sizeof(ABS_MT_PRESSURE value) + overhead)?
-> 
-> Having each pressure point represented by one slot id was the idea.
-> Userspace would have to know how the points are mapped, of
-> course. Still not overly happy about the general fit, though. Dmitry?
+Hello,
 
-I am having doubts that this device, as it is, is suitable for input
-interface; I really do not think that bastardizing slot IDs is good
-idea. Unless we move all computation necessary to identify individual
-contacts into the kernel (and then use standard MT protocol), I'd
-recommend looking into hidraw + uinput solution.
+On Mon, Jan 30, 2012 at 12:52:59AM -0200, Fabio Estevam wrote:
+> On Sun, Jan 29, 2012 at 8:51 PM, Marc Reilly <marc@cpdesign.com.au> w=
+rote:
+> > Start moving this driver towards support for both mc13892 and mc137=
+83.
+> >
+> > This patch simply renames mc13783 specific identifiers to the gener=
+ic
+> > mc13xxx. A platform_device_id table is also added so that the drive=
+r
+> > is still created correctly for the mc13783 only.
+> >
+> > Signed-off-by: Marc Reilly <marc@cpdesign.com.au>
+> > ---
+> > =A0drivers/input/touchscreen/Kconfig =A0 =A0 =A0| =A0 =A08 +-
+> > =A0drivers/input/touchscreen/Makefile =A0 =A0 | =A0 =A02 +-
+> > =A0drivers/input/touchscreen/mc13783_ts.c | =A0259 ----------------=
+---------------
+> > =A0drivers/input/touchscreen/mc13xxx_ts.c | =A0267 ++++++++++++++++=
+++++++++++++++++
+> > =A04 files changed, 272 insertions(+), 264 deletions(-)
+> > =A0delete mode 100644 drivers/input/touchscreen/mc13783_ts.c
+> > =A0create mode 100644 drivers/input/touchscreen/mc13xxx_ts.c
+>=20
+> For the rename, it is better to do:
+> git mv  drivers/input/touchscreen/mc13783_ts.c
+> drivers/input/touchscreen/mc13xxx_ts.c
+>=20
+> git commit -a
+>=20
+> and then git format -M -1 , as it will detect the rename.
+git format-patch -M will detect the rename independently of how the
+commit was created. Using git mv doesn't result in adding any special
+metadata to the commit, it's just mv $old $new; git rm $old; git add
+$new.
 
-Thanks.
+But +1 on using -M (or not renaming the driver).
 
--- 
-Dmitry
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

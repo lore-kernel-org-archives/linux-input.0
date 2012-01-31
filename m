@@ -1,66 +1,85 @@
-From: Ahmet Inan <xdsopl@googlemail.com>
-Subject: [PATCH] synaptics enters infinite reconnect loop on resume from
- suspend on Vostro v13
-Date: Tue, 31 Jan 2012 13:58:16 +0100
-Message-ID: <CAFDW0jKc0VmYMO_KCXW+Zv8uVLrXL7E_3VioiysRKbNrro4XvA@mail.gmail.com>
+From: Daniel Kurtz <djkurtz@google.com>
+Subject: Re: [PATCH] Input: Document the device properties
+Date: Tue, 31 Jan 2012 21:33:50 +0800
+Message-ID: <CAGS+omD+jWXFOJQ0GC1yxAJrkK=5yxxdsvxjGu73kmdi5QnpHA@mail.gmail.com>
+References: <1327912546-16960-1-git-send-email-rydberg@euromail.se>
+ <4F268BCC.4000008@canonical.com> <4F26CDF3.5080606@canonical.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=20cf3071c97c4593d104b7d28477
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:56866 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754266Ab2AaM6R (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:48617 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754510Ab2AaNeK convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Jan 2012 07:58:17 -0500
-Received: by vcge1 with SMTP id e1so308252vcg.19
-        for <linux-input@vger.kernel.org>; Tue, 31 Jan 2012 04:58:17 -0800 (PST)
+	Tue, 31 Jan 2012 08:34:10 -0500
+Received: by iacb35 with SMTP id b35so851890iac.19
+        for <linux-input@vger.kernel.org>; Tue, 31 Jan 2012 05:34:10 -0800 (PST)
+In-Reply-To: <4F26CDF3.5080606@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
+To: Chase Douglas <chase.douglas@canonical.com>, =?UTF-8?B?Q2h1bmctWWloIFdhbmcgKOeOi+W0h+aHvyk=?= <cywang@google.com>
+Cc: Jussi Pakkanen <jussi.pakkanen@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---20cf3071c97c4593d104b7d28477
-Content-Type: text/plain; charset=UTF-8
+On Tue, Jan 31, 2012 at 1:05 AM, Chase Douglas
+<chase.douglas@canonical.com> wrote:
+>
+> On 01/30/2012 01:23 PM, Jussi Pakkanen wrote:
+> > On 01/30/2012 10:35 AM, Henrik Rydberg wrote:
+> >> +INPUT_PROP_SEMI_MT:
+> >> +------------------
+> >> +Some touchpads, most common between 2008 and 2011, can detect the=
+ presence
+> >> +of multiple contacts without resolving the individual positions; =
+only the
+> >> +number of contacts and the corresponding bounding box is known. F=
+or such
+> >> +touchpads, the semi-mt property should be set.
+> >
+> > A "corresponding bounding box" usually means "a bounding box that
+> > contains all touches on the touchpad". I've been told (though I hav=
+e not
+> > checked it myself) that there are devices that don't do this. They =
+only
+> > report a bounding box for some subset of touches. If this is the ca=
+se,
+> > it should be documented here.
+>
+> Yeah, I thought Henrik's definition was correct for a long time, but
+> when Derek Foreman (I think) proposed some patches for the latest
+> synaptics devices I took a closer look at my semi-mt synaptics trackp=
+ad.
+> The coordinates it gave were locations based on two of the touches. W=
+hen
+> three touches are on the touchpad, it gave a bounding box of two of t=
+he
+> touches, and there's no way to tell which two.
 
-since linux-3.2 (had linux-2.6.38 before), when resuming from suspend,
-the synaptics driver enters an infinite loop, trying to reconnect the touchpad
-on my wife's Vostro v13 again and again.
+This is correct.  At least some of the Synaptics touchpads for which
+the "semi-mt" path through the kernel driver is used, the firmware
+tries to report the actual positions for two contacts.  However, due
+to limitations of their 'profile sensor' design, if the two fingers
+get too close together, or even cross in the X or Y dimension, the
+firmare tracking gets confused and can start reporting the "X" of one
+contact with the "Y" of another.  Thus, the safest behavior is to pair
+[min(X1, X2), min(Y1, Y2)] and [max(X1, X2), max(Y1, Y2)], and treat
+these two points as the corners of a 'bounding box'.  If a third
+contact is on the pad, there is no guarantee that it will be in this
+box.
 
-linux-3.2 felt like resuming much faster from suspend than linux-2.6.38 did, so
-i added an ssleep(1) before doing anything else in synaptics_reconnect()
+-Daniel
 
-well it works. got no complaints from my wife since then. ;-)
 
-Ahmet
-
-Signed-off-by: Ahmet Inan <xdsopl@googlemail.com>
-
-diff -Nru linux-3.2.2.orig/drivers/input/mouse/synaptics.c
-linux-3.2.2/drivers/input/mouse/synaptics.c
---- linux-3.2.2.orig/drivers/input/mouse/synaptics.c    2012-01-31
-12:43:40.528791525 +0100
-+++ linux-3.2.2/drivers/input/mouse/synaptics.c 2012-01-31
-10:51:29.000000000 +0100
-@@ -1219,6 +1219,7 @@
-        int retry = 0;
-        int error;
-
-+       ssleep(1);
-        do {
-                psmouse_reset(psmouse);
-                if (retry) {
-
---20cf3071c97c4593d104b7d28477
-Content-Type: text/x-patch; charset=US-ASCII;
-	name="linux-3.2.2_synaptics_ssleep_1_before_reset.diff"
-Content-Disposition: attachment;
-	filename="linux-3.2.2_synaptics_ssleep_1_before_reset.diff"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_gy2vbani0
-
-ZGlmZiAtTnJ1IGxpbnV4LTMuMi4yLm9yaWcvZHJpdmVycy9pbnB1dC9tb3VzZS9zeW5hcHRpY3Mu
-YyBsaW51eC0zLjIuMi9kcml2ZXJzL2lucHV0L21vdXNlL3N5bmFwdGljcy5jCi0tLSBsaW51eC0z
-LjIuMi5vcmlnL2RyaXZlcnMvaW5wdXQvbW91c2Uvc3luYXB0aWNzLmMJMjAxMi0wMS0zMSAxMjo0
-Mzo0MC41Mjg3OTE1MjUgKzAxMDAKKysrIGxpbnV4LTMuMi4yL2RyaXZlcnMvaW5wdXQvbW91c2Uv
-c3luYXB0aWNzLmMJMjAxMi0wMS0zMSAxMDo1MToyOS4wMDAwMDAwMDAgKzAxMDAKQEAgLTEyMTks
-NiArMTIxOSw3IEBACiAJaW50IHJldHJ5ID0gMDsKIAlpbnQgZXJyb3I7CiAKKwlzc2xlZXAoMSk7
-CiAJZG8gewogCQlwc21vdXNlX3Jlc2V0KHBzbW91c2UpOwogCQlpZiAocmV0cnkpIHsK
---20cf3071c97c4593d104b7d28477--
+>
+> -- Chase
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

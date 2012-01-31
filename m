@@ -1,100 +1,143 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: Re: [PATCH 1/1][INCREMENTAL] Input: cyttsp - Fixes to clean-up patch
-Date: Tue, 31 Jan 2012 16:52:26 +0000
-Message-ID: <CABxcv=m7wBMwwkVi9YzZd=d3v+sPdcqsaOXF157dUsyHqvn9GQ@mail.gmail.com>
-References: <1327816430-19887-1-git-send-email-javier@dowhile0.org>
-	<20120129061802.GA25977@core.coreip.homeip.net>
-	<CAAwP0s16iO_w9cTLY_ps-X5uBCks4p15XBs2Ea69Gu7Qm7Xe_Q@mail.gmail.com>
-	<20120131082152.GA4064@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH v2] Input: Document the device properties
+Date: Tue, 31 Jan 2012 19:55:11 +0100
+Message-ID: <1328036111-2780-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:38105 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752260Ab2AaQw1 convert rfc822-to-8bit (ORCPT
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:34241 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754494Ab2AaSya (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Jan 2012 11:52:27 -0500
-Received: by iacb35 with SMTP id b35so197277iac.19
-        for <linux-input@vger.kernel.org>; Tue, 31 Jan 2012 08:52:27 -0800 (PST)
-In-Reply-To: <20120131082152.GA4064@core.coreip.homeip.net>
+	Tue, 31 Jan 2012 13:54:30 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Javier Martinez Canillas <martinez.javier@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Jussi Pakkanen <jussi.pakkanen@canonical.com>, Chase Douglas <chase.douglas@canonical.com>
 
-On Tue, Jan 31, 2012 at 8:21 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Sun, Jan 29, 2012 at 04:28:12PM +0100, Javier Martinez Canillas wr=
-ote:
->> On Sun, Jan 29, 2012 at 7:18 AM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->> > On Sun, Jan 29, 2012 at 06:53:50AM +0100, Javier Martinez Canillas=
- wrote:
->> >> This is patch fixes two bugs in Dmitry's last cleanup patch.
->> >>
->> >> 1- The hardware tracking ids are stored in the ids array and the =
-information for
->> >> =C2=A0 =C2=A0each contact is obtained calling cyttsp_get_tch() wi=
-th an index. In the clean-up
->> >> =C2=A0 =C2=A0patch the value of the tracking id was used instead =
-of the contact index.
->> >>
->> >
->> > Oops, thank you for fixing that.
->> >
->> >> 2- i2c_set_clientdata() is called after the generic cyttsp_probe(=
-) function and
->> >> =C2=A0 =C2=A0this function calls cyttsp_power_on() that sends an =
-ttsp command to the device
->> >> =C2=A0 =C2=A0and needs the client data before is set. The fix is =
-to execute cyttsp_power_on
->> >> =C2=A0 =C2=A0inside the transport specific probe function (I2C, S=
-PI) after the generic probe
->> >> =C2=A0 =C2=A0function is executed and the client data is set.
->> >>
->> >
->> > Not quite happy about this one, how about we pass cyttsp directly =
-to bus
->> > methods instead of relying on drvdata (as in the patch below)?
->> >
->> > Thanks.
->> >
->> > --
->> > Dmitry
->>
->> Hi Dmitry,
->>
->> Yes, you are right that is a much more clever solution to the issue.
->> Thank you for suggesting that.
->>
->> I just sent an v2 of the incremental patch to be applied on top of
->> your last clean-up.
->>
->> This fixes the index bug stated before and the dev->i2c_client->cytt=
-sp
->> reference being NULL issue changing the read/write methods signature
->> as you suggested.
->>
->> It also fixes an unbalanced IRQ warning since soft_reset() now is
->> called inside the probe function and removes the wake_up platform
->> function in enable() as with the incremental v1.
->>
->> Thanks a lot for your help and best regards,
->
-> Folded everything up and applied to my 3.4 queue.
->
-> Thank you Javier.
->
-> --
-> Dmitry
+Add a section which defines the input device properties and provides
+guidelines on how to use them.
 
-Great, thank you very much for your help Dmitry!
+Cc: Jussi Pakkanen <jussi.pakkanen@canonical.com>
+Cc: Chase Douglas <chase.douglas@canonical.com>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ Documentation/input/event-codes.txt |   72 +++++++++++++++++++++++++++++++----
+ 1 files changed, 64 insertions(+), 8 deletions(-)
 
-Regards,
-Javier
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
+index 23fcb05..53305bd 100644
+--- a/Documentation/input/event-codes.txt
++++ b/Documentation/input/event-codes.txt
+@@ -17,11 +17,11 @@ reports supported by a device are also provided by sysfs in
+ class/input/event*/device/capabilities/, and the properties of a device are
+ provided in class/input/event*/device/properties.
+ 
+-Types:
+-==========
+-Types are groupings of codes under a logical input construct. Each type has a
+-set of applicable codes to be used in generating events. See the Codes section
+-for details on valid codes for each type.
++Event types:
++===========
++Event types are groupings of codes under a logical input construct. Each
++type has a set of applicable codes to be used in generating events. See the
++Codes section for details on valid codes for each type.
+ 
+ * EV_SYN:
+   - Used as markers to separate events. Events may be separated in time or in
+@@ -63,9 +63,9 @@ for details on valid codes for each type.
+ * EV_FF_STATUS:
+   - Used to receive force feedback device status.
+ 
+-Codes:
+-==========
+-Codes define the precise type of event.
++Event codes:
++===========
++Event codes define the precise type of event.
+ 
+ EV_SYN:
+ ----------
+@@ -220,6 +220,56 @@ EV_PWR:
+ EV_PWR events are a special type of event used specifically for power
+ mangement. Its usage is not well defined. To be addressed later.
+ 
++Device properties:
++=================
++Normally, userspace sets up an input device based on the data it emits,
++i.e., the event types. In the case of two devices emitting the same event
++types, additional information can be provided in the form of device
++properties.
++
++INPUT_PROP_DIRECT + INPUT_PROP_POINTER:
++--------------------------------------
++The INPUT_PROP_DIRECT property indicates that device coordinates should be
++directly mapped to screen coordinates (not taking into account trivial
++transformations, such as scaling, flipping and rotating). Non-direct input
++devices require non-trivial transformation, such as absolute to relative
++transformation for touchpads. Typical direct input devices: touchscreens,
++drawing tablets; non-direct devices: touchpads, mice.
++
++The INPUT_PROP_POINTER property indicates that the device is not transposed
++on the screen and thus requires use of an on-screen pointer to trace user's
++movements.  Typical pointer devices: touchpads, tablets, mice; non-pointer
++device: touchscreen.
++
++If neither INPUT_PROP_DIRECT or INPUT_PROP_POINTER are set, the property is
++considered undefined and the device type should be deduced in the
++traditional way, using emitted event types.
++
++INPUT_PROP_BUTTONPAD:
++--------------------
++For touchpads where the button is placed beneath the surface, such that
++pressing down on the pad causes a button click, this property should be
++set. Common in clickpad notebooks and macbooks from 2009 and onwards.
++
++Originally, the buttonpad property was coded into the bcm5974 driver
++version field under the name integrated button. For backwards
++compatibility, both methods need to be checked in userspace.
++
++INPUT_PROP_SEMI_MT:
++------------------
++Some touchpads, most common between 2008 and 2011, can detect the presence
++of multiple contacts without resolving the individual positions; only the
++number of contacts and a rectangular shape is known. For such
++touchpads, the semi-mt property should be set.
++
++Depending on the device, the rectangle may enclose all touches, like a
++bounding box, or just some of them, for instance the two most recent
++touches. The diversity makes the rectangle of limited use, but some
++gestures can normally be extracted from it.
++
++If INPUT_PROP_SEMI_MT is not set, the device is assumed to be a true MT
++device.
++
+ Guidelines:
+ ==========
+ The guidelines below ensure proper single-touch and multi-finger functionality.
+@@ -240,6 +290,8 @@ used to report when a touch is active on the screen.
+ BTN_{MOUSE,LEFT,MIDDLE,RIGHT} must not be reported as the result of touch
+ contact. BTN_TOOL_<name> events should be reported where possible.
+ 
++For new hardware, INPUT_PROP_DIRECT should be set.
++
+ Trackpads:
+ ----------
+ Legacy trackpads that only provide relative position information must report
+@@ -250,6 +302,8 @@ location of the touch. BTN_TOUCH should be used to report when a touch is active
+ on the trackpad. Where multi-finger support is available, BTN_TOOL_<name> should
+ be used to report the number of touches active on the trackpad.
+ 
++For new hardware, INPUT_PROP_POINTER should be set.
++
+ Tablets:
+ ----------
+ BTN_TOOL_<name> events must be reported when a stylus or other tool is active on
+@@ -260,3 +314,5 @@ button may be used for buttons on the tablet except BTN_{MOUSE,LEFT}.
+ BTN_{0,1,2,etc} are good generic codes for unlabeled buttons. Do not use
+ meaningful buttons, like BTN_FORWARD, unless the button is labeled for that
+ purpose on the device.
++
++For new hardware, both INPUT_PROP_DIRECT and INPUT_PROP_POINTER should be set.
+-- 
+1.7.9
+

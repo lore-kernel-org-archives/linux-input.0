@@ -1,31 +1,89 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH v2] Input: Document the device properties
-Date: Tue, 31 Jan 2012 20:40:40 +0100
-Message-ID: <4F2843B8.90209@canonical.com>
-References: <1328036111-2780-1-git-send-email-rydberg@euromail.se>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] input: keyboard: Set configuration registers
+Date: Tue, 31 Jan 2012 11:47:35 -0800
+Message-ID: <20120131194735.GA22872@core.coreip.homeip.net>
+References: <1323415758-16822-1-git-send-email-srasal@nvidia.com>
+ <74CDBE0F657A3D45AFBB94109FB122FF1751860550@HQMAIL01.nvidia.com>
+ <3849551.l2KNPKMSmh@dtor-d630.eng.vmware.com>
+ <74CDBE0F657A3D45AFBB94109FB122FF17518605E5@HQMAIL01.nvidia.com>
+ <20111230032559.GB17850@core.coreip.homeip.net>
+ <20120131190904.GA20672@core.coreip.homeip.net>
+ <74CDBE0F657A3D45AFBB94109FB122FF178E1244A2@HQMAIL01.nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:45775 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753876Ab2AaTjx (ORCPT
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:46579 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755132Ab2AaTrn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Jan 2012 14:39:53 -0500
-In-Reply-To: <1328036111-2780-1-git-send-email-rydberg@euromail.se>
+	Tue, 31 Jan 2012 14:47:43 -0500
+Content-Disposition: inline
+In-Reply-To: <74CDBE0F657A3D45AFBB94109FB122FF178E1244A2@HQMAIL01.nvidia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jussi Pakkanen <jussi.pakkanen@canonical.com>
+To: Stephen Warren <swarren@nvidia.com>
+Cc: Shridhar Rasal <srasal@nvidia.com>, "rydberg@euromail.se" <rydberg@euromail.se>, Rakesh Iyer <riyer@nvidia.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
 
-On 01/31/2012 07:55 PM, Henrik Rydberg wrote:
-> Add a section which defines the input device properties and provides
-> guidelines on how to use them.
+On Tue, Jan 31, 2012 at 11:29:35AM -0800, Stephen Warren wrote:
+> Dmitry Torokhov wrote at Tuesday, January 31, 2012 12:09 PM:
+> > On Thu, Dec 29, 2011 at 07:25:59PM -0800, Dmitry Torokhov wrote:
+> > > On Fri, Dec 09, 2011 at 03:17:54PM -0800, Stephen Warren wrote:
+> > > > Dmitry Torokhov wrote at Friday, December 09, 2011 2:25 PM:
+> > > > > On Friday, December 09, 2011 12:10:43 PM Stephen Warren wrote:
+> > > > > > Shridhar Rasal wrote at Friday, December 09, 2011 12:29 AM:
+> > > > > > > To: dmitry.torokhov@gmail.com
+> > > > > > > Cc: rydberg@euromail.se; Stephen Warren; Rakesh Iyer;
+> > > > > > > linux-kernel@vger.kernel.org; linux- input@vger.kernel.org;
+> > > > > > > linux-tegra@vger.kernel.org; Shridhar Rasal Subject: [PATCH 1/1] input:
+> > > > > > > keyboard: Set configuration registers
+> > > > > > >
+> > > > > > > -Set only REQUIRED row and column configuration register to
+> > > > > > > PROPER values to avoid continuously generating KBC input events.
+> > > > > > > -Use *en* field in pin_cfg, to check GPIO_x_ROW_EN register
+> > > > > > > should be set or clear.
+> > > > > > >
+> > > > > > > Signed-off-by: Shridhar Rasal <srasal@nvidia.com>
+> > > > > >
+> > > > > > I wondered if num==0 could be used instead of a new en field, but 0 is a
+> > > > > > valid row/column number, so no. As such,
+> > > > > >
+> > > > > > Acked-by: Stephen Warren <swarren@nvidia.com>
+> > > > >
+> > > > > Can we pass in number of pin_cfg instances in pdata and simply do not
+> > > > > mention unneeded pins instead?
+> > > >
+> > > > IIUC, the array is currently a fixed size (based on the set of pins
+> > > > Supported by the KBC), hence that won't work; there's an entry for each
+> > > > pin saying which row/column it is.
+> > > >
+> > > > However, I suppose if we were to change the structure of the pdata to be:
+> > > >
+> > > > struct tegra_kbc_pin_cfg {
+> > > >     bool is_row;
+> > > >     u8 row_col_id;
+> > > >     u8 pin_id;
+> > > > };
+> > > >
+> > > > Then struct tegra_kbc_platform_data could indeed have a pointer to a
+> > > > variable-sized array of these, which would avoid the "en" member.
+> > > >
+> > >
+> > > How about we change bool to enum instead, like in the patch below?
+> > 
+> > *ping*
 > 
-> Cc: Jussi Pakkanen <jussi.pakkanen@canonical.com>
-> Cc: Chase Douglas <chase.douglas@canonical.com>
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> That's conceptually fine by me. I was assuming you were asking Rakesh...
 
-Looks good to me :). Thanks!
+Everyone... Anyone ;)
 
-Reviewed-by: Chase Douglas <chase.douglas@canonical.com>
+> 
+> I'd rather PIN_CFG_IGNORE was the first enum, so it gets value 0, or this
+> probably won't solve the original issue?
+
+The benefit of current definition is that it is compatible with old
+ones using bool...
+
+Thanks.
+
+-- 
+Dmitry

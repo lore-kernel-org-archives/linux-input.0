@@ -1,143 +1,140 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH v2] Input: Document the device properties
-Date: Tue, 31 Jan 2012 19:55:11 +0100
-Message-ID: <1328036111-2780-1-git-send-email-rydberg@euromail.se>
+Subject: [PATCH v3] Input: Add EVIOC mechanism for MT slots
+Date: Tue, 31 Jan 2012 20:00:03 +0100
+Message-ID: <1328036403-2827-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:34241 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754494Ab2AaSya (ORCPT
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:35291 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754627Ab2AaS7Y (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Jan 2012 13:54:30 -0500
+	Tue, 31 Jan 2012 13:59:24 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Jussi Pakkanen <jussi.pakkanen@canonical.com>, Chase Douglas <chase.douglas@canonical.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-Add a section which defines the input device properties and provides
-guidelines on how to use them.
+This patch adds the ability to extract MT slot data via a new ioctl,
+EVIOCGMTSLOTS. The function returns an array of slot values for the
+specified ABS_MT event type.
 
-Cc: Jussi Pakkanen <jussi.pakkanen@canonical.com>
-Cc: Chase Douglas <chase.douglas@canonical.com>
+Example of user space usage:
+
+struct INPUT_MT_REQUEST(64) req;
+req.code = ABS_MT_POSITION_X;
+if (ioctl(fd, EVIOCGMTSLOTS(sizeof(req)), &req) < 0)
+	return -1;
+for (i = 0; i < 64; i++)
+	printf("slot %d: %d\n", i, req.values[i]);
+
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- Documentation/input/event-codes.txt |   72 +++++++++++++++++++++++++++++++----
- 1 files changed, 64 insertions(+), 8 deletions(-)
+Hi Dmitry,
 
-diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
-index 23fcb05..53305bd 100644
---- a/Documentation/input/event-codes.txt
-+++ b/Documentation/input/event-codes.txt
-@@ -17,11 +17,11 @@ reports supported by a device are also provided by sysfs in
- class/input/event*/device/capabilities/, and the properties of a device are
- provided in class/input/event*/device/properties.
+Here is v3 of the EVIOC patch for MT slots. The number of slots if
+gone, the struct is simplified, targeting userland, and calling the
+ioctl with a smaller struct will return the first set of slots.
+
+Cheers,
+Henrik
+
+
+ drivers/input/evdev.c |   27 ++++++++++++++++++++++++++-
+ include/linux/input.h |   23 +++++++++++++++++++++++
+ 2 files changed, 49 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 76457d5..e4cad16 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -20,7 +20,7 @@
+ #include <linux/slab.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+-#include <linux/input.h>
++#include <linux/input/mt.h>
+ #include <linux/major.h>
+ #include <linux/device.h>
+ #include "input-compat.h"
+@@ -623,6 +623,28 @@ static int evdev_handle_set_keycode_v2(struct input_dev *dev, void __user *p)
+ 	return input_set_keycode(dev, &ke);
+ }
  
--Types:
--==========
--Types are groupings of codes under a logical input construct. Each type has a
--set of applicable codes to be used in generating events. See the Codes section
--for details on valid codes for each type.
-+Event types:
-+===========
-+Event types are groupings of codes under a logical input construct. Each
-+type has a set of applicable codes to be used in generating events. See the
-+Codes section for details on valid codes for each type.
++static int evdev_handle_mt_request(struct input_dev *dev,
++				   unsigned int size,
++				   int __user *ip)
++{
++	const struct input_mt_slot *mt = dev->mt;
++	unsigned int code;
++	int max_slots;
++	int i;
++
++	if (get_user(code, &ip[0]))
++		return -EFAULT;
++	if (!input_is_mt_value(code))
++		return -EINVAL;
++
++	max_slots = (size - sizeof(__u32)) / sizeof(__s32);
++	for (i = 0; i < dev->mtsize && i < max_slots; i++)
++		if (put_user(input_mt_get_value(&mt[i], code), &ip[1 + i]))
++			return -EFAULT;
++
++	return 0;
++}
++
+ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 			   void __user *p, int compat_mode)
+ {
+@@ -708,6 +730,9 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 		return bits_to_user(dev->propbit, INPUT_PROP_MAX,
+ 				    size, p, compat_mode);
  
- * EV_SYN:
-   - Used as markers to separate events. Events may be separated in time or in
-@@ -63,9 +63,9 @@ for details on valid codes for each type.
- * EV_FF_STATUS:
-   - Used to receive force feedback device status.
++	case EVIOCGMTSLOTS(0):
++		return evdev_handle_mt_request(dev, size, ip);
++
+ 	case EVIOCGKEY(0):
+ 		return bits_to_user(dev->key, KEY_MAX, size, p, compat_mode);
  
--Codes:
--==========
--Codes define the precise type of event.
-+Event codes:
-+===========
-+Event codes define the precise type of event.
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 3862e32..1e7e2e5 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -99,6 +99,28 @@ struct input_keymap_entry {
+ 	__u8  scancode[32];
+ };
  
- EV_SYN:
- ----------
-@@ -220,6 +220,56 @@ EV_PWR:
- EV_PWR events are a special type of event used specifically for power
- mangement. Its usage is not well defined. To be addressed later.
++/**
++ * struct INPUT_MT_REQUEST(num_slots) - used by EVIOCGMTSLOTS ioctl
++ * @code: ABS_MT code to read
++ * @values: value array, one value per slot
++ *
++ * The struct definition is used to create an appropriate MT slot message
++ * buffer in userland. Before the call, code is set to the wanted ABS_MT
++ * event type. On return, the value array is filled with the slot values
++ * for the specified ABS_MT code.
++ *
++ * The call argument (len) is the size of the return buffer, which should
++ * satisfy len >= sizeof(struct INPUT_MT_REQUEST(num_slots)).  If len is
++ * too small to fit all available slots, the first num_slots are returned.
++ *
++ * If the request code is not an ABS_MT value, -EINVAL is returned.
++ */
++#define INPUT_MT_REQUEST(num_slots)					\
++	{								\
++		__u32 code;						\
++		__s32 values[num_slots];				\
++	}
++
+ #define EVIOCGVERSION		_IOR('E', 0x01, int)			/* get driver version */
+ #define EVIOCGID		_IOR('E', 0x02, struct input_id)	/* get device ID */
+ #define EVIOCGREP		_IOR('E', 0x03, unsigned int[2])	/* get repeat settings */
+@@ -113,6 +135,7 @@ struct input_keymap_entry {
+ #define EVIOCGPHYS(len)		_IOC(_IOC_READ, 'E', 0x07, len)		/* get physical location */
+ #define EVIOCGUNIQ(len)		_IOC(_IOC_READ, 'E', 0x08, len)		/* get unique identifier */
+ #define EVIOCGPROP(len)		_IOC(_IOC_READ, 'E', 0x09, len)		/* get device properties */
++#define EVIOCGMTSLOTS(len)	_IOC(_IOC_READ, 'E', 0x0a, len)		/* get MT slot values */
  
-+Device properties:
-+=================
-+Normally, userspace sets up an input device based on the data it emits,
-+i.e., the event types. In the case of two devices emitting the same event
-+types, additional information can be provided in the form of device
-+properties.
-+
-+INPUT_PROP_DIRECT + INPUT_PROP_POINTER:
-+--------------------------------------
-+The INPUT_PROP_DIRECT property indicates that device coordinates should be
-+directly mapped to screen coordinates (not taking into account trivial
-+transformations, such as scaling, flipping and rotating). Non-direct input
-+devices require non-trivial transformation, such as absolute to relative
-+transformation for touchpads. Typical direct input devices: touchscreens,
-+drawing tablets; non-direct devices: touchpads, mice.
-+
-+The INPUT_PROP_POINTER property indicates that the device is not transposed
-+on the screen and thus requires use of an on-screen pointer to trace user's
-+movements.  Typical pointer devices: touchpads, tablets, mice; non-pointer
-+device: touchscreen.
-+
-+If neither INPUT_PROP_DIRECT or INPUT_PROP_POINTER are set, the property is
-+considered undefined and the device type should be deduced in the
-+traditional way, using emitted event types.
-+
-+INPUT_PROP_BUTTONPAD:
-+--------------------
-+For touchpads where the button is placed beneath the surface, such that
-+pressing down on the pad causes a button click, this property should be
-+set. Common in clickpad notebooks and macbooks from 2009 and onwards.
-+
-+Originally, the buttonpad property was coded into the bcm5974 driver
-+version field under the name integrated button. For backwards
-+compatibility, both methods need to be checked in userspace.
-+
-+INPUT_PROP_SEMI_MT:
-+------------------
-+Some touchpads, most common between 2008 and 2011, can detect the presence
-+of multiple contacts without resolving the individual positions; only the
-+number of contacts and a rectangular shape is known. For such
-+touchpads, the semi-mt property should be set.
-+
-+Depending on the device, the rectangle may enclose all touches, like a
-+bounding box, or just some of them, for instance the two most recent
-+touches. The diversity makes the rectangle of limited use, but some
-+gestures can normally be extracted from it.
-+
-+If INPUT_PROP_SEMI_MT is not set, the device is assumed to be a true MT
-+device.
-+
- Guidelines:
- ==========
- The guidelines below ensure proper single-touch and multi-finger functionality.
-@@ -240,6 +290,8 @@ used to report when a touch is active on the screen.
- BTN_{MOUSE,LEFT,MIDDLE,RIGHT} must not be reported as the result of touch
- contact. BTN_TOOL_<name> events should be reported where possible.
- 
-+For new hardware, INPUT_PROP_DIRECT should be set.
-+
- Trackpads:
- ----------
- Legacy trackpads that only provide relative position information must report
-@@ -250,6 +302,8 @@ location of the touch. BTN_TOUCH should be used to report when a touch is active
- on the trackpad. Where multi-finger support is available, BTN_TOOL_<name> should
- be used to report the number of touches active on the trackpad.
- 
-+For new hardware, INPUT_PROP_POINTER should be set.
-+
- Tablets:
- ----------
- BTN_TOOL_<name> events must be reported when a stylus or other tool is active on
-@@ -260,3 +314,5 @@ button may be used for buttons on the tablet except BTN_{MOUSE,LEFT}.
- BTN_{0,1,2,etc} are good generic codes for unlabeled buttons. Do not use
- meaningful buttons, like BTN_FORWARD, unless the button is labeled for that
- purpose on the device.
-+
-+For new hardware, both INPUT_PROP_DIRECT and INPUT_PROP_POINTER should be set.
+ #define EVIOCGKEY(len)		_IOC(_IOC_READ, 'E', 0x18, len)		/* get global key state */
+ #define EVIOCGLED(len)		_IOC(_IOC_READ, 'E', 0x19, len)		/* get all LEDs */
 -- 
 1.7.9
 

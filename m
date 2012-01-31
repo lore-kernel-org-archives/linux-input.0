@@ -1,53 +1,39 @@
 From: Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
-Subject: [PATCH] Input: evdev - fix variable initialisation
-Date: Tue, 31 Jan 2012 22:24:45 +0100
-Message-ID: <201201312224.46360.heiko@sntech.de>
+Subject: Re: [PATCH] gpio_keys: fix struct device declared inside parameter list
+Date: Tue, 31 Jan 2012 22:27:55 +0100
+Message-ID: <201201312227.55934.heiko@sntech.de>
+References: <201201121011.31840.heiko@sntech.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from s15407518.onlinehome-server.info ([82.165.136.167]:57862 "EHLO
+Received: from s15407518.onlinehome-server.info ([82.165.136.167]:47663 "EHLO
 	s15407518.onlinehome-server.info" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753051Ab2AaVYu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Jan 2012 16:24:50 -0500
+	by vger.kernel.org with ESMTP id S1752799Ab2AaV16 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 31 Jan 2012 16:27:58 -0500
+In-Reply-To: <201201121011.31840.heiko@sntech.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Dima Zavin <dima@android.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 
-Commit 509f87c5f564 (evdev - do not block waiting for an event if fd
-is nonblock) created a code path were it was possible to use retval
-uninitialized.
+Am Donnerstag 12 Januar 2012, 10:11:31 schrieb Heiko St=FCbner:
+> A struct device parameter is used in the enable and disable callbacks=
+ to
+> distinguish between different gpio_keys devices.
+>=20
+> Platforms that don't use these callbacks may not include struct devic=
+e
+> at all, as seen on arch/arm/mach-s3c2410/mach-n30.c
+>=20
+> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+ping?
 
-This could lead to the xorg evdev input driver getting corrupt data
-and refusing to work with log messages like
-	AUO-Pixcir touchscreen: Read error: Success
-	sg060_keys: Read error: Success
-	AUO-Pixcir touchscreen: Read error: Success
-	sg060_keys: Read error: Success
-(for drivers auo-pixcir-ts and gpio-keys).
-
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
----
-This is obviously meant as a fix for 3.3
-
- drivers/input/evdev.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 76457d5..afc166f 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -386,7 +386,7 @@ static ssize_t evdev_read(struct file *file, char __user *buffer,
- 	struct evdev_client *client = file->private_data;
- 	struct evdev *evdev = client->evdev;
- 	struct input_event event;
--	int retval;
-+	int retval = 0;
- 
- 	if (count < input_event_size())
- 		return -EINVAL;
--- 
-1.7.2.3
+Thanks
+Heiko
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

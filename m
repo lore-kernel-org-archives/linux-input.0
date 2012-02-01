@@ -1,86 +1,41 @@
-From: Maurus Cuelenaere <mcuelenaere@gmail.com>
-Subject: Re: [PATCH 1/2] input : wacom - retrieve maximum number of touch
- points
-Date: Wed, 01 Feb 2012 12:53:34 +0100
-Message-ID: <4F2927BE.4010905@gmail.com>
-References: <1328069031-16873-1-git-send-email-chris@cnpbagwell.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2/5] Dynamic ID addition doesn't need get_driver()
+Date: Wed, 1 Feb 2012 14:15:45 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1202011415250.18918@pobox.suse.cz>
+References: <Pine.LNX.4.44L0.1201241310400.1200-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:41411 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753983Ab2BALxh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Feb 2012 06:53:37 -0500
-Received: by bkcjm19 with SMTP id jm19so934948bkc.19
-        for <linux-input@vger.kernel.org>; Wed, 01 Feb 2012 03:53:36 -0800 (PST)
-In-Reply-To: <1328069031-16873-1-git-send-email-chris@cnpbagwell.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-pci-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.1201241310400.1200-100000@iolanthe.rowland.org>
+Sender: linux-pci-owner@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, Dominik Brodowski <linux@dominikbrodowski.net>, linux-input@vger.kernel.org, linux-pci@vger.kernel.org, linux-pcmcia@lists.infradead.org, USB list <linux-usb@vger.kernel.org>, Kernel development list <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: chris@cnpbagwell.com
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <pingc@wacom.com>
 
-Op 01-02-12 05:03, chris@cnpbagwell.com schreef:
-> From: Ping Cheng<pinglinux@gmail.com>
->
->  From the HID usage table when it is supported.
->
-> Tested-by: Chris Bagwell<chris@cnpbagwell.com>
-> Signed-off-by: Chris Bagwell<chris@cnpbagwell.com>
-> Signed-off-by: Ping Cheng<pingc@wacom.com>
-> ---
->
-> These two patches were originally in a set of 4 from Ping.
-> 2 of those 4 have already been committed to next branch.
->
-> The change between this version and Ping's last version is
-> making use of features to set the new touch_max value.
-> The 2nd patch is unmodified.
->
->   drivers/input/tablet/wacom_sys.c |   26 +++++++++++++++++-
->   drivers/input/tablet/wacom_wac.c |   55 +++++++++++++++++++++++--------------
->   drivers/input/tablet/wacom_wac.h |    1 +
->   3 files changed, 60 insertions(+), 22 deletions(-)
->
-> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-> index c9588ee..5004a75 100644
-> --- a/drivers/input/tablet/wacom_sys.c
-> +++ b/drivers/input/tablet/wacom_sys.c
-> @@ -28,6 +28,7 @@
->   #define HID_USAGE_Y_TILT		0x3e
->   #define HID_USAGE_FINGER		0x22
->   #define HID_USAGE_STYLUS		0x20
-> +#define HID_USAGE_CONTACTMAX		0x55
->   #define HID_COLLECTION			0xa1
->   #define HID_COLLECTION_LOGICAL		0x02
->   #define HID_COLLECTION_END		0xc0
-> @@ -196,6 +197,24 @@ static int wacom_parse_logical_collection(unsigned char *report,
->   	return length;
->   }
->
-> +static void wacom_retrieve_report_data(struct usb_interface *intf,
-> +				       struct wacom_features *features)
-> +{
-> +	int result = 0;
-> +	unsigned char *rep_data;
-> +
-> +	rep_data = kmalloc(2, GFP_KERNEL);
-> +	if (!rep_data)
-> +		return;
+On Tue, 24 Jan 2012, Alan Stern wrote:
 
-Why not allocate this on the stack?
-This also can't leak memory (like you currently do).
+> As part of the removal of get_driver()/put_driver(), this patch
+> (as1511) changes all the places that add dynamic IDs for drivers.
+> Since these additions are done by writing to the drivers' sysfs
+> attribute files, and the attributes are removed when the drivers are
+> unregistered, there is no reason to take an extra reference to the
+> drivers.
+> 
+> The one exception is the pci-stub driver, which calls pci_add_dynid()
+> as part of its registration.  But again, there's no reason to take an
+> extra reference here, because the driver can't be unloaded while it is
+> being registered.
+> 
+> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> CC: Jiri Kosina <jkosina@suse.cz>
+> CC: Jesse Barnes <jbarnes@virtuousgeek.org>
+> CC: Dominik Brodowski <linux@dominikbrodowski.net>
 
-> +
-> +	rep_data[0] = 12;
-> +	result = wacom_get_report(intf, WAC_HID_FEATURE_REPORT,
-> +		 rep_data[0], rep_data, 2, WAC_MSG_RETRIES);
-> +
-> +	if ((result>= 0)&&  (rep_data[1]>  2))
-> +		features->touch_max = rep_data[1];
-> +}
-> +
+Acked-by: Jiri Kosina <jkosina@suse.cz>
+
+for the drivers/hid part. Thanks,
 
 -- 
-Maurus Cuelenaere
-
+Jiri Kosina
+SUSE Labs

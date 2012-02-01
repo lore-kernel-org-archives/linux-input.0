@@ -1,149 +1,42 @@
-From: zitev <zitev-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
-Subject: Re: not supported hardware: Gigabyte K8100 Aivia USB Gaming Keyboard
-Date: Wed, 01 Feb 2012 20:53:20 +0100
-Message-ID: <4F299830.70909@freemail.hu>
-References: <4D55AE81.3030805@freemail.hu> <20120126002100.GA4495@burratino> <4F21C49D.2010906@freemail.hu> <20120126213939.GA5179@burratino> <4F230A1A.7080508@freemail.hu> <20120128071223.GA27331@burratino> <4F299010.5090009@freemail.hu> <20120201193531.GA28375@burratino>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: not supported hardware: Gigabyte K8100 Aivia USB Gaming
+ Keyboard
+Date: Wed, 1 Feb 2012 21:06:00 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1202012104030.18918@pobox.suse.cz>
+References: <4D55AE81.3030805@freemail.hu> <20120126002100.GA4495@burratino> <4F21C49D.2010906@freemail.hu> <20120126213939.GA5179@burratino> <4F230A1A.7080508@freemail.hu> <20120128071223.GA27331@burratino> <4F299010.5090009@freemail.hu>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------090204040609000801060300"
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120201193531.GA28375@burratino>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Nieder <jrnieder-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:35670 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753444Ab2BAUGC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Feb 2012 15:06:02 -0500
+In-Reply-To: <4F299010.5090009@freemail.hu>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: zitev <zitev@freemail.hu>
+Cc: Jonathan Nieder <jrnieder@gmail.com>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090204040609000801060300
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+On Wed, 1 Feb 2012, zitev wrote:
 
-I did press backspace, and that key is logged to /tmp/mon.out!
+> I did every step of test, but after testing the /tmp/mon.out file is 0byte
+> (empty)
+> 
+> next task?
 
+Does /dev/input/eventX get created? (I guess it does, as at least some 
+key(s) make it through).
 
-2012-02-01 20:35 keltezéssel, Jonathan Nieder írta:
-> zitev wrote:
->
->> I did every step of test, but after testing the /tmp/mon.out file is
->> 0byte (empty)
-> Drat.  Just to make sure I have the method right, could you do the
-> same with another keyboard (setting the bus number accordingly), or
-> using some key that does work, if any (e.g., backspace is said to
-> work)?
->
-> But anyway, this is believable.  There is a Windows driver for the
-> keyboard, so if you are able to run Windows (e.g., in a VM), the hints
-> from
->
->   http://libnetmd.sourceforge.net/howto.html
->
-> might help.  Also, contacting the manufacturer might help.
->
-> Given a rough description of the protocol the keyboard uses, folks on
-> this mailing list might be able to come up with a rough patch to try
-> out.  One way to make progress.
->
-> Thanks,
-> Jonathan
->
->
+If so, please provide
 
---------------090204040609000801060300
-Content-Type: text/plain;
- name="mon.out"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="mon.out"
+	cat /sys/kernel/debug/hid/<device>/rdesc
 
-e73369c0 1949375554 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1949375636 S Ii:1:011:1 -115:8 8 <
-e73369c0 1951367596 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1951367656 S Ii:1:011:1 -115:8 8 <
-e73369c0 1951575596 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1951575660 S Ii:1:011:1 -115:8 8 <
-e73369c0 1953943592 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1953943621 S Ii:1:011:1 -115:8 8 <
-e73369c0 1954199621 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1954199742 S Ii:1:011:1 -115:8 8 <
-e73369c0 1956359555 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1956359635 S Ii:1:011:1 -115:8 8 <
-e73369c0 1956855624 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1956855815 S Ii:1:011:1 -115:8 8 <
-e73369c0 1958647600 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1958647660 S Ii:1:011:1 -115:8 8 <
-e73369c0 1958959622 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1958959729 S Ii:1:011:1 -115:8 8 <
-e73369c0 1959079598 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1959079658 S Ii:1:011:1 -115:8 8 <
-e73369c0 1959191620 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1959191725 S Ii:1:011:1 -115:8 8 <
-e73369c0 1959311599 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1959311655 S Ii:1:011:1 -115:8 8 <
-e73369c0 1959375612 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1959375718 S Ii:1:011:1 -115:8 8 <
-e73369c0 1959503600 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1959503661 S Ii:1:011:1 -115:8 8 <
-e73369c0 1960023614 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1960023721 S Ii:1:011:1 -115:8 8 <
-e73369c0 1960087594 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1960087653 S Ii:1:011:1 -115:8 8 <
-e73369c0 1960207621 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1960207725 S Ii:1:011:1 -115:8 8 <
-e73369c0 1960287595 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1960287651 S Ii:1:011:1 -115:8 8 <
-e73369c0 1960383559 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1960383662 S Ii:1:011:1 -115:8 8 <
-e73369c0 1960479556 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1960479634 S Ii:1:011:1 -115:8 8 <
-e73369c0 1960567556 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1960567637 S Ii:1:011:1 -115:8 8 <
-e73369c0 1960671555 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1960671636 S Ii:1:011:1 -115:8 8 <
-e73369c0 1960751593 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1960751786 S Ii:1:011:1 -115:8 8 <
-e73369c0 1963439601 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1963439662 S Ii:1:011:1 -115:8 8 <
-e73369c0 1963631598 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1963631669 S Ii:1:011:1 -115:8 8 <
-e73369c0 1963743597 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1963743657 S Ii:1:011:1 -115:8 8 <
-e73369c0 1963823623 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1963823726 S Ii:1:011:1 -115:8 8 <
-e73369c0 1963919596 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1963919651 S Ii:1:011:1 -115:8 8 <
-e73369c0 1964031599 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1964031659 S Ii:1:011:1 -115:8 8 <
-e73369c0 1965263560 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1965263654 S Ii:1:011:1 -115:8 8 <
-e73369c0 1965431622 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1965431727 S Ii:1:011:1 -115:8 8 <
-e73369c0 1965847600 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1965847660 S Ii:1:011:1 -115:8 8 <
-e73369c0 1965983599 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1965983659 S Ii:1:011:1 -115:8 8 <
-e73369c0 1966095593 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1966095624 S Ii:1:011:1 -115:8 8 <
-e73369c0 1966191598 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1966191658 S Ii:1:011:1 -115:8 8 <
-e73369c0 1966279598 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1966279658 S Ii:1:011:1 -115:8 8 <
-e73369c0 1966375601 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1966375661 S Ii:1:011:1 -115:8 8 <
-e73369c0 1966471599 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1966471659 S Ii:1:011:1 -115:8 8 <
-e73369c0 1966567623 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1966567727 S Ii:1:011:1 -115:8 8 <
-e73369c0 1966663557 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1966663640 S Ii:1:011:1 -115:8 8 <
-e73369c0 1966759623 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1966759813 S Ii:1:011:1 -115:8 8 <
-e73369c0 1966831596 C Ii:1:011:1 0:8 8 = 00000000 00000000
-e73369c0 1966831651 S Ii:1:011:1 -115:8 8 <
-e73369c0 1966935623 C Ii:1:011:1 0:8 8 = 00002a00 00000000
-e73369c0 1966935727 S Ii:1:011:1 -115:8 8 <
+and
+	cat /sys/kernel/debug/hid/<device>/events
 
---------------090204040609000801060300--
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please run the second command, then press some of the non-working keys 
+(press "a" for starters), and provide the output.
+
+-- 
+Jiri Kosina
+SUSE Labs

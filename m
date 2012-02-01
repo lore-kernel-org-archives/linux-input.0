@@ -1,66 +1,31 @@
-From: Che-Liang Chiou <clchiou@chromium.org>
-Subject: [PATCH] Input: serio_raw - return proper result when serio_raw_read fails
-Date: Wed,  1 Feb 2012 16:19:46 +0800
-Message-ID: <1328084386-31110-1-git-send-email-clchiou@chromium.org>
+From: Jussi Pakkanen <jussi.pakkanen@canonical.com>
+Subject: Re: [PATCH v2] Input: Document the device properties
+Date: Wed, 01 Feb 2012 10:54:24 +0200
+Message-ID: <4F28FDC0.3080006@canonical.com>
+References: <1328036111-2780-1-git-send-email-rydberg@euromail.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:46426 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755295Ab2BAIUg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Feb 2012 03:20:36 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:47683 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753862Ab2BAIy1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Feb 2012 03:54:27 -0500
+In-Reply-To: <1328036111-2780-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Che-Liang Chiou <clchiou@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chase Douglas <chase.douglas@canonical.com>
 
-serio_raw_read now returns (sometimes partially) successful number of
-bytes transferred to the caller, and only returns error code to the
-caller on completely failed transfers.
+On 01/31/2012 08:55 PM, Henrik Rydberg wrote:
 
-Signed-off-by: Che-Liang Chiou <clchiou@chromium.org>
----
+> Add a section which defines the input device properties and provides
+> guidelines on how to use them.
+>
+> Cc: Jussi Pakkanen<jussi.pakkanen@canonical.com>
+> Cc: Chase Douglas<chase.douglas@canonical.com>
+> Signed-off-by: Henrik Rydberg<rydberg@euromail.se>
 
-I think serio_raw_write() and serio_raw_read() should have the same returning
-value behavior.
+Looking good. Thanks.
 
----
- drivers/input/serio/serio_raw.c |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/input/serio/serio_raw.c b/drivers/input/serio/serio_raw.c
-index 8250299..4494233 100644
---- a/drivers/input/serio/serio_raw.c
-+++ b/drivers/input/serio/serio_raw.c
-@@ -164,7 +164,8 @@ static ssize_t serio_raw_read(struct file *file, char __user *buffer,
- 	struct serio_raw_client *client = file->private_data;
- 	struct serio_raw *serio_raw = client->serio_raw;
- 	char uninitialized_var(c);
--	ssize_t retval = 0;
-+	ssize_t read = 0;
-+	int retval;
- 
- 	if (serio_raw->dead)
- 		return -ENODEV;
-@@ -180,13 +181,15 @@ static ssize_t serio_raw_read(struct file *file, char __user *buffer,
- 	if (serio_raw->dead)
- 		return -ENODEV;
- 
--	while (retval < count && serio_raw_fetch_byte(serio_raw, &c)) {
--		if (put_user(c, buffer++))
--			return -EFAULT;
--		retval++;
-+	while (read < count && serio_raw_fetch_byte(serio_raw, &c)) {
-+		if (put_user(c, buffer++)) {
-+			retval = -EFAULT;
-+			break;
-+		}
-+		read++;
- 	}
- 
--	return retval;
-+	return read ?: retval;
- }
- 
- static ssize_t serio_raw_write(struct file *file, const char __user *buffer,
--- 
-1.7.7.3
-
+Reviewed-by: Jussi Pakkanen <jussi.pakkanen@canonical.com>

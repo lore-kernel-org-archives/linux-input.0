@@ -1,141 +1,149 @@
-From: zitev <zitev@freemail.hu>
+From: zitev <zitev-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
 Subject: Re: not supported hardware: Gigabyte K8100 Aivia USB Gaming Keyboard
-Date: Wed, 01 Feb 2012 20:33:19 +0100
-Message-ID: <4F29937F.1050304@freemail.hu>
-References: <4D55AE81.3030805@freemail.hu> <20120126002100.GA4495@burratino> <4F21C49D.2010906@freemail.hu> <20120126213939.GA5179@burratino> <4F230A1A.7080508@freemail.hu> <20120128071223.GA27331@burratino>
+Date: Wed, 01 Feb 2012 20:53:20 +0100
+Message-ID: <4F299830.70909@freemail.hu>
+References: <4D55AE81.3030805@freemail.hu> <20120126002100.GA4495@burratino> <4F21C49D.2010906@freemail.hu> <20120126213939.GA5179@burratino> <4F230A1A.7080508@freemail.hu> <20120128071223.GA27331@burratino> <4F299010.5090009@freemail.hu> <20120201193531.GA28375@burratino>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail00k.mail.t-online.hu ([84.2.227.137]:45480 "EHLO
-	mail00k.mail.t-online.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756580Ab2BATjz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Feb 2012 14:39:55 -0500
-In-Reply-To: <20120128071223.GA27331@burratino>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed;
+ boundary="------------090204040609000801060300"
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120201193531.GA28375@burratino>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Nieder <jrnieder-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Nieder <jrnieder@gmail.com>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, jkosina@suse.cz
 
-i attached the detail of syslog:
+This is a multi-part message in MIME format.
+--------------090204040609000801060300
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-"Feb  1 20:26:40 player kernel: [ 1247.275287] usb 1-1.1: new high-spee=
-d=20
-USB device number 6 using ehci_hcd
-=46eb  1 20:26:40 player kernel: [ 1247.444488] usb 1-1.1: New USB devi=
-ce=20
-found, idVendor=3D05e3, idProduct=3D0608
-=46eb  1 20:26:40 player kernel: [ 1247.520511] usb 1-1.1: New USB devi=
-ce=20
-strings: Mfr=3D0, Product=3D1, SerialNumber=3D0
-=46eb  1 20:26:40 player kernel: [ 1247.596369] usb 1-1.1: Product: USB=
-2.0 Hub
-=46eb  1 20:26:40 player kernel: [ 1247.672160] hub 1-1.1:1.0: USB hub =
-found
-=46eb  1 20:26:40 player kernel: [ 1247.736605] hub 1-1.1:1.0: 4 ports=20
-detected
-=46eb  1 20:26:41 player kernel: [ 1248.074036] usb 1-1.1.2: new=20
-full-speed USB device number 7 using ehci_hcd
-=46eb  1 20:26:41 player kernel: [ 1248.240627] usb 1-1.1.2: New USB=20
-device found, idVendor=3D1044, idProduct=3D7a02
-=46eb  1 20:26:41 player kernel: [ 1248.314881] usb 1-1.1.2: New USB=20
-device strings: Mfr=3D0, Product=3D0, SerialNumber=3D0
-=46eb  1 20:26:41 player mtp-probe: checking bus 1, device 7:=20
-"/sys/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1/1-1.1.2"
-=46eb  1 20:26:41 player kernel: [ 1248.391648] generic-usb: probe of=20
-0003:1044:7A02.0006 failed with error -22
-=46eb  1 20:26:41 player kernel: [ 1248.459226] input: HID 1044:7a02 as=
-=20
-/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1/1-1.1.2/1-1.1.2:1.1/inp=
-ut/input7
-=46eb  1 20:26:41 player kernel: [ 1248.523851] generic-usb=20
-0003:1044:7A02.0007: input,hiddev0,hidraw0: USB HID v1.11 Mouse [HID=20
-1044:7a02] on usb-0000:00:1a.0-1.1.2/input1
-=46eb  1 20:26:41 player kernel: [ 1248.592068] generic-usb=20
-0003:1044:7A02.0008: input,hidraw1: USB HID v1.11 Device [HID 1044:7a02=
-]=20
-on usb-0000:00:1a.0-1.1.2/input2
-=46eb  1 20:26:41 player mtp-probe: bus: 1, device: 7 was not an MTP de=
-vice
-=46eb  1 20:26:41 player kernel: [ 1248.729040] usb 1-1.1.4: new low-sp=
-eed=20
-USB device number 8 using ehci_hcd
-=46eb  1 20:26:42 player kernel: [ 1248.917065] usb 1-1.1.4: New USB=20
-device found, idVendor=3D060b, idProduct=3D2270
-=46eb  1 20:26:42 player kernel: [ 1248.990757] usb 1-1.1.4: New USB=20
-device strings: Mfr=3D1, Product=3D2, SerialNumber=3D0
-=46eb  1 20:26:42 player kernel: [ 1249.063713] usb 1-1.1.4: Product: U=
-SB=20
-Keyboard
-=46eb  1 20:26:42 player kernel: [ 1249.136990] usb 1-1.1.4: Manufactur=
-er: KB
-=46eb  1 20:26:42 player kernel: [ 1249.219263] input: KB USB Keyboard =
-as=20
-/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1/1-1.1.4/1-1.1.4:1.0/inp=
-ut/input8
-=46eb  1 20:26:42 player kernel: [ 1249.293903] generic-usb=20
-0003:060B:2270.0009: input,hidraw2: USB HID v1.10 Keyboard [KB USB=20
-Keyboard] on usb-0000:00:1a.0-1.1.4/input0
-=46eb  1 20:26:42 player kernel: [ 1249.380643] generic-usb: probe of=20
-0003:060B:2270.000A failed with error -22
-=46eb  1 20:26:42 player mtp-probe: checking bus 1, device 8:=20
-"/sys/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1/1-1.1.4"
-=46eb  1 20:26:42 player mtp-probe: bus: 1, device: 8 was not an MTP de=
-vice"
+I did press backspace, and that key is logged to /tmp/mon.out!
 
-2012-01-28 08:12 keltez=E9ssel, Jonathan Nieder =EDrta:
+
+2012-02-01 20:35 keltezéssel, Jonathan Nieder írta:
 > zitev wrote:
 >
->> I attached the lsusb output!
-> Perfect, thanks.
+>> I did every step of test, but after testing the /tmp/mon.out file is
+>> 0byte (empty)
+> Drat.  Just to make sure I have the method right, could you do the
+> same with another keyboard (setting the bus number accordingly), or
+> using some key that does work, if any (e.g., backspace is said to
+> work)?
 >
->> Bus 001 Device 004: ID 1044:7a02 Chu Yuen Enterprise Co., Ltd
-> [...]
->>      bNumInterfaces          3
-> [...]
->>      Interface Descriptor:
->>        bInterfaceClass         3 Human Interface Device
->>        iInterface              2 KB
-> [...]
->>      Interface Descriptor:
->>        bInterfaceClass         3 Human Interface Device
->>        iInterface              3 Mouse
-> [...]
->>      Interface Descriptor:
->>        bInterfaceClass         3 Human Interface Device
->>        iInterface              4 K8100 Interface
-> Can you set up usbmon and get a trace of e.g., pressing, holding,
-> then releasing the "a" key?  See Documentation/usb/usbmon.txt
-> in the Linux source or the doc directory of the linux-doc-3.2
-> package for details.
+> But anyway, this is believable.  There is a Windows driver for the
+> keyboard, so if you are able to run Windows (e.g., in a VM), the hints
+> from
 >
-> It works roughly like this:
+>   http://libnetmd.sourceforge.net/howto.html
 >
-> 1. Mount debugfs and load the usbmon module:
+> might help.  Also, contacting the manufacturer might help.
 >
->    mount -t debugfs debugfs /sys/kernel/debug
->    modprobe usbmon
+> Given a rough description of the protocol the keyboard uses, folks on
+> this mailing list might be able to come up with a rough patch to try
+> out.  One way to make progress.
 >
-> 2. Start tracing:
->
->    {
->      sleep 1; # one second of quiet
->      cat /sys/kernel/debug/usb/usbmon/1u>/tmp/mon.out&
->      sleep 20; # twenty seconds or so to run the test
->      kill $!; # and then stop collecting data
->    }
->
-> 3. Somehow summarize the output.  If it is fairly small, an
-> attachment is fine; otherwise, excerpts and maybe a link to a
-> copy that can be downloaded online might work.
->
-> Hope that helps,
+> Thanks,
 > Jonathan
 >
 >
+
+--------------090204040609000801060300
+Content-Type: text/plain;
+ name="mon.out"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="mon.out"
+
+e73369c0 1949375554 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1949375636 S Ii:1:011:1 -115:8 8 <
+e73369c0 1951367596 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1951367656 S Ii:1:011:1 -115:8 8 <
+e73369c0 1951575596 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1951575660 S Ii:1:011:1 -115:8 8 <
+e73369c0 1953943592 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1953943621 S Ii:1:011:1 -115:8 8 <
+e73369c0 1954199621 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1954199742 S Ii:1:011:1 -115:8 8 <
+e73369c0 1956359555 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1956359635 S Ii:1:011:1 -115:8 8 <
+e73369c0 1956855624 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1956855815 S Ii:1:011:1 -115:8 8 <
+e73369c0 1958647600 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1958647660 S Ii:1:011:1 -115:8 8 <
+e73369c0 1958959622 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1958959729 S Ii:1:011:1 -115:8 8 <
+e73369c0 1959079598 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1959079658 S Ii:1:011:1 -115:8 8 <
+e73369c0 1959191620 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1959191725 S Ii:1:011:1 -115:8 8 <
+e73369c0 1959311599 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1959311655 S Ii:1:011:1 -115:8 8 <
+e73369c0 1959375612 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1959375718 S Ii:1:011:1 -115:8 8 <
+e73369c0 1959503600 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1959503661 S Ii:1:011:1 -115:8 8 <
+e73369c0 1960023614 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1960023721 S Ii:1:011:1 -115:8 8 <
+e73369c0 1960087594 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1960087653 S Ii:1:011:1 -115:8 8 <
+e73369c0 1960207621 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1960207725 S Ii:1:011:1 -115:8 8 <
+e73369c0 1960287595 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1960287651 S Ii:1:011:1 -115:8 8 <
+e73369c0 1960383559 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1960383662 S Ii:1:011:1 -115:8 8 <
+e73369c0 1960479556 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1960479634 S Ii:1:011:1 -115:8 8 <
+e73369c0 1960567556 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1960567637 S Ii:1:011:1 -115:8 8 <
+e73369c0 1960671555 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1960671636 S Ii:1:011:1 -115:8 8 <
+e73369c0 1960751593 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1960751786 S Ii:1:011:1 -115:8 8 <
+e73369c0 1963439601 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1963439662 S Ii:1:011:1 -115:8 8 <
+e73369c0 1963631598 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1963631669 S Ii:1:011:1 -115:8 8 <
+e73369c0 1963743597 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1963743657 S Ii:1:011:1 -115:8 8 <
+e73369c0 1963823623 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1963823726 S Ii:1:011:1 -115:8 8 <
+e73369c0 1963919596 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1963919651 S Ii:1:011:1 -115:8 8 <
+e73369c0 1964031599 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1964031659 S Ii:1:011:1 -115:8 8 <
+e73369c0 1965263560 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1965263654 S Ii:1:011:1 -115:8 8 <
+e73369c0 1965431622 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1965431727 S Ii:1:011:1 -115:8 8 <
+e73369c0 1965847600 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1965847660 S Ii:1:011:1 -115:8 8 <
+e73369c0 1965983599 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1965983659 S Ii:1:011:1 -115:8 8 <
+e73369c0 1966095593 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1966095624 S Ii:1:011:1 -115:8 8 <
+e73369c0 1966191598 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1966191658 S Ii:1:011:1 -115:8 8 <
+e73369c0 1966279598 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1966279658 S Ii:1:011:1 -115:8 8 <
+e73369c0 1966375601 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1966375661 S Ii:1:011:1 -115:8 8 <
+e73369c0 1966471599 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1966471659 S Ii:1:011:1 -115:8 8 <
+e73369c0 1966567623 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1966567727 S Ii:1:011:1 -115:8 8 <
+e73369c0 1966663557 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1966663640 S Ii:1:011:1 -115:8 8 <
+e73369c0 1966759623 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1966759813 S Ii:1:011:1 -115:8 8 <
+e73369c0 1966831596 C Ii:1:011:1 0:8 8 = 00000000 00000000
+e73369c0 1966831651 S Ii:1:011:1 -115:8 8 <
+e73369c0 1966935623 C Ii:1:011:1 0:8 8 = 00002a00 00000000
+e73369c0 1966935727 S Ii:1:011:1 -115:8 8 <
+
+--------------090204040609000801060300--
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

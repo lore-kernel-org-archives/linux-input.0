@@ -1,24 +1,35 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: add more hotkeys in Asus AIO keyboards
-Date: Thu, 2 Feb 2012 10:32:58 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1202021032500.18918@pobox.suse.cz>
-References: <1326957135-6958-1-git-send-email-kengyu@canonical.com> <1327904745-4592-1-git-send-email-kengyu@canonical.com>
+Subject: Re: [PATCH 1/1] HID: Add full MT support for Logitech Wireless
+ Touchpad
+Date: Thu, 2 Feb 2012 10:49:17 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1202021046190.18918@pobox.suse.cz>
+References: <1326800683-29439-1-git-send-email-nlopezcasad@logitech.com> <20120120182650.GA19242@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1327904745-4592-1-git-send-email-kengyu@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Keng-Yu Lin <kengyu@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, sylee@canonical.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:39566 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754945Ab2BBJtT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Feb 2012 04:49:19 -0500
+In-Reply-To: <20120120182650.GA19242@polaris.bitmath.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ogay@logitech.com, jzanone@logitech.com, phorvath@logitech.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Mon, 30 Jan 2012, Keng-Yu Lin wrote:
+On Fri, 20 Jan 2012, Henrik Rydberg wrote:
 
-> Add support for the camera key. The hotkey for
-> Asus S.H.E(Super Hybrid Engine) mode is mapped to KEY_KEY_PROG1
-> just for notifying the userspace.
+> Hi Nestor,
+> 
+> Please find some initial comments below.
 
-Applied.
+Henrik,
+
+thanks a lot for the review in my absence.
+
+Nestor, I believe you are going to send an updated driver, right?
+
+Thanks,
 
 -- 
 Jiri Kosina

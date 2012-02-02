@@ -1,37 +1,53 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 6/6] hid-core: ignore the Keene FM transmitter.
-Date: Thu, 2 Feb 2012 13:02:57 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1202021301420.18918@pobox.suse.cz>
-References: <1328183796-3168-1-git-send-email-hverkuil@xs4all.nl> <b385adb918f71c1276e9f0cee4e1501b2186dca5.1328183271.git.hans.verkuil@cisco.com>
+From: Igor Murzov <intergalactic.anonymous@gmail.com>
+Subject: [PATCH] Input: i8042 - add Lenovo Ideapad U455 to 'reset' blacklist
+Date: Thu, 2 Feb 2012 18:22:25 +0400
+Message-ID: <20120202182225.68666279@garik>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45895 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755828Ab2BBMC7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 Feb 2012 07:02:59 -0500
-In-Reply-To: <b385adb918f71c1276e9f0cee4e1501b2186dca5.1328183271.git.hans.verkuil@cisco.com>
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:50347 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756295Ab2BBOWe convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2012 09:22:34 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Igor Murzov <e-mail@date.by>, Tomas Miljenovic <TomasM@tomasm.tk>, Ike Panhc <ike.pan@canonical.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sergey V <sftp.mtuci@gmail.com>
 
-On Thu, 2 Feb 2012, Hans Verkuil wrote:
+>From 2d5a38a56453421e82428155f4b00303f3fb19b2 Mon Sep 17 00:00:00 2001
+From: Igor Murzov <e-mail@date.by>
+Date: Wed, 1 Feb 2012 03:11:53 +0400
+Subject: [PATCH] Input: i8042 - add Lenovo Ideapad U455 to 'reset' blacklist
 
-> From: Hans Verkuil <hans.verkuil@cisco.com>
-> 
-> The Keene FM transmitter USB device has the same USB ID as
-> the Logitech AudioHub Speaker, but it should ignore the hid.
-> Check if the name is that of the Keene device.
-> 
-> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Lenovo Ideapad U455 needs to be in the reset quirk list for its
+touchpad's proper function.
 
-Mauro, feel free to take this one with the rest of the patchset with my
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=40672
 
-	Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Igor Murzov <e-mail@date.by>
+---
+ drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
-Thanks,
-
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index b4cfc6c..5ec774d 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -512,6 +512,13 @@ static const struct dmi_system_id __initconst i8042_dmi_reset_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro 1720"),
+ 		},
+ 	},
++	{
++		/* Lenovo Ideapad U455 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "20046"),
++		},
++	},
+ 	{ }
+ };
+ 
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.5.1
+

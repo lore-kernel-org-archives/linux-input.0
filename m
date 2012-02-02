@@ -1,492 +1,266 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCH 5/6] radio-keene: add a driver for the Keene FM Transmitter.
-Date: Thu,  2 Feb 2012 12:56:35 +0100
-Message-ID: <138e63c92e1b091add8fcda44e4fb3f85e243704.1328183271.git.hans.verkuil@cisco.com>
+Subject: [PATCH 1/6] v4l2: standardize log start/end message.
+Date: Thu,  2 Feb 2012 12:56:31 +0100
+Message-ID: <71ef01f774221fd98c5d3e5a0dc4613dc928d967.1328183271.git.hans.verkuil@cisco.com>
 References: <1328183796-3168-1-git-send-email-hverkuil@xs4all.nl>
 Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <1328183796-3168-1-git-send-email-hverkuil@xs4all.nl>
-In-Reply-To: <71ef01f774221fd98c5d3e5a0dc4613dc928d967.1328183271.git.hans.verkuil@cisco.com>
-References: <71ef01f774221fd98c5d3e5a0dc4613dc928d967.1328183271.git.hans.verkuil@cisco.com>
 Sender: linux-media-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>, Steven Toth <stoth@kernellabs.com>, Andy Walls <awalls@md.metrocast.net>, Hans de Goede <hdegoede@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
 From: Hans Verkuil <hans.verkuil@cisco.com>
 
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
----
- drivers/media/radio/Kconfig       |   10 +
- drivers/media/radio/Makefile      |    1 +
- drivers/media/radio/radio-keene.c |  427 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 438 insertions(+), 0 deletions(-)
- create mode 100644 drivers/media/radio/radio-keene.c
+For drivers that properly use the v4l2 framework (i.e. set v4l2_dev in the
+video_device struct), the start and end messages of VIDIOC_LOG_STATUS are
+now generated automatically. People tended to forget these, but the v4l2-ctl
+tool scans for these messages, and it also makes it easier to read the status
+output in the kernel log.
 
-diff --git a/drivers/media/radio/Kconfig b/drivers/media/radio/Kconfig
-index e954781..48747df 100644
---- a/drivers/media/radio/Kconfig
-+++ b/drivers/media/radio/Kconfig
-@@ -80,6 +80,16 @@ config RADIO_SI4713
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called radio-si4713.
+The cx18, ivtv and bttv drivers were changed since they no longer need to
+log these start/end messages.
+
+In saa7164 two empty log_status functions were removed.
+
+Also added a helper function to v4l2-ctrl.c that can be used as the
+vidioc_log_status callback if all you need to do is to log the current control
+values. This is now used by pwc and vivi.
+
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Cc: Steven Toth <stoth@kernellabs.com>
+Cc: Andy Walls <awalls@md.metrocast.net>
+Cc: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/media/video/bt8xx/bttv-driver.c       |    4 ----
+ drivers/media/video/cx18/cx18-ioctl.c         |    4 ----
+ drivers/media/video/ivtv/ivtv-ioctl.c         |    5 -----
+ drivers/media/video/pwc/pwc-v4l.c             |   10 +---------
+ drivers/media/video/saa7164/saa7164-encoder.c |    6 ------
+ drivers/media/video/saa7164/saa7164-vbi.c     |    6 ------
+ drivers/media/video/v4l2-ctrls.c              |   12 ++++++++++++
+ drivers/media/video/v4l2-ioctl.c              |    6 ++++++
+ drivers/media/video/vivi.c                    |   10 +---------
+ include/media/v4l2-ctrls.h                    |    4 ++++
+ 10 files changed, 24 insertions(+), 43 deletions(-)
+
+diff --git a/drivers/media/video/bt8xx/bttv-driver.c b/drivers/media/video/bt8xx/bttv-driver.c
+index 76c301f..e581b37 100644
+--- a/drivers/media/video/bt8xx/bttv-driver.c
++++ b/drivers/media/video/bt8xx/bttv-driver.c
+@@ -2035,11 +2035,7 @@ static int bttv_log_status(struct file *file, void *f)
+ 	struct bttv_fh *fh  = f;
+ 	struct bttv *btv = fh->btv;
  
-+config USB_KEENE
-+	tristate "Keene FM Transmitter USB support"
-+	depends on USB && VIDEO_V4L2
-+	---help---
-+	  Say Y here if you want to connect this type of FM transmitter
-+	  to your computer's USB port.
+-	pr_info("%d: ========  START STATUS CARD #%d  ========\n",
+-		btv->c.nr, btv->c.nr);
+ 	bttv_call_all(btv, core, log_status);
+-	pr_info("%d: ========  END STATUS CARD   #%d  ========\n",
+-		btv->c.nr, btv->c.nr);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/media/video/cx18/cx18-ioctl.c b/drivers/media/video/cx18/cx18-ioctl.c
+index 66b1c15..be49f68 100644
+--- a/drivers/media/video/cx18/cx18-ioctl.c
++++ b/drivers/media/video/cx18/cx18-ioctl.c
+@@ -1085,8 +1085,6 @@ static int cx18_log_status(struct file *file, void *fh)
+ 	struct v4l2_audio audin;
+ 	int i;
+ 
+-	CX18_INFO("=================  START STATUS CARD #%d  "
+-		  "=================\n", cx->instance);
+ 	CX18_INFO("Version: %s  Card: %s\n", CX18_VERSION, cx->card_name);
+ 	if (cx->hw_flags & CX18_HW_TVEEPROM) {
+ 		struct tveeprom tv;
+@@ -1120,8 +1118,6 @@ static int cx18_log_status(struct file *file, void *fh)
+ 	CX18_INFO("Read MPEG/VBI: %lld/%lld bytes\n",
+ 			(long long)cx->mpg_data_received,
+ 			(long long)cx->vbi_data_inserted);
+-	CX18_INFO("==================  END STATUS CARD #%d  "
+-		  "==================\n", cx->instance);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/media/video/ivtv/ivtv-ioctl.c b/drivers/media/video/ivtv/ivtv-ioctl.c
+index b063077..2c92b12 100644
+--- a/drivers/media/video/ivtv/ivtv-ioctl.c
++++ b/drivers/media/video/ivtv/ivtv-ioctl.c
+@@ -1479,8 +1479,6 @@ static int ivtv_log_status(struct file *file, void *fh)
+ 	struct v4l2_audio audin;
+ 	int i;
+ 
+-	IVTV_INFO("=================  START STATUS CARD #%d  =================\n",
+-		       itv->instance);
+ 	IVTV_INFO("Version: %s Card: %s\n", IVTV_VERSION, itv->card_name);
+ 	if (itv->hw_flags & IVTV_HW_TVEEPROM) {
+ 		struct tveeprom tv;
+@@ -1569,9 +1567,6 @@ static int ivtv_log_status(struct file *file, void *fh)
+ 	IVTV_INFO("Read MPG/VBI: %lld/%lld bytes\n",
+ 			(long long)itv->mpg_data_received,
+ 			(long long)itv->vbi_data_inserted);
+-	IVTV_INFO("==================  END STATUS CARD #%d  ==================\n",
+-			itv->instance);
+-
+ 	return 0;
+ }
+ 
+diff --git a/drivers/media/video/pwc/pwc-v4l.c b/drivers/media/video/pwc/pwc-v4l.c
+index f495eeb..2834e3e 100644
+--- a/drivers/media/video/pwc/pwc-v4l.c
++++ b/drivers/media/video/pwc/pwc-v4l.c
+@@ -1146,14 +1146,6 @@ leave:
+ 	return ret;
+ }
+ 
+-static int pwc_log_status(struct file *file, void *priv)
+-{
+-	struct pwc_device *pdev = video_drvdata(file);
+-
+-	v4l2_ctrl_handler_log_status(&pdev->ctrl_handler, PWC_NAME);
+-	return 0;
+-}
+-
+ const struct v4l2_ioctl_ops pwc_ioctl_ops = {
+ 	.vidioc_querycap		    = pwc_querycap,
+ 	.vidioc_enum_input		    = pwc_enum_input,
+@@ -1169,7 +1161,7 @@ const struct v4l2_ioctl_ops pwc_ioctl_ops = {
+ 	.vidioc_dqbuf			    = pwc_dqbuf,
+ 	.vidioc_streamon		    = pwc_streamon,
+ 	.vidioc_streamoff		    = pwc_streamoff,
+-	.vidioc_log_status		    = pwc_log_status,
++	.vidioc_log_status		    = v4l2_ctrl_log_status,
+ 	.vidioc_enum_framesizes		    = pwc_enum_framesizes,
+ 	.vidioc_enum_frameintervals	    = pwc_enum_frameintervals,
+ 	.vidioc_g_parm			    = pwc_g_parm,
+diff --git a/drivers/media/video/saa7164/saa7164-encoder.c b/drivers/media/video/saa7164/saa7164-encoder.c
+index 2fd38a0..a9ed686 100644
+--- a/drivers/media/video/saa7164/saa7164-encoder.c
++++ b/drivers/media/video/saa7164/saa7164-encoder.c
+@@ -791,11 +791,6 @@ static int vidioc_s_fmt_vid_cap(struct file *file, void *priv,
+ 	return 0;
+ }
+ 
+-static int vidioc_log_status(struct file *file, void *priv)
+-{
+-	return 0;
+-}
+-
+ static int fill_queryctrl(struct saa7164_encoder_params *params,
+ 	struct v4l2_queryctrl *c)
+ {
+@@ -1347,7 +1342,6 @@ static const struct v4l2_ioctl_ops mpeg_ioctl_ops = {
+ 	.vidioc_g_ext_ctrls	 = vidioc_g_ext_ctrls,
+ 	.vidioc_s_ext_ctrls	 = vidioc_s_ext_ctrls,
+ 	.vidioc_try_ext_ctrls	 = vidioc_try_ext_ctrls,
+-	.vidioc_log_status	 = vidioc_log_status,
+ 	.vidioc_queryctrl	 = vidioc_queryctrl,
+ 	.vidioc_g_chip_ident	 = saa7164_g_chip_ident,
+ #ifdef CONFIG_VIDEO_ADV_DEBUG
+diff --git a/drivers/media/video/saa7164/saa7164-vbi.c b/drivers/media/video/saa7164/saa7164-vbi.c
+index e2e0341..273cf80 100644
+--- a/drivers/media/video/saa7164/saa7164-vbi.c
++++ b/drivers/media/video/saa7164/saa7164-vbi.c
+@@ -730,11 +730,6 @@ static int vidioc_s_fmt_vid_cap(struct file *file, void *priv,
+ 	return 0;
+ }
+ 
+-static int vidioc_log_status(struct file *file, void *priv)
+-{
+-	return 0;
+-}
+-
+ static int fill_queryctrl(struct saa7164_vbi_params *params,
+ 	struct v4l2_queryctrl *c)
+ {
+@@ -1256,7 +1251,6 @@ static const struct v4l2_ioctl_ops vbi_ioctl_ops = {
+ 	.vidioc_g_ext_ctrls	 = vidioc_g_ext_ctrls,
+ 	.vidioc_s_ext_ctrls	 = vidioc_s_ext_ctrls,
+ 	.vidioc_try_ext_ctrls	 = vidioc_try_ext_ctrls,
+-	.vidioc_log_status	 = vidioc_log_status,
+ 	.vidioc_queryctrl	 = vidioc_queryctrl,
+ #if 0
+ 	.vidioc_g_chip_ident	 = saa7164_g_chip_ident,
+diff --git a/drivers/media/video/v4l2-ctrls.c b/drivers/media/video/v4l2-ctrls.c
+index cccd42b..d070688 100644
+--- a/drivers/media/video/v4l2-ctrls.c
++++ b/drivers/media/video/v4l2-ctrls.c
+@@ -2359,3 +2359,15 @@ void v4l2_ctrl_del_event(struct v4l2_ctrl *ctrl,
+ 	v4l2_ctrl_unlock(ctrl);
+ }
+ EXPORT_SYMBOL(v4l2_ctrl_del_event);
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called radio-keene.
-+
- config RADIO_TEA5764
- 	tristate "TEA5764 I2C FM radio support"
- 	depends on I2C && VIDEO_V4L2
-diff --git a/drivers/media/radio/Makefile b/drivers/media/radio/Makefile
-index 390daf9..aec5f6f 100644
---- a/drivers/media/radio/Makefile
-+++ b/drivers/media/radio/Makefile
-@@ -20,6 +20,7 @@ obj-$(CONFIG_RADIO_MIROPCM20) += radio-miropcm20.o
- obj-$(CONFIG_USB_DSBR) += dsbr100.o
- obj-$(CONFIG_RADIO_SI470X) += si470x/
- obj-$(CONFIG_USB_MR800) += radio-mr800.o
-+obj-$(CONFIG_USB_KEENE) += radio-keene.o
- obj-$(CONFIG_RADIO_TEA5764) += radio-tea5764.o
- obj-$(CONFIG_RADIO_SAA7706H) += saa7706h.o
- obj-$(CONFIG_RADIO_TEF6862) += tef6862.o
-diff --git a/drivers/media/radio/radio-keene.c b/drivers/media/radio/radio-keene.c
-new file mode 100644
-index 0000000..55bd1d2
---- /dev/null
-+++ b/drivers/media/radio/radio-keene.c
-@@ -0,0 +1,427 @@
-+/*
-+ * Copyright (c) 2012 Hans Verkuil <hverkuil@xs4all.nl>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ */
-+
-+/* kernel includes */
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/input.h>
-+#include <linux/videodev2.h>
-+#include <media/v4l2-device.h>
-+#include <media/v4l2-ioctl.h>
-+#include <media/v4l2-ctrls.h>
-+#include <media/v4l2-event.h>
-+#include <linux/usb.h>
-+#include <linux/version.h>
-+#include <linux/mutex.h>
-+
-+/* driver and module definitions */
-+MODULE_AUTHOR("Hans Verkuil <hverkuil@xs4all.nl>");
-+MODULE_DESCRIPTION("Keene FM Transmitter driver");
-+MODULE_LICENSE("GPL");
-+
-+/* Actually, it advertises itself as a Logitech */
-+#define USB_KEENE_VENDOR 0x046d
-+#define USB_KEENE_PRODUCT 0x0a0e
-+
-+/* Probably USB_TIMEOUT should be modified in module parameter */
-+#define BUFFER_LENGTH 8
-+#define USB_TIMEOUT 500
-+
-+/* Frequency limits in MHz */
-+#define FREQ_MIN  76U
-+#define FREQ_MAX 108U
-+#define FREQ_MUL 16000U
-+
-+/* USB Device ID List */
-+static struct usb_device_id usb_keene_device_table[] = {
-+	{USB_DEVICE_AND_INTERFACE_INFO(USB_KEENE_VENDOR, USB_KEENE_PRODUCT,
-+							USB_CLASS_HID, 0, 0) },
-+	{ }						/* Terminating entry */
-+};
-+
-+MODULE_DEVICE_TABLE(usb, usb_keene_device_table);
-+
-+struct keene_device {
-+	struct usb_device *usbdev;
-+	struct usb_interface *intf;
-+	struct video_device vdev;
-+	struct v4l2_device v4l2_dev;
-+	struct v4l2_ctrl_handler hdl;
-+	struct mutex lock;
-+
-+	u8 *buffer;
-+	unsigned curfreq;
-+	u8 tx;
-+	u8 pa;
-+	bool stereo;
-+	bool muted;
-+	bool preemph_75_us;
-+};
-+
-+static inline struct keene_device *to_keene_dev(struct v4l2_device *v4l2_dev)
++int v4l2_ctrl_log_status(struct file *file, void *fh)
 +{
-+	return container_of(v4l2_dev, struct keene_device, v4l2_dev);
-+}
++	struct video_device *vfd = video_devdata(file);
++	struct v4l2_fh *vfh = file->private_data;
 +
-+/* Set frequency (if non-0), PA, mute and turn on/off the FM transmitter. */
-+static int keene_cmd_main(struct keene_device *radio, unsigned freq, bool play)
-+{
-+	unsigned short freq_send = freq ? (freq - 76 * 16000) / 800 : 0;
-+	int ret;
-+
-+	radio->buffer[0] = 0x00;
-+	radio->buffer[1] = 0x50;
-+	radio->buffer[2] = (freq_send >> 8) & 0xff;
-+	radio->buffer[3] = freq_send & 0xff;
-+	radio->buffer[4] = radio->pa;
-+	/* If bit 4 is set, then tune to the frequency.
-+	   If bit 3 is set, then unmute; if bit 2 is set, then mute.
-+	   If bit 1 is set, then enter idle mode; if bit 0 is set,
-+	   then enter transit mode.
-+	 */
-+	radio->buffer[5] = (radio->muted ? 4 : 8) | (play ? 1 : 2) |
-+							(freq ? 0x10 : 0);
-+	radio->buffer[6] = 0x00;
-+	radio->buffer[7] = 0x00;
-+
-+	ret = usb_control_msg(radio->usbdev, usb_sndctrlpipe(radio->usbdev, 0),
-+		9, 0x21, 0x200, 2, radio->buffer, BUFFER_LENGTH, USB_TIMEOUT);
-+
-+	if (ret < 0) {
-+		dev_warn(&radio->vdev.dev, "%s failed (%d)\n", __func__, ret);
-+		return ret;
-+	}
-+	if (freq)
-+		radio->curfreq = freq;
++	if (test_bit(V4L2_FL_USES_V4L2_FH, &vfd->flags) && vfd->v4l2_dev)
++		v4l2_ctrl_handler_log_status(vfh->ctrl_handler,
++			vfd->v4l2_dev->name);
 +	return 0;
 +}
++EXPORT_SYMBOL(v4l2_ctrl_log_status);
+diff --git a/drivers/media/video/v4l2-ioctl.c b/drivers/media/video/v4l2-ioctl.c
+index d0d7281..ae4f3b0d 100644
+--- a/drivers/media/video/v4l2-ioctl.c
++++ b/drivers/media/video/v4l2-ioctl.c
+@@ -1911,7 +1911,13 @@ static long __video_do_ioctl(struct file *file,
+ 	{
+ 		if (!ops->vidioc_log_status)
+ 			break;
++		if (vfd->v4l2_dev)
++			pr_info("%s: =================  START STATUS  =================\n",
++				vfd->v4l2_dev->name);
+ 		ret = ops->vidioc_log_status(file, fh);
++		if (vfd->v4l2_dev)
++			pr_info("%s: ==================  END STATUS  ==================\n",
++				vfd->v4l2_dev->name);
+ 		break;
+ 	}
+ #ifdef CONFIG_VIDEO_ADV_DEBUG
+diff --git a/drivers/media/video/vivi.c b/drivers/media/video/vivi.c
+index 84ea88d..cef8c91 100644
+--- a/drivers/media/video/vivi.c
++++ b/drivers/media/video/vivi.c
+@@ -959,14 +959,6 @@ static int vidioc_streamoff(struct file *file, void *priv, enum v4l2_buf_type i)
+ 	return vb2_streamoff(&dev->vb_vidq, i);
+ }
+ 
+-static int vidioc_log_status(struct file *file, void *priv)
+-{
+-	struct vivi_dev *dev = video_drvdata(file);
+-
+-	v4l2_ctrl_handler_log_status(&dev->ctrl_handler, dev->v4l2_dev.name);
+-	return 0;
+-}
+-
+ static int vidioc_s_std(struct file *file, void *priv, v4l2_std_id *i)
+ {
+ 	return 0;
+@@ -1210,7 +1202,7 @@ static const struct v4l2_ioctl_ops vivi_ioctl_ops = {
+ 	.vidioc_s_input       = vidioc_s_input,
+ 	.vidioc_streamon      = vidioc_streamon,
+ 	.vidioc_streamoff     = vidioc_streamoff,
+-	.vidioc_log_status    = vidioc_log_status,
++	.vidioc_log_status    = v4l2_ctrl_log_status,
+ 	.vidioc_subscribe_event = vidioc_subscribe_event,
+ 	.vidioc_unsubscribe_event = v4l2_event_unsubscribe,
+ };
+diff --git a/include/media/v4l2-ctrls.h b/include/media/v4l2-ctrls.h
+index eeb3df6..5f246c2 100644
+--- a/include/media/v4l2-ctrls.h
++++ b/include/media/v4l2-ctrls.h
+@@ -492,6 +492,10 @@ void v4l2_ctrl_add_event(struct v4l2_ctrl *ctrl,
+ void v4l2_ctrl_del_event(struct v4l2_ctrl *ctrl,
+ 		struct v4l2_subscribed_event *sev);
+ 
++/* Can be used as a vidioc_log_status function that just dumps all controls
++   associated with the filehandle. */
++int v4l2_ctrl_log_status(struct file *file, void *fh);
 +
-+/* Set TX, stereo and preemphasis mode (50 us vs 75 us). */
-+static int keene_cmd_set(struct keene_device *radio)
-+{
-+	int ret;
-+
-+	radio->buffer[0] = 0x00;
-+	radio->buffer[1] = 0x51;
-+	radio->buffer[2] = radio->tx;
-+	/* If bit 0 is set, then transmit mono, otherwise stereo.
-+	   If bit 2 is set, then enable 75 us preemphasis, otherwise
-+	   it is 50 us. */
-+	radio->buffer[3] = (!radio->stereo) | (radio->preemph_75_us ? 4 : 0);
-+	radio->buffer[4] = 0x00;
-+	radio->buffer[5] = 0x00;
-+	radio->buffer[6] = 0x00;
-+	radio->buffer[7] = 0x00;
-+
-+	ret = usb_control_msg(radio->usbdev, usb_sndctrlpipe(radio->usbdev, 0),
-+		9, 0x21, 0x200, 2, radio->buffer, BUFFER_LENGTH, USB_TIMEOUT);
-+
-+	if (ret < 0) {
-+		dev_warn(&radio->vdev.dev, "%s failed (%d)\n", __func__, ret);
-+		return ret;
-+	}
-+	return 0;
-+}
-+
-+/* Handle unplugging the device.
-+ * We call video_unregister_device in any case.
-+ * The last function called in this procedure is
-+ * usb_keene_device_release.
-+ */
-+static void usb_keene_disconnect(struct usb_interface *intf)
-+{
-+	struct keene_device *radio = to_keene_dev(usb_get_intfdata(intf));
-+
-+	v4l2_device_get(&radio->v4l2_dev);
-+	mutex_lock(&radio->lock);
-+	usb_set_intfdata(intf, NULL);
-+	video_unregister_device(&radio->vdev);
-+	v4l2_device_disconnect(&radio->v4l2_dev);
-+	mutex_unlock(&radio->lock);
-+	v4l2_device_put(&radio->v4l2_dev);
-+}
-+
-+static int vidioc_querycap(struct file *file, void *priv,
-+					struct v4l2_capability *v)
-+{
-+	struct keene_device *radio = video_drvdata(file);
-+
-+	strlcpy(v->driver, "radio-keene", sizeof(v->driver));
-+	strlcpy(v->card, "Keene FM Transmitter", sizeof(v->card));
-+	usb_make_path(radio->usbdev, v->bus_info, sizeof(v->bus_info));
-+	v->device_caps = V4L2_CAP_RADIO | V4L2_CAP_MODULATOR;
-+	v->capabilities = v->device_caps | V4L2_CAP_DEVICE_CAPS;
-+	return 0;
-+}
-+
-+static int vidioc_g_modulator(struct file *file, void *priv,
-+				struct v4l2_modulator *v)
-+{
-+	struct keene_device *radio = video_drvdata(file);
-+
-+	if (v->index > 0)
-+		return -EINVAL;
-+
-+	strlcpy(v->name, "FM", sizeof(v->name));
-+	v->rangelow = FREQ_MIN * FREQ_MUL;
-+	v->rangehigh = FREQ_MAX * FREQ_MUL;
-+	v->txsubchans = radio->stereo ? V4L2_TUNER_SUB_STEREO : V4L2_TUNER_SUB_MONO;
-+	v->capability = V4L2_TUNER_CAP_LOW | V4L2_TUNER_CAP_STEREO;
-+	return 0;
-+}
-+
-+static int vidioc_s_modulator(struct file *file, void *priv,
-+				struct v4l2_modulator *v)
-+{
-+	struct keene_device *radio = video_drvdata(file);
-+
-+	if (v->index > 0)
-+		return -EINVAL;
-+
-+	radio->stereo = (v->txsubchans == V4L2_TUNER_SUB_STEREO);
-+	return keene_cmd_set(radio);
-+}
-+
-+static int vidioc_s_frequency(struct file *file, void *priv,
-+				struct v4l2_frequency *f)
-+{
-+	struct keene_device *radio = video_drvdata(file);
-+
-+	if (f->tuner != 0 || f->type != V4L2_TUNER_RADIO)
-+		return -EINVAL;
-+	f->frequency = clamp(f->frequency,
-+			FREQ_MIN * FREQ_MUL, FREQ_MAX * FREQ_MUL);
-+	return keene_cmd_main(radio, f->frequency, true);
-+}
-+
-+static int vidioc_g_frequency(struct file *file, void *priv,
-+				struct v4l2_frequency *f)
-+{
-+	struct keene_device *radio = video_drvdata(file);
-+
-+	if (f->tuner != 0)
-+		return -EINVAL;
-+	f->type = V4L2_TUNER_RADIO;
-+	f->frequency = radio->curfreq;
-+	return 0;
-+}
-+
-+static int keene_s_ctrl(struct v4l2_ctrl *ctrl)
-+{
-+	static const u8 db2tx[] = {
-+	     /*	 -15,  -12,   -9,   -6,   -3,    0 dB */
-+		0x03, 0x13, 0x02, 0x12, 0x22, 0x32,
-+	     /*	   3,    6,    9,   12,   15,   18 dB */
-+		0x21, 0x31, 0x20, 0x30, 0x40, 0x50
-+	};
-+	struct keene_device *radio =
-+		container_of(ctrl->handler, struct keene_device, hdl);
-+
-+	switch (ctrl->id) {
-+	case V4L2_CID_AUDIO_MUTE:
-+		radio->muted = ctrl->val;
-+		return keene_cmd_main(radio, 0, true);
-+
-+	case V4L2_CID_TUNE_POWER_LEVEL:
-+		/* To go from dBuV to the register value we apply the
-+		   following formula: */
-+		radio->pa = (ctrl->val - 71) * 100 / 62;
-+		return keene_cmd_main(radio, 0, true);
-+
-+	case V4L2_CID_TUNE_PREEMPHASIS:
-+		radio->preemph_75_us = ctrl->val == V4L2_PREEMPHASIS_75_uS;
-+		return keene_cmd_set(radio);
-+
-+	case V4L2_CID_AUDIO_COMPRESSION_GAIN:
-+		radio->tx = db2tx[(ctrl->val - ctrl->minimum) / ctrl->step];
-+		return keene_cmd_set(radio);
-+	}
-+	return -EINVAL;
-+}
-+
-+static int vidioc_subscribe_event(struct v4l2_fh *fh,
-+				struct v4l2_event_subscription *sub)
-+{
-+	switch (sub->type) {
-+	case V4L2_EVENT_CTRL:
-+		return v4l2_event_subscribe(fh, sub, 0);
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
-+
-+/* File system interface */
-+static const struct v4l2_file_operations usb_keene_fops = {
-+	.owner		= THIS_MODULE,
-+	.open           = v4l2_fh_open,
-+	.release        = v4l2_fh_release,
-+	.poll		= v4l2_ctrl_poll,
-+	.unlocked_ioctl	= video_ioctl2,
-+};
-+
-+static const struct v4l2_ctrl_ops keene_ctrl_ops = {
-+	.s_ctrl = keene_s_ctrl,
-+};
-+
-+static const struct v4l2_ioctl_ops usb_keene_ioctl_ops = {
-+	.vidioc_querycap    = vidioc_querycap,
-+	.vidioc_g_modulator = vidioc_g_modulator,
-+	.vidioc_s_modulator = vidioc_s_modulator,
-+	.vidioc_g_frequency = vidioc_g_frequency,
-+	.vidioc_s_frequency = vidioc_s_frequency,
-+	.vidioc_log_status = v4l2_ctrl_log_status,
-+	.vidioc_subscribe_event = vidioc_subscribe_event,
-+	.vidioc_unsubscribe_event = v4l2_event_unsubscribe,
-+};
-+
-+static void usb_keene_video_device_release(struct v4l2_device *v4l2_dev)
-+{
-+	struct keene_device *radio = to_keene_dev(v4l2_dev);
-+
-+	/* free rest memory */
-+	v4l2_ctrl_handler_free(&radio->hdl);
-+	kfree(radio->buffer);
-+	kfree(radio);
-+}
-+
-+/* check if the device is present and register with v4l and usb if it is */
-+static int usb_keene_probe(struct usb_interface *intf,
-+				const struct usb_device_id *id)
-+{
-+	struct usb_device *dev = interface_to_usbdev(intf);
-+	struct keene_device *radio;
-+	struct v4l2_ctrl_handler *hdl;
-+	int retval = 0;
-+
-+	/*
-+	 * The Keene FM transmitter USB device has the same USB ID as
-+	 * the Logitech AudioHub Speaker, but it should ignore the hid.
-+	 * Check if the name is that of the Keene device.
-+	 * If not, then someone connected the AudioHub and we shouldn't
-+	 * attempt to handle this driver.
-+	 * For reference: the product name of the AudioHub is
-+	 * "AudioHub Speaker".
-+	 */
-+	if (dev->product && strcmp(dev->product, "B-LINK USB Audio  "))
-+		return -ENODEV;
-+
-+	radio = kzalloc(sizeof(struct keene_device), GFP_KERNEL);
-+	if (radio)
-+		radio->buffer = kmalloc(BUFFER_LENGTH, GFP_KERNEL);
-+
-+	if (!radio || !radio->buffer) {
-+		dev_err(&intf->dev, "kmalloc for keene_device failed\n");
-+		kfree(radio);
-+		retval = -ENOMEM;
-+		goto err;
-+	}
-+
-+	hdl = &radio->hdl;
-+	v4l2_ctrl_handler_init(hdl, 4);
-+	v4l2_ctrl_new_std(hdl, &keene_ctrl_ops, V4L2_CID_AUDIO_MUTE,
-+			0, 1, 1, 0);
-+	v4l2_ctrl_new_std_menu(hdl, &keene_ctrl_ops, V4L2_CID_TUNE_PREEMPHASIS,
-+			V4L2_PREEMPHASIS_75_uS, 1, V4L2_PREEMPHASIS_50_uS);
-+	v4l2_ctrl_new_std(hdl, &keene_ctrl_ops, V4L2_CID_TUNE_POWER_LEVEL,
-+			84, 118, 1, 118);
-+	v4l2_ctrl_new_std(hdl, &keene_ctrl_ops, V4L2_CID_AUDIO_COMPRESSION_GAIN,
-+			-15, 18, 3, 0);
-+	radio->pa = 118;
-+	radio->tx = 0x32;
-+	radio->stereo = true;
-+	radio->curfreq = 95.16 * FREQ_MUL;
-+	if (hdl->error) {
-+		retval = hdl->error;
-+
-+		v4l2_ctrl_handler_free(hdl);
-+		goto err_v4l2;
-+	}
-+	retval = v4l2_device_register(&intf->dev, &radio->v4l2_dev);
-+	if (retval < 0) {
-+		dev_err(&intf->dev, "couldn't register v4l2_device\n");
-+		goto err_v4l2;
-+	}
-+
-+	mutex_init(&radio->lock);
-+
-+	radio->v4l2_dev.ctrl_handler = hdl;
-+	radio->v4l2_dev.release = usb_keene_video_device_release;
-+	strlcpy(radio->vdev.name, radio->v4l2_dev.name,
-+		sizeof(radio->vdev.name));
-+	radio->vdev.v4l2_dev = &radio->v4l2_dev;
-+	radio->vdev.fops = &usb_keene_fops;
-+	radio->vdev.ioctl_ops = &usb_keene_ioctl_ops;
-+	radio->vdev.lock = &radio->lock;
-+	radio->vdev.release = video_device_release_empty;
-+
-+	radio->usbdev = interface_to_usbdev(intf);
-+	radio->intf = intf;
-+	usb_set_intfdata(intf, &radio->v4l2_dev);
-+
-+	video_set_drvdata(&radio->vdev, radio);
-+	set_bit(V4L2_FL_USE_FH_PRIO, &radio->vdev.flags);
-+
-+	retval = video_register_device(&radio->vdev, VFL_TYPE_RADIO, -1);
-+	if (retval < 0) {
-+		dev_err(&intf->dev, "could not register video device\n");
-+		goto err_vdev;
-+	}
-+	v4l2_ctrl_handler_setup(hdl);
-+	dev_info(&intf->dev, "V4L2 device registered as %s\n",
-+			video_device_node_name(&radio->vdev));
-+	return 0;
-+
-+err_vdev:
-+	v4l2_device_unregister(&radio->v4l2_dev);
-+err_v4l2:
-+	kfree(radio->buffer);
-+	kfree(radio);
-+err:
-+	return retval;
-+}
-+
-+/* USB subsystem interface */
-+static struct usb_driver usb_keene_driver = {
-+	.name			= "radio-keene",
-+	.probe			= usb_keene_probe,
-+	.disconnect		= usb_keene_disconnect,
-+	.id_table		= usb_keene_device_table,
-+};
-+
-+static int __init keene_init(void)
-+{
-+	int retval = usb_register(&usb_keene_driver);
-+
-+	if (retval)
-+		pr_err(KBUILD_MODNAME
-+			": usb_register failed. Error number %d\n", retval);
-+
-+	return retval;
-+}
-+
-+static void __exit keene_exit(void)
-+{
-+	usb_deregister(&usb_keene_driver);
-+}
-+
-+module_init(keene_init);
-+module_exit(keene_exit);
-+
+ /* Helpers for ioctl_ops. If hdl == NULL then they will all return -EINVAL. */
+ int v4l2_queryctrl(struct v4l2_ctrl_handler *hdl, struct v4l2_queryctrl *qc);
+ int v4l2_querymenu(struct v4l2_ctrl_handler *hdl, struct v4l2_querymenu *qm);
 -- 
 1.7.8.3

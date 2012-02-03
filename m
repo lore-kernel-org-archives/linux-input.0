@@ -1,44 +1,68 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: evdev - fix variable initialisation
-Date: Fri, 3 Feb 2012 00:37:08 -0800
-Message-ID: <20120203083707.GC24226@core.coreip.homeip.net>
-References: <201201312224.46360.heiko@sntech.de>
- <CAPz4a6DDwt2uEX1o3ULSESjnVqMA1gBWoFP27XCviaOXd1-fpw@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: Re: [PATCH v2 1/3] hid-multitouch: add support for trackpads
+Date: Fri, 3 Feb 2012 11:07:34 +0100
+Message-ID: <CAN+gG=Fv-uO03UvyCjX2_cUHWcTo5kqqLWw6sTZm8C=gCUXyyA@mail.gmail.com>
+References: <1326887468-5148-1-git-send-email-benjamin.tissoires@enac.fr>
+	<1326887468-5148-2-git-send-email-benjamin.tissoires@enac.fr>
+	<20120120160948.GA18530@polaris.bitmath.org>
+	<20120120164849.GA6520@core.coreip.homeip.net>
+	<CAN+gG=HsiGyCMVHbWm1ri5q5_s8L0Af76B9R8gJVHhKMa8t1FQ@mail.gmail.com>
+	<alpine.LNX.2.00.1202020935390.18918@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAPz4a6DDwt2uEX1o3ULSESjnVqMA1gBWoFP27XCviaOXd1-fpw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dima Zavin <dima@android.com>
-Cc: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:62736 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755191Ab2BCKHg convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Feb 2012 05:07:36 -0500
+In-Reply-To: <alpine.LNX.2.00.1202020935390.18918@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Jan 31, 2012 at 01:40:42PM -0800, Dima Zavin wrote:
-> ugh, thanks for fixing this.
->=20
-> On Tue, Jan 31, 2012 at 1:24 PM, Heiko St=FCbner <heiko@sntech.de> wr=
-ote:
-> > Commit 509f87c5f564 (evdev - do not block waiting for an event if f=
-d
-> > is nonblock) created a code path were it was possible to use retval
-> > uninitialized.
-> >
-> > This could lead to the xorg evdev input driver getting corrupt data
-> > and refusing to work with log messages like
-> > =A0 =A0 =A0 =A0AUO-Pixcir touchscreen: Read error: Success
-> > =A0 =A0 =A0 =A0sg060_keys: Read error: Success
-> > =A0 =A0 =A0 =A0AUO-Pixcir touchscreen: Read error: Success
-> > =A0 =A0 =A0 =A0sg060_keys: Read error: Success
-> > (for drivers auo-pixcir-ts and gpio-keys).
-> >
-> > Signed-off-by: Heiko Stuebner <heiko@sntech.de>
->=20
-> Acked-by: Dima Zavin <dima@android.com>
->=20
+Hi Jiri,
 
-Applied, thank you.
+On Thu, Feb 2, 2012 at 09:36, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Tue, 24 Jan 2012, Benjamin Tissoires wrote:
+>
+>> Hi Dmitry and Henrik,
+>>
+>> Thanks Dmitry for the comment.
+>>
+>> I'll do the change as you mentioned and will also remove the
+>> input_mt_report_finger_count call.
+>
+> Benjamin,
+>
+> I have just materialized from almost 3 weeks of being offline, so I j=
+ust
+> wanted to check the current status of this.
 
---=20
-Dmitry
+no problems on my side (was quite busy)
+
+>
+> Are you planning to send v3 of this patchset?
+
+sure. I'll try to do it today.
+
+Cheers,
+Benjamin
+
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

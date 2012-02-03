@@ -1,611 +1,140 @@
-From: zitev <zitev@freemail.hu>
-Subject: Re: not supported hardware: Gigabyte K8100 Aivia USB Gaming Keyboard
-Date: Thu, 02 Feb 2012 21:16:48 +0100
-Message-ID: <4F2AEF30.5080805@freemail.hu>
-References: <4D55AE81.3030805@freemail.hu> <20120126002100.GA4495@burratino> <4F21C49D.2010906@freemail.hu> <20120126213939.GA5179@burratino> <4F230A1A.7080508@freemail.hu> <20120128071223.GA27331@burratino> <4F299010.5090009@freemail.hu> <alpine.LNX.2.00.1202012104030.18918@pobox.suse.cz>
+From: Chase Douglas <chasedouglas@gmail.com>
+Subject: Re: [PATCH v3] Input: Add EVIOC mechanism for MT slots
+Date: Fri, 03 Feb 2012 01:05:00 +0100
+Message-ID: <4F2B24AC.1020408@gmail.com>
+References: <1328036403-2827-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail00k.mail.t-online.hu ([84.2.227.137]:53986 "EHLO
-	mail00k.mail.t-online.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751176Ab2BBUQw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2012 15:16:52 -0500
-In-Reply-To: <alpine.LNX.2.00.1202012104030.18918@pobox.suse.cz>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:32842 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754706Ab2BCAEF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2012 19:04:05 -0500
+In-Reply-To: <1328036403-2827-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jonathan Nieder <jrnieder@gmail.com>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-I check cat /dev/input/event6, and only the backspace-button working on=
-=20
-this keyboard...
-I start pressing cat /sys/kernel/debug/hid/, and found the next subfold=
-ers:
+On 01/31/2012 08:00 PM, Henrik Rydberg wrote:
+> This patch adds the ability to extract MT slot data via a new ioctl,
+> EVIOCGMTSLOTS. The function returns an array of slot values for the
+> specified ABS_MT event type.
+> 
+> Example of user space usage:
+> 
+> struct INPUT_MT_REQUEST(64) req;
+> req.code = ABS_MT_POSITION_X;
+> if (ioctl(fd, EVIOCGMTSLOTS(sizeof(req)), &req) < 0)
+> 	return -1;
+> for (i = 0; i < 64; i++)
+> 	printf("slot %d: %d\n", i, req.values[i]);
+> 
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+> Hi Dmitry,
+> 
+> Here is v3 of the EVIOC patch for MT slots. The number of slots if
+> gone, the struct is simplified, targeting userland, and calling the
+> ioctl with a smaller struct will return the first set of slots.
+> 
+> Cheers,
+> Henrik
+> 
+> 
+>  drivers/input/evdev.c |   27 ++++++++++++++++++++++++++-
+>  include/linux/input.h |   23 +++++++++++++++++++++++
+>  2 files changed, 49 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index 76457d5..e4cad16 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -20,7 +20,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/module.h>
+>  #include <linux/init.h>
+> -#include <linux/input.h>
+> +#include <linux/input/mt.h>
+>  #include <linux/major.h>
+>  #include <linux/device.h>
+>  #include "input-compat.h"
+> @@ -623,6 +623,28 @@ static int evdev_handle_set_keycode_v2(struct input_dev *dev, void __user *p)
+>  	return input_set_keycode(dev, &ke);
+>  }
+>  
+> +static int evdev_handle_mt_request(struct input_dev *dev,
+> +				   unsigned int size,
+> +				   int __user *ip)
+> +{
+> +	const struct input_mt_slot *mt = dev->mt;
+> +	unsigned int code;
+> +	int max_slots;
+> +	int i;
+> +
+> +	if (get_user(code, &ip[0]))
+> +		return -EFAULT;
+> +	if (!input_is_mt_value(code))
+> +		return -EINVAL;
+> +
+> +	max_slots = (size - sizeof(__u32)) / sizeof(__s32);
+> +	for (i = 0; i < dev->mtsize && i < max_slots; i++)
+> +		if (put_user(input_mt_get_value(&mt[i], code), &ip[1 + i]))
+> +			return -EFAULT;
+> +
+> +	return 0;
+> +}
+> +
+>  static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+>  			   void __user *p, int compat_mode)
+>  {
+> @@ -708,6 +730,9 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+>  		return bits_to_user(dev->propbit, INPUT_PROP_MAX,
+>  				    size, p, compat_mode);
+>  
+> +	case EVIOCGMTSLOTS(0):
+> +		return evdev_handle_mt_request(dev, size, ip);
+> +
+>  	case EVIOCGKEY(0):
+>  		return bits_to_user(dev->key, KEY_MAX, size, p, compat_mode);
+>  
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index 3862e32..1e7e2e5 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -99,6 +99,28 @@ struct input_keymap_entry {
+>  	__u8  scancode[32];
+>  };
+>  
+> +/**
+> + * struct INPUT_MT_REQUEST(num_slots) - used by EVIOCGMTSLOTS ioctl
+> + * @code: ABS_MT code to read
+> + * @values: value array, one value per slot
+> + *
+> + * The struct definition is used to create an appropriate MT slot message
+> + * buffer in userland. Before the call, code is set to the wanted ABS_MT
+> + * event type. On return, the value array is filled with the slot values
+> + * for the specified ABS_MT code.
+> + *
+> + * The call argument (len) is the size of the return buffer, which should
+> + * satisfy len >= sizeof(struct INPUT_MT_REQUEST(num_slots)).  If len is
+> + * too small to fit all available slots, the first num_slots are returned.
+> + *
+> + * If the request code is not an ABS_MT value, -EINVAL is returned.
+> + */
+> +#define INPUT_MT_REQUEST(num_slots)					\
+> +	{								\
+> +		__u32 code;						\
+> +		__s32 values[num_slots];				\
 
-0003:060B:2270.0004/
-0003:060B:2270.0005/
-0003:1044:7A02.0001/
-0003:1044:7A02.0002/
-0003:1044:7A02.0003/
+I think this assumes a userspace C compiler that can handle variable
+length arrays. This would require only compiling in C source code at the
+C99 standard or later. It looks like C++ doesn't even allow variable
+length arrays, though gcc handles it. According to:
 
-"player:/home/vitez# cat /sys/kernel/debug/hid/0003\:060B\:2270.0004/ev=
-ents
-(and pressing the backspace key):
+http://www.cplusplus.com/forum/beginner/1601/
 
-report (size 8) (unnumbered) =3D  00 00 2a 00 00 00 00 00
-Keyboard.00e0 =3D 0
-Keyboard.00e1 =3D 0
-Keyboard.00e2 =3D 0
-Keyboard.00e3 =3D 0
-Keyboard.00e4 =3D 0
-Keyboard.00e5 =3D 0
-Keyboard.00e6 =3D 0
-Keyboard.00e7 =3D 0
-Keyboard.002a =3D 1
+it looks like Borland c++ compilers may not be able to compile this :(.
 
-report (size 8) (unnumbered) =3D  00 00 00 00 00 00 00 00
-Keyboard.00e0 =3D 0
-Keyboard.00e1 =3D 0
-Keyboard.00e2 =3D 0
-Keyboard.00e3 =3D 0
-Keyboard.00e4 =3D 0
-Keyboard.00e5 =3D 0
-Keyboard.00e6 =3D 0
-Keyboard.00e7 =3D 0
-Keyboard.002a =3D 0
-
-report (size 8) (unnumbered) =3D  00 00 2a 00 00 00 00 00
-Keyboard.00e0 =3D 0
-Keyboard.00e1 =3D 0
-Keyboard.00e2 =3D 0
-Keyboard.00e3 =3D 0
-Keyboard.00e4 =3D 0
-Keyboard.00e5 =3D 0
-Keyboard.00e6 =3D 0
-Keyboard.00e7 =3D 0
-Keyboard.002a =3D 1
-
-report (size 8) (unnumbered) =3D  00 00 00 00 00 00 00 00
-Keyboard.00e0 =3D 0
-Keyboard.00e1 =3D 0
-Keyboard.00e2 =3D 0
-Keyboard.00e3 =3D 0
-Keyboard.00e4 =3D 0
-Keyboard.00e5 =3D 0
-Keyboard.00e6 =3D 0
-Keyboard.00e7 =3D 0
-Keyboard.002a =3D 0
-
-report (size 8) (unnumbered) =3D  00 00 2a 00 00 00 00 00
-Keyboard.00e0 =3D 0
-Keyboard.00e1 =3D 0
-Keyboard.00e2 =3D 0
-Keyboard.00e3 =3D 0
-Keyboard.00e4 =3D 0
-Keyboard.00e5 =3D 0
-Keyboard.00e6 =3D 0
-Keyboard.00e7 =3D 0
-Keyboard.002a =3D 1
-
-report (size 8) (unnumbered) =3D  00 00 00 00 00 00 00 00
-Keyboard.00e0 =3D 0
-Keyboard.00e1 =3D 0
-Keyboard.00e2 =3D 0
-Keyboard.00e3 =3D 0
-Keyboard.00e4 =3D 0
-Keyboard.00e5 =3D 0
-Keyboard.00e6 =3D 0
-Keyboard.00e7 =3D 0
-Keyboard.002a =3D 0"
-
-"cat /sys/kernel/debug/hid/0003\:060B\:2270.0004/rdesc
-05 01 09 06 a1 01 05 07 19 e0 29 e7 15 00 25 01 75 01 95 08 81 02 95 01=
-=20
-75 08 81 01 95 03 75 01 05 08 19 01 29 03 91 02 95 05 75 01 91 01 95 06=
-=20
-75 08 26 ff 00 05 07 19 00 29 91 81 00 09 00 15 00 26 ff 00 75 08 95 08=
-=20
-b1 00 c0
-
-   INPUT[INPUT]
-     Field(0)
-       Application(GenericDesktop.Keyboard)
-       Usage(8)
-         Keyboard.00e0
-         Keyboard.00e1
-         Keyboard.00e2
-         Keyboard.00e3
-         Keyboard.00e4
-         Keyboard.00e5
-         Keyboard.00e6
-         Keyboard.00e7
-       Logical Minimum(0)
-       Logical Maximum(1)
-       Report Size(1)
-       Report Count(8)
-       Report Offset(0)
-       Flags( Variable Absolute )
-     Field(1)
-       Application(GenericDesktop.Keyboard)
-       Usage(146)
-         Keyboard.0000
-         Keyboard.0001
-         Keyboard.0002
-         Keyboard.0003
-         Keyboard.0004
-         Keyboard.0005
-         Keyboard.0006
-         Keyboard.0007
-         Keyboard.0008
-         Keyboard.0009
-         Keyboard.000a
-         Keyboard.000b
-         Keyboard.000c
-         Keyboard.000d
-         Keyboard.000e
-         Keyboard.000f
-         Keyboard.0010
-         Keyboard.0011
-         Keyboard.0012
-         Keyboard.0013
-         Keyboard.0014
-         Keyboard.0015
-         Keyboard.0016
-         Keyboard.0017
-         Keyboard.0018
-         Keyboard.0019
-         Keyboard.001a
-         Keyboard.001b
-         Keyboard.001c
-         Keyboard.001d
-         Keyboard.001e
-         Keyboard.001f
-         Keyboard.0020
-         Keyboard.0021
-         Keyboard.0022
-         Keyboard.0023
-         Keyboard.0024
-         Keyboard.0025
-         Keyboard.0026
-         Keyboard.0027
-         Keyboard.0028
-         Keyboard.0029
-         Keyboard.002a
-         Keyboard.002b
-         Keyboard.002c
-         Keyboard.002d
-         Keyboard.002e
-         Keyboard.002f
-         Keyboard.0030
-         Keyboard.0031
-         Keyboard.0032
-         Keyboard.0033
-         Keyboard.0034
-         Keyboard.0035
-         Keyboard.0036
-         Keyboard.0037
-         Keyboard.0038
-         Keyboard.0039
-         Keyboard.003a
-         Keyboard.003b
-         Keyboard.003c
-         Keyboard.003d
-         Keyboard.003e
-         Keyboard.003f
-         Keyboard.0040
-         Keyboard.0041
-         Keyboard.0042
-         Keyboard.0043
-         Keyboard.0044
-         Keyboard.0045
-         Keyboard.0046
-         Keyboard.0047
-         Keyboard.0048
-         Keyboard.0049
-         Keyboard.004a
-         Keyboard.004b
-         Keyboard.004c
-         Keyboard.004d
-         Keyboard.004e
-         Keyboard.004f
-         Keyboard.0050
-         Keyboard.0051
-         Keyboard.0052
-         Keyboard.0053
-         Keyboard.0054
-         Keyboard.0055
-         Keyboard.0056
-         Keyboard.0057
-         Keyboard.0058
-         Keyboard.0059
-         Keyboard.005a
-         Keyboard.005b
-         Keyboard.005c
-         Keyboard.005d
-         Keyboard.005e
-         Keyboard.005f
-         Keyboard.0060
-         Keyboard.0061
-         Keyboard.0062
-         Keyboard.0063
-         Keyboard.0064
-         Keyboard.0065
-         Keyboard.0066
-         Keyboard.0067
-         Keyboard.0068
-         Keyboard.0069
-         Keyboard.006a
-         Keyboard.006b
-         Keyboard.006c
-         Keyboard.006d
-         Keyboard.006e
-         Keyboard.006f
-         Keyboard.0070
-         Keyboard.0071
-         Keyboard.0072
-         Keyboard.0073
-         Keyboard.0074
-         Keyboard.0075
-         Keyboard.0076
-         Keyboard.0077
-         Keyboard.0078
-         Keyboard.0079
-         Keyboard.007a
-         Keyboard.007b
-         Keyboard.007c
-         Keyboard.007d
-         Keyboard.007e
-         Keyboard.007f
-         Keyboard.0080
-         Keyboard.0081
-         Keyboard.0082
-         Keyboard.0083
-         Keyboard.0084
-         Keyboard.0085
-         Keyboard.0086
-         Keyboard.0087
-         Keyboard.0088
-         Keyboard.0089
-         Keyboard.008a
-         Keyboard.008b
-         Keyboard.008c
-         Keyboard.008d
-         Keyboard.008e
-         Keyboard.008f
-         Keyboard.0090
-         Keyboard.0091
-       Logical Minimum(0)
-       Logical Maximum(255)
-       Report Size(8)
-       Report Count(6)
-       Report Offset(16)
-       Flags( Array Absolute )
-   OUTPUT[OUTPUT]
-     Field(0)
-       Application(GenericDesktop.Keyboard)
-       Usage(3)
-         LED.NumLock
-         LED.CapsLock
-         LED.ScrollLock
-       Logical Minimum(0)
-       Logical Maximum(1)
-       Report Size(1)
-       Report Count(3)
-       Report Offset(0)
-       Flags( Variable Absolute )
-   FEATURE[FEATURE]
-     Field(0)
-       Application(GenericDesktop.Keyboard)
-       Usage(8)
-         Keyboard.0000
-         Keyboard.0000
-         Keyboard.0000
-         Keyboard.0000
-         Keyboard.0000
-         Keyboard.0000
-         Keyboard.0000
-         Keyboard.0000
-       Logical Minimum(0)
-       Logical Maximum(255)
-       Report Size(8)
-       Report Count(8)
-       Report Offset(0)
-       Flags( Array Absolute )
-
-Keyboard.00e0 ---> Key.LeftControl
-Keyboard.00e1 ---> Key.LeftShift
-Keyboard.00e2 ---> Key.LeftAlt
-Keyboard.00e3 ---> Key.LeftMeta
-Keyboard.00e4 ---> Key.RightCtrl
-Keyboard.00e5 ---> Key.RightShift
-Keyboard.00e6 ---> Key.RightAlt
-Keyboard.00e7 ---> Key.RightMeta
-Keyboard.0000 ---> Sync.Report
-Keyboard.0001 ---> Sync.Report
-Keyboard.0002 ---> Sync.Report
-Keyboard.0003 ---> Sync.Report
-Keyboard.0004 ---> Key.A
-Keyboard.0005 ---> Key.B
-Keyboard.0006 ---> Key.C
-Keyboard.0007 ---> Key.D
-Keyboard.0008 ---> Key.E
-Keyboard.0009 ---> Key.F
-Keyboard.000a ---> Key.G
-Keyboard.000b ---> Key.H
-Keyboard.000c ---> Key.I
-Keyboard.000d ---> Key.J
-Keyboard.000e ---> Key.K
-Keyboard.000f ---> Key.L
-Keyboard.0010 ---> Key.M
-Keyboard.0011 ---> Key.N
-Keyboard.0012 ---> Key.O
-Keyboard.0013 ---> Key.P
-Keyboard.0014 ---> Key.Q
-Keyboard.0015 ---> Key.R
-Keyboard.0016 ---> Key.S
-Keyboard.0017 ---> Key.T
-Keyboard.0018 ---> Key.U
-Keyboard.0019 ---> Key.V
-Keyboard.001a ---> Key.W
-Keyboard.001b ---> Key.X
-Keyboard.001c ---> Key.Y
-Keyboard.001d ---> Key.Z
-Keyboard.001e ---> Key.1
-Keyboard.001f ---> Key.2
-Keyboard.0020 ---> Key.3
-Keyboard.0021 ---> Key.4
-Keyboard.0022 ---> Key.5
-Keyboard.0023 ---> Key.6
-Keyboard.0024 ---> Key.7
-Keyboard.0025 ---> Key.8
-Keyboard.0026 ---> Key.9
-Keyboard.0027 ---> Key.0
-Keyboard.0028 ---> Key.Enter
-Keyboard.0029 ---> Key.Esc
-Keyboard.002a ---> Key.Backspace
-Keyboard.002b ---> Key.Tab
-Keyboard.002c ---> Key.Space
-Keyboard.002d ---> Key.Minus
-Keyboard.002e ---> Key.Equal
-Keyboard.002f ---> Key.LeftBrace
-Keyboard.0030 ---> Key.RightBrace
-Keyboard.0031 ---> Key.BackSlash
-Keyboard.0032 ---> Key.BackSlash
-Keyboard.0033 ---> Key.Semicolon
-Keyboard.0034 ---> Key.Apostrophe
-Keyboard.0035 ---> Key.Grave
-Keyboard.0036 ---> Key.Comma
-Keyboard.0037 ---> Key.Dot
-Keyboard.0038 ---> Key.Slash
-Keyboard.0039 ---> Key.CapsLock
-Keyboard.003a ---> Key.F1
-Keyboard.003b ---> Key.F2
-Keyboard.003c ---> Key.F3
-Keyboard.003d ---> Key.F4
-Keyboard.003e ---> Key.F5
-Keyboard.003f ---> Key.F6
-Keyboard.0040 ---> Key.F7
-Keyboard.0041 ---> Key.F8
-Keyboard.0042 ---> Key.F9
-Keyboard.0043 ---> Key.F10
-Keyboard.0044 ---> Key.F11
-Keyboard.0045 ---> Key.F12
-Keyboard.0046 ---> Key.SysRq
-Keyboard.0047 ---> Key.ScrollLock
-Keyboard.0048 ---> Key.Pause
-Keyboard.0049 ---> Key.Insert
-Keyboard.004a ---> Key.Home
-Keyboard.004b ---> Key.PageUp
-Keyboard.004c ---> Key.Delete
-Keyboard.004d ---> Key.End
-Keyboard.004e ---> Key.PageDown
-Keyboard.004f ---> Key.Right
-Keyboard.0050 ---> Key.Left
-Keyboard.0051 ---> Key.Down
-Keyboard.0052 ---> Key.Up
-Keyboard.0053 ---> Key.NumLock
-Keyboard.0054 ---> Key.KPSlash
-Keyboard.0055 ---> Key.KPAsterisk
-Keyboard.0056 ---> Key.KPMinus
-Keyboard.0057 ---> Key.KPPlus
-Keyboard.0058 ---> Key.KPEnter
-Keyboard.0059 ---> Key.KP1
-Keyboard.005a ---> Key.KP2
-Keyboard.005b ---> Key.KP3
-Keyboard.005c ---> Key.KP4
-Keyboard.005d ---> Key.KP5
-Keyboard.005e ---> Key.KP6
-Keyboard.005f ---> Key.KP7
-Keyboard.0060 ---> Key.KP8
-Keyboard.0061 ---> Key.KP9
-Keyboard.0062 ---> Key.KP0
-Keyboard.0063 ---> Key.KPDot
-Keyboard.0064 ---> Key.102nd
-Keyboard.0065 ---> Key.Compose
-Keyboard.0066 ---> Key.Power
-Keyboard.0067 ---> Key.KPEqual
-Keyboard.0068 ---> Key.F13
-Keyboard.0069 ---> Key.F14
-Keyboard.006a ---> Key.F15
-Keyboard.006b ---> Key.F16
-Keyboard.006c ---> Key.F17
-Keyboard.006d ---> Key.F18
-Keyboard.006e ---> Key.F19
-Keyboard.006f ---> Key.F20
-Keyboard.0070 ---> Key.F21
-Keyboard.0071 ---> Key.F22
-Keyboard.0072 ---> Key.F23
-Keyboard.0073 ---> Key.F24
-Keyboard.0074 ---> Key.Open
-Keyboard.0075 ---> Key.Help
-Keyboard.0076 ---> Key.Props
-Keyboard.0077 ---> Key.Front
-Keyboard.0078 ---> Key.Stop
-Keyboard.0079 ---> Key.Again
-Keyboard.007a ---> Key.Undo
-Keyboard.007b ---> Key.Cut
-Keyboard.007c ---> Key.Copy
-Keyboard.007d ---> Key.Paste
-Keyboard.007e ---> Key.Find
-Keyboard.007f ---> Key.Mute
-Keyboard.0080 ---> Key.VolumeUp
-Keyboard.0081 ---> Key.VolumeDown
-Keyboard.0082 ---> Key.Unknown
-Keyboard.0083 ---> Key.Unknown
-Keyboard.0084 ---> Key.Unknown
-Keyboard.0085 ---> Key.KPComma
-Keyboard.0086 ---> Key.Unknown
-Keyboard.0087 ---> Key.RO
-Keyboard.0088 ---> Key.Katakana/Hiragana
-Keyboard.0089 ---> Key.Yen
-Keyboard.008a ---> Key.Henkan
-Keyboard.008b ---> Key.Muhenkan
-Keyboard.008c ---> Key.KPJpComma
-Keyboard.008d ---> Key.Unknown
-Keyboard.008e ---> Key.Unknown
-Keyboard.008f ---> Key.Unknown
-Keyboard.0090 ---> Key.Hangeul
-Keyboard.0091 ---> Key.Hanja
-LED.NumLock ---> LED.NumLock
-LED.CapsLock ---> LED.CapsLock
-LED.ScrollLock ---> LED.ScrollLock"
-
-"cat /sys/kernel/debug/hid/0003\:060B\:2270.0005/rdesc
-05 01 09 80 a1 01 85 01 19 81 29 83 15 00 25 01 95 03 75 01 81 02 95 01=
-=20
-75 05 81 01 c0 05 0c 09 01 a1 01 85 02 19 00 2a ff 7f 15 00 26 ff 7f 95=
-=20
-01 75 10 81 00 c0 05 01 09 06 a1 01 85 03 95 38 75 01 15 00 25 01 05 07=
-=20
-19 e0 29 e7 19 00 29 2f 81 02 c0 05 01 09 06 a1 01 85 04 95 38 75 01 15=
-=20
-00 25 01 05 07 19 30 29 67 81 02 c0
-
-   INPUT(1)[INPUT]
-     Field(0)
-       Application(GenericDesktop.SystemControl)
-       Usage(3)
-         GenericDesktop.SystemPowerDown
-         GenericDesktop.SystemSleep
-         GenericDesktop.SystemWakeUp
-       Logical Minimum(0)
-       Logical Maximum(1)
-       Report Size(1)
-       Report Count(3)
-       Report Offset(0)
-       Flags( Variable Absolute )
-
-GenericDesktop.SystemPowerDown ---> Sync.Report
-GenericDesktop.SystemSleep ---> Sync.Report
-GenericDesktop.SystemWakeUp ---> Sync.Report"
-
-"cat /sys/kernel/debug/hid/0003\:1044\:7A02.0001/rdesc
-05 01 09 06 a1 01 05 07 19 e0 29 e7 15 00 25 01 75 01 95 08 81 02 95 01=
-=20
-75 08 81 01 05 07 19 00 29 a4 16 a4 00 95 0e 81 00 c0
-
-   INPUT[INPUT]
-     Field(0)
-       Application(GenericDesktop.Keyboard)
-       Usage(8)
-         Keyboard.00e0
-         Keyboard.00e1
-         Keyboard.00e2
-         Keyboard.00e3
-         Keyboard.00e4
-         Keyboard.00e5
-         Keyboard.00e6
-         Keyboard.00e7
-       Logical Minimum(0)
-       Logical Maximum(1)
-       Report Size(1)
-       Report Count(8)
-       Report Offset(0)
-       Flags( Variable Absolute )
-
-Keyboard.00e0 ---> Sync.Report
-Keyboard.00e1 ---> Sync.Report
-Keyboard.00e2 ---> Sync.Report
-Keyboard.00e3 ---> Sync.Report
-Keyboard.00e4 ---> Sync.Report
-Keyboard.00e5 ---> Sync.Report
-Keyboard.00e6 ---> Sync.Report
-Keyboard.00e7 ---> Sync.Report"
-
-"cat /sys/kernel/debug/hid/0003\:060B\:2270.0004/events
-(with pressing backspace)
-
-report (size 8) (unnumbered) =3D  00 00 2a 00 00 00 00 00
-Keyboard.00e0 =3D 0
-Keyboard.00e1 =3D 0
-Keyboard.00e2 =3D 0
-Keyboard.00e3 =3D 0
-Keyboard.00e4 =3D 0
-Keyboard.00e5 =3D 0
-Keyboard.00e6 =3D 0
-Keyboard.00e7 =3D 0
-Keyboard.002a =3D 1
-
-report (size 8) (unnumbered) =3D  00 00 00 00 00 00 00 00
-Keyboard.00e0 =3D 0
-Keyboard.00e1 =3D 0
-Keyboard.00e2 =3D 0
-Keyboard.00e3 =3D 0
-Keyboard.00e4 =3D 0
-Keyboard.00e5 =3D 0
-Keyboard.00e6 =3D 0
-Keyboard.00e7 =3D 0
-Keyboard.002a =3D 0
-
-report (size 8) (unnumbered) =3D  00 00 2a 00 00 00 00 00
-Keyboard.00e0 =3D 0
-Keyboard.00e1 =3D 0
-Keyboard.00e2 =3D 0
-Keyboard.00e3 =3D 0
-Keyboard.00e4 =3D 0
-Keyboard.00e5 =3D 0
-Keyboard.00e6 =3D 0
-Keyboard.00e7 =3D 0
-Keyboard.002a =3D 1
-
-report (size 8) (unnumbered) =3D  00 00 00 00 00 00 00 00
-Keyboard.00e0 =3D 0
-Keyboard.00e1 =3D 0
-Keyboard.00e2 =3D 0
-Keyboard.00e3 =3D 0
-Keyboard.00e4 =3D 0
-Keyboard.00e5 =3D 0
-Keyboard.00e6 =3D 0
-Keyboard.00e7 =3D 0
-Keyboard.002a =3D 0"
-
-2012-02-01 21:06 keltez=E9ssel, Jiri Kosina =EDrta:
-> On Wed, 1 Feb 2012, zitev wrote:
->
->> I did every step of test, but after testing the /tmp/mon.out file is=
- 0byte
->> (empty)
->>
->> next task?
-> Does /dev/input/eventX get created? (I guess it does, as at least som=
-e
-> key(s) make it through).
->
-> If so, please provide
->
-> 	cat /sys/kernel/debug/hid/<device>/rdesc
->
-> and
-> 	cat /sys/kernel/debug/hid/<device>/events
->
-> Please run the second command, then press some of the non-working key=
-s
-> (press "a" for starters), and provide the output.
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- Chase

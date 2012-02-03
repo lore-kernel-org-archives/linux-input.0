@@ -1,140 +1,251 @@
-From: Chase Douglas <chasedouglas@gmail.com>
-Subject: Re: [PATCH v3] Input: Add EVIOC mechanism for MT slots
-Date: Fri, 03 Feb 2012 01:05:00 +0100
-Message-ID: <4F2B24AC.1020408@gmail.com>
-References: <1328036403-2827-1-git-send-email-rydberg@euromail.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: chris@cnpbagwell.com
+Subject: [PATCH v2 1/2] input : wacom - retrieve maximum number of touch points
+Date: Thu,  2 Feb 2012 21:32:27 -0600
+Message-ID: <1328239948-7073-1-git-send-email-chris@cnpbagwell.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:32842 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754706Ab2BCAEF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2012 19:04:05 -0500
-In-Reply-To: <1328036403-2827-1-git-send-email-rydberg@euromail.se>
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:63257 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755422Ab2BCDce (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Feb 2012 22:32:34 -0500
+Received: by obcva7 with SMTP id va7so3675926obc.19
+        for <linux-input@vger.kernel.org>; Thu, 02 Feb 2012 19:32:34 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: Ping Cheng <pinglinux@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, Ping Cheng <pingc@wacom.com>
 
-On 01/31/2012 08:00 PM, Henrik Rydberg wrote:
-> This patch adds the ability to extract MT slot data via a new ioctl,
-> EVIOCGMTSLOTS. The function returns an array of slot values for the
-> specified ABS_MT event type.
-> 
-> Example of user space usage:
-> 
-> struct INPUT_MT_REQUEST(64) req;
-> req.code = ABS_MT_POSITION_X;
-> if (ioctl(fd, EVIOCGMTSLOTS(sizeof(req)), &req) < 0)
-> 	return -1;
-> for (i = 0; i < 64; i++)
-> 	printf("slot %d: %d\n", i, req.values[i]);
-> 
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
-> Hi Dmitry,
-> 
-> Here is v3 of the EVIOC patch for MT slots. The number of slots if
-> gone, the struct is simplified, targeting userland, and calling the
-> ioctl with a smaller struct will return the first set of slots.
-> 
-> Cheers,
-> Henrik
-> 
-> 
->  drivers/input/evdev.c |   27 ++++++++++++++++++++++++++-
->  include/linux/input.h |   23 +++++++++++++++++++++++
->  2 files changed, 49 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index 76457d5..e4cad16 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -20,7 +20,7 @@
->  #include <linux/slab.h>
->  #include <linux/module.h>
->  #include <linux/init.h>
-> -#include <linux/input.h>
-> +#include <linux/input/mt.h>
->  #include <linux/major.h>
->  #include <linux/device.h>
->  #include "input-compat.h"
-> @@ -623,6 +623,28 @@ static int evdev_handle_set_keycode_v2(struct input_dev *dev, void __user *p)
->  	return input_set_keycode(dev, &ke);
->  }
->  
-> +static int evdev_handle_mt_request(struct input_dev *dev,
-> +				   unsigned int size,
-> +				   int __user *ip)
-> +{
-> +	const struct input_mt_slot *mt = dev->mt;
-> +	unsigned int code;
-> +	int max_slots;
-> +	int i;
-> +
-> +	if (get_user(code, &ip[0]))
-> +		return -EFAULT;
-> +	if (!input_is_mt_value(code))
-> +		return -EINVAL;
-> +
-> +	max_slots = (size - sizeof(__u32)) / sizeof(__s32);
-> +	for (i = 0; i < dev->mtsize && i < max_slots; i++)
-> +		if (put_user(input_mt_get_value(&mt[i], code), &ip[1 + i]))
-> +			return -EFAULT;
-> +
-> +	return 0;
-> +}
-> +
->  static long evdev_do_ioctl(struct file *file, unsigned int cmd,
->  			   void __user *p, int compat_mode)
->  {
-> @@ -708,6 +730,9 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
->  		return bits_to_user(dev->propbit, INPUT_PROP_MAX,
->  				    size, p, compat_mode);
->  
-> +	case EVIOCGMTSLOTS(0):
-> +		return evdev_handle_mt_request(dev, size, ip);
-> +
->  	case EVIOCGKEY(0):
->  		return bits_to_user(dev->key, KEY_MAX, size, p, compat_mode);
->  
-> diff --git a/include/linux/input.h b/include/linux/input.h
-> index 3862e32..1e7e2e5 100644
-> --- a/include/linux/input.h
-> +++ b/include/linux/input.h
-> @@ -99,6 +99,28 @@ struct input_keymap_entry {
->  	__u8  scancode[32];
->  };
->  
-> +/**
-> + * struct INPUT_MT_REQUEST(num_slots) - used by EVIOCGMTSLOTS ioctl
-> + * @code: ABS_MT code to read
-> + * @values: value array, one value per slot
-> + *
-> + * The struct definition is used to create an appropriate MT slot message
-> + * buffer in userland. Before the call, code is set to the wanted ABS_MT
-> + * event type. On return, the value array is filled with the slot values
-> + * for the specified ABS_MT code.
-> + *
-> + * The call argument (len) is the size of the return buffer, which should
-> + * satisfy len >= sizeof(struct INPUT_MT_REQUEST(num_slots)).  If len is
-> + * too small to fit all available slots, the first num_slots are returned.
-> + *
-> + * If the request code is not an ABS_MT value, -EINVAL is returned.
-> + */
-> +#define INPUT_MT_REQUEST(num_slots)					\
-> +	{								\
-> +		__u32 code;						\
-> +		__s32 values[num_slots];				\
+From: Ping Cheng <pinglinux@gmail.com>
 
-I think this assumes a userspace C compiler that can handle variable
-length arrays. This would require only compiling in C source code at the
-C99 standard or later. It looks like C++ doesn't even allow variable
-length arrays, though gcc handles it. According to:
+>From the HID usage table when it is supported.
 
-http://www.cplusplus.com/forum/beginner/1601/
+Tested-by: Chris Bagwell <chris@cnpbagwell.com>
+Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+v1 - Updated to patch originally from Ping. Move init of touch_max
+to features table based on review comment.  2nd patch is unmodified
+dependent patch from Peng.
 
-it looks like Borland c++ compilers may not be able to compile this :(.
+v2 - Fixed memory leak in wacom_retrieve_report_data() by moving
+value to stack.
 
--- Chase
+ drivers/input/tablet/wacom_sys.c |   22 ++++++++++++++-
+ drivers/input/tablet/wacom_wac.c |   55 +++++++++++++++++++++++--------------
+ drivers/input/tablet/wacom_wac.h |    1 +
+ 3 files changed, 56 insertions(+), 22 deletions(-)
+
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index c9588ee..14c7566 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -28,6 +28,7 @@
+ #define HID_USAGE_Y_TILT		0x3e
+ #define HID_USAGE_FINGER		0x22
+ #define HID_USAGE_STYLUS		0x20
++#define HID_USAGE_CONTACTMAX		0x55
+ #define HID_COLLECTION			0xa1
+ #define HID_COLLECTION_LOGICAL		0x02
+ #define HID_COLLECTION_END		0xc0
+@@ -196,6 +197,20 @@ static int wacom_parse_logical_collection(unsigned char *report,
+ 	return length;
+ }
+ 
++static void wacom_retrieve_report_data(struct usb_interface *intf,
++				       struct wacom_features *features)
++{
++	int result = 0;
++	unsigned char rep_data[2];
++
++	rep_data[0] = 12;
++	result = wacom_get_report(intf, WAC_HID_FEATURE_REPORT,
++		 rep_data[0], &rep_data, 2, WAC_MSG_RETRIES);
++
++	if ((result >= 0) && (rep_data[1] > 2))
++		features->touch_max = rep_data[1];
++}
++
+ /*
+  * Interface Descriptor of wacom devices can be incomplete and
+  * inconsistent so wacom_features table is used to store stylus
+@@ -369,6 +384,11 @@ static int wacom_parse_hid(struct usb_interface *intf,
+ 				pen = 1;
+ 				i++;
+ 				break;
++
++			case HID_USAGE_CONTACTMAX:
++				wacom_retrieve_report_data(intf, features);
++				i++;
++				break;
+ 			}
+ 			break;
+ 
+@@ -873,7 +893,7 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 
+ 	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+ 
+-	/* Retrieve the physical and logical size for OEM devices */
++	/* Retrieve the physical and logical size for touch devices */
+ 	error = wacom_retrieve_hid_descriptor(intf, features);
+ 	if (error)
+ 		goto fail3;
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 9283507..c56d577 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -830,7 +830,8 @@ static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
+ {
+ 	char *data = wacom->data;
+ 
+-	dbg("wacom_tpc_irq: received report #%d", data[0]);
++	dbg("wacom_tpc_irq: received report #%d with %d contacts",
++	     data[0], wacom->features.touch_max);
+ 
+ 	switch (len) {
+ 	case WACOM_PKGLEN_TPC1FG:
+@@ -1331,7 +1332,7 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 	case TABLETPC2FG:
+ 		if (features->device_type == BTN_TOOL_FINGER) {
+ 
+-			input_mt_init_slots(input_dev, 2);
++			input_mt_init_slots(input_dev, features->touch_max);
+ 			input_set_abs_params(input_dev, ABS_MT_TOOL_TYPE,
+ 					0, MT_TOOL_MAX, 0, 0);
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+@@ -1386,6 +1387,7 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 
+ 			__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+ 			__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
++			input_mt_init_slots(input_dev, features->touch_max);
+ 
+ 			if (features->pktlen == WACOM_PKGLEN_BBTOUCH3) {
+ 				__set_bit(BTN_TOOL_TRIPLETAP,
+@@ -1393,13 +1395,9 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 				__set_bit(BTN_TOOL_QUADTAP,
+ 					  input_dev->keybit);
+ 
+-				input_mt_init_slots(input_dev, 16);
+-
+ 				input_set_abs_params(input_dev,
+ 						     ABS_MT_TOUCH_MAJOR,
+ 						     0, 255, 0, 0);
+-			} else {
+-				input_mt_init_slots(input_dev, 2);
+ 			}
+ 
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+@@ -1615,40 +1613,48 @@ static const struct wacom_features wacom_features_0x90 =
+ 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0x93 =
+ 	{ "Wacom ISDv4 93",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  255,
+-	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 1 };
+ static const struct wacom_features wacom_features_0x97 =
+ 	{ "Wacom ISDv4 97",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  511,
+ 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0x9A =
+ 	{ "Wacom ISDv4 9A",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  255,
+-	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 1 };
+ static const struct wacom_features wacom_features_0x9F =
+ 	{ "Wacom ISDv4 9F",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  255,
+ 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0xE2 =
+ 	{ "Wacom ISDv4 E2",       WACOM_PKGLEN_TPC2FG,    26202, 16325,  255,
+-	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 2 };
+ static const struct wacom_features wacom_features_0xE3 =
+ 	{ "Wacom ISDv4 E3",       WACOM_PKGLEN_TPC2FG,    26202, 16325,  255,
+-	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 2 };
+ static const struct wacom_features wacom_features_0xE6 =
+ 	{ "Wacom ISDv4 E6",       WACOM_PKGLEN_TPC2FG,    27760, 15694,  255,
+-	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 2 };
+ static const struct wacom_features wacom_features_0x47 =
+ 	{ "Wacom Intuos2 6x8",    WACOM_PKGLEN_INTUOS,    20320, 16240, 1023,
+ 	  31, INTUOS, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0xD0 =
+ 	{ "Wacom Bamboo 2FG",     WACOM_PKGLEN_BBFUN,     14720,  9200, 1023,
+-	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 2 };
+ static const struct wacom_features wacom_features_0xD1 =
+ 	{ "Wacom Bamboo 2FG 4x5", WACOM_PKGLEN_BBFUN,     14720,  9200, 1023,
+-	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 2 };
+ static const struct wacom_features wacom_features_0xD2 =
+ 	{ "Wacom Bamboo Craft",   WACOM_PKGLEN_BBFUN,     14720,  9200, 1023,
+ 	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0xD3 =
+ 	{ "Wacom Bamboo 2FG 6x8", WACOM_PKGLEN_BBFUN,     21648, 13700, 1023,
+-	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 2 };
+ static const struct wacom_features wacom_features_0xD4 =
+ 	{ "Wacom Bamboo Pen",     WACOM_PKGLEN_BBFUN,     14720,  9200, 1023,
+ 	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+@@ -1657,28 +1663,35 @@ static const struct wacom_features wacom_features_0xD5 =
+ 	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0xD6 =
+ 	{ "Wacom BambooPT 2FG 4x5", WACOM_PKGLEN_BBFUN,   14720,  9200, 1023,
+-	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 2 };
+ static const struct wacom_features wacom_features_0xD7 =
+ 	{ "Wacom BambooPT 2FG Small", WACOM_PKGLEN_BBFUN, 14720,  9200, 1023,
+-	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 2 };
+ static const struct wacom_features wacom_features_0xD8 =
+ 	{ "Wacom Bamboo Comic 2FG", WACOM_PKGLEN_BBFUN,   21648, 13700, 1023,
+-	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 2 };
+ static const struct wacom_features wacom_features_0xDA =
+ 	{ "Wacom Bamboo 2FG 4x5 SE", WACOM_PKGLEN_BBFUN,  14720,  9200, 1023,
+-	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 2 };
+ static struct wacom_features wacom_features_0xDB =
+ 	{ "Wacom Bamboo 2FG 6x8 SE", WACOM_PKGLEN_BBFUN,  21648, 13700, 1023,
+-	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 2 };
+ static const struct wacom_features wacom_features_0xDD =
+         { "Wacom Bamboo Connect", WACOM_PKGLEN_BBPEN,     14720,  9200, 1023,
+           31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0xDE =
+         { "Wacom Bamboo 16FG 4x5", WACOM_PKGLEN_BBPEN,    14720,  9200, 1023,
+-          31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++          31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 16 };
+ static const struct wacom_features wacom_features_0xDF =
+         { "Wacom Bamboo 16FG 6x8", WACOM_PKGLEN_BBPEN,    21648, 13700, 1023,
+-          31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++          31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  .touch_max = 16 };
+ static const struct wacom_features wacom_features_0x6004 =
+ 	{ "ISD-V4",               WACOM_PKGLEN_GRAPHIRE,  12800,  8000,  255,
+ 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+index 4f0ba21..1c9dc3e 100644
+--- a/drivers/input/tablet/wacom_wac.h
++++ b/drivers/input/tablet/wacom_wac.h
+@@ -91,6 +91,7 @@ struct wacom_features {
+ 	int pressure_fuzz;
+ 	int distance_fuzz;
+ 	unsigned quirks;
++	unsigned touch_max;
+ };
+ 
+ struct wacom_shared {
+-- 
+1.7.7.4
+

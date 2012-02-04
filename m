@@ -1,41 +1,59 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH] Input: gpio_mouse - Use linux/gpio.h rather than asm/gpio.h
-Date: Sat,  4 Feb 2012 16:23:45 +0000
-Message-ID: <1328372625-31659-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Chase Douglas <chasedouglas@gmail.com>
+Subject: Re: [PATCH v3] Input: Add EVIOC mechanism for MT slots
+Date: Sat, 04 Feb 2012 19:21:36 +0100
+Message-ID: <4F2D7730.3090704@gmail.com>
+References: <1328036403-2827-1-git-send-email-rydberg@euromail.se> <4F2B24AC.1020408@gmail.com> <20120203072725.GA6914@polaris.bitmath.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:46007 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753276Ab2BDQXs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 4 Feb 2012 11:23:48 -0500
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:36934 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753209Ab2BDSUg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Feb 2012 13:20:36 -0500
+In-Reply-To: <20120203072725.GA6914@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Direct usage of the asm include has long been deprecated by the
-introduction of gpiolib.
+On 02/03/2012 08:27 AM, Henrik Rydberg wrote:
+> Hi Chase,
+> 
+>>> +#define INPUT_MT_REQUEST(num_slots)					\
+>>> +	{								\
+>>> +		__u32 code;						\
+>>> +		__s32 values[num_slots];				\
+>>
+>> I think this assumes a userspace C compiler that can handle variable
+>> length arrays. This would require only compiling in C source code at the
+>> C99 standard or later. It looks like C++ doesn't even allow variable
+>> length arrays, though gcc handles it. According to:
+>>
+>> http://www.cplusplus.com/forum/beginner/1601/
+>>
+>> it looks like Borland c++ compilers may not be able to compile this :(.
+> 
+> This is resolved on the preprocessor level, so C99 or not does not
+> enter the problem. Compile-time constant, as you can see in the code
+> example in the patch summary.
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
- drivers/input/mouse/gpio_mouse.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+You're right, I didn't catch that. It will be compatible with all C
+compilers if you use a static number of slots.
 
-diff --git a/drivers/input/mouse/gpio_mouse.c b/drivers/input/mouse/gpio_mouse.c
-index a9ad8e1..39fe9b7 100644
---- a/drivers/input/mouse/gpio_mouse.c
-+++ b/drivers/input/mouse/gpio_mouse.c
-@@ -12,9 +12,9 @@
- #include <linux/module.h>
- #include <linux/platform_device.h>
- #include <linux/input-polldev.h>
-+#include <linux/gpio.h>
- #include <linux/gpio_mouse.h>
- 
--#include <asm/gpio.h>
- 
- /*
-  * Timer function which is run every scan_ms ms when the device is opened.
--- 
-1.7.9.rc1
+However, it will break if you use a non-C99 C compiler and the code
+wants to do dynamic number of slots calculations. I imagine most callers
+would do:
 
+EVIOCGABS call on ABS_MT_SLOT;
+int num_slots = ABS_MT_SLOT.max - ABS_MT_SLOT.min
+struct INPUT_MT_REQUEST(num_slots) req;
+
+This will break on non-C99 C compilers and other language compilers. It
+also will lead to head-scratcher bugs when someone compiles it just fine
+in their C99 project, copies the code to another project with a
+different compiler, and is confronted with the issue.
+
+I think this issue should be enough to rethink the interface.
+
+-- Chase

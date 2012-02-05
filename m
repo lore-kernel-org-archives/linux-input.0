@@ -1,59 +1,64 @@
-From: Chase Douglas <chasedouglas@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
 Subject: Re: [PATCH v3] Input: Add EVIOC mechanism for MT slots
-Date: Sat, 04 Feb 2012 19:21:36 +0100
-Message-ID: <4F2D7730.3090704@gmail.com>
-References: <1328036403-2827-1-git-send-email-rydberg@euromail.se> <4F2B24AC.1020408@gmail.com> <20120203072725.GA6914@polaris.bitmath.org>
+Date: Sun, 5 Feb 2012 08:59:06 +0100
+Message-ID: <20120205075906.GA7698@polaris.bitmath.org>
+References: <1328036403-2827-1-git-send-email-rydberg@euromail.se>
+ <4F2B24AC.1020408@gmail.com>
+ <20120203072725.GA6914@polaris.bitmath.org>
+ <4F2D7730.3090704@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:36934 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753209Ab2BDSUg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Feb 2012 13:20:36 -0500
-In-Reply-To: <20120203072725.GA6914@polaris.bitmath.org>
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:50457 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752765Ab2BEH5w (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Feb 2012 02:57:52 -0500
+Content-Disposition: inline
+In-Reply-To: <4F2D7730.3090704@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
+To: Chase Douglas <chasedouglas@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 02/03/2012 08:27 AM, Henrik Rydberg wrote:
-> Hi Chase,
+> > This is resolved on the preprocessor level, so C99 or not does not
+> > enter the problem. Compile-time constant, as you can see in the code
+> > example in the patch summary.
 > 
->>> +#define INPUT_MT_REQUEST(num_slots)					\
->>> +	{								\
->>> +		__u32 code;						\
->>> +		__s32 values[num_slots];				\
->>
->> I think this assumes a userspace C compiler that can handle variable
->> length arrays. This would require only compiling in C source code at the
->> C99 standard or later. It looks like C++ doesn't even allow variable
->> length arrays, though gcc handles it. According to:
->>
->> http://www.cplusplus.com/forum/beginner/1601/
->>
->> it looks like Borland c++ compilers may not be able to compile this :(.
+> You're right, I didn't catch that. It will be compatible with all C
+> compilers if you use a static number of slots.
+
+Yes, but this statement is merely repeating something that has been
+true since the sixties.
+
+> However, it will break if you use a non-C99 C compiler and the code
+> wants to do dynamic number of slots calculations.
+
+Of course, which is why C99 cannot be used for portable code. And it
+still has nothing to do with this patch.
+
+> I imagine most callers would do:
 > 
-> This is resolved on the preprocessor level, so C99 or not does not
-> enter the problem. Compile-time constant, as you can see in the code
-> example in the patch summary.
+> EVIOCGABS call on ABS_MT_SLOT;
+> int num_slots = ABS_MT_SLOT.max - ABS_MT_SLOT.min
+> struct INPUT_MT_REQUEST(num_slots) req;
 
-You're right, I didn't catch that. It will be compatible with all C
-compilers if you use a static number of slots.
+Besides leaving a possible giant stack crash in your code, it assumes
+memory is somehow magically allocated. Not good practise in low-level
+programming. You wouldn't use a template this way, would you?
 
-However, it will break if you use a non-C99 C compiler and the code
-wants to do dynamic number of slots calculations. I imagine most callers
-would do:
+> This will break on non-C99 C compilers and other language compilers.
 
-EVIOCGABS call on ABS_MT_SLOT;
-int num_slots = ABS_MT_SLOT.max - ABS_MT_SLOT.min
-struct INPUT_MT_REQUEST(num_slots) req;
+Of course, since you use the C99 dynamic stack construct, which,
+again, is not portable.
 
-This will break on non-C99 C compilers and other language compilers. It
-also will lead to head-scratcher bugs when someone compiles it just fine
-in their C99 project, copies the code to another project with a
-different compiler, and is confronted with the issue.
+> It also will lead to head-scratcher bugs when someone compiles it
+> just fine in their C99 project, copies the code to another project
+> with a different compiler, and is confronted with the issue.
 
-I think this issue should be enough to rethink the interface.
+No, since people how know C do not do things like that.
 
--- Chase
+> I think this issue should be enough to rethink the interface.
+
+No, since your issues with C99 has nothing to do with this patch.
+
+Henrik

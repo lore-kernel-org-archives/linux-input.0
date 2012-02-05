@@ -1,111 +1,62 @@
-From: Chase Douglas <chasedouglas@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
 Subject: Re: [PATCH v3] Input: Add EVIOC mechanism for MT slots
-Date: Sun, 05 Feb 2012 18:13:44 +0100
-Message-ID: <4F2EB8C8.9090102@gmail.com>
-References: <1328036403-2827-1-git-send-email-rydberg@euromail.se> <4F2B24AC.1020408@gmail.com> <20120203072725.GA6914@polaris.bitmath.org> <4F2D7730.3090704@gmail.com> <20120205075906.GA7698@polaris.bitmath.org>
+Date: Sun, 5 Feb 2012 20:40:36 +0100
+Message-ID: <20120205194036.GA2566@polaris.bitmath.org>
+References: <1328036403-2827-1-git-send-email-rydberg@euromail.se>
+ <4F2B24AC.1020408@gmail.com>
+ <20120203072725.GA6914@polaris.bitmath.org>
+ <4F2D7730.3090704@gmail.com>
+ <20120205075906.GA7698@polaris.bitmath.org>
+ <4F2EB8C8.9090102@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:37992 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751320Ab2BERMl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Feb 2012 12:12:41 -0500
-In-Reply-To: <20120205075906.GA7698@polaris.bitmath.org>
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:35674 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753266Ab2BETjT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Feb 2012 14:39:19 -0500
+Content-Disposition: inline
+In-Reply-To: <4F2EB8C8.9090102@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
+To: Chase Douglas <chasedouglas@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 02/05/2012 08:59 AM, Henrik Rydberg wrote:
->>> This is resolved on the preprocessor level, so C99 or not does not
->>> enter the problem. Compile-time constant, as you can see in the code
->>> example in the patch summary.
->>
->> You're right, I didn't catch that. It will be compatible with all C
->> compilers if you use a static number of slots.
+> > Besides leaving a possible giant stack crash in your code, it assumes
+> > memory is somehow magically allocated. Not good practise in low-level
+> > programming. You wouldn't use a template this way, would you?
 > 
-> Yes, but this statement is merely repeating something that has been
-> true since the sixties.
+> No, which is why I think this interface is bad. I should be able to
+> dynamically set the size of the array, but it's not possible with this
+> interface.
+
+It is possible (using num_slots == 0 or creating your own struct), but
+not ideal, granted. The patch serves the purpose of definining the
+binary interface, the rest is up to userland.
+
+> I think the implementation is fine in terms of how the plumbing works. I
+> just don't think this macro should be included. Make the user create the
+> struct themselves:
 > 
->> However, it will break if you use a non-C99 C compiler and the code
->> wants to do dynamic number of slots calculations.
+> In linux/input.h:
 > 
-> Of course, which is why C99 cannot be used for portable code. And it
-> still has nothing to do with this patch.
-> 
->> I imagine most callers would do:
->>
->> EVIOCGABS call on ABS_MT_SLOT;
->> int num_slots = ABS_MT_SLOT.max - ABS_MT_SLOT.min
->> struct INPUT_MT_REQUEST(num_slots) req;
-> 
-> Besides leaving a possible giant stack crash in your code, it assumes
-> memory is somehow magically allocated. Not good practise in low-level
-> programming. You wouldn't use a template this way, would you?
+> struct input_mt_request {
+> 	__u32 code;
+> 	__s32 values[];
+> };
 
-No, which is why I think this interface is bad. I should be able to
-dynamically set the size of the array, but it's not possible with this
-interface.
+The above (the first) version is not ideal either, since it cannot be
+used as it is.
 
->> This will break on non-C99 C compilers and other language compilers.
-> 
-> Of course, since you use the C99 dynamic stack construct, which,
-> again, is not portable.
-> 
->> It also will lead to head-scratcher bugs when someone compiles it
->> just fine in their C99 project, copies the code to another project
->> with a different compiler, and is confronted with the issue.
-> 
-> No, since people how know C do not do things like that.
-> 
->> I think this issue should be enough to rethink the interface.
-> 
-> No, since your issues with C99 has nothing to do with this patch.
+> It could be argued that we should leave the macro around for people who
+> want to statically define the size of the request, but I think that is
+> leading them down the wrong path. It's easier, but it will lead to
+> broken code if you pick the wrong size.
 
-With this macro, one is forced to pick a number at compile time. If that
-number isn't big enough you have no recourse. If you pick too big of a
-number you are wasting stack space.
+Rather than creating both a suboptimal static and a suboptimal dynamic
+version, removing the struct altogether is tempting. All that is
+really needed is a clear definition of the binary interface. The rest
+can easily be set up in userland, using whatever method is preferred.
 
-I think the implementation is fine in terms of how the plumbing works. I
-just don't think this macro should be included. Make the user create the
-struct themselves:
-
-In linux/input.h:
-
-struct input_mt_request {
-	__u32 code;
-	__s32 values[];
-};
-
-In code:
-
-int num_slots;
-int size;
-struct input_mt_request *req;
-
-EVIOCGABS call on ABS_MT_SLOT;
-
-num_slots = ABS_MT_SLOT.max - ABS_MT_SLOT.min
-size = sizeof(struct input_mt_request) + num_slots * sizeof(__s32);
-req = malloc(size);
-req->code = ABS_MT_POSITION_X;
-if (ioctl(fd, EVIOCGMTSLOTS(size), req) < 0) {
-	free(req);
-	return -1;
-}
-for (i = 0; i < num_slots; i++)
-	printf("slot %d: %d\n", i, req->values[i]);
-free(req);
-
-(I'm still not clear on how the values[] member of the request can work,
-so this may not be quite right. I tried to copy the way the first
-version of this patch worked. However, the dynamic request size is the
-important part.)
-
-It could be argued that we should leave the macro around for people who
-want to statically define the size of the request, but I think that is
-leading them down the wrong path. It's easier, but it will lead to
-broken code if you pick the wrong size.
-
--- Chase
+Thanks.
+Henrik

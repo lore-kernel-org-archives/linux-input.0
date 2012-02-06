@@ -1,16 +1,16 @@
 From: chris@cnpbagwell.com
-Subject: [PATCH 2/5] Input: wacom - Bamboo wireless monitor framework
-Date: Sun,  5 Feb 2012 20:46:13 -0600
-Message-ID: <1328496376-28502-3-git-send-email-chris@cnpbagwell.com>
+Subject: [PATCH 4/5] Input: wacom - wireless Bamboo battery status
+Date: Sun,  5 Feb 2012 20:46:15 -0600
+Message-ID: <1328496376-28502-5-git-send-email-chris@cnpbagwell.com>
 References: <1328496376-28502-1-git-send-email-chris@cnpbagwell.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:46352 "EHLO
 	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752889Ab2BFCq1 (ORCPT
+	by vger.kernel.org with ESMTP id S1752906Ab2BFCqc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 5 Feb 2012 21:46:27 -0500
+	Sun, 5 Feb 2012 21:46:32 -0500
 Received: by mail-tul01m020-f174.google.com with SMTP id va7so6249563obc.19
-        for <linux-input@vger.kernel.org>; Sun, 05 Feb 2012 18:46:27 -0800 (PST)
+        for <linux-input@vger.kernel.org>; Sun, 05 Feb 2012 18:46:32 -0800 (PST)
 In-Reply-To: <1328496376-28502-1-git-send-email-chris@cnpbagwell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,206 +19,181 @@ Cc: Chris Bagwell <chris@cnpbagwell.com>
 
 From: Chris Bagwell <chris@cnpbagwell.com>
 
-The 3rd gen Bamboo Pen & Touch tablets support an optional
-wireless module. When its receiver is plugged into USB it
-presents 3 interfaces: 0) Monitor 1) Pen and 2) Touch.
-
-The exact capabilities of the Pen and Touch interfaces can
-not be determined until a tablet connection is established
-and reported over the Monitor interface.
-
-This patch detects this wireless receiver and enables interrupt
-packets to be processed for the Monitor interface. Processing
-the data in packets will be left to another patch.
-
-Since it doesn't make sense to create an input device for the
-Monitor interface, it is not created. Creation of Pen and Touch
-input device is also delayed until monitor packets can be processed.
-
 Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
 ---
- drivers/input/tablet/wacom_sys.c |   35 ++++++++++++++++++++++++++++++-----
- drivers/input/tablet/wacom_wac.c |   28 +++++++++++++++++++++++++++-
- drivers/input/tablet/wacom_wac.h |    4 ++++
- 3 files changed, 61 insertions(+), 6 deletions(-)
 
+Once the function power_supply_powers() is visible in Dmitry's next tree,
+I'll send in a patch that adds that feature in.
+
+ drivers/input/tablet/Kconfig     |    1 +
+ drivers/input/tablet/wacom.h     |    2 +
+ drivers/input/tablet/wacom_sys.c |   57 +++++++++++++++++++++++++++++++++++++-
+ drivers/input/tablet/wacom_wac.c |    5 ++-
+ drivers/input/tablet/wacom_wac.h |    1 +
+ 5 files changed, 64 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/tablet/Kconfig b/drivers/input/tablet/Kconfig
+index 58a8775..0edeb94 100644
+--- a/drivers/input/tablet/Kconfig
++++ b/drivers/input/tablet/Kconfig
+@@ -76,6 +76,7 @@ config TABLET_USB_KBTAB
+ config TABLET_USB_WACOM
+ 	tristate "Wacom Intuos/Graphire tablet support (USB)"
+ 	depends on USB_ARCH_HAS_HCD
++	select POWER_SUPPLY
+ 	select USB
+ 	help
+ 	  Say Y here if you want to use the USB version of the Wacom Intuos
+diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/wacom.h
+index febbfd9..b4842d0 100644
+--- a/drivers/input/tablet/wacom.h
++++ b/drivers/input/tablet/wacom.h
+@@ -88,6 +88,7 @@
+ #include <linux/mod_devicetable.h>
+ #include <linux/init.h>
+ #include <linux/usb/input.h>
++#include <linux/power_supply.h>
+ #include <asm/unaligned.h>
+ 
+ /*
+@@ -121,6 +122,7 @@ struct wacom {
+ 		u8 hlv;       /* status led brightness button pressed (1..127) */
+ 		u8 img_lum;   /* OLED matrix display brightness */
+ 	} led;
++	struct power_supply battery;
+ };
+ 
+ static inline void wacom_schedule_work(struct wacom_wac *wacom_wac)
 diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 43e82e9..2827ef3 100644
+index 96467b7..92ccbb3 100644
 --- a/drivers/input/tablet/wacom_sys.c
 +++ b/drivers/input/tablet/wacom_sys.c
-@@ -422,6 +422,7 @@ static int wacom_query_tablet_data(struct usb_interface *intf, struct wacom_feat
- 						report_id, rep_data, 4, 1);
- 		} while ((error < 0 || rep_data[1] != 4) && limit++ < WAC_MSG_RETRIES);
- 	} else if (features->type != TABLETPC &&
-+		   features->type != BAMBOO_WIRELESS &&
- 		   features->device_type == BTN_TOOL_PEN) {
- 		do {
- 			rep_data[0] = 2;
-@@ -454,6 +455,21 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
- 	features->pressure_fuzz = 0;
- 	features->distance_fuzz = 0;
+@@ -843,6 +843,55 @@ static void wacom_destroy_leds(struct wacom *wacom)
+ 	}
+ }
  
-+	/*
-+	 * The wireless device HID is basic and layout conflicts with
-+	 * other tablets (monitor and touch interface can look like pen).
-+	 * Skip the query for this type and modify defaults based on
-+	 * interface number.
-+	 */
-+	if (features->type == BAMBOO_WIRELESS) {
-+		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
-+			features->device_type = 0;
-+		} else if (intf->cur_altsetting->desc.bInterfaceNumber == 2) {
-+			features->device_type = BTN_TOOL_DOUBLETAP;
-+			features->pktlen = WACOM_PKGLEN_BBTOUCH3;
-+		}
++static enum power_supply_property wacom_battery_props[] = {
++	POWER_SUPPLY_PROP_CAPACITY
++};
++
++static int wacom_battery_get_property(struct power_supply *psy,
++				      enum power_supply_property psp,
++				      union power_supply_propval *val)
++{
++	struct wacom *wacom = container_of(psy, struct wacom, battery);
++	int ret = 0;
++
++	switch (psp) {
++		case POWER_SUPPLY_PROP_CAPACITY:
++			val->intval =
++				wacom->wacom_wac.battery_capacity * 100 / 31;
++			break;
++		default:
++			ret = -EINVAL;
++			break;
 +	}
 +
- 	/* only Tablet PCs and Bamboo P&T need to retrieve the info */
- 	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG) &&
- 	    (features->type != BAMBOO_PT))
-@@ -928,9 +944,16 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	if (error)
- 		goto fail4;
- 
--	error = wacom_register_input(wacom);
--	if (error)
--		goto fail5;
-+	if (features->quirks & WACOM_QUIRK_MONITOR) {
-+		if (usb_submit_urb(wacom->irq, GFP_KERNEL))
-+			goto fail5;
++	return ret;
++}
++static int wacom_initialize_battery(struct wacom *wacom)
++{
++	int error = 0;
++
++	if (wacom->wacom_wac.features.quirks & WACOM_QUIRK_MONITOR) {
++		wacom->battery.properties = wacom_battery_props;
++		wacom->battery.num_properties = ARRAY_SIZE(wacom_battery_props);
++		wacom->battery.get_property = wacom_battery_get_property;
++		wacom->battery.name = "wacom_battery";
++		wacom->battery.type = POWER_SUPPLY_TYPE_BATTERY;
++		wacom->battery.use_for_apm = 0;
++
++		error = power_supply_register(&wacom->usbdev->dev,
++					      &wacom->battery);
 +	}
 +
-+	if (!(features->quirks & WACOM_QUIRK_NO_INPUT)) {
-+		error = wacom_register_input(wacom);
-+		if (error)
-+			goto fail5;
++	return error;
++}
++
++static void wacom_destroy_battery(struct wacom *wacom)
++{
++	if (wacom->wacom_wac.features.quirks & WACOM_QUIRK_MONITOR) {
++		power_supply_unregister(&wacom->battery);
 +	}
++}
++
+ static int wacom_register_input(struct wacom *wacom)
+ {
+ 	struct input_dev *input_dev;
+@@ -1021,10 +1070,14 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 			goto fail5;
+ 	}
+ 
++	error = wacom_initialize_battery(wacom);
++	if (error)
++		goto fail5;
++
+ 	if (!(features->quirks & WACOM_QUIRK_NO_INPUT)) {
+ 		error = wacom_register_input(wacom);
+ 		if (error)
+-			goto fail5;
++			goto fail6;
+ 	}
  
  	/* Note that if query fails it is not a hard failure */
- 	wacom_query_tablet_data(intf, features);
-@@ -953,7 +976,8 @@ static void wacom_disconnect(struct usb_interface *intf)
- 	usb_set_intfdata(intf, NULL);
+@@ -1033,6 +1086,7 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 	usb_set_intfdata(intf, wacom);
+ 	return 0;
  
- 	usb_kill_urb(wacom->irq);
--	input_unregister_device(wacom->wacom_wac.input);
-+	if (wacom->wacom_wac.input)
-+		input_unregister_device(wacom->wacom_wac.input);
++ fail6: wacom_destroy_battery(wacom);
+  fail5: wacom_destroy_leds(wacom);
+  fail4:	wacom_remove_shared_data(wacom_wac);
+  fail3:	usb_free_urb(wacom->irq);
+@@ -1051,6 +1105,7 @@ static void wacom_disconnect(struct usb_interface *intf)
+ 	cancel_work_sync(&wacom->work);
+ 	if (wacom->wacom_wac.input)
+ 		input_unregister_device(wacom->wacom_wac.input);
++	wacom_destroy_battery(wacom);
  	wacom_destroy_leds(wacom);
  	usb_free_urb(wacom->irq);
  	usb_free_coherent(interface_to_usbdev(intf), WACOM_PKGLEN_MAX,
-@@ -985,7 +1009,8 @@ static int wacom_resume(struct usb_interface *intf)
- 	wacom_query_tablet_data(intf, features);
- 	wacom_led_control(wacom);
- 
--	if (wacom->open && usb_submit_urb(wacom->irq, GFP_NOIO) < 0)
-+	if ((wacom->open || features->quirks & WACOM_QUIRK_MONITOR)
-+	     && usb_submit_urb(wacom->irq, GFP_NOIO) < 0)
- 		rv = -EIO;
- 
- 	mutex_unlock(&wacom->lock);
 diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 9283507..5b3c58f 100644
+index b649eba..a30f229 100644
 --- a/drivers/input/tablet/wacom_wac.c
 +++ b/drivers/input/tablet/wacom_wac.c
-@@ -1044,6 +1044,14 @@ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
- 	return 0;
- }
+@@ -1054,17 +1054,20 @@ static int wacom_bpt_wireless_irq(struct wacom_wac *wacom, size_t len)
  
-+static int wacom_bpt_wireless_irq(struct wacom_wac *wacom, size_t len)
-+{
-+	if (len != WACOM_PKGLEN_WIRELESS)
-+		return 0;
-+
-+	return 0;
-+}
-+
- void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- {
- 	bool sync;
-@@ -1094,6 +1102,10 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 		sync = wacom_bpt_irq(wacom_wac, len);
- 		break;
+ 	connected = data[1] & 0x01;
+ 	if (connected) {
+-		int pid;
++		int pid, battery;
  
-+	case BAMBOO_WIRELESS:
-+		sync = wacom_bpt_wireless_irq(wacom_wac, len);
-+		break;
-+
- 	default:
- 		sync = false;
- 		break;
-@@ -1155,7 +1167,7 @@ void wacom_setup_device_quirks(struct wacom_features *features)
- 
- 	/* these device have multiple inputs */
- 	if (features->type == TABLETPC || features->type == TABLETPC2FG ||
--	    features->type == BAMBOO_PT)
-+	    features->type == BAMBOO_PT || features->type == BAMBOO_WIRELESS)
- 		features->quirks |= WACOM_QUIRK_MULTI_INPUT;
- 
- 	/* quirk for bamboo touch with 2 low res touches */
-@@ -1167,6 +1179,16 @@ void wacom_setup_device_quirks(struct wacom_features *features)
- 		features->y_fuzz <<= 5;
- 		features->quirks |= WACOM_QUIRK_BBTOUCH_LOWRES;
+ 		pid = get_unaligned_be16(&data[6]);
++		battery = data[5] & 0x3f;
+ 		if (wacom->pid != pid) {
+ 			wacom->pid = pid;
+ 			wacom_schedule_work(wacom);
+ 		}
++		wacom->battery_capacity = battery;
+ 	} else if (wacom->pid != 0) {
+ 		/* disconnected while previously connected */
+ 		wacom->pid = 0;
+ 		wacom_schedule_work(wacom);
++		wacom->battery_capacity = 0;
  	}
-+
-+	if (features->type == BAMBOO_WIRELESS) {
-+
-+		/* monitor never has input and pen/touch have delayed create */
-+		features->quirks |= WACOM_QUIRK_NO_INPUT;
-+
-+		/* must be monitor interface if no device_type set */
-+		if (!features->device_type)
-+			features->quirks |= WACOM_QUIRK_MONITOR;
-+	}
- }
  
- static unsigned int wacom_calculate_touch_res(unsigned int logical_max,
-@@ -1637,6 +1659,9 @@ static const struct wacom_features wacom_features_0xE6 =
- static const struct wacom_features wacom_features_0x47 =
- 	{ "Wacom Intuos2 6x8",    WACOM_PKGLEN_INTUOS,    20320, 16240, 1023,
- 	  31, INTUOS, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+static const struct wacom_features wacom_features_0x84 =
-+	{ "Wacom Wireless Receiver", WACOM_PKGLEN_WIRELESS, 0, 0, 0,
-+	  0, BAMBOO_WIRELESS, 0, 0 };
- static const struct wacom_features wacom_features_0xD0 =
- 	{ "Wacom Bamboo 2FG",     WACOM_PKGLEN_BBFUN,     14720,  9200, 1023,
- 	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-@@ -1763,6 +1788,7 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_DETAILED(0xCE, USB_CLASS_HID,
- 			      USB_INTERFACE_SUBCLASS_BOOT,
- 			      USB_INTERFACE_PROTOCOL_MOUSE) },
-+	{ USB_DEVICE_WACOM(0x84) },
- 	{ USB_DEVICE_WACOM(0xD0) },
- 	{ USB_DEVICE_WACOM(0xD1) },
- 	{ USB_DEVICE_WACOM(0xD2) },
+ 	return 0;
 diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index 4f0ba21..fcee9c5 100644
+index 873b9bf..2d5e9ee 100644
 --- a/drivers/input/tablet/wacom_wac.h
 +++ b/drivers/input/tablet/wacom_wac.h
-@@ -24,6 +24,7 @@
- #define WACOM_PKGLEN_BBTOUCH	20
- #define WACOM_PKGLEN_BBTOUCH3	64
- #define WACOM_PKGLEN_BBPEN	10
-+#define WACOM_PKGLEN_WIRELESS	32
+@@ -112,6 +112,7 @@ struct wacom_wac {
+ 	struct wacom_shared *shared;
+ 	struct input_dev *input;
+ 	int pid;
++	int battery_capacity;
+ };
  
- /* device IDs */
- #define STYLUS_DEVICE_ID	0x02
-@@ -45,6 +46,8 @@
- /* device quirks */
- #define WACOM_QUIRK_MULTI_INPUT		0x0001
- #define WACOM_QUIRK_BBTOUCH_LOWRES	0x0002
-+#define WACOM_QUIRK_NO_INPUT		0x0004
-+#define WACOM_QUIRK_MONITOR		0x0008
- 
- enum {
- 	PENPARTNER = 0,
-@@ -54,6 +57,7 @@ enum {
- 	PL,
- 	DTU,
- 	BAMBOO_PT,
-+	BAMBOO_WIRELESS,
- 	INTUOS,
- 	INTUOS3S,
- 	INTUOS3,
+ #endif
 -- 
 1.7.7.6
 

@@ -1,88 +1,133 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] Input: Add EVIOC mechanism for MT slots
-Date: Sun, 5 Feb 2012 23:25:35 -0800
-Message-ID: <20120206072535.GB14139@core.coreip.homeip.net>
-References: <1328036403-2827-1-git-send-email-rydberg@euromail.se>
- <4F2B24AC.1020408@gmail.com>
- <20120203072725.GA6914@polaris.bitmath.org>
- <4F2D7730.3090704@gmail.com>
- <20120205075906.GA7698@polaris.bitmath.org>
- <4F2EB8C8.9090102@gmail.com>
- <20120205194036.GA2566@polaris.bitmath.org>
- <4F2F08CD.2010806@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH v4] Input: Add EVIOC mechanism for MT slots
+Date: Mon,  6 Feb 2012 09:05:42 +0100
+Message-ID: <1328515542-3779-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:63379 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751208Ab2BFHZl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Feb 2012 02:25:41 -0500
-Content-Disposition: inline
-In-Reply-To: <4F2F08CD.2010806@gmail.com>
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:43601 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750912Ab2BFIE3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Feb 2012 03:04:29 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chasedouglas@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: chasedouglas@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-On Sun, Feb 05, 2012 at 11:55:09PM +0100, Chase Douglas wrote:
-> On 02/05/2012 08:40 PM, Henrik Rydberg wrote:
-> >>> Besides leaving a possible giant stack crash in your code, it assumes
-> >>> memory is somehow magically allocated. Not good practise in low-level
-> >>> programming. You wouldn't use a template this way, would you?
-> >>
-> >> No, which is why I think this interface is bad. I should be able to
-> >> dynamically set the size of the array, but it's not possible with this
-> >> interface.
-> > 
-> > It is possible (using num_slots == 0 or creating your own struct), but
-> > not ideal, granted. The patch serves the purpose of definining the
-> > binary interface, the rest is up to userland.
-> > 
-> >> I think the implementation is fine in terms of how the plumbing works. I
-> >> just don't think this macro should be included. Make the user create the
-> >> struct themselves:
-> >>
-> >> In linux/input.h:
-> >>
-> >> struct input_mt_request {
-> >> 	__u32 code;
-> >> 	__s32 values[];
-> >> };
-> > 
-> > The above (the first) version is not ideal either, since it cannot be
-> > used as it is.
-> > 
-> >> It could be argued that we should leave the macro around for people who
-> >> want to statically define the size of the request, but I think that is
-> >> leading them down the wrong path. It's easier, but it will lead to
-> >> broken code if you pick the wrong size.
-> > 
-> > Rather than creating both a suboptimal static and a suboptimal dynamic
-> > version, removing the struct altogether is tempting. All that is
-> > really needed is a clear definition of the binary interface. The rest
-> > can easily be set up in userland, using whatever method is preferred.
-> 
-> I'm normally not a fan of static functions in header files, but maybe it
-> would be a good solution here:
-> 
-> struct input_mt_request {
-> 	__u32 code;
-> 	__s32 values[];
-> };
-> 
-> static struct input_mt_request *
-> linux_input_mt_request_alloc(int num_slots) {
-> 	return (struct input_mt_request *)malloc(
-> 		sizeof(__u32) + num_slots * sizeof(__s32));
-> }
+This patch adds the ability to extract MT slot data via a new ioctl,
+EVIOCGMTSLOTS. The function returns an array of slot values for the
+specified ABS_MT event type.
 
-Gah, can we please leave it to userspace programs to define and allocate
-the structure as it makes most sense for them. As far as kernel goes we
-just want to document that we'll need a u32 and a place to put N s32s.
-How they are allocated we do not care at all. It could be on stack
-(which does not have the same limits as kernel stack) or in the heap.
+Example of user space usage:
 
-Thanks.
+struct { unsigned code; int values[64]; } req;
+req.code = ABS_MT_POSITION_X;
+if (ioctl(fd, EVIOCGMTSLOTS(sizeof(req)), &req) < 0)
+	return -1;
+for (i = 0; i < 64; i++)
+	printf("slot %d: %d\n", i, req.values[i]);
 
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+Here is the fourth version of the patch.
+
+Rather than over-specifying the ioctl binary format by introducing a
+struct object that does not fit everyone, this version simply leaves
+all object definitions to userland.
+
+Thanks,
+Henrik
+
+ drivers/input/evdev.c |   27 ++++++++++++++++++++++++++-
+ include/linux/input.h |   25 +++++++++++++++++++++++++
+ 2 files changed, 51 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 76457d5..e4cad16 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -20,7 +20,7 @@
+ #include <linux/slab.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+-#include <linux/input.h>
++#include <linux/input/mt.h>
+ #include <linux/major.h>
+ #include <linux/device.h>
+ #include "input-compat.h"
+@@ -623,6 +623,28 @@ static int evdev_handle_set_keycode_v2(struct input_dev *dev, void __user *p)
+ 	return input_set_keycode(dev, &ke);
+ }
+ 
++static int evdev_handle_mt_request(struct input_dev *dev,
++				   unsigned int size,
++				   int __user *ip)
++{
++	const struct input_mt_slot *mt = dev->mt;
++	unsigned int code;
++	int max_slots;
++	int i;
++
++	if (get_user(code, &ip[0]))
++		return -EFAULT;
++	if (!input_is_mt_value(code))
++		return -EINVAL;
++
++	max_slots = (size - sizeof(__u32)) / sizeof(__s32);
++	for (i = 0; i < dev->mtsize && i < max_slots; i++)
++		if (put_user(input_mt_get_value(&mt[i], code), &ip[1 + i]))
++			return -EFAULT;
++
++	return 0;
++}
++
+ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 			   void __user *p, int compat_mode)
+ {
+@@ -708,6 +730,9 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 		return bits_to_user(dev->propbit, INPUT_PROP_MAX,
+ 				    size, p, compat_mode);
+ 
++	case EVIOCGMTSLOTS(0):
++		return evdev_handle_mt_request(dev, size, ip);
++
+ 	case EVIOCGKEY(0):
+ 		return bits_to_user(dev->key, KEY_MAX, size, p, compat_mode);
+ 
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 3862e32..af26443 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -114,6 +114,31 @@ struct input_keymap_entry {
+ #define EVIOCGUNIQ(len)		_IOC(_IOC_READ, 'E', 0x08, len)		/* get unique identifier */
+ #define EVIOCGPROP(len)		_IOC(_IOC_READ, 'E', 0x09, len)		/* get device properties */
+ 
++/**
++ * EVIOCGMTSLOTS(len) - get MT slot values
++ *
++ * The ioctl buffer argument should be binary equivalent to
++ *
++ * struct input_mt_request_layout {
++ *	__u32 code;
++ *	__s32 values[num_slots];
++ * };
++ *
++ * where num_slots is the (arbitrary) number of MT slots to extract.
++ *
++ * The ioctl size argument (len) is the size of the buffer, which
++ * should satisfy len = (num_slots + 1) * sizeof(__s32).  If len is
++ * too small to fit all available slots, the first num_slots are
++ * returned.
++ *
++ * Before the call, code is set to the wanted ABS_MT event type. On
++ * return, values[] is filled with the slot values for the specified
++ * ABS_MT code.
++ *
++ * If the request code is not an ABS_MT value, -EINVAL is returned.
++ */
++#define EVIOCGMTSLOTS(len)	_IOC(_IOC_READ, 'E', 0x0a, len)
++
+ #define EVIOCGKEY(len)		_IOC(_IOC_READ, 'E', 0x18, len)		/* get global key state */
+ #define EVIOCGLED(len)		_IOC(_IOC_READ, 'E', 0x19, len)		/* get all LEDs */
+ #define EVIOCGSND(len)		_IOC(_IOC_READ, 'E', 0x1a, len)		/* get all sounds status */
 -- 
-Dmitry
+1.7.9
+

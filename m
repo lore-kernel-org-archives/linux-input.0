@@ -1,99 +1,138 @@
-From: Chase Douglas <chasedouglas@gmail.com>
-Subject: Re: [PATCH v3] Input: Add EVIOC mechanism for MT slots
-Date: Sun, 05 Feb 2012 23:55:09 +0100
-Message-ID: <4F2F08CD.2010806@gmail.com>
-References: <1328036403-2827-1-git-send-email-rydberg@euromail.se> <4F2B24AC.1020408@gmail.com> <20120203072725.GA6914@polaris.bitmath.org> <4F2D7730.3090704@gmail.com> <20120205075906.GA7698@polaris.bitmath.org> <4F2EB8C8.9090102@gmail.com> <20120205194036.GA2566@polaris.bitmath.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: chris@cnpbagwell.com
+Subject: [PATCH 1/5] Input: wacom - isolate input registration
+Date: Sun,  5 Feb 2012 20:46:12 -0600
+Message-ID: <1328496376-28502-2-git-send-email-chris@cnpbagwell.com>
+References: <1328496376-28502-1-git-send-email-chris@cnpbagwell.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:55923 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753489Ab2BEXCW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Feb 2012 18:02:22 -0500
-In-Reply-To: <20120205194036.GA2566@polaris.bitmath.org>
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:46352 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751851Ab2BFCq0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 5 Feb 2012 21:46:26 -0500
+Received: by mail-tul01m020-f174.google.com with SMTP id va7so6249563obc.19
+        for <linux-input@vger.kernel.org>; Sun, 05 Feb 2012 18:46:25 -0800 (PST)
+In-Reply-To: <1328496376-28502-1-git-send-email-chris@cnpbagwell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, pinglinux@gmail.com
+Cc: Chris Bagwell <chris@cnpbagwell.com>
 
-On 02/05/2012 08:40 PM, Henrik Rydberg wrote:
->>> Besides leaving a possible giant stack crash in your code, it assumes
->>> memory is somehow magically allocated. Not good practise in low-level
->>> programming. You wouldn't use a template this way, would you?
->>
->> No, which is why I think this interface is bad. I should be able to
->> dynamically set the size of the array, but it's not possible with this
->> interface.
-> 
-> It is possible (using num_slots == 0 or creating your own struct), but
-> not ideal, granted. The patch serves the purpose of definining the
-> binary interface, the rest is up to userland.
-> 
->> I think the implementation is fine in terms of how the plumbing works. I
->> just don't think this macro should be included. Make the user create the
->> struct themselves:
->>
->> In linux/input.h:
->>
->> struct input_mt_request {
->> 	__u32 code;
->> 	__s32 values[];
->> };
-> 
-> The above (the first) version is not ideal either, since it cannot be
-> used as it is.
-> 
->> It could be argued that we should leave the macro around for people who
->> want to statically define the size of the request, but I think that is
->> leading them down the wrong path. It's easier, but it will lead to
->> broken code if you pick the wrong size.
-> 
-> Rather than creating both a suboptimal static and a suboptimal dynamic
-> version, removing the struct altogether is tempting. All that is
-> really needed is a clear definition of the binary interface. The rest
-> can easily be set up in userland, using whatever method is preferred.
+From: Chris Bagwell <chris@cnpbagwell.com>
 
-I'm normally not a fan of static functions in header files, but maybe it
-would be a good solution here:
+Although this better co-locates input registration logic,
+the main goal is to make it easier to optionally create
+input devices or delay creation to later time periods.
 
-struct input_mt_request {
-	__u32 code;
-	__s32 values[];
-};
+Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+---
+ drivers/input/tablet/wacom_sys.c |   53 +++++++++++++++++++++++--------------
+ 1 files changed, 33 insertions(+), 20 deletions(-)
 
-static struct input_mt_request *
-linux_input_mt_request_alloc(int num_slots) {
-	return (struct input_mt_request *)malloc(
-		sizeof(__u32) + num_slots * sizeof(__s32));
-}
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index c9588ee..43e82e9 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -822,6 +822,37 @@ static void wacom_destroy_leds(struct wacom *wacom)
+ 	}
+ }
+ 
++static int wacom_register_input(struct wacom *wacom)
++{
++	struct input_dev *input_dev;
++	struct usb_interface *intf = wacom->intf;
++	struct usb_device *dev = interface_to_usbdev(intf);
++	struct wacom_wac *wacom_wac = &(wacom->wacom_wac);
++	int error;
++
++	input_dev = input_allocate_device();
++	if (!input_dev)
++		return -ENOMEM;
++
++	input_dev->name = wacom_wac->name;
++	input_dev->dev.parent = &intf->dev;
++	input_dev->open = wacom_open;
++	input_dev->close = wacom_close;
++	usb_to_input_id(dev, &input_dev->id);
++	input_set_drvdata(input_dev, wacom);
++
++	wacom_wac->input = input_dev;
++	wacom_setup_input_capabilities(input_dev, wacom_wac);
++
++	error = input_register_device(input_dev);
++	if (error) {
++		input_free_device(input_dev);
++		wacom_wac->input =  0;
++	}
++
++	return error;
++}
++
+ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ {
+ 	struct usb_device *dev = interface_to_usbdev(intf);
+@@ -829,18 +860,12 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 	struct wacom *wacom;
+ 	struct wacom_wac *wacom_wac;
+ 	struct wacom_features *features;
+-	struct input_dev *input_dev;
+ 	int error;
+ 
+ 	if (!id->driver_info)
+ 		return -EINVAL;
+ 
+ 	wacom = kzalloc(sizeof(struct wacom), GFP_KERNEL);
+-	input_dev = input_allocate_device();
+-	if (!wacom || !input_dev) {
+-		error = -ENOMEM;
+-		goto fail1;
+-	}
+ 
+ 	wacom_wac = &wacom->wacom_wac;
+ 	wacom_wac->features = *((struct wacom_features *)id->driver_info);
+@@ -869,8 +894,6 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 	usb_make_path(dev, wacom->phys, sizeof(wacom->phys));
+ 	strlcat(wacom->phys, "/input0", sizeof(wacom->phys));
+ 
+-	wacom_wac->input = input_dev;
+-
+ 	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+ 
+ 	/* Retrieve the physical and logical size for OEM devices */
+@@ -894,15 +917,6 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 			goto fail3;
+ 	}
+ 
+-	input_dev->name = wacom_wac->name;
+-	input_dev->dev.parent = &intf->dev;
+-	input_dev->open = wacom_open;
+-	input_dev->close = wacom_close;
+-	usb_to_input_id(dev, &input_dev->id);
+-	input_set_drvdata(input_dev, wacom);
+-
+-	wacom_setup_input_capabilities(input_dev, wacom_wac);
+-
+ 	usb_fill_int_urb(wacom->irq, dev,
+ 			 usb_rcvintpipe(dev, endpoint->bEndpointAddress),
+ 			 wacom_wac->data, features->pktlen,
+@@ -914,7 +928,7 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 	if (error)
+ 		goto fail4;
+ 
+-	error = input_register_device(input_dev);
++	error = wacom_register_input(wacom);
+ 	if (error)
+ 		goto fail5;
+ 
+@@ -928,8 +942,7 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+  fail4:	wacom_remove_shared_data(wacom_wac);
+  fail3:	usb_free_urb(wacom->irq);
+  fail2:	usb_free_coherent(dev, WACOM_PKGLEN_MAX, wacom_wac->data, wacom->data_dma);
+- fail1:	input_free_device(input_dev);
+-	kfree(wacom);
++ fail1:	kfree(wacom);
+ 	return error;
+ }
+ 
+-- 
+1.7.7.6
 
-#define EVIOCGMTSLOTS(num_slots) \
-	_IOC(_IOC_READ, 'E', 0x0a, \
-	     sizeof(__u32) + (num_slots) * sizeof(__s32))
-
-This would lead to userspace code:
-
-struct input_mt_request *req;
-int num_slots;
-
-EVIOCGABS call on ABS_MT_SLOT;
-
-num_slots = ABS_MT_SLOT.max - ABS_MT_SLOT.min + 1;
-req = linux_input_mt_request_alloc(num_slots);
-req->code = ABS_MT_POSITION_X;
-if (ioctl(fd, EVIOCGMTSLOTS(num_slots), req) < 0) {
-	free(req);
-	return -1;
-}
-for (i = 0; i < 64; i++)
-	printf("slot %d: %d\n", i, req.values[i]);
-free(req);
-
-Normally, I would recommend adding a free() function too, but the
-necessity of a free() function is only when libc's free() won't work or
-the implementation may change. Here, however, the implementation would
-be codified by the ioctl interface in a way that guarantees libc's
-free() to be correct.
-
--- Chase

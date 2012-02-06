@@ -1,79 +1,35 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: przemo@firszt.eu
 Subject: Re: [PATCH] HID: wacom: Fix invalid power_supply_powers calls
-Date: Mon, 6 Feb 2012 13:27:09 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1202061326150.24127@pobox.suse.cz>
+Date: Mon, 6 Feb 2012 12:34:57 -0000
+Message-ID: <d2139519eb66f9b7bfd8f56d3b4e2d96.squirrel@webmail.firszt.eu>
 References: <1328481324-7241-1-git-send-email-przemo@firszt.eu>
+    <alpine.LNX.2.00.1202061326150.24127@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:60473 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754667Ab2BFM1N (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 6 Feb 2012 07:27:13 -0500
-In-Reply-To: <1328481324-7241-1-git-send-email-przemo@firszt.eu>
+Received: from stats.peacock.arvixe.com ([174.122.104.67]:35440 "EHLO
+	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754440Ab2BFMfU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Feb 2012 07:35:20 -0500
+In-Reply-To: <alpine.LNX.2.00.1202061326150.24127@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Przemo Firszt <przemo@firszt.eu>
-Cc: chris@cnpbagwell.com, pinglinux@gmail.com, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Przemo Firszt <przemo@firszt.eu>, chris@cnpbagwell.com, pinglinux@gmail.com, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>
 
-On Sun, 5 Feb 2012, Przemo Firszt wrote:
+> On Sun, 5 Feb 2012, Przemo Firszt wrote:
+[..]
+> Hmm, seems valid. How did you notice? Have you seen crashes because of
+> wild pointers?
 
-> power_supply_powers calls added in 35b4c01e29bdd9632dabf9784ed3486333f00427
-> have to be called after power device is created. This patch also fixes the
-> second call - it has to be "ac" instead of "battery"
-> 
-> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
-> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+Hi Jiri,
+Yes, the driver was unusable - 100% crashes during connection.
 
-[ adding Jeremy to CC ]
+Chris came up with the solution, I did coding & testing.
 
-> ---
->  drivers/hid/hid-wacom.c |    7 ++++---
->  1 files changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-> index b47e58b..acab74c 100644
-> --- a/drivers/hid/hid-wacom.c
-> +++ b/drivers/hid/hid-wacom.c
-> @@ -531,7 +531,6 @@ static int wacom_probe(struct hid_device *hdev,
->  	wdata->battery.type = POWER_SUPPLY_TYPE_BATTERY;
->  	wdata->battery.use_for_apm = 0;
->  
-> -	power_supply_powers(&wdata->battery, &hdev->dev);
->  
->  	ret = power_supply_register(&hdev->dev, &wdata->battery);
->  	if (ret) {
-> @@ -540,6 +539,8 @@ static int wacom_probe(struct hid_device *hdev,
->  		goto err_battery;
->  	}
->  
-> +	power_supply_powers(&wdata->battery, &hdev->dev);
-> +
->  	wdata->ac.properties = wacom_ac_props;
->  	wdata->ac.num_properties = ARRAY_SIZE(wacom_ac_props);
->  	wdata->ac.get_property = wacom_ac_get_property;
-> @@ -547,14 +548,14 @@ static int wacom_probe(struct hid_device *hdev,
->  	wdata->ac.type = POWER_SUPPLY_TYPE_MAINS;
->  	wdata->ac.use_for_apm = 0;
->  
-> -	power_supply_powers(&wdata->battery, &hdev->dev);
-> -
->  	ret = power_supply_register(&hdev->dev, &wdata->ac);
->  	if (ret) {
->  		hid_warn(hdev,
->  			 "can't create ac battery attribute, err: %d\n", ret);
->  		goto err_ac;
->  	}
-> +
-> +	power_supply_powers(&wdata->ac, &hdev->dev);
->  #endif
->  	return 0;
+The crash details are here:  http://pastebin.com/ZVNZWaPs
 
-Hmm, seems valid. How did you notice? Have you seen crashes because of 
-wild pointers?
+regards,
+Przemo
 
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs

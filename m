@@ -1,35 +1,78 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [patch v3 0/3] Support of Perixx Peripad 701 for
- hid-multitouch
-Date: Mon, 6 Feb 2012 13:24:01 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1202061323430.24127@pobox.suse.cz>
-References: <1328371730-10944-1-git-send-email-benjamin.tissoires@gmail.com> <20120206083909.GA3972@polaris.bitmath.org>
+Subject: Re: [PATCH] HID: wacom: Fix invalid power_supply_powers calls
+Date: Mon, 6 Feb 2012 13:27:09 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1202061326150.24127@pobox.suse.cz>
+References: <1328481324-7241-1-git-send-email-przemo@firszt.eu>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120206083909.GA3972@polaris.bitmath.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:60473 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754667Ab2BFM1N (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 6 Feb 2012 07:27:13 -0500
+In-Reply-To: <1328481324-7241-1-git-send-email-przemo@firszt.eu>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Przemo Firszt <przemo@firszt.eu>
+Cc: chris@cnpbagwell.com, pinglinux@gmail.com, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>
 
-On Mon, 6 Feb 2012, Henrik Rydberg wrote:
+On Sun, 5 Feb 2012, Przemo Firszt wrote:
 
-> > This is the v3 of the support of Perixx Peripad 701.
-> > 
-> > I included the changes asked by Henrik & Dmitry:
-> > -           code = ((usage->hid - 1) & HID_USAGE) + BTN_MOUSE;
-> > +           code =  BTN_MOUSE + ((usage->hid - 1) & HID_USAGE);
-> > use of min;
-> > remove remove the call to input_mt_report_finger_count;
-> > remove debug information;
-> > some cosmetic changes (parenthesis, typos)
+> power_supply_powers calls added in 35b4c01e29bdd9632dabf9784ed3486333f00427
+> have to be called after power device is created. This patch also fixes the
+> second call - it has to be "ac" instead of "battery"
 > 
-> Looking good now, thanks.
-> 
->     Acked-by: Henrik Rydberg <rydberg@euromail.se>
+> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
 
-I have now applied the patchset. Thanks everybody.
+[ adding Jeremy to CC ]
+
+> ---
+>  drivers/hid/hid-wacom.c |    7 ++++---
+>  1 files changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+> index b47e58b..acab74c 100644
+> --- a/drivers/hid/hid-wacom.c
+> +++ b/drivers/hid/hid-wacom.c
+> @@ -531,7 +531,6 @@ static int wacom_probe(struct hid_device *hdev,
+>  	wdata->battery.type = POWER_SUPPLY_TYPE_BATTERY;
+>  	wdata->battery.use_for_apm = 0;
+>  
+> -	power_supply_powers(&wdata->battery, &hdev->dev);
+>  
+>  	ret = power_supply_register(&hdev->dev, &wdata->battery);
+>  	if (ret) {
+> @@ -540,6 +539,8 @@ static int wacom_probe(struct hid_device *hdev,
+>  		goto err_battery;
+>  	}
+>  
+> +	power_supply_powers(&wdata->battery, &hdev->dev);
+> +
+>  	wdata->ac.properties = wacom_ac_props;
+>  	wdata->ac.num_properties = ARRAY_SIZE(wacom_ac_props);
+>  	wdata->ac.get_property = wacom_ac_get_property;
+> @@ -547,14 +548,14 @@ static int wacom_probe(struct hid_device *hdev,
+>  	wdata->ac.type = POWER_SUPPLY_TYPE_MAINS;
+>  	wdata->ac.use_for_apm = 0;
+>  
+> -	power_supply_powers(&wdata->battery, &hdev->dev);
+> -
+>  	ret = power_supply_register(&hdev->dev, &wdata->ac);
+>  	if (ret) {
+>  		hid_warn(hdev,
+>  			 "can't create ac battery attribute, err: %d\n", ret);
+>  		goto err_ac;
+>  	}
+> +
+> +	power_supply_powers(&wdata->ac, &hdev->dev);
+>  #endif
+>  	return 0;
+
+Hmm, seems valid. How did you notice? Have you seen crashes because of 
+wild pointers?
+
+Thanks,
 
 -- 
 Jiri Kosina

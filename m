@@ -1,49 +1,273 @@
-From: Chase Douglas <chasedouglas@gmail.com>
-Subject: Re: [PATCH v4] Input: Add EVIOC mechanism for MT slots
-Date: Mon, 06 Feb 2012 19:27:31 +0100
-Message-ID: <4F301B93.4030306@gmail.com>
-References: <1328515542-3779-1-git-send-email-rydberg@euromail.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: [PATCH 1/1] HID: waltop: Add support for Waltop Q Pad
+Date: Mon,  6 Feb 2012 22:54:20 +0200
+Message-ID: <1328561660-31346-1-git-send-email-spbnick@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:48920 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752555Ab2BFS0Y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Feb 2012 13:26:24 -0500
-In-Reply-To: <1328515542-3779-1-git-send-email-rydberg@euromail.se>
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:51661 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752640Ab2BFUyh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Feb 2012 15:54:37 -0500
+Received: by bkcjm19 with SMTP id jm19so5029370bkc.19
+        for <linux-input@vger.kernel.org>; Mon, 06 Feb 2012 12:54:35 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@vger.kernel.org>, Nikolai Kondrashov <spbnick@gmail.com>
 
-On 02/06/2012 09:05 AM, Henrik Rydberg wrote:
-> This patch adds the ability to extract MT slot data via a new ioctl,
-> EVIOCGMTSLOTS. The function returns an array of slot values for the
-> specified ABS_MT event type.
-> 
-> Example of user space usage:
-> 
-> struct { unsigned code; int values[64]; } req;
-> req.code = ABS_MT_POSITION_X;
-> if (ioctl(fd, EVIOCGMTSLOTS(sizeof(req)), &req) < 0)
-> 	return -1;
-> for (i = 0; i < 64; i++)
-> 	printf("slot %d: %d\n", i, req.values[i]);
-> 
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
-> Here is the fourth version of the patch.
-> 
-> Rather than over-specifying the ioctl binary format by introducing a
-> struct object that does not fit everyone, this version simply leaves
-> all object definitions to userland.
+Add support for Waltop Q Pad by fixing its report descriptor.
 
-This is fine with me. I think the ioctl macro definition would be easier
-to work with if it took the number of values instead of the size of the
-request, but it's a nit-pick. If Dmitry thinks this is good enough, it's
-good enough for me too :).
+This tablet is also sold as Aiptek HyperPen Mini. Other possible names
+include: NGS Flexi Style, VisTablet PenPad, iVistaTablet Q Flex Pad, Bravod
+Q-PD65-S.
 
-Reviewed-by: Chase Douglas <chase.douglas@canonical.com>
+Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
+---
+ drivers/hid/hid-core.c   |    1 +
+ drivers/hid/hid-ids.h    |    1 +
+ drivers/hid/hid-waltop.c |  192 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 194 insertions(+), 0 deletions(-)
 
-Thanks!
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 90346cf..68049c0 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1559,6 +1559,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_5_8_INCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_12_1_INCH) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_Q_PAD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_XAT, USB_DEVICE_ID_XAT_CSR) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index c207f40..40e7982 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -706,6 +706,7 @@
+ #define USB_VENDOR_ID_WALTOP				0x172f
+ #define USB_DEVICE_ID_WALTOP_SLIM_TABLET_5_8_INCH	0x0032
+ #define USB_DEVICE_ID_WALTOP_SLIM_TABLET_12_1_INCH	0x0034
++#define USB_DEVICE_ID_WALTOP_Q_PAD			0x0037
+ #define USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH	0x0501
+ #define USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH	0x0500
+ 
+diff --git a/drivers/hid/hid-waltop.c b/drivers/hid/hid-waltop.c
+index b3a4163..0ec1696 100644
+--- a/drivers/hid/hid-waltop.c
++++ b/drivers/hid/hid-waltop.c
+@@ -424,6 +424,190 @@ static __u8 slim_tablet_12_1_inch_rdesc_fixed[] = {
+ };
+ 
+ /*
++ * Original Q Pad report descriptor.
++ *
++ * The descriptor is similar to the Slim Tablet 5.8 inch descriptor with the
++ * addition of consumer AC Pan field to the report ID 1, which seems to be
++ * unused in the default mode. However, this tablet has resolution of 2048 LPI.
++ *
++ *  Usage Page (Desktop),           ; Generic desktop controls (01h)
++ *  Usage (Mouse),                  ; Mouse (02h, application collection)
++ *  Collection (Application),
++ *    Report ID (1),
++ *    Usage (Pointer),              ; Pointer (01h, physical collection)
++ *    Collection (Physical),
++ *      Usage Page (Button),        ; Button (09h)
++ *      Usage Minimum (01h),
++ *      Usage Maximum (05h),
++ *      Logical Minimum (0),
++ *      Logical Maximum (1),
++ *      Report Size (1),
++ *      Report Count (5),
++ *      Input (Variable),
++ *      Report Size (3),
++ *      Report Count (1),
++ *      Input (Constant, Variable),
++ *      Usage Page (Desktop),       ; Generic desktop controls (01h)
++ *      Usage (X),                  ; X (30h, dynamic value)
++ *      Usage (Y),                  ; Y (31h, dynamic value)
++ *      Usage (Wheel),              ; Wheel (38h, dynamic value)
++ *      Logical Minimum (-127),
++ *      Logical Maximum (127),
++ *      Report Size (8),
++ *      Report Count (3),
++ *      Input (Variable, Relative),
++ *      Usage Page (Consumer),      ; Consumer (0Ch)
++ *      Logical Minimum (-127),
++ *      Logical Maximum (127),
++ *      Report Size (8),
++ *      Report Count (1),
++ *      Usage (AC Pan),             ; AC pan (0238h, linear control)
++ *      Input (Variable, Relative),
++ *    End Collection,
++ *  End Collection,
++ *  Usage Page (Digitizer),         ; Digitizer (0Dh)
++ *  Usage (Pen),                    ; Pen (02h, application collection)
++ *  Collection (Application),
++ *    Report ID (2),
++ *    Usage (Stylus),               ; Stylus (20h, logical collection)
++ *    Collection (Physical),
++ *      Usage (00h),
++ *      Logical Minimum (0),
++ *      Logical Maximum (255),
++ *      Report Size (8),
++ *      Report Count (7),
++ *      Input (Variable),
++ *      Usage (Azimuth),            ; Azimuth (3Fh, dynamic value)
++ *      Usage (Altitude),           ; Altitude (40h, dynamic value)
++ *      Logical Minimum (0),
++ *      Logical Maximum (255),
++ *      Report Size (8),
++ *      Report Count (2),
++ *      Feature (Variable),
++ *    End Collection,
++ *    Report ID (5),
++ *    Usage Page (Digitizer),       ; Digitizer (0Dh)
++ *    Usage (Stylus),               ; Stylus (20h, logical collection)
++ *    Collection (Physical),
++ *      Usage (00h),
++ *      Logical Minimum (0),
++ *      Logical Maximum (255),
++ *      Report Size (8),
++ *      Report Count (7),
++ *      Input (Variable),
++ *    End Collection,
++ *    Report ID (10),
++ *    Usage Page (Digitizer),       ; Digitizer (0Dh)
++ *    Usage (Stylus),               ; Stylus (20h, logical collection)
++ *    Collection (Physical),
++ *      Usage (00h),
++ *      Logical Minimum (0),
++ *      Logical Maximum (255),
++ *      Report Size (8),
++ *      Report Count (7),
++ *      Input (Variable),
++ *    End Collection,
++ *    Report ID (16),
++ *    Usage (Stylus),               ; Stylus (20h, logical collection)
++ *    Collection (Physical),
++ *      Usage (Tip Switch),         ; Tip switch (42h, momentary control)
++ *      Usage (Barrel Switch),      ; Barrel switch (44h, momentary control)
++ *      Usage (Invert),             ; Invert (3Ch, momentary control)
++ *      Usage (Eraser),             ; Eraser (45h, momentary control)
++ *      Usage (In Range),           ; In range (32h, momentary control)
++ *      Logical Minimum (0),
++ *      Logical Maximum (1),
++ *      Report Size (1),
++ *      Report Count (5),
++ *      Input (Variable),
++ *      Report Count (3),
++ *      Input (Constant, Variable),
++ *      Usage Page (Desktop),       ; Generic desktop controls (01h)
++ *      Usage (X),                  ; X (30h, dynamic value)
++ *      Report Size (16),
++ *      Report Count (1),
++ *      Push,
++ *      Unit Exponent (13),
++ *      Unit (Inch^3),
++ *      Logical Minimum (0),
++ *      Logical Maximum (12288),
++ *      Physical Minimum (0),
++ *      Physical Maximum (12288),
++ *      Input (Variable),
++ *      Usage (Y),                  ; Y (31h, dynamic value)
++ *      Logical Minimum (0),
++ *      Logical Maximum (9216),
++ *      Physical Minimum (0),
++ *      Physical Maximum (9216),
++ *      Input (Variable),
++ *      Usage Page (Digitizer),     ; Digitizer (0Dh)
++ *      Usage (Tip Pressure),       ; Tip pressure (30h, dynamic value)
++ *      Logical Minimum (0),
++ *      Logical Maximum (1023),
++ *      Physical Minimum (0),
++ *      Physical Maximum (1023),
++ *      Input (Variable),
++ *    End Collection,
++ *  End Collection
++ */
++
++/* Size of the original report descriptor of Q Pad */
++#define Q_PAD_RDESC_ORIG_SIZE	241
++
++/*
++ * Fixed Q Pad descriptor.
++ *
++ * All the reports except the stylus report (ID 16) were removed as unused.
++ * The stylus buttons description was fixed.
++ */
++static __u8 q_pad_rdesc_fixed[] = {
++	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
++	0x09, 0x02,         /*  Usage (Pen),                        */
++	0xA1, 0x01,         /*  Collection (Application),           */
++	0x85, 0x10,         /*      Report ID (16),                 */
++	0x09, 0x20,         /*      Usage (Stylus),                 */
++	0xA0,               /*      Collection (Physical),          */
++	0x09, 0x42,         /*          Usage (Tip Switch),         */
++	0x09, 0x44,         /*          Usage (Barrel Switch),      */
++	0x09, 0x46,         /*          Usage (Tablet Pick),        */
++	0x15, 0x01,         /*          Logical Minimum (1),        */
++	0x25, 0x03,         /*          Logical Maximum (3),        */
++	0x75, 0x04,         /*          Report Size (4),            */
++	0x95, 0x01,         /*          Report Count (1),           */
++	0x80,               /*          Input,                      */
++	0x09, 0x32,         /*          Usage (In Range),           */
++	0x14,               /*          Logical Minimum (0),        */
++	0x25, 0x01,         /*          Logical Maximum (1),        */
++	0x75, 0x01,         /*          Report Size (1),            */
++	0x95, 0x01,         /*          Report Count (1),           */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0x95, 0x03,         /*          Report Count (3),           */
++	0x81, 0x03,         /*          Input (Constant, Variable), */
++	0x75, 0x10,         /*          Report Size (16),           */
++	0x95, 0x01,         /*          Report Count (1),           */
++	0x14,               /*          Logical Minimum (0),        */
++	0xA4,               /*          Push,                       */
++	0x05, 0x01,         /*          Usage Page (Desktop),       */
++	0x65, 0x13,         /*          Unit (Inch),                */
++	0x55, 0xFD,         /*          Unit Exponent (-3),         */
++	0x34,               /*          Physical Minimum (0),       */
++	0x09, 0x30,         /*          Usage (X),                  */
++	0x46, 0x70, 0x17,   /*          Physical Maximum (6000),    */
++	0x26, 0x00, 0x30,   /*          Logical Maximum (12288),    */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0x09, 0x31,         /*          Usage (Y),                  */
++	0x46, 0x94, 0x11,   /*          Physical Maximum (4500),    */
++	0x26, 0x00, 0x24,   /*          Logical Maximum (9216),     */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0xB4,               /*          Pop,                        */
++	0x09, 0x30,         /*          Usage (Tip Pressure),       */
++	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0xC0,               /*      End Collection,                 */
++	0xC0                /*  End Collection                      */
++};
++
++/*
+  * Original Media Tablet 10.6 inch report descriptor.
+  *
+  * There are at least two versions of this model in the wild. They are
+@@ -1049,6 +1233,12 @@ static __u8 *waltop_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 			*rsize = sizeof(slim_tablet_12_1_inch_rdesc_fixed);
+ 		}
+ 		break;
++	case USB_DEVICE_ID_WALTOP_Q_PAD:
++		if (*rsize == Q_PAD_RDESC_ORIG_SIZE) {
++			rdesc = q_pad_rdesc_fixed;
++			*rsize = sizeof(q_pad_rdesc_fixed);
++		}
++		break;
+ 	case USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH:
+ 		if (*rsize == MEDIA_TABLET_10_6_INCH_RDESC_ORIG_SIZE) {
+ 			rdesc = media_tablet_10_6_inch_rdesc_fixed;
+@@ -1071,6 +1261,8 @@ static const struct hid_device_id waltop_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
+ 				USB_DEVICE_ID_WALTOP_SLIM_TABLET_12_1_INCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
++				USB_DEVICE_ID_WALTOP_Q_PAD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
+ 				USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
+ 				USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH) },
+-- 
+1.7.8.3
+

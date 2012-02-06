@@ -1,37 +1,93 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: wacom: Fix invalid power_supply_powers calls
-Date: Mon, 6 Feb 2012 13:42:37 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1202061342090.24127@pobox.suse.cz>
-References: <1328481324-7241-1-git-send-email-przemo@firszt.eu>    <alpine.LNX.2.00.1202061326150.24127@pobox.suse.cz> <d2139519eb66f9b7bfd8f56d3b4e2d96.squirrel@webmail.firszt.eu>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 1/5] Input: wacom - isolate input registration
+Date: Mon, 6 Feb 2012 08:46:50 -0600
+Message-ID: <CAGzDe_aNBqyS66E_gx3_NrQX_9Efs_3pGJtrX14EnE4eao9+qA@mail.gmail.com>
+References: <1328496376-28502-1-git-send-email-chris@cnpbagwell.com>
+	<1328496376-28502-2-git-send-email-chris@cnpbagwell.com>
+	<4F2F477D.3040507@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33339 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754831Ab2BFMmj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 6 Feb 2012 07:42:39 -0500
-In-Reply-To: <d2139519eb66f9b7bfd8f56d3b4e2d96.squirrel@webmail.firszt.eu>
+Received: from mail-lpp01m020-f174.google.com ([209.85.217.174]:56155 "EHLO
+	mail-lpp01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754899Ab2BFOqv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 6 Feb 2012 09:46:51 -0500
+Received: by lbom4 with SMTP id m4so1079150lbo.19
+        for <linux-input@vger.kernel.org>; Mon, 06 Feb 2012 06:46:50 -0800 (PST)
+In-Reply-To: <4F2F477D.3040507@cn.fujitsu.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Przemo Firszt <przemo@firszt.eu>
-Cc: chris@cnpbagwell.com, pinglinux@gmail.com, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>
+To: gaowanlong@cn.fujitsu.com
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, pinglinux@gmail.com
 
-On Mon, 6 Feb 2012, przemo@firszt.eu wrote:
+On Sun, Feb 5, 2012 at 9:22 PM, Wanlong Gao <gaowanlong@cn.fujitsu.com>=
+ wrote:
+> On 02/06/2012 10:46 AM, chris@cnpbagwell.com wrote:
+>
+>> From: Chris Bagwell <chris@cnpbagwell.com>
+>>
+>> Although this better co-locates input registration logic,
+>> the main goal is to make it easier to optionally create
+>> input devices or delay creation to later time periods.
+>>
+>> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+>> ---
+>> =A0drivers/input/tablet/wacom_sys.c | =A0 53 +++++++++++++++++++++++=
+--------------
+>> =A01 files changed, 33 insertions(+), 20 deletions(-)
+>>
+>> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet=
+/wacom_sys.c
+>> index c9588ee..43e82e9 100644
+>> --- a/drivers/input/tablet/wacom_sys.c
+>> +++ b/drivers/input/tablet/wacom_sys.c
+>> @@ -822,6 +822,37 @@ static void wacom_destroy_leds(struct wacom *wa=
+com)
+>> =A0 =A0 =A0 }
+>> =A0}
+>>
+>> +static int wacom_register_input(struct wacom *wacom)
+>> +{
+>> + =A0 =A0 struct input_dev *input_dev;
+>> + =A0 =A0 struct usb_interface *intf =3D wacom->intf;
+>> + =A0 =A0 struct usb_device *dev =3D interface_to_usbdev(intf);
+>> + =A0 =A0 struct wacom_wac *wacom_wac =3D &(wacom->wacom_wac);
+>> + =A0 =A0 int error;
+>> +
+>> + =A0 =A0 input_dev =3D input_allocate_device();
+>> + =A0 =A0 if (!input_dev)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 return -ENOMEM;
+>> +
+>> + =A0 =A0 input_dev->name =3D wacom_wac->name;
+>> + =A0 =A0 input_dev->dev.parent =3D &intf->dev;
+>> + =A0 =A0 input_dev->open =3D wacom_open;
+>> + =A0 =A0 input_dev->close =3D wacom_close;
+>> + =A0 =A0 usb_to_input_id(dev, &input_dev->id);
+>> + =A0 =A0 input_set_drvdata(input_dev, wacom);
+>> +
+>> + =A0 =A0 wacom_wac->input =3D input_dev;
+>> + =A0 =A0 wacom_setup_input_capabilities(input_dev, wacom_wac);
+>> +
+>> + =A0 =A0 error =3D input_register_device(input_dev);
+>> + =A0 =A0 if (error) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 input_free_device(input_dev);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 wacom_wac->input =3D =A00;
+>
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0^^=
+^
+> spare space here. and better use NULL?
 
-> > Hmm, seems valid. How did you notice? Have you seen crashes because of
-> > wild pointers?
-> 
-> Hi Jiri,
-> Yes, the driver was unusable - 100% crashes during connection.
+Thanks for review. I will be fixing both issues.
 
-Okay, I thought that'd be the case.
+Chris
 
-> Chris came up with the solution, I did coding & testing.
-> 
-> The crash details are here:  http://pastebin.com/ZVNZWaPs
-
-Thank you. Will be pushing to Linus soon.
-
--- 
-Jiri Kosina
-SUSE Labs
+>
+> Thanks
+> -Wanlong Gao
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

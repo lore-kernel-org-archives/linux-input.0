@@ -1,47 +1,49 @@
-From: przemo@firszt.eu
-Subject: Re: [PATCH] HID: wacom: Fix invalid power_supply_powers calls
-Date: Mon, 6 Feb 2012 17:44:17 -0000
-Message-ID: <b24d411c05c013317690ef4cec330c71.squirrel@webmail.firszt.eu>
-References: <1328481324-7241-1-git-send-email-przemo@firszt.eu>
-    <alpine.LNX.2.00.1202061326150.24127@pobox.suse.cz>
-    <d2139519eb66f9b7bfd8f56d3b4e2d96.squirrel@webmail.firszt.eu>
-    <alpine.LNX.2.00.1202061342090.24127@pobox.suse.cz>
-    <4F300F2C.9030308@goop.org>
+From: Chase Douglas <chasedouglas@gmail.com>
+Subject: Re: [PATCH v4] Input: Add EVIOC mechanism for MT slots
+Date: Mon, 06 Feb 2012 19:27:31 +0100
+Message-ID: <4F301B93.4030306@gmail.com>
+References: <1328515542-3779-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from stats.peacock.arvixe.com ([174.122.104.67]:44857 "EHLO
-	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751016Ab2BFRok (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Feb 2012 12:44:40 -0500
-In-Reply-To: <4F300F2C.9030308@goop.org>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:48920 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752555Ab2BFS0Y (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Feb 2012 13:26:24 -0500
+In-Reply-To: <1328515542-3779-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Przemo Firszt <przemo@firszt.eu>, chris@cnpbagwell.com, pinglinux@gmail.com, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> On 02/06/2012 04:42 AM, Jiri Kosina wrote:
->> On Mon, 6 Feb 2012, przemo@firszt.eu wrote:
->>
->>>> Hmm, seems valid. How did you notice? Have you seen crashes because of
->>>> wild pointers?
->>> Hi Jiri,
->>> Yes, the driver was unusable - 100% crashes during connection.
->> Okay, I thought that'd be the case.
->
-> Very sorry about that.  I don't have a device to test with, so I should
-> have reviewed the code extra carefully.
->
-> Does the same bug apply to the Wii changes, which were of the same form?
->
-Hi Jeremy,
-The wii code looks the same, so probably it's affected as well. Can you
-make a patch?
+On 02/06/2012 09:05 AM, Henrik Rydberg wrote:
+> This patch adds the ability to extract MT slot data via a new ioctl,
+> EVIOCGMTSLOTS. The function returns an array of slot values for the
+> specified ABS_MT event type.
+> 
+> Example of user space usage:
+> 
+> struct { unsigned code; int values[64]; } req;
+> req.code = ABS_MT_POSITION_X;
+> if (ioctl(fd, EVIOCGMTSLOTS(sizeof(req)), &req) < 0)
+> 	return -1;
+> for (i = 0; i < 64; i++)
+> 	printf("slot %d: %d\n", i, req.values[i]);
+> 
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+> Here is the fourth version of the patch.
+> 
+> Rather than over-specifying the ioctl binary format by introducing a
+> struct object that does not fit everyone, this version simply leaves
+> all object definitions to userland.
 
-power_supply_powers call in wiimote driver:
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=blob;f=drivers/hid/hid-wiimote-core.c#l1229
+This is fine with me. I think the ioctl macro definition would be easier
+to work with if it took the number of values instead of the size of the
+request, but it's a nit-pick. If Dmitry thinks this is good enough, it's
+good enough for me too :).
 
-regards,
-Przemo Firszt
+Reviewed-by: Chase Douglas <chase.douglas@canonical.com>
 
+Thanks!

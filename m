@@ -1,65 +1,73 @@
-From: Przemo Firszt <przemo@firszt.eu>
-Subject: [PATCH] HID: wacom: Fix invalid power_supply_powers calls
-Date: Sun,  5 Feb 2012 22:35:24 +0000
-Message-ID: <1328481324-7241-1-git-send-email-przemo@firszt.eu>
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Subject: Re: [PATCH 1/5] Input: wacom - isolate input registration
+Date: Mon, 06 Feb 2012 11:22:37 +0800
+Message-ID: <4F2F477D.3040507@cn.fujitsu.com>
+References: <1328496376-28502-1-git-send-email-chris@cnpbagwell.com> <1328496376-28502-2-git-send-email-chris@cnpbagwell.com>
+Reply-To: gaowanlong@cn.fujitsu.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from stats.peacock.arvixe.com ([174.122.104.67]:60860 "EHLO
-	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753238Ab2BFDDq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Feb 2012 22:03:46 -0500
+Received: from cn.fujitsu.com ([222.73.24.84]:49646 "EHLO song.cn.fujitsu.com"
+	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1753204Ab2BFEAP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 5 Feb 2012 23:00:15 -0500
+In-Reply-To: <1328496376-28502-2-git-send-email-chris@cnpbagwell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: chris@cnpbagwell.com, pinglinux@gmail.com, jkosina@suse.cz, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Przemo Firszt <przemo@firszt.eu>
+To: chris@cnpbagwell.com
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, pinglinux@gmail.com
 
-power_supply_powers calls added in 35b4c01e29bdd9632dabf9784ed3486333f00427
-have to be called after power device is created. This patch also fixes the
-second call - it has to be "ac" instead of "battery"
+On 02/06/2012 10:46 AM, chris@cnpbagwell.com wrote:
 
-Signed-off-by: Przemo Firszt <przemo@firszt.eu>
-Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
----
- drivers/hid/hid-wacom.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+> From: Chris Bagwell <chris@cnpbagwell.com>
+> 
+> Although this better co-locates input registration logic,
+> the main goal is to make it easier to optionally create
+> input devices or delay creation to later time periods.
+> 
+> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+> ---
+>  drivers/input/tablet/wacom_sys.c |   53 +++++++++++++++++++++++--------------
+>  1 files changed, 33 insertions(+), 20 deletions(-)
+> 
+> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+> index c9588ee..43e82e9 100644
+> --- a/drivers/input/tablet/wacom_sys.c
+> +++ b/drivers/input/tablet/wacom_sys.c
+> @@ -822,6 +822,37 @@ static void wacom_destroy_leds(struct wacom *wacom)
+>  	}
+>  }
+>  
+> +static int wacom_register_input(struct wacom *wacom)
+> +{
+> +	struct input_dev *input_dev;
+> +	struct usb_interface *intf = wacom->intf;
+> +	struct usb_device *dev = interface_to_usbdev(intf);
+> +	struct wacom_wac *wacom_wac = &(wacom->wacom_wac);
+> +	int error;
+> +
+> +	input_dev = input_allocate_device();
+> +	if (!input_dev)
+> +		return -ENOMEM;
+> +
+> +	input_dev->name = wacom_wac->name;
+> +	input_dev->dev.parent = &intf->dev;
+> +	input_dev->open = wacom_open;
+> +	input_dev->close = wacom_close;
+> +	usb_to_input_id(dev, &input_dev->id);
+> +	input_set_drvdata(input_dev, wacom);
+> +
+> +	wacom_wac->input = input_dev;
+> +	wacom_setup_input_capabilities(input_dev, wacom_wac);
+> +
+> +	error = input_register_device(input_dev);
+> +	if (error) {
+> +		input_free_device(input_dev);
+> +		wacom_wac->input =  0;
 
-diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-index b47e58b..acab74c 100644
---- a/drivers/hid/hid-wacom.c
-+++ b/drivers/hid/hid-wacom.c
-@@ -531,7 +531,6 @@ static int wacom_probe(struct hid_device *hdev,
- 	wdata->battery.type = POWER_SUPPLY_TYPE_BATTERY;
- 	wdata->battery.use_for_apm = 0;
- 
--	power_supply_powers(&wdata->battery, &hdev->dev);
- 
- 	ret = power_supply_register(&hdev->dev, &wdata->battery);
- 	if (ret) {
-@@ -540,6 +539,8 @@ static int wacom_probe(struct hid_device *hdev,
- 		goto err_battery;
- 	}
- 
-+	power_supply_powers(&wdata->battery, &hdev->dev);
-+
- 	wdata->ac.properties = wacom_ac_props;
- 	wdata->ac.num_properties = ARRAY_SIZE(wacom_ac_props);
- 	wdata->ac.get_property = wacom_ac_get_property;
-@@ -547,14 +548,14 @@ static int wacom_probe(struct hid_device *hdev,
- 	wdata->ac.type = POWER_SUPPLY_TYPE_MAINS;
- 	wdata->ac.use_for_apm = 0;
- 
--	power_supply_powers(&wdata->battery, &hdev->dev);
--
- 	ret = power_supply_register(&hdev->dev, &wdata->ac);
- 	if (ret) {
- 		hid_warn(hdev,
- 			 "can't create ac battery attribute, err: %d\n", ret);
- 		goto err_ac;
- 	}
-+
-+	power_supply_powers(&wdata->ac, &hdev->dev);
- #endif
- 	return 0;
- 
--- 
-1.7.6.4
+				  ^^^
+spare space here. and better use NULL?
 
+Thanks
+-Wanlong Gao

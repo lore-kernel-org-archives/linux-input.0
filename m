@@ -1,89 +1,80 @@
-From: Maurus Cuelenaere <mcuelenaere@gmail.com>
-Subject: Re: [RFC] Microsoft Touch Mouse driver [was: Re: your mail]
-Date: Tue, 07 Feb 2012 13:07:18 +0100
-Message-ID: <4F3113F6.6000403@gmail.com>
-References: <BROWNM3h3vLgAusVxON00000cfa@brown.emailprod.vodafone.se> <20120125132612.GA3890@polaris.bitmath.org> <4F200D14.80702@gmail.com> <20120125150035.GA4222@polaris.bitmath.org> <20120130072732.GA1855@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: wacom: Fix invalid power_supply_powers calls
+Date: Tue, 7 Feb 2012 13:43:31 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1202071342540.24127@pobox.suse.cz>
+References: <1328481324-7241-1-git-send-email-przemo@firszt.eu>    <alpine.LNX.2.00.1202061326150.24127@pobox.suse.cz>    <d2139519eb66f9b7bfd8f56d3b4e2d96.squirrel@webmail.firszt.eu>    <alpine.LNX.2.00.1202061342090.24127@pobox.suse.cz>    <4F300F2C.9030308@goop.org>
+ <b24d411c05c013317690ef4cec330c71.squirrel@webmail.firszt.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:37503 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755960Ab2BGMHW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Feb 2012 07:07:22 -0500
-Received: by bkcjm19 with SMTP id jm19so5488197bkc.19
-        for <linux-input@vger.kernel.org>; Tue, 07 Feb 2012 04:07:20 -0800 (PST)
-In-Reply-To: <20120130072732.GA1855@core.coreip.homeip.net>
+Received: from cantor2.suse.de ([195.135.220.15]:59759 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756245Ab2BGMng (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 Feb 2012 07:43:36 -0500
+In-Reply-To: <b24d411c05c013317690ef4cec330c71.squirrel@webmail.firszt.eu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
+To: Przemo Firszt <przemo@firszt.eu>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, chris@cnpbagwell.com, pinglinux@gmail.com, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Op 25-01-12 14:26, Henrik Rydberg schreef:
->> +
->> +struct mstm_state {
->> +	bool advance_flag;
->> +	int x;
->> +	int y;
->> +	unsigned char last_timestamp;
->> +	unsigned char data[MSTM_DATA_WIDTH][MSTM_DATA_HEIGHT];
->> +};
-> The ability to simply send an "input screen" would be perfect
-> here. This device may be on the border of what can/should be handled
-> via input events. A memory mapped driver, uio-based or something
-> similar, could be an option.
+On Mon, 6 Feb 2012, przemo@firszt.eu wrote:
 
-Op 30-01-12 08:27, Dmitry Torokhov schreef:
-> On Wed, Jan 25, 2012 at 04:00:35PM +0100, Henrik Rydberg wrote:
->>
->>>> One possible option could be to use the
->>>> slots, but only send ABS_MT_TOUCH_MAJOR or ABS_MT_PRESSURE, nothing
->>>> else. The device would (rightfully) not be recognized as MT since the
->>>> position is missing, all data would be available for processing in
->>>> userspace, and bandwidth would be minimized since there could only be
->>>> so many changes coming in per millisecond.
->>> So how does userspace then finds out where these pressure points are
->>> located?
->>> Or do you mean to just dump all data to user space (15 * 13 *
->>> sizeof(ABS_MT_PRESSURE value) + overhead)?
->> Having each pressure point represented by one slot id was the idea.
->> Userspace would have to know how the points are mapped, of
->> course. Still not overly happy about the general fit, though. Dmitry?
-> I am having doubts that this device, as it is, is suitable for input
-> interface; I really do not think that bastardizing slot IDs is good
-> idea. Unless we move all computation necessary to identify individual
-> contacts into the kernel (and then use standard MT protocol), I'd
-> recommend looking into hidraw + uinput solution.
+> >>>> Hmm, seems valid. How did you notice? Have you seen crashes because of
+> >>>> wild pointers?
+> >>> Hi Jiri,
+> >>> Yes, the driver was unusable - 100% crashes during connection.
+> >> Okay, I thought that'd be the case.
+> >
+> > Very sorry about that.  I don't have a device to test with, so I should
+> > have reviewed the code extra carefully.
+> >
+> > Does the same bug apply to the Wii changes, which were of the same form?
+> >
+> Hi Jeremy,
+> The wii code looks the same, so probably it's affected as well. Can you
+> make a patch?
+> 
+> power_supply_powers call in wiimote driver:
+> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=blob;f=drivers/hid/hid-wiimote-core.c#l1229
 
-Ok, so it's pretty clear the consensus is that there should be a 
-different interface to push the data to user space.
-My initial reaction is V4L, as the data is basically a stream of 
-monochrome frames, this kind of fits the video description. Also, this 
-could be of some benefit to all those emulate-multi-touch-using-webcam 
-projects.
-Other options I see are mmap on the input device, creating a separate 
-(char?) device, UIO or even having the whole thing in userspace.
+I have now queued the patch below for the same pile as well.
+Thanks for spotting it.
 
-However, there's one tiny hack I'd like to have and I'm unsure whether 
-this can be done from userspace: as the mouse has only one physical push 
-button, it can't distinguish between left, middle or right click.
-Obviously, it can do this based on the information it gathers from its 
-touch surface, however the firmware has only the following dumb 
-implementation: when only one finger is present on the right part of the 
-surface, assume right click; otherwise assume left click. This means 
-that you need to lift your left finger when performing a right click.
 
-Now, the receiver is represented as 3 HID devices: one keyboard 
-descriptor, one mouse descriptor and one miscellaneous/control 
-descriptor (containing touch surface data). My plan was to intercept 
-mouse clicks on the mouse descriptor and look at what part of touch 
-surface (left/right) has the most pressure and, if needed, swap the 
-click to a right click.
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH] HID: wiimote: fix invalid power_supply_powers call
 
-Any hints on how to do this in userspace? Of course I could hack up 
-xf86-input-evdev, but I'd like to do this at the highest possible layer, 
-ie the input subsystem.
+Analogically to d7cb3dbd1 ("HID: wacom: Fix invalid power_supply_powers
+calls"), fix also the same occurence in wiimote driver.
+
+Reported-by: przemo@firszt.eu
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-wiimote-core.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+index fc253b4..cac3589 100644
+--- a/drivers/hid/hid-wiimote-core.c
++++ b/drivers/hid/hid-wiimote-core.c
+@@ -1226,14 +1226,14 @@ static int wiimote_hid_probe(struct hid_device *hdev,
+ 	wdata->battery.type = POWER_SUPPLY_TYPE_BATTERY;
+ 	wdata->battery.use_for_apm = 0;
+ 
+-	power_supply_powers(&wdata->battery, &hdev->dev);
+-
+ 	ret = power_supply_register(&wdata->hdev->dev, &wdata->battery);
+ 	if (ret) {
+ 		hid_err(hdev, "Cannot register battery device\n");
+ 		goto err_battery;
+ 	}
+ 
++	power_supply_powers(&wdata->battery, &hdev->dev);
++
+ 	ret = wiimote_leds_create(wdata);
+ 	if (ret)
+ 		goto err_free;
 
 -- 
-Maurus Cuelenaere
-
+Jiri Kosina
+SUSE Labs

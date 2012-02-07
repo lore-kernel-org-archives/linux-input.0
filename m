@@ -1,273 +1,66 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: [PATCH 1/1] HID: waltop: Add support for Waltop Q Pad
-Date: Mon,  6 Feb 2012 22:54:20 +0200
-Message-ID: <1328561660-31346-1-git-send-email-spbnick@gmail.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH 2/6] v4l2-subdev: add start/end messages for log_status.
+Date: Tue, 07 Feb 2012 11:49:06 +0100
+Message-ID: <2337556.GQrkDqkaKo@avalon>
+References: <1328183796-3168-1-git-send-email-hverkuil@xs4all.nl> <5dc424690702cb423288fe9b1e30f7ad225fc6e5.1328183271.git.hans.verkuil@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:51661 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752640Ab2BFUyh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Feb 2012 15:54:37 -0500
-Received: by bkcjm19 with SMTP id jm19so5029370bkc.19
-        for <linux-input@vger.kernel.org>; Mon, 06 Feb 2012 12:54:35 -0800 (PST)
+Received: from perceval.ideasonboard.com ([95.142.166.194]:59384 "EHLO
+	perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753746Ab2BGKtS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Feb 2012 05:49:18 -0500
+In-Reply-To: <5dc424690702cb423288fe9b1e30f7ad225fc6e5.1328183271.git.hans.verkuil@cisco.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>, Nikolai Kondrashov <spbnick@gmail.com>
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: linux-media@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>
 
-Add support for Waltop Q Pad by fixing its report descriptor.
+Hi Hans,
 
-This tablet is also sold as Aiptek HyperPen Mini. Other possible names
-include: NGS Flexi Style, VisTablet PenPad, iVistaTablet Q Flex Pad, Bravod
-Q-PD65-S.
+Thanks for the patch.
 
-Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
----
- drivers/hid/hid-core.c   |    1 +
- drivers/hid/hid-ids.h    |    1 +
- drivers/hid/hid-waltop.c |  192 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 194 insertions(+), 0 deletions(-)
+On Thursday 02 February 2012 12:56:32 Hans Verkuil wrote:
+> From: Hans Verkuil <hans.verkuil@cisco.com>
+> 
+> Add the start and end messages for log_status when called from a
+> subdev device node.
+> 
+> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 90346cf..68049c0 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1559,6 +1559,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_5_8_INCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_12_1_INCH) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_Q_PAD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_XAT, USB_DEVICE_ID_XAT_CSR) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c207f40..40e7982 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -706,6 +706,7 @@
- #define USB_VENDOR_ID_WALTOP				0x172f
- #define USB_DEVICE_ID_WALTOP_SLIM_TABLET_5_8_INCH	0x0032
- #define USB_DEVICE_ID_WALTOP_SLIM_TABLET_12_1_INCH	0x0034
-+#define USB_DEVICE_ID_WALTOP_Q_PAD			0x0037
- #define USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH	0x0501
- #define USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH	0x0500
- 
-diff --git a/drivers/hid/hid-waltop.c b/drivers/hid/hid-waltop.c
-index b3a4163..0ec1696 100644
---- a/drivers/hid/hid-waltop.c
-+++ b/drivers/hid/hid-waltop.c
-@@ -424,6 +424,190 @@ static __u8 slim_tablet_12_1_inch_rdesc_fixed[] = {
- };
- 
- /*
-+ * Original Q Pad report descriptor.
-+ *
-+ * The descriptor is similar to the Slim Tablet 5.8 inch descriptor with the
-+ * addition of consumer AC Pan field to the report ID 1, which seems to be
-+ * unused in the default mode. However, this tablet has resolution of 2048 LPI.
-+ *
-+ *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-+ *  Usage (Mouse),                  ; Mouse (02h, application collection)
-+ *  Collection (Application),
-+ *    Report ID (1),
-+ *    Usage (Pointer),              ; Pointer (01h, physical collection)
-+ *    Collection (Physical),
-+ *      Usage Page (Button),        ; Button (09h)
-+ *      Usage Minimum (01h),
-+ *      Usage Maximum (05h),
-+ *      Logical Minimum (0),
-+ *      Logical Maximum (1),
-+ *      Report Size (1),
-+ *      Report Count (5),
-+ *      Input (Variable),
-+ *      Report Size (3),
-+ *      Report Count (1),
-+ *      Input (Constant, Variable),
-+ *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-+ *      Usage (X),                  ; X (30h, dynamic value)
-+ *      Usage (Y),                  ; Y (31h, dynamic value)
-+ *      Usage (Wheel),              ; Wheel (38h, dynamic value)
-+ *      Logical Minimum (-127),
-+ *      Logical Maximum (127),
-+ *      Report Size (8),
-+ *      Report Count (3),
-+ *      Input (Variable, Relative),
-+ *      Usage Page (Consumer),      ; Consumer (0Ch)
-+ *      Logical Minimum (-127),
-+ *      Logical Maximum (127),
-+ *      Report Size (8),
-+ *      Report Count (1),
-+ *      Usage (AC Pan),             ; AC pan (0238h, linear control)
-+ *      Input (Variable, Relative),
-+ *    End Collection,
-+ *  End Collection,
-+ *  Usage Page (Digitizer),         ; Digitizer (0Dh)
-+ *  Usage (Pen),                    ; Pen (02h, application collection)
-+ *  Collection (Application),
-+ *    Report ID (2),
-+ *    Usage (Stylus),               ; Stylus (20h, logical collection)
-+ *    Collection (Physical),
-+ *      Usage (00h),
-+ *      Logical Minimum (0),
-+ *      Logical Maximum (255),
-+ *      Report Size (8),
-+ *      Report Count (7),
-+ *      Input (Variable),
-+ *      Usage (Azimuth),            ; Azimuth (3Fh, dynamic value)
-+ *      Usage (Altitude),           ; Altitude (40h, dynamic value)
-+ *      Logical Minimum (0),
-+ *      Logical Maximum (255),
-+ *      Report Size (8),
-+ *      Report Count (2),
-+ *      Feature (Variable),
-+ *    End Collection,
-+ *    Report ID (5),
-+ *    Usage Page (Digitizer),       ; Digitizer (0Dh)
-+ *    Usage (Stylus),               ; Stylus (20h, logical collection)
-+ *    Collection (Physical),
-+ *      Usage (00h),
-+ *      Logical Minimum (0),
-+ *      Logical Maximum (255),
-+ *      Report Size (8),
-+ *      Report Count (7),
-+ *      Input (Variable),
-+ *    End Collection,
-+ *    Report ID (10),
-+ *    Usage Page (Digitizer),       ; Digitizer (0Dh)
-+ *    Usage (Stylus),               ; Stylus (20h, logical collection)
-+ *    Collection (Physical),
-+ *      Usage (00h),
-+ *      Logical Minimum (0),
-+ *      Logical Maximum (255),
-+ *      Report Size (8),
-+ *      Report Count (7),
-+ *      Input (Variable),
-+ *    End Collection,
-+ *    Report ID (16),
-+ *    Usage (Stylus),               ; Stylus (20h, logical collection)
-+ *    Collection (Physical),
-+ *      Usage (Tip Switch),         ; Tip switch (42h, momentary control)
-+ *      Usage (Barrel Switch),      ; Barrel switch (44h, momentary control)
-+ *      Usage (Invert),             ; Invert (3Ch, momentary control)
-+ *      Usage (Eraser),             ; Eraser (45h, momentary control)
-+ *      Usage (In Range),           ; In range (32h, momentary control)
-+ *      Logical Minimum (0),
-+ *      Logical Maximum (1),
-+ *      Report Size (1),
-+ *      Report Count (5),
-+ *      Input (Variable),
-+ *      Report Count (3),
-+ *      Input (Constant, Variable),
-+ *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-+ *      Usage (X),                  ; X (30h, dynamic value)
-+ *      Report Size (16),
-+ *      Report Count (1),
-+ *      Push,
-+ *      Unit Exponent (13),
-+ *      Unit (Inch^3),
-+ *      Logical Minimum (0),
-+ *      Logical Maximum (12288),
-+ *      Physical Minimum (0),
-+ *      Physical Maximum (12288),
-+ *      Input (Variable),
-+ *      Usage (Y),                  ; Y (31h, dynamic value)
-+ *      Logical Minimum (0),
-+ *      Logical Maximum (9216),
-+ *      Physical Minimum (0),
-+ *      Physical Maximum (9216),
-+ *      Input (Variable),
-+ *      Usage Page (Digitizer),     ; Digitizer (0Dh)
-+ *      Usage (Tip Pressure),       ; Tip pressure (30h, dynamic value)
-+ *      Logical Minimum (0),
-+ *      Logical Maximum (1023),
-+ *      Physical Minimum (0),
-+ *      Physical Maximum (1023),
-+ *      Input (Variable),
-+ *    End Collection,
-+ *  End Collection
-+ */
-+
-+/* Size of the original report descriptor of Q Pad */
-+#define Q_PAD_RDESC_ORIG_SIZE	241
-+
-+/*
-+ * Fixed Q Pad descriptor.
-+ *
-+ * All the reports except the stylus report (ID 16) were removed as unused.
-+ * The stylus buttons description was fixed.
-+ */
-+static __u8 q_pad_rdesc_fixed[] = {
-+	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
-+	0x09, 0x02,         /*  Usage (Pen),                        */
-+	0xA1, 0x01,         /*  Collection (Application),           */
-+	0x85, 0x10,         /*      Report ID (16),                 */
-+	0x09, 0x20,         /*      Usage (Stylus),                 */
-+	0xA0,               /*      Collection (Physical),          */
-+	0x09, 0x42,         /*          Usage (Tip Switch),         */
-+	0x09, 0x44,         /*          Usage (Barrel Switch),      */
-+	0x09, 0x46,         /*          Usage (Tablet Pick),        */
-+	0x15, 0x01,         /*          Logical Minimum (1),        */
-+	0x25, 0x03,         /*          Logical Maximum (3),        */
-+	0x75, 0x04,         /*          Report Size (4),            */
-+	0x95, 0x01,         /*          Report Count (1),           */
-+	0x80,               /*          Input,                      */
-+	0x09, 0x32,         /*          Usage (In Range),           */
-+	0x14,               /*          Logical Minimum (0),        */
-+	0x25, 0x01,         /*          Logical Maximum (1),        */
-+	0x75, 0x01,         /*          Report Size (1),            */
-+	0x95, 0x01,         /*          Report Count (1),           */
-+	0x81, 0x02,         /*          Input (Variable),           */
-+	0x95, 0x03,         /*          Report Count (3),           */
-+	0x81, 0x03,         /*          Input (Constant, Variable), */
-+	0x75, 0x10,         /*          Report Size (16),           */
-+	0x95, 0x01,         /*          Report Count (1),           */
-+	0x14,               /*          Logical Minimum (0),        */
-+	0xA4,               /*          Push,                       */
-+	0x05, 0x01,         /*          Usage Page (Desktop),       */
-+	0x65, 0x13,         /*          Unit (Inch),                */
-+	0x55, 0xFD,         /*          Unit Exponent (-3),         */
-+	0x34,               /*          Physical Minimum (0),       */
-+	0x09, 0x30,         /*          Usage (X),                  */
-+	0x46, 0x70, 0x17,   /*          Physical Maximum (6000),    */
-+	0x26, 0x00, 0x30,   /*          Logical Maximum (12288),    */
-+	0x81, 0x02,         /*          Input (Variable),           */
-+	0x09, 0x31,         /*          Usage (Y),                  */
-+	0x46, 0x94, 0x11,   /*          Physical Maximum (4500),    */
-+	0x26, 0x00, 0x24,   /*          Logical Maximum (9216),     */
-+	0x81, 0x02,         /*          Input (Variable),           */
-+	0xB4,               /*          Pop,                        */
-+	0x09, 0x30,         /*          Usage (Tip Pressure),       */
-+	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
-+	0x81, 0x02,         /*          Input (Variable),           */
-+	0xC0,               /*      End Collection,                 */
-+	0xC0                /*  End Collection                      */
-+};
-+
-+/*
-  * Original Media Tablet 10.6 inch report descriptor.
-  *
-  * There are at least two versions of this model in the wild. They are
-@@ -1049,6 +1233,12 @@ static __u8 *waltop_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 			*rsize = sizeof(slim_tablet_12_1_inch_rdesc_fixed);
- 		}
- 		break;
-+	case USB_DEVICE_ID_WALTOP_Q_PAD:
-+		if (*rsize == Q_PAD_RDESC_ORIG_SIZE) {
-+			rdesc = q_pad_rdesc_fixed;
-+			*rsize = sizeof(q_pad_rdesc_fixed);
-+		}
-+		break;
- 	case USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH:
- 		if (*rsize == MEDIA_TABLET_10_6_INCH_RDESC_ORIG_SIZE) {
- 			rdesc = media_tablet_10_6_inch_rdesc_fixed;
-@@ -1071,6 +1261,8 @@ static const struct hid_device_id waltop_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
- 				USB_DEVICE_ID_WALTOP_SLIM_TABLET_12_1_INCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
-+				USB_DEVICE_ID_WALTOP_Q_PAD) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
- 				USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
- 				USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH) },
+Acked-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+
+> ---
+>  drivers/media/video/v4l2-subdev.c |   12 ++++++++++--
+>  1 files changed, 10 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/media/video/v4l2-subdev.c
+> b/drivers/media/video/v4l2-subdev.c index 41d118e..6fe88e9 100644
+> --- a/drivers/media/video/v4l2-subdev.c
+> +++ b/drivers/media/video/v4l2-subdev.c
+> @@ -194,8 +194,16 @@ static long subdev_do_ioctl(struct file *file, unsigned
+> int cmd, void *arg) }
+>  #endif
+> 
+> -	case VIDIOC_LOG_STATUS:
+> -		return v4l2_subdev_call(sd, core, log_status);
+> +	case VIDIOC_LOG_STATUS: {
+> +		int ret;
+> +
+> +		pr_info("%s: =================  START STATUS  =================\n",
+> +			sd->name);
+> +		ret = v4l2_subdev_call(sd, core, log_status);
+> +		pr_info("%s: ==================  END STATUS  ==================\n",
+> +			sd->name);
+> +		return ret;
+> +	}
+> 
+>  #if defined(CONFIG_VIDEO_V4L2_SUBDEV_API)
+>  	case VIDIOC_SUBDEV_G_FMT: {
+
 -- 
-1.7.8.3
+Regards,
 
+Laurent Pinchart

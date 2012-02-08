@@ -1,47 +1,46 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [RFC] Microsoft Touch Mouse driver [was: Re: your mail]
-Date: Tue, 7 Feb 2012 23:38:24 +0100
-Message-ID: <20120207223824.GA15836@polaris.bitmath.org>
-References: <BROWNM3h3vLgAusVxON00000cfa@brown.emailprod.vodafone.se>
- <20120125132612.GA3890@polaris.bitmath.org>
- <4F200D14.80702@gmail.com>
- <20120125150035.GA4222@polaris.bitmath.org>
- <20120130072732.GA1855@core.coreip.homeip.net>
- <4F3113F6.6000403@gmail.com>
- <20120207161231.GA13128@polaris.bitmath.org>
- <4F3192F4.1040401@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Che-Liang Chiou <clchiou@chromium.org>
+Subject: [PATCH 0/5] Input: serio_raw - add monitor/replay debugging interface
+Date: Wed,  8 Feb 2012 11:24:52 +0800
+Message-ID: <1328671497-20880-1-git-send-email-clchiou@chromium.org>
+References: <1328084386-31110-1-git-send-email-clchiou@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:36983 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756831Ab2BGWgy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Feb 2012 17:36:54 -0500
-Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
-	by smtprelay-b12.telenor.se (Postfix) with ESMTP id B8061C261
-	for <linux-input@vger.kernel.org>; Tue,  7 Feb 2012 23:36:52 +0100 (CET)
-Content-Disposition: inline
-In-Reply-To: <4F3192F4.1040401@gmail.com>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:57006 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752301Ab2BHDZ2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Feb 2012 22:25:28 -0500
+In-Reply-To: <1328084386-31110-1-git-send-email-clchiou@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maurus Cuelenaere <mcuelenaere@gmail.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Che-Liang Chiou <clchiou@chromium.org>
 
-> >>Any hints on how to do this in userspace? Of course I could hack up
-> >>xf86-input-evdev, but I'd like to do this at the highest possible
-> >>layer, ie the input subsystem.
-> >The application you describe could well be implemented in the driver
-> >you submitted; a simple handling of the MT data resulting in normal
-> >input events.
-> 
-> Yes, that was my initial idea. But as I had the impression that an
-> userspace solution was preferred, I wondered how to solve that.
+The serio_raw driver is designed to provide "raw access" to mice, keyboards
+etc; thus, a driver accessing serio_raw may live entirely in userland.
 
-The conclusion was that as is, the device is unsuitable as an MT
-device, needing either further in-kernel conversion or some other,
-non-MT way of getting the data to userspace. Converting the data as
-you describe, outputting normal input events, falls into the first
-category.
+However, serio_raw lacks testability.  It is practically impossible to do
+regression tests on changes to a serio_raw -based userland driver.  On the other
+hand, the kernel's input subsystem has good testability support.  With the help
+of tools like utouch-evemu, we may capture and replay input events for evdev
+drivers in regression tests.
 
-Thanks,
-Henrik
+This patchset contains extensions to the serio_raw driver which add debugfs
+entries for monitoring and replaying byte sequence between a userland driver
+and device.  These byte sequences can be used in regression tests of the
+userland driver.  This patchset closes the gap between serio_raw and the input
+subsystem regarding testability.
+
+This patchset is successfully applied on kernel version 3.3-rc2.
+
+Che-Liang Chiou (5):
+  Input: serio_raw - return proper result when serio_raw_read fails
+  Input: serio_raw - extract queue interface
+  Input: serio_raw - factor out common pattern of write
+  Input: serio_raw - add debugfs interface
+  Input: serio_raw - implement debugfs interface
+
+ drivers/input/serio/serio_raw.c |  394 +++++++++++++++++++++++++++++++++------
+ 1 files changed, 337 insertions(+), 57 deletions(-)
+
+-- 
+1.7.7.3
+

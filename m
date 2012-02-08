@@ -1,125 +1,55 @@
-From: Che-Liang Chiou <clchiou@chromium.org>
-Subject: [PATCH 4/5] Input: serio_raw - add debugfs interface
-Date: Wed,  8 Feb 2012 11:24:56 +0800
-Message-ID: <1328671497-20880-5-git-send-email-clchiou@chromium.org>
-References: <1328671497-20880-1-git-send-email-clchiou@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1328671497-20880-1-git-send-email-clchiou@chromium.org>
-In-Reply-To: <1328084386-31110-1-git-send-email-clchiou@chromium.org>
-References: <1328084386-31110-1-git-send-email-clchiou@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Che-Liang Chiou <clchiou@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC] Microsoft Touch Mouse driver [was: Re: your mail]
+Date: Wed, 8 Feb 2012 09:09:10 -0800
+Message-ID: <20120208170910.GA4181@core.coreip.homeip.net>
+References: <BROWNM3h3vLgAusVxON00000cfa@brown.emailprod.vodafone.se>
+ <20120125132612.GA3890@polaris.bitmath.org>
+ <4F200D14.80702@gmail.com>
+ <20120125150035.GA4222@polaris.bitmath.org>
+ <20120130072732.GA1855@core.coreip.homeip.net>
+ <4F3113F6.6000403@gmail.com>
+ <20120207161231.GA13128@polaris.bitmath.org>
+ <4F3192F4.1040401@gmail.com>
+ <20120207223824.GA15836@polaris.bitmath.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:43444 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757361Ab2BHRJU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Feb 2012 12:09:20 -0500
+Received: by pbcun15 with SMTP id un15so730020pbc.19
+        for <linux-input@vger.kernel.org>; Wed, 08 Feb 2012 09:09:19 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20120207223824.GA15836@polaris.bitmath.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Maurus Cuelenaere <mcuelenaere@gmail.com>, linux-input@vger.kernel.org
 
-Add debugfs interface for each serio_raw module instance. Take
-serio_raw0 for example, the interface should look like:
+On Tue, Feb 07, 2012 at 11:38:24PM +0100, Henrik Rydberg wrote:
+> > >>Any hints on how to do this in userspace? Of course I could hack up
+> > >>xf86-input-evdev, but I'd like to do this at the highest possible
+> > >>layer, ie the input subsystem.
+> > >The application you describe could well be implemented in the driver
+> > >you submitted; a simple handling of the MT data resulting in normal
+> > >input events.
+> > 
+> > Yes, that was my initial idea. But as I had the impression that an
+> > userspace solution was preferred, I wondered how to solve that.
+> 
+> The conclusion was that as is, the device is unsuitable as an MT
+> device, needing either further in-kernel conversion or some other,
+> non-MT way of getting the data to userspace. Converting the data as
+> you describe, outputting normal input events, falls into the first
+> category.
 
-  /sys/kernel/debug/serio_raw0/replay
-                           .../user
-                           .../device
+It should be possible to grab both interfaces using hidraw, perform
+necessary decoding in userspace and route proper MT stream (including
+button data) back into the kernel via uinput. This way the rest of the
+stack doe not need to be touched.
 
-Signed-off-by: Che-Liang Chiou <clchiou@chromium.org>
----
- drivers/input/serio/serio_raw.c |   51 +++++++++++++++++++++++++++++++++++++++
- 1 files changed, 51 insertions(+), 0 deletions(-)
+Thanks.
 
-diff --git a/drivers/input/serio/serio_raw.c b/drivers/input/serio/serio_raw.c
-index 5d13c64..7b02691 100644
---- a/drivers/input/serio/serio_raw.c
-+++ b/drivers/input/serio/serio_raw.c
-@@ -21,6 +21,7 @@
- #include <linux/miscdevice.h>
- #include <linux/wait.h>
- #include <linux/mutex.h>
-+#include <linux/debugfs.h>
- 
- #define DRIVER_DESC	"Raw serio driver"
- 
-@@ -45,6 +46,9 @@ struct serio_raw {
- 	struct list_head client_list;
- 	struct list_head node;
- 	bool dead;
-+	u32 replay;  /* not bool because debugfs_create_bool() takes u32 */
-+
-+	struct dentry *dentry;
- };
- 
- struct serio_raw_client {
-@@ -342,6 +346,17 @@ static const struct file_operations serio_raw_fops = {
- 
- 
- /*********************************************************************
-+ *             Interface with debugfs (file operations)              *
-+ *********************************************************************/
-+
-+static const struct file_operations debug_user_fops = {
-+};
-+
-+static const struct file_operations debug_device_fops = {
-+};
-+
-+
-+/*********************************************************************
-  *                   Interface with serio port                       *
-  *********************************************************************/
- 
-@@ -361,6 +376,36 @@ static irqreturn_t serio_raw_interrupt(struct serio *serio, unsigned char data,
- 	return IRQ_HANDLED;
- }
- 
-+static int serio_raw_debug_init(struct serio_raw *serio_raw)
-+{
-+	const mode_t mode = S_IRUSR | S_IWUSR;
-+
-+	serio_raw->dentry = debugfs_create_dir(serio_raw->name, NULL);
-+	if (!serio_raw->dentry)
-+		return -ENOENT;
-+
-+	if (!debugfs_create_bool("replay", mode, serio_raw->dentry,
-+				&serio_raw->replay))
-+		goto err;
-+	if (!debugfs_create_file("user", mode, serio_raw->dentry, serio_raw,
-+				&debug_user_fops))
-+		goto err;
-+	if (!debugfs_create_file("device", mode, serio_raw->dentry, serio_raw,
-+				&debug_device_fops))
-+		goto err;
-+
-+	return 0;
-+
-+err:
-+	debugfs_remove_recursive(serio_raw->dentry);
-+	return -ENOENT;
-+}
-+
-+static void serio_raw_debug_cleanup(struct serio_raw *serio_raw)
-+{
-+	debugfs_remove_recursive(serio_raw->dentry);
-+}
-+
- static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
- {
- 	static atomic_t serio_raw_no = ATOMIC_INIT(0);
-@@ -413,6 +458,10 @@ static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
- 		goto err_unlink;
- 	}
- 
-+	if (serio_raw_debug_init(serio_raw))
-+		dev_warn(&serio->dev, "failed to register debugfs for %s\n",
-+				serio->phys);
-+
- 	dev_info(&serio->dev, "raw access enabled on %s (%s, minor %d)\n",
- 		 serio->phys, serio_raw->name, serio_raw->dev.minor);
- 	return 0;
-@@ -475,6 +524,8 @@ static void serio_raw_disconnect(struct serio *serio)
- 
- 	serio_raw_hangup(serio_raw);
- 
-+	serio_raw_debug_cleanup(serio_raw);
-+
- 	serio_close(serio);
- 	kref_put(&serio_raw->kref, serio_raw_free);
- 
 -- 
-1.7.7.3
+Dmitry

@@ -1,55 +1,86 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Microsoft Touch Mouse driver [was: Re: your mail]
-Date: Wed, 8 Feb 2012 09:09:10 -0800
-Message-ID: <20120208170910.GA4181@core.coreip.homeip.net>
-References: <BROWNM3h3vLgAusVxON00000cfa@brown.emailprod.vodafone.se>
- <20120125132612.GA3890@polaris.bitmath.org>
- <4F200D14.80702@gmail.com>
- <20120125150035.GA4222@polaris.bitmath.org>
- <20120130072732.GA1855@core.coreip.homeip.net>
- <4F3113F6.6000403@gmail.com>
- <20120207161231.GA13128@polaris.bitmath.org>
- <4F3192F4.1040401@gmail.com>
- <20120207223824.GA15836@polaris.bitmath.org>
+From: Andres Salomon <dilinger@queued.net>
+Subject: [PATCH 1/2] input: psmouse: allow drivers to use
+ psmouse_{de,}activate
+Date: Wed, 8 Feb 2012 22:57:34 -0800
+Message-ID: <20120208225734.68007a5b@queued.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:43444 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757361Ab2BHRJU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Feb 2012 12:09:20 -0500
-Received: by pbcun15 with SMTP id un15so730020pbc.19
-        for <linux-input@vger.kernel.org>; Wed, 08 Feb 2012 09:09:19 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20120207223824.GA15836@polaris.bitmath.org>
+Received: from lunge.queued.net ([173.255.254.236]:52650 "EHLO
+	lunge.queued.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751208Ab2BIG5f (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Feb 2012 01:57:35 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Maurus Cuelenaere <mcuelenaere@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pgf@laptop.org
 
-On Tue, Feb 07, 2012 at 11:38:24PM +0100, Henrik Rydberg wrote:
-> > >>Any hints on how to do this in userspace? Of course I could hack up
-> > >>xf86-input-evdev, but I'd like to do this at the highest possible
-> > >>layer, ie the input subsystem.
-> > >The application you describe could well be implemented in the driver
-> > >you submitted; a simple handling of the MT data resulting in normal
-> > >input events.
-> > 
-> > Yes, that was my initial idea. But as I had the impression that an
-> > userspace solution was preferred, I wondered how to solve that.
-> 
-> The conclusion was that as is, the device is unsuitable as an MT
-> device, needing either further in-kernel conversion or some other,
-> non-MT way of getting the data to userspace. Converting the data as
-> you describe, outputting normal input events, falls into the first
-> category.
+Other drivers duplicate this code; no sense in having it be private
+to psmouse-base.
 
-It should be possible to grab both interfaces using hidraw, perform
-necessary decoding in userspace and route proper MT stream (including
-button data) back into the kernel via uinput. This way the rest of the
-stack doe not need to be touched.
+Signed-off-by: Andres Salomon <dilinger@queued.net>
+---
+ drivers/input/mouse/psmouse-base.c |   15 ++++++++++-----
+ drivers/input/mouse/psmouse.h      |    2 ++
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
-Thanks.
-
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index e6c9931..22fe254 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -1092,28 +1092,33 @@ static void psmouse_initialize(struct psmouse *psmouse)
+  * psmouse_activate() enables the mouse so that we get motion reports from it.
+  */
+ 
+-static void psmouse_activate(struct psmouse *psmouse)
++int psmouse_activate(struct psmouse *psmouse)
+ {
+-	if (ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE))
++	if (ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE)) {
+ 		psmouse_warn(psmouse, "Failed to enable mouse on %s\n",
+ 			     psmouse->ps2dev.serio->phys);
++		return -1;
++	}
+ 
+ 	psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
++	return 0;
+ }
+ 
+-
+ /*
+  * psmouse_deactivate() puts the mouse into poll mode so that we don't get motion
+  * reports from it unless we explicitly request it.
+  */
+ 
+-static void psmouse_deactivate(struct psmouse *psmouse)
++int psmouse_deactivate(struct psmouse *psmouse)
+ {
+-	if (ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_DISABLE))
++	if (ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_DISABLE)) {
+ 		psmouse_warn(psmouse, "Failed to deactivate mouse on %s\n",
+ 			     psmouse->ps2dev.serio->phys);
++		return -1;
++	}
+ 
+ 	psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
++	return 0;
+ }
+ 
+ 
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index 6a41709..fe1df23 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -105,6 +105,8 @@ int psmouse_reset(struct psmouse *psmouse);
+ void psmouse_set_state(struct psmouse *psmouse, enum psmouse_state new_state);
+ void psmouse_set_resolution(struct psmouse *psmouse, unsigned int resolution);
+ psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse);
++int psmouse_activate(struct psmouse *psmouse);
++int psmouse_deactivate(struct psmouse *psmouse);
+ 
+ struct psmouse_attribute {
+ 	struct device_attribute dattr;
 -- 
-Dmitry
+1.7.2.5
+

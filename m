@@ -1,61 +1,120 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: [PATCH 1/2] Input: cyttsp - Fix check after pointer dereferencing
-Date: Fri, 10 Feb 2012 02:18:29 +0100
-Message-ID: <1328836710-9897-1-git-send-email-javier@dowhile0.org>
+From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Subject: Re: [PATCH] ARM: OMAP1: ams-delta: correct init data section assignments
+Date: Fri, 10 Feb 2012 17:31:31 +0100
+Message-ID: <1580046.EEGIFOPvyy@vclass>
+References: <1328696173-17226-1-git-send-email-grinberg@compulab.co.il> <1328786302-25131-1-git-send-email-jkrzyszt@tis.icnet.pl> <20120209144853.GU1275@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:63579 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754162Ab2BJBUl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Feb 2012 20:20:41 -0500
-Received: by wics10 with SMTP id s10so1664258wic.19
-        for <linux-input@vger.kernel.org>; Thu, 09 Feb 2012 17:20:40 -0800 (PST)
+Received: from d1.icnet.pl ([212.160.220.21]:53254 "EHLO d1.icnet.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755070Ab2BJQiW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Feb 2012 11:38:22 -0500
+In-Reply-To: <20120209144853.GU1275@n2100.arm.linux.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, linux-input@vger.kernel.org, Javier Martinez Canillas <martinez.javier@dowhile0.org>Javier Martinez Canillas <javier@dowhile0.org>
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Tony Lindgren <tony@atomide.com>, linux-fbdev@vger.kernel.org, Artem Bityutskiy <Artem.Bityutskiy@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-mtd@lists.infradead.org, Igor Grinberg <grinberg@compulab.co.il>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-From: Javier Martinez Canillas <martinez.javier@dowhile0.org>
+On Thursday 09 of February 2012 14:48:53 Russell King - ARM Linux wrote:
 
-In the cyttsp_probe() function the struct device *dev pointer was
-dereferenced before checking if it was NULL.
+> There is no optimisation to adding __refdata to stuff.  That's screaming
+> that you have lots of bugs here.
 
-Now dev is never NULL since both I2C and SPI bus drivers pass a pointer to a
-member of an previously allocated structure. But others bus drivers can do
-it differently so is better to sanity check instead of trust in the callers.
+Thanks for your teaching. I find those aspects not very exhaustively documented 
+under Documentation/, so any hints are much appreciated.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
----
- drivers/input/touchscreen/cyttsp_core.c |   11 +++++++++--
- 1 files changed, 9 insertions(+), 2 deletions(-)
+> > -static struct map_desc ams_delta_io_desc[] __initdata = {
+> > +static struct map_desc ams_delta_io_desc[] __initconst = {
+> 
+> You're not making this comst so don't change it to __initconst.
 
-diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
-index 8be2247..071e5ae8 100644
---- a/drivers/input/touchscreen/cyttsp_core.c
-+++ b/drivers/input/touchscreen/cyttsp_core.c
-@@ -518,12 +518,19 @@ static void cyttsp_close(struct input_dev *dev)
- struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
- 			    struct device *dev, int irq, size_t xfer_buf_size)
- {
--	const struct cyttsp_platform_data *pdata = dev->platform_data;
-+	const struct cyttsp_platform_data *pdata;
- 	struct cyttsp *ts;
- 	struct input_dev *input_dev;
- 	int error;
- 
--	if (!dev || !bus_ops || !pdata || !pdata->name || irq <= 0) {
-+	if (!dev || !bus_ops || !dev->platform_data || irq <= 0) {
-+		error = -EINVAL;
-+		goto err_out;
-+	}
-+
-+	pdata = dev->platform_data;
-+
-+	if (!pdata->name) {
- 		error = -EINVAL;
- 		goto err_out;
- 	}
--- 
-1.7.7.6
+OK, however, I think there must be a bug in gcc, otherwise it should probably 
+never accept such wrong constructs, while sometimes it does (not only mine, 
+see [1]).
 
+> > -static struct omap_lcd_config ams_delta_lcd_config = {
+> > +static struct omap_lcd_config ams_delta_lcd_config __initconst = {
+> 
+> This change probably adds a bug.  Are you sure this will never be used
+> outside init context?
+
+I may be wrong, but before I've changed this, and now once again, I've verified 
+that a copy of this data is made inside __init omap_init_fb() by means of a 
+structure assignment operation.
+
+> > -static struct omap_usb_config ams_delta_usb_config __initdata = {
+> > +static struct omap_usb_config ams_delta_usb_config __initdata_or_module
+> > = {
+> Even if you don't have modules enabled, have you checked whether the
+> driver can be bound and unbound via
+> /sys/bus/platform/driver/<name>/{bind,unbind} ?
+
+No, I didn't even think of it, I am afraid.
+
+> I suspect this is a bug.
+
+Indeed, that data is not copied on init, only pointed to, moreover, the 
+ohci-omap driver provides bind/unbind opearations.
+
+BTW, what are those bind/unbind operations intended for in case of a driver 
+dedicated to a non-hotplugable SoC hardware exclusively?
+
+> > -static struct resource ams_delta_nand_resources[] = {
+> > +static struct resource ams_delta_nand_resources[] __initconst_or_module
+> > = {
+> This change definitely adds a bug.  The resources are _used_ _all_ _the_
+> _time_ _the_ _device_ _is_ _registered_.  Try catting /proc/iomem after
+> boot.
+
+Indeed, I didn't think of that. I expected that standard init data of only 
+those devices which can be actually found during init should be copied for 
+runtime access, then all (found and not found) dropped instead of keeping them 
+all in memory for only some of them being actually used.
+
+> > -static struct i2c_board_info ams_delta_camera_board_info[] = {
+> > +static struct i2c_board_info __initconst_or_module
+> > +ams_delta_camera_board_info[] = {
+> 
+> No.  It's
+> 
+> static struct foo blah[] __whatever_init_attribute
+> 
+> not
+> 
+> static struct foo __whatever_init_attribute blah[]
+> 
+> I've no idea where this fucked idea came from but it's something that's
+> wasting a lot of review time with complaints like this about it.
+
+My bad, I blindly copied that pattern from another broken example under 
+arch/arm instead of examining the docs carefully enough.
+
+> > -static struct soc_camera_link ams_delta_iclink = {
+> > +static struct soc_camera_link ams_delta_iclink __initconst_or_module =
+> > {
+> 
+> Probably buggy.
+
+Indeed. Even if the soc-camera-pdrv driver doesn't support 
+unbindind/rebinding, it doesn't seem to make a copy of that platform data, 
+only stores a pointer to it for runtime access, wich I missed.
+
+> > -static struct platform_device *ams_delta_devices[] __initdata = {
+> > +static struct platform_device *ams_delta_devices[] __initconst = {
+> 
+> Missing const.  If you can't const it, don't put it in __initconst.
+
+I gave up trying to use both const and __initconst together after my gcc-4.2.4 
+(and not only mine, see [1], [2]) refused to accept such constructs a few 
+times. Now I see that this false reporting may probably happen in presence of other 
+incorrect uses of __initconst without const or __initdata with const.
+
+Hopefully better patches will follow.
+
+Thanks,
+Janusz
+
+[1] http://lists.infradead.org/pipermail/linux-arm-kernel/2011-August/062421.html 
+[2] http://permalink.gmane.org/gmane.linux.kernel.commits.head/202285

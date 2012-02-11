@@ -1,251 +1,189 @@
-From: chris@cnpbagwell.com
-Subject: [PATCH v3 6/7] input : wacom - retrieve maximum number of touch points
-Date: Sat, 11 Feb 2012 15:55:33 -0600
-Message-ID: <1328997334-24140-7-git-send-email-chris@cnpbagwell.com>
-References: <1328997334-24140-1-git-send-email-chris@cnpbagwell.com>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH] Input: Add ioctl to block suspend while event queue is not empty.
+Date: Sun, 12 Feb 2012 00:28:23 +0100
+Message-ID: <201202120028.23364.rjw@sisk.pl>
+References: <1327112659-31145-1-git-send-email-arve@android.com>
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:61504 "EHLO
-	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753627Ab2BKVzt (ORCPT
+Received: from ogre.sisk.pl ([217.79.144.158]:48142 "EHLO ogre.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754505Ab2BKXYb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Feb 2012 16:55:49 -0500
-Received: by mail-tul01m020-f174.google.com with SMTP id va7so5156955obc.19
-        for <linux-input@vger.kernel.org>; Sat, 11 Feb 2012 13:55:49 -0800 (PST)
-In-Reply-To: <1328997334-24140-1-git-send-email-chris@cnpbagwell.com>
+	Sat, 11 Feb 2012 18:24:31 -0500
+In-Reply-To: <1327112659-31145-1-git-send-email-arve@android.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Ping Cheng <pinglinux@gmail.com>
-Cc: Chris Bagwell <chris@cnpbagwell.com>, Ping Cheng <pingc@wacom.com>
+To: Arve =?utf-8?q?Hj=C3=B8nnev=C3=A5g?= <arve@android.com>
+Cc: linux-input@vger.kernel.org, linux-pm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg@redhat.com>, Chase Douglas <chase.douglas@canonical.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org
 
-From: Ping Cheng <pinglinux@gmail.com>
+Hi,
 
->From the HID usage table when it is supported.
+On Saturday, January 21, 2012, Arve Hj=C3=B8nnev=C3=A5g wrote:
+> Add an ioctl, EVIOCSSUSPENDBLOCK, to block suspend while the event
+> queue is not empty. This allows userspace code to process input
+> events while the device appears to be asleep.
 
-Tested-by: Chris Bagwell <chris@cnpbagwell.com>
-Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
- drivers/input/tablet/wacom_sys.c |   22 ++++++++++++++-
- drivers/input/tablet/wacom_wac.c |   57 +++++++++++++++++++++++--------------
- drivers/input/tablet/wacom_wac.h |    1 +
- 3 files changed, 57 insertions(+), 23 deletions(-)
+I have two questions to start with, if you don't mind:
 
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index b09d939..950af65 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -28,6 +28,7 @@
- #define HID_USAGE_Y_TILT		0x3e
- #define HID_USAGE_FINGER		0x22
- #define HID_USAGE_STYLUS		0x20
-+#define HID_USAGE_CONTACTMAX		0x55
- #define HID_COLLECTION			0xa1
- #define HID_COLLECTION_LOGICAL		0x02
- #define HID_COLLECTION_END		0xc0
-@@ -201,6 +202,20 @@ static int wacom_parse_logical_collection(unsigned char *report,
- 	return length;
- }
- 
-+static void wacom_retrieve_report_data(struct usb_interface *intf,
-+				       struct wacom_features *features)
-+{
-+	int result = 0;
-+	unsigned char rep_data[2];
-+
-+	rep_data[0] = 12;
-+	result = wacom_get_report(intf, WAC_HID_FEATURE_REPORT,
-+		 rep_data[0], &rep_data, 2, WAC_MSG_RETRIES);
-+
-+	if ((result >= 0) && (rep_data[1] > 2))
-+		features->touch_max = rep_data[1];
-+}
-+
- /*
-  * Interface Descriptor of wacom devices can be incomplete and
-  * inconsistent so wacom_features table is used to store stylus
-@@ -374,6 +389,11 @@ static int wacom_parse_hid(struct usb_interface *intf,
- 				pen = 1;
- 				i++;
- 				break;
-+
-+			case HID_USAGE_CONTACTMAX:
-+				wacom_retrieve_report_data(intf, features);
-+				i++;
-+				break;
- 			}
- 			break;
- 
-@@ -1033,7 +1053,7 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 
- 	endpoint = &intf->cur_altsetting->endpoint[0].desc;
- 
--	/* Retrieve the physical and logical size for OEM devices */
-+	/* Retrieve the physical and logical size for touch devices */
- 	error = wacom_retrieve_hid_descriptor(intf, features);
- 	if (error)
- 		goto fail3;
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index a30f229..c8eede1 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -830,7 +830,8 @@ static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
- {
- 	char *data = wacom->data;
- 
--	dbg("wacom_tpc_irq: received report #%d", data[0]);
-+	dbg("wacom_tpc_irq: received report #%d with %d contacts",
-+	     data[0], wacom->features.touch_max);
- 
- 	switch (len) {
- 	case WACOM_PKGLEN_TPC1FG:
-@@ -1374,7 +1375,7 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
- 	case TABLETPC2FG:
- 		if (features->device_type == BTN_TOOL_FINGER) {
- 
--			input_mt_init_slots(input_dev, 2);
-+			input_mt_init_slots(input_dev, features->touch_max);
- 			input_set_abs_params(input_dev, ABS_MT_TOOL_TYPE,
- 					0, MT_TOOL_MAX, 0, 0);
- 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-@@ -1429,6 +1430,7 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
- 
- 			__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
- 			__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
-+			input_mt_init_slots(input_dev, features->touch_max);
- 
- 			if (features->pktlen == WACOM_PKGLEN_BBTOUCH3) {
- 				__set_bit(BTN_TOOL_TRIPLETAP,
-@@ -1436,13 +1438,9 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
- 				__set_bit(BTN_TOOL_QUADTAP,
- 					  input_dev->keybit);
- 
--				input_mt_init_slots(input_dev, 16);
--
- 				input_set_abs_params(input_dev,
- 						     ABS_MT_TOUCH_MAJOR,
- 						     0, 255, 0, 0);
--			} else {
--				input_mt_init_slots(input_dev, 2);
- 			}
- 
- 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-@@ -1658,43 +1656,51 @@ static const struct wacom_features wacom_features_0x90 =
- 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0x93 =
- 	{ "Wacom ISDv4 93",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  255,
--	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 1 };
- static const struct wacom_features wacom_features_0x97 =
- 	{ "Wacom ISDv4 97",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  511,
- 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0x9A =
- 	{ "Wacom ISDv4 9A",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  255,
--	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 1 };
- static const struct wacom_features wacom_features_0x9F =
- 	{ "Wacom ISDv4 9F",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  255,
- 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0xE2 =
- 	{ "Wacom ISDv4 E2",       WACOM_PKGLEN_TPC2FG,    26202, 16325,  255,
--	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 2 };
- static const struct wacom_features wacom_features_0xE3 =
- 	{ "Wacom ISDv4 E3",       WACOM_PKGLEN_TPC2FG,    26202, 16325,  255,
--	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 2 };
- static const struct wacom_features wacom_features_0xE6 =
- 	{ "Wacom ISDv4 E6",       WACOM_PKGLEN_TPC2FG,    27760, 15694,  255,
--	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 2 };
- static const struct wacom_features wacom_features_0x47 =
- 	{ "Wacom Intuos2 6x8",    WACOM_PKGLEN_INTUOS,    20320, 16240, 1023,
- 	  31, INTUOS, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0x84 =
- 	{ "Wacom Wireless Receiver", WACOM_PKGLEN_WIRELESS, 0, 0, 0,
--	  0, BAMBOO_WIRELESS, 0, 0 };
-+	  0, BAMBOO_WIRELESS, 0, 0, .touch_max = 16 };
- static const struct wacom_features wacom_features_0xD0 =
- 	{ "Wacom Bamboo 2FG",     WACOM_PKGLEN_BBFUN,     14720,  9200, 1023,
--	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 2 };
- static const struct wacom_features wacom_features_0xD1 =
- 	{ "Wacom Bamboo 2FG 4x5", WACOM_PKGLEN_BBFUN,     14720,  9200, 1023,
--	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 2 };
- static const struct wacom_features wacom_features_0xD2 =
- 	{ "Wacom Bamboo Craft",   WACOM_PKGLEN_BBFUN,     14720,  9200, 1023,
- 	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0xD3 =
- 	{ "Wacom Bamboo 2FG 6x8", WACOM_PKGLEN_BBFUN,     21648, 13700, 1023,
--	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 2 };
- static const struct wacom_features wacom_features_0xD4 =
- 	{ "Wacom Bamboo Pen",     WACOM_PKGLEN_BBFUN,     14720,  9200, 1023,
- 	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-@@ -1703,28 +1709,35 @@ static const struct wacom_features wacom_features_0xD5 =
- 	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0xD6 =
- 	{ "Wacom BambooPT 2FG 4x5", WACOM_PKGLEN_BBFUN,   14720,  9200, 1023,
--	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 2 };
- static const struct wacom_features wacom_features_0xD7 =
- 	{ "Wacom BambooPT 2FG Small", WACOM_PKGLEN_BBFUN, 14720,  9200, 1023,
--	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 2 };
- static const struct wacom_features wacom_features_0xD8 =
- 	{ "Wacom Bamboo Comic 2FG", WACOM_PKGLEN_BBFUN,   21648, 13700, 1023,
--	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 2 };
- static const struct wacom_features wacom_features_0xDA =
- 	{ "Wacom Bamboo 2FG 4x5 SE", WACOM_PKGLEN_BBFUN,  14720,  9200, 1023,
--	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 2 };
- static struct wacom_features wacom_features_0xDB =
- 	{ "Wacom Bamboo 2FG 6x8 SE", WACOM_PKGLEN_BBFUN,  21648, 13700, 1023,
--	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 2 };
- static const struct wacom_features wacom_features_0xDD =
-         { "Wacom Bamboo Connect", WACOM_PKGLEN_BBPEN,     14720,  9200, 1023,
-           31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0xDE =
-         { "Wacom Bamboo 16FG 4x5", WACOM_PKGLEN_BBPEN,    14720,  9200, 1023,
--          31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+          31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 16 };
- static const struct wacom_features wacom_features_0xDF =
-         { "Wacom Bamboo 16FG 6x8", WACOM_PKGLEN_BBPEN,    21648, 13700, 1023,
--          31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+          31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 16 };
- static const struct wacom_features wacom_features_0x6004 =
- 	{ "ISD-V4",               WACOM_PKGLEN_GRAPHIRE,  12800,  8000,  255,
- 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index 2d5e9ee..a0a5b1a 100644
---- a/drivers/input/tablet/wacom_wac.h
-+++ b/drivers/input/tablet/wacom_wac.h
-@@ -95,6 +95,7 @@ struct wacom_features {
- 	int pressure_fuzz;
- 	int distance_fuzz;
- 	unsigned quirks;
-+	unsigned touch_max;
- };
- 
- struct wacom_shared {
--- 
-1.7.7.6
+(1) Does Android user space use an analogous interface right now or is =
+it
+    a prototype?
 
+(2) What exactly are the use cases for it (ie. what problem does it add=
+ress
+    that cannot be addressed in a different way)?
+
+Rafael
+
+> Signed-off-by: Arve Hj=C3=B8nnev=C3=A5g <arve@android.com>
+> ---
+>  drivers/input/evdev.c |   63 +++++++++++++++++++++++++++++++++++++++=
+++++++++++
+>  include/linux/input.h |    3 ++
+>  2 files changed, 66 insertions(+), 0 deletions(-)
+>=20
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index 76457d5..e212757 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -43,6 +43,7 @@ struct evdev_client {
+>  	unsigned int tail;
+>  	unsigned int packet_head; /* [future] position of the first element=
+ of next packet */
+>  	spinlock_t buffer_lock; /* protects access to buffer, head and tail=
+ */
+> +	struct wakeup_source *wakeup_source;
+>  	struct fasync_struct *fasync;
+>  	struct evdev *evdev;
+>  	struct list_head node;
+> @@ -75,10 +76,14 @@ static void evdev_pass_event(struct evdev_client =
+*client,
+>  		client->buffer[client->tail].value =3D 0;
+> =20
+>  		client->packet_head =3D client->tail;
+> +		if (client->wakeup_source)
+> +			__pm_relax(client->wakeup_source);
+>  	}
+> =20
+>  	if (event->type =3D=3D EV_SYN && event->code =3D=3D SYN_REPORT) {
+>  		client->packet_head =3D client->head;
+> +		if (client->wakeup_source)
+> +			__pm_stay_awake(client->wakeup_source);
+>  		kill_fasync(&client->fasync, SIGIO, POLL_IN);
+>  	}
+> =20
+> @@ -255,6 +260,10 @@ static int evdev_release(struct inode *inode, st=
+ruct file *file)
+>  	mutex_unlock(&evdev->mutex);
+> =20
+>  	evdev_detach_client(evdev, client);
+> +	if (client->wakeup_source) {
+> +		__pm_relax(client->wakeup_source);
+> +		wakeup_source_unregister(client->wakeup_source);
+> +	}
+>  	kfree(client);
+> =20
+>  	evdev_close_device(evdev);
+> @@ -373,6 +382,9 @@ static int evdev_fetch_next_event(struct evdev_cl=
+ient *client,
+>  	if (have_event) {
+>  		*event =3D client->buffer[client->tail++];
+>  		client->tail &=3D client->bufsize - 1;
+> +		if (client->wakeup_source &&
+> +		    client->packet_head =3D=3D client->tail)
+> +			__pm_relax(client->wakeup_source);
+>  	}
+> =20
+>  	spin_unlock_irq(&client->buffer_lock);
+> @@ -623,6 +635,48 @@ static int evdev_handle_set_keycode_v2(struct in=
+put_dev *dev, void __user *p)
+>  	return input_set_keycode(dev, &ke);
+>  }
+> =20
+> +static int evdev_enable_suspend_block(struct evdev *evdev,
+> +				      struct evdev_client *client)
+> +{
+> +	struct wakeup_source *ws;
+> +	char name[28];
+> +
+> +	if (client->wakeup_source)
+> +		return 0;
+> +
+> +	snprintf(name, sizeof(name), "%s-%d",
+> +		 dev_name(&evdev->dev), task_tgid_vnr(current));
+> +
+> +	ws =3D wakeup_source_register(name);
+> +	if (!ws)
+> +		return -ENOMEM;
+> +
+> +	spin_lock_irq(&client->buffer_lock);
+> +	client->wakeup_source =3D ws;
+> +	if (client->packet_head !=3D client->tail)
+> +		__pm_stay_awake(client->wakeup_source);
+> +	spin_unlock_irq(&client->buffer_lock);
+> +	return 0;
+> +}
+> +
+> +static int evdev_disable_suspend_block(struct evdev *evdev,
+> +				       struct evdev_client *client)
+> +{
+> +	struct wakeup_source *ws;
+> +
+> +	spin_lock_irq(&client->buffer_lock);
+> +	ws =3D client->wakeup_source;
+> +	client->wakeup_source =3D NULL;
+> +	spin_unlock_irq(&client->buffer_lock);
+> +
+> +	if (ws) {
+> +		__pm_relax(ws);
+> +		wakeup_source_unregister(ws);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+>  			   void __user *p, int compat_mode)
+>  {
+> @@ -696,6 +750,15 @@ static long evdev_do_ioctl(struct file *file, un=
+signed int cmd,
+> =20
+>  	case EVIOCSKEYCODE_V2:
+>  		return evdev_handle_set_keycode_v2(dev, p);
+> +
+> +	case EVIOCGSUSPENDBLOCK:
+> +		return put_user(!!client->wakeup_source, ip);
+> +
+> +	case EVIOCSSUSPENDBLOCK:
+> +		if (p)
+> +			return evdev_enable_suspend_block(evdev, client);
+> +		else
+> +			return evdev_disable_suspend_block(evdev, client);
+>  	}
+> =20
+>  	size =3D _IOC_SIZE(cmd);
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index 3862e32..daf0177 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -129,6 +129,9 @@ struct input_keymap_entry {
+> =20
+>  #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
+> =20
+> +#define EVIOCGSUSPENDBLOCK	_IOR('E', 0x91, int)			/* get suspend blo=
+ck enable */
+> +#define EVIOCSSUSPENDBLOCK	_IOW('E', 0x91, int)			/* set suspend blo=
+ck enable */
+> +
+>  /*
+>   * Device properties and quirks
+>   */
+>=20
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,304 +1,115 @@
-From: zitev <zitev-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
-Subject: Re: not supported hardware: Gigabyte K8100 Aivia USB Gaming Keyboard
-Date: Sat, 11 Feb 2012 11:05:56 +0100
-Message-ID: <4F363D84.5090208@freemail.hu>
-References: <4D55AE81.3030805@freemail.hu> <20120126002100.GA4495@burratino> <4F21C49D.2010906@freemail.hu> <20120126213939.GA5179@burratino> <4F230A1A.7080508@freemail.hu> <20120128071223.GA27331@burratino> <4F299010.5090009@freemail.hu> <alpine.LNX.2.00.1202012104030.18918@pobox.suse.cz> <4F2AEF30.5080805@freemail.hu> <alpine.LNX.2.00.1202092231420.24127@pobox.suse.cz>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCH] ARM: OMAP1: ams-delta: correct init data section
+	assignments
+Date: Sat, 11 Feb 2012 10:24:24 +0000
+Message-ID: <20120211102424.GC13587@n2100.arm.linux.org.uk>
+References: <1328696173-17226-1-git-send-email-grinberg@compulab.co.il> <1328786302-25131-1-git-send-email-jkrzyszt@tis.icnet.pl> <20120209144853.GU1275@n2100.arm.linux.org.uk> <1580046.EEGIFOPvyy@vclass>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.1202092231420.24127-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: Jonathan Nieder <jrnieder-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from caramon.arm.linux.org.uk ([78.32.30.218]:58157 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750858Ab2BKKZ3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 11 Feb 2012 05:25:29 -0500
+Content-Disposition: inline
+In-Reply-To: <1580046.EEGIFOPvyy@vclass>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Cc: Tony Lindgren <tony@atomide.com>, linux-fbdev@vger.kernel.org, Artem Bityutskiy <Artem.Bityutskiy@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-mtd@lists.infradead.org, Igor Grinberg <grinberg@compulab.co.il>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-I did try pressing all keys on keyboard, but only backscape key is=20
-working (and macro/key-light and multimedia keys, but i think, those no=
-t=20
-on keyboard matrix)...
+On Fri, Feb 10, 2012 at 05:31:31PM +0100, Janusz Krzysztofik wrote:
+> On Thursday 09 of February 2012 14:48:53 Russell King - ARM Linux wrote:
+> > > -static struct map_desc ams_delta_io_desc[] __initdata = {
+> > > +static struct map_desc ams_delta_io_desc[] __initconst = {
+> > 
+> > You're not making this comst so don't change it to __initconst.
+> 
+> OK, however, I think there must be a bug in gcc, otherwise it should probably 
+> never accept such wrong constructs, while sometimes it does (not only mine, 
+> see [1]).
 
+No - because you don't understand what's going on with these tags.
+The __initconst and other tags are just tell the compiler to place
+stuff into a named section.  The name is interpreted by GCC as a mere
+string which it passes through to the ELF file.
 
-2012-02-09 22:33 keltez=E9ssel, Jiri Kosina =EDrta:
-> On Thu, 2 Feb 2012, zitev wrote:
->
->> 0003:060B:2270.0004/
->> 0003:060B:2270.0005/
->> 0003:1044:7A02.0001/
->> 0003:1044:7A02.0002/
->> 0003:1044:7A02.0003/
-> Apparently the '0004' one is a keyboard interface.
->
-> [ ... snip ... ]
->> "cat /sys/kernel/debug/hid/0003\:060B\:2270.0004/rdesc
->> 05 01 09 06 a1 01 05 07 19 e0 29 e7 15 00 25 01 75 01 95 08 81 02 95=
- 01 75 08
->> 81 01 95 03 75 01 05 08 19 01 29 03 91 02 95 05 75 01 91 01 95 06 75=
- 08 26 ff
->> 00 05 07 19 00 29 91 81 00 09 00 15 00 26 ff 00 75 08 95 08 b1 00 c0
->>
->>    INPUT[INPUT]
->>      Field(0)
->>        Application(GenericDesktop.Keyboard)
->>        Usage(8)
->>          Keyboard.00e0
->>          Keyboard.00e1
->>          Keyboard.00e2
->>          Keyboard.00e3
->>          Keyboard.00e4
->>          Keyboard.00e5
->>          Keyboard.00e6
->>          Keyboard.00e7
->>        Logical Minimum(0)
->>        Logical Maximum(1)
->>        Report Size(1)
->>        Report Count(8)
->>        Report Offset(0)
->>        Flags( Variable Absolute )
->>      Field(1)
->>        Application(GenericDesktop.Keyboard)
->>        Usage(146)
->>          Keyboard.0000
->>          Keyboard.0001
->>          Keyboard.0002
->>          Keyboard.0003
->>          Keyboard.0004
->>          Keyboard.0005
->>          Keyboard.0006
->>          Keyboard.0007
->>          Keyboard.0008
->>          Keyboard.0009
->>          Keyboard.000a
->>          Keyboard.000b
->>          Keyboard.000c
->>          Keyboard.000d
->>          Keyboard.000e
->>          Keyboard.000f
->>          Keyboard.0010
->>          Keyboard.0011
->>          Keyboard.0012
->>          Keyboard.0013
->>          Keyboard.0014
->>          Keyboard.0015
->>          Keyboard.0016
->>          Keyboard.0017
->>          Keyboard.0018
->>          Keyboard.0019
->>          Keyboard.001a
->>          Keyboard.001b
->>          Keyboard.001c
->>          Keyboard.001d
->>          Keyboard.001e
->>          Keyboard.001f
->>          Keyboard.0020
->>          Keyboard.0021
->>          Keyboard.0022
->>          Keyboard.0023
->>          Keyboard.0024
->>          Keyboard.0025
->>          Keyboard.0026
->>          Keyboard.0027
->>          Keyboard.0028
->>          Keyboard.0029
->>          Keyboard.002a
->>          Keyboard.002b
->>          Keyboard.002c
->>          Keyboard.002d
->>          Keyboard.002e
->>          Keyboard.002f
->>          Keyboard.0030
->>          Keyboard.0031
->>          Keyboard.0032
->>          Keyboard.0033
->>          Keyboard.0034
->>          Keyboard.0035
->>          Keyboard.0036
->>          Keyboard.0037
->>          Keyboard.0038
->>          Keyboard.0039
->>          Keyboard.003a
->>          Keyboard.003b
->>          Keyboard.003c
->>          Keyboard.003d
->>          Keyboard.003e
->>          Keyboard.003f
->>          Keyboard.0040
->>          Keyboard.0041
->>          Keyboard.0042
->>          Keyboard.0043
->>          Keyboard.0044
->>          Keyboard.0045
->>          Keyboard.0046
->>          Keyboard.0047
->>          Keyboard.0048
->>          Keyboard.0049
->>          Keyboard.004a
->>          Keyboard.004b
->>          Keyboard.004c
->>          Keyboard.004d
->>          Keyboard.004e
->>          Keyboard.004f
->>          Keyboard.0050
->>          Keyboard.0051
->>          Keyboard.0052
->>          Keyboard.0053
->>          Keyboard.0054
->>          Keyboard.0055
->>          Keyboard.0056
->>          Keyboard.0057
->>          Keyboard.0058
->>          Keyboard.0059
->>          Keyboard.005a
->>          Keyboard.005b
->>          Keyboard.005c
->>          Keyboard.005d
->>          Keyboard.005e
->>          Keyboard.005f
->>          Keyboard.0060
->>          Keyboard.0061
->>          Keyboard.0062
->>          Keyboard.0063
->>          Keyboard.0064
->>          Keyboard.0065
->>          Keyboard.0066
->>          Keyboard.0067
->>          Keyboard.0068
->>          Keyboard.0069
->>          Keyboard.006a
->>          Keyboard.006b
->>          Keyboard.006c
->>          Keyboard.006d
->>          Keyboard.006e
->>          Keyboard.006f
->>          Keyboard.0070
->>          Keyboard.0071
->>          Keyboard.0072
->>          Keyboard.0073
->>          Keyboard.0074
->>          Keyboard.0075
->>          Keyboard.0076
->>          Keyboard.0077
->>          Keyboard.0078
->>          Keyboard.0079
->>          Keyboard.007a
->>          Keyboard.007b
->>          Keyboard.007c
->>          Keyboard.007d
->>          Keyboard.007e
->>          Keyboard.007f
->>          Keyboard.0080
->>          Keyboard.0081
->>          Keyboard.0082
->>          Keyboard.0083
->>          Keyboard.0084
->>          Keyboard.0085
->>          Keyboard.0086
->>          Keyboard.0087
->>          Keyboard.0088
->>          Keyboard.0089
->>          Keyboard.008a
->>          Keyboard.008b
->>          Keyboard.008c
->>          Keyboard.008d
->>          Keyboard.008e
->>          Keyboard.008f
->>          Keyboard.0090
->>          Keyboard.0091
->>        Logical Minimum(0)
->>        Logical Maximum(255)
->>        Report Size(8)
->>        Report Count(6)
->>        Report Offset(16)
->>        Flags( Array Absolute )
->>    OUTPUT[OUTPUT]
->>      Field(0)
->>        Application(GenericDesktop.Keyboard)
->>        Usage(3)
->>          LED.NumLock
->>          LED.CapsLock
->>          LED.ScrollLock
->>        Logical Minimum(0)
->>        Logical Maximum(1)
->>        Report Size(1)
->>        Report Count(3)
->>        Report Offset(0)
->>        Flags( Variable Absolute )
->>    FEATURE[FEATURE]
->>      Field(0)
->>        Application(GenericDesktop.Keyboard)
->>        Usage(8)
->>          Keyboard.0000
->>          Keyboard.0000
->>          Keyboard.0000
->>          Keyboard.0000
->>          Keyboard.0000
->>          Keyboard.0000
->>          Keyboard.0000
->>          Keyboard.0000
->>        Logical Minimum(0)
->>        Logical Maximum(255)
->>        Report Size(8)
->>        Report Count(8)
->>        Report Offset(0)
->>        Flags( Array Absolute )
-> This looks like a proper report descriptor for keyboard, fine.
->
->> "cat /sys/kernel/debug/hid/0003\:060B\:2270.0004/events
->> (with pressing backspace)
->>
->> report (size 8) (unnumbered) =3D  00 00 2a 00 00 00 00 00
->> Keyboard.00e0 =3D 0
->> Keyboard.00e1 =3D 0
->> Keyboard.00e2 =3D 0
->> Keyboard.00e3 =3D 0
->> Keyboard.00e4 =3D 0
->> Keyboard.00e5 =3D 0
->> Keyboard.00e6 =3D 0
->> Keyboard.00e7 =3D 0
->> Keyboard.002a =3D 1
->>
->> report (size 8) (unnumbered) =3D  00 00 00 00 00 00 00 00
->> Keyboard.00e0 =3D 0
->> Keyboard.00e1 =3D 0
->> Keyboard.00e2 =3D 0
->> Keyboard.00e3 =3D 0
->> Keyboard.00e4 =3D 0
->> Keyboard.00e5 =3D 0
->> Keyboard.00e6 =3D 0
->> Keyboard.00e7 =3D 0
->> Keyboard.002a =3D 0
->>
->> report (size 8) (unnumbered) =3D  00 00 2a 00 00 00 00 00
->> Keyboard.00e0 =3D 0
->> Keyboard.00e1 =3D 0
->> Keyboard.00e2 =3D 0
->> Keyboard.00e3 =3D 0
->> Keyboard.00e4 =3D 0
->> Keyboard.00e5 =3D 0
->> Keyboard.00e6 =3D 0
->> Keyboard.00e7 =3D 0
->> Keyboard.002a =3D 1
->>
->> report (size 8) (unnumbered) =3D  00 00 00 00 00 00 00 00
->> Keyboard.00e0 =3D 0
->> Keyboard.00e1 =3D 0
->> Keyboard.00e2 =3D 0
->> Keyboard.00e3 =3D 0
->> Keyboard.00e4 =3D 0
->> Keyboard.00e5 =3D 0
->> Keyboard.00e6 =3D 0
->> Keyboard.00e7 =3D 0
->> Keyboard.002a =3D 0"
-> Good, backspace works as expected on 0004 interface. Now please provi=
-de
-> output of the same file when pressing some of the non-working keys, l=
-et's
-> say "A".
->
-> Thanks,
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+So, gcc has no idea that a section named '.init.rodata' could be placed
+in read-only memory, and therefore has no idea that it should also be
+marked 'const'.
+
+Therefore, gcc has no way to verify that 'const' and '__initconst' are
+always paired.
+
+> > > -static struct omap_lcd_config ams_delta_lcd_config = {
+> > > +static struct omap_lcd_config ams_delta_lcd_config __initconst = {
+> > 
+> > This change probably adds a bug.  Are you sure this will never be used
+> > outside init context?
+> 
+> I may be wrong, but before I've changed this, and now once again, I've verified 
+> that a copy of this data is made inside __init omap_init_fb() by means of a 
+> structure assignment operation.
+
+Ok, in that case add a 'const' to it.
+
+> > > -static struct omap_usb_config ams_delta_usb_config __initdata = {
+> > > +static struct omap_usb_config ams_delta_usb_config __initdata_or_module
+> > > = {
+> > Even if you don't have modules enabled, have you checked whether the
+> > driver can be bound and unbound via
+> > /sys/bus/platform/driver/<name>/{bind,unbind} ?
+> 
+> No, I didn't even think of it, I am afraid.
+> 
+> > I suspect this is a bug.
+> 
+> Indeed, that data is not copied on init, only pointed to, moreover, the 
+> ohci-omap driver provides bind/unbind opearations.
+> 
+> BTW, what are those bind/unbind operations intended for in case of a
+> driver dedicated to a non-hotplugable SoC hardware exclusively?
+
+If the driver can be built as a module, they allow exercising the
+probe/remove paths for drivers which have been built-in.  Moreover,
+it allows you to disable a device driver if desired.
+
+For example, I have two platforms which are essentially the same, except
+one has a daughterboard attached (which isn't hotpluggable).  The support
+for the daughterboard, although it is a platform driver, can't be
+modularised at the moment because quite a bit of other stuff needs it
+and it contains IRQ chip code.
+
+One has far less idle wakeups than the other.  Using unbind, I can
+effectively detach this board by unbinding its platform device, which
+results the entire sub-tree of its on-board devices being unregistered
+and released in one big go, all the way down to things like USB devices
+on the USB host.  I can then rebind it and bring all that hardware back.
+
+That allows me to evaluate whether there's any impact from those drivers.
+
+However, this bind/unbind is not the only issue here: how do you know
+whether the driver takes a copy of the platform data, or merely stores a
+pointer to it - and may access your platform data at runtime.
+
+Unless you check, and recheck it regularly (it can change) then placing
+this stuff into sections which will be discarded is asking for bugs.
+
+> > > -static struct platform_device *ams_delta_devices[] __initdata = {
+> > > +static struct platform_device *ams_delta_devices[] __initconst = {
+> > 
+> > Missing const.  If you can't const it, don't put it in __initconst.
+> 
+> I gave up trying to use both const and __initconst together after my gcc-4.2.4 
+> (and not only mine, see [1], [2]) refused to accept such constructs a few 
+> times. Now I see that this false reporting may probably happen in presence of other 
+> incorrect uses of __initconst without const or __initdata with const.
+
+I doubt that the compiler was refusing to accept them.  What you were
+probably getting were warnings about where these were used not accepting
+a const pointer.
+
+If that's the case, more analysis needs to be done to find out whether
+those uses can be converted to accept a const pointer before defining
+the data with const and optionally __initconst.

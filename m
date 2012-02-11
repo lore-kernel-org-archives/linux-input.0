@@ -1,162 +1,304 @@
-From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Subject: [PATCH v2] ARM: OMAP1: ams-delta: clean up init data section assignments
-Date: Fri, 10 Feb 2012 17:48:43 +0100
-Message-ID: <1328892523-20735-1-git-send-email-jkrzyszt@tis.icnet.pl>
-References: <1580046.EEGIFOPvyy@vclass>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from d1.icnet.pl ([212.160.220.21]:55034 "EHLO d1.icnet.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753981Ab2BJQuE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Feb 2012 11:50:04 -0500
-In-Reply-To: <1580046.EEGIFOPvyy@vclass>
-Sender: linux-input-owner@vger.kernel.org
+From: zitev <zitev-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
+Subject: Re: not supported hardware: Gigabyte K8100 Aivia USB Gaming Keyboard
+Date: Sat, 11 Feb 2012 11:05:56 +0100
+Message-ID: <4F363D84.5090208@freemail.hu>
+References: <4D55AE81.3030805@freemail.hu> <20120126002100.GA4495@burratino> <4F21C49D.2010906@freemail.hu> <20120126213939.GA5179@burratino> <4F230A1A.7080508@freemail.hu> <20120128071223.GA27331@burratino> <4F299010.5090009@freemail.hu> <alpine.LNX.2.00.1202012104030.18918@pobox.suse.cz> <4F2AEF30.5080805@freemail.hu> <alpine.LNX.2.00.1202092231420.24127@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LNX.2.00.1202092231420.24127-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: Jonathan Nieder <jrnieder-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: Russell King <linux@arm.linux.org.uk>, Igor Grinberg <grinberg@compulab.co.il>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Artem Bityutskiy <Artem.Bityutskiy@linux.intel.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-mtd@lists.infradead.org, linux-fbdev@vger.kernel.org, Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
 
-The main purpose of this patch is to fix several section mismatch
-warnings from the board file and a few board specific drivers,
-introduced with recent Amstrad Delta patch series, some of them rising
-up only when building with CONFIG_MODULES not set.
+I did try pressing all keys on keyboard, but only backscape key is=20
+working (and macro/key-light and multimedia keys, but i think, those no=
+t=20
+on keyboard matrix)...
 
-While being at it, section tagging of all init data found in the board
-file have been revised and hopefully corrected and/or optimized.
 
-Created and tested on top of current linux-omap/omap1, commit
-967809bd7faf71ddc29c8081e0f21db8b201a0f4.
-
-Signed-off-by: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
----
- arch/arm/mach-omap1/board-ams-delta.c |   18 +++++++++---------
- drivers/input/serio/ams_delta_serio.c |    2 +-
- drivers/mtd/nand/ams-delta.c          |    2 +-
- drivers/video/omap/lcd_ams_delta.c    |    2 +-
- 4 files changed, 12 insertions(+), 12 deletions(-)
-
-diff --git a/arch/arm/mach-omap1/board-ams-delta.c b/arch/arm/mach-omap1/board-ams-delta.c
-index 87b1303..bfe6fd1 100644
---- a/arch/arm/mach-omap1/board-ams-delta.c
-+++ b/arch/arm/mach-omap1/board-ams-delta.c
-@@ -150,7 +150,7 @@ static struct map_desc ams_delta_io_desc[] __initdata = {
- 	}
- };
- 
--static struct omap_lcd_config ams_delta_lcd_config = {
-+static struct omap_lcd_config ams_delta_lcd_config __initdata = {
- 	.ctrl_name	= "internal",
- };
- 
-@@ -167,7 +167,7 @@ static struct omap_board_config_kernel ams_delta_config[] __initdata = {
- #define LATCH1_GPIO_BASE	232
- #define LATCH1_NGPIO		8
- 
--static struct resource latch1_resources[] __initconst = {
-+static struct resource latch1_resources[] = {
- 	[0] = {
- 		.name	= "dat",
- 		.start	= LATCH1_PHYS,
-@@ -176,7 +176,7 @@ static struct resource latch1_resources[] __initconst = {
- 	},
- };
- 
--static struct bgpio_pdata latch1_pdata __initconst = {
-+static struct bgpio_pdata latch1_pdata = {
- 	.base	= LATCH1_GPIO_BASE,
- 	.ngpio	= LATCH1_NGPIO,
- };
-@@ -191,7 +191,7 @@ static struct platform_device latch1_gpio_device = {
- 	},
- };
- 
--static struct resource latch2_resources[] __initconst = {
-+static struct resource latch2_resources[] = {
- 	[0] = {
- 		.name	= "dat",
- 		.start	= LATCH2_PHYS,
-@@ -200,7 +200,7 @@ static struct resource latch2_resources[] __initconst = {
- 	},
- };
- 
--static struct bgpio_pdata latch2_pdata __initconst = {
-+static struct bgpio_pdata latch2_pdata = {
- 	.base	= AMS_DELTA_LATCH2_GPIO_BASE,
- 	.ngpio	= AMS_DELTA_LATCH2_NGPIO,
- };
-@@ -215,7 +215,7 @@ static struct platform_device latch2_gpio_device = {
- 	},
- };
- 
--static struct gpio latch_gpios[] __initconst = {
-+static const struct gpio latch_gpios[] __initconst = {
- 	{
- 		.gpio	= LATCH1_GPIO_BASE + 6,
- 		.flags	= GPIOF_OUT_INIT_LOW,
-@@ -322,7 +322,7 @@ static struct platform_device ams_delta_lcd_device = {
- 	.id	= -1,
- };
- 
--static struct gpio_led gpio_leds[] __initconst = {
-+static const struct gpio_led gpio_leds[] __initconst = {
- 	{
- 		.name		 = "camera",
- 		.gpio		 = LATCH1_GPIO_BASE + 0,
-@@ -358,7 +358,7 @@ static struct gpio_led gpio_leds[] __initconst = {
- 	},
- };
- 
--static struct gpio_led_platform_data leds_pdata __initconst = {
-+static const struct gpio_led_platform_data leds_pdata __initconst = {
- 	.leds		= gpio_leds,
- 	.num_leds	= ARRAY_SIZE(gpio_leds),
- };
-@@ -415,7 +415,7 @@ static struct platform_device *ams_delta_devices[] __initdata = {
- 	&ams_delta_camera_device,
- };
- 
--static struct platform_device *late_devices[] __initconst = {
-+static struct platform_device *late_devices[] __initdata = {
- 	&ams_delta_nand_device,
- 	&ams_delta_lcd_device,
- };
-diff --git a/drivers/input/serio/ams_delta_serio.c b/drivers/input/serio/ams_delta_serio.c
-index 0571e2e..bd5b10e 100644
---- a/drivers/input/serio/ams_delta_serio.c
-+++ b/drivers/input/serio/ams_delta_serio.c
-@@ -103,7 +103,7 @@ static void ams_delta_serio_close(struct serio *serio)
- 	gpio_set_value(AMS_DELTA_GPIO_PIN_KEYBRD_PWR, 0);
- }
- 
--static struct gpio ams_delta_gpios[] __initconst_or_module = {
-+static const struct gpio ams_delta_gpios[] __initconst_or_module = {
- 	{
- 		.gpio	= AMS_DELTA_GPIO_PIN_KEYBRD_DATA,
- 		.flags	= GPIOF_DIR_IN,
-diff --git a/drivers/mtd/nand/ams-delta.c b/drivers/mtd/nand/ams-delta.c
-index 85934dc..7341695 100644
---- a/drivers/mtd/nand/ams-delta.c
-+++ b/drivers/mtd/nand/ams-delta.c
-@@ -145,7 +145,7 @@ static int ams_delta_nand_ready(struct mtd_info *mtd)
- 	return gpio_get_value(AMS_DELTA_GPIO_PIN_NAND_RB);
- }
- 
--static struct gpio _mandatory_gpio[] __initconst_or_module = {
-+static const struct gpio _mandatory_gpio[] = {
- 	{
- 		.gpio	= AMS_DELTA_GPIO_PIN_NAND_NCE,
- 		.flags	= GPIOF_OUT_INIT_HIGH,
-diff --git a/drivers/video/omap/lcd_ams_delta.c b/drivers/video/omap/lcd_ams_delta.c
-index 0e71e28..d3a3113 100644
---- a/drivers/video/omap/lcd_ams_delta.c
-+++ b/drivers/video/omap/lcd_ams_delta.c
-@@ -99,7 +99,7 @@ static struct lcd_ops ams_delta_lcd_ops = {
- 
- /* omapfb panel section */
- 
--static struct gpio _gpios[] __initconst_or_module = {
-+static const struct gpio _gpios[] = {
- 	{
- 		.gpio	= AMS_DELTA_GPIO_PIN_LCD_VBLEN,
- 		.flags	= GPIOF_OUT_INIT_LOW,
--- 
-1.7.3.4
-
+2012-02-09 22:33 keltez=E9ssel, Jiri Kosina =EDrta:
+> On Thu, 2 Feb 2012, zitev wrote:
+>
+>> 0003:060B:2270.0004/
+>> 0003:060B:2270.0005/
+>> 0003:1044:7A02.0001/
+>> 0003:1044:7A02.0002/
+>> 0003:1044:7A02.0003/
+> Apparently the '0004' one is a keyboard interface.
+>
+> [ ... snip ... ]
+>> "cat /sys/kernel/debug/hid/0003\:060B\:2270.0004/rdesc
+>> 05 01 09 06 a1 01 05 07 19 e0 29 e7 15 00 25 01 75 01 95 08 81 02 95=
+ 01 75 08
+>> 81 01 95 03 75 01 05 08 19 01 29 03 91 02 95 05 75 01 91 01 95 06 75=
+ 08 26 ff
+>> 00 05 07 19 00 29 91 81 00 09 00 15 00 26 ff 00 75 08 95 08 b1 00 c0
+>>
+>>    INPUT[INPUT]
+>>      Field(0)
+>>        Application(GenericDesktop.Keyboard)
+>>        Usage(8)
+>>          Keyboard.00e0
+>>          Keyboard.00e1
+>>          Keyboard.00e2
+>>          Keyboard.00e3
+>>          Keyboard.00e4
+>>          Keyboard.00e5
+>>          Keyboard.00e6
+>>          Keyboard.00e7
+>>        Logical Minimum(0)
+>>        Logical Maximum(1)
+>>        Report Size(1)
+>>        Report Count(8)
+>>        Report Offset(0)
+>>        Flags( Variable Absolute )
+>>      Field(1)
+>>        Application(GenericDesktop.Keyboard)
+>>        Usage(146)
+>>          Keyboard.0000
+>>          Keyboard.0001
+>>          Keyboard.0002
+>>          Keyboard.0003
+>>          Keyboard.0004
+>>          Keyboard.0005
+>>          Keyboard.0006
+>>          Keyboard.0007
+>>          Keyboard.0008
+>>          Keyboard.0009
+>>          Keyboard.000a
+>>          Keyboard.000b
+>>          Keyboard.000c
+>>          Keyboard.000d
+>>          Keyboard.000e
+>>          Keyboard.000f
+>>          Keyboard.0010
+>>          Keyboard.0011
+>>          Keyboard.0012
+>>          Keyboard.0013
+>>          Keyboard.0014
+>>          Keyboard.0015
+>>          Keyboard.0016
+>>          Keyboard.0017
+>>          Keyboard.0018
+>>          Keyboard.0019
+>>          Keyboard.001a
+>>          Keyboard.001b
+>>          Keyboard.001c
+>>          Keyboard.001d
+>>          Keyboard.001e
+>>          Keyboard.001f
+>>          Keyboard.0020
+>>          Keyboard.0021
+>>          Keyboard.0022
+>>          Keyboard.0023
+>>          Keyboard.0024
+>>          Keyboard.0025
+>>          Keyboard.0026
+>>          Keyboard.0027
+>>          Keyboard.0028
+>>          Keyboard.0029
+>>          Keyboard.002a
+>>          Keyboard.002b
+>>          Keyboard.002c
+>>          Keyboard.002d
+>>          Keyboard.002e
+>>          Keyboard.002f
+>>          Keyboard.0030
+>>          Keyboard.0031
+>>          Keyboard.0032
+>>          Keyboard.0033
+>>          Keyboard.0034
+>>          Keyboard.0035
+>>          Keyboard.0036
+>>          Keyboard.0037
+>>          Keyboard.0038
+>>          Keyboard.0039
+>>          Keyboard.003a
+>>          Keyboard.003b
+>>          Keyboard.003c
+>>          Keyboard.003d
+>>          Keyboard.003e
+>>          Keyboard.003f
+>>          Keyboard.0040
+>>          Keyboard.0041
+>>          Keyboard.0042
+>>          Keyboard.0043
+>>          Keyboard.0044
+>>          Keyboard.0045
+>>          Keyboard.0046
+>>          Keyboard.0047
+>>          Keyboard.0048
+>>          Keyboard.0049
+>>          Keyboard.004a
+>>          Keyboard.004b
+>>          Keyboard.004c
+>>          Keyboard.004d
+>>          Keyboard.004e
+>>          Keyboard.004f
+>>          Keyboard.0050
+>>          Keyboard.0051
+>>          Keyboard.0052
+>>          Keyboard.0053
+>>          Keyboard.0054
+>>          Keyboard.0055
+>>          Keyboard.0056
+>>          Keyboard.0057
+>>          Keyboard.0058
+>>          Keyboard.0059
+>>          Keyboard.005a
+>>          Keyboard.005b
+>>          Keyboard.005c
+>>          Keyboard.005d
+>>          Keyboard.005e
+>>          Keyboard.005f
+>>          Keyboard.0060
+>>          Keyboard.0061
+>>          Keyboard.0062
+>>          Keyboard.0063
+>>          Keyboard.0064
+>>          Keyboard.0065
+>>          Keyboard.0066
+>>          Keyboard.0067
+>>          Keyboard.0068
+>>          Keyboard.0069
+>>          Keyboard.006a
+>>          Keyboard.006b
+>>          Keyboard.006c
+>>          Keyboard.006d
+>>          Keyboard.006e
+>>          Keyboard.006f
+>>          Keyboard.0070
+>>          Keyboard.0071
+>>          Keyboard.0072
+>>          Keyboard.0073
+>>          Keyboard.0074
+>>          Keyboard.0075
+>>          Keyboard.0076
+>>          Keyboard.0077
+>>          Keyboard.0078
+>>          Keyboard.0079
+>>          Keyboard.007a
+>>          Keyboard.007b
+>>          Keyboard.007c
+>>          Keyboard.007d
+>>          Keyboard.007e
+>>          Keyboard.007f
+>>          Keyboard.0080
+>>          Keyboard.0081
+>>          Keyboard.0082
+>>          Keyboard.0083
+>>          Keyboard.0084
+>>          Keyboard.0085
+>>          Keyboard.0086
+>>          Keyboard.0087
+>>          Keyboard.0088
+>>          Keyboard.0089
+>>          Keyboard.008a
+>>          Keyboard.008b
+>>          Keyboard.008c
+>>          Keyboard.008d
+>>          Keyboard.008e
+>>          Keyboard.008f
+>>          Keyboard.0090
+>>          Keyboard.0091
+>>        Logical Minimum(0)
+>>        Logical Maximum(255)
+>>        Report Size(8)
+>>        Report Count(6)
+>>        Report Offset(16)
+>>        Flags( Array Absolute )
+>>    OUTPUT[OUTPUT]
+>>      Field(0)
+>>        Application(GenericDesktop.Keyboard)
+>>        Usage(3)
+>>          LED.NumLock
+>>          LED.CapsLock
+>>          LED.ScrollLock
+>>        Logical Minimum(0)
+>>        Logical Maximum(1)
+>>        Report Size(1)
+>>        Report Count(3)
+>>        Report Offset(0)
+>>        Flags( Variable Absolute )
+>>    FEATURE[FEATURE]
+>>      Field(0)
+>>        Application(GenericDesktop.Keyboard)
+>>        Usage(8)
+>>          Keyboard.0000
+>>          Keyboard.0000
+>>          Keyboard.0000
+>>          Keyboard.0000
+>>          Keyboard.0000
+>>          Keyboard.0000
+>>          Keyboard.0000
+>>          Keyboard.0000
+>>        Logical Minimum(0)
+>>        Logical Maximum(255)
+>>        Report Size(8)
+>>        Report Count(8)
+>>        Report Offset(0)
+>>        Flags( Array Absolute )
+> This looks like a proper report descriptor for keyboard, fine.
+>
+>> "cat /sys/kernel/debug/hid/0003\:060B\:2270.0004/events
+>> (with pressing backspace)
+>>
+>> report (size 8) (unnumbered) =3D  00 00 2a 00 00 00 00 00
+>> Keyboard.00e0 =3D 0
+>> Keyboard.00e1 =3D 0
+>> Keyboard.00e2 =3D 0
+>> Keyboard.00e3 =3D 0
+>> Keyboard.00e4 =3D 0
+>> Keyboard.00e5 =3D 0
+>> Keyboard.00e6 =3D 0
+>> Keyboard.00e7 =3D 0
+>> Keyboard.002a =3D 1
+>>
+>> report (size 8) (unnumbered) =3D  00 00 00 00 00 00 00 00
+>> Keyboard.00e0 =3D 0
+>> Keyboard.00e1 =3D 0
+>> Keyboard.00e2 =3D 0
+>> Keyboard.00e3 =3D 0
+>> Keyboard.00e4 =3D 0
+>> Keyboard.00e5 =3D 0
+>> Keyboard.00e6 =3D 0
+>> Keyboard.00e7 =3D 0
+>> Keyboard.002a =3D 0
+>>
+>> report (size 8) (unnumbered) =3D  00 00 2a 00 00 00 00 00
+>> Keyboard.00e0 =3D 0
+>> Keyboard.00e1 =3D 0
+>> Keyboard.00e2 =3D 0
+>> Keyboard.00e3 =3D 0
+>> Keyboard.00e4 =3D 0
+>> Keyboard.00e5 =3D 0
+>> Keyboard.00e6 =3D 0
+>> Keyboard.00e7 =3D 0
+>> Keyboard.002a =3D 1
+>>
+>> report (size 8) (unnumbered) =3D  00 00 00 00 00 00 00 00
+>> Keyboard.00e0 =3D 0
+>> Keyboard.00e1 =3D 0
+>> Keyboard.00e2 =3D 0
+>> Keyboard.00e3 =3D 0
+>> Keyboard.00e4 =3D 0
+>> Keyboard.00e5 =3D 0
+>> Keyboard.00e6 =3D 0
+>> Keyboard.00e7 =3D 0
+>> Keyboard.002a =3D 0"
+> Good, backspace works as expected on 0004 interface. Now please provi=
+de
+> output of the same file when pressing some of the non-working keys, l=
+et's
+> say "A".
+>
+> Thanks,
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

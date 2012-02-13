@@ -1,64 +1,89 @@
-From: Konstantin Khlebnikov <khlebnikov@openvz.org>
-Subject: [PATCH v2] HID: use generic driver for Logitech Unifying receivers if
- CONFIG_HID_LOGITECH_DJ=n
-Date: Mon, 13 Feb 2012 14:13:03 +0400
-Message-ID: <20120213101303.8665.76516.stgit@zurg>
-References: <20120213080644.6105.54221.stgit@zurg>
+From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
+Subject: Re: [PATCH] Input: Add ioctl to block suspend while event queue is
+ not empty.
+Date: Mon, 13 Feb 2012 15:52:14 -0800
+Message-ID: <CAMP5XgfrG=3qeFasg4prBu88-Ox59_PtFw-rpgb=PN=uo6VPuw@mail.gmail.com>
+References: <1327112659-31145-1-git-send-email-arve@android.com>
+	<201202120028.23364.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:56535 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753743Ab2BMKNH (ORCPT
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:37237 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754706Ab2BMXwP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Feb 2012 05:13:07 -0500
-In-Reply-To: <20120213080644.6105.54221.stgit@zurg>
+	Mon, 13 Feb 2012 18:52:15 -0500
+In-Reply-To: <201202120028.23364.rjw@sisk.pl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-input@vger.kernel.org, linux-pm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg@redhat.com>, Chase Douglas <chase.douglas@canonical.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org
 
-Before commit 534a7b8e1 "HID: Add full support for Logitech Unifying receivers"
-Logitech Unifying receiver can work as generic device without special driver,
-after that commit these devices does not works without special driver.
+2012/2/11 Rafael J. Wysocki <rjw@sisk.pl>:
+> Hi,
+>
+> On Saturday, January 21, 2012, Arve Hj=F8nnev=E5g wrote:
+>> Add an ioctl, EVIOCSSUSPENDBLOCK, to block suspend while the event
+>> queue is not empty. This allows userspace code to process input
+>> events while the device appears to be asleep.
+>
+> I have two questions to start with, if you don't mind:
+>
+> (1) Does Android user space use an analogous interface right now or i=
+s it
+> =A0 =A0a prototype?
+>
 
-After this patch they will use generic driver if special driver is disabled.
+Yes (for the next version), but with a wakelock based implementation.
 
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@openvz.org>
----
- drivers/hid/Kconfig    |    4 +++-
- drivers/hid/hid-core.c |    2 ++
- 2 files changed, 5 insertions(+), 1 deletions(-)
+> (2) What exactly are the use cases for it (ie. what problem does it a=
+ddress
+> =A0 =A0that cannot be addressed in a different way)?
+>
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index a421abd..ca322ee 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -257,7 +257,9 @@ config HID_LOGITECH_DJ
- 	---help---
- 	Say Y if you want support for Logitech Unifying receivers and devices.
- 	Unifying receivers are capable of pairing up to 6 Logitech compliant
--	devices to the same receiver.
-+	devices to the same receiver. Without this driver it will be handled by
-+	generic USB_HID driver and all incomming events will be multiplexed
-+	into a single mouse and a single keyboard device.
- 
- config LOGITECH_FF
- 	bool "Logitech force feedback support"
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index af08ce7..3d7a174 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1462,8 +1462,10 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DFGT_WHEEL) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G25_WHEEL) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G27_WHEEL) },
-+#if IS_ENABLED(CONFIG_HID_LOGITECH_DJ)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER_2) },
-+#endif
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WII_WHEEL) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACETRAVELLER) },
+The reason for adding an ioctl versus the old android version with
+used a wakelock for all input events, is that not all input events are
+wakeup events. Specifically some sensors generate input events at such
+a high rate that they prevent suspend while the sensor is on even
+though the driver has a suspend hook that turns the sensor off.
 
+If you are asking why input events need to block suspend at all, this
+was the example used in the suspend blocker documentation:
+- The Keypad driver gets an interrupt. It then calls suspend_block on t=
+he
+  keypad-scan suspend_blocker and starts scanning the keypad matrix.
+- The keypad-scan code detects a key change and reports it to the input=
+-event
+  driver.
+- The input-event driver sees the key change, enqueues an event, and ca=
+lls
+  suspend_block on the input-event-queue suspend_blocker.
+- The keypad-scan code detects that no keys are held and calls suspend_=
+unblock
+  on the keypad-scan suspend_blocker.
+- The user-space input-event thread returns from select/poll, calls
+  suspend_block on the process-input-events suspend_blocker and then ca=
+lls read
+  on the input-event device.
+- The input-event driver dequeues the key-event and, since the queue is=
+ now
+  empty, it calls suspend_unblock on the input-event-queue suspend_bloc=
+ker.
+- The user-space input-event thread returns from read. If it determines=
+ that
+  the key should be ignored, it calls suspend_unblock on the
+  process_input_events suspend_blocker and then calls select or poll. T=
+he
+  system will automatically suspend again, since now no suspend blocker=
+s are
+  active.
+
+
+--=20
+Arve Hj=F8nnev=E5g
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,39 +1,42 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: [PATCH v2] bcm5974: Add pointer and buttonpad properties
-Date: Tue, 14 Feb 2012 07:26:39 -0800
-Message-ID: <1329233199-7424-1-git-send-email-chase.douglas@canonical.com>
+From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
+Subject: Re: [PATCH resend] bcm5974: Add pointer and buttonpad properties
+Date: Tue, 14 Feb 2012 16:28:18 +0100
+Message-ID: <CAPHpN5NY=1jCaa2yADzvYXkFc4a_1Nkb8JVpbM4pVqy7ZHOYkg@mail.gmail.com>
+References: <1329193448-15219-1-git-send-email-chase.douglas@canonical.com>
+ <20120214151903.GA5616@polaris.bitmath.org> <4F3A7C84.4000901@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:43046 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751047Ab2BNP0n (ORCPT
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:56785 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751106Ab2BNP2k (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Feb 2012 10:26:43 -0500
+	Tue, 14 Feb 2012 10:28:40 -0500
+Received: by vbjk17 with SMTP id k17so51514vbj.19
+        for <linux-input@vger.kernel.org>; Tue, 14 Feb 2012 07:28:39 -0800 (PST)
+In-Reply-To: <4F3A7C84.4000901@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmity Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-In order to inform userspace of physical properties of the device.
+On Tue, Feb 14, 2012 at 4:23 PM, Chase Douglas
+<chase.douglas@canonical.com> wrote:
+>
+> I can add that, it's just superfluous. It doesn't really tell the reader
+> anything if they need to know what is going on. Unless the message is
+> supposed to copy the definition of the properties themselves, which is
+> rather pointless.
+>
+> It's like documenting a function:
+>
+> bool is_object_mutable();
+> Returns true if object is mutable;
+>
+> There's really no point.
 
-Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
----
- drivers/input/mouse/bcm5974.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+We don't always have the message+code. In the end we have only commit
+msgs like the raw changelog here :
+http://www.kernel.org/pub/linux/kernel/v3.0/ChangeLog-3.2.6
 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index 5ec617e..9faa049 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -434,6 +434,9 @@ static void setup_events_to_report(struct input_dev *input_dev,
- 	__set_bit(BTN_LEFT, input_dev->keybit);
- 
- 	input_set_events_per_packet(input_dev, 60);
-+
-+	__set_bit(INPUT_PROP_POINTER, input->propbit);
-+	__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
- }
- 
- /* report button data as logical button state */
--- 
-1.7.9
-
+i

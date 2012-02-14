@@ -1,87 +1,90 @@
-From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
-Subject: Re: [PATCH] Input: Add ioctl to block suspend while event queue is
- not empty.
-Date: Mon, 13 Feb 2012 15:52:14 -0800
-Message-ID: <CAMP5XgfrG=3qeFasg4prBu88-Ox59_PtFw-rpgb=PN=uo6VPuw@mail.gmail.com>
-References: <1327112659-31145-1-git-send-email-arve@android.com>
-	<201202120028.23364.rjw@sisk.pl>
+From: Daniel Kurtz <djkurtz@google.com>
+Subject: Re: [PATCH 0/5] Input: serio_raw - add monitor/replay debugging interface
+Date: Tue, 14 Feb 2012 11:18:38 +0800
+Message-ID: <CAGS+omDWrSyLtDYWAubyc5F=BUqKOnKmCnyWPn5nNcoREar_aw@mail.gmail.com>
+References: <1328084386-31110-1-git-send-email-clchiou@chromium.org> <1328671497-20880-1-git-send-email-clchiou@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:37237 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754706Ab2BMXwP convert rfc822-to-8bit (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:64910 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751833Ab2BNDS6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Feb 2012 18:52:15 -0500
-In-Reply-To: <201202120028.23364.rjw@sisk.pl>
+	Mon, 13 Feb 2012 22:18:58 -0500
+Received: by iacb35 with SMTP id b35so5447558iac.19
+        for <linux-input@vger.kernel.org>; Mon, 13 Feb 2012 19:18:58 -0800 (PST)
+In-Reply-To: <1328671497-20880-1-git-send-email-clchiou@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-input@vger.kernel.org, linux-pm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg@redhat.com>, Chase Douglas <chase.douglas@canonical.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org
+To: Che-Liang Chiou <clchiou@chromium.org>
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-2012/2/11 Rafael J. Wysocki <rjw@sisk.pl>:
-> Hi,
+On Wed, Feb 8, 2012 at 11:24 AM, Che-Liang Chiou <clchiou@chromium.org>=
+ wrote:
 >
-> On Saturday, January 21, 2012, Arve Hj=F8nnev=E5g wrote:
->> Add an ioctl, EVIOCSSUSPENDBLOCK, to block suspend while the event
->> queue is not empty. This allows userspace code to process input
->> events while the device appears to be asleep.
+> The serio_raw driver is designed to provide "raw access" to mice, key=
+boards
+> etc; thus, a driver accessing serio_raw may live entirely in userland=
+=2E
 >
-> I have two questions to start with, if you don't mind:
+> However, serio_raw lacks testability. =A0It is practically impossible=
+ to do
+> regression tests on changes to a serio_raw -based userland driver. =A0=
+On the other
+> hand, the kernel's input subsystem has good testability support. =A0W=
+ith the help
+> of tools like utouch-evemu, we may capture and replay input events fo=
+r evdev
+> drivers in regression tests.
 >
-> (1) Does Android user space use an analogous interface right now or i=
-s it
-> =A0 =A0a prototype?
+> This patchset contains extensions to the serio_raw driver which add d=
+ebugfs
+> entries for monitoring and replaying byte sequence between a userland=
+ driver
+> and device. =A0These byte sequences can be used in regression tests o=
+f the
+> userland driver. =A0This patchset closes the gap between serio_raw an=
+d the input
+> subsystem regarding testability.
 >
-
-Yes (for the next version), but with a wakelock based implementation.
-
-> (2) What exactly are the use cases for it (ie. what problem does it a=
-ddress
-> =A0 =A0that cannot be addressed in a different way)?
+> This patchset is successfully applied on kernel version 3.3-rc2.
 >
+> Che-Liang Chiou (5):
+> =A0Input: serio_raw - return proper result when serio_raw_read fails
+> =A0Input: serio_raw - extract queue interface
+> =A0Input: serio_raw - factor out common pattern of write
+> =A0Input: serio_raw - add debugfs interface
+> =A0Input: serio_raw - implement debugfs interface
 
-The reason for adding an ioctl versus the old android version with
-used a wakelock for all input events, is that not all input events are
-wakeup events. Specifically some sensors generate input events at such
-a high rate that they prevent suspend while the sensor is on even
-though the driver has a suspend hook that turns the sensor off.
+=46or patches 3-5:
+Reviewed-by: Daniel Kurtz <djkurtz@google.com>
 
-If you are asking why input events need to block suspend at all, this
-was the example used in the suspend blocker documentation:
-- The Keypad driver gets an interrupt. It then calls suspend_block on t=
-he
-  keypad-scan suspend_blocker and starts scanning the keypad matrix.
-- The keypad-scan code detects a key change and reports it to the input=
--event
-  driver.
-- The input-event driver sees the key change, enqueues an event, and ca=
-lls
-  suspend_block on the input-event-queue suspend_blocker.
-- The keypad-scan code detects that no keys are held and calls suspend_=
-unblock
-  on the keypad-scan suspend_blocker.
-- The user-space input-event thread returns from select/poll, calls
-  suspend_block on the process-input-events suspend_blocker and then ca=
-lls read
-  on the input-event device.
-- The input-event driver dequeues the key-event and, since the queue is=
- now
-  empty, it calls suspend_unblock on the input-event-queue suspend_bloc=
-ker.
-- The user-space input-event thread returns from read. If it determines=
- that
-  the key should be ignored, it calls suspend_unblock on the
-  process_input_events suspend_blocker and then calls select or poll. T=
-he
-  system will automatically suspend again, since now no suspend blocker=
-s are
-  active.
+=46or patch 1 (and its implication on queue_read() in patch 2, I'd
+prefer to hear feedback from the list.
+
+-Daniel
+
+>
+> =A0drivers/input/serio/serio_raw.c | =A0394 +++++++++++++++++++++++++=
+++++++++------
+> =A01 files changed, 337 insertions(+), 57 deletions(-)
+>
+> --
+> 1.7.7.3
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
 
 
---=20
-Arve Hj=F8nnev=E5g
+
+
+--
+Daniel Kurtz=A0|=A0Software Engineer=A0|=A0djkurtz@google.com=A0|=A0650=
+=2E204.0722
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

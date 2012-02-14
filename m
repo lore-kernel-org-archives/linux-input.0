@@ -1,58 +1,58 @@
-From: Ville Ranki <ville.ranki@iki.fi>
-Subject: [PATCH] HID: Add quirk for CH Products Fighterstick
-Date: Tue, 14 Feb 2012 17:42:20 +0200
-Message-ID: <4F3A80DC.4090203@iki.fi>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH resend] bcm5974: Add pointer and buttonpad properties
+Date: Tue, 14 Feb 2012 09:00:43 -0800
+Message-ID: <1450655.FGD6Ze0vGz@dtor-d630.eng.vmware.com>
+References: <1329193448-15219-1-git-send-email-chase.douglas@canonical.com> <4F3A7C84.4000901@canonical.com> <CAPHpN5NY=1jCaa2yADzvYXkFc4a_1Nkb8JVpbM4pVqy7ZHOYkg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:36188 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756715Ab2BNRAy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Feb 2012 12:00:54 -0500
+Received: by yhoo21 with SMTP id o21so149094yho.19
+        for <linux-input@vger.kernel.org>; Tue, 14 Feb 2012 09:00:54 -0800 (PST)
+In-Reply-To: <CAPHpN5NY=1jCaa2yADzvYXkFc4a_1Nkb8JVpbM4pVqy7ZHOYkg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
+Cc: Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-CH Fighterstick requires HID_QUIRK_NOGET as many other
-CH devices do. This patch adds device id for Fighterstick
-and adds necessary line to HID quirk list.
+On Tuesday, February 14, 2012 04:28:18 PM Mohamed Ikbel Boulabiar wrote:
+> On Tue, Feb 14, 2012 at 4:23 PM, Chase Douglas
+> 
+> <chase.douglas@canonical.com> wrote:
+> > I can add that, it's just superfluous. It doesn't really tell the reader
+> > anything if they need to know what is going on. Unless the message is
+> > supposed to copy the definition of the properties themselves, which is
+> > rather pointless.
+> > 
+> > It's like documenting a function:
+> > 
+> > bool is_object_mutable();
+> > Returns true if object is mutable;
+> > 
+> > There's really no point.
+> 
+> We don't always have the message+code. In the end we have only commit
+> msgs like the raw changelog here :
+> http://www.kernel.org/pub/linux/kernel/v3.0/ChangeLog-3.2.6
 
-Tested only on one PC only. The fix is trivial and
-well understood so I believe this is enough.
+The summary of the patch would still be in the changelog:
 
-Signed-off-by: Ville Ranki <ville.ranki@iki.fi>
----
- drivers/hid/hid-ids.h           |    1 +
- drivers/hid/usbhid/hid-quirks.c |    1 +
- 2 files changed, 2 insertions(+), 0 deletions(-)
+	bcm5974: Add pointer and buttonpad properties
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b8574cd..f4b5a73 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -173,6 +173,7 @@
- #define USB_VENDOR_ID_CH		0x068e
- #define USB_DEVICE_ID_CH_PRO_THROTTLE	0x00f1
- #define USB_DEVICE_ID_CH_PRO_PEDALS	0x00f2
-+#define USB_DEVICE_ID_CH_FIGHTERSTICK	0x00f3
- #define USB_DEVICE_ID_CH_COMBATSTICK	0x00f4
- #define USB_DEVICE_ID_CH_FLIGHT_SIM_ECLIPSE_YOKE       0x0051
- #define USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE	0x00ff
-diff --git a/drivers/hid/usbhid/hid-quirks.c
-b/drivers/hid/usbhid/hid-quirks.c
-index c831af9..ae7d283 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -59,6 +59,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_2PORTKVM, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_4PORTKVM, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_4PORTKVMC, HID_QUIRK_NOGET },
-+	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FIGHTERSTICK, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_COMBATSTICK, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_ECLIPSE_YOKE,
-HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE, HID_QUIRK_NOGET },
--- 
-1.7.5.4
+and I rally do not see the point of trying to expand it into the body
+of the changelog if there isn't anything more to say. It's the same
+as checkpatch complaining that some Kconfig options are too short
+when full description does indeed fit into 1 line (for example enabling
+SPI or I2C support module for a certain device when driver split
+into core and bus-specific parts - there is literally nothing else to
+say).
+
+Thanks.
 
 -- 
-Ville Ranki <ville.ranki@iki.fi>
-http://www.iki.fi/~cos
+Dmitry

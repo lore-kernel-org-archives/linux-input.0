@@ -1,103 +1,77 @@
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
 Subject: Re: [PATCH] Input: Add ioctl to block suspend while event queue is not empty.
-Date: Thu, 16 Feb 2012 00:18:59 +0100
-Message-ID: <201202160018.59187.rjw@sisk.pl>
-References: <1327112659-31145-1-git-send-email-arve@android.com>
+Date: Thu, 16 Feb 2012 00:30:26 +0100
+Message-ID: <201202160030.26503.rjw@sisk.pl>
+References: <1327112659-31145-1-git-send-email-arve@android.com> <20120214142540.04de41df@notabene.brown>
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ogre.sisk.pl ([217.79.144.158]:54577 "EHLO ogre.sisk.pl"
+Received: from ogre.sisk.pl ([217.79.144.158]:54596 "EHLO ogre.sisk.pl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751510Ab2BOXPG convert rfc822-to-8bit (ORCPT
+	id S1751697Ab2BOX0e convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Feb 2012 18:15:06 -0500
-In-Reply-To: <1327112659-31145-1-git-send-email-arve@android.com>
+	Wed, 15 Feb 2012 18:26:34 -0500
+In-Reply-To: <20120214142540.04de41df@notabene.brown>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arve =?utf-8?q?Hj=C3=B8nnev=C3=A5g?= <arve@android.com>
-Cc: linux-input@vger.kernel.org, linux-pm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg@redhat.com>, Chase Douglas <chase.douglas@canonical.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org
+To: NeilBrown <neilb@suse.de>
+Cc: Arve =?utf-8?q?Hj=C3=B8nnev=C3=A5g?= <arve@android.com>, linux-input@vger.kernel.org, linux-pm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg@redhat.com>, Chase Douglas <chase.douglas@canonical.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org
 
-Hi,
-
-On Saturday, January 21, 2012, Arve Hj=C3=B8nnev=C3=A5g wrote:
-> Add an ioctl, EVIOCSSUSPENDBLOCK, to block suspend while the event
-> queue is not empty. This allows userspace code to process input
-> events while the device appears to be asleep.
+On Tuesday, February 14, 2012, NeilBrown wrote:
+> On Fri, 20 Jan 2012 18:24:16 -0800 Arve Hj=C3=B8nnev=C3=A5g <arve@and=
+roid.com> wrote:
 >=20
-> Signed-off-by: Arve Hj=C3=B8nnev=C3=A5g <arve@android.com>
-
-Minor nit below.
-
-> ---
->  drivers/input/evdev.c |   63 +++++++++++++++++++++++++++++++++++++++=
-++++++++++
->  include/linux/input.h |    3 ++
->  2 files changed, 66 insertions(+), 0 deletions(-)
+> > Add an ioctl, EVIOCSSUSPENDBLOCK, to block suspend while the event
+> > queue is not empty. This allows userspace code to process input
+> > events while the device appears to be asleep.
+> >=20
+> > Signed-off-by: Arve Hj=C3=B8nnev=C3=A5g <arve@android.com>
 >=20
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index 76457d5..e212757 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -43,6 +43,7 @@ struct evdev_client {
->  	unsigned int tail;
->  	unsigned int packet_head; /* [future] position of the first element=
- of next packet */
->  	spinlock_t buffer_lock; /* protects access to buffer, head and tail=
- */
-> +	struct wakeup_source *wakeup_source;
->  	struct fasync_struct *fasync;
->  	struct evdev *evdev;
->  	struct list_head node;
-> @@ -75,10 +76,14 @@ static void evdev_pass_event(struct evdev_client =
-*client,
->  		client->buffer[client->tail].value =3D 0;
-> =20
->  		client->packet_head =3D client->tail;
-> +		if (client->wakeup_source)
-> +			__pm_relax(client->wakeup_source);
->  	}
-> =20
->  	if (event->type =3D=3D EV_SYN && event->code =3D=3D SYN_REPORT) {
->  		client->packet_head =3D client->head;
-> +		if (client->wakeup_source)
-> +			__pm_stay_awake(client->wakeup_source);
->  		kill_fasync(&client->fasync, SIGIO, POLL_IN);
->  	}
-> =20
-> @@ -255,6 +260,10 @@ static int evdev_release(struct inode *inode, st=
-ruct file *file)
->  	mutex_unlock(&evdev->mutex);
-> =20
->  	evdev_detach_client(evdev, client);
-> +	if (client->wakeup_source) {
-> +		__pm_relax(client->wakeup_source);
-> +		wakeup_source_unregister(client->wakeup_source);
-> +	}
->  	kfree(client);
-> =20
->  	evdev_close_device(evdev);
-> @@ -373,6 +382,9 @@ static int evdev_fetch_next_event(struct evdev_cl=
-ient *client,
->  	if (have_event) {
->  		*event =3D client->buffer[client->tail++];
->  		client->tail &=3D client->bufsize - 1;
-> +		if (client->wakeup_source &&
-> +		    client->packet_head =3D=3D client->tail)
-> +			__pm_relax(client->wakeup_source);
->  	}
+> This is exactly the sort of "feature creep" that I worried about in m=
+y reply
+> to Rafael's recent "autosleep" patches.
+>=20
+> A particular issue here:  This patch allows any process that can open=
+ an
+> input device to keep the device awake - by not reading an event that =
+has
+> arrived (whether due to incompetence or malice).
+>=20
+> So either we would need strict controls on who can open /dev/input/ev=
+entX,
+> or be happy that any process can disable suspend.
+> Or add some extra feature-creep to provide access control.
 
-Since __pm_relax(), __pm_stay_awake() and wakeup_source_unregister() al=
-l
-check if the argument is not NULL, you can simply drop the
-client->wakeup_source checks.
+I actually think the approach almost correct, because if there are any =
+events
+coming from a wakeup device and there is any user space client interest=
+ed in
+them, the kernel should really stay awake until those events are remove=
+d from
+the client's queue.
 
-Also with the fix I've just posted:
+So, if they are not read, either we drop them entirely, or we don't sus=
+pend
+_automatically_.
 
-http://marc.info/?l=3Dlinux-pm&m=3D132934445508717&w=3D4
+The problem I have with the $subject patch is that it doesn't check if =
+the
+device is a wakeup one and it adds ioctls allowing user space to use th=
+e event
+queue of a non-wakeup device as a "wakeup source".
 
-I think it won't be necessary to call __pm_relax() before
-wakeup_source_unregister() any more.
+> (or just keep this stuff out of the kernel and let a user-space daemo=
+n make
+> those decisions).
+
+Which is never going to really work, IMHO.
+
+Realistically, do you know of any distro, vendor, whoever, who tried to
+actually do that in a released product (or even in a release candidate,
+or milestone, or whatever different from a prototype running only on on=
+e's
+personal desktop)?  I don't.
 
 Thanks,
 Rafael

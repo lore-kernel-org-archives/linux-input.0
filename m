@@ -1,46 +1,67 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: [PATCH 1/1] MAINTAINERS: Add cyttsp touchscreen maintainer entry
-Date: Wed, 15 Feb 2012 11:44:07 +0100
-Message-ID: <1329302647-1839-1-git-send-email-javier@dowhile0.org>
+From: Akio Idehara <zbe64533@gmail.com>
+Subject: [PATCH] Fix ALPS touchpad detection
+Date: Wed, 15 Feb 2012 21:58:25 +0900
+Message-ID: <4F3BABF1.8050204@gmail.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:43860 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754975Ab2BOKoV (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:45996 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756016Ab2BOM62 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Feb 2012 05:44:21 -0500
-Received: by wgbdt10 with SMTP id dt10so798459wgb.1
-        for <linux-input@vger.kernel.org>; Wed, 15 Feb 2012 02:44:20 -0800 (PST)
+	Wed, 15 Feb 2012 07:58:28 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Javier Martinez Canillas <javier@dowhile0.org>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-Since Cypress TTSP driver was merged in mainline, add a maintainer entry for it.
+ALPS touchpad detection fails if some buttons of ALPS are pressed.
+The reason is that the query response byte is different from what is expected.
+This was tested on a Toshiba Portege R500.
 
-Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
+Signed-off-by: Akio Idehara <zbe64533@gmail.com>
 ---
- MAINTAINERS |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+  Documentation/input/alps.txt |    3 ++-
+  drivers/input/mouse/alps.c   |    5 +++--
+  2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 3523ab0..5fa8732 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2110,6 +2110,13 @@ W:	http://www.cyclades.com/
- S:	Orphan
- F:	drivers/net/wan/pc300*
- 
-+CYTTSP TOUCHSCREEN DRIVER
-+M:      Javier Martinez Canillas <javier@dowhile0.org>
-+L:      linux-input@vger.kernel.org
-+S:      Maintained
-+F:      drivers/input/touchscreen/cyttsp*
-+F:      include/linux/input/cyttsp.h
-+
- DAMA SLAVE for AX.25
- M:	Joerg Reuter <jreuter@yaina.de>
- W:	http://yaina.de/jreuter/
+diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
+index f274c28..2f95308 100644
+--- a/Documentation/input/alps.txt
++++ b/Documentation/input/alps.txt
+@@ -13,7 +13,8 @@ Detection
+
+  All ALPS touchpads should respond to the "E6 report" command sequence:
+  E8-E6-E6-E6-E9. An ALPS touchpad should respond with either 00-00-0A or
+-00-00-64.
++00-00-64 if no buttons are pressed. The bits 0-2 of the first byte will be 1s
++if some buttons are pressed.
+
+  If the E6 report is successful, the touchpad model is identified using the "E7
+  report" sequence: E8-E7-E7-E7-E9. The response is the model signature and is
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index bd87380..d161831 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -952,7 +952,8 @@ static const struct alps_model_info *alps_get_model(struct psmouse *psmouse, int
+
+  	/*
+  	 * First try "E6 report".
+-	 * ALPS should return 0,0,10 or 0,0,100
++	 * ALPS should return 0,0,10 or 0,0,100 if no buttons are pressed.
++	 * The bits 0-2 of the first byte will be 1s if some buttons are pressed.
+  	 */
+  	param[0] = 0;
+  	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES) ||
+@@ -968,7 +969,7 @@ static const struct alps_model_info *alps_get_model(struct psmouse *psmouse, int
+  	psmouse_dbg(psmouse, "E6 report: %2.2x %2.2x %2.2x",
+  		    param[0], param[1], param[2]);
+
+-	if (param[0] != 0 || param[1] != 0 || (param[2] != 10 && param[2] != 100))
++	if ((param[0] & 0xf8) != 0 || param[1] != 0 || (param[2] != 10 && param[2] != 100))
+  		return NULL;
+
+  	/*
 -- 
-1.7.7.6
-
+1.7.9

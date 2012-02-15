@@ -1,67 +1,34 @@
-From: Akio Idehara <zbe64533@gmail.com>
-Subject: [PATCH] Fix ALPS touchpad detection
-Date: Wed, 15 Feb 2012 21:58:25 +0900
-Message-ID: <4F3BABF1.8050204@gmail.com>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: [PATCH] Fix ALPS touchpad detection
+Date: Wed, 15 Feb 2012 10:18:55 -0600
+Message-ID: <20120215161855.GA2495@ubuntu-macmini>
+References: <4F3BABF1.8050204@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:45996 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756016Ab2BOM62 (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:48586 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750935Ab2BOQS7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Feb 2012 07:58:28 -0500
+	Wed, 15 Feb 2012 11:18:59 -0500
+Content-Disposition: inline
+In-Reply-To: <4F3BABF1.8050204@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Akio Idehara <zbe64533@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-ALPS touchpad detection fails if some buttons of ALPS are pressed.
-The reason is that the query response byte is different from what is expected.
-This was tested on a Toshiba Portege R500.
+On Wed, Feb 15, 2012 at 09:58:25PM +0900, Akio Idehara wrote:
+> ALPS touchpad detection fails if some buttons of ALPS are pressed.
+> The reason is that the query response byte is different from what is expected.
+> This was tested on a Toshiba Portege R500.
 
-Signed-off-by: Akio Idehara <zbe64533@gmail.com>
----
-  Documentation/input/alps.txt |    3 ++-
-  drivers/input/mouse/alps.c   |    5 +++--
-  2 files changed, 5 insertions(+), 3 deletions(-)
+I've reproduced the problem and confirmed that your approach fixes it.
 
-diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
-index f274c28..2f95308 100644
---- a/Documentation/input/alps.txt
-+++ b/Documentation/input/alps.txt
-@@ -13,7 +13,8 @@ Detection
+However, your patch seems to be malformed as it won't apply cleanly for
+me. For the comment you're modifying you should also keep the line
+length under 80 characters.
 
-  All ALPS touchpads should respond to the "E6 report" command sequence:
-  E8-E6-E6-E6-E9. An ALPS touchpad should respond with either 00-00-0A or
--00-00-64.
-+00-00-64 if no buttons are pressed. The bits 0-2 of the first byte will be 1s
-+if some buttons are pressed.
+This fix seems like a good candidate for stable as well.
 
-  If the E6 report is successful, the touchpad model is identified using the "E7
-  report" sequence: E8-E7-E7-E7-E9. The response is the model signature and is
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index bd87380..d161831 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -952,7 +952,8 @@ static const struct alps_model_info *alps_get_model(struct psmouse *psmouse, int
-
-  	/*
-  	 * First try "E6 report".
--	 * ALPS should return 0,0,10 or 0,0,100
-+	 * ALPS should return 0,0,10 or 0,0,100 if no buttons are pressed.
-+	 * The bits 0-2 of the first byte will be 1s if some buttons are pressed.
-  	 */
-  	param[0] = 0;
-  	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES) ||
-@@ -968,7 +969,7 @@ static const struct alps_model_info *alps_get_model(struct psmouse *psmouse, int
-  	psmouse_dbg(psmouse, "E6 report: %2.2x %2.2x %2.2x",
-  		    param[0], param[1], param[2]);
-
--	if (param[0] != 0 || param[1] != 0 || (param[2] != 10 && param[2] != 100))
-+	if ((param[0] & 0xf8) != 0 || param[1] != 0 || (param[2] != 10 && param[2] != 100))
-  		return NULL;
-
-  	/*
--- 
-1.7.9
+Seth

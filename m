@@ -1,142 +1,108 @@
-From: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Subject: [PATCH] Input: tegra-kbc - revise device tree support
-Date: Wed, 15 Feb 2012 14:40:26 -0800
-Message-ID: <1329345626-30789-1-git-send-email-olof@lixom.net>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH] Input: Add ioctl to block suspend while event queue is not empty.
+Date: Thu, 16 Feb 2012 00:18:59 +0100
+Message-ID: <201202160018.59187.rjw@sisk.pl>
+References: <1327112659-31145-1-git-send-email-arve@android.com>
 Mime-Version: 1.0
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ogre.sisk.pl ([217.79.144.158]:54577 "EHLO ogre.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751510Ab2BOXPG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Feb 2012 18:15:06 -0500
+In-Reply-To: <1327112659-31145-1-git-send-email-arve@android.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Arve =?utf-8?q?Hj=C3=B8nnev=C3=A5g?= <arve@android.com>
+Cc: linux-input@vger.kernel.org, linux-pm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg@redhat.com>, Chase Douglas <chase.douglas@canonical.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org
 
-This is an incremental patch updating to the revised bindings for matrix keyboards.
+Hi,
 
-This includes an optional "linux,fn-keymap" binding that is not yet implemented,
-that will be used to specify the Fn-key modifier layout if needed.
+On Saturday, January 21, 2012, Arve Hj=C3=B8nnev=C3=A5g wrote:
+> Add an ioctl, EVIOCSSUSPENDBLOCK, to block suspend while the event
+> queue is not empty. This allows userspace code to process input
+> events while the device appears to be asleep.
+>=20
+> Signed-off-by: Arve Hj=C3=B8nnev=C3=A5g <arve@android.com>
 
-New for v2:
-* Removed references to "matrix-keyboard-controller" compatible values
-* Rebased to be incremental on top of previous patch.
+Minor nit below.
 
-Signed-off-by: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Acked-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
+> ---
+>  drivers/input/evdev.c |   63 +++++++++++++++++++++++++++++++++++++++=
+++++++++++
+>  include/linux/input.h |    3 ++
+>  2 files changed, 66 insertions(+), 0 deletions(-)
+>=20
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index 76457d5..e212757 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -43,6 +43,7 @@ struct evdev_client {
+>  	unsigned int tail;
+>  	unsigned int packet_head; /* [future] position of the first element=
+ of next packet */
+>  	spinlock_t buffer_lock; /* protects access to buffer, head and tail=
+ */
+> +	struct wakeup_source *wakeup_source;
+>  	struct fasync_struct *fasync;
+>  	struct evdev *evdev;
+>  	struct list_head node;
+> @@ -75,10 +76,14 @@ static void evdev_pass_event(struct evdev_client =
+*client,
+>  		client->buffer[client->tail].value =3D 0;
+> =20
+>  		client->packet_head =3D client->tail;
+> +		if (client->wakeup_source)
+> +			__pm_relax(client->wakeup_source);
+>  	}
+> =20
+>  	if (event->type =3D=3D EV_SYN && event->code =3D=3D SYN_REPORT) {
+>  		client->packet_head =3D client->head;
+> +		if (client->wakeup_source)
+> +			__pm_stay_awake(client->wakeup_source);
+>  		kill_fasync(&client->fasync, SIGIO, POLL_IN);
+>  	}
+> =20
+> @@ -255,6 +260,10 @@ static int evdev_release(struct inode *inode, st=
+ruct file *file)
+>  	mutex_unlock(&evdev->mutex);
+> =20
+>  	evdev_detach_client(evdev, client);
+> +	if (client->wakeup_source) {
+> +		__pm_relax(client->wakeup_source);
+> +		wakeup_source_unregister(client->wakeup_source);
+> +	}
+>  	kfree(client);
+> =20
+>  	evdev_close_device(evdev);
+> @@ -373,6 +382,9 @@ static int evdev_fetch_next_event(struct evdev_cl=
+ient *client,
+>  	if (have_event) {
+>  		*event =3D client->buffer[client->tail++];
+>  		client->tail &=3D client->bufsize - 1;
+> +		if (client->wakeup_source &&
+> +		    client->packet_head =3D=3D client->tail)
+> +			__pm_relax(client->wakeup_source);
+>  	}
 
-Dmitry,
+Since __pm_relax(), __pm_stay_awake() and wakeup_source_unregister() al=
+l
+check if the argument is not NULL, you can simply drop the
+client->wakeup_source checks.
 
-This is a resend of the incremental patch you requested right around
-the 3.3 merge window cutoff. The patch you did pick up implemented an
-early version of the binding that was later changed. Please apply this
-for the 3.4 merge window to sync it up again.
+Also with the fix I've just posted:
 
-Thanks!
+http://marc.info/?l=3Dlinux-pm&m=3D132934445508717&w=3D4
 
+I think it won't be necessary to call __pm_relax() before
+wakeup_source_unregister() any more.
 
--Olof
-
- .../devicetree/bindings/input/tegra-kbc.txt        |   17 ++++++++++-----
- drivers/input/keyboard/tegra-kbc.c                 |   21 +++++++++++++++----
- 2 files changed, 27 insertions(+), 11 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/input/tegra-kbc.txt b/Documentation/devicetree/bindings/input/tegra-kbc.txt
-index 5ecfa99..72683be 100644
---- a/Documentation/devicetree/bindings/input/tegra-kbc.txt
-+++ b/Documentation/devicetree/bindings/input/tegra-kbc.txt
-@@ -3,16 +3,21 @@
- Required properties:
- - compatible: "nvidia,tegra20-kbc"
- 
--Optional properties:
--- debounce-delay: delay in milliseconds per row scan for debouncing
--- repeat-delay: delay in milliseconds before repeat starts
--- ghost-filter: enable ghost filtering for this device
--- wakeup-source: configure keyboard as a wakeup source for suspend/resume
-+Optional properties, in addition to those specified by the shared
-+matrix-keyboard bindings:
-+
-+- linux,fn-keymap: a second keymap, same specification as the
-+  matrix-keyboard-controller spec but to be used when the KEY_FN modifier
-+  key is pressed.
-+- nvidia,debounce-delay-ms: delay in milliseconds per row scan for debouncing
-+- nvidia,repeat-delay-ms: delay in milliseconds before repeat starts
-+- nvidia,ghost-filter: enable ghost filtering for this device
-+- nvidia,wakeup-source: configure keyboard as a wakeup source for suspend/resume
- 
- Example:
- 
- keyboard: keyboard {
- 	compatible = "nvidia,tegra20-kbc";
- 	reg = <0x7000e200 0x100>;
--	ghost-filter;
-+	nvidia,ghost-filter;
- };
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index dc19432..21c42f8 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -624,6 +624,8 @@ tegra_kbc_dt_parse_pdata(struct platform_device *pdev)
- {
- 	struct tegra_kbc_platform_data *pdata;
- 	struct device_node *np = pdev->dev.of_node;
-+	u32 prop;
-+	int i;
- 
- 	if (!np)
- 		return NULL;
-@@ -631,16 +633,16 @@ tegra_kbc_dt_parse_pdata(struct platform_device *pdev)
- 	if (!pdata)
- 		return NULL;
- 
--	if (!of_property_read_u32(np, "debounce-delay", &prop))
-+	if (!of_property_read_u32(np, "nvidia,debounce-delay-ms", &prop))
- 		pdata->debounce_cnt = prop;
- 
--	if (!of_property_read_u32(np, "repeat-delay", &prop))
-+	if (!of_property_read_u32(np, "nvidia,repeat-delay-ms", &prop))
- 		pdata->repeat_cnt = prop;
- 
--	if (of_find_property(np, "needs-ghost-filter", NULL))
-+	if (of_find_property(np, "nvidia,needs-ghost-filter", NULL))
- 		pdata->use_ghost_filter = true;
- 
--	if (of_find_property(np, "wakeup-source", NULL))
-+	if (of_find_property(np, "nvidia,wakeup-source", NULL))
- 		pdata->wakeup = true;
- 
- 	/*
-@@ -657,6 +659,10 @@ tegra_kbc_dt_parse_pdata(struct platform_device *pdev)
- 		pdata->pin_cfg[KBC_MAX_ROW + i].type = PIN_CFG_COL;
- 	}
- 
-+	pdata->keymap_data = matrix_keyboard_of_fill_keymap(np, "linux,keymap");
-+
-+	/* FIXME: Add handling of linux,fn-keymap here */
-+
- 	return pdata;
- }
- #else
-@@ -792,6 +798,9 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, kbc);
- 	device_init_wakeup(&pdev->dev, pdata->wakeup);
- 
-+	if (!pdev->dev.platform_data)
-+		matrix_keyboard_of_free_keymap(pdata->keymap_data);
-+
- 	return 0;
- 
- err_free_irq:
-@@ -806,8 +815,10 @@ err_free_mem:
- 	input_free_device(input_dev);
- 	kfree(kbc);
- err_free_pdata:
--	if (!pdev->dev.platform_data)
-+	if (!pdev->dev.platform_data) {
-+		matrix_keyboard_of_free_keymap(pdata->keymap_data);
- 		kfree(pdata);
-+	}
- 
- 	return err;
- }
--- 
-1.7.9.209.gb6b3b
+Thanks,
+Rafael
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

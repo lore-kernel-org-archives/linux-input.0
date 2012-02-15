@@ -1,59 +1,62 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH v2] bcm5974: Add pointer and buttonpad properties
-Date: Tue, 14 Feb 2012 20:01:04 +0100
-Message-ID: <4F3AAF70.7010904@canonical.com>
-References: <1329233199-7424-1-git-send-email-chase.douglas@canonical.com> <20120214185216.GA28060@polaris.bitmath.org>
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: [PATCH 1/1] Input: cyttsp - Fix check after pointer dereferencing
+Date: Wed, 15 Feb 2012 11:42:52 +0100
+Message-ID: <1329302572-1651-1-git-send-email-javier@dowhile0.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:44168 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756984Ab2BNTAo (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:65015 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755524Ab2BOKnA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Feb 2012 14:00:44 -0500
-In-Reply-To: <20120214185216.GA28060@polaris.bitmath.org>
+	Wed, 15 Feb 2012 05:43:00 -0500
+Received: by wgbdt10 with SMTP id dt10so797283wgb.1
+        for <linux-input@vger.kernel.org>; Wed, 15 Feb 2012 02:42:58 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmity Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dan Carpenter <dan.carpenter@oracle.com>, linux-input@vger.kernel.org, Javier Martinez Canillas <martinez.javier@dowhile0.org>Javier Martinez Canillas <javier@dowhile0.org>
 
-On 02/14/2012 07:52 PM, Henrik Rydberg wrote:
-> Hi Chase,
-> 
-> On Tue, Feb 14, 2012 at 07:26:39AM -0800, Chase Douglas wrote:
->> In order to inform userspace of physical properties of the device.
->>
->> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
->> ---
->>  drivers/input/mouse/bcm5974.c |    3 +++
->>  1 files changed, 3 insertions(+), 0 deletions(-)
->>
->> diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
->> index 5ec617e..9faa049 100644
->> --- a/drivers/input/mouse/bcm5974.c
->> +++ b/drivers/input/mouse/bcm5974.c
->> @@ -434,6 +434,9 @@ static void setup_events_to_report(struct input_dev *input_dev,
->>  	__set_bit(BTN_LEFT, input_dev->keybit);
->>  
->>  	input_set_events_per_packet(input_dev, 60);
->> +
->> +	__set_bit(INPUT_PROP_POINTER, input->propbit);
->> +	__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
->>  }
->>  
->>  /* report button data as logical button state */
->> -- 
->> 1.7.9
->>
-> 
-> Applied, with fixes. The patch did not apply, and once resolved, did
-> not compile. I trust you will test also the trivial patches in the future.
+From: Javier Martinez Canillas <martinez.javier@dowhile0.org>
 
-You're right, I compiled the other modules and tested, but I forgot this
-one. It was a copy/paste error.
+In the cyttsp_probe() function the struct device *dev pointer was
+dereferenced before checking if it was NULL.
 
-Thanks for fixing it, I'd be happy to fix it up in the future if there
-are any issues.
+Now dev is never NULL since both I2C and SPI bus drivers pass a pointer to a
+member of an previously allocated structure. But others bus drivers can do
+it differently so is better to sanity check instead of trust in the callers.
 
--- Chase
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
+---
+ drivers/input/touchscreen/cyttsp_core.c |   11 +++++++++--
+ 1 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
+index 8be2247..071e5ae8 100644
+--- a/drivers/input/touchscreen/cyttsp_core.c
++++ b/drivers/input/touchscreen/cyttsp_core.c
+@@ -518,12 +518,19 @@ static void cyttsp_close(struct input_dev *dev)
+ struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
+ 			    struct device *dev, int irq, size_t xfer_buf_size)
+ {
+-	const struct cyttsp_platform_data *pdata = dev->platform_data;
++	const struct cyttsp_platform_data *pdata;
+ 	struct cyttsp *ts;
+ 	struct input_dev *input_dev;
+ 	int error;
+ 
+-	if (!dev || !bus_ops || !pdata || !pdata->name || irq <= 0) {
++	if (!dev || !bus_ops || !dev->platform_data || irq <= 0) {
++		error = -EINVAL;
++		goto err_out;
++	}
++
++	pdata = dev->platform_data;
++
++	if (!pdata->name) {
+ 		error = -EINVAL;
+ 		goto err_out;
+ 	}
+-- 
+1.7.7.6
+

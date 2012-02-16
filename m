@@ -1,359 +1,39 @@
-From: Tatsunosuke Tobita <junkpainting@gmail.com>
-Subject: [PATCH] Input: Add Wacom I2C driver
-Date: Thu, 16 Feb 2012 15:36:31 +0900
-Message-ID: <1329374191-28773-1-git-send-email-tobita.tatsunosuke@wacom.co.jp>
+From: Akio Idehara <zbe64533@gmail.com>
+Subject: Re: [PATCH] Fix ALPS touchpad detection
+Date: Thu, 16 Feb 2012 21:47:50 +0900
+Message-ID: <4F3CFAF6.1090507@gmail.com>
+References: <4F3BABF1.8050204@gmail.com> <20120215161855.GA2495@ubuntu-macmini>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:55809 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752211Ab2BPGgh (ORCPT
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:58280 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750907Ab2BPMrx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Feb 2012 01:36:37 -0500
-Received: by pbcun15 with SMTP id un15so2179787pbc.19
-        for <linux-input@vger.kernel.org>; Wed, 15 Feb 2012 22:36:36 -0800 (PST)
+	Thu, 16 Feb 2012 07:47:53 -0500
+In-Reply-To: <20120215161855.GA2495@ubuntu-macmini>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
+To: seth.forshee@canonical.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
+Thank you for commenting.
+I'll send the new one.
 
-Adds a driver for Wacom Stylus with I2C interface.
-I was suggested to use "module_i2c_driver()", converging both init() and exit()
-into one function and implemented it. However, there has been no update on
-"next" branch with such function; all drivers still use regular init() and
-exit(). So, I hope these patch I just sent are to be included next update.
-I will work on and make another patch with  module_i2c_driver when 
-it is available.
-Please consider to add those patches for next "next" branch update.
-
-Thanks!
-
-Signed-off-by: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
----
- drivers/input/touchscreen/wacom_i2c.c |  251 +++++++++++++++++++++++++++++++++
- drivers/input/touchscreen/wacom_i2c.h |   55 +++++++
- 2 files changed, 306 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/wacom_i2c.c
- create mode 100644 drivers/input/touchscreen/wacom_i2c.h
-
-diff --git a/drivers/input/touchscreen/wacom_i2c.c b/drivers/input/touchscreen/wacom_i2c.c
-new file mode 100644
-index 0000000..2c4d302
---- /dev/null
-+++ b/drivers/input/touchscreen/wacom_i2c.c
-@@ -0,0 +1,251 @@
-+/*
-+ * Wacom Penabled Driver for I2C
-+ *
-+ * Copyright (c) 2011 Tatsunosuke Tobita, Wacom.
-+ * <tobita.tatsunosuke@wacom.co.jp>
-+ *
-+ * This program is free software; you can redistribute it
-+ * and/or modify it under the terms of the GNU General
-+ * Public License as published by the Free Software
-+ * Foundation; either version of 2 of the License,
-+ * or (at your option) any later version.
-+ */
-+
-+#include "wacom_i2c.h"
-+
-+static int wacom_send_query(struct wacom_i2c *wac_i2c)
-+{
-+	int ret;
-+	u8 cmd[4] = {CMD_QUERY0, CMD_QUERY1, CMD_QUERY2, CMD_QUERY3};
-+	u8 data[COM_COORD_NUM];
-+
-+	ret = i2c_master_send(wac_i2c->client, cmd, sizeof(cmd));
-+	if (ret < 0) {
-+		dev_printk(KERN_ERR, &wac_i2c->client->dev,
-+			   "Sending 1st Query failed \n");
-+		return -1;
-+	}
-+
-+	cmd[0] = CMD_THROW0; cmd[1] = CMD_THROW1;
-+	ret = i2c_master_send(wac_i2c->client, cmd, 2);
-+	if (ret < 0) {
-+		dev_printk(KERN_ERR, &wac_i2c->client->dev,
-+			   "Sending 2nd Query failed \n");
-+		return -1;
-+	}
-+
-+	ret = i2c_master_recv(wac_i2c->client, data, QUERY_SIZE);
-+	if (ret < 0) {
-+		dev_printk(KERN_ERR, &wac_i2c->client->dev,
-+			   "Receiving data failed 1\n");
-+		return -1;
-+	}
-+
-+	wac_i2c->wac_feature.x_max = get_unaligned_le16(&data[3]);
-+	wac_i2c->wac_feature.y_max = get_unaligned_le16(&data[5]);
-+	wac_i2c->wac_feature.pressure_max = get_unaligned_le16(&data[11]);
-+	wac_i2c->wac_feature.fw_version = get_unaligned_le16(&data[13]);
-+
-+	dev_dbg(&wac_i2c->client->dev,
-+		   "x_max:%d, y_max:%d, pressure:%d, fw:%d\n",
-+		   wac_i2c->wac_feature.x_max, wac_i2c->wac_feature.y_max,
-+		   wac_i2c->wac_feature.pressure_max, wac_i2c->wac_feature.fw_version);
-+
-+	return 0;
-+}
-+
-+static irqreturn_t wacom_i2c_irq(int irqno, void *param)
-+{
-+	struct wacom_i2c *wac_i2c = param;
-+       int ret;
-+	unsigned int x, y, pressure;
-+	unsigned char tsw, f1, f2, ers;
-+	u8 data[COM_COORD_NUM];
-+
-+	do {
-+		ret = i2c_master_recv(wac_i2c->client, data, QUERY_SIZE);
-+	} while (gpio_get_value(irq_to_gpio(wac_i2c->client->irq)) == 0);
-+
-+	if (ret > 0) {
-+		tsw = data[3]&0x01;
-+		ers = data[3]&0x04;
-+		f1 = data[3]&0x02;
-+		f2 = data[3]&0x10;
-+		x = le16_to_cpup((__le16 *)&data[4]);
-+		y = le16_to_cpup((__le16 *)&data[6]);
-+		pressure = le16_to_cpup((__le16 *)&data[8]);
-+
-+		input_report_abs(wac_i2c->input, ABS_X, x);
-+		input_report_abs(wac_i2c->input, ABS_Y, y);
-+		input_report_key(wac_i2c->input, BTN_TOOL_PEN, tsw);
-+		input_report_key(wac_i2c->input, BTN_TOOL_RUBBER, ers);
-+		input_report_abs(wac_i2c->input, ABS_PRESSURE, pressure);
-+		input_report_key(wac_i2c->input, BTN_TOUCH, (tsw || ers));
-+		input_report_key(wac_i2c->input, BTN_STYLUS, f1);
-+		input_report_key(wac_i2c->input, BTN_STYLUS2, f2);
-+
-+		input_sync(wac_i2c->input);
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int wacom_i2c_input_open(struct input_dev *dev)
-+{
-+	struct wacom_i2c *wac_i2c = input_get_drvdata(dev);
-+	int ret;
-+	ret = wacom_send_query(wac_i2c);
-+	if (ret < 0)
-+		return -EIO;
-+
-+	wac_i2c->input->id.version = wac_i2c->wac_feature.fw_version;
-+	input_set_abs_params(wac_i2c->input, ABS_X, 0,
-+			     wac_i2c->wac_feature.x_max, 0, 0);
-+	input_set_abs_params(wac_i2c->input, ABS_Y, 0,
-+			     wac_i2c->wac_feature.y_max, 0, 0);
-+	input_set_abs_params(wac_i2c->input, ABS_PRESSURE, 0,
-+			     wac_i2c->wac_feature.pressure_max, 0, 0);
-+
-+	return 0;
-+}
-+
-+static void wacom_i2c_input_close(struct input_dev *dev)
-+{
-+}
-+
-+static int __devinit wacom_i2c_probe(struct i2c_client *client,
-+			   const struct i2c_device_id *id)
-+{
-+	struct wacom_i2c *wac_i2c;
-+	int err;
-+	u8 data[COM_COORD_NUM];
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-+		err = -EIO;
-+		goto fail1;
-+	}
-+
-+	wac_i2c = kzalloc(sizeof(*wac_i2c), GFP_KERNEL);
-+	if (wac_i2c == NULL) {
-+		err = -ENOMEM;
-+		goto fail2;
-+	}
-+
-+	wac_i2c->input = input_allocate_device();
-+	if (wac_i2c->input == NULL) {
-+		err = -ENOMEM;
-+		goto fail2;
-+	}
-+
-+	wac_i2c->client = client;
-+	i2c_set_clientdata(client, wac_i2c);
-+	mutex_init(&wac_i2c->lock);
-+
-+	__set_bit(BTN_TOOL_PEN, wac_i2c->input->keybit);
-+	__set_bit(BTN_TOOL_RUBBER, wac_i2c->input->keybit);
-+	__set_bit(BTN_STYLUS, wac_i2c->input->keybit);
-+	__set_bit(BTN_STYLUS2, wac_i2c->input->keybit);
-+	__set_bit(BTN_TOUCH, wac_i2c->input->keybit);
-+
-+	wac_i2c->input->name = "Wacom I2C Digitizer";
-+	wac_i2c->input->id.bustype = BUS_I2C;
-+	wac_i2c->input->id.vendor = 0x56a;
-+	wac_i2c->input->dev.parent = &client->dev;
-+	wac_i2c->input->open = wacom_i2c_input_open;
-+	wac_i2c->input->close = wacom_i2c_input_close;
-+	wac_i2c->input->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+	input_set_drvdata(wac_i2c->input, wac_i2c);
-+
-+	if (input_register_device(wac_i2c->input)) {
-+		dev_printk(KERN_ERR, &wac_i2c->client->dev, "Failed to register input device \n");
-+		err = -ENODEV;
-+		goto fail3;
-+	}
-+
-+
-+	err = request_threaded_irq(wac_i2c->client->irq, NULL,
-+				   wacom_i2c_irq, IRQF_TRIGGER_FALLING, "WACOM_I2C_IRQ", wac_i2c);
-+	if (err) {
-+		dev_printk(KERN_ERR, &wac_i2c->client->dev, "Failed to enable IRQ for EMR \n");
-+		goto fail3;
-+	}
-+
-+	/*Clear the buffer in the firmware*/
-+	do {
-+		i2c_master_recv(wac_i2c->client, data, QUERY_SIZE);
-+	} while (gpio_get_value(irq_to_gpio(wac_i2c->client->irq)) == 0);
-+
-+	return 0;
-+
-+ fail3:
-+	input_free_device(wac_i2c->input);
-+ fail2:
-+	dev_err(&wac_i2c->client->dev, "Freeing device \n");
-+ fail1:
-+	return err;
-+}
-+
-+static int __devexit wacom_i2c_remove(struct i2c_client *client)
-+{
-+	struct wacom_i2c *wac_i2c = i2c_get_clientdata(client);
-+
-+	free_irq(wac_i2c->client->irq, wac_i2c);
-+	input_unregister_device(wac_i2c->input);
-+	kfree(wac_i2c);
-+
-+	return 0;
-+}
-+
-+static int wacom_i2c_suspend(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	disable_irq(client->irq);
-+
-+	return 0;
-+}
-+
-+static int wacom_i2c_resume(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	enable_irq(client->irq);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(wacom_i2c_pm, wacom_i2c_suspend, wacom_i2c_resume);
-+
-+static const struct i2c_device_id wacom_i2c_id[] = {
-+	{WACNAME, 0},
-+	{},
-+};
-+MODULE_DEVICE_TABLE(i2c, wacom_i2c_id);
-+
-+static struct i2c_driver wacom_i2c_driver = {
-+	.driver = {
-+		.name = "wacom_i2c",
-+		.owner = THIS_MODULE,
-+		.pm = &wacom_i2c_pm,
-+	},
-+
-+	.probe = wacom_i2c_probe,
-+	.remove = __devexit_p(wacom_i2c_remove),
-+	.id_table = wacom_i2c_id,
-+};
-+
-+static int __init wacom_i2c_init(void)
-+{
-+	return i2c_add_driver(&wacom_i2c_driver);
-+}
-+
-+static void __exit wacom_i2c_exit(void)
-+{
-+	i2c_del_driver(&wacom_i2c_driver);
-+}
-+
-+module_init(wacom_i2c_init);
-+module_exit(wacom_i2c_exit);
-+
-+
-+MODULE_AUTHOR("Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>");
-+MODULE_DESCRIPTION("WACOM EMR I2C Driver");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/input/touchscreen/wacom_i2c.h b/drivers/input/touchscreen/wacom_i2c.h
-new file mode 100644
-index 0000000..b5c2d07
---- /dev/null
-+++ b/drivers/input/touchscreen/wacom_i2c.h
-@@ -0,0 +1,55 @@
-+/*
-+ * Wacom Penabled Driver for I2C
-+ *
-+ * Copyright (c) 2011 Tatsunosuke Tobita, Wacom.
-+ * <tobita.tatsunosuke@wacom.co.jp>
-+ *
-+ * This program is free software; you can redistribute it
-+ * and/or modify it under the terms of the GNU General
-+ * Public License as published by the Free Software
-+ * Foundation; either version of 2 of the License,
-+ * or (at your option) any later version.
-+ */
-+
-+#ifndef WACOM_I2C_H
-+#define WACOM_I2C_H
-+
-+#include <linux/module.h>
-+#include <linux/input.h>
-+#include <linux/i2c.h>
-+#include <linux/slab.h>
-+#include <linux/irq.h>
-+#include <linux/interrupt.h>
-+#include <linux/gpio.h>
-+#include <asm/unaligned.h>
-+
-+#define NAMEBUF 12
-+#define WACNAME "WAC_I2C_EMR"
-+
-+/*Wacom Command*/
-+#define COM_COORD_NUM      128
-+#define CMD_QUERY0         0x04
-+#define CMD_QUERY1         0x00
-+#define CMD_QUERY2         0x33
-+#define CMD_QUERY3         0x02
-+#define CMD_THROW0         0x05
-+#define CMD_THROW1         0x00
-+#define QUERY_SIZE           19
-+
-+/*Parameters for wacom own features*/
-+struct wacom_features {
-+	int x_max;
-+	int y_max;
-+	int pressure_max;
-+	char fw_version;
-+};
-+
-+/*Parameters for i2c driver*/
-+struct wacom_i2c {
-+	struct i2c_client *client;
-+	struct input_dev *input;
-+	struct mutex lock;
-+	struct wacom_features wac_feature;
-+	int type;
-+};
-+#endif
--- 
-1.7.1
+Seth Forshee wrote:
+> On Wed, Feb 15, 2012 at 09:58:25PM +0900, Akio Idehara wrote:
+>> ALPS touchpad detection fails if some buttons of ALPS are pressed.
+>> The reason is that the query response byte is different from what is expected.
+>> This was tested on a Toshiba Portege R500.
+>
+> I've reproduced the problem and confirmed that your approach fixes it.
+>
+> However, your patch seems to be malformed as it won't apply cleanly for
+> me. For the comment you're modifying you should also keep the line
+> length under 80 characters.
+>
+> This fix seems like a good candidate for stable as well.
+>
+> Seth
 

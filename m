@@ -1,69 +1,120 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH] HID: wacom: Force new name for Wacom Intuos4 WL PTK-540WL
-Date: Fri, 17 Feb 2012 12:51:02 -0600
-Message-ID: <CAGzDe_ZAni9Jtu4RrwmuRSOPFGxFz93JWw_VhzwieT2JJ-K8Hw@mail.gmail.com>
-References: <1329500830-16767-1-git-send-email-przemo@firszt.eu>
+From: Andres Salomon <dilinger@queued.net>
+Subject: [PATCH] input: psmouse:  create an 'enabled' sysfs attribute to
+ squelch mouse
+Date: Fri, 17 Feb 2012 18:06:34 -0800
+Message-ID: <20120217180634.6162196e@debxo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lpp01m010-f46.google.com ([209.85.215.46]:51790 "EHLO
-	mail-lpp01m010-f46.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752390Ab2BQSvD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Feb 2012 13:51:03 -0500
-In-Reply-To: <1329500830-16767-1-git-send-email-przemo@firszt.eu>
+Received: from lunge.queued.net ([173.255.254.236]:53236 "EHLO
+	lunge.queued.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753172Ab2BRCGk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Feb 2012 21:06:40 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Przemo Firszt <przemo@firszt.eu>
-Cc: jkosina@suse.cz, pinglinux@gmail.com, peter.hutterer@who-t.net, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Alessandro Rubini <rubini@ipvvis.unipv.it>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Fox <pgf@laptop.org>, Martin Langhoff <martin@laptop.org>
 
-On Fri, Feb 17, 2012 at 11:47 AM, Przemo Firszt <przemo@firszt.eu> wrot=
-e:
-> The name reported by Inutos4 WL connected by bluetooth is "PTK-540WL"=
- and
-> to make it consistent with other Wacom devices it has to be converted=
- to
-> "Wacom Intuos4 WL". It also makes userland applications aware that it=
-'s
-> a Wacom device.
->
-> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
-> ---
 
-Its worth noting this aligns naming of device to same used when this
-device is plugged into USB port and controlled by USB wacom driver;
-and thus helps align userland logic to route to apps like
-xf86-input-wacom.
+From: Paul Fox <pgf@laptop.org>
 
-Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
+on OLPC XO laptops, at least one model of touchpad (sentelic)
+emits continuous jittery motion reports when the laptop is
+configured in "ebook" mode.  the touchpad is inaccessible in
+that configuration, so we simply disable it.
 
-> =A0drivers/hid/hid-wacom.c | =A0 =A01 +
-> =A01 files changed, 1 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-> index acab74c..0621047 100644
-> --- a/drivers/hid/hid-wacom.c
-> +++ b/drivers/hid/hid-wacom.c
-> @@ -518,6 +518,7 @@ static int wacom_probe(struct hid_device *hdev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0wacom_poke(hdev, 1);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
-> =A0 =A0 =A0 =A0case USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 sprintf(hdev->name, "%s", "Wacom Intuos=
-4 WL");
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0wdata->features =3D 0;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0wacom_set_features(hdev);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
-> --
-> 1.7.6.4
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+these motion reports will wake the SoC when put to sleep, so simply
+ignoring the events is not a possibilty; the device must be disabled.
+
+[dilinger@queued.net: drop psmouse_resync changes, add attribute comment,
+ and add psmouse_cleanup workaround]
+
+Signed-off-by: Andres Salomon <dilinger@queued.net>
+---
+ drivers/input/mouse/psmouse-base.c |   20 ++++++++++++++++++--
+ drivers/input/mouse/psmouse.h      |    1 +
+ 2 files changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 22fe254..a115534 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -87,6 +87,13 @@ PSMOUSE_DEFINE_ATTR(resetafter, S_IWUSR | S_IRUGO,
+ PSMOUSE_DEFINE_ATTR(resync_time, S_IWUSR | S_IRUGO,
+ 			(void *) offsetof(struct psmouse, resync_time),
+ 			psmouse_show_int_attr, psmouse_set_int_attr);
++/*
++ * There's no need for a custom handler for the 'enabled' attr;
++ * psmouse_attr_set_helper will take care of disabling and enabling for us.
++ */
++PSMOUSE_DEFINE_ATTR(enabled, S_IWUSR | S_IRUGO,
++			(void *) offsetof(struct psmouse, enabled),
++			psmouse_show_int_attr, psmouse_set_int_attr);
+ 
+ static struct attribute *psmouse_attributes[] = {
+ 	&psmouse_attr_protocol.dattr.attr,
+@@ -94,6 +101,7 @@ static struct attribute *psmouse_attributes[] = {
+ 	&psmouse_attr_resolution.dattr.attr,
+ 	&psmouse_attr_resetafter.dattr.attr,
+ 	&psmouse_attr_resync_time.dattr.attr,
++	&psmouse_attr_enabled.dattr.attr,
+ 	NULL
+ };
+ 
+@@ -1094,6 +1102,9 @@ static void psmouse_initialize(struct psmouse *psmouse)
+ 
+ int psmouse_activate(struct psmouse *psmouse)
+ {
++	if (!psmouse->enabled)
++		return 0;
++
+ 	if (ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE)) {
+ 		psmouse_warn(psmouse, "Failed to enable mouse on %s\n",
+ 			     psmouse->ps2dev.serio->phys);
+@@ -1256,7 +1267,8 @@ static void psmouse_cleanup(struct serio *serio)
+  * Some boxes, such as HP nx7400, get terribly confused if mouse
+  * is not fully enabled before suspending/shutting down.
+  */
+-	ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE);
++	if (psmouse->enabled)
++		ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE);
+ 
+ 	if (parent) {
+ 		if (parent->pt_deactivate)
+@@ -1418,6 +1430,7 @@ static int psmouse_connect(struct serio *serio, struct serio_driver *drv)
+ 	psmouse->resolution = psmouse_resolution;
+ 	psmouse->resetafter = psmouse_resetafter;
+ 	psmouse->resync_time = parent ? 0 : psmouse_resync_time;
++	psmouse->enabled = true;
+ 	psmouse->smartscroll = psmouse_smartscroll;
+ 
+ 	psmouse_switch_protocol(psmouse, NULL);
+@@ -1516,7 +1529,10 @@ static int psmouse_reconnect(struct serio *serio)
+ 	if (parent && parent->pt_activate)
+ 		parent->pt_activate(parent);
+ 
+-	psmouse_activate(psmouse);
++	if (psmouse->enabled)
++		psmouse_activate(psmouse);
++	else
++		psmouse_deactivate(psmouse);
+ 	rc = 0;
+ 
+ out:
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index fe1df23..aa30321 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -62,6 +62,7 @@ struct psmouse {
+ 	unsigned int resolution;
+ 	unsigned int resetafter;
+ 	unsigned int resync_time;
++	bool enabled;
+ 	bool smartscroll;	/* Logitech only */
+ 
+ 	psmouse_ret_t (*protocol_handler)(struct psmouse *psmouse);
+-- 
+1.7.2.5
+

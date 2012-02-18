@@ -1,120 +1,75 @@
-From: Andres Salomon <dilinger@queued.net>
-Subject: [PATCH] input: psmouse:  create an 'enabled' sysfs attribute to
- squelch mouse
-Date: Fri, 17 Feb 2012 18:06:34 -0800
-Message-ID: <20120217180634.6162196e@debxo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Sean Young <sean@mess.org>
+Subject: [PATCH] HID: Add device ID for Super Joy Box 3
+Date: Sat, 18 Feb 2012 12:53:44 +0000
+Message-ID: <1329569624-10669-1-git-send-email-sean@mess.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lunge.queued.net ([173.255.254.236]:53236 "EHLO
-	lunge.queued.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753172Ab2BRCGk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Feb 2012 21:06:40 -0500
+Received: from pequod.mess.org ([93.97.41.153]:46524 "EHLO pequod.mess.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751905Ab2BRNDa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 18 Feb 2012 08:03:30 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alessandro Rubini <rubini@ipvvis.unipv.it>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Fox <pgf@laptop.org>, Martin Langhoff <martin@laptop.org>
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, Sean Young <sean@mess.org>
 
+Also correct the quirks for the Super Joy Box 3 Pro and Super Dual Box.
 
-From: Paul Fox <pgf@laptop.org>
-
-on OLPC XO laptops, at least one model of touchpad (sentelic)
-emits continuous jittery motion reports when the laptop is
-configured in "ebook" mode.  the touchpad is inaccessible in
-that configuration, so we simply disable it.
-
-these motion reports will wake the SoC when put to sleep, so simply
-ignoring the events is not a possibilty; the device must be disabled.
-
-[dilinger@queued.net: drop psmouse_resync changes, add attribute comment,
- and add psmouse_cleanup workaround]
-
-Signed-off-by: Andres Salomon <dilinger@queued.net>
+Signed-off-by: Sean Young <sean@mess.org>
 ---
- drivers/input/mouse/psmouse-base.c |   20 ++++++++++++++++++--
- drivers/input/mouse/psmouse.h      |    1 +
- 2 files changed, 19 insertions(+), 2 deletions(-)
+ drivers/hid/hid-core.c |    1 +
+ drivers/hid/hid-ids.h  |    1 +
+ drivers/hid/hid-sjoy.c |    6 ++++--
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index 22fe254..a115534 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -87,6 +87,13 @@ PSMOUSE_DEFINE_ATTR(resetafter, S_IWUSR | S_IRUGO,
- PSMOUSE_DEFINE_ATTR(resync_time, S_IWUSR | S_IRUGO,
- 			(void *) offsetof(struct psmouse, resync_time),
- 			psmouse_show_int_attr, psmouse_set_int_attr);
-+/*
-+ * There's no need for a custom handler for the 'enabled' attr;
-+ * psmouse_attr_set_helper will take care of disabling and enabling for us.
-+ */
-+PSMOUSE_DEFINE_ATTR(enabled, S_IWUSR | S_IRUGO,
-+			(void *) offsetof(struct psmouse, enabled),
-+			psmouse_show_int_attr, psmouse_set_int_attr);
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 162be09..e89e4c7 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1550,6 +1550,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UNITEC, USB_DEVICE_ID_UNITEC_USB_TOUCH_0709) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UNITEC, USB_DEVICE_ID_UNITEC_USB_TOUCH_0A19) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SUPER_JOY_BOX_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_JOY_BOX_3_PRO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_DUAL_BOX_PRO) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b6a0455..29a7086 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -717,6 +717,7 @@
+ #define USB_DEVICE_ID_1_PHIDGETSERVO_20	0x8101
+ #define USB_DEVICE_ID_4_PHIDGETSERVO_20	0x8104
+ #define USB_DEVICE_ID_8_8_4_IF_KIT	0x8201
++#define USB_DEVICE_ID_SUPER_JOY_BOX_3	0x8888
+ #define USB_DEVICE_ID_QUAD_USB_JOYPAD	0x8800
+ #define USB_DEVICE_ID_DUAL_USB_JOYPAD	0x8866
  
- static struct attribute *psmouse_attributes[] = {
- 	&psmouse_attr_protocol.dattr.attr,
-@@ -94,6 +101,7 @@ static struct attribute *psmouse_attributes[] = {
- 	&psmouse_attr_resolution.dattr.attr,
- 	&psmouse_attr_resetafter.dattr.attr,
- 	&psmouse_attr_resync_time.dattr.attr,
-+	&psmouse_attr_enabled.dattr.attr,
- 	NULL
+diff --git a/drivers/hid/hid-sjoy.c b/drivers/hid/hid-sjoy.c
+index 4b14486..42257ac 100644
+--- a/drivers/hid/hid-sjoy.c
++++ b/drivers/hid/hid-sjoy.c
+@@ -155,7 +155,8 @@ err:
+ }
+ 
+ static const struct hid_device_id sjoy_devices[] = {
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_JOY_BOX_3_PRO) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_JOY_BOX_3_PRO),
++		.driver_data = HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_DUAL_BOX_PRO),
+ 		.driver_data = HID_QUIRK_MULTI_INPUT | HID_QUIRK_NOGET |
+ 			       HID_QUIRK_SKIP_OUTPUT_REPORTS },
+@@ -163,8 +164,9 @@ static const struct hid_device_id sjoy_devices[] = {
+ 		.driver_data = HID_QUIRK_MULTI_INPUT | HID_QUIRK_NOGET |
+ 			       HID_QUIRK_SKIP_OUTPUT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SUPER_JOY_BOX_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD),
+-		.driver_data = HID_QUIRK_MULTI_INPUT | HID_QUIRK_NOGET |
++		.driver_data = HID_QUIRK_MULTI_INPUT |
+ 			       HID_QUIRK_SKIP_OUTPUT_REPORTS },
+ 	{ }
  };
- 
-@@ -1094,6 +1102,9 @@ static void psmouse_initialize(struct psmouse *psmouse)
- 
- int psmouse_activate(struct psmouse *psmouse)
- {
-+	if (!psmouse->enabled)
-+		return 0;
-+
- 	if (ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE)) {
- 		psmouse_warn(psmouse, "Failed to enable mouse on %s\n",
- 			     psmouse->ps2dev.serio->phys);
-@@ -1256,7 +1267,8 @@ static void psmouse_cleanup(struct serio *serio)
-  * Some boxes, such as HP nx7400, get terribly confused if mouse
-  * is not fully enabled before suspending/shutting down.
-  */
--	ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE);
-+	if (psmouse->enabled)
-+		ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE);
- 
- 	if (parent) {
- 		if (parent->pt_deactivate)
-@@ -1418,6 +1430,7 @@ static int psmouse_connect(struct serio *serio, struct serio_driver *drv)
- 	psmouse->resolution = psmouse_resolution;
- 	psmouse->resetafter = psmouse_resetafter;
- 	psmouse->resync_time = parent ? 0 : psmouse_resync_time;
-+	psmouse->enabled = true;
- 	psmouse->smartscroll = psmouse_smartscroll;
- 
- 	psmouse_switch_protocol(psmouse, NULL);
-@@ -1516,7 +1529,10 @@ static int psmouse_reconnect(struct serio *serio)
- 	if (parent && parent->pt_activate)
- 		parent->pt_activate(parent);
- 
--	psmouse_activate(psmouse);
-+	if (psmouse->enabled)
-+		psmouse_activate(psmouse);
-+	else
-+		psmouse_deactivate(psmouse);
- 	rc = 0;
- 
- out:
-diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-index fe1df23..aa30321 100644
---- a/drivers/input/mouse/psmouse.h
-+++ b/drivers/input/mouse/psmouse.h
-@@ -62,6 +62,7 @@ struct psmouse {
- 	unsigned int resolution;
- 	unsigned int resetafter;
- 	unsigned int resync_time;
-+	bool enabled;
- 	bool smartscroll;	/* Logitech only */
- 
- 	psmouse_ret_t (*protocol_handler)(struct psmouse *psmouse);
 -- 
-1.7.2.5
+1.7.7.6
 

@@ -1,44 +1,37 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 4/5] input: s/#if CONFIG/#ifdef CONFIG/
-Date: Sun, 19 Feb 2012 16:11:58 +0100
-Message-ID: <1329664319-3128-4-git-send-email-geert@linux-m68k.org>
-References: <1329664319-3128-1-git-send-email-geert@linux-m68k.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from georges.telenet-ops.be ([195.130.137.68]:46540 "EHLO
-	georges.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754159Ab2BSPME (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 19 Feb 2012 10:12:04 -0500
-In-Reply-To: <1329664319-3128-1-git-send-email-geert@linux-m68k.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: [PATCH] HID: wacom: fix proximity tool release
+Date: Sun, 19 Feb 2012 20:20:29 +0000
+Message-ID: <1329682829-24347-1-git-send-email-przemo@firszt.eu>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: aris@redhat.com, jkosina@suse.cz
+Cc: pinglinux@gmail.com, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Przemo Firszt <przemo@firszt.eu>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <trivial@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On m68k:
+Don't zero the current tool before reporting its release to the input
+subsystem.
 
-drivers/input/misc/twl4030-vibra.c:175:5: warning: "CONFIG_PM" is not defined
-
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Signed-off-by: Aristeu Rozanski <aris@redhat.com>
+Tested-by: Przemo Firszt <przemo@firszt.eu>
 ---
- drivers/input/misc/twl4030-vibra.c |    2 +-
+ drivers/hid/hid-wacom.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
-index 3765137..2739f32 100644
---- a/drivers/input/misc/twl4030-vibra.c
-+++ b/drivers/input/misc/twl4030-vibra.c
-@@ -172,7 +172,7 @@ static void twl4030_vibra_close(struct input_dev *input)
- }
+diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+index 0621047..696b907 100644
+--- a/drivers/hid/hid-wacom.c
++++ b/drivers/hid/hid-wacom.c
+@@ -322,10 +322,10 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
  
- /*** Module ***/
--#if CONFIG_PM
-+#ifdef CONFIG_PM
- static int twl4030_vibra_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
+ 	switch (data[1]) {
+ 	case 0x80: /* Out of proximity report */
+-		wdata->tool = 0;
+ 		input_report_key(input, BTN_TOUCH, 0);
+ 		input_report_abs(input, ABS_PRESSURE, 0);
+ 		input_report_key(input, wdata->tool, 0);
++		wdata->tool = 0;
+ 		input_sync(input);
+ 		break;
+ 	case 0xC2: /* Tool report */
 -- 
-1.7.0.4
-
+1.7.6.4

@@ -1,37 +1,34 @@
-From: Przemo Firszt <przemo@firszt.eu>
-Subject: [PATCH] HID: wacom: fix proximity tool release
-Date: Sun, 19 Feb 2012 20:20:29 +0000
-Message-ID: <1329682829-24347-1-git-send-email-przemo@firszt.eu>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: aris@redhat.com, jkosina@suse.cz
-Cc: pinglinux@gmail.com, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Przemo Firszt <przemo@firszt.eu>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v3 7/7] input: wacom - add 0xE5 (MT device) support
+Date: Mon, 20 Feb 2012 09:24:15 +0100
+Message-ID: <20120220082415.GA6525@polaris.bitmath.org>
+References: <1328997334-24140-1-git-send-email-chris@cnpbagwell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:57975 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751368Ab2BTIV3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Feb 2012 03:21:29 -0500
+Received: from ipb5.telenor.se (ipb5.telenor.se [195.54.127.168])
+	by smtprelay-b11.telenor.se (Postfix) with ESMTP id 0AF3D14036
+	for <linux-input@vger.kernel.org>; Mon, 20 Feb 2012 09:21:27 +0100 (CET)
+Content-Disposition: inline
+In-Reply-To: <1328997334-24140-1-git-send-email-chris@cnpbagwell.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chris Bagwell <chris@cnpbagwell.com>
+Cc: Ping Cheng <pingc@wacom.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Don't zero the current tool before reporting its release to the input
-subsystem.
+Hi Chris,
 
-Signed-off-by: Aristeu Rozanski <aris@redhat.com>
-Tested-by: Przemo Firszt <przemo@firszt.eu>
----
- drivers/hid/hid-wacom.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+The input_mt_report_slot_state should be used instead of directly
+setting the tracking id. If the id reported by the hardware is not
+bounded by some small number (so that it maps to slots), you will have
+to keep the translation table in the driver.
 
-diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-index 0621047..696b907 100644
---- a/drivers/hid/hid-wacom.c
-+++ b/drivers/hid/hid-wacom.c
-@@ -322,10 +322,10 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
- 
- 	switch (data[1]) {
- 	case 0x80: /* Out of proximity report */
--		wdata->tool = 0;
- 		input_report_key(input, BTN_TOUCH, 0);
- 		input_report_abs(input, ABS_PRESSURE, 0);
- 		input_report_key(input, wdata->tool, 0);
-+		wdata->tool = 0;
- 		input_sync(input);
- 		break;
- 	case 0xC2: /* Tool report */
--- 
-1.7.6.4
+Also, the commit message could need some love.
+
+Thanks,
+Henrik

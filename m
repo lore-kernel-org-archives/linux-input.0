@@ -1,56 +1,33 @@
-From: Chase Douglas <chasedouglas@gmail.com>
-Subject: Re: [PATCH 1/2] Input: synaptics - add second variant of two-button
- clickpad
-Date: Mon, 20 Feb 2012 11:48:12 +0100
-Message-ID: <4F4224EC.5000400@gmail.com>
-References: <1329193273-12486-1-git-send-email-chase.douglas@canonical.com>
+From: Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: [PATCH] input/mc13783-ts: add pdata to set conversion delay
+Date: Mon, 20 Feb 2012 12:13:26 +0100
+Message-ID: <20120220111326.GR5387@sortiz-mobl>
+References: <1326269903-22180-1-git-send-email-michael.thalmeier@hale.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:45737 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752506Ab2BTKsT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Feb 2012 05:48:19 -0500
-Received: by pbcun15 with SMTP id un15so6155822pbc.19
-        for <linux-input@vger.kernel.org>; Mon, 20 Feb 2012 02:48:19 -0800 (PST)
-In-Reply-To: <1329193273-12486-1-git-send-email-chase.douglas@canonical.com>
+Received: from mga02.intel.com ([134.134.136.20]:21592 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752192Ab2BTLGQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Feb 2012 06:06:16 -0500
+Content-Disposition: inline
+In-Reply-To: <1326269903-22180-1-git-send-email-michael.thalmeier@hale.at>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Michael Thalmeier <michael.thalmeier@hale.at>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, michael@thalmeier.at
 
-On 02/14/2012 05:21 AM, Chase Douglas wrote:
-> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
-> ---
-> There are two models of Dell netbooks (Inspiron 1011 and 1012 IIRC) with
-> two-button clickpads that do not match the current two-button clickpad bit
-> mask. I don't have any docs to tell me which bits are which, but this bit
-> seems the most probably. For reference, the caps bits for these netbooks are:
-> 
-> caps: 0xd04713/0xa40000/0x2a0000
-> 
->  drivers/input/mouse/synaptics.h |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-> index fd26ccc..816d7bd 100644
-> --- a/drivers/input/mouse/synaptics.h
-> +++ b/drivers/input/mouse/synaptics.h
-> @@ -80,6 +80,7 @@
->   */
->  #define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100000) /* 1-button ClickPad */
->  #define SYN_CAP_CLICKPAD2BTN(ex0c)	((ex0c) & 0x000100) /* 2-button ClickPad */
-> +#define SYN_CAP_CLICKPAD2BTN2(ex0c)	((ex0c) & 0x200000) /* 2-button ClickPad */
->  #define SYN_CAP_MAX_DIMENSIONS(ex0c)	((ex0c) & 0x020000)
->  #define SYN_CAP_MIN_DIMENSIONS(ex0c)	((ex0c) & 0x002000)
->  #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
+Hi Michael,
 
-Dmitry, would you be able to comment on this soon? We're approaching
-kernel freeze in Ubuntu and I want to have this patch in there if it
-makes sense.
+On Wed, Jan 11, 2012 at 09:18:23AM +0100, Michael Thalmeier wrote:
+> MC13783 can be programmed to wait some clock cycles between the touch screen
+> polarization and the resistance conversion. This is needed to adjust for
+> touchscreens with high capacitance between plates.
+I applied (manually) this one to my for-next branch, thanks.
 
-Thanks,
+Cheers,
+Samuel.
 
--- Chase
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/

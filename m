@@ -1,53 +1,38 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: wacom: fix proximity tool release
-Date: Tue, 21 Feb 2012 14:25:59 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1202211423300.31150@pobox.suse.cz>
-References: <1329682829-24347-1-git-send-email-przemo@firszt.eu>
+Subject: Re: [PATCH v2] HID: use generic driver for Logitech Unifying receivers
+ if CONFIG_HID_LOGITECH_DJ=n
+Date: Tue, 21 Feb 2012 16:01:38 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1202211600420.31150@pobox.suse.cz>
+References: <20120213080644.6105.54221.stgit@zurg> <20120213101303.8665.76516.stgit@zurg>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:35465 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:43234 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755265Ab2BUN0B (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Feb 2012 08:26:01 -0500
-In-Reply-To: <1329682829-24347-1-git-send-email-przemo@firszt.eu>
+	id S1751931Ab2BUPBk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Feb 2012 10:01:40 -0500
+In-Reply-To: <20120213101303.8665.76516.stgit@zurg>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Przemo Firszt <przemo@firszt.eu>
-Cc: aris@redhat.com, pinglinux@gmail.com, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Konstantin Khlebnikov <khlebnikov@openvz.org>
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Sun, 19 Feb 2012, Przemo Firszt wrote:
+On Mon, 13 Feb 2012, Konstantin Khlebnikov wrote:
 
-> Don't zero the current tool before reporting its release to the input
-> subsystem.
+> Before commit 534a7b8e1 "HID: Add full support for Logitech Unifying receivers"
+> Logitech Unifying receiver can work as generic device without special driver,
+> after that commit these devices does not works without special driver.
 > 
-> Signed-off-by: Aristeu Rozanski <aris@redhat.com>
-> Tested-by: Przemo Firszt <przemo@firszt.eu>
-> ---
->  drivers/hid/hid-wacom.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+> After this patch they will use generic driver if special driver is disabled.
 > 
-> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-> index 0621047..696b907 100644
-> --- a/drivers/hid/hid-wacom.c
-> +++ b/drivers/hid/hid-wacom.c
-> @@ -322,10 +322,10 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
->  
->  	switch (data[1]) {
->  	case 0x80: /* Out of proximity report */
-> -		wdata->tool = 0;
->  		input_report_key(input, BTN_TOUCH, 0);
->  		input_report_abs(input, ABS_PRESSURE, 0);
->  		input_report_key(input, wdata->tool, 0);
-> +		wdata->tool = 0;
->  		input_sync(input);
->  		break;
->  	case 0xC2: /* Tool report */
 
-I have put this into my upstream-fixes branch. I think this should go into 
-3.3 still.
+Okay, I haven't originally fully realized that this device works 
+flawlessly in "single" case without the driver.
 
-Thanks,
+I like to avoid polluting the have_special_driver[] with ifdefs, but in 
+this particular case it seems to make sense. So I am queuing this.
+
+Thanks.
 
 -- 
 Jiri Kosina

@@ -1,49 +1,27 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH] hid-magicmouse: Add pointer and buttonpad properties
- for Magic Trackpad
-Date: Tue, 21 Feb 2012 12:17:26 +0100
-Message-ID: <4F437D46.6090604@canonical.com>
-References: <1329192751-6041-1-git-send-email-chase.douglas@canonical.com> <alpine.LNX.2.00.1202211152220.31150@pobox.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Add device ID for Super Joy Box 3
+Date: Tue, 21 Feb 2012 14:17:49 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1202211417400.31150@pobox.suse.cz>
+References: <1329569624-10669-1-git-send-email-sean@mess.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:40603 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753701Ab2BULR3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Feb 2012 06:17:29 -0500
-In-Reply-To: <alpine.LNX.2.00.1202211152220.31150@pobox.suse.cz>
+Received: from cantor2.suse.de ([195.135.220.15]:34747 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753717Ab2BUNRw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Feb 2012 08:17:52 -0500
+In-Reply-To: <1329569624-10669-1-git-send-email-sean@mess.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: Sean Young <sean@mess.org>
+Cc: linux-input@vger.kernel.org, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
 
-On 02/21/2012 11:52 AM, Jiri Kosina wrote:
-> On Mon, 13 Feb 2012, Chase Douglas wrote:
-> 
->> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
->> ---
->>  drivers/hid/hid-magicmouse.c |    2 ++
->>  1 files changed, 2 insertions(+), 0 deletions(-)
->>
->> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
->> index 2ab7175..7cf3ffe 100644
->> --- a/drivers/hid/hid-magicmouse.c
->> +++ b/drivers/hid/hid-magicmouse.c
->> @@ -418,6 +418,8 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
->>  		__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
->>  		__set_bit(BTN_TOOL_QUADTAP, input->keybit);
->>  		__set_bit(BTN_TOUCH, input->keybit);
->> +		__set_bit(INPUT_PROP_POINTER, input->propbit);
->> +		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
->>  	}
->>  
->>  	if (report_touches) {
-> 
-> Applied, although a bit more verbose commit message would be welcome next 
-> time :)
+On Sat, 18 Feb 2012, Sean Young wrote:
 
-Will you push this for 3.3, or keep it for 3.4?
+> Also correct the quirks for the Super Joy Box 3 Pro and Super Dual Box.
 
--- Chase
+Applied, thanks Sean.
+
+-- 
+Jiri Kosina
+SUSE Labs

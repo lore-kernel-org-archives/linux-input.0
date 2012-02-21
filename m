@@ -1,43 +1,49 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: wacom: Force new name for Wacom Intuos4 WL
- PTK-540WL
-Date: Tue, 21 Feb 2012 12:03:53 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1202211203270.31150@pobox.suse.cz>
-References: <1329500830-16767-1-git-send-email-przemo@firszt.eu> <CAGzDe_ZAni9Jtu4RrwmuRSOPFGxFz93JWw_VhzwieT2JJ-K8Hw@mail.gmail.com>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH] hid-magicmouse: Add pointer and buttonpad properties
+ for Magic Trackpad
+Date: Tue, 21 Feb 2012 12:17:26 +0100
+Message-ID: <4F437D46.6090604@canonical.com>
+References: <1329192751-6041-1-git-send-email-chase.douglas@canonical.com> <alpine.LNX.2.00.1202211152220.31150@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:51360 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751567Ab2BULDz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Feb 2012 06:03:55 -0500
-In-Reply-To: <CAGzDe_ZAni9Jtu4RrwmuRSOPFGxFz93JWw_VhzwieT2JJ-K8Hw@mail.gmail.com>
+Received: from youngberry.canonical.com ([91.189.89.112]:40603 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753701Ab2BULR3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Feb 2012 06:17:29 -0500
+In-Reply-To: <alpine.LNX.2.00.1202211152220.31150@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Bagwell <chris@cnpbagwell.com>
-Cc: Przemo Firszt <przemo@firszt.eu>, pinglinux@gmail.com, peter.hutterer@who-t.net, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-On Fri, 17 Feb 2012, Chris Bagwell wrote:
-
-> On Fri, Feb 17, 2012 at 11:47 AM, Przemo Firszt <przemo@firszt.eu> wrote:
-> > The name reported by Inutos4 WL connected by bluetooth is "PTK-540WL" and
-> > to make it consistent with other Wacom devices it has to be converted to
-> > "Wacom Intuos4 WL". It also makes userland applications aware that it's
-> > a Wacom device.
-> >
-> > Signed-off-by: Przemo Firszt <przemo@firszt.eu>
-> > ---
+On 02/21/2012 11:52 AM, Jiri Kosina wrote:
+> On Mon, 13 Feb 2012, Chase Douglas wrote:
 > 
-> Its worth noting this aligns naming of device to same used when this
-> device is plugged into USB port and controlled by USB wacom driver;
-> and thus helps align userland logic to route to apps like
-> xf86-input-wacom.
+>> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+>> ---
+>>  drivers/hid/hid-magicmouse.c |    2 ++
+>>  1 files changed, 2 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+>> index 2ab7175..7cf3ffe 100644
+>> --- a/drivers/hid/hid-magicmouse.c
+>> +++ b/drivers/hid/hid-magicmouse.c
+>> @@ -418,6 +418,8 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+>>  		__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
+>>  		__set_bit(BTN_TOOL_QUADTAP, input->keybit);
+>>  		__set_bit(BTN_TOUCH, input->keybit);
+>> +		__set_bit(INPUT_PROP_POINTER, input->propbit);
+>> +		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+>>  	}
+>>  
+>>  	if (report_touches) {
 > 
-> Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
+> Applied, although a bit more verbose commit message would be welcome next 
+> time :)
 
-I have updated changelog to include the comment from Chris and applied, 
-thanks everybody.
+Will you push this for 3.3, or keep it for 3.4?
 
--- 
-Jiri Kosina
-SUSE Labs
+-- Chase

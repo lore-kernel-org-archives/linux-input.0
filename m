@@ -1,32 +1,42 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: Add quirk for CH Products Fighterstick
-Date: Tue, 21 Feb 2012 11:59:51 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1202211158090.31150@pobox.suse.cz>
-References: <4F3A80DC.4090203@iki.fi>
+Subject: Re: [PATCH] HID: wacom: Force new name for Wacom Intuos4 WL
+ PTK-540WL
+Date: Tue, 21 Feb 2012 12:03:53 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1202211203270.31150@pobox.suse.cz>
+References: <1329500830-16767-1-git-send-email-przemo@firszt.eu> <CAGzDe_ZAni9Jtu4RrwmuRSOPFGxFz93JWw_VhzwieT2JJ-K8Hw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:51107 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:51360 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754552Ab2BUK7w (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Feb 2012 05:59:52 -0500
-In-Reply-To: <4F3A80DC.4090203@iki.fi>
+	id S1751567Ab2BULDz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Feb 2012 06:03:55 -0500
+In-Reply-To: <CAGzDe_ZAni9Jtu4RrwmuRSOPFGxFz93JWw_VhzwieT2JJ-K8Hw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ville Ranki <ville.ranki@iki.fi>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+To: Chris Bagwell <chris@cnpbagwell.com>
+Cc: Przemo Firszt <przemo@firszt.eu>, pinglinux@gmail.com, peter.hutterer@who-t.net, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 14 Feb 2012, Ville Ranki wrote:
+On Fri, 17 Feb 2012, Chris Bagwell wrote:
 
-> CH Fighterstick requires HID_QUIRK_NOGET as many other
-> CH devices do. This patch adds device id for Fighterstick
-> and adds necessary line to HID quirk list.
+> On Fri, Feb 17, 2012 at 11:47 AM, Przemo Firszt <przemo@firszt.eu> wrote:
+> > The name reported by Inutos4 WL connected by bluetooth is "PTK-540WL" and
+> > to make it consistent with other Wacom devices it has to be converted to
+> > "Wacom Intuos4 WL". It also makes userland applications aware that it's
+> > a Wacom device.
+> >
+> > Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+> > ---
+> 
+> Its worth noting this aligns naming of device to same used when this
+> device is plugged into USB port and controlled by USB wacom driver;
+> and thus helps align userland logic to route to apps like
+> xf86-input-wacom.
+> 
+> Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
 
-Your patch has been damaged by your e-mail client (line wrapped). I have 
-fixed that up manually and applied, but please keep that in mind for your 
-future patch submissions.
-
-Thanks,
+I have updated changelog to include the comment from Chris and applied, 
+thanks everybody.
 
 -- 
 Jiri Kosina

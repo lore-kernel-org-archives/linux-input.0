@@ -1,34 +1,32 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: multitouch: add support of Panasonic multitouch
- panels
-Date: Tue, 21 Feb 2012 11:56:32 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1202211155580.31150@pobox.suse.cz>
-References: <1329209433-8149-1-git-send-email-Denis.Kovalev@dataart.com>
+Subject: Re: [PATCH] HID: Add quirk for CH Products Fighterstick
+Date: Tue, 21 Feb 2012 11:59:51 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1202211158090.31150@pobox.suse.cz>
+References: <4F3A80DC.4090203@iki.fi>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:50955 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:51107 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754584Ab2BUK4e (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Feb 2012 05:56:34 -0500
-In-Reply-To: <1329209433-8149-1-git-send-email-Denis.Kovalev@dataart.com>
+	id S1754552Ab2BUK7w (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Feb 2012 05:59:52 -0500
+In-Reply-To: <4F3A80DC.4090203@iki.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Denis Kovalev <Denis.Kovalev@dataart.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ville Ranki <ville.ranki@iki.fi>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Tue, 14 Feb 2012, Denis Kovalev wrote:
+On Tue, 14 Feb 2012, Ville Ranki wrote:
 
-> Signed-off-by: Denis Kovalev <Denis.Kovalev@dataart.com>
-> ---
->  drivers/hid/Kconfig          |    1 +
->  drivers/hid/hid-core.c       |    2 ++
->  drivers/hid/hid-ids.h        |    6 +++++-
->  drivers/hid/hid-multitouch.c |   19 +++++++++++++++----
->  4 files changed, 23 insertions(+), 5 deletions(-)
+> CH Fighterstick requires HID_QUIRK_NOGET as many other
+> CH devices do. This patch adds device id for Fighterstick
+> and adds necessary line to HID quirk list.
 
-Adjusted commit message, fixed a trivial conflict in multitouch branch 
-(MT_CLS value needed to be changed) and applied, thanks Denis.
+Your patch has been damaged by your e-mail client (line wrapped). I have 
+fixed that up manually and applied, but please keep that in mind for your 
+future patch submissions.
+
+Thanks,
 
 -- 
 Jiri Kosina

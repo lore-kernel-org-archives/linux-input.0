@@ -1,67 +1,42 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH] hid-magicmouse: Add pointer and buttonpad properties
- for Magic Trackpad
-Date: Tue, 21 Feb 2012 21:53:22 +0100
-Message-ID: <4F440442.9040909@canonical.com>
-References: <1329192751-6041-1-git-send-email-chase.douglas@canonical.com> <alpine.LNX.2.00.1202211152220.31150@pobox.suse.cz> <4F437D46.6090604@canonical.com> <alpine.LNX.2.00.1202211422190.31150@pobox.suse.cz>
+From: Andreas =?iso-8859-1?Q?H=FCbner?= <andreas@k4n.de>
+Subject: Re: Saitek PS1000 gamepad - HID descriptor wonky
+Date: Wed, 22 Feb 2012 01:50:41 +0100
+Message-ID: <20120222005037.GA28945@tapura.fritz.box>
+References: <20111123084340.GA18805@tapura>
+ <3b70c0a60fd5821240583b7b5c1412b0.squirrel@host171.canaca.com>
+ <20111124081205.GA22623@tapura>
+ <30cc35606560d634477e2a288bdf6db3.squirrel@host171.canaca.com>
+ <20111208123424.GA1298@tapura>
+ <a8799dfc5b69fd158ec54b099d231961.squirrel@host171.canaca.com>
+ <20111210131702.GA5620@tapura>
+ <d13c53ac7f835eaff26cfc2aae0fac6c.squirrel@mungewell.org>
+ <20111211214010.GA14046@tapura>
+ <98f3f0015149c06f45aa0af8e5851777.squirrel@host171.canaca.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:43272 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754088Ab2BUUxY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Feb 2012 15:53:24 -0500
-In-Reply-To: <alpine.LNX.2.00.1202211422190.31150@pobox.suse.cz>
+Received: from v36691.1blu.de ([89.202.1.191]:44118 "EHLO v36691.1blu.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754265Ab2BVA4P (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Feb 2012 19:56:15 -0500
+Content-Disposition: inline
+In-Reply-To: <98f3f0015149c06f45aa0af8e5851777.squirrel@host171.canaca.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
+To: simon@mungewell.org
 Cc: linux-input@vger.kernel.org
 
-On 02/21/2012 02:22 PM, Jiri Kosina wrote:
-> On Tue, 21 Feb 2012, Chase Douglas wrote:
-> 
->>>> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
->>>> ---
->>>>  drivers/hid/hid-magicmouse.c |    2 ++
->>>>  1 files changed, 2 insertions(+), 0 deletions(-)
->>>>
->>>> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
->>>> index 2ab7175..7cf3ffe 100644
->>>> --- a/drivers/hid/hid-magicmouse.c
->>>> +++ b/drivers/hid/hid-magicmouse.c
->>>> @@ -418,6 +418,8 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
->>>>  		__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
->>>>  		__set_bit(BTN_TOOL_QUADTAP, input->keybit);
->>>>  		__set_bit(BTN_TOUCH, input->keybit);
->>>> +		__set_bit(INPUT_PROP_POINTER, input->propbit);
->>>> +		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
->>>>  	}
->>>>  
->>>>  	if (report_touches) {
->>>
->>> Applied, although a bit more verbose commit message would be welcome next 
->>> time :)
->>
->> Will you push this for 3.3, or keep it for 3.4?
-> 
-> As the old set of properties has been there since 2.6.37, I wasn't 
-> considering pushing this for 3.3 still. Do you feel otherwise?
+I'm finally coming back to this after quite some time.
 
-My concerns are:
+Tried to find more info regarding the issue with the constant bit on those
+input reports, but I wasn't able to come up with anything useful.
+Windows just seems to ignore it.
 
-1. I have a branch for xf86-input-synaptics that makes clickpads work as
-they are meant to. It uses the buttonpad property to detect a clickpad.
-I hope it will be merged for the next release, which is very soon.
+Well, it's probably not worth it to spend anymore time on this, so I
+prepared a patch that fixes the report descriptor accordingly.
 
-2. I plan on pushing the clickpad stuff into Ubuntu Precise, which is
-based on 3.2. We prefer to cherry-pick from mainline. If it's going into
-3.3, we can wait until it gets there and cherry-pick. If not, then I can
-manually get the patch applied. I just need to know which route to take.
+I tried to follow the kernel patch policy, but since this is my first
+patch I might have screwed something up. Just let me know.
 
-I feel it should be pushed for 3.3. However, I have views that are far
-different from some others on the list about when properties should be
-added to the kernel.
 
--- Chase
+Andreas

@@ -1,39 +1,29 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Andreas =?iso-8859-1?Q?H=FCbner?= <andreas@k4n.de>
 Subject: Re: [PATCH 1/1] HID: new driver for non-compliant Saitek devices
-Date: Wed, 22 Feb 2012 13:21:55 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1202221321420.31150@pobox.suse.cz>
-References: <1329873006-29473-1-git-send-email-andreas@k4n.de> <alpine.LNX.2.00.1202221134040.31150@pobox.suse.cz> <20120222122028.GA1634@tapura>
+Date: Wed, 22 Feb 2012 13:46:58 +0100
+Message-ID: <20120222124657.GA1682@tapura>
+References: <1329873006-29473-1-git-send-email-andreas@k4n.de>
+ <alpine.LNX.2.00.1202221134040.31150@pobox.suse.cz>
+ <20120222122028.GA1634@tapura>
+ <alpine.LNX.2.00.1202221321420.31150@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:44809 "EHLO mx2.suse.de"
+Received: from v36691.1blu.de ([89.202.1.191]:42473 "EHLO v36691.1blu.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751845Ab2BVMV5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Feb 2012 07:21:57 -0500
-In-Reply-To: <20120222122028.GA1634@tapura>
+	id S1750834Ab2BVMqv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Feb 2012 07:46:51 -0500
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1202221321420.31150@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Andreas_H=FCbner?= <andreas@k4n.de>
+To: Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input@vger.kernel.org
 
-On Wed, 22 Feb 2012, Andreas H=FCbner wrote:
+On Wed, Feb 22, 2012 at 01:21:55PM +0100, Jiri Kosina wrote:
+> I will fix it up in the tree with your Reported-by: tag, is that fine?
 
-> Looking through the patch again this morning, I noticed I made a mist=
-ake
-> in hid-ids.h. (copy'n'paste error, maybe it was a bit too late yester=
-day)
->=20
->=20
-> How do you want me to handle this? Resubmit the original patch?
+Sure, sorry for the inconvenience.
 
-I will fix it up in the tree with your Reported-by: tag, is that fine?
 
---=20
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Andreas

@@ -1,105 +1,217 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH] CHROMIUM: Input: synaptics - filter out the events with
- low z values
-Date: Wed, 22 Feb 2012 21:12:30 +0800
-Message-ID: <CAGS+omB0GCQHOjrb_T6h7DzHrH2sp4Xqb5av6JC-ttJ8HZ5BcQ@mail.gmail.com>
-References: <1329896503-28394-1-git-send-email-cywang@chromium.org>
- <20120222083858.GA26570@polaris.bitmath.org> <CAGS+omCU9f=DyC442+4HOF=sGhZYXne+E2ephFiOmuj-XKciMA@mail.gmail.com>
- <20120222110459.GA28126@polaris.bitmath.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Tai-hwa Liang <avatar@sentelic.com>
+Subject: [PATCH 1/5] Input: sentelic - code refactorying for upcoming new hardware support
+Date: Wed, 22 Feb 2012 21:52:33 +0800
+Message-ID: <1329918757-16128-2-git-send-email-avatar@sentelic.com>
+References: <1329918757-16128-1-git-send-email-avatar@sentelic.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:48139 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751472Ab2BVNMw convert rfc822-to-8bit (ORCPT
+Received: from hermod.sentelic.com ([203.69.18.19]:3147 "EHLO
+	hermod.sentelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751985Ab2BVNxL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Feb 2012 08:12:52 -0500
-Received: by iacb35 with SMTP id b35so13671iac.19
-        for <linux-input@vger.kernel.org>; Wed, 22 Feb 2012 05:12:51 -0800 (PST)
-In-Reply-To: <20120222110459.GA28126@polaris.bitmath.org>
+	Wed, 22 Feb 2012 08:53:11 -0500
+In-Reply-To: <1329918757-16128-1-git-send-email-avatar@sentelic.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Chung-yih Wang <cywang@chromium.org>, Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Tai-hwa Liang <avatar@sentelic.com>
 
-On Wed, Feb 22, 2012 at 7:04 PM, Henrik Rydberg <rydberg@euromail.se> w=
-rote:
-> Hi Daniel,
->
->> > So if num_fingers =3D=3D 2 and only one of a and b returns
->> > finger_touched() =3D=3D true, we fall back to zero fingers?
->>
->> Actually, yes. =A0 In this case, we will have 2 x's and 2 y's, but n=
-ot
->> know which belong to a good finger and which belong to a too light
->> finger.... =A0sigh... synaptics... sigh...
->
-> I see the problem. However, ignoring it will just move the problem
-> forward to another bug report, will it not? =A0Hysteresis is a slam d=
-unk
-> here. =A0In addition, since the low-pressure state is bound to be
-> transitional (soon to be followed by a real num_fingers=3D=3D1 packag=
-e),
-> simply skipping such packages might be a better option.
+- Moving event bits setup code to a separated function,
+  fsp_set_input_params(), such that we can perform hardware specific settings
+  in the future;
+- Taking hardware version information into account when activating
+  protocol;
+- Removing button information from boot message as it's somewhat confusing
+  and is only for internal processing.  Whilst here, also moving button
+  retrieving code to be a part of protocol activation process.
 
-In practice, we don't actually see the profile sensor pad sending one
-low-z finger, and one high-z finger.  In the case where one finger is
-solidly on the pad, and another finger is hovering, lifting, or
-alighting, the pad sends 2 high-z fingers, with one of them having a
-completely wrong x or y coordinate.  The two reported z-values are
-nearly, but not exactly, identical.  I can't think of good fix for
-this, other than adding finger tracking and filtering out via
-'moved-too-far-too-fast', where possible, and I'd prefer that this be
-handled in userspace.  The 1-low-z && 1-high-z case that we are
-discussing here isn't actually ever triggered; either both fingers are
-high-z, or neither are.
+Signed-off-by: Tai-hwa Liang <avatar@sentelic.com>
+---
+ drivers/input/mouse/sentelic.c |  106 +++++++++++++++++++++++----------------
+ drivers/input/mouse/sentelic.h |   13 +++++-
+ 2 files changed, 74 insertions(+), 45 deletions(-)
 
-The real usefulness of this patch is filtering out the 1-low-z-finger
-and 2-low-z fingers cases.
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index e36847d..0ce090b 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -745,37 +745,64 @@ static int fsp_activate_protocol(struct psmouse *psmouse)
+ 		return -EIO;
+ 	}
+ 
+-	if (fsp_reg_read(psmouse, FSP_REG_SYSCTL5, &val)) {
+-		dev_err(&psmouse->ps2dev.serio->dev,
+-			"Unable to read SYSCTL5 register.\n");
+-		return -EIO;
+-	}
++	if (pad->ver < FSP_VER_STL3888_C0) {
++		/* Preparing relative coordinates output for older hardware */
++		if (fsp_reg_read(psmouse, FSP_REG_SYSCTL5, &val)) {
++			dev_err(&psmouse->ps2dev.serio->dev,
++				"Unable to read SYSCTL5 register.\n");
++			return -EIO;
++		}
+ 
+-	val &= ~(FSP_BIT_EN_MSID7 | FSP_BIT_EN_MSID8 | FSP_BIT_EN_AUTO_MSID8);
+-	/* Ensure we are not in absolute mode */
+-	val &= ~FSP_BIT_EN_PKT_G0;
+-	if (pad->buttons == 0x06) {
+-		/* Left/Middle/Right & Scroll Up/Down/Right/Left */
+-		val |= FSP_BIT_EN_MSID6;
+-	}
++		if (fsp_get_buttons(psmouse, &pad->buttons)) {
++			dev_err(&psmouse->ps2dev.serio->dev,
++				"Unable to retrieve number of buttons.\n");
++			return -EIO;
++		}
+ 
+-	if (fsp_reg_write(psmouse, FSP_REG_SYSCTL5, val)) {
+-		dev_err(&psmouse->ps2dev.serio->dev,
+-			"Unable to set up required mode bits.\n");
+-		return -EIO;
++		val &= ~(FSP_BIT_EN_MSID7 | FSP_BIT_EN_MSID8 | FSP_BIT_EN_AUTO_MSID8);
++		/* Ensure we are not in absolute mode */
++		val &= ~FSP_BIT_EN_PKT_G0;
++		if (pad->buttons == 0x06) {
++			/* Left/Middle/Right & Scroll Up/Down/Right/Left */
++			val |= FSP_BIT_EN_MSID6;
++		}
++
++		if (fsp_reg_write(psmouse, FSP_REG_SYSCTL5, val)) {
++			dev_err(&psmouse->ps2dev.serio->dev,
++				"Unable to set up required mode bits.\n");
++			return -EIO;
++		}
++
++		/*
++		 * Enable OPC tags such that driver can tell the difference
++		 * between on-pad and real button click
++		 */
++		if (fsp_opc_tag_enable(psmouse, true))
++			dev_warn(&psmouse->ps2dev.serio->dev,
++				 "Failed to enable OPC tag mode.\n");
++		/* enable on-pad click by default */
++		pad->flags |= FSPDRV_FLAG_EN_OPC;
++
++		/* Enable on-pad vertical and horizontal scrolling */
++		fsp_onpad_vscr(psmouse, true);
++		fsp_onpad_hscr(psmouse, true);
+ 	}
+ 
+-	/*
+-	 * Enable OPC tags such that driver can tell the difference between
+-	 * on-pad and real button click
+-	 */
+-	if (fsp_opc_tag_enable(psmouse, true))
+-		dev_warn(&psmouse->ps2dev.serio->dev,
+-			 "Failed to enable OPC tag mode.\n");
++	return 0;
++}
++
++static int fsp_set_input_params(struct psmouse *psmouse)
++{
++	struct input_dev *dev = psmouse->dev;
++	struct fsp_data *pad = psmouse->private;
+ 
+-	/* Enable on-pad vertical and horizontal scrolling */
+-	fsp_onpad_vscr(psmouse, true);
+-	fsp_onpad_hscr(psmouse, true);
++	if (pad->ver < FSP_VER_STL3888_C0) {
++		__set_bit(BTN_MIDDLE, dev->keybit);
++		__set_bit(BTN_BACK, dev->keybit);
++		__set_bit(BTN_FORWARD, dev->keybit);
++		__set_bit(REL_WHEEL, dev->relbit);
++		__set_bit(REL_HWHEEL, dev->relbit);
++	}
+ 
+ 	return 0;
+ }
+@@ -833,18 +860,16 @@ static int fsp_reconnect(struct psmouse *psmouse)
+ int fsp_init(struct psmouse *psmouse)
+ {
+ 	struct fsp_data *priv;
+-	int ver, rev, buttons;
++	int ver, rev;
+ 	int error;
+ 
+ 	if (fsp_get_version(psmouse, &ver) ||
+-	    fsp_get_revision(psmouse, &rev) ||
+-	    fsp_get_buttons(psmouse, &buttons)) {
++	    fsp_get_revision(psmouse, &rev)) {
+ 		return -ENODEV;
+ 	}
+ 
+-	psmouse_info(psmouse,
+-		     "Finger Sensing Pad, hw: %d.%d.%d, sw: %s, buttons: %d\n",
+-		     ver >> 4, ver & 0x0F, rev, fsp_drv_ver, buttons & 7);
++	psmouse_info(psmouse, "Finger Sensing Pad, hw: %d.%d.%d, sw: %s\n",
++		     ver >> 4, ver & 0x0F, rev, fsp_drv_ver);
+ 
+ 	psmouse->private = priv = kzalloc(sizeof(struct fsp_data), GFP_KERNEL);
+ 	if (!priv)
+@@ -852,17 +877,6 @@ int fsp_init(struct psmouse *psmouse)
+ 
+ 	priv->ver = ver;
+ 	priv->rev = rev;
+-	priv->buttons = buttons;
+-
+-	/* enable on-pad click by default */
+-	priv->flags |= FSPDRV_FLAG_EN_OPC;
+-
+-	/* Set up various supported input event bits */
+-	__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
+-	__set_bit(BTN_BACK, psmouse->dev->keybit);
+-	__set_bit(BTN_FORWARD, psmouse->dev->keybit);
+-	__set_bit(REL_WHEEL, psmouse->dev->relbit);
+-	__set_bit(REL_HWHEEL, psmouse->dev->relbit);
+ 
+ 	psmouse->protocol_handler = fsp_process_byte;
+ 	psmouse->disconnect = fsp_disconnect;
+@@ -870,11 +884,15 @@ int fsp_init(struct psmouse *psmouse)
+ 	psmouse->cleanup = fsp_reset;
+ 	psmouse->pktsize = 4;
+ 
+-	/* set default packet output based on number of buttons we found */
+ 	error = fsp_activate_protocol(psmouse);
+ 	if (error)
+ 		goto err_out;
+ 
++	/* Set up various supported input event bits */
++	error = fsp_set_input_params(psmouse);
++	if (error)
++		goto err_out;
++
+ 	error = sysfs_create_group(&psmouse->ps2dev.serio->dev.kobj,
+ 				   &fsp_attribute_group);
+ 	if (error) {
+diff --git a/drivers/input/mouse/sentelic.h b/drivers/input/mouse/sentelic.h
+index 2e4af24..23bd25e 100644
+--- a/drivers/input/mouse/sentelic.h
++++ b/drivers/input/mouse/sentelic.h
+@@ -64,12 +64,23 @@
+ #define	FSP_PKT_TYPE_NORMAL_OPC	(0x03)
+ #define	FSP_PKT_TYPE_SHIFT	(6)
+ 
++/* hardware revisions */
++#define	FSP_VER_STL3888_A4	(0xC1)
++#define	FSP_VER_STL3888_B0	(0xD0)
++#define	FSP_VER_STL3888_B1	(0xD1)
++#define	FSP_VER_STL3888_B2	(0xD2)
++#define	FSP_VER_STL3888_C0	(0xE0)
++#define	FSP_VER_STL3888_C1	(0xE1)
++#define	FSP_VER_STL3888_D0	(0xE2)
++#define	FSP_VER_STL3888_D1	(0xE3)
++#define	FSP_VER_STL3888_E0	(0xE4)
++
+ #ifdef __KERNEL__
+ 
+ struct fsp_data {
+ 	unsigned char	ver;		/* hardware version */
+ 	unsigned char	rev;		/* hardware revison */
+-	unsigned char	buttons;	/* Number of buttons */
++	unsigned int	buttons;	/* Number of buttons */
+ 	unsigned int	flags;
+ #define	FSPDRV_FLAG_EN_OPC	(0x001)	/* enable on-pad clicking */
+ 
+-- 
+1.7.9
 
-As for the hypothetical 1-finger-hi, 1-finger-low case, which I asked
-Chung-yih to add because it seemed like a good idea in theory...
-
-Yes, I think you have a good point.  Thanks to evdev's stateful
-nature, simply skipping the (1-strong,1-weak) packet might actually
-work better than forcing num_fingers =3D=3D 0.
-
-=46or cases where a second finger is temporarily reporting low-z becaus=
-e
-it is arriving or leaving, evdev would just lock the (1 or 2 initial)
-fingers in their current position until the transition is over, and
-then start reporting the new number of fingers at their new positions.
-
-=46or cases where there is one high-z finger, and a hovering thumb or
-palm triggers 2-finger reporting temporarily (without ever going above
-the threshold), the original finger will get frozen in its current
-position until the hovering finger is no longer detected, and then
-snap to its new position.  This might cause strange sudden jumps, but
-that seems unavoidable.
-
-I'm not sure hysteresis is a "slam dunk"...  in fact, I don't see how
-it would help much.  But, it is hard to argue against adding the
-functionality, since the hysteresis window can be made arbitrarily
-small.  Perhaps if you are inclined, you can elaborate on why you
-think it is important.
-
-Thanks for you excellent feedback!
--Daniel
-
->
->> > Why not introduce hysteresis for all fingers here? There is an exa=
-mple
->> > implementation in bcm5974.c in the same directory.
->>
->> Good idea, can it be in a different, follow-up patch?
->
-> Why should it be?
->
-> Thanks,
-> Henrik
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

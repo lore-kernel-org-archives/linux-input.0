@@ -1,47 +1,52 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH] CHROMIUM: Input: synaptics - filter out the events with
- low z values
-Date: Wed, 22 Feb 2012 12:04:59 +0100
-Message-ID: <20120222110459.GA28126@polaris.bitmath.org>
-References: <1329896503-28394-1-git-send-email-cywang@chromium.org>
- <20120222083858.GA26570@polaris.bitmath.org>
- <CAGS+omCU9f=DyC442+4HOF=sGhZYXne+E2ephFiOmuj-XKciMA@mail.gmail.com>
+From: Andreas =?iso-8859-1?Q?H=FCbner?= <andreas@k4n.de>
+Subject: Re: [PATCH 1/1] HID: new driver for non-compliant Saitek devices
+Date: Wed, 22 Feb 2012 13:20:31 +0100
+Message-ID: <20120222122028.GA1634@tapura>
+References: <1329873006-29473-1-git-send-email-andreas@k4n.de>
+ <alpine.LNX.2.00.1202221134040.31150@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="yrj/dFKFPuw6o+aM"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:39291 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754152Ab2BVLFM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Feb 2012 06:05:12 -0500
+Received: from v36691.1blu.de ([89.202.1.191]:33874 "EHLO v36691.1blu.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751845Ab2BVMU3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Feb 2012 07:20:29 -0500
 Content-Disposition: inline
-In-Reply-To: <CAGS+omCU9f=DyC442+4HOF=sGhZYXne+E2ephFiOmuj-XKciMA@mail.gmail.com>
+In-Reply-To: <alpine.LNX.2.00.1202221134040.31150@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Chung-yih Wang <cywang@chromium.org>, Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-Hi Daniel,
 
-> > So if num_fingers == 2 and only one of a and b returns
-> > finger_touched() == true, we fall back to zero fingers?
-> 
-> Actually, yes.   In this case, we will have 2 x's and 2 y's, but not
-> know which belong to a good finger and which belong to a too light
-> finger....  sigh... synaptics... sigh...
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I see the problem. However, ignoring it will just move the problem
-forward to another bug report, will it not?  Hysteresis is a slam dunk
-here.  In addition, since the low-pressure state is bound to be
-transitional (soon to be followed by a real num_fingers==1 package),
-simply skipping such packages might be a better option.
+Looking through the patch again this morning, I noticed I made a mistake
+in hid-ids.h. (copy'n'paste error, maybe it was a bit too late yesterday)
 
-> > Why not introduce hysteresis for all fingers here? There is an example
-> > implementation in bcm5974.c in the same directory.
-> 
-> Good idea, can it be in a different, follow-up patch?
 
-Why should it be?
+How do you want me to handle this? Resubmit the original patch?
 
-Thanks,
-Henrik
+Andreas
+
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="saitek.patch"
+
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index dc3dee5..9d18ec0 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -613,7 +613,7 @@
+ 
+ #define USB_VENDOR_ID_SAITEK		0x06a3
+ #define USB_DEVICE_ID_SAITEK_RUMBLEPAD	0xff17
+-#define USB_DEVICE_ID_SAITEK_PS1000	0xff17
++#define USB_DEVICE_ID_SAITEK_PS1000	0x0621
+ 
+ #define USB_VENDOR_ID_SAMSUNG		0x0419
+ #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
+
+--yrj/dFKFPuw6o+aM--

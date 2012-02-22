@@ -1,67 +1,82 @@
-From: shawn <shawnlandden@gmail.com>
-Subject: usb touch screen of Mimo 720 has x,y rotated 180 degrees
-Date: Wed, 22 Feb 2012 13:18:54 -0800
-Message-ID: <1329945534.2237.13.camel@ssd-ubuntu>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH v3 7/7] input: wacom - add 0xE5 (MT device) support
+Date: Wed, 22 Feb 2012 15:33:22 -0800
+Message-ID: <CANRwn3QhsCQNU9MtLt9+SaJBrA4nzVZp=4NYYc3Qw-+h9BTcvA@mail.gmail.com>
+References: <1328997334-24140-1-git-send-email-chris@cnpbagwell.com>
+	<20120220082415.GA6525@polaris.bitmath.org>
+	<CAGzDe_bJ1-9qqrNeOt-6-7s++JLQ-x-xpLcrVWTJNWQ95W-P+g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-CUaC+5Ah9xa6yw3bz1sV"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:59169 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752608Ab2BVVS5 (ORCPT
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:43934 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753155Ab2BVXdX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Feb 2012 16:18:57 -0500
-Received: by daed14 with SMTP id d14so451382dae.19
-        for <linux-input@vger.kernel.org>; Wed, 22 Feb 2012 13:18:57 -0800 (PST)
+	Wed, 22 Feb 2012 18:33:23 -0500
+Received: by wics10 with SMTP id s10so389475wic.19
+        for <linux-input@vger.kernel.org>; Wed, 22 Feb 2012 15:33:22 -0800 (PST)
+In-Reply-To: <CAGzDe_bJ1-9qqrNeOt-6-7s++JLQ-x-xpLcrVWTJNWQ95W-P+g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Chris Bagwell <chris@cnpbagwell.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Ping Cheng <pingc@wacom.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
+On Mon, Feb 20, 2012 at 11:30 AM, Chris Bagwell <chris@cnpbagwell.com> =
+wrote:
+> On Mon, Feb 20, 2012 at 2:24 AM, Henrik Rydberg <rydberg@euromail.se>=
+ wrote:
+>> Hi Chris,
+>>
+>> The input_mt_report_slot_state should be used instead of directly
+>> setting the tracking id. If the id reported by the hardware is not
+>> bounded by some small number (so that it maps to slots), you will ha=
+ve
+>> to keep the translation table in the driver.
+>>
+>> Also, the commit message could need some love.
+>>
+>> Thanks,
+>> Henrik
+>
+> Thank you for review, Henrik.
+>
+> Makes sense. =C2=A0hid-multitouch has an example find_slot_from_conta=
+ctid()
+> that could be used as reference here if the ID's are not bound.
+>
+> I'll have to table patches 6 and 7 until either Ping is available to
+> update them or can provide me some more details on tracking ID
+> behavior.
+>
+> Anyone have comments on patches 1-5 that are for Wireless Bamboo supp=
+ort?
+>
+> Thanks again,
+> Chris
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =C2=A0http://vger.kernel.org/majordomo-info.ht=
+ml
 
---=-CUaC+5Ah9xa6yw3bz1sV
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Chris,
 
-I just got a Mimo 720 usb-only touchscreen. using module
-"usbtouchscreen"
-The x and y are rotated 180 deg.
+I got my hands on the hardware, and it looks like the it keeps track
+of the total number of touches that have occurred since it was plugged
+in. The 1st touch gets an ID of 1, the 10th an ID of 10, and the 100th
+an ID of 100. The 256th touch overflows the available byte of space
+and is assigned an ID of 0.
 
-While I initially thought the touch device used by usbtouchscreen.c was 
-17e9:401a, it turns out it is is 1ac7:0001, which matches it's controller, but
-is a problem as this may be the only model where x any y are 180 deg off.
+Jason
 
-The module has an option to rotate 90 deg, and with a 180 deg rotation parameter
-we could support all possible rotations from mis-installations (if that is what this is).
-
-Would it make sense to add a parameter to flip a usbtouchscreen 180 deg, and if so,
-should that setting apply to every (or most) displays in the module, or just
-this one where there is a backwards implamentations?
-I see that some touchscreens already invert one or both of their axis' from the input.
-
-Inc. patch that inverts _all_ e2i touchscreens. I came across this on 3.2.2
-
-computer information: https://bugzilla.kernel.org/show_bug.cgi?id=42743
-
---=-CUaC+5Ah9xa6yw3bz1sV
-Content-Description: 
-Content-Disposition: attachment; filename="invert_e2i_touchscreen_fix_mimo720.patch"
-Content-Type: text/plain; name="invert_e2i_touchscreen_fix_mimo720.patch"; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index 73fd664..a9f2303 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -265,8 +265,8 @@ static int e2i_init(struct usbtouch_usb *usbtouch)
- static int e2i_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
- {
- 	int tmp = (pkt[0] << 8) | pkt[1];
--	dev->x  = (pkt[2] << 8) | pkt[3];
--	dev->y  = (pkt[4] << 8) | pkt[5];
-+	dev->x  = 0x7fff - ((pkt[2] << 8) | pkt[3]);
-+	dev->y  = 0x7fff - ((pkt[4] << 8) | pkt[5]);
- 
- 	tmp = tmp - 0xA000;
- 	dev->touch = (tmp > 0);
-
---=-CUaC+5Ah9xa6yw3bz1sV--
-
+---
+Day xee-nee-svsh duu-'ushtlh-ts'it;
+nuu-wee-ya' duu-xan' 'vm-nvshtlh-ts'it.
+Huu-chan xuu naa~-gha.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

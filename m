@@ -1,98 +1,91 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: Re: [PATCH 1/1] Input: cyttsp - Fix check after pointer dereferencing
-Date: Thu, 23 Feb 2012 13:33:09 +0100
-Message-ID: <CABxcv=mYjk+kFkT-bWfLgda3GAy5HhSoCsg+H6iFbJTg1FZLfg@mail.gmail.com>
-References: <1329302572-1651-1-git-send-email-javier@dowhile0.org>
+From: Akio Idehara <zbe64533@gmail.com>
+Subject: Re: [PATCH v2] Input: ALPS - Fix ALPS touchpad detection
+Date: Thu, 23 Feb 2012 23:41:11 +0900
+Message-ID: <4F465007.30304@gmail.com>
+References: <4F3D009B.8080506@gmail.com> <20120216143210.GA30486@ubuntu-macmini>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:44412 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752429Ab2BWMdK convert rfc822-to-8bit (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:41269 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755367Ab2BWOlQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Feb 2012 07:33:10 -0500
-Received: by iacb35 with SMTP id b35so1480271iac.19
-        for <linux-input@vger.kernel.org>; Thu, 23 Feb 2012 04:33:10 -0800 (PST)
-In-Reply-To: <1329302572-1651-1-git-send-email-javier@dowhile0.org>
+	Thu, 23 Feb 2012 09:41:16 -0500
+In-Reply-To: <20120216143210.GA30486@ubuntu-macmini>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dan Carpenter <dan.carpenter@oracle.com>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, dtor@mail.ru
+Cc: seth.forshee@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, rdunlap@xenotime.net, gregkh@linuxfoundation.org, torvalds@linux-foundation.org
 
-On Wed, Feb 15, 2012 at 11:42 AM, Javier Martinez Canillas
-<javier@dowhile0.org> wrote:
-> From: Javier Martinez Canillas <martinez.javier@dowhile0.org>
->
-> In the cyttsp_probe() function the struct device *dev pointer was
-> dereferenced before checking if it was NULL.
->
-> Now dev is never NULL since both I2C and SPI bus drivers pass a point=
-er to a
-> member of an previously allocated structure. But others bus drivers c=
-an do
-> it differently so is better to sanity check instead of trust in the c=
-allers.
->
-> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-> Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
-> ---
-> =C2=A0drivers/input/touchscreen/cyttsp_core.c | =C2=A0 11 +++++++++--
-> =C2=A01 files changed, 9 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/=
-touchscreen/cyttsp_core.c
-> index 8be2247..071e5ae8 100644
-> --- a/drivers/input/touchscreen/cyttsp_core.c
-> +++ b/drivers/input/touchscreen/cyttsp_core.c
-> @@ -518,12 +518,19 @@ static void cyttsp_close(struct input_dev *dev)
-> =C2=A0struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_op=
-s,
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 =C2=A0 =C2=A0struct device *dev, int irq, size_t xfer_bu=
-f_size)
-> =C2=A0{
-> - =C2=A0 =C2=A0 =C2=A0 const struct cyttsp_platform_data *pdata =3D d=
-ev->platform_data;
-> + =C2=A0 =C2=A0 =C2=A0 const struct cyttsp_platform_data *pdata;
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0struct cyttsp *ts;
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0struct input_dev *input_dev;
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0int error;
->
-> - =C2=A0 =C2=A0 =C2=A0 if (!dev || !bus_ops || !pdata || !pdata->name=
- || irq <=3D 0) {
-> + =C2=A0 =C2=A0 =C2=A0 if (!dev || !bus_ops || !dev->platform_data ||=
- irq <=3D 0) {
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 error =3D -EINVAL;
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto err_out;
-> + =C2=A0 =C2=A0 =C2=A0 }
-> +
-> + =C2=A0 =C2=A0 =C2=A0 pdata =3D dev->platform_data;
-> +
-> + =C2=A0 =C2=A0 =C2=A0 if (!pdata->name) {
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0error =3D -EIN=
-VAL;
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto err_out;
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0}
-> --
-> 1.7.7.6
->
+This is definitely a bug which isn't fixed for nine years.
+Why this patch isn't applied to the input sub-system (or mainline)?
 
-Hello,
+Seth Forshee wrote:
+> On Thu, Feb 16, 2012 at 10:11:55PM +0900, Akio Idehara wrote:
+>> ALPS touchpad detection fails if some buttons of ALPS are pressed.
+>> The reason is that the "E6" query response byte is different from
+>> what is expected.
+>> This was tested on a Toshiba Portege R500.
+>>
+>> Cc: stable<stable@vger.kernel.org>
+>> Signed-off-by: Akio Idehara<zbe64533@gmail.com>
+>
+> This version is working fine for me. Thanks!
+>
+> Tested-by: Seth Forshee<seth.forshee@canonical.com>
 
-Any feedback on this?
+  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ALPS touchpad detection fails if some buttons of ALPS are pressed.
+The reason is that the "E6" query response byte is different from
+what is expected.
+This was tested on a Toshiba Portege R500.
 
-Is not a bug with today cyttsp driver since both I2C and SPI transport
-drivers can't pass a NULL pointer, but I think Dan is right that is
-better to sanity check since others transport drivers can be added in
-the future.
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Akio Idehara <zbe64533@gmail.com>
+Tested-by: Seth Forshee<seth.forshee@canonical.com>
+---
+     Documentation/input/alps.txt |    3 ++-
+     drivers/input/mouse/alps.c   |    7 +++++--
+     2 files changed, 7 insertions(+), 3 deletions(-)
 
-Or this check is being to paranoiac?
+diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
+index f274c28..2f95308 100644
+--- a/Documentation/input/alps.txt
++++ b/Documentation/input/alps.txt
+@@ -13,7 +13,8 @@ Detection
 
-Regards,
-Javier
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+     All ALPS touchpads should respond to the "E6 report" command sequence:
+     E8-E6-E6-E6-E9. An ALPS touchpad should respond with either 00-00-0A or
+-00-00-64.
++00-00-64 if no buttons are pressed. The bits 0-2 of the first byte will be 1s
++if some buttons are pressed.
+
+     If the E6 report is successful, the touchpad model is identified using the "E7
+     report" sequence: E8-E7-E7-E7-E9. The response is the model signature and is
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index bd87380..4c6a72d 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -952,7 +952,9 @@ static const struct alps_model_info *alps_get_model(struct psmouse *psmouse, int
+
+     	/*
+     	 * First try "E6 report".
+-	 * ALPS should return 0,0,10 or 0,0,100
++	 * ALPS should return 0,0,10 or 0,0,100 if no buttons are pressed.
++	 * The bits 0-2 of the first byte will be 1s if some buttons are
++	 * pressed.
+     	 */
+     	param[0] = 0;
+     	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES) ||
+@@ -968,7 +970,8 @@ static const struct alps_model_info *alps_get_model(struct psmouse *psmouse, int
+     	psmouse_dbg(psmouse, "E6 report: %2.2x %2.2x %2.2x",
+     		    param[0], param[1], param[2]);
+
+-	if (param[0] != 0 || param[1] != 0 || (param[2] != 10 && param[2] != 100))
++	if ((param[0] & 0xf8) != 0 || param[1] != 0 ||
++	    (param[2] != 10 && param[2] != 100))
+     		return NULL;
+
+     	/*
+-- 1.7.9

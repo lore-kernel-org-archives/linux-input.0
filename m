@@ -1,53 +1,98 @@
-From: Shubhrajyoti <shubhrajyoti@ti.com>
-Subject: Re: [PATCH 2/2] Input/spear-keyboard: Provide thaw and poweroff routines
-Date: Thu, 23 Feb 2012 17:41:04 +0530
-Message-ID: <4F462CD8.4050808@ti.com>
-References: <c65186b4c05cca4b233a56630a87b7e7c94ccc9d.1329990021.git.viresh.kumar@st.com> <94d1fcbd230297361d8137e06fdb5d4e2b741529.1329990021.git.viresh.kumar@st.com> <4F462319.9010602@ti.com> <4F462989.3000102@st.com>
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: Re: [PATCH 1/1] Input: cyttsp - Fix check after pointer dereferencing
+Date: Thu, 23 Feb 2012 13:33:09 +0100
+Message-ID: <CABxcv=mYjk+kFkT-bWfLgda3GAy5HhSoCsg+H6iFbJTg1FZLfg@mail.gmail.com>
+References: <1329302572-1651-1-git-send-email-javier@dowhile0.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog112.obsmtp.com ([74.125.149.207]:38721 "EHLO
-	na3sys009aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755036Ab2BWMLO (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:44412 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752429Ab2BWMdK convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Feb 2012 07:11:14 -0500
-Received: by mail-yx0-f179.google.com with SMTP id m14so706376yen.24
-        for <linux-input@vger.kernel.org>; Thu, 23 Feb 2012 04:11:13 -0800 (PST)
-In-Reply-To: <4F462989.3000102@st.com>
+	Thu, 23 Feb 2012 07:33:10 -0500
+Received: by iacb35 with SMTP id b35so1480271iac.19
+        for <linux-input@vger.kernel.org>; Thu, 23 Feb 2012 04:33:10 -0800 (PST)
+In-Reply-To: <1329302572-1651-1-git-send-email-javier@dowhile0.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Viresh Kumar <viresh.kumar@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Armando VISCONTI <armando.visconti@st.com>, Shiraz HASHIM <shiraz.hashim@st.com>, Vipin KUMAR <vipin.kumar@st.com>, Rajeev KUMAR <rajeev-dlh.kumar@st.com>, Deepak SIKRI <deepak.sikri@st.com>, Vipul Kumar SAMAR <vipulkumar.samar@st.com>, Amit VIRDI <Amit.VIRDI@st.com>, Pratyush ANAND <pratyush.anand@st.com>, Bhupesh SHARMA <bhupesh.sharma@st.com>, "viresh.linux@gmail.com" <viresh.linux@gmail.com>, Bhavna YADAV <bhavna.yadav@st.com>, Vincenzo FRASCINO <Vincenzo.FRASCINO@st.com>, Mirko GARDI <mirko.gardi@st.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dan Carpenter <dan.carpenter@oracle.com>, linux-input@vger.kernel.org
 
-On Thursday 23 February 2012 05:26 PM, Viresh Kumar wrote:
-> On 2/23/2012 4:59 PM, Shubhrajyoti wrote:
->>>> - Using test features, of hibernate.
->> Not a comment doubt
->>
->> When is thaw called and when is power off called?
-> Firstly freeze is called, after that snapshot of memory is taken
-> (to be saved in disk). Now, we need resume harddisk, so we get our
-> thaw routines called (analogous to resume). Now system is up again. Save
-> image to disk and call poweroff() to finally shutdown.
+On Wed, Feb 15, 2012 at 11:42 AM, Javier Martinez Canillas
+<javier@dowhile0.org> wrote:
+> From: Javier Martinez Canillas <martinez.javier@dowhile0.org>
 >
-> Refer Documentation/power/devices.txt to get complete sequence of calls.
-Makes sense thanks.
->>>> diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
->>>> index 6eb2dd8..6e83828 100644
->>>> --- a/drivers/input/keyboard/spear-keyboard.c
->>>> +++ b/drivers/input/keyboard/spear-keyboard.c
->>>> @@ -321,10 +321,7 @@ static int spear_kbd_resume(struct device *dev)
->>>>  	return 0;
->>>>  }
->>>>  
->>>> -static const struct dev_pm_ops spear_kbd_pm_ops = {
->>>> -	.suspend	= spear_kbd_suspend,
->>>> -	.resume		= spear_kbd_resume,
->>>> -};
->> Now that you have converted to simple dev pm can you remove the #ifdef
->> from pm.
->>
-> I didn't get it completely. CONFIG_PM Macro's are still required.
-The dev pm makes it empty so not required.
+> In the cyttsp_probe() function the struct device *dev pointer was
+> dereferenced before checking if it was NULL.
+>
+> Now dev is never NULL since both I2C and SPI bus drivers pass a point=
+er to a
+> member of an previously allocated structure. But others bus drivers c=
+an do
+> it differently so is better to sanity check instead of trust in the c=
+allers.
+>
+> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
+> ---
+> =C2=A0drivers/input/touchscreen/cyttsp_core.c | =C2=A0 11 +++++++++--
+> =C2=A01 files changed, 9 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/=
+touchscreen/cyttsp_core.c
+> index 8be2247..071e5ae8 100644
+> --- a/drivers/input/touchscreen/cyttsp_core.c
+> +++ b/drivers/input/touchscreen/cyttsp_core.c
+> @@ -518,12 +518,19 @@ static void cyttsp_close(struct input_dev *dev)
+> =C2=A0struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_op=
+s,
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0struct device *dev, int irq, size_t xfer_bu=
+f_size)
+> =C2=A0{
+> - =C2=A0 =C2=A0 =C2=A0 const struct cyttsp_platform_data *pdata =3D d=
+ev->platform_data;
+> + =C2=A0 =C2=A0 =C2=A0 const struct cyttsp_platform_data *pdata;
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0struct cyttsp *ts;
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0struct input_dev *input_dev;
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0int error;
+>
+> - =C2=A0 =C2=A0 =C2=A0 if (!dev || !bus_ops || !pdata || !pdata->name=
+ || irq <=3D 0) {
+> + =C2=A0 =C2=A0 =C2=A0 if (!dev || !bus_ops || !dev->platform_data ||=
+ irq <=3D 0) {
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 error =3D -EINVAL;
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto err_out;
+> + =C2=A0 =C2=A0 =C2=A0 }
+> +
+> + =C2=A0 =C2=A0 =C2=A0 pdata =3D dev->platform_data;
+> +
+> + =C2=A0 =C2=A0 =C2=A0 if (!pdata->name) {
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0error =3D -EIN=
+VAL;
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto err_out;
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0}
+> --
+> 1.7.7.6
+>
 
+Hello,
+
+Any feedback on this?
+
+Is not a bug with today cyttsp driver since both I2C and SPI transport
+drivers can't pass a NULL pointer, but I think Dan is right that is
+better to sanity check since others transport drivers can be added in
+the future.
+
+Or this check is being to paranoiac?
+
+Regards,
+Javier
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

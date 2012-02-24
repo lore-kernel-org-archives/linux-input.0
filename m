@@ -1,44 +1,39 @@
-From: Akio Idehara <zbe64533@gmail.com>
-Subject: Re: [PATCH v2] Input: ALPS - Fix ALPS touchpad detection
-Date: Fri, 24 Feb 2012 19:19:24 +0900
-Message-ID: <4F47642C.5090908@gmail.com>
-References: <4F3D009B.8080506@gmail.com> <20120216143210.GA30486@ubuntu-macmini> <4F465007.30304@gmail.com> <20120224081737.GA10763@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20120224081737.GA10763@core.coreip.homeip.net>
-Sender: linux-doc-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: seth.forshee@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, rdunlap@xenotime.net, gregkh@linuxfoundation.org, torvalds@linux-foundation.org
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: [PATCH 1/2] HID: wacom: set ABS_MISC bit for Intuos4 WL
+Date: Fri, 24 Feb 2012 13:47:48 +0000
+Message-ID: <1330091269-8765-1-git-send-email-przemo@firszt.eu>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from stats.peacock.arvixe.com ([174.122.104.67]:55146 "EHLO
+	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756508Ab2BXNsj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 24 Feb 2012 08:48:39 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz, pinglinux@gmail.com, chris@cnpbagwell.com
+Cc: linuxwacom-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Przemo Firszt <przemo@firszt.eu>
 
-Hi Dmitry,
+ABS_MISC has to be set for Intuos4 WL otherwise xorg driver won't use proper
+protocol and the information about tool id and serial is lost.
 
-I'm sorry that I hurry you and make you trouble with email setting.
+Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
+---
+ drivers/hid/hid-wacom.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-
-Regards, Akio.
-
-Dmitry Torokhov wrote:
-
-> Hi Akio,
->
-> On Thu, Feb 23, 2012 at 11:41:11PM +0900, Akio Idehara wrote:
->> This is definitely a bug which isn't fixed for nine years.
->> Why this patch isn't applied to the input sub-system (or mainline)?
->>
->
-> Well, if we waited for 9 years, we could wait for couple more days...
->
-> Also, please make sure you do not send patches as:
->
-> 	Content-Type: text/plain; charset=ISO-8859-1; format=flowed
->
-> as this requires fixing up the patch manually before it can be applied.
->
-> Anyway, applied, thank you.
->
-
-
+diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+index 696b907..a793753 100644
+--- a/drivers/hid/hid-wacom.c
++++ b/drivers/hid/hid-wacom.c
+@@ -471,6 +471,7 @@ static int wacom_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		input_set_abs_params(input, ABS_DISTANCE, 0, 32, 0, 0);
+ 		break;
+ 	case USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH:
++		__set_bit(ABS_MISC, input->absbit);
+ 		input_set_abs_params(input, ABS_X, 0, 40640, 4, 0);
+ 		input_set_abs_params(input, ABS_Y, 0, 25400, 4, 0);
+ 		input_set_abs_params(input, ABS_PRESSURE, 0, 2047, 0, 0);
+-- 
+1.7.6.4
 

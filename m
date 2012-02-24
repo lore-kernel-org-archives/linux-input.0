@@ -1,8 +1,8 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
 Subject: Re: [PATCH] CHROMIUM: Input: synaptics - filter out the events with
  low z values
-Date: Fri, 24 Feb 2012 01:16:02 -0800
-Message-ID: <20120224091602.GE10763@core.coreip.homeip.net>
+Date: Fri, 24 Feb 2012 10:23:51 +0100
+Message-ID: <20120224092351.GA2203@polaris.bitmath.org>
 References: <1329896503-28394-1-git-send-email-cywang@chromium.org>
  <20120222083858.GA26570@polaris.bitmath.org>
  <CAGS+omCU9f=DyC442+4HOF=sGhZYXne+E2ephFiOmuj-XKciMA@mail.gmail.com>
@@ -12,39 +12,50 @@ References: <1329896503-28394-1-git-send-email-cywang@chromium.org>
  <20120224082706.GB18291@core.coreip.homeip.net>
  <20120224090835.GA2154@polaris.bitmath.org>
  <20120224091452.GD10763@core.coreip.homeip.net>
+ <20120224091602.GE10763@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:60809 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755604Ab2BXJX4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 24 Feb 2012 04:23:56 -0500
 Content-Disposition: inline
-In-Reply-To: <20120224091452.GD10763@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, Chung-yih Wang <cywang@chromium.org>, Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20120224091602.GE10763@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Kurtz <djkurtz@chromium.org>, Chung-yih Wang <cywang@chromium.org>, Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Feb 24, 2012 at 01:14:52AM -0800, Dmitry Torokhov wrote:
-> On Fri, Feb 24, 2012 at 10:08:35AM +0100, Henrik Rydberg wrote:
-> > > > The most striking effect is the ability to better retain a
-> > > > drag. Although the statement was made in light of possible
-> > > > (1-strong,1-weak) packets, it should help in the 2-weak case too.
+On Fri, Feb 24, 2012 at 01:16:02AM -0800, Dmitry Torokhov wrote:
+> On Fri, Feb 24, 2012 at 01:14:52AM -0800, Dmitry Torokhov wrote:
+> > On Fri, Feb 24, 2012 at 10:08:35AM +0100, Henrik Rydberg wrote:
+> > > > > The most striking effect is the ability to better retain a
+> > > > > drag. Although the statement was made in light of possible
+> > > > > (1-strong,1-weak) packets, it should help in the 2-weak case too.
+> > > > 
+> > > > The bigger question is why is this needed in kernel. The original
+> > > > hysteresis with BTN_TOUCH was done for sole benefit of mousedev so that
+> > > > we could allow somewhat better transition from standard PS/2 mode into
+> > > > native Synaptics mode with absolute coordinates at time when barely
+> > > > anyone had Synaptics X driver installed. This was, what, 10 years ago?
 > > > 
-> > > The bigger question is why is this needed in kernel. The original
-> > > hysteresis with BTN_TOUCH was done for sole benefit of mousedev so that
-> > > we could allow somewhat better transition from standard PS/2 mode into
-> > > native Synaptics mode with absolute coordinates at time when barely
-> > > anyone had Synaptics X driver installed. This was, what, 10 years ago?
+> > > The semi-mt behavior is obviously a special case, where userspace
+> > > relies on the reported number of fingers to transition between one
+> > > touch and two touches. There is no pressure information sent to
+> > > userspace in this case, so the situation is in fact quite similar to
+> > > the ancient mousedev situation.
 > > 
-> > The semi-mt behavior is obviously a special case, where userspace
-> > relies on the reported number of fingers to transition between one
-> > touch and two touches. There is no pressure information sent to
-> > userspace in this case, so the situation is in fact quite similar to
-> > the ancient mousedev situation.
+> > We still report ABS_PRESSURE but maybe we should report ABS_MT_PRESSURE
+> > as well?
 > 
-> We still report ABS_PRESSURE but maybe we should report ABS_MT_PRESSURE
-> as well?
+> BTW, the reason I do not like this in kernel is because it dos not allow
+> users control touchpad sensitivity.
 
-BTW, the reason I do not like this in kernel is because it dos not allow
-users control touchpad sensitivity.
+...which is perfectly reasonable, I agree. OTOH, the semi-mt devices
+tend to report close-to-bogus information for anything related to
+individual touches. Pressure is sadly no different, as Daniel pointed
+out. I don't know what is the lesser evil here.
 
--- 
-Dmitry
+Henrik

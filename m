@@ -1,68 +1,64 @@
-From: Florian Mickler <florian@mickler.org>
-Subject: Re: multi-media key "mute" no longer recognized
-Date: Fri, 24 Feb 2012 00:08:26 +0100
-Message-ID: <20120224000826.05039158@schatten>
-References: <201201231152.25344.toralf.foerster@gmx.de>
+From: Viresh Kumar <viresh.kumar@st.com>
+Subject: [PATCH V2] Input/spear-keyboard: Provide thaw and poweroff routines
+Date: Fri, 24 Feb 2012 10:59:12 +0530
+Message-ID: <cd834b2f6765ec892f72ad4213c24093f659eb79.1329990021.git.viresh.kumar@st.com>
+References: <94d1fcbd230297361d8137e06fdb5d4e2b741529.1329990021.git.viresh.kumar@st.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
- boundary="Sig_/DPjb43P1iTL6f7sTIE6Acnc"; protocol="application/pgp-signature"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201201231152.25344.toralf.foerster@gmx.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Toralf =?ISO-8859-15?Q?F=F6rster?= <toralf.foerster@gmx.de>
-Cc: linux-kernel@vger.kernel.org, mjg@redhat.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eu1sys200aog119.obsmtp.com ([207.126.144.147]:41912 "EHLO
+	eu1sys200aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752558Ab2BXFsa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 24 Feb 2012 00:48:30 -0500
+In-Reply-To: <94d1fcbd230297361d8137e06fdb5d4e2b741529.1329990021.git.viresh.kumar@st.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, armando.visconti@st.com, shiraz.hashim@st.com, vipin.kumar@st.com, rajeev-dlh.kumar@st.com, deepak.sikri@st.com, vipulkumar.samar@st.com, amit.virdi@st.com, viresh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com, viresh.linux@gmail.com, bhavna.yadav@st.com, vincenzo.frascino@st.com, mirko.gardi@st.com
 
---Sig_/DPjb43P1iTL6f7sTIE6Acnc
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Thaw and poweroff routines are missing for spear-keyboard. They are required for:
+- Error case scenarios during freeze
+- Using test features, of hibernate.
 
-Let's try to cc some people...
+Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+Signed-off-by: Rajeev Kumar <rajeev-dlh.kumar@st.com>
+---
+Changes since V1:
+- moved spear_kbd_pm_ops's definition/usage outside of CONFIG_PM macro
 
-On Mon, 23 Jan 2012 11:52:24 +0100
-Toralf F=F6rster <toralf.foerster@gmx.de> wrote:
+ drivers/input/keyboard/spear-keyboard.c |    9 ++-------
+ 1 files changed, 2 insertions(+), 7 deletions(-)
 
-> With kernel 3.1.10 I could mute my system by pressing the appropriate=20
-> multimedia button either at my ThinkPad or at my external keyboard.
-> With 3.2.1 this doesn't work anymore although the button itself is recogn=
-ized=20
-> when pressed (checked with xev).
->=20
-> Now I'm wondering where to start to debug ?
->=20
+diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
+index 6eb2dd8..782e947 100644
+--- a/drivers/input/keyboard/spear-keyboard.c
++++ b/drivers/input/keyboard/spear-keyboard.c
+@@ -320,22 +320,17 @@ static int spear_kbd_resume(struct device *dev)
+ 
+ 	return 0;
+ }
+-
+-static const struct dev_pm_ops spear_kbd_pm_ops = {
+-	.suspend	= spear_kbd_suspend,
+-	.resume		= spear_kbd_resume,
+-};
+ #endif
+ 
++static SIMPLE_DEV_PM_OPS(spear_kbd_pm_ops, spear_kbd_suspend, spear_kbd_resume);
++
+ static struct platform_driver spear_kbd_driver = {
+ 	.probe		= spear_kbd_probe,
+ 	.remove		= __devexit_p(spear_kbd_remove),
+ 	.driver		= {
+ 		.name	= "keyboard",
+ 		.owner	= THIS_MODULE,
+-#ifdef CONFIG_PM
+ 		.pm	= &spear_kbd_pm_ops,
+-#endif
+ 	},
+ };
+ module_platform_driver(spear_kbd_driver);
+-- 
+1.7.8.110.g4cb5d
 
-In https://bugzilla.kernel.org/show_bug.cgi?id=3D42685 Toralf wrote:
-> > with xev I get only one small diff related to "serial":
-> >=20
-> > tfoerste@n22 ~ $ tail -v mute-3.*
-> > =3D=3D> mute-3.0.21 <=3D=3D
-> > KeyRelease event, serial 33, synthetic NO, window 0x4600001,
-> > root 0xc3, subw 0x0, time 293494, (1260,275), root:(1262,298),
-> > state 0x0, keycode 121 (keysym 0x1008ff12, XF86AudioMute), same_screen =
-YES,
-> > XLookupString gives 0 bytes:=20
-> > XFilterEvent returns: False
-> >=20
-> >=20
-> > =3D=3D> mute-3.2.6 <=3D=3D
-> > KeyRelease event, serial 32, synthetic NO, window 0x3a00001,
-> > root 0xc3, subw 0x0, time 3424766, (-1217,745), root:(74,768),
-> > state 0x0, keycode 121 (keysym 0x1008ff12, XF86AudioMute), same_screen =
-YES,
-> > XLookupString gives 0 bytes:=20
-> > XFilterEvent returns: False
-
-
---Sig_/DPjb43P1iTL6f7sTIE6Acnc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (GNU/Linux)
-
-iEYEARECAAYFAk9GxvEACgkQPjqCkyL3Kv1/CQCfUyDJZNPDgmxjwshWKLnn479G
-INIAnjWo1zcuMzt2pKalgAWEv/R+GdAk
-=a8ag
------END PGP SIGNATURE-----
-
---Sig_/DPjb43P1iTL6f7sTIE6Acnc--

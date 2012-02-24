@@ -1,36 +1,37 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: ALPS - Fix ALPS touchpad detection
-Date: Fri, 24 Feb 2012 00:17:37 -0800
-Message-ID: <20120224081737.GA10763@core.coreip.homeip.net>
-References: <4F3D009B.8080506@gmail.com>
- <20120216143210.GA30486@ubuntu-macmini>
- <4F465007.30304@gmail.com>
+Subject: Re: [PATCH] input: psmouse:  create an 'enabled' sysfs attribute to
+ squelch mouse
+Date: Fri, 24 Feb 2012 00:21:58 -0800
+Message-ID: <20120224082158.GA18291@core.coreip.homeip.net>
+References: <20120217180634.6162196e@debxo>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4F465007.30304@gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Akio Idehara <zbe64533@gmail.com>
-Cc: seth.forshee@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, rdunlap@xenotime.net, gregkh@linuxfoundation.org, torvalds@linux-foundation.org
+In-Reply-To: <20120217180634.6162196e@debxo>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andres Salomon <dilinger@queued.net>
+Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Fox <pgf@laptop.org>, Martin Langhoff <martin@laptop.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Akio,
+Hi Andres,
 
-On Thu, Feb 23, 2012 at 11:41:11PM +0900, Akio Idehara wrote:
-> This is definitely a bug which isn't fixed for nine years.
-> Why this patch isn't applied to the input sub-system (or mainline)?
+On Fri, Feb 17, 2012 at 06:06:34PM -0800, Andres Salomon wrote:
 > 
+> From: Paul Fox <pgf@laptop.org>
+> 
+> on OLPC XO laptops, at least one model of touchpad (sentelic)
+> emits continuous jittery motion reports when the laptop is
+> configured in "ebook" mode.  the touchpad is inaccessible in
+> that configuration, so we simply disable it.
+> 
+> these motion reports will wake the SoC when put to sleep, so simply
+> ignoring the events is not a possibilty; the device must be disabled.
 
-Well, if we waited for 9 years, we could wait for couple more days...
+Can you switch the AUX serio port into manual bind mode (viqa sysfs) and
+simply connect/disconnect the touchpad as needed (again via sysfs)?
 
-Also, please make sure you do not send patches as:
-
-	Content-Type: text/plain; charset=ISO-8859-1; format=flowed 
-
-as this requires fixing up the patch manually before it can be applied.
-
-Anyway, applied, thank you.
+Thanks.
 
 -- 
 Dmitry

@@ -1,35 +1,41 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
-Subject: disable touchpad?
-Date: Fri, 24 Feb 2012 12:04:04 -0800
-Message-ID: <4F47ED34.1070406@xenotime.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: disable touchpad?
+Date: Fri, 24 Feb 2012 13:31:16 -0800
+Message-ID: <1396991.aDtuZKT2u4@dtor-d630.eng.vmware.com>
+References: <4F47ED34.1070406@xenotime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from oproxy7-pub.bluehost.com ([67.222.55.9]:55799 "HELO
-	oproxy7-pub.bluehost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1757643Ab2BXUEF (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:61544 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755810Ab2BXVba (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Feb 2012 15:04:05 -0500
-Received: from static-50-53-38-135.bvtn.or.frontiernet.net ([50.53.38.135] helo=[192.168.1.3])
-	by box742.bluehost.com with esmtpsa (TLSv1:AES256-SHA:256)
-	(Exim 4.76)
-	(envelope-from <rdunlap@xenotime.net>)
-	id 1S11N6-0001me-OJ
-	for linux-input@vger.kernel.org; Fri, 24 Feb 2012 13:04:04 -0700
+	Fri, 24 Feb 2012 16:31:30 -0500
+Received: by pbcun15 with SMTP id un15so3080636pbc.19
+        for <linux-input@vger.kernel.org>; Fri, 24 Feb 2012 13:31:30 -0800 (PST)
+In-Reply-To: <4F47ED34.1070406@xenotime.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: linux-input@vger.kernel.org
 
-Hi,
+Hi Randy,
 
-(a) Laptop touchpads can be a nuisance.  Is there a convenient way to
-disable them?
+On Friday, February 24, 2012 12:04:04 PM Randy Dunlap wrote:
+> Hi,
+> 
+> (a) Laptop touchpads can be a nuisance.  Is there a convenient way to
+> disable them?
+> 
 
-(b) My Toshiba Portege laptop has a touchpad on/off button.  Is that
-supported?
+I'd start here: https://help.ubuntu.com/community/SynapticsTouchpad
 
-thanks,
+> (b) My Toshiba Portege laptop has a touchpad on/off button.  Is that
+> supported?
+
+Kernel probably emits one of KEY_TOUCHPAD_* for it; whether it is handled
+in userspace I do not know.
+
 -- 
-~Randy  [please Cc: me on replies]
-
+Dmitry

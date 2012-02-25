@@ -1,72 +1,53 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: disable touchpad?
-Date: Fri, 24 Feb 2012 17:49:19 -0800
-Message-ID: <4F483E1F.1080605@xenotime.net>
-References: <4F47ED34.1070406@xenotime.net> <1396991.aDtuZKT2u4@dtor-d630.eng.vmware.com> <4F480EBA.7020509@canonical.com> <20120224223752.GA9883@ubuntu-macmini>
+From: Andres Salomon <dilinger@queued.net>
+Subject: Re: [PATCH] input: psmouse:  create an 'enabled' sysfs attribute to
+ squelch mouse
+Date: Sat, 25 Feb 2012 11:19:05 -0800
+Message-ID: <20120225111905.4b8ae970@debxo>
+References: <20120217180634.6162196e@debxo>
+	<20120224082158.GA18291@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from oproxy3-pub.bluehost.com ([69.89.21.8]:38200 "HELO
-	oproxy3-pub.bluehost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1757169Ab2BYBtU (ORCPT
+Received: from lunge.queued.net ([173.255.254.236]:53762 "EHLO
+	lunge.queued.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756840Ab2BYTTK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Feb 2012 20:49:20 -0500
-In-Reply-To: <20120224223752.GA9883@ubuntu-macmini>
+	Sat, 25 Feb 2012 14:19:10 -0500
+In-Reply-To: <20120224082158.GA18291@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: Chase Douglas <chase.douglas@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Fox <pgf@laptop.org>, Martin Langhoff <martin@laptop.org>
 
-On 02/24/2012 02:37 PM, Seth Forshee wrote:
+On Fri, 24 Feb 2012 00:21:58 -0800
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-> On Fri, Feb 24, 2012 at 02:27:06PM -0800, Chase Douglas wrote:
->> On 02/24/2012 01:31 PM, Dmitry Torokhov wrote:
->>> On Friday, February 24, 2012 12:04:04 PM Randy Dunlap wrote:
->>>> (b) My Toshiba Portege laptop has a touchpad on/off button.  Is that
->>>> supported?
->>>
->>> Kernel probably emits one of KEY_TOUCHPAD_* for it; whether it is handled
->>> in userspace I do not know.
-
-showkey doesn't show me any kbd scancode when I press that little key.  :(
-
-At least using 'xinput set-prop 15 "Device Enabled" 0' (from the Ubuntu
-community web page) does work.  That's helpful.
-
-
->> I have heard from some of our engineers who have looked into this
->> that the interface for these buttons is not standardized. Sometimes
->> the buttons turn off the touchpad in hardware. Sometimes they emit
->> events that tell the OS to turn it off, and the OS needs to know how
->> to handle it.
->>
->> On top of that, LEDs are sometimes there to tell you if the trackpad
->> is on or off. These are also not standardized. Sometimes they are
->> hooked up to the hardware, and when the hardware is off they go off.
->> Sometimes they are just a plain old LED and the OS needs to turn it
->> on and off.
->>
->> Fun...
+> Hi Andres,
 > 
-> I've worked with a few Toshibas, and while there's quite a bit of
-> variation within Toshiba models, all the ones I've seen report a key
-> event rather than disabling the touchpad in firmware. Some of them
-> report the key on the AT keyboard while others use a Toshiba-specific
-> ACPI interface.
+> On Fri, Feb 17, 2012 at 06:06:34PM -0800, Andres Salomon wrote:
+> > 
+> > From: Paul Fox <pgf@laptop.org>
+> > 
+> > on OLPC XO laptops, at least one model of touchpad (sentelic)
+> > emits continuous jittery motion reports when the laptop is
+> > configured in "ebook" mode.  the touchpad is inaccessible in
+> > that configuration, so we simply disable it.
+> > 
+> > these motion reports will wake the SoC when put to sleep, so simply
+> > ignoring the events is not a possibilty; the device must be
+> > disabled.
 > 
-> Randy, if you can't find a key event currently being emitted on your
-> machine, I have some patches for toshiba_acpi to enable hotkeys for some
-> Toshibas [1].  You might give them a try.
+> Can you switch the AUX serio port into manual bind mode (viqa sysfs)
+> and simply connect/disconnect the touchpad as needed (again via
+> sysfs)?
 > 
-> Seth
-> 
-> [1] https://lkml.org/lkml/2012/1/18/328
 
-
-OK, I'll take a look at those patches.
-
-Thanks, everyone.
-
--- 
-~Randy
+Thanks for the suggestion.  We're in the process of testing that; it
+does stop the touchpad from transmitting data, but there are some
+reinit issues to be investigated.  Quoth pgf, "the added latency
+due to the reinit when we enter/exit ebook mode might or might not be
+acceptable.  and our touchpad (sentelic) needs some boot time
+initialization from user-level -- we're not sure whether we'll need
+to redo some or all of that.  (we do seem to lose the current values of
+vscroll and hscroll, for instance.)"

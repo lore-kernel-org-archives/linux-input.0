@@ -1,41 +1,38 @@
-From: Vasily Khoruzhick <anarsoul@gmail.com>
-Subject: [PATCH] ARM: pxa27x_keypad: clear pending interrupts on keypad config
-Date: Sun, 26 Feb 2012 16:50:50 +0300
-Message-ID: <1330264250-5883-1-git-send-email-anarsoul@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:62556 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751808Ab2BZNvJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 26 Feb 2012 08:51:09 -0500
-Received: by eaah12 with SMTP id h12so1813663eaa.19
-        for <linux-input@vger.kernel.org>; Sun, 26 Feb 2012 05:51:08 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Viresh Kumar <viresh.kumar@st.com>
+Subject: [PATCH] input/spear-keyboard: Remove kbd_set_plat_data()
+Date: Mon, 27 Feb 2012 11:09:25 +0530
+Message-ID: <8acf668a2c8d67aec3dc79dfe2895b2fd80a18be.1330320826.git.viresh.kumar@st.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, armando.visconti@st.com, shiraz.hashim@st.com, vipin.kumar@st.com, rajeev-dlh.kumar@st.com, deepak.sikri@st.com, vipulkumar.samar@st.com, amit.virdi@st.com, viresh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com, viresh.linux@gmail.com, bhavna.yadav@st.com, vincenzo.frascino@st.com, mirko.gardi@st.com, salvatore.dedominicis@st.com, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: Vasily Khoruzhick <anarsoul@gmail.com>
 
-Bootloader can leave interrupt bit pending, and it confuses driver.
+We must use platform_device_add_data() instead of kbd_set_plat_data(). Remove
+definition of kbd_set_plat_data().
 
-Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
 ---
- drivers/input/keyboard/pxa27x_keypad.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/plat-spear/include/plat/keyboard.h |    7 -------
+ 1 files changed, 0 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
-index eca6ae6..a5f198f 100644
---- a/drivers/input/keyboard/pxa27x_keypad.c
-+++ b/drivers/input/keyboard/pxa27x_keypad.c
-@@ -360,6 +360,9 @@ static void pxa27x_keypad_config(struct pxa27x_keypad *keypad)
- 	unsigned int mask = 0, direct_key_num = 0;
- 	unsigned long kpc = 0;
+diff --git a/arch/arm/plat-spear/include/plat/keyboard.h b/arch/arm/plat-spear/include/plat/keyboard.h
+index c16cc31..0562f13 100644
+--- a/arch/arm/plat-spear/include/plat/keyboard.h
++++ b/arch/arm/plat-spear/include/plat/keyboard.h
+@@ -159,11 +159,4 @@ struct kbd_platform_data {
+ 	unsigned int mode;
+ };
  
-+	/* clear pending interrupt bit */
-+	keypad_readl(KPC);
-+
- 	/* enable matrix keys with automatic scan */
- 	if (pdata->matrix_key_rows && pdata->matrix_key_cols) {
- 		kpc |= KPC_ASACT | KPC_MIE | KPC_ME | KPC_MS_ALL;
+-/* This function is used to set platform data field of pdev->dev */
+-static inline void
+-kbd_set_plat_data(struct platform_device *pdev, struct kbd_platform_data *data)
+-{
+-	pdev->dev.platform_data = data;
+-}
+-
+ #endif /* __PLAT_KEYBOARD_H */
 -- 
-1.7.9.2
-
+1.7.8.110.g4cb5d

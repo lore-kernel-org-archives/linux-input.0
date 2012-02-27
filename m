@@ -1,35 +1,28 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH 1/1] HID: add have_special_driver hid module parameter
-Date: Mon, 27 Feb 2012 16:15:43 +0200
-Message-ID: <CALu8Fe_h2=LCD+wmQbYBpF9m+yx+gYmkKf_nX3k69DOHktg_eA@mail.gmail.com>
-References: <1329773340-14066-1-git-send-email-spbnick@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] HID: wacom: set ABS_MISC bit for Intuos4 WL
+Date: Mon, 27 Feb 2012 15:30:34 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1202271530210.31150@pobox.suse.cz>
+References: <1330091269-8765-1-git-send-email-przemo@firszt.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:43476 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753224Ab2B0OPo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Feb 2012 09:15:44 -0500
-Received: by vcqp1 with SMTP id p1so1502398vcq.19
-        for <linux-input@vger.kernel.org>; Mon, 27 Feb 2012 06:15:44 -0800 (PST)
-In-Reply-To: <1329773340-14066-1-git-send-email-spbnick@gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:47119 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751931Ab2B0Oaf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Feb 2012 09:30:35 -0500
+In-Reply-To: <1330091269-8765-1-git-send-email-przemo@firszt.eu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>, Nikolai Kondrashov <spbnick@gmail.com>
+To: Przemo Firszt <przemo@firszt.eu>
+Cc: pinglinux@gmail.com, chris@cnpbagwell.com, linuxwacom-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Jiri,
+On Fri, 24 Feb 2012, Przemo Firszt wrote:
 
-On Mon, Feb 20, 2012 at 11:29 PM, Nikolai Kondrashov <spbnick@gmail.com> wrote:
-> Add "have_special_driver" hid module parameter - a list of additional HID
-> devices which have specialized driver on HID bus. Needed to support out-of-tree
-> HID drivers.
+> ABS_MISC has to be set for Intuos4 WL otherwise xorg driver won't use proper
+> protocol and the information about tool id and serial is lost.
 
-Did you have time to take a look at the patch?
-If there's anything wrong with it, please tell me and I'll fix it.
+Applied, thanks.
 
-Thanks :)
-
-Sincerely,
-Nick
+-- 
+Jiri Kosina
+SUSE Labs

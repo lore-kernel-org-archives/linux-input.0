@@ -1,34 +1,49 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH v2] HID: kye: Add support for 3 tablets
-Date: Tue, 28 Feb 2012 15:55:26 +0200
-Message-ID: <4F4CDCCE.4060609@gmail.com>
-References: <alpine.LNX.2.00.1202271549000.31150@pobox.suse.cz> <1330426906-4931-1-git-send-email-spbnick@gmail.com> <alpine.LNX.2.00.1202281338100.31150@pobox.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/1] HID: add have_special_driver hid module parameter
+Date: Tue, 28 Feb 2012 15:30:12 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1202281527250.31150@pobox.suse.cz>
+References: <1329773340-14066-1-git-send-email-spbnick@gmail.com> <CALu8Fe_h2=LCD+wmQbYBpF9m+yx+gYmkKf_nX3k69DOHktg_eA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:41990 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750831Ab2B1Nzb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Feb 2012 08:55:31 -0500
-In-Reply-To: <alpine.LNX.2.00.1202281338100.31150@pobox.suse.cz>
+Received: from cantor2.suse.de ([195.135.220.15]:37223 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932085Ab2B1OaO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Feb 2012 09:30:14 -0500
+In-Reply-To: <CALu8Fe_h2=LCD+wmQbYBpF9m+yx+gYmkKf_nX3k69DOHktg_eA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>, linux-usb <linux-usb@vger.kernel.org>
+To: Nikolai Kondrashov <spbnick@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-On 02/28/2012 02:38 PM, Jiri Kosina wrote:
-> On Tue, 28 Feb 2012, Nikolai Kondrashov wrote:
->
->> Add support for three KYE tablets: EasyPen i405X, MousePen i608X, EasyPen M610X.
->
-> Applied, thanks.
+On Mon, 27 Feb 2012, Nikolai Kondrashov wrote:
 
-Could you please take a look at another patch from me, when time allows:
-http://thread.gmane.org/gmane.linux.kernel.input/23708 ?
+> > Add "have_special_driver" hid module parameter - a list of additional 
+> > HID devices which have specialized driver on HID bus. Needed to 
+> > support out-of-tree HID drivers.
+> 
+> Did you have time to take a look at the patch?
+> If there's anything wrong with it, please tell me and I'll fix it.
 
-Thanks :)
+Hi Nikolai,
 
-Sincerely,
-Nick
+well, I am not really sure what value does it provide to have such 
+functionality in the kernel.
+
+I can understand that it helps you when developing out-of-tree (yet) 
+drivers ... but as you are patching the kernel anyway with those drivers, 
+you can easily run a kernel that has hid_have_special_driver[] array 
+adjusted accordingly. And once you are submitting the driver for 
+inclusion, you are of course submitting it together with 
+hid_have_special_driver[] addition.
+
+So it doesn't seem to be a debugging facility to me, and neither does it 
+provide any added value for users of vanilla kernel.
+
+Hmm?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

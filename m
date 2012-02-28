@@ -1,248 +1,536 @@
-From: Armando Visconti <armando.visconti@st.com>
-Subject: Re: linux-next: Tree for Feb 27 (usbtouchscreen)
-Date: Tue, 28 Feb 2012 11:48:44 +0100
-Message-ID: <4F4CB10C.2000100@st.com>
-References: <20120227182029.545a7db32550ce94c9faffb4@canb.auug.org.au> <4F4BC717.1000304@xenotime.net> <4F4BF7E2.3080203@gmx.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: [PATCH v2] HID: kye: Add support for 3 tablets
+Date: Tue, 28 Feb 2012 13:01:46 +0200
+Message-ID: <1330426906-4931-1-git-send-email-spbnick@gmail.com>
+References: <alpine.LNX.2.00.1202271549000.31150@pobox.suse.cz>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog118.obsmtp.com ([207.126.144.145]:57399 "EHLO
-	eu1sys200aog118.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S964994Ab2B1KtZ (ORCPT
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:38217 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753522Ab2B1LCJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Feb 2012 05:49:25 -0500
-In-Reply-To: <4F4BF7E2.3080203@gmx.ch>
+	Tue, 28 Feb 2012 06:02:09 -0500
+In-Reply-To: <alpine.LNX.2.00.1202271549000.31150@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Ritz <daniel.ritz@gmx.ch>
-Cc: Viresh KUMAR <viresh.kumar@st.com>, Randy Dunlap <rdunlap@xenotime.net>, Stephen Rothwell <sfr@canb.auug.org.au>, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@mail.ru>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@vger.kernel.org>, linux-usb <linux-usb@vger.kernel.org>, Nikolai Kondrashov <spbnick@gmail.com>
 
-Hi Daniel,
+Add support for three KYE tablets: EasyPen i405X, MousePen i608X, EasyPen M610X.
+Update Kconfig entry accordingly, remove EXPERT dependency.
 
-See my replies inline.
+Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
+---
 
-> Hi
->
-> I had a quick look with gitweb. The following change causes the problem, comments inline:
->
->> From: Armando Visconti<armando.visconti@st.com>
->> Date: Fri, 24 Feb 2012 08:51:37 +0000 (-0800)
->> Subject: Input: usbtouchscreen - add support for Data Modul EasyTouch TP 72037
->> X-Git-Tag: next-20120227~55^2~4
->> X-Git-Url:
-> http://git.kernel.org/gitweb.cgi?p=linux%2Fkernel%2Fgit%2Fnext%2Flinux-next.git;a=commitdiff_plain;h=e6307aa07c5a11022f0ccee19a8ff0ba033eeb93
->>
->> Input: usbtouchscreen - add support for Data Modul EasyTouch TP 72037
->>
->> The Data Modul TP 72037 EasyTouch controller is derived from EGALAX
->> controller and is capable of detecting dual contacts. Packets can be 5
->> bytes or 10 bytes long, depending whether one or two contacts are
->> detected. Format is same as EGALAX touch controller, but with x and y
->> coordinates inverted.
->>
->> Signed-off-by: Armando Visconti<armando.visconti@st.com>
->> Signed-off-by: Viresh Kumar<viresh.kumar@st.com>
->> Signed-off-by: Dmitry Torokhov<dtor@mail.ru>
->> ---
->>
->> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
->> index 2b21a70..2acf16f 100644
->> --- a/drivers/input/touchscreen/Kconfig
->> +++ b/drivers/input/touchscreen/Kconfig
->> @@ -607,6 +607,7 @@ config TOUCHSCREEN_USB_COMPOSITE
->>   	  - JASTEC USB Touch Controller/DigiTech DTR-02U
->>   	  - Zytronic controllers
->>   	  - Elo TouchSystems 2700 IntelliTouch
->> +	  - EasyTouch USB Touch Controller from Data Modul
->>
->>   	  Have a look at<http://linux.chapter7.ch/touchkit/>  for
->>   	  a usage description and the required user-space stuff.
->> @@ -711,6 +712,14 @@ config TOUCHSCREEN_USB_NEXIO
->>   	bool "NEXIO/iNexio device support" if EXPERT
->>   	depends on TOUCHSCREEN_USB_COMPOSITE
->>
->> +config TOUCHSCREEN_USB_EASYTOUCH
->> +	default y
->> +	bool "EasyTouch USB Touch controller device support" if EMBEDDED
->> +	depends on TOUCHSCREEN_USB_COMPOSITE
->> +	help
->> +	  Say Y here if you have a EasyTouch USB Touch controller device support.
->> +	  If unsure, say N.
->> +
->>   config TOUCHSCREEN_TOUCHIT213
->>   	tristate "Sahara TouchIT-213 touchscreen"
->>   	select SERIO
->> diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
->> index 9dbd8b4..5813089 100644
->> --- a/drivers/input/touchscreen/usbtouchscreen.c
->> +++ b/drivers/input/touchscreen/usbtouchscreen.c
->> @@ -17,6 +17,7 @@
->>    *  - Zytronic capacitive touchscreen
->>    *  - NEXIO/iNexio
->>    *  - Elo TouchSystems 2700 IntelliTouch
->> + *  - EasyTouch USB Dual/Multi touch controller from Data Modul
->>    *
->>    * Copyright (C) 2004-2007 by Daniel Ritz<daniel.ritz@gmx.ch>
->>    * Copyright (C) by Todd E. Johnson (mtouchusb.c)
->> @@ -140,6 +141,7 @@ enum {
->>   	DEVTYPE_TC45USB,
->>   	DEVTYPE_NEXIO,
->>   	DEVTYPE_ELO,
->> +	DEVTYPE_ETOUCH,
->>   };
->>
->>   #define USB_DEVICE_HID_CLASS(vend, prod) \
->> @@ -245,6 +247,10 @@ static const struct usb_device_id usbtouch_devices[] = {
->>   	{USB_DEVICE(0x04e7, 0x0020), .driver_info = DEVTYPE_ELO},
->>   #endif
->>
->> +#ifdef CONFIG_TOUCHSCREEN_USB_EASYTOUCH
->> +	{USB_DEVICE(0x7374, 0x0001), .driver_info = DEVTYPE_ETOUCH},
->> +#endif
->> +
->>   	{}
->>   };
->>
->> @@ -326,6 +332,47 @@ static int egalax_get_pkt_len(unsigned char *buf, int len)
->>   }
->>   #endif
->>
->> +/*****************************************************************************
->> + * EasyTouch part
->> + */
->> +
->> +#ifdef CONFIG_TOUCHSCREEN_USB_EASYTOUCH
->
-> here, some lines are missing:
->    #ifndef MULTI_PACKET
->    #define MULTI_PACKET
->    #endif
-> adding these will fix the compile error.
->
+This version replaces original report descriptor comments with links to tablet
+descriptions on the DIGImend project wiki.
 
-Correct.
-Thanks for pointing out this stupid mistake...
-We'll change it.
+ drivers/hid/Kconfig             |    9 +-
+ drivers/hid/hid-core.c          |    3 +
+ drivers/hid/hid-ids.h           |    3 +
+ drivers/hid/hid-kye.c           |  399 +++++++++++++++++++++++++++++++++++++--
+ drivers/hid/usbhid/hid-quirks.c |    2 +
+ 5 files changed, 396 insertions(+), 20 deletions(-)
 
->> +
->> +#define EGALAX_PKT_TYPE_MASK		0xFE
->> +#define EGALAX_PKT_TYPE_REPT		0x80
->> +#define EGALAX_PKT_TYPE_REPT2		0xB0
->> +#define EGALAX_PKT_TYPE_DIAG		0x0A
->
-> The names here are wrong. The prefix EGALAX_ is only for eGalax controllers and some
-> of them are already defined in the eGalax part of the driver. This will re-define them
-> which is not good. Please use ETOUCH_... instead.
->
-
-Yes, it makes sense.
-
->> +
->> +static int etouch_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
->> +{
->> +	if ((pkt[0]&  EGALAX_PKT_TYPE_MASK) != EGALAX_PKT_TYPE_REPT&&
->> +		(pkt[0]&  EGALAX_PKT_TYPE_MASK) != EGALAX_PKT_TYPE_REPT2)
->> +		return 0;
->> +
->> +	dev->x = ((pkt[1]&  0x1F)<<  7) | (pkt[2]&  0x7F);
->> +	dev->y = ((pkt[3]&  0x1F)<<  7) | (pkt[4]&  0x7F);
->> +	dev->touch = pkt[0]&  0x01;
->> +
->> +	return 1;
->> +}
->> +
->> +static int etouch_get_pkt_len(unsigned char *buf, int len)
->> +{
->> +	switch (buf[0]&  EGALAX_PKT_TYPE_MASK) {
->> +	case EGALAX_PKT_TYPE_REPT:
->> +	case EGALAX_PKT_TYPE_REPT2:
->> +		return 5;
->
-> The description states that packets can be 10 bytes long, but this case is not
-> handled here. How does the 10 byte packet look like? Is it two five byte packets?
-> How is the format? What is contained in the other 5 bytes?
->
-
-It is handled by usbtouch_process_multi() calling the packet processing
-twice. The format is '5 bytes' for a single contact and 10 bytes (5 + 5)
-for dual contact.
-
-In the 10 bytes packet the info for first contact starts with 0x80 as
-for a normal EGALAX, while the info for the second contact starts with
-a 0xB0.
-
-So, in case of 10 bytes packet, usbtouch_process_multi() will call the
-processing routines twice.
-
-
-> Anyway: if it's two 5 byte packets, shouldn't the data from both packets be used
-> for _one_ input event for increased accuracy or something?
-> If it's not two 5 byte packets, the function must return 10 for a 10 byte packet.
-> Otherwise the driver will have to sync for each packet (which works fine but is slower).
->
-
-Initially I have done exactly the way you are suggesting.
-
-But then, it seemed to me more appropriate to reuse the capability of
-the usbtouch_process_multi() to process more data in the same packet.
-
-And pls note that I'm not using MT protocol to send the info up to the
-input device. The contacts info are sent as separate events.
-
-So, what to do here?
-
-
->> +
->> +	case EGALAX_PKT_TYPE_DIAG:
->> +		if (len<  2)
->> +			return -1;
->> +
->> +		return buf[1] + 2;
->> +	}
->> +
->> +	return 0;
->> +}
->> +#endif
->>
->>   /*****************************************************************************
->>    * PanJit Part
->> @@ -1175,6 +1222,18 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
->>   		.exit		= nexio_exit,
->>   	},
->>   #endif
->> +#ifdef CONFIG_TOUCHSCREEN_USB_EASYTOUCH
->> +	[DEVTYPE_ETOUCH] = {
->> +		.min_xc		= 0x0,
->> +		.max_xc		= 0x07ff,
->> +		.min_yc		= 0x0,
->> +		.max_yc		= 0x07ff,
->> +		.rept_size	= 16,
->> +		.process_pkt	= usbtouch_process_multi,
->> +		.get_pkt_len	= etouch_get_pkt_len,
->> +		.read_data	= etouch_read_data,
->> +	},
->> +#endif
->>   };
->>
->>
->
-> Cheers
-> -daniel
-
-Thanks for reviewing.
-
-Rgds,
-Arm
-
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 58776c4..54cc92f 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -200,11 +200,14 @@ config HID_KEYTOUCH
+ 		- Keytouch IEC 60945
+ 
+ config HID_KYE
+-	tristate "Kye/Genius Ergo Mouse" if EXPERT
++	tristate "KYE/Genius devices"
+ 	depends on USB_HID
+-	default !EXPERT
+ 	---help---
+-	Support for Kye/Genius Ergo Mouse.
++	Support for KYE/Genius devices not fully compliant with HID standard:
++	- Ergo Mouse
++	- EasyPen i405X tablet
++	- MousePen i608X tablet
++	- EasyPen M610X tablet
+ 
+ config HID_UCLOGIC
+ 	tristate "UC-Logic"
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index bd89b31..6d923bd 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1436,6 +1436,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KEYTOUCH, USB_DEVICE_ID_KEYTOUCH_IEC) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_I405X) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LCPOWER, USB_DEVICE_ID_LCPOWER_LC1000 ) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LG, USB_DEVICE_ID_LG_MULTITOUCH) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 520243c..0ce075b 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -407,6 +407,9 @@
+ #define USB_VENDOR_ID_KYE		0x0458
+ #define USB_DEVICE_ID_KYE_ERGO_525V	0x0087
+ #define USB_DEVICE_ID_KYE_GPEN_560	0x5003
++#define USB_DEVICE_ID_KYE_EASYPEN_I405X	0x5010
++#define USB_DEVICE_ID_KYE_MOUSEPEN_I608X	0x5011
++#define USB_DEVICE_ID_KYE_EASYPEN_M610X	0x5013
+ 
+ #define USB_VENDOR_ID_LABTEC		0x1020
+ #define USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD	0x0006
+diff --git a/drivers/hid/hid-kye.c b/drivers/hid/hid-kye.c
+index f2ba9ef..b4f0d82 100644
+--- a/drivers/hid/hid-kye.c
++++ b/drivers/hid/hid-kye.c
+@@ -3,6 +3,7 @@
+  *
+  *  Copyright (c) 2009 Jiri Kosina
+  *  Copyright (c) 2009 Tomas Hanak
++ *  Copyright (c) 2012 Nikolai Kondrashov
+  */
+ 
+ /*
+@@ -15,36 +16,399 @@
+ #include <linux/device.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
++#include <linux/usb.h>
++#include "usbhid/usbhid.h"
+ 
+ #include "hid-ids.h"
+ 
+-/* the fixups that need to be done:
+- *   - change led usage page to button for extra buttons
+- *   - report size 8 count 1 must be size 1 count 8 for button bitfield
+- *   - change the button usage range to 4-7 for the extra buttons
++/*
++ * See EasyPen i405X description, device and HID report descriptors at
++ * http://sf.net/apps/mediawiki/digimend/?title=KYE_EasyPen_i405X
+  */
++
++/* Original EasyPen i405X report descriptor size */
++#define EASYPEN_I405X_RDESC_ORIG_SIZE	476
++
++/* Fixed EasyPen i405X report descriptor */
++static __u8 easypen_i405x_rdesc_fixed[] = {
++	0x06, 0x00, 0xFF, /*  Usage Page (FF00h),             */
++	0x09, 0x01,       /*  Usage (01h),                    */
++	0xA1, 0x01,       /*  Collection (Application),       */
++	0x85, 0x05,       /*    Report ID (5),                */
++	0x09, 0x01,       /*    Usage (01h),                  */
++	0x15, 0x80,       /*    Logical Minimum (-128),       */
++	0x25, 0x7F,       /*    Logical Maximum (127),        */
++	0x75, 0x08,       /*    Report Size (8),              */
++	0x95, 0x07,       /*    Report Count (7),             */
++	0xB1, 0x02,       /*    Feature (Variable),           */
++	0xC0,             /*  End Collection,                 */
++	0x05, 0x0D,       /*  Usage Page (Digitizer),         */
++	0x09, 0x02,       /*  Usage (Pen),                    */
++	0xA1, 0x01,       /*  Collection (Application),       */
++	0x85, 0x10,       /*    Report ID (16),               */
++	0x09, 0x20,       /*    Usage (Stylus),               */
++	0xA0,             /*    Collection (Physical),        */
++	0x14,             /*      Logical Minimum (0),        */
++	0x25, 0x01,       /*      Logical Maximum (1),        */
++	0x75, 0x01,       /*      Report Size (1),            */
++	0x09, 0x42,       /*      Usage (Tip Switch),         */
++	0x09, 0x44,       /*      Usage (Barrel Switch),      */
++	0x09, 0x46,       /*      Usage (Tablet Pick),        */
++	0x95, 0x03,       /*      Report Count (3),           */
++	0x81, 0x02,       /*      Input (Variable),           */
++	0x95, 0x04,       /*      Report Count (4),           */
++	0x81, 0x03,       /*      Input (Constant, Variable), */
++	0x09, 0x32,       /*      Usage (In Range),           */
++	0x95, 0x01,       /*      Report Count (1),           */
++	0x81, 0x02,       /*      Input (Variable),           */
++	0x75, 0x10,       /*      Report Size (16),           */
++	0x95, 0x01,       /*      Report Count (1),           */
++	0xA4,             /*      Push,                       */
++	0x05, 0x01,       /*      Usage Page (Desktop),       */
++	0x55, 0xFD,       /*      Unit Exponent (-3),         */
++	0x65, 0x13,       /*      Unit (Inch),                */
++	0x34,             /*      Physical Minimum (0),       */
++	0x09, 0x30,       /*      Usage (X),                  */
++	0x46, 0x7C, 0x15, /*      Physical Maximum (5500),    */
++	0x26, 0x00, 0x37, /*      Logical Maximum (14080),    */
++	0x81, 0x02,       /*      Input (Variable),           */
++	0x09, 0x31,       /*      Usage (Y),                  */
++	0x46, 0xA0, 0x0F, /*      Physical Maximum (4000),    */
++	0x26, 0x00, 0x28, /*      Logical Maximum (10240),    */
++	0x81, 0x02,       /*      Input (Variable),           */
++	0xB4,             /*      Pop,                        */
++	0x09, 0x30,       /*      Usage (Tip Pressure),       */
++	0x26, 0xFF, 0x03, /*      Logical Maximum (1023),     */
++	0x81, 0x02,       /*      Input (Variable),           */
++	0xC0,             /*    End Collection,               */
++	0xC0              /*  End Collection                  */
++};
++
++/*
++ * See MousePen i608X description, device and HID report descriptors at
++ * http://sf.net/apps/mediawiki/digimend/?title=KYE_MousePen_i608X
++ */
++
++/* Original MousePen i608X report descriptor size */
++#define MOUSEPEN_I608X_RDESC_ORIG_SIZE	476
++
++/* Fixed MousePen i608X report descriptor */
++static __u8 mousepen_i608x_rdesc_fixed[] = {
++	0x06, 0x00, 0xFF, /*  Usage Page (FF00h),             */
++	0x09, 0x01,       /*  Usage (01h),                    */
++	0xA1, 0x01,       /*  Collection (Application),       */
++	0x85, 0x05,       /*    Report ID (5),                */
++	0x09, 0x01,       /*    Usage (01h),                  */
++	0x15, 0x80,       /*    Logical Minimum (-128),       */
++	0x25, 0x7F,       /*    Logical Maximum (127),        */
++	0x75, 0x08,       /*    Report Size (8),              */
++	0x95, 0x07,       /*    Report Count (7),             */
++	0xB1, 0x02,       /*    Feature (Variable),           */
++	0xC0,             /*  End Collection,                 */
++	0x05, 0x0D,       /*  Usage Page (Digitizer),         */
++	0x09, 0x02,       /*  Usage (Pen),                    */
++	0xA1, 0x01,       /*  Collection (Application),       */
++	0x85, 0x10,       /*    Report ID (16),               */
++	0x09, 0x20,       /*    Usage (Stylus),               */
++	0xA0,             /*    Collection (Physical),        */
++	0x14,             /*      Logical Minimum (0),        */
++	0x25, 0x01,       /*      Logical Maximum (1),        */
++	0x75, 0x01,       /*      Report Size (1),            */
++	0x09, 0x42,       /*      Usage (Tip Switch),         */
++	0x09, 0x44,       /*      Usage (Barrel Switch),      */
++	0x09, 0x46,       /*      Usage (Tablet Pick),        */
++	0x95, 0x03,       /*      Report Count (3),           */
++	0x81, 0x02,       /*      Input (Variable),           */
++	0x95, 0x04,       /*      Report Count (4),           */
++	0x81, 0x03,       /*      Input (Constant, Variable), */
++	0x09, 0x32,       /*      Usage (In Range),           */
++	0x95, 0x01,       /*      Report Count (1),           */
++	0x81, 0x02,       /*      Input (Variable),           */
++	0x75, 0x10,       /*      Report Size (16),           */
++	0x95, 0x01,       /*      Report Count (1),           */
++	0xA4,             /*      Push,                       */
++	0x05, 0x01,       /*      Usage Page (Desktop),       */
++	0x55, 0xFD,       /*      Unit Exponent (-3),         */
++	0x65, 0x13,       /*      Unit (Inch),                */
++	0x34,             /*      Physical Minimum (0),       */
++	0x09, 0x30,       /*      Usage (X),                  */
++	0x46, 0x40, 0x1F, /*      Physical Maximum (8000),    */
++	0x26, 0x00, 0x50, /*      Logical Maximum (20480),    */
++	0x81, 0x02,       /*      Input (Variable),           */
++	0x09, 0x31,       /*      Usage (Y),                  */
++	0x46, 0x70, 0x17, /*      Physical Maximum (6000),    */
++	0x26, 0x00, 0x3C, /*      Logical Maximum (15360),    */
++	0x81, 0x02,       /*      Input (Variable),           */
++	0xB4,             /*      Pop,                        */
++	0x09, 0x30,       /*      Usage (Tip Pressure),       */
++	0x26, 0xFF, 0x03, /*      Logical Maximum (1023),     */
++	0x81, 0x02,       /*      Input (Variable),           */
++	0xC0,             /*    End Collection,               */
++	0xC0,             /*  End Collection,                 */
++	0x05, 0x01,       /*  Usage Page (Desktop),           */
++	0x09, 0x02,       /*  Usage (Mouse),                  */
++	0xA1, 0x01,       /*  Collection (Application),       */
++	0x85, 0x11,       /*    Report ID (17),               */
++	0x09, 0x01,       /*    Usage (Pointer),              */
++	0xA0,             /*    Collection (Physical),        */
++	0x14,             /*      Logical Minimum (0),        */
++	0xA4,             /*      Push,                       */
++	0x05, 0x09,       /*      Usage Page (Button),        */
++	0x75, 0x01,       /*      Report Size (1),            */
++	0x19, 0x01,       /*      Usage Minimum (01h),        */
++	0x29, 0x03,       /*      Usage Maximum (03h),        */
++	0x25, 0x01,       /*      Logical Maximum (1),        */
++	0x95, 0x03,       /*      Report Count (3),           */
++	0x81, 0x02,       /*      Input (Variable),           */
++	0x95, 0x05,       /*      Report Count (5),           */
++	0x81, 0x01,       /*      Input (Constant),           */
++	0xB4,             /*      Pop,                        */
++	0x95, 0x01,       /*      Report Count (1),           */
++	0xA4,             /*      Push,                       */
++	0x55, 0xFD,       /*      Unit Exponent (-3),         */
++	0x65, 0x13,       /*      Unit (Inch),                */
++	0x34,             /*      Physical Minimum (0),       */
++	0x75, 0x10,       /*      Report Size (16),           */
++	0x09, 0x30,       /*      Usage (X),                  */
++	0x46, 0x40, 0x1F, /*      Physical Maximum (8000),    */
++	0x26, 0x00, 0x50, /*      Logical Maximum (20480),    */
++	0x81, 0x02,       /*      Input (Variable),           */
++	0x09, 0x31,       /*      Usage (Y),                  */
++	0x46, 0x70, 0x17, /*      Physical Maximum (6000),    */
++	0x26, 0x00, 0x3C, /*      Logical Maximum (15360),    */
++	0x81, 0x02,       /*      Input (Variable),           */
++	0xB4,             /*      Pop,                        */
++	0x75, 0x08,       /*      Report Size (8),            */
++	0x09, 0x38,       /*      Usage (Wheel),              */
++	0x15, 0xFF,       /*      Logical Minimum (-1),       */
++	0x25, 0x01,       /*      Logical Maximum (1),        */
++	0x81, 0x06,       /*      Input (Variable, Relative), */
++	0x81, 0x01,       /*      Input (Constant),           */
++	0xC0,             /*    End Collection,               */
++	0xC0              /*  End Collection                  */
++};
++
++/*
++ * See EasyPen M610X description, device and HID report descriptors at
++ * http://sf.net/apps/mediawiki/digimend/?title=KYE_EasyPen_M610X
++ */
++
++/* Original EasyPen M610X report descriptor size */
++#define EASYPEN_M610X_RDESC_ORIG_SIZE	476
++
++/* Fixed EasyPen M610X report descriptor */
++static __u8 easypen_m610x_rdesc_fixed[] = {
++	0x06, 0x00, 0xFF,             /*  Usage Page (FF00h),             */
++	0x09, 0x01,                   /*  Usage (01h),                    */
++	0xA1, 0x01,                   /*  Collection (Application),       */
++	0x85, 0x05,                   /*    Report ID (5),                */
++	0x09, 0x01,                   /*    Usage (01h),                  */
++	0x15, 0x80,                   /*    Logical Minimum (-128),       */
++	0x25, 0x7F,                   /*    Logical Maximum (127),        */
++	0x75, 0x08,                   /*    Report Size (8),              */
++	0x95, 0x07,                   /*    Report Count (7),             */
++	0xB1, 0x02,                   /*    Feature (Variable),           */
++	0xC0,                         /*  End Collection,                 */
++	0x05, 0x0D,                   /*  Usage Page (Digitizer),         */
++	0x09, 0x02,                   /*  Usage (Pen),                    */
++	0xA1, 0x01,                   /*  Collection (Application),       */
++	0x85, 0x10,                   /*    Report ID (16),               */
++	0x09, 0x20,                   /*    Usage (Stylus),               */
++	0xA0,                         /*    Collection (Physical),        */
++	0x14,                         /*      Logical Minimum (0),        */
++	0x25, 0x01,                   /*      Logical Maximum (1),        */
++	0x75, 0x01,                   /*      Report Size (1),            */
++	0x09, 0x42,                   /*      Usage (Tip Switch),         */
++	0x09, 0x44,                   /*      Usage (Barrel Switch),      */
++	0x09, 0x46,                   /*      Usage (Tablet Pick),        */
++	0x95, 0x03,                   /*      Report Count (3),           */
++	0x81, 0x02,                   /*      Input (Variable),           */
++	0x95, 0x04,                   /*      Report Count (4),           */
++	0x81, 0x03,                   /*      Input (Constant, Variable), */
++	0x09, 0x32,                   /*      Usage (In Range),           */
++	0x95, 0x01,                   /*      Report Count (1),           */
++	0x81, 0x02,                   /*      Input (Variable),           */
++	0x75, 0x10,                   /*      Report Size (16),           */
++	0x95, 0x01,                   /*      Report Count (1),           */
++	0xA4,                         /*      Push,                       */
++	0x05, 0x01,                   /*      Usage Page (Desktop),       */
++	0x55, 0xFD,                   /*      Unit Exponent (-3),         */
++	0x65, 0x13,                   /*      Unit (Inch),                */
++	0x34,                         /*      Physical Minimum (0),       */
++	0x09, 0x30,                   /*      Usage (X),                  */
++	0x46, 0x10, 0x27,             /*      Physical Maximum (10000),   */
++	0x27, 0x00, 0xA0, 0x00, 0x00, /*      Logical Maximum (40960),    */
++	0x81, 0x02,                   /*      Input (Variable),           */
++	0x09, 0x31,                   /*      Usage (Y),                  */
++	0x46, 0x6A, 0x18,             /*      Physical Maximum (6250),    */
++	0x26, 0x00, 0x64,             /*      Logical Maximum (25600),    */
++	0x81, 0x02,                   /*      Input (Variable),           */
++	0xB4,                         /*      Pop,                        */
++	0x09, 0x30,                   /*      Usage (Tip Pressure),       */
++	0x26, 0xFF, 0x03,             /*      Logical Maximum (1023),     */
++	0x81, 0x02,                   /*      Input (Variable),           */
++	0xC0,                         /*    End Collection,               */
++	0xC0,                         /*  End Collection,                 */
++	0x05, 0x0C,                   /*  Usage Page (Consumer),          */
++	0x09, 0x01,                   /*  Usage (Consumer Control),       */
++	0xA1, 0x01,                   /*  Collection (Application),       */
++	0x85, 0x12,                   /*    Report ID (18),               */
++	0x14,                         /*    Logical Minimum (0),          */
++	0x25, 0x01,                   /*    Logical Maximum (1),          */
++	0x75, 0x01,                   /*    Report Size (1),              */
++	0x95, 0x04,                   /*    Report Count (4),             */
++	0x0A, 0x1A, 0x02,             /*    Usage (AC Undo),              */
++	0x0A, 0x79, 0x02,             /*    Usage (AC Redo Or Repeat),    */
++	0x0A, 0x2D, 0x02,             /*    Usage (AC Zoom In),           */
++	0x0A, 0x2E, 0x02,             /*    Usage (AC Zoom Out),          */
++	0x81, 0x02,                   /*    Input (Variable),             */
++	0x95, 0x01,                   /*    Report Count (1),             */
++	0x75, 0x14,                   /*    Report Size (20),             */
++	0x81, 0x03,                   /*    Input (Constant, Variable),   */
++	0x75, 0x20,                   /*    Report Size (32),             */
++	0x81, 0x03,                   /*    Input (Constant, Variable),   */
++	0xC0                          /*  End Collection                  */
++};
++
+ static __u8 *kye_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
+ {
+-	if (*rsize >= 74 &&
+-		rdesc[61] == 0x05 && rdesc[62] == 0x08 &&
+-		rdesc[63] == 0x19 && rdesc[64] == 0x08 &&
+-		rdesc[65] == 0x29 && rdesc[66] == 0x0f &&
+-		rdesc[71] == 0x75 && rdesc[72] == 0x08 &&
+-		rdesc[73] == 0x95 && rdesc[74] == 0x01) {
+-		hid_info(hdev,
+-			 "fixing up Kye/Genius Ergo Mouse report descriptor\n");
+-		rdesc[62] = 0x09;
+-		rdesc[64] = 0x04;
+-		rdesc[66] = 0x07;
+-		rdesc[72] = 0x01;
+-		rdesc[74] = 0x08;
++	switch (hdev->product) {
++	case USB_DEVICE_ID_KYE_ERGO_525V:
++		/* the fixups that need to be done:
++		 *   - change led usage page to button for extra buttons
++		 *   - report size 8 count 1 must be size 1 count 8 for button
++		 *     bitfield
++		 *   - change the button usage range to 4-7 for the extra
++		 *     buttons
++		 */
++		if (*rsize >= 74 &&
++			rdesc[61] == 0x05 && rdesc[62] == 0x08 &&
++			rdesc[63] == 0x19 && rdesc[64] == 0x08 &&
++			rdesc[65] == 0x29 && rdesc[66] == 0x0f &&
++			rdesc[71] == 0x75 && rdesc[72] == 0x08 &&
++			rdesc[73] == 0x95 && rdesc[74] == 0x01) {
++			hid_info(hdev,
++				 "fixing up Kye/Genius Ergo Mouse "
++				 "report descriptor\n");
++			rdesc[62] = 0x09;
++			rdesc[64] = 0x04;
++			rdesc[66] = 0x07;
++			rdesc[72] = 0x01;
++			rdesc[74] = 0x08;
++		}
++		break;
++	case USB_DEVICE_ID_KYE_EASYPEN_I405X:
++		if (*rsize == EASYPEN_I405X_RDESC_ORIG_SIZE) {
++			rdesc = easypen_i405x_rdesc_fixed;
++			*rsize = sizeof(easypen_i405x_rdesc_fixed);
++		}
++		break;
++	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X:
++		if (*rsize == MOUSEPEN_I608X_RDESC_ORIG_SIZE) {
++			rdesc = mousepen_i608x_rdesc_fixed;
++			*rsize = sizeof(mousepen_i608x_rdesc_fixed);
++		}
++		break;
++	case USB_DEVICE_ID_KYE_EASYPEN_M610X:
++		if (*rsize == EASYPEN_M610X_RDESC_ORIG_SIZE) {
++			rdesc = easypen_m610x_rdesc_fixed;
++			*rsize = sizeof(easypen_m610x_rdesc_fixed);
++		}
++		break;
+ 	}
+ 	return rdesc;
+ }
+ 
++/**
++ * Enable fully-functional tablet mode by setting a special feature report.
++ *
++ * @hdev:	HID device
++ *
++ * The specific report ID and data were discovered by sniffing the
++ * Windows driver traffic.
++ */
++static int kye_tablet_enable(struct hid_device *hdev)
++{
++	struct list_head *list;
++	struct list_head *head;
++	struct hid_report *report;
++	__s32 *value;
++
++	list = &hdev->report_enum[HID_FEATURE_REPORT].report_list;
++	list_for_each(head, list) {
++		report = list_entry(head, struct hid_report, list);
++		if (report->id == 5)
++			break;
++	}
++
++	if (head == list) {
++		hid_err(hdev, "tablet-enabling feature report not found\n");
++		return -ENODEV;
++	}
++
++	if (report->maxfield < 1 || report->field[0]->report_count < 7) {
++		hid_err(hdev, "invalid tablet-enabling feature report\n");
++		return -ENODEV;
++	}
++
++	value = report->field[0]->value;
++
++	value[0] = 0x12;
++	value[1] = 0x10;
++	value[2] = 0x11;
++	value[3] = 0x12;
++	value[4] = 0x00;
++	value[5] = 0x00;
++	value[6] = 0x00;
++	usbhid_submit_report(hdev, report, USB_DIR_OUT);
++
++	return 0;
++}
++
++static int kye_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int ret;
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "parse failed\n");
++		goto err;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		hid_err(hdev, "hw start failed\n");
++		goto err;
++	}
++
++	switch (id->product) {
++	case USB_DEVICE_ID_KYE_EASYPEN_I405X:
++	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X:
++	case USB_DEVICE_ID_KYE_EASYPEN_M610X:
++		ret = kye_tablet_enable(hdev);
++		if (ret) {
++			hid_err(hdev, "tablet enabling failed\n");
++			goto enabling_err;
++		}
++		break;
++	}
++
++	return 0;
++enabling_err:
++	hid_hw_stop(hdev);
++err:
++	return ret;
++}
++
+ static const struct hid_device_id kye_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
++				USB_DEVICE_ID_KYE_EASYPEN_I405X) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
++				USB_DEVICE_ID_KYE_MOUSEPEN_I608X) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
++				USB_DEVICE_ID_KYE_EASYPEN_M610X) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, kye_devices);
+@@ -52,6 +416,7 @@ MODULE_DEVICE_TABLE(hid, kye_devices);
+ static struct hid_driver kye_driver = {
+ 	.name = "kye",
+ 	.id_table = kye_devices,
++	.probe = kye_probe,
+ 	.report_fixup = kye_report_fixup,
+ };
+ 
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index ae7d283..3cfea61 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -95,6 +95,8 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_SIGMA_MICRO, USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD, HID_QUIRK_NO_INIT_REPORTS },
++	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X, HID_QUIRK_MULTI_INPUT },
+ 	{ 0, 0 }
+ };
+ 
 -- 
--- "Every step appears to be the unavoidable consequence of the
--- preceding one." (A. Einstein)
--- 
-Armando Visconti                  Mobile: (+39) 346 8879146
-Senior SW Engineer                Fax:    (+39) 02 93519290
-CPG                               Work:   (+39) 02 93519683
-Computer System Division          e-mail: armando.visconti@st.com
-ST Microelectronics               TINA:   051  4683
-
+1.7.9
 

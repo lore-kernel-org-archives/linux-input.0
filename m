@@ -1,97 +1,63 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH 1/1] HID: add have_special_driver hid module parameter
-Date: Tue, 28 Feb 2012 17:12:36 +0200
-Message-ID: <4F4CEEE4.7020204@gmail.com>
-References: <1329773340-14066-1-git-send-email-spbnick@gmail.com> <CALu8Fe_h2=LCD+wmQbYBpF9m+yx+gYmkKf_nX3k69DOHktg_eA@mail.gmail.com> <alpine.LNX.2.00.1202281527250.31150@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: [PATCH 1/2] HID: wacom: report distance for Intuos4 WL
+Date: Tue, 28 Feb 2012 17:19:04 +0000
+Message-ID: <1330449545-6217-1-git-send-email-przemo@firszt.eu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:54119 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754855Ab2B1PMl (ORCPT
+Received: from stats.peacock.arvixe.com ([174.122.104.67]:52467 "EHLO
+	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756528Ab2B1RT4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Feb 2012 10:12:41 -0500
-Received: by eaah12 with SMTP id h12so2619623eaa.19
-        for <linux-input@vger.kernel.org>; Tue, 28 Feb 2012 07:12:39 -0800 (PST)
-In-Reply-To: <alpine.LNX.2.00.1202281527250.31150@pobox.suse.cz>
+	Tue, 28 Feb 2012 12:19:56 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: jkosina@suse.cz, pinglinux@gmail.com, peter.hutterer@who-t.net
+Cc: linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Przemo Firszt <przemo@firszt.eu>
 
-Hi Jiri,
+This patch adds reporting of distance of tool to the tablet surface. Maximum
+reported value is 63 (0x3F).
 
-On 02/28/2012 04:30 PM, Jiri Kosina wrote:
-> well, I am not really sure what value does it provide to have such
-> functionality in the kernel.
->
-> I can understand that it helps you when developing out-of-tree (yet)
-> drivers ...
+Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ drivers/hid/hid-wacom.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-It doesn't just help, it makes them possible. Without this parameter it is
-not possible to have out-of-tree HID drivers. Currently, a driver won't be
-used if it isn't in the hid_have_special_driver array, as you probably know.
+diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+index a3476f9..5a58db2 100644
+--- a/drivers/hid/hid-wacom.c
++++ b/drivers/hid/hid-wacom.c
+@@ -320,6 +320,7 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
+ 			struct input_dev *input, unsigned char *data)
+ {
+ 	__u16 x, y, pressure;
++	__u8 distance;
+ 
+ 	switch (data[1]) {
+ 	case 0x80: /* Out of proximity report */
+@@ -353,6 +354,7 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
+ 		y = data[4] << 9 | data[5] << 1 | (data[9] & 0x01);
+ 		pressure = (data[6] << 3) | ((data[7] & 0xC0) >> 5)
+ 			| (data[1] & 0x01);
++		distance = (data[9] >> 2) & 0x3f;
+ 
+ 		input_report_key(input, BTN_TOUCH, pressure > 1);
+ 
+@@ -362,6 +364,7 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
+ 		input_report_abs(input, ABS_X, x);
+ 		input_report_abs(input, ABS_Y, y);
+ 		input_report_abs(input, ABS_PRESSURE, pressure);
++		input_report_abs(input, ABS_DISTANCE, distance);
+ 		input_report_abs(input, ABS_MISC, wdata->id);
+ 		input_event(input, EV_MSC, MSC_SERIAL, wdata->serial);
+ 		input_report_key(input, wdata->tool, 1);
+@@ -484,6 +487,7 @@ static int wacom_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		input_set_abs_params(input, ABS_X, 0, 40640, 4, 0);
+ 		input_set_abs_params(input, ABS_Y, 0, 25400, 4, 0);
+ 		input_set_abs_params(input, ABS_PRESSURE, 0, 2047, 0, 0);
++		input_set_abs_params(input, ABS_DISTANCE, 0, 63, 0, 0);
+ 		break;
+ 	}
+ 
+-- 
+1.7.6.4
 
-> but as you are patching the kernel anyway with those drivers,
-> you can easily run a kernel that has hid_have_special_driver[] array
-> adjusted accordingly.
-
-Me yes, but I can't expect tablet users to patch and build their kernels
-every time their distributions update them.
-
-> And once you are submitting the driver for inclusion, you are of course
-> submitting it together with hid_have_special_driver[] addition.
-
-Sure.
-
-> So it doesn't seem to be a debugging facility to me, and neither does it
-> provide any added value for users of vanilla kernel.
-
-The current workflow is this:
-
-1. The user buys a new tablet, which is not yet supported by the kernel.
-2. I add and submit kernel support for it.
-
-Now, until my patch gets into the user's distribution kernel (which takes
-3 months minimum, but usually about 5), he/she should build a kernel with my
-patch *every* time the distribution updates it, if the user whishes to keep
-up with the security updates and have a working tablet.
-
-This is a bit too much to expect from the regular graphics tablet users.
-
-Ubuntu, for example, does lots of kernel releases even for LTS
-distributions. Then, there are users who want to stay on an older kernel for
-some reasons.
-
-My plan is to have regular releases of a DKMS-enabled driver package, which
-once installed is rebuilt and installed automatically with each kernel
-update. The only additional required action would be putting "options hid
-have_special_driver=usb:VID:PID" into modprobe.conf.
-
-So, the full planned workflow is this:
-
-1. The user buys a new tablet, which is not yet supported by the kernel.
-2. I add and submit kernel support for it.
-3. I release a new version of the DKMS-enabled driver package including
-    support for the user's tablet.
-4. The user downloads and installs the package variant for his distribution,
-    say, a .deb.
-5. The user adds the "options hid have_special_driver=usb:VID:PID" line into
-    his modprobe.conf.
-6. The tablet driver is automatically re-built and re-installed with each
-    kernel update.
-7. Once the distribution pushes a kernel release with his tablet driver, the
-    user is free to remove the DKMS package.
-
-It would also be useful to be able to send the user a DKMS package with an
-experimental driver to have him easily install and test it. Currently I'm
-forced to build whole kernel packages in these cases.
-
-Another point in support of this change is that the usbhid module already
-has "quirks" parameter, which is somewhat similar in purpose.
-
-Thanks :)!
-
-Sincerely,
-Nick

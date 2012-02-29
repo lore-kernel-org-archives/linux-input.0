@@ -1,45 +1,162 @@
-From: Manoj Iyer <manoj.iyer@canonical.com>
-Subject: Re: [PATCH] Input: atkbd - Add force relese key quirk for HP
- ProBook
-Date: Wed, 29 Feb 2012 00:57:24 -0600 (CST)
-Message-ID: <alpine.DEB.2.02.1202290056170.6792@happy>
-References: <1330475770-4153-1-git-send-email-manoj.iyer@canonical.com> <1330475770-4153-2-git-send-email-manoj.iyer@canonical.com> <20120229004604.GB21093@kroah.com> <20120229010311.GA11492@core.coreip.homeip.net> <alpine.DEB.2.02.1202282351510.5366@happy>
- <20120229061715.GA13131@core.coreip.homeip.net>
+From: Viresh Kumar <viresh.kumar@st.com>
+Subject: [PATCH V2] Input: usbtouchscreen: add support for Data Modul EasyTouch TP 72037
+Date: Wed, 29 Feb 2012 15:37:31 +0530
+Message-ID: <ef63b19a6f667b4ffc22f0bacfda60d9e53fcba1.1330505561.git.viresh.kumar@st.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:44550 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965994Ab2B2G5b (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Feb 2012 01:57:31 -0500
-In-Reply-To: <20120229061715.GA13131@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, daniel.ritz@gmx.ch
+Cc: linux-input@vger.kernel.org, armando.visconti@st.com, shiraz.hashim@st.com, vipin.kumar@st.com, rajeev-dlh.kumar@st.com, deepak.sikri@st.com, vipulkumar.samar@st.com, amit.virdi@st.com, viresh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com, viresh.linux@gmail.com, bhavna.yadav@st.com, vincenzo.frascino@st.com, mirko.gardi@st.com, salvatore.dedominicis@st.com, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Manoj Iyer <manoj.iyer@canonical.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
 
+From: Armando Visconti <armando.visconti@st.com>
 
-> If you submit your quirk to udev maintainers you will help others
-> exactly the same as with kernel patch.
+The Data Modul TP 72037 EasyTouch controller is derived from EGALAX
+controller and is capable of detecting dual contacts. Packets can be 5
+bytes or 10 bytes long, depending whether one or two contacts are
+detected. Format is same as EGALAX touch controller, but with x and y
+coordinates inverted.
 
-Thanks for clarifying, I will pursue this option.
+Signed-off-by: Armando Visconti <armando.visconti@st.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+---
+Changes since V1:
+- defined MULTI_PACKET if not defined earlier
+- EGALAX replaced with ETOUCH
 
+ drivers/input/touchscreen/Kconfig          |    9 ++++
+ drivers/input/touchscreen/usbtouchscreen.c |   63 ++++++++++++++++++++++++++++
+ 2 files changed, 72 insertions(+), 0 deletions(-)
 
-
->
-> Thanks.
->
-> -- 
-> Dmitry
->
-> P.S. Please do not top post.
->
->
-
---
-====================
-Manoj Iyer
-Ubuntu/Canonical
-Hardware Enablement
-====================
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 2b21a70..2acf16f 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -607,6 +607,7 @@ config TOUCHSCREEN_USB_COMPOSITE
+ 	  - JASTEC USB Touch Controller/DigiTech DTR-02U
+ 	  - Zytronic controllers
+ 	  - Elo TouchSystems 2700 IntelliTouch
++	  - EasyTouch USB Touch Controller from Data Modul
+ 
+ 	  Have a look at <http://linux.chapter7.ch/touchkit/> for
+ 	  a usage description and the required user-space stuff.
+@@ -711,6 +712,14 @@ config TOUCHSCREEN_USB_NEXIO
+ 	bool "NEXIO/iNexio device support" if EXPERT
+ 	depends on TOUCHSCREEN_USB_COMPOSITE
+ 
++config TOUCHSCREEN_USB_EASYTOUCH
++	default y
++	bool "EasyTouch USB Touch controller device support" if EMBEDDED
++	depends on TOUCHSCREEN_USB_COMPOSITE
++	help
++	  Say Y here if you have a EasyTouch USB Touch controller device support.
++	  If unsure, say N.
++
+ config TOUCHSCREEN_TOUCHIT213
+ 	tristate "Sahara TouchIT-213 touchscreen"
+ 	select SERIO
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index 3a5ebf4..22cd96f 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -17,6 +17,7 @@
+  *  - Zytronic capacitive touchscreen
+  *  - NEXIO/iNexio
+  *  - Elo TouchSystems 2700 IntelliTouch
++ *  - EasyTouch USB Dual/Multi touch controller from Data Modul
+  *
+  * Copyright (C) 2004-2007 by Daniel Ritz <daniel.ritz@gmx.ch>
+  * Copyright (C) by Todd E. Johnson (mtouchusb.c)
+@@ -140,6 +141,7 @@ enum {
+ 	DEVTYPE_TC45USB,
+ 	DEVTYPE_NEXIO,
+ 	DEVTYPE_ELO,
++	DEVTYPE_ETOUCH,
+ };
+ 
+ #define USB_DEVICE_HID_CLASS(vend, prod) \
+@@ -245,6 +247,10 @@ static const struct usb_device_id usbtouch_devices[] = {
+ 	{USB_DEVICE(0x04e7, 0x0020), .driver_info = DEVTYPE_ELO},
+ #endif
+ 
++#ifdef CONFIG_TOUCHSCREEN_USB_EASYTOUCH
++	{USB_DEVICE(0x7374, 0x0001), .driver_info = DEVTYPE_ETOUCH},
++#endif
++
+ 	{}
+ };
+ 
+@@ -326,6 +332,51 @@ static int egalax_get_pkt_len(unsigned char *buf, int len)
+ }
+ #endif
+ 
++/*****************************************************************************
++ * EasyTouch part
++ */
++
++#ifdef CONFIG_TOUCHSCREEN_USB_EASYTOUCH
++
++#ifndef MULTI_PACKET
++#define MULTI_PACKET
++#endif
++
++#define ETOUCH_PKT_TYPE_MASK		0xFE
++#define ETOUCH_PKT_TYPE_REPT		0x80
++#define ETOUCH_PKT_TYPE_REPT2		0xB0
++#define ETOUCH_PKT_TYPE_DIAG		0x0A
++
++static int etouch_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
++{
++	if ((pkt[0] & ETOUCH_PKT_TYPE_MASK) != ETOUCH_PKT_TYPE_REPT &&
++		(pkt[0] & ETOUCH_PKT_TYPE_MASK) != ETOUCH_PKT_TYPE_REPT2)
++		return 0;
++
++	dev->x = ((pkt[1] & 0x1F) << 7) | (pkt[2] & 0x7F);
++	dev->y = ((pkt[3] & 0x1F) << 7) | (pkt[4] & 0x7F);
++	dev->touch = pkt[0] & 0x01;
++
++	return 1;
++}
++
++static int etouch_get_pkt_len(unsigned char *buf, int len)
++{
++	switch (buf[0] & ETOUCH_PKT_TYPE_MASK) {
++	case ETOUCH_PKT_TYPE_REPT:
++	case ETOUCH_PKT_TYPE_REPT2:
++		return 5;
++
++	case ETOUCH_PKT_TYPE_DIAG:
++		if (len < 2)
++			return -1;
++
++		return buf[1] + 2;
++	}
++
++	return 0;
++}
++#endif
+ 
+ /*****************************************************************************
+  * PanJit Part
+@@ -1175,6 +1226,18 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
+ 		.exit		= nexio_exit,
+ 	},
+ #endif
++#ifdef CONFIG_TOUCHSCREEN_USB_EASYTOUCH
++	[DEVTYPE_ETOUCH] = {
++		.min_xc		= 0x0,
++		.max_xc		= 0x07ff,
++		.min_yc		= 0x0,
++		.max_yc		= 0x07ff,
++		.rept_size	= 16,
++		.process_pkt	= usbtouch_process_multi,
++		.get_pkt_len	= etouch_get_pkt_len,
++		.read_data	= etouch_read_data,
++	},
++#endif
+ };
+ 
+ 
+-- 
+1.7.8.110.g4cb5d

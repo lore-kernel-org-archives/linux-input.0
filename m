@@ -1,182 +1,43 @@
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-Subject: Re: [PATCH V2] Input: usbtouchscreen: add support for Data Modul
- EasyTouch TP 72037
-Date: Wed, 29 Feb 2012 20:54:55 +0100
-Message-ID: <4F4E828F.2060105@gmx.ch>
-References: <ef63b19a6f667b4ffc22f0bacfda60d9e53fcba1.1330505561.git.viresh.kumar@st.com>
+From: Eric Paris <eparis@parisplace.org>
+Subject: Logitech MX5500 Bluetooth mouse middle 'button' does not work
+Date: Wed, 29 Feb 2012 16:00:40 -0500
+Message-ID: <CACLa4pukyDgXeqJ=e7-b+FKw88O32g02zob0R1T9JR1VvR+2mQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.22]:47321 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753979Ab2B2TzA (ORCPT
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:44947 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756123Ab2B2VAl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Feb 2012 14:55:00 -0500
-In-Reply-To: <ef63b19a6f667b4ffc22f0bacfda60d9e53fcba1.1330505561.git.viresh.kumar@st.com>
+	Wed, 29 Feb 2012 16:00:41 -0500
+Received: by vcqp1 with SMTP id p1so3745220vcq.19
+        for <linux-input@vger.kernel.org>; Wed, 29 Feb 2012 13:00:41 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Viresh Kumar <viresh.kumar@st.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, armando.visconti@st.com, shiraz.hashim@st.com, vipin.kumar@st.com, rajeev-dlh.kumar@st.com, deepak.sikri@st.com, vipulkumar.samar@st.com, amit.virdi@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com, viresh.linux@gmail.com, bhavna.yadav@st.com, vincenzo.frascino@st.com, mirko.gardi@st.com, salvatore.dedominicis@st.com, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On 2012-02-29 11:07 , Viresh Kumar wrote:
-> From: Armando Visconti <armando.visconti@st.com>
-> 
-> The Data Modul TP 72037 EasyTouch controller is derived from EGALAX
-> controller and is capable of detecting dual contacts. Packets can be 5
-> bytes or 10 bytes long, depending whether one or two contacts are
-> detected. Format is same as EGALAX touch controller, but with x and y
-> coordinates inverted.
-> 
-> Signed-off-by: Armando Visconti <armando.visconti@st.com>
-> Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
-> ---
-> Changes since V1:
-> - defined MULTI_PACKET if not defined earlier
-> - EGALAX replaced with ETOUCH
-> 
->  drivers/input/touchscreen/Kconfig          |    9 ++++
->  drivers/input/touchscreen/usbtouchscreen.c |   63 ++++++++++++++++++++++++++++
->  2 files changed, 72 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 2b21a70..2acf16f 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -607,6 +607,7 @@ config TOUCHSCREEN_USB_COMPOSITE
->  	  - JASTEC USB Touch Controller/DigiTech DTR-02U
->  	  - Zytronic controllers
->  	  - Elo TouchSystems 2700 IntelliTouch
-> +	  - EasyTouch USB Touch Controller from Data Modul
->  
->  	  Have a look at <http://linux.chapter7.ch/touchkit/> for
->  	  a usage description and the required user-space stuff.
-> @@ -711,6 +712,14 @@ config TOUCHSCREEN_USB_NEXIO
->  	bool "NEXIO/iNexio device support" if EXPERT
->  	depends on TOUCHSCREEN_USB_COMPOSITE
->  
-> +config TOUCHSCREEN_USB_EASYTOUCH
-> +	default y
-> +	bool "EasyTouch USB Touch controller device support" if EMBEDDED
-> +	depends on TOUCHSCREEN_USB_COMPOSITE
-> +	help
-> +	  Say Y here if you have a EasyTouch USB Touch controller device support.
-> +	  If unsure, say N.
-> +
->  config TOUCHSCREEN_TOUCHIT213
->  	tristate "Sahara TouchIT-213 touchscreen"
->  	select SERIO
-> diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-> index 3a5ebf4..22cd96f 100644
-> --- a/drivers/input/touchscreen/usbtouchscreen.c
-> +++ b/drivers/input/touchscreen/usbtouchscreen.c
-> @@ -17,6 +17,7 @@
->   *  - Zytronic capacitive touchscreen
->   *  - NEXIO/iNexio
->   *  - Elo TouchSystems 2700 IntelliTouch
-> + *  - EasyTouch USB Dual/Multi touch controller from Data Modul
->   *
->   * Copyright (C) 2004-2007 by Daniel Ritz <daniel.ritz@gmx.ch>
->   * Copyright (C) by Todd E. Johnson (mtouchusb.c)
-> @@ -140,6 +141,7 @@ enum {
->  	DEVTYPE_TC45USB,
->  	DEVTYPE_NEXIO,
->  	DEVTYPE_ELO,
-> +	DEVTYPE_ETOUCH,
->  };
->  
->  #define USB_DEVICE_HID_CLASS(vend, prod) \
-> @@ -245,6 +247,10 @@ static const struct usb_device_id usbtouch_devices[] = {
->  	{USB_DEVICE(0x04e7, 0x0020), .driver_info = DEVTYPE_ELO},
->  #endif
->  
-> +#ifdef CONFIG_TOUCHSCREEN_USB_EASYTOUCH
-> +	{USB_DEVICE(0x7374, 0x0001), .driver_info = DEVTYPE_ETOUCH},
-> +#endif
-> +
->  	{}
->  };
->  
-> @@ -326,6 +332,51 @@ static int egalax_get_pkt_len(unsigned char *buf, int len)
->  }
->  #endif
->  
-> +/*****************************************************************************
-> + * EasyTouch part
-> + */
-> +
-> +#ifdef CONFIG_TOUCHSCREEN_USB_EASYTOUCH
-> +
-> +#ifndef MULTI_PACKET
-> +#define MULTI_PACKET
-> +#endif
-> +
-> +#define ETOUCH_PKT_TYPE_MASK		0xFE
-> +#define ETOUCH_PKT_TYPE_REPT		0x80
-> +#define ETOUCH_PKT_TYPE_REPT2		0xB0
-> +#define ETOUCH_PKT_TYPE_DIAG		0x0A
-> +
-> +static int etouch_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
-> +{
-> +	if ((pkt[0] & ETOUCH_PKT_TYPE_MASK) != ETOUCH_PKT_TYPE_REPT &&
+I'm running an up2date version of Fedora 16 (I am completely input
+clueless so have no idea what might be relevant, please tell me what I
+can supply).
 
-> +		(pkt[0] & ETOUCH_PKT_TYPE_MASK) != ETOUCH_PKT_TYPE_REPT2)
+kernel-3.2.7-1.fc16.x86_64
+xorg-x11-server-common-1.11.4-1.fc16.x86_64
 
-If the second packet has values too different from the first one you will
-get a jumpy cursor. If this is the case, simply drop the line above,
-to ignore the second packet, leaving etouch_get_pkt_len() unchanged.
-But otherwise it shouldn't be much of a problem, so I guess it's ok as-is.
+I just got a new Logitech MX5500 bluetooth keyboard mouse combo.  I
+had no problem at all getting them recognized and connected using the
+built in bluetooth on my Lenovo X200 laptop.  My problem is with the
+middle mouse 'button.'  On all of my other mice clicking the scroll
+wheel acted as a middle button.  On this new mouse it makes a noise
+like a 'click' but it doesn't do anything.  I launched evtest and see
+events for everything on the mouse (it has a thumb scroll whell, extra
+buttons, all sorts of stuff) but it gives no event for 'click'ing the
+scroll wheel. (I do see events for scrolling the scroll wheel)
 
-> +		return 0;
-> +
-> +	dev->x = ((pkt[1] & 0x1F) << 7) | (pkt[2] & 0x7F);
-> +	dev->y = ((pkt[3] & 0x1F) << 7) | (pkt[4] & 0x7F);
-> +	dev->touch = pkt[0] & 0x01;
-> +
-> +	return 1;
-> +}
-> +
-> +static int etouch_get_pkt_len(unsigned char *buf, int len)
-> +{
-> +	switch (buf[0] & ETOUCH_PKT_TYPE_MASK) {
-> +	case ETOUCH_PKT_TYPE_REPT:
-> +	case ETOUCH_PKT_TYPE_REPT2:
-> +		return 5;
-> +
-> +	case ETOUCH_PKT_TYPE_DIAG:
-> +		if (len < 2)
-> +			return -1;
-> +
-> +		return buf[1] + 2;
-> +	}
-> +
-> +	return 0;
-> +}
-> +#endif
->  
->  /*****************************************************************************
->   * PanJit Part
-> @@ -1175,6 +1226,18 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
->  		.exit		= nexio_exit,
->  	},
->  #endif
-> +#ifdef CONFIG_TOUCHSCREEN_USB_EASYTOUCH
-> +	[DEVTYPE_ETOUCH] = {
-> +		.min_xc		= 0x0,
-> +		.max_xc		= 0x07ff,
-> +		.min_yc		= 0x0,
-> +		.max_yc		= 0x07ff,
-> +		.rept_size	= 16,
-> +		.process_pkt	= usbtouch_process_multi,
-> +		.get_pkt_len	= etouch_get_pkt_len,
-> +		.read_data	= etouch_read_data,
-> +	},
-> +#endif
->  };
->  
+So, what can I do, try, collect, give, test, code, whatever to figure
+out if my mouse just wasn't supposed to have have a middle mouse click
+(aka return this PoS because I need fast cut and paste).  Figure out
+if just this one particular mouse has a broken button (aka replace
+this mouse) or if really it's a driver problem.  Any help would be
+greatly appreciated!
 
-Looks good, thanks.
-
-Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
-
-
+-Eric

@@ -1,104 +1,56 @@
-From: Eric Paris <eparis@parisplace.org>
-Subject: Re: Logitech MX5500 Bluetooth mouse middle 'button' does not work
-Date: Thu, 1 Mar 2012 10:15:06 -0500
-Message-ID: <CACLa4ps8wrhBU+2t7M-hNMoxNDvfSbKy=x3iOnXZtoHkSr9ahQ@mail.gmail.com>
-References: <CACLa4pukyDgXeqJ=e7-b+FKw88O32g02zob0R1T9JR1VvR+2mQ@mail.gmail.com>
-	<CAKON4OymbCJL7takyEujPmjmNVE4hWEOVi9FX8sjg3sPd-2ybg@mail.gmail.com>
-	<CACLa4pvuSqorMzdNE8nPvHVyayufUoL95AXNh9-8_M5oLONhWg@mail.gmail.com>
-	<1330609674.2398.18.camel@novo.hadess.net>
+From: Chase Douglas <chasedouglas@gmail.com>
+Subject: Re: [PATCH 1/2] Input: synaptics - add second variant of two-button
+ clickpad
+Date: Thu, 01 Mar 2012 09:59:43 -0800
+Message-ID: <4F4FB90F.6080201@gmail.com>
+References: <1329193273-12486-1-git-send-email-chase.douglas@canonical.com> <4F4224EC.5000400@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:46396 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756844Ab2CAPPH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Mar 2012 10:15:07 -0500
-Received: by vcqp1 with SMTP id p1so524725vcq.19
-        for <linux-input@vger.kernel.org>; Thu, 01 Mar 2012 07:15:06 -0800 (PST)
-In-Reply-To: <1330609674.2398.18.camel@novo.hadess.net>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:45057 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752573Ab2CAR7B (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Mar 2012 12:59:01 -0500
+Received: by pbcup15 with SMTP id up15so1148498pbc.19
+        for <linux-input@vger.kernel.org>; Thu, 01 Mar 2012 09:59:01 -0800 (PST)
+In-Reply-To: <4F4224EC.5000400@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: "jonsmirl@gmail.com" <jonsmirl@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Mar 1, 2012 at 8:47 AM, Bastien Nocera <hadess@hadess.net> wrote:
-> On Thu, 2012-03-01 at 08:39 -0500, Eric Paris wrote:
->> On Wed, Feb 29, 2012 at 4:37 PM, jonsmirl@gmail.com <jonsmirl@gmail.com> wrote:
->> > On Wed, Feb 29, 2012 at 4:00 PM, Eric Paris <eparis@parisplace.org> wrote:
-
-> I think working on the kernel's fried your brain Eric ;)
-
-You seem to mistakenly believe my brain was ever not fried...
-
-> xinput needs an X display. udev doesn't know that display. You can
-> instead use Jon's script with this, if you use GNOME 3:
-> http://who-t.blogspot.com/2011/03/custom-input-device-configuration-in.html
+On 02/20/2012 02:48 AM, Chase Douglas wrote:
+> On 02/14/2012 05:21 AM, Chase Douglas wrote:
+>> Signed-off-by: Chase Douglas<chase.douglas@canonical.com>
+>> ---
+>> There are two models of Dell netbooks (Inspiron 1011 and 1012 IIRC) with
+>> two-button clickpads that do not match the current two-button clickpad bit
+>> mask. I don't have any docs to tell me which bits are which, but this bit
+>> seems the most probably. For reference, the caps bits for these netbooks are:
+>>
+>> caps: 0xd04713/0xa40000/0x2a0000
+>>
+>>   drivers/input/mouse/synaptics.h |    1 +
+>>   1 files changed, 1 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+>> index fd26ccc..816d7bd 100644
+>> --- a/drivers/input/mouse/synaptics.h
+>> +++ b/drivers/input/mouse/synaptics.h
+>> @@ -80,6 +80,7 @@
+>>    */
+>>   #define SYN_CAP_CLICKPAD(ex0c)		((ex0c)&  0x100000) /* 1-button ClickPad */
+>>   #define SYN_CAP_CLICKPAD2BTN(ex0c)	((ex0c)&  0x000100) /* 2-button ClickPad */
+>> +#define SYN_CAP_CLICKPAD2BTN2(ex0c)	((ex0c)&  0x200000) /* 2-button ClickPad */
+>>   #define SYN_CAP_MAX_DIMENSIONS(ex0c)	((ex0c)&  0x020000)
+>>   #define SYN_CAP_MIN_DIMENSIONS(ex0c)	((ex0c)&  0x002000)
+>>   #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c)&  0x080000)
 >
-> More examples at:
-> http://git.gnome.org/browse/gnome-settings-daemon/tree/plugins/common/input-device-example.sh
+> Dmitry, would you be able to comment on this soon? We're approaching
+> kernel freeze in Ubuntu and I want to have this patch in there if it
+> makes sense.
 
-So obviously I don't know how to get the scroll wheel click to work,
-but remapping the thumb buttons works great!  Thanks so much everyone!
- /me wonders how long it will take to remember how to set this up
-after next reinstall.
+Ping?
 
-$ gsettings set org.gnome.settings-daemon.peripherals.input-devices
-hotplug-command $HOME/scripts/input-devices.sh
-$ cat /home/eparis/scripts/input-devices.sh
-#!/bin/sh
-
-args=`getopt "t:i:" $*`
-
-set -- $args
-
-while [ $# -gt 0 ]
-do
-    case $1 in
-    -t)
-        shift;
-        type="$1"
-        ;;
-     -i)
-        shift;
-        id="$1"
-        ;;
-     --)
-        shift;
-        device="$@"
-        break;
-        ;;
-    *)
-        echo "Unknown option $1";
-        exit 1
-        ;;
-    esac
-    shift
-done
-
-retval=0
-
-case $type in
-        added)
-		# Forward/Back thumb buttons to 'middle' click
-		if [ "$device" = "Logitech MX Revolution Mouse" ]; then
-        		/usr/bin/xinput set-button-map "$device" 1 2 3 4 5 6 2 2 >>
-/tmp/logitech 2>&1
-		fi
-		;;
-        present)
-		# Forward/Back thumb buttons to 'middle' click
-		if [ "$device" = "Logitech MX Revolution Mouse" ]; then
-        		/usr/bin/xinput set-button-map "$device" 1 2 3 4 5 6 2 2 >>
-/tmp/logitech 2>&1
-		fi
-                ;;
-        removed)
-                ;;
-        *)
-                echo "Unknown operation"
-                retval=1
-                ;;
-esac
-
-# All further processing will be disabled if $retval == 0
-exit $retval
+-- Chase

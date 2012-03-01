@@ -1,70 +1,37 @@
-From: Bastien Nocera <hadess@hadess.net>
+From: "jonsmirl@gmail.com" <jonsmirl@gmail.com>
 Subject: Re: Logitech MX5500 Bluetooth mouse middle 'button' does not work
-Date: Thu, 01 Mar 2012 13:47:54 +0000
-Message-ID: <1330609674.2398.18.camel@novo.hadess.net>
+Date: Thu, 1 Mar 2012 08:55:23 -0500
+Message-ID: <CAKON4Ozcui=fo1vTd70s5Mye2n-9YS+ys74Kyozrn-jrdP6RQg@mail.gmail.com>
 References: <CACLa4pukyDgXeqJ=e7-b+FKw88O32g02zob0R1T9JR1VvR+2mQ@mail.gmail.com>
-	 <CAKON4OymbCJL7takyEujPmjmNVE4hWEOVi9FX8sjg3sPd-2ybg@mail.gmail.com>
-	 <CACLa4pvuSqorMzdNE8nPvHVyayufUoL95AXNh9-8_M5oLONhWg@mail.gmail.com>
+	<CAKON4OymbCJL7takyEujPmjmNVE4hWEOVi9FX8sjg3sPd-2ybg@mail.gmail.com>
+	<CACLa4pvuSqorMzdNE8nPvHVyayufUoL95AXNh9-8_M5oLONhWg@mail.gmail.com>
+	<1330609674.2398.18.camel@novo.hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:33340 "EHLO
-	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758103Ab2CANsE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Mar 2012 08:48:04 -0500
-In-Reply-To: <CACLa4pvuSqorMzdNE8nPvHVyayufUoL95AXNh9-8_M5oLONhWg@mail.gmail.com>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:59752 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759326Ab2CANzY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Mar 2012 08:55:24 -0500
+Received: by wejx9 with SMTP id x9so365335wej.19
+        for <linux-input@vger.kernel.org>; Thu, 01 Mar 2012 05:55:23 -0800 (PST)
+In-Reply-To: <1330609674.2398.18.camel@novo.hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Paris <eparis@parisplace.org>
-Cc: "jonsmirl@gmail.com" <jonsmirl@gmail.com>, linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Eric Paris <eparis@parisplace.org>, linux-input@vger.kernel.org
 
-On Thu, 2012-03-01 at 08:39 -0500, Eric Paris wrote:
-> On Wed, Feb 29, 2012 at 4:37 PM, jonsmirl@gmail.com <jonsmirl@gmail.com> wrote:
-> > On Wed, Feb 29, 2012 at 4:00 PM, Eric Paris <eparis@parisplace.org> wrote:
-> 
-> >> I just got a new Logitech MX5500 bluetooth keyboard mouse combo.  I
-> >> had no problem at all getting them recognized and connected using the
-> >> built in bluetooth on my Lenovo X200 laptop.  My problem is with the
-> >> middle mouse 'button.'  On all of my other mice clicking the scroll
-> >> wheel acted as a middle button.  On this new mouse it makes a noise
-> >> like a 'click' but it doesn't do anything.  I launched evtest and see
-> >> events for everything on the mouse (it has a thumb scroll whell, extra
-> >> buttons, all sorts of stuff) but it gives no event for 'click'ing the
-> >> scroll wheel. (I do see events for scrolling the scroll wheel)
-> ...
-> > It has never worked as far as I know. The middle button on the mouse
-> > reports as device 0 which the input layer is not expecting. I gave up
-> > trying to get it to work.
-> >
-> > This makes the back button near your thumb work as the middle button:
-> > /usr/bin/xinput set-button-map "Logitech MX Revolution Mouse" 1 2 3 4 5 6 2 2
-> >
-> > I have it in .bashrc but it really should be in a udev script. The
-> > mouse occasionally disconnects/reconnect. In udev the command would
-> > get automatically reapplied.
-> 
-> If I run your command by hand it works.  I created a udev rule to try
-> to auto-run the command and it does not work.
-> 
-> ATTR{address}=="00:1F:20:3A:C8:BD", ACTION=="add",
-> RUN+="/usr/bin/xinput set-button-map "Logitech MX Revolution Mouse" 1
-> 2 3 4 5 6 2 2"
-> 
-> I know the udev rule is triggered, because when I replaced it with
-> /bin/touch /tmp/logitech the file was created in /tmp every time the
-> mouse turned on.  Now I'm trying to figure out why it doesn't work as
-> a udev rule.  Anyone thoughts?  If not, at least I have one way to get
-> it mostly working.  Thanks so much everyone!
+I don't know why Logitech called the middle button Button0 instead
+Button2 like every other mouse in the world. To fix it in udev you'd
+need to create a way to map Button0 up to Button1-6 which are
+understood by X.
 
-I think working on the kernel's fried your brain Eric ;)
+Or is there some way to make X act on Button0 that I don't know about?
 
-xinput needs an X display. udev doesn't know that display. You can
-instead use Jon's script with this, if you use GNOME 3:
-http://who-t.blogspot.com/2011/03/custom-input-device-configuration-in.html
+Another way to fix it in udev would be to capture the USB commands
+Windows sends to it that reprograms it from button0 to button2. Then
+send it that command from udev.
 
-More examples at:
-http://git.gnome.org/browse/gnome-settings-daemon/tree/plugins/common/input-device-example.sh
-
-Cheers
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

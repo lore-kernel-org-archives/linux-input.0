@@ -1,67 +1,77 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
-Subject: Re: [PATCH V1] input: keyboard: Add interrupt keyboard driver.
-Date: Fri, 2 Mar 2012 10:54:02 +0530
-Message-ID: <4F505972.1020203@nvidia.com>
-References: <1326778915-2678-1-git-send-email-ldewangan@nvidia.com> <20120119072941.GA9668@core.coreip.homeip.net> <AE833E40769D9441BEBD31E18A33543503A71ECB3B@BGMAIL01.nvidia.com> <4F20B651.4050609@nvidia.com>
+From: linux@johnea.net
+Subject: usbtouchscreen unreliable
+Date: Fri, 02 Mar 2012 09:52:30 -0800
+Message-ID: <4F5108DE.6060005@johnea.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate04.nvidia.com ([216.228.121.35]:9013 "EHLO
-	hqemgate04.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751488Ab2CBFZK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Mar 2012 00:25:10 -0500
-In-Reply-To: <4F20B651.4050609@nvidia.com>
+Received: from johnea.net ([70.167.123.7]:11880 "EHLO mail.johnea.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753475Ab2CBSCd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 2 Mar 2012 13:02:33 -0500
+Received: from [192.168.100.166] (traveler.johnea.net [192.168.100.166])
+	(using TLSv1 with cipher DHE-RSA-CAMELLIA256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mail.johnea.net (Postfix) with ESMTPSA id DCE7773F187D
+	for <linux-input@vger.kernel.org>; Fri,  2 Mar 2012 09:53:42 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "tsoni@codeaurora.org" <tsoni@codeaurora.org>, "kyle.manna@fuel7.com" <kyle.manna@fuel7.com>, "aghayal@codeaurora.org" <aghayal@codeaurora.org>, "vapier@gentoo.org" <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org
 
-On Thursday 26 January 2012 07:41 AM, Laxman Dewangan wrote:
-> On Thursday 19 January 2012 01:09 PM, Laxman Dewangan wrote:
->> On Thursday, January 19, 2012 1:00 PM, Dmitry Torokhov wrote:
->>
->>
-> Hi  Dmitry,
-> Do you have any further comment on above approach?  Here is little bit
-> background which can help on understanding.
-> I am working on some MFD devices and to tried to support the onkey from
-> single driver to avoid having driver for each mfd-pmic driver.
->
-> When developing this driver, I though of following behaviors of the pmic
-> device for power-btn/onkey switches:
-> 1. Separate Interrupt for press and release: (Falling and rising
-> interrupt, no level interrupt) So two different interrupt will get
-> registered and based on interrupt number the key code and key value will
-> get reported to input system. Device like AB8500 (ab8500-ponkey.c).
->
-> 2. Generates interrupt for only key press, no interrupt for the key
-> release (only one interrupt i.e. Falling edge) In this case, it need to
-> send the release event automatically after sending press event. So
-> whenever there is falling edge on keys, the interrupt get generated, No
-> interrupt on pressed level. Devices like ricoh583,  max77663.
->
-> 3. Keep generating interrupt if key is pressed but no interrupt after
-> release (Kind on level (low) interrupt and so multiple interrupts till
-> key pressed.) Devices like tps65910..
-> In this case, the device generates level interrupt and if it acked,
-> again generates interrupt. So if we send the key press/release together
-> without waiting, we will endup with sending the key event multiple time.
-> To avoid this I used the debaince logic as follows:
-> detect first interrupt, send press event and start timer and wait for
-> timer to expire for sending release events. If interrupt again occurs
-> before timer expires, restart timer again. Keep doing this until user
-> release the key. Once he release the key, there will be no interrupt and
-> so timer will be expire after some time i.e. debounce time and then
-> report key released.
->
->
 
-Hi Dmitry,
-Can you please review the above approach? If you still want to do in 
-gpio-keys then I will make new patch and will send but wanted to know 
-your opinion about my proposals.
-Idea is to get support only interrupt keys.
+Hello,
 
-Thanks,
-Laxman
+I'm using the usbtouchscreen driver with an e2i touchscreen on linux 3.2.6 and X.Org X Server 1.10.4.
+
+The touch screen works well initially, but after a day or so of operation, stops responding.
+
+dmesg and Xorg.log both note successful initalization of the device, but no dmesg, Xorg.log, or other log messages are logged at the time of failure. The device just stops responding. Other input devices (a standard optical usb mouse) continue to operate correctly.
+
+I have tried to exit X, rmmod and then insmod the usbtouchscreen driver, then restart X, but this does not correct the issue.
+
+If I exit Xorg, unplug the integrated USB display/touchscreen and then plug it back in, and restart X, this will get the touchscreen to work again. (display is using fbdev driver with displaylink usb panel, output to display does not fail)
+
+Can anyone suggest how to debug this issue? 
+
+I'm not sure if it's a kernel usbtouchscreen issue, an Xorg issue, or some issue with configuration of the system. 
+
+The touchscreen has been failing in this way since at least the 3.1 kernel.
+
+Below are logs of the devices initialization.
+
+Any guidance debugging this issue is greatly appreciated.
+
+Thank You...
+
+johnea
+
+>From dmesg:
+[    7.679382] input: e2i Technology, Inc. USB Touchpanel as /devices/platform/usbhs-omap.0/ehci-omap.0/usb1/1-2/1-2.4/1-2.4.
+3/1-2.4.3:1.0/input/input5
+[    7.684600] usbcore: registered new interface driver usbtouchscreen
+
+
+>From Xorg.log:
+[    26.418] (II) config/udev: Adding input device e2i Technology, Inc. USB Touchpanel (/dev/input/event5)
+[    26.418] (**) e2i Technology, Inc. USB Touchpanel: Applying InputClass "evdev touchscreen catchall"
+[    26.418] (II) Using input driver 'evdev' for 'e2i Technology, Inc. USB Touchpanel'
+[    26.419] (II) Loading /usr/lib/xorg/modules/input/evdev_drv.so
+[    26.419] (**) e2i Technology, Inc. USB Touchpanel: always reports core events
+[    26.419] (**) e2i Technology, Inc. USB Touchpanel: Device: "/dev/input/event5"
+[    26.419] (--) e2i Technology, Inc. USB Touchpanel: Found absolute axes
+[    26.419] (--) e2i Technology, Inc. USB Touchpanel: Found x and y absolute axes
+[    26.419] (--) e2i Technology, Inc. USB Touchpanel: Found absolute touchscreen
+[    26.419] (**) Option "InvertY" "True"
+[    26.420] (**) Option "SwapAxes" "True"
+[    26.420] (II) e2i Technology, Inc. USB Touchpanel: Configuring as touchscreen
+[    26.420] (**) e2i Technology, Inc. USB Touchpanel: YAxisMapping: buttons 4 and 5
+[    26.420] (**) e2i Technology, Inc. USB Touchpanel: EmulateWheelButton: 4, EmulateWheelInertia: 10, EmulateWheelTimeout: 200
+[    26.420] (**) Option "config_info" "udev:/sys/devices/platform/usbhs-omap.0/ehci-omap.0/usb1/1-2/1-2.4/1-2.4.3/1-2.4.3:1.0/input/input5/event5"
+[    26.420] (II) XINPUT: Adding extended input device "e2i Technology, Inc. USB Touchpanel" (type: TOUCHSCREEN)
+[    26.420] (II) e2i Technology, Inc. USB Touchpanel: initialized for absolute axes.
+[    26.421] (**) e2i Technology, Inc. USB Touchpanel: (accel) keeping acceleration scheme 1
+[    26.421] (**) e2i Technology, Inc. USB Touchpanel: (accel) acceleration profile 0
+[    26.421] (**) e2i Technology, Inc. USB Touchpanel: (accel) acceleration factor: 2.000
+[    26.421] (**) e2i Technology, Inc. USB Touchpanel: (accel) acceleration threshold: 4
+[    26.423] (II) config/udev: Adding input device e2i Technology, Inc. USB Touchpanel (/dev/input/mouse1)

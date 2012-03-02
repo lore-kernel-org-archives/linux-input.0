@@ -1,39 +1,72 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Proper representation of button touch (as opposed to button press)
-Date: Fri, 2 Mar 2012 10:36:22 -0800
-Message-ID: <CANRwn3QLhpH=W8r1fJ=xB4Dc46kdfaG+5_x0oFbEJYWjTyYyZA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: [PATCH 1/1] HID: hid-input: allow array fields out of range
+Date: Fri,  2 Mar 2012 22:13:58 +0200
+Message-ID: <1330719239-6318-1-git-send-email-spbnick@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:47719 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756048Ab2CBSgY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Mar 2012 13:36:24 -0500
-Received: by wejx9 with SMTP id x9so1227571wej.19
-        for <linux-input@vger.kernel.org>; Fri, 02 Mar 2012 10:36:22 -0800 (PST)
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:48472 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755698Ab2CBUOX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Mar 2012 15:14:23 -0500
+Received: by eekc41 with SMTP id c41so752475eek.19
+        for <linux-input@vger.kernel.org>; Fri, 02 Mar 2012 12:14:21 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Input <linux-input@vger.kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@vger.kernel.org>, Nikolai Kondrashov <spbnick@gmail.com>
 
-The Intuos5 was just announced, and I'm working on adding support for
-it to the wacom kernel module. One feature new to the Intuos5 is the
-addition of capacitive sensors embedded in the buttons. Each
-ExpressKey (button) has two bits of state: one for the capacitive
-switch and one for the mechanical switch. These bits are synthesized
-into three cases: released, touched, and pressed (the 4th case of
-"pressed with a non-capacitive object" isn't particularly
-interesting). My initial thought was to call input_event() with a
-unique value for the 'touched' case. However, the documentation only
-defines three values for EV_KEY: 0 (released), 1 (pressed), and 2
-(autorepeat).
+Allow array field values out of range as per HID 1.11 specification,
+section 6.2.25:
 
-Is 'touched' a case we would want to allow for EV_KEY, or should I be
-representing things differently?
+	Rather than returning a single bit for each button in the group, an
+	array returns an index in each field that corresponds to the pressed
+	button (like keyboard scan codes). An out-of range value in and array
+	field is considered no controls asserted.
 
-Jason
+Apparently, "and" above is a typo and should be "an".
 
+This fixes at least Waltop tablet pen clicks - otherwise BTN_TOUCH is never
+released.
+
+The relevant part of Waltop tablet report descriptors is this:
+
+	0x09, 0x42,         /*          Usage (Tip Switch),         */
+	0x09, 0x44,         /*          Usage (Barrel Switch),      */
+	0x09, 0x46,         /*          Usage (Tablet Pick),        */
+	0x15, 0x01,         /*          Logical Minimum (1),        */
+	0x25, 0x03,         /*          Logical Maximum (3),        */
+	0x75, 0x04,         /*          Report Size (4),            */
+	0x95, 0x01,         /*          Report Count (1),           */
+	0x80,               /*          Input,                      */
+
+Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
 ---
-Day xee-nee-svsh duu-'ushtlh-ts'it;
-nuu-wee-ya' duu-xan' 'vm-nvshtlh-ts'it.
-Huu-chan xuu naa~-gha.
+
+I hope this could get into the 3.3 release, otherwise at least Waltop tablets
+would be useless.
+
+ drivers/hid/hid-input.c |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 9333d69..627850a 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -986,8 +986,13 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+ 		return;
+ 	}
+ 
+-	/* Ignore out-of-range values as per HID specification, section 5.10 */
+-	if (value < field->logical_minimum || value > field->logical_maximum) {
++	/*
++	 * Ignore out-of-range values as per HID specification,
++	 * section 5.10 and 6.2.25
++	 */
++	if ((field->flags & HID_MAIN_ITEM_VARIABLE) &&
++	    (value < field->logical_minimum ||
++	     value > field->logical_maximum)) {
+ 		dbg_hid("Ignoring out-of-range value %x\n", value);
+ 		return;
+ 	}
+-- 
+1.7.9
+

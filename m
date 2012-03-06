@@ -1,480 +1,250 @@
 From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: [PATCH 1/3] HID: uclogic: Replace original rdescs with links
-Date: Tue,  6 Mar 2012 09:54:22 +0200
-Message-ID: <1331020464-3962-1-git-send-email-spbnick@gmail.com>
+Subject: [PATCH 3/3] HID: waltop: Add support for tablet with PID 0038
+Date: Tue,  6 Mar 2012 09:54:24 +0200
+Message-ID: <1331020464-3962-3-git-send-email-spbnick@gmail.com>
+References: <1331020464-3962-1-git-send-email-spbnick@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:59189 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758301Ab2CFHyi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Mar 2012 02:54:38 -0500
-Received: by wejx9 with SMTP id x9so2853139wej.19
-        for <linux-input@vger.kernel.org>; Mon, 05 Mar 2012 23:54:37 -0800 (PST)
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:41298 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758365Ab2CFHyu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Mar 2012 02:54:50 -0500
+Received: by wibhm2 with SMTP id hm2so2435067wib.19
+        for <linux-input@vger.kernel.org>; Mon, 05 Mar 2012 23:54:48 -0800 (PST)
+In-Reply-To: <1331020464-3962-1-git-send-email-spbnick@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input <linux-input@vger.kernel.org>, Nikolai Kondrashov <spbnick@gmail.com>
 
-Replace original report descriptor dumps in the comments with links to tablet
-descriptions in a wiki, to make code clearer.
+Add support for unknown Waltop tablet with product ID 0x0038.
+This tablet is sold as Genius G-Pen F509.
 
 Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
 ---
- drivers/hid/hid-uclogic.c |  413 ++-------------------------------------------
- 1 files changed, 11 insertions(+), 402 deletions(-)
+ drivers/hid/hid-core.c   |    1 +
+ drivers/hid/hid-ids.h    |    1 +
+ drivers/hid/hid-waltop.c |  148 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 150 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
-index e15732f..1f11289 100644
---- a/drivers/hid/hid-uclogic.c
-+++ b/drivers/hid/hid-uclogic.c
-@@ -18,141 +18,16 @@
- #include "hid-ids.h"
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 6d923bd..02e32c1 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1568,6 +1568,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_5_8_INCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_12_1_INCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_Q_PAD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_PID_0038) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_XAT, USB_DEVICE_ID_XAT_CSR) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 0ce075b..c583077 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -718,6 +718,7 @@
+ #define USB_DEVICE_ID_WALTOP_SLIM_TABLET_5_8_INCH	0x0032
+ #define USB_DEVICE_ID_WALTOP_SLIM_TABLET_12_1_INCH	0x0034
+ #define USB_DEVICE_ID_WALTOP_Q_PAD			0x0037
++#define USB_DEVICE_ID_WALTOP_PID_0038			0x0038
+ #define USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH	0x0501
+ #define USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH	0x0500
  
- /*
-- * The original descriptors of WPXXXXU tablets have three report IDs, of
-- * which only two are used (8 and 9), and the remaining (7) seems to have
-- * the originally intended pen description which was abandoned for some
-- * reason.  From this unused description it is possible to extract the
-- * actual physical extents and resolution. All the models use the same
-- * descriptor with different extents for the unused report ID.
-- *
-- * Here it is:
-- *
-- *  Usage Page (Digitizer),         ; Digitizer (0Dh)
-- *  Usage (Pen),                    ; Pen (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (7),
-- *    Usage (Stylus),               ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (Tip Switch),         ; Tip switch (42h, momentary control)
-- *      Usage (Barrel Switch),      ; Barrel switch (44h, momentary control)
-- *      Usage (Eraser),             ; Eraser (45h, momentary control)
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Size (1),
-- *      Report Count (3),
-- *      Input (Variable),
-- *      Report Count (3),
-- *      Input (Constant, Variable),
-- *      Usage (In Range),           ; In range (32h, momentary control)
-- *      Report Count (1),
-- *      Input (Variable),
-- *      Report Count (1),
-- *      Input (Constant, Variable),
-- *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-- *      Usage (X),                  ; X (30h, dynamic value)
-- *      Report Size (16),
-- *      Report Count (1),
-- *      Push,
-- *      Unit Exponent (13),
-- *      Unit (Inch^3),
-- *      Physical Minimum (0),
-- *      Physical Maximum (Xpm),
-- *      Logical Maximum (Xlm),
-- *      Input (Variable),
-- *      Usage (Y),                  ; Y (31h, dynamic value)
-- *      Physical Maximum (Ypm),
-- *      Logical Maximum (Ylm),
-- *      Input (Variable),
-- *      Pop,
-- *      Usage Page (Digitizer),     ; Digitizer (0Dh)
-- *      Usage (Tip Pressure),       ; Tip pressure (30h, dynamic value)
-- *      Logical Maximum (1023),
-- *      Input (Variable),
-- *      Report Size (16),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-- *  Usage (Mouse),                  ; Mouse (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (8),
-- *    Usage (Pointer),              ; Pointer (01h, physical collection)
-- *    Collection (Physical),
-- *      Usage Page (Button),        ; Button (09h)
-- *      Usage Minimum (01h),
-- *      Usage Maximum (03h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Count (3),
-- *      Report Size (1),
-- *      Input (Variable),
-- *      Report Count (5),
-- *      Input (Constant),
-- *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-- *      Usage (X),                  ; X (30h, dynamic value)
-- *      Usage (Y),                  ; Y (31h, dynamic value)
-- *      Usage (Wheel),              ; Wheel (38h, dynamic value)
-- *      Usage (00h),
-- *      Logical Minimum (-127),
-- *      Logical Maximum (127),
-- *      Report Size (8),
-- *      Report Count (4),
-- *      Input (Variable, Relative),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-- *  Usage (Mouse),                  ; Mouse (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (9),
-- *    Usage (Pointer),              ; Pointer (01h, physical collection)
-- *    Collection (Physical),
-- *      Usage Page (Button),        ; Button (09h)
-- *      Usage Minimum (01h),
-- *      Usage Maximum (03h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Count (3),
-- *      Report Size (1),
-- *      Input (Variable),
-- *      Report Count (5),
-- *      Input (Constant),
-- *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-- *      Usage (X),                  ; X (30h, dynamic value)
-- *      Usage (Y),                  ; Y (31h, dynamic value)
-- *      Logical Minimum (0),
-- *      Logical Maximum (32767),
-- *      Physical Minimum (0),
-- *      Physical Maximum (32767),
-- *      Report Count (2),
-- *      Report Size (16),
-- *      Input (Variable),
-- *      Usage Page (Digitizer),     ; Digitizer (0Dh)
-- *      Usage (Tip Pressure),       ; Tip pressure (30h, dynamic value)
-- *      Logical Maximum (1023),
-- *      Report Count (1),
-- *      Report Size (16),
-- *      Input (Variable),
-- *    End Collection,
-- *  End Collection
-- *
-- * Here are the extents values for the WPXXXXU models:
-- *
-- *              Xpm     Xlm     Ypm     Ylm
-- *  WP4030U     4000    8000    3000    6000
-- *  WP5540U     5500    11000   4000    8000
-- *  WP8060U     8000    16000   6000    12000
-- *
-- * This suggests that all of them have 2000 LPI resolution, as advertised.
-+ * See WPXXXXU model descriptions, device and HID report descriptors at
-+ * http://sf.net/apps/mediawiki/digimend/?title=UC-Logic_Tablet_WP4030U
-+ * http://sf.net/apps/mediawiki/digimend/?title=UC-Logic_Tablet_WP5540U
-+ * http://sf.net/apps/mediawiki/digimend/?title=UC-Logic_Tablet_WP8060U
-  */
- 
- /* Size of the original descriptor of WPXXXXU tablets */
- #define WPXXXXU_RDESC_ORIG_SIZE	212
- 
--/*
-- * Fixed WP4030U report descriptor.
-- * Although the hardware might actually support it, the mouse description
-- * has been removed, since there seems to be no devices having one and it
-- * wouldn't make much sense because of the working area size.
-- */
-+/* Fixed WP4030U report descriptor */
- static __u8 wp4030u_rdesc_fixed[] = {
- 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
- 	0x09, 0x02,         /*  Usage (Pen),                        */
-@@ -343,148 +218,14 @@ static __u8 wp8060u_rdesc_fixed[] = {
+diff --git a/drivers/hid/hid-waltop.c b/drivers/hid/hid-waltop.c
+index c1dce51..2cfd95c 100644
+--- a/drivers/hid/hid-waltop.c
++++ b/drivers/hid/hid-waltop.c
+@@ -211,6 +211,64 @@ static __u8 q_pad_rdesc_fixed[] = {
  };
  
  /*
-- * Original WP1062 report descriptor.
-- *
-- * Only report ID 9 is actually used.
-- *
-- *  Usage Page (Digitizer),         ; Digitizer (0Dh)
-- *  Usage (Pen),                    ; Pen (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (7),
-- *    Usage (Stylus),               ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (Tip Switch),         ; Tip switch (42h, momentary control)
-- *      Usage (Barrel Switch),      ; Barrel switch (44h, momentary control)
-- *      Usage (Eraser),             ; Eraser (45h, momentary control)
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Size (1),
-- *      Report Count (3),
-- *      Input (Variable),
-- *      Report Count (3),
-- *      Input (Constant, Variable),
-- *      Usage (In Range),           ; In range (32h, momentary control)
-- *      Report Count (1),
-- *      Input (Variable),
-- *      Report Count (1),
-- *      Input (Constant, Variable),
-- *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-- *      Usage (X),                  ; X (30h, dynamic value)
-- *      Report Size (16),
-- *      Report Count (1),
-- *      Push,
-- *      Unit Exponent (13),
-- *      Unit (Inch),
-- *      Physical Minimum (0),
-- *      Physical Maximum (10000),
-- *      Logical Maximum (20000),
-- *      Input (Variable),
-- *      Usage (Y),                  ; Y (31h, dynamic value)
-- *      Physical Maximum (6583),
-- *      Logical Maximum (13166),
-- *      Input (Variable),
-- *      Pop,
-- *      Usage Page (Digitizer),     ; Digitizer (0Dh)
-- *      Usage (Tip Pressure),       ; Tip pressure (30h, dynamic value)
-- *      Logical Maximum (1023),
-- *      Input (Variable),
-- *      Report Size (16),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-- *  Usage (Mouse),                  ; Mouse (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (8),
-- *    Usage (Pointer),              ; Pointer (01h, physical collection)
-- *    Collection (Physical),
-- *      Usage Page (Button),        ; Button (09h)
-- *      Usage Minimum (01h),
-- *      Usage Maximum (03h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Count (3),
-- *      Report Size (1),
-- *      Input (Variable),
-- *      Report Count (5),
-- *      Input (Constant),
-- *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-- *      Usage (X),                  ; X (30h, dynamic value)
-- *      Usage (Y),                  ; Y (31h, dynamic value)
-- *      Usage (Wheel),              ; Wheel (38h, dynamic value)
-- *      Usage (00h),
-- *      Logical Minimum (-127),
-- *      Logical Maximum (127),
-- *      Report Size (8),
-- *      Report Count (4),
-- *      Input (Variable, Relative),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-- *  Usage (Mouse),                  ; Mouse (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (9),
-- *    Usage (Pointer),              ; Pointer (01h, physical collection)
-- *    Collection (Physical),
-- *      Usage Page (Button),        ; Button (09h)
-- *      Usage Minimum (01h),
-- *      Usage Maximum (03h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Count (3),
-- *      Report Size (1),
-- *      Input (Variable),
-- *      Report Count (4),
-- *      Input (Constant),
-- *      Usage Page (Digitizer),     ; Digitizer (0Dh)
-- *      Usage (In Range),           ; In range (32h, momentary control)
-- *      Report Count (1),
-- *      Input (Variable),
-- *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-- *      Usage (X),                  ; X (30h, dynamic value)
-- *      Report Size (16),
-- *      Report Count (1),
-- *      Push,
-- *      Unit Exponent (13),
-- *      Unit (Inch),
-- *      Physical Minimum (0),
-- *      Physical Maximum (10000),
-- *      Logical Maximum (20000),
-- *      Input (Variable),
-- *      Usage (Y),                  ; Y (31h, dynamic value)
-- *      Physical Maximum (6583),
-- *      Logical Maximum (13166),
-- *      Input (Variable),
-- *      Pop,
-- *      Usage Page (Digitizer),     ; Digitizer (0Dh)
-- *      Usage (Tip Pressure),       ; Tip pressure (30h, dynamic value)
-- *      Logical Maximum (1023),
-- *      Report Count (1),
-- *      Report Size (16),
-- *      Input (Variable),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-- *  Usage (00h),
-- *  Collection (Application),
-- *    Report ID (4),
-- *    Logical Minimum (0),
-- *    Logical Maximum (255),
-- *    Usage (00h),
-- *    Report Size (8),
-- *    Report Count (3),
-- *    Feature (Variable),
-- *  End Collection
-+ * See WP1062 description, device and HID report descriptors at
-+ * http://sf.net/apps/mediawiki/digimend/?title=UC-Logic_Tablet_WP1062
++ * See description, device and HID report descriptors of tablet with PID 0038 at
++ * http://sf.net/apps/mediawiki/digimend/?title=Waltop_PID_0038
++ */
++
++/* Size of the original report descriptor of tablet with PID 0038 */
++#define PID_0038_RDESC_ORIG_SIZE	241
++
++/*
++ * Fixed report descriptor for tablet with PID 0038.
++ */
++static __u8 pid_0038_rdesc_fixed[] = {
++	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
++	0x09, 0x02,         /*  Usage (Pen),                        */
++	0xA1, 0x01,         /*  Collection (Application),           */
++	0x85, 0x10,         /*      Report ID (16),                 */
++	0x09, 0x20,         /*      Usage (Stylus),                 */
++	0xA0,               /*      Collection (Physical),          */
++	0x09, 0x42,         /*          Usage (Tip Switch),         */
++	0x09, 0x44,         /*          Usage (Barrel Switch),      */
++	0x09, 0x46,         /*          Usage (Tablet Pick),        */
++	0x15, 0x01,         /*          Logical Minimum (1),        */
++	0x25, 0x03,         /*          Logical Maximum (3),        */
++	0x75, 0x04,         /*          Report Size (4),            */
++	0x95, 0x01,         /*          Report Count (1),           */
++	0x80,               /*          Input,                      */
++	0x09, 0x32,         /*          Usage (In Range),           */
++	0x14,               /*          Logical Minimum (0),        */
++	0x25, 0x01,         /*          Logical Maximum (1),        */
++	0x75, 0x01,         /*          Report Size (1),            */
++	0x95, 0x01,         /*          Report Count (1),           */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0x95, 0x03,         /*          Report Count (3),           */
++	0x81, 0x03,         /*          Input (Constant, Variable), */
++	0x75, 0x10,         /*          Report Size (16),           */
++	0x95, 0x01,         /*          Report Count (1),           */
++	0x14,               /*          Logical Minimum (0),        */
++	0xA4,               /*          Push,                       */
++	0x05, 0x01,         /*          Usage Page (Desktop),       */
++	0x65, 0x13,         /*          Unit (Inch),                */
++	0x55, 0xFD,         /*          Unit Exponent (-3),         */
++	0x34,               /*          Physical Minimum (0),       */
++	0x09, 0x30,         /*          Usage (X),                  */
++	0x46, 0x2E, 0x22,   /*          Physical Maximum (8750),    */
++	0x26, 0x00, 0x46,   /*          Logical Maximum (17920),    */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0x09, 0x31,         /*          Usage (Y),                  */
++	0x46, 0x82, 0x14,   /*          Physical Maximum (5250),    */
++	0x26, 0x00, 0x2A,   /*          Logical Maximum (10752),    */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0xB4,               /*          Pop,                        */
++	0x09, 0x30,         /*          Usage (Tip Pressure),       */
++	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0xC0,               /*      End Collection,                 */
++	0xC0                /*  End Collection                      */
++};
++
++/*
+  * See Media Tablet 10.6 inch description, device and HID report descriptors at
+  * http://sf.net/apps/mediawiki/digimend/?title=Waltop_Media_Tablet_10.6%22
   */
- 
- /* Size of the original descriptor of WP1062 tablet */
- #define WP1062_RDESC_ORIG_SIZE	254
- 
--/*
-- * Fixed WP1062 report descriptor.
-- *
-- * Removed unused reports, corrected second barrel button usage code, physical
-- * units.
-- */
-+/* Fixed WP1062 report descriptor */
- static __u8 wp1062_rdesc_fixed[] = {
- 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
- 	0x09, 0x02,         /*  Usage (Pen),                        */
-@@ -530,146 +271,14 @@ static __u8 wp1062_rdesc_fixed[] = {
+@@ -444,6 +502,47 @@ static __u8 media_tablet_14_1_inch_rdesc_fixed[] = {
+ 	0xC0                /*  End Collection                      */
  };
  
- /*
-- * Original PF1209 report descriptor.
-- *
-- * The descriptor is similar to WPXXXXU descriptors, with an addition of a
-- * feature report (ID 4) of unknown purpose.
-- *
-- * Although the advertised resolution is 4000 LPI the unused report ID
-- * (taken from WPXXXXU, it seems) states 2000 LPI, but it is probably
-- * incorrect and is a result of blind copying without understanding. Anyway
-- * the real logical extents are always scaled to 0..32767, which IMHO spoils
-- * the precision.
-- *
-- *  Usage Page (Digitizer),         ; Digitizer (0Dh)
-- *  Usage (Pen),                    ; Pen (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (7),
-- *    Usage (Stylus),               ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (Tip Switch),         ; Tip switch (42h, momentary control)
-- *      Usage (Barrel Switch),      ; Barrel switch (44h, momentary control)
-- *      Usage (Eraser),             ; Eraser (45h, momentary control)
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Size (1),
-- *      Report Count (3),
-- *      Input (Variable),
-- *      Report Count (3),
-- *      Input (Constant, Variable),
-- *      Usage (In Range),           ; In range (32h, momentary control)
-- *      Report Count (1),
-- *      Input (Variable),
-- *      Report Count (1),
-- *      Input (Constant, Variable),
-- *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-- *      Usage (X),                  ; X (30h, dynamic value)
-- *      Report Size (16),
-- *      Report Count (1),
-- *      Push,
-- *      Unit Exponent (13),
-- *      Unit (Inch^3),
-- *      Physical Minimum (0),
-- *      Physical Maximum (12000),
-- *      Logical Maximum (24000),
-- *      Input (Variable),
-- *      Usage (Y),                  ; Y (31h, dynamic value)
-- *      Physical Maximum (9000),
-- *      Logical Maximum (18000),
-- *      Input (Variable),
-- *      Pop,
-- *      Usage Page (Digitizer),     ; Digitizer (0Dh)
-- *      Usage (Tip Pressure),       ; Tip pressure (30h, dynamic value)
-- *      Logical Maximum (1023),
-- *      Input (Variable),
-- *      Report Size (16),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-- *  Usage (Mouse),                  ; Mouse (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (8),
-- *    Usage (Pointer),              ; Pointer (01h, physical collection)
-- *    Collection (Physical),
-- *      Usage Page (Button),        ; Button (09h)
-- *      Usage Minimum (01h),
-- *      Usage Maximum (03h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Count (3),
-- *      Report Size (1),
-- *      Input (Variable),
-- *      Report Count (5),
-- *      Input (Constant),
-- *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-- *      Usage (X),                  ; X (30h, dynamic value)
-- *      Usage (Y),                  ; Y (31h, dynamic value)
-- *      Usage (Wheel),              ; Wheel (38h, dynamic value)
-- *      Usage (00h),
-- *      Logical Minimum (-127),
-- *      Logical Maximum (127),
-- *      Report Size (8),
-- *      Report Count (4),
-- *      Input (Variable, Relative),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-- *  Usage (Mouse),                  ; Mouse (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (9),
-- *    Usage (Pointer),              ; Pointer (01h, physical collection)
-- *    Collection (Physical),
-- *      Usage Page (Button),        ; Button (09h)
-- *      Usage Minimum (01h),
-- *      Usage Maximum (03h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Count (3),
-- *      Report Size (1),
-- *      Input (Variable),
-- *      Report Count (5),
-- *      Input (Constant),
-- *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-- *      Usage (X),                  ; X (30h, dynamic value)
-- *      Usage (Y),                  ; Y (31h, dynamic value)
-- *      Logical Minimum (0),
-- *      Logical Maximum (32767),
-- *      Physical Minimum (0),
-- *      Physical Maximum (32767),
-- *      Report Count (2),
-- *      Report Size (16),
-- *      Input (Variable),
-- *      Usage Page (Digitizer),     ; Digitizer (0Dh)
-- *      Usage (Tip Pressure),       ; Tip pressure (30h, dynamic value)
-- *      Logical Maximum (1023),
-- *      Report Count (1),
-- *      Report Size (16),
-- *      Input (Variable),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-- *  Usage (00h),
-- *  Collection (Application),
-- *    Report ID (4),
-- *    Logical Minimum (0),
-- *    Logical Maximum (255),
-- *    Usage (00h),
-- *    Report Size (8),
-- *    Report Count (3),
-- *    Feature (Variable),
-- *  End Collection
-+ * See PF1209 description, device and HID report descriptors at
-+ * http://sf.net/apps/mediawiki/digimend/?title=UC-Logic_Tablet_PF1209
-  */
++struct waltop_state {
++	u8 pressure0;
++	u8 pressure1;
++};
++
++static int waltop_probe(struct hid_device *hdev,
++			const struct hid_device_id *id)
++{
++	int ret;
++	struct waltop_state *s;
++
++	s = kzalloc(sizeof(*s), GFP_KERNEL);
++	if (s == NULL) {
++		hid_err(hdev, "can't allocate device state\n");
++		ret = -ENOMEM;
++		goto err;
++	}
++
++	s->pressure0 = 0;
++	s->pressure1 = 0;
++
++	hid_set_drvdata(hdev, s);
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "parse failed\n");
++		goto err;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		hid_err(hdev, "hw start failed\n");
++		goto err;
++	}
++
++	return 0;
++err:
++	kfree(s);
++	return ret;
++}
++
+ static __u8 *waltop_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
+ {
+@@ -466,6 +565,12 @@ static __u8 *waltop_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 			*rsize = sizeof(q_pad_rdesc_fixed);
+ 		}
+ 		break;
++	case USB_DEVICE_ID_WALTOP_PID_0038:
++		if (*rsize == PID_0038_RDESC_ORIG_SIZE) {
++			rdesc = pid_0038_rdesc_fixed;
++			*rsize = sizeof(pid_0038_rdesc_fixed);
++		}
++		break;
+ 	case USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH:
+ 		if (*rsize == MEDIA_TABLET_10_6_INCH_RDESC_ORIG_SIZE) {
+ 			rdesc = media_tablet_10_6_inch_rdesc_fixed;
+@@ -482,6 +587,44 @@ static __u8 *waltop_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	return rdesc;
+ }
  
- /* Size of the original descriptor of PF1209 tablet */
- #define PF1209_RDESC_ORIG_SIZE	234
++static int waltop_raw_event(struct hid_device *hdev, struct hid_report *report,
++		     u8 *data, int size)
++{
++	/* If this is a pen input report of a tablet with PID 0038 */
++	if (hdev->product == USB_DEVICE_ID_WALTOP_PID_0038 &&
++	    report->type == HID_INPUT_REPORT &&
++	    report->id == 16 &&
++	    size == 8) {
++		struct waltop_state *s = hid_get_drvdata(hdev);
++
++		/*
++		 * Ignore maximum pressure reported when a barrel button is
++		 * pressed.
++		 */
++
++		/* If a barrel button is pressed */
++		if ((data[1] & 0xF) > 1) {
++			/* Use the last known pressure */
++			data[6] = s->pressure0;
++			data[7] = s->pressure1;
++		} else {
++			/* Remember reported pressure */
++			s->pressure0 = data[6];
++			s->pressure1 = data[7];
++		}
++	}
++
++	return 0;
++}
++
++static void waltop_remove(struct hid_device *hdev)
++{
++	struct waltop_state *s = hid_get_drvdata(hdev);
++
++	hid_hw_stop(hdev);
++	kfree(s);
++}
++
+ static const struct hid_device_id waltop_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
+ 				USB_DEVICE_ID_WALTOP_SLIM_TABLET_5_8_INCH) },
+@@ -490,6 +633,8 @@ static const struct hid_device_id waltop_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
+ 				USB_DEVICE_ID_WALTOP_Q_PAD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
++				USB_DEVICE_ID_WALTOP_PID_0038) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
+ 				USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
+ 				USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH) },
+@@ -500,7 +645,10 @@ MODULE_DEVICE_TABLE(hid, waltop_devices);
+ static struct hid_driver waltop_driver = {
+ 	.name = "waltop",
+ 	.id_table = waltop_devices,
++	.probe = waltop_probe,
+ 	.report_fixup = waltop_report_fixup,
++	.raw_event = waltop_raw_event,
++	.remove = waltop_remove,
+ };
  
--/*
-- * Fixed PF1209 report descriptor
-- *
-- * The descriptor is fixed similarly to WP5540U and WP8060U, plus the
-- * feature report is removed, because its purpose is unknown and it is of no
-- * use to the generic HID driver anyway for now.
-- */
-+/* Fixed PF1209 report descriptor */
- static __u8 pf1209_rdesc_fixed[] = {
- 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
- 	0x09, 0x02,         /*  Usage (Pen),                        */
+ static int __init waltop_init(void)
 -- 
 1.7.9
 

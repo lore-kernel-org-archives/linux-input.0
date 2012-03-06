@@ -1,7 +1,7 @@
 From: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
-Subject: [PATCH 3/4] HID: multitouch: add more eGalax devices
-Date: Tue,  6 Mar 2012 10:53:47 +0100
-Message-ID: <1331027628-7946-3-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 2/4] HID: multitouch: add new PID from Ideacom
+Date: Tue,  6 Mar 2012 10:53:46 +0100
+Message-ID: <1331027628-7946-2-git-send-email-benjamin.tissoires@gmail.com>
 References: <1331027628-7946-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1331027628-7946-1-git-send-email-benjamin.tissoires@gmail.com>
@@ -11,97 +11,37 @@ List-Id: linux-input@vger.kernel.org
 
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-This is a list of devices that should be handled by hid-multitouch.
-They all present the HID usage "Contact ID" and won't be handled by
-hid-input.
-Some of them have _not_ been tested (though I have their report
-descriptors), but I've been guaranted by eeti that they follow the same
-protocol.
-The tested ones are also blacklisted in hid-core.c.
-
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 ---
- drivers/hid/hid-core.c       |    2 ++
- drivers/hid/hid-ids.h        |    6 ++++++
- drivers/hid/hid-multitouch.c |   18 ++++++++++++++++++
- 3 files changed, 26 insertions(+), 0 deletions(-)
+ drivers/hid/hid-ids.h        |    1 +
+ drivers/hid/hid-multitouch.c |    3 +++
+ 2 files changed, 4 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index c4d049a..eeaa7c5 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1407,6 +1407,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_480D) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_480E) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_720C) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_725E) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_726B) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_72A1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7302) },
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index e2fb977..963207b 100644
+index 36664d8..e2fb977 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -237,11 +237,17 @@
- #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER	0x0001
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_480D	0x480d
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_480E	0x480e
-+#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7207	0x7207
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_720C	0x720c
-+#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224	0x7224
-+#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_725E	0x725e
-+#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7262	0x7262
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_726B	0x726b
-+#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_72AA	0x72aa
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_72A1	0x72a1
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_72FA	0x72fa
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7302	0x7302
-+#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
+@@ -374,6 +374,7 @@
  
- #define USB_VENDOR_ID_ELECOM		0x056e
+ #define USB_VENDOR_ID_IDEACOM		0x1cb6
+ #define USB_DEVICE_ID_IDEACOM_IDC6650	0x6650
++#define USB_DEVICE_ID_IDEACOM_IDC6651	0x6651
+ 
+ #define USB_VENDOR_ID_ILITEK		0x222a
+ #define USB_DEVICE_ID_ILITEK_MULTITOUCH	0x0001
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 1e6de67..a98102d 100644
+index 04adb4b..1e6de67 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -785,12 +785,27 @@ static const struct hid_device_id mt_devices[] = {
- 	{ .driver_data = MT_CLS_EGALAX,
- 		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_720C) },
-+	{ .driver_data = MT_CLS_EGALAX_SERIAL,
-+		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7207) },
-+	{ .driver_data = MT_CLS_EGALAX_SERIAL,
-+		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_725E) },
-+	{ .driver_data = MT_CLS_EGALAX_SERIAL,
-+		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224) },
- 	{ .driver_data = MT_CLS_EGALAX,
- 		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_726B) },
-+	{ .driver_data = MT_CLS_EGALAX_SERIAL,
-+		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7262) },
- 	{ .driver_data = MT_CLS_EGALAX,
- 		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_72A1) },
-+	{ .driver_data = MT_CLS_EGALAX_SERIAL,
-+		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_72AA) },
- 	{ .driver_data = MT_CLS_EGALAX,
- 		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_72FA) },
-@@ -799,6 +814,9 @@ static const struct hid_device_id mt_devices[] = {
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7302) },
- 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
- 		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349) },
-+	{ .driver_data = MT_CLS_EGALAX_SERIAL,
-+		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
+@@ -825,6 +825,9 @@ static const struct hid_device_id mt_devices[] = {
+ 	{ .driver_data = MT_CLS_SERIAL,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM,
+ 			USB_DEVICE_ID_IDEACOM_IDC6650) },
++	{ .driver_data = MT_CLS_SERIAL,
++		HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM,
++			USB_DEVICE_ID_IDEACOM_IDC6651) },
  
- 	/* Elo TouchSystems IntelliTouch Plus panel */
+ 	/* Ilitek dual touch panel */
+ 	{  .driver_data = MT_CLS_DEFAULT,
 -- 
 1.7.7.6

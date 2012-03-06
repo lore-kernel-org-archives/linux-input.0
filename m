@@ -1,896 +1,634 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: [PATCH 2/3] HID: waltop: Replace original rdescs with links
-Date: Tue,  6 Mar 2012 09:54:23 +0200
-Message-ID: <1331020464-3962-2-git-send-email-spbnick@gmail.com>
-References: <1331020464-3962-1-git-send-email-spbnick@gmail.com>
+From: Olivier Sobrie <olivier@sobrie.be>
+Subject: Re: [PATCH] ili210x: Add support for Ilitek ILI210x based
+ touchscreens
+Date: Tue, 6 Mar 2012 08:57:21 +0100
+Message-ID: <20120306075721.GA32325@hposo>
+References: <1330954816-18098-1-git-send-email-olivier@sobrie.be>
+ <20120305164838.GA11317@polaris.bitmath.org>
+Reply-To: Olivier Sobrie <olivier@sobrie.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:50700 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757910Ab2CFHyp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Mar 2012 02:54:45 -0500
-Received: by wgbdr13 with SMTP id dr13so4255856wgb.1
-        for <linux-input@vger.kernel.org>; Mon, 05 Mar 2012 23:54:44 -0800 (PST)
-In-Reply-To: <1331020464-3962-1-git-send-email-spbnick@gmail.com>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:33971 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758301Ab2CFH5a (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Mar 2012 02:57:30 -0500
+Received: by eaaq12 with SMTP id q12so1715232eaa.19
+        for <linux-input@vger.kernel.org>; Mon, 05 Mar 2012 23:57:28 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20120305164838.GA11317@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>, Nikolai Kondrashov <spbnick@gmail.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Jan Paesmans <jan.paesmans@gmail.com>
 
-Replace original report descriptor dumps in the comments with links to tablet
-descriptions in a wiki, to make code clearer.
+Hi Henrik,
 
-Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
----
- drivers/hid/hid-waltop.c |  803 +---------------------------------------------
- 1 files changed, 15 insertions(+), 788 deletions(-)
+On Mon, Mar 05, 2012 at 05:48:38PM +0100, Henrik Rydberg wrote:
+> Hi Olivier,
+> 
+> > The driver supports chipsets ILI2102, ILI2102s, ILI2103, ILI2103s and
+> > ILI2105.
+> > 
+> > Reviewed-by: Jan Paesmans <jan.paesmans@gmail.com>
+> > Signed-off-by: Olivier Sobrie <olivier@sobrie.be>
+> > ---
+> 
+> Thanks for the driver, looking pretty good overall. Please find
+> comments inline.
+> 
+> >  drivers/input/touchscreen/Kconfig   |   13 +
+> >  drivers/input/touchscreen/Makefile  |    1 +
+> >  drivers/input/touchscreen/ili210x.c |  442 +++++++++++++++++++++++++++++++++++
+> >  include/linux/input/ili210x.h       |    9 +
+> >  4 files changed, 465 insertions(+), 0 deletions(-)
+> >  create mode 100644 drivers/input/touchscreen/ili210x.c
+> >  create mode 100644 include/linux/input/ili210x.h
+> > 
+> > diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> > index fc087b3..37b052f 100644
+> > --- a/drivers/input/touchscreen/Kconfig
+> > +++ b/drivers/input/touchscreen/Kconfig
+> > @@ -243,6 +243,19 @@ config TOUCHSCREEN_FUJITSU
+> >  	  To compile this driver as a module, choose M here: the
+> >  	  module will be called fujitsu-ts.
+> >  
+> > +config TOUCHSCREEN_ILI210X
+> > +	tristate "Ilitek ILI210X based touchscreen"
+> > +	depends on I2C
+> > +	help
+> > +	  Say Y here if you have a ILI210X based touchscreen
+> > +	  controller. This driver supports models ILI2102,
+> > +	  ILI2102s, ILI2103, ILI2103s and ILI2105.
+> > +
+> > +	  If unsure, say N.
+> > +
+> > +	  To compile this driver as a module, choose M here: the
+> > +	  module will be called ili210x.
+> > +
+> 
+> If any of these are found in the Kindles, saying so here might help a bit.
+I use it for an industrial application, driver console of public
+transports...
+Google doesn't say a lot about ILI210x. It's possible that you can find it
+on some Android tablet but I cannot say on which one.
 
-diff --git a/drivers/hid/hid-waltop.c b/drivers/hid/hid-waltop.c
-index 0ec1696..c1dce51 100644
---- a/drivers/hid/hid-waltop.c
-+++ b/drivers/hid/hid-waltop.c
-@@ -43,139 +43,14 @@
-  */
- 
- /*
-- * Original Slim Tablet 5.8 inch report descriptor.
-- *
-- * All the reports except the report with ID 16 (the stylus) are unused,
-- * possibly because the tablet is not configured to, or because they were
-- * just copied from a more capable model. The full purpose of features
-- * described for report ID 2 is unknown.
-- *
-- * The stylus buttons are described as three bit fields, whereas actually
-- * it's an "array", i.e. they're reported as button numbers (1, 2 and 3).
-- * The "eraser" field is not used. There is also a "push" without a "pop" in
-- * the stylus description.
-- *
-- *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-- *  Usage (Mouse),                  ; Mouse (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (1),
-- *    Usage (Pointer),              ; Pointer (01h, physical collection)
-- *    Collection (Physical),
-- *      Usage Page (Button),        ; Button (09h)
-- *      Usage Minimum (01h),
-- *      Usage Maximum (05h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Size (1),
-- *      Report Count (5),
-- *      Input (Variable),
-- *      Report Size (3),
-- *      Report Count (1),
-- *      Input (Constant, Variable),
-- *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-- *      Usage (X),                  ; X (30h, dynamic value)
-- *      Usage (Y),                  ; Y (31h, dynamic value)
-- *      Usage (Wheel),              ; Wheel (38h, dynamic value)
-- *      Logical Minimum (-127),
-- *      Logical Maximum (127),
-- *      Report Size (8),
-- *      Report Count (3),
-- *      Input (Variable, Relative),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Digitizer),         ; Digitizer (0Dh)
-- *  Usage (Pen),                    ; Pen (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (2),
-- *    Usage (Stylus),               ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (7),
-- *      Input (Variable),
-- *      Usage (Azimuth),            ; Azimuth (3Fh, dynamic value)
-- *      Usage (Altitude),           ; Altitude (40h, dynamic value)
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (2),
-- *      Feature (Variable),
-- *    End Collection,
-- *    Report ID (5),
-- *    Usage Page (Digitizer),       ; Digitizer (0Dh)
-- *    Usage (Stylus),               ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (7),
-- *      Input (Variable),
-- *    End Collection,
-- *    Report ID (10),
-- *    Usage Page (Digitizer),       ; Digitizer (0Dh)
-- *    Usage (Stylus),               ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (3),
-- *      Input (Variable),
-- *    End Collection,
-- *    Report ID (16),
-- *    Usage (Stylus),               ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (Tip Switch),         ; Tip switch (42h, momentary control)
-- *      Usage (Barrel Switch),      ; Barrel switch (44h, momentary control)
-- *      Usage (Invert),             ; Invert (3Ch, momentary control)
-- *      Usage (Eraser),             ; Eraser (45h, momentary control)
-- *      Usage (In Range),           ; In range (32h, momentary control)
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Size (1),
-- *      Report Count (5),
-- *      Input (Variable),
-- *      Report Count (3),
-- *      Input (Constant, Variable),
-- *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-- *      Usage (X),                  ; X (30h, dynamic value)
-- *      Report Size (16),
-- *      Report Count (1),
-- *      Push,
-- *      Unit Exponent (13),
-- *      Unit (Inch^3),
-- *      Logical Minimum (0),
-- *      Logical Maximum (10000),
-- *      Physical Minimum (0),
-- *      Physical Maximum (10000),
-- *      Input (Variable),
-- *      Usage (Y),                  ; Y (31h, dynamic value)
-- *      Logical Maximum (6000),
-- *      Physical Maximum (6000),
-- *      Input (Variable),
-- *      Usage Page (Digitizer),     ; Digitizer (0Dh)
-- *      Usage (Tip Pressure),       ; Tip pressure (30h, dynamic value)
-- *      Logical Minimum (0),
-- *      Logical Maximum (1023),
-- *      Physical Minimum (0),
-- *      Physical Maximum (1023),
-- *      Input (Variable),
-- *    End Collection,
-- *  End Collection
-+ * See Slim Tablet 5.8 inch description, device and HID report descriptors at
-+ * http://sf.net/apps/mediawiki/digimend/?title=Waltop_Slim_Tablet_5.8%22
-  */
- 
- /* Size of the original report descriptor of Slim Tablet 5.8 inch */
- #define SLIM_TABLET_5_8_INCH_RDESC_ORIG_SIZE	222
- 
--/*
-- * Fixed Slim Tablet 5.8 inch descriptor.
-- *
-- * All the reports except the stylus report (ID 16) were removed as unused.
-- * The stylus buttons description was fixed.
-- */
-+/* Fixed Slim Tablet 5.8 inch descriptor */
- static __u8 slim_tablet_5_8_inch_rdesc_fixed[] = {
- 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
- 	0x09, 0x02,         /*  Usage (Pen),                        */
-@@ -224,158 +99,14 @@ static __u8 slim_tablet_5_8_inch_rdesc_fixed[] = {
- };
- 
- /*
-- * Original Slim Tablet 12.1 inch report descriptor.
-- *
-- * The descriptor is similar to the Slim Tablet 5.8 inch descriptor with the
-- * addition of a keyboard report, seemingly unused. It may have get here
-- * from a Media Tablet - probably an unimplemented feature.
-- *
-- *  Usage Page (Desktop),             ; Generic desktop controls (01h)
-- *  Usage (Mouse),                    ; Mouse (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (1),
-- *    Usage (Pointer),                ; Pointer (01h, physical collection)
-- *    Collection (Physical),
-- *      Usage Page (Button),          ; Button (09h)
-- *      Usage Minimum (01h),
-- *      Usage Maximum (05h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Size (1),
-- *      Report Count (5),
-- *      Input (Variable),
-- *      Report Size (3),
-- *      Report Count (1),
-- *      Input (Constant, Variable),
-- *      Usage Page (Desktop),         ; Generic desktop controls (01h)
-- *      Usage (X),                    ; X (30h, dynamic value)
-- *      Usage (Y),                    ; Y (31h, dynamic value)
-- *      Usage (Wheel),                ; Wheel (38h, dynamic value)
-- *      Logical Minimum (-127),
-- *      Logical Maximum (127),
-- *      Report Size (8),
-- *      Report Count (3),
-- *      Input (Variable, Relative),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Digitizer),           ; Digitizer (0Dh)
-- *  Usage (Pen),                      ; Pen (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (2),
-- *    Usage (Stylus),                 ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (7),
-- *      Input (Variable),
-- *      Usage (Azimuth),              ; Azimuth (3Fh, dynamic value)
-- *      Usage (Altitude),             ; Altitude (40h, dynamic value)
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (2),
-- *      Feature (Variable),
-- *    End Collection,
-- *    Report ID (5),
-- *    Usage Page (Digitizer),         ; Digitizer (0Dh)
-- *    Usage (Stylus),                 ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (7),
-- *      Input (Variable),
-- *    End Collection,
-- *    Report ID (10),
-- *    Usage Page (Digitizer),         ; Digitizer (0Dh)
-- *    Usage (Stylus),                 ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (3),
-- *      Input (Variable),
-- *    End Collection,
-- *    Report ID (16),
-- *    Usage (Stylus),                 ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (Tip Switch),           ; Tip switch (42h, momentary control)
-- *      Usage (Barrel Switch),        ; Barrel switch (44h, momentary control)
-- *      Usage (Invert),               ; Invert (3Ch, momentary control)
-- *      Usage (Eraser),               ; Eraser (45h, momentary control)
-- *      Usage (In Range),             ; In range (32h, momentary control)
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Size (1),
-- *      Report Count (5),
-- *      Input (Variable),
-- *      Report Count (3),
-- *      Input (Constant, Variable),
-- *      Usage Page (Desktop),         ; Generic desktop controls (01h)
-- *      Usage (X),                    ; X (30h, dynamic value)
-- *      Report Size (16),
-- *      Report Count (1),
-- *      Push,
-- *      Unit Exponent (13),
-- *      Unit (Inch^3),
-- *      Logical Minimum (0),
-- *      Logical Maximum (20000),
-- *      Physical Minimum (0),
-- *      Physical Maximum (20000),
-- *      Input (Variable),
-- *      Usage (Y),                    ; Y (31h, dynamic value)
-- *      Logical Maximum (12500),
-- *      Physical Maximum (12500),
-- *      Input (Variable),
-- *      Usage Page (Digitizer),       ; Digitizer (0Dh)
-- *      Usage (Tip Pressure),         ; Tip pressure (30h, dynamic value)
-- *      Logical Minimum (0),
-- *      Logical Maximum (1023),
-- *      Physical Minimum (0),
-- *      Physical Maximum (1023),
-- *      Input (Variable),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Desktop),             ; Generic desktop controls (01h)
-- *  Usage (Keyboard),                 ; Keyboard (06h, application collection)
-- *  Collection (Application),
-- *    Report ID (13),
-- *    Usage Page (Keyboard),          ; Keyboard/keypad (07h)
-- *    Usage Minimum (KB Leftcontrol), ; Keyboard left control
-- *                                    ; (E0h, dynamic value)
-- *    Usage Maximum (KB Right GUI),   ; Keyboard right GUI (E7h, dynamic value)
-- *    Logical Minimum (0),
-- *    Logical Maximum (1),
-- *    Report Size (1),
-- *    Report Count (8),
-- *    Input (Variable),
-- *    Report Size (8),
-- *    Report Count (1),
-- *    Input (Constant),
-- *    Usage Page (Keyboard),          ; Keyboard/keypad (07h)
-- *    Usage Minimum (None),           ; No event (00h, selector)
-- *    Usage Maximum (KB Application), ; Keyboard Application (65h, selector)
-- *    Logical Minimum (0),
-- *    Logical Maximum (101),
-- *    Report Size (8),
-- *    Report Count (5),
-- *    Input,
-- *  End Collection
-+ * See Slim Tablet 12.1 inch description, device and HID report descriptors at
-+ * http://sf.net/apps/mediawiki/digimend/?title=Waltop_Slim_Tablet_12.1%22
-  */
- 
- /* Size of the original report descriptor of Slim Tablet 12.1 inch */
- #define SLIM_TABLET_12_1_INCH_RDESC_ORIG_SIZE	269
- 
--/*
-- * Fixed Slim Tablet 12.1 inch descriptor.
-- *
-- * All the reports except the stylus report (ID 16) were removed as unused.
-- * The stylus buttons description was fixed.
-- */
-+/* Fixed Slim Tablet 12.1 inch descriptor */
- static __u8 slim_tablet_12_1_inch_rdesc_fixed[] = {
- 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
- 	0x09, 0x02,         /*  Usage (Pen),                        */
-@@ -424,142 +155,14 @@ static __u8 slim_tablet_12_1_inch_rdesc_fixed[] = {
- };
- 
- /*
-- * Original Q Pad report descriptor.
-- *
-- * The descriptor is similar to the Slim Tablet 5.8 inch descriptor with the
-- * addition of consumer AC Pan field to the report ID 1, which seems to be
-- * unused in the default mode. However, this tablet has resolution of 2048 LPI.
-- *
-- *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-- *  Usage (Mouse),                  ; Mouse (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (1),
-- *    Usage (Pointer),              ; Pointer (01h, physical collection)
-- *    Collection (Physical),
-- *      Usage Page (Button),        ; Button (09h)
-- *      Usage Minimum (01h),
-- *      Usage Maximum (05h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Size (1),
-- *      Report Count (5),
-- *      Input (Variable),
-- *      Report Size (3),
-- *      Report Count (1),
-- *      Input (Constant, Variable),
-- *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-- *      Usage (X),                  ; X (30h, dynamic value)
-- *      Usage (Y),                  ; Y (31h, dynamic value)
-- *      Usage (Wheel),              ; Wheel (38h, dynamic value)
-- *      Logical Minimum (-127),
-- *      Logical Maximum (127),
-- *      Report Size (8),
-- *      Report Count (3),
-- *      Input (Variable, Relative),
-- *      Usage Page (Consumer),      ; Consumer (0Ch)
-- *      Logical Minimum (-127),
-- *      Logical Maximum (127),
-- *      Report Size (8),
-- *      Report Count (1),
-- *      Usage (AC Pan),             ; AC pan (0238h, linear control)
-- *      Input (Variable, Relative),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Digitizer),         ; Digitizer (0Dh)
-- *  Usage (Pen),                    ; Pen (02h, application collection)
-- *  Collection (Application),
-- *    Report ID (2),
-- *    Usage (Stylus),               ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (7),
-- *      Input (Variable),
-- *      Usage (Azimuth),            ; Azimuth (3Fh, dynamic value)
-- *      Usage (Altitude),           ; Altitude (40h, dynamic value)
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (2),
-- *      Feature (Variable),
-- *    End Collection,
-- *    Report ID (5),
-- *    Usage Page (Digitizer),       ; Digitizer (0Dh)
-- *    Usage (Stylus),               ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (7),
-- *      Input (Variable),
-- *    End Collection,
-- *    Report ID (10),
-- *    Usage Page (Digitizer),       ; Digitizer (0Dh)
-- *    Usage (Stylus),               ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (7),
-- *      Input (Variable),
-- *    End Collection,
-- *    Report ID (16),
-- *    Usage (Stylus),               ; Stylus (20h, logical collection)
-- *    Collection (Physical),
-- *      Usage (Tip Switch),         ; Tip switch (42h, momentary control)
-- *      Usage (Barrel Switch),      ; Barrel switch (44h, momentary control)
-- *      Usage (Invert),             ; Invert (3Ch, momentary control)
-- *      Usage (Eraser),             ; Eraser (45h, momentary control)
-- *      Usage (In Range),           ; In range (32h, momentary control)
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Size (1),
-- *      Report Count (5),
-- *      Input (Variable),
-- *      Report Count (3),
-- *      Input (Constant, Variable),
-- *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-- *      Usage (X),                  ; X (30h, dynamic value)
-- *      Report Size (16),
-- *      Report Count (1),
-- *      Push,
-- *      Unit Exponent (13),
-- *      Unit (Inch^3),
-- *      Logical Minimum (0),
-- *      Logical Maximum (12288),
-- *      Physical Minimum (0),
-- *      Physical Maximum (12288),
-- *      Input (Variable),
-- *      Usage (Y),                  ; Y (31h, dynamic value)
-- *      Logical Minimum (0),
-- *      Logical Maximum (9216),
-- *      Physical Minimum (0),
-- *      Physical Maximum (9216),
-- *      Input (Variable),
-- *      Usage Page (Digitizer),     ; Digitizer (0Dh)
-- *      Usage (Tip Pressure),       ; Tip pressure (30h, dynamic value)
-- *      Logical Minimum (0),
-- *      Logical Maximum (1023),
-- *      Physical Minimum (0),
-- *      Physical Maximum (1023),
-- *      Input (Variable),
-- *    End Collection,
-- *  End Collection
-+ * See Q Pad description, device and HID report descriptors at
-+ * http://sf.net/apps/mediawiki/digimend/?title=Waltop_Q_Pad
-  */
- 
- /* Size of the original report descriptor of Q Pad */
- #define Q_PAD_RDESC_ORIG_SIZE	241
- 
--/*
-- * Fixed Q Pad descriptor.
-- *
-- * All the reports except the stylus report (ID 16) were removed as unused.
-- * The stylus buttons description was fixed.
-- */
-+/* Fixed Q Pad descriptor */
- static __u8 q_pad_rdesc_fixed[] = {
- 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
- 	0x09, 0x02,         /*  Usage (Pen),                        */
-@@ -608,217 +211,14 @@ static __u8 q_pad_rdesc_fixed[] = {
- };
- 
- /*
-- * Original Media Tablet 10.6 inch report descriptor.
-- *
-- * There are at least two versions of this model in the wild. They are
-- * represented by Genius G-Pen M609 (older version) and Genius G-Pen M609X
-- * (newer version).
-- *
-- * Both versions have the usual pen with two barrel buttons and two
-- * identical wheels with center buttons in the top corners of the tablet
-- * base. They also have buttons on the top, between the wheels, for
-- * selecting the wheels' functions and wide/standard mode. In the wide mode
-- * the whole working surface is sensed, in the standard mode a narrower area
-- * is sensed, but the logical report extents remain the same. These modes
-- * correspond roughly to 16:9 and 4:3 aspect ratios respectively.
-- *
-- * The older version has three wheel function buttons ("scroll", "zoom" and
-- * "volume") and two separate buttons for wide and standard mode. The newer
-- * version has four wheel function buttons (plus "brush") and only one
-- * button is used for selecting wide/standard mode. So, the total number of
-- * buttons remains the same, but one of the mode buttons is repurposed as a
-- * wheels' function button in the newer version.
-- *
-- * The wheel functions are:
-- * scroll   - the wheels act as scroll wheels, the center buttons switch
-- *            between vertical and horizontal scrolling;
-- * zoom     - the wheels zoom in/out, the buttons supposedly reset to 100%;
-- * volume   - the wheels control the sound volume, the buttons mute;
-- * brush    - the wheels are supposed to control brush width in a graphics
-- *            editor, the buttons do nothing.
-- *
-- * Below is the newer version's report descriptor. It may very well be that
-- * the older version's descriptor is different and thus it won't be
-- * supported.
-- *
-- * The mouse report (ID 1) only uses the wheel field for reporting the tablet
-- * wheels' scroll mode. The keyboard report (ID 13) is used to report the
-- * wheels' zoom and brush control functions as key presses. The report ID 12
-- * is used to report the wheels' volume control functions. The stylus report
-- * (ID 16) has the same problems as the Slim Tablet 5.8 inch report has.
-- *
-- * The rest of the reports are unused, at least in the default configuration.
-- * The purpose of the features is unknown.
-- *
-- *  Usage Page (Desktop),
-- *  Usage (Mouse),
-- *  Collection (Application),
-- *    Report ID (1),
-- *    Usage (Pointer),
-- *    Collection (Physical),
-- *      Usage Page (Button),
-- *      Usage Minimum (01h),
-- *      Usage Maximum (05h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Size (1),
-- *      Report Count (5),
-- *      Input (Variable),
-- *      Report Size (3),
-- *      Report Count (1),
-- *      Input (Constant, Variable),
-- *      Usage Page (Desktop),
-- *      Usage (X),
-- *      Usage (Y),
-- *      Usage (Wheel),
-- *      Logical Minimum (-127),
-- *      Logical Maximum (127),
-- *      Report Size (8),
-- *      Report Count (3),
-- *      Input (Variable, Relative),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Digitizer),
-- *  Usage (Pen),
-- *  Collection (Application),
-- *    Report ID (2),
-- *    Usage (Stylus),
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (7),
-- *      Input (Variable),
-- *      Usage (Azimuth),
-- *      Usage (Altitude),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (2),
-- *      Feature (Variable),
-- *    End Collection,
-- *    Report ID (5),
-- *    Usage Page (Digitizer),
-- *    Usage (Stylus),
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (7),
-- *      Input (Variable),
-- *    End Collection,
-- *    Report ID (10),
-- *    Usage Page (Digitizer),
-- *    Usage (Stylus),
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (7),
-- *      Input (Variable),
-- *    End Collection,
-- *    Report ID (16),
-- *    Usage (Stylus),
-- *    Collection (Physical),
-- *      Usage (Tip Switch),
-- *      Usage (Barrel Switch),
-- *      Usage (Invert),
-- *      Usage (Eraser),
-- *      Usage (In Range),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Size (1),
-- *      Report Count (5),
-- *      Input (Variable),
-- *      Report Count (3),
-- *      Input (Constant, Variable),
-- *      Usage Page (Desktop),
-- *      Usage (X),
-- *      Report Size (16),
-- *      Report Count (1),
-- *      Push,
-- *      Unit Exponent (13),
-- *      Unit (Inch^3),
-- *      Logical Minimum (0),
-- *      Logical Maximum (18000),
-- *      Physical Minimum (0),
-- *      Physical Maximum (18000),
-- *      Input (Variable),
-- *      Usage (Y),
-- *      Logical Maximum (11000),
-- *      Physical Maximum (11000),
-- *      Input (Variable),
-- *      Usage Page (Digitizer),
-- *      Usage (Tip Pressure),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1023),
-- *      Physical Minimum (0),
-- *      Physical Maximum (1023),
-- *      Input (Variable),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Desktop),
-- *  Usage (Keyboard),
-- *  Collection (Application),
-- *    Report ID (13),
-- *    Usage Page (Keyboard),
-- *    Usage Minimum (KB Leftcontrol),
-- *    Usage Maximum (KB Right GUI),
-- *    Logical Minimum (0),
-- *    Logical Maximum (1),
-- *    Report Size (1),
-- *    Report Count (8),
-- *    Input (Variable),
-- *    Report Size (8),
-- *    Report Count (1),
-- *    Input (Constant),
-- *    Usage Page (Keyboard),
-- *    Usage Minimum (None),
-- *    Usage Maximum (KB Application),
-- *    Logical Minimum (0),
-- *    Logical Maximum (101),
-- *    Report Size (8),
-- *    Report Count (5),
-- *    Input,
-- *  End Collection,
-- *  Usage Page (Consumer),
-- *  Usage (Consumer Control),
-- *  Collection (Application),
-- *    Report ID (12),
-- *    Usage (Volume Inc),
-- *    Usage (Volume Dec),
-- *    Usage (Mute),
-- *    Logical Minimum (0),
-- *    Logical Maximum (1),
-- *    Report Size (1),
-- *    Report Count (3),
-- *    Input (Variable, Relative),
-- *    Report Size (5),
-- *    Report Count (1),
-- *    Input (Constant, Variable, Relative),
-- *  End Collection
-+ * See Media Tablet 10.6 inch description, device and HID report descriptors at
-+ * http://sf.net/apps/mediawiki/digimend/?title=Waltop_Media_Tablet_10.6%22
-  */
- 
- /* Size of the original report descriptor of Media Tablet 10.6 inch */
- #define MEDIA_TABLET_10_6_INCH_RDESC_ORIG_SIZE	300
- 
--/*
-- * Fixed Media Tablet 10.6 inch descriptor.
-- *
-- * The descriptions of reports unused in the default configuration are
-- * removed. The stylus report (ID 16) is fixed similarly to Slim Tablet 5.8
-- * inch.  The unused mouse report (ID 1) fields are replaced with constant
-- * padding.
-- *
-- * The keyboard report (ID 13) is hacked to instead have an "array" field
-- * reporting consumer page controls, and all the unused bits are masked out
-- * with constant padding. The "brush" wheels' function is represented as "Scan
-- * Previous/Next Track" controls due to the lack of brush controls in the
-- * usage tables specification.
-- */
-+/* Fixed Media Tablet 10.6 inch descriptor */
- static __u8 media_tablet_10_6_inch_rdesc_fixed[] = {
- 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
- 	0x09, 0x02,         /*  Usage (Pen),                        */
-@@ -929,187 +329,14 @@ static __u8 media_tablet_10_6_inch_rdesc_fixed[] = {
- };
- 
- /*
-- * Original Media Tablet 14.1 inch report descriptor.
-- *
-- * There are at least two versions of this model in the wild. They are
-- * represented by Genius G-Pen M712 (older version) and Genius G-Pen M712X
-- * (newer version). The hardware difference between these versions is the same
-- * as between older and newer versions of Media Tablet 10.6 inch. The report
-- * descriptors are identical for both versions.
-- *
-- * The function, behavior and report descriptor of this tablet is similar to
-- * that of Media Tablet 10.6 inch. However, there is one more field (with
-- * Consumer AC Pan usage) in the mouse description. Then the tablet X and Y
-- * logical extents both get scaled to 0..16383 range (a hardware limit?),
-- * which kind of defeats the advertised 4000 LPI resolution, considering the
-- * physical extents of 12x7.25 inches. Plus, reports 5, 10 and 255 are used
-- * sometimes (while moving the pen) with unknown purpose. Also, the key codes
-- * generated for zoom in/out are different.
-- *
-- *  Usage Page (Desktop),
-- *  Usage (Mouse),
-- *  Collection (Application),
-- *    Report ID (1),
-- *    Usage (Pointer),
-- *    Collection (Physical),
-- *      Usage Page (Button),
-- *      Usage Minimum (01h),
-- *      Usage Maximum (05h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Size (1),
-- *      Report Count (5),
-- *      Input (Variable),
-- *      Report Size (3),
-- *      Report Count (1),
-- *      Input (Constant, Variable),
-- *      Usage Page (Desktop),
-- *      Usage (X),
-- *      Usage (Y),
-- *      Usage (Wheel),
-- *      Logical Minimum (-127),
-- *      Logical Maximum (127),
-- *      Report Size (8),
-- *      Report Count (3),
-- *      Input (Variable, Relative),
-- *      Usage Page (Consumer),
-- *      Logical Minimum (-127),
-- *      Logical Maximum (127),
-- *      Report Size (8),
-- *      Report Count (1),
-- *      Usage (AC Pan),
-- *      Input (Variable, Relative),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Digitizer),
-- *  Usage (Pen),
-- *  Collection (Application),
-- *    Report ID (2),
-- *    Usage (Stylus),
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (7),
-- *      Input (Variable),
-- *      Usage (Azimuth),
-- *      Usage (Altitude),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (2),
-- *      Feature (Variable),
-- *    End Collection,
-- *    Report ID (5),
-- *    Usage Page (Digitizer),
-- *    Usage (Stylus),
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (7),
-- *      Input (Variable),
-- *    End Collection,
-- *    Report ID (10),
-- *    Usage Page (Digitizer),
-- *    Usage (Stylus),
-- *    Collection (Physical),
-- *      Usage (00h),
-- *      Logical Minimum (0),
-- *      Logical Maximum (255),
-- *      Report Size (8),
-- *      Report Count (7),
-- *      Input (Variable),
-- *    End Collection,
-- *    Report ID (16),
-- *    Usage (Stylus),
-- *    Collection (Physical),
-- *      Usage (Tip Switch),
-- *      Usage (Barrel Switch),
-- *      Usage (Invert),
-- *      Usage (Eraser),
-- *      Usage (In Range),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1),
-- *      Report Size (1),
-- *      Report Count (5),
-- *      Input (Variable),
-- *      Report Count (3),
-- *      Input (Constant, Variable),
-- *      Usage Page (Desktop),
-- *      Usage (X),
-- *      Report Size (16),
-- *      Report Count (1),
-- *      Push,
-- *      Unit Exponent (13),
-- *      Unit (Inch^3),
-- *      Logical Minimum (0),
-- *      Logical Maximum (16383),
-- *      Physical Minimum (0),
-- *      Physical Maximum (16383),
-- *      Input (Variable),
-- *      Usage (Y),
-- *      Input (Variable),
-- *      Usage Page (Digitizer),
-- *      Usage (Tip Pressure),
-- *      Logical Minimum (0),
-- *      Logical Maximum (1023),
-- *      Physical Minimum (0),
-- *      Physical Maximum (1023),
-- *      Input (Variable),
-- *    End Collection,
-- *  End Collection,
-- *  Usage Page (Desktop),
-- *  Usage (Keyboard),
-- *  Collection (Application),
-- *    Report ID (13),
-- *    Usage Page (Keyboard),
-- *    Usage Minimum (KB Leftcontrol),
-- *    Usage Maximum (KB Right GUI),
-- *    Logical Minimum (0),
-- *    Logical Maximum (1),
-- *    Report Size (1),
-- *    Report Count (8),
-- *    Input (Variable),
-- *    Report Size (8),
-- *    Report Count (1),
-- *    Input (Constant),
-- *    Usage Page (Keyboard),
-- *    Usage Minimum (None),
-- *    Usage Maximum (KB Application),
-- *    Logical Minimum (0),
-- *    Logical Maximum (101),
-- *    Report Size (8),
-- *    Report Count (5),
-- *    Input,
-- *  End Collection,
-- *  Usage Page (Consumer),
-- *  Usage (Consumer Control),
-- *  Collection (Application),
-- *    Report ID (12),
-- *    Usage (Volume Inc),
-- *    Usage (Volume Dec),
-- *    Usage (Mute),
-- *    Logical Minimum (0),
-- *    Logical Maximum (1),
-- *    Report Size (1),
-- *    Report Count (3),
-- *    Input (Variable, Relative),
-- *    Report Size (5),
-- *    Report Count (1),
-- *    Input (Constant, Variable, Relative),
-- *  End Collection
-+ * See Media Tablet 14.1 inch description, device and HID report descriptors at
-+ * http://sf.net/apps/mediawiki/digimend/?title=Waltop_Media_Tablet_14.1%22
-  */
- 
- /* Size of the original report descriptor of Media Tablet 14.1 inch */
- #define MEDIA_TABLET_14_1_INCH_RDESC_ORIG_SIZE	309
- 
--/*
-- * Fixed Media Tablet 14.1 inch descriptor.
-- * It is fixed similarly to the Media Tablet 10.6 inch descriptor.
-- */
-+/* Fixed Media Tablet 14.1 inch descriptor */
- static __u8 media_tablet_14_1_inch_rdesc_fixed[] = {
- 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
- 	0x09, 0x02,         /*  Usage (Pen),                        */
+> >  config TOUCHSCREEN_S3C2410
+> >  	tristate "Samsung S3C2410/generic touchscreen input driver"
+> >  	depends on ARCH_S3C2410 || SAMSUNG_DEV_TS
+> > diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> > index e748fb8..3d5cf8c 100644
+> > --- a/drivers/input/touchscreen/Makefile
+> > +++ b/drivers/input/touchscreen/Makefile
+> > @@ -29,6 +29,7 @@ obj-$(CONFIG_TOUCHSCREEN_EETI)		+= eeti_ts.o
+> >  obj-$(CONFIG_TOUCHSCREEN_ELO)		+= elo.o
+> >  obj-$(CONFIG_TOUCHSCREEN_EGALAX)	+= egalax_ts.o
+> >  obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
+> > +obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+= ili210x.o
+> >  obj-$(CONFIG_TOUCHSCREEN_INEXIO)	+= inexio.o
+> >  obj-$(CONFIG_TOUCHSCREEN_INTEL_MID)	+= intel-mid-touch.o
+> >  obj-$(CONFIG_TOUCHSCREEN_LPC32XX)	+= lpc32xx_ts.o
+> > diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
+> > new file mode 100644
+> > index 0000000..131e1b1
+> > --- /dev/null
+> > +++ b/drivers/input/touchscreen/ili210x.c
+> > @@ -0,0 +1,442 @@
+> > +#include <linux/module.h>
+> > +#include <linux/i2c.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/slab.h>
+> > +#include <linux/input.h>
+> > +#include <linux/input/mt.h>
+> > +#include <linux/delay.h>
+> > +#include <linux/timer.h>
+> > +#include <linux/input/ili210x.h>
+> > +
+> > +#define MAX_TOUCHES		2
+> > +#define TS_PEN_UP_TIMEOUT	msecs_to_jiffies(50)
+> > +
+> > +/* Touchscreen commands */
+> > +#define REG_TOUCHDATA		0x10
+> > +#define REG_PANEL_INFO		0x20
+> > +#define REG_FIRMWARE_VERSION	0x40
+> > +#define REG_CALIBRATE		0xcc
+> > +
+> > +struct finger {
+> > +	u8 x_low;
+> > +	u8 x_high;
+> > +	u8 y_low;
+> > +	u8 y_high;
+> > +} __packed;
+> > +
+> > +struct touchdata {
+> > +	u8 status;
+> > +	struct finger finger[MAX_TOUCHES];
+> > +} __packed;
+> > +
+> > +struct panel_info {
+> > +	struct finger finger_max;
+> > +	u8 xchannel_num;
+> > +	u8 ychannel_num;
+> > +} __packed;
+> > +
+> > +struct firmware_version {
+> > +	u8 id;
+> > +	u8 major;
+> > +	u8 minor;
+> > +} __packed;
+> > +
+> > +struct ili210x {
+> > +	struct i2c_client *client;
+> > +	struct input_dev *input;
+> > +	bool stopped;
+> > +	int (*get_pendown_state)(void);
+> > +	spinlock_t lock;
+> > +	struct timer_list timer;
+> > +};
+> > +
+> > +static int ili210x_read_reg(struct i2c_client *client, u8 reg, void *buf,
+> > +			    size_t len)
+> > +{
+> > +	struct i2c_msg msg[2];
+> > +
+> > +	msg[0].addr = client->addr;
+> > +	msg[0].flags = 0;
+> > +	msg[0].len = 1;
+> > +	msg[0].buf = &reg;
+> > +
+> > +	msg[1].addr = client->addr;
+> > +	msg[1].flags = I2C_M_RD;
+> > +	msg[1].len = len;
+> > +	msg[1].buf = buf;
+> > +
+> > +	if (i2c_transfer(client->adapter, msg, 2) != 2) {
+> > +		dev_err(&client->dev, "i2c transfer failed\n");
+> > +		return -EIO;
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static void ili210x_report_events(struct input_dev *input,
+> > +				  struct touchdata *touchdata)
+> 
+> Why not const struct touchdata here?
+Because my keyboard forgot it ;-)
+
+> > +{
+> > +	int i, count = 0;
+> > +	bool touch;
+> > +	unsigned int x, y;
+> > +	struct finger *finger;
+> > +
+> > +	for (i = 0; i < MAX_TOUCHES; i++) {
+> > +		input_mt_slot(input, i);
+> > +
+> > +		finger = &touchdata->finger[i];
+> > +
+> > +		touch = touchdata->status & (1 << i);
+> > +		input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
+> > +		if (touch) {
+> > +			x = finger->x_low | (finger->x_high << 8);
+> > +			y = finger->y_low | (finger->y_high << 8);
+> > +
+> > +			input_report_abs(input, ABS_MT_POSITION_X, x);
+> > +			input_report_abs(input, ABS_MT_POSITION_Y, y);
+> > +
+> > +			if (!count) {
+> > +				input_report_abs(input, ABS_X, x);
+> > +				input_report_abs(input, ABS_Y, y);
+> > +			}
+> 
+> No need to handle ABS_X/Y explicitly; please use
+> input_mt_report_pointer_emulation() instead.
+Ok I'll change that. Thanks.
+
+> > +
+> > +			count++;
+> > +		}
+> > +	}
+> > +
+> > +	if (count > 0) {
+> > +		input_report_key(input, BTN_TOUCH, count > 0);
+> > +		input_sync(input);
+> > +	}
+> 
+> This one is also handled by input_mt_report_pointer_emulation().
+Ok.
+
+> > +}
+> > +
+> > +static int get_pendown_state(struct ili210x *priv)
+> 
+> Why not const struct here?
+Once again I forgot it. Thanks.
+
+> > +{
+> > +	int state = 0;
+> > +
+> > +	if (priv->get_pendown_state)
+> > +		state = priv->get_pendown_state();
+> > +
+> > +	return state;
+> > +}
+> > +
+> > +static void ili210x_timer(unsigned long handle)
+> > +{
+> > +	struct ili210x *priv = (void *)handle;
+> > +	unsigned long flags;
+> > +
+> > +	spin_lock_irqsave(&priv->lock, flags);
+> > +
+> > +	input_report_key(priv->input, BTN_TOUCH, 0);
+> > +	input_sync(priv->input);
+> > +
+> > +	spin_unlock_irqrestore(&priv->lock, flags);
+> > +}
+> 
+> Why is the timer necessary, won't the hardware flag zero touches any other way?
+The touchscreen works with level triggered interrupts. When it detects a
+finger on the screen, it pulls down the interrupt linei and it stays low
+until the finger left the screen.
+If working with an irq handler that is level triggered, we must be sure to
+report the zero touches, meaning that the irq handler should be called
+after the finger(s) left the touchscreen to read the zero touches.
+The timer is here to be sure that the zero touches will be called after the
+finger left the sensor surface.
+
+> > +
+> > +static irqreturn_t ili210x_hardirq(int irq, void *irq_data)
+> > +{
+> > +	struct ili210x *priv = irq_data;
+> > +
+> > +	if (!priv->get_pendown_state)
+> > +		return IRQ_WAKE_THREAD;
+> > +
+> > +	return get_pendown_state(priv) ? IRQ_WAKE_THREAD : IRQ_HANDLED;
+> > +}
+> > +
+> > +static irqreturn_t ili210x_irq(int irq, void *irq_data)
+> > +{
+> > +	struct ili210x *priv = irq_data;
+> > +	struct i2c_client *client = priv->client;
+> > +	struct input_dev *input = priv->input;
+> > +	struct device *dev = &client->dev;
+> > +	struct touchdata touchdata;
+> > +	int rc;
+> > +
+> > +	do {
+> > +		rc = ili210x_read_reg(client, REG_TOUCHDATA, &touchdata,
+> > +				      sizeof(touchdata));
+> > +		if (rc < 0) {
+> > +			dev_err(dev, "Unable to get touchdata, err = %d\n",
+> > +				rc);
+> > +			goto end;
+> > +		}
+> > +
+> > +		ili210x_report_events(input, &touchdata);
+> > +
+> > +		usleep_range(100, 1000);
+> > +		mod_timer(&priv->timer, jiffies + TS_PEN_UP_TIMEOUT);
+> > +	} while (get_pendown_state(priv) && !priv->stopped);
+> 
+> It looks odd to loop in an irq handler, even if it is threaded. What
+> is the pdata->get_pendown_state() doing?
+I agree. The reason of the loop is for edge triggered interrupt.
+
+On my hardware I don't have support for level triggered irq. I'm working
+with edge triggered interrupts.
+In the pdata structure I give to the driver it set irq_flags to
+IRQF_TRIGGER_FALLING and the get_pendown_state function implemented is the
+following:
+	static int get_pendown_state(void)
+	{
+		return gpio_get_value(GPIO_TOUCHSCREEN_IRQ) ? 0 : 1;
+	}
+The get_pendown_state() function will look at the irq line to see if it's
+still low meaning there is a finger on the screen.
+If it is the case, we loop, otherwise we exit from the thread and the timer
+will fire after TS_PEN_UP_TIMEOUT.
+
+On the contrary if working with a level triggered interrupt, i.e. with
+irqflags set to IRQF_TRIGGER_LOW, there is no need to add the
+get_pendown_state function and the thread will exit after each touch read.
+In this case the usleep_range() is even not needed...
+
+I agree it's maybe not the best solution... Do I've to use something else
+like a workqueue or something else?
+
+> > +
+> > +end:
+> > +	return IRQ_HANDLED;
+> > +}
+> > +
+> > +static ssize_t ili210x_calibrate(struct device *dev,
+> > +				 struct device_attribute *attr,
+> > +				 const char *buf, size_t count)
+> > +{
+> > +	struct ili210x *priv = dev_get_drvdata(dev);
+> > +	unsigned long calibrate;
+> > +	int rc;
+> > +	u8 cmd = REG_CALIBRATE;
+> > +
+> > +	if (kstrtoul(buf, 10, &calibrate))
+> > +		return -EINVAL;
+> > +
+> > +	if (calibrate != 1)
+> > +		return -EINVAL;
+> 
+> Maybe allowing zero as a NOP would help userland here?
+Ok I'll change it.
+
+> > +
+> > +	rc = i2c_master_send(priv->client, &cmd, sizeof(cmd));
+> > +	if (rc != sizeof(cmd))
+> > +		return -EIO;
+> > +
+> > +	return count;
+> > +}
+> > +static DEVICE_ATTR(calibrate, 0644, NULL, ili210x_calibrate);
+> > +
+> > +static ssize_t ili210x_readtouch(struct device *dev,
+> > +				 struct device_attribute *attr,
+> > +				 char *buf)
+> > +{
+> > +	struct ili210x *priv = dev_get_drvdata(dev);
+> > +	struct touchdata touchdata;
+> > +	struct finger *finger;
+> > +	ssize_t count = 0;
+> > +	int i, rc;
+> > +	int x, y;
+> > +	bool touch;
+> > +
+> > +	rc = ili210x_read_reg(priv->client, REG_TOUCHDATA, &touchdata,
+> > +			      sizeof(touchdata));
+> > +	if (rc < 0) {
+> > +		dev_err(dev, "Unable to get touchdata, err = %d\n",
+> > +			rc);
+> > +		return rc;
+> > +	}
+> > +
+> > +	for (i = 0; i < MAX_TOUCHES; i++) {
+> > +		finger = &touchdata.finger[i];
+> > +		touch = touchdata.status & (1 << i);
+> > +		if (touch) {
+> > +			x = finger->x_low | (finger->x_high << 8);
+> > +			y = finger->y_low | (finger->y_high << 8);
+> > +			count += sprintf(&buf[count], "%d: %d,%d\n", i, x,
+> > +					 y);
+> > +		}
+> > +	}
+> > +
+> > +	return count;
+> > +}
+> > +static DEVICE_ATTR(readtouch, 0x644, ili210x_readtouch, NULL);
+> 
+> I do not think adding this sysfs node is a good idea; you will not be
+> able to change it easily to accomodate more data. Better move to
+> debugfs or simply remove completely.
+I used it at the beginning of the development, I'll remove this useless
+sysfs entry.
+
+> > +
+> > +static struct attribute *ili210x_attributes[] = {
+> > +	&dev_attr_calibrate.attr,
+> > +	&dev_attr_readtouch.attr,
+> > +	NULL,
+> > +};
+> > +
+> > +static const struct attribute_group ili210x_attr_group = {
+> > +	.attrs = ili210x_attributes,
+> > +};
+> > +
+> > +static int __devinit ili210x_i2c_probe(struct i2c_client *client,
+> > +				       const struct i2c_device_id *id)
+> > +{
+> > +	struct ili210x *priv;
+> > +	struct input_dev *input;
+> > +	struct device *dev = &client->dev;
+> > +	struct ili210x_platform_data *pdata = dev->platform_data;
+> > +	struct panel_info panel;
+> > +	struct firmware_version firmware;
+> > +	int xmax, ymax;
+> > +	int rc;
+> > +
+> > +	dev_dbg(dev, "Probing for ILI210X I2C Touschreen driver");
+> > +
+> > +	if (!pdata) {
+> > +		dev_err(dev, "No platform data!\n");
+> > +		return -ENODEV;
+> > +	}
+> > +
+> > +	if (client->irq <= 0) {
+> > +		dev_err(dev, "No IRQ!\n");
+> > +		return -ENODEV;
+> > +	}
+> > +
+> > +	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+> > +	if (!priv) {
+> > +		dev_err(dev, "Failed to allocate driver data!\n");
+> > +		rc = -ENOMEM;
+> > +		goto fail;
+> > +	}
+> > +
+> > +	dev_set_drvdata(dev, priv);
+> > +
+> > +	input = input_allocate_device();
+> > +	if (!input) {
+> > +		dev_err(dev, "Failed to allocate input device\n");
+> > +		rc = -ENOMEM;
+> > +		goto fail;
+> > +	}
+> > +
+> > +	/* Get firmware version */
+> > +	rc = ili210x_read_reg(client, REG_FIRMWARE_VERSION, &firmware,
+> > +			      sizeof(firmware));
+> > +	if (rc < 0) {
+> > +		dev_err(dev, "Failed to get firmware version, err: %d\n",
+> > +			rc);
+> > +		goto fail_probe;
+> > +	}
+> > +
+> > +	/* get panel info */
+> > +	rc = ili210x_read_reg(client, REG_PANEL_INFO, &panel,
+> > +			      sizeof(panel));
+> > +	if (rc < 0) {
+> > +		dev_err(dev, "Failed to get panel informations, err: %d\n",
+> > +			rc);
+> > +		goto fail_probe;
+> > +	}
+> > +
+> > +	xmax = panel.finger_max.x_low | (panel.finger_max.x_high << 8);
+> > +	ymax = panel.finger_max.y_low | (panel.finger_max.y_high << 8);
+> > +
+> > +	/* Setup input device */
+> > +	__set_bit(EV_SYN, input->evbit);
+> > +	__set_bit(EV_KEY, input->evbit);
+> > +	__set_bit(EV_ABS, input->evbit);
+> > +	__set_bit(BTN_TOUCH, input->keybit);
+> > +
+> > +	/* Single touch */
+> > +	input_set_abs_params(input, ABS_X, 0, xmax, 0, 0);
+> > +	input_set_abs_params(input, ABS_Y, 0, ymax, 0, 0);
+> > +
+> > +	/* Multi touch */
+> > +	input_mt_init_slots(input, MAX_TOUCHES);
+> > +	input_set_abs_params(input, ABS_MT_POSITION_X, 0, xmax, 0, 0);
+> > +	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, ymax, 0, 0);
+> > +
+> > +	input->name = "ILI210x Touchscreen";
+> > +	input->id.bustype = BUS_I2C;
+> > +	input->dev.parent = dev;
+> > +
+> > +	input_set_drvdata(input, priv);
+> > +
+> > +	setup_timer(&priv->timer, ili210x_timer, (unsigned long) priv);
+> > +	spin_lock_init(&priv->lock);
+> > +	priv->get_pendown_state = pdata->get_pendown_state;
+> > +	rc = request_threaded_irq(client->irq, ili210x_hardirq, ili210x_irq,
+> > +				  pdata->irq_flags, client->name,
+> > +				  priv);
+> > +	if (rc) {
+> > +		dev_err(dev, "Unable to request touchscreen IRQ, err: %d\n",
+> > +			rc);
+> > +		goto fail_probe;
+> > +	}
+> > +
+> > +	rc = sysfs_create_group(&dev->kobj, &ili210x_attr_group);
+> > +	if (rc) {
+> > +		dev_err(dev, "Unable to create sysfs attributes, err: %d\n",
+> > +			rc);
+> > +		goto fail_sysfs;
+> > +	}
+> > +
+> > +	rc = input_register_device(input);
+> > +	if (rc) {
+> > +		dev_err(dev, "Cannot regiser input device, err: %d\n", rc);
+> > +		goto fail_input;
+> > +	}
+> > +
+> > +	priv->client = client;
+> > +	priv->input = input;
+> > +
+> > +	device_init_wakeup(&client->dev, 1);
+> > +
+> > +	dev_info(dev,
+> > +		 "ILI210x initialized (IRQ: %d), firmware version %d.%d.%d",
+> > +		 client->irq, firmware.id, firmware.major, firmware.minor);
+> > +
+> > +	return 0;
+> > +
+> > +fail_input:
+> > +	sysfs_remove_group(&dev->kobj, &ili210x_attr_group);
+> > +fail_sysfs:
+> > +	free_irq(client->irq, priv);
+> > +fail_probe:
+> > +	input_free_device(input);
+> > +fail:
+> > +	kfree(priv);
+> > +	return rc;
+> > +}
+> > +
+> > +static int __devexit ili210x_i2c_remove(struct i2c_client *client)
+> > +{
+> > +	struct ili210x *priv = dev_get_drvdata(&client->dev);
+> > +	struct device *dev = &priv->client->dev;
+> > +
+> > +	sysfs_remove_group(&dev->kobj, &ili210x_attr_group);
+> > +	del_timer_sync(&priv->timer);
+> > +	priv->stopped = true;
+> > +	free_irq(priv->client->irq, priv);
+> > +	input_unregister_device(priv->input);
+> > +	kfree(priv);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +#ifdef CONFIG_PM_SLEEP
+> > +static int ili210x_i2c_suspend(struct device *dev)
+> > +{
+> > +	struct i2c_client *client = to_i2c_client(dev);
+> > +
+> > +	if (device_may_wakeup(&client->dev))
+> > +		enable_irq_wake(client->irq);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int ili210x_i2c_resume(struct device *dev)
+> > +{
+> > +	struct i2c_client *client = to_i2c_client(dev);
+> > +
+> > +	if (device_may_wakeup(&client->dev))
+> > +		disable_irq_wake(client->irq);
+> > +
+> > +	return 0;
+> > +}
+> > +#endif
+> > +
+> > +static SIMPLE_DEV_PM_OPS(ili210x_i2c_pm, ili210x_i2c_suspend,
+> > +			 ili210x_i2c_resume);
+> > +
+> > +static const struct i2c_device_id ili210x_i2c_id[] = {
+> > +	{ "ili210x", 0 },
+> > +	{ }
+> > +};
+> > +MODULE_DEVICE_TABLE(i2c, ili210x_i2c_id);
+> > +
+> > +static struct i2c_driver ili210x_ts_driver = {
+> > +	.driver = {
+> > +		.name = "ili210x_i2c",
+> > +		.owner = THIS_MODULE,
+> > +		.pm = &ili210x_i2c_pm,
+> > +	},
+> > +	.id_table = ili210x_i2c_id,
+> > +	.probe = ili210x_i2c_probe,
+> > +	.remove = ili210x_i2c_remove,
+> > +};
+> > +
+> > +static int __init ili210x_ts_init(void)
+> > +{
+> > +	return i2c_add_driver(&ili210x_ts_driver);
+> > +}
+> > +module_init(ili210x_ts_init);
+> > +
+> > +static void __exit ili210x_ts_exit(void)
+> > +{
+> > +	i2c_del_driver(&ili210x_ts_driver);
+> > +}
+> > +module_exit(ili210x_ts_exit);
+> > +
+> > +MODULE_AUTHOR("Olivier Sobrie <olivier@sobrie.be>");
+> > +MODULE_DESCRIPTION("ILI210X I2C Touchscreen Driver");
+> > +MODULE_LICENSE("GPL");
+> > diff --git a/include/linux/input/ili210x.h b/include/linux/input/ili210x.h
+> > new file mode 100644
+> > index 0000000..710b3dd2
+> > --- /dev/null
+> > +++ b/include/linux/input/ili210x.h
+> > @@ -0,0 +1,9 @@
+> > +#ifndef _ILI210X_H
+> > +#define _ILI210X_H
+> > +
+> > +struct ili210x_platform_data {
+> > +	unsigned long irq_flags;
+> > +	int (*get_pendown_state)(void);
+> > +};
+> > +
+> > +#endif
+> > -- 
+> > 1.7.5.4
+> > 
+> 
+> Thanks,
+> Henrik
+
+Thanks for the review!
+I'm looking forward for your comments and suggestions for the irq handler.
+After that I send you an update of the patch.
+
+Cheers,
+
 -- 
-1.7.9
-
+Olivier Sobrie

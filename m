@@ -1,189 +1,36 @@
-From: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
-Subject: [PATCH 2/5] HID: multitouch: fix handling of buggy reports descriptors for Dell ST2220T
-Date: Tue,  6 Mar 2012 17:57:03 +0100
-Message-ID: <1331053026-21272-3-git-send-email-benjamin.tissoires@gmail.com>
-References: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH] Input: tegra-kbc - revise device tree support
+Date: Tue, 6 Mar 2012 12:34:42 -0800
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF17BE861FCE@HQMAIL01.nvidia.com>
+References: <1329345626-30789-1-git-send-email-olof@lixom.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1329345626-30789-1-git-send-email-olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Content-Language: en-US
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org" <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org" <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Olof Johansson wrote at Wednesday, February 15, 2012 3:40 PM:
+> This is an incremental patch updating to the revised bindings for matrix keyboards.
+> 
+> This includes an optional "linux,fn-keymap" binding that is not yet implemented,
+> that will be used to specify the Fn-key modifier layout if needed.
+> 
+> New for v2:
+> * Removed references to "matrix-keyboard-controller" compatible values
+> * Rebased to be incremental on top of previous patch.
+> 
+> Signed-off-by: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+> Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+> Acked-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-LG multitouch panels, such as the one found in Dell ST2220T, has buggy
-reports descriptors. With the previous implementation, it was impossible
-to rely on the reports descriptors to determine how the different
-touches are emitted from the device.
+Dmitry,
 
-This patch changes the splitting of the different touches in the report
-in a more robust way.
+Can you please take this for 3.4? Thanks.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
----
-
-This one gives me warning under Ubuntu (11.10 and 12.04 at least):
-drivers/hid/hid-multitouch.c: In function 'mt_input_mapping':
-arch/x86/include/asm/bitops.h:312:8: warning: array subscript is above array bounds [-Warray-bounds]
-arch/x86/include/asm/bitops.h:312:8: warning: array subscript is above array bounds [-Warray-bounds]
-
-I don't get any warnings under Fedora. Any help would be great.
-
-Thanks,
-Benjamin
-
-
- drivers/hid/hid-multitouch.c |   64 ++++++++++++++++-------------------------
- 1 files changed, 25 insertions(+), 39 deletions(-)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 019de83..2088ab4 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -75,7 +75,6 @@ struct mt_device {
- 	struct mt_class mtclass;	/* our mt device class */
- 	unsigned last_field_index;	/* last field index of the report */
- 	unsigned last_slot_field;	/* the last field of a slot */
--	int last_mt_collection;	/* last known mt-related collection */
- 	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
- 	__s8 maxcontact_report_id;	/* Maximum Contact Number HID feature,
- 				   -1 if non-existent */
-@@ -273,6 +272,13 @@ static void set_abs(struct input_dev *input, unsigned int code,
- 	input_set_abs_params(input, code, fmin, fmax, fuzz, 0);
- }
- 
-+static void set_last_slot_field(struct hid_usage *usage, struct mt_device *td,
-+		struct hid_input *hi)
-+{
-+	if (!test_bit(usage->hid, hi->input->absbit))
-+		td->last_slot_field = usage->hid;
-+}
-+
- static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
-@@ -321,10 +327,8 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 				cls->sn_move);
- 			/* touchscreen emulation */
- 			set_abs(hi->input, ABS_X, field, cls->sn_move);
--			if (td->last_mt_collection == usage->collection_index) {
--				td->last_slot_field = usage->hid;
--				td->last_field_index = field->index;
--			}
-+			set_last_slot_field(usage, td, hi);
-+			td->last_field_index = field->index;
- 			return 1;
- 		case HID_GD_Y:
- 			hid_map_usage(hi, usage, bit, max,
-@@ -333,10 +337,8 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 				cls->sn_move);
- 			/* touchscreen emulation */
- 			set_abs(hi->input, ABS_Y, field, cls->sn_move);
--			if (td->last_mt_collection == usage->collection_index) {
--				td->last_slot_field = usage->hid;
--				td->last_field_index = field->index;
--			}
-+			set_last_slot_field(usage, td, hi);
-+			td->last_field_index = field->index;
- 			return 1;
- 		}
- 		return 0;
-@@ -344,24 +346,18 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	case HID_UP_DIGITIZER:
- 		switch (usage->hid) {
- 		case HID_DG_INRANGE:
--			if (td->last_mt_collection == usage->collection_index) {
--				td->last_slot_field = usage->hid;
--				td->last_field_index = field->index;
--			}
-+			set_last_slot_field(usage, td, hi);
-+			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_CONFIDENCE:
--			if (td->last_mt_collection == usage->collection_index) {
--				td->last_slot_field = usage->hid;
--				td->last_field_index = field->index;
--			}
-+			set_last_slot_field(usage, td, hi);
-+			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_TIPSWITCH:
- 			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
- 			input_set_capability(hi->input, EV_KEY, BTN_TOUCH);
--			if (td->last_mt_collection == usage->collection_index) {
--				td->last_slot_field = usage->hid;
--				td->last_field_index = field->index;
--			}
-+			set_last_slot_field(usage, td, hi);
-+			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_CONTACTID:
- 			if (!td->maxcontacts)
-@@ -369,17 +365,14 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			input_mt_init_slots(hi->input, td->maxcontacts);
- 			td->last_slot_field = usage->hid;
- 			td->last_field_index = field->index;
--			td->last_mt_collection = usage->collection_index;
- 			return 1;
- 		case HID_DG_WIDTH:
- 			hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_TOUCH_MAJOR);
- 			set_abs(hi->input, ABS_MT_TOUCH_MAJOR, field,
- 				cls->sn_width);
--			if (td->last_mt_collection == usage->collection_index) {
--				td->last_slot_field = usage->hid;
--				td->last_field_index = field->index;
--			}
-+			set_last_slot_field(usage, td, hi);
-+			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_HEIGHT:
- 			hid_map_usage(hi, usage, bit, max,
-@@ -388,10 +381,8 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 				cls->sn_height);
- 			input_set_abs_params(hi->input,
- 					ABS_MT_ORIENTATION, 0, 1, 0, 0);
--			if (td->last_mt_collection == usage->collection_index) {
--				td->last_slot_field = usage->hid;
--				td->last_field_index = field->index;
--			}
-+			set_last_slot_field(usage, td, hi);
-+			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_TIPPRESSURE:
- 			hid_map_usage(hi, usage, bit, max,
-@@ -401,20 +392,16 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			/* touchscreen emulation */
- 			set_abs(hi->input, ABS_PRESSURE, field,
- 				cls->sn_pressure);
--			if (td->last_mt_collection == usage->collection_index) {
--				td->last_slot_field = usage->hid;
--				td->last_field_index = field->index;
--			}
-+			set_last_slot_field(usage, td, hi);
-+			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_CONTACTCOUNT:
--			if (td->last_mt_collection == usage->collection_index)
--				td->last_field_index = field->index;
-+			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_CONTACTMAX:
- 			/* we don't set td->last_slot_field as contactcount and
- 			 * contact max are global to the report */
--			if (td->last_mt_collection == usage->collection_index)
--				td->last_field_index = field->index;
-+			td->last_field_index = field->index;
- 			return -1;
- 		}
- 		case HID_DG_TOUCH:
-@@ -670,7 +657,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	td->mtclass = *mtclass;
- 	td->inputmode = -1;
- 	td->maxcontact_report_id = -1;
--	td->last_mt_collection = -1;
- 	hid_set_drvdata(hdev, td);
- 
- 	ret = hid_parse(hdev);
 -- 
-1.7.7.6
+nvpublic

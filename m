@@ -1,7 +1,7 @@
 From: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
-Subject: [PATCH 5/5] HID: multitouch: detect serial protocol
-Date: Tue,  6 Mar 2012 17:57:06 +0100
-Message-ID: <1331053026-21272-6-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 3/5] HID: handle all multitouch devices through hid-multitouch
+Date: Tue,  6 Mar 2012 17:57:04 +0100
+Message-ID: <1331053026-21272-4-git-send-email-benjamin.tissoires@gmail.com>
 References: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com>
@@ -11,52 +11,85 @@ List-Id: linux-input@vger.kernel.org
 
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-Microsoft's documentation about multitouch protocols tells that
-if a device presents one touch per report, then it should be treated
-as a serial protocol.
+When the quirk HID_QUIRK_MULTITOUCH is present and when hid-multitouch
+is loaded, let's pass the device to hid-multitouch even if it has
+not been registered in hid-multitouch.
+
+If any other driver wants to take precedence over hid-multitouch,
+the usual way of adding it to hid_have_special_driver will work as
+the quirk HID_QUIRK_MULTITOUCH won't be set by the generic hid layer.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 ---
- drivers/hid/hid-multitouch.c |   13 +++++++++++++
- 1 files changed, 13 insertions(+), 0 deletions(-)
+ drivers/hid/hid-core.c       |   12 +++++++++---
+ drivers/hid/hid-multitouch.c |   11 +++++++----
+ 2 files changed, 16 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 171e6ed..2390e00 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1230,7 +1230,6 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+ 		hdev->claimed |= HID_CLAIMED_INPUT;
+ 	if (hdev->quirks & HID_QUIRK_MULTITOUCH) {
+ 		/* this device should be handled by hid-multitouch, skip it */
+-		hdev->quirks &= ~HID_QUIRK_MULTITOUCH;
+ 		return -ENODEV;
+ 	}
+ 
+@@ -1663,6 +1662,10 @@ static int hid_bus_match(struct device *dev, struct device_driver *drv)
+ 	struct hid_driver *hdrv = container_of(drv, struct hid_driver, driver);
+ 	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+ 
++	if ((hdev->quirks & HID_QUIRK_MULTITOUCH) &&
++		!strncmp(hdrv->name, "hid-multitouch", 14))
++		return 1;
++
+ 	if (!hid_match_device(hdev, hdrv))
+ 		return 0;
+ 
+@@ -1687,8 +1690,11 @@ static int hid_device_probe(struct device *dev)
+ 	if (!hdev->driver) {
+ 		id = hid_match_device(hdev, hdrv);
+ 		if (id == NULL) {
+-			ret = -ENODEV;
+-			goto unlock;
++			if (!((hdev->quirks & HID_QUIRK_MULTITOUCH) &&
++				!strncmp(hdrv->name, "hid-multitouch", 14))) {
++				ret = -ENODEV;
++				goto unlock;
++			}
+ 		}
+ 
+ 		hdev->driver = hdrv;
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index a61ba42..6fb46d7 100644
+index 2088ab4..a61ba42 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -81,6 +81,9 @@ struct mt_device {
- 	__u8 num_received;	/* how many contacts we received */
- 	__u8 num_expected;	/* expected last contact index */
- 	__u8 maxcontacts;
-+	__u8 touches_by_report;	/* how many touches are present in one report:
-+				* 1 means we should use a serial protocol
-+				* > 1 means hybrid (multitouch) protocol */
- 	bool curvalid;		/* is the current contact valid? */
- 	struct mt_slot *slots;
- };
-@@ -365,6 +368,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			input_mt_init_slots(hi->input, td->maxcontacts);
- 			td->last_slot_field = usage->hid;
- 			td->last_field_index = field->index;
-+			td->touches_by_report++;
- 			return 1;
- 		case HID_DG_WIDTH:
- 			hid_map_usage(hi, usage, bit, max,
-@@ -670,6 +674,15 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (ret)
- 		goto fail;
+@@ -637,10 +637,12 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	struct mt_device *td;
+ 	struct mt_class *mtclass = mt_classes; /* MT_CLS_DEFAULT */
  
-+	if (!id && td->touches_by_report == 1) {
-+		/* the device has been sent by hid-generic */
-+		mtclass = &td->mtclass;
-+		mtclass->quirks |= MT_QUIRK_ALWAYS_VALID;
-+		mtclass->quirks &= ~MT_QUIRK_NOT_SEEN_MEANS_UP;
-+		mtclass->quirks &= ~MT_QUIRK_VALID_IS_INRANGE;
-+		mtclass->quirks &= ~MT_QUIRK_VALID_IS_CONFIDENCE;
-+	}
-+
- 	td->slots = kzalloc(td->maxcontacts * sizeof(struct mt_slot),
- 				GFP_KERNEL);
- 	if (!td->slots) {
+-	for (i = 0; mt_classes[i].name ; i++) {
+-		if (id->driver_data == mt_classes[i].name) {
+-			mtclass = &(mt_classes[i]);
+-			break;
++	if (id) {
++		for (i = 0; mt_classes[i].name ; i++) {
++			if (id->driver_data == mt_classes[i].name) {
++				mtclass = &(mt_classes[i]);
++				break;
++			}
+ 		}
+ 	}
+ 
+@@ -648,6 +650,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	 * that emit events over several HID messages.
+ 	 */
+ 	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
++	hdev->quirks &= ~HID_QUIRK_MULTITOUCH;
+ 
+ 	td = kzalloc(sizeof(struct mt_device), GFP_KERNEL);
+ 	if (!td) {
 -- 
 1.7.7.6

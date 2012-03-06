@@ -1,7 +1,7 @@
 From: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
-Subject: [PATCH 1/5] HID: multitouch: add support for eGalax 0x722a
-Date: Tue,  6 Mar 2012 17:57:02 +0100
-Message-ID: <1331053026-21272-2-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 2/5] HID: multitouch: fix handling of buggy reports descriptors for Dell ST2220T
+Date: Tue,  6 Mar 2012 17:57:03 +0100
+Message-ID: <1331053026-21272-3-git-send-email-benjamin.tissoires@gmail.com>
 References: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com>
@@ -11,37 +11,179 @@ List-Id: linux-input@vger.kernel.org
 
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
----
- drivers/hid/hid-ids.h        |    1 +
- drivers/hid/hid-multitouch.c |    3 +++
- 2 files changed, 4 insertions(+), 0 deletions(-)
+LG multitouch panels, such as the one found in Dell ST2220T, has buggy
+reports descriptors. With the previous implementation, it was impossible
+to rely on the reports descriptors to determine how the different
+touches are emitted from the device.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 6656516..e1fada2 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -240,6 +240,7 @@
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7207	0x7207
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_720C	0x720c
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224	0x7224
-+#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_722A	0x722A
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_725E	0x725e
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7262	0x7262
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_726B	0x726b
+This patch changes the splitting of the different touches in the report
+in a more robust way.
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+---
+
+This one gives me warning under Ubuntu (11.10 and 12.04 at least):
+drivers/hid/hid-multitouch.c: In function 'mt_input_mapping':
+arch/x86/include/asm/bitops.h:312:8: warning: array subscript is above array bounds [-Warray-bounds]
+arch/x86/include/asm/bitops.h:312:8: warning: array subscript is above array bounds [-Warray-bounds]
+
+I don't get any warnings under Fedora. Any help would be great.
+
+Thanks,
+Benjamin
+
+
+ drivers/hid/hid-multitouch.c |   64 ++++++++++++++++-------------------------
+ 1 files changed, 25 insertions(+), 39 deletions(-)
+
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 0eda37f..019de83 100644
+index 019de83..2088ab4 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -797,6 +797,9 @@ static const struct hid_device_id mt_devices[] = {
- 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
- 		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224) },
-+	{ .driver_data = MT_CLS_EGALAX_SERIAL,
-+		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_722A) },
- 	{ .driver_data = MT_CLS_EGALAX,
- 		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_726B) },
+@@ -75,7 +75,6 @@ struct mt_device {
+ 	struct mt_class mtclass;	/* our mt device class */
+ 	unsigned last_field_index;	/* last field index of the report */
+ 	unsigned last_slot_field;	/* the last field of a slot */
+-	int last_mt_collection;	/* last known mt-related collection */
+ 	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
+ 	__s8 maxcontact_report_id;	/* Maximum Contact Number HID feature,
+ 				   -1 if non-existent */
+@@ -273,6 +272,13 @@ static void set_abs(struct input_dev *input, unsigned int code,
+ 	input_set_abs_params(input, code, fmin, fmax, fuzz, 0);
+ }
+ 
++static void set_last_slot_field(struct hid_usage *usage, struct mt_device *td,
++		struct hid_input *hi)
++{
++	if (!test_bit(usage->hid, hi->input->absbit))
++		td->last_slot_field = usage->hid;
++}
++
+ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+@@ -321,10 +327,8 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 				cls->sn_move);
+ 			/* touchscreen emulation */
+ 			set_abs(hi->input, ABS_X, field, cls->sn_move);
+-			if (td->last_mt_collection == usage->collection_index) {
+-				td->last_slot_field = usage->hid;
+-				td->last_field_index = field->index;
+-			}
++			set_last_slot_field(usage, td, hi);
++			td->last_field_index = field->index;
+ 			return 1;
+ 		case HID_GD_Y:
+ 			hid_map_usage(hi, usage, bit, max,
+@@ -333,10 +337,8 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 				cls->sn_move);
+ 			/* touchscreen emulation */
+ 			set_abs(hi->input, ABS_Y, field, cls->sn_move);
+-			if (td->last_mt_collection == usage->collection_index) {
+-				td->last_slot_field = usage->hid;
+-				td->last_field_index = field->index;
+-			}
++			set_last_slot_field(usage, td, hi);
++			td->last_field_index = field->index;
+ 			return 1;
+ 		}
+ 		return 0;
+@@ -344,24 +346,18 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	case HID_UP_DIGITIZER:
+ 		switch (usage->hid) {
+ 		case HID_DG_INRANGE:
+-			if (td->last_mt_collection == usage->collection_index) {
+-				td->last_slot_field = usage->hid;
+-				td->last_field_index = field->index;
+-			}
++			set_last_slot_field(usage, td, hi);
++			td->last_field_index = field->index;
+ 			return 1;
+ 		case HID_DG_CONFIDENCE:
+-			if (td->last_mt_collection == usage->collection_index) {
+-				td->last_slot_field = usage->hid;
+-				td->last_field_index = field->index;
+-			}
++			set_last_slot_field(usage, td, hi);
++			td->last_field_index = field->index;
+ 			return 1;
+ 		case HID_DG_TIPSWITCH:
+ 			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
+ 			input_set_capability(hi->input, EV_KEY, BTN_TOUCH);
+-			if (td->last_mt_collection == usage->collection_index) {
+-				td->last_slot_field = usage->hid;
+-				td->last_field_index = field->index;
+-			}
++			set_last_slot_field(usage, td, hi);
++			td->last_field_index = field->index;
+ 			return 1;
+ 		case HID_DG_CONTACTID:
+ 			if (!td->maxcontacts)
+@@ -369,17 +365,14 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			input_mt_init_slots(hi->input, td->maxcontacts);
+ 			td->last_slot_field = usage->hid;
+ 			td->last_field_index = field->index;
+-			td->last_mt_collection = usage->collection_index;
+ 			return 1;
+ 		case HID_DG_WIDTH:
+ 			hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_TOUCH_MAJOR);
+ 			set_abs(hi->input, ABS_MT_TOUCH_MAJOR, field,
+ 				cls->sn_width);
+-			if (td->last_mt_collection == usage->collection_index) {
+-				td->last_slot_field = usage->hid;
+-				td->last_field_index = field->index;
+-			}
++			set_last_slot_field(usage, td, hi);
++			td->last_field_index = field->index;
+ 			return 1;
+ 		case HID_DG_HEIGHT:
+ 			hid_map_usage(hi, usage, bit, max,
+@@ -388,10 +381,8 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 				cls->sn_height);
+ 			input_set_abs_params(hi->input,
+ 					ABS_MT_ORIENTATION, 0, 1, 0, 0);
+-			if (td->last_mt_collection == usage->collection_index) {
+-				td->last_slot_field = usage->hid;
+-				td->last_field_index = field->index;
+-			}
++			set_last_slot_field(usage, td, hi);
++			td->last_field_index = field->index;
+ 			return 1;
+ 		case HID_DG_TIPPRESSURE:
+ 			hid_map_usage(hi, usage, bit, max,
+@@ -401,20 +392,16 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			/* touchscreen emulation */
+ 			set_abs(hi->input, ABS_PRESSURE, field,
+ 				cls->sn_pressure);
+-			if (td->last_mt_collection == usage->collection_index) {
+-				td->last_slot_field = usage->hid;
+-				td->last_field_index = field->index;
+-			}
++			set_last_slot_field(usage, td, hi);
++			td->last_field_index = field->index;
+ 			return 1;
+ 		case HID_DG_CONTACTCOUNT:
+-			if (td->last_mt_collection == usage->collection_index)
+-				td->last_field_index = field->index;
++			td->last_field_index = field->index;
+ 			return 1;
+ 		case HID_DG_CONTACTMAX:
+ 			/* we don't set td->last_slot_field as contactcount and
+ 			 * contact max are global to the report */
+-			if (td->last_mt_collection == usage->collection_index)
+-				td->last_field_index = field->index;
++			td->last_field_index = field->index;
+ 			return -1;
+ 		}
+ 		case HID_DG_TOUCH:
+@@ -670,7 +657,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	td->mtclass = *mtclass;
+ 	td->inputmode = -1;
+ 	td->maxcontact_report_id = -1;
+-	td->last_mt_collection = -1;
+ 	hid_set_drvdata(hdev, td);
+ 
+ 	ret = hid_parse(hdev);
 -- 
 1.7.7.6

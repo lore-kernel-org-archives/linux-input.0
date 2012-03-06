@@ -1,35 +1,33 @@
-From: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
-Subject: [PATCH 4/4] HID: usbhid: add quirk no_get for quanta 3008 devices
-Date: Tue,  6 Mar 2012 10:53:48 +0100
-Message-ID: <1331027628-7946-4-git-send-email-benjamin.tissoires@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 1/4] HID: multitouch: add new PID from Atmel product
+Date: Tue, 6 Mar 2012 11:08:47 +0100
+Message-ID: <20120306100847.GA27218@polaris.bitmath.org>
 References: <1331027628-7946-1-git-send-email-benjamin.tissoires@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:36061 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758083Ab2CFKHn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Mar 2012 05:07:43 -0500
+Content-Disposition: inline
 In-Reply-To: <1331027628-7946-1-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Hi Benjamin,
 
-Some quanta devices do not like to be polled for reports
-descriptors, thus this quirk.
+On Tue, Mar 06, 2012 at 10:53:45AM +0100, benjamin.tissoires wrote:
+> From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
----
- drivers/hid/usbhid/hid-quirks.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+Ack on all patches, although "add new PID from Atmel product" could be
+changed into something more informational like "add Atmel maXTouch
+03eb:2118".
 
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index f1f167f..195065b 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -72,6 +72,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN2, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NOGET },
-+	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_SYMBOL, USB_DEVICE_ID_SYMBOL_SCANNER_1, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_SYMBOL, USB_DEVICE_ID_SYMBOL_SCANNER_2, HID_QUIRK_NOGET },
--- 
-1.7.7.6
+Thanks!
+Henrik

@@ -1,77 +1,61 @@
-From: Olivier Sobrie <olivier.sobrie@gmail.com>
-Subject: Re: [PATCH] ili210x: Add support for Ilitek ILI210x based
- touchscreens
-Date: Tue, 6 Mar 2012 14:58:52 +0100
-Message-ID: <20120306135852.GB28206@hposo>
-References: <1330954816-18098-1-git-send-email-olivier@sobrie.be>
- <20120305164838.GA11317@polaris.bitmath.org>
- <20120306075721.GA32325@hposo>
- <20120306092502.GA26689@polaris.bitmath.org>
- <20120306132047.GA7687@hposo>
- <20120306134252.GA28547@polaris.bitmath.org>
-Reply-To: Olivier Sobrie <olivier.sobrie@gmail.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH] input: wacom: Fix 3rd-gen Bamboo MT when 4+ fingers are
+ in use
+Date: Tue, 6 Mar 2012 08:52:35 -0600
+Message-ID: <CAGzDe_YXovOj_JkGfusCz4qtnkYyrXQ_J2Zq4uJOpAkR47MxYg@mail.gmail.com>
+References: <1331000497-10439-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:36725 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758247Ab2CFN65 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Mar 2012 08:58:57 -0500
-Received: by bkcik5 with SMTP id ik5so4209248bkc.19
-        for <linux-input@vger.kernel.org>; Tue, 06 Mar 2012 05:58:56 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20120306134252.GA28547@polaris.bitmath.org>
+Received: from mail-lpp01m010-f46.google.com ([209.85.215.46]:46596 "EHLO
+	mail-lpp01m010-f46.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1030772Ab2CFOwh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 6 Mar 2012 09:52:37 -0500
+Received: by lahj13 with SMTP id j13so6099436lah.19
+        for <linux-input@vger.kernel.org>; Tue, 06 Mar 2012 06:52:35 -0800 (PST)
+In-Reply-To: <1331000497-10439-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Olivier Sobrie <olivier@sobrie.be>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Jan Paesmans <jan.paesmans@gmail.com>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On Tue, Mar 06, 2012 at 02:42:52PM +0100, Henrik Rydberg wrote:
-> > I propose to change the handling of the interrupt by the code below.
-> > 
-> > #define POLL_PERIOD	msecs_to_jiffies(1)
-> > 
-> > static void ili210x_work(struct work_struct *work)
-> > {
-> > 	struct ili210x *priv = container_of(work, struct ili210x,
-> > 					    dwork.work);
-> > 	struct input_dev *input = priv->input;
-> > 	struct i2c_client *client = priv->client;
-> > 	struct device *dev = &client->dev;
-> > 	struct touchdata touchdata;
-> > 	int rc;
-> > 
-> > 	rc = ili210x_read_reg(client, REG_TOUCHDATA, &touchdata,
-> > 			      sizeof(touchdata));
-> > 	if (rc < 0) {
-> > 		dev_err(dev, "Unable to get touchdata, err = %d\n",
-> > 			rc);
-> > 		return;
-> > 	}
-> > 
-> > 	ili210x_report_events(input, &touchdata);
-> > 
-> > 	if ((touchdata.status & 0xf3) || get_pendown_state(priv))
-> > 		schedule_delayed_work(&priv->dwork, POLL_PERIOD);
-> > }
-> > 
-> > static irqreturn_t ili210x_irq(int irq, void *irq_data)
-> > {
-> > 	struct ili210x *priv = irq_data;
-> > 
-> > 	schedule_delayed_work(&priv->dwork, 0);
-> > 
-> > 	return IRQ_HANDLED;
-> > }
-> > 
-> > It removes the timer and handle the case of level triggered and edge
-> > triggered interrupts.
-> > What do you think about that ?
-> 
-> Looks a lot nicer, thank you!
+Opps.  The comment two lines below patch even says max count is 7.
 
-Ok thanks I'll send a new version of the patch including that and the
-changes for the remarks you made before.
+Acked-by: Chris Bagwell <chris@cnpbagwell.com>
 
--- 
-Olivier Sobrie
+Chris
+
+On Mon, Mar 5, 2012 at 8:21 PM, Jason Gerecke <killertofu@gmail.com> wr=
+ote:
+> The message count field uses three bits of storage, not two.
+>
+> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+> ---
+> =A0drivers/input/tablet/wacom_wac.c | =A0 =A02 +-
+> =A01 files changed, 1 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/=
+wacom_wac.c
+> index 9283507..d0b0fc4 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -938,7 +938,7 @@ static int wacom_bpt3_touch(struct wacom_wac *wac=
+om)
+> =A0{
+> =A0 =A0 =A0 =A0struct input_dev *input =3D wacom->input;
+> =A0 =A0 =A0 =A0unsigned char *data =3D wacom->data;
+> - =A0 =A0 =A0 int count =3D data[1] & 0x03;
+> + =A0 =A0 =A0 int count =3D data[1] & 0x07;
+> =A0 =A0 =A0 =A0int i;
+>
+> =A0 =A0 =A0 =A0if (data[0] !=3D 0x02)
+> --
+> 1.7.9.1
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

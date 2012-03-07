@@ -1,55 +1,47 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [GIT PULL] input: mt updates for 3.4-rc0
-Date: Wed, 7 Mar 2012 11:24:12 +0100
-Message-ID: <20120307102412.GA6112@polaris.bitmath.org>
+From: Simon Budig <simon.budig@kernelconcepts.de>
+Subject: Re: [PATCH v4] Touchscreen driver for FT5x06 based EDT displays
+Date: Wed, 07 Mar 2012 11:42:39 +0100
+Message-ID: <4F573B9F.2080107@kernelconcepts.de>
+References: <1326413588-30517-1-git-send-email-simon.budig@kernelconcepts.de> <1331050527-4902-1-git-send-email-simon.budig@kernelconcepts.de> <1331050527-4902-2-git-send-email-simon.budig@kernelconcepts.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b11.telenor.se ([62.127.194.20]:33564 "EHLO
-	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751525Ab2CGKXD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Mar 2012 05:23:03 -0500
-Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
-	by smtprelay-b11.telenor.se (Postfix) with ESMTP id CA7C9DE5E
-	for <linux-input@vger.kernel.org>; Wed,  7 Mar 2012 11:23:00 +0100 (CET)
-Content-Disposition: inline
+Received: from mail.kernelconcepts.de ([212.60.202.196]:59375 "EHLO
+	mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751399Ab2CGLCd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Mar 2012 06:02:33 -0500
+In-Reply-To: <1331050527-4902-2-git-send-email-simon.budig@kernelconcepts.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: simon.budig@kernelconcepts.de
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, agust@denx.de, yanok@emcraft.com, b.van.den.berg.nl@gmail.com
 
-Hi Dmitry,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Here are the input-mt updates for 3.4-rc0, mainly introducing the MT
-slots ioctl. All patches have been in linux-next for the past three
-weeks.
+On 03/06/2012 05:15 PM, simon.budig@kernelconcepts.de wrote:
+> +config TOUCHSCREEN_EDT_FT5X06
+> +	tristate "EDT FocalTech FT5x06 I2C Touchscreen support"
+> +	help
 
-Thanks,
-Henrik
+Bas pointed out to me that an explicit dependency on the I2C subsystem
+is missing. I have that in my local tree now, but I won't resend the
+patch for this trivial matter unless specifically asked for it  :)
 
-The following changes since commit 62aa2b537c6f5957afd98e29f96897419ed5ebab:
+Bye,
+         Simon
 
-  Linux 3.3-rc2 (2012-01-31 13:31:54 -0800)
+- -- 
+       Simon Budig                        kernel concepts GmbH
+       simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
+       +49-271-771091-17                  D-57072 Siegen
 
-are available in the git repository at:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-  git@github.com:rydberg/linux.git for-next
-
-for you to fetch changes up to 7491f3dffd99fadf1239011c0ab5346925618dae:
-
-  bcm5974: Add pointer and buttonpad properties (2012-02-14 19:35:36 +0100)
-
-----------------------------------------------------------------
-Chase Douglas (1):
-      bcm5974: Add pointer and buttonpad properties
-
-Henrik Rydberg (2):
-      Input: Use accessor for MT values
-      Input: Add EVIOC mechanism for MT slots
-
- drivers/input/evdev.c         |   27 ++++++++++++++++++++++++++-
- drivers/input/input.c         |    2 +-
- drivers/input/mouse/bcm5974.c |    1 +
- include/linux/input.h         |   25 +++++++++++++++++++++++++
- include/linux/input/mt.h      |    8 ++++++--
- 5 files changed, 59 insertions(+), 4 deletions(-)
+iEYEARECAAYFAk9XO58ACgkQO2O/RXesiHBhKQCgodgnqp2hI3zSSwvUygAvvqin
+yHIAniDocinerPbp1aMH9O9QvOWtRB2e
+=AeV2
+-----END PGP SIGNATURE-----

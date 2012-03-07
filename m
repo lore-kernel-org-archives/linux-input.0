@@ -1,47 +1,41 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: altera_ps2: Store struct serio in struct ps2if
-Date: Wed, 7 Mar 2012 13:22:40 -0800
-Message-ID: <20120307212240.GA4215@core.coreip.homeip.net>
-References: <1331127864-7667-1-git-send-email-tklauser@distanz.ch>
- <20120307172523.GA29568@core.coreip.homeip.net>
- <20120307200325.GE21503@distanz.ch>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 4/5] HID: autoload hid-multitouch as needed
+Date: Wed, 7 Mar 2012 22:36:41 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1203072234550.29034@pobox.suse.cz>
+References: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com> <1331053026-21272-5-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:53332 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755012Ab2CGVWr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Mar 2012 16:22:47 -0500
-Received: by yhmm54 with SMTP id m54so3226981yhm.19
-        for <linux-input@vger.kernel.org>; Wed, 07 Mar 2012 13:22:46 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20120307200325.GE21503@distanz.ch>
+Received: from cantor2.suse.de ([195.135.220.15]:44363 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750917Ab2CGVgn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 7 Mar 2012 16:36:43 -0500
+In-Reply-To: <1331053026-21272-5-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tobias Klauser <tklauser@distanz.ch>
-Cc: linux-input@vger.kernel.org
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Mar 07, 2012 at 09:03:25PM +0100, Tobias Klauser wrote:
-> Hi Dmitry
-> 
-> On 2012-03-07 at 18:25:24 +0100, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > On Wed, Mar 07, 2012 at 02:44:24PM +0100, Tobias Klauser wrote:
-> > > It doesn't make much sense to allocate struct ps2if and struct serio
-> > > separately as they're allocated and used in conjunction.
-> > > 
-> > 
-> > Actually, it does. Serio is a refcounted structure and has different
-> > lifetime rules than struct ps2if. It may get deleted by
-> > serio_unregister_port() or it may live on until after ps2if is freed and
-> > altera_ps2 module is unloaded and it should stay allocated separately.
-> 
-> Oh, sorry. I didn't look careful enough then. Thanks a lot for clearing
-> that up!
-> 
-> I was looking at xilinx_ps2 and figured they do it like this. Would that
-> mean a "bug" there, or am I mislead again?
+On Tue, 6 Mar 2012, benjamin.tissoires wrote:
 
-Yes, there is a bug, thanks for letting me know.
+> From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> 
+> The code is inspired from the one present in the bttv module.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
+> 
+> As I mentioned in the mail 0/5, I'd really like to have your opinion on this
+> one. I copied the code from bttv, but it forces us to change hid_device which
+> is not very good for ABI changes reasons.
+
+Haven't closely inspected the patch yet, I will comment on it later. But 
+generally, I wouldn't be worried about changing hid_device per se ... it's 
+not really an ABI, it's not exported to userspace.
+
+It's internal kernel-ABI, yes. But we are free to change that in any way 
+we wish.
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

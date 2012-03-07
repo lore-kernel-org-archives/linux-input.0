@@ -1,36 +1,42 @@
-From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH] Input: tegra-kbc - revise device tree support
-Date: Tue, 6 Mar 2012 12:34:42 -0800
-Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF17BE861FCE@HQMAIL01.nvidia.com>
-References: <1329345626-30789-1-git-send-email-olof@lixom.net>
+From: Olivier Sobrie <olivier@sobrie.be>
+Subject: Re: [PATCH] ili210x: Add support for Ilitek ILI210x based
+ touchscreens
+Date: Wed, 7 Mar 2012 08:00:28 +0100
+Message-ID: <20120307070027.GA29010@hposo>
+References: <20120306135852.GB28206@hposo>
+ <1331046093-22160-1-git-send-email-olivier@sobrie.be>
+ <20120306155113.GA29723@polaris.bitmath.org>
+Reply-To: Olivier Sobrie <olivier@sobrie.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1329345626-30789-1-git-send-email-olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Content-Language: en-US
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org" <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org" <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:44669 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750906Ab2CGHAg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Mar 2012 02:00:36 -0500
+Received: by eaaq12 with SMTP id q12so2096234eaa.19
+        for <linux-input@vger.kernel.org>; Tue, 06 Mar 2012 23:00:35 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20120306155113.GA29723@polaris.bitmath.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Jan Paesmans <jan.paesmans@gmail.com>
 
-Olof Johansson wrote at Wednesday, February 15, 2012 3:40 PM:
-> This is an incremental patch updating to the revised bindings for matrix keyboards.
-> 
-> This includes an optional "linux,fn-keymap" binding that is not yet implemented,
-> that will be used to specify the Fn-key modifier layout if needed.
-> 
-> New for v2:
-> * Removed references to "matrix-keyboard-controller" compatible values
-> * Rebased to be incremental on top of previous patch.
-> 
-> Signed-off-by: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-> Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> Acked-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Hi Henrik,
 
-Dmitry,
+On Tue, Mar 06, 2012 at 04:51:13PM +0100, Henrik Rydberg wrote:
+> Apart from the comments, this looks all good to me.
+> 
+>     Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+> 
+> Thanks.
+> Henrik
 
-Can you please take this for 3.4? Thanks.
+Argh, sorry for the spinlock I forget to remove...
+I send a patch right now with the two fixes.
+
+Thanks a lot for your help !
 
 -- 
-nvpublic
+Olivier Sobrie

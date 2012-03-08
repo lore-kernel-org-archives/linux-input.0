@@ -1,41 +1,39 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 4/5] HID: autoload hid-multitouch as needed
-Date: Wed, 7 Mar 2012 22:36:41 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1203072234550.29034@pobox.suse.cz>
-References: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com> <1331053026-21272-5-git-send-email-benjamin.tissoires@gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] input: wacom: Use touch size for ABS_MT_TOUCH_MAJOR
+Date: Wed,  7 Mar 2012 17:39:06 -0800
+Message-ID: <1331170746-12636-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:44363 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750917Ab2CGVgn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 7 Mar 2012 16:36:43 -0500
-In-Reply-To: <1331053026-21272-5-git-send-email-benjamin.tissoires@gmail.com>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:62324 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750989Ab2CHBjP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Mar 2012 20:39:15 -0500
+Received: by iagz16 with SMTP id z16so9441015iag.19
+        for <linux-input@vger.kernel.org>; Wed, 07 Mar 2012 17:39:15 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, chris@cnpbagwell.com
+Cc: Jason Gerecke <killertofu@gmail.com>
 
-On Tue, 6 Mar 2012, benjamin.tissoires wrote:
+3rd-gen Bamboo devices report both "amplitude" and "size" data
+in their touch packets. This patch changes the source for
+ABS_MT_TOUCH_MAJOR to be the latter rather than the former.
+---
+ drivers/input/tablet/wacom_wac.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-> From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> 
-> The code is inspired from the one present in the bttv module.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> ---
-> 
-> As I mentioned in the mail 0/5, I'd really like to have your opinion on this
-> one. I copied the code from bttv, but it forces us to change hid_device which
-> is not very good for ABI changes reasons.
-
-Haven't closely inspected the patch yet, I will comment on it later. But 
-generally, I wouldn't be worried about changing hid_device per se ... it's 
-not really an ABI, it's not exported to userspace.
-
-It's internal kernel-ABI, yes. But we are free to change that in any way 
-we wish.
-
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index d0b0fc4..5daf11d 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -916,7 +916,7 @@ static void wacom_bpt3_touch_msg(struct wacom_wac *wacom, unsigned char *data)
+ 	if (touch) {
+ 		int x = (data[2] << 4) | (data[4] >> 4);
+ 		int y = (data[3] << 4) | (data[4] & 0x0f);
+-		int w = data[6];
++		int w = data[5];
+ 
+ 		input_report_abs(input, ABS_MT_POSITION_X, x);
+ 		input_report_abs(input, ABS_MT_POSITION_Y, y);
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.9.1
+

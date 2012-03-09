@@ -1,58 +1,152 @@
-From: Jason Gerecke <killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] HID: wacom: Reset stylus buttons
-	- Intuos4 WL
-Date: Fri, 9 Mar 2012 08:58:33 -0800
-Message-ID: <CANRwn3T0osghgP4i_e0xK8FkvKv1gXMwnumggv0pkxrDqPqKDQ@mail.gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [Linuxwacom-devel] [PATCH 2/2] HID: wacom: Add reporting of wheel
+ for Intuos4 WL
+Date: Fri, 9 Mar 2012 09:37:06 -0800
+Message-ID: <CANRwn3R5fFkujnsPhx++4PSQEwVNnWo_uXa9Zgb6m=SrJPtN0w@mail.gmail.com>
 References: <1331299252-23699-1-git-send-email-przemo@firszt.eu>
+	<1331299252-23699-2-git-send-email-przemo@firszt.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <1331299252-23699-1-git-send-email-przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
-	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linuxwacom-devel>
-List-Post: <mailto:linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
-	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Przemo Firszt <przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>
-Cc: linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, pinglinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:47722 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932320Ab2CIRhI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Mar 2012 12:37:08 -0500
+In-Reply-To: <1331299252-23699-2-git-send-email-przemo@firszt.eu>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Przemo Firszt <przemo@firszt.eu>
+Cc: jkosina@suse.cz, pinglinux@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
 
-T24gRnJpLCBNYXIgOSwgMjAxMiBhdCA1OjIwIEFNLCBQcnplbW8gRmlyc3p0IDxwcnplbW9AZmly
-c3p0LmV1PiB3cm90ZToKPiBTdHlsdXMgYnV0dG9ucyBoYXZlIHRvIGJlIHJlc2V0dGVkIHdoZW4g
-Z29pbmcgb3V0LW9mLXByb3guCj4KPiBTaWduZWQtb2ZmLWJ5OiBQcnplbW8gRmlyc3p0IDxwcnpl
-bW9AZmlyc3p0LmV1Pgo+IC0tLQo+IMKgZHJpdmVycy9oaWQvaGlkLXdhY29tLmMgfCDCoCDCoDIg
-KysKPiDCoDEgZmlsZXMgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAwIGRlbGV0aW9ucygtKQo+
-Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC13YWNvbS5jIGIvZHJpdmVycy9oaWQvaGlk
-LXdhY29tLmMKPiBpbmRleCAyYTQ0MGE2Li41YzI1MDM2IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMv
-aGlkL2hpZC13YWNvbS5jCj4gKysrIGIvZHJpdmVycy9oaWQvaGlkLXdhY29tLmMKPiBAQCAtMzUy
-LDYgKzM1Miw4IEBAIHN0YXRpYyB2b2lkIHdhY29tX2k0X3BhcnNlX3Blbl9yZXBvcnQoc3RydWN0
-IHdhY29tX2RhdGEgKndkYXRhLAo+IMKgIMKgIMKgIMKgY2FzZSAweDgwOiAvKiBPdXQgb2YgcHJv
-eGltaXR5IHJlcG9ydCAqLwo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgaW5wdXRfcmVwb3J0X2tl
-eShpbnB1dCwgQlROX1RPVUNILCAwKTsKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGlucHV0X3Jl
-cG9ydF9hYnMoaW5wdXQsIEFCU19QUkVTU1VSRSwgMCk7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCBpbnB1dF9yZXBvcnRfa2V5KGlucHV0LCBCVE5fU1RZTFVTLCAwKTsKPiArIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIGlucHV0X3JlcG9ydF9rZXkoaW5wdXQsIEJUTl9TVFlMVVMyLCAwKTsKPiDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoGlucHV0X3JlcG9ydF9rZXkoaW5wdXQsIHdkYXRhLT50b29sLCAw
-KTsKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGlucHV0X3JlcG9ydF9hYnMoaW5wdXQsIEFCU19N
-SVNDLCAwKTsKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGlucHV0X2V2ZW50KGlucHV0LCBFVl9N
-U0MsIE1TQ19TRVJJQUwsIHdkYXRhLT5zZXJpYWwpOwo+IC0tCj4gMS43LjYuNAo+Cj4gLS0KPiBU
-byB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUg
-bGludXgtaW5wdXQiIGluCj4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2Vy
-Lmtlcm5lbC5vcmcKPiBNb3JlIG1ham9yZG9tbyBpbmZvIGF0IMKgaHR0cDovL3ZnZXIua2VybmVs
-Lm9yZy9tYWpvcmRvbW8taW5mby5odG1sCgpSZXZpZXdlZC1ieTogSmFzb24gR2VyZWNrZSA8a2ls
-bGVydG9mdUBnbWFpbC5jb20+CgpKYXNvbgoKLS0tCkRheSB4ZWUtbmVlLXN2c2ggZHV1LSd1c2h0
-bGgtdHMnaXQ7Cm51dS13ZWUteWEnIGR1dS14YW4nICd2bS1udnNodGxoLXRzJ2l0LgpIdXUtY2hh
-biB4dXUgbmFhfi1naGEuCgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KVmlydHVhbGl6YXRpb24gJiBD
-bG91ZCBNYW5hZ2VtZW50IFVzaW5nIENhcGFjaXR5IFBsYW5uaW5nCkNsb3VkIGNvbXB1dGluZyBt
-YWtlcyB1c2Ugb2YgdmlydHVhbGl6YXRpb24gLSBidXQgY2xvdWQgY29tcHV0aW5nIAphbHNvIGZv
-Y3VzZXMgb24gYWxsb3dpbmcgY29tcHV0aW5nIHRvIGJlIGRlbGl2ZXJlZCBhcyBhIHNlcnZpY2Uu
-Cmh0dHA6Ly93d3cuYWNjZWxhY29tbS5jb20vamF3L3NmbmwvMTE0LzUxNTIxMjIzLwpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpMaW51eHdhY29tLWRldmVs
-IG1haWxpbmcgbGlzdApMaW51eHdhY29tLWRldmVsQGxpc3RzLnNvdXJjZWZvcmdlLm5ldApodHRw
-czovL2xpc3RzLnNvdXJjZWZvcmdlLm5ldC9saXN0cy9saXN0aW5mby9saW51eHdhY29tLWRldmVs
-Cg==
+On Fri, Mar 9, 2012 at 5:20 AM, Przemo Firszt <przemo@firszt.eu> wrote:
+> This patch adds reporting of ABS_WHEEL event. Raported walues are 0..=
+71
+> and are related to absolute location of the finger on the wheel.
+>
+> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+> ---
+> =C2=A0drivers/hid/hid-wacom.c | =C2=A0 19 +++++++++++++++++++
+> =C2=A01 files changed, 19 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+> index 5c25036..6f65514 100644
+> --- a/drivers/hid/hid-wacom.c
+> +++ b/drivers/hid/hid-wacom.c
+> @@ -36,6 +36,7 @@
+> =C2=A0struct wacom_data {
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0__u16 tool;
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0__u16 butstate;
+> + =C2=A0 =C2=A0 =C2=A0 __u8 whlstate;
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0__u8 features;
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0__u32 id;
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0__u32 serial;
+> @@ -322,6 +323,16 @@ static void wacom_i4_parse_button_report(struct =
+wacom_data *wdata,
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0struct input_dev *input, unsigned char *data)
+> =C2=A0{
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0__u16 new_butstate;
+> + =C2=A0 =C2=A0 =C2=A0 __u8 new_whlstate;
+> + =C2=A0 =C2=A0 =C2=A0 __u8 sync =3D 0;
+> +
+> + =C2=A0 =C2=A0 =C2=A0 new_whlstate =3D data[1] & 0x7f;
+> + =C2=A0 =C2=A0 =C2=A0 if (new_whlstate !=3D wdata->whlstate) {
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 wdata->whlstate =3D=
+ new_whlstate;
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_report_key(i=
+nput, BTN_TOUCH, 1);
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_report_abs(i=
+nput, ABS_WHEEL, new_whlstate);
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 sync =3D 1;
+> + =C2=A0 =C2=A0 =C2=A0 }
+>
+The highest bit of data[1] is a "touched" flag that you'll want to
+check to determine if the wheel is being used. If its unset, you'll
+want to reset ABS_WHEEL and BTN_TOUCH to zero here.
+
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0new_butstate =3D (data[3] << 1) | (data[2]=
+ & 0x01);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0if (new_butstate !=3D wdata->butstate) {
+> @@ -335,6 +346,10 @@ static void wacom_i4_parse_button_report(struct =
+wacom_data *wdata,
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_report_k=
+ey(input, BTN_6, new_butstate & 0x040);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_report_k=
+ey(input, BTN_7, new_butstate & 0x080);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_report_k=
+ey(input, BTN_8, new_butstate & 0x100);
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 sync =3D 1;
+> + =C2=A0 =C2=A0 =C2=A0 }
+> +
+> + =C2=A0 =C2=A0 =C2=A0 if (sync) {
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_report_k=
+ey(input, BTN_TOOL_FINGER, 1);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_report_a=
+bs(input, ABS_MISC, PAD_DEVICE_ID);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_event(in=
+put, EV_MSC, MSC_SERIAL, 0xffffffff);
+> @@ -354,6 +369,7 @@ static void wacom_i4_parse_pen_report(struct waco=
+m_data *wdata,
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_report_a=
+bs(input, ABS_PRESSURE, 0);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_report_k=
+ey(input, BTN_STYLUS, 0);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_report_k=
+ey(input, BTN_STYLUS2, 0);
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_report_abs(i=
+nput, ABS_WHEEL, 0);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_report_k=
+ey(input, wdata->tool, 0);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_report_a=
+bs(input, ABS_MISC, 0);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_event(in=
+put, EV_MSC, MSC_SERIAL, wdata->serial);
+As mentioned above, this should be in wacom_i4_parse_button_report.
+The pen's loss of proximity has no bearing on the wheel's state.
+
+> @@ -512,6 +528,9 @@ static int wacom_input_mapped(struct hid_device *=
+hdev, struct hid_input *hi,
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_set_abs_=
+params(input, ABS_DISTANCE, 0, 32, 0, 0);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0break;
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0case USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH=
+:
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 __set_bit(ABS_WHEE=
+L, input->absbit);
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_set_abs_para=
+ms(input, ABS_WHEEL, 0, 71, 0, 0);
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_set_capabili=
+ty(input, EV_MSC, MSC_SERIAL);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0__set_bit(ABS_=
+MISC, input->absbit);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0__set_bit(BTN_=
+2, input->keybit);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0__set_bit(BTN_=
+3, input->keybit);
+> --
+> 1.7.6.4
+>
+>
+> ---------------------------------------------------------------------=
+---------
+> Virtualization & Cloud Management Using Capacity Planning
+> Cloud computing makes use of virtualization - but cloud computing
+> also focuses on allowing computing to be delivered as a service.
+> http://www.accelacomm.com/jaw/sfnl/114/51521223/
+> _______________________________________________
+> Linuxwacom-devel mailing list
+> Linuxwacom-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel
+
+Jason
+
+---
+Day xee-nee-svsh duu-'ushtlh-ts'it;
+nuu-wee-ya' duu-xan' 'vm-nvshtlh-ts'it.
+Huu-chan xuu naa~-gha.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

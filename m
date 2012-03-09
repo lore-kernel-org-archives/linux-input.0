@@ -1,80 +1,58 @@
-From: Przemo Firszt <przemo@firszt.eu>
-Subject: [PATCH 2/2] HID: wacom: Add reporting of wheel for Intuos4 WL
-Date: Fri,  9 Mar 2012 13:20:52 +0000
-Message-ID: <1331299252-23699-2-git-send-email-przemo@firszt.eu>
+From: Jason Gerecke <killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] HID: wacom: Reset stylus buttons
+	- Intuos4 WL
+Date: Fri, 9 Mar 2012 08:58:33 -0800
+Message-ID: <CANRwn3T0osghgP4i_e0xK8FkvKv1gXMwnumggv0pkxrDqPqKDQ@mail.gmail.com>
 References: <1331299252-23699-1-git-send-email-przemo@firszt.eu>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1331299252-23699-1-git-send-email-przemo@firszt.eu>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jkosina@suse.cz, pinglinux@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
-Cc: Przemo Firszt <przemo@firszt.eu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+In-Reply-To: <1331299252-23699-1-git-send-email-przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
+	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linuxwacom-devel>
+List-Post: <mailto:linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
+	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Przemo Firszt <przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>
+Cc: linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, pinglinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-This patch adds reporting of ABS_WHEEL event. Raported walues are 0..71
-and are related to absolute location of the finger on the wheel.
-
-Signed-off-by: Przemo Firszt <przemo@firszt.eu>
----
- drivers/hid/hid-wacom.c |   19 +++++++++++++++++++
- 1 files changed, 19 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-index 5c25036..6f65514 100644
---- a/drivers/hid/hid-wacom.c
-+++ b/drivers/hid/hid-wacom.c
-@@ -36,6 +36,7 @@
- struct wacom_data {
- 	__u16 tool;
- 	__u16 butstate;
-+	__u8 whlstate;
- 	__u8 features;
- 	__u32 id;
- 	__u32 serial;
-@@ -322,6 +323,16 @@ static void wacom_i4_parse_button_report(struct wacom_data *wdata,
- 			struct input_dev *input, unsigned char *data)
- {
- 	__u16 new_butstate;
-+	__u8 new_whlstate;
-+	__u8 sync = 0;
-+
-+	new_whlstate = data[1] & 0x7f;
-+	if (new_whlstate != wdata->whlstate) {
-+		wdata->whlstate = new_whlstate;
-+		input_report_key(input, BTN_TOUCH, 1);
-+		input_report_abs(input, ABS_WHEEL, new_whlstate);
-+		sync = 1;
-+	}
- 
- 	new_butstate = (data[3] << 1) | (data[2] & 0x01);
- 	if (new_butstate != wdata->butstate) {
-@@ -335,6 +346,10 @@ static void wacom_i4_parse_button_report(struct wacom_data *wdata,
- 		input_report_key(input, BTN_6, new_butstate & 0x040);
- 		input_report_key(input, BTN_7, new_butstate & 0x080);
- 		input_report_key(input, BTN_8, new_butstate & 0x100);
-+		sync = 1;
-+	}
-+
-+	if (sync) {
- 		input_report_key(input, BTN_TOOL_FINGER, 1);
- 		input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
- 		input_event(input, EV_MSC, MSC_SERIAL, 0xffffffff);
-@@ -354,6 +369,7 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
- 		input_report_abs(input, ABS_PRESSURE, 0);
- 		input_report_key(input, BTN_STYLUS, 0);
- 		input_report_key(input, BTN_STYLUS2, 0);
-+		input_report_abs(input, ABS_WHEEL, 0);
- 		input_report_key(input, wdata->tool, 0);
- 		input_report_abs(input, ABS_MISC, 0);
- 		input_event(input, EV_MSC, MSC_SERIAL, wdata->serial);
-@@ -512,6 +528,9 @@ static int wacom_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- 		input_set_abs_params(input, ABS_DISTANCE, 0, 32, 0, 0);
- 		break;
- 	case USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH:
-+		__set_bit(ABS_WHEEL, input->absbit);
-+		input_set_abs_params(input, ABS_WHEEL, 0, 71, 0, 0);
-+		input_set_capability(input, EV_MSC, MSC_SERIAL);
- 		__set_bit(ABS_MISC, input->absbit);
- 		__set_bit(BTN_2, input->keybit);
- 		__set_bit(BTN_3, input->keybit);
--- 
-1.7.6.4
+T24gRnJpLCBNYXIgOSwgMjAxMiBhdCA1OjIwIEFNLCBQcnplbW8gRmlyc3p0IDxwcnplbW9AZmly
+c3p0LmV1PiB3cm90ZToKPiBTdHlsdXMgYnV0dG9ucyBoYXZlIHRvIGJlIHJlc2V0dGVkIHdoZW4g
+Z29pbmcgb3V0LW9mLXByb3guCj4KPiBTaWduZWQtb2ZmLWJ5OiBQcnplbW8gRmlyc3p0IDxwcnpl
+bW9AZmlyc3p0LmV1Pgo+IC0tLQo+IMKgZHJpdmVycy9oaWQvaGlkLXdhY29tLmMgfCDCoCDCoDIg
+KysKPiDCoDEgZmlsZXMgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAwIGRlbGV0aW9ucygtKQo+
+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC13YWNvbS5jIGIvZHJpdmVycy9oaWQvaGlk
+LXdhY29tLmMKPiBpbmRleCAyYTQ0MGE2Li41YzI1MDM2IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMv
+aGlkL2hpZC13YWNvbS5jCj4gKysrIGIvZHJpdmVycy9oaWQvaGlkLXdhY29tLmMKPiBAQCAtMzUy
+LDYgKzM1Miw4IEBAIHN0YXRpYyB2b2lkIHdhY29tX2k0X3BhcnNlX3Blbl9yZXBvcnQoc3RydWN0
+IHdhY29tX2RhdGEgKndkYXRhLAo+IMKgIMKgIMKgIMKgY2FzZSAweDgwOiAvKiBPdXQgb2YgcHJv
+eGltaXR5IHJlcG9ydCAqLwo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgaW5wdXRfcmVwb3J0X2tl
+eShpbnB1dCwgQlROX1RPVUNILCAwKTsKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGlucHV0X3Jl
+cG9ydF9hYnMoaW5wdXQsIEFCU19QUkVTU1VSRSwgMCk7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCBpbnB1dF9yZXBvcnRfa2V5KGlucHV0LCBCVE5fU1RZTFVTLCAwKTsKPiArIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIGlucHV0X3JlcG9ydF9rZXkoaW5wdXQsIEJUTl9TVFlMVVMyLCAwKTsKPiDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoGlucHV0X3JlcG9ydF9rZXkoaW5wdXQsIHdkYXRhLT50b29sLCAw
+KTsKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGlucHV0X3JlcG9ydF9hYnMoaW5wdXQsIEFCU19N
+SVNDLCAwKTsKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGlucHV0X2V2ZW50KGlucHV0LCBFVl9N
+U0MsIE1TQ19TRVJJQUwsIHdkYXRhLT5zZXJpYWwpOwo+IC0tCj4gMS43LjYuNAo+Cj4gLS0KPiBU
+byB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUg
+bGludXgtaW5wdXQiIGluCj4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2Vy
+Lmtlcm5lbC5vcmcKPiBNb3JlIG1ham9yZG9tbyBpbmZvIGF0IMKgaHR0cDovL3ZnZXIua2VybmVs
+Lm9yZy9tYWpvcmRvbW8taW5mby5odG1sCgpSZXZpZXdlZC1ieTogSmFzb24gR2VyZWNrZSA8a2ls
+bGVydG9mdUBnbWFpbC5jb20+CgpKYXNvbgoKLS0tCkRheSB4ZWUtbmVlLXN2c2ggZHV1LSd1c2h0
+bGgtdHMnaXQ7Cm51dS13ZWUteWEnIGR1dS14YW4nICd2bS1udnNodGxoLXRzJ2l0LgpIdXUtY2hh
+biB4dXUgbmFhfi1naGEuCgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KVmlydHVhbGl6YXRpb24gJiBD
+bG91ZCBNYW5hZ2VtZW50IFVzaW5nIENhcGFjaXR5IFBsYW5uaW5nCkNsb3VkIGNvbXB1dGluZyBt
+YWtlcyB1c2Ugb2YgdmlydHVhbGl6YXRpb24gLSBidXQgY2xvdWQgY29tcHV0aW5nIAphbHNvIGZv
+Y3VzZXMgb24gYWxsb3dpbmcgY29tcHV0aW5nIHRvIGJlIGRlbGl2ZXJlZCBhcyBhIHNlcnZpY2Uu
+Cmh0dHA6Ly93d3cuYWNjZWxhY29tbS5jb20vamF3L3NmbmwvMTE0LzUxNTIxMjIzLwpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpMaW51eHdhY29tLWRldmVs
+IG1haWxpbmcgbGlzdApMaW51eHdhY29tLWRldmVsQGxpc3RzLnNvdXJjZWZvcmdlLm5ldApodHRw
+czovL2xpc3RzLnNvdXJjZWZvcmdlLm5ldC9saXN0cy9saXN0aW5mby9saW51eHdhY29tLWRldmVs
+Cg==

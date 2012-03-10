@@ -1,79 +1,63 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 1/5] HID: multitouch: add support for eGalax 0x722a
-Date: Sat, 10 Mar 2012 07:31:57 +0100
-Message-ID: <CAN+gG=F0w88T-iDxVJNEjgyud8FwC5vTGT8+2KTva8FXgFjTog@mail.gmail.com>
-References: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com>
-	<1331053026-21272-2-git-send-email-benjamin.tissoires@gmail.com>
-	<alpine.LNX.2.00.1203091329030.18356@pobox.suse.cz>
+From: zitev <zitev@freemail.hu>
+Subject: Re: not supported hardware: Gigabyte K8100 Aivia USB Gaming Keyboard
+Date: Sat, 10 Mar 2012 08:48:40 +0100
+Message-ID: <4F5B0758.8050603@freemail.hu>
+References: <4F363D84.5090208@freemail.hu> <4F5A83ED.4000406@freemail.hu> <20120309233717.GA1965@burratino>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1203091329030.18356@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail01k.mail.t-online.hu ([84.2.227.138]:44304 "EHLO
+	mail01k.mail.t-online.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751386Ab2CJHsn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 10 Mar 2012 02:48:43 -0500
+In-Reply-To: <20120309233717.GA1965@burratino>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jonathan Nieder <jrnieder@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, Mar 9, 2012 at 13:29, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Tue, 6 Mar 2012, benjamin.tissoires wrote:
+Ohh, I wrote them a year ago, I received this response:
+
+"Dear Zitev ,
+
+Thank you for your kindly mail. With the hardware spec, this keyboard=20
+supports only Windows OS. Therefore, to make sure you can get full=20
+function of it, kindly use Windows OS instead. Sorry that we are not=20
+able to guarantee the result using in Linux.
+
+Regards,
+GIGABYTE TECHNOLOGY"
+
+2012-03-10 00:37 keltez=E9ssel, Jonathan Nieder =EDrta:
+> zitev wrote:
 >
->> From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+>> Hi Everybody!
 >>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
->> ---
->> =A0drivers/hid/hid-ids.h =A0 =A0 =A0 =A0| =A0 =A01 +
->> =A0drivers/hid/hid-multitouch.c | =A0 =A03 +++
->> =A02 files changed, 4 insertions(+), 0 deletions(-)
->>
->> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
->> index 6656516..e1fada2 100644
->> --- a/drivers/hid/hid-ids.h
->> +++ b/drivers/hid/hid-ids.h
->> @@ -240,6 +240,7 @@
->> =A0#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7207 =A0 =A00x7207
->> =A0#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_720C =A0 =A00x720c
->> =A0#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224 =A0 =A00x7224
->> +#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_722A =A0 =A00x722A
->> =A0#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_725E =A0 =A00x725e
->> =A0#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7262 =A0 =A00x7262
->> =A0#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_726B =A0 =A00x726b
->> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitou=
-ch.c
->> index 0eda37f..019de83 100644
->> --- a/drivers/hid/hid-multitouch.c
->> +++ b/drivers/hid/hid-multitouch.c
->> @@ -797,6 +797,9 @@ static const struct hid_device_id mt_devices[] =3D=
- {
->> =A0 =A0 =A0 { .driver_data =3D MT_CLS_EGALAX_SERIAL,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 USB_DEVICE_ID_DWAV_EGALA=
-X_MULTITOUCH_7224) },
->> + =A0 =A0 { .driver_data =3D MT_CLS_EGALAX_SERIAL,
->> + =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 USB_DEVICE_ID_DWAV_EGALAX_=
-MULTITOUCH_722A) },
->> =A0 =A0 =A0 { .driver_data =3D MT_CLS_EGALAX,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 USB_DEVICE_ID_DWAV_EGALA=
-X_MULTITOUCH_726B) },
+>> I interested in, is there any progress on this matter?
+> Thanks for the ping.  My best guess is still that there is some
+> initialization Linux needs to do that we will have to figure out from
+> the manufacturer or from observing what Windows does.
 >
-> Applied.
+> Could you try to get in touch with the manufacturer using this form,
+> in case they have advice?  (Or if we're lucky, there's a pre-existing
+> driver somewhere. ;-))
 >
-
-Thanks Jiri.
-How about patches 2,3 and 5?
-Patch 2 is waited for LG users since a long time now (though it gives w=
-arnings).
-Patch 3 can be included without patch 4: just loading hid-multitouch
-makes the device working. And even if it's a little "hackish", it
-won't hurt any other hid devices.
-Patch 5 will introduce more robustness for the default class, but
-requires patch 3.
-
-Cheers,
-Benjamin
-
-> --
-> Jiri Kosina
-> SUSE Labs
+>    http://ggts.gigabyte.com/tech.asp?ClassID=3D13&Country=3DHungary&S=
+ourceWeb=3DB2C
+>
+> Here's a link to the current conversation in case one is needed:
+>
+>    http://thread.gmane.org/gmane.linux.usb.general/57753
+>
+> Thanks,
+> Jonathan
+>
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

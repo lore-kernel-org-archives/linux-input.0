@@ -1,61 +1,54 @@
-From: zitev <zitev@freemail.hu>
-Subject: Re: not supported hardware: Gigabyte K8100 Aivia USB Gaming Keyboard
-Date: Sat, 10 Mar 2012 08:48:40 +0100
-Message-ID: <4F5B0758.8050603@freemail.hu>
-References: <4F363D84.5090208@freemail.hu> <4F5A83ED.4000406@freemail.hu> <20120309233717.GA1965@burratino>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [git pull] Input updates for 3.3-rc6
+Date: Sat, 10 Mar 2012 23:11:17 +0100
+Message-ID: <CAMuHMdUyCEVr+fFmUnUABSG33juYTWdyy6-6a1uNW0+oePJR6g@mail.gmail.com>
+References: <20120307091816.GA28160@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail01k.mail.t-online.hu ([84.2.227.138]:44304 "EHLO
-	mail01k.mail.t-online.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751386Ab2CJHsn (ORCPT
+Received: from mail-we0-f174.google.com ([74.125.82.174]:59651 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752565Ab2CJWLS convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Mar 2012 02:48:43 -0500
-In-Reply-To: <20120309233717.GA1965@burratino>
+	Sat, 10 Mar 2012 17:11:18 -0500
+In-Reply-To: <20120307091816.GA28160@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Nieder <jrnieder@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Ohh, I wrote them a year ago, I received this response:
+On Wed, Mar 7, 2012 at 10:18, Dmitry Torokhov <dmitry.torokhov@gmail.co=
+m> wrote:
+> Dmitry Torokhov (1):
+> =C2=A0 =C2=A0 =C2=A0Input: twl4030-vibra - use proper guard for PM me=
+thods
 
-"Dear Zitev ,
+That's commit f3761c0779b62276b5bf84532a81d5dc49bd721f?
 
-Thank you for your kindly mail. With the hardware spec, this keyboard=20
-supports only Windows OS. Therefore, to make sure you can get full=20
-function of it, kindly use Windows OS instead. Sorry that we are not=20
-able to guarantee the result using in Linux.
+| drivers/input/misc/twl4030-vibra.c:175:5: warning: "CONFIG_PM" is not
+| defined
+|
+| We should use #ifdef instead of #if and also check CONFIG_PM_SLEEP
+| instead of CONFIG_PM.
 
-Regards,
-GIGABYTE TECHNOLOGY"
+It still uses "#if CONFIG_PM_SLEEP", i.e. no #ifdef.
 
-2012-03-10 00:37 keltez=E9ssel, Jonathan Nieder =EDrta:
-> zitev wrote:
->
->> Hi Everybody!
->>
->> I interested in, is there any progress on this matter?
-> Thanks for the ping.  My best guess is still that there is some
-> initialization Linux needs to do that we will have to figure out from
-> the manufacturer or from observing what Windows does.
->
-> Could you try to get in touch with the manufacturer using this form,
-> in case they have advice?  (Or if we're lucky, there's a pre-existing
-> driver somewhere. ;-))
->
->    http://ggts.gigabyte.com/tech.asp?ClassID=3D13&Country=3DHungary&S=
-ourceWeb=3DB2C
->
-> Here's a link to the current conversation in case one is needed:
->
->    http://thread.gmane.org/gmane.linux.usb.general/57753
->
-> Thanks,
-> Jonathan
->
->
+Gr{oetje,eeting}s,
+
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-=
+m68k.org
+
+In personal conversations with technical people, I call myself a hacker=
+=2E But
+when I'm talking to journalists I just say "programmer" or something li=
+ke that.
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0=C2=A0 =C2=A0=C2=A0 -- Linus Torvalds
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

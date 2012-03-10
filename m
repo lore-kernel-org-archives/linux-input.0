@@ -1,187 +1,170 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 4/4] input: wacom: Intuos5 multitouch sensor support
-Date: Fri,  9 Mar 2012 18:06:06 -0800
-Message-ID: <1331345166-1022-4-git-send-email-killertofu@gmail.com>
+Subject: [PATCH 3/4] input: wacom: Intous5 Touch Ring LED support
+Date: Fri,  9 Mar 2012 18:06:05 -0800
+Message-ID: <1331345166-1022-3-git-send-email-killertofu@gmail.com>
 References: <1331345166-1022-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-pz0-f46.google.com ([209.85.210.46]:37004 "EHLO
 	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756209Ab2CJCGT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Mar 2012 21:06:19 -0500
+	with ESMTP id S1756209Ab2CJCGR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Mar 2012 21:06:17 -0500
 Received: by mail-pz0-f46.google.com with SMTP id r28so2138656daj.19
-        for <linux-input@vger.kernel.org>; Fri, 09 Mar 2012 18:06:19 -0800 (PST)
+        for <linux-input@vger.kernel.org>; Fri, 09 Mar 2012 18:06:17 -0800 (PST)
 In-Reply-To: <1331345166-1022-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, chris@cnpbagwell.com, linuxwacom-devel@lists.sourceforge.net
 Cc: Jason Gerecke <killertofu@gmail.com>
 
-Intuos5 tablets with PTH-* model numbers include a multitouch sensor
-which use the same touch reports as the 3rd-generation Bamboo. No
-useful information is in the HID descriptor for the touch interface
-so hardcoded values are used during setup.
+The Touch Ring LEDs on Intuos5 tablets use a different report
+format which supports only 4 levels of brightness. We remap
+the 7-bit value obtained from sysfs to an appropriate value
+for the tablet. Control of the crop mark LEDs (new to the I5)
+is left for a later patch.
 ---
- drivers/input/tablet/wacom_sys.c |   24 ++++++++++++++
- drivers/input/tablet/wacom_wac.c |   63 +++++++++++++++++++++++++++++++++++---
- 2 files changed, 82 insertions(+), 5 deletions(-)
+ Documentation/ABI/testing/sysfs-driver-wacom |   15 +++---
+ drivers/input/tablet/wacom_sys.c             |   68 +++++++++++++++++++++----
+ 2 files changed, 65 insertions(+), 18 deletions(-)
 
+diff --git a/Documentation/ABI/testing/sysfs-driver-wacom b/Documentation/ABI/testing/sysfs-driver-wacom
+index 0130d66..5e9cbdc 100644
+--- a/Documentation/ABI/testing/sysfs-driver-wacom
++++ b/Documentation/ABI/testing/sysfs-driver-wacom
+@@ -15,9 +15,10 @@ Contact:	linux-input@vger.kernel.org
+ Description:
+ 		Attribute group for control of the status LEDs and the OLEDs.
+ 		This attribute group is only available for Intuos 4 M, L,
+-		and XL (with LEDs and OLEDs) and Cintiq 21UX2 and Cintiq 24HD
+-		(LEDs only). Therefore its presence implicitly signifies the
+-		presence of said LEDs and OLEDs on the tablet device.
++		and XL (with LEDs and OLEDs), Intuos 5 (LEDs only), and Cintiq
++		21UX2 and Cintiq 24HD (LEDs only). Therefore its presence
++		implicitly signifies the presence of said LEDs and OLEDs on the
++		tablet device.
+ 
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/status0_luminance
+ Date:		August 2011
+@@ -40,10 +41,10 @@ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/status_led0
+ Date:		August 2011
+ Contact:	linux-input@vger.kernel.org
+ Description:
+-		Writing to this file sets which one of the four (for Intuos 4)
+-		or of the right four (for Cintiq 21UX2 and Cintiq 24HD) status
+-		LEDs is active (0..3). The other three LEDs on the same side are
+-		always inactive.
++		Writing to this file sets which one of the four (for Intuos 4
++		and Intuos 5) or of the right four (for Cintiq 21UX2 and Cintiq
++		24HD) status LEDs is active (0..3). The other three LEDs on the
++		same side are always inactive.
+ 
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/status_led1_select
+ Date:		September 2011
 diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 11b4c05..b1af6c2 100644
+index c9588ee..11b4c05 100644
 --- a/drivers/input/tablet/wacom_sys.c
 +++ b/drivers/input/tablet/wacom_sys.c
-@@ -228,6 +228,9 @@ static int wacom_parse_logical_collection(unsigned char *report,
-  * 3rd gen Bamboo Touch no longer define a Digitizer-Finger Pysical
-  * Collection. Instead they define a Logical Collection with a single
-  * Logical Maximum for both X and Y.
-+ *
-+ * Intuos5 touch interface does not contain useful data. We deal with
-+ * this after returning from this function.
-  */
- static int wacom_parse_hid(struct usb_interface *intf,
- 			   struct hid_descriptor *hid_desc,
-@@ -924,6 +927,27 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	if (error)
- 		goto fail3;
+@@ -553,23 +553,38 @@ static void wacom_remove_shared_data(struct wacom_wac *wacom)
+ static int wacom_led_control(struct wacom *wacom)
+ {
+ 	unsigned char *buf;
+-	int retval, led = 0;
++	int retval;
  
-+	/* Intuos5 has no useful data about its touch interface in its
-+	 * HID descriptor. If this is the touch interface (wMaxPacketSize
-+	 * of WACOM_PKGLEN_BBTOUCH3), override the table values.
-+	 */
-+	if (features->type >= INTUOS5S && features->type <= INTUOS5L) {
-+		if (endpoint->wMaxPacketSize == WACOM_PKGLEN_BBTOUCH3) {
-+			features->device_type = BTN_TOOL_FINGER;
-+			features->pktlen = WACOM_PKGLEN_BBTOUCH3;
-+
-+			features->x_phy =
-+				(features->x_max * features->x_resolution) / 100;
-+			features->y_phy =
-+				(features->y_max * features->y_resolution) / 100;
-+
-+			features->x_max = 4096;
-+			features->y_max = 4096;
-+		} else {
-+			features->device_type = BTN_TOOL_PEN;
-+		}
+ 	buf = kzalloc(9, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	if (wacom->wacom_wac.features.type == WACOM_21UX2 ||
+-	    wacom->wacom_wac.features.type == WACOM_24HD)
+-		led = (wacom->led.select[1] << 4) | 0x40;
+-
+-	led |=  wacom->led.select[0] | 0x4;
++	if (wacom->wacom_wac.features.type >= INTUOS5S &&
++	    wacom->wacom_wac.features.type <= INTUOS5L)	{
++		/* Touch Ring and crop mark LED luminance may take on
++		 * one of four values:
++		 *    0 = Low; 1 = Medium; 2 = High; 3 = Off
++		 */
++		int ring_led = wacom->led.select[0] & 0x03;
++		int ring_lum = (((wacom->led.llv & 0x60) >> 5) - 1) & 0x03;
++		int crop_lum = 0;
+ 
+-	buf[0] = WAC_CMD_LED_CONTROL;
+-	buf[1] = led;
+-	buf[2] = wacom->led.llv;
+-	buf[3] = wacom->led.hlv;
+-	buf[4] = wacom->led.img_lum;
++		buf[0] = WAC_CMD_LED_CONTROL;
++		buf[1] = (crop_lum << 4) | (ring_lum << 2) | (ring_led);
 +	}
++	else {
++		int led = wacom->led.select[0] | 0x4;
 +
- 	wacom_setup_device_quirks(features);
- 
- 	strlcpy(wacom_wac->name, features->name, sizeof(wacom_wac->name));
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 86827c7..30067ae 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -321,6 +321,9 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 
- 	/* Enter report */
- 	if ((data[1] & 0xfc) == 0xc0) {
-+		if (features->type >= INTUOS5S && features->type <= INTUOS5L)
-+			wacom->shared->stylus_in_proximity = true;
++		if (wacom->wacom_wac.features.type == WACOM_21UX2 ||
++		    wacom->wacom_wac.features.type == WACOM_24HD)
++			led |= (wacom->led.select[1] << 4) | 0x40;
 +
- 		/* serial number of the tool */
- 		wacom->serial[idx] = ((data[3] & 0x0f) << 28) +
- 			(data[4] << 20) + (data[5] << 12) +
-@@ -406,6 +409,9 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
++		buf[0] = WAC_CMD_LED_CONTROL;
++		buf[1] = led;
++		buf[2] = wacom->led.llv;
++		buf[3] = wacom->led.hlv;
++		buf[4] = wacom->led.img_lum;
++	}
  
- 	/* Exit report */
- 	if ((data[1] & 0xfe) == 0x80) {
-+		if (features->type >= INTUOS5S && features->type <= INTUOS5L)
-+			wacom->shared->stylus_in_proximity = false;
+ 	retval = wacom_set_report(wacom->intf, 0x03, WAC_CMD_LED_CONTROL,
+ 				  buf, 9, WAC_CMD_RETRIES);
+@@ -762,6 +777,17 @@ static struct attribute_group intuos4_led_attr_group = {
+ 	.attrs = intuos4_led_attrs,
+ };
+ 
++static struct attribute *intuos5_led_attrs[] = {
++	&dev_attr_status0_luminance.attr,
++	&dev_attr_status_led0_select.attr,
++	NULL
++};
 +
- 		/*
- 		 * Reset all states otherwise we lose the initial states
- 		 * when in-prox next time
-@@ -1111,9 +1117,6 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 	case INTUOS4S:
- 	case INTUOS4:
- 	case INTUOS4L:
--	case INTUOS5S:
--	case INTUOS5:
--	case INTUOS5L:
- 	case CINTIQ:
- 	case WACOM_BEE:
- 	case WACOM_21UX2:
-@@ -1121,6 +1124,15 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 		sync = wacom_intuos_irq(wacom_wac);
++static struct attribute_group intuos5_led_attr_group = {
++	.name = "wacom_led",
++	.attrs = intuos5_led_attrs,
++};
++
+ static int wacom_initialize_leds(struct wacom *wacom)
+ {
+ 	int error;
+@@ -791,6 +817,19 @@ static int wacom_initialize_leds(struct wacom *wacom)
+ 					   &cintiq_led_attr_group);
  		break;
  
 +	case INTUOS5S:
 +	case INTUOS5:
 +	case INTUOS5L:
-+		if (len == WACOM_PKGLEN_BBTOUCH3)
-+			sync = wacom_bpt3_touch(wacom_wac);
-+		else
-+			sync = wacom_intuos_irq(wacom_wac);
++		wacom->led.select[0] = 0;
++		wacom->led.select[1] = 0;
++		wacom->led.llv = 32;
++		wacom->led.hlv = 0;
++		wacom->led.img_lum = 0;
++
++		error = sysfs_create_group(&wacom->intf->dev.kobj,
++					   &intuos5_led_attr_group);
 +		break;
 +
- 	case TABLETPC:
- 	case TABLETPC2FG:
- 		sync = wacom_tpc_irq(wacom_wac, len);
-@@ -1191,7 +1203,7 @@ void wacom_setup_device_quirks(struct wacom_features *features)
- 
- 	/* these device have multiple inputs */
- 	if (features->type == TABLETPC || features->type == TABLETPC2FG ||
--	    features->type == BAMBOO_PT)
-+	    features->type == BAMBOO_PT || (features->type >= INTUOS5S && features->type <= INTUOS5L))
- 		features->quirks |= WACOM_QUIRK_MULTI_INPUT;
- 
- 	/* quirk for bamboo touch with 2 low res touches */
-@@ -1350,13 +1362,54 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
- 
- 	case INTUOS5:
- 	case INTUOS5L:
-+		if (features->device_type == BTN_TOOL_PEN) {
-+			__set_bit(BTN_7, input_dev->keybit);
-+			__set_bit(BTN_8, input_dev->keybit);
-+		}
-+		/* fall through */
+ 	default:
+ 		return 0;
+ 	}
+@@ -819,6 +858,13 @@ static void wacom_destroy_leds(struct wacom *wacom)
+ 		sysfs_remove_group(&wacom->intf->dev.kobj,
+ 				   &cintiq_led_attr_group);
+ 		break;
 +
 +	case INTUOS5S:
-+		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-+
-+		if (features->device_type == BTN_TOOL_PEN) {
-+			for (i = 0; i < 7; i++)
-+				__set_bit(BTN_0 + i, input_dev->keybit);
-+
-+			input_set_abs_params(input_dev, ABS_DISTANCE, 0,
-+					      features->distance_max,
-+					      0, 0);
-+
-+			input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
-+
-+			wacom_setup_intuos(wacom_wac);
-+		} else if (features->device_type == BTN_TOOL_FINGER) {
-+			__clear_bit(ABS_MISC, input_dev->absbit);
-+
-+			__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
-+			__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
-+			__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
-+			__set_bit(BTN_TOOL_QUADTAP, input_dev->keybit);
-+
-+			input_mt_init_slots(input_dev, 16);
-+
-+			input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
-+			                     0, 255, 0, 0);
-+
-+			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-+					     0, features->x_max,
-+					     features->x_fuzz, 0);
-+			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
-+					     0, features->y_max,
-+					     features->y_fuzz, 0);
-+		}
++	case INTUOS5:
++	case INTUOS5L:
++		sysfs_remove_group(&wacom->intf->dev.kobj,
++				   &intuos5_led_attr_group);
 +		break;
-+
- 	case INTUOS4:
- 	case INTUOS4L:
- 		__set_bit(BTN_7, input_dev->keybit);
- 		__set_bit(BTN_8, input_dev->keybit);
- 		/* fall through */
+ 	}
+ }
  
--	case INTUOS5S:
- 	case INTUOS4S:
- 		for (i = 0; i < 7; i++)
- 			__set_bit(BTN_0 + i, input_dev->keybit);
 -- 
 1.7.9.1
 

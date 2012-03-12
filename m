@@ -1,121 +1,55 @@
-From: Matthew Garrett <mjg@redhat.com>
-Subject: [PATCH] input: Fix autosuspend on bcm5974
-Date: Mon, 12 Mar 2012 19:51:18 -0400
-Message-ID: <1331596278-2495-1-git-send-email-mjg@redhat.com>
+From: =?iso-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH 4/5] HID: autoload hid-multitouch as needed
+Date: Mon, 12 Mar 2012 21:47:19 +0100
+Message-ID: <4B25AD62-B1C9-4C57-AE64-34EB7F47DC9B@enac.fr>
+References: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com> <1331053026-21272-5-git-send-email-benjamin.tissoires@gmail.com>   <alpine.LNX.2.00.1203072234550.29034@pobox.suse.cz>  <20120308105737.GA11201@polaris.bitmath.org>  <6E17845C-6F9F-4CB6-AA5D-DEEDCD2089E8@enac.fr>  <alpine.LNX.2.00.1203121650500.18356@pobox.suse.cz> <1331574151.14217.86.camel@aeonflux>
+Mime-Version: 1.0 (Apple Message framework v1084)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:17788 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756787Ab2CLTvR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Mar 2012 15:51:17 -0400
+Received: from 88-230.252-81.static-ip.oleane.fr ([81.252.230.88]:50717 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756881Ab2CLUrW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Mar 2012 16:47:22 -0400
+In-Reply-To: <1331574151.14217.86.camel@aeonflux>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-usb@vger.kernel.org
-Cc: linux-input@vger.kernel.org, Matthew Garrett <mjg@redhat.com>, Henrik Rydberg <rydberg@euromail.se>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo F. Padovan" <padovan@profusion.mobi>, linux-bluetooth@vger.kernel.org
 
-The bcm5974 code takes a USB autosuspend reference on device open and
-releases it on device close. This means that the hardware won't sleep
-when anything holds it open. This is sensible for input devices that
-don't support remote wakeups on normal use (like most mice), but this
-hardware trigger wakeups on touch and so can suspend transparently to
-the user. Doing so allows the USB host controller to sleep when the
-machine is idle, giving measurable power savings. The downside is a small
-amount of additional latency when the device wakes up, and as a result
-this functionality isn't enabled by default.
 
-[rydberg@euromail.se: wakeup before mode switch]
-Signed-off-by: Matthew Garrett <mjg@redhat.com>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/input/mouse/bcm5974.c |   30 ++++++++++++++++++++++++++----
- 1 file changed, 26 insertions(+), 4 deletions(-)
+Hi Marcel and Jiri
 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index 927e479..aaf158c 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -634,6 +634,7 @@ static void bcm5974_irq_button(struct urb *urb)
- 
- 	switch (urb->status) {
- 	case 0:
-+		usb_mark_last_busy(dev->udev);
- 		break;
- 	case -EOVERFLOW:
- 	case -ECONNRESET:
-@@ -663,6 +664,7 @@ static void bcm5974_irq_trackpad(struct urb *urb)
- 
- 	switch (urb->status) {
- 	case 0:
-+		usb_mark_last_busy(dev->udev);
- 		break;
- 	case -EOVERFLOW:
- 	case -ECONNRESET:
-@@ -735,10 +737,15 @@ err_out:
- 	return error;
- }
- 
--static void bcm5974_pause_traffic(struct bcm5974 *dev)
-+static void bcm5974_kill_urbs(struct bcm5974 *dev)
- {
- 	usb_kill_urb(dev->tp_urb);
- 	usb_kill_urb(dev->bt_urb);
-+}
-+
-+static void bcm5974_pause_traffic(struct bcm5974 *dev)
-+{
-+	bcm5974_kill_urbs(dev);
- 	bcm5974_wellspring_mode(dev, false);
- }
- 
-@@ -759,6 +766,9 @@ static int bcm5974_open(struct input_dev *input)
- 	if (error)
- 		return error;
- 
-+	/* Required for autosuspend */
-+	dev->intf->needs_remote_wakeup = 1;
-+
- 	mutex_lock(&dev->pm_mutex);
- 
- 	error = bcm5974_start_traffic(dev);
-@@ -767,8 +777,10 @@ static int bcm5974_open(struct input_dev *input)
- 
- 	mutex_unlock(&dev->pm_mutex);
- 
-+	usb_autopm_put_interface(dev->intf);
-+
- 	if (error)
--		usb_autopm_put_interface(dev->intf);
-+		dev->intf->needs_remote_wakeup = 0;
- 
- 	return error;
- }
-@@ -776,15 +788,25 @@ static int bcm5974_open(struct input_dev *input)
- static void bcm5974_close(struct input_dev *input)
- {
- 	struct bcm5974 *dev = input_get_drvdata(input);
-+	int error;
-+
-+	dev->intf->needs_remote_wakeup = 0;
-+
-+	error = usb_autopm_get_interface(dev->intf);
- 
- 	mutex_lock(&dev->pm_mutex);
- 
--	bcm5974_pause_traffic(dev);
-+	bcm5974_kill_urbs(dev);
- 	dev->opened = 0;
-+	if (error)
-+		err("bcm5974: wakeup failed during close: %d\n", error);
-+	else
-+		bcm5974_wellspring_mode(dev, false);
- 
- 	mutex_unlock(&dev->pm_mutex);
- 
--	usb_autopm_put_interface(dev->intf);
-+	if (!error)
-+		usb_autopm_put_interface(dev->intf);
- }
- 
- static int bcm5974_suspend(struct usb_interface *iface, pm_message_t message)
--- 
-1.7.9.3
+> Hi Jiri,
+> 
+>>>> What if we were to change the definition of a HID device on the
+>>>> modalias level?
+>>>> 
+>>>> In practise, a HID device can be either an usb device, a hid device,
+>>> 
+>>> Just to be sure: do you mean "bluetooth device"? or is there such a 
+>>> thing as a hid device per se? I'm asking because I've always been 
+>>> surprised at seeing usbhid/ in hid/, which kind of breaks the potential 
+>>> symmetry between USB and Bluetooth wrt hid.
+>> 
+>> Please don't get confused by the directory layout ... this has mostly 
+>> non-technical reasons -- Marcel wanted to keep bluetooth/hidp under his 
+>> wings, and I didn't have reasons to object strongly.
+>> 
+>> I am adding Marcel and Gustavo to CC just in case they have changed their 
+>> mind, but it's definitely a side-topic in this discussion.
+> 
+> I have not changed my mind. HIDP is Bluetooth specific and should stay
+> there. Especially since we are currently discussing changes to make
+> things also work over Bluetooth Low Energy (LE), but that is a complete
+> different topic and it just started.
+
+Just in case it makes a difference, I knew nothing about HIDP when I wrote the message above. My point was rather that hid looks like a bus to which several transport layers can connect (USB, Bluetooth, ZigBee, etc), and that having USB-specific code in hid/ (as opposed to having it in usb/) seems biased towards USB. I was (and am still) wondering how much it limits future uses of the hid core by making it USB-dependent.
+
+In other words: is the hid core generic enough or are there steps to take to make it more generic wrt transport layers? If we are talking about restructuring parts of it, this seems like the right time to ask :-)
+
+Cheers,
+
+St.
 

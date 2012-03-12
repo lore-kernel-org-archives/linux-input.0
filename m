@@ -1,75 +1,70 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/2] HID: hid-lg4ff add support for G27 LEDs
-Date: Mon, 12 Mar 2012 17:09:40 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1203121708430.18356@pobox.suse.cz>
-References: <1331565459-1892-1-git-send-email-simon@mungewell.org>
+Subject: Re: [PATCH 4/5] HID: autoload hid-multitouch as needed
+Date: Mon, 12 Mar 2012 17:18:05 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1203121715250.18356@pobox.suse.cz>
+References: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com> <1331053026-21272-5-git-send-email-benjamin.tissoires@gmail.com>  <alpine.LNX.2.00.1203072234550.29034@pobox.suse.cz>  <20120308105737.GA11201@polaris.bitmath.org>
+ <6E17845C-6F9F-4CB6-AA5D-DEEDCD2089E8@enac.fr>  <20120308113009.GA11416@polaris.bitmath.org>  <E18D154F-E02F-4DF9-8749-7F9EF92792CB@enac.fr> <20120308122303.GA11989@polaris.bitmath.org> <2189FE61-4D55-4729-BBCE-C4880A7EAB2F@enac.fr>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:44095 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751769Ab2CLQJm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Mar 2012 12:09:42 -0400
-In-Reply-To: <1331565459-1892-1-git-send-email-simon@mungewell.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <2189FE61-4D55-4729-BBCE-C4880A7EAB2F@enac.fr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Cc: Henrik Rydberg <rydberg@euromail.se>, "benjamin.tissoires Tissoires" <benjamin.tissoires@gmail.com>, =?ISO-8859-15?Q?Fabien_ANDR=C9?= <fabien.andre@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, USB list <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Bauer <michael@m-bauer.org>, Michal Maly <madcatxster@gmail.com>
 
-On Mon, 12 Mar 2012, Simon Wood wrote:
+On Thu, 8 Mar 2012, St=E9phane Chatty wrote:
 
-> This patch adds support for the G27 LEDs. The LEDs are controlled
-> by a 5bit value (0-31) where bit0 is the right most LED, the LEDs
-> are mirrored to the left.
-> 
-> Arrangement on wheel is:
->    G G Y Y R R(bit4) Y Y G G(bit0)
-> 
-> Signed-off-by: Simon Wood <simon@mungewell.org>
-> ---
->  drivers/hid/hid-lg4ff.c |   84 +++++++++++++++++++++++++++++++++++++++++++++-
->  1 files changed, 82 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-> index 6ecc9e2..4f3b744 100644
-> --- a/drivers/hid/hid-lg4ff.c
-> +++ b/drivers/hid/hid-lg4ff.c
-> @@ -49,7 +49,12 @@ static void hid_lg4ff_set_range_g25(struct hid_device *hid, u16 range);
->  static ssize_t lg4ff_range_show(struct device *dev, struct device_attribute *attr, char *buf);
->  static ssize_t lg4ff_range_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
->  
-> +static void hid_lg4ff_set_leds(struct hid_device *hid, __u8 leds);
-> +static ssize_t lg4ff_leds_show(struct device *dev, struct device_attribute *attr, char *buf);
-> +static ssize_t lg4ff_leds_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
-> +
->  static DEVICE_ATTR(range, S_IRWXU | S_IRWXG | S_IRWXO, lg4ff_range_show, lg4ff_range_store);
-> +static DEVICE_ATTR(leds, S_IRWXU | S_IRWXG | S_IRWXO, lg4ff_leds_show, lg4ff_leds_store);
->  
->  static bool list_inited;
->  
-> @@ -336,6 +341,67 @@ static ssize_t lg4ff_range_store(struct device *dev, struct device_attribute *at
->  	return count;
->  }
->  
-> +/* Read current state of leds and display it in terminal */
-> +static ssize_t lg4ff_leds_show(struct device *dev, struct device_attribute *attr, char *buf)
-> +{
-> +	struct lg4ff_device_entry *uninitialized_var(entry);
-> +	struct list_head *h;
-> +	struct hid_device *hid = to_hid_device(dev);
-> +	size_t count;
-> +
-> +	list_for_each(h, &device_list.list) {
-> +		entry = list_entry(h, struct lg4ff_device_entry, list);
-> +		if (strcmp(entry->device_id, (&hid->dev)->kobj.name) == 0)
-> +			break;
-> +	}
+> >> I had the feeling that the current hid code was somehow trying to =
+be
+> >> universal, thus making the point moot, and figured that we would
+> >> need to reintegrate hid-multitouch into hid-core at some
+> >> point. You're suggesting another, more distributed option, in whic=
+h
+> >> new categories of HID devices appear from time to time and are
+> >> handled in new modules, right? Sounds interesting to me, I'd like =
+to
+> >> hear what the original designers of the hid module think of it.
+> >=20
+> > Me too. Reading through the module code, it really seems to put
+> > userland in charge, only providing sufficient information to be abl=
+e
+> > to load the right modules. If this was fully possible in hid, at le=
+ast
+> > one of the special blacklists would disappear. One would also be ab=
+le
+> > to split the current hid-input into several different drivers, for
+> > instance, gaining some clarity in addition to memory savings.
+>=20
+> This would be a radical change from the current hid code that tends t=
+o=20
+> restrict "true hid" to a limited range of HID usages and to reject th=
+e=20
+> rest (cf the IS_INPUT_APPLICATION that caused us some difficulties th=
+ree=20
+> years ago). But this definitely would make sense to me. Jiri, Dmitry,=
+=20
+> what do you think?
 
-Please correct me if I am wrong, but I don't see nothing that'd prevent 
-this racing with lg4ff_deinit().
+=46rankly, I'd personally love IS_INPUT_APPLICATION() to die, it's just=
+=20
+horribly ugly and doesn't scale with rapidly growing number of HID devi=
+ces=20
+appearing every day (with multitouch definitely being the most active=20
+group).
 
-The same applies to already existing sysfs attributes actually.
+So restructuring a HID core in a way that makes the whole process much=20
+more generic and offloads the responsibility into modaliases seems like=
+ a=20
+proper way to go for me.
 
--- 
+I'll be thinking about it a little bit more in the upcoming days, other=
+=20
+ideas are of course very welcome.
+
+Thanks everybody for initiating this discussion,
+
+--=20
 Jiri Kosina
 SUSE Labs

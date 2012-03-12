@@ -1,70 +1,121 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 1/2] HID: hid-lg4ff add support for G27 LEDs
-Date: Mon, 12 Mar 2012 19:12:32 +0000
-Message-ID: <20120312191232.GB30146@opensource.wolfsonmicro.com>
-References: <1331565459-1892-1-git-send-email-simon@mungewell.org>
- <alpine.LNX.2.00.1203121645050.18356@pobox.suse.cz>
- <be2be8d04b58ce75fcba9798fcb4e4fa.squirrel@mungewell.org>
- <20120312180738.GD14020@sirena.org.uk>
- <3391c87c6cc142e1b50b73eb78e70dc8.squirrel@mungewell.org>
- <20120312183235.GA28451@opensource.wolfsonmicro.com>
- <03eaca06ba2629f55144daa5a386c74b.squirrel@mungewell.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/WwmFnJnmDyWGHa4"
+From: Matthew Garrett <mjg@redhat.com>
+Subject: [PATCH] input: Fix autosuspend on bcm5974
+Date: Mon, 12 Mar 2012 19:51:18 -0400
+Message-ID: <1331596278-2495-1-git-send-email-mjg@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:57704 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755279Ab2CLTMe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Mar 2012 15:12:34 -0400
-Content-Disposition: inline
-In-Reply-To: <03eaca06ba2629f55144daa5a386c74b.squirrel@mungewell.org>
+Received: from mx1.redhat.com ([209.132.183.28]:17788 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756787Ab2CLTvR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Mar 2012 15:51:17 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Bauer <michael@m-bauer.org>, Michal Maly <madcatxster@gmail.com>
+To: linux-usb@vger.kernel.org
+Cc: linux-input@vger.kernel.org, Matthew Garrett <mjg@redhat.com>, Henrik Rydberg <rydberg@euromail.se>
 
+The bcm5974 code takes a USB autosuspend reference on device open and
+releases it on device close. This means that the hardware won't sleep
+when anything holds it open. This is sensible for input devices that
+don't support remote wakeups on normal use (like most mice), but this
+hardware trigger wakeups on touch and so can suspend transparently to
+the user. Doing so allows the USB host controller to sleep when the
+machine is idle, giving measurable power savings. The downside is a small
+amount of additional latency when the device wakes up, and as a result
+this functionality isn't enabled by default.
 
---/WwmFnJnmDyWGHa4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+[rydberg@euromail.se: wakeup before mode switch]
+Signed-off-by: Matthew Garrett <mjg@redhat.com>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/mouse/bcm5974.c |   30 ++++++++++++++++++++++++++----
+ 1 file changed, 26 insertions(+), 4 deletions(-)
 
-On Mon, Mar 12, 2012 at 03:05:39PM -0400, simon@mungewell.org wrote:
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index 927e479..aaf158c 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -634,6 +634,7 @@ static void bcm5974_irq_button(struct urb *urb)
+ 
+ 	switch (urb->status) {
+ 	case 0:
++		usb_mark_last_busy(dev->udev);
+ 		break;
+ 	case -EOVERFLOW:
+ 	case -ECONNRESET:
+@@ -663,6 +664,7 @@ static void bcm5974_irq_trackpad(struct urb *urb)
+ 
+ 	switch (urb->status) {
+ 	case 0:
++		usb_mark_last_busy(dev->udev);
+ 		break;
+ 	case -EOVERFLOW:
+ 	case -ECONNRESET:
+@@ -735,10 +737,15 @@ err_out:
+ 	return error;
+ }
+ 
+-static void bcm5974_pause_traffic(struct bcm5974 *dev)
++static void bcm5974_kill_urbs(struct bcm5974 *dev)
+ {
+ 	usb_kill_urb(dev->tp_urb);
+ 	usb_kill_urb(dev->bt_urb);
++}
++
++static void bcm5974_pause_traffic(struct bcm5974 *dev)
++{
++	bcm5974_kill_urbs(dev);
+ 	bcm5974_wellspring_mode(dev, false);
+ }
+ 
+@@ -759,6 +766,9 @@ static int bcm5974_open(struct input_dev *input)
+ 	if (error)
+ 		return error;
+ 
++	/* Required for autosuspend */
++	dev->intf->needs_remote_wakeup = 1;
++
+ 	mutex_lock(&dev->pm_mutex);
+ 
+ 	error = bcm5974_start_traffic(dev);
+@@ -767,8 +777,10 @@ static int bcm5974_open(struct input_dev *input)
+ 
+ 	mutex_unlock(&dev->pm_mutex);
+ 
++	usb_autopm_put_interface(dev->intf);
++
+ 	if (error)
+-		usb_autopm_put_interface(dev->intf);
++		dev->intf->needs_remote_wakeup = 0;
+ 
+ 	return error;
+ }
+@@ -776,15 +788,25 @@ static int bcm5974_open(struct input_dev *input)
+ static void bcm5974_close(struct input_dev *input)
+ {
+ 	struct bcm5974 *dev = input_get_drvdata(input);
++	int error;
++
++	dev->intf->needs_remote_wakeup = 0;
++
++	error = usb_autopm_get_interface(dev->intf);
+ 
+ 	mutex_lock(&dev->pm_mutex);
+ 
+-	bcm5974_pause_traffic(dev);
++	bcm5974_kill_urbs(dev);
+ 	dev->opened = 0;
++	if (error)
++		err("bcm5974: wakeup failed during close: %d\n", error);
++	else
++		bcm5974_wellspring_mode(dev, false);
+ 
+ 	mutex_unlock(&dev->pm_mutex);
+ 
+-	usb_autopm_put_interface(dev->intf);
++	if (!error)
++		usb_autopm_put_interface(dev->intf);
+ }
+ 
+ static int bcm5974_suspend(struct usb_interface *iface, pm_message_t message)
+-- 
+1.7.9.3
 
-> If you can point me at some (simple) implementations of the LED subsystem,
-> possibly with some guidance, we can look to see if the added complexity is
-> actually worth it.
-
-I don't think any of the LED drivers are massively complex...  you just
-register and then you get a callback to set the brightness.  That's
-really all there is to it.
-
-> I'd be pretty sure that other gaming controllers don't abstract their LEDs
-> via this subsystem,
-
-How sad :(
-
---/WwmFnJnmDyWGHa4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPXkoxAAoJEBus8iNuMP3dpwYP/AxHgDmK1c0Fo/JSVRFVDJXk
-jkKoEFODOPcMcS3eu+FTSIZ66veuiNxxbItTAP1ih4llbXHRacLJ0teFiPXKETDf
-tu48Arce/jbxNb2ot/iQxPMG3heg2+d0XA08/d2TP9S9UchXx6F2KzSA/0uSF57L
-8aJD4S9Ik9y/cJKO9HvmRZzpqoSA1t3k9p7BDytXiLVDaJrL3eUomqvyhe+Fmq0G
-MgH+eAKDTHsxxBUasLsEYijdALRGI5+K8J5xcKlPgk/qI0vHpkrF9bphsZeESzoZ
-2WZVirOC7aP7etufreq5UqSqFgDhBdDbsVOjcaFdD5F3TdG9J23r3HZSDmRQAkv9
-3e0522W3WHK+hyUyZSBbEpWiDv8TCi9VeDR0dcSpsfxed+hLFs4NwSgjIEMPp/Fg
-W+4V88Fat5LaP16oaels07jeVJT42Gc5b9m7sWOleylmze6gl9Uv6174R6XAOJ4c
-9Qo9wySlCAarSgooaIfRBI6GOejVMwZWRUGK3dgpgaCR7IU3O1fnxjM5M/SH8P//
-BSG3siDQrB0BlDGM3I+JfXgV2zI29piyA6CV9w74Sy9QS+4useZq0RIz/c7RIhSr
-PyF21GCYzNeZxfjCpAevjdbhld7lNsDUq58s75zpvNeZ7mAC9Bd/OnYWc/I4bHuJ
-0uPz/ySar+a59jFTMVWO
-=cNnn
------END PGP SIGNATURE-----
-
---/WwmFnJnmDyWGHa4--

@@ -1,52 +1,42 @@
-From: Viresh Kumar <viresh.kumar@st.com>
-Subject: Re: [PATCH] input/spear-keyboard: Remove kbd_set_plat_data()
-Date: Mon, 12 Mar 2012 12:24:44 +0530
-Message-ID: <4F5D9DB4.1030404@st.com>
-References: <8acf668a2c8d67aec3dc79dfe2895b2fd80a18be.1330320826.git.viresh.kumar@st.com>
+From: Chanwoo Choi <cw00.choi@samsung.com>
+Subject: [PATCH v3 0/2] input: add MAX8997-haptic driver
+Date: Mon, 12 Mar 2012 17:31:17 +0900
+Message-ID: <4F5DB455.1080907@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog109.obsmtp.com ([207.126.144.127]:33000 "EHLO
-	eu1sys200aog109.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751269Ab2CLGzb (ORCPT
+Received: from mailout4.samsung.com ([203.254.224.34]:36943 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752626Ab2CLIbU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Mar 2012 02:55:31 -0400
-In-Reply-To: <8acf668a2c8d67aec3dc79dfe2895b2fd80a18be.1330320826.git.viresh.kumar@st.com>
+	Mon, 12 Mar 2012 04:31:20 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Armando VISCONTI <armando.visconti@st.com>, Shiraz HASHIM <shiraz.hashim@st.com>, Vipin KUMAR <vipin.kumar@st.com>, Rajeev KUMAR <rajeev-dlh.kumar@st.com>, Deepak SIKRI <deepak.sikri@st.com>, Vipul Kumar SAMAR <vipulkumar.samar@st.com>, Amit VIRDI <Amit.VIRDI@st.com>, Pratyush ANAND <pratyush.anand@st.com>, Bhupesh SHARMA <bhupesh.sharma@st.com>, "viresh.linux@gmail.com" <viresh.linux@gmail.com>, Bhavna YADAV <bhavna.yadav@st.com>, Vincenzo FRASCINO <Vincenzo.FRASCINO@st.com>, Mirko GARDI <mirko.gardi@st.com>, Salvatore DE DOMINICIS <salvatore.dedominicis@st.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: sameo@linux.intel.com, broonie@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, myungjoo.ham@samsung.com
 
-On 2/27/2012 11:09 AM, Viresh KUMAR wrote:
-> We must use platform_device_add_data() instead of kbd_set_plat_data(). Remove
-> definition of kbd_set_plat_data().
-> 
-> Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
-> ---
->  arch/arm/plat-spear/include/plat/keyboard.h |    7 -------
->  1 files changed, 0 insertions(+), 7 deletions(-)
-> 
-> diff --git a/arch/arm/plat-spear/include/plat/keyboard.h b/arch/arm/plat-spear/include/plat/keyboard.h
-> index c16cc31..0562f13 100644
-> --- a/arch/arm/plat-spear/include/plat/keyboard.h
-> +++ b/arch/arm/plat-spear/include/plat/keyboard.h
-> @@ -159,11 +159,4 @@ struct kbd_platform_data {
->  	unsigned int mode;
->  };
->  
-> -/* This function is used to set platform data field of pdev->dev */
-> -static inline void
-> -kbd_set_plat_data(struct platform_device *pdev, struct kbd_platform_data *data)
-> -{
-> -	pdev->dev.platform_data = data;
-> -}
-> -
->  #endif /* __PLAT_KEYBOARD_H */
+MAX8997 has several features in a single chip,
+This patchset supports unimplemented haptic driver of MAX8997.
 
-Hi Dmitry,
+This patchset tested on TRATS board based on EXYNOS4210.
 
-Have you applied this patch?
+v2
+- code clean and remove unnecessary code according to comment of Dmitry
+Torokhov
 
--- 
-viresh
+v3
+- use work_struct to enable/disable max8997-haptic instead of using mutex
+  in irq handler statck of forced feedbacky
+
+Donggeun Kim (2):
+  mfd: add platform data for MAX8997 haptic driver
+  input: add driver support for MAX8997-haptic
+
+ drivers/input/misc/Kconfig          |   12 +
+ drivers/input/misc/Makefile         |    1 +
+ drivers/input/misc/max8997_haptic.c |  377
++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/max8997.h         |   53 +++++-
+ 4 files changed, 442 insertions(+), 1 deletions(-)
+ create mode 100644 drivers/input/misc/max8997_haptic.c

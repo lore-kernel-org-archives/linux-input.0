@@ -1,57 +1,70 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 4/5] HID: autoload hid-multitouch as needed
-Date: Mon, 12 Mar 2012 16:57:49 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1203121650500.18356@pobox.suse.cz>
-References: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com> <1331053026-21272-5-git-send-email-benjamin.tissoires@gmail.com>  <alpine.LNX.2.00.1203072234550.29034@pobox.suse.cz> <20120308105737.GA11201@polaris.bitmath.org>
- <6E17845C-6F9F-4CB6-AA5D-DEEDCD2089E8@enac.fr>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Simon Wood <simon@mungewell.org>
+Subject: [PATCH 2/2] HID: hid-lg4ff clean up attribution
+Date: Mon, 12 Mar 2012 08:17:39 -0700
+Message-ID: <1331565459-1892-2-git-send-email-simon@mungewell.org>
+References: <1331565459-1892-1-git-send-email-simon@mungewell.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:43430 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751239Ab2CLP5v (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Mar 2012 11:57:51 -0400
-In-Reply-To: <6E17845C-6F9F-4CB6-AA5D-DEEDCD2089E8@enac.fr>
+Received: from host171.canaca.com ([67.55.55.225]:53365 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751239Ab2CLQCt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Mar 2012 12:02:49 -0400
+In-Reply-To: <1331565459-1892-1-git-send-email-simon@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: Henrik Rydberg <rydberg@euromail.se>, "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, "Gustavo F. Padovan" <padovan@profusion.mobi>, linux-bluetooth@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Michael Bauer <michael@m-bauer.org>, Michal Maly <madcatxster@gmail.com>, Simon Wood <simon@mungewell.org>
 
-On Thu, 8 Mar 2012, St=E9phane Chatty wrote:
+This patch adds proper attribution for Michal (who re-wrote significant
+portions of this driver last year) and clarifies that it now supports
+most of the Logitech gaming wheels (not just the Speed Force Wireless).
 
-> > What if we were to change the definition of a HID device on the
-> > modalias level?
-> >=20
-> > In practise, a HID device can be either an usb device, a hid device=
-,
->=20
-> Just to be sure: do you mean "bluetooth device"? or is there such a=20
-> thing as a hid device per se? I'm asking because I've always been=20
-> surprised at seeing usbhid/ in hid/, which kind of breaks the potenti=
-al=20
-> symmetry between USB and Bluetooth wrt hid.
+Signed-off-by: Simon Wood <simon@mungewell.org>
+---
+ drivers/hid/Kconfig     |    1 +
+ drivers/hid/hid-lg4ff.c |    8 ++++++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-Please don't get confused by the directory layout ... this has mostly=20
-non-technical reasons -- Marcel wanted to keep bluetooth/hidp under his=
-=20
-wings, and I didn't have reasons to object strongly.
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index a421abd..1a7fd8c 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -307,6 +307,7 @@ config LOGIWHEELS_FF
+ 	  - Logitech G27
+ 	  - Logitech MOMO/MOMO 2
+ 	  - Logitech Formula Force EX
++	  - Logitech Speed Force Wireless (Wii)
+ 
+ config HID_MAGICMOUSE
+ 	tristate "Apple MagicMouse multi-touch support"
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index 4f3b744..bad760d 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -1,9 +1,13 @@
+ /*
+- *  Force feedback support for Logitech Speed Force Wireless
++ *  Force feedback support for Logitech Gaming Wheels
++ *
++ *  Including: MOMO, MOMO2, DFGT, DFP, G25, G27
++ *    and Speed Force Wireless (Wii)
+  *
+  *  http://wiibrew.org/wiki/Logitech_USB_steering_wheel
+  *
+  *  Copyright (c) 2010 Simon Wood <simon@mungewell.org>
++ *  Copyright (c) 2011 Michal Maly <madcatxster@gmail.com>
+  */
+ 
+ /*
+@@ -536,7 +540,7 @@ int lg4ff_init(struct hid_device *hid)
+ 		hid_lg4ff_set_leds(hid, 0);
+ 	}
+ 
+-	hid_info(hid, "Force feedback for Logitech Speed Force Wireless by Simon Wood <simon@mungewell.org>\n");
++	hid_info(hid, "Force feedback for Logitech Gaming Wheels\n");
+ 	return 0;
+ }
+ 
+-- 
+1.7.4.1
 
-I am adding Marcel and Gustavo to CC just in case they have changed the=
-ir=20
-mind, but it's definitely a side-topic in this discussion.
-Marcel, Gustavo -- if you are interested in the whole discussion regard=
-ing=20
-potential extension of HID core infrastructure to better suit multitouc=
-h,=20
-please see the whole thread at http://marc.info/?t=3D133105322800006&r=3D=
-1&w=3D4
-
---=20
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

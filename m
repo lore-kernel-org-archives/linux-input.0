@@ -1,123 +1,50 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH] input: wacom: Use touch size for ABS_MT_TOUCH_MAJOR
-Date: Mon, 12 Mar 2012 17:41:34 -0500
-Message-ID: <CAGzDe_bxoM81HOz2O3k7_bNvNO-V1Ro=fTGqGBRwwsNNtOYvAQ@mail.gmail.com>
-References: <1331170746-12636-1-git-send-email-killertofu@gmail.com>
-	<CAGzDe_Z2Dpc9ue06V8mgc_fUUqSe0gJLwDK0piE156EsXV__7Q@mail.gmail.com>
-	<CANRwn3SNnBAidf3wBuvSvO0EAyYPhhJXmBrv9Ly9f_HNiJkkPw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] input: wacom: Fix physical size calculation for 3rd-gen Bamboo
+Date: Mon, 12 Mar 2012 15:53:04 -0700
+Message-ID: <1331592784-6894-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lpp01m010-f46.google.com ([209.85.215.46]:65237 "EHLO
-	mail-lpp01m010-f46.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757604Ab2CLWlh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Mar 2012 18:41:37 -0400
-Received: by lahj13 with SMTP id j13so4102637lah.19
-        for <linux-input@vger.kernel.org>; Mon, 12 Mar 2012 15:41:34 -0700 (PDT)
-In-Reply-To: <CANRwn3SNnBAidf3wBuvSvO0EAyYPhhJXmBrv9Ly9f_HNiJkkPw@mail.gmail.com>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:56290 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757699Ab2CLWxN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Mar 2012 18:53:13 -0400
+Received: by yhmm54 with SMTP id m54so3148813yhm.19
+        for <linux-input@vger.kernel.org>; Mon, 12 Mar 2012 15:53:12 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, chris@cnpbagwell.com, linuxwacom-devel@lists.sourceforge.net
+Cc: Jason Gerecke <killertofu@gmail.com>
 
-On Fri, Mar 9, 2012 at 5:26 PM, Jason Gerecke <killertofu@gmail.com> wr=
-ote:
-> On Fri, Mar 9, 2012 at 2:30 PM, Chris Bagwell <chris@cnpbagwell.com> =
-wrote:
->> On Wed, Mar 7, 2012 at 7:39 PM, Jason Gerecke <killertofu@gmail.com>=
- wrote:
->>> 3rd-gen Bamboo devices report both "amplitude" and "size" data
->>> in their touch packets. This patch changes the source for
->>> ABS_MT_TOUCH_MAJOR to be the latter rather than the former.
->>> ---
->>> =A0drivers/input/tablet/wacom_wac.c | =A0 =A02 +-
->>> =A01 files changed, 1 insertions(+), 1 deletions(-)
->>>
->>> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/table=
-t/wacom_wac.c
->>> index d0b0fc4..5daf11d 100644
->>> --- a/drivers/input/tablet/wacom_wac.c
->>> +++ b/drivers/input/tablet/wacom_wac.c
->>> @@ -916,7 +916,7 @@ static void wacom_bpt3_touch_msg(struct wacom_w=
-ac *wacom, unsigned char *data)
->>> =A0 =A0 =A0 =A0if (touch) {
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0int x =3D (data[2] << 4) | (data[4] =
->> 4);
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0int y =3D (data[3] << 4) | (data[4] =
-& 0x0f);
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 int w =3D data[6];
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 int w =3D data[5];
->>>
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_abs(input, ABS_MT_POSIT=
-ION_X, x);
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_abs(input, ABS_MT_POSIT=
-ION_Y, y);
->>> --
->>> 1.7.9.1
->>>
->>
->> I found time to test this patch and used "mtview" so I could get som=
-e
->> visual feedback.
->>
->> The lines because extremely thin with this change. =A0Part of reason=
- I
->> quickly traced to we are setting range as 0-255 but I couldn't get
->> data[5] to go above a value of 18. =A0So I changed range to 0-16 and=
- it
->> works better but the lines still never gets very thick (this could
->> well be that mtview doesn't scale values and prefers 0-255. =A0I did=
-n't
->> look).
-> Looks like its a combination of two problems, one mine one mtview's..=
-=2E
->
-> I did some reading, and the MT protocol docs specify that
-> ABS_MT_TOUCH_MAJOR are in terms of surface units. That means a value
-> of e.g. "20" should represent a touch that spans 20 units of X. The
-> touch sensor has a resolution of ~0.1mm, which would imply the touch
-> was only 2 mm wide... There's going to have to be a correction factor
-> to transform the value to something more appropriate.
->
-> As for mtview, it looks like it doesn't scale the major/minor axis
-> values based on the output size. At the very least it should scale
-> everything by roughly (output_max_x / sensor_max_x) so that a touch
-> taking up e.g. 10% of the tablet would take up 10% of the output.
+This calculation determines the physical dimensions of the tablet,
+used later on in calculate_touch_res to obtain the touch sensor
+resolution.
 
-I see now that I got lucky that I had a 0-255 value available and
-didn't look into what I needed to report close enough.
+Instead of dividing the logical size by the resolution, the current
+code performs a multiplication. This doesn't pose a problem for the
+3rd-gen Bamboo since the resolution and scale factor happen to be
+identical, but will produce an incorrect result for other cases.
 
->
->>
->> Amplitude feels better to me using test apps but your in a better
->> position to say if we should really change this. =A0Please adjust
->> declared range though if you still think we should change this.
->>
->> Chris
->
-> My main reasons for switching away from amplitude were that amplitude
-> is a very crude number (I think I can get three or four unique values
-> out of it), and that the tablet reports a size already. Worst case --
-> assuming a correction factor isn't sufficient to get data[5] working
-> as MAJOR -- we should at least send data[5] through PRESSURE (which
-> the MT docs state may be used instead of MAJOR/MINOR if the units are
-> arbitrary).
->
+Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+---
+ drivers/input/tablet/wacom_sys.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-I've not found time to dig deeply to this (to compute real scale
-value) but I'll offer this.  I compared behaviour of original data[6]
-to this:
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index c9588ee..dc07821 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -184,9 +184,9 @@ static int wacom_parse_logical_collection(unsigned char *report,
+ 		 * data before its overwritten.
+ 		 */
+ 		features->x_phy =
+-			(features->x_max * features->x_resolution) / 100;
++			(features->x_max * 100) / features->x_resolution;
+ 		features->y_phy =
+-			(features->y_max * features->y_resolution) / 100;
++			(features->y_max * 100) / features->y_resolution;
+ 
+ 		features->x_max = features->y_max =
+ 			get_unaligned_le16(&report[10]);
+-- 
+1.7.9.1
 
-int w =3D (data[5] > 31) ? 255 : data[5] << 3;
-
-and with mtview the size change is much more responsive and
-consistent.  So I'm on board with changing to data[5] in some form.
-
-Chris
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

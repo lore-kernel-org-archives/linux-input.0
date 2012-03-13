@@ -1,120 +1,74 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 17/20] Input: atmel_mxt_ts - use cached T9 reportid range in isr
-Date: Tue, 13 Mar 2012 20:04:20 +0800
-Message-ID: <1331640263-18935-18-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 13/20] Input: atmel_mxt_ts - parse vector field of data packets
+Date: Tue, 13 Mar 2012 20:04:16 +0800
+Message-ID: <1331640263-18935-14-git-send-email-djkurtz@chromium.org>
 References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gy0-f202.google.com ([209.85.160.202]:35068 "EHLO
+	mail-gy0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752843Ab2CMMEc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Mar 2012 08:04:32 -0400
+Received: by ghbz15 with SMTP id z15so56266ghb.1
+        for <linux-input@vger.kernel.org>; Tue, 13 Mar 2012 05:04:31 -0700 (PDT)
 In-Reply-To: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
-List-Id: linux-input@vger.kernel.org
 
-Streamline interrupt processing by caching the T9 reportid range when
-first initializing the object table.
-
-Note: the cached T9 reportid's are initialized to 0, which is an invalid
-reportid.  Thus, the checks in the interrupt handler will always fail
-for devices that do not support the T9 object.
+The atmel_mxt_ts T9 data contains information orientation in its 'vector'
+field. Parse and debug print its contents, although its value isn't
+actually used yet.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   45 ++++++++++++++++-------------
- 1 files changed, 25 insertions(+), 20 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 1a9ed26..88a474e 100644
+index fa692e5..e05540d 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -249,6 +249,10 @@ struct mxt_data {
- 	unsigned int irq;
- 	unsigned int max_x;
- 	unsigned int max_y;
-+
-+	/* Cached parameters from object table */
-+	u8 T9_reportid_min;
-+	u8 T9_reportid_max;
- };
- 
- static bool mxt_object_readable(unsigned int type)
-@@ -512,7 +516,7 @@ static int mxt_write_object(struct mxt_data *data,
- }
- 
- static void mxt_input_touchevent(struct mxt_data *data,
--				 struct mxt_message *message, int id)
-+				 struct mxt_message *message)
- {
- 	struct device *dev = &data->client->dev;
- 	struct input_dev *input_dev = data->input_dev;
-@@ -522,6 +526,9 @@ static void mxt_input_touchevent(struct mxt_data *data,
+@@ -528,6 +528,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	int y;
  	int area;
  	int amplitude;
- 	int vector1, vector2;
-+	int id;
-+
-+	id = message->reportid - data->T9_reportid_min;
++	int vector1, vector2;
  
  	status = message->message[0];
  	x = (message->message[1] << 4) | ((message->message[3] >> 4) & 0xf);
-@@ -572,12 +579,7 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- {
- 	struct mxt_data *data = dev_id;
- 	struct mxt_message message;
--	struct mxt_object *object;
- 	struct device *dev = &data->client->dev;
--	int id;
--	u8 reportid;
--	u8 max_reportid;
--	u8 min_reportid;
+@@ -540,8 +541,12 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	area = message->message[4];
+ 	amplitude = message->message[5];
  
- 	do {
- 		if (mxt_read_message(data, &message)) {
-@@ -585,22 +587,12 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- 			goto end;
- 		}
- 
--		reportid = message.reportid;
--
--		/* whether reportid is thing of MXT_TOUCH_MULTI_T9 */
--		object = mxt_get_object(data, MXT_TOUCH_MULTI_T9);
--		if (!object)
--			goto end;
--
--		max_reportid = object->max_reportid;
--		min_reportid = max_reportid - object->num_report_ids + 1;
--		id = reportid - min_reportid;
--
--		if (reportid >= min_reportid && reportid <= max_reportid)
--			mxt_input_touchevent(data, &message, id);
-+		if (message.reportid >= data->T9_reportid_min &&
-+		    message.reportid <= data->T9_reportid_max)
-+			mxt_input_touchevent(data, &message);
- 		else
- 			mxt_dump_message(dev, &message);
--	} while (reportid != 0xff);
-+	} while (message.reportid != 0xff);
- 
- end:
- 	return IRQ_HANDLED;
-@@ -744,6 +736,19 @@ static int mxt_get_object_table(struct mxt_data *data)
- 			reportid += object->num_report_ids * object->instances;
- 			object->max_reportid = reportid;
- 		}
++	/* The two vector components are 4-bit signed ints (2s complement) */
++	vector1 = (signed)((signed char)message->message[6]) >> 4;
++	vector2 = (signed)((signed char)(message->message[6] << 4)) >> 4;
 +
-+		dev_info(dev, "Type %2d Start %3d Size %3d Max ReportID %3d Instances %2d\n",
-+			 object->type, object->start_address, object->size,
-+			 object->max_reportid, object->instances);
-+
-+		/* Save data for objects used when processing interrupts */
-+		switch (object->type) {
-+		case MXT_TOUCH_MULTI_T9:
-+			data->T9_reportid_max = object->max_reportid;
-+			data->T9_reportid_min = data->T9_reportid_max -
-+						object->num_report_ids + 1;
-+			break;
-+		}
+ 	dev_dbg(dev,
+-		"[%d] %c%c%c%c%c%c%c%c x: %d y: %d area: %d amp: %d\n",
++		"[%d] %c%c%c%c%c%c%c%c x: %d y: %d area: %d amp: %d vector: [%d,%d]\n",
+ 		id,
+ 		(status & MXT_DETECT) ? 'D' : '.',
+ 		(status & MXT_PRESS) ? 'P' : '.',
+@@ -551,7 +556,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 		(status & MXT_AMP) ? 'A' : '.',
+ 		(status & MXT_SUPPRESS) ? 'S' : '.',
+ 		(status & MXT_UNGRIP) ? 'U' : '.',
+-		x, y, area, amplitude);
++		x, y, area, amplitude, vector1, vector2);
+ 
+ 	input_mt_slot(input_dev, id);
+ 	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
+@@ -563,6 +568,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 		input_report_abs(input_dev, ABS_MT_PRESSURE, amplitude);
+ 		/* TODO: This should really be sqrt(area) */
+ 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
++		/* TODO: Use vector to report ORIENTATION & TOUCH_MINOR */
  	}
  
- 	return 0;
+ 	input_mt_report_pointer_emulation(input_dev, false);
 -- 
 1.7.7.3
+

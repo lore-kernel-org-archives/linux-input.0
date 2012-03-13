@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 07/20] Input: atmel_mxt_ts - add backupnv sysfs entry
-Date: Tue, 13 Mar 2012 20:04:10 +0800
-Message-ID: <1331640263-18935-8-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 11/20] Input: atmel_mxt_ts - refactor mxt_object_show
+Date: Tue, 13 Mar 2012 20:04:14 +0800
+Message-ID: <1331640263-18935-12-git-send-email-djkurtz@chromium.org>
 References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
@@ -10,58 +10,100 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@sam
 Cc: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-Writing to the object sysfs entry permits individual object table entries
-to be modified in the device RAM at run time.  To permanently save
-the settings, they must be written to Non-Volatile memory (NVM).
-This patch adds a write-only sysfs entry to allow userspace to save
-current settings to NVM, but restricts access to root.
+Read each object with a single i2c transaction instead of byte-by-byte.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   19 +++++++++++++++++++
- 1 files changed, 19 insertions(+), 0 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   42 ++++++++++++-----------------
+ 1 files changed, 17 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index ac3dbb7..e988dc0 100644
+index ac8c50a..4363511 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -994,6 +994,23 @@ static ssize_t mxt_object_store(struct device *dev,
- 	return count;
+@@ -490,6 +490,13 @@ mxt_get_object(struct mxt_data *data, u8 type)
+ 	return NULL;
  }
  
-+static ssize_t mxt_backupnv_store(struct device *dev,
-+				  struct device_attribute *attr,
-+				  const char *buf, size_t count)
++static int mxt_read_object(struct mxt_data *data, struct mxt_object *object,
++			   void *val)
 +{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	int ret;
-+
-+	/* Backup non-volatile memory */
-+	ret = mxt_write_object(data, MXT_GEN_COMMAND_T6, MXT_COMMAND_BACKUPNV,
-+			       MXT_BACKUP_VALUE);
-+	if (ret)
-+		return ret;
-+	msleep(MXT_BACKUP_TIME);
-+
-+	return count;
++	return mxt_read_reg(data->client, object->start_address, object->size,
++			    val);
 +}
 +
- static int mxt_load_fw(struct device *dev, const char *fn)
+ static int mxt_read_message(struct mxt_data *data,
+ 				 struct mxt_message *message)
  {
- 	struct mxt_data *data = dev_get_drvdata(dev);
-@@ -1099,11 +1116,13 @@ static ssize_t mxt_update_fw_store(struct device *dev,
- 	return count;
+@@ -505,20 +512,6 @@ static int mxt_read_message(struct mxt_data *data,
+ 			    message);
  }
  
-+static DEVICE_ATTR(backupnv, S_IWUSR, NULL, mxt_backupnv_store);
- static DEVICE_ATTR(object, S_IRUGO | S_IWUSR, mxt_object_show,
- 		   mxt_object_store);
- static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
+-static int mxt_read_object(struct mxt_data *data,
+-				u8 type, u8 offset, u8 *val)
+-{
+-	struct mxt_object *object;
+-	u16 reg;
+-
+-	object = mxt_get_object(data, type);
+-	if (!object)
+-		return -EINVAL;
+-
+-	reg = object->start_address;
+-	return mxt_read_reg(data->client, reg + offset, 1, val);
+-}
+-
+ static int mxt_write_object(struct mxt_data *data,
+ 				 u8 type, u8 offset, u8 val)
+ {
+@@ -916,17 +909,16 @@ static void mxt_calc_resolution(struct mxt_data *data)
+ }
  
- static struct attribute *mxt_attrs[] = {
-+	&dev_attr_backupnv.attr,
- 	&dev_attr_object.attr,
- 	&dev_attr_update_fw.attr,
- 	NULL
+ static ssize_t mxt_object_show(struct device *dev,
+-				    struct device_attribute *attr, char *buf)
++			       struct device_attribute *attr, char *buf)
+ {
+ 	struct mxt_data *data = dev_get_drvdata(dev);
+-	struct mxt_object *object;
+ 	int count = 0;
+ 	int i, j;
+ 	int error;
+-	u8 val;
++	u8 obuf[256];
+ 
+ 	for (i = 0; i < data->info.object_num; i++) {
+-		object = data->object_table + i;
++		struct mxt_object *object = &data->object_table[i];
+ 
+ 		count += snprintf(buf + count, PAGE_SIZE - count,
+ 				"Object[%d] (Type %d)\n",
+@@ -936,20 +928,20 @@ static ssize_t mxt_object_show(struct device *dev,
+ 
+ 		if (!mxt_object_readable(object->type)) {
+ 			count += snprintf(buf + count, PAGE_SIZE - count,
+-					"\n");
++					  "\n");
+ 			if (count >= PAGE_SIZE)
+ 				return PAGE_SIZE - 1;
+ 			continue;
+ 		}
+ 
+-		for (j = 0; j < object->size; j++) {
+-			error = mxt_read_object(data,
+-						object->type, j, &val);
+-			if (error)
+-				return error;
++		error = mxt_read_object(data, object, obuf);
++		if (error)
++			return error;
+ 
++		for (j = 0; j < object->size; j++) {
+ 			count += snprintf(buf + count, PAGE_SIZE - count,
+-					"\t[%2d]: %02x (%d)\n", j, val, val);
++					  "\t[%2d]: %02x (%d)\n", j, obuf[j],
++					  obuf[j]);
+ 			if (count >= PAGE_SIZE)
+ 				return PAGE_SIZE - 1;
+ 		}
 -- 
 1.7.7.3

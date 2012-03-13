@@ -1,15 +1,15 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 13/20] Input: atmel_mxt_ts - parse vector field of data packets
-Date: Tue, 13 Mar 2012 20:04:16 +0800
-Message-ID: <1331640263-18935-14-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 10/20] Input: atmel_mxt_ts - dump each message on just 1 line
+Date: Tue, 13 Mar 2012 20:04:13 +0800
+Message-ID: <1331640263-18935-11-git-send-email-djkurtz@chromium.org>
 References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f202.google.com ([209.85.160.202]:35068 "EHLO
-	mail-gy0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752843Ab2CMMEc (ORCPT
+Received: from mail-yw0-f74.google.com ([209.85.213.74]:51407 "EHLO
+	mail-yw0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752040Ab2CMMEb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Mar 2012 08:04:32 -0400
-Received: by ghbz15 with SMTP id z15so56266ghb.1
+	Tue, 13 Mar 2012 08:04:31 -0400
+Received: by yhgm50 with SMTP id m50so56407yhg.1
         for <linux-input@vger.kernel.org>; Tue, 13 Mar 2012 05:04:31 -0700 (PDT)
 In-Reply-To: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
@@ -17,58 +17,39 @@ List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
 
-The atmel_mxt_ts T9 data contains information orientation in its 'vector'
-field. Parse and debug print its contents, although its value isn't
-actually used yet.
+Helps ensure all bytes for a single message together in the system log.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   14 +++++---------
+ 1 files changed, 5 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index fa692e5..e05540d 100644
+index 309761a..ac8c50a 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -528,6 +528,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 	int y;
- 	int area;
- 	int amplitude;
-+	int vector1, vector2;
+@@ -325,16 +325,12 @@ static bool mxt_object_writable(unsigned int type)
+ }
  
- 	status = message->message[0];
- 	x = (message->message[1] << 4) | ((message->message[3] >> 4) & 0xf);
-@@ -540,8 +541,12 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 	area = message->message[4];
- 	amplitude = message->message[5];
+ static void mxt_dump_message(struct device *dev,
+-				  struct mxt_message *message)
++			     struct mxt_message *message)
+ {
+-	dev_dbg(dev, "reportid:\t0x%x\n", message->reportid);
+-	dev_dbg(dev, "message1:\t0x%x\n", message->message[0]);
+-	dev_dbg(dev, "message2:\t0x%x\n", message->message[1]);
+-	dev_dbg(dev, "message3:\t0x%x\n", message->message[2]);
+-	dev_dbg(dev, "message4:\t0x%x\n", message->message[3]);
+-	dev_dbg(dev, "message5:\t0x%x\n", message->message[4]);
+-	dev_dbg(dev, "message6:\t0x%x\n", message->message[5]);
+-	dev_dbg(dev, "message7:\t0x%x\n", message->message[6]);
++	dev_dbg(dev, "reportid: %u\tmessage: %02x %02x %02x %02x %02x %02x %02x\n",
++		message->reportid, message->message[0], message->message[1],
++		message->message[2], message->message[3], message->message[4],
++		message->message[5], message->message[6]);
+ }
  
-+	/* The two vector components are 4-bit signed ints (2s complement) */
-+	vector1 = (signed)((signed char)message->message[6]) >> 4;
-+	vector2 = (signed)((signed char)(message->message[6] << 4)) >> 4;
-+
- 	dev_dbg(dev,
--		"[%d] %c%c%c%c%c%c%c%c x: %d y: %d area: %d amp: %d\n",
-+		"[%d] %c%c%c%c%c%c%c%c x: %d y: %d area: %d amp: %d vector: [%d,%d]\n",
- 		id,
- 		(status & MXT_DETECT) ? 'D' : '.',
- 		(status & MXT_PRESS) ? 'P' : '.',
-@@ -551,7 +556,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 		(status & MXT_AMP) ? 'A' : '.',
- 		(status & MXT_SUPPRESS) ? 'S' : '.',
- 		(status & MXT_UNGRIP) ? 'U' : '.',
--		x, y, area, amplitude);
-+		x, y, area, amplitude, vector1, vector2);
- 
- 	input_mt_slot(input_dev, id);
- 	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
-@@ -563,6 +568,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 		input_report_abs(input_dev, ABS_MT_PRESSURE, amplitude);
- 		/* TODO: This should really be sqrt(area) */
- 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
-+		/* TODO: Use vector to report ORIENTATION & TOUCH_MINOR */
- 	}
- 
- 	input_mt_report_pointer_emulation(input_dev, false);
+ static int mxt_check_bootloader(struct i2c_client *client,
 -- 
 1.7.7.3
 

@@ -1,91 +1,146 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 08/20] Input: atmel_mxt_ts - store actual size and instance
-Date: Tue, 13 Mar 2012 20:04:11 +0800
-Message-ID: <1331640263-18935-9-git-send-email-djkurtz@chromium.org>
-References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
+From: "Henrik Rydberg" <rydberg@bitmath.se>
+Subject: Re: [PATCH] input: Fix autosuspend on bcm5974
+Date: Tue, 13 Mar 2012 15:39:58 +0100
+Message-ID: <20120313143958.GA2754@polaris.bitmath.org>
+References: <1331596278-2495-1-git-send-email-mjg@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f202.google.com ([209.85.215.202]:45412 "EHLO
-	mail-ey0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753012Ab2CMMLH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Mar 2012 08:11:07 -0400
-Received: by eaaq10 with SMTP id q10so24358eaa.1
-        for <linux-input@vger.kernel.org>; Tue, 13 Mar 2012 05:11:06 -0700 (PDT)
-In-Reply-To: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
+Received: from csmtp3.one.com ([91.198.169.23]:8246 "EHLO csmtp3.one.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753516Ab2CMOiJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Mar 2012 10:38:09 -0400
+Content-Disposition: inline
+In-Reply-To: <1331596278-2495-1-git-send-email-mjg@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
+To: Matthew Garrett <mjg@redhat.com>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-These two object table entry fields are reported 1 less than their value.
-So add 1 once, when building the object table, instead of every time
-these fields are accessed.
+Hi Matthew,
 
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
----
- drivers/input/touchscreen/atmel_mxt_ts.c |   18 ++++++++----------
- 1 files changed, 8 insertions(+), 10 deletions(-)
+> The bcm5974 code takes a USB autosuspend reference on device open and
+> releases it on device close. This means that the hardware won't sleep
+> when anything holds it open. This is sensible for input devices that
+> don't support remote wakeups on normal use (like most mice), but this
+> hardware trigger wakeups on touch and so can suspend transparently to
+> the user. Doing so allows the USB host controller to sleep when the
+> machine is idle, giving measurable power savings. The downside is a small
+> amount of additional latency when the device wakes up, and as a result
+> this functionality isn't enabled by default.
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index e988dc0..c422fad 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -676,7 +676,7 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 	struct mxt_object *object;
- 	struct device *dev = &data->client->dev;
- 	int index = 0;
--	int i, j, config_offset;
-+	int i, j, config_offset, config_size;
- 
- 	if (!pdata->config) {
- 		dev_dbg(dev, "No cfg data defined, skipping reg init\n");
-@@ -689,9 +689,8 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 		if (!mxt_object_writable(object->type))
- 			continue;
- 
--		for (j = 0;
--		     j < (object->size + 1) * (object->instances + 1);
--		     j++) {
-+		config_size = object->size * object->instances;
-+		for (j = 0; j < config_size; j++) {
- 			config_offset = index + j;
- 			if (config_offset > pdata->config_length) {
- 				dev_err(dev, "Not enough config data!\n");
-@@ -700,7 +699,7 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 			mxt_write_object(data, object->type, j,
- 					 pdata->config[config_offset]);
- 		}
--		index += (object->size + 1) * (object->instances + 1);
-+		index += config_size;
- 	}
- 
- 	return 0;
-@@ -829,13 +828,12 @@ static int mxt_get_object_table(struct mxt_data *data)
- 
- 		object->type = buf[0];
- 		object->start_address = (buf[2] << 8) | buf[1];
--		object->size = buf[3];
--		object->instances = buf[4];
-+		object->size = buf[3] + 1;
-+		object->instances = buf[4] + 1;
- 		object->num_report_ids = buf[5];
- 
- 		if (object->num_report_ids) {
--			reportid += object->num_report_ids *
--					(object->instances + 1);
-+			reportid += object->num_report_ids * object->instances;
- 			object->max_reportid = reportid;
- 		}
- 	}
-@@ -950,7 +948,7 @@ static ssize_t mxt_object_show(struct device *dev,
- 			continue;
- 		}
- 
--		for (j = 0; j < object->size + 1; j++) {
-+		for (j = 0; j < object->size; j++) {
- 			error = mxt_read_object(data,
- 						object->type, j, &val);
- 			if (error)
--- 
-1.7.7.3
+With the previous version of this patch, the machine would not wake up
+on a normal tap. Is that what you refer to with the "small amount of
+additional latency"? By not enabled by default, you mean in the usb
+subsystem?
 
+Last time I checked, it seemed the first keystroke would sometimes
+disappear at boot. As far as I can see, this version modifies the
+needs_remote_wakeup variable to only be true while open, which might
+remove that particular problem.
+
+Still, I am concerned with the user experience. On this machine
+(MBA31), turning on autopm with this patch included feels like a
+regression.
+
+> 
+> [rydberg@euromail.se: wakeup before mode switch]
+> Signed-off-by: Matthew Garrett <mjg@redhat.com>
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+>  drivers/input/mouse/bcm5974.c |   30 ++++++++++++++++++++++++++----
+>  1 file changed, 26 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+> index 927e479..aaf158c 100644
+> --- a/drivers/input/mouse/bcm5974.c
+> +++ b/drivers/input/mouse/bcm5974.c
+> @@ -634,6 +634,7 @@ static void bcm5974_irq_button(struct urb *urb)
+>  
+>  	switch (urb->status) {
+>  	case 0:
+> +		usb_mark_last_busy(dev->udev);
+>  		break;
+>  	case -EOVERFLOW:
+>  	case -ECONNRESET:
+> @@ -663,6 +664,7 @@ static void bcm5974_irq_trackpad(struct urb *urb)
+>  
+>  	switch (urb->status) {
+>  	case 0:
+> +		usb_mark_last_busy(dev->udev);
+>  		break;
+>  	case -EOVERFLOW:
+>  	case -ECONNRESET:
+> @@ -735,10 +737,15 @@ err_out:
+>  	return error;
+>  }
+>  
+> -static void bcm5974_pause_traffic(struct bcm5974 *dev)
+> +static void bcm5974_kill_urbs(struct bcm5974 *dev)
+>  {
+>  	usb_kill_urb(dev->tp_urb);
+>  	usb_kill_urb(dev->bt_urb);
+> +}
+> +
+> +static void bcm5974_pause_traffic(struct bcm5974 *dev)
+> +{
+> +	bcm5974_kill_urbs(dev);
+>  	bcm5974_wellspring_mode(dev, false);
+>  }
+>  
+> @@ -759,6 +766,9 @@ static int bcm5974_open(struct input_dev *input)
+>  	if (error)
+>  		return error;
+>  
+> +	/* Required for autosuspend */
+> +	dev->intf->needs_remote_wakeup = 1;
+> +
+>  	mutex_lock(&dev->pm_mutex);
+>  
+>  	error = bcm5974_start_traffic(dev);
+> @@ -767,8 +777,10 @@ static int bcm5974_open(struct input_dev *input)
+>  
+>  	mutex_unlock(&dev->pm_mutex);
+>  
+> +	usb_autopm_put_interface(dev->intf);
+> +
+>  	if (error)
+> -		usb_autopm_put_interface(dev->intf);
+> +		dev->intf->needs_remote_wakeup = 0;
+>  
+>  	return error;
+>  }
+> @@ -776,15 +788,25 @@ static int bcm5974_open(struct input_dev *input)
+>  static void bcm5974_close(struct input_dev *input)
+>  {
+>  	struct bcm5974 *dev = input_get_drvdata(input);
+> +	int error;
+> +
+> +	dev->intf->needs_remote_wakeup = 0;
+> +
+> +	error = usb_autopm_get_interface(dev->intf);
+>  
+>  	mutex_lock(&dev->pm_mutex);
+>  
+> -	bcm5974_pause_traffic(dev);
+> +	bcm5974_kill_urbs(dev);
+>  	dev->opened = 0;
+> +	if (error)
+> +		err("bcm5974: wakeup failed during close: %d\n", error);
+> +	else
+> +		bcm5974_wellspring_mode(dev, false);
+>  
+>  	mutex_unlock(&dev->pm_mutex);
+>  
+> -	usb_autopm_put_interface(dev->intf);
+> +	if (!error)
+> +		usb_autopm_put_interface(dev->intf);
+>  }
+>  
+>  static int bcm5974_suspend(struct usb_interface *iface, pm_message_t message)
+> -- 
+> 1.7.9.3
+> 
+
+Thanks,
+Henrik

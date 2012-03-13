@@ -1,15 +1,15 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 20/20] Input: atmel_mxt_ts - send all MT-B slots in one input report
-Date: Tue, 13 Mar 2012 20:04:23 +0800
-Message-ID: <1331640263-18935-21-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 18/20] Input: atmel_mxt_ts - read num messages, then all messages
+Date: Tue, 13 Mar 2012 20:04:21 +0800
+Message-ID: <1331640263-18935-19-git-send-email-djkurtz@chromium.org>
 References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lpp01m010-f74.google.com ([209.85.215.74]:39257 "EHLO
-	mail-lpp01m010-f74.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753324Ab2CMMEe (ORCPT
+Received: from mail-ee0-f74.google.com ([74.125.83.74]:32818 "EHLO
+	mail-ee0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753304Ab2CMMEe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Tue, 13 Mar 2012 08:04:34 -0400
-Received: by laai8 with SMTP id i8so24128laa.1
+Received: by eekc41 with SMTP id c41so25023eek.1
         for <linux-input@vger.kernel.org>; Tue, 13 Mar 2012 05:04:32 -0700 (PDT)
 In-Reply-To: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
@@ -17,74 +17,179 @@ List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
 
-Each interrupt contains information for all contacts with changing
-properties.  Process all of this information at once, and send it all in a
-a single input report (ie input events ending in EV_SYN/SYN_REPORT).
+Implement the MXT DMA method of reading messages.
+On an interrupt, the T44 report always contains the number of messages
+pending to be read.  So, read 1 byte from T44 in 1 i2c transaction, then
+read the N pending messages in a second transaction.
+
+The end result is a much much faster read time for all pending messages.
+Using 400kHz i2c, it is possible to read 10 pending messages (e.g. for 10
+moving contatcts) in less than 2.8ms, which is well less than the typical
+10-15ms update rate.
+
+Note: There is a possible optimization here.  The T44 byte is guaranteed
+to always be right before the T5 address.  Thus, it should be possible
+to always fetch the T44 message count and the first message in a single
+transaction.  This would eliminate the overhead of a second complete read
+transaction for the case where there is only a single pending message.
+(This is actually the most common case, for instance with just 1-contact
+on the device touch surface). This optimization, however, is not done in
+this patch.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   16 ++++++++++------
- 1 files changed, 10 insertions(+), 6 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   92 ++++++++++++++++++++----------
+ 1 files changed, 61 insertions(+), 31 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index c397a01..dae8318 100644
+index 88a474e..dafc030 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -516,8 +516,7 @@ static int mxt_read_messages(struct mxt_data *data, u8 count,
- 			    sizeof(struct mxt_message) * count, messages);
+@@ -251,8 +251,10 @@ struct mxt_data {
+ 	unsigned int max_y;
+ 
+ 	/* Cached parameters from object table */
++	u16 T5_address;
+ 	u8 T9_reportid_min;
+ 	u8 T9_reportid_max;
++	u16 T44_address;
+ };
+ 
+ static bool mxt_object_readable(unsigned int type)
+@@ -486,21 +488,6 @@ static int mxt_read_object(struct mxt_data *data, struct mxt_object *object,
+ 			    val);
  }
  
--static void mxt_input_touchevent(struct mxt_data *data,
+-static int mxt_read_message(struct mxt_data *data,
 -				 struct mxt_message *message)
-+static void mxt_input_touch(struct mxt_data *data, struct mxt_message *message)
- {
- 	struct device *dev = &data->client->dev;
- 	struct input_dev *input_dev = data->input_dev;
-@@ -571,9 +570,6 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
- 		/* TODO: Use vector to report ORIENTATION & TOUCH_MINOR */
- 	}
+-{
+-	struct mxt_object *object;
+-	u16 reg;
 -
--	input_mt_report_pointer_emulation(input_dev, false);
--	input_sync(input_dev);
+-	object = mxt_get_object(data, MXT_GEN_MESSAGE_T5);
+-	if (!object)
+-		return -EINVAL;
+-
+-	reg = object->start_address;
+-	return mxt_read_reg(data->client, reg, sizeof(struct mxt_message),
+-			    message);
+-}
+-
+ static int mxt_write_object(struct mxt_data *data,
+ 				 u8 type, u8 offset, u8 val)
+ {
+@@ -515,6 +502,19 @@ static int mxt_write_object(struct mxt_data *data,
+ 	return mxt_write_reg(data->client, reg + offset, 1, &val);
  }
  
- static int mxt_proc_messages(struct mxt_data *data, u8 count)
-@@ -581,6 +577,7 @@ static int mxt_proc_messages(struct mxt_data *data, u8 count)
++static int mxt_read_num_messages(struct mxt_data *data, u8 *count)
++{
++	/* TODO: Optimization: read first message along with message count */
++	return mxt_read_reg(data->client, data->T44_address, 1, count);
++}
++
++static int mxt_read_messages(struct mxt_data *data, u8 count,
++			     struct mxt_message *messages)
++{
++	return mxt_read_reg(data->client, data->T5_address,
++			    sizeof(struct mxt_message) * count, messages);
++}
++
+ static void mxt_input_touchevent(struct mxt_data *data,
+ 				 struct mxt_message *message)
+ {
+@@ -575,26 +575,50 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	input_sync(input_dev);
+ }
+ 
+-static irqreturn_t mxt_interrupt(int irq, void *dev_id)
++static int mxt_proc_messages(struct mxt_data *data, u8 count)
+ {
+-	struct mxt_data *data = dev_id;
+-	struct mxt_message message;
  	struct device *dev = &data->client->dev;
- 	struct mxt_message messages[count], *msg;
- 	int ret;
-+	bool update_input;
++	struct mxt_message messages[count], *msg;
++	int ret;
  
- 	ret = mxt_read_messages(data, count, messages);
- 	if (ret) {
-@@ -588,12 +585,14 @@ static int mxt_proc_messages(struct mxt_data *data, u8 count)
- 		return ret;
- 	}
- 
-+	update_input = false;
- 	for (msg = messages; msg < &messages[count]; msg++) {
- 		mxt_dump_message(dev, msg);
- 
- 		if (msg->reportid >= data->T9_reportid_min &&
- 		    msg->reportid <= data->T9_reportid_max) {
--			mxt_input_touchevent(data, msg);
-+			mxt_input_touch(data, msg);
-+			update_input = true;
- 		} else if (msg->reportid == data->T6_reportid) {
- 			unsigned csum = msg->message[1] |
- 					(msg->message[2] << 8) |
-@@ -603,6 +602,11 @@ static int mxt_proc_messages(struct mxt_data *data, u8 count)
- 		}
- 	}
- 
-+	if (update_input) {
-+		input_mt_report_pointer_emulation(data->input_dev, false);
-+		input_sync(data->input_dev);
+-	do {
+-		if (mxt_read_message(data, &message)) {
+-			dev_err(dev, "Failed to read message\n");
+-			goto end;
+-		}
++	ret = mxt_read_messages(data, count, messages);
++	if (ret) {
++		dev_err(dev, "Failed to read %u messages (%d).\n", count, ret);
++		return ret;
 +	}
 +
- 	return 0;
++	for (msg = messages; msg < &messages[count]; msg++) {
++		mxt_dump_message(dev, msg);
++
++		if (msg->reportid >= data->T9_reportid_min &&
++		    msg->reportid <= data->T9_reportid_max)
++			mxt_input_touchevent(data, msg);
++	}
++
++	return 0;
++}
++
++static int mxt_handle_messages(struct mxt_data *data)
++{
++	struct device *dev = &data->client->dev;
++	int ret;
++	u8 count;
+ 
+-		if (message.reportid >= data->T9_reportid_min &&
+-		    message.reportid <= data->T9_reportid_max)
+-			mxt_input_touchevent(data, &message);
+-		else
+-			mxt_dump_message(dev, &message);
+-	} while (message.reportid != 0xff);
++	ret = mxt_read_num_messages(data, &count);
++	if (ret) {
++		dev_err(dev, "Failed to read message count (%d).\n", ret);
++		return ret;
++	}
+ 
+-end:
++	if (count > 0)
++		ret = mxt_proc_messages(data, count);
++
++	return ret;
++}
++
++static irqreturn_t mxt_interrupt(int irq, void *dev_id)
++{
++	mxt_handle_messages(dev_id);
+ 	return IRQ_HANDLED;
  }
+ 
+@@ -642,7 +666,7 @@ static int mxt_make_highchg(struct mxt_data *data)
+ 
+ 	/* Read dummy message to make high CHG pin */
+ 	do {
+-		error = mxt_read_message(data, &message);
++		error = mxt_read_messages(data, 1, &message);
+ 		if (error)
+ 			return error;
+ 	} while (message.reportid != 0xff && --count);
+@@ -743,11 +767,17 @@ static int mxt_get_object_table(struct mxt_data *data)
+ 
+ 		/* Save data for objects used when processing interrupts */
+ 		switch (object->type) {
++		case MXT_GEN_MESSAGE_T5:
++			data->T5_address = object->start_address;
++			break;
+ 		case MXT_TOUCH_MULTI_T9:
+ 			data->T9_reportid_max = object->max_reportid;
+ 			data->T9_reportid_min = data->T9_reportid_max -
+ 						object->num_report_ids + 1;
+ 			break;
++		case MXT_SPT_MESSAGECOUNT_T44:
++			data->T44_address = object->start_address;
++			break;
+ 		}
+ 	}
  
 -- 
 1.7.7.3

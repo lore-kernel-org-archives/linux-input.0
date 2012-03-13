@@ -1,200 +1,91 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 12/20] Input: atmel_mxt_ts - simplify event reporting
-Date: Tue, 13 Mar 2012 20:04:15 +0800
-Message-ID: <1331640263-18935-13-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 08/20] Input: atmel_mxt_ts - store actual size and instance
+Date: Tue, 13 Mar 2012 20:04:11 +0800
+Message-ID: <1331640263-18935-9-git-send-email-djkurtz@chromium.org>
 References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ey0-f202.google.com ([209.85.215.202]:45412 "EHLO
+	mail-ey0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753012Ab2CMMLH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Mar 2012 08:11:07 -0400
+Received: by eaaq10 with SMTP id q10so24358eaa.1
+        for <linux-input@vger.kernel.org>; Tue, 13 Mar 2012 05:11:06 -0700 (PDT)
 In-Reply-To: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
-List-Id: linux-input@vger.kernel.org
 
-Instead of carrying around per-finger state in the driver instance, just
-report each finger as it arrives to the input layer, and let the input
-layer (evdev) hold the event state (which it does anyway).
-
-Also, the atmel pad reports "amplitude", which is reported to userspace
-using the "PRESSURE" event type.  The variables now reflect this.
-
-Note: this driver does not really do MT-B properly. Each input report
-(a goup of input events followed by a SYN_REPORT) only contains data for
-a single contact.  When multiple fingers are present on a device, each is
-properly reported in its own MT_SLOT.  However, there is only ever one
-MT_SLOT per SYN_REPORT.  This is fixed in a subsequent patch.
+These two object table entry fields are reported 1 less than their value.
+So add 1 once, when building the object table, instead of every time
+these fields are accessed.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |  122 +++++++++---------------------
- 1 files changed, 36 insertions(+), 86 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   18 ++++++++----------
+ 1 files changed, 8 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 4363511..fa692e5 100644
+index e988dc0..c422fad 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -194,6 +194,7 @@
- #define MXT_BOOT_STATUS_MASK	0x3f
- 
- /* Touch status */
-+#define MXT_UNGRIP		(1 << 0)
- #define MXT_SUPPRESS		(1 << 1)
- #define MXT_AMP			(1 << 2)
- #define MXT_VECTOR		(1 << 3)
-@@ -238,14 +239,6 @@ struct mxt_message {
- 	u8 message[7];
- };
- 
--struct mxt_finger {
--	int status;
--	int x;
--	int y;
--	int area;
--	int pressure;
--};
--
- /* Each client has this additional data */
- struct mxt_data {
- 	struct i2c_client *client;
-@@ -253,7 +246,6 @@ struct mxt_data {
- 	const struct mxt_platform_data *pdata;
- 	struct mxt_object *object_table;
- 	struct mxt_info info;
--	struct mxt_finger finger[MXT_MAX_FINGER];
- 	unsigned int irq;
- 	unsigned int max_x;
- 	unsigned int max_y;
-@@ -526,97 +518,55 @@ static int mxt_write_object(struct mxt_data *data,
- 	return mxt_write_reg(data->client, reg + offset, 1, &val);
- }
- 
--static void mxt_input_report(struct mxt_data *data, int single_id)
--{
--	struct mxt_finger *finger = data->finger;
--	struct input_dev *input_dev = data->input_dev;
--	int status = finger[single_id].status;
--	int finger_num = 0;
--	int id;
--
--	for (id = 0; id < MXT_MAX_FINGER; id++) {
--		if (!finger[id].status)
--			continue;
--
--		input_mt_slot(input_dev, id);
--		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
--				finger[id].status != MXT_RELEASE);
--
--		if (finger[id].status != MXT_RELEASE) {
--			finger_num++;
--			input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR,
--					finger[id].area);
--			input_report_abs(input_dev, ABS_MT_POSITION_X,
--					finger[id].x);
--			input_report_abs(input_dev, ABS_MT_POSITION_Y,
--					finger[id].y);
--			input_report_abs(input_dev, ABS_MT_PRESSURE,
--					finger[id].pressure);
--		} else {
--			finger[id].status = 0;
--		}
--	}
--
--	input_report_key(input_dev, BTN_TOUCH, finger_num > 0);
--
--	if (status != MXT_RELEASE) {
--		input_report_abs(input_dev, ABS_X, finger[single_id].x);
--		input_report_abs(input_dev, ABS_Y, finger[single_id].y);
--		input_report_abs(input_dev,
--				 ABS_PRESSURE, finger[single_id].pressure);
--	}
--
--	input_sync(input_dev);
--}
--
- static void mxt_input_touchevent(struct mxt_data *data,
--				      struct mxt_message *message, int id)
-+				 struct mxt_message *message, int id)
- {
--	struct mxt_finger *finger = data->finger;
+@@ -676,7 +676,7 @@ static int mxt_check_reg_init(struct mxt_data *data)
+ 	struct mxt_object *object;
  	struct device *dev = &data->client->dev;
--	u8 status = message->message[0];
-+	struct input_dev *input_dev = data->input_dev;
-+	u8 status;
- 	int x;
- 	int y;
- 	int area;
--	int pressure;
--
--	/* Check the touch is present on the screen */
--	if (!(status & MXT_DETECT)) {
--		if (status & MXT_RELEASE) {
--			dev_dbg(dev, "[%d] released\n", id);
--
--			finger[id].status = MXT_RELEASE;
--			mxt_input_report(data, id);
--		}
--		return;
--	}
--
--	/* Check only AMP detection */
--	if (!(status & (MXT_PRESS | MXT_MOVE)))
--		return;
-+	int amplitude;
+ 	int index = 0;
+-	int i, j, config_offset;
++	int i, j, config_offset, config_size;
  
-+	status = message->message[0];
- 	x = (message->message[1] << 4) | ((message->message[3] >> 4) & 0xf);
- 	y = (message->message[2] << 4) | ((message->message[3] & 0xf));
- 	if (data->max_x < 1024)
--		x = x >> 2;
-+		x >>= 2;
- 	if (data->max_y < 1024)
--		y = y >> 2;
-+		y >>= 2;
+ 	if (!pdata->config) {
+ 		dev_dbg(dev, "No cfg data defined, skipping reg init\n");
+@@ -689,9 +689,8 @@ static int mxt_check_reg_init(struct mxt_data *data)
+ 		if (!mxt_object_writable(object->type))
+ 			continue;
  
- 	area = message->message[4];
--	pressure = message->message[5];
--
--	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
--		status & MXT_MOVE ? "moved" : "pressed",
--		x, y, area);
--
--	finger[id].status = status & MXT_MOVE ?
--				MXT_MOVE : MXT_PRESS;
--	finger[id].x = x;
--	finger[id].y = y;
--	finger[id].area = area;
--	finger[id].pressure = pressure;
-+	amplitude = message->message[5];
-+
-+	dev_dbg(dev,
-+		"[%d] %c%c%c%c%c%c%c%c x: %d y: %d area: %d amp: %d\n",
-+		id,
-+		(status & MXT_DETECT) ? 'D' : '.',
-+		(status & MXT_PRESS) ? 'P' : '.',
-+		(status & MXT_RELEASE) ? 'R' : '.',
-+		(status & MXT_MOVE) ? 'M' : '.',
-+		(status & MXT_VECTOR) ? 'V' : '.',
-+		(status & MXT_AMP) ? 'A' : '.',
-+		(status & MXT_SUPPRESS) ? 'S' : '.',
-+		(status & MXT_UNGRIP) ? 'U' : '.',
-+		x, y, area, amplitude);
-+
-+	input_mt_slot(input_dev, id);
-+	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
-+				   status & MXT_DETECT);
-+
-+	if (status & MXT_DETECT) {
-+		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
-+		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
-+		input_report_abs(input_dev, ABS_MT_PRESSURE, amplitude);
-+		/* TODO: This should really be sqrt(area) */
-+		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
-+	}
+-		for (j = 0;
+-		     j < (object->size + 1) * (object->instances + 1);
+-		     j++) {
++		config_size = object->size * object->instances;
++		for (j = 0; j < config_size; j++) {
+ 			config_offset = index + j;
+ 			if (config_offset > pdata->config_length) {
+ 				dev_err(dev, "Not enough config data!\n");
+@@ -700,7 +699,7 @@ static int mxt_check_reg_init(struct mxt_data *data)
+ 			mxt_write_object(data, object->type, j,
+ 					 pdata->config[config_offset]);
+ 		}
+-		index += (object->size + 1) * (object->instances + 1);
++		index += config_size;
+ 	}
  
--	mxt_input_report(data, id);
-+	input_mt_report_pointer_emulation(input_dev, false);
-+	input_sync(input_dev);
- }
+ 	return 0;
+@@ -829,13 +828,12 @@ static int mxt_get_object_table(struct mxt_data *data)
  
- static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 		object->type = buf[0];
+ 		object->start_address = (buf[2] << 8) | buf[1];
+-		object->size = buf[3];
+-		object->instances = buf[4];
++		object->size = buf[3] + 1;
++		object->instances = buf[4] + 1;
+ 		object->num_report_ids = buf[5];
+ 
+ 		if (object->num_report_ids) {
+-			reportid += object->num_report_ids *
+-					(object->instances + 1);
++			reportid += object->num_report_ids * object->instances;
+ 			object->max_reportid = reportid;
+ 		}
+ 	}
+@@ -950,7 +948,7 @@ static ssize_t mxt_object_show(struct device *dev,
+ 			continue;
+ 		}
+ 
+-		for (j = 0; j < object->size + 1; j++) {
++		for (j = 0; j < object->size; j++) {
+ 			error = mxt_read_object(data,
+ 						object->type, j, &val);
+ 			if (error)
 -- 
 1.7.7.3
+

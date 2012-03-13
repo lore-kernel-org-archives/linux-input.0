@@ -1,49 +1,44 @@
-From: Chanwoo Choi <cw00.choi@samsung.com>
-Subject: Re: [PATCH v2 0/2] input: add MAX8997-haptic driver
-Date: Tue, 13 Mar 2012 14:39:04 +0900
-Message-ID: <4F5EDD78.4070701@samsung.com>
-References: <4F571629.8010203@samsung.com>
- <20120307082900.GA20493@core.coreip.homeip.net> <4F5DB45C.4050101@samsung.com>
- <20120313053035.GB9449@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] HID: hid-lg4ff add support for G27 LEDs
+Date: Tue, 13 Mar 2012 09:23:53 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1203130922110.18356@pobox.suse.cz>
+References: <1331565459-1892-1-git-send-email-simon@mungewell.org>    <alpine.LNX.2.00.1203121645050.18356@pobox.suse.cz>    <be2be8d04b58ce75fcba9798fcb4e4fa.squirrel@mungewell.org>    <20120312180738.GD14020@sirena.org.uk>   
+ <3391c87c6cc142e1b50b73eb78e70dc8.squirrel@mungewell.org>    <20120312183235.GA28451@opensource.wolfsonmicro.com> <03eaca06ba2629f55144daa5a386c74b.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <20120313053035.GB9449@core.coreip.homeip.net>
+In-Reply-To: <03eaca06ba2629f55144daa5a386c74b.squirrel@mungewell.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, sameo@linux.intel.com, broonie@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, myungjoo.ham@samsung.com
+To: simon@mungewell.org
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Bauer <michael@m-bauer.org>, Michal Maly <madcatxster@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
+On Mon, 12 Mar 2012, simon@mungewell.org wrote:
 
-
-On 03/13/2012 02:30 PM, Dmitry Torokhov wrote:
-> On Mon, Mar 12, 2012 at 05:31:24PM +0900, Chanwoo Choi wrote:
->> Hi Dmitry,
->>
->> On 03/07/2012 05:29 PM, Dmitry Torokhov wrote:
->>> Hi Chanwoo,
->>>
->>>
->>> On Wed, Mar 07, 2012 at 05:02:49PM +0900, Chanwoo Choi wrote:
->>>> MAX8997 has several features in a single chip,
->>>> This patchset supports unimplemented haptic driver of MAX8997.
->>>>
->>>> v2
->>>> - code clean and remove unnecessary code according to comment of Dmitry
->>>> Torokhov
->>>
->>> Could you please tell me if the version of the patch I sent to you
->>> worked or not?
->>
->> It isn't worked because it use the mutex lock in irq handler stack.
->> so, I resend v3 patch of max8997-haptic driver after modifying it.
+> >> The LEDs on the G27 are very much more specific, mounted on the yoke of
+> >> the gaming wheel.
+> >
+> >> Would this require the use/complexity of the LED subsystem?
+> >
+> > Well, it'd mean that applications that know how to drive LEDs will be
+> > able to use the LEDs on this wheel with less per device knowledge which
+> > seems like a useful thing and if someone wants to remap a LED to "new
+> > mail" or whatever that'll be easier (nethack has the mailer daemon
+> > deliver a scroll of mail!).
 > 
-> Hmm, my patch did not add taking mutex in irq context, I presume you are
-> talking about max8997->iolock that is taken in max8997_write_reg... OK,
-> I see...
-> 
-You're right. I'm sorry about my ambiguous reply for you.
+> I'm not familiar with the LED subsystem, but my concerns would be that
+> this would add a whole load of code to implement.
 
-Best Regards,
-Chanwoo Choi
+Not really, it's rather simple to use and as Mark said, it's a proper 
+infrastructure to use here.
+
+We already have HID drivers which are using this -- you can look at 
+PicoLCD or Wiimote drivers and you'll see that it's indeed fairly simple.
+
+> PS. I don't really care about email when screaming around Laguna Seca ;-)
+
+:))
+
+-- 
+Jiri Kosina
+SUSE Labs

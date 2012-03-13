@@ -1,60 +1,91 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 01/20] Input: atmel_mxt_ts - use CONFIG_PM_SLEEP
-Date: Tue, 13 Mar 2012 20:04:04 +0800
-Message-ID: <1331640263-18935-2-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 20/20] Input: atmel_mxt_ts - send all MT-B slots in one input report
+Date: Tue, 13 Mar 2012 20:04:23 +0800
+Message-ID: <1331640263-18935-21-git-send-email-djkurtz@chromium.org>
 References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lpp01m010-f74.google.com ([209.85.215.74]:39257 "EHLO
+	mail-lpp01m010-f74.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753324Ab2CMMEe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Mar 2012 08:04:34 -0400
+Received: by laai8 with SMTP id i8so24128laa.1
+        for <linux-input@vger.kernel.org>; Tue, 13 Mar 2012 05:04:32 -0700 (PDT)
 In-Reply-To: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
-List-Id: linux-input@vger.kernel.org
 
-Simple cleanup to use newer PM APIs.
+Each interrupt contains information for all contacts with changing
+properties.  Process all of this information at once, and send it all in a
+a single input report (ie input events ending in EV_SYN/SYN_REPORT).
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   11 +++--------
- 1 files changed, 3 insertions(+), 8 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   16 ++++++++++------
+ 1 files changed, 10 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index a596c27..b71de8f 100644
+index c397a01..dae8318 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -1201,7 +1201,7 @@ static int __devexit mxt_remove(struct i2c_client *client)
- 	return 0;
+@@ -516,8 +516,7 @@ static int mxt_read_messages(struct mxt_data *data, u8 count,
+ 			    sizeof(struct mxt_message) * count, messages);
  }
  
--#ifdef CONFIG_PM
-+#ifdef CONFIG_PM_SLEEP
- static int mxt_suspend(struct device *dev)
+-static void mxt_input_touchevent(struct mxt_data *data,
+-				 struct mxt_message *message)
++static void mxt_input_touch(struct mxt_data *data, struct mxt_message *message)
  {
- 	struct i2c_client *client = to_i2c_client(dev);
-@@ -1239,13 +1239,10 @@ static int mxt_resume(struct device *dev)
+ 	struct device *dev = &data->client->dev;
+ 	struct input_dev *input_dev = data->input_dev;
+@@ -571,9 +570,6 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
+ 		/* TODO: Use vector to report ORIENTATION & TOUCH_MINOR */
+ 	}
+-
+-	input_mt_report_pointer_emulation(input_dev, false);
+-	input_sync(input_dev);
+ }
  
+ static int mxt_proc_messages(struct mxt_data *data, u8 count)
+@@ -581,6 +577,7 @@ static int mxt_proc_messages(struct mxt_data *data, u8 count)
+ 	struct device *dev = &data->client->dev;
+ 	struct mxt_message messages[count], *msg;
+ 	int ret;
++	bool update_input;
+ 
+ 	ret = mxt_read_messages(data, count, messages);
+ 	if (ret) {
+@@ -588,12 +585,14 @@ static int mxt_proc_messages(struct mxt_data *data, u8 count)
+ 		return ret;
+ 	}
+ 
++	update_input = false;
+ 	for (msg = messages; msg < &messages[count]; msg++) {
+ 		mxt_dump_message(dev, msg);
+ 
+ 		if (msg->reportid >= data->T9_reportid_min &&
+ 		    msg->reportid <= data->T9_reportid_max) {
+-			mxt_input_touchevent(data, msg);
++			mxt_input_touch(data, msg);
++			update_input = true;
+ 		} else if (msg->reportid == data->T6_reportid) {
+ 			unsigned csum = msg->message[1] |
+ 					(msg->message[2] << 8) |
+@@ -603,6 +602,11 @@ static int mxt_proc_messages(struct mxt_data *data, u8 count)
+ 		}
+ 	}
+ 
++	if (update_input) {
++		input_mt_report_pointer_emulation(data->input_dev, false);
++		input_sync(data->input_dev);
++	}
++
  	return 0;
  }
--
--static const struct dev_pm_ops mxt_pm_ops = {
--	.suspend	= mxt_suspend,
--	.resume		= mxt_resume,
--};
- #endif
  
-+static SIMPLE_DEV_PM_OPS(mxt_pm_ops, mxt_suspend, mxt_resume);
-+
- static const struct i2c_device_id mxt_id[] = {
- 	{ "qt602240_ts", 0 },
- 	{ "atmel_mxt_ts", 0 },
-@@ -1258,9 +1255,7 @@ static struct i2c_driver mxt_driver = {
- 	.driver = {
- 		.name	= "atmel_mxt_ts",
- 		.owner	= THIS_MODULE,
--#ifdef CONFIG_PM
- 		.pm	= &mxt_pm_ops,
--#endif
- 	},
- 	.probe		= mxt_probe,
- 	.remove		= __devexit_p(mxt_remove),
 -- 
 1.7.7.3
+

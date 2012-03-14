@@ -1,57 +1,74 @@
 From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: Re: [PATCH 03/20] Input: atmel_mxt_ts - verify object size in
- mxt_write_object
-Date: Wed, 14 Mar 2012 11:37:39 +0900
-Message-ID: <4F600473.1010607@samsung.com>
+Subject: Re: [PATCH 00/20] cleanup atmel_mxt_ts
+Date: Wed, 14 Mar 2012 11:43:41 +0900
+Message-ID: <4F6005DD.3080702@samsung.com>
 References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
- <1331640263-18935-4-git-send-email-djkurtz@chromium.org>
- <4F5FF563.7080308@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:52252 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030236Ab2CNChR (ORCPT
+Received: from mailout3.samsung.com ([203.254.224.33]:31292 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030422Ab2CNCnT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Mar 2012 22:37:17 -0400
-In-reply-to: <4F5FF563.7080308@samsung.com>
+	Tue, 13 Mar 2012 22:43:19 -0400
+In-reply-to: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Daniel Kurtz <djkurtz@chromium.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
 
-On 03/14/2012 10:33 AM, Joonyoung Shim wrote:
-> On 03/13/2012 09:04 PM, Daniel Kurtz wrote:
->> Don't allow writing past the length of an object.
->>
->> Signed-off-by: Daniel Kurtz<djkurtz@chromium.org>
->> ---
->>   drivers/input/touchscreen/atmel_mxt_ts.c |    2 +-
->>   1 files changed, 1 insertions(+), 1 deletions(-)
->>
->> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c 
->> b/drivers/input/touchscreen/atmel_mxt_ts.c
->> index 0d4d492..e18c698 100644
->> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
->> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
->> @@ -506,7 +506,7 @@ static int mxt_write_object(struct mxt_data *data,
->>       u16 reg;
->>
->>       object = mxt_get_object(data, type);
->> -    if (!object)
->> +    if (!object || offset>= object->size)
+On 03/13/2012 09:04 PM, Daniel Kurtz wrote:
+> This patchset cleans up the atmel_mxt_ts touchscreen driver.
+> In particular, it addresses the following issues:
 >
-> The object->size is actual object size - 1.
+> 1) sysfs
+>     a) fw_update only by root
+>     b) allow writing config
+>     c) add backupnv to save config to device flash
+> 2) faster initialization
+>     a) read/write sets of registers using i2c block transactions
+>     b) fetch object table as a set of i2c reads, one per object
+>     c) write config data as a set of i2c writes, one per object
+> 3) faster interrupt processing&  initialization times
+>     a) cache important values at init instead of computing in isr
+>     b) don't read message checksum byte (which isn't even enabled in fw)
+>     c) read num messages first, instead of looking for 0xFF reportid
+>     d) read all pending message bytes in one i2c read transaction
+> 4) more correct MT-B support
+>     a) send all (changed) contacts in a single EV_SYN/SYN_REPORT
 >
-> +    if (!object || offset>  object->size)
+> Daniel Kurtz (20):
+>    Input: atmel_mxt_ts - use CONFIG_PM_SLEEP
+>    Input: atmel_mxt_ts - only allow root to update firmware
+>    Input: atmel_mxt_ts - verify object size in mxt_write_object
+>    Input: atmel_mxt_ts - refactor mxt_read/write_reg to take a length
+>    Input: atmel_mxt_ts - dump mxt_read/write_reg
+>    Input: atmel_mxt_ts - allow writing to object sysfs entry
+>    Input: atmel_mxt_ts - add backupnv sysfs entry
+>    Input: atmel_mxt_ts - store actual size and instance
+>    Input: atmel_mxt_ts - do not read extra (checksum) byte
+>    Input: atmel_mxt_ts - dump each message on just 1 line
+>    Input: atmel_mxt_ts - refactor mxt_object_show
+>    Input: atmel_mxt_ts - simplify event reporting
+>    Input: atmel_mxt_ts - parse vector field of data packets
+>    Input: atmel_mxt_ts - refactor reading object table
+>    Input: atmel_mxt_ts - optimize writing of object table entries
+>    Input: atmel_mxt_ts - refactor get info
+>    Input: atmel_mxt_ts - use cached T9 reportid range in isr
+>    Input: atmel_mxt_ts - read num messages, then all messages
+>    Input: atmel_mxt_ts - remove mxt_make_highchg and parse T6 report
+>    Input: atmel_mxt_ts - send all MT-B slots in one input report
+>
+>   drivers/input/touchscreen/atmel_mxt_ts.c |  590 +++++++++++++++---------------
+>   1 files changed, 286 insertions(+), 304 deletions(-)
 >
 
-OK. another patch covers this.
+Thanks for updating of driver.
 
->
->>           return -EINVAL;
->>
->>       reg = object->start_address;
->
+About all patches
+Reviewed-by: Joonyoung Shim <jy0922.shim@samsung.com>
 
+Henrik's review needs about modification of Multi-touch.
+
+Thanks.

@@ -1,32 +1,31 @@
 From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@gmail.com>
 Subject: [PATCHv2 3/3] Cleanup: Fix a compile error in hid-lg4ff and remove an extra include in hid-lg.h
-Date: Wed, 14 Mar 2012 18:41:21 +0100
-Message-ID: <13733668.ppBnC2kbu5@qosmio-x300>
+Date: Wed, 14 Mar 2012 18:41:51 +0100
+Message-ID: <2265349.gN1B18tWc4@qosmio-x300>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart3145231.20dBcFrnoH"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+Content-Type: multipart/signed; boundary="nextPart1484037.V9Wdz7DoqJ"; micalg="pgp-sha1"; protocol="application/pgp-signature"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:36506 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760621Ab2CNRl0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Mar 2012 13:41:26 -0400
-Received: by bkcik5 with SMTP id ik5so1496141bkc.19
-        for <linux-input@vger.kernel.org>; Wed, 14 Mar 2012 10:41:25 -0700 (PDT)
+Received: from smtp-out4.iol.cz ([194.228.2.92]:36258 "EHLO smtp-out4.iol.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1761133Ab2CNSCi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Mar 2012 14:02:38 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, simon@mungewell.org
 
 
---nextPart3145231.20dBcFrnoH
+--nextPart1484037.V9Wdz7DoqJ
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset="iso-8859-1"
 
 My mind was apparently wandering around a bit which lead to a compile e=
-rror in hid-lg4ff.
+rror in=20
+hid-lg4ff.
 I also forgot to remove the spinlock.h include from hid-lg.h I am sorry=
- about this mess...
+ about=20
+this mess...
 
 Signed-off-by: Michal Mal=FD <madcatxster@gmail.com>
 
@@ -72,22 +71,21 @@ index f70ae41..1145292 100644
 1.7.9.4
 
 
-
---nextPart3145231.20dBcFrnoH
+--nextPart1484037.V9Wdz7DoqJ
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: This is a digitally signed message part.
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQEcBAABAgAGBQJPYNhBAAoJEERrVaOJCK165MsH/jUWBBqaATP0mn0CHPjSptyL
-LP44olyh2UK06OMSppjKZGlzz6O0l/Mf1IUeIQHlKMRrF8R4pOnDunViGv+A/uKu
-wkdHEL98GNtKCDGsXAWmwCxvifwIptqk4HgUQu753xblbNeoITFooTqrdHE1NnBh
-8dbSy8/7Xz7/TRIzoelYCWpd5ISl9EmewmvxosgDCNuNAdZCxcdtbeU31EvZP+NF
-1mr3N1JmxlDpztNnZF4SgNC9AfDSKw/GMrTgv8n9XzsSC19eApzc9V03/4Qzj4kR
-Y9qIEXAQy8/5fpXbai2TDtVJLLdk4CeJ7eUSA/MCcKJ4vsnOjvKDXIKrvIX+yZE=
-=7x98
+iQEcBAABAgAGBQJPYNhgAAoJEERrVaOJCK16QzwH/A6Zm228+B4TQ1Zp97A/a4hM
+FZJTe3IClINo15t6/j/cB5CVYk6SVCFKR3Fdpss9NU+031dN8vmlfMbtHAyjkOgG
+cGuzzL11VnLtv4zEigcbvl246fD811JNXvxWZhzU3v3Ngm6lG1n6WhsoseVHMqKx
+8lkVbwUejwTSOc7yhBookLipslRjnQ9rztGRuSqPLYx5CaeHtTAcYS5AIaZ1f1J+
+1Gr8DeDGcVMJhRRfWzD6nG8y7RyEs6Y50cGgzkQ5PECEffixO757nyhPbffdQE/m
+HSj39rK2LdxbBX5caIsmHKsZEIUkhCAsUlmFQ6R3u78o2Yls1SBPBY9JmV/Ve3E=
+=PZ+d
 -----END PGP SIGNATURE-----
 
---nextPart3145231.20dBcFrnoH--
+--nextPart1484037.V9Wdz7DoqJ--
 

@@ -1,269 +1,81 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@gmail.com>
-Subject: [PATCHv3 1/3] HID: hid-lg: Allow for custom device properties to be stored in private driver data
-Date: Wed, 14 Mar 2012 19:13:45 +0100
-Message-ID: <2473446.GW5eCxYo0z@qosmio-x300>
-References: <1549268.LAjoPqsQ59@qosmio-x300>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH v4 0/4] Wacom Wireless Module Support
+Date: Wed, 14 Mar 2012 11:25:38 -0700
+Message-ID: <CANRwn3SBOE+KDfT_QSWoUXKdeBrwH1eTwHB57ZUkgWcTmsWsNg@mail.gmail.com>
+References: <1331686322-4914-1-git-send-email-chris@cnpbagwell.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart3624700.J1NHMkz1Zj"; micalg="pgp-sha1"; protocol="application/pgp-signature"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:40255 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030971Ab2CNSOA (ORCPT
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:59093 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752106Ab2CNSZj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Mar 2012 14:14:00 -0400
-Received: by bkcik5 with SMTP id ik5so1520197bkc.19
-        for <linux-input@vger.kernel.org>; Wed, 14 Mar 2012 11:13:59 -0700 (PDT)
-In-Reply-To: <1549268.LAjoPqsQ59@qosmio-x300>
+	Wed, 14 Mar 2012 14:25:39 -0400
+Received: by wibhr17 with SMTP id hr17so6584732wib.1
+        for <linux-input@vger.kernel.org>; Wed, 14 Mar 2012 11:25:38 -0700 (PDT)
+In-Reply-To: <1331686322-4914-1-git-send-email-chris@cnpbagwell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, simon@mungewell.org
+To: chris@cnpbagwell.com
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
+On Tue, Mar 13, 2012 at 5:51 PM,  <chris@cnpbagwell.com> wrote:
+> From: Chris Bagwell <chris@cnpbagwell.com>
+>
+> The 3rd gen Bamboo Pen & Touch and Intuos5 tablets support an
+> optional wireless module. =C2=A0This patch set adds support for it.
+>
+> New in v4 -
+> =C2=A0* Dropped patches related to 0xE5 support. =C2=A0They will be s=
+ent
+> =C2=A0 on their own again.
+> =C2=A0* Dropped a Kconfig patch that is already on for-linus branch.
+> =C2=A0* Removed "Bamboo" references to wireless patch since
+> =C2=A0 wireless module works with at least 2 product families now.
+> =C2=A0* Delayed enabling monitor interrupt to last possible moment in=
+ probe
+> =C2=A0 to fix crash reported by Jason Gerecke.
+>
+> New in v3 - Changed a pointer reset from 0 to NULL.
+> Merged Ping's 0xE5 patches into this patch set to resolve
+> merge issues.
+>
+> New in v2 - Updates only to 0xE5 patch set based on review comments.
+> No wireless patch changes.
+>
+> Chris Bagwell (4):
+> =C2=A0Input: wacom - isolate input registration
+> =C2=A0Input: wacom - wireless monitor framework
+> =C2=A0Input: wacom - create inputs when wireless connect
+> =C2=A0Input: wacom - wireless battery status
+>
+> =C2=A0drivers/input/tablet/Kconfig =C2=A0 =C2=A0 | =C2=A0 =C2=A01 +
+> =C2=A0drivers/input/tablet/wacom.h =C2=A0 =C2=A0 | =C2=A0 =C2=A09 ++
+> =C2=A0drivers/input/tablet/wacom_sys.c | =C2=A0230 ++++++++++++++++++=
+++++++++++++++-----
+> =C2=A0drivers/input/tablet/wacom_wac.c | =C2=A0 49 ++++++++-
+> =C2=A0drivers/input/tablet/wacom_wac.h | =C2=A0 =C2=A06 +
+> =C2=A05 files changed, 263 insertions(+), 32 deletions(-)
+>
+> --
+> 1.7.7.6
+>
 
---nextPart3624700.J1NHMkz1Zj
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"
+There's a fair bit in this patch set that's beyond my knowledge to
+properly review, but I can at least provide (for both the 3rd-gen
+Bamboo and Intuos5):
 
-For some reason the Makefile got modified along with the driver and I d=
-idn't
-catch it. This is the updated version of the first part of the patch th=
-at leaves
-the Makefile alone.
+Tested-By: Jason Gerecke <killertofu@gmail.com>
 
-Signed-off-by: Michal Mal=FD <madcatxster@gmail.com>
+Jason
 
 ---
- drivers/hid/hid-lg.c |   55 +++++++++++++++++++++++++++++-------------=
---------
- drivers/hid/hid-lg.h |    7 +++++++
- 2 files changed, 39 insertions(+), 23 deletions(-)
-
-diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
-index e7a7bd1..fc37ed6 100644
---- a/drivers/hid/hid-lg.c
-+++ b/drivers/hid/hid-lg.c
-@@ -109,23 +109,23 @@ static __u8 dfp_rdesc_fixed[] =3D {
- static __u8 *lg_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- =09=09unsigned int *rsize)
- {
--=09unsigned long quirks =3D (unsigned long)hid_get_drvdata(hdev);
-+=09struct lg_drv_data *drv_data =3D (struct lg_drv_data *)hid_get_drvd=
-ata(hdev);
-=20
--=09if ((quirks & LG_RDESC) && *rsize >=3D 90 && rdesc[83] =3D=3D 0x26 =
-&&
-+=09if ((drv_data->quirks & LG_RDESC) && *rsize >=3D 90 && rdesc[83] =3D=
-=3D 0x26 &&
- =09=09=09rdesc[84] =3D=3D 0x8c && rdesc[85] =3D=3D 0x02) {
- =09=09hid_info(hdev,
- =09=09=09 "fixing up Logitech keyboard report descriptor\n");
- =09=09rdesc[84] =3D rdesc[89] =3D 0x4d;
- =09=09rdesc[85] =3D rdesc[90] =3D 0x10;
- =09}
--=09if ((quirks & LG_RDESC_REL_ABS) && *rsize >=3D 50 &&
-+=09if ((drv_data->quirks & LG_RDESC_REL_ABS) && *rsize >=3D 50 &&
- =09=09=09rdesc[32] =3D=3D 0x81 && rdesc[33] =3D=3D 0x06 &&
- =09=09=09rdesc[49] =3D=3D 0x81 && rdesc[50] =3D=3D 0x06) {
- =09=09hid_info(hdev,
- =09=09=09 "fixing up rel/abs in Logitech report descriptor\n");
- =09=09rdesc[33] =3D rdesc[50] =3D 0x02;
- =09}
--=09if ((quirks & LG_FF4) && *rsize >=3D 101 &&
-+=09if ((drv_data->quirks & LG_FF4) && *rsize >=3D 101 &&
- =09=09=09rdesc[41] =3D=3D 0x95 && rdesc[42] =3D=3D 0x0B &&
- =09=09=09rdesc[47] =3D=3D 0x05 && rdesc[48] =3D=3D 0x09) {
- =09=09hid_info(hdev, "fixing up Logitech Speed Force Wireless button d=
-escriptor\n");
-@@ -278,7 +278,7 @@ static int lg_input_mapping(struct hid_device *hdev=
-, struct hid_input *hi,
- =09=09  0,  0,  0,  0,  0,183,184,185,186,187,
- =09=09188,189,190,191,192,193,194,  0,  0,  0
- =09};
--=09unsigned long quirks =3D (unsigned long)hid_get_drvdata(hdev);
-+=09struct lg_drv_data *drv_data =3D (struct lg_drv_data *)hid_get_drvd=
-ata(hdev);
- =09unsigned int hid =3D usage->hid;
-=20
- =09if (hdev->product =3D=3D USB_DEVICE_ID_LOGITECH_RECEIVER &&
-@@ -289,7 +289,7 @@ static int lg_input_mapping(struct hid_device *hdev=
-, struct hid_input *hi,
- =09=09=09lg_dinovo_mapping(hi, usage, bit, max))
- =09=09return 1;
-=20
--=09if ((quirks & LG_WIRELESS) && lg_wireless_mapping(hi, usage, bit, m=
-ax))
-+=09if ((drv_data->quirks & LG_WIRELESS) && lg_wireless_mapping(hi, usa=
-ge, bit, max))
- =09=09return 1;
-=20
- =09if ((hid & HID_USAGE_PAGE) !=3D HID_UP_BUTTON)
-@@ -299,11 +299,11 @@ static int lg_input_mapping(struct hid_device *hd=
-ev, struct hid_input *hi,
-=20
- =09/* Special handling for Logitech Cordless Desktop */
- =09if (field->application =3D=3D HID_GD_MOUSE) {
--=09=09if ((quirks & LG_IGNORE_DOUBLED_WHEEL) &&
-+=09=09if ((drv_data->quirks & LG_IGNORE_DOUBLED_WHEEL) &&
- =09=09=09=09(hid =3D=3D 7 || hid =3D=3D 8))
- =09=09=09return -1;
- =09} else {
--=09=09if ((quirks & LG_EXPANDED_KEYMAP) &&
-+=09=09if ((drv_data->quirks & LG_EXPANDED_KEYMAP) &&
- =09=09=09=09hid < ARRAY_SIZE(e_keymap) &&
- =09=09=09=09e_keymap[hid] !=3D 0) {
- =09=09=09hid_map_usage(hi, usage, bit, max, EV_KEY,
-@@ -319,13 +319,13 @@ static int lg_input_mapped(struct hid_device *hde=
-v, struct hid_input *hi,
- =09=09struct hid_field *field, struct hid_usage *usage,
- =09=09unsigned long **bit, int *max)
- {
--=09unsigned long quirks =3D (unsigned long)hid_get_drvdata(hdev);
-+=09struct lg_drv_data *drv_data =3D (struct lg_drv_data *)hid_get_drvd=
-ata(hdev);
-=20
--=09if ((quirks & LG_BAD_RELATIVE_KEYS) && usage->type =3D=3D EV_KEY &&=
-
-+=09if ((drv_data->quirks & LG_BAD_RELATIVE_KEYS) && usage->type =3D=3D=
- EV_KEY &&
- =09=09=09(field->flags & HID_MAIN_ITEM_RELATIVE))
- =09=09field->flags &=3D ~HID_MAIN_ITEM_RELATIVE;
-=20
--=09if ((quirks & LG_DUPLICATE_USAGES) && (usage->type =3D=3D EV_KEY ||=
-
-+=09if ((drv_data->quirks & LG_DUPLICATE_USAGES) && (usage->type =3D=3D=
- EV_KEY ||
- =09=09=09 usage->type =3D=3D EV_REL || usage->type =3D=3D EV_ABS))
- =09=09clear_bit(usage->code, *bit);
-=20
-@@ -335,9 +335,9 @@ static int lg_input_mapped(struct hid_device *hdev,=
- struct hid_input *hi,
- static int lg_event(struct hid_device *hdev, struct hid_field *field,
- =09=09struct hid_usage *usage, __s32 value)
- {
--=09unsigned long quirks =3D (unsigned long)hid_get_drvdata(hdev);
-+=09struct lg_drv_data *drv_data =3D (struct lg_drv_data *)hid_get_drvd=
-ata(hdev);
-=20
--=09if ((quirks & LG_INVERT_HWHEEL) && usage->code =3D=3D REL_HWHEEL) {=
-
-+=09if ((drv_data->quirks & LG_INVERT_HWHEEL) && usage->code =3D=3D REL=
-_HWHEEL) {
- =09=09input_event(field->hidinput->input, usage->type, usage->code,
- =09=09=09=09-value);
- =09=09return 1;
-@@ -348,13 +348,20 @@ static int lg_event(struct hid_device *hdev, stru=
-ct hid_field *field,
-=20
- static int lg_probe(struct hid_device *hdev, const struct hid_device_i=
-d *id)
- {
--=09unsigned long quirks =3D id->driver_data;
- =09unsigned int connect_mask =3D HID_CONNECT_DEFAULT;
-+=09struct lg_drv_data *drv_data;
- =09int ret;
-=20
--=09hid_set_drvdata(hdev, (void *)quirks);
-+=09drv_data =3D kzalloc(sizeof(struct lg_drv_data), GFP_KERNEL);
-+=09if (!drv_data) {
-+=09=09hid_err(hdev, "Insufficient memory, cannot allocate driver data\=
-n");
-+=09=09return -ENOMEM;
-+=09}
-+=09drv_data->quirks =3D id->driver_data;
-+=09
-+=09hid_set_drvdata(hdev, (void *)drv_data);
-=20
--=09if (quirks & LG_NOGET)
-+=09if (drv_data->quirks & LG_NOGET)
- =09=09hdev->quirks |=3D HID_QUIRK_NOGET;
-=20
- =09ret =3D hid_parse(hdev);
-@@ -363,7 +370,7 @@ static int lg_probe(struct hid_device *hdev, const =
-struct hid_device_id *id)
- =09=09goto err_free;
- =09}
-=20
--=09if (quirks & (LG_FF | LG_FF2 | LG_FF3 | LG_FF4))
-+=09if (drv_data->quirks & (LG_FF | LG_FF2 | LG_FF3 | LG_FF4))
- =09=09connect_mask &=3D ~HID_CONNECT_FF;
-=20
- =09ret =3D hid_hw_start(hdev, connect_mask);
-@@ -392,27 +399,29 @@ static int lg_probe(struct hid_device *hdev, cons=
-t struct hid_device_id *id)
- =09=09}
- =09}
-=20
--=09if (quirks & LG_FF)
-+=09if (drv_data->quirks & LG_FF)
- =09=09lgff_init(hdev);
--=09if (quirks & LG_FF2)
-+=09if (drv_data->quirks & LG_FF2)
- =09=09lg2ff_init(hdev);
--=09if (quirks & LG_FF3)
-+=09if (drv_data->quirks & LG_FF3)
- =09=09lg3ff_init(hdev);
--=09if (quirks & LG_FF4)
-+=09if (drv_data->quirks & LG_FF4)
- =09=09lg4ff_init(hdev);
-=20
- =09return 0;
- err_free:
-+=09kfree(drv_data);
- =09return ret;
- }
-=20
- static void lg_remove(struct hid_device *hdev)
- {
--=09unsigned long quirks =3D (unsigned long)hid_get_drvdata(hdev);
--=09if(quirks & LG_FF4)
-+=09struct lg_drv_data *drv_data =3D (struct lg_drv_data *)hid_get_drvd=
-ata(hdev);
-+=09if (drv_data->quirks & LG_FF4)
- =09=09lg4ff_deinit(hdev);
-=20
- =09hid_hw_stop(hdev);
-+=09kfree(drv_data);
- }
-=20
- static const struct hid_device_id lg_devices[] =3D {
-diff --git a/drivers/hid/hid-lg.h b/drivers/hid/hid-lg.h
-index 4b09728..500457b 100644
---- a/drivers/hid/hid-lg.h
-+++ b/drivers/hid/hid-lg.h
-@@ -1,6 +1,13 @@
- #ifndef __HID_LG_H
- #define __HID_LG_H
-=20
-+#include <linux/spinlock.h>
-+
-+struct lg_drv_data {
-+=09unsigned long quirks;
-+=09void *device_props;=09/* Device specific properties */
-+};
-+
- #ifdef CONFIG_LOGITECH_FF
- int lgff_init(struct hid_device *hdev);
- #else
---=20
-1.7.9.4
-
-
---nextPart3624700.J1NHMkz1Zj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQEcBAABAgAGBQJPYN/ZAAoJEERrVaOJCK16LFkH/iYinv7v6cVQNIfyGFNbuAax
-wIKInIxlJC89i+oV/CMNjOHxuurr9WcqPjPrZxjrwY9MJF7tcu2zffcBTxPB7p6q
-a5QZillSeiVdwjBh/DPbbt/nP5b5VIKrbtfQI2H/BL9iC8dgoJLCYHinencEYoEh
-Pe2GlSR20RHG6JjTDHl1fzP0WOx8ITnFwslo21SbYatyoxHCmjJJHRwnvAwbQO/p
-VKbED2XS42tJQSexaR2s4MIPCfzqYK7mNMCtKKrt+Y/5A5wdZpXax1DNH2TPdP/j
-t4qgv1rbS2RcJluHDx1KkPViFa+X7pwikprXMdGtTe/1KsY5XVdYz+E5Eh7rY/s=
-=vtIE
------END PGP SIGNATURE-----
-
---nextPart3624700.J1NHMkz1Zj--
-
+Day xee-nee-svsh duu-'ushtlh-ts'it;
+nuu-wee-ya' duu-xan' 'vm-nvshtlh-ts'it.
+Huu-chan xuu naa~-gha.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

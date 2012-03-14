@@ -1,611 +1,262 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 2/2] input: add driver support for MAX8997-haptic
-Date: Wed, 14 Mar 2012 01:46:52 -0700
-Message-ID: <20120314084652.GC3964@core.coreip.homeip.net>
-References: <4F5DB459.9090701@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [PATCH V1] input: keyboard: gpio: Support for interrupt only key
+Date: Wed, 14 Mar 2012 14:22:03 +0530
+Message-ID: <1331715123-15099-1-git-send-email-ldewangan@nvidia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:54806 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759495Ab2CNIq7 (ORCPT
+Received: from hqemgate03.nvidia.com ([216.228.121.140]:7752 "EHLO
+	hqemgate03.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759332Ab2CNI4U (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Mar 2012 04:46:59 -0400
-Content-Disposition: inline
-In-Reply-To: <4F5DB459.9090701@samsung.com>
+	Wed, 14 Mar 2012 04:56:20 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chanwoo Choi <cw00.choi@samsung.com>
-Cc: linux-input@vger.kernel.org, sameo@linux.intel.com, broonie@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, myungjoo.ham@samsung.com
+To: dmitry.torokhov@gmail.com, grant.likely@secretlab.ca, linus.walleij@stericsson.com, david@protonic.nl, tklauser@distanz.ch, alexander.stein@informatik.tu-chemnitz.de
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldewangan@nvidia.com
 
-Hi Chanwoo,
+Some of key in system generates interrupt only when it
+pressed like power-on key or onkey. These keys do not
+actually mapped as gpio in system.
+Supporting the key pressed event on such keys which are
+not actually gpio keys but generates interrupt only.
 
-On Mon, Mar 12, 2012 at 05:31:21PM +0900, Chanwoo Choi wrote:
-> +
-> +static int __devexit max8997_haptic_remove(struct platform_device *pdev)
-> +{
-> +	struct max8997_haptic *chip = platform_get_drvdata(pdev);
-> +
-> +	destroy_work_on_stack(&chip->work);
-
-This does not make sense because:
-
-- chip->work is not on stack
-- even if you "destroy" work nothing stops play effect to schedule a new
-  one - you need to cancel work in close method.
-
-> +	input_unregister_device(chip->input_dev);
-> +	regulator_put(chip->regulator);
-> +
-> +	if (chip->mode == MAX8997_EXTERNAL_MODE)
-> +		pwm_free(chip->pwm);
-> +
-> +	kfree(chip);
-> +
-> +	return 0;
-> +}
-> +
-> +static int max8997_haptic_suspend(struct device *dev)
-> +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct max8997_haptic *chip = platform_get_drvdata(pdev);
-> +	struct input_dev *input_dev = chip->input_dev;
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&input_dev->event_lock, flags);
-> +	max8997_haptic_enable(chip, false);
-> +	spin_unlock_irqrestore(&input_dev->event_lock, flags);
-> +
-
-This is not proper locking between playing effect and suspend. Now that
-you are using workqueue you need to synchronize access with it, not with
-play_effect method.
-
-Does the following patch work for you?
-
-Thanks.
-
--- 
-Dmitry
-
-
-Input: add driver support for MAX8997-haptic
-
-From: Donggeun Kim <dg77.kim@samsung.com>
-
-The MAX8997-haptic function can be used to control motor. User can
-control the haptic driver by using force feedback framework.
-
-Signed-off-by: Donggeun Kim <dg77.kim@samsung.com>
-Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
-Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
 ---
+When I pushed the new driver for interrupt key, the suggestion came
+to include this functionality in the gpio-key driver. I added require
+changed in gpio-keys.c to support interrupt key only.
 
- drivers/input/misc/Kconfig          |   12 +
- drivers/input/misc/Makefile         |    1 
- drivers/input/misc/max8997_haptic.c |  407 +++++++++++++++++++++++++++++++++++
- include/linux/mfd/max8997.h         |   53 ++++-
- 4 files changed, 472 insertions(+), 1 deletions(-)
- create mode 100644 drivers/input/misc/max8997_haptic.c
+ drivers/input/keyboard/gpio_keys.c |  117 +++++++++++++++++++++++++++++++++--
+ include/linux/gpio_keys.h          |    3 +-
+ 2 files changed, 112 insertions(+), 8 deletions(-)
 
-
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 2337c3e..ee077a4 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -134,6 +134,18 @@ config INPUT_MAX8925_ONKEY
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called max8925_onkey.
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index ed1ed46..d38ddfd 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -28,6 +28,7 @@
+ #include <linux/gpio.h>
+ #include <linux/of_platform.h>
+ #include <linux/of_gpio.h>
++#include <linux/spinlock.h>
  
-+config INPUT_MAX8997_HAPTIC
-+	tristate "MAXIM MAX8997 haptic controller support"
-+	depends on HAVE_PWM && MFD_MAX8997
-+	select INPUT_FF_MEMLESS
-+	help
-+	  This option enables device driver support for the haptic controller
-+	  on MAXIM MAX8997 chip. This driver supports ff-memless interface
-+	  from input framework.
-+
-+	  To compile this driver as module, choose M here: the
-+	  module will be called max8997-haptic.
-+
- config INPUT_MC13783_PWRBUTTON
- 	tristate "MC13783 ON buttons"
- 	depends on MFD_MC13783
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index a6d8de0..f55cdf4 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -31,6 +31,7 @@ obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
- obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
- obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
- obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
-+obj-$(CONFIG_INPUT_MAX8997_HAPTIC)	+= max8997_haptic.o
- obj-$(CONFIG_INPUT_MC13783_PWRBUTTON)	+= mc13783-pwrbutton.o
- obj-$(CONFIG_INPUT_MMA8450)		+= mma8450.o
- obj-$(CONFIG_INPUT_MPU3050)		+= mpu3050.o
-diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
-new file mode 100644
-index 0000000..d968c37
---- /dev/null
-+++ b/drivers/input/misc/max8997_haptic.c
-@@ -0,0 +1,407 @@
-+/*
-+ * MAX8997-haptic controller driver
-+ *
-+ * Copyright (C) 2012 Samsung Electronics
-+ * Donggeun Kim <dg77.kim@samsung.com>
-+ *
-+ * This program is not provided / owned by Maxim Integrated Products.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/platform_device.h>
-+#include <linux/err.h>
-+#include <linux/pwm.h>
-+#include <linux/input.h>
-+#include <linux/mfd/max8997-private.h>
-+#include <linux/mfd/max8997.h>
-+#include <linux/regulator/consumer.h>
-+
-+/* Haptic configuration 2 register */
-+#define MAX8997_MOTOR_TYPE_SHIFT	7
-+#define MAX8997_ENABLE_SHIFT		6
-+#define MAX8997_MODE_SHIFT		5
-+
-+/* Haptic driver configuration register */
-+#define MAX8997_CYCLE_SHIFT		6
-+#define MAX8997_SIG_PERIOD_SHIFT	4
-+#define MAX8997_SIG_DUTY_SHIFT		2
-+#define MAX8997_PWM_DUTY_SHIFT		0
-+
-+struct max8997_haptic {
-+	struct device *dev;
-+	struct i2c_client *client;
-+	struct input_dev *input_dev;
-+	struct regulator *regulator;
-+
-+	struct work_struct work;
-+	struct mutex mutex;
-+
-+	bool enabled;
-+	unsigned int level;
-+
-+	struct pwm_device *pwm;
-+	unsigned int pwm_period;
-+	enum max8997_haptic_pwm_divisor pwm_divisor;
-+
-+	enum max8997_haptic_motor_type type;
-+	enum max8997_haptic_pulse_mode mode;
-+
-+	unsigned int internal_mode_pattern;
-+	unsigned int pattern_cycle;
-+	unsigned int pattern_signal_period;
-+};
-+
-+static int max8997_haptic_set_duty_cycle(struct max8997_haptic *chip)
+ struct gpio_button_data {
+ 	struct gpio_keys_button *button;
+@@ -36,6 +37,8 @@ struct gpio_button_data {
+ 	struct work_struct work;
+ 	int timer_debounce;	/* in msecs */
+ 	bool disabled;
++	spinlock_t lock;
++	bool key_pressed;
+ };
+ 
+ struct gpio_keys_drvdata {
+@@ -95,6 +98,13 @@ static inline int get_n_events_by_type(int type)
+ 	return (type == EV_KEY) ? KEY_CNT : SW_CNT;
+ }
+ 
++static int button_irq(struct gpio_keys_button *button)
 +{
-+	int ret = 0;
++	if (gpio_is_valid(button->gpio))
++		return gpio_to_irq(button->gpio);
++	return button->irq;
++}
 +
-+	if (chip->mode == MAX8997_EXTERNAL_MODE) {
-+		unsigned int duty = chip->pwm_period * chip->level / 100;
-+		ret = pwm_config(chip->pwm, duty, chip->pwm_period);
-+	} else {
-+		int i;
-+		u8 duty_index = 0;
+ /**
+  * gpio_keys_disable_button() - disables given GPIO button
+  * @bdata: button data for button to be disabled
+@@ -111,10 +121,11 @@ static inline int get_n_events_by_type(int type)
+ static void gpio_keys_disable_button(struct gpio_button_data *bdata)
+ {
+ 	if (!bdata->disabled) {
++		int irq = button_irq(bdata->button);
+ 		/*
+ 		 * Disable IRQ and possible debouncing timer.
+ 		 */
+-		disable_irq(gpio_to_irq(bdata->button->gpio));
++		disable_irq(irq);
+ 		if (bdata->timer_debounce)
+ 			del_timer_sync(&bdata->timer);
+ 
+@@ -135,7 +146,8 @@ static void gpio_keys_disable_button(struct gpio_button_data *bdata)
+ static void gpio_keys_enable_button(struct gpio_button_data *bdata)
+ {
+ 	if (bdata->disabled) {
+-		enable_irq(gpio_to_irq(bdata->button->gpio));
++		int irq = button_irq(bdata->button);
++		enable_irq(irq);
+ 		bdata->disabled = false;
+ 	}
+ }
+@@ -325,8 +337,12 @@ static void gpio_keys_report_event(struct gpio_button_data *bdata)
+ 	struct gpio_keys_button *button = bdata->button;
+ 	struct input_dev *input = bdata->input;
+ 	unsigned int type = button->type ?: EV_KEY;
+-	int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button->active_low;
++	int state;
+ 
++	if (!gpio_is_valid(button->gpio))
++		return;
 +
-+		for (i = 0; i <= 64; i++) {
-+			if (chip->level <= i * 100 / 64) {
-+				duty_index = i;
-+				break;
-+			}
++	state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button->active_low;
+ 	if (type == EV_ABS) {
+ 		if (state)
+ 			input_event(input, type, button->code, button->value);
+@@ -367,6 +383,85 @@ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
++static void interrupt_keys_timer(unsigned long _data)
++{
++	struct gpio_button_data *bdata = (struct gpio_button_data *)_data;
++	struct gpio_keys_button *button = bdata->button;
++	struct input_dev *input = bdata->input;
++	unsigned int type = button->type ?: EV_KEY;
++	unsigned long iflags;
++
++	spin_lock_irqsave(&bdata->lock, iflags);
++	if (bdata->key_pressed) {
++		input_event(input, type, button->code, 0);
++		input_sync(input);
++		bdata->key_pressed = false;
++	}
++	spin_unlock_irqrestore(&bdata->lock, iflags);
++}
++
++static irqreturn_t interrupt_keys_isr(int irq, void *dev_id)
++{
++	struct gpio_button_data *bdata = dev_id;
++	struct gpio_keys_button *button = bdata->button;
++	struct input_dev *input = bdata->input;
++	int type = button->type ?: EV_KEY;
++	unsigned long iflags;
++
++	BUG_ON(irq != button->irq);
++
++	spin_lock_irqsave(&bdata->lock, iflags);
++	if (!bdata->key_pressed) {
++		input_event(input, type, button->code, 1);
++		input_sync(input);
++		if (!bdata->timer_debounce) {
++			input_event(input, type, button->code, 0);
++			input_sync(input);
++			spin_unlock_irqrestore(&bdata->lock, iflags);
++			return IRQ_HANDLED;
 +		}
-+		switch (chip->internal_mode_pattern) {
-+		case 0:
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGPWMDC1, duty_index);
-+			break;
-+		case 1:
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGPWMDC2, duty_index);
-+			break;
-+		case 2:
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGPWMDC3, duty_index);
-+			break;
-+		case 3:
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGPWMDC4, duty_index);
-+			break;
-+		default:
-+			break;
-+		}
-+	}
-+	return ret;
-+}
-+
-+static void max8997_haptic_configure(struct max8997_haptic *chip)
-+{
-+	u8 value;
-+
-+	value = chip->type << MAX8997_MOTOR_TYPE_SHIFT |
-+		chip->enabled << MAX8997_ENABLE_SHIFT |
-+		chip->mode << MAX8997_MODE_SHIFT | chip->pwm_divisor;
-+	max8997_write_reg(chip->client, MAX8997_HAPTIC_REG_CONF2, value);
-+
-+	if (chip->mode == MAX8997_INTERNAL_MODE && chip->enabled) {
-+		value = chip->internal_mode_pattern << MAX8997_CYCLE_SHIFT |
-+			chip->internal_mode_pattern << MAX8997_SIG_PERIOD_SHIFT |
-+			chip->internal_mode_pattern << MAX8997_SIG_DUTY_SHIFT |
-+			chip->internal_mode_pattern << MAX8997_PWM_DUTY_SHIFT;
-+		max8997_write_reg(chip->client,
-+			MAX8997_HAPTIC_REG_DRVCONF, value);
-+
-+		switch (chip->internal_mode_pattern) {
-+		case 0:
-+			value = chip->pattern_cycle << 4;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_CYCLECONF1, value);
-+			value = chip->pattern_signal_period;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGCONF1, value);
-+			break;
-+
-+		case 1:
-+			value = chip->pattern_cycle;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_CYCLECONF1, value);
-+			value = chip->pattern_signal_period;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGCONF2, value);
-+			break;
-+
-+		case 2:
-+			value = chip->pattern_cycle << 4;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_CYCLECONF2, value);
-+			value = chip->pattern_signal_period;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGCONF3, value);
-+			break;
-+
-+		case 3:
-+			value = chip->pattern_cycle;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_CYCLECONF2, value);
-+			value = chip->pattern_signal_period;
-+			max8997_write_reg(chip->client,
-+				MAX8997_HAPTIC_REG_SIGCONF4, value);
-+			break;
-+
-+		default:
-+			break;
-+		}
-+	}
-+}
-+
-+static void max8997_haptic_enable(struct max8997_haptic *chip)
-+{
-+	int error;
-+
-+	mutex_lock(&chip->mutex);
-+
-+	error = max8997_haptic_set_duty_cycle(chip);
-+	if (error) {
-+		dev_err(chip->dev, "set_pwm_cycle failed, error: %d\n", error);
-+		goto out;
++		bdata->key_pressed = true;
 +	}
 +
-+	if (!chip->enabled) {
-+		regulator_enable(chip->regulator);
-+		max8997_haptic_configure(chip);
-+		if (chip->mode == MAX8997_EXTERNAL_MODE)
-+			pwm_enable(chip->pwm);
-+		chip->enabled = true;
++	spin_unlock_irqrestore(&bdata->lock, iflags);
++	if (bdata->timer_debounce)
++		mod_timer(&bdata->timer,
++			jiffies + msecs_to_jiffies(bdata->timer_debounce));
++	return IRQ_HANDLED;
++}
++
++static int __devinit interrupt_keys_setup_key(struct platform_device *pdev,
++					 struct gpio_button_data *bdata,
++					 struct gpio_keys_button *button)
++{
++	const char *desc = button->desc ? button->desc : "gpio_keys";
++	struct device *dev = &pdev->dev;
++	unsigned long irqflags = 0;
++	int irq, error;
++
++	if (button->debounce_interval) {
++		setup_timer(&bdata->timer, interrupt_keys_timer,
++						(unsigned long)bdata);
++		bdata->timer_debounce = button->debounce_interval;
 +	}
-+
-+out:
-+	mutex_unlock(&chip->mutex);
-+}
-+
-+static void max8997_haptic_disable(struct max8997_haptic *chip)
-+{
-+	mutex_lock(&chip->mutex);
-+
-+	if (chip->enabled) {
-+		max8997_haptic_configure(chip);
-+		if (chip->mode == MAX8997_EXTERNAL_MODE)
-+			pwm_disable(chip->pwm);
-+		regulator_disable(chip->regulator);
-+		chip->enabled = false;
-+	}
-+
-+	mutex_unlock(&chip->mutex);
-+}
-+
-+static void max8997_haptic_play_effect_work(struct work_struct *work)
-+{
-+	struct max8997_haptic *chip =
-+			container_of(work, struct max8997_haptic, work);
-+
-+	if (chip->level)
-+		max8997_haptic_enable(chip);
-+	else
-+		max8997_haptic_disable(chip);
-+}
-+
-+static int max8997_haptic_play_effect(struct input_dev *dev, void *data,
-+				  struct ff_effect *effect)
-+{
-+	struct max8997_haptic *chip = input_get_drvdata(dev);
-+
-+	chip->level = effect->u.rumble.strong_magnitude;
-+	if (!chip->level)
-+		chip->level = effect->u.rumble.weak_magnitude;
-+
-+	schedule_work(&chip->work);
-+
-+	return 0;
-+}
-+
-+static void max8997_haptic_close(struct input_dev *dev)
-+{
-+	struct max8997_haptic *chip = input_get_drvdata(dev);
-+
-+	cancel_work_sync(&chip->work);
-+	max8997_haptic_disable(chip);
-+}
-+
-+static int __devinit max8997_haptic_probe(struct platform_device *pdev)
-+{
-+	struct max8997_dev *iodev = dev_get_drvdata(pdev->dev.parent);
-+	const struct max8997_platform_data *pdata =
-+					dev_get_platdata(iodev->dev);
-+	const struct max8997_haptic_platform_data *haptic_pdata =
-+					pdata->haptic_pdata;
-+	struct max8997_haptic *chip;
-+	struct input_dev *input_dev;
-+	int error;
-+
-+	if (!haptic_pdata) {
-+		dev_err(&pdev->dev, "no haptic platform data\n");
++	spin_lock_init(&bdata->lock);
++	irq = button->irq;
++	if (irq <= 0) {
++		dev_err(dev, "%s(): Invalid irq number %d\n", __func__, irq);
 +		return -EINVAL;
 +	}
++	bdata->key_pressed = false;
++	if (!button->can_disable)
++		irqflags |= IRQF_SHARED;
 +
-+	chip = kzalloc(sizeof(struct max8997_haptic), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!chip || !input_dev) {
-+		dev_err(&pdev->dev, "unable to allocate memory\n");
-+		error = -ENOMEM;
-+		goto err_free_mem;
-+	}
-+
-+	INIT_WORK(&chip->work, max8997_haptic_play_effect_work);
-+	mutex_init(&chip->mutex);
-+
-+	chip->client = iodev->haptic;
-+	chip->dev = &pdev->dev;
-+	chip->input_dev = input_dev;
-+	chip->pwm_period = haptic_pdata->pwm_period;
-+	chip->type = haptic_pdata->type;
-+	chip->mode = haptic_pdata->mode;
-+	chip->pwm_divisor = haptic_pdata->pwm_divisor;
-+
-+	switch (chip->mode) {
-+	case MAX8997_INTERNAL_MODE:
-+		chip->internal_mode_pattern =
-+				haptic_pdata->internal_mode_pattern;
-+		chip->pattern_cycle = haptic_pdata->pattern_cycle;
-+		chip->pattern_signal_period =
-+				haptic_pdata->pattern_signal_period;
-+		break;
-+
-+	case MAX8997_EXTERNAL_MODE:
-+		chip->pwm = pwm_request(haptic_pdata->pwm_channel_id,
-+					"max8997-haptic");
-+		if (IS_ERR(chip->pwm)) {
-+			error = PTR_ERR(chip->pwm);
-+			dev_err(&pdev->dev,
-+				"unable to request PWM for haptic, error: %d\n",
-+				error);
-+			goto err_free_mem;
-+		}
-+		break;
-+
-+	default:
-+		dev_err(&pdev->dev,
-+			"Invalid chip mode specified (%d)\n", chip->mode);
-+		error = -EINVAL;
-+		goto err_free_mem;
-+	}
-+
-+	chip->regulator = regulator_get(&pdev->dev, "inmotor");
-+	if (IS_ERR(chip->regulator)) {
-+		error = PTR_ERR(chip->regulator);
-+		dev_err(&pdev->dev,
-+			"unable to get regulator, error: %d\n",
-+			error);
-+		goto err_free_pwm;
-+	}
-+
-+	input_dev->name = "max8997-haptic";
-+	input_dev->id.version = 1;
-+	input_dev->dev.parent = &pdev->dev;
-+	input_dev->close = max8997_haptic_close;
-+	input_set_drvdata(input_dev, chip);
-+	input_set_capability(input_dev, EV_FF, FF_RUMBLE);
-+
-+	error = input_ff_create_memless(input_dev, NULL,
-+				max8997_haptic_play_effect);
-+	if (error) {
-+		dev_err(&pdev->dev,
-+			"unable to create FF device, error: %d\n",
-+			error);
-+		goto err_put_regulator;
-+	}
-+
-+	error = input_register_device(input_dev);
-+	if (error) {
-+		dev_err(&pdev->dev,
-+			"unable to register input device, error: %d\n",
-+			error);
-+		goto err_destroy_ff;
-+	}
-+
-+	platform_set_drvdata(pdev, chip);
-+	return 0;
-+
-+err_destroy_ff:
-+	input_ff_destroy(input_dev);
-+err_put_regulator:
-+	regulator_put(chip->regulator);
-+err_free_pwm:
-+	if (chip->mode == MAX8997_EXTERNAL_MODE)
-+		pwm_free(chip->pwm);
-+err_free_mem:
-+	input_free_device(input_dev);
-+	kfree(chip);
-+
++	error = request_threaded_irq(irq, NULL, interrupt_keys_isr,
++					irqflags, desc, bdata);
++	if (error < 0)
++		dev_err(dev, "Unable to claim irq %d; error %d\n",
++				irq, error);
 +	return error;
 +}
 +
-+static int __devexit max8997_haptic_remove(struct platform_device *pdev)
-+{
-+	struct max8997_haptic *chip = platform_get_drvdata(pdev);
-+
-+	input_unregister_device(chip->input_dev);
-+	regulator_put(chip->regulator);
-+
-+	if (chip->mode == MAX8997_EXTERNAL_MODE)
-+		pwm_free(chip->pwm);
-+
-+	kfree(chip);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int max8997_haptic_suspend(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct max8997_haptic *chip = platform_get_drvdata(pdev);
-+
-+	max8997_haptic_disable(chip);
-+
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(max8997_haptic_pm_ops, max8997_haptic_suspend, NULL);
-+
-+static const struct platform_device_id max8997_haptic_id[] = {
-+	{ "max8997-haptic", 0 },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(i2c, max8997_haptic_id);
-+
-+static struct platform_driver max8997_haptic_driver = {
-+	.driver	= {
-+		.name	= "max8997-haptic",
-+		.owner	= THIS_MODULE,
-+		.pm	= &max8997_haptic_pm_ops,
-+	},
-+	.probe		= max8997_haptic_probe,
-+	.remove		= __devexit_p(max8997_haptic_remove),
-+	.id_table	= max8997_haptic_id,
-+};
-+module_platform_driver(max8997_haptic_driver);
-+
-+MODULE_ALIAS("platform:max8997-haptic");
-+MODULE_AUTHOR("Donggeun Kim <dg77.kim@samsung.com>");
-+MODULE_DESCRIPTION("max8997_haptic driver");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/mfd/max8997.h b/include/linux/mfd/max8997.h
-index fff5905..28726dd 100644
---- a/include/linux/mfd/max8997.h
-+++ b/include/linux/mfd/max8997.h
-@@ -131,6 +131,55 @@ struct max8997_muic_platform_data {
- 	int num_init_data;
- };
+ static int __devinit gpio_keys_setup_key(struct platform_device *pdev,
+ 					 struct gpio_button_data *bdata,
+ 					 struct gpio_keys_button *button)
+@@ -376,6 +471,9 @@ static int __devinit gpio_keys_setup_key(struct platform_device *pdev,
+ 	unsigned long irqflags;
+ 	int irq, error;
  
-+enum max8997_haptic_motor_type {
-+	MAX8997_HAPTIC_ERM,
-+	MAX8997_HAPTIC_LRA,
-+};
++	if (!gpio_is_valid(button->gpio))
++		return interrupt_keys_setup_key(pdev, bdata, button);
 +
-+enum max8997_haptic_pulse_mode {
-+	MAX8997_EXTERNAL_MODE,
-+	MAX8997_INTERNAL_MODE,
-+};
-+
-+enum max8997_haptic_pwm_divisor {
-+	MAX8997_PWM_DIVISOR_32,
-+	MAX8997_PWM_DIVISOR_64,
-+	MAX8997_PWM_DIVISOR_128,
-+	MAX8997_PWM_DIVISOR_256,
-+};
-+
-+/**
-+ * max8997_haptic_platform_data
-+ * @pwm_channel_id: channel number of PWM device
-+ *		    valid for MAX8997_EXTERNAL_MODE
-+ * @pwm_period: period in nano second for PWM device
-+ *		valid for MAX8997_EXTERNAL_MODE
-+ * @type: motor type
-+ * @mode: pulse mode
-+ *     MAX8997_EXTERNAL_MODE: external PWM device is used to control motor
-+ *     MAX8997_INTERNAL_MODE: internal pulse generator is used to control motor
-+ * @pwm_divisor: divisor for external PWM device
-+ * @internal_mode_pattern: internal mode pattern for internal mode
-+ *     [0 - 3]: valid pattern number
-+ * @pattern_cycle: the number of cycles of the waveform
-+ *		   for the internal mode pattern
-+ *     [0 - 15]: available cycles
-+ * @pattern_signal_period: period of the waveform for the internal mode pattern
-+ *     [0 - 255]: available period
-+ */
-+struct max8997_haptic_platform_data {
-+	unsigned int pwm_channel_id;
-+	unsigned int pwm_period;
-+
-+	enum max8997_haptic_motor_type type;
-+	enum max8997_haptic_pulse_mode mode;
-+	enum max8997_haptic_pwm_divisor pwm_divisor;
-+
-+	unsigned int internal_mode_pattern;
-+	unsigned int pattern_cycle;
-+	unsigned int pattern_signal_period;
-+};
-+
- enum max8997_led_mode {
- 	MAX8997_NONE,
- 	MAX8997_FLASH_MODE,
-@@ -192,7 +241,9 @@ struct max8997_platform_data {
- 	/* ---- MUIC ---- */
- 	struct max8997_muic_platform_data *muic_pdata;
+ 	setup_timer(&bdata->timer, gpio_keys_timer, (unsigned long)bdata);
+ 	INIT_WORK(&bdata->work, gpio_keys_work_func);
  
--	/* HAPTIC: Not implemented */
-+	/* ---- HAPTIC ---- */
-+	struct max8997_haptic_platform_data *haptic_pdata;
-+
- 	/* RTC: Not implemented */
- 	/* ---- LED ---- */
- 	struct max8997_led_platform_data *led_pdata;
+@@ -643,9 +741,12 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 	sysfs_remove_group(&pdev->dev.kobj, &gpio_keys_attr_group);
+  fail2:
+ 	while (--i >= 0) {
+-		free_irq(gpio_to_irq(pdata->buttons[i].gpio), &ddata->data[i]);
++		int irq = button_irq(&pdata->buttons[i]);
++		free_irq(irq, &ddata->data[i]);
+ 		if (ddata->data[i].timer_debounce)
+ 			del_timer_sync(&ddata->data[i].timer);
++		if (!gpio_is_valid(pdata->buttons[i].gpio))
++			continue;
+ 		cancel_work_sync(&ddata->data[i].work);
+ 		gpio_free(pdata->buttons[i].gpio);
+ 	}
+@@ -672,10 +773,12 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
+ 	device_init_wakeup(&pdev->dev, 0);
+ 
+ 	for (i = 0; i < ddata->n_buttons; i++) {
+-		int irq = gpio_to_irq(ddata->data[i].button->gpio);
++		int irq = button_irq(ddata->data[i].button);
+ 		free_irq(irq, &ddata->data[i]);
+ 		if (ddata->data[i].timer_debounce)
+ 			del_timer_sync(&ddata->data[i].timer);
++		if (!gpio_is_valid(ddata->data[i].button->gpio))
++			continue;
+ 		cancel_work_sync(&ddata->data[i].work);
+ 		gpio_free(ddata->data[i].button->gpio);
+ 	}
+@@ -705,7 +808,7 @@ static int gpio_keys_suspend(struct device *dev)
+ 		for (i = 0; i < ddata->n_buttons; i++) {
+ 			struct gpio_keys_button *button = ddata->data[i].button;
+ 			if (button->wakeup) {
+-				int irq = gpio_to_irq(button->gpio);
++				int irq = button_irq(button);
+ 				enable_irq_wake(irq);
+ 			}
+ 		}
+@@ -723,7 +826,7 @@ static int gpio_keys_resume(struct device *dev)
+ 
+ 		struct gpio_keys_button *button = ddata->data[i].button;
+ 		if (button->wakeup && device_may_wakeup(dev)) {
+-			int irq = gpio_to_irq(button->gpio);
++			int irq = button_irq(button);
+ 			disable_irq_wake(irq);
+ 		}
+ 
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index 004ff33..dddcc95 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -6,7 +6,8 @@ struct device;
+ struct gpio_keys_button {
+ 	/* Configuration parameters */
+ 	unsigned int code;	/* input event code (KEY_*, SW_*) */
+-	int gpio;
++	int gpio;		/* -1 if this key does not support gpio */
++	int irq;		/* Irq number in case of interrupt keys */
+ 	int active_low;
+ 	const char *desc;
+ 	unsigned int type;	/* input event type (EV_KEY, EV_SW, EV_ABS) */
+-- 
+1.7.1.1
+

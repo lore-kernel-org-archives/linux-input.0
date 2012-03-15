@@ -1,74 +1,51 @@
-From: Philipp Zabel <philipp.zabel@gmail.com>
-Subject: [PATCH] Input: pxa27x-keypad - add clk_prepare/clk_unprepare calls
-Date: Thu, 15 Mar 2012 19:10:43 +0100
-Message-ID: <1331835043.14662.2.camel@flow>
+From: Chase Douglas <chasedouglas@gmail.com>
+Subject: Re: Mixed "pen" and multitouch input devices
+Date: Thu, 15 Mar 2012 11:29:37 -0700
+Message-ID: <4F623511.3040907@gmail.com>
+References: <20120315155235.GA6783@stud.informatik.uni-erlangen.de> <CAGzDe_b0XPUBZKAGnj9kxzuRb9Fw7aph_Q+VgmdVbpVNU2Sf3w@mail.gmail.com> <20120315175635.GA23155@stud.informatik.uni-erlangen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:59361 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755827Ab2COSKs (ORCPT
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:58643 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752873Ab2COS3N (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Mar 2012 14:10:48 -0400
-Received: by eekc41 with SMTP id c41so1821096eek.19
-        for <linux-input@vger.kernel.org>; Thu, 15 Mar 2012 11:10:47 -0700 (PDT)
+	Thu, 15 Mar 2012 14:29:13 -0400
+Received: by dajr28 with SMTP id r28so4878471daj.19
+        for <linux-input@vger.kernel.org>; Thu, 15 Mar 2012 11:29:13 -0700 (PDT)
+In-Reply-To: <20120315175635.GA23155@stud.informatik.uni-erlangen.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Thorsten Wissmann <re06huxa@stud.informatik.uni-erlangen.de>
+Cc: Chris Bagwell <chris@cnpbagwell.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, =?ISO-8859-1?Q?Maximilian_Kr=FCger?= <maxfragg@gmail.com>, i4passt@lists.informatik.uni-erlangen.de
 
-This patch adds clk_prepare/clk_unprepare calls to the pxa27x_keypad
-driver by using the helper functions clk_prepare_enable and
-clk_disable_unprepare.
+On 03/15/2012 10:56 AM, Thorsten Wissmann wrote:
+> On Thu, Mar 15, 2012 at 12:27:22PM -0500, Chris Bagwell wrote:
+>> Its also true that sharing ABS_X/Y events between both a BTN_TOOL_PEN
+>> and a BTN_TOOL_FINGER will confuse most user land apps (they think
+>> only touchpads can declare BTN_TOOL_FINGER's but this is a
+>> touchscreen) and it also has bad side affects to the kernel's MT
+>> pointer emulation functions.
+>>
+>> You can look at kernel drivers/input/touchscreen/wacom_w8001.c for an
+>> example touchscreen that supports pen and at least 2 MT touches on a
+>> single /dev/input device (because HW packets come over single serial
+>> interface).  It does not declare a BTN_TOOL_FINGER nor use pointer
+>> emulation to overcome issues I mentioned and xf86-input-wacom
+>> understands how to handle this device.
+>>
+>> If you want to work with other unmodified user land apps (perhaps
+>> xf86-input-evdev for touches) then its probably easiest to split pen
+>> and touch to separate input devices.  drivers/input/tablet/wacom_wac.c
+>> shows some examples of that approach but that driver doesn't have to
+>> work to hard to split in to 2 input devices because the USB device
+>> already puts the events on separate USB  interfaces.
+> 
+> OK. We want the device to work with the xf86-input-evdev driver. So we
+> will split it into two devices.
 
-Signed-off-by: Philipp Zabel <philipp.zabel@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/keyboard/pxa27x_keypad.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+Or you could teach evdev to know how to handle mixed devices :). I think
+that's the "better" approach over all, but it's up to you.
 
-diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
-index 29fe1b2..4acb7b9 100644
---- a/drivers/input/keyboard/pxa27x_keypad.c
-+++ b/drivers/input/keyboard/pxa27x_keypad.c
-@@ -399,7 +399,7 @@ static int pxa27x_keypad_open(struct input_dev *dev)
- 	struct pxa27x_keypad *keypad = input_get_drvdata(dev);
- 
- 	/* Enable unit clock */
--	clk_enable(keypad->clk);
-+	clk_prepare_enable(keypad->clk);
- 	pxa27x_keypad_config(keypad);
- 
- 	return 0;
-@@ -410,7 +410,7 @@ static void pxa27x_keypad_close(struct input_dev *dev)
- 	struct pxa27x_keypad *keypad = input_get_drvdata(dev);
- 
- 	/* Disable clock unit */
--	clk_disable(keypad->clk);
-+	clk_disable_unprepare(keypad->clk);
- }
- 
- #ifdef CONFIG_PM
-@@ -419,7 +419,7 @@ static int pxa27x_keypad_suspend(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct pxa27x_keypad *keypad = platform_get_drvdata(pdev);
- 
--	clk_disable(keypad->clk);
-+	clk_disable_unprepare(keypad->clk);
- 
- 	if (device_may_wakeup(&pdev->dev))
- 		enable_irq_wake(keypad->irq);
-@@ -440,7 +440,7 @@ static int pxa27x_keypad_resume(struct device *dev)
- 
- 	if (input_dev->users) {
- 		/* Enable unit clock */
--		clk_enable(keypad->clk);
-+		clk_prepare_enable(keypad->clk);
- 		pxa27x_keypad_config(keypad);
- 	}
- 
--- 
-1.7.9.1
-
-
+-- Chase

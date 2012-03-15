@@ -1,54 +1,73 @@
-From: Philipp Zabel <pzabel@gmx.de>
-Subject: [PATCH] Input: navpoint: add clk_prepare/clk_unprepare calls
-Date: Thu, 15 Mar 2012 19:09:38 +0100
-Message-ID: <1331834978.14662.1.camel@flow>
+From: Philipp Zabel <philipp.zabel@gmail.com>
+Subject: [PATCH] Input: pxa27x-keypad - add clk_prepare/clk_unprepare calls
+Date: Thu, 15 Mar 2012 19:10:43 +0100
+Message-ID: <1331835043.14662.2.camel@flow>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.22]:53707 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754499Ab2COSJl (ORCPT
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:59361 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755827Ab2COSKs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Mar 2012 14:09:41 -0400
+	Thu, 15 Mar 2012 14:10:48 -0400
+Received: by eekc41 with SMTP id c41so1821096eek.19
+        for <linux-input@vger.kernel.org>; Thu, 15 Mar 2012 11:10:47 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Paul Parsons <lost.distance@yahoo.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-This patch adds clk_prepare/clk_unprepare calls to the navpoint
+This patch adds clk_prepare/clk_unprepare calls to the pxa27x_keypad
 driver by using the helper functions clk_prepare_enable and
 clk_disable_unprepare.
 
 Signed-off-by: Philipp Zabel <philipp.zabel@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Paul Parsons <lost.distance@yahoo.com>
 ---
- drivers/input/mouse/navpoint.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/keyboard/pxa27x_keypad.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/mouse/navpoint.c b/drivers/input/mouse/navpoint.c
-index 253ec18..cb0d3b1 100644
---- a/drivers/input/mouse/navpoint.c
-+++ b/drivers/input/mouse/navpoint.c
-@@ -225,7 +225,7 @@ static int navpoint_suspend(struct device *dev)
+diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
+index 29fe1b2..4acb7b9 100644
+--- a/drivers/input/keyboard/pxa27x_keypad.c
++++ b/drivers/input/keyboard/pxa27x_keypad.c
+@@ -399,7 +399,7 @@ static int pxa27x_keypad_open(struct input_dev *dev)
+ 	struct pxa27x_keypad *keypad = input_get_drvdata(dev);
  
- 	pxa_ssp_write_reg(ssp, SSCR0, 0);
- 
--	clk_disable(ssp->clk);
-+	clk_disable_unprepare(ssp->clk);
+ 	/* Enable unit clock */
+-	clk_enable(keypad->clk);
++	clk_prepare_enable(keypad->clk);
+ 	pxa27x_keypad_config(keypad);
  
  	return 0;
+@@ -410,7 +410,7 @@ static void pxa27x_keypad_close(struct input_dev *dev)
+ 	struct pxa27x_keypad *keypad = input_get_drvdata(dev);
+ 
+ 	/* Disable clock unit */
+-	clk_disable(keypad->clk);
++	clk_disable_unprepare(keypad->clk);
  }
-@@ -236,7 +236,7 @@ static int navpoint_resume(struct device *dev)
- 	struct ssp_device *ssp = drv_data->ssp;
- 	int timeout;
  
--	clk_enable(ssp->clk);
-+	clk_prepare_enable(ssp->clk);
+ #ifdef CONFIG_PM
+@@ -419,7 +419,7 @@ static int pxa27x_keypad_suspend(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct pxa27x_keypad *keypad = platform_get_drvdata(pdev);
  
- 	pxa_ssp_write_reg(ssp, SSCR1, sscr1);
- 	pxa_ssp_write_reg(ssp, SSSR, sssr);
+-	clk_disable(keypad->clk);
++	clk_disable_unprepare(keypad->clk);
+ 
+ 	if (device_may_wakeup(&pdev->dev))
+ 		enable_irq_wake(keypad->irq);
+@@ -440,7 +440,7 @@ static int pxa27x_keypad_resume(struct device *dev)
+ 
+ 	if (input_dev->users) {
+ 		/* Enable unit clock */
+-		clk_enable(keypad->clk);
++		clk_prepare_enable(keypad->clk);
+ 		pxa27x_keypad_config(keypad);
+ 	}
+ 
 -- 
 1.7.9.1
 

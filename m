@@ -1,107 +1,71 @@
-From: Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>
-Subject: Re: [RFC 1/1] HID: User-space I/O driver support for HID subsystem
-Date: Fri, 16 Mar 2012 09:00:15 -0700
-Message-ID: <1331913615.14217.152.camel@aeonflux>
-References: <1331909617-22106-1-git-send-email-dh.herrmann@googlemail.com>
-	 <1331909617-22106-2-git-send-email-dh.herrmann@googlemail.com>
+From: Paul Parsons <lost.distance@yahoo.com>
+Subject: Re: [PATCH] Input: navpoint: add clk_prepare/clk_unprepare calls
+Date: Fri, 16 Mar 2012 15:57:11 +0000 (GMT)
+Message-ID: <1331913431.1816.YahooMailClassic@web29020.mail.ird.yahoo.com>
+References: <1331834978.14662.1.camel@flow>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1331909617-22106-2-git-send-email-dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, chen.ganir-l0cyMroinI0@public.gmane.org, claudio.takahasi-430g2QfJUUCGglJvpFV4uA@public.gmane.org, jprvita-430g2QfJUUCGglJvpFV4uA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vijaykumar.Dadmode-kQvG35nSl+M@public.gmane.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from nm1.bullet.mail.ird.yahoo.com ([77.238.189.58]:47691 "HELO
+	nm1.bullet.mail.ird.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1754441Ab2CPQDG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Mar 2012 12:03:06 -0400
+In-Reply-To: <1331834978.14662.1.camel@flow>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Philipp Zabel <pzabel@gmx.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi David,
+--- On Thu, 15/3/12, Philipp Zabel <pzabel@gmx.de> wrote:
+> This patch adds
+> clk_prepare/clk_unprepare calls to the navpoint
+> driver by using the helper functions clk_prepare_enable and
+> clk_disable_unprepare.
+>=20
+> Signed-off-by: Philipp Zabel <philipp.zabel@gmail.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Paul Parsons <lost.distance@yahoo.com>
+> ---
+>  drivers/input/mouse/navpoint.c |=A0 =A0 4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/input/mouse/navpoint.c
+> b/drivers/input/mouse/navpoint.c
+> index 253ec18..cb0d3b1 100644
+> --- a/drivers/input/mouse/navpoint.c
+> +++ b/drivers/input/mouse/navpoint.c
+> @@ -225,7 +225,7 @@ static int navpoint_suspend(struct
+> device *dev)
+> =20
+>  =A0=A0=A0 pxa_ssp_write_reg(ssp, SSCR0, 0);
+> =20
+> -=A0=A0=A0 clk_disable(ssp->clk);
+> +=A0=A0=A0 clk_disable_unprepare(ssp->clk);
+> =20
+>  =A0=A0=A0 return 0;
+>  }
+> @@ -236,7 +236,7 @@ static int navpoint_resume(struct device
+> *dev)
+>  =A0=A0=A0 struct ssp_device *ssp =3D
+> drv_data->ssp;
+>  =A0=A0=A0 int timeout;
+> =20
+> -=A0=A0=A0 clk_enable(ssp->clk);
+> +=A0=A0=A0 clk_prepare_enable(ssp->clk);
+> =20
+>  =A0=A0=A0 pxa_ssp_write_reg(ssp, SSCR1, sscr1);
+>  =A0=A0=A0 pxa_ssp_write_reg(ssp, SSSR, sssr);
+> --=20
+> 1.7.9.1
 
-<snip>
+AFAIK the navpoint driver itself has yet to be accepted.
 
-> new file mode 100644
-> index 0000000..1a7df0d
-> --- /dev/null
-> +++ b/include/linux/uhid.h
-> @@ -0,0 +1,71 @@
-> +#ifndef __UHID_H_
-> +#define __UHID_H_
-> +
-> +/*
-> + * User-space I/O driver support for HID subsystem
-> + * Copyright (c) 2012 David Herrmann
-> + */
-> +
-> +/*
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the Free
-> + * Software Foundation; either version 2 of the License, or (at your option)
-> + * any later version.
-> + */
-> +
-> +#include <linux/input.h>
-> +#include <linux/types.h>
-> +
-> +enum uhid_event_type {
-> +	UHID_CREATE,
-> +	UHID_DESTROY,
-> +	UHID_START,
-> +	UHID_STOP,
-> +	UHID_OPEN,
-> +	UHID_CLOSE,
-> +	UHID_OUTPUT,
-> +	UHID_OUTPUT_EV,
-> +	UHID_INPUT,
-> +};
-> +
-> +struct uhid_create_req {
-> +	__u8 __user name[128];
-> +	__u8 __user *rd_data;
-> +	__u16 rd_size;
-> +
+Acked-by: Paul Parsons <lost.distance@yahoo.com>
 
-we need the bus here as well. With HIDP it was implicit, but here it is
-no longer implicit.
-
-> +	__u16 vendor;
-> +	__u16 product;
-> +	__u16 version;
-> +	__u8 country;
-
-What are we using country for these days?
-
-> +};
-> +
-> +#define UHID_DATA_MAX 4096
-> +
-> +enum uhid_report_type {
-> +	UHID_FEATURE_REPORT,
-> +	UHID_OUTPUT_REPORT,
-> +};
-> +
-> +struct uhid_data_req {
-> +	__u8 data[UHID_DATA_MAX];
-> +	__u16 size;
-> +	__u8 rtype;
-> +};
-> +
-> +struct uhid_data_ev_req {
-> +	__u16 type;
-> +	__u16 code;
-> +	__s32 value;
-> +};
-> +
-> +struct uhid_event {
-> +	__u32 type;
-> +
-> +	union {
-> +		struct uhid_create_req create;
-> +		struct uhid_data_req data;
-> +		struct input_event data_ev;
-> +	} u;
-> +};
-> +
-> +#endif /* __UHID_H_ */
-
-Regards
-
-Marcel
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

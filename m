@@ -1,38 +1,43 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: keypad: move platform_data to <linux/platform_data>
-Date: Fri, 16 Mar 2012 09:36:19 -0700
-Message-ID: <1357514.ox9yZWgqO9@dtor-d630.eng.vmware.com>
-References: <1331907989-11891-1-git-send-email-sourav.poddar@ti.com> <1331907989-11891-2-git-send-email-sourav.poddar@ti.com>
+From: simon@mungewell.org
+Subject: Re: Building BarGraph with LED subsystem
+Date: Fri, 16 Mar 2012 12:38:50 -0400
+Message-ID: <f04eb1355e17dbe4ce7bbdd47da0056e.squirrel@mungewell.org>
+References: <1b29a178dd288b0f17608b5815ca77a5.squirrel@mungewell.org>
+    <20323.25792.171143.809563@quad.stoffel.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1331907989-11891-2-git-send-email-sourav.poddar@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Sourav Poddar <sourav.poddar@ti.com>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, balbi@ti.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host171.canaca.com ([67.55.55.225]:36722 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031294Ab2CPQiv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Mar 2012 12:38:51 -0400
+In-Reply-To: <20323.25792.171143.809563@quad.stoffel.home>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: John Stoffel <john@stoffel.org>
+Cc: simon@mungewell.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Friday, March 16, 2012 07:56:28 PM Sourav Poddar wrote:
-> From: Felipe Balbi <balbi@ti.com>
-> 
-> This patch allows us to drop the OMAP depencendy
-> from the OMAP4 keypad driver.
-> 
-> Signed-off-by: Felipe Balbi <balbi@ti.com>
-> Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
-> ---
->  arch/arm/mach-omap2/board-4430sdp.c            |    1 +
->  arch/arm/mach-omap2/devices.c                  |    1 +
->  arch/arm/plat-omap/include/plat/omap4-keypad.h |    9 ---------
->  drivers/input/keyboard/Kconfig                 |    1 -
->  drivers/input/keyboard/omap4-keypad.c          |    2 +-
->  include/linux/platform_data/omap4-keypad.h     |   13 +++++++++++++
 
-Instead of creating platform_data directory why not move to
-include/linux/input/omap4-keypad.h?
+> While making the kernel more complex... esp for a feature which is of
+> such limited use.
 
-Thanks.
+Is the concept of a bargraph of LEDs really a 'limited use'? I can think
+of several uses... I mean isn't flashing or a heart beat just as limited
+;-)
 
--- 
-Dmitry
+
+> Do it all in userland, it's easier, you can use
+> floating point math, etc.  And to test changes, you don't have to
+> recompile a module and unload/reload it, etc.
+
+For my application a user-land stub would do math to work out threshold
+values and push current value (in the right format) into the LED
+subsystem.
+
+Once kernel framework is provided it should not need re-compilation on a
+case by case basis.
+
+Simon
+

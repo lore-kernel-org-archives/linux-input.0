@@ -1,85 +1,125 @@
-From: Joao Paulo Rechi Vita <jprvita-430g2QfJUUCGglJvpFV4uA@public.gmane.org>
-Subject: Re: [RFC 0/1] User-space I/O driver for HID subsystem (Bluetooth-LE HIDP)
-Date: Fri, 16 Mar 2012 14:28:34 -0300
-Message-ID: <CAAngNMY7HJHRU9P3hNknMsZEOs3Yt7aiC5=Cp4r1PXrYYTHFEg@mail.gmail.com>
-References: <1331909617-22106-1-git-send-email-dh.herrmann@googlemail.com>
-	<alpine.LNX.2.00.1203161556540.18356@pobox.suse.cz>
-	<CAJdJm_NHvdHNUsYh1tOkXEd9u5cGLszDCsXTVrwG=TjRxbNFuw@mail.gmail.com>
+From: Thorsten Wissmann <re06huxa@stud.informatik.uni-erlangen.de>
+Subject: Re: Mixed "pen" and multitouch input devices
+Date: Fri, 16 Mar 2012 18:33:32 +0100
+Message-ID: <20120316173332.GA28620@stud.informatik.uni-erlangen.de>
+References: <20120315155235.GA6783@stud.informatik.uni-erlangen.de>
+ <CAGzDe_b0XPUBZKAGnj9kxzuRb9Fw7aph_Q+VgmdVbpVNU2Sf3w@mail.gmail.com>
+ <20120315175635.GA23155@stud.informatik.uni-erlangen.de>
+ <4F623511.3040907@gmail.com>
+ <20120316015224.GA8230@stud.informatik.uni-erlangen.de>
+ <4F629F60.7010600@gmail.com>
+ <CAGzDe_ZVUSu+zFq8giOJfOTYzYWrf=2+Z64KASTE_MpVQ1yMzw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAJdJm_NHvdHNUsYh1tOkXEd9u5cGLszDCsXTVrwG=TjRxbNFuw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Anderson Lizardo <anderson.lizardo-430g2QfJUUCGglJvpFV4uA@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, chen.ganir-l0cyMroinI0@public.gmane.org, claudio.takahasi-430g2QfJUUCGglJvpFV4uA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vijaykumar.Dadmode-kQvG35nSl+M@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:34101 "EHLO
+	faui03.informatik.uni-erlangen.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751515Ab2CPRdf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Mar 2012 13:33:35 -0400
+Content-Disposition: inline
+In-Reply-To: <CAGzDe_ZVUSu+zFq8giOJfOTYzYWrf=2+Z64KASTE_MpVQ1yMzw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chris Bagwell <chris@cnpbagwell.com>
+Cc: Chase Douglas <chasedouglas@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Maximilian =?iso-8859-1?Q?Kr=FCger?= <maxfragg@gmail.com>, i4passt@lists.informatik.uni-erlangen.de
 
-On Fri, Mar 16, 2012 at 1:04 PM, Anderson Lizardo
-<anderson.lizardo-430g2QfJUUCGglJvpFV4uA@public.gmane.org> wrote:
-> Hi Jiri,
->
-> On Fri, Mar 16, 2012 at 10:58 AM, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org> wrote=
-:
->> On Fri, 16 Mar 2012, David Herrmann wrote:
->>
->>> I have hacked together a small driver which allows user-space I/O d=
-rivers to
->>> provide HID devices. This is needed for Bluetooth-Low-Energy HID de=
-vices as the
->>> Bluetooth-LE protocol is parsed in user-space.
->>
->> David,
->>
->> thanks for your effort.
->>
->> I haven't read the full discussion you have CCed me on yesterday, bu=
-t I
->> have one substantial question to start with -- is there a simple
->> explanation in a few sentences why Bluetooth-LE can't be added as a
->> in-kernel transport layer?
->
-> Just to add my own opinion here (as this topic has been brought befor=
-e
-> long ago, but on linux-bluetooth only):
->
-> For LE we have a single LE channel (multiplexed for all LE profiles
-> running simultaneously, as described by Claudio and Joao Vita
-> earlier), and this channel takes so called ATT (attribute protocol)
-> packets. These packets have a very small header (at least one byte to
-> identify the request/response being sent), but usually have extra
-> bytes for parameters (e.g. an "attribute handle" from which BlueZ can
-> know to which GATT profile it is being addressed) and data payload.
->
-> If LE (actually the ATT protocol used by LE, which is also usable ove=
-r
-> BR/EDR) were to be parsed on the kernel, we would also need to parse
-> the ATT packet in order to know to which attribute handles it is bein=
-g
-> addressed. The kernel would also need to keep tracking of the higher
-> level HID over GATT services so it could know which packets to proces=
-s
-> for HID , and which are destined for other LE profiles (running on
-> BlueZ, or being sent to non-HID profile running on peer device).
->
-> At least this is my understanding of the problem.
->
-> Regards,
+On Thu, Mar 15, 2012 at 09:57:30PM -0500, Chris Bagwell wrote:
+> On Thu, Mar 15, 2012 at 9:03 PM, Chase Douglas <chasedouglas@gmail.co=
+m> wrote:
+> > On 03/15/2012 06:52 PM, Thorsten Wissmann wrote:
+> >> It turned out xf86-input-evdev really discards all non-multitouch =
+events
+> >> (especially ABS_X and ABS_Y) events in EvdevProcessAbsoluteMotionE=
+vent()
+> >> in evdev.c, if the device is configured as a multitouch device. So=
+ there
+> >> is a quick fix (or only workaround?), which processes ABS_X and AB=
+S_Y
+> >> events even if it is a multitouch device:
+> >>
+> >> diff --git a/src/evdev.c b/src/evdev.c
+> >> index d540b87..b857b83 100644
+> >> --- a/src/evdev.c
+> >> +++ b/src/evdev.c
+> >> @@ -832,7 +832,7 @@ EvdevProcessAbsoluteMotionEvent(InputInfoPtr p=
+Info,
+> >> struct input_event *ev)
+> >> =A0 =A0 =A0if (ev->code >=3D ABS_MT_SLOT) {
+> >> =A0 =A0 =A0 =A0 =A0EvdevProcessTouchEvent(pInfo, ev);
+> >> =A0 =A0 =A0 =A0 =A0pEvdev->abs_queued =3D 1;
+> >> - =A0 =A0} else if (!pEvdev->mt_mask) {
+> >> + =A0 =A0} else if (!pEvdev->mt_mask || ev->code =3D=3D ABS_X || e=
+v->code =3D=3D
+> >> ABS_Y) {
+> >> =A0 =A0 =A0 =A0 =A0map =3D pEvdev->axis_map[ev->code];
+> >> =A0 =A0 =A0 =A0 =A0valuator_mask_set(pEvdev->vals, map, value);
+> >> =A0 =A0 =A0 =A0 =A0pEvdev->abs_queued =3D 1;
+> >>
+> >> This patch already is submitted to the xorg bugtracker and can be =
+found
+> >> at [1].
+> >>
+> >> The only remaining question is: Does it break other drivers?
+> >>
+> >> [1] https://bugs.freedesktop.org/show_bug.cgi?id=3D47382
+> >
+> > Great!
+> >
+> > I haven't fully thought about it enough to give a reviewed-by, but =
+it
+> > seems sane.
+> >
+> > I suggest sending the patch to xorg-devel@lists.x.org. That's where=
+ most
+> > patch reviews are handled. You will likely get faster results there=
+=2E
+>=20
+> Yep, agree thats also a great way to go.
 
-And the biggest concern of having this in userspace was latency. I've
-done a small test getting input events coming from a regular mouse
-through /dev/input/mouse0 on a userspace application that feeds this
-events back to the kernel through uinput, creating a second virtual
-mouse on /dev/input/mouse1. Then attaching this mouse1 to an
-additional pointer on X shows that the latency of this roundtrip
-between the kernel and the userspace have no impact on this usecase
-(no visual difference between the movement of one pointer and the
-second one).
+Thanks!
 
-So mitigating this potential problem, I don't see why doing this ATT
-parsing and demuxing on the kernel would be an advantage (but I may be
-missing something here).
+> One thing I might suggest is to include with patch your thinking on
+> how a pen+multitouch device should send events to help in review of
+> the patch.  Just the basics.  For example, from above patch I have an
+> assumption that your sending ABS_X/Y only for PEN events and
+> ABS_MT_POSITION_X/Y only for touch events; but then again I'm not 100=
+%
+> sure of that.
 
---=20
-Jo=C3=A3o Paulo Rechi Vita
-Openbossa Labs - INdT
+That's correct. In our case, it's ABS_X/Y for pen, ABS_MT_* for fingers
+(normal touches). But maybe other devices behave different. So we shoul=
+d
+send something like this as an addition to the patch on the x.org list?
+
+# finger touch
+    ABS_MT_SLOT 0
+    ABS_MT_TRACKING_ID 42
+    ABS_MT_POSITION_X finger_x
+    ABS_MT_POSITION_Y finger_y
+    SYN_MT_REPORT
+    SYN_REPORT
+# finger release
+    ABS_MT_SLOT 0
+    ABS_MT_TRACKING_ID -1
+    SYN_REPORT
+# pen motion
+    ABS_X pen_x
+    ABS_Y pen_y
+    SYN_REPORT
+
+> If ABS_X/Y is only for PEN events, then pEvdev->in_proximity in
+> xf86-input-evdev may be a less restrictive check to allow even
+> BTN_STYLUS and ABS_X/Y events to be processed.
+
+The actual event source (if PEN or STYLUS or ...) shouldn't matter. (Or
+I just don't get your point)
+
+
+    Thorsten
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

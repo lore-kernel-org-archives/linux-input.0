@@ -1,93 +1,87 @@
-From: "John Stoffel" <john@stoffel.org>
-Subject: Re: Building BarGraph with LED subsystem
-Date: Fri, 16 Mar 2012 16:06:13 -0400
-Message-ID: <20323.40245.165190.353107@quad.stoffel.home>
-References: <1b29a178dd288b0f17608b5815ca77a5.squirrel@mungewell.org>
-	<20323.25792.171143.809563@quad.stoffel.home>
-	<f04eb1355e17dbe4ce7bbdd47da0056e.squirrel@mungewell.org>
-	<20323.28731.474538.955921@quad.stoffel.home>
-	<683cca338c740abdd522a35dfe3b17a9.squirrel@mungewell.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: [PATCH] Input: uinput: Avoid returning 0 on read()
+Date: Fri, 16 Mar 2012 21:23:55 +0100
+Message-ID: <1331929435-22872-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from Mycroft.westnet.com ([216.187.52.7]:62981 "EHLO
-	mycroft.westnet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751218Ab2CPUGS (ORCPT
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:62179 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031455Ab2CPUYI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Mar 2012 16:06:18 -0400
-In-Reply-To: <683cca338c740abdd522a35dfe3b17a9.squirrel@mungewell.org>
+	Fri, 16 Mar 2012 16:24:08 -0400
+Received: by wibhj6 with SMTP id hj6so1382994wib.1
+        for <linux-input@vger.kernel.org>; Fri, 16 Mar 2012 13:24:07 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: John Stoffel <john@stoffel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: aris@cathedrallabs.org, dmitry.torokhov@gmail.com, David Herrmann <dh.herrmann@googlemail.com>
 
->>>>> "simon" == simon  <simon@mungewell.org> writes:
+Consider the output-queue to be almost full. A thread inside read() will
+pass the wait_event_*() call and reach the while() loop. Now assume a new
+message was added to the output-queue and the queue overruns, i.e.,
+we now have udev->head == udev->tail.
+The thread now passes the while() loop without fetching any message and
+returns 0. However, at least for blocking FDs there is really no reason to
+wake up user-space and for non-blocking FDs we should return -EAGAIN now.
+Therefore, simply retry the read() if we didn't fetch any message.
 
->>>> While making the kernel more complex... esp for a feature which is of
->>>> such limited use.
->> 
-simon> Is the concept of a bargraph of LEDs really a 'limited use'? I
-simon> can think of several uses... I mean isn't flashing or a heart
-simon> beat just as limited ;-)
->> 
->> Yes, it's a limited use.  Are 10% of linux users going to have this
->> hardware and use it?
+We also check whether the user-supplied buffer is actually big enough and
+return -EINVAL if it is not. This differs from current behavior which
+caused 0 to be returned which actually does not make any sense. This may
+break ABI since user-space programs might be used to get 0 if the buffer
+is to small. However, 0 means the FD was closed so returning -EINVAL
+*must* be handled similar in user-space, otherwise the programs are
+broken.
+Anyway, we need this check, otherwise we would have a never-returning
+loop here because retval would always be 0.
 
-simon> OK I'm not making myself clear, apologies for that.
+Also note that an queue-overrun is not the only situation where this bug
+occurs. We might also have a race between multiple threads here so we
+definitely need to handle it this way.
 
-Thanks for taking the time to make yourself clearer.  Now I understand
-what you're trying to do...
+Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+---
+Hi Dmitry
 
-simon> I'd be proposing a 'ledtrig-thres' module which is totally
-simon> independent of the G27, which would just provide the ability to
-simon> light (or dark) a LED depending on a threshold and value.
+Please note that this is based on my previous fix so you might get some
+(trivial) conflicts if you didn't apply the previous one. They should be easy to
+solve, though.
+Also, the issue with returning -EINVAL if the buffer is too small and hence
+breaking API can be resolved by moving the check down directly before running
+"goto try_again;". However, I think returning -EINVAL is the better fix. Feel
+free to change this, though.
+To be honest, I also don't know whether read() actually returns 0 to user-space
+if our handler returns 0 or if it changes this to anything else.
 
-And why does this need to be in the kernel?  That's what I'm asking.
-Make it a library where you do:
+Regards
+David
 
-     led_thresh(*led1,int value);
-     led_thresh(*led2,int value + 300);
-     led_thresh(*led3,int value + 600);
-     led_thresh(*led4,int value + 900);
-     led_thresh(*led5,int value + 1200);
-     leds = led_array(*led1, *led2, *led3, *led4, *led5);
-     led_on(*leds, 500);
+ drivers/input/misc/uinput.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-and it lights up the first two LEDs in the array?  You'd need to do
-something like this *anyway* in your code so that you can make this
-flexible enough to handle arrays with varying numbers of LEDs.  So why
-does it need to be in the kernel again?
-
-simon> With a bit of extra code (in this module) multiple LEDs could be 'linked'
-simon> to produce a bargraph, by automatically comparing the same value against
-simon> their own thresholds.
-
-So how much code is needed in my userspace program to setup and add
-these multiple LEDs (which don't have to be physically anywhere near
-each other, think house lighting...) to an array which manages them?  
-
-simon> As to the hardware; it could be the G27, a single LED or a
-simon> matrix of LEDs slung off one of the other LED subsystem
-simon> devices.
-
-simon> I'd want to show RPMs on my G27, but others could display CPU
-simon> usage, emulate a VU meter/FFT display, have the 'low memory
-simon> panic light' come on, etc...
-
-
-simon> Once kernel framework is provided it should not need
-simon> re-compilation on a case by case basis.
-
->> If the kernel only provides a way to set the brightness of individual
->> LEDs, why can't you do the rest in userspace?  What if the user wants
->> to have the LEDs run right to left, or visa versa?
-
-simon> I'm just wondering whether writing this as a trigger module is of use to
-simon> others. If well defined, lots of uses are possible.
-
-Just write a library that does this and give it out to people.  Then
-you can add in dimming and all kinds of other LED tricks as well.  
-
-John
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 1526814..bf5cd7b 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -457,6 +457,10 @@ static ssize_t uinput_read(struct file *file, char __user *buffer, size_t count,
+ 	struct uinput_device *udev = file->private_data;
+ 	int retval = 0;
+ 
++	if (count < input_event_size())
++		return -EINVAL;
++
++try_again:
+ 	if (udev->state != UIST_CREATED)
+ 		return -ENODEV;
+ 
+@@ -490,6 +494,8 @@ static ssize_t uinput_read(struct file *file, char __user *buffer, size_t count,
+ 
+  out:
+ 	mutex_unlock(&udev->mutex);
++	if (!retval)
++		goto try_again;
+ 
+ 	return retval;
+ }
+-- 
+1.7.9.4
 

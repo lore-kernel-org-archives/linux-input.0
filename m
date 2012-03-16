@@ -1,38 +1,55 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [RFC 0/1] User-space I/O driver for HID subsystem (Bluetooth-LE
- HIDP)
-Date: Fri, 16 Mar 2012 15:58:32 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1203161556540.18356@pobox.suse.cz>
-References: <1331909617-22106-1-git-send-email-dh.herrmann@googlemail.com>
+From: simon@mungewell.org
+Subject: Building BarGraph with LED subsystem
+Date: Fri, 16 Mar 2012 11:24:47 -0400
+Message-ID: <1b29a178dd288b0f17608b5815ca77a5.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1331909617-22106-1-git-send-email-dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, chen.ganir-l0cyMroinI0@public.gmane.org, claudio.takahasi-430g2QfJUUCGglJvpFV4uA@public.gmane.org, jprvita-430g2QfJUUCGglJvpFV4uA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vijaykumar.Dadmode-kQvG35nSl+M@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host171.canaca.com ([67.55.55.225]:60104 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1032852Ab2CPPYs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Mar 2012 11:24:48 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-On Fri, 16 Mar 2012, David Herrmann wrote:
+Hi all,
+I have a couple of questions about the (user-land) use of the LED subsystem.
 
-> I have hacked together a small driver which allows user-space I/O drivers to
-> provide HID devices. This is needed for Bluetooth-Low-Energy HID devices as the
-> Bluetooth-LE protocol is parsed in user-space.
+I recently offered a patch for controlling the LEDs of the G27 gaming
+wheel, on which the LEDs are arranged in a bar-graph of 5 to show
+simulation RPM. The suggestion was to use the LED subsystem, which this
+patch implements.
 
-David,
+http://www.spinics.net/lists/linux-input/msg19747.html
 
-thanks for your effort.
+Thinking further about how to about how to control this I was wondering
+whether a 'threshold' trigger would be useful. This would allow the use of
+value (uint?) to be compare against a threshold and the LED turned on/off
+automatically.
 
-I haven't read the full discussion you have CCed me on yesterday, but I 
-have one substantial question to start with -- is there a simple 
-explanation in a few sentences why Bluetooth-LE can't be added as a 
-in-kernel transport layer?
+The main benefit of doing this as a 'trigger' is that we could 'link' (or
+'sync') multiple LEDs to use the same value input, thus making the
+user-land stuff trivial.
 
-Answering that is, I believe, something that should start the whole 
-discussion.
+Concept - ledtrig-thres would provide the controls:
+   threshold - value to compare against.
+   value - incoming value, if >= threshold LED is lit, if < threshold LED
+is dark.
+   link - 'none' (standalone comparison), or the path to the value of
+another LED's value to use (ie '/sys/leds/my_device::2/value')
 
-Thanks,
+Comments? Is this all too complex?
 
--- 
-Jiri Kosina
-SUSE Labs
+
+Also I have a question about the default permissions on the LED controls;
+Is it possible to register LEDs so that users have write permission? At
+present the controls are only accessible as root.
+
+Many thanks,
+Simon.
+
+

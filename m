@@ -1,48 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [RFC 0/1] User-space I/O driver for HID subsystem (Bluetooth-LE HIDP)
-Date: Fri, 16 Mar 2012 11:09:07 -0700
-Message-ID: <2581566.JBjJTljkE9@dtor-d630.eng.vmware.com>
-References: <1331909617-22106-1-git-send-email-dh.herrmann@googlemail.com> <CAAngNMYSNPX8veuBD2jrvhHSV2v_8e4qRt8ZjYDPcF=-Q8XUCQ@mail.gmail.com> <1331920658.14217.180.camel@aeonflux>
+From: Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: [PATCH v3 2/2] input: add driver support for MAX8997-haptic
+Date: Fri, 16 Mar 2012 19:56:26 +0100
+Message-ID: <20120316185626.GO20524@sortiz-mobl>
+References: <4F5DB459.9090701@samsung.com>
+ <20120314084652.GC3964@core.coreip.homeip.net>
+ <4F60AF8E.7050900@samsung.com>
+ <20120314154828.GA24964@core.coreip.homeip.net>
+ <20120316174802.GI20524@sortiz-mobl>
+ <20120316175524.GA19275@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1331920658.14217.180.camel@aeonflux>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>
-Cc: Joao Paulo Rechi Vita <jprvita-430g2QfJUUCGglJvpFV4uA@public.gmane.org>, David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, chen.ganir-l0cyMroinI0@public.gmane.org, claudio.takahasi-430g2QfJUUCGglJvpFV4uA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vijaykumar.Dadmode-kQvG35nSl+M@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:59213 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752067Ab2CPSsb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Mar 2012 14:48:31 -0400
+Content-Disposition: inline
+In-Reply-To: <20120316175524.GA19275@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>, linux-input@vger.kernel.org, broonie@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, myungjoo.ham@samsung.com
 
-On Friday, March 16, 2012 10:57:38 AM Marcel Holtmann wrote:
-> Hi Joao,
-> 
-> > > I have hacked together a small driver which allows user-space I/O
-> > > drivers to provide HID devices. This is needed for
-> > > Bluetooth-Low-Energy HID devices as the Bluetooth-LE protocol is
-> > > parsed in user-space.
-> > > 
-> > > I have only compile-tested this driver, I haven't run it yet. It's
-> > > just an proposal how this could be implemented. It should also work
-> > > as hint to the BT-LE developers how such an interface will
-> > > look-like.
-> > 
-> > First of all, thanks for your effort. I haven't looked at the code
-> > yet, but thinking again about the problem and since it's very similar
-> > to uinput, would adding another ioctl to uinput that receives the HID
-> > descriptor and put uinput in a "HID mode" be sufficient? This way we
-> > could increase code reuse and ease maintainance, I guess. What do you
-> > think?
-> 
-> I am really against this. Input subsystem and HID subsystem are two
-> different things. Don't try to combine them.
-> 
-> You would also mess up the layering here. HID uses input, but input does
-> not require HID.
-> 
+Hi Dmitry,
 
-Completely agree with Marcel here.
+On Fri, Mar 16, 2012 at 10:55:24AM -0700, Dmitry Torokhov wrote:
+> > > OK, excellent. I'll pick up this fix and apply the driver for 3.4 queue,
+> > > thanks!
+> > Your patch depends on the MFD changes Choi sent along the input driver. I
+> > think it would make more sense for me to take it. What do you think ?
+> 
+> I think that splitting required platform data definitions from the
+> driver into separate patch is quite pointless. 
+Hmm, you're right on this one.
 
-Thanks.
+> I often see a driver
+> split in 3+ patches - headers, the driver itself and Kconfig/makefile
+> changes and I wonder what made them do it...
+> 
+> Anyway, below is the consolidated patch I was going to apply to my tree,
+> but if you want to go through yours - feel free to apply it.
+No, I think it makes sense for you to take it. Add my:
+Acked-by: Samuel Ortiz <sameo@linux.intel.com>
+
+if you feel it's needed.
+
+Cheers,
+Samuel.
 
 -- 
-Dmitry
+Intel Open Source Technology Centre
+http://oss.intel.com/

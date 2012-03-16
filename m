@@ -1,43 +1,40 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 4/5] HID: autoload hid-multitouch as needed
-Date: Fri, 16 Mar 2012 12:26:31 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1203161225110.18356@pobox.suse.cz>
-References: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com> <1331053026-21272-5-git-send-email-benjamin.tissoires@gmail.com>
+From: Sourav Poddar <sourav.poddar@ti.com>
+Subject: [PATCH 0/2] Omap keypad cleanup and omap5 support
+Date: Fri, 16 Mar 2012 19:09:17 +0530
+Message-ID: <1331905159-11255-1-git-send-email-sourav.poddar@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38387 "EHLO mx2.suse.de"
+Received: from comal.ext.ti.com ([198.47.26.152]:37244 "EHLO comal.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1761293Ab2CPL0d (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Mar 2012 07:26:33 -0400
-In-Reply-To: <1331053026-21272-5-git-send-email-benjamin.tissoires@gmail.com>
+	id S1752790Ab2CPNiV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Mar 2012 09:38:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: balbi@ti.com
 
-On Tue, 6 Mar 2012, benjamin.tissoires wrote:
+The series consists of two patches.
+Patch1 of the series makes omap4 keypad independent of the
+architecture by moving platform_data to <linux/platform_data>
 
-> From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> 
-> The code is inspired from the one present in the bttv module.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> ---
-> 
-> As I mentioned in the mail 0/5, I'd really like to have your opinion on this
-> one. I copied the code from bttv, but it forces us to change hid_device which
-> is not very good for ABI changes reasons.
+Patch2 add support for omap5 onchip keypad.
 
-It's indeed probably the best and most "lightweight" solution before we 
-come up with more robust attitude (with userspace involvement).
+Tested on omap4430sdp using 3.3-rc6.
+Tested on omap5 board using 3.1 custom kernel. 
 
-Could you please resend the patch with proper changelog entry, and perhaps 
-add some more commentary into the code to better explain the reasons for 
-this gymnastics?
+Felipe Balbi (1):
+  input: keypad: move platform_data to <linux/platform_data>
 
-Thanks,
+G, Manjunath Kondaiah (1):
+  Input: omap-keypad: dynamically handle register offsets
 
--- 
-Jiri Kosina
-SUSE Labs
+ arch/arm/mach-omap2/board-4430sdp.c            |    1 +
+ arch/arm/mach-omap2/devices.c                  |    1 +
+ arch/arm/plat-omap/include/plat/omap4-keypad.h |    9 --
+ drivers/input/keyboard/Kconfig                 |    7 +-
+ drivers/input/keyboard/omap4-keypad.c          |  124 +++++++++++++++++++-----
+ include/linux/platform_data/omap4-keypad.h     |   13 +++
+ 6 files changed, 118 insertions(+), 37 deletions(-)
+ create mode 100644 include/linux/platform_data/omap4-keypad.h
+

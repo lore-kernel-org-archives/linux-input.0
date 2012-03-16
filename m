@@ -1,155 +1,78 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH] input: wacom: Use touch size for ABS_MT_TOUCH_MAJOR
-Date: Thu, 15 Mar 2012 17:10:37 -0700
-Message-ID: <CANRwn3SuZVQnfR9-+EUXyJ04RssWowUrZaMYNhYyNG9VYB42GA@mail.gmail.com>
-References: <1331170746-12636-1-git-send-email-killertofu@gmail.com>
-	<CAGzDe_Z2Dpc9ue06V8mgc_fUUqSe0gJLwDK0piE156EsXV__7Q@mail.gmail.com>
-	<CANRwn3SNnBAidf3wBuvSvO0EAyYPhhJXmBrv9Ly9f_HNiJkkPw@mail.gmail.com>
-	<CAGzDe_bxoM81HOz2O3k7_bNvNO-V1Ro=fTGqGBRwwsNNtOYvAQ@mail.gmail.com>
+From: Thorsten Wissmann <re06huxa@stud.informatik.uni-erlangen.de>
+Subject: Re: Mixed "pen" and multitouch input devices
+Date: Fri, 16 Mar 2012 02:52:24 +0100
+Message-ID: <20120316015224.GA8230@stud.informatik.uni-erlangen.de>
+References: <20120315155235.GA6783@stud.informatik.uni-erlangen.de>
+ <CAGzDe_b0XPUBZKAGnj9kxzuRb9Fw7aph_Q+VgmdVbpVNU2Sf3w@mail.gmail.com>
+ <20120315175635.GA23155@stud.informatik.uni-erlangen.de>
+ <4F623511.3040907@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:38574 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161824Ab2CPAKj convert rfc822-to-8bit (ORCPT
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:55464 "EHLO
+	faui03.informatik.uni-erlangen.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758654Ab2CPBw1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Mar 2012 20:10:39 -0400
-Received: by wgbdr13 with SMTP id dr13so106710wgb.1
-        for <linux-input@vger.kernel.org>; Thu, 15 Mar 2012 17:10:37 -0700 (PDT)
-In-Reply-To: <CAGzDe_bxoM81HOz2O3k7_bNvNO-V1Ro=fTGqGBRwwsNNtOYvAQ@mail.gmail.com>
+	Thu, 15 Mar 2012 21:52:27 -0400
+Content-Disposition: inline
+In-Reply-To: <4F623511.3040907@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Bagwell <chris@cnpbagwell.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Chase Douglas <chasedouglas@gmail.com>
+Cc: Chris Bagwell <chris@cnpbagwell.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Maximilian =?iso-8859-1?Q?Kr=FCger?= <maxfragg@gmail.com>, i4passt@lists.informatik.uni-erlangen.de
 
-On Mon, Mar 12, 2012 at 3:41 PM, Chris Bagwell <chris@cnpbagwell.com> w=
-rote:
-> On Fri, Mar 9, 2012 at 5:26 PM, Jason Gerecke <killertofu@gmail.com> =
-wrote:
->> On Fri, Mar 9, 2012 at 2:30 PM, Chris Bagwell <chris@cnpbagwell.com>=
- wrote:
->>> On Wed, Mar 7, 2012 at 7:39 PM, Jason Gerecke <killertofu@gmail.com=
-> wrote:
->>>> 3rd-gen Bamboo devices report both "amplitude" and "size" data
->>>> in their touch packets. This patch changes the source for
->>>> ABS_MT_TOUCH_MAJOR to be the latter rather than the former.
->>>> ---
->>>> =C2=A0drivers/input/tablet/wacom_wac.c | =C2=A0 =C2=A02 +-
->>>> =C2=A01 files changed, 1 insertions(+), 1 deletions(-)
->>>>
->>>> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tabl=
-et/wacom_wac.c
->>>> index d0b0fc4..5daf11d 100644
->>>> --- a/drivers/input/tablet/wacom_wac.c
->>>> +++ b/drivers/input/tablet/wacom_wac.c
->>>> @@ -916,7 +916,7 @@ static void wacom_bpt3_touch_msg(struct wacom_=
-wac *wacom, unsigned char *data)
->>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0if (touch) {
->>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0int x =3D (=
-data[2] << 4) | (data[4] >> 4);
->>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0int y =3D (=
-data[3] << 4) | (data[4] & 0x0f);
->>>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 int w =3D data[=
-6];
->>>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 int w =3D data[=
-5];
->>>>
->>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_repor=
-t_abs(input, ABS_MT_POSITION_X, x);
->>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_repor=
-t_abs(input, ABS_MT_POSITION_Y, y);
->>>> --
->>>> 1.7.9.1
->>>>
->>>
->>> I found time to test this patch and used "mtview" so I could get so=
-me
->>> visual feedback.
->>>
->>> The lines because extremely thin with this change. =C2=A0Part of re=
-ason I
->>> quickly traced to we are setting range as 0-255 but I couldn't get
->>> data[5] to go above a value of 18. =C2=A0So I changed range to 0-16=
- and it
->>> works better but the lines still never gets very thick (this could
->>> well be that mtview doesn't scale values and prefers 0-255. =C2=A0I=
- didn't
->>> look).
->> Looks like its a combination of two problems, one mine one mtview's.=
-=2E.
->>
->> I did some reading, and the MT protocol docs specify that
->> ABS_MT_TOUCH_MAJOR are in terms of surface units. That means a value
->> of e.g. "20" should represent a touch that spans 20 units of X. The
->> touch sensor has a resolution of ~0.1mm, which would imply the touch
->> was only 2 mm wide... There's going to have to be a correction facto=
-r
->> to transform the value to something more appropriate.
->>
->> As for mtview, it looks like it doesn't scale the major/minor axis
->> values based on the output size. At the very least it should scale
->> everything by roughly (output_max_x / sensor_max_x) so that a touch
->> taking up e.g. 10% of the tablet would take up 10% of the output.
->
-> I see now that I got lucky that I had a 0-255 value available and
-> didn't look into what I needed to report close enough.
->
->>
->>>
->>> Amplitude feels better to me using test apps but your in a better
->>> position to say if we should really change this. =C2=A0Please adjus=
-t
->>> declared range though if you still think we should change this.
->>>
->>> Chris
->>
->> My main reasons for switching away from amplitude were that amplitud=
-e
->> is a very crude number (I think I can get three or four unique value=
-s
->> out of it), and that the tablet reports a size already. Worst case -=
--
->> assuming a correction factor isn't sufficient to get data[5] working
->> as MAJOR -- we should at least send data[5] through PRESSURE (which
->> the MT docs state may be used instead of MAJOR/MINOR if the units ar=
-e
->> arbitrary).
->>
->
-> I've not found time to dig deeply to this (to compute real scale
-> value) but I'll offer this. =C2=A0I compared behaviour of original da=
-ta[6]
-> to this:
->
-> int w =3D (data[5] > 31) ? 255 : data[5] << 3;
->
-> and with mtview the size change is much more responsive and
-> consistent. =C2=A0So I'm on board with changing to data[5] in some fo=
-rm.
->
-> Chris
+On Thu, Mar 15, 2012 at 11:29:37AM -0700, Chase Douglas wrote:
+> On 03/15/2012 10:56 AM, Thorsten Wissmann wrote:
+> > On Thu, Mar 15, 2012 at 12:27:22PM -0500, Chris Bagwell wrote:
+> >> If you want to work with other unmodified user land apps (perhaps
+> >> xf86-input-evdev for touches) then its probably easiest to split pen
+> >> and touch to separate input devices.  drivers/input/tablet/wacom_wac.c
+> >> shows some examples of that approach but that driver doesn't have to
+> >> work to hard to split in to 2 input devices because the USB device
+> >> already puts the events on separate USB  interfaces.
+> > 
+> > OK. We want the device to work with the xf86-input-evdev driver. So we
+> > will split it into two devices.
+> 
+> Or you could teach evdev to know how to handle mixed devices :). I think
+> that's the "better" approach over all, but it's up to you.
 
-I did a little more testing, and it looks like data[5] is proportional
-to the area (not linear dimension) of the touch. Given the intended
-semantics (and ignoring the huge blobs it produces in mtview),
-int_sqrt(data[5] << 13) seems to work well. We'd probably have to
-increase the maximum to 512 or 1024 though since I've been able to get
-my palm to produce values of ~600...
+Thanks! We didn't thought about this. It turned out that the problem
+isn't caused by the usage of both BTN_TOOL_PEN and BTN_TOOL_FINGER.
 
-Also, I don't yet know how these values scale between tablet sizes --
-I imagine smaller tablets produce larger values (since their sensors
-are denser), but haven't been able to get my hands on other hardware
-yet.
+It turned out xf86-input-evdev really discards all non-multitouch events
+(especially ABS_X and ABS_Y) events in EvdevProcessAbsoluteMotionEvent()
+in evdev.c, if the device is configured as a multitouch device. So there
+is a quick fix (or only workaround?), which processes ABS_X and ABS_Y
+events even if it is a multitouch device:
 
-Jason
+diff --git a/src/evdev.c b/src/evdev.c
+index d540b87..b857b83 100644
+--- a/src/evdev.c
++++ b/src/evdev.c
+@@ -832,7 +832,7 @@ EvdevProcessAbsoluteMotionEvent(InputInfoPtr pInfo,
+struct input_event *ev)
+     if (ev->code >= ABS_MT_SLOT) {
+         EvdevProcessTouchEvent(pInfo, ev);
+         pEvdev->abs_queued = 1;
+-    } else if (!pEvdev->mt_mask) {
++    } else if (!pEvdev->mt_mask || ev->code == ABS_X || ev->code ==
+ABS_Y) {
+         map = pEvdev->axis_map[ev->code];
+         valuator_mask_set(pEvdev->vals, map, value);
+         pEvdev->abs_queued = 1;
 
----
-Day xee-nee-svsh duu-'ushtlh-ts'it;
-nuu-wee-ya' duu-xan' 'vm-nvshtlh-ts'it.
-Huu-chan xuu naa~-gha.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This patch already is submitted to the xorg bugtracker and can be found
+at [1].
+
+The only remaining question is: Does it break other drivers?
+
+    Max and Thorsten
+
+[1] https://bugs.freedesktop.org/show_bug.cgi?id=47382
+-- 
+1.7.9.3
+
+
+
+

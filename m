@@ -1,90 +1,77 @@
-From: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [RFC 1/1] HID: User-space I/O driver support for HID subsystem
-Date: Fri, 16 Mar 2012 13:51:00 -0700
-Message-ID: <1331931060.14217.190.camel@aeonflux>
-References: <1331909617-22106-1-git-send-email-dh.herrmann@googlemail.com>
-	 <1331909617-22106-2-git-send-email-dh.herrmann@googlemail.com>
-	 <1331913615.14217.152.camel@aeonflux>
-	 <CANq1E4ROxW_XfkP8=s9FsHuxXMYGXomqRhsuAc4Ow5uBSAE6Gg@mail.gmail.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH 1/2] input: keypad: move platform_data to
+ <linux/platform_data>
+Date: Fri, 16 Mar 2012 23:08:43 +0200
+Message-ID: <20120316210841.GA19797@arwen.pp.htv.fi>
+References: <1331907989-11891-1-git-send-email-sourav.poddar@ti.com>
+ <1331907989-11891-2-git-send-email-sourav.poddar@ti.com>
+ <1357514.ox9yZWgqO9@dtor-d630.eng.vmware.com>
+Reply-To: balbi@ti.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from senator.holtmann.net ([87.106.208.187]:55091 "EHLO
-	mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757339Ab2CPUvf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Mar 2012 16:51:35 -0400
-In-Reply-To: <CANq1E4ROxW_XfkP8=s9FsHuxXMYGXomqRhsuAc4Ow5uBSAE6Gg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1357514.ox9yZWgqO9@dtor-d630.eng.vmware.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sourav Poddar <sourav.poddar@ti.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, balbi@ti.com
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, chen.ganir@ti.com, claudio.takahasi@openbossa.org, jprvita@openbossa.org, linux-bluetooth@vger.kernel.org, Vijaykumar.Dadmode@csr.com
-
-Hi David,
-
-> >> new file mode 100644
-> >> index 0000000..1a7df0d
-> >> --- /dev/null
-> >> +++ b/include/linux/uhid.h
-> >> @@ -0,0 +1,71 @@
-> >> +#ifndef __UHID_H_
-> >> +#define __UHID_H_
-> >> +
-> >> +/*
-> >> + * User-space I/O driver support for HID subsystem
-> >> + * Copyright (c) 2012 David Herrmann
-> >> + */
-> >> +
-> >> +/*
-> >> + * This program is free software; you can redistribute it and/or modify it
-> >> + * under the terms of the GNU General Public License as published by the Free
-> >> + * Software Foundation; either version 2 of the License, or (at your option)
-> >> + * any later version.
-> >> + */
-> >> +
-> >> +#include <linux/input.h>
-> >> +#include <linux/types.h>
-> >> +
-> >> +enum uhid_event_type {
-> >> +     UHID_CREATE,
-> >> +     UHID_DESTROY,
-> >> +     UHID_START,
-> >> +     UHID_STOP,
-> >> +     UHID_OPEN,
-> >> +     UHID_CLOSE,
-> >> +     UHID_OUTPUT,
-> >> +     UHID_OUTPUT_EV,
-> >> +     UHID_INPUT,
-> >> +};
-> >> +
-> >> +struct uhid_create_req {
-> >> +     __u8 __user name[128];
-> >> +     __u8 __user *rd_data;
-> >> +     __u16 rd_size;
-> >> +
-> >
-> > we need the bus here as well. With HIDP it was implicit, but here it is
-> > no longer implicit.
-> 
-> Uh, yeah, I will add that, thanks. I also need to find a proper way to
-> get a hid->dev.parent pointer.
-> 
-> >> +     __u16 vendor;
-> >> +     __u16 product;
-> >> +     __u16 version;
-> >> +     __u8 country;
-> >
-> > What are we using country for these days?
-> 
-> I copied it from HIDP. If we don't need this, I can remove it. USBHID
-> doesn't use it as far as I can see.
-
-in USB it is the hdesc->bCountryCode. And in Bluetooth BR/EDR it comes
-from the SDP record. So it makes sense to keep it.
-
-Regards
-
-Marcel
 
 
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+On Fri, Mar 16, 2012 at 09:36:19AM -0700, Dmitry Torokhov wrote:
+> On Friday, March 16, 2012 07:56:28 PM Sourav Poddar wrote:
+> > From: Felipe Balbi <balbi@ti.com>
+> >=20
+> > This patch allows us to drop the OMAP depencendy
+> > from the OMAP4 keypad driver.
+> >=20
+> > Signed-off-by: Felipe Balbi <balbi@ti.com>
+> > Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+> > ---
+> >  arch/arm/mach-omap2/board-4430sdp.c            |    1 +
+> >  arch/arm/mach-omap2/devices.c                  |    1 +
+> >  arch/arm/plat-omap/include/plat/omap4-keypad.h |    9 ---------
+> >  drivers/input/keyboard/Kconfig                 |    1 -
+> >  drivers/input/keyboard/omap4-keypad.c          |    2 +-
+> >  include/linux/platform_data/omap4-keypad.h     |   13 +++++++++++++
+>=20
+> Instead of creating platform_data directory why not move to
+> include/linux/input/omap4-keypad.h?
+
+look closer, that directory already exists. But if you prefer placing
+that header on <linux/input> that's doable too.
+
+--=20
+balbi
+
+--dDRMvlgZJXvWKvBx
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iQIcBAEBAgAGBQJPY6vZAAoJEIaOsuA1yqREi+kP/2NZ/KBkZc6CF4CUevEFkx+D
+KJkaip9xHWUgEER9PCcoKw5ITJ5hndYXddBwoxT0sqHDZkoMad1GlYqgUequakKl
+LTPMyQfgy5pk3R3wbUJe5Q8c0rSufW5EY4dO6pPsBICU/Wp2/DGsrm8ZP89TpOZj
+F+kFbe55lLpfft743m58E7oW0A887bWa9MVne4gRjyZlpdIGxaj8AojldpqJPA6h
+X4a+de9/6Ys7o2S1xsBvLnQxlza8ylHe4U4UTepR4hKi3cLpVBG4PvX3gh3EcmKv
+x1czIj7LeTa6AWgdB2jT2Yvp7xzNoD7As+PjMhZWVbGZFF+D6HBRyM2js7BXW4vH
+XtsOaXrn5bmJeEANuvErSQlDyJqxUPnfWc+6ZEmqjY+vPYdnHVLPEjC89YTU14uZ
+LuTUadVW8u38zOZ4OpSKS6r3OyL2q69T7Nldg8UGQqJA1t0WOeb+Aq491Trz8VDv
+7xbD0LP0sYx+a/pycKPWmYKco0VWoDbGJ8hyF6PfL8AYvub8Y/kJ0zXd+MtwQwbu
+cYLVgAmpD22jAP5QyUoKEHBcN+XAgne/7Nt+jwixvUJqjWi+i0DWHYudl/0T1txT
+gzODhAGdwNJzlcek4JABFvIatEKhidOmgZ9Tq/mBzolR1k9eR8mCLbMlCxipgr0l
+D7dIr2LbTLYju9aFdSnx
+=XUdQ
+-----END PGP SIGNATURE-----
+
+--dDRMvlgZJXvWKvBx--

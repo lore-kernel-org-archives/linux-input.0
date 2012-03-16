@@ -1,59 +1,61 @@
 From: "John Stoffel" <john@stoffel.org>
 Subject: Re: Building BarGraph with LED subsystem
-Date: Fri, 16 Mar 2012 12:54:19 -0400
-Message-ID: <20323.28731.474538.955921@quad.stoffel.home>
+Date: Fri, 16 Mar 2012 12:57:18 -0400
+Message-ID: <20323.28910.434931.307759@quad.stoffel.home>
 References: <1b29a178dd288b0f17608b5815ca77a5.squirrel@mungewell.org>
 	<20323.25792.171143.809563@quad.stoffel.home>
-	<f04eb1355e17dbe4ce7bbdd47da0056e.squirrel@mungewell.org>
+	<8107d8a0e50b64dd45dc749da87b2c7b.squirrel@mungewell.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from Mycroft.westnet.com ([216.187.52.7]:60907 "EHLO
-	mycroft.westnet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1032027Ab2CPQyY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Mar 2012 12:54:24 -0400
-In-Reply-To: <f04eb1355e17dbe4ce7bbdd47da0056e.squirrel@mungewell.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <8107d8a0e50b64dd45dc749da87b2c7b.squirrel@mungewell.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: simon@mungewell.org
 Cc: John Stoffel <john@stoffel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
 >>>>> "simon" == simon  <simon@mungewell.org> writes:
 
->> While making the kernel more complex... esp for a feature which is of
->> such limited use.
+simon> Also I have a question about the default permissions on the LED
+simon> controls; Is it possible to register LEDs so that users have
+simon> write permission? At present the controls are only accessible
+simon> as root.
+>> 
+>> udev is the answer here.  You probably want to make it so that the
+>> LEDs are open to the user logged into the system console or currently
+>> active Xsession.
 
-simon> Is the concept of a bargraph of LEDs really a 'limited use'? I
-simon> can think of several uses... I mean isn't flashing or a heart
-simon> beat just as limited ;-)
+simon> So what would be the best way to achieve this (once the code
+simon> gets into kernel)? I mean so that 'Jane Doe' get the LEDs
+simon> working when she plugs in her wheel...
 
-Yes, it's a limited use.  Are 10% of linux users going to have this
-hardware and use it?  
+Well, if you have an application that wants to control the wheel LEDs,
+then it needs to plug in an discover whether the wheel exists, whether
+it's got LEDs, etc.  All part of the HID subsystem as understand it. 
 
->> Do it all in userland, it's easier, you can use floating point
->> math, etc.  And to test changes, you don't have to recompile a
->> module and unload/reload it, etc.
+simon> At present the patch uses the devices ID's to register the LED's. ie.
+simon> --
 
-simon> For my application a user-land stub would do math to work out
-simon> threshold values and push current value (in the right format)
-simon> into the LED subsystem.
+simon> Mar 14 14:57:35 ubuntu kernel: [ 6462.204185] Registered led device:
+simon> 0003:046D:C294.0009::RPM1
+simon> Mar 14 14:57:35 ubuntu kernel: [ 6462.204251] Registered led device:
+simon> 0003:046D:C294.0009::RPM2
+simon> Mar 14 14:57:35 ubuntu kernel: [ 6462.204301] Registered led device:
+simon> 0003:046D:C294.0009::RPM3
+simon> Mar 14 14:57:35 ubuntu kernel: [ 6462.204354] Registered led device:
+simon> 0003:046D:C294.0009::RPM4
+simon> Mar 14 14:57:35 ubuntu kernel: [ 6462.204402] Registered led device:
+simon> 0003:046D:C294.0009::RPM5
+simon> --
 
-simon> Once kernel framework is provided it should not need
-simon> re-compilation on a case by case basis.
+This part is probably fine, but I'd call it 'LED1..5' instead, since
+they're LEDs, not true RPM indicators.  I guess what I'm trying to say
+is that putting as much of this into user space, makes for a much more
+flexible environment.
 
-If the kernel only provides a way to set the brightness of individual
-LEDs, why can't you do the rest in userspace?  What if the user wants
-to have the LEDs run right to left, or visa versa?  
-
-Doing it in userspace means that you can do it however you want with
-just a simple change.  Putting this stuff into the kernel means you
-can't make changes without being much more invasive.
-
-As an analogy, if you put a dimmer on your dining room lights, where
-is the switch?  In the living room (user space) or down in the
-electrical box (kernel space) hooked up by strings to move the switch
-up and down?  It's a crappy example, but it gets the idea across.
+You might want to look into the Linux HID sub-system for how it
+enumerates the abilities of devices like keyboards, game pads, etc.
+They already have alot of that infrastructure in place. 
 
 John

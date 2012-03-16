@@ -1,59 +1,52 @@
-From: Anderson Lizardo <anderson.lizardo-430g2QfJUUCGglJvpFV4uA@public.gmane.org>
-Subject: Re: [RFC 0/1] User-space I/O driver for HID subsystem (Bluetooth-LE HIDP)
-Date: Fri, 16 Mar 2012 12:04:30 -0400
-Message-ID: <CAJdJm_NHvdHNUsYh1tOkXEd9u5cGLszDCsXTVrwG=TjRxbNFuw@mail.gmail.com>
-References: <1331909617-22106-1-git-send-email-dh.herrmann@googlemail.com>
-	<alpine.LNX.2.00.1203161556540.18356@pobox.suse.cz>
+From: "John Stoffel" <john@stoffel.org>
+Subject: Re: Building BarGraph with LED subsystem
+Date: Fri, 16 Mar 2012 12:05:20 -0400
+Message-ID: <20323.25792.171143.809563@quad.stoffel.home>
+References: <1b29a178dd288b0f17608b5815ca77a5.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.1203161556540.18356-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, chen.ganir-l0cyMroinI0@public.gmane.org, claudio.takahasi-430g2QfJUUCGglJvpFV4uA@public.gmane.org, jprvita-430g2QfJUUCGglJvpFV4uA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vijaykumar.Dadmode-kQvG35nSl+M@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1b29a178dd288b0f17608b5815ca77a5.squirrel@mungewell.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: simon@mungewell.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Jiri,
 
-On Fri, Mar 16, 2012 at 10:58 AM, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org> wrote:
-> On Fri, 16 Mar 2012, David Herrmann wrote:
->
->> I have hacked together a small driver which allows user-space I/O drivers to
->> provide HID devices. This is needed for Bluetooth-Low-Energy HID devices as the
->> Bluetooth-LE protocol is parsed in user-space.
->
-> David,
->
-> thanks for your effort.
->
-> I haven't read the full discussion you have CCed me on yesterday, but I
-> have one substantial question to start with -- is there a simple
-> explanation in a few sentences why Bluetooth-LE can't be added as a
-> in-kernel transport layer?
+simon> I have a couple of questions about the (user-land) use of the
+simon> LED subsystem.
 
-Just to add my own opinion here (as this topic has been brought before
-long ago, but on linux-bluetooth only):
+simon> I recently offered a patch for controlling the LEDs of the G27 gaming
+simon> wheel, on which the LEDs are arranged in a bar-graph of 5 to show
+simon> simulation RPM. The suggestion was to use the LED subsystem, which this
+simon> patch implements.
 
-For LE we have a single LE channel (multiplexed for all LE profiles
-running simultaneously, as described by Claudio and Joao Vita
-earlier), and this channel takes so called ATT (attribute protocol)
-packets. These packets have a very small header (at least one byte to
-identify the request/response being sent), but usually have extra
-bytes for parameters (e.g. an "attribute handle" from which BlueZ can
-know to which GATT profile it is being addressed) and data payload.
+simon> http://www.spinics.net/lists/linux-input/msg19747.html
 
-If LE (actually the ATT protocol used by LE, which is also usable over
-BR/EDR) were to be parsed on the kernel, we would also need to parse
-the ATT packet in order to know to which attribute handles it is being
-addressed. The kernel would also need to keep tracking of the higher
-level HID over GATT services so it could know which packets to process
-for HID , and which are destined for other LE profiles (running on
-BlueZ, or being sent to non-HID profile running on peer device).
+simon> Thinking further about how to about how to control this I was wondering
+simon> whether a 'threshold' trigger would be useful. This would allow the use of
+simon> value (uint?) to be compare against a threshold and the LED turned on/off
+simon> automatically.
 
-At least this is my understanding of the problem.
+simon> The main benefit of doing this as a 'trigger' is that we could 'link' (or
+simon> 'sync') multiple LEDs to use the same value input, thus making the
+simon> user-land stuff trivial.
 
-Regards,
--- 
-Anderson Lizardo
-Instituto Nokia de Tecnologia - INdT
-Manaus - Brazil
+While making the kernel more complex... esp for a feature which is of
+such limited use.  Do it all in userland, it's easier, you can use
+floating point math, etc.  And to test changes, you don't have to
+recompile a module and unload/reload it, etc.
+
+Keeping as much of this in userland is better.
+
+simon> Also I have a question about the default permissions on the LED
+simon> controls; Is it possible to register LEDs so that users have
+simon> write permission? At present the controls are only accessible
+simon> as root.
+
+udev is the answer here.  You probably want to make it so that the
+LEDs are open to the user logged into the system console or currently
+active Xsession.
+
+John

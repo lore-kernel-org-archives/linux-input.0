@@ -1,120 +1,43 @@
-From: Ben Dooks <ben@trinity.fluff.org>
-Subject: Re: [PATCH v4 3/3] Input: gpio_keys.c: Enable use with non-local
-	GPIO chips.
-Date: Fri, 16 Mar 2012 10:19:43 +0000
-Message-ID: <20120316101943.GF32060@trinity.fluff.org>
-References: <1308042491-20203-1-git-send-email-david@protonic.nl> <1308042491-20203-4-git-send-email-david@protonic.nl> <20120316072004.GB16291@core.coreip.homeip.net> <20120316091701.4ee5f380@archvile> <20120316083201.GA4139@core.coreip.homeip.net> <20120316094803.0e7ed374@archvile>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 4/5] HID: autoload hid-multitouch as needed
+Date: Fri, 16 Mar 2012 12:26:31 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1203161225110.18356@pobox.suse.cz>
+References: <1331053026-21272-1-git-send-email-benjamin.tissoires@gmail.com> <1331053026-21272-5-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from trinity.fluff.org ([89.16.178.74]:37131 "EHLO trinity.fluff.org"
+Received: from cantor2.suse.de ([195.135.220.15]:38387 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1761227Ab2CPLUN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Mar 2012 07:20:13 -0400
-Content-Disposition: inline
-In-Reply-To: <20120316094803.0e7ed374@archvile>
+	id S1761293Ab2CPL0d (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Mar 2012 07:26:33 -0400
+In-Reply-To: <1331053026-21272-5-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Jander <david.jander@protonic.nl>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Jander <david@protonic.nl>, Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Mar 16, 2012 at 09:48:03AM +0100, David Jander wrote:
-> On Fri, 16 Mar 2012 01:32:01 -0700
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> > On Fri, Mar 16, 2012 at 09:17:01AM +0100, David Jander wrote:
-> > > On Fri, 16 Mar 2012 00:20:04 -0700
-> > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > > 
-> > > > Hi David,
-> > > > 
-> > > > On Tue, Jun 14, 2011 at 11:08:11AM +0200, David Jander wrote:
-> > > > > Use a threaded interrupt handler in order to permit the handler to use
-> > > > > a GPIO driver that causes things like I2C transactions being done inside
-> > > > > the handler context.
-> > > > > Also, gpio_keys_init needs to be declared as a late_initcall, to make sure
-> > > > > all needed GPIO drivers have been loaded if the drivers are built into the
-> > > > > kernel.
-> > > > 
-> > > > Don't want to resurrect the whole initcall discussion, but could you
-> > > > tell me again why the interrup handler needs to be threaded? We do not
-> > > > access hardware from it, hardware is accessed from workqueue context.
-> > > > Here is the ISR in its entirety:
-> > > 
-> > > Sorry, the reason described is apparently not very clear. The real reason seems
-> > > to be that I would like this driver to work with I2C GPIO expanders, and its
-> > > the GPIO expanders "interrupt controller" which has itself a threaded handler
-> > > (due to I2C transfers done in it to ack an IRQ). So this is actually a nested
-> > > and threaded interrupt controller (because the IRQ line of the GPIO expander
-> > > is connected to a different GPIO acting itself also as interrupt line).
-> > > In irq/manage.c, function __setup_irq():
-> > > 
-> > > ...
-> > > 	/*
-> > > 	 * Check whether the interrupt nests into another interrupt
-> > > 	 * thread.
-> > > 	 */
-> > > 	nested = irq_settings_is_nested_thread(desc);
-> > > 	if (nested) {
-> > > 		if (!new->thread_fn) {
-> > > 			ret = -EINVAL;
-> > > 			goto out_mput;
-> > > 		}
-> > > ...
-> > > 
-> > > This is were requesting a non-threaded IRQ from this GPIO controller will fail.
-> > > 
-> > > I know this is not a trivial setup, but IMHO it is very useful (for
-> > > connecting keyboards), and a nice demonstration of the powerful features this
-> > > GPIO driver has :-)
-> > 
-> > Thanks for the explanation of your setup.
-> > 
-> > > 
-> > > > static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
-> > > > {
-> > > >         struct gpio_button_data *bdata = dev_id;
-> > > >         const struct gpio_keys_button *button = bdata->button;
-> > > > 
-> > > >         BUG_ON(irq != gpio_to_irq(button->gpio));
-> > > > 
-> > > >         if (bdata->timer_debounce)
-> > > >                 mod_timer(&bdata->timer,
-> > > >                         jiffies + msecs_to_jiffies(bdata->timer_debounce));
-> > > >         else
-> > > >                 schedule_work(&bdata->work);
-> > > > 
-> > > >         return IRQ_HANDLED;
-> > > > }
-> > > > 
-> > > > It looks to me that non-threaded handler would work as well? Or
-> > > > gpio_to_irq() can sleep with certain chips?
-> > > 
-> > > Not in my case. I just checked again. If I change request_threaded_irq() to
-> > > request_irq(), I get this:
-> > > 
-> > > ...
-> > > [    6.409810] gpio-keys gpio_keys.0: Unable to claim irq 0; error -22
-> > > [    6.416106] gpio-keys: probe of gpio_keys.0 failed with error -22
-> > > ...
-> > > 
-> > > This error -22 (-EINVAL) is returned from __setup_irq() (see above).
-> > 
-> > But the original code used request_any_context_irq() which should have
-> > taken care of your nested IRQ setup:
-> 
-> Hmm. You are right. Apparently this change was introduced in 2.6.38, and I
-> must have missed it. Before 2.6.38, this place called request_irq(), which was
-> broken for my case.
-> 
-> I just checked, and indeed, using request_any_context_irq() seems to work fine
-> for me.
+On Tue, 6 Mar 2012, benjamin.tissoires wrote:
 
-I'd say that would be better, seems an un-necesary use of threaded
-interrupt work.
+> From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> 
+> The code is inspired from the one present in the bttv module.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
+> 
+> As I mentioned in the mail 0/5, I'd really like to have your opinion on this
+> one. I copied the code from bttv, but it forces us to change hid_device which
+> is not very good for ABI changes reasons.
+
+It's indeed probably the best and most "lightweight" solution before we 
+come up with more robust attitude (with userspace involvement).
+
+Could you please resend the patch with proper changelog entry, and perhaps 
+add some more commentary into the code to better explain the reasons for 
+this gymnastics?
+
+Thanks,
 
 -- 
-Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
-
-Large Hadron Colada: A large Pina Colada that makes the universe disappear.
-
+Jiri Kosina
+SUSE Labs

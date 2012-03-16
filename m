@@ -1,51 +1,48 @@
-From: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [RFC 0/1] User-space I/O driver for HID subsystem (Bluetooth-LE
- HIDP)
-Date: Fri, 16 Mar 2012 10:57:38 -0700
-Message-ID: <1331920658.14217.180.camel@aeonflux>
-References: <1331909617-22106-1-git-send-email-dh.herrmann@googlemail.com>
-	 <CAAngNMYSNPX8veuBD2jrvhHSV2v_8e4qRt8ZjYDPcF=-Q8XUCQ@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC 0/1] User-space I/O driver for HID subsystem (Bluetooth-LE HIDP)
+Date: Fri, 16 Mar 2012 11:09:07 -0700
+Message-ID: <2581566.JBjJTljkE9@dtor-d630.eng.vmware.com>
+References: <1331909617-22106-1-git-send-email-dh.herrmann@googlemail.com> <CAAngNMYSNPX8veuBD2jrvhHSV2v_8e4qRt8ZjYDPcF=-Q8XUCQ@mail.gmail.com> <1331920658.14217.180.camel@aeonflux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from senator.holtmann.net ([87.106.208.187]:49093 "EHLO
-	mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752626Ab2CPR6O (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Mar 2012 13:58:14 -0400
-In-Reply-To: <CAAngNMYSNPX8veuBD2jrvhHSV2v_8e4qRt8ZjYDPcF=-Q8XUCQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1331920658.14217.180.camel@aeonflux>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>
+Cc: Joao Paulo Rechi Vita <jprvita-430g2QfJUUCGglJvpFV4uA@public.gmane.org>, David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, chen.ganir-l0cyMroinI0@public.gmane.org, claudio.takahasi-430g2QfJUUCGglJvpFV4uA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vijaykumar.Dadmode-kQvG35nSl+M@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Joao Paulo Rechi Vita <jprvita@openbossa.org>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, linux-input@vger.kernel.org, jkosina@suse.cz, chen.ganir@ti.com, claudio.takahasi@openbossa.org, linux-bluetooth@vger.kernel.org, Vijaykumar.Dadmode@csr.com
 
-Hi Joao,
-
-> > I have hacked together a small driver which allows user-space I/O drivers to
-> > provide HID devices. This is needed for Bluetooth-Low-Energy HID devices as the
-> > Bluetooth-LE protocol is parsed in user-space.
-> >
-> > I have only compile-tested this driver, I haven't run it yet. It's just an
-> > proposal how this could be implemented. It should also work as hint to the BT-LE
-> > developers how such an interface will look-like.
-> >
+On Friday, March 16, 2012 10:57:38 AM Marcel Holtmann wrote:
+> Hi Joao,
 > 
-> First of all, thanks for your effort. I haven't looked at the code
-> yet, but thinking again about the problem and since it's very similar
-> to uinput, would adding another ioctl to uinput that receives the HID
-> descriptor and put uinput in a "HID mode" be sufficient? This way we
-> could increase code reuse and ease maintainance, I guess. What do you
-> think?
+> > > I have hacked together a small driver which allows user-space I/O
+> > > drivers to provide HID devices. This is needed for
+> > > Bluetooth-Low-Energy HID devices as the Bluetooth-LE protocol is
+> > > parsed in user-space.
+> > > 
+> > > I have only compile-tested this driver, I haven't run it yet. It's
+> > > just an proposal how this could be implemented. It should also work
+> > > as hint to the BT-LE developers how such an interface will
+> > > look-like.
+> > 
+> > First of all, thanks for your effort. I haven't looked at the code
+> > yet, but thinking again about the problem and since it's very similar
+> > to uinput, would adding another ioctl to uinput that receives the HID
+> > descriptor and put uinput in a "HID mode" be sufficient? This way we
+> > could increase code reuse and ease maintainance, I guess. What do you
+> > think?
+> 
+> I am really against this. Input subsystem and HID subsystem are two
+> different things. Don't try to combine them.
+> 
+> You would also mess up the layering here. HID uses input, but input does
+> not require HID.
+> 
 
-I am really against this. Input subsystem and HID subsystem are two
-different things. Don't try to combine them.
+Completely agree with Marcel here.
 
-You would also mess up the layering here. HID uses input, but input does
-not require HID.
+Thanks.
 
-Regards
-
-Marcel
-
-
+-- 
+Dmitry

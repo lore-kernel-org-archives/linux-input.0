@@ -1,178 +1,119 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: User space raw hid support
-Date: Thu, 15 Mar 2012 22:40:55 +0100
-Message-ID: <CANq1E4SsRH=aui4NmswNn1CT05ERZZiCV9LX9K3uAh_q3B14iw@mail.gmail.com>
-References: <F0070FBC0FB3174D8D11444EB2D5B0260B44E9F3@DNCE02.ent.ti.com>
-	<CANq1E4ScdbDCTBa4H-b-yEwOEnhrX4hKV-a3TxFaOJsyYiAurA@mail.gmail.com>
-	<CAKT1EBfEtKXAcpZ7qz1Z3RSGXR-U8aTai=CuoZ45YHBHYNUqsw@mail.gmail.com>
-	<CAAngNMZ=9V1cAiHbZMWGiqLxro9mFHieWSBRYdZxM6d=MXyxRw@mail.gmail.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 2/2] HID: wacom: Add reporting of wheel for Intuos4 WL
+Date: Thu, 15 Mar 2012 19:09:55 -0500
+Message-ID: <CAGzDe_Y99tQhW_0oUwQGqwkTJM8gwZ5Ckxph0XEDztbMgJS-mQ@mail.gmail.com>
+References: <1331754904-8927-1-git-send-email-przemo@firszt.eu>
+	<1331754904-8927-2-git-send-email-przemo@firszt.eu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:36261 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1032342Ab2COVk4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Mar 2012 17:40:56 -0400
-Received: by wejx9 with SMTP id x9so3319287wej.19
-        for <linux-input@vger.kernel.org>; Thu, 15 Mar 2012 14:40:55 -0700 (PDT)
-In-Reply-To: <CAAngNMZ=9V1cAiHbZMWGiqLxro9mFHieWSBRYdZxM6d=MXyxRw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1331754904-8927-2-git-send-email-przemo@firszt.eu>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Przemo Firszt <przemo@firszt.eu>
+Cc: jkosina@suse.cz, pinglinux@gmail.com, killertofu@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
 List-Id: linux-input@vger.kernel.org
-To: Joao Paulo Rechi Vita <jprvita@openbossa.org>
-Cc: Claudio Takahasi <claudio.takahasi@openbossa.org>, "Ganir, Chen" <chen.ganir@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi Joao
+=46or both patches:
 
-Jiri, maybe you can comment on this. We are trying to provide
-hid_ll_drivers from user-space
-to implement BT-HIDP for BT-low-energy. My idea is to write an
-uinput-like interface which allows
-to register hid_ll_drivers from userspace. Do you have any objections h=
-ere?
+Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
 
-On Thu, Mar 15, 2012 at 9:27 PM, Joao Paulo Rechi Vita
-<jprvita@openbossa.org> wrote:
-> Hello all,
+On Wed, Mar 14, 2012 at 2:55 PM, Przemo Firszt <przemo@firszt.eu> wrote=
+:
+> This patch adds reporting of ABS_WHEEL event. Raported walues are 0..=
+71
+> and are related to absolute location of the finger on the wheel.
 >
-> On Thu, Mar 15, 2012 at 5:06 PM, Claudio Takahasi
-> <claudio.takahasi@openbossa.org> wrote:
->> Hi David/Chen:
->>
->> On Wed, Mar 14, 2012 at 1:47 PM, David Herrmann
->> <dh.herrmann@googlemail.com> wrote:
->>> Hi Chen
->>>
->>> On Wed, Mar 14, 2012 at 12:47 PM, Ganir, Chen <chen.ganir@ti.com> w=
-rote:
->>>> Hi all.
->>>>
->>>> I'm currently working on a HID Over GATT Implementation (HID over =
-Bluetooth Low energy).
->>>>
+> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+> Reviewed-by: Jason Gerecke <killertofu@gmail.com>
+> ---
+> =A0drivers/hid/hid-wacom.c | =A0 24 ++++++++++++++++++++++++
+> =A01 files changed, 24 insertions(+), 0 deletions(-)
 >
-> We're also working to support the HoG here at INdT.
+> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+> index d04e2aa..067e296 100644
+> --- a/drivers/hid/hid-wacom.c
+> +++ b/drivers/hid/hid-wacom.c
+> @@ -36,6 +36,7 @@
+> =A0struct wacom_data {
+> =A0 =A0 =A0 =A0__u16 tool;
+> =A0 =A0 =A0 =A0__u16 butstate;
+> + =A0 =A0 =A0 __u8 whlstate;
+> =A0 =A0 =A0 =A0__u8 features;
+> =A0 =A0 =A0 =A0__u32 id;
+> =A0 =A0 =A0 =A0__u32 serial;
+> @@ -322,6 +323,23 @@ static void wacom_i4_parse_button_report(struct =
+wacom_data *wdata,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0struct input_dev *inpu=
+t, unsigned char *data)
+> =A0{
+> =A0 =A0 =A0 =A0__u16 new_butstate;
+> + =A0 =A0 =A0 __u8 new_whlstate;
+> + =A0 =A0 =A0 __u8 sync =3D 0;
+> +
+> + =A0 =A0 =A0 new_whlstate =3D data[1];
+> + =A0 =A0 =A0 if (new_whlstate !=3D wdata->whlstate) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 wdata->whlstate =3D new_whlstate;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (new_whlstate & 0x80) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input,=
+ BTN_TOUCH, 1);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input,=
+ ABS_WHEEL, (new_whlstate & 0x7f));
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input,=
+ BTN_TOOL_FINGER, 1);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input,=
+ BTN_TOUCH, 0);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input,=
+ ABS_WHEEL, 0);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input,=
+ BTN_TOOL_FINGER, 0);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 sync =3D 1;
+> + =A0 =A0 =A0 }
 >
->>>> As part of the design, it is required to configure the HID subsyst=
-em from user space, configure a report descriptor with input/output/fea=
-ture report points, and send/receive data from and to the kernel HID Su=
-bsystem, from user space.
->>>>
->>>> Is there anything already supporting this feature ? I was looking =
-at hid-raw, but it is used to send raw data from user space to the hid =
-device - I need to send raw hid from the device to the kernel.
->>>
->>> What do you mean with that? hidraw uses the
->>> hid_input/output_raw_report() callbacks which HIDP/USBHID provide.
->>> They provide direct access to the HID channels. With the
->>> Bluetooth-backend you can directly write to the L2CAP channels. I
->>> don't understand what you mean with "device to the kernel".
->>
->> HoG encapsulates HID reports using ATT protocol. The userspace needs
->> to transcode the data and send back to the kernel.
->> There isn't dynamic L2CAP channel allocation for Bluetooth Low Energ=
-y.
->> Only one fixed data channel is allowed, and more than one profile ca=
-n
->> be exposed by the remote: services have a shared channel.
->>
->
-> Trying to make it more clear: there is only one L2CAP socket for all
-> low energy data exchanged between the host and the remote device. Dat=
-a
-> for different services/profiles is multiplexed and encapsulated on th=
-e
-> ATT protocol =A0on the same socket. Since we don't want to move the A=
-TT
-> parser inside the kernel, the plan is to extract HoG traffic from thi=
-s
-> socket on the userspace, reconstruct regular HID reports, and send
-> them back to the kernel to be handled by the HID/input subsystems.
-
-Thanks for clarifying that. I now understand what you are planning to d=
-o.
-
->>>
->>> Do you need something more low-level or more high-level? Currently,
->>> HIDP/USBHID provide the transport layer and register themselves wit=
-h
->>> the HID core. The HID core parses the HID protocol and provides inp=
-ut
->>> devices on top of it. I don't understand where in-between of this y=
-ou
->>> want the hooks to be?
->>>
->
-> We want something that works similar to HIDP and USBHID, the only
-> difference is that it needs to be able to receive/send HID
-> input/output reports to the userspace instead of to a hw device.
->
->>>> Our basic idea was to develop a new misc char driver, at /dev/uhid=
-=2E This device will be opened for each remote device we have access to=
-, configured, and then read/write the raw HID packets from the device d=
-irectly to this driver. We would like our solution to be a simple proxy=
- between the device and the HID system, and we do not want to include a=
- HID parser in our code, to make sure latency stays as low as possible.
->
-> I personally don't think HID parsing on the userspace would add much
-> latency, but duplicating this code on the userspace is definitely
-> something we want to avoid.
-
-Agreed. Personally I think rewriting the HID parser wouldn't be much
-work but it also
-wouldn't buy us anything. We eventually would feed the input via
-uinput into the kernel
-anyway so we do not save any round-trips here. So feeding it directly
-into the HID system
-seems legit to me.
-
->>>
->>> Does that mean you want to sit on top of the kernel HID parser or y=
-ou
->>> don't want any parser in between? /dev/uhid looks like a HID-backen=
-d
->>> like HIDP/usbhid so hidraw seems to be perfect for this.
->>
->
-> We want something that behaves exactly like uinput, but that also doe=
-s
-> HID parsing. Is there something on the input subsystem that behaves
-> like that?
-
-No. What you need is to write a hid_ll_driver which accepts input from
-user-space. The HID
-system takes input from low-level drivers (hid_ll_driver) like HIDP
-and USBHID and creates
-input devices on top of it. There is currently no way to write
-hid_ll_drivers in user-space,
-however, it should be easy to write one.
-
-I am CC'ing Jiri Kosina (HID Maintainer) and Dmitri to go sure they
-don't know any other way of
-dealing with this. I will have a look at this and try to write a short
-uinput-like driver
-for HID if you are interested in this.
-
->> How does hidraw interfaces with the userspace?
->>
->
-> Does hidraw covers the use-case I've tried to describe here? It's
-> documentation was a bit confusing to me, any clarification will be
-> very helpful.
-
-No, I am sorry, hidraw is definitely not what you need here.
-
-> Thanks a lot,
->
+> =A0 =A0 =A0 =A0new_butstate =3D (data[3] << 1) | (data[2] & 0x01);
+> =A0 =A0 =A0 =A0if (new_butstate !=3D wdata->butstate) {
+> @@ -336,6 +354,10 @@ static void wacom_i4_parse_button_report(struct =
+wacom_data *wdata,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_key(input, BTN_7, new_but=
+state & 0x080);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_key(input, BTN_8, new_but=
+state & 0x100);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_key(input, BTN_TOOL_FINGE=
+R, 1);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 sync =3D 1;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 if (sync) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_abs(input, ABS_MISC, PAD_=
+DEVICE_ID);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_event(input, EV_MSC, MSC_SERIAL,=
+ 0xffffffff);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_sync(input);
+> @@ -510,6 +532,7 @@ static int wacom_input_mapped(struct hid_device *=
+hdev, struct hid_input *hi,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(input, ABS_DISTAN=
+CE, 0, 32, 0, 0);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
+> =A0 =A0 =A0 =A0case USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH:
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(ABS_WHEEL, input->absbit);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(ABS_MISC, input->absbit);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(BTN_2, input->keybit);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(BTN_3, input->keybit);
+> @@ -518,6 +541,7 @@ static int wacom_input_mapped(struct hid_device *=
+hdev, struct hid_input *hi,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(BTN_6, input->keybit);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(BTN_7, input->keybit);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(BTN_8, input->keybit);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(input, ABS_WHEEL, =
+0, 71, 0, 0);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(input, ABS_X, 0, =
+40640, 4, 0);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(input, ABS_Y, 0, =
+25400, 4, 0);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(input, ABS_PRESSU=
+RE, 0, 2047, 0, 0);
 > --
-> Jo=E3o Paulo Rechi Vita
-> Openbossa Labs - INdT
-
-Regards
-David
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 1.7.6.4
+>

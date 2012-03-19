@@ -1,64 +1,51 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
-Subject: Re: [PATCH V1] input: keyboard: gpio: Support for interrupt only
- key
-Date: Mon, 19 Mar 2012 12:54:21 +0530
-Message-ID: <4F66DF25.9000909@nvidia.com>
-References: <1331715123-15099-1-git-send-email-ldewangan@nvidia.com> <20120314160011.GA12987@core.coreip.homeip.net> <20120319060610.GA8835@core.coreip.homeip.net>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 06/20] Input: atmel_mxt_ts - allow writing to object
+ sysfs entry
+Date: Mon, 19 Mar 2012 09:04:02 +0100
+Message-ID: <20120319080402.GA15965@polaris.bitmath.org>
+References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
+ <1331640263-18935-7-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate03.nvidia.com ([216.228.121.140]:18111 "EHLO
-	hqemgate03.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752643Ab2CSH3v (ORCPT
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:38281 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754590Ab2CSIBj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Mar 2012 03:29:51 -0400
-In-Reply-To: <20120319060610.GA8835@core.coreip.homeip.net>
+	Mon, 19 Mar 2012 04:01:39 -0400
+Content-Disposition: inline
+In-Reply-To: <1331640263-18935-7-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "linus.walleij@stericsson.com" <linus.walleij@stericsson.com>, "david@protonic.nl" <david@protonic.nl>, "tklauser@distanz.ch" <tklauser@distanz.ch>, "alexander.stein@informatik.tu-chemnitz.de" <alexander.stein@informatik.tu-chemnitz.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
 
-Hi Dmitry,
+Hi Daniel,
 
-On Monday 19 March 2012 11:36 AM, Dmitry Torokhov wrote:
->
-> OK, so I am generally happy with the patch; the only issue is that in
-> interrupt mode the only event type that makes sense is EV_KEY so we need
-> to make sure we do not accept anything else.
->
+> Userspace can write a 24-bit value (encoded as a 6 character hex string)
+> to the 'object' sysfs entry to modify a single byte of the object table.
+> The hex string encodes a 3 bytes, in the following format:
+>  TTFFVV
+> 
+> Where:
+>  TT = object type
+>  FF = object offset
+>  VV = byte value
+> 
+> The object table is modified in device ram, which means the change is
+> volatile, and will be overwritten on the next device reset.  To make
+> changes permanent, the new settings should be persisted in the device's
+> Non-Voltatile Memory using the updatenv sysfs entry.
+> 
+> Also, since the device driver initializes itself by reading some values
+> from the object table, the entire driver may need to be unloaded and
+> reloaded after writing the values for the driver to stay in sync.  Whether
+> this is required depends on exactly which values were updated.
+> 
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> ---
 
-Thanks for taking care of patch. I am ok with this policy.
+Perhaps you could give an example of why this is needed?
 
-> Also, I do not think that having button_irq() that is called all the
-> time is the best solution; I;d rather pulled RQ number up into button
-> data.
->
-
-Yes, this is nice cleanups.
-
-> I tried doing the above in the patch below. Please let me know if it
-> still works for you. Note that it depends on some other patches for
-> gpio_keys that I have; I am attaching them for your reference.
->
-
-This works fine with one small change.
-The function gpio_keys_report_event() is gettign called from probe for 
-initialing the key state. This function should bypass if it is not the 
-gpio based otherwise system crash.
-I made following change and after that it works fine.
-
-static void gpio_keys_report_event(struct gpio_button_data *bdata)
-{
-     const struct gpio_keys_button *button = bdata->button;
-     struct input_dev *input = bdata->input;
-     unsigned int type = button->type ?: EV_KEY;
-     int state;
-
-     if (!gpio_is_valid(button->gpio))
-         return;
-
-     state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ 
-button->active_low;
-
-
+Thanks,
+Henrik

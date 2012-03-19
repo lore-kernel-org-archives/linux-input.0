@@ -1,35 +1,71 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: User space raw hid support
-Date: Mon, 19 Mar 2012 15:18:53 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1203191517130.18356@pobox.suse.cz>
-References: <F0070FBC0FB3174D8D11444EB2D5B0260B44E9F3@DNCE02.ent.ti.com> <CANq1E4ScdbDCTBa4H-b-yEwOEnhrX4hKV-a3TxFaOJsyYiAurA@mail.gmail.com> <CAKT1EBfEtKXAcpZ7qz1Z3RSGXR-U8aTai=CuoZ45YHBHYNUqsw@mail.gmail.com> <CAAngNMZ=9V1cAiHbZMWGiqLxro9mFHieWSBRYdZxM6d=MXyxRw@mail.gmail.com>
- <CANq1E4SsRH=aui4NmswNn1CT05ERZZiCV9LX9K3uAh_q3B14iw@mail.gmail.com>
+From: Andreas Nielsen <eas@svep.se>
+Subject: [PATCH] HID: multitouch: add PID for Fructel product
+Date: Mon, 19 Mar 2012 15:41:03 +0100
+Message-ID: <1332168063-24812-1-git-send-email-eas@svep.se>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53408 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030838Ab2CSOSz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Mar 2012 10:18:55 -0400
-In-Reply-To: <CANq1E4SsRH=aui4NmswNn1CT05ERZZiCV9LX9K3uAh_q3B14iw@mail.gmail.com>
+Received: from exchange.svep.se ([213.80.127.210]:32819 "EHLO
+	Exchange-1.svep.se" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752766Ab2CSOsb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Mar 2012 10:48:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: Joao Paulo Rechi Vita <jprvita@openbossa.org>, Claudio Takahasi <claudio.takahasi@openbossa.org>, "Ganir, Chen" <chen.ganir@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: benjamin.tissoires@enac.fr, chatty@enac.fr, dmitry.torokhov@gmail.com, jkosina@suse.cz, Andreas Nielsen <eas@svep.se>
 
-On Thu, 15 Mar 2012, David Herrmann wrote:
+Adds multitouch support for the Gametel Android game controller
 
-> Jiri, maybe you can comment on this. We are trying to provide
-> hid_ll_drivers from user-space
-> to implement BT-HIDP for BT-low-energy. My idea is to write an
-> uinput-like interface which allows
-> to register hid_ll_drivers from userspace. Do you have any objections here?
+Signed-off-by: Andreas Nielsen <eas@svep.se>
+---
+ drivers/hid/hid-core.c       |    1 +
+ drivers/hid/hid-ids.h        |    3 +++
+ drivers/hid/hid-multitouch.c |    5 +++++
+ 3 files changed, 9 insertions(+), 0 deletions(-)
 
-After reading the followup discussion, I don't think I have any 
-fundamental objections to the overall principle proposal.
-
-Thanks,
-
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 6f3289a..dbb7a7b 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1378,6 +1378,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2515) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_FRUCTEL, USB_DEVICE_ID_GAMETEL_MT_MODE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH, USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index c946d90..452d845 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -248,6 +248,9 @@
+ #define USB_VENDOR_ID_EZKEY		0x0518
+ #define USB_DEVICE_ID_BTC_8193		0x0002
+ 
++#define USB_VENDOR_ID_FRUCTEL	0x25B6
++#define USB_DEVICE_ID_GAMETEL_MT_MODE	0x0002
++
+ #define USB_VENDOR_ID_GAMERON		0x0810
+ #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR	0x0001
+ #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR	0x0002
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 5de25ff..3eea20c 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -667,6 +667,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+ 			USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS) },
+ 
++	/* Gametel game controller */
++	{ .driver_data = MT_CLS_DEFAULT,
++		HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_FRUCTEL,
++			USB_DEVICE_ID_GAMETEL_MT_MODE) },
++
+ 	/* GoodTouch panels */
+ 	{ .driver_data = MT_CLS_DEFAULT,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_GOODTOUCH,
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.1
+

@@ -1,71 +1,83 @@
-From: Andreas Nielsen <eas@svep.se>
-Subject: [PATCH] HID: multitouch: add PID for Fructel product
-Date: Mon, 19 Mar 2012 15:41:03 +0100
-Message-ID: <1332168063-24812-1-git-send-email-eas@svep.se>
+From: Chase Douglas <chasedouglas@gmail.com>
+Subject: Re: Mixed "pen" and multitouch input devices
+Date: Mon, 19 Mar 2012 08:32:45 -0700
+Message-ID: <4F67519D.7050206@gmail.com>
+References: <20120315155235.GA6783@stud.informatik.uni-erlangen.de> <CAGzDe_b0XPUBZKAGnj9kxzuRb9Fw7aph_Q+VgmdVbpVNU2Sf3w@mail.gmail.com> <20120315175635.GA23155@stud.informatik.uni-erlangen.de> <4F623511.3040907@gmail.com> <20120316015224.GA8230@stud.informatik.uni-erlangen.de> <4F629F60.7010600@gmail.com> <CAGzDe_ZVUSu+zFq8giOJfOTYzYWrf=2+Z64KASTE_MpVQ1yMzw@mail.gmail.com> <20120316173332.GA28620@stud.informatik.uni-erlangen.de> <4F63A22B.4090102@gmail.com> <20120319063915.GA15489@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exchange.svep.se ([213.80.127.210]:32819 "EHLO
-	Exchange-1.svep.se" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752766Ab2CSOsb (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:51757 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753537Ab2CSPcJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Mar 2012 10:48:31 -0400
+	Mon, 19 Mar 2012 11:32:09 -0400
+Received: by pbcun15 with SMTP id un15so1150275pbc.19
+        for <linux-input@vger.kernel.org>; Mon, 19 Mar 2012 08:32:09 -0700 (PDT)
+In-Reply-To: <20120319063915.GA15489@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: benjamin.tissoires@enac.fr, chatty@enac.fr, dmitry.torokhov@gmail.com, jkosina@suse.cz, Andreas Nielsen <eas@svep.se>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Thorsten Wissmann <re06huxa@stud.informatik.uni-erlangen.de>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, =?ISO-8859-1?Q?Maximilian_Kr=FCger?= <maxfragg@gmail.com>, i4passt@lists.informatik.uni-erlangen.de
 
-Adds multitouch support for the Gametel Android game controller
+On 03/18/2012 11:39 PM, Henrik Rydberg wrote:
+>> The proper way to send events through evdev when there are two different
+>> "tools" (pen and touch) is to use BTN_TOOL_*. In your example above, it
+>> would be:
+>>
+>> # finger touch (Note lack of tool, it's assumed to be finger)
+>>     ABS_MT_SLOT 0
+>>     ABS_MT_TRACKING_ID 42
+>>     ABS_MT_POSITION_X finger_x
+>>     ABS_MT_POSITION_Y finger_y
+>>     SYN_MT_REPORT
+>>     ABS_X finger_x
+>>     ABS_Y finger_y
+>>     SYN_REPORT
+>> # finger release
+>>     ABS_MT_SLOT 0
+>>     ABS_MT_TRACKING_ID -1
+>>     SYN_REPORT
+>> # pen motion
+>>     BTN_TOOL_PEN 1
+>>     ABS_X pen_x
+>>     ABS_Y pen_y
+>>     SYN_REPORT
+>> # finger touch begin
+>>     ABS_MT_SLOT 0
+>>     ABS_MT_TRACKING_ID 42
+>>     ABS_MT_POSITION_X finger_x
+>>     ABS_MT_POSITION_Y finger_y
+>>     SYN_MT_REPORT
+>>     BTN_TOOL_PEN 0
+>>     ABS_X finger_x
+>>     ABS_Y finger_y
+>>     SYN_REPORT
+>> etc.
+>>
+>> Then, xf86-input-evdev ignores ABS_{X,Y} events when there is no
+>> BTN_TOOL_* active.
+> 
+> On the subject how pen and touch could work going forward, the MT
+> protocol is prepared to deal with tool type per slot. It makes a lot
+> of sense to move away from the above example, towards a fully parallel
+> representation of pen and touch data. Today's multitouch interfaces
+> are really tremendously restrictive; I am looking forward to the day
+> when one does not need to worry about touching or resting on a surface
+> in order to operate it.
+> 
+> In short, why not make xf86-input-evdev aware of MT_TOOL_TYPE?
 
-Signed-off-by: Andreas Nielsen <eas@svep.se>
----
- drivers/hid/hid-core.c       |    1 +
- drivers/hid/hid-ids.h        |    3 +++
- drivers/hid/hid-multitouch.c |    5 +++++
- 3 files changed, 9 insertions(+), 0 deletions(-)
+There's no reason it can't be made aware. The question is whether you
+want to create separate X input devices, or annotate events with the
+tool type. No one has really bothered looking into it outside of wacom
+devices, but my understanding is that wacom is a big special cased
+situation due to historical reasons anyway.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 6f3289a..dbb7a7b 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1378,6 +1378,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2515) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_FRUCTEL, USB_DEVICE_ID_GAMETEL_MT_MODE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH, USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c946d90..452d845 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -248,6 +248,9 @@
- #define USB_VENDOR_ID_EZKEY		0x0518
- #define USB_DEVICE_ID_BTC_8193		0x0002
- 
-+#define USB_VENDOR_ID_FRUCTEL	0x25B6
-+#define USB_DEVICE_ID_GAMETEL_MT_MODE	0x0002
-+
- #define USB_VENDOR_ID_GAMERON		0x0810
- #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR	0x0001
- #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR	0x0002
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 5de25ff..3eea20c 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -667,6 +667,11 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
- 			USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS) },
- 
-+	/* Gametel game controller */
-+	{ .driver_data = MT_CLS_DEFAULT,
-+		HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_FRUCTEL,
-+			USB_DEVICE_ID_GAMETEL_MT_MODE) },
-+
- 	/* GoodTouch panels */
- 	{ .driver_data = MT_CLS_DEFAULT,
- 		HID_USB_DEVICE(USB_VENDOR_ID_GOODTOUCH,
--- 
-1.7.1
+If we merely annotate events by setting valuator values, that's a
+trivial change that may even be already supported out of the box.
+Splitting the evdev device into multiple X input devices is also
+possible, since xf86-input-wacom does it, but would require a large
+refactoring of xf86-input-evdev.
 
+-- Chase

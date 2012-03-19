@@ -1,230 +1,223 @@
-From: Sourav Poddar <sourav.poddar@ti.com>
-Subject: [PATCHv2 2/2] Input: omap-keypad: dynamically handle register offsets
-Date: Mon, 19 Mar 2012 13:42:46 +0530
-Message-ID: <1332144766-30798-1-git-send-email-sourav.poddar@ti.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 12/20] Input: atmel_mxt_ts - simplify event reporting
+Date: Mon, 19 Mar 2012 09:26:53 +0100
+Message-ID: <20120319082653.GB15965@polaris.bitmath.org>
+References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
+ <1331640263-18935-13-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:41698 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753773Ab2CSILc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Mar 2012 04:11:32 -0400
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:57932 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754159Ab2CSIY0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Mar 2012 04:24:26 -0400
+Content-Disposition: inline
+In-Reply-To: <1331640263-18935-13-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
-Cc: balbi@ti.com
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
 
-From: G, Manjunath Kondaiah <manjugk@ti.com>
+Hi Daniel,
 
-Keypad controller register offsets are different for omap4
-and omap5. Handle these offsets through static mapping and
-assign these mappings during run time.
+> Instead of carrying around per-finger state in the driver instance, just
+> report each finger as it arrives to the input layer, and let the input
+> layer (evdev) hold the event state (which it does anyway).
+> 
+> Also, the atmel pad reports "amplitude", which is reported to userspace
+> using the "PRESSURE" event type.  The variables now reflect this.
+> 
+> Note: this driver does not really do MT-B properly. Each input report
+> (a goup of input events followed by a SYN_REPORT) only contains data for
+> a single contact.  When multiple fingers are present on a device, each is
+> properly reported in its own MT_SLOT.  However, there is only ever one
+> MT_SLOT per SYN_REPORT.  This is fixed in a subsequent patch.
+> 
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> ---
 
-Signed-off-by: Felipe Balbi <balbi@ti.com>
-Signed-off-by: G, Manjunath Kondaiah <manjugk@ti.com>
-Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
----
-Changes since v1:
-Fix Dmitry's comment:
-- Configured IRQ manupulation registers at probe time
- drivers/input/keyboard/Kconfig        |    6 +-
- drivers/input/keyboard/omap4-keypad.c |  120 ++++++++++++++++++++++++++------
- 2 files changed, 100 insertions(+), 26 deletions(-)
+Simplification looking good overall, together with that later
+patch. Please find some comments below.
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 1379daa..09d7d0b 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -510,10 +510,10 @@ config KEYBOARD_OMAP
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called omap-keypad.
- 
--config KEYBOARD_OMAP4
--	tristate "TI OMAP4 keypad support"
-+config KEYBOARD_OMAP4+
-+	tristate "TI OMAP4+ keypad support"
- 	help
--	  Say Y here if you want to use the OMAP4 keypad.
-+	  Say Y here if you want to use the OMAP4+ keypad.
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called omap4-keypad.
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index e809ac0..a8b0700 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -68,6 +68,11 @@
- 
- #define OMAP4_MASK_IRQSTATUSDISABLE	0xFFFF
- 
-+enum {
-+	KBD_REVISION_OMAP4 = 0,
-+	KBD_REVISION_OMAP5,
-+};
-+
- struct omap4_keypad {
- 	struct input_dev *input;
- 
-@@ -76,11 +81,66 @@ struct omap4_keypad {
- 
- 	unsigned int rows;
- 	unsigned int cols;
-+	unsigned int revision;
-+	u32 irqstatus;
-+	u32 irqenable;
- 	unsigned int row_shift;
- 	unsigned char key_state[8];
- 	unsigned short keymap[];
- };
- 
-+static int kbd_read_irqstatus(struct omap4_keypad *keypad_data, u32 offset)
-+{
-+	return __raw_readl(keypad_data->base + offset);
-+}
-+
-+static int kbd_write_irqstatus(struct omap4_keypad *keypad_data,
-+						u32 offset, u32 value)
-+{
-+	return __raw_writel(value, keypad_data->base + offset);
-+}
-+
-+static int kbd_write_irqenable(struct omap4_keypad *keypad_data,
-+						u32 offset, u32 value)
-+{
-+	return __raw_writel(value, keypad_data->base + offset);
-+}
-+
-+static int kbd_readl(struct omap4_keypad *keypad_data, u32 offset)
-+{
-+	if (keypad_data->revision == KBD_REVISION_OMAP4)
-+		return __raw_readl(keypad_data->base + offset);
-+	else if (keypad_data->revision == KBD_REVISION_OMAP5)
-+		return __raw_readl(keypad_data->base + offset + 0x10);
-+
-+	return -ENODEV;
-+}
-+
-+static void kbd_writel(struct omap4_keypad *keypad_data, u32 offset, u32 value)
-+{
-+	if (keypad_data->revision == KBD_REVISION_OMAP4)
-+		__raw_writel(value, keypad_data->base + offset);
-+	else if (keypad_data->revision == KBD_REVISION_OMAP5)
-+		__raw_writel(value, keypad_data->base + offset + 0x10);
-+}
-+
-+static int kbd_read_revision(struct omap4_keypad *keypad_data, u32 offset)
-+{
-+	int reg;
-+	reg = __raw_readl(keypad_data->base + offset);
-+	reg &= 0x03 << 30;
-+	reg >>= 30;
-+
-+	switch (reg) {
-+	case 1:
-+		return KBD_REVISION_OMAP5;
-+	case 0:
-+		return KBD_REVISION_OMAP4;
-+	default:
-+		return -ENODEV;
-+	}
-+}
-+
- /* Interrupt handler */
- static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
- {
-@@ -91,12 +151,11 @@ static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
- 	u32 *new_state = (u32 *) key_state;
- 
- 	/* Disable interrupts */
--	__raw_writel(OMAP4_VAL_IRQDISABLE,
--		     keypad_data->base + OMAP4_KBD_IRQENABLE);
-+	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
-+						OMAP4_VAL_IRQDISABLE);
- 
--	*new_state = __raw_readl(keypad_data->base + OMAP4_KBD_FULLCODE31_0);
--	*(new_state + 1) = __raw_readl(keypad_data->base
--						+ OMAP4_KBD_FULLCODE63_32);
-+	*new_state = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE31_0);
-+	*(new_state + 1) = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE63_32);
- 
- 	for (row = 0; row < keypad_data->rows; row++) {
- 		changed = key_state[row] ^ keypad_data->key_state[row];
-@@ -121,12 +180,13 @@ static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
- 		sizeof(keypad_data->key_state));
- 
- 	/* clear pending interrupts */
--	__raw_writel(__raw_readl(keypad_data->base + OMAP4_KBD_IRQSTATUS),
--			keypad_data->base + OMAP4_KBD_IRQSTATUS);
-+	kbd_write_irqstatus(keypad_data, keypad_data->irqstatus,
-+		kbd_read_irqstatus(keypad_data, keypad_data->irqstatus));
- 
- 	/* enable interrupts */
--	__raw_writel(OMAP4_DEF_IRQENABLE_EVENTEN | OMAP4_DEF_IRQENABLE_LONGKEY,
--			keypad_data->base + OMAP4_KBD_IRQENABLE);
-+	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
-+		OMAP4_DEF_IRQENABLE_EVENTEN |
-+			OMAP4_DEF_IRQENABLE_LONGKEY);
- 
- 	return IRQ_HANDLED;
- }
-@@ -139,16 +199,30 @@ static int omap4_keypad_open(struct input_dev *input)
- 
- 	disable_irq(keypad_data->irq);
- 
--	__raw_writel(OMAP4_VAL_FUNCTIONALCFG,
--			keypad_data->base + OMAP4_KBD_CTRL);
--	__raw_writel(OMAP4_VAL_DEBOUNCINGTIME,
--			keypad_data->base + OMAP4_KBD_DEBOUNCINGTIME);
--	__raw_writel(OMAP4_VAL_IRQDISABLE,
--			keypad_data->base + OMAP4_KBD_IRQSTATUS);
--	__raw_writel(OMAP4_DEF_IRQENABLE_EVENTEN | OMAP4_DEF_IRQENABLE_LONGKEY,
--			keypad_data->base + OMAP4_KBD_IRQENABLE);
--	__raw_writel(OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA,
--			keypad_data->base + OMAP4_KBD_WAKEUPENABLE);
-+	keypad_data->revision = kbd_read_revision(keypad_data,
-+			OMAP4_KBD_REVISION);
-+	if (keypad_data->revision == KBD_REVISION_OMAP4) {
-+		keypad_data->irqstatus = OMAP4_KBD_IRQSTATUS;
-+		keypad_data->irqenable = OMAP4_KBD_IRQENABLE;
-+	} else if (keypad_data->revision == KBD_REVISION_OMAP5) {
-+		keypad_data->irqstatus = OMAP4_KBD_IRQSTATUS + 0x0c;
-+		keypad_data->irqenable = OMAP4_KBD_IRQENABLE + 0x0c;
-+	} else {
-+		pr_err("Omap keypad not found\n");
-+		return -ENODEV;
-+	}
-+
-+	kbd_writel(keypad_data, OMAP4_KBD_CTRL,
-+			OMAP4_VAL_FUNCTIONALCFG);
-+	kbd_writel(keypad_data, OMAP4_KBD_DEBOUNCINGTIME,
-+			OMAP4_VAL_DEBOUNCINGTIME);
-+	kbd_write_irqstatus(keypad_data, keypad_data->irqstatus,
-+			OMAP4_VAL_IRQDISABLE);
-+	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
-+			OMAP4_DEF_IRQENABLE_EVENTEN |
-+				OMAP4_DEF_IRQENABLE_LONGKEY);
-+	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE,
-+			OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA);
- 
- 	enable_irq(keypad_data->irq);
- 
-@@ -162,12 +236,12 @@ static void omap4_keypad_close(struct input_dev *input)
- 	disable_irq(keypad_data->irq);
- 
- 	/* Disable interrupts */
--	__raw_writel(OMAP4_VAL_IRQDISABLE,
--		     keypad_data->base + OMAP4_KBD_IRQENABLE);
-+	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
-+			OMAP4_VAL_IRQDISABLE);
- 
- 	/* clear pending interrupts */
--	__raw_writel(__raw_readl(keypad_data->base + OMAP4_KBD_IRQSTATUS),
--			keypad_data->base + OMAP4_KBD_IRQSTATUS);
-+	kbd_write_irqstatus(keypad_data, keypad_data->irqstatus,
-+		kbd_read_irqstatus(keypad_data, keypad_data->irqstatus));
- 
- 	enable_irq(keypad_data->irq);
- 
--- 
-1.7.1
+>  drivers/input/touchscreen/atmel_mxt_ts.c |  122 +++++++++---------------------
+>  1 files changed, 36 insertions(+), 86 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 4363511..fa692e5 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -194,6 +194,7 @@
+>  #define MXT_BOOT_STATUS_MASK	0x3f
+>  
+>  /* Touch status */
+> +#define MXT_UNGRIP		(1 << 0)
+>  #define MXT_SUPPRESS		(1 << 1)
+>  #define MXT_AMP			(1 << 2)
+>  #define MXT_VECTOR		(1 << 3)
+> @@ -238,14 +239,6 @@ struct mxt_message {
+>  	u8 message[7];
+>  };
+>  
+> -struct mxt_finger {
+> -	int status;
+> -	int x;
+> -	int y;
+> -	int area;
+> -	int pressure;
+> -};
+> -
+>  /* Each client has this additional data */
+>  struct mxt_data {
+>  	struct i2c_client *client;
+> @@ -253,7 +246,6 @@ struct mxt_data {
+>  	const struct mxt_platform_data *pdata;
+>  	struct mxt_object *object_table;
+>  	struct mxt_info info;
+> -	struct mxt_finger finger[MXT_MAX_FINGER];
+>  	unsigned int irq;
+>  	unsigned int max_x;
+>  	unsigned int max_y;
+> @@ -526,97 +518,55 @@ static int mxt_write_object(struct mxt_data *data,
+>  	return mxt_write_reg(data->client, reg + offset, 1, &val);
+>  }
+>  
+> -static void mxt_input_report(struct mxt_data *data, int single_id)
+> -{
+> -	struct mxt_finger *finger = data->finger;
+> -	struct input_dev *input_dev = data->input_dev;
+> -	int status = finger[single_id].status;
+> -	int finger_num = 0;
+> -	int id;
+> -
+> -	for (id = 0; id < MXT_MAX_FINGER; id++) {
+> -		if (!finger[id].status)
+> -			continue;
+> -
+> -		input_mt_slot(input_dev, id);
+> -		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
+> -				finger[id].status != MXT_RELEASE);
+> -
+> -		if (finger[id].status != MXT_RELEASE) {
+> -			finger_num++;
+> -			input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR,
+> -					finger[id].area);
+> -			input_report_abs(input_dev, ABS_MT_POSITION_X,
+> -					finger[id].x);
+> -			input_report_abs(input_dev, ABS_MT_POSITION_Y,
+> -					finger[id].y);
+> -			input_report_abs(input_dev, ABS_MT_PRESSURE,
+> -					finger[id].pressure);
+> -		} else {
+> -			finger[id].status = 0;
+> -		}
+> -	}
+> -
+> -	input_report_key(input_dev, BTN_TOUCH, finger_num > 0);
+> -
+> -	if (status != MXT_RELEASE) {
+> -		input_report_abs(input_dev, ABS_X, finger[single_id].x);
+> -		input_report_abs(input_dev, ABS_Y, finger[single_id].y);
+> -		input_report_abs(input_dev,
+> -				 ABS_PRESSURE, finger[single_id].pressure);
+> -	}
+> -
+> -	input_sync(input_dev);
+> -}
+> -
+>  static void mxt_input_touchevent(struct mxt_data *data,
+> -				      struct mxt_message *message, int id)
+> +				 struct mxt_message *message, int id)
+>  {
+> -	struct mxt_finger *finger = data->finger;
+>  	struct device *dev = &data->client->dev;
+> -	u8 status = message->message[0];
+> +	struct input_dev *input_dev = data->input_dev;
+> +	u8 status;
+>  	int x;
+>  	int y;
+>  	int area;
+> -	int pressure;
+> -
+> -	/* Check the touch is present on the screen */
+> -	if (!(status & MXT_DETECT)) {
+> -		if (status & MXT_RELEASE) {
+> -			dev_dbg(dev, "[%d] released\n", id);
+> -
+> -			finger[id].status = MXT_RELEASE;
+> -			mxt_input_report(data, id);
+> -		}
+> -		return;
+> -	}
+> -
+> -	/* Check only AMP detection */
+> -	if (!(status & (MXT_PRESS | MXT_MOVE)))
+> -		return;
+> +	int amplitude;
+>  
+> +	status = message->message[0];
+>  	x = (message->message[1] << 4) | ((message->message[3] >> 4) & 0xf);
+>  	y = (message->message[2] << 4) | ((message->message[3] & 0xf));
+>  	if (data->max_x < 1024)
+> -		x = x >> 2;
+> +		x >>= 2;
+>  	if (data->max_y < 1024)
+> -		y = y >> 2;
+> +		y >>= 2;
+>  
+>  	area = message->message[4];
+> -	pressure = message->message[5];
+> -
+> -	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
+> -		status & MXT_MOVE ? "moved" : "pressed",
+> -		x, y, area);
+> -
+> -	finger[id].status = status & MXT_MOVE ?
+> -				MXT_MOVE : MXT_PRESS;
+> -	finger[id].x = x;
+> -	finger[id].y = y;
+> -	finger[id].area = area;
+> -	finger[id].pressure = pressure;
+> +	amplitude = message->message[5];
+> +
+> +	dev_dbg(dev,
+> +		"[%d] %c%c%c%c%c%c%c%c x: %d y: %d area: %d amp: %d\n",
+> +		id,
+> +		(status & MXT_DETECT) ? 'D' : '.',
+> +		(status & MXT_PRESS) ? 'P' : '.',
+> +		(status & MXT_RELEASE) ? 'R' : '.',
+> +		(status & MXT_MOVE) ? 'M' : '.',
+> +		(status & MXT_VECTOR) ? 'V' : '.',
+> +		(status & MXT_AMP) ? 'A' : '.',
+> +		(status & MXT_SUPPRESS) ? 'S' : '.',
+> +		(status & MXT_UNGRIP) ? 'U' : '.',
+> +		x, y, area, amplitude);
+> +
+> +	input_mt_slot(input_dev, id);
+> +	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
+> +				   status & MXT_DETECT);
+> +
+> +	if (status & MXT_DETECT) {
+> +		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
+> +		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
+> +		input_report_abs(input_dev, ABS_MT_PRESSURE, amplitude);
+> +		/* TODO: This should really be sqrt(area) */
+> +		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
 
+The functional relationship might not be perfect, but at least the
+reported scale should match the position units, as several userspace
+drivers depend on its accuracy. If the line size looks reasonable in
+mtview, for instance, it should be fine.
+
+> +	}
+>  
+> -	mxt_input_report(data, id);
+> +	input_mt_report_pointer_emulation(input_dev, false);
+> +	input_sync(input_dev);
+>  }
+>  
+>  static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+> -- 
+
+Thanks,
+Henrik

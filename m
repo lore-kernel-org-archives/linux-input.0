@@ -1,31 +1,48 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 02/20] Input: atmel_mxt_ts - only allow root to update
- firmware
-Date: Tue, 20 Mar 2012 07:38:39 -0700
-Message-ID: <4F68966F.9070303@itdev.co.uk>
-References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org> <1331640263-18935-3-git-send-email-djkurtz@chromium.org>
+Subject: Re: [PATCH 00/20] cleanup atmel_mxt_ts
+Date: Tue, 20 Mar 2012 07:33:02 -0700
+Message-ID: <4F68951E.2020601@itdev.co.uk>
+References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [89.21.227.130] ([89.21.227.130]:42990 "EHLO
-	mail.epsilon.itdev.co.uk" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754012Ab2CTOin (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Mar 2012 10:38:43 -0400
-In-Reply-To: <1331640263-18935-3-git-send-email-djkurtz@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Daniel Kurtz <djkurtz@chromium.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, "Bowens, Alan" <Alan.Bowens@atmel.com>, "Tiwari, Atul" <Atul.Tiwari@atmel.com>
+List-Id: linux-input@vger.kernel.org
 
 Daniel Kurtz wrote:
-> Restrict permissions on the update_fw sysfs entry to read only for root
-> only.
-> 
-> Also, update object permission to use a macro S_IRUGO macro instead of
-> hard coded 0444.
-> 
-> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> This patchset cleans up the atmel_mxt_ts touchscreen driver.
+> In particular, it addresses the following issues:
 
-Acked-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Hi Daniel-
+
+Thanks for your work on this, some of it looks very useful. I will go
+through and review each patch in turn.
+
+I have been working on Atmel's version of this driver. You can find most of
+that work on our github site: as you know we are intending to push it
+upstream as much as possible:
+https://github.com/atmel-maxtouch
+
+The main overlap between your changes and ours is in your approach to
+writing config from userspace. There is a lot of complexity in these chips
+and providing a sysfs node for each function would end up being a
+never-ending task.
+
+So we have implemented an interface using a sysfs binary attribute which I
+think is considerably more general and flexible than the interface that you
+suggest. You can find a set of utilities on the same github that uses our
+interface. I would argue that we should try and converge the mainline
+driver on our approach rather than inventing something new unless there are
+significant advantages.
+
+cheers
+
+-- 
+Nick Dyer
+Software Engineer, ITDev Ltd
+Hardware and Software Development Consultancy
+Website: http://www.itdev.co.uk

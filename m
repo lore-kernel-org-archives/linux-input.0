@@ -1,118 +1,79 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: keyboard: lm8333: add driver
-Date: Thu, 22 Mar 2012 09:47:50 -0700
-Message-ID: <4402228.zQRyQ2HOtM@dtor-d630.eng.vmware.com>
-References: <20120322035244.GB20427@core.coreip.homeip.net> <20120322091145.GA2424@pengutronix.de>
+From: Arkadiusz =?utf-8?q?Mi=C5=9Bkiewicz?= <a.miskiewicz@gmail.com>
+Subject: logitech-djdevice and /sys
+Date: Thu, 22 Mar 2012 18:44:54 +0100
+Message-ID: <201203221844.54688.a.miskiewicz@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:50222 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751199Ab2CVQsJ (ORCPT
+Received: from mail-we0-f174.google.com ([74.125.82.174]:64878 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932111Ab2CVRpA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Mar 2012 12:48:09 -0400
-Received: by ghrr11 with SMTP id r11so1933201ghr.19
-        for <linux-input@vger.kernel.org>; Thu, 22 Mar 2012 09:48:08 -0700 (PDT)
-In-Reply-To: <20120322091145.GA2424@pengutronix.de>
+	Thu, 22 Mar 2012 13:45:00 -0400
+Received: by wejx9 with SMTP id x9so2044174wej.19
+        for <linux-input@vger.kernel.org>; Thu, 22 Mar 2012 10:44:59 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Thursday, March 22, 2012 10:11:45 AM Wolfram Sang wrote:
-> Hi Dmitry,
-> 
-> thanks for the immediate review!
-> 
-> > > This driver adds support for the keypad part of the LM8333 and provides
-> > > hooks for possible GPIO/PWM drivers. Note that this is not a MFD device
-> > > beause you cannot disable the keypad functionality which, thus, has to
-> > > be handled by the core anyhow.
-> > 
-> > So it's like lm8323... In this case we should just add PWM handling
-> > directly to this driver.
-> 
-> Not sure. There is a PWM framework in the making.
 
-OK.
+Hi,
 
-> 
-> > > +
-> > > +/* The accessors try twice because the first access may be needed for
-> > > wakeup */ +
-> > > +int lm8333_read8(struct lm8333 *lm8333, u8 cmd)
-> > > +{
-> > > +	int repeated = 0, ret;
-> > > +
-> > > +	do {
-> > > +		ret = i2c_smbus_read_byte_data(lm8333->client, cmd);
-> > > +	} while (ret < 0 && !repeated++);
-> > 
-> > So there is 1 retry... Why don't you have
-> > 
-> > 	do {
-> > 	
-> > 		...
-> > 	
-> > 	} while (ret < 0 && retries++ < LM8333_NUM_RETRIES);
-> > 
-> > to make it completely obvious.
-> 
-> I thought '!repeated' was readable, but will change that.
+I'm detecting usb keyboards from shell using this simple script:
 
-It is quite readable but I don't want to have any doubts when I look at the 
-code at 2AM drunk ;)
+for i in /sys/class/input/input*; do
+                [ ! -f $i/device/bInterfaceClass -o ! -f $i/device/bInt=
+erfaceProtocol ] && continue
+                bInterfaceClass=3D$(cat $i/device/bInterfaceClass)
+                bInterfaceProtocol=3D$(cat $i/device/bInterfaceProtocol=
+)
+                if [ "$bInterfaceClass" =3D "03" -a "$bInterfaceProtoco=
+l" =3D "01" ]; then
+			module=3D$(readlink $i/device/driver/module)
+                        module=3D$(basename $module)
 
-> 
-> > > +	lm8333 = devm_kzalloc(&client->dev, sizeof(*lm8333), GFP_KERNEL);
-> > > +	input = input_allocate_device();
-> > > +	if (!lm8333 || !input)
-> > 
-> > You leak memory here if input_allocate_device() succeeds but
-> > devm_kzalloc fails. Situations like this is why I do not like devm_*
-> > interface.
-> 
-> I see. Okay, the true flaw is that one should check for error cases
-> seperately, but with devm_* one is tempted to combine that.
+			echo "found keyboard driven by $module"
+		fi
+done
 
-Without devm I most often do:
 
-	xxx = kzalloc(sizeof(*xxx), GFP_KERNEL);
-	input = input_allocate_device();
-	if (!xxx || !input) {
-		error = -ENOMEM;
-		goto err_free_mem:
-	}
-	...
+but for keyboards hidden behind logitech unifying receiver
+there seem to be no such information in /sys.
 
-err_free_mem:
-	input_free_device(input);
-	kfree(xxx);
+Any ideas on how I can detect such keyboards via /sys or other
+scriptable method?
 
-> 
-> > > +static int __devexit lm8333_remove(struct i2c_client *client)
-> > > +{
-> > > +	struct lm8333 *lm8333 = i2c_get_clientdata(client);
-> > > +
-> > > +	input_unregister_device(lm8333->input);
-> > > +	input_free_device(lm8333->input);
-> > 
-> > Also you need to free IRQ before you unregister (and free) input device,
-> > otherwise you risk dereferencing already freed memory. Another example
-> > why I hate devm_*.
-> 
-> Understood. The problem here is mixing devm_* setup with non_devm. So,
-> it is an either-or-thingie? Hmmm...
+(note that I'm interested only in "regular" keyboards, so single button=
+s
+and some other devices are not interesting)
 
-There probably cases where devm_ may work but I find that mixing two paradigms 
-just makes things harder for me. "Is this resource managed? Do I still have to 
-release it manually even though it is managed? Does the order matter?"
-Without devm_* I just need to pay attention if resource is refcounted or not, 
-but otherwise I need to release everything I acquired and I control entire 
-sequence.
+dmesg:
 
-Thanks.
+[130816.672862] usb 6-2: new full-speed USB device number 4 using uhci_=
+hcd
+[130816.856173] usb 6-2: New USB device found, idVendor=3D046d, idProdu=
+ct=3Dc52b
+[130816.856183] usb 6-2: New USB device strings: Mfr=3D1, Product=3D2, =
+SerialNumber=3D0
+[130816.856190] usb 6-2: Product: USB Receiver
+[130816.856195] usb 6-2: Manufacturer: Logitech
+[130816.868751] logitech-djreceiver 0003:046D:C52B.000F: hiddev0,hidraw=
+2: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:00:1d.0-2/i=
+nput2
+[130816.878201] input: Logitech Unifying Device. Wireless PID:4004 as /=
+devices/pci0000:00/0000:00:1d.0/usb6/6-2/6-2:1.2/0003:046D:C52B.000F/in=
+put/input14
+[130816.878717] logitech-djdevice 0003:046D:C52B.0010: input,hidraw3: U=
+SB HID v1.11 Keyboard [Logitech Unifying Device. Wireless PID:4004] on =
+usb-0000:00:1d.0-2:1
 
--- 
-Dmitry
+--=20
+Arkadiusz Mi=C5=9Bkiewicz        PLD/Linux Team
+arekm / maven.pl            http://ftp.pld-linux.org/
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

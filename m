@@ -1,317 +1,307 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: keyboard: lm8333: add driver
-Date: Wed, 21 Mar 2012 20:52:44 -0700
-Message-ID: <20120322035244.GB20427@core.coreip.homeip.net>
-References: <1332355828-4291-1-git-send-email-w.sang@pengutronix.de>
+Subject: [git pull] Input updates for 3.4-rc0
+Date: Wed, 21 Mar 2012 21:08:36 -0700
+Message-ID: <20120322040836.GC20427@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:53235 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751250Ab2CVDwt (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:46679 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750928Ab2CVEIl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Mar 2012 23:52:49 -0400
-Received: by dajr28 with SMTP id r28so2510729daj.19
-        for <linux-input@vger.kernel.org>; Wed, 21 Mar 2012 20:52:49 -0700 (PDT)
+	Thu, 22 Mar 2012 00:08:41 -0400
 Content-Disposition: inline
-In-Reply-To: <1332355828-4291-1-git-send-email-w.sang@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Wolfram,
 
-On Wed, Mar 21, 2012 at 07:50:28PM +0100, Wolfram Sang wrote:
-> This driver adds support for the keypad part of the LM8333 and provides
-> hooks for possible GPIO/PWM drivers. Note that this is not a MFD device
-> beause you cannot disable the keypad functionality which, thus, has to
-> be handled by the core anyhow.
+--9amGYk9869ThD9tj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-So it's like lm8323... In this case we should just add PWM handling
-directly to this driver. 
+Hi Linus,
 
-> 
-> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
-> ---
-> 
-> I am planning to do the GPIO driver as well, once my broken hardware gets
-> replaced. Based on 3.3. Tested by our customer.
-> 
->  drivers/input/keyboard/Kconfig  |   10 ++
->  drivers/input/keyboard/Makefile |    1 +
->  drivers/input/keyboard/lm8333.c |  225 +++++++++++++++++++++++++++++++++++++++
->  include/linux/input/lm8333.h    |   24 ++++
->  4 files changed, 260 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/keyboard/lm8333.c
->  create mode 100644 include/linux/input/lm8333.h
-> 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index cdc385b..0294147 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -309,6 +309,16 @@ config KEYBOARD_LM8323
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called lm8323.
->  
-> +config KEYBOARD_LM8333
-> +	tristate "LM8333 keypad chip"
-> +	depends on I2C
-> +	help
-> +	  If you say yes here you get support for the National Semiconductor
-> +	  LM8333 keypad controller.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called lm8333.
-> +
->  config KEYBOARD_LOCOMO
->  	tristate "LoCoMo Keyboard Support"
->  	depends on SHARP_LOCOMO
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> index df7061f..b03b024 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -24,6 +24,7 @@ obj-$(CONFIG_KEYBOARD_HP6XX)		+= jornada680_kbd.o
->  obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada720_kbd.o
->  obj-$(CONFIG_KEYBOARD_LKKBD)		+= lkkbd.o
->  obj-$(CONFIG_KEYBOARD_LM8323)		+= lm8323.o
-> +obj-$(CONFIG_KEYBOARD_LM8333)		+= lm8333.o
->  obj-$(CONFIG_KEYBOARD_LOCOMO)		+= locomokbd.o
->  obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
->  obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
-> diff --git a/drivers/input/keyboard/lm8333.c b/drivers/input/keyboard/lm8333.c
-> new file mode 100644
-> index 0000000..7c53f03
-> --- /dev/null
-> +++ b/drivers/input/keyboard/lm8333.c
-> @@ -0,0 +1,225 @@
-> +/*
-> + * LM8333 keypad driver
-> + * Copyright (C) 2012 Wolfram Sang, Pengutronix <w.sang@pengutronix.de>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/irq.h>
-> +#include <linux/i2c.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/input/matrix_keypad.h>
-> +#include <linux/input/lm8333.h>
-> +
-> +#define LM8333_FIFO_READ		0x20
-> +#define LM8333_DEBOUNCE			0x22
-> +#define LM8333_READ_INT			0xD0
-> +#define LM8333_ACTIVE			0xE4
-> +#define LM8333_READ_ERROR		0xF0
-> +
-> +#define LM8333_KEYPAD_IRQ		(1 << 0)
-> +#define LM8333_ERROR_IRQ		(1 << 3)
-> +
-> +#define LM8333_ERROR_KEYOVR		0x04
-> +#define LM8333_ERROR_FIFOOVR		0x40
-> +
-> +#define LM8333_FIFO_TRANSFER_SIZE	16
-> +
-> +#define LM8333_ROW_SHIFT	4
-> +#define LM8333_NUM_ROWS		8
-> +
-> +
-> +struct lm8333 {
-> +	struct i2c_client *client;
-> +	struct input_dev *input;
-> +	unsigned short keycodes[LM8333_NUM_ROWS << LM8333_ROW_SHIFT];
-> +};
-> +
-> +/* The accessors try twice because the first access may be needed for wakeup */
-> +
-> +int lm8333_read8(struct lm8333 *lm8333, u8 cmd)
-> +{
-> +	int repeated = 0, ret;
-> +
-> +	do {
-> +		ret = i2c_smbus_read_byte_data(lm8333->client, cmd);
-> +	} while (ret < 0 && !repeated++);
+Please pull from:
 
-So there is 1 retry... Why don't you have
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-	do {
-		...
-	} while (ret < 0 && retries++ < LM8333_NUM_RETRIES);
+to receive updates for the input subsystem. You will get:
 
-to make it completely obvious.
+- we finally merged driver for USB version of Synaptics touchpads
+  (I guess most commonly found in IBM/Lenovo keyboard/touchpad combo);
 
-> +
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL_GPL(lm8333_read8);
+- a bunch of new drivers for embedded platforms (Cypress touchscreens,
+  DA9052 OnKey, MAX8997-haptic, Ilitek ILI210x touchscreens, TI
+  touchscreen);
 
-Do not export until there are users please.
+- input core allows clients to specify desired clock source for
+  timestamps on input events (EVIOCSCLOCKID ioctl);
 
-> +
-> +int lm8333_write8(struct lm8333 *lm8333, u8 cmd, u8 val)
-> +{
-> +	int repeated = 0, ret;
-> +
-> +	do {
-> +		ret = i2c_smbus_write_byte_data(lm8333->client, cmd, val);
-> +	} while (ret < 0 && !repeated++);
-> +
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL_GPL(lm8333_write8);
-> +
-> +int lm8333_read_block(struct lm8333 *lm8333, u8 cmd, u8 len, u8 *buf)
-> +{
-> +	int repeated = 0, ret;
-> +
-> +	do {
-> +		ret = i2c_smbus_read_i2c_block_data(lm8333->client, cmd, len, buf);
-> +	} while (ret < 0 && !repeated++);
-> +
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL_GPL(lm8333_read_block);
-> +
-> +static void lm8333_key_handler(struct lm8333 *lm8333)
-> +{
-> +	u8 keys[LM8333_FIFO_TRANSFER_SIZE];
-> +	u8 code, pressed;
-> +	int i, ret;
-> +
-> +	ret = lm8333_read_block(lm8333, LM8333_FIFO_READ, LM8333_FIFO_TRANSFER_SIZE, keys);
-> +	if (ret != LM8333_FIFO_TRANSFER_SIZE) {
-> +		dev_err(&lm8333->client->dev, "Error %d while reading FIFO\n", ret);
-> +		return;
-> +	}
-> +
-> +	for (i = 0; keys[i] && i < LM8333_FIFO_TRANSFER_SIZE; i++) {
-> +		pressed = !!(keys[i] & 0x80);
-> +		code = keys[i] & 0x7f;
-> +
-> +		input_event(lm8333->input, EV_MSC, MSC_SCAN, code);
-> +		input_report_key(lm8333->input, lm8333->keycodes[code], pressed);
-> +	}
-> +
-> +	input_sync(lm8333->input);
-> +}
-> +
-> +static irqreturn_t lm8333_irq_thread(int irq, void *data)
-> +{
-> +	struct lm8333 *lm8333 = data;
-> +	u8 status = lm8333_read8(lm8333, LM8333_READ_INT);
-> +
-> +	if (!status)
-> +		return IRQ_NONE;
-> +
-> +	if (status & LM8333_ERROR_IRQ) {
-> +		u8 err = lm8333_read8(lm8333, LM8333_READ_ERROR);
-> +
-> +		if (err & (LM8333_ERROR_KEYOVR | LM8333_ERROR_FIFOOVR)) {
-> +			u8 dummy[LM8333_FIFO_TRANSFER_SIZE];
-> +
-> +			lm8333_read_block(lm8333, LM8333_FIFO_READ,
-> +					LM8333_FIFO_TRANSFER_SIZE, dummy);
-> +		}
-> +		dev_err(&lm8333->client->dev, "Got error %02x\n", err);
-> +	}
-> +
-> +	if (status & LM8333_KEYPAD_IRQ)
-> +		lm8333_key_handler(lm8333);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int __devinit lm8333_probe(struct i2c_client *client,
-> +			  const struct i2c_device_id *id)
-> +{
-> +	struct lm8333_platform_data *pdata = client->dev.platform_data;
-> +	struct lm8333 *lm8333;
-> +	struct input_dev *input;
-> +	int err, active_time;
-> +
-> +	if (!pdata)
-> +		return -EINVAL;
-> +
-> +	active_time = pdata->active_time ?: 500;
-> +	if (active_time / 3 <= pdata->debounce_time / 3) {
-> +		dev_err(&client->dev, "Active time not big enough!\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	lm8333 = devm_kzalloc(&client->dev, sizeof(*lm8333), GFP_KERNEL);
-> +	input = input_allocate_device();
-> +	if (!lm8333 || !input)
+- input core allows querying state of all MT slots for given event
+  code via EVIOCGMTSLOTS ioctl;
 
-You leak memory here if input_allocate_device() succeeds but
-devm_kzalloc fails. Situations like this is why I do not like devm_*
-interface.
+- various driver fixes and improvements.
 
-> +		return -ENOMEM;
-> +
-> +	input->name = client->name;
-> +	input->dev.parent = &client->dev;
-> +	input->id.bustype = BUS_I2C;
-> +
-> +	lm8333->client = client;
-> +	lm8333->input = input;
-> +
-> +	i2c_set_clientdata(client, lm8333);
-> +
-> +	input->keycode = lm8333->keycodes;
-> +	input->keycodesize = sizeof(lm8333->keycodes[0]);
-> +	input->keycodemax = ARRAY_SIZE(lm8333->keycodes);
-> +	input->evbit[0] = BIT_MASK(EV_KEY);
-> +	input_set_capability(input, EV_MSC, MSC_SCAN);
-> +
-> +	matrix_keypad_build_keymap(pdata->matrix_data, LM8333_ROW_SHIFT,
-> +			input->keycode, input->keybit);
-> +
-> +
-> +	if (pdata->debounce_time) {
-> +		err = lm8333_write8(lm8333, LM8333_DEBOUNCE, pdata->debounce_time / 3);
-> +		if (err)
-> +			dev_warn(&client->dev, "Unable to set debounce time\n");
-> +	}
-> +
-> +	if (pdata->active_time) {
-> +		err = lm8333_write8(lm8333, LM8333_ACTIVE, pdata->active_time / 3);
-> +		if (err)
-> +			dev_warn(&client->dev, "Unable to set active time\n");
-> +	}
-> +
-> +	err = devm_request_threaded_irq(&client->dev, client->irq, NULL, lm8333_irq_thread,
-> +			IRQF_TRIGGER_FALLING | IRQF_ONESHOT, "lm8333", lm8333);
-> +	if (err)
-> +		goto free_input;
-> +
-> +	err = input_register_device(input);
-> +	if (err)
-> +		goto free_input;
-> +
-> +	return 0;
-> +
-> + free_input:
-> +	input_free_device(input);
-> +	return err;
-> +}
-> +
-> +static int __devexit lm8333_remove(struct i2c_client *client)
-> +{
-> +	struct lm8333 *lm8333 = i2c_get_clientdata(client);
-> +
-> +	input_unregister_device(lm8333->input);
-> +	input_free_device(lm8333->input);
+Thanks!
 
-No calls to input_free_device() after input_unregister_device().
+Changelog:
+---------
 
-Also you need to free IRQ before you unregister (and free) input device,
-otherwise you risk dereferencing already freed memory. Another example
-why I hate devm_*.
+Andres Salomon (1):
+      Input: psmouse - allow drivers to use psmouse_{de,}activate
 
-Thanks.
+Armando Visconti (1):
+      Input: usbtouchscreen - add support for Data Modul EasyTouch TP 72037
 
--- 
+Ashish Jangam (1):
+      Input: add support for OnKey module for DA9052/53 PMIC
+
+Axel Lin (2):
+      Input: convert SPI drivers to use module_spi_driver()
+      Input: convert I2C drivers to use module_i2c_driver()
+
+Chase Douglas (1):
+      bcm5974: Add pointer and buttonpad properties
+
+Christopher Hudson (1):
+      Input: kxtj9 - who_am_i check value and initial data rate fixes
+
+Dmitry Torokhov (10):
+      Input: nomadik-ske-keypad - do not assign driver's probe() method
+      Input: nomadik-ske-keypad - convert to using SIMPLE_DEV_PM_OPS
+      Input: at32psif - convert to dev_pm_ops
+      Input: q40kbd - convert driver to the split model
+      Input: cyttsp - remove useless checks in cyttsp_probe()
+      Input: atmel-wm97xx - set driver owner
+      Input: atmel-wm97xx - convert to dev_pm_ops
+      Input: max8925_onkey - avoid accessing input device too early
+      Input: twl4030-vibra - really switch from #if to #ifdef
+      Input: synaptics_usb - switch to module_usb_driver()
+
+Donggeun Kim (1):
+      Input: add driver support for MAX8997-haptic
+
+Felipe Balbi (1):
+      Input: omap4-keypad - move platform_data to <linux/platform_data>
+
+Henrik Rydberg (2):
+      Input: Use accessor for MT values
+      Input: Add EVIOC mechanism for MT slots
+
+Jan Steinhoff (1):
+      Input: add Synaptics USB device driver
+
+Jason Gerecke (1):
+      Input: wacom - fix physical size calculation for 3rd-gen Bamboo
+
+Javier Martinez Canillas (2):
+      Input: add Cypress TTSP capacitive multi-touch screen support
+      Input: add cyttsp touchscreen maintainer entry
+
+John Stultz (1):
+      Input: add infrastructure for selecting clockid for event time stamps
+
+Julia Lawall (1):
+      Input: hp680_ts_input - ensure arguments to request_irq and free_irq =
+are compatible
+
+Kevin Liu (1):
+      Input: max8925_onkey - allow to be used as a wakeup source
+
+Mark Brown (1):
+      Input: samsung-keypad - don't synchronise with runtime PM put
+
+Masanari Iida (1):
+      Input: pcf8574_keypad - fix typo in Kconfig
+
+Olivier Sobrie (1):
+      Input: ili210x - add support for Ilitek ILI210x based touchscreens
+
+Olof Johansson (2):
+      Input: of_keymap - add device tree bindings for simple key matrices
+      Input: tegra-kbc - revise device tree support
+
+Paul Fox (1):
+      Input: psmouse - use psmouse_[de]activate() from sentelic and hgpk dr=
+ivers
+
+Ping Cheng (2):
+      Input: wacom - use BTN_TOOL_FINGER to indicate touch device type
+      Input: wacom - use switch statement for wacom_tpc_irq()
+
+Rachna Patil (1):
+      Input: add support for TI Touchscreen controller
+
+Rajeev Kumar (3):
+      Input: spear-keyboard - delete redundant key definitions from 9x9 key=
+board
+      Input: spear-keyboard - add 6x6 keypad matrix definitions
+      Input: spear-keyboard - configure device according to supplied mode
+
+Rakesh Iyer (2):
+      Input: tegra-kbc - remove pre-Tegra20 definitions
+      Input: tegra-kbc - enable key interrupt for wakeup
+
+Shridhar Rasal (1):
+      Input: tegra-kbc - allow skipping setting up some of GPIO pins
+
+Tobias Klauser (1):
+      Input: altera_ps2 - use of_match_ptr()
+
+Viresh Kumar (1):
+      Input: spear-keyboard - provide thaw and poweroff routines
+
+
+Diffstat:
+--------
+
+ .../devicetree/bindings/input/matrix-keymap.txt    |   19 +
+ .../devicetree/bindings/input/tegra-kbc.txt        |   17 +-
+ MAINTAINERS                                        |    7 +
+ arch/arm/mach-omap2/board-4430sdp.c                |    1 +
+ arch/arm/mach-omap2/devices.c                      |    1 +
+ arch/arm/mach-tegra/include/mach/kbc.h             |   13 +-
+ arch/arm/plat-omap/include/plat/omap4-keypad.h     |    9 -
+ arch/arm/plat-spear/include/plat/keyboard.h        |   66 ++-
+ arch/m68k/q40/config.c                             |   13 +
+ drivers/hid/hid-core.c                             |   10 +
+ drivers/hid/hid-ids.h                              |   11 +
+ drivers/input/Kconfig                              |    4 +
+ drivers/input/Makefile                             |    1 +
+ drivers/input/evdev.c                              |   52 ++-
+ drivers/input/input.c                              |    2 +-
+ drivers/input/joystick/as5011.c                    |   12 +-
+ drivers/input/keyboard/Kconfig                     |    2 +-
+ drivers/input/keyboard/adp5588-keys.c              |   12 +-
+ drivers/input/keyboard/adp5589-keys.c              |   12 +-
+ drivers/input/keyboard/lm8323.c                    |   12 +-
+ drivers/input/keyboard/max7359_keypad.c            |   12 +-
+ drivers/input/keyboard/mcs_touchkey.c              |   13 +-
+ drivers/input/keyboard/mpr121_touchkey.c           |   12 +-
+ drivers/input/keyboard/nomadik-ske-keypad.c        |   17 +-
+ drivers/input/keyboard/omap4-keypad.c              |    2 +-
+ drivers/input/keyboard/qt1070.c                    |   12 +-
+ drivers/input/keyboard/qt2160.c                    |   12 +-
+ drivers/input/keyboard/samsung-keypad.c            |    6 +-
+ drivers/input/keyboard/spear-keyboard.c            |   16 +-
+ drivers/input/keyboard/tegra-kbc.c                 |   72 ++-
+ drivers/input/misc/Kconfig                         |   24 +-
+ drivers/input/misc/Makefile                        |    2 +
+ drivers/input/misc/ad714x-i2c.c                    |   12 +-
+ drivers/input/misc/ad714x-spi.c                    |   12 +-
+ drivers/input/misc/adxl34x-i2c.c                   |   12 +-
+ drivers/input/misc/adxl34x-spi.c                   |   12 +-
+ drivers/input/misc/bma150.c                        |   13 +-
+ drivers/input/misc/cma3000_d0x_i2c.c               |   13 +-
+ drivers/input/misc/da9052_onkey.c                  |  169 ++++++
+ drivers/input/misc/gp2ap002a00f.c                  |   13 +-
+ drivers/input/misc/kxtj9.c                         |   34 +-
+ drivers/input/misc/max8925_onkey.c                 |  115 +++--
+ drivers/input/misc/max8997_haptic.c                |  407 +++++++++++++
+ drivers/input/misc/mma8450.c                       |   12 +-
+ drivers/input/misc/mpu3050.c                       |   12 +-
+ drivers/input/misc/pcf8574_keypad.c                |   12 +-
+ drivers/input/misc/twl4030-vibra.c                 |    2 +-
+ drivers/input/mouse/Kconfig                        |   17 +
+ drivers/input/mouse/Makefile                       |    1 +
+ drivers/input/mouse/bcm5974.c                      |    1 +
+ drivers/input/mouse/hgpk.c                         |    9 +-
+ drivers/input/mouse/psmouse-base.c                 |   15 +-
+ drivers/input/mouse/psmouse.h                      |    2 +
+ drivers/input/mouse/sentelic.c                     |   12 +-
+ drivers/input/mouse/synaptics_i2c.c                |   13 +-
+ drivers/input/mouse/synaptics_usb.c                |  557 +++++++++++++++++
+ drivers/input/of_keymap.c                          |   87 +++
+ drivers/input/serio/altera_ps2.c                   |    4 +-
+ drivers/input/serio/at32psif.c                     |   22 +-
+ drivers/input/serio/q40kbd.c                       |  139 +++--
+ drivers/input/tablet/wacom_sys.c                   |   10 +-
+ drivers/input/tablet/wacom_wac.c                   |   28 +-
+ drivers/input/tablet/wacom_wac.h                   |    2 +
+ drivers/input/touchscreen/Kconfig                  |   68 +++-
+ drivers/input/touchscreen/Makefile                 |    7 +-
+ drivers/input/touchscreen/ad7877.c                 |   12 +-
+ drivers/input/touchscreen/ad7879-i2c.c             |   12 +-
+ drivers/input/touchscreen/ad7879-spi.c             |   12 +-
+ drivers/input/touchscreen/ads7846.c                |   12 +-
+ drivers/input/touchscreen/atmel-wm97xx.c           |   20 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c           |   13 +-
+ drivers/input/touchscreen/auo-pixcir-ts.c          |   12 +-
+ drivers/input/touchscreen/bu21013_ts.c             |   25 +-
+ drivers/input/touchscreen/cy8ctmg110_ts.c          |   13 +-
+ drivers/input/touchscreen/cyttsp_core.c            |  625 ++++++++++++++++=
+++++
+ drivers/input/touchscreen/cyttsp_core.h            |  149 +++++
+ drivers/input/touchscreen/cyttsp_i2c.c             |  136 +++++
+ drivers/input/touchscreen/cyttsp_spi.c             |  200 +++++++
+ drivers/input/touchscreen/eeti_ts.c                |   14 +-
+ drivers/input/touchscreen/egalax_ts.c              |   13 +-
+ drivers/input/touchscreen/hp680_ts_input.c         |    2 +-
+ drivers/input/touchscreen/ili210x.c                |  360 +++++++++++
+ drivers/input/touchscreen/max11801_ts.c            |   13 +-
+ drivers/input/touchscreen/mcs5000_ts.c             |   13 +-
+ drivers/input/touchscreen/migor_ts.c               |   13 +-
+ drivers/input/touchscreen/pixcir_i2c_ts.c          |   12 +-
+ drivers/input/touchscreen/st1232.c                 |   12 +-
+ drivers/input/touchscreen/ti_tscadc.c              |  486 +++++++++++++++
+ drivers/input/touchscreen/tsc2005.c                |   12 +-
+ drivers/input/touchscreen/tsc2007.c                |   13 +-
+ drivers/input/touchscreen/usbtouchscreen.c         |   63 ++
+ include/linux/input.h                              |   27 +
+ include/linux/input/cyttsp.h                       |   58 ++
+ include/linux/input/ili210x.h                      |   10 +
+ include/linux/input/kxtj9.h                        |   11 +-
+ include/linux/input/matrix_keypad.h                |   19 +
+ include/linux/input/mt.h                           |    8 +-
+ include/linux/input/ti_tscadc.h                    |   17 +
+ include/linux/mfd/max8997.h                        |   53 ++-
+ include/linux/platform_data/omap4-keypad.h         |   13 +
+ kernel/time/timekeeping.c                          |    2 +
+ 101 files changed, 4095 insertions(+), 710 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/matrix-keymap.t=
+xt
+ create mode 100644 drivers/input/misc/da9052_onkey.c
+ create mode 100644 drivers/input/misc/max8997_haptic.c
+ create mode 100644 drivers/input/mouse/synaptics_usb.c
+ create mode 100644 drivers/input/of_keymap.c
+ create mode 100644 drivers/input/touchscreen/cyttsp_core.c
+ create mode 100644 drivers/input/touchscreen/cyttsp_core.h
+ create mode 100644 drivers/input/touchscreen/cyttsp_i2c.c
+ create mode 100644 drivers/input/touchscreen/cyttsp_spi.c
+ create mode 100644 drivers/input/touchscreen/ili210x.c
+ create mode 100644 drivers/input/touchscreen/ti_tscadc.c
+ create mode 100644 include/linux/input/cyttsp.h
+ create mode 100644 include/linux/input/ili210x.h
+ create mode 100644 include/linux/input/ti_tscadc.h
+ create mode 100644 include/linux/platform_data/omap4-keypad.h
+
+--=20
 Dmitry
+
+
+--9amGYk9869ThD9tj
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJPaqXEAAoJEH70+W8r6ZYqxB8QAL8fbclyB4cdTa07t4IU60cp
+IIqtJnS35C9Edafg+pHKpbbvxf3Fm2BqaecictNzEb3ZVeJLXKZtJdxOG9NUae1v
+y+8YuPMzd8+J6Rn9kw8G1x91biS+EpemdUphT1Y6t2JMmIdB7laQ7Jd7xZrnlrA9
+yADUvwb9hj+/oMttdu2D2zr6GR6uiYbvp1CvoxJ9xIGaqFJ0161peSy5SRzEV1/I
+D3pL9D2sPPI8VMshBZCht1Jxg2gi1yL4H7bnLrcv0IGoK17JZ3OsK2+N7i5SfsSY
+9lXMXJ8FaTtGg1yIB9FdlPOUBCKCU6JzpIcf+HTEdRe1XXjiCEQjTx9srlA/ZKSc
+uQqlZG1uOfuH/YWCM3DXDMBsMkjJCLQvL7Uf/drS7uD5oqnbEFJ+udjV49RvIvJv
+eklcl2HnJutLlU9xafHxmVGfFmdrL6N2ET6OZcX2u/YSereHGz1IYdPjGNmW3tQ9
+l3qnutsqGA7hVGa2MFb7vxIv60NAPz0g+VbTtgtj/ojElwTESqxuIAn7H5+DZ3Qx
+5PQZLpakj95bD0ZhsfGS+zUEXTcdDU9ZfPLUd9tjjH+oTX+y7RbILdxNJopQmm9q
+2co7VK/9owWppXo9oodxuOi59LBD+nGy6ViNpYqVls4qrqTcXgFtPMNDCxTzrjry
+m52CLFr1rummGHliQdGc
+=ArS0
+-----END PGP SIGNATURE-----
+
+--9amGYk9869ThD9tj--

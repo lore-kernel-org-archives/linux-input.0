@@ -1,175 +1,59 @@
-From: Paul Richards <paulrichards321@gmail.com>
-Subject: [PATCH] input: microsoft: fix vertical scrolling issue with Microsoft
- Wireless Mobile Mouse 3500 and Microsoft Wireless Mouse 5000
-Date: Fri, 23 Mar 2012 01:11:04 -0400
-Message-ID: <CABTjZCgNkUU7E91ZYHSpBZxbt=mvjy44ThPbqngyTQPTG4VR_g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Tatsunosuke Tobita <junkpainting@gmail.com>
+Subject: [PATCH] Input:Add support for Wacom Stylus with I2C interface.
+Date: Fri, 23 Mar 2012 14:38:45 +0900
+Message-ID: <1332481125-6194-1-git-send-email-tobita.tatsunosuke@wacom.co.jp>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:52375 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754764Ab2CWFLF (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:51281 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752371Ab2CWFjD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Mar 2012 01:11:05 -0400
-Received: by iagz16 with SMTP id z16so4133307iag.19
-        for <linux-input@vger.kernel.org>; Thu, 22 Mar 2012 22:11:04 -0700 (PDT)
+	Fri, 23 Mar 2012 01:39:03 -0400
+Received: by yenl12 with SMTP id l12so2462680yen.19
+        for <linux-input@vger.kernel.org>; Thu, 22 Mar 2012 22:39:03 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
 
-The below patch fixes a vertical scroll wheel issue when you dual boot
-between Microsoft Windows and at least two of the following models:
+From: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
 
-Microsoft Wireless Mobile Mouse 3500
-Microsoft Wireless Mouse 5000
+This modification sets up for adding support for Wacom I2C Stylus Device.
 
-After doing a warm reboot into linux these mice report a multiple of
-the regular values for the vertical scroll wheel events, which I
-viewed by using the following command:
-
-cat /sys/kernel/debug/hid/0003\:045E\:0745.0004/events
-
-Under normal operation you get a vertical scroll wheel change of
-+1,0,-1 however after being booted into Microsoft Windows and rebooted
-into linux these values can go up to +3 or -3, or +10 or -10 for a
-*single* scroll wheel movement up or down. This makes scrolling
-through documents annoying as it does 3x or 10x times the regular
-amount of scrolling. I found by reseting feature "23" I was able to
-restore the normal behavior of the mouse. I believe this is some sort
-of smooth scrolling setting that gets enabled on the mouse and doesn't
-get reset during a warm boot. I did some research on the internet and
-found other people experience this behavior and that they usually just
-do a full power down or unplug the usb radio receiver and then plug it
-back in.
-
-Signed-off-by: Paul Richards <paulrichards321@gmail.com>
+Signed-off-by: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
 ---
- drivers/hid/hid-core.c      |    1 +
- drivers/hid/hid-ids.h       |    1 +
- drivers/hid/hid-microsoft.c |   53 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 55 insertions(+), 0 deletions(-)
+ drivers/input/touchscreen/Kconfig  |   11 +++++++++++
+ drivers/input/touchscreen/Makefile |    1 +
+ 2 files changed, 12 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 990fe19..8356ef7 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1485,6 +1485,7 @@ static const struct hid_device_id
-hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD_BOOTLOADER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-USB_DEVICE_ID_MS_COMFORT_MOUSE_4500) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-USB_DEVICE_ID_MS_WIRELESS_MOUSE_KSERIES) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_LK6K) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 3eb0090..1ba69c8 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -531,6 +531,7 @@
- #define USB_DEVICE_ID_MS_PRESENTER_8K_USB	0x0713
- #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K	0x0730
- #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500	0x076c
-+#define USB_DEVICE_ID_MS_WIRELESS_MOUSE_KSERIES 0x0745
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 3488ffe..cae448e 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -738,4 +738,15 @@ config TOUCHSCREEN_TPS6507X
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called tps6507x_ts.
+ 
++config TOUCHSCREEN_WACOM_I2C
++	tristate "Wacom Tablet support(I2C)"
++	depends on I2C
++	help
++	 Say Y here if you want to use the I2C version of the Wacom Pen.
++	 Make sure to say Y to "Mouse support" (CONFIG_INPUT_MOUSEDEV)
++	 and/or "Event interface support" (CONFIG_INPUT_EVDEV) as well.
++
++	 To compile this driver as a module, choose M here: the module
++	 will be called wacom_i2c.
++
+ endif
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index f957676..61bbfc8 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -61,3 +61,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
+ obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
+ obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
++obj-$(CONFIG_TOUCHSCREEN_WACOM_I2C)	+= wacom_i2c.o
+-- 
+1.7.1
 
- #define USB_VENDOR_ID_MOJO		0x8282
- #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index e5c699b..19d5dca 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -29,6 +29,7 @@
- #define MS_RDESC		0x08
- #define MS_NOGET		0x10
- #define MS_DUPLICATE_USAGES	0x20
-+#define MS_VSCROLL		0x40
-
- /*
-  * Microsoft Wireless Desktop Receiver (Model 1028) has
-@@ -155,6 +156,51 @@ static int ms_event(struct hid_device *hdev,
-struct hid_field *field,
- 	return 0;
- }
-
-+static bool check_vscroll_settings(struct hid_device *hdev)
-+{
-+	struct hid_report *report;
-+	int ret;
-+	__u8 feature_in[] = { 0x17, 0x00 };
-+
-+	report = hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0x17];
-+	if (!report)
-+		return false;
-+
-+	ret = hdev->hid_get_raw_report(hdev, 0x17, feature_in,
-+		sizeof(feature_in), HID_FEATURE_REPORT);
-+	if (ret <= 0) {
-+		hid_dbg(hdev, "Mouse unknown vertical scroll wheel mode, return
-value: %i\n", ret);
-+	} else if (ret == 2 && feature_in[0] == 0x17 && feature_in[1] == 0x00) {
-+		hid_info(hdev, "Mouse vertical scroll wheel setting is compatible
-with linux applications.\n");
-+	} else if (ret == 2 && feature_in[0] == 0x17) {
-+		hid_info(hdev, "Mouse vertical scroll wheel mode needs to be reset
-to work normally with linux applications.\n");
-+		return true;
-+	} else {
-+		hid_dbg(hdev, "Mouse unknown vertical scroll wheel mode, return
-values: %i %X %X\n", ret, (int) feature_in[0], (int) feature_in[1]);
-+	}
-+	return false;
-+}
-+
-+static bool reset_vscroll_settings(struct hid_device *hdev)
-+{
-+	struct hid_report *report;
-+	int ret;
-+	__u8 feature_out[] = { 0x17, 0x00 };
-+
-+	report = hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0x17];
-+	if (!report)
-+		return false;
-+
-+	ret = hdev->hid_output_raw_report(hdev, feature_out,
-sizeof(feature_out), HID_FEATURE_REPORT);
-+	if (ret == 2) {
-+		hid_info(hdev, "Seem to have successfully reset mouse vertical
-scroll wheel settings.\n");
-+		return true;
-+	} else {
-+		hid_dbg(hdev, "Unknown response from reseting vertical scroll wheel
-settings with mouse, value returned: %i\n", ret);
-+	}
-+	return false;
-+}
-+
- static int ms_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	unsigned long quirks = id->driver_data;
-@@ -178,6 +224,11 @@ static int ms_probe(struct hid_device *hdev,
-const struct hid_device_id *id)
- 		goto err_free;
- 	}
-
-+	if (quirks & MS_VSCROLL) {
-+		if (check_vscroll_settings(hdev))
-+			reset_vscroll_settings(hdev);
-+	}
-+
- 	return 0;
- err_free:
- 	return ret;
-@@ -199,6 +250,8 @@ static const struct hid_device_id ms_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
- 		.driver_data = MS_DUPLICATE_USAGES },
-
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-USB_DEVICE_ID_MS_WIRELESS_MOUSE_KSERIES),
-+		.driver_data = MS_VSCROLL },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT,
-USB_DEVICE_ID_MS_PRESENTER_8K_BT),
- 		.driver_data = MS_PRESENTER },
- 	{ }

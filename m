@@ -1,38 +1,64 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 2/2] Input: spear-keyboard: add device tree bindings
-Date: Mon, 26 Mar 2012 09:30:23 -0600
-Message-ID: <4F708B8F.10602@wwwdotorg.org>
-References: <2d5fee8dbe4d188cad43b5e60e9bc8df682781a0.1332754641.git.viresh.kumar@st.com> <a2d16bc563cf5c7e8eebf817de0a1eb08d7b96ba.1332754641.git.viresh.kumar@st.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] input/of_keymap: Convert kzalloc to devm_kzalloc
+ derivative
+Date: Mon, 26 Mar 2012 08:55:02 -0700
+Message-ID: <20120326155502.GA25590@core.coreip.homeip.net>
+References: <2d5fee8dbe4d188cad43b5e60e9bc8df682781a0.1332754641.git.viresh.kumar@st.com>
+ <4F708A89.4090503@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:36345 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932445Ab2CZPa0 (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:39359 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932568Ab2CZPzJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Mar 2012 11:30:26 -0400
-In-Reply-To: <a2d16bc563cf5c7e8eebf817de0a1eb08d7b96ba.1332754641.git.viresh.kumar@st.com>
+	Mon, 26 Mar 2012 11:55:09 -0400
+Received: by pbcun15 with SMTP id un15so6129579pbc.19
+        for <linux-input@vger.kernel.org>; Mon, 26 Mar 2012 08:55:09 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4F708A89.4090503@wwwdotorg.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Viresh Kumar <viresh.kumar@st.com>
-Cc: dmitry.torokhov@gmail.com, rajeev-dlh.kumar@st.com, devicetree-discuss@lists.ozlabs.org, spear-devel@list.st.com, viresh.linux@gmail.com, linux-input@vger.kernel.org
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Viresh Kumar <viresh.kumar@st.com>, rajeev-dlh.kumar@st.com, devicetree-discuss@lists.ozlabs.org, spear-devel@list.st.com, viresh.linux@gmail.com, linux-input@vger.kernel.org
 
-On 03/26/2012 03:45 AM, Viresh Kumar wrote:
-> This adds simple DT bindings for spear-keyboard controller.
-...
-> diff --git a/Documentation/devicetree/bindings/input/spear-keyboard.txt b/Documentation/devicetree/bindings/input/spear-keyboard.txt
-...
-> +Required properties:
-> +- compatible: "st,spear-kbd"
+On Mon, Mar 26, 2012 at 09:26:01AM -0600, Stephen Warren wrote:
+> On 03/26/2012 03:45 AM, Viresh Kumar wrote:
+> > matrix_keyboard_of_fill_keymap() routines allocates memory using kzalloc()
+> > routine. It is freed on call to matrix_keyboard_of_free_keymap() routine.
+> > 
+> > This patch converts these kzalloc() calls to devm_kzalloc() and thus we don't
+> > require matrix_keyboard_of_free_keymap() anymore.
+> > 
+> > Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+> 
+> The Tegra-related parts,
+> Acked-by: Stephen Warren <swarren@wwwdotorg.org>
+> 
+> But that said, Dmitry specifically requested that the devm_* function
+> not be used during initial review of this code; IIRC he preferred just
+> doing the explicit frees. I can't find a link right now though.
 
-Should "spear" include some version number so that there's a clear path
-if/when future SoCs need a different binding?
+Right, there is no need to haul allocated memory past the building of
+the "real" keymap anyway.
 
-> +Optional properties, in addition to those specified by the shared
-> +matrix-keyboard bindings:
-> +- autorepeat: bool: enables key autorepeat
-> +- mode: keyboard mode: 0 - 9x9, 1 - 6x6, 2 - 2x2
+Actually I want to change the interface so that we could do something
+like:
 
-mode at least should be "st,mode". autorepeat is probably generic enough
-that it doesn't need the vendor prefix.
+	if (pdata->keymap) {
+		matrix_keypad_build_keymap(...)
+	} else {
+		error = matrix_keypad_build_of_keymap();
+		if (error)
+			goto blah;
+	}
+
+So that one could override OF data with plaform data if needed and no
+freeing of intermediate platform-like keymap structure is requited.
+Or maybe encapsulate OF parsing directly into matrix_keypad_build_keymap
+if passed keymap data is NULL...
+
+Thanks.
+
+-- 
+Dmitry

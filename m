@@ -1,69 +1,82 @@
-From: Viresh Kumar <viresh.kumar@st.com>
-Subject: Re: [PATCH V2 1/2] Input: of_keymap: Introduce matrix_keypad_of_build_keymap()
-Date: Wed, 28 Mar 2012 10:25:51 +0530
-Message-ID: <4F7299D7.4020006@st.com>
-References: <4aba6f2cd9f050f419660555bdb661915c1be9b1.1332826100.git.viresh.kumar@st.com> <4F71E0A6.4080703@wwwdotorg.org>
+From: viresh kumar <viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/2] Input: spear-keyboard: add device tree bindings
+Date: Mon, 26 Mar 2012 21:05:22 +0530
+Message-ID: <CAOh2x=mWOYKZGe_CoGP1SPtUFMKyz4SfaZ_-=4pXWMhKo-9JbQ@mail.gmail.com>
+References: <2d5fee8dbe4d188cad43b5e60e9bc8df682781a0.1332754641.git.viresh.kumar@st.com>
+ <a2d16bc563cf5c7e8eebf817de0a1eb08d7b96ba.1332754641.git.viresh.kumar@st.com>
+ <4F708B8F.10602@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog113.obsmtp.com ([207.126.144.135]:36048 "EHLO
-	eu1sys200aog113.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750720Ab2C1E5R (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Mar 2012 00:57:17 -0400
-In-Reply-To: <4F71E0A6.4080703@wwwdotorg.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============2229099365571077251=="
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <4F708B8F.10602-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, spear-devel <spear-devel@list.st.com>, "viresh.linux@gmail.com" <viresh.linux@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "sr@denx.de" <sr@denx.de>
 
-On 3/27/2012 9:15 PM, Stephen Warren wrote:
->> >  static int __devinit tegra_kbc_probe(struct platform_device *pdev)
-> ...
->> > +	if (pdev->dev.of_node) {
->> > +		/* FIXME: Add handling of linux,fn-keymap here */
->> > +		err = matrix_keypad_of_build_keymap(&pdev->dev, KBC_ROW_SHIFT,
->> > +				input_dev->keycode, input_dev->keybit,
->> > +				"linux,keymap");
-> Where do input_dev->keycode/keybit get allocated? As far as I can tell,
-> matrix_keypad_of_build_keymap() just writes to those and assumes they're
-> already allocated.
+--===============2229099365571077251==
+Content-Type: multipart/alternative; boundary=f46d04182570581d4e04bc271f38
 
-If i am not reading the code incorrectly, keycode is allocated memory with
-kbc. And then we do this:
+--f46d04182570581d4e04bc271f38
+Content-Type: text/plain; charset=ISO-8859-1
 
-	input_dev->keycode = kbc->keycode;
+On Mar 26, 2012 9:00 PM, "Stephen Warren" <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org> wrote:
+>
+> > +- compatible: "st,spear-kbd"
+>
+> Should "spear" include some version number so that there's a clear path
+> if/when future SoCs need a different binding?
 
-keybit is again present as part of struct input_dev.
-Am i missing something.
+Ya. I will name it spear300-kbd.
 
->> > diff --git a/drivers/input/of_keymap.c b/drivers/input/of_keymap.c
-> ...
->> > +int matrix_keypad_of_build_keymap(struct device *dev, unsigned int row_shift,
-> ...
->> > +		keymap[MATRIX_SCAN_CODE(row, col, row_shift)] = code;
->> > +		__set_bit(code, keybit);
-> How bit are keymap and keybit?
+> > +- mode: keyboard mode: 0 - 9x9, 1 - 6x6, 2 - 2x2
+>
+> mode at least should be "st,mode". autorepeat is probably generic enough
+> that it doesn't need the vendor prefix.
 
-Couldn't get this one. :(
-Can you please elaborate the question a bit?
+Ok.
 
-> I think we need range-checking here to
-> make sure that row/col/row_shift/code are valid and in-range.
+--
+Viresh
 
-I picked this directly from matrix_keypad_build_keymap() as is.
-Anyway there is no loss in improving it. :)
+--f46d04182570581d4e04bc271f38
+Content-Type: text/html; charset=ISO-8859-1
 
-What kind of range-check you are looking for?
-Currently we do following
+<p><br>
+On Mar 26, 2012 9:00 PM, &quot;Stephen Warren&quot; &lt;<a href="mailto:swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org">swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org</a>&gt; wrote:<br>
+&gt;<br>
+&gt; &gt; +- compatible: &quot;st,spear-kbd&quot;<br>
+&gt;<br>
+&gt; Should &quot;spear&quot; include some version number so that there&#39;s a clear path<br>
+&gt; if/when future SoCs need a different binding?</p>
+<p>Ya. I will name it spear300-kbd.</p>
+<p>&gt; &gt; +- mode: keyboard mode: 0 - 9x9, 1 - 6x6, 2 - 2x2<br>
+&gt;<br>
+&gt; mode at least should be &quot;st,mode&quot;. autorepeat is probably generic enough<br>
+&gt; that it doesn&#39;t need the vendor prefix.</p>
+<p>Ok.</p>
+<p>--<br>
+Viresh</p>
 
-		unsigned int row = KEY_ROW(key);
-		unsigned int col = KEY_COL(key);
-		unsigned short code = KEY_VAL(key);
+--f46d04182570581d4e04bc271f38--
 
-All these macros '&' 'key' with 0xFF, 0xFF and 0xFFFF.
-Which is also kind of range checking.
+--===============2229099365571077251==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
--- 
-viresh
+_______________________________________________
+devicetree-discuss mailing list
+devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+https://lists.ozlabs.org/listinfo/devicetree-discuss
+
+--===============2229099365571077251==--

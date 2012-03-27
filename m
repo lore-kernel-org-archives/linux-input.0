@@ -1,262 +1,200 @@
 From: Viresh Kumar <viresh.kumar@st.com>
-Subject: [PATCH V2 1/2] Input: of_keymap: Introduce matrix_keypad_of_build_keymap()
-Date: Tue, 27 Mar 2012 11:08:11 +0530
-Message-ID: <4aba6f2cd9f050f419660555bdb661915c1be9b1.1332826100.git.viresh.kumar@st.com>
+Subject: [PATCH V2 2/2] Input: spear-keyboard: add device tree bindings
+Date: Tue, 27 Mar 2012 11:08:12 +0530
+Message-ID: <c7944fdbb1dca61840d33c6b96fde484b1527bfc.1332826100.git.viresh.kumar@st.com>
+References: <4aba6f2cd9f050f419660555bdb661915c1be9b1.1332826100.git.viresh.kumar@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog119.obsmtp.com ([207.126.144.147]:50694 "EHLO
-	eu1sys200aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755133Ab2C0Frl (ORCPT
+Received: from eu1sys200aog102.obsmtp.com ([207.126.144.113]:42404 "EHLO
+	eu1sys200aog102.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755459Ab2C0Frm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Mar 2012 01:47:41 -0400
+	Tue, 27 Mar 2012 01:47:42 -0400
+In-Reply-To: <4aba6f2cd9f050f419660555bdb661915c1be9b1.1332826100.git.viresh.kumar@st.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
 Cc: swarren@nvidia.com, olof@lixom.net, devicetree-discuss@lists.ozlabs.org, linux-input@vger.kernel.org, spear-devel@list.st.com, viresh.linux@gmail.com, sr@denx.de, Viresh Kumar <viresh.kumar@st.com>
 
-We don't need to allocate memory for keymap in matrix_keyboard_of_fill_keymap(),
-as this would only be used by matrix_keyboard_of_free_keymap(). Instead create
-another routine matrix_keypad_of_build_keymap() which reads directly the
-property from struct device_node and builds keymap.
-
-With this eariler routines matrix_keyboard_of_fill_keymap() and
-matrix_keyboard_of_free_keymap() go away.
-
-This patch also fixes tegra driver according to these changes.
+This adds simple DT bindings for spear-keyboard controller.
 
 Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
 ---
-V2:
-- Introduced matrix_keypad_of_build_keymap() and removed fill and free keymap
-  routines.
-- Updated tegra-kbc.
+ .../devicetree/bindings/input/spear-keyboard.txt   |   21 +++++
+ drivers/input/keyboard/Kconfig                     |    1 +
+ drivers/input/keyboard/spear-keyboard.c            |   82 ++++++++++++++++----
+ 3 files changed, 91 insertions(+), 13 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/spear-keyboard.txt
 
- drivers/input/keyboard/tegra-kbc.c  |   33 ++++++++------
- drivers/input/of_keymap.c           |   82 +++++++++++++++++------------------
- include/linux/input/matrix_keypad.h |   18 +++-----
- 3 files changed, 66 insertions(+), 67 deletions(-)
-
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 21c42f8..96ee31e 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -659,10 +659,6 @@ tegra_kbc_dt_parse_pdata(struct platform_device *pdev)
- 		pdata->pin_cfg[KBC_MAX_ROW + i].type = PIN_CFG_COL;
- 	}
+diff --git a/Documentation/devicetree/bindings/input/spear-keyboard.txt b/Documentation/devicetree/bindings/input/spear-keyboard.txt
+new file mode 100644
+index 0000000..e1bcf13
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/spear-keyboard.txt
+@@ -0,0 +1,21 @@
++* SPEAr keyboard controller
++
++Required properties:
++- compatible: "st,spear300-kbd"
++
++Optional properties, in addition to those specified by the shared
++matrix-keyboard bindings:
++- autorepeat: bool: enables key autorepeat
++- st,mode: keyboard mode: 0 - 9x9, 1 - 6x6, 2 - 2x2
++
++Example:
++
++kbd@fc400000 {
++	compatible = "st,spear300-kbd";
++	reg = <0xfc400000 0x100>;
++	linux,keymap = < 0x00030012
++			 0x0102003a >;
++	autorepeat;
++	st,mode = <0>;
++};
++
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index f354813..6da2b02 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -522,6 +522,7 @@ config KEYBOARD_OMAP4
+ config KEYBOARD_SPEAR
+ 	tristate "ST SPEAR keyboard support"
+ 	depends on PLAT_SPEAR
++	select INPUT_OF_MATRIX_KEYMAP if USE_OF
+ 	help
+ 	  Say Y here if you want to use the SPEAR keyboard.
  
--	pdata->keymap_data = matrix_keyboard_of_fill_keymap(np, "linux,keymap");
--
--	/* FIXME: Add handling of linux,fn-keymap here */
--
- 	return pdata;
+diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
+index 3b6b528..e423a44 100644
+--- a/drivers/input/keyboard/spear-keyboard.c
++++ b/drivers/input/keyboard/spear-keyboard.c
+@@ -19,6 +19,7 @@
+ #include <linux/irq.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm_wakeup.h>
+ #include <linux/slab.h>
+@@ -136,25 +137,61 @@ static void spear_kbd_close(struct input_dev *dev)
+ 	kbd->last_key = KEY_RESERVED;
  }
- #else
-@@ -676,7 +672,6 @@ static inline struct tegra_kbc_platform_data *tegra_kbc_dt_parse_pdata(
- static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 
++#ifdef CONFIG_OF
++static int __devinit spear_kbd_probe_dt(struct platform_device *pdev)
++{
++	struct kbd_platform_data *pdata = dev_get_platdata(&pdev->dev);
++	struct device_node *np = pdev->dev.of_node;
++	u32 val;
++
++	if (of_property_read_bool(np, "autorepeat"))
++		pdata->rep = true;
++
++	if (!of_property_read_u32(np, "st,mode", &val)) {
++		pdata->mode = val;
++	} else {
++		dev_err(&pdev->dev, "DT: Invalid mode\n");
++		return -ENODEV;
++	}
++
++	return 0;
++}
++#else
++static int __devinit spear_kbd_probe_dt(struct platform_device *pdev)
++{
++	return -ENOSYS;
++}
++#endif
++
+ static int __devinit spear_kbd_probe(struct platform_device *pdev)
  {
- 	const struct tegra_kbc_platform_data *pdata = pdev->dev.platform_data;
--	const struct matrix_keymap_data *keymap_data;
- 	struct tegra_kbc *kbc;
+-	const struct kbd_platform_data *pdata = pdev->dev.platform_data;
+-	const struct matrix_keymap_data *keymap;
++	struct kbd_platform_data *pdata;
++	struct device_node *np = pdev->dev.of_node;
+ 	struct spear_kbd *kbd;
  	struct input_dev *input_dev;
  	struct resource *res;
-@@ -775,9 +770,24 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 	int irq;
+ 	int error;
  
- 	kbc->use_fn_map = pdata->use_fn_map;
- 	kbc->use_ghost_filter = pdata->use_ghost_filter;
--	keymap_data = pdata->keymap_data ?: &tegra_kbc_default_keymap_data;
--	matrix_keypad_build_keymap(keymap_data, KBC_ROW_SHIFT,
--				   input_dev->keycode, input_dev->keybit);
+-	if (!pdata) {
+-		dev_err(&pdev->dev, "Invalid platform data\n");
+-		return -EINVAL;
+-	}
+-
+-	keymap = pdata->keymap;
+-	if (!keymap) {
+-		dev_err(&pdev->dev, "no keymap defined\n");
+-		return -EINVAL;
++	if (np) {
++		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
++		if (!pdata) {
++			dev_err(&pdev->dev, "DT: kzalloc failed\n");
++			return -ENOMEM;
++		}
 +
-+	if (pdev->dev.of_node) {
-+		/* FIXME: Add handling of linux,fn-keymap here */
-+		err = matrix_keypad_of_build_keymap(&pdev->dev, KBC_ROW_SHIFT,
++		pdev->dev.platform_data = pdata;
++		error = spear_kbd_probe_dt(pdev);
++		if (error) {
++			dev_err(&pdev->dev, "DT: no platform data\n");
++			return error;
++		}
++	} else {
++		pdata = dev_get_platdata(&pdev->dev);
++		if (!pdata || !pdata->keymap) {
++			dev_err(&pdev->dev, "Invalid platform data\n");
++			return -EINVAL;
++		}
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -221,8 +258,18 @@ static int __devinit spear_kbd_probe(struct platform_device *pdev)
+ 	input_dev->keycodesize = sizeof(kbd->keycodes[0]);
+ 	input_dev->keycodemax = ARRAY_SIZE(kbd->keycodes);
+ 
+-	matrix_keypad_build_keymap(keymap, ROW_SHIFT,
+-			input_dev->keycode, input_dev->keybit);
++	if (np) {
++		error = matrix_keypad_of_build_keymap(&pdev->dev, ROW_SHIFT,
 +				input_dev->keycode, input_dev->keybit,
 +				"linux,keymap");
-+		if (err) {
++		if (error) {
 +			dev_err(&pdev->dev, "OF: failed to build keymap\n");
 +			goto err_put_clk;
 +		}
 +	} else {
-+		const struct matrix_keymap_data *keymap_data =
-+			pdata->keymap_data ?: &tegra_kbc_default_keymap_data;
-+
-+		matrix_keypad_build_keymap(keymap_data, KBC_ROW_SHIFT,
++		matrix_keypad_build_keymap(pdata->keymap, ROW_SHIFT,
 +				input_dev->keycode, input_dev->keybit);
 +	}
+ 
+ 	input_set_drvdata(input_dev, kbd);
+ 
+@@ -317,6 +364,14 @@ static int spear_kbd_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(spear_kbd_pm_ops, spear_kbd_suspend, spear_kbd_resume);
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id spear_kbd_id_table[] = {
++	{ .compatible = "st,spear300-kbd" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, spear_kbd_id_table);
++#endif
 +
- 	kbc->wakeup_key = pdata->wakeup_key;
- 
- 	err = request_irq(kbc->irq, tegra_kbc_isr,
-@@ -798,9 +808,6 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, kbc);
- 	device_init_wakeup(&pdev->dev, pdata->wakeup);
- 
--	if (!pdev->dev.platform_data)
--		matrix_keyboard_of_free_keymap(pdata->keymap_data);
--
- 	return 0;
- 
- err_free_irq:
-@@ -815,10 +822,8 @@ err_free_mem:
- 	input_free_device(input_dev);
- 	kfree(kbc);
- err_free_pdata:
--	if (!pdev->dev.platform_data) {
--		matrix_keyboard_of_free_keymap(pdata->keymap_data);
-+	if (!pdev->dev.platform_data)
- 		kfree(pdata);
--	}
- 
- 	return err;
- }
-diff --git a/drivers/input/of_keymap.c b/drivers/input/of_keymap.c
-index 061493d..2837566 100644
---- a/drivers/input/of_keymap.c
-+++ b/drivers/input/of_keymap.c
-@@ -17,6 +17,7 @@
-  *
-  */
- 
-+#include <linux/device.h>
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <linux/input.h>
-@@ -26,62 +27,61 @@
- #include <linux/gfp.h>
- #include <linux/slab.h>
- 
--struct matrix_keymap_data *
--matrix_keyboard_of_fill_keymap(struct device_node *np,
--			       const char *propname)
-+/**
-+ * matrix_keypad_of_build_keymap - convert platform DT keymap into matrix keymap
-+ * @dev: Pointer to struct device, will be used for getting struct device_node
-+ * @row_shift: number of bits to shift row value by to advance to the next
-+ * line in the keymap
-+ * @keymap: expanded version of keymap that is suitable for use by
-+ * matrix keyboad driver
-+ * @keybit: pointer to bitmap of keys supported by input device
-+ * @propname: Device Tree property name to be used for reading keymap. If passed
-+ * as NULL, "linux,keymap" is used.
-+ *
-+ * This function creates an array of keycodes, by reading propname property from
-+ * device tree passed, that is suitable for using in a standard matrix keyboard
-+ * driver that uses row and col as indices.
-+ */
-+int matrix_keypad_of_build_keymap(struct device *dev, unsigned int row_shift,
-+		unsigned short *keymap, unsigned long *keybit,
-+		const char *propname)
- {
--	struct matrix_keymap_data *kd;
--	u32 *keymap;
--	int proplen, i;
-+	struct device_node *np = dev->of_node;
- 	const __be32 *prop;
-+	int proplen, i, size;
- 
- 	if (!np)
--		return NULL;
-+		return -ENODEV;
- 
- 	if (!propname)
- 		propname = "linux,keymap";
- 
- 	prop = of_get_property(np, propname, &proplen);
--	if (!prop)
--		return NULL;
--
--	if (proplen % sizeof(u32)) {
--		pr_warn("Malformed keymap property %s in %s\n",
--			propname, np->full_name);
--		return NULL;
-+	if (!prop) {
-+		dev_err(dev, "OF: %s property not defined in %s\n", propname,
-+				np->full_name);
-+		return -ENODEV;
- 	}
- 
--	kd = kzalloc(sizeof(*kd), GFP_KERNEL);
--	if (!kd)
--		return NULL;
--
--	kd->keymap = keymap = kzalloc(proplen, GFP_KERNEL);
--	if (!kd->keymap) {
--		kfree(kd);
--		return NULL;
-+	if (proplen % sizeof(u32)) {
-+		dev_warn(dev, "Malformed keymap property %s in %s\n", propname,
-+				np->full_name);
-+		return -EINVAL;
- 	}
- 
--	kd->keymap_size = proplen / sizeof(u32);
-+	size = proplen / sizeof(u32);
- 
--	for (i = 0; i < kd->keymap_size; i++) {
--		u32 tmp = be32_to_cpup(prop + i);
--		int key_code, row, col;
-+	for (i = 0; i < size; i++) {
-+		unsigned int key = be32_to_cpup(prop + i);
-+		unsigned int row = KEY_ROW(key);
-+		unsigned int col = KEY_COL(key);
-+		unsigned short code = KEY_VAL(key);
- 
--		row = (tmp >> 24) & 0xff;
--		col = (tmp >> 16) & 0xff;
--		key_code = tmp & 0xffff;
--		keymap[i] = KEY(row, col, key_code);
-+		keymap[MATRIX_SCAN_CODE(row, col, row_shift)] = code;
-+		__set_bit(code, keybit);
- 	}
-+	__clear_bit(KEY_RESERVED, keybit);
- 
--	return kd;
--}
--EXPORT_SYMBOL_GPL(matrix_keyboard_of_fill_keymap);
--
--void matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd)
--{
--	if (kd) {
--		kfree(kd->keymap);
--		kfree(kd);
--	}
-+	return 0;
- }
--EXPORT_SYMBOL_GPL(matrix_keyboard_of_free_keymap);
-+EXPORT_SYMBOL_GPL(matrix_keypad_of_build_keymap);
-diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
-index 6c07ced..aef352f 100644
---- a/include/linux/input/matrix_keypad.h
-+++ b/include/linux/input/matrix_keypad.h
-@@ -108,21 +108,15 @@ matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
- }
- 
- #ifdef CONFIG_INPUT_OF_MATRIX_KEYMAP
--struct matrix_keymap_data *
--matrix_keyboard_of_fill_keymap(struct device_node *np, const char *propname);
--
--void matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd);
-+int matrix_keypad_of_build_keymap(struct device *dev, unsigned int row_shift,
-+		unsigned short *keymap, unsigned long *keybit,
-+		const char *propname);
- #else
--static inline struct matrix_keymap_data *
--matrix_keyboard_of_fill_keymap(struct device_node *np, const char *propname)
-+int matrix_keypad_of_build_keymap(struct device *dev, unsigned int row_shift,
-+		unsigned short *keymap, unsigned long *keybit,
-+		const char *propname)
- {
- 	return NULL;
- }
--
--static inline void
--matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd)
--{
--}
- #endif
--
- #endif /* _MATRIX_KEYPAD_H */
+ static struct platform_driver spear_kbd_driver = {
+ 	.probe		= spear_kbd_probe,
+ 	.remove		= __devexit_p(spear_kbd_remove),
+@@ -324,6 +379,7 @@ static struct platform_driver spear_kbd_driver = {
+ 		.name	= "keyboard",
+ 		.owner	= THIS_MODULE,
+ 		.pm	= &spear_kbd_pm_ops,
++		.of_match_table = of_match_ptr(spear_kbd_id_table),
+ 	},
+ };
+ module_platform_driver(spear_kbd_driver);
 -- 
 1.7.10.rc2.10.gb47606
 

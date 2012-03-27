@@ -1,70 +1,262 @@
-From: Shridhar Rasal <srasal-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 1/1] input: keyboard: Set configuration registers
-Date: Tue, 27 Mar 2012 10:47:16 +0530
-Message-ID: <4F714D5C.1050400@nvidia.com>
-References: <1323415758-16822-1-git-send-email-srasal@nvidia.com> <74CDBE0F657A3D45AFBB94109FB122FF1751860550@HQMAIL01.nvidia.com> <3849551.l2KNPKMSmh@dtor-d630.eng.vmware.com> <74CDBE0F657A3D45AFBB94109FB122FF17518605E5@HQMAIL01.nvidia.com> <20111230032559.GB17850@core.coreip.homeip.net> <20120131190904.GA20672@core.coreip.homeip.net> <74CDBE0F657A3D45AFBB94109FB122FF178E1244A2@HQMAIL01.nvidia.com> <20120131194735.GA22872@core.coreip.homeip.net>
+From: Viresh Kumar <viresh.kumar@st.com>
+Subject: [PATCH V2 1/2] Input: of_keymap: Introduce matrix_keypad_of_build_keymap()
+Date: Tue, 27 Mar 2012 11:08:11 +0530
+Message-ID: <4aba6f2cd9f050f419660555bdb661915c1be9b1.1332826100.git.viresh.kumar@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120131194735.GA22872-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org" <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eu1sys200aog119.obsmtp.com ([207.126.144.147]:50694 "EHLO
+	eu1sys200aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755133Ab2C0Frl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Mar 2012 01:47:41 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: swarren@nvidia.com, olof@lixom.net, devicetree-discuss@lists.ozlabs.org, linux-input@vger.kernel.org, spear-devel@list.st.com, viresh.linux@gmail.com, sr@denx.de, Viresh Kumar <viresh.kumar@st.com>
 
-On 02/01/2012 01:17 AM, Dmitry Torokhov wrote:
-> On Tue, Jan 31, 2012 at 11:29:35AM -0800, Stephen Warren wrote:
->> Dmitry Torokhov wrote at Tuesday, January 31, 2012 12:09 PM:
->>> On Thu, Dec 29, 2011 at 07:25:59PM -0800, Dmitry Torokhov wrote:
->>>> On Fri, Dec 09, 2011 at 03:17:54PM -0800, Stephen Warren wrote:
->>>>> Dmitry Torokhov wrote at Friday, December 09, 2011 2:25 PM:
->>>>>> On Friday, December 09, 2011 12:10:43 PM Stephen Warren wrote:
->>>>>>> Shridhar Rasal wrote at Friday, December 09, 2011 12:29 AM:
->>>>>>>> To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
->>>>>>>> Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org; Stephen Warren; Rakesh Iyer;
->>>>>>>> linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux- input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
->>>>>>>> linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Shridhar Rasal Subject: [PATCH 1/1] input:
->>>>>>>> keyboard: Set configuration registers
->>>>>>>>
->>>>>>>> -Set only REQUIRED row and column configuration register to
->>>>>>>> PROPER values to avoid continuously generating KBC input events.
->>>>>>>> -Use *en* field in pin_cfg, to check GPIO_x_ROW_EN register
->>>>>>>> should be set or clear.
->>>>>>>>
->>>>>>>> Signed-off-by: Shridhar Rasal<srasal-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->>>>>>> I wondered if num==0 could be used instead of a new en field, but 0 is a
->>>>>>> valid row/column number, so no. As such,
->>>>>>>
->>>>>>> Acked-by: Stephen Warren<swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->>>>>> Can we pass in number of pin_cfg instances in pdata and simply do not
->>>>>> mention unneeded pins instead?
->>>>> IIUC, the array is currently a fixed size (based on the set of pins
->>>>> Supported by the KBC), hence that won't work; there's an entry for each
->>>>> pin saying which row/column it is.
->>>>>
->>>>> However, I suppose if we were to change the structure of the pdata to be:
->>>>>
->>>>> struct tegra_kbc_pin_cfg {
->>>>>      bool is_row;
->>>>>      u8 row_col_id;
->>>>>      u8 pin_id;
->>>>> };
->>>>>
->>>>> Then struct tegra_kbc_platform_data could indeed have a pointer to a
->>>>> variable-sized array of these, which would avoid the "en" member.
->>>>>
->>>> How about we change bool to enum instead, like in the patch below?
->>> *ping*
->> That's conceptually fine by me. I was assuming you were asking Rakesh...
-> Everyone... Anyone ;)
->
->> I'd rather PIN_CFG_IGNORE was the first enum, so it gets value 0, or this
->> probably won't solve the original issue?
-> The benefit of current definition is that it is compatible with old
-> ones using bool...
->
-> Thanks.
-Sorry for delay in response.
-I am OK with new definition. Agree, makes compatible with old definitions.
-Thanks!
+We don't need to allocate memory for keymap in matrix_keyboard_of_fill_keymap(),
+as this would only be used by matrix_keyboard_of_free_keymap(). Instead create
+another routine matrix_keypad_of_build_keymap() which reads directly the
+property from struct device_node and builds keymap.
+
+With this eariler routines matrix_keyboard_of_fill_keymap() and
+matrix_keyboard_of_free_keymap() go away.
+
+This patch also fixes tegra driver according to these changes.
+
+Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+---
+V2:
+- Introduced matrix_keypad_of_build_keymap() and removed fill and free keymap
+  routines.
+- Updated tegra-kbc.
+
+ drivers/input/keyboard/tegra-kbc.c  |   33 ++++++++------
+ drivers/input/of_keymap.c           |   82 +++++++++++++++++------------------
+ include/linux/input/matrix_keypad.h |   18 +++-----
+ 3 files changed, 66 insertions(+), 67 deletions(-)
+
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 21c42f8..96ee31e 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -659,10 +659,6 @@ tegra_kbc_dt_parse_pdata(struct platform_device *pdev)
+ 		pdata->pin_cfg[KBC_MAX_ROW + i].type = PIN_CFG_COL;
+ 	}
+ 
+-	pdata->keymap_data = matrix_keyboard_of_fill_keymap(np, "linux,keymap");
+-
+-	/* FIXME: Add handling of linux,fn-keymap here */
+-
+ 	return pdata;
+ }
+ #else
+@@ -676,7 +672,6 @@ static inline struct tegra_kbc_platform_data *tegra_kbc_dt_parse_pdata(
+ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ {
+ 	const struct tegra_kbc_platform_data *pdata = pdev->dev.platform_data;
+-	const struct matrix_keymap_data *keymap_data;
+ 	struct tegra_kbc *kbc;
+ 	struct input_dev *input_dev;
+ 	struct resource *res;
+@@ -775,9 +770,24 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 
+ 	kbc->use_fn_map = pdata->use_fn_map;
+ 	kbc->use_ghost_filter = pdata->use_ghost_filter;
+-	keymap_data = pdata->keymap_data ?: &tegra_kbc_default_keymap_data;
+-	matrix_keypad_build_keymap(keymap_data, KBC_ROW_SHIFT,
+-				   input_dev->keycode, input_dev->keybit);
++
++	if (pdev->dev.of_node) {
++		/* FIXME: Add handling of linux,fn-keymap here */
++		err = matrix_keypad_of_build_keymap(&pdev->dev, KBC_ROW_SHIFT,
++				input_dev->keycode, input_dev->keybit,
++				"linux,keymap");
++		if (err) {
++			dev_err(&pdev->dev, "OF: failed to build keymap\n");
++			goto err_put_clk;
++		}
++	} else {
++		const struct matrix_keymap_data *keymap_data =
++			pdata->keymap_data ?: &tegra_kbc_default_keymap_data;
++
++		matrix_keypad_build_keymap(keymap_data, KBC_ROW_SHIFT,
++				input_dev->keycode, input_dev->keybit);
++	}
++
+ 	kbc->wakeup_key = pdata->wakeup_key;
+ 
+ 	err = request_irq(kbc->irq, tegra_kbc_isr,
+@@ -798,9 +808,6 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, kbc);
+ 	device_init_wakeup(&pdev->dev, pdata->wakeup);
+ 
+-	if (!pdev->dev.platform_data)
+-		matrix_keyboard_of_free_keymap(pdata->keymap_data);
+-
+ 	return 0;
+ 
+ err_free_irq:
+@@ -815,10 +822,8 @@ err_free_mem:
+ 	input_free_device(input_dev);
+ 	kfree(kbc);
+ err_free_pdata:
+-	if (!pdev->dev.platform_data) {
+-		matrix_keyboard_of_free_keymap(pdata->keymap_data);
++	if (!pdev->dev.platform_data)
+ 		kfree(pdata);
+-	}
+ 
+ 	return err;
+ }
+diff --git a/drivers/input/of_keymap.c b/drivers/input/of_keymap.c
+index 061493d..2837566 100644
+--- a/drivers/input/of_keymap.c
++++ b/drivers/input/of_keymap.c
+@@ -17,6 +17,7 @@
+  *
+  */
+ 
++#include <linux/device.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+ #include <linux/input.h>
+@@ -26,62 +27,61 @@
+ #include <linux/gfp.h>
+ #include <linux/slab.h>
+ 
+-struct matrix_keymap_data *
+-matrix_keyboard_of_fill_keymap(struct device_node *np,
+-			       const char *propname)
++/**
++ * matrix_keypad_of_build_keymap - convert platform DT keymap into matrix keymap
++ * @dev: Pointer to struct device, will be used for getting struct device_node
++ * @row_shift: number of bits to shift row value by to advance to the next
++ * line in the keymap
++ * @keymap: expanded version of keymap that is suitable for use by
++ * matrix keyboad driver
++ * @keybit: pointer to bitmap of keys supported by input device
++ * @propname: Device Tree property name to be used for reading keymap. If passed
++ * as NULL, "linux,keymap" is used.
++ *
++ * This function creates an array of keycodes, by reading propname property from
++ * device tree passed, that is suitable for using in a standard matrix keyboard
++ * driver that uses row and col as indices.
++ */
++int matrix_keypad_of_build_keymap(struct device *dev, unsigned int row_shift,
++		unsigned short *keymap, unsigned long *keybit,
++		const char *propname)
+ {
+-	struct matrix_keymap_data *kd;
+-	u32 *keymap;
+-	int proplen, i;
++	struct device_node *np = dev->of_node;
+ 	const __be32 *prop;
++	int proplen, i, size;
+ 
+ 	if (!np)
+-		return NULL;
++		return -ENODEV;
+ 
+ 	if (!propname)
+ 		propname = "linux,keymap";
+ 
+ 	prop = of_get_property(np, propname, &proplen);
+-	if (!prop)
+-		return NULL;
+-
+-	if (proplen % sizeof(u32)) {
+-		pr_warn("Malformed keymap property %s in %s\n",
+-			propname, np->full_name);
+-		return NULL;
++	if (!prop) {
++		dev_err(dev, "OF: %s property not defined in %s\n", propname,
++				np->full_name);
++		return -ENODEV;
+ 	}
+ 
+-	kd = kzalloc(sizeof(*kd), GFP_KERNEL);
+-	if (!kd)
+-		return NULL;
+-
+-	kd->keymap = keymap = kzalloc(proplen, GFP_KERNEL);
+-	if (!kd->keymap) {
+-		kfree(kd);
+-		return NULL;
++	if (proplen % sizeof(u32)) {
++		dev_warn(dev, "Malformed keymap property %s in %s\n", propname,
++				np->full_name);
++		return -EINVAL;
+ 	}
+ 
+-	kd->keymap_size = proplen / sizeof(u32);
++	size = proplen / sizeof(u32);
+ 
+-	for (i = 0; i < kd->keymap_size; i++) {
+-		u32 tmp = be32_to_cpup(prop + i);
+-		int key_code, row, col;
++	for (i = 0; i < size; i++) {
++		unsigned int key = be32_to_cpup(prop + i);
++		unsigned int row = KEY_ROW(key);
++		unsigned int col = KEY_COL(key);
++		unsigned short code = KEY_VAL(key);
+ 
+-		row = (tmp >> 24) & 0xff;
+-		col = (tmp >> 16) & 0xff;
+-		key_code = tmp & 0xffff;
+-		keymap[i] = KEY(row, col, key_code);
++		keymap[MATRIX_SCAN_CODE(row, col, row_shift)] = code;
++		__set_bit(code, keybit);
+ 	}
++	__clear_bit(KEY_RESERVED, keybit);
+ 
+-	return kd;
+-}
+-EXPORT_SYMBOL_GPL(matrix_keyboard_of_fill_keymap);
+-
+-void matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd)
+-{
+-	if (kd) {
+-		kfree(kd->keymap);
+-		kfree(kd);
+-	}
++	return 0;
+ }
+-EXPORT_SYMBOL_GPL(matrix_keyboard_of_free_keymap);
++EXPORT_SYMBOL_GPL(matrix_keypad_of_build_keymap);
+diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
+index 6c07ced..aef352f 100644
+--- a/include/linux/input/matrix_keypad.h
++++ b/include/linux/input/matrix_keypad.h
+@@ -108,21 +108,15 @@ matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
+ }
+ 
+ #ifdef CONFIG_INPUT_OF_MATRIX_KEYMAP
+-struct matrix_keymap_data *
+-matrix_keyboard_of_fill_keymap(struct device_node *np, const char *propname);
+-
+-void matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd);
++int matrix_keypad_of_build_keymap(struct device *dev, unsigned int row_shift,
++		unsigned short *keymap, unsigned long *keybit,
++		const char *propname);
+ #else
+-static inline struct matrix_keymap_data *
+-matrix_keyboard_of_fill_keymap(struct device_node *np, const char *propname)
++int matrix_keypad_of_build_keymap(struct device *dev, unsigned int row_shift,
++		unsigned short *keymap, unsigned long *keybit,
++		const char *propname)
+ {
+ 	return NULL;
+ }
+-
+-static inline void
+-matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd)
+-{
+-}
+ #endif
+-
+ #endif /* _MATRIX_KEYPAD_H */
+-- 
+1.7.10.rc2.10.gb47606
+

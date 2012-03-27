@@ -1,200 +1,48 @@
 From: Viresh Kumar <viresh.kumar@st.com>
-Subject: [PATCH V2 2/2] Input: spear-keyboard: add device tree bindings
-Date: Tue, 27 Mar 2012 11:08:12 +0530
-Message-ID: <c7944fdbb1dca61840d33c6b96fde484b1527bfc.1332826100.git.viresh.kumar@st.com>
-References: <4aba6f2cd9f050f419660555bdb661915c1be9b1.1332826100.git.viresh.kumar@st.com>
+Subject: [PATCH] Input: tegra-kbc: Fix: Allocate pdata before using it
+Date: Tue, 27 Mar 2012 11:24:49 +0530
+Message-ID: <28d8716b43c5078b238638ba60a4b170807074b9.1332827588.git.viresh.kumar@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog102.obsmtp.com ([207.126.144.113]:42404 "EHLO
-	eu1sys200aog102.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755459Ab2C0Frm (ORCPT
+Received: from eu1sys200aog115.obsmtp.com ([207.126.144.139]:39660 "EHLO
+	eu1sys200aog115.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756243Ab2C0GEU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Mar 2012 01:47:42 -0400
-In-Reply-To: <4aba6f2cd9f050f419660555bdb661915c1be9b1.1332826100.git.viresh.kumar@st.com>
+	Tue, 27 Mar 2012 02:04:20 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: swarren@nvidia.com, olof@lixom.net, devicetree-discuss@lists.ozlabs.org, linux-input@vger.kernel.org, spear-devel@list.st.com, viresh.linux@gmail.com, sr@denx.de, Viresh Kumar <viresh.kumar@st.com>
+To: dmitry.torokhov@gmail.com, swarren@nvidia.com
+Cc: olof@lixom.net, linux-input@vger.kernel.org, srasal@nvidia.com, Viresh Kumar <viresh.kumar@st.com>
 
-This adds simple DT bindings for spear-keyboard controller.
+Following commit broke DT support for tegra-kbc by removing pdata allocation
+completely.
+
+commit 023cea0ecfa2df034096c3f4afa796a0b2d1188a
+Author: Shridhar Rasal <srasal@nvidia.com>
+Date:   Fri Feb 3 00:27:30 2012 -0800
+
+    Input: tegra-kbc - allow skipping setting up some of GPIO pins
+
+This patch restores it.
 
 Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
 ---
- .../devicetree/bindings/input/spear-keyboard.txt   |   21 +++++
- drivers/input/keyboard/Kconfig                     |    1 +
- drivers/input/keyboard/spear-keyboard.c            |   82 ++++++++++++++++----
- 3 files changed, 91 insertions(+), 13 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/spear-keyboard.txt
+ drivers/input/keyboard/tegra-kbc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/input/spear-keyboard.txt b/Documentation/devicetree/bindings/input/spear-keyboard.txt
-new file mode 100644
-index 0000000..e1bcf13
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/spear-keyboard.txt
-@@ -0,0 +1,21 @@
-+* SPEAr keyboard controller
-+
-+Required properties:
-+- compatible: "st,spear300-kbd"
-+
-+Optional properties, in addition to those specified by the shared
-+matrix-keyboard bindings:
-+- autorepeat: bool: enables key autorepeat
-+- st,mode: keyboard mode: 0 - 9x9, 1 - 6x6, 2 - 2x2
-+
-+Example:
-+
-+kbd@fc400000 {
-+	compatible = "st,spear300-kbd";
-+	reg = <0xfc400000 0x100>;
-+	linux,keymap = < 0x00030012
-+			 0x0102003a >;
-+	autorepeat;
-+	st,mode = <0>;
-+};
-+
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index f354813..6da2b02 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -522,6 +522,7 @@ config KEYBOARD_OMAP4
- config KEYBOARD_SPEAR
- 	tristate "ST SPEAR keyboard support"
- 	depends on PLAT_SPEAR
-+	select INPUT_OF_MATRIX_KEYMAP if USE_OF
- 	help
- 	  Say Y here if you want to use the SPEAR keyboard.
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 96ee31e..5827fbe 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -630,6 +630,7 @@ tegra_kbc_dt_parse_pdata(struct platform_device *pdev)
+ 	if (!np)
+ 		return NULL;
  
-diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
-index 3b6b528..e423a44 100644
---- a/drivers/input/keyboard/spear-keyboard.c
-+++ b/drivers/input/keyboard/spear-keyboard.c
-@@ -19,6 +19,7 @@
- #include <linux/irq.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/of.h>
- #include <linux/platform_device.h>
- #include <linux/pm_wakeup.h>
- #include <linux/slab.h>
-@@ -136,25 +137,61 @@ static void spear_kbd_close(struct input_dev *dev)
- 	kbd->last_key = KEY_RESERVED;
- }
++	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+ 		return NULL;
  
-+#ifdef CONFIG_OF
-+static int __devinit spear_kbd_probe_dt(struct platform_device *pdev)
-+{
-+	struct kbd_platform_data *pdata = dev_get_platdata(&pdev->dev);
-+	struct device_node *np = pdev->dev.of_node;
-+	u32 val;
-+
-+	if (of_property_read_bool(np, "autorepeat"))
-+		pdata->rep = true;
-+
-+	if (!of_property_read_u32(np, "st,mode", &val)) {
-+		pdata->mode = val;
-+	} else {
-+		dev_err(&pdev->dev, "DT: Invalid mode\n");
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+#else
-+static int __devinit spear_kbd_probe_dt(struct platform_device *pdev)
-+{
-+	return -ENOSYS;
-+}
-+#endif
-+
- static int __devinit spear_kbd_probe(struct platform_device *pdev)
- {
--	const struct kbd_platform_data *pdata = pdev->dev.platform_data;
--	const struct matrix_keymap_data *keymap;
-+	struct kbd_platform_data *pdata;
-+	struct device_node *np = pdev->dev.of_node;
- 	struct spear_kbd *kbd;
- 	struct input_dev *input_dev;
- 	struct resource *res;
- 	int irq;
- 	int error;
- 
--	if (!pdata) {
--		dev_err(&pdev->dev, "Invalid platform data\n");
--		return -EINVAL;
--	}
--
--	keymap = pdata->keymap;
--	if (!keymap) {
--		dev_err(&pdev->dev, "no keymap defined\n");
--		return -EINVAL;
-+	if (np) {
-+		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
-+		if (!pdata) {
-+			dev_err(&pdev->dev, "DT: kzalloc failed\n");
-+			return -ENOMEM;
-+		}
-+
-+		pdev->dev.platform_data = pdata;
-+		error = spear_kbd_probe_dt(pdev);
-+		if (error) {
-+			dev_err(&pdev->dev, "DT: no platform data\n");
-+			return error;
-+		}
-+	} else {
-+		pdata = dev_get_platdata(&pdev->dev);
-+		if (!pdata || !pdata->keymap) {
-+			dev_err(&pdev->dev, "Invalid platform data\n");
-+			return -EINVAL;
-+		}
- 	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-@@ -221,8 +258,18 @@ static int __devinit spear_kbd_probe(struct platform_device *pdev)
- 	input_dev->keycodesize = sizeof(kbd->keycodes[0]);
- 	input_dev->keycodemax = ARRAY_SIZE(kbd->keycodes);
- 
--	matrix_keypad_build_keymap(keymap, ROW_SHIFT,
--			input_dev->keycode, input_dev->keybit);
-+	if (np) {
-+		error = matrix_keypad_of_build_keymap(&pdev->dev, ROW_SHIFT,
-+				input_dev->keycode, input_dev->keybit,
-+				"linux,keymap");
-+		if (error) {
-+			dev_err(&pdev->dev, "OF: failed to build keymap\n");
-+			goto err_put_clk;
-+		}
-+	} else {
-+		matrix_keypad_build_keymap(pdata->keymap, ROW_SHIFT,
-+				input_dev->keycode, input_dev->keybit);
-+	}
- 
- 	input_set_drvdata(input_dev, kbd);
- 
-@@ -317,6 +364,14 @@ static int spear_kbd_resume(struct device *dev)
- 
- static SIMPLE_DEV_PM_OPS(spear_kbd_pm_ops, spear_kbd_suspend, spear_kbd_resume);
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id spear_kbd_id_table[] = {
-+	{ .compatible = "st,spear300-kbd" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, spear_kbd_id_table);
-+#endif
-+
- static struct platform_driver spear_kbd_driver = {
- 	.probe		= spear_kbd_probe,
- 	.remove		= __devexit_p(spear_kbd_remove),
-@@ -324,6 +379,7 @@ static struct platform_driver spear_kbd_driver = {
- 		.name	= "keyboard",
- 		.owner	= THIS_MODULE,
- 		.pm	= &spear_kbd_pm_ops,
-+		.of_match_table = of_match_ptr(spear_kbd_id_table),
- 	},
- };
- module_platform_driver(spear_kbd_driver);
 -- 
 1.7.10.rc2.10.gb47606
 

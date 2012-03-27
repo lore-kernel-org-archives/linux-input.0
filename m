@@ -1,40 +1,56 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: tegra-kbc: Fix: Allocate pdata before using it
-Date: Mon, 26 Mar 2012 23:55:02 -0700
-Message-ID: <20120327065502.GA1521@core.coreip.homeip.net>
-References: <28d8716b43c5078b238638ba60a4b170807074b9.1332827588.git.viresh.kumar@st.com>
- <20120327064725.GA1361@core.coreip.homeip.net>
- <4F7162C0.30801@st.com>
+Subject: Re: [PATCH V2 2/2] Input: spear-keyboard: add device tree bindings
+Date: Tue, 27 Mar 2012 00:13:35 -0700
+Message-ID: <20120327071335.GB1521@core.coreip.homeip.net>
+References: <4aba6f2cd9f050f419660555bdb661915c1be9b1.1332826100.git.viresh.kumar@st.com>
+ <c7944fdbb1dca61840d33c6b96fde484b1527bfc.1332826100.git.viresh.kumar@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:62604 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755359Ab2C0GzI (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:34231 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755133Ab2C0HNl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Mar 2012 02:55:08 -0400
-Received: by yhmm54 with SMTP id m54so4389452yhm.19
-        for <linux-input@vger.kernel.org>; Mon, 26 Mar 2012 23:55:07 -0700 (PDT)
+	Tue, 27 Mar 2012 03:13:41 -0400
+Received: by pbcun15 with SMTP id un15so7033015pbc.19
+        for <linux-input@vger.kernel.org>; Tue, 27 Mar 2012 00:13:40 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <4F7162C0.30801@st.com>
+In-Reply-To: <c7944fdbb1dca61840d33c6b96fde484b1527bfc.1332826100.git.viresh.kumar@st.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Viresh Kumar <viresh.kumar@st.com>
-Cc: "swarren@nvidia.com" <swarren@nvidia.com>, "olof@lixom.net" <olof@lixom.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "srasal@nvidia.com" <srasal@nvidia.com>
+Cc: swarren@nvidia.com, olof@lixom.net, devicetree-discuss@lists.ozlabs.org, linux-input@vger.kernel.org, spear-devel@list.st.com, viresh.linux@gmail.com, sr@denx.de
 
-On Tue, Mar 27, 2012 at 12:18:32PM +0530, Viresh Kumar wrote:
-> On 3/27/2012 12:17 PM, Dmitry Torokhov wrote:
-> > On Tue, Mar 27, 2012 at 11:24:49AM +0530, Viresh Kumar wrote:
-> >> > Following commit broke DT support for tegra-kbc by removing pdata allocation
-> >> > completely.
-> > Must be my fat fingers, sorry about this.
-> 
-> No, it was Shridhar's. :)
+Hi Viresh,
 
-Nope, they were really mine :) I reworked Shridhar's patch and
-accidentally deleted memory allocation.
+On Tue, Mar 27, 2012 at 11:08:12AM +0530, Viresh Kumar wrote:
+> +	if (np) {
+> +		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+> +		if (!pdata) {
+> +			dev_err(&pdev->dev, "DT: kzalloc failed\n");
+> +			return -ENOMEM;
+> +		}
+> +
+> +		pdev->dev.platform_data = pdata;
+> +		error = spear_kbd_probe_dt(pdev);
+> +		if (error) {
+> +			dev_err(&pdev->dev, "DT: no platform data\n");
+> +			return error;
+> +		}
+> +	} else {
+> +		pdata = dev_get_platdata(&pdev->dev);
+> +		if (!pdata || !pdata->keymap) {
+> +			dev_err(&pdev->dev, "Invalid platform data\n");
+> +			return -EINVAL;
+> +		}
+>  	}
 
-I'll queue your patch ASAP.
+I think the opposite order woudl make more sense - if pdata is supplied
+by the platform code then we should use it, otherwise try to see if
+there is OF data available instead. This way one can easily override OF
+data, if needed.
+
+Same goes for keymap data.
 
 Thanks.
 

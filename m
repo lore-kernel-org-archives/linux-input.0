@@ -1,36 +1,55 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch] Input: wacom - check for allocation failure in probe()
-Date: Tue, 27 Mar 2012 23:15:12 +0300
-Message-ID: <20120327201511.GA9197@elgon.mountain>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [patch] Input: wacom - check for allocation failure in probe()
+Date: Tue, 27 Mar 2012 15:39:10 -0500
+Message-ID: <CAGzDe_a+RWkXz5UA39Bv51sm+Gb=0_5ZnmJMd_CJDmr2jRhtdg@mail.gmail.com>
+References: <20120327201511.GA9197@elgon.mountain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rcsinet15.oracle.com ([148.87.113.117]:36153 "EHLO
-	rcsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752438Ab2C0UP3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Mar 2012 16:15:29 -0400
-Content-Disposition: inline
+Received: from mail-lpp01m010-f46.google.com ([209.85.215.46]:48454 "EHLO
+	mail-lpp01m010-f46.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753498Ab2C0UjM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Mar 2012 16:39:12 -0400
+Received: by lahj13 with SMTP id j13so330661lah.19
+        for <linux-input@vger.kernel.org>; Tue, 27 Mar 2012 13:39:11 -0700 (PDT)
+In-Reply-To: <20120327201511.GA9197@elgon.mountain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, Eduard Hasenleithner <eduard@hasenleithner.at>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pingc@wacom.com>, Eduard Hasenleithner <eduard@hasenleithner.at>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-We accidentally removed the check for NULL in 3aac0ef10b "Input: wacom -
-isolate input registration".
+Thanks for catch.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
 
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 19ba586..0d26921 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -1002,6 +1002,8 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 		return -EINVAL;
- 
- 	wacom = kzalloc(sizeof(struct wacom), GFP_KERNEL);
-+	if (!wacom)
-+		return -ENOMEM;
- 
- 	wacom_wac = &wacom->wacom_wac;
- 	wacom_wac->features = *((struct wacom_features *)id->driver_info);
+On Tue, Mar 27, 2012 at 3:15 PM, Dan Carpenter <dan.carpenter@oracle.co=
+m> wrote:
+> We accidentally removed the check for NULL in 3aac0ef10b "Input: waco=
+m -
+> isolate input registration".
+>
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+>
+> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/=
+wacom_sys.c
+> index 19ba586..0d26921 100644
+> --- a/drivers/input/tablet/wacom_sys.c
+> +++ b/drivers/input/tablet/wacom_sys.c
+> @@ -1002,6 +1002,8 @@ static int wacom_probe(struct usb_interface *in=
+tf, const struct usb_device_id *i
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -EINVAL;
+>
+> =A0 =A0 =A0 =A0wacom =3D kzalloc(sizeof(struct wacom), GFP_KERNEL);
+> + =A0 =A0 =A0 if (!wacom)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENOMEM;
+>
+> =A0 =A0 =A0 =A0wacom_wac =3D &wacom->wacom_wac;
+> =A0 =A0 =A0 =A0wacom_wac->features =3D *((struct wacom_features *)id-=
+>driver_info);
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

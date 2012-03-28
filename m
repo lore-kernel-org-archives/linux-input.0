@@ -1,48 +1,40 @@
-From: Sergei Shtylyov <sshtylyov@mvista.com>
-Subject: Re: [PATCH 4/4] Input: pxa27x_keypad add choice to set direct_key_mask
-Date: Wed, 28 Mar 2012 22:04:05 +0400
-Message-ID: <4F735295.2010604@mvista.com>
-References: <1332911324-9840-1-git-send-email-chao.xie@marvell.com> <1332911324-9840-4-git-send-email-chao.xie@marvell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: [PATCH 1/2] HID: wacom: Fix HID_WACOM self-dependency
+Date: Wed, 28 Mar 2012 22:13:36 +0100
+Message-ID: <1332969217-10727-2-git-send-email-przemo@firszt.eu>
+References: <1332969217-10727-1-git-send-email-przemo@firszt.eu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:60664 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932509Ab2C1SFH (ORCPT
+Received: from stats.peacock.arvixe.com ([174.122.104.67]:38462 "EHLO
+	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932894Ab2C1VON (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Mar 2012 14:05:07 -0400
-Received: by bkcik5 with SMTP id ik5so1198065bkc.19
-        for <linux-input@vger.kernel.org>; Wed, 28 Mar 2012 11:05:05 -0700 (PDT)
-In-Reply-To: <1332911324-9840-4-git-send-email-chao.xie@marvell.com>
+	Wed, 28 Mar 2012 17:14:13 -0400
+In-Reply-To: <1332969217-10727-1-git-send-email-przemo@firszt.eu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chao Xie <chao.xie@marvell.com>
-Cc: linux-input@vger.kernel.org, eric.y.miao@gmail.com, haojian.zhuang@marvell.com, linux-arm-kernel@lists.infradead.org
+To: jkosina@suse.cz, pinglinux@gmail.com
+Cc: linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, Przemo Firszt <przemo@firszt.eu>
 
-Hello.
+This patch fixes a silly mistake: HID_WACOM was dependent on HID_WACOM, so
+the option wasn't showing up after make menuconfig
 
-On 03/28/2012 09:08 AM, Chao Xie wrote:
+Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+---
+ drivers/hid/Kconfig |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-> Direct keys usage may not start from KP_DKIN0, add a msk option
-> to configure the specifics for platforms that can skip some keys.
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 77daaf21..7f1c032 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -620,7 +620,6 @@ config THRUSTMASTER_FF
+ config HID_WACOM
+ 	tristate "Wacom Bluetooth devices support"
+ 	depends on BT_HIDP
+-	depends on HID_WACOM
+ 	select POWER_SUPPLY
+ 	---help---
+ 	Support for Wacom Graphire Bluetooth and Intuos4 WL tablets.
+-- 
+1.7.9.1
 
-> Signed-off-by: Chao Xie<chao.xie@marvell.com>
-[...]
-
-> diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
-> index b41ebda..661892b 100644
-> --- a/drivers/input/keyboard/pxa27x_keypad.c
-> +++ b/drivers/input/keyboard/pxa27x_keypad.c
-> @@ -391,7 +391,12 @@ static void pxa27x_keypad_config(struct pxa27x_keypad *keypad)
->   	if (pdata->direct_key_num>  direct_key_num)
->   		direct_key_num = pdata->direct_key_num;
->
-> -	keypad->direct_key_mask = ((1<<  direct_key_num) - 1)&  ~mask;
-> +	/* Direct keys usage may not start from KP_DKIN0, check the platfrom
-> +	 * msk data to config the specific */
-
-    The preferred multi-line comment style is not this one. You got it right in 
-the previous patch. :-)
-
-WBR, Sergei

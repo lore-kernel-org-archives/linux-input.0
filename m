@@ -1,124 +1,48 @@
-From: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
-Subject: [PATCH v3] HID: autoload hid-multitouch as needed
-Date: Wed, 28 Mar 2012 16:33:18 +0200
-Message-ID: <1332945198-2518-1-git-send-email-benjamin.tissoires@gmail.com>
+From: Sergei Shtylyov <sshtylyov@mvista.com>
+Subject: Re: [PATCH 4/4] Input: pxa27x_keypad add choice to set direct_key_mask
+Date: Wed, 28 Mar 2012 22:04:05 +0400
+Message-ID: <4F735295.2010604@mvista.com>
+References: <1332911324-9840-1-git-send-email-chao.xie@marvell.com> <1332911324-9840-4-git-send-email-chao.xie@marvell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:63244 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752127Ab2C1OdY (ORCPT
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:60664 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932509Ab2C1SFH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Mar 2012 10:33:24 -0400
+	Wed, 28 Mar 2012 14:05:07 -0400
+Received: by bkcik5 with SMTP id ik5so1198065bkc.19
+        for <linux-input@vger.kernel.org>; Wed, 28 Mar 2012 11:05:05 -0700 (PDT)
+In-Reply-To: <1332911324-9840-4-git-send-email-chao.xie@marvell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Chao Xie <chao.xie@marvell.com>
+Cc: linux-input@vger.kernel.org, eric.y.miao@gmail.com, haojian.zhuang@marvell.com, linux-arm-kernel@lists.infradead.org
 
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Hello.
 
-When the generic hid parsing of the report descriptors in hid-core
-detects that the device contains the field ContactID, the device should
-be handled by hid-multitouch, and hid-core should release it.
-This patch implements a temporary fix for hid-core to automatically
-call the loading of hid-multitouch. A better solution would involve
-userspace.
+On 03/28/2012 09:08 AM, Chao Xie wrote:
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
----
+> Direct keys usage may not start from KP_DKIN0, add a msk option
+> to configure the specifics for platforms that can skip some keys.
 
-Hi guys,
+> Signed-off-by: Chao Xie<chao.xie@marvell.com>
+[...]
 
-This is the v3 of the patch.
-Changes since v2:
-- make the working queue global to the module. As noted by Henrik,
-there is no need to have a per-device working queue.
-- removed the boolean that tells if the working queue has been initialized
-and filled: we have only one wq that is initialized at the loading of the
-module. I didn't put any threading guards: as far as I understood, working
-queues are thread safe.
+> diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
+> index b41ebda..661892b 100644
+> --- a/drivers/input/keyboard/pxa27x_keypad.c
+> +++ b/drivers/input/keyboard/pxa27x_keypad.c
+> @@ -391,7 +391,12 @@ static void pxa27x_keypad_config(struct pxa27x_keypad *keypad)
+>   	if (pdata->direct_key_num>  direct_key_num)
+>   		direct_key_num = pdata->direct_key_num;
+>
+> -	keypad->direct_key_mask = ((1<<  direct_key_num) - 1)&  ~mask;
+> +	/* Direct keys usage may not start from KP_DKIN0, check the platfrom
+> +	 * msk data to config the specific */
 
-There is still one problem: this works for hotplugged devices. Coldplugged
-ones (before booting then) are not loading hid-multitouch on my computer.
-I don't think the previous implementation worked either. However, I don't
-think it's a big issue as we may ask end-user to add hid-multitouch in this
-case in their /etc/modules-load.d/.
+    The preferred multi-line comment style is not this one. You got it right in 
+the previous patch. :-)
 
-Cheers,
-Benjamin
-
- drivers/hid/hid-core.c |   40 +++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 39 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 990fe19..f694aa1 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1210,6 +1210,39 @@ static struct bin_attribute dev_bin_attr_report_desc = {
- 	.size = HID_MAX_DESCRIPTOR_SIZE,
- };
- 
-+#if defined(CONFIG_MODULES) && defined(MODULE)
-+/* This is a temporary fix to make hid-multitouch loadable from
-+ * the kernel before we come up with more robust attitude
-+ * (with userspace involvement).
-+ * In case we detect a multitouch device through the parsing of
-+ * hid-core, we request hid-multitouch to be loaded. */
-+static struct work_struct request_hid_mt_module_wk;
-+
-+static void hid_request_hid_mt_module_async(struct work_struct *work)
-+{
-+	request_module("hid-multitouch");
-+}
-+
-+static inline void hid_request_hid_mt_module(void)
-+{
-+	schedule_work(&request_hid_mt_module_wk);
-+}
-+
-+static inline void hid_flush_request_modules(void)
-+{
-+	flush_work_sync(&request_hid_mt_module_wk);
-+}
-+
-+static inline void hid_init_request_modules(void)
-+{
-+	INIT_WORK(&request_hid_mt_module_wk, hid_request_hid_mt_module_async);
-+}
-+#else
-+#define hid_request_hid_mt_module()
-+#define hid_flush_request_modules()
-+#define hid_init_request_modules()
-+#endif /* CONFIG_MODULES */
-+
- int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- {
- 	static const char *types[] = { "Device", "Pointer", "Mouse", "Device",
-@@ -1235,7 +1268,9 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 				connect_mask & HID_CONNECT_HIDINPUT_FORCE))
- 		hdev->claimed |= HID_CLAIMED_INPUT;
- 	if (hdev->quirks & HID_QUIRK_MULTITOUCH) {
--		/* this device should be handled by hid-multitouch, skip it */
-+		/* this device should be handled by hid-multitouch, request
-+		 * for hid-multitouch to be loaded and leave the device to it */
-+		hid_request_hid_mt_module();
- 		return -ENODEV;
- 	}
- 
-@@ -2210,6 +2245,8 @@ static int __init hid_init(void)
- 
- 	hid_debug_init();
- 
-+	hid_init_request_modules();
-+
- 	return 0;
- err_bus:
- 	bus_unregister(&hid_bus_type);
-@@ -2219,6 +2256,7 @@ err:
- 
- static void __exit hid_exit(void)
- {
-+	hid_flush_request_modules();
- 	hid_debug_exit();
- 	hidraw_exit();
- 	bus_unregister(&hid_bus_type);
--- 
-1.7.7.6
-
+WBR, Sergei

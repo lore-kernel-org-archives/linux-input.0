@@ -1,134 +1,124 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: [RFC] usbhid: fix error handling of not enough bandwidth
-Date: Wed, 28 Mar 2012 13:16:19 +0200
-Message-ID: <201203281316.20038.oneukum@suse.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
+Subject: [PATCH v3] HID: autoload hid-multitouch as needed
+Date: Wed, 28 Mar 2012 16:33:18 +0200
+Message-ID: <1332945198-2518-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:60283 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932238Ab2C1LUp convert rfc822-to-8bit (ORCPT
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:63244 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752127Ab2C1OdY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Mar 2012 07:20:45 -0400
+	Wed, 28 Mar 2012 10:33:24 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Libor Pechacek <lpechacek@suse.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
->From 22569602350f8992f2d2b321cf195e633e74574a Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oliver@neukum.org>
-Date: Wed, 28 Mar 2012 10:37:05 +0200
-Subject: [PATCH] usbhid: fix error handling of not enough bandwidth
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-In case IO cannot be started because there is a lack of bandwidth
-on the bus, it makes no sense to reset the device. If IO is requested
-because the device is opened, user space should be notified with
-an error right away. If the lack of bandwidth arises later, for
-example after resume, there's no other choice but to retry in the
-hope that bandwidth will be freed.
+When the generic hid parsing of the report descriptors in hid-core
+detects that the device contains the field ContactID, the device should
+be handled by hid-multitouch, and hid-core should release it.
+This patch implements a temporary fix for hid-core to automatically
+call the loading of hid-multitouch. A better solution would involve
+userspace.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.de>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 ---
 
-Unfortunately only XHCI implements check_bandwidth()
-I've seen this trigger on UHCI due to an error, but still, it can happen.
+Hi guys,
 
-	Regards
-		Oliver
+This is the v3 of the patch.
+Changes since v2:
+- make the working queue global to the module. As noted by Henrik,
+there is no need to have a per-device working queue.
+- removed the boolean that tells if the working queue has been initialized
+and filled: we have only one wq that is initialized at the loading of the
+module. I didn't put any threading guards: as far as I understood, working
+queues are thread safe.
 
- drivers/hid/usbhid/hid-core.c |   37 +++++++++++++++++++++++++++----------
- drivers/hid/usbhid/usbhid.h   |    1 +
- 2 files changed, 28 insertions(+), 10 deletions(-)
+There is still one problem: this works for hotplugged devices. Coldplugged
+ones (before booting then) are not loading hid-multitouch on my computer.
+I don't think the previous implementation worked either. However, I don't
+think it's a big issue as we may ask end-user to add hid-multitouch in this
+case in their /etc/modules-load.d/.
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 5bf91db..c1a1dd5 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -86,8 +86,13 @@ static int hid_start_in(struct hid_device *hid)
- 			!test_bit(HID_REPORTED_IDLE, &usbhid->iofl) &&
- 			!test_and_set_bit(HID_IN_RUNNING, &usbhid->iofl)) {
- 		rc = usb_submit_urb(usbhid->urbin, GFP_ATOMIC);
--		if (rc != 0)
-+		if (rc != 0) {
- 			clear_bit(HID_IN_RUNNING, &usbhid->iofl);
-+			if (rc == -ENOSPC)
-+				set_bit(HID_NO_BANDWIDTH, &usbhid->iofl);
-+		} else {
-+			clear_bit(HID_NO_BANDWIDTH, &usbhid->iofl);
-+		}
- 	}
- 	spin_unlock_irqrestore(&usbhid->lock, flags);
- 	return rc;
-@@ -173,8 +178,10 @@ static void hid_io_error(struct hid_device *hid)
+Cheers,
+Benjamin
+
+ drivers/hid/hid-core.c |   40 +++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 39 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 990fe19..f694aa1 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1210,6 +1210,39 @@ static struct bin_attribute dev_bin_attr_report_desc = {
+ 	.size = HID_MAX_DESCRIPTOR_SIZE,
+ };
  
- 	if (time_after(jiffies, usbhid->stop_retry)) {
- 
--		/* Retries failed, so do a port reset */
--		if (!test_and_set_bit(HID_RESET_PENDING, &usbhid->iofl)) {
-+		/* Retries failed, so do a port reset unless we lack bandwidth*/
-+		if (test_bit(HID_NO_BANDWIDTH, &usbhid->iofl)
-+		     && !test_and_set_bit(HID_RESET_PENDING, &usbhid->iofl)) {
++#if defined(CONFIG_MODULES) && defined(MODULE)
++/* This is a temporary fix to make hid-multitouch loadable from
++ * the kernel before we come up with more robust attitude
++ * (with userspace involvement).
++ * In case we detect a multitouch device through the parsing of
++ * hid-core, we request hid-multitouch to be loaded. */
++static struct work_struct request_hid_mt_module_wk;
 +
- 			schedule_work(&usbhid->reset_work);
- 			goto done;
- 		}
-@@ -700,7 +707,7 @@ static int hid_get_class_descriptor(struct usb_device *dev, int ifnum,
- int usbhid_open(struct hid_device *hid)
++static void hid_request_hid_mt_module_async(struct work_struct *work)
++{
++	request_module("hid-multitouch");
++}
++
++static inline void hid_request_hid_mt_module(void)
++{
++	schedule_work(&request_hid_mt_module_wk);
++}
++
++static inline void hid_flush_request_modules(void)
++{
++	flush_work_sync(&request_hid_mt_module_wk);
++}
++
++static inline void hid_init_request_modules(void)
++{
++	INIT_WORK(&request_hid_mt_module_wk, hid_request_hid_mt_module_async);
++}
++#else
++#define hid_request_hid_mt_module()
++#define hid_flush_request_modules()
++#define hid_init_request_modules()
++#endif /* CONFIG_MODULES */
++
+ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
  {
- 	struct usbhid_device *usbhid = hid->driver_data;
--	int res;
-+	int res = 0;
- 
- 	mutex_lock(&hid_open_mut);
- 	if (!hid->open++) {
-@@ -708,17 +715,27 @@ int usbhid_open(struct hid_device *hid)
- 		/* the device must be awake to reliably request remote wakeup */
- 		if (res < 0) {
- 			hid->open--;
--			mutex_unlock(&hid_open_mut);
--			return -EIO;
-+			res = -EIO;
-+			goto done;
- 		}
- 		usbhid->intf->needs_remote_wakeup = 1;
--		if (hid_start_in(hid))
--			hid_io_error(hid);
-- 
-+		res = hid_start_in(hid);
-+		if (res) {
-+			if (res != -ENOSPC) {
-+				hid_io_error(hid);
-+				res = 0;
-+			} else {
-+				/* no use opening if resources are insufficient */
-+				hid->open--;
-+				res = -EBUSY;
-+				usbhid->intf->needs_remote_wakeup = 0;
-+			}
-+		}
- 		usb_autopm_put_interface(usbhid->intf);
+ 	static const char *types[] = { "Device", "Pointer", "Mouse", "Device",
+@@ -1235,7 +1268,9 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+ 				connect_mask & HID_CONNECT_HIDINPUT_FORCE))
+ 		hdev->claimed |= HID_CLAIMED_INPUT;
+ 	if (hdev->quirks & HID_QUIRK_MULTITOUCH) {
+-		/* this device should be handled by hid-multitouch, skip it */
++		/* this device should be handled by hid-multitouch, request
++		 * for hid-multitouch to be loaded and leave the device to it */
++		hid_request_hid_mt_module();
+ 		return -ENODEV;
  	}
-+done:
- 	mutex_unlock(&hid_open_mut);
--	return 0;
-+	return res;
- }
  
- void usbhid_close(struct hid_device *hid)
-diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
-index cb8f703..1883d7b 100644
---- a/drivers/hid/usbhid/usbhid.h
-+++ b/drivers/hid/usbhid/usbhid.h
-@@ -55,6 +55,7 @@ struct usb_interface *usbhid_find_interface(int minor);
- #define HID_STARTED		8
- #define HID_REPORTED_IDLE	9
- #define HID_KEYS_PRESSED	10
-+#define HID_NO_BANDWIDTH	11
+@@ -2210,6 +2245,8 @@ static int __init hid_init(void)
  
- /*
-  * USB-specific HID struct, to be pointed to
+ 	hid_debug_init();
+ 
++	hid_init_request_modules();
++
+ 	return 0;
+ err_bus:
+ 	bus_unregister(&hid_bus_type);
+@@ -2219,6 +2256,7 @@ err:
+ 
+ static void __exit hid_exit(void)
+ {
++	hid_flush_request_modules();
+ 	hid_debug_exit();
+ 	hidraw_exit();
+ 	bus_unregister(&hid_bus_type);
 -- 
-1.7.1
+1.7.7.6
 

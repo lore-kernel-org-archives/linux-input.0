@@ -1,65 +1,74 @@
-From: "Przemo Firszt" <przemo@firszt.eu>
-Subject: Re: [PATCH 2/2] HID: wacom: Add module description
-Date: Thu, 29 Mar 2012 16:08:49 +0100
-Message-ID: <9e2b626b76c74a25e2cf5eac9bb1437f.squirrel@webmail.firszt.eu>
-References: <1332969217-10727-1-git-send-email-przemo@firszt.eu>
-    <1332969217-10727-3-git-send-email-przemo@firszt.eu>
-    <alpine.LNX.2.00.1203291641330.25526@pobox.suse.cz>
-Reply-To: przemo@firszt.eu
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH 19/20] Input: atmel_mxt_ts - remove mxt_make_highchg and
+ parse T6 report
+Date: Thu, 29 Mar 2012 23:20:11 +0800
+Message-ID: <CAGS+omBkqBqMC7f73RzXqdwkpqTOxUvWWYLMGefF+zdBKjKLTw@mail.gmail.com>
+References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org>
+ <1331640263-18935-20-git-send-email-djkurtz@chromium.org> <4F68A46D.9020601@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from stats.peacock.arvixe.com ([174.122.104.67]:46747 "EHLO
-	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932634Ab2C2PJF (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:62448 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933485Ab2C2PUc convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Mar 2012 11:09:05 -0400
-In-Reply-To: <alpine.LNX.2.00.1203291641330.25526@pobox.suse.cz>
+	Thu, 29 Mar 2012 11:20:32 -0400
+Received: by iagz16 with SMTP id z16so3148204iag.19
+        for <linux-input@vger.kernel.org>; Thu, 29 Mar 2012 08:20:32 -0700 (PDT)
+In-Reply-To: <4F68A46D.9020601@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Przemo Firszt <przemo@firszt.eu>, pinglinux@gmail.com, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, "Tiwari, Atul" <Atul.Tiwari@atmel.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>
 
+On Tue, Mar 20, 2012 at 11:38 PM, Nick Dyer <nick.dyer@itdev.co.uk> wro=
+te:
+> Daniel Kurtz wrote:
+>> This function attempts to make the CHG pin high by reading a bunch o=
+f
+>> messages until the device is happy. =A0Instead of just blindly tryin=
+g to
+>> read a fixed number of messages, let's actually read and process the=
+m.
+>>
+>> It turns out that the messages after boot or nvupdates are T6 report=
+s,
+>> containing a status, and the config memory checksum. =A0So, let's pa=
+rse
+>> them and dump a useful info message.
+>>
+>> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+>
+> mxt_make_highchg exists due to the interrupts being edge triggered. I=
+t
+> forces the CHG line to go high.
+>
+> With this implementation, I suspect that if a new message arrives aft=
+er you
+> have read T44 and before you finish processing messages, then the int=
+errupt
+> handler will not ever be run. What testing have you done on this?
 
-Dnia 29 Marca 2012, 3:46 pm, Cz, Jiri Kosina napisa=B3(a):
-> On Wed, 28 Mar 2012, Przemo Firszt wrote:
->
->> Add description for hid-wacom module: "Driver for Wacom Graphire
->> Bluetooth
->> and Wacom Intuos4 WL"
->>
->> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
->> ---
->>  drivers/hid/hid-wacom.c |    2 +-
->>  1 files changed, 1 insertions(+), 1 deletions(-)
->>
->> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
->> index f130f40..fb0fe16 100644
->> --- a/drivers/hid/hid-wacom.c
->> +++ b/drivers/hid/hid-wacom.c
->> @@ -687,5 +687,5 @@ static void __exit wacom_exit(void)
->>
->>  module_init(wacom_init);
->>  module_exit(wacom_exit);
->> +MODULE_DESCRIPTION("Driver for Wacom Graphire Bluetooth and Wacom
->> Intuos4 WL");
->
-> I am a little bit unsure about having the information about supported
-> models duplicate in Kconfig and MODULE_DESCRIPTION() ... it's just ad=
-ding
-> more places that we will forget to update once support for a new devi=
-ce
-> line is added.
->
-> Applied, but not fully convinced.
->
-Hi Jiri,
-Thanks! I'll come back to this issue later - I have to test an idea..
---=20
-Regards,
-Przemo Firszt
+Actually, for the MXT224E on which I've been testing, the CHG line
+goes high after reading the first byte of the T5 message (in other
+words, the first byte of the first message, no matter how many
+messages T44 reports).
 
+Expect an updated version of this patchset soon.
+
+Thanks for all of your reviews!
+
+>
+> The printout of T6 messages looks OK, though. I'd prefer to see a loo=
+kup
+> table for the report IDs.
+>
+> --
+> Nick Dyer
+> Software Engineer, ITDev Ltd
+> Hardware and Software Development Consultancy
+> Website: http://www.itdev.co.uk
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

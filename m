@@ -1,85 +1,43 @@
 From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH V3 1/2] Input: of_keymap: Introduce matrix_keypad_of_build_keymap()
-Date: Thu, 29 Mar 2012 09:44:35 -0600
-Message-ID: <4F748363.6040400@wwwdotorg.org>
-References: <cover.1333009670.git.viresh.kumar@st.com> <69c5aad139fbbf4e99134c414a819e1cf3f6dd84.1333009670.git.viresh.kumar@st.com>
+Subject: Re: [PATCH 1/1] input: keyboard: Set configuration registers
+Date: Thu, 29 Mar 2012 09:49:48 -0600
+Message-ID: <4F74849C.4090907@wwwdotorg.org>
+References: <1323415758-16822-1-git-send-email-srasal@nvidia.com> <74CDBE0F657A3D45AFBB94109FB122FF1751860550@HQMAIL01.nvidia.com> <3849551.l2KNPKMSmh@dtor-d630.eng.vmware.com> <74CDBE0F657A3D45AFBB94109FB122FF17518605E5@HQMAIL01.nvidia.com> <20111230032559.GB17850@core.coreip.homeip.net> <20120131190904.GA20672@core.coreip.homeip.net> <74CDBE0F657A3D45AFBB94109FB122FF178E1244A2@HQMAIL01.nvidia.com> <20120131194735.GA22872@core.coreip.homeip.net> <4F714D5C.1050400@nvidia.com> <4F71DB3E.4090606@wwwdotorg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:36574 "EHLO
+Received: from avon.wwwdotorg.org ([70.85.31.133]:35704 "EHLO
 	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932527Ab2C2Poj (ORCPT
+	with ESMTP id S932719Ab2C2Ptw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Mar 2012 11:44:39 -0400
-In-Reply-To: <69c5aad139fbbf4e99134c414a819e1cf3f6dd84.1333009670.git.viresh.kumar@st.com>
+	Thu, 29 Mar 2012 11:49:52 -0400
+In-Reply-To: <4F71DB3E.4090606@wwwdotorg.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Viresh Kumar <viresh.kumar@st.com>
-Cc: dmitry.torokhov@gmail.com, devicetree-discuss@lists.ozlabs.org, spear-devel@list.st.com, viresh.linux@gmail.com, linux-input@vger.kernel.org, sr@denx.de
+To: Shridhar Rasal <srasal@nvidia.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephen Warren <swarren@nvidia.com>, "rydberg@euromail.se" <rydberg@euromail.se>, Rakesh Iyer <riyer@nvidia.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
 
-On 03/29/2012 02:33 AM, Viresh Kumar wrote:
-> We don't need to allocate memory for keymap in matrix_keyboard_of_fill_keymap(),
-> as this would only be used by matrix_keyboard_of_free_keymap(). Instead create
-> another routine matrix_keypad_of_build_keymap() which reads directly the
-> property from struct device_node and builds keymap.
+On 03/27/2012 09:22 AM, Stephen Warren wrote:
+> On 03/26/2012 11:17 PM, Shridhar Rasal wrote:
+>> On 02/01/2012 01:17 AM, Dmitry Torokhov wrote:
+>>> On Tue, Jan 31, 2012 at 11:29:35AM -0800, Stephen Warren wrote:
+...
+>>>> I'd rather PIN_CFG_IGNORE was the first enum, so it gets value 0, or
+>>>> this probably won't solve the original issue?
+>>>
+>>> The benefit of current definition is that it is compatible with old
+>>> ones using bool...
+>>>
+>>> Thanks.
+>>
+>> Sorry for delay in response.
+>> I am OK with new definition. Agree, makes compatible with old definitions.
+>> Thanks!
 > 
-> With this eariler routines matrix_keyboard_of_fill_keymap() and
-> matrix_keyboard_of_free_keymap() go away.
-> 
-> This patch also fixes tegra driver according to these changes.
+> Which new definition; the one in Dmitry's patch, or what I proposed
+> above? Note that from what I recall, Dmitry's patch doesn't solve the
+> problem.
 
-> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-
-> -static struct tegra_kbc_platform_data * __devinit
-> -tegra_kbc_dt_parse_pdata(struct platform_device *pdev)
-> +static struct tegra_kbc_platform_data *
-> +__devinit tegra_kbc_dt_parse_pdata(struct device_node *np)
-
-I'd be tempted to keep __devinit on the first line, but not a big deal.
-
-> +int matrix_keypad_of_build_keymap(struct input_dev *idev,
-> +		unsigned int row_shift, const char *propname)
-
-> +	size = proplen / sizeof(u32);
-> +	if (size > idev->keycodemax) {
-> +		dev_err(dev, "OF: %s overflow\n", propname);
-> +		return -EINVAL;
->  	}
-
-That is checking the number of entries in the property, not the values
-of the MATRIX_SCAN_CODE values derived from those entries. I'd say just
-remove this check. See below.
-
-> +	keycode = idev->keycode;
->  
-> +	for (i = 0; i < size; i++) {
-> +		unsigned int key = be32_to_cpup(prop + i);
-> +		unsigned int row = KEY_ROW(key);
-> +		unsigned int col = KEY_COL(key);
-> +		unsigned short code = KEY_VAL(key);
->  
-> +		if (col >= col_range) {
-> +			dev_err(dev, "OF: %s: column %x overflowed its range %d\n",
-> +					propname, col, col_range);
-> +			return -EINVAL;
-> +		}
-
-That check is good.
-
-> +		keycode[MATRIX_SCAN_CODE(row, col, row_shift)] = code;
-
-But, you also need to do something like:
-
-scancode = MATRIX_SCAN_CODE(row, col, row_shift);
-if (scancode >= idev->keycodemax) {
-    error out;
-}
-keycode[scancode] = code;
-
-> +		__set_bit(code, idev->keybit);
->  	}
-> +	__clear_bit(KEY_RESERVED, idev->keybit);
-> +
-> +	return 0;
->  }
+Nevermind, I see this patch has been modified to address my concerns,
+and already applied.

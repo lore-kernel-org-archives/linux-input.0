@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 02/16 v2] Input: atmel_mxt_ts - only allow root to update firmware
-Date: Fri, 30 Mar 2012 00:49:12 +0800
-Message-ID: <1333039766-8617-3-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 09/16 v2] Input: atmel_mxt_ts - optimize writing of object table entries
+Date: Fri, 30 Mar 2012 00:49:19 +0800
+Message-ID: <1333039766-8617-10-git-send-email-djkurtz@chromium.org>
 References: <1333039766-8617-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1333039766-8617-1-git-send-email-djkurtz@chromium.org>
@@ -10,33 +10,65 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromai
 Cc: Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-Restrict permissions on the update_fw sysfs entry to read only for root
-only.
-
-Also, update object permission to use a macro S_IRUGO macro instead of
-hard coded 0444.
+Write each object using a single bulk i2c write transfer.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 Reviewed-by: Joonyoung Shim <jy0922.shim@samsung.com>
-Acked-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   28 ++++++++++++++--------------
+ 1 files changed, 14 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 0a6e368..15ae6fd 100644
+index a865967..3abc5b0 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -1049,8 +1049,8 @@ static ssize_t mxt_update_fw_store(struct device *dev,
- 	return count;
- }
+@@ -628,33 +628,33 @@ end:
+ static int mxt_check_reg_init(struct mxt_data *data)
+ {
+ 	const struct mxt_platform_data *pdata = data->pdata;
+-	struct mxt_object *object;
+ 	struct device *dev = &data->client->dev;
+-	int index = 0;
+-	int i, j, config_offset, config_size;
++	int i, offset;
++	int ret;
  
--static DEVICE_ATTR(object, 0444, mxt_object_show, NULL);
--static DEVICE_ATTR(update_fw, 0664, NULL, mxt_update_fw_store);
-+static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
-+static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
+ 	if (!pdata->config) {
+ 		dev_dbg(dev, "No cfg data defined, skipping reg init\n");
+ 		return 0;
+ 	}
  
- static struct attribute *mxt_attrs[] = {
- 	&dev_attr_object.attr,
+-	for (i = 0; i < data->info.object_num; i++) {
+-		object = data->object_table + i;
++	for (offset = 0, i = 0; i < data->info.object_num; i++) {
++		struct mxt_object *object = &data->object_table[i];
++		size_t config_size;
+ 
+ 		if (!mxt_object_writable(object->type))
+ 			continue;
+ 
+ 		config_size = object->size * object->instances;
+-		for (j = 0; j < config_size; j++) {
+-			config_offset = index + j;
+-			if (config_offset > pdata->config_length) {
+-				dev_err(dev, "Not enough config data!\n");
+-				return -EINVAL;
+-			}
+-			mxt_write_object(data, object->type, j,
+-					 pdata->config[config_offset]);
++		if (offset + config_size > pdata->config_length) {
++			dev_err(dev, "Not enough config data!\n");
++			return -EINVAL;
+ 		}
+-		index += config_size;
++
++		ret = mxt_write_reg(data->client, object->start_address,
++				    config_size, &pdata->config[offset]);
++		if (ret)
++			return ret;
++		offset += config_size;
+ 	}
+ 
+ 	return 0;
 -- 
 1.7.7.3

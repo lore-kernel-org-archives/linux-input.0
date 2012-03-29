@@ -1,50 +1,33 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 2/2] HID: wacom: Add module description
-Date: Thu, 29 Mar 2012 16:46:42 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1203291641330.25526@pobox.suse.cz>
-References: <1332969217-10727-1-git-send-email-przemo@firszt.eu> <1332969217-10727-3-git-send-email-przemo@firszt.eu>
+From: benedita love <kkeecee@indiatimes.com>
+Subject: =?utf-8?Q?R=C3=A1d_v=C3=A1s_pozn=C3=A1v=C3=A1m?=
+Date: Thu, 29 Mar 2012 20:05:54 +0530 (IST)
+Message-ID: <322787951.186921333031754553.JavaMail.root@tilmb19.indiatimes.com>
+Reply-To: benedicta <keecee4u2@yahoo.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:41145 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753310Ab2C2Oqo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Mar 2012 10:46:44 -0400
-In-Reply-To: <1332969217-10727-3-git-send-email-przemo@firszt.eu>
+Received: from trx4.indiatimes.com ([223.165.24.217]:48703 "EHLO
+	trx4.indiatimes.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753764Ab2C2Ouv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Mar 2012 10:50:51 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Przemo Firszt <przemo@firszt.eu>
-Cc: pinglinux@gmail.com, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org
 
-On Wed, 28 Mar 2012, Przemo Firszt wrote:
 
-> Add description for hid-wacom module: "Driver for Wacom Graphire Bluetooth
-> and Wacom Intuos4 WL"
-> 
-> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
-> ---
->  drivers/hid/hid-wacom.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-> index f130f40..fb0fe16 100644
-> --- a/drivers/hid/hid-wacom.c
-> +++ b/drivers/hid/hid-wacom.c
-> @@ -687,5 +687,5 @@ static void __exit wacom_exit(void)
->  
->  module_init(wacom_init);
->  module_exit(wacom_exit);
-> +MODULE_DESCRIPTION("Driver for Wacom Graphire Bluetooth and Wacom Intuos4 WL");
 
-I am a little bit unsure about having the information about supported 
-models duplicate in Kconfig and MODULE_DESCRIPTION() ... it's just adding 
-more places that we will forget to update once support for a new device 
-line is added.
-
-Applied, but not fully convinced.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+Am Miss Benedikta Kassala, Zaj=C3=ADm=C3=A1 v=C3=A1s, a p=C5=99ejeme, =C5=
+=BEe jste jako m=C5=AFj p=C5=99=C3=ADtel, pro p=C5=99=C3=ADtele je o re=
+spektu, obdivu a l=C3=A1sky, tak=C3=A9 skl=C3=A1dat z p=C5=99=C3=A1tels=
+tv=C3=AD je sd=C3=ADlen=C3=AD n=C3=A1pad=C5=AF a pl=C3=A1nov=C3=A1n=C3=AD=
+ spolu, pros=C3=ADm, kontaktujte m=C4=9B p=C5=99es m=C5=AFj soukrom=C3=BD=
+ e-mailovou adresu dnes tak, =C5=BEe i v=C3=A1m bude pos=C3=ADlat sv=C3=
+=A9 pictures.waiting sly=C5=A1et od v=C3=A1s.
+d=C3=ADky
+Benedikta
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

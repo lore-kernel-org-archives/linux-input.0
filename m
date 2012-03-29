@@ -1,57 +1,139 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 00/16 v2] cleanup atmel_mxt_ts
-Date: Fri, 30 Mar 2012 00:49:10 +0800
-Message-ID: <1333039766-8617-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 10/16 v2] Input: atmel_mxt_ts - refactor get info
+Date: Fri, 30 Mar 2012 00:49:20 +0800
+Message-ID: <1333039766-8617-11-git-send-email-djkurtz@chromium.org>
+References: <1333039766-8617-1-git-send-email-djkurtz@chromium.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gy0-f202.google.com ([209.85.160.202]:50505 "EHLO
+	mail-gy0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759869Ab2C2Qtb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Mar 2012 12:49:31 -0400
+Received: by ghbz15 with SMTP id z15so283052ghb.1
+        for <linux-input@vger.kernel.org>; Thu, 29 Mar 2012 09:49:30 -0700 (PDT)
+In-Reply-To: <1333039766-8617-1-git-send-email-djkurtz@chromium.org>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
 Cc: Daniel Kurtz <djkurtz@chromium.org>
-List-Id: linux-input@vger.kernel.org
 
-This patchset cleans up the atmel_mxt_ts touchscreen driver.
-In particular, v2 implements the following:
+Read whole info block in one i2c transaction.
+And then re-read the matrix size after applying pdata config, since
+it may have changed.
+Note, however, that the matrix x & y size are just displayed for
+information purposes.  They aren't actually used by the driver itself.
 
-1) sysfs
-   a) fw_update only by root
-2) faster initialization
-   a) read/write sets of registers using i2c block transactions
-   b) fetch object table as a set of i2c reads, one per object
-   c) write config data as a set of i2c writes, one per object
-3) faster interrupt processing & initialization times
-   a) cache important values at init instead of computing in isr
-   b) don't read message checksum byte (which isn't even enabled in fw)
-4) more correct MT-B support
-   a) send all (changed) contacts in a single EV_SYN/SYN_REPORT
+Also, parse and info print the firmware major and minor version numbers.
 
-v2:
-  * Writable config via sysfs has been removed to resolve possible
-    conflict with Nick Dyer's implementation.
-  * Using T44 has been removed from this patchset, hopefully it can
-    be reexamined after most of these patches are accepted.
+Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c |   65 +++++------------------------
+ 1 files changed, 12 insertions(+), 53 deletions(-)
 
-The patches were tested using an MXT224E.
-
-Daniel Kurtz (16):
-  Input: atmel_mxt_ts - use CONFIG_PM_SLEEP
-  Input: atmel_mxt_ts - only allow root to update firmware
-  Input: atmel_mxt_ts - refactor mxt_read/write_reg to take a length
-  Input: atmel_mxt_ts - store actual size and instance
-  Input: atmel_mxt_ts - verify object size in mxt_write_object
-  Input: atmel_mxt_ts - do not read extra (checksum) byte
-  Input: atmel_mxt_ts - dump each message on just 1 line
-  Input: atmel_mxt_ts - refactor mxt_object_show
-  Input: atmel_mxt_ts - optimize writing of object table entries
-  Input: atmel_mxt_ts - refactor get info
-  Input: atmel_mxt_ts - refactor reading object table
-  Input: atmel_mxt_ts - simplify event reporting
-  Input: atmel_mxt_ts - cache T9 reportid range when reading object
-    table
-  Input: atmel_mxt_ts - parse vector field of data packets
-  Input: atmel_mxt_ts - send all MT-B slots in one input report
-  Input: atmel_mxt_ts - parse T6 reports
-
- drivers/input/touchscreen/atmel_mxt_ts.c |  477 ++++++++++++------------------
- 1 files changed, 191 insertions(+), 286 deletions(-)
-
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 3abc5b0..9d88faf 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -36,6 +36,7 @@
+ #define MXT_FW_NAME		"maxtouch.fw"
+ 
+ /* Registers */
++#define MXT_INFO		0x00
+ #define MXT_FAMILY_ID		0x00
+ #define MXT_VARIANT_ID		0x01
+ #define MXT_VERSION		0x02
+@@ -730,41 +731,6 @@ static void mxt_handle_pdata(struct mxt_data *data)
+ 	}
+ }
+ 
+-static int mxt_get_info(struct mxt_data *data)
+-{
+-	struct i2c_client *client = data->client;
+-	struct mxt_info *info = &data->info;
+-	int error;
+-	u8 val;
+-
+-	error = mxt_read_reg(client, MXT_FAMILY_ID, 1, &val);
+-	if (error)
+-		return error;
+-	info->family_id = val;
+-
+-	error = mxt_read_reg(client, MXT_VARIANT_ID, 1, &val);
+-	if (error)
+-		return error;
+-	info->variant_id = val;
+-
+-	error = mxt_read_reg(client, MXT_VERSION, 1, &val);
+-	if (error)
+-		return error;
+-	info->version = val;
+-
+-	error = mxt_read_reg(client, MXT_BUILD, 1, &val);
+-	if (error)
+-		return error;
+-	info->build = val;
+-
+-	error = mxt_read_reg(client, MXT_OBJECT_NUM, 1, &val);
+-	if (error)
+-		return error;
+-	info->object_num = val;
+-
+-	return 0;
+-}
+-
+ static int mxt_get_object_table(struct mxt_data *data)
+ {
+ 	int error;
+@@ -799,11 +765,12 @@ static int mxt_get_object_table(struct mxt_data *data)
+ static int mxt_initialize(struct mxt_data *data)
+ {
+ 	struct i2c_client *client = data->client;
++	struct device *dev = &client->dev;
+ 	struct mxt_info *info = &data->info;
+ 	int error;
+-	u8 val;
+ 
+-	error = mxt_get_info(data);
++	/* Read 7-byte info block starting at address 0 */
++	error = mxt_read_reg(client, MXT_INFO, sizeof(*info), info);
+ 	if (error)
+ 		return error;
+ 
+@@ -838,26 +805,18 @@ static int mxt_initialize(struct mxt_data *data)
+ 			MXT_COMMAND_RESET, 1);
+ 	msleep(MXT_RESET_TIME);
+ 
+-	/* Update matrix size at info struct */
+-	error = mxt_read_reg(client, MXT_MATRIX_X_SIZE, 1, &val);
+-	if (error)
+-		return error;
+-	info->matrix_xsize = val;
+-
+-	error = mxt_read_reg(client, MXT_MATRIX_Y_SIZE, 1, &val);
++	/* Update matrix size, since it may have been modified by pdata */
++	error = mxt_read_reg(client, MXT_MATRIX_X_SIZE, 2,
++			     &info->matrix_xsize);
+ 	if (error)
+ 		return error;
+-	info->matrix_ysize = val;
+ 
+-	dev_info(&client->dev,
+-			"Family ID: %d Variant ID: %d Version: %d Build: %d\n",
+-			info->family_id, info->variant_id, info->version,
+-			info->build);
++	dev_info(dev, "Family ID: %d Variant ID: %d Major.Minor.Build: %d.%d.%d\n",
++		 info->family_id, info->variant_id, info->version >> 4,
++		 info->version & 0xf, info->build);
+ 
+-	dev_info(&client->dev,
+-			"Matrix X Size: %d Matrix Y Size: %d Object Num: %d\n",
+-			info->matrix_xsize, info->matrix_ysize,
+-			info->object_num);
++	dev_info(dev, "Matrix X Size: %d Matrix Y Size: %d Object Num: %d\n",
++		 info->matrix_xsize, info->matrix_ysize, info->object_num);
+ 
+ 	return 0;
+ }
 -- 
 1.7.7.3
+

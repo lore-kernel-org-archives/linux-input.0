@@ -1,69 +1,130 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 01/16 v2] Input: atmel_mxt_ts - use CONFIG_PM_SLEEP
-Date: Fri, 30 Mar 2012 00:49:11 +0800
-Message-ID: <1333039766-8617-2-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 08/16 v2] Input: atmel_mxt_ts - refactor mxt_object_show
+Date: Fri, 30 Mar 2012 00:49:18 +0800
+Message-ID: <1333039766-8617-9-git-send-email-djkurtz@chromium.org>
 References: <1333039766-8617-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f202.google.com ([209.85.220.202]:65221 "EHLO
-	mail-vx0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759585Ab2C2Qt3 (ORCPT
+Received: from mail-vb0-f74.google.com ([209.85.212.74]:63277 "EHLO
+	mail-vb0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759873Ab2C2Qtb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Mar 2012 12:49:29 -0400
-Received: by vcbfk26 with SMTP id fk26so281090vcb.1
-        for <linux-input@vger.kernel.org>; Thu, 29 Mar 2012 09:49:28 -0700 (PDT)
+	Thu, 29 Mar 2012 12:49:31 -0400
+Received: by vbnl22 with SMTP id l22so275647vbn.1
+        for <linux-input@vger.kernel.org>; Thu, 29 Mar 2012 09:49:30 -0700 (PDT)
 In-Reply-To: <1333039766-8617-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
 Cc: Daniel Kurtz <djkurtz@chromium.org>
 
-Simple cleanup to use newer PM APIs.
+Read each object with a single i2c transaction instead of byte-by-byte.
+
+Also, don't read T5, which is the message processor object.  Reading
+it is counter-productive since it either holds garbage (there is no
+pending message), or, it holds a real message which should be handled
+by the messages handling code (the isr).
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-Reviewed-by: Joonyoung Shim <jy0922.shim@samsung.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   11 +++--------
- 1 files changed, 3 insertions(+), 8 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   43 ++++++++++++------------------
+ 1 files changed, 17 insertions(+), 26 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 19d4ea6..0a6e368 100644
+index b6e7109..a865967 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -1201,7 +1201,7 @@ static int __devexit mxt_remove(struct i2c_client *client)
- 	return 0;
- }
- 
--#ifdef CONFIG_PM
-+#ifdef CONFIG_PM_SLEEP
- static int mxt_suspend(struct device *dev)
+@@ -262,7 +262,6 @@ struct mxt_data {
+ static bool mxt_object_readable(unsigned int type)
  {
- 	struct i2c_client *client = to_i2c_client(dev);
-@@ -1239,13 +1239,10 @@ static int mxt_resume(struct device *dev)
- 
- 	return 0;
+ 	switch (type) {
+-	case MXT_GEN_MESSAGE_T5:
+ 	case MXT_GEN_COMMAND_T6:
+ 	case MXT_GEN_POWER_T7:
+ 	case MXT_GEN_ACQUIRE_T8:
+@@ -459,6 +458,13 @@ mxt_get_object(struct mxt_data *data, u8 type)
+ 	return NULL;
  }
--
--static const struct dev_pm_ops mxt_pm_ops = {
--	.suspend	= mxt_suspend,
--	.resume		= mxt_resume,
--};
- #endif
  
-+static SIMPLE_DEV_PM_OPS(mxt_pm_ops, mxt_suspend, mxt_resume);
++static int mxt_read_object(struct mxt_data *data, struct mxt_object *object,
++			   void *val)
++{
++	return mxt_read_reg(data->client, object->start_address, object->size,
++			    val);
++}
 +
- static const struct i2c_device_id mxt_id[] = {
- 	{ "qt602240_ts", 0 },
- 	{ "atmel_mxt_ts", 0 },
-@@ -1258,9 +1255,7 @@ static struct i2c_driver mxt_driver = {
- 	.driver = {
- 		.name	= "atmel_mxt_ts",
- 		.owner	= THIS_MODULE,
--#ifdef CONFIG_PM
- 		.pm	= &mxt_pm_ops,
--#endif
- 	},
- 	.probe		= mxt_probe,
- 	.remove		= __devexit_p(mxt_remove),
+ static int mxt_read_message(struct mxt_data *data,
+ 				 struct mxt_message *message)
+ {
+@@ -474,20 +480,6 @@ static int mxt_read_message(struct mxt_data *data,
+ 			    message);
+ }
+ 
+-static int mxt_read_object(struct mxt_data *data,
+-				u8 type, u8 offset, u8 *val)
+-{
+-	struct mxt_object *object;
+-	u16 reg;
+-
+-	object = mxt_get_object(data, type);
+-	if (!object)
+-		return -EINVAL;
+-
+-	reg = object->start_address;
+-	return mxt_read_reg(data->client, reg + offset, 1, val);
+-}
+-
+ static int mxt_write_object(struct mxt_data *data,
+ 				 u8 type, u8 offset, u8 val)
+ {
+@@ -885,17 +877,16 @@ static void mxt_calc_resolution(struct mxt_data *data)
+ }
+ 
+ static ssize_t mxt_object_show(struct device *dev,
+-				    struct device_attribute *attr, char *buf)
++			       struct device_attribute *attr, char *buf)
+ {
+ 	struct mxt_data *data = dev_get_drvdata(dev);
+-	struct mxt_object *object;
+ 	int count = 0;
+ 	int i, j;
+ 	int error;
+-	u8 val;
++	u8 obuf[256];
+ 
+ 	for (i = 0; i < data->info.object_num; i++) {
+-		object = data->object_table + i;
++		struct mxt_object *object = &data->object_table[i];
+ 
+ 		count += snprintf(buf + count, PAGE_SIZE - count,
+ 				"Object[%d] (Type %d)\n",
+@@ -905,20 +896,20 @@ static ssize_t mxt_object_show(struct device *dev,
+ 
+ 		if (!mxt_object_readable(object->type)) {
+ 			count += snprintf(buf + count, PAGE_SIZE - count,
+-					"\n");
++					  "\n");
+ 			if (count >= PAGE_SIZE)
+ 				return PAGE_SIZE - 1;
+ 			continue;
+ 		}
+ 
+-		for (j = 0; j < object->size; j++) {
+-			error = mxt_read_object(data,
+-						object->type, j, &val);
+-			if (error)
+-				return error;
++		error = mxt_read_object(data, object, obuf);
++		if (error)
++			return error;
+ 
++		for (j = 0; j < object->size; j++) {
+ 			count += snprintf(buf + count, PAGE_SIZE - count,
+-					"\t[%2d]: %02x (%d)\n", j, val, val);
++					  "\t[%2d]: %02x (%d)\n", j, obuf[j],
++					  obuf[j]);
+ 			if (count >= PAGE_SIZE)
+ 				return PAGE_SIZE - 1;
+ 		}
 -- 
 1.7.7.3
 

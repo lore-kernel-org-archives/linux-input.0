@@ -1,38 +1,37 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: [PATCH] Input: tegra-kbc - restore missing pdata allocation
-Date: Thu, 29 Mar 2012 09:52:59 -0600
-Message-ID: <1333036379-14088-1-git-send-email-swarren@wwwdotorg.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:50772 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932608Ab2C2PxG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Mar 2012 11:53:06 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Randy Dunlap <rdunlap@xenotime.net>
+Subject: [PATCH -next] hid: fix WACOM Kconfig warning
+Date: Thu, 29 Mar 2012 09:18:35 -0700
+Message-ID: <4F748B5B.9010104@xenotime.net>
+References: <20120329144217.6cacd2f040fa9abb9190ae1e@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <20120329144217.6cacd2f040fa9abb9190ae1e@canb.auug.org.au>
+Sender: linux-next-owner@vger.kernel.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>
 
-Commit 023cea0 "Input: tegra-kbc - allow skipping setting up some of
-GPIO pins" accidentally removed this code. Add it back.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Signed-off-by: Stephen Warren <swarren@wwwdotorg.org>
+Fix hid Kconfig warning:
+
+drivers/hid/Kconfig:595:error: recursive dependency detected!
+drivers/hid/Kconfig:595:	symbol HID_WACOM depends on HID_WACOM
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- drivers/input/keyboard/tegra-kbc.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ drivers/hid/Kconfig |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 21c42f8..fe4ac95 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -630,6 +630,7 @@ tegra_kbc_dt_parse_pdata(struct platform_device *pdev)
- 	if (!np)
- 		return NULL;
- 
-+	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
- 	if (!pdata)
- 		return NULL;
- 
--- 
-1.7.0.4
-
+--- linux-next-20120329.orig/drivers/hid/Kconfig
++++ linux-next-20120329/drivers/hid/Kconfig
+@@ -595,7 +595,6 @@ config THRUSTMASTER_FF
+ config HID_WACOM
+ 	tristate "Wacom Bluetooth devices support"
+ 	depends on BT_HIDP
+-	depends on HID_WACOM
+ 	select POWER_SUPPLY
+ 	---help---
+ 	Support for Wacom Graphire Bluetooth and Intuos4 WL tablets.

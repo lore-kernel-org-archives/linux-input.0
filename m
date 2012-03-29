@@ -1,62 +1,43 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH 1/1] HID: add have_special_driver hid module parameter
-Date: Thu, 29 Mar 2012 11:00:42 +0300
-Message-ID: <4F7416AA.1070704@gmail.com>
-References: <1329773340-14066-1-git-send-email-spbnick@gmail.com> <CALu8Fe_h2=LCD+wmQbYBpF9m+yx+gYmkKf_nX3k69DOHktg_eA@mail.gmail.com> <alpine.LNX.2.00.1202281527250.31150@pobox.suse.cz>
+From: Viresh Kumar <viresh.kumar@st.com>
+Subject: Re: [PATCH V2 1/2] Input: of_keymap: Introduce matrix_keypad_of_build_keymap()
+Date: Thu, 29 Mar 2012 13:53:53 +0530
+Message-ID: <4F741C19.4080703@st.com>
+References: <4aba6f2cd9f050f419660555bdb661915c1be9b1.1332826100.git.viresh.kumar@st.com> <4F71E0A6.4080703@wwwdotorg.org> <4F7299D7.4020006@st.com> <4F738261.1060002@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:54427 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750796Ab2C2IAx (ORCPT
+Received: from eu1sys200aog117.obsmtp.com ([207.126.144.143]:54789 "EHLO
+	eu1sys200aog117.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751371Ab2C2IZS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Mar 2012 04:00:53 -0400
-Received: by bkcik5 with SMTP id ik5so1669463bkc.19
-        for <linux-input@vger.kernel.org>; Thu, 29 Mar 2012 01:00:51 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1202281527250.31150@pobox.suse.cz>
+	Thu, 29 Mar 2012 04:25:18 -0400
+In-Reply-To: <4F738261.1060002@wwwdotorg.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, spear-devel <spear-devel@list.st.com>, "viresh.linux@gmail.com" <viresh.linux@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "sr@denx.de" <sr@denx.de>
 
-Hi Jiri,
+On 3/29/2012 2:58 AM, Stephen Warren wrote:
+> so the DT parsing can easily overflow this, and is driven by
+> user-supplied data.
 
-On 02/28/2012 04:30 PM, Jiri Kosina wrote:
-> On Mon, 27 Feb 2012, Nikolai Kondrashov wrote:
->
->>> Add "have_special_driver" hid module parameter - a list of additional
->>> HID devices which have specialized driver on HID bus. Needed to
->>> support out-of-tree HID drivers.
->>
->> Did you have time to take a look at the patch?
->> If there's anything wrong with it, please tell me and I'll fix it.
->
-> Hi Nikolai,
->
-> well, I am not really sure what value does it provide to have such
-> functionality in the kernel.
+Got it. This check is must.
 
-In addition to my other explanations, I know about 10 people who are using
-my tablet drivers which are to be included into the 3.4 release. And these
-are only those who contacted me. Now, they can't be helped, they will have
-to build their own kernels until they can install an official one with the
-drivers.
+> I think you'll need to pass input_dev->keycodesize
 
-However, there are still many unsupported tablets and other devices which
-could be made to work with a simple HID driver. If this or a similar
-functionality is there, they will need to only build and install a few
-modules, or just install a DKMS-enabled package for their distribution.
-And the sooner that happens, the better.
+you mean keycodemax here?
 
-I understand that this solution is somewhat hackish, but it matches the
-generic HID driver's ignoring of devices. The only proper solution,
-considering asynchronous module loading, would be to bind the generic HID
-driver to all HID devices unconditionally and then rebind a specific driver
-once it's loaded. Yet, I'm not sure how this would fit the device driver
-model.
+> into matrix_keypad_of_build_keymap() to achieve the overall
+> range-checking.
 
-Thank you for your attention and sorry if I bother you unnecessarily :)
+Will do that.
 
-Sincerely,
-Nick
+> but also checking col against (1<<row_shift) would be
+> needed to make sure the individual "fields" of the array index don't
+> overflow too.
+
+Ok. Please cross check V3 to verify, i got you comments correctly.
+
+-- 
+viresh

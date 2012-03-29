@@ -1,43 +1,47 @@
 From: Viresh Kumar <viresh.kumar@st.com>
-Subject: Re: [PATCH V2 1/2] Input: of_keymap: Introduce matrix_keypad_of_build_keymap()
-Date: Thu, 29 Mar 2012 13:53:53 +0530
-Message-ID: <4F741C19.4080703@st.com>
-References: <4aba6f2cd9f050f419660555bdb661915c1be9b1.1332826100.git.viresh.kumar@st.com> <4F71E0A6.4080703@wwwdotorg.org> <4F7299D7.4020006@st.com> <4F738261.1060002@wwwdotorg.org>
+Subject: [PATCH V3 0/2] Input: Add matrix_keypad_of_build_keymap()
+Date: Thu, 29 Mar 2012 14:03:25 +0530
+Message-ID: <cover.1333009670.git.viresh.kumar@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog117.obsmtp.com ([207.126.144.143]:54789 "EHLO
-	eu1sys200aog117.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751371Ab2C2IZS (ORCPT
+Received: from eu1sys200aog108.obsmtp.com ([207.126.144.125]:49178 "EHLO
+	eu1sys200aog108.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751887Ab2C2Isf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Mar 2012 04:25:18 -0400
-In-Reply-To: <4F738261.1060002@wwwdotorg.org>
+	Thu, 29 Mar 2012 04:48:35 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, spear-devel <spear-devel@list.st.com>, "viresh.linux@gmail.com" <viresh.linux@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "sr@denx.de" <sr@denx.de>
+To: dmitry.torokhov@gmail.com
+Cc: swarren@nvidia.com, spear-devel@list.st.com, viresh.linux@gmail.com, devicetree-discuss@lists.ozlabs.org, olof@lixom.net, linux-input@vger.kernel.org, sr@denx.de, Viresh Kumar <viresh.kumar@st.com>
 
-On 3/29/2012 2:58 AM, Stephen Warren wrote:
-> so the DT parsing can easily overflow this, and is driven by
-> user-supplied data.
+This patchset adds matrix_keypad_of_build_keymap() routine for building keymap
+directly from device tree.
 
-Got it. This check is must.
+V2->V3:
+- Preference given to platform data over device tree in probe routine of
+  drivers.
+- Declaration of matrix_keypad_of_build_keymap() routine is changed.
+- Range/Overflow checking is done on keys and column.
 
-> I think you'll need to pass input_dev->keycodesize
+V1->V2:
+- Introduced matrix_keypad_of_build_keymap() and removed fill and free keymap
+  routines.
+- Updated tegra-kbc.
 
-you mean keycodemax here?
+Viresh Kumar (2):
+  Input: of_keymap: Introduce matrix_keypad_of_build_keymap()
+  Input: spear-keyboard: add device tree bindings
 
-> into matrix_keypad_of_build_keymap() to achieve the overall
-> range-checking.
-
-Will do that.
-
-> but also checking col against (1<<row_shift) would be
-> needed to make sure the individual "fields" of the array index don't
-> overflow too.
-
-Ok. Please cross check V3 to verify, i got you comments correctly.
+ .../devicetree/bindings/input/spear-keyboard.txt   |   21 +++++
+ drivers/input/keyboard/Kconfig                     |    1 +
+ drivers/input/keyboard/spear-keyboard.c            |   86 +++++++++++++++---
+ drivers/input/keyboard/tegra-kbc.c                 |   48 +++++-----
+ drivers/input/of_keymap.c                          |   94 +++++++++++---------
+ include/linux/input/matrix_keypad.h                |   16 +---
+ 6 files changed, 180 insertions(+), 86 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/spear-keyboard.txt
 
 -- 
-viresh
+1.7.10.rc2.10.gb47606
+

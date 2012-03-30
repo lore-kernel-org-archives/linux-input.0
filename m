@@ -1,49 +1,43 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 19/20] Input: atmel_mxt_ts - remove mxt_make_highchg and
- parse T6 report
-Date: Fri, 30 Mar 2012 00:00:40 -0700
-Message-ID: <4F755A18.6040101@itdev.co.uk>
-References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org> <1331640263-18935-20-git-send-email-djkurtz@chromium.org> <4F68A46D.9020601@itdev.co.uk> <CAGS+omBkqBqMC7f73RzXqdwkpqTOxUvWWYLMGefF+zdBKjKLTw@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: Wacom Stylus driver for I2C interface
+Date: Fri, 30 Mar 2012 00:42:41 -0700
+Message-ID: <20120330074241.GA14427@core.coreip.homeip.net>
+References: <1332481207-6224-1-git-send-email-tobita.tatsunosuke@wacom.co.jp>
+ <20120325235034.GA1054@core.coreip.homeip.net>
+ <4f755be3.42d1440a.31fc.3511SMTPIN_ADDED@mx.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [89.21.227.130] ([89.21.227.130]:51922 "EHLO
-	mail.epsilon.itdev.co.uk" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750943Ab2C3HAq (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:57305 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751741Ab2C3Hmp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Mar 2012 03:00:46 -0400
-In-Reply-To: <CAGS+omBkqBqMC7f73RzXqdwkpqTOxUvWWYLMGefF+zdBKjKLTw@mail.gmail.com>
+	Fri, 30 Mar 2012 03:42:45 -0400
+Received: by pbcun15 with SMTP id un15so1377777pbc.19
+        for <linux-input@vger.kernel.org>; Fri, 30 Mar 2012 00:42:45 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4f755be3.42d1440a.31fc.3511SMTPIN_ADDED@mx.google.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, "Tiwari, Atul" <Atul.Tiwari@atmel.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>
+To: Tobita Tatsunosuke <tobita.tatsunosuke@wacom.co.jp>
+Cc: linux-input@vger.kernel.org
 
-Daniel Kurtz wrote:
-> On Tue, Mar 20, 2012 at 11:38 PM, Nick Dyer <nick.dyer@itdev.co.uk> wrote:
->> mxt_make_highchg exists due to the interrupts being edge triggered. It
->> forces the CHG line to go high.
->>
->> With this implementation, I suspect that if a new message arrives after you
->> have read T44 and before you finish processing messages, then the interrupt
->> handler will not ever be run. What testing have you done on this?
+Hi Tats,
+
+On Fri, Mar 30, 2012 at 04:08:12PM +0900, Tobita Tatsunosuke wrote:
+> Hello Dmitry
 > 
-> Actually, for the MXT224E on which I've been testing, the CHG line
-> goes high after reading the first byte of the T5 message (in other
-> words, the first byte of the first message, no matter how many
-> messages T44 reports).
+> Today, I compiled the code you had revised and it worked;
+> it reported coordination, stylus button on/off, and other buttons assigned.
+> I made a patch for this, so can I send this patch?
 
-The CHG line behaviour is configurable - you should find this documented in
-the data sheet.
+Did you have to make adjustments to the version of the patch I sent to
+you? If it worked as is and you did not have to change anything then I
+do not need a new patch, I will apply the one I already have.
 
-> Expect an updated version of this patchset soon.
-> 
-> Thanks for all of your reviews!
+Please let me know.
 
-no problem.
+Thanks.
 
 -- 
-Nick Dyer
-Software Engineer, ITDev Ltd
-Hardware and Software Development Consultancy
-Website: http://www.itdev.co.uk
+Dmitry

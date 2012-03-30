@@ -1,30 +1,49 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] input: st1232 device tree support
-Date: Fri, 30 Mar 2012 10:31:03 +0000
-Message-ID: <201203301031.03280.arnd@arndb.de>
-References: <20120330084749.19624.84121.sendpatchset@w520>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [RFC] usbhid: fix error handling of not enough bandwidth
+Date: Fri, 30 Mar 2012 15:16:15 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1203301514500.25526@pobox.suse.cz>
+References: <201203281316.20038.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.10]:57822 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759310Ab2C3KbN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Mar 2012 06:31:13 -0400
-In-Reply-To: <20120330084749.19624.84121.sendpatchset@w520>
+Received: from cantor2.suse.de ([195.135.220.15]:60256 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760710Ab2C3NQR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Mar 2012 09:16:17 -0400
+In-Reply-To: <201203281316.20038.oneukum@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-sh@vger.kernel.org, dmitry.torokhov@gmail.com, rjw@sisk.pl, lethal@linux-sh.org
+To: Oliver Neukum <oneukum@suse.de>
+Cc: Libor Pechacek <lpechacek@suse.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Friday 30 March 2012, Magnus Damm wrote:
-> From: Magnus Damm <damm@opensource.se>
-> 
-> This patch enables DT support for the st1232 driver
-> which is primarily used on the sh7372 Mackerel board.
-> 
-> Signed-off-by: Magnus Damm <damm@opensource.se>
+On Wed, 28 Mar 2012, Oliver Neukum wrote:
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+> From 22569602350f8992f2d2b321cf195e633e74574a Mon Sep 17 00:00:00 2001
+> From: Oliver Neukum <oliver@neukum.org>
+> Date: Wed, 28 Mar 2012 10:37:05 +0200
+> Subject: [PATCH] usbhid: fix error handling of not enough bandwidth
+> 
+> In case IO cannot be started because there is a lack of bandwidth
+> on the bus, it makes no sense to reset the device. If IO is requested
+> because the device is opened, user space should be notified with
+> an error right away. If the lack of bandwidth arises later, for
+> example after resume, there's no other choice but to retry in the
+> hope that bandwidth will be freed.
+> 
+> Signed-off-by: Oliver Neukum <oneukum@suse.de>
+> ---
+> 
+> Unfortunately only XHCI implements check_bandwidth()
+> I've seen this trigger on UHCI due to an error, but still, it can happen.
+
+Ok, makes sense. I have applied it now. 
+
+(not considering it important enough to trigger merge with Linus in 
+current merge window though solely for the purpose of this patch though 
+-- I have already flushed my merge window queue to Linus).
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

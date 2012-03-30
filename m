@@ -1,136 +1,66 @@
-From: Josenivaldo Benito Junior <jrbenito@benito.qsl.br>
-Subject: [PATCH] Aureal Remote Control Device Driver
-Date: Fri, 30 Mar 2012 18:08:27 -0300
-Message-ID: <1333141707-16069-1-git-send-email-jrbenito@benito.qsl.br>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Josenivaldo Benito Junior <jrbenito@benito.qsl.br>, Franco Catrin <fcatrin@gmail.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: [PATCH 1/1] HID: add have_special_driver hid module parameter
+Date: Sat, 31 Mar 2012 01:03:38 +0200
+Message-ID: <CANq1E4QrSdoEHtJeNH3k4FU7S0WQKRadJB9qMTG+q+khVgqBsg@mail.gmail.com>
+References: <1329773340-14066-1-git-send-email-spbnick@gmail.com>
+	<alpine.LNX.2.00.1203301544270.25526@pobox.suse.cz>
+	<CALu8Fe9=itXEMO38vMQ9GsER0s-J=XxQ4+RAxZvMX7gEGuTHrA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:35883 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934822Ab2C3XDj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Mar 2012 19:03:39 -0400
+Received: by wibhr17 with SMTP id hr17so1048737wib.1
+        for <linux-input@vger.kernel.org>; Fri, 30 Mar 2012 16:03:38 -0700 (PDT)
+In-Reply-To: <CALu8Fe9=itXEMO38vMQ9GsER0s-J=XxQ4+RAxZvMX7gEGuTHrA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nikolai Kondrashov <spbnick@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>
 
-From: "Josenivaldo Benito Junior" <jrbenito@benito.qsl.br>
+Hi Nikolai
 
-Devices like Aureal Cy se W-01RN USB_V3.1 and some derived hardware
-have a bogus HID Report Descriptor. According to that report descriptor,
-the maximum logical value for key events is 1 and not 101 (101 keys).
+On Fri, Mar 30, 2012 at 5:22 PM, Nikolai Kondrashov <spbnick@gmail.com> wrote:
+> Hi Jiri,
+>
+> On Fri, Mar 30, 2012 at 4:49 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+>> On Mon, 20 Feb 2012, Nikolai Kondrashov wrote:
+>>> Add "have_special_driver" hid module parameter - a list of additional HID
+>>> devices which have specialized driver on HID bus. Needed to support out-of-tree
+>>> HID drivers.
+>>
+>> I find this a little bit hackish :) How about for example the userspace
+>> transport drivers for Bluetooth-LE that are currently in the works?
+>
+> I like the idea and the implementation seems good, but I can't see how it
+> is related to the task of having out-of-tree HID drivers, sorry.
+>
+>> I'd very much prefer just using sysfs (bind/unbind) way of doing things if
+>> possible for this purpose. What do you think?
+>
+> To my shame I must admit I didn't know or forgot of this mechanism. Although
+> I did some research asking kernel developers at work about possibility to
+> rebind a different driver. They either forgot about it at the time too, or I
+> didn't ask properly.
+>
+> I think, I can craft an udev rule which will detach a tablet from the
+> generic HID driver and attach it to my driver through sysfs.
+>
+> Please forget about this patch for now, I will resume bothering you in case
+> it's not possible or not appropriate :)
 
-This quirk fixes this wrong Report Descriptor and is basically the same found
-in hid-elecom.c.
+Rebinding works perfectly well for me. I use it all the time when
+testing HID drivers. Furthermore, there is a dynid-implementation in
+the kernel so when hacking on something like this I'd recommend using
+this. It would also remove the hard limit that you currently have.
 
-Original driver can be found at: https://gitorious.org/hid-aureal-kernel-module
+> Thanks!
+>
+> Sincerely,
+> Nick
 
-Signed-off-by: Josenivaldo Benito Junior <jrbenito@benito.qsl.br>
-Signed-off-by: Franco Catrin <fcatrin@gmail.com>
----
- drivers/hid/Kconfig      |    6 +++++
- drivers/hid/Makefile     |    1 +
- drivers/hid/hid-aureal.c |   54 ++++++++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-ids.h    |    3 ++
- 4 files changed, 64 insertions(+), 0 deletions(-)
- create mode 100644 drivers/hid/hid-aureal.c
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 4ecc256..03e2281 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -92,6 +92,12 @@ config HID_APPLE
- 	Say Y here if you want support for keyboards of	Apple iBooks, PowerBooks,
- 	MacBooks, MacBook Pros and Apple Aluminum.
- 
-+config HID_AUREAL
-+	tristate "Aureal"
-+	depends on USB_HID
-+	---help---
-+	Support for Aureal Cy se W-01RN Remote Controller and other Aureal derived remotes.
-+
- config HID_BELKIN
- 	tristate "Belkin Flip KVM and Wireless keyboard" if EXPERT
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 22f1d16..5363f17 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -36,6 +36,7 @@ endif
- obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
- obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
- obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
-+obj-$(CONFIG_HID_AUREAL)        += hid-aureal.o
- obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
- obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
- obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
-diff --git a/drivers/hid/hid-aureal.c b/drivers/hid/hid-aureal.c
-new file mode 100644
-index 0000000..9fb676b
---- /dev/null
-+++ b/drivers/hid/hid-aureal.c
-@@ -0,0 +1,54 @@
-+/*
-+ *  HID driver for Aureal Cy se W-01RN USB_V3.1 devices
-+ *
-+ *  Copyright (c) 2010 Franco Catrin <fcatrin@gmail.com>
-+ *  Copyright (c) 2010 Ben Cropley <bcropley@internode.on.net>
-+ *
-+ *  Based on HID sunplus driver by
-+ *  Copyright (c) 1999 Andreas Gal
-+ *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
-+ *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
-+ *  Copyright (c) 2006-2007 Jiri Kosina
-+ *  Copyright (c) 2007 Paul Walmsley
-+ *  Copyright (c) 2008 Jiri Slaby
-+ */
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+static __u8 *aureal_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int *rsize)
-+{
-+	if (*rsize >= 54 && rdesc[52] == 0x25 && rdesc[53] == 0x01) {
-+		dev_info(&hdev->dev, "fixing Aureal Cy se W-01RN USB_V3.1 report descriptor. Keyboard Logical Maximum = 101\n");
-+		rdesc[53] = 0x65;
-+	} return rdesc;
-+}
-+
-+static const struct hid_device_id aureal_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_AUREAL, USB_DEVICE_ID_AUREAL_W01RN) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, aureal_devices);
-+
-+static struct hid_driver aureal_driver = {
-+	.name = "aureal",
-+	.id_table = aureal_devices,
-+	.report_fixup = aureal_report_fixup,
-+};
-+
-+static int __init aureal_init(void)
-+{
-+	return hid_register_driver(&aureal_driver);
-+}
-+
-+static void __exit aureal_exit(void)
-+{
-+	hid_unregister_driver(&aureal_driver);
-+}
-+
-+module_init(aureal_init);
-+module_exit(aureal_exit);
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 2b67e84..720c9e7 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -154,6 +154,9 @@
- #define USB_DEVICE_ID_ATMEL_MULTITOUCH	0x211c
- #define USB_DEVICE_ID_ATMEL_MXT_DIGITIZER	0x2118
- 
-+#define USB_VENDOR_ID_AUREAL		0x0755
-+#define USB_DEVICE_ID_AUREAL_W01RN	0x2626
-+
- #define USB_VENDOR_ID_AVERMEDIA		0x07ca
- #define USB_DEVICE_ID_AVER_FM_MR800	0xb800
- 
--- 
-1.7.5.4
+Regards
+David

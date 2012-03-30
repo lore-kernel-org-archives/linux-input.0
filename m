@@ -1,60 +1,136 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH V4 Resend 1/2] Input: of_keymap: Introduce matrix_keypad_of_build_keymap()
-Date: Fri, 30 Mar 2012 12:45:34 -0600
-Message-ID: <4F75FF4E.4040602@wwwdotorg.org>
-References: <cover.1333009670.git.viresh.kumar@st.com> <406fb8092d6aca97a54add346a2528daefab9c8d.1333009670.git.viresh.kumar@st.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:34627 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760089Ab2C3Spi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Mar 2012 14:45:38 -0400
-In-Reply-To: <406fb8092d6aca97a54add346a2528daefab9c8d.1333009670.git.viresh.kumar@st.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Josenivaldo Benito Junior <jrbenito@benito.qsl.br>
+Subject: [PATCH] Aureal Remote Control Device Driver
+Date: Fri, 30 Mar 2012 18:08:27 -0300
+Message-ID: <1333141707-16069-1-git-send-email-jrbenito@benito.qsl.br>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Josenivaldo Benito Junior <jrbenito@benito.qsl.br>, Franco Catrin <fcatrin@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Viresh Kumar <viresh.kumar@st.com>
-Cc: dmitry.torokhov@gmail.com, devicetree-discuss@lists.ozlabs.org, spear-devel@list.st.com, viresh.linux@gmail.com, linux-input@vger.kernel.org, sr@denx.de
 
-On 03/29/2012 09:40 PM, Viresh Kumar wrote:
-> We don't need to allocate memory for keymap in matrix_keyboard_of_fill_keymap(),
-> as this would only be used by matrix_keyboard_of_free_keymap(). Instead create
-> another routine matrix_keypad_of_build_keymap() which reads directly the
-> property from struct device_node and builds keymap.
-> 
-> With this eariler routines matrix_keyboard_of_fill_keymap() and
-> matrix_keyboard_of_free_keymap() go away.
-> 
-> This patch also fixes tegra driver according to these changes.
-> 
-> Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+From: "Josenivaldo Benito Junior" <jrbenito@benito.qsl.br>
 
-The error checking looks good now, so once the issues mentioned below
-are fixed:
+Devices like Aureal Cy se W-01RN USB_V3.1 and some derived hardware
+have a bogus HID Report Descriptor. According to that report descriptor,
+the maximum logical value for key events is 1 and not 101 (101 keys).
 
-Acked-by: Stephen Warren <swarren@wwwdotorg.org>
+This quirk fixes this wrong Report Descriptor and is basically the same found
+in hid-elecom.c.
 
-> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-...
->  #else
-> -static inline struct tegra_kbc_platform_data *tegra_kbc_dt_parse_pdata(
-> -	struct platform_device *pdev)
-> +static struct tegra_kbc_platform_data * __devinit
-> +tegra_kbc_dt_parse_pdata(struct device_node *np)
+Original driver can be found at: https://gitorious.org/hid-aureal-kernel-module
 
-This one should be "inline" and not "__devinit", i.e. like it was before.
+Signed-off-by: Josenivaldo Benito Junior <jrbenito@benito.qsl.br>
+Signed-off-by: Franco Catrin <fcatrin@gmail.com>
+---
+ drivers/hid/Kconfig      |    6 +++++
+ drivers/hid/Makefile     |    1 +
+ drivers/hid/hid-aureal.c |   54 ++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-ids.h    |    3 ++
+ 4 files changed, 64 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/hid/hid-aureal.c
 
-> diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
-...
->  #else
-> -static inline struct matrix_keymap_data *
-> -matrix_keyboard_of_fill_keymap(struct device_node *np, const char *propname)
-> +int matrix_keypad_of_build_keymap(struct input_dev *idev,
-> +		unsigned int row_shift, const char *propname)
->  {
->  	return NULL;
->  }
-
-This one should also be "static inline".
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 4ecc256..03e2281 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -92,6 +92,12 @@ config HID_APPLE
+ 	Say Y here if you want support for keyboards of	Apple iBooks, PowerBooks,
+ 	MacBooks, MacBook Pros and Apple Aluminum.
+ 
++config HID_AUREAL
++	tristate "Aureal"
++	depends on USB_HID
++	---help---
++	Support for Aureal Cy se W-01RN Remote Controller and other Aureal derived remotes.
++
+ config HID_BELKIN
+ 	tristate "Belkin Flip KVM and Wireless keyboard" if EXPERT
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 22f1d16..5363f17 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -36,6 +36,7 @@ endif
+ obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
+ obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
+ obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
++obj-$(CONFIG_HID_AUREAL)        += hid-aureal.o
+ obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
+ obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
+ obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
+diff --git a/drivers/hid/hid-aureal.c b/drivers/hid/hid-aureal.c
+new file mode 100644
+index 0000000..9fb676b
+--- /dev/null
++++ b/drivers/hid/hid-aureal.c
+@@ -0,0 +1,54 @@
++/*
++ *  HID driver for Aureal Cy se W-01RN USB_V3.1 devices
++ *
++ *  Copyright (c) 2010 Franco Catrin <fcatrin@gmail.com>
++ *  Copyright (c) 2010 Ben Cropley <bcropley@internode.on.net>
++ *
++ *  Based on HID sunplus driver by
++ *  Copyright (c) 1999 Andreas Gal
++ *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
++ *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
++ *  Copyright (c) 2006-2007 Jiri Kosina
++ *  Copyright (c) 2007 Paul Walmsley
++ *  Copyright (c) 2008 Jiri Slaby
++ */
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++
++#include "hid-ids.h"
++
++static __u8 *aureal_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++		unsigned int *rsize)
++{
++	if (*rsize >= 54 && rdesc[52] == 0x25 && rdesc[53] == 0x01) {
++		dev_info(&hdev->dev, "fixing Aureal Cy se W-01RN USB_V3.1 report descriptor. Keyboard Logical Maximum = 101\n");
++		rdesc[53] = 0x65;
++	} return rdesc;
++}
++
++static const struct hid_device_id aureal_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_AUREAL, USB_DEVICE_ID_AUREAL_W01RN) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, aureal_devices);
++
++static struct hid_driver aureal_driver = {
++	.name = "aureal",
++	.id_table = aureal_devices,
++	.report_fixup = aureal_report_fixup,
++};
++
++static int __init aureal_init(void)
++{
++	return hid_register_driver(&aureal_driver);
++}
++
++static void __exit aureal_exit(void)
++{
++	hid_unregister_driver(&aureal_driver);
++}
++
++module_init(aureal_init);
++module_exit(aureal_exit);
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 2b67e84..720c9e7 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -154,6 +154,9 @@
+ #define USB_DEVICE_ID_ATMEL_MULTITOUCH	0x211c
+ #define USB_DEVICE_ID_ATMEL_MXT_DIGITIZER	0x2118
+ 
++#define USB_VENDOR_ID_AUREAL		0x0755
++#define USB_DEVICE_ID_AUREAL_W01RN	0x2626
++
+ #define USB_VENDOR_ID_AVERMEDIA		0x07ca
+ #define USB_DEVICE_ID_AVER_FM_MR800	0xb800
+ 
+-- 
+1.7.5.4

@@ -1,123 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.4-rc0 (2nd round)
-Date: Thu, 29 Mar 2012 23:07:42 -0700
-Message-ID: <20120330060742.GA13817@core.coreip.homeip.net>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH 19/20] Input: atmel_mxt_ts - remove mxt_make_highchg and
+ parse T6 report
+Date: Fri, 30 Mar 2012 00:00:40 -0700
+Message-ID: <4F755A18.6040101@itdev.co.uk>
+References: <1331640263-18935-1-git-send-email-djkurtz@chromium.org> <1331640263-18935-20-git-send-email-djkurtz@chromium.org> <4F68A46D.9020601@itdev.co.uk> <CAGS+omBkqBqMC7f73RzXqdwkpqTOxUvWWYLMGefF+zdBKjKLTw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:49556 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752391Ab2C3GHs (ORCPT
+Received: from [89.21.227.130] ([89.21.227.130]:51922 "EHLO
+	mail.epsilon.itdev.co.uk" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1750943Ab2C3HAq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Mar 2012 02:07:48 -0400
-Content-Disposition: inline
+	Fri, 30 Mar 2012 03:00:46 -0400
+In-Reply-To: <CAGS+omBkqBqMC7f73RzXqdwkpqTOxUvWWYLMGefF+zdBKjKLTw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Iiro Valkonen <iiro.valkonen@atmel.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, "Tiwari, Atul" <Atul.Tiwari@atmel.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>
 
+Daniel Kurtz wrote:
+> On Tue, Mar 20, 2012 at 11:38 PM, Nick Dyer <nick.dyer@itdev.co.uk> wrote:
+>> mxt_make_highchg exists due to the interrupts being edge triggered. It
+>> forces the CHG line to go high.
+>>
+>> With this implementation, I suspect that if a new message arrives after you
+>> have read T44 and before you finish processing messages, then the interrupt
+>> handler will not ever be run. What testing have you done on this?
+> 
+> Actually, for the MXT224E on which I've been testing, the CHG line
+> goes high after reading the first byte of the T5 message (in other
+> words, the first byte of the first message, no matter how many
+> messages T44 reports).
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The CHG line behaviour is configurable - you should find this documented in
+the data sheet.
 
-Hi Linus,
+> Expect an updated version of this patchset soon.
+> 
+> Thanks for all of your reviews!
 
-Please pull from:
+no problem.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive 2nd round of updates for the input subsystem:
-
-- update to Wacom driver to support wireless devices;
-- update to Sentelci touchpad driver to support newer hardware;
-- update to gpio-keys driver to support "interrupt-only" keys;
-- fixups to earlier commits.
-
-Thanks!
-
-Changelog:
----------
-
-Chris Bagwell (4):
-      Input: wacom - isolate input registration
-      Input: wacom - wireless monitor framework
-      Input: wacom - create inputs when wireless connect
-      Input: wacom - wireless battery status
-
-Dan Carpenter (1):
-      Input: wacom - check for allocation failure in probe()
-
-David Jander (1):
-      Input: revert "gpio_keys - switch to using threaded IRQs"
-
-Dmitry Torokhov (2):
-      Input: gpio_keys - constify platform data
-      Input: gpio_keys - consolidate key destructor code
-
-Geert Uytterhoeven (1):
-      Input: amijoy - add missing platform check
-
-Laxman Dewangan (1):
-      Input: gpio_keys - add support for interrupt only keys
-
-Oskari Saarenmaa (1):
-      Input: sentelic - improve packet debugging information
-
-Tai-hwa Liang (3):
-      Input: sentelic - refactor code for upcoming new hardware support
-      Input: sentelic - enabling absolute coordinates output for newer hard=
-ware
-      Input: sentelic - minor code cleanup
-
-Viresh Kumar (2):
-      Input: spear-keyboard - remove kbd_set_plat_data()
-      Input: tegra-kbc - allocate pdata before using it
-
-
-Diffstat:
---------
-
- arch/arm/plat-spear/include/plat/keyboard.h |    7 -
- drivers/input/joystick/amijoy.c             |    3 +
- drivers/input/keyboard/gpio_keys.c          |  259 +++++++++++++++--------
- drivers/input/keyboard/tegra-kbc.c          |    1 +
- drivers/input/mouse/sentelic.c              |  294 ++++++++++++++++++++---=
-----
- drivers/input/mouse/sentelic.h              |   35 +++-
- drivers/input/tablet/Kconfig                |    1 +
- drivers/input/tablet/wacom.h                |    9 +
- drivers/input/tablet/wacom_sys.c            |  231 ++++++++++++++++++---
- drivers/input/tablet/wacom_wac.c            |   49 +++++-
- drivers/input/tablet/wacom_wac.h            |    6 +
- include/linux/gpio_keys.h                   |    3 +-
- 12 files changed, 696 insertions(+), 202 deletions(-)
-
---=20
-Dmitry
-
-
---zhXaljGHf11kAtnf
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPdU2uAAoJEH70+W8r6ZYqH4AP/0mQVQGeiQstzMcebmMjaa0v
-wnAqBN+HIvNBOg6q873Swel4rtlHJnd9kEuupw7ZSJZR/kKeUQ8Vk6qDSL6yZIuv
-2HM6R8vexjO6vNgFD4CNOMe5nLe1heEJauV/N/5zSvfz8R/BPmN6j4fnR69nC1ky
-aYGPz+jOHRZ9nGONvqak+PUabO8dKNhSF3cWaQmKMRJgKbQcmm/iaomt1hyYaWYC
-Kw0lEHe5l8RgdTPONvGaoDXrSzO6VPHdCyJsyJSQfg/uwtFeXTnFTJaUG6jrGmwP
-CqKYN7yBmVz4CFJAM/UKvf85bOUKPnXZdElmvtdeaKX1XBY5l+tr4nThtk5Y66vk
-86Etaegb42Ce3ZCWxUb1I1ElPxPqIT/KJec8em5K/wHO9AR526JdTSlhm172SZF/
-zUkTyMNnjydME6EA5kySoR9L4UFfp3EwLBhRGPbFGjNNgRYEEB+RHBCsaRhoeQB9
-IObrbL4yzP6cWwPOwnXR/FEtl6sU3igjjZRVjbyIFc5cnjCBJawfi8uJ37X0Aw/L
-gjvSk+jck8ig66Sg8DWCG0+OvWDZBOel1Kk032HSL5uwFBgj2zcbX7JlWZAHvlai
-pZjJPnSuB+bIkbKIKw84j0T0bYR1KR7a5ifYXFQ/LYeaY54dXY7tG9U7ioH+AUTv
-YPNktLE267KGxHvPwrFa
-=nIlZ
------END PGP SIGNATURE-----
-
---zhXaljGHf11kAtnf--
+-- 
+Nick Dyer
+Software Engineer, ITDev Ltd
+Hardware and Software Development Consultancy
+Website: http://www.itdev.co.uk

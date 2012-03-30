@@ -1,54 +1,752 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH 1/1] HID: add have_special_driver hid module parameter
-Date: Fri, 30 Mar 2012 18:22:38 +0300
-Message-ID: <CALu8Fe9=itXEMO38vMQ9GsER0s-J=XxQ4+RAxZvMX7gEGuTHrA@mail.gmail.com>
-References: <1329773340-14066-1-git-send-email-spbnick@gmail.com>
-	<alpine.LNX.2.00.1203301544270.25526@pobox.suse.cz>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH] input: Elan HID-I2C device driver
+Date: Fri, 30 Mar 2012 23:44:35 +0800
+Message-ID: <CAGS+omAJ_27W52umf=hNqhcTqQ+HDR51ODM6xkt3CO40DS=DBQ@mail.gmail.com>
+References: <1333102223-3716-1-git-send-email-tom_lin@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=Big5
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:53361 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752141Ab2C3PWj (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:34960 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761012Ab2C3Po4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Mar 2012 11:22:39 -0400
-Received: by vcqp1 with SMTP id p1so435128vcq.19
-        for <linux-input@vger.kernel.org>; Fri, 30 Mar 2012 08:22:38 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1203301544270.25526@pobox.suse.cz>
+	Fri, 30 Mar 2012 11:44:56 -0400
+Received: by iagz16 with SMTP id z16so1129658iag.19
+        for <linux-input@vger.kernel.org>; Fri, 30 Mar 2012 08:44:56 -0700 (PDT)
+In-Reply-To: <1333102223-3716-1-git-send-email-tom_lin@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Tom Lin <tom_lin@emc.com.tw>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jj_ding@emc.com.tw, eric_yang@emc.com.tw
 
-Hi Jiri,
+Hi Tom,
 
-On Fri, Mar 30, 2012 at 4:49 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Mon, 20 Feb 2012, Nikolai Kondrashov wrote:
->> Add "have_special_driver" hid module parameter - a list of additional HID
->> devices which have specialized driver on HID bus. Needed to support out-of-tree
->> HID drivers.
+In all, looks pretty good.
+Comments inline...
+
+On Fri, Mar 30, 2012 at 6:10 PM, Tom Lin <tom_lin@emc.com.tw> wrote:
 >
-> I find this a little bit hackish :) How about for example the userspace
-> transport drivers for Bluetooth-LE that are currently in the works?
+> This patch adds driver for Elan I2C touchpad. These protocol of HID-I2C
+> was
+> defined by Microsoft. The kernel driver would use the multi-touch protocol
+> format B.
+>
+> Signed-off-by:Tom Lin(Lin Yen Yu) <tom_lin@emc.com.tw>
+> ---
+>  drivers/input/mouse/Kconfig        |    8 +
+>  drivers/input/mouse/Makefile       |    1 +
+>  drivers/input/mouse/elantech_i2c.c |  512
+> ++++++++++++++++++++++++++++++++++++
+>  3 files changed, 521 insertions(+)
+>  create mode 100644 drivers/input/mouse/elantech_i2c.c
+>
+> diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+> index 9b8db82..345cf8c 100644
+> --- a/drivers/input/mouse/Kconfig
+> +++ b/drivers/input/mouse/Kconfig
+> @@ -339,4 +339,12 @@ config MOUSE_SYNAPTICS_USB
+>          To compile this driver as a module, choose M here: the
+>          module will be called synaptics_usb.
+>
+> +config MOUSE_ELANTECH_I2C
+> +       tristate "Elan I2C Touchpad support"
+> +       depends on I2C
+> +       help
+> +        Say Y here if you want to use a Elan HID-I2C touchpad.
+> +
+> +        To compile this driver as a module, choose M here: the
+> +        module will be called elantech_i2c.
+>  endif
+> diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+> index 4718eff..6f092a3 100644
+> --- a/drivers/input/mouse/Makefile
+> +++ b/drivers/input/mouse/Makefile
+> @@ -20,6 +20,7 @@ obj-$(CONFIG_MOUSE_SERIAL)            += sermouse.o
+>  obj-$(CONFIG_MOUSE_SYNAPTICS_I2C)      += synaptics_i2c.o
+>  obj-$(CONFIG_MOUSE_SYNAPTICS_USB)      += synaptics_usb.o
+>  obj-$(CONFIG_MOUSE_VSXXXAA)            += vsxxxaa.o
+> +obj-$(CONFIG_MOUSE_ELANTECH_I2C)       += elantech_i2c.o
+>
+>  psmouse-objs := psmouse-base.o synaptics.o
+>
+> diff --git a/drivers/input/mouse/elantech_i2c.c
+> b/drivers/input/mouse/elantech_i2c.c
+> new file mode 100644
+> index 0000000..a82259e
+> --- /dev/null
+> +++ b/drivers/input/mouse/elantech_i2c.c
+> @@ -0,0 +1,512 @@
+> +/*
+> + * Elantech I2C Touchpad diver
+> + *
+> + * Copyright (c) 2011 Tom Lin (Lin Yen Yu) <tom_lin@emc.com.tw>
+2012?
 
-I like the idea and the implementation seems good, but I can't see how it
-is related to the task of having out-of-tree HID drivers, sorry.
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> it
+> + * under the terms of the GNU General Public License version 2 as
+> published
+> + * by the Free Software Foundation.
+> + *
+> + * Trademarks are the property of their respective owners.
+> + */
+> +
+> +
+> +#include <linux/input.h>
+> +#include <linux/device.h>
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/i2c.h>
+> +#include <linux/delay.h>
+> +#include <linux/gpio.h>
+> +#include <linux/slab.h>
+> +#include <linux/workqueue.h>
+> +#include <linux/input/mt.h>
 
-> I'd very much prefer just using sysfs (bind/unbind) way of doing things if
-> possible for this purpose. What do you think?
+May I recommend that you alphabetize your headers?
+I'm not sure what kernel practice is, but I've seen other projects
+enforce this and it works pretty well.
 
-To my shame I must admit I didn't know or forgot of this mechanism. Although
-I did some research asking kernel developers at work about possibility to
-rebind a different driver. They either forgot about it at the time too, or I
-didn't ask properly.
+> +
+> +
+> +#define DRIVER_NAME            "elantech_i2c"
+> +#define ETP_I2C_COMMAND_TRIES  3
+> +#define ETP_I2C_COMMAND_DELAY  500
+> +#define ETP_MAX_FINGERS                5
+> +
+> +enum {
 
-I think, I can craft an udev rule which will detach a tablet from the
-generic HID driver and attach it to my driver through sysfs.
+I think the enum name generally goes next to the keyword enum, like this:
 
-Please forget about this patch for now, I will resume bothering you in case
-it's not possible or not appropriate :)
+enum etd_i2c_command {  ...  };
 
-Thanks!
 
-Sincerely,
-Nick
+> +       ETP_HID_DESCR_CMD,
+> +       ETP_HID_WAKE_UP_CMD,
+> +       ETP_HID_RESET_CMD,
+> +       ETP_HID_REPORT_DESCR_CMD,
+> +       ETP_TRACE_NUM_CMD,
+> +       ETP_X_AXIS_MAX_CMD,
+> +       ETP_Y_AXIS_MAX_CMD,
+> +       ETP_DPI_VALUE_CMD,
+> +       ETP_ENABLE_ABS_CMD,
+> +       ETP_READ_REPORT_CMD
+> +} etd_i2c_command;
+> +
+> +static int Public_ETP_YMAX_V2;
+> +static int Public_ETP_XMAX_V2;
+> +unsigned char hid_descriptor[2] = {0x01, 0x00};
+
+In most other drivers, i've seen 'u8' or 'uint8_t' or '_u8' instead of
+the full "unsigned char".
+I'm not sure which is preferred, but am interested to know the answer myself.
+
+Also, these arrays are all const, so label them as such.
+Lastly, let the const array length be determined by its contents, this
+will reduce the possibility of over or under declaring them:
+
+static const u8 hid_descriptor[] = { 0x01, 0x00 };
+
+> +unsigned char hid_wake_up[4] = {0x05, 0x00, 0x00, 0x08};
+> +unsigned char hid_reset_cmd[4] = {0x05, 0x00, 0x00, 0x01};
+> +unsigned char hid_report_descriptor[2] = {0x02, 0x00};
+> +unsigned char trace_num_xy[2] = {0x05, 0x01};
+> +unsigned char x_axis_max[2] = {0x06, 0x01};
+> +unsigned char y_axis_max[2] = {0x07, 0x01};
+> +unsigned char dpi_value[2] = {0x08, 0x01};
+> +unsigned char enable_abs[4] = {0x00, 0x03, 0x01, 0x00};
+> +
+> +static struct workqueue_struct *elantech_i2c_wq;
+> +/* The main device structure */
+> +struct elantech_i2c {
+> +       struct i2c_client       *client;
+> +       struct input_dev        *input;
+> +       struct work_struct      work;
+> +       struct mutex            input_lock;
+> +       unsigned int            width_x;
+> +       unsigned int            width_y;
+> +       unsigned int            gpio;
+> +       int                     irq;
+> +};
+> +
+> +static int elantech_i2c_command(struct i2c_client *client, int  command,
+> +                               unsigned char *buf_recv)
+> +{
+> +       unsigned char *cmd = NULL;
+> +       unsigned char *rec_buf = buf_recv;
+> +       int ret;
+> +       int tries = ETP_I2C_COMMAND_TRIES;
+> +       int length = 0;
+> +       struct i2c_msg msg[2];
+> +       int index = 0;
+> +       int msg_num = 0;
+> +       static unsigned char report_length;
+
+Don't use a static variable to store per-device state.
+Some day someone may want to instantiate two of these devices on a
+single macine, and both will use this same driver.  The driver will
+blow up when multiple devices access the same static variable.
+Instead store this state as a member variable in the per-device
+struct.
+
+> +
+> +       switch (command) {
+> +       case ETP_HID_DESCR_CMD:
+> +               cmd = hid_descriptor;
+> +               length = ARRAY_SIZE(hid_descriptor);
+
+An explicit sizeof() is better, since you will be reading bytes over i2c.
+
+> +               msg[1].len = 30;
+> +               msg_num = 2;
+
+What are these magic numbers?
+Define a macro for this length.
+
+In fact, it looks like you should be able to combine most of this
+switch into a lookup table.
+
+> +               break;
+> +       case ETP_HID_WAKE_UP_CMD:
+> +               cmd = hid_wake_up;
+> +               length = ARRAY_SIZE(hid_wake_up);
+> +               msg_num = 1;
+> +               break;
+> +       case ETP_HID_RESET_CMD:
+> +               cmd = hid_reset_cmd;
+> +               length = ARRAY_SIZE(hid_reset_cmd);
+> +               msg_num = 1;
+> +               break;
+> +       case ETP_HID_REPORT_DESCR_CMD:
+> +               cmd = hid_report_descriptor;
+> +               length = ARRAY_SIZE(hid_report_descriptor);
+> +               msg[1].len = report_length;
+> +               msg_num = 2;
+> +               break;
+> +       case ETP_TRACE_NUM_CMD:
+> +               cmd = trace_num_xy;
+> +               length = ARRAY_SIZE(trace_num_xy);
+> +               msg[1].len = 2;
+> +               msg_num = 2;
+> +               break;
+> +       case ETP_X_AXIS_MAX_CMD:
+> +               cmd = x_axis_max;
+> +               length = ARRAY_SIZE(x_axis_max);
+> +               msg[1].len = 2;
+> +               msg_num = 2;
+> +               break;
+> +       case ETP_Y_AXIS_MAX_CMD:
+> +               cmd = y_axis_max;
+> +               length = ARRAY_SIZE(y_axis_max);
+> +               msg[1].len = 2;
+> +               msg_num = 2;
+> +               break;
+> +       case ETP_DPI_VALUE_CMD:
+> +               cmd = dpi_value;
+> +               length = ARRAY_SIZE(dpi_value);
+> +               msg[1].len = 2;
+> +               msg_num = 2;
+> +               break;
+> +       case ETP_ENABLE_ABS_CMD:
+> +               cmd = enable_abs;
+> +               length = ARRAY_SIZE(enable_abs);
+> +               msg_num = 1;
+> +               break;
+> +       case ETP_READ_REPORT_CMD:
+> +               msg_num = 1;
+> +               break;
+> +       default:
+> +               printk(KERN_DEBUG "%s command=%d unknow.\n",
+> +                       __func__, command);
+
+Use dev_dbg() and friends.
+
+> +               return -1;
+> +       }
+> +
+> +       msg[0].addr = client->addr;
+> +       msg[0].flags = client->flags & I2C_M_TEN;
+> +       msg[0].len = length;
+> +       msg[0].buf = (char *) cmd;
+> +       msg[1].addr = client->addr;
+> +       msg[1].flags = client->flags & I2C_M_TEN;
+> +       msg[1].flags |= I2C_M_RD;
+> +       msg[1].buf = rec_buf;
+> +
+> +       do {
+> +               if (command != ETP_READ_REPORT_CMD)
+> +                       ret = i2c_transfer(client->adapter, msg, msg_num);
+> +               else
+> +                       ret = i2c_transfer(client->adapter, &msg[1],
+> msg_num);
+> +
+> +               if (ret != msg_num) {
+> +                       if (command != ETP_READ_REPORT_CMD) {
+> +                               printk(KERN_DEBUG "%s ", __func__);
+> +                               for (index = 0; index < msg[1].len ;
+> index++)
+> +                                       printk("[%d] = 0x%02x ",
+> +                                               index, rec_buf[index]);
+> +                               printk("\n");
+
+Use existing print_hex_dump_bytes() or  hex_dump_to_buffer() for
+printing hex dumps.
+
+> +                       } else {
+> +                               printk(KERN_DEBUG "ETP_READ_REPORT_CMD
+> fail     !\n");
+
+This looks like dev_err(), not dev_dbg().
+
+> +                       }
+> +               }
+> +               if (ret > 0)
+> +                       break;
+> +
+> +               tries--;
+> +               msleep(ETP_I2C_COMMAND_DELAY);
+
+1/2 second delay between tries?  Is that kind of delay really
+required?  With 5 retries, that's 2.5 seconds trying to talk to a
+dead, non-existant, or incompatible (NAK'ing) device.
+
+And, at least check that tries > 0 before sleeping, since there is not
+much point sleeping again if you are just about to exit the loop.
+
+> +       } while (tries > 0);
+> +
+> +       if (command == ETP_HID_DESCR_CMD)
+> +               report_length = rec_buf[4];
+
+But not if tries == 0, right?
+
+> +
+> +       return ret;
+> +}
+> +
+> +
+> +static int elantech_i2c_hw_init(struct i2c_client *client)
+> +{
+> +       int rc;
+> +       uint8_t buf_recv[79] = {0};
+> +
+> +       rc = elantech_i2c_command(client, ETP_HID_DESCR_CMD, buf_recv);
+> +       if (rc != 2)
+> +               return -EINVAL;
+
+Why are you suppressing the i2c error and returning -EINVAL?
+
+> +       rc = elantech_i2c_command(client, ETP_HID_WAKE_UP_CMD, buf_recv);
+> +       if (rc != 1)
+> +               return -EINVAL;
+> +       rc = elantech_i2c_command(client, ETP_HID_RESET_CMD, buf_recv);
+> +       if (rc != 1)
+> +               return -EINVAL;
+> +       rc = i2c_master_recv(client, buf_recv, 2);
+> +       if (rc != 2)
+> +               return -EINVAL;
+> +       rc = elantech_i2c_command(client, ETP_HID_REPORT_DESCR_CMD,
+> buf_recv);
+> +       if (rc != 2)
+> +               return -EINVAL;
+> +
+> +       return 0;
+> +}
+> +
+> +static irqreturn_t elantech_i2c_irq(int irq, void *dev_id)
+
+Use request_threaded_irq() and save yourself a wq.
+
+> +{
+> +
+> +       struct elantech_i2c *elantech_i2c = dev_id;
+> +       queue_work(elantech_i2c_wq, &elantech_i2c->work);
+> +
+> +       return IRQ_HANDLED;
+> +
+> +}
+> +
+> +static void elantech_i2c_report_absolute(struct elantech_i2c *touch,
+> +                                uint8_t *buf)
+> +{
+> +       unsigned char *packet = buf;
+
+Why not just use buf?
+
+> +       struct  input_dev *input = touch->input;
+> +       static int pre_finger_status[5] = {0};
+
+No static, use state in a per-device struct.
+
+> +       int finger_status[5] = {0};
+> +       int finger_number = 0;
+> +       int index;
+> +       short dynamic_date_index;
+
+"dynamic_data_index" perhaps?  Choose a smaller name, and most of the
+lines that follow will fit on  a single line.
+
+> +       int position_x, position_y;
+> +       int mky_value, mkx_value, h_value;
+
+What exactly are "mkx" and "mky"?  What units do they have?
+
+> +
+> +       dynamic_date_index = 0;
+> +       for (index = 0 ; index < ETP_MAX_FINGERS ; index++) {
+
+Use "i" instead of index, and, again, most of the line spacing
+problems will go away.
+
+> +               finger_status[index] =
+> +                               (packet[3] & (0x08 << index)) >> (3 +
+> index);
+
+I recommend computing the finger mask first, outside the loop, and
+then just checking the corresponding loop inside the
+
+> +               finger_number += finger_status[index];
+> +               if (finger_status[index]) {
+> +                       position_x =
+> +                       ((packet[(dynamic_date_index * 5) + 4] & 0xf0) <<
+> 4) |
+> +                                       packet[(dynamic_date_index * 5) +
+> 5];
+> +                       position_y =
+> +                       Public_ETP_YMAX_V2 -
+> +                       (((packet[(dynamic_date_index * 5) + 4] & 0x0f) <<
+> 8) |
+> +                                       packet[(dynamic_date_index * 5) +
+> 6]);
+> +                       mkx_value =
+> +                               (packet[(dynamic_date_index * 5) + 7] &
+> 0x0f) * touch->width_x;
+> +                       mky_value =
+> +                               ((packet[(dynamic_date_index * 5) + 7] &
+> 0xf0) >> 4) * touch->width_y;
+> +                       h_value = packet[(dynamic_date_index * 5) + 8];
+> +                       dynamic_date_index++;
+> +
+> +                       input_mt_slot(input, index);
+> +                       input_mt_report_slot_state(input, MT_TOOL_FINGER,
+> true);
+> +
+> +                       input_report_abs(input, ABS_MT_POSITION_X,
+> position_x);
+> +                       input_report_abs(input, ABS_MT_POSITION_Y,
+> position_y);
+> +                       input_report_abs(input, ABS_MT_PRESSURE, h_value);
+> +                       input_report_abs(input, ABS_MT_TOUCH_MAJOR,
+> mkx_value);
+> +                       input_report_abs(input, ABS_MT_TOUCH_MINOR,
+> mky_value);
+> +                       input_mt_sync(input);
+
+No mt_sync().  That is for MT-A style drivers, but you are doing MT-B,
+since you have specified an mt_slot.
+
+> +               } else if (finger_status[index] == 0) {
+> +                       input_mt_slot(input, index);
+> +                       input_mt_report_slot_state(input, MT_TOOL_FINGER,
+> false);
+> +               }
+> +               pre_finger_status[index] = finger_status[index];
+> +       }
+> +
+> +
+
+Remove extra line
+
+> +       input_report_key(input, BTN_TOOL_FINGER, finger_number == 1);
+> +       input_report_key(input, BTN_TOOL_DOUBLETAP, finger_number == 2);
+> +       input_report_key(input, BTN_TOOL_TRIPLETAP, finger_number == 3);
+> +       input_report_key(input, BTN_TOOL_QUADTAP, finger_number == 4);
+
+BTN_TOOL_* are already reported by
+"input_mt_report_pointer_emulation(input, true);"
+
+> +       input_report_key(input, BTN_LEFT, ((packet[3] & 0x01) == 1));
+> +       input_report_key(input, BTN_RIGHT, ((packet[3] & 0x02) == 2));
+> +       input_report_key(input, BTN_MIDDLE, ((packet[3] & 0x04) == 4));
+> +       input_mt_report_pointer_emulation(input, true);
+> +       input_sync(input);
+> +}
+> +
+> +static void elantech_i2c_work_func(struct work_struct *work)
+> +{
+> +       unsigned char buf_recv[30] = {0};
+
+You probably don't need to zero-init this buffer.
+
+> +       struct elantech_i2c *elantech_i2c_priv =
+> +               container_of(work, struct elantech_i2c, work);
+> +       static unsigned char pre_recv[28] = {0};
+
+No static, store in device struct.
+
+> +       int rc;
+> +       int i;
+> +       int diff_flag;
+> +       int length;
+> +
+> +       mutex_lock(&elantech_i2c_priv->input_lock);
+> +       rc = i2c_master_recv(elantech_i2c_priv->client, buf_recv, 30);
+
+Please no magic numbers.
+
+> +       if (rc != 30) {
+> +               mutex_unlock(&elantech_i2c_priv->input_lock);
+> +               return ;
+> +       } else {
+
+Or, just do:
+
+       if (rc == 30) {
+> +               diff_flag = 0;
+> +               length = (buf_recv[1] << 8) | buf_recv[0];
+> +               for (i = 0; i < length ; i++) {
+> +                       if (pre_recv[i] != buf_recv[i] && diff_flag == 0)
+> +                               diff_flag = 1;
+> +                       pre_recv[i] = buf_recv[i];
+> +               }
+> +
+> +               if (buf_recv[2] == 0x5d && buf_recv[length - 1] == 0x00 &&
+> +                  diff_flag == 1)
+> +                       elantech_i2c_report_absolute(elantech_i2c_priv,
+> buf_recv);
+> +               else if (buf_recv[2] != 0x5d || buf_recv[length - 1] !=
+> 0x00) {
+> +                       printk(KERN_DEBUG "%s ", __func__);
+> +                       for (i = 0 ; i < length  ; i++)
+> +                               printk(" 0x%02x ", buf_recv[i]);
+
+This probably doesn't belong in the driver.  Use bus-level debugging
+to debug raw transfers.
+
+> +               }
+> +       }
+> +       mutex_unlock(&elantech_i2c_priv->input_lock);
+> +
+> +}
+> +
+> +static struct elantech_i2c *elantech_i2c_priv_create(struct i2c_client
+> *client)
+> +{
+> +       struct elantech_i2c *elantech_i2c_priv;
+> +       struct input_dev *dev;
+> +       unsigned int gpio;
+> +       const char *label = "elantech_i2c";
+> +       int rc = 0;
+> +       int Pressure_value_data;
+> +       unsigned char buf_recv[2];
+> +
+> +       elantech_i2c_priv = kzalloc(sizeof(struct elantech_i2c),
+> GFP_KERNEL);
+> +       if (!elantech_i2c_priv)
+> +               return NULL;
+> +
+> +       elantech_i2c_priv->client = client;
+> +       elantech_i2c_priv->irq = client->irq;
+> +       elantech_i2c_priv->input = input_allocate_device();
+> +       if (elantech_i2c_priv->input == NULL)
+> +               goto err_input_allocate_device;
+> +
+> +       elantech_i2c_priv->input->name = "ELANTECH_I2C";
+> +       elantech_i2c_priv->input->phys = client->adapter->name;
+> +       elantech_i2c_priv->input->id.bustype = BUS_I2C;
+> +
+> +       dev = elantech_i2c_priv->input;
+> +       __set_bit(EV_KEY, dev->evbit);
+> +       __set_bit(EV_ABS, dev->evbit);
+> +
+> +       __set_bit(BTN_LEFT, dev->keybit);
+> +       __set_bit(BTN_RIGHT, dev->keybit);
+> +       __set_bit(BTN_MIDDLE, dev->keybit);
+> +
+> +       __set_bit(BTN_TOUCH, dev->keybit);
+> +       __set_bit(BTN_TOOL_FINGER, dev->keybit);
+> +       __set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
+> +       __set_bit(BTN_TOOL_TRIPLETAP, dev->keybit);
+> +       __set_bit(BTN_TOOL_QUADTAP, dev->keybit);
+> +
+> +       elantech_i2c_command(client, ETP_X_AXIS_MAX_CMD, buf_recv);
+> +       Public_ETP_XMAX_V2 = (0x0f & buf_recv[1]) << 8 | buf_recv[0];
+> +       elantech_i2c_command(client, ETP_Y_AXIS_MAX_CMD, buf_recv);
+> +       Public_ETP_YMAX_V2 = (0x0f & buf_recv[1]) << 8 | buf_recv[0];
+> +       printk(KERN_INFO "%s Public_ETP_XMAX_V2 = %d\n"
+> +               , __func__, Public_ETP_XMAX_V2);
+> +       printk(KERN_INFO "%s Public_ETP_YMAX_V2 = %d\n"
+> +               , __func__, Public_ETP_YMAX_V2);
+> +       elantech_i2c_command(client, ETP_TRACE_NUM_CMD, buf_recv);
+> +       elantech_i2c_priv->width_x = Public_ETP_XMAX_V2 / (buf_recv[0] -
+> 1);
+> +       elantech_i2c_priv->width_y = Public_ETP_YMAX_V2 / (buf_recv[1] -
+> 1);
+> +       Pressure_value_data = 0xff;
+> +
+> +       /* X Y Value*/
+> +       input_set_abs_params(dev, ABS_X, 0, Public_ETP_XMAX_V2, 0, 0);
+> +       input_set_abs_params(dev, ABS_Y, 0, Public_ETP_YMAX_V2, 0, 0);
+> +       /* Palme Value */
+> +       input_set_abs_params(dev, ABS_PRESSURE, 0, 255, 0, 0);
+> +
+> +       /* Finger Pressure value */
+> +       input_set_abs_params(dev, ABS_TOOL_WIDTH, 0, Pressure_value_data,
+> 0, 0);
+> +
+> +       /* Finger Pressure value */
+> +       input_mt_init_slots(dev, ETP_MAX_FINGERS);
+> +       input_set_abs_params(dev, ABS_MT_POSITION_X, 0,
+> Public_ETP_XMAX_V2, 0, 0);
+> +       input_set_abs_params(dev, ABS_MT_POSITION_Y, 0,
+> Public_ETP_YMAX_V2, 0, 0);
+> +       input_set_abs_params(dev, ABS_MT_PRESSURE, 0, Pressure_value_data,
+> 0, 0);
+> +       input_set_abs_params(dev, ABS_MT_TOUCH_MAJOR, 0,
+> Pressure_value_data, 0, 0);
+> +       input_set_abs_params(dev, ABS_MT_TOUCH_MINOR, 0,
+> Pressure_value_data, 0, 0);
+> +
+> +       /* Enable ABS mode*/
+> +       elantech_i2c_command(client, ETP_ENABLE_ABS_CMD, buf_recv);
+> +       gpio = irq_to_gpio(client->irq);
+> +       rc = gpio_request(gpio, label);
+> +       if (rc < 0) {
+> +               printk(KERN_DEBUG "gpio_request failed for input %d rc =
+> %d\n"
+> +                       , gpio, rc);
+> +               goto    err_gpio_request;
+> +       }
+> +       rc = gpio_direction_input(gpio);
+> +       if (rc < 0) {
+> +               printk(KERN_DEBUG "gpio_direction_input failed for input
+> %d\n"
+> +               , gpio);
+> +               goto    err_gpio_request;
+> +       }
+> +       elantech_i2c_priv->gpio = gpio;
+> +       rc = request_irq(client->irq, elantech_i2c_irq,
+> IRQF_TRIGGER_FALLING,
+> +                       label, elantech_i2c_priv);
+> +        if (rc < 0) {
+> +               printk(KERN_DEBUG "Could not register for %s interrupt,
+> irq = %d, rc = %d\n"
+> +               , label, client->irq, rc);
+> +               goto    err_gpio_request_irq_fail;
+> +       }
+> +       return elantech_i2c_priv;
+> +err_gpio_request_irq_fail:
+> +       gpio_free(gpio);
+> +err_gpio_request:
+> +       input_free_device(elantech_i2c_priv->input);
+> +err_input_allocate_device:
+> +       kfree(elantech_i2c_priv);
+> +       return NULL;
+> +}
+> +
+> +static int elantech_i2c_probe(struct i2c_client *client,
+> +                             const struct i2c_device_id *dev_id)
+> +
+> +{
+> +       int ret = 0;
+> +       struct elantech_i2c *elantech_i2c_priv;
+> +       unsigned int gpio;
+> +
+> +       ret = elantech_i2c_hw_init(client);
+> +       if (ret < 0) {
+> +               ret = -EINVAL;
+> +               goto err_hw_init;
+> +       }
+> +       elantech_i2c_priv = elantech_i2c_priv_create(client);
+> +       if (!elantech_i2c_priv) {
+> +               ret = -ENOMEM;
+
+This isn't true.  elantech_i2c_priv_create() could fail for multiple
+reasons, not just a lack of memory.
+
+> +               goto err_elantech_i2c_priv;
+> +       }
+> +
+> +       elantech_i2c_wq =
+> create_singlethread_workqueue("elantech_i2c_wq");
+> +       if (!elantech_i2c_wq) {
+> +               ret = -ENOMEM;
+> +               goto err_workqueue;
+> +       }
+> +       INIT_WORK(&elantech_i2c_priv->work, elantech_i2c_work_func);
+> +
+> +       ret = input_register_device(elantech_i2c_priv->input);
+> +       if (ret < 0)
+> +               goto err_input_register_device;
+> +
+> +       i2c_set_clientdata(client, elantech_i2c_priv);
+> +       mutex_init(&elantech_i2c_priv->input_lock);
+> +       return 0;
+> +err_input_register_device:
+> +       destroy_workqueue(elantech_i2c_wq);
+> +err_workqueue:
+> +       gpio = elantech_i2c_priv->gpio;
+> +       gpio_free(gpio);
+> +       free_irq(elantech_i2c_priv->irq, elantech_i2c_priv);
+> +       input_free_device(elantech_i2c_priv->input);
+> +       kfree(elantech_i2c_priv);
+> +err_elantech_i2c_priv:
+> +err_hw_init:
+> +       return ret;
+> +}
+> +
+> +static int elantech_i2c_remove(struct i2c_client *client)
+> +{
+> +       struct elantech_i2c *elantech_i2c_priv =
+> i2c_get_clientdata(client);
+> +
+> +       if (elantech_i2c_priv) {
+> +               gpio_free(elantech_i2c_priv->gpio);
+> +               free_irq(elantech_i2c_priv->irq, elantech_i2c_priv);
+> +               input_free_device(elantech_i2c_priv->input);
+> +               kfree(elantech_i2c_priv);
+> +       }
+> +
+> +       if (elantech_i2c_wq)
+> +               destroy_workqueue(elantech_i2c_wq);
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct i2c_device_id elantech_i2c_id_table[] = {
+> +       { "elantech_i2c", 0 },
+> +       { },
+> +};
+> +MODULE_DEVICE_TABLE(i2c, elantech_i2c_id_table);
+> +
+> +static struct i2c_driver elantech_i2c_driver = {
+> +       .driver = {
+> +               .name   = DRIVER_NAME,
+> +               .owner  = THIS_MODULE,
+> +       },
+> +       .probe          = elantech_i2c_probe,
+> +       .remove         = __devexit_p(elantech_i2c_remove),
+> +       .id_table       = elantech_i2c_id_table,
+> +};
+> +
+> +static int __init elantech_i2c_init(void)
+> +{
+> +       return i2c_add_driver(&elantech_i2c_driver);
+> +}
+> +
+> +static void __exit elantech_i2c_exit(void)
+> +{
+> +       i2c_del_driver(&elantech_i2c_driver);
+> +}
+> +module_init(elantech_i2c_init);
+> +module_exit(elantech_i2c_exit);
+> +
+> +MODULE_DESCRIPTION("Elan I2C Touch Pad driver");
+> +MODULE_AUTHOR("Tom Lin (Lin Yen Yu) <tom_lin@emc.com.tw>");
+> +MODULE_LICENSE("GPL");
+> --
+> 1.7.9.2
+>

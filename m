@@ -1,20 +1,20 @@
 From: Sergei Shtylyov <sshtylyov@mvista.com>
-Subject: Re: [PATCH V2 4/4] Input: pxa27x_keypad add choice to set direct_key_mask
-Date: Sun, 01 Apr 2012 01:44:32 +0400
-Message-ID: <4F777AC0.8040304@mvista.com>
-References: <1333072698-15344-1-git-send-email-chao.xie@marvell.com> <1333072698-15344-4-git-send-email-chao.xie@marvell.com>
+Subject: Re: [PATCH V2 1/4] Input: pxa27x_keypad keep clock on as wakeup source
+Date: Sun, 01 Apr 2012 01:47:10 +0400
+Message-ID: <4F777B5E.5080500@mvista.com>
+References: <1333072698-15344-1-git-send-email-chao.xie@marvell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:50722 "EHLO
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:32940 "EHLO
 	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753127Ab2CaVqD (ORCPT
+	with ESMTP id S1753127Ab2CaVsj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Mar 2012 17:46:03 -0400
-Received: by bkcik5 with SMTP id ik5so1502102bkc.19
-        for <linux-input@vger.kernel.org>; Sat, 31 Mar 2012 14:46:01 -0700 (PDT)
-In-Reply-To: <1333072698-15344-4-git-send-email-chao.xie@marvell.com>
+	Sat, 31 Mar 2012 17:48:39 -0400
+Received: by bkcik5 with SMTP id ik5so1502875bkc.19
+        for <linux-input@vger.kernel.org>; Sat, 31 Mar 2012 14:48:38 -0700 (PDT)
+In-Reply-To: <1333072698-15344-1-git-send-email-chao.xie@marvell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Chao Xie <chao.xie@marvell.com>
@@ -24,13 +24,35 @@ Hello.
 
 On 30-03-2012 5:58, Chao Xie wrote:
 
-> Direct keys usage may not start from KP_DKIN0, add a msk option
-> to configure the specifics for platforms that can skip some keys.
+> When the keypad is used as wake up source, the clock can not
+> be disabled. Or it can not detect key pressing.
+> If the keypad is used as wake up source, when resume back,
+> do not enable the clock and configure it again because the
+> register content is retained.
 
-> Change-Id: Ia8fd28254fec9595dcf39f12a78392c1e8b675eb
+> Signed-off-by: Chao Xie<chao.xie@marvell.com>
+> ---
+>   drivers/input/keyboard/pxa27x_keypad.c |   27 ++++++++++++++++++---------
+>   1 files changed, 18 insertions(+), 9 deletions(-)
 
-    Remove this line please -- it has no place in upstream patch.
+> diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
+> index 29fe1b2..1c5752f 100644
+> --- a/drivers/input/keyboard/pxa27x_keypad.c
+> +++ b/drivers/input/keyboard/pxa27x_keypad.c
+[...]
+> @@ -433,19 +437,24 @@ static int pxa27x_keypad_resume(struct device *dev)
+>   	struct pxa27x_keypad *keypad = platform_get_drvdata(pdev);
+>   	struct input_dev *input_dev = keypad->input_dev;
+>
+> +	/*
+> +	 * If the keypad is used as wake up source, the clock is not turned
+> +	 * off. So do not need configure it again.
+> +	 */
+>   	if (device_may_wakeup(&pdev->dev))
+>   		disable_irq_wake(keypad->irq);
+> +	else {
 
-> Signed-off-by: Chao Xie <chao.xie@marvell.com>
+    According to CodingStyle, {} should be an all branches of *if* statement, 
+if it's used at least in one branch.
 
 WBR, Sergei

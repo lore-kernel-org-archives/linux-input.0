@@ -1,107 +1,75 @@
-From: Arkadiusz =?utf-8?q?Mi=C5=9Bkiewicz?= <a.miskiewicz@gmail.com>
-Subject: Re: logitech-djdevice and /sys
-Date: Sat, 31 Mar 2012 07:50:43 +0200
-Message-ID: <201203310750.43619.a.miskiewicz@gmail.com>
-References: <201203221844.54688.a.miskiewicz@gmail.com> <alpine.LNX.2.00.1203301520030.25526@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH RESEND 2/2] Input: uinput: Avoid returning 0 on read()
+Date: Fri, 30 Mar 2012 23:00:33 -0700
+Message-ID: <20120331060033.GA12307@core.coreip.homeip.net>
+References: <1333023245-13704-1-git-send-email-dh.herrmann@googlemail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:36212 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752065Ab2CaFus convert rfc822-to-8bit (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:61244 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752181Ab2CaGAp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Mar 2012 01:50:48 -0400
-Received: by wibhq7 with SMTP id hq7so1157519wib.1
-        for <linux-input@vger.kernel.org>; Fri, 30 Mar 2012 22:50:47 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1203301520030.25526@pobox.suse.cz>
+	Sat, 31 Mar 2012 02:00:45 -0400
+Received: by pbcun15 with SMTP id un15so2606064pbc.19
+        for <linux-input@vger.kernel.org>; Fri, 30 Mar 2012 23:00:45 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1333023245-13704-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: linux-input@vger.kernel.org, aris@ruivo.org
 
-On Friday 30 of March 2012, Jiri Kosina wrote:
-> On Thu, 22 Mar 2012, Arkadiusz Mi=C5=9Bkiewicz wrote:
-> > Hi,
-> >=20
-> > I'm detecting usb keyboards from shell using this simple script:
-> >=20
-> > for i in /sys/class/input/input*; do
-> >=20
-> >                 [ ! -f $i/device/bInterfaceClass -o ! -f
-> >                 $i/device/bInterfaceProtocol ] && continue
-> >                 bInterfaceClass=3D$(cat $i/device/bInterfaceClass)
-> >                 bInterfaceProtocol=3D$(cat $i/device/bInterfaceProt=
-ocol)
-> >                 if [ "$bInterfaceClass" =3D "03" -a "$bInterfacePro=
-tocol"
-> >                 =3D "01" ]; then
-> > 		=09
-> > 			module=3D$(readlink $i/device/driver/module)
-> > 		=09
-> >                         module=3D$(basename $module)
-> > 		=09
-> > 			echo "found keyboard driven by $module"
-> > 	=09
-> > 		fi
-> >=20
-> > done
-> >=20
-> > but for keyboards hidden behind logitech unifying receiver there se=
-em to
-> > be no such information in /sys.
-> >=20
-> > Any ideas on how I can detect such keyboards via /sys or other
-> > scriptable method?
-> >=20
-> > (note that I'm interested only in "regular" keyboards, so single bu=
-ttons
-> > and some other devices are not interesting)
-> >=20
-> > dmesg:
-> >=20
-> > [130816.672862] usb 6-2: new full-speed USB device number 4 using
-> > uhci_hcd [130816.856173] usb 6-2: New USB device found, idVendor=3D=
-046d,
-> > idProduct=3Dc52b [130816.856183] usb 6-2: New USB device strings: M=
-fr=3D1,
-> > Product=3D2, SerialNumber=3D0 [130816.856190] usb 6-2: Product: USB=
- Receiver
-> > [130816.856195] usb 6-2: Manufacturer: Logitech
-> > [130816.868751] logitech-djreceiver 0003:046D:C52B.000F: hiddev0,hi=
-draw2:
-> > USB HID v1.11 Device [Logitech USB Receiver] on
-> > usb-0000:00:1d.0-2/input2 [130816.878201] input: Logitech Unifying
-> > Device. Wireless PID:4004 as
-> > /devices/pci0000:00/0000:00:1d.0/usb6/6-2/6-2:1.2/0003:046D:C52B.00=
-0F/in
-> > put/input14 [130816.878717] logitech-djdevice 0003:046D:C52B.0010:
-> > input,hidraw3: USB HID v1.11 Keyboard [Logitech Unifying Device.
-> > Wireless PID:4004] on usb-0000:00:1d.0-2:1
->=20
-> I suggest you inspect all available input devices using EVIOCGBIT ioc=
-tl()
-> instead, querying the device capabilities (and looking namely on the
-> EV_KEY capabilities).
->=20
-> Alternatively, you can find this information prepared for you in
-> /proc/bus/input/devices.
->=20
-> If you really want to restrict yourself to USB keyboards, you'll have=
- to
-> inspect 'Phys' as well. This you can do via EVIOCGPHYS ioctl() or loo=
-k
-> into procfs as well.
+Hi David,
 
-Ok, thanks. Seems there is no good way to find out regular keyboards on=
-ly=20
-since many non keyboard devices have some keys.
+On Thu, Mar 29, 2012 at 02:14:04PM +0200, David Herrmann wrote:
+> Consider the output-queue to be almost full. A thread inside read() will
+> pass the wait_event_*() call and reach the while() loop. Now assume a new
+> message was added to the output-queue and the queue overruns, i.e.,
+> we now have udev->head == udev->tail.
+> The thread now passes the while() loop without fetching any message and
+> returns 0. However, at least for blocking FDs there is really no reason to
+> wake up user-space and for non-blocking FDs we should return -EAGAIN now.
+> Therefore, simply retry the read() if we didn't fetch any message.
+> 
+> We also check whether the user-supplied buffer is actually big enough and
+> return -EINVAL if it is not. This differs from current behavior which
+> caused 0 to be returned which actually does not make any sense. This may
+> break ABI since user-space programs might be used to get 0 if the buffer
+> is to small. However, 0 means the FD was closed so returning -EINVAL
+> *must* be handled similar in user-space, otherwise the programs are
+> broken.
+> Anyway, we need this check, otherwise we would have a never-returning
+> loop here because retval would always be 0.
+> 
+> Also note that an queue-overrun is not the only situation where this bug
+> occurs. We might also have a race between multiple threads here so we
+> definitely need to handle it this way.
+> 
+> Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+> Acked-by: Aristeu Rozanski <aris@ruivo.org>
+> ---
+> Hi Dmitry
+> 
+> Please note that this is based on my previous fix so you might get some
+> (trivial) conflicts if you didn't apply the previous one. They should be easy to
+> solve, though.
+> Also, the issue with returning -EINVAL if the buffer is too small and hence
+> breaking API can be resolved by moving the check down directly before running
+> "goto try_again;". However, I think returning -EINVAL is the better fix. Feel
+> free to change this, though.
 
---=20
-Arkadiusz Mi=C5=9Bkiewicz        PLD/Linux Team
-arekm / maven.pl            http://ftp.pld-linux.org/
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I agree that we should return -EINVAL when buffer is too small. I
+however do not like the whole "try_again" business; I think it is
+perfectly fine to return 0 for blocking reads, we just want to return
+-EAGAIN for nonblocking.
+
+I changed around your patches a bit and will post them shortly.
+
+Aristeu, since the patches changed somewhat I dropped your Acked-by so
+please Ack the patches you are comfortable with again.
+
+Thanks.
+
+-- 
+Dmitry

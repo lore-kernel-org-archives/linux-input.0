@@ -1,71 +1,50 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH] Input: st1232 - switch to using SIMPLE_DEV_PM_OPS
-Date: Sun, 1 Apr 2012 07:58:56 +0200
-Message-ID: <201204010758.56276.rjw@sisk.pl>
-References: <20120331061801.GA20441@core.coreip.homeip.net>
+From: Oskari Saarenmaa <os@ohmu.fi>
+Subject: [PATCH] Input: sentelic - filter on-pad clicks in absolute mode
+Date: Sun, 1 Apr 2012 21:30:37 +0300
+Message-ID: <20120401183037.GA23849@timantti.taisia.fi>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20120331061801.GA20441@core.coreip.homeip.net>
-Sender: linux-sh-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Magnus Damm <magnus.damm@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-sh@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from timantti.taisia.fi ([213.157.67.233]:35274 "EHLO mail.taisia.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751601Ab2DASaj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 1 Apr 2012 14:30:39 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Tai-hwa Liang <avatar@sentelic.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Saturday, March 31, 2012, Dmitry Torokhov wrote:
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+On-pad clicks in absolute positioning single-finger mode are reported
+without the PHY_BTN bit set, the on-pad clicks are handled by userspace
+so the kernel shouldn't report them as real clicks.
 
-Looks good.
+Signed-off-by: Oskari Saarenmaa <os@ohmu.fi>
+---
+ Applies to v3.4-rc1
 
-Acked-by: Rafael J. Wysocki <rjw@sisk.pl>
+ drivers/input/mouse/sentelic.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-> ---
-> 
-> Just compiled, not tested...
-> 
->  drivers/input/touchscreen/st1232.c |   11 ++++-------
->  1 files changed, 4 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-> index e22e27e..a9be39f 100644
-> --- a/drivers/input/touchscreen/st1232.c
-> +++ b/drivers/input/touchscreen/st1232.c
-> @@ -218,7 +218,7 @@ static int __devexit st1232_ts_remove(struct i2c_client *client)
->  	return 0;
->  }
->  
-> -#ifdef CONFIG_PM
-> +#ifdef CONFIG_PM_SLEEP
->  static int st1232_ts_suspend(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
-> @@ -243,12 +243,11 @@ static int st1232_ts_resume(struct device *dev)
->  	return 0;
->  }
->  
-> -static const struct dev_pm_ops st1232_ts_pm_ops = {
-> -	.suspend	= st1232_ts_suspend,
-> -	.resume		= st1232_ts_resume,
-> -};
->  #endif
->  
-> +static SIMPLE_DEV_PM_OPS(st1232_ts_pm_ops,
-> +			 st1232_ts_suspend, st1232_ts_resume);
-> +
->  static const struct i2c_device_id st1232_ts_id[] = {
->  	{ ST1232_TS_NAME, 0 },
->  	{ }
-> @@ -269,9 +268,7 @@ static struct i2c_driver st1232_ts_driver = {
->  		.name	= ST1232_TS_NAME,
->  		.owner	= THIS_MODULE,
->  		.of_match_table = st1232_ts_dt_ids,
-> -#ifdef CONFIG_PM
->  		.pm	= &st1232_ts_pm_ops,
-> -#endif
->  	},
->  };
->  
-> 
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index a977bfa..d4df8cd 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -741,6 +741,14 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
+ 			}
+ 		} else {
+ 			/* SFAC packet */
++			if ((packet[0] & FSP_PB0_LBTN|FSP_PB0_PHY_BTN) ==
++				FSP_PB0_LBTN) {
++				/* On-pad click in SFAC mode should be handled
++				 * by userspace.  On-pad clicks in MFMC mode
++				 * are real clickpad clicks, and not ignored.
++				 */
++				packet[0] &= ~FSP_PB0_LBTN;
++			}
+ 
+ 			/* no multi-finger information */
+ 			ad->last_mt_fgr = 0;
+-- 
+1.7.7.6
 

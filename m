@@ -1,63 +1,120 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH] Input: sentelic - filter on-pad clicks in absolute mode
-Date: Mon, 02 Apr 2012 09:35:26 -0700
-Message-ID: <4F79D54E.4060500@canonical.com>
-References: <20120401183037.GA23849@timantti.taisia.fi> <4F79B620.7030800@canonical.com> <4F79BE70.90005@ohmu.fi> <4F79C029.3040606@canonical.com> <4F79C7A0.6060601@ohmu.fi>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: Re: [PATCH 2/2] HID: hid-lg4ff: Add support for G27 leds
+Date: Mon, 02 Apr 2012 18:38:14 +0200
+Message-ID: <4F79D5F6.3010101@suse.cz>
+References: <a4e40aa5c43be934d83240849aa25f3b.squirrel@mungewell.org> <1333378444-3117-1-git-send-email-simon@mungewell.org> <1333378444-3117-2-git-send-email-simon@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:42587 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751345Ab2DBQes (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Apr 2012 12:34:48 -0400
-In-Reply-To: <4F79C7A0.6060601@ohmu.fi>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:58565 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751345Ab2DBQiS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Apr 2012 12:38:18 -0400
+In-Reply-To: <1333378444-3117-2-git-send-email-simon@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oskari Saarenmaa <os@ohmu.fi>
-Cc: Tai-hwa Liang <avatar@sentelic.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Michael Bauer <michael@m-bauer.org>, Michal Maly <madcatxster@gmail.com>
 
-On 04/02/2012 08:37 AM, Oskari Saarenmaa wrote:
-> On 02/04/12 18:05, Chase Douglas wrote:
->> On 04/02/2012 07:57 AM, Oskari Saarenmaa wrote:
->>> On 02/04/12 17:22, Chase Douglas wrote:
->>>> On 04/01/2012 11:30 AM, Oskari Saarenmaa wrote:
->>>>> On-pad clicks in absolute positioning single-finger mode are reported
->>>>> without the PHY_BTN bit set, the on-pad clicks are handled by userspace
->>>>> so the kernel shouldn't report them as real clicks.
->>>>
->>>> What is the definition of an "on-pad" click?
->>>
->>> In this case it's a tap on the pad without actually clicking it.  The
->>> Asus UX21 Zenbook has a touchpad that can be tapped or clicked.
->>> Single-finger taps on it are reported by the touchpad with FSP_PB0_LBTN
->>> flag set and FSP_PB0_PHY_BTN not set.
->>
->> So if I understand correctly, the device currently emits a "physical"
->> left button click event when the clickpad is tapped. Your patch will
->> prevent this event from being sent to userspace, since userspace does
->> its own tap detection. Is that correct?
+On 04/02/2012 04:54 PM, Simon Wood wrote:
+> This patch adds supports for controlling the LED 'tachometer' on
+> the G27 wheel, via the LED subsystem.
 > 
-> Yes.  Without this patch there's no way to disable click-on-tap in 
-> userspace.
+> The 5 LEDs are arranged from right (1=grn, 2=grn, 3=yel, 4=yel, 5=red)
+> and 'mirrored' to the left (10 LEDs in total).
+> 
+> Signed-off-by: Simon Wood <simon@mungewell.org>
+> ---
+>  drivers/hid/hid-lg4ff.c |  159 ++++++++++++++++++++++++++++++++++++++++++++++-
+>  1 files changed, 158 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+> index c3146e0..afd13ee 100644
+> --- a/drivers/hid/hid-lg4ff.c
+> +++ b/drivers/hid/hid-lg4ff.c
+> @@ -55,7 +55,8 @@ struct lg4ff_device_entry {
+>  	__u16 range;
+>  	__u16 min_range;
+>  	__u16 max_range;
+> -	__u8  leds;
+> +	__u8  led_state;
+> +	struct led_classdev *led[5];
+>  	struct list_head list;
+>  	void (*set_range)(struct hid_device *hid, u16 range);
+>  };
+> @@ -335,6 +336,92 @@ static ssize_t lg4ff_range_store(struct device *dev, struct device_attribute *at
+>  	return count;
+>  }
+>  
+> +static void lg4ff_set_leds(struct hid_device *hid, __u8 leds)
+> +{
+> +	struct list_head *report_list = &hid->report_enum[HID_OUTPUT_REPORT].report_list;
+> +	struct hid_report *report = list_entry(report_list->next, struct hid_report, list);
+> +
+> +	report->field[0]->value[0] = 0xf8;
+> +	report->field[0]->value[1] = 0x12;
+> +	report->field[0]->value[2] = leds;
+> +	report->field[0]->value[3] = 0x00;
+> +	report->field[0]->value[4] = 0x00;
+> +	report->field[0]->value[5] = 0x00;
+> +	report->field[0]->value[6] = 0x00;
+> +	usbhid_submit_report(hid, report, USB_DIR_OUT);
+> +}
+> +
+> +static void lg4ff_led_set_brightness(struct led_classdev *led_cdev,
+> +			enum led_brightness value)
+> +{
+> +	struct device *dev;
+> +	struct hid_device *hid;
+> +	struct lg4ff_device_entry *uninitialized_var(entry);
+> +	int i, state = 0;
+> +	struct lg_drv_data* drv_data;
+> +	dev = led_cdev->dev->parent;
+> +	hid = container_of(dev, struct hid_device, dev);
+> +	drv_data = (struct lg_drv_data *)hid_get_drvdata(hid);
+...
+> +static enum led_brightness lg4ff_led_get_brightness(struct led_classdev *led_cdev)
+> +{
+> +	struct device *dev;
+> +	struct hid_device *hid;
+> +	struct lg4ff_device_entry *uninitialized_var(entry);
+> +	int i, value = 0;
+> +	struct lg_drv_data* drv_data;
+> +	dev = led_cdev->dev->parent;
+> +	hid = container_of(dev, struct hid_device, dev);
+> +	drv_data = (struct lg_drv_data *)hid_get_drvdata(hid);
 
-Ok. May I suggest improving the commit message to distinguish between
-taps and clicks. This was the cause of my confusion. I would suggest
-something like:
+What a mess. Do you need all the uninitialized_var's, casts here and there?
 
-"""
+Also this would be readable if you did all the stuff directly as an
+initializer for all the local variables.
 
-Input: sentelic - filter taps in absolute mode
+And make sure to check the patch by scripts/checkpatch.pl.
 
-Taps in absolute positioning single-finger mode are currently reported
-as physical clicks by the driver. This should be handled by userspace,
-not the kernel.
+> +	if (!drv_data) {
+> +		hid_err(hid, "Device data not found.");
+> +		return LED_OFF;
+> +	}
+> +
+> +	entry = (struct lg4ff_device_entry *)drv_data->device_props; 
+> +
+> +	if (!entry) {
+> +		hid_err(hid, "Device properties not found.");
+> +		return LED_OFF;
+> +	}
+> +
+> +	for (i = 0; i < 5; i++)
+> +		if (led_cdev == entry->led[i]) {
+> +			value = (entry->led_state >> i) & 1;
+> +			break;
+> +		}
+> +
+> +	return value ? LED_FULL : LED_OFF;
+> +}
 
-When a tap occurs, the FSP_PB0_LBTN bit is set, but the FSP_PB0_PHY_BTN
-is not. We use this to filter out physical clicks from taps.
+thanks,
+-- 
+js
+suse labs
 
-"""
-
-Otherwise, the code looks right and the desired result makes sense, so:
-
-Reviewed-by: Chase Douglas <chase.douglas@canonical.com>

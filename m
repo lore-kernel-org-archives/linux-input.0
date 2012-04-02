@@ -1,91 +1,53 @@
-From: Haojian Zhuang <haojian.zhuang@gmail.com>
-Subject: Re: [PATCH V3 4/4] Input: pxa27x_keypad add choice to set direct_key_mask
-Date: Mon, 2 Apr 2012 17:38:21 +0800
-Message-ID: <CAN1soZzep_gqbOvL7G4KaCqkbOSLWz7j9VoU3R8fqGpwUui=dQ@mail.gmail.com>
-References: <1333246084-14110-1-git-send-email-chao.xie@marvell.com>
-	<1333246084-14110-4-git-send-email-chao.xie@marvell.com>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH] Input: sentelic - filter on-pad clicks in absolute mode
+Date: Mon, 02 Apr 2012 07:22:24 -0700
+Message-ID: <4F79B620.7030800@canonical.com>
+References: <20120401183037.GA23849@timantti.taisia.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vb0-f46.google.com ([209.85.212.46]:46004 "EHLO
-	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751584Ab2DBJiW convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Apr 2012 05:38:22 -0400
-Received: by mail-vb0-f46.google.com with SMTP id ff1so1555074vbb.19
-        for <linux-input@vger.kernel.org>; Mon, 02 Apr 2012 02:38:22 -0700 (PDT)
-In-Reply-To: <1333246084-14110-4-git-send-email-chao.xie@marvell.com>
+Received: from youngberry.canonical.com ([91.189.89.112]:41751 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751755Ab2DBOVt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Apr 2012 10:21:49 -0400
+In-Reply-To: <20120401183037.GA23849@timantti.taisia.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chao Xie <chao.xie@marvell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, eric.y.miao@gmail.com, linux-arm-kernel@lists.infradead.org, haojian.zhuang@marvell.com
+To: Oskari Saarenmaa <os@ohmu.fi>
+Cc: Tai-hwa Liang <avatar@sentelic.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Sun, Apr 1, 2012 at 10:08 AM, Chao Xie <chao.xie@marvell.com> wrote:
-> Direct keys usage may not start from KP_DKIN0, add a msk option
-> to configure the specifics for platforms that can skip some keys.
->
-> Signed-off-by: Chao Xie <chao.xie@marvell.com>
+On 04/01/2012 11:30 AM, Oskari Saarenmaa wrote:
+> On-pad clicks in absolute positioning single-finger mode are reported
+> without the PHY_BTN bit set, the on-pad clicks are handled by userspace
+> so the kernel shouldn't report them as real clicks.
+
+What is the definition of an "on-pad" click?
+
+> Signed-off-by: Oskari Saarenmaa <os@ohmu.fi>
 > ---
-> =A0arch/arm/plat-pxa/include/plat/pxa27x_keypad.h | =A0 =A02 ++
-> =A0drivers/input/keyboard/pxa27x_keypad.c =A0 =A0 =A0 =A0 | =A0 =A09 =
-++++++++-
-> =A02 files changed, 10 insertions(+), 1 deletions(-)
->
-> diff --git a/arch/arm/plat-pxa/include/plat/pxa27x_keypad.h b/arch/ar=
-m/plat-pxa/include/plat/pxa27x_keypad.h
-> index 7ffb16b..5ce8d5e 100644
-> --- a/arch/arm/plat-pxa/include/plat/pxa27x_keypad.h
-> +++ b/arch/arm/plat-pxa/include/plat/pxa27x_keypad.h
-> @@ -46,6 +46,8 @@ struct pxa27x_keypad_platform_data {
-> =A0 =A0 =A0 =A0unsigned int =A0 =A0direct_key_map[MAX_DIRECT_KEY_NUM]=
-;
-> =A0 =A0 =A0 =A0/* the key output may be low active */
-> =A0 =A0 =A0 =A0int =A0 =A0 =A0 =A0 =A0 =A0 direct_key_low_active;
-> + =A0 =A0 =A0 /* give board a chance to choose the start direct key *=
-/
-> + =A0 =A0 =A0 unsigned int =A0 =A0direct_key_mask;
->
-> =A0 =A0 =A0 =A0/* rotary encoders 0 */
-> =A0 =A0 =A0 =A0int =A0 =A0 =A0 =A0 =A0 =A0 enable_rotary0;
-> diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/k=
-eyboard/pxa27x_keypad.c
-> index a60f14e..7f7b724 100644
-> --- a/drivers/input/keyboard/pxa27x_keypad.c
-> +++ b/drivers/input/keyboard/pxa27x_keypad.c
-> @@ -391,7 +391,14 @@ static void pxa27x_keypad_config(struct pxa27x_k=
-eypad *keypad)
-> =A0 =A0 =A0 =A0if (pdata->direct_key_num > direct_key_num)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0direct_key_num =3D pdata->direct_key_n=
-um;
->
-> - =A0 =A0 =A0 keypad->direct_key_mask =3D ((1 << direct_key_num) - 1)=
- & ~mask;
-> + =A0 =A0 =A0 /*
-> + =A0 =A0 =A0 =A0* Direct keys usage may not start from KP_DKIN0, che=
-ck the platfrom
-> + =A0 =A0 =A0 =A0* mask data to config the specific.
-> + =A0 =A0 =A0 =A0*/
-> + =A0 =A0 =A0 if (pdata->direct_key_mask)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad->direct_key_mask =3D pdata->dire=
-ct_key_mask;
-> + =A0 =A0 =A0 else
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad->direct_key_mask =3D ((1 << dire=
-ct_key_num) - 1) & ~mask;
->
-> =A0 =A0 =A0 =A0/* enable direct key */
-> =A0 =A0 =A0 =A0if (direct_key_num)
-> --
-> 1.7.0.4
->
->
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+>  Applies to v3.4-rc1
+> 
+>  drivers/input/mouse/sentelic.c |    8 ++++++++
+>  1 files changed, 8 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+> index a977bfa..d4df8cd 100644
+> --- a/drivers/input/mouse/sentelic.c
+> +++ b/drivers/input/mouse/sentelic.c
+> @@ -741,6 +741,14 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
+>  			}
+>  		} else {
+>  			/* SFAC packet */
+> +			if ((packet[0] & FSP_PB0_LBTN|FSP_PB0_PHY_BTN) ==
+> +				FSP_PB0_LBTN) {
+> +				/* On-pad click in SFAC mode should be handled
+> +				 * by userspace.  On-pad clicks in MFMC mode
+> +				 * are real clickpad clicks, and not ignored.
+> +				 */
+> +				packet[0] &= ~FSP_PB0_LBTN;
+> +			}
+>  
+>  			/* no multi-finger information */
+>  			ad->last_mt_fgr = 0;
 
-Loop Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

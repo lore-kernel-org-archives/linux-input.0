@@ -1,286 +1,139 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH RESEND 2/2] Input: uinput: Avoid returning 0 on read()
-Date: Mon, 2 Apr 2012 10:35:33 +0200
-Message-ID: <CANq1E4TV+mgZXPYL3MnVM-=9GoptmE2eW1uc0+vYC8wQEUdamg@mail.gmail.com>
-References: <1333023245-13704-1-git-send-email-dh.herrmann@googlemail.com>
-	<20120331060033.GA12307@core.coreip.homeip.net>
-	<CANq1E4TJ3DPKjx7WBFFJUzLL-pZESYtKL6UadvdYBjE+vm_2uw@mail.gmail.com>
-	<20120402074815.GA24313@core.coreip.homeip.net>
+From: Haojian Zhuang <haojian.zhuang@gmail.com>
+Subject: Re: [PATCH V3 1/4] Input: pxa27x_keypad keep clock on as wakeup source
+Date: Mon, 2 Apr 2012 17:37:05 +0800
+Message-ID: <CAN1soZyBPE3YExELmu5yHeMTWQf9Zs07v26F6Qz3ocKO+cXGFw@mail.gmail.com>
+References: <1333246084-14110-1-git-send-email-chao.xie@marvell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:53441 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751612Ab2DBIfe convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Apr 2012 04:35:34 -0400
-Received: by wibhq7 with SMTP id hq7so2447415wib.1
-        for <linux-input@vger.kernel.org>; Mon, 02 Apr 2012 01:35:33 -0700 (PDT)
-In-Reply-To: <20120402074815.GA24313@core.coreip.homeip.net>
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:33964 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751056Ab2DBJhH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Apr 2012 05:37:07 -0400
+Received: by vcqp1 with SMTP id p1so1538132vcq.19
+        for <linux-input@vger.kernel.org>; Mon, 02 Apr 2012 02:37:05 -0700 (PDT)
+In-Reply-To: <1333246084-14110-1-git-send-email-chao.xie@marvell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, aris@ruivo.org
+To: Chao Xie <chao.xie@marvell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, eric.y.miao@gmail.com, linux-arm-kernel@lists.infradead.org, haojian.zhuang@marvell.com
 
-Hi Dmitry
-
-On Mon, Apr 2, 2012 at 9:48 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Sat, Mar 31, 2012 at 10:39:49AM +0200, David Herrmann wrote:
->> Hi Dmitry
->>
->> On Sat, Mar 31, 2012 at 8:00 AM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->> > Hi David,
->> >
->> <snip>
->> > I agree that we should return -EINVAL when buffer is too small. I
->> > however do not like the whole "try_again" business; I think it is
->> > perfectly fine to return 0 for blocking reads, we just want to ret=
-urn
->> > -EAGAIN for nonblocking.
->>
->> The read() manpage says that return-code 0 means the fd got closed.
->> Does the VFS layer forward the return-code untouched to user-space o=
-r
->> why do you think returning 0 is fine? At least my uinput user-space
->> apps handle read()=3D=3D0 as failure.
+On Sun, Apr 1, 2012 at 10:08 AM, Chao Xie <chao.xie@marvell.com> wrote:
+> When the keypad is used as wake up source, the clock can not
+> be disabled. Or it can not detect key pressing.
+> If the keypad is used as wake up source, when resume back,
+> do not enable the clock and configure it again because the
+> register content is retained.
 >
-> Hmm, according to the spec:
+> Signed-off-by: Chao Xie <chao.xie@marvell.com>
+> ---
+> =A0drivers/input/keyboard/pxa27x_keypad.c | =A0 33 ++++++++++++++++++=
+++-----------
+> =A01 files changed, 21 insertions(+), 12 deletions(-)
 >
-> http://pubs.opengroup.org/onlinepubs/009695399/functions/read.html
+> diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/k=
+eyboard/pxa27x_keypad.c
+> index 29fe1b2..b07771e 100644
+> --- a/drivers/input/keyboard/pxa27x_keypad.c
+> +++ b/drivers/input/keyboard/pxa27x_keypad.c
+> @@ -399,7 +399,7 @@ static int pxa27x_keypad_open(struct input_dev *d=
+ev)
+> =A0 =A0 =A0 =A0struct pxa27x_keypad *keypad =3D input_get_drvdata(dev=
+);
 >
-> it returns 0 to signal end of file, which does not make sense for
-> character devices, only regular files. I think I could also claim
-> that returning 0 when an event is "stolen" because "The behavior of
-> multiple concurrent reads on the same pipe, FIFO, or terminal device =
-is
-> unspecified."
-
-You're right. Then my applications didn't adhere to that correctly,
-sorry. Anyway, I agree that fixing it to never return 0 does at least
-prevent useless context-switches.
-
-> However I do not think that fixing it should be too hard, even taking
-> into account the special case of count =3D=3D 0 outlined in the spec.
-> Below is the updated versions of the first 2 patches.
+> =A0 =A0 =A0 =A0/* Enable unit clock */
+> - =A0 =A0 =A0 clk_enable(keypad->clk);
+> + =A0 =A0 =A0 clk_prepare_enable(keypad->clk);
+> =A0 =A0 =A0 =A0pxa27x_keypad_config(keypad);
 >
-> Thanks.
+> =A0 =A0 =A0 =A0return 0;
+> @@ -410,7 +410,7 @@ static void pxa27x_keypad_close(struct input_dev =
+*dev)
+> =A0 =A0 =A0 =A0struct pxa27x_keypad *keypad =3D input_get_drvdata(dev=
+);
+>
+> =A0 =A0 =A0 =A0/* Disable clock unit */
+> - =A0 =A0 =A0 clk_disable(keypad->clk);
+> + =A0 =A0 =A0 clk_disable_unprepare(keypad->clk);
+> =A0}
+>
+> =A0#ifdef CONFIG_PM
+> @@ -419,10 +419,14 @@ static int pxa27x_keypad_suspend(struct device =
+*dev)
+> =A0 =A0 =A0 =A0struct platform_device *pdev =3D to_platform_device(de=
+v);
+> =A0 =A0 =A0 =A0struct pxa27x_keypad *keypad =3D platform_get_drvdata(=
+pdev);
+>
+> - =A0 =A0 =A0 clk_disable(keypad->clk);
+> -
+> + =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0* If the keypad is used a wake up source, clock can =
+not be disabled.
+> + =A0 =A0 =A0 =A0* Or it can not detect the key pressing.
+> + =A0 =A0 =A0 =A0*/
+> =A0 =A0 =A0 =A0if (device_may_wakeup(&pdev->dev))
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0enable_irq_wake(keypad->irq);
+> + =A0 =A0 =A0 else
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 clk_disable_unprepare(keypad->clk);
+>
+> =A0 =A0 =A0 =A0return 0;
+> =A0}
+> @@ -433,19 +437,24 @@ static int pxa27x_keypad_resume(struct device *=
+dev)
+> =A0 =A0 =A0 =A0struct pxa27x_keypad *keypad =3D platform_get_drvdata(=
+pdev);
+> =A0 =A0 =A0 =A0struct input_dev *input_dev =3D keypad->input_dev;
+>
+> - =A0 =A0 =A0 if (device_may_wakeup(&pdev->dev))
+> + =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0* If the keypad is used as wake up source, the clock=
+ is not turned
+> + =A0 =A0 =A0 =A0* off. So do not need configure it again.
+> + =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 if (device_may_wakeup(&pdev->dev)) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0disable_irq_wake(keypad->irq);
+> + =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 mutex_lock(&input_dev->mutex);
+>
+> - =A0 =A0 =A0 mutex_lock(&input_dev->mutex);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (input_dev->users) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Enable unit clock */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 clk_prepare_enable(keyp=
+ad->clk);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pxa27x_keypad_config(ke=
+ypad);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+>
+> - =A0 =A0 =A0 if (input_dev->users) {
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Enable unit clock */
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 clk_enable(keypad->clk);
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 pxa27x_keypad_config(keypad);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 mutex_unlock(&input_dev->mutex);
+> =A0 =A0 =A0 =A0}
+>
+> - =A0 =A0 =A0 mutex_unlock(&input_dev->mutex);
+> -
+> =A0 =A0 =A0 =A0return 0;
+> =A0}
 >
 > --
-> Dmitry
+> 1.7.0.4
 >
 >
-> Input: uinput - return -EINVAL when read buffer size is too small
->
-> From: David Herrmann <dh.herrmann@googlemail.com>
->
-> Let's check whether the user-supplied buffer is actually big enough a=
-nd
-> return -EINVAL if it is not. This differs from current behavior, whic=
-h
-> caused 0 to be returned and actually does not make any sense, as
-> broken application will simply repeat the read getting into endless
-> loop.
->
-> Note that we treat 0 as a special case, according to the standard:
->
-> "Before any action described below is taken, and if nbyte is zero,
-> the read() function may detect and return errors as described below.
-> In the absence of errors, or if error detection is not performed,
-> the read() function shall return zero and have no other results."
->
-> Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
-Still looks fine. Thanks.
+Hi Dmitry,
 
-> ---
->
-> =A0drivers/input/misc/uinput.c | =A0 =A03 +++
-> =A01 files changed, 3 insertions(+), 0 deletions(-)
->
->
-> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.=
-c
-> index 7360568..0386064 100644
-> --- a/drivers/input/misc/uinput.c
-> +++ b/drivers/input/misc/uinput.c
-> @@ -457,6 +457,9 @@ static ssize_t uinput_read(struct file *file, cha=
-r __user *buffer, size_t count,
-> =A0 =A0 =A0 =A0struct uinput_device *udev =3D file->private_data;
-> =A0 =A0 =A0 =A0int retval =3D 0;
->
-> + =A0 =A0 =A0 if (count !=3D 0 && count < input_event_size())
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
-> +
-> =A0 =A0 =A0 =A0if (udev->state !=3D UIST_CREATED)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -ENODEV;
->
->
-> Input: uinput - fix race that can block nonblocking read
->
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-> Consider two threads calling read() on the same uinput-fd, both
-> non-blocking. Assume there is data-available so both will simultaneou=
-sly
-> pass:
-> =A0 =A0 =A0 =A0udev->head =3D=3D udev->tail
->
-> Then the first thread goes to sleep and the second one pops the messa=
-ge
-> from the queue. Now assume udev->head =3D=3D udev->tail. If the first=
- thread
-> wakes up it will call wait_event_*() and sleep in the waitq. This
-> effectively turns the non-blocking FD into a blocking one.
->
-> We fix this by attempting to fetch events from the queue first and on=
-ly
-> if we fail to retrieve any events we either return -EAGAIN (in case o=
-f
-> non-blocing read) or wait until there are more events.
->
-> This also fixes incorrect return code (we were returning 0 instead of
-> =A0-EAGAIN for non-blocking reads) when an event is "stolen" by anoth=
-er
-> thread. Blocking reads will now continue to wait instead of returning=
- 0
-> in this scenario.
->
-> Count of 0 continues to be a special case, as per spec: we will check=
- for
-> device existence and whether there are events in the queue, but no ev=
-ents
-> will be actually retrieved.
->
-> Reported-by: David Herrmann <dh.herrmann@googlemail.com>
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+I just found that you're not looped in this mail thread. Could I merge
+them into arch-pxa tree?
 
-Ah, you replaced my goto try_again; with a do/while loop. Looks much
-nicer now. Thanks!
-I can't see any races anymore so I am fine with it.
-
-Thank you!
-David
-
-> ---
->
-> =A0drivers/input/misc/uinput.c | =A0 70 +++++++++++++++++++++++++----=
---------------
-> =A01 files changed, 41 insertions(+), 29 deletions(-)
->
->
-> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.=
-c
-> index 0386064..75e5502 100644
-> --- a/drivers/input/misc/uinput.c
-> +++ b/drivers/input/misc/uinput.c
-> @@ -452,45 +452,57 @@ static ssize_t uinput_write(struct file *file, =
-const char __user *buffer, size_t
-> =A0 =A0 =A0 =A0return retval;
-> =A0}
->
-> -static ssize_t uinput_read(struct file *file, char __user *buffer, s=
-ize_t count, loff_t *ppos)
-> +static ssize_t uinput_events_to_user(struct uinput_device *udev,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0char __user *buffer, size_t count)
-> +{
-> + =A0 =A0 =A0 size_t read =3D 0;
-> + =A0 =A0 =A0 int error =3D 0;
-> +
-> + =A0 =A0 =A0 while (udev->head !=3D udev->tail &&
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 read + input_event_size() <=3D count) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (input_event_to_user(buffer + read,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 &udev->buff[udev->tail])) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D -EFAULT;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 udev->tail =3D (udev->tail + 1) % UINPU=
-T_BUFFER_SIZE;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 read +=3D input_event_size();
-> + =A0 =A0 =A0 }
-> +
-> + =A0 =A0 =A0 return read ?: error;
-> +}
-> +
-> +static ssize_t uinput_read(struct file *file, char __user *buffer,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0size_t count, lo=
-ff_t *ppos)
-> =A0{
-> =A0 =A0 =A0 =A0struct uinput_device *udev =3D file->private_data;
-> - =A0 =A0 =A0 int retval =3D 0;
-> + =A0 =A0 =A0 ssize_t retval;
->
-> =A0 =A0 =A0 =A0if (count !=3D 0 && count < input_event_size())
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -EINVAL;
->
-> - =A0 =A0 =A0 if (udev->state !=3D UIST_CREATED)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENODEV;
-> + =A0 =A0 =A0 do {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 retval =3D mutex_lock_interruptible(&ud=
-ev->mutex);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (retval)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return retval;
->
-> - =A0 =A0 =A0 if (udev->head =3D=3D udev->tail && (file->f_flags & O_=
-NONBLOCK))
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EAGAIN;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (udev->state !=3D UIST_CREATED)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 retval =3D -ENODEV;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 else if (udev->head =3D=3D udev->tail &=
-&
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(file->f_flags & O_N=
-ONBLOCK))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 retval =3D -EAGAIN;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 else
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 retval =3D uinput_event=
-s_to_user(udev, buffer, count);
->
-> - =A0 =A0 =A0 retval =3D wait_event_interruptible(udev->waitq,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 udev->head !=3D udev->t=
-ail || udev->state !=3D UIST_CREATED);
-> - =A0 =A0 =A0 if (retval)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return retval;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 mutex_unlock(&udev->mutex);
->
-> - =A0 =A0 =A0 retval =3D mutex_lock_interruptible(&udev->mutex);
-> - =A0 =A0 =A0 if (retval)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return retval;
-> -
-> - =A0 =A0 =A0 if (udev->state !=3D UIST_CREATED) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 retval =3D -ENODEV;
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto out;
-> - =A0 =A0 =A0 }
-> -
-> - =A0 =A0 =A0 while (udev->head !=3D udev->tail && retval + input_eve=
-nt_size() <=3D count) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (input_event_to_user(buffer + retval=
-, &udev->buff[udev->tail])) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 retval =3D -EFAULT;
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto out;
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 udev->tail =3D (udev->tail + 1) % UINPU=
-T_BUFFER_SIZE;
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 retval +=3D input_event_size();
-> - =A0 =A0 =A0 }
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (retval)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return retval;
->
-> - out:
-> - =A0 =A0 =A0 mutex_unlock(&udev->mutex);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 retval =3D wait_event_interruptible(ude=
-v->waitq,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 udev->head !=3D udev->tail ||
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 udev->state !=3D UIST_CREATED);
-> + =A0 =A0 =A0 } while (retval =3D=3D 0);
->
-> =A0 =A0 =A0 =A0return retval;
-> =A0}
+Best Regards
+Haojian
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

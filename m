@@ -1,53 +1,201 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH] Input: sentelic - filter on-pad clicks in absolute mode
-Date: Mon, 02 Apr 2012 07:22:24 -0700
-Message-ID: <4F79B620.7030800@canonical.com>
-References: <20120401183037.GA23849@timantti.taisia.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Simon Wood <simon@mungewell.org>
+Subject: [PATCH 1/2] HID: hid-lg4ff: Use Private Data
+Date: Mon,  2 Apr 2012 07:54:03 -0700
+Message-ID: <1333378444-3117-1-git-send-email-simon@mungewell.org>
+References: <a4e40aa5c43be934d83240849aa25f3b.squirrel@mungewell.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:41751 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751755Ab2DBOVt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Apr 2012 10:21:49 -0400
-In-Reply-To: <20120401183037.GA23849@timantti.taisia.fi>
+Received: from host171.canaca.com ([67.55.55.225]:39678 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751506Ab2DBOyU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Apr 2012 10:54:20 -0400
+In-Reply-To: <a4e40aa5c43be934d83240849aa25f3b.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oskari Saarenmaa <os@ohmu.fi>
-Cc: Tai-hwa Liang <avatar@sentelic.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Michael Bauer <michael@m-bauer.org>, Michal Maly <madcatxster@gmail.com>, Simon Wood <simon@mungewell.org>
 
-On 04/01/2012 11:30 AM, Oskari Saarenmaa wrote:
-> On-pad clicks in absolute positioning single-finger mode are reported
-> without the PHY_BTN bit set, the on-pad clicks are handled by userspace
-> so the kernel shouldn't report them as real clicks.
+Use private data in hid-lg4ff to store device properties.
 
-What is the definition of an "on-pad" click?
+This code was writen by Michal, he asked me to check it and forward
+it on to the list.
 
-> Signed-off-by: Oskari Saarenmaa <os@ohmu.fi>
-> ---
->  Applies to v3.4-rc1
-> 
->  drivers/input/mouse/sentelic.c |    8 ++++++++
->  1 files changed, 8 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
-> index a977bfa..d4df8cd 100644
-> --- a/drivers/input/mouse/sentelic.c
-> +++ b/drivers/input/mouse/sentelic.c
-> @@ -741,6 +741,14 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
->  			}
->  		} else {
->  			/* SFAC packet */
-> +			if ((packet[0] & FSP_PB0_LBTN|FSP_PB0_PHY_BTN) ==
-> +				FSP_PB0_LBTN) {
-> +				/* On-pad click in SFAC mode should be handled
-> +				 * by userspace.  On-pad clicks in MFMC mode
-> +				 * are real clickpad clicks, and not ignored.
-> +				 */
-> +				packet[0] &= ~FSP_PB0_LBTN;
-> +			}
->  
->  			/* no multi-finger information */
->  			ad->last_mt_fgr = 0;
+Signed-off-by: Michal Maly <madcatxster@gmail.com>
+Signed-off-by: Simon Wood <simon@mungewell.org>
+---
+ drivers/hid/hid-lg4ff.c |   96 +++++++++++++++++++++-------------------------
+ 1 files changed, 44 insertions(+), 52 deletions(-)
+
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index 1145292..c3146e0 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -51,10 +51,7 @@ static ssize_t lg4ff_range_store(struct device *dev, struct device_attribute *at
+ 
+ static DEVICE_ATTR(range, S_IRWXU | S_IRWXG | S_IRWXO, lg4ff_range_show, lg4ff_range_store);
+ 
+-static bool list_inited;
+-
+ struct lg4ff_device_entry {
+-	char  *device_id;	/* Use name in respective kobject structure's address as the ID */
+ 	__u16 range;
+ 	__u16 min_range;
+ 	__u16 max_range;
+@@ -63,8 +60,6 @@ struct lg4ff_device_entry {
+ 	void (*set_range)(struct hid_device *hid, u16 range);
+ };
+ 
+-static struct lg4ff_device_entry device_list;
+-
+ static const signed short lg4ff_wheel_effects[] = {
+ 	FF_CONSTANT,
+ 	FF_AUTOCENTER,
+@@ -285,18 +280,20 @@ static void hid_lg4ff_switch_native(struct hid_device *hid, const struct lg4ff_n
+ /* Read current range and display it in terminal */
+ static ssize_t lg4ff_range_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+-	struct lg4ff_device_entry *uninitialized_var(entry);
+-	struct list_head *h;
+ 	struct hid_device *hid = to_hid_device(dev);
++	struct lg4ff_device_entry *uninitialized_var(entry);
++	struct lg_drv_data *uninitialized_var(drv_data);
+ 	size_t count;
+ 
+-	list_for_each(h, &device_list.list) {
+-		entry = list_entry(h, struct lg4ff_device_entry, list);
+-		if (strcmp(entry->device_id, (&hid->dev)->kobj.name) == 0)
+-			break;
++	drv_data = hid_get_drvdata(hid);
++	if (!drv_data) {
++		hid_err(hid, "Private driver data not found!\n");
++		return 0;
+ 	}
+-	if (h == &device_list.list) {
+-		dbg_hid("Device not found!");
++
++	entry = drv_data->device_props;
++	if (!entry) {
++		hid_err(hid, "Device properties not found!\n");
+ 		return 0;
+ 	}
+ 
+@@ -308,19 +305,21 @@ static ssize_t lg4ff_range_show(struct device *dev, struct device_attribute *att
+  * according to the type of the wheel */
+ static ssize_t lg4ff_range_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+ {
+-	struct lg4ff_device_entry *uninitialized_var(entry);
+-	struct list_head *h;
+ 	struct hid_device *hid = to_hid_device(dev);
++	struct lg4ff_device_entry *uninitialized_var(entry);
++	struct lg_drv_data *drv_data;
+ 	__u16 range = simple_strtoul(buf, NULL, 10);
+ 
+-	list_for_each(h, &device_list.list) {
+-		entry = list_entry(h, struct lg4ff_device_entry, list);
+-		if (strcmp(entry->device_id, (&hid->dev)->kobj.name) == 0)
+-			break;
++	drv_data = hid_get_drvdata(hid);
++	if (!drv_data) {
++		hid_err(hid, "Private driver data not found!\n");
++		return 0;
+ 	}
+-	if (h == &device_list.list) {
+-		dbg_hid("Device not found!");
+-		return count;
++
++	entry = drv_data->device_props;
++	if (!entry) {
++		hid_err(hid, "Device properties not found!\n");
++		return 0;
+ 	}
+ 
+ 	if (range == 0)
+@@ -344,6 +343,7 @@ int lg4ff_init(struct hid_device *hid)
+ 	struct hid_report *report;
+ 	struct hid_field *field;
+ 	struct lg4ff_device_entry *entry;
++	struct lg_drv_data *drv_data;
+ 	struct usb_device_descriptor *udesc;
+ 	int error, i, j;
+ 	__u16 bcdDevice, rev_maj, rev_min;
+@@ -423,28 +423,24 @@ int lg4ff_init(struct hid_device *hid)
+ 		dev->ff->set_autocenter(dev, 0);
+ 	}
+ 
+-		/* Initialize device_list if this is the first device to handle by lg4ff */
+-	if (!list_inited) {
+-		INIT_LIST_HEAD(&device_list.list);
+-		list_inited = 1;
++	/* Get private driver data */
++	drv_data = hid_get_drvdata(hid);
++	if (!drv_data) {
++		hid_err(hid, "Cannot add device, private driver data not allocated\n");
++		return -1;
+ 	}
+-
+-	/* Add the device to device_list */
++	
++	/* Initialize device properties */
+ 	entry = kzalloc(sizeof(struct lg4ff_device_entry), GFP_KERNEL);
+ 	if (!entry) {
+-		hid_err(hid, "Cannot add device, insufficient memory.\n");
+-		return -ENOMEM;
+-	}
+-	entry->device_id = kstrdup((&hid->dev)->kobj.name, GFP_KERNEL);
+-	if (!entry->device_id) {
+-		hid_err(hid, "Cannot set device_id, insufficient memory.\n");
+-		kfree(entry);
++		hid_err(hid, "Cannot add device, insufficient memory to allocate device properties.\n");
+ 		return -ENOMEM;
+ 	}
++	drv_data->device_props = entry;
++
+ 	entry->min_range = lg4ff_devices[i].min_range;
+ 	entry->max_range = lg4ff_devices[i].max_range;
+ 	entry->set_range = lg4ff_devices[i].set_range;
+-	list_add(&entry->list, &device_list.list);
+ 
+ 	/* Create sysfs interface */
+ 	error = device_create_file(&hid->dev, &dev_attr_range);
+@@ -463,27 +459,23 @@ int lg4ff_init(struct hid_device *hid)
+ 
+ int lg4ff_deinit(struct hid_device *hid)
+ {
+-	bool found = 0;
+-	struct lg4ff_device_entry *entry;
+-	struct list_head *h, *g;
++	struct lg4ff_device_entry *uninitialized_var(entry);
++	struct lg_drv_data *uninitialized_var(drv_data);
+ 	
+ 	device_remove_file(&hid->dev, &dev_attr_range);
+-
+-	list_for_each_safe(h, g, &device_list.list) {
+-		entry = list_entry(h, struct lg4ff_device_entry, list);
+-		if (strcmp(entry->device_id, (&hid->dev)->kobj.name) == 0) {
+-			list_del(h);
+-			kfree(entry->device_id);
+-			kfree(entry);
+-			found = 1;
+-			break;
+-		}
++	
++	drv_data = hid_get_drvdata(hid);
++	if (!drv_data) {
++		hid_err(hid, "Error while deinitializing device, no private driver data.\n");
++		return -1;
+ 	}
+-
+-	if (!found) {
+-		hid_err(hid, "Device entry not found!\n");
++	entry = drv_data->device_props;
++	if (!entry) {
++		hid_err(hid, "Error while deinitializing device, no device properties data.\n");
+ 		return -1;
+ 	}
++	/* Deallocate memory */
++	kfree(entry);
+ 
+ 	dbg_hid("Device successfully unregistered\n");
+ 	return 0;
+-- 
+1.7.4.1
 

@@ -1,56 +1,46 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH v4] HID: lg4ff: Remove sysfs iface before deallocating
- memory
-Date: Sun, 1 Apr 2012 21:49:35 -0400
-Message-ID: <a4e40aa5c43be934d83240849aa25f3b.squirrel@mungewell.org>
-References: <2198552.DMoMTvshKQ@qosmio-x300>
+From: Viresh Kumar <viresh.kumar@st.com>
+Subject: Re: [PATCH V4 Resend 1/2] Input: of_keymap: Introduce matrix_keypad_of_build_keymap()
+Date: Mon, 2 Apr 2012 09:03:14 +0530
+Message-ID: <4F791DFA.5030009@st.com>
+References: <cover.1333009670.git.viresh.kumar@st.com> <406fb8092d6aca97a54add346a2528daefab9c8d.1333009670.git.viresh.kumar@st.com> <4F75FF4E.4040602@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:50705 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753805Ab2DBBth (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Apr 2012 21:49:37 -0400
-In-Reply-To: <2198552.DMoMTvshKQ@qosmio-x300>
+Received: from eu1sys200aog108.obsmtp.com ([207.126.144.125]:35356 "EHLO
+	eu1sys200aog108.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754333Ab2DBDeg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 1 Apr 2012 23:34:36 -0400
+In-Reply-To: <4F75FF4E.4040602@wwwdotorg.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@gmail.com>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, simon@mungewell.org
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, spear-devel <spear-devel@list.st.com>, "viresh.linux@gmail.com" <viresh.linux@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "sr@denx.de" <sr@denx.de>
 
-Hi all,
-Looks good to me, built and tested working with a G27.
+On 3/31/2012 12:15 AM, Stephen Warren wrote:
+>> > diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+> ...
+>> >  #else
+>> > -static inline struct tegra_kbc_platform_data *tegra_kbc_dt_parse_pdata(
+>> > -	struct platform_device *pdev)
+>> > +static struct tegra_kbc_platform_data * __devinit
+>> > +tegra_kbc_dt_parse_pdata(struct device_node *np)
+> This one should be "inline" and not "__devinit", i.e. like it was before.
+> 
+>> > diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
+> ...
+>> >  #else
+>> > -static inline struct matrix_keymap_data *
+>> > -matrix_keyboard_of_fill_keymap(struct device_node *np, const char *propname)
+>> > +int matrix_keypad_of_build_keymap(struct input_dev *idev,
+>> > +		unsigned int row_shift, const char *propname)
+>> >  {
+>> >  	return NULL;
+>> >  }
+> This one should also be "static inline".
 
-I also have the 3rd patch (mentioned by Michal) and a 4th which impleme=
-nts
-LED control on the G27. How do you want these sent? (they need to be bu=
-ilt
-on top of Michal's patches)
+Would send fixup/incremental patch for this.
 
-Simon
-
-Signed-off-by: simon@mungewell.org
-
-> Hi,
->
-> This patch fixes a possible race condition caused by the sysfs
-> interface being removed after the memory used by the interface
-> was already kfree'd.
-> Please note that this patch depends on "hid-lg: Allow for custom
-> device-specific properties to be stored in private drv data" because
-> it also fixes a tiny glitch - a leftover #include in the hid-lg.h
->
-> I have another lg4ff patch pending that makes use of the new possibil=
-ity
-> to
-> store device-specific data which is currently being review by Simon.
-> The patch as it is right now will depend on this patch.
->
-> Signed-off-by: Michal Mal=FD <madcatsxter@gmail.com>
->
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+viresh

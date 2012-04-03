@@ -1,49 +1,70 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: psmouse serio4: bad data from KBC - timeout
-Date: Tue, 3 Apr 2012 11:43:25 +0200
-Message-ID: <20120403094324.GA3346@gere.osrc.amd.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [RFC 0/5] hid: Extending the device-driver matching mechanism
+Date: Tue, 3 Apr 2012 12:55:54 +0200
+Message-ID: <20120403105554.GA14201@polaris.bitmath.org>
+References: <1333436730-13008-1-git-send-email-rydberg@euromail.se>
+ <CAN+gG=EvmTFKmKGaC6T-RKYhUy8U0NqWxqz-k_Gr_w5_rm57Bg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.skyhub.de ([78.46.96.112]:54188 "EHLO mail.skyhub.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751353Ab2DCJn3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Apr 2012 05:43:29 -0400
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:42473 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751458Ab2DCKy2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Apr 2012 06:54:28 -0400
 Content-Disposition: inline
+In-Reply-To: <CAN+gG=EvmTFKmKGaC6T-RKYhUy8U0NqWxqz-k_Gr_w5_rm57Bg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, LKML <linux-kernel@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi guys,
+Hi Benjamin,
 
-I'm running 3.4-rc1 on a thinkpad x121e and it builds and boots just
-fine. However, after resuming from disk I get (this is the tail of
-dmesg):
+> So, I made a few tests yesterday, and I have now a clearer idea about
+> this solution:
+> 
+> generally, I like it. Furthermore, it should help us build new classes
+> of devices without involving hid-core, which is great.
+> However, I have a few minors concerns, and a major one.
+> 
+> The major one comes with patch 3: introducing the hid_parse function
+> in usbhid is great but it interferes with report_fixup mechanism. That
+> means that several drivers won't work with this solution.
 
-[  905.857412] i8042: failed to resume active multiplexor, mouse won't work
-[  905.965568] usb 3-2: reset low-speed USB device number 2 using ohci_hcd
-[  907.626998] psmouse serio4: bad data from KBC - timeout
-[  907.675385] PM: restore of devices complete after 2358.155 msecs
-[  908.227481] Restarting tasks ... done.
-[  908.266229] video LNXVIDEO:01: Restoring backlight state
-[  917.628792] psmouse serio4: Failed to deactivate mouse on isa0060/serio4
-[  917.880639] psmouse serio4: Failed to enable mouse on isa0060/serio4
-[  919.867982] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input19
-[  947.277011] atl1c 0000:02:00.0: atl1c: eth0 NIC Link is Up<100 Mbps Full Duplex>
-[  996.231116] Bluetooth: Core ver 2.16
-[  996.231262] NET: Registered protocol family 31
-[  996.231273] Bluetooth: HCI device and connection manager initialized
-[  996.231559] Bluetooth: HCI socket layer initialized
-[  996.231575] Bluetooth: L2CAP socket layer initialized
-[  996.231630] Bluetooth: SCO socket layer initialized
+Yes, as noted in the commit message, that part is a work in
+progress. Going through all the drivers using report_fixup, the
+majority only uses device information, some use a driver-specific
+quirk which again boils down to a specific device. All drivers are
+present in the special_driver list in hid-core.
 
-and after that the keyboard and the mouse touchpad don't work. The
-connected USB mouse works fine though.
+The simplest solution is probably to defer parsing for drivers known
+from the device list. Even better would be if there was a mechanism to
+avoid that list altogether... considering the USB/BT device as
+separate from the HID device, it might even make sense to split the
+drivers that way. Most drivers would drive the HID devices,
+kickstarted by the generic usbhid driver. Some drivers would need to
+intervene on the USB/BT level instead, for instance by fixing up the
+reports.
 
-Any help is appreciated,
-thanks.
+> Now the minors:
+> - as mentioned, the patches do not apply on Jiri's tree, which means
+> that we are missing the detection of the serial protocol (see comment
+> in patch 4).
 
--- 
-Regards/Gruss,
-Boris.
+Ok, thanks. In a couple of weeks I should rebase the patches to 3.4,
+and will deal with it then.
+
+> - shouldn't we introduce the same behavior for bluetooth (hidp)
+> devices -> to be able to separate the handling of the magicmouse for
+> instance)?
+
+Yes, although I have not looked into the details yet.
+
+> - as the hid_parse function is already called, shouldn't we remove the
+> calls in the other drivers?
+
+Maybe, maybe not - it depends on if there will be a deferral
+mechanism. Hopefully it will become clear as we go along.
+
+Thanks!
+Henrik

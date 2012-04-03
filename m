@@ -1,41 +1,230 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v4] HID: lg4ff: Remove sysfs iface before deallocating
- memory
-Date: Tue, 3 Apr 2012 04:12:31 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204030412100.16928@pobox.suse.cz>
-References: <2198552.DMoMTvshKQ@qosmio-x300>
+From: Sourav Poddar <sourav.poddar@ti.com>
+Subject: [PATCH RESEND] Input: omap-keypad: dynamically handle register offsets
+Date: Tue, 3 Apr 2012 10:52:26 +0530
+Message-ID: <1333430546-23454-1-git-send-email-sourav.poddar@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40813 "EHLO mx2.suse.de"
+Received: from comal.ext.ti.com ([198.47.26.152]:60981 "EHLO comal.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751694Ab2DCCMd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Apr 2012 22:12:33 -0400
-In-Reply-To: <2198552.DMoMTvshKQ@qosmio-x300>
+	id S1751755Ab2DCFTd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Apr 2012 01:19:33 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@gmail.com>
-Cc: linux-input@vger.kernel.org, simon@mungewell.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
+Cc: sourav.poddar@ti.com, balbi@ti.com
 
-On Sat, 31 Mar 2012, Michal Mal=FD wrote:
+From: G, Manjunath Kondaiah <manjugk@ti.com>
 
-> Hi,
->=20
-> This patch fixes a possible race condition caused by the sysfs
-> interface being removed after the memory used by the interface
-> was already kfree'd.
-> Please note that this patch depends on "hid-lg: Allow for custom
-> device-specific properties to be stored in private drv data" because
-> it also fixes a tiny glitch - a leftover #include in the hid-lg.h
+Keypad controller register offsets are different for omap4
+and omap5. Handle these offsets through static mapping and
+assign these mappings during run time.
 
-Applied, thanks.
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: G, Manjunath Kondaiah <manjugk@ti.com>
+Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+---
+Test Info
+ - Tested on omap4 sdp with 3.4-rc1
+ - Tested on omap5430evm with 3.1 custom kernel.
+ drivers/input/keyboard/Kconfig        |    6 +-
+ drivers/input/keyboard/omap4-keypad.c |  120 ++++++++++++++++++++++++++------
+ 2 files changed, 100 insertions(+), 26 deletions(-)
 
---=20
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index f354813..9a0e1a9 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -511,10 +511,10 @@ config KEYBOARD_OMAP
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called omap-keypad.
+ 
+-config KEYBOARD_OMAP4
+-	tristate "TI OMAP4 keypad support"
++config KEYBOARD_OMAP4+
++	tristate "TI OMAP4+ keypad support"
+ 	help
+-	  Say Y here if you want to use the OMAP4 keypad.
++	  Say Y here if you want to use the OMAP4+ keypad.
+ 
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called omap4-keypad.
+diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+index e809ac0..742e1e3 100644
+--- a/drivers/input/keyboard/omap4-keypad.c
++++ b/drivers/input/keyboard/omap4-keypad.c
+@@ -68,6 +68,11 @@
+ 
+ #define OMAP4_MASK_IRQSTATUSDISABLE	0xFFFF
+ 
++enum {
++	KBD_REVISION_OMAP4 = 0,
++	KBD_REVISION_OMAP5,
++};
++
+ struct omap4_keypad {
+ 	struct input_dev *input;
+ 
+@@ -76,11 +81,66 @@ struct omap4_keypad {
+ 
+ 	unsigned int rows;
+ 	unsigned int cols;
++	unsigned int revision;
++	u32 irqstatus;
++	u32 irqenable;
+ 	unsigned int row_shift;
+ 	unsigned char key_state[8];
+ 	unsigned short keymap[];
+ };
+ 
++static int kbd_read_irqstatus(struct omap4_keypad *keypad_data, u32 offset)
++{
++	return __raw_readl(keypad_data->base + offset);
++}
++
++static int kbd_write_irqstatus(struct omap4_keypad *keypad_data,
++						u32 offset, u32 value)
++{
++	return __raw_writel(value, keypad_data->base + offset);
++}
++
++static int kbd_write_irqenable(struct omap4_keypad *keypad_data,
++						u32 offset, u32 value)
++{
++	return __raw_writel(value, keypad_data->base + offset);
++}
++
++static int kbd_readl(struct omap4_keypad *keypad_data, u32 offset)
++{
++	if (keypad_data->revision == KBD_REVISION_OMAP4)
++		return __raw_readl(keypad_data->base + offset);
++	else if (keypad_data->revision == KBD_REVISION_OMAP5)
++		return __raw_readl(keypad_data->base + offset + 0x10);
++
++	return -ENODEV;
++}
++
++static void kbd_writel(struct omap4_keypad *keypad_data, u32 offset, u32 value)
++{
++	if (keypad_data->revision == KBD_REVISION_OMAP4)
++		__raw_writel(value, keypad_data->base + offset);
++	else if (keypad_data->revision == KBD_REVISION_OMAP5)
++		__raw_writel(value, keypad_data->base + offset + 0x10);
++}
++
++static int kbd_read_revision(struct omap4_keypad *keypad_data, u32 offset)
++{
++	int reg;
++	reg = __raw_readl(keypad_data->base + offset);
++	reg &= 0x03 << 30;
++	reg >>= 30;
++
++	switch (reg) {
++	case 1:
++		return KBD_REVISION_OMAP5;
++	case 0:
++		return KBD_REVISION_OMAP4;
++	default:
++		return -ENODEV;
++	}
++}
++
+ /* Interrupt handler */
+ static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
+ {
+@@ -91,12 +151,11 @@ static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
+ 	u32 *new_state = (u32 *) key_state;
+ 
+ 	/* Disable interrupts */
+-	__raw_writel(OMAP4_VAL_IRQDISABLE,
+-		     keypad_data->base + OMAP4_KBD_IRQENABLE);
++	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
++			OMAP4_VAL_IRQDISABLE);
+ 
+-	*new_state = __raw_readl(keypad_data->base + OMAP4_KBD_FULLCODE31_0);
+-	*(new_state + 1) = __raw_readl(keypad_data->base
+-						+ OMAP4_KBD_FULLCODE63_32);
++	*new_state = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE31_0);
++	*(new_state + 1) = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE63_32);
+ 
+ 	for (row = 0; row < keypad_data->rows; row++) {
+ 		changed = key_state[row] ^ keypad_data->key_state[row];
+@@ -121,12 +180,13 @@ static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
+ 		sizeof(keypad_data->key_state));
+ 
+ 	/* clear pending interrupts */
+-	__raw_writel(__raw_readl(keypad_data->base + OMAP4_KBD_IRQSTATUS),
+-			keypad_data->base + OMAP4_KBD_IRQSTATUS);
++	kbd_write_irqstatus(keypad_data, keypad_data->irqstatus,
++		kbd_read_irqstatus(keypad_data, keypad_data->irqstatus));
+ 
+ 	/* enable interrupts */
+-	__raw_writel(OMAP4_DEF_IRQENABLE_EVENTEN | OMAP4_DEF_IRQENABLE_LONGKEY,
+-			keypad_data->base + OMAP4_KBD_IRQENABLE);
++	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
++		OMAP4_DEF_IRQENABLE_EVENTEN |
++			OMAP4_DEF_IRQENABLE_LONGKEY);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -139,16 +199,30 @@ static int omap4_keypad_open(struct input_dev *input)
+ 
+ 	disable_irq(keypad_data->irq);
+ 
+-	__raw_writel(OMAP4_VAL_FUNCTIONALCFG,
+-			keypad_data->base + OMAP4_KBD_CTRL);
+-	__raw_writel(OMAP4_VAL_DEBOUNCINGTIME,
+-			keypad_data->base + OMAP4_KBD_DEBOUNCINGTIME);
+-	__raw_writel(OMAP4_VAL_IRQDISABLE,
+-			keypad_data->base + OMAP4_KBD_IRQSTATUS);
+-	__raw_writel(OMAP4_DEF_IRQENABLE_EVENTEN | OMAP4_DEF_IRQENABLE_LONGKEY,
+-			keypad_data->base + OMAP4_KBD_IRQENABLE);
+-	__raw_writel(OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA,
+-			keypad_data->base + OMAP4_KBD_WAKEUPENABLE);
++	keypad_data->revision = kbd_read_revision(keypad_data,
++			OMAP4_KBD_REVISION);
++	if (keypad_data->revision == KBD_REVISION_OMAP4) {
++		keypad_data->irqstatus = OMAP4_KBD_IRQSTATUS;
++		keypad_data->irqenable = OMAP4_KBD_IRQENABLE;
++	} else if (keypad_data->revision == KBD_REVISION_OMAP5) {
++		keypad_data->irqstatus = OMAP4_KBD_IRQSTATUS + 0x0c;
++		keypad_data->irqenable = OMAP4_KBD_IRQENABLE + 0x0c;
++	} else {
++		pr_err("Omap keypad not found\n");
++		return -ENODEV;
++	}
++
++	kbd_writel(keypad_data, OMAP4_KBD_CTRL,
++			OMAP4_VAL_FUNCTIONALCFG);
++	kbd_writel(keypad_data, OMAP4_KBD_DEBOUNCINGTIME,
++			OMAP4_VAL_DEBOUNCINGTIME);
++	kbd_write_irqstatus(keypad_data, keypad_data->irqstatus,
++			OMAP4_VAL_IRQDISABLE);
++	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
++			OMAP4_DEF_IRQENABLE_EVENTEN |
++				OMAP4_DEF_IRQENABLE_LONGKEY);
++	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE,
++			OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA);
+ 
+ 	enable_irq(keypad_data->irq);
+ 
+@@ -162,12 +236,12 @@ static void omap4_keypad_close(struct input_dev *input)
+ 	disable_irq(keypad_data->irq);
+ 
+ 	/* Disable interrupts */
+-	__raw_writel(OMAP4_VAL_IRQDISABLE,
+-		     keypad_data->base + OMAP4_KBD_IRQENABLE);
++	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
++			OMAP4_VAL_IRQDISABLE);
+ 
+ 	/* clear pending interrupts */
+-	__raw_writel(__raw_readl(keypad_data->base + OMAP4_KBD_IRQSTATUS),
+-			keypad_data->base + OMAP4_KBD_IRQSTATUS);
++	kbd_write_irqstatus(keypad_data, keypad_data->irqstatus,
++		kbd_read_irqstatus(keypad_data, keypad_data->irqstatus));
+ 
+ 	enable_irq(keypad_data->irq);
+ 
+-- 
+1.7.1
+

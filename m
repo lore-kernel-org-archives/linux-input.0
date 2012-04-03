@@ -1,230 +1,59 @@
-From: Sourav Poddar <sourav.poddar@ti.com>
-Subject: [PATCH RESEND] Input: omap-keypad: dynamically handle register offsets
-Date: Tue, 3 Apr 2012 10:52:26 +0530
-Message-ID: <1333430546-23454-1-git-send-email-sourav.poddar@ti.com>
+From: Oskari Saarenmaa <os@ohmu.fi>
+Subject: [PATCHv2] Input: sentelic - filter taps in absolute mode
+Date: Tue, 3 Apr 2012 09:59:09 +0300
+Message-ID: <20120403065909.GA32166@timantti.taisia.fi>
+References: <20120401183037.GA23849@timantti.taisia.fi> <4F79B620.7030800@canonical.com> <4F79BE70.90005@ohmu.fi> <4F79C029.3040606@canonical.com> <4F79C7A0.6060601@ohmu.fi> <4F79D54E.4060500@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:60981 "EHLO comal.ext.ti.com"
+Received: from timantti.taisia.fi ([213.157.67.233]:38860 "EHLO mail.taisia.fi"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751755Ab2DCFTd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Apr 2012 01:19:33 -0400
+	id S1750821Ab2DCG7M (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Apr 2012 02:59:12 -0400
+Content-Disposition: inline
+In-Reply-To: <4F79D54E.4060500@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
-Cc: sourav.poddar@ti.com, balbi@ti.com
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Tai-hwa Liang <avatar@sentelic.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-From: G, Manjunath Kondaiah <manjugk@ti.com>
+Taps in absolute positioning single-finger mode are currently reported
+as physical clicks by the driver. This should be handled by userspace,
+not the kernel.
 
-Keypad controller register offsets are different for omap4
-and omap5. Handle these offsets through static mapping and
-assign these mappings during run time.
+When a tap occurs, the FSP_PB0_LBTN bit is set, but the FSP_PB0_PHY_BTN
+is not. We use this to filter out physical clicks from taps.
 
-Signed-off-by: Felipe Balbi <balbi@ti.com>
-Signed-off-by: G, Manjunath Kondaiah <manjugk@ti.com>
-Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+Signed-off-by: Oskari Saarenmaa <os@ohmu.fi>
+Reviewed-by: Tai-hwa Liang <avatar@sentelic.com> 
+Reviewed-by: Chase Douglas <chase.douglas@canonical.com>
+Cc: Dmitry Torokhov <dtor@mail.ru>
 ---
-Test Info
- - Tested on omap4 sdp with 3.4-rc1
- - Tested on omap5430evm with 3.1 custom kernel.
- drivers/input/keyboard/Kconfig        |    6 +-
- drivers/input/keyboard/omap4-keypad.c |  120 ++++++++++++++++++++++++++------
- 2 files changed, 100 insertions(+), 26 deletions(-)
+ Added missing braces around the bitwise or operation, reworded the
+ commit message and added reviewed-by and cc lines.
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index f354813..9a0e1a9 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -511,10 +511,10 @@ config KEYBOARD_OMAP
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called omap-keypad.
+ drivers/input/mouse/sentelic.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index a977bfa..d4df8cd 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -741,6 +741,14 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
+ 			}
+ 		} else {
+ 			/* SFAC packet */
++			if ((packet[0] & (FSP_PB0_LBTN|FSP_PB0_PHY_BTN)) ==
++				FSP_PB0_LBTN) {
++				/* On-pad click in SFAC mode should be handled
++				 * by userspace.  On-pad clicks in MFMC mode
++				 * are real clickpad clicks, and not ignored.
++				 */
++				packet[0] &= ~FSP_PB0_LBTN;
++			}
  
--config KEYBOARD_OMAP4
--	tristate "TI OMAP4 keypad support"
-+config KEYBOARD_OMAP4+
-+	tristate "TI OMAP4+ keypad support"
- 	help
--	  Say Y here if you want to use the OMAP4 keypad.
-+	  Say Y here if you want to use the OMAP4+ keypad.
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called omap4-keypad.
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index e809ac0..742e1e3 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -68,6 +68,11 @@
- 
- #define OMAP4_MASK_IRQSTATUSDISABLE	0xFFFF
- 
-+enum {
-+	KBD_REVISION_OMAP4 = 0,
-+	KBD_REVISION_OMAP5,
-+};
-+
- struct omap4_keypad {
- 	struct input_dev *input;
- 
-@@ -76,11 +81,66 @@ struct omap4_keypad {
- 
- 	unsigned int rows;
- 	unsigned int cols;
-+	unsigned int revision;
-+	u32 irqstatus;
-+	u32 irqenable;
- 	unsigned int row_shift;
- 	unsigned char key_state[8];
- 	unsigned short keymap[];
- };
- 
-+static int kbd_read_irqstatus(struct omap4_keypad *keypad_data, u32 offset)
-+{
-+	return __raw_readl(keypad_data->base + offset);
-+}
-+
-+static int kbd_write_irqstatus(struct omap4_keypad *keypad_data,
-+						u32 offset, u32 value)
-+{
-+	return __raw_writel(value, keypad_data->base + offset);
-+}
-+
-+static int kbd_write_irqenable(struct omap4_keypad *keypad_data,
-+						u32 offset, u32 value)
-+{
-+	return __raw_writel(value, keypad_data->base + offset);
-+}
-+
-+static int kbd_readl(struct omap4_keypad *keypad_data, u32 offset)
-+{
-+	if (keypad_data->revision == KBD_REVISION_OMAP4)
-+		return __raw_readl(keypad_data->base + offset);
-+	else if (keypad_data->revision == KBD_REVISION_OMAP5)
-+		return __raw_readl(keypad_data->base + offset + 0x10);
-+
-+	return -ENODEV;
-+}
-+
-+static void kbd_writel(struct omap4_keypad *keypad_data, u32 offset, u32 value)
-+{
-+	if (keypad_data->revision == KBD_REVISION_OMAP4)
-+		__raw_writel(value, keypad_data->base + offset);
-+	else if (keypad_data->revision == KBD_REVISION_OMAP5)
-+		__raw_writel(value, keypad_data->base + offset + 0x10);
-+}
-+
-+static int kbd_read_revision(struct omap4_keypad *keypad_data, u32 offset)
-+{
-+	int reg;
-+	reg = __raw_readl(keypad_data->base + offset);
-+	reg &= 0x03 << 30;
-+	reg >>= 30;
-+
-+	switch (reg) {
-+	case 1:
-+		return KBD_REVISION_OMAP5;
-+	case 0:
-+		return KBD_REVISION_OMAP4;
-+	default:
-+		return -ENODEV;
-+	}
-+}
-+
- /* Interrupt handler */
- static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
- {
-@@ -91,12 +151,11 @@ static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
- 	u32 *new_state = (u32 *) key_state;
- 
- 	/* Disable interrupts */
--	__raw_writel(OMAP4_VAL_IRQDISABLE,
--		     keypad_data->base + OMAP4_KBD_IRQENABLE);
-+	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
-+			OMAP4_VAL_IRQDISABLE);
- 
--	*new_state = __raw_readl(keypad_data->base + OMAP4_KBD_FULLCODE31_0);
--	*(new_state + 1) = __raw_readl(keypad_data->base
--						+ OMAP4_KBD_FULLCODE63_32);
-+	*new_state = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE31_0);
-+	*(new_state + 1) = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE63_32);
- 
- 	for (row = 0; row < keypad_data->rows; row++) {
- 		changed = key_state[row] ^ keypad_data->key_state[row];
-@@ -121,12 +180,13 @@ static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
- 		sizeof(keypad_data->key_state));
- 
- 	/* clear pending interrupts */
--	__raw_writel(__raw_readl(keypad_data->base + OMAP4_KBD_IRQSTATUS),
--			keypad_data->base + OMAP4_KBD_IRQSTATUS);
-+	kbd_write_irqstatus(keypad_data, keypad_data->irqstatus,
-+		kbd_read_irqstatus(keypad_data, keypad_data->irqstatus));
- 
- 	/* enable interrupts */
--	__raw_writel(OMAP4_DEF_IRQENABLE_EVENTEN | OMAP4_DEF_IRQENABLE_LONGKEY,
--			keypad_data->base + OMAP4_KBD_IRQENABLE);
-+	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
-+		OMAP4_DEF_IRQENABLE_EVENTEN |
-+			OMAP4_DEF_IRQENABLE_LONGKEY);
- 
- 	return IRQ_HANDLED;
- }
-@@ -139,16 +199,30 @@ static int omap4_keypad_open(struct input_dev *input)
- 
- 	disable_irq(keypad_data->irq);
- 
--	__raw_writel(OMAP4_VAL_FUNCTIONALCFG,
--			keypad_data->base + OMAP4_KBD_CTRL);
--	__raw_writel(OMAP4_VAL_DEBOUNCINGTIME,
--			keypad_data->base + OMAP4_KBD_DEBOUNCINGTIME);
--	__raw_writel(OMAP4_VAL_IRQDISABLE,
--			keypad_data->base + OMAP4_KBD_IRQSTATUS);
--	__raw_writel(OMAP4_DEF_IRQENABLE_EVENTEN | OMAP4_DEF_IRQENABLE_LONGKEY,
--			keypad_data->base + OMAP4_KBD_IRQENABLE);
--	__raw_writel(OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA,
--			keypad_data->base + OMAP4_KBD_WAKEUPENABLE);
-+	keypad_data->revision = kbd_read_revision(keypad_data,
-+			OMAP4_KBD_REVISION);
-+	if (keypad_data->revision == KBD_REVISION_OMAP4) {
-+		keypad_data->irqstatus = OMAP4_KBD_IRQSTATUS;
-+		keypad_data->irqenable = OMAP4_KBD_IRQENABLE;
-+	} else if (keypad_data->revision == KBD_REVISION_OMAP5) {
-+		keypad_data->irqstatus = OMAP4_KBD_IRQSTATUS + 0x0c;
-+		keypad_data->irqenable = OMAP4_KBD_IRQENABLE + 0x0c;
-+	} else {
-+		pr_err("Omap keypad not found\n");
-+		return -ENODEV;
-+	}
-+
-+	kbd_writel(keypad_data, OMAP4_KBD_CTRL,
-+			OMAP4_VAL_FUNCTIONALCFG);
-+	kbd_writel(keypad_data, OMAP4_KBD_DEBOUNCINGTIME,
-+			OMAP4_VAL_DEBOUNCINGTIME);
-+	kbd_write_irqstatus(keypad_data, keypad_data->irqstatus,
-+			OMAP4_VAL_IRQDISABLE);
-+	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
-+			OMAP4_DEF_IRQENABLE_EVENTEN |
-+				OMAP4_DEF_IRQENABLE_LONGKEY);
-+	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE,
-+			OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA);
- 
- 	enable_irq(keypad_data->irq);
- 
-@@ -162,12 +236,12 @@ static void omap4_keypad_close(struct input_dev *input)
- 	disable_irq(keypad_data->irq);
- 
- 	/* Disable interrupts */
--	__raw_writel(OMAP4_VAL_IRQDISABLE,
--		     keypad_data->base + OMAP4_KBD_IRQENABLE);
-+	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
-+			OMAP4_VAL_IRQDISABLE);
- 
- 	/* clear pending interrupts */
--	__raw_writel(__raw_readl(keypad_data->base + OMAP4_KBD_IRQSTATUS),
--			keypad_data->base + OMAP4_KBD_IRQSTATUS);
-+	kbd_write_irqstatus(keypad_data, keypad_data->irqstatus,
-+		kbd_read_irqstatus(keypad_data, keypad_data->irqstatus));
- 
- 	enable_irq(keypad_data->irq);
- 
+ 			/* no multi-finger information */
+ 			ad->last_mt_fgr = 0;
 -- 
-1.7.1
+1.7.7.6
 

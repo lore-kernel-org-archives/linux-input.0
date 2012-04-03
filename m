@@ -1,30 +1,96 @@
-From: Timo Aaltonen <tjaalton@ubuntu.com>
-Subject: Re: [Linuxwacom-devel] [PATCH 1/4] input: wacom: Intuos5 basic support
-Date: Tue, 03 Apr 2012 21:05:30 +0300
-Message-ID: <4F7B3BEA.5030500@ubuntu.com>
-References: <1331345166-1022-1-git-send-email-killertofu@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: serio_raw - ensure we don't block in non-blocking read
+Date: Tue, 3 Apr 2012 13:24:33 -0700
+Message-ID: <20120403202432.GA18564@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:48285 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754486Ab2DCSFc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Apr 2012 14:05:32 -0400
-In-Reply-To: <1331345166-1022-1-git-send-email-killertofu@gmail.com>
+Received: from mail-pz0-f52.google.com ([209.85.210.52]:34756 "EHLO
+	mail-pz0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753286Ab2DCUYk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Apr 2012 16:24:40 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, chris@cnpbagwell.com, linuxwacom-devel@lists.sourceforge.net
+To: linux-input@vger.kernel.org
+Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>, Che-Liang Chiou <clchiou@chromium.org>, David Herrmann <dh.herrmann@googlemail.com>, linux-kernel@vger.kernel.org
 
-On 10.03.2012 04:06, Jason Gerecke wrote:
-> This patch adds support for the basic pen functions of Intuos5
-> tablets.
+Avoid calling wait_event_interruptible() if client requested non-blocking
+read, since it is not guaranteed that another thread will not consume
+event after we checked if serio_raw->head != serio_raw->tail.
 
-Looks like these haven't been applied upstream yet?
+Also ensure we do not return 0 but keep waiting instead in blocking case,
+when another thread steals "our" byte.
 
-Tested-by: Timo Aaltonen <tjaalton@ubuntu.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+ drivers/input/serio/serio_raw.c |   43 ++++++++++++++++++++++----------------
+ 1 files changed, 25 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/input/serio/serio_raw.c b/drivers/input/serio/serio_raw.c
+index 4494233..094d6fb 100644
+--- a/drivers/input/serio/serio_raw.c
++++ b/drivers/input/serio/serio_raw.c
+@@ -165,31 +165,38 @@ static ssize_t serio_raw_read(struct file *file, char __user *buffer,
+ 	struct serio_raw *serio_raw = client->serio_raw;
+ 	char uninitialized_var(c);
+ 	ssize_t read = 0;
+-	int retval;
++	int error = 0;
+ 
+-	if (serio_raw->dead)
+-		return -ENODEV;
++	do {
++		if (serio_raw->dead)
++			return -ENODEV;
+ 
+-	if (serio_raw->head == serio_raw->tail && (file->f_flags & O_NONBLOCK))
+-		return -EAGAIN;
++		if (serio_raw->head == serio_raw->tail &&
++		    (file->f_flags & O_NONBLOCK))
++			return -EAGAIN;
+ 
+-	retval = wait_event_interruptible(serio_raw->wait,
+-			serio_raw->head != serio_raw->tail || serio_raw->dead);
+-	if (retval)
+-		return retval;
++		if (count == 0)
++			break;
+ 
+-	if (serio_raw->dead)
+-		return -ENODEV;
++		while (read < count && serio_raw_fetch_byte(serio_raw, &c)) {
++			if (put_user(c, buffer++)) {
++				error = -EFAULT;
++				goto out;
++			}
++			read++;
++		}
+ 
+-	while (read < count && serio_raw_fetch_byte(serio_raw, &c)) {
+-		if (put_user(c, buffer++)) {
+-			retval = -EFAULT;
++		if (read)
+ 			break;
+-		}
+-		read++;
+-	}
+ 
+-	return read ?: retval;
++		if (!(file->f_flags & O_NONBLOCK))
++			error = wait_event_interruptible(serio_raw->wait,
++					serio_raw->head != serio_raw->tail ||
++					serio_raw->dead);
++	} while (!error);
++
++out:
++	return read ?: error;
+ }
+ 
+ static ssize_t serio_raw_write(struct file *file, const char __user *buffer,
+-- 
+1.7.7.6
 
 
 -- 
-t
+Dmitry

@@ -1,40 +1,30 @@
-From: JJ Ding <jj_ding@emc.com.tw>
-Subject: Re: elantech buttonpad devices
-Date: Tue, 03 Apr 2012 09:23:50 +0800
-Message-ID: <87aa2tvc9l.fsf@emc.com.tw>
-References: <4F79F36C.8000503@canonical.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] HID: hid-lg4ff: Use Private Data
+Date: Tue, 3 Apr 2012 04:13:37 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204030413030.16928@pobox.suse.cz>
+References: <a4e40aa5c43be934d83240849aa25f3b.squirrel@mungewell.org> <1333378444-3117-1-git-send-email-simon@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:4066 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751121Ab2DCBWL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Apr 2012 21:22:11 -0400
-In-Reply-To: <4F79F36C.8000503@canonical.com>
+Received: from cantor2.suse.de ([195.135.220.15]:40833 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752279Ab2DCCNi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Apr 2012 22:13:38 -0400
+In-Reply-To: <1333378444-3117-1-git-send-email-simon@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>, linux-input <linux-input@vger.kernel.org>
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Bauer <michael@m-bauer.org>, Michal Maly <madcatxster@gmail.com>
 
-Hi Chase, 
+On Mon, 2 Apr 2012, Simon Wood wrote:
 
-On Mon, 02 Apr 2012 11:43:56 -0700, Chase Douglas <chase.douglas@canonical.com> wrote:
-> Hi JJ,
-> 
-> Now that we've added clickpad, or buttonpad, support in
-> xf86-input-synaptics, ensuring all the buttonpad devices are marked as
-> such by the linux drivers is important. Apparently, some Elantech
-> trackpads are buttonpads. What would it take to add support for setting
-> this input device property in the elantech driver?
+> Use private data in hid-lg4ff to store device properties.
 
-Basically, only v4 hardware is buttonpad. I do have a few patches to add
-the support for this, just haven't had the time to send them out yet.
+I'd like to have a more verbose changelog -- namely what advantage this 
+brings compared to the previous state.
 
-I will tidy up my patches a bit and send them out for review ASAP.
-Thank you for reminding me this.
+Thanks.
 
-Best regards,
--JJ
-
-> Thanks!
-> 
-> -- Chase
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,78 +1,153 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@gmail.com>
-Subject: Re: [PATCH 1/2] HID: hid-lg4ff: Use Private Data
-Date: Tue, 03 Apr 2012 10:02:46 +0200
-Message-ID: <1594934.O1AHdBE0Y7@qosmio-x300>
-References: <a4e40aa5c43be934d83240849aa25f3b.squirrel@mungewell.org> <1333378444-3117-1-git-send-email-simon@mungewell.org> <alpine.LNX.2.00.1204030413030.16928@pobox.suse.cz>
+From: Peter Rusko <rusko.peter@prolan.hu>
+Subject: [PATCH] matrix_keypad: convert to threaded IRQs
+Date: Tue, 3 Apr 2012 10:10:00 +0200
+Message-ID: <1333440600-4183-1-git-send-email-rusko.peter@prolan.hu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart3368184.RPl2r7lJPh"; micalg="pgp-sha1"; protocol="application/pgp-signature"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:60126 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751591Ab2DCIDE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Apr 2012 04:03:04 -0400
-In-Reply-To: <alpine.LNX.2.00.1204030413030.16928@pobox.suse.cz>
+Received: from fw2.prolan.hu ([193.68.50.107]:45106 "EHLO fw2.prolan.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751353Ab2DCIUP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Apr 2012 04:20:15 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Bauer <michael@m-bauer.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yong Zhang <yong.zhang0@gmail.com>
+Cc: w.sang@pengutronix.de, linux-input@vger.kernel.org, Peter Rusko <rusko.peter@prolan.hu>
 
+Tested on Ka-Ro TX28 SOC
 
---nextPart3368184.RPl2r7lJPh
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"
+Signed-off-by: Peter Rusko <rusko.peter@prolan.hu>
+---
+ drivers/input/keyboard/matrix_keypad.c |   58 +++++++++----------------------
+ 1 files changed, 17 insertions(+), 41 deletions(-)
 
-On Tuesday 03. of April 2012 4:13:37 you wrote:
-> On Mon, 2 Apr 2012, Simon Wood wrote:
-> > Use private data in hid-lg4ff to store device properties.
->=20
-> I'd like to have a more verbose changelog -- namely what advantage th=
-is
-> brings compared to the previous state.
->=20
-> Thanks.
-Hi,
-
-the previous implementation used a linked list to store the device=20
-configuration (at this point it was just the operating range, but I hav=
-e plans=20
-for further expansion, I guess Simon's LEDs patch could use that too).=20=
-
-Searching through the list every time the user adjusted the range wasn'=
-t=20
-exactly fast, particularly because the list used kobj name as the ID. I=
-=20
-originally opted for that solution because I didn't want to mess with t=
-he code=20
-of the whole hid-lg driver.
-This patch takes advantage of the changes introduced in my patches from=
-=20
-2011/04/02. lg4ff now calls hid_get/set_drvdata() to read or store devi=
-ce=20
-configuration. The way I understand it, this is how all HID drivers sto=
-re their=20
-private data.
-
-Since J. Slab=FD complained about unnecessary uninitialized_var() macro=
-s, I'll=20
-update the patch to remove them.
-
-Michal M.
---nextPart3368184.RPl2r7lJPh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
-
-iQEcBAABAgAGBQJPeq6uAAoJEERrVaOJCK16H60IAJkoy5J1d+ZJU2OhUg/iPIHP
-MYRpqlKhVlAvHONN2OgXFnNITV+tEoolsE5LVUiiX+T3YinR+3f6YpD0CexnbHjH
-VNQUiK+OnmBD82dDTIt3UnfPO6FN5CMJTms9dgu+wPydM9Dd4ckNkyMo2VTj76VC
-w/yyW5+2mX6yhhL5NiKHPrzs+CHNc1alHp3QInaEwfRW4IfpLTDwfmvt4mxqFHTn
-6ePINwhEZjZJ5/fV1fXsa2QA6XPrgGZF5u7l7VfDm72rCD3jkOzr3aX8z+l1isIk
-h0er91AlDf8hFoKN/img3rIkrNQBHFnMHznJWRn21sihWhRxZAIrpHq+oaxMoSA=
-=S19U
------END PGP SIGNATURE-----
-
---nextPart3368184.RPl2r7lJPh--
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+index e2ae657..c3d3532 100644
+--- a/drivers/input/keyboard/matrix_keypad.c
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -33,7 +33,6 @@ struct matrix_keypad {
+ 	DECLARE_BITMAP(disabled_gpios, MATRIX_MAX_ROWS);
+ 
+ 	uint32_t last_key_state[MATRIX_MAX_COLS];
+-	struct delayed_work work;
+ 	spinlock_t lock;
+ 	bool scan_pending;
+ 	bool stopped;
+@@ -112,15 +111,16 @@ static void disable_row_irqs(struct matrix_keypad *keypad)
+ /*
+  * This gets the keys from keyboard and reports it to input subsystem
+  */
+-static void matrix_keypad_scan(struct work_struct *work)
++static irqreturn_t matrix_keypad_scan(int irq, void *id)
+ {
+-	struct matrix_keypad *keypad =
+-		container_of(work, struct matrix_keypad, work.work);
++	struct matrix_keypad *keypad = id;
+ 	struct input_dev *input_dev = keypad->input_dev;
+ 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
+ 	uint32_t new_state[MATRIX_MAX_COLS];
+ 	int row, col, code;
+ 
++	msleep(keypad->pdata->debounce_ms);
++
+ 	/* de-activate all columns for scanning */
+ 	activate_all_cols(pdata, false);
+ 
+@@ -165,32 +165,8 @@ static void matrix_keypad_scan(struct work_struct *work)
+ 	/* Enable IRQs again */
+ 	spin_lock_irq(&keypad->lock);
+ 	keypad->scan_pending = false;
+-	enable_row_irqs(keypad);
+ 	spin_unlock_irq(&keypad->lock);
+-}
+-
+-static irqreturn_t matrix_keypad_interrupt(int irq, void *id)
+-{
+-	struct matrix_keypad *keypad = id;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&keypad->lock, flags);
+ 
+-	/*
+-	 * See if another IRQ beaten us to it and scheduled the
+-	 * scan already. In that case we should not try to
+-	 * disable IRQs again.
+-	 */
+-	if (unlikely(keypad->scan_pending || keypad->stopped))
+-		goto out;
+-
+-	disable_row_irqs(keypad);
+-	keypad->scan_pending = true;
+-	schedule_delayed_work(&keypad->work,
+-		msecs_to_jiffies(keypad->pdata->debounce_ms));
+-
+-out:
+-	spin_unlock_irqrestore(&keypad->lock, flags);
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -201,11 +177,8 @@ static int matrix_keypad_start(struct input_dev *dev)
+ 	keypad->stopped = false;
+ 	mb();
+ 
+-	/*
+-	 * Schedule an immediate key scan to capture current key state;
+-	 * columns will be activated and IRQs be enabled after the scan.
+-	 */
+-	schedule_delayed_work(&keypad->work, 0);
++	matrix_keypad_scan(0, keypad);
++	enable_row_irqs(keypad);
+ 
+ 	return 0;
+ }
+@@ -216,7 +189,6 @@ static void matrix_keypad_stop(struct input_dev *dev)
+ 
+ 	keypad->stopped = true;
+ 	mb();
+-	flush_work(&keypad->work.work);
+ 	/*
+ 	 * matrix_keypad_scan() will leave IRQs enabled;
+ 	 * we should disable them now.
+@@ -330,9 +302,11 @@ static int __devinit init_matrix_gpio(struct platform_device *pdev,
+ 	}
+ 
+ 	if (pdata->clustered_irq > 0) {
+-		err = request_irq(pdata->clustered_irq,
+-				matrix_keypad_interrupt,
+-				pdata->clustered_irq_flags,
++		err = request_threaded_irq(pdata->clustered_irq,
++				NULL,
++				matrix_keypad_scan,
++				pdata->clustered_irq_flags |
++				IRQF_ONESHOT,
+ 				"matrix-keypad", keypad);
+ 		if (err) {
+ 			dev_err(&pdev->dev,
+@@ -341,10 +315,13 @@ static int __devinit init_matrix_gpio(struct platform_device *pdev,
+ 		}
+ 	} else {
+ 		for (i = 0; i < pdata->num_row_gpios; i++) {
+-			err = request_irq(gpio_to_irq(pdata->row_gpios[i]),
+-					matrix_keypad_interrupt,
++			err = request_threaded_irq(
++					gpio_to_irq(pdata->row_gpios[i]),
++					NULL,
++					matrix_keypad_scan,
+ 					IRQF_TRIGGER_RISING |
+-					IRQF_TRIGGER_FALLING,
++					IRQF_TRIGGER_FALLING |
++					IRQF_ONESHOT,
+ 					"matrix-keypad", keypad);
+ 			if (err) {
+ 				dev_err(&pdev->dev,
+@@ -414,7 +391,6 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
+ 	keypad->keycodes = keycodes;
+ 	keypad->row_shift = row_shift;
+ 	keypad->stopped = true;
+-	INIT_DELAYED_WORK(&keypad->work, matrix_keypad_scan);
+ 	spin_lock_init(&keypad->lock);
+ 
+ 	input_dev->name		= pdev->name;
+-- 
+1.7.5.4
 

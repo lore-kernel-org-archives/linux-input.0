@@ -1,249 +1,322 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [RFC 4/5] hid: Add idtags to modalias
-Date: Tue, 3 Apr 2012 10:45:04 +0200
-Message-ID: <CAN+gG=F0v1NnBd5G_Z77m3Qf8FuSs5Nj2-W97k=GhFdWmZDiKg@mail.gmail.com>
+Subject: Re: [RFC 5/5] hid: Remove multitouch devices from blacklist
+Date: Tue, 3 Apr 2012 10:46:19 +0200
+Message-ID: <CAN+gG=FtiJWcmHZpQmt+FSdgp_tPWMx3Gt7nLZEO0eG=Do1_=Q@mail.gmail.com>
 References: <1333436730-13008-1-git-send-email-rydberg@euromail.se>
-	<1333436730-13008-5-git-send-email-rydberg@euromail.se>
+	<1333436730-13008-6-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:39535 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:64680 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751559Ab2DCIpE convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Apr 2012 04:45:04 -0400
-In-Reply-To: <1333436730-13008-5-git-send-email-rydberg@euromail.se>
+	with ESMTP id S1750797Ab2DCIqU convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Apr 2012 04:46:20 -0400
+In-Reply-To: <1333436730-13008-6-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
 Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+I made a few tests with devices that were problematic before, and they
+passed the tests. So if this solution is kept, then, this would work.
+
+Cheers,
+Benjamin
+
 On Tue, Apr 3, 2012 at 09:05, Henrik Rydberg <rydberg@euromail.se> wrot=
 e:
-> HID devices are only partially presented to userland. =A0Hotplugged
-> devices emit events containing a modalias based on the basic bus,
-> vendor and product entities. However, in practise a hid device can
-> depend on details such as a single usb interface or a particular item
-> in a report descriptor.
->
-> This patch adds a special interface tag to the hid device id, and
-> broadcasts it using both uevent and modalias. Matching ids are
-> introduced for the hid-multitouch driver. As a consequence, generic
-> hid will no longer match multitouch devices, and udev will
-> automatically load hid-multitouch instead.
+> With idtags in place, generic hid will no longer process multitouch
+> devices, and the ignore list can be trimmed accordingly.
 >
 > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 > ---
-> =A0drivers/hid/hid-core.c =A0 =A0 =A0 =A0 =A0| =A0 28 +++++++++++++++=
-++++++++++---
-> =A0drivers/hid/hid-multitouch.c =A0 =A0| =A0 =A07 ++++++-
-> =A0include/linux/hid.h =A0 =A0 =A0 =A0 =A0 =A0 | =A0 =A07 +++++++
-> =A0include/linux/mod_devicetable.h | =A0 =A02 +-
-> =A0scripts/mod/file2alias.c =A0 =A0 =A0 =A0| =A0 =A02 ++
-> =A05 files changed, 41 insertions(+), 5 deletions(-)
+> =A0drivers/hid/hid-core.c | =A0 53 ----------------------------------=
+--------------
+> =A01 file changed, 53 deletions(-)
 >
 > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 8a7b59e..1cf6cb5 100644
+> index 1cf6cb5..bf600af 100644
 > --- a/drivers/hid/hid-core.c
 > +++ b/drivers/hid/hid-core.c
-> @@ -205,6 +205,10 @@ static int hid_add_usage(struct hid_parser *pars=
-er, unsigned usage)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0parser->collection_stack_ptr ?
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0parser->collection_stack[parser->colle=
-ction_stack_ptr - 1] : 0;
-> =A0 =A0 =A0 =A0parser->local.usage_index++;
-> +
-> + =A0 =A0 =A0 if (usage =3D=3D HID_DG_CONTACTID)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 parser->device->idtags |=3D HID_IDTAG_M=
-ULTITOUCH;
-> +
-> =A0 =A0 =A0 =A0return 0;
-> =A0}
+> @@ -1310,13 +1310,10 @@ EXPORT_SYMBOL_GPL(hid_disconnect);
 >
-> @@ -1154,7 +1158,7 @@ EXPORT_SYMBOL_GPL(hid_input_report);
-> =A0static bool hid_match_one_id(struct hid_device *hdev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0const struct hid_device_id *id)
-> =A0{
-> - =A0 =A0 =A0 return id->bus =3D=3D hdev->bus &&
-> + =A0 =A0 =A0 return id->bus =3D=3D hdev->bus && id->idtags =3D=3D hd=
-ev->idtags &&
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(id->vendor =3D=3D HID_ANY_ID || id->v=
-endor =3D=3D hdev->vendor) &&
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(id->product =3D=3D HID_ANY_ID || id->=
-product =3D=3D hdev->product);
-> =A0}
-> @@ -1723,6 +1727,23 @@ static int hid_device_remove(struct device *de=
-v)
-> =A0 =A0 =A0 =A0return 0;
-> =A0}
->
-> +static ssize_t modalias_show(struct device *dev, struct device_attri=
-bute *a,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0char *buf)
-> +{
-> + =A0 =A0 =A0 struct hid_device *hdev =3D container_of(dev, struct hi=
-d_device, dev);
-> + =A0 =A0 =A0 int len;
-> +
-> + =A0 =A0 =A0 len =3D snprintf(buf, PAGE_SIZE, "hid:b%04Xi%04Xv%08Xp%=
-08X\n",
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0hdev->bus, hdev->idtags,=
- hdev->vendor, hdev->product);
-> +
-> + =A0 =A0 =A0 return (len >=3D PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
-> +}
-> +
-> +static struct device_attribute hid_dev_attrs[] =3D {
-> + =A0 =A0 =A0 __ATTR_RO(modalias),
-> + =A0 =A0 =A0 __ATTR_NULL,
-> +};
-> +
-> =A0static int hid_uevent(struct device *dev, struct kobj_uevent_env *=
-env)
-> =A0{
-> =A0 =A0 =A0 =A0struct hid_device *hdev =3D container_of(dev, struct h=
-id_device, dev);
-> @@ -1740,8 +1761,8 @@ static int hid_uevent(struct device *dev, struc=
-t kobj_uevent_env *env)
-> =A0 =A0 =A0 =A0if (add_uevent_var(env, "HID_UNIQ=3D%s", hdev->uniq))
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -ENOMEM;
->
-> - =A0 =A0 =A0 if (add_uevent_var(env, "MODALIAS=3Dhid:b%04Xv%08Xp%08X=
-",
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 hdev->bus, hdev->vendor=
-, hdev->product))
-> + =A0 =A0 =A0 if (add_uevent_var(env, "MODALIAS=3Dhid:b%04Xi%04Xv%08X=
-p%08X",
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0hdev->bus, hdev-=
->idtags, hdev->vendor, hdev->product))
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -ENOMEM;
->
-> =A0 =A0 =A0 =A0return 0;
-> @@ -1749,6 +1770,7 @@ static int hid_uevent(struct device *dev, struc=
-t kobj_uevent_env *env)
->
-> =A0static struct bus_type hid_bus_type =3D {
-> =A0 =A0 =A0 =A0.name =A0 =A0 =A0 =A0 =A0 =3D "hid",
-> + =A0 =A0 =A0 .dev_attrs =A0 =A0 =A0=3D hid_dev_attrs,
-> =A0 =A0 =A0 =A0.match =A0 =A0 =A0 =A0 =A0=3D hid_bus_match,
-> =A0 =A0 =A0 =A0.probe =A0 =A0 =A0 =A0 =A0=3D hid_device_probe,
-> =A0 =A0 =A0 =A0.remove =A0 =A0 =A0 =A0 =3D hid_device_remove,
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouc=
-h.c
-> index 421b16c..80ceab5 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -104,7 +104,7 @@ struct mt_device {
-> =A0#define MT_DEFAULT_MAXCONTACT =A010
->
-> =A0#define HID_USB_MT_DEVICE(v, p) =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0\
-> - =A0 =A0 =A0 HID_USB_DEVICE(v, p)
-> + =A0 =A0 =A0 .idtags =3D HID_IDTAG_MULTITOUCH, HID_USB_DEVICE(v, p)
->
-> =A0/*
-> =A0* these device-dependent functions determine what slot corresponds
-> @@ -886,6 +886,11 @@ static const struct hid_device_id mt_devices[] =3D=
- {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0HID_USB_MT_DEVICE(USB_VENDOR_ID_XIROKU=
+> =A0/* a list of devices for which there is a specialized driver on HI=
+D bus */
+> =A0static const struct hid_device_id hid_have_special_driver[] =3D {
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M1968=
+) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M2256=
+) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A=
+4TECH_WCP32PU) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A=
+4TECH_X5_005D) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A=
+4TECH_RP_649) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_ACTIONSTAR, USB_DEVICE_I=
+D_ACTIONSTAR_1011) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_AP=
+PLE_ATV_IRCONTROL) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_AP=
+PLE_IRCONTROL4) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_AP=
+PLE_MIGHTYMOUSE) },
+> @@ -1381,62 +1378,36 @@ static const struct hid_device_id hid_have_sp=
+ecial_driver[] =3D {
+> =A0 =A0 =A0 =A0{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE=
+_ID_APPLE_ALU_WIRELESS_2011_ISO) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_AP=
+PLE_FOUNTAIN_TP_ONLY) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_AP=
+PLE_GEYSER1_TP_ONLY) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS=
+_T91MT) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS=
+TEK_MULTITOUCH_YFO) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_F=
+LIP_KVM) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_=
+EMPREX_REMOTE) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_=
+EMPREX_REMOTE_2) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_CANDO, USB_DEVICE_ID_CAN=
+DO_PIXCIR_MULTI_TOUCH) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_CANDO, USB_DEVICE_ID_CAN=
+DO_MULTI_TOUCH) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_CANDO, USB_DEVICE_ID_CAN=
+DO_MULTI_TOUCH_10_1) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_CANDO, USB_DEVICE_ID_CAN=
+DO_MULTI_TOUCH_11_6) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_CANDO, USB_DEVICE_ID_CAN=
+DO_MULTI_TOUCH_15_6) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_C=
+HERRY_CYMOTION) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_C=
+HERRY_CYMOTION_SOLAR) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_=
+CHICONY_TACTICAL_PAD) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_=
+CHICONY_WIRELESS) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_CHUNGHWAT, USB_DEVICE_ID=
+_CHUNGHWAT_MULTITOUCH) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CREATIVELABS, USB_DEVIC=
+E_ID_PRODIKEYS_PCMIDI) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_CVTOUCH, USB_DEVICE_ID_C=
+VTOUCH_SCREEN) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_=
+CYPRESS_BARCODE_1) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_=
+CYPRESS_BARCODE_2) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_=
+CYPRESS_BARCODE_3) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_=
+CYPRESS_MOUSE) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_C=
+YPRESS_TRUETOUCH) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV=
+_EGALAX_MULTITOUCH_480D) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV=
+_EGALAX_MULTITOUCH_480E) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV=
+_EGALAX_MULTITOUCH_720C) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV=
+_EGALAX_MULTITOUCH_726B) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV=
+_EGALAX_MULTITOUCH_72A1) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV=
+_EGALAX_MULTITOUCH_7302) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV=
+_EGALAX_MULTITOUCH_A001) },
+> =A0 =A0 =A0 =A0{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVIC=
+E_ID_ELECOM_BM084) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_T=
+S2515) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_=
+TRIO_LINKER_PLUS_II) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BT=
+C_8193) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_=
+GAMERON_DUAL_PSX_ADAPTOR) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_=
+GAMERON_DUAL_PCS_ADAPTOR) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH, USB_DEVIC=
+E_ID_GENERAL_TOUCH_WIN7_TWOFINGERS) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_GOODTOUCH, USB_DEVICE_ID=
+_GOODTOUCH_000f) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0003) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0012) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID=
+_GYRATION_REMOTE) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID=
+_GYRATION_REMOTE_2) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID=
+_GYRATION_REMOTE_3) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_HANVON, USB_DEVICE_ID_HA=
+NVON_MULTITOUCH) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_HANVON_ALT, USB_DEVICE_I=
+D_HANVON_ALT_MULTITOUCH) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_I=
+DEACOM_IDC6650) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK, USB_DEVICE_ID_H=
+OLTEK_ON_LINE_GRIP) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_ILITEK, USB_DEVICE_ID_IL=
+ITEK_MULTITOUCH) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS, USB_DEVI=
+CE_ID_IRTOUCH_INFRARED_USB) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_=
+ID_KS_SLIMBLADE) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_KEYTOUCH, USB_DEVICE_ID=
+_KEYTOUCH_IEC) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_=
+ERGO_525V) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_L=
+ABTEC_WIRELESS_KEYBOARD) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_LCPOWER, USB_DEVICE_ID_=
+LCPOWER_LC1000 ) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_LG, USB_DEVICE_ID_LG_MUL=
+TITOUCH) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID=
+_MX3000_RECEIVER) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID=
+_S510_RECEIVER) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID=
+_S510_RECEIVER_2) },
+> @@ -1467,8 +1438,6 @@ static const struct hid_device_id hid_have_spec=
+ial_driver[] =3D {
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID=
+_LOGITECH_RUMBLEPAD2) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID=
+_SPACETRAVELLER) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID=
+_SPACENAVIGATOR) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_LUMIO, USB_DEVICE_ID_CRY=
+STALTOUCH) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_LUMIO, USB_DEVICE_ID_CRY=
+STALTOUCH_DUAL) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_I=
+D_PICOLCD) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_I=
+D_PICOLCD_BOOTLOADER) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_I=
+D_MS_COMFORT_MOUSE_4500) },
+> @@ -1500,13 +1469,8 @@ static const struct hid_device_id hid_have_spe=
+cial_driver[] =3D {
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NT=
+RIG_TOUCH_SCREEN_18) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_OR=
+TEK_PKB1700) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_OR=
+TEK_WKB2000) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_=
+PENMOUNT_PCI) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID=
+_PETALYNX_MAXTER_REMOTE) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PI=
+XART_OPTICAL_TOUCH_SCREEN) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PI=
+XART_OPTICAL_TOUCH_SCREEN1) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PI=
+XART_OPTICAL_TOUCH_SCREEN2) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_P=
+RIMAX_KEYBOARD) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QU=
+ANTA_OPTICAL_TOUCH) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_P=
+IXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_R=
+OCCAT_KONE) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_R=
+OCCAT_ARVO) },
+> @@ -1522,9 +1486,6 @@ static const struct hid_device_id hid_have_spec=
+ial_driver[] =3D {
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SON=
+Y_NAVIGATION_CONTROLLER) },
+> =A0 =A0 =A0 =A0{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_=
+ID_SONY_PS3_CONTROLLER) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SON=
+Y_VAIO_VGX_MOUSE) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_M=
+TP) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_=
+ID_MTP_STM) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX, USB_DE=
+VICE_ID_MTP_SITRONIX) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_=
+SUNPLUS_WDESKTOP) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) }=
 ,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0USB_DEVICE_ID_XIROKU_C=
-SR2) },
->
-> + =A0 =A0 =A0 /* Generic MT device */
-> + =A0 =A0 =A0 { .driver_data =3D MT_CLS_DEFAULT,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_MT_DEVICE(HID_ANY_ID,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 HID_ANY_ID) },
-
-This breaks the mechanism used to detect serial protocol.
-A better solution would be to keep .driver_data =3D 0 -> this would tel=
-l
-us that the device is unknown and that we can override the given
-settings.
-
-Thanks,
-Benjamin
-
-> +
-> =A0 =A0 =A0 =A0{ }
-> =A0};
-> =A0MODULE_DEVICE_TABLE(hid, mt_devices);
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index 5b3be43..1e68543 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -62,6 +62,12 @@
->
-> =A0#define HID_MAX_DESCRIPTOR_SIZE =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0409=
-6
->
-> +/*
-> + * HID identifying tags extracted from reports
-> + */
-> +#define HID_IDTAG_MULTITOUCH =A0 =A0 =A0 =A0 =A0 0x0001
-> +
-> +
-> =A0#ifdef __KERNEL__
->
-> =A0#include <linux/types.h>
-> @@ -473,6 +479,7 @@ struct hid_device { =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* dev=
-ice report descriptor */
-> =A0 =A0 =A0 =A0unsigned maxcollection; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Number of parsed co=
-llections */
-> =A0 =A0 =A0 =A0unsigned maxapplication; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* Number of applicatio=
-ns */
-> =A0 =A0 =A0 =A0__u16 bus; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* BUS =
-ID */
-> + =A0 =A0 =A0 __u16 idtags; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Identifying=
- tags extracted from reports */
-> =A0 =A0 =A0 =A0__u32 vendor; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Vendor I=
-D */
-> =A0 =A0 =A0 =A0__u32 product; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* Product =
-ID */
-> =A0 =A0 =A0 =A0__u32 version; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* HID vers=
-ion */
-> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devi=
-cetable.h
-> index 83ac071..25446f0 100644
-> --- a/include/linux/mod_devicetable.h
-> +++ b/include/linux/mod_devicetable.h
-> @@ -135,7 +135,7 @@ struct usb_device_id {
->
-> =A0struct hid_device_id {
-> =A0 =A0 =A0 =A0__u16 bus;
-> - =A0 =A0 =A0 __u16 pad1;
-> + =A0 =A0 =A0 __u16 idtags;
-> =A0 =A0 =A0 =A0__u32 vendor;
-> =A0 =A0 =A0 =A0__u32 product;
-> =A0 =A0 =A0 =A0kernel_ulong_t driver_data
-> diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
-> index b89efe6..d0c3a2b 100644
-> --- a/scripts/mod/file2alias.c
-> +++ b/scripts/mod/file2alias.c
-> @@ -336,10 +336,12 @@ static int do_hid_entry(const char *filename,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct hid_de=
-vice_id *id, char *alias)
-> =A0{
-> =A0 =A0 =A0 =A0id->bus =3D TO_NATIVE(id->bus);
-> + =A0 =A0 =A0 id->idtags =3D TO_NATIVE(id->idtags);
-> =A0 =A0 =A0 =A0id->vendor =3D TO_NATIVE(id->vendor);
-> =A0 =A0 =A0 =A0id->product =3D TO_NATIVE(id->product);
->
-> =A0 =A0 =A0 =A0sprintf(alias, "hid:b%04X", id->bus);
-> + =A0 =A0 =A0 ADD(alias, "i", true, id->idtags);
-> =A0 =A0 =A0 =A0ADD(alias, "v", id->vendor !=3D HID_ANY_ID, id->vendor=
-);
-> =A0 =A0 =A0 =A0ADD(alias, "p", id->product !=3D HID_ANY_ID, id->produ=
-ct);
->
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304) }=
+,
+> @@ -1536,16 +1497,12 @@ static const struct hid_device_id hid_have_sp=
+ecial_driver[] =3D {
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb65a) }=
+,
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED, USB_DEVICE_ID_=
+TOPSEED_CYBERLINK) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED2, USB_DEVICE_ID=
+_TOPSEED2_RF_COMBO) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_TOUCH_INTL, USB_DEVICE_I=
+D_TOUCH_INTL_MULTI_TOUCH) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_TWINHAN, USB_DEVICE_ID_=
+TWINHAN_IR_REMOTE) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TU=
+RBOX_TOUCHSCREEN_MOSART) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_=
+UCLOGIC_TABLET_PF1209) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_=
+UCLOGIC_TABLET_WP4030U) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_=
+UCLOGIC_TABLET_WP5540U) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_=
+UCLOGIC_TABLET_WP8060U) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_=
+UCLOGIC_TABLET_WP1062) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_UNITEC, USB_DEVICE_ID_UN=
+ITEC_USB_TOUCH_0709) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_UNITEC, USB_DEVICE_ID_UN=
+ITEC_USB_TOUCH_0A19) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_I=
+D_SMARTJOY_PLUS) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_I=
+D_DUAL_USB_JOYPAD) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVI=
+CE_ID_SUPER_JOY_BOX_3_PRO) },
+> @@ -1557,16 +1514,6 @@ static const struct hid_device_id hid_have_spe=
+cial_driver[] =3D {
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_W=
+ALTOP_SLIM_TABLET_12_1_INCH) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_W=
+ALTOP_MEDIA_TABLET_10_6_INCH) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_W=
+ALTOP_MEDIA_TABLET_14_1_INCH) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_XAT, USB_DEVICE_ID_XAT_C=
+SR) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_XIROKU, USB_DEVICE_ID_XI=
+ROKU_SPX) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_XIROKU, USB_DEVICE_ID_XI=
+ROKU_MPX) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_XIROKU, USB_DEVICE_ID_XI=
+ROKU_CSR) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_XIROKU, USB_DEVICE_ID_XI=
+ROKU_SPX1) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_XIROKU, USB_DEVICE_ID_XI=
+ROKU_MPX1) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_XIROKU, USB_DEVICE_ID_XI=
+ROKU_CSR1) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_XIROKU, USB_DEVICE_ID_XI=
+ROKU_SPX2) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_XIROKU, USB_DEVICE_ID_XI=
+ROKU_MPX2) },
+> - =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_XIROKU, USB_DEVICE_ID_XI=
+ROKU_CSR2) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_X_TENSIONS, USB_DEVICE_=
+ID_SPEEDLINK_VAD_CEZANNE) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
 > --
 > 1.7.9.5
 >

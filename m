@@ -1,45 +1,40 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] usbhid: Check HID report descriptor contents after
- USB device reset
-Date: Tue, 3 Apr 2012 15:12:21 -0700 (PDT)
-Message-ID: <alpine.LNX.2.00.1204031510040.9041@pobox.suse.cz>
-References: <1333465455-17089-1-git-send-email-simon.haggett@realvnc.com>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [RFC v2 0/1] User-space HID I/O Driver
+Date: Tue, 3 Apr 2012 15:14:26 -0700 (PDT)
+Message-ID: <alpine.LNX.2.00.1204031513070.9041@pobox.suse.cz>
+References: <1332793209-2950-1-git-send-email-dh.herrmann@googlemail.com> <CAAngNMa0npQwBv+y_giRTOeLUMYiEnwWw4-cA+xMiRRsK732Mw@mail.gmail.com> <CAAngNMaOHRRfTy5yT9ys0Cv5yB5t-zEVxwcZWuK64BEA4oRy2g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59093 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754133Ab2DCWMW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Apr 2012 18:12:22 -0400
-In-Reply-To: <1333465455-17089-1-git-send-email-simon.haggett@realvnc.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAAngNMaOHRRfTy5yT9ys0Cv5yB5t-zEVxwcZWuK64BEA4oRy2g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Joao Paulo Rechi Vita <jprvita-430g2QfJUUCGglJvpFV4uA@public.gmane.org>
+Cc: David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, chen.ganir-l0cyMroinI0@public.gmane.org, claudio.takahasi-430g2QfJUUCGglJvpFV4uA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, anderson.lizardo-430g2QfJUUCGglJvpFV4uA@public.gmane.org, marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Haggett <simon.haggett@realvnc.com>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 3 Apr 2012, Simon Haggett wrote:
+On Tue, 3 Apr 2012, Joao Paulo Rechi Vita wrote:
 
-> When a USB device reset occurs, usbcore will refetch the device and configuration
-> descriptors and compare them with those retrieved before the reset to ensure
-> that they have not changed. For USB HID devices, this implicitly includes the
-> HID class descriptor (as this is fetched with the configuration descriptor).
-> However, the HID report descriptor is not checked again.
+> >> This is the second revision of the UHID driver. It basically allows to register
+> >> hid_ll_drivers in user-space. This is needed to implement Bluetooth HoG (HID
+> >> over GATT) as discussed earlier.
+> >>
+> >
+> > We have a first prototype implementation of the HoG plugin working
+> > with the uhid driver \o/
+> >
 > 
-> Whilst a change in the size of the HID report descriptor will be detected (as
-> this is held in the class descriptor), content changes to the report descriptor
-> which do not result in a change in its size will be missed. If a firmware update
-> were applied to a USB HID device which resulted in such a change to the report
-> descriptor after device reset, then this would not be picked up by usbhid.
+> I'm having problems with modifiers keys (they don't work). The USB-HID
+> spec says that for each modifier key pressed a bit have to be set on
+> the modifiers byte (byte 2) of the report array. Dumping the data both
+> on the HoG plugin on bluetoothd and through hidraw for the created HID
+> device shows that these bits are being set correctly.
+> 
+> Any idea of what could be wrong or additional checks that can be performed?
 
-Simon,
+So hidraw shows the respective bits set properly, but they are not coming 
+out of /dev/input/eventX, right?
 
-thanks for the patch. Actually the firmware update is not the only option 
-how this could happen -- there are HID bus drivers which actually patch 
-the report descriptor of the device before it is fed to the parser.
-
-Your patch fixes the issue for those as well.
-
-Applied, thanks.
+How about /syse/kernel/debug/hid/<device>/events, does it show the events?
 
 -- 
 Jiri Kosina

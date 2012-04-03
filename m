@@ -1,35 +1,41 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/2] HID: hid-lg4ff: Use Private Data
-Date: Tue, 3 Apr 2012 04:14:58 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204030413550.16928@pobox.suse.cz>
-References: <a4e40aa5c43be934d83240849aa25f3b.squirrel@mungewell.org>    <1333378444-3117-1-git-send-email-simon@mungewell.org>    <4F79D486.5090605@suse.cz> <44acbf3ff0b6aa62eab2831ee6ecea80.squirrel@mungewell.org>
+Subject: Re: [PATCH v4] HID: lg4ff: Remove sysfs iface before deallocating
+ memory
+Date: Tue, 3 Apr 2012 04:12:31 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204030412100.16928@pobox.suse.cz>
+References: <2198552.DMoMTvshKQ@qosmio-x300>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <44acbf3ff0b6aa62eab2831ee6ecea80.squirrel@mungewell.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: Jiri Slaby <jslaby@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Bauer <michael@m-bauer.org>, Michal Maly <madcatxster@gmail.com>
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:40813 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751694Ab2DCCMd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Apr 2012 22:12:33 -0400
+In-Reply-To: <2198552.DMoMTvshKQ@qosmio-x300>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@gmail.com>
+Cc: linux-input@vger.kernel.org, simon@mungewell.org
 
-On Mon, 2 Apr 2012, simon@mungewell.org wrote:
+On Sat, 31 Mar 2012, Michal Mal=FD wrote:
 
-> >> +	struct lg4ff_device_entry *uninitialized_var(entry);
-> >> +	struct lg_drv_data *uninitialized_var(drv_data);
-> >
-> > You don't need uninitialized_var bloat anymroe, right?
-> 
-> I guess I don't fully understand the 'unitialized_var()' macro, and was
-> just following the previous uses in the code.
-> 
-> Google'ing doesn't really help either. Is there a definitive guide as when
-> to use and not?
+> Hi,
+>=20
+> This patch fixes a possible race condition caused by the sysfs
+> interface being removed after the memory used by the interface
+> was already kfree'd.
+> Please note that this patch depends on "hid-lg: Allow for custom
+> device-specific properties to be stored in private drv data" because
+> it also fixes a tiny glitch - a leftover #include in the hid-lg.h
 
-As Jiri Slaby already explained, it's rather a hack to shut up gcc in 
-cases in which it gets the unused warning wrong.
+Applied, thanks.
 
-But even that is considered controversial by some people ... 
-
--- 
+--=20
 Jiri Kosina
 SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

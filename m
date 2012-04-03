@@ -1,82 +1,114 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] HID: add have_special_driver hid module parameter
-Date: Tue, 3 Apr 2012 01:41:49 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204030139470.16928@pobox.suse.cz>
-References: <1329773340-14066-1-git-send-email-spbnick@gmail.com> <alpine.LNX.2.00.1203301544270.25526@pobox.suse.cz> <4F78AD8B.9020104@gmail.com> <alpine.LNX.2.00.1204012137150.16928@pobox.suse.cz> <4F78BF82.70903@gmail.com>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH] Input: use module_pci_driver
+Date: Tue, 03 Apr 2012 08:50:53 +0800
+Message-ID: <1333414253.18133.1.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:36494 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751963Ab2DBXlv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Apr 2012 19:41:51 -0400
-In-Reply-To: <4F78BF82.70903@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
 
-On Sun, 1 Apr 2012, Nikolai Kondrashov wrote:
+This patch converts the drivers in drivers/input/* to use module_pci_driver()
+macro which makes the code smaller and a bit simpler.
 
-> > I will be travelling for the whole day tomorrow, so I will look into this
-> > onboard the airplane and will try to come up with a fix.
-> 
-> Great! Thank you :)!
-
-Please let me know whether the patch below fixes the rebinding for your 
-drivers that replace the report descriptor. I believe it should. Thanks in 
-advance for testing.
-
-
-
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] HID: make hid_parse() reentrant
-
-It is possible to rebind the drivers on HID bus manually from userspace
-(through sysfs bind/unbind facility). This way, we can easily allow drivers to
-claim device IDs even if this doesn't happen automatically through explicit
-hid_have_special_driver[] entry.
-
-If driver is rebound, hid_parse() sees the HID_STATE_PARSED flag set, and
-doesn't proceed parsing the report descriptor again.
-
-This might however be unwanted in cases when the newly rebound driver does
-a report descriptor fixup, as it doesn't get parsed again with the replaced
-values.
-
-Instead of bailing out directly when HID_STAT_PARSED flag is set, throw
-away the old report descriptor stored in hid_device->rdesc, and let the
-whole rdesc parsing be restarted (with ->report_fixup callback of the newly
-rebound driver being called prior to the actual parsing).
-
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
 ---
- include/linux/hid.h |   12 ++++++++++--
- 1 files changed, 10 insertions(+), 2 deletions(-)
+ drivers/input/gameport/emu10k1-gp.c |   13 +------------
+ drivers/input/gameport/fm801-gp.c   |   16 ++--------------
+ drivers/input/serio/pcips2.c        |   15 ++-------------
+ 3 files changed, 5 insertions(+), 39 deletions(-)
 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 3a95da6..f771eba 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -807,8 +807,16 @@ static inline int __must_check hid_parse(struct hid_device *hdev)
- {
- 	int ret;
+diff --git a/drivers/input/gameport/emu10k1-gp.c b/drivers/input/gameport/emu10k1-gp.c
+index 422aa0a..daceafe 100644
+--- a/drivers/input/gameport/emu10k1-gp.c
++++ b/drivers/input/gameport/emu10k1-gp.c
+@@ -125,15 +125,4 @@ static struct pci_driver emu_driver = {
+         .remove =       __devexit_p(emu_remove),
+ };
  
--	if (hdev->status & HID_STAT_PARSED)
--		return 0;
-+	if (hdev->status & HID_STAT_PARSED) {
-+		/*
-+		 * We want to be re-entrant to allow for dynamic driver
-+		 * rebinding and still allow rdescs to be replaced and
-+		 * and re-parsed once the driver has been dynamically
-+		 * rebound
-+		 */
-+		kfree(hdev->rdesc);
-+		hdev->status &= ~HID_STAT_PARSED;
-+	}
+-static int __init emu_init(void)
+-{
+-	return pci_register_driver(&emu_driver);
+-}
+-
+-static void __exit emu_exit(void)
+-{
+-	pci_unregister_driver(&emu_driver);
+-}
+-
+-module_init(emu_init);
+-module_exit(emu_exit);
++module_pci_driver(emu_driver);
+diff --git a/drivers/input/gameport/fm801-gp.c b/drivers/input/gameport/fm801-gp.c
+index a3b70ff..48ad382 100644
+--- a/drivers/input/gameport/fm801-gp.c
++++ b/drivers/input/gameport/fm801-gp.c
+@@ -144,6 +144,7 @@ static const struct pci_device_id fm801_gp_id_table[] = {
+ 	{ PCI_VENDOR_ID_FORTEMEDIA, PCI_DEVICE_ID_FM801_GP, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0  },
+ 	{ 0 }
+ };
++MODULE_DEVICE_TABLE(pci, fm801_gp_id_table);
  
- 	ret = hdev->ll_driver->parse(hdev);
- 	if (!ret)
+ static struct pci_driver fm801_gp_driver = {
+ 	.name =		"FM801_gameport",
+@@ -152,20 +153,7 @@ static struct pci_driver fm801_gp_driver = {
+ 	.remove =	__devexit_p(fm801_gp_remove),
+ };
+ 
+-static int __init fm801_gp_init(void)
+-{
+-	return pci_register_driver(&fm801_gp_driver);
+-}
+-
+-static void __exit fm801_gp_exit(void)
+-{
+-	pci_unregister_driver(&fm801_gp_driver);
+-}
+-
+-module_init(fm801_gp_init);
+-module_exit(fm801_gp_exit);
+-
+-MODULE_DEVICE_TABLE(pci, fm801_gp_id_table);
++module_pci_driver(fm801_gp_driver);
+ 
+ MODULE_DESCRIPTION("FM801 gameport driver");
+ MODULE_AUTHOR("Takashi Iwai <tiwai@suse.de>");
+diff --git a/drivers/input/serio/pcips2.c b/drivers/input/serio/pcips2.c
+index 4349474..0c42497 100644
+--- a/drivers/input/serio/pcips2.c
++++ b/drivers/input/serio/pcips2.c
+@@ -206,6 +206,7 @@ static const struct pci_device_id pcips2_ids[] = {
+ 	},
+ 	{ 0, }
+ };
++MODULE_DEVICE_TABLE(pci, pcips2_ids);
+ 
+ static struct pci_driver pcips2_driver = {
+ 	.name			= "pcips2",
+@@ -214,20 +215,8 @@ static struct pci_driver pcips2_driver = {
+ 	.remove			= __devexit_p(pcips2_remove),
+ };
+ 
+-static int __init pcips2_init(void)
+-{
+-	return pci_register_driver(&pcips2_driver);
+-}
+-
+-static void __exit pcips2_exit(void)
+-{
+-	pci_unregister_driver(&pcips2_driver);
+-}
+-
+-module_init(pcips2_init);
+-module_exit(pcips2_exit);
++module_pci_driver(pcips2_driver);
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Russell King <rmk@arm.linux.org.uk>");
+ MODULE_DESCRIPTION("PCI PS/2 keyboard/mouse driver");
+-MODULE_DEVICE_TABLE(pci, pcips2_ids);
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.5.4

@@ -1,171 +1,77 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] matrix_keypad: convert to threaded IRQs
-Date: Tue, 3 Apr 2012 09:37:06 -0700
-Message-ID: <20120403163706.GA24832@core.coreip.homeip.net>
-References: <1333440600-4183-1-git-send-email-rusko.peter@prolan.hu>
+From: Aristeu Rozanski <aris@ruivo.org>
+Subject: Re: [PATCH 2/6] Input: uinput - fix race that can block nonblocking
+ read
+Date: Tue, 3 Apr 2012 12:28:40 -0400
+Message-ID: <20120403162840.GA26580@cathedrallabs.org>
+References: <1333173983-19949-1-git-send-email-dmitry.torokhov@gmail.com>
+ <1333173983-19949-2-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:57633 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751643Ab2DCQhN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Apr 2012 12:37:13 -0400
-Received: by pbcun15 with SMTP id un15so76750pbc.19
-        for <linux-input@vger.kernel.org>; Tue, 03 Apr 2012 09:37:13 -0700 (PDT)
+Received: from lobo.ruivo.org ([173.14.175.98]:34913 "EHLO lobo.ruivo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751643Ab2DCQhh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Apr 2012 12:37:37 -0400
 Content-Disposition: inline
-In-Reply-To: <1333440600-4183-1-git-send-email-rusko.peter@prolan.hu>
+In-Reply-To: <1333173983-19949-2-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Rusko <rusko.peter@prolan.hu>
-Cc: Yong Zhang <yong.zhang0@gmail.com>, w.sang@pengutronix.de, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: David Herrmann <dh.herrmann@googlemail.com>, linux-input@vger.kernel.org
 
-On Tue, Apr 03, 2012 at 10:10:00AM +0200, Peter Rusko wrote:
-> Tested on Ka-Ro TX28 SOC
-
-Needs justification; plus this is not how debounce works - you need to
-postpone scan until IRQ line settles, not simply wait so many
-milliseconds.
-
-I think what you really need is request_any_context_irq().
-
-Thanks.
-
+On Fri, Mar 30, 2012 at 11:06:19PM -0700, Dmitry Torokhov wrote:
+> From: David Herrmann <dh.herrmann@googlemail.com>
 > 
-> Signed-off-by: Peter Rusko <rusko.peter@prolan.hu>
+> Consider two threads calling read() on the same uinput-fd, both
+> non-blocking. Assume there is data-available so both will simultaneously
+> pass:
+> 	udev->head == udev->tail
+> 
+> Then the first thread goes to sleep and the second one pops the message
+> from the queue. Now assume udev->head == udev->tail. If the first thread
+> wakes up it will call wait_event_*() and sleep in the waitq. This
+> effectively turns the non-blocking FD into a blocking one.
+> 
+> We fix this by never calling wait_event_*() for non-blocking FDs hence we
+> will never sleep in the waitq here.
+> 
+> Also, if we fail to retrieve an event because it was "stolen" by another
+> thread, we will return -EAGAIN instead of 0 in case of nonblocking read.
+> 
+> Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 > ---
->  drivers/input/keyboard/matrix_keypad.c |   58 +++++++++----------------------
->  1 files changed, 17 insertions(+), 41 deletions(-)
+>  drivers/input/misc/uinput.c |   26 ++++++++++++++------------
+>  1 files changed, 14 insertions(+), 12 deletions(-)
 > 
-> diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-> index e2ae657..c3d3532 100644
-> --- a/drivers/input/keyboard/matrix_keypad.c
-> +++ b/drivers/input/keyboard/matrix_keypad.c
-> @@ -33,7 +33,6 @@ struct matrix_keypad {
->  	DECLARE_BITMAP(disabled_gpios, MATRIX_MAX_ROWS);
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index eb9723a..5339c1d 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -460,16 +460,13 @@ static ssize_t uinput_read(struct file *file, char __user *buffer, size_t count,
+>  	if (count < input_event_size())
+>  		return -EINVAL;
 >  
->  	uint32_t last_key_state[MATRIX_MAX_COLS];
-> -	struct delayed_work work;
->  	spinlock_t lock;
->  	bool scan_pending;
->  	bool stopped;
-> @@ -112,15 +111,16 @@ static void disable_row_irqs(struct matrix_keypad *keypad)
->  /*
->   * This gets the keys from keyboard and reports it to input subsystem
->   */
-> -static void matrix_keypad_scan(struct work_struct *work)
-> +static irqreturn_t matrix_keypad_scan(int irq, void *id)
->  {
-> -	struct matrix_keypad *keypad =
-> -		container_of(work, struct matrix_keypad, work.work);
-> +	struct matrix_keypad *keypad = id;
->  	struct input_dev *input_dev = keypad->input_dev;
->  	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
->  	uint32_t new_state[MATRIX_MAX_COLS];
->  	int row, col, code;
->  
-> +	msleep(keypad->pdata->debounce_ms);
-> +
->  	/* de-activate all columns for scanning */
->  	activate_all_cols(pdata, false);
->  
-> @@ -165,32 +165,8 @@ static void matrix_keypad_scan(struct work_struct *work)
->  	/* Enable IRQs again */
->  	spin_lock_irq(&keypad->lock);
->  	keypad->scan_pending = false;
-> -	enable_row_irqs(keypad);
->  	spin_unlock_irq(&keypad->lock);
-> -}
+> -	if (udev->state != UIST_CREATED)
+> -		return -ENODEV;
 > -
-> -static irqreturn_t matrix_keypad_interrupt(int irq, void *id)
-> -{
-> -	struct matrix_keypad *keypad = id;
-> -	unsigned long flags;
+> -	if (udev->head == udev->tail && (file->f_flags & O_NONBLOCK))
+> -		return -EAGAIN;
 > -
-> -	spin_lock_irqsave(&keypad->lock, flags);
->  
-> -	/*
-> -	 * See if another IRQ beaten us to it and scheduled the
-> -	 * scan already. In that case we should not try to
-> -	 * disable IRQs again.
-> -	 */
-> -	if (unlikely(keypad->scan_pending || keypad->stopped))
-> -		goto out;
-> -
-> -	disable_row_irqs(keypad);
-> -	keypad->scan_pending = true;
-> -	schedule_delayed_work(&keypad->work,
-> -		msecs_to_jiffies(keypad->pdata->debounce_ms));
-> -
-> -out:
-> -	spin_unlock_irqrestore(&keypad->lock, flags);
->  	return IRQ_HANDLED;
->  }
->  
-> @@ -201,11 +177,8 @@ static int matrix_keypad_start(struct input_dev *dev)
->  	keypad->stopped = false;
->  	mb();
->  
-> -	/*
-> -	 * Schedule an immediate key scan to capture current key state;
-> -	 * columns will be activated and IRQs be enabled after the scan.
-> -	 */
-> -	schedule_delayed_work(&keypad->work, 0);
-> +	matrix_keypad_scan(0, keypad);
-> +	enable_row_irqs(keypad);
->  
->  	return 0;
->  }
-> @@ -216,7 +189,6 @@ static void matrix_keypad_stop(struct input_dev *dev)
->  
->  	keypad->stopped = true;
->  	mb();
-> -	flush_work(&keypad->work.work);
->  	/*
->  	 * matrix_keypad_scan() will leave IRQs enabled;
->  	 * we should disable them now.
-> @@ -330,9 +302,11 @@ static int __devinit init_matrix_gpio(struct platform_device *pdev,
->  	}
->  
->  	if (pdata->clustered_irq > 0) {
-> -		err = request_irq(pdata->clustered_irq,
-> -				matrix_keypad_interrupt,
-> -				pdata->clustered_irq_flags,
-> +		err = request_threaded_irq(pdata->clustered_irq,
-> +				NULL,
-> +				matrix_keypad_scan,
-> +				pdata->clustered_irq_flags |
-> +				IRQF_ONESHOT,
->  				"matrix-keypad", keypad);
->  		if (err) {
->  			dev_err(&pdev->dev,
-> @@ -341,10 +315,13 @@ static int __devinit init_matrix_gpio(struct platform_device *pdev,
->  		}
->  	} else {
->  		for (i = 0; i < pdata->num_row_gpios; i++) {
-> -			err = request_irq(gpio_to_irq(pdata->row_gpios[i]),
-> -					matrix_keypad_interrupt,
-> +			err = request_threaded_irq(
-> +					gpio_to_irq(pdata->row_gpios[i]),
-> +					NULL,
-> +					matrix_keypad_scan,
->  					IRQF_TRIGGER_RISING |
-> -					IRQF_TRIGGER_FALLING,
-> +					IRQF_TRIGGER_FALLING |
-> +					IRQF_ONESHOT,
->  					"matrix-keypad", keypad);
->  			if (err) {
->  				dev_err(&pdev->dev,
-> @@ -414,7 +391,6 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
->  	keypad->keycodes = keycodes;
->  	keypad->row_shift = row_shift;
->  	keypad->stopped = true;
-> -	INIT_DELAYED_WORK(&keypad->work, matrix_keypad_scan);
->  	spin_lock_init(&keypad->lock);
->  
->  	input_dev->name		= pdev->name;
-> -- 
-> 1.7.5.4
-> 
+> -	retval = wait_event_interruptible(udev->waitq,
+> -			udev->head != udev->tail || udev->state != UIST_CREATED);
+> -	if (retval)
+> -		return retval;
+> +	if (!(file->f_flags & O_NONBLOCK)) {
+> +		retval = wait_event_interruptible(udev->waitq,
+> +						  udev->head != udev->tail ||
+> +						  udev->state != UIST_CREATED);
+> +		if (retval)
+> +			return retval;
+> +	}
+no. if the state is not UIST_CREATED, it should return ENODEV, not EAGAIN.
+and you're not checking it if O_NONBLOCK is present.
 
 -- 
-Dmitry
+Aristeu
+

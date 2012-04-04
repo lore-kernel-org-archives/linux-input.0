@@ -1,45 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch] Input: wacom: NULL dereference on allocation failure
-Date: Wed, 4 Apr 2012 09:20:03 -0700
-Message-ID: <20120404162003.GB9229@core.coreip.homeip.net>
-References: <20120404111938.GB23719@elgon.mountain>
+From: simon.budig@kernelconcepts.de
+Subject: [PATCH v5] Touchscreen driver for FT5x06 based EDT displays
+Date: Wed,  4 Apr 2012 20:27:58 +0200
+Message-ID: <1333564079-23893-1-git-send-email-simon.budig@kernelconcepts.de>
+References: <1331050527-4902-1-git-send-email-simon.budig@kernelconcepts.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:60347 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932282Ab2DDQUJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Apr 2012 12:20:09 -0400
-Content-Disposition: inline
-In-Reply-To: <20120404111938.GB23719@elgon.mountain>
+Received: from smtprelay03.ispgateway.de ([80.67.31.30]:40710 "EHLO
+	smtprelay03.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932267Ab2DDS2E (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Apr 2012 14:28:04 -0400
+In-Reply-To: <1331050527-4902-1-git-send-email-simon.budig@kernelconcepts.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, agust@denx.de, yanok@emcraft.com
 
-On Wed, Apr 04, 2012 at 02:19:38PM +0300, Dan Carpenter wrote:
-> If the "wac_i2c" alloction fails, then it leads to a NULL dereference.
-> 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Hi all.
 
-Doh! I'll fold it up into original...
+Here is a new iteration of the EDT polytouch driver. Compared to v4 it
+incorporates the feedback from Anatolij Gustschin and some fixes from L=
+othar
+Wa=C3=9Fmann (bug on module unloading and obsolete power management api=
+ use).
 
-Thanks Dan!
+Please give feedback on problems or on further plans for inclusion into
+mainline.
 
-> 
-> diff --git a/drivers/input/touchscreen/wacom_i2c.c b/drivers/input/touchscreen/wacom_i2c.c
-> index b29f064..b8ca4a6 100644
-> --- a/drivers/input/touchscreen/wacom_i2c.c
-> +++ b/drivers/input/touchscreen/wacom_i2c.c
-> @@ -252,7 +252,7 @@ static int __devinit wacom_i2c_probe(struct i2c_client *client,
->  err_free_irq:
->  	free_irq(client->irq, wac_i2c);
->  err_free_mem:
-> -	input_free_device(wac_i2c->input);
-> +	input_free_device(input);
->  	kfree(wac_i2c);
->  
->  	return error;
+Thanks,
+        Simon
 
--- 
-Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

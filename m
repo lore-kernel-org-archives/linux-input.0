@@ -1,39 +1,34 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: psmouse serio4: bad data from KBC - timeout
-Date: Wed, 4 Apr 2012 12:46:43 +0200
-Message-ID: <20120404104643.GA5193@x1.osrc.amd.com>
-References: <20120403094324.GA3346@gere.osrc.amd.com>
- <20120403170659.GF24832@core.coreip.homeip.net>
- <20120404045440.GB28344@liondog.tnic>
- <20120404064053.GA26093@core.coreip.homeip.net>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] Input: wacom: NULL dereference on allocation failure
+Date: Wed, 4 Apr 2012 14:19:38 +0300
+Message-ID: <20120404111938.GB23719@elgon.mountain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.skyhub.de ([78.46.96.112]:44935 "EHLO mail.skyhub.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752913Ab2DDKqq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Apr 2012 06:46:46 -0400
+Received: from rcsinet15.oracle.com ([148.87.113.117]:33245 "EHLO
+	rcsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756125Ab2DDLTs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Apr 2012 07:19:48 -0400
 Content-Disposition: inline
-In-Reply-To: <20120404064053.GA26093@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Alessandro Rubini <rubini@ipvvis.unipv.it>, LKML <linux-kernel@vger.kernel.org>
+Cc: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Tue, Apr 03, 2012 at 11:40:53PM -0700, Dmitry Torokhov wrote:
-> As I said I would start at the latest ACPI and PM merges and try
-> reverting them - i8042 may interact in funny ways with embedded
-> controller since it is usually the same piece of firmware.
-> 
-> I assume it works fine in 3.3, right?
+If the "wac_i2c" alloction fails, then it leads to a NULL dereference.
 
-Yes, it does.
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Let me checkout git trees before those merges to see whether it makes
-any difference.
-
-Thanks.
-
--- 
-Regards/Gruss,
-Boris.
+diff --git a/drivers/input/touchscreen/wacom_i2c.c b/drivers/input/touchscreen/wacom_i2c.c
+index b29f064..b8ca4a6 100644
+--- a/drivers/input/touchscreen/wacom_i2c.c
++++ b/drivers/input/touchscreen/wacom_i2c.c
+@@ -252,7 +252,7 @@ static int __devinit wacom_i2c_probe(struct i2c_client *client,
+ err_free_irq:
+ 	free_irq(client->irq, wac_i2c);
+ err_free_mem:
+-	input_free_device(wac_i2c->input);
++	input_free_device(input);
+ 	kfree(wac_i2c);
+ 
+ 	return error;

@@ -1,284 +1,95 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH 2/2] Input: use module_gameport_driver
-Date: Wed, 04 Apr 2012 11:33:54 +0800
-Message-ID: <1333510434.15318.12.camel@phoenix>
-References: <1333510350.15318.10.camel@phoenix>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: psmouse serio4: bad data from KBC - timeout
+Date: Wed, 4 Apr 2012 06:54:40 +0200
+Message-ID: <20120404045440.GB28344@liondog.tnic>
+References: <20120403094324.GA3346@gere.osrc.amd.com>
+ <20120403170659.GF24832@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:57182 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755428Ab2DDDd7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Apr 2012 23:33:59 -0400
-In-Reply-To: <1333510350.15318.10.camel@phoenix>
+Received: from mail.skyhub.de ([78.46.96.112]:53020 "EHLO mail.skyhub.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751099Ab2DDEyp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Apr 2012 00:54:45 -0400
+Content-Disposition: inline
+In-Reply-To: <20120403170659.GF24832@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dtor@mail.ru>, Lars-Peter Clausen <lars@metafoo.de>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Alessandro Rubini <rubini@ipvvis.unipv.it>, LKML <linux-kernel@vger.kernel.org>
 
-This patch converts the drivers in drivers/input/* to use
-module_gameport_driver() macro which makes the code smaller and a bit simpler.
+Hi Dmitry,
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/joystick/a3d.c        |   13 +------------
- drivers/input/joystick/adi.c        |   17 +----------------
- drivers/input/joystick/cobra.c      |   13 +------------
- drivers/input/joystick/gf2k.c       |   13 +------------
- drivers/input/joystick/grip.c       |   13 +------------
- drivers/input/joystick/grip_mp.c    |   13 +------------
- drivers/input/joystick/guillemot.c  |   13 +------------
- drivers/input/joystick/interact.c   |   13 +------------
- drivers/input/joystick/joydump.c    |   13 +------------
- drivers/input/joystick/sidewinder.c |   13 +------------
- drivers/input/joystick/tmdc.c       |   13 +------------
- 11 files changed, 11 insertions(+), 136 deletions(-)
+On Tue, Apr 03, 2012 at 10:06:59AM -0700, Dmitry Torokhov wrote:
+> > I'm running 3.4-rc1 on a thinkpad x121e and it builds and boots just
+> > fine. However, after resuming from disk I get (this is the tail of
+> > dmesg):
+> > 
+> > [  905.857412] i8042: failed to resume active multiplexor, mouse won't work
+> > [  905.965568] usb 3-2: reset low-speed USB device number 2 using ohci_hcd
+> > [  907.626998] psmouse serio4: bad data from KBC - timeout
+> > [  907.675385] PM: restore of devices complete after 2358.155 msecs
+> > [  908.227481] Restarting tasks ... done.
+> > [  908.266229] video LNXVIDEO:01: Restoring backlight state
+> > [  917.628792] psmouse serio4: Failed to deactivate mouse on isa0060/serio4
+> > [  917.880639] psmouse serio4: Failed to enable mouse on isa0060/serio4
+> > [  919.867982] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input19
+> > [  947.277011] atl1c 0000:02:00.0: atl1c: eth0 NIC Link is Up<100 Mbps Full Duplex>
+> > [  996.231116] Bluetooth: Core ver 2.16
+> > [  996.231262] NET: Registered protocol family 31
+> > [  996.231273] Bluetooth: HCI device and connection manager initialized
+> > [  996.231559] Bluetooth: HCI socket layer initialized
+> > [  996.231575] Bluetooth: L2CAP socket layer initialized
+> > [  996.231630] Bluetooth: SCO socket layer initialized
+> > 
+> > and after that the keyboard and the mouse touchpad don't work. The
+> > connected USB mouse works fine though.
+> 
+> There weren't any changes to i8042 for a while so I'd look into recent
+> ACPI/PM merges. You can also try booting with i8042.nomux to see if it
+> will work better with i8042 in legacy multiplexing mode.
 
-diff --git a/drivers/input/joystick/a3d.c b/drivers/input/joystick/a3d.c
-index 1639ab2..85bc8dc 100644
---- a/drivers/input/joystick/a3d.c
-+++ b/drivers/input/joystick/a3d.c
-@@ -413,15 +413,4 @@ static struct gameport_driver a3d_drv = {
- 	.disconnect	= a3d_disconnect,
- };
- 
--static int __init a3d_init(void)
--{
--	return gameport_register_driver(&a3d_drv);
--}
--
--static void __exit a3d_exit(void)
--{
--	gameport_unregister_driver(&a3d_drv);
--}
--
--module_init(a3d_init);
--module_exit(a3d_exit);
-+module_gameport_driver(a3d_drv);
-diff --git a/drivers/input/joystick/adi.c b/drivers/input/joystick/adi.c
-index b992fbf..0cbfd2d 100644
---- a/drivers/input/joystick/adi.c
-+++ b/drivers/input/joystick/adi.c
-@@ -557,10 +557,6 @@ static void adi_disconnect(struct gameport *gameport)
- 	kfree(port);
- }
- 
--/*
-- * The gameport device structure.
-- */
--
- static struct gameport_driver adi_drv = {
- 	.driver		= {
- 		.name	= "adi",
-@@ -570,15 +566,4 @@ static struct gameport_driver adi_drv = {
- 	.disconnect	= adi_disconnect,
- };
- 
--static int __init adi_init(void)
--{
--	return gameport_register_driver(&adi_drv);
--}
--
--static void __exit adi_exit(void)
--{
--	gameport_unregister_driver(&adi_drv);
--}
--
--module_init(adi_init);
--module_exit(adi_exit);
-+module_gameport_driver(adi_drv);
-diff --git a/drivers/input/joystick/cobra.c b/drivers/input/joystick/cobra.c
-index 3497b87..65367e4 100644
---- a/drivers/input/joystick/cobra.c
-+++ b/drivers/input/joystick/cobra.c
-@@ -261,15 +261,4 @@ static struct gameport_driver cobra_drv = {
- 	.disconnect	= cobra_disconnect,
- };
- 
--static int __init cobra_init(void)
--{
--	return gameport_register_driver(&cobra_drv);
--}
--
--static void __exit cobra_exit(void)
--{
--	gameport_unregister_driver(&cobra_drv);
--}
--
--module_init(cobra_init);
--module_exit(cobra_exit);
-+module_gameport_driver(cobra_drv);
-diff --git a/drivers/input/joystick/gf2k.c b/drivers/input/joystick/gf2k.c
-index 0536b1b..ab1cf28 100644
---- a/drivers/input/joystick/gf2k.c
-+++ b/drivers/input/joystick/gf2k.c
-@@ -373,15 +373,4 @@ static struct gameport_driver gf2k_drv = {
- 	.disconnect	= gf2k_disconnect,
- };
- 
--static int __init gf2k_init(void)
--{
--	return gameport_register_driver(&gf2k_drv);
--}
--
--static void __exit gf2k_exit(void)
--{
--	gameport_unregister_driver(&gf2k_drv);
--}
--
--module_init(gf2k_init);
--module_exit(gf2k_exit);
-+module_gameport_driver(gf2k_drv);
-diff --git a/drivers/input/joystick/grip.c b/drivers/input/joystick/grip.c
-index fc55899..9e1beff 100644
---- a/drivers/input/joystick/grip.c
-+++ b/drivers/input/joystick/grip.c
-@@ -424,15 +424,4 @@ static struct gameport_driver grip_drv = {
- 	.disconnect	= grip_disconnect,
- };
- 
--static int __init grip_init(void)
--{
--	return gameport_register_driver(&grip_drv);
--}
--
--static void __exit grip_exit(void)
--{
--	gameport_unregister_driver(&grip_drv);
--}
--
--module_init(grip_init);
--module_exit(grip_exit);
-+module_gameport_driver(grip_drv);
-diff --git a/drivers/input/joystick/grip_mp.c b/drivers/input/joystick/grip_mp.c
-index 2d47baf..c0f9c7b 100644
---- a/drivers/input/joystick/grip_mp.c
-+++ b/drivers/input/joystick/grip_mp.c
-@@ -687,15 +687,4 @@ static struct gameport_driver grip_drv = {
- 	.disconnect	= grip_disconnect,
- };
- 
--static int __init grip_init(void)
--{
--	return gameport_register_driver(&grip_drv);
--}
--
--static void __exit grip_exit(void)
--{
--	gameport_unregister_driver(&grip_drv);
--}
--
--module_init(grip_init);
--module_exit(grip_exit);
-+module_gameport_driver(grip_drv);
-diff --git a/drivers/input/joystick/guillemot.c b/drivers/input/joystick/guillemot.c
-index 4058d4b..55196f7 100644
---- a/drivers/input/joystick/guillemot.c
-+++ b/drivers/input/joystick/guillemot.c
-@@ -281,15 +281,4 @@ static struct gameport_driver guillemot_drv = {
- 	.disconnect	= guillemot_disconnect,
- };
- 
--static int __init guillemot_init(void)
--{
--	return gameport_register_driver(&guillemot_drv);
--}
--
--static void __exit guillemot_exit(void)
--{
--	gameport_unregister_driver(&guillemot_drv);
--}
--
--module_init(guillemot_init);
--module_exit(guillemot_exit);
-+module_gameport_driver(guillemot_drv);
-diff --git a/drivers/input/joystick/interact.c b/drivers/input/joystick/interact.c
-index 16fb19d..88c2262 100644
---- a/drivers/input/joystick/interact.c
-+++ b/drivers/input/joystick/interact.c
-@@ -311,15 +311,4 @@ static struct gameport_driver interact_drv = {
- 	.disconnect	= interact_disconnect,
- };
- 
--static int __init interact_init(void)
--{
--	return gameport_register_driver(&interact_drv);
--}
--
--static void __exit interact_exit(void)
--{
--	gameport_unregister_driver(&interact_drv);
--}
--
--module_init(interact_init);
--module_exit(interact_exit);
-+module_gameport_driver(interact_drv);
-diff --git a/drivers/input/joystick/joydump.c b/drivers/input/joystick/joydump.c
-index cd894a0..7eb878b 100644
---- a/drivers/input/joystick/joydump.c
-+++ b/drivers/input/joystick/joydump.c
-@@ -159,15 +159,4 @@ static struct gameport_driver joydump_drv = {
- 	.disconnect	= joydump_disconnect,
- };
- 
--static int __init joydump_init(void)
--{
--	return gameport_register_driver(&joydump_drv);
--}
--
--static void __exit joydump_exit(void)
--{
--	gameport_unregister_driver(&joydump_drv);
--}
--
--module_init(joydump_init);
--module_exit(joydump_exit);
-+module_gameport_driver(joydump_drv);
-diff --git a/drivers/input/joystick/sidewinder.c b/drivers/input/joystick/sidewinder.c
-index b8d8611..04c69af 100644
---- a/drivers/input/joystick/sidewinder.c
-+++ b/drivers/input/joystick/sidewinder.c
-@@ -820,15 +820,4 @@ static struct gameport_driver sw_drv = {
- 	.disconnect	= sw_disconnect,
- };
- 
--static int __init sw_init(void)
--{
--	return gameport_register_driver(&sw_drv);
--}
--
--static void __exit sw_exit(void)
--{
--	gameport_unregister_driver(&sw_drv);
--}
--
--module_init(sw_init);
--module_exit(sw_exit);
-+module_gameport_driver(sw_drv);
-diff --git a/drivers/input/joystick/tmdc.c b/drivers/input/joystick/tmdc.c
-index d6c6098..5ef9bcd 100644
---- a/drivers/input/joystick/tmdc.c
-+++ b/drivers/input/joystick/tmdc.c
-@@ -436,15 +436,4 @@ static struct gameport_driver tmdc_drv = {
- 	.disconnect	= tmdc_disconnect,
- };
- 
--static int __init tmdc_init(void)
--{
--	return gameport_register_driver(&tmdc_drv);
--}
--
--static void __exit tmdc_exit(void)
--{
--	gameport_unregister_driver(&tmdc_drv);
--}
--
--module_init(tmdc_init);
--module_exit(tmdc_exit);
-+module_gameport_driver(tmdc_drv);
+thanks for looking into this.
+
+So, I just tested the "i8042.nomux" command line option and it seems to
+work. Even the touchpad went on after rubbing on it a couple of times
+initially.
+
+Then, I booted back into 3.4-rc1 without the above option and here's
+what I got again:
+
+[    0.924424] i8042: PNP: PS/2 Controller [PNP0303:KBC0,PNP0f13:MSE0] at 0x60,0x64 irq 1,12
+[    0.928313] i8042: Detected active multiplexing controller, rev 1.1
+[    0.929966] serio: i8042 KBD port at 0x60,0x64 irq 1
+[    0.930628] serio: i8042 AUX0 port at 0x60,0x64 irq 12
+[    0.930890] serio: i8042 AUX1 port at 0x60,0x64 irq 12
+[    0.931175] serio: i8042 AUX2 port at 0x60,0x64 irq 12
+[    0.931343] serio: i8042 AUX3 port at 0x60,0x64 irq 12
+[    0.971523] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input0
+[    2.086110] psmouse serio4: synaptics: Touchpad model: 1, fw: 8.0, id: 0x1e2b1, caps: 0xd001a3/0x940300/0x121c00
+[    2.086378] psmouse serio4: synaptics: serio: Synaptics pass-through port at isa0060/serio4/input0
+[    2.127547] input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio4/input/input1
+[    7.880045] input: TPPS/2 IBM TrackPoint as /devices/platform/i8042/serio4/serio5/input/input2
+[  193.757348] i8042: failed to resume active multiplexor, mouse won't work
+
+It seems the mux controller doesn't resume properly (doh, it says so
+:)) so not only mousepad but keyboard is not working too.
+
+Actually, that's not 100% correct: the keyboard does work for a short
+period of time (a couple of seconds, judging by the printk timestamps
+below) right after I resume and then it stops ...
+
+[  195.526425] psmouse serio4: bad data from KBC - timeout
+[  205.532397] psmouse serio4: Failed to deactivate mouse on isa0060/serio4
+[  205.772260] psmouse serio4: Failed to enable mouse on isa0060/serio4
+[  207.447644] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input15
+
+.. with the above being the last line on dmesg.
+
+So, I'm ready for suggestions.
+
+Thanks.
+
 -- 
-1.7.5.4
-
-
-
+Regards/Gruss,
+    Boris.

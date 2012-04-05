@@ -1,73 +1,61 @@
-From: Joao Paulo Rechi Vita <jprvita@openbossa.org>
-Subject: Re: [RFC v2 0/1] User-space HID I/O Driver
-Date: Wed, 4 Apr 2012 19:59:57 -0300
-Message-ID: <CAAngNMYx4YcC8kEuZkEgojbFLf7BtchTCEDs927P+oqfr_oKnQ@mail.gmail.com>
-References: <1332793209-2950-1-git-send-email-dh.herrmann@googlemail.com>
-	<CAAngNMa0npQwBv+y_giRTOeLUMYiEnwWw4-cA+xMiRRsK732Mw@mail.gmail.com>
-	<CAAngNMaOHRRfTy5yT9ys0Cv5yB5t-zEVxwcZWuK64BEA4oRy2g@mail.gmail.com>
-	<alpine.LNX.2.00.1204031513070.9041@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] fixup! Input: of_keymap: Introduce
+ matrix_keypad_of_build_keymap()
+Date: Wed, 4 Apr 2012 17:45:00 -0700
+Message-ID: <20120405004500.GA11757@core.coreip.homeip.net>
+References: <406fb8092d6aca97a54add346a2528daefab9c8d.1333009670.git.viresh.kumar@st.com>
+ <3d33526ed060e70cdd981f990e449d46a4566278.1333339090.git.viresh.kumar@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:50423 "EHLO
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:32779 "EHLO
 	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932515Ab2DDW75 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Apr 2012 18:59:57 -0400
-Received: by pbcun15 with SMTP id un15so810198pbc.19
-        for <linux-input@vger.kernel.org>; Wed, 04 Apr 2012 15:59:57 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1204031513070.9041@pobox.suse.cz>
+	with ESMTP id S1753799Ab2DEApG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Apr 2012 20:45:06 -0400
+Received: by pbcun15 with SMTP id un15so890095pbc.19
+        for <linux-input@vger.kernel.org>; Wed, 04 Apr 2012 17:45:06 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <3d33526ed060e70cdd981f990e449d46a4566278.1333339090.git.viresh.kumar@st.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, linux-input@vger.kernel.org, chen.ganir@ti.com, claudio.takahasi@openbossa.org, linux-bluetooth@vger.kernel.org, anderson.lizardo@openbossa.org, marcel@holtmann.org
+To: Viresh Kumar <viresh.kumar@st.com>
+Cc: swarren@nvidia.com, spear-devel@list.st.com, viresh.linux@gmail.com, devicetree-discuss@lists.ozlabs.org, olof@lixom.net, linux-input@vger.kernel.org
 
-On Tue, Apr 3, 2012 at 7:14 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Tue, 3 Apr 2012, Joao Paulo Rechi Vita wrote:
->
->> >> This is the second revision of the UHID driver. It basically allo=
-ws to register
->> >> hid_ll_drivers in user-space. This is needed to implement Bluetoo=
-th HoG (HID
->> >> over GATT) as discussed earlier.
->> >>
->> >
->> > We have a first prototype implementation of the HoG plugin working
->> > with the uhid driver \o/
->> >
->>
->> I'm having problems with modifiers keys (they don't work). The USB-H=
-ID
->> spec says that for each modifier key pressed a bit have to be set on
->> the modifiers byte (byte 2) of the report array. Dumping the data bo=
-th
->> on the HoG plugin on bluetoothd and through hidraw for the created H=
-ID
->> device shows that these bits are being set correctly.
->>
->> Any idea of what could be wrong or additional checks that can be per=
-formed?
->
-> So hidraw shows the respective bits set properly, but they are not co=
-ming
-> out of /dev/input/eventX, right?
->
+Hi Viresh,
 
-Exactly.
+On Mon, Apr 02, 2012 at 09:31:51AM +0530, Viresh Kumar wrote:
+> Hi Dmitry,
+> 
+> This is an incremental patch over patch
+> "Input: of_keymap: Introduce matrix_keypad_of_build_keymap()"
+> 
+> sent earlier by me. Please squash it to that patch while applying.
+> 
+> This contains last few changes suggested by Stephen on V4 of this patch.
+> ---
+>  drivers/input/keyboard/tegra-kbc.c  |    4 ++--
+>  include/linux/input/matrix_keypad.h |    2 +-
+>  2 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+> index d1cc006..6300cc7 100644
+> --- a/drivers/input/keyboard/tegra-kbc.c
+> +++ b/drivers/input/keyboard/tegra-kbc.c
+> @@ -619,8 +619,8 @@ tegra_kbc_check_pin_cfg(const struct tegra_kbc_platform_data *pdata,
+>  }
+>  
+>  #ifdef CONFIG_OF
+> -static struct tegra_kbc_platform_data * __devinit
+> -tegra_kbc_dt_parse_pdata(struct device_node *np)
+> +static inline struct tegra_kbc_platform_data * tegra_kbc_dt_parse_pdata(
+> +		struct device_node *np)
+>  {
 
-> How about /syse/kernel/debug/hid/<device>/events, does it show the ev=
-ents?
->
+This is the full implementation and should stay __devinit. It's the stub
+for !CONFIG_OF case that you want to mark "static inline". I'll fix it
+up.
 
-Thanks for the help, but it wasn't needed. The problem was actually on
-the userspace HoG->HID parsing, we're adding an additional 0x00 byte
-to the beginning of the array. Now modifiers works!
+Thanks.
 
---=20
-Jo=C3=A3o Paulo Rechi Vita
-Openbossa Labs - INdT
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

@@ -1,36 +1,53 @@
-From: Viresh Kumar <viresh.kumar@st.com>
-Subject: Re: [PATCH] fixup! Input: of_keymap: Introduce matrix_keypad_of_build_keymap()
-Date: Thu, 5 Apr 2012 09:22:05 +0530
-Message-ID: <4F7D16E5.3030303@st.com>
-References: <406fb8092d6aca97a54add346a2528daefab9c8d.1333009670.git.viresh.kumar@st.com> <3d33526ed060e70cdd981f990e449d46a4566278.1333339090.git.viresh.kumar@st.com> <20120405004500.GA11757@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: [PATCH 1/2] Input: elantech - reset touchpad before configuration
+Date: Thu,  5 Apr 2012 15:46:20 +0800
+Message-ID: <1333611981-8641-1-git-send-email-jj_ding@emc.com.tw>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog107.obsmtp.com ([207.126.144.123]:34674 "EHLO
-	eu1sys200aog107.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752885Ab2DEDxe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Apr 2012 23:53:34 -0400
-In-Reply-To: <20120405004500.GA11757@core.coreip.homeip.net>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:5693 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751552Ab2DEHo4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Apr 2012 03:44:56 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "swarren@nvidia.com" <swarren@nvidia.com>, spear-devel <spear-devel@list.st.com>, "viresh.linux@gmail.com" <viresh.linux@gmail.com>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "olof@lixom.net" <olof@lixom.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org
+Cc: JJ Ding <jj_ding@emc.com.tw>
 
-On 4/5/2012 6:15 AM, Dmitry Torokhov wrote:
->> >  #ifdef CONFIG_OF
->> > -static struct tegra_kbc_platform_data * __devinit
->> > -tegra_kbc_dt_parse_pdata(struct device_node *np)
->> > +static inline struct tegra_kbc_platform_data * tegra_kbc_dt_parse_pdata(
->> > +		struct device_node *np)
->> >  {
-> This is the full implementation and should stay __devinit. It's the stub
-> for !CONFIG_OF case that you want to mark "static inline". I'll fix it
-> up.
+I got a bug report saying for Acer VH40, there is a Fn key to toggle touchpad
+on and off, but it's implemented in system firmware, and the EC chip has to
+recieve reset command to activate this function. Also for this machine, when
+it wakes up after resume, psmouse_reset is nesassary to bring the touchpad
+back on.
 
-Ahh!! I can't believe i made this blunder. I exactly knew what i have to change,
-and still changed the wrong line. Sorry. :(
+With my testing this behavior should be OK on all machines, and synaptics.c
+does the same thing.
 
+Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
+---
+ drivers/input/mouse/elantech.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index d2c0db1..21c68a8 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1245,6 +1245,8 @@ static void elantech_disconnect(struct psmouse *psmouse)
+  */
+ static int elantech_reconnect(struct psmouse *psmouse)
+ {
++	psmouse_reset(psmouse);
++
+ 	if (elantech_detect(psmouse, 0))
+ 		return -1;
+ 
+@@ -1324,6 +1326,8 @@ int elantech_init(struct psmouse *psmouse)
+ 	if (!etd)
+ 		return -ENOMEM;
+ 
++	psmouse_reset(psmouse);
++
+ 	etd->parity[0] = 1;
+ 	for (i = 1; i < 256; i++)
+ 		etd->parity[i] = etd->parity[i & (i - 1)] ^ 1;
 -- 
-viresh
+1.7.10.rc1
+

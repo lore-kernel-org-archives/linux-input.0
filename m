@@ -1,63 +1,83 @@
-From: JJ Ding <jj_ding@emc.com.tw>
-Subject: [PATCH 2/2] Input: elantech - v4 is clickpad, with only one button
-Date: Thu,  5 Apr 2012 15:46:21 +0800
-Message-ID: <1333611981-8641-2-git-send-email-jj_ding@emc.com.tw>
-References: <1333611981-8641-1-git-send-email-jj_ding@emc.com.tw>
+From: Simon Budig <simon.budig@kernelconcepts.de>
+Subject: Re: [PATCH] Touchscreen driver for FT5x06 based EDT displays
+Date: Thu, 05 Apr 2012 12:27:53 +0200
+Message-ID: <4F7D73A9.1050407@kernelconcepts.de>
+References: <1331050527-4902-1-git-send-email-simon.budig@kernelconcepts.de> <1333564079-23893-1-git-send-email-simon.budig@kernelconcepts.de> <1333564079-23893-2-git-send-email-simon.budig@kernelconcepts.de> <20120404191043.GA11042@core.coreip.homeip.net> <4F7CB48E.9060305@kernelconcepts.de> <20120404210940.GB11042@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:5737 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751552Ab2DEHpG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Apr 2012 03:45:06 -0400
-In-Reply-To: <1333611981-8641-1-git-send-email-jj_ding@emc.com.tw>
+Received: from mail.kernelconcepts.de ([212.60.202.196]:49233 "EHLO
+	mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751905Ab2DEK17 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Apr 2012 06:27:59 -0400
+In-Reply-To: <20120404210940.GB11042@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org
-Cc: JJ Ding <jj_ding@emc.com.tw>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, agust@denx.de, yanok@emcraft.com
 
-Add pointer and buttonpad properties for v4 hardware.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Also, Jachiet reported that on Asus UX31, right button has no effect. It
-turns out v4 has only one button, the right-button effect is implemented
-with software when Windows driver is installed, or in firmware when touchpad
-is in relative mode. So remove BTN_RIGHT while at it.
+[Sorry if the quoting level is messed up in this mail, apparently
+thunderbird thinks that it is a good idea to exchange the quoting levels
+of the last two replies. I tried fixing it manually...]
 
-Reported-by: Jachiet Louis <louis@jachiet.com>
-Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
----
- drivers/input/mouse/elantech.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Hi Dmitry.
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 21c68a8..4790110 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -486,7 +486,6 @@ static void elantech_input_sync_v4(struct psmouse *psmouse)
- 	unsigned char *packet = psmouse->packet;
- 
- 	input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
--	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
- 	input_mt_report_pointer_emulation(dev, true);
- 	input_sync(dev);
- }
-@@ -967,6 +966,7 @@ static int elantech_set_input_params(struct psmouse *psmouse)
- 	if (elantech_set_range(psmouse, &x_min, &y_min, &x_max, &y_max, &width))
- 		return -1;
- 
-+	__set_bit(INPUT_PROP_POINTER, dev->propbit);
- 	__set_bit(EV_KEY, dev->evbit);
- 	__set_bit(EV_ABS, dev->evbit);
- 	__clear_bit(EV_REL, dev->evbit);
-@@ -1017,7 +1017,9 @@ static int elantech_set_input_params(struct psmouse *psmouse)
- 			 */
- 			psmouse_warn(psmouse, "couldn't query resolution data.\n");
- 		}
--
-+		/* v4 is clickpad, with only one button. */
-+		__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
-+		__clear_bit(BTN_RIGHT, dev->keybit);
- 		__set_bit(BTN_TOOL_QUADTAP, dev->keybit);
- 		/* For X to recognize me as touchpad. */
- 		input_set_abs_params(dev, ABS_X, x_min, x_max, 0, 0);
--- 
-1.7.10.rc1
+On 04/04/2012 11:09 PM, Dmitry Torokhov wrote:
+> > > The mt pointer emulation should do this for you.
+> >
+> > Can you point me to some documentation on that? Do I need to enable this?
+>
+> Just do
+> 
+> 	input_mt_report_pointer_emulation(tsdata->input, true);
 
+That only seems to work when using slots (which I don't do yet and while
+I am willing to change it I can't do it right now since other software
+depends on the type-a protocol...).
+
+> > Where would be a proper place to document such device-specific behaviour?
+> Maybe Documentation/input/...? Thisis hardware-mandated behavior, right?
+
+Yeah, I guess I'll cook up a small document.
+
+> > > Should this GPIO configuration be done by the driver or by the board
+> > > code that configures i2c client? I think latter is better.
+> > I got conflicting opinions when I asked for advice on this last december
+> > (before changing it to a pin-based configuration). Why do you think that
+> > your suggestion is better?
+> 
+> Can the device be connected via a pin not plugged into gpio subsystem?
+> Other than deriving IRQ from it you do not seem to be using it.
+
+Well, I do configure the pin as input as well.
+
+Which would then probably have to move to the board file, where there is
+no real good place to put it. Or you invent some sort of callback
+functions in the platform device structure so that the driver calls back
+into the boardfile.
+
+I dunno. Seems like a lot of overhead for very rare/obscure usecases.
+
+I'll prepare a new version of the patch incorporating the other feedback
+from you. Hopefully I'll manage to do this in the next few days.
+
+Bye,
+        Simon
+
+- -- 
+       Simon Budig                        kernel concepts GmbH
+       simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
+       +49-271-771091-17                  D-57072 Siegen
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk99c6kACgkQO2O/RXesiHBszwCgsiQBnnOC6qeK379gSeLTUHz+
+QWEAoKcVK1kKaE0Uq3KiPmaf7dGozzPA
+=W+St
+-----END PGP SIGNATURE-----

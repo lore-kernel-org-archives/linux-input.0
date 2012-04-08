@@ -1,36 +1,31 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: HID, driver interaction with device during probe defeated by
- 4ea5454203d991ec85264f64f89ca8855fce69b0
-Date: Mon, 9 Apr 2012 00:03:06 +0200
-Message-ID: <20120409000306.101c3427@neptune>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [RFC 0/5] hid: Extending the device-driver matching mechanism
+Date: Mon, 9 Apr 2012 01:53:53 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204090152140.24006@pobox.suse.cz>
+References: <1333436730-13008-1-git-send-email-rydberg@euromail.se> <CAN+gG=EvmTFKmKGaC6T-RKYhUy8U0NqWxqz-k_Gr_w5_rm57Bg@mail.gmail.com> <20120403105554.GA14201@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay.restena.lu ([158.64.1.62]:42725 "EHLO
-	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755479Ab2DHWNJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 8 Apr 2012 18:13:09 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:44274 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753774Ab2DHXxz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 8 Apr 2012 19:53:55 -0400
+In-Reply-To: <20120403105554.GA14201@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 3 Apr 2012, Henrik Rydberg wrote:
 
-picolcd driver stopped working (probe fails) recently, probably in
-relation with commit 4ea5454203d991ec85264f64f89ca8855fce69b0
-(HID: Fix race condition between driver core and ll-driver).
+> The simplest solution is probably to defer parsing for drivers known
+> from the device list. 
 
-The probe code does send a report to the HID device to query version
-information but times-out getting the response.
+That would unfortunately still break dynamic rebinding of the drivers via 
+sysfs bind/unbind facility (which has apparently been already broken wrt. 
+report_fixup() callback and I am looking into it right now, but that's a 
+different story).
 
-What would be the proper approach to fix this chicken-egg problem?
-Semaphore introduced by above patch is only being released after
-driver probe function has returned but prevents and incoming reports
-from being delivered.
-
-Touching the semaphore inside driver looks like a bad idea to me...
-
-Thanks,
-Bruno
+-- 
+Jiri Kosina
+SUSE Labs

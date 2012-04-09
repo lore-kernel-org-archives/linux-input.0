@@ -1,154 +1,100 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Aureal Remote Control Device Driver
-Date: Mon, 9 Apr 2012 02:08:28 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204090207090.24006@pobox.suse.cz>
-References: <1333141707-16069-1-git-send-email-jrbenito@benito.qsl.br>
+From: Haojian Zhuang <haojian.zhuang@gmail.com>
+Subject: Re: [PATCH] Input: eeti_ts: Mark as CONFIG_BROKEN
+Date: Mon, 9 Apr 2012 10:28:42 +0800
+Message-ID: <CAN1soZzxQAykNaptaptCcQ22smT-U0tmATFBde5ohkzq7xYA4g@mail.gmail.com>
+References: <1333777207-4151-1-git-send-email-olof@lixom.net>
+	<20120407070206.GA17623@core.coreip.homeip.net>
+	<4F8089A9.6080704@raumfeld.com>
+	<CAOesGMiPZ0so-ZN0HCHHhw16oPWWgfVD5t--wKSvEUtzQx94CA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:44864 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753500Ab2DIAIa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 8 Apr 2012 20:08:30 -0400
-In-Reply-To: <1333141707-16069-1-git-send-email-jrbenito@benito.qsl.br>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAOesGMiPZ0so-ZN0HCHHhw16oPWWgfVD5t--wKSvEUtzQx94CA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Olof Johansson <olof@lixom.net>
+Cc: Sven Neumann <s.neumann@raumfeld.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Mack <daniel@caiaq.de>, Daniel Mack <zonque@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Haojian Zhuang <haojian.zhuang@marvell.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Josenivaldo Benito Junior <jrbenito@benito.qsl.br>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Franco Catrin <fcatrin@gmail.com>
 
-On Fri, 30 Mar 2012, Josenivaldo Benito Junior wrote:
+On Sun, Apr 8, 2012 at 4:32 AM, Olof Johansson <olof@lixom.net> wrote:
+> On Sat, Apr 7, 2012 at 11:38 AM, Sven Neumann <s.neumann@raumfeld.com=
+> wrote:
+>> Hi,
+>>
+>>
+>> On 07.04.12 09:02, Dmitry Torokhov wrote:
+>>>
+>>> On Fri, Apr 06, 2012 at 10:40:07PM -0700, Olof Johansson wrote:
+>>>>
+>>>> This seems to have been broken since 2010, so obviously noone actu=
+ally
+>>>> cares about the driver:
+>>>>
+>>>> make[4]: *** [drivers/input/touchscreen/eeti_ts.o] Error 1
+>>>> drivers/input/touchscreen/eeti_ts.c: In function 'eeti_ts_irq_acti=
+ve':
+>>>> drivers/input/touchscreen/eeti_ts.c:65:2: error: implicit declarat=
+ion of
+>>>> function 'irq_to_gpio' [-Werror=3Dimplicit-function-declaration]
+>>>>
+>>>> irq_to_gpio isn't available on most platforms today, so the driver
+>>>> will need some rework by someone who has hardware access and can t=
+est
+>>>> (to make sure that, for example, switching to level interrupts and=
+ just
+>>>> keep taking them while there's more to process works).
+>>>>
+>>>> I guess it could just be scheduled for removal, but let's start wi=
+th
+>>>> marking it CONFIG_BROKEN.
+>>>
+>>>
+>>> Well, it probably works quite well on arches that do have irq_to_gp=
+io(),
+>>> let's ask Daniel and Sven if they still have this hardware and if t=
+hey
+>>> can try the patch below that implements what you suggested.
+>>
+>>
+>> This hardware is still in use and we also still follow kernel develo=
+pment
+>> and try to update our customer devices to recent kernel versions reg=
+ularly.
+>> Currently we are at 3.1.10 and the touchscreen works well with that.=
+ I'll
+>> try to update to a more recent kernel next week and will try your pa=
+tch.
+>
+> Ah, you're right, and this was my bad. Looks like this change was
+> introduced in 3.2 and broke this and one more driver (ezx-pcap):
+>
+> Author: =A0 =A0 Haojian Zhuang <haojian.zhuang@marvell.com>
+> AuthorDate: Mon Oct 10 16:03:51 2011 +0800
+> Commit: =A0 =A0 Haojian Zhuang <haojian.zhuang@marvell.com>
+> CommitDate: Mon Nov 14 21:07:59 2011 +0800
+>
+> =A0 =A0ARM: pxa: rename gpio_to_irq and irq_to_gpio
+>
+> =A0 =A0Avoid to define gpio_to_irq() and irq_to_gpio() for potential =
+name
+> =A0 =A0confliction since multiple architecture will be built together=
+=2E
+>
+> =A0 =A0Signed-off-by: Haojian Zhuang <haojian.zhuang@marvell.com>
+>
+>
+> Haojian, I think it was probably premature to do the multiplatform
+> change like that, since it means that a PXA-only kernel has no mappin=
+g
+> from irq_to_gpio to pxa_irq_to_gpio. Can you please address this as a
+> fix for 3.4?
+>
+>
+I tried to fix ezx-pcap before. Since there's some codebase confliction=
+, the
+patch wasn't merged. I'll format patch again. And I'll try to fix other=
+ patches
+that are covered in arch-pxa if they exist.
 
-> From: "Josenivaldo Benito Junior" <jrbenito@benito.qsl.br>
-> 
-> Devices like Aureal Cy se W-01RN USB_V3.1 and some derived hardware
-> have a bogus HID Report Descriptor. According to that report descriptor,
-> the maximum logical value for key events is 1 and not 101 (101 keys).
-> 
-> This quirk fixes this wrong Report Descriptor and is basically the same found
-> in hid-elecom.c.
-> 
-> Original driver can be found at: https://gitorious.org/hid-aureal-kernel-module
-> 
-> Signed-off-by: Josenivaldo Benito Junior <jrbenito@benito.qsl.br>
-> Signed-off-by: Franco Catrin <fcatrin@gmail.com>
-> ---
->  drivers/hid/Kconfig      |    6 +++++
->  drivers/hid/Makefile     |    1 +
->  drivers/hid/hid-aureal.c |   54 ++++++++++++++++++++++++++++++++++++++++++++++
->  drivers/hid/hid-ids.h    |    3 ++
->  4 files changed, 64 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/hid/hid-aureal.c
-> 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 4ecc256..03e2281 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -92,6 +92,12 @@ config HID_APPLE
->  	Say Y here if you want support for keyboards of	Apple iBooks, PowerBooks,
->  	MacBooks, MacBook Pros and Apple Aluminum.
->  
-> +config HID_AUREAL
-> +	tristate "Aureal"
-> +	depends on USB_HID
-> +	---help---
-> +	Support for Aureal Cy se W-01RN Remote Controller and other Aureal derived remotes.
-> +
->  config HID_BELKIN
->  	tristate "Belkin Flip KVM and Wireless keyboard" if EXPERT
->  	depends on USB_HID
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index 22f1d16..5363f17 100644
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -36,6 +36,7 @@ endif
->  obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
->  obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
->  obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
-> +obj-$(CONFIG_HID_AUREAL)        += hid-aureal.o
->  obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
->  obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
->  obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
-> diff --git a/drivers/hid/hid-aureal.c b/drivers/hid/hid-aureal.c
-> new file mode 100644
-> index 0000000..9fb676b
-> --- /dev/null
-> +++ b/drivers/hid/hid-aureal.c
-> @@ -0,0 +1,54 @@
-> +/*
-> + *  HID driver for Aureal Cy se W-01RN USB_V3.1 devices
-> + *
-> + *  Copyright (c) 2010 Franco Catrin <fcatrin@gmail.com>
-> + *  Copyright (c) 2010 Ben Cropley <bcropley@internode.on.net>
-> + *
-> + *  Based on HID sunplus driver by
-> + *  Copyright (c) 1999 Andreas Gal
-> + *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
-> + *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
-> + *  Copyright (c) 2006-2007 Jiri Kosina
-> + *  Copyright (c) 2007 Paul Walmsley
-> + *  Copyright (c) 2008 Jiri Slaby
-> + */
-> +#include <linux/device.h>
-> +#include <linux/hid.h>
-> +#include <linux/module.h>
-> +
-> +#include "hid-ids.h"
-> +
-> +static __u8 *aureal_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-> +		unsigned int *rsize)
-> +{
-> +	if (*rsize >= 54 && rdesc[52] == 0x25 && rdesc[53] == 0x01) {
-> +		dev_info(&hdev->dev, "fixing Aureal Cy se W-01RN USB_V3.1 report descriptor. Keyboard Logical Maximum = 101\n");
-
-This is probably putting a too much information into dmesg. Could you 
-please drop the part with the 'Keyboard Logical Maximum ...'?
-
-> +		rdesc[53] = 0x65;
-> +	} return rdesc;
-> +}
-> +
-> +static const struct hid_device_id aureal_devices[] = {
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_AUREAL, USB_DEVICE_ID_AUREAL_W01RN) },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(hid, aureal_devices);
-> +
-> +static struct hid_driver aureal_driver = {
-> +	.name = "aureal",
-> +	.id_table = aureal_devices,
-> +	.report_fixup = aureal_report_fixup,
-> +};
-> +
-> +static int __init aureal_init(void)
-> +{
-> +	return hid_register_driver(&aureal_driver);
-> +}
-> +
-> +static void __exit aureal_exit(void)
-> +{
-> +	hid_unregister_driver(&aureal_driver);
-> +}
-> +
-> +module_init(aureal_init);
-> +module_exit(aureal_exit);
-> +MODULE_LICENSE("GPL");
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 2b67e84..720c9e7 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -154,6 +154,9 @@
->  #define USB_DEVICE_ID_ATMEL_MULTITOUCH	0x211c
->  #define USB_DEVICE_ID_ATMEL_MXT_DIGITIZER	0x2118
->  
-> +#define USB_VENDOR_ID_AUREAL		0x0755
-> +#define USB_DEVICE_ID_AUREAL_W01RN	0x2626
-> +
->  #define USB_VENDOR_ID_AVERMEDIA		0x07ca
->  #define USB_DEVICE_ID_AVER_FM_MR800	0xb800
-
-You don't seem to be adding appropriate entry to 
-hid_have_special_driver[].
-
--- 
-Jiri Kosina
-SUSE Labs
+Best Regards
+Haojian

@@ -1,113 +1,138 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: matrix-keypad - allocate keycodes with keypad
-Date: Tue, 10 Apr 2012 01:04:14 -0700
-Message-ID: <20120410080413.GA19191@core.coreip.homeip.net>
+Subject: [PATCH] Input: matrix-keypad - undo GPIO setup if
+ input_register_device fails
+Date: Tue, 10 Apr 2012 01:19:03 -0700
+Message-ID: <20120410081902.GA19467@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:38432 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752818Ab2DJIER (ORCPT
+Received: from mail-pz0-f52.google.com ([209.85.210.52]:36562 "EHLO
+	mail-pz0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757195Ab2DJITG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Apr 2012 04:04:17 -0400
+	Tue, 10 Apr 2012 04:19:06 -0400
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Eric Miao <eric.y.miao@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Instead of allocating and managing keymap separately from the keypad
-structure stick it at the end as a variable-length array.
-
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/input/keyboard/matrix_keypad.c |   23 ++++++++++-------------
- 1 files changed, 10 insertions(+), 13 deletions(-)
+ drivers/input/keyboard/matrix_keypad.c |   53 ++++++++++++++++++--------------
+ 1 files changed, 30 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index 8714d68..a4ff08c 100644
+index a4ff08c..98ae281 100644
 --- a/drivers/input/keyboard/matrix_keypad.c
 +++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -27,7 +27,6 @@
- struct matrix_keypad {
- 	const struct matrix_keypad_platform_data *pdata;
- 	struct input_dev *input_dev;
--	unsigned short *keycodes;
- 	unsigned int row_shift;
+@@ -299,11 +299,11 @@ static int matrix_keypad_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(matrix_keypad_pm_ops,
+ 			 matrix_keypad_suspend, matrix_keypad_resume);
  
- 	DECLARE_BITMAP(disabled_gpios, MATRIX_MAX_ROWS);
-@@ -38,6 +37,8 @@ struct matrix_keypad {
- 	bool scan_pending;
- 	bool stopped;
- 	bool gpio_all_disabled;
-+
-+	unsigned short keycodes[];
- };
+-static int __devinit init_matrix_gpio(struct platform_device *pdev,
+-					struct matrix_keypad *keypad)
++static int __devinit matrix_keypad_init_gpio(struct platform_device *pdev,
++					     struct matrix_keypad *keypad)
+ {
+ 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
+-	int i, err = -EINVAL;
++	int i, err;
  
- /*
-@@ -381,8 +382,8 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
- 	const struct matrix_keymap_data *keymap_data;
- 	struct matrix_keypad *keypad;
- 	struct input_dev *input_dev;
--	unsigned short *keycodes;
- 	unsigned int row_shift;
-+	size_t keymap_size;
- 	int err;
- 
- 	pdata = pdev->dev.platform_data;
-@@ -398,20 +399,18 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
- 	}
- 
- 	row_shift = get_count_order(pdata->num_col_gpios);
--
--	keypad = kzalloc(sizeof(struct matrix_keypad), GFP_KERNEL);
--	keycodes = kzalloc((pdata->num_row_gpios << row_shift) *
--				sizeof(*keycodes),
--			   GFP_KERNEL);
-+	keymap_size = (pdata->num_row_gpios << row_shift) *
-+			sizeof(keypad->keycodes[0]);
-+	keypad = kzalloc(sizeof(struct matrix_keypad) + keymap_size,
-+			 GFP_KERNEL);
- 	input_dev = input_allocate_device();
--	if (!keypad || !keycodes || !input_dev) {
-+	if (!keypad || !input_dev) {
- 		err = -ENOMEM;
- 		goto err_free_mem;
- 	}
- 
- 	keypad->input_dev = input_dev;
- 	keypad->pdata = pdata;
--	keypad->keycodes = keycodes;
- 	keypad->row_shift = row_shift;
- 	keypad->stopped = true;
- 	INIT_DELAYED_WORK(&keypad->work, matrix_keypad_scan);
-@@ -426,8 +425,8 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
- 	input_dev->open		= matrix_keypad_start;
- 	input_dev->close	= matrix_keypad_stop;
- 
--	input_dev->keycode	= keycodes;
--	input_dev->keycodesize	= sizeof(*keycodes);
-+	input_dev->keycode	= keypad->keycodes;
-+	input_dev->keycodesize	= sizeof(keypad->keycodes[0]);
- 	input_dev->keycodemax	= pdata->num_row_gpios << row_shift;
- 
- 	matrix_keypad_build_keymap(keymap_data, row_shift,
-@@ -451,7 +450,6 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
- 
- err_free_mem:
- 	input_free_device(input_dev);
--	kfree(keycodes);
- 	kfree(keypad);
+ 	/* initialized strobe lines as outputs, activated */
+ 	for (i = 0; i < pdata->num_col_gpios; i++) {
+@@ -349,8 +349,7 @@ static int __devinit init_matrix_gpio(struct platform_device *pdev,
+ 					"matrix-keypad", keypad);
+ 			if (err) {
+ 				dev_err(&pdev->dev,
+-					"Unable to acquire interrupt "
+-					"for GPIO line %i\n",
++					"Unable to acquire interrupt for GPIO line %i\n",
+ 					pdata->row_gpios[i]);
+ 				goto err_free_irqs;
+ 			}
+@@ -376,6 +375,25 @@ err_free_cols:
  	return err;
  }
-@@ -479,7 +477,6 @@ static int __devexit matrix_keypad_remove(struct platform_device *pdev)
  
- 	input_unregister_device(keypad->input_dev);
- 	platform_set_drvdata(pdev, NULL);
--	kfree(keypad->keycodes);
- 	kfree(keypad);
++static void matrix_keypad_free_gpio(struct matrix_keypad *keypad)
++{
++	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
++	int i;
++
++	if (pdata->clustered_irq > 0) {
++		free_irq(pdata->clustered_irq, keypad);
++	} else {
++		for (i = 0; i < pdata->num_row_gpios; i++)
++			free_irq(gpio_to_irq(pdata->row_gpios[i]), keypad);
++	}
++
++	for (i = 0; i < pdata->num_row_gpios; i++)
++		gpio_free(pdata->row_gpios[i]);
++
++	for (i = 0; i < pdata->num_col_gpios; i++)
++		gpio_free(pdata->col_gpios[i]);
++}
++
+ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
+ {
+ 	const struct matrix_keypad_platform_data *pdata;
+@@ -435,19 +453,21 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
+ 	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+ 	input_set_drvdata(input_dev, keypad);
+ 
+-	err = init_matrix_gpio(pdev, keypad);
++	err = matrix_keypad_init_gpio(pdev, keypad);
+ 	if (err)
+ 		goto err_free_mem;
+ 
+ 	err = input_register_device(keypad->input_dev);
+ 	if (err)
+-		goto err_free_mem;
++		goto err_free_gpio;
+ 
+ 	device_init_wakeup(&pdev->dev, pdata->wakeup);
+ 	platform_set_drvdata(pdev, keypad);
  
  	return 0;
+ 
++err_free_gpio:
++	matrix_keypad_free_gpio(keypad);
+ err_free_mem:
+ 	input_free_device(input_dev);
+ 	kfree(keypad);
+@@ -457,28 +477,15 @@ err_free_mem:
+ static int __devexit matrix_keypad_remove(struct platform_device *pdev)
+ {
+ 	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
+-	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
+-	int i;
+ 
+ 	device_init_wakeup(&pdev->dev, 0);
+ 
+-	if (pdata->clustered_irq > 0) {
+-		free_irq(pdata->clustered_irq, keypad);
+-	} else {
+-		for (i = 0; i < pdata->num_row_gpios; i++)
+-			free_irq(gpio_to_irq(pdata->row_gpios[i]), keypad);
+-	}
+-
+-	for (i = 0; i < pdata->num_row_gpios; i++)
+-		gpio_free(pdata->row_gpios[i]);
+-
+-	for (i = 0; i < pdata->num_col_gpios; i++)
+-		gpio_free(pdata->col_gpios[i]);
+-
++	matrix_keypad_free_gpio(keypad);
+ 	input_unregister_device(keypad->input_dev);
+-	platform_set_drvdata(pdev, NULL);
+ 	kfree(keypad);
+ 
++	platform_set_drvdata(pdev, NULL);
++
+ 	return 0;
+ }
+ 
 -- 
 1.7.7.6
 

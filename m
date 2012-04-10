@@ -1,66 +1,39 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH RESEND] Input: omap-keypad: dynamically handle register
- offsets
-Date: Tue, 10 Apr 2012 12:24:43 +0300
-Message-ID: <20120410092441.GB20616@arwen.pp.htv.fi>
-References: <1333430546-23454-1-git-send-email-sourav.poddar@ti.com>
-Reply-To: balbi@ti.com
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCH] Input: eeti_ts: Mark as CONFIG_BROKEN
+Date: Tue, 10 Apr 2012 11:10:47 +0100
+Message-ID: <20120410101047.GQ24211@n2100.arm.linux.org.uk>
+References: <1333777207-4151-1-git-send-email-olof@lixom.net> <20120407070206.GA17623@core.coreip.homeip.net> <4F8089A9.6080704@raumfeld.com> <CAOesGMiPZ0so-ZN0HCHHhw16oPWWgfVD5t--wKSvEUtzQx94CA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EuxKj2iCbKjpUGkD"
-Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1333430546-23454-1-git-send-email-sourav.poddar@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Sourav Poddar <sourav.poddar@ti.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, balbi@ti.com
+In-Reply-To: <CAOesGMiPZ0so-ZN0HCHHhw16oPWWgfVD5t--wKSvEUtzQx94CA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Olof Johansson <olof@lixom.net>
+Cc: Sven Neumann <s.neumann@raumfeld.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, linux-kernel@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, linux-input@vger.kernel.org, Daniel Mack <zonque@gmail.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
+On Sat, Apr 07, 2012 at 01:32:31PM -0700, Olof Johansson wrote:
+> Haojian, I think it was probably premature to do the multiplatform
+> change like that, since it means that a PXA-only kernel has no mapping
+> from irq_to_gpio to pxa_irq_to_gpio. Can you please address this as a
+> fix for 3.4?
 
---EuxKj2iCbKjpUGkD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please fix ezx-pcap instead - it's broken as it currently stands by using
+irq_to_gpio(), and it's one reason why my randconfig builds on OMAP fail.
 
-On Tue, Apr 03, 2012 at 10:52:26AM +0530, Sourav Poddar wrote:
-> +static int kbd_write_irqstatus(struct omap4_keypad *keypad_data,
-> +						u32 offset, u32 value)
-> +{
-> +	return __raw_writel(value, keypad_data->base + offset);
-> +}
-> +
-> +static int kbd_write_irqenable(struct omap4_keypad *keypad_data,
-> +						u32 offset, u32 value)
-> +{
-> +	return __raw_writel(value, keypad_data->base + offset);
-> +}
+The big problem is - what does this do:
 
-if this only writes to irqenable, why do you pass offset as an argument?
-likewise for irqstatus.
+        do {
+...
+        } while (gpio_get_value(irq_to_gpio(pcap->spi->irq)));
 
---=20
-balbi
+if pcap->spi->irq has no GPIO associated with the interrupt?  irq_to_gpio()
+probably returns some random number which might be some other GPIO in the
+system, and gpio_get_value() could oops if irq_to_gpio returns a negative
+or large positive number.  To put it another way, according to the above
+code, irq_to_gpio() must always return a valid gpio for the IRQ even if
+the IRQ doesn't have a GPIO associated with it.
 
---EuxKj2iCbKjpUGkD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPg/xZAAoJEIaOsuA1yqREkGQQAIQ+bn9O1dc/0Tjzw0HoA+di
-zgMAKonY84IJRSGC3UaKkKZPpMJL/YTu94+WYidRJp5B/7XBMeMLxbNyHmST2Xps
-+ArFtU9snRQpCS7cKE/l7oopRhFf1zjlRRSz1iJ1QobtMu/hLoODDPD1wjqP4mUM
-jpAmJgkvK4autjGCmpcOlG51AuIBM+/bJGW2mHF7/y/nJ9e2TL+04pCByhJ/Dz2W
-wjPiRBQWfaSa4CfO5wI/o0pMxNdVAfDDkmZv3EeVciQr+jJr7ahlgNf6nhQ6uPUK
-/UMZIE2xBu1DCy8Ex73PE5O4lpfLScbBNaiBwuBVdIjPc/Ioz1hmSGMpDubjuwhJ
-sUsrFdhWArgY8UAdaLMEzxBBL6ChV6ZaYXFFSFfuqMyGJRNpLWYxGED41thK0gLk
-flVTm2e42nATWuag1mQ1okc3kzL4n0QgibsOqnt9VMfyc8pSnM8j5cpfvtIYJ5l/
-gdqdX1ET5OukgwMPMtsoyorqMHgrfbBLXLChp5V2tD9Z0uJVV8MSAyjSb8dL33dP
-Uyt6sgoVs1WMD8D4OL33v4mE0tHWxrzWYUegp32h6BYL56LpUhzKK50tw9AAqtCf
-TvEbZVqyYgAqC/9nY+5liJumkNy5xQ07AgVFqKJ/IZEkGaafP0XcmXKKHdhUSPgV
-gIJSr4tQpRPZa4C/v5Q4
-=S9fg
------END PGP SIGNATURE-----
-
---EuxKj2iCbKjpUGkD--
+This is a fine illustration of why irq_to_gpio() is just plain broken in
+its design.

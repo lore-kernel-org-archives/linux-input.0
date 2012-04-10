@@ -1,44 +1,92 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: elantech - v4 is clickpad, with only one
- button
-Date: Tue, 10 Apr 2012 00:41:43 -0700
-Message-ID: <20120410074143.GB22436@core.coreip.homeip.net>
-References: <1333611981-8641-1-git-send-email-jj_ding@emc.com.tw>
- <1333611981-8641-2-git-send-email-jj_ding@emc.com.tw>
- <4F7EFA06.7050905@canonical.com>
- <87aa2limxo.fsf@emc.com.tw>
+Subject: [PATCH] Input: ep93xx_keypad - switch to using dev_pm_ops
+Date: Tue, 10 Apr 2012 01:01:35 -0700
+Message-ID: <20120410080134.GA19114@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f52.google.com ([209.85.210.52]:39409 "EHLO
-	mail-pz0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753713Ab2DJHlr (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:41928 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752273Ab2DJIBj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Apr 2012 03:41:47 -0400
-Received: by mail-pz0-f52.google.com with SMTP id e40so6274505dak.11
-        for <linux-input@vger.kernel.org>; Tue, 10 Apr 2012 00:41:46 -0700 (PDT)
+	Tue, 10 Apr 2012 04:01:39 -0400
 Content-Disposition: inline
-In-Reply-To: <87aa2limxo.fsf@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org
+To: H Hartley Sweeten <hartleys@visionengravers.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Apr 09, 2012 at 11:49:55AM +0800, JJ Ding wrote:
-> 
-> On Fri, 06 Apr 2012 07:13:26 -0700, Chase Douglas <chase.douglas@canonical.com> wrote:
-> > 
-> > Looks good to me :).
-> > 
-> > Reviewed-by: Chase Douglas <chase.douglas@canonical.com>
-> > 
-> > Thanks JJ!
-> 
-> Thanks for your review, Chase!
-> 
-> Dmitry, are these two patches look OK to you?
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+ drivers/input/keyboard/ep93xx_keypad.c |   20 ++++++++++----------
+ 1 files changed, 10 insertions(+), 10 deletions(-)
 
-Applied both, thanks JJ.
+diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
+index 0ba69f3..d6cd634 100644
+--- a/drivers/input/keyboard/ep93xx_keypad.c
++++ b/drivers/input/keyboard/ep93xx_keypad.c
+@@ -182,16 +182,16 @@ static void ep93xx_keypad_close(struct input_dev *pdev)
+ }
+ 
+ 
+-#ifdef CONFIG_PM
++#ifdef CONFIG_PM_SLEEP
+ /*
+  * NOTE: I don't know if this is correct, or will work on the ep93xx.
+  *
+  * None of the existing ep93xx drivers have power management support.
+  * But, this is basically what the pxa27x_keypad driver does.
+  */
+-static int ep93xx_keypad_suspend(struct platform_device *pdev,
+-				 pm_message_t state)
++static int ep93xx_keypad_suspend(struct device *dev)
+ {
++	struct platform_device *pdev = to_platform_device(dev);
+ 	struct ep93xx_keypad *keypad = platform_get_drvdata(pdev);
+ 	struct input_dev *input_dev = keypad->input_dev;
+ 
+@@ -210,8 +210,9 @@ static int ep93xx_keypad_suspend(struct platform_device *pdev,
+ 	return 0;
+ }
+ 
+-static int ep93xx_keypad_resume(struct platform_device *pdev)
++static int ep93xx_keypad_resume(struct device *dev)
+ {
++	struct platform_device *pdev = to_platform_device(dev);
+ 	struct ep93xx_keypad *keypad = platform_get_drvdata(pdev);
+ 	struct input_dev *input_dev = keypad->input_dev;
+ 
+@@ -232,10 +233,10 @@ static int ep93xx_keypad_resume(struct platform_device *pdev)
+ 
+ 	return 0;
+ }
+-#else	/* !CONFIG_PM */
+-#define ep93xx_keypad_suspend	NULL
+-#define ep93xx_keypad_resume	NULL
+-#endif	/* !CONFIG_PM */
++#endif
++
++static SIMPLE_DEV_PM_OPS(ep93xx_keypad_pm_ops,
++			 ep93xx_keypad_suspend, ep93xx_keypad_resume);
+ 
+ static int __devinit ep93xx_keypad_probe(struct platform_device *pdev)
+ {
+@@ -384,11 +385,10 @@ static struct platform_driver ep93xx_keypad_driver = {
+ 	.driver		= {
+ 		.name	= "ep93xx-keypad",
+ 		.owner	= THIS_MODULE,
++		.pm	= &ep93xx_keypad_pm_ops,
+ 	},
+ 	.probe		= ep93xx_keypad_probe,
+ 	.remove		= __devexit_p(ep93xx_keypad_remove),
+-	.suspend	= ep93xx_keypad_suspend,
+-	.resume		= ep93xx_keypad_resume,
+ };
+ module_platform_driver(ep93xx_keypad_driver);
+ 
+-- 
+1.7.7.6
+
 
 -- 
 Dmitry

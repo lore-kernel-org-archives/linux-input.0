@@ -1,198 +1,98 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND] Input: omap-keypad: dynamically handle register
- offsets
-Date: Tue, 10 Apr 2012 09:23:54 -0700
-Message-ID: <20120410162353.GA6217@core.coreip.homeip.net>
-References: <1333430546-23454-1-git-send-email-sourav.poddar@ti.com>
+From: H Hartley Sweeten <hartleys@visionengravers.com>
+Subject: RE: [PATCH] Input: ep93xx_keypad - switch to using dev_pm_ops
+Date: Tue, 10 Apr 2012 11:34:52 -0500
+Message-ID: <ADE657CA350FB648AAC2C43247A983F00206986C017C@AUSP01VMBX24.collaborationhost.net>
+References: <20120410080134.GA19114@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1333430546-23454-1-git-send-email-sourav.poddar@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Sourav Poddar <sourav.poddar@ti.com>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, balbi@ti.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail209.messagelabs.com ([216.82.255.3]:19437 "EHLO
+	mail209.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752692Ab2DJQe5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Apr 2012 12:34:57 -0400
+In-Reply-To: <20120410080134.GA19114@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Sourav,
-
-On Tue, Apr 03, 2012 at 10:52:26AM +0530, Sourav Poddar wrote:
-> From: G, Manjunath Kondaiah <manjugk@ti.com>
+On Tuesday, April 10, 2012 1:02 AM, Dmitry Torokhov wrote:
 > 
-> Keypad controller register offsets are different for omap4
-> and omap5. Handle these offsets through static mapping and
-> assign these mappings during run time.
-> 
-
-In addition to Felipe's comments.
-
-> @@ -76,11 +81,66 @@ struct omap4_keypad {
->  
->  	unsigned int rows;
->  	unsigned int cols;
-> +	unsigned int revision;
-> +	u32 irqstatus;
-> +	u32 irqenable;
-
-	u32 reg_offset;
-
-and you probably won't need revision field.
-
->  	unsigned int row_shift;
->  	unsigned char key_state[8];
->  	unsigned short keymap[];
->  };
->  
-> +static int kbd_readl(struct omap4_keypad *keypad_data, u32 offset)
-> +{
-> +	if (keypad_data->revision == KBD_REVISION_OMAP4)
-> +		return __raw_readl(keypad_data->base + offset);
-> +	else if (keypad_data->revision == KBD_REVISION_OMAP5)
-> +		return __raw_readl(keypad_data->base + offset + 0x10);
-> +
-> +	return -ENODEV;
-
-Instead do:
-
-	return __raw_readl(keypad_data->base + keypad_data->reg_offset +
-			   offset);
-> +}
-> +
-> +static void kbd_writel(struct omap4_keypad *keypad_data, u32 offset, u32 value)
-> +{
-> +	if (keypad_data->revision == KBD_REVISION_OMAP4)
-> +		__raw_writel(value, keypad_data->base + offset);
-> +	else if (keypad_data->revision == KBD_REVISION_OMAP5)
-> +		__raw_writel(value, keypad_data->base + offset + 0x10);
-
-	__raw_writel(value,
-		     keypad_data->base + keypad_data->reg_offset + offset);
-
-> +}
-> +
-> +static int kbd_read_revision(struct omap4_keypad *keypad_data, u32 offset)
-> +{
-> +	int reg;
-> +	reg = __raw_readl(keypad_data->base + offset);
-> +	reg &= 0x03 << 30;
-> +	reg >>= 30;
-> +
-> +	switch (reg) {
-> +	case 1:
-> +		return KBD_REVISION_OMAP5;
-> +	case 0:
-> +		return KBD_REVISION_OMAP4;
-> +	default:
-> +		return -ENODEV;
-
--EINVAL? -EIO?
-
-> +	}
-> +}
-> +
->  /* Interrupt handler */
->  static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
->  {
-> @@ -91,12 +151,11 @@ static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
->  	u32 *new_state = (u32 *) key_state;
->  
->  	/* Disable interrupts */
-> -	__raw_writel(OMAP4_VAL_IRQDISABLE,
-> -		     keypad_data->base + OMAP4_KBD_IRQENABLE);
-> +	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
-> +			OMAP4_VAL_IRQDISABLE);
->  
-> -	*new_state = __raw_readl(keypad_data->base + OMAP4_KBD_FULLCODE31_0);
-> -	*(new_state + 1) = __raw_readl(keypad_data->base
-> -						+ OMAP4_KBD_FULLCODE63_32);
-> +	*new_state = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE31_0);
-> +	*(new_state + 1) = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE63_32);
->  
->  	for (row = 0; row < keypad_data->rows; row++) {
->  		changed = key_state[row] ^ keypad_data->key_state[row];
-> @@ -121,12 +180,13 @@ static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
->  		sizeof(keypad_data->key_state));
->  
->  	/* clear pending interrupts */
-> -	__raw_writel(__raw_readl(keypad_data->base + OMAP4_KBD_IRQSTATUS),
-> -			keypad_data->base + OMAP4_KBD_IRQSTATUS);
-> +	kbd_write_irqstatus(keypad_data, keypad_data->irqstatus,
-> +		kbd_read_irqstatus(keypad_data, keypad_data->irqstatus));
->  
->  	/* enable interrupts */
-> -	__raw_writel(OMAP4_DEF_IRQENABLE_EVENTEN | OMAP4_DEF_IRQENABLE_LONGKEY,
-> -			keypad_data->base + OMAP4_KBD_IRQENABLE);
-> +	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
-> +		OMAP4_DEF_IRQENABLE_EVENTEN |
-> +			OMAP4_DEF_IRQENABLE_LONGKEY);
->  
->  	return IRQ_HANDLED;
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+>  drivers/input/keyboard/ep93xx_keypad.c |   20 ++++++++++----------
+>  1 files changed, 10 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
+> index 0ba69f3..d6cd634 100644
+> --- a/drivers/input/keyboard/ep93xx_keypad.c
+> +++ b/drivers/input/keyboard/ep93xx_keypad.c
+> @@ -182,16 +182,16 @@ static void ep93xx_keypad_close(struct input_dev *pdev)
 >  }
-> @@ -139,16 +199,30 @@ static int omap4_keypad_open(struct input_dev *input)
 >  
->  	disable_irq(keypad_data->irq);
 >  
-> -	__raw_writel(OMAP4_VAL_FUNCTIONALCFG,
-> -			keypad_data->base + OMAP4_KBD_CTRL);
-> -	__raw_writel(OMAP4_VAL_DEBOUNCINGTIME,
-> -			keypad_data->base + OMAP4_KBD_DEBOUNCINGTIME);
-> -	__raw_writel(OMAP4_VAL_IRQDISABLE,
-> -			keypad_data->base + OMAP4_KBD_IRQSTATUS);
-> -	__raw_writel(OMAP4_DEF_IRQENABLE_EVENTEN | OMAP4_DEF_IRQENABLE_LONGKEY,
-> -			keypad_data->base + OMAP4_KBD_IRQENABLE);
-> -	__raw_writel(OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA,
-> -			keypad_data->base + OMAP4_KBD_WAKEUPENABLE);
-> +	keypad_data->revision = kbd_read_revision(keypad_data,
-> +			OMAP4_KBD_REVISION);
+> -#ifdef CONFIG_PM
+> +#ifdef CONFIG_PM_SLEEP
+>  /*
+>   * NOTE: I don't know if this is correct, or will work on the ep93xx.
+>   *
+>   * None of the existing ep93xx drivers have power management support.
+>   * But, this is basically what the pxa27x_keypad driver does.
+>   */
 
-	switch()
-> +	if (keypad_data->revision == KBD_REVISION_OMAP4) {
-> +		keypad_data->irqstatus = OMAP4_KBD_IRQSTATUS;
-> +		keypad_data->irqenable = OMAP4_KBD_IRQENABLE;
-> +	} else if (keypad_data->revision == KBD_REVISION_OMAP5) {
-> +		keypad_data->irqstatus = OMAP4_KBD_IRQSTATUS + 0x0c;
-> +		keypad_data->irqenable = OMAP4_KBD_IRQENABLE + 0x0c;
-> +	} else {
-> +		pr_err("Omap keypad not found\n");
-> +		return -ENODEV;
+Dmitry,
 
-Hmm, this is in open() but should probably be in probe().
+The comment above can probably be removed also.
 
-> +	}
+> -static int ep93xx_keypad_suspend(struct platform_device *pdev,
+> -				 pm_message_t state)
+> +static int ep93xx_keypad_suspend(struct device *dev)
+>  {
+> +	struct platform_device *pdev = to_platform_device(dev);
+>  	struct ep93xx_keypad *keypad = platform_get_drvdata(pdev);
+>  	struct input_dev *input_dev = keypad->input_dev;
+>  
+> @@ -210,8 +210,9 @@ static int ep93xx_keypad_suspend(struct platform_device *pdev,
+>  	return 0;
+>  }
+>  
+> -static int ep93xx_keypad_resume(struct platform_device *pdev)
+> +static int ep93xx_keypad_resume(struct device *dev)
+>  {
+> +	struct platform_device *pdev = to_platform_device(dev);
+>  	struct ep93xx_keypad *keypad = platform_get_drvdata(pdev);
+>  	struct input_dev *input_dev = keypad->input_dev;
+>  
+> @@ -232,10 +233,10 @@ static int ep93xx_keypad_resume(struct platform_device *pdev)
+>  
+>  	return 0;
+>  }
+> -#else	/* !CONFIG_PM */
+> -#define ep93xx_keypad_suspend	NULL
+> -#define ep93xx_keypad_resume	NULL
+> -#endif	/* !CONFIG_PM */
+> +#endif
 > +
-> +	kbd_writel(keypad_data, OMAP4_KBD_CTRL,
-> +			OMAP4_VAL_FUNCTIONALCFG);
-> +	kbd_writel(keypad_data, OMAP4_KBD_DEBOUNCINGTIME,
-> +			OMAP4_VAL_DEBOUNCINGTIME);
-> +	kbd_write_irqstatus(keypad_data, keypad_data->irqstatus,
-> +			OMAP4_VAL_IRQDISABLE);
-> +	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
-> +			OMAP4_DEF_IRQENABLE_EVENTEN |
-> +				OMAP4_DEF_IRQENABLE_LONGKEY);
-> +	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE,
-> +			OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA);
+> +static SIMPLE_DEV_PM_OPS(ep93xx_keypad_pm_ops,
+> +			 ep93xx_keypad_suspend, ep93xx_keypad_resume);
 >  
->  	enable_irq(keypad_data->irq);
->  
-> @@ -162,12 +236,12 @@ static void omap4_keypad_close(struct input_dev *input)
->  	disable_irq(keypad_data->irq);
->  
->  	/* Disable interrupts */
-> -	__raw_writel(OMAP4_VAL_IRQDISABLE,
-> -		     keypad_data->base + OMAP4_KBD_IRQENABLE);
-> +	kbd_write_irqenable(keypad_data, keypad_data->irqenable,
-> +			OMAP4_VAL_IRQDISABLE);
->  
->  	/* clear pending interrupts */
-> -	__raw_writel(__raw_readl(keypad_data->base + OMAP4_KBD_IRQSTATUS),
-> -			keypad_data->base + OMAP4_KBD_IRQSTATUS);
-> +	kbd_write_irqstatus(keypad_data, keypad_data->irqstatus,
-> +		kbd_read_irqstatus(keypad_data, keypad_data->irqstatus));
->  
->  	enable_irq(keypad_data->irq);
->  
+>  static int __devinit ep93xx_keypad_probe(struct platform_device *pdev)
+>  {
+> @@ -384,11 +385,10 @@ static struct platform_driver ep93xx_keypad_driver = {
+>  	.driver		= {
+>  		.name	= "ep93xx-keypad",
+>  		.owner	= THIS_MODULE,
+> +		.pm	= &ep93xx_keypad_pm_ops,
+>  	},
+>  	.probe		= ep93xx_keypad_probe,
+>  	.remove		= __devexit_p(ep93xx_keypad_remove),
+> -	.suspend	= ep93xx_keypad_suspend,
+> -	.resume		= ep93xx_keypad_resume,
+>  };
+>  module_platform_driver(ep93xx_keypad_driver);
 
-Thanks.
+Acked-by: H Hartley Sweeten <hsweeten@visionengravers.com>
 
--- 
-Dmitry

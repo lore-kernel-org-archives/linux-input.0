@@ -1,90 +1,41 @@
-From: "Poddar, Sourav" <sourav.poddar@ti.com>
-Subject: Re: [PATCH RESEND] Input: omap-keypad: dynamically handle register offsets
-Date: Tue, 10 Apr 2012 16:00:34 +0530
-Message-ID: <CAKdam55V0oRh34TPgc83Xj2xdk8=Dgaz7-441PFOj94mDZY__g@mail.gmail.com>
-References: <1333430546-23454-1-git-send-email-sourav.poddar@ti.com>
-	<20120410092441.GB20616@arwen.pp.htv.fi>
-	<CAKdam56-Pu+WJKLUpodTzOzGuGbAHuqZ3F-zVmrAtFM7EDhxpg@mail.gmail.com>
-	<20120410101609.GJ20616@arwen.pp.htv.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20120410101609.GJ20616@arwen.pp.htv.fi>
-Sender: linux-omap-owner@vger.kernel.org
-To: balbi@ti.com
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] Input: gpio_mouse - Use linux/gpio.h rather than asm/gpio.h
+Date: Tue, 10 Apr 2012 12:05:18 +0100
+Message-ID: <1334055918-26856-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:36890 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753709Ab2DJLFW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Apr 2012 07:05:22 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alessandro Rubini <rubini@ipvvis.unipv.it>
+Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-Hi Felipe,
+Direct usage of the asm include has long been deprecated by the
+introduction of gpiolib.
 
-On Tue, Apr 10, 2012 at 3:46 PM, Felipe Balbi <balbi@ti.com> wrote:
->
-> On Tue, Apr 10, 2012 at 03:37:28PM +0530, Poddar, Sourav wrote:
-> > Hi Felipe,
-> >
-> > On Tue, Apr 10, 2012 at 2:54 PM, Felipe Balbi <balbi@ti.com> wrote:
-> >
-> > =A0 =A0 On Tue, Apr 03, 2012 at 10:52:26AM +0530, Sourav Poddar wro=
-te:
-> > =A0 =A0 > +static int kbd_write_irqstatus(struct omap4_keypad *keyp=
-ad_data,
-> > =A0 =A0 > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 offset, u32 value)
-> > =A0 =A0 > +{
-> > =A0 =A0 > + =A0 =A0 return __raw_writel(value, keypad_data->base + =
-offset);
-> > =A0 =A0 > +}
-> > =A0 =A0 > +
-> > =A0 =A0 > +static int kbd_write_irqenable(struct omap4_keypad *keyp=
-ad_data,
-> > =A0 =A0 > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 offset, u32 value)
-> > =A0 =A0 > +{
-> > =A0 =A0 > + =A0 =A0 return __raw_writel(value, keypad_data->base + =
-offset);
-> > =A0 =A0 > +}
-> >
-> > =A0 =A0 if this only writes to irqenable, why do you pass offset as=
- an argument?
-> > =A0 =A0 likewise for irqstatus.
-> >
-> >
-> > Actually, here the offset is the "irqenable" register addresss offs=
-et and
-> > "irqstatus" register
-> > address offset from the base address.
-> > Since, the above two address are different in case of Omap4 and oma=
-p5, we are
-> > passing an offset
-> > depending on the particular revision of the keyboard selected durin=
-g probe.
->
-> but you already have those in keypad_data->irqenable/irqstatus right =
-?
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/input/mouse/gpio_mouse.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Yes.
->
-> Meaning you can access them directly here and save on the arguments:
->
-> static int kbd_write_irqenable(struct omap4_keypad *keypad_data, u32 =
-value)
-> {
-> =A0 =A0 return __raw_writel(value, keypad_data->base + keypad_data->i=
-rqenable);
-> }
->
-Thanks a lot for pointing this out. Yes, we should be able to directly =
-use
-the driver data for the above api.
-Will make the necessary change in the next version.
-~Sourav
->
->
-> --
-> balbi
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/mouse/gpio_mouse.c b/drivers/input/mouse/gpio_mouse.c
+index a9ad8e1..39fe9b7 100644
+--- a/drivers/input/mouse/gpio_mouse.c
++++ b/drivers/input/mouse/gpio_mouse.c
+@@ -12,9 +12,9 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ #include <linux/input-polldev.h>
++#include <linux/gpio.h>
+ #include <linux/gpio_mouse.h>
+ 
+-#include <asm/gpio.h>
+ 
+ /*
+  * Timer function which is run every scan_ms ms when the device is opened.
+-- 
+1.7.9.1
+

@@ -1,98 +1,62 @@
 From: H Hartley Sweeten <hartleys@visionengravers.com>
-Subject: RE: [PATCH] Input: ep93xx_keypad - switch to using dev_pm_ops
-Date: Tue, 10 Apr 2012 11:34:52 -0500
-Message-ID: <ADE657CA350FB648AAC2C43247A983F00206986C017C@AUSP01VMBX24.collaborationhost.net>
-References: <20120410080134.GA19114@core.coreip.homeip.net>
+Subject: RE: [PATCH RESEND] Input: omap-keypad: dynamically handle register
+ offsets
+Date: Tue, 10 Apr 2012 11:39:43 -0500
+Message-ID: <ADE657CA350FB648AAC2C43247A983F00206986C017F@AUSP01VMBX24.collaborationhost.net>
+References: <1333430546-23454-1-git-send-email-sourav.poddar@ti.com>
+ <20120410162353.GA6217@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail209.messagelabs.com ([216.82.255.3]:19437 "EHLO
-	mail209.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752692Ab2DJQe5 convert rfc822-to-8bit (ORCPT
+Received: from mail127.messagelabs.com ([216.82.250.115]:35545 "EHLO
+	mail127.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752618Ab2DJQjw convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Apr 2012 12:34:57 -0400
-In-Reply-To: <20120410080134.GA19114@core.coreip.homeip.net>
+	Tue, 10 Apr 2012 12:39:52 -0400
+In-Reply-To: <20120410162353.GA6217@core.coreip.homeip.net>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sourav Poddar <sourav.poddar@ti.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "balbi@ti.com" <balbi@ti.com>
 
-On Tuesday, April 10, 2012 1:02 AM, Dmitry Torokhov wrote:
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
->  drivers/input/keyboard/ep93xx_keypad.c |   20 ++++++++++----------
->  1 files changed, 10 insertions(+), 10 deletions(-)
+On Tuesday, April 10, 2012 9:24 AM, Dmitry Torokhov wrote:
+> On Tue, Apr 03, 2012 at 10:52:26AM +0530, Sourav Poddar wrote:
+>> From: G, Manjunath Kondaiah <manjugk@ti.com>
+>> 
+>> Keypad controller register offsets are different for omap4
+>> and omap5. Handle these offsets through static mapping and
+>> assign these mappings during run time.
+>> 
 >
-> diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
-> index 0ba69f3..d6cd634 100644
-> --- a/drivers/input/keyboard/ep93xx_keypad.c
-> +++ b/drivers/input/keyboard/ep93xx_keypad.c
-> @@ -182,16 +182,16 @@ static void ep93xx_keypad_close(struct input_dev *pdev)
->  }
->  
->  
-> -#ifdef CONFIG_PM
-> +#ifdef CONFIG_PM_SLEEP
->  /*
->   * NOTE: I don't know if this is correct, or will work on the ep93xx.
->   *
->   * None of the existing ep93xx drivers have power management support.
->   * But, this is basically what the pxa27x_keypad driver does.
->   */
+> In addition to Felipe's comments.
+>
+>> @@ -76,11 +81,66 @@ struct omap4_keypad {
+>>  
+>>  	unsigned int rows;
+>>  	unsigned int cols;
+>> +	unsigned int revision;
+>> +	u32 irqstatus;
+>> +	u32 irqenable;
+>
+>	u32 reg_offset;
+>
+> and you probably won't need revision field.
+>
+>>  	unsigned int row_shift;
+>>  	unsigned char key_state[8];
+>>  	unsigned short keymap[];
+>>  };
+>>  
+>> +static int kbd_readl(struct omap4_keypad *keypad_data, u32 offset)
+>> +{
+>> +	if (keypad_data->revision == KBD_REVISION_OMAP4)
+>> +		return __raw_readl(keypad_data->base + offset);
 
-Dmitry,
+keypad_data->base is an ioremap'ed address. Shouldn't all the __raw_{read,write}l be
+{read,write}l instead?
 
-The comment above can probably be removed also.
-
-> -static int ep93xx_keypad_suspend(struct platform_device *pdev,
-> -				 pm_message_t state)
-> +static int ep93xx_keypad_suspend(struct device *dev)
->  {
-> +	struct platform_device *pdev = to_platform_device(dev);
->  	struct ep93xx_keypad *keypad = platform_get_drvdata(pdev);
->  	struct input_dev *input_dev = keypad->input_dev;
->  
-> @@ -210,8 +210,9 @@ static int ep93xx_keypad_suspend(struct platform_device *pdev,
->  	return 0;
->  }
->  
-> -static int ep93xx_keypad_resume(struct platform_device *pdev)
-> +static int ep93xx_keypad_resume(struct device *dev)
->  {
-> +	struct platform_device *pdev = to_platform_device(dev);
->  	struct ep93xx_keypad *keypad = platform_get_drvdata(pdev);
->  	struct input_dev *input_dev = keypad->input_dev;
->  
-> @@ -232,10 +233,10 @@ static int ep93xx_keypad_resume(struct platform_device *pdev)
->  
->  	return 0;
->  }
-> -#else	/* !CONFIG_PM */
-> -#define ep93xx_keypad_suspend	NULL
-> -#define ep93xx_keypad_resume	NULL
-> -#endif	/* !CONFIG_PM */
-> +#endif
-> +
-> +static SIMPLE_DEV_PM_OPS(ep93xx_keypad_pm_ops,
-> +			 ep93xx_keypad_suspend, ep93xx_keypad_resume);
->  
->  static int __devinit ep93xx_keypad_probe(struct platform_device *pdev)
->  {
-> @@ -384,11 +385,10 @@ static struct platform_driver ep93xx_keypad_driver = {
->  	.driver		= {
->  		.name	= "ep93xx-keypad",
->  		.owner	= THIS_MODULE,
-> +		.pm	= &ep93xx_keypad_pm_ops,
->  	},
->  	.probe		= ep93xx_keypad_probe,
->  	.remove		= __devexit_p(ep93xx_keypad_remove),
-> -	.suspend	= ep93xx_keypad_suspend,
-> -	.resume		= ep93xx_keypad_resume,
->  };
->  module_platform_driver(ep93xx_keypad_driver);
-
-Acked-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+Regards,
+Hartley
 

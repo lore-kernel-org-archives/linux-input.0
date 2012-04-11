@@ -1,157 +1,145 @@
-From: Tvrtko Ursulin <tvrtko.ursulin@onelan.co.uk>
-Subject: Baantoo multi-touch screen trouble
-Date: Wed, 11 Apr 2012 16:29:59 +0100
-Message-ID: <201204111629.59916.tvrtko.ursulin@onelan.co.uk>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 08/16 v2] Input: atmel_mxt_ts - refactor mxt_object_show
+Date: Wed, 11 Apr 2012 18:25:22 +0200
+Message-ID: <20120411162522.GA6980@polaris.bitmath.org>
+References: <1333039766-8617-1-git-send-email-djkurtz@chromium.org>
+ <1333039766-8617-9-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from claranet-outbound-smtp06.uk.clara.net ([195.8.89.39]:56710 "EHLO
-	claranet-outbound-smtp06.uk.clara.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1759825Ab2DKQQx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Apr 2012 12:16:53 -0400
-Received: from 110.100.155.90.in-addr.arpa ([90.155.100.110]:42582 helo=deuteros.localnet)
-	by relay06.mail.eu.clara.net (relay.clara.net [213.253.3.46]:1025)
-	with esmtps (TLS-1.0:DHE_RSA_AES_256_CBC_SHA1:32)
-	id 1SHzUe-0006kc-KG  for linux-input@vger.kernel.org
-	(return-path <tvrtko.ursulin@onelan.co.uk>); Wed, 11 Apr 2012 15:30:00 +0000
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:52566 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932418Ab2DKQW5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Apr 2012 12:22:57 -0400
+Content-Disposition: inline
+In-Reply-To: <1333039766-8617-9-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
 
+On Fri, Mar 30, 2012 at 12:49:18AM +0800, Daniel Kurtz wrote:
+> Read each object with a single i2c transaction instead of byte-by-byte.
+> 
+> Also, don't read T5, which is the message processor object.  Reading
+> it is counter-productive since it either holds garbage (there is no
+> pending message), or, it holds a real message which should be handled
+> by the messages handling code (the isr).
+> 
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> ---
+>  drivers/input/touchscreen/atmel_mxt_ts.c |   43 ++++++++++++------------------
+>  1 files changed, 17 insertions(+), 26 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index b6e7109..a865967 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -262,7 +262,6 @@ struct mxt_data {
+>  static bool mxt_object_readable(unsigned int type)
+>  {
+>  	switch (type) {
+> -	case MXT_GEN_MESSAGE_T5:
+>  	case MXT_GEN_COMMAND_T6:
+>  	case MXT_GEN_POWER_T7:
+>  	case MXT_GEN_ACQUIRE_T8:
+> @@ -459,6 +458,13 @@ mxt_get_object(struct mxt_data *data, u8 type)
+>  	return NULL;
+>  }
+>  
+> +static int mxt_read_object(struct mxt_data *data, struct mxt_object *object,
+> +			   void *val)
+> +{
+> +	return mxt_read_reg(data->client, object->start_address, object->size,
+> +			    val);
+> +}
+> +
+>  static int mxt_read_message(struct mxt_data *data,
+>  				 struct mxt_message *message)
+>  {
+> @@ -474,20 +480,6 @@ static int mxt_read_message(struct mxt_data *data,
+>  			    message);
+>  }
+>  
+> -static int mxt_read_object(struct mxt_data *data,
+> -				u8 type, u8 offset, u8 *val)
+> -{
+> -	struct mxt_object *object;
+> -	u16 reg;
+> -
+> -	object = mxt_get_object(data, type);
+> -	if (!object)
+> -		return -EINVAL;
+> -
+> -	reg = object->start_address;
+> -	return mxt_read_reg(data->client, reg + offset, 1, val);
+> -}
+> -
+>  static int mxt_write_object(struct mxt_data *data,
+>  				 u8 type, u8 offset, u8 val)
+>  {
+> @@ -885,17 +877,16 @@ static void mxt_calc_resolution(struct mxt_data *data)
+>  }
+>  
+>  static ssize_t mxt_object_show(struct device *dev,
+> -				    struct device_attribute *attr, char *buf)
+> +			       struct device_attribute *attr, char *buf)
+>  {
+>  	struct mxt_data *data = dev_get_drvdata(dev);
+> -	struct mxt_object *object;
+>  	int count = 0;
+>  	int i, j;
+>  	int error;
+> -	u8 val;
+> +	u8 obuf[256];
 
-Hi all,
+How large buffer do you need?
 
-I am playing with a multi-touch capable touch screen from the
-above mentioned vendor and are experiencing some problems here.
-On a 3.1.0 derivative kernel it kind of works, looks like this:
+>  
+>  	for (i = 0; i < data->info.object_num; i++) {
+> -		object = data->object_table + i;
+> +		struct mxt_object *object = &data->object_table[i];
+>  
+>  		count += snprintf(buf + count, PAGE_SIZE - count,
+>  				"Object[%d] (Type %d)\n",
+> @@ -905,20 +896,20 @@ static ssize_t mxt_object_show(struct device *dev,
+>  
+>  		if (!mxt_object_readable(object->type)) {
+>  			count += snprintf(buf + count, PAGE_SIZE - count,
+> -					"\n");
+> +					  "\n");
+>  			if (count >= PAGE_SIZE)
+>  				return PAGE_SIZE - 1;
 
-[5523460.737596] usb 1-1.6.1.2: new full speed USB device number 18 usi=
-ng ehci_hcd
-[5523460.824952] usb 1-1.6.1.2: New USB device found, idVendor=3D2453, =
-idProduct=3D0100
-[5523460.824959] usb 1-1.6.1.2: New USB device strings: Mfr=3D1, Produc=
-t=3D2, SerialNumber=3D3
-[5523460.824964] usb 1-1.6.1.2: Product: SDW-190W2-M5T-XXX-XX-PRD  =20
-[5523460.824968] usb 1-1.6.1.2: Manufacturer: Baanto
-[5523460.824971] usb 1-1.6.1.2: SerialNumber: SDW190W2M5T
-[5523460.833233] input: Baanto SDW-190W2-M5T-XXX-XX-PRD    as=20
-/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.6/1-1.6.1/1-1.6.1.2/1-1.6=
-=2E1.2:1.0/input/input159
-[5523460.833926] generic-usb 0003:2453:0100.00A3: input,hiddev0,hidraw3=
-: USB HID v1.10 Mouse [Baanto SDW-190W2-M5T-
-XXX-XX-PRD   ] on usb-0000:00:1a.0-1.6.1.2/input0
+Odd return value - why not use scnprintf()?
 
+>  			continue;
+>  		}
+>  
+> -		for (j = 0; j < object->size; j++) {
+> -			error = mxt_read_object(data,
+> -						object->type, j, &val);
+> -			if (error)
+> -				return error;
+> +		error = mxt_read_object(data, object, obuf);
+> +		if (error)
+> +			return error;
+>  
+> +		for (j = 0; j < object->size; j++) {
+>  			count += snprintf(buf + count, PAGE_SIZE - count,
+> -					"\t[%2d]: %02x (%d)\n", j, val, val);
+> +					  "\t[%2d]: %02x (%d)\n", j, obuf[j],
+> +					  obuf[j]);
+>  			if (count >= PAGE_SIZE)
+>  				return PAGE_SIZE - 1;
 
-On 3.3.0 it doesn't think it is an input device at all:
+Ditto.
 
-[   73.776660] usb 3-1: new full-speed USB device number 3 using xhci_h=
-cd
-[   73.817163] usb 3-1: New USB device found, idVendor=3D2453, idProduc=
-t=3D0100
-[   73.817167] usb 3-1: New USB device strings: Mfr=3D1, Product=3D2, S=
-erialNumber=3D3
-[   73.817169] usb 3-1: Product: SDW-190W2-M5T-XXX-XX-PRD  =20
-[   73.817171] usb 3-1: Manufacturer: Baanto
-[   73.817173] usb 3-1: SerialNumber: SDW190W2M5T
-
-On 3.0 on the other hand it actually registered multiple HID devices, w=
-hich is
-what I think should happen with this device, because it's datasheet say=
-s this:
-
-"""
-The mid-size family of touch screens, when enumerated on the OS, expose=
- 5 top
-level USB HID collections. The following table describes these in detai=
-l:
-following table describes these in detail:
-
-Collection Description
-----------------------
-Win 7 Touch Collection
-Microsoft Device Configuration Collection
-Generic Mouse Collection
-Generic Pointer Collection
-Baanto Touch (Custom HID) Collection
-
-Report Data
------------
-Multi Touch Packets
-Control Packets
-N\A =E2=80=93 Future Use
-Single Touch Packet
-Multi Touch Packets\Control Packets
-"""
-
-Any ideas who is at fault here?
+>  		}
+> -- 
+> 1.7.7.3
+> 
 
 Thanks,
-
-Tvrtko
-
-
-Bus 003 Device 003: ID 2453:0100 =20
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0=20
-  bDeviceProtocol         0=20
-  bMaxPacketSize0        64
-  idVendor           0x2453=20
-  idProduct          0x0100=20
-  bcdDevice            4.0c
-  iManufacturer           1 Baanto
-  iProduct                2 SDW-190W2-M5T-XXX-XX-PRD  =20
-  iSerial                 3 SDW190W2M5T
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           34
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0=20
-    bmAttributes         0xc0
-      Self Powered
-    MaxPower              500mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              0=20
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.10
-          bCountryCode           33 US
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength     759
-         Report Descriptors:=20
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               1
-Device Status:     0x0001
-  Self Powered
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Henrik

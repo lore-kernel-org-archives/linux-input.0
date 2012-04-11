@@ -1,87 +1,65 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/3] Input: evdev - return proper value for partial reads
-Date: Wed, 11 Apr 2012 00:28:01 -0700
-Message-ID: <1334129282-15892-2-git-send-email-dmitry.torokhov@gmail.com>
-References: <1334129282-15892-1-git-send-email-dmitry.torokhov@gmail.com>
+From: "Alain Hervo" <alain.hervo@prescom.fr>
+Subject: C-Media CM119A GPIO  not reachables with Cm109 driver
+Date: Wed, 11 Apr 2012 09:44:53 +0200
+Message-ID: <E43D2A9C21DA4D7D97DBF878376FD3A0@AHXP>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1;
+	format=flowed	reply-type=original
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:35280 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753336Ab2DKH2H (ORCPT
+Received: from smtpout1.mel.teaser.net ([213.162.54.51]:33207 "EHLO
+	smtpout1.mel.teaser.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753364Ab2DKHop (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Apr 2012 03:28:07 -0400
-Received: by pbcun15 with SMTP id un15so892064pbc.19
-        for <linux-input@vger.kernel.org>; Wed, 11 Apr 2012 00:28:07 -0700 (PDT)
-In-Reply-To: <1334129282-15892-1-git-send-email-dmitry.torokhov@gmail.com>
+	Wed, 11 Apr 2012 03:44:45 -0400
+Received: from AHXP (LAubervilliers-151-13-1-251.w217-128.abo.wanadoo.fr [217.128.0.251])
+	by smtpout1.mel.teaser.net (Postfix) with SMTP id B992111F6A8
+	for <linux-input@vger.kernel.org>; Wed, 11 Apr 2012 09:44:43 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Dima Zavin <dima@android.com>, Heiko Stuebner <heiko@sntech.de>, Jeff Brown <jeffbrown@android.com>, Daniel Kurtz <djkurtz@google.com>
 
-If we encounter an error in middle of transferring several events to
-userspace we should return number of bytes successfully transferred
-instead of error code. If transfer fails on the very first event then
-we can return error code.
+Good morning.
+I use the interesting  Alfred E.Heggestad 's driver for driving C-Media=
+=20
+cm109 usb audio component.=20
+http://linux.derkeiler.com/Mailing-Lists/Kernel/2008-02/msg03332.html
+This driver is useful for accessing GPIO  event.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
- drivers/input/evdev.c |   26 +++++++++++++++-----------
- 1 files changed, 15 insertions(+), 11 deletions(-)
+Now C-Media  CM109 component is replaced by CM119A.
+CM119A 's documentation don't  provide difference between CM119A and CM=
+109=20
+components, except the binterval time : 2ms for CM119A , 32ms for CM109=
+=2E .
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 0e32b6a..8f59fc1 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -398,35 +398,39 @@ static ssize_t evdev_read(struct file *file, char __user *buffer,
- 	struct evdev_client *client = file->private_data;
- 	struct evdev *evdev = client->evdev;
- 	struct input_event event;
--	int retval = 0;
-+	int read = 0;
-+	int error = 0;
- 
- 	if (count < input_event_size())
- 		return -EINVAL;
- 
- 	if (!(file->f_flags & O_NONBLOCK)) {
--		retval = wait_event_interruptible(evdev->wait,
-+		error = wait_event_interruptible(evdev->wait,
- 				client->packet_head != client->tail ||
- 				!evdev->exist);
--		if (retval)
--			return retval;
-+		if (error)
-+			return error;
- 	}
- 
- 	if (!evdev->exist)
- 		return -ENODEV;
- 
--	while (retval + input_event_size() <= count &&
-+	while (read + input_event_size() <= count &&
- 	       evdev_fetch_next_event(client, &event)) {
- 
--		if (input_event_to_user(buffer + retval, &event))
--			return -EFAULT;
-+		if (input_event_to_user(buffer + read, &event)) {
-+			error = -EFAULT;
-+			goto out;
-+		}
- 
--		retval += input_event_size();
-+		read += input_event_size();
- 	}
- 
--	if (retval == 0 && (file->f_flags & O_NONBLOCK))
--		return -EAGAIN;
-+	if (read == 0 && (file->f_flags & O_NONBLOCK))
-+		error = -EAGAIN;
- 
--	return retval;
-+out:
-+	return read ?: error;
- }
- 
- /* No kernel lock - fine */
--- 
-1.7.7.6
+But,  when cm109_usb_probe() is processed,  usb_endpoint_is_int_in(endp=
+oint)=20
+fails with CM119A component.  : component seems not have accessible=20
+interrupt endpoint.
 
+Please, do you know this problem ?
+Thank you.
+Best regards.
+Alain.
+
+--=20
+Alain HERVO
+
+PRESCOM
+Rue de Broglie
+22300 LANNION - FRANCE
+Tel. : 33 (0)2 96 05 76 08
+=46ax : 33 (0)2 96 48 04 21
+http://www.prescom.fr
+
+"Les informations contenues dans ce courriel sont donn=E9es =E0 titre p=
+urement=20
+informatif et ne peuvent =EAtre consid=E9r=E9es comme contractuelles en=
+tre les=20
+r=E9cipiendaires et la soci=E9t=E9 Prescom."=20
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

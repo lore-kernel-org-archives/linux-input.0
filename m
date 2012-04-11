@@ -1,57 +1,54 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3] Input: Elan HID-I2C device driver
-Date: Wed, 11 Apr 2012 22:53:51 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204112250370.16373@pobox.suse.cz>
-References: <1334061766-20577-1-git-send-email-tom_lin@emc.com.tw> <20120411071212.GB6894@core.coreip.homeip.net> <4F85583F.6050008@emc.com.tw> <20120411162519.GA27562@core.coreip.homeip.net>
+From: Jesper Juhl <jj@chaosbits.net>
+Subject: [PATCH] input: da9052: fix mem leak in da9052_onkey_probe()
+Date: Wed, 11 Apr 2012 22:56:10 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204112249110.2137@swampdragon.chaosbits.net>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120411162519.GA27562@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?GB2312?B?wdaPqdPT?= <tom_lin@emc.com.tw>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, djkurtz@chromium.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from swampdragon.chaosbits.net ([90.184.90.115]:17192 "EHLO
+	swampdragon.chaosbits.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758740Ab2DKU4L (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Apr 2012 16:56:11 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: David Dajun Chen <dchen@diasemi.com>, linux-input@vger.kernel.org, Ashish Jangam <ashish.jangam@kpitcummins.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Wed, 11 Apr 2012, Dmitry Torokhov wrote:
+If, in drivers/input/misc/da9052_onkey.c::da9052_onkey_probe(), the
+call to either kzalloc() or input_allocate_device() fails then we will
+return -ENOMEM from the function without freeing the other allocation
+that may have succeeded, thus we leak either the memory allocated for
+'onkey' or the memory allocated for 'input_dev' if one succeeds and
+the other fails.
+Fix that by jumping to the 'err_free_mem' label at the end of the
+function that properly cleans up rather than returning directly.
 
-> > >> This patch adds driver for Elan I2C touchpad. These protocol of 
-> > >> HID-I2C was defined by Microsoft. The kernel driver would use the 
-> > >> multi-touch protocol format B.
-> > > 
-> > > If this device truly supports HID protocol shouldn't we define i2c-hid
-> > > transport, similar to usbhid?
-> > 
-> > I merely follow defined by Microsoft.
-> > It was called "HID OVER I2C" by Microsoft.
-> > (http://msdn.microsoft.com/en-us/library/windows/hardware/hh825917(v=vs.85).
-> > aspx) But I agree to change from hid i2c to i2chid.
-> > Do you have any better opinions?
-> 
-> I am not sure we are talking about same thing... I do not really care
-> whether it is named "hid i2c" or "i2chid". What I meant if the device
-> really speaks HID protocol, except that the transport is not USB or
-> bluetooth but I2C, then instead of writing a custom driver for this
-> particular part we need to add a new HID transport into
-> drivers/hid/i2c-hid that is similar to drivers/hid/usbhid/ and reuse the
-> rest of HID framework along with hid- multitouch.c which handles
-> HID-compliant multitouch devices.
-> 
-> I am CCing Jiri (HID maintainer) for additional input.
+Signed-off-by: Jesper Juhl <jj@chaosbits.net>
+---
+ drivers/input/misc/da9052_onkey.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Yes, please.
+diff --git a/drivers/input/misc/da9052_onkey.c b/drivers/input/misc/da9052_onkey.c
+index 34aebb8..3c843cd 100644
+--- a/drivers/input/misc/da9052_onkey.c
++++ b/drivers/input/misc/da9052_onkey.c
+@@ -95,7 +95,8 @@ static int __devinit da9052_onkey_probe(struct platform_device *pdev)
+ 	input_dev = input_allocate_device();
+ 	if (!onkey || !input_dev) {
+ 		dev_err(&pdev->dev, "Failed to allocate memory\n");
+-		return -ENOMEM;
++		error = -ENOMEM;
++		goto err_free_mem;
+ 	}
+ 
+ 	onkey->input = input_dev;
+-- 
+1.7.10
 
-In case you'd be looking into a bit less bloated example of how transport 
-driver for HID subsystem looks like, see the Bluetooth one in 
-net/bluetooth/hidp/ (and we don't currently have any other examples than 
-these two :) ).
-
-I'd be happy to merge it once you convert to to proper HID transport 
-driver.
-
-Could the event processing part then be integrated into hid-multitouch?
-
-Thanks,
 
 -- 
-Jiri Kosina
-SUSE Labs
+Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
+Don't top-post http://www.catb.org/jargon/html/T/top-post.html
+Plain text mails only, please.
+

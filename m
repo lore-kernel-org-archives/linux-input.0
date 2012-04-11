@@ -1,107 +1,80 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: serio_raw - ensure we don't block in non-blocking
- read
-Date: Wed, 11 Apr 2012 00:23:00 -0700
-Message-ID: <20120411072300.GA15759@core.coreip.homeip.net>
-References: <20120403202432.GA18564@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH 1/3] Input: evdev - return proper result for partial writes
+Date: Wed, 11 Apr 2012 00:28:00 -0700
+Message-ID: <1334129282-15892-1-git-send-email-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:50096 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750775Ab2DKHXH (ORCPT
+Received: from mail-pz0-f52.google.com ([209.85.210.52]:52812 "EHLO
+	mail-pz0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750775Ab2DKH2H (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Apr 2012 03:23:07 -0400
-Content-Disposition: inline
-In-Reply-To: <20120403202432.GA18564@core.coreip.homeip.net>
+	Wed, 11 Apr 2012 03:28:07 -0400
+Received: by dake40 with SMTP id e40so809689dak.11
+        for <linux-input@vger.kernel.org>; Wed, 11 Apr 2012 00:28:07 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>, Che-Liang Chiou <clchiou@chromium.org>, David Herrmann <dh.herrmann@googlemail.com>, linux-kernel@vger.kernel.org
+Cc: Dima Zavin <dima@android.com>, Heiko Stuebner <heiko@sntech.de>, Jeff Brown <jeffbrown@android.com>, Daniel Kurtz <djkurtz@google.com>
 
-On Tue, Apr 03, 2012 at 01:24:33PM -0700, Dmitry Torokhov wrote:
-> Avoid calling wait_event_interruptible() if client requested non-blocking
-> read, since it is not guaranteed that another thread will not consume
-> event after we checked if serio_raw->head != serio_raw->tail.
-> 
-> Also ensure we do not return 0 but keep waiting instead in blocking case,
-> when another thread steals "our" byte.
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+If we encounter an error in middle of transferring several events from
+userspace we should return number of bytes successfully transferred
+instead of error code. If transfer fails on the very first event then
+we can return error code.
 
-Anyone? It would be nice if someone could review my patches as well,
-otherwise we may end up with breakages...
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+ drivers/input/evdev.c |   21 +++++++++++----------
+ 1 files changed, 11 insertions(+), 10 deletions(-)
 
-Thanks.
-
-> ---
->  drivers/input/serio/serio_raw.c |   43 ++++++++++++++++++++++----------------
->  1 files changed, 25 insertions(+), 18 deletions(-)
-> 
-> diff --git a/drivers/input/serio/serio_raw.c b/drivers/input/serio/serio_raw.c
-> index 4494233..094d6fb 100644
-> --- a/drivers/input/serio/serio_raw.c
-> +++ b/drivers/input/serio/serio_raw.c
-> @@ -165,31 +165,38 @@ static ssize_t serio_raw_read(struct file *file, char __user *buffer,
->  	struct serio_raw *serio_raw = client->serio_raw;
->  	char uninitialized_var(c);
->  	ssize_t read = 0;
-> -	int retval;
-> +	int error = 0;
->  
-> -	if (serio_raw->dead)
-> -		return -ENODEV;
-> +	do {
-> +		if (serio_raw->dead)
-> +			return -ENODEV;
->  
-> -	if (serio_raw->head == serio_raw->tail && (file->f_flags & O_NONBLOCK))
-> -		return -EAGAIN;
-> +		if (serio_raw->head == serio_raw->tail &&
-> +		    (file->f_flags & O_NONBLOCK))
-> +			return -EAGAIN;
->  
-> -	retval = wait_event_interruptible(serio_raw->wait,
-> -			serio_raw->head != serio_raw->tail || serio_raw->dead);
-> -	if (retval)
-> -		return retval;
-> +		if (count == 0)
-> +			break;
->  
-> -	if (serio_raw->dead)
-> -		return -ENODEV;
-> +		while (read < count && serio_raw_fetch_byte(serio_raw, &c)) {
-> +			if (put_user(c, buffer++)) {
-> +				error = -EFAULT;
-> +				goto out;
-> +			}
-> +			read++;
-> +		}
->  
-> -	while (read < count && serio_raw_fetch_byte(serio_raw, &c)) {
-> -		if (put_user(c, buffer++)) {
-> -			retval = -EFAULT;
-> +		if (read)
->  			break;
-> -		}
-> -		read++;
-> -	}
->  
-> -	return read ?: retval;
-> +		if (!(file->f_flags & O_NONBLOCK))
-> +			error = wait_event_interruptible(serio_raw->wait,
-> +					serio_raw->head != serio_raw->tail ||
-> +					serio_raw->dead);
-> +	} while (!error);
-> +
-> +out:
-> +	return read ?: error;
->  }
->  
->  static ssize_t serio_raw_write(struct file *file, const char __user *buffer,
-> -- 
-> 1.7.7.6
-> 
-
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 9226b4d..0e32b6a 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -343,34 +343,35 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
+ 	struct evdev_client *client = file->private_data;
+ 	struct evdev *evdev = client->evdev;
+ 	struct input_event event;
+-	int retval = 0;
++	int written = 0;
++	int error;
+ 
+ 	if (count < input_event_size())
+ 		return -EINVAL;
+ 
+-	retval = mutex_lock_interruptible(&evdev->mutex);
+-	if (retval)
+-		return retval;
++	error = mutex_lock_interruptible(&evdev->mutex);
++	if (error)
++		return error;
+ 
+ 	if (!evdev->exist) {
+-		retval = -ENODEV;
++		error = -ENODEV;
+ 		goto out;
+ 	}
+ 
+ 	do {
+-		if (input_event_from_user(buffer + retval, &event)) {
+-			retval = -EFAULT;
++		if (input_event_from_user(buffer + written, &event)) {
++			error = -EFAULT;
+ 			goto out;
+ 		}
+-		retval += input_event_size();
++		written += input_event_size();
+ 
+ 		input_inject_event(&evdev->handle,
+ 				   event.type, event.code, event.value);
+-	} while (retval + input_event_size() <= count);
++	} while (written + input_event_size() <= count);
+ 
+  out:
+ 	mutex_unlock(&evdev->mutex);
+-	return retval;
++	return written ?: error;
+ }
+ 
+ static int evdev_fetch_next_event(struct evdev_client *client,
 -- 
-Dmitry
+1.7.7.6
+

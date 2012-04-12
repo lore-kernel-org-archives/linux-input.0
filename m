@@ -1,91 +1,232 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.4-rc2
-Date: Wed, 11 Apr 2012 22:19:52 -0700
-Message-ID: <20120412051952.GA1404@core.coreip.homeip.net>
+From: Sourav Poddar <sourav.poddar@ti.com>
+Subject: [PATCHv2] Input: omap-keypad: dynamically handle register offsets
+Date: Thu, 12 Apr 2012 13:08:58 +0530
+Message-ID: <1334216338-29977-1-git-send-email-sourav.poddar@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f52.google.com ([209.85.210.52]:59793 "EHLO
-	mail-pz0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756161Ab2DLFT5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Apr 2012 01:19:57 -0400
-Content-Disposition: inline
+Received: from comal.ext.ti.com ([198.47.26.152]:34793 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756515Ab2DLHfH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Apr 2012 03:35:07 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
+Cc: sourav.poddar@ti.com, balbi@ti.com
 
+From: G, Manjunath Kondaiah <manjugk@ti.com>
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Keypad controller register offsets are different for omap4
+and omap5. Handle these offsets through static mapping and
+assign these mappings during run time.
 
-Hi Linus,
+Tested on omap4430 sdp with 3.4-rc2.
+Tested on omap5430evm with 3.1-custom kernel.
 
-Please pull from:
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: G, Manjunath Kondaiah <manjugk@ti.com>
+Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+---
+Changes since v1:
+- Fix Felipe's comment about getting rid 
+  of one argument from irqstatus/irqenable api 
+- Fix Dmitry's comment:
+  - get rid of revision check in readl/writel
+  - Relace ENODEV with proper macro.
+  - Use switch statement  
+ drivers/input/keyboard/Kconfig        |    6 +-
+ drivers/input/keyboard/omap4-keypad.c |  115 ++++++++++++++++++++++++++-------
+ 2 files changed, 95 insertions(+), 26 deletions(-)
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index f354813..9a0e1a9 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -511,10 +511,10 @@ config KEYBOARD_OMAP
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called omap-keypad.
+ 
+-config KEYBOARD_OMAP4
+-	tristate "TI OMAP4 keypad support"
++config KEYBOARD_OMAP4+
++	tristate "TI OMAP4+ keypad support"
+ 	help
+-	  Say Y here if you want to use the OMAP4 keypad.
++	  Say Y here if you want to use the OMAP4+ keypad.
+ 
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called omap4-keypad.
+diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+index e809ac0..8e46563 100644
+--- a/drivers/input/keyboard/omap4-keypad.c
++++ b/drivers/input/keyboard/omap4-keypad.c
+@@ -68,6 +68,11 @@
+ 
+ #define OMAP4_MASK_IRQSTATUSDISABLE	0xFFFF
+ 
++enum {
++	KBD_REVISION_OMAP4 = 0,
++	KBD_REVISION_OMAP5,
++};
++
+ struct omap4_keypad {
+ 	struct input_dev *input;
+ 
+@@ -76,11 +81,61 @@ struct omap4_keypad {
+ 
+ 	unsigned int rows;
+ 	unsigned int cols;
++	unsigned int revision;
++	u32 irqstatus;
++	u32 irqenable;
++	u32 reg_offset;
+ 	unsigned int row_shift;
+ 	unsigned char key_state[8];
+ 	unsigned short keymap[];
+ };
+ 
++static int kbd_read_irqstatus(struct omap4_keypad *keypad_data, u32 offset)
++{
++	return __raw_readl(keypad_data->base + offset);
++}
++
++static int kbd_write_irqstatus(struct omap4_keypad *keypad_data,
++						u32 value)
++{
++	return __raw_writel(value, keypad_data->base + keypad_data->irqstatus);
++}
++
++static int kbd_write_irqenable(struct omap4_keypad *keypad_data,
++						u32 value)
++{
++	return __raw_writel(value, keypad_data->base + keypad_data->irqenable);
++}
++
++static int kbd_readl(struct omap4_keypad *keypad_data, u32 offset)
++{
++	return __raw_readl(keypad_data->base +
++			keypad_data->reg_offset + offset);
++}
++
++static void kbd_writel(struct omap4_keypad *keypad_data, u32 offset, u32 value)
++{
++	__raw_writel(value, keypad_data->base +
++			keypad_data->reg_offset + offset);
++}
++
++static int kbd_read_revision(struct omap4_keypad *keypad_data, u32 offset)
++{
++	int reg;
++	reg = __raw_readl(keypad_data->base + offset);
++	reg &= 0x03 << 30;
++	reg >>= 30;
++
++	switch (reg) {
++	case 1:
++		return KBD_REVISION_OMAP5;
++	case 0:
++		return KBD_REVISION_OMAP4;
++	default:
++		return -EINVAL;
++	}
++}
++
+ /* Interrupt handler */
+ static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
+ {
+@@ -91,12 +146,10 @@ static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
+ 	u32 *new_state = (u32 *) key_state;
+ 
+ 	/* Disable interrupts */
+-	__raw_writel(OMAP4_VAL_IRQDISABLE,
+-		     keypad_data->base + OMAP4_KBD_IRQENABLE);
++	kbd_write_irqenable(keypad_data, OMAP4_VAL_IRQDISABLE);
+ 
+-	*new_state = __raw_readl(keypad_data->base + OMAP4_KBD_FULLCODE31_0);
+-	*(new_state + 1) = __raw_readl(keypad_data->base
+-						+ OMAP4_KBD_FULLCODE63_32);
++	*new_state = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE31_0);
++	*(new_state + 1) = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE63_32);
+ 
+ 	for (row = 0; row < keypad_data->rows; row++) {
+ 		changed = key_state[row] ^ keypad_data->key_state[row];
+@@ -121,12 +174,12 @@ static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
+ 		sizeof(keypad_data->key_state));
+ 
+ 	/* clear pending interrupts */
+-	__raw_writel(__raw_readl(keypad_data->base + OMAP4_KBD_IRQSTATUS),
+-			keypad_data->base + OMAP4_KBD_IRQSTATUS);
++	kbd_write_irqstatus(keypad_data,
++		kbd_read_irqstatus(keypad_data, keypad_data->irqstatus));
+ 
+ 	/* enable interrupts */
+-	__raw_writel(OMAP4_DEF_IRQENABLE_EVENTEN | OMAP4_DEF_IRQENABLE_LONGKEY,
+-			keypad_data->base + OMAP4_KBD_IRQENABLE);
++	kbd_write_irqenable(keypad_data, OMAP4_DEF_IRQENABLE_EVENTEN |
++			OMAP4_DEF_IRQENABLE_LONGKEY);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -139,16 +192,33 @@ static int omap4_keypad_open(struct input_dev *input)
+ 
+ 	disable_irq(keypad_data->irq);
+ 
+-	__raw_writel(OMAP4_VAL_FUNCTIONALCFG,
+-			keypad_data->base + OMAP4_KBD_CTRL);
+-	__raw_writel(OMAP4_VAL_DEBOUNCINGTIME,
+-			keypad_data->base + OMAP4_KBD_DEBOUNCINGTIME);
+-	__raw_writel(OMAP4_VAL_IRQDISABLE,
+-			keypad_data->base + OMAP4_KBD_IRQSTATUS);
+-	__raw_writel(OMAP4_DEF_IRQENABLE_EVENTEN | OMAP4_DEF_IRQENABLE_LONGKEY,
+-			keypad_data->base + OMAP4_KBD_IRQENABLE);
+-	__raw_writel(OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA,
+-			keypad_data->base + OMAP4_KBD_WAKEUPENABLE);
++	keypad_data->revision = kbd_read_revision(keypad_data,
++			OMAP4_KBD_REVISION);
++	switch (keypad_data->revision) {
++	case 1:
++		keypad_data->irqstatus = OMAP4_KBD_IRQSTATUS + 0x0c;
++		keypad_data->irqenable = OMAP4_KBD_IRQENABLE + 0x0c;
++		keypad_data->reg_offset = 0x10;
++		break;
++	case 0:
++		keypad_data->irqstatus = OMAP4_KBD_IRQSTATUS;
++		keypad_data->irqenable = OMAP4_KBD_IRQENABLE;
++		keypad_data->reg_offset = 0x00;
++		break;
++	default:
++		pr_err("Omap keypad not found\n");
++		return -ENODEV;
++	}
++
++	kbd_writel(keypad_data, OMAP4_KBD_CTRL,
++			OMAP4_VAL_FUNCTIONALCFG);
++	kbd_writel(keypad_data, OMAP4_KBD_DEBOUNCINGTIME,
++			OMAP4_VAL_DEBOUNCINGTIME);
++	kbd_write_irqstatus(keypad_data, OMAP4_VAL_IRQDISABLE);
++	kbd_write_irqenable(keypad_data, OMAP4_DEF_IRQENABLE_EVENTEN |
++				OMAP4_DEF_IRQENABLE_LONGKEY);
++	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE,
++			OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA);
+ 
+ 	enable_irq(keypad_data->irq);
+ 
+@@ -162,12 +232,11 @@ static void omap4_keypad_close(struct input_dev *input)
+ 	disable_irq(keypad_data->irq);
+ 
+ 	/* Disable interrupts */
+-	__raw_writel(OMAP4_VAL_IRQDISABLE,
+-		     keypad_data->base + OMAP4_KBD_IRQENABLE);
++	kbd_write_irqenable(keypad_data, OMAP4_VAL_IRQDISABLE);
+ 
+ 	/* clear pending interrupts */
+-	__raw_writel(__raw_readl(keypad_data->base + OMAP4_KBD_IRQSTATUS),
+-			keypad_data->base + OMAP4_KBD_IRQSTATUS);
++	kbd_write_irqstatus(keypad_data,
++		kbd_read_irqstatus(keypad_data, keypad_data->irqstatus));
+ 
+ 	enable_irq(keypad_data->irq);
+ 
+-- 
+1.7.1
 
-to receive updates for the input subsystem. Just a few small fixes...
-
-Changelog:
----------
-
-JJ Ding (3):
-      Input: elantech - reset touchpad before configuring it
-      Input: elantech - v4 is a clickpad, with only one button
-      Input: trackpoint - use psmouse_fmt() for messages
-
-Jesper Juhl (1):
-      Input: da9052 - fix memory leak in da9052_onkey_probe()
-
-Mark Brown (1):
-      Input: gpio_mouse - use linux/gpio.h rather than asm/gpio.h
-
-Oskari Saarenmaa (1):
-      Input: sentelic - filter taps in absolute mode
-
-Uwe Kleine-K=F6nig (1):
-      Input: tps6507x-ts - fix MODULE_ALIAS to match driver name
-
-
-Diffstat:
---------
-
- drivers/input/misc/da9052_onkey.c       |    3 ++-
- drivers/input/mouse/elantech.c          |   10 ++++++++--
- drivers/input/mouse/gpio_mouse.c        |    2 +-
- drivers/input/mouse/sentelic.c          |    8 ++++++++
- drivers/input/mouse/trackpoint.c        |   14 ++++++++------
- drivers/input/touchscreen/tps6507x-ts.c |    4 +---
- 6 files changed, 28 insertions(+), 13 deletions(-)
-
---=20
-Dmitry
-
-
---AqsLC8rIMeq19msA
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPhmX4AAoJEH70+W8r6ZYqaJMP/0Oo7mchwtFA8klazLrmSdfM
-NWI2Vi6bhYmNZCD0nfiL7NscO9tVXbFXzo5+7sjVsxIOs9CmopxGMJUbw+Zf3umI
-xX7cDYtHXdOCvaEcVM4fS8lHcAGJnE7z887fHq96CpRgd65qjcP7AYfY0uE1yVoh
-vL6HLgdme7xoE1/GRdeo3K/DrQWtauSLlEDv47osqisbyCByxys0UneFy/zVhurM
-XS7E+tMW9SgTcaV4BrVRh15Ap8kpdPDWiEekbJ2sxMRw+IPeuoeLyZpfVtSIpTgr
-6gQm/eAeX1ewlgDnP+g/Fqmlk4z9HK2xQt8fdu3zfS5sZbx9PvjMnGi0pP4ObaVw
-Tm95+v5SihXjSiQ21Jr2kk/W1yWzaB7sJA8oPGwsZZ0+iTAxpjWeRv3GykbrPwuM
-+fpF1tP+sLl+OoXDxJb9nZYa6jz7Xd6aowwfhnaj/7aa23BfWQLTYlhIB3j2QhTH
-hvdAo948PCleceFsvQGb7b9ek3bTyqlKI2neATzgnEuY7xJlYrsGhogt5m0fnkxu
-3YwElONO9nctBs0iaeNPA4TD0c85wusbOcx3jlDsA6GLlwYnMmgLyIB8wIPHgHJs
-qIBB9vqsT3L/k5MoHLzcyuibQGNnRBl1ly3sAk/Y0jZnF2E+pF3AGjUDjSHKi7oN
-Ow9hIJdN8B6bSuIOJHO6
-=JyuZ
------END PGP SIGNATURE-----
-
---AqsLC8rIMeq19msA--

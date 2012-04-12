@@ -1,65 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: da9052: fix mem leak in da9052_onkey_probe()
-Date: Wed, 11 Apr 2012 14:22:44 -0700
-Message-ID: <20120411212244.GB27562@core.coreip.homeip.net>
-References: <alpine.LNX.2.00.1204112249110.2137@swampdragon.chaosbits.net>
+From: =?UTF-8?B?5p6X5b2l5L2R?= <tom_lin@emc.com.tw>
+Subject: Re: [PATCH v3] Input: Elan HID-I2C device driver
+Date: Thu, 12 Apr 2012 09:37:12 +0800
+Message-ID: <4F8631C8.1090705@emc.com.tw>
+References: <1334061766-20577-1-git-send-email-tom_lin@emc.com.tw> <20120411071212.GB6894@core.coreip.homeip.net> <4F85583F.6050008@emc.com.tw> <20120411162519.GA27562@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f52.google.com ([209.85.210.52]:34318 "EHLO
-	mail-pz0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933381Ab2DKVWv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Apr 2012 17:22:51 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1204112249110.2137@swampdragon.chaosbits.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120411162519.GA27562@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, djkurtz@chromium.org, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
-To: Jesper Juhl <jj@chaosbits.net>
-Cc: linux-kernel@vger.kernel.org, David Dajun Chen <dchen@diasemi.com>, linux-input@vger.kernel.org, Ashish Jangam <ashish.jangam@kpitcummins.com>
 
-On Wed, Apr 11, 2012 at 10:56:10PM +0200, Jesper Juhl wrote:
-> If, in drivers/input/misc/da9052_onkey.c::da9052_onkey_probe(), the
-> call to either kzalloc() or input_allocate_device() fails then we will
-> return -ENOMEM from the function without freeing the other allocation
-> that may have succeeded, thus we leak either the memory allocated for
-> 'onkey' or the memory allocated for 'input_dev' if one succeeds and
-> the other fails.
-> Fix that by jumping to the 'err_free_mem' label at the end of the
-> function that properly cleans up rather than returning directly.
-> 
-> Signed-off-by: Jesper Juhl <jj@chaosbits.net>
+Hi Dmitry
 
-I must have messed up error hanlding path when collapsing the 2 memory
-allocations; applied, thank Jesper.
+On 04/12/2012 12:25 AM, Dmitry Torokhov wrote:
+> On Wednesday, April 11, 2012 06:09:03 PM =E6=9E=97=E5=BD=A5=E4=BD=91 =
+wrote:
+>> Hi Daniel
+>>
+>> On 04/11/2012 03:12 PM, Dmitry Torokhov wrote:
+>>> Hi Tom,
+>>>
+>>> On Tue, Apr 10, 2012 at 08:42:46PM +0800, Tom Lin wrote:
+>>>> This patch adds driver for Elan I2C touchpad. These protocol of HI=
+D-I2C
+>>>> was
+>>>> defined by Microsoft. The kernel driver would use the multi-touch
+>>>> protocol
+>>>> format B.
+>>>
+>>> If this device truly supports HID protocol shouldn't we define i2c-=
+hid
+>>> transport, similar to usbhid?
+>>
+>> I merely follow defined by Microsoft.
+>> It was called "HID OVER I2C" by Microsoft.
+>> (http://msdn.microsoft.com/en-us/library/windows/hardware/hh825917(v=
+=3Dvs.85).
+>> aspx) But I agree to change from hid i2c to i2chid.
+>> Do you have any better opinions?
+>
+> I am not sure we are talking about same thing... I do not really care
+> whether it is named "hid i2c" or "i2chid". What I meant if the device
+> really speaks HID protocol, except that the transport is not USB or
+> bluetooth but I2C, then instead of writing a custom driver for this
+> particular part we need to add a new HID transport into
+> drivers/hid/i2c-hid that is similar to drivers/hid/usbhid/ and reuse =
+the
+> rest of HID framework along with hid- multitouch.c which handles
+> HID-compliant multitouch devices.
+>
+> I am CCing Jiri (HID maintainer) for additional input.
+Sorry! I misunderstood what you mean.
+I fully agree with your suggestion. The I2CHID device will be more and=20
+more in the future. Need the new i2chid-driver that would cover all=20
+hid-compliant i2c-devices.
+Thank you
 
-> ---
->  drivers/input/misc/da9052_onkey.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/misc/da9052_onkey.c b/drivers/input/misc/da9052_onkey.c
-> index 34aebb8..3c843cd 100644
-> --- a/drivers/input/misc/da9052_onkey.c
-> +++ b/drivers/input/misc/da9052_onkey.c
-> @@ -95,7 +95,8 @@ static int __devinit da9052_onkey_probe(struct platform_device *pdev)
->  	input_dev = input_allocate_device();
->  	if (!onkey || !input_dev) {
->  		dev_err(&pdev->dev, "Failed to allocate memory\n");
-> -		return -ENOMEM;
-> +		error = -ENOMEM;
-> +		goto err_free_mem;
->  	}
->  
->  	onkey->input = input_dev;
-> -- 
-> 1.7.10
-> 
-> 
-> -- 
-> Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
-> Don't top-post http://www.catb.org/jargon/html/T/top-post.html
-> Plain text mails only, please.
-> 
-
--- 
-Dmitry
+Tom-
+>
+> Thanks.
+>

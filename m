@@ -1,41 +1,54 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: hid-lg4ff: Add support for G27 LEDs
-Date: Fri, 13 Apr 2012 14:59:20 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204131458290.16373@pobox.suse.cz>
-References: <1649210.pcO5IpzBEF@qosmio-x300> <1333987734-8217-1-git-send-email-simon@mungewell.org>
+Subject: Re: [PATCH v2] HID: lg4ff: Take advantage of private driver data
+Date: Fri, 13 Apr 2012 14:59:57 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204131459480.16373@pobox.suse.cz>
+References: <1649210.pcO5IpzBEF@qosmio-x300>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:41235 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:41309 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932074Ab2DMM7W (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Apr 2012 08:59:22 -0400
-In-Reply-To: <1333987734-8217-1-git-send-email-simon@mungewell.org>
+	id S932074Ab2DMM77 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 Apr 2012 08:59:59 -0400
+In-Reply-To: <1649210.pcO5IpzBEF@qosmio-x300>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Bauer <michael@m-bauer.org>, Michal Maly <madcatxster@gmail.com>
+To: =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@gmail.com>
+Cc: linux-input@vger.kernel.org, simon@mungewell.org
 
-On Mon, 9 Apr 2012, Simon Wood wrote:
+On Mon, 9 Apr 2012, Michal Mal=FD wrote:
 
-> This patch adds supports for controlling the LED 'tachometer' on
-> the G27 wheel, via the LED subsystem.
-> 
-> The 5 LEDs are arranged from right (1=grn, 2=grn, 3=yel, 4=yel, 5=red)
-> and 'mirrored' to the left (10 LEDs in total).
-> 
-> Signed-off-by: Simon Wood <simon@mungewell.org>
-> ---
->  drivers/hid/hid-lg4ff.c |  149 ++++++++++++++++++++++++++++++++++++++++++++++-
->  1 files changed, 148 insertions(+), 1 deletions(-)
+> Hi,
+>=20
+> this is a revised version of HID: lg4ff: Use Private Data I asked Sim=
+on to
+> submit for me earlier. To recap what the patch is about, it takes adv=
+antage
+> of the changes introduced in my patches from 2011/04/02. lg4ff now ca=
+lls
+> hid_get/set_drvdata() to read or store device configuration. The way =
+I understand
+> it, this is how all HID drivers store their private data. The change =
+from the version
+> that was submitted earlier are removed all occurences of uninitialize=
+d_var() macro.
+>=20
+> Please note that this patch depends on
+> "[PATCH v4] HID: hid-lg: Allow for custom device-specific properties =
+to be stored in private drv data"
+> "[PATCH v4] HID: lg4ff: Remove sysfs iface before deallocating memory=
+"
+>=20
+> Signed-off-by: Michal Mal=FD <madcatxster@gmail.com>
 
-This patch introduces a clear dependency of hid-lg4ff driver on 
-CONFIG_LEDS_CLASS, but the code doesn't reflect it.
+Applied, thanks.
 
-So either you have to put #ifdef into source to compile the leds part out 
-if leds subsystem is not enabled, or you have to introduce Kconfig rule to 
-cover this.
-
--- 
+--=20
 Jiri Kosina
 SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,52 +1,44 @@
-From: Tvrtko Ursulin <tvrtko.ursulin@onelan.co.uk>
-Subject: Re: Baantoo multi-touch screen trouble
-Date: Fri, 13 Apr 2012 14:30:24 +0100
-Message-ID: <201204131430.24672.tvrtko.ursulin@onelan.co.uk>
-References: <201204111629.59916.tvrtko.ursulin@onelan.co.uk> <201204131033.00596.tvrtko.ursulin@onelan.co.uk> <alpine.LNX.2.00.1204131442050.16373@pobox.suse.cz>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v3] Input: Elan HID-I2C device driver
+Date: Fri, 13 Apr 2012 18:21:53 +0200
+Message-ID: <20120413162153.GA8602@polaris.bitmath.org>
+References: <1334061766-20577-1-git-send-email-tom_lin@emc.com.tw>
+ <20120411071212.GB6894@core.coreip.homeip.net>
+ <4F85583F.6050008@emc.com.tw>
+ <20120411162519.GA27562@core.coreip.homeip.net>
+ <4F8631C8.1090705@emc.com.tw>
+ <alpine.LNX.2.00.1204131442520.16373@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [195.8.89.34] ([195.8.89.34]:55624 "EHLO
-	claranet-outbound-smtp01.uk.clara.net" rhost-flags-FAIL-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1751473Ab2DMNao (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Apr 2012 09:30:44 -0400
-In-Reply-To: <alpine.LNX.2.00.1204131442050.16373@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1204131442520.16373@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?utf-8?B?5p6X77+94pSv77+9?= <tom_lin@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, djkurtz@chromium.org
+List-Id: linux-input@vger.kernel.org
 
-On Friday 13 Apr 2012 13:42:24 Jiri Kosina wrote:
-> On Fri, 13 Apr 2012, Tvrtko Ursulin wrote:
-> > > Oops, I think I assumed that the features that will come in 3.4 are
-> > > already in 3.3... sorry.
-> > > 
-> > > Once hid-multitouch is loaded, you have to manually tell him to handle
-> > > your device:
-> > > # echo 3 2453 0100 0 >
-> > > /sys/module/hid_multitouch/drivers/hid\:hid-multitouch/new_id
-> > > 
-> > > That should do the trick.
-> > 
-> > Yep, that makes it work.
-> > 
-> > Thanks for your help!
-> > 
-> > If you would want to have any additional data about this panel just
-> > shout, I will have access to it for a couple of more days.
+On Fri, Apr 13, 2012 at 02:43:14PM +0200, Jiri Kosina wrote:
+> On Thu, 12 Apr 2012, Benjamin Tissoires wrote:
 > 
-> Guys, who of you is going to send me patch adding the device ID into
-> in-kernel list?
+> > I read Microsoft's things about HID over I2C few days ago. And from
+> > what I understood, the report descriptors and the enumeration of the
+> > devices are stored in the ACPI table and not in the device itself. Can
+> > you confirm this?
+> > 
+> > I was thinking about making hid-multitouch independent from the usb
+> > stack and was thinking about doing the i2c-hid bridge. However, I did
+> > not start writing a line yet ;-)
+> 
+> I guess you were planning to write that as a HID transport (ll) driver, 
+> right?
 
-It is unlikely to be me unless someone explains to me in detail what needs to 
-be done, at which point it is probably quicker for that person to do it. I for 
-example don't even understand why this, allegedly HID Multitouch class 
-compliant, device needs explicit adding? Is it not compliant after all? Is it 
-that multiple HID devices it exposes a non-standard thing? Does it then need a 
-vendor specific class (looking at hid-multitouch.c). Sorry this whole area is 
-just new and unknown to me.
+Sounds great. The recent investigations into the properties of the hid
+device identity for multitouch suggests that the ll driver could be
+seen as the owner of the hid device itself, and should take on the
+responsibility of both report fixups and determining the device
+identify (read modalias). Using generic code (hid-owner?) of course. I
+am experimenting with a couple of patches for it. Would you all agree
+with this assessment?
 
-Tvrtko
+Henrik

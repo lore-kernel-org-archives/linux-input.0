@@ -1,52 +1,45 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 11/16 v2] Input: atmel_mxt_ts - refactor reading object
- table
-Date: Fri, 13 Apr 2012 13:09:04 +0200
-Message-ID: <20120413110904.GA4842@polaris.bitmath.org>
-References: <1333039766-8617-1-git-send-email-djkurtz@chromium.org>
- <1333039766-8617-12-git-send-email-djkurtz@chromium.org>
- <20120413091147.GA3923@polaris.bitmath.org>
- <CAGS+omD5WxL4mrt8Czw7M3OAbuBH2CVO-EmFmhG3VucSNRuLCw@mail.gmail.com>
- <20120413093446.GA4218@polaris.bitmath.org>
- <CAGS+omCMWqWsALjBd=r5HbKMQ+ZJKayuUEQuL7LXwkbr+xmy1g@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Baantoo multi-touch screen trouble
+Date: Fri, 13 Apr 2012 14:42:24 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204131442050.16373@pobox.suse.cz>
+References: <201204111629.59916.tvrtko.ursulin@onelan.co.uk> <201204130902.51885.tvrtko.ursulin@onelan.co.uk> <CAN+gG=HBTO4UvEQ1SVMS1sicHbBDaTP83E9cTUm1M3c9KSechA@mail.gmail.com> <201204131033.00596.tvrtko.ursulin@onelan.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:55464 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751074Ab2DMLG3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Apr 2012 07:06:29 -0400
-Content-Disposition: inline
-In-Reply-To: <CAGS+omCMWqWsALjBd=r5HbKMQ+ZJKayuUEQuL7LXwkbr+xmy1g@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:40471 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755571Ab2DMMm0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 Apr 2012 08:42:26 -0400
+In-Reply-To: <201204131033.00596.tvrtko.ursulin@onelan.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
+To: Tvrtko Ursulin <tvrtko.ursulin@onelan.co.uk>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org
 
-> > I am talking about the data that is being read here and written in
-> > mxt_check_reg_init(). By matching the struct with that data, all the
-> > copies you make would go away.
+On Fri, 13 Apr 2012, Tvrtko Ursulin wrote:
+
+> > Oops, I think I assumed that the features that will come in 3.4 are
+> > already in 3.3... sorry.
+> > 
+> > Once hid-multitouch is loaded, you have to manually tell him to handle
+> > your device:
+> > # echo 3 2453 0100 0 >
+> > /sys/module/hid_multitouch/drivers/hid\:hid-multitouch/new_id
+> > 
+> > That should do the trick.
 > 
-> The data read here is a table of object descriptors.  The data written
-> in mxt_check_reg_init() is configuration data for each of the objects
-> described by the descriptors.  What copies are you talking about?
+> Yep, that makes it work.
+> 
+> Thanks for your help!
+> 
+> If you would want to have any additional data about this panel just shout, I 
+> will have access to it for a couple of more days.
 
-In this patch, the object descriptors are read into a buffer, then
-copied over to the object struct that you hold. That is the copy that
-obviously goes away if the data is copied directly into the suggested
-struct. In patch 9, you copy an unknown amount of data over to a
-stack-allocated buffer before sending it via ic2. That is the main
-technichal concern, and it was the first question you got, some days
-ago.
+Guys, who of you is going to send me patch adding the device ID into 
+in-kernel list?
 
-> The config array in platform_data is a single big long array that has
-> to be manually created in a platform file.  It just has blobs of data
-> for each of the 'writable' objects for a given device, all
-> concatenated together.
+Thanks,
 
-Ok, so no need for the second suggested struct or anything of that
-kind. Just sort out the maximum blob size and, if necessary, avoid the
-stack allocation in mxt_check_reg_init(), and it should be fine.
-
-Henrik
+-- 
+Jiri Kosina
+SUSE Labs

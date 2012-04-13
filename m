@@ -1,88 +1,66 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 15/16 v2] Input: atmel_mxt_ts - send all MT-B slots in
- one input report
-Date: Fri, 13 Apr 2012 11:20:14 +0200
-Message-ID: <20120413092014.GC3923@polaris.bitmath.org>
-References: <1333039766-8617-1-git-send-email-djkurtz@chromium.org>
- <1333039766-8617-16-git-send-email-djkurtz@chromium.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Baantoo multi-touch screen trouble
+Date: Fri, 13 Apr 2012 11:21:22 +0200
+Message-ID: <CAN+gG=HBTO4UvEQ1SVMS1sicHbBDaTP83E9cTUm1M3c9KSechA@mail.gmail.com>
+References: <201204111629.59916.tvrtko.ursulin@onelan.co.uk>
+	<201204121547.29206.tvrtko.ursulin@onelan.co.uk>
+	<CAN+gG=GzVSzQpEV0bFMTn0H_vj+yKHHSZpyL4dBCFTE7To0=-A@mail.gmail.com>
+	<201204130902.51885.tvrtko.ursulin@onelan.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:44787 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758026Ab2DMJRj (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:46023 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758132Ab2DMJVX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Apr 2012 05:17:39 -0400
-Content-Disposition: inline
-In-Reply-To: <1333039766-8617-16-git-send-email-djkurtz@chromium.org>
+	Fri, 13 Apr 2012 05:21:23 -0400
+Received: by iagz16 with SMTP id z16so4004887iag.19
+        for <linux-input@vger.kernel.org>; Fri, 13 Apr 2012 02:21:22 -0700 (PDT)
+In-Reply-To: <201204130902.51885.tvrtko.ursulin@onelan.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
+To: Tvrtko Ursulin <tvrtko.ursulin@onelan.co.uk>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Hi Daniel,
+Hi,
 
-> Each interrupt contains information for all contacts with changing
-> properties.  Process all of this information at once, and send it all in a
-> a single input report (ie input events ending in EV_SYN/SYN_REPORT).
-> 
-> This patch was tested using an MXT224E.
-> 
-> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c |   11 ++++++++---
->  1 files changed, 8 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index be1e2ec..d8b23ad 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -532,9 +532,6 @@ static void mxt_input_touch(struct mxt_data *data, struct mxt_message *message)
->  		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
->  		/* TODO: Use vector to report ORIENTATION & TOUCH_MINOR */
->  	}
-> -
-> -	input_mt_report_pointer_emulation(input_dev, false);
-> -	input_sync(input_dev);
->  }
->  
->  static irqreturn_t mxt_interrupt(int irq, void *dev_id)
-> @@ -542,7 +539,9 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
->  	struct mxt_data *data = dev_id;
->  	struct mxt_message message;
->  	struct device *dev = &data->client->dev;
-> +	bool update_input;
->  
-> +	update_input = false;
->  	do {
->  		if (mxt_read_message(data, &message)) {
->  			dev_err(dev, "Failed to read message\n");
-> @@ -552,11 +551,17 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
->  		if (message.reportid >= data->T9_reportid_min &&
->  		    message.reportid <= data->T9_reportid_max) {
->  			mxt_input_touch(data, &message);
-> +			update_input = true;
->  		} else {
->  			mxt_dump_message(dev, &message);
->  		}
->  	} while (message.reportid != 0xff);
->  
-> +	if (update_input) {
-> +		input_mt_report_pointer_emulation(data->input_dev, false);
-> +		input_sync(data->input_dev);
-> +	}
-> +
+Oops, I think I assumed that the features that will come in 3.4 are
+already in 3.3... sorry.
 
-Strictly speaking, the update_input variable is not needed either,
-although it will save some cycles. The input core will omit the sync
-when there is nothing to report.
+Once hid-multitouch is loaded, you have to manually tell him to handle
+your device:
+# echo 3 2453 0100 0 >
+/sys/module/hid_multitouch/drivers/hid\:hid-multitouch/new_id
 
->  end:
->  	return IRQ_HANDLED;
->  }
-> -- 
-> 1.7.7.3
-> 
+That should do the trick.
 
-Thanks,
-Henrik
+If it's not working, then we may need the full report descriptors
+(without the ** UNAVAILABLE **). You can do that by using the script
+there: http://lii-enac.fr/en/architecture/linux-input/multitouch-howto.html#report
+
+Cheers,
+Benjamin
+
+On Fri, Apr 13, 2012 at 10:02, Tvrtko Ursulin
+<tvrtko.ursulin@onelan.co.uk> wrote:
+> On Thursday 12 Apr 2012 17:05:34 Benjamin Tissoires wrote:
+>> Hi Tvrtko,
+>>
+>> I misread your first mail, sorry for that. I did not saw that your
+>> device was a Hid one detected as a multitouch one. Under 3.3, just do:
+>> $ sudo modprobe hid-multitouch
+>>
+>> And the device should be handled by hid-multitouch.
+>>
+>> The 3.3 kernel, detects that your device should be handled by
+>> hid-multitouch, but it does not load it automatically. You may add
+>> this module in the configuration file.
+>
+> Unfortunately nothing interesting happened with hid-multitouch loaded. Nonew
+> kernel messages, no devices claimed/created.
+>
+> Are there any tools (couldn't find any) which can probe/analyze this device
+> from userspace? Or something that would explain why it works better with
+> earlier kernels?
+>
+> Tvrtko

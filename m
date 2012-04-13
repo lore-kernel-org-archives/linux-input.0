@@ -1,37 +1,40 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3] Input: Elan HID-I2C device driver
-Date: Fri, 13 Apr 2012 14:43:14 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204131442520.16373@pobox.suse.cz>
-References: <1334061766-20577-1-git-send-email-tom_lin@emc.com.tw> <20120411071212.GB6894@core.coreip.homeip.net> <4F85583F.6050008@emc.com.tw> <20120411162519.GA27562@core.coreip.homeip.net> <4F8631C8.1090705@emc.com.tw>
- <CAN+gG=EQ-B8_brthJnrq0pw1HYGo15Q6unaEQAbu-e2x10z0XA@mail.gmail.com>
+Subject: Re: [PATCH] HID: hid-lg4ff: Add support for G27 LEDs
+Date: Fri, 13 Apr 2012 14:59:20 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204131458290.16373@pobox.suse.cz>
+References: <1649210.pcO5IpzBEF@qosmio-x300> <1333987734-8217-1-git-send-email-simon@mungewell.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40507 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:41235 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755547Ab2DMMnR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Apr 2012 08:43:17 -0400
-In-Reply-To: <CAN+gG=EQ-B8_brthJnrq0pw1HYGo15Q6unaEQAbu-e2x10z0XA@mail.gmail.com>
+	id S932074Ab2DMM7W (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 Apr 2012 08:59:22 -0400
+In-Reply-To: <1333987734-8217-1-git-send-email-simon@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: =?GB2312?B?wdaPqdPT?= <tom_lin@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, djkurtz@chromium.org
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Bauer <michael@m-bauer.org>, Michal Maly <madcatxster@gmail.com>
 
-On Thu, 12 Apr 2012, Benjamin Tissoires wrote:
+On Mon, 9 Apr 2012, Simon Wood wrote:
 
-> I read Microsoft's things about HID over I2C few days ago. And from
-> what I understood, the report descriptors and the enumeration of the
-> devices are stored in the ACPI table and not in the device itself. Can
-> you confirm this?
+> This patch adds supports for controlling the LED 'tachometer' on
+> the G27 wheel, via the LED subsystem.
 > 
-> I was thinking about making hid-multitouch independent from the usb
-> stack and was thinking about doing the i2c-hid bridge. However, I did
-> not start writing a line yet ;-)
+> The 5 LEDs are arranged from right (1=grn, 2=grn, 3=yel, 4=yel, 5=red)
+> and 'mirrored' to the left (10 LEDs in total).
+> 
+> Signed-off-by: Simon Wood <simon@mungewell.org>
+> ---
+>  drivers/hid/hid-lg4ff.c |  149 ++++++++++++++++++++++++++++++++++++++++++++++-
+>  1 files changed, 148 insertions(+), 1 deletions(-)
 
-I guess you were planning to write that as a HID transport (ll) driver, 
-right?
+This patch introduces a clear dependency of hid-lg4ff driver on 
+CONFIG_LEDS_CLASS, but the code doesn't reflect it.
 
-Thanks,
+So either you have to put #ifdef into source to compile the leds part out 
+if leds subsystem is not enabled, or you have to introduce Kconfig rule to 
+cover this.
 
 -- 
 Jiri Kosina

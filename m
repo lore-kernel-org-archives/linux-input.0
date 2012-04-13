@@ -1,42 +1,42 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 11/16 v2] Input: atmel_mxt_ts - refactor reading object
- table
-Date: Fri, 13 Apr 2012 11:34:46 +0200
-Message-ID: <20120413093446.GA4218@polaris.bitmath.org>
-References: <1333039766-8617-1-git-send-email-djkurtz@chromium.org>
- <1333039766-8617-12-git-send-email-djkurtz@chromium.org>
- <20120413091147.GA3923@polaris.bitmath.org>
- <CAGS+omD5WxL4mrt8Czw7M3OAbuBH2CVO-EmFmhG3VucSNRuLCw@mail.gmail.com>
+From: Tvrtko Ursulin <tvrtko.ursulin@onelan.co.uk>
+Subject: Re: Baantoo multi-touch screen trouble
+Date: Fri, 13 Apr 2012 10:33:00 +0100
+Message-ID: <201204131033.00596.tvrtko.ursulin@onelan.co.uk>
+References: <201204111629.59916.tvrtko.ursulin@onelan.co.uk> <201204130902.51885.tvrtko.ursulin@onelan.co.uk> <CAN+gG=HBTO4UvEQ1SVMS1sicHbBDaTP83E9cTUm1M3c9KSechA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:49685 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758026Ab2DMJcK (ORCPT
+Received: from claranet-outbound-smtp02.uk.clara.net ([195.8.89.35]:43843 "EHLO
+	claranet-outbound-smtp02.uk.clara.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756787Ab2DMJdI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Apr 2012 05:32:10 -0400
-Content-Disposition: inline
-In-Reply-To: <CAGS+omD5WxL4mrt8Czw7M3OAbuBH2CVO-EmFmhG3VucSNRuLCw@mail.gmail.com>
+	Fri, 13 Apr 2012 05:33:08 -0400
+In-Reply-To: <CAN+gG=HBTO4UvEQ1SVMS1sicHbBDaTP83E9cTUm1M3c9KSechA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-> > Putting this conversion in a function would be nice, it would also
-> > make it clear that the inverse, used for writing, is currently
-> > missing. Alternatively, how about making the object struct actually
-> > match the read data? To top it off, one could introduce a collection,
-> > prepending the buffer size, making the write operation trivial.
+On Friday 13 Apr 2012 10:21:22 Benjamin Tissoires wrote:
+> Hi,
 > 
-> AFAIK, there is no corresponding "object table" write. The "object
-> table" (maybe more aptly named the "object descriptor table") is an
-> immutable blob read from firmware that describes some actual data
-> objects elsewhere in device memory.  It is those actual objects that
-> are writable.  When they are written, it is the actual size, location
-> and number of instances (not their raw '-1' values) that is useful.
+> Oops, I think I assumed that the features that will come in 3.4 are
+> already in 3.3... sorry.
+> 
+> Once hid-multitouch is loaded, you have to manually tell him to handle
+> your device:
+> # echo 3 2453 0100 0 >
+> /sys/module/hid_multitouch/drivers/hid\:hid-multitouch/new_id
+> 
+> That should do the trick.
 
-I am talking about the data that is being read here and written in
-mxt_check_reg_init(). By matching the struct with that data, all the
-copies you make would go away.
+Yep, that makes it work.
 
-Henrik
+Thanks for your help!
+
+If you would want to have any additional data about this panel just shout, I 
+will have access to it for a couple of more days.
+
+Tvrtko

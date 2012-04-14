@@ -1,244 +1,139 @@
-From: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH 1/4] ohci-nxp: Device tree support
-Date: Sat, 14 Apr 2012 12:53:07 +0200
-Message-ID: <1334400790-10892-2-git-send-email-stigge@antcom.de>
-References: <1334400790-10892-1-git-send-email-stigge@antcom.de>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [linux-pm] "i8042: Can't reactivate AUX port" after s2ram on 3.4-rc2
+Date: Sun, 15 Apr 2012 00:11:53 +0200
+Message-ID: <201204150011.53556.rjw@sisk.pl>
+References: <1334310754.17013.YahooMailNeo@web161804.mail.bf1.yahoo.com> <201204132219.23106.rjw@sisk.pl> <1334350068.79333.YahooMailNeo@web161804.mail.bf1.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1334400790-10892-1-git-send-email-stigge@antcom.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: arm@kernel.org, linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, axel.lin@gmail.com, broonie@opensource.wolfsonmicro.com, marek.vasut@gmail.com, thierry.reding@avionic-design.de, devel@driverdev.osuosl.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
-Cc: Roland Stigge <stigge@antcom.de>
+Return-path: <linux-pci-owner@vger.kernel.org>
+In-Reply-To: <1334350068.79333.YahooMailNeo@web161804.mail.bf1.yahoo.com>
+Sender: linux-pci-owner@vger.kernel.org
+To: Mikko Vinni <mmvinni@yahoo.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Allen Kay <allen.m.kay@intel.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-This patch adds device tree support to ohci-nxp.c
+Hi,
 
-Signed-off-by: Roland Stigge <stigge@antcom.de>
+On Friday, April 13, 2012, Mikko Vinni wrote:
+> From: Rafael J. Wysocki:
+> 
+> > On Friday, April 13, 2012, Mikko Vinni wrote:
+> >>  From: Rafael J. Wysocki:
+> >> 
+> >>  > On Friday, April 13, 2012, Mikko Vinni wrote:
+> >>  >>  Bug report:
+> >>  >>    https://bugzilla.kernel.org/show_bug.cgi?id=43099
+> >>  >> 
+> 
+> ^^^ some of the home-work is already there, including dmesg with and without the patch
+> with PCI debug on, which hopefully does the same as dev_info
+> 
+> > 
+> > Please change that dev_dbg() in pci_restore_state() into dev_info()
+> > and see how many times it gets printed with the commit applied (not reverted).
+> 
+> 
+> I ran the dmesg through "uniq -c" and it looks like this:
+> 
+>       1 ACPI: Low-level resume complete
+>       1 PM: Restoring platform NVS memory
+>       1 Enabling non-boot CPUs ...
+>       1 Booting Node 0 Processor 1 APIC 0x1
+>       1 CPU1 is up
+>       1 ACPI: Waking up from system sleep state S3
+>      10 pcieport 0000:00:02.0: restoring config space at offset 0x7 (was 0x20005151, writing 0x5151)
+
+Well, yeah.  So the commit you bisected it to is total and utter crap.
+Most importantly, it retries the writes for all of the dwords in the device's
+config space _including_ the status register (which by definition need not be
+the same as the written value).
+
+I wonder if the appended patch helps?
+
+Rafael
+
 
 ---
+ drivers/pci/pci.c |   50 ++++++++++++++++++++++++++++++++------------------
+ 1 file changed, 32 insertions(+), 18 deletions(-)
 
-Applies to v3.4-rc2
-
- Documentation/devicetree/bindings/usb/ohci-nxp.txt |   16 ++++
- drivers/usb/host/ohci-nxp.c                        |   68 ++++++++++++++-------
- 2 files changed, 64 insertions(+), 20 deletions(-)
-
---- /dev/null
-+++ linux-2.6/Documentation/devicetree/bindings/usb/ohci-nxp.txt
-@@ -0,0 +1,16 @@
-+* OHCI controller, NXP ohci-nxp variant
-+
-+Required properties:
-+- compatible: must be "nxp,ohci-nxp"
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+- interrupts: The OHCI interrupt
-+
-+Example (LPC32xx):
-+
-+	ohci@31020000 {
-+		compatible = "nxp,ohci-nxp";
-+		reg = <0x31020000 0x300>;
-+		interrupt-parent = <&mic>;
-+		interrupts = <0x3b 0>;
-+	};
---- linux-2.6.orig/drivers/usb/host/ohci-nxp.c
-+++ linux-2.6/drivers/usb/host/ohci-nxp.c
-@@ -22,6 +22,7 @@
- #include <linux/clk.h>
- #include <linux/platform_device.h>
- #include <linux/i2c.h>
-+#include <linux/of.h>
- 
- #include <mach/hardware.h>
- #include <asm/mach-types.h>
-@@ -29,7 +30,6 @@
- 
- #include <mach/platform.h>
- #include <mach/irqs.h>
--#include <asm/gpio.h>
- 
- #define USB_CONFIG_BASE		0x31020000
- #define PWRMAN_BASE		0x40004000
-@@ -38,6 +38,7 @@
- 
- /* USB_CTRL bit defines */
- #define USB_SLAVE_HCLK_EN	(1 << 24)
-+#define USB_DEV_NEED_CLK_EN	(1 << 22)
- #define USB_HOST_NEED_CLK_EN	(1 << 21)
- 
- #define USB_OTG_CLK_CTRL	IO_ADDRESS(USB_CONFIG_BASE + 0xFF4)
-@@ -117,7 +118,6 @@ static struct i2c_driver isp1301_driver;
- static struct i2c_client *isp1301_i2c_client;
- 
- extern int usb_disabled(void);
--extern int ocpi_enable(void);
- 
- static struct clk *usb_clk;
- 
-@@ -220,7 +220,7 @@ static void isp1301_configure_lpc32xx(vo
- 		ISP1301_I2C_INTERRUPT_RISING | ISP1301_I2C_REG_CLEAR_ADDR, ~0);
- 
- 	/* Enable usb_need_clk clock after transceiver is initialized */
--	__raw_writel((__raw_readl(USB_CTRL) | (1 << 22)), USB_CTRL);
-+	__raw_writel((__raw_readl(USB_CTRL) | USB_HOST_NEED_CLK_EN), USB_CTRL);
- 
- 	printk(KERN_INFO "ISP1301 Vendor ID  : 0x%04x\n",
- 	      i2c_smbus_read_word_data(isp1301_i2c_client, 0x00));
-@@ -266,7 +266,7 @@ static void nxp_stop_hc(void)
- 	__raw_writel(tmp, USB_OTG_STAT_CONTROL);
+Index: linux/drivers/pci/pci.c
+===================================================================
+--- linux.orig/drivers/pci/pci.c
++++ linux/drivers/pci/pci.c
+@@ -967,16 +967,40 @@ pci_save_state(struct pci_dev *dev)
+ 	return 0;
  }
  
--static int __devinit ohci_nxp_start(struct usb_hcd *hcd)
-+static int ohci_nxp_start(struct usb_hcd *hcd)
- {
- 	struct ohci_hcd *ohci = hcd_to_ohci(hcd);
- 	int ret;
-@@ -367,16 +367,20 @@ static void nxp_unset_usb_bits(void)
- 	}
- }
- 
--static int __devinit usb_hcd_nxp_probe(struct platform_device *pdev)
-+static int usb_hcd_nxp_probe(struct platform_device *pdev)
- {
- 	struct usb_hcd *hcd = 0;
- 	struct ohci_hcd *ohci;
- 	const struct hc_driver *driver = &ohci_nxp_hc_driver;
- 	struct i2c_adapter *i2c_adap;
- 	struct i2c_board_info i2c_info;
-+	struct resource *res;
- 
- 	int ret = 0, irq;
- 
-+	pdev->dev.coherent_dma_mask = 0xFFFFFFFF;
-+	pdev->dev.dma_mask = &pdev->dev.coherent_dma_mask;
++static void pci_restore_config_space(struct pci_dev *pdev, int start, int end,
++				     int retry)
++{
++	int index;
 +
- 	dev_dbg(&pdev->dev, "%s: " DRIVER_DESC " (nxp)\n", hcd_name);
- 	if (usb_disabled()) {
- 		err("USB is disabled");
-@@ -384,16 +388,10 @@ static int __devinit usb_hcd_nxp_probe(s
- 		goto out;
- 	}
- 
--	if (pdev->num_resources != 2
--	    || pdev->resource[0].flags != IORESOURCE_MEM
--	    || pdev->resource[1].flags != IORESOURCE_IRQ) {
--		err("Invalid resource configuration");
--		ret = -ENODEV;
--		goto out;
--	}
++	for (index = end; index >= start; index--) {
++		u32 val, saved;
++		int offset = 4 * index;
++		int count = retry;
++
++		saved = pdev->saved_config_space[index];
++		pci_read_config_dword(pdev, offset, &val);
++		while (saved != val) {
++			dev_dbg(&pdev->dev, "restoring config space at offset "
++				"%#x (was %#x, writing %#x)\n",
++				offset, val, saved);
++			pci_write_config_dword(pdev, offset, saved);
++			if (count-- > 0) {
++				pci_read_config_dword(pdev, offset, &val);
++				if (saved != val)
++					msleep(10);
++			} else {
++				break;
++			}
++		}
++	}
++}
++
+ /** 
+  * pci_restore_state - Restore the saved state of a PCI device
+  * @dev: - PCI device that we're dealing with
+  */
+ void pci_restore_state(struct pci_dev *dev)
+ {
+-	int i;
+-	u32 val;
+-	int tries;
 -
- 	/* Enable AHB slave USB clock, needed for further USB clock control */
--	__raw_writel(USB_SLAVE_HCLK_EN | (1 << 19), USB_CTRL);
-+	__raw_writel(__raw_readl(USB_CTRL) | USB_SLAVE_HCLK_EN, USB_CTRL);
-+	__raw_writel(__raw_readl(USB_CTRL) & ~(1 << 20), USB_CTRL);
-+	__raw_writel(__raw_readl(USB_CTRL) | (1 << 19), USB_CTRL);
+ 	if (!dev->state_saved)
+ 		return;
  
- 	ret = i2c_add_driver(&isp1301_driver);
- 	if (ret < 0) {
-@@ -401,6 +399,11 @@ static int __devinit usb_hcd_nxp_probe(s
- 		goto out;
- 	}
- 	i2c_adap = i2c_get_adapter(2);
-+	if (!i2c_adap) {
-+		err("failed on i2c_get_adapter");
-+		goto out_i2c_driver;
-+	}
+@@ -984,24 +1008,14 @@ void pci_restore_state(struct pci_dev *d
+ 	pci_restore_pcie_state(dev);
+ 	pci_restore_ats_state(dev);
+ 
++	pci_restore_config_space(dev, 10, 15, 0);
+ 	/*
+ 	 * The Base Address register should be programmed before the command
+ 	 * register(s)
+ 	 */
+-	for (i = 15; i >= 0; i--) {
+-		pci_read_config_dword(dev, i * 4, &val);
+-		tries = 10;		
+-		while (tries && val != dev->saved_config_space[i]) {
+-			dev_dbg(&dev->dev, "restoring config "
+-				"space at offset %#x (was %#x, writing %#x)\n",
+-				i, val, (int)dev->saved_config_space[i]);
+-			pci_write_config_dword(dev,i * 4,
+-				dev->saved_config_space[i]);
+-			pci_read_config_dword(dev, i * 4, &val);
+-			mdelay(10);
+-			tries--;
+-		}
+-	}
++	pci_restore_config_space(dev, 4, 9, 10);
++	pci_restore_config_space(dev, 0, 3, 0);
 +
- 	memset(&i2c_info, 0, sizeof(struct i2c_board_info));
- 	strlcpy(i2c_info.type, "isp1301_nxp", I2C_NAME_SIZE);
- 	isp1301_i2c_client = i2c_new_probed_device(i2c_adap, &i2c_info,
-@@ -435,6 +438,7 @@ static int __devinit usb_hcd_nxp_probe(s
- 	}
- 
- 	__raw_writel(__raw_readl(USB_CTRL) | USB_HOST_NEED_CLK_EN, USB_CTRL);
-+	__raw_writel(__raw_readl(USB_CTRL) & ~USB_DEV_NEED_CLK_EN, USB_CTRL);
- 
- 	/* Set to enable all needed USB clocks */
- 	__raw_writel(USB_CLOCK_MASK, USB_OTG_CLK_CTRL);
-@@ -442,7 +446,7 @@ static int __devinit usb_hcd_nxp_probe(s
- 	while ((__raw_readl(USB_OTG_CLK_STAT) & USB_CLOCK_MASK) !=
- 	       USB_CLOCK_MASK) ;
- 
--	hcd = usb_create_hcd (driver, &pdev->dev, dev_name(&pdev->dev));
-+	hcd = usb_create_hcd(driver, &pdev->dev, dev_name(&pdev->dev));
- 	if (!hcd) {
- 		err("Failed to allocate HC buffer");
- 		ret = -ENOMEM;
-@@ -452,19 +456,30 @@ static int __devinit usb_hcd_nxp_probe(s
- 	/* Set all USB bits in the Start Enable register */
- 	nxp_set_usb_bits();
- 
--	hcd->rsrc_start = pdev->resource[0].start;
--	hcd->rsrc_len = pdev->resource[0].end - pdev->resource[0].start + 1;
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res) {
-+		dev_err(&pdev->dev, "Failed to get MEM resource");
-+		ret =  -ENOMEM;
-+		goto out4;
-+	}
-+	hcd->rsrc_start = IO_ADDRESS(res->start);
-+	hcd->rsrc_len = resource_size(res);
- 	if (!request_mem_region(hcd->rsrc_start, hcd->rsrc_len, hcd_name)) {
--		dev_dbg(&pdev->dev, "request_mem_region failed\n");
-+		dev_err(&pdev->dev, "request_mem_region failed\n");
- 		ret =  -ENOMEM;
- 		goto out4;
- 	}
--	hcd->regs = (void __iomem *)pdev->resource[0].start;
-+	hcd->regs = ioremap(res->start, hcd->rsrc_len);
-+	if (!hcd->regs) {
-+		err("Failed to ioremap");
-+		ret =  -ENOMEM;
-+		goto out5;
-+	}
- 
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
- 		ret = -ENXIO;
--		goto out4;
-+		goto out6;
- 	}
- 
- 	nxp_start_hc();
-@@ -478,6 +493,10 @@ static int __devinit usb_hcd_nxp_probe(s
- 		return ret;
- 
- 	nxp_stop_hc();
-+out6:
-+	iounmap(hcd->regs);
-+out5:
-+	release_mem_region(hcd->rsrc_start, hcd->rsrc_len);
- out4:
- 	nxp_unset_usb_bits();
- 	usb_put_hcd(hcd);
-@@ -517,10 +536,19 @@ static int usb_hcd_nxp_remove(struct pla
- /* work with hotplug and coldplug */
- MODULE_ALIAS("platform:usb-ohci");
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id usb_hcd_nxp_match[] = {
-+	{ .compatible = "nxp,ohci-nxp" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, usb_hcd_nxp_match);
-+#endif
-+
- static struct platform_driver usb_hcd_nxp_driver = {
- 	.driver = {
- 		.name = "usb-ohci",
- 		.owner	= THIS_MODULE,
-+		.of_match_table = of_match_ptr(usb_hcd_nxp_match),
- 	},
- 	.probe = usb_hcd_nxp_probe,
- 	.remove = usb_hcd_nxp_remove,
+ 	pci_restore_pcix_state(dev);
+ 	pci_restore_msi_state(dev);
+ 	pci_restore_iov_state(dev);

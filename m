@@ -1,70 +1,76 @@
-From: Mikko Vinni <mmvinni@yahoo.com>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 Subject: Re: [linux-pm] "i8042: Can't reactivate AUX port" after s2ram on 3.4-rc2
-Date: Sun, 15 Apr 2012 03:47:07 -0700 (PDT)
-Message-ID: <1334486827.79192.YahooMailNeo@web161806.mail.bf1.yahoo.com>
-References: <1334310754.17013.YahooMailNeo@web161804.mail.bf1.yahoo.com> <201204132118.22074.rjw@sisk.pl> <1334346546.93033.YahooMailNeo@web161806.mail.bf1.yahoo.com> <201204132219.23106.rjw@sisk.pl> <1334350068.79333.YahooMailNeo@web161804.mail.bf1.yahoo.com> <CAAMvbhEFLHPsemALYVQwsuTaAiom1RviLECcPwqdtzA4ogmuLw@mail.gmail.com>
-Reply-To: Mikko Vinni <mmvinni@yahoo.com>
+Date: Sun, 15 Apr 2012 20:30:22 +0200
+Message-ID: <201204152030.23148.rjw@sisk.pl>
+References: <1334310754.17013.YahooMailNeo@web161804.mail.bf1.yahoo.com> <201204150011.53556.rjw@sisk.pl> <1334486385.82898.YahooMailNeo@web161803.mail.bf1.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nm30.bullet.mail.bf1.yahoo.com ([98.139.212.189]:33292 "HELO
-	nm30.bullet.mail.bf1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752964Ab2DOKrJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Apr 2012 06:47:09 -0400
-In-Reply-To: <CAAMvbhEFLHPsemALYVQwsuTaAiom1RviLECcPwqdtzA4ogmuLw@mail.gmail.com>
+Received: from ogre.sisk.pl ([217.79.144.158]:44086 "EHLO ogre.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753153Ab2DOSZu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 15 Apr 2012 14:25:50 -0400
+In-Reply-To: <1334486385.82898.YahooMailNeo@web161803.mail.bf1.yahoo.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: James Courtier-Dutton <james.dutton@gmail.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Bjorn Helgaas <bhelgaas@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Allen Kay <allen.m.kay@intel.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
+To: Mikko Vinni <mmvinni@yahoo.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Allen Kay <allen.m.kay@intel.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
 
-=46rom: James Courtier-Dutton:
+On Sunday, April 15, 2012, Mikko Vinni wrote:
+> From: Rafael J. Wysocki:
+> 
+> >>  > Please change that dev_dbg() in pci_restore_state() into dev_info()
+> >>  > and see how many times it gets printed with the commit applied (not 
+> > reverted).
+> >> 
+> >> 
+> >>  I ran the dmesg through "uniq -c" and it looks like this:
+> >> 
+> >>        1 ACPI: Low-level resume complete
+> >>        1 PM: Restoring platform NVS memory
+> >>        1 Enabling non-boot CPUs ...
+> >>        1 Booting Node 0 Processor 1 APIC 0x1
+> >>        1 CPU1 is up
+> >>        1 ACPI: Waking up from system sleep state S3
+> >>       10 pcieport 0000:00:02.0: restoring config space at offset 0x7 (was 
+> > 0x20005151, writing 0x5151)
+> > 
+> > Well, yeah.  So the commit you bisected it to is total and utter crap.
+> > Most importantly, it retries the writes for all of the dwords in the 
+> > device's
+> > config space _including_ the status register (which by definition need not be
+> > the same as the written value).
+> > 
+> > I wonder if the appended patch helps?
+> 
+> It does. It seems there is a change only in the devices that refuse to wake up;
+> somehow writing too many times to them affects the rest of the machine.
+> So, for this machine your patch fixes the problem of the touchpad not working.
 
->=20
-> On 13 April 2012 21:47, Mikko Vinni <mmvinni@yahoo.com> wrote:
->>  =A0=A0=A0=A0=A0 1 firewire_ohci 0000:0a:00.0: Refused to change pow=
-er state,=20
-> currently in D3
->>  =A0=A0=A0=A0 10 firewire_ohci 0000:0a:00.0: restoring config space =
-at offset 0xf=20
-> (was 0xffffffff, writing 0x10a)
->>  =A0=A0=A0=A0 10 firewire_ohci 0000:0a:00.0: restoring config space =
-at offset 0xe=20
-> (was 0xffffffff, writing 0x0)
-> <snip>
->>  =A0=A0=A0=A0=A0 1 sdhci-pci 0000:0a:00.1: Refused to change power s=
-tate, currently in=20
-> D3
->>  =A0=A0=A0=A0 10 sdhci-pci 0000:0a:00.1: restoring config space at o=
-ffset 0xf (was=20
-> 0xffffffff, writing 0x10a)
->>  =A0=A0=A0=A0 10 sdhci-pci 0000:0a:00.1: restoring config space at o=
-ffset 0xe (was=20
-> 0xffffffff, writing 0x0)
-> <snip>
->=20
-> Could the problem be more due to "Refused to change power state,
-> currently in D3".
-> the "was 0xffffffff" would be returned if their was no power to the=20
-> device.
-> Don't you need power, before you can write to the config space?
->
+Good, thanks for the confirmation. :-)
 
-Those messages and the problem of the combo card reader and firewire
-not working after s2ram has been present for long
-(https://bugzilla.kernel.org/show_bug.cgi?id=3D35452
-dmesg here: https://lkml.org/lkml/2011/5/15/55).
+> The write is now attempted (at most) 11 times, as shown below. Probably not
+> a huge deal.
+> 
+>       1 ACPI: Waking up from system sleep state S3
+>      11 pcieport 0000:00:02.0: restoring config space at offset 0x1c (was 0x20005151, writing 0x5151)
 
-Before 3.4-rc1 there was nothing wrong with the touchpad (and keyboard
-and reboot) after s2ram, and the problems are somehow separate.
-Rafael's patch fixes the new problem, any suggestions for the old
-one would be warmly appreciated.
+Well, here you see that the PCI Express port is refusing to accept a new BAR value.
+It seems not to be operational and this probably is the reason why the device below
+the port don't respond later.
 
+I'm not sure why that happens, though.
 
-Mikko
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>       1 pcieport 0000:00:02.0: restoring config space at offset 0x4 (was 0x100007, writing 0x100407)
+>       1 pcieport 0000:00:04.0: restoring config space at offset 0x4 (was 0x100007, writing 0x100407)
+>       1 pcieport 0000:00:05.0: restoring config space at offset 0x4 (was 0x100007, writing 0x100407)
+>      11 pcieport 0000:00:06.0: restoring config space at offset 0x1c (was 0x20002121, writing 0x2121)
+
+The same happens here, apparently.
+
+Do you still have the kernel where all PCI devices worked correctly after system
+resume?
+
+Rafael

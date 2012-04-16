@@ -1,476 +1,486 @@
-From: Mikko Vinni <mmvinni@yahoo.com>
-Subject: Re: [linux-pm] "i8042: Can't reactivate AUX port" after s2ram on 3.4-rc2
-Date: Mon, 16 Apr 2012 00:23:12 -0700 (PDT)
-Message-ID: <1334560992.32851.YahooMailNeo@web161806.mail.bf1.yahoo.com>
-References: <1334310754.17013.YahooMailNeo@web161804.mail.bf1.yahoo.com> <201204152030.23148.rjw@sisk.pl> <201204152152.56048.rjw@sisk.pl> <201204152256.03198.rjw@sisk.pl>
-Reply-To: Mikko Vinni <mmvinni@yahoo.com>
+From: Paul Parsons <lost.distance@yahoo.com>
+Subject: [PATCH v8] input: Add Synaptics NavPoint (PXA27x SSP/SPI) driver
+Date: Mon, 16 Apr 2012 12:37:01 +0100 (BST)
+Message-ID: <1334576221.72161.YahooMailClassic@web29005.mail.ird.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <201204152256.03198.rjw@sisk.pl>
-Sender: linux-pci-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Allen Kay <allen.m.kay@intel.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from nm6-vm0.bullet.mail.ird.yahoo.com ([77.238.189.210]:39074 "HELO
+	nm6-vm0.bullet.mail.ird.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1753213Ab2DPLhE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Apr 2012 07:37:04 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: philipp.zabel@gmail.com, linux-input@vger.kernel.org
 
-=46rom: Rafael J. Wysocki
+This driver adds support for the Synaptics NavPoint touchpad connected
+to a PXA27x SSP port in SPI slave mode. The device emulates a mouse;
+a tap or tap-and-a-half drag gesture emulates the left mouse button.
+For example, use the xf86-input-evdev driver for an X pointing device.
 
->>  OK, I know.=A0 There simply are fewer BARs for bridges (and PCIe po=
-rts)
->>  and here we're attempting to overwrite the secondary status registe=
-r.=A0=20
-> Sigh.
->>=20
->>  Well, I guess we should only retry the writes to BARs for Type 0 he=
-aders.
->=20
-> Which is done by the appended updated patch.=A0 Can you please give i=
-t a try?
+Signed-off-by: Paul Parsons <lost.distance@yahoo.com>
+Cc: Philipp Zabel <philipp.zabel@gmail.com>
+---
 
+V8:
+Converted from navigation pad (EV_KEY) driver to mouse (EV_ABS) driver.
+Removed threaded irq handler.
+Added up()/down(), called from open()/close() and resume()/suspend().
+Use SIMPLE_DEV_PM_OPS().
+Use dev_dbg() instead of dev_info().
+Use module_platform_driver().
+Added MODULE_ALIAS().
+Added check for absent platform data.
+Use gpio_request_one() instead of gpio_request()/gpio_direction_output()
 
-Ok, I tested v4 and also v3, which is in 3.4-rc3. On this laptop both v=
-ersions
-work equally: touchpad works after resume (no help for the card reader
-problem, though).
+ drivers/input/mouse/Kconfig    |   12 ++
+ drivers/input/mouse/Makefile   |    1 +
+ drivers/input/mouse/navpoint.c |  380 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/input/navpoint.h |   12 ++
+ 4 files changed, 405 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/mouse/navpoint.c
+ create mode 100644 include/linux/input/navpoint.h
 
-Here is part of the resume log with version 4:
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index 9b8db82..cd6268c 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -339,4 +339,16 @@ config MOUSE_SYNAPTICS_USB
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called synaptics_usb.
+ 
++config MOUSE_NAVPOINT_PXA27x
++	tristate "Synaptics NavPoint (PXA27x SSP/SPI)"
++	depends on PXA27x && PXA_SSP
++	help
++	  This driver adds support for the Synaptics NavPoint touchpad connected
++	  to a PXA27x SSP port in SPI slave mode. The device emulates a mouse;
++	  a tap or tap-and-a-half drag gesture emulates the left mouse button.
++	  For example, use the xf86-input-evdev driver for an X pointing device.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called navpoint.
++
+ endif
+diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+index 4718eff..46ba755 100644
+--- a/drivers/input/mouse/Makefile
++++ b/drivers/input/mouse/Makefile
+@@ -12,6 +12,7 @@ obj-$(CONFIG_MOUSE_GPIO)		+= gpio_mouse.o
+ obj-$(CONFIG_MOUSE_INPORT)		+= inport.o
+ obj-$(CONFIG_MOUSE_LOGIBM)		+= logibm.o
+ obj-$(CONFIG_MOUSE_MAPLE)		+= maplemouse.o
++obj-$(CONFIG_MOUSE_NAVPOINT_PXA27x)	+= navpoint.o
+ obj-$(CONFIG_MOUSE_PC110PAD)		+= pc110pad.o
+ obj-$(CONFIG_MOUSE_PS2)			+= psmouse.o
+ obj-$(CONFIG_MOUSE_PXA930_TRKBALL)	+= pxa930_trkball.o
+diff --git a/drivers/input/mouse/navpoint.c b/drivers/input/mouse/navpoint.c
+new file mode 100644
+index 0000000..7d5db52
+--- /dev/null
++++ b/drivers/input/mouse/navpoint.c
+@@ -0,0 +1,380 @@
++/*
++ *  Copyright (C) 2012 Paul Parsons <lost.distance@yahoo.com>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ */
++
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/clk.h>
++#include <linux/delay.h>
++#include <linux/gpio.h>
++#include <linux/input.h>
++#include <linux/input/navpoint.h>
++#include <linux/interrupt.h>
++#include <linux/mutex.h>
++#include <linux/pxa2xx_ssp.h>
++#include <linux/slab.h>
++
++/*
++ *	Synaptics NavPoint (PXA27x SSP/SPI) driver.
++ */
++
++/*
++ *	Synaptics Modular Embedded Protocol: Module Packet Format.
++ *	Module header byte 2:0 = Length (# bytes that follow)
++ *	Module header byte 4:3 = Control
++ *	Module header byte 7:5 = Module Address
++ */
++#define HEADER_LENGTH(byte)	((byte) & 0x07)
++#define HEADER_CONTROL(byte)	(((byte) >> 3) & 0x03)
++#define HEADER_ADDRESS(byte)	((byte) >> 5)
++
++struct driver_data {
++	struct mutex		mutex;
++	int			opened;
++	struct ssp_device	*ssp;
++	int			gpio;
++	struct input_dev	*input;
++	int			index;
++	uint8_t			data[1+HEADER_LENGTH(0xff)];
++};
++
++/*
++ *	Initialization values for SSCR0_x, SSCR1_x, SSSR_x.
++ */
++static const u32 sscr0 = 0
++	| SSCR0_TUM		/* TIM = 1; No TUR interrupts */
++	| SSCR0_RIM		/* RIM = 1; No ROR interrupts */
++	| SSCR0_SSE		/* SSE = 1; SSP enabled */
++	| SSCR0_Motorola	/* FRF = 0; Motorola SPI */
++	| SSCR0_DataSize(16)	/* DSS = 15; Data size = 16-bit */
++	;
++static const u32 sscr1 = 0
++	| SSCR1_SCFR		/* SCFR = 1; SSPSCLK only during transfers */
++	| SSCR1_SCLKDIR		/* SCLKDIR = 1; Slave mode */
++	| SSCR1_SFRMDIR		/* SFRMDIR = 1; Slave mode */
++	| SSCR1_RWOT		/* RWOT = 1; Receive without transmit mode */
++	| SSCR1_RxTresh(1)	/* RFT = 0; Receive FIFO threshold = 1 */
++	| SSCR1_SPH		/* SPH = 1; SSPSCLK inactive 0.5 + 1 cycles */
++	| SSCR1_RIE		/* RIE = 1; Receive FIFO interrupt enabled */
++	;
++static const u32 sssr = 0
++	| SSSR_BCE		/* BCE = 1; Clear BCE */
++	| SSSR_TUR		/* TUR = 1; Clear TUR */
++	| SSSR_EOC		/* EOC = 1; Clear EOC */
++	| SSSR_TINT		/* TINT = 1; Clear TINT */
++	| SSSR_PINT		/* PINT = 1; Clear PINT */
++	| SSSR_ROR		/* ROR = 1; Clear ROR */
++	;
++
++/*
++ *	MEP Query $22: Touchpad Coordinate Range Query is not supported by
++ *	the NavPoint module, so sampled values provide the default limits.
++ */
++static int xmin = 1278;
++module_param(xmin, int, 0644);
++MODULE_PARM_DESC(xmin, "Minimum X coordinate. Default = 1278");
++static int xmax = 5340;
++module_param(xmax, int, 0644);
++MODULE_PARM_DESC(xmax, "Maximum X coordinate. Default = 5340");
++static int ymin = 1572;
++module_param(ymin, int, 0644);
++MODULE_PARM_DESC(ymin, "Minimum Y coordinate. Default = 1572");
++static int ymax = 4396;
++module_param(ymax, int, 0644);
++MODULE_PARM_DESC(ymax, "Maximum Y coordinate. Default = 4396");
++static int pmin = 0;
++module_param(pmin, int, 0644);
++MODULE_PARM_DESC(pmin, "Minimum pressure. Default = 0");
++static int pmax = 255;
++module_param(pmax, int, 0644);
++MODULE_PARM_DESC(pmax, "Maximum pressure. Default = 255");
++
++static void navpoint_packet(struct device *dev)
++{
++	struct driver_data *drv_data = dev_get_drvdata(dev);
++	int finger;
++	int gesture;
++	int x, y, z;
++
++	switch (drv_data->data[0]) {
++	case 0xff:	/* Garbage (packet?) between reset and Hello packet */
++	case 0x00:	/* Module 0, NULL packet */
++		break;
++	case 0x0e:	/* Module 0, Absolute packet */
++		finger = (drv_data->data[1] & 0x01);
++		gesture = (drv_data->data[1] & 0x02);
++		x = ((drv_data->data[2] & 0x1f) << 8) | drv_data->data[3];
++		y = ((drv_data->data[4] & 0x1f) << 8) | drv_data->data[5];
++		z = drv_data->data[6];
++		input_report_key(drv_data->input, BTN_TOUCH, finger);
++		input_report_abs(drv_data->input, ABS_X, x);
++		input_report_abs(drv_data->input, ABS_Y, y);
++		input_report_abs(drv_data->input, ABS_PRESSURE, z);
++		input_report_key(drv_data->input, BTN_TOOL_FINGER, finger);
++		input_report_key(drv_data->input, BTN_LEFT, gesture);
++		input_sync(drv_data->input);
++		break;
++	case 0x19:	/* Module 0, Hello packet */
++		if ((drv_data->data[1] & 0xf0) == 0x10)
++			break;
++		/* FALLTHROUGH */
++	default:
++		dev_warn(dev, "spurious packet: data=0x%02x,0x%02x,...\n",
++			drv_data->data[0],
++			drv_data->data[1]);
++		break;
++	}
++}
++
++static irqreturn_t navpoint_int(int irq, void *dev_id)
++{
++	struct device *dev = dev_id;
++	struct driver_data *drv_data = dev_get_drvdata(dev);
++	struct ssp_device *ssp = drv_data->ssp;
++	u32 status;
++	irqreturn_t ret;
++
++	status = pxa_ssp_read_reg(ssp, SSSR);
++	ret = IRQ_NONE;
++
++	if (status & sssr) {
++		dev_warn(dev, "unexpected interrupt: status=0x%08x\n", status);
++		pxa_ssp_write_reg(ssp, SSSR, (status & sssr));
++		ret = IRQ_HANDLED;
++	}
++
++	while (status & SSSR_RNE) {
++		u32 data;
++
++		data = pxa_ssp_read_reg(ssp, SSDR);
++		drv_data->data[drv_data->index + 0] = (data >> 8);
++		drv_data->data[drv_data->index + 1] = data;
++		drv_data->index += 2;
++		if (HEADER_LENGTH(drv_data->data[0]) < drv_data->index) {
++			navpoint_packet(dev);
++			drv_data->index = 0;
++		}
++		status = pxa_ssp_read_reg(ssp, SSSR);
++		ret = IRQ_HANDLED;
++	}
++
++	return ret;
++}
++
++static void navpoint_up(struct device *dev)
++{
++	struct driver_data *drv_data = dev_get_drvdata(dev);
++	struct ssp_device *ssp = drv_data->ssp;
++	int timeout;
++
++	clk_prepare_enable(ssp->clk);
++
++	pxa_ssp_write_reg(ssp, SSCR1, sscr1);
++	pxa_ssp_write_reg(ssp, SSSR, sssr);
++	pxa_ssp_write_reg(ssp, SSTO, 0);
++	pxa_ssp_write_reg(ssp, SSCR0, sscr0);	/* SSCR0_SSE written last */
++
++	/* Wait until SSP port is ready for slave clock operations */
++	for (timeout = 100; timeout != 0; --timeout) {
++		if (!(pxa_ssp_read_reg(ssp, SSSR) & SSSR_CSS))
++			break;
++		msleep(1);
++	}
++	if (timeout == 0)
++		dev_err(dev, "timeout waiting for SSSR[CSS] to clear\n");
++
++	if (gpio_is_valid(drv_data->gpio))
++		gpio_set_value(drv_data->gpio, 1);
++}
++
++static void navpoint_down(struct device *dev)
++{
++	struct driver_data *drv_data = dev_get_drvdata(dev);
++	struct ssp_device *ssp = drv_data->ssp;
++
++	if (gpio_is_valid(drv_data->gpio))
++		gpio_set_value(drv_data->gpio, 0);
++
++	pxa_ssp_write_reg(ssp, SSCR0, 0);
++
++	clk_disable_unprepare(ssp->clk);
++}
++
++static int navpoint_open(struct input_dev *input)
++{
++	struct driver_data *drv_data = dev_get_drvdata(input->dev.parent);
++
++	mutex_lock(&drv_data->mutex);
++	navpoint_up(input->dev.parent);
++	drv_data->opened = 1;
++	mutex_unlock(&drv_data->mutex);
++	return 0;
++}
++
++static void navpoint_close(struct input_dev *input)
++{
++	struct driver_data *drv_data = dev_get_drvdata(input->dev.parent);
++
++	mutex_lock(&drv_data->mutex);
++	navpoint_down(input->dev.parent);
++	drv_data->opened = 0;
++	mutex_unlock(&drv_data->mutex);
++}
++
++static int __devinit navpoint_probe(struct platform_device *pdev)
++{
++	struct navpoint_platform_data *pdata = pdev->dev.platform_data;
++	int ret;
++	struct ssp_device *ssp;
++	struct input_dev *input;
++	struct driver_data *drv_data;
++
++	if (!pdata) {
++		dev_err(&pdev->dev, "no platform data\n");
++		return -EINVAL;
++	}
++
++	if (gpio_is_valid(pdata->gpio)) {
++		ret = gpio_request_one(pdata->gpio, GPIOF_OUT_INIT_LOW,
++			"SYNAPTICS_ON");
++		if (ret)
++			return ret;
++	}
++
++	ssp = pxa_ssp_request(pdata->port, pdev->name);
++	if (!ssp) {
++		ret = -ENODEV;
++		goto ret1;
++	}
++
++	/* HaRET does not disable devices before jumping into Linux */
++	if (pxa_ssp_read_reg(ssp, SSCR0) & SSCR0_SSE) {
++		pxa_ssp_write_reg(ssp, SSCR0, 0);
++		dev_warn(&pdev->dev, "ssp%d already enabled\n", pdata->port);
++	}
++
++	input = input_allocate_device();
++	if (!input) {
++		ret = -ENOMEM;
++		goto ret2;
++	}
++	input->name = pdev->name;
++	__set_bit(EV_KEY, input->evbit);
++	__set_bit(EV_ABS, input->evbit);
++	__set_bit(BTN_TOUCH, input->keybit);
++	input_set_abs_params(input, ABS_X, xmin, xmax, 0, 0);
++	input_set_abs_params(input, ABS_Y, ymin, ymax, 0, 0);
++	input_set_abs_params(input, ABS_PRESSURE, pmin, pmax, 0, 0);
++	__set_bit(BTN_TOOL_FINGER, input->keybit);
++	__set_bit(BTN_LEFT, input->keybit);
++	input->open = navpoint_open;
++	input->close = navpoint_close;
++	input->dev.parent = &pdev->dev;
++
++	drv_data = kzalloc(sizeof(*drv_data), GFP_KERNEL);
++	if (!drv_data) {
++		ret = -ENOMEM;
++		goto ret3;
++	}
++	mutex_init(&drv_data->mutex);
++	drv_data->ssp = ssp;
++	drv_data->gpio = pdata->gpio;
++	drv_data->input = input;
++	platform_set_drvdata(pdev, drv_data);
++
++	ret = request_irq(ssp->irq, navpoint_int, 0, pdev->name, &pdev->dev);
++	if (ret)
++		goto ret4;
++
++	ret = input_register_device(input);
++	if (ret)
++		goto ret5;
++
++	dev_dbg(&pdev->dev, "ssp%d, irq %d\n", pdata->port, ssp->irq);
++
++	return 0;
++
++ret5:
++	free_irq(ssp->irq, &pdev->dev);
++ret4:
++	kfree(drv_data);
++ret3:
++	input_free_device(input);
++ret2:
++	pxa_ssp_free(ssp);
++ret1:
++	if (gpio_is_valid(pdata->gpio))
++		gpio_free(pdata->gpio);
++
++	return ret;
++}
++
++static int __devexit navpoint_remove(struct platform_device *pdev)
++{
++	struct driver_data *drv_data = platform_get_drvdata(pdev);
++	struct input_dev *input = drv_data->input;
++	struct ssp_device *ssp = drv_data->ssp;
++	struct navpoint_platform_data *pdata = pdev->dev.platform_data;
++
++	input_unregister_device(input);
++
++	free_irq(ssp->irq, &pdev->dev);
++
++	kfree(drv_data);
++
++	pxa_ssp_free(ssp);
++
++	if (gpio_is_valid(pdata->gpio))
++		gpio_free(pdata->gpio);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int navpoint_suspend(struct device *dev)
++{
++	struct driver_data *drv_data = dev_get_drvdata(dev);
++
++	mutex_lock(&drv_data->mutex);
++	if (drv_data->opened)
++		navpoint_down(dev);
++	mutex_unlock(&drv_data->mutex);
++	return 0;
++}
++
++static int navpoint_resume(struct device *dev)
++{
++	struct driver_data *drv_data = dev_get_drvdata(dev);
++
++	mutex_lock(&drv_data->mutex);
++	if (drv_data->opened)
++		navpoint_up(dev);
++	mutex_unlock(&drv_data->mutex);
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(navpoint_pm_ops, navpoint_suspend, navpoint_resume);
++
++static struct platform_driver navpoint_driver = {
++	.probe		= navpoint_probe,
++	.remove		= __devexit_p(navpoint_remove),
++	.driver = {
++		.name	= "navpoint",
++		.owner	= THIS_MODULE,
++		.pm	= &navpoint_pm_ops,
++	},
++};
++
++module_platform_driver(navpoint_driver);
++
++MODULE_AUTHOR("Paul Parsons <lost.distance@yahoo.com>");
++MODULE_DESCRIPTION("Synaptics NavPoint (PXA27x SSP/SPI) driver");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:navpoint");
+diff --git a/include/linux/input/navpoint.h b/include/linux/input/navpoint.h
+new file mode 100644
+index 0000000..45050eb
+--- /dev/null
++++ b/include/linux/input/navpoint.h
+@@ -0,0 +1,12 @@
++/*
++ *  Copyright (C) 2012 Paul Parsons <lost.distance@yahoo.com>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ */
++
++struct navpoint_platform_data {
++	int		port;		/* PXA SSP port for pxa_ssp_request() */
++	int		gpio;		/* GPIO for power on/off */
++};
+-- 
+1.7.3.4
 
-=A0=A0=A0=A0=A0 1 ACPI: Waking up from system sleep state S3
-=A0=A0=A0=A0=A0 1 pcieport 0000:00:02.0: restoring config space at offs=
-et 0x1c (was 0x20005151, writing 0x5151)
-=A0=A0=A0=A0=A0 1 pcieport 0000:00:02.0: restoring config space at offs=
-et 0x4 (was 0x100007, writing 0x100407)
-=A0=A0=A0=A0=A0 1 pcieport 0000:00:04.0: restoring config space at offs=
-et 0x4 (was 0x100007, writing 0x100407)
-=A0=A0=A0=A0=A0 1 pcieport 0000:00:05.0: restoring config space at offs=
-et 0x4 (was 0x100007, writing 0x100407)
-=A0=A0=A0=A0=A0 1 pcieport 0000:00:06.0: restoring config space at offs=
-et 0x1c (was 0x20002121, writing 0x2121)
-=A0=A0=A0=A0=A0 1 pcieport 0000:00:06.0: restoring config space at offs=
-et 0x4 (was 0x100007, writing 0x100407)
-=A0=A0=A0=A0=A0 1 pcieport 0000:00:0a.0: restoring config space at offs=
-et 0x4 (was 0x100007, writing 0x100407)
-=A0=A0=A0=A0=A0 1 ahci 0000:00:11.0: restoring config space at offset 0=
-x4 (was 0x2300003, writing 0x2300007)
-=A0=A0=A0=A0=A0 1 ohci_hcd 0000:00:12.0: restoring config space at offs=
-et 0x4 (was 0x2a00002, writing 0x2a00013)
-=A0=A0=A0=A0=A0 1 ehci_hcd 0000:00:12.2: BAR 0: set to [mem 0xd2408500-=
-0xd24085ff] (PCI address [0xd2408500-0xd24085ff])
-=A0=A0=A0=A0=A0 1 ehci_hcd 0000:00:12.2: restoring config space at offs=
-et 0x4 (was 0x2b00000, writing 0x2b00013)
-=A0=A0=A0=A0=A0 1 ehci_hcd 0000:00:12.2: PME# disabled
-=A0=A0=A0=A0=A0 1 ohci_hcd 0000:00:13.0: restoring config space at offs=
-et 0x4 (was 0x2a00002, writing 0x2a00013)
-=A0=A0=A0=A0=A0 1 ehci_hcd 0000:00:13.2: BAR 0: set to [mem 0xd2408400-=
-0xd24084ff] (PCI address [0xd2408400-0xd24084ff])
-=A0=A0=A0=A0=A0 1 ehci_hcd 0000:00:13.2: restoring config space at offs=
-et 0x4 (was 0x2b00000, writing 0x2b00013)
-=A0=A0=A0=A0=A0 1 ehci_hcd 0000:00:13.2: PME# disabled
-=A0=A0=A0=A0=A0 1 pata_atiixp 0000:00:14.1: restoring config space at o=
-ffset 0x4 (was 0x2300011, writing 0x2300015)
-=A0=A0=A0=A0=A0 1 radeon 0000:01:00.0: restoring config space at offset=
- 0x4 (was 0x100003, writing 0x100407)
-=A0=A0=A0=A0=A0 1 pci 0000:09:00.0: restoring config space at offset 0x=
-4 (was 0x100007, writing 0x100003)
-=A0=A0=A0=A0=A0 1 firewire_ohci 0000:0a:00.0: Refused to change power s=
-tate, currently in D3
-=A0=A0=A0=A0=A0 1 firewire_ohci 0000:0a:00.0: restoring config space at=
- offset 0x3c (was 0xffffffff, writing 0x10a)
-=A0=A0=A0=A0=A0 1 firewire_ohci 0000:0a:00.0: restoring config space at=
- offset 0x38 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0=A0 1 firewire_ohci 0000:0a:00.0: restoring config space at=
- offset 0x34 (was 0xffffffff, writing 0x44)
-=A0=A0=A0=A0=A0 1 firewire_ohci 0000:0a:00.0: restoring config space at=
- offset 0x30 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0=A0 1 firewire_ohci 0000:0a:00.0: restoring config space at=
- offset 0x2c (was 0xffffffff, writing 0x3600103c)
-=A0=A0=A0=A0=A0 1 firewire_ohci 0000:0a:00.0: restoring config space at=
- offset 0x28 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 firewire_ohci 0000:0a:00.0: restoring config space at o=
-ffset 0x24 (was 0xffffffff, writing 0xd1100c00)
-=A0=A0=A0=A0 11 firewire_ohci 0000:0a:00.0: restoring config space at o=
-ffset 0x20 (was 0xffffffff, writing 0xd1100c80)
-=A0=A0=A0=A0 11 firewire_ohci 0000:0a:00.0: restoring config space at o=
-ffset 0x1c (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 firewire_ohci 0000:0a:00.0: restoring config space at o=
-ffset 0x18 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 firewire_ohci 0000:0a:00.0: restoring config space at o=
-ffset 0x14 (was 0xffffffff, writing 0xd1100d00)
-=A0=A0=A0=A0 11 firewire_ohci 0000:0a:00.0: restoring config space at o=
-ffset 0x10 (was 0xffffffff, writing 0xd1100000)
-=A0=A0=A0=A0=A0 1 firewire_ohci 0000:0a:00.0: restoring config space at=
- offset 0xc (was 0xffffffff, writing 0x800000)
-=A0=A0=A0=A0=A0 1 firewire_ohci 0000:0a:00.0: restoring config space at=
- offset 0x8 (was 0xffffffff, writing 0xc001000)
-=A0=A0=A0=A0=A0 1 firewire_ohci 0000:0a:00.0: restoring config space at=
- offset 0x4 (was 0xffffffff, writing 0x100007)
-=A0=A0=A0=A0=A0 1 firewire_ohci 0000:0a:00.0: restoring config space at=
- offset 0x0 (was 0xffffffff, writing 0x2380197b)
-=A0=A0=A0=A0=A0 1 sdhci-pci 0000:0a:00.1: Refused to change power state=
-, currently in D3
-=A0=A0=A0=A0=A0 1 sdhci-pci 0000:0a:00.1: restoring config space at off=
-set 0x3c (was 0xffffffff, writing 0x10a)
-=A0=A0=A0=A0=A0 1 sdhci-pci 0000:0a:00.1: restoring config space at off=
-set 0x38 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0=A0 1 sdhci-pci 0000:0a:00.1: restoring config space at off=
-set 0x34 (was 0xffffffff, writing 0xa4)
-=A0=A0=A0=A0=A0 1 sdhci-pci 0000:0a:00.1: restoring config space at off=
-set 0x30 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0=A0 1 sdhci-pci 0000:0a:00.1: restoring config space at off=
-set 0x2c (was 0xffffffff, writing 0x3600103c)
-=A0=A0=A0=A0=A0 1 sdhci-pci 0000:0a:00.1: restoring config space at off=
-set 0x28 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 sdhci-pci 0000:0a:00.1: restoring config space at offse=
-t 0x24 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 sdhci-pci 0000:0a:00.1: restoring config space at offse=
-t 0x20 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 sdhci-pci 0000:0a:00.1: restoring config space at offse=
-t 0x1c (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 sdhci-pci 0000:0a:00.1: restoring config space at offse=
-t 0x18 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 sdhci-pci 0000:0a:00.1: restoring config space at offse=
-t 0x14 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 sdhci-pci 0000:0a:00.1: restoring config space at offse=
-t 0x10 (was 0xffffffff, writing 0xd1100b00)
-=A0=A0=A0=A0=A0 1 sdhci-pci 0000:0a:00.1: restoring config space at off=
-set 0xc (was 0xffffffff, writing 0x800000)
-=A0=A0=A0=A0=A0 1 sdhci-pci 0000:0a:00.1: restoring config space at off=
-set 0x8 (was 0xffffffff, writing 0x8800000)
-=A0=A0=A0=A0=A0 1 sdhci-pci 0000:0a:00.1: restoring config space at off=
-set 0x4 (was 0xffffffff, writing 0x100007)
-=A0=A0=A0=A0=A0 1 sdhci-pci 0000:0a:00.1: restoring config space at off=
-set 0x0 (was 0xffffffff, writing 0x2382197b)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.2: Refused to change power state, curr=
-ently in D3
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.2: restoring config space at offset 0x=
-3c (was 0xffffffff, writing 0x10a)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.2: restoring config space at offset 0x=
-38 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.2: restoring config space at offset 0x=
-34 (was 0xffffffff, writing 0xa4)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.2: restoring config space at offset 0x=
-30 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.2: restoring config space at offset 0x=
-2c (was 0xffffffff, writing 0x3600103c)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.2: restoring config space at offset 0x=
-28 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 pci 0000:0a:00.2: restoring config space at offset 0x24=
- (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 pci 0000:0a:00.2: restoring config space at offset 0x20=
- (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 pci 0000:0a:00.2: restoring config space at offset 0x1c=
- (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 pci 0000:0a:00.2: restoring config space at offset 0x18=
- (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 pci 0000:0a:00.2: restoring config space at offset 0x14=
- (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 pci 0000:0a:00.2: restoring config space at offset 0x10=
- (was 0xffffffff, writing 0xd1100a00)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.2: restoring config space at offset 0x=
-c (was 0xffffffff, writing 0x800000)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.2: restoring config space at offset 0x=
-8 (was 0xffffffff, writing 0x8050100)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.2: restoring config space at offset 0x=
-4 (was 0xffffffff, writing 0x100003)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.2: restoring config space at offset 0x=
-0 (was 0xffffffff, writing 0x2381197b)
-=A0=A0=A0=A0=A0 1 jmb38x_ms 0000:0a:00.3: Refused to change power state=
-, currently in D3
-=A0=A0=A0=A0=A0 1 jmb38x_ms 0000:0a:00.3: restoring config space at off=
-set 0x3c (was 0xffffffff, writing 0x10a)
-=A0=A0=A0=A0=A0 1 jmb38x_ms 0000:0a:00.3: restoring config space at off=
-set 0x38 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0=A0 1 jmb38x_ms 0000:0a:00.3: restoring config space at off=
-set 0x34 (was 0xffffffff, writing 0xa4)
-=A0=A0=A0=A0=A0 1 jmb38x_ms 0000:0a:00.3: restoring config space at off=
-set 0x30 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0=A0 1 jmb38x_ms 0000:0a:00.3: restoring config space at off=
-set 0x2c (was 0xffffffff, writing 0x3600103c)
-=A0=A0=A0=A0=A0 1 jmb38x_ms 0000:0a:00.3: restoring config space at off=
-set 0x28 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 jmb38x_ms 0000:0a:00.3: restoring config space at offse=
-t 0x24 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 jmb38x_ms 0000:0a:00.3: restoring config space at offse=
-t 0x20 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 jmb38x_ms 0000:0a:00.3: restoring config space at offse=
-t 0x1c (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 jmb38x_ms 0000:0a:00.3: restoring config space at offse=
-t 0x18 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 jmb38x_ms 0000:0a:00.3: restoring config space at offse=
-t 0x14 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 jmb38x_ms 0000:0a:00.3: restoring config space at offse=
-t 0x10 (was 0xffffffff, writing 0xd1100900)
-=A0=A0=A0=A0=A0 1 jmb38x_ms 0000:0a:00.3: restoring config space at off=
-set 0xc (was 0xffffffff, writing 0x800000)
-=A0=A0=A0=A0=A0 1 jmb38x_ms 0000:0a:00.3: restoring config space at off=
-set 0x8 (was 0xffffffff, writing 0x8800000)
-=A0=A0=A0=A0=A0 1 jmb38x_ms 0000:0a:00.3: restoring config space at off=
-set 0x4 (was 0xffffffff, writing 0x100007)
-=A0=A0=A0=A0=A0 1 jmb38x_ms 0000:0a:00.3: restoring config space at off=
-set 0x0 (was 0xffffffff, writing 0x2383197b)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: Refused to change power state, curr=
-ently in D3
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: restoring config space at offset 0x=
-3c (was 0xffffffff, writing 0x10a)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: restoring config space at offset 0x=
-38 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: restoring config space at offset 0x=
-34 (was 0xffffffff, writing 0xa4)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: restoring config space at offset 0x=
-30 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: restoring config space at offset 0x=
-2c (was 0xffffffff, writing 0x3600103c)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: restoring config space at offset 0x=
-28 (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 pci 0000:0a:00.4: restoring config space at offset 0x24=
- (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 pci 0000:0a:00.4: restoring config space at offset 0x20=
- (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 pci 0000:0a:00.4: restoring config space at offset 0x1c=
- (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 pci 0000:0a:00.4: restoring config space at offset 0x18=
- (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 pci 0000:0a:00.4: restoring config space at offset 0x14=
- (was 0xffffffff, writing 0x0)
-=A0=A0=A0=A0 11 pci 0000:0a:00.4: restoring config space at offset 0x10=
- (was 0xffffffff, writing 0xd1100800)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: restoring config space at offset 0x=
-c (was 0xffffffff, writing 0x800000)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: restoring config space at offset 0x=
-8 (was 0xffffffff, writing 0x8800000)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: restoring config space at offset 0x=
-4 (was 0xffffffff, writing 0x100007)
-=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: restoring config space at offset 0x=
-0 (was 0xffffffff, writing 0x2384197b)
-=A0=A0=A0=A0=A0 1 PM: noirq resume of devices complete after 440.260 ms=
-ecs
-=A0=A0=A0=A0=A0 1 PM: early resume of devices complete after 0.152 msec=
-s
-=A0=A0=A0=A0=A0 1 ohci_hcd 0000:00:12.0: enabling bus mastering
-=A0=A0=A0=A0=A0 1 ohci_hcd 0000:00:12.1: enabling bus mastering
-
-
-Difference from v3:
---- /tmp/v3-uniq=A0=A0=A0=A0=A0=A0=A0 2012-04-16 09:57:42.880521878 +03=
-00
-+++ /tmp/v4-uniq=A0=A0=A0=A0=A0=A0=A0 2012-04-16 09:58:03.880545386 +03=
-00
-@@ -1019,11 +1018,11 @@
-=A0=A0=A0=A0=A0=A0 1 Booting Node 0 Processor 1 APIC 0x1
-=A0=A0=A0=A0=A0=A0 1 CPU1 is up
-=A0=A0=A0=A0=A0=A0 1 ACPI: Waking up from system sleep state S3
--=A0=A0=A0=A0 11 pcieport 0000:00:02.0: restoring config space at offse=
-t 0x1c (was 0x20005151, writing 0x5151)
-+=A0=A0=A0=A0=A0 1 pcieport 0000:00:02.0: restoring config space at off=
-set 0x1c (was 0x20005151, writing 0x5151)
-=A0=A0=A0=A0=A0=A0 1 pcieport 0000:00:02.0: restoring config space at o=
-ffset 0x4 (was 0x100007, writing 0x100407)
-=A0=A0=A0=A0=A0=A0 1 pcieport 0000:00:04.0: restoring config space at o=
-ffset 0x4 (was 0x100007, writing 0x100407)
-=A0=A0=A0=A0=A0=A0 1 pcieport 0000:00:05.0: restoring config space at o=
-ffset 0x4 (was 0x100007, writing 0x100407)
--=A0=A0=A0=A0 11 pcieport 0000:00:06.0: restoring config space at offse=
-t 0x1c (was 0x20002121, writing 0x2121)
-+=A0=A0=A0=A0=A0 1 pcieport 0000:00:06.0: restoring config space at off=
-set 0x1c (was 0x20002121, writing 0x2121)
-=A0=A0=A0=A0=A0=A0 1 pcieport 0000:00:06.0: restoring config space at o=
-ffset 0x4 (was 0x100007, writing 0x100407)
-=A0=A0=A0=A0=A0=A0 1 pcieport 0000:00:0a.0: restoring config space at o=
-ffset 0x4 (was 0x100007, writing 0x100407)
-=A0=A0=A0=A0=A0=A0 1 ahci 0000:00:11.0: restoring config space at offse=
-t 0x4 (was 0x2300003, writing 0x2300007)
-@@ -1123,8 +1122,8 @@
-=A0=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: restoring config space at offset=
- 0x8 (was 0xffffffff, writing 0x8800000)
-=A0=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: restoring config space at offset=
- 0x4 (was 0xffffffff, writing 0x100007)
-=A0=A0=A0=A0=A0=A0 1 pci 0000:0a:00.4: restoring config space at offset=
- 0x0 (was 0xffffffff, writing 0x2384197b)
--=A0=A0=A0=A0=A0 1 PM: noirq resume of devices complete after 460.315 m=
-secs
--=A0=A0=A0=A0=A0 1 PM: early resume of devices complete after 0.168 mse=
-cs
-+=A0=A0=A0=A0=A0 1 PM: noirq resume of devices complete after 440.260 m=
-secs
-+=A0=A0=A0=A0=A0 1 PM: early resume of devices complete after 0.152 mse=
-cs
-=A0=A0=A0=A0=A0=A0 1 ohci_hcd 0000:00:12.0: enabling bus mastering
-=A0=A0=A0=A0=A0=A0 1 ohci_hcd 0000:00:12.1: enabling bus mastering
-=A0=A0=A0=A0=A0=A0 1 ehci_hcd 0000:00:12.2: enabling bus mastering
-
-
-(...if only radeon didn't add 10 seconds to resume time, that improveme=
-nt of 20 msecs
-would be very nice; that is another issue, of course, and not a new pro=
-blem for this
-kernel version:
-
-[drm:atom_op_jump] *ERROR* atombios stuck in loop for more than 5secs a=
-borting
-[drm:atom_execute_table_locked] *ERROR* atombios stuck executing F8B6 (=
-len 485, WS 0, PS 4) @ 0xF8F7
-[drm:atom_op_jump] *ERROR* atombios stuck in loop for more than 5secs a=
-borting
-[drm:atom_execute_table_locked] *ERROR* atombios stuck executing F8B6 (=
-len 485, WS 0, PS 4) @ 0xF8F7
-PM: resume of devices complete after 12741.575 msecs
-)
-
-
-Thanks,
-
-Mikko
-
-
->=20
-> Rafael
->=20
-> ---
-> From: Rafael J. Wysocki <rjw@sisk.pl>
-> Subject: PCI: Fix regression in pci_restore_state(), v4
->=20
-> Commit 26f41062f28de65e11d3cf353e52d0be73442be1
->=20
-> =A0 =A0 PCI: check for pci bar restore completion and retry
->=20
-> attempted to address problems with PCI BAR restoration on systems
-> where FLR had not been completed before pci_restore_state() was
-> called, but it did that in an utterly wrong way.
->=20
-> First off, instead of retrying the writes for the BAR registers
-> only, it did that for all of the PCI config space of the device,
-> including the status registers (whose values after the write quite
-> obviously need not be the same as the written ones).=A0 Second, it
-> added arbitrary delay to pci_restore_state() even for systems
-> where the PCI config space restoration was successful at first
-> attempt.=A0 Finally, the mdelay(10) it added to every iteration of th=
-e
-> writing loop was way too much of a delay for any reasonable device.
->=20
-> All of this actually caused resume failures for some devices on
-> the Mikko's system.
->=20
-> To fix the regression, make pci_restore_state() only retry the
-> writes to BAR registers and only for devices with Type 0 headers.
-> Moreover, make it wait only if the next first read from the given
-> register doesn't return the value written to it.=A0 Finally, make it
-> wait for 1 ms, instead of 10 ms, after every failing attempt to write
-> into the device's config space.
->=20
-> Reported-by: Mikko Vinni <mmvinni@yahoo.com>
-> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> ---
-> drivers/pci/pci.c |=A0  67 +++++++++++++++++++++++++++++++++++++-----=
-------------
-> 1 file changed, 46 insertions(+), 21 deletions(-)
->=20
-> Index: linux/drivers/pci/pci.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- linux.orig/drivers/pci/pci.c
-> +++ linux/drivers/pci/pci.c
-> @@ -967,16 +967,47 @@ pci_save_state(struct pci_dev *dev)
-> =A0=A0=A0 return 0;
-> }
->=20
-> +static void pci_restore_config_dword(struct pci_dev *pdev, int offse=
-t,
-> +=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0 =A0  u32 saved_val, int =
-retry)
-> +{
-> +=A0=A0=A0 u32 val;
-> +
-> +=A0=A0=A0 pci_read_config_dword(pdev, offset, &val);
-> +=A0=A0=A0 if (val =3D=3D saved_val)
-> +=A0=A0=A0 =A0=A0=A0 return;
-> +
-> +=A0=A0=A0 for (;;) {
-> +=A0=A0=A0 =A0=A0=A0 dev_dbg(&pdev->dev, "restoring config space at o=
-ffset=20
-> "
-> +=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 "%#x (was %#x, writing %#x)\n", offset=
-, val,=20
-> saved_val);
-> +=A0=A0=A0 =A0=A0=A0 pci_write_config_dword(pdev, offset, saved_val);
-> +=A0=A0=A0 =A0=A0=A0 if (retry-- <=3D 0)
-> +=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 return;
-> +
-> +=A0=A0=A0 =A0=A0=A0 pci_read_config_dword(pdev, offset, &val);
-> +=A0=A0=A0 =A0=A0=A0 if (val =3D=3D saved_val)
-> +=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 return;
-> +
-> +=A0=A0=A0 =A0=A0=A0 mdelay(1);
-> +=A0=A0=A0 }
-> +}
-> +
-> +static void pci_restore_config_space(struct pci_dev *pdev, int start=
-, int end,
-> +=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0 =A0  int retry)
-> +{
-> +=A0=A0=A0 int index;
-> +
-> +=A0=A0=A0 for (index =3D end; index >=3D start; index--)
-> +=A0=A0=A0 =A0=A0=A0 pci_restore_config_dword(pdev, 4 * index,
-> +=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0  pdev->saved_confi=
-g_space[index],
-> +=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0  retry);
-> +}
-> +
-> /**=20
-> =A0 * pci_restore_state - Restore the saved state of a PCI device
-> =A0 * @dev: - PCI device that we're dealing with
-> =A0 */
-> void pci_restore_state(struct pci_dev *dev)
-> {
-> -=A0=A0=A0 int i;
-> -=A0=A0=A0 u32 val;
-> -=A0=A0=A0 int tries;
-> -
-> =A0=A0=A0 if (!dev->state_saved)
-> =A0=A0=A0 =A0=A0=A0 return;
->=20
-> @@ -984,24 +1015,18 @@ void pci_restore_state(struct pci_dev *d
-> =A0=A0=A0 pci_restore_pcie_state(dev);
-> =A0=A0=A0 pci_restore_ats_state(dev);
->=20
-> -=A0=A0=A0 /*
-> -=A0=A0=A0  * The Base Address register should be programmed before t=
-he command
-> -=A0=A0=A0  * register(s)
-> -=A0=A0=A0  */
-> -=A0=A0=A0 for (i =3D 15; i >=3D 0; i--) {
-> -=A0=A0=A0 =A0=A0=A0 pci_read_config_dword(dev, i * 4, &val);
-> -=A0=A0=A0 =A0=A0=A0 tries =3D 10;=A0=A0=A0 =A0=A0=A0=20
-> -=A0=A0=A0 =A0=A0=A0 while (tries && val !=3D dev->saved_config_space=
-[i]) {
-> -=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 dev_dbg(&dev->dev, "restoring config "
-> -=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 "space at offset %#x (was %#=
-x, writing %#x)\n",
-> -=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 i, val, (int)dev->saved_conf=
-ig_space[i]);
-> -=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 pci_write_config_dword(dev,i * 4,
-> -=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 dev->saved_config_space[i]);
-> -=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 pci_read_config_dword(dev, i * 4, &val=
-);
-> -=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 mdelay(10);
-> -=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 tries--;
-> -=A0=A0=A0 =A0=A0=A0 }
-> +=A0=A0=A0 if (dev->hdr_type =3D=3D PCI_HEADER_TYPE_NORMAL) {
-> +=A0=A0=A0 =A0=A0=A0 pci_restore_config_space(dev, 10, 15, 0);
-> +=A0=A0=A0 =A0=A0=A0 /*
-> +=A0=A0=A0 =A0=A0=A0  * The Base Address register should be programme=
-d before the
-> +=A0=A0=A0 =A0=A0=A0  * command register(s)
-> +=A0=A0=A0 =A0=A0=A0  */
-> +=A0=A0=A0 =A0=A0=A0 pci_restore_config_space(dev, 4, 9, 10);
-> +=A0=A0=A0 =A0=A0=A0 pci_restore_config_space(dev, 0, 3, 0);
-> +=A0=A0=A0 } else {
-> +=A0=A0=A0 =A0=A0=A0 pci_restore_config_space(dev, 0, 15, 0);
-> =A0=A0=A0 }
-> +
-> =A0=A0=A0 pci_restore_pcix_state(dev);
-> =A0=A0=A0 pci_restore_msi_state(dev);
-> =A0=A0=A0 pci_restore_iov_state(dev);
->=20

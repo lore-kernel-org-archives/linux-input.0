@@ -1,108 +1,93 @@
 From: Thierry Reding <thierry.reding@avionic-design.de>
-Subject: Re: [PATCH 2/4] input: Device tree support for LPC32xx touchscreen
-Date: Mon, 16 Apr 2012 08:16:45 +0200
-Message-ID: <20120416061645.GC3037@avionic-0098.adnet.avionic-design.de>
+Subject: Re: [PATCH 4/4] ARM: LPC32xx: Device tree support
+Date: Mon, 16 Apr 2012 08:24:48 +0200
+Message-ID: <20120416062444.GD3037@avionic-0098.adnet.avionic-design.de>
 References: <1334400790-10892-1-git-send-email-stigge@antcom.de>
- <1334400790-10892-3-git-send-email-stigge@antcom.de>
+ <1334400790-10892-5-git-send-email-stigge@antcom.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="f+W+jCU1fRNres8c"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1334400790-10892-3-git-send-email-stigge@antcom.de>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============8089985626127724788=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1334400790-10892-5-git-send-email-stigge@antcom.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Roland Stigge <stigge@antcom.de>
-Cc: arm@kernel.org, linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, axel.lin@gmail.com, broonie@opensource.wolfsonmicro.com, marek.vasut@gmail.com, devel@driverdev.osuosl.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
+Cc: devel@driverdev.osuosl.org, srinivas.bakki@nxp.com, dmitry.torokhov@gmail.com, broonie@opensource.wolfsonmicro.com, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, kevin.wells@nxp.com, marek.vasut@gmail.com, arm@kernel.org, linux-input@vger.kernel.org, axel.lin@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
 
---f+W+jCU1fRNres8c
+--===============8089985626127724788==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eheScQNz3K90DVRs"
+Content-Disposition: inline
+
+
+--eheScQNz3K90DVRs
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 * Roland Stigge wrote:
-> This patch adds device tree support for the LPC32xx SoC's touchscreen
-> controller.
+> This patch adds device tree support for the LPC32xx SoC
+>=20
+> arch/arm/boot/dts/lpc32xx.dtsi: Include for devices based on LPC32xx
+> arch/arm/boot/dts/phy3250.dts: Board support for PHYTEC phyCORE-LPC3250
+> arch/arm/boot/mach-lpc32xx/irq.c: irq domain conversion
 >=20
 > Signed-off-by: Roland Stigge <stigge@antcom.de>
 >=20
 > ---
 >=20
->  Applies to v3.4-rc2
+> Applies to v3.4-rc2 and requires the previously posted lpc32xx driver dt
+> patches (Set 1: 1..8 + GPIO patch)
 >=20
->  Documentation/devicetree/bindings/input/touchscreen/lpc32xx-tsc.txt |   =
-16 ++++++++++
->  drivers/input/touchscreen/lpc32xx_ts.c                              |   =
-10 ++++++
->  2 files changed, 26 insertions(+)
->=20
-> --- /dev/null
-> +++ linux-2.6/Documentation/devicetree/bindings/input/touchscreen/lpc32xx=
--tsc.txt
-> @@ -0,0 +1,16 @@
-> +* NXP LPC32xx SoC Touchscreen Controller (TSC)
-> +
-> +Required properties:
-> +- compatible: must be "nxp,lpc32xx-tsc"
-> +- reg: physical base address of the controller and length of memory mapp=
-ed
-> +  region.
-> +- interrupts: The TSC/ADC interrupt
-> +
-> +Example:
-> +
-> +	tsc@40048000 {
-> +		compatible =3D "nxp,lpc32xx-tsc";
-> +		reg =3D <0x40048000 0x1000>;
-> +		interrupt-parent =3D <&mic>;
-> +		interrupts =3D <39 0>;
-> +	};
-> --- linux-2.6.orig/drivers/input/touchscreen/lpc32xx_ts.c
-> +++ linux-2.6/drivers/input/touchscreen/lpc32xx_ts.c
-> @@ -22,6 +22,7 @@
->  #include <linux/clk.h>
->  #include <linux/io.h>
->  #include <linux/slab.h>
-> +#include <linux/of.h>
-> =20
->  /*
->   * Touchscreen controller register offsets
-> @@ -383,6 +384,14 @@ static const struct dev_pm_ops lpc32xx_t
->  #define LPC32XX_TS_PM_OPS NULL
->  #endif
-> =20
-> +#ifdef CONFIG_OF
-> +static struct of_device_id lpc32xx_tsc_of_match[] =3D {
-> +	{ .compatible =3D "nxp,lpc32xx-tsc", },
-> +	{ },
-> +};
-> +MODULE_DEVICE_TABLE(of, lpc32xx_tsc_of_match);
-> +#endif
-> +
->  static struct platform_driver lpc32xx_ts_driver =3D {
->  	.probe		=3D lpc32xx_ts_probe,
->  	.remove		=3D __devexit_p(lpc32xx_ts_remove),
-> @@ -390,6 +399,7 @@ static struct platform_driver lpc32xx_ts
->  		.name	=3D MOD_NAME,
->  		.owner	=3D THIS_MODULE,
->  		.pm	=3D LPC32XX_TS_PM_OPS,
-> +		.of_match_table =3D of_match_ptr(lpc32xx_tsc_of_match),
->  	},
->  };
->  module_platform_driver(lpc32xx_ts_driver);
+>  Documentation/devicetree/bindings/arm/lpc32xx-mic.txt |   38 ++
+>  Documentation/devicetree/bindings/arm/lpc32xx.txt     |    8=20
+>  arch/arm/Kconfig                                      |    1=20
+>  arch/arm/boot/dts/lpc32xx.dtsi                        |  303 +++++++++++=
++++++++
+>  arch/arm/boot/dts/phy3250.dts                         |  108 ++++++
+>  arch/arm/mach-lpc32xx/Kconfig                         |   26 -
+>  arch/arm/mach-lpc32xx/clock.c                         |   77 ++--
+>  arch/arm/mach-lpc32xx/common.c                        |  192 -----------
+>  arch/arm/mach-lpc32xx/common.h                        |   14=20
+>  arch/arm/mach-lpc32xx/irq.c                           |   78 +++-
+>  arch/arm/mach-lpc32xx/phy3250.c                       |  146 +++-----
+>  11 files changed, 613 insertions(+), 378 deletions(-)
 
-Reviewed-by: Thierry Reding <thierry.reding@avionic-design.de>
+This looks like too many unrelated changes for one patch.
 
---f+W+jCU1fRNres8c
+Thierry
+
+--eheScQNz3K90DVRs
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.19 (GNU/Linux)
 
-iEYEARECAAYFAk+LuU0ACgkQZ+BJyKLjJp+bxACgpabDqIJ7xq0FVSJNmK0TVh6q
-hiYAnibjqB0K+qx+dP8L/4fYVcUQxRUv
-=krJM
+iEYEARECAAYFAk+LuysACgkQZ+BJyKLjJp/YYACffDx5L5Bnn1/UnZDkRiewtD/p
+Fc8An3lHrjlrPZyPRy+8HO12pgxJK2ro
+=FLPw
 -----END PGP SIGNATURE-----
 
---f+W+jCU1fRNres8c--
+--eheScQNz3K90DVRs--
+
+
+--===============8089985626127724788==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============8089985626127724788==--

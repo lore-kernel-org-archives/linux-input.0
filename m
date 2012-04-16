@@ -1,34 +1,69 @@
-From: Philipp Zabel <philipp.zabel@gmail.com>
-Subject: Re: [PATCH v8] input: Add Synaptics NavPoint (PXA27x SSP/SPI) driver
-Date: Mon, 16 Apr 2012 22:16:56 +0200
-Message-ID: <1334607416.30492.2.camel@flow>
-References: <1334576221.72161.YahooMailClassic@web29005.mail.ird.yahoo.com>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: [PATCH] PCI: Retry BARs restoration for Type 0 headers only
+Date: Mon, 16 Apr 2012 22:35:49 +0200
+Message-ID: <201204162235.49901.rjw@sisk.pl>
+References: <1334310754.17013.YahooMailNeo@web161804.mail.bf1.yahoo.com> <201204161817.21800.rjw@sisk.pl> <1334602665.33371.YahooMailNeo@web161806.mail.bf1.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:43398 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752970Ab2DPURC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Apr 2012 16:17:02 -0400
-Received: by bkcik5 with SMTP id ik5so3991589bkc.19
-        for <linux-input@vger.kernel.org>; Mon, 16 Apr 2012 13:17:00 -0700 (PDT)
-In-Reply-To: <1334576221.72161.YahooMailClassic@web29005.mail.ird.yahoo.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1334602665.33371.YahooMailNeo@web161806.mail.bf1.yahoo.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Mikko Vinni <mmvinni@yahoo.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Allen Kay <allen.m.kay@intel.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
-To: Paul Parsons <lost.distance@yahoo.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Am Montag, den 16.04.2012, 12:37 +0100 schrieb Paul Parsons:
-> This driver adds support for the Synaptics NavPoint touchpad connected
-> to a PXA27x SSP port in SPI slave mode. The device emulates a mouse;
-> a tap or tap-and-a-half drag gesture emulates the left mouse button.
-> For example, use the xf86-input-evdev driver for an X pointing device.
-> 
-> Signed-off-by: Paul Parsons <lost.distance@yahoo.com>
-> Cc: Philipp Zabel <philipp.zabel@gmail.com>
+From: Rafael J. Wysocki <rjw@sisk.pl>
 
-Tested-by: Philipp Zabel <philipp.zabel@gmail.com>
+Some shortcomings introduced into pci_restore_state() by commit
+26f41062f28d ("PCI: check for pci bar restore completion and
+retry") have been fixed by recent commit ebfc5b802fa76 ("PCI: Fix
+regression in pci_restore_state(), v3"), but that commit treats
+all PCI devices as those with Type 0 configuration headers.  That
+is not entirely correct, because Type 1 and Type 2 headers have
+different layouts.  In particular, the area occupied by BARs in
+Type 0 config headers contains the secondary status register in
+Type 1 ones and it doesn't make sense to retry the restoration of
+that register even if the value read back from it after a write is
+not the same as the written one (it very well may be different).
 
+For this reason, make pci_restore_state() only retry the restoration
+of BARs for Type 0 config headers.  This effectively makes it behave
+as before commit 26f41062f28d for all header types except for Type 0.
 
+Tested-by: Mikko Vinni <mmvinni@yahoo.com>
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ drivers/pci/pci.c |   18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+Index: linux/drivers/pci/pci.c
+===================================================================
+--- linux.orig/drivers/pci/pci.c
++++ linux/drivers/pci/pci.c
+@@ -1015,13 +1015,17 @@ void pci_restore_state(struct pci_dev *d
+ 	pci_restore_pcie_state(dev);
+ 	pci_restore_ats_state(dev);
+ 
+-	pci_restore_config_space(dev, 10, 15, 0);
+-	/*
+-	 * The Base Address register should be programmed before the command
+-	 * register(s)
+-	 */
+-	pci_restore_config_space(dev, 4, 9, 10);
+-	pci_restore_config_space(dev, 0, 3, 0);
++	if (dev->hdr_type == PCI_HEADER_TYPE_NORMAL) {
++		pci_restore_config_space(dev, 10, 15, 0);
++		/*
++		 * The Base Address register should be programmed before the
++		 * command register(s)
++		 */
++		pci_restore_config_space(dev, 4, 9, 10);
++		pci_restore_config_space(dev, 0, 3, 0);
++	} else {
++		pci_restore_config_space(dev, 0, 15, 0);
++	}
+ 
+ 	pci_restore_pcix_state(dev);
+ 	pci_restore_msi_state(dev);

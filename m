@@ -1,108 +1,98 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH] PCI: Retry BARs restoration for Type 0 headers only
-Date: Mon, 16 Apr 2012 23:07:50 +0200
-Message-ID: <201204162307.51168.rjw@sisk.pl>
-References: <1334310754.17013.YahooMailNeo@web161804.mail.bf1.yahoo.com> <201204162235.49901.rjw@sisk.pl> <CA+55aFyccAfEpECmD5yKYE4AquV1ZsfjRAL4coP39LmkAqrO=w@mail.gmail.com>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: ALPS v4 Semi-mt Support
+Date: Mon, 16 Apr 2012 16:24:07 -0500
+Message-ID: <20120416212407.GE3959@thinkpad-t410>
+References: <1364401.K99JIOKFyb@vaio>
+ <20120410152113.GC21994@thinkpad-t410>
+ <20120410215939.GE21994@thinkpad-t410>
+ <1492453.bjpWEAk9kj@vaio>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <CA+55aFyccAfEpECmD5yKYE4AquV1ZsfjRAL4coP39LmkAqrO=w@mail.gmail.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, Mikko Vinni <mmvinni@yahoo.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Allen Kay <allen.m.kay@intel.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:41439 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751023Ab2DPVYL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Apr 2012 17:24:11 -0400
+Content-Disposition: inline
+In-Reply-To: <1492453.bjpWEAk9kj@vaio>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: George Pantalos <gpantalos@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Monday, April 16, 2012, Linus Torvalds wrote:
-> On Mon, Apr 16, 2012 at 1:35 PM, Rafael J. Wysocki <rjw@sisk.pl> wrote:
-> > From: Rafael J. Wysocki <rjw@sisk.pl>
-> >
-> > Some shortcomings introduced into pci_restore_state() by commit
-> > 26f41062f28d ("PCI: check for pci bar restore completion and
-> > retry") have been fixed by recent commit ebfc5b802fa76 ("PCI: Fix
-> > regression in pci_restore_state(), v3"), but that commit treats
-> > all PCI devices as those with Type 0 configuration headers.
+On Mon, Apr 16, 2012 at 05:24:55PM +0300, George Pantalos wrote:
+>  I decided to try and improve upon your patch which has superior state 
+> processing. I followed your proposal initially and stashed the first and 
+> second packet ST data in alps_data and if bitmap fingers < 2 report all the ST 
+> data.
+> The problem with this approach is that it introduces a noticeable delay/lag in 
+> mouse pointer movement.
 > 
-> Make me happier and just make all of this a helper function again.
-> Call that helper function pci_restore_config_space(), and make the
-> existing "pci_restore_config_space()" be called
-> "pci_restore_config_space_range()" or something. Ok?
+> I then tried using the last_fingers approach.  This way we report ST data as 
+> they come but only if the last MT report had 1 finger present and we always 
+> (as far as I can tell) must have calculated bitmap finger count before 
+> reporting ST events. I have posted this patch below. I also observed jumpy 
+> behavior with the xf86-input-multitouch driver when the MT report had 1 
+> finger, so if bitmap fingers are 1 , it uses x,y instead of x1,y1.
+> This approach has the benefit of producing smooth pointer movement and 
+> accurately reporting MT events like the other approach.
 
-Something like this, you mean?
+If the latency really is noticible when you stash the ST points, here's
+what I'd suggest trying instead. Stash away the last set of MT data you
+saw and repeat it with each of the next two ST coordinates. I suspect
+that will probably work well enough, and will allow every ST point to
+still be reported. And it should significantly simplify the code as
+well.
 
----
-From: Rafael J. Wysocki <rjw@sisk.pl>
-Subject: PCI: Retry BARs restoration for Type 0 headers only
+> To handle inconsistent data I used your patch to dump raw packets.  I noticed 
+> ,as your documentation also states, that the condition (packet[6] & 0x40) 
+> could also be triggered by the second MT packet and then reset 
+> multi_packet to 0.
+> So I used the fact that byte 5 of the MT data, priv->multi_data [4] must 
+> always be 0x00. A kind of second sync byte to ensure we have correct MT 
+> reports. Unless the MT data is consistent we report nothing.
 
-Some shortcomings introduced into pci_restore_state() by commit
-26f41062f28d ("PCI: check for pci bar restore completion and
-retry") have been fixed by recent commit ebfc5b802fa76 ("PCI: Fix
-regression in pci_restore_state(), v3"), but that commit treats
-all PCI devices as those with Type 0 configuration headers.  That
-is not entirely correct, because Type 1 and Type 2 headers have
-different layouts.  In particular, the area occupied by BARs in
-Type 0 config headers contains the secondary status register in
-Type 1 ones and it doesn't make sense to retry the restoration of
-that register even if the value read back from it after a write is
-not the same as the written one (it very well may be different).
+You should keep in mind that the documentation is based purely on my
+observations. I observed that the 4th byte of the assembled MT data
+packet is alwyas 0, so that's how I documented it. That doesn't
+necessarily mean that it really is always 0, just that I could never get
+it to assume any other value.
 
-For this reason, make pci_restore_state() only retry the restoration
-of BARs for Type 0 config headers.  This effectively makes it behave
-as before commit 26f41062f28d for all header types except for Type 0.
+> +	if ((packet[6] & 0x40) && (priv->multi_data[4] == 0x00)) {
+> +		/* sync, reset position */
+> +		priv->multi_packet = 0;
+> +	}
 
-Tested-by: Mikko Vinni <mmvinni@yahoo.com>
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- drivers/pci/pci.c |   24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+If you see the sync bit set, it's _always_ the first fragment of the MT
+data, so you shoule _always_ reset the position. Why should past data
+have any effect on this decision?
 
-Index: linux/drivers/pci/pci.c
-===================================================================
---- linux.orig/drivers/pci/pci.c
-+++ linux/drivers/pci/pci.c
-@@ -991,8 +991,8 @@ static void pci_restore_config_dword(str
- 	}
- }
- 
--static void pci_restore_config_space(struct pci_dev *pdev, int start, int end,
--				     int retry)
-+static void pci_restore_config_space_range(struct pci_dev *pdev,
-+					   int start, int end, int retry)
- {
- 	int index;
- 
-@@ -1002,6 +1002,18 @@ static void pci_restore_config_space(str
- 					 retry);
- }
- 
-+static void pci_restore_config_space(struct pci_dev *pdev)
-+{
-+	if (pdev->hdr_type == PCI_HEADER_TYPE_NORMAL) {
-+		pci_restore_config_space_range(pdev, 10, 15, 0);
-+		/* Restore BARs before the command register. */
-+		pci_restore_config_space_range(pdev, 4, 9, 10);
-+		pci_restore_config_space_range(pdev, 0, 3, 0);
-+	} else {
-+		pci_restore_config_space_range(pdev, 0, 15, 0);
-+	}
-+}
-+
- /** 
-  * pci_restore_state - Restore the saved state of a PCI device
-  * @dev: - PCI device that we're dealing with
-@@ -1015,13 +1027,7 @@ void pci_restore_state(struct pci_dev *d
- 	pci_restore_pcie_state(dev);
- 	pci_restore_ats_state(dev);
- 
--	pci_restore_config_space(dev, 10, 15, 0);
--	/*
--	 * The Base Address register should be programmed before the command
--	 * register(s)
--	 */
--	pci_restore_config_space(dev, 4, 9, 10);
--	pci_restore_config_space(dev, 0, 3, 0);
-+	pci_restore_config_space(dev);
- 
- 	pci_restore_pcix_state(dev);
- 	pci_restore_msi_state(dev);
+> +	/*
+> +	 * The 5th byte of the MT data must always be 0x00.
+> +	 * Try to re-sync our position if MT data is inconsistent.
+> +	 */
+> +	if (priv->multi_data[4] != 0x00)
+> +		return;
+
+This doesn't really re-sync the position, and the sync bit is sufficient
+for this purpose anyway. I'd propose that if you really think checking
+multi_data[4] is beneficial, use it only for validating the MT packet
+before parsing it.
+
+> +	} else {
+> +		if (priv->last_fingers == 1) {
+> +			if (z >= 64)
+> +				input_report_key(dev, BTN_TOUCH, 1);
+> +			else
+> +				input_report_key(dev, BTN_TOUCH, 0);
+> +
+> +			alps_report_semi_mt_data(dev, 1, x, y, 0, 0);
+> +
+> +			input_report_key(dev, BTN_TOOL_FINGER, z > 0);
+
+Even if you use a separate case here you need to update the other
+BTN_TOOL keys. The 1 to 0 transition is needed for userspace to know
+that the situation has changed. Failing to report any value is not the
+same as reporting a value of 0.
+

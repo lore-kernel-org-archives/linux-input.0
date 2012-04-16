@@ -1,31 +1,35 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH] PCI: Retry BARs restoration for Type 0 headers only
-Date: Mon, 16 Apr 2012 13:35:13 -0700
-Message-ID: <CA+55aFyccAfEpECmD5yKYE4AquV1ZsfjRAL4coP39LmkAqrO=w@mail.gmail.com>
-References: <1334310754.17013.YahooMailNeo@web161804.mail.bf1.yahoo.com>
- <201204161817.21800.rjw@sisk.pl> <1334602665.33371.YahooMailNeo@web161806.mail.bf1.yahoo.com>
- <201204162235.49901.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH] drivers/input/tablet/aiptek.c: adjust error-handling code label
+Date: Mon, 16 Apr 2012 22:44:52 +0200
+Message-ID: <1334609092-15338-1-git-send-email-Julia.Lawall@lip6.fr>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201204162235.49901.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, Mikko Vinni <mmvinni@yahoo.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Allen Kay <allen.m.kay@intel.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: kernel-janitors@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Apr 16, 2012 at 1:35 PM, Rafael J. Wysocki <rjw@sisk.pl> wrote:
-> From: Rafael J. Wysocki <rjw@sisk.pl>
->
-> Some shortcomings introduced into pci_restore_state() by commit
-> 26f41062f28d ("PCI: check for pci bar restore completion and
-> retry") have been fixed by recent commit ebfc5b802fa76 ("PCI: Fix
-> regression in pci_restore_state(), v3"), but that commit treats
-> all PCI devices as those with Type 0 configuration headers.
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-Make me happier and just make all of this a helper function again.
-Call that helper function pci_restore_config_space(), and make the
-existing "pci_restore_config_space()" be called
-"pci_restore_config_space_range()" or something. Ok?
+At the point of this error-handling code, aiptek->urb has been allocated,
+and it does not appear to be less necessary to free it here than in the
+error-handling code just below.
 
-                   Linus
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+
+---
+ drivers/input/tablet/aiptek.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
+index 205d16a..a33d347 100644
+--- a/drivers/input/tablet/aiptek.c
++++ b/drivers/input/tablet/aiptek.c
+@@ -1856,7 +1856,7 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 	if (i == ARRAY_SIZE(speeds)) {
+ 		dev_info(&intf->dev,
+ 			 "Aiptek tried all speeds, no sane response\n");
+-		goto fail2;
++		goto fail3;
+ 	}
+ 
+ 	/* Associate this driver's struct with the usb interface.

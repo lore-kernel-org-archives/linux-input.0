@@ -1,60 +1,34 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [linux-pm] "i8042: Can't reactivate AUX port" after s2ram on 3.4-rc2
-Date: Mon, 16 Apr 2012 21:59:55 +0200
-Message-ID: <201204162159.55539.rjw@sisk.pl>
-References: <1334310754.17013.YahooMailNeo@web161804.mail.bf1.yahoo.com> <201204161817.21800.rjw@sisk.pl> <1334602665.33371.YahooMailNeo@web161806.mail.bf1.yahoo.com>
+From: Philipp Zabel <philipp.zabel@gmail.com>
+Subject: Re: [PATCH v8] input: Add Synaptics NavPoint (PXA27x SSP/SPI) driver
+Date: Mon, 16 Apr 2012 22:16:56 +0200
+Message-ID: <1334607416.30492.2.camel@flow>
+References: <1334576221.72161.YahooMailClassic@web29005.mail.ird.yahoo.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ogre.sisk.pl ([217.79.144.158]:46358 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753639Ab2DPTzU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Apr 2012 15:55:20 -0400
-In-Reply-To: <1334602665.33371.YahooMailNeo@web161806.mail.bf1.yahoo.com>
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:43398 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752970Ab2DPURC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Apr 2012 16:17:02 -0400
+Received: by bkcik5 with SMTP id ik5so3991589bkc.19
+        for <linux-input@vger.kernel.org>; Mon, 16 Apr 2012 13:17:00 -0700 (PDT)
+In-Reply-To: <1334576221.72161.YahooMailClassic@web29005.mail.ird.yahoo.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mikko Vinni <mmvinni@yahoo.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Allen Kay <allen.m.kay@intel.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
+To: Paul Parsons <lost.distance@yahoo.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-On Monday, April 16, 2012, Mikko Vinni wrote:
-> From: Rafael J. Wysocki:
+Am Montag, den 16.04.2012, 12:37 +0100 schrieb Paul Parsons:
+> This driver adds support for the Synaptics NavPoint touchpad connected
+> to a PXA27x SSP port in SPI slave mode. The device emulates a mouse;
+> a tap or tap-and-a-half drag gesture emulates the left mouse button.
+> For example, use the xf86-input-evdev driver for an X pointing device.
 > 
-> >>  Ok, I tested v4 and also v3, which is in 3.4-rc3. On this laptop both 
-> > versions
-> >>  work equally: touchpad works after resume (no help for the card reader
-> >>  problem, though).
-> > 
-> > [...]
-> > 
-> >>  Difference from v3:
-> >>  --- /tmp/v3-uniq        2012-04-16 09:57:42.880521878 +0300
-> >>  +++ /tmp/v4-uniq        2012-04-16 09:58:03.880545386 +0300
-> >>  @@ -1019,11 +1018,11 @@
-> >>         1 Booting Node 0 Processor 1 APIC 0x1
-> >>         1 CPU1 is up
-> >>         1 ACPI: Waking up from system sleep state S3
-> >>  -     11 pcieport 0000:00:02.0: restoring config space at offset 0x1c (was 
-> > 0x20005151, writing 0x5151)
-> >>  +      1 pcieport 0000:00:02.0: restoring config space at offset 0x1c (was 
-> > 0x20005151, writing 0x5151)
-> > 
-> > OK, so clearly we need to prevent the writes into the secondary status register
-> > of the PCIe port from being repreated pointlessly.
-> > 
-> > Can you please test the appended patch from completness on top of 3.4-rc3?
-> 
-> I think that's what I did already :)
-> 
-> git pull to 3.4-rc3
-> (test, result as v3 output/diff in the previous email)
-> Revert "PCI: Fix regression in pci_restore_state(), v3"
-> apply v4 of the patch
-> (test, result as v4 output in the previous email)
-> git diff v3.4-rc3 -- drivers/pci/pci.c --> matches the patch below
+> Signed-off-by: Paul Parsons <lost.distance@yahoo.com>
+> Cc: Philipp Zabel <philipp.zabel@gmail.com>
 
-Well, that's correct. :-)
+Tested-by: Philipp Zabel <philipp.zabel@gmail.com>
 
-Thanks a lot anyway,
-Rafael
+

@@ -1,8 +1,7 @@
 From: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH v2 6/8] iio: lpc32xx-adc: Remove driver conflict due to device
- tree
-Date: Tue, 17 Apr 2012 19:08:25 +0200
-Message-ID: <1334682507-15055-7-git-send-email-stigge@antcom.de>
+Subject: [PATCH v2 5/8] input: Device tree support for LPC32xx touchscreen
+Date: Tue, 17 Apr 2012 19:08:24 +0200
+Message-ID: <1334682507-15055-6-git-send-email-stigge@antcom.de>
 References: <1334682507-15055-1-git-send-email-stigge@antcom.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,36 +21,69 @@ To: arm@kernel.org, linux-arm-kernel@lists.infradead.org, thierry.reding@avionic
 Cc: Roland Stigge <stigge@antcom.de>
 List-Id: linux-input@vger.kernel.org
 
-Previously, the touchscreen and ADC drivers of the LPC32xx SoC had a Kconfig
-conflict declared because they use the same hardware. Upon the introduction of
-device tree support in both drivers, the conflict must be removed to enable
-the same kernel to support different hardware (configured via the device tree).
+This patch adds device tree support for the LPC32xx SoC's touchscreen
+controller.
 
 Signed-off-by: Roland Stigge <stigge@antcom.de>
+Reviewed-by: Thierry Reding <thierry.reding@avionic-design.de>
 
 ---
 
 Applies to v3.4-rc3
 
- drivers/staging/iio/adc/Kconfig |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/input/touchscreen/lpc32xx-tsc.txt |   16 ++++++++++
+ drivers/input/touchscreen/lpc32xx_ts.c                              |   10 ++++++
+ 2 files changed, 26 insertions(+)
 
---- linux-2.6.orig/drivers/staging/iio/adc/Kconfig
-+++ linux-2.6/drivers/staging/iio/adc/Kconfig
-@@ -195,11 +195,13 @@ config MAX1363_RING_BUFFER
+--- /dev/null
++++ linux-2.6/Documentation/devicetree/bindings/input/touchscreen/lpc32xx-tsc.txt
+@@ -0,0 +1,16 @@
++* NXP LPC32xx SoC Touchscreen Controller (TSC)
++
++Required properties:
++- compatible: must be "nxp,lpc32xx-tsc"
++- reg: physical base address of the controller and length of memory mapped
++  region.
++- interrupts: The TSC/ADC interrupt
++
++Example:
++
++	tsc@40048000 {
++		compatible = "nxp,lpc32xx-tsc";
++		reg = <0x40048000 0x1000>;
++		interrupt-parent = <&mic>;
++		interrupts = <39 0>;
++	};
+--- linux-2.6.orig/drivers/input/touchscreen/lpc32xx_ts.c
++++ linux-2.6/drivers/input/touchscreen/lpc32xx_ts.c
+@@ -22,6 +22,7 @@
+ #include <linux/clk.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
++#include <linux/of.h>
  
- config LPC32XX_ADC
- 	tristate "NXP LPC32XX ADC"
--	depends on ARCH_LPC32XX && !TOUCHSCREEN_LPC32XX
-+	depends on ARCH_LPC32XX
- 	help
- 	  Say yes here to build support for the integrated ADC inside the
- 	  LPC32XX SoC. Note that this feature uses the same hardware as the
--	  touchscreen driver, so you can only select one of the two drivers
--	  (lpc32xx_adc or lpc32xx_ts). Provides direct access via sysfs.
-+	  touchscreen driver, so you should either select only one of the two
-+	  drivers (lpc32xx_adc or lpc32xx_ts) or, in the OpenFirmware case,
-+	  activate only one via device tree selection.  Provides direct access
-+	  via sysfs.
+ /*
+  * Touchscreen controller register offsets
+@@ -383,6 +384,14 @@ static const struct dev_pm_ops lpc32xx_t
+ #define LPC32XX_TS_PM_OPS NULL
+ #endif
  
- endmenu
++#ifdef CONFIG_OF
++static struct of_device_id lpc32xx_tsc_of_match[] = {
++	{ .compatible = "nxp,lpc32xx-tsc", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, lpc32xx_tsc_of_match);
++#endif
++
+ static struct platform_driver lpc32xx_ts_driver = {
+ 	.probe		= lpc32xx_ts_probe,
+ 	.remove		= __devexit_p(lpc32xx_ts_remove),
+@@ -390,6 +399,7 @@ static struct platform_driver lpc32xx_ts
+ 		.name	= MOD_NAME,
+ 		.owner	= THIS_MODULE,
+ 		.pm	= LPC32XX_TS_PM_OPS,
++		.of_match_table = of_match_ptr(lpc32xx_tsc_of_match),
+ 	},
+ };
+ module_platform_driver(lpc32xx_ts_driver);

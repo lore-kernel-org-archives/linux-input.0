@@ -1,78 +1,29 @@
-From: Che-liang Chiou <clchiou@chromium.org>
-Subject: Re: [PATCH] Input: serio_raw - ensure we don't block in non-blocking read
-Date: Tue, 17 Apr 2012 17:14:44 +0800
-Message-ID: <CANJuy2KVxAKFETi4YGAcBFnoop-eBLK+VvUVonuy8ZCm+VeZcg@mail.gmail.com>
-References: <20120403202432.GA18564@core.coreip.homeip.net> <CANJuy2KgOX=2Oc9Uaf1TGRAeyXt0UjdjU-o-yo+NVUYxKmk_4g@mail.gmail.com>
+From: Viresh Kumar <viresh.kumar@st.com>
+Subject: Re: [PATCH] fixup! Input: of_keymap: Introduce matrix_keypad_of_build_keymap()
+Date: Tue, 17 Apr 2012 17:02:02 +0530
+Message-ID: <4F8D54B2.1060104@st.com>
+References: <406fb8092d6aca97a54add346a2528daefab9c8d.1333009670.git.viresh.kumar@st.com> <3d33526ed060e70cdd981f990e449d46a4566278.1333339090.git.viresh.kumar@st.com> <20120405004500.GA11757@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CANJuy2KgOX=2Oc9Uaf1TGRAeyXt0UjdjU-o-yo+NVUYxKmk_4g@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Wanlong Gao <gaowanlong@cn.fujitsu.com>, David Herrmann <dh.herrmann@googlemail.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eu1sys200aog104.obsmtp.com ([207.126.144.117]:50396 "EHLO
+	eu1sys200aog104.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754265Ab2DQLdt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 Apr 2012 07:33:49 -0400
+In-Reply-To: <20120405004500.GA11757@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "swarren@nvidia.com" <swarren@nvidia.com>, spear-devel <spear-devel@list.st.com>, "viresh.linux@gmail.com" <viresh.linux@gmail.com>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "olof@lixom.net" <olof@lixom.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-UmV2aWV3ZWQtYnk6IENoZS1MaWFuZyBDaGlvdSA8Y2xjaGlvdUBjaHJvbWl1bS5vcmc+CgpPbiBU
-dWUsIEFwciAxNywgMjAxMiBhdCA0OjU2IFBNLCBDaGUtbGlhbmcgQ2hpb3UgPGNsY2hpb3VAY2hy
-b21pdW0ub3JnPiB3cm90ZToKPiBJIGRpZG4ndCB0ZXN0IHRoZSBwYXRjaCwgYnV0IHRoZSBsb2dp
-YyBsb29rcyBmaW5lIHRvIG1lLgo+Cj4gT24gV2VkLCBBcHIgNCwgMjAxMiBhdCA0OjI0IEFNLCBE
-bWl0cnkgVG9yb2tob3YKPiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4gd3JvdGU6Cj4+IEF2
-b2lkIGNhbGxpbmcgd2FpdF9ldmVudF9pbnRlcnJ1cHRpYmxlKCkgaWYgY2xpZW50IHJlcXVlc3Rl
-ZCBub24tYmxvY2tpbmcKPj4gcmVhZCwgc2luY2UgaXQgaXMgbm90IGd1YXJhbnRlZWQgdGhhdCBh
-bm90aGVyIHRocmVhZCB3aWxsIG5vdCBjb25zdW1lCj4+IGV2ZW50IGFmdGVyIHdlIGNoZWNrZWQg
-aWYgc2VyaW9fcmF3LT5oZWFkICE9IHNlcmlvX3Jhdy0+dGFpbC4KPj4KPj4gQWxzbyBlbnN1cmUg
-d2UgZG8gbm90IHJldHVybiAwIGJ1dCBrZWVwIHdhaXRpbmcgaW5zdGVhZCBpbiBibG9ja2luZyBj
-YXNlLAo+PiB3aGVuIGFub3RoZXIgdGhyZWFkIHN0ZWFscyAib3VyIiBieXRlLgo+Pgo+PiBTaWdu
-ZWQtb2ZmLWJ5OiBEbWl0cnkgVG9yb2tob3YgPGR0b3JAbWFpbC5ydT4KPj4gLS0tCj4+IMKgZHJp
-dmVycy9pbnB1dC9zZXJpby9zZXJpb19yYXcuYyB8IMKgIDQzICsrKysrKysrKysrKysrKysrKysr
-KystLS0tLS0tLS0tLS0tLS0tCj4+IMKgMSBmaWxlcyBjaGFuZ2VkLCAyNSBpbnNlcnRpb25zKCsp
-LCAxOCBkZWxldGlvbnMoLSkKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvc2VyaW8v
-c2VyaW9fcmF3LmMgYi9kcml2ZXJzL2lucHV0L3NlcmlvL3NlcmlvX3Jhdy5jCj4+IGluZGV4IDQ0
-OTQyMzMuLjA5NGQ2ZmIgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvaW5wdXQvc2VyaW8vc2VyaW9f
-cmF3LmMKPj4gKysrIGIvZHJpdmVycy9pbnB1dC9zZXJpby9zZXJpb19yYXcuYwo+PiBAQCAtMTY1
-LDMxICsxNjUsMzggQEAgc3RhdGljIHNzaXplX3Qgc2VyaW9fcmF3X3JlYWQoc3RydWN0IGZpbGUg
-KmZpbGUsIGNoYXIgX191c2VyICpidWZmZXIsCj4+IMKgIMKgIMKgIMKgc3RydWN0IHNlcmlvX3Jh
-dyAqc2VyaW9fcmF3ID0gY2xpZW50LT5zZXJpb19yYXc7Cj4+IMKgIMKgIMKgIMKgY2hhciB1bmlu
-aXRpYWxpemVkX3ZhcihjKTsKPj4gwqAgwqAgwqAgwqBzc2l6ZV90IHJlYWQgPSAwOwo+PiAtIMKg
-IMKgIMKgIGludCByZXR2YWw7Cj4+ICsgwqAgwqAgwqAgaW50IGVycm9yID0gMDsKPj4KPj4gLSDC
-oCDCoCDCoCBpZiAoc2VyaW9fcmF3LT5kZWFkKQo+PiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHJl
-dHVybiAtRU5PREVWOwo+PiArIMKgIMKgIMKgIGRvIHsKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCBpZiAoc2VyaW9fcmF3LT5kZWFkKQo+PiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgIHJldHVybiAtRU5PREVWOwo+Pgo+PiAtIMKgIMKgIMKgIGlmIChzZXJpb19yYXctPmhlYWQg
-PT0gc2VyaW9fcmF3LT50YWlsICYmIChmaWxlLT5mX2ZsYWdzICYgT19OT05CTE9DSykpCj4+IC0g
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgcmV0dXJuIC1FQUdBSU47Cj4+ICsgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgaWYgKHNlcmlvX3Jhdy0+aGVhZCA9PSBzZXJpb19yYXctPnRhaWwgJiYKPj4gKyDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCAoZmlsZS0+Zl9mbGFncyAmIE9fTk9OQkxPQ0spKQo+PiAr
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHJldHVybiAtRUFHQUlOOwo+Pgo+PiAt
-IMKgIMKgIMKgIHJldHZhbCA9IHdhaXRfZXZlbnRfaW50ZXJydXB0aWJsZShzZXJpb19yYXctPndh
-aXQsCj4+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgc2VyaW9fcmF3LT5oZWFk
-ICE9IHNlcmlvX3Jhdy0+dGFpbCB8fCBzZXJpb19yYXctPmRlYWQpOwo+PiAtIMKgIMKgIMKgIGlm
-IChyZXR2YWwpCj4+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgcmV0dXJuIHJldHZhbDsKPj4gKyDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAoY291bnQgPT0gMCkKPj4gKyDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCBicmVhazsKPj4KPj4gLSDCoCDCoCDCoCBpZiAoc2VyaW9fcmF3LT5k
-ZWFkKQo+PiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHJldHVybiAtRU5PREVWOwo+PiArIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIHdoaWxlIChyZWFkIDwgY291bnQgJiYgc2VyaW9fcmF3X2ZldGNoX2J5
-dGUoc2VyaW9fcmF3LCAmYykpIHsKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCBpZiAocHV0X3VzZXIoYywgYnVmZmVyKyspKSB7Cj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZXJyb3IgPSAtRUZBVUxUOwo+PiArIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGdvdG8gb3V0Owo+PiArIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIH0KPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCByZWFkKys7Cj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgfQo+Pgo+PiAtIMKgIMKg
-IMKgIHdoaWxlIChyZWFkIDwgY291bnQgJiYgc2VyaW9fcmF3X2ZldGNoX2J5dGUoc2VyaW9fcmF3
-LCAmYykpIHsKPj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAocHV0X3VzZXIoYywgYnVmZmVy
-KyspKSB7Cj4+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcmV0dmFsID0gLUVG
-QVVMVDsKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAocmVhZCkKPj4gwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqBicmVhazsKPj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCB9
-Cj4+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgcmVhZCsrOwo+PiAtIMKgIMKgIMKgIH0KPj4KPj4g
-LSDCoCDCoCDCoCByZXR1cm4gcmVhZCA/OiByZXR2YWw7Cj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgaWYgKCEoZmlsZS0+Zl9mbGFncyAmIE9fTk9OQkxPQ0spKQo+PiArIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIGVycm9yID0gd2FpdF9ldmVudF9pbnRlcnJ1cHRpYmxlKHNlcmlv
-X3Jhdy0+d2FpdCwKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCBzZXJpb19yYXctPmhlYWQgIT0gc2VyaW9fcmF3LT50YWlsIHx8Cj4+
-ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgc2VyaW9fcmF3LT5kZWFkKTsKPj4gKyDCoCDCoCDCoCB9IHdoaWxlICghZXJyb3IpOwo+PiAr
-Cj4+ICtvdXQ6Cj4+ICsgwqAgwqAgwqAgcmV0dXJuIHJlYWQgPzogZXJyb3I7Cj4+IMKgfQo+Pgo+
-PiDCoHN0YXRpYyBzc2l6ZV90IHNlcmlvX3Jhd193cml0ZShzdHJ1Y3QgZmlsZSAqZmlsZSwgY29u
-c3QgY2hhciBfX3VzZXIgKmJ1ZmZlciwKPj4gLS0KPj4gMS43LjcuNgo+Pgo+Pgo+PiAtLQo+PiBE
-bWl0cnkK
+On 4/5/2012 6:15 AM, Dmitry Torokhov wrote:
+> This is the full implementation and should stay __devinit. It's the stub
+> for !CONFIG_OF case that you want to mark "static inline". I'll fix it
+> up.
+
+Have you pushed these for v3.5?
+
+-- 
+viresh

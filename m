@@ -1,14 +1,15 @@
 From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: [PATCH v2 0/8] Second patchset for LPC32xx device tree conversion
-Date: Tue, 17 Apr 2012 23:50:01 +0300
-Message-ID: <20120417205001.GH6498@mwanda>
+Subject: Re: [PATCH v2 1/8] ohci-nxp: Driver cleanup
+Date: Tue, 17 Apr 2012 23:57:41 +0300
+Message-ID: <20120417205740.GI6498@mwanda>
 References: <1334682507-15055-1-git-send-email-stigge@antcom.de>
+	<1334682507-15055-2-git-send-email-stigge@antcom.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
 Content-Disposition: inline
-In-Reply-To: <1334682507-15055-1-git-send-email-stigge@antcom.de>
+In-Reply-To: <1334682507-15055-2-git-send-email-stigge@antcom.de>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -22,13 +23,23 @@ To: Roland Stigge <stigge@antcom.de>
 Cc: devel@driverdev.osuosl.org, srinivas.bakki@nxp.com, linux-usb@vger.kernel.org, broonie@opensource.wolfsonmicro.com, gregkh@linuxfoundation.org, thierry.reding@avionic-design.de, linux-kernel@vger.kernel.org, kevin.wells@nxp.com, marek.vasut@gmail.com, arm@kernel.org, linux-input@vger.kernel.org, axel.lin@gmail.com, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Apr 17, 2012 at 07:08:19PM +0200, Roland Stigge wrote:
-> Applies to v3.4-rc3
-> 
+On Tue, Apr 17, 2012 at 07:08:20PM +0200, Roland Stigge wrote:
+> @@ -435,6 +436,7 @@ static int __devinit usb_hcd_nxp_probe(s
+>  	}
+>  
+>  	__raw_writel(__raw_readl(USB_CTRL) | USB_HOST_NEED_CLK_EN, USB_CTRL);
+> +	__raw_writel(__raw_readl(USB_CTRL) & ~USB_DEV_NEED_CLK_EN, USB_CTRL);
+>  
+>  	/* Set to enable all needed USB clocks */
+>  	__raw_writel(USB_CLOCK_MASK, USB_OTG_CLK_CTRL);
 
-This probably applies fine (the previous version did a couple days
-ago), but it's always best to submit patches against linux-next.
-The 3.4 kernel is in -rc already so this is 3.5 material.
+What does this chunk do?  Is this part of the "* Fixed controller
+initialization (bits)" bullet point?  How does it affect the user?
+Should it be included in the 3.4 kernel?
+
+Generally bug fixes, cleanups, and new features should go into
+different patches.  If you use "git citool" then you can highlight
+and right click on the lines you want to go into the patch.
 
 regards,
 dan carpenter

@@ -1,46 +1,56 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Baantoo multi-touch screen trouble
-Date: Tue, 17 Apr 2012 14:19:41 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204171418310.16373@pobox.suse.cz>
-References: <201204111629.59916.tvrtko.ursulin@onelan.co.uk> <201204131430.24672.tvrtko.ursulin@onelan.co.uk> <alpine.LNX.2.00.1204171106500.16373@pobox.suse.cz> <201204171312.23650.tvrtko.ursulin@onelan.co.uk>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: ALPS v4 Semi-mt Support
+Date: Tue, 17 Apr 2012 08:16:18 -0500
+Message-ID: <20120417131618.GA14091@thinkpad-t410>
+References: <1364401.K99JIOKFyb@vaio>
+ <1492453.bjpWEAk9kj@vaio>
+ <20120416212407.GE3959@thinkpad-t410>
+ <2024920.Dutyu6QMZV@vaio>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45882 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755898Ab2DQMTn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Apr 2012 08:19:43 -0400
-In-Reply-To: <201204171312.23650.tvrtko.ursulin@onelan.co.uk>
+Received: from youngberry.canonical.com ([91.189.89.112]:44205 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932175Ab2DQNQV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 Apr 2012 09:16:21 -0400
+Content-Disposition: inline
+In-Reply-To: <2024920.Dutyu6QMZV@vaio>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tvrtko Ursulin <tvrtko.ursulin@onelan.co.uk>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: George Pantalos <gpantalos@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, 17 Apr 2012, Tvrtko Ursulin wrote:
+On Tue, Apr 17, 2012 at 01:21:45AM +0300, George Pantalos wrote:
+> I have noticed that the sync bit can at times be set in the second packet of 
+> the sequence. Couldn't this reset the position to priv->multi_packet=0 when 
+> in fact we are in priv->multi_packet=1  position?
+> I have also thought about "if((packet[6] & 0x40) && (priv->multi_packet == 
+> 0))" so that sync is not lost. 
 
-> > > It is unlikely to be me unless someone explains to me in detail what
-> > > needs to be done, at which point it is probably quicker for that person
-> > > to do it. I for example don't even understand why this, allegedly HID
-> > > Multitouch class compliant, device needs explicit adding? Is it not
-> > > compliant after all? Is it that multiple HID devices it exposes a
-> > > non-standard thing? Does it then need a vendor specific class (looking
-> > > at hid-multitouch.c). Sorry this whole area is just new and unknown to
-> > > me.
-> > 
-> > Could you please verify that the patch below works for you? Thanks.
-> 
-> Works fine. I made a typo in the thread subject, one too many 'o' in vendor's 
-> name - Baanto is correct.
+I think there are two possibilities for when you see the sync bit set in
+the second packet.
 
-Thanks, I will fix that up before applying.
+The first is that the touchpad aborted the previous sequence and started
+a new one. In this case you really do want to reset priv->multi_packet.
 
-> P.S. I still do not understand why it is needed to explicitly add this device 
-> for it to work, but nevermind, I asked this enough time to know when to give 
-> up.
+The other option is that it really isn't a sync bit, and that it has
+some other meaning. In that case you'll need to find some other reliable
+method for assembling the MT data in the correct order.
 
-Because currently there is no way how to auto-load proper module if the 
-device is multitouch. Henrik is working in this area.
+The only way you'll be able to tell is by inspecting the packets after
+the one with the unexpected sync. I suspect you'll either see one of two
+sequences. This one:
 
--- 
-Jiri Kosina
-SUSE Labs
+  sync -> sync -> non-sync -> non-sync -> sync -> ...
+
+Which would appear to be an aborted sequence followed by the start of a
+new one. Or this one:
+
+  sync -> sync -> non-sync -> sync -> ...
+
+Which would appear to indicate that what we're calling the sync bit
+isn't really a sync after all.
+
+Seth
+

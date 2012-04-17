@@ -1,81 +1,91 @@
-From: Che-liang Chiou <clchiou@chromium.org>
-Subject: Re: [PATCH] Input: serio_raw - ensure we don't block in non-blocking read
-Date: Tue, 17 Apr 2012 16:56:11 +0800
-Message-ID: <CANJuy2KgOX=2Oc9Uaf1TGRAeyXt0UjdjU-o-yo+NVUYxKmk_4g@mail.gmail.com>
-References: <20120403202432.GA18564@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Baantoo multi-touch screen trouble
+Date: Tue, 17 Apr 2012 11:07:19 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204171106500.16373@pobox.suse.cz>
+References: <201204111629.59916.tvrtko.ursulin@onelan.co.uk> <201204131033.00596.tvrtko.ursulin@onelan.co.uk> <alpine.LNX.2.00.1204131442050.16373@pobox.suse.cz> <201204131430.24672.tvrtko.ursulin@onelan.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:38906 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755829Ab2DQI4w (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Apr 2012 04:56:52 -0400
-Received: by ghrr11 with SMTP id r11so2907426ghr.19
-        for <linux-input@vger.kernel.org>; Tue, 17 Apr 2012 01:56:52 -0700 (PDT)
-In-Reply-To: <20120403202432.GA18564@core.coreip.homeip.net>
+Received: from cantor2.suse.de ([195.135.220.15]:58300 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755874Ab2DQJHV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 Apr 2012 05:07:21 -0400
+In-Reply-To: <201204131430.24672.tvrtko.ursulin@onelan.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Wanlong Gao <gaowanlong@cn.fujitsu.com>, David Herrmann <dh.herrmann@googlemail.com>, linux-kernel@vger.kernel.org
+To: Tvrtko Ursulin <tvrtko.ursulin@onelan.co.uk>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org
 
-SSBkaWRuJ3QgdGVzdCB0aGUgcGF0Y2gsIGJ1dCB0aGUgbG9naWMgbG9va3MgZmluZSB0byBtZS4K
-Ck9uIFdlZCwgQXByIDQsIDIwMTIgYXQgNDoyNCBBTSwgRG1pdHJ5IFRvcm9raG92CjxkbWl0cnku
-dG9yb2tob3ZAZ21haWwuY29tPiB3cm90ZToKPiBBdm9pZCBjYWxsaW5nIHdhaXRfZXZlbnRfaW50
-ZXJydXB0aWJsZSgpIGlmIGNsaWVudCByZXF1ZXN0ZWQgbm9uLWJsb2NraW5nCj4gcmVhZCwgc2lu
-Y2UgaXQgaXMgbm90IGd1YXJhbnRlZWQgdGhhdCBhbm90aGVyIHRocmVhZCB3aWxsIG5vdCBjb25z
-dW1lCj4gZXZlbnQgYWZ0ZXIgd2UgY2hlY2tlZCBpZiBzZXJpb19yYXctPmhlYWQgIT0gc2VyaW9f
-cmF3LT50YWlsLgo+Cj4gQWxzbyBlbnN1cmUgd2UgZG8gbm90IHJldHVybiAwIGJ1dCBrZWVwIHdh
-aXRpbmcgaW5zdGVhZCBpbiBibG9ja2luZyBjYXNlLAo+IHdoZW4gYW5vdGhlciB0aHJlYWQgc3Rl
-YWxzICJvdXIiIGJ5dGUuCj4KPiBTaWduZWQtb2ZmLWJ5OiBEbWl0cnkgVG9yb2tob3YgPGR0b3JA
-bWFpbC5ydT4KPiAtLS0KPiDCoGRyaXZlcnMvaW5wdXQvc2VyaW8vc2VyaW9fcmF3LmMgfCDCoCA0
-MyArKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLQo+IMKgMSBmaWxlcyBjaGFu
-Z2VkLCAyNSBpbnNlcnRpb25zKCspLCAxOCBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9k
-cml2ZXJzL2lucHV0L3NlcmlvL3NlcmlvX3Jhdy5jIGIvZHJpdmVycy9pbnB1dC9zZXJpby9zZXJp
-b19yYXcuYwo+IGluZGV4IDQ0OTQyMzMuLjA5NGQ2ZmIgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9p
-bnB1dC9zZXJpby9zZXJpb19yYXcuYwo+ICsrKyBiL2RyaXZlcnMvaW5wdXQvc2VyaW8vc2VyaW9f
-cmF3LmMKPiBAQCAtMTY1LDMxICsxNjUsMzggQEAgc3RhdGljIHNzaXplX3Qgc2VyaW9fcmF3X3Jl
-YWQoc3RydWN0IGZpbGUgKmZpbGUsIGNoYXIgX191c2VyICpidWZmZXIsCj4gwqAgwqAgwqAgwqBz
-dHJ1Y3Qgc2VyaW9fcmF3ICpzZXJpb19yYXcgPSBjbGllbnQtPnNlcmlvX3JhdzsKPiDCoCDCoCDC
-oCDCoGNoYXIgdW5pbml0aWFsaXplZF92YXIoYyk7Cj4gwqAgwqAgwqAgwqBzc2l6ZV90IHJlYWQg
-PSAwOwo+IC0gwqAgwqAgwqAgaW50IHJldHZhbDsKPiArIMKgIMKgIMKgIGludCBlcnJvciA9IDA7
-Cj4KPiAtIMKgIMKgIMKgIGlmIChzZXJpb19yYXctPmRlYWQpCj4gLSDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCByZXR1cm4gLUVOT0RFVjsKPiArIMKgIMKgIMKgIGRvIHsKPiArIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIGlmIChzZXJpb19yYXctPmRlYWQpCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCByZXR1cm4gLUVOT0RFVjsKPgo+IC0gwqAgwqAgwqAgaWYgKHNlcmlvX3Jhdy0+aGVh
-ZCA9PSBzZXJpb19yYXctPnRhaWwgJiYgKGZpbGUtPmZfZmxhZ3MgJiBPX05PTkJMT0NLKSkKPiAt
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIHJldHVybiAtRUFHQUlOOwo+ICsgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgaWYgKHNlcmlvX3Jhdy0+aGVhZCA9PSBzZXJpb19yYXctPnRhaWwgJiYKPiArIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIChmaWxlLT5mX2ZsYWdzICYgT19OT05CTE9DSykpCj4gKyDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCByZXR1cm4gLUVBR0FJTjsKPgo+IC0gwqAg
-wqAgwqAgcmV0dmFsID0gd2FpdF9ldmVudF9pbnRlcnJ1cHRpYmxlKHNlcmlvX3Jhdy0+d2FpdCwK
-PiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHNlcmlvX3Jhdy0+aGVhZCAhPSBz
-ZXJpb19yYXctPnRhaWwgfHwgc2VyaW9fcmF3LT5kZWFkKTsKPiAtIMKgIMKgIMKgIGlmIChyZXR2
-YWwpCj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCByZXR1cm4gcmV0dmFsOwo+ICsgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgaWYgKGNvdW50ID09IDApCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCBicmVhazsKPgo+IC0gwqAgwqAgwqAgaWYgKHNlcmlvX3Jhdy0+ZGVhZCkKPiAtIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIHJldHVybiAtRU5PREVWOwo+ICsgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgd2hpbGUgKHJlYWQgPCBjb3VudCAmJiBzZXJpb19yYXdfZmV0Y2hfYnl0ZShzZXJpb19yYXcs
-ICZjKSkgewo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgaWYgKHB1dF91c2Vy
-KGMsIGJ1ZmZlcisrKSkgewo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgZXJyb3IgPSAtRUZBVUxUOwo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgZ290byBvdXQ7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCB9Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCByZWFkKys7Cj4g
-KyDCoCDCoCDCoCDCoCDCoCDCoCDCoCB9Cj4KPiAtIMKgIMKgIMKgIHdoaWxlIChyZWFkIDwgY291
-bnQgJiYgc2VyaW9fcmF3X2ZldGNoX2J5dGUoc2VyaW9fcmF3LCAmYykpIHsKPiAtIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIGlmIChwdXRfdXNlcihjLCBidWZmZXIrKykpIHsKPiAtIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIHJldHZhbCA9IC1FRkFVTFQ7Cj4gKyDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCBpZiAocmVhZCkKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGJy
-ZWFrOwo+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgfQo+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-cmVhZCsrOwo+IC0gwqAgwqAgwqAgfQo+Cj4gLSDCoCDCoCDCoCByZXR1cm4gcmVhZCA/OiByZXR2
-YWw7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAoIShmaWxlLT5mX2ZsYWdzICYgT19OT05C
-TE9DSykpCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBlcnJvciA9IHdhaXRf
-ZXZlbnRfaW50ZXJydXB0aWJsZShzZXJpb19yYXctPndhaXQsCj4gKyDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBzZXJpb19yYXctPmhlYWQg
-IT0gc2VyaW9fcmF3LT50YWlsIHx8Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBzZXJpb19yYXctPmRlYWQpOwo+ICsgwqAgwqAgwqAg
-fSB3aGlsZSAoIWVycm9yKTsKPiArCj4gK291dDoKPiArIMKgIMKgIMKgIHJldHVybiByZWFkID86
-IGVycm9yOwo+IMKgfQo+Cj4gwqBzdGF0aWMgc3NpemVfdCBzZXJpb19yYXdfd3JpdGUoc3RydWN0
-IGZpbGUgKmZpbGUsIGNvbnN0IGNoYXIgX191c2VyICpidWZmZXIsCj4gLS0KPiAxLjcuNy42Cj4K
-Pgo+IC0tCj4gRG1pdHJ5Cg==
+On Fri, 13 Apr 2012, Tvrtko Ursulin wrote:
+
+> > Guys, who of you is going to send me patch adding the device ID into
+> > in-kernel list?
+> 
+> It is unlikely to be me unless someone explains to me in detail what needs to 
+> be done, at which point it is probably quicker for that person to do it. I for 
+> example don't even understand why this, allegedly HID Multitouch class 
+> compliant, device needs explicit adding? Is it not compliant after all? Is it 
+> that multiple HID devices it exposes a non-standard thing? Does it then need a 
+> vendor specific class (looking at hid-multitouch.c). Sorry this whole area is 
+> just new and unknown to me.
+
+Could you please verify that the patch below works for you? Thanks.
+
+
+
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH] HID: multitouch: Add support for Baantoo touchscreen
+
+Reported-by: Tvrtko Ursulin <tvrtko.ursulin@onelan.co.uk>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-core.c       |    1 +
+ drivers/hid/hid-ids.h        |    3 +++
+ drivers/hid/hid-multitouch.c |    4 ++++
+ 3 files changed, 8 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 990fe19..d6c0b1c 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1388,6 +1388,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUSTEK_MULTITOUCH_YFO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BAANTOO, USB_DEVICE_ID_BAANTOO_MT_190W2), },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO, USB_DEVICE_ID_CANDO_PIXCIR_MULTI_TOUCH) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 3eb0090..fef15c4 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -157,6 +157,9 @@
+ #define USB_VENDOR_ID_AVERMEDIA		0x07ca
+ #define USB_DEVICE_ID_AVER_FM_MR800	0xb800
+ 
++#define USB_VENDOR_ID_BAANTOO		0x2453
++#define USB_DEVICE_ID_BAANTOO_MT_190W2	0x0100
++
+ #define USB_VENDOR_ID_BELKIN		0x050d
+ #define USB_DEVICE_ID_FLIP_KVM		0x3201
+ 
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 1d5b941..788aca3 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -749,6 +749,10 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_USB_DEVICE(USB_VENDOR_ID_ATMEL,
+ 			USB_DEVICE_ID_ATMEL_MXT_DIGITIZER) },
+ 
++	/* Baantoo multitouch devices */
++	{ .driver_data = MT_CLS_DEFAULT,
++		HID_USB_DEVICE(USB_VENDOR_ID_BAANTOO,
++			USB_DEVICE_ID_BAANTOO_MT_190W2) },
+ 	/* Cando panels */
+ 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
+
+-- 
+Jiri Kosina
+SUSE Labs

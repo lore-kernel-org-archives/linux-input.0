@@ -1,57 +1,40 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH 3/3] Input: wm831x-on - Convert to devm_kzalloc()
-Date: Wed, 18 Apr 2012 18:28:07 +0100
-Message-ID: <1334770087-20616-3-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <1334770087-20616-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: hid-input: default HID_BATTERY_STRENGTH to no
+Date: Wed, 18 Apr 2012 19:28:42 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204181926340.16373@pobox.suse.cz>
+References: <20120418140517.GM19507@zod.bos.redhat.com> <1334758134.8818.132.camel@novo.hadess.net> <20120418141131.GN19507@zod.bos.redhat.com> <20120418142450.GA30083@srcf.ucam.org>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:36224 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754231Ab2DRR2K (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Apr 2012 13:28:10 -0400
-In-Reply-To: <1334770087-20616-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Received: from cantor2.suse.de ([195.135.220.15]:55656 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751790Ab2DRR2p (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Apr 2012 13:28:45 -0400
+In-Reply-To: <20120418142450.GA30083@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Matthew Garrett <mjg@redhat.com>
+Cc: Josh Boyer <jwboyer@redhat.com>, Bastien Nocera <hadess@hadess.net>, Jeremy Fitzhardinge <jeremy@goop.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fedoraproject.org, Richard Hughes <richard@hughsie.com>
 
-Saves a small amount of code and reduces the potential for leaks.
+On Wed, 18 Apr 2012, Matthew Garrett wrote:
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
- drivers/input/misc/wm831x-on.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+> > Matthew suggested that additional kernel patches were required to add a
+> > scope parameter so upower could understand that the battery is powering
+> > a device and not the system.
+> > 
+> > Also, when did it become OK to force-enable a new feature that is
+> > _known_ to not work properly on recent userspace?  That makes no sense
+> > to me.
+> 
+> I agree. It's a great feature, but it shouldn't be default y if 
+> userspace isn't ready for it yet.
 
-diff --git a/drivers/input/misc/wm831x-on.c b/drivers/input/misc/wm831x-on.c
-index 47f18d6..aee53fb 100644
---- a/drivers/input/misc/wm831x-on.c
-+++ b/drivers/input/misc/wm831x-on.c
-@@ -76,7 +76,8 @@ static int __devinit wm831x_on_probe(struct platform_device *pdev)
- 	int irq = platform_get_irq(pdev, 0);
- 	int ret;
- 
--	wm831x_on = kzalloc(sizeof(struct wm831x_on), GFP_KERNEL);
-+	wm831x_on = devm_kzalloc(&pdev->dev, sizeof(struct wm831x_on),
-+				 GFP_KERNEL);
- 	if (!wm831x_on) {
- 		dev_err(&pdev->dev, "Can't allocate data\n");
- 		return -ENOMEM;
-@@ -120,7 +121,6 @@ err_irq:
- err_input_dev:
- 	input_free_device(wm831x_on->dev);
- err:
--	kfree(wm831x_on);
- 	return ret;
- }
- 
-@@ -132,7 +132,6 @@ static int __devexit wm831x_on_remove(struct platform_device *pdev)
- 	free_irq(irq, wm831x_on);
- 	cancel_delayed_work_sync(&wm831x_on->work);
- 	input_unregister_device(wm831x_on->dev);
--	kfree(wm831x_on);
- 
- 	return 0;
- }
+Fully agreed, the 'default y' part escaped my attention. I will be 
+applying the patch and pushing out to Linus.
+
+I even wonder whether we shouldn't put a warning into the Kconfig entry, 
+explaining the consequences of having userspace not ready for the feature.
+
 -- 
-1.7.10
-
+Jiri Kosina
+SUSE Labs

@@ -1,84 +1,84 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 08/14 v3] Input: atmel_mxt_ts - optimize writing of object table entries
-Date: Wed, 18 Apr 2012 21:21:53 +0800
-Message-ID: <1334755319-21365-9-git-send-email-djkurtz@chromium.org>
-References: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f202.google.com ([209.85.220.202]:56851 "EHLO
-	mail-vx0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753475Ab2DRNWE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Apr 2012 09:22:04 -0400
-Received: by vcbfk26 with SMTP id fk26so839778vcb.1
-        for <linux-input@vger.kernel.org>; Wed, 18 Apr 2012 06:22:03 -0700 (PDT)
-In-Reply-To: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Roland Stigge <stigge@antcom.de>
+Subject: [PATCH v3 2/10] ohci-nxp: Device tree support
+Date: Wed, 18 Apr 2012 15:36:07 +0200
+Message-ID: <1334756176-25144-3-git-send-email-stigge@antcom.de>
+References: <1334756176-25144-1-git-send-email-stigge@antcom.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <1334756176-25144-1-git-send-email-stigge@antcom.de>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: arm@kernel.org, linux-arm-kernel@lists.infradead.org, thierry.reding@avionic-design.de, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, axel.lin@gmail.com, broonie@opensource.wolfsonmicro.com, marek.vasut@gmail.com, devel@driverdev.osuosl.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com, dan.carpenter@oracle.com
+Cc: Roland Stigge <stigge@antcom.de>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
 
-Write each object using a single bulk i2c write transfer.
+This patch adds device tree support to ohci-nxp.c
 
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-Reviewed-by: Joonyoung Shim <jy0922.shim@samsung.com>
+Signed-off-by: Roland Stigge <stigge@antcom.de>
+
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   31 ++++++++++++++---------------
- 1 files changed, 15 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 03b292f..1da814b 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -636,34 +636,33 @@ end:
- static int mxt_check_reg_init(struct mxt_data *data)
- {
- 	const struct mxt_platform_data *pdata = data->pdata;
--	struct mxt_object *object;
- 	struct device *dev = &data->client->dev;
--	int index = 0;
--	int i, j, config_offset;
-+	int i, offset;
-+	int ret;
- 
- 	if (!pdata->config) {
- 		dev_dbg(dev, "No cfg data defined, skipping reg init\n");
- 		return 0;
- 	}
- 
--	for (i = 0; i < data->info.object_num; i++) {
--		object = data->object_table + i;
-+	for (offset = 0, i = 0; i < data->info.object_num; i++) {
-+		struct mxt_object *object = &data->object_table[i];
-+		size_t config_size;
- 
- 		if (!mxt_object_writable(object->type))
- 			continue;
- 
--		for (j = 0;
--		     j < (object->size + 1) * (object->instances + 1);
--		     j++) {
--			config_offset = index + j;
--			if (config_offset > pdata->config_length) {
--				dev_err(dev, "Not enough config data!\n");
--				return -EINVAL;
--			}
--			mxt_write_object(data, object->type, j,
--					 pdata->config[config_offset]);
-+		config_size = (object->size + 1) * (object->instances + 1);
-+		if (offset + config_size > pdata->config_length) {
-+			dev_err(dev, "Not enough config data!\n");
-+			return -EINVAL;
- 		}
--		index += (object->size + 1) * (object->instances + 1);
+Applies to v3.4-rc3
+
+ Documentation/devicetree/bindings/usb/ohci-nxp.txt |   16 ++++++++++++++++
+ drivers/usb/host/ohci-nxp.c                        |   10 ++++++++++
+ 2 files changed, 26 insertions(+)
+
+--- /dev/null
++++ linux-2.6/Documentation/devicetree/bindings/usb/ohci-nxp.txt
+@@ -0,0 +1,16 @@
++* OHCI controller, NXP ohci-nxp variant
 +
-+		ret = mxt_write_reg(data->client, object->start_address,
-+				    config_size, &pdata->config[offset]);
-+		if (ret)
-+			return ret;
-+		offset += config_size;
- 	}
++Required properties:
++- compatible: must be "nxp,ohci-nxp"
++- reg: physical base address of the controller and length of memory mapped
++  region.
++- interrupts: The OHCI interrupt
++
++Example (LPC32xx):
++
++	ohci@31020000 {
++		compatible = "nxp,ohci-nxp";
++		reg = <0x31020000 0x300>;
++		interrupt-parent = <&mic>;
++		interrupts = <0x3b 0>;
++	};
+--- linux-2.6.orig/drivers/usb/host/ohci-nxp.c
++++ linux-2.6/drivers/usb/host/ohci-nxp.c
+@@ -22,6 +22,7 @@
+ #include <linux/clk.h>
+ #include <linux/platform_device.h>
+ #include <linux/i2c.h>
++#include <linux/of.h>
  
- 	return 0;
--- 
-1.7.7.3
-
+ #include <mach/hardware.h>
+ #include <asm/mach-types.h>
+@@ -525,10 +526,19 @@ static int usb_hcd_nxp_remove(struct pla
+ /* work with hotplug and coldplug */
+ MODULE_ALIAS("platform:usb-ohci");
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id usb_hcd_nxp_match[] = {
++	{ .compatible = "nxp,ohci-nxp" },
++	{},
++};
++MODULE_DEVICE_TABLE(of, usb_hcd_nxp_match);
++#endif
++
+ static struct platform_driver usb_hcd_nxp_driver = {
+ 	.driver = {
+ 		.name = "usb-ohci",
+ 		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(usb_hcd_nxp_match),
+ 	},
+ 	.probe = usb_hcd_nxp_probe,
+ 	.remove = usb_hcd_nxp_remove,

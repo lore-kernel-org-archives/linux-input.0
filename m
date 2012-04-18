@@ -1,43 +1,39 @@
 From: Roland Stigge <stigge@antcom.de>
-Subject: Re: [PATCH v2 1/8] ohci-nxp: Driver cleanup
-Date: Wed, 18 Apr 2012 10:23:53 +0200
-Message-ID: <4F8E7A19.303@antcom.de>
-References: <1334682507-15055-1-git-send-email-stigge@antcom.de> <1334682507-15055-2-git-send-email-stigge@antcom.de> <20120417205740.GI6498@mwanda>
+Subject: Re: [PATCH v2 3/8] ARM: LPC32xx: clock.c update
+Date: Wed, 18 Apr 2012 10:33:52 +0200
+Message-ID: <4F8E7C70.6090900@antcom.de>
+References: <1334682507-15055-1-git-send-email-stigge@antcom.de> <1334682507-15055-4-git-send-email-stigge@antcom.de> <20120417210905.GJ6498@mwanda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120417205740.GI6498@mwanda>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from antcom.de ([188.40.178.216]:60922 "EHLO chuck.antcom.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751062Ab2DRId7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Apr 2012 04:33:59 -0400
+In-Reply-To: <20120417210905.GJ6498@mwanda>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dan Carpenter <dan.carpenter@oracle.com>
 Cc: arm@kernel.org, linux-arm-kernel@lists.infradead.org, thierry.reding@avionic-design.de, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, axel.lin@gmail.com, broonie@opensource.wolfsonmicro.com, marek.vasut@gmail.com, devel@driverdev.osuosl.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
-List-Id: linux-input@vger.kernel.org
 
-On 04/17/2012 10:57 PM, Dan Carpenter wrote:
-> On Tue, Apr 17, 2012 at 07:08:20PM +0200, Roland Stigge wrote:
->> @@ -435,6 +436,7 @@ static int __devinit usb_hcd_nxp_probe(s
->>  	}
->>  
->>  	__raw_writel(__raw_readl(USB_CTRL) | USB_HOST_NEED_CLK_EN, USB_CTRL);
->> +	__raw_writel(__raw_readl(USB_CTRL) & ~USB_DEV_NEED_CLK_EN, USB_CTRL);
->>  
->>  	/* Set to enable all needed USB clocks */
->>  	__raw_writel(USB_CLOCK_MASK, USB_OTG_CLK_CTRL);
+On 04/17/2012 11:09 PM, Dan Carpenter wrote:
+> On Tue, Apr 17, 2012 at 07:08:22PM +0200, Roland Stigge wrote:
+>> Besides switching to the default macro CLKDEV_INIT() for clock registration,
+>> this patch actually updates the clock registrations of pl08xdmac.
+>>
 > 
-> What does this chunk do?  Is this part of the "* Fixed controller
-> initialization (bits)" bullet point?  How does it affect the user?
-> Should it be included in the 3.4 kernel?
+> When there is a cleanup and a new feature added in the same patch,
+> it makes it hard to read...  :/  So when we update pl08xdmac:
+> 
+> -       CLKDEV_INIT(NULL, "clk_dmac", &clk_dma),
+> +       CLKDEV_INIT("pl08xdmac", NULL, &clk_dma),
+> 
+> What does that actually do?  Is it a bug fix?
 
-Thanks for the hint! I will drop this hunk. Originally, it made sure
-that USB_DEV_NEED_CLK_EN is disabled but due to another change:
+The primecell DMA driver refers to this clock via "pl08xdmac", so it
+only works with the above line change. Will separate out to another patch.
 
-usb_hcd_nxp_probe() {
-...
-__raw_writel(USB_SLAVE_HCLK_EN | PAD_CONTROL_LAST_DRIVEN, USB_CTRL);
-
-this bit is already cleared anyway.
-
-(Would have been uncritical for v3.4 anyway, relating only to the other
-changes introduced in my 3.5 patches.)
+Thanks,
 
 Roland

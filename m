@@ -1,38 +1,57 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
-Subject: [PATCH] input: fix input.h kernel-doc warning
-Date: Tue, 17 Apr 2012 17:03:46 -0700
-Message-ID: <4F8E04E2.3090607@xenotime.net>
+From: Thierry Reding <thierry.reding@avionic-design.de>
+Subject: Re: [PATCH v2 1/8] ohci-nxp: Driver cleanup
+Date: Wed, 18 Apr 2012 06:55:40 +0200
+Message-ID: <20120418045540.GA16990@avionic-0098.adnet.avionic-design.de>
+References: <1334682507-15055-1-git-send-email-stigge@antcom.de>
+ <1334682507-15055-2-git-send-email-stigge@antcom.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from oproxy7-pub.bluehost.com ([67.222.55.9]:51040 "HELO
-	oproxy7-pub.bluehost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753438Ab2DRADJ (ORCPT
+Received: from moutng.kundenserver.de ([212.227.126.186]:56672 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751216Ab2DRE4I (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Apr 2012 20:03:09 -0400
+	Wed, 18 Apr 2012 00:56:08 -0400
+Content-Disposition: inline
+In-Reply-To: <1334682507-15055-2-git-send-email-stigge@antcom.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Roland Stigge <stigge@antcom.de>
+Cc: arm@kernel.org, linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, axel.lin@gmail.com, broonie@opensource.wolfsonmicro.com, marek.vasut@gmail.com, devel@driverdev.osuosl.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
 
-From: Randy Dunlap <rdunlap@xenotime.net>
 
-Fix kernel-doc warning in input.h:
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Warning(include/linux/input.h:140): No description found for parameter 'len'
+* Roland Stigge wrote:
+> --- linux-2.6.orig/drivers/usb/host/ohci-nxp.c
+> +++ linux-2.6/drivers/usb/host/ohci-nxp.c
+[...]
+> @@ -220,7 +220,7 @@ static void isp1301_configure_lpc32xx(vo
+>  		ISP1301_I2C_INTERRUPT_RISING | ISP1301_I2C_REG_CLEAR_ADDR, ~0);
+> =20
+>  	/* Enable usb_need_clk clock after transceiver is initialized */
+> -	__raw_writel((__raw_readl(USB_CTRL) | (1 << 22)), USB_CTRL);
+> +	__raw_writel((__raw_readl(USB_CTRL) | USB_HOST_NEED_CLK_EN), USB_CTRL);
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- include/linux/input.h |    1 +
- 1 file changed, 1 insertion(+)
+There's a pair of gratuitous parentheses here. Since you're changing the li=
+ne
+anyway you can just drop them as well.
 
---- lnx-34-rc3.orig/include/linux/input.h
-+++ lnx-34-rc3/include/linux/input.h
-@@ -116,6 +116,7 @@ struct input_keymap_entry {
- 
- /**
-  * EVIOCGMTSLOTS(len) - get MT slot values
-+ * @len: size of the data buffer in bytes
-  *
-  * The ioctl buffer argument should be binary equivalent to
-  *
+Thierry
+
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.19 (GNU/Linux)
+
+iEYEARECAAYFAk+OSUwACgkQZ+BJyKLjJp8nxwCdFdMQLsyDK/85MkeqD3nt6b55
+I0EAnRGcIuqimxaB5jTv8WTdjrxTu2Xc
+=nKVk
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--

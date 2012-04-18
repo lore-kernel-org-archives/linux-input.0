@@ -1,201 +1,153 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 10/14 v3] Input: atmel_mxt_ts - simplify event reporting
-Date: Wed, 18 Apr 2012 21:21:55 +0800
-Message-ID: <1334755319-21365-11-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 07/14 v3] Input: atmel_mxt_ts - refactor mxt_object_show
+Date: Wed, 18 Apr 2012 21:21:52 +0800
+Message-ID: <1334755319-21365-8-git-send-email-djkurtz@chromium.org>
 References: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f74.google.com ([74.125.82.74]:49130 "EHLO
+	mail-wg0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753504Ab2DRNWF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Apr 2012 09:22:05 -0400
+Received: by wgbdt11 with SMTP id dt11so402039wgb.1
+        for <linux-input@vger.kernel.org>; Wed, 18 Apr 2012 06:22:04 -0700 (PDT)
 In-Reply-To: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
-List-Id: linux-input@vger.kernel.org
 
-Instead of carrying around per-finger state in the driver instance, just
-report each finger as it arrives to the input layer, and let the input
-layer (evdev) hold the event state (which it does anyway).
+don't read T5, since this is the message buffer.
 
-Also, the atmel pad reports "amplitude", which is reported to userspace
-using the "PRESSURE" event type.  The variables now reflect this.
-
-Note: this driver does not really do MT-B properly. Each input report
-(a goup of input events followed by a SYN_REPORT) only contains data for
-a single contact.  When multiple fingers are present on a device, each is
-properly reported in its own MT_SLOT.  However, there is only ever one
-MT_SLOT per SYN_REPORT.  This is fixed in a subsequent patch.
-
-This patch was tested with an mXT224E.
+ * read each object in a single i2c transaction instead of byte-by-byte
+ * use scnprintf() like all well-behaved sysfs entries
+ * don't read T5, the message processor object.  Reading it will
+   only have two outcomes, neither of which is particularly useful:
+   1) the message count decrements, and a valid message will be lost
+   2) an invalid message will be read (reportid == 0xff)
+ * read all instances of each object
+ * conserve limited (PAGE_SIZE) sysfs output buffer space by only
+   showing readable objects and not printing the object's index, which
+   is not useful to userspace
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |  121 +++++++++---------------------
- 1 files changed, 35 insertions(+), 86 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   77 +++++++++++------------------
+ 1 files changed, 29 insertions(+), 48 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 13ecbb4..bac20ec 100644
+index 21957d0..03b292f 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -195,6 +195,7 @@
- #define MXT_BOOT_STATUS_MASK	0x3f
- 
- /* Touch status */
-+#define MXT_UNGRIP		(1 << 0)
- #define MXT_SUPPRESS		(1 << 1)
- #define MXT_AMP			(1 << 2)
- #define MXT_VECTOR		(1 << 3)
-@@ -239,14 +240,6 @@ struct mxt_message {
- 	u8 message[7];
- };
- 
--struct mxt_finger {
--	int status;
--	int x;
--	int y;
--	int area;
--	int pressure;
--};
--
- /* Each client has this additional data */
- struct mxt_data {
- 	struct i2c_client *client;
-@@ -254,7 +247,6 @@ struct mxt_data {
- 	const struct mxt_platform_data *pdata;
- 	struct mxt_object *object_table;
- 	struct mxt_info info;
--	struct mxt_finger finger[MXT_MAX_FINGER];
- 	unsigned int irq;
- 	unsigned int max_x;
- 	unsigned int max_y;
-@@ -503,97 +495,54 @@ static int mxt_write_object(struct mxt_data *data,
- 	return mxt_write_reg(data->client, reg + offset, 1, &val);
+@@ -262,7 +262,6 @@ struct mxt_data {
+ static bool mxt_object_readable(unsigned int type)
+ {
+ 	switch (type) {
+-	case MXT_GEN_MESSAGE_T5:
+ 	case MXT_GEN_COMMAND_T6:
+ 	case MXT_GEN_POWER_T7:
+ 	case MXT_GEN_ACQUIRE_T8:
+@@ -489,20 +488,6 @@ static int mxt_read_message(struct mxt_data *data,
+ 			    message);
  }
  
--static void mxt_input_report(struct mxt_data *data, int single_id)
+-static int mxt_read_object(struct mxt_data *data,
+-				u8 type, u8 offset, u8 *val)
 -{
--	struct mxt_finger *finger = data->finger;
--	struct input_dev *input_dev = data->input_dev;
--	int status = finger[single_id].status;
--	int finger_num = 0;
--	int id;
+-	struct mxt_object *object;
+-	u16 reg;
 -
--	for (id = 0; id < MXT_MAX_FINGER; id++) {
--		if (!finger[id].status)
--			continue;
+-	object = mxt_get_object(data, type);
+-	if (!object)
+-		return -EINVAL;
 -
--		input_mt_slot(input_dev, id);
--		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
--				finger[id].status != MXT_RELEASE);
--
--		if (finger[id].status != MXT_RELEASE) {
--			finger_num++;
--			input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR,
--					finger[id].area);
--			input_report_abs(input_dev, ABS_MT_POSITION_X,
--					finger[id].x);
--			input_report_abs(input_dev, ABS_MT_POSITION_Y,
--					finger[id].y);
--			input_report_abs(input_dev, ABS_MT_PRESSURE,
--					finger[id].pressure);
--		} else {
--			finger[id].status = 0;
--		}
--	}
--
--	input_report_key(input_dev, BTN_TOUCH, finger_num > 0);
--
--	if (status != MXT_RELEASE) {
--		input_report_abs(input_dev, ABS_X, finger[single_id].x);
--		input_report_abs(input_dev, ABS_Y, finger[single_id].y);
--		input_report_abs(input_dev,
--				 ABS_PRESSURE, finger[single_id].pressure);
--	}
--
--	input_sync(input_dev);
+-	reg = object->start_address;
+-	return mxt_read_reg(data->client, reg + offset, 1, val);
 -}
 -
- static void mxt_input_touchevent(struct mxt_data *data,
--				      struct mxt_message *message, int id)
-+				 struct mxt_message *message, int id)
+ static int mxt_write_object(struct mxt_data *data,
+ 				 u8 type, u8 offset, u8 val)
  {
--	struct mxt_finger *finger = data->finger;
- 	struct device *dev = &data->client->dev;
--	u8 status = message->message[0];
-+	struct input_dev *input_dev = data->input_dev;
-+	u8 status;
- 	int x;
- 	int y;
- 	int area;
--	int pressure;
--
--	/* Check the touch is present on the screen */
--	if (!(status & MXT_DETECT)) {
--		if (status & MXT_RELEASE) {
--			dev_dbg(dev, "[%d] released\n", id);
--
--			finger[id].status = MXT_RELEASE;
--			mxt_input_report(data, id);
--		}
--		return;
--	}
--
--	/* Check only AMP detection */
--	if (!(status & (MXT_PRESS | MXT_MOVE)))
--		return;
-+	int amplitude;
- 
-+	status = message->message[0];
- 	x = (message->message[1] << 4) | ((message->message[3] >> 4) & 0xf);
- 	y = (message->message[2] << 4) | ((message->message[3] & 0xf));
- 	if (data->max_x < 1024)
--		x = x >> 2;
-+		x >>= 2;
- 	if (data->max_y < 1024)
--		y = y >> 2;
-+		y >>= 2;
- 
- 	area = message->message[4];
--	pressure = message->message[5];
--
--	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
--		status & MXT_MOVE ? "moved" : "pressed",
--		x, y, area);
--
--	finger[id].status = status & MXT_MOVE ?
--				MXT_MOVE : MXT_PRESS;
--	finger[id].x = x;
--	finger[id].y = y;
--	finger[id].area = area;
--	finger[id].pressure = pressure;
-+	amplitude = message->message[5];
-+
-+	dev_dbg(dev,
-+		"[%d] %c%c%c%c%c%c%c%c x: %d y: %d area: %d amp: %d\n",
-+		id,
-+		(status & MXT_DETECT) ? 'D' : '.',
-+		(status & MXT_PRESS) ? 'P' : '.',
-+		(status & MXT_RELEASE) ? 'R' : '.',
-+		(status & MXT_MOVE) ? 'M' : '.',
-+		(status & MXT_VECTOR) ? 'V' : '.',
-+		(status & MXT_AMP) ? 'A' : '.',
-+		(status & MXT_SUPPRESS) ? 'S' : '.',
-+		(status & MXT_UNGRIP) ? 'U' : '.',
-+		x, y, area, amplitude);
-+
-+	input_mt_slot(input_dev, id);
-+	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
-+				   status & MXT_DETECT);
-+
-+	if (status & MXT_DETECT) {
-+		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
-+		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
-+		input_report_abs(input_dev, ABS_MT_PRESSURE, amplitude);
-+		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
-+	}
- 
--	mxt_input_report(data, id);
-+	input_mt_report_pointer_emulation(input_dev, false);
-+	input_sync(input_dev);
+@@ -902,50 +887,46 @@ static void mxt_calc_resolution(struct mxt_data *data)
  }
  
- static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ static ssize_t mxt_object_show(struct device *dev,
+-				    struct device_attribute *attr, char *buf)
++			       struct device_attribute *attr, char *buf)
+ {
+ 	struct mxt_data *data = dev_get_drvdata(dev);
+-	struct mxt_object *object;
+ 	int count = 0;
+-	int i, j;
+-	int error;
+-	u8 val;
++	size_t i, j, k;
++	int error = 0;
++	u8 *obuf = NULL;
++	char *buf_end = &buf[PAGE_SIZE];
+ 
+-	for (i = 0; i < data->info.object_num; i++) {
+-		object = data->object_table + i;
++	for (i = 0; i < data->info.object_num && buf_end - buf > 1; i++) {
++		struct mxt_object *object = &data->object_table[i];
++		size_t size;
+ 
+-		count += snprintf(buf + count, PAGE_SIZE - count,
+-				"Object[%d] (Type %d)\n",
+-				i + 1, object->type);
+-		if (count >= PAGE_SIZE)
+-			return PAGE_SIZE - 1;
+-
+-		if (!mxt_object_readable(object->type)) {
+-			count += snprintf(buf + count, PAGE_SIZE - count,
+-					"\n");
+-			if (count >= PAGE_SIZE)
+-				return PAGE_SIZE - 1;
++		if (!mxt_object_readable(object->type))
+ 			continue;
+-		}
+ 
+-		for (j = 0; j < object->size + 1; j++) {
+-			error = mxt_read_object(data,
+-						object->type, j, &val);
+-			if (error)
+-				return error;
++		buf += scnprintf(buf, buf_end - buf, "\nType %u\n",
++				 object->type);
+ 
+-			count += snprintf(buf + count, PAGE_SIZE - count,
+-					"\t[%2d]: %02x (%d)\n", j, val, val);
+-			if (count >= PAGE_SIZE)
+-				return PAGE_SIZE - 1;
+-		}
++		size = (object->size + 1) * (object->instances + 1);
++		obuf = krealloc(obuf, size, GFP_KERNEL);
++		error = mxt_read_reg(data->client, object->start_address, size,
++				     obuf);
+ 
+-		count += snprintf(buf + count, PAGE_SIZE - count, "\n");
+-		if (count >= PAGE_SIZE)
+-			return PAGE_SIZE - 1;
++		if (error)
++			break;
++
++		for (j = 0; j < object->instances + 1; j++) {
++			if (object->instances > 0)
++				buf += scnprintf(buf, buf_end - buf,
++						 "Instance %zu\n", j);
++			for (k = 0; k < object->size + 1; k++)
++				buf += scnprintf(buf, buf_end - buf,
++						 "\t[%2zx] %02x (%d)\n",
++						 k, obuf[k], obuf[k]);
++		}
+ 	}
+ 
+-	return count;
++	kfree(obuf);
++	return error ?: count;
+ }
+ 
+ static int mxt_load_fw(struct device *dev, const char *fn)
 -- 
 1.7.7.3
+

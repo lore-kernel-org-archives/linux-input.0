@@ -1,39 +1,43 @@
-From: Roland Stigge <stigge@antcom.de>
-Subject: Re: [PATCH v2 3/8] ARM: LPC32xx: clock.c update
-Date: Wed, 18 Apr 2012 10:33:52 +0200
-Message-ID: <4F8E7C70.6090900@antcom.de>
-References: <1334682507-15055-1-git-send-email-stigge@antcom.de> <1334682507-15055-4-git-send-email-stigge@antcom.de> <20120417210905.GJ6498@mwanda>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH v2 7/8] ARM: LPC32xx: DTS files for device tree conversion
+Date: Wed, 18 Apr 2012 08:10:02 +0000
+Message-ID: <201204180810.02561.arnd@arndb.de>
+References: <1334682507-15055-1-git-send-email-stigge@antcom.de> <1334682507-15055-8-git-send-email-stigge@antcom.de> <20120418054615.GB17506@avionic-0098.adnet.avionic-design.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from antcom.de ([188.40.178.216]:60922 "EHLO chuck.antcom.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751062Ab2DRId7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Apr 2012 04:33:59 -0400
-In-Reply-To: <20120417210905.GJ6498@mwanda>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120418054615.GB17506-RM9K5IK7kjIyiCvfTdI0JKcOhU4Rzj621B7CTYaBSLdn68oJJulU0Q@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+Cc: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>, arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, kevin.wells-3arQi8VN3Tc@public.gmane.org, srinivas.bakki-3arQi8VN3Tc@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: arm@kernel.org, linux-arm-kernel@lists.infradead.org, thierry.reding@avionic-design.de, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, axel.lin@gmail.com, broonie@opensource.wolfsonmicro.com, marek.vasut@gmail.com, devel@driverdev.osuosl.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
 
-On 04/17/2012 11:09 PM, Dan Carpenter wrote:
-> On Tue, Apr 17, 2012 at 07:08:22PM +0200, Roland Stigge wrote:
->> Besides switching to the default macro CLKDEV_INIT() for clock registration,
->> this patch actually updates the clock registrations of pl08xdmac.
->>
+On Wednesday 18 April 2012, Thierry Reding wrote:
+> [...]
+> > +                     /*
+> > +                      * MIC Interrupt controller includes:
+> > +                      *   MIC @40008000
+> > +                      *   SIC1 @4000C000
+> > +                      *   SIC2 @40010000
+> > +                      */
+> > +                     mic: interrupt-controller@40008000 {
+> > +                             compatible = "nxp,lpc32xx-mic";
+> > +                             interrupt-controller;
+> > +                             interrupt-parent;
 > 
-> When there is a cleanup and a new feature added in the same patch,
-> it makes it hard to read...  :/  So when we update pl08xdmac:
+> I think in this case you can leave this out. At least there doesn't seem to
+> be any other such usage in the tree.
 > 
-> -       CLKDEV_INIT(NULL, "clk_dmac", &clk_dma),
-> +       CLKDEV_INIT("pl08xdmac", NULL, &clk_dma),
-> 
-> What does that actually do?  Is it a bug fix?
 
-The primecell DMA driver refers to this clock via "pl08xdmac", so it
-only works with the above line change. Will separate out to another patch.
+It's actually a bug and we're removing all empty "interrupt-parent"
+properties from the dts files now because they cause problems. Please don't
+introduce new ones.
 
-Thanks,
+	Arnd
 
-Roland
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

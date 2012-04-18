@@ -1,57 +1,111 @@
-From: Thierry Reding <thierry.reding@avionic-design.de>
-Subject: Re: [PATCH v2 1/8] ohci-nxp: Driver cleanup
-Date: Wed, 18 Apr 2012 06:55:40 +0200
-Message-ID: <20120418045540.GA16990@avionic-0098.adnet.avionic-design.de>
+From: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+Subject: Re: [PATCH v2 7/8] ARM: LPC32xx: DTS files for device tree conversion
+Date: Wed, 18 Apr 2012 07:46:15 +0200
+Message-ID: <20120418054615.GB17506@avionic-0098.adnet.avionic-design.de>
 References: <1334682507-15055-1-git-send-email-stigge@antcom.de>
- <1334682507-15055-2-git-send-email-stigge@antcom.de>
+ <1334682507-15055-8-git-send-email-stigge@antcom.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.186]:56672 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751216Ab2DRE4I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Apr 2012 00:56:08 -0400
+	protocol="application/pgp-signature"; boundary="MfFXiAuoTsnnDAfZ"
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1334682507-15055-2-git-send-email-stigge@antcom.de>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1334682507-15055-8-git-send-email-stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+Cc: arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, kevin.wells-3arQi8VN3Tc@public.gmane.org, srinivas.bakki-3arQi8VN3Tc@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Roland Stigge <stigge@antcom.de>
-Cc: arm@kernel.org, linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, axel.lin@gmail.com, broonie@opensource.wolfsonmicro.com, marek.vasut@gmail.com, devel@driverdev.osuosl.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
 
 
---3V7upXqbjpZ4EhLz
+--MfFXiAuoTsnnDAfZ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
 * Roland Stigge wrote:
-> --- linux-2.6.orig/drivers/usb/host/ohci-nxp.c
-> +++ linux-2.6/drivers/usb/host/ohci-nxp.c
 [...]
-> @@ -220,7 +220,7 @@ static void isp1301_configure_lpc32xx(vo
->  		ISP1301_I2C_INTERRUPT_RISING | ISP1301_I2C_REG_CLEAR_ADDR, ~0);
-> =20
->  	/* Enable usb_need_clk clock after transceiver is initialized */
-> -	__raw_writel((__raw_readl(USB_CTRL) | (1 << 22)), USB_CTRL);
-> +	__raw_writel((__raw_readl(USB_CTRL) | USB_HOST_NEED_CLK_EN), USB_CTRL);
+> --- /dev/null
+> +++ linux-2.6/arch/arm/boot/dts/lpc32xx.dtsi
+> @@ -0,0 +1,303 @@
+> +/*
+> + * NXP LPC32xx SoC
+> + *
+> + * Copyright 2012 Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+> + *
+> + * The code contained herein is licensed under the GNU General Public
+> + * License. You may obtain a copy of the GNU General Public License
+> + * Version 2 or later at the following locations:
+> + *
+> + * http://www.opensource.org/licenses/gpl-license.html
+> + * http://www.gnu.org/copyleft/gpl.html
+> + */
+> +
+> +/include/ "skeleton.dtsi"
+> +
+> +/ {
+> +	compatible = "nxp,lpc32xx";
+> +
+> +	cpus {
+> +		cpu@0 {
+> +			compatible = "arm,arm926ejs";
+> +		};
+> +	};
+> +
+> +	ahb {
+> +		#address-cells = <1>;
+> +		#size-cells = <1>;
+> +		compatible = "simple-bus";
+> +		ranges = <0x20000000 0x20000000 0x30000000>;
+> +
+> +		slc: flash@20020000 {
+> +			compatible = "nxp,nand-slc";
+> +			reg = <0x20020000 0x1000>;
+> +			status = "disable";
+> +		};
+> +
+> +		mlc: flash@200B0000 {
+> +			compatible = "nxp,nand-mlc";
+> +			reg = <0x200B0000 0x1000>;
+> +			status = "disable";
+> +		};
+> +
+> +		dma@31000000 {
+> +			compatible = "arm,pl080", "arm,primecell";
+> +			reg = <0x31000000 0x1000>;
+> +			interrupt-parent = <&mic>;
 
-There's a pair of gratuitous parentheses here. Since you're changing the li=
-ne
-anyway you can just drop them as well.
+Most platforms define the interrupt parent somewhere in the top-level node
+and have it inherited for child devices instead of having to repeat it for
+each device. But I guess it's also okay to make it explicit.
+
+[...]
+> +			/*
+> +			 * MIC Interrupt controller includes:
+> +			 *   MIC @40008000
+> +			 *   SIC1 @4000C000
+> +			 *   SIC2 @40010000
+> +			 */
+> +			mic: interrupt-controller@40008000 {
+> +				compatible = "nxp,lpc32xx-mic";
+> +				interrupt-controller;
+> +				interrupt-parent;
+
+I /think/ in this case you can leave this out. At least there doesn't seem to
+be any other such usage in the tree.
 
 Thierry
 
---3V7upXqbjpZ4EhLz
+--MfFXiAuoTsnnDAfZ
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.19 (GNU/Linux)
 
-iEYEARECAAYFAk+OSUwACgkQZ+BJyKLjJp8nxwCdFdMQLsyDK/85MkeqD3nt6b55
-I0EAnRGcIuqimxaB5jTv8WTdjrxTu2Xc
-=nKVk
+iEYEARECAAYFAk+OVScACgkQZ+BJyKLjJp/+9wCgqaNqeJvdY9/+vc48JNRs3lGp
+josAnjaYrWXh5YY6WRM/mUHvVlIhj1kX
+=rxOt
 -----END PGP SIGNATURE-----
 
---3V7upXqbjpZ4EhLz--
+--MfFXiAuoTsnnDAfZ--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

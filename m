@@ -1,41 +1,33 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Matthew Garrett <mjg@redhat.com>
 Subject: Re: [PATCH] HID: hid-input: default HID_BATTERY_STRENGTH to no
-Date: Wed, 18 Apr 2012 10:12:33 -0700
-Message-ID: <4F8EF601.1050804@goop.org>
-References: <20120418140517.GM19507@zod.bos.redhat.com> <1334758134.8818.132.camel@novo.hadess.net> <20120418141131.GN19507@zod.bos.redhat.com> <20120418142450.GA30083@srcf.ucam.org>
+Date: Wed, 18 Apr 2012 18:20:50 +0100
+Message-ID: <20120418172050.GA2651@srcf.ucam.org>
+References: <20120418140517.GM19507@zod.bos.redhat.com>
+ <1334758134.8818.132.camel@novo.hadess.net>
+ <20120418141131.GN19507@zod.bos.redhat.com>
+ <20120418142450.GA30083@srcf.ucam.org>
+ <4F8EF601.1050804@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120418142450.GA30083@srcf.ucam.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Matthew Garrett <mjg@redhat.com>
-Cc: Josh Boyer <jwboyer@redhat.com>, Bastien Nocera <hadess@hadess.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fedoraproject.org, Richard Hughes <richard@hughsie.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cavan.codon.org.uk ([93.93.128.6]:35111 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751102Ab2DRRVB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Apr 2012 13:21:01 -0400
+Content-Disposition: inline
+In-Reply-To: <4F8EF601.1050804@goop.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Josh Boyer <jwboyer@redhat.com>, Bastien Nocera <hadess@hadess.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fedoraproject.org, Richard Hughes <richard@hughsie.com>
 
-On 04/18/2012 07:24 AM, Matthew Garrett wrote:
-> On Wed, Apr 18, 2012 at 10:11:31AM -0400, Josh Boyer wrote:
->> On Wed, Apr 18, 2012 at 03:08:54PM +0100, Bastien Nocera wrote:
->>> Don't. The only bit of user-space that's broken is upower, and it's
->>> getting a fixed release shortly.
->> Matthew suggested that additional kernel patches were required to add a
->> scope parameter so upower could understand that the battery is powering
->> a device and not the system.
->>
->> Also, when did it become OK to force-enable a new feature that is
->> _known_ to not work properly on recent userspace?  That makes no sense
->> to me.
-> I agree. It's a great feature, but it shouldn't be default y if 
-> userspace isn't ready for it yet.
+On Wed, Apr 18, 2012 at 10:12:33AM -0700, Jeremy Fitzhardinge wrote:
+> Does upower trigger a shutdown/hibernation if *any* power supply is low,
+> or just if all of them are?  Are the failing cases ones where the BT
+> keyboard is the only visible power supply?
 
-Dammit, I should have pushed harder to get the scope into the same
-release.  Oh well.
+We're seeing shutdowns on desktop machines using bluetooth devices, yes.
 
-Does upower trigger a shutdown/hibernation if *any* power supply is low,
-or just if all of them are?  Are the failing cases ones where the BT
-keyboard is the only visible power supply?
-
-In any case, no objections to disabling it if its the only way to
-prevent regressions for now.
-
-    J
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

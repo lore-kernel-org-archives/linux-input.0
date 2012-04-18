@@ -1,70 +1,41 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH v2 0/8] Second patchset for LPC32xx device tree conversion
-Date: Wed, 18 Apr 2012 17:56:50 +0100
-Message-ID: <20120418165650.GD3099@opensource.wolfsonmicro.com>
-References: <1334682507-15055-1-git-send-email-stigge@antcom.de>
- <201204180806.16848.arnd@arndb.de>
- <20120418093604.GL6498@mwanda>
- <201204181100.40123.arnd@arndb.de>
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] HID: hid-input: default HID_BATTERY_STRENGTH to no
+Date: Wed, 18 Apr 2012 10:12:33 -0700
+Message-ID: <4F8EF601.1050804@goop.org>
+References: <20120418140517.GM19507@zod.bos.redhat.com> <1334758134.8818.132.camel@novo.hadess.net> <20120418141131.GN19507@zod.bos.redhat.com> <20120418142450.GA30083@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IMjqdzrDRly81ofr"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:35272 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751102Ab2DRQ45 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Apr 2012 12:56:57 -0400
-Content-Disposition: inline
-In-Reply-To: <201204181100.40123.arnd@arndb.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120418142450.GA30083@srcf.ucam.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Matthew Garrett <mjg@redhat.com>
+Cc: Josh Boyer <jwboyer@redhat.com>, Bastien Nocera <hadess@hadess.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fedoraproject.org, Richard Hughes <richard@hughsie.com>
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, Roland Stigge <stigge@antcom.de>, devel@driverdev.osuosl.org, srinivas.bakki@nxp.com, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, thierry.reding@avionic-design.de, linux-kernel@vger.kernel.org, kevin.wells@nxp.com, marek.vasut@gmail.com, arm@kernel.org, linux-input@vger.kernel.org, axel.lin@gmail.com, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org
 
+On 04/18/2012 07:24 AM, Matthew Garrett wrote:
+> On Wed, Apr 18, 2012 at 10:11:31AM -0400, Josh Boyer wrote:
+>> On Wed, Apr 18, 2012 at 03:08:54PM +0100, Bastien Nocera wrote:
+>>> Don't. The only bit of user-space that's broken is upower, and it's
+>>> getting a fixed release shortly.
+>> Matthew suggested that additional kernel patches were required to add a
+>> scope parameter so upower could understand that the battery is powering
+>> a device and not the system.
+>>
+>> Also, when did it become OK to force-enable a new feature that is
+>> _known_ to not work properly on recent userspace?  That makes no sense
+>> to me.
+> I agree. It's a great feature, but it shouldn't be default y if 
+> userspace isn't ready for it yet.
 
---IMjqdzrDRly81ofr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Dammit, I should have pushed harder to get the scope into the same
+release.  Oh well.
 
-On Wed, Apr 18, 2012 at 11:00:39AM +0000, Arnd Bergmann wrote:
+Does upower trigger a shutdown/hibernation if *any* power supply is low,
+or just if all of them are?  Are the failing cases ones where the BT
+keyboard is the only visible power supply?
 
-> 1. develop on -rc
-> 2. merge with latest -next, test and make sure it works there
-> 3. submit for review against -rc
-> 4. have patches included in -next once reviewed, but based on -rc
-> 5. when merge window opens, have patches sent for upstream inclusion
+In any case, no objections to disabling it if its the only way to
+prevent regressions for now.
 
-Steps 3 and 4 should be to submit against whatever branch is appropriate
-for the subsystem and driver - if people follow this process they're
-going to get bounced back by a fair proportion of maintainers, -rc isn't
-universally what people are looking for so people should be aware that
-they need to pay attention here. =20
-
-Generally I'd say the development version is a safer bet than -rc for
-most subsystems.
-
---IMjqdzrDRly81ofr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPjvJLAAoJEBus8iNuMP3d82kP/3+7MODQeuhg0EvXB9a6qZun
-KLFE8W1nBcva8Y5Zum80CWldALRvrkJfuW6dtzeFm1wBdLm9j2J18csBOe1ITFn1
-ZWIcb1vpz58MjFUoVfVGHchK5o+KGvZzDDef5PHv+mWIlc4Sv8fIbXFphG7XlVBP
-AFFmmVue+ha+YTV1/yQdWwq/mhJB4kg4ypXNDt3QB/qZIc5kLzPwpJwnAHbucPXJ
-/xGvZ/Df2hJMDw8jMGujTIp23Xtjl8Bd+zbNIGkxhDUBCbLW6GBVButE9LsNP9db
-s0VWjOtoSoSlz25MvqBTw01X6zld5cjPgJvgUn64BHF3noaNdaeqOP2cUThKSRvY
-GVr71jX1CSrOG2sjVonOMrSYEKmJJeYzD2lQIopLYC27JiWlxyxq2zvmMKWyYJdJ
-/GQKe2IdyIOmign2o7Gtt2QhhjZf0Fqx8z7/f5VIOFwxeTwtmLeyvfWrflMMIZ77
-7JdEisuWbtALQkhUeO0lg32gSyMG9dwcUzKMsg7Mnh4ejyrh3xZ79C+PRd7ijvJa
-FhcOi0EIlEPgQLshEzRh7b/mZfL6rtBbH4FmAWp+RyTNfpGiyI3GHhve/Nk3xe+V
-ADH9+YE5THd/qyhL24SngidzzJXTOWXtPMKRzFhPJz/yqNo2tUEBwvpBcZaoZ75v
-SKlQT2MLqZJy70WWuyEb
-=rx+r
------END PGP SIGNATURE-----
-
---IMjqdzrDRly81ofr--
+    J

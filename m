@@ -1,33 +1,38 @@
-From: Matthew Garrett <mjg@redhat.com>
-Subject: Re: [PATCH] HID: hid-input: default HID_BATTERY_STRENGTH to no
-Date: Wed, 18 Apr 2012 18:20:50 +0100
-Message-ID: <20120418172050.GA2651@srcf.ucam.org>
-References: <20120418140517.GM19507@zod.bos.redhat.com>
- <1334758134.8818.132.camel@novo.hadess.net>
- <20120418141131.GN19507@zod.bos.redhat.com>
- <20120418142450.GA30083@srcf.ucam.org>
- <4F8EF601.1050804@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH 1/3] Input: wm831x-ts - Remove unneeded clearing of driver data
+Date: Wed, 18 Apr 2012 18:28:05 +0100
+Message-ID: <1334770087-20616-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:35111 "EHLO
-	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751102Ab2DRRVB (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:36222 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753810Ab2DRR2K (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Apr 2012 13:21:01 -0400
-Content-Disposition: inline
-In-Reply-To: <4F8EF601.1050804@goop.org>
+	Wed, 18 Apr 2012 13:28:10 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Josh Boyer <jwboyer@redhat.com>, Bastien Nocera <hadess@hadess.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fedoraproject.org, Richard Hughes <richard@hughsie.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-On Wed, Apr 18, 2012 at 10:12:33AM -0700, Jeremy Fitzhardinge wrote:
-> Does upower trigger a shutdown/hibernation if *any* power supply is low,
-> or just if all of them are?  Are the failing cases ones where the BT
-> keyboard is the only visible power supply?
+This is unneeded, only a bound driver can use driver data and a driver
+relying on the state prior to probe() is buggy.
 
-We're seeing shutdowns on desktop machines using bluetooth devices, yes.
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/input/touchscreen/wm831x-ts.c |    1 -
+ 1 file changed, 1 deletion(-)
 
+diff --git a/drivers/input/touchscreen/wm831x-ts.c b/drivers/input/touchscreen/wm831x-ts.c
+index 4bc851a..d81482e 100644
+--- a/drivers/input/touchscreen/wm831x-ts.c
++++ b/drivers/input/touchscreen/wm831x-ts.c
+@@ -389,7 +389,6 @@ static __devexit int wm831x_ts_remove(struct platform_device *pdev)
+ 	input_unregister_device(wm831x_ts->input_dev);
+ 	kfree(wm831x_ts);
+ 
+-	platform_set_drvdata(pdev, NULL);
+ 	return 0;
+ }
+ 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+1.7.10
+

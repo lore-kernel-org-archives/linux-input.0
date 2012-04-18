@@ -1,28 +1,44 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v2 8/8] ARM: LPC32xx: Device tree support
-Date: Wed, 18 Apr 2012 14:01:53 +0000
-Message-ID: <201204181401.53913.arnd@arndb.de>
-References: <1334682507-15055-1-git-send-email-stigge@antcom.de> <20120418060230.GC17506@avionic-0098.adnet.avionic-design.de> <4F8EB3DC.3060203@antcom.de>
+From: Josh Boyer <jwboyer@redhat.com>
+Subject: [PATCH] HID: hid-input: default HID_BATTERY_STRENGTH to no
+Date: Wed, 18 Apr 2012 10:05:17 -0400
+Message-ID: <20120418140517.GM19507@zod.bos.redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4F8EB3DC.3060203@antcom.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Roland Stigge <stigge@antcom.de>
-Cc: Thierry Reding <thierry.reding@avionic-design.de>, arm@kernel.org, linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, axel.lin@gmail.com, broonie@opensource.wolfsonmicro.com, marek.vasut@gmail.com, devel@driverdev.osuosl.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:48249 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751071Ab2DROFu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Apr 2012 10:05:50 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fedoraproject.org
 
-On Wednesday 18 April 2012, Roland Stigge wrote:
-> As Arnd wrote, there are board specific bits left (open questions
-> about how to DT'ize spi's controller_data, and DT-conversion of AMBA
-> CLCD). However, I will move board-independent stuff over to common.c.
-> (Keeping lpc32xx_auxdata_lookup[] in phy3250.c due to remaining
-> platform_data, though.)
+Commit 4f5ca836b "HID: hid-input: add support for HID devices reporting
+Battery Strength" added the CONFIG_HID_BATTERY_STRENGTH option to report
+the battery strength of HID devices.  The commit log explicitly mentions
+it not working properly with recent userspace, but it is default y
+anyway.  This is rather odd, and actually causes problems on real
+systems.
 
-FWIW, I think you can remove the most of the auxdata table if you
-change the clock lookup table to refer to the automatic device
-names, e.g. 31020000.usbd instead of lpc32xx_udc.
+This works around Fedora bug
+https://bugzilla.redhat.com/show_bug.cgi?id=806295
 
-	Arnd
+Signed-off-by: Josh Boyer <jwboyer@redhat.com>
+
+---
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index a3d0332..ffddcba 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -34,7 +34,7 @@ config HID
+ config HID_BATTERY_STRENGTH
+ 	bool
+ 	depends on HID && POWER_SUPPLY && HID = POWER_SUPPLY
+-	default y
++	default n
+ 
+ config HIDRAW
+ 	bool "/dev/hidraw raw HID device support"

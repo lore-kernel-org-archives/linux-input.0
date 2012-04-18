@@ -1,7 +1,7 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 5/5] hid-multitouch: Remove remnant quirk handling
-Date: Thu, 19 Apr 2012 00:00:57 +0200
-Message-ID: <1334786457-2124-6-git-send-email-rydberg@euromail.se>
+Subject: [PATCH 1/5] hid: Add device group to modalias
+Date: Thu, 19 Apr 2012 00:00:53 +0200
+Message-ID: <1334786457-2124-2-git-send-email-rydberg@euromail.se>
 References: <1334786457-2124-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1334786457-2124-1-git-send-email-rydberg@euromail.se>
@@ -10,98 +10,123 @@ To: Jiri Kosina <jkosina@suse.cz>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 List-Id: linux-input@vger.kernel.org
 
-With device groups in place, the temporary HID_QUIRK_MULTITOUCH quirk
-is no longer used and can be removed.
+HID devices are only partially presented to userland.  Hotplugged
+devices emit events containing a modalias based on the basic bus,
+vendor and product entities. However, in practise a hid device can
+depend on details such as a single usb interface or a particular item
+in a report descriptor.
+
+This patch adds a device group to the hid device id, and broadcasts it
+using uevent and the device modalias.  The module alias generation is
+modified to match. As a consequence, a device with a non-zero group
+will be processed by the corresponding group driver instead of by the
+generic hid driver.
 
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/hid/hid-core.c       |   15 ++-------------
- drivers/hid/hid-input.c      |    7 -------
- drivers/hid/hid-multitouch.c |    1 -
- include/linux/hid.h          |    1 -
- 4 files changed, 2 insertions(+), 22 deletions(-)
+ drivers/hid/hid-core.c          |   24 +++++++++++++++++++++---
+ include/linux/hid.h             |    1 +
+ include/linux/mod_devicetable.h |    2 +-
+ scripts/mod/file2alias.c        |    3 ++-
+ 4 files changed, 25 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 67d1470..2fbbdef 100644
+index 4da66b4..f5a9660 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -1238,10 +1238,6 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 	if ((connect_mask & HID_CONNECT_HIDINPUT) && !hidinput_connect(hdev,
- 				connect_mask & HID_CONNECT_HIDINPUT_FORCE))
- 		hdev->claimed |= HID_CLAIMED_INPUT;
--	if (hdev->quirks & HID_QUIRK_MULTITOUCH) {
--		/* this device should be handled by hid-multitouch, skip it */
--		return -ENODEV;
--	}
+@@ -1158,7 +1158,7 @@ EXPORT_SYMBOL_GPL(hid_input_report);
+ static bool hid_match_one_id(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
+ {
+-	return id->bus == hdev->bus &&
++	return id->bus == hdev->bus && id->group == hdev->group &&
+ 		(id->vendor == HID_ANY_ID || id->vendor == hdev->vendor) &&
+ 		(id->product == HID_ANY_ID || id->product == hdev->product);
+ }
+@@ -1751,6 +1751,23 @@ static int hid_device_remove(struct device *dev)
+ 	return 0;
+ }
  
- 	if ((connect_mask & HID_CONNECT_HIDDEV) && hdev->hiddev_connect &&
- 			!hdev->hiddev_connect(hdev,
-@@ -1626,10 +1622,6 @@ static int hid_bus_match(struct device *dev, struct device_driver *drv)
- 	struct hid_driver *hdrv = container_of(drv, struct hid_driver, driver);
++static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
++			     char *buf)
++{
++	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
++	int len;
++
++	len = snprintf(buf, PAGE_SIZE, "hid:b%04Xg%04Xv%08Xp%08X\n",
++		       hdev->bus, hdev->group, hdev->vendor, hdev->product);
++
++	return (len >= PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
++}
++
++static struct device_attribute hid_dev_attrs[] = {
++	__ATTR_RO(modalias),
++	__ATTR_NULL,
++};
++
+ static int hid_uevent(struct device *dev, struct kobj_uevent_env *env)
+ {
  	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+@@ -1768,8 +1785,8 @@ static int hid_uevent(struct device *dev, struct kobj_uevent_env *env)
+ 	if (add_uevent_var(env, "HID_UNIQ=%s", hdev->uniq))
+ 		return -ENOMEM;
  
--	if ((hdev->quirks & HID_QUIRK_MULTITOUCH) &&
--		!strncmp(hdrv->name, "hid-multitouch", 14))
--		return 1;
--
- 	if (!hid_match_device(hdev, hdrv))
- 		return 0;
+-	if (add_uevent_var(env, "MODALIAS=hid:b%04Xv%08Xp%08X",
+-			hdev->bus, hdev->vendor, hdev->product))
++	if (add_uevent_var(env, "MODALIAS=hid:b%04Xg%04Xv%08Xp%08X",
++			   hdev->bus, hdev->group, hdev->vendor, hdev->product))
+ 		return -ENOMEM;
  
-@@ -1654,11 +1646,8 @@ static int hid_device_probe(struct device *dev)
- 	if (!hdev->driver) {
- 		id = hid_match_device(hdev, hdrv);
- 		if (id == NULL) {
--			if (!((hdev->quirks & HID_QUIRK_MULTITOUCH) &&
--				!strncmp(hdrv->name, "hid-multitouch", 14))) {
--				ret = -ENODEV;
--				goto unlock;
--			}
-+			ret = -ENODEV;
-+			goto unlock;
- 		}
+ 	return 0;
+@@ -1777,6 +1794,7 @@ static int hid_uevent(struct device *dev, struct kobj_uevent_env *env)
  
- 		hdev->driver = hdrv;
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 62d13ee..7b43186 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1204,13 +1204,6 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
- 		}
- 	}
- 
--	if (hid->quirks & HID_QUIRK_MULTITOUCH) {
--		/* generic hid does not know how to handle multitouch devices */
--		if (hidinput)
--			goto out_cleanup;
--		goto out_unwind;
--	}
--
- 	if (hidinput && input_register_device(hidinput->input))
- 		goto out_cleanup;
- 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index e5749b3..14f3b51 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -657,7 +657,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	 * that emit events over several HID messages.
- 	 */
- 	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
--	hdev->quirks &= ~HID_QUIRK_MULTITOUCH;
- 
- 	td = kzalloc(sizeof(struct mt_device), GFP_KERNEL);
- 	if (!td) {
+ static struct bus_type hid_bus_type = {
+ 	.name		= "hid",
++	.dev_attrs	= hid_dev_attrs,
+ 	.match		= hid_bus_match,
+ 	.probe		= hid_device_probe,
+ 	.remove		= hid_device_remove,
 diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 4c5c3e4..8022068 100644
+index 3a95da6..85871f7 100644
 --- a/include/linux/hid.h
 +++ b/include/linux/hid.h
-@@ -323,7 +323,6 @@ struct hid_item {
- #define HID_QUIRK_BADPAD			0x00000020
- #define HID_QUIRK_MULTI_INPUT			0x00000040
- #define HID_QUIRK_HIDINPUT_FORCE		0x00000080
--#define HID_QUIRK_MULTITOUCH			0x00000100
- #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
- #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
- #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
+@@ -474,6 +474,7 @@ struct hid_device {							/* device report descriptor */
+ 	unsigned maxcollection;						/* Number of parsed collections */
+ 	unsigned maxapplication;					/* Number of applications */
+ 	__u16 bus;							/* BUS ID */
++	__u16 group;							/* Report group */
+ 	__u32 vendor;							/* Vendor ID */
+ 	__u32 product;							/* Product ID */
+ 	__u32 version;							/* HID version */
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index 501da4c..108f78e 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -135,7 +135,7 @@ struct usb_device_id {
+ 
+ struct hid_device_id {
+ 	__u16 bus;
+-	__u16 pad1;
++	__u16 group;
+ 	__u32 vendor;
+ 	__u32 product;
+ 	kernel_ulong_t driver_data
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index 8e730cc..66fafd0 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -336,10 +336,11 @@ static int do_hid_entry(const char *filename,
+ 			     struct hid_device_id *id, char *alias)
+ {
+ 	id->bus = TO_NATIVE(id->bus);
++	id->group = TO_NATIVE(id->group);
+ 	id->vendor = TO_NATIVE(id->vendor);
+ 	id->product = TO_NATIVE(id->product);
+ 
+-	sprintf(alias, "hid:b%04X", id->bus);
++	sprintf(alias, "hid:b%04Xg%04X", id->bus, id->group);
+ 	ADD(alias, "v", id->vendor != HID_ANY_ID, id->vendor);
+ 	ADD(alias, "p", id->product != HID_ANY_ID, id->product);
+ 
 -- 
 1.7.10

@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 13/14 v3] Input: atmel_mxt_ts - send all MT-B slots in one input report
-Date: Wed, 18 Apr 2012 21:21:58 +0800
-Message-ID: <1334755319-21365-14-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 09/14 v3] Input: atmel_mxt_ts - refactor get info
+Date: Wed, 18 Apr 2012 21:21:54 +0800
+Message-ID: <1334755319-21365-10-git-send-email-djkurtz@chromium.org>
 References: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
@@ -10,58 +10,122 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromai
 Cc: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-Each interrupt contains information for all contacts with changing
-properties.  Process all of this information at once, and send it all in a
-a single input report (ie input events ending in EV_SYN/SYN_REPORT).
+Read whole info block in one i2c transaction.
+And then re-read the matrix size after applying pdata config, since
+it may have changed.
+Note, however, that the matrix x & y size are just displayed for
+information purposes.  They aren't actually used by the driver itself.
 
-This patch was tested using an MXT224E.
+Also, parse and info print the firmware major and minor version numbers.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   11 ++++++++---
- 1 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   65 +++++------------------------
+ 1 files changed, 12 insertions(+), 53 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 75e0108..6077b7c 100644
+index 1da814b..13ecbb4 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -540,9 +540,6 @@ static void mxt_input_touch(struct mxt_data *data, struct mxt_message *message)
- 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
- 		/* TODO: Use vector to report ORIENTATION & TOUCH_MINOR */
+@@ -36,6 +36,7 @@
+ #define MXT_FW_NAME		"maxtouch.fw"
+ 
+ /* Registers */
++#define MXT_INFO		0x00
+ #define MXT_FAMILY_ID		0x00
+ #define MXT_VARIANT_ID		0x01
+ #define MXT_VERSION		0x02
+@@ -738,41 +739,6 @@ static void mxt_handle_pdata(struct mxt_data *data)
  	}
--
--	input_mt_report_pointer_emulation(input_dev, false);
--	input_sync(input_dev);
  }
  
- static irqreturn_t mxt_interrupt(int irq, void *dev_id)
-@@ -550,7 +547,9 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- 	struct mxt_data *data = dev_id;
- 	struct mxt_message message;
- 	struct device *dev = &data->client->dev;
-+	bool update_input;
+-static int mxt_get_info(struct mxt_data *data)
+-{
+-	struct i2c_client *client = data->client;
+-	struct mxt_info *info = &data->info;
+-	int error;
+-	u8 val;
+-
+-	error = mxt_read_reg(client, MXT_FAMILY_ID, 1, &val);
+-	if (error)
+-		return error;
+-	info->family_id = val;
+-
+-	error = mxt_read_reg(client, MXT_VARIANT_ID, 1, &val);
+-	if (error)
+-		return error;
+-	info->variant_id = val;
+-
+-	error = mxt_read_reg(client, MXT_VERSION, 1, &val);
+-	if (error)
+-		return error;
+-	info->version = val;
+-
+-	error = mxt_read_reg(client, MXT_BUILD, 1, &val);
+-	if (error)
+-		return error;
+-	info->build = val;
+-
+-	error = mxt_read_reg(client, MXT_OBJECT_NUM, 1, &val);
+-	if (error)
+-		return error;
+-	info->object_num = val;
+-
+-	return 0;
+-}
+-
+ static int mxt_get_object_table(struct mxt_data *data)
+ {
+ 	int error;
+@@ -808,11 +774,12 @@ static int mxt_get_object_table(struct mxt_data *data)
+ static int mxt_initialize(struct mxt_data *data)
+ {
+ 	struct i2c_client *client = data->client;
++	struct device *dev = &client->dev;
+ 	struct mxt_info *info = &data->info;
+ 	int error;
+-	u8 val;
  
-+	update_input = false;
- 	do {
- 		if (mxt_read_message(data, &message)) {
- 			dev_err(dev, "Failed to read message\n");
-@@ -560,11 +559,17 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- 		if (message.reportid >= data->T9_reportid_min &&
- 		    message.reportid <= data->T9_reportid_max) {
- 			mxt_input_touch(data, &message);
-+			update_input = true;
- 		} else {
- 			mxt_dump_message(dev, &message);
- 		}
- 	} while (message.reportid != 0xff);
+-	error = mxt_get_info(data);
++	/* Read 7-byte info block starting at address 0 */
++	error = mxt_read_reg(client, MXT_INFO, sizeof(*info), info);
+ 	if (error)
+ 		return error;
  
-+	if (update_input) {
-+		input_mt_report_pointer_emulation(data->input_dev, false);
-+		input_sync(data->input_dev);
-+	}
-+
- end:
- 	return IRQ_HANDLED;
+@@ -847,26 +814,18 @@ static int mxt_initialize(struct mxt_data *data)
+ 			MXT_COMMAND_RESET, 1);
+ 	msleep(MXT_RESET_TIME);
+ 
+-	/* Update matrix size at info struct */
+-	error = mxt_read_reg(client, MXT_MATRIX_X_SIZE, 1, &val);
+-	if (error)
+-		return error;
+-	info->matrix_xsize = val;
+-
+-	error = mxt_read_reg(client, MXT_MATRIX_Y_SIZE, 1, &val);
++	/* Update matrix size, since it may have been modified by pdata */
++	error = mxt_read_reg(client, MXT_MATRIX_X_SIZE, 2,
++			     &info->matrix_xsize);
+ 	if (error)
+ 		return error;
+-	info->matrix_ysize = val;
+ 
+-	dev_info(&client->dev,
+-			"Family ID: %d Variant ID: %d Version: %d Build: %d\n",
+-			info->family_id, info->variant_id, info->version,
+-			info->build);
++	dev_info(dev, "Family ID: %d Variant ID: %d Major.Minor.Build: %d.%d.%d\n",
++		 info->family_id, info->variant_id, info->version >> 4,
++		 info->version & 0xf, info->build);
+ 
+-	dev_info(&client->dev,
+-			"Matrix X Size: %d Matrix Y Size: %d Object Num: %d\n",
+-			info->matrix_xsize, info->matrix_ysize,
+-			info->object_num);
++	dev_info(dev, "Matrix X Size: %d Matrix Y Size: %d Object Num: %d\n",
++		 info->matrix_xsize, info->matrix_ysize, info->object_num);
+ 
+ 	return 0;
  }
 -- 
 1.7.7.3

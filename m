@@ -1,65 +1,44 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 00/14 v3] cleanup atmel_mxt_ts
-Date: Wed, 18 Apr 2012 21:21:45 +0800
-Message-ID: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f202.google.com ([209.85.220.202]:33905 "EHLO
-	mail-vx0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753202Ab2DRNWD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Apr 2012 09:22:03 -0400
-Received: by vcbfk26 with SMTP id fk26so839773vcb.1
-        for <linux-input@vger.kernel.org>; Wed, 18 Apr 2012 06:22:02 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH 05/14 v3] Input: atmel_mxt_ts - do not read extra (checksum) byte
+Date: Wed, 18 Apr 2012 21:21:50 +0800
+Message-ID: <1334755319-21365-6-git-send-email-djkurtz@chromium.org>
+References: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
+List-Id: linux-input@vger.kernel.org
 
-This patchset cleans up the atmel_mxt_ts touchscreen driver.
-In particular, v3 implements the following:
+atmel_mxt devices will send a checksum byte at the end of a message if
+the MSB of the object address is set.
+However, since this driver does not set this bit, the checksum byte
+isn't actually sent, so don't even try to read it.
 
-1) sysfs
-   a) fw_update only by root
-   b) use sncprintf()
-2) faster initialization
-   a) read/write sets of registers using i2c block transactions
-   b) fetch object descriptor table as a single i2c transaction
-   c) fetch objects  as a set of i2c reads, one per object
-   d) write config data as a set of i2c writes, one per object
-3) faster interrupt processing & initialization times
-   a) cache important values at init instead of computing in isr
-   b) don't read message checksum byte (which isn't even enabled in fw)
-4) more correct MT-B support
-   a) send all (changed) contacts in a single EV_SYN/SYN_REPORT
+Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-v3:
-  * Address Henrik's feedback:
-    1) removed some more stack allocations
-    2) use sncprintf() in sysfs handler
-
-The patches were tested using an MXT224E.
-They should apply cleanly to input/next.
-
-Daniel Kurtz (14):
-  Input: atmel_mxt_ts - use CONFIG_PM_SLEEP
-  Input: atmel_mxt_ts - only allow root to update firmware
-  Input: atmel_mxt_ts - refactor mxt_read/write_reg to take a length
-  Input: atmel_mxt_ts - verify object size in mxt_write_object
-  Input: atmel_mxt_ts - do not read extra (checksum) byte
-  Input: atmel_mxt_ts - dump each message on just 1 line
-  Input: atmel_mxt_ts - refactor mxt_object_show
-  Input: atmel_mxt_ts - optimize writing of object table entries
-  Input: atmel_mxt_ts - refactor get info
-  Input: atmel_mxt_ts - simplify event reporting
-  Input: atmel_mxt_ts - cache T9 reportid range when reading object
-    table
-  Input: atmel_mxt_ts - parse vector field of data packets
-  Input: atmel_mxt_ts - send all MT-B slots in one input report
-  Input: atmel_mxt_ts - parse T6 reports
-
- drivers/input/touchscreen/atmel_mxt_ts.c |  530 ++++++++++++------------------
- 1 files changed, 218 insertions(+), 312 deletions(-)
-
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 1d0639d..26dee8b 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -236,7 +236,6 @@ struct mxt_object {
+ struct mxt_message {
+ 	u8 reportid;
+ 	u8 message[7];
+-	u8 checksum;
+ };
+ 
+ struct mxt_finger {
+@@ -336,7 +335,6 @@ static void mxt_dump_message(struct device *dev,
+ 	dev_dbg(dev, "message5:\t0x%x\n", message->message[4]);
+ 	dev_dbg(dev, "message6:\t0x%x\n", message->message[5]);
+ 	dev_dbg(dev, "message7:\t0x%x\n", message->message[6]);
+-	dev_dbg(dev, "checksum:\t0x%x\n", message->checksum);
+ }
+ 
+ static int mxt_check_bootloader(struct i2c_client *client,
 -- 
 1.7.7.3
-

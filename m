@@ -1,7 +1,7 @@
 From: Sourav Poddar <sourav.poddar@ti.com>
 Subject: [PATCHv2 1/2] drivers: input: keypad: Add device tree support
-Date: Thu, 19 Apr 2012 20:45:36 +0530
-Message-ID: <1334848537-823-1-git-send-email-sourav.poddar@ti.com>
+Date: Thu, 19 Apr 2012 20:47:57 +0530
+Message-ID: <1334848679-882-1-git-send-email-sourav.poddar@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,7 +16,7 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
 Sender: linux-arm-kernel-bounces@lists.infradead.org
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: devicetree-discuss@lists.ozlabs.org
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Cc: Benoit Cousson <b-cousson@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Randy Dunlap <rdunlap@xenotime.net>, Felipe Balbi <balbi@ti.com>, linux-input@vger.kernel.org, Sourav Poddar <sourav.poddar@ti.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
 Update the Documentation with omap4 keypad device tree

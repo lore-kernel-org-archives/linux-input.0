@@ -1,50 +1,358 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v2 0/8] Second patchset for LPC32xx device tree conversion
-Date: Thu, 19 Apr 2012 14:21:29 +0000
-Message-ID: <201204191421.29558.arnd@arndb.de>
-References: <1334682507-15055-1-git-send-email-stigge@antcom.de> <201204181100.40123.arnd@arndb.de> <20120418165650.GD3099@opensource.wolfsonmicro.com>
+From: Sourav Poddar <sourav.poddar@ti.com>
+Subject: [PATCHv2 2/2] arm/dts: omap4-sdp: Add keypad data
+Date: Thu, 19 Apr 2012 20:45:37 +0530
+Message-ID: <1334848537-823-2-git-send-email-sourav.poddar@ti.com>
+References: <1334848537-823-1-git-send-email-sourav.poddar@ti.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.9]:53389 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754271Ab2DSOVy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Apr 2012 10:21:54 -0400
-In-Reply-To: <20120418165650.GD3099@opensource.wolfsonmicro.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1334848537-823-1-git-send-email-sourav.poddar@ti.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: devicetree-discuss@lists.ozlabs.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, Roland Stigge <stigge@antcom.de>, devel@driverdev.osuosl.org, srinivas.bakki@nxp.com, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, thierry.reding@avionic-design.de, linux-kernel@vger.kernel.org, kevin.wells@nxp.com, marek.vasut@gmail.com, arm@kernel.org, linux-input@vger.kernel.org, axel.lin@gmail.com, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org
 
-On Wednesday 18 April 2012, Mark Brown wrote:
-> On Wed, Apr 18, 2012 at 11:00:39AM +0000, Arnd Bergmann wrote:
-> 
-> > 1. develop on -rc
-> > 2. merge with latest -next, test and make sure it works there
-> > 3. submit for review against -rc
-> > 4. have patches included in -next once reviewed, but based on -rc
-> > 5. when merge window opens, have patches sent for upstream inclusion
-> 
-> Steps 3 and 4 should be to submit against whatever branch is appropriate
-> for the subsystem and driver - if people follow this process they're
-> going to get bounced back by a fair proportion of maintainers, -rc isn't
-> universally what people are looking for so people should be aware that
-> they need to pay attention here.  
-> 
-> Generally I'd say the development version is a safer bet than -rc for
-> most subsystems.
+Add keypad data node in omap4 device tree file.
+Also fill the device tree binding parameters
+with the required value in "omap4-sdp" dts file.
 
-Right. The description above was mostly done for the lpc32xx case,
-which is going to get merged through the arm-soc tree and that doesn't
-have a single development branch but instead has lots of them.
+Tested on omap44330 sdp with 3.4-rc3 kernel.
 
-For subsystems that have just one branch, I agree that it makes sense
-to develop against that one. Also for arm-soc, it can make sense
-to base on one of the existing branches, but I prefer the default
-to be to base on the -rc release so I can mix and match incoming
-branches as needed.
+Cc: Benoit Cousson <b-cousson@ti.com>
+Cc: Rob Herring <rob.herring@calxeda.com>
+Cc: Grant Likely <grant.likely@secretlab.ca>
+Cc: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+---
+Changes since v1:
+- updated commit log
+- order of the patch series change.
+ arch/arm/boot/dts/omap4-sdp.dts |  291 +++++++++++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/omap4.dtsi    |    5 +
+ 2 files changed, 296 insertions(+), 0 deletions(-)
 
-	Arnd
+diff --git a/arch/arm/boot/dts/omap4-sdp.dts b/arch/arm/boot/dts/omap4-sdp.dts
+index 63c6b2b..ac855b8 100644
+--- a/arch/arm/boot/dts/omap4-sdp.dts
++++ b/arch/arm/boot/dts/omap4-sdp.dts
+@@ -17,4 +17,295 @@
+ 		device_type = "memory";
+ 		reg = <0x80000000 0x40000000>; /* 1 GB */
+ 	};
++
++	keypad@4ae1c000 {
++		keypad,num-rows = <8>;
++		keypad,num-columns = <8>;
++
++		key_E {
++			keypad,row = <0>;
++			keypad,column = <0>;
++			linux,code = <18>;
++		};
++		key_R {
++			keypad,row = <0>;
++			keypad,column = <1>;
++			linux,code = <19>;
++		};
++		key_T {
++			keypad,row = <0>;
++			keypad,column = <2>;
++			linux,code = <20>;
++		};
++		key_HOME {
++			keypad,row = <0>;
++			keypad,column = <3>;
++			linux,code = <102>;
++		};
++		key_F5 {
++			keypad,row = <0>;
++			keypad,column = <4>;
++			linux,code = <63>;
++		};
++		key_I {
++			keypad,row = <0>;
++			keypad,column = <6>;
++			linux,code = <23>;
++		};
++		key_LEFTSHIFT {
++			keypad,row = <0>;
++			keypad,column = <7>;
++			linux,code = <42>;
++		};
++		key_D {
++			keypad,row = <1>;
++			keypad,column = <0>;
++			linux,code = <32>;
++		};
++		key_F {
++			keypad,row = <1>;
++			keypad,column = <1>;
++			linux,code = <33>;
++		};
++		key_G {
++			keypad,row = <1>;
++			keypad,column = <2>;
++			linux,code = <34>;
++		};
++		key_SEND {
++			keypad,row = <1>;
++			keypad,column = <3>;
++			linux,code = <84>;
++		};
++		key_F6 {
++			keypad,row = <1>;
++			keypad,column = <4>;
++			linux,code = <64>;
++		};
++		key_K {
++			keypad,row = <1>;
++			keypad,column = <6>;
++			linux,code = <37>;
++		};
++		key_ENTER {
++			keypad,row = <1>;
++			keypad,column = <7>;
++			linux,code = <28>;
++		};
++		key_X {
++			keypad,row = <2>;
++			keypad,column = <0>;
++			linux,code = <45>;
++		};
++		key_C {
++			keypad,row = <2>;
++			keypad,column = <1>;
++			linux,code = <46>;
++		};
++		key_V {
++			keypad,row = <2>;
++			keypad,column = <2>;
++			linux,code = <47>;
++		};
++		key_END {
++			keypad,row = <2>;
++			keypad,column = <3>;
++			linux,code = <107>;
++		};
++		key_F7 {
++			keypad,row = <2>;
++			keypad,column = <4>;
++			linux,code = <65>;
++		};
++		key_DOT {
++			keypad,row = <2>;
++			keypad,column = <6>;
++			linux,code = <52>;
++		};
++		key_CAPSLOCK {
++                        keypad,row = <2>;
++                        keypad,column = <7>;
++                        linux,code = <58>;
++                };
++		key_Z {
++			keypad,row = <3>;
++			keypad,column = <0>;
++			linux,code = <44>;
++		};
++		key_KPLUS {
++			keypad,row = <3>;
++			keypad,column = <1>;
++			linux,code = <78>;
++		};
++		key_B {
++			keypad,row = <3>;
++			keypad,column = <2>;
++			linux,code = <48>;
++		};
++		key_F1 {
++			keypad,row = <3>;
++			keypad,column = <3>;
++			linux,code = <59>;
++		};
++		key_F8 {
++			keypad,row = <3>;
++			keypad,column = <4>;
++			linux,code = <66>;
++		};
++		key_O {
++			keypad,row = <3>;
++			keypad,column = <6>;
++			linux,code = <24>;
++                };
++		key_SPACE {
++			keypad,row = <3>;
++			keypad,column = <7>;
++			linux,code = <57>;
++                };
++		key_W {
++			keypad,row = <4>;
++			keypad,column = <0>;
++			linux,code = <17>;
++                };
++		key_Y {
++			keypad,row = <4>;
++			keypad,column = <1>;
++			linux,code = <21>;
++		};
++		key_U {
++			keypad,row = <4>;
++			keypad,column = <2>;
++			linux,code = <22>;
++		};
++		key_F2 {
++			keypad,row = <4>;
++			keypad,column = <3>;
++			linux,code = <60>;
++		};
++		key_VOLUMEUP {
++			keypad,row = <4>;
++			keypad,column = <4>;
++			linux,code = <115>;
++		};
++		key_L {
++			keypad,row = <4>;
++			keypad,column = <6>;
++			linux,code = <38>;
++		};
++		key_LEFT {
++			keypad,row = <4>;
++			keypad,column = <7>;
++			linux,code = <105>;
++		};
++		key_S {
++			keypad,row = <5>;
++			keypad,column = <0>;
++			linux,code = <31>;
++		};
++		key_H {
++			keypad,row = <5>;
++			keypad,column = <1>;
++			linux,code = <35>;
++		};
++		key_J {
++			keypad,row = <5>;
++			keypad,column = <2>;
++			linux,code = <36>;
++		};
++		key_F3 {
++			keypad,row = <5>;
++			keypad,column = <3>;
++			linux,code = <61>;
++		};
++		key_F9 {
++			keypad,row = <5>;
++			keypad,column = <4>;
++			linux,code = <67>;
++		};
++		key_VOLUMEDOWN {
++			keypad,row = <5>;
++			keypad,column = <5>;
++			linux,code = <114>;
++		};
++		key_M {
++			keypad,row = <5>;
++			keypad,column = <6>;
++			linux,code = <50>;
++		};
++		key_RIGHT {
++			keypad,row = <5>;
++			keypad,column = <7>;
++			linux,code = <106>;
++		};
++		key_Q {
++			keypad,row = <6>;
++			keypad,column = <0>;
++			linux,code = <16>;
++		};
++		key_A {
++			keypad,row = <6>;
++			keypad,column = <1>;
++			linux,code = <30>;
++                };
++		key_N {
++			keypad,row = <6>;
++			keypad,column = <2>;
++			linux,code = <49>;
++                };
++		key_BACK {
++			keypad,row = <6>;
++			keypad,column = <3>;
++			linux,code = <92>;
++                };
++		key_BACKSPACE {
++			keypad,row = <6>;
++			keypad,column = <4>;
++			linux,code = <14>;
++		};
++		key_P {
++			keypad,row = <6>;
++			keypad,column = <6>;
++			linux,code = <25>;
++		};
++		key_UP {
++			keypad,row = <6>;
++			keypad,column = <7>;
++			linux,code = <103>;
++		};
++		key_PROG1 {
++			keypad,row = <7>;
++			keypad,column = <0>;
++			linux,code = <148>;
++		};
++		key_PROG2 {
++			keypad,row = <7>;
++			keypad,column = <1>;
++			linux,code = <149>;
++		};
++		key_PROG3 {
++			keypad,row = <7>;
++			keypad,column = <2>;
++			linux,code = <202>;
++                };
++		key_PROG4 {
++			keypad,row = <7>;
++			keypad,column = <3>;
++			linux,code = <203>;
++		};
++		key_F4 {
++			keypad,row = <7>;
++			keypad,column = <4>;
++			linux,code = <62>;
++		};
++		key_Ok {
++			keypad,row = <7>;
++			keypad,column = <6>;
++			linux,code = <352>;
++		};
++		key_DOWN {
++			keypad,row = <7>;
++			keypad,column = <7>;
++			linux,code = <108>;
++		};
++	};
+ };
+diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
+index 3d35559..e0f678a 100644
+--- a/arch/arm/boot/dts/omap4.dtsi
++++ b/arch/arm/boot/dts/omap4.dtsi
+@@ -156,4 +156,9 @@
+ 			ti,hwmods = "i2c4";
+ 		};
+ 	};
++
++	keypad@4ae1c000 {
++		compatible = "ti,omap4-keypad";
++		ti,hwmods = "kbd";
++	};
+ };
+-- 
+1.7.1

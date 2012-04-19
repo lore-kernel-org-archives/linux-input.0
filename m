@@ -1,46 +1,71 @@
 From: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH v4 7/10] iio: lpc32xx-adc: Remove driver conflict due to device tree
-Date: Thu, 19 Apr 2012 15:00:12 +0200
-Message-ID: <1334840415-14287-8-git-send-email-stigge@antcom.de>
+Subject: [PATCH v4 4/10] ARM: LPC32xx: clock.c dma adjustment
+Date: Thu, 19 Apr 2012 15:00:09 +0200
+Message-ID: <1334840415-14287-5-git-send-email-stigge@antcom.de>
 References: <1334840415-14287-1-git-send-email-stigge@antcom.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1334840415-14287-1-git-send-email-stigge@antcom.de>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
 To: arm@kernel.org, thierry.reding@avionic-design.de, arnd@arndb.de, linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, axel.lin@gmail.com, broonie@opensource.wolfsonmicro.com, marek.vasut@gmail.com, devel@driverdev.osuosl.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
 Cc: Roland Stigge <stigge@antcom.de>
 List-Id: linux-input@vger.kernel.org
 
-Previously, the touchscreen and ADC drivers of the LPC32xx SoC had a Kconfig
-conflict declared because they use the same hardware. Upon the introduction of
-device tree support in both drivers, the conflict must be removed to enable
-the same kernel to support different hardware (configured via the device tree).
+This patch adjusts the DMA clock of the LPC32xx to "pl08xdmac" to be picked up
+correctly by the AMBA dmaengine driver.
 
 Signed-off-by: Roland Stigge <stigge@antcom.de>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
+ arch/arm/mach-lpc32xx/clock.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-Applies to v3.4-rc3
-
- drivers/staging/iio/adc/Kconfig |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
---- linux-2.6.orig/drivers/staging/iio/adc/Kconfig
-+++ linux-2.6/drivers/staging/iio/adc/Kconfig
-@@ -195,11 +195,13 @@ config MAX1363_RING_BUFFER
- 
- config LPC32XX_ADC
- 	tristate "NXP LPC32XX ADC"
--	depends on ARCH_LPC32XX && !TOUCHSCREEN_LPC32XX
-+	depends on ARCH_LPC32XX
- 	help
- 	  Say yes here to build support for the integrated ADC inside the
- 	  LPC32XX SoC. Note that this feature uses the same hardware as the
--	  touchscreen driver, so you can only select one of the two drivers
--	  (lpc32xx_adc or lpc32xx_ts). Provides direct access via sysfs.
-+	  touchscreen driver, so you should either select only one of the two
-+	  drivers (lpc32xx_adc or lpc32xx_ts) or, in the OpenFirmware case,
-+	  activate only one via device tree selection.  Provides direct access
-+	  via sysfs.
- 
- endmenu
+--- linux-2.6.orig/arch/arm/mach-lpc32xx/clock.c
++++ linux-2.6/arch/arm/mach-lpc32xx/clock.c
+@@ -1109,27 +1109,27 @@ static struct clk_lookup lookups[] = {
+ 	CLKDEV_INIT(NULL, "timer2_ck", &clk_timer2),
+ 	CLKDEV_INIT(NULL, "timer3_ck", &clk_timer3),
+ 	CLKDEV_INIT(NULL, "vfp9_ck", &clk_vfp9),
+-	CLKDEV_INIT(NULL, "clk_dmac", &clk_dma),
+-	CLKDEV_INIT("pnx4008-watchdog", NULL, &clk_wdt),
++	CLKDEV_INIT("pl08xdmac", NULL, &clk_dma),
++	CLKDEV_INIT("4003c000.watchdog", NULL, &clk_wdt),
+ 	CLKDEV_INIT(NULL, "uart3_ck", &clk_uart3),
+ 	CLKDEV_INIT(NULL, "uart4_ck", &clk_uart4),
+ 	CLKDEV_INIT(NULL, "uart5_ck", &clk_uart5),
+ 	CLKDEV_INIT(NULL, "uart6_ck", &clk_uart6),
+-	CLKDEV_INIT("pnx-i2c.0", NULL, &clk_i2c0),
+-	CLKDEV_INIT("pnx-i2c.1", NULL, &clk_i2c1),
+-	CLKDEV_INIT("pnx-i2c.2", NULL, &clk_i2c2),
++	CLKDEV_INIT("400a0000.i2c", NULL, &clk_i2c0),
++	CLKDEV_INIT("400a8000.i2c", NULL, &clk_i2c1),
++	CLKDEV_INIT("31020300.i2c", NULL, &clk_i2c2),
+ 	CLKDEV_INIT("dev:ssp0", NULL, &clk_ssp0),
+ 	CLKDEV_INIT("dev:ssp1", NULL, &clk_ssp1),
+ 	CLKDEV_INIT("lpc32xx_keys.0", NULL, &clk_kscan),
+ 	CLKDEV_INIT("lpc32xx-nand.0", "nand_ck", &clk_nand),
+-	CLKDEV_INIT("lpc32xx-adc", NULL, &clk_adc),
++	CLKDEV_INIT("40048000.adc", NULL, &clk_adc),
+ 	CLKDEV_INIT(NULL, "i2s0_ck", &clk_i2s0),
+ 	CLKDEV_INIT(NULL, "i2s1_ck", &clk_i2s1),
+-	CLKDEV_INIT("ts-lpc32xx", NULL, &clk_tsc),
+-	CLKDEV_INIT("dev:mmc0", NULL, &clk_mmc),
+-	CLKDEV_INIT("lpc-eth.0", NULL, &clk_net),
++	CLKDEV_INIT("40048000.tsc", NULL, &clk_tsc),
++	CLKDEV_INIT("20098000.sd", NULL, &clk_mmc),
++	CLKDEV_INIT("31060000.ethernet", NULL, &clk_net),
+ 	CLKDEV_INIT("dev:clcd", NULL, &clk_lcd),
+-	CLKDEV_INIT("lpc32xx_udc", "ck_usbd", &clk_usbd),
++	CLKDEV_INIT("31020000.usbd", "ck_usbd", &clk_usbd),
+ 	CLKDEV_INIT("lpc32xx_rtc", NULL, &clk_rtc),
+ };

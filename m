@@ -1,89 +1,62 @@
 From: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH v4 6/10] input: Device tree support for LPC32xx touchscreen
-Date: Thu, 19 Apr 2012 15:00:11 +0200
-Message-ID: <1334840415-14287-7-git-send-email-stigge@antcom.de>
+Subject: [PATCH v4 10/10] ARM: LPC32xx: Move common code to common.c
+Date: Thu, 19 Apr 2012 15:00:15 +0200
+Message-ID: <1334840415-14287-11-git-send-email-stigge@antcom.de>
 References: <1334840415-14287-1-git-send-email-stigge@antcom.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1334840415-14287-1-git-send-email-stigge@antcom.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: arm@kernel.org, thierry.reding@avionic-design.de, arnd@arndb.de, linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, axel.lin@gmail.com, broonie@opensource.wolfsonmicro.com, marek.vasut@gmail.com, devel@driverdev.osuosl.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
 Cc: Roland Stigge <stigge@antcom.de>
 List-Id: linux-input@vger.kernel.org
 
-This patch adds device tree support for the LPC32xx SoC's touchscreen
-controller.
+This patch moves non-boardspecific LPC32xx code to common.c
 
 Signed-off-by: Roland Stigge <stigge@antcom.de>
-Reviewed-by: Thierry Reding <thierry.reding@avionic-design.de>
 
 ---
+ arch/arm/mach-lpc32xx/common.c  |   13 +++++++++++++
+ arch/arm/mach-lpc32xx/phy3250.c |   13 -------------
+ 2 files changed, 13 insertions(+), 13 deletions(-)
 
-Applies to v3.4-rc3
-
- Documentation/devicetree/bindings/input/touchscreen/lpc32xx-tsc.txt |   16 ++++++++++
- drivers/input/touchscreen/lpc32xx_ts.c                              |   10 ++++++
- 2 files changed, 26 insertions(+)
-
---- /dev/null
-+++ linux-2.6/Documentation/devicetree/bindings/input/touchscreen/lpc32xx-tsc.txt
-@@ -0,0 +1,16 @@
-+* NXP LPC32xx SoC Touchscreen Controller (TSC)
+--- linux-2.6.orig/arch/arm/mach-lpc32xx/common.c
++++ linux-2.6/arch/arm/mach-lpc32xx/common.c
+@@ -223,3 +223,16 @@ void lpc23xx_restart(char mode, const ch
+ 	while (1)
+ 		;
+ }
 +
-+Required properties:
-+- compatible: must be "nxp,lpc32xx-tsc"
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+- interrupts: The TSC/ADC interrupt
++static int __init lpc32xx_display_uid(void)
++{
++	u32 uid[4];
 +
-+Example:
++	lpc32xx_get_uid(uid);
 +
-+	tsc@40048000 {
-+		compatible = "nxp,lpc32xx-tsc";
-+		reg = <0x40048000 0x1000>;
-+		interrupt-parent = <&mic>;
-+		interrupts = <39 0>;
-+	};
---- linux-2.6.orig/drivers/input/touchscreen/lpc32xx_ts.c
-+++ linux-2.6/drivers/input/touchscreen/lpc32xx_ts.c
-@@ -22,6 +22,7 @@
- #include <linux/clk.h>
- #include <linux/io.h>
- #include <linux/slab.h>
-+#include <linux/of.h>
++	printk(KERN_INFO "LPC32XX unique ID: %08x%08x%08x%08x\n",
++		uid[3], uid[2], uid[1], uid[0]);
++
++	return 1;
++}
++arch_initcall(lpc32xx_display_uid);
+--- linux-2.6.orig/arch/arm/mach-lpc32xx/phy3250.c
++++ linux-2.6/arch/arm/mach-lpc32xx/phy3250.c
+@@ -310,19 +310,6 @@ static void __init lpc3250_machine_init(
+ 			SPI0_CS_GPIO);
+ }
  
- /*
-  * Touchscreen controller register offsets
-@@ -383,6 +384,14 @@ static const struct dev_pm_ops lpc32xx_t
- #define LPC32XX_TS_PM_OPS NULL
- #endif
- 
-+#ifdef CONFIG_OF
-+static struct of_device_id lpc32xx_tsc_of_match[] = {
-+	{ .compatible = "nxp,lpc32xx-tsc", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, lpc32xx_tsc_of_match);
-+#endif
-+
- static struct platform_driver lpc32xx_ts_driver = {
- 	.probe		= lpc32xx_ts_probe,
- 	.remove		= __devexit_p(lpc32xx_ts_remove),
-@@ -390,6 +399,7 @@ static struct platform_driver lpc32xx_ts
- 		.name	= MOD_NAME,
- 		.owner	= THIS_MODULE,
- 		.pm	= LPC32XX_TS_PM_OPS,
-+		.of_match_table = of_match_ptr(lpc32xx_tsc_of_match),
- 	},
- };
- module_platform_driver(lpc32xx_ts_driver);
+-static int __init lpc32xx_display_uid(void)
+-{
+-	u32 uid[4];
+-
+-	lpc32xx_get_uid(uid);
+-
+-	printk(KERN_INFO "LPC32XX unique ID: %08x%08x%08x%08x\n",
+-		uid[3], uid[2], uid[1], uid[0]);
+-
+-	return 1;
+-}
+-arch_initcall(lpc32xx_display_uid);
+-
+ static char const *lpc32xx_dt_compat[] __initdata = {
+ 	"nxp,lpc32xx",
+ 	NULL

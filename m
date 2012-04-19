@@ -1,70 +1,50 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Thu, 19 Apr 2012 21:51:04 +0800
-Message-ID: <1334843464-1585-1-git-send-email-ming.lei@canonical.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v2 0/8] Second patchset for LPC32xx device tree conversion
+Date: Thu, 19 Apr 2012 14:21:29 +0000
+Message-ID: <201204191421.29558.arnd@arndb.de>
+References: <1334682507-15055-1-git-send-email-stigge@antcom.de> <201204181100.40123.arnd@arndb.de> <20120418165650.GD3099@opensource.wolfsonmicro.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f52.google.com ([209.85.210.52]:47027 "EHLO
-	mail-pz0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753047Ab2DSNxD (ORCPT
+Received: from moutng.kundenserver.de ([212.227.17.9]:53389 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754271Ab2DSOVy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Apr 2012 09:53:03 -0400
+	Thu, 19 Apr 2012 10:21:54 -0400
+In-Reply-To: <20120418165650.GD3099@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Ming Lei <ming.lei@canonical.com>, stable@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>, Roland Stigge <stigge@antcom.de>, devel@driverdev.osuosl.org, srinivas.bakki@nxp.com, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, thierry.reding@avionic-design.de, linux-kernel@vger.kernel.org, kevin.wells@nxp.com, marek.vasut@gmail.com, arm@kernel.org, linux-input@vger.kernel.org, axel.lin@gmail.com, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org
 
-The URB complete handler may be called by usb_unlink_urb directly,
-so deadlock will be triggered in __usbhid_submit_report since
-usbhid->lock is to be acquired in ctrl/out URB complete handler
-but it is hold before calling usb_unlink_urb.
+On Wednesday 18 April 2012, Mark Brown wrote:
+> On Wed, Apr 18, 2012 at 11:00:39AM +0000, Arnd Bergmann wrote:
+> 
+> > 1. develop on -rc
+> > 2. merge with latest -next, test and make sure it works there
+> > 3. submit for review against -rc
+> > 4. have patches included in -next once reviewed, but based on -rc
+> > 5. when merge window opens, have patches sent for upstream inclusion
+> 
+> Steps 3 and 4 should be to submit against whatever branch is appropriate
+> for the subsystem and driver - if people follow this process they're
+> going to get bounced back by a fair proportion of maintainers, -rc isn't
+> universally what people are looking for so people should be aware that
+> they need to pay attention here.  
+> 
+> Generally I'd say the development version is a safer bet than -rc for
+> most subsystems.
 
-This patch avoids the deadlock by releasing the lock before
-calling usb_unlink_urb.
+Right. The description above was mostly done for the lpc32xx case,
+which is going to get merged through the arm-soc tree and that doesn't
+have a single development branch but instead has lots of them.
 
-CC: <stable@vger.kernel.org>
-Signed-off-by: Ming Lei <ming.lei@canonical.com>
----
- drivers/hid/usbhid/hid-core.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+For subsystems that have just one branch, I agree that it makes sense
+to develop against that one. Also for arm-soc, it can make sense
+to base on one of the existing branches, but I prefer the default
+to be to base on the -rc release so I can mix and match incoming
+branches as needed.
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index aa1c503..b5d07da 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -543,11 +543,13 @@ static void __usbhid_submit_report(struct hid_device *hid, struct hid_report *re
- 			 * the queue is known to run
- 			 * but an earlier request may be stuck
- 			 * we may need to time out
--			 * no race because this is called under
--			 * spinlock
-+			 * release spinlock to avoid deadlock.
- 			 */
--			if (time_after(jiffies, usbhid->last_out + HZ * 5))
-+			if (time_after(jiffies, usbhid->last_out + HZ * 5)) {
-+				spin_unlock(&usbhid->lock);
- 				usb_unlink_urb(usbhid->urbout);
-+				spin_lock(&usbhid->lock);
-+			}
- 		}
- 		return;
- 	}
-@@ -591,11 +593,13 @@ static void __usbhid_submit_report(struct hid_device *hid, struct hid_report *re
- 		 * the queue is known to run
- 		 * but an earlier request may be stuck
- 		 * we may need to time out
--		 * no race because this is called under
--		 * spinlock
-+		 * release spinlock to avoid deadlock.
- 		 */
--		if (time_after(jiffies, usbhid->last_ctrl + HZ * 5))
-+		if (time_after(jiffies, usbhid->last_ctrl + HZ * 5)) {
-+			spin_unlock(&usbhid->lock);
- 			usb_unlink_urb(usbhid->urbctrl);
-+			spin_lock(&usbhid->lock);
-+		}
- 	}
- }
- 
--- 
-1.7.9.5
-
+	Arnd

@@ -1,303 +1,72 @@
-From: "Poddar, Sourav" <sourav.poddar@ti.com>
-Subject: Re: [PATCHv2] Input: omap-keypad: dynamically handle register offsets
-Date: Thu, 19 Apr 2012 16:57:34 +0530
-Message-ID: <CAKdam577T_rmvq4S4=yEu7m8_84hj81mS+ibWGSBRvvzmYrsgg@mail.gmail.com>
-References: <1334216338-29977-1-git-send-email-sourav.poddar@ti.com>
+From: Roland Stigge <stigge@antcom.de>
+Subject: [PATCH v4 0/10] Second patchset for LPC32xx device tree conversion
+Date: Thu, 19 Apr 2012 15:00:05 +0200
+Message-ID: <1334840415-14287-1-git-send-email-stigge@antcom.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog126.obsmtp.com ([74.125.149.155]:51631 "EHLO
-	na3sys009aog126.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754907Ab2DSL1i convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Apr 2012 07:27:38 -0400
-Received: by wgbds11 with SMTP id ds11so1424125wgb.5
-        for <linux-input@vger.kernel.org>; Thu, 19 Apr 2012 04:27:34 -0700 (PDT)
-In-Reply-To: <1334216338-29977-1-git-send-email-sourav.poddar@ti.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: arm@kernel.org, thierry.reding@avionic-design.de, arnd@arndb.de, linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, axel.lin@gmail.com, broonie@opensource.wolfsonmicro.com, marek.vasut@gmail.com, devel@driverdev.osuosl.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
+Cc: Roland Stigge <stigge@antcom.de>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
-Cc: sourav.poddar@ti.com, balbi@ti.com
 
-Hi Dmitry,
+This is the second patch set for device tree conversion of mach-lpc32xx. It
+builds upon and requires the previously posted first set of 8 plus the GPIO
+patch.
 
-Any comments on this?
+It touches different subsystems (USB/OHCI, input/touchscreen, iio/adc and
+mach-lpc32) to be picked by the respective subsystem maintainer and probably
+applied separately. (?)
 
-~Sourav
+Signed-off-by: Roland Stigge <stigge@antcom.de>
 
-On Thu, Apr 12, 2012 at 1:08 PM, Sourav Poddar <sourav.poddar@ti.com> w=
-rote:
-> From: G, Manjunath Kondaiah <manjugk@ti.com>
->
-> Keypad controller register offsets are different for omap4
-> and omap5. Handle these offsets through static mapping and
-> assign these mappings during run time.
->
-> Tested on omap4430 sdp with 3.4-rc2.
-> Tested on omap5430evm with 3.1-custom kernel.
->
-> Signed-off-by: Felipe Balbi <balbi@ti.com>
-> Signed-off-by: G, Manjunath Kondaiah <manjugk@ti.com>
-> Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
-> ---
-> Changes since v1:
-> - Fix Felipe's comment about getting rid
-> =A0of one argument from irqstatus/irqenable api
-> - Fix Dmitry's comment:
-> =A0- get rid of revision check in readl/writel
-> =A0- Relace ENODEV with proper macro.
-> =A0- Use switch statement
-> =A0drivers/input/keyboard/Kconfig =A0 =A0 =A0 =A0| =A0 =A06 +-
-> =A0drivers/input/keyboard/omap4-keypad.c | =A0115 +++++++++++++++++++=
-+++++++-------
-> =A02 files changed, 95 insertions(+), 26 deletions(-)
->
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/=
-Kconfig
-> index f354813..9a0e1a9 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -511,10 +511,10 @@ config KEYBOARD_OMAP
-> =A0 =A0 =A0 =A0 =A0To compile this driver as a module, choose M here:=
- the
-> =A0 =A0 =A0 =A0 =A0module will be called omap-keypad.
->
-> -config KEYBOARD_OMAP4
-> - =A0 =A0 =A0 tristate "TI OMAP4 keypad support"
-> +config KEYBOARD_OMAP4+
-> + =A0 =A0 =A0 tristate "TI OMAP4+ keypad support"
-> =A0 =A0 =A0 =A0help
-> - =A0 =A0 =A0 =A0 Say Y here if you want to use the OMAP4 keypad.
-> + =A0 =A0 =A0 =A0 Say Y here if you want to use the OMAP4+ keypad.
->
-> =A0 =A0 =A0 =A0 =A0To compile this driver as a module, choose M here:=
- the
-> =A0 =A0 =A0 =A0 =A0module will be called omap4-keypad.
-> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/ke=
-yboard/omap4-keypad.c
-> index e809ac0..8e46563 100644
-> --- a/drivers/input/keyboard/omap4-keypad.c
-> +++ b/drivers/input/keyboard/omap4-keypad.c
-> @@ -68,6 +68,11 @@
->
-> =A0#define OMAP4_MASK_IRQSTATUSDISABLE =A0 =A00xFFFF
->
-> +enum {
-> + =A0 =A0 =A0 KBD_REVISION_OMAP4 =3D 0,
-> + =A0 =A0 =A0 KBD_REVISION_OMAP5,
-> +};
-> +
-> =A0struct omap4_keypad {
-> =A0 =A0 =A0 =A0struct input_dev *input;
->
-> @@ -76,11 +81,61 @@ struct omap4_keypad {
->
-> =A0 =A0 =A0 =A0unsigned int rows;
-> =A0 =A0 =A0 =A0unsigned int cols;
-> + =A0 =A0 =A0 unsigned int revision;
-> + =A0 =A0 =A0 u32 irqstatus;
-> + =A0 =A0 =A0 u32 irqenable;
-> + =A0 =A0 =A0 u32 reg_offset;
-> =A0 =A0 =A0 =A0unsigned int row_shift;
-> =A0 =A0 =A0 =A0unsigned char key_state[8];
-> =A0 =A0 =A0 =A0unsigned short keymap[];
-> =A0};
->
-> +static int kbd_read_irqstatus(struct omap4_keypad *keypad_data, u32 =
-offset)
-> +{
-> + =A0 =A0 =A0 return __raw_readl(keypad_data->base + offset);
-> +}
-> +
-> +static int kbd_write_irqstatus(struct omap4_keypad *keypad_data,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 u32 value)
-> +{
-> + =A0 =A0 =A0 return __raw_writel(value, keypad_data->base + keypad_d=
-ata->irqstatus);
-> +}
-> +
-> +static int kbd_write_irqenable(struct omap4_keypad *keypad_data,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 u32 value)
-> +{
-> + =A0 =A0 =A0 return __raw_writel(value, keypad_data->base + keypad_d=
-ata->irqenable);
-> +}
-> +
-> +static int kbd_readl(struct omap4_keypad *keypad_data, u32 offset)
-> +{
-> + =A0 =A0 =A0 return __raw_readl(keypad_data->base +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->reg_offset=
- + offset);
-> +}
-> +
-> +static void kbd_writel(struct omap4_keypad *keypad_data, u32 offset,=
- u32 value)
-> +{
-> + =A0 =A0 =A0 __raw_writel(value, keypad_data->base +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->reg_offset=
- + offset);
-> +}
-> +
-> +static int kbd_read_revision(struct omap4_keypad *keypad_data, u32 o=
-ffset)
-> +{
-> + =A0 =A0 =A0 int reg;
-> + =A0 =A0 =A0 reg =3D __raw_readl(keypad_data->base + offset);
-> + =A0 =A0 =A0 reg &=3D 0x03 << 30;
-> + =A0 =A0 =A0 reg >>=3D 30;
-> +
-> + =A0 =A0 =A0 switch (reg) {
-> + =A0 =A0 =A0 case 1:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return KBD_REVISION_OMAP5;
-> + =A0 =A0 =A0 case 0:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return KBD_REVISION_OMAP4;
-> + =A0 =A0 =A0 default:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
-> + =A0 =A0 =A0 }
-> +}
-> +
-> =A0/* Interrupt handler */
-> =A0static irqreturn_t omap4_keypad_interrupt(int irq, void *dev_id)
-> =A0{
-> @@ -91,12 +146,10 @@ static irqreturn_t omap4_keypad_interrupt(int ir=
-q, void *dev_id)
-> =A0 =A0 =A0 =A0u32 *new_state =3D (u32 *) key_state;
->
-> =A0 =A0 =A0 =A0/* Disable interrupts */
-> - =A0 =A0 =A0 __raw_writel(OMAP4_VAL_IRQDISABLE,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0keypad_data->base + OMAP4_KB=
-D_IRQENABLE);
-> + =A0 =A0 =A0 kbd_write_irqenable(keypad_data, OMAP4_VAL_IRQDISABLE);
->
-> - =A0 =A0 =A0 *new_state =3D __raw_readl(keypad_data->base + OMAP4_KB=
-D_FULLCODE31_0);
-> - =A0 =A0 =A0 *(new_state + 1) =3D __raw_readl(keypad_data->base
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 + OMAP4_KBD_FULLCODE63_32);
-> + =A0 =A0 =A0 *new_state =3D kbd_readl(keypad_data, OMAP4_KBD_FULLCOD=
-E31_0);
-> + =A0 =A0 =A0 *(new_state + 1) =3D kbd_readl(keypad_data, OMAP4_KBD_F=
-ULLCODE63_32);
->
-> =A0 =A0 =A0 =A0for (row =3D 0; row < keypad_data->rows; row++) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0changed =3D key_state[row] ^ keypad_da=
-ta->key_state[row];
-> @@ -121,12 +174,12 @@ static irqreturn_t omap4_keypad_interrupt(int i=
-rq, void *dev_id)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0sizeof(keypad_data->key_state));
->
-> =A0 =A0 =A0 =A0/* clear pending interrupts */
-> - =A0 =A0 =A0 __raw_writel(__raw_readl(keypad_data->base + OMAP4_KBD_=
-IRQSTATUS),
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->base + OMA=
-P4_KBD_IRQSTATUS);
-> + =A0 =A0 =A0 kbd_write_irqstatus(keypad_data,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 kbd_read_irqstatus(keypad_data, keypad_=
-data->irqstatus));
->
-> =A0 =A0 =A0 =A0/* enable interrupts */
-> - =A0 =A0 =A0 __raw_writel(OMAP4_DEF_IRQENABLE_EVENTEN | OMAP4_DEF_IR=
-QENABLE_LONGKEY,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->base + OMA=
-P4_KBD_IRQENABLE);
-> + =A0 =A0 =A0 kbd_write_irqenable(keypad_data, OMAP4_DEF_IRQENABLE_EV=
-ENTEN |
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP4_DEF_IRQENABLE_LON=
-GKEY);
->
-> =A0 =A0 =A0 =A0return IRQ_HANDLED;
-> =A0}
-> @@ -139,16 +192,33 @@ static int omap4_keypad_open(struct input_dev *=
-input)
->
-> =A0 =A0 =A0 =A0disable_irq(keypad_data->irq);
->
-> - =A0 =A0 =A0 __raw_writel(OMAP4_VAL_FUNCTIONALCFG,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->base + OMA=
-P4_KBD_CTRL);
-> - =A0 =A0 =A0 __raw_writel(OMAP4_VAL_DEBOUNCINGTIME,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->base + OMA=
-P4_KBD_DEBOUNCINGTIME);
-> - =A0 =A0 =A0 __raw_writel(OMAP4_VAL_IRQDISABLE,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->base + OMA=
-P4_KBD_IRQSTATUS);
-> - =A0 =A0 =A0 __raw_writel(OMAP4_DEF_IRQENABLE_EVENTEN | OMAP4_DEF_IR=
-QENABLE_LONGKEY,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->base + OMA=
-P4_KBD_IRQENABLE);
-> - =A0 =A0 =A0 __raw_writel(OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LO=
-NG_KEY_ENA,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->base + OMA=
-P4_KBD_WAKEUPENABLE);
-> + =A0 =A0 =A0 keypad_data->revision =3D kbd_read_revision(keypad_data=
-,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP4_KBD_REVISION);
-> + =A0 =A0 =A0 switch (keypad_data->revision) {
-> + =A0 =A0 =A0 case 1:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->irqstatus =3D OMAP4_KBD_IR=
-QSTATUS + 0x0c;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->irqenable =3D OMAP4_KBD_IR=
-QENABLE + 0x0c;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->reg_offset =3D 0x10;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> + =A0 =A0 =A0 case 0:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->irqstatus =3D OMAP4_KBD_IR=
-QSTATUS;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->irqenable =3D OMAP4_KBD_IR=
-QENABLE;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->reg_offset =3D 0x00;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> + =A0 =A0 =A0 default:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_err("Omap keypad not found\n");
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENODEV;
-> + =A0 =A0 =A0 }
-> +
-> + =A0 =A0 =A0 kbd_writel(keypad_data, OMAP4_KBD_CTRL,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP4_VAL_FUNCTIONALCFG=
-);
-> + =A0 =A0 =A0 kbd_writel(keypad_data, OMAP4_KBD_DEBOUNCINGTIME,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP4_VAL_DEBOUNCINGTIM=
-E);
-> + =A0 =A0 =A0 kbd_write_irqstatus(keypad_data, OMAP4_VAL_IRQDISABLE);
-> + =A0 =A0 =A0 kbd_write_irqenable(keypad_data, OMAP4_DEF_IRQENABLE_EV=
-ENTEN |
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP4_D=
-EF_IRQENABLE_LONGKEY);
-> + =A0 =A0 =A0 kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP4_DEF_WUP_EVENT_ENA=
- | OMAP4_DEF_WUP_LONG_KEY_ENA);
->
-> =A0 =A0 =A0 =A0enable_irq(keypad_data->irq);
->
-> @@ -162,12 +232,11 @@ static void omap4_keypad_close(struct input_dev=
- *input)
-> =A0 =A0 =A0 =A0disable_irq(keypad_data->irq);
->
-> =A0 =A0 =A0 =A0/* Disable interrupts */
-> - =A0 =A0 =A0 __raw_writel(OMAP4_VAL_IRQDISABLE,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0keypad_data->base + OMAP4_KB=
-D_IRQENABLE);
-> + =A0 =A0 =A0 kbd_write_irqenable(keypad_data, OMAP4_VAL_IRQDISABLE);
->
-> =A0 =A0 =A0 =A0/* clear pending interrupts */
-> - =A0 =A0 =A0 __raw_writel(__raw_readl(keypad_data->base + OMAP4_KBD_=
-IRQSTATUS),
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->base + OMA=
-P4_KBD_IRQSTATUS);
-> + =A0 =A0 =A0 kbd_write_irqstatus(keypad_data,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 kbd_read_irqstatus(keypad_data, keypad_=
-data->irqstatus));
->
-> =A0 =A0 =A0 =A0enable_irq(keypad_data->irq);
->
-> --
-> 1.7.1
->
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+Applies to v3.4-rc3
+
+Changes since v3:
+* phy3250.c, clock.c: Cleaned up auxdata table by using generated device
+  names in clock table
+* common.c: Removed trailing newline
+* lpc32xx.dtsi: Documented SLC vs. MLC activation
+
+Thanks to Arnd Bergmann for reviewing!
+
+Roland Stigge (10):
+ohci-nxp: Driver cleanup
+ohci-nxp: Device tree support
+ARM: LPC32xx: clock.c cleanup
+ARM: LPC32xx: clock.c dma adjustment
+ARM: LPC32xx: Remove obsolete platform Kconfig
+input: Device tree support for LPC32xx touchscreen
+iio: lpc32xx-adc: Remove driver conflict due to device tree
+ARM: LPC32xx: DTS files for device tree conversion
+ARM: LPC32xx: Device tree support
+ARM: LPC32xx: Move common code to common.c
+
+ Documentation/devicetree/bindings/arm/lpc32xx-mic.txt               |   38 +
+ Documentation/devicetree/bindings/arm/lpc32xx.txt                   |    8 
+ Documentation/devicetree/bindings/input/touchscreen/lpc32xx-tsc.txt |   16 
+ Documentation/devicetree/bindings/usb/ohci-nxp.txt                  |   16 
+ arch/arm/Kconfig                                                    |    1 
+ arch/arm/boot/dts/lpc32xx.dtsi                                      |  303 ++++++++++
+ arch/arm/boot/dts/phy3250.dts                                       |  115 +++
+ arch/arm/mach-lpc32xx/Kconfig                                       |   26 
+ arch/arm/mach-lpc32xx/clock.c                                       |   77 +-
+ arch/arm/mach-lpc32xx/common.c                                      |  192 ------
+ arch/arm/mach-lpc32xx/common.h                                      |   14 
+ arch/arm/mach-lpc32xx/irq.c                                         |   78 +-
+ arch/arm/mach-lpc32xx/phy3250.c                                     |  146 ++--
+ drivers/input/touchscreen/lpc32xx_ts.c                              |   10 
+ drivers/staging/iio/adc/Kconfig                                     |    8 
+ drivers/usb/host/ohci-nxp.c                                         |   55 +
+ 16 files changed, 704 insertions(+), 399 deletions(-)

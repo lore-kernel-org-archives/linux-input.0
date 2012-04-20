@@ -1,53 +1,63 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Fri, 20 Apr 2012 14:59:50 -0700
-Message-ID: <3064999.MGqgi6qjvF@dtor-d630.eng.vmware.com>
-References: <1334843464-1585-1-git-send-email-ming.lei@canonical.com> <201204200957.34154.oneukum@suse.de> <CACVXFVP42WL2aVDGSn0BF0NJbg824VsU=Fs30XKEif6siOrQvw@mail.gmail.com>
+From: Alexey Kaminsky <me@akaminsky.net>
+Subject: Apple Wireless Keyboard 2011 (ANSI) Fn key Bug
+Date: Sat, 21 Apr 2012 02:19:18 +0300
+Message-ID: <4F91EEF6.6010902@akaminsky.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACVXFVP42WL2aVDGSn0BF0NJbg824VsU=Fs30XKEif6siOrQvw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
-Cc: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:33966 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756184Ab2DTXTY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 Apr 2012 19:19:24 -0400
+Received: by wibhj6 with SMTP id hj6so1116808wib.1
+        for <linux-input@vger.kernel.org>; Fri, 20 Apr 2012 16:19:22 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>
 
-On Friday, April 20, 2012 06:17:51 PM Ming Lei wrote:
-> On Fri, Apr 20, 2012 at 3:57 PM, Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org> wrote:
-> > You are racing with hid_irq_out(). It calls hid_submit_out()
-> > under lock. So if hid_irq_out() is running between dropping
-> > the lock and usb_unlink_urb() you may kill the newly submitted
-> > urb, not the old urb that has timed out.
-> 
-> Yes, it is the race I missed, :-(
-> 
-> > You must make sure that between the times you check usbhid->last_out
-> > and calling unlink hid_submit_out() cannot be called.
-> > You can't just drop the lock (at least on SMP)
-> 
-> Looks it is not easy to avoid the race if the lock is to be dropped.
-> 
-> So how about not acquiring the lock during unlinking as below?
+Hello.
 
-<skip>
+I paired my Apple Wireless Keyboard 2011(ANSI, device id 05AC:0255) with 
+my pc.
+Almost everything works well, except for the Fn key.I found that  my 
+kernel  was  compiled  without support for  hid-apple.
+I included this module in my kernel, but Fn-button still not working.
 
-Why don't you do something like this:
+I looked at the source code and saw the missing definition of
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI in apple_devices structure
+(hid-apple.c file).
 
-	urb_to_unlink = usbhid->urbout;
-        usbhid->urbout = NULL;
+Now everything works fine.
 
-        spin_unlock(&usbhid->lock);
-        usb_unlink_urb(urb_to_unlink);
-        spin_lock(&usbhid->lock);
+Patch to solve the problem is attached below
+Thanks, Alexey Kaminsky.
+PS. Link to the bugzilla thread: 
+https://bugzilla.kernel.org/show_bug.cgi?id=43135
 
-and of course comment it properly.
 
-Thanks.
+apple-wireless-ansi-2011.patch
 
--- 
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Alexey Kaminsky<me@akaminsky.net>
+diff -ur linux-3.3-orig/drivers/hid/hid-apple.c 
+linux-3.3/drivers/hid/hid-apple.c
+--- linux-3.3-orig/drivers/hid/hid-apple.c	2012-04-20 14:17:34.256877478 
++0300
++++ linux-3.3/drivers/hid/hid-apple.c	2012-04-20 17:34:00.915875131 +0300
+@@ -458,6 +458,9 @@
+   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO),
+   		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
+   			APPLE_ISO_KEYBOARD },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
++				USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS),
+   		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+   	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_WELLSPRING_ANSI),
+
+

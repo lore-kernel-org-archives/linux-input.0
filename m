@@ -1,81 +1,67 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Fri, 20 Apr 2012 09:57:34 +0200
-Message-ID: <201204200957.34154.oneukum@suse.de>
-References: <1334843464-1585-1-git-send-email-ming.lei@canonical.com> <201204191811.33994.oneukum@suse.de> <CACVXFVPZQNNvGk0cn4XWDTKd_s71V0Yd9nZJ3nkEg1Qh7W+B5g@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] HID: hid-lg4ff: Add support for G27 LEDs
+Date: Fri, 20 Apr 2012 12:05:21 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204201156300.29484@pobox.suse.cz>
+References: <alpine.LNX.2.00.1204131458290.16373@pobox.suse.cz>    <1334732588-9351-1-git-send-email-simon@mungewell.org>    <alpine.LNX.2.00.1204181320180.16373@pobox.suse.cz> <2702029527a38f9e28882007b36eaf73.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:55421 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:33362 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754114Ab2DTIBk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Apr 2012 04:01:40 -0400
-In-Reply-To: <CACVXFVPZQNNvGk0cn4XWDTKd_s71V0Yd9nZJ3nkEg1Qh7W+B5g@mail.gmail.com>
+	id S1752475Ab2DTKFY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 Apr 2012 06:05:24 -0400
+In-Reply-To: <2702029527a38f9e28882007b36eaf73.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ming Lei <ming.lei@canonical.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Bauer <michael@m-bauer.org>, Michal Maly <madcatxster@gmail.com>
 
-Am Freitag, 20. April 2012, 04:10:09 schrieb Ming Lei:
-> On Fri, Apr 20, 2012 at 12:11 AM, Oliver Neukum <oneukum@suse.de> wrote:
-> > Am Donnerstag, 19. April 2012, 15:51:04 schrieb Ming Lei:
-> >> The URB complete handler may be called by usb_unlink_urb directly,
-> >> so deadlock will be triggered in __usbhid_submit_report since
-> >> usbhid->lock is to be acquired in ctrl/out URB complete handler
-> >> but it is hold before calling usb_unlink_urb.
-> >>
-> >> This patch avoids the deadlock by releasing the lock before
-> >> calling usb_unlink_urb.
-> >>
-> >> CC: <stable@vger.kernel.org>
-> >> Signed-off-by: Ming Lei <ming.lei@canonical.com>
-> >> ---
-> >>  drivers/hid/usbhid/hid-core.c |   16 ++++++++++------
-> >>  1 file changed, 10 insertions(+), 6 deletions(-)
-> >>
-> >> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> >> index aa1c503..b5d07da 100644
-> >> --- a/drivers/hid/usbhid/hid-core.c
-> >> +++ b/drivers/hid/usbhid/hid-core.c
-> >> @@ -543,11 +543,13 @@ static void __usbhid_submit_report(struct hid_device *hid, struct hid_report *re
-> >>                        * the queue is known to run
-> >>                        * but an earlier request may be stuck
-> >>                        * we may need to time out
-> >> -                      * no race because this is called under
-> >> -                      * spinlock
-> >> +                      * release spinlock to avoid deadlock.
-> >>                        */
-> >> -                     if (time_after(jiffies, usbhid->last_out + HZ * 5))
-> >> +                     if (time_after(jiffies, usbhid->last_out + HZ * 5)) {
-> >> +                             spin_unlock(&usbhid->lock);
-> >>                               usb_unlink_urb(usbhid->urbout);
-> >> +                             spin_lock(&usbhid->lock);
-> >
-> > The problem indeed exists on some HCDs.
-> > I am afraid if you drop the lock there you introduce a race whereby
-> > you might unlink the wrong request.
+On Wed, 18 Apr 2012, simon@mungewell.org wrote:
+
+> > Putting the whole err: label outside the outer for cycle would make the
+> > whole thing much more readable (and would save you the break). Could you
+> > please redo this?
 > 
-> The complete handler is called just one time per one submit in either
+> The 'break' is actually not needed as 'j' has reached maximum value and
+> the outer for loop would be at completion. 
 
-Indeed.
+Ah, right, I have even missed this fact, that you are using the same index 
+in the inner loop as in the outter loop.
 
-> irq path or unlink path. Secondly, usb_unlink_urb itself is race free.
-> Finally, usb_unlink_urb was always the last function called inside
-> __usbhid_submit_report.
+Quite unreadable indeed :)
 
-But under spinlock.
- 
-> So I don't see any races can be introduced by the patch.
+> I put the 'break' there just to highlight this fact.
+> 
+> Maybe just a comment would be OK, such as 'on error fall though to driver
+> completion'.
+> 
+> The reason I'd like this code here is that it seems traditional to output
+> the following 'hid_info' line once the driver is fully active.
+> 
+> >>  	hid_info(hid, "Force feedback for Logitech Speed Force Wireless by
+> >> Simon Wood <simon@mungewell.org>\n");
+> 
+> Moving the 'err:' code would have to:
+> 1). Jump back to hit this hid_info line
+> 2). Duplicate the hid_info line
+> 3). Have err code called as a function
 
-You are racing with hid_irq_out(). It calls hid_submit_out()
-under lock. So if hid_irq_out() is running between dropping
-the lock and usb_unlink_urb() you may kill the newly submitted
-urb, not the old urb that has timed out.
-You must make sure that between the times you check usbhid->last_out
-and calling unlink hid_submit_out() cannot be called.
-You can't just drop the lock (at least on SMP)
+I am not getting it. Why can't you do just something like
 
-	Regards
-		Oliver
+
+	for ( .... ) {
+		/* outter loop */
+		if (error) {
+			for ( ... ) {
+				/* inner loop */
+			}
+			goto out;
+		}
+	}
+out:
+	hid_info(....);
+	return;
+
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,53 +1,53 @@
-From: =?UTF-8?q?Jean-Fran=C3=A7ois=20Dagenais?= <jeff.dagenais@gmail.com>
-Subject: [PATCH 1/2] input: adp5588-keys - get value from data out when dir out
-Date: Fri, 20 Apr 2012 11:32:00 -0400
-Message-ID: <1334935921-13016-1-git-send-email-jeff.dagenais@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
+Date: Fri, 20 Apr 2012 14:59:50 -0700
+Message-ID: <3064999.MGqgi6qjvF@dtor-d630.eng.vmware.com>
+References: <1334843464-1585-1-git-send-email-ming.lei@canonical.com> <201204200957.34154.oneukum@suse.de> <CACVXFVP42WL2aVDGSn0BF0NJbg824VsU=Fs30XKEif6siOrQvw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: grant.likely@secretlab.ca, dtor@mail.ru, dmitry.torokhov@gmail.com, linus.walleij@stericsson.com, linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, michael.hennerich@analog.com, =?UTF-8?q?Jean-Fran=C3=A7ois=20Dagenais?= <jeff.dagenais@gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CACVXFVP42WL2aVDGSn0BF0NJbg824VsU=Fs30XKEif6siOrQvw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+Cc: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-As discussed here: http://ez.analog.com/message/35852,
-the 5587 revC and 5588 revB spec sheets contain a mistake
-in the GPIO_DAT_STATx register description.
+On Friday, April 20, 2012 06:17:51 PM Ming Lei wrote:
+> On Fri, Apr 20, 2012 at 3:57 PM, Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org> wrote:
+> > You are racing with hid_irq_out(). It calls hid_submit_out()
+> > under lock. So if hid_irq_out() is running between dropping
+> > the lock and usb_unlink_urb() you may kill the newly submitted
+> > urb, not the old urb that has timed out.
+> 
+> Yes, it is the race I missed, :-(
+> 
+> > You must make sure that between the times you check usbhid->last_out
+> > and calling unlink hid_submit_out() cannot be called.
+> > You can't just drop the lock (at least on SMP)
+> 
+> Looks it is not easy to avoid the race if the lock is to be dropped.
+> 
+> So how about not acquiring the lock during unlinking as below?
 
-According to R.Shnell at ADI, as well as my own
-observations, it should read:
-"GPIO data status (shows GPIO state when read for inputs)".
+<skip>
 
-This commit changes the get value function accordingly.
+Why don't you do something like this:
 
-A similar patch for gpio-adp5588 follows.
+	urb_to_unlink = usbhid->urbout;
+        usbhid->urbout = NULL;
 
-Signed-off-by: Jean-Fran=C3=A7ois Dagenais <jeff.dagenais@gmail.com>
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
----
- drivers/input/keyboard/adp5588-keys.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+        spin_unlock(&usbhid->lock);
+        usb_unlink_urb(urb_to_unlink);
+        spin_lock(&usbhid->lock);
 
-diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyb=
-oard/adp5588-keys.c
-index 6412ced..b7a0f1a 100644
---- a/drivers/input/keyboard/adp5588-keys.c
-+++ b/drivers/input/keyboard/adp5588-keys.c
-@@ -78,6 +78,13 @@ static int adp5588_gpio_get_value(struct gpio_chip *=
-chip, unsigned off)
- 	unsigned int bank =3D ADP5588_BANK(kpad->gpiomap[off]);
- 	unsigned int bit =3D ADP5588_BIT(kpad->gpiomap[off]);
-=20
-+	mutex_lock(&kpad->gpio_lock);
-+	if (kpad->dir[bank] & bit) {
-+		int result =3D !!(kpad->dat_out[bank] & bit);
-+		mutex_unlock(&kpad->gpio_lock);
-+		return result;
-+	}
-+	mutex_unlock(&kpad->gpio_lock);
- 	return !!(adp5588_read(kpad->client, GPIO_DAT_STAT1 + bank) & bit);
- }
-=20
---=20
-1.7.9
+and of course comment it properly.
+
+Thanks.
+
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

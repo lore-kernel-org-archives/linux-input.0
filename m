@@ -1,53 +1,68 @@
-From: Simon Wood <simon@mungewell.org>
-Subject: [PATCH 2/2] HID: hid-lg4ff: Updated Comments
-Date: Sat, 21 Apr 2012 05:41:16 -0700
-Message-ID: <1335012076-26430-2-git-send-email-simon@mungewell.org>
-References: <alpine.LNX.2.00.1204201156300.29484@pobox.suse.cz>
- <1335012076-26430-1-git-send-email-simon@mungewell.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] input: wacom - retrieve maximum number of touch
+ points
+Date: Fri, 20 Apr 2012 22:56:03 -0700
+Message-ID: <20120421055603.GA27551@core.coreip.homeip.net>
+References: <1334530224-8395-1-git-send-email-chris@cnpbagwell.com>
+ <1334530224-8395-2-git-send-email-chris@cnpbagwell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:40974 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753345Ab2DUCtY (ORCPT
+Received: from mail-pz0-f52.google.com ([209.85.210.52]:33961 "EHLO
+	mail-pz0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751425Ab2DUF4J (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Apr 2012 22:49:24 -0400
-In-Reply-To: <1335012076-26430-1-git-send-email-simon@mungewell.org>
+	Sat, 21 Apr 2012 01:56:09 -0400
+Received: by dake40 with SMTP id e40so13837130dak.11
+        for <linux-input@vger.kernel.org>; Fri, 20 Apr 2012 22:56:09 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1334530224-8395-2-git-send-email-chris@cnpbagwell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Michael Bauer <michael@m-bauer.org>, Michal Maly <madcatxster@gmail.com>, Simon Wood <simon@mungewell.org>
+To: chris@cnpbagwell.com
+Cc: linux-input@vger.kernel.org, pinglinux@gmail.com, Ping Cheng <pingc@wacom.com>
 
-Updated comments to say that this driver now supports all Logitech
-gaming wheels, and not just the WiiWheel.
+Hi Chris, Ping,
 
-Signed-off-by: Simon Wood <simon@mungewell.org>
----
- drivers/hid/hid-lg4ff.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+On Sun, Apr 15, 2012 at 05:50:23PM -0500, chris@cnpbagwell.com wrote:
+> From: Ping Cheng <pinglinux@gmail.com>
+> 
+> From the HID usage table when it is supported.
+> 
+> Tested-by: Jason Gerecke <killertofu@gmail.com>
+> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
+> ---
+>  drivers/input/tablet/wacom_sys.c |   22 +++++++++++++-
+>  drivers/input/tablet/wacom_wac.c |   59 +++++++++++++++++++++++---------------
+>  drivers/input/tablet/wacom_wac.h |    1 +
+>  3 files changed, 58 insertions(+), 24 deletions(-)
+> 
+> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+> index 1c874ad..469f6ce 100644
+> --- a/drivers/input/tablet/wacom_sys.c
+> +++ b/drivers/input/tablet/wacom_sys.c
+> @@ -28,6 +28,7 @@
+>  #define HID_USAGE_Y_TILT		0x3e
+>  #define HID_USAGE_FINGER		0x22
+>  #define HID_USAGE_STYLUS		0x20
+> +#define HID_USAGE_CONTACTMAX		0x55
+>  #define HID_COLLECTION			0xa1
+>  #define HID_COLLECTION_LOGICAL		0x02
+>  #define HID_COLLECTION_END		0xc0
+> @@ -201,6 +202,20 @@ static int wacom_parse_logical_collection(unsigned char *report,
+>  	return length;
+>  }
+>  
+> +static void wacom_retrieve_report_data(struct usb_interface *intf,
+> +				       struct wacom_features *features)
+> +{
+> +	int result = 0;
+> +	unsigned char rep_data[2];
 
-diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-index 1e942a0..24cf037 100644
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -1,7 +1,8 @@
- /*
-- *  Force feedback support for Logitech Speed Force Wireless
-+ *  Force feedback support for Logitech Gaming Wheels
-  *
-- *  http://wiibrew.org/wiki/Logitech_USB_steering_wheel
-+ *  Including G27, G25, DFP, DFGT, FFEX, Momo, Momo2 &
-+ *  Speed Force Wireless (WiiWheel)
-  *
-  *  Copyright (c) 2010 Simon Wood <simon@mungewell.org>
-  */
-@@ -590,7 +591,7 @@ err:
- #endif
- 
- out:
--	hid_info(hid, "Force feedback for Logitech Speed Force Wireless by Simon Wood <simon@mungewell.org>\n");
-+	hid_info(hid, "Force feedback support for Logitech Gaming Wheels\n");
- 	return 0;
- }
- 
+You can't use on-stack buffers with USB. I see we allocating memory
+elsewhere but I wonder if we should simply piggyback on wacom_wac->data
+in all these interrogation methods.
+
 -- 
-1.7.4.1
-
+Dmitry

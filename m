@@ -1,63 +1,34 @@
-From: Alexey Kaminsky <me@akaminsky.net>
-Subject: Apple Wireless Keyboard 2011 (ANSI) Fn key Bug
-Date: Sat, 21 Apr 2012 02:19:18 +0300
-Message-ID: <4F91EEF6.6010902@akaminsky.net>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
+Date: Fri, 20 Apr 2012 20:37:35 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1204202032530.19313-100000@netrider.rowland.org>
+References: <201204201245.44981.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:33966 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756184Ab2DTXTY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Apr 2012 19:19:24 -0400
-Received: by wibhj6 with SMTP id hj6so1116808wib.1
-        for <linux-input@vger.kernel.org>; Fri, 20 Apr 2012 16:19:22 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201204201245.44981.oneukum-l3A5Bk7waGM@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+Cc: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>
 
-Hello.
+On Fri, 20 Apr 2012, Oliver Neukum wrote:
 
-I paired my Apple Wireless Keyboard 2011(ANSI, device id 05AC:0255) with 
-my pc.
-Almost everything works well, except for the Fn key.I found that  my 
-kernel  was  compiled  without support for  hid-apple.
-I included this module in my kernel, but Fn-button still not working.
+> As I said, I'd very much appreciate sane semantics for usb_unlink_urb().
 
-I looked at the source code and saw the missing definition of
-USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI in apple_devices structure
-(hid-apple.c file).
+Aside from the practicality issue of altering a large number of
+existing drivers, changing the semantics the way you want would be
+difficult because it would force the HCDs to defer some giveback
+operations to a bottom half or timer routine.
 
-Now everything works fine.
+Think about what happens if the URB being unlinked hasn't been
+presented to the hardware yet.  Once it has been removed from the HCD's
+internal lists, there's no reason not to give it back right away.  And
+there's no natural time to give it back later.
 
-Patch to solve the problem is attached below
-Thanks, Alexey Kaminsky.
-PS. Link to the bugzilla thread: 
-https://bugzilla.kernel.org/show_bug.cgi?id=43135
+Alan Stern
 
-
-apple-wireless-ansi-2011.patch
-
-Signed-off-by: Alexey Kaminsky<me@akaminsky.net>
-diff -ur linux-3.3-orig/drivers/hid/hid-apple.c 
-linux-3.3/drivers/hid/hid-apple.c
---- linux-3.3-orig/drivers/hid/hid-apple.c	2012-04-20 14:17:34.256877478 
-+0300
-+++ linux-3.3/drivers/hid/hid-apple.c	2012-04-20 17:34:00.915875131 +0300
-@@ -458,6 +458,9 @@
-   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO),
-   		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
-   			APPLE_ISO_KEYBOARD },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
-+				USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI),
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
-   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS),
-   		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
-   	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_WELLSPRING_ANSI),
-
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

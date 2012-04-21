@@ -1,73 +1,44 @@
-From: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH v5 10/10] ARM: LPC32xx: Move common code to common.c
-Date: Sat, 21 Apr 2012 11:34:28 +0200
-Message-ID: <1335000868-21974-11-git-send-email-stigge@antcom.de>
-References: <1335000868-21974-1-git-send-email-stigge@antcom.de>
+From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
+Date: Sat, 21 Apr 2012 12:25:05 +0200
+Message-ID: <201204211225.05846.oliver@neukum.org>
+References: <Pine.LNX.4.44L0.1204202032530.19313-100000@netrider.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1335000868-21974-1-git-send-email-stigge@antcom.de>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
-To: arm@kernel.org, thierry.reding@avionic-design.de, arnd@arndb.de, linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, axel.lin@gmail.com, broonie@opensource.wolfsonmicro.com, marek.vasut@gmail.com, devel@driverdev.osuosl.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
-Cc: Roland Stigge <stigge@antcom.de>
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <Pine.LNX.4.44L0.1204202032530.19313-100000-pYrvlCTfrz9XsRXLowluHWD2FQJk+8+b@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Cc: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-This patch moves non-boardspecific LPC32xx code to common.c
+Am Samstag, 21. April 2012, 02:37:35 schrieb Alan Stern:
+> On Fri, 20 Apr 2012, Oliver Neukum wrote:
+> 
+> > As I said, I'd very much appreciate sane semantics for usb_unlink_urb().
+> 
+> Aside from the practicality issue of altering a large number of
+> existing drivers, changing the semantics the way you want would be
+> difficult because it would force the HCDs to defer some giveback
+> operations to a bottom half or timer routine.
 
-Signed-off-by: Roland Stigge <stigge@antcom.de>
+Or a work queue, which would have to be dedicated to avoid deadlocks
+with storage.
 
----
- arch/arm/mach-lpc32xx/common.c  |   13 +++++++++++++
- arch/arm/mach-lpc32xx/phy3250.c |   13 -------------
- 2 files changed, 13 insertions(+), 13 deletions(-)
+> Think about what happens if the URB being unlinked hasn't been
+> presented to the hardware yet.  Once it has been removed from the HCD's
+> internal lists, there's no reason not to give it back right away.  And
+> there's no natural time to give it back later.
 
---- linux-2.6.orig/arch/arm/mach-lpc32xx/common.c
-+++ linux-2.6/arch/arm/mach-lpc32xx/common.c
-@@ -223,3 +223,16 @@ void lpc23xx_restart(char mode, const ch
- 	while (1)
- 		;
- }
-+
-+static int __init lpc32xx_display_uid(void)
-+{
-+	u32 uid[4];
-+
-+	lpc32xx_get_uid(uid);
-+
-+	printk(KERN_INFO "LPC32XX unique ID: %08x%08x%08x%08x\n",
-+		uid[3], uid[2], uid[1], uid[0]);
-+
-+	return 1;
-+}
-+arch_initcall(lpc32xx_display_uid);
---- linux-2.6.orig/arch/arm/mach-lpc32xx/phy3250.c
-+++ linux-2.6/arch/arm/mach-lpc32xx/phy3250.c
-@@ -310,19 +310,6 @@ static void __init lpc3250_machine_init(
- 			SPI0_CS_GPIO);
- }
- 
--static int __init lpc32xx_display_uid(void)
--{
--	u32 uid[4];
--
--	lpc32xx_get_uid(uid);
--
--	printk(KERN_INFO "LPC32XX unique ID: %08x%08x%08x%08x\n",
--		uid[3], uid[2], uid[1], uid[0]);
--
--	return 1;
--}
--arch_initcall(lpc32xx_display_uid);
--
- static char const *lpc32xx_dt_compat[] __initdata = {
- 	"nxp,lpc3220",
- 	"nxp,lpc3230",
+Now. The question is not when, but from which context.
+The context should be uniform, so that the requirements
+for locking should also be uniform.
+
+	Regards
+		Oliver
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,18 +1,17 @@
 From: Alan Stern <stern@rowland.harvard.edu>
 Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Sun, 22 Apr 2012 08:50:08 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1204220848020.15283-100000@netrider.rowland.org>
-References: <CACVXFVNz8uuiXWVfg3rqhE_bazCSsH1mGANc5rJCJbbejTc1dQ@mail.gmail.com>
+Date: Sun, 22 Apr 2012 08:54:10 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1204220850150.15283-100000@netrider.rowland.org>
+References: <CACVXFVOQpYcHUj3XApyCVWDuvUEKi+RSWC8Ly4Dnj7vrun68cg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:49452 "HELO
+Received: from netrider.rowland.org ([192.131.102.5]:36406 "HELO
 	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751475Ab2DVMuJ (ORCPT
+	with SMTP id S1751656Ab2DVMyL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Apr 2012 08:50:09 -0400
-In-Reply-To: <CACVXFVNz8uuiXWVfg3rqhE_bazCSsH1mGANc5rJCJbbejTc1dQ@mail.gmail.com>
+	Sun, 22 Apr 2012 08:54:11 -0400
+In-Reply-To: <CACVXFVOQpYcHUj3XApyCVWDuvUEKi+RSWC8Ly4Dnj7vrun68cg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Ming Lei <ming.lei@canonical.com>
@@ -20,39 +19,35 @@ Cc: Oliver Neukum <oliver@neukum.org>, Greg Kroah-Hartman <gregkh@linuxfoundatio
 
 On Sun, 22 Apr 2012, Ming Lei wrote:
 
-> > Although the kerneldoc doesn't actually say so, it should be safe t=
-o
-> > assume that usb_unlink_urb calls the completion routine directly _o=
-nly_
-> > in cases where the unlink succeeded. =A0(We could add this to the
-> > kerneldoc.)
+> On Sun, Apr 22, 2012 at 1:31 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
+> > On Sat, 21 Apr 2012, Ming Lei wrote:
+> >> How about always scheduling a tasklet to run what usb_unlink_urb does?
+> >> just implement usb_unlink_urb as something like
+> >> tasklet_schedule(unlink_tasklet).
+> >>
+> >> Then we can have a uniform lock requirement and no changes are involved
+> >> on host controller drivers.
 > >
-> > Therefore: If the URB completes with status other than -ECONNRESET =
-then
-> > you can safely take the lock for resubmission. =A0If the URB comple=
-tes
-> > with status =3D=3D -ECONNRESET then you know it was unlinked, so yo=
-u don't
-> > need to take the lock -- the race has already been lost.
-> >
-> > Does that solve your problem?
->=20
-> Not sure if that does work.
->=20
-> If the URB completes asynchronously after unlinking, its status is st=
-ill
->  -ECONNRESET, so extra race may be caused without holding the lock
-> because complete handler will access some global data.
+> > The return values would not be correct.
+> 
+> If you run 'git grep -n usb_unlink_urb drivers/usb/', it may show that
+> most of callers do not check its return value, and the others only check
+> for dumping warnings. If usb_unlink_urb is converted into tasklet
+> implementation, we still can dump these warnings inside its tasklet function.
 
-That would be a completely separate race, right?  So maybe it can use a=
-=20
-different lock for protection -- and this other lock could be dropped=20
-before usb_unlink_urb is called.
+That sounds rather awkward.  How would the "tasklet-ized" version of 
+usb_unlink_urb know what warnings to issue?
+
+> > On the other hand, usbnet could call usb_unlink_urb from within a
+> > tasklet.
+> 
+> Sorry, you mean tasklet_schedule can't be called inside a tasklet?
+
+What I meant is: If you're going to run in a tasklet, it doesn't matter
+whether the tasklet is started by the usb_unlink_urb function or by its
+caller.  The end result should be the same either way.
+
+However Oliver has already objected to using a tasklet for unlinking.
 
 Alan Stern
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

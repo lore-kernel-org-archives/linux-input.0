@@ -1,45 +1,42 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Sun, 22 Apr 2012 19:53:32 +0800
-Message-ID: <CACVXFVOQpYcHUj3XApyCVWDuvUEKi+RSWC8Ly4Dnj7vrun68cg@mail.gmail.com>
-References: <CACVXFVPR76O+zFtL3pBc-KyhN85xN6AkgTT_Md1kG2wWwjosiw@mail.gmail.com>
-	<Pine.LNX.4.44L0.1204211327090.475-100000@netrider.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH 0/3] hid: Enable report fixup on rebind
+Date: Sun, 22 Apr 2012 14:21:37 +0200
+Message-ID: <1335097300-11881-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:37056 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751330Ab2DVLxg (ORCPT
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:39845 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751403Ab2DVMSY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Apr 2012 07:53:36 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1204211327090.475-100000@netrider.rowland.org>
+	Sun, 22 Apr 2012 08:18:24 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Oliver Neukum <oliver@neukum.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-On Sun, Apr 22, 2012 at 1:31 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
-> On Sat, 21 Apr 2012, Ming Lei wrote:
->> How about always scheduling a tasklet to run what usb_unlink_urb does?
->> just implement usb_unlink_urb as something like
->> tasklet_schedule(unlink_tasklet).
->>
->> Then we can have a uniform lock requirement and no changes are involved
->> on host controller drivers.
->
-> The return values would not be correct.
+Hi Jiri,
 
-If you run 'git grep -n usb_unlink_urb drivers/usb/', it may show that
-most of callers do not check its return value, and the others only check
-for dumping warnings. If usb_unlink_urb is converted into tasklet
-implementation, we still can dump these warnings inside its tasklet function.
+This patchset contains a resolution to the problem with
+driver-specific modification of the report descriptor. The core of the
+problem lies with the dual semantics of hid_parse_report(), which is
+therefore split into two functions. As a consequence, the hid core can
+handle the rebind case internally, with no changes to the
+drivers. Out-of-tree drivers will work fine as long as they operate in
+the same way as the in-kernel drivers.
 
->
-> On the other hand, usbnet could call usb_unlink_urb from within a
-> tasklet.
+The first two patches are bug fixes found in the process. I am hoping
+for some test feedback on those. The third patch is the main one.
 
-Sorry, you mean tasklet_schedule can't be called inside a tasklet?
+Henrik Rydberg (3):
+  hid-hyperv: Do not use hid_parse_report() directly
+  hid-logitech: Collect report descriptors before sending
+  hid: Handle driver-specific device descriptor in core
 
-Thanks,
---
-Ming Lei
+ drivers/hid/hid-core.c        |  112 +++++++++++++++++++++++++++++++++--------
+ drivers/hid/hid-hyperv.c      |   14 +++++-
+ drivers/hid/hid-logitech-dj.c |   71 +++++++++++---------------
+ include/linux/hid.h           |   14 ++----
+ 4 files changed, 135 insertions(+), 76 deletions(-)
+
+-- 
+1.7.10
+

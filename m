@@ -1,62 +1,75 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH v2 2/6] hid: Parse the device before adding it
-Date: Sun, 22 Apr 2012 08:05:22 +0200
-Message-ID: <1335074726-2276-3-git-send-email-rydberg@euromail.se>
-References: <1335074726-2276-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1335074726-2276-1-git-send-email-rydberg@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] HID: hid-input: default HID_BATTERY_STRENGTH to no
+Date: Sun, 22 Apr 2012 10:38:57 +0200
+Message-ID: <CAMuHMdWEZMWrbQrf_q9fCDj4rfxuhdqW=o9857+VseJDJ-ogyA@mail.gmail.com>
+References: <20120418140517.GM19507@zod.bos.redhat.com>
+	<1334758134.8818.132.camel@novo.hadess.net>
+	<20120418141131.GN19507@zod.bos.redhat.com>
+	<20120418142450.GA30083@srcf.ucam.org>
+	<alpine.LNX.2.00.1204181926340.16373@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:38435 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751939Ab2DVIi6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 22 Apr 2012 04:38:58 -0400
+In-Reply-To: <alpine.LNX.2.00.1204181926340.16373@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Matthew Garrett <mjg@redhat.com>, Josh Boyer <jwboyer@redhat.com>, Bastien Nocera <hadess@hadess.net>, Jeremy Fitzhardinge <jeremy@goop.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fedoraproject.org, Richard Hughes <richard@hughsie.com>
 
-The hid bus is populated by devices created by the usb and bluetooth
-subsystems. The hid device is then broadcast to userland via uevents.
-Currently, the parsing of the hid reports is done during probe of
-the hid device, after the device has been broadcast. In order to
-allow for the report descriptors to influence the device properties,
-it is desirable to parse the device _before_ it is broadcast to
-userland.
+On Wed, Apr 18, 2012 at 19:28, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Wed, 18 Apr 2012, Matthew Garrett wrote:
+>> > Matthew suggested that additional kernel patches were required to =
+add a
+>> > scope parameter so upower could understand that the battery is pow=
+ering
+>> > a device and not the system.
+>> >
+>> > Also, when did it become OK to force-enable a new feature that is
+>> > _known_ to not work properly on recent userspace? =C2=A0That makes=
+ no sense
+>> > to me.
+>>
+>> I agree. It's a great feature, but it shouldn't be default y if
+>> userspace isn't ready for it yet.
+>
+> Fully agreed, the 'default y' part escaped my attention. I will be
+> applying the patch and pushing out to Linus.
+>
+> I even wonder whether we shouldn't put a warning into the Kconfig ent=
+ry,
+> explaining the consequences of having userspace not ready for the fea=
+ture.
 
-Specific in-kernel device drivers, in particular those with report
-fixup routines, are not affected by this patch. Out-of-tree drivers
-with fixups is a known issue still to be addressed.
+I saw it move from HID_BATTERY_STRENGTH=3Dy to "# HID_BATTERY_STRENGTH
+is not set" in my max-all build.
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/hid/hid-core.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+As there's no help entry, and no other option selects it, HID_BATTERY_S=
+TRENGTH
+cannot be set anyway in v3.4-rc4?
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 3ed13b4..5378cf6 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -662,7 +662,7 @@ int hid_parse_report(struct hid_device *device, __u8 *start,
- 		hid_parser_reserved
- 	};
- 
--	if (device->driver->report_fixup)
-+	if (device->driver && device->driver->report_fixup)
- 		start = device->driver->report_fixup(device, start, &size);
- 
- 	device->rdesc = kmemdup(start, size, GFP_KERNEL);
-@@ -2095,6 +2095,17 @@ int hid_add_device(struct hid_device *hdev)
-             && (hid_ignore(hdev) || (hdev->quirks & HID_QUIRK_IGNORE)))
- 		return -ENODEV;
- 
-+	/*
-+	 * Parse generically handled devices early to allow for
-+	 * report-defined device groups.
-+	 */
-+	if (hid_ignore_special_drivers ||
-+	    !hid_match_id(hdev, hid_have_special_driver)) {
-+		ret = hid_parse(hdev);
-+		if (ret)
-+			return ret;
-+	}
-+
- 	/* XXX hack, any other cleaner solution after the driver core
- 	 * is converted to allow more than 20 bytes as the device name? */
- 	dev_set_name(&hdev->dev, "%04X:%04X:%04X.%04X", hdev->bus,
--- 
-1.7.10
+Gr{oetje,eeting}s,
+
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-=
+m68k.org
+
+In personal conversations with technical people, I call myself a hacker=
+=2E But
+when I'm talking to journalists I just say "programmer" or something li=
+ke that.
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0=C2=A0 =C2=A0=C2=A0 -- Linus Torvalds
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

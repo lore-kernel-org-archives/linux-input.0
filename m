@@ -1,75 +1,67 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] HID: hid-input: default HID_BATTERY_STRENGTH to no
-Date: Sun, 22 Apr 2012 10:38:57 +0200
-Message-ID: <CAMuHMdWEZMWrbQrf_q9fCDj4rfxuhdqW=o9857+VseJDJ-ogyA@mail.gmail.com>
-References: <20120418140517.GM19507@zod.bos.redhat.com>
-	<1334758134.8818.132.camel@novo.hadess.net>
-	<20120418141131.GN19507@zod.bos.redhat.com>
-	<20120418142450.GA30083@srcf.ucam.org>
-	<alpine.LNX.2.00.1204181926340.16373@pobox.suse.cz>
+From: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
+Date: Sun, 22 Apr 2012 18:51:26 +0800
+Message-ID: <CACVXFVNz8uuiXWVfg3rqhE_bazCSsH1mGANc5rJCJbbejTc1dQ@mail.gmail.com>
+References: <201204212128.08991.oliver@neukum.org>
+	<Pine.LNX.4.44L0.1204211717310.3981-100000@netrider.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:38435 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751939Ab2DVIi6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Apr 2012 04:38:58 -0400
-In-Reply-To: <alpine.LNX.2.00.1204181926340.16373@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <Pine.LNX.4.44L0.1204211717310.3981-100000-pYrvlCTfrz9XsRXLowluHWD2FQJk+8+b@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Cc: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Matthew Garrett <mjg@redhat.com>, Josh Boyer <jwboyer@redhat.com>, Bastien Nocera <hadess@hadess.net>, Jeremy Fitzhardinge <jeremy@goop.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fedoraproject.org, Richard Hughes <richard@hughsie.com>
 
-On Wed, Apr 18, 2012 at 19:28, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Wed, 18 Apr 2012, Matthew Garrett wrote:
->> > Matthew suggested that additional kernel patches were required to =
-add a
->> > scope parameter so upower could understand that the battery is pow=
-ering
->> > a device and not the system.
->> >
->> > Also, when did it become OK to force-enable a new feature that is
->> > _known_ to not work properly on recent userspace? =C2=A0That makes=
- no sense
->> > to me.
+On Sun, Apr 22, 2012 at 5:49 AM, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>=
+ wrote:
+> On Sat, 21 Apr 2012, Oliver Neukum wrote:
+>
+>> > On the other hand, usbnet could call usb_unlink_urb from within a
+>> > tasklet.
 >>
->> I agree. It's a great feature, but it shouldn't be default y if
->> userspace isn't ready for it yet.
+>> No. That would introduce a race.
+>> Basically whenever a completion handler resubmits itself, any timeou=
+t
+>> has to avoid a race. Checking for a timeout and unlinking must be at=
+omic,
+>> just as the completion handler must make the resubmission and noting
+>> the time atomic.
+>> If I cannot do this with a lock, then a much more complex pattern is=
+ necessary.
 >
-> Fully agreed, the 'default y' part escaped my attention. I will be
-> applying the patch and pushing out to Linus.
+> I see. =A0I never really understood the problem before.
 >
-> I even wonder whether we shouldn't put a warning into the Kconfig ent=
-ry,
-> explaining the consequences of having userspace not ready for the fea=
-ture.
+> Although the kerneldoc doesn't actually say so, it should be safe to
+> assume that usb_unlink_urb calls the completion routine directly _onl=
+y_
+> in cases where the unlink succeeded. =A0(We could add this to the
+> kerneldoc.)
+>
+> Therefore: If the URB completes with status other than -ECONNRESET th=
+en
+> you can safely take the lock for resubmission. =A0If the URB complete=
+s
+> with status =3D=3D -ECONNRESET then you know it was unlinked, so you =
+don't
+> need to take the lock -- the race has already been lost.
+>
+> Does that solve your problem?
 
-I saw it move from HID_BATTERY_STRENGTH=3Dy to "# HID_BATTERY_STRENGTH
-is not set" in my max-all build.
+Not sure if that does work.
 
-As there's no help entry, and no other option selects it, HID_BATTERY_S=
-TRENGTH
-cannot be set anyway in v3.4-rc4?
+If the URB completes asynchronously after unlinking, its status is stil=
+l
+ -ECONNRESET, so extra race may be caused without holding the lock
+because complete handler will access some global data.
 
-Gr{oetje,eeting}s,
 
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 Geert
 
+Thanks,
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-=
-m68k.org
-
-In personal conversations with technical people, I call myself a hacker=
-=2E But
-when I'm talking to journalists I just say "programmer" or something li=
-ke that.
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0=C2=A0 =C2=A0=C2=A0 -- Linus Torvalds
+Ming Lei
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

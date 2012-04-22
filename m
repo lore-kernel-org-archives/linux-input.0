@@ -1,53 +1,76 @@
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Ming Lei <ming.lei@canonical.com>
 Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Sun, 22 Apr 2012 08:54:10 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1204220850150.15283-100000@netrider.rowland.org>
-References: <CACVXFVOQpYcHUj3XApyCVWDuvUEKi+RSWC8Ly4Dnj7vrun68cg@mail.gmail.com>
+Date: Sun, 22 Apr 2012 21:52:28 +0800
+Message-ID: <CACVXFVNAZHC2uQCwRak6pRgT1VEgRJt5UTuwAtZM6r_Xdg0dHA@mail.gmail.com>
+References: <CACVXFVNz8uuiXWVfg3rqhE_bazCSsH1mGANc5rJCJbbejTc1dQ@mail.gmail.com>
+	<Pine.LNX.4.44L0.1204220848020.15283-100000@netrider.rowland.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:36406 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751656Ab2DVMyL (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:37211 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751736Ab2DVNwb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Apr 2012 08:54:11 -0400
-In-Reply-To: <CACVXFVOQpYcHUj3XApyCVWDuvUEKi+RSWC8Ly4Dnj7vrun68cg@mail.gmail.com>
+	Sun, 22 Apr 2012 09:52:31 -0400
+In-Reply-To: <Pine.LNX.4.44L0.1204220848020.15283-100000@netrider.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ming Lei <ming.lei@canonical.com>
+To: Alan Stern <stern@rowland.harvard.edu>
 Cc: Oliver Neukum <oliver@neukum.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
 
-On Sun, 22 Apr 2012, Ming Lei wrote:
+On Sun, Apr 22, 2012 at 8:50 PM, Alan Stern <stern@rowland.harvard.edu>=
+ wrote:
+> On Sun, 22 Apr 2012, Ming Lei wrote:
+>
+>> > Although the kerneldoc doesn't actually say so, it should be safe =
+to
+>> > assume that usb_unlink_urb calls the completion routine directly _=
+only_
+>> > in cases where the unlink succeeded. =A0(We could add this to the
+>> > kerneldoc.)
+>> >
+>> > Therefore: If the URB completes with status other than -ECONNRESET=
+ then
+>> > you can safely take the lock for resubmission. =A0If the URB compl=
+etes
+>> > with status =3D=3D -ECONNRESET then you know it was unlinked, so y=
+ou don't
+>> > need to take the lock -- the race has already been lost.
+>> >
+>> > Does that solve your problem?
+>>
+>> Not sure if that does work.
+>>
+>> If the URB completes asynchronously after unlinking, its status is s=
+till
+>> =A0-ECONNRESET, so extra race may be caused without holding the lock
+>> because complete handler will access some global data.
+>
+> That would be a completely separate race, right? =A0So maybe it can u=
+se a
 
-> On Sun, Apr 22, 2012 at 1:31 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
-> > On Sat, 21 Apr 2012, Ming Lei wrote:
-> >> How about always scheduling a tasklet to run what usb_unlink_urb does?
-> >> just implement usb_unlink_urb as something like
-> >> tasklet_schedule(unlink_tasklet).
-> >>
-> >> Then we can have a uniform lock requirement and no changes are involved
-> >> on host controller drivers.
-> >
-> > The return values would not be correct.
-> 
-> If you run 'git grep -n usb_unlink_urb drivers/usb/', it may show that
-> most of callers do not check its return value, and the others only check
-> for dumping warnings. If usb_unlink_urb is converted into tasklet
-> implementation, we still can dump these warnings inside its tasklet function.
+Not sure, at least in both usbnet and usbhid cases, the lock is held be=
+fore
+usb_unlink_urb, and the same lock is to be acquired in the URB complete
+handler.
 
-That sounds rather awkward.  How would the "tasklet-ized" version of 
-usb_unlink_urb know what warnings to issue?
+> different lock for protection -- and this other lock could be dropped
+> before usb_unlink_urb is called.
 
-> > On the other hand, usbnet could call usb_unlink_urb from within a
-> > tasklet.
-> 
-> Sorry, you mean tasklet_schedule can't be called inside a tasklet?
+If the lock which is to be acquired in the URB complete handler is drop=
+ped
+before calling usb_unlink_urb, one new submitted URB in complete handle=
+r
+may be unlinked, as mentioned by Oliver already.
 
-What I meant is: If you're going to run in a tasklet, it doesn't matter
-whether the tasklet is started by the usb_unlink_urb function or by its
-caller.  The end result should be the same either way.
 
-However Oliver has already objected to using a tasklet for unlinking.
 
-Alan Stern
-
+Thanks,
+--
+Ming Lei
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,47 +1,59 @@
-From: Jesper Juhl <jj@chaosbits.net>
-Subject: [PATCH] Input: atkbd - Fix language in a printed message
-Date: Sun, 22 Apr 2012 21:54:19 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204222144550.27455@swampdragon.chaosbits.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/3] hid: Enable report fixup on rebind
+Date: Sun, 22 Apr 2012 23:27:04 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204222325380.1856@pobox.suse.cz>
+References: <1335097300-11881-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from swampdragon.chaosbits.net ([90.184.90.115]:12393 "EHLO
-	swampdragon.chaosbits.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751637Ab2DVTyV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Apr 2012 15:54:21 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:36228 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752586Ab2DVV1J (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 22 Apr 2012 17:27:09 -0400
+In-Reply-To: <1335097300-11881-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: JJ Ding <dgdunix@gmail.com>, Axel Lin <axel.lin@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nikolai Kondrashov <spbnick@gmail.com>
 
-I believe that "trying to access hardware" is more correct english
-than "trying acess hardware".
+On Sun, 22 Apr 2012, Henrik Rydberg wrote:
 
-Signed-off-by: Jesper Juhl <jj@chaosbits.net>
----
- drivers/input/keyboard/atkbd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> This patchset contains a resolution to the problem with
+> driver-specific modification of the report descriptor. The core of the
+> problem lies with the dual semantics of hid_parse_report(), which is
+> therefore split into two functions. As a consequence, the hid core can
+> handle the rebind case internally, with no changes to the
+> drivers. Out-of-tree drivers will work fine as long as they operate in
+> the same way as the in-kernel drivers.
+> 
+> The first two patches are bug fixes found in the process. I am hoping
+> for some test feedback on those. The third patch is the main one.
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index e05a2e7..add5ffd 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -433,7 +433,7 @@ static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
- 		if (printk_ratelimit())
- 			dev_warn(&serio->dev,
- 				 "Spurious %s on %s. "
--				 "Some program might be trying access hardware directly.\n",
-+				 "Some program might be trying to access hardware directly.\n",
- 				 data == ATKBD_RET_ACK ? "ACK" : "NAK", serio->phys);
- 		goto out;
- 	case ATKBD_RET_ERR:
+Hi Henrik,
+
+thanks a lot for looking into this. I will look into the patches in more 
+detail tomorrow. I am now just adding Nikolai to CC, as he was the first 
+one to bring this up and actually has a driver that exposed the fact that 
+just freeing/reinstatiating rdesc is not enough.
+
+Thanks!
+
+> 
+> Henrik Rydberg (3):
+>   hid-hyperv: Do not use hid_parse_report() directly
+>   hid-logitech: Collect report descriptors before sending
+>   hid: Handle driver-specific device descriptor in core
+> 
+>  drivers/hid/hid-core.c        |  112 +++++++++++++++++++++++++++++++++--------
+>  drivers/hid/hid-hyperv.c      |   14 +++++-
+>  drivers/hid/hid-logitech-dj.c |   71 +++++++++++---------------
+>  include/linux/hid.h           |   14 ++----
+>  4 files changed, 135 insertions(+), 76 deletions(-)
+> 
+> -- 
+> 1.7.10
+> 
+
 -- 
-1.7.10
-
-
--- 
-Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
-Don't top-post http://www.catb.org/jargon/html/T/top-post.html
-Plain text mails only, please.
-
+Jiri Kosina
+SUSE Labs

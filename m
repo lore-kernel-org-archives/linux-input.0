@@ -1,67 +1,45 @@
-From: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+From: Ming Lei <ming.lei@canonical.com>
 Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Sun, 22 Apr 2012 18:51:26 +0800
-Message-ID: <CACVXFVNz8uuiXWVfg3rqhE_bazCSsH1mGANc5rJCJbbejTc1dQ@mail.gmail.com>
-References: <201204212128.08991.oliver@neukum.org>
-	<Pine.LNX.4.44L0.1204211717310.3981-100000@netrider.rowland.org>
+Date: Sun, 22 Apr 2012 19:53:32 +0800
+Message-ID: <CACVXFVOQpYcHUj3XApyCVWDuvUEKi+RSWC8Ly4Dnj7vrun68cg@mail.gmail.com>
+References: <CACVXFVPR76O+zFtL3pBc-KyhN85xN6AkgTT_Md1kG2wWwjosiw@mail.gmail.com>
+	<Pine.LNX.4.44L0.1204211327090.475-100000@netrider.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.44L0.1204211717310.3981-100000-pYrvlCTfrz9XsRXLowluHWD2FQJk+8+b@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
-Cc: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:37056 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751330Ab2DVLxg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 22 Apr 2012 07:53:36 -0400
+In-Reply-To: <Pine.LNX.4.44L0.1204211327090.475-100000@netrider.rowland.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Oliver Neukum <oliver@neukum.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
 
-On Sun, Apr 22, 2012 at 5:49 AM, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>=
- wrote:
-> On Sat, 21 Apr 2012, Oliver Neukum wrote:
->
->> > On the other hand, usbnet could call usb_unlink_urb from within a
->> > tasklet.
+On Sun, Apr 22, 2012 at 1:31 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
+> On Sat, 21 Apr 2012, Ming Lei wrote:
+>> How about always scheduling a tasklet to run what usb_unlink_urb does?
+>> just implement usb_unlink_urb as something like
+>> tasklet_schedule(unlink_tasklet).
 >>
->> No. That would introduce a race.
->> Basically whenever a completion handler resubmits itself, any timeou=
-t
->> has to avoid a race. Checking for a timeout and unlinking must be at=
-omic,
->> just as the completion handler must make the resubmission and noting
->> the time atomic.
->> If I cannot do this with a lock, then a much more complex pattern is=
- necessary.
+>> Then we can have a uniform lock requirement and no changes are involved
+>> on host controller drivers.
 >
-> I see. =A0I never really understood the problem before.
+> The return values would not be correct.
+
+If you run 'git grep -n usb_unlink_urb drivers/usb/', it may show that
+most of callers do not check its return value, and the others only check
+for dumping warnings. If usb_unlink_urb is converted into tasklet
+implementation, we still can dump these warnings inside its tasklet function.
+
 >
-> Although the kerneldoc doesn't actually say so, it should be safe to
-> assume that usb_unlink_urb calls the completion routine directly _onl=
-y_
-> in cases where the unlink succeeded. =A0(We could add this to the
-> kerneldoc.)
->
-> Therefore: If the URB completes with status other than -ECONNRESET th=
-en
-> you can safely take the lock for resubmission. =A0If the URB complete=
-s
-> with status =3D=3D -ECONNRESET then you know it was unlinked, so you =
-don't
-> need to take the lock -- the race has already been lost.
->
-> Does that solve your problem?
+> On the other hand, usbnet could call usb_unlink_urb from within a
+> tasklet.
 
-Not sure if that does work.
-
-If the URB completes asynchronously after unlinking, its status is stil=
-l
- -ECONNRESET, so extra race may be caused without holding the lock
-because complete handler will access some global data.
-
-
+Sorry, you mean tasklet_schedule can't be called inside a tasklet?
 
 Thanks,
 --
 Ming Lei
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

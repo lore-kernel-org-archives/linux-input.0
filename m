@@ -1,76 +1,47 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Sun, 22 Apr 2012 21:52:28 +0800
-Message-ID: <CACVXFVNAZHC2uQCwRak6pRgT1VEgRJt5UTuwAtZM6r_Xdg0dHA@mail.gmail.com>
-References: <CACVXFVNz8uuiXWVfg3rqhE_bazCSsH1mGANc5rJCJbbejTc1dQ@mail.gmail.com>
-	<Pine.LNX.4.44L0.1204220848020.15283-100000@netrider.rowland.org>
+From: Jesper Juhl <jj@chaosbits.net>
+Subject: [PATCH] Input: atkbd - Fix language in a printed message
+Date: Sun, 22 Apr 2012 21:54:19 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204222144550.27455@swampdragon.chaosbits.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:37211 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751736Ab2DVNwb convert rfc822-to-8bit (ORCPT
+Received: from swampdragon.chaosbits.net ([90.184.90.115]:12393 "EHLO
+	swampdragon.chaosbits.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751637Ab2DVTyV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Apr 2012 09:52:31 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1204220848020.15283-100000@netrider.rowland.org>
+	Sun, 22 Apr 2012 15:54:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Oliver Neukum <oliver@neukum.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: JJ Ding <dgdunix@gmail.com>, Axel Lin <axel.lin@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, Apr 22, 2012 at 8:50 PM, Alan Stern <stern@rowland.harvard.edu>=
- wrote:
-> On Sun, 22 Apr 2012, Ming Lei wrote:
->
->> > Although the kerneldoc doesn't actually say so, it should be safe =
-to
->> > assume that usb_unlink_urb calls the completion routine directly _=
-only_
->> > in cases where the unlink succeeded. =A0(We could add this to the
->> > kerneldoc.)
->> >
->> > Therefore: If the URB completes with status other than -ECONNRESET=
- then
->> > you can safely take the lock for resubmission. =A0If the URB compl=
-etes
->> > with status =3D=3D -ECONNRESET then you know it was unlinked, so y=
-ou don't
->> > need to take the lock -- the race has already been lost.
->> >
->> > Does that solve your problem?
->>
->> Not sure if that does work.
->>
->> If the URB completes asynchronously after unlinking, its status is s=
-till
->> =A0-ECONNRESET, so extra race may be caused without holding the lock
->> because complete handler will access some global data.
->
-> That would be a completely separate race, right? =A0So maybe it can u=
-se a
+I believe that "trying to access hardware" is more correct english
+than "trying acess hardware".
 
-Not sure, at least in both usbnet and usbhid cases, the lock is held be=
-fore
-usb_unlink_urb, and the same lock is to be acquired in the URB complete
-handler.
+Signed-off-by: Jesper Juhl <jj@chaosbits.net>
+---
+ drivers/input/keyboard/atkbd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> different lock for protection -- and this other lock could be dropped
-> before usb_unlink_urb is called.
-
-If the lock which is to be acquired in the URB complete handler is drop=
-ped
-before calling usb_unlink_urb, one new submitted URB in complete handle=
-r
-may be unlinked, as mentioned by Oliver already.
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index e05a2e7..add5ffd 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -433,7 +433,7 @@ static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
+ 		if (printk_ratelimit())
+ 			dev_warn(&serio->dev,
+ 				 "Spurious %s on %s. "
+-				 "Some program might be trying access hardware directly.\n",
++				 "Some program might be trying to access hardware directly.\n",
+ 				 data == ATKBD_RET_ACK ? "ACK" : "NAK", serio->phys);
+ 		goto out;
+ 	case ATKBD_RET_ERR:
+-- 
+1.7.10
 
 
+-- 
+Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
+Don't top-post http://www.catb.org/jargon/html/T/top-post.html
+Plain text mails only, please.
 
-Thanks,
---
-Ming Lei
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

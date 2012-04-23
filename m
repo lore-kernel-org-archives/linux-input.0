@@ -1,48 +1,62 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: HID regression: Quanta touchscreen, device ID: 0408:3008
-Date: Mon, 23 Apr 2012 08:59:07 -0700
-Message-ID: <4F957C4B.2020408@canonical.com>
-References: <alpine.LNX.2.00.1204231542030.1856@pobox.suse.cz> <4f95669e.a0e7d80a.2ef7.6710SMTPIN_ADDED@mx.google.com> <CAN+gG=EYXHegM+BTEuDvAT_cmvZCT5u38hY+Woe_No3V0rDfWA@mail.gmail.com> <4F957856.1070107@canonical.com> <CAN+gG=HJVynUaLciTkKqMSvciU1RN9NssQOBGeH2Wkg=9b6kOQ@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/3] Input: move drivers/input/fixp-arith.h to
+ include/linux
+Date: Mon, 23 Apr 2012 09:16:34 -0700
+Message-ID: <20120423161633.GA29290@core.coreip.homeip.net>
+References: <1335187267-27940-1-git-send-email-ospite@studenti.unina.it>
+ <1335187267-27940-3-git-send-email-ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:41587 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752287Ab2DWP7E (ORCPT
+Received: from mail-pz0-f51.google.com ([209.85.210.51]:64019 "EHLO
+	mail-pz0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751582Ab2DWQQl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Apr 2012 11:59:04 -0400
-In-Reply-To: <CAN+gG=HJVynUaLciTkKqMSvciU1RN9NssQOBGeH2Wkg=9b6kOQ@mail.gmail.com>
+	Mon, 23 Apr 2012 12:16:41 -0400
+Content-Disposition: inline
+In-Reply-To: <1335187267-27940-3-git-send-email-ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Ming Lei <tom.leiming@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: linux-media@vger.kernel.org, Jean-Francois Moine <moinejf@free.fr>, linux-input@vger.kernel.org, Johann Deneux <johann.deneux@gmail.comx>, Anssi Hannula <anssi.hannula@gmail.com>, Jonathan Corbet <corbet@lwn.net>
 
-On 04/23/2012 08:48 AM, Benjamin Tissoires wrote:
-> On Mon, Apr 23, 2012 at 17:42, Chase Douglas
-> <chase.douglas@canonical.com> wrote:
->> On 04/23/2012 08:34 AM, Benjamin Tissoires wrote:
->>> The problem relies in the upper layers and not in the kernel: nobody
->>> took the time to code a X.org driver that handles true multitouch
->>> direct devices. You can eventually use the synaptics one, but you will
->>> have to deal with absolute/relative coordinates, and the last time I
->>> played with it, it was not convenient as I was not able to make GDM
->>> use the absolute coordinate system (I kow I should have patched the
->>> synaptics X.org driver).
->>
->> X now supports direct multitouch devices using the X evdev driver. This
->> may be a bug in the X server.
+On Mon, Apr 23, 2012 at 03:21:06PM +0200, Antonio Ospite wrote:
+> Move drivers/input/fixp-arith.h to include/linux so that the functions
+> defined there can be used by other subsystems, for instance some video
+> devices ISPs can control the output HUE value by setting registers for
+> sin(HUE) and cos(HUE).
 > 
-> Yes it does, but does it also emulates right-clicks with double tap?
-> (It's not an attack ;-), it's just a question as I did not followed
-> the development of XInput 2.2 since a long time...)
+> Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
 
-No offense taken :). I merely wanted to point out that it could be a bug
-in the X server, too.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-In XI 2.2, there is only button 1 emulation. If you double tap it should
-double click. If you press and hold, it should press and hold button 1.
-There's no "gestural" interpretation in the X server that interprets
-touchscreen input and causes a button 2 event.
+> ---
+>  drivers/input/ff-memless.c                    |    3 +--
+>  {drivers/input => include/linux}/fixp-arith.h |    0
+>  2 files changed, 1 insertion(+), 2 deletions(-)
+>  rename {drivers/input => include/linux}/fixp-arith.h (100%)
+> 
+> diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+> index 117a59a..5f55885 100644
+> --- a/drivers/input/ff-memless.c
+> +++ b/drivers/input/ff-memless.c
+> @@ -31,8 +31,7 @@
+>  #include <linux/mutex.h>
+>  #include <linux/spinlock.h>
+>  #include <linux/jiffies.h>
+> -
+> -#include "fixp-arith.h"
+> +#include <linux/fixp-arith.h>
+>  
+>  MODULE_LICENSE("GPL");
+>  MODULE_AUTHOR("Anssi Hannula <anssi.hannula@gmail.com>");
+> diff --git a/drivers/input/fixp-arith.h b/include/linux/fixp-arith.h
+> similarity index 100%
+> rename from drivers/input/fixp-arith.h
+> rename to include/linux/fixp-arith.h
+> -- 
+> 1.7.10
+> 
 
--- Chase
+-- 
+Dmitry

@@ -1,45 +1,43 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: HID regression: Quanta touchscreen, device ID: 0408:3008
-Date: Mon, 23 Apr 2012 15:43:41 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204231542030.1856@pobox.suse.cz>
-References: <CACVXFVPTMPGRcvgdBd9Z=rsPCUGdmyoejU208Wy=c3c38U-ZkQ@mail.gmail.com>
+Subject: Re: [PATCH v5 1/1] HID: Add full support for Logitech Unifying
+ receivers
+Date: Mon, 23 Apr 2012 15:45:43 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204231544220.1856@pobox.suse.cz>
+References: <1316018905-4175-1-git-send-email-nlopezcasad@logitech.com> <4E77A221.1060909@t-online.de> <CAN+gG=EcaMrz2w-cVL-cCwi2NNVJ-NXOpOQpbjyFdCwn5+Bn+w@mail.gmail.com> <alpine.LRH.2.00.1204171027220.11298@twin.jikos.cz>
+ <CAN+gG=Hs-JrnPvfAB2XtrSQiKYw4NFMOKBaj+8n9Xtoq1rmtUA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33308 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:33373 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752257Ab2DWNnn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Apr 2012 09:43:43 -0400
-In-Reply-To: <CACVXFVPTMPGRcvgdBd9Z=rsPCUGdmyoejU208Wy=c3c38U-ZkQ@mail.gmail.com>
+	id S1753786Ab2DWNpp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Apr 2012 09:45:45 -0400
+In-Reply-To: <CAN+gG=Hs-JrnPvfAB2XtrSQiKYw4NFMOKBaj+8n9Xtoq1rmtUA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ming Lei <tom.leiming@gmail.com>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@enac.fr>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: =?ISO-8859-15?Q?Richard_Sch=FCtz?= <r.schtz@t-online.de>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rtitmuss@logitech.com, ogay@logitech.com, jzanone@logitech.com
 
-On Mon, 23 Apr 2012, Ming Lei wrote:
+On Mon, 23 Apr 2012, Benjamin Tissoires wrote:
 
-> Hi,
-> 
-> Quanta touchscreen, device ID: 0408:3008, works well on 3.0, but
-> double click doesn't work on 3.4-rc2, please refer to detailed report
-> on the below link.
-> 
-> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/913164/comments/15
-> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/913164/comments/32
+> >> here, you'll find a small C program that allows you to do a pairing of
+> >> a new device to a receiver.
+> >>
+> >> compile it with with gcc -o pairing_tool pairing_tool.c
+> >
+> > Could this perhaps be provided into Documentation/ or samples/ somewhere?
+> > I don't think that Logitech themselves do ship pairing application for
+> > Linux, or do they?
+> >
+> well, I don't have any information about an official pairing tool.
+> However, I don't think the kernel is the good place for this stuff.
+> Other people started projects based on this code:
+> https://bitbucket.org/clach04/logitech-unifying-receiver-tools/ for instance.
 
-Ming Lei,
-
-those two links don't provide any detailed report whatsoever. Looking at 
-
-	https://bugs.launchpad.net/ubuntu/+source/linux/+bug/913164
-
-there seems to be quite some discussion, but covering multiple models from 
-multiple vendors (and likely multiple different patches needed).
-
-So if there are patches that need to be applied (likely device ID 
-additions as far as I understand this monster launchpad bug entry), please 
-point me directly to the respective patches or send me a little bit more 
-details (VID/PID/protocol needed), and I'll queue the patches.
+Thanks for the pointer. I don't think we need to fully include the pairing 
+tool in the kernel, sure.
+But at least description of the pairing magic packet, or link such as the 
+above might be nice to have.
 
 Thanks,
 

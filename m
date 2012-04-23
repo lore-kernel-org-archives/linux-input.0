@@ -1,80 +1,97 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH] Input: synaptics - fix compile warning
-Date: Mon, 23 Apr 2012 18:30:36 +0800
-Message-ID: <CAGS+omCjCTBZ9M782kOV9kU8T7zZzF+uz10KfbZUDy=HWgZXxQ@mail.gmail.com>
-References: <1335173474-15758-1-git-send-email-jj_ding@emc.com.tw>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v3 0/6] hid: Introduce device groups
+Date: Mon, 23 Apr 2012 12:51:27 +0200
+Message-ID: <CAN+gG=GJFNgFHqn9O8e+5MoVWRLRJB8a=r2OuUNuEtomqTjQRQ@mail.gmail.com>
+References: <1335175627-2270-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=Big5
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:48273 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:58892 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754913Ab2DWKa5 (ORCPT
+	with ESMTP id S1754241Ab2DWKva convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Apr 2012 06:30:57 -0400
-Received: by iadi9 with SMTP id i9so1842670iad.19
-        for <linux-input@vger.kernel.org>; Mon, 23 Apr 2012 03:30:56 -0700 (PDT)
-In-Reply-To: <1335173474-15758-1-git-send-email-jj_ding@emc.com.tw>
+	Mon, 23 Apr 2012 06:51:30 -0400
+In-Reply-To: <1335175627-2270-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, JJ Ding <dgdunix@gmail.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Mon, Apr 23, 2012 at 5:31 PM, JJ Ding <jj_ding@emc.com.tw> wrote:
-> From: JJ Ding <dgdunix@gmail.com>
->
-> Move synaptics_invert_y() inside CONFIG_MOUSE_PS2_SYNAPTICS to get rid of
-> a compile warning when we don't select synaptics support.
->
-> drivers/input/mouse/synaptics.c:53:12: warning: 'synaptics_invert_y' defined but not used [-Wunused-function]
->
-> Cc: Daniel Kurtz <djkurtz@chromium.org>
-> Signed-off-by: JJ Ding <dgdunix@gmail.com>
+Hi Henrik,
 
-Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
+Thanks for handling this. I still won't have the time to review this
+patch set before early may as I'm out of my office till then. Also
+sorry for not answering the previous mails, I did not had a reliable
+internet connection during my holidays.
 
-> ---
->  drivers/input/mouse/synaptics.c |   20 ++++++++++----------
->  1 file changed, 10 insertions(+), 10 deletions(-)
+Thanks,
+Benjamin
+
+Le 23 avr. 2012 12:03, "Henrik Rydberg" <rydberg@euromail.se> a =E9crit=
+ :
 >
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 8081a0a..c778f27 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -45,16 +45,6 @@
->  #define YMIN_NOMINAL 1408
->  #define YMAX_NOMINAL 4448
+> Hi Jiri.
 >
-> -/*
-> - * Synaptics touchpads report the y coordinate from bottom to top, which is
-> - * opposite from what userspace expects.
-> - * This function is used to invert y before reporting.
-> - */
-> -static int synaptics_invert_y(int y)
-> -{
-> -       return YMAX_NOMINAL + YMIN_NOMINAL - y;
-> -}
-> -
+> Here is the third version of the extension to the device-driver
+> matching mechanism. AFAICT, there are no outstanding issues. I think
+> we are getting close. :-)
 >
->  /*****************************************************************************
->  *     Stuff we need even when we do not want native Synaptics support
-> @@ -112,6 +102,16 @@ void synaptics_reset(struct psmouse *psmouse)
->  ****************************************************************************/
+> Building on the report fixup patches, this patchset brings a bit of
+> transparency to the hid bus, by the addition of device groups.  This
+> allows a more versatile handling of hid drivers in userland, and
+> simplifies the logic in the kernel.
 >
->  /*
-> + * Synaptics touchpads report the y coordinate from bottom to top, which is
-> + * opposite from what userspace expects.
-> + * This function is used to invert y before reporting.
-> + */
-> +static int synaptics_invert_y(int y)
-> +{
-> +       return YMAX_NOMINAL + YMIN_NOMINAL - y;
-> +}
-> +
-> +/*
->  * Send a command to the synpatics touchpad by special commands
->  */
->  static int synaptics_send_cmd(struct psmouse *psmouse, unsigned char c, unsigned char *param)
+> In particular, there can be one generic module per device group, and
+> those modules are handled automatically by udev. Dynamic rebinding of
+> drivers is fully supported. For instance, to load a special
+> out-of-tree driver instead of the a generic one, simply unbind the
+> device and load the new module. One can also keep _all_ generic
+> drivers as modules, significantly simplifying the process of adding
+> and testing new features.
+>
+> And, of course, auto-loading of new multitouch drivers works, since
+> that was what triggered this patchset to begin with. :-)
+>
+> The second patch contains a simple descriptor scanner that is
+> new. The last patch unifies the generic drivers into a single,
+> loadable module.
+>
+> Enjoy,
+> Henrik
+>
+> Henrik Rydberg (6):
+>  hid: Add device group to modalias
+>  hid: Scan the device for group info before adding it
+>  hid: Allow bus wildcard matching
+>  hid: Create a generic device group
+>  hid-multitouch: Switch to device groups
+>  hid: Create a common generic driver
+>
+>  drivers/hid/Kconfig             |   12 +++
+>  drivers/hid/Makefile            |    2 +
+>  drivers/hid/hid-core.c          |  172 ++++++++++++++++++++---------=
+----------
+>  drivers/hid/hid-generic.c       |   53 ++++++++++++
+>  drivers/hid/hid-input.c         |   11 ---
+>  drivers/hid/hid-multitouch.c    |    3 +-
+>  drivers/hid/usbhid/hid-core.c   |   16 ----
+>  include/linux/hid.h             |   20 +++--
+>  include/linux/mod_devicetable.h |    4 +-
+>  net/bluetooth/hidp/core.c       |   27 +-----
+>  scripts/mod/file2alias.c        |    5 +-
+>  11 files changed, 180 insertions(+), 145 deletions(-)
+>  create mode 100644 drivers/hid/hid-generic.c
+>
 > --
 > 1.7.10
->
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

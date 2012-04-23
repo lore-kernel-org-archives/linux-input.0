@@ -1,58 +1,51 @@
-From: Oliver Neukum <oneukum@suse.de>
+From: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
 Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Mon, 23 Apr 2012 10:21:36 +0200
-Message-ID: <201204231021.36621.oneukum@suse.de>
-References: <201204212128.08991.oliver@neukum.org> <Pine.LNX.4.44L0.1204211717310.3981-100000@netrider.rowland.org> <CACVXFVNz8uuiXWVfg3rqhE_bazCSsH1mGANc5rJCJbbejTc1dQ@mail.gmail.com>
+Date: Mon, 23 Apr 2012 10:24:58 +0200
+Message-ID: <201204231024.58168.oneukum@suse.de>
+References: <CACVXFVPR76O+zFtL3pBc-KyhN85xN6AkgTT_Md1kG2wWwjosiw@mail.gmail.com> <Pine.LNX.4.44L0.1204211327090.475-100000@netrider.rowland.org> <CACVXFVOQpYcHUj3XApyCVWDuvUEKi+RSWC8Ly4Dnj7vrun68cg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:35927 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753921Ab2DWIZj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Apr 2012 04:25:39 -0400
-In-Reply-To: <CACVXFVNz8uuiXWVfg3rqhE_bazCSsH1mGANc5rJCJbbejTc1dQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CACVXFVOQpYcHUj3XApyCVWDuvUEKi+RSWC8Ly4Dnj7vrun68cg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Ming Lei <ming.lei@canonical.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
 
-Am Sonntag, 22. April 2012, 12:51:26 schrieb Ming Lei:
-> On Sun, Apr 22, 2012 at 5:49 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
-
-> > Although the kerneldoc doesn't actually say so, it should be safe to
-> > assume that usb_unlink_urb calls the completion routine directly _only_
-> > in cases where the unlink succeeded.  (We could add this to the
-> > kerneldoc.)
+Am Sonntag, 22. April 2012, 13:53:32 schrieb Ming Lei:
+> >> Then we can have a uniform lock requirement and no changes are inv=
+olved
+> >> on host controller drivers.
 > >
-> > Therefore: If the URB completes with status other than -ECONNRESET then
-> > you can safely take the lock for resubmission.  If the URB completes
-> > with status == -ECONNRESET then you know it was unlinked, so you don't
-> > need to take the lock -- the race has already been lost.
-> >
-> > Does that solve your problem?
-> 
-> Not sure if that does work.
+> > The return values would not be correct.
+>=20
+> If you run 'git grep -n usb_unlink_urb drivers/usb/', it may show tha=
+t
+> most of callers do not check its return value, and the others only ch=
+eck
+> for dumping warnings. If usb_unlink_urb is converted into tasklet
+> implementation, we still can dump these warnings inside its tasklet f=
+unction.
 
-I am afraid it does not work.
-
-> If the URB completes asynchronously after unlinking, its status is still
->  -ECONNRESET, so extra race may be caused without holding the lock
-> because complete handler will access some global data.
-
-That is the race. And you need not invoke global data. The original
-race opens again if you are submitting a new URB without the lock
-held.
-This is because we cannot be sure that the same URB is unlinked
-only once. A subsequent timeout may kill the wrong URB if the
-first is unlinked so that the callback really comes in interrupt.
-
-But the basic idea is brilliant. It's just that the one way logical implication:
-recursive direct call of the callback -> status == -ECONNRESET
-is not strong enough. But that is very easy to fix. As we know whether
-the callback is directly called or not, all we need to do is differentiate
-the cases in urb->status, by introducing a new error code.
+That is a very bad idea. You make implementing a proper reference count=
+ next
+to impossible this way. And it makes no sense. If you use a work queue =
+you
+can use usb_kill_urb() anyway.
 
 	Regards
 		Oliver
+
+--=20
+- - -=20
+SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imend=F6=
+rffer, HRB 16746 (AG N=FCrnberg)=20
+Maxfeldstra=DFe 5                        =20
+90409 N=FCrnberg=20
+Germany=20
+- - -=20
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

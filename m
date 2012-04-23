@@ -1,98 +1,354 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v3 0/6] hid: Introduce device groups
-Date: Mon, 23 Apr 2012 17:21:15 +0200
-Message-ID: <CAN+gG=F82KBEtf74S10tD+KBnqHVFdxz2+7vX70x0F1wd_HqhA@mail.gmail.com>
-References: <1335175627-2270-1-git-send-email-rydberg@euromail.se>
+From: Sourav Poddar <sourav.poddar@ti.com>
+Subject: [PATCHv3 2/2] arm/dts: omap4-sdp: Add keypad data
+Date: Mon, 23 Apr 2012 20:57:19 +0530
+Message-ID: <1335194839-30193-2-git-send-email-sourav.poddar@ti.com>
+References: <1335194839-30193-1-git-send-email-sourav.poddar@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:62012 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751716Ab2DWPVQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Apr 2012 11:21:16 -0400
-In-Reply-To: <1335175627-2270-1-git-send-email-rydberg@euromail.se>
+Received: from comal.ext.ti.com ([198.47.26.152]:59758 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751579Ab2DWPW1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Apr 2012 11:22:27 -0400
+In-Reply-To: <1335194839-30193-1-git-send-email-sourav.poddar@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: devicetree-discuss@lists.ozlabs.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Sourav Poddar <sourav.poddar@ti.com>, Benoit Cousson <b-cousson@ti.com>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Felipe Balbi <balbi@ti.com>
 
-Hi Henrik,
+Add keypad data node in omap4 device tree file.
+Also fill the device tree binding parameters
+with the required value in "omap4-sdp" dts file.
 
-Thanks for handling this. I still won't have the time to review this
-patch set before early may as I'm out of my office. Also sorry for not
-answering the previous mails, I did not had a reliable internet
-connection during my holidays.
+Tested on omap44330 sdp with 3.4-rc3 kernel.
 
-Thanks,
-Benjamin
+Cc: Benoit Cousson <b-cousson@ti.com>
+Cc: Rob Herring <rob.herring@calxeda.com>
+Cc: Grant Likely <grant.likely@secretlab.ca>
+Cc: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+---
+Changes since v2:
+ -Includes no-autorepeat device tree binding.
+ arch/arm/boot/dts/omap4-sdp.dts |  292 +++++++++++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/omap4.dtsi    |    5 +
+ 2 files changed, 297 insertions(+), 0 deletions(-)
 
-Le 23 avr. 2012 12:03, "Henrik Rydberg" <rydberg@euromail.se> a =E9crit=
-=A0:
->
-> Hi Jiri.
->
-> Here is the third version of the extension to the device-driver
-> matching mechanism. AFAICT, there are no outstanding issues. I think
-> we are getting close. :-)
->
-> Building on the report fixup patches, this patchset brings a bit of
-> transparency to the hid bus, by the addition of device groups. =A0Thi=
-s
-> allows a more versatile handling of hid drivers in userland, and
-> simplifies the logic in the kernel.
->
-> In particular, there can be one generic module per device group, and
-> those modules are handled automatically by udev. Dynamic rebinding of
-> drivers is fully supported. For instance, to load a special
-> out-of-tree driver instead of the a generic one, simply unbind the
-> device and load the new module. One can also keep _all_ generic
-> drivers as modules, significantly simplifying the process of adding
-> and testing new features.
->
-> And, of course, auto-loading of new multitouch drivers works, since
-> that was what triggered this patchset to begin with. :-)
->
-> The second patch contains a simple descriptor scanner that is
-> new. The last patch unifies the generic drivers into a single,
-> loadable module.
->
-> Enjoy,
-> Henrik
->
-> Henrik Rydberg (6):
-> =A0hid: Add device group to modalias
-> =A0hid: Scan the device for group info before adding it
-> =A0hid: Allow bus wildcard matching
-> =A0hid: Create a generic device group
-> =A0hid-multitouch: Switch to device groups
-> =A0hid: Create a common generic driver
->
-> =A0drivers/hid/Kconfig =A0 =A0 =A0 =A0 =A0 =A0 | =A0 12 +++
-> =A0drivers/hid/Makefile =A0 =A0 =A0 =A0 =A0 =A0| =A0 =A02 +
-> =A0drivers/hid/hid-core.c =A0 =A0 =A0 =A0 =A0| =A0172 +++++++++++++++=
-+++++-------------------
-> =A0drivers/hid/hid-generic.c =A0 =A0 =A0 | =A0 53 ++++++++++++
-> =A0drivers/hid/hid-input.c =A0 =A0 =A0 =A0 | =A0 11 ---
-> =A0drivers/hid/hid-multitouch.c =A0 =A0| =A0 =A03 +-
-> =A0drivers/hid/usbhid/hid-core.c =A0 | =A0 16 ----
-> =A0include/linux/hid.h =A0 =A0 =A0 =A0 =A0 =A0 | =A0 20 +++--
-> =A0include/linux/mod_devicetable.h | =A0 =A04 +-
-> =A0net/bluetooth/hidp/core.c =A0 =A0 =A0 | =A0 27 +-----
-> =A0scripts/mod/file2alias.c =A0 =A0 =A0 =A0| =A0 =A05 +-
-> =A011 files changed, 180 insertions(+), 145 deletions(-)
-> =A0create mode 100644 drivers/hid/hid-generic.c
->
-> --
-> 1.7.10
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/arch/arm/boot/dts/omap4-sdp.dts b/arch/arm/boot/dts/omap4-sdp.dts
+index 63c6b2b..1d2d6cd 100644
+--- a/arch/arm/boot/dts/omap4-sdp.dts
++++ b/arch/arm/boot/dts/omap4-sdp.dts
+@@ -17,4 +17,296 @@
+ 		device_type = "memory";
+ 		reg = <0x80000000 0x40000000>; /* 1 GB */
+ 	};
++
++	keypad@4ae1c000 {
++		keypad,num-rows = <8>;
++		keypad,num-columns = <8>;
++		linux,input-no-autorepeat;
++
++		key_E {
++			keypad,row = <0>;
++			keypad,column = <0>;
++			linux,code = <18>;
++		};
++		key_R {
++			keypad,row = <0>;
++			keypad,column = <1>;
++			linux,code = <19>;
++		};
++		key_T {
++			keypad,row = <0>;
++			keypad,column = <2>;
++			linux,code = <20>;
++		};
++		key_HOME {
++			keypad,row = <0>;
++			keypad,column = <3>;
++			linux,code = <102>;
++		};
++		key_F5 {
++			keypad,row = <0>;
++			keypad,column = <4>;
++			linux,code = <63>;
++		};
++		key_I {
++			keypad,row = <0>;
++			keypad,column = <6>;
++			linux,code = <23>;
++		};
++		key_LEFTSHIFT {
++			keypad,row = <0>;
++			keypad,column = <7>;
++			linux,code = <42>;
++		};
++		key_D {
++			keypad,row = <1>;
++			keypad,column = <0>;
++			linux,code = <32>;
++		};
++		key_F {
++			keypad,row = <1>;
++			keypad,column = <1>;
++			linux,code = <33>;
++		};
++		key_G {
++			keypad,row = <1>;
++			keypad,column = <2>;
++			linux,code = <34>;
++		};
++		key_SEND {
++			keypad,row = <1>;
++			keypad,column = <3>;
++			linux,code = <84>;
++		};
++		key_F6 {
++			keypad,row = <1>;
++			keypad,column = <4>;
++			linux,code = <64>;
++		};
++		key_K {
++			keypad,row = <1>;
++			keypad,column = <6>;
++			linux,code = <37>;
++		};
++		key_ENTER {
++			keypad,row = <1>;
++			keypad,column = <7>;
++			linux,code = <28>;
++		};
++		key_X {
++			keypad,row = <2>;
++			keypad,column = <0>;
++			linux,code = <45>;
++		};
++		key_C {
++			keypad,row = <2>;
++			keypad,column = <1>;
++			linux,code = <46>;
++		};
++		key_V {
++			keypad,row = <2>;
++			keypad,column = <2>;
++			linux,code = <47>;
++		};
++		key_END {
++			keypad,row = <2>;
++			keypad,column = <3>;
++			linux,code = <107>;
++		};
++		key_F7 {
++			keypad,row = <2>;
++			keypad,column = <4>;
++			linux,code = <65>;
++		};
++		key_DOT {
++			keypad,row = <2>;
++			keypad,column = <6>;
++			linux,code = <52>;
++		};
++		key_CAPSLOCK {
++                        keypad,row = <2>;
++                        keypad,column = <7>;
++                        linux,code = <58>;
++                };
++		key_Z {
++			keypad,row = <3>;
++			keypad,column = <0>;
++			linux,code = <44>;
++		};
++		key_KPLUS {
++			keypad,row = <3>;
++			keypad,column = <1>;
++			linux,code = <78>;
++		};
++		key_B {
++			keypad,row = <3>;
++			keypad,column = <2>;
++			linux,code = <48>;
++		};
++		key_F1 {
++			keypad,row = <3>;
++			keypad,column = <3>;
++			linux,code = <59>;
++		};
++		key_F8 {
++			keypad,row = <3>;
++			keypad,column = <4>;
++			linux,code = <66>;
++		};
++		key_O {
++			keypad,row = <3>;
++			keypad,column = <6>;
++			linux,code = <24>;
++                };
++		key_SPACE {
++			keypad,row = <3>;
++			keypad,column = <7>;
++			linux,code = <57>;
++                };
++		key_W {
++			keypad,row = <4>;
++			keypad,column = <0>;
++			linux,code = <17>;
++                };
++		key_Y {
++			keypad,row = <4>;
++			keypad,column = <1>;
++			linux,code = <21>;
++		};
++		key_U {
++			keypad,row = <4>;
++			keypad,column = <2>;
++			linux,code = <22>;
++		};
++		key_F2 {
++			keypad,row = <4>;
++			keypad,column = <3>;
++			linux,code = <60>;
++		};
++		key_VOLUMEUP {
++			keypad,row = <4>;
++			keypad,column = <4>;
++			linux,code = <115>;
++		};
++		key_L {
++			keypad,row = <4>;
++			keypad,column = <6>;
++			linux,code = <38>;
++		};
++		key_LEFT {
++			keypad,row = <4>;
++			keypad,column = <7>;
++			linux,code = <105>;
++		};
++		key_S {
++			keypad,row = <5>;
++			keypad,column = <0>;
++			linux,code = <31>;
++		};
++		key_H {
++			keypad,row = <5>;
++			keypad,column = <1>;
++			linux,code = <35>;
++		};
++		key_J {
++			keypad,row = <5>;
++			keypad,column = <2>;
++			linux,code = <36>;
++		};
++		key_F3 {
++			keypad,row = <5>;
++			keypad,column = <3>;
++			linux,code = <61>;
++		};
++		key_F9 {
++			keypad,row = <5>;
++			keypad,column = <4>;
++			linux,code = <67>;
++		};
++		key_VOLUMEDOWN {
++			keypad,row = <5>;
++			keypad,column = <5>;
++			linux,code = <114>;
++		};
++		key_M {
++			keypad,row = <5>;
++			keypad,column = <6>;
++			linux,code = <50>;
++		};
++		key_RIGHT {
++			keypad,row = <5>;
++			keypad,column = <7>;
++			linux,code = <106>;
++		};
++		key_Q {
++			keypad,row = <6>;
++			keypad,column = <0>;
++			linux,code = <16>;
++		};
++		key_A {
++			keypad,row = <6>;
++			keypad,column = <1>;
++			linux,code = <30>;
++                };
++		key_N {
++			keypad,row = <6>;
++			keypad,column = <2>;
++			linux,code = <49>;
++                };
++		key_BACK {
++			keypad,row = <6>;
++			keypad,column = <3>;
++			linux,code = <92>;
++                };
++		key_BACKSPACE {
++			keypad,row = <6>;
++			keypad,column = <4>;
++			linux,code = <14>;
++		};
++		key_P {
++			keypad,row = <6>;
++			keypad,column = <6>;
++			linux,code = <25>;
++		};
++		key_UP {
++			keypad,row = <6>;
++			keypad,column = <7>;
++			linux,code = <103>;
++		};
++		key_PROG1 {
++			keypad,row = <7>;
++			keypad,column = <0>;
++			linux,code = <148>;
++		};
++		key_PROG2 {
++			keypad,row = <7>;
++			keypad,column = <1>;
++			linux,code = <149>;
++		};
++		key_PROG3 {
++			keypad,row = <7>;
++			keypad,column = <2>;
++			linux,code = <202>;
++                };
++		key_PROG4 {
++			keypad,row = <7>;
++			keypad,column = <3>;
++			linux,code = <203>;
++		};
++		key_F4 {
++			keypad,row = <7>;
++			keypad,column = <4>;
++			linux,code = <62>;
++		};
++		key_Ok {
++			keypad,row = <7>;
++			keypad,column = <6>;
++			linux,code = <352>;
++		};
++		key_DOWN {
++			keypad,row = <7>;
++			keypad,column = <7>;
++			linux,code = <108>;
++		};
++	};
+ };
+diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
+index 3d35559..e0f678a 100644
+--- a/arch/arm/boot/dts/omap4.dtsi
++++ b/arch/arm/boot/dts/omap4.dtsi
+@@ -156,4 +156,9 @@
+ 			ti,hwmods = "i2c4";
+ 		};
+ 	};
++
++	keypad@4ae1c000 {
++		compatible = "ti,omap4-keypad";
++		ti,hwmods = "kbd";
++	};
+ };
+-- 
+1.7.1
+

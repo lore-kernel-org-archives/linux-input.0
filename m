@@ -1,84 +1,85 @@
 From: JJ Ding <jj_ding@emc.com.tw>
-Subject: [PATCH] Input: elantech - make synaptics_send_cmd() retry for 3 times
-Date: Mon, 23 Apr 2012 17:30:00 +0800
-Message-ID: <1335173400-15719-1-git-send-email-jj_ding@emc.com.tw>
+Subject: [PATCH] Input: synaptics - fix compile warning
+Date: Mon, 23 Apr 2012 17:31:14 +0800
+Message-ID: <1335173474-15758-1-git-send-email-jj_ding@emc.com.tw>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:19897 "EHLO
+Received: from emcscan.emc.com.tw ([192.72.220.5]:12413 "EHLO
 	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751645Ab2DWJ2E (ORCPT
+	with ESMTP id S1752327Ab2DWJcA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Apr 2012 05:28:04 -0400
+	Mon, 23 Apr 2012 05:32:00 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ubase133@gmail.com
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, JJ Ding <jj_ding@emc.com.tw>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, JJ Ding <jj_ding@emc.com.tw>, Daniel Kurtz <djkurtz@chromium.org>, JJ Ding <dgdunix@gmail.com>
 
-synaptics_send_cmd() doesn't seem to be very reliable with Elan touchapds,
-so people could see infrequent failures when it is called in elantech_detect(),
-resulting touchpads fail to be recognized as Elan.
+=46rom: JJ Ding <dgdunix@gmail.com>
 
-Teach synaptics_send_cmd() to retry for 3 times to make sure we are properly
-detected.
+Move synaptics_invert_y() inside CONFIG_MOUSE_PS2_SYNAPTICS to get rid =
+of
+a compile warning when we don't select synaptics support.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=43136
-Reported-by: ubase133@gmail.com
-Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
+drivers/input/mouse/synaptics.c:53:12: warning: =E2=80=98synaptics_inve=
+rt_y=E2=80=99 defined but not used [-Wunused-function]
+
+Cc: Daniel Kurtz <djkurtz@chromium.org>
+Signed-off-by: JJ Ding <dgdunix@gmail.com>
 ---
-Hi ubase133,
+ drivers/input/mouse/synaptics.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-Dmitry forwarded your bugzilla report to me.
-
-I used to see rare cases when this also happened on my test machine, but we
-don't really know why. Does this always happen on your machine?
-
-Anyway, could you please try this patch out? This is really the only fix I can
-think of. If it doesn't work for you, then I will have to dig deeper.
-
-P.S. Patch is against 3.4-rc4.
-
-Thanks,
-JJ
-
- drivers/input/mouse/elantech.c |   19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 4790110..6b8df09 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -30,7 +30,7 @@
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/syna=
+ptics.c
+index 8081a0a..c778f27 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -45,16 +45,6 @@
+ #define YMIN_NOMINAL 1408
+ #define YMAX_NOMINAL 4448
+=20
+-/*
+- * Synaptics touchpads report the y coordinate from bottom to top, whi=
+ch is
+- * opposite from what userspace expects.
+- * This function is used to invert y before reporting.
+- */
+-static int synaptics_invert_y(int y)
+-{
+-	return YMAX_NOMINAL + YMIN_NOMINAL - y;
+-}
+-
+=20
+ /*********************************************************************=
+********
+  *	Stuff we need even when we do not want native Synaptics support
+@@ -112,6 +102,16 @@ void synaptics_reset(struct psmouse *psmouse)
+  *********************************************************************=
+*******/
+=20
  /*
-  * Send a Synaptics style sliced query command
-  */
--static int synaptics_send_cmd(struct psmouse *psmouse, unsigned char c,
-+static int __synaptics_send_cmd(struct psmouse *psmouse, unsigned char c,
- 				unsigned char *param)
- {
- 	if (psmouse_sliced_command(psmouse, c) ||
-@@ -42,6 +42,23 @@ static int synaptics_send_cmd(struct psmouse *psmouse, unsigned char c,
- 	return 0;
- }
- 
-+static int synaptics_send_cmd(struct psmouse *psmouse, unsigned char c,
-+				unsigned char *param)
++ * Synaptics touchpads report the y coordinate from bottom to top, whi=
+ch is
++ * opposite from what userspace expects.
++ * This function is used to invert y before reporting.
++ */
++static int synaptics_invert_y(int y)
 +{
-+	int rc;
-+	int tries = ETP_PS2_COMMAND_TRIES;
-+
-+	do {
-+		rc = __synaptics_send_cmd(psmouse, c, param);
-+		if (rc == 0)
-+			break;
-+		tries--;
-+		msleep(ETP_PS2_COMMAND_DELAY);
-+	} while (tries > 0);
-+
-+	return rc;
++	return YMAX_NOMINAL + YMIN_NOMINAL - y;
 +}
 +
- /*
-  * V3 and later support this fast command
++/*
+  * Send a command to the synpatics touchpad by special commands
   */
--- 
+ static int synaptics_send_cmd(struct psmouse *psmouse, unsigned char c=
+, unsigned char *param)
+--=20
 1.7.10
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,144 +1,44 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v5 1/1] HID: Add full support for Logitech Unifying receivers
-Date: Mon, 23 Apr 2012 13:07:32 +0200
-Message-ID: <CAN+gG=Hs-JrnPvfAB2XtrSQiKYw4NFMOKBaj+8n9Xtoq1rmtUA@mail.gmail.com>
-References: <1316018905-4175-1-git-send-email-nlopezcasad@logitech.com>
-	<4E77A221.1060909@t-online.de>
-	<CAN+gG=EcaMrz2w-cVL-cCwi2NNVJ-NXOpOQpbjyFdCwn5+Bn+w@mail.gmail.com>
-	<alpine.LRH.2.00.1204171027220.11298@twin.jikos.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:36350 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755265Ab2DWLHc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Apr 2012 07:07:32 -0400
-In-Reply-To: <alpine.LRH.2.00.1204171027220.11298@twin.jikos.cz>
-Sender: linux-input-owner@vger.kernel.org
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: [PATCH 2/3] Input: move drivers/input/fixp-arith.h to include/linux
+Date: Mon, 23 Apr 2012 15:21:06 +0200
+Message-ID: <1335187267-27940-3-git-send-email-ospite@studenti.unina.it>
+References: <1335187267-27940-1-git-send-email-ospite@studenti.unina.it>
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <1335187267-27940-1-git-send-email-ospite@studenti.unina.it>
+Sender: linux-media-owner@vger.kernel.org
+To: linux-media@vger.kernel.org
+Cc: Antonio Ospite <ospite@studenti.unina.it>, Jean-Francois Moine <moinejf@free.fr>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Johann Deneux <johann.deneux@gmail.comx>, Anssi Hannula <anssi.hannula@gmail.com>, Jonathan Corbet <corbet@lwn.net>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: =?ISO-8859-1?Q?Richard_Sch=FCtz?= <r.schtz@t-online.de>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rtitmuss@logitech.com, ogay@logitech.com, jzanone@logitech.com
 
-On 17/04/2012, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Thu, 22 Sep 2011, Benjamin Tissoires wrote:
->
->> Hi Richard,
->>
->> here, you'll find a small C program that allows you to do a pairing of
->> a new device to a receiver.
->>
->> compile it with with gcc -o pairing_tool pairing_tool.c
->
-> Could this perhaps be provided into Documentation/ or samples/ somewhere?
-> I don't think that Logitech themselves do ship pairing application for
-> Linux, or do they?
->
+Move drivers/input/fixp-arith.h to include/linux so that the functions
+defined there can be used by other subsystems, for instance some video
+devices ISPs can control the output HUE value by setting registers for
+sin(HUE) and cos(HUE).
 
-Hi Jiri,
+Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
+---
+ drivers/input/ff-memless.c                    |    3 +--
+ {drivers/input => include/linux}/fixp-arith.h |    0
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+ rename {drivers/input => include/linux}/fixp-arith.h (100%)
 
-well, I don't have any information about an official pairing tool.
-However, I don't think the kernel is the good place for this stuff.
-Other people started projects based on this code:
-https://bitbucket.org/clach04/logitech-unifying-receiver-tools/ for instance.
-
-Thanks,
-Benjamin
-
-> If they don't, it'd be nice to have this at least documented somewhere, so
-> that someone could write a pairing GUI.
->
-> Thanks.
->
->>
->> --------------------------------- file pairing_tool.c
->> ---------------------------------
->> /*
->>  * Copyright 2011 Benjamin Tissoires <benjamin.tissoires@gmail.com>
->>  *
->>  * This program is free software: you can redistribute it and/or modify
->>  * it under the terms of the GNU General Public License as published by
->>  * the Free Software Foundation, either version 3 of the License, or
->>  * (at your option) any later version.
->>  *
->>  * This program is distributed in the hope that it will be useful,
->>  * but WITHOUT ANY WARRANTY; without even the implied warranty of
->>  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->>  * GNU General Public License for more details.
->>  *
->>  * You should have received a copy of the GNU General Public License
->>  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
->>  */
->>
->> #include <linux/input.h>
->> #include <linux/hidraw.h>
->> #include <sys/ioctl.h>
->> #include <fcntl.h>
->> #include <unistd.h>
->> #include <stdio.h>
->> #include <errno.h>
->>
->> #define USB_VENDOR_ID_LOGITECH			(__u32)0x046d
->> #define USB_DEVICE_ID_UNIFYING_RECEIVER		(__s16)0xc52b
->> #define USB_DEVICE_ID_UNIFYING_RECEIVER_2	(__s16)0xc532
->>
->> int main(int argc, char **argv)
->> {
->> 	int fd;
->> 	int res;
->> 	struct hidraw_devinfo info;
->> 	char magic_sequence[] = {0x10, 0xFF, 0x80, 0xB2, 0x01, 0x00, 0x00};
->>
->> 	if (argc == 1) {
->> 		errno = EINVAL;
->> 		perror("No hidraw device given");
->> 		return 1;
->> 	}
->>
->> 	/* Open the Device with non-blocking reads. */
->> 	fd = open(argv[1], O_RDWR|O_NONBLOCK);
->>
->> 	if (fd < 0) {
->> 		perror("Unable to open device");
->> 		return 1;
->> 	}
->>
->> 	/* Get Raw Info */
->> 	res = ioctl(fd, HIDIOCGRAWINFO, &info);
->> 	if (res < 0) {
->> 		perror("error while getting info from device");
->> 	} else {
->> 		if (info.bustype != BUS_USB ||
->> 		    info.vendor != USB_VENDOR_ID_LOGITECH ||
->> 		    (info.product != USB_DEVICE_ID_UNIFYING_RECEIVER &&
->> 		     info.product != USB_DEVICE_ID_UNIFYING_RECEIVER_2)) {
->> 			errno = EPERM;
->> 			perror("The given device is not a Logitech "
->> 				"Unifying Receiver");
->> 			return 1;
->> 		}
->> 	}
->>
->> 	/* Send the magic sequence to the Device */
->> 	res = write(fd, magic_sequence, sizeof(magic_sequence));
->> 	if (res < 0) {
->> 		printf("Error: %d\n", errno);
->> 		perror("write");
->> 	} else if (res == sizeof(magic_sequence)) {
->> 		printf("The receiver is ready to pair a new device.\n"
->> 		"Switch your device on to pair it.\n");
->> 	} else {
->> 		errno = ENOMEM;
->> 		printf("write: %d were written instead of %ld.\n", res,
->> 			sizeof(magic_sequence));
->> 		perror("write");
->> 	}
->> 	close(fd);
->> 	return 0;
->> }
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
->
+diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+index 117a59a..5f55885 100644
+--- a/drivers/input/ff-memless.c
++++ b/drivers/input/ff-memless.c
+@@ -31,8 +31,7 @@
+ #include <linux/mutex.h>
+ #include <linux/spinlock.h>
+ #include <linux/jiffies.h>
+-
+-#include "fixp-arith.h"
++#include <linux/fixp-arith.h>
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Anssi Hannula <anssi.hannula@gmail.com>");
+diff --git a/drivers/input/fixp-arith.h b/include/linux/fixp-arith.h
+similarity index 100%
+rename from drivers/input/fixp-arith.h
+rename to include/linux/fixp-arith.h
+-- 
+1.7.10

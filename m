@@ -1,73 +1,45 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/3] gspca - ov534: saturation and hue (using
- fixp-arith.h)
-Date: Mon, 23 Apr 2012 09:17:34 -0700
-Message-ID: <20120423161734.GB29290@core.coreip.homeip.net>
-References: <1335187267-27940-1-git-send-email-ospite@studenti.unina.it>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCHv3 1/2] drivers: input: keypad: Add device tree support
+Date: Mon, 23 Apr 2012 10:41:41 -0600
+Message-ID: <4F958645.4080200@wwwdotorg.org>
+References: <1335194839-30193-1-git-send-email-sourav.poddar@ti.com>	<4F95749E.40708@wwwdotorg.org> <CAKdam541af1bU8_64gTZva9VS0R3dTR=3L3J50o9HgHH+WaPYQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:44441 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753078Ab2DWQRj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Apr 2012 12:17:39 -0400
-Content-Disposition: inline
-In-Reply-To: <1335187267-27940-1-git-send-email-ospite@studenti.unina.it>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAKdam541af1bU8_64gTZva9VS0R3dTR=3L3J50o9HgHH+WaPYQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Poddar, Sourav" <sourav.poddar@ti.com>
+Cc: devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Benoit Cousson <b-cousson@ti.com>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Felipe Balbi <balbi@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Randy Dunlap <rdunlap@xenotime.net>
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: linux-media@vger.kernel.org, Jean-Francois Moine <moinejf@free.fr>, linux-input@vger.kernel.org, Johann Deneux <johann.deneux@gmail.comx>, Anssi Hannula <anssi.hannula@gmail.com>, Jonathan Corbet <corbet@lwn.net>
 
-On Mon, Apr 23, 2012 at 03:21:04PM +0200, Antonio Ospite wrote:
-> Hi,
+On 04/23/2012 09:40 AM, Poddar, Sourav wrote:
+> Hi Stephen,
 > 
-> here are a couple more of controls for the gspca ov534 subdriver.
-> 
-> In order to control the HUE value the sensor expects sin(HUE) and
-> cos(HUE) to be set so I decided to reuse the fixed point implementation
-> of sine and cosine from drivers/input/fixp-arith.h, see patches 2 and 3.
-> 
-> Dmitry, can the movement of fixp-arith.h in patch 2 go via the media
-> tree?  That should ease up the integration of patch 3 in this series
-> I think.
+> On Mon, Apr 23, 2012 at 8:56 PM, Stephen Warren <swarren@wwwdotorg.org> wrote:
+>> On 04/23/2012 09:27 AM, Sourav Poddar wrote:
+>>> Update the Documentation with omap4 keypad device tree
+>>> binding information.
+>>> Add device tree support for omap4 keypad driver.
+>>
+>> Shouldn't this use the already-defined matrix keyboard bindings at
+>> Documentation/devicetree/bindings/input/matrix-keymap.txt?
+>>
+> True, that is one way of describing the linux-keymap, but i think it can be
+> done  either ways.
 
-Yep, this is fine with me.
+Well, there certainly is more than one way to represent the data.
+However, it'd be best to avoid creating new bindings for every piece of
+hardware when there's already an existing binding that can be used. By
+reusing the binding, different HW can be configured in the same way thus
+re-using any knowledge someone has of the binding.
 
-> 
-> Jonathan, maybe fixp_sin() and fixp_cos() can be used in
-> drivers/media/video/ov7670.c too where currently ov7670_sine() and
-> ov7670_cosine() are defined, but I didn't want to send a patch I could
-> not test.
-> 
-> BTW What is the usual way to communicate these cross-subsystem stuff?
-> I CC-ed everybody only on the cover letter and on patches 2 and 3 which
-> are the ones concerning somehow both "input" and "media".
-> 
-> Thanks,
->    Antonio
-> 
-> 
-> Antonio Ospite (3):
->   [media] gspca - ov534: Add Saturation control
->   Input: move drivers/input/fixp-arith.h to include/linux
->   [media] gspca - ov534: Add Hue control
-> 
->  drivers/input/ff-memless.c        |    3 +-
->  drivers/input/fixp-arith.h        |   87 ------------------------------------
->  drivers/media/video/gspca/ov534.c |   89 ++++++++++++++++++++++++++++++++++++-
->  include/linux/fixp-arith.h        |   87 ++++++++++++++++++++++++++++++++++++
->  4 files changed, 176 insertions(+), 90 deletions(-)
->  delete mode 100644 drivers/input/fixp-arith.h
->  create mode 100644 include/linux/fixp-arith.h
-> 
-> -- 
-> Antonio Ospite
-> http://ao2.it
-> 
-> A: Because it messes up the order in which people normally read text.
->    See http://en.wikipedia.org/wiki/Posting_style
-> Q: Why is top-posting such a bad thing?
+> Are you hinting at getting rid of Documentation for each seperate modules and
+> just use a single  Documentation/devicetree/bindings/input/matrix-keymap.txt?
 
--- 
-Dmitry
+You'd probably still need a device-specific binding in order to define
+which compatible values were necessary, which reg values were necessary,
+to reference the common binding documentation, to document any required
+additional custom properties, and document any limitations. For example,
+see how Olof wrote Documentation/devicetree/bindings/input/tegra-kbc.txt
+based on the common matrix keyboard binding.

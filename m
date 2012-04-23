@@ -1,46 +1,69 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v5 1/1] HID: Add full support for Logitech Unifying
- receivers
-Date: Mon, 23 Apr 2012 15:45:43 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204231544220.1856@pobox.suse.cz>
-References: <1316018905-4175-1-git-send-email-nlopezcasad@logitech.com> <4E77A221.1060909@t-online.de> <CAN+gG=EcaMrz2w-cVL-cCwi2NNVJ-NXOpOQpbjyFdCwn5+Bn+w@mail.gmail.com> <alpine.LRH.2.00.1204171027220.11298@twin.jikos.cz>
- <CAN+gG=Hs-JrnPvfAB2XtrSQiKYw4NFMOKBaj+8n9Xtoq1rmtUA@mail.gmail.com>
+From: Ming Lei <tom.leiming@gmail.com>
+Subject: Re: HID regression: Quanta touchscreen, device ID: 0408:3008
+Date: Mon, 23 Apr 2012 22:19:37 +0800
+Message-ID: <CACVXFVMK6W4opVx_ZF94oz2ZZaN5=a6U7HkEvMTT8BYs=ojEGA@mail.gmail.com>
+References: <CACVXFVPTMPGRcvgdBd9Z=rsPCUGdmyoejU208Wy=c3c38U-ZkQ@mail.gmail.com>
+	<alpine.LNX.2.00.1204231542030.1856@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33373 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753786Ab2DWNpp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Apr 2012 09:45:45 -0400
-In-Reply-To: <CAN+gG=Hs-JrnPvfAB2XtrSQiKYw4NFMOKBaj+8n9Xtoq1rmtUA@mail.gmail.com>
+Received: from mail-pz0-f51.google.com ([209.85.210.51]:49966 "EHLO
+	mail-pz0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751675Ab2DWOTh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Apr 2012 10:19:37 -0400
+Received: by dadz8 with SMTP id z8so15620485dad.10
+        for <linux-input@vger.kernel.org>; Mon, 23 Apr 2012 07:19:37 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1204231542030.1856@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: =?ISO-8859-15?Q?Richard_Sch=FCtz?= <r.schtz@t-online.de>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rtitmuss@logitech.com, ogay@logitech.com, jzanone@logitech.com
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-On Mon, 23 Apr 2012, Benjamin Tissoires wrote:
+Hi Jiri,
 
-> >> here, you'll find a small C program that allows you to do a pairing of
-> >> a new device to a receiver.
-> >>
-> >> compile it with with gcc -o pairing_tool pairing_tool.c
-> >
-> > Could this perhaps be provided into Documentation/ or samples/ somewhere?
-> > I don't think that Logitech themselves do ship pairing application for
-> > Linux, or do they?
-> >
-> well, I don't have any information about an official pairing tool.
-> However, I don't think the kernel is the good place for this stuff.
-> Other people started projects based on this code:
-> https://bitbucket.org/clach04/logitech-unifying-receiver-tools/ for instance.
+On Mon, Apr 23, 2012 at 9:43 PM, Jiri Kosina <jkosina@suse.cz> wrote:
 
-Thanks for the pointer. I don't think we need to fully include the pairing 
-tool in the kernel, sure.
-But at least description of the pairing magic packet, or link such as the 
-above might be nice to have.
+> those two links don't provide any detailed report whatsoever. Looking=
+ at
+>
+> =A0 =A0 =A0 =A0https://bugs.launchpad.net/ubuntu/+source/linux/+bug/9=
+13164
+>
+> there seems to be quite some discussion, but covering multiple models=
+ from
+> multiple vendors (and likely multiple different patches needed).
+
+On comment #14, #15 and #32 of the above link, only the  Quanta touchsc=
+reen
+(vendor ID: 0408, device ID:3008) is related.
+
+>
+> So if there are patches that need to be applied (likely device ID
+> additions as far as I understand this monster launchpad bug entry), p=
+lease
+> point me directly to the respective patches or send me a little bit m=
+ore
+> details (VID/PID/protocol needed), and I'll queue the patches.
+
+Sorry, I have not any patches which can make the Quanta touchscreen(040=
+8:3008)
+working well, also no any device ID addition patch is need for the devi=
+ce.
+
+You can understand my email as a regression report for the Quanta touch=
+screen
+device, since it works well on 3.0 kernel, but double click stops worki=
+ng
+on 3.4-rc2.
+
 
 Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+--=20
+Ming Lei
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

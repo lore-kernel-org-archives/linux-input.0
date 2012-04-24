@@ -1,65 +1,42 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 2/6] hid: Scan the device for group info before adding
- it
-Date: Tue, 24 Apr 2012 14:31:13 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204241430190.1856@pobox.suse.cz>
-References: <1335175627-2270-1-git-send-email-rydberg@euromail.se> <1335175627-2270-3-git-send-email-rydberg@euromail.se>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 2/6] hid: Scan the device for group info before adding it
+Date: Tue, 24 Apr 2012 14:41:13 +0200
+Message-ID: <20120424124113.GA10055@polaris.bitmath.org>
+References: <1335175627-2270-1-git-send-email-rydberg@euromail.se>
+ <1335175627-2270-3-git-send-email-rydberg@euromail.se>
+ <alpine.LNX.2.00.1204241430190.1856@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59963 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751694Ab2DXMbQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Apr 2012 08:31:16 -0400
-In-Reply-To: <1335175627-2270-3-git-send-email-rydberg@euromail.se>
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:39529 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753700Ab2DXMhc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Apr 2012 08:37:32 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1204241430190.1856@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
+To: Jiri Kosina <jkosina@suse.cz>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 23 Apr 2012, Henrik Rydberg wrote:
-
-> In order to allow the report descriptor to influence the hid device
-> properties, one needs to parse the descriptor early, without reference
-> to any driver. Scan the descriptor for group information during device
-> add, before the device has been broadcast to userland. The device
-> modalias will contain group information which can be used to
-> differentiate between modules. For starters, just handle the generic
-> group.
+> > +static int hid_scan_report(struct hid_device *hid)
+> > +{
+> > +	unsigned int page = 0, delim = 0;
+> > +	__u8 *start = hid->dev_rdesc;
+> > +	__u8 *end = start + hid->dev_rsize;
 > 
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
->  drivers/hid/hid-core.c |   62 ++++++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/hid.h    |    5 ++++
->  2 files changed, 67 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index cfcb69e..f932cd5 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -658,6 +658,58 @@ static u8 *fetch_item(__u8 *start, __u8 *end, struct hid_item *item)
->  	return NULL;
->  }
->  
-> +static void hid_scan_usage(struct hid_device *hid, u32 usage)
-> +{
-> +}
-> +
-> +/*
-> + * Scan a report descriptor before the device is added to the bus.
-> + * Sets device groups and other properties that determine what driver
-> + * to load.
-> + */
-> +static int hid_scan_report(struct hid_device *hid)
-> +{
-> +	unsigned int page = 0, delim = 0;
-> +	__u8 *start = hid->dev_rdesc;
-> +	__u8 *end = start + hid->dev_rsize;
+> Where do these dev_rdesc and dev_rsize come from? Your patchset doesn't 
+> seem to be changing the corresponding struct device members (which are 
+> rdesc and rsize currently), right?
 
-Where do these dev_rdesc and dev_rsize come from? Your patchset doesn't 
-seem to be changing the corresponding struct device members (which are 
-rdesc and rsize currently), right?
+Those members are added in the enable-report-fixup-on-rebind patchset,
+which this patchset builds on. I only sent that patchset once, to
+avoid confusion. Maybe I created some instead. :-)
 
--- 
-Jiri Kosina
-SUSE Labs
+And yes, the scanning algorithms do not touch the rdesc/rsize
+variables, nor the collection state. Those are handled upon attachment
+of the driver.
+
+Thanks,
+Henrik

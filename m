@@ -1,47 +1,65 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 03/14 v3] Input: atmel_mxt_ts - refactor
- mxt_read/write_reg to take a length
-Date: Tue, 24 Apr 2012 13:23:19 +0200
-Message-ID: <20120424112319.GA9688@polaris.bitmath.org>
-References: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
- <1334755319-21365-4-git-send-email-djkurtz@chromium.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2/6] hid: Scan the device for group info before adding
+ it
+Date: Tue, 24 Apr 2012 14:31:13 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204241430190.1856@pobox.suse.cz>
+References: <1335175627-2270-1-git-send-email-rydberg@euromail.se> <1335175627-2270-3-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:40159 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752828Ab2DXLTk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Apr 2012 07:19:40 -0400
-Content-Disposition: inline
-In-Reply-To: <1334755319-21365-4-git-send-email-djkurtz@chromium.org>
+Received: from cantor2.suse.de ([195.135.220.15]:59963 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751694Ab2DXMbQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Apr 2012 08:31:16 -0400
+In-Reply-To: <1335175627-2270-3-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Daniel,
+On Mon, 23 Apr 2012, Henrik Rydberg wrote:
 
-> The i2c bus requires 5 bytes to do a 1 byte read (1-byte i2c address + 2
-> byte offset + 1-byte i2c address + 1 byte data), or 4 bytes to do a
-> 1-byte write (1 byte i2c address + 2 byte offset + 1 byte data).
+> In order to allow the report descriptor to influence the hid device
+> properties, one needs to parse the descriptor early, without reference
+> to any driver. Scan the descriptor for group information during device
+> add, before the device has been broadcast to userland. The device
+> modalias will contain group information which can be used to
+> differentiate between modules. For starters, just handle the generic
+> group.
 > 
-> By taking a length with reads and writes, the driver can amortize
-> transaction overhead by performing larger transactions where appropriate.
-> 
-> This patch just sets up the new API.  Later patches refactor reads/writes
-> to take advantage of the larger transactions.
-> 
-> These functions are also now return any errors reported by the i2c layer.
-> 
-> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 > ---
+>  drivers/hid/hid-core.c |   62 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/hid.h    |    5 ++++
+>  2 files changed, 67 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index cfcb69e..f932cd5 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -658,6 +658,58 @@ static u8 *fetch_item(__u8 *start, __u8 *end, struct hid_item *item)
+>  	return NULL;
+>  }
+>  
+> +static void hid_scan_usage(struct hid_device *hid, u32 usage)
+> +{
+> +}
+> +
+> +/*
+> + * Scan a report descriptor before the device is added to the bus.
+> + * Sets device groups and other properties that determine what driver
+> + * to load.
+> + */
+> +static int hid_scan_report(struct hid_device *hid)
+> +{
+> +	unsigned int page = 0, delim = 0;
+> +	__u8 *start = hid->dev_rdesc;
+> +	__u8 *end = start + hid->dev_rsize;
 
-In the cyttsp a dedicate tx buffer is used, which is a bit easier on
-the eyes. OTOH, the write operation seems infrequent enough to not
-matter much, so
+Where do these dev_rdesc and dev_rsize come from? Your patchset doesn't 
+seem to be changing the corresponding struct device members (which are 
+rdesc and rsize currently), right?
 
-    Acked-by: Henrik Rydberg <rydberg@euromail.se>
-
-Thanks for your patience,
-Henrik
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,59 +1,75 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: hid-input: default HID_BATTERY_STRENGTH to no
-Date: Tue, 24 Apr 2012 10:52:59 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204241052460.1856@pobox.suse.cz>
-References: <20120418140517.GM19507@zod.bos.redhat.com> <1334758134.8818.132.camel@novo.hadess.net> <20120418141131.GN19507@zod.bos.redhat.com> <20120418142450.GA30083@srcf.ucam.org> <alpine.LNX.2.00.1204181926340.16373@pobox.suse.cz>
- <CAMuHMdWEZMWrbQrf_q9fCDj4rfxuhdqW=o9857+VseJDJ-ogyA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Roland Stigge <stigge@antcom.de>
+Subject: [PATCH 2/2] ARM: LPC32xx: Make platform use key driver
+Date: Tue, 24 Apr 2012 11:51:08 +0200
+Message-ID: <1335261068-18640-2-git-send-email-stigge@antcom.de>
+References: <1335261068-18640-1-git-send-email-stigge@antcom.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:41659 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751413Ab2DXIxE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Apr 2012 04:53:04 -0400
-In-Reply-To: <CAMuHMdWEZMWrbQrf_q9fCDj4rfxuhdqW=o9857+VseJDJ-ogyA@mail.gmail.com>
+Received: from mail.work-microwave.de ([62.245.205.51]:57887 "EHLO
+	work-microwave.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932170Ab2DXJwB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Apr 2012 05:52:01 -0400
+In-Reply-To: <1335261068-18640-1-git-send-email-stigge@antcom.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Matthew Garrett <mjg@redhat.com>, Josh Boyer <jwboyer@redhat.com>, Bastien Nocera <hadess@hadess.net>, Jeremy Fitzhardinge <jeremy@goop.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@fedoraproject.org, Richard Hughes <richard@hughsie.com>
+To: dmitry.torokhov@gmail.com, axel.lin@gmail.com, riyer@nvidia.com, michael.hennerich@analog.com, grant.likely@secretlab.ca, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
+Cc: Roland Stigge <stigge@antcom.de>
 
-On Sun, 22 Apr 2012, Geert Uytterhoeven wrote:
+This patch connects the lpc32xx-key driver to the LPC32xx platform (via
+lpc32xx.dtsi), and more specifically to the reference board via its dts file.
+The clock.c file needs to be changed to match the automatic device name to its
+clock.
 
-> >> > Matthew suggested that additional kernel patches were required t=
-o add a
-> >> > scope parameter so upower could understand that the battery is p=
-owering
-> >> > a device and not the system.
-> >> >
-> >> > Also, when did it become OK to force-enable a new feature that i=
-s
-> >> > _known_ to not work properly on recent userspace? =C2=A0That mak=
-es no sense
-> >> > to me.
-> >>
-> >> I agree. It's a great feature, but it shouldn't be default y if
-> >> userspace isn't ready for it yet.
-> >
-> > Fully agreed, the 'default y' part escaped my attention. I will be
-> > applying the patch and pushing out to Linus.
-> >
-> > I even wonder whether we shouldn't put a warning into the Kconfig e=
-ntry,
-> > explaining the consequences of having userspace not ready for the f=
-eature.
->=20
-> I saw it move from HID_BATTERY_STRENGTH=3Dy to "# HID_BATTERY_STRENGT=
-H
-> is not set" in my max-all build.
+Signed-off-by: Roland Stigge <stigge@antcom.de>
 
-Good point, thanks Geert. I will fix that up.
+---
+Applies to v3.4-rc4 + LPC32xx DT patches
 
---=20
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please pick this patch for the arm-soc subsystem.
+
+ arch/arm/boot/dts/lpc32xx.dtsi |    2 ++
+ arch/arm/boot/dts/phy3250.dts  |   10 ++++++++++
+ arch/arm/mach-lpc32xx/clock.c  |    2 +-
+ 3 files changed, 13 insertions(+), 1 deletion(-)
+
+--- linux-2.6.orig/arch/arm/boot/dts/lpc32xx.dtsi
++++ linux-2.6/arch/arm/boot/dts/lpc32xx.dtsi
+@@ -285,6 +285,8 @@
+ 			key@40050000 {
+ 				compatible = "nxp,lpc3220-key";
+ 				reg = <0x40050000 0x1000>;
++				interrupts = <54 0>;
++				status = "disable";
+ 			};
+ 
+ 		};
+--- linux-2.6.orig/arch/arm/boot/dts/phy3250.dts
++++ linux-2.6/arch/arm/boot/dts/phy3250.dts
+@@ -124,6 +124,16 @@
+ 			tsc@40048000 {
+ 				status = "okay";
+ 			};
++
++			key@40050000 {
++				status = "okay";
++				nxp,matrix-size = <1>;
++				nxp,debounce-delay-ms = <3>;
++				nxp,scan-delay-ms = <34>;
++				key_1 {
++					linux,code = <2>;
++				};
++			};
+ 		};
+ 	};
+ 
+--- linux-2.6.orig/arch/arm/mach-lpc32xx/clock.c
++++ linux-2.6/arch/arm/mach-lpc32xx/clock.c
+@@ -1131,7 +1131,7 @@ static struct clk_lookup lookups[] = {
+ 	CLKDEV_INIT("31020300.i2c", NULL, &clk_i2c2),
+ 	CLKDEV_INIT("dev:ssp0", NULL, &clk_ssp0),
+ 	CLKDEV_INIT("dev:ssp1", NULL, &clk_ssp1),
+-	CLKDEV_INIT("lpc32xx_keys.0", NULL, &clk_kscan),
++	CLKDEV_INIT("40050000.key", NULL, &clk_kscan),
+ 	CLKDEV_INIT("lpc32xx-nand.0", "nand_ck", &clk_nand),
+ 	CLKDEV_INIT("200b0000.flash", "nand_ck_mlc", &clk_nand_mlc),
+ 	CLKDEV_INIT("40048000.adc", NULL, &clk_adc),

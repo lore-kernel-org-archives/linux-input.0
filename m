@@ -1,451 +1,230 @@
-From: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH v2 1/2] input: keyboard: Add keys driver for the LPC32xx SoC
-Date: Wed, 25 Apr 2012 10:59:45 +0200
-Message-ID: <1335344386-7809-1-git-send-email-stigge@antcom.de>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
+Date: Wed, 25 Apr 2012 17:14:19 +0800
+Message-ID: <CACVXFVM6KMeMcXy549x9XqhqvCzq73pXvhLki363=KjQu2Nfsg@mail.gmail.com>
+References: <Pine.LNX.4.44L0.1204241100210.1511-100000@iolanthe.rowland.org>
+	<201204251006.16272.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: dmitry.torokhov@gmail.com, axel.lin@gmail.com, riyer@nvidia.com, michael.hennerich@analog.com, grant.likely@secretlab.ca, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
-Cc: Roland Stigge <stigge@antcom.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:49855 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754619Ab2DYJOX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Apr 2012 05:14:23 -0400
+In-Reply-To: <201204251006.16272.oneukum@suse.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oliver Neukum <oneukum@suse.de>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
 
-This patch adds a driver for the key scan interface of the LPC32xx SoC
+On Wed, Apr 25, 2012 at 4:06 PM, Oliver Neukum <oneukum@suse.de> wrote:
 
-Signed-off-by: Roland Stigge <stigge@antcom.de>
+>
+> Indeed. Upon further thought it seems to me that we need to prevent
+> resubmission and all is well. And we almost have all the infrastructu=
+re.
+>
+> So how about this, making it more reusable:
 
----
-Applies to v3.4-rc4
+Yes, this one is good, better than the adding lock.
 
-Please pick this patch for the input subsystem.
+>
+> From ce77d793252d1abf3a0ec6c67e4a7a05ac6d846a Mon Sep 17 00:00:00 200=
+1
+> From: Oliver Neukum <oliver@neukum.org>
+> Date: Wed, 25 Apr 2012 09:54:00 +0200
+> Subject: [PATCH] usbhid: prevent deadlock during timeout
+>
+> On some HCDs usb_unlink_urb() can directly call the
+> completion handler. That limits the spinlocks that can
+> be taken in the handler to locks not held while calling
+> usb_unlink_urb()
+> To prevent a race with resubmission, this patch exposes
+> usbcore's infrastructure for blocking submission, uses it
+> and so drops the lock without causing a race in usbhid.
+>
+> Signed-off-by: Oliver Neukum <oneukum@suse.de>
+> ---
+> =A0drivers/hid/usbhid/hid-core.c | =A0 38 +++++++++++++++++++++++++++=
++++++++----
+> =A0drivers/usb/core/urb.c =A0 =A0 =A0 =A0| =A0 30 +++++++++++++++++++=
++++++++++++
+> =A0include/linux/usb.h =A0 =A0 =A0 =A0 =A0 | =A0 =A02 ++
+> =A03 files changed, 66 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-c=
+ore.c
+> index 5bf91db..763257d 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -535,11 +535,27 @@ static void __usbhid_submit_report(struct hid_d=
+evice *hid, struct hid_report *re
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * the queue is known =
+to run
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * but an earlier requ=
+est may be stuck
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * we may need to time=
+ out
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* no race because th=
+is is called under
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* no race because th=
+e URB is blocked under
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * spinlock
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 */
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (time_after(jiffies,=
+ usbhid->last_out + HZ * 5))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (time_after(jiffies,=
+ usbhid->last_out + HZ * 5)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 usb_blo=
+ck_urb(usbhid->urbout);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* drop=
+ lock to not deadlock if the callback is called */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_un=
+lock(&usbhid->lock);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0usb_un=
+link_urb(usbhid->urbout);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_lo=
+ck(&usbhid->lock);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 usb_unb=
+lock_urb(usbhid->urbout);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* if=
+ the unlinking has already completed
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* th=
+e pump will have been stopped
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* it=
+ must be restarted now
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!te=
+st_bit(HID_OUT_RUNNING, &usbhid->iofl))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 if (!hid_submit_out(hid))
 
-Changes since v1:
-* Removed devm_kfree(), lpc32XX_free_dt(), iounmap(), release_mem_region()
-* Changed __raw_writel()+__raw_readl() to writel()+readl()
+You need to add check of "usbhid->outtail !=3D usbhid->outhead" above.
 
-Thanks to Axel Lin for reviewing!
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 set_bit(HID_OUT_RUNNING, &usbhid->iofl);
+> +
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return;
+> =A0 =A0 =A0 =A0}
+> @@ -583,11 +599,25 @@ static void __usbhid_submit_report(struct hid_d=
+evice *hid, struct hid_report *re
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * the queue is known to run
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * but an earlier request may be stuck
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * we may need to time out
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* no race because this is called und=
+er
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* no race because the URB is blocked=
+ under
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * spinlock
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 */
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (time_after(jiffies, usbhid->last_ct=
+rl + HZ * 5))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (time_after(jiffies, usbhid->last_ct=
+rl + HZ * 5)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 usb_block_urb(usbhid->u=
+rbctrl);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* drop lock to not dea=
+dlock if the callback is called */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_unlock(&usbhid->lo=
+ck);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0usb_unlink_urb(usbhid-=
+>urbctrl);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_lock(&usbhid->lock=
+);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 usb_unblock_urb(usbhid-=
+>urbctrl);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* if the unlinking h=
+as already completed
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* the pump will have=
+ been stopped
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* it must be restart=
+ed now
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!test_bit(HID_CTRL_=
+RUNNING, &usbhid->iofl))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!hi=
+d_submit_ctrl(hid))
 
- Documentation/devicetree/bindings/input/lpc32xx-key.txt |   31 +
- drivers/input/keyboard/Kconfig                          |   10 
- drivers/input/keyboard/Makefile                         |    1 
- drivers/input/keyboard/lpc32xx-keys.c                   |  343 ++++++++++++++++
- 4 files changed, 385 insertions(+)
+Similar as above.
 
---- /dev/null
-+++ linux-2.6/Documentation/devicetree/bindings/input/lpc32xx-key.txt
-@@ -0,0 +1,31 @@
-+NXP LPC32xx Key Scan Interface
-+
-+Required Properties:
-+- compatible: Should be "nxp,lpc3220-key"
-+- reg: Physical base address of the controller and length of memory mapped
-+  region.
-+- interrupts: The interrupt number to the cpu.
-+- nxp,matrix-size: Number of rows and columns, e.g. 1: 1x1, 6: 6x6
-+- nxp,debounce-delay-ms:
-+- nxp,scan-delay-ms:
-+
-+- Keys represented as child nodes: Each key connected to the keypad
-+  controller is represented as a child node, line by line, to the keypad
-+  controller device node and should include the following properties:
-+  - linux,code: the key-code to be reported when the key is pressed
-+    and released.
-+
-+Example:
-+
-+	key@40050000 {
-+		compatible = "nxp,lpc3220-key";
-+		reg = <0x40050000 0x1000>;
-+		interrupts = <54 0>;
-+		nxp,matrix-size = <1>;
-+		nxp,debounce-delay-ms = <3>;
-+		nxp,scan-delay-ms = <34>;
-+
-+		key_1 {
-+			linux,code = <2>;
-+		};
-+	};
---- linux-2.6.orig/drivers/input/keyboard/Kconfig
-+++ linux-2.6/drivers/input/keyboard/Kconfig
-@@ -318,6 +318,16 @@ config KEYBOARD_LOCOMO
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called locomokbd.
- 
-+config KEYBOARD_LPC32XX
-+	tristate "LPC32XX matrix key scanner support"
-+	depends on ARCH_LPC32XX
-+	help
-+	  Say Y here if you want to use NXP LPC32XX SoC key scanner interface,
-+	  connected to a key matrix.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called lpc32xx-keys.
-+
- config KEYBOARD_MAPLE
- 	tristate "Maple bus keyboard"
- 	depends on SH_DREAMCAST && MAPLE
---- linux-2.6.orig/drivers/input/keyboard/Makefile
-+++ linux-2.6/drivers/input/keyboard/Makefile
-@@ -25,6 +25,7 @@ obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada
- obj-$(CONFIG_KEYBOARD_LKKBD)		+= lkkbd.o
- obj-$(CONFIG_KEYBOARD_LM8323)		+= lm8323.o
- obj-$(CONFIG_KEYBOARD_LOCOMO)		+= locomokbd.o
-+obj-$(CONFIG_KEYBOARD_LPC32XX)		+= lpc32xx-keys.o
- obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
- obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
- obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
---- /dev/null
-+++ linux-2.6/drivers/input/keyboard/lpc32xx-keys.c
-@@ -0,0 +1,343 @@
-+/*
-+ * NXP LPC32xx SoC Key Scan Interface
-+ *
-+ * Authors:
-+ *    Kevin Wells <kevin.wells@nxp.com>
-+ *    Roland Stigge <stigge@antcom.de>
-+ *
-+ * Copyright (C) 2010 NXP Semiconductors
-+ * Copyright (C) 2012 Roland Stigge
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/interrupt.h>
-+#include <linux/slab.h>
-+#include <linux/irq.h>
-+#include <linux/pm.h>
-+#include <linux/platform_device.h>
-+#include <linux/input.h>
-+#include <linux/clk.h>
-+#include <linux/io.h>
-+#include <linux/of.h>
-+
-+/*
-+ * Key scanner register offsets
-+ */
-+#define LPC32XX_KS_DEB(x)			((x) + 0x00)
-+#define LPC32XX_KS_STATE_COND(x)		((x) + 0x04)
-+#define LPC32XX_KS_IRQ(x)			((x) + 0x08)
-+#define LPC32XX_KS_SCAN_CTL(x)			((x) + 0x0C)
-+#define LPC32XX_KS_FAST_TST(x)			((x) + 0x10)
-+#define LPC32XX_KS_MATRIX_DIM(x)		((x) + 0x14)
-+#define LPC32XX_KS_DATA(x, y)			((x) + 0x40 + ((y) << 2))
-+
-+#define LPC32XX_KSCAN_DEB_NUM_DEB_PASS(n)	((n) & 0xFF)
-+
-+#define LPC32XX_KSCAN_SCOND_IN_IDLE		0x0
-+#define LPC32XX_KSCAN_SCOND_IN_SCANONCE		0x1
-+#define LPC32XX_KSCAN_SCOND_IN_IRQGEN		0x2
-+#define LPC32XX_KSCAN_SCOND_IN_SCAN_MATRIX	0x3
-+
-+#define LPC32XX_KSCAN_IRQ_PENDING_CLR		0x1
-+
-+#define LPC32XX_KSCAN_SCTRL_SCAN_DELAY(n)	((n) & 0xFF)
-+
-+#define LPC32XX_KSCAN_FTST_FORCESCANONCE	0x1
-+#define LPC32XX_KSCAN_FTST_USE32K_CLK		0x2
-+
-+#define LPC32XX_KSCAN_MSEL_SELECT(n)		((n) & 0xF)
-+
-+/*
-+ * Key scanner platform configuration structure
-+ */
-+struct lpc32XX_kscan_cfg {
-+	u32	matrix_sz;	/* Size of matrix in XxY, ie. 3 = 3x3 */
-+	int	*keymap;	/* Pointer to key map for the scan matrix */
-+	u32	deb_clks;	/* Debounce clocks (based on 32KHz clock) */
-+	u32	scan_delay;	/* Scan delay (based on 32KHz clock) */
-+};
-+
-+struct lpc32xx_kscan_drv {
-+	struct input_dev *input;
-+	struct lpc32XX_kscan_cfg *kscancfg;
-+	struct clk *clk;
-+	void __iomem *kscan_base;
-+	int irq;
-+	u8 lastkeystates[8];
-+};
-+
-+static void lpc32xx_mod_states(struct lpc32xx_kscan_drv *kscandat, int off)
-+{
-+	u8 st, key;
-+	int j, scancode, keycode;
-+
-+	key = (u8)readl(LPC32XX_KS_DATA(kscandat->kscan_base, off));
-+	if (key != kscandat->lastkeystates[off]) {
-+		for (j = 0; j < kscandat->kscancfg->matrix_sz; j++) {
-+			st = key & (1 << j);
-+			if (st != (kscandat->lastkeystates[off] & (1 << j))) {
-+				/* Key state changed, signal an event */
-+				scancode = (int)
-+				    (j * kscandat->kscancfg->matrix_sz) + off;
-+				keycode = kscandat->kscancfg->keymap[scancode];
-+				input_report_key(kscandat->input, keycode,
-+						 (st != 0));
-+			}
-+		}
-+
-+		kscandat->lastkeystates[off] = key;
-+	}
-+}
-+
-+static irqreturn_t lpc32xx_kscan_irq(int irq, void *dev_id)
-+{
-+	int i;
-+	struct lpc32xx_kscan_drv *kscandat = (struct lpc32xx_kscan_drv *)dev_id;
-+
-+	for (i = 0; i < kscandat->kscancfg->matrix_sz; i++)
-+		lpc32xx_mod_states(kscandat, i);
-+
-+	writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
-+
-+	input_sync(kscandat->input);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+#ifdef CONFIG_OF
-+static struct lpc32XX_kscan_cfg *lpc32XX_parse_dt(struct device *dev)
-+{
-+	struct lpc32XX_kscan_cfg *pdata;
-+	struct device_node *np = dev->of_node;
-+	struct device_node *key_np;
-+	int key_count;
-+	int i;
-+
-+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata) {
-+		dev_err(dev, "could not allocate memory for platform data\n");
-+		return NULL;
-+	}
-+
-+	of_property_read_u32(np, "nxp,matrix-size", &pdata->matrix_sz);
-+	of_property_read_u32(np, "nxp,debounce-delay-ms", &pdata->deb_clks);
-+	of_property_read_u32(np, "nxp,scan-delay-ms", &pdata->scan_delay);
-+
-+	if (!pdata->matrix_sz || !pdata->deb_clks || !pdata->scan_delay) {
-+		dev_err(dev,
-+			"matrix size, debounce or scan delay not specified\n");
-+		return NULL;
-+	}
-+
-+	key_count = pdata->matrix_sz * pdata->matrix_sz;
-+	pdata->keymap = devm_kzalloc(dev, sizeof(int) * key_count, GFP_KERNEL);
-+	if (!pdata->keymap) {
-+		dev_err(dev, "could not allocate memory for keymap\n");
-+		return NULL;
-+	}
-+
-+	i = 0;
-+	for_each_child_of_node(np, key_np) {
-+		u32 key_code;
-+		of_property_read_u32(key_np, "linux,code", &key_code);
-+		pdata->keymap[i++] = key_code;
-+	}
-+
-+	return pdata;
-+}
-+#else
-+static struct lpc32XX_kscan_cfg *lpc32XX_parse_dt(struct device *dev)
-+{
-+	return NULL;
-+}
-+#endif
-+
-+static int __devinit lpc32xx_kscan_probe(struct platform_device *pdev)
-+{
-+	struct lpc32xx_kscan_drv *kscandat;
-+	struct resource *res;
-+	int retval, i, keynum;
-+
-+	kscandat = kzalloc(sizeof(struct lpc32xx_kscan_drv), GFP_KERNEL);
-+	if (unlikely(!kscandat)) {
-+		dev_err(&pdev->dev, "failed to allocate memory\n");
-+		return -ENOMEM;
-+	}
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (res == NULL) {
-+		dev_err(&pdev->dev, "failed to get platform I/O memory\n");
-+		retval = -EBUSY;
-+		goto out1;
-+	}
-+
-+	kscandat->kscan_base = devm_request_and_ioremap(&pdev->dev, res);
-+	if (kscandat->kscan_base == NULL) {
-+		dev_err(&pdev->dev, "failed to request and remap I/O memory\n");
-+		retval = -EBUSY;
-+		goto out1;
-+	}
-+
-+	/* Get the key scanner clock */
-+	kscandat->clk = clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(kscandat->clk)) {
-+		dev_err(&pdev->dev, "failed to get clock\n");
-+		retval = -ENODEV;
-+		goto out1;
-+	}
-+	clk_enable(kscandat->clk);
-+
-+	kscandat->irq = platform_get_irq(pdev, 0);
-+	if ((kscandat->irq < 0) || (kscandat->irq >= NR_IRQS)) {
-+		dev_err(&pdev->dev, "failed to get platform irq\n");
-+		retval = -EINVAL;
-+		goto out2;
-+	}
-+	retval = request_irq(kscandat->irq, lpc32xx_kscan_irq,
-+			     0, pdev->name, kscandat);
-+	if (retval) {
-+		dev_err(&pdev->dev, "failed to request irq\n");
-+		goto out2;
-+	}
-+
-+	kscandat->input = input_allocate_device();
-+	if (kscandat->input == NULL) {
-+		dev_err(&pdev->dev, "failed to allocate device\n");
-+		retval = -ENOMEM;
-+		goto out3;
-+	}
-+
-+	if (pdev->dev.of_node)
-+		kscandat->kscancfg = lpc32XX_parse_dt(&pdev->dev);
-+	else
-+		kscandat->kscancfg =
-+			(struct lpc32XX_kscan_cfg *)pdev->dev.platform_data;
-+	if (!kscandat->kscancfg) {
-+		dev_err(&pdev->dev, "failed to get platform data\n");
-+		retval = -EINVAL;
-+		goto out4;
-+	}
-+
-+	platform_set_drvdata(pdev, kscandat);
-+
-+	/* Setup key input */
-+	kscandat->input->evbit[0]	= BIT_MASK(EV_KEY);
-+	kscandat->input->name		= pdev->name;
-+	kscandat->input->phys		= "matrix-keys/input0";
-+	kscandat->input->dev.parent	=  &pdev->dev;
-+	kscandat->input->id.vendor	= 0x0001;
-+	kscandat->input->id.product	= 0x0001;
-+	kscandat->input->id.version	= 0x0100;
-+	keynum = kscandat->kscancfg->matrix_sz * kscandat->kscancfg->matrix_sz;
-+	for (i = 0; i < keynum; i++)
-+		__set_bit(kscandat->kscancfg->keymap[i],
-+			kscandat->input->keybit);
-+
-+	input_set_capability(kscandat->input, EV_MSC, MSC_SCAN);
-+
-+	retval = input_register_device(kscandat->input);
-+	if (retval) {
-+		dev_err(&pdev->dev, "failed to register input device\n");
-+		goto out4;
-+	}
-+
-+	/* Configure the key scanner */
-+	writel(kscandat->kscancfg->deb_clks,
-+		LPC32XX_KS_DEB(kscandat->kscan_base));
-+	writel(kscandat->kscancfg->scan_delay,
-+		LPC32XX_KS_SCAN_CTL(kscandat->kscan_base));
-+	writel(LPC32XX_KSCAN_FTST_USE32K_CLK,
-+		LPC32XX_KS_FAST_TST(kscandat->kscan_base));
-+	writel(kscandat->kscancfg->matrix_sz,
-+		LPC32XX_KS_MATRIX_DIM(kscandat->kscan_base));
-+	writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
-+
-+	return 0;
-+
-+out4:
-+	input_free_device(kscandat->input);
-+out3:
-+	free_irq(kscandat->irq, pdev);
-+out2:
-+	clk_put(kscandat->clk);
-+out1:
-+	kfree(kscandat);
-+
-+	return retval;
-+}
-+
-+static int __devexit lpc32xx_kscan_remove(struct platform_device *pdev)
-+{
-+	struct lpc32xx_kscan_drv *kscandat = platform_get_drvdata(pdev);
-+
-+	free_irq(kscandat->irq, pdev);
-+	input_unregister_device(kscandat->input);
-+	clk_put(kscandat->clk);
-+	kfree(kscandat);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static int lpc32xx_kscan_suspend(struct platform_device *pdev,
-+	pm_message_t state)
-+{
-+	struct lpc32xx_kscan_drv *kscandat = platform_get_drvdata(pdev);
-+
-+	/* Clear IRQ and disable clock */
-+	writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
-+	clk_disable(kscandat->clk);
-+
-+	return 0;
-+}
-+
-+static int lpc32xx_kscan_resume(struct platform_device *pdev)
-+{
-+	struct lpc32xx_kscan_drv *kscandat = platform_get_drvdata(pdev);
-+
-+	/* Enable clock and clear IRQ */
-+	clk_enable(kscandat->clk);
-+	writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
-+
-+	return 0;
-+}
-+#else
-+#define lpc32xx_kscan_suspend	NULL
-+#define lpc32xx_kscan_resume	NULL
-+#endif
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id lpc32xx_kscan_match[] = {
-+	{ .compatible = "nxp,lpc3220-key" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, lpc32xx_kscan_match);
-+#endif
-+
-+static struct platform_driver lpc32xx_kscan_driver = {
-+	.probe		= lpc32xx_kscan_probe,
-+	.remove		= __devexit_p(lpc32xx_kscan_remove),
-+	.suspend	= lpc32xx_kscan_suspend,
-+	.resume		= lpc32xx_kscan_resume,
-+	.driver		= {
-+		.name	= "lpc32xx_keys",
-+		.of_match_table = of_match_ptr(lpc32xx_kscan_match),
-+	}
-+};
-+
-+module_platform_driver(lpc32xx_kscan_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Kevin Wells <kevin.wells@nxp.com>");
-+MODULE_AUTHOR("Roland Stigge <stigge@antcom.de>");
-+MODULE_DESCRIPTION("Key scanner driver for LPC32XX devices");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 set_bit(HID_CTRL_RUNNING, &usbhid->iofl);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> =A0 =A0 =A0 =A0}
+> =A0}
+>
+> diff --git a/drivers/usb/core/urb.c b/drivers/usb/core/urb.c
+> index cd9b3a2..1d1b010 100644
+> --- a/drivers/usb/core/urb.c
+> +++ b/drivers/usb/core/urb.c
+> @@ -681,6 +681,36 @@ void usb_unpoison_urb(struct urb *urb)
+> =A0EXPORT_SYMBOL_GPL(usb_unpoison_urb);
+>
+> =A0/**
+> + * usb_block_urb - reliably prevent further use of an URB
+> + * @urb: pointer to URB to be blocked, may be NULL
+> + *
+> + * After the routine has run, attempts to resubmit the URB will fail
+> + * with error -EPERM. =A0Thus even if the URB's completion handler a=
+lways
+> + * tries to resubmit, it will not succeed and the URB will become id=
+le.
+> + *
+> + * The URB must not be deallocated while this routine is running. =A0=
+In
+> + * particular, when a driver calls this routine, it must insure that=
+ the
+> + * completion handler cannot deallocate the URB.
+> + */
+> +void usb_block_urb(struct urb *urb)
+> +{
+> + =A0 =A0 =A0 =A0if (!urb)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return;
+> +
+> + =A0 =A0 =A0 =A0atomic_inc(&urb->reject);
+> +}
+> +EXPORT_SYMBOL_GPL(usb_block_urb);
+> +
+> +void usb_unblock_urb(struct urb *urb)
+> +{
+> + =A0 =A0 =A0 =A0if (!urb)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return;
+> +
+> + =A0 =A0 =A0 =A0atomic_dec(&urb->reject);
+> +}
+> +EXPORT_SYMBOL_GPL(usb_unblock_urb);
+> +
+> +/**
+> =A0* usb_kill_anchored_urbs - cancel transfer requests en masse
+> =A0* @anchor: anchor the requests are bound to
+> =A0*
+> diff --git a/include/linux/usb.h b/include/linux/usb.h
+> index 73b68d1..23df8ae 100644
+> --- a/include/linux/usb.h
+> +++ b/include/linux/usb.h
+> @@ -1379,6 +1379,8 @@ extern int usb_unlink_urb(struct urb *urb);
+> =A0extern void usb_kill_urb(struct urb *urb);
+> =A0extern void usb_poison_urb(struct urb *urb);
+> =A0extern void usb_unpoison_urb(struct urb *urb);
+> +extern void usb_block_urb(struct urb *urb);
+> +extern void usb_unblock_urb(struct urb *urb);
+> =A0extern void usb_kill_anchored_urbs(struct usb_anchor *anchor);
+> =A0extern void usb_poison_anchored_urbs(struct usb_anchor *anchor);
+> =A0extern void usb_unpoison_anchored_urbs(struct usb_anchor *anchor);
+
+
+Thanks,
+--
+Ming Lei
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

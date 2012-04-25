@@ -1,73 +1,84 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Wed, 25 Apr 2012 21:18:19 +0800
-Message-ID: <CACVXFVPgAGA+D=dyS33eUBTH2xrXz_9+Fu5qB+bqB+6zg0WWNw@mail.gmail.com>
-References: <Pine.LNX.4.44L0.1204241100210.1511-100000@iolanthe.rowland.org>
-	<201204251006.16272.oneukum@suse.de>
-	<CACVXFVM6KMeMcXy549x9XqhqvCzq73pXvhLki363=KjQu2Nfsg@mail.gmail.com>
-	<201204251252.55901.oneukum@suse.de>
+From: "James Woodcock" <James.Woodcock@ACULAB.COM>
+Subject: RE: Memory leak in drivers/hid/hidraw.c
+Date: Wed, 25 Apr 2012 15:06:06 +0100
+Message-ID: <AE90C24D6B3A694183C094C60CF0A2F602C54A76@saturn3.aculab.com>
+References: <AE90C24D6B3A694183C094C60CF0A2F602BB6E1D@saturn3.aculab.com> <201204251459.25180.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:50937 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750766Ab2DYNSX convert rfc822-to-8bit (ORCPT
+Received: from mx0.aculab.com ([213.249.233.131]:48802 "HELO mx0.aculab.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1758295Ab2DYOGP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Apr 2012 09:18:23 -0400
-In-Reply-To: <201204251252.55901.oneukum@suse.de>
+	Wed, 25 Apr 2012 10:06:15 -0400
+Received: from mx0.aculab.com ([127.0.0.1])
+ by localhost (mx0.aculab.com [127.0.0.1]) (amavisd-new, port 10024) with SMTP
+ id 05034-06 for <linux-input@vger.kernel.org>;
+ Wed, 25 Apr 2012 15:06:08 +0100 (BST)
+Content-class: urn:content-classes:message
+In-Reply-To: <201204251459.25180.oneukum@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Oliver Neukum <oneukum@suse.de>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 
-On Wed, Apr 25, 2012 at 6:52 PM, Oliver Neukum <oneukum@suse.de> wrote:
-> Am Mittwoch, 25. April 2012, 11:14:19 schrieb Ming Lei:
->> You need to add check of "usbhid->outtail !=3D usbhid->outhead" abov=
-e.
->
-> Done. Could you test?
+> From: Oliver Neukum [mailto:oneukum@suse.de] 
+> Am Mittwoch, 25. April 2012, 11:56:57 schrieb James Woodcock:
+> > Hi,
+> > 
+> > I have got a USB HID device which I am talking to with ioctls
+> > HIDIOCSFEATURE and HIDIOCGFEATURE on Linux 3.3.3, and I think I have
+> > discovered a memory leak.
+> > 
+> > When I call ioctl(fd, HIDIOCGFEATURE...), a long series of things
+> > happens in the kernel that eventually causes 
+> hidraw_report_event() to be
+> > called to let the user space program know there is data to 
+> be retrieved
+> > by read().  hidraw_report_event() calls kmemdup() to create 
+> a copy of
+> > the data to be returned.  However, I'm never going to call read()
+> > because
+> > the data is returned by the ioctl() call.
+> > 
+> > So, I think that the main bug I have spotted is that if the 
+> user calls
+> > ioctl(fd, HIODCGFEATURE...), hidraw_report_event() should 
+> not be called.
+> > I'm not really familiar with the code, so I'm not sure what 
+> the best fix
+> > would be.
+> 
+> Please post the full call chain you see.
+> 
 
-Basically my USB keyboard can work well as before with the patch, but t=
-he
-timeout is not covered since it can't be triggered in my box.
+This is the backtrace from kmemleak:
 
->
-> =A0 =A0 =A0 =A0Regards
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0Oliver
-> From 9ff6b78dc59c98b9844dc9922549fd338828a889 Mon Sep 17 00:00:00 200=
-1
-> From: Oliver Neukum <oliver@neukum.org>
-> Date: Wed, 25 Apr 2012 12:50:37 +0200
-> Subject: [PATCH] usbhid: prevent deadlock during timeout
->
-> On some HCDs usb_unlink_urb() can directly call the
-> completion handler. That limits the spinlocks that can
-> be taken in the handler to locks not held while calling
-> usb_unlink_urb
-> To prevent a race with resubmission, this patch exposes
-> usbcore's infrastructure for blocking submission, uses it
-> and so drops the lock without causing a race in usbhid.
->
-> Signed-off-by: Oliver Neukum <oneukum@suse.de>
+unreferenced object 0xf48d4c88 (size 64):
+  comm "hardirq", pid 0, jiffies 4294943672 (age 624.110s)
+  hex dump (first 32 bytes):
+    16 02 05 00 00 00 00 31 00 32 00 33 00 33 00 5f  .......1.2.3.3._
+    00 31 00 30 00 ff 00 62 00 6f 00 72 00 61 00 74  .1.0...b.o.r.a.t
+  backtrace:
+    [<c10b0494>] create_object+0x137/0x208
+    [<c10ae66a>] __kmalloc_track_caller+0x120/0x17c
+    [<c1277618>] hidraw_report_event+0x39/0xa1
+    [<c109704e>] kmemdup+0x19/0x28
+    [<c127cad8>] hiddev_report_event+0x53/0x5a
+    [<c1277618>] hidraw_report_event+0x39/0xa1
+    [<c1272e9d>] hid_report_raw_event+0x10a/0x3f1
+    [<c10ad038>] kfree_debugcheck+0x8/0x1f
+    [<c10ad0a6>] cache_free_debugcheck+0x57/0x212
+    [<c1273292>] hid_input_report+0x10e/0x1ce
+    [<c1273292>] hid_input_report+0x10e/0x1ce
+    [<c1270bf3>] hid_debug_event+0x80/0x88
+    [<c1273338>] hid_input_report+0x1b4/0x1ce
+    [<c127a619>] hid_irq_in+0x78/0x155
+    [<c1248279>] usb_hcd_giveback_urb+0x60/0x8c
+    [<c1255b6d>] ehci_urb_done+0xa8/0xb4
 
-Reported-by: Ming Lei <ming.lei@canonical.com>
-
-> ---
-> =A0drivers/hid/usbhid/hid-core.c | =A0 61 +++++++++++++++++++++++++++=
-++++++++++----
-> =A0drivers/usb/core/urb.c =A0 =A0 =A0 =A0| =A0 30 +++++++++++++++++++=
-+
-> =A0include/linux/usb.h =A0 =A0 =A0 =A0 =A0 | =A0 =A02 +
-> =A03 files changed, 87 insertions(+), 6 deletions(-)
->
+James
 
 
-Thanks,
---
-Ming Lei
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

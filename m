@@ -1,59 +1,78 @@
-From: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Wed, 25 Apr 2012 10:08:02 +0200
-Message-ID: <201204251008.02537.oneukum@suse.de>
-References: <CACVXFVNAZHC2uQCwRak6pRgT1VEgRJt5UTuwAtZM6r_Xdg0dHA@mail.gmail.com> <201204250819.32642.oneukum@suse.de> <CACVXFVMEttnWo34ZxBsm4vdW1y5f5mBjY1s6BVbbsjck-4cSbA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACVXFVMEttnWo34ZxBsm4vdW1y5f5mBjY1s6BVbbsjck-4cSbA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
-Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Roland Stigge <stigge@antcom.de>
+Subject: [PATCH v2 2/2] ARM: LPC32xx: Make platform use key driver
+Date: Wed, 25 Apr 2012 10:59:46 +0200
+Message-ID: <1335344386-7809-2-git-send-email-stigge@antcom.de>
+References: <1335344386-7809-1-git-send-email-stigge@antcom.de>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.work-microwave.de ([62.245.205.51]:45886 "EHLO
+	work-microwave.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753932Ab2DYJAa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Apr 2012 05:00:30 -0400
+In-Reply-To: <1335344386-7809-1-git-send-email-stigge@antcom.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, axel.lin@gmail.com, riyer@nvidia.com, michael.hennerich@analog.com, grant.likely@secretlab.ca, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com
+Cc: Roland Stigge <stigge@antcom.de>
 
-Am Mittwoch, 25. April 2012, 09:02:58 schrieb Ming Lei:
-> On Wed, Apr 25, 2012 at 2:19 PM, Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org> wrote:
-> 
-> >> @@ -546,8 +557,13 @@ static void __usbhid_submit_report(struct
-> >> hid_device *hid, struct hid_report *re
-> >>                        * no race because this is called under
-> >>                        * spinlock
-> >>                        */
-> >> -                     if (time_after(jiffies, usbhid->last_out + HZ * 5))
-> >> +
-> >> +                     if (time_after(jiffies, usbhid->last_out + HZ * 5) &&
-> >> +                                     !usbhid->urbout->unlinked) {
-> >> +                             spin_unlock(&usbhid->lock);
-> >>                               usb_unlink_urb(usbhid->urbout);
-> >> +                             spin_lock(&usbhid->lock);
-> >> +                     }
-> >>               }
-> >>               return;
-> >>       }
-> >
-> > Same objection. You are just making the race unlikelier. The flag
-> > needs to be set under a lock you hold while checking time_after().
-> 
-> urb->unlinked is checked with holding both the two lockes, but set with
-> holding the unlink lock or the lock or both, looks it is enough to
-> avoid the race, isn't it?
+This patch connects the lpc32xx-key driver to the LPC32xx platform (via
+lpc32xx.dtsi), and more specifically to the reference board via its dts file.
+The clock.c file needs to be changed to match the automatic device name to its
+clock.
 
-That would work. Yet, having a second lock is not the best solution.
+Signed-off-by: Roland Stigge <stigge@antcom.de>
 
-> > We'd be back at the original proposal.
-> 
-> Introducing a new flag to describe 'unlinked' is still OK, but
-> borrowing urb->unlinked is better, the bad is that it is private.
+---
+Applies to v3.4-rc4 + LPC32xx DT patches
 
-And it needs to be explicitly checked. We'd better use urb->reject.
-I've posted a patch to do so.
+Please pick this patch for the arm-soc subsystem.
 
-	Regards
-		Oliver
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Changes since v1:
+* None
+
+ arch/arm/boot/dts/lpc32xx.dtsi |    2 ++
+ arch/arm/boot/dts/phy3250.dts  |   10 ++++++++++
+ arch/arm/mach-lpc32xx/clock.c  |    2 +-
+ 3 files changed, 13 insertions(+), 1 deletion(-)
+
+--- linux-2.6.orig/arch/arm/boot/dts/lpc32xx.dtsi
++++ linux-2.6/arch/arm/boot/dts/lpc32xx.dtsi
+@@ -285,6 +285,8 @@
+ 			key@40050000 {
+ 				compatible = "nxp,lpc3220-key";
+ 				reg = <0x40050000 0x1000>;
++				interrupts = <54 0>;
++				status = "disable";
+ 			};
+ 
+ 		};
+--- linux-2.6.orig/arch/arm/boot/dts/phy3250.dts
++++ linux-2.6/arch/arm/boot/dts/phy3250.dts
+@@ -124,6 +124,16 @@
+ 			tsc@40048000 {
+ 				status = "okay";
+ 			};
++
++			key@40050000 {
++				status = "okay";
++				nxp,matrix-size = <1>;
++				nxp,debounce-delay-ms = <3>;
++				nxp,scan-delay-ms = <34>;
++				key_1 {
++					linux,code = <2>;
++				};
++			};
+ 		};
+ 	};
+ 
+--- linux-2.6.orig/arch/arm/mach-lpc32xx/clock.c
++++ linux-2.6/arch/arm/mach-lpc32xx/clock.c
+@@ -1131,7 +1131,7 @@ static struct clk_lookup lookups[] = {
+ 	CLKDEV_INIT("31020300.i2c", NULL, &clk_i2c2),
+ 	CLKDEV_INIT("dev:ssp0", NULL, &clk_ssp0),
+ 	CLKDEV_INIT("dev:ssp1", NULL, &clk_ssp1),
+-	CLKDEV_INIT("lpc32xx_keys.0", NULL, &clk_kscan),
++	CLKDEV_INIT("40050000.key", NULL, &clk_kscan),
+ 	CLKDEV_INIT("lpc32xx-nand.0", "nand_ck", &clk_nand),
+ 	CLKDEV_INIT("200b0000.flash", "nand_ck_mlc", &clk_nand_mlc),
+ 	CLKDEV_INIT("40048000.adc", NULL, &clk_adc),

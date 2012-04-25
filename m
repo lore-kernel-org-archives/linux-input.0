@@ -1,217 +1,99 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Wed, 25 Apr 2012 09:27:19 +0800
-Message-ID: <CACVXFVOuSamcBrPT=K9Q3fAXULjz57e-1W9pi9AW1gAKxyCT7g@mail.gmail.com>
-References: <CACVXFVNAZHC2uQCwRak6pRgT1VEgRJt5UTuwAtZM6r_Xdg0dHA@mail.gmail.com>
-	<201204241622.08411.oneukum@suse.de>
-	<CACVXFVM_p=VZ76zX89CppbeXFh-bhTwqzU6FWHzuaJa2bYcBUA@mail.gmail.com>
-	<201204242057.29100.oliver@neukum.org>
+From: NeilBrown <neilb@suse.de>
+Subject: [PATCH] Input: gpio_keys - ensure we don't miss key-presses during
+ resume.
+Date: Wed, 25 Apr 2012 12:08:49 +1000
+Message-ID: <20120425120849.04cee091@notabene.brown>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=PGP-SHA1;
+ boundary="Sig_/0bUeb0byYUfPqo5=cFr33YD"; protocol="application/pgp-signature"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:48717 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757809Ab2DYB1X convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Apr 2012 21:27:23 -0400
-In-Reply-To: <201204242057.29100.oliver@neukum.org>
+Received: from cantor2.suse.de ([195.135.220.15]:47681 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751482Ab2DYCIz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Apr 2012 22:08:55 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Apr 25, 2012 at 2:57 AM, Oliver Neukum <oliver@neukum.org> wrot=
-e:
+--Sig_/0bUeb0byYUfPqo5=cFr33YD
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-=A0usb_submit_urb()
->>
->> This submit won't happen because HID_OUT_RUNNING is not cleared.
->
-> I may be dense, but as far as I can tell a resubmit will happen, exac=
-tly if
-> HID_OUT_RUNNING is _not_ cleared.
 
-In fact, it should be a double unlink bug, usb_unlink_urb can handle
-it correctly
-if the lock is held. We also can deal with it easily by checking urb->u=
-nlinked,
-so how about the below patch?
+If the latency of resume means we don't poll the key status until
+after it has been released, we can lose the keypress which woke the
+device.
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-cor=
-e.c
-index aa1c503..b530463 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -411,10 +411,10 @@ static void hid_irq_out(struct urb *urb)
- {
- 	struct hid_device *hid =3D urb->context;
- 	struct usbhid_device *usbhid =3D hid->driver_data;
--	unsigned long flags;
-+	unsigned long status =3D urb->status;
- 	int unplug =3D 0;
+So on each interrupt, record that a press is pending, and in that
+case, report both the up and down event, ordered such that the second
+event is that one that reflects the current state.
 
--	switch (urb->status) {
-+	switch (status) {
- 	case 0:			/* success */
- 		break;
- 	case -ESHUTDOWN:	/* unplug */
-@@ -428,8 +428,9 @@ static void hid_irq_out(struct urb *urb)
- 		hid_warn(urb->dev, "output irq status %d received\n",
- 			 urb->status);
- 	}
--
--	spin_lock_irqsave(&usbhid->lock, flags);
-+	if (status !=3D -ECONNRESET)
-+		spin_lock(&usbhid->unlink_lock);
-+	spin_lock(&usbhid->lock);
+One event will normally be swallowed by the input layer if there was
+no change, but the result will be that every interrupt will produce at
+least one event.
 
- 	if (unplug)
- 		usbhid->outtail =3D usbhid->outhead;
-@@ -438,12 +439,16 @@ static void hid_irq_out(struct urb *urb)
+Signed-off-by: NeilBrown <neilb@suse.de>
 
- 	if (usbhid->outhead !=3D usbhid->outtail && !hid_submit_out(hid)) {
- 		/* Successfully submitted next urb in queue */
--		spin_unlock_irqrestore(&usbhid->lock, flags);
-+		spin_unlock(&usbhid->lock);
-+		if (status !=3D -ECONNRESET)
-+			spin_unlock(&usbhid->unlink_lock);
- 		return;
- 	}
-
- 	clear_bit(HID_OUT_RUNNING, &usbhid->iofl);
--	spin_unlock_irqrestore(&usbhid->lock, flags);
-+	spin_unlock(&usbhid->lock);
-+	if (status !=3D -ECONNRESET)
-+		spin_unlock(&usbhid->unlink_lock);
- 	usb_autopm_put_interface_async(usbhid->intf);
- 	wake_up(&usbhid->wait);
- }
-@@ -458,6 +463,8 @@ static void hid_ctrl(struct urb *urb)
- 	struct usbhid_device *usbhid =3D hid->driver_data;
- 	int unplug =3D 0, status =3D urb->status;
-
-+	if (status !=3D -ECONNRESET)
-+		spin_lock(&usbhid->unlink_lock);
- 	spin_lock(&usbhid->lock);
-
- 	switch (status) {
-@@ -487,11 +494,15 @@ static void hid_ctrl(struct urb *urb)
- 	if (usbhid->ctrlhead !=3D usbhid->ctrltail && !hid_submit_ctrl(hid)) =
-{
- 		/* Successfully submitted next urb in queue */
- 		spin_unlock(&usbhid->lock);
-+		if (status !=3D -ECONNRESET)
-+			spin_unlock(&usbhid->unlink_lock);
- 		return;
- 	}
-
- 	clear_bit(HID_CTRL_RUNNING, &usbhid->iofl);
- 	spin_unlock(&usbhid->lock);
-+	if (status !=3D -ECONNRESET)
-+		spin_unlock(&usbhid->unlink_lock);
- 	usb_autopm_put_interface_async(usbhid->intf);
- 	wake_up(&usbhid->wait);
- }
-@@ -546,8 +557,13 @@ static void __usbhid_submit_report(struct
-hid_device *hid, struct hid_report *re
- 			 * no race because this is called under
- 			 * spinlock
- 			 */
--			if (time_after(jiffies, usbhid->last_out + HZ * 5))
-+
-+			if (time_after(jiffies, usbhid->last_out + HZ * 5) &&
-+					!usbhid->urbout->unlinked) {
-+				spin_unlock(&usbhid->lock);
- 				usb_unlink_urb(usbhid->urbout);
-+				spin_lock(&usbhid->lock);
-+			}
- 		}
- 		return;
- 	}
-@@ -594,8 +610,12 @@ static void __usbhid_submit_report(struct
-hid_device *hid, struct hid_report *re
- 		 * no race because this is called under
- 		 * spinlock
- 		 */
--		if (time_after(jiffies, usbhid->last_ctrl + HZ * 5))
-+		if (time_after(jiffies, usbhid->last_ctrl + HZ * 5) &&
-+				!usbhid->urbctrl->unlinked) {
-+			spin_unlock(&usbhid->lock);
- 			usb_unlink_urb(usbhid->urbctrl);
-+			spin_lock(&usbhid->lock);
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gp=
+io_keys.c
+index 62bfce4..961e5e1 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -40,6 +40,7 @@ struct gpio_button_data {
+ 	spinlock_t lock;
+ 	bool disabled;
+ 	bool key_pressed;
++	bool pending;
+ };
+=20
+ struct gpio_keys_drvdata {
+@@ -335,6 +336,14 @@ static void gpio_keys_gpio_report_event(struct gpio_bu=
+tton_data *bdata)
+ 		if (state)
+ 			input_event(input, type, button->code, button->value);
+ 	} else {
++		if (type =3D=3D EV_KEY && bdata->pending) {
++			/* Before reporting the observed state, report the
++			 * alternate to be sure that a change is seen.
++			 */
++			bdata->pending =3D 0;
++			input_event(input, type, button->code, !state);
++			input_sync(input);
 +		}
+ 		input_event(input, type, button->code, !!state);
  	}
- }
+ 	input_sync(input);
+@@ -361,6 +370,7 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *de=
+v_id)
+=20
+ 	BUG_ON(irq !=3D bdata->irq);
+=20
++	bdata->pending =3D true;
+ 	if (bdata->timer_debounce)
+ 		mod_timer(&bdata->timer,
+ 			jiffies + msecs_to_jiffies(bdata->timer_debounce));
 
-@@ -604,9 +624,11 @@ void usbhid_submit_report(struct hid_device *hid,
-struct hid_report *report, uns
- 	struct usbhid_device *usbhid =3D hid->driver_data;
- 	unsigned long flags;
+--Sig_/0bUeb0byYUfPqo5=cFr33YD
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
 
--	spin_lock_irqsave(&usbhid->lock, flags);
-+	spin_lock_irqsave(&usbhid->unlink_lock, flags);
-+	spin_lock(&usbhid->lock);
- 	__usbhid_submit_report(hid, report, dir);
--	spin_unlock_irqrestore(&usbhid->lock, flags);
-+	spin_unlock(&usbhid->lock);
-+	spin_unlock_irqrestore(&usbhid->unlink_lock, flags);
- }
- EXPORT_SYMBOL_GPL(usbhid_submit_report);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.18 (GNU/Linux)
 
-@@ -625,13 +647,15 @@ static void hid_led(struct work_struct *work)
- 		return;
- 	}
+iQIVAwUBT5dcsTnsnt1WYoG5AQLFmhAAlLFj1mTa9gLGnFuZy6yVh409Z4RV8BEp
++AqVi+Zfk/PqRQXm1w+StxJRZerjGQVIMdkavLvmg07wEdIe55ELEjWBDTvriUKe
+9Sb6wNOUsYX3fFIGNQA9KCMhHsDftoJKcfPqxBgZccsMsitezblV7EMZjZ+WU+GD
+H4cm2L/onA8VcduP1wztumT2KB+RszrBDf+N0aW1LKkqYRF1tu8/SUT7uoM96FXz
+sKyfU2M33ZhMuEXvUXgsPBYYqIU+QdtEl/O9Lnoics5Xtcz9nSwSBcmQ7XHkSIYI
+b4Y2fIaSz4falb45laJWZsgMtO/CF6hHJFNfyf/GRfpG3uuoMj7dJ95wDfzdW08v
+oAbHatY6NhW504AInqGTSR+JrwRfdxqYEW5M18iGl7dhw8Zqf4kN8khhUfaX0V33
+Nyphztt1TUEpNdDcAN1RrEStwXLz9GzQL4afN3HXfDEr1DpxdJsbFBDq9yA/wOqn
+R7qRStwbMhftV8smfKu56RnevhiTQSBXWE+roDxaL7PJEJHZHtItYhIUtxYawpCd
+oSIVc3bDp/1GOC+No+0TYfADiqvRdFFjrqr0RyrSy/yPkdTrSZBGnI7UWDsQ0hC+
+Q/tbJ/vbJeEoARJgFrWOj5aW1plHXjPLLH07W1xlVnQZMjZi9UEw3/0FdbJBJsmM
+zxlelELsYXU=
+=lh2E
+-----END PGP SIGNATURE-----
 
--	spin_lock_irqsave(&usbhid->lock, flags);
-+	spin_lock_irqsave(&usbhid->unlink_lock, flags);
-+	spin_lock(&usbhid->lock);
- 	if (!test_bit(HID_DISCONNECTED, &usbhid->iofl)) {
- 		usbhid->ledcount =3D hidinput_count_leds(hid);
- 		hid_dbg(usbhid->hid, "New ledcount =3D %u\n", usbhid->ledcount);
- 		__usbhid_submit_report(hid, field->report, USB_DIR_OUT);
- 	}
--	spin_unlock_irqrestore(&usbhid->lock, flags);
-+	spin_unlock(&usbhid->lock);
-+	spin_unlock_irqrestore(&usbhid->unlink_lock, flags);
- }
-
- static int usb_hidinput_input_event(struct input_dev *dev, unsigned
-int type, unsigned int code, int value)
-@@ -1299,6 +1323,7 @@ static int usbhid_probe(struct usb_interface
-*intf, const struct usb_device_id *
- 	INIT_WORK(&usbhid->reset_work, hid_reset);
- 	setup_timer(&usbhid->io_retry, hid_retry_timeout, (unsigned long) hid=
-);
- 	spin_lock_init(&usbhid->lock);
-+	spin_lock_init(&usbhid->unlink_lock);
-
- 	INIT_WORK(&usbhid->led_work, hid_led);
-
-diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
-index 1883d7b..69af387 100644
---- a/drivers/hid/usbhid/usbhid.h
-+++ b/drivers/hid/usbhid/usbhid.h
-@@ -90,6 +90,7 @@ struct usbhid_device {
- 	unsigned long last_out;							/* record of last output for timeouts *=
-/
-
- 	spinlock_t lock;						/* fifo spinlock */
-+	spinlock_t unlink_lock;						/* unlink spinlock */
- 	unsigned long iofl;                                             /*
-I/O flags (CTRL_RUNNING, OUT_RUNNING) */
- 	struct timer_list io_retry;                                     /*
-Retry timer */
- 	unsigned long stop_retry;                                       /*
-Time to give up, in jiffies */
-
-
-
-Thanks,
---
-Ming Lei
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--Sig_/0bUeb0byYUfPqo5=cFr33YD--

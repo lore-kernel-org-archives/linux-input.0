@@ -1,38 +1,49 @@
-From: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Wed, 25 Apr 2012 13:33:17 +0200
-Message-ID: <201204251333.17821.oneukum@suse.de>
-References: <Pine.LNX.4.44L0.1204241100210.1511-100000@iolanthe.rowland.org> <201204251252.55901.oneukum@suse.de> <CA+v9cxYi-LC-gXMbP7J81ArCjwQJZQ=9ceu66W0QQe+6UD_LvQ@mail.gmail.com>
+From: Roland Stigge <stigge@antcom.de>
+Subject: Re: [PATCHv4 1/2] drivers: input: keypad: Add device tree support
+Date: Wed, 25 Apr 2012 13:38:43 +0200
+Message-ID: <4F97E243.1040707@antcom.de>
+References: <1335346004-18108-1-git-send-email-sourav.poddar@ti.com> <20120425105235.GV24211@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CA+v9cxYi-LC-gXMbP7J81ArCjwQJZQ=9ceu66W0QQe+6UD_LvQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Huajun Li <huajun.li.lee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from antcom.de ([188.40.178.216]:35783 "EHLO chuck.antcom.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752271Ab2DYLit (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Apr 2012 07:38:49 -0400
+In-Reply-To: <20120425105235.GV24211@n2100.arm.linux.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Sourav Poddar <sourav.poddar@ti.com>, devicetree-discuss@lists.ozlabs.org, Benoit Cousson <b-cousson@ti.com>, Stephen Warren <swarren@wwwdotorg.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Randy Dunlap <rdunlap@xenotime.net>, Felipe Balbi <balbi@ti.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Am Mittwoch, 25. April 2012, 13:24:14 schrieb Huajun Li:
-> Hi,
->   So far, usb_unblock_urb() does same thing as usb_unpoison_urb(), so
-> is it possible reusing it just by adding a macro define?
->=20
+Hi Russell and Sourav,
 
-A patch is welcome.
+On 04/25/2012 12:52 PM, Russell King - ARM Linux wrote:
+> I think you and Roland Stigge need to put your heads together and come
+> up with a common DT binding for matrix keypad devices, rather than
+> inventing N different platform specific bindings.
+> 
+>> +Required Board Specific Properties, in addition to those specified by
+>> +the shared matrix-keyboard bindings:
+>> +- keypad,num-rows: Number of row lines connected to the keypad
+>> +  controller.
+>> +
+>> +- keypad,num-columns: Number of column lines connected to the
+>> +  keypad controller.
 
-	Regards
-		Oliver
+Right - the LPC32xx key scanner always has a square matrix design (#rows
+== #cols), but I'm fine with re-using properties "keypad,num-rows" and
+"keypad,num-columns" instead of "nxp,matrix-size".
 
---=20
-- - -=20
-SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imend=F6=
-rffer, HRB 16746 (AG N=FCrnberg)=20
-Maxfeldstra=DFe 5                        =20
-90409 N=FCrnberg=20
-Germany=20
-- - -=20
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Besides, I still have "nxp,debounce-delay-ms" and "nxp,scan-delay-ms" -
+do I need to change this to some default properties I don't know of (yet)?
+
+And: I re-used the DT subnodes strategy for the keycodes ("linux,code")
+of the samsung-keypad driver, see
+Documentation/devicetree/bindings/input/samsung-keypad.txt - can I
+continue using it?
+
+Thanks in advance,
+
+Roland

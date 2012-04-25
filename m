@@ -1,61 +1,44 @@
-From: "Poddar, Sourav" <sourav.poddar@ti.com>
-Subject: Re: [PATCHv4 1/2] drivers: input: keypad: Add device tree support
-Date: Wed, 25 Apr 2012 18:30:39 +0530
-Message-ID: <CAKdam56PrS_UT-owMq9xAQkoYxQHeenErT-vwJazqoNuECCbBw@mail.gmail.com>
-References: <1335346004-18108-1-git-send-email-sourav.poddar@ti.com>
-	<20120425105235.GV24211@n2100.arm.linux.org.uk>
-	<4F97E243.1040707@antcom.de>
-	<CAKdam57H-JH_vgohMo6Mp3jF46irBJJphj-bHc8SBZUXv564Ug@mail.gmail.com>
-	<4F97EACA.9070603@antcom.de>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: Memory leak in drivers/hid/hidraw.c
+Date: Wed, 25 Apr 2012 14:59:25 +0200
+Message-ID: <201204251459.25180.oneukum@suse.de>
+References: <AE90C24D6B3A694183C094C60CF0A2F602BB6E1D@saturn3.aculab.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4F97EACA.9070603@antcom.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Roland Stigge <stigge@antcom.de>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, devicetree-discuss@lists.ozlabs.org, Benoit Cousson <b-cousson@ti.com>, Stephen Warren <swarren@wwwdotorg.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Randy Dunlap <rdunlap@xenotime.net>, Felipe Balbi <balbi@ti.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:54348 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752364Ab2DYND0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Apr 2012 09:03:26 -0400
+In-Reply-To: <AE90C24D6B3A694183C094C60CF0A2F602BB6E1D@saturn3.aculab.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: James Woodcock <James.Woodcock@aculab.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Roland,
+Am Mittwoch, 25. April 2012, 11:56:57 schrieb James Woodcock:
+> Hi,
+> 
+> I have got a USB HID device which I am talking to with ioctls
+> HIDIOCSFEATURE and HIDIOCGFEATURE on Linux 3.3.3, and I think I have
+> discovered a memory leak.
+> 
+> When I call ioctl(fd, HIDIOCGFEATURE...), a long series of things
+> happens in the kernel that eventually causes hidraw_report_event() to be
+> called to let the user space program know there is data to be retrieved
+> by read().  hidraw_report_event() calls kmemdup() to create a copy of
+> the data to be returned.  However, I'm never going to call read()
+> because
+> the data is returned by the ioctl() call.
+> 
+> So, I think that the main bug I have spotted is that if the user calls
+> ioctl(fd, HIODCGFEATURE...), hidraw_report_event() should not be called.
+> I'm not really familiar with the code, so I'm not sure what the best fix
+> would be.
 
-On Wed, Apr 25, 2012 at 5:45 PM, Roland Stigge <stigge@antcom.de> wrote:
-> Hi!
->
-> On 04/25/2012 01:56 PM, Poddar, Sourav wrote:
->> Even I was using the bindings as used by samsung-keypad driver. But according
->> to the comments and logically too, we should use the common matrix keyboard
->> bindings already descibed in
->> Documentation/devicetree/bindings/input/matrix-keymap.txt.
->
-> Fine with me. Can switch over to
-> Documentation/devicetree/bindings/input/matrix-keymap.txt
->
-> Maybe samsung-keypad should also be converted because it's subnodes
-> structure duplicates exactly the same thing (row,col,code) in a
-> different way, and we both were distracted by it, ignoring
-> matrix-keymap.txt? Or is it already too late (both samsung-keypad and
+Please post the full call chain you see.
 
-Not sure about the standards, but surely have seen few others like tegra
-keyboards using common matrix-keyboard bindings.
-
-One more comment which I saw in some other mail thread about
-using the following
-              key_1 {
-                        keypad,row = <0>;
-                        keypad,column = <3>;
-                        linux,code = <2>;
-                };
-is that when there are too many keys, the whole data become quilte huge.
-These problem get sorted out on using matrix-keymap bindings, since there
-is a single value computed in order to describe a particular key.
-
-~Sourav
-
-> matrix-keypad both being standards in use) and we should put a
-> recommendation into one of them to use the other one for new designs?
->
-
-> Thanks,
->
-> Roland
->
+	Regards
+		Oliver

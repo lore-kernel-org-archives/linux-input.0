@@ -1,83 +1,41 @@
-From: "Poddar, Sourav" <sourav.poddar@ti.com>
+From: Roland Stigge <stigge@antcom.de>
 Subject: Re: [PATCHv4 1/2] drivers: input: keypad: Add device tree support
-Date: Wed, 25 Apr 2012 17:26:28 +0530
-Message-ID: <CAKdam57H-JH_vgohMo6Mp3jF46irBJJphj-bHc8SBZUXv564Ug@mail.gmail.com>
-References: <1335346004-18108-1-git-send-email-sourav.poddar@ti.com>
-	<20120425105235.GV24211@n2100.arm.linux.org.uk>
-	<4F97E243.1040707@antcom.de>
+Date: Wed, 25 Apr 2012 14:15:06 +0200
+Message-ID: <4F97EACA.9070603@antcom.de>
+References: <1335346004-18108-1-git-send-email-sourav.poddar@ti.com> <20120425105235.GV24211@n2100.arm.linux.org.uk> <4F97E243.1040707@antcom.de> <CAKdam57H-JH_vgohMo6Mp3jF46irBJJphj-bHc8SBZUXv564Ug@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog135.obsmtp.com ([74.125.149.84]:51581 "EHLO
-	na3sys009aog135.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757111Ab2DYL4b convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Apr 2012 07:56:31 -0400
-Received: by werp12 with SMTP id p12so1348769wer.32
-        for <linux-input@vger.kernel.org>; Wed, 25 Apr 2012 04:56:29 -0700 (PDT)
-In-Reply-To: <4F97E243.1040707@antcom.de>
+Received: from antcom.de ([188.40.178.216]:45301 "EHLO chuck.antcom.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758175Ab2DYMPJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Apr 2012 08:15:09 -0400
+In-Reply-To: <CAKdam57H-JH_vgohMo6Mp3jF46irBJJphj-bHc8SBZUXv564Ug@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Roland Stigge <stigge@antcom.de>
+To: "Poddar, Sourav" <sourav.poddar@ti.com>
 Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, devicetree-discuss@lists.ozlabs.org, Benoit Cousson <b-cousson@ti.com>, Stephen Warren <swarren@wwwdotorg.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Randy Dunlap <rdunlap@xenotime.net>, Felipe Balbi <balbi@ti.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Hi Roland,
+Hi!
 
-On Wed, Apr 25, 2012 at 5:08 PM, Roland Stigge <stigge@antcom.de> wrote=
-:
-> Hi Russell and Sourav,
->
-> On 04/25/2012 12:52 PM, Russell King - ARM Linux wrote:
->> I think you and Roland Stigge need to put your heads together and co=
-me
->> up with a common DT binding for matrix keypad devices, rather than
->> inventing N different platform specific bindings.
->>
->>> +Required Board Specific Properties, in addition to those specified=
- by
->>> +the shared matrix-keyboard bindings:
->>> +- keypad,num-rows: Number of row lines connected to the keypad
->>> + =A0controller.
->>> +
->>> +- keypad,num-columns: Number of column lines connected to the
->>> + =A0keypad controller.
->
-> Right - the LPC32xx key scanner always has a square matrix design (#r=
-ows
-> =3D=3D #cols), but I'm fine with re-using properties "keypad,num-rows=
-" and
-> "keypad,num-columns" instead of "nxp,matrix-size".
->
-> Besides, I still have "nxp,debounce-delay-ms" and "nxp,scan-delay-ms"=
- -
-> do I need to change this to some default properties I don't know of (=
-yet)?
->
-I think these are the custom properties which should be kept in your bi=
-ndings.
-I dont see anything of these sort in
-Documentation/devicetree/bindings/input/matrix-keymap.txt .
-> And: I re-used the DT subnodes strategy for the keycodes ("linux,code=
-")
-> of the samsung-keypad driver, see
-> Documentation/devicetree/bindings/input/samsung-keypad.txt - can I
-> continue using it?
+On 04/25/2012 01:56 PM, Poddar, Sourav wrote:
+> Even I was using the bindings as used by samsung-keypad driver. But according
+> to the comments and logically too, we should use the common matrix keyboard
+> bindings already descibed in
+> Documentation/devicetree/bindings/input/matrix-keymap.txt.
 
-Even I was using the bindings as used by samsung-keypad driver. But acc=
-ording
-to the comments and logically too, we should use the common matrix keyb=
-oard
-bindings already descibed in
-Documentation/devicetree/bindings/input/matrix-keymap.txt.
-So that we can get rid of multiple bindings for different platform.
+Fine with me. Can switch over to
+Documentation/devicetree/bindings/input/matrix-keymap.txt
 
-~Sourav
-> Thanks in advance,
->
-> Roland
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Maybe samsung-keypad should also be converted because it's subnodes
+structure duplicates exactly the same thing (row,col,code) in a
+different way, and we both were distracted by it, ignoring
+matrix-keymap.txt? Or is it already too late (both samsung-keypad and
+matrix-keypad both being standards in use) and we should put a
+recommendation into one of them to use the other one for new designs?
+
+Thanks,
+
+Roland
+

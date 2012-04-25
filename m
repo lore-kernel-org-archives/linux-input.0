@@ -1,83 +1,94 @@
-From: NeilBrown <neilb@suse.de>
-Subject: [PATCH] Input: twl4030 power button: don't lose presses on resume
-Date: Wed, 25 Apr 2012 12:21:39 +1000
-Message-ID: <20120425122139.512c6890@notabene.brown>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] input: wacom - retrieve maximum number of touch
+ points
+Date: Tue, 24 Apr 2012 22:05:47 -0700
+Message-ID: <20120425050547.GA27843@core.coreip.homeip.net>
+References: <1334530224-8395-1-git-send-email-chris@cnpbagwell.com>
+ <1334530224-8395-2-git-send-email-chris@cnpbagwell.com>
+ <20120421055603.GA27551@core.coreip.homeip.net>
+ <CAF8JNh+t4fnsigjta1xoRQ565NU6+rf8zDDCte=4d68MwdVK6A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
- boundary="Sig_//bb2q48H3UBxAsEvlKIkE+m"; protocol="application/pgp-signature"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:52786 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753630Ab2DYFFz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Apr 2012 01:05:55 -0400
+Received: by pbbro12 with SMTP id ro12so976044pbb.19
+        for <linux-input@vger.kernel.org>; Tue, 24 Apr 2012 22:05:55 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CAF8JNh+t4fnsigjta1xoRQ565NU6+rf8zDDCte=4d68MwdVK6A@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: chris@cnpbagwell.com, linux-input@vger.kernel.org
 
---Sig_//bb2q48H3UBxAsEvlKIkE+m
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Tue, Apr 24, 2012 at 01:46:15PM -0700, Ping Cheng wrote:
+> On Fri, Apr 20, 2012 at 10:56 PM, Dmitry Torokhov <dmitry.torokhov@gmail.com
+> > wrote:
+> 
+> > Hi Chris, Ping,
+> >
+> > On Sun, Apr 15, 2012 at 05:50:23PM -0500, chris@cnpbagwell.com wrote:
+> > > From: Ping Cheng <pinglinux@gmail.com>
+> > >
+> > > From the HID usage table when it is supported.
+> > >
+> > > Tested-by: Jason Gerecke <killertofu@gmail.com>
+> > > Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+> > > Signed-off-by: Ping Cheng <pingc@wacom.com>
+> > > ---
+> > >  drivers/input/tablet/wacom_sys.c |   22 +++++++++++++-
+> > >  drivers/input/tablet/wacom_wac.c |   59
+> > +++++++++++++++++++++++---------------
+> > >  drivers/input/tablet/wacom_wac.h |    1 +
+> > >  3 files changed, 58 insertions(+), 24 deletions(-)
+> > >
+> > > diff --git a/drivers/input/tablet/wacom_sys.c
+> > b/drivers/input/tablet/wacom_sys.c
+> > > index 1c874ad..469f6ce 100644
+> > > --- a/drivers/input/tablet/wacom_sys.c
+> > > +++ b/drivers/input/tablet/wacom_sys.c
+> > > @@ -28,6 +28,7 @@
+> > >  #define HID_USAGE_Y_TILT             0x3e
+> > >  #define HID_USAGE_FINGER             0x22
+> > >  #define HID_USAGE_STYLUS             0x20
+> > > +#define HID_USAGE_CONTACTMAX         0x55
+> > >  #define HID_COLLECTION                       0xa1
+> > >  #define HID_COLLECTION_LOGICAL               0x02
+> > >  #define HID_COLLECTION_END           0xc0
+> > > @@ -201,6 +202,20 @@ static int wacom_parse_logical_collection(unsigned
+> > char *report,
+> > >       return length;
+> > >  }
+> > >
+> > > +static void wacom_retrieve_report_data(struct usb_interface *intf,
+> > > +                                    struct wacom_features *features)
+> > > +{
+> > > +     int result = 0;
+> > > +     unsigned char rep_data[2];
+> >
+> > You can't use on-stack buffers with USB. I see we allocating memory
+> > elsewhere but I wonder if we should simply piggyback on wacom_wac->data
+> > in all these interrogation methods.
+> >
+> 
+> When you say piggyback on wacom_wac->data, I guess you meant using the same
+> wacom_wac->data instead of creating a new entry for the others. However,
+> wacom_wac->data has a sizeof(struct wacom_usbdev_data). The existing
+> kzalloc requests in wacom_sys.c range from 2 to 259, assuming we do not
+> consider those kzallocs that handle variable sizes, such as
+> hid_desc->wDescriptorLength.
+> 
+> What size would be reasonable for the new data? I feel we need to introduce
+> a new entry in wacom_wac if we want to unify the kzalloc request a bit.
 
+Hmm, maybe piggybacking was not such a good idea. We want to keep
+buffers used by leds separate since these operations can appen
+simultaneously and since we also have to deal with variable length of
+hid descriptors I think we should just kmalloc memory in
+wacom_retrieve_report_data() and be done with it.
 
-If we press and release the power button before the press interrupt is
-handled - as can happen on resume - we lose the press event so the
-release event is ignored and we don't know what happened to cause the
-wakeup.
-
-So make sure that each interrupt handled does generate an event.
-Because twl4030 queues interrupt events we will see two interrupts
-for a press-release even if we handle the first one later.  This means
-that such a sequence will be reported as two button presses.  This
-is unfortunate but is better than no button presses.
-Possibly we could set the PENDDIS_MASK to disable queuing of
-interrupts, but that might adversely affect other interrupt sources.
-
-Signed-off-by: NeilBrown <neilb@suse.de>
-
-diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/tw=
-l4030-pwrbutton.c
-index 38e4b50..7ea0ea8 100644
---- a/drivers/input/misc/twl4030-pwrbutton.c
-+++ b/drivers/input/misc/twl4030-pwrbutton.c
-@@ -42,7 +42,19 @@ static irqreturn_t powerbutton_irq(int irq, void *_pwr)
- 	err =3D twl_i2c_read_u8(TWL4030_MODULE_PM_MASTER, &value,
- 				STS_HW_CONDITIONS);
- 	if (!err)  {
--		input_report_key(pwr, KEY_POWER, value & PWR_PWRON_IRQ);
-+		int val =3D !!(value & PWR_PWRON_IRQ);
-+
-+		/* We got an interrupt, so we must see a change.
-+		 * Because the TWL4030 queues pending interrupts to a depth
-+		 * of 2, we end up seeing two key presses as there can
-+		 * be two interrupts processed while the key appears to
-+		 * be up.  This could be fixed by setting PNEDDIS_MASK
-+		 * in PWR_SIH_CTRL in twl4030-irq.c.
-+		 */
-+		input_report_key(pwr, KEY_POWER, !val);
-+		input_sync(pwr);
-+
-+		input_report_key(pwr, KEY_POWER, val);
- 		input_sync(pwr);
- 	} else {
- 		dev_err(pwr->dev.parent, "twl4030: i2c error %d while reading"
-
---Sig_//bb2q48H3UBxAsEvlKIkE+m
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iQIVAwUBT5dfsznsnt1WYoG5AQJHTQ/+Iu3lt65ETh/nlDYmGRtFRRWl3hyk936C
-kiQvvb31CzX5gopT40iQC2754KcVrHnOBC3OnWCDpmpAc6lqq+o40ysRbvhsdPzP
-UMgzYs71TEKHxP0IsPr0yd667uXkcofUtifrsdO+bgYfDd/Vmw0kiDzYZYGkwY54
-M5E+wY4aYK2GPGaG9WsXHdCQOtCJiIybAVF1aOK5vjh87x9o0j0i8Ylhsp2G+1Xy
-2X7nriqi3A3v/nh9ASmlGmZMBAgILYY8tjMB77pj2V51SWK1Mk5Dnhnu63vOnRn/
-tGKAmeJK8ybZhTFlXctS2mwhbpYNQGTUuQVYds0sdZ6xjgDPA3XtOB8GfYjYBsSs
-CUDOtb7odecrHPnOko1w4I7JarP0zF3NbtpiCR3hhnYO4Eb3FBP83I3JW0KChCJd
-kdJQopaYcaCG3xMURannZPrErCxTK7xrSyA0AUbID973rQn1kqZqJ7Bwy0l6icbI
-LDycMp11P4JPrfuR97yJv300Z/zqA751NPoufnQjiDIB3mMW5mHQX0o70+W9v6pu
-8PwtxG5K8GmboHuFrWFQBw1f4euc9f2D/JqaNvc6AxBF0bg+ajAElOq33h33qftX
-LWCRItSoT1SL7tMFmKqB1swpeNZgTyPEz1OcNAhBhFyh84CN7E4jANmrKiUCZqaQ
-BOp8C5yj9pU=
-=5scQ
------END PGP SIGNATURE-----
-
---Sig_//bb2q48H3UBxAsEvlKIkE+m--
+-- 
+Dmitry

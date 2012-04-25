@@ -1,95 +1,90 @@
-From: NeilBrown <neilb@suse.de>
-Subject: Re: [PATCH] Input: twl4030 power button: don't lose presses on
- resume
-Date: Wed, 25 Apr 2012 15:26:03 +1000
-Message-ID: <20120425152603.3d24547f@notabene.brown>
-References: <20120425122139.512c6890@notabene.brown>
-	<20120425050919.GB27843@core.coreip.homeip.net>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
+Date: Wed, 25 Apr 2012 08:19:32 +0200
+Message-ID: <201204250819.32642.oneukum@suse.de>
+References: <CACVXFVNAZHC2uQCwRak6pRgT1VEgRJt5UTuwAtZM6r_Xdg0dHA@mail.gmail.com> <201204242057.29100.oliver@neukum.org> <CACVXFVOuSamcBrPT=K9Q3fAXULjz57e-1W9pi9AW1gAKxyCT7g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
- boundary="Sig_/klFw2H1hDUnKfS+VV9SEI+9"; protocol="application/pgp-signature"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120425050919.GB27843@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:55415 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758987Ab2DYGXf convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Apr 2012 02:23:35 -0400
+In-Reply-To: <CACVXFVOuSamcBrPT=K9Q3fAXULjz57e-1W9pi9AW1gAKxyCT7g@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ming Lei <ming.lei@canonical.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
 
---Sig_/klFw2H1hDUnKfS+VV9SEI+9
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 24 Apr 2012 22:09:19 -0700 Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-
-> Hi Neil,
+Am Mittwoch, 25. April 2012, 03:27:19 schrieb Ming Lei:
+> On Wed, Apr 25, 2012 at 2:57 AM, Oliver Neukum <oliver@neukum.org> wr=
+ote:
 >=20
-> On Wed, Apr 25, 2012 at 12:21:39PM +1000, NeilBrown wrote:
-> >=20
-> > If we press and release the power button before the press interrupt is
-> > handled - as can happen on resume - we lose the press event so the
-> > release event is ignored and we don't know what happened to cause the
-> > wakeup.
->=20
-> What kind of latency do you observe?
-
-When I have debugging enabled, hundreds of milliseconds.
-
-When I don't have debugging enabled ... it doesn't tell me, but I'm fairly
-sure it is several tens of milliseconds and the button press can be quicker
-than that.
-
-If it will help I can try to instrument the driver and get some timings.
-
->=20
-> >=20
-> > So make sure that each interrupt handled does generate an event.
-> > Because twl4030 queues interrupt events we will see two interrupts
-> > for a press-release even if we handle the first one later.  This means
-> > that such a sequence will be reported as two button presses.  This
-> > is unfortunate but is better than no button presses.
-> > Possibly we could set the PENDDIS_MASK to disable queuing of
-> > interrupts, but that might adversely affect other interrupt sources.
+>  usb_submit_urb()
+> >>
+> >> This submit won't happen because HID_OUT_RUNNING is not cleared.
 > >
+> > I may be dense, but as far as I can tell a resubmit will happen, ex=
+actly if
+> > HID_OUT_RUNNING is _not_ cleared.
 >=20
-> It looks like we'd have to modify every driver to ensure consistent
-> behavior as we do not have any guarantees on how long resume takes.
-> Maybe this is something that input core needs to implement?
+> In fact, it should be a double unlink bug, usb_unlink_urb can handle
+> it correctly
+> if the lock is held. We also can deal with it easily by checking urb-=
+>unlinked,
+> so how about the below patch?
+>=20
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-c=
+ore.c
+> index aa1c503..b530463 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -411,10 +411,10 @@ static void hid_irq_out(struct urb *urb)
+>  {
+>  	struct hid_device *hid =3D urb->context;
+>  	struct usbhid_device *usbhid =3D hid->driver_data;
+> -	unsigned long flags;
+> +	unsigned long status =3D urb->status;
 
-Well if every driver is buggy....
+Error codes are negative.
 
-I don't see how this could be implemented in the input core.  And even if it
-was, you'd probably need to change each driver to interact with this new
-functionality which would be much the same work as changing them to work wi=
-th
-the current functionality....
-But maybe I have no imagination - if you can suggest a way that the input c=
-ore
-could support this without changing the drivers, I'm happy to try it out.
 
-Thanks,
-NeilBrown
+> @@ -546,8 +557,13 @@ static void __usbhid_submit_report(struct
+> hid_device *hid, struct hid_report *re
+>  			 * no race because this is called under
+>  			 * spinlock
+>  			 */
+> -			if (time_after(jiffies, usbhid->last_out + HZ * 5))
+> +
+> +			if (time_after(jiffies, usbhid->last_out + HZ * 5) &&
+> +					!usbhid->urbout->unlinked) {
+> +				spin_unlock(&usbhid->lock);
+>  				usb_unlink_urb(usbhid->urbout);
+> +				spin_lock(&usbhid->lock);
+> +			}
+>  		}
+>  		return;
+>  	}
 
---Sig_/klFw2H1hDUnKfS+VV9SEI+9
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
+Same objection. You are just making the race unlikelier. The flag
+needs to be set under a lock you hold while checking time_after().
+We'd be back at the original proposal.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
+	Regards
+		Oliver
 
-iQIVAwUBT5eK6znsnt1WYoG5AQLyWw//Uajlw6vtJCkOI22ElIrr9Rzpl+O9wVMf
-dqTc0VCiRxEyBFUXudziN4GtNs9XdLfBRvWr8NhrSqVJHX+8nsWmzrIUD/wXc8kM
-UmL0EhcRa3hw2J3lU4bOxhgsYh+6iR83OdCc9Jn5jHyGOXULnjc75MmVzXYVNIUd
-b2b3k/CQ4IkqoXvLHG58h7/vwIdRe/qaAKF7hlGBAVmYXk0+x/po+ep9i2UdnC/G
-YtUPVSO4Cvl/8l8XEYksrBTneW8CUNEb58e7ff49R5/Eleiv480WDKi8mhUBxu6A
-5WvdtDcDNrtW6RTXmwZUzmFfkOfbh4I9gkDG2zO7R2LKFxzIcLhw0hF35eiuqyKP
-crqrq1DUnlLPpd3b/sJShDuQQs6FnBB5pJYznj/d51Qft/iijq8idO6mOmyRBp9p
-U83kS8DI5kou9+zXTbs1YrsQDEb3GqVCmt9NUxKtl93GEGgIiTv5TITieo0xc2rs
-KSoqSE0zN738OWcFwhodd6KOIXqI/0lqBuqkYs41ggecYFSwB+obC5s95dbp5j0v
-AovuZmWZsPQt/NWaBWgskMNdzAyoSvkLGAox+K34vrb70hZPTzcMLFMYa7yyUA05
-tnLHsG7LZIuLU6kG6b20CTmhpe3rueOKxjeScVulWJeS0BEMzxrxc5BVJuNZzZZ8
-0hGdr+Jysw0=
-=dE7s
------END PGP SIGNATURE-----
-
---Sig_/klFw2H1hDUnKfS+VV9SEI+9--
+--=20
+- - -=20
+SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imend=F6=
+rffer, HRB 16746 (AG N=FCrnberg)=20
+Maxfeldstra=DFe 5                        =20
+90409 N=FCrnberg=20
+Germany=20
+- - -=20
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

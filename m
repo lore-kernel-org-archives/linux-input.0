@@ -1,230 +1,128 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Wed, 25 Apr 2012 17:14:19 +0800
-Message-ID: <CACVXFVM6KMeMcXy549x9XqhqvCzq73pXvhLki363=KjQu2Nfsg@mail.gmail.com>
-References: <Pine.LNX.4.44L0.1204241100210.1511-100000@iolanthe.rowland.org>
-	<201204251006.16272.oneukum@suse.de>
+From: Sourav Poddar <sourav.poddar@ti.com>
+Subject: [PATCHv4 2/2] arm/dts: omap4-sdp: Add keypad data
+Date: Wed, 25 Apr 2012 14:56:44 +0530
+Message-ID: <1335346004-18108-2-git-send-email-sourav.poddar@ti.com>
+References: <1335346004-18108-1-git-send-email-sourav.poddar@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:49855 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754619Ab2DYJOX convert rfc822-to-8bit (ORCPT
+Received: from devils.ext.ti.com ([198.47.26.153]:48841 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756113Ab2DYJ3E (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Apr 2012 05:14:23 -0400
-In-Reply-To: <201204251006.16272.oneukum@suse.de>
+	Wed, 25 Apr 2012 05:29:04 -0400
+In-Reply-To: <1335346004-18108-1-git-send-email-sourav.poddar@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
+To: devicetree-discuss@lists.ozlabs.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Sourav Poddar <sourav.poddar@ti.com>, Stephen Warren <swarren@wwwdotorg.org>, Benoit Cousson <b-cousson@ti.com>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Felipe Balbi <balbi@ti.com>
 
-On Wed, Apr 25, 2012 at 4:06 PM, Oliver Neukum <oneukum@suse.de> wrote:
+Add keypad data node in omap4 device tree file.
+Also fill the device tree binding parameters
+with the required value in "omap4-sdp" dts file.
 
->
-> Indeed. Upon further thought it seems to me that we need to prevent
-> resubmission and all is well. And we almost have all the infrastructu=
-re.
->
-> So how about this, making it more reusable:
+Tested on omap44330 sdp with 3.4-rc3 kernel.
 
-Yes, this one is good, better than the adding lock.
+Cc: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Benoit Cousson <b-cousson@ti.com>
+Cc: Rob Herring <rob.herring@calxeda.com>
+Cc: Grant Likely <grant.likely@secretlab.ca>
+Cc: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+---
+v3->v4:
+Express keymap binding as (linux,keymap) in the format described in 
+Documentation/devicetree/bindings/input/matrix-keymap.txt
+ arch/arm/boot/dts/omap4-sdp.dts |   63 +++++++++++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/omap4.dtsi    |    5 +++
+ 2 files changed, 68 insertions(+), 0 deletions(-)
 
->
-> From ce77d793252d1abf3a0ec6c67e4a7a05ac6d846a Mon Sep 17 00:00:00 200=
-1
-> From: Oliver Neukum <oliver@neukum.org>
-> Date: Wed, 25 Apr 2012 09:54:00 +0200
-> Subject: [PATCH] usbhid: prevent deadlock during timeout
->
-> On some HCDs usb_unlink_urb() can directly call the
-> completion handler. That limits the spinlocks that can
-> be taken in the handler to locks not held while calling
-> usb_unlink_urb()
-> To prevent a race with resubmission, this patch exposes
-> usbcore's infrastructure for blocking submission, uses it
-> and so drops the lock without causing a race in usbhid.
->
-> Signed-off-by: Oliver Neukum <oneukum@suse.de>
-> ---
-> =A0drivers/hid/usbhid/hid-core.c | =A0 38 +++++++++++++++++++++++++++=
-+++++++----
-> =A0drivers/usb/core/urb.c =A0 =A0 =A0 =A0| =A0 30 +++++++++++++++++++=
-+++++++++++
-> =A0include/linux/usb.h =A0 =A0 =A0 =A0 =A0 | =A0 =A02 ++
-> =A03 files changed, 66 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-c=
-ore.c
-> index 5bf91db..763257d 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -535,11 +535,27 @@ static void __usbhid_submit_report(struct hid_d=
-evice *hid, struct hid_report *re
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * the queue is known =
-to run
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * but an earlier requ=
-est may be stuck
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * we may need to time=
- out
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* no race because th=
-is is called under
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* no race because th=
-e URB is blocked under
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * spinlock
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 */
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (time_after(jiffies,=
- usbhid->last_out + HZ * 5))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (time_after(jiffies,=
- usbhid->last_out + HZ * 5)) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 usb_blo=
-ck_urb(usbhid->urbout);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* drop=
- lock to not deadlock if the callback is called */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_un=
-lock(&usbhid->lock);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0usb_un=
-link_urb(usbhid->urbout);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_lo=
-ck(&usbhid->lock);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 usb_unb=
-lock_urb(usbhid->urbout);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* if=
- the unlinking has already completed
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* th=
-e pump will have been stopped
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* it=
- must be restarted now
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!te=
-st_bit(HID_OUT_RUNNING, &usbhid->iofl))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 if (!hid_submit_out(hid))
+diff --git a/arch/arm/boot/dts/omap4-sdp.dts b/arch/arm/boot/dts/omap4-sdp.dts
+index 63c6b2b..0c9b3bf 100644
+--- a/arch/arm/boot/dts/omap4-sdp.dts
++++ b/arch/arm/boot/dts/omap4-sdp.dts
+@@ -17,4 +17,67 @@
+ 		device_type = "memory";
+ 		reg = <0x80000000 0x40000000>; /* 1 GB */
+ 	};
++
++	keypad@4ae1c000 {
++		keypad,num-rows = <8>;
++		keypad,num-columns = <8>;
++		linux,keymap = < 0x00000012
++			0x00010013
++			0x00020014
++			0x00030066
++			0x0004003f
++			0x00060017
++			0x0007002a
++			0x01000020
++			0x01010021
++			0x01020022
++			0x01030054
++			0x01040040
++			0x01060025
++			0x0107001c
++			0x0200002d
++			0x0201002e
++			0x0202002f
++			0x0203006b
++			0x02040041
++			0x02060034
++			0x0207003a
++			0x0300002c
++			0x0301004e
++			0x03020030
++			0x0303003b
++			0x03040042
++			0x03060018
++			0x03070039
++			0x04000011
++			0x04010015
++			0x04020016
++			0x0403003c
++			0x04040073
++			0x04060026
++			0x04070069
++			0x0500001f
++			0x05010023
++			0x05020024
++			0x0503003d
++			0x05040043
++			0x05050072
++			0x05060032
++			0x0507006a
++			0x06000010
++			0x0601001e
++			0x06020031
++			0x0603005c
++			0x0604000e
++			0x06060019
++			0x06070067
++			0x07000094
++			0x07010095
++			0x070200ca
++			0x070300cb
++			0x0704003e
++			0x07060160
++			0x0707006c >;
++		linux,input-no-autorepeat;
++	};
+ };
+diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
+index 3d35559..e0f678a 100644
+--- a/arch/arm/boot/dts/omap4.dtsi
++++ b/arch/arm/boot/dts/omap4.dtsi
+@@ -156,4 +156,9 @@
+ 			ti,hwmods = "i2c4";
+ 		};
+ 	};
++
++	keypad@4ae1c000 {
++		compatible = "ti,omap4-keypad";
++		ti,hwmods = "kbd";
++	};
+ };
+-- 
+1.7.1
 
-You need to add check of "usbhid->outtail !=3D usbhid->outhead" above.
-
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 set_bit(HID_OUT_RUNNING, &usbhid->iofl);
-> +
-> +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return;
-> =A0 =A0 =A0 =A0}
-> @@ -583,11 +599,25 @@ static void __usbhid_submit_report(struct hid_d=
-evice *hid, struct hid_report *re
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * the queue is known to run
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * but an earlier request may be stuck
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * we may need to time out
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* no race because this is called und=
-er
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* no race because the URB is blocked=
- under
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * spinlock
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 */
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (time_after(jiffies, usbhid->last_ct=
-rl + HZ * 5))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (time_after(jiffies, usbhid->last_ct=
-rl + HZ * 5)) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 usb_block_urb(usbhid->u=
-rbctrl);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* drop lock to not dea=
-dlock if the callback is called */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_unlock(&usbhid->lo=
-ck);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0usb_unlink_urb(usbhid-=
->urbctrl);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_lock(&usbhid->lock=
-);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 usb_unblock_urb(usbhid-=
->urbctrl);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* if the unlinking h=
-as already completed
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* the pump will have=
- been stopped
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* it must be restart=
-ed now
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!test_bit(HID_CTRL_=
-RUNNING, &usbhid->iofl))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!hi=
-d_submit_ctrl(hid))
-
-Similar as above.
-
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 set_bit(HID_CTRL_RUNNING, &usbhid->iofl);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> =A0 =A0 =A0 =A0}
-> =A0}
->
-> diff --git a/drivers/usb/core/urb.c b/drivers/usb/core/urb.c
-> index cd9b3a2..1d1b010 100644
-> --- a/drivers/usb/core/urb.c
-> +++ b/drivers/usb/core/urb.c
-> @@ -681,6 +681,36 @@ void usb_unpoison_urb(struct urb *urb)
-> =A0EXPORT_SYMBOL_GPL(usb_unpoison_urb);
->
-> =A0/**
-> + * usb_block_urb - reliably prevent further use of an URB
-> + * @urb: pointer to URB to be blocked, may be NULL
-> + *
-> + * After the routine has run, attempts to resubmit the URB will fail
-> + * with error -EPERM. =A0Thus even if the URB's completion handler a=
-lways
-> + * tries to resubmit, it will not succeed and the URB will become id=
-le.
-> + *
-> + * The URB must not be deallocated while this routine is running. =A0=
-In
-> + * particular, when a driver calls this routine, it must insure that=
- the
-> + * completion handler cannot deallocate the URB.
-> + */
-> +void usb_block_urb(struct urb *urb)
-> +{
-> + =A0 =A0 =A0 =A0if (!urb)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return;
-> +
-> + =A0 =A0 =A0 =A0atomic_inc(&urb->reject);
-> +}
-> +EXPORT_SYMBOL_GPL(usb_block_urb);
-> +
-> +void usb_unblock_urb(struct urb *urb)
-> +{
-> + =A0 =A0 =A0 =A0if (!urb)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return;
-> +
-> + =A0 =A0 =A0 =A0atomic_dec(&urb->reject);
-> +}
-> +EXPORT_SYMBOL_GPL(usb_unblock_urb);
-> +
-> +/**
-> =A0* usb_kill_anchored_urbs - cancel transfer requests en masse
-> =A0* @anchor: anchor the requests are bound to
-> =A0*
-> diff --git a/include/linux/usb.h b/include/linux/usb.h
-> index 73b68d1..23df8ae 100644
-> --- a/include/linux/usb.h
-> +++ b/include/linux/usb.h
-> @@ -1379,6 +1379,8 @@ extern int usb_unlink_urb(struct urb *urb);
-> =A0extern void usb_kill_urb(struct urb *urb);
-> =A0extern void usb_poison_urb(struct urb *urb);
-> =A0extern void usb_unpoison_urb(struct urb *urb);
-> +extern void usb_block_urb(struct urb *urb);
-> +extern void usb_unblock_urb(struct urb *urb);
-> =A0extern void usb_kill_anchored_urbs(struct usb_anchor *anchor);
-> =A0extern void usb_poison_anchored_urbs(struct usb_anchor *anchor);
-> =A0extern void usb_unpoison_anchored_urbs(struct usb_anchor *anchor);
-
-
-Thanks,
---
-Ming Lei
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

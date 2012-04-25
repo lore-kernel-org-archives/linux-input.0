@@ -1,84 +1,94 @@
-From: "James Woodcock" <James.Woodcock@ACULAB.COM>
-Subject: RE: Memory leak in drivers/hid/hidraw.c
-Date: Wed, 25 Apr 2012 15:06:06 +0100
-Message-ID: <AE90C24D6B3A694183C094C60CF0A2F602C54A76@saturn3.aculab.com>
-References: <AE90C24D6B3A694183C094C60CF0A2F602BB6E1D@saturn3.aculab.com> <201204251459.25180.oneukum@suse.de>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
+Date: Wed, 25 Apr 2012 11:19:18 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1204251113330.1471-100000@iolanthe.rowland.org>
+References: <201204251252.55901.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx0.aculab.com ([213.249.233.131]:48802 "HELO mx0.aculab.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1758295Ab2DYOGP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Apr 2012 10:06:15 -0400
-Received: from mx0.aculab.com ([127.0.0.1])
- by localhost (mx0.aculab.com [127.0.0.1]) (amavisd-new, port 10024) with SMTP
- id 05034-06 for <linux-input@vger.kernel.org>;
- Wed, 25 Apr 2012 15:06:08 +0100 (BST)
-Content-class: urn:content-classes:message
-In-Reply-To: <201204251459.25180.oneukum@suse.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201204251252.55901.oneukum-l3A5Bk7waGM@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+Cc: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: linux-input@vger.kernel.org
 
-> From: Oliver Neukum [mailto:oneukum@suse.de] 
-> Am Mittwoch, 25. April 2012, 11:56:57 schrieb James Woodcock:
-> > Hi,
-> > 
-> > I have got a USB HID device which I am talking to with ioctls
-> > HIDIOCSFEATURE and HIDIOCGFEATURE on Linux 3.3.3, and I think I have
-> > discovered a memory leak.
-> > 
-> > When I call ioctl(fd, HIDIOCGFEATURE...), a long series of things
-> > happens in the kernel that eventually causes 
-> hidraw_report_event() to be
-> > called to let the user space program know there is data to 
-> be retrieved
-> > by read().  hidraw_report_event() calls kmemdup() to create 
-> a copy of
-> > the data to be returned.  However, I'm never going to call read()
-> > because
-> > the data is returned by the ioctl() call.
-> > 
-> > So, I think that the main bug I have spotted is that if the 
-> user calls
-> > ioctl(fd, HIODCGFEATURE...), hidraw_report_event() should 
-> not be called.
-> > I'm not really familiar with the code, so I'm not sure what 
-> the best fix
-> > would be.
+On Wed, 25 Apr 2012, Oliver Neukum wrote:
+
+> From 9ff6b78dc59c98b9844dc9922549fd338828a889 Mon Sep 17 00:00:00 2001
+> From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+> Date: Wed, 25 Apr 2012 12:50:37 +0200
+> Subject: [PATCH] usbhid: prevent deadlock during timeout
 > 
-> Please post the full call chain you see.
-> 
+> On some HCDs usb_unlink_urb() can directly call the
+> completion handler. That limits the spinlocks that can
+> be taken in the handler to locks not held while calling
+> usb_unlink_urb()
+> To prevent a race with resubmission, this patch exposes
+> usbcore's infrastructure for blocking submission, uses it
+> and so drops the lock without causing a race in usbhid.
 
-This is the backtrace from kmemleak:
+Simply preventing resubmission is a good idea.
 
-unreferenced object 0xf48d4c88 (size 64):
-  comm "hardirq", pid 0, jiffies 4294943672 (age 624.110s)
-  hex dump (first 32 bytes):
-    16 02 05 00 00 00 00 31 00 32 00 33 00 33 00 5f  .......1.2.3.3._
-    00 31 00 30 00 ff 00 62 00 6f 00 72 00 61 00 74  .1.0...b.o.r.a.t
-  backtrace:
-    [<c10b0494>] create_object+0x137/0x208
-    [<c10ae66a>] __kmalloc_track_caller+0x120/0x17c
-    [<c1277618>] hidraw_report_event+0x39/0xa1
-    [<c109704e>] kmemdup+0x19/0x28
-    [<c127cad8>] hiddev_report_event+0x53/0x5a
-    [<c1277618>] hidraw_report_event+0x39/0xa1
-    [<c1272e9d>] hid_report_raw_event+0x10a/0x3f1
-    [<c10ad038>] kfree_debugcheck+0x8/0x1f
-    [<c10ad0a6>] cache_free_debugcheck+0x57/0x212
-    [<c1273292>] hid_input_report+0x10e/0x1ce
-    [<c1273292>] hid_input_report+0x10e/0x1ce
-    [<c1270bf3>] hid_debug_event+0x80/0x88
-    [<c1273338>] hid_input_report+0x1b4/0x1ce
-    [<c127a619>] hid_irq_in+0x78/0x155
-    [<c1248279>] usb_hcd_giveback_urb+0x60/0x8c
-    [<c1255b6d>] ehci_urb_done+0xa8/0xb4
+> Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+> ---
+>  drivers/hid/usbhid/hid-core.c |   61 +++++++++++++++++++++++++++++++++++++----
+>  drivers/usb/core/urb.c        |   30 ++++++++++++++++++++
+>  include/linux/usb.h           |    2 +
+>  3 files changed, 87 insertions(+), 6 deletions(-)
 
-James
+This should be split into two patches: one for usbhid and one for 
+usbcore.
 
+> +void usb_block_urb(struct urb *urb)
+> +{
+> +        if (!urb)
+> +                return;
+> +
+> +        atomic_inc(&urb->reject);
+> +}
+> +EXPORT_SYMBOL_GPL(usb_block_urb);
 
+Personally, I prefer
+
+	if (urb)
+		atomic_inc(&urb->reject);
+
+It's a matter of taste; do what you want.
+
+> +void usb_unblock_urb(struct urb *urb)
+> +{
+> +        if (!urb)
+> +                return;
+> +
+> +        atomic_dec(&urb->reject);
+> +}
+> +EXPORT_SYMBOL_GPL(usb_unblock_urb);
+
+As was pointed out, this could be eliminated by...
+
+> +
+> +/**
+>   * usb_kill_anchored_urbs - cancel transfer requests en masse
+>   * @anchor: anchor the requests are bound to
+>   *
+> diff --git a/include/linux/usb.h b/include/linux/usb.h
+> index 73b68d1..23df8ae 100644
+> --- a/include/linux/usb.h
+> +++ b/include/linux/usb.h
+> @@ -1379,6 +1379,8 @@ extern int usb_unlink_urb(struct urb *urb);
+>  extern void usb_kill_urb(struct urb *urb);
+>  extern void usb_poison_urb(struct urb *urb);
+>  extern void usb_unpoison_urb(struct urb *urb);
+> +extern void usb_block_urb(struct urb *urb);
+> +extern void usb_unblock_urb(struct urb *urb);
+
+changing this to
+
+#define usb_unblock_urb usb_unpoison_urb
+
+Alan Stern
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

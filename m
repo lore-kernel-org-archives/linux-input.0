@@ -1,99 +1,83 @@
 From: NeilBrown <neilb@suse.de>
-Subject: [PATCH] Input: gpio_keys - ensure we don't miss key-presses during
- resume.
-Date: Wed, 25 Apr 2012 12:08:49 +1000
-Message-ID: <20120425120849.04cee091@notabene.brown>
+Subject: [PATCH] Input: twl4030 power button: don't lose presses on resume
+Date: Wed, 25 Apr 2012 12:21:39 +1000
+Message-ID: <20120425122139.512c6890@notabene.brown>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=PGP-SHA1;
- boundary="Sig_/0bUeb0byYUfPqo5=cFr33YD"; protocol="application/pgp-signature"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:47681 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751482Ab2DYCIz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Apr 2012 22:08:55 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+ boundary="Sig_//bb2q48H3UBxAsEvlKIkE+m"; protocol="application/pgp-signature"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
---Sig_/0bUeb0byYUfPqo5=cFr33YD
+--Sig_//bb2q48H3UBxAsEvlKIkE+m
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
 
-If the latency of resume means we don't poll the key status until
-after it has been released, we can lose the keypress which woke the
-device.
+If we press and release the power button before the press interrupt is
+handled - as can happen on resume - we lose the press event so the
+release event is ignored and we don't know what happened to cause the
+wakeup.
 
-So on each interrupt, record that a press is pending, and in that
-case, report both the up and down event, ordered such that the second
-event is that one that reflects the current state.
-
-One event will normally be swallowed by the input layer if there was
-no change, but the result will be that every interrupt will produce at
-least one event.
+So make sure that each interrupt handled does generate an event.
+Because twl4030 queues interrupt events we will see two interrupts
+for a press-release even if we handle the first one later.  This means
+that such a sequence will be reported as two button presses.  This
+is unfortunate but is better than no button presses.
+Possibly we could set the PENDDIS_MASK to disable queuing of
+interrupts, but that might adversely affect other interrupt sources.
 
 Signed-off-by: NeilBrown <neilb@suse.de>
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gp=
-io_keys.c
-index 62bfce4..961e5e1 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -40,6 +40,7 @@ struct gpio_button_data {
- 	spinlock_t lock;
- 	bool disabled;
- 	bool key_pressed;
-+	bool pending;
- };
-=20
- struct gpio_keys_drvdata {
-@@ -335,6 +336,14 @@ static void gpio_keys_gpio_report_event(struct gpio_bu=
-tton_data *bdata)
- 		if (state)
- 			input_event(input, type, button->code, button->value);
+diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/tw=
+l4030-pwrbutton.c
+index 38e4b50..7ea0ea8 100644
+--- a/drivers/input/misc/twl4030-pwrbutton.c
++++ b/drivers/input/misc/twl4030-pwrbutton.c
+@@ -42,7 +42,19 @@ static irqreturn_t powerbutton_irq(int irq, void *_pwr)
+ 	err =3D twl_i2c_read_u8(TWL4030_MODULE_PM_MASTER, &value,
+ 				STS_HW_CONDITIONS);
+ 	if (!err)  {
+-		input_report_key(pwr, KEY_POWER, value & PWR_PWRON_IRQ);
++		int val =3D !!(value & PWR_PWRON_IRQ);
++
++		/* We got an interrupt, so we must see a change.
++		 * Because the TWL4030 queues pending interrupts to a depth
++		 * of 2, we end up seeing two key presses as there can
++		 * be two interrupts processed while the key appears to
++		 * be up.  This could be fixed by setting PNEDDIS_MASK
++		 * in PWR_SIH_CTRL in twl4030-irq.c.
++		 */
++		input_report_key(pwr, KEY_POWER, !val);
++		input_sync(pwr);
++
++		input_report_key(pwr, KEY_POWER, val);
+ 		input_sync(pwr);
  	} else {
-+		if (type =3D=3D EV_KEY && bdata->pending) {
-+			/* Before reporting the observed state, report the
-+			 * alternate to be sure that a change is seen.
-+			 */
-+			bdata->pending =3D 0;
-+			input_event(input, type, button->code, !state);
-+			input_sync(input);
-+		}
- 		input_event(input, type, button->code, !!state);
- 	}
- 	input_sync(input);
-@@ -361,6 +370,7 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *de=
-v_id)
-=20
- 	BUG_ON(irq !=3D bdata->irq);
-=20
-+	bdata->pending =3D true;
- 	if (bdata->timer_debounce)
- 		mod_timer(&bdata->timer,
- 			jiffies + msecs_to_jiffies(bdata->timer_debounce));
+ 		dev_err(pwr->dev.parent, "twl4030: i2c error %d while reading"
 
---Sig_/0bUeb0byYUfPqo5=cFr33YD
+--Sig_//bb2q48H3UBxAsEvlKIkE+m
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Disposition: attachment; filename=signature.asc
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.18 (GNU/Linux)
 
-iQIVAwUBT5dcsTnsnt1WYoG5AQLFmhAAlLFj1mTa9gLGnFuZy6yVh409Z4RV8BEp
-+AqVi+Zfk/PqRQXm1w+StxJRZerjGQVIMdkavLvmg07wEdIe55ELEjWBDTvriUKe
-9Sb6wNOUsYX3fFIGNQA9KCMhHsDftoJKcfPqxBgZccsMsitezblV7EMZjZ+WU+GD
-H4cm2L/onA8VcduP1wztumT2KB+RszrBDf+N0aW1LKkqYRF1tu8/SUT7uoM96FXz
-sKyfU2M33ZhMuEXvUXgsPBYYqIU+QdtEl/O9Lnoics5Xtcz9nSwSBcmQ7XHkSIYI
-b4Y2fIaSz4falb45laJWZsgMtO/CF6hHJFNfyf/GRfpG3uuoMj7dJ95wDfzdW08v
-oAbHatY6NhW504AInqGTSR+JrwRfdxqYEW5M18iGl7dhw8Zqf4kN8khhUfaX0V33
-Nyphztt1TUEpNdDcAN1RrEStwXLz9GzQL4afN3HXfDEr1DpxdJsbFBDq9yA/wOqn
-R7qRStwbMhftV8smfKu56RnevhiTQSBXWE+roDxaL7PJEJHZHtItYhIUtxYawpCd
-oSIVc3bDp/1GOC+No+0TYfADiqvRdFFjrqr0RyrSy/yPkdTrSZBGnI7UWDsQ0hC+
-Q/tbJ/vbJeEoARJgFrWOj5aW1plHXjPLLH07W1xlVnQZMjZi9UEw3/0FdbJBJsmM
-zxlelELsYXU=
-=lh2E
+iQIVAwUBT5dfsznsnt1WYoG5AQJHTQ/+Iu3lt65ETh/nlDYmGRtFRRWl3hyk936C
+kiQvvb31CzX5gopT40iQC2754KcVrHnOBC3OnWCDpmpAc6lqq+o40ysRbvhsdPzP
+UMgzYs71TEKHxP0IsPr0yd667uXkcofUtifrsdO+bgYfDd/Vmw0kiDzYZYGkwY54
+M5E+wY4aYK2GPGaG9WsXHdCQOtCJiIybAVF1aOK5vjh87x9o0j0i8Ylhsp2G+1Xy
+2X7nriqi3A3v/nh9ASmlGmZMBAgILYY8tjMB77pj2V51SWK1Mk5Dnhnu63vOnRn/
+tGKAmeJK8ybZhTFlXctS2mwhbpYNQGTUuQVYds0sdZ6xjgDPA3XtOB8GfYjYBsSs
+CUDOtb7odecrHPnOko1w4I7JarP0zF3NbtpiCR3hhnYO4Eb3FBP83I3JW0KChCJd
+kdJQopaYcaCG3xMURannZPrErCxTK7xrSyA0AUbID973rQn1kqZqJ7Bwy0l6icbI
+LDycMp11P4JPrfuR97yJv300Z/zqA751NPoufnQjiDIB3mMW5mHQX0o70+W9v6pu
+8PwtxG5K8GmboHuFrWFQBw1f4euc9f2D/JqaNvc6AxBF0bg+ajAElOq33h33qftX
+LWCRItSoT1SL7tMFmKqB1swpeNZgTyPEz1OcNAhBhFyh84CN7E4jANmrKiUCZqaQ
+BOp8C5yj9pU=
+=5scQ
 -----END PGP SIGNATURE-----
 
---Sig_/0bUeb0byYUfPqo5=cFr33YD--
+--Sig_//bb2q48H3UBxAsEvlKIkE+m--

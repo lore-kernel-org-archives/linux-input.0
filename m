@@ -1,94 +1,56 @@
-From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
-Subject: Re: [PATCH] hid: usbhid: fix possible deadlock in __usbhid_submit_report
-Date: Wed, 25 Apr 2012 11:19:18 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1204251113330.1471-100000@iolanthe.rowland.org>
-References: <201204251252.55901.oneukum@suse.de>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCHv4 1/2] drivers: input: keypad: Add device tree support
+Date: Wed, 25 Apr 2012 09:48:33 -0600
+Message-ID: <4F981CD1.2050007@wwwdotorg.org>
+References: <1335346004-18108-1-git-send-email-sourav.poddar@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201204251252.55901.oneukum-l3A5Bk7waGM@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
-Cc: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from avon.wwwdotorg.org ([70.85.31.133]:55710 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751416Ab2DYPsh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Apr 2012 11:48:37 -0400
+In-Reply-To: <1335346004-18108-1-git-send-email-sourav.poddar@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sourav Poddar <sourav.poddar@ti.com>
+Cc: devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Benoit Cousson <b-cousson@ti.com>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Felipe Balbi <balbi@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Randy Dunlap <rdunlap@xenotime.net>
 
-On Wed, 25 Apr 2012, Oliver Neukum wrote:
+On 04/25/2012 03:26 AM, Sourav Poddar wrote:
+> Update the Documentation with omap4 keypad device tree
+> binding information.
+> Add device tree support for omap4 keypad driver.
 
-> From 9ff6b78dc59c98b9844dc9922549fd338828a889 Mon Sep 17 00:00:00 2001
-> From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-> Date: Wed, 25 Apr 2012 12:50:37 +0200
-> Subject: [PATCH] usbhid: prevent deadlock during timeout
-> 
-> On some HCDs usb_unlink_urb() can directly call the
-> completion handler. That limits the spinlocks that can
-> be taken in the handler to locks not held while calling
-> usb_unlink_urb()
-> To prevent a race with resubmission, this patch exposes
-> usbcore's infrastructure for blocking submission, uses it
-> and so drops the lock without causing a race in usbhid.
+> diff --git a/Documentation/devicetree/bindings/input/omap-keypad.txt b/Documentation/devicetree/bindings/input/omap-keypad.txt
 
-Simply preventing resubmission is a good idea.
-
-> Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
-> ---
->  drivers/hid/usbhid/hid-core.c |   61 +++++++++++++++++++++++++++++++++++++----
->  drivers/usb/core/urb.c        |   30 ++++++++++++++++++++
->  include/linux/usb.h           |    2 +
->  3 files changed, 87 insertions(+), 6 deletions(-)
-
-This should be split into two patches: one for usbhid and one for 
-usbcore.
-
-> +void usb_block_urb(struct urb *urb)
-> +{
-> +        if (!urb)
-> +                return;
+> +Required Board Specific Properties, in addition to those specified by
+> +the shared matrix-keyboard bindings:
+> +- keypad,num-rows: Number of row lines connected to the keypad
+> +  controller.
 > +
-> +        atomic_inc(&urb->reject);
-> +}
-> +EXPORT_SYMBOL_GPL(usb_block_urb);
+> +- keypad,num-columns: Number of column lines connected to the
+> +  keypad controller.
 
-Personally, I prefer
+I'm not sure if "keypad," is the appropriate prefix here. If the
+properties are specific to this one TI/OMAP binding, "ti," might be a
+better prefix. However, if they're more generally applicable, maybe
+"linux," to match "linux,keymap"?
 
-	if (urb)
-		atomic_inc(&urb->reject);
+> +Optional Properties specific to linux:
+> +- linux,keypad-no-autorepeat: do no enable autorepeat feature.
 
-It's a matter of taste; do what you want.
+It's probably worth considering whether num-rows/columns should be part
+of matrix-keyboard.txt, and whether linux,keypad-no-autorepeat should be
+part of some core keyboard binding. Some of the properties in
+tegra-kbc.txt might be worth generalizing too (debounce/repeat delay,
+ghost filter)?
 
-> +void usb_unblock_urb(struct urb *urb)
-> +{
-> +        if (!urb)
-> +                return;
-> +
-> +        atomic_dec(&urb->reject);
-> +}
-> +EXPORT_SYMBOL_GPL(usb_unblock_urb);
-
-As was pointed out, this could be eliminated by...
-
-> +
-> +/**
->   * usb_kill_anchored_urbs - cancel transfer requests en masse
->   * @anchor: anchor the requests are bound to
->   *
-> diff --git a/include/linux/usb.h b/include/linux/usb.h
-> index 73b68d1..23df8ae 100644
-> --- a/include/linux/usb.h
-> +++ b/include/linux/usb.h
-> @@ -1379,6 +1379,8 @@ extern int usb_unlink_urb(struct urb *urb);
->  extern void usb_kill_urb(struct urb *urb);
->  extern void usb_poison_urb(struct urb *urb);
->  extern void usb_unpoison_urb(struct urb *urb);
-> +extern void usb_block_urb(struct urb *urb);
-> +extern void usb_unblock_urb(struct urb *urb);
-
-changing this to
-
-#define usb_unblock_urb usb_unpoison_urb
-
-Alan Stern
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +Example:
+> +        keypad@4ae1c000{
+> +                compatible = "ti,omap4-keypad";
+> +                keypad,num-rows = <2>;
+> +                keypad,num-columns = <8>;
+> +		linux,keypad-no-autorepeat;
+> +	};

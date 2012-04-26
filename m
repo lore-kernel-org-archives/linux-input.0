@@ -1,398 +1,80 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/2] Input: matrix_keymap - wire up device tree support
-Date: Thu, 26 Apr 2012 01:19:10 -0700
-Message-ID: <20120426081909.GA2726@core.coreip.homeip.net>
+From: Viresh Kumar <viresh.kumar@st.com>
+Subject: Re: [PATCH 1/2] Input: matrix-keymap - uninline and prepare for device
+ tree support
+Date: Thu, 26 Apr 2012 13:53:12 +0530
+Message-ID: <4F9905F0.6030402@st.com>
+References: <20120426081750.GA2684@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:40395 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751919Ab2DZITQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Apr 2012 04:19:16 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20120426081750.GA2684@core.coreip.homeip.net>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rajeev KUMAR <rajeev-dlh.kumar@st.com>, Linus Walleij <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rakesh Iyer <riyer@nvidia.com>, Trilok Soni <tsoni@codeaurora.org>, Kukjin Kim <kgene.kim@samsung.com>, Stephen Warren <swarren@nvidia.com>, Michael Hennerich <michael.hennerich@analog.com>, Thomas Abraham <thomas.abraham@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Wanlong Gao <gaowanlong@cn.fujitsu.com>, Hui Wang <jason77.wang@gmail.com>, Wan ZongShun <mcuos.com@gmail.com>, Rob Herring <rob.herring@calxeda.com>, Yong Zhang <yong.zhang0@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Kyle Manna <kyle.manna@fuel7.com>, Wolfram Sang <w.sang@pengutronix.de>, Felipe Balbi <balbi@ti.com>, H Hartley Sweeten <hsweeten@visionengravers.com>, Anirudh Ghayal <aghayal>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rakesh Iyer <riyer@nvidia.com>, Stephen Warren <swarren@nvidia.com>, Olof Johansson <olof@lixom.net>, Viresh Kumar <viresh.kumar@st.com>, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
 
-When platform keymap is not supplied to matrix_keypad_build_keymap()
-and device tree support is enabled, try locating specified property
-and load keymap from it. If property name is not defined, try using
-"linux,keymap".
+On 4/26/2012 1:47 PM, Dmitry Torokhov wrote:
+> diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
+> index 3b6b528..7c8f2bc 100644
+> --- a/drivers/input/keyboard/spear-keyboard.c
+> +++ b/drivers/input/keyboard/spear-keyboard.c
+> @@ -49,7 +49,9 @@
+>  #define KEY_VALUE      0x00FFFFFF
+>  #define ROW_MASK       0xF0
+>  #define COLUMN_MASK    0x0F
+> -#define ROW_SHIFT      4
+> +#define NUM_ROWS       16
+> +#define NUM_COLS       16
+> +
+>  #define KEY_MATRIX_SHIFT       6
+> 
+>  struct spear_kbd {
+> @@ -60,7 +62,7 @@ struct spear_kbd {
+>         unsigned int irq;
+>         unsigned int mode;
+>         unsigned short last_key;
+> -       unsigned short keycodes[256];
+> +       unsigned short keycodes[NUM_ROWS * NUM_COLS];
+>  };
+> 
+>  static irqreturn_t spear_kbd_interrupt(int irq, void *dev_id)
+> @@ -212,18 +214,17 @@ static int __devinit spear_kbd_probe(struct platform_device *pdev)
+>         input_dev->open = spear_kbd_open;
+>         input_dev->close = spear_kbd_close;
+> 
+> -       __set_bit(EV_KEY, input_dev->evbit);
+> +       error = matrix_keypad_build_keymap(keymap, NULL, NUM_ROWS, NUM_COLS,
+> +                                          kbd->keycodes, input_dev);
+> +       if (error) {
+> +               dev_err(&pdev->dev, "Failed to build keymap\n");
+> +               goto errr_put_clk;
+> +       }
+> +
+>         if (pdata->rep)
+>                 __set_bit(EV_REP, input_dev->evbit);
+>         input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+> 
+> -       input_dev->keycode = kbd->keycodes;
+> -       input_dev->keycodesize = sizeof(kbd->keycodes[0]);
+> -       input_dev->keycodemax = ARRAY_SIZE(kbd->keycodes);
+> -
+> -       matrix_keypad_build_keymap(keymap, ROW_SHIFT,
+> -                       input_dev->keycode, input_dev->keybit);
+> -
+>         input_set_drvdata(input_dev, kbd);
+> 
+>         error = request_irq(irq, spear_kbd_interrupt, 0, "keyboard", kbd);
 
-Based on earlier patch by Viresh Kumar <viresh.kumar@st.com>
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
- drivers/input/keyboard/tegra-kbc.c  |   56 +++++++-----
- drivers/input/matrix-keymap.c       |  175 +++++++++++++++++++---------------
- include/linux/input/matrix_keypad.h |   18 ----
- 3 files changed, 130 insertions(+), 119 deletions(-)
-
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 6722d37..fba4991 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -619,8 +619,8 @@ tegra_kbc_check_pin_cfg(const struct tegra_kbc_platform_data *pdata,
- }
- 
- #ifdef CONFIG_OF
--static struct tegra_kbc_platform_data * __devinit
--tegra_kbc_dt_parse_pdata(struct platform_device *pdev)
-+static struct tegra_kbc_platform_data * __devinit tegra_kbc_dt_parse_pdata(
-+	struct platform_device *pdev)
- {
- 	struct tegra_kbc_platform_data *pdata;
- 	struct device_node *np = pdev->dev.of_node;
-@@ -660,10 +660,6 @@ tegra_kbc_dt_parse_pdata(struct platform_device *pdev)
- 		pdata->pin_cfg[KBC_MAX_ROW + i].type = PIN_CFG_COL;
- 	}
- 
--	pdata->keymap_data = matrix_keyboard_of_fill_keymap(np, "linux,keymap");
--
--	/* FIXME: Add handling of linux,fn-keymap here */
--
- 	return pdata;
- }
- #else
-@@ -674,10 +670,36 @@ static inline struct tegra_kbc_platform_data *tegra_kbc_dt_parse_pdata(
- }
- #endif
- 
-+static int __devinit tegra_kbd_setup_keymap(struct tegra_kbc *kbc)
-+{
-+	const struct tegra_kbc_platform_data *pdata = kbc->pdata;
-+	const struct matrix_keymap_data *keymap_data = pdata->keymap_data;
-+	unsigned int keymap_rows = KBC_MAX_KEY;
-+	int retval;
-+
-+	if (pdata->use_fn_map)
-+		keymap_rows *= 2;
-+
-+	retval = matrix_keypad_build_keymap(keymap_data, NULL,
-+					    keymap_rows, KBC_MAX_COL,
-+					    kbc->keycode, kbc->idev);
-+	if (retval == -ENOSYS || retval == -ENOENT) {
-+		/*
-+		 * If there is no OF support in kernel or keymap
-+		 * property is missing, use default keymap.
-+		 */
-+		retval = matrix_keypad_build_keymap(
-+					&tegra_kbc_default_keymap_data, NULL,
-+					keymap_rows, KBC_MAX_COL,
-+					kbc->keycode, kbc->idev);
-+	}
-+
-+	return retval;
-+}
-+
- static int __devinit tegra_kbc_probe(struct platform_device *pdev)
- {
- 	const struct tegra_kbc_platform_data *pdata = pdev->dev.platform_data;
--	const struct matrix_keymap_data *keymap_data;
- 	struct tegra_kbc *kbc;
- 	struct input_dev *input_dev;
- 	struct resource *res;
-@@ -686,7 +708,6 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
- 	int num_rows = 0;
- 	unsigned int debounce_cnt;
- 	unsigned int scan_time_rows;
--	unsigned int keymap_rows;
- 
- 	if (!pdata)
- 		pdata = tegra_kbc_dt_parse_pdata(pdev);
-@@ -768,17 +789,9 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
- 	input_dev->open = tegra_kbc_open;
- 	input_dev->close = tegra_kbc_close;
- 
--	keymap_rows = KBC_MAX_KEY;
--	if (pdata->use_fn_map)
--		keymap_rows *= 2;
--
--	keymap_data = pdata->keymap_data ?: &tegra_kbc_default_keymap_data;
--
--	err = matrix_keypad_build_keymap(keymap_data, NULL,
--					 keymap_rows, KBC_MAX_COL,
--					 kbc->keycode, input_dev);
-+	err = tegra_kbd_setup_keymap(kbc);
- 	if (err) {
--		dev_err(&pdev->dev, "failed to build keymap\n");
-+		dev_err(&pdev->dev, "failed to setup keymap\n");
- 		goto err_put_clk;
- 	}
- 
-@@ -805,9 +818,6 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, kbc);
- 	device_init_wakeup(&pdev->dev, pdata->wakeup);
- 
--	if (!pdev->dev.platform_data)
--		matrix_keyboard_of_free_keymap(pdata->keymap_data);
--
- 	return 0;
- 
- err_free_irq:
-@@ -822,10 +832,8 @@ err_free_mem:
- 	input_free_device(input_dev);
- 	kfree(kbc);
- err_free_pdata:
--	if (!pdev->dev.platform_data) {
--		matrix_keyboard_of_free_keymap(pdata->keymap_data);
-+	if (!pdev->dev.platform_data)
- 		kfree(pdata);
--	}
- 
- 	return err;
- }
-diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
-index de7992d..b57531e 100644
---- a/drivers/input/matrix-keymap.c
-+++ b/drivers/input/matrix-keymap.c
-@@ -17,15 +17,91 @@
-  *
-  */
- 
-+#include <linux/device.h>
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <linux/input.h>
- #include <linux/of.h>
- #include <linux/export.h>
--#include <linux/gfp.h>
--#include <linux/slab.h>
- #include <linux/input/matrix_keypad.h>
- 
-+static bool matrix_keypad_map_key(struct input_dev *input_dev,
-+				  unsigned int rows, unsigned int cols,
-+				  unsigned int row_shift, unsigned int key)
-+{
-+	unsigned char *keymap = input_dev->keycode;
-+	unsigned int row = KEY_ROW(key);
-+	unsigned int col = KEY_COL(key);
-+	unsigned short code = KEY_VAL(key);
-+
-+	if (row >= rows || col >= cols) {
-+		dev_err(input_dev->dev.parent,
-+			"%s: invalid keymap entry 0x%x (row: %d, col: %d, rows: %d, cols: %d)\n",
-+			__func__, key, row, col, rows, cols);
-+		return false;
-+	}
-+
-+	keymap[MATRIX_SCAN_CODE(row, col, row_shift)] = code;
-+	__set_bit(code, input_dev->keybit);
-+
-+	return true;
-+}
-+
-+#ifdef CONFIG_OF
-+static int matrix_keypad_parse_of_keymap(const char *propname,
-+					 unsigned int rows, unsigned int cols,
-+					 struct input_dev *input_dev)
-+{
-+	struct device *dev = input_dev->dev.parent;
-+	struct device_node *np = dev->of_node;
-+	unsigned int row_shift = get_count_order(cols);
-+	unsigned int max_keys = rows << row_shift;
-+	unsigned int proplen, i, size;
-+	const __be32 *prop;
-+
-+	if (!np)
-+		return -ENODEV;
-+
-+	if (!propname)
-+		propname = "linux,keymap";
-+
-+	prop = of_get_property(np, propname, &proplen);
-+	if (!prop) {
-+		dev_err(dev, "OF: %s property not defined in %s\n",
-+			propname, np->full_name);
-+		return -ENODEV;
-+	}
-+
-+	if (proplen % sizeof(u32)) {
-+		dev_err(dev, "OF: Malformed keycode property %s in %s\n",
-+			propname, np->full_name);
-+		return -EINVAL;
-+	}
-+
-+	size = proplen / sizeof(u32);
-+	if (size > max_keys) {
-+		dev_err(dev, "OF: %s size overflow\n", propname);
-+		return -EINVAL;
-+	}
-+
-+	for (i = 0; i < size; i++) {
-+		unsigned int key = be32_to_cpup(prop + i);
-+
-+		if (!matrix_keypad_map_key(input_dev, rows, cols,
-+					   row_shift, key))
-+			return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+#else
-+static int matrix_keypad_parse_of_keymap(const char *propname,
-+					 unsigned int rows, unsigned int cols,
-+					 struct input_dev *input_dev)
-+{
-+	return -ENOSYS;
-+}
-+#endif
- 
- /**
-  * matrix_keypad_build_keymap - convert platform keymap into matrix keymap
-@@ -41,6 +117,13 @@
-  * This function converts platform keymap (encoded with KEY() macro) into
-  * an array of keycodes that is suitable for using in a standard matrix
-  * keyboard driver that uses row and col as indices.
-+ *
-+ * If @keymap_data is not supplied and device tree support is enabled
-+ * it will attempt load the keymap from property specified by @keymap_name
-+ * argument (or "linux,keymap" if @keymap_name is %NULL).
-+ *
-+ * Callers are expected to set up input_dev->dev.parent before calling this
-+ * function.
-  */
- int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
- 			       const char *keymap_name,
-@@ -50,6 +133,7 @@ int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
- {
- 	unsigned int row_shift = get_count_order(cols);
- 	int i;
-+	int error;
- 
- 	input_dev->keycode = keymap;
- 	input_dev->keycodesize = sizeof(*keymap);
-@@ -57,86 +141,23 @@ int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
- 
- 	__set_bit(EV_KEY, input_dev->evbit);
- 
--	for (i = 0; i < keymap_data->keymap_size; i++) {
--		unsigned int key = keymap_data->keymap[i];
--		unsigned int row = KEY_ROW(key);
--		unsigned int col = KEY_COL(key);
--		unsigned short code = KEY_VAL(key);
-+	if (keymap_data) {
-+		for (i = 0; i < keymap_data->keymap_size; i++) {
-+			unsigned int key = keymap_data->keymap[i];
- 
--		if (row >= rows || col >= cols) {
--			dev_err(input_dev->dev.parent,
--				"%s: invalid keymap entry %d (row: %d, col: %d, rows: %d, cols: %d)\n",
--				__func__, i, row, col, rows, cols);
--			return -EINVAL;
-+			if (!matrix_keypad_map_key(input_dev, rows, cols,
-+						   row_shift, key))
-+				return -EINVAL;
- 		}
--
--		keymap[MATRIX_SCAN_CODE(row, col, row_shift)] = code;
--		__set_bit(code, input_dev->keybit);
-+	} else {
-+		error = matrix_keypad_parse_of_keymap(keymap_name, rows, cols,
-+						      input_dev);
-+		if (error)
-+			return error;
- 	}
-+
- 	__clear_bit(KEY_RESERVED, input_dev->keybit);
- 
- 	return 0;
- }
- EXPORT_SYMBOL(matrix_keypad_build_keymap);
--
--#ifdef CONFIG_OF
--struct matrix_keymap_data *
--matrix_keyboard_of_fill_keymap(struct device_node *np,
--			       const char *propname)
--{
--	struct matrix_keymap_data *kd;
--	u32 *keymap;
--	int proplen, i;
--	const __be32 *prop;
--
--	if (!np)
--		return NULL;
--
--	if (!propname)
--		propname = "linux,keymap";
--
--	prop = of_get_property(np, propname, &proplen);
--	if (!prop)
--		return NULL;
--
--	if (proplen % sizeof(u32)) {
--		pr_warn("Malformed keymap property %s in %s\n",
--			propname, np->full_name);
--		return NULL;
--	}
--
--	kd = kzalloc(sizeof(*kd), GFP_KERNEL);
--	if (!kd)
--		return NULL;
--
--	kd->keymap = keymap = kzalloc(proplen, GFP_KERNEL);
--	if (!kd->keymap) {
--		kfree(kd);
--		return NULL;
--	}
--
--	kd->keymap_size = proplen / sizeof(u32);
--
--	for (i = 0; i < kd->keymap_size; i++) {
--		u32 tmp = be32_to_cpup(prop + i);
--		int key_code, row, col;
--
--		row = (tmp >> 24) & 0xff;
--		col = (tmp >> 16) & 0xff;
--		key_code = tmp & 0xffff;
--		keymap[i] = KEY(row, col, key_code);
--	}
--
--	return kd;
--}
--EXPORT_SYMBOL_GPL(matrix_keyboard_of_fill_keymap);
--
--void matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd)
--{
--	if (kd) {
--		kfree(kd->keymap);
--		kfree(kd);
--	}
--}
--EXPORT_SYMBOL_GPL(matrix_keyboard_of_free_keymap);
--#endif
-diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
-index e8fe08e..5f3aa6b 100644
---- a/include/linux/input/matrix_keypad.h
-+++ b/include/linux/input/matrix_keypad.h
-@@ -81,22 +81,4 @@ int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
- 			       unsigned short *keymap,
- 			       struct input_dev *input_dev);
- 
--#ifdef CONFIG_OF
--struct matrix_keymap_data *
--matrix_keyboard_of_fill_keymap(struct device_node *np, const char *propname);
--
--void matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd);
--#else
--static inline struct matrix_keymap_data *
--matrix_keyboard_of_fill_keymap(struct device_node *np, const char *propname)
--{
--	return NULL;
--}
--
--static inline void
--matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd)
--{
--}
--#endif
--
- #endif /* _MATRIX_KEYPAD_H */
--- 
-1.7.7.6
-
+Have you rebased these patches over my patchset for SPEAr and Tegra?
 
 -- 
-Dmitry
+viresh

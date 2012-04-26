@@ -1,76 +1,95 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 2/2] Input: matrix_keymap - wire up device tree support
-Date: Thu, 26 Apr 2012 09:05:18 -0600
-Message-ID: <4F99642E.1010305@wwwdotorg.org>
-References: <20120426081909.GA2726@core.coreip.homeip.net>
+From: =?UTF-8?q?Jean-Fran=C3=A7ois=20Dagenais?= <jeff.dagenais@gmail.com>
+Subject: [PATCH 1/2] input: ad714x - fix divide by 0 error in wheel cal_abs_pos
+Date: Thu, 26 Apr 2012 13:17:18 -0400
+Message-ID: <1335460639-1362-1-git-send-email-jeff.dagenais@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:45424 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751590Ab2DZPFV (ORCPT
+Received: from mail-qa0-f53.google.com ([209.85.216.53]:42579 "EHLO
+	mail-qa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752944Ab2DZRRi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Apr 2012 11:05:21 -0400
-In-Reply-To: <20120426081909.GA2726@core.coreip.homeip.net>
+	Thu, 26 Apr 2012 13:17:38 -0400
+Received: by qadc11 with SMTP id c11so1585341qad.19
+        for <linux-input@vger.kernel.org>; Thu, 26 Apr 2012 10:17:38 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Viresh Kumar <viresh.kumar@st.com>, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Rakesh Iyer <riyer@nvidia.com>
+To: michael.hennerich@analog.com
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org, =?UTF-8?q?Jean-Fran=C3=A7ois=20Dagenais?= <jeff.dagenais@gmail.com>, =?UTF-8?q?Jean-Fran=C3=A7ois=20Dagenais?= <dagenaisj@sonatest.com>
 
-On 04/26/2012 02:19 AM, Dmitry Torokhov wrote:
-> When platform keymap is not supplied to matrix_keypad_build_keymap()
-> and device tree support is enabled, try locating specified property
-> and load keymap from it. If property name is not defined, try using
-> "linux,keymap".
-> 
-> Based on earlier patch by Viresh Kumar <viresh.kumar@st.com>
+V2: added comment, removed "BUG_ON" check and fixed >80 col line
 
-I think this series looks mostly OK. A few comments below.
+As discussed with Michael Hennerich <michael.hennerich@analog.com>,
+another divide by 0 happens when the user is lifting the finger
+when all the sensors are back below ambient but we are in case
+"ACTIVE".
 
-We don't actually have the KBC driver hooked up on any boards yet, so I
-can't actually test this yet.
+Signed-off-by: Jean-Fran=C3=A7ois Dagenais <dagenaisj@sonatest.com>
+Signed-off-by: Jean-Fran=C3=A7ois Dagenais <jeff.dagenais@gmail.com>
+---
+ drivers/input/misc/ad714x.c |   16 ++++++++++++----
+ 1 files changed, 12 insertions(+), 4 deletions(-)
 
-How will the linux,fn-keymap handling work? It looks like this code is
-allocating a keymap data structure with one additional row to represent
-fn-not-pressed vs. fn-pressed. I assume this will work without issue
-even though the second half is not filled in. Won't this allow the
-linux,keymap property entries to pass validation "if (row >= rows)" for
-one more row than it should?
+diff --git a/drivers/input/misc/ad714x.c b/drivers/input/misc/ad714x.c
+index ca42c7d..2cf26e5 100644
+--- a/drivers/input/misc/ad714x.c
++++ b/drivers/input/misc/ad714x.c
+@@ -418,10 +418,15 @@ static void ad714x_wheel_cal_highest_stage(struct=
+ ad714x_chip *ad714x, int idx)
+ 		sw->highest_stage);
+ }
+=20
+-static void ad714x_wheel_cal_sensor_val(struct ad714x_chip *ad714x, in=
+t idx)
++/**
++ * Calculates the sensor value for each stages of the given wheel idx.
++ * Returns true if a sensor detects being touched, false otherwise.
++ */
++static bool ad714x_wheel_cal_sensor_val(struct ad714x_chip *ad714x, in=
+t idx)
+ {
+ 	struct ad714x_wheel_plat *hw =3D &ad714x->hw->wheel[idx];
+ 	int i;
++	bool touched =3D false;
+=20
+ 	ad714x->read(ad714x, CDC_RESULT_S0 + hw->start_stage,
+ 			&ad714x->adc_reg[hw->start_stage],
+@@ -430,12 +435,15 @@ static void ad714x_wheel_cal_sensor_val(struct ad=
+714x_chip *ad714x, int idx)
+ 	for (i =3D hw->start_stage; i <=3D hw->end_stage; i++) {
+ 		ad714x->read(ad714x, STAGE0_AMBIENT + i * PER_STAGE_REG_NUM,
+ 				&ad714x->amb_reg[i], 1);
+-		if (ad714x->adc_reg[i] > ad714x->amb_reg[i])
++		if (ad714x->adc_reg[i] > ad714x->amb_reg[i]) {
+ 			ad714x->sensor_val[i] =3D
+ 				ad714x->adc_reg[i] - ad714x->amb_reg[i];
++			touched =3D true;
++		}
+ 		else
+ 			ad714x->sensor_val[i] =3D 0;
+ 	}
++	return touched;
+ }
+=20
+ /*
+@@ -544,8 +552,8 @@ static void ad714x_wheel_state_machine(struct ad714=
+x_chip *ad714x, int idx)
+=20
+ 	case ACTIVE:
+ 		if (c_state =3D=3D mask) {
+-			if (h_state) {
+-				ad714x_wheel_cal_sensor_val(ad714x, idx);
++			if (h_state &&
++			    ad714x_wheel_cal_sensor_val(ad714x, idx)) {
+ 				ad714x_wheel_cal_highest_stage(ad714x, idx);
+ 				ad714x_wheel_cal_abs_pos(ad714x, idx);
+ 				ad714x_wheel_cal_flt_pos(ad714x, idx);
+--=20
+1.7.9
 
-> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-
-> +static int __devinit tegra_kbd_setup_keymap(struct tegra_kbc *kbc)
-> +{
-> +	const struct tegra_kbc_platform_data *pdata = kbc->pdata;
-> +	const struct matrix_keymap_data *keymap_data = pdata->keymap_data;
-> +	unsigned int keymap_rows = KBC_MAX_KEY;
-> +	int retval;
-> +
-> +	if (pdata->use_fn_map)
-> +		keymap_rows *= 2;
-> +
-> +	retval = matrix_keypad_build_keymap(keymap_data, NULL,
-> +					    keymap_rows, KBC_MAX_COL,
-> +					    kbc->keycode, kbc->idev);
-> +	if (retval == -ENOSYS || retval == -ENOENT) {
-
-This is looking for ENOSYS or ENOENT, but ...
-
-> diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
-
-> +static int matrix_keypad_parse_of_keymap(const char *propname,
-
-> +	if (!np)
-> +		return -ENODEV;
-
-Here and ...
-
-> +	prop = of_get_property(np, propname, &proplen);
-> +	if (!prop) {
-> +		dev_err(dev, "OF: %s property not defined in %s\n",
-> +			propname, np->full_name);
-> +		return -ENODEV;
-
-Here return ENODEV instead.
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

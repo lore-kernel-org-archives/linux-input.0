@@ -1,45 +1,47 @@
-From: Haojian Zhuang <haojian.zhuang@gmail.com>
-Subject: Re: [PATCH V3 1/4] Input: pxa27x_keypad keep clock on as wakeup source
-Date: Fri, 27 Apr 2012 17:04:53 +0800
-Message-ID: <CAN1soZxTfp9p-JoTmXRDFYLKt0mmgcSwc5F9Tk8b+E0fQRW6AQ@mail.gmail.com>
-References: <1333246084-14110-1-git-send-email-chao.xie@marvell.com>
-	<CAN1soZyBPE3YExELmu5yHeMTWQf9Zs07v26F6Qz3ocKO+cXGFw@mail.gmail.com>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: possible missing error handling in hidraw
+Date: Fri, 27 Apr 2012 11:26:54 +0200
+Message-ID: <201204271126.55061.oneukum@suse.de>
+References: <201204251512.16482.oneukum@suse.de> <AE90C24D6B3A694183C094C60CF0A2F602C54D49@saturn3.aculab.com> <alpine.LNX.2.00.1204270946490.1856@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vb0-f46.google.com ([209.85.212.46]:49102 "EHLO
-	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759677Ab2D0JEy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Apr 2012 05:04:54 -0400
-Received: by vbbff1 with SMTP id ff1so359245vbb.19
-        for <linux-input@vger.kernel.org>; Fri, 27 Apr 2012 02:04:53 -0700 (PDT)
-In-Reply-To: <CAN1soZyBPE3YExELmu5yHeMTWQf9Zs07v26F6Qz3ocKO+cXGFw@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:46780 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759804Ab2D0KjL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Apr 2012 06:39:11 -0400
+In-Reply-To: <alpine.LNX.2.00.1204270946490.1856@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chao Xie <chao.xie@marvell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, eric.y.miao@gmail.com, linux-arm-kernel@lists.infradead.org, haojian.zhuang@marvell.com
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: James Woodcock <James.Woodcock@aculab.com>, linux-input@vger.kernel.org
 
-On Mon, Apr 2, 2012 at 5:37 PM, Haojian Zhuang <haojian.zhuang@gmail.com> wrote:
-> On Sun, Apr 1, 2012 at 10:08 AM, Chao Xie <chao.xie@marvell.com> wrote:
->> When the keypad is used as wake up source, the clock can not
->> be disabled. Or it can not detect key pressing.
->> If the keypad is used as wake up source, when resume back,
->> do not enable the clock and configure it again because the
->> register content is retained.
->>
->> Signed-off-by: Chao Xie <chao.xie@marvell.com>
->> ---
->
-> Hi Dmitry,
->
-> I just found that you're not looped in this mail thread. Could I merge
-> them into arch-pxa tree?
->
-> Best Regards
-> Haojian
+Am Freitag, 27. April 2012, 09:47:55 schrieb Jiri Kosina:
+> -void hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+> +int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+>  {
+>         struct hidraw *dev = hid->hidraw;
+>         struct hidraw_list *list;
+> +       int ret = 0;
+>  
+>         list_for_each_entry(list, &dev->list, node) {
+> -               list->buffer[list->head].value = kmemdup(data, len, GFP_ATOMIC);
+> +               if (!(list->buffer[list->head].value = kmemdup(data, len, GFP_ATOMIC))) {
+> +                       ret = -ENOMEM;
+> +                       break;
+> +               }
+>                 list->buffer[list->head].len = len;
+>                 list->head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
+>                 kill_fasync(&list->fasync, SIGIO, POLL_IN);
+>         }
+>  
+>         wake_up_interruptible(&dev->wait);
+> +       return ret;
+>  }
 
-Applied
+Then I have to ask why not simply copy the rest of the entries?
 
-Regards
-Haojian
+	Regards
+		Oliver

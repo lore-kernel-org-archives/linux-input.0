@@ -1,49 +1,32 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: possible missing error handling in hidraw
-Date: Fri, 27 Apr 2012 14:35:10 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204271434550.1856@pobox.suse.cz>
-References: <201204251512.16482.oneukum@suse.de> <AE90C24D6B3A694183C094C60CF0A2F602C54D49@saturn3.aculab.com> <alpine.LNX.2.00.1204270946490.1856@pobox.suse.cz> <201204271126.55061.oneukum@suse.de>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+Subject: hid_parse error
+Date: Fri, 27 Apr 2012 18:22:49 +0000
+Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A91710BAD8@ORSMSX104.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53839 "EHLO mx2.suse.de"
+Received: from mga01.intel.com ([192.55.52.88]:58240 "EHLO mga01.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757169Ab2D0MfM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Apr 2012 08:35:12 -0400
-In-Reply-To: <201204271126.55061.oneukum@suse.de>
+	id S1760116Ab2D0SWx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Apr 2012 14:22:53 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: James Woodcock <James.Woodcock@aculab.com>, linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Fri, 27 Apr 2012, Oliver Neukum wrote:
+The hid_parse fails with error -22 (EINVAL) for the LOGICAL MAX value of 0xffffffff.
+Basically when it gets
+"0x27,0xff, 0xff, 0xff, 0xff"  it fails.
 
-> > -void hidraw_report_event(struct hid_device *hid, u8 *data, int len)
-> > +int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
-> >  {
-> >         struct hidraw *dev = hid->hidraw;
-> >         struct hidraw_list *list;
-> > +       int ret = 0;
-> >  
-> >         list_for_each_entry(list, &dev->list, node) {
-> > -               list->buffer[list->head].value = kmemdup(data, len, GFP_ATOMIC);
-> > +               if (!(list->buffer[list->head].value = kmemdup(data, len, GFP_ATOMIC))) {
-> > +                       ret = -ENOMEM;
-> > +                       break;
-> > +               }
-> >                 list->buffer[list->head].len = len;
-> >                 list->head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
-> >                 kill_fasync(&list->fasync, SIGIO, POLL_IN);
-> >         }
-> >  
-> >         wake_up_interruptible(&dev->wait);
-> > +       return ret;
-> >  }
-> 
-> Then I have to ask why not simply copy the rest of the entries?
+With opcode 0x27, we can have 4 bytes of payload.
+I see that in  hid-core.h, the logical_maximum is defined __s32. It is interpreting 0xffffffff as -1.
 
-Well, it's sort of inconsistent in both scenarios ...
+Is this correct?
 
--- 
-Jiri Kosina
-SUSE Labs
+
+Thanks,
+Srinivas
+
+

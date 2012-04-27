@@ -1,63 +1,221 @@
-From: "James Woodcock" <James.Woodcock@ACULAB.COM>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: RE: possible missing error handling in hidraw
-Date: Fri, 27 Apr 2012 08:36:22 +0100
-Message-ID: <AE90C24D6B3A694183C094C60CF0A2F602C54D49@saturn3.aculab.com>
-References: <201204251512.16482.oneukum@suse.de> <alpine.LNX.2.00.1204270055310.1856@pobox.suse.cz>
+Date: Fri, 27 Apr 2012 09:47:55 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204270946490.1856@pobox.suse.cz>
+References: <201204251512.16482.oneukum@suse.de> <alpine.LNX.2.00.1204270055310.1856@pobox.suse.cz> <AE90C24D6B3A694183C094C60CF0A2F602C54D49@saturn3.aculab.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx0.aculab.com ([213.249.233.131]:35660 "HELO mx0.aculab.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1752029Ab2D0Hg2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Apr 2012 03:36:28 -0400
-Received: from mx0.aculab.com ([127.0.0.1])
- by localhost (mx0.aculab.com [127.0.0.1]) (amavisd-new, port 10024) with SMTP
- id 09076-05 for <linux-input@vger.kernel.org>;
- Fri, 27 Apr 2012 08:36:24 +0100 (BST)
-Content-class: urn:content-classes:message
-In-Reply-To: <alpine.LNX.2.00.1204270055310.1856@pobox.suse.cz>
+Received: from cantor2.suse.de ([195.135.220.15]:34240 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757271Ab2D0Hr6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Apr 2012 03:47:58 -0400
+In-Reply-To: <AE90C24D6B3A694183C094C60CF0A2F602C54D49@saturn3.aculab.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Oliver Neukum <oneukum@suse.de>
-Cc: linux-input@vger.kernel.org
+To: James Woodcock <James.Woodcock@ACULAB.COM>
+Cc: Oliver Neukum <oneukum@suse.de>, linux-input@vger.kernel.org
 
-> From: linux-input-owner@vger.kernel.org 
-> [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Jiri Kosina
+On Fri, 27 Apr 2012, James Woodcock wrote:
 
-> -void hidraw_report_event(struct hid_device *hid, u8 *data, int len)
-> +int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
->  {
->  	struct hidraw *dev = hid->hidraw;
->  	struct hidraw_list *list;
-> +	int ret = 0;
->  
->  	list_for_each_entry(list, &dev->list, node) {
-> -		list->buffer[list->head].value = kmemdup(data, len,
-GFP_ATOMIC);
-> +		if (!(list->buffer[list->head].value = kmemdup(data,
-len, GFP_ATOMIC))) {
-> +			ret = -ENOMEM;
-> +			break;
-> +		}
->  		list->buffer[list->head].len = len;
->  		list->head = (list->head + 1) & (HIDRAW_BUFFER_SIZE -
-1);
->  		kill_fasync(&list->fasync, SIGIO, POLL_IN);
->  	}
->  
->  	wake_up_interruptible(&dev->wait);
-> +	return ret;
->  }
+> > -void hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+> > +int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+> >  {
+> >  	struct hidraw *dev = hid->hidraw;
+> >  	struct hidraw_list *list;
+> > +	int ret = 0;
+> >  
+> >  	list_for_each_entry(list, &dev->list, node) {
+> > -		list->buffer[list->head].value = kmemdup(data, len,
+> GFP_ATOMIC);
+> > +		if (!(list->buffer[list->head].value = kmemdup(data,
+> len, GFP_ATOMIC))) {
+> > +			ret = -ENOMEM;
+> > +			break;
+> > +		}
+> >  		list->buffer[list->head].len = len;
+> >  		list->head = (list->head + 1) & (HIDRAW_BUFFER_SIZE -
+> 1);
+> >  		kill_fasync(&list->fasync, SIGIO, POLL_IN);
+> >  	}
+> >  
+> >  	wake_up_interruptible(&dev->wait);
+> > +	return ret;
+> >  }
+> > 
 > 
+> What happens if there is more than 1 element in the list and kmemdup
+> fails
+> halfway through the list?  Will the allocated memory leak the next time
+> hirdaw_report_event() is called?
 
-What happens if there is more than 1 element in the list and kmemdup
-fails
-halfway through the list?  Will the allocated memory leak the next time
-hirdaw_report_event() is called?
+Unfortunately it was too late already yesterday and I sent out a wrong 
+version of the patch.
 
-James
+The one I actually propose is below (it contains handling of NULL value 
+after read() has been woken up).
 
 
+
+
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH] HID: hidraw: add proper error handling to raw event reporting
+
+If kmemdup() in hidraw_report_event() fails, we are not propagating
+this fact properly.
+
+Let hidraw_report_event() and hid_report_raw_event() return an error
+value to the caller.
+
+Reported-by: Oliver Neukum <oneukum@suse.de>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-core.c |   16 +++++++++++-----
+ drivers/hid/hidraw.c   |   19 +++++++++++++------
+ include/linux/hid.h    |    2 +-
+ include/linux/hidraw.h |    4 ++--
+ 4 files changed, 27 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8be458b..0cddcaa 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1032,7 +1032,7 @@ static struct hid_report *hid_get_report(struct hid_report_enum *report_enum,
+ 	return report;
+ }
+ 
+-void hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
++int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
+ 		int interrupt)
+ {
+ 	struct hid_report_enum *report_enum = hid->report_enum + type;
+@@ -1040,10 +1040,11 @@ void hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
+ 	unsigned int a;
+ 	int rsize, csize = size;
+ 	u8 *cdata = data;
++	int ret = 0;
+ 
+ 	report = hid_get_report(report_enum, data);
+ 	if (!report)
+-		return;
++		goto out;
+ 
+ 	if (report_enum->numbered) {
+ 		cdata++;
+@@ -1063,14 +1064,19 @@ void hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
+ 
+ 	if ((hid->claimed & HID_CLAIMED_HIDDEV) && hid->hiddev_report_event)
+ 		hid->hiddev_report_event(hid, report);
+-	if (hid->claimed & HID_CLAIMED_HIDRAW)
+-		hidraw_report_event(hid, data, size);
++	if (hid->claimed & HID_CLAIMED_HIDRAW) {
++		ret = hidraw_report_event(hid, data, size);
++		if (ret)
++			goto out;
++	}
+ 
+ 	for (a = 0; a < report->maxfield; a++)
+ 		hid_input_field(hid, report->field[a], cdata, interrupt);
+ 
+ 	if (hid->claimed & HID_CLAIMED_INPUT)
+ 		hidinput_report_event(hid, report);
++out:
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(hid_report_raw_event);
+ 
+@@ -1147,7 +1153,7 @@ nomem:
+ 		}
+ 	}
+ 
+-	hid_report_raw_event(hid, type, data, size, interrupt);
++	ret = hid_report_raw_event(hid, type, data, size, interrupt);
+ 
+ unlock:
+ 	up(&hid->driver_lock);
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index cf7d6d5..36fa77b 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -87,11 +87,13 @@ static ssize_t hidraw_read(struct file *file, char __user *buffer, size_t count,
+ 		len = list->buffer[list->tail].len > count ?
+ 			count : list->buffer[list->tail].len;
+ 
+-		if (copy_to_user(buffer, list->buffer[list->tail].value, len)) {
+-			ret = -EFAULT;
+-			goto out;
++		if (list->buffer[list->tail].value) {
++			if (copy_to_user(buffer, list->buffer[list->tail].value, len)) {
++				ret = -EFAULT;
++				goto out;
++			}
++			ret = len;
+ 		}
+-		ret = len;
+ 
+ 		kfree(list->buffer[list->tail].value);
+ 		list->tail = (list->tail + 1) & (HIDRAW_BUFFER_SIZE - 1);
+@@ -437,19 +439,24 @@ static const struct file_operations hidraw_ops = {
+ 	.llseek =	noop_llseek,
+ };
+ 
+-void hidraw_report_event(struct hid_device *hid, u8 *data, int len)
++int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+ {
+ 	struct hidraw *dev = hid->hidraw;
+ 	struct hidraw_list *list;
++	int ret = 0;
+ 
+ 	list_for_each_entry(list, &dev->list, node) {
+-		list->buffer[list->head].value = kmemdup(data, len, GFP_ATOMIC);
++		if (!(list->buffer[list->head].value = kmemdup(data, len, GFP_ATOMIC))) {
++			ret = -ENOMEM;
++			break;
++		}
+ 		list->buffer[list->head].len = len;
+ 		list->head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
+ 		kill_fasync(&list->fasync, SIGIO, POLL_IN);
+ 	}
+ 
+ 	wake_up_interruptible(&dev->wait);
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(hidraw_report_event);
+ 
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 3a95da6..58b3857 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -896,7 +896,7 @@ static inline int hid_hw_power(struct hid_device *hdev, int level)
+ 	return hdev->ll_driver->power ? hdev->ll_driver->power(hdev, level) : 0;
+ }
+ 
+-void hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
++int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
+ 		int interrupt);
+ 
+ extern int hid_generic_init(void);
+diff --git a/include/linux/hidraw.h b/include/linux/hidraw.h
+index 4b88e69..9cdc9b6 100644
+--- a/include/linux/hidraw.h
++++ b/include/linux/hidraw.h
+@@ -76,13 +76,13 @@ struct hidraw_list {
+ #ifdef CONFIG_HIDRAW
+ int hidraw_init(void);
+ void hidraw_exit(void);
+-void hidraw_report_event(struct hid_device *, u8 *, int);
++int hidraw_report_event(struct hid_device *, u8 *, int);
+ int hidraw_connect(struct hid_device *);
+ void hidraw_disconnect(struct hid_device *);
+ #else
+ static inline int hidraw_init(void) { return 0; }
+ static inline void hidraw_exit(void) { }
+-static inline void hidraw_report_event(struct hid_device *hid, u8 *data, int len) { }
++static inline int hidraw_report_event(struct hid_device *hid, u8 *data, int len) { }
+ static inline int hidraw_connect(struct hid_device *hid) { return -1; }
+ static inline void hidraw_disconnect(struct hid_device *hid) { }
+ #endif
+
+-- 
+Jiri Kosina
+SUSE Labs

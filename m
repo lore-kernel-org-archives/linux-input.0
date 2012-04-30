@@ -1,49 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] input: wacom - add 0xE5 (MT device) support
-Date: Sun, 29 Apr 2012 21:10:20 -0700
-Message-ID: <20120430041020.GB1055@core.coreip.homeip.net>
-References: <1335402856-11256-1-git-send-email-pinglinux@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Shawn Landden <shawnlandden@gmail.com>
+Subject: [PATCH 1/2] input: usbtouchscreen: only expose e2i configure option in expert mode
+Date: Sun, 29 Apr 2012 21:14:57 -0700
+Message-ID: <1335759297-451-1-git-send-email-shawnlandden@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f51.google.com ([209.85.210.51]:48894 "EHLO
+Received: from mail-pz0-f51.google.com ([209.85.210.51]:47791 "EHLO
 	mail-pz0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750695Ab2D3EKZ (ORCPT
+	with ESMTP id S1750807Ab2D3EPE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Apr 2012 00:10:25 -0400
-Received: by dadz8 with SMTP id z8so3537222dad.10
-        for <linux-input@vger.kernel.org>; Sun, 29 Apr 2012 21:10:25 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1335402856-11256-1-git-send-email-pinglinux@gmail.com>
+	Mon, 30 Apr 2012 00:15:04 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, Chris Bagwell <chris@cnpbagwell.com>, Ping Cheng <pingc@wacom.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Shawn Landden <shawnlandden@gmail.com>
 
-On Wed, Apr 25, 2012 at 06:14:16PM -0700, Ping Cheng wrote:
-> Main part of patch is adding support for a new Wacom MT touch
-> packet and labels these devices using MTSCREEN type.
-> 
-> Other items of interest:
-> 
-> Delete some duplicate code in HID parsing for Y info since
-> its already done in X path.
-> 
-> In wacom_query_tablet_data(), only invoke the set report
-> that requests tablets to send Wacom Touch packets for
-> Finger interfaces.  Mostly, this is to make code intent clear.
+as is the case of all other devices supported by usbtouchscreen.c
 
-Applied, but:
+Also list e2i under the composite configure option (TOUCHSCREEN_USB_COMPOSITE)
 
-> +
-> +	wacom->num_contacts_left -= contacts_to_send;
-> +	if (wacom->num_contacts_left < 0)
-> +		wacom->num_contacts_left = 0;
+Signed-off-by: Shawn Landden <shawnlandden@gmail.com>
+---
+ drivers/input/touchscreen/Kconfig |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-num_contacts_left is unsigned so this condition woudl never fire.
-Changed num_contacts_left to be signed before applying.
-
-Thanks.
-
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 2a21419..a31b05f 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -635,6 +635,7 @@ config TOUCHSCREEN_USB_COMPOSITE
+ 	  - Zytronic controllers
+ 	  - Elo TouchSystems 2700 IntelliTouch
+ 	  - EasyTouch USB Touch Controller from Data Modul
++	  - e2i (Mimo monitors)
+ 
+ 	  Have a look at <http://linux.chapter7.ch/touchkit/> for
+ 	  a usage description and the required user-space stuff.
+@@ -721,7 +722,7 @@ config TOUCHSCREEN_USB_ELO
+ 
+ config TOUCHSCREEN_USB_E2I
+ 	default y
+-	bool "e2i Touchscreen controller (e.g. from Mimo 740)"
++	bool "e2i Touchscreen controller (e.g. from Mimo 740)" if EXPERT
+ 	depends on TOUCHSCREEN_USB_COMPOSITE
+ 
+ config TOUCHSCREEN_USB_ZYTRONIC
 -- 
-Dmitry
+1.7.9.5
+

@@ -1,38 +1,77 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH 0/3] hid: Enable report fixup on rebind
-Date: Mon, 30 Apr 2012 15:25:25 +0300
-Message-ID: <CALu8Fe8oaNM+77OAYbpS_4q2CTsyz6Xkgfbz248bxEap4=PQpA@mail.gmail.com>
-References: <1335097300-11881-1-git-send-email-rydberg@euromail.se>
-	<alpine.LNX.2.00.1204222325380.1856@pobox.suse.cz>
-	<4F9D5F43.4000502@gmail.com>
-	<20120430120641.GA3111@polaris.bitmath.org>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH 0/3] gspca - ov534: saturation and hue (using
+ fixp-arith.h)
+Date: Mon, 30 Apr 2012 15:51:01 +0200
+Message-ID: <20120430155101.29b34c2776fb8c0f8aebacca@studenti.unina.it>
+References: <1335187267-27940-1-git-send-email-ospite@studenti.unina.it>
+	<20120423141625.0138bbeb@lwn.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Mon__30_Apr_2012_15_51_01_+0200_x9fMF1+1utxtX_pw"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vb0-f46.google.com ([209.85.212.46]:39468 "EHLO
-	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755149Ab2D3MZ0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Apr 2012 08:25:26 -0400
-In-Reply-To: <20120430120641.GA3111@polaris.bitmath.org>
+Received: from smtp209.alice.it ([82.57.200.105]:52578 "EHLO smtp209.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751500Ab2D3NvJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Apr 2012 09:51:09 -0400
+In-Reply-To: <20120423141625.0138bbeb@lwn.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-media@vger.kernel.org, Jean-Francois Moine <moinejf@free.fr>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Johann Deneux <johann.deneux@gmail.com>, Anssi Hannula <anssi.hannula@gmail.com>
 
-Hi Henrik,
+--Signature=_Mon__30_Apr_2012_15_51_01_+0200_x9fMF1+1utxtX_pw
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 30, 2012 at 3:06 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> The changes you propose force changes to out-of-tree-drivers, without
-> any obvious benefit. Also, there is already a large set of patches on
-> review based on this one. So although I agree that some renames and
-> movements could clarify things, the content and timing will need some
-> more thought.
+On Mon, 23 Apr 2012 14:16:25 -0600
+Jonathan Corbet <corbet@lwn.net> wrote:
 
-OK, taking into account Jiri's comment also, I'll retry this change
-after things settle down a bit.
+> On Mon, 23 Apr 2012 15:21:04 +0200
+> Antonio Ospite <ospite@studenti.unina.it> wrote:
+>=20
+> > Jonathan, maybe fixp_sin() and fixp_cos() can be used in
+> > drivers/media/video/ov7670.c too where currently ov7670_sine() and
+> > ov7670_cosine() are defined, but I didn't want to send a patch I could
+> > not test.
+>=20
+> Seems like a good idea.  No reason to have multiple such hacks in the
+> kernel; I'll look at dumping the ov7670 version when I get a chance.  That
+> may not be all that soon, though; life is a bit challenging at the moment.
+>=20
+> One concern is that if we're going to add users to fixp-arith.h, some of
+> it should maybe go to a C file.  Otherwise we'll create duplicated copies
+> of the cos_table array for each user.  I'm not sure the functions need to
+> be inline either; nobody expects cos() to be blindingly fast.
+>=20
 
-Thanks!
+Jonathan, does lib/fixp-arith.c sound OK to you? I'll put that on my
+TODO, unless Johann wans to do some more rework; in any case I think we
+can still merge this patchset like it is right now.
 
-Sincerely,
-Nick
+Jean-Francois will you take care of that?
+
+Thanks,
+   Antonio
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Mon__30_Apr_2012_15_51_01_+0200_x9fMF1+1utxtX_pw
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+emMUACgkQ5xr2akVTsAHvJgCfdgYccXZzD2ykIsez70D+OidQ
+lfcAnj4i7ZoD9c+hkWhzNC3MlAZolCdS
+=BFEx
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__30_Apr_2012_15_51_01_+0200_x9fMF1+1utxtX_pw--

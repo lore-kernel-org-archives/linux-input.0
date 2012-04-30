@@ -1,34 +1,47 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 2/3] hid-logitech: Collect report descriptors before
- sending
-Date: Mon, 30 Apr 2012 20:14:06 +0200
-Message-ID: <20120430181406.GA3313@polaris.bitmath.org>
-References: <1335097300-11881-1-git-send-email-rydberg@euromail.se>
- <1335097300-11881-3-git-send-email-rydberg@euromail.se>
- <CAE7qMrqEJmBWo7JDHuB2DnWJ4vkvv9jya7RDJguiXsrs2xgadQ@mail.gmail.com>
- <CAN+gG=EDbtZkRZ+zr6awvK8fDYdV-c59On8B3O=vSMYhdQs_cw@mail.gmail.com>
+Subject: Re: [PATCH v3 5/6] hid-multitouch: Switch to device groups
+Date: Mon, 30 Apr 2012 20:30:23 +0200
+Message-ID: <20120430183023.GA5585@polaris.bitmath.org>
+References: <1335175627-2270-1-git-send-email-rydberg@euromail.se>
+ <1335175627-2270-6-git-send-email-rydberg@euromail.se>
+ <CAN+gG=EWHi18kb1q2xQg8mfS9o6BHVLVdU+KYUcWdM4L3gJybA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:51121 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752968Ab2D3SJo (ORCPT
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:60080 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756227Ab2D3S0C (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Apr 2012 14:09:44 -0400
+	Mon, 30 Apr 2012 14:26:02 -0400
 Content-Disposition: inline
-In-Reply-To: <CAN+gG=EDbtZkRZ+zr6awvK8fDYdV-c59On8B3O=vSMYhdQs_cw@mail.gmail.com>
+In-Reply-To: <CAN+gG=EWHi18kb1q2xQg8mfS9o6BHVLVdU+KYUcWdM4L3gJybA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <Benjamin_Tissoires@logitech.com>, Stephane Chatty <chatty@enac.fr>
 
-> I've been able to test the changes with different Logitech mice and keyboards.
-> 
-> So Jiri,
-> Tested-By: Benjamin Tissoires <benjamin.tissoires@gmail.com
-> for this change and this patch and the 3rd one (Hid: Handle
-> driver-specific device descriptor in core).
+> I remarked a small regression in this patch: the detection of the
+> serial protocol is not handled anymore. I was indeed relying on the
+> fact that the parameter "id" in mt_probe was null to know that the
+> device was not already in the list of known devices.
 
-Thanks, Benjamin.
+I see. Will this suffice?
 
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 125c1e7..507981e 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -673,8 +673,8 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+        if (ret)
+                goto fail;
+ 
+-       if (!id && td->touches_by_report == 1) {
+-               /* the device has been sent by hid-generic */
++       /* unknown serial devices need special quirks */
++       if ((!id || id->product == HID_ANY_ID) && td->touches_by_report == 1) {
+                mtclass = &td->mtclass;
+                mtclass->quirks |= MT_QUIRK_ALWAYS_VALID;
+                mtclass->quirks &= ~MT_QUIRK_NOT_SEEN_MEANS_UP;
+
+Cheers,
 Henrik

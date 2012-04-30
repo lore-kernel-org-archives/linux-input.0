@@ -1,52 +1,34 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3 5/6] hid-multitouch: Switch to device groups
-Date: Mon, 30 Apr 2012 18:42:02 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204301837050.1856@pobox.suse.cz>
-References: <1335175627-2270-1-git-send-email-rydberg@euromail.se> <1335175627-2270-6-git-send-email-rydberg@euromail.se> <CAN+gG=EWHi18kb1q2xQg8mfS9o6BHVLVdU+KYUcWdM4L3gJybA@mail.gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 2/3] hid-logitech: Collect report descriptors before
+ sending
+Date: Mon, 30 Apr 2012 20:14:06 +0200
+Message-ID: <20120430181406.GA3313@polaris.bitmath.org>
+References: <1335097300-11881-1-git-send-email-rydberg@euromail.se>
+ <1335097300-11881-3-git-send-email-rydberg@euromail.se>
+ <CAE7qMrqEJmBWo7JDHuB2DnWJ4vkvv9jya7RDJguiXsrs2xgadQ@mail.gmail.com>
+ <CAN+gG=EDbtZkRZ+zr6awvK8fDYdV-c59On8B3O=vSMYhdQs_cw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:51382 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752797Ab2D3QmG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Apr 2012 12:42:06 -0400
-In-Reply-To: <CAN+gG=EWHi18kb1q2xQg8mfS9o6BHVLVdU+KYUcWdM4L3gJybA@mail.gmail.com>
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:51121 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752968Ab2D3SJo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Apr 2012 14:09:44 -0400
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=EDbtZkRZ+zr6awvK8fDYdV-c59On8B3O=vSMYhdQs_cw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <Benjamin_Tissoires@logitech.com>, Stephane Chatty <chatty@enac.fr>
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 30 Apr 2012, Benjamin Tissoires wrote:
-
-> though I was not able to test it with the devices we have, I remarked
-> a small regression in this patch: the detection of the serial protocol
-> is not handled anymore. I was indeed relying on the fact that the
-> parameter "id" in mt_probe was null to know that the device was not
-> already in the list of known devices. I think that this small pitfall
-> can be assessed in a separate commit later (after more testing) to
-> keep the patch clear.
+> I've been able to test the changes with different Logitech mice and keyboards.
 > 
-> By looking at the whole code of the patch set, Acked-by: Benjamin
-> Tissoires <benjamin.tissoires@gmail.com>
-> 
-> I'll tell you by the end of the week if anything goes wrong with our
-> multitouch devices, but I don't see any reasons why it could fail.
+> So Jiri,
+> Tested-By: Benjamin Tissoires <benjamin.tissoires@gmail.com
+> for this change and this patch and the 3rd one (Hid: Handle
+> driver-specific device descriptor in core).
 
-Thanks for the review.
+Thanks, Benjamin.
 
-I will still wait for the mt_probe() serial protocol fix, as I'd like to 
-be certain that what I push into for-next doesn't introduce any known 
-regressions for which there is not a fix floating around yet.
-
-One super-minor thing I have noticed when reviewing this patchset is that 
-we have never put a upper bound on HID_DG_CONTACTMAX as presented by the 
-device. In an extreme potential case of (likely broken) device this might 
-result in memory corruption in mt_probe(), as the argument of kzalloc() 
-when allocating the slots will overflow.
-
-But this is not a regressions and has always been there, so something to 
-fix separately.
-
--- 
-Jiri Kosina
-SUSE Labs
+Henrik

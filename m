@@ -1,54 +1,104 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 2/2] Input: matrix_keymap - wire up device tree support
-Date: Mon, 30 Apr 2012 10:00:42 -0600
-Message-ID: <4F9EB72A.10403@wwwdotorg.org>
-References: <20120426081909.GA2726@core.coreip.homeip.net> <4F99642E.1010305@wwwdotorg.org> <20120430041955.GC1055@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: serio_raw - signal EFAULT even if read/write
+ partially succeeds
+Date: Mon, 30 Apr 2012 09:34:42 -0700
+Message-ID: <20120430163442.GA2316@core.coreip.homeip.net>
+References: <20120430064450.GA29212@core.coreip.homeip.net>
+ <20120430111223.4941a9f0@pyramind.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:37637 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753044Ab2D3QBF (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:61634 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753636Ab2D3Qet (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Apr 2012 12:01:05 -0400
-In-Reply-To: <20120430041955.GC1055@core.coreip.homeip.net>
+	Mon, 30 Apr 2012 12:34:49 -0400
+Received: by pbbrp8 with SMTP id rp8so3441863pbb.19
+        for <linux-input@vger.kernel.org>; Mon, 30 Apr 2012 09:34:49 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20120430111223.4941a9f0@pyramind.ukuu.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Viresh Kumar <viresh.kumar@st.com>, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Rakesh Iyer <riyer@nvidia.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-input@vger.kernel.org, Wanlong Gao <gaowanlong@cn.fujitsu.com>, Che-Liang Chiou <clchiou@chromium.org>, David Herrmann <dh.herrmann@googlemail.com>
 
-On 04/29/2012 10:19 PM, Dmitry Torokhov wrote:
-> On Thu, Apr 26, 2012 at 09:05:18AM -0600, Stephen Warren wrote:
->> On 04/26/2012 02:19 AM, Dmitry Torokhov wrote:
->>> When platform keymap is not supplied to matrix_keypad_build_keymap()
->>> and device tree support is enabled, try locating specified property
->>> and load keymap from it. If property name is not defined, try using
->>> "linux,keymap".
->>>
->>> Based on earlier patch by Viresh Kumar <viresh.kumar@st.com>
->>
->> I think this series looks mostly OK. A few comments below.
->>
->> We don't actually have the KBC driver hooked up on any boards yet, so I
->> can't actually test this yet.
->>
->> How will the linux,fn-keymap handling work? It looks like this code is
->> allocating a keymap data structure with one additional row to represent
->> fn-not-pressed vs. fn-pressed.
+Hi Alan,
+
+On Mon, Apr 30, 2012 at 11:12:23AM +0100, Alan Cox wrote:
+> On Sun, 29 Apr 2012 23:44:51 -0700
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > 
-> No, it loads 2x rows (therefore giving you twice original keymap size).
-
-Yes, I mean an extra row signal, so therefore twice as many rows.
-
->> I assume this will work without issue
->> even though the second half is not filled in. Won't this allow the
->> linux,keymap property entries to pass validation "if (row >= rows)" for
->> one more row than it should?
+> > When copy_to/from_user fails in the middle of transfer we should not
+> > report to the user that read/write partially succeeded but rather
+> > report -EFAULT right away, so that application will know that it got
+> > its buffers all wrong.
 > 
-> Maybe... I think we should revisit this when you actually have
-> linux,fn-keymap. Probably will need to export matrix_keypad_parse_
+> Actually POSIX/SuS is quite explicit that if a write or read partially
+> succeeds you return the partial result. The error will be returned only
+> if nothing was written or read, or in some cases can be buffered by the
+> code for the next read/write attempt (eg for sockets).
 
-Would it be better to just drop the support for the linux,fn-keymap
-property, until the full support is there? That wouldn't lose any
-functionality, but would avoid this potential error-checking issue.
+Could you please point me to that particular part of the spec? My
+reading of
+
+http://pubs.opengroup.org/onlinepubs/9699919799/functions/read.html
+
+leads me to conclusion that we are only required to report short reads
+when interrupted (or don't have enough data) and that severe errors may
+be reported at any time:
+
+"Upon successful completion, where nbyte is greater than 0, read() shall
+mark for update the last data access timestamp of the file, and shall
+return the number of bytes read. This number shall never be greater than
+nbyte. The value returned may be less than nbyte if the number of bytes
+left in the file is less than nbyte, if the read() request was
+interrupted by a signal, or if the file is a pipe or FIFO or special
+file and has fewer than nbyte bytes immediately available for reading.
+For example, a read() from a file associated with a terminal may return
+one typed line of data.
+
+If a read() is interrupted by a signal before it reads any data, it
+shall return -1 with errno set to [EINTR].
+
+If a read() is interrupted by a signal after it has successfully read
+some data, it shall return the number of bytes read."
+
+> 
+> In the wait_event_interruptible() case it's even more important as a
+> signal handler and syscall restart needs to do the right thing. Looking
+> at the patch it looks like a signal interrupting loses you data with this
+> change appplied.
+
+No, it should not as we do not wait for more data once some data is
+read.
+
+> The -EFAULT one is a corner case, the signal handlers
+> causing data loss one is not.
+> 
+> EFAULT matters for certain crazy software like persistent storage managers
+> which use -EFAULT and segfault/bus error catching to implement full
+> persistent storage. Those people may well be somewhat out of their tree.
+
+I do not think persistent storage applicable to character devices, in
+particular PS/2 port.
+
+> 
+> > -		if (!(file->f_flags & O_NONBLOCK))
+> > +		if (!(file->f_flags & O_NONBLOCK)) {
+> >  			error = wait_event_interruptible(serio_raw->wait,
+> >  					serio_raw->head != serio_raw->tail ||
+> >  					serio_raw->dead);
+> > -	} while (!error);
+> > +			if (error)
+> > +				return error;
+> 
+> And we lose data as far as I can see, so a timer event will cause the app
+> to malfunction.
+
+No, we'd only go into wait_event_interruptible() if we haven't read
+anything yet so we won't lose any data here.
+
+Thanks.
+
+-- 
+Dmitry

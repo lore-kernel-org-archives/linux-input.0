@@ -1,41 +1,34 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: [PATCH] Input: mpu3050: set IRQF_ONESHOT when requesting the interrupt
-Date: Tue,  1 May 2012 11:46:46 -0600
-Message-ID: <1335894406-27428-1-git-send-email-swarren@wwwdotorg.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v3 0/6] hid: Introduce device groups
+Date: Wed, 2 May 2012 07:46:51 +0200
+Message-ID: <20120502054651.GA3970@polaris.bitmath.org>
+References: <1335175627-2270-1-git-send-email-rydberg@euromail.se>
+ <alpine.LNX.2.00.1205011300540.1856@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:51646 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754852Ab2EARqy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 May 2012 13:46:54 -0400
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:41120 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751055Ab2EBFmU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 May 2012 01:42:20 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1205011300540.1856@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-input@vger.kernel.org, Stephen Warren <swarren@nvidia.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Stephane Chatty <chatty@enac.fr>
 
-From: Stephen Warren <swarren@nvidia.com>
+Hi Jiri,
 
-Commit 1c6c695 "genirq: Reject bogus threaded irq requests" requires
-that request_threaded_irq() either be passed an explicit handler, or
-that IRQF_ONESHOT be set. Set this flag.
+> I have now updated the 'might-rebase/autoloading' branch of git.hid tree 
+> (this is a rebasing branch, so simple pull will not work for you as a 
+> fast-forward, you'll have to delete and repull the branch).
+> 
+> It's currently in a shape I would be okay to pushing out for -next and 
+> scheduling for next merge window, and I will do so tomorrow if nothing 
+> else pops up during testing or reviews.
 
-Signed-off-by: Stephen Warren <swarren@nvidia.com>
----
- drivers/input/misc/mpu3050.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+The branch looks good in this end.
 
-diff --git a/drivers/input/misc/mpu3050.c b/drivers/input/misc/mpu3050.c
-index 5403c57..306f84c 100644
---- a/drivers/input/misc/mpu3050.c
-+++ b/drivers/input/misc/mpu3050.c
-@@ -367,7 +367,7 @@ static int __devinit mpu3050_probe(struct i2c_client *client,
- 
- 	error = request_threaded_irq(client->irq,
- 				     NULL, mpu3050_interrupt_thread,
--				     IRQF_TRIGGER_RISING,
-+				     IRQF_TRIGGER_RISING | IRQF_ONESHOT,
- 				     "mpu3050", sensor);
- 	if (error) {
- 		dev_err(&client->dev,
--- 
-1.7.0.4
-
+Thanks,
+Henrik

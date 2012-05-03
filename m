@@ -1,87 +1,323 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH 0/1] HID: User-space HID I/O driver (UHID)
-Date: Thu, 3 May 2012 17:33:37 +0200
-Message-ID: <CANq1E4QaRHtGxt3d=Z2mvqAFhTY2zid20GGNZ2ZzHjStGepc+A@mail.gmail.com>
-References: <1335799650-17597-1-git-send-email-dh.herrmann@googlemail.com>
-	<CAAngNMabAxO9fVN2DM=5xPJAVk_is3QoS1=+TGZPJAbY3TYHMQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
+Subject: Re: ad714x wheel support and other shortcomings
+Date: Thu, 3 May 2012 12:39:46 -0400
+Message-ID: <58C4D79D-8941-48A8-B615-A7578A291B09@gmail.com>
+References: <E1F92FDB-5546-402F-901D-36A9EDB2B2C0@gmail.com> <4FA0F90F.5040806@analog.com> <D0A6F0B6-FC03-4B4F-8FA0-8363417674CB@gmail.com>
+Mime-Version: 1.0 (Apple Message framework v1084)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:34869 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755315Ab2ECPdi convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 11:33:38 -0400
-In-Reply-To: <CAAngNMabAxO9fVN2DM=5xPJAVk_is3QoS1=+TGZPJAbY3TYHMQ@mail.gmail.com>
+Received: from mail-qc0-f174.google.com ([209.85.216.174]:57386 "EHLO
+	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751390Ab2ECQjw convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 12:39:52 -0400
+Received: by qcro28 with SMTP id o28so57900qcr.19
+        for <linux-input@vger.kernel.org>; Thu, 03 May 2012 09:39:51 -0700 (PDT)
+In-Reply-To: <D0A6F0B6-FC03-4B4F-8FA0-8363417674CB@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joao Paulo Rechi Vita <jprvita@openbossa.org>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, marcel@holtmann.org, claudio.takahasi@openbossa.org, linux-bluetooth@vger.kernel.org
+To: Michael Hennerich <michael.hennerich@analog.com>
+Cc: linux-input@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org
 
-Hi Joao
 
-On Wed, May 2, 2012 at 9:09 PM, Joao Paulo Rechi Vita
-<jprvita@openbossa.org> wrote:
-> On Mon, Apr 30, 2012 at 12:27 PM, David Herrmann
-> <dh.herrmann@googlemail.com> wrote:
->> Hi
->>
->> This implements a hid_ll_driver user-space interface similar to uinp=
-ut for the
->> input devices. It allows to implement the HID transport-layer in use=
-r-space as
->> required by Bluetooth Low-Energy (HoG).
->>
->> This is my "first final revision" for the module. Please review and =
-test.
->> Changes from the previous RFCs include:
->> =A0- The feature-report mechanism is now implemented
->> =A0- Several min_t() fixes
->> =A0- Minor coding-style issues
->>
->> I did not change __attribute__((__packed__)) to __packed as the latt=
-er one is
->> not provided to user-space.
->>
->> If there are any more issues, please tell me. And for the record, th=
-e HoG devs
->> told me that they are working since several months with it now so we=
- have a real
->> user-space application that needs it ;)
->>
->> If there are no more issues (which i doubt) I can also resend this s=
-plitted into
->> multiple patches.
->>
->
-> Thanks for your work, David. I'll test and review this new version.
-> Did you find out the what is the problem when passing BUS_BLUETOOTH o=
-n
-> the 'bus' field of the create request?
+On May 3, 2012, at 10:10, Jean-Francois Dagenais wrote:
 
-I've spent some time looking into that but I haven't found the
-problem, yet. Maybe Jiri can comment here.
+> Following up...
+> 
+> I intend to send patches soon regarding this.
+> 
+> I am reviewing my earlier patch about a divide by 0 caused by h_state being set,
+> but CDC results not reflecting this...
+> 
+> Here's a prelude question: Is there a reason (other than historical) why the
+> slider's cal_sensor_val is the only one not checking the ambient value and
+> substracting it? Like so:
+> 		if (ad714x->adc_reg[i] > ad714x->amb_reg[i])
+> 			ad714x->sensor_val[i] =
+> 				ad714x->adc_reg[i] - ad714x->amb_reg[i];
+> 		else
+> 			ad714x->sensor_val[i] = 0;
+> 
+While working on this...
+Weird! where are the touchpad Y axis CDC vals read from the chip???
+Anyway, my planned mod would fix this.
+> 
+> I want to make a different fix for this divide by 0, to kill two birds with one
+> stone, it would also bring the chip more in sync when we get an interrupt.
+> 
+> Basically, upon interrupt, I would stop conversions using power_mode bits, then
+> read all the state registers in one swift move regardless if its a wheel, slider
+> etc. All used stages would be read and ambient adjusted as a pre-step to running
+> the state machines. When all are done, I would reset conversion back to 0, then
+> re-enable conversion as it was prior to the ISR beginning.
+> 
+> This would produce an accurate and consistent state of all the registers that are
+> read, as well as reducing the unnecessarily high interrupt frequency which causes
+> a rather high CPU utilization when the wheel is touched.
+> 
+> Thoughts?
+> 
+> Thanks in advance for the answer and opinion!
+> /jfd
+> 
+> On May 2, 2012, at 5:06, Michael Hennerich wrote:
+> 
+>> On 05/01/2012 05:01 PM, Jean-Francois Dagenais wrote:
+>>> Hi guys,
+>>> (sorry for the long message, but there are A LOT of issues here in this
+>>> driver...)
+>> 
+>> Hi Jean-Francois,
+>> 
+>> Thanks for your detailed observations.
+>> 
+>> A few words about the history of this driver.
+>> Bryan, not longer working for ADI, developed this driver based on
+>> a few routines someone else in ADI developed some time ago.
+>> He didn't had proper hardware that would have allowed him to test
+>> all physical arrangements, such as wheels, touch-pads, etc.
+>> 
+>> When I took over ownership, I only had a board with a few buttons,
+>> and a really tiny wheel. So testing on my side was basically limited to
+>> the dimensions of the wheel.
+>> I fixed a series of bugs associated with the wheel algo,
+>> such as divide by zero, and other things.
+>> 
+>>> 
+>>> Ok, I took a step back after my failed mod
+>>> (1335460639-1362-2-git-send-email-jeff.dagenais@gmail.com), and discovered many
+>>> shortcomings in the driver code around the wheel feature, hw_init and more
+>>> generically the abs_pos calculation algorithm. It looks like we're the only
+>>> "kernel-participating" party that has tried to integrate the wheel in a real
+>>> system...?
+>> I know some people are using this driver successfully.
+>> But when it comes to the wheel, that could be the case.
+>> 
+>>> 
+>>> This is sort of a story based account of my recent dealings with the ad714x
+>>> driver, I know it's chatty, but please bear with me...
+>>> 
+>>> The motion of the wheel near the roll around point (ex. between stages 7 and 0
+>>> for an 8 stage wheel) has a dead zone. This is because the slices of max_coord
+>>> being added up are too large, and near the last segment, the value is greater
+>>> than max_coord, but is capped at max_coord, hence the dead zone. Now this
+>>> effect, caused by the enlarged slices, is tolerable for a slider since there is
+>>> no rolling around, but for the wheel, this is unusable.
+>>> 
+>>> Simply shrinking the slice size didn't fix the problem, the values capped at
+>>> max_coord before the mid-point between the last and first stages, making a dead
+>>> zone, then a skip when the finger nears the center of start_stage. So I came up
+>>> with a new algorithm which relocates the positioning one turn of the wheel
+>>> ahead, then modulo's the value back into the max_coord range to eliminate this
+>>> problem.
+>>> 
+>>> I had to stepped away from the a_param and b_param based mean calculation
+>>> because (and this is true for the slider as well) it has bumps in it. The bumps
+>>> appear when the determined "highest_stage" changes. The recalculated values
+>>> near this frontier skips ahead or backward by a noticeable amount, hence the
+>>> "bump". It is especially annoying when you keep your finger around a tipping
+>>> point between two stages. The value then skips by a large quantity rapidly back
+>>> and forth. IMPORTANT NOTE: since the slider uses a similar algorithm, I tried
+>>> telling the driver my wheel as a slider to invoke that code, and did the bump
+>>> test there in the middle of my wheel, SAME PROBLEM!
+>>> 
+>>> My new algo still grabs the largest response and the two adjacent stages, the
+>>> response "floor" (or 0) is brought up to the smallest of the two adjacent
+>>> stages. This basically eliminates one of the adjacent stages and while
+>>> adjusting the ratio between the largest response and the next largest one. With
+>>> these two stages left, a proportion is given to the largest vs. the other. This
+>>> becomes a vector which offsets the coord (+/-) from the largest response
+>>> stage's center coordinate. Ultra simple and works really well. IT COULD/SHOULD
+>>> BE PORTED TO THE SLIDER and/or to the generic ad714x_cal_abs_pos function.
+>> Sounds good to me.
+>> 
+>>> 
+>>> Once I got that working, I got jerky behaviour from the reported position
+>>> around the edges (i.e. 0 and max_coord). The cause was the flt_pos calculation
+>>> which is basically broken for circular coordinates.
+>>> 
+>>> The problem is that when using a max_coord of 1024 for example, then coord 0
+>>> equals coord 1024. So the abs_pos and old flt_pos have to be brought in the
+>>> same "quadrant" (for lack of a better word) for the calculation to be valid.
+>>> But this is still not enough for things to be smooth in the whole range of
+>>> values.
+>>> 
+>>> The other issue one encounters is that, even if the values are in the same
+>>> "quadrant" and you modulo the end value, when you add several turns to the
+>>> coordinates for the flt_pos calculation, it doesn't yield the same result as if
+>>> you don't. My solution was to offset the abs_pos and old flt_pos around
+>>> max_coord, make the calculation and "de-offset" the result after. This means
+>>> the calculation is always done using the same scale (i.e. max_coord).
+>>> 
+>>> The resulting position is regular and smooth. But then again, my abs_pos was
+>>> fine without the flt_pos calculation. It made me wonder if the filtering, which
+>>> is really just a time-base smoothing function, had been added because of the
+>>> bump problem I talked about earlier. Any thoughts?
+>> Think I changed that in commit f1e430e6369f5edac552d99bff15369ef8c6bbd2.
+>> I did that because the flt_pos gave me better results.
+>> Now that fixed the underlying problem, we should definitely use the abs_pos.
+>> 
+>>> 
+>>> BTW, just so it doesn't go un-noticed in my upcoming patch, while refactoring
+>>> this, I noticed a clear bug in the current ad714x_wheel_cal_abs_pos :
+>>> 	first_before = (sw->highest_stage + stage_num - 1) % stage_num;
+>>> 	highest = sw->highest_stage;
+>>> 	first_after = (sw->highest_stage + stage_num + 1) % stage_num;
+>>> ... this will fail IF start_stage IS NOT 0 for this wheel. I have changed it to
+>>> something like this :
+>>> 	int highest_idx_rel = sw->highest_stage - hw->start_stage;
+>>> 	...
+>>> 	first_before = ((highest_idx_rel + stage_num - 1) % stage_num)
+>>> 	                            + hw->start_stage ;
+>>> 	...
+>>> Agreed?
+>> Good catch! Agreed.
+>> 
+>>> 
+>>> So now, using this strategy, the wheel motion is both precise and has no breaks
+>>> or bumps in it. I even tested the code using stages 1..8 instead of 0..7 and it
+>>> still works correctly. This suggests that my index calculations are ok.
+>>> 
+>>> (patch form was too noisy, I will send a patch after I get feedback if you guys
+>>> don't mind)
+>>> 
+>>> static void ad714x_wheel_cal_abs_pos(struct ad714x_chip *ad714x, int idx)
+>>> {
+>>> 	struct ad714x_wheel_plat *hw =&ad714x->hw->wheel[idx];
+>>> 	struct ad714x_wheel_drv *sw =&ad714x->sw->wheel[idx];
+>>> 	int stage_num = hw->end_stage - hw->start_stage + 1;
+>>> 	/* index of the highest stage relative to start_stage */
+>>> 	int highest_idx_rel = sw->highest_stage - hw->start_stage;
+>>> 	/* the number of positions between each stages */
+>>> 	int slice_size = DIV_ROUND_CLOSEST(hw->max_coord, stage_num);
+>>> 	int a, b, c; /* the 3 vals to consider */
+>>> 	int dir; /* direction of the adjustment from the highest stage pos */
+>>> 
+>>> 	/* Init abs_pos at the highest stage's physical location, but one turn
+>>> 	 * of the wheel ahead (modulo'd later down), then add half the slice
+>>> 	 * size because we want coordinate 0 to be half way between end_stage
+>>> 	 * and start_stage.
+>>> 	 */
+>>> 	sw->abs_pos = (slice_size * highest_idx_rel)
+>>> 		       + hw->max_coord + (slice_size/2);
+>>> 
+>>> 	/* grab the three values we are interested in. These are the highest
+>>> 	 * index, and the one before and after, in a circular roll-over type
+>>> 	 * increment and decrement, also considering start_stage != 0.
+>>> 	 */
+>>> 	a = ad714x->sensor_val[((highest_idx_rel + stage_num - 1) % stage_num)
+>>> 			       + hw->start_stage];
+>>> 	b = ad714x->sensor_val[sw->highest_stage];
+>>> 	c = ad714x->sensor_val[((highest_idx_rel + stage_num + 1) % stage_num)
+>>> 			       + hw->start_stage];
+>>> 
+>>> 	/* eliminate the smallest val from the equation, by substracting the
+>>> 	 * smallest to all values, in other words, bring the signal reference
+>>> 	 * up to the smallest value of the 3. After this "if-else", 'bM is
+>>> 	 * still the highest val, 'a' contains the second biggest val, and
+>>> 	 * 'dir' contains a record of the direction we need to adjust abs_pos.
+>>> 	 *        : .                          . :
+>>> 	 *      : : :                          : : :
+>>> 	 *  if: a b c  adjust right (1), else: a b c adjust left (-1)
+>>> 	 *
+>>> 	 */
+>>> 	if(a<  c) {
+>>> 		c -= a;
+>>> 		b -= a;
+>>> 		a = c;
+>>> 		dir = 1;
+>>> 	} else {
+>>> 		a -= c;
+>>> 		b -= c;
+>>> 		dir = -1;
+>>> 	}
+>>> 	/* add/substract a proportional to a/a+b quantity to abs_pos */
+>>> 	sw->abs_pos = (sw->abs_pos +
+>>> 		       DIV_ROUND_CLOSEST(a * dir * slice_size, a+b)) %
+>>> 		       hw->max_coord;
+>>> }
+>>> 
+>>> static void ad714x_wheel_cal_flt_pos(struct ad714x_chip *ad714x, int idx)
+>>> {
+>>> 	struct ad714x_wheel_plat *hw =&ad714x->hw->wheel[idx];
+>>> 	struct ad714x_wheel_drv *sw =&ad714x->sw->wheel[idx];
+>>> 	int half_coord_range = hw->max_coord/2;
+>>> 	int abs_pos = sw->abs_pos;
+>>> 	int diff = sw->abs_pos - sw->flt_pos;
+>>> 
+>>> 	/* try to put both pos within max_coord/2 of each other by adding
+>>> 	 * one turn of the wheel, this turn is removed by modulo after calc.
+>>> 	 */
+>>> 	if (diff>  half_coord_range)
+>>> 		sw->flt_pos += hw->max_coord;
+>>> 	else if (diff<  -half_coord_range)
+>>> 		abs_pos += hw->max_coord;
+>>> 
+>>> 	/* if difference is still too great, just use abs_pos */
+>>> 	if (abs(abs_pos - sw->flt_pos)>  half_coord_range)
+>>> 		sw->flt_pos = sw->abs_pos;
+>>> 	else {
+>>> 		/* for the filter to work without "breakage" around the wheel,
+>>> 		 * we need to offset the values to bring the two values around
+>>> 		 * max_coord. Pretend the old flt_pos is max_coord.
+>>> 		 */
+>>> 		diff = hw->max_coord - sw->flt_pos;
+>>> 		abs_pos += diff;
+>>> 
+>>> 		sw->flt_pos = (DIV_ROUND_CLOSEST(((hw->max_coord * 30) +
+>>> 						 (abs_pos * 71)), 100) - diff)
+>>> 			       % hw->max_coord;
+>>> 	}
+>>> }
+>>> 
+>>> 
+>>> 
+>>> Alright, while I have your attention... some more questions:
+>>> 
+>>> In hw_init, why do we read back all the sys registers but do nothing with the
+>>> data?
+>> There are a few registers that are read-to-clear.
+>> But these shouldn't have any side effects.
+>> Dead code - feel free to remove it.
+>> 
+>>> 
+>>> Also, a few lines further in hw_init:
+>>> ad714x->write(ad714x, AD714X_STG_CAL_EN_REG, 0xFFF);
+>>> ...which completely disregards the settings provided by platform init
+>>> (ad714x->hw->sys_cfg_reg[1]) which are programmed a few lines before for
+>>> nothing basically. I can understand that the driver could "hard-code" the
+>>> calib_en feature for it's behaviour, but writing 0xfff overwrites AVG_F/LP_SKIP
+>>> registers to 0. Since the settings are provided by platform, I would just
+>>> delete the line that does this , and trust the platform to init those properly,
+>>> it is already responsible for writing most of the registers anyway.
+>> Sounds good to me.
+>> 
+>>> 
+>>> Another weird thing is the presence of the 3 STAGE_(LOW/HIGH/COMP)_INT_ENABLE
+>>> registers in the platform init structure, even though the driver specifically
+>>> overwrites those in the ad714x_use_(com/thr)_int functions. I would shrink the
+>>> platform data's sys_cfg_reg array to 5 since these last three registers are
+>>> under the control of the driver, and the other configuration item in these 3
+>>> regs is the GPIO feature, which is not useable by the current driver code
+>>> anyway.
+>> You're right for the sliders and wheels.
+>> Setup routines for these will do a read modify write on affected registers.
+>> However the buttons still need to have a proper config...
+>>> 
+>>> 
+>>> Thanks for reading through!
+>> 
+>> 
+>> -- 
+>> Greetings,
+>> Michael
+>> 
+>> --
+>> Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+>> Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
+>> Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin,
+>> Margaret Seif
+>> 
+>> 
+> 
 
-> Also, how does the HID subsystem differentiate from HID protocol
-> versions? We've just found out that HoG exposes what HID protocol
-> version the device implements, is it the case of having an extra fiel=
-d
-> on the uhid_create_req structure to pass this information, or is it
-> already present on the HID descriptor (sorry for my limited knowledge
-> on the HID protocol itself)?
-
-There is already a "version" field in UHID_CREATE. It isn't mandatory,
-though, so setting it to 0 works. I even think the HID core doesn't
-even look into that value except for printk messages.
-
-> --
-> Jo=E3o Paulo Rechi Vita
-> Openbossa Labs - INdT
-
-Thanks
-David
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

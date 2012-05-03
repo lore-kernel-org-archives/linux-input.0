@@ -1,65 +1,66 @@
-From: "Shen, Voice" <Voice.Shen@atmel.com>
-Subject: RE: qt1070: Why IRQF_TRIGGER_NONE?
-Date: Thu, 3 May 2012 05:15:14 +0000
-Message-ID: <ABFEDD1A8D2AAF42A54E3C074D49DC720F627464@penmbx02>
-References: <CACKLOr1XE+tJ92jbfOHdDQVVsXhsNASrHgENEbiuR+8aBE11cw@mail.gmail.com>
- <4FA1E237.2070404@atmel.com>
+From: Jonathan Nieder <jrnieder@gmail.com>
+Subject: [bug?] [powerpc] hid_logitech_dj: Wireless mouse does not work in
+ xorg or gpm
+Date: Thu, 3 May 2012 00:50:51 -0500
+Message-ID: <20120503055051.GA15960@burratino>
+References: <20120503052000.GC15205@burratino>
+ <20120503052420.GD15205@burratino>
+ <4FA217B7.7070908@osvaldobarrera.com.ar>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nasmtp01.atmel.com ([192.199.1.246]:56207 "EHLO
-	nasmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752083Ab2ECFVU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 01:21:20 -0400
-In-Reply-To: <4FA1E237.2070404@atmel.com>
-Content-Language: en-US
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:32966 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752374Ab2ECFvK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 01:51:10 -0400
+Received: by yenm10 with SMTP id m10so945624yen.19
+        for <linux-input@vger.kernel.org>; Wed, 02 May 2012 22:51:10 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4FA217B7.7070908@osvaldobarrera.com.ar>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Wu, Josh" <Josh.wu@atmel.com>, javier Martin <javier.martin@vista-silicon.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Wolfram Sang <w.sang@pengutronix.de>, Jean Delvare <khali@linux-fr.org>, Axel Lin <axel.lin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: linux-input@vger.kernel.org, Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar>, Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-SGkgQWxsLA0KICBTb21lIGluZm9ybWF0aW9uIGFzIGZvbGxvd2luZywNCg0KICBBY2NvcmRpbmcg
-dG8gdGhlIGRhdGFzaGVldCBvZiBxdDEwNzAsIHdlIGNhbiB1c2UgSVJRRl9UUklHR0VSX0ZBTExJ
-Tkcgb3IgSVJRRl9UUklHR0VSX0xPVyAoSSB0aGluayB0aGlzIGlzIHRoZSBiZXN0KSBmb3IgSVJR
-IGZsYWcuIEhvd2V2ZXIsIHRoZSBJUlEgbGluZSBpcyBhIEdQSU8gb2YgYSBTT0MuIFNvbWUgU09D
-IGNhbiBkZXRlY3QgdGhlIGxldmVsIGNoYW5nZSBvZiB0aGUgR1BJTywgd2hpbGUgY2FuIG5vdCBk
-aXN0aW5ndWlzaCB0aGUgZmFsbGluZyBvciByaXNpbmcuIFNvLCB0aGUgSVJRIGZsYWcgZGVwZW5k
-cyBvbiB0aGUgdHJpZ2dlciBtb2RlIG9mIEdQSU8gbGluZS4NCg0KICBNYXliZSB1c2UgdGhlICJm
-bGFncyIgZWxlbWVudCBpbiAic3RydWN0IGkyY19ib2FyZF9pbmZvIiB0byBwYXNzIHRoZSBJUlEg
-ZmxhZywgb3IgYWRkIGFub3RoZXIgZWxlbWVudCBuYW1lZCAiaXJxZmxhZ3MiIGludG8gInN0cnVj
-dCBpMmNfYm9hcmRfaW5mbyIuIEkgdGhpbmsgdGhpcyB3aWxsIGJlIGJldHRlciwgYnV0IEkgYW0g
-bm90IHN1cmUgd2hldGhlciB0aGlzIGlzIGEgZ29vZCBzb2x1dGlvbi4NCg0KICBCVFcsIEkgYW0g
-cmV3b3JraW5nIHRoZSBkcml2ZXIgZm9yIERUIChkZXZpY2UgdHJlZSkgc3VwcG9ydC4NCg0KQmVz
-dCBSZWdhcmRzLA0KVm9pY2UgU2hlbg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJv
-bTogSm9zaCBXdSBbbWFpbHRvOmpvc2gud3VAYXRtZWwuY29tXSANClNlbnQ6IFRodXJzZGF5LCBN
-YXkgMDMsIDIwMTIgOTo0MSDJ6rKoDQpUbzogamF2aWVyIE1hcnRpbjsgU2hlbiwgVm9pY2UNCkNj
-OiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IFdvbGZyYW0gU2FuZzsgSmVhbiBEZWx2YXJl
-OyBBeGVsIExpbjsgRG1pdHJ5IFRvcm9raG92DQpTdWJqZWN0OiBSZTogcXQxMDcwOiBXaHkgSVJR
-Rl9UUklHR0VSX05PTkU/DQoNCk9uIDUvMi8yMDEyIDQ6MzUgUE0sIGphdmllciBNYXJ0aW4gd3Jv
-dGU6DQo+IEhpLA0KPiBJIHdhcyB0ZXN0aW5nIHF0MTA3MCBkcml2ZXIgd2l0aCBteSBWaXNzdHJp
-bSBTTTEwIGJvYXJkIHdoZW4gSSBmb3VuZA0KPiBvdXQgSVJRcyB3aGVyZSBub3QgdHJpZ2dlcmVk
-IHByb3Blcmx5Lg0KPg0KPiBJIGhhZCB0byBjb21lIHVwIHdpdGggdGhlIGZvbGxvd2luZyBwYXRj
-aCBpbiBvcmRlciB0byBzb2x2ZSBpdDoNCj4NCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQv
-a2V5Ym9hcmQvcXQxMDcwLmMgYi9kcml2ZXJzL2lucHV0L2tleWJvYXJkL3F0MTA3MC5jDQo+IGlu
-ZGV4IDBiN2IyZjguLmU4YjZhZTMgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaW5wdXQva2V5Ym9h
-cmQvcXQxMDcwLmMNCj4gKysrIGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9xdDEwNzAuYw0KPiBA
-QCAtMjAxLDcgKzIwMSw3IEBAIHN0YXRpYyBpbnQgX19kZXZpbml0IHF0MTA3MF9wcm9iZShzdHJ1
-Y3QgaTJjX2NsaWVudCAqY2xpZW50LA0KPiAgIAltc2xlZXAoUVQxMDcwX1JFU0VUX1RJTUUpOw0K
-Pg0KPiAgIAllcnIgPSByZXF1ZXN0X3RocmVhZGVkX2lycShjbGllbnQtPmlycSwgTlVMTCwgcXQx
-MDcwX2ludGVycnVwdCwNCj4gLQkJSVJRRl9UUklHR0VSX05PTkUsIGNsaWVudC0+ZGV2LmRyaXZl
-ci0+bmFtZSwgZGF0YSk7DQo+ICsJCUlSUUZfVFJJR0dFUl9GQUxMSU5HLCBjbGllbnQtPmRldi5k
-cml2ZXItPm5hbWUsIGRhdGEpOw0KPiAgIAlpZiAoZXJyKSB7DQo+ICAgCQlkZXZfZXJyKCZjbGll
-bnQtPmRldiwgImZhaWwgdG8gcmVxdWVzdCBpcnFcbiIpOw0KPiAgIAkJZ290byBlcnJfZnJlZV9t
-ZW07DQo+DQo+DQo+IEFjY29yZGluZyB0byB0aGUgZGF0YXNoZWV0IChwMTApICAiVGhlIENIQU5H
-RSBsaW5lIGlzIGFjdGl2ZSBsb3cgYW5kDQo+IHNpZ25hbHMgd2hlbiB0aGVyZSBpcyBhIGNoYW5n
-ZSBpbiBzdGF0ZSBpbiB0aGUgRGV0ZWN0aW9uIG9yDQo+IElucHV0IHN0YXR1cyBieXRlcy4gSXQg
-aXMgY2xlYXJlZCAoYWxsb3dlZCB0byBmbG9hdCBoaWdoKSB3aGVuIHRoZQ0KPiBob3N0IHJlYWRz
-IHRoZSBzdGF0dXMgYnl0ZXMuIiBBcyBJIHVuZGVyc3RhbmQsIHRoaXMgbWVhbnMgdGhhdCB3ZSBo
-YXZlDQo+IHRvIG1vbml0b3IgZmFsbGluZyBlZGdlcyBoZXJlLg0KPg0KPiBJcyB0aGVyZSBhbnkg
-cmVhc29uIHRvIHJlZ2lzdGVyIHRoZSBJUlEgYXMgSVJRRl9UUklHR0VSX05PTkU/IFdvdWxkDQo+
-IHlvdSBhY2NlcHQgdGhlIGFib3ZlIHBhdGNoIGluc3RlYWQsIHByb3ZpZGVkIEkgc2VuZCBpdCBp
-biB0aGUgcmVxdWlyZWQNCj4gZm9ybWF0Pw0KSSBhZGQgVm9pY2UgU2hlbiB0byB0aGUgbWFpbCBs
-b29wLCB3aG8gaXMgd3JpdGluZyBhYm92ZSBjb2RlLg0KDQpWb2ljZSwgd2lsbCB0aGF0IElSUUZf
-VFJJR0dFUl9YWFhYIGNoYW5nZXMgaW1wYWN0IG90aGVyIHBsYXRmb3Jtcz8NCg0KQmVzdCBSZWdh
-cmRzLA0KSm9zaCBXdQ0KPg0KPiBSZWdhcmRzLg0KDQo=
+Hi Nestor et al,
+
+Huge Osvaldo Barrera writes, regarding a Logitech USB Receiver
+(id 046d:c52b) attached to a PowerBook6,5 [1]:
+
+> My mouse does not seem to work, either with Xorg, or gpm.  It's a
+> Logitech Performance MX.
+>
+> It works fine on -stable after a clean installation of the 6.0.4
+> netinst ISO, but does not work either on testing, or sid.
+
+(For context: stable = 2.6.32.y, testing and sid = 3.2.y.)
+
+> It did not work a week ago, and does not work today either (so this
+> has been broken on both sid and testing for a week now).
+[...]
+> When I installed stable and upgraded to testing, the device node
+> /dev/input/mouse1 did exist (mouse0 is the trackpad), but "cat
+> /dev/input/mouse1" showed no output when moving the mouse (mouse0
+> did when moving the trackpad). When doing a clean install of
+> testing, the device node mouse1 is never created.
+>
+> After looking at the dmesg and lsusb, the device itself seems to be
+> detected, however, it does not work.
+>
+> The mouse works fine on another linux-based computer (ArchLinux,
+> with kernel 3.3.2), so the mouse is not the issue.  I additionally
+> have another identical mouse, which exhibits the same behaviour (on
+> both computers).
+
+He later clarified that the machine with ArchLinux was an amd64
+machine.  So my first guess is that this might be an endianness issue
+in the driver (hid_logitech_dj, which was a new driver introduced
+during the 3.2 merge window).
+
+Kernel log snippet, module list, and some other info are at [1].
+Known problem?  Any hints for tracking this down?
+
+Thanks,
+Jonathan
+
+[1] http://bugs.debian.org/671292

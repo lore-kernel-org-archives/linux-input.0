@@ -1,59 +1,60 @@
-From: Josh Wu <josh.wu@atmel.com>
-Subject: Re: qt1070: Why IRQF_TRIGGER_NONE?
-Date: Thu, 03 May 2012 09:41:11 +0800
-Message-ID: <4FA1E237.2070404@atmel.com>
-References: <CACKLOr1XE+tJ92jbfOHdDQVVsXhsNASrHgENEbiuR+8aBE11cw@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: eeti_ts: Mark as CONFIG_BROKEN
+Date: Wed, 2 May 2012 21:36:51 -0700
+Message-ID: <20120503043651.GA11830@core.coreip.homeip.net>
+References: <1333777207-4151-1-git-send-email-olof@lixom.net>
+ <20120407070206.GA17623@core.coreip.homeip.net>
+ <4F8089A9.6080704@raumfeld.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:23178 "EHLO
-	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754494Ab2ECBmC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 May 2012 21:42:02 -0400
-In-Reply-To: <CACKLOr1XE+tJ92jbfOHdDQVVsXhsNASrHgENEbiuR+8aBE11cw@mail.gmail.com>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:38061 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750878Ab2ECEg7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 00:36:59 -0400
+Content-Disposition: inline
+In-Reply-To: <4F8089A9.6080704@raumfeld.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: javier Martin <javier.martin@vista-silicon.com>, "Shen, Voice" <Voice.Shen@atmel.com>
-Cc: linux-input@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Jean Delvare <khali@linux-fr.org>, Axel Lin <axel.lin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Sven Neumann <s.neumann@raumfeld.com>
+Cc: Olof Johansson <olof@lixom.net>, Daniel Mack <daniel@caiaq.de>, Daniel Mack <zonque@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 5/2/2012 4:35 PM, javier Martin wrote:
+Hi Sven,
+
+On Sat, Apr 07, 2012 at 08:38:33PM +0200, Sven Neumann wrote:
 > Hi,
-> I was testing qt1070 driver with my Visstrim SM10 board when I found
-> out IRQs where not triggered properly.
->
-> I had to come up with the following patch in order to solve it:
->
-> diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
-> index 0b7b2f8..e8b6ae3 100644
-> --- a/drivers/input/keyboard/qt1070.c
-> +++ b/drivers/input/keyboard/qt1070.c
-> @@ -201,7 +201,7 @@ static int __devinit qt1070_probe(struct i2c_client *client,
->   	msleep(QT1070_RESET_TIME);
->
->   	err = request_threaded_irq(client->irq, NULL, qt1070_interrupt,
-> -		IRQF_TRIGGER_NONE, client->dev.driver->name, data);
-> +		IRQF_TRIGGER_FALLING, client->dev.driver->name, data);
->   	if (err) {
->   		dev_err(&client->dev, "fail to request irq\n");
->   		goto err_free_mem;
->
->
-> According to the datasheet (p10)  "The CHANGE line is active low and
-> signals when there is a change in state in the Detection or
-> Input status bytes. It is cleared (allowed to float high) when the
-> host reads the status bytes." As I understand, this means that we have
-> to monitor falling edges here.
->
-> Is there any reason to register the IRQ as IRQF_TRIGGER_NONE? Would
-> you accept the above patch instead, provided I send it in the required
-> format?
-I add Voice Shen to the mail loop, who is writing above code.
+> 
+> On 07.04.12 09:02, Dmitry Torokhov wrote:
+> >On Fri, Apr 06, 2012 at 10:40:07PM -0700, Olof Johansson wrote:
+> >>This seems to have been broken since 2010, so obviously noone actually
+> >>cares about the driver:
+> >>
+> >>make[4]: *** [drivers/input/touchscreen/eeti_ts.o] Error 1
+> >>drivers/input/touchscreen/eeti_ts.c: In function 'eeti_ts_irq_active':
+> >>drivers/input/touchscreen/eeti_ts.c:65:2: error: implicit declaration of function 'irq_to_gpio' [-Werror=implicit-function-declaration]
+> >>
+> >>irq_to_gpio isn't available on most platforms today, so the driver
+> >>will need some rework by someone who has hardware access and can test
+> >>(to make sure that, for example, switching to level interrupts and just
+> >>keep taking them while there's more to process works).
+> >>
+> >>I guess it could just be scheduled for removal, but let's start with
+> >>marking it CONFIG_BROKEN.
+> >
+> >Well, it probably works quite well on arches that do have irq_to_gpio(),
+> >let's ask Daniel and Sven if they still have this hardware and if they
+> >can try the patch below that implements what you suggested.
+> 
+> This hardware is still in use and we also still follow kernel
+> development and try to update our customer devices to recent kernel
+> versions regularly. Currently we are at 3.1.10 and the touchscreen
+> works well with that. I'll try to update to a more recent kernel
+> next week and will try your patch.
+> 
 
-Voice, will that IRQF_TRIGGER_XXXX changes impact other platforms?
+Did you have a chance to test the patch?
 
-Best Regards,
-Josh Wu
->
-> Regards.
+Thanks.
 
+-- 
+Dmitry

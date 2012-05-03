@@ -1,54 +1,91 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH] i2c: Split I2C_M_NOSTART support out of
- I2C_FUNC_PROTOCOL_MANGLING
-Date: Thu, 3 May 2012 10:58:15 +0100
-Message-ID: <20120503095814.GA3955@opensource.wolfsonmicro.com>
-References: <1335443839-22872-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <20120503095211.GC9574@pengutronix.de>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v3 0/6] hid: Introduce device groups
+Date: Thu, 3 May 2012 12:06:41 +0200
+Message-ID: <CAN+gG=HDZJf+73SoddWar_pRPH2NvFrvpVuAaRC8_frXmGQYfA@mail.gmail.com>
+References: <1335175627-2270-1-git-send-email-rydberg@euromail.se>
+	<alpine.LNX.2.00.1205011300540.1856@pobox.suse.cz>
+	<CAN+gG=GGVFDgf_PkovS+_OX26LH0Q19_FwwkGP2pSwnoX4d_Ug@mail.gmail.com>
+	<alpine.LNX.2.00.1205021044240.14613@pobox.suse.cz>
+	<CAN+gG=HHxzYPSD+1i5JS8HmkxusHi=e6im48VzXHy2KsFoce+w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120503095211.GC9574-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Florian Tobias Schandinat <FlorianSchandinat-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:39369 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754622Ab2ECKGm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 06:06:42 -0400
+In-Reply-To: <CAN+gG=HHxzYPSD+1i5JS8HmkxusHi=e6im48VzXHy2KsFoce+w@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stephane Chatty <chatty@enac.fr>
+
+On Wed, May 2, 2012 at 12:55 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Wed, May 2, 2012 at 10:45 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+>> On Wed, 2 May 2012, Benjamin Tissoires wrote:
+>>
+>>> > It's currently in a shape I would be okay to pushing out for -next and
+>>> > scheduling for next merge window, and I will do so tomorrow if nothing
+>>> > else pops up during testing or reviews.
+>>>
+>>> Hi Jiri,
+>>>
+>>> Well, I'm back in my lab this morning, and I'm testing your branch
+>>> against the different devices we have here. I'm observing a strange
+>>> problem: when connecting some devices, the first touch is always at
+>>> 0,0. If I rmmod and insmod hid_multitouch it seems to work after....
+>>>
+>>> I'm investigating this bug now. I'll tell you when I'm done. I still
+>>> don't now if it's related to Henrik's changes or 3.4-rc4.
+>>
+>> I see, thanks a lot for the heads-up, I will be waiting for your analysis
+>> of this.
+>>
+>> I have already renamed the branch to 'device-groups' and merged it into
+>> branch that goes into next, so please send me any followup patches on top
+>> of that queue now.
+>
+> Ok, I think I understood: nothing related to Henrik's changes. The bug
+> is also present in the upstream kernel.
+> In the function set_last_slot_field, I was doing a:
+> test_bit(usage->hid, hi->input->absbit);
+>
+> for instance, 0x10030 (X hid field) in the absbit bit field which
+> contains only ABS_CNT (0x40) bits.... That's why it was a random bug.
+> Now I understood why Ubuntu complained about this test ;-)
+>
+> I won't have the time to submit the patch right now, I have to give a
+> lecture this afternoon. Maybe this evening or tomorrow.
+>
+> Cheers,
+> Benjamin
+
+Hi guys,
+
+I'm currently on the bug fix I told you earlier. However, I found a
+more problematic bug in the hid_groups functionality.
+
+Some device, like the Perixx peripad, present several interfaces
+(mouse, keyboard and multitouch).
+The hid groups functionality detects the HID field Contact ID, and
+then forwards all interfaces to hid-multitouch. The point is that
+hid-multitouch does not know how to handle mice and keyboards, and
+then fails handling the interfaces of the device.
+
+This particular device is then fully broken (as anyone pumped the events).
+I also noticed the same problem (but less problematic) with cypress
+panels: it presents different vendor interfaces and they are handled
+by hid-multitouch.
+
+Sorry for spotting this that late,
+Benjamin
 
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, May 03, 2012 at 11:52:11AM +0200, Wolfram Sang wrote:
-
-> Also, I'd think the FUNC_NOSTART bit should be 0x08 and SMBUS_PEC 0x4000. This
-> will be more intuitive, probably?
-
-What is the value in renumbering everything?  It just seems like it
-makes the diff less clear and has no practical value.
-
---ReaqsoxgOBHFXBhH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPolavAAoJEBus8iNuMP3dDrsP/2d1LiHwW4PPvTmVHzAGQ+4F
-u2r7OtI4vz5LaUdQjeJhPAPnjg35nbEJNlX18c9iK/aBxEC3/qeLlz+ZTtRIsODG
-PPUBxy3mPC7+saEhG7OuF5K96VVzpDpWXfrJrBTS8aU+vJyrgun7r9m9hcPtb59K
-dadTh8V85zX/6znmBo0s7kFGmopgxUCpTnCygMVbLCTJeV2fW7WkFSciSH/J27YK
-BAj96+TtVtI9DKBcI+oS5HO1St0WqulztUvvGxXY0zSvOrfwSbsaZ8FATD4UQ8fg
-3avH2jHUHGXxRry+R+He2/p5PPHcCt9pFMUcctEWqIu9taQQLqVuIz2yTrFmNZ+i
-yyyTxi1MFB6nLn7savUJ3Fr6KC1JjhnR2Kng9YFkDO6jO8L4bkONVjnA+5XHBdLp
-8cWRCrMEKxDXcY8zNvrEWTrbsqrwTb7Vn3tWIGysz85211jDG3N9ejPfmnoXLzHh
-Z2gNBUnyB6u+yJYks1zYyo/eWLif3Nl9OZBl+PUUTwf+4gAj/u7L8ApDxEcsjNd0
-WfhcokgkdzXw1IlgioJo1B+ZSG851t/hIzrbE2djWk2XUw30DXRxG5CQldWk7V0a
-RSqhfYCGL+vgDoCbJVjLnqM5DkPb7OP8mZ3mrbPjblLxoXCOYtPVmcaychfrxcEI
-m4BsWucWubbYwG4JyDRK
-=hsMG
------END PGP SIGNATURE-----
-
---ReaqsoxgOBHFXBhH--
+>
+>>
+>> Thanks,
+>>
+>> --
+>> Jiri Kosina
+>> SUSE Labs

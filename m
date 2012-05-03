@@ -1,91 +1,167 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v3 0/6] hid: Introduce device groups
-Date: Thu, 3 May 2012 12:06:41 +0200
-Message-ID: <CAN+gG=HDZJf+73SoddWar_pRPH2NvFrvpVuAaRC8_frXmGQYfA@mail.gmail.com>
-References: <1335175627-2270-1-git-send-email-rydberg@euromail.se>
-	<alpine.LNX.2.00.1205011300540.1856@pobox.suse.cz>
-	<CAN+gG=GGVFDgf_PkovS+_OX26LH0Q19_FwwkGP2pSwnoX4d_Ug@mail.gmail.com>
-	<alpine.LNX.2.00.1205021044240.14613@pobox.suse.cz>
-	<CAN+gG=HHxzYPSD+1i5JS8HmkxusHi=e6im48VzXHy2KsFoce+w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:39369 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754622Ab2ECKGm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 06:06:42 -0400
-In-Reply-To: <CAN+gG=HHxzYPSD+1i5JS8HmkxusHi=e6im48VzXHy2KsFoce+w@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: [PATCH] i2c: Split I2C_M_NOSTART support out of I2C_FUNC_PROTOCOL_MANGLING
+Date: Thu,  3 May 2012 11:53:36 +0100
+Message-ID: <1336042416-28330-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Florian Tobias Schandinat <FlorianSchandinat-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stephane Chatty <chatty@enac.fr>
 
-On Wed, May 2, 2012 at 12:55 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> On Wed, May 2, 2012 at 10:45 AM, Jiri Kosina <jkosina@suse.cz> wrote:
->> On Wed, 2 May 2012, Benjamin Tissoires wrote:
->>
->>> > It's currently in a shape I would be okay to pushing out for -next and
->>> > scheduling for next merge window, and I will do so tomorrow if nothing
->>> > else pops up during testing or reviews.
->>>
->>> Hi Jiri,
->>>
->>> Well, I'm back in my lab this morning, and I'm testing your branch
->>> against the different devices we have here. I'm observing a strange
->>> problem: when connecting some devices, the first touch is always at
->>> 0,0. If I rmmod and insmod hid_multitouch it seems to work after....
->>>
->>> I'm investigating this bug now. I'll tell you when I'm done. I still
->>> don't now if it's related to Henrik's changes or 3.4-rc4.
->>
->> I see, thanks a lot for the heads-up, I will be waiting for your analysis
->> of this.
->>
->> I have already renamed the branch to 'device-groups' and merged it into
->> branch that goes into next, so please send me any followup patches on top
->> of that queue now.
->
-> Ok, I think I understood: nothing related to Henrik's changes. The bug
-> is also present in the upstream kernel.
-> In the function set_last_slot_field, I was doing a:
-> test_bit(usage->hid, hi->input->absbit);
->
-> for instance, 0x10030 (X hid field) in the absbit bit field which
-> contains only ABS_CNT (0x40) bits.... That's why it was a random bug.
-> Now I understood why Ubuntu complained about this test ;-)
->
-> I won't have the time to submit the patch right now, I have to give a
-> lecture this afternoon. Maybe this evening or tomorrow.
->
-> Cheers,
-> Benjamin
+Since there are uses for I2C_M_NOSTART which are much more sensible and
+standard than most of the protocol mangling functionality (the main one
+being gather writes to devices where something like a register address
+needs to be inserted before a block of data) create a new I2C_FUNC_NOSTART
+for this feature and update all the users to use it.
 
-Hi guys,
+In the case of regmap-i2c we remove the requirement for mangling as
+I2C_M_NOSTART is the only mangling feature which is being used.
 
-I'm currently on the bug fix I told you earlier. However, I found a
-more problematic bug in the hid_groups functionality.
+Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+---
+ Documentation/i2c/functionality       |    1 +
+ drivers/base/regmap/regmap-i2c.c      |    2 +-
+ drivers/i2c/algos/i2c-algo-bit.c      |    2 +-
+ drivers/i2c/algos/i2c-algo-pcf.c      |    2 +-
+ drivers/i2c/busses/i2c-nuc900.c       |    3 ++-
+ drivers/i2c/busses/i2c-s3c2410.c      |    3 ++-
+ drivers/input/joystick/as5011.c       |    1 +
+ drivers/video/matrox/matroxfb_maven.c |    1 +
+ include/linux/i2c.h                   |    5 +++--
+ 9 files changed, 13 insertions(+), 7 deletions(-)
 
-Some device, like the Perixx peripad, present several interfaces
-(mouse, keyboard and multitouch).
-The hid groups functionality detects the HID field Contact ID, and
-then forwards all interfaces to hid-multitouch. The point is that
-hid-multitouch does not know how to handle mice and keyboards, and
-then fails handling the interfaces of the device.
-
-This particular device is then fully broken (as anyone pumped the events).
-I also noticed the same problem (but less problematic) with cypress
-panels: it presents different vendor interfaces and they are handled
-by hid-multitouch.
-
-Sorry for spotting this that late,
-Benjamin
-
-
->
->>
->> Thanks,
->>
->> --
->> Jiri Kosina
->> SUSE Labs
+diff --git a/Documentation/i2c/functionality b/Documentation/i2c/functionality
+index 42c17c1..fb2e77e 100644
+--- a/Documentation/i2c/functionality
++++ b/Documentation/i2c/functionality
+@@ -33,6 +33,7 @@ For the most up-to-date list of functionality constants, please check
+   I2C_FUNC_SMBUS_WRITE_BLOCK_DATA Handles the SMBus write_block_data command
+   I2C_FUNC_SMBUS_READ_I2C_BLOCK   Handles the SMBus read_i2c_block_data command
+   I2C_FUNC_SMBUS_WRITE_I2C_BLOCK  Handles the SMBus write_i2c_block_data command
++  I2C_FUNC_NOSTART                Transfers can be sent without a start
+ 
+ A few combinations of the above flags are also defined for your convenience:
+ 
+diff --git a/drivers/base/regmap/regmap-i2c.c b/drivers/base/regmap/regmap-i2c.c
+index 5f6b247..fa6bf52 100644
+--- a/drivers/base/regmap/regmap-i2c.c
++++ b/drivers/base/regmap/regmap-i2c.c
+@@ -42,7 +42,7 @@ static int regmap_i2c_gather_write(void *context,
+ 	/* If the I2C controller can't do a gather tell the core, it
+ 	 * will substitute in a linear write for us.
+ 	 */
+-	if (!i2c_check_functionality(i2c->adapter, I2C_FUNC_PROTOCOL_MANGLING))
++	if (!i2c_check_functionality(i2c->adapter, I2C_FUNC_NOSTART))
+ 		return -ENOTSUPP;
+ 
+ 	xfer[0].addr = i2c->addr;
+diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
+index 7f0b832..fad22b0 100644
+--- a/drivers/i2c/algos/i2c-algo-bit.c
++++ b/drivers/i2c/algos/i2c-algo-bit.c
+@@ -608,7 +608,7 @@ bailout:
+ 
+ static u32 bit_func(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
++	return I2C_FUNC_I2C | I2C_FUNC_NOSTART | I2C_FUNC_SMBUS_EMUL |
+ 	       I2C_FUNC_SMBUS_READ_BLOCK_DATA |
+ 	       I2C_FUNC_SMBUS_BLOCK_PROC_CALL |
+ 	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING;
+diff --git a/drivers/i2c/algos/i2c-algo-pcf.c b/drivers/i2c/algos/i2c-algo-pcf.c
+index 5c23795..8b38986 100644
+--- a/drivers/i2c/algos/i2c-algo-pcf.c
++++ b/drivers/i2c/algos/i2c-algo-pcf.c
+@@ -401,7 +401,7 @@ out:
+ 
+ static u32 pcf_func(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
++	return I2C_FUNC_I2C | I2C_FUNC_NOSTART | I2C_FUNC_SMBUS_EMUL |
+ 	       I2C_FUNC_PROTOCOL_MANGLING;
+ }
+ 
+diff --git a/drivers/i2c/busses/i2c-nuc900.c b/drivers/i2c/busses/i2c-nuc900.c
+index 03b6157..a26dfb8 100644
+--- a/drivers/i2c/busses/i2c-nuc900.c
++++ b/drivers/i2c/busses/i2c-nuc900.c
+@@ -502,7 +502,8 @@ static int nuc900_i2c_xfer(struct i2c_adapter *adap,
+ /* declare our i2c functionality */
+ static u32 nuc900_i2c_func(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_PROTOCOL_MANGLING;
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_NOSTART |
++		I2C_FUNC_PROTOCOL_MANGLING;
+ }
+ 
+ /* i2c bus registration info */
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index fa0b134..0195915 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -626,7 +626,8 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ /* declare our i2c functionality */
+ static u32 s3c24xx_i2c_func(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_PROTOCOL_MANGLING;
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_NOSTART |
++		I2C_FUNC_PROTOCOL_MANGLING;
+ }
+ 
+ /* i2c bus registration info */
+diff --git a/drivers/input/joystick/as5011.c b/drivers/input/joystick/as5011.c
+index 3063464..57d19d4 100644
+--- a/drivers/input/joystick/as5011.c
++++ b/drivers/input/joystick/as5011.c
+@@ -231,6 +231,7 @@ static int __devinit as5011_probe(struct i2c_client *client,
+ 	}
+ 
+ 	if (!i2c_check_functionality(client->adapter,
++				     I2C_FUNC_NOSTART |
+ 				     I2C_FUNC_PROTOCOL_MANGLING)) {
+ 		dev_err(&client->dev,
+ 			"need i2c bus that supports protocol mangling\n");
+diff --git a/drivers/video/matrox/matroxfb_maven.c b/drivers/video/matrox/matroxfb_maven.c
+index 31b8f67..217678e 100644
+--- a/drivers/video/matrox/matroxfb_maven.c
++++ b/drivers/video/matrox/matroxfb_maven.c
+@@ -1243,6 +1243,7 @@ static int maven_probe(struct i2c_client *client,
+ 
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WRITE_WORD_DATA |
+ 					      I2C_FUNC_SMBUS_BYTE_DATA |
++					      I2C_FUNC_NOSTART |
+ 					      I2C_FUNC_PROTOCOL_MANGLING))
+ 		goto ERROR0;
+ 	if (!(data = kzalloc(sizeof(*data), GFP_KERNEL))) {
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index b66cb60..da46925 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -541,7 +541,7 @@ struct i2c_msg {
+ 	__u16 flags;
+ #define I2C_M_TEN		0x0010	/* this is a ten bit chip address */
+ #define I2C_M_RD		0x0001	/* read data, from slave to master */
+-#define I2C_M_NOSTART		0x4000	/* if I2C_FUNC_PROTOCOL_MANGLING */
++#define I2C_M_NOSTART		0x4000	/* if I2C_FUNC_NOSTART */
+ #define I2C_M_REV_DIR_ADDR	0x2000	/* if I2C_FUNC_PROTOCOL_MANGLING */
+ #define I2C_M_IGNORE_NAK	0x1000	/* if I2C_FUNC_PROTOCOL_MANGLING */
+ #define I2C_M_NO_RD_ACK		0x0800	/* if I2C_FUNC_PROTOCOL_MANGLING */
+@@ -554,7 +554,7 @@ struct i2c_msg {
+ 
+ #define I2C_FUNC_I2C			0x00000001
+ #define I2C_FUNC_10BIT_ADDR		0x00000002
+-#define I2C_FUNC_PROTOCOL_MANGLING	0x00000004 /* I2C_M_NOSTART etc. */
++#define I2C_FUNC_PROTOCOL_MANGLING	0x00000004 /* I2C_M_IGNORE_NAK etc. */
+ #define I2C_FUNC_SMBUS_PEC		0x00000008
+ #define I2C_FUNC_SMBUS_BLOCK_PROC_CALL	0x00008000 /* SMBus 2.0 */
+ #define I2C_FUNC_SMBUS_QUICK		0x00010000
+@@ -569,6 +569,7 @@ struct i2c_msg {
+ #define I2C_FUNC_SMBUS_WRITE_BLOCK_DATA 0x02000000
+ #define I2C_FUNC_SMBUS_READ_I2C_BLOCK	0x04000000 /* I2C-like block xfer  */
+ #define I2C_FUNC_SMBUS_WRITE_I2C_BLOCK	0x08000000 /* w/ 1-byte reg. addr. */
++#define I2C_FUNC_NOSTART		0x10000000 /* I2C_M_NOSTART */
+ 
+ #define I2C_FUNC_SMBUS_BYTE		(I2C_FUNC_SMBUS_READ_BYTE | \
+ 					 I2C_FUNC_SMBUS_WRITE_BYTE)
+-- 
+1.7.10

@@ -1,60 +1,65 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: eeti_ts: Mark as CONFIG_BROKEN
-Date: Wed, 2 May 2012 21:36:51 -0700
-Message-ID: <20120503043651.GA11830@core.coreip.homeip.net>
-References: <1333777207-4151-1-git-send-email-olof@lixom.net>
- <20120407070206.GA17623@core.coreip.homeip.net>
- <4F8089A9.6080704@raumfeld.com>
+From: "Shen, Voice" <Voice.Shen@atmel.com>
+Subject: RE: qt1070: Why IRQF_TRIGGER_NONE?
+Date: Thu, 3 May 2012 05:15:14 +0000
+Message-ID: <ABFEDD1A8D2AAF42A54E3C074D49DC720F627464@penmbx02>
+References: <CACKLOr1XE+tJ92jbfOHdDQVVsXhsNASrHgENEbiuR+8aBE11cw@mail.gmail.com>
+ <4FA1E237.2070404@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:38061 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750878Ab2ECEg7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 00:36:59 -0400
-Content-Disposition: inline
-In-Reply-To: <4F8089A9.6080704@raumfeld.com>
+Received: from nasmtp01.atmel.com ([192.199.1.246]:56207 "EHLO
+	nasmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752083Ab2ECFVU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 01:21:20 -0400
+In-Reply-To: <4FA1E237.2070404@atmel.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sven Neumann <s.neumann@raumfeld.com>
-Cc: Olof Johansson <olof@lixom.net>, Daniel Mack <daniel@caiaq.de>, Daniel Mack <zonque@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Wu, Josh" <Josh.wu@atmel.com>, javier Martin <javier.martin@vista-silicon.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Wolfram Sang <w.sang@pengutronix.de>, Jean Delvare <khali@linux-fr.org>, Axel Lin <axel.lin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi Sven,
-
-On Sat, Apr 07, 2012 at 08:38:33PM +0200, Sven Neumann wrote:
-> Hi,
-> 
-> On 07.04.12 09:02, Dmitry Torokhov wrote:
-> >On Fri, Apr 06, 2012 at 10:40:07PM -0700, Olof Johansson wrote:
-> >>This seems to have been broken since 2010, so obviously noone actually
-> >>cares about the driver:
-> >>
-> >>make[4]: *** [drivers/input/touchscreen/eeti_ts.o] Error 1
-> >>drivers/input/touchscreen/eeti_ts.c: In function 'eeti_ts_irq_active':
-> >>drivers/input/touchscreen/eeti_ts.c:65:2: error: implicit declaration of function 'irq_to_gpio' [-Werror=implicit-function-declaration]
-> >>
-> >>irq_to_gpio isn't available on most platforms today, so the driver
-> >>will need some rework by someone who has hardware access and can test
-> >>(to make sure that, for example, switching to level interrupts and just
-> >>keep taking them while there's more to process works).
-> >>
-> >>I guess it could just be scheduled for removal, but let's start with
-> >>marking it CONFIG_BROKEN.
-> >
-> >Well, it probably works quite well on arches that do have irq_to_gpio(),
-> >let's ask Daniel and Sven if they still have this hardware and if they
-> >can try the patch below that implements what you suggested.
-> 
-> This hardware is still in use and we also still follow kernel
-> development and try to update our customer devices to recent kernel
-> versions regularly. Currently we are at 3.1.10 and the touchscreen
-> works well with that. I'll try to update to a more recent kernel
-> next week and will try your patch.
-> 
-
-Did you have a chance to test the patch?
-
-Thanks.
-
--- 
-Dmitry
+SGkgQWxsLA0KICBTb21lIGluZm9ybWF0aW9uIGFzIGZvbGxvd2luZywNCg0KICBBY2NvcmRpbmcg
+dG8gdGhlIGRhdGFzaGVldCBvZiBxdDEwNzAsIHdlIGNhbiB1c2UgSVJRRl9UUklHR0VSX0ZBTExJ
+Tkcgb3IgSVJRRl9UUklHR0VSX0xPVyAoSSB0aGluayB0aGlzIGlzIHRoZSBiZXN0KSBmb3IgSVJR
+IGZsYWcuIEhvd2V2ZXIsIHRoZSBJUlEgbGluZSBpcyBhIEdQSU8gb2YgYSBTT0MuIFNvbWUgU09D
+IGNhbiBkZXRlY3QgdGhlIGxldmVsIGNoYW5nZSBvZiB0aGUgR1BJTywgd2hpbGUgY2FuIG5vdCBk
+aXN0aW5ndWlzaCB0aGUgZmFsbGluZyBvciByaXNpbmcuIFNvLCB0aGUgSVJRIGZsYWcgZGVwZW5k
+cyBvbiB0aGUgdHJpZ2dlciBtb2RlIG9mIEdQSU8gbGluZS4NCg0KICBNYXliZSB1c2UgdGhlICJm
+bGFncyIgZWxlbWVudCBpbiAic3RydWN0IGkyY19ib2FyZF9pbmZvIiB0byBwYXNzIHRoZSBJUlEg
+ZmxhZywgb3IgYWRkIGFub3RoZXIgZWxlbWVudCBuYW1lZCAiaXJxZmxhZ3MiIGludG8gInN0cnVj
+dCBpMmNfYm9hcmRfaW5mbyIuIEkgdGhpbmsgdGhpcyB3aWxsIGJlIGJldHRlciwgYnV0IEkgYW0g
+bm90IHN1cmUgd2hldGhlciB0aGlzIGlzIGEgZ29vZCBzb2x1dGlvbi4NCg0KICBCVFcsIEkgYW0g
+cmV3b3JraW5nIHRoZSBkcml2ZXIgZm9yIERUIChkZXZpY2UgdHJlZSkgc3VwcG9ydC4NCg0KQmVz
+dCBSZWdhcmRzLA0KVm9pY2UgU2hlbg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJv
+bTogSm9zaCBXdSBbbWFpbHRvOmpvc2gud3VAYXRtZWwuY29tXSANClNlbnQ6IFRodXJzZGF5LCBN
+YXkgMDMsIDIwMTIgOTo0MSDJ6rKoDQpUbzogamF2aWVyIE1hcnRpbjsgU2hlbiwgVm9pY2UNCkNj
+OiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IFdvbGZyYW0gU2FuZzsgSmVhbiBEZWx2YXJl
+OyBBeGVsIExpbjsgRG1pdHJ5IFRvcm9raG92DQpTdWJqZWN0OiBSZTogcXQxMDcwOiBXaHkgSVJR
+Rl9UUklHR0VSX05PTkU/DQoNCk9uIDUvMi8yMDEyIDQ6MzUgUE0sIGphdmllciBNYXJ0aW4gd3Jv
+dGU6DQo+IEhpLA0KPiBJIHdhcyB0ZXN0aW5nIHF0MTA3MCBkcml2ZXIgd2l0aCBteSBWaXNzdHJp
+bSBTTTEwIGJvYXJkIHdoZW4gSSBmb3VuZA0KPiBvdXQgSVJRcyB3aGVyZSBub3QgdHJpZ2dlcmVk
+IHByb3Blcmx5Lg0KPg0KPiBJIGhhZCB0byBjb21lIHVwIHdpdGggdGhlIGZvbGxvd2luZyBwYXRj
+aCBpbiBvcmRlciB0byBzb2x2ZSBpdDoNCj4NCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQv
+a2V5Ym9hcmQvcXQxMDcwLmMgYi9kcml2ZXJzL2lucHV0L2tleWJvYXJkL3F0MTA3MC5jDQo+IGlu
+ZGV4IDBiN2IyZjguLmU4YjZhZTMgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaW5wdXQva2V5Ym9h
+cmQvcXQxMDcwLmMNCj4gKysrIGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9xdDEwNzAuYw0KPiBA
+QCAtMjAxLDcgKzIwMSw3IEBAIHN0YXRpYyBpbnQgX19kZXZpbml0IHF0MTA3MF9wcm9iZShzdHJ1
+Y3QgaTJjX2NsaWVudCAqY2xpZW50LA0KPiAgIAltc2xlZXAoUVQxMDcwX1JFU0VUX1RJTUUpOw0K
+Pg0KPiAgIAllcnIgPSByZXF1ZXN0X3RocmVhZGVkX2lycShjbGllbnQtPmlycSwgTlVMTCwgcXQx
+MDcwX2ludGVycnVwdCwNCj4gLQkJSVJRRl9UUklHR0VSX05PTkUsIGNsaWVudC0+ZGV2LmRyaXZl
+ci0+bmFtZSwgZGF0YSk7DQo+ICsJCUlSUUZfVFJJR0dFUl9GQUxMSU5HLCBjbGllbnQtPmRldi5k
+cml2ZXItPm5hbWUsIGRhdGEpOw0KPiAgIAlpZiAoZXJyKSB7DQo+ICAgCQlkZXZfZXJyKCZjbGll
+bnQtPmRldiwgImZhaWwgdG8gcmVxdWVzdCBpcnFcbiIpOw0KPiAgIAkJZ290byBlcnJfZnJlZV9t
+ZW07DQo+DQo+DQo+IEFjY29yZGluZyB0byB0aGUgZGF0YXNoZWV0IChwMTApICAiVGhlIENIQU5H
+RSBsaW5lIGlzIGFjdGl2ZSBsb3cgYW5kDQo+IHNpZ25hbHMgd2hlbiB0aGVyZSBpcyBhIGNoYW5n
+ZSBpbiBzdGF0ZSBpbiB0aGUgRGV0ZWN0aW9uIG9yDQo+IElucHV0IHN0YXR1cyBieXRlcy4gSXQg
+aXMgY2xlYXJlZCAoYWxsb3dlZCB0byBmbG9hdCBoaWdoKSB3aGVuIHRoZQ0KPiBob3N0IHJlYWRz
+IHRoZSBzdGF0dXMgYnl0ZXMuIiBBcyBJIHVuZGVyc3RhbmQsIHRoaXMgbWVhbnMgdGhhdCB3ZSBo
+YXZlDQo+IHRvIG1vbml0b3IgZmFsbGluZyBlZGdlcyBoZXJlLg0KPg0KPiBJcyB0aGVyZSBhbnkg
+cmVhc29uIHRvIHJlZ2lzdGVyIHRoZSBJUlEgYXMgSVJRRl9UUklHR0VSX05PTkU/IFdvdWxkDQo+
+IHlvdSBhY2NlcHQgdGhlIGFib3ZlIHBhdGNoIGluc3RlYWQsIHByb3ZpZGVkIEkgc2VuZCBpdCBp
+biB0aGUgcmVxdWlyZWQNCj4gZm9ybWF0Pw0KSSBhZGQgVm9pY2UgU2hlbiB0byB0aGUgbWFpbCBs
+b29wLCB3aG8gaXMgd3JpdGluZyBhYm92ZSBjb2RlLg0KDQpWb2ljZSwgd2lsbCB0aGF0IElSUUZf
+VFJJR0dFUl9YWFhYIGNoYW5nZXMgaW1wYWN0IG90aGVyIHBsYXRmb3Jtcz8NCg0KQmVzdCBSZWdh
+cmRzLA0KSm9zaCBXdQ0KPg0KPiBSZWdhcmRzLg0KDQo=

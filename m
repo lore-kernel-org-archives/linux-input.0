@@ -1,43 +1,88 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: qt1070: Why IRQF_TRIGGER_NONE?
-Date: Thu, 3 May 2012 08:14:49 +0200
-Message-ID: <20120503081449.065a8232@endymion.delvare>
-References: <CACKLOr1XE+tJ92jbfOHdDQVVsXhsNASrHgENEbiuR+8aBE11cw@mail.gmail.com>
-	<4FA1E237.2070404@atmel.com>
-	<ABFEDD1A8D2AAF42A54E3C074D49DC720F627464@penmbx02>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: Split I2C_M_NOSTART support out of
+ I2C_FUNC_PROTOCOL_MANGLING
+Date: Thu, 3 May 2012 11:52:11 +0200
+Message-ID: <20120503095211.GC9574@pengutronix.de>
+References: <1335443839-22872-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zoneX.GCU-Squad.org ([194.213.125.0]:19755 "EHLO
-	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752286Ab2ECGPA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 02:15:00 -0400
-In-Reply-To: <ABFEDD1A8D2AAF42A54E3C074D49DC720F627464@penmbx02>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="32u276st3Jlj2kUU"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1335443839-22872-1-git-send-email-broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Florian Tobias Schandinat <FlorianSchandinat-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: "Shen, Voice" <Voice.Shen@atmel.com>
-Cc: "Wu, Josh" <Josh.wu@atmel.com>, javier Martin <javier.martin@vista-silicon.com>, linux-input@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Axel Lin <axel.lin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Thu, 3 May 2012 05:15:14 +0000, Shen, Voice wrote:
-> Hi All,
->   Some information as following,
-> 
->   According to the datasheet of qt1070, we can use IRQF_TRIGGER_FALLING or IRQF_TRIGGER_LOW (I think this is the best) for IRQ flag. However, the IRQ line is a GPIO of a SOC. Some SOC can detect the level change of the GPIO, while can not distinguish the falling or rising. So, the IRQ flag depends on the trigger mode of GPIO line.
-> 
->   Maybe use the "flags" element in "struct i2c_board_info" to pass the IRQ flag, or add another element named "irqflags" into "struct i2c_board_info". I think this will be better, but I am not sure whether this is a good solution.
 
-i2c_board_info.flags is for I2C client flags, please do not abuse it
-for IRQ information.
+--32u276st3Jlj2kUU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I have no objection to an irq_flag member being added, however I
-remember past discussions where people argued whether it was the right
-thing to do or whether the IRQ mode was best set by platform
-initialization code. Part of that discussion was archived here:
-http://marc.info/?t=128743170300002&r=1&w=2
-Said discussion did not result in any code being merged as I don't
-think we came to an agreement. Feel free to restart the discussion with
-the interested people.
+On Thu, Apr 26, 2012 at 01:37:19PM +0100, Mark Brown wrote:
+> Since there are uses for I2C_M_NOSTART which are much more sensible and
+> standard than most of the protocol mangling functionality (the main one
+> being gather writes to devices where something like a register address
+> needs to be inserted before a block of data) create a new I2C_FUNC_NOSTART
+> for this feature and update all the users to use it.
+>=20
+> In the case of regmap-i2c we remove the requirement for mangling as
+> I2C_M_NOSTART is the only mangling feature which is being used.
+>=20
+> Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 
--- 
-Jean Delvare
+In general, I like it. One thing below:
+
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -540,7 +540,7 @@ struct i2c_msg {
+>  	__u16 flags;
+>  #define I2C_M_TEN		0x0010	/* this is a ten bit chip address */
+>  #define I2C_M_RD		0x0001	/* read data, from slave to master */
+> -#define I2C_M_NOSTART		0x4000	/* if I2C_FUNC_PROTOCOL_MANGLING */
+> +#define I2C_M_NOSTART		0x4000	/* if I2C_FUNC_NOSTART */
+>  #define I2C_M_REV_DIR_ADDR	0x2000	/* if I2C_FUNC_PROTOCOL_MANGLING */
+>  #define I2C_M_IGNORE_NAK	0x1000	/* if I2C_FUNC_PROTOCOL_MANGLING */
+>  #define I2C_M_NO_RD_ACK		0x0800	/* if I2C_FUNC_PROTOCOL_MANGLING */
+> @@ -568,6 +568,7 @@ struct i2c_msg {
+>  #define I2C_FUNC_SMBUS_WRITE_BLOCK_DATA 0x02000000
+>  #define I2C_FUNC_SMBUS_READ_I2C_BLOCK	0x04000000 /* I2C-like block xfer =
+ */
+>  #define I2C_FUNC_SMBUS_WRITE_I2C_BLOCK	0x08000000 /* w/ 1-byte reg. addr=
+=2E */
+> +#define I2C_FUNC_NOSTART		0x10000000 /* I2C_M_NOSTART */
+
+In this file, the comment for MANGLING should be adapted, too. It says
+currently:
+
+#define I2C_FUNC_PROTOCOL_MANGLING      0x00000004 /* I2C_M_NOSTART etc. */
+
+NOSTART is now out of MANGLING.
+
+Also, I'd think the FUNC_NOSTART bit should be 0x08 and SMBUS_PEC 0x4000. T=
+his
+will be more intuitive, probably?
+
+Thanks,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--32u276st3Jlj2kUU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+iVUsACgkQD27XaX1/VRtKMACgmNGby5ewTZutRdjHFErkyrjJ
+tRgAoKswXneoehSwhotTGcXCdcygsy45
+=8ba9
+-----END PGP SIGNATURE-----
+
+--32u276st3Jlj2kUU--

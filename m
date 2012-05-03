@@ -1,55 +1,55 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: Split I2C_M_NOSTART support out of
- I2C_FUNC_PROTOCOL_MANGLING
-Date: Thu, 3 May 2012 13:35:46 +0200
-Message-ID: <20120503113546.GG9574@pengutronix.de>
-References: <1336042416-28330-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v3 0/6] hid: Introduce device groups
+Date: Thu, 3 May 2012 14:23:59 +0200
+Message-ID: <20120503122359.GA11552@polaris.bitmath.org>
+References: <1335175627-2270-1-git-send-email-rydberg@euromail.se>
+ <alpine.LNX.2.00.1205011300540.1856@pobox.suse.cz>
+ <CAN+gG=GGVFDgf_PkovS+_OX26LH0Q19_FwwkGP2pSwnoX4d_Ug@mail.gmail.com>
+ <alpine.LNX.2.00.1205021044240.14613@pobox.suse.cz>
+ <CAN+gG=HHxzYPSD+1i5JS8HmkxusHi=e6im48VzXHy2KsFoce+w@mail.gmail.com>
+ <CAN+gG=HDZJf+73SoddWar_pRPH2NvFrvpVuAaRC8_frXmGQYfA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JkW1gnuWHDypiMFO"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1336042416-28330-1-git-send-email-broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Florian Tobias Schandinat <FlorianSchandinat-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-List-Id: linux-input@vger.kernel.org
-
-
---JkW1gnuWHDypiMFO
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:43659 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753243Ab2ECMTW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 08:19:22 -0400
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CAN+gG=HDZJf+73SoddWar_pRPH2NvFrvpVuAaRC8_frXmGQYfA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stephane Chatty <chatty@enac.fr>
 
-On Thu, May 03, 2012 at 11:53:36AM +0100, Mark Brown wrote:
-> Since there are uses for I2C_M_NOSTART which are much more sensible and
-> standard than most of the protocol mangling functionality (the main one
-> being gather writes to devices where something like a register address
-> needs to be inserted before a block of data) create a new I2C_FUNC_NOSTART
-> for this feature and update all the users to use it.
->=20
-> In the case of regmap-i2c we remove the requirement for mangling as
-> I2C_M_NOSTART is the only mangling feature which is being used.
->=20
-> Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+> I'm currently on the bug fix I told you earlier. However, I found a
+> more problematic bug in the hid_groups functionality.
+> 
+> Some device, like the Perixx peripad, present several interfaces
+> (mouse, keyboard and multitouch).
+> The hid groups functionality detects the HID field Contact ID, and
+> then forwards all interfaces to hid-multitouch. The point is that
+> hid-multitouch does not know how to handle mice and keyboards, and
+> then fails handling the interfaces of the device.
 
-Applied to next, thanks! Jean, let me know if you prefer to take it.
-Acks from input and fbdev maintainers still appreciated.
+I am a bit unclear as to which devices this applies to, but I see two
+possible solutions:
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+1) Add the devices in question back to the have_special_drivers list.
 
---JkW1gnuWHDypiMFO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+2) Add the interface type to the group descision, which should
+probably be done anyway. I have a patch in the pipe that, will send it
+later today.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+> This particular device is then fully broken (as anyone pumped the events).
+> I also noticed the same problem (but less problematic) with cypress
+> panels: it presents different vendor interfaces and they are handled
+> by hid-multitouch.
 
-iEYEARECAAYFAk+ibZIACgkQD27XaX1/VRvL8ACdEwWPXo+KhKjV+ego2aLPRMxk
-liUAn3tolILcgkJREOezGwK4hCv9xEIW
-=EHex
------END PGP SIGNATURE-----
+It would be great if you could test soution 1) before on a device -
+something seems wrong if those interfaces were handled by hid-generic
+before, but before getting the logic straight, it does not hurt to
+try. :-)
 
---JkW1gnuWHDypiMFO--
+Thanks,
+Henrik

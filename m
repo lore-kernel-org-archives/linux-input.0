@@ -1,85 +1,51 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v3 0/6] hid: Introduce device groups
-Date: Thu, 3 May 2012 14:45:44 +0200
-Message-ID: <CAN+gG=GS_aQ35ekF71oCjZXquB4X3xJvzq2_fT2d7nM+iBK=Zg@mail.gmail.com>
-References: <1335175627-2270-1-git-send-email-rydberg@euromail.se>
-	<alpine.LNX.2.00.1205011300540.1856@pobox.suse.cz>
-	<CAN+gG=GGVFDgf_PkovS+_OX26LH0Q19_FwwkGP2pSwnoX4d_Ug@mail.gmail.com>
-	<alpine.LNX.2.00.1205021044240.14613@pobox.suse.cz>
-	<CAN+gG=HHxzYPSD+1i5JS8HmkxusHi=e6im48VzXHy2KsFoce+w@mail.gmail.com>
-	<CAN+gG=HDZJf+73SoddWar_pRPH2NvFrvpVuAaRC8_frXmGQYfA@mail.gmail.com>
-	<20120503122359.GA11552@polaris.bitmath.org>
+From: Jonathan Nieder <jrnieder@gmail.com>
+Subject: Re: [bug?] [powerpc] hid_logitech_dj: Wireless mouse does not work
+ in xorg or gpm
+Date: Thu, 3 May 2012 08:08:39 -0500
+Message-ID: <20120503130821.GB16978@burratino>
+References: <20120503052000.GC15205@burratino>
+ <20120503052420.GD15205@burratino>
+ <4FA217B7.7070908@osvaldobarrera.com.ar>
+ <20120503055051.GA15960@burratino>
+ <CAE7qMrqtmu+bYYYp43s7Ek=UxfUG8HzwQSQBsdCGcVCBzCMQQw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120503122359.GA11552@polaris.bitmath.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stephane Chatty <chatty@enac.fr>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:38641 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751957Ab2ECNJA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 09:09:00 -0400
+Received: by obbtb18 with SMTP id tb18so2459446obb.19
+        for <linux-input@vger.kernel.org>; Thu, 03 May 2012 06:08:59 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CAE7qMrqtmu+bYYYp43s7Ek=UxfUG8HzwQSQBsdCGcVCBzCMQQw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar>
+Cc: linux-input@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-On Thu, May 3, 2012 at 2:23 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
->> I'm currently on the bug fix I told you earlier. However, I found a
->> more problematic bug in the hid_groups functionality.
->>
->> Some device, like the Perixx peripad, present several interfaces
->> (mouse, keyboard and multitouch).
->> The hid groups functionality detects the HID field Contact ID, and
->> then forwards all interfaces to hid-multitouch. The point is that
->> hid-multitouch does not know how to handle mice and keyboards, and
->> then fails handling the interfaces of the device.
+Nestor Lopez Casado wrote:
+
+> Thanks for reporting this issue. This is not a known problem.
 >
-> I am a bit unclear as to which devices this applies to, but I see two
-> possible solutions:
->
-> 1) Add the devices in question back to the have_special_drivers list.
+> It does point to an endianess issue.
 
-Well... The device presents valid mouse and keyboard interface that
-should be handled by hid-generic.
-The behavior of this particular device is the following:
-- when 1 finger is in use, then it sends events over the mouse interface
-- when 2 fingers are present, it sends events over the multitouch interface
-- when you physically trigger the switch mode button, a keyboard
-appears and it sends key events over the keyboard interface, and
-eventually mouse events if you press the "mouse" key.... ;-)
+Good to know.  Thanks for a quick reply.
 
-This crap is all inherited by the fact that Microsoft do not want to
-handle indirect touch, and the device maker found this solution to
-counter this.
+> As I do not have readily available PowerPC HW and we have some urgent
+> things to work on right now: Would it be possible if you help us by doing
+> the same tests, but enabling the debug log on hid ?
 
-To sum up, adding it to the have_special_drivers driver list won't
-work as we need part of the device to be handled by hid-generic.
+Hugo: please attach full output from "dmesg" after running
 
->
-> 2) Add the interface type to the group descision, which should
-> probably be done anyway. I have a patch in the pipe that, will send it
-> later today.
+	modprobe -r hid-logitech-dj
+	modprobe -r usbhid
+	echo 1 >/sys/module/hid/parameters/debug
+	modprobe usbhid
+	modprobe hid-logitech-dj
 
-A simpler solution consists in adding the macros HID_USB_MT_DEVICE(v,
-p) and HID_BLUETOOTH_MT_DEVICE(v, p) as you had introduced in a
-earlier patch (I don't know why it disappeared).
+An alternative method would be to boot with "hid.hid_debug=1
+log_buf_len=2097152" and run dmesg.
 
-The problem came out because:
-- hid-multitouch registered the triplet BUS_USB / VID / PID.
-- For each interface, it asks udev (or the kernel) which driver to
-use, and whatever .group was, it was always hid-multitouch that came
-out.
-
-So it's just safer to specify the group for all multitouch devices.
-
-Cheers,
-Benjamin
-
->
->> This particular device is then fully broken (as anyone pumped the events).
->> I also noticed the same problem (but less problematic) with cypress
->> panels: it presents different vendor interfaces and they are handled
->> by hid-multitouch.
->
-> It would be great if you could test soution 1) before on a device -
-> something seems wrong if those interfaces were handled by hid-generic
-> before, but before getting the logic straight, it does not hurt to
-> try. :-)
->
-> Thanks,
-> Henrik
+Hope that helps,
+Jonathan

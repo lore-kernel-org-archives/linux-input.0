@@ -1,41 +1,49 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 4/5] input: Introduce MT_CENTER_X and MT_CENTER_Y
-Date: Fri, 4 May 2012 15:48:31 +0200
-Message-ID: <20120504134831.GA8263@polaris.bitmath.org>
-References: <1336136030-18503-1-git-send-email-benjamin.tissoires@gmail.com>
- <1336136030-18503-5-git-send-email-benjamin.tissoires@gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: Split I2C_M_NOSTART support out of
+ I2C_FUNC_PROTOCOL_MANGLING
+Date: Fri, 4 May 2012 18:07:32 +0200
+Message-ID: <20120504160732.GB5789@pengutronix.de>
+References: <1336042416-28330-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+ <20120503113546.GG9574@pengutronix.de>
+ <20120504103929.644a05ce@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:56691 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756713Ab2EDNnr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 May 2012 09:43:47 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6sX45UoQRIJXqkqR"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1336136030-18503-5-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20120504103929.644a05ce-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Florian Tobias Schandinat <FlorianSchandinat-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Benjamin, Stephane,
 
-> Microsoft published a new version of their multitouch specification.
-> They introduced a new multitouch field: MT_CENTER_X|Y.
+--6sX45UoQRIJXqkqR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I would like a bit of elaboration here, since I am not convinced the
-mapping should be directly translated to the MT protocol.
+> > Applied to next, thanks! Jean, let me know if you prefer to take it.
+> > Acks from input and fbdev maintainers still appreciated.
+>=20
+> I'd prefer to take it, yes, as it touches the core infrastructure.
 
-Clearly, the basic idea to be able to model an assymmetric tool is
-good. Without an angle description, however, there seems to be a
-mismatch in the degrees of freedom. In win8, one can place the hot
-spot in a corner of the rectangle, but one cannot make the rectangle
-into an ellipse in that direction. In linux, one can put the ellipse
-in the wanted direction, but the hot spot is always in the center. To
-first order, both models allow for finger-rotation information, but in
-different ways. Adding more parameters requires a bit more
-thought. Perhaps one should use the newly found win8 parameters to
-reshape the pointing ellipse to start with.
+OK, didn't know if you were busy. Dropped it from my tree now.
 
-Thanks,
-Henrik
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--6sX45UoQRIJXqkqR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+j/sQACgkQD27XaX1/VRtaLwCfXFOLkpgSOyPLqV+Ljr5bT6Wm
+F/QAoImFj5goaYFt8PW+E+iWGnEYdyCc
+=IdYZ
+-----END PGP SIGNATURE-----
+
+--6sX45UoQRIJXqkqR--

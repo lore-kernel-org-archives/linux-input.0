@@ -1,323 +1,756 @@
-From: Michael Hennerich <michael.hennerich@analog.com>
-Subject: Re: ad714x wheel support and other shortcomings
-Date: Fri, 4 May 2012 11:38:16 +0200
-Message-ID: <4FA3A388.2040402@analog.com>
-References: <E1F92FDB-5546-402F-901D-36A9EDB2B2C0@gmail.com> <4FA0F90F.5040806@analog.com> <D0A6F0B6-FC03-4B4F-8FA0-8363417674CB@gmail.com>
-Reply-To: <michael.hennerich@analog.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH] input: Add MELFAS mms114 touchscreen driver
+Date: Fri, 4 May 2012 11:43:08 +0200
+Message-ID: <20120504094308.GA7124@polaris.bitmath.org>
+References: <1336100056-19884-1-git-send-email-jy0922.shim@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tx2ehsobe003.messaging.microsoft.com ([65.55.88.13]:1271 "EHLO
-	tx2outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752427Ab2EDJiY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 May 2012 05:38:24 -0400
-In-Reply-To: <D0A6F0B6-FC03-4B4F-8FA0-8363417674CB@gmail.com>
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:35128 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752427Ab2EDJiZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 May 2012 05:38:25 -0400
+Received: from ipb5.telenor.se (ipb5.telenor.se [195.54.127.168])
+	by smtprelay-b21.telenor.se (Postfix) with ESMTP id DF92DC14D
+	for <linux-input@vger.kernel.org>; Fri,  4 May 2012 11:38:23 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <1336100056-19884-1-git-send-email-jy0922.shim@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, kyungmin.park@samsung.com
 
-On 05/03/2012 04:10 PM, Jean-Francois Dagenais wrote:
-> Following up...
->
-> I intend to send patches soon regarding this.
->
-> I am reviewing my earlier patch about a divide by 0 caused by h_state being set,
-> but CDC results not reflecting this...
->
-> Here's a prelude question: Is there a reason (other than historical) why the
-> slider's cal_sensor_val is the only one not checking the ambient value and
-> substracting it? Like so:
->                  if (ad714x->adc_reg[i]>  ad714x->amb_reg[i])
->                          ad714x->sensor_val[i] =
->                                  ad714x->adc_reg[i] - ad714x->amb_reg[i];
->                  else
->                          ad714x->sensor_val[i] = 0;
-No - I can't think of a reason why to treat them differently
+Hi Joonyoung Shim,
 
->
->
-> I want to make a different fix for this divide by 0, to kill two birds with one
-> stone, it would also bring the chip more in sync when we get an interrupt.
->
-> Basically, upon interrupt, I would stop conversions using power_mode bits, then
-> read all the state registers in one swift move regardless if its a wheel, slider
-> etc. All used stages would be read and ambient adjusted as a pre-step to running
-> the state machines. When all are done, I would reset conversion back to 0, then
-> re-enable conversion as it was prior to the ISR beginning.
->
-> This would produce an accurate and consistent state of all the registers that are
-> read, as well as reducing the unnecessarily high interrupt frequency which causes
-> a rather high CPU utilization when the wheel is touched.
->
-> Thoughts?
-Sounds like a good improvement.
->
-> Thanks in advance for the answer and opinion!
-> /jfd
->
-> On May 2, 2012, at 5:06, Michael Hennerich wrote:
->
->> On 05/01/2012 05:01 PM, Jean-Francois Dagenais wrote:
->>> Hi guys,
->>> (sorry for the long message, but there are A LOT of issues here in this
->>> driver...)
->> Hi Jean-Francois,
->>
->> Thanks for your detailed observations.
->>
->> A few words about the history of this driver.
->> Bryan, not longer working for ADI, developed this driver based on
->> a few routines someone else in ADI developed some time ago.
->> He didn't had proper hardware that would have allowed him to test
->> all physical arrangements, such as wheels, touch-pads, etc.
->>
->> When I took over ownership, I only had a board with a few buttons,
->> and a really tiny wheel. So testing on my side was basically limited to
->> the dimensions of the wheel.
->> I fixed a series of bugs associated with the wheel algo,
->> such as divide by zero, and other things.
->>
->>> Ok, I took a step back after my failed mod
->>> (1335460639-1362-2-git-send-email-jeff.dagenais@gmail.com), and discovered many
->>> shortcomings in the driver code around the wheel feature, hw_init and more
->>> generically the abs_pos calculation algorithm. It looks like we're the only
->>> "kernel-participating" party that has tried to integrate the wheel in a real
->>> system...?
->> I know some people are using this driver successfully.
->> But when it comes to the wheel, that could be the case.
->>
->>> This is sort of a story based account of my recent dealings with the ad714x
->>> driver, I know it's chatty, but please bear with me...
->>>
->>> The motion of the wheel near the roll around point (ex. between stages 7 and 0
->>> for an 8 stage wheel) has a dead zone. This is because the slices of max_coord
->>> being added up are too large, and near the last segment, the value is greater
->>> than max_coord, but is capped at max_coord, hence the dead zone. Now this
->>> effect, caused by the enlarged slices, is tolerable for a slider since there is
->>> no rolling around, but for the wheel, this is unusable.
->>>
->>> Simply shrinking the slice size didn't fix the problem, the values capped at
->>> max_coord before the mid-point between the last and first stages, making a dead
->>> zone, then a skip when the finger nears the center of start_stage. So I came up
->>> with a new algorithm which relocates the positioning one turn of the wheel
->>> ahead, then modulo's the value back into the max_coord range to eliminate this
->>> problem.
->>>
->>> I had to stepped away from the a_param and b_param based mean calculation
->>> because (and this is true for the slider as well) it has bumps in it. The bumps
->>> appear when the determined "highest_stage" changes. The recalculated values
->>> near this frontier skips ahead or backward by a noticeable amount, hence the
->>> "bump". It is especially annoying when you keep your finger around a tipping
->>> point between two stages. The value then skips by a large quantity rapidly back
->>> and forth. IMPORTANT NOTE: since the slider uses a similar algorithm, I tried
->>> telling the driver my wheel as a slider to invoke that code, and did the bump
->>> test there in the middle of my wheel, SAME PROBLEM!
->>>
->>> My new algo still grabs the largest response and the two adjacent stages, the
->>> response "floor" (or 0) is brought up to the smallest of the two adjacent
->>> stages. This basically eliminates one of the adjacent stages and while
->>> adjusting the ratio between the largest response and the next largest one. With
->>> these two stages left, a proportion is given to the largest vs. the other. This
->>> becomes a vector which offsets the coord (+/-) from the largest response
->>> stage's center coordinate. Ultra simple and works really well. IT COULD/SHOULD
->>> BE PORTED TO THE SLIDER and/or to the generic ad714x_cal_abs_pos function.
->> Sounds good to me.
->>
->>> Once I got that working, I got jerky behaviour from the reported position
->>> around the edges (i.e. 0 and max_coord). The cause was the flt_pos calculation
->>> which is basically broken for circular coordinates.
->>>
->>> The problem is that when using a max_coord of 1024 for example, then coord 0
->>> equals coord 1024. So the abs_pos and old flt_pos have to be brought in the
->>> same "quadrant" (for lack of a better word) for the calculation to be valid.
->>> But this is still not enough for things to be smooth in the whole range of
->>> values.
->>>
->>> The other issue one encounters is that, even if the values are in the same
->>> "quadrant" and you modulo the end value, when you add several turns to the
->>> coordinates for the flt_pos calculation, it doesn't yield the same result as if
->>> you don't. My solution was to offset the abs_pos and old flt_pos around
->>> max_coord, make the calculation and "de-offset" the result after. This means
->>> the calculation is always done using the same scale (i.e. max_coord).
->>>
->>> The resulting position is regular and smooth. But then again, my abs_pos was
->>> fine without the flt_pos calculation. It made me wonder if the filtering, which
->>> is really just a time-base smoothing function, had been added because of the
->>> bump problem I talked about earlier. Any thoughts?
->> Think I changed that in commit f1e430e6369f5edac552d99bff15369ef8c6bbd2.
->> I did that because the flt_pos gave me better results.
->> Now that fixed the underlying problem, we should definitely use the abs_pos.
->>
->>> BTW, just so it doesn't go un-noticed in my upcoming patch, while refactoring
->>> this, I noticed a clear bug in the current ad714x_wheel_cal_abs_pos :
->>>       first_before = (sw->highest_stage + stage_num - 1) % stage_num;
->>>       highest = sw->highest_stage;
->>>       first_after = (sw->highest_stage + stage_num + 1) % stage_num;
->>> ... this will fail IF start_stage IS NOT 0 for this wheel. I have changed it to
->>> something like this :
->>>       int highest_idx_rel = sw->highest_stage - hw->start_stage;
->>>       ...
->>>       first_before = ((highest_idx_rel + stage_num - 1) % stage_num)
->>>                                   + hw->start_stage ;
->>>       ...
->>> Agreed?
->> Good catch! Agreed.
->>
->>> So now, using this strategy, the wheel motion is both precise and has no breaks
->>> or bumps in it. I even tested the code using stages 1..8 instead of 0..7 and it
->>> still works correctly. This suggests that my index calculations are ok.
->>>
->>> (patch form was too noisy, I will send a patch after I get feedback if you guys
->>> don't mind)
->>>
->>> static void ad714x_wheel_cal_abs_pos(struct ad714x_chip *ad714x, int idx)
->>> {
->>>       struct ad714x_wheel_plat *hw =&ad714x->hw->wheel[idx];
->>>       struct ad714x_wheel_drv *sw =&ad714x->sw->wheel[idx];
->>>       int stage_num = hw->end_stage - hw->start_stage + 1;
->>>       /* index of the highest stage relative to start_stage */
->>>       int highest_idx_rel = sw->highest_stage - hw->start_stage;
->>>       /* the number of positions between each stages */
->>>       int slice_size = DIV_ROUND_CLOSEST(hw->max_coord, stage_num);
->>>       int a, b, c; /* the 3 vals to consider */
->>>       int dir; /* direction of the adjustment from the highest stage pos */
->>>
->>>       /* Init abs_pos at the highest stage's physical location, but one turn
->>>        * of the wheel ahead (modulo'd later down), then add half the slice
->>>        * size because we want coordinate 0 to be half way between end_stage
->>>        * and start_stage.
->>>        */
->>>       sw->abs_pos = (slice_size * highest_idx_rel)
->>>                      + hw->max_coord + (slice_size/2);
->>>
->>>       /* grab the three values we are interested in. These are the highest
->>>        * index, and the one before and after, in a circular roll-over type
->>>        * increment and decrement, also considering start_stage != 0.
->>>        */
->>>       a = ad714x->sensor_val[((highest_idx_rel + stage_num - 1) % stage_num)
->>>                              + hw->start_stage];
->>>       b = ad714x->sensor_val[sw->highest_stage];
->>>       c = ad714x->sensor_val[((highest_idx_rel + stage_num + 1) % stage_num)
->>>                              + hw->start_stage];
->>>
->>>       /* eliminate the smallest val from the equation, by substracting the
->>>        * smallest to all values, in other words, bring the signal reference
->>>        * up to the smallest value of the 3. After this "if-else", 'bM is
->>>        * still the highest val, 'a' contains the second biggest val, and
->>>        * 'dir' contains a record of the direction we need to adjust abs_pos.
->>>        *        : .                          . :
->>>        *      : : :                          : : :
->>>        *  if: a b c  adjust right (1), else: a b c adjust left (-1)
->>>        *
->>>        */
->>>       if(a<   c) {
->>>               c -= a;
->>>               b -= a;
->>>               a = c;
->>>               dir = 1;
->>>       } else {
->>>               a -= c;
->>>               b -= c;
->>>               dir = -1;
->>>       }
->>>       /* add/substract a proportional to a/a+b quantity to abs_pos */
->>>       sw->abs_pos = (sw->abs_pos +
->>>                      DIV_ROUND_CLOSEST(a * dir * slice_size, a+b)) %
->>>                      hw->max_coord;
->>> }
->>>
->>> static void ad714x_wheel_cal_flt_pos(struct ad714x_chip *ad714x, int idx)
->>> {
->>>       struct ad714x_wheel_plat *hw =&ad714x->hw->wheel[idx];
->>>       struct ad714x_wheel_drv *sw =&ad714x->sw->wheel[idx];
->>>       int half_coord_range = hw->max_coord/2;
->>>       int abs_pos = sw->abs_pos;
->>>       int diff = sw->abs_pos - sw->flt_pos;
->>>
->>>       /* try to put both pos within max_coord/2 of each other by adding
->>>        * one turn of the wheel, this turn is removed by modulo after calc.
->>>        */
->>>       if (diff>   half_coord_range)
->>>               sw->flt_pos += hw->max_coord;
->>>       else if (diff<   -half_coord_range)
->>>               abs_pos += hw->max_coord;
->>>
->>>       /* if difference is still too great, just use abs_pos */
->>>       if (abs(abs_pos - sw->flt_pos)>   half_coord_range)
->>>               sw->flt_pos = sw->abs_pos;
->>>       else {
->>>               /* for the filter to work without "breakage" around the wheel,
->>>                * we need to offset the values to bring the two values around
->>>                * max_coord. Pretend the old flt_pos is max_coord.
->>>                */
->>>               diff = hw->max_coord - sw->flt_pos;
->>>               abs_pos += diff;
->>>
->>>               sw->flt_pos = (DIV_ROUND_CLOSEST(((hw->max_coord * 30) +
->>>                                                (abs_pos * 71)), 100) - diff)
->>>                              % hw->max_coord;
->>>       }
->>> }
->>>
->>>
->>>
->>> Alright, while I have your attention... some more questions:
->>>
->>> In hw_init, why do we read back all the sys registers but do nothing with the
->>> data?
->> There are a few registers that are read-to-clear.
->> But these shouldn't have any side effects.
->> Dead code - feel free to remove it.
->>
->>> Also, a few lines further in hw_init:
->>> ad714x->write(ad714x, AD714X_STG_CAL_EN_REG, 0xFFF);
->>> ...which completely disregards the settings provided by platform init
->>> (ad714x->hw->sys_cfg_reg[1]) which are programmed a few lines before for
->>> nothing basically. I can understand that the driver could "hard-code" the
->>> calib_en feature for it's behaviour, but writing 0xfff overwrites AVG_F/LP_SKIP
->>> registers to 0. Since the settings are provided by platform, I would just
->>> delete the line that does this , and trust the platform to init those properly,
->>> it is already responsible for writing most of the registers anyway.
->> Sounds good to me.
->>
->>> Another weird thing is the presence of the 3 STAGE_(LOW/HIGH/COMP)_INT_ENABLE
->>> registers in the platform init structure, even though the driver specifically
->>> overwrites those in the ad714x_use_(com/thr)_int functions. I would shrink the
->>> platform data's sys_cfg_reg array to 5 since these last three registers are
->>> under the control of the driver, and the other configuration item in these 3
->>> regs is the GPIO feature, which is not useable by the current driver code
->>> anyway.
->> You're right for the sliders and wheels.
->> Setup routines for these will do a read modify write on affected registers.
->> However the buttons still need to have a proper config...
->>>
->>> Thanks for reading through!
->>
->> --
->> Greetings,
->> Michael
->>
->> --
->> Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
->> Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
->> Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin,
->> Margaret Seif
->>
->>
->
+> This is a initial driver for new touchscreen chip mms114 of MELFAS.
+> It uses I2C interface and supports 10 multi touch.
+> 
+> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+> ---
 
+Thanks, please find some comments below.
 
--- 
-Greetings,
-Michael
+>  drivers/input/touchscreen/Kconfig  |   12 +
+>  drivers/input/touchscreen/Makefile |    1 +
+>  drivers/input/touchscreen/mms114.c |  579 ++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c/mms114.h         |   24 ++
+>  4 files changed, 616 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/touchscreen/mms114.c
+>  create mode 100644 include/linux/i2c/mms114.h
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 2a21419..3486795 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -340,6 +340,18 @@ config TOUCHSCREEN_MCS5000
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called mcs5000_ts.
+>  
+> +config TOUCHSCREEN_MMS114
+> +	tristate "MELFAS MMS114 touchscreen"
+> +	depends on I2C
+> +	help
+> +	  Say Y here if you have the MELFAS MMS114 touchscreen controller
+> +	  chip in your system.
+> +
+> +	  If unsure, say N.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called mms114.
+> +
+>  config TOUCHSCREEN_MTOUCH
+>  	tristate "MicroTouch serial touchscreens"
+>  	select SERIO
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index 3d5cf8c..882da14 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -36,6 +36,7 @@ obj-$(CONFIG_TOUCHSCREEN_LPC32XX)	+= lpc32xx_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_MAX11801)	+= max11801_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_MC13783)	+= mc13783_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_MCS5000)	+= mcs5000_ts.o
+> +obj-$(CONFIG_TOUCHSCREEN_MMS114)	+= mms114.o
+>  obj-$(CONFIG_TOUCHSCREEN_MIGOR)		+= migor_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_MTOUCH)	+= mtouch.o
+>  obj-$(CONFIG_TOUCHSCREEN_MK712)		+= mk712.o
+> diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+> new file mode 100644
+> index 0000000..08a94ae
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/mms114.c
+> @@ -0,0 +1,579 @@
+> +/*
+> + * Copyright (C) 2012 Samsung Electronics Co.Ltd
+> + * Author: Joonyoung Shim <jy0922.shim@samsung.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundationr
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/delay.h>
+> +#include <linux/i2c.h>
+> +#include <linux/i2c/mms114.h>
+> +#include <linux/input/mt.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/regulator/consumer.h>
+> +#include <linux/slab.h>
+> +
+> +/* Write only registers */
+> +#define MMS114_MODE_CONTROL		0x01
+> +#define MMS114_OPERATION_MODE_MASK	0xE
+> +#define MMS114_ACTIVE			(1 << 1)
+> +
+> +#define MMS114_XY_RESOLUTION_H		0x02
+> +#define MMS114_X_RESOLUTION		0x03
+> +#define MMS114_Y_RESOLUTION		0x04
+> +#define MMS114_CONTACT_THRESHOLD	0x05
+> +#define MMS114_MOVING_THRESHOLD		0x06
+> +
+> +/* Read only registers */
+> +#define MMS114_PACKET_SIZE		0x0F
+> +
+> +#define MMS114_INFOMATION		0x10
+> +#define MMS114_ACT_OFFSET		7
+> +#define MMS114_ACT_MASK			0x1
+> +#define MMS114_TYPE_OFFSET		5
+> +#define MMS114_TYPE_MASK		0x3
+> +#define MMS114_ID_MASK			0xF
+> +
+> +#define MMS114_TSP_REV			0xF0
+> +
+> +/* Minimum delay time is 50us between stop and start signal of i2c */
+> +#define MMS114_I2C_DELAY		50
 
---
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
-Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin,
-Margaret Seif
+No chance this could be 5, or distributed more sparsely?
 
+> +
+> +/* 200ms needs after power on */
+> +#define MMS114_POWERON_DELAY		200
+> +
+> +/* Touchscreen absolute values */
+> +#define MMS114_MAX_AREA			0xff
+> +
+> +#define MMS114_MAX_TOUCH		10
+> +#define MMS114_PACKET_NUM		6
+> +#define MMS114_MAX_PACKET		(MMS114_MAX_TOUCH * MMS114_PACKET_NUM)
+> +
+> +/* Touch type */
+> +#define MMS114_TYPE_NONE		0
+> +#define MMS114_TYPE_TOUCHSCREEN		1
+> +#define MMS114_TYPE_TOUCHKEY		2
+> +
+> +struct mms114_touchdata {
+> +	unsigned int x;
+> +	unsigned int y;
+> +	unsigned int width;
+> +	unsigned int strength;
+> +	unsigned int pressed;
+> +	bool updated;
+> +};
+> +
+> +struct mms114_data {
+> +	struct i2c_client	*client;
+> +	struct input_dev	*input_dev;
+> +	struct mutex		mutex;
 
+Other similar drivers seem to get by with the input mutex.
+
+> +	struct mms114_touchdata	touchdata[MMS114_MAX_TOUCH];
+
+This array can be optimized away, see below.
+
+> +	struct regulator	*io_reg;
+> +	const struct mms114_platform_data	*pdata;
+> +
+> +	/* Use cache data for mode control register(write only) */
+> +	u8			cache_mode_control;
+> +};
+> +
+> +static int __mms114_read_reg(struct mms114_data *data, unsigned int reg,
+> +			     unsigned int len, u8 *val)
+> +{
+> +	struct i2c_client *client = data->client;
+> +	struct i2c_msg xfer;
+> +	u8 buf = reg & 0xff;
+> +	int ret;
+> +
+> +	if (reg == MMS114_MODE_CONTROL) {
+> +		dev_err(&client->dev, "No support to read mode control reg\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	mutex_lock(&data->mutex);
+
+Looks like this mutex is malplaced. The function is called both from
+interrupt context and from user-driven context.
+
+> +
+> +	/* Use repeated start */
+> +	xfer.addr = client->addr;
+> +	xfer.flags = I2C_M_TEN | I2C_M_NOSTART;
+> +	xfer.len = 1;
+> +	xfer.buf = &buf;
+> +
+> +	ret = i2c_transfer(client->adapter, &xfer, 1);
+> +	if (ret != 1) {
+> +		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
+> +				__func__, ret);
+> +		ret = -EIO;
+> +		goto err;
+> +	}
+> +
+> +	ret = i2c_master_recv(client, val, len);
+> +	udelay(MMS114_I2C_DELAY);
+> +	if (ret != len) {
+> +		dev_err(&client->dev, "%s, i2c recv failed (%d)\n", __func__,
+> +				ret);
+> +		ret = -EIO;
+> +		goto err;
+> +	}
+> +
+> +	ret = 0;
+> +
+> +err:
+> +	mutex_unlock(&data->mutex);
+> +	return ret;
+> +}
+> +
+> +static int mms114_read_reg(struct mms114_data *data, unsigned int reg)
+> +{
+> +	u8 val;
+> +	int ret;
+> +
+> +	if (reg == MMS114_MODE_CONTROL)
+> +		return data->cache_mode_control;
+> +
+> +	ret = __mms114_read_reg(data, reg, 1, &val);
+> +	if (!ret)
+> +		ret = val;
+> +
+> +	return ret;
+> +}
+> +
+> +static int mms114_write_reg(struct mms114_data *data, unsigned int reg,
+> +			    unsigned int val)
+> +{
+> +	struct i2c_client *client = data->client;
+> +	u8 buf[2];
+> +	int ret;
+> +
+> +	buf[0] = reg & 0xff;
+> +	buf[1] = val & 0xff;
+> +
+> +	ret = i2c_master_send(client, buf, 2);
+> +	udelay(MMS114_I2C_DELAY);
+> +	if (ret != 2) {
+> +		dev_err(&client->dev, "%s, i2c send failed (%d)\n", __func__,
+> +				ret);
+> +		return -EIO;
+> +	}
+> +
+> +	if (reg == MMS114_MODE_CONTROL)
+> +		data->cache_mode_control = val;
+> +
+> +	return 0;
+> +}
+> +
+> +static void mms114_input_st_report(struct mms114_data *data)
+> +{
+> +	struct mms114_touchdata *touchdata = data->touchdata;
+> +	struct input_dev *input_dev = data->input_dev;
+> +	int id;
+> +
+> +	for (id = 0; id < MMS114_MAX_TOUCH; id++) {
+> +		if (!touchdata[id].updated)
+> +			continue;
+> +
+> +		if (touchdata[id].pressed) {
+> +			input_report_abs(input_dev, ABS_X, touchdata[id].x);
+> +			input_report_abs(input_dev, ABS_Y, touchdata[id].y);
+> +		}
+> +
+> +		input_sync(input_dev);
+> +
+> +		touchdata[id].updated = false;
+> +	}
+> +}
+
+Seems to send a sequence of single-finger positions based on all
+available fingers. Please replace the function with
+input_mt_report_pointer_emulation(input_dev, false) instead.
+
+> +
+> +static void mms114_input_report(struct mms114_data *data)
+> +{
+> +	struct mms114_touchdata *touchdata = data->touchdata;
+> +	struct input_dev *input_dev = data->input_dev;
+> +	int touch_num = 0;
+> +	int id;
+> +
+> +	for (id = 0; id < MMS114_MAX_TOUCH; id++) {
+> +		if (!touchdata[id].updated)
+> +			continue;
+> +
+> +		input_mt_slot(input_dev, id);
+> +		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
+> +				touchdata[id].pressed);
+> +
+> +		if (touchdata[id].pressed) {
+> +			touch_num++;
+> +			input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR,
+> +					touchdata[id].width);
+> +			input_report_abs(input_dev, ABS_MT_POSITION_X,
+> +					touchdata[id].x);
+> +			input_report_abs(input_dev, ABS_MT_POSITION_Y,
+> +					touchdata[id].y);
+> +		}
+> +	}
+
+The body here can just as well be done in proc_touchdata(), skipping
+the array.
+
+> +
+> +	input_report_key(input_dev, BTN_TOUCH, touch_num > 0);
+
+Already included in input_mt_report_pointer_emulation().
+
+> +	input_sync(input_dev);
+> +
+> +	mms114_input_st_report(data);
+
+And this goes away.
+
+> +}
+> +
+> +static void mms114_proc_touchdata(struct mms114_data *data, u8 *buf)
+> +{
+> +	const struct mms114_platform_data *pdata = data->pdata;
+> +	struct i2c_client *client = data->client;
+> +	struct mms114_touchdata *touchdata;
+
+Can be skipped.
+
+> +	unsigned int id = (buf[0] & MMS114_ID_MASK) - 1;
+> +	unsigned int type = (buf[0] >> MMS114_TYPE_OFFSET) & MMS114_TYPE_MASK;
+> +	unsigned int pressed = (buf[0] >> MMS114_ACT_OFFSET) & MMS114_ACT_MASK;
+> +	unsigned int x = buf[2] | (buf[1] & 0xf) << 8;
+> +	unsigned int y = buf[3] | ((buf[1] >> 4) & 0xf) << 8;
+> +
+> +	if (id >= MMS114_MAX_TOUCH) {
+> +		dev_dbg(&client->dev, "Wrong touch id (%d)\n", id);
+> +		return;
+> +	}
+> +
+> +	if (type != MMS114_TYPE_TOUCHSCREEN) {
+> +		dev_dbg(&client->dev, "Wrong touch type (%d)\n", type);
+> +		return;
+> +	}
+> +
+> +	touchdata = &data->touchdata[id];
+
+The id is apparently slot id, so just use it directly in input_mt_slot().
+
+> +
+> +	if (!pressed && !touchdata->pressed) {
+> +		dev_dbg(&client->dev, "Wrong touch release (id: %d)\n", id);
+> +		return;
+> +	}
+> +
+> +	if (x > pdata->x_size || y > pdata->y_size) {
+> +		dev_dbg(&client->dev, "Wrong touch coordinates (%d, %d)\n",
+> +				x, y);
+> +		return;
+> +	}
+> +
+> +	if (pdata->x_invert)
+> +		x = pdata->x_size - x;
+> +	if (pdata->y_invert)
+> +		y = pdata->y_size - y;
+> +
+> +	touchdata->x = x;
+> +	touchdata->y = y;
+> +	touchdata->width = buf[4];
+> +	touchdata->strength = buf[5];
+
+Does not seem to be used anywhere.
+
+> +	touchdata->pressed = pressed;
+> +	touchdata->updated = true;
+> +
+> +	dev_dbg(&client->dev, "id: %d, type: %d, pressed: %d\n",
+> +			id, type, pressed);
+> +	dev_dbg(&client->dev, "x: %d, y: %d, width: %d, strength: %d\n",
+> +			touchdata->x, touchdata->y,
+> +			touchdata->width, touchdata->strength);
+
+Just send the data to the input core here.
+
+> +}
+> +
+> +static irqreturn_t mms114_interrupt(int irq, void *dev_id)
+> +{
+> +	struct mms114_data *data = dev_id;
+> +	u8 buf[MMS114_MAX_PACKET];
+> +	int packet_size;
+> +	int touch_size;
+> +	int index;
+> +	int ret;
+> +
+> +	packet_size = mms114_read_reg(data, MMS114_PACKET_SIZE);
+> +	if (packet_size < 0)
+> +		goto err;
+> +
+> +	touch_size = packet_size / MMS114_PACKET_NUM;
+> +
+> +	ret = __mms114_read_reg(data, MMS114_INFOMATION, packet_size, buf);
+> +	if (ret < 0)
+> +		goto err;
+
+Quite a bit of accumulated delay here, in the millisecond range for
+ten fingers. Not a problem?
+
+> +
+> +	for (index = 0; index < touch_size; index++)
+> +		mms114_proc_touchdata(data, buf + (index * MMS114_PACKET_NUM));
+> +
+> +	mms114_input_report(data);
+
+And this becomes input_sync() instead.
+
+> +
+> +err:
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int mms114_set_active(struct mms114_data *data, bool active)
+> +{
+> +	int val;
+> +
+> +	val = mms114_read_reg(data, MMS114_MODE_CONTROL);
+> +	if (val < 0)
+> +		return val;
+> +
+> +	val &= ~MMS114_OPERATION_MODE_MASK;
+> +
+> +	/* If active is false, sleep mode */
+> +	if (active)
+> +		val |= MMS114_ACTIVE;
+> +
+> +	return mms114_write_reg(data, MMS114_MODE_CONTROL, val);
+> +}
+> +
+> +static int mms114_get_version(struct mms114_data *data)
+> +{
+> +	struct device *dev = &data->client->dev;
+> +	u8 buf[6];
+> +	int ret;
+> +
+> +	ret = __mms114_read_reg(data, MMS114_TSP_REV, 6, buf);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	dev_info(dev, "TSP Rev: 0x%x, HW Rev: 0x%x, Firmware Ver: 0x%x\n",
+> +			buf[0], buf[1], buf[3]);
+> +
+> +	return 0;
+> +}
+> +
+> +static int mms114_setup_regs(struct mms114_data *data)
+> +{
+> +	const struct mms114_platform_data *pdata = data->pdata;
+> +	int val;
+> +	int ret;
+> +
+> +	ret = mms114_set_active(data, true);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	val = (pdata->x_size >> 8) & 0xf;
+> +	val |= ((pdata->y_size >> 8) & 0xf) << 4;
+> +	ret = mms114_write_reg(data, MMS114_XY_RESOLUTION_H, val);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	val = pdata->x_size & 0xff;
+> +	ret = mms114_write_reg(data, MMS114_X_RESOLUTION, val);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	val = pdata->y_size & 0xff;
+> +	ret = mms114_write_reg(data, MMS114_Y_RESOLUTION, val);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	if (pdata->contact_threshold) {
+> +		ret = mms114_write_reg(data, MMS114_CONTACT_THRESHOLD,
+> +				pdata->contact_threshold);
+> +		if (ret < 0)
+> +			return ret;
+> +	}
+> +
+> +	if (pdata->moving_threshold) {
+> +		ret = mms114_write_reg(data, MMS114_MOVING_THRESHOLD,
+> +				pdata->moving_threshold);
+> +		if (ret < 0)
+> +			return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int __devinit mms114_probe(struct i2c_client *client,
+> +				  const struct i2c_device_id *id)
+> +{
+> +	struct mms114_data *data;
+> +	struct input_dev *input_dev;
+> +	int ret;
+> +
+> +	if (!client->dev.platform_data) {
+> +		dev_err(&client->dev, "Need platform data\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (!i2c_check_functionality(client->adapter,
+> +				I2C_FUNC_PROTOCOL_MANGLING)) {
+> +		dev_err(&client->dev,
+> +			"Need i2c bus that supports protocol mangling\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	data = kzalloc(sizeof(struct mms114_data), GFP_KERNEL);
+> +	input_dev = input_allocate_device();
+> +	if (!data || !input_dev) {
+> +		dev_err(&client->dev, "Failed to allocate memory\n");
+> +		ret = -ENOMEM;
+> +		goto err_free_mem;
+> +	}
+> +
+> +	data->client = client;
+> +	data->input_dev = input_dev;
+> +	data->pdata = client->dev.platform_data;
+> +
+> +	mutex_init(&data->mutex);
+> +
+> +	input_dev->name = "MELPAS MMS114 Touchscreen";
+> +	input_dev->id.bustype = BUS_I2C;
+> +	input_dev->dev.parent = &client->dev;
+> +
+> +	__set_bit(EV_ABS, input_dev->evbit);
+> +	__set_bit(EV_KEY, input_dev->evbit);
+> +	__set_bit(BTN_TOUCH, input_dev->keybit);
+> +	input_set_abs_params(input_dev, ABS_X, 0, data->pdata->x_size, 0, 0);
+> +	input_set_abs_params(input_dev, ABS_Y, 0, data->pdata->y_size, 0, 0);
+> +
+> +	/* For multi touch */
+> +	input_mt_init_slots(input_dev, MMS114_MAX_TOUCH);
+> +	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
+> +			     0, MMS114_MAX_AREA, 0, 0);
+> +	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+> +			     0, data->pdata->x_size, 0, 0);
+> +	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+> +			     0, data->pdata->y_size, 0, 0);
+> +
+> +	input_set_drvdata(input_dev, data);
+> +	i2c_set_clientdata(client, data);
+> +
+> +	data->io_reg = regulator_get(&client->dev, "vdd");
+> +	if (IS_ERR(data->io_reg)) {
+> +		ret = PTR_ERR(data->io_reg);
+> +		dev_err(&client->dev, "Unable to get the IO regulator (%d)\n",
+> +				ret);
+> +		goto err_free_mem;
+> +	}
+> +
+> +	regulator_enable(data->io_reg);
+> +	mdelay(MMS114_POWERON_DELAY);
+> +
+> +	ret = mms114_get_version(data);
+> +	if (ret < 0)
+> +		goto err_io_reg;
+> +
+> +	ret = mms114_setup_regs(data);
+> +	if (ret < 0)
+> +		goto err_io_reg;
+> +
+> +	ret = request_threaded_irq(client->irq, NULL, mms114_interrupt,
+> +			IRQF_TRIGGER_FALLING, "mms114", data);
+> +	if (ret < 0) {
+> +		dev_err(&client->dev, "Failed to register interrupt\n");
+> +		goto err_io_reg;
+> +	}
+> +
+> +	ret = input_register_device(data->input_dev);
+> +	if (ret < 0)
+> +		goto err_free_irq;
+> +
+> +	if (data->pdata->cfg_pin)
+> +		data->pdata->cfg_pin(true);
+> +
+> +	return 0;
+> +
+> +err_free_irq:
+> +	free_irq(client->irq, data);
+> +err_io_reg:
+> +	regulator_disable(data->io_reg);
+> +	regulator_put(data->io_reg);
+> +err_free_mem:
+> +	input_free_device(input_dev);
+> +	kfree(data);
+> +	return ret;
+> +}
+> +
+> +static int __devexit mms114_remove(struct i2c_client *client)
+> +{
+> +	struct mms114_data *data = i2c_get_clientdata(client);
+> +
+> +	free_irq(client->irq, data);
+> +	regulator_disable(data->io_reg);
+> +	regulator_put(data->io_reg);
+> +	input_unregister_device(data->input_dev);
+> +	kfree(data);
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM_SLEEP
+> +static int mms114_suspend(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct mms114_data *data = i2c_get_clientdata(client);
+> +	struct mms114_touchdata *touchdata = data->touchdata;
+> +	int id;
+> +	int ret;
+> +
+
+It would seem the mutex should be here instead.
+
+> +	disable_irq(client->irq);
+> +
+> +	/* Release all touch */
+> +	for (id = 0; id < MMS114_MAX_TOUCH; id++) {
+> +		if (touchdata[id].pressed) {
+> +			touchdata[id].pressed = 0;
+> +			touchdata[id].updated = true;
+> +		}
+> +	}
+> +	mms114_input_report(data);
+> +
+> +	ret = mms114_set_active(data, false);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	if (data->pdata->cfg_pin)
+> +		data->pdata->cfg_pin(false);
+> +
+> +	regulator_disable(data->io_reg);
+
+And here.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static int mms114_resume(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct mms114_data *data = i2c_get_clientdata(client);
+> +	int ret;
+
+And here.
+
+> +
+> +	regulator_enable(data->io_reg);
+> +	mdelay(MMS114_POWERON_DELAY);
+> +
+> +	if (data->pdata->cfg_pin)
+> +		data->pdata->cfg_pin(true);
+> +
+> +	ret = mms114_setup_regs(data);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	enable_irq(client->irq);
+> +
+
+And here.
+
+> +	return 0;
+> +}
+> +#endif
+> +
+> +static SIMPLE_DEV_PM_OPS(mms114_pm_ops, mms114_suspend, mms114_resume);
+> +
+> +static const struct i2c_device_id mms114_id[] = {
+> +	{ "mms114", 0 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, mms114_id);
+> +
+> +static struct i2c_driver mms114_driver = {
+> +	.driver = {
+> +		.name	= "mms114",
+> +		.owner	= THIS_MODULE,
+> +		.pm	= &mms114_pm_ops,
+> +	},
+> +	.probe		= mms114_probe,
+> +	.remove		= __devexit_p(mms114_remove),
+> +	.id_table	= mms114_id,
+> +};
+> +
+> +static int __init mms114_init(void)
+> +{
+> +	return i2c_add_driver(&mms114_driver);
+> +}
+> +
+> +static void __exit mms114_exit(void)
+> +{
+> +	i2c_del_driver(&mms114_driver);
+> +}
+> +
+> +module_init(mms114_init);
+> +module_exit(mms114_exit);
+> +
+> +/* Module information */
+> +MODULE_AUTHOR("Joonyoung Shim <jy0922.shim@samsung.com>");
+> +MODULE_DESCRIPTION("MELFAS mms114 Touchscreen driver");
+> +MODULE_LICENSE("GPL");
+> diff --git a/include/linux/i2c/mms114.h b/include/linux/i2c/mms114.h
+> new file mode 100644
+> index 0000000..5722ebf
+> --- /dev/null
+> +++ b/include/linux/i2c/mms114.h
+> @@ -0,0 +1,24 @@
+> +/*
+> + * Copyright (C) 2012 Samsung Electronics Co.Ltd
+> + * Author: Joonyoung Shim <jy0922.shim@samsung.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundationr
+> + */
+> +
+> +#ifndef __LINUX_MMS114_H
+> +#define __LINUX_MMS114_H
+> +
+> +struct mms114_platform_data {
+> +	unsigned int x_size;
+> +	unsigned int y_size;
+> +	unsigned int contact_threshold;
+> +	unsigned int moving_threshold;
+> +	bool x_invert;
+> +	bool y_invert;
+> +
+> +	void (*cfg_pin)(bool);
+> +};
+> +
+> +#endif	/* __LINUX_MMS114_H */
+> -- 
+> 1.7.5.4
+> 
+
+Thanks,
+Henrik

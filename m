@@ -1,79 +1,69 @@
-From: Przemo Firszt <przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>
-Subject: [PATCH] HID: wacom: Add tilt reporting for
-	Intuos4 WL
-Date: Fri,  4 May 2012 18:00:10 +0100
-Message-ID: <1336150810-17390-1-git-send-email-przemo@firszt.eu>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH 00/14 v3] cleanup atmel_mxt_ts
+Date: Sat, 5 May 2012 01:39:05 +0800
+Message-ID: <CAGS+omDm36Sxpv_e1=W6BNx9EoeWd1H2EaPqHAaGYYWnaZjZAw@mail.gmail.com>
+References: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
-	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linuxwacom-devel>
-List-Post: <mailto:linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
-	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: pinglinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-Tile is reported to input subsystem as reported by the device without
-any modifications. It means that tilt X/Y range is 0 to 127 and it's
-not centered on zero.
-
-Signed-off-by: Przemo Firszt <przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>
----
- drivers/hid/hid-wacom.c |    7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-index fb0fe16..a66e1aa 100644
---- a/drivers/hid/hid-wacom.c
-+++ b/drivers/hid/hid-wacom.c
-@@ -363,6 +363,7 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
- {
- 	__u16 x, y, pressure;
- 	__u8 distance;
-+	__u8 tilt_x, tilt_y;
- 
- 	switch (data[1]) {
- 	case 0x80: /* Out of proximity report */
-@@ -399,6 +400,8 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
- 		pressure = (data[6] << 3) | ((data[7] & 0xC0) >> 5)
- 			| (data[1] & 0x01);
- 		distance = (data[9] >> 2) & 0x3f;
-+		tilt_x = ((data[7] << 1) & 0x7e) | (data[8] >> 7);
-+		tilt_y = data[8] & 0x7f;
- 
- 		input_report_key(input, BTN_TOUCH, pressure > 1);
- 
-@@ -409,6 +412,8 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
- 		input_report_abs(input, ABS_Y, y);
- 		input_report_abs(input, ABS_PRESSURE, pressure);
- 		input_report_abs(input, ABS_DISTANCE, distance);
-+		input_report_abs(input, ABS_TILT_X, tilt_x);
-+		input_report_abs(input, ABS_TILT_Y, tilt_y);
- 		input_report_abs(input, ABS_MISC, wdata->id);
- 		input_event(input, EV_MSC, MSC_SERIAL, wdata->serial);
- 		input_report_key(input, wdata->tool, 1);
-@@ -548,6 +553,8 @@ static int wacom_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- 		input_set_abs_params(input, ABS_Y, 0, 25400, 4, 0);
- 		input_set_abs_params(input, ABS_PRESSURE, 0, 2047, 0, 0);
- 		input_set_abs_params(input, ABS_DISTANCE, 0, 63, 0, 0);
-+		input_set_abs_params(input, ABS_TILT_X, 0, 127, 0, 0);
-+		input_set_abs_params(input, ABS_TILT_Y, 0, 127, 0, 0);
- 		break;
- 	}
- 
--- 
-1.7.10
+On Wed, Apr 18, 2012 at 9:21 PM, Daniel Kurtz <djkurtz@chromium.org> wr=
+ote:
+>
+> This patchset cleans up the atmel_mxt_ts touchscreen driver.
+> In particular, v3 implements the following:
+>
+> 1) sysfs
+> =A0 a) fw_update only by root
+> =A0 b) use sncprintf()
+> 2) faster initialization
+> =A0 a) read/write sets of registers using i2c block transactions
+> =A0 b) fetch object descriptor table as a single i2c transaction
+> =A0 c) fetch objects =A0as a set of i2c reads, one per object
+> =A0 d) write config data as a set of i2c writes, one per object
+> 3) faster interrupt processing & initialization times
+> =A0 a) cache important values at init instead of computing in isr
+> =A0 b) don't read message checksum byte (which isn't even enabled in =
+fw)
+> 4) more correct MT-B support
+> =A0 a) send all (changed) contacts in a single EV_SYN/SYN_REPORT
+>
+> v3:
+> =A0* Address Henrik's feedback:
+> =A0 =A01) removed some more stack allocations
+> =A0 =A02) use sncprintf() in sysfs handler
+>
+>
+> The patches were tested using an MXT224E.
+> They should apply cleanly to input/next.
+>
+> Daniel Kurtz (14):
+> =A0Input: atmel_mxt_ts - use CONFIG_PM_SLEEP
+> =A0Input: atmel_mxt_ts - only allow root to update firmware
+> =A0Input: atmel_mxt_ts - refactor mxt_read/write_reg to take a length
+> =A0Input: atmel_mxt_ts - verify object size in mxt_write_object
+> =A0Input: atmel_mxt_ts - do not read extra (checksum) byte
+> =A0Input: atmel_mxt_ts - dump each message on just 1 line
+> =A0Input: atmel_mxt_ts - refactor mxt_object_show
+> =A0Input: atmel_mxt_ts - optimize writing of object table entries
+> =A0Input: atmel_mxt_ts - refactor get info
+> =A0Input: atmel_mxt_ts - simplify event reporting
+> =A0Input: atmel_mxt_ts - cache T9 reportid range when reading object
+> =A0 =A0table
+> =A0Input: atmel_mxt_ts - parse vector field of data packets
+> =A0Input: atmel_mxt_ts - send all MT-B slots in one input report
+> =A0Input: atmel_mxt_ts - parse T6 reports
 
 
-------------------------------------------------------------------------------
-Live Security Virtual Conference
-Exclusive live event will cover all the ways today's security and 
-threat landscape has changed and how IT managers can respond. Discussions 
-will include endpoint security, mobile security and the latest in malware 
-threats. http://www.accelacomm.com/jaw/sfrnl04242012/114/50122263/
+Thank you to Henrik for reviewing again, and ACK'ing patch 3.
+
+Could I get a review for the rest of the set?
+There will actually be quite a few more patches that follow these.
+
+-Daniel

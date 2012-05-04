@@ -1,57 +1,95 @@
-From: "Shen, Voice" <Voice.Shen@atmel.com>
-Subject: RE: qt1070: Why IRQF_TRIGGER_NONE?
-Date: Fri, 4 May 2012 02:07:52 +0000
-Message-ID: <ABFEDD1A8D2AAF42A54E3C074D49DC720F6279BE@penmbx02>
-References: <CACKLOr1XE+tJ92jbfOHdDQVVsXhsNASrHgENEbiuR+8aBE11cw@mail.gmail.com>
-	<4FA1E237.2070404@atmel.com>
-	<ABFEDD1A8D2AAF42A54E3C074D49DC720F627464@penmbx02>
- <20120503081449.065a8232@endymion.delvare>
+From: Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar>
+Subject: Bug#671292: [bug?] [powerpc] hid_logitech_dj: Wireless mouse does
+	not work in xorg or gpm
+Date: Thu, 3 May 2012 23:40:55 -0300
+Message-ID: <20120504024054.GA19355@hugoo.com.ar>
+References: <20120503052000.GC15205@burratino>
+ <20120503052420.GD15205@burratino>
+ <4FA217B7.7070908@osvaldobarrera.com.ar>
+ <20120503055051.GA15960@burratino>
+ <CAE7qMrqtmu+bYYYp43s7Ek=UxfUG8HzwQSQBsdCGcVCBzCMQQw@mail.gmail.com>
+ <20120503130821.GB16978@burratino>
+ <20120503131356.GC16978@burratino>
+Reply-To: Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar>, 671292@bugs.debian.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nasmtp02.atmel.com ([204.2.163.16]:50954 "EHLO
-	nasmtp02.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755939Ab2EDCOx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 22:14:53 -0400
-In-Reply-To: <20120503081449.065a8232@endymion.delvare>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <bounce-debian-bugs-dist=glddb-debian-bugs-dist=m.gmane.org@lists.debian.org>
+Resent-To: debian-bugs-dist@lists.debian.org
+Resent-Message-ID: <handler.671292.B671292.133609926131710@bugs.debian.org>
+Content-Disposition: inline
+In-Reply-To: <20120503131356.GC16978@burratino>
+List-Post: <mailto:debian-bugs-dist@lists.debian.org>
+List-Help: <mailto:debian-bugs-dist-request@lists.debian.org?subject=help>
+List-Subscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=subscribe>
+List-Unsubscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=unsubscribe>
+To: Jonathan Nieder <jrnieder@gmail.com>
+Cc: linux-input@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, 671292@bugs.debian.org
 List-Id: linux-input@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>, javier Martin <javier.martin@vista-silicon.com>
-Cc: "Wu, Josh" <Josh.wu@atmel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Wolfram Sang <w.sang@pengutronix.de>, Axel Lin <axel.lin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-SGkgSmVhbiwNCiAgVGhhbmsgeW91IGZvciB5b3VyIGluZm9ybWF0aW9uLiBBbHRob3VnaCB0aGUg
-aXJxX2ZsYWcgY2FuIG5vdCBiZSBhZGRlZCBpbnRvICJzdHJ1Y3QgaTJjX2JvYXJkX2luZm8iIHRp
-bGwgbm93LCBJIHdpbGwgdHJ5IHRvIGZpbmQgb3RoZXIgc29sdXRpb24uDQoNCiAgVGhhbmtzIGFn
-YWluLg0KDQpIaSBKYXZpZXIsDQogIEFzIHRvIHRoZSBJUlEgZmxhZyBkZXBlbmRzIG9uIFNPQy4g
-V2UgdHJ5IHRvIGZpbmQgb3RoZXIgc29sdXRpb24uIFBsZWFzZSBkZXNjcmliZSB5b3UgaXNzdWUg
-aW4gZGV0YWlsLiBBbmQgd2hhdCdzIHRoZSBtb2RlIGRvZXMgeW91ciBTT0Mgc3VwcG9ydC4NCg0K
-QmVzdCBSZWdhcmRzLA0KVm9pY2UgU2hlbg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZy
-b206IEplYW4gRGVsdmFyZSBbbWFpbHRvOmtoYWxpQGxpbnV4LWZyLm9yZ10gDQpTZW50OiBUaHVy
-c2RheSwgTWF5IDAzLCAyMDEyIDE0OjE1IMnqsqgNClRvOiBTaGVuLCBWb2ljZQ0KQ2M6IFd1LCBK
-b3NoOyBqYXZpZXIgTWFydGluOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IFdvbGZyYW0g
-U2FuZzsgQXhlbCBMaW47IERtaXRyeSBUb3Jva2hvdg0KU3ViamVjdDogUmU6IHF0MTA3MDogV2h5
-IElSUUZfVFJJR0dFUl9OT05FPw0KDQpPbiBUaHUsIDMgTWF5IDIwMTIgMDU6MTU6MTQgKzAwMDAs
-IFNoZW4sIFZvaWNlIHdyb3RlOg0KPiBIaSBBbGwsDQo+ICAgU29tZSBpbmZvcm1hdGlvbiBhcyBm
-b2xsb3dpbmcsDQo+IA0KPiAgIEFjY29yZGluZyB0byB0aGUgZGF0YXNoZWV0IG9mIHF0MTA3MCwg
-d2UgY2FuIHVzZSBJUlFGX1RSSUdHRVJfRkFMTElORyBvciBJUlFGX1RSSUdHRVJfTE9XIChJIHRo
-aW5rIHRoaXMgaXMgdGhlIGJlc3QpIGZvciBJUlEgZmxhZy4gSG93ZXZlciwgdGhlIElSUSBsaW5l
-IGlzIGEgR1BJTyBvZiBhIFNPQy4gU29tZSBTT0MgY2FuIGRldGVjdCB0aGUgbGV2ZWwgY2hhbmdl
-IG9mIHRoZSBHUElPLCB3aGlsZSBjYW4gbm90IGRpc3Rpbmd1aXNoIHRoZSBmYWxsaW5nIG9yIHJp
-c2luZy4gU28sIHRoZSBJUlEgZmxhZyBkZXBlbmRzIG9uIHRoZSB0cmlnZ2VyIG1vZGUgb2YgR1BJ
-TyBsaW5lLg0KPiANCj4gICBNYXliZSB1c2UgdGhlICJmbGFncyIgZWxlbWVudCBpbiAic3RydWN0
-IGkyY19ib2FyZF9pbmZvIiB0byBwYXNzIHRoZSBJUlEgZmxhZywgb3IgYWRkIGFub3RoZXIgZWxl
-bWVudCBuYW1lZCAiaXJxZmxhZ3MiIGludG8gInN0cnVjdCBpMmNfYm9hcmRfaW5mbyIuIEkgdGhp
-bmsgdGhpcyB3aWxsIGJlIGJldHRlciwgYnV0IEkgYW0gbm90IHN1cmUgd2hldGhlciB0aGlzIGlz
-IGEgZ29vZCBzb2x1dGlvbi4NCg0KaTJjX2JvYXJkX2luZm8uZmxhZ3MgaXMgZm9yIEkyQyBjbGll
-bnQgZmxhZ3MsIHBsZWFzZSBkbyBub3QgYWJ1c2UgaXQNCmZvciBJUlEgaW5mb3JtYXRpb24uDQoN
-CkkgaGF2ZSBubyBvYmplY3Rpb24gdG8gYW4gaXJxX2ZsYWcgbWVtYmVyIGJlaW5nIGFkZGVkLCBo
-b3dldmVyIEkNCnJlbWVtYmVyIHBhc3QgZGlzY3Vzc2lvbnMgd2hlcmUgcGVvcGxlIGFyZ3VlZCB3
-aGV0aGVyIGl0IHdhcyB0aGUgcmlnaHQNCnRoaW5nIHRvIGRvIG9yIHdoZXRoZXIgdGhlIElSUSBt
-b2RlIHdhcyBiZXN0IHNldCBieSBwbGF0Zm9ybQ0KaW5pdGlhbGl6YXRpb24gY29kZS4gUGFydCBv
-ZiB0aGF0IGRpc2N1c3Npb24gd2FzIGFyY2hpdmVkIGhlcmU6DQpodHRwOi8vbWFyYy5pbmZvLz90
-PTEyODc0MzE3MDMwMDAwMiZyPTEmdz0yDQpTYWlkIGRpc2N1c3Npb24gZGlkIG5vdCByZXN1bHQg
-aW4gYW55IGNvZGUgYmVpbmcgbWVyZ2VkIGFzIEkgZG9uJ3QNCnRoaW5rIHdlIGNhbWUgdG8gYW4g
-YWdyZWVtZW50LiBGZWVsIGZyZWUgdG8gcmVzdGFydCB0aGUgZGlzY3Vzc2lvbiB3aXRoDQp0aGUg
-aW50ZXJlc3RlZCBwZW9wbGUuDQoNCi0tIA0KSmVhbiBEZWx2YXJlDQo=
+Hi,
+
+On 2012.05.03 08:13, Jonathan Nieder wrote:
+> Jonathan Nieder wrote:
+> 
+> > An alternative method would be to boot with "hid.hid_debug=1
+> > log_buf_len=2097152" and run dmesg.
+> 
+> Apparently I can't spell.  An alternative method would be to run with
+> "hid.debug=1 log_buf_len=..." or to do
+> 
+> 	modprobe -r hid-logitech-dj
+> 	modprobe -r usbhid
+> 	modprobe -r hid
+> 	modprobe hid debug=1
+> 	modprobe hid-logitech-dj
+> 	dmesg
+> 
+> Sorry for the confusion.
+
+No problem
+
+> Jonathan
+
+Here goes, I'm pretty sure a few of the first lines aren't relevant, but I prefer to send a couple too many instead of a couple to few :)
+
+[ 1244.617478] usb 4-1: USB disconnect, device number 2
+[77892.290041] usb 4-1: new full-speed USB device number 3 using ohci_hcd
+[77892.512057] usb 4-1: New USB device found, idVendor=046d, idProduct=c52b
+[77892.512817] usb 4-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[77892.513584] usb 4-1: Product: USB Receiver
+[77892.514280] usb 4-1: Manufacturer: Logitech
+[77892.540356] logitech-djreceiver 0003:046D:C52B.000B: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0001:10:1b.1-1/input2
+[77892.550769] logitech-djdevice 0003:046D:C52B.000C: hidraw1: USB HID v1.11 Device [Logitech Unifying Device. Wireless PID:101a] on usb-0001:10:1b.1-1:1
+[77912.356716] usbcore: deregistering interface driver usbhid
+[77927.421876] usbcore: registered new interface driver usbhid
+[77927.422859] usbhid: USB HID core driver
+[77927.461256] logitech-djreceiver 0003:046D:C52B.0003: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0001:10:1b.1-1/input2
+[77927.473593] logitech-djdevice 0003:046D:C52B.0004: hidraw1: USB HID v1.11 Device [Logitech Unifying Device. Wireless PID:101a] on usb-0001:10:1b.1-1:1
+[77985.718533] usbcore: deregistering interface driver usbhid
+[77985.843593] hid: hid_debug is now used solely for parser and driver debugging.
+[77985.843602] debugfs is now used for inspecting the device (report descriptor, reports)
+[77985.890194] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 0
+[77985.891586] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 1
+[77985.893142] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 2
+[77985.895398] usbcore: registered new interface driver usbhid
+[77985.896491] usbhid: USB HID core driver
+[77985.914131] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: Logitech-DJ:logi_dj_init
+[77985.914189] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_probe called for ifnum 0
+[77985.914198] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_probe: ignoring ifnum 0
+[77985.914224] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_probe called for ifnum 1
+[77985.914233] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_probe: ignoring ifnum 1
+[77985.914250] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_probe called for ifnum 2
+[77985.919851] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x1001 wIndex=0x0200 wLength=1792
+[77985.921771] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x1101 wIndex=0x0200 wLength=5120
+[77985.922775] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x2001 wIndex=0x0200 wLength=3840
+[77985.923763] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x2101 wIndex=0x0200 wLength=8192
+[77985.927818] logitech-djreceiver 0003:046D:C52B.0003: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0001:10:1b.1-1/input2
+[77985.937799] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
+[77985.939796] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
+[77985.939809] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_recv_queue_notification: did not schedule the work item, was already queued
+[77985.942193] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: delayedwork_callback
+[77985.942406] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_ll_parse
+[77985.942417] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_ll_start
+[77985.943226] logitech-djdevice 0003:046D:C52B.0004: hidraw1: USB HID v1.11 Device [Logitech Unifying Device. Wireless PID:101a] on usb-0001:10:1b.1-1:1
+[77985.945640] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: delayedwork_callback
+[77985.945651] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_recv_add_djhid_device: device list is empty

@@ -1,218 +1,57 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: Split I2C_M_NOSTART support out of
- I2C_FUNC_PROTOCOL_MANGLING
-Date: Thu, 3 May 2012 20:36:17 +0200
-Message-ID: <20120503203617.31179f9b@endymion.delvare>
-References: <1336042416-28330-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: "Shen, Voice" <Voice.Shen@atmel.com>
+Subject: RE: qt1070: Why IRQF_TRIGGER_NONE?
+Date: Fri, 4 May 2012 02:07:52 +0000
+Message-ID: <ABFEDD1A8D2AAF42A54E3C074D49DC720F6279BE@penmbx02>
+References: <CACKLOr1XE+tJ92jbfOHdDQVVsXhsNASrHgENEbiuR+8aBE11cw@mail.gmail.com>
+	<4FA1E237.2070404@atmel.com>
+	<ABFEDD1A8D2AAF42A54E3C074D49DC720F627464@penmbx02>
+ <20120503081449.065a8232@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1336042416-28330-1-git-send-email-broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Florian Tobias Schandinat <FlorianSchandinat-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from nasmtp02.atmel.com ([204.2.163.16]:50954 "EHLO
+	nasmtp02.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755939Ab2EDCOx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 May 2012 22:14:53 -0400
+In-Reply-To: <20120503081449.065a8232@endymion.delvare>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>, javier Martin <javier.martin@vista-silicon.com>
+Cc: "Wu, Josh" <Josh.wu@atmel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Wolfram Sang <w.sang@pengutronix.de>, Axel Lin <axel.lin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi Mark,
-
-On Thu,  3 May 2012 11:53:36 +0100, Mark Brown wrote:
-> Since there are uses for I2C_M_NOSTART which are much more sensible and
-> standard than most of the protocol mangling functionality (the main one
-> being gather writes to devices where something like a register address
-> needs to be inserted before a block of data) create a new I2C_FUNC_NOSTART
-> for this feature and update all the users to use it.
-
-This is all correct, but it should be documented in
-Documentation/i2c/i2c-protocol. At the moment documentation still says
-that I2C_M_NOSTART is a weird protocol quirk nobody should be using.
-
-When you update the documentation, I think it is important to stress
-that there are now two use cases of I2C_M_NOSTART. If direction
-changes, it is a rarely needed protocol quirk. If direction doesn't
-change, it is used for buffer gathering.
-
-> 
-> In the case of regmap-i2c we remove the requirement for mangling as
-> I2C_M_NOSTART is the only mangling feature which is being used.
-> 
-> Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-> ---
->  Documentation/i2c/functionality       |    1 +
->  drivers/base/regmap/regmap-i2c.c      |    2 +-
->  drivers/i2c/algos/i2c-algo-bit.c      |    2 +-
->  drivers/i2c/algos/i2c-algo-pcf.c      |    2 +-
->  drivers/i2c/busses/i2c-nuc900.c       |    3 ++-
->  drivers/i2c/busses/i2c-s3c2410.c      |    3 ++-
->  drivers/input/joystick/as5011.c       |    1 +
->  drivers/video/matrox/matroxfb_maven.c |    1 +
->  include/linux/i2c.h                   |    5 +++--
->  9 files changed, 13 insertions(+), 7 deletions(-)
-
-Review:
-
-> 
-> diff --git a/Documentation/i2c/functionality b/Documentation/i2c/functionality
-> index 42c17c1..fb2e77e 100644
-> --- a/Documentation/i2c/functionality
-> +++ b/Documentation/i2c/functionality
-> @@ -33,6 +33,7 @@ For the most up-to-date list of functionality constants, please check
-
-You must also update the description of I2C_FUNC_PROTOCOL_MANGLING to
-no longer mention I2C_M_NOSTART.
-
->    I2C_FUNC_SMBUS_WRITE_BLOCK_DATA Handles the SMBus write_block_data command
->    I2C_FUNC_SMBUS_READ_I2C_BLOCK   Handles the SMBus read_i2c_block_data command
->    I2C_FUNC_SMBUS_WRITE_I2C_BLOCK  Handles the SMBus write_i2c_block_data command
-> +  I2C_FUNC_NOSTART                Transfers can be sent without a start
-
-Not true. Transfers always begin with a Start, even when I2C_M_NOSTART
-is used, because it is never set for the first message.
-I2C_FUNC_NOSTART means that messages other than the first may not get
-their usual Repeated Start and address prefix. So a better working IMHO
-would be:
-
-+  I2C_FUNC_NOSTART                Can skip repeated start sequence
-
->  
->  A few combinations of the above flags are also defined for your convenience:
->  
-> diff --git a/drivers/base/regmap/regmap-i2c.c b/drivers/base/regmap/regmap-i2c.c
-> index 5f6b247..fa6bf52 100644
-> --- a/drivers/base/regmap/regmap-i2c.c
-> +++ b/drivers/base/regmap/regmap-i2c.c
-> @@ -42,7 +42,7 @@ static int regmap_i2c_gather_write(void *context,
->  	/* If the I2C controller can't do a gather tell the core, it
->  	 * will substitute in a linear write for us.
->  	 */
-> -	if (!i2c_check_functionality(i2c->adapter, I2C_FUNC_PROTOCOL_MANGLING))
-> +	if (!i2c_check_functionality(i2c->adapter, I2C_FUNC_NOSTART))
->  		return -ENOTSUPP;
->  
->  	xfer[0].addr = i2c->addr;
-> diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
-> index 7f0b832..fad22b0 100644
-> --- a/drivers/i2c/algos/i2c-algo-bit.c
-> +++ b/drivers/i2c/algos/i2c-algo-bit.c
-> @@ -608,7 +608,7 @@ bailout:
->  
->  static u32 bit_func(struct i2c_adapter *adap)
->  {
-> -	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
-> +	return I2C_FUNC_I2C | I2C_FUNC_NOSTART | I2C_FUNC_SMBUS_EMUL |
->  	       I2C_FUNC_SMBUS_READ_BLOCK_DATA |
->  	       I2C_FUNC_SMBUS_BLOCK_PROC_CALL |
->  	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING;
-> diff --git a/drivers/i2c/algos/i2c-algo-pcf.c b/drivers/i2c/algos/i2c-algo-pcf.c
-> index 5c23795..8b38986 100644
-> --- a/drivers/i2c/algos/i2c-algo-pcf.c
-> +++ b/drivers/i2c/algos/i2c-algo-pcf.c
-> @@ -401,7 +401,7 @@ out:
->  
->  static u32 pcf_func(struct i2c_adapter *adap)
->  {
-> -	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
-> +	return I2C_FUNC_I2C | I2C_FUNC_NOSTART | I2C_FUNC_SMBUS_EMUL |
->  	       I2C_FUNC_PROTOCOL_MANGLING;
->  }
->  
-
-A quick grep suggests that i2c-algo-pcf doesn't support I2C_M_NOSTART,
-only I2C_M_REV_DIR_ADDR. So you don't want to add I2C_FUNC_NOSTART to
-the functionality mask.
-
-> diff --git a/drivers/i2c/busses/i2c-nuc900.c b/drivers/i2c/busses/i2c-nuc900.c
-> index 03b6157..a26dfb8 100644
-> --- a/drivers/i2c/busses/i2c-nuc900.c
-> +++ b/drivers/i2c/busses/i2c-nuc900.c
-> @@ -502,7 +502,8 @@ static int nuc900_i2c_xfer(struct i2c_adapter *adap,
->  /* declare our i2c functionality */
->  static u32 nuc900_i2c_func(struct i2c_adapter *adap)
->  {
-> -	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_PROTOCOL_MANGLING;
-> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_NOSTART |
-> +		I2C_FUNC_PROTOCOL_MANGLING;
->  }
->  
->  /* i2c bus registration info */
-> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-> index fa0b134..0195915 100644
-> --- a/drivers/i2c/busses/i2c-s3c2410.c
-> +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> @@ -626,7 +626,8 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
->  /* declare our i2c functionality */
->  static u32 s3c24xx_i2c_func(struct i2c_adapter *adap)
->  {
-> -	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_PROTOCOL_MANGLING;
-> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_NOSTART |
-> +		I2C_FUNC_PROTOCOL_MANGLING;
->  }
->  
->  /* i2c bus registration info */
-> diff --git a/drivers/input/joystick/as5011.c b/drivers/input/joystick/as5011.c
-> index 3063464..57d19d4 100644
-> --- a/drivers/input/joystick/as5011.c
-> +++ b/drivers/input/joystick/as5011.c
-> @@ -231,6 +231,7 @@ static int __devinit as5011_probe(struct i2c_client *client,
->  	}
->  
->  	if (!i2c_check_functionality(client->adapter,
-> +				     I2C_FUNC_NOSTART |
->  				     I2C_FUNC_PROTOCOL_MANGLING)) {
->  		dev_err(&client->dev,
->  			"need i2c bus that supports protocol mangling\n");
-> diff --git a/drivers/video/matrox/matroxfb_maven.c b/drivers/video/matrox/matroxfb_maven.c
-> index 31b8f67..217678e 100644
-> --- a/drivers/video/matrox/matroxfb_maven.c
-> +++ b/drivers/video/matrox/matroxfb_maven.c
-> @@ -1243,6 +1243,7 @@ static int maven_probe(struct i2c_client *client,
->  
->  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WRITE_WORD_DATA |
->  					      I2C_FUNC_SMBUS_BYTE_DATA |
-> +					      I2C_FUNC_NOSTART |
->  					      I2C_FUNC_PROTOCOL_MANGLING))
->  		goto ERROR0;
->  	if (!(data = kzalloc(sizeof(*data), GFP_KERNEL))) {
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index b66cb60..da46925 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -541,7 +541,7 @@ struct i2c_msg {
->  	__u16 flags;
->  #define I2C_M_TEN		0x0010	/* this is a ten bit chip address */
->  #define I2C_M_RD		0x0001	/* read data, from slave to master */
-> -#define I2C_M_NOSTART		0x4000	/* if I2C_FUNC_PROTOCOL_MANGLING */
-> +#define I2C_M_NOSTART		0x4000	/* if I2C_FUNC_NOSTART */
->  #define I2C_M_REV_DIR_ADDR	0x2000	/* if I2C_FUNC_PROTOCOL_MANGLING */
->  #define I2C_M_IGNORE_NAK	0x1000	/* if I2C_FUNC_PROTOCOL_MANGLING */
->  #define I2C_M_NO_RD_ACK		0x0800	/* if I2C_FUNC_PROTOCOL_MANGLING */
-> @@ -554,7 +554,7 @@ struct i2c_msg {
->  
->  #define I2C_FUNC_I2C			0x00000001
->  #define I2C_FUNC_10BIT_ADDR		0x00000002
-> -#define I2C_FUNC_PROTOCOL_MANGLING	0x00000004 /* I2C_M_NOSTART etc. */
-> +#define I2C_FUNC_PROTOCOL_MANGLING	0x00000004 /* I2C_M_IGNORE_NAK etc. */
->  #define I2C_FUNC_SMBUS_PEC		0x00000008
->  #define I2C_FUNC_SMBUS_BLOCK_PROC_CALL	0x00008000 /* SMBus 2.0 */
->  #define I2C_FUNC_SMBUS_QUICK		0x00010000
-> @@ -569,6 +569,7 @@ struct i2c_msg {
->  #define I2C_FUNC_SMBUS_WRITE_BLOCK_DATA 0x02000000
->  #define I2C_FUNC_SMBUS_READ_I2C_BLOCK	0x04000000 /* I2C-like block xfer  */
->  #define I2C_FUNC_SMBUS_WRITE_I2C_BLOCK	0x08000000 /* w/ 1-byte reg. addr. */
-> +#define I2C_FUNC_NOSTART		0x10000000 /* I2C_M_NOSTART */
-
-Sorry for nitpicking but wouldn't I2C_FUNC_GATHER be a better name?
-NOSTART is an implementation detail now, the high level feature is the
-ability to gather multiple messages into one.
-
-Also I think I would prefer if you used 0x00000010 for the new
-functionality, so that it isn't too far away from
-I2C_FUNC_PROTOCOL_MANGLING.
-
->  
->  #define I2C_FUNC_SMBUS_BYTE		(I2C_FUNC_SMBUS_READ_BYTE | \
->  					 I2C_FUNC_SMBUS_WRITE_BYTE)
-
-Thanks,
--- 
-Jean Delvare
+SGkgSmVhbiwNCiAgVGhhbmsgeW91IGZvciB5b3VyIGluZm9ybWF0aW9uLiBBbHRob3VnaCB0aGUg
+aXJxX2ZsYWcgY2FuIG5vdCBiZSBhZGRlZCBpbnRvICJzdHJ1Y3QgaTJjX2JvYXJkX2luZm8iIHRp
+bGwgbm93LCBJIHdpbGwgdHJ5IHRvIGZpbmQgb3RoZXIgc29sdXRpb24uDQoNCiAgVGhhbmtzIGFn
+YWluLg0KDQpIaSBKYXZpZXIsDQogIEFzIHRvIHRoZSBJUlEgZmxhZyBkZXBlbmRzIG9uIFNPQy4g
+V2UgdHJ5IHRvIGZpbmQgb3RoZXIgc29sdXRpb24uIFBsZWFzZSBkZXNjcmliZSB5b3UgaXNzdWUg
+aW4gZGV0YWlsLiBBbmQgd2hhdCdzIHRoZSBtb2RlIGRvZXMgeW91ciBTT0Mgc3VwcG9ydC4NCg0K
+QmVzdCBSZWdhcmRzLA0KVm9pY2UgU2hlbg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZy
+b206IEplYW4gRGVsdmFyZSBbbWFpbHRvOmtoYWxpQGxpbnV4LWZyLm9yZ10gDQpTZW50OiBUaHVy
+c2RheSwgTWF5IDAzLCAyMDEyIDE0OjE1IMnqsqgNClRvOiBTaGVuLCBWb2ljZQ0KQ2M6IFd1LCBK
+b3NoOyBqYXZpZXIgTWFydGluOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IFdvbGZyYW0g
+U2FuZzsgQXhlbCBMaW47IERtaXRyeSBUb3Jva2hvdg0KU3ViamVjdDogUmU6IHF0MTA3MDogV2h5
+IElSUUZfVFJJR0dFUl9OT05FPw0KDQpPbiBUaHUsIDMgTWF5IDIwMTIgMDU6MTU6MTQgKzAwMDAs
+IFNoZW4sIFZvaWNlIHdyb3RlOg0KPiBIaSBBbGwsDQo+ICAgU29tZSBpbmZvcm1hdGlvbiBhcyBm
+b2xsb3dpbmcsDQo+IA0KPiAgIEFjY29yZGluZyB0byB0aGUgZGF0YXNoZWV0IG9mIHF0MTA3MCwg
+d2UgY2FuIHVzZSBJUlFGX1RSSUdHRVJfRkFMTElORyBvciBJUlFGX1RSSUdHRVJfTE9XIChJIHRo
+aW5rIHRoaXMgaXMgdGhlIGJlc3QpIGZvciBJUlEgZmxhZy4gSG93ZXZlciwgdGhlIElSUSBsaW5l
+IGlzIGEgR1BJTyBvZiBhIFNPQy4gU29tZSBTT0MgY2FuIGRldGVjdCB0aGUgbGV2ZWwgY2hhbmdl
+IG9mIHRoZSBHUElPLCB3aGlsZSBjYW4gbm90IGRpc3Rpbmd1aXNoIHRoZSBmYWxsaW5nIG9yIHJp
+c2luZy4gU28sIHRoZSBJUlEgZmxhZyBkZXBlbmRzIG9uIHRoZSB0cmlnZ2VyIG1vZGUgb2YgR1BJ
+TyBsaW5lLg0KPiANCj4gICBNYXliZSB1c2UgdGhlICJmbGFncyIgZWxlbWVudCBpbiAic3RydWN0
+IGkyY19ib2FyZF9pbmZvIiB0byBwYXNzIHRoZSBJUlEgZmxhZywgb3IgYWRkIGFub3RoZXIgZWxl
+bWVudCBuYW1lZCAiaXJxZmxhZ3MiIGludG8gInN0cnVjdCBpMmNfYm9hcmRfaW5mbyIuIEkgdGhp
+bmsgdGhpcyB3aWxsIGJlIGJldHRlciwgYnV0IEkgYW0gbm90IHN1cmUgd2hldGhlciB0aGlzIGlz
+IGEgZ29vZCBzb2x1dGlvbi4NCg0KaTJjX2JvYXJkX2luZm8uZmxhZ3MgaXMgZm9yIEkyQyBjbGll
+bnQgZmxhZ3MsIHBsZWFzZSBkbyBub3QgYWJ1c2UgaXQNCmZvciBJUlEgaW5mb3JtYXRpb24uDQoN
+CkkgaGF2ZSBubyBvYmplY3Rpb24gdG8gYW4gaXJxX2ZsYWcgbWVtYmVyIGJlaW5nIGFkZGVkLCBo
+b3dldmVyIEkNCnJlbWVtYmVyIHBhc3QgZGlzY3Vzc2lvbnMgd2hlcmUgcGVvcGxlIGFyZ3VlZCB3
+aGV0aGVyIGl0IHdhcyB0aGUgcmlnaHQNCnRoaW5nIHRvIGRvIG9yIHdoZXRoZXIgdGhlIElSUSBt
+b2RlIHdhcyBiZXN0IHNldCBieSBwbGF0Zm9ybQ0KaW5pdGlhbGl6YXRpb24gY29kZS4gUGFydCBv
+ZiB0aGF0IGRpc2N1c3Npb24gd2FzIGFyY2hpdmVkIGhlcmU6DQpodHRwOi8vbWFyYy5pbmZvLz90
+PTEyODc0MzE3MDMwMDAwMiZyPTEmdz0yDQpTYWlkIGRpc2N1c3Npb24gZGlkIG5vdCByZXN1bHQg
+aW4gYW55IGNvZGUgYmVpbmcgbWVyZ2VkIGFzIEkgZG9uJ3QNCnRoaW5rIHdlIGNhbWUgdG8gYW4g
+YWdyZWVtZW50LiBGZWVsIGZyZWUgdG8gcmVzdGFydCB0aGUgZGlzY3Vzc2lvbiB3aXRoDQp0aGUg
+aW50ZXJlc3RlZCBwZW9wbGUuDQoNCi0tIA0KSmVhbiBEZWx2YXJlDQo=

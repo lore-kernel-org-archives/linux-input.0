@@ -1,49 +1,79 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: Split I2C_M_NOSTART support out of
- I2C_FUNC_PROTOCOL_MANGLING
-Date: Fri, 4 May 2012 18:07:32 +0200
-Message-ID: <20120504160732.GB5789@pengutronix.de>
-References: <1336042416-28330-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <20120503113546.GG9574@pengutronix.de>
- <20120504103929.644a05ce@endymion.delvare>
+From: Przemo Firszt <przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>
+Subject: [PATCH] HID: wacom: Add tilt reporting for
+	Intuos4 WL
+Date: Fri,  4 May 2012 18:00:10 +0100
+Message-ID: <1336150810-17390-1-git-send-email-przemo@firszt.eu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6sX45UoQRIJXqkqR"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120504103929.644a05ce-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Florian Tobias Schandinat <FlorianSchandinat-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
+	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linuxwacom-devel>
+List-Post: <mailto:linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
+	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: pinglinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
+Tile is reported to input subsystem as reported by the device without
+any modifications. It means that tilt X/Y range is 0 to 127 and it's
+not centered on zero.
 
---6sX45UoQRIJXqkqR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Przemo Firszt <przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>
+---
+ drivers/hid/hid-wacom.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-> > Applied to next, thanks! Jean, let me know if you prefer to take it.
-> > Acks from input and fbdev maintainers still appreciated.
->=20
-> I'd prefer to take it, yes, as it touches the core infrastructure.
+diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+index fb0fe16..a66e1aa 100644
+--- a/drivers/hid/hid-wacom.c
++++ b/drivers/hid/hid-wacom.c
+@@ -363,6 +363,7 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
+ {
+ 	__u16 x, y, pressure;
+ 	__u8 distance;
++	__u8 tilt_x, tilt_y;
+ 
+ 	switch (data[1]) {
+ 	case 0x80: /* Out of proximity report */
+@@ -399,6 +400,8 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
+ 		pressure = (data[6] << 3) | ((data[7] & 0xC0) >> 5)
+ 			| (data[1] & 0x01);
+ 		distance = (data[9] >> 2) & 0x3f;
++		tilt_x = ((data[7] << 1) & 0x7e) | (data[8] >> 7);
++		tilt_y = data[8] & 0x7f;
+ 
+ 		input_report_key(input, BTN_TOUCH, pressure > 1);
+ 
+@@ -409,6 +412,8 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
+ 		input_report_abs(input, ABS_Y, y);
+ 		input_report_abs(input, ABS_PRESSURE, pressure);
+ 		input_report_abs(input, ABS_DISTANCE, distance);
++		input_report_abs(input, ABS_TILT_X, tilt_x);
++		input_report_abs(input, ABS_TILT_Y, tilt_y);
+ 		input_report_abs(input, ABS_MISC, wdata->id);
+ 		input_event(input, EV_MSC, MSC_SERIAL, wdata->serial);
+ 		input_report_key(input, wdata->tool, 1);
+@@ -548,6 +553,8 @@ static int wacom_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		input_set_abs_params(input, ABS_Y, 0, 25400, 4, 0);
+ 		input_set_abs_params(input, ABS_PRESSURE, 0, 2047, 0, 0);
+ 		input_set_abs_params(input, ABS_DISTANCE, 0, 63, 0, 0);
++		input_set_abs_params(input, ABS_TILT_X, 0, 127, 0, 0);
++		input_set_abs_params(input, ABS_TILT_Y, 0, 127, 0, 0);
+ 		break;
+ 	}
+ 
+-- 
+1.7.10
 
-OK, didn't know if you were busy. Dropped it from my tree now.
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---6sX45UoQRIJXqkqR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk+j/sQACgkQD27XaX1/VRtaLwCfXFOLkpgSOyPLqV+Ljr5bT6Wm
-F/QAoImFj5goaYFt8PW+E+iWGnEYdyCc
-=IdYZ
------END PGP SIGNATURE-----
-
---6sX45UoQRIJXqkqR--
+------------------------------------------------------------------------------
+Live Security Virtual Conference
+Exclusive live event will cover all the ways today's security and 
+threat landscape has changed and how IT managers can respond. Discussions 
+will include endpoint security, mobile security and the latest in malware 
+threats. http://www.accelacomm.com/jaw/sfrnl04242012/114/50122263/

@@ -1,67 +1,87 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] i2c: Split I2C_M_NOSTART support out of
- I2C_FUNC_PROTOCOL_MANGLING
-Date: Fri, 4 May 2012 11:30:42 +0100
-Message-ID: <20120504103042.GC14230@opensource.wolfsonmicro.com>
-References: <1336042416-28330-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <20120503203617.31179f9b@endymion.delvare>
+From: Jonathan Nieder <jrnieder@gmail.com>
+Subject: Re: [bug?] [powerpc] hid_logitech_dj: Wireless mouse does not work
+ in xorg or gpm
+Date: Fri, 4 May 2012 05:49:02 -0500
+Message-ID: <20120504104902.GA7766@burratino>
+References: <20120503055051.GA15960@burratino>
+ <CAE7qMrqtmu+bYYYp43s7Ek=UxfUG8HzwQSQBsdCGcVCBzCMQQw@mail.gmail.com>
+ <20120503130821.GB16978@burratino>
+ <20120503131356.GC16978@burratino>
+ <20120504024054.GA19355@hugoo.com.ar>
+ <20120504074137.GB6451@burratino>
+ <20120504081031.GA30509@hugoo.com.ar>
+ <4FA38FFD.6080805@osvaldobarrera.com.ar>
+ <20120504083605.GI6451@burratino>
+ <CAE7qMrpWMJ=U3H3BBkxXGskNnNG7ZURS44Euh0_LZhq6ucBmpA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PuGuTyElPB9bOcsM"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:46527 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754698Ab2EDKaq (ORCPT
+Received: from mail-gh0-f174.google.com ([209.85.160.174]:33678 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754952Ab2EDKtM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 May 2012 06:30:46 -0400
+	Fri, 4 May 2012 06:49:12 -0400
+Received: by ghrr11 with SMTP id r11so2623053ghr.19
+        for <linux-input@vger.kernel.org>; Fri, 04 May 2012 03:49:11 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20120503203617.31179f9b@endymion.delvare>
+In-Reply-To: <CAE7qMrpWMJ=U3H3BBkxXGskNnNG7ZURS44Euh0_LZhq6ucBmpA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
+To: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@enac.fr>, 671292@bugs.debian.org
 
+Nestor Lopez Casado wrote:
 
---PuGuTyElPB9bOcsM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Would you be able to test the following patch on both systems and let
+> us know about the result?
 
-On Thu, May 03, 2012 at 08:36:17PM +0200, Jean Delvare wrote:
+Instructions for Hugo:
 
-> This is all correct, but it should be documented in
-> Documentation/i2c/i2c-protocol. At the moment documentation still says
-> that I2C_M_NOSTART is a weird protocol quirk nobody should be using.
+	# prerequisites
+	apt-get install git build-essential
 
-> When you update the documentation, I think it is important to stress
-> that there are now two use cases of I2C_M_NOSTART. If direction
-> changes, it is a rarely needed protocol quirk. If direction doesn't
-> change, it is used for buffer gathering.
+	# get the kernel history, if you don't already have it
+	git clone \
+	  git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 
-Hrm, actually rereading the documentation it wasn't all that clear that
-these were particularly disrecommended - it just mentioned that the
-flags existed and might be needed.  I strengthened the documentation
-here as well.
+	# latest mainline kernel
+	cd linux
+	git fetch origin
+	git checkout origin/master
 
---PuGuTyElPB9bOcsM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+	# configure
+	cp /boot/config-$(uname -r) .config; # current configuration
+	scripts/config --disable DEBUG_INFO; # smaller build
+	make localmodconfig; # minimize configuration
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+	# apply patch
+	git apply --index /path/to/patch
 
-iQIcBAEBAgAGBQJPo6/LAAoJEBus8iNuMP3dsFIP/RroZa2h/8L7kGNYDuQl0iWc
-ZK8fYaQh8FVLadhX0LrPCQxEXsq3NT1rEIpGnj06qK4F2c2Nqp8tVshzqidLrsOs
-/d3CPBPX0fB7VV0W1IGMG5eknTm2TlhRfF4/gdsUUPnnjIknFYJgA7X297ztMzMJ
-kVegN6PPzo05htCstv6ID7Jj1qCT/UHw5ZT5inwAjSJxBZL5j2+1Y+XjYVq27FuQ
-G1uEocZjUAkSfnrBkAc1rsl/oBdBAsq5rouqUYvS8mThWl0EFXYOtEqNtDKJIYjb
-E2wmeW5WxVE3zQIBIKB8oDISond/wynqd6Rg4IKW5jkj6ovQZRjW3U+j3Rn4fil/
-7EXbFI1E+cR5TDVPMhEOK1BrAYRRHwlT7Lo3dbUjZjIKJ6etE7oZdo5tQXA5ODme
-ixGWzju0u9Q/hPxK+TL6w6WPPCBncocxWMYs1flbyz5rGEzxkKrOQaxEy3xXp+4+
-VJwJE3mtZ4VeEf71vgZ4d9UI5YCPQk3UVDBq3VaeXnSLN8boeDN2C4F5jDjYOgBO
-vrYnf9kXOJzB0X3dtn6ajnblEYfdGT2zEPoxdA0VBTh4NSYZJTpm0ME7/jFkEI55
-Df6UEYJAINumKVh54ggkY33igO23F+yWKCXnG6QJemH7kQs599TEMmGHfL3dUfca
-S81zEhRo/FajR81WQ6I+
-=w9PF
------END PGP SIGNATURE-----
+	# build
+	make deb-pkg; # optionally with -j<num> for parallel build
 
---PuGuTyElPB9bOcsM--
+	# test
+	dpkg -i ../<name of package>; # as root
+	reboot
+
+	# to unapply patch:
+	cd linux
+	git reset --hard origin/master
+
+	# when you want to build again:
+	make deb-pkg; # maybe with -j4
+	dpkg -i ../<name of package>; # as root
+	reboot
+
+I would also be interested in a capture of the pairing event, if possible:
+
+	(remove mouse battery or bring mouse out of range)
+	mount -t debugfs debugfs /sys/kernel/debug
+	ls /sys/kernel/debug/hid/
+	modprobe -r hid_logitech_dj
+	modprobe hid_logitech_dj
+	cat /sys/kernel/debug/hid/<device name>/events >events.captured
+	(insert mouse battery or bring mouse within range)
+	^C
+
+Jonathan

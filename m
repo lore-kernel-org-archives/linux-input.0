@@ -1,125 +1,106 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [RFC] Input: MT - Include win8 support
-Date: Sat,  5 May 2012 17:08:19 +0200
-Message-ID: <1336230499-1450-1-git-send-email-rydberg@euromail.se>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: [PATCH 0/1] HID: User-space HID I/O driver (UHID)
+Date: Sat, 5 May 2012 17:50:14 +0200
+Message-ID: <CANq1E4Qs0sy_c8103i69DxMaWJjvE2-9EGzrXmCGxv-YhLkPBQ@mail.gmail.com>
+References: <1335799650-17597-1-git-send-email-dh.herrmann@googlemail.com>
+	<CAAngNMabAxO9fVN2DM=5xPJAVk_is3QoS1=+TGZPJAbY3TYHMQ@mail.gmail.com>
+	<CANq1E4QaRHtGxt3d=Z2mvqAFhTY2zid20GGNZ2ZzHjStGepc+A@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:39249 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755774Ab2EEPDq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 May 2012 11:03:46 -0400
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:59030 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753317Ab2EEPuQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 5 May 2012 11:50:16 -0400
+In-Reply-To: <CANq1E4QaRHtGxt3d=Z2mvqAFhTY2zid20GGNZ2ZzHjStGepc+A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, chatty@enac.fr, benjamin.tissoires@gmail.com, peter.hutterer@who-t.net, chasedouglas@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: Joao Paulo Rechi Vita <jprvita@openbossa.org>
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz, marcel@holtmann.org, claudio.takahasi@openbossa.org, linux-bluetooth@vger.kernel.org
 
-The newly released HID protocol for win8 input devices is capable of
-transmitting the same information found in the Apple HID and Linux MT
-protocols. In addition, it includes an extension useful for touch
-alignment. This patch completes the MT protocol with the
-ABS_MT_APPROACH_X/Y events, and documents how to map win8 devices.
+Hi Joao
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
-Hi all,
+On Thu, May 3, 2012 at 5:33 PM, David Herrmann
+<dh.herrmann@googlemail.com> wrote:
+> Hi Joao
+>
+> On Wed, May 2, 2012 at 9:09 PM, Joao Paulo Rechi Vita
+> <jprvita@openbossa.org> wrote:
+>> On Mon, Apr 30, 2012 at 12:27 PM, David Herrmann
+>> <dh.herrmann@googlemail.com> wrote:
+>>> Hi
+>>>
+>>> This implements a hid_ll_driver user-space interface similar to uin=
+put for the
+>>> input devices. It allows to implement the HID transport-layer in us=
+er-space as
+>>> required by Bluetooth Low-Energy (HoG).
+>>>
+>>> This is my "first final revision" for the module. Please review and=
+ test.
+>>> Changes from the previous RFCs include:
+>>> =A0- The feature-report mechanism is now implemented
+>>> =A0- Several min_t() fixes
+>>> =A0- Minor coding-style issues
+>>>
+>>> I did not change __attribute__((__packed__)) to __packed as the lat=
+ter one is
+>>> not provided to user-space.
+>>>
+>>> If there are any more issues, please tell me. And for the record, t=
+he HoG devs
+>>> told me that they are working since several months with it now so w=
+e have a real
+>>> user-space application that needs it ;)
+>>>
+>>> If there are no more issues (which i doubt) I can also resend this =
+splitted into
+>>> multiple patches.
+>>>
+>>
+>> Thanks for your work, David. I'll test and review this new version.
+>> Did you find out the what is the problem when passing BUS_BLUETOOTH =
+on
+>> the 'bus' field of the create request?
+>
+> I've spent some time looking into that but I haven't found the
+> problem, yet. Maybe Jiri can comment here.
 
-In response to the win8 HID protocol and Benjamin's work on this, here
-is a first draft of the needed extension to the MT protocol. I am
-cc:ing the usual suspects, as this will affect userland. Comments and
-criticism expected. :-)
+hid-next should fix this:
+http://git.kernel.org/?p=3Dlinux/kernel/git/jikos/hid.git;a=3Dcommitdif=
+f;h=3D8215d557e5f3a70e50e07c857d35c250fee62a73
 
-Cheers,
-Henrik
+I actually haven't tested UHID with hid-next. Some core interfaces are
+changed and I will update UHID as soon as Linus pulls the HID updates.
 
- Documentation/input/multi-touch-protocol.txt |   35 +++++++++++++++++++++++++-
- include/linux/input.h                        |    4 ++-
- 2 files changed, 37 insertions(+), 2 deletions(-)
+The BUS_USB problems should be gone, though.
 
-diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
-index 543101c..504ca6d 100644
---- a/Documentation/input/multi-touch-protocol.txt
-+++ b/Documentation/input/multi-touch-protocol.txt
-@@ -168,7 +168,9 @@ The TOUCH and WIDTH parameters have a geometrical interpretation; imagine
- looking through a window at someone gently holding a finger against the
- glass.  You will see two regions, one inner region consisting of the part
- of the finger actually touching the glass, and one outer region formed by
--the perimeter of the finger. The diameter of the inner region is the
-+the perimeter of the finger. The center of the inner region is
-+ABS_MT_POSITION_X/Y. The center of the outer region may be different,
-+denoted by ABS_MT_APPROACH_X/Y. The diameter of the inner region is the
- ABS_MT_TOUCH_MAJOR, the diameter of the outer region is
- ABS_MT_WIDTH_MAJOR. Now imagine the person pressing the finger harder
- against the glass. The inner region will increase, and in general, the
-@@ -252,6 +254,9 @@ can distinguish between the two axis, but not (uniquely) any values in
- between. In such cases, the range of ABS_MT_ORIENTATION should be [0, 1]
- [4].
- 
-+For devices capable of 360 degree orientation, the reported orientation
-+should be twice the given range.
-+
- ABS_MT_POSITION_X
- 
- The surface X coordinate of the center of the touching ellipse.
-@@ -260,6 +265,23 @@ ABS_MT_POSITION_Y
- 
- The surface Y coordinate of the center of the touching ellipse.
- 
-+ABS_MT_APPROACH_X
-+
-+The surface X coordinate of the center of the approaching ellipse. Omit if
-+the device cannot distinguish between the intended touching point and the
-+center of the approaching contact.
-+
-+ABS_MT_APPROACH_Y
-+
-+The surface Y coordinate of the center of the approaching ellipse. Omit if
-+the device cannot distinguish between the intended touching point and the
-+center of the approaching contact.
-+
-+The four position values can be used to separate the intended touch point
-+from the center of the approaching object. The difference also yields an
-+approximation of the directed orientation of the approaching ellipse, with
-+ABS_MT_WIDTH_MAJOR pointing towards the touch center.
-+
- ABS_MT_TOOL_TYPE
- 
- The type of approaching tool. A lot of kernel drivers cannot distinguish
-@@ -305,6 +327,17 @@ The range of ABS_MT_ORIENTATION should be set to [0, 1], to indicate that
- the device can distinguish between a finger along the Y axis (0) and a
- finger along the X axis (1).
- 
-+For win8 devices with both T and C coordinates, the position mapping is
-+
-+   ABS_MT_POSITION_X := T_X
-+   ABS_MT_POSITION_Y := T_Y
-+   ABS_MT_APPROACH_X := C_X
-+   ABS_MT_APPROACH_X := C_Y
-+
-+For win8 devices with Azimuth or Twist defined, the range max is the value
-+for 90 degrees, and the orientation mapping is
-+
-+   ABS_MT_ORIENTATION := twist < 2 * max ? twist : twist - 4 * max
- 
- Finger Tracking
- ---------------
-diff --git a/include/linux/input.h b/include/linux/input.h
-index a816714..039234e 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -813,11 +813,13 @@ struct input_keymap_entry {
- #define ABS_MT_TRACKING_ID	0x39	/* Unique ID of initiated contact */
- #define ABS_MT_PRESSURE		0x3a	/* Pressure on contact area */
- #define ABS_MT_DISTANCE		0x3b	/* Contact hover distance */
-+#define ABS_MT_APPROACH_X	0x3c	/* Center X approaching ellipse */
-+#define ABS_MT_APPROACH_Y	0x3d	/* Center Y approaching ellipse */
- 
- #ifdef __KERNEL__
- /* Implementation details, userspace should not care about these */
- #define ABS_MT_FIRST		ABS_MT_TOUCH_MAJOR
--#define ABS_MT_LAST		ABS_MT_DISTANCE
-+#define ABS_MT_LAST		ABS_MT_APPROACH_Y
- #endif
- 
- #define ABS_MAX			0x3f
--- 
-1.7.10
+>> Also, how does the HID subsystem differentiate from HID protocol
+>> versions? We've just found out that HoG exposes what HID protocol
+>> version the device implements, is it the case of having an extra fie=
+ld
+>> on the uhid_create_req structure to pass this information, or is it
+>> already present on the HID descriptor (sorry for my limited knowledg=
+e
+>> on the HID protocol itself)?
+>
+> There is already a "version" field in UHID_CREATE. It isn't mandatory=
+,
+> though, so setting it to 0 works. I even think the HID core doesn't
+> even look into that value except for printk messages.
+>
+>> --
+>> Jo=E3o Paulo Rechi Vita
+>> Openbossa Labs - INdT
+>
+> Thanks
+> David
 
+Regards
+David
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

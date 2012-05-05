@@ -1,74 +1,49 @@
 From: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH RESEND v3 2/2] ARM: LPC32xx: Make platform use key driver
-Date: Sat,  5 May 2012 14:01:42 +0200
-Message-ID: <1336219302-27836-1-git-send-email-stigge@antcom.de>
+Subject: [GIT PULL] input: keyboard: Add keys driver for the LPC32xx SoC
+Date: Sat, 05 May 2012 14:09:46 +0200
+Message-ID: <4FA5188A.1090401@antcom.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.work-microwave.de ([62.245.205.51]:34607 "EHLO
-	work-microwave.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755250Ab2EEMCB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 May 2012 08:02:01 -0400
+Received: from antcom.de ([188.40.178.216]:48307 "EHLO chuck.antcom.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754915Ab2EEMJu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 5 May 2012 08:09:50 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, axel.lin@gmail.com, riyer@nvidia.com, michael.hennerich@analog.com, grant.likely@secretlab.ca, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com, devicetree-discuss@lists.ozlabs.org, rob.herring@calxeda.com
-Cc: Roland Stigge <stigge@antcom.de>
 
-This patch connects the lpc32xx-key driver to the LPC32xx platform (via
-lpc32xx.dtsi), and more specifically to the reference board via its dts file.
-The clock.c file needs to be changed to match the automatic device name to its
-clock.
+Hi,
 
-Signed-off-by: Roland Stigge <stigge@antcom.de>
+this is the pull request for the LPC32xx keys driver, built on top of
+git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git - branch "next"
 
----
-Applies to v3.4-rc5 + LPC32xx DT patches
+Thanks in advance,
 
-Please pick this patch for the arm-soc subsystem.
+Roland
 
-Changes since v2:
-* DT: Use "keypad,num-rows", "keypad,num-columns" and "linux,keymap" properties
 
- arch/arm/boot/dts/lpc32xx.dtsi |    2 ++
- arch/arm/boot/dts/phy3250.dts  |    9 +++++++++
- arch/arm/mach-lpc32xx/clock.c  |    2 +-
- 3 files changed, 12 insertions(+), 1 deletion(-)
+The following changes since commit 2872a9b521ac936c7a8525a8c2bdfb9b4ccf5cfc:
 
---- linux-2.6.orig/arch/arm/boot/dts/lpc32xx.dtsi
-+++ linux-2.6/arch/arm/boot/dts/lpc32xx.dtsi
-@@ -285,6 +285,8 @@
- 			key@40050000 {
- 				compatible = "nxp,lpc3220-key";
- 				reg = <0x40050000 0x1000>;
-+				interrupts = <54 0>;
-+				status = "disable";
- 			};
- 
- 		};
---- linux-2.6.orig/arch/arm/boot/dts/phy3250.dts
-+++ linux-2.6/arch/arm/boot/dts/phy3250.dts
-@@ -135,6 +135,15 @@
- 			tsc@40048000 {
- 				status = "okay";
- 			};
-+
-+			key@40050000 {
-+				status = "okay";
-+				keypad,num-rows = <1>;
-+				keypad,num-columns = <1>;
-+				nxp,debounce-delay-ms = <3>;
-+				nxp,scan-delay-ms = <34>;
-+				linux,keymap = <0x00000002>;
-+			};
- 		};
- 	};
- 
---- linux-2.6.orig/arch/arm/mach-lpc32xx/clock.c
-+++ linux-2.6/arch/arm/mach-lpc32xx/clock.c
-@@ -1131,7 +1131,7 @@ static struct clk_lookup lookups[] = {
- 	CLKDEV_INIT("31020300.i2c", NULL, &clk_i2c2),
- 	CLKDEV_INIT("dev:ssp0", NULL, &clk_ssp0),
- 	CLKDEV_INIT("dev:ssp1", NULL, &clk_ssp1),
--	CLKDEV_INIT("lpc32xx_keys.0", NULL, &clk_kscan),
-+	CLKDEV_INIT("40050000.key", NULL, &clk_kscan),
- 	CLKDEV_INIT("lpc32xx-nand.0", "nand_ck", &clk_nand),
- 	CLKDEV_INIT("200b0000.flash", "nand_ck_mlc", &clk_nand_mlc),
- 	CLKDEV_INIT("40048000.adc", NULL, &clk_adc),
+  Input: evdev - properly handle read/write with count 0 (2012-05-02 00:23:58 -0700)
+
+are available in the git repository at:
+
+  git://git.antcom.de/linux-2.6.git lpc32xx-keys
+
+for you to fetch changes up to 0c98c603ef48859d887f6fee1d5b18481219d6ea:
+
+  input: keyboard: Add keys driver for the LPC32xx SoC (2012-05-05 13:53:16 +0200)
+
+----------------------------------------------------------------
+Roland Stigge (1):
+      input: keyboard: Add keys driver for the LPC32xx SoC
+
+ .../devicetree/bindings/input/lpc32xx-key.txt      |   28 ++
+ drivers/input/keyboard/Kconfig                     |   10 +
+ drivers/input/keyboard/Makefile                    |    1 +
+ drivers/input/keyboard/lpc32xx-keys.c              |  382 ++++++++++++++++++++
+ 4 files changed, 421 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/lpc32xx-key.txt
+ create mode 100644 drivers/input/keyboard/lpc32xx-keys.c

@@ -1,117 +1,113 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 00/14 v3] cleanup atmel_mxt_ts
-Date: Sat, 5 May 2012 14:16:26 +0200
-Message-ID: <20120505121626.GA754@polaris.bitmath.org>
-References: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
- <CAGS+omDm36Sxpv_e1=W6BNx9EoeWd1H2EaPqHAaGYYWnaZjZAw@mail.gmail.com>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: HID, driver interaction with device during probe defeated by
+ 4ea5454203d991ec85264f64f89ca8855fce69b0
+Date: Sat, 5 May 2012 14:19:47 +0200
+Message-ID: <20120505141947.1c3456cb@neptune.home>
+References: <20120409000306.101c3427@neptune>
+	<CANq1E4S2n8betsYapPVTH5qL1czyG5Ob=ExxMSz1mSUexTkaYw@mail.gmail.com>
+	<20120505125814.7fbd4312@neptune.home>
+	<CANq1E4SKYyxhxoOZezSA0+uaaxUvVxxa+vAXJdDQWRkSxes4ew@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:50792 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754915Ab2EEMLi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 May 2012 08:11:38 -0400
-Content-Disposition: inline
-In-Reply-To: <CAGS+omDm36Sxpv_e1=W6BNx9EoeWd1H2EaPqHAaGYYWnaZjZAw@mail.gmail.com>
+Received: from smtprelay.restena.lu ([158.64.1.62]:46504 "EHLO
+	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755014Ab2EEMUB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 5 May 2012 08:20:01 -0400
+In-Reply-To: <CANq1E4SKYyxhxoOZezSA0+uaaxUvVxxa+vAXJdDQWRkSxes4ew@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-Hi Daniel,
+Hi David,
 
-> Thank you to Henrik for reviewing again, and ACK'ing patch 3.
+On Sat, 05 May 2012 David Herrmann wrote:
+> On Sat, May 5, 2012 at 12:58 PM, Bruno Pr=C3=A9mont wrote:
+> [snip]
+> >> The nicest solution probably is releasing the semaphore during
+> >> hid_hw_start(). That way every driver is prepared to receive data.
+> >> However, it's an ugly solution because we release the lock not in =
+the
+> >> same function as we acquire it. We also need to catch cases where
+> >> probe() actually did never call hid_hw_start().
+> >
+> > On probe side:
+> >
+> > Maybe instead of doing it within hid_hw_start() it could also be do=
+ne
+> > in hid_connect() in combination of a flag on hdev->claimed.
+>=20
+> Could you elaborate this? I don't understand what you mean.
 
-Reading it again, I do have some more comments, actually.
+I'm not sure how much of hid_connect() or hid_disconnect() should be
+covered by the semaphore.
+If it's all of it then there is no big preference between putting the
+semaphore operations in hid_hw_start/stop or hid_(dis)connect, otherwis=
+e
+moving those up/down calls down into hid_(dis)connect is better.
 
-> Could I get a review for the rest of the set?
-> There will actually be quite a few more patches that follow these.
+Keeping the up/down in hid_start/stop though causes them to be repeated
+everywhere as those are defined in header file.
 
-I think that is part of the problem.  What you want to achieve is all
-good, but something else is not quite right.  Reading through these
-patches felt like a lot of work, although it should not really be that
-much. A closer look suggests the patches are on average 20% too large,
-the rest being irrelevant changes. That may look small, but apparently
-it is off-putting enough. The less work it is to accept your patches,
-the more likely they are to be processed quickly.
+> > On remove side:
+> >
+> > Let the semaphore be taken in hid_disconnect() (instead of hid_hw_s=
+top(),
+> > yet again in combination with flag on hdev->claimed.
+> >
+> >
+> > This way probe and remove could WARN_ON() case where hdev->claim do=
+es
+> > not show the flag as expected (that is, assuming probe() and remove=
+()
+> > can't be interlaced for the same device)
+> >
+> > Otherwise it would require one more lock or doing some of the probe
+> > initialization in a work queue (but that second option would make r=
+ace
+> > conditions much more of a problem)...
+>=20
+> My suggestion is to call up(&hdev->driver_lock) in hid_hw_start() if
+> some quirk is set. hid_device_probe() can then check whether the
+> semaphore is locked before calling up(). This way we would release th=
+e
+> lock before initializing a device. However, this seems ugly.
 
-Please find brief notes below.
+Choosing where it happens with a quirk definitely seems ugly and checki=
+ng
+for the semaphore would race with potential reports coming from device.
 
-> > Daniel Kurtz (14):
-> > =A0Input: atmel_mxt_ts - use CONFIG_PM_SLEEP
+> Your idea with the work queue seems much cleaner. However, there is
+> currently no way to make sure the work is executed _after_
+> hid_device_probe() releases the mutex. We could, however, introduce
+> some "hid_wait_until_initialized()" function that just tries to take
+> the semaphore and make the work wait until the hid_device_probe
+> finishes.
 
-Seems to clash with current mainline.
+But then again the queued work may race with remove() call and if the
+driver decides it doesn't want to handle the device it would have to
+trigger unbind sequence from the queued work which looks rather more
+complicated than failing inside probe!
 
-> > =A0Input: atmel_mxt_ts - only allow root to update firmware
+A probe_late() driver callback would be better in that case, this callb=
+ack
+would be called after up()-ing the semaphore but before returning from
+probe().
+On failure of probe_late() the semaphore would have to be taken again
+to clear ->driver
 
-OK.
+> Maybe Jiri can comment here. But I think picolcd is broken and not th=
+e
+> semaphore. If I have some time I will try to send a fix for that. I d=
+o
+> not have the hardware, though, so I cannot test it.
 
-> > =A0Input: atmel_mxt_ts - refactor mxt_read/write_reg to take a leng=
-th
+They can't live together in peace with current code :)
 
-The return value change should be split out in a separate patch,
-subject to stable as well. Also, there is no real benefit in changing
-the name from __mxt to mxt. It only makes the patch longer.
-
-> > =A0Input: atmel_mxt_ts - verify object size in mxt_write_object
-
-OK, also stable material.
-
-> > =A0Input: atmel_mxt_ts - do not read extra (checksum) byte
-
-OK.
-
-> > =A0Input: atmel_mxt_ts - dump each message on just 1 line
-
-OK.
-
-> > =A0Input: atmel_mxt_ts - refactor mxt_object_show
-
-Start of for loop does not need to change. The buf_end - buf is less
-clear than the existing PAGE_SIZE - count.  The realloc feels clunky,
-could it not allocate the max size once instead?
-
-> > =A0Input: atmel_mxt_ts - optimize writing of object table entries
-
-Seems the index variable could be kept, no real need to move the bject
-deklaration around, small things like that.
-
-> > =A0Input: atmel_mxt_ts - refactor get info
-
-Why not keep mxt_get_info(), just using the smaller implementation?
-Why change the formatting of the debug messages?
-
-> > =A0Input: atmel_mxt_ts - simplify event reporting
-
-Why change formatting of function, why reformat status initialization,
-why new name for pressure, why change the shift functions, why change
-the debug message.
-
-> > =A0Input: atmel_mxt_ts - cache T9 reportid range when reading objec=
-t
-> > =A0 =A0table
-
-Why change touchevent() function name and arguments, why not reuse the
-reportid variables. Why reformat the object assignment. Aren't
-T9_reportid values zero already.
-
-> > =A0Input: atmel_mxt_ts - parse vector field of data packets
-
-These could be deferred until they are actually used.
-
-> > =A0Input: atmel_mxt_ts - send all MT-B slots in one input report
-
-OK.
-
-> > =A0Input: atmel_mxt_ts - parse T6 reports
-
-Aren't T6_reportid values zero already.
-
-Hope this helps.
-
-Thanks.
-Henrik
+Cheers,
+Bruno
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

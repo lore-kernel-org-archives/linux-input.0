@@ -1,39 +1,59 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 09/14 v3] Input: atmel_mxt_ts - refactor get info
-Date: Sat, 05 May 2012 18:41:49 +0100
-Message-ID: <4FA5665D.80304@itdev.co.uk>
-References: <1334755319-21365-1-git-send-email-djkurtz@chromium.org> <1334755319-21365-10-git-send-email-djkurtz@chromium.org>
+From: Chase Douglas <chasedouglas@gmail.com>
+Subject: Re: [RFC] Input: MT - Include win8 support
+Date: Sat, 05 May 2012 13:07:58 -0700
+Message-ID: <4FA5889E.2030008@gmail.com>
+References: <1336230499-1450-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [89.21.227.130] ([89.21.227.130]:42410 "EHLO
-	mail.epsilon.itdev.co.uk" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1756487Ab2EERwQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 5 May 2012 13:52:16 -0400
-In-Reply-To: <1334755319-21365-10-git-send-email-djkurtz@chromium.org>
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:61333 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751031Ab2EEUID (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 5 May 2012 16:08:03 -0400
+In-Reply-To: <1336230499-1450-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, chatty@enac.fr, benjamin.tissoires@gmail.com, peter.hutterer@who-t.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Daniel-
+On 05/05/2012 08:08 AM, Henrik Rydberg wrote:
+> The newly released HID protocol for win8 input devices is capable of
+> transmitting the same information found in the Apple HID and Linux MT
+> protocols. In addition, it includes an extension useful for touch
+> alignment. This patch completes the MT protocol with the
+> ABS_MT_APPROACH_X/Y events, and documents how to map win8 devices.
+> 
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+> Hi all,
+> 
+> In response to the win8 HID protocol and Benjamin's work on this, here
+> is a first draft of the needed extension to the MT protocol. I am
+> cc:ing the usual suspects, as this will affect userland. Comments and
+> criticism expected. :-)
+> 
+> Cheers,
+> Henrik
+> 
+>  Documentation/input/multi-touch-protocol.txt |   35 +++++++++++++++++++++++++-
+>  include/linux/input.h                        |    4 ++-
+>  2 files changed, 37 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
+> index 543101c..504ca6d 100644
+> --- a/Documentation/input/multi-touch-protocol.txt
+> +++ b/Documentation/input/multi-touch-protocol.txt
 
-Daniel Kurtz wrote:
-> -	dev_info(&client->dev,
-> -			"Family ID: %d Variant ID: %d Version: %d Build: %d\n",
-> -			info->family_id, info->variant_id, info->version,
-> -			info->build);
-> +	dev_info(dev, "Family ID: %d Variant ID: %d Major.Minor.Build: %d.%d.%d\n",
-> +		 info->family_id, info->variant_id, info->version >> 4,
-> +		 info->version & 0xf, info->build);
+[snip]
 
-The canonical format for the Atmel firmware versions has the build number
-in hex, eg. 2.0.AA
+> @@ -252,6 +254,9 @@ can distinguish between the two axis, but not (uniquely) any values in
+>  between. In such cases, the range of ABS_MT_ORIENTATION should be [0, 1]
+>  [4].
+>  
+> +For devices capable of 360 degree orientation, the reported orientation
+> +should be twice the given range.
 
-So it should be %d.%d.%02X
+I don't understand what this means. Can you elaborate?
 
-cheers
-
-Nick
+-- Chase

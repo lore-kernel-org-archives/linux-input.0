@@ -1,12 +1,14 @@
 From: Roland Stigge <stigge@antcom.de>
 Subject: [PATCH RESEND v3 1/2] input: keyboard: Add keys driver for the LPC32xx SoC
-Date: Sat,  5 May 2012 14:00:19 +0200
-Message-ID: <1336219221-27791-1-git-send-email-stigge@antcom.de>
+Date: Sat,  5 May 2012 14:00:20 +0200
+Message-ID: <1336219221-27791-2-git-send-email-stigge@antcom.de>
+References: <1336219221-27791-1-git-send-email-stigge@antcom.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.work-microwave.de ([62.245.205.51]:46049 "EHLO
+Received: from mail.work-microwave.de ([62.245.205.51]:58343 "EHLO
 	work-microwave.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755174Ab2EEMAs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 May 2012 08:00:48 -0400
+	with ESMTP id S1755174Ab2EEMBD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 5 May 2012 08:01:03 -0400
+In-Reply-To: <1336219221-27791-1-git-send-email-stigge@antcom.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, axel.lin@gmail.com, riyer@nvidia.com, michael.hennerich@analog.com, grant.likely@secretlab.ca, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com, devicetree-discuss@lists.ozlabs.org, rob.herring@calxeda.com

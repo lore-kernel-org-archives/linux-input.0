@@ -1,34 +1,47 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: hid-multitouch: Only match MT interfaces
-Date: Sat, 5 May 2012 23:35:40 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1205052335100.13537@deuxcents.site>
-References: <1336138324-8217-1-git-send-email-rydberg@euromail.se> <CAN+gG=ETZKxtbLgivf2ZgfQrF=vrfKkbZ37ybzAXz60uNS8qvg@mail.gmail.com>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH 09/14 v3] Input: atmel_mxt_ts - refactor get info
+Date: Sun, 6 May 2012 10:43:03 +0800
+Message-ID: <CAGS+omCGaCujKbhbf8vUwa0K26jGFHzYJc7m_cx3fUBcUpsO6A@mail.gmail.com>
+References: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
+ <1334755319-21365-10-git-send-email-djkurtz@chromium.org> <4FA5665D.80304@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53070 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751152Ab2EEVfv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 5 May 2012 17:35:51 -0400
-In-Reply-To: <CAN+gG=ETZKxtbLgivf2ZgfQrF=vrfKkbZ37ybzAXz60uNS8qvg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4FA5665D.80304@itdev.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, 5 May 2012, Benjamin Tissoires wrote:
+On Sun, May 6, 2012 at 1:41 AM, Nick Dyer <nick.dyer@itdev.co.uk> wrote=
+:
+> Hi Daniel-
+>
+> Daniel Kurtz wrote:
+>> - =A0 =A0 dev_info(&client->dev,
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "Family ID: %d Variant ID:=
+ %d Version: %d Build: %d\n",
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 info->family_id, info->var=
+iant_id, info->version,
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 info->build);
+>> + =A0 =A0 dev_info(dev, "Family ID: %d Variant ID: %d Major.Minor.Bu=
+ild: %d.%d.%d\n",
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0info->family_id, info->variant_id, info=
+->version >> 4,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0info->version & 0xf, info->build);
+>
+> The canonical format for the Atmel firmware versions has the build nu=
+mber
+> in hex, eg. 2.0.AA
+>
+> So it should be %d.%d.%02X
 
-> Hi Henrik,
-> 
-> thanks for the respin.
-> 
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> ...and Tested-by too ;-)
+Nick,
+Thanks!  Will update.  Or perhaps %u.%u.%02X ?
+-Daniel
 
-Applied, thanks to both of you. The Baanto device fixup is now in the tree 
-as well.
-
--- 
-Jiri Kosina
-SUSE Labs
-
+>
+> cheers
+>
+> Nick

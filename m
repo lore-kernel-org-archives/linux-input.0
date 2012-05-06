@@ -1,128 +1,126 @@
-From: Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar>
+From: Jonathan Nieder <jrnieder@gmail.com>
 Subject: Re: [bug?] [powerpc] hid_logitech_dj: Wireless mouse does not work
  in xorg or gpm
-Date: Sun, 6 May 2012 00:14:29 -0300
-Message-ID: <20120506031428.GA20044@hugoo.com.ar>
+Date: Sun, 6 May 2012 00:55:08 -0500
+Message-ID: <20120506055508.GA21209@burratino>
 References: <20120503052000.GC15205@burratino>
  <20120503052420.GD15205@burratino>
  <4FA217B7.7070908@osvaldobarrera.com.ar>
  <20120503055051.GA15960@burratino>
  <CAE7qMrqtmu+bYYYp43s7Ek=UxfUG8HzwQSQBsdCGcVCBzCMQQw@mail.gmail.com>
+ <20120506031428.GA20044@hugoo.com.ar>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from customer-static-210-108-249.iplannetworks.net ([190.210.108.249]:42169
-	"EHLO hyperion.ubertech.com.ar" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1752857Ab2EFDOc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 5 May 2012 23:14:32 -0400
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:45423 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751042Ab2EFFzY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 6 May 2012 01:55:24 -0400
+Received: by obbtb18 with SMTP id tb18so6420152obb.19
+        for <linux-input@vger.kernel.org>; Sat, 05 May 2012 22:55:24 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAE7qMrqtmu+bYYYp43s7Ek=UxfUG8HzwQSQBsdCGcVCBzCMQQw@mail.gmail.com>
+In-Reply-To: <20120506031428.GA20044@hugoo.com.ar>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: Jonathan Nieder <jrnieder@gmail.com>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@enac.fr>, 671292@bugs.debian.org
+To: Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar>
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@enac.fr>, 671292@bugs.debian.org
 
-Hi,
+Hugo Osvaldo Barrera wrote:
 
-I apologize for not replying to the last e-mail and replying to an older one instead, I seem to have lost the last couple. :(
+> Here's the dmesg I got:
 
-Before I begin, let me say I downloaded the kernel sources only a few hours after your previous message, but the patch did not apply (I'm not sure why; I got a "corrupt patch" error).
-I applied the changes manually.
+Thanks.
 
-Here's the dmesg I got:
+[...]
+> [69358.971692] usbhid: USB HID core driver
+> <Mouse receiver was plugged in at this point.  Mouse was off.>
+> [69358.973309] [...]/drivers/hid/hid-logitech-dj.c: Logitech-DJ:logi_dj_init
+[...]
+> [69381.911438] logitech-djreceiver 0003:046D:C52B.0003: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0001:10:1b.1-1/input2
+> [69381.918070] [...]/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
+> [69381.918124] [...]/drivers/hid/hid-logitech-dj.c: delayedwork_callback
+> [69381.918135] [...]/drivers/hid/hid-logitech-dj.c: logi_dj_recv_add_djhid_device: device list is empty
+> [69381.920069] [...]/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
+> [69381.920119] [...]/drivers/hid/hid-logitech-dj.c: delayedwork_callback
+> [69381.920297] [...]/drivers/hid/hid-logitech-dj.c: logi_dj_ll_parse
+> [69381.920308] [...]/drivers/hid/hid-logitech-dj.c: logi_dj_ll_start
+> <Mouse was turned on at this point.>
+> [69381.920430] logitech-djdevice 0003:046D:C52B.0004: hidraw1: USB HID v1.11 Device [Logitech Unifying Device. Wireless PID:101a] on usb-0001:10:1b.1-1:1
 
-[69237.004750] usbcore: deregistering interface driver usbhid
-[69243.219600] hid: hid_debug is now used solely for parser and driver debugging.
-[69243.219608] debugfs is now used for inspecting the device (report descriptor, reports)
-[69350.013383] hid: hid_debug is now used solely for parser and driver debugging.
-[69350.013390] debugfs is now used for inspecting the device (report descriptor, reports)
-[69358.971680] usbcore: registered new interface driver usbhid
-[69358.971692] usbhid: USB HID core driver
-<Mouse receiver was plugged in at this point.  Mouse was off.>
-[69358.973309] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: Logitech-DJ:logi_dj_init
-[69381.670037] usb 4-1: new full-speed USB device number 5 using ohci_hcd
-[69381.892043] usb 4-1: New USB device found, idVendor=046d, idProduct=c52b
-[69381.892054] usb 4-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[69381.892060] usb 4-1: Product: USB Receiver
-[69381.892065] usb 4-1: Manufacturer: Logitech
-[69381.898155] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 0
-[69381.898311] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_probe called for ifnum 0
-[69381.898321] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_probe: ignoring ifnum 0
-[69381.898440] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 1
-[69381.898537] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_probe called for ifnum 1
-[69381.898546] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_probe: ignoring ifnum 1
-[69381.898651] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 2
-[69381.898750] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_probe called for ifnum 2
-[69381.904988] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x1001 wIndex=0x0200 wLength=1792
-[69381.907044] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x1101 wIndex=0x0200 wLength=5120
-[69381.908029] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x2001 wIndex=0x0200 wLength=3840
-[69381.909028] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x2101 wIndex=0x0200 wLength=8192
-[69381.911438] logitech-djreceiver 0003:046D:C52B.0003: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0001:10:1b.1-1/input2
-[69381.918070] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
-[69381.918124] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: delayedwork_callback
-[69381.918135] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_recv_add_djhid_device: device list is empty
-[69381.920069] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
-[69381.920119] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: delayedwork_callback
-[69381.920297] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_ll_parse
-[69381.920308] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_ll_start
-<Mouse was turned on at this point.>
-[69381.920430] logitech-djdevice 0003:046D:C52B.0004: hidraw1: USB HID v1.11 Device [Logitech Unifying Device. Wireless PID:101a] on usb-0001:10:1b.1-1:1
-[69395.230032] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
-[69395.782013] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
-[69395.782030] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-core.c: undefined report_id 0 received
-[69395.782039] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: hid_input_report error
-[69395.806001] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
-[69395.806016] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-core.c: undefined report_id 0 received
-[69395.806025] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: hid_input_report error
-[69395.813994] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
-[69395.814009] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-core.c: undefined report_id 0 received
-[69395.814017] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: hid_input_report error
-[69395.821990] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
-[69395.822004] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-core.c: undefined report_id 0 received
-[69395.822012] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: hid_input_report error
-[69395.829989] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
-[69395.830003] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-core.c: undefined report_id 0 received
-[69395.830012] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: hid_input_report error
-[69395.837988] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
-[69395.838002] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-core.c: undefined report_id 0 received
-[69395.838011] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: hid_input_report error
-[69395.845989] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
-[69395.846003] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-core.c: undefined report_id 0 received
-[69395.846011] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: hid_input_report error
-[69395.853990] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
-[69395.854004] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-core.c: undefined report_id 0 received
-[69395.854013] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: hid_input_report error
-[69395.861992] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: logi_dj_raw_event, size:15
-[69395.862006] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-core.c: undefined report_id 0 received
-[69395.862014] /build/buildd-linux-2.6_3.3.4-1~experimental.1-powerpc-atUZTv/linux-2.6-3.3.4/debian/build/source_powerpc_none/drivers/hid/hid-logitech-dj.c: hid_input_report error
+Still no "logi_dj_ll_parse: sending a mouse descriptor, reports_supported: 4"
+so it looks like the patch didn't have the intended effect.  Alas.
 
+The pairing (...add_djhid_device) happens during initialization,
+before the mouse is turned on...
 
-Here's the capture of the pairing event.
-I found four devices in /sys/kernel/debug/hid/, so I tried each one until I found one that produced output upon pairing the mouse.
+> Here's the capture of the pairing event.
+[...]
+> Reading from 0003:046D:C52B.0003 resulted in the following
+>
+> <Mouse turned on at this point>
+> report (size 15) (numbered) =  20 01 42 00 00 00 00 00 00 00 00 00 00 00 00
+> <Mouse turned off at this point>
+> report (size 15) (numbered) =  20 01 42 01 00 00 00 00 00 00 00 00 00 00 00
+> <EOF>
 
-# mount -t debugfs debugfs /sys/kernel/debug
-# ls /sys/kernel/debug/hid/
-0003:046D:C52B.0001  0003:046D:C52B.0002  0003:046D:C52B.0003  0003:046D:C52B.0004
-# modprobe -r hid_logitech_dj
-# modprobe hid_logitech_dj
-# cat /sys/kernel/debug/hid/0003\:046D\:C52B.0003/events > events.captured03
+... so the events captured do not include pairing events (0x41).  What
+we see here are connection status events (0x42).  Sorry about that.
 
-I tried all four, because I wasn't sure which one I should cat (/sys/kernel/debug/hid/0003\:046D\:C52B.000{1,2,3,4}/events).
-The devices ending in 1,2 and 4 didn't show any output anything.
-Reading from 0003:046D:C52B.0003 resulted in the following
+Here's a new patch that prints more information to dmesg.  After
+applying the patch, you can use the patched driver by running
 
-<Mouse turned on at this point>
-report (size 15) (numbered) =  20 01 42 00 00 00 00 00 00 00 00 00 00 00 00
-<Mouse turned off at this point>
-report (size 15) (numbered) =  20 01 42 01 00 00 00 00 00 00 00 00 00 00 00
-<EOF>
+	make drivers/hid/hid-logitech-dj.ko
+	modprobe -r hid-logitech-dj
+	insmod drivers/hid/hid-logitech-dj.ko
+---
+Thanks again,
+Jonathan
 
-The devices ending in 0003 and 0004 both showed plenty of output when moving the mouse around.
+ drivers/hid/hid-logitech-dj.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-Just in case there any doubt; this was all on the powerpc machine.
-Do you need me to rebuild the kernel with that patch and retry on amd64 as well?
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index e1c38bba4375..33a70cfbec77 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -23,6 +23,7 @@
+ 
+ 
+ #include <linux/device.h>
++#include <asm/unaligned.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
+ #include <linux/usb.h>
+@@ -273,8 +274,8 @@ static void logi_dj_recv_add_djhid_device(struct dj_receiver_dev *djrcv_dev,
+ 		goto dj_device_allocate_fail;
+ 	}
+ 
+-	dj_dev->reports_supported = le32_to_cpu(
+-		dj_report->report_params[DEVICE_PAIRED_RF_REPORT_TYPE]);
++	dj_dev->reports_supported = get_unaligned_le32(
++		dj_report->report_params + DEVICE_PAIRED_RF_REPORT_TYPE);
+ 	dj_dev->hdev = dj_hiddev;
+ 	dj_dev->dj_receiver_dev = djrcv_dev;
+ 	dj_dev->device_index = dj_report->device_index;
+@@ -618,9 +619,18 @@ static int logi_dj_raw_event(struct hid_device *hdev,
+ 	struct dj_report *dj_report = (struct dj_report *) data;
+ 	unsigned long flags;
+ 	bool report_processed = false;
++	char buf[32 * 3 + 1];
++	int i;
+ 
+ 	dbg_hid("%s, size:%d\n", __func__, size);
+ 
++	if (0 < size && size <= 32) {
++		for (i = 0; i < size; i++)
++			snprintf(buf + 3*i, sizeof(buf) - 3*i,
++					" %02x", data[i]);
++		dbg_hid("%s: report = %s\n", __func__, buf);
++	}
++
+ 	/* Here we receive all data coming from iface 2, there are 4 cases:
+ 	 *
+ 	 * 1) Data should continue its normal processing i.e. data does not
+-- 
+1.7.10.1
 
-Thanks,
-
-Hugo

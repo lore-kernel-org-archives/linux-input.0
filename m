@@ -1,50 +1,47 @@
-From: Jonathan Nieder <jrnieder@gmail.com>
-Subject: Re: [bug?] [powerpc] hid_logitech_dj: Wireless mouse does not work
- in xorg or gpm
-Date: Sun, 6 May 2012 01:23:10 -0500
-Message-ID: <20120506062309.GB26002@burratino>
-References: <20120503052000.GC15205@burratino>
- <20120503052420.GD15205@burratino>
- <4FA217B7.7070908@osvaldobarrera.com.ar>
- <20120503055051.GA15960@burratino>
- <CAE7qMrqtmu+bYYYp43s7Ek=UxfUG8HzwQSQBsdCGcVCBzCMQQw@mail.gmail.com>
- <20120506031428.GA20044@hugoo.com.ar>
- <20120506055508.GA21209@burratino>
- <4FA6162F.1020408@osvaldobarrera.com.ar>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: [PATCH v2 0/3] gspca - ov534: saturation and hue (using fixp-arith.h)
+Date: Sun,  6 May 2012 12:14:55 +0200
+Message-ID: <1336299298-17517-1-git-send-email-ospite@studenti.unina.it>
+References: <20120505102614.31395c2979f0b7aac0c8a107@studenti.unina.it>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:49576 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751350Ab2EFGXX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 May 2012 02:23:23 -0400
-Received: by obbtb18 with SMTP id tb18so6444663obb.19
-        for <linux-input@vger.kernel.org>; Sat, 05 May 2012 23:23:22 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4FA6162F.1020408@osvaldobarrera.com.ar>
+Received: from smtp207.alice.it ([82.57.200.103]:35773 "EHLO smtp207.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753110Ab2EFKPN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 6 May 2012 06:15:13 -0400
+In-Reply-To: <20120505102614.31395c2979f0b7aac0c8a107@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar>
-Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@enac.fr>, 671292@bugs.debian.org
+To: linux-media@vger.kernel.org
+Cc: Antonio Ospite <ospite@studenti.unina.it>, Jean-Francois Moine <moinejf@free.fr>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hugo Osvaldo Barrera wrote:
-> On 2012-05-06 02:55, Jonathan Nieder wrote:
+Hi,
 
->> The pairing (...add_djhid_device) happens during initialization,
->> before the mouse is turned on...
->
-> I don't think I quite follow there.  By "pairing" I though you meant
-> when the receiver connects to the mouse.  How can the pairing be done
-> while the device is off?  Or what am I missing here?
+I am sending a second version of this patchset, changes since version 1 are
+annotated per-patch.
 
-I'm guessing the actual pairing happens without Linux being involved.
-Then the driver sends a "get paired devices" request during
-initialization and the device sends the "device paired" notifications
-I'm interested in in response.
+Just FYI I intend to work on porting ov534 to v4l2 framework too once these
+ones go in and the gspca core changes about that settle a bit.
 
-> Do I need to apply only this patch, or both the previous one and this one?
+Thanks,
+   Antonio
 
-Only this patch.
+Antonio Ospite (3):
+  gspca - ov534: Add Saturation control
+  Input: move drivers/input/fixp-arith.h to include/linux
+  gspca - ov534: Add Hue control
 
-Cheers,
-Jonathan
+ drivers/input/ff-memless.c        |    3 +-
+ drivers/input/fixp-arith.h        |   87 ----------------------
+ drivers/media/video/gspca/ov534.c |  146 +++++++++++++++++++++++++++----------
+ include/linux/fixp-arith.h        |   87 ++++++++++++++++++++++
+ 4 files changed, 195 insertions(+), 128 deletions(-)
+ delete mode 100644 drivers/input/fixp-arith.h
+ create mode 100644 include/linux/fixp-arith.h
+
+-- 
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

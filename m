@@ -1,129 +1,228 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [RFC] Input: MT - Include win8 support
-Date: Sun, 6 May 2012 20:28:35 +0200
-Message-ID: <20120506182835.GA12221@polaris.bitmath.org>
-References: <1336230499-1450-1-git-send-email-rydberg@euromail.se>
- <CAN+gG=HqGmf77P6=7RMFT_Ez7Ysp4ZVJ6skfAoDcZ7JN1JtYnw@mail.gmail.com>
+Subject: Re: [PATCH 1/5] HID: hid-multitouch: fix wrong protocol detection
+Date: Sun, 6 May 2012 21:01:46 +0200
+Message-ID: <20120506190146.GA12571@polaris.bitmath.org>
+References: <1336136030-18503-1-git-send-email-benjamin.tissoires@gmail.com>
+ <1336136030-18503-2-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:59349 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753920Ab2EFSYK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 May 2012 14:24:10 -0400
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:52616 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754224Ab2EFS4t (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 6 May 2012 14:56:49 -0400
 Content-Disposition: inline
-In-Reply-To: <CAN+gG=HqGmf77P6=7RMFT_Ez7Ysp4ZVJ6skfAoDcZ7JN1JtYnw@mail.gmail.com>
+In-Reply-To: <1336136030-18503-2-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, chatty@enac.fr, peter.hutterer@who-t.net, chasedouglas@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-(doh, trying again without attachment)
+Hi Benjamin,
 
-Hi,
+> The previous implementation introduced a randomness in the splitting
+> of the different touches reported by the device. This version is more
+> robust as we don't rely on hi->input->absbit, but on our own structure.
+> 
+> This also prepares hid-multitouch to better support Win8 devices.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
+>  drivers/hid/hid-multitouch.c |   58 +++++++++++++++++++++++++++++++++--------
+>  1 files changed, 46 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 84bb32e..c6ffb05 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -70,9 +70,16 @@ struct mt_class {
+>  	bool is_indirect;	/* true for touchpads */
+>  };
+>  
+> +struct mt_fields {
+> +	unsigned usages[HID_MAX_FIELDS];
+> +	unsigned int length;
+> +};
+> +
+>  struct mt_device {
+>  	struct mt_slot curdata;	/* placeholder of incoming data */
+>  	struct mt_class mtclass;	/* our mt device class */
+> +	struct mt_fields *fields;	/* temporary placeholder for storing the
+> +					   multitouch fields */
 
-to aid in the discussion, I have shared a drawing of the MT model
-and the (supposed) win8 model.
+Why not skip the pointer here?
 
-https://docs.google.com/document/d/1KKu7kqPOsvE9tCmWhdGnmO8tgmN0Cd-Mv_c=
-rVaCZueY/view
+>  	unsigned last_field_index;	/* last field index of the report */
+>  	unsigned last_slot_field;	/* the last field of a slot */
+>  	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
+> @@ -275,11 +282,15 @@ static void set_abs(struct input_dev *input, unsigned int code,
+>  	input_set_abs_params(input, code, fmin, fmax, fuzz, 0);
+>  }
+>  
+> -static void set_last_slot_field(struct hid_usage *usage, struct mt_device *td,
+> +static void mt_store_field(struct hid_usage *usage, struct mt_device *td,
+>  		struct hid_input *hi)
 
+How about adding the last_field_index here also, using a function like
 
-> > @@ -168,7 +168,9 @@ The TOUCH and WIDTH parameters have a geometric=
-al interpretation; imagine
-> > =A0looking through a window at someone gently holding a finger agai=
-nst the
-> > =A0glass. =A0You will see two regions, one inner region consisting =
-of the part
-> > =A0of the finger actually touching the glass, and one outer region =
-formed by
-> > -the perimeter of the finger. The diameter of the inner region is t=
-he
-> > +the perimeter of the finger. The center of the inner region is
-> > +ABS_MT_POSITION_X/Y. The center of the outer region may be differe=
-nt,
-> > +denoted by ABS_MT_APPROACH_X/Y. The diameter of the inner region i=
-s the
-> > =A0ABS_MT_TOUCH_MAJOR, the diameter of the outer region is
-> > =A0ABS_MT_WIDTH_MAJOR. Now imagine the person pressing the finger h=
-arder
-> > =A0against the glass. The inner region will increase, and in genera=
-l, the
-> > @@ -252,6 +254,9 @@ can distinguish between the two axis, but not (=
-uniquely) any values in
-> > =A0between. In such cases, the range of ABS_MT_ORIENTATION should b=
-e [0, 1]
-> > =A0[4].
-> >
-> > +For devices capable of 360 degree orientation, the reported orient=
-ation
-> > +should be twice the given range.
->=20
-> Like Chase, I don't understand the necessity of that.
+static void mt_store_field(struct mt_device *td, struct hid_input *hi,
+       	    		struct hid_field *field, struct hid_usage *usage)
 
-The MT model supports the arbitrary orientation of an ellipse. The
-angle is defined as a [-90,90] degree clockwise angle between the y
-axis and the major axis of the ellipse (marked o in the figure). Only
-180 degrees are specified due to the symmetry; rotating 135 degrees is
-equivalent to -45 degrees.
+>  {
+> -	if (!test_bit(usage->hid, hi->input->absbit))
+> -		td->last_slot_field = usage->hid;
+> +	struct mt_fields *f = td->fields;
 
-In the win8 model, as in the windows surface model and most
-implementations of FTIR, it is possible to distinguish the absolute
-direction of a finger. This is equivalent to an ellipse with an arrow
-(the angle is marked A in the figure).
+And inserting td->last_field_index = field->index here.
 
-To accomodate the directional angle in the MT model, one can simply
-report the full [-180,180] range instead. That is, report 135 degrees
-instead of -45.
+> +
+> +	if (f->length >= HID_MAX_FIELDS)
+> +		return;
+> +
+> +	f->usages[f->length++] = usage->hid;
+>  }
+>  
+>  static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+> @@ -330,7 +341,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  				cls->sn_move);
+>  			/* touchscreen emulation */
+>  			set_abs(hi->input, ABS_X, field, cls->sn_move);
+> -			set_last_slot_field(usage, td, hi);
+> +			mt_store_field(usage, td, hi);
+>  			td->last_field_index = field->index;
+>  			return 1;
+>  		case HID_GD_Y:
+> @@ -340,7 +351,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  				cls->sn_move);
+>  			/* touchscreen emulation */
+>  			set_abs(hi->input, ABS_Y, field, cls->sn_move);
+> -			set_last_slot_field(usage, td, hi);
+> +			mt_store_field(usage, td, hi);
+>  			td->last_field_index = field->index;
+>  			return 1;
+>  		}
+> @@ -349,24 +360,24 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  	case HID_UP_DIGITIZER:
+>  		switch (usage->hid) {
+>  		case HID_DG_INRANGE:
+> -			set_last_slot_field(usage, td, hi);
+> +			mt_store_field(usage, td, hi);
+>  			td->last_field_index = field->index;
+>  			return 1;
+>  		case HID_DG_CONFIDENCE:
+> -			set_last_slot_field(usage, td, hi);
+> +			mt_store_field(usage, td, hi);
+>  			td->last_field_index = field->index;
+>  			return 1;
+>  		case HID_DG_TIPSWITCH:
+>  			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
+>  			input_set_capability(hi->input, EV_KEY, BTN_TOUCH);
+> -			set_last_slot_field(usage, td, hi);
+> +			mt_store_field(usage, td, hi);
+>  			td->last_field_index = field->index;
+>  			return 1;
+>  		case HID_DG_CONTACTID:
+>  			if (!td->maxcontacts)
+>  				td->maxcontacts = MT_DEFAULT_MAXCONTACT;
+>  			input_mt_init_slots(hi->input, td->maxcontacts);
+> -			td->last_slot_field = usage->hid;
+> +			mt_store_field(usage, td, hi);
+>  			td->last_field_index = field->index;
+>  			td->touches_by_report++;
+>  			return 1;
+> @@ -375,7 +386,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  					EV_ABS, ABS_MT_TOUCH_MAJOR);
+>  			set_abs(hi->input, ABS_MT_TOUCH_MAJOR, field,
+>  				cls->sn_width);
+> -			set_last_slot_field(usage, td, hi);
+> +			mt_store_field(usage, td, hi);
+>  			td->last_field_index = field->index;
+>  			return 1;
+>  		case HID_DG_HEIGHT:
+> @@ -385,7 +396,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  				cls->sn_height);
+>  			input_set_abs_params(hi->input,
+>  					ABS_MT_ORIENTATION, 0, 1, 0, 0);
+> -			set_last_slot_field(usage, td, hi);
+> +			mt_store_field(usage, td, hi);
+>  			td->last_field_index = field->index;
+>  			return 1;
+>  		case HID_DG_TIPPRESSURE:
+> @@ -396,7 +407,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  			/* touchscreen emulation */
+>  			set_abs(hi->input, ABS_PRESSURE, field,
+>  				cls->sn_pressure);
+> -			set_last_slot_field(usage, td, hi);
+> +			mt_store_field(usage, td, hi);
+>  			td->last_field_index = field->index;
+>  			return 1;
+>  		case HID_DG_CONTACTCOUNT:
+> @@ -650,6 +661,16 @@ static void mt_post_parse_default_settings(struct mt_device *td)
+>  	td->mtclass.quirks = quirks;
+>  }
+>  
+> +static void mt_post_parse(struct mt_device *td)
+> +{
+> +	struct mt_fields *f = td->fields;
+> +
+> +	if (td->touches_by_report > 0) {
+> +		int field_count_per_touch = f->length / td->touches_by_report;
+> +		td->last_slot_field = f->usages[field_count_per_touch - 1]->hid;
+> +	}
+> +}
+> +
+>  static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  {
+>  	int ret, i;
+> @@ -680,6 +701,13 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  	td->maxcontact_report_id = -1;
+>  	hid_set_drvdata(hdev, td);
+>  
+> +	td->fields = kzalloc(sizeof(struct mt_fields), GFP_KERNEL);
+> +	if (!td->fields) {
+> +		dev_err(&hdev->dev, "cannot allocate multitouch fields data\n");
+> +		ret = -ENOMEM;
+> +		goto fail;
+> +	}
+> +
 
->=20
-> > +
-> > =A0ABS_MT_POSITION_X
-> >
-> > =A0The surface X coordinate of the center of the touching ellipse.
-> > @@ -260,6 +265,23 @@ ABS_MT_POSITION_Y
-> >
-> > =A0The surface Y coordinate of the center of the touching ellipse.
-> >
-> > +ABS_MT_APPROACH_X
->=20
-> Honestly, I think that ABS_MT_APPROACH_* is really confusing for
-> end-users (Xorg, Wayland, Qt, ...). I know that the explanation are
-> given, but looking at the mess we had with the use of the MT events
-> before it has been documented, I don't think this is the right term t=
-o
-> use. Without the doc, and with a little bit of bad faith, I would say
-> that approach refers to the T coordinate in Win8 doc (the approximate
-> position where the user wants to touch), whereas the POSITION_* is
-> more the center of the ellipse of the touch.... But it's the invert..=
-=2E
-> ;-)
+This can be skipped.
 
-Looking at the figure, it is clear that the MT model has two centers,
-one for each ellipse. Thus, center is not discriminating
-enough. Perhaps ABS_MT_OUTER_X/Y is more appropriate, then?
+>  	ret = hid_parse(hdev);
+>  	if (ret != 0)
+>  		goto fail;
+> @@ -688,6 +716,8 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  	if (ret)
+>  		goto fail;
+>  
+> +	mt_post_parse(td);
+> +
+>  	if (id->vendor == HID_ANY_ID && id->product == HID_ANY_ID)
+>  		mt_post_parse_default_settings(td);
+>  
+> @@ -705,9 +735,13 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  	mt_set_maxcontacts(hdev);
+>  	mt_set_input_mode(hdev);
+>  
+> +	kfree(td->fields);
+> +	td->fields = NULL;
+> +
 
-> > +For win8 devices with Azimuth or Twist defined, the range max is t=
-he value
-> > +for 90 degrees, and the orientation mapping is
-> > +
-> > + =A0 ABS_MT_ORIENTATION :=3D twist < 2 * max ? twist : twist - 4 *=
- max
+Ditto.
 
-Reading the HID spec again, it seems azimuth is the preferred value
-for touch, so twist can be omitted here. Also, it seems the angle
-should be counter-clockwise, thus the sign is wrong. On the other
-hand, it is unclear what the reference point is, maybe it can only be
-used for differential updates. Also, the word "cursor" is not further
-specified, it could be the orientation of the touch point or the
-orientation of the whole area. This hopefully will become clearer with
-time.
+>  	return 0;
+>  
+>  fail:
+> +	kfree(td->fields);
+
+Ditto.
+
+>  	kfree(td);
+>  	return ret;
+>  }
+> -- 
+> 1.7.7.6
+> 
 
 Thanks,
 Henrik
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

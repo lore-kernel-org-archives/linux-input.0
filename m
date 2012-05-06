@@ -1,85 +1,82 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH 0/3] hid: Enable report fixup on rebind
-Date: Sun, 06 May 2012 19:54:49 +0300
-Message-ID: <4FA6ACD9.6010907@gmail.com>
-References: <1335097300-11881-1-git-send-email-rydberg@euromail.se> <alpine.LNX.2.00.1204222325380.1856@pobox.suse.cz> <4FA6AC46.20701@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 4/5] input: Introduce MT_CENTER_X and MT_CENTER_Y
+Date: Sun, 6 May 2012 19:43:16 +0200
+Message-ID: <20120506174316.GA8465@polaris.bitmath.org>
+References: <1336136030-18503-1-git-send-email-benjamin.tissoires@gmail.com>
+ <1336136030-18503-5-git-send-email-benjamin.tissoires@gmail.com>
+ <20120504134831.GA8263@polaris.bitmath.org>
+ <CAN+gG=EfOjm5AX+g22ksFTZhw-rdjT5vWmh0mu6RQZ8oXPCRqw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------040906080404020805030206"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:48060 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753998Ab2EFQyx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 May 2012 12:54:53 -0400
-In-Reply-To: <4FA6AC46.20701@gmail.com>
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:42589 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754172Ab2EFRiU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 6 May 2012 13:38:20 -0400
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=EfOjm5AX+g22ksFTZhw-rdjT5vWmh0mu6RQZ8oXPCRqw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Chase Douglas <chasedouglas@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040906080404020805030206
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi Benjamin,
 
-On 05/06/2012 07:52 PM, Nikolai Kondrashov wrote:
-> I've managed to throw together a script which rebinds a device to a specific
-> out-of-tree HID driver automatically. Please find it attached. I'll be
-> bundling it with the modules, probably.
+> > I would like a bit of elaboration here, since I am not convinced the
+> > mapping should be directly translated to the MT protocol.
+> >
+> > Clearly, the basic idea to be able to model an assymmetric tool is
+> > good. Without an angle description, however, there seems to be a
+> > mismatch in the degrees of freedom. In win8, one can place the hot
+> > spot in a corner of the rectangle, but one cannot make the rectangle
+> > into an ellipse in that direction.
+> 
+> That's not the interpretation I made of the spec.
+> http://msdn.microsoft.com/library/windows/hardware/br259100
 
-Now with proper indentation, sorry.
+Yep, we are referring to the same file.
 
-Sincerely,
-Nick
+> Win8 is a total respin of the multitouch protocol (though backward
+> compatible). It asks for a lot more reliability and performances for
+> the devices.
+> From what I understood, the T point (the touch) can be an arbitrary
+> point within the ellipse. Furthermore, the ellipse can be oriented in
+> an arbitrary rotation (like linux) because they introduced the hid
+> field Azimuth (0x3f) that is the "Counter-clockwise rotation of the
+> cursor around the Z axis".
 
---------------040906080404020805030206
-Content-Type: text/plain;
- name="digimend-rebind"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="digimend-rebind"
+The document is a bit unclear on what object azimuth is referring to,
+and whether it correlates with the C-T vector, but essentially, there
+is a lot more details, I agree.
 
-IyEvYmluL3NoCiMKIyBESUdJbWVuZCBzcGVjaWZpYyBkcml2ZXIgcmViaW5kaW5nIHNjcmlw
-dC4gVG8gYmUgaW52b2tlZCBieSB1ZGV2LgojIEF1dGhvcjogTmlrb2xhaSBLb25kcmFzaG92
-IDxzcGJuaWNrQGdtYWlsLmNvbT4KIwojIFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJl
-OiB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IgbW9kaWZ5CiMgaXQgdW5kZXIgdGhl
-IHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBhcyBwdWJsaXNoZWQg
-YnkKIyB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLCBlaXRoZXIgdmVyc2lvbiAyIG9m
-IHRoZSBMaWNlbnNlLCBvcgojIChhdCB5b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNpb24u
-CiMKIyBUaGlzIHByb2dyYW0gaXMgZGlzdHJpYnV0ZWQgaW4gdGhlIGhvcGUgdGhhdCBpdCB3
-aWxsIGJlIHVzZWZ1bCwKIyBidXQgV0lUSE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZl
-biB0aGUgaW1wbGllZCB3YXJyYW50eSBvZgojIE1FUkNIQU5UQUJJTElUWSBvciBGSVRORVNT
-IEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRS4gIFNlZSB0aGUKIyBHTlUgR2VuZXJhbCBQdWJs
-aWMgTGljZW5zZSBmb3IgbW9yZSBkZXRhaWxzLgojCiMgWW91IHNob3VsZCBoYXZlIHJlY2Vp
-dmVkIGEgY29weSBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UKIyBhbG9uZyB3
-aXRoIHRoaXMgcHJvZ3JhbS4gIElmIG5vdCwgc2VlIDxodHRwOi8vd3d3LmdudS5vcmcvbGlj
-ZW5zZXMvPi4KIwoKIyBXcml0ZSBhIHN0cmluZyB0byBhIGZpbGUsIGlnbm9yaW5nIEVOT0RF
-Vi4Kd3JpdGVfaWdub3JlX2Vub2RldigpIHsKICAgIGxvY2FsIHN0cj0iJDEiCiAgICBsb2Nh
-bCBwYXRoPSIkMiIKICAgIGxvY2FsIG91dHB1dD0iIgoKICAgICMgV3JpdGUgdGhlIHN0cmlu
-ZyB3aXRoIHRlZSwgY2FwdHVyaW5nIGVycm9yIG91dHB1dAogICAgaWYgISBvdXRwdXQ9ImAo
-ZWNobyBcIiRzdHJcIiB8IHRlZSBcIiRwYXRoXCIgPi9kZXYvbnVsbCkgMj4mMWAiOyB0aGVu
-CiAgICAgICAgIyBSYWlzZSBhbnl0aGluZyBleGNlcHQgRU5PREVWCiAgICAgICAgaWYgWyAi
-JHtvdXRwdXQjIyo6IH0iICE9ICJObyBzdWNoIGRldmljZSIgXTsgdGhlbgogICAgICAgICAg
-ICBlY2hvICIkb3V0cHV0IiA+JjIKICAgICAgICAgICAgcmV0dXJuIDEKICAgICAgICBmaQog
-ICAgZmkKfQoKKAogICAgc2V0IC1lIC11CgogICAgcHJvZ25hbWU9ImBiYXNlbmFtZSBcIiQw
-XCJgIgoKICAgIGlkPSJgYmFzZW5hbWUgJERFVlBBVEhgIgoKICAgIGN1cnJlbnRfZHJpdmVy
-X3BhdGg9ImByZWFkbGluayAtdiAtZiAvc3lzJHtERVZQQVRIfS9kcml2ZXJgIgogICAgaWYg
-WyAtZSAiJGN1cnJlbnRfZHJpdmVyX3BhdGgiIF07IHRoZW4KICAgICAgICBjdXJyZW50X2Ry
-aXZlcj0iYGJhc2VuYW1lIFwiJGN1cnJlbnRfZHJpdmVyX3BhdGhcImAiCiAgICBlbHNlCiAg
-ICAgICAgY3VycmVudF9kcml2ZXI9IiIKICAgIGZpCgogICAgc3BlY2lmaWNfbW9kdWxlPSJg
-bW9kcHJvYmUgLVIgJE1PREFMSUFTYCIKCiAgICAjIEFzc3VtZSB0aGUgZHJpdmVyIHdvdWxk
-IGJlIGNhbGxlZCB0aGUgc2FtZSBhcyBtb2R1bGUsCiAgICAjIGJ1dCB3aXRob3V0IHRoZSAi
-aGlkXyIgb3IgImhpZC0iIHByZWZpeAogICAgc3BlY2lmaWNfZHJpdmVyPSIke3NwZWNpZmlj
-X21vZHVsZSNoaWRbXy1dfSIKICAgIHNwZWNpZmljX2RyaXZlcl9wYXRoPSIvc3lzL2J1cy9o
-aWQvZHJpdmVycy8kc3BlY2lmaWNfZHJpdmVyIgoKICAgIGlmIFsgIiRjdXJyZW50X2RyaXZl
-ciIgIT0gIiRzcGVjaWZpY19kcml2ZXIiIF07IHRoZW4KICAgICAgICBsb2dnZXIgLXAgZGFl
-bW9uLm5vdGljZSAtdCAiJHByb2duYW1lIiAicmViaW5kaW5nICRERVZQQVRIIgoKICAgICAg
-ICAjIEVuc3VyZSB0aGUgc3BlY2lmaWMgZHJpdmVyIG1vZHVsZSBpcyBsb2FkZWQKICAgICAg
-ICBtb2Rwcm9iZSAiJHNwZWNpZmljX21vZHVsZSIKCiAgICAgICAgIyBVbmJpbmQgZnJvbSB0
-aGUgY3VycmVudCBkcml2ZXIsIGlmIGFueQogICAgICAgIGlmIFsgLW4gIiRjdXJyZW50X2Ry
-aXZlciIgXTsgdGhlbgogICAgICAgICAgICB3cml0ZV9pZ25vcmVfZW5vZGV2ICIkaWQiICIk
-Y3VycmVudF9kcml2ZXJfcGF0aC91bmJpbmQiCiAgICAgICAgZmkKCiAgICAgICAgIyBCaW5k
-IHRvIHRoZSBzcGVjaWZpYyBkcml2ZXIKICAgICAgICB3cml0ZV9pZ25vcmVfZW5vZGV2ICIk
-aWQiICIkc3BlY2lmaWNfZHJpdmVyX3BhdGgvYmluZCIKICAgIGZpCikgMj4mMSB8IGxvZ2dl
-ciAtcCBkYWVtb24ud2FybmluZyAtdCAiJHByb2duYW1lIgo=
---------------040906080404020805030206--
+> To sum up, there are two kind of information:
+> - The touch point (where the user wants to touch)
+> - The elliptic shape of the touch (width, height, center, azimuth, pressure)
+
+Width and height still refer to the bounding box, that much is clear
+from the document. The shape modelled by azimuth is not quite that
+clear.
+
+> I think these two information are interesting as most of the time, the
+> center of the ellipse is _not_ the point where the user wants to
+> touch. The best thing to test that is to see how many time you miss
+> the pixel you want to touch in the current implementation.
+
+No argument here; separating the touch and shape points is a great
+improvement. It also gives directional information in a simpler manner
+than via the shape angle.
+
+> I also wanted to publish these 2 last patches to raise the discussion,
+> and to show that the fix of the randomness in the splitting of the
+> touches within the reports was compatible with new kinds of devices.
+> 
+> We should focus for now (3.5) on the first 3 patches, and let aside
+> the 2 last for the next version, when everyone agrees.
+
+Yes, it may well be that the userland discussion carries over into
+3.6, and we can certainly treat the hid enablement separately.
+
+More to come on the shape modelling in the other thread.
+
+Thanks,
+Henrik

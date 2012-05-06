@@ -1,240 +1,82 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: [PATCH v2 2/3] Input: move drivers/input/fixp-arith.h to include/linux
-Date: Sun,  6 May 2012 12:14:57 +0200
-Message-ID: <1336299298-17517-3-git-send-email-ospite@studenti.unina.it>
-References: <20120505102614.31395c2979f0b7aac0c8a107@studenti.unina.it>
- <1336299298-17517-1-git-send-email-ospite@studenti.unina.it>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 4/5] input: Introduce MT_CENTER_X and MT_CENTER_Y
+Date: Sun, 6 May 2012 16:34:28 +0200
+Message-ID: <CAN+gG=EfOjm5AX+g22ksFTZhw-rdjT5vWmh0mu6RQZ8oXPCRqw@mail.gmail.com>
+References: <1336136030-18503-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1336136030-18503-5-git-send-email-benjamin.tissoires@gmail.com>
+	<20120504134831.GA8263@polaris.bitmath.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp205.alice.it ([82.57.200.101]:55501 "EHLO smtp205.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753110Ab2EFKPP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 6 May 2012 06:15:15 -0400
-In-Reply-To: <1336299298-17517-1-git-send-email-ospite@studenti.unina.it>
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:58711 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753706Ab2EFOe3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 6 May 2012 10:34:29 -0400
+In-Reply-To: <20120504134831.GA8263@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-media@vger.kernel.org
-Cc: Antonio Ospite <ospite@studenti.unina.it>, Jean-Francois Moine <moinejf@free.fr>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chasedouglas@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Move drivers/input/fixp-arith.h to include/linux so that the functions
-defined there can be used by other subsystems, for instance some video
-devices ISPs can control the output HUE value by setting registers for
-sin(HUE) and cos(HUE).
+Hi Henrik,
 
-Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
+Well, this is the mail I intended to send yesterday before I run out
+of internet connection. This may be useless, but, I'll send it
+anyway....
 
-Changes since version 1:
-  
-  - Just added the Acked-by: Dmitry to the commit message
+On Fri, May 4, 2012 at 3:48 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> Hi Benjamin, Stephane,
+>
+>> Microsoft published a new version of their multitouch specification.
+>> They introduced a new multitouch field: MT_CENTER_X|Y.
+>
+> I would like a bit of elaboration here, since I am not convinced the
+> mapping should be directly translated to the MT protocol.
+>
+> Clearly, the basic idea to be able to model an assymmetric tool is
+> good. Without an angle description, however, there seems to be a
+> mismatch in the degrees of freedom. In win8, one can place the hot
+> spot in a corner of the rectangle, but one cannot make the rectangle
+> into an ellipse in that direction.
 
- drivers/input/ff-memless.c |    3 +-
- drivers/input/fixp-arith.h |   87 --------------------------------------------
- include/linux/fixp-arith.h |   87 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 88 insertions(+), 89 deletions(-)
- delete mode 100644 drivers/input/fixp-arith.h
- create mode 100644 include/linux/fixp-arith.h
+That's not the interpretation I made of the spec.
+http://msdn.microsoft.com/library/windows/hardware/br259100
 
-diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
-index 117a59a..5f55885 100644
---- a/drivers/input/ff-memless.c
-+++ b/drivers/input/ff-memless.c
-@@ -31,8 +31,7 @@
- #include <linux/mutex.h>
- #include <linux/spinlock.h>
- #include <linux/jiffies.h>
--
--#include "fixp-arith.h"
-+#include <linux/fixp-arith.h>
- 
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Anssi Hannula <anssi.hannula@gmail.com>");
-diff --git a/drivers/input/fixp-arith.h b/drivers/input/fixp-arith.h
-deleted file mode 100644
-index 3089d73..0000000
---- a/drivers/input/fixp-arith.h
-+++ /dev/null
-@@ -1,87 +0,0 @@
--#ifndef _FIXP_ARITH_H
--#define _FIXP_ARITH_H
--
--/*
-- * Simplistic fixed-point arithmetics.
-- * Hmm, I'm probably duplicating some code :(
-- *
-- * Copyright (c) 2002 Johann Deneux
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-- *
-- * Should you need to contact me, the author, you can do so by
-- * e-mail - mail your message to <johann.deneux@gmail.com>
-- */
--
--#include <linux/types.h>
--
--/* The type representing fixed-point values */
--typedef s16 fixp_t;
--
--#define FRAC_N 8
--#define FRAC_MASK ((1<<FRAC_N)-1)
--
--/* Not to be used directly. Use fixp_{cos,sin} */
--static const fixp_t cos_table[46] = {
--	0x0100,	0x00FF,	0x00FF,	0x00FE,	0x00FD,	0x00FC,	0x00FA,	0x00F8,
--	0x00F6,	0x00F3,	0x00F0,	0x00ED,	0x00E9,	0x00E6,	0x00E2,	0x00DD,
--	0x00D9,	0x00D4,	0x00CF,	0x00C9,	0x00C4,	0x00BE,	0x00B8,	0x00B1,
--	0x00AB,	0x00A4,	0x009D,	0x0096,	0x008F,	0x0087,	0x0080,	0x0078,
--	0x0070,	0x0068,	0x005F,	0x0057,	0x004F,	0x0046,	0x003D,	0x0035,
--	0x002C,	0x0023,	0x001A,	0x0011,	0x0008, 0x0000
--};
--
--
--/* a: 123 -> 123.0 */
--static inline fixp_t fixp_new(s16 a)
--{
--	return a<<FRAC_N;
--}
--
--/* a: 0xFFFF -> -1.0
--      0x8000 -> 1.0
--      0x0000 -> 0.0
--*/
--static inline fixp_t fixp_new16(s16 a)
--{
--	return ((s32)a)>>(16-FRAC_N);
--}
--
--static inline fixp_t fixp_cos(unsigned int degrees)
--{
--	int quadrant = (degrees / 90) & 3;
--	unsigned int i = degrees % 90;
--
--	if (quadrant == 1 || quadrant == 3)
--		i = 90 - i;
--
--	i >>= 1;
--
--	return (quadrant == 1 || quadrant == 2)? -cos_table[i] : cos_table[i];
--}
--
--static inline fixp_t fixp_sin(unsigned int degrees)
--{
--	return -fixp_cos(degrees + 90);
--}
--
--static inline fixp_t fixp_mult(fixp_t a, fixp_t b)
--{
--	return ((s32)(a*b))>>FRAC_N;
--}
--
--#endif
-diff --git a/include/linux/fixp-arith.h b/include/linux/fixp-arith.h
-new file mode 100644
-index 0000000..3089d73
---- /dev/null
-+++ b/include/linux/fixp-arith.h
-@@ -0,0 +1,87 @@
-+#ifndef _FIXP_ARITH_H
-+#define _FIXP_ARITH_H
-+
-+/*
-+ * Simplistic fixed-point arithmetics.
-+ * Hmm, I'm probably duplicating some code :(
-+ *
-+ * Copyright (c) 2002 Johann Deneux
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ * Should you need to contact me, the author, you can do so by
-+ * e-mail - mail your message to <johann.deneux@gmail.com>
-+ */
-+
-+#include <linux/types.h>
-+
-+/* The type representing fixed-point values */
-+typedef s16 fixp_t;
-+
-+#define FRAC_N 8
-+#define FRAC_MASK ((1<<FRAC_N)-1)
-+
-+/* Not to be used directly. Use fixp_{cos,sin} */
-+static const fixp_t cos_table[46] = {
-+	0x0100,	0x00FF,	0x00FF,	0x00FE,	0x00FD,	0x00FC,	0x00FA,	0x00F8,
-+	0x00F6,	0x00F3,	0x00F0,	0x00ED,	0x00E9,	0x00E6,	0x00E2,	0x00DD,
-+	0x00D9,	0x00D4,	0x00CF,	0x00C9,	0x00C4,	0x00BE,	0x00B8,	0x00B1,
-+	0x00AB,	0x00A4,	0x009D,	0x0096,	0x008F,	0x0087,	0x0080,	0x0078,
-+	0x0070,	0x0068,	0x005F,	0x0057,	0x004F,	0x0046,	0x003D,	0x0035,
-+	0x002C,	0x0023,	0x001A,	0x0011,	0x0008, 0x0000
-+};
-+
-+
-+/* a: 123 -> 123.0 */
-+static inline fixp_t fixp_new(s16 a)
-+{
-+	return a<<FRAC_N;
-+}
-+
-+/* a: 0xFFFF -> -1.0
-+      0x8000 -> 1.0
-+      0x0000 -> 0.0
-+*/
-+static inline fixp_t fixp_new16(s16 a)
-+{
-+	return ((s32)a)>>(16-FRAC_N);
-+}
-+
-+static inline fixp_t fixp_cos(unsigned int degrees)
-+{
-+	int quadrant = (degrees / 90) & 3;
-+	unsigned int i = degrees % 90;
-+
-+	if (quadrant == 1 || quadrant == 3)
-+		i = 90 - i;
-+
-+	i >>= 1;
-+
-+	return (quadrant == 1 || quadrant == 2)? -cos_table[i] : cos_table[i];
-+}
-+
-+static inline fixp_t fixp_sin(unsigned int degrees)
-+{
-+	return -fixp_cos(degrees + 90);
-+}
-+
-+static inline fixp_t fixp_mult(fixp_t a, fixp_t b)
-+{
-+	return ((s32)(a*b))>>FRAC_N;
-+}
-+
-+#endif
--- 
-1.7.10
+Win8 is a total respin of the multitouch protocol (though backward
+compatible). It asks for a lot more reliability and performances for
+the devices.
+>From what I understood, the T point (the touch) can be an arbitrary
+point within the ellipse. Furthermore, the ellipse can be oriented in
+an arbitrary rotation (like linux) because they introduced the hid
+field Azimuth (0x3f) that is the "Counter-clockwise rotation of the
+cursor around the Z axis".
 
+To sum up, there are two kind of information:
+- The touch point (where the user wants to touch)
+- The elliptic shape of the touch (width, height, center, azimuth, pressure)
+
+I think these two information are interesting as most of the time, the
+center of the ellipse is _not_ the point where the user wants to
+touch. The best thing to test that is to see how many time you miss
+the pixel you want to touch in the current implementation.
+
+I also wanted to publish these 2 last patches to raise the discussion,
+and to show that the fix of the randomness in the splitting of the
+touches within the reports was compatible with new kinds of devices.
+
+We should focus for now (3.5) on the first 3 patches, and let aside
+the 2 last for the next version, when everyone agrees.
+
+Cheers,
+Benjamin
+
+
+> In linux, one can put the ellipse
+> in the wanted direction, but the hot spot is always in the center. To
+> first order, both models allow for finger-rotation information, but in
+> different ways. Adding more parameters requires a bit more
+> thought. Perhaps one should use the newly found win8 parameters to
+> reshape the pointing ellipse to start with.
+>
+> Thanks,
+> Henrik

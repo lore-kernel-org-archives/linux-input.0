@@ -1,35 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: sentelic - including production serial number in
- driver information string
-Date: Mon, 7 May 2012 08:47:23 -0700
-Message-ID: <20120507154723.GA10222@core.coreip.homeip.net>
-References: <1336398566-28669-1-git-send-email-avatar@sentelic.com>
+Subject: Re: [PATCH] Input: tl6040-vibra: Device Tree support
+Date: Mon, 7 May 2012 08:48:26 -0700
+Message-ID: <20120507154826.GB10222@core.coreip.homeip.net>
+References: <1336133113-12224-1-git-send-email-peter.ujfalusi@ti.com>
+ <20120507070233.GB22074@core.coreip.homeip.net>
+ <4FA7A8B9.4040208@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:55659 "EHLO
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:35530 "EHLO
 	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756084Ab2EGPra (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 May 2012 11:47:30 -0400
-Received: by dady13 with SMTP id y13so1407075dad.19
-        for <linux-input@vger.kernel.org>; Mon, 07 May 2012 08:47:30 -0700 (PDT)
+	with ESMTP id S1754541Ab2EGPsc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 May 2012 11:48:32 -0400
 Content-Disposition: inline
-In-Reply-To: <1336398566-28669-1-git-send-email-avatar@sentelic.com>
+In-Reply-To: <4FA7A8B9.4040208@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tai-hwa Liang <avatar@sentelic.com>
-Cc: linux-input@vger.kernel.org
+To: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, Benoit Cousson <b-cousson@ti.com>, devicetree-discuss@lists.ozlabs.org, Liam Girdwood <lrg@ti.com>
 
-On Mon, May 07, 2012 at 09:49:26PM +0800, Tai-hwa Liang wrote:
-> Hardware since Cx supports an unique identity(used to identify OEM vendors
-> and released lot number) which is very helpful for diagnostic purpose.
-> This revision tries to make it as a part of driver boot up message.
+On Mon, May 07, 2012 at 01:49:29PM +0300, Peter Ujfalusi wrote:
+> Hi Dmitry,
 > 
-> Whilst here, also bumping fsp_drv_ver to acknowledge recent addition of
-> absolute coordinates output.
+> On 05/07/2012 10:02 AM, Dmitry Torokhov wrote:
+> > Hi Peter,
+> > 
+> > On Fri, May 04, 2012 at 03:05:13PM +0300, Peter Ujfalusi wrote:
+> >> +	if (pdata) {
+> >> +		info->vibldrv_res = pdata->vibldrv_res;
+> >> +		info->vibrdrv_res = pdata->vibrdrv_res;
+> >> +		info->viblmotor_res = pdata->viblmotor_res;
+> >> +		info->vibrmotor_res = pdata->vibrmotor_res;
+> >> +		vddvibl_uV = pdata->vddvibl_uV;
+> >> +		vddvibr_uV = pdata->vddvibr_uV;
+> >> +	} else {
+> >> +		of_property_read_u32(node, "vibldrv_res", &info->vibldrv_res);
+> >> +		of_property_read_u32(node, "vibrdrv_res", &info->vibrdrv_res);
+> >> +		of_property_read_u32(node, "viblmotor_res",
+> >> +				     &info->viblmotor_res);
+> >> +		of_property_read_u32(node, "vibrmotor_res",
+> >> +				     &info->vibrmotor_res);
+> > 
+> > Since these 4 appear to be mandatory properties don't we need to
+> > validate they are actually present in DT?
 > 
+> If the property does not exist in the DT blob the variable will not be
+> updated - it will remain 0.
+> I have kept the validity check for the resistance values. This will
+> catch the case when something is missing from the DT blob.
+> 
+> I just did not wanted to complicate the code with additional checks
+> since the end result would be the same.
 
-Applied, thanks Tai-hwa.
+Ah, indeed, I missed that we still validate the values.
+
+Applied, thanks Peter.
 
 -- 
 Dmitry

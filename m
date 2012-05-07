@@ -1,60 +1,242 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: tl6040-vibra: Device Tree support
-Date: Mon, 7 May 2012 08:48:26 -0700
-Message-ID: <20120507154826.GB10222@core.coreip.homeip.net>
-References: <1336133113-12224-1-git-send-email-peter.ujfalusi@ti.com>
- <20120507070233.GB22074@core.coreip.homeip.net>
- <4FA7A8B9.4040208@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: [PATCH] HID: wacom: Add LED selector control for Wacom Intuos4 WL
+Date: Mon,  7 May 2012 20:40:11 +0100
+Message-ID: <1336419611-10372-1-git-send-email-przemo@firszt.eu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:35530 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754541Ab2EGPsc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 May 2012 11:48:32 -0400
-Content-Disposition: inline
-In-Reply-To: <4FA7A8B9.4040208@ti.com>
+Received: from stats.peacock.arvixe.com ([174.122.104.67]:50205 "EHLO
+	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1757383Ab2EGTlC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 May 2012 15:41:02 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Misael Lopez Cruz <misael.lopez@ti.com>, Benoit Cousson <b-cousson@ti.com>, devicetree-discuss@lists.ozlabs.org, Liam Girdwood <lrg@ti.com>
+To: pinglinux@gmail.com, jkosina@suse.cz
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net, Przemo Firszt <przemo@firszt.eu>
 
-On Mon, May 07, 2012 at 01:49:29PM +0300, Peter Ujfalusi wrote:
-> Hi Dmitry,
-> 
-> On 05/07/2012 10:02 AM, Dmitry Torokhov wrote:
-> > Hi Peter,
-> > 
-> > On Fri, May 04, 2012 at 03:05:13PM +0300, Peter Ujfalusi wrote:
-> >> +	if (pdata) {
-> >> +		info->vibldrv_res = pdata->vibldrv_res;
-> >> +		info->vibrdrv_res = pdata->vibrdrv_res;
-> >> +		info->viblmotor_res = pdata->viblmotor_res;
-> >> +		info->vibrmotor_res = pdata->vibrmotor_res;
-> >> +		vddvibl_uV = pdata->vddvibl_uV;
-> >> +		vddvibr_uV = pdata->vddvibr_uV;
-> >> +	} else {
-> >> +		of_property_read_u32(node, "vibldrv_res", &info->vibldrv_res);
-> >> +		of_property_read_u32(node, "vibrdrv_res", &info->vibrdrv_res);
-> >> +		of_property_read_u32(node, "viblmotor_res",
-> >> +				     &info->viblmotor_res);
-> >> +		of_property_read_u32(node, "vibrmotor_res",
-> >> +				     &info->vibrmotor_res);
-> > 
-> > Since these 4 appear to be mandatory properties don't we need to
-> > validate they are actually present in DT?
-> 
-> If the property does not exist in the DT blob the variable will not be
-> updated - it will remain 0.
-> I have kept the validity check for the resistance values. This will
-> catch the case when something is missing from the DT blob.
-> 
-> I just did not wanted to complicate the code with additional checks
-> since the end result would be the same.
+Add sysfs attribute to control LED selector on Wacom Intuos4. There are 4
+different LEDs on the tablet and they can be turned on by something like:
 
-Ah, indeed, I missed that we still validate the values.
+echo 50 > /sys/class/leds/(device # here)\:selector\:1/brightness
 
-Applied, thanks Peter.
+Only one can be lit at a time. The brightness range is 0 to 127. This patch
+also contains short ABI description.
 
+Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+---
+ Documentation/ABI/testing/sysfs-driver-wacom |    8 ++
+ drivers/hid/Kconfig                          |    1 +
+ drivers/hid/hid-wacom.c                      |  126 ++++++++++++++++++++++++++
+ 3 files changed, 135 insertions(+)
+
+diff --git a/Documentation/ABI/testing/sysfs-driver-wacom b/Documentation/ABI/testing/sysfs-driver-wacom
+index 0130d66..56c5455 100644
+--- a/Documentation/ABI/testing/sysfs-driver-wacom
++++ b/Documentation/ABI/testing/sysfs-driver-wacom
+@@ -9,6 +9,14 @@ Description:
+ 		or 0 otherwise. Writing to this file one of these values
+ 		switches reporting speed.
+ 
++What:		/sys/class/leds/0005\:056A\:00BD.0001\:selector\:*/
++Date:		May 2012
++Kernel Version:	3.5
++Contact:	linux-bluetooth@vger.kernel.org
++Description:
++		LED selector for Intuos4 WL. There are 4 leds, but only one LED
++		can be lit at a time. Max brightness is 127.
++
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/led
+ Date:		August 2011
+ Contact:	linux-input@vger.kernel.org
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 9092ae1..a9647dd 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -596,6 +596,7 @@ config HID_WACOM
+ 	tristate "Wacom Bluetooth devices support"
+ 	depends on BT_HIDP
+ 	select POWER_SUPPLY
++	select LEDS_CLASS
+ 	---help---
+ 	Support for Wacom Graphire Bluetooth and Intuos4 WL tablets.
+ 
+diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+index a66e1aa..336ddc8 100644
+--- a/drivers/hid/hid-wacom.c
++++ b/drivers/hid/hid-wacom.c
+@@ -24,6 +24,7 @@
+ #include <linux/device.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
++#include <linux/leds.h>
+ #include <linux/slab.h>
+ #include <linux/power_supply.h>
+ 
+@@ -31,6 +32,8 @@
+ 
+ #define PAD_DEVICE_ID	0x0F
+ 
++#define WAC_CMD_LED_CONTROL     0x20
++
+ struct wacom_data {
+ 	__u16 tool;
+ 	__u16 butstate;
+@@ -44,6 +47,8 @@ struct wacom_data {
+ 	__u8 ps_connected;
+ 	struct power_supply battery;
+ 	struct power_supply ac;
++	__u8 led_selector;
++	struct led_classdev *leds[3];
+ };
+ 
+ /*percent of battery capacity for Graphire
+@@ -64,6 +69,117 @@ static enum power_supply_property wacom_ac_props[] = {
+ 	POWER_SUPPLY_PROP_SCOPE,
+ };
+ 
++static void wacom_leds_set_brightness(struct led_classdev *led_dev,
++						enum led_brightness value)
++{
++	struct device *dev = led_dev->dev->parent;
++	struct hid_device *hdev;
++	struct wacom_data *wdata;
++	unsigned char *buf;
++	__u8 led = 0;
++	int i;
++
++	hdev = container_of(dev, struct hid_device, dev);
++	wdata = hid_get_drvdata(hdev);
++	for (i = 0; i < 4; ++i) {
++		if (wdata->leds[i] == led_dev)
++			wdata->led_selector = i;
++	}
++
++	led = wdata->led_selector | 0x04;
++	buf = kzalloc(9, GFP_KERNEL);
++	if (buf) {
++		buf[0] = WAC_CMD_LED_CONTROL;
++		buf[1] = led;
++		buf[2] = value;
++		hdev->hid_output_raw_report(hdev, buf, 9, HID_FEATURE_REPORT);
++		kfree(buf);
++	}
++
++	return;
++}
++
++static enum led_brightness wacom_leds_get_brightness(struct led_classdev *led_dev)
++{
++	struct wacom_data *wdata;
++	struct device *dev = led_dev->dev->parent;
++	int value = 0;
++	int i;
++
++	wdata = hid_get_drvdata(container_of(dev, struct hid_device, dev));
++
++	for (i = 0; i < 4; ++i) {
++		if (wdata->leds[i] == led_dev) {
++			value = wdata->leds[i]->brightness;
++			break;
++		}
++	}
++
++	return value;
++}
++
++
++static int wacom_initialize_leds(struct hid_device *hdev)
++{
++	struct wacom_data *wdata = hid_get_drvdata(hdev);
++	struct led_classdev *led;
++	struct device *dev = &hdev->dev;
++	size_t namesz = strlen(dev_name(dev)) + 12;
++	char *name;
++	int i, ret;
++
++	wdata->led_selector = 0;
++
++	for (i = 0; i < 4; i++) {
++		led = kzalloc(sizeof(struct led_classdev) + namesz, GFP_KERNEL);
++		if (!led) {
++			hid_warn(hdev,
++				 "can't allocate memory for LED selector\n");
++			ret = -ENOMEM;
++			goto err;
++		}
++
++		name = (void *)&led[1];
++		snprintf(name, namesz, "%s:selector:%d", dev_name(dev), i);
++		led->name = name;
++		led->brightness = 0;
++		led->max_brightness = 127;
++		led->brightness_get = wacom_leds_get_brightness;
++		led->brightness_set = wacom_leds_set_brightness;
++
++		wdata->leds[i] = led;
++
++		ret = led_classdev_register(dev, wdata->leds[i]);
++
++		if (ret) {
++			wdata->leds[i] = NULL;
++			kfree(led);
++			hid_warn(hdev, "can't register LED\n");
++			goto err;
++		}
++	}
++
++err:
++	return ret;
++}
++
++static void wacom_destroy_leds(struct hid_device *hdev)
++{
++	struct wacom_data *wdata = hid_get_drvdata(hdev);
++	struct led_classdev *led;
++	int i;
++
++	for (i = 0; i < 4; ++i) {
++		if (wdata->leds[i]) {
++			led = wdata->leds[i];
++			wdata->leds[i] = NULL;
++			led_classdev_unregister(led);
++			kfree(led);
++		}
++	}
++
++}
++
+ static int wacom_battery_get_property(struct power_supply *psy,
+ 				enum power_supply_property psp,
+ 				union power_supply_propval *val)
+@@ -602,6 +718,12 @@ static int wacom_probe(struct hid_device *hdev,
+ 		sprintf(hdev->name, "%s", "Wacom Intuos4 WL");
+ 		wdata->features = 0;
+ 		wacom_set_features(hdev);
++		ret = wacom_initialize_leds(hdev);
++		if (ret) {
++			hid_warn(hdev,
++				 "can't create led attribute, err: %d\n", ret);
++			goto destroy_leds;
++		}
+ 		break;
+ 	}
+ 
+@@ -644,6 +766,8 @@ err_ac:
+ err_battery:
+ 	device_remove_file(&hdev->dev, &dev_attr_speed);
+ 	hid_hw_stop(hdev);
++destroy_leds:
++	wacom_destroy_leds(hdev);
+ err_free:
+ 	kfree(wdata);
+ 	return ret;
+@@ -652,6 +776,8 @@ err_free:
+ static void wacom_remove(struct hid_device *hdev)
+ {
+ 	struct wacom_data *wdata = hid_get_drvdata(hdev);
++
++	wacom_destroy_leds(hdev);
+ 	device_remove_file(&hdev->dev, &dev_attr_speed);
+ 	hid_hw_stop(hdev);
+ 
 -- 
-Dmitry
+1.7.10
+

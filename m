@@ -1,164 +1,72 @@
-From: Przemo Firszt <przemo@firszt.eu>
-Subject: [PATCH] HID: wacom: Add LED selector control for Wacom Intuos4 WL
-Date: Mon,  7 May 2012 13:53:38 +0100
-Message-ID: <1336395218-6865-1-git-send-email-przemo@firszt.eu>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: wacom: Add tilt reporting for Intuos4 WL
+Date: Mon, 7 May 2012 15:03:58 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1205071503520.26736@pobox.suse.cz>
+References: <1336150810-17390-1-git-send-email-przemo@firszt.eu>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from stats.peacock.arvixe.com ([174.122.104.67]:33960 "EHLO
-	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754118Ab2EGMyA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 May 2012 08:54:00 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:47758 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755339Ab2EGNEB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 7 May 2012 09:04:01 -0400
+In-Reply-To: <1336150810-17390-1-git-send-email-przemo@firszt.eu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: pinglinux@gmail.com, jkosina@suse.cz
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net, Przemo Firszt <przemo@firszt.eu>
+To: Przemo Firszt <przemo@firszt.eu>
+Cc: pinglinux@gmail.com, linux-kernel@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org
 
-Add sysfs attribute to control LED selector on Wacom Intuos4. There are 4
-different LEDs on the tablet and they can be turned on by something like:
+On Fri, 4 May 2012, Przemo Firszt wrote:
 
-echo 1 > /sys/class/bluetooth/hci0:1/(dev no here)/wacom_led/status_led0_select
+> Tile is reported to input subsystem as reported by the device without
+> any modifications. It means that tilt X/Y range is 0 to 127 and it's
+> not centered on zero.
+> 
+> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+> ---
+>  drivers/hid/hid-wacom.c |    7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+> index fb0fe16..a66e1aa 100644
+> --- a/drivers/hid/hid-wacom.c
+> +++ b/drivers/hid/hid-wacom.c
+> @@ -363,6 +363,7 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
+>  {
+>  	__u16 x, y, pressure;
+>  	__u8 distance;
+> +	__u8 tilt_x, tilt_y;
+>  
+>  	switch (data[1]) {
+>  	case 0x80: /* Out of proximity report */
+> @@ -399,6 +400,8 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
+>  		pressure = (data[6] << 3) | ((data[7] & 0xC0) >> 5)
+>  			| (data[1] & 0x01);
+>  		distance = (data[9] >> 2) & 0x3f;
+> +		tilt_x = ((data[7] << 1) & 0x7e) | (data[8] >> 7);
+> +		tilt_y = data[8] & 0x7f;
+>  
+>  		input_report_key(input, BTN_TOUCH, pressure > 1);
+>  
+> @@ -409,6 +412,8 @@ static void wacom_i4_parse_pen_report(struct wacom_data *wdata,
+>  		input_report_abs(input, ABS_Y, y);
+>  		input_report_abs(input, ABS_PRESSURE, pressure);
+>  		input_report_abs(input, ABS_DISTANCE, distance);
+> +		input_report_abs(input, ABS_TILT_X, tilt_x);
+> +		input_report_abs(input, ABS_TILT_Y, tilt_y);
+>  		input_report_abs(input, ABS_MISC, wdata->id);
+>  		input_event(input, EV_MSC, MSC_SERIAL, wdata->serial);
+>  		input_report_key(input, wdata->tool, 1);
+> @@ -548,6 +553,8 @@ static int wacom_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+>  		input_set_abs_params(input, ABS_Y, 0, 25400, 4, 0);
+>  		input_set_abs_params(input, ABS_PRESSURE, 0, 2047, 0, 0);
+>  		input_set_abs_params(input, ABS_DISTANCE, 0, 63, 0, 0);
+> +		input_set_abs_params(input, ABS_TILT_X, 0, 127, 0, 0);
+> +		input_set_abs_params(input, ABS_TILT_Y, 0, 127, 0, 0);
+>  		break;
 
-The status_led0_select range is 0 to 3. The brightness of the LED selector can
-be controlled as well, but this patch uses a fixed value (0x0F) and the
-selector is also permanently switched on. The naming of the attribute
-(wacom_led/status_led0_select) is the same is in USB driver for Intuos4 Wl.
+Applied.
 
-Signed-off-by: Przemo Firszt <przemo@firszt.eu>
----
- drivers/hid/hid-wacom.c |   93 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 93 insertions(+)
-
-diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-index a66e1aa..c5c6ec6 100644
---- a/drivers/hid/hid-wacom.c
-+++ b/drivers/hid/hid-wacom.c
-@@ -31,6 +31,8 @@
- 
- #define PAD_DEVICE_ID	0x0F
- 
-+#define WAC_CMD_LED_CONTROL     0x20
-+
- struct wacom_data {
- 	__u16 tool;
- 	__u16 butstate;
-@@ -44,6 +46,7 @@ struct wacom_data {
- 	__u8 ps_connected;
- 	struct power_supply battery;
- 	struct power_supply ac;
-+	__u8 led_selector;
- };
- 
- /*percent of battery capacity for Graphire
-@@ -64,6 +67,88 @@ static enum power_supply_property wacom_ac_props[] = {
- 	POWER_SUPPLY_PROP_SCOPE,
- };
- 
-+static void wacom_led_control(struct hid_device *hdev)
-+{
-+	struct wacom_data *wdata = hid_get_drvdata(hdev);
-+	unsigned char *buf;
-+		__u8 led = 0;
-+
-+	buf = kzalloc(9, GFP_KERNEL);
-+	if (buf) {
-+		led =  wdata->led_selector | 0x4;
-+
-+		buf[0] = WAC_CMD_LED_CONTROL;
-+		buf[1] = led;
-+		buf[2] = 0x0F;
-+		hdev->hid_output_raw_report(hdev, buf, 9, HID_FEATURE_REPORT);
-+
-+		kfree(buf);
-+	}
-+
-+	return;
-+}
-+
-+static ssize_t wacom_led0_select_store(struct device *dev,
-+	struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct wacom_data *wdata = hid_get_drvdata(hdev);
-+	int new_led;
-+
-+	if (sscanf(buf, "%1d", &new_led) != 1)
-+		return -EINVAL;
-+
-+	wdata->led_selector = new_led & 0x03;
-+
-+	wacom_led_control(hdev);
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t wacom_led0_select_show(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct wacom_data *wdata = hid_get_drvdata(hdev);
-+
-+	return snprintf(buf, 2, "%d\n", wdata->led_selector);
-+}
-+
-+static DEVICE_ATTR(status_led0_select, S_IWUSR | S_IRUSR,
-+		    wacom_led0_select_show, wacom_led0_select_store);
-+
-+static struct attribute *intuos4_led_attrs[] = {
-+	&dev_attr_status_led0_select.attr,
-+	NULL
-+};
-+
-+static struct attribute_group intuos4_led_attr_group = {
-+	.name = "wacom_led",
-+	.attrs = intuos4_led_attrs,
-+};
-+
-+static int wacom_initialize_leds(struct hid_device *hdev)
-+{
-+	struct wacom_data *wdata = hid_get_drvdata(hdev);
-+	int ret;
-+
-+	wdata->led_selector = 0;
-+	ret = sysfs_create_group(&hdev->dev.kobj, &intuos4_led_attr_group);
-+
-+	if (ret) {
-+		dev_err(&hdev->dev,
-+			"cannot create sysfs group err: %d\n", ret);
-+		return ret;
-+	}
-+	wacom_led_control(hdev);
-+
-+	return 0;
-+}
-+
-+static void wacom_destroy_leds(struct hid_device *hdev)
-+{
-+	sysfs_remove_group(&hdev->dev.kobj, &intuos4_led_attr_group);
-+}
-+
- static int wacom_battery_get_property(struct power_supply *psy,
- 				enum power_supply_property psp,
- 				union power_supply_propval *val)
-@@ -602,6 +687,12 @@ static int wacom_probe(struct hid_device *hdev,
- 		sprintf(hdev->name, "%s", "Wacom Intuos4 WL");
- 		wdata->features = 0;
- 		wacom_set_features(hdev);
-+		ret = wacom_initialize_leds(hdev);
-+		if (ret) {
-+			hid_warn(hdev,
-+				 "can't create led attribute, err: %d\n", ret);
-+			goto destroy_leds;
-+		}
- 		break;
- 	}
- 
-@@ -644,6 +735,8 @@ err_ac:
- err_battery:
- 	device_remove_file(&hdev->dev, &dev_attr_speed);
- 	hid_hw_stop(hdev);
-+destroy_leds:
-+	wacom_destroy_leds(hdev);
- err_free:
- 	kfree(wdata);
- 	return ret;
 -- 
-1.7.10
-
+Jiri Kosina
+SUSE Labs

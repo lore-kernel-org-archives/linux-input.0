@@ -1,54 +1,53 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 2/5] HID: hid-multitouch: get maxcontacts also from
- logical_max value
-Date: Sun, 6 May 2012 21:03:23 +0200
-Message-ID: <20120506190322.GB12571@polaris.bitmath.org>
-References: <1336136030-18503-1-git-send-email-benjamin.tissoires@gmail.com>
- <1336136030-18503-3-git-send-email-benjamin.tissoires@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Bo Shen <voice.shen@atmel.com>
+Subject: [RFC] QT1070: change the trigger mode of QT1070
+Date: Mon,  7 May 2012 10:27:33 +0800
+Message-ID: <1336357653-18663-1-git-send-email-voice.shen@atmel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:41257 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754178Ab2EFS6Z (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 May 2012 14:58:25 -0400
-Content-Disposition: inline
-In-Reply-To: <1336136030-18503-3-git-send-email-benjamin.tissoires@gmail.com>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:22231 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754894Ab2EGC2p (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 6 May 2012 22:28:45 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, javier.martin@vista-silicon.com
+Cc: khali@linux-fr.org, w.sang@pengutronix.de, josh.wu@atmel.com, jm.lin@atmel.com, linux-input@vger.kernel.org, Bo Shen <voice.shen@atmel.com>
 
-Hi,
+The default trigger mode of QT1070 is IRQF_TRIGGER_LOW,
+Using TRQF_TRIGGER_FALLING to replace IRQF_TRIGGER_LOW | IRQF_ONESHOT.
 
-> Win8 devices are required to present the feature "Maximum Contact Number".
-> If the current value is 0, then, the driver can get the actual supported
-> contact count by seeing the logical_max.
+Add a workaround for some SOC which can not distinguish the falling
+and rising change on I/O lines.
 
-And for win7, it is zero?
+Signed-off-by: Bo Shen <voice.shen@atmel.com>
+---
+ drivers/input/keyboard/qt1070.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> ---
->  drivers/hid/hid-multitouch.c |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index c6ffb05..e205d1e 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -265,6 +265,8 @@ static void mt_feature_mapping(struct hid_device *hdev,
->  	case HID_DG_CONTACTMAX:
->  		td->maxcontact_report_id = field->report->id;
->  		td->maxcontacts = field->value[0];
-> +		if (!td->maxcontacts)
-> +			td->maxcontacts = field->logical_maximum;
->  		if (td->mtclass.maxcontacts)
->  			/* check if the maxcontacts is given by the class */
->  			td->maxcontacts = td->mtclass.maxcontacts;
-> -- 
-> 1.7.7.6
-> 
+diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+index 0b7b2f8..1855e3d 100644
+--- a/drivers/input/keyboard/qt1070.c
++++ b/drivers/input/keyboard/qt1070.c
+@@ -201,10 +201,17 @@ static int __devinit qt1070_probe(struct i2c_client *client,
+ 	msleep(QT1070_RESET_TIME);
+ 
+ 	err = request_threaded_irq(client->irq, NULL, qt1070_interrupt,
+-		IRQF_TRIGGER_NONE, client->dev.driver->name, data);
++		IRQF_TRIGGER_FALLING, client->dev.driver->name, data);
+ 	if (err) {
+-		dev_err(&client->dev, "fail to request irq\n");
+-		goto err_free_mem;
++		/* This is a workaround for some SOC which can not distinguish
++		 * falling and rising change on I/O lines.
++		 */
++		err = request_threaded_irq(client->irq, NULL, qt1070_interrupt,
++			IRQF_TRIGGER_NONE, client->dev.driver->name, data);
++		if (err) {
++			dev_err(&client->dev, "fail to request irq\n");
++			goto err_free_mem;
++		}
+ 	}
+ 
+ 	/* Register the input device */
+-- 
+1.7.10
 
-Thanks,
-Henrik

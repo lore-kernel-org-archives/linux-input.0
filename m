@@ -1,49 +1,30 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [RFC] Input: MT - Include win8 support
-Date: Tue, 8 May 2012 21:37:24 +0200
-Message-ID: <20120508193724.GA24034@polaris.bitmath.org>
-References: <1336230499-1450-1-git-send-email-rydberg@euromail.se>
- <4FA5889E.2030008@gmail.com>
- <4FA96AEF.4090106@zytor.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 1/2] input: keypad: move platform_data to
+ <linux/platform_data>
+Date: Tue, 8 May 2012 15:42:31 -0700
+Message-ID: <20120508224230.GO5088@atomide.com>
+References: <1331905159-11255-1-git-send-email-sourav.poddar@ti.com>
+ <1331905159-11255-2-git-send-email-sourav.poddar@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:42790 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756026Ab2EHTcZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 May 2012 15:32:25 -0400
+Received: from mho-02-ewr.mailhop.org ([204.13.248.72]:49887 "EHLO
+	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752387Ab2EHWmf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 May 2012 18:42:35 -0400
 Content-Disposition: inline
-In-Reply-To: <4FA96AEF.4090106@zytor.com>
+In-Reply-To: <1331905159-11255-2-git-send-email-sourav.poddar@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Chase Douglas <chasedouglas@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, chatty@enac.fr, benjamin.tissoires@gmail.com, peter.hutterer@who-t.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sourav Poddar <sourav.poddar@ti.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, balbi@ti.com
 
-On Tue, May 08, 2012 at 11:50:23AM -0700, H. Peter Anvin wrote:
-> On 05/05/2012 01:07 PM, Chase Douglas wrote:
-> >> =20
-> >> +For devices capable of 360 degree orientation, the reported orien=
-tation
-> >> +should be twice the given range.
-> >=20
-> > I don't understand what this means. Can you elaborate?
-> >=20
->=20
-> A guess is that it means that the value is encoded as a single byte w=
-ith
-> a 2=B0 granuarity?
+* Sourav Poddar <sourav.poddar@ti.com> [120316 06:43]:
+> From: Felipe Balbi <balbi@ti.com>
+> 
+> This patch allows us to drop the OMAP depencendy
+> from the OMAP4 keypad driver.
 
-Both Benjamin and Chase had the same question, and the reply is here:
+Seems safe to apply via linux-input:
 
-http://www.spinics.net/lists/linux-input/msg20736.html
-
-Hopefully that helps.
-
-Thanks for chipping in,
-Henrik
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Acked-by: Tony Lindgren <tony@atomide.com>

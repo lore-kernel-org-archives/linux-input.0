@@ -1,443 +1,444 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: mpu3050: set IRQF_ONESHOT when requesting the
- interrupt
-Date: Tue, 8 May 2012 22:23:01 -0700
-Message-ID: <20120509052301.GB10514@core.coreip.homeip.net>
-References: <1335894406-27428-1-git-send-email-swarren@wwwdotorg.org>
+Subject: Re: [PATCH 2/2] Input: matrix_keymap - wire up device tree support
+Date: Tue, 8 May 2012 22:25:40 -0700
+Message-ID: <20120509052540.GC10514@core.coreip.homeip.net>
+References: <20120426081909.GA2726@core.coreip.homeip.net>
+ <4F99642E.1010305@wwwdotorg.org>
+ <20120430041955.GC1055@core.coreip.homeip.net>
+ <4F9EB72A.10403@wwwdotorg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:41202 "EHLO
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:59597 "EHLO
 	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751651Ab2EIFXH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 May 2012 01:23:07 -0400
-Received: by pbbrp8 with SMTP id rp8so24847pbb.19
-        for <linux-input@vger.kernel.org>; Tue, 08 May 2012 22:23:07 -0700 (PDT)
+	with ESMTP id S1751401Ab2EIFZr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 May 2012 01:25:47 -0400
 Content-Disposition: inline
-In-Reply-To: <1335894406-27428-1-git-send-email-swarren@wwwdotorg.org>
+In-Reply-To: <4F9EB72A.10403@wwwdotorg.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-input@vger.kernel.org, Stephen Warren <swarren@nvidia.com>, Alan Cox <alan@linux.intel.com>
+Cc: linux-input@vger.kernel.org, Viresh Kumar <viresh.kumar@st.com>, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Rakesh Iyer <riyer@nvidia.com>
 
-Hi Stephen,
-
-On Tue, May 01, 2012 at 11:46:46AM -0600, Stephen Warren wrote:
-> From: Stephen Warren <swarren@nvidia.com>
+On Mon, Apr 30, 2012 at 10:00:42AM -0600, Stephen Warren wrote:
+> On 04/29/2012 10:19 PM, Dmitry Torokhov wrote:
+> > On Thu, Apr 26, 2012 at 09:05:18AM -0600, Stephen Warren wrote:
+> >> On 04/26/2012 02:19 AM, Dmitry Torokhov wrote:
+> >>> When platform keymap is not supplied to matrix_keypad_build_keymap()
+> >>> and device tree support is enabled, try locating specified property
+> >>> and load keymap from it. If property name is not defined, try using
+> >>> "linux,keymap".
+> >>>
+> >>> Based on earlier patch by Viresh Kumar <viresh.kumar@st.com>
+> >>
+> >> I think this series looks mostly OK. A few comments below.
+> >>
+> >> We don't actually have the KBC driver hooked up on any boards yet, so I
+> >> can't actually test this yet.
+> >>
+> >> How will the linux,fn-keymap handling work? It looks like this code is
+> >> allocating a keymap data structure with one additional row to represent
+> >> fn-not-pressed vs. fn-pressed.
+> > 
+> > No, it loads 2x rows (therefore giving you twice original keymap size).
 > 
-> Commit 1c6c695 "genirq: Reject bogus threaded irq requests" requires
-> that request_threaded_irq() either be passed an explicit handler, or
-> that IRQF_ONESHOT be set. Set this flag.
+> Yes, I mean an extra row signal, so therefore twice as many rows.
 > 
-> Signed-off-by: Stephen Warren <swarren@nvidia.com>
+> >> I assume this will work without issue
+> >> even though the second half is not filled in. Won't this allow the
+> >> linux,keymap property entries to pass validation "if (row >= rows)" for
+> >> one more row than it should?
+> > 
+> > Maybe... I think we should revisit this when you actually have
+> > linux,fn-keymap. Probably will need to export matrix_keypad_parse_
+> 
+> Would it be better to just drop the support for the linux,fn-keymap
+> property, until the full support is there? That wouldn't lose any
+> functionality, but would avoid this potential error-checking issue.
 
-Applied, thank you.
-
-BTW, since it appears you have the hardware any chance you could try the
-patch below? I had it in my queue for a while but Alan disappeared and
-I didn't have anyone to test it.
-
-Thanks.
+Fair enough, how about the version below?
 
 -- 
 Dmitry
 
 
-Input: mpu3050 - Support for polled input device
+Input: matrix_keymap - wire up device tree support
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-The driver does not need to depend on interrupts.
+When platform keymap is not supplied to matrix_keypad_build_keymap()
+and device tree support is enabled, try locating specified property
+and load keymap from it. If property name is not defined, try using
+"linux,keymap".
 
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Signed-off-by: Alan Cox <alan@linux.intel.com>
+Based on earlier patch by Viresh Kumar <viresh.kumar@st.com>
+
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/input/misc/Kconfig   |    7 +
- drivers/input/misc/mpu3050.c |  268 +++++++++++++++++++++++++++++++++---------
- 2 files changed, 219 insertions(+), 56 deletions(-)
+ drivers/input/keyboard/tegra-kbc.c  |   56 ++++++-----
+ drivers/input/matrix-keymap.c       |  175 ++++++++++++++++++++---------------
+ include/linux/input/matrix_keypad.h |   18 ----
+ 3 files changed, 130 insertions(+), 119 deletions(-)
 
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 7faf4a7..8d41bdc 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -177,6 +177,13 @@ config INPUT_MPU3050
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called mpu3050.
- 
-+config INPUT_MPU3050_POLLED_MODE
-+	bool "Enable polling mode support"
-+	depends on INPUT_MPU3050
-+	select INPUT_POLLDEV
-+	help
-+	  Say Y here if you need gyroscope to work in polling mode.
-+
- config INPUT_APANEL
- 	tristate "Fujitsu Lifebook Application Panel buttons"
- 	depends on X86 && I2C && LEDS_CLASS
-diff --git a/drivers/input/misc/mpu3050.c b/drivers/input/misc/mpu3050.c
-index 306f84c..a229a4f 100644
---- a/drivers/input/misc/mpu3050.c
-+++ b/drivers/input/misc/mpu3050.c
-@@ -37,6 +37,7 @@
- #include <linux/err.h>
- #include <linux/i2c.h>
- #include <linux/input.h>
-+#include <linux/input-polldev.h>
- #include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/pm_runtime.h>
-@@ -102,6 +103,8 @@
- #define MPU3050_PWR_MGM_RESET		0x80
- #define MPU3050_PWR_MGM_MASK		0x40
- 
-+#define MPU3050_DEFAULT_POLL_INTERVAL	200
-+
- struct axis_data {
- 	s16 x;
- 	s16 y;
-@@ -112,6 +115,9 @@ struct mpu3050_sensor {
- 	struct i2c_client *client;
- 	struct device *dev;
- 	struct input_dev *idev;
-+#ifdef CONFIG_INPUT_MPU3050_POLLED_MODE
-+	struct input_polled_dev *input_polled;
-+#endif
- };
- 
- /**
-@@ -169,6 +175,40 @@ static void mpu3050_read_xyz(struct i2c_client *client,
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 6722d37..4ffe64d 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -619,8 +619,8 @@ tegra_kbc_check_pin_cfg(const struct tegra_kbc_platform_data *pdata,
  }
  
- /**
-+ *	mpu3050_report_xyz	-	read and report coordinates
-+ *	@sensor: the sensor
-+ *
-+ *	Reads coordinates from the device and reports them to input
-+ *	core.
-+ */
-+static void mpu3050_report_xyz(struct mpu3050_sensor *sensor)
-+{
-+	struct axis_data axis;
-+
-+	mpu3050_read_xyz(sensor->client, &axis);
-+
-+	input_report_abs(sensor->idev, ABS_X, axis.x);
-+	input_report_abs(sensor->idev, ABS_Y, axis.y);
-+	input_report_abs(sensor->idev, ABS_Z, axis.z);
-+	input_sync(sensor->idev);
-+}
-+
-+/**
-+ *	mpu3050_interrupt_thread	-	handle an IRQ
-+ *	@irq: interrupt number
-+ *	@data: the sensor
-+ *
-+ *	Called by the kernel single threaded after an interrupt occurs. Read
-+ *	the sensor data and generate an input event for it.
-+ */
-+static irqreturn_t mpu3050_interrupt_thread(int irq, void *data)
-+{
-+	mpu3050_report_xyz(data);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/**
-  *	mpu3050_set_power_mode	-	set the power mode
-  *	@client: i2c client for the sensor
-  *	@val: value to switch on/off of power, 1: normal power, 0: low power
-@@ -228,30 +268,154 @@ static void mpu3050_input_close(struct input_dev *input)
- 	pm_runtime_put(sensor->dev);
- }
- 
-+static void __devinit mpu3050_init_idev(struct mpu3050_sensor *sensor,
-+						struct input_dev *idev)
-+{
-+	idev->name = "MPU3050";
-+	idev->id.bustype = BUS_I2C;
-+	idev->dev.parent = &sensor->client->dev;
-+
-+	__set_bit(EV_ABS, idev->evbit);
-+	input_set_abs_params(idev, ABS_X,
-+			     MPU3050_MIN_VALUE, MPU3050_MAX_VALUE, 0, 0);
-+	input_set_abs_params(idev, ABS_Y,
-+			     MPU3050_MIN_VALUE, MPU3050_MAX_VALUE, 0, 0);
-+	input_set_abs_params(idev, ABS_Z,
-+			     MPU3050_MIN_VALUE, MPU3050_MAX_VALUE, 0, 0);
-+}
-+
- /**
-- *	mpu3050_interrupt_thread	-	handle an IRQ
-- *	@irq: interrupt numner
-- *	@data: the sensor
-+ *	mpu3050_create_polled_idev - creates input device for the sensor
-+ *	@sensor: the sensor
-  *
-- *	Called by the kernel single threaded after an interrupt occurs. Read
-- *	the sensor data and generate an input event for it.
-+ *	Called from mpu3050_probe() when setting up device in interrupt-driven
-+ *	mode.
-  */
--static irqreturn_t mpu3050_interrupt_thread(int irq, void *data)
-+static int __devinit mpu3050_create_idev(struct mpu3050_sensor *sensor)
+ #ifdef CONFIG_OF
+-static struct tegra_kbc_platform_data * __devinit
+-tegra_kbc_dt_parse_pdata(struct platform_device *pdev)
++static struct tegra_kbc_platform_data * __devinit tegra_kbc_dt_parse_pdata(
++	struct platform_device *pdev)
  {
--	struct mpu3050_sensor *sensor = data;
--	struct axis_data axis;
-+	struct input_dev *idev;
-+	int err;
+ 	struct tegra_kbc_platform_data *pdata;
+ 	struct device_node *np = pdev->dev.of_node;
+@@ -660,10 +660,6 @@ tegra_kbc_dt_parse_pdata(struct platform_device *pdev)
+ 		pdata->pin_cfg[KBC_MAX_ROW + i].type = PIN_CFG_COL;
+ 	}
  
--	mpu3050_read_xyz(sensor->client, &axis);
-+	idev = input_allocate_device();
-+	if (!idev)
-+		return -ENODEV;
- 
--	input_report_abs(sensor->idev, ABS_X, axis.x);
--	input_report_abs(sensor->idev, ABS_Y, axis.y);
--	input_report_abs(sensor->idev, ABS_Z, axis.z);
--	input_sync(sensor->idev);
-+	mpu3050_init_idev(sensor, idev);
- 
--	return IRQ_HANDLED;
-+	idev->open = mpu3050_input_open;
-+	idev->close = mpu3050_input_close;
-+	input_set_drvdata(idev, sensor);
-+
-+	err = input_register_device(idev);
-+	if (err) {
-+		input_free_device(idev);
-+		return err;
-+	}
-+
-+	sensor->idev = idev;
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_INPUT_MPU3050_POLLED_MODE
-+/**
-+ *	mpu3050_poll_open	-	called when opening polled device
-+ *	@ipoll_dev: polled input device being opened
-+ *
-+ *	The input layer calls this function when polled device is opened.
-+ *	The function will cause the device to resume. Then, the device is
-+ *	ready to provide data.
-+ */
-+static void mpu3050_poll_open(struct input_polled_dev *ipoll_dev)
-+{
-+	struct mpu3050_sensor *sensor = ipoll_dev->private;
-+
-+	mpu3050_set_power_mode(sensor->client, 1);
-+	msleep(100);  /* wait for gyro chip resume */
-+}
-+
-+/**
-+ *	mpu3050_poll_close	-	called when closing polled device
-+ *	@ipoll_dev: polled input device being closed
-+ *
-+ *	The input layer calls this function when polled device is closed.
-+ *	The function will push the device to suspend.
-+ */
-+static void mpu3050_poll_close(struct input_polled_dev *ipoll_dev)
-+{
-+	struct mpu3050_sensor *sensor = ipoll_dev->private;
-+
-+	mpu3050_set_power_mode(sensor->client, 0);
+-	pdata->keymap_data = matrix_keyboard_of_fill_keymap(np, "linux,keymap");
+-
+-	/* FIXME: Add handling of linux,fn-keymap here */
+-
+ 	return pdata;
  }
+ #else
+@@ -674,10 +670,36 @@ static inline struct tegra_kbc_platform_data *tegra_kbc_dt_parse_pdata(
+ }
+ #endif
  
- /**
-+ *	mpu3050_poll	-	polls the device and reports coordinated
-+ *	@dev: device that is being polled
-+ *
-+ *	Called by polled device core at specified intervals.
-+ */
-+static void mpu3050_poll(struct input_polled_dev *dev)
++static int __devinit tegra_kbd_setup_keymap(struct tegra_kbc *kbc)
 +{
-+	mpu3050_report_xyz(dev->private);
++	const struct tegra_kbc_platform_data *pdata = kbc->pdata;
++	const struct matrix_keymap_data *keymap_data = pdata->keymap_data;
++	unsigned int keymap_rows = KBC_MAX_KEY;
++	int retval;
++
++	if (keymap_data && pdata->use_fn_map)
++		keymap_rows *= 2;
++
++	retval = matrix_keypad_build_keymap(keymap_data, NULL,
++					    keymap_rows, KBC_MAX_COL,
++					    kbc->keycode, kbc->idev);
++	if (retval == -ENOSYS || retval == -ENOENT) {
++		/*
++		 * If there is no OF support in kernel or keymap
++		 * property is missing, use default keymap.
++		 */
++		retval = matrix_keypad_build_keymap(
++					&tegra_kbc_default_keymap_data, NULL,
++					keymap_rows, KBC_MAX_COL,
++					kbc->keycode, kbc->idev);
++	}
++
++	return retval;
 +}
 +
-+/**
-+ *	mpu3050_create_polled_idev - creates polled input device for the sensor
-+ *	@sensor: the sensor
-+ *
-+ *	Called from mpu3050_probe() when setting up device in polled mode.
-+ */
-+static int __devinit mpu3050_create_polled_idev(struct mpu3050_sensor *sensor)
+ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ {
+ 	const struct tegra_kbc_platform_data *pdata = pdev->dev.platform_data;
+-	const struct matrix_keymap_data *keymap_data;
+ 	struct tegra_kbc *kbc;
+ 	struct input_dev *input_dev;
+ 	struct resource *res;
+@@ -686,7 +708,6 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 	int num_rows = 0;
+ 	unsigned int debounce_cnt;
+ 	unsigned int scan_time_rows;
+-	unsigned int keymap_rows;
+ 
+ 	if (!pdata)
+ 		pdata = tegra_kbc_dt_parse_pdata(pdev);
+@@ -768,17 +789,9 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 	input_dev->open = tegra_kbc_open;
+ 	input_dev->close = tegra_kbc_close;
+ 
+-	keymap_rows = KBC_MAX_KEY;
+-	if (pdata->use_fn_map)
+-		keymap_rows *= 2;
+-
+-	keymap_data = pdata->keymap_data ?: &tegra_kbc_default_keymap_data;
+-
+-	err = matrix_keypad_build_keymap(keymap_data, NULL,
+-					 keymap_rows, KBC_MAX_COL,
+-					 kbc->keycode, input_dev);
++	err = tegra_kbd_setup_keymap(kbc);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to build keymap\n");
++		dev_err(&pdev->dev, "failed to setup keymap\n");
+ 		goto err_put_clk;
+ 	}
+ 
+@@ -805,9 +818,6 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, kbc);
+ 	device_init_wakeup(&pdev->dev, pdata->wakeup);
+ 
+-	if (!pdev->dev.platform_data)
+-		matrix_keyboard_of_free_keymap(pdata->keymap_data);
+-
+ 	return 0;
+ 
+ err_free_irq:
+@@ -822,10 +832,8 @@ err_free_mem:
+ 	input_free_device(input_dev);
+ 	kfree(kbc);
+ err_free_pdata:
+-	if (!pdev->dev.platform_data) {
+-		matrix_keyboard_of_free_keymap(pdata->keymap_data);
++	if (!pdev->dev.platform_data)
+ 		kfree(pdata);
+-	}
+ 
+ 	return err;
+ }
+diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
+index de7992d..db92c1e 100644
+--- a/drivers/input/matrix-keymap.c
++++ b/drivers/input/matrix-keymap.c
+@@ -17,15 +17,91 @@
+  *
+  */
+ 
++#include <linux/device.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+ #include <linux/input.h>
+ #include <linux/of.h>
+ #include <linux/export.h>
+-#include <linux/gfp.h>
+-#include <linux/slab.h>
+ #include <linux/input/matrix_keypad.h>
+ 
++static bool matrix_keypad_map_key(struct input_dev *input_dev,
++				  unsigned int rows, unsigned int cols,
++				  unsigned int row_shift, unsigned int key)
 +{
-+	struct input_polled_dev *ipoll_dev;
-+	int err;
++	unsigned char *keymap = input_dev->keycode;
++	unsigned int row = KEY_ROW(key);
++	unsigned int col = KEY_COL(key);
++	unsigned short code = KEY_VAL(key);
 +
-+	ipoll_dev = input_allocate_polled_device();
-+	if (!ipoll_dev)
-+		return -ENOMEM;
++	if (row >= rows || col >= cols) {
++		dev_err(input_dev->dev.parent,
++			"%s: invalid keymap entry 0x%x (row: %d, col: %d, rows: %d, cols: %d)\n",
++			__func__, key, row, col, rows, cols);
++		return false;
++	}
 +
-+	sensor->input_polled = ipoll_dev;
-+	sensor->idev = ipoll_dev->input;
++	keymap[MATRIX_SCAN_CODE(row, col, row_shift)] = code;
++	__set_bit(code, input_dev->keybit);
 +
-+	ipoll_dev->private = sensor;
-+	ipoll_dev->open = mpu3050_poll_open;
-+	ipoll_dev->close = mpu3050_poll_close;
-+	ipoll_dev->poll = mpu3050_poll;
-+	ipoll_dev->poll_interval = MPU3050_DEFAULT_POLL_INTERVAL;
-+	ipoll_dev->poll_interval_min = 10;
-+	ipoll_dev->poll_interval_max = MPU3050_DEFAULT_POLL_INTERVAL;
++	return true;
++}
 +
-+	mpu3050_init_idev(sensor, ipoll_dev->input);
++#ifdef CONFIG_OF
++static int matrix_keypad_parse_of_keymap(const char *propname,
++					 unsigned int rows, unsigned int cols,
++					 struct input_dev *input_dev)
++{
++	struct device *dev = input_dev->dev.parent;
++	struct device_node *np = dev->of_node;
++	unsigned int row_shift = get_count_order(cols);
++	unsigned int max_keys = rows << row_shift;
++	unsigned int proplen, i, size;
++	const __be32 *prop;
 +
-+	err = input_register_polled_device(ipoll_dev);
-+	if (err) {
-+		input_free_polled_device(ipoll_dev);
-+		return err;
++	if (!np)
++		return -ENOENT;
++
++	if (!propname)
++		propname = "linux,keymap";
++
++	prop = of_get_property(np, propname, &proplen);
++	if (!prop) {
++		dev_err(dev, "OF: %s property not defined in %s\n",
++			propname, np->full_name);
++		return -ENOENT;
++	}
++
++	if (proplen % sizeof(u32)) {
++		dev_err(dev, "OF: Malformed keycode property %s in %s\n",
++			propname, np->full_name);
++		return -EINVAL;
++	}
++
++	size = proplen / sizeof(u32);
++	if (size > max_keys) {
++		dev_err(dev, "OF: %s size overflow\n", propname);
++		return -EINVAL;
++	}
++
++	for (i = 0; i < size; i++) {
++		unsigned int key = be32_to_cpup(prop + i);
++
++		if (!matrix_keypad_map_key(input_dev, rows, cols,
++					   row_shift, key))
++			return -EINVAL;
 +	}
 +
 +	return 0;
 +}
-+
-+static void __devexit mpu3050_teardown_polled_idev(struct mpu3050_sensor *sensor)
-+{
-+	input_unregister_polled_device(sensor->input_polled);
-+	input_free_polled_device(sensor->input_polled);
-+}
-+
 +#else
-+
-+static inline int mpu3050_create_polled_idev(struct mpu3050_sensor *sensor)
++static int matrix_keypad_parse_of_keymap(const char *propname,
++					 unsigned int rows, unsigned int cols,
++					 struct input_dev *input_dev)
 +{
 +	return -ENOSYS;
 +}
-+
-+static inline void mpu3050_teardown_polled_idev(struct mpu3050_sensor *sensor)
-+{
-+}
-+
 +#endif
-+
-+/**
-  *	mpu3050_hw_init	-	initialize hardware
-  *	@sensor: the sensor
-  *
-@@ -310,21 +474,17 @@ static int __devinit mpu3050_probe(struct i2c_client *client,
- 				   const struct i2c_device_id *id)
+ 
+ /**
+  * matrix_keypad_build_keymap - convert platform keymap into matrix keymap
+@@ -41,6 +117,13 @@
+  * This function converts platform keymap (encoded with KEY() macro) into
+  * an array of keycodes that is suitable for using in a standard matrix
+  * keyboard driver that uses row and col as indices.
++ *
++ * If @keymap_data is not supplied and device tree support is enabled
++ * it will attempt load the keymap from property specified by @keymap_name
++ * argument (or "linux,keymap" if @keymap_name is %NULL).
++ *
++ * Callers are expected to set up input_dev->dev.parent before calling this
++ * function.
+  */
+ int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
+ 			       const char *keymap_name,
+@@ -50,6 +133,7 @@ int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
  {
- 	struct mpu3050_sensor *sensor;
--	struct input_dev *idev;
- 	int ret;
- 	int error;
+ 	unsigned int row_shift = get_count_order(cols);
+ 	int i;
++	int error;
  
- 	sensor = kzalloc(sizeof(struct mpu3050_sensor), GFP_KERNEL);
--	idev = input_allocate_device();
--	if (!sensor || !idev) {
-+	if (!sensor) {
- 		dev_err(&client->dev, "failed to allocate driver data\n");
--		error = -ENOMEM;
--		goto err_free_mem;
-+		return -ENOMEM;
+ 	input_dev->keycode = keymap;
+ 	input_dev->keycodesize = sizeof(*keymap);
+@@ -57,86 +141,23 @@ int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
+ 
+ 	__set_bit(EV_KEY, input_dev->evbit);
+ 
+-	for (i = 0; i < keymap_data->keymap_size; i++) {
+-		unsigned int key = keymap_data->keymap[i];
+-		unsigned int row = KEY_ROW(key);
+-		unsigned int col = KEY_COL(key);
+-		unsigned short code = KEY_VAL(key);
++	if (keymap_data) {
++		for (i = 0; i < keymap_data->keymap_size; i++) {
++			unsigned int key = keymap_data->keymap[i];
+ 
+-		if (row >= rows || col >= cols) {
+-			dev_err(input_dev->dev.parent,
+-				"%s: invalid keymap entry %d (row: %d, col: %d, rows: %d, cols: %d)\n",
+-				__func__, i, row, col, rows, cols);
+-			return -EINVAL;
++			if (!matrix_keypad_map_key(input_dev, rows, cols,
++						   row_shift, key))
++				return -EINVAL;
+ 		}
+-
+-		keymap[MATRIX_SCAN_CODE(row, col, row_shift)] = code;
+-		__set_bit(code, input_dev->keybit);
++	} else {
++		error = matrix_keypad_parse_of_keymap(keymap_name, rows, cols,
++						      input_dev);
++		if (error)
++			return error;
  	}
++
+ 	__clear_bit(KEY_RESERVED, input_dev->keybit);
  
- 	sensor->client = client;
- 	sensor->dev = &client->dev;
--	sensor->idev = idev;
- 
- 	mpu3050_set_power_mode(client, 1);
- 	msleep(10);
-@@ -342,43 +502,35 @@ static int __devinit mpu3050_probe(struct i2c_client *client,
- 		goto err_free_mem;
- 	}
- 
--	idev->name = "MPU3050";
--	idev->id.bustype = BUS_I2C;
--	idev->dev.parent = &client->dev;
+ 	return 0;
+ }
+ EXPORT_SYMBOL(matrix_keypad_build_keymap);
 -
--	idev->open = mpu3050_input_open;
--	idev->close = mpu3050_input_close;
+-#ifdef CONFIG_OF
+-struct matrix_keymap_data *
+-matrix_keyboard_of_fill_keymap(struct device_node *np,
+-			       const char *propname)
+-{
+-	struct matrix_keymap_data *kd;
+-	u32 *keymap;
+-	int proplen, i;
+-	const __be32 *prop;
 -
--	__set_bit(EV_ABS, idev->evbit);
--	input_set_abs_params(idev, ABS_X,
--			     MPU3050_MIN_VALUE, MPU3050_MAX_VALUE, 0, 0);
--	input_set_abs_params(idev, ABS_Y,
--			     MPU3050_MIN_VALUE, MPU3050_MAX_VALUE, 0, 0);
--	input_set_abs_params(idev, ABS_Z,
--			     MPU3050_MIN_VALUE, MPU3050_MAX_VALUE, 0, 0);
+-	if (!np)
+-		return NULL;
 -
--	input_set_drvdata(idev, sensor);
+-	if (!propname)
+-		propname = "linux,keymap";
 -
- 	pm_runtime_set_active(&client->dev);
- 
- 	error = mpu3050_hw_init(sensor);
- 	if (error)
- 		goto err_pm_set_suspended;
- 
--	error = request_threaded_irq(client->irq,
--				     NULL, mpu3050_interrupt_thread,
--				     IRQF_TRIGGER_RISING | IRQF_ONESHOT,
--				     "mpu3050", sensor);
--	if (error) {
--		dev_err(&client->dev,
--			"can't get IRQ %d, error %d\n", client->irq, error);
--		goto err_pm_set_suspended;
+-	prop = of_get_property(np, propname, &proplen);
+-	if (!prop)
+-		return NULL;
+-
+-	if (proplen % sizeof(u32)) {
+-		pr_warn("Malformed keymap property %s in %s\n",
+-			propname, np->full_name);
+-		return NULL;
 -	}
 -
--	error = input_register_device(idev);
--	if (error) {
--		dev_err(&client->dev, "failed to register input device\n");
--		goto err_free_irq;
-+	if (client->irq) {
-+		error = mpu3050_create_idev(sensor);
-+		if (error) {
-+			dev_err(&client->dev, "failed to create input device\n");
-+			goto err_pm_set_suspended;
-+		}
-+
-+		error = request_threaded_irq(client->irq,
-+					     NULL, mpu3050_interrupt_thread,
-+					     IRQF_TRIGGER_RISING | IRQF_ONESHOT,
-+					     "mpu3050", sensor);
-+		if (error) {
-+			dev_err(&client->dev, "can't get IRQ %d, error %d\n",
-+					client->irq, error);
-+			goto err_destroy_input;
-+		}
-+	} else {
-+		error = mpu3050_create_polled_idev(sensor);
-+		if (error) {
-+			dev_err(&client->dev,
-+				"failed to create polled input device");
-+			goto err_pm_set_suspended;
-+		}
- 	}
+-	kd = kzalloc(sizeof(*kd), GFP_KERNEL);
+-	if (!kd)
+-		return NULL;
+-
+-	kd->keymap = keymap = kzalloc(proplen, GFP_KERNEL);
+-	if (!kd->keymap) {
+-		kfree(kd);
+-		return NULL;
+-	}
+-
+-	kd->keymap_size = proplen / sizeof(u32);
+-
+-	for (i = 0; i < kd->keymap_size; i++) {
+-		u32 tmp = be32_to_cpup(prop + i);
+-		int key_code, row, col;
+-
+-		row = (tmp >> 24) & 0xff;
+-		col = (tmp >> 16) & 0xff;
+-		key_code = tmp & 0xffff;
+-		keymap[i] = KEY(row, col, key_code);
+-	}
+-
+-	return kd;
+-}
+-EXPORT_SYMBOL_GPL(matrix_keyboard_of_fill_keymap);
+-
+-void matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd)
+-{
+-	if (kd) {
+-		kfree(kd->keymap);
+-		kfree(kd);
+-	}
+-}
+-EXPORT_SYMBOL_GPL(matrix_keyboard_of_free_keymap);
+-#endif
+diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
+index e8fe08e..5f3aa6b 100644
+--- a/include/linux/input/matrix_keypad.h
++++ b/include/linux/input/matrix_keypad.h
+@@ -81,22 +81,4 @@ int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
+ 			       unsigned short *keymap,
+ 			       struct input_dev *input_dev);
  
- 	pm_runtime_enable(&client->dev);
-@@ -386,12 +538,11 @@ static int __devinit mpu3050_probe(struct i2c_client *client,
- 
- 	return 0;
- 
--err_free_irq:
--	free_irq(client->irq, sensor);
-+err_destroy_input:
-+	input_unregister_device(sensor->idev);
- err_pm_set_suspended:
- 	pm_runtime_set_suspended(&client->dev);
- err_free_mem:
--	input_free_device(idev);
- 	kfree(sensor);
- 	return error;
- }
-@@ -409,8 +560,13 @@ static int __devexit mpu3050_remove(struct i2c_client *client)
- 	pm_runtime_disable(&client->dev);
- 	pm_runtime_set_suspended(&client->dev);
- 
--	free_irq(client->irq, sensor);
--	input_unregister_device(sensor->idev);
-+	if (client->irq) {
-+		free_irq(client->irq, sensor);
-+		input_unregister_device(sensor->idev);
-+	} else {
-+		mpu3050_teardown_polled_idev(sensor);
-+	}
-+
- 	kfree(sensor);
- 
- 	return 0;
+-#ifdef CONFIG_OF
+-struct matrix_keymap_data *
+-matrix_keyboard_of_fill_keymap(struct device_node *np, const char *propname);
+-
+-void matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd);
+-#else
+-static inline struct matrix_keymap_data *
+-matrix_keyboard_of_fill_keymap(struct device_node *np, const char *propname)
+-{
+-	return NULL;
+-}
+-
+-static inline void
+-matrix_keyboard_of_free_keymap(const struct matrix_keymap_data *kd)
+-{
+-}
+-#endif
+-
+ #endif /* _MATRIX_KEYPAD_H */

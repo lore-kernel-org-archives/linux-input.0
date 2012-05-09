@@ -1,77 +1,138 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 1/6] Input: uinput - take event lock when fetching events from buffer
-Date: Wed,  9 May 2012 01:08:23 -0700
-Message-ID: <1336550908-30644-1-git-send-email-dmitry.torokhov@gmail.com>
+Subject: [PATCH 5/6] Input: uinput - specify exact bit sizes on userspace APIs
+Date: Wed,  9 May 2012 01:08:27 -0700
+Message-ID: <1336550908-30644-5-git-send-email-dmitry.torokhov@gmail.com>
+References: <1336550908-30644-1-git-send-email-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-pz0-f46.google.com ([209.85.210.46]:49191 "EHLO
 	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757378Ab2EIIId (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 May 2012 04:08:33 -0400
-Received: by dady13 with SMTP id y13so3728315dad.19
-        for <linux-input@vger.kernel.org>; Wed, 09 May 2012 01:08:33 -0700 (PDT)
+	with ESMTP id S1757815Ab2EIIIk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 May 2012 04:08:40 -0400
+Received: by mail-pz0-f46.google.com with SMTP id y13so3728315dad.19
+        for <linux-input@vger.kernel.org>; Wed, 09 May 2012 01:08:39 -0700 (PDT)
+In-Reply-To: <1336550908-30644-1-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: David Herrmann <dh.herrmann@googlemail.com>, Aristeu Rozanski <aris@ruivo.org>
 Cc: linux-input@vger.kernel.org
 
-When fetching events form device's buffer in uinput_read() we need to
-take input device's event_lock to avoid racing with new event delivery.
+Switch to using __u32/__s32 instead of ordinary 'int' in structures
+forming userspace API.
+
+Also internally make request_id unsigned int.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/input/misc/uinput.c |   27 ++++++++++++++++++++++++---
- 1 files changed, 24 insertions(+), 3 deletions(-)
+ drivers/input/misc/uinput.c |   11 ++++++-----
+ include/linux/uinput.h      |   27 ++++++++++++++-------------
+ 2 files changed, 20 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 7360568..1b4ee4a 100644
+index 6099365..b247e1c 100644
 --- a/drivers/input/misc/uinput.c
 +++ b/drivers/input/misc/uinput.c
-@@ -452,9 +452,28 @@ static ssize_t uinput_write(struct file *file, const char __user *buffer, size_t
- 	return retval;
+@@ -59,7 +59,7 @@ static int uinput_dev_event(struct input_dev *dev, unsigned int type, unsigned i
+ static bool uinput_request_alloc_id(struct uinput_device *udev,
+ 				    struct uinput_request *request)
+ {
+-	int id;
++	unsigned int id;
+ 	bool reserved = false;
+ 
+ 	spin_lock(&udev->requests_lock);
+@@ -77,10 +77,11 @@ static bool uinput_request_alloc_id(struct uinput_device *udev,
+ 	return reserved;
  }
  
-+static bool uinput_fetch_next_event(struct uinput_device *udev,
-+				    struct input_event *event)
-+{
-+	bool have_event;
-+
-+	spin_lock_irq(&udev->dev->event_lock);
-+
-+	have_event = udev->head != udev->tail;
-+	if (have_event) {
-+		*event = udev->buff[udev->tail];
-+		udev->tail = (udev->tail + 1) % UINPUT_BUFFER_SIZE;
-+	}
-+
-+	spin_unlock_irq(&udev->dev->event_lock);
-+
-+	return have_event;
-+}
-+
- static ssize_t uinput_read(struct file *file, char __user *buffer, size_t count, loff_t *ppos)
+-static struct uinput_request *uinput_request_find(struct uinput_device *udev, int id)
++static struct uinput_request *uinput_request_find(struct uinput_device *udev,
++						  unsigned int id)
  {
- 	struct uinput_device *udev = file->private_data;
-+	struct input_event event;
- 	int retval = 0;
+ 	/* Find an input request, by ID. Returns NULL if the ID isn't valid. */
+-	if (id >= UINPUT_NUM_REQUESTS || id < 0)
++	if (id >= UINPUT_NUM_REQUESTS)
+ 		return NULL;
  
- 	if (udev->state != UIST_CREATED)
-@@ -477,12 +496,14 @@ static ssize_t uinput_read(struct file *file, char __user *buffer, size_t count,
- 		goto out;
- 	}
+ 	return udev->requests[id];
+@@ -556,8 +557,8 @@ static int uinput_release(struct inode *inode, struct file *file)
  
--	while (udev->head != udev->tail && retval + input_event_size() <= count) {
--		if (input_event_to_user(buffer + retval, &udev->buff[udev->tail])) {
-+	while (retval + input_event_size() <= count &&
-+	       uinput_fetch_next_event(udev, &event)) {
-+
-+		if (input_event_to_user(buffer + retval, &event)) {
- 			retval = -EFAULT;
- 			goto out;
- 		}
--		udev->tail = (udev->tail + 1) % UINPUT_BUFFER_SIZE;
-+
- 		retval += input_event_size();
- 	}
+ #ifdef CONFIG_COMPAT
+ struct uinput_ff_upload_compat {
+-	int			request_id;
+-	int			retval;
++	__u32			request_id;
++	__s32			retval;
+ 	struct ff_effect_compat	effect;
+ 	struct ff_effect_compat	old;
+ };
+diff --git a/include/linux/uinput.h b/include/linux/uinput.h
+index 2aa2881..c454bbe 100644
+--- a/include/linux/uinput.h
++++ b/include/linux/uinput.h
+@@ -32,6 +32,7 @@
+  *		- first public version
+  */
+ 
++#include <linux/types.h>
+ #include <linux/input.h>
+ 
+ #define UINPUT_VERSION		3
+@@ -44,14 +45,14 @@
+ enum uinput_state { UIST_NEW_DEVICE, UIST_SETUP_COMPLETE, UIST_CREATED };
+ 
+ struct uinput_request {
+-	int			id;
+-	int			code;	/* UI_FF_UPLOAD, UI_FF_ERASE */
++	unsigned int		id;
++	unsigned int		code;	/* UI_FF_UPLOAD, UI_FF_ERASE */
+ 
+ 	int			retval;
+ 	struct completion	done;
+ 
+ 	union {
+-		int		effect_id;
++		unsigned int	effect_id;
+ 		struct {
+ 			struct ff_effect *effect;
+ 			struct ff_effect *old;
+@@ -77,16 +78,16 @@ struct uinput_device {
+ #endif	/* __KERNEL__ */
+ 
+ struct uinput_ff_upload {
+-	int			request_id;
+-	int			retval;
++	__u32			request_id;
++	__s32			retval;
+ 	struct ff_effect	effect;
+ 	struct ff_effect	old;
+ };
+ 
+ struct uinput_ff_erase {
+-	int			request_id;
+-	int			retval;
+-	int			effect_id;
++	__u32			request_id;
++	__s32			retval;
++	__u32			effect_id;
+ };
+ 
+ /* ioctl */
+@@ -166,11 +167,11 @@ struct uinput_ff_erase {
+ struct uinput_user_dev {
+ 	char name[UINPUT_MAX_NAME_SIZE];
+ 	struct input_id id;
+-	int ff_effects_max;
+-	int absmax[ABS_CNT];
+-	int absmin[ABS_CNT];
+-	int absfuzz[ABS_CNT];
+-	int absflat[ABS_CNT];
++	__u32 ff_effects_max;
++	__s32 absmax[ABS_CNT];
++	__s32 absmin[ABS_CNT];
++	__s32 absfuzz[ABS_CNT];
++	__s32 absflat[ABS_CNT];
+ };
+ #endif	/* __UINPUT_H_ */
  
 -- 
 1.7.7.6

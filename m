@@ -1,44 +1,46 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH] Input: mpu3050: set IRQF_ONESHOT when requesting the
- interrupt
-Date: Wed, 09 May 2012 13:35:23 -0600
-Message-ID: <4FAAC6FB.2010308@wwwdotorg.org>
-References: <1335894406-27428-1-git-send-email-swarren@wwwdotorg.org> <20120509052301.GB10514@core.coreip.homeip.net>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 2/5] HID: hid-multitouch: get maxcontacts also from
+ logical_max value
+Date: Wed, 9 May 2012 21:46:23 +0200
+Message-ID: <20120509194623.GA12381@polaris.bitmath.org>
+References: <1336136030-18503-1-git-send-email-benjamin.tissoires@gmail.com>
+ <1336136030-18503-3-git-send-email-benjamin.tissoires@gmail.com>
+ <20120506190322.GB12571@polaris.bitmath.org>
+ <CAN+gG=HQ_U5dhVvgLu0zfMjv1+SAVB2Rx8fNq8tLX2DUHOMa9A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:37585 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753319Ab2EITf1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 May 2012 15:35:27 -0400
-In-Reply-To: <20120509052301.GB10514@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=HQ_U5dhVvgLu0zfMjv1+SAVB2Rx8fNq8tLX2DUHOMa9A@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-input@vger.kernel.org, Stephen Warren <swarren@nvidia.com>, Alan Cox <alan@linux.intel.com>
 
-On 05/08/2012 11:23 PM, Dmitry Torokhov wrote:
-> Hi Stephen,
-> 
-> On Tue, May 01, 2012 at 11:46:46AM -0600, Stephen Warren wrote:
->> From: Stephen Warren <swarren@nvidia.com>
->>
->> Commit 1c6c695 "genirq: Reject bogus threaded irq requests" requires
->> that request_threaded_irq() either be passed an explicit handler, or
->> that IRQF_ONESHOT be set. Set this flag.
->>
->> Signed-off-by: Stephen Warren <swarren@nvidia.com>
-> 
-> Applied, thank you.
-> 
-> BTW, since it appears you have the hardware any chance you could try the
-> patch below? I had it in my queue for a while but Alan disappeared and
-> I didn't have anyone to test it.
+Hi Benjamin,
 
-I tested the patch with an interrupt supplied, and still see periodic
-output from evbug that appears to correlate with when I move the board.
+> >> Win8 devices are required to present the feature "Maximum Contact Number".
+> >> If the current value is 0, then, the driver can get the actual supported
+> >> contact count by seeing the logical_max.
+> >
+> > And for win7, it is zero?
+> 
+> Well, the truth is that the Win8 specification formally describes the
+> values here. And to get the certification, hardware makers have to put
+> the right value in logical_max.
+> TBH, I don't care that much now with win7 devices. Most of them are a
+> piece of crap (not true dual fingers, problems in hid reports
+> descriptors, etc...), but they just work (we made the necessary
+> things). With the introduction of Win8, hardware makers will have to
+> *certify* their devices, and thus, the Win8 driver is much less
+> tolerant. I really think that we are going to see more and more win8
+> devices, whereas win7 devices will fade out.
+> 
+> I had to add this patch because I have a win8 device that has the
+> value associated to this field at 0, and it's the first I saw with
+> this behavior.
 
-I'm not sure how to test it in polled mode. What application would I use
-to trigger the polling? evtest just seems to print out the initial
-values, but not poll.
+As long as all existing devices are unaffected, it's fine, hence the question.
+
+Thanks,
+Henrik

@@ -1,49 +1,44 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [RFC] Input: MT - Include win8 support
-Date: Wed, 9 May 2012 21:39:02 +0200
-Message-ID: <20120509193902.GA12310@polaris.bitmath.org>
-References: <1336230499-1450-1-git-send-email-rydberg@euromail.se>
- <CAN+gG=HqGmf77P6=7RMFT_Ez7Ysp4ZVJ6skfAoDcZ7JN1JtYnw@mail.gmail.com>
- <20120506182835.GA12221@polaris.bitmath.org>
- <20120508060221.GA15925@yabbi.bne.redhat.com>
- <20120508184052.GA23748@polaris.bitmath.org>
- <20120508235219.GA4067@yabbi.redhat.com>
- <20120509053502.GA30063@polaris.bitmath.org>
- <CAF8JNhLv3iNgnhzrjEXSFRKUU4hAUKnz1dAadP1FnMxPtu90Sg@mail.gmail.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH] Input: mpu3050: set IRQF_ONESHOT when requesting the
+ interrupt
+Date: Wed, 09 May 2012 13:35:23 -0600
+Message-ID: <4FAAC6FB.2010308@wwwdotorg.org>
+References: <1335894406-27428-1-git-send-email-swarren@wwwdotorg.org> <20120509052301.GB10514@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAF8JNhLv3iNgnhzrjEXSFRKUU4hAUKnz1dAadP1FnMxPtu90Sg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, chatty@enac.fr, chasedouglas@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from avon.wwwdotorg.org ([70.85.31.133]:37585 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753319Ab2EITf1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 May 2012 15:35:27 -0400
+In-Reply-To: <20120509052301.GB10514@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-input@vger.kernel.org, Stephen Warren <swarren@nvidia.com>, Alan Cox <alan@linux.intel.com>
 
-Hi Ping,
-
-> > How about ABS_MT_TOOL_X/Y?
+On 05/08/2012 11:23 PM, Dmitry Torokhov wrote:
+> Hi Stephen,
 > 
-> I am ok if we use any one of the suggested terms. The term is non
-> technical per se. Readers will have to look into the spec to
-> understand what exactly it means. But, I'd choose ABS_MT_CENTER_X/Y if
-> we can only pick one from the suggested ones.
+> On Tue, May 01, 2012 at 11:46:46AM -0600, Stephen Warren wrote:
+>> From: Stephen Warren <swarren@nvidia.com>
+>>
+>> Commit 1c6c695 "genirq: Reject bogus threaded irq requests" requires
+>> that request_threaded_irq() either be passed an explicit handler, or
+>> that IRQF_ONESHOT be set. Set this flag.
+>>
+>> Signed-off-by: Stephen Warren <swarren@nvidia.com>
 > 
-> MT_TOOL_X/Y is unique. But, it introduces TOOL to the term. That makes
-> me think about MT_TOOL_FINGER and MT_TOOL_PEN, which are irrelevant to
-> this context.
+> Applied, thank you.
+> 
+> BTW, since it appears you have the hardware any chance you could try the
+> patch below? I had it in my queue for a while but Alan disappeared and
+> I didn't have anyone to test it.
 
-On the contrary, tool as a base makes a lot of sense here. For the
-single-pointer case, we have tool types and tool size already. If we
-were to add a tool position, we would naturally think of
-ABS_TOOL_X/Y. For the MT case, MT_TOOL_* are the tool types, and
-ABS_MT_WIDTH_* is the tool size. It was chosen in analogy with
-ABS_TOOL_WIDTH, although the TOOL part was dropped in favor of a
-shorter name. In retrospect, ABS_MT_POSITION_X should have been named
-ABS_MT_TOUCH_X and ABS_MT_WIDTH_MAJOR could have been named
-ABS_MT_TOOL_MAJOR. This would more clearly have shown the events being
-properties of two objects, tool and touch. With that in mind,
-ABS_MT_TOOL_X is a natural choice.
+I tested the patch with an interrupt supplied, and still see periodic
+output from evbug that appears to correlate with when I move the board.
 
-Thanks,
-Henrik
+I'm not sure how to test it in polled mode. What application would I use
+to trigger the polling? evtest just seems to print out the initial
+values, but not poll.

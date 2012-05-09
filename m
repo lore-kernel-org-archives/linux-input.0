@@ -1,50 +1,28 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 03/14 v3] Input: atmel_mxt_ts - refactor
- mxt_read/write_reg to take a length
-Date: Tue, 8 May 2012 22:54:11 -0700
-Message-ID: <20120509055411.GG10514@core.coreip.homeip.net>
-References: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
- <1334755319-21365-4-git-send-email-djkurtz@chromium.org>
+From: Viresh Kumar <viresh.kumar@st.com>
+Subject: Re: [PATCH V3 2/2] Input: spear-keyboard: add device tree bindings
+Date: Wed, 9 May 2012 12:23:20 +0530
+Message-ID: <4FAA1460.9020600@st.com>
+References: <cover.1333009670.git.viresh.kumar@st.com> <eebfde0a1511204cab203fa18efe6264abe00486.1333009670.git.viresh.kumar@st.com> <20120509052828.GD10514@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1334755319-21365-4-git-send-email-djkurtz@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, khali@linux-fr.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eu1sys200aog110.obsmtp.com ([207.126.144.129]:41460 "EHLO
+	eu1sys200aog110.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751646Ab2EIGxr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 May 2012 02:53:47 -0400
+In-Reply-To: <20120509052828.GD10514@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "swarren@nvidia.com" <swarren@nvidia.com>, spear-devel <spear-devel@list.st.com>, "viresh.linux@gmail.com" <viresh.linux@gmail.com>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "olof@lixom.net" <olof@lixom.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "sr@denx.de" <sr@denx.de>
 
-Hi Daniel,
+On 5/9/2012 10:58 AM, Dmitry Torokhov wrote:
+> Now that I got matrix_keypad_build_keymap() also handle DT case, how
+> about the patch below?
 
-On Wed, Apr 18, 2012 at 09:21:48PM +0800, Daniel Kurtz wrote:
-> +	ret = i2c_transfer(client->adapter, xfer, 2);
-> +	if (ret != 2) {
-> +		dev_err(&client->dev, "i2c read reg failed (%d)\n", ret);
-> +		if (ret >= 0)
-> +			ret = -EIO;
->  	}
->  
-> -	return 0;
-> +	return (ret == 2) ? 0 : ret;
->  }
-
-Would prefer:
-
-	ret = i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
-	if (ret != ARRAY_SIZE(xfer)) {
-		if (ret >= 0)
-			ret = -EIO;
-		dev_err(&client->dev, "i2c read reg failed (%d)\n", ret);
-		return ret;
-	}
-
-	return 0;
-
-
-Or maybe we need i2c_transfer_exact() wrapper? Jean?
-
-Thanks.
+Yes it looks fine.
 
 -- 
-Dmitry
+viresh

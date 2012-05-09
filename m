@@ -1,56 +1,154 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/6] Input: uinput - return -EINVAL when read buffer size is too small
-Date: Wed,  9 May 2012 01:08:24 -0700
-Message-ID: <1336550908-30644-2-git-send-email-dmitry.torokhov@gmail.com>
+Subject: [PATCH 3/6] Input: uinput - fix race that can block nonblocking read
+Date: Wed,  9 May 2012 01:08:25 -0700
+Message-ID: <1336550908-30644-3-git-send-email-dmitry.torokhov@gmail.com>
 References: <1336550908-30644-1-git-send-email-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:36822 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757688Ab2EIIIe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 May 2012 04:08:34 -0400
-Received: by pbbrp8 with SMTP id rp8so190360pbb.19
-        for <linux-input@vger.kernel.org>; Wed, 09 May 2012 01:08:34 -0700 (PDT)
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:49191 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757757Ab2EIIIg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 May 2012 04:08:36 -0400
+Received: by mail-pz0-f46.google.com with SMTP id y13so3728315dad.19
+        for <linux-input@vger.kernel.org>; Wed, 09 May 2012 01:08:36 -0700 (PDT)
 In-Reply-To: <1336550908-30644-1-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: David Herrmann <dh.herrmann@googlemail.com>, Aristeu Rozanski <aris@ruivo.org>
 Cc: linux-input@vger.kernel.org
 
-From: David Herrmann <dh.herrmann@googlemail.com>
+Consider two threads calling read() on the same uinput-fd, both
+non-blocking. Assume there is data-available so both will simultaneously
+pass:
+	udev->head == udev->tail
 
-Let's check whether the user-supplied buffer is actually big enough and
-return -EINVAL if it is not. This differs from current behavior, which
-caused 0 to be returned and actually does not make any sense, as
-broken application will simply repeat the read getting into endless
-loop.
+Then the first thread goes to sleep and the second one pops the message
+from the queue. Now assume udev->head == udev->tail. If the first thread
+wakes up it will call wait_event_*() and sleep in the waitq. This
+effectively turns the non-blocking FD into a blocking one.
 
-Note that we treat 0 as a special case, according to the standard:
+We fix this by attempting to fetch events from the queue first and only
+if we fail to retrieve any events we either return -EAGAIN (in case of
+non-blocing read) or wait until there are more events.
 
-"Before any action described below is taken, and if nbyte is zero,
-the read() function may detect and return errors as described below.
-In the absence of errors, or if error detection is not performed,
-the read() function shall return zero and have no other results."
+This also fixes incorrect return code (we were returning 0 instead of
+ -EAGAIN for non-blocking reads) when an event is "stolen" by another
+thread. Blocking reads will now continue to wait instead of returning 0
+in this scenario.
 
-Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+Count of 0 continues to be a special case, as per spec: we will check for
+device existence and whether there are events in the queue, but no events
+will be actually retrieved.
+
+Reported-by: David Herrmann <dh.herrmann@googlemail.com>
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/input/misc/uinput.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+ drivers/input/misc/uinput.c |   74 +++++++++++++++++++++++++-----------------
+ 1 files changed, 44 insertions(+), 30 deletions(-)
 
 diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 1b4ee4a..e74ed9c 100644
+index e74ed9c..1719554 100644
 --- a/drivers/input/misc/uinput.c
 +++ b/drivers/input/misc/uinput.c
-@@ -476,6 +476,9 @@ static ssize_t uinput_read(struct file *file, char __user *buffer, size_t count,
- 	struct input_event event;
- 	int retval = 0;
+@@ -439,6 +439,9 @@ static ssize_t uinput_write(struct file *file, const char __user *buffer, size_t
+ 	struct uinput_device *udev = file->private_data;
+ 	int retval;
  
++	if (count == 0)
++		return 0;
++
+ 	retval = mutex_lock_interruptible(&udev->mutex);
+ 	if (retval)
+ 		return retval;
+@@ -470,48 +473,59 @@ static bool uinput_fetch_next_event(struct uinput_device *udev,
+ 	return have_event;
+ }
+ 
+-static ssize_t uinput_read(struct file *file, char __user *buffer, size_t count, loff_t *ppos)
++static ssize_t uinput_events_to_user(struct uinput_device *udev,
++				     char __user *buffer, size_t count)
+ {
+-	struct uinput_device *udev = file->private_data;
+ 	struct input_event event;
+-	int retval = 0;
++	size_t read = 0;
++	int error = 0;
+ 
+-	if (count != 0 && count < input_event_size())
+-		return -EINVAL;
++	while (read + input_event_size() <= count &&
++	       uinput_fetch_next_event(udev, &event)) {
+ 
+-	if (udev->state != UIST_CREATED)
+-		return -ENODEV;
++		if (input_event_to_user(buffer + read, &event)) {
++			error = -EFAULT;
++			break;
++		}
+ 
+-	if (udev->head == udev->tail && (file->f_flags & O_NONBLOCK))
+-		return -EAGAIN;
++		read += input_event_size();
++	}
+ 
+-	retval = wait_event_interruptible(udev->waitq,
+-			udev->head != udev->tail || udev->state != UIST_CREATED);
+-	if (retval)
+-		return retval;
++	return read ?: error;
++}
+ 
+-	retval = mutex_lock_interruptible(&udev->mutex);
+-	if (retval)
+-		return retval;
++static ssize_t uinput_read(struct file *file, char __user *buffer,
++			   size_t count, loff_t *ppos)
++{
++	struct uinput_device *udev = file->private_data;
++	ssize_t retval;
+ 
+-	if (udev->state != UIST_CREATED) {
+-		retval = -ENODEV;
+-		goto out;
+-	}
 +	if (count != 0 && count < input_event_size())
 +		return -EINVAL;
-+
- 	if (udev->state != UIST_CREATED)
- 		return -ENODEV;
  
+-	while (retval + input_event_size() <= count &&
+-	       uinput_fetch_next_event(udev, &event)) {
++	do {
++		retval = mutex_lock_interruptible(&udev->mutex);
++		if (retval)
++			return retval;
+ 
+-		if (input_event_to_user(buffer + retval, &event)) {
+-			retval = -EFAULT;
+-			goto out;
+-		}
++		if (udev->state != UIST_CREATED)
++			retval = -ENODEV;
++		else if (udev->head == udev->tail &&
++			 (file->f_flags & O_NONBLOCK))
++			retval = -EAGAIN;
++		else
++			retval = uinput_events_to_user(udev, buffer, count);
+ 
+-		retval += input_event_size();
+-	}
++		mutex_unlock(&udev->mutex);
+ 
+- out:
+-	mutex_unlock(&udev->mutex);
++		if (retval || count == 0)
++			break;
++
++		if (!(file->f_flags & O_NONBLOCK))
++			retval = wait_event_interruptible(udev->waitq,
++						  udev->head != udev->tail ||
++						  udev->state != UIST_CREATED);
++	} while (retval == 0);
+ 
+ 	return retval;
+ }
 -- 
 1.7.7.6
 

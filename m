@@ -1,65 +1,59 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [patch 0/5] Bug fix and win8 for hid-multitouch
-Date: Wed, 9 May 2012 19:52:04 +0200
-Message-ID: <CAN+gG=HaQkO03whpuZFvBWTEe88TbM+uYUD8PsCa7bhO6v25uw@mail.gmail.com>
-References: <1336136030-18503-1-git-send-email-benjamin.tissoires@gmail.com>
-	<alpine.LNX.2.00.1205091637570.26736@pobox.suse.cz>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [RFC] Input: MT - Include win8 support
+Date: Wed, 9 May 2012 11:10:00 -0700
+Message-ID: <CAF8JNhLv3iNgnhzrjEXSFRKUU4hAUKnz1dAadP1FnMxPtu90Sg@mail.gmail.com>
+References: <1336230499-1450-1-git-send-email-rydberg@euromail.se>
+	<CAN+gG=HqGmf77P6=7RMFT_Ez7Ysp4ZVJ6skfAoDcZ7JN1JtYnw@mail.gmail.com>
+	<20120506182835.GA12221@polaris.bitmath.org>
+	<20120508060221.GA15925@yabbi.bne.redhat.com>
+	<20120508184052.GA23748@polaris.bitmath.org>
+	<20120508235219.GA4067@yabbi.redhat.com>
+	<20120509053502.GA30063@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:62173 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759652Ab2EIRwG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 May 2012 13:52:06 -0400
-In-Reply-To: <alpine.LNX.2.00.1205091637570.26736@pobox.suse.cz>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:47789 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750951Ab2EISKB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 May 2012 14:10:01 -0400
+In-Reply-To: <20120509053502.GA30063@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, chatty@enac.fr, chasedouglas@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello Jiri,
-
-On Wed, May 9, 2012 at 4:39 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Fri, 4 May 2012, benjamin.tissoires wrote:
+On Tue, May 8, 2012 at 10:35 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
 >
->> The first patch fixes the bug I discovered lately. This bug was related to the out
->> of bound bitfield test, so it concerns every known devices. Ideally, it should go
->> to upstream-fixes, but this would requires additional adaptations.
->> Jiri, How do you want to proceed?
+> > > > > Looking at the figure, it is clear that the MT model has two
+> > > > > centers,
+> > > > > one for each ellipse. Thus, center is not discriminating
+> > > > > enough. Perhaps ABS_MT_OUTER_X/Y is more appropriate, then?
+> > > >
+> > > > ABS_MT_OUTER_CENTER
+> > >
+> > > I appreciate the suggestion, but along two-word combinations,
+> > > ABS_MT_OUTER_POSITION would integrate better with existing names. Both
+> > > seem awfully long, though.
+> >
+> > problem I see with "outer position" is that I'd associate it with the
+> > top/left position of whatever "outer" is, not with the center of said
+> > envelope. that's why I'd argue that "center" should be somewhere in the
+> > name.
 >
-> When did the bug get introduced, please? i.e. is it a regression?
-
-Well, it's not exactly a regression: it's always been there... ;-)
-
-More seriously, the bug was introduced in the commit
-"HID: multitouch: fix handling of buggy reports descriptors for Dell
-ST2220T" (in kernel 3.3)
-The thing is that this bug fix was not good and was working by miracle.
-
+> Top-left does not apply to an ellipse, so that argument makes little
+> sense for someone looking only at the MT protocol. Given that position
+> is the actual protocol name for the center of the touching ellipse,
+> there is hardly any doubt what it means in this context.
 >
-> As we are getting close to 3.5 merge window being open, maybe the best
-> thing to do would be just push it there once it's open, and then
-> eventually backport it for stable@ if necessary.
+> How about ABS_MT_TOOL_X/Y?
 
-That seems fair.
+I am ok if we use any one of the suggested terms. The term is non
+technical per se. Readers will have to look into the spec to
+understand what exactly it means. But, I'd choose ABS_MT_CENTER_X/Y if
+we can only pick one from the suggested ones.
 
->
->> The last 4 patches are the beginning of the support of Win8 devices.
->> It's only the beginning as the specification is much more precise than
->> the Win7, and we will need to do more tuning in the future. However,
->> Win8 devices are retro-compatible with Win7, so they will work out of
->> the box though.
->
-> I understand that Henrik had some valid concerns, so I will wait for a
-> second respin and Henrik's ack, ok?
+MT_TOOL_X/Y is unique. But, it introduces TOOL to the term. That makes
+me think about MT_TOOL_FINGER and MT_TOOL_PEN, which are irrelevant to
+this context.
 
-ok,
-Thanks,
-Benjamin
-
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
+Ping

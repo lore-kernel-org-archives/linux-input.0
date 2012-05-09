@@ -1,64 +1,65 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 2/2] Input: matrix_keymap - wire up device tree support
-Date: Wed, 09 May 2012 09:46:22 -0600
-Message-ID: <4FAA914E.7040908@wwwdotorg.org>
-References: <20120426081909.GA2726@core.coreip.homeip.net> <4F99642E.1010305@wwwdotorg.org> <20120430041955.GC1055@core.coreip.homeip.net> <4F9EB72A.10403@wwwdotorg.org> <20120509052540.GC10514@core.coreip.homeip.net>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [patch 0/5] Bug fix and win8 for hid-multitouch
+Date: Wed, 9 May 2012 19:52:04 +0200
+Message-ID: <CAN+gG=HaQkO03whpuZFvBWTEe88TbM+uYUD8PsCa7bhO6v25uw@mail.gmail.com>
+References: <1336136030-18503-1-git-send-email-benjamin.tissoires@gmail.com>
+	<alpine.LNX.2.00.1205091637570.26736@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:51076 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758277Ab2EIPq1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 May 2012 11:46:27 -0400
-In-Reply-To: <20120509052540.GC10514@core.coreip.homeip.net>
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:62173 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759652Ab2EIRwG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 May 2012 13:52:06 -0400
+In-Reply-To: <alpine.LNX.2.00.1205091637570.26736@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Viresh Kumar <viresh.kumar@st.com>, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Rakesh Iyer <riyer@nvidia.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 05/08/2012 11:25 PM, Dmitry Torokhov wrote:
-> On Mon, Apr 30, 2012 at 10:00:42AM -0600, Stephen Warren wrote:
->> On 04/29/2012 10:19 PM, Dmitry Torokhov wrote:
->>> On Thu, Apr 26, 2012 at 09:05:18AM -0600, Stephen Warren wrote:
->>>> On 04/26/2012 02:19 AM, Dmitry Torokhov wrote:
->>>>> When platform keymap is not supplied to matrix_keypad_build_keymap()
->>>>> and device tree support is enabled, try locating specified property
->>>>> and load keymap from it. If property name is not defined, try using
->>>>> "linux,keymap".
->>>>>
->>>>> Based on earlier patch by Viresh Kumar <viresh.kumar@st.com>
->>>>
->>>> I think this series looks mostly OK. A few comments below.
->>>>
->>>> We don't actually have the KBC driver hooked up on any boards yet, so I
->>>> can't actually test this yet.
->>>>
->>>> How will the linux,fn-keymap handling work? It looks like this code is
->>>> allocating a keymap data structure with one additional row to represent
->>>> fn-not-pressed vs. fn-pressed.
->>>
->>> No, it loads 2x rows (therefore giving you twice original keymap size).
->>
->> Yes, I mean an extra row signal, so therefore twice as many rows.
->>
->>>> I assume this will work without issue
->>>> even though the second half is not filled in. Won't this allow the
->>>> linux,keymap property entries to pass validation "if (row >= rows)" for
->>>> one more row than it should?
->>>
->>> Maybe... I think we should revisit this when you actually have
->>> linux,fn-keymap. Probably will need to export matrix_keypad_parse_
->>
->> Would it be better to just drop the support for the linux,fn-keymap
->> property, until the full support is there? That wouldn't lose any
->> functionality, but would avoid this potential error-checking issue.
-> 
-> Fair enough, how about the version below?
+Hello Jiri,
 
-Yes, I think that will work.
+On Wed, May 9, 2012 at 4:39 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Fri, 4 May 2012, benjamin.tissoires wrote:
+>
+>> The first patch fixes the bug I discovered lately. This bug was related to the out
+>> of bound bitfield test, so it concerns every known devices. Ideally, it should go
+>> to upstream-fixes, but this would requires additional adaptations.
+>> Jiri, How do you want to proceed?
+>
+> When did the bug get introduced, please? i.e. is it a regression?
 
-I would expect that when linux,fn-keymap support gets added, perhaps the
-"keymap_rows *= 2" would move into the DT keymap parsing code, since
-only it will know whether its going to parse the second property. But I
-don't think that influences the current patch.
+Well, it's not exactly a regression: it's always been there... ;-)
+
+More seriously, the bug was introduced in the commit
+"HID: multitouch: fix handling of buggy reports descriptors for Dell
+ST2220T" (in kernel 3.3)
+The thing is that this bug fix was not good and was working by miracle.
+
+>
+> As we are getting close to 3.5 merge window being open, maybe the best
+> thing to do would be just push it there once it's open, and then
+> eventually backport it for stable@ if necessary.
+
+That seems fair.
+
+>
+>> The last 4 patches are the beginning of the support of Win8 devices.
+>> It's only the beginning as the specification is much more precise than
+>> the Win7, and we will need to do more tuning in the future. However,
+>> Win8 devices are retro-compatible with Win7, so they will work out of
+>> the box though.
+>
+> I understand that Henrik had some valid concerns, so I will wait for a
+> second respin and Henrik's ack, ok?
+
+ok,
+Thanks,
+Benjamin
+
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs

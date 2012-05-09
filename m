@@ -1,50 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH 03/14 v3] Input: atmel_mxt_ts - refactor
  mxt_read/write_reg to take a length
-Date: Tue, 8 May 2012 22:50:09 -0700
-Message-ID: <20120509055009.GF10514@core.coreip.homeip.net>
+Date: Tue, 8 May 2012 22:54:11 -0700
+Message-ID: <20120509055411.GG10514@core.coreip.homeip.net>
 References: <1334755319-21365-1-git-send-email-djkurtz@chromium.org>
  <1334755319-21365-4-git-send-email-djkurtz@chromium.org>
- <20120424112319.GA9688@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:46167 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751147Ab2EIFuP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 May 2012 01:50:15 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20120424112319.GA9688@polaris.bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1334755319-21365-4-git-send-email-djkurtz@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, khali@linux-fr.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
 
-Hi Henrik,
+Hi Daniel,
 
-On Tue, Apr 24, 2012 at 01:23:19PM +0200, Henrik Rydberg wrote:
-> Hi Daniel,
-> 
-> > The i2c bus requires 5 bytes to do a 1 byte read (1-byte i2c address + 2
-> > byte offset + 1-byte i2c address + 1 byte data), or 4 bytes to do a
-> > 1-byte write (1 byte i2c address + 2 byte offset + 1 byte data).
-> > 
-> > By taking a length with reads and writes, the driver can amortize
-> > transaction overhead by performing larger transactions where appropriate.
-> > 
-> > This patch just sets up the new API.  Later patches refactor reads/writes
-> > to take advantage of the larger transactions.
-> > 
-> > These functions are also now return any errors reported by the i2c layer.
-> > 
-> > Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-> > ---
-> 
-> In the cyttsp a dedicate tx buffer is used, which is a bit easier on
-> the eyes.
+On Wed, Apr 18, 2012 at 09:21:48PM +0800, Daniel Kurtz wrote:
+> +	ret = i2c_transfer(client->adapter, xfer, 2);
+> +	if (ret != 2) {
+> +		dev_err(&client->dev, "i2c read reg failed (%d)\n", ret);
+> +		if (ret >= 0)
+> +			ret = -EIO;
+>  	}
+>  
+> -	return 0;
+> +	return (ret == 2) ? 0 : ret;
+>  }
 
-Cyttsp needs a cacheline aligned buffer because it can be wired over
-SPI, that is why it has a dedicate buffer.
+Would prefer:
+
+	ret = i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
+	if (ret != ARRAY_SIZE(xfer)) {
+		if (ret >= 0)
+			ret = -EIO;
+		dev_err(&client->dev, "i2c read reg failed (%d)\n", ret);
+		return ret;
+	}
+
+	return 0;
+
+
+Or maybe we need i2c_transfer_exact() wrapper? Jean?
+
+Thanks.
 
 -- 
 Dmitry

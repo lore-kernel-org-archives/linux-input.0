@@ -1,79 +1,64 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid_parse failure
-Date: Thu, 10 May 2012 12:21:29 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1205101220070.31253@pobox.suse.cz>
-References: <1335888472-19053-1-git-send-email-srinivas.pandruvada@intel.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 2/5] HID: hid-multitouch: get maxcontacts also from
+ logical_max value
+Date: Thu, 10 May 2012 14:15:31 +0200
+Message-ID: <CAN+gG=Fyq7S54rkDRsUmEytxcU-HQb68qENnED8=xaUxF3-BXQ@mail.gmail.com>
+References: <1336136030-18503-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1336136030-18503-3-git-send-email-benjamin.tissoires@gmail.com>
+	<20120506190322.GB12571@polaris.bitmath.org>
+	<CAN+gG=HQ_U5dhVvgLu0zfMjv1+SAVB2Rx8fNq8tLX2DUHOMa9A@mail.gmail.com>
+	<20120509194623.GA12381@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:44444 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758781Ab2EJKVg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 May 2012 06:21:36 -0400
-In-Reply-To: <1335888472-19053-1-git-send-email-srinivas.pandruvada@intel.com>
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:45014 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756492Ab2EJMPc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 May 2012 08:15:32 -0400
+In-Reply-To: <20120509194623.GA12381@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: srinivas pandruvada <srinivas.pandruvada@intel.com>
-Cc: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 1 May 2012, srinivas pandruvada wrote:
+On Wed, May 9, 2012 at 9:46 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> Hi Benjamin,
+>
+>> >> Win8 devices are required to present the feature "Maximum Contact Number".
+>> >> If the current value is 0, then, the driver can get the actual supported
+>> >> contact count by seeing the logical_max.
+>> >
+>> > And for win7, it is zero?
+>>
+>> Well, the truth is that the Win8 specification formally describes the
+>> values here. And to get the certification, hardware makers have to put
+>> the right value in logical_max.
+>> TBH, I don't care that much now with win7 devices. Most of them are a
+>> piece of crap (not true dual fingers, problems in hid reports
+>> descriptors, etc...), but they just work (we made the necessary
+>> things). With the introduction of Win8, hardware makers will have to
+>> *certify* their devices, and thus, the Win8 driver is much less
+>> tolerant. I really think that we are going to see more and more win8
+>> devices, whereas win7 devices will fade out.
+>>
+>> I had to add this patch because I have a win8 device that has the
+>> value associated to this field at 0, and it's the first I saw with
+>> this behavior.
+>
+> As long as all existing devices are unaffected, it's fine, hence the question.
 
-> When logical maximum is 0xffffffff, the parser fails even if
-> logical minimum is equal to or greater than  0.
-> By HID specification, if both the Logical Minimum and Logical
-> Maximum extents are defined as positive values (0 or greater)
-> then the report field can be assumed to be an unsigned value.
-> Otherwise, all integer values are signed values represented
-> in 2=E2=80=99s complement format.
+I checked all the reports descriptors that I have.
+2 devices (one Stantum and one Irtouch) present an unrealistic
+logical_max value (255). The thing is that if this logical_max is
+false, and if the value is not provided, then I don't know how could I
+retrieve the right value beside introducing a MT_CLS...
 
-Signed-off-by: line is missing, could you please fix that?
-
-> ---
->  drivers/hid/hid-core.c |   12 ++++++++++--
->  1 files changed, 10 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index c757f10..b616f4b 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -225,8 +225,16 @@ static int hid_add_field(struct hid_parser *pars=
-er, unsigned report_type, unsign
->  		return -1;
->  	}
-> =20
-> -	if (parser->global.logical_maximum < parser->global.logical_minimum=
-) {
-> -		dbg_hid("logical range invalid %d %d\n", parser->global.logical_mi=
-nimum, parser->global.logical_maximum);
-> +	if ((parser->global.logical_minimum < 0 &&
-> +		parser->global.logical_maximum <
-> +			parser->global.logical_minimum) ||
-> +		(parser->global.logical_minimum >=3D 0 &&
-> +			(__u32)parser->global.logical_maximum <
-> +			(__u32)parser->global.logical_minimum)
-> +		) {
-> +		dbg_hid("logical range invalid 0x%x 0x%x\n",
-> +			parser->global.logical_minimum,
-> +				parser->global.logical_maximum);
->  		return -1;
->  	}
-
-The change looks correct per se, but I will have to think a little bit=20
-more whether other places of report parsing don't need similar adjustme=
-nts=20
-as well to work properly in such scenarios.
-
-How did you find this out? By code/spec inspection, or do you actually=20
-have the device that exposes this problem?
+Henrik, do you think that 255 is two much for the slots?
 
 Thanks,
+Benjamin
 
---=20
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+> Thanks,
+> Henrik

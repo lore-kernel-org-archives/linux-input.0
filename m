@@ -1,44 +1,61 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 2/5] HID: hid-multitouch: get maxcontacts also from
- logical_max value
-Date: Thu, 10 May 2012 14:46:42 +0200
-Message-ID: <20120510124642.GA9254@polaris.bitmath.org>
-References: <1336136030-18503-1-git-send-email-benjamin.tissoires@gmail.com>
- <1336136030-18503-3-git-send-email-benjamin.tissoires@gmail.com>
- <20120506190322.GB12571@polaris.bitmath.org>
- <CAN+gG=HQ_U5dhVvgLu0zfMjv1+SAVB2Rx8fNq8tLX2DUHOMa9A@mail.gmail.com>
- <20120509194623.GA12381@polaris.bitmath.org>
- <CAN+gG=Fyq7S54rkDRsUmEytxcU-HQb68qENnED8=xaUxF3-BXQ@mail.gmail.com>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+Subject: RE: [PATCH] hid_parse failure
+Date: Thu, 10 May 2012 14:04:54 +0000
+Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A919307DD3@ORSMSX104.amr.corp.intel.com>
+References: <1335888472-19053-1-git-send-email-srinivas.pandruvada@intel.com>
+ <alpine.LNX.2.00.1205101220070.31253@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=Fyq7S54rkDRsUmEytxcU-HQb68qENnED8=xaUxF3-BXQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga03.intel.com ([143.182.124.21]:8418 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754935Ab2EJOE6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 May 2012 10:04:58 -0400
+In-Reply-To: <alpine.LNX.2.00.1205101220070.31253@pobox.suse.cz>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-> > As long as all existing devices are unaffected, it's fine, hence the question.
-> 
-> I checked all the reports descriptors that I have.
-> 2 devices (one Stantum and one Irtouch) present an unrealistic
-> logical_max value (255). The thing is that if this logical_max is
-> false, and if the value is not provided, then I don't know how could I
-> retrieve the right value beside introducing a MT_CLS...
-> 
-> Henrik, do you think that 255 is two much for the slots?
-
-It is large enough for us to start worrying about how we manage
-memory, not to mention throughput. Since we do not really have devices
-of that type yet, how about adding a MT_MAX_MAXCONTACT next to
-MT_DEFAULT_MAXCONTACT, and use it as a sanity check, like so:
-
-	if (!td->maxcontacts && field->logical_maximum <= MT_MAX_MAXCONTACT)
-		td->maxcontacts = field->logical_maximum;
-
-Then the default (10) would be picked for the suspect devices, just as
-it is today.
-
-Thanks,
-Henrik
+DQpJIGhhdmUgYSBzZW5zb3IgaHViIGRldmljZSwgd2hpY2ggZXhwb3NlcyB0aGlzIHByb2JsZW0u
+ICBJIHdpbGwgc2VuZCBwYXRjaCBhZ2Fpbi4NCkkgd2lsbCBzZW5kIHRoZSBwYXRjaCBhZ2Fpbi4N
+Cg0KVGhhbmtzLA0KU3Jpbml2YXMNCg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJv
+bTogSmlyaSBLb3NpbmEgW21haWx0bzpqa29zaW5hQHN1c2UuY3pdIA0KU2VudDogVGh1cnNkYXks
+IE1heSAxMCwgMjAxMiAzOjIxIEFNDQpUbzogUGFuZHJ1dmFkYSwgU3Jpbml2YXMNCkNjOiBsaW51
+eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0hdIGhpZF9wYXJzZSBm
+YWlsdXJlDQoNCk9uIFR1ZSwgMSBNYXkgMjAxMiwgc3Jpbml2YXMgcGFuZHJ1dmFkYSB3cm90ZToN
+Cg0KPiBXaGVuIGxvZ2ljYWwgbWF4aW11bSBpcyAweGZmZmZmZmZmLCB0aGUgcGFyc2VyIGZhaWxz
+IGV2ZW4gaWYgbG9naWNhbCANCj4gbWluaW11bSBpcyBlcXVhbCB0byBvciBncmVhdGVyIHRoYW4g
+IDAuDQo+IEJ5IEhJRCBzcGVjaWZpY2F0aW9uLCBpZiBib3RoIHRoZSBMb2dpY2FsIE1pbmltdW0g
+YW5kIExvZ2ljYWwgTWF4aW11bSANCj4gZXh0ZW50cyBhcmUgZGVmaW5lZCBhcyBwb3NpdGl2ZSB2
+YWx1ZXMgKDAgb3IgZ3JlYXRlcikgdGhlbiB0aGUgcmVwb3J0IA0KPiBmaWVsZCBjYW4gYmUgYXNz
+dW1lZCB0byBiZSBhbiB1bnNpZ25lZCB2YWx1ZS4NCj4gT3RoZXJ3aXNlLCBhbGwgaW50ZWdlciB2
+YWx1ZXMgYXJlIHNpZ25lZCB2YWx1ZXMgcmVwcmVzZW50ZWQgaW4gMuKAmXMgDQo+IGNvbXBsZW1l
+bnQgZm9ybWF0Lg0KDQpTaWduZWQtb2ZmLWJ5OiBsaW5lIGlzIG1pc3NpbmcsIGNvdWxkIHlvdSBw
+bGVhc2UgZml4IHRoYXQ/DQoNCj4gLS0tDQo+ICBkcml2ZXJzL2hpZC9oaWQtY29yZS5jIHwgICAx
+MiArKysrKysrKysrLS0NCj4gIDEgZmlsZXMgY2hhbmdlZCwgMTAgaW5zZXJ0aW9ucygrKSwgMiBk
+ZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9oaWQtY29yZS5jIGIv
+ZHJpdmVycy9oaWQvaGlkLWNvcmUuYyBpbmRleCANCj4gYzc1N2YxMC4uYjYxNmY0YiAxMDA2NDQN
+Cj4gLS0tIGEvZHJpdmVycy9oaWQvaGlkLWNvcmUuYw0KPiArKysgYi9kcml2ZXJzL2hpZC9oaWQt
+Y29yZS5jDQo+IEBAIC0yMjUsOCArMjI1LDE2IEBAIHN0YXRpYyBpbnQgaGlkX2FkZF9maWVsZChz
+dHJ1Y3QgaGlkX3BhcnNlciAqcGFyc2VyLCB1bnNpZ25lZCByZXBvcnRfdHlwZSwgdW5zaWduDQo+
+ICAJCXJldHVybiAtMTsNCj4gIAl9DQo+ICANCj4gLQlpZiAocGFyc2VyLT5nbG9iYWwubG9naWNh
+bF9tYXhpbXVtIDwgcGFyc2VyLT5nbG9iYWwubG9naWNhbF9taW5pbXVtKSB7DQo+IC0JCWRiZ19o
+aWQoImxvZ2ljYWwgcmFuZ2UgaW52YWxpZCAlZCAlZFxuIiwgcGFyc2VyLT5nbG9iYWwubG9naWNh
+bF9taW5pbXVtLCBwYXJzZXItPmdsb2JhbC5sb2dpY2FsX21heGltdW0pOw0KPiArCWlmICgocGFy
+c2VyLT5nbG9iYWwubG9naWNhbF9taW5pbXVtIDwgMCAmJg0KPiArCQlwYXJzZXItPmdsb2JhbC5s
+b2dpY2FsX21heGltdW0gPA0KPiArCQkJcGFyc2VyLT5nbG9iYWwubG9naWNhbF9taW5pbXVtKSB8
+fA0KPiArCQkocGFyc2VyLT5nbG9iYWwubG9naWNhbF9taW5pbXVtID49IDAgJiYNCj4gKwkJCShf
+X3UzMilwYXJzZXItPmdsb2JhbC5sb2dpY2FsX21heGltdW0gPA0KPiArCQkJKF9fdTMyKXBhcnNl
+ci0+Z2xvYmFsLmxvZ2ljYWxfbWluaW11bSkNCj4gKwkJKSB7DQo+ICsJCWRiZ19oaWQoImxvZ2lj
+YWwgcmFuZ2UgaW52YWxpZCAweCV4IDB4JXhcbiIsDQo+ICsJCQlwYXJzZXItPmdsb2JhbC5sb2dp
+Y2FsX21pbmltdW0sDQo+ICsJCQkJcGFyc2VyLT5nbG9iYWwubG9naWNhbF9tYXhpbXVtKTsNCj4g
+IAkJcmV0dXJuIC0xOw0KPiAgCX0NCg0KVGhlIGNoYW5nZSBsb29rcyBjb3JyZWN0IHBlciBzZSwg
+YnV0IEkgd2lsbCBoYXZlIHRvIHRoaW5rIGEgbGl0dGxlIGJpdCBtb3JlIHdoZXRoZXIgb3RoZXIg
+cGxhY2VzIG9mIHJlcG9ydCBwYXJzaW5nIGRvbid0IG5lZWQgc2ltaWxhciBhZGp1c3RtZW50cyBh
+cyB3ZWxsIHRvIHdvcmsgcHJvcGVybHkgaW4gc3VjaCBzY2VuYXJpb3MuDQoNCkhvdyBkaWQgeW91
+IGZpbmQgdGhpcyBvdXQ/IEJ5IGNvZGUvc3BlYyBpbnNwZWN0aW9uLCBvciBkbyB5b3UgYWN0dWFs
+bHkgaGF2ZSB0aGUgZGV2aWNlIHRoYXQgZXhwb3NlcyB0aGlzIHByb2JsZW0/DQoNClRoYW5rcywN
+Cg0KLS0NCkppcmkgS29zaW5hDQpTVVNFIExhYnMNCg==

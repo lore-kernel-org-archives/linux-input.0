@@ -1,70 +1,97 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/5] HID: hid-multitouch: fix wrong protocol detection
-Date: Thu, 10 May 2012 11:37:07 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1205101136330.31253@pobox.suse.cz>
-References: <1336136030-18503-1-git-send-email-benjamin.tissoires@gmail.com> <1336136030-18503-2-git-send-email-benjamin.tissoires@gmail.com> <20120506190146.GA12571@polaris.bitmath.org> <CAN+gG=G9y_0Le-Mja2z68r76nBmz0De95Lc6671EkrrMZRSEHw@mail.gmail.com>
- <20120509195632.GA12406@polaris.bitmath.org> <alpine.LNX.2.00.1205101026010.31253@pobox.suse.cz> <CAN+gG=HJQxvFvCDf4LkYcvG3th4dyNFTNy8LzCZcq=gqo97p-w@mail.gmail.com>
+Subject: Re: [PATCH] HID: wacom: Add LED selector control for Wacom Intuos4
+ WL
+Date: Thu, 10 May 2012 12:09:45 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1205101205430.31253@pobox.suse.cz>
+References: <1336419611-10372-1-git-send-email-przemo@firszt.eu>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:39267 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:42523 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757870Ab2EJJhO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 May 2012 05:37:14 -0400
-In-Reply-To: <CAN+gG=HJQxvFvCDf4LkYcvG3th4dyNFTNy8LzCZcq=gqo97p-w@mail.gmail.com>
+	id S1755144Ab2EJKJx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 May 2012 06:09:53 -0400
+In-Reply-To: <1336419611-10372-1-git-send-email-przemo@firszt.eu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Przemo Firszt <przemo@firszt.eu>
+Cc: pinglinux@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
 
-On Thu, 10 May 2012, Benjamin Tissoires wrote:
+On Mon, 7 May 2012, Przemo Firszt wrote:
 
-> >> > well, the idea was to keep the memory footprint low. As these va=
-lues
-> >> > are only needed at init, then I freed them once I finished using=
- them.
-> >> > I can of course skip the pointer, but in that case, wouldn't the
-> >> > struct declaration be worthless?
-> >>
-> >> My bad, I misread the placement of the free() statement. I was als=
-o
-> >> concerned about memory, since HID is big enough a memory hog as it
-> >> is. Barring the added complexity of this patch, it now makes more
-> >> sense.
-> >>
-> >> =A0 =A0 Acked-by: Henrik Rydberg <rydberg@euromail.se>
-> >
-> > drivers/hid/hid-multitouch.c: In function =91mt_post_parse=92:
-> > drivers/hid/hid-multitouch.c:673: error: invalid type argument of =91=
-->=92 (have =91unsigned int=92)
-> > make[1]: *** [drivers/hid/hid-multitouch.o] Error 1
-> >
-> > I believe that
-> >
-> > =A0 =A0 =A0 =A0td->last_slot_field =3D f->usages[field_count_per_to=
-uch - 1]->hid;
-> >
-> > should be
-> >
-> > =A0 =A0 =A0 =A0td->last_slot_field =3D f->usages[field_count_per_to=
-uch - 1];
->=20
-> Ouch, indeed. the "->hid" is extra. When I split the patch 1 and 5, I
-> missed that one.
->=20
-> I tested it without the ->hid, and it's good. Do I need to resend the=
- patch?
+> Add sysfs attribute to control LED selector on Wacom Intuos4. There are 4
+> different LEDs on the tablet and they can be turned on by something like:
+> 
+> echo 50 > /sys/class/leds/(device # here)\:selector\:1/brightness
+> 
+> Only one can be lit at a time. The brightness range is 0 to 127. This patch
+> also contains short ABI description.
+> 
+> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+[ ... snip ... ]
+> @@ -44,6 +47,8 @@ struct wacom_data {
+>  	__u8 ps_connected;
+>  	struct power_supply battery;
+>  	struct power_supply ac;
+> +	__u8 led_selector;
+> +	struct led_classdev *leds[3];
 
-No, that's fine, I have fixed that up and applied.
+Here you define the leds[] array to have 3 members.
 
-I am not applying the rest of the patchset yet.
+>  /*percent of battery capacity for Graphire
+> @@ -64,6 +69,117 @@ static enum power_supply_property wacom_ac_props[] = {
+>  	POWER_SUPPLY_PROP_SCOPE,
+>  };
+>  
+> +static void wacom_leds_set_brightness(struct led_classdev *led_dev,
+> +						enum led_brightness value)
+> +{
+> +	struct device *dev = led_dev->dev->parent;
+> +	struct hid_device *hdev;
+> +	struct wacom_data *wdata;
+> +	unsigned char *buf;
+> +	__u8 led = 0;
+> +	int i;
+> +
+> +	hdev = container_of(dev, struct hid_device, dev);
+> +	wdata = hid_get_drvdata(hdev);
+> +	for (i = 0; i < 4; ++i) {
 
---=20
+And here you are going off-by-one.
+
+> +		if (wdata->leds[i] == led_dev)
+> +			wdata->led_selector = i;
+> +	}
+> +
+> +	led = wdata->led_selector | 0x04;
+> +	buf = kzalloc(9, GFP_KERNEL);
+> +	if (buf) {
+> +		buf[0] = WAC_CMD_LED_CONTROL;
+> +		buf[1] = led;
+> +		buf[2] = value;
+> +		hdev->hid_output_raw_report(hdev, buf, 9, HID_FEATURE_REPORT);
+> +		kfree(buf);
+> +	}
+> +
+> +	return;
+> +}
+> +
+> +static enum led_brightness wacom_leds_get_brightness(struct led_classdev *led_dev)
+> +{
+> +	struct wacom_data *wdata;
+> +	struct device *dev = led_dev->dev->parent;
+> +	int value = 0;
+> +	int i;
+> +
+> +	wdata = hid_get_drvdata(container_of(dev, struct hid_device, dev));
+> +
+> +	for (i = 0; i < 4; ++i) {
+
+And here as well.
+
+Otherwise the patch looks fine, and once you fix this, I will apply it. 
+Thanks,
+
+-- 
 Jiri Kosina
 SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

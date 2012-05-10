@@ -1,61 +1,41 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Subject: RE: [PATCH] hid_parse failure
-Date: Thu, 10 May 2012 14:04:54 +0000
-Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A919307DD3@ORSMSX104.amr.corp.intel.com>
-References: <1335888472-19053-1-git-send-email-srinivas.pandruvada@intel.com>
- <alpine.LNX.2.00.1205101220070.31253@pobox.suse.cz>
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: Re: [PATCH] HID: wacom: Add LED selector control for Wacom Intuos4
+ WL
+Date: Thu, 10 May 2012 19:21:19 +0100
+Message-ID: <1336674079.5170.1.camel@pldmachine>
+References: <1336419611-10372-1-git-send-email-przemo@firszt.eu>
+	 <alpine.LNX.2.00.1205101205430.31253@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([143.182.124.21]:8418 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754935Ab2EJOE6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 May 2012 10:04:58 -0400
-In-Reply-To: <alpine.LNX.2.00.1205101220070.31253@pobox.suse.cz>
-Content-Language: en-US
+Received: from stats.peacock.arvixe.com ([174.122.104.67]:34049 "EHLO
+	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1759371Ab2EJSVX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 May 2012 14:21:23 -0400
+In-Reply-To: <alpine.LNX.2.00.1205101205430.31253@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: pinglinux@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
 
-DQpJIGhhdmUgYSBzZW5zb3IgaHViIGRldmljZSwgd2hpY2ggZXhwb3NlcyB0aGlzIHByb2JsZW0u
-ICBJIHdpbGwgc2VuZCBwYXRjaCBhZ2Fpbi4NCkkgd2lsbCBzZW5kIHRoZSBwYXRjaCBhZ2Fpbi4N
-Cg0KVGhhbmtzLA0KU3Jpbml2YXMNCg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJv
-bTogSmlyaSBLb3NpbmEgW21haWx0bzpqa29zaW5hQHN1c2UuY3pdIA0KU2VudDogVGh1cnNkYXks
-IE1heSAxMCwgMjAxMiAzOjIxIEFNDQpUbzogUGFuZHJ1dmFkYSwgU3Jpbml2YXMNCkNjOiBsaW51
-eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0hdIGhpZF9wYXJzZSBm
-YWlsdXJlDQoNCk9uIFR1ZSwgMSBNYXkgMjAxMiwgc3Jpbml2YXMgcGFuZHJ1dmFkYSB3cm90ZToN
-Cg0KPiBXaGVuIGxvZ2ljYWwgbWF4aW11bSBpcyAweGZmZmZmZmZmLCB0aGUgcGFyc2VyIGZhaWxz
-IGV2ZW4gaWYgbG9naWNhbCANCj4gbWluaW11bSBpcyBlcXVhbCB0byBvciBncmVhdGVyIHRoYW4g
-IDAuDQo+IEJ5IEhJRCBzcGVjaWZpY2F0aW9uLCBpZiBib3RoIHRoZSBMb2dpY2FsIE1pbmltdW0g
-YW5kIExvZ2ljYWwgTWF4aW11bSANCj4gZXh0ZW50cyBhcmUgZGVmaW5lZCBhcyBwb3NpdGl2ZSB2
-YWx1ZXMgKDAgb3IgZ3JlYXRlcikgdGhlbiB0aGUgcmVwb3J0IA0KPiBmaWVsZCBjYW4gYmUgYXNz
-dW1lZCB0byBiZSBhbiB1bnNpZ25lZCB2YWx1ZS4NCj4gT3RoZXJ3aXNlLCBhbGwgaW50ZWdlciB2
-YWx1ZXMgYXJlIHNpZ25lZCB2YWx1ZXMgcmVwcmVzZW50ZWQgaW4gMuKAmXMgDQo+IGNvbXBsZW1l
-bnQgZm9ybWF0Lg0KDQpTaWduZWQtb2ZmLWJ5OiBsaW5lIGlzIG1pc3NpbmcsIGNvdWxkIHlvdSBw
-bGVhc2UgZml4IHRoYXQ/DQoNCj4gLS0tDQo+ICBkcml2ZXJzL2hpZC9oaWQtY29yZS5jIHwgICAx
-MiArKysrKysrKysrLS0NCj4gIDEgZmlsZXMgY2hhbmdlZCwgMTAgaW5zZXJ0aW9ucygrKSwgMiBk
-ZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9oaWQtY29yZS5jIGIv
-ZHJpdmVycy9oaWQvaGlkLWNvcmUuYyBpbmRleCANCj4gYzc1N2YxMC4uYjYxNmY0YiAxMDA2NDQN
-Cj4gLS0tIGEvZHJpdmVycy9oaWQvaGlkLWNvcmUuYw0KPiArKysgYi9kcml2ZXJzL2hpZC9oaWQt
-Y29yZS5jDQo+IEBAIC0yMjUsOCArMjI1LDE2IEBAIHN0YXRpYyBpbnQgaGlkX2FkZF9maWVsZChz
-dHJ1Y3QgaGlkX3BhcnNlciAqcGFyc2VyLCB1bnNpZ25lZCByZXBvcnRfdHlwZSwgdW5zaWduDQo+
-ICAJCXJldHVybiAtMTsNCj4gIAl9DQo+ICANCj4gLQlpZiAocGFyc2VyLT5nbG9iYWwubG9naWNh
-bF9tYXhpbXVtIDwgcGFyc2VyLT5nbG9iYWwubG9naWNhbF9taW5pbXVtKSB7DQo+IC0JCWRiZ19o
-aWQoImxvZ2ljYWwgcmFuZ2UgaW52YWxpZCAlZCAlZFxuIiwgcGFyc2VyLT5nbG9iYWwubG9naWNh
-bF9taW5pbXVtLCBwYXJzZXItPmdsb2JhbC5sb2dpY2FsX21heGltdW0pOw0KPiArCWlmICgocGFy
-c2VyLT5nbG9iYWwubG9naWNhbF9taW5pbXVtIDwgMCAmJg0KPiArCQlwYXJzZXItPmdsb2JhbC5s
-b2dpY2FsX21heGltdW0gPA0KPiArCQkJcGFyc2VyLT5nbG9iYWwubG9naWNhbF9taW5pbXVtKSB8
-fA0KPiArCQkocGFyc2VyLT5nbG9iYWwubG9naWNhbF9taW5pbXVtID49IDAgJiYNCj4gKwkJCShf
-X3UzMilwYXJzZXItPmdsb2JhbC5sb2dpY2FsX21heGltdW0gPA0KPiArCQkJKF9fdTMyKXBhcnNl
-ci0+Z2xvYmFsLmxvZ2ljYWxfbWluaW11bSkNCj4gKwkJKSB7DQo+ICsJCWRiZ19oaWQoImxvZ2lj
-YWwgcmFuZ2UgaW52YWxpZCAweCV4IDB4JXhcbiIsDQo+ICsJCQlwYXJzZXItPmdsb2JhbC5sb2dp
-Y2FsX21pbmltdW0sDQo+ICsJCQkJcGFyc2VyLT5nbG9iYWwubG9naWNhbF9tYXhpbXVtKTsNCj4g
-IAkJcmV0dXJuIC0xOw0KPiAgCX0NCg0KVGhlIGNoYW5nZSBsb29rcyBjb3JyZWN0IHBlciBzZSwg
-YnV0IEkgd2lsbCBoYXZlIHRvIHRoaW5rIGEgbGl0dGxlIGJpdCBtb3JlIHdoZXRoZXIgb3RoZXIg
-cGxhY2VzIG9mIHJlcG9ydCBwYXJzaW5nIGRvbid0IG5lZWQgc2ltaWxhciBhZGp1c3RtZW50cyBh
-cyB3ZWxsIHRvIHdvcmsgcHJvcGVybHkgaW4gc3VjaCBzY2VuYXJpb3MuDQoNCkhvdyBkaWQgeW91
-IGZpbmQgdGhpcyBvdXQ/IEJ5IGNvZGUvc3BlYyBpbnNwZWN0aW9uLCBvciBkbyB5b3UgYWN0dWFs
-bHkgaGF2ZSB0aGUgZGV2aWNlIHRoYXQgZXhwb3NlcyB0aGlzIHByb2JsZW0/DQoNClRoYW5rcywN
-Cg0KLS0NCkppcmkgS29zaW5hDQpTVVNFIExhYnMNCg==
+Dnia 2012-05-10, czw o godzinie 12:09 +0200, Jiri Kosina pisze:
+> On Mon, 7 May 2012, Przemo Firszt wrote:
+> 
+> > Add sysfs attribute to control LED selector on Wacom Intuos4. There are 4
+[..]
+> > +
+> > +	for (i = 0; i < 4; ++i) {
+> 
+> And here as well.
+> 
+> Otherwise the patch looks fine, and once you fix this, I will apply it. 
+> Thanks,
+> 
+Hi Jiri,
+Thanks for catching it! New patch is on the way...
+-- 
+regards,
+Przemo Firszt <przemo@firszt.eu>
+

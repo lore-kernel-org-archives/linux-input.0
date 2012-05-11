@@ -1,43 +1,86 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2 1/1] HID: logitech: read all 32 bits of report type
- bitfield
-Date: Fri, 11 May 2012 16:32:13 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1205111631590.17928@pobox.suse.cz>
-References: <1336745836-17385-1-git-send-email-nlopezcasad@logitech.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH v2 0/3] gspca - ov534: saturation and hue (using
+ fixp-arith.h)
+Date: Fri, 11 May 2012 17:01:24 +0200
+Message-ID: <20120511170124.5d6f2726c62dd67423f29a72@studenti.unina.it>
+References: <20120505102614.31395c2979f0b7aac0c8a107@studenti.unina.it>
+	<1336299298-17517-1-git-send-email-ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1336745836-17385-1-git-send-email-nlopezcasad@logitech.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: jrnieder@gmail.com, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, hugo@osvaldobarrera.com.ar, 671292@bugs.debian.org, stable@vger.kernel.org
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__11_May_2012_17_01_24_+0200_KE4lbiThZL9QMWOC"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp207.alice.it ([82.57.200.103]:49536 "EHLO smtp207.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760671Ab2EKPB3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 May 2012 11:01:29 -0400
+In-Reply-To: <1336299298-17517-1-git-send-email-ospite@studenti.unina.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-media@vger.kernel.org
+Cc: Antonio Ospite <ospite@studenti.unina.it>, Jean-Francois Moine <moinejf@free.fr>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>
 
-On Fri, 11 May 2012, Nestor Lopez Casado wrote:
+--Signature=_Fri__11_May_2012_17_01_24_+0200_KE4lbiThZL9QMWOC
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> From: Jonathan Nieder <jrnieder@gmail.com>
-> 
-> On big-endian systems (e.g., Apple PowerBook), trying to use a
-> logitech wireless mouse with the Logitech Unifying Receiver does not
-> work with v3.2 and later kernels.  The device doesn't show up in
-> /dev/input.  Older kernels work fine.
-> 
-> That is because the new hid-logitech-dj driver claims the device.  The
-> device arrival notification appears:
-> 
-> 	20 00 41 02 00 00 00 00 00 00 00 00 00 00 00
-> 
-> and we read the report_types bitfield (02 00 00 00) to find out what
-> kind of device it is.  Unfortunately the driver only reads the first 8
-> bits and treats that value as a 32-bit little-endian number, so on a
-> powerpc the report type seems to be 0x02000000 and is not recognized.
-> 
-> Even on little-endian machines, connecting a media center remote
-> control (report type 00 01 00 00) with this driver loaded would
-> presumably fail for the same reason.
+On Sun,  6 May 2012 12:14:55 +0200
+Antonio Ospite <ospite@studenti.unina.it> wrote:
 
-Applied, thanks.
+> Hi,
+>=20
+> I am sending a second version of this patchset, changes since version 1 a=
+re
+> annotated per-patch.
+>=20
+> Just FYI I intend to work on porting ov534 to v4l2 framework too once the=
+se
+> ones go in and the gspca core changes about that settle a bit.
+>=20
+> Thanks,
+>    Antonio
+>
 
--- 
-Jiri Kosina
-SUSE Labs
+Ping.
+
+Added HdG to CC.
+
+Dmitry agreed to carry the small drivers/input changes through the media
+tree.
+
+> Antonio Ospite (3):
+>   gspca - ov534: Add Saturation control
+>   Input: move drivers/input/fixp-arith.h to include/linux
+>   gspca - ov534: Add Hue control
+>=20
+>  drivers/input/ff-memless.c        |    3 +-
+>  drivers/input/fixp-arith.h        |   87 ----------------------
+>  drivers/media/video/gspca/ov534.c |  146 +++++++++++++++++++++++++++----=
+------
+>  include/linux/fixp-arith.h        |   87 ++++++++++++++++++++++
+>  4 files changed, 195 insertions(+), 128 deletions(-)
+>  delete mode 100644 drivers/input/fixp-arith.h
+>  create mode 100644 include/linux/fixp-arith.h
+>=20
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Fri__11_May_2012_17_01_24_+0200_KE4lbiThZL9QMWOC
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+tKcQACgkQ5xr2akVTsAEv9gCgmb1Fh1jB6MHHhtkNjr+kEne9
+1DwAoKBJH2DvZqVR64CSgrd4KaMidxNR
+=Al57
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__11_May_2012_17_01_24_+0200_KE4lbiThZL9QMWOC--

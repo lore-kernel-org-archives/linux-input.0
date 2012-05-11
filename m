@@ -1,52 +1,103 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH] TWL6040: fix build error
-Date: Fri, 11 May 2012 15:16:39 +0300
-Message-ID: <4FAD0327.7040305@ti.com>
-References: <1336675473-24774-1-git-send-email-levinsasha928@gmail.com> <CAP=VYLqwAO8x4aWw7_pH1LH_SPO9Td2ec9oOmKPL-_5LOEQw3g@mail.gmail.com> <CACxGe6vbn7r10KT-q2GGtJatv12prE4ZFJxWsSzPEyLoCuH27A@mail.gmail.com>
+From: javier Martin <javier.martin@vista-silicon.com>
+Subject: Re: [RFC] QT1070: change the trigger mode of QT1070
+Date: Fri, 11 May 2012 14:47:15 +0200
+Message-ID: <CACKLOr2iMGeVWQgXO7zX-qfCDAXXk+oKvpXCFck_+piOFtC_oQ@mail.gmail.com>
+References: <1336357653-18663-1-git-send-email-voice.shen@atmel.com>
+	<20120507070424.GC22074@core.coreip.homeip.net>
+	<4FACCDA6.7040506@atmel.com>
+	<CACKLOr0_ztBXfTwa1R_yLzf6wEABENf=-MzYHd-J5YQtEmQt9w@mail.gmail.com>
+	<4FACF8F4.2090302@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog130.obsmtp.com ([74.125.149.143]:54974 "EHLO
-	na3sys009aog130.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757656Ab2EKMQp (ORCPT
+Received: from mail-gg0-f174.google.com ([209.85.161.174]:48283 "EHLO
+	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758964Ab2EKMrQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 May 2012 08:16:45 -0400
-Received: by lbbgj10 with SMTP id gj10so2270814lbb.23
-        for <linux-input@vger.kernel.org>; Fri, 11 May 2012 05:16:42 -0700 (PDT)
-In-Reply-To: <CACxGe6vbn7r10KT-q2GGtJatv12prE4ZFJxWsSzPEyLoCuH27A@mail.gmail.com>
+	Fri, 11 May 2012 08:47:16 -0400
+Received: by gglu4 with SMTP id u4so1697395ggl.19
+        for <linux-input@vger.kernel.org>; Fri, 11 May 2012 05:47:15 -0700 (PDT)
+In-Reply-To: <4FACF8F4.2090302@atmel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Sasha Levin <levinsasha928@gmail.com>, dmitry.torokhov@gmail.com, broonie@opensource.wolfsonicro.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Josh Wu <josh.wu@atmel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bo Shen <voice.shen@atmel.com>, khali@linux-fr.org, w.sang@pengutronix.de, jm.lin@atmel.com, linux-input@vger.kernel.org
 
-On 05/11/2012 07:27 AM, Grant Likely wrote:
-> On Thu, May 10, 2012 at 4:49 PM, Paul Gortmaker
-> <paul.gortmaker@windriver.com> wrote:
->> On Thu, May 10, 2012 at 2:44 PM, Sasha Levin <levinsasha928@gmail.co=
-m> wrote:
->>> Fixes build error due to missing of_property_read_u32.
+Hi,
+
+On 11 May 2012 13:33, Josh Wu <josh.wu@atmel.com> wrote:
+> Hi, Javier
+>
+>
+> On 5/11/2012 5:13 PM, javier Martin wrote:
+>
+>> Hi all,
+>> let's take a chip which presents a similar issue like the pca953x [1=
+].
+>> This chip has an IRQ line that is meant to be connected to a SoC inp=
+ut
+>> like the qt1070.
 >>
->> Yes, I saw the same on x86-64 allyesconfig -- which means that in ad=
-dition to
->> this missing header, it needs to have a Kconfig dependency that limi=
-ts
->> it to just being enabled on the platforms where it physically is pos=
-sible to
->> have the hardware.  I'm guessing limiting to ARM would be a good sta=
-rt?
->=20
-> IIRC, this hardware is available on x86.  Also, if CONFIG_OF is not
-> set, then the of_property_read_* functions compile out to do-nothing
-> stubs.
+>> The flags that are used for pca953x are: (IRQF_TRIGGER_LOW | IRQF_ON=
+ESHOT)
+>>
+>> Can't we do the same for qt1070?
+>
+>
+> I did a simple test in my board in 2.6.39, =A0This flag doesn't work.=
+ But
+> IRQF_TRIGGER_FALLING works fine.
+> So the question is what is different between this flag with
+> IRQF_TRIGGER_FALLING?
 
-I had only linux/of_device.h included which would include of.h only if
-CONFIG_OF_DEVICE is set.
-Since the i386 did not had OF_DEVICE the of.h was not included (by
-of_device.h) thus caused a build breakage.
+I don't know but IRQF_TRIGGER_FALLING works for me too.
+
+>> And even more important, can you give me an example of an architectu=
+re
+>> in mainline which cannot support these irq flags and still be able t=
+o
+>> detect a change from high to low in a GPIO as qt1070 requires?
+>
+>
+> For now, AT91SAM9M10 can only detect GPIO input change, it cannot tel=
+l is
+> falling or rising. So in theory it cannot support falling flags.
+> The strange thing is, currently we use IRQF_TRIGGER_NONE in 2.6.39 ke=
+rnel
+> for both AT91SAM9M10 and 9X5 chips, and they all work fine. So I need=
+ check
+> the code of GPIO part.
+>
+>
+>>
+>> Moreover, if you try a grep for IRQ_TRIGGER_NONE in the kernel tree
+>> you won't find any driver doing this strange thing.
+>>
+>> Do you agree at least that we must change IRQ_TRIGGER_NONE flag into=
+ a
+>> more sensible choice?
+>
+>
+> Yes. I agreed.
+>
+>>
+>> Regards.
+>>
+>> [1] http://lxr.linux.no/#linux+v3.3.4/drivers/gpio/gpio-pca953x.c#L4=
+95
+
+
+
 
 --=20
-P=E9ter
+Javier Martin
+Vista Silicon S.L.
+CDTUC - FASE C - Oficina S-345
+Avda de los Castros s/n
+39005- Santander. Cantabria. Spain
++34 942 25 32 60
+www.vista-silicon.com
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

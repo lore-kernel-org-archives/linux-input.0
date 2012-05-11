@@ -1,50 +1,74 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] QT1070: change the trigger mode of QT1070
-Date: Fri, 11 May 2012 09:08:46 -0700
-Message-ID: <20120511160846.GC6542@core.coreip.homeip.net>
-References: <1336357653-18663-1-git-send-email-voice.shen@atmel.com>
- <20120507070424.GC22074@core.coreip.homeip.net>
- <4FACCDA6.7040506@atmel.com>
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: Re: [PATCH] TWL6040: fix build error
+Date: Fri, 11 May 2012 12:10:05 -0400
+Message-ID: <4FAD39DD.6080000@windriver.com>
+References: <1336675473-24774-1-git-send-email-levinsasha928@gmail.com> <CAP=VYLqwAO8x4aWw7_pH1LH_SPO9Td2ec9oOmKPL-_5LOEQw3g@mail.gmail.com> <4FACB9D7.5090100@ti.com> <20120511072049.GA9088@core.coreip.homeip.net> <4FAD1C38.5050907@windriver.com> <20120511154951.GA6542@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:50501 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759246Ab2EKQIw (ORCPT
+Received: from mail.windriver.com ([147.11.1.11]:41797 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753846Ab2EKQKM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 May 2012 12:08:52 -0400
-Received: by pbbrp8 with SMTP id rp8so3483376pbb.19
-        for <linux-input@vger.kernel.org>; Fri, 11 May 2012 09:08:52 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4FACCDA6.7040506@atmel.com>
+	Fri, 11 May 2012 12:10:12 -0400
+In-Reply-To: <20120511154951.GA6542@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Josh Wu <josh.wu@atmel.com>
-Cc: Bo Shen <voice.shen@atmel.com>, javier.martin@vista-silicon.com, khali@linux-fr.org, w.sang@pengutronix.de, jm.lin@atmel.com, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>, Sasha Levin <levinsasha928@gmail.com>, broonie@opensource.wolfsonicro.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, May 11, 2012 at 04:28:22PM +0800, Josh Wu wrote:
-> Hello, Dmitry
+On 12-05-11 11:49 AM, Dmitry Torokhov wrote:
+> On Fri, May 11, 2012 at 10:03:36AM -0400, Paul Gortmaker wrote:
+>> On 12-05-11 03:20 AM, Dmitry Torokhov wrote:
+>>> On Fri, May 11, 2012 at 10:03:51AM +0300, Peter Ujfalusi wrote:
+>>>> Hi,
+>>>>
+>>>> On 05/11/2012 01:49 AM, Paul Gortmaker wrote:
+>>>>> On Thu, May 10, 2012 at 2:44 PM, Sasha Levin <levinsasha928@gmail.com> wrote:
+>>>>>> Fixes build error due to missing of_property_read_u32.
+>>>>>
+>>>>> Yes, I saw the same on x86-64 allyesconfig -- which means that in addition to
+>>>>> this missing header, it needs to have a Kconfig dependency that limits
+>>>>> it to just being enabled on the platforms where it physically is possible to
+>>>>> have the hardware.  I'm guessing limiting to ARM would be a good start?
+>>>>
+>>>> Yes it is only usable on ARM, most specifically on OMAP4+ platforms.
+>>>> If I make the twl6040 MFD core to depend on ARM (or even on OMAP) this
+>>>> won't happen again.
+>>>
+>>> Is there any other errors beside missing include of.h (and extra
+>>> of_device.h?). The driver seems to be compiling fine on x86_64 so no
+>>> need to limit to ARM only...
+>>
+>> Hi Dmitry,
+>>
+>> It should be limited to the platforms where the hardware is available,
+>> so that coverage builds aren't needlessly spending cycles building
+>> stuff that can't possibly ever be used.  Also if it is limited to
+>> ARM, then we can't have an ARM bug like this one mask the x86_64
+>> allyesconfig build from uncovering possible errors that we really
+>> care about seeing.
 > 
-> On 5/7/2012 3:04 PM, Dmitry Torokhov wrote:
-> >Hi Bo,
-> >
-> >On Mon, May 07, 2012 at 10:27:33AM +0800, Bo Shen wrote:
-> >>The default trigger mode of QT1070 is IRQF_TRIGGER_LOW,
-> >>Using TRQF_TRIGGER_FALLING to replace IRQF_TRIGGER_LOW | IRQF_ONESHOT.
-> >Why don't you set up IRQ the way you want in board code instead of
-> >implementing workarounds in the driver?
+> Hi Paul,
 > 
-> The QT1070 will generate a falling edge interrupt if any valid data
-> coming. The workaround is only for the boarding that can handle edge
-> interrupt but cannot distinguish rising and falling.
-> So I think put this trigger set up code to board code will make
-> thing more complex.
+> I strongly disagree. The bug that we are talking about was not an
+> arch-specific bug; it eventually would have shown up on ARM with a
+> randconfig as well. So it is a _good_ thing that the build was not
+> limited just to ARM so that the bug got noticed early and fixed after
+> being present in -next for about a day.
 
-In the board code it is only a matter of doing irq_set_irq_type(). AT
-this time you know exactly how chip is wired and whether it needs level
-or edge interupts.
+I guess we'll have to agree to disagree then.  Regardless of whether
+this instance coincidentally helped shine a light on some issue,
+having arch specific _drivers_ built on the arch where they can never
+be used makes no sense to me.  We don't try and build sparc specific
+drivers on mips or vice versa.  So we shouldn't build ARM specific
+code on x86 either.
 
-Thanks.
-
--- 
-Dmitry
+Paul.
+> 
+> So please do not add any additional constraints; better compile coverage
+> is a good thing.
+> 
+> Thanks.
+> 

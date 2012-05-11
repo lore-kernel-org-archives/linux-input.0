@@ -1,56 +1,48 @@
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH] TWL6040: fix build error
-Date: Thu, 10 May 2012 22:58:06 -0400
-Message-ID: <20120511025806.GB24512@windriver.com>
+Date: Thu, 10 May 2012 21:03:51 -0700
+Message-ID: <20120511040351.GA31496@core.coreip.homeip.net>
 References: <1336675473-24774-1-git-send-email-levinsasha928@gmail.com>
- <CAP=VYLqwAO8x4aWw7_pH1LH_SPO9Td2ec9oOmKPL-_5LOEQw3g@mail.gmail.com>
- <CA+1xoqf+Fjt=vMxnFz37t+mH5MBfc7iTZ0OF2fQdryyWk5TSKA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:48008 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932182Ab2EKC6M (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:47846 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750855Ab2EKEDz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 May 2012 22:58:12 -0400
+	Fri, 11 May 2012 00:03:55 -0400
 Content-Disposition: inline
-In-Reply-To: <CA+1xoqf+Fjt=vMxnFz37t+mH5MBfc7iTZ0OF2fQdryyWk5TSKA@mail.gmail.com>
+In-Reply-To: <1336675473-24774-1-git-send-email-levinsasha928@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Sasha Levin <levinsasha928@gmail.com>
-Cc: dmitry.torokhov@gmail.com, peter.ujfalusi@ti.com, broonie@opensource.wolfsonicro.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: peter.ujfalusi@ti.com, broonie@opensource.wolfsonicro.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
 
-[Re: [PATCH] TWL6040: fix build error] On 11/05/2012 (Fri 04:50) Sasha =
-Levin wrote:
+Hi Sasha,
 
-> On Fri, May 11, 2012 at 12:49 AM, Paul Gortmaker
-> <paul.gortmaker@windriver.com> wrote:
-> > On Thu, May 10, 2012 at 2:44 PM, Sasha Levin <levinsasha928@gmail.c=
-om> wrote:
-> >> Fixes build error due to missing of_property_read_u32.
-> >
-> > Yes, I saw the same on x86-64 allyesconfig -- which means that in a=
-ddition to
-> > this missing header, it needs to have a Kconfig dependency that lim=
-its
-> > it to just being enabled on the platforms where it physically is po=
-ssible to
-> > have the hardware. =A0I'm guessing limiting to ARM would be a good =
-start?
->=20
-> I'm not sure how the actual hardware looks or even what it does, i
-> just wanted to make sure that it doesn't break my x86 build. Which is
-> why I'd rather not modify anything further than what I did in this
-> patch.
+On Thu, May 10, 2012 at 08:44:33PM +0200, Sasha Levin wrote:
+> Fixes build error due to missing of_property_read_u32.
+> 
+> Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
+> ---
+>  drivers/input/misc/twl6040-vibra.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
+> index bb134ce..97447ee 100644
+> --- a/drivers/input/misc/twl6040-vibra.c
+> +++ b/drivers/input/misc/twl6040-vibra.c
+> @@ -27,6 +27,7 @@
+>   */
+>  #include <linux/module.h>
+>  #include <linux/platform_device.h>
+> +#include <linux/of.h>
+>  #include <linux/of_device.h>
+>  #include <linux/workqueue.h>
+>  #include <linux/input.h>
 
-Of course -- I was in the same boat.  I wasn't expecting you in
-particular to add the Kconfig dependency, but rather instead I was
-hoping someone who knows the platform details would make a proper one.
+Thank you for the fix; I folded it into original patch to avoid bisection
+troubles.
 
-Paul.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

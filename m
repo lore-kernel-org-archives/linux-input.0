@@ -1,65 +1,65 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH/RFC v2] HID: logitech: read all 32 bits of report type
- bitfield
-Date: Fri, 11 May 2012 12:55:19 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1205111254520.17928@pobox.suse.cz>
-References: <4FA217B7.7070908@osvaldobarrera.com.ar> <20120503055051.GA15960@burratino> <CAE7qMrqtmu+bYYYp43s7Ek=UxfUG8HzwQSQBsdCGcVCBzCMQQw@mail.gmail.com> <20120506031428.GA20044@hugoo.com.ar> <20120506055508.GA21209@burratino> <4FA6162F.1020408@osvaldobarrera.com.ar>
- <20120506062309.GB26002@burratino> <20120511050639.GA13777@hugoo.com.ar> <CAE7qMroedSu_-GJ3mye0vnKtQKiS1jEuDAkk75=qdTVQMTgaxQ@mail.gmail.com> <20120511072231.GA5733@burratino> <20120511073928.GB5733@burratino>
+From: Josh Wu <josh.wu@atmel.com>
+Subject: Re: [RFC] QT1070: change the trigger mode of QT1070
+Date: Fri, 11 May 2012 19:33:08 +0800
+Message-ID: <4FACF8F4.2090302@atmel.com>
+References: <1336357653-18663-1-git-send-email-voice.shen@atmel.com> <20120507070424.GC22074@core.coreip.homeip.net> <4FACCDA6.7040506@atmel.com> <CACKLOr0_ztBXfTwa1R_yLzf6wEABENf=-MzYHd-J5YQtEmQt9w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:51315 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758226Ab2EKKz1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 May 2012 06:55:27 -0400
-In-Reply-To: <20120511073928.GB5733@burratino>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:36549 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751759Ab2EKLdz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 May 2012 07:33:55 -0400
+In-Reply-To: <CACKLOr0_ztBXfTwa1R_yLzf6wEABENf=-MzYHd-J5YQtEmQt9w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Nieder <jrnieder@gmail.com>
-Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@enac.fr>, 671292@bugs.debian.org
+To: javier Martin <javier.martin@vista-silicon.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bo Shen <voice.shen@atmel.com>, khali@linux-fr.org, w.sang@pengutronix.de, jm.lin@atmel.com, linux-input@vger.kernel.org
 
-On Fri, 11 May 2012, Jonathan Nieder wrote:
+Hi, Javier
 
-> From: Nestor Lopez Casado <nlopezcasad@logitech.com>
-> 
-> On big-endian systems (e.g., Apple PowerBook), trying to use a
-> logitech wireless mouse with the Logitech Unifying Receiver does not
-> work with v3.2 and later kernels.  The device doesn't show up in
-> /dev/input.  Older kernels work fine.
-> 
-> That is because the new hid-logitech-dj driver claims the device.  The
-> device arrival notification appears:
-> 
-> 	20 00 41 02 00 00 00 00 00 00 00 00 00 00 00
-> 
-> and we read the report_types bitfield (02 00 00 00) to find out what
-> kind of device it is.  Unfortunately the driver only reads the first 8
-> bits and treats that value as a 32-bit little-endian number, so on a
-> powerpc the report type seems to be 0x02000000 and is not recognized.
-> 
-> Even on little-endian machines, connecting a media center remote
-> control (report type 00 01 00 00) with this driver loaded would
-> presumably fail for the same reason.
-> 
-> Fix both problems by using get_unaligned_le32() to read all four
-> bytes, which is a little clearer anyway.  After this change, the
-> wireless mouse works on Hugo's PowerBook again.
-> 
-> Addresses http://bugs.debian.org/671292
-> 
-> [jn: with commit message and tweaked to use get_unaligned instead of
->  copying onto the stack]
-> 
-> Reported-by: Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar>
-> Signed-off-by: Jonathan Nieder <jrnieder@gmail.com>
+On 5/11/2012 5:13 PM, javier Martin wrote:
 
-If Nestor is really the original author of this patch, his Signed-off-by: 
-is necessary.
+> Hi all,
+> let's take a chip which presents a similar issue like the pca953x [1].
+> This chip has an IRQ line that is meant to be connected to a SoC input
+> like the qt1070.
+>
+> The flags that are used for pca953x are: (IRQF_TRIGGER_LOW | IRQF_ONESHOT)
+>
+> Can't we do the same for qt1070?
 
-Nestor, please?
+I did a simple test in my board in 2.6.39,  This flag doesn't work. But 
+IRQF_TRIGGER_FALLING works fine.
+So the question is what is different between this flag with 
+IRQF_TRIGGER_FALLING?
 
-Thanks,
+> And even more important, can you give me an example of an architecture
+> in mainline which cannot support these irq flags and still be able to
+> detect a change from high to low in a GPIO as qt1070 requires?
 
--- 
-Jiri Kosina
-SUSE Labs
+For now, AT91SAM9M10 can only detect GPIO input change, it cannot tell 
+is falling or rising. So in theory it cannot support falling flags.
+The strange thing is, currently we use IRQF_TRIGGER_NONE in 2.6.39 
+kernel for both AT91SAM9M10 and 9X5 chips, and they all work fine. So I 
+need check the code of GPIO part.
+
+>
+> Moreover, if you try a grep for IRQ_TRIGGER_NONE in the kernel tree
+> you won't find any driver doing this strange thing.
+>
+> Do you agree at least that we must change IRQ_TRIGGER_NONE flag into a
+> more sensible choice?
+
+Yes. I agreed.
+
+>
+> Regards.
+>
+> [1] http://lxr.linux.no/#linux+v3.3.4/drivers/gpio/gpio-pca953x.c#L495
+>
+
+Best Regards,
+Josh Wu

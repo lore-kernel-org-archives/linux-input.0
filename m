@@ -1,43 +1,71 @@
-From: Jonathan Nieder <jrnieder@gmail.com>
-Subject: Re: [PATCH/RFC] HID: logitech: read all 32 bits of report type
- bitfield
-Date: Fri, 11 May 2012 02:43:02 -0500
-Message-ID: <20120511074302.GC5733@burratino>
-References: <20120503055051.GA15960@burratino>
- <CAE7qMrqtmu+bYYYp43s7Ek=UxfUG8HzwQSQBsdCGcVCBzCMQQw@mail.gmail.com>
- <20120506031428.GA20044@hugoo.com.ar>
- <20120506055508.GA21209@burratino>
- <4FA6162F.1020408@osvaldobarrera.com.ar>
- <20120506062309.GB26002@burratino>
- <20120511050639.GA13777@hugoo.com.ar>
- <CAE7qMroedSu_-GJ3mye0vnKtQKiS1jEuDAkk75=qdTVQMTgaxQ@mail.gmail.com>
- <20120511072231.GA5733@burratino>
- <CAE7qMrp6VvdWNrMhdcisig8pKdzuNQQDmQLrF4x6bnfF880tCA@mail.gmail.com>
+From: Josh Wu <josh.wu@atmel.com>
+Subject: Re: [RFC] QT1070: change the trigger mode of QT1070
+Date: Fri, 11 May 2012 16:07:12 +0800
+Message-ID: <4FACC8B0.4040606@atmel.com>
+References: <1336357653-18663-1-git-send-email-voice.shen@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gg0-f174.google.com ([209.85.161.174]:41204 "EHLO
-	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750704Ab2EKHnH (ORCPT
+Received: from newsmtp5.atmel.com ([204.2.163.5]:29347 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750763Ab2EKIIK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 May 2012 03:43:07 -0400
-Received: by gglu4 with SMTP id u4so1531501ggl.19
-        for <linux-input@vger.kernel.org>; Fri, 11 May 2012 00:43:06 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CAE7qMrp6VvdWNrMhdcisig8pKdzuNQQDmQLrF4x6bnfF880tCA@mail.gmail.com>
+	Fri, 11 May 2012 04:08:10 -0400
+In-Reply-To: <1336357653-18663-1-git-send-email-voice.shen@atmel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@enac.fr>, 671292@bugs.debian.org, Jiri Kosina <jkosina@suse.cz>
+To: Bo Shen <voice.shen@atmel.com>
+Cc: dmitry.torokhov@gmail.com, javier.martin@vista-silicon.com, khali@linux-fr.org, w.sang@pengutronix.de, jm.lin@atmel.com, linux-input@vger.kernel.org
 
-Nestor Lopez Casado wrote:
+Hi, Bo
 
-> The patch looks perfect to me. Wonderful 'get_unaligned_le32' that I
-> looked for and did not find when trying to fix the original code.
+On 5/7/2012 10:27 AM, Bo Shen wrote:
+
+> The default trigger mode of QT1070 is IRQF_TRIGGER_LOW,
+> Using TRQF_TRIGGER_FALLING to replace IRQF_TRIGGER_LOW | IRQF_ONESHOT.
 >
-> On my side no issues for Jiri to apply it.
+> Add a workaround for some SOC which can not distinguish the falling
+> and rising change on I/O lines.
+>
+> Signed-off-by: Bo Shen<voice.shen@atmel.com>
+> ---
+>   drivers/input/keyboard/qt1070.c |   13 ++++++++++---
+>   1 file changed, 10 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+> index 0b7b2f8..1855e3d 100644
+> --- a/drivers/input/keyboard/qt1070.c
+> +++ b/drivers/input/keyboard/qt1070.c
+> @@ -201,10 +201,17 @@ static int __devinit qt1070_probe(struct i2c_client *client,
+>   	msleep(QT1070_RESET_TIME);
+>
+>   	err = request_threaded_irq(client->irq, NULL, qt1070_interrupt,
+> -		IRQF_TRIGGER_NONE, client->dev.driver->name, data);
+> +		IRQF_TRIGGER_FALLING, client->dev.driver->name, data);
+>   	if (err) {
+> -		dev_err(&client->dev, "fail to request irq\n");
+> -		goto err_free_mem;
+> +		/* This is a workaround for some SOC which can not distinguish
+> +		 * falling and rising change on I/O lines.
+> +		 */
+> +		err = request_threaded_irq(client->irq, NULL, qt1070_interrupt,
+> +			IRQF_TRIGGER_NONE, client->dev.driver->name, data);
 
-Nice to hear.  Thanks again for all your help.
+I think here using IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING is better 
+than using IRQF_TRIGGER_NONE.
+Since for the QT1070 driver it can handle irq interrupt of falling (can 
+read valid data from QT1070) or rising (read but no valid data).
+But if set to IRQF_TRIGGER_NONE, for some hardware it maybe caused by 
+IRQF_TRIGGER_HIGH or IRQF_TRIGGER_LOW. That is not what you expected.
 
-Ciao,
-Jonathan
+> +		if (err) {
+> +			dev_err(&client->dev, "fail to request irq\n");
+> +			goto err_free_mem;
+> +		}
+>   	}
+>
+>   	/* Register the input device */
+
+Best Regards,
+Josh Wu

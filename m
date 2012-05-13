@@ -1,57 +1,41 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH 2/2] Input: wm831x-on - Convert to devm_kzalloc()
-Date: Sun, 13 May 2012 13:06:47 +0100
-Message-ID: <1336910807-18811-2-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <1336910807-18811-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Linus Walleij <linus.walleij@stericsson.com>
+Subject: [PATCH 0/7] Nomadik SKE keypad updates
+Date: Sun, 13 May 2012 14:43:28 +0200
+Message-ID: <1336913008-9977-1-git-send-email-linus.walleij@stericsson.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:48517 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752905Ab2EMMGv (ORCPT
+Received: from eu1sys200aog113.obsmtp.com ([207.126.144.135]:53503 "EHLO
+	eu1sys200aog113.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751421Ab2EMMnh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 May 2012 08:06:51 -0400
-In-Reply-To: <1336910807-18811-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+	Sun, 13 May 2012 08:43:37 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 
-Saves a small amount of code and reduces the potential for leaks.
+From: Linus Walleij <linus.walleij@linaro.org>
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
- drivers/input/misc/wm831x-on.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+This hardens the SKE keypad driver a bit by adding some bug fixes
+and features. This development has been pending for a while so
+this is a try to catch up a bit on it.
 
-diff --git a/drivers/input/misc/wm831x-on.c b/drivers/input/misc/wm831x-on.c
-index 47f18d6..aee53fb 100644
---- a/drivers/input/misc/wm831x-on.c
-+++ b/drivers/input/misc/wm831x-on.c
-@@ -76,7 +76,8 @@ static int __devinit wm831x_on_probe(struct platform_device *pdev)
- 	int irq = platform_get_irq(pdev, 0);
- 	int ret;
- 
--	wm831x_on = kzalloc(sizeof(struct wm831x_on), GFP_KERNEL);
-+	wm831x_on = devm_kzalloc(&pdev->dev, sizeof(struct wm831x_on),
-+				 GFP_KERNEL);
- 	if (!wm831x_on) {
- 		dev_err(&pdev->dev, "Can't allocate data\n");
- 		return -ENOMEM;
-@@ -120,7 +121,6 @@ err_irq:
- err_input_dev:
- 	input_free_device(wm831x_on->dev);
- err:
--	kfree(wm831x_on);
- 	return ret;
- }
- 
-@@ -132,7 +132,6 @@ static int __devexit wm831x_on_remove(struct platform_device *pdev)
- 	free_irq(irq, wm831x_on);
- 	cancel_delayed_work_sync(&wm831x_on->work);
- 	input_unregister_device(wm831x_on->dev);
--	kfree(wm831x_on);
- 
- 	return 0;
- }
+Karl-Johan Perntz (2):
+  input/nomadik-ske: move key scanning to delayed work
+  input/nomadik-ske: add sleepy GPIO mode
+
+Naveen Kumar Gaddipati (5):
+  input/nomadik-ske: add multi key press support
+  input/nomadik-ske: suspend and resume support
+  input/nomadik-ske: get rid of multiple interrupts
+  input/nomadik-ske: cleanup of probe and some more code style
+  input/nomadik-ske: add sysfs file to enable/disble SKE keypad
+
+ arch/arm/plat-nomadik/include/plat/ske.h    |   23 +-
+ drivers/input/keyboard/nomadik-ske-keypad.c |  630 ++++++++++++++++++++++-----
+ 2 files changed, 547 insertions(+), 106 deletions(-)
+
 -- 
-1.7.10
+1.7.9.2
 

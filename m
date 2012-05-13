@@ -1,41 +1,130 @@
 From: Linus Walleij <linus.walleij@stericsson.com>
-Subject: [PATCH 0/7] Nomadik SKE keypad updates
-Date: Sun, 13 May 2012 14:43:28 +0200
-Message-ID: <1336913008-9977-1-git-send-email-linus.walleij@stericsson.com>
+Subject: [PATCH 1/7] input/nomadik-ske: add multi key press support
+Date: Sun, 13 May 2012 14:43:35 +0200
+Message-ID: <1336913015-10012-1-git-send-email-linus.walleij@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog113.obsmtp.com ([207.126.144.135]:53503 "EHLO
-	eu1sys200aog113.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751421Ab2EMMnh (ORCPT
+Received: from eu1sys200aog118.obsmtp.com ([207.126.144.145]:60556 "EHLO
+	eu1sys200aog118.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751421Ab2EMMnw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 May 2012 08:43:37 -0400
+	Sun, 13 May 2012 08:43:52 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-input@vger.kernel.org, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Linus Walleij <linus.walleij@linaro.org>
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-This hardens the SKE keypad driver a bit by adding some bug fixes
-and features. This development has been pending for a while so
-this is a try to catch up a bit on it.
+Added the multi key press support for SKE keypad by modifying the irq
+function for handling the two different keys on the same column and also
+pressing the two different keys of different columns on the same ASR
+register.
 
-Karl-Johan Perntz (2):
-  input/nomadik-ske: move key scanning to delayed work
-  input/nomadik-ske: add sleepy GPIO mode
+Signed-off-by: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+Reviewed-by: Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/input/keyboard/nomadik-ske-keypad.c |   65 ++++++++++++++++-----------
+ 1 file changed, 40 insertions(+), 25 deletions(-)
 
-Naveen Kumar Gaddipati (5):
-  input/nomadik-ske: add multi key press support
-  input/nomadik-ske: suspend and resume support
-  input/nomadik-ske: get rid of multiple interrupts
-  input/nomadik-ske: cleanup of probe and some more code style
-  input/nomadik-ske: add sysfs file to enable/disble SKE keypad
-
- arch/arm/plat-nomadik/include/plat/ske.h    |   23 +-
- drivers/input/keyboard/nomadik-ske-keypad.c |  630 ++++++++++++++++++++++-----
- 2 files changed, 547 insertions(+), 106 deletions(-)
-
+diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/input/keyboard/nomadik-ske-keypad.c
+index 101e245..61c1537 100644
+--- a/drivers/input/keyboard/nomadik-ske-keypad.c
++++ b/drivers/input/keyboard/nomadik-ske-keypad.c
+@@ -134,12 +134,37 @@ static int __init ske_keypad_chip_init(struct ske_keypad *keypad)
+ 	return 0;
+ }
+ 
+-static void ske_keypad_read_data(struct ske_keypad *keypad)
++static void ske_keypad_report(struct ske_keypad *keypad, u8 status, int col)
+ {
++	int row = 0, code, pos;
+ 	struct input_dev *input = keypad->input;
+-	u16 status;
+-	int col = 0, row = 0, code;
+-	int ske_asr, ske_ris, key_pressed, i;
++	u32 ske_ris;
++	int key_pressed;
++	int num_of_rows;
++
++	/* find out the row */
++	num_of_rows = hweight8(status);
++	do {
++		pos = __ffs(status);
++		row = pos;
++		status &= ~(1 << pos);
++
++		code = MATRIX_SCAN_CODE(row, col, SKE_KEYPAD_ROW_SHIFT);
++		ske_ris = readl(keypad->reg_base + SKE_RIS);
++		key_pressed = ske_ris & SKE_KPRISA;
++
++		input_event(input, EV_MSC, MSC_SCAN, code);
++		input_report_key(input, keypad->keymap[code], key_pressed);
++		input_sync(input);
++		num_of_rows--;
++	} while (num_of_rows);
++}
++
++static void ske_keypad_read_data(struct ske_keypad *keypad)
++{
++	u8 status;
++	int col = 0;
++	int ske_asr, i;
+ 
+ 	/*
+ 	 * Read the auto scan registers
+@@ -153,25 +178,17 @@ static void ske_keypad_read_data(struct ske_keypad *keypad)
+ 		if (!ske_asr)
+ 			continue;
+ 
+-		/* now that ASRx is zero, find out the column x and row y*/
+-		if (ske_asr & 0xff) {
++		/* now that ASRx is zero, find out the coloumn x and row y */
++		status = ske_asr & 0xff;
++		if (status) {
+ 			col = i * 2;
+-			status = ske_asr & 0xff;
+-		} else {
++			ske_keypad_report(keypad, status, col);
++		}
++		status = (ske_asr & 0xff00) >> 8;
++		if (status) {
+ 			col = (i * 2) + 1;
+-			status = (ske_asr & 0xff00) >> 8;
++			ske_keypad_report(keypad, status, col);
+ 		}
+-
+-		/* find out the row */
+-		row = __ffs(status);
+-
+-		code = MATRIX_SCAN_CODE(row, col, SKE_KEYPAD_ROW_SHIFT);
+-		ske_ris = readl(keypad->reg_base + SKE_RIS);
+-		key_pressed = ske_ris & SKE_KPRISA;
+-
+-		input_event(input, EV_MSC, MSC_SCAN, code);
+-		input_report_key(input, keypad->keymap[code], key_pressed);
+-		input_sync(input);
+ 	}
+ }
+ 
+@@ -185,12 +202,10 @@ static irqreturn_t ske_keypad_irq(int irq, void *dev_id)
+ 	ske_keypad_set_bits(keypad, SKE_ICR, 0x0, SKE_KPICA);
+ 
+ 	while ((readl(keypad->reg_base + SKE_CR) & SKE_KPASON) && --retries)
+-		msleep(5);
++		cpu_relax();
+ 
+-	if (retries) {
+-		/* SKEx registers are stable and can be read */
+-		ske_keypad_read_data(keypad);
+-	}
++	/* SKEx registers are stable and can be read */
++	ske_keypad_read_data(keypad);
+ 
+ 	/* enable auto scan interrupts */
+ 	ske_keypad_set_bits(keypad, SKE_IMSC, 0x0, SKE_KPIMA);
 -- 
 1.7.9.2
 

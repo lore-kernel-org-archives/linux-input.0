@@ -1,33 +1,56 @@
 From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] TWL6040: fix build error
-Date: Sun, 13 May 2012 11:53:32 +0100
-Message-ID: <20120513105331.GC706@sirena.org.uk>
-References: <1336675473-24774-1-git-send-email-levinsasha928@gmail.com>
- <CAP=VYLqwAO8x4aWw7_pH1LH_SPO9Td2ec9oOmKPL-_5LOEQw3g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH 1/2] Input: wm831x-ts - Convert to devm_kzalloc()
+Date: Sun, 13 May 2012 13:06:46 +0100
+Message-ID: <1336910807-18811-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:54734 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752199Ab2EMKxh (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:48516 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752776Ab2EMMGv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 May 2012 06:53:37 -0400
-Content-Disposition: inline
-In-Reply-To: <CAP=VYLqwAO8x4aWw7_pH1LH_SPO9Td2ec9oOmKPL-_5LOEQw3g@mail.gmail.com>
+	Sun, 13 May 2012 08:06:51 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: Sasha Levin <levinsasha928@gmail.com>, dmitry.torokhov@gmail.com, peter.ujfalusi@ti.com, broonie@opensource.wolfsonicro.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-On Thu, May 10, 2012 at 06:49:16PM -0400, Paul Gortmaker wrote:
-> On Thu, May 10, 2012 at 2:44 PM, Sasha Levin <levinsasha928@gmail.com> wrote:
-> > Fixes build error due to missing of_property_read_u32.
+Saves a little code and eliminates the possibility of introducing some
+leaks.
 
-> Yes, I saw the same on x86-64 allyesconfig -- which means that in addition to
-> this missing header, it needs to have a Kconfig dependency that limits
-> it to just being enabled on the platforms where it physically is possible to
-> have the hardware.  I'm guessing limiting to ARM would be a good start?
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/input/touchscreen/wm831x-ts.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Half the idea is to get better test coverage and help people who want to
-do things like build test API updates - the more systems the driver can
-be built on the better from that point of view.
+diff --git a/drivers/input/touchscreen/wm831x-ts.c b/drivers/input/touchscreen/wm831x-ts.c
+index d81482e..e34c10a 100644
+--- a/drivers/input/touchscreen/wm831x-ts.c
++++ b/drivers/input/touchscreen/wm831x-ts.c
+@@ -245,7 +245,8 @@ static __devinit int wm831x_ts_probe(struct platform_device *pdev)
+ 	if (core_pdata)
+ 		pdata = core_pdata->touch;
+ 
+-	wm831x_ts = kzalloc(sizeof(struct wm831x_ts), GFP_KERNEL);
++	wm831x_ts = devm_kzalloc(&pdev->dev, sizeof(struct wm831x_ts),
++				 GFP_KERNEL);
+ 	input_dev = input_allocate_device();
+ 	if (!wm831x_ts || !input_dev) {
+ 		error = -ENOMEM;
+@@ -375,7 +376,6 @@ err_data_irq:
+ 	free_irq(wm831x_ts->data_irq, wm831x_ts);
+ err_alloc:
+ 	input_free_device(input_dev);
+-	kfree(wm831x_ts);
+ 
+ 	return error;
+ }
+@@ -387,7 +387,6 @@ static __devexit int wm831x_ts_remove(struct platform_device *pdev)
+ 	free_irq(wm831x_ts->pd_irq, wm831x_ts);
+ 	free_irq(wm831x_ts->data_irq, wm831x_ts);
+ 	input_unregister_device(wm831x_ts->input_dev);
+-	kfree(wm831x_ts);
+ 
+ 	return 0;
+ }
+-- 
+1.7.10
+

@@ -1,47 +1,66 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] HID: uclogic: Add support for UC-Logic TWHL850
-Date: Mon, 14 May 2012 11:16:26 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1205141114070.15448@pobox.suse.cz>
-References: <1336941190-11066-1-git-send-email-spbnick@gmail.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH v2 0/3] gspca - ov534: saturation and hue (using
+ fixp-arith.h)
+Date: Mon, 14 May 2012 13:18:18 +0200
+Message-ID: <20120514131818.695da2ae0665926d86de3cfc@studenti.unina.it>
+References: <20120505102614.31395c2979f0b7aac0c8a107@studenti.unina.it>
+	<1336299298-17517-1-git-send-email-ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Mon__14_May_2012_13_18_18_+0200_N8oK7G9zJIbfozhh"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:43426 "EHLO mx2.suse.de"
+Received: from smtp208.alice.it ([82.57.200.104]:52854 "EHLO smtp208.alice.it"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754331Ab2ENJQd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 May 2012 05:16:33 -0400
-In-Reply-To: <1336941190-11066-1-git-send-email-spbnick@gmail.com>
+	id S1755708Ab2ENLSW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 May 2012 07:18:22 -0400
+In-Reply-To: <1336299298-17517-1-git-send-email-ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: linux-media@vger.kernel.org
+Cc: Antonio Ospite <ospite@studenti.unina.it>, Jean-Francois Moine <moinejf@free.fr>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>
 
-On Sun, 13 May 2012, Nikolai Kondrashov wrote:
+--Signature=_Mon__14_May_2012_13_18_18_+0200_N8oK7G9zJIbfozhh
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Add support for UC-Logic Wireless Tablet TWHL850.
-> It is known to be sold as Genius MousePen M508W.
-> 
-> This tablet has a bug in the default (compatibility) mode which is used in this
-> driver: frame button assignments are mixed up. This is to be fixed with a driver
-> using proprietary protocol, which is to be fully reverse-engineered yet.
-> 
-> Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
-> ---
-> 
-> This is based on 3.4-rc7.
-> 
-> I'm a bit unsure about the IFACE_RDESC_FIXUP macro. Please tell if it's not
-> acceptable and I'll rewrite that part in the required way.
+On Sun,  6 May 2012 12:14:55 +0200
+Antonio Ospite <ospite@studenti.unina.it> wrote:
 
-Well, I actually think it causes the code to be less readable compared to 
-having it fully expanded.
+> Hi,
 
-So I'd like to ask you to drop that strange macro and just put a fully 
-expanded version there ... it's 10 lines more or so, but readable 
-immediately without thinking.
+[...]
+>=20
+> Antonio Ospite (3):
+>   gspca - ov534: Add Saturation control
+>   Input: move drivers/input/fixp-arith.h to include/linux
+>   gspca - ov534: Add Hue control
+>=20
+
+These changes are now in
+http://git.linuxtv.org/hgoede/gspca.git/shortlog/refs/heads/media-for_v3.5
 
 Thanks,
+   Antonio
 
--- 
-Jiri Kosina
-SUSE Labs
+--=20
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Mon__14_May_2012_13_18_18_+0200_N8oK7G9zJIbfozhh
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+w6foACgkQ5xr2akVTsAGP2gCcCNQgWuiRg/lOiPRnlVS0pDQO
+sT8AoKhTvsOWk7VNSLPMQW9VZHa0zHYj
+=8ZtI
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__14_May_2012_13_18_18_+0200_N8oK7G9zJIbfozhh--

@@ -1,34 +1,42 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid_parse failure
-Date: Mon, 14 May 2012 15:04:21 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1205141503510.15448@pobox.suse.cz>
-References: <1336693531-13613-1-git-send-email-srinivas.pandruvada@intel.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: [PATCH] HID: wacom: Remove raport header check.
+Date: Mon, 14 May 2012 17:13:26 +0100
+Message-ID: <1337012006-6854-1-git-send-email-przemo@firszt.eu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:56599 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756477Ab2ENNE2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 May 2012 09:04:28 -0400
-In-Reply-To: <1336693531-13613-1-git-send-email-srinivas.pandruvada@intel.com>
+Received: from stats.peacock.arvixe.com ([174.122.104.67]:60069 "EHLO
+	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756897Ab2ENQNs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 May 2012 12:13:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: srinivas pandruvada <srinivas.pandruvada@intel.com>
-Cc: linux-input@vger.kernel.org
+To: pinglinux@gmail.com, jkosina@suse.cz
+Cc: linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Przemo Firszt <przemo@firszt.eu>
 
-On Thu, 10 May 2012, srinivas pandruvada wrote:
+That check was valid when hid-wacom was only supporting Wacom Graphire, as the
+device raports always start with 0x03. Intuos4 WL high-speed raports
+begin with 0x04, so the check would be filtering out valid reports.
 
-> When logical maximum is 0xffffffff, the parser fails even if
-> logical minimum is more than 0.
-> By HID specification this is a valid combination.
-> 
-> Signed-off-by: srinivas pandruvada <srinivas.pandruvada@intel.com>
+Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+---
+ drivers/hid/hid-wacom.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
-I have made the subject line a little bit more verbose, added a bit of 
-explanatory comment before the condition, and applied.
-
-Thanks,
-
+diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+index 29372ed..324ea74 100644
+--- a/drivers/hid/hid-wacom.c
++++ b/drivers/hid/hid-wacom.c
+@@ -578,10 +578,6 @@ static int wacom_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	hidinput = list_entry(hdev->inputs.next, struct hid_input, list);
+ 	input = hidinput->input;
+ 
+-	/* Check if this is a tablet report */
+-	if (data[0] != 0x03)
+-		return 0;
+-
+ 	switch (hdev->product) {
+ 	case USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH:
+ 		return wacom_gr_parse_report(hdev, wdata, input, data);
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.10.1
+

@@ -1,48 +1,77 @@
 From: Bo Shen <voice.shen@atmel.com>
 Subject: Re: [RFC] QT1070: change the trigger mode of QT1070
-Date: Mon, 14 May 2012 10:54:30 +0800
-Message-ID: <4FB073E6.8070303@atmel.com>
-References: <1336357653-18663-1-git-send-email-voice.shen@atmel.com> <20120507070424.GC22074@core.coreip.homeip.net> <4FACCDA6.7040506@atmel.com> <20120511160846.GC6542@core.coreip.homeip.net>
+Date: Mon, 14 May 2012 10:57:09 +0800
+Message-ID: <4FB07485.8050809@atmel.com>
+References: <1336357653-18663-1-git-send-email-voice.shen@atmel.com> <20120507070424.GC22074@core.coreip.homeip.net> <4FACCDA6.7040506@atmel.com> <CACKLOr0_ztBXfTwa1R_yLzf6wEABENf=-MzYHd-J5YQtEmQt9w@mail.gmail.com> <4FACF8F4.2090302@atmel.com> <CACKLOr2iMGeVWQgXO7zX-qfCDAXXk+oKvpXCFck_+piOFtC_oQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:24484 "EHLO
+Received: from newsmtp5.atmel.com ([204.2.163.5]:65293 "EHLO
 	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754015Ab2ENCzV (ORCPT
+	with ESMTP id S1753922Ab2ENC5t (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 May 2012 22:55:21 -0400
-In-Reply-To: <20120511160846.GC6542@core.coreip.homeip.net>
+	Sun, 13 May 2012 22:57:49 -0400
+In-Reply-To: <CACKLOr2iMGeVWQgXO7zX-qfCDAXXk+oKvpXCFck_+piOFtC_oQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Josh Wu <josh.wu@atmel.com>, javier.martin@vista-silicon.com, khali@linux-fr.org, w.sang@pengutronix.de, jm.lin@atmel.com, linux-input@vger.kernel.org
+To: javier Martin <javier.martin@vista-silicon.com>
+Cc: Josh Wu <josh.wu@atmel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, khali@linux-fr.org, w.sang@pengutronix.de, jm.lin@atmel.com, linux-input@vger.kernel.org
 
-On 5/12/2012 0:08, Dmitry Torokhov wrote:
-> On Fri, May 11, 2012 at 04:28:22PM +0800, Josh Wu wrote:
->> Hello, Dmitry
+Hi Javier,
+
+On 5/11/2012 20:47, javier Martin wrote:
+> Hi,
+>
+> On 11 May 2012 13:33, Josh Wu<josh.wu@atmel.com>  wrote:
+>> Hi, Javier
 >>
->> On 5/7/2012 3:04 PM, Dmitry Torokhov wrote:
->>> Hi Bo,
+>>
+>> On 5/11/2012 5:13 PM, javier Martin wrote:
+>>
+>>> Hi all,
+>>> let's take a chip which presents a similar issue like the pca953x [1].
+>>> This chip has an IRQ line that is meant to be connected to a SoC input
+>>> like the qt1070.
 >>>
->>> On Mon, May 07, 2012 at 10:27:33AM +0800, Bo Shen wrote:
->>>> The default trigger mode of QT1070 is IRQF_TRIGGER_LOW,
->>>> Using TRQF_TRIGGER_FALLING to replace IRQF_TRIGGER_LOW | IRQF_ONESHOT.
->>> Why don't you set up IRQ the way you want in board code instead of
->>> implementing workarounds in the driver?
->> The QT1070 will generate a falling edge interrupt if any valid data
->> coming. The workaround is only for the boarding that can handle edge
->> interrupt but cannot distinguish rising and falling.
->> So I think put this trigger set up code to board code will make
->> thing more complex.
-> In the board code it is only a matter of doing irq_set_irq_type(). AT
-> this time you know exactly how chip is wired and whether it needs level
-> or edge interupts.
+>>> The flags that are used for pca953x are: (IRQF_TRIGGER_LOW | IRQF_ONESHOT)
+>>>
+>>> Can't we do the same for qt1070?
+>>
+>> I did a simple test in my board in 2.6.39,  This flag doesn't work. But
+>> IRQF_TRIGGER_FALLING works fine.
+>> So the question is what is different between this flag with
+>> IRQF_TRIGGER_FALLING?
+> I don't know but IRQF_TRIGGER_FALLING works for me too.
 
-Hi Dmitry,
-   Thanks, this API works fine. So, there is no need to change the 
-driver code of QT1070.
+There is no need to change the driver of QT1070. Please try the 
+suggestion of Dmitry. Using the irq_set_irq_type() to set the trigger 
+mode of the GPIO.
 
-> Thanks.
+>
+>>> And even more important, can you give me an example of an architecture
+>>> in mainline which cannot support these irq flags and still be able to
+>>> detect a change from high to low in a GPIO as qt1070 requires?
+>>
+>> For now, AT91SAM9M10 can only detect GPIO input change, it cannot tell is
+>> falling or rising. So in theory it cannot support falling flags.
+>> The strange thing is, currently we use IRQF_TRIGGER_NONE in 2.6.39 kernel
+>> for both AT91SAM9M10 and 9X5 chips, and they all work fine. So I need check
+>> the code of GPIO part.
+>>
+>>
+>>> Moreover, if you try a grep for IRQ_TRIGGER_NONE in the kernel tree
+>>> you won't find any driver doing this strange thing.
+>>>
+>>> Do you agree at least that we must change IRQ_TRIGGER_NONE flag into a
+>>> more sensible choice?
+>>
+>> Yes. I agreed.
+>>
+>>> Regards.
+>>>
+>>> [1] http://lxr.linux.no/#linux+v3.3.4/drivers/gpio/gpio-pca953x.c#L495
+>
+>
 >
 

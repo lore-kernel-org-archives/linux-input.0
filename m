@@ -1,83 +1,44 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH] HID: wacom: Remove raport header check.
-Date: Mon, 14 May 2012 13:21:25 -0700
-Message-ID: <CAF8JNhJozNYzTbEHXHbr2mkOBH-RqxzeFqFWNbTXBLo6oYQppg@mail.gmail.com>
-References: <1337012006-6854-1-git-send-email-przemo@firszt.eu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Devendra Naga <devendra.aaru@gmail.com>
+Subject: [PATCH] drivers/input/mouse: Fix a "make randconfig" warning at MOUSE_APPLETOUCH dependency with USB_SUPPORT and USB_ARCH_HAS_HCD
+Date: Tue, 15 May 2012 04:45:29 +0530
+Message-ID: <1337037329-23618-1-git-send-email-devendra.aaru@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:37760 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757429Ab2ENUV0 convert rfc822-to-8bit (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:39510 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758228Ab2ENXPi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 May 2012 16:21:26 -0400
-Received: by yhmm54 with SMTP id m54so4626119yhm.19
-        for <linux-input@vger.kernel.org>; Mon, 14 May 2012 13:21:25 -0700 (PDT)
-In-Reply-To: <1337012006-6854-1-git-send-email-przemo@firszt.eu>
+	Mon, 14 May 2012 19:15:38 -0400
+Received: by pbbrp8 with SMTP id rp8so6719830pbb.19
+        for <linux-input@vger.kernel.org>; Mon, 14 May 2012 16:15:37 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Przemo Firszt <przemo@firszt.eu>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org
+To: Paul Parsons <lost.distance@yahoo.com>, Jiri Kosina <jkosina@suse.cz>, Jan Steinhoff <mail@jan-steinhoff.de>, linux-input@vger.kernel.org
+Cc: Devendra Naga <devendra.aaru@gmail.com>
 
-On Mon, May 14, 2012 at 9:13 AM, Przemo Firszt <przemo@firszt.eu> wrote=
-:
-> That check was valid when hid-wacom was only supporting Wacom Graphir=
-e, as the
-> device raports always start with 0x03. Intuos4 WL high-speed raports
-> begin with 0x04, so the check would be filtering out valid reports.
+From: Devendra Naga <devendra@devendra.(none)>
 
-I assume the if-statement was added on purpose. It was most likely
-used to filter noises for Graphire.
+when ran make randconfig got the warning
 
-Should we change to
+"MOUSE_APPLETOUCH selects USB which has unmet direct dependencies (USB_SUPPORT && USB_ARCH_HAS_HCD)"
 
-if (data[0] !=3D 0x03 || (data[0] !=3D 0x04 &&
-    hdev->product =3D=3D USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH)) {
+Signed-off-by: Devendra Naga <devendra.aaru@gmail.com>
+---
+ drivers/input/mouse/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-        hid_err(hdev, "Unknown report: %d,%d size:%d\n",
-					data[0], data[1], size);
-        return 0;
-}
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index cd6268c..044378f 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -152,7 +152,7 @@ config MOUSE_SERIAL
+ config MOUSE_APPLETOUCH
+ 	tristate "Apple USB Touchpad support"
+ 	depends on USB_ARCH_HAS_HCD
+-	select USB
++	select USB if USB_SUPPORT && USB_ARCH_HAS_HCD
+ 	help
+ 	  Say Y here if you want to use an Apple USB Touchpad.
+ 
+-- 
+1.7.9.5
 
-and remove default case for I4?
-
-Or, remove the if-statement as you suggested and add a default case
-for Graphire to post hid_err and exit when data[0] !=3D 3.
-
-Either way works for me.
-
-Ping
-
->
-> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
-> ---
-> =A0drivers/hid/hid-wacom.c | =A0 =A04 ----
-> =A01 file changed, 4 deletions(-)
->
-> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-> index 29372ed..324ea74 100644
-> --- a/drivers/hid/hid-wacom.c
-> +++ b/drivers/hid/hid-wacom.c
-> @@ -578,10 +578,6 @@ static int wacom_raw_event(struct hid_device *hd=
-ev, struct hid_report *report,
-> =A0 =A0 =A0 =A0hidinput =3D list_entry(hdev->inputs.next, struct hid_=
-input, list);
-> =A0 =A0 =A0 =A0input =3D hidinput->input;
->
-> - =A0 =A0 =A0 /* Check if this is a tablet report */
-> - =A0 =A0 =A0 if (data[0] !=3D 0x03)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
-> -
-> =A0 =A0 =A0 =A0switch (hdev->product) {
-> =A0 =A0 =A0 =A0case USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH:
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return wacom_gr_parse_report(hdev, wda=
-ta, input, data);
-> --
-> 1.7.10.1
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

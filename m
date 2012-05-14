@@ -1,48 +1,96 @@
-From: javier Martin <javier.martin@vista-silicon.com>
-Subject: Re: [RFC] QT1070: change the trigger mode of QT1070
-Date: Mon, 14 May 2012 09:21:33 +0200
-Message-ID: <CACKLOr2bbypZKWq2uKEbTZ1J2urkf98Sg4gJkoHMpGJc2Lktnw@mail.gmail.com>
-References: <1336357653-18663-1-git-send-email-voice.shen@atmel.com>
-	<20120507070424.GC22074@core.coreip.homeip.net>
-	<4FACCDA6.7040506@atmel.com>
-	<CACKLOr0_ztBXfTwa1R_yLzf6wEABENf=-MzYHd-J5YQtEmQt9w@mail.gmail.com>
-	<4FACF8F4.2090302@atmel.com>
-	<CACKLOr2iMGeVWQgXO7zX-qfCDAXXk+oKvpXCFck_+piOFtC_oQ@mail.gmail.com>
-	<4FB07485.8050809@atmel.com>
-	<CACKLOr3YWEVgX5dM94em_Cw6JHS8NHsQfRy9SoP6X5Kd+_g_=A@mail.gmail.com>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH] input: Add MELFAS mms114 touchscreen driver
+Date: Mon, 14 May 2012 16:34:05 +0900
+Message-ID: <4FB0B56D.9010209@samsung.com>
+References: <1336100056-19884-1-git-send-email-jy0922.shim@samsung.com>
+ <20120504094308.GA7124@polaris.bitmath.org> <4FB091D3.1070400@samsung.com>
+ <20120514065634.GA18514@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gg0-f174.google.com ([209.85.161.174]:57609 "EHLO
-	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754014Ab2ENHVd (ORCPT
+Received: from mailout1.samsung.com ([203.254.224.24]:29951 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754391Ab2ENHd5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 May 2012 03:21:33 -0400
-Received: by gglu4 with SMTP id u4so2841413ggl.19
-        for <linux-input@vger.kernel.org>; Mon, 14 May 2012 00:21:33 -0700 (PDT)
-In-Reply-To: <CACKLOr3YWEVgX5dM94em_Cw6JHS8NHsQfRy9SoP6X5Kd+_g_=A@mail.gmail.com>
+	Mon, 14 May 2012 03:33:57 -0400
+Received: from epcpsbgm1.samsung.com (mailout1.samsung.com [203.254.224.24])
+ by mailout1.samsung.com
+ (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
+ 17 2011)) with ESMTP id <0M40002EB50J7BI0@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Mon, 14 May 2012 16:33:56 +0900 (KST)
+Received: from [165.213.219.123] by mmp1.samsung.com
+ (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
+ 17 2011)) with ESMTPA id <0M4000K6950JKLN1@mmp1.samsung.com> for
+ linux-input@vger.kernel.org; Mon, 14 May 2012 16:33:55 +0900 (KST)
+In-reply-to: <20120514065634.GA18514@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bo Shen <voice.shen@atmel.com>
-Cc: Josh Wu <josh.wu@atmel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, khali@linux-fr.org, w.sang@pengutronix.de, jm.lin@atmel.com, linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, kyungmin.park@samsung.com
 
-On 14 May 2012 08:59, javier Martin <javier.martin@vista-silicon.com> wrote:
-> Yes,
-> that works for me too.
+On 05/14/2012 03:56 PM, Henrik Rydberg wrote:
+>>>> +struct mms114_data {
+>>>> +	struct i2c_client	*client;
+>>>> +	struct input_dev	*input_dev;
+>>>> +	struct mutex		mutex;
+>>> Other similar drivers seem to get by with the input mutex.
+>> This is the mutex for i2c synchronization, not for input.
+> Yes, but you have disable_irq()/enable_irq() for that.
 >
-> All right then. Thank you for your suggestion Dmitry.
+>>>> +static int __mms114_read_reg(struct mms114_data *data, unsigned int reg,
+>>>> +			     unsigned int len, u8 *val)
+>>>> +{
+>>>> +	struct i2c_client *client = data->client;
+>>>> +	struct i2c_msg xfer;
+>>>> +	u8 buf = reg&   0xff;
+>>>> +	int ret;
+>>>> +
+>>>> +	if (reg == MMS114_MODE_CONTROL) {
+>>>> +		dev_err(&client->dev, "No support to read mode control reg\n");
+>>>> +		return -EINVAL;
+>>>> +	}
+>>>> +
+>>>> +	mutex_lock(&data->mutex);
+>>> Looks like this mutex is malplaced. The function is called both from
+>>> interrupt context and from user-driven context.
+>> This driver uses threaded irq, it is not interrupt context.
+> Interrupt-driven context, I meant to say. Technically, your code
+> works, but the pattern is unusual. The serialization is needed to
+> remove the race between a call initiated by the interrupt and a call
+> initiated by the user, coming in through suspend/resume. The standard
+> pattern for the latter is to turn interrupts off and wait for
+> interrupt completion, which you already do, then continue
+> execution. The effect is the same, without the mutex.
 >
-> Regards
 
-Oh, and I almost forgot.
-This solution works properly but it doesn't seem too device friendly
-don't you think?
+I just thought, if i don't have any locking here, there is no guarantee
+that another i2c access won't happen between i2c_transfer() and
+i2c_master_recv(). But this can be replaced to one i2c_transfer().
 
--- 
-Javier Martin
-Vista Silicon S.L.
-CDTUC - FASE C - Oficina S-345
-Avda de los Castros s/n
-39005- Santander. Cantabria. Spain
-+34 942 25 32 60
-www.vista-silicon.com
+>>>> +	touchdata->strength = buf[5];
+>>> Does not seem to be used anywhere.
+>> It seems to be used for pressure.
+> It is assigned a variable, but it is not reported to userland.
+
+Right, I should add it.
+
+>>>> +static int mms114_suspend(struct device *dev)
+>>>> +{
+>>>> +	struct i2c_client *client = to_i2c_client(dev);
+>>>> +	struct mms114_data *data = i2c_get_clientdata(client);
+>>>> +	struct mms114_touchdata *touchdata = data->touchdata;
+>>>> +	int id;
+>>>> +	int ret;
+>>>> +
+>>> It would seem the mutex should be here instead.
+>> Any reasons? I did not feel the mutex needs here.
+> Oh well, as long as suspend/resume is the only user intervention, and
+> because those are already serialized, then maybe so. Something to
+> revisit in the next patch version, I presume.
+>
+> Thanks,
+> Henrik
+>
+
+Thanks.

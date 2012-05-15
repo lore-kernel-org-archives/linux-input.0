@@ -1,44 +1,57 @@
-From: Devendra Naga <devendra.aaru@gmail.com>
-Subject: [PATCH] drivers/input/mouse: Fix a "make randconfig" warning at MOUSE_APPLETOUCH dependency with USB_SUPPORT and USB_ARCH_HAS_HCD
-Date: Tue, 15 May 2012 04:45:29 +0530
-Message-ID: <1337037329-23618-1-git-send-email-devendra.aaru@gmail.com>
+From: viresh kumar <viresh.linux@gmail.com>
+Subject: Re: [PATCH V3 2/2] Input: spear-keyboard: add device tree bindings
+Date: Tue, 15 May 2012 12:24:11 +0530
+Message-ID: <CAOh2x=k2bZy-FV9XUWUxDaB7hCi1mfYv9tFVTnGObiAVjfOpvQ@mail.gmail.com>
+References: <cover.1333009670.git.viresh.kumar@st.com>
+	<eebfde0a1511204cab203fa18efe6264abe00486.1333009670.git.viresh.kumar@st.com>
+	<20120509052828.GD10514@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:39510 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758228Ab2ENXPi (ORCPT
+Received: from mail-we0-f174.google.com ([74.125.82.174]:45785 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751339Ab2EOGyM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 May 2012 19:15:38 -0400
-Received: by pbbrp8 with SMTP id rp8so6719830pbb.19
-        for <linux-input@vger.kernel.org>; Mon, 14 May 2012 16:15:37 -0700 (PDT)
+	Tue, 15 May 2012 02:54:12 -0400
+Received: by weyu7 with SMTP id u7so2268764wey.19
+        for <linux-input@vger.kernel.org>; Mon, 14 May 2012 23:54:11 -0700 (PDT)
+In-Reply-To: <20120509052828.GD10514@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Paul Parsons <lost.distance@yahoo.com>, Jiri Kosina <jkosina@suse.cz>, Jan Steinhoff <mail@jan-steinhoff.de>, linux-input@vger.kernel.org
-Cc: Devendra Naga <devendra.aaru@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Viresh Kumar <viresh.kumar@st.com>, swarren@nvidia.com, spear-devel@list.st.com, devicetree-discuss@lists.ozlabs.org, olof@lixom.net, linux-input@vger.kernel.org, sr@denx.de
 
-From: Devendra Naga <devendra@devendra.(none)>
+Hi Dmitry,
 
-when ran make randconfig got the warning
+On Wed, May 9, 2012 at 10:58 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Now that I got matrix_keypad_build_keymap() also handle DT case, how
+> about the patch below?
+>
+> Input: spear-keyboard - add device tree bindings
+>
+> From: Viresh Kumar <viresh.kumar@st.com>
+>
+> This adds simple DT bindings for spear-keyboard controller.
+>
+> Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+>
+> =A0drivers/input/keyboard/spear-keyboard.c | =A0 71 +++++++++++++++++=
++++++++-------
+> =A01 files changed, 56 insertions(+), 15 deletions(-)
 
-"MOUSE_APPLETOUCH selects USB which has unmet direct dependencies (USB_SUPPORT && USB_ARCH_HAS_HCD)"
+You missed following file in this patch, which was there in original pa=
+tch.
 
-Signed-off-by: Devendra Naga <devendra.aaru@gmail.com>
----
- drivers/input/mouse/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Documentation/devicetree/bindings/input/spear-keyboard.txt
 
-diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index cd6268c..044378f 100644
---- a/drivers/input/mouse/Kconfig
-+++ b/drivers/input/mouse/Kconfig
-@@ -152,7 +152,7 @@ config MOUSE_SERIAL
- config MOUSE_APPLETOUCH
- 	tristate "Apple USB Touchpad support"
- 	depends on USB_ARCH_HAS_HCD
--	select USB
-+	select USB if USB_SUPPORT && USB_ARCH_HAS_HCD
- 	help
- 	  Say Y here if you want to use an Apple USB Touchpad.
- 
--- 
-1.7.9.5
-
+--
+viresh
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

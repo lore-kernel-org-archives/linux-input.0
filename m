@@ -1,7 +1,7 @@
 From: Przemo Firszt <przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>
-Subject: [PATCH 3/3] HID: wacom: unify speed setting
-Date: Tue, 15 May 2012 19:32:27 +0100
-Message-ID: <1337106748-28437-3-git-send-email-przemo@firszt.eu>
+Subject: [PATCH 3/3] HID: wacom: Unify speed setting
+Date: Tue, 15 May 2012 19:32:28 +0100
+Message-ID: <1337106748-28437-4-git-send-email-przemo@firszt.eu>
 References: <1337106748-28437-1-git-send-email-przemo@firszt.eu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"

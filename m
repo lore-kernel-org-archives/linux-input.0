@@ -1,56 +1,52 @@
 From: Przemo Firszt <przemo@firszt.eu>
-Subject: Re: [PATCH] HID: wacom: Remove raport header check.
-Date: Tue, 15 May 2012 19:30:07 +0100
-Message-ID: <1337106607.22228.7.camel@pldmachine>
-References: <1337012006-6854-1-git-send-email-przemo@firszt.eu>
-	 <CAF8JNhJozNYzTbEHXHbr2mkOBH-RqxzeFqFWNbTXBLo6oYQppg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH 1/3] HID: wacom: Move Graphire raport header check.
+Date: Tue, 15 May 2012 19:32:25 +0100
+Message-ID: <1337106748-28437-1-git-send-email-przemo@firszt.eu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from stats.peacock.arvixe.com ([174.122.104.67]:50672 "EHLO
+Received: from stats.peacock.arvixe.com ([174.122.104.67]:33783 "EHLO
 	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932894Ab2EOSaP (ORCPT
+	with ESMTP id S966047Ab2EOScs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 May 2012 14:30:15 -0400
-In-Reply-To: <CAF8JNhJozNYzTbEHXHbr2mkOBH-RqxzeFqFWNbTXBLo6oYQppg@mail.gmail.com>
+	Tue, 15 May 2012 14:32:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linuxwacom-devel <linuxwacom-devel@lists.sourceforge.net>
+To: pinglinux@gmail.com, jkosina@suse.cz
+Cc: linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Przemo Firszt <przemo@firszt.eu>
 
-Dnia 2012-05-14, pon o godzinie 13:21 -0700, Ping Cheng pisze:
-> On Mon, May 14, 2012 at 9:13 AM, Przemo Firszt <przemo@firszt.eu> wrote:
-> > That check was valid when hid-wacom was only supporting Wacom Graphire, as the
-> > device raports always start with 0x03. Intuos4 WL high-speed raports
-> > begin with 0x04, so the check would be filtering out valid reports.
-> 
-> I assume the if-statement was added on purpose. It was most likely
-> used to filter noises for Graphire.
-> 
-> Should we change to
-> 
-> if (data[0] != 0x03 || (data[0] != 0x04 &&
->     hdev->product == USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH)) {
-> 
->         hid_err(hdev, "Unknown report: %d,%d size:%d\n",
-> 					data[0], data[1], size);
->         return 0;
-> }
-> 
-> and remove default case for I4?
-> 
-> Or, remove the if-statement as you suggested and add a default case
-> for Graphire to post hid_err and exit when data[0] != 3.
-> 
-> Either way works for me.
-Hi Ping,
-Thanks for the comment. I'll go with the second option and I hope we
-won't be generating too much noise in the logs :-)
+That check is valid only for Wacom Graphire, as the device raports always
+start with 0x03. Intuos4 WL high-speed raports begin with 0x04, so
+the check would be filtering out valid reports.
 
-Patches (there are 2 more for speed setting through sysfs for I4 WL) on
-the way...
+Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+---
+ drivers/hid/hid-wacom.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+index 29372ed..4fc4eeb 100644
+--- a/drivers/hid/hid-wacom.c
++++ b/drivers/hid/hid-wacom.c
+@@ -578,13 +578,15 @@ static int wacom_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	hidinput = list_entry(hdev->inputs.next, struct hid_input, list);
+ 	input = hidinput->input;
+ 
+-	/* Check if this is a tablet report */
+-	if (data[0] != 0x03)
+-		return 0;
+-
+ 	switch (hdev->product) {
+ 	case USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH:
+-		return wacom_gr_parse_report(hdev, wdata, input, data);
++		if (data[0] == 0x03) {
++			return wacom_gr_parse_report(hdev, wdata, input, data);
++		} else {
++			hid_err(hdev, "Unknown report: %d,%d size:%d\n",
++					data[0], data[1], size);
++			return 0;
++		}
+ 		break;
+ 	case USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH:
+ 		i = 1;
 -- 
-Regards,
-Przemo Firszt <przemo@firszt.eu>
+1.7.10.1
 

@@ -1,89 +1,56 @@
-From: Mika Kuoppala <mika.kuoppala@nokia.com>
-Subject: [PATCH] input: allocate event circular buffer separately
-Date: Tue, 15 May 2012 15:46:24 +0300
-Message-ID: <1337085984-5811-1-git-send-email-mika.kuoppala@nokia.com>
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: Re: [PATCH] HID: wacom: Remove raport header check.
+Date: Tue, 15 May 2012 19:30:07 +0100
+Message-ID: <1337106607.22228.7.camel@pldmachine>
+References: <1337012006-6854-1-git-send-email-przemo@firszt.eu>
+	 <CAF8JNhJozNYzTbEHXHbr2mkOBH-RqxzeFqFWNbTXBLo6oYQppg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([147.243.128.26]:30607 "EHLO mgw-da02.nokia.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932092Ab2EOMrS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 May 2012 08:47:18 -0400
+Received: from stats.peacock.arvixe.com ([174.122.104.67]:50672 "EHLO
+	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932894Ab2EOSaP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 May 2012 14:30:15 -0400
+In-Reply-To: <CAF8JNhJozNYzTbEHXHbr2mkOBH-RqxzeFqFWNbTXBLo6oYQppg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, Mika Kuoppala <mika.kuoppala@nokia.com>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linuxwacom-devel <linuxwacom-devel@lists.sourceforge.net>
 
-If struct evdev_client is added to the already power of two
-buffer allocation and the buffer is large, for multitouch devices,
-the allocation will spill over into the the next page.
-Alloc buffer separately instead of binding it to evdev_client struct
-to avoid multipage kmalloc.
+Dnia 2012-05-14, pon o godzinie 13:21 -0700, Ping Cheng pisze:
+> On Mon, May 14, 2012 at 9:13 AM, Przemo Firszt <przemo@firszt.eu> wrote:
+> > That check was valid when hid-wacom was only supporting Wacom Graphire, as the
+> > device raports always start with 0x03. Intuos4 WL high-speed raports
+> > begin with 0x04, so the check would be filtering out valid reports.
+> 
+> I assume the if-statement was added on purpose. It was most likely
+> used to filter noises for Graphire.
+> 
+> Should we change to
+> 
+> if (data[0] != 0x03 || (data[0] != 0x04 &&
+>     hdev->product == USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH)) {
+> 
+>         hid_err(hdev, "Unknown report: %d,%d size:%d\n",
+> 					data[0], data[1], size);
+>         return 0;
+> }
+> 
+> and remove default case for I4?
+> 
+> Or, remove the if-statement as you suggested and add a default case
+> for Graphire to post hid_err and exit when data[0] != 3.
+> 
+> Either way works for me.
+Hi Ping,
+Thanks for the comment. I'll go with the second option and I hope we
+won't be generating too much noise in the logs :-)
 
-Reviewed-by: Andi Shyti <andi.shyti@nokia.com>
-Signed-off-by: Mika Kuoppala <mika.kuoppala@nokia.com>
----
- drivers/input/evdev.c |   17 ++++++++++++-----
- 1 files changed, 12 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 6288d7d..c8d4ca3 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -51,7 +51,7 @@ struct evdev_client {
- 	struct evdev *evdev;
- 	struct list_head node;
- 	unsigned int bufsize;
--	struct input_event buffer[];
-+	struct input_event *buffer;
- };
- 
- static struct evdev *evdev_table[EVDEV_MINORS];
-@@ -268,6 +268,7 @@ static int evdev_release(struct inode *inode, struct file *file)
- 	evdev_detach_client(evdev, client);
- 	if (client->use_wake_lock)
- 		wake_lock_destroy(&client->wake_lock);
-+	kfree(client->buffer);
- 	kfree(client);
- 
- 	evdev_close_device(evdev);
-@@ -309,14 +310,18 @@ static int evdev_open(struct inode *inode, struct file *file)
- 
- 	bufsize = evdev_compute_buffer_size(evdev->handle.dev);
- 
--	client = kzalloc(sizeof(struct evdev_client) +
--				bufsize * sizeof(struct input_event),
--			 GFP_KERNEL);
-+	client = kzalloc(sizeof(struct evdev_client), GFP_KERNEL);
- 	if (!client) {
- 		error = -ENOMEM;
- 		goto err_put_evdev;
- 	}
- 
-+	client->buffer = kzalloc(bufsize * sizeof(struct input_event),
-+				GFP_KERNEL);
-+	if (!client->buffer) {
-+		error = -ENOMEM;
-+		goto err_free_client;
-+	}
- 	client->bufsize = bufsize;
- 	spin_lock_init(&client->buffer_lock);
- 	snprintf(client->name, sizeof(client->name), "%s-%d",
-@@ -326,13 +331,15 @@ static int evdev_open(struct inode *inode, struct file *file)
- 
- 	error = evdev_open_device(evdev);
- 	if (error)
--		goto err_free_client;
-+		goto err_free_buffer;
- 
- 	file->private_data = client;
- 	nonseekable_open(inode, file);
- 
- 	return 0;
- 
-+ err_free_buffer:
-+	kfree(client->buffer);
-  err_free_client:
- 	evdev_detach_client(evdev, client);
- 	kfree(client);
+Patches (there are 2 more for speed setting through sysfs for I4 WL) on
+the way...
 -- 
-1.7.4.1
+Regards,
+Przemo Firszt <przemo@firszt.eu>
 

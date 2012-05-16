@@ -1,27 +1,643 @@
-From: Przemo Firszt <przemo@firszt.eu>
-Subject: Re: [PATCH 3/3] HID: wacom: unify speed setting
-Date: Tue, 15 May 2012 19:36:24 +0100
-Message-ID: <1337106984.22228.8.camel@pldmachine>
-References: <1337106748-28437-1-git-send-email-przemo@firszt.eu>
-	 <1337106748-28437-3-git-send-email-przemo@firszt.eu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: [PATCH v2] input: Add MELFAS mms114 touchscreen driver
+Date: Wed, 16 May 2012 14:47:48 +0900
+Message-ID: <1337147268-1582-1-git-send-email-jy0922.shim@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from stats.peacock.arvixe.com ([174.122.104.67]:50013 "EHLO
-	peacock.arvixe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S964946Ab2EOSgl (ORCPT
+Received: from mailout1.samsung.com ([203.254.224.24]:38780 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754036Ab2EPFrj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 May 2012 14:36:41 -0400
-In-Reply-To: <1337106748-28437-3-git-send-email-przemo@firszt.eu>
+	Wed, 16 May 2012 01:47:39 -0400
+Received: from epcpsbgm2.samsung.com (mailout1.samsung.com [203.254.224.24])
+ by mailout1.samsung.com
+ (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
+ 17 2011)) with ESMTP id <0M430046DPEB0PL0@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 16 May 2012 14:47:37 +0900 (KST)
+Received: from localhost.localdomain ([165.213.219.123])
+ by mmp1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTPA id <0M43008UTPFDFNN1@mmp1.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 16 May 2012 14:47:37 +0900 (KST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: pinglinux@gmail.com
-Cc: jkosina@suse.cz, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, kyungmin.park@samsung.com
 
-Dnia 2012-05-15, wto o godzinie 19:32 +0100, Przemo Firszt pisze:
-Eeeeh, that patch shouldn't go - the one with capital "U" is correct.
-Sorry for the noise....
+This is a initial driver for new touchscreen chip mms114 of MELFAS.
+It uses I2C interface and supports 10 multi touch.
+
+Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+---
+
+Changelog
+
+from v1:
+- Remove mutex and use one i2c_transfer() to read registers
+- Use input_mt_report_pointer_emulation() and optimized input report
+- Add ABS_MT_PRESSURE report
+- Add core regulator control
+
+Thanks.
+
+ drivers/input/touchscreen/Kconfig  |   12 +
+ drivers/input/touchscreen/Makefile |    1 +
+ drivers/input/touchscreen/mms114.c |  519 ++++++++++++++++++++++++++++++++++++
+ include/linux/i2c/mms114.h         |   24 ++
+ 4 files changed, 556 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/mms114.c
+ create mode 100644 include/linux/i2c/mms114.h
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 2a21419..3486795 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -340,6 +340,18 @@ config TOUCHSCREEN_MCS5000
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called mcs5000_ts.
+ 
++config TOUCHSCREEN_MMS114
++	tristate "MELFAS MMS114 touchscreen"
++	depends on I2C
++	help
++	  Say Y here if you have the MELFAS MMS114 touchscreen controller
++	  chip in your system.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called mms114.
++
+ config TOUCHSCREEN_MTOUCH
+ 	tristate "MicroTouch serial touchscreens"
+ 	select SERIO
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 3d5cf8c..882da14 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -36,6 +36,7 @@ obj-$(CONFIG_TOUCHSCREEN_LPC32XX)	+= lpc32xx_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_MAX11801)	+= max11801_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_MC13783)	+= mc13783_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_MCS5000)	+= mcs5000_ts.o
++obj-$(CONFIG_TOUCHSCREEN_MMS114)	+= mms114.o
+ obj-$(CONFIG_TOUCHSCREEN_MIGOR)		+= migor_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_MTOUCH)	+= mtouch.o
+ obj-$(CONFIG_TOUCHSCREEN_MK712)		+= mk712.o
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+new file mode 100644
+index 0000000..476fcaa
+--- /dev/null
++++ b/drivers/input/touchscreen/mms114.c
+@@ -0,0 +1,519 @@
++/*
++ * Copyright (C) 2012 Samsung Electronics Co.Ltd
++ * Author: Joonyoung Shim <jy0922.shim@samsung.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundationr
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/i2c/mms114.h>
++#include <linux/input/mt.h>
++#include <linux/interrupt.h>
++#include <linux/regulator/consumer.h>
++#include <linux/slab.h>
++
++/* Write only registers */
++#define MMS114_MODE_CONTROL		0x01
++#define MMS114_OPERATION_MODE_MASK	0xE
++#define MMS114_ACTIVE			(1 << 1)
++
++#define MMS114_XY_RESOLUTION_H		0x02
++#define MMS114_X_RESOLUTION		0x03
++#define MMS114_Y_RESOLUTION		0x04
++#define MMS114_CONTACT_THRESHOLD	0x05
++#define MMS114_MOVING_THRESHOLD		0x06
++
++/* Read only registers */
++#define MMS114_PACKET_SIZE		0x0F
++
++#define MMS114_INFOMATION		0x10
++#define MMS114_ACT_OFFSET		7
++#define MMS114_ACT_MASK			0x1
++#define MMS114_TYPE_OFFSET		5
++#define MMS114_TYPE_MASK		0x3
++#define MMS114_ID_MASK			0xF
++
++#define MMS114_TSP_REV			0xF0
++
++/* Minimum delay time is 50us between stop and start signal of i2c */
++#define MMS114_I2C_DELAY		50
++
++/* 200ms needs after power on */
++#define MMS114_POWERON_DELAY		200
++
++/* Touchscreen absolute values */
++#define MMS114_MAX_AREA			0xff
++
++#define MMS114_MAX_TOUCH		10
++#define MMS114_PACKET_NUM		6
++#define MMS114_MAX_PACKET		(MMS114_MAX_TOUCH * MMS114_PACKET_NUM)
++
++/* Touch type */
++#define MMS114_TYPE_NONE		0
++#define MMS114_TYPE_TOUCHSCREEN		1
++#define MMS114_TYPE_TOUCHKEY		2
++
++struct mms114_data {
++	struct i2c_client	*client;
++	struct input_dev	*input_dev;
++	struct regulator	*core_reg;
++	struct regulator	*io_reg;
++	const struct mms114_platform_data	*pdata;
++
++	/* Use cache data for mode control register(write only) */
++	u8			cache_mode_control;
++};
++
++static int __mms114_read_reg(struct mms114_data *data, unsigned int reg,
++			     unsigned int len, u8 *val)
++{
++	struct i2c_client *client = data->client;
++	struct i2c_msg xfer[2];
++	u8 buf = reg & 0xff;
++	int ret;
++
++	if (reg == MMS114_MODE_CONTROL) {
++		dev_err(&client->dev, "No support to read mode control reg\n");
++		return -EINVAL;
++	}
++
++	/* Write register: use repeated start */
++	xfer[0].addr = client->addr;
++	xfer[0].flags = I2C_M_TEN | I2C_M_NOSTART;
++	xfer[0].len = 1;
++	xfer[0].buf = &buf;
++
++	/* Read data */
++	xfer[1].addr = client->addr;
++	xfer[1].flags = I2C_M_RD;
++	xfer[1].len = len;
++	xfer[1].buf = val;
++
++	ret = i2c_transfer(client->adapter, xfer, 2);
++	udelay(MMS114_I2C_DELAY);
++	if (ret != 2) {
++		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
++				__func__, ret);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int mms114_read_reg(struct mms114_data *data, unsigned int reg)
++{
++	u8 val;
++	int ret;
++
++	if (reg == MMS114_MODE_CONTROL)
++		return data->cache_mode_control;
++
++	ret = __mms114_read_reg(data, reg, 1, &val);
++	if (!ret)
++		ret = val;
++
++	return ret;
++}
++
++static int mms114_write_reg(struct mms114_data *data, unsigned int reg,
++			    unsigned int val)
++{
++	struct i2c_client *client = data->client;
++	u8 buf[2];
++	int ret;
++
++	buf[0] = reg & 0xff;
++	buf[1] = val & 0xff;
++
++	ret = i2c_master_send(client, buf, 2);
++	udelay(MMS114_I2C_DELAY);
++	if (ret != 2) {
++		dev_err(&client->dev, "%s, i2c send failed (%d)\n", __func__,
++				ret);
++		return -EIO;
++	}
++
++	if (reg == MMS114_MODE_CONTROL)
++		data->cache_mode_control = val;
++
++	return 0;
++}
++
++static void mms114_proc_mt(struct mms114_data *data, u8 *buf)
++{
++	const struct mms114_platform_data *pdata = data->pdata;
++	struct i2c_client *client = data->client;
++	struct input_dev *input_dev = data->input_dev;
++	unsigned int id = (buf[0] & MMS114_ID_MASK) - 1;
++	unsigned int type = (buf[0] >> MMS114_TYPE_OFFSET) & MMS114_TYPE_MASK;
++	unsigned int pressed = (buf[0] >> MMS114_ACT_OFFSET) & MMS114_ACT_MASK;
++	unsigned int x = buf[2] | (buf[1] & 0xf) << 8;
++	unsigned int y = buf[3] | ((buf[1] >> 4) & 0xf) << 8;
++	unsigned int width = buf[4];
++	unsigned int strength = buf[5];
++
++	if (id >= MMS114_MAX_TOUCH) {
++		dev_dbg(&client->dev, "Wrong touch id (%d)\n", id);
++		return;
++	}
++
++	if (type != MMS114_TYPE_TOUCHSCREEN) {
++		dev_dbg(&client->dev, "Wrong touch type (%d)\n", type);
++		return;
++	}
++
++	if (x > pdata->x_size || y > pdata->y_size) {
++		dev_dbg(&client->dev, "Wrong touch coordinates (%d, %d)\n",
++				x, y);
++		return;
++	}
++
++	if (pdata->x_invert)
++		x = pdata->x_size - x;
++	if (pdata->y_invert)
++		y = pdata->y_size - y;
++
++	dev_dbg(&client->dev, "id: %d, type: %d, pressed: %d\n",
++			id, type, pressed);
++	dev_dbg(&client->dev, "x: %d, y: %d, width: %d, strength: %d\n",
++			x, y, width, strength);
++
++	input_mt_slot(input_dev, id);
++	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, pressed);
++
++	if (pressed) {
++		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, width);
++		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
++		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
++		input_report_abs(input_dev, ABS_MT_PRESSURE, strength);
++	}
++}
++
++static irqreturn_t mms114_interrupt(int irq, void *dev_id)
++{
++	struct mms114_data *data = dev_id;
++	u8 buf[MMS114_MAX_PACKET];
++	int packet_size;
++	int touch_size;
++	int index;
++	int ret;
++
++	packet_size = mms114_read_reg(data, MMS114_PACKET_SIZE);
++	if (packet_size < 0)
++		goto err;
++
++	touch_size = packet_size / MMS114_PACKET_NUM;
++
++	ret = __mms114_read_reg(data, MMS114_INFOMATION, packet_size, buf);
++	if (ret < 0)
++		goto err;
++
++	for (index = 0; index < touch_size; index++)
++		mms114_proc_mt(data, buf + (index * MMS114_PACKET_NUM));
++
++	input_mt_report_pointer_emulation(data->input_dev, true);
++	input_sync(data->input_dev);
++
++err:
++	return IRQ_HANDLED;
++}
++
++static int mms114_set_active(struct mms114_data *data, bool active)
++{
++	int val;
++
++	val = mms114_read_reg(data, MMS114_MODE_CONTROL);
++	if (val < 0)
++		return val;
++
++	val &= ~MMS114_OPERATION_MODE_MASK;
++
++	/* If active is false, sleep mode */
++	if (active)
++		val |= MMS114_ACTIVE;
++
++	return mms114_write_reg(data, MMS114_MODE_CONTROL, val);
++}
++
++static int mms114_get_version(struct mms114_data *data)
++{
++	struct device *dev = &data->client->dev;
++	u8 buf[6];
++	int ret;
++
++	ret = __mms114_read_reg(data, MMS114_TSP_REV, 6, buf);
++	if (ret < 0)
++		return ret;
++
++	dev_info(dev, "TSP Rev: 0x%x, HW Rev: 0x%x, Firmware Ver: 0x%x\n",
++			buf[0], buf[1], buf[3]);
++
++	return 0;
++}
++
++static int mms114_setup_regs(struct mms114_data *data)
++{
++	const struct mms114_platform_data *pdata = data->pdata;
++	int val;
++	int ret;
++
++	ret = mms114_set_active(data, true);
++	if (ret < 0)
++		return ret;
++
++	val = (pdata->x_size >> 8) & 0xf;
++	val |= ((pdata->y_size >> 8) & 0xf) << 4;
++	ret = mms114_write_reg(data, MMS114_XY_RESOLUTION_H, val);
++	if (ret < 0)
++		return ret;
++
++	val = pdata->x_size & 0xff;
++	ret = mms114_write_reg(data, MMS114_X_RESOLUTION, val);
++	if (ret < 0)
++		return ret;
++
++	val = pdata->y_size & 0xff;
++	ret = mms114_write_reg(data, MMS114_Y_RESOLUTION, val);
++	if (ret < 0)
++		return ret;
++
++	if (pdata->contact_threshold) {
++		ret = mms114_write_reg(data, MMS114_CONTACT_THRESHOLD,
++				pdata->contact_threshold);
++		if (ret < 0)
++			return ret;
++	}
++
++	if (pdata->moving_threshold) {
++		ret = mms114_write_reg(data, MMS114_MOVING_THRESHOLD,
++				pdata->moving_threshold);
++		if (ret < 0)
++			return ret;
++	}
++
++	return 0;
++}
++
++static int __devinit mms114_probe(struct i2c_client *client,
++				  const struct i2c_device_id *id)
++{
++	struct mms114_data *data;
++	struct input_dev *input_dev;
++	int ret;
++
++	if (!client->dev.platform_data) {
++		dev_err(&client->dev, "Need platform data\n");
++		return -EINVAL;
++	}
++
++	if (!i2c_check_functionality(client->adapter,
++				I2C_FUNC_PROTOCOL_MANGLING)) {
++		dev_err(&client->dev,
++			"Need i2c bus that supports protocol mangling\n");
++		return -ENODEV;
++	}
++
++	data = kzalloc(sizeof(struct mms114_data), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!data || !input_dev) {
++		dev_err(&client->dev, "Failed to allocate memory\n");
++		ret = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	data->client = client;
++	data->input_dev = input_dev;
++	data->pdata = client->dev.platform_data;
++
++	input_dev->name = "MELPAS MMS114 Touchscreen";
++	input_dev->id.bustype = BUS_I2C;
++	input_dev->dev.parent = &client->dev;
++
++	__set_bit(EV_ABS, input_dev->evbit);
++	__set_bit(EV_KEY, input_dev->evbit);
++	__set_bit(BTN_TOUCH, input_dev->keybit);
++	input_set_abs_params(input_dev, ABS_X, 0, data->pdata->x_size, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, data->pdata->y_size, 0, 0);
++
++	/* For multi touch */
++	input_mt_init_slots(input_dev, MMS114_MAX_TOUCH);
++	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
++			     0, MMS114_MAX_AREA, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
++			     0, data->pdata->x_size, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
++			     0, data->pdata->y_size, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_PRESSURE, 0, 255, 0, 0);
++
++	input_set_drvdata(input_dev, data);
++	i2c_set_clientdata(client, data);
++
++	data->core_reg = regulator_get(&client->dev, "avdd");
++	if (IS_ERR(data->core_reg)) {
++		ret = PTR_ERR(data->core_reg);
++		dev_err(&client->dev, "Unable to get the Core regulator (%d)\n",
++				ret);
++		goto err_free_mem;
++	}
++	regulator_enable(data->core_reg);
++
++	data->io_reg = regulator_get(&client->dev, "vdd");
++	if (IS_ERR(data->io_reg)) {
++		ret = PTR_ERR(data->io_reg);
++		dev_err(&client->dev, "Unable to get the IO regulator (%d)\n",
++				ret);
++		goto err_core_reg;
++	}
++	regulator_enable(data->io_reg);
++	mdelay(MMS114_POWERON_DELAY);
++
++	ret = mms114_get_version(data);
++	if (ret < 0)
++		goto err_io_reg;
++
++	ret = mms114_setup_regs(data);
++	if (ret < 0)
++		goto err_io_reg;
++
++	ret = request_threaded_irq(client->irq, NULL, mms114_interrupt,
++			IRQF_TRIGGER_FALLING, "mms114", data);
++	if (ret < 0) {
++		dev_err(&client->dev, "Failed to register interrupt\n");
++		goto err_io_reg;
++	}
++
++	ret = input_register_device(data->input_dev);
++	if (ret < 0)
++		goto err_free_irq;
++
++	if (data->pdata->cfg_pin)
++		data->pdata->cfg_pin(true);
++
++	return 0;
++
++err_free_irq:
++	free_irq(client->irq, data);
++err_io_reg:
++	regulator_disable(data->io_reg);
++	regulator_put(data->io_reg);
++err_core_reg:
++	regulator_disable(data->core_reg);
++	regulator_put(data->core_reg);
++err_free_mem:
++	input_free_device(input_dev);
++	kfree(data);
++	return ret;
++}
++
++static int __devexit mms114_remove(struct i2c_client *client)
++{
++	struct mms114_data *data = i2c_get_clientdata(client);
++
++	free_irq(client->irq, data);
++	regulator_disable(data->io_reg);
++	regulator_put(data->io_reg);
++	regulator_disable(data->core_reg);
++	regulator_put(data->core_reg);
++	input_unregister_device(data->input_dev);
++	kfree(data);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int mms114_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct mms114_data *data = i2c_get_clientdata(client);
++	struct input_dev *input_dev = data->input_dev;
++	int id;
++	int ret;
++
++	disable_irq(client->irq);
++
++	/* Release all touch */
++	for (id = 0; id < MMS114_MAX_TOUCH; id++) {
++		input_mt_slot(input_dev, id);
++		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, false);
++	}
++
++	input_mt_report_pointer_emulation(input_dev, true);
++	input_sync(input_dev);
++
++	ret = mms114_set_active(data, false);
++	if (ret < 0)
++		return ret;
++
++	if (data->pdata->cfg_pin)
++		data->pdata->cfg_pin(false);
++
++	regulator_disable(data->io_reg);
++	regulator_disable(data->core_reg);
++
++	return 0;
++}
++
++static int mms114_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct mms114_data *data = i2c_get_clientdata(client);
++	int ret;
++
++	regulator_enable(data->core_reg);
++	regulator_enable(data->io_reg);
++	mdelay(MMS114_POWERON_DELAY);
++
++	if (data->pdata->cfg_pin)
++		data->pdata->cfg_pin(true);
++
++	ret = mms114_setup_regs(data);
++	if (ret < 0)
++		return ret;
++
++	enable_irq(client->irq);
++
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(mms114_pm_ops, mms114_suspend, mms114_resume);
++
++static const struct i2c_device_id mms114_id[] = {
++	{ "mms114", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, mms114_id);
++
++static struct i2c_driver mms114_driver = {
++	.driver = {
++		.name	= "mms114",
++		.owner	= THIS_MODULE,
++		.pm	= &mms114_pm_ops,
++	},
++	.probe		= mms114_probe,
++	.remove		= __devexit_p(mms114_remove),
++	.id_table	= mms114_id,
++};
++
++static int __init mms114_init(void)
++{
++	return i2c_add_driver(&mms114_driver);
++}
++
++static void __exit mms114_exit(void)
++{
++	i2c_del_driver(&mms114_driver);
++}
++
++module_init(mms114_init);
++module_exit(mms114_exit);
++
++/* Module information */
++MODULE_AUTHOR("Joonyoung Shim <jy0922.shim@samsung.com>");
++MODULE_DESCRIPTION("MELFAS mms114 Touchscreen driver");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/i2c/mms114.h b/include/linux/i2c/mms114.h
+new file mode 100644
+index 0000000..5722ebf
+--- /dev/null
++++ b/include/linux/i2c/mms114.h
+@@ -0,0 +1,24 @@
++/*
++ * Copyright (C) 2012 Samsung Electronics Co.Ltd
++ * Author: Joonyoung Shim <jy0922.shim@samsung.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundationr
++ */
++
++#ifndef __LINUX_MMS114_H
++#define __LINUX_MMS114_H
++
++struct mms114_platform_data {
++	unsigned int x_size;
++	unsigned int y_size;
++	unsigned int contact_threshold;
++	unsigned int moving_threshold;
++	bool x_invert;
++	bool y_invert;
++
++	void (*cfg_pin)(bool);
++};
++
++#endif	/* __LINUX_MMS114_H */
 -- 
-Przemo Firszt <przemo@firszt.eu>
+1.7.5.4
 

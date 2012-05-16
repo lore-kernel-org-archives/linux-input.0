@@ -1,43 +1,35 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: rotary: Init wake according to platform pm_wakeup
- flag.
-Date: Wed, 16 May 2012 11:30:39 -0700
-Message-ID: <20120516183038.GA14471@core.coreip.homeip.net>
-References: <1337157383-13631-1-git-send-email-sonic.zhang@analog.com>
+Subject: Re: [PATCH 5/7] input/nomadik-ske: move key scanning to delayed work
+Date: Wed, 16 May 2012 11:33:27 -0700
+Message-ID: <20120516183327.GB14471@core.coreip.homeip.net>
+References: <1336913049-10153-1-git-send-email-linus.walleij@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:35602 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754131Ab2EPSdd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 May 2012 14:33:33 -0400
+Received: by pbbrp8 with SMTP id rp8so1450090pbb.19
+        for <linux-input@vger.kernel.org>; Wed, 16 May 2012 11:33:33 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1337157383-13631-1-git-send-email-sonic.zhang@analog.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: sonic.zhang@analog.com
-Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, uclinux-dist-devel@blackfin.uclinux.org
+In-Reply-To: <1336913049-10153-1-git-send-email-linus.walleij@stericsson.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Walleij <linus.walleij@stericsson.com>
+Cc: linux-input@vger.kernel.org, Karl-Johan Perntz <karl-johan.perntz@stericsson.com>, Linus Walleij <linus.walleij@linaro.org>
 
-Hi Sonic,
+Hi Linus,
 
-On Wed, May 16, 2012 at 04:36:23PM +0800, sonic.zhang@analog.com wrote:
-> From: Sonic Zhang <sonic.zhang@analog.com>
+On Sun, May 13, 2012 at 02:44:09PM +0200, Linus Walleij wrote:
+> From: Karl-Johan Perntz <karl-johan.perntz@stericsson.com>
 > 
-> Rotary can't be used as a wakeup source in all Blackfin processors.
-> 
-> Signed-off-by: Sonic Zhang <sonic.zhang@analog.com>
-> ---
->  drivers/input/misc/bfin_rotary.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
-> index 1c4146f..bb1971c 100644
-> --- a/drivers/input/misc/bfin_rotary.c
-> +++ b/drivers/input/misc/bfin_rotary.c
-> @@ -182,7 +182,7 @@ static int __devinit bfin_rotary_probe(struct platform_device *pdev)
->  	bfin_write_CNT_CONFIG(bfin_read_CNT_CONFIG() | CNTE);
->  
->  	platform_set_drvdata(pdev, rotary);
-> -	device_init_wakeup(&pdev->dev, 1);
-> +	device_init_wakeup(&pdev->dev, pdata->pm_wakeup);
+> Move the key scanning to a delayed work thread, drop the threaded
+> IRQ since all the IRQ work can now be done quickly.
 
-I do not see pm_wakeup in bfin_rotary_platform_data.
+Justification for the change is missing. What are the benefits of doing
+such move, why threaded IRQ does not work for you.
 
 Thanks.
 

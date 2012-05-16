@@ -1,39 +1,34 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: allocate event circular buffer separately
-Date: Wed, 16 May 2012 12:40:19 -0700
-Message-ID: <20120516194018.GB15920@core.coreip.homeip.net>
-References: <1337085984-5811-1-git-send-email-mika.kuoppala@nokia.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/3] HID: wacom: Move Graphire raport header check.
+Date: Wed, 16 May 2012 21:43:33 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1205162143190.8796@pobox.suse.cz>
+References: <1337106748-28437-1-git-send-email-przemo@firszt.eu> <CAF8JNh+_Jm7Nwppi6quS_8s=J7R0SXvGX+vV--LsUJzjqZdU0w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:59456 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756036Ab2EPTk2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 May 2012 15:40:28 -0400
-Received: by dady13 with SMTP id y13so1409891dad.19
-        for <linux-input@vger.kernel.org>; Wed, 16 May 2012 12:40:27 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1337085984-5811-1-git-send-email-mika.kuoppala@nokia.com>
+Received: from cantor2.suse.de ([195.135.220.15]:38190 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964799Ab2EPTnm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 May 2012 15:43:42 -0400
+In-Reply-To: <CAF8JNh+_Jm7Nwppi6quS_8s=J7R0SXvGX+vV--LsUJzjqZdU0w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mika Kuoppala <mika.kuoppala@nokia.com>
-Cc: linux-input@vger.kernel.org, rydberg@euromail.se
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Przemo Firszt <przemo@firszt.eu>, linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Mika,
+On Wed, 16 May 2012, Ping Cheng wrote:
 
-On Tue, May 15, 2012 at 03:46:24PM +0300, Mika Kuoppala wrote:
-> If struct evdev_client is added to the already power of two
-> buffer allocation and the buffer is large, for multitouch devices,
-> the allocation will spill over into the the next page.
-> Alloc buffer separately instead of binding it to evdev_client struct
-> to avoid multipage kmalloc.
+> On Tue, May 15, 2012 at 11:32 AM, Przemo Firszt <przemo@firszt.eu> wrote:
+> > That check is valid only for Wacom Graphire, as the device raports always
+> > start with 0x03. Intuos4 WL high-speed raports begin with 0x04, so
+> > the check would be filtering out valid reports.
+> >
+> > Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+> 
+> Acked-by: Ping Cheng <pingc@wacom.com> for the series.
 
-Not counting the event buffer, size of evdev_client is fairly small
-(under 100 bytes?) so I wonder how often this split actually helps (i.e.
-buffer and client each are less than page size but combined are more).
-
-Thanks.
+I have applied the series. Thanks to both of you,
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

@@ -1,181 +1,144 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 2/2] input - wacom : add two new devices (0xed and 0xef)
-Date: Thu, 17 May 2012 10:47:17 -0700
-Message-ID: <CAF8JNhKeomVK8GXqmhGAAD-UXf9xicOgAABM3udDQa91tEYZkQ@mail.gmail.com>
-References: <1336785920-2397-1-git-send-email-pinglinux@gmail.com>
-	<CAGzDe_bW-K=p=h4LOE=+TGuChJH=9ZYO_6P=z3D_7m+XH_oo2Q@mail.gmail.com>
-	<CAGzDe_bOR6dJTc4A3WfkYxCPm=1DTqVTBk_AWZ=SvYnCiLSF6g@mail.gmail.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 1/2] input - wacom : rearrange type enum
+Date: Thu, 17 May 2012 13:03:53 -0500
+Message-ID: <CAGzDe_Y3hMjX9cn8J4btPDUEWt0PMn=UeDhZOEEOTEEoV1o+Yg@mail.gmail.com>
+References: <1336785898-2359-1-git-send-email-pinglinux@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gg0-f174.google.com ([209.85.161.174]:65238 "EHLO
-	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756323Ab2EQRrS convert rfc822-to-8bit (ORCPT
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:52225 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761935Ab2EQSDz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 May 2012 13:47:18 -0400
-Received: by gglu4 with SMTP id u4so2048796ggl.19
-        for <linux-input@vger.kernel.org>; Thu, 17 May 2012 10:47:17 -0700 (PDT)
-In-Reply-To: <CAGzDe_bOR6dJTc4A3WfkYxCPm=1DTqVTBk_AWZ=SvYnCiLSF6g@mail.gmail.com>
+	Thu, 17 May 2012 14:03:55 -0400
+Received: by lbbgm6 with SMTP id gm6so1499016lbb.19
+        for <linux-input@vger.kernel.org>; Thu, 17 May 2012 11:03:54 -0700 (PDT)
+In-Reply-To: <1336785898-2359-1-git-send-email-pinglinux@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Bagwell <chris@cnpbagwell.com>
-Cc: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Thu, May 17, 2012 at 9:28 AM, Chris Bagwell <chris@cnpbagwell.com> w=
-rote:
-> On Thu, May 17, 2012 at 11:21 AM, Chris Bagwell <chris@cnpbagwell.com=
-> wrote:
->> On Fri, May 11, 2012 at 8:25 PM, Ping Cheng <pinglinux@gmail.com> wr=
-ote:
->>> 0xed supports pen and one finger touch; 0xef is pen only.
->>>
->>> Signed-off-by: Ping Cheng <pingc@wacom.com>
->>> ---
->>> =A0drivers/input/tablet/wacom_wac.c | =A0 13 ++++++++++++-
->>> =A0drivers/input/tablet/wacom_wac.h | =A0 =A02 ++
->>> =A02 files changed, 14 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/table=
-t/wacom_wac.c
->>> index c40dcb7..fd0cf4d3 100644
->>> --- a/drivers/input/tablet/wacom_wac.c
->>> +++ b/drivers/input/tablet/wacom_wac.c
->>> @@ -888,7 +888,7 @@ static int wacom_tpc_single_touch(struct wacom_=
-wac *wacom, size_t len)
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0prox =3D data[0] & 0=
-x01;
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0x =3D get_unaligned_=
-le16(&data[1]);
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0y =3D get_unaligned_=
-le16(&data[3]);
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else { /* with capacity */
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else {
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0prox =3D data[1] & 0=
-x01;
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0x =3D le16_to_cpup((=
-__le16 *)&data[2]);
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0y =3D le16_to_cpup((=
-__le16 *)&data[4]);
->>> @@ -961,6 +961,7 @@ static int wacom_tpc_irq(struct wacom_wac *waco=
-m, size_t len)
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case WACOM_REPORT_TPC1FG:
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case WACOM_REPORT_TPCHID:
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case WACOM_REPORT_TPCST:
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 case WACOM_REPORT_TPC1FGE:
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return wacom_tpc_sin=
-gle_touch(wacom, len);
->>>
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case WACOM_REPORT_TPCMT:
->>> @@ -1244,6 +1245,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wa=
-c, size_t len)
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
->>>
->>> =A0 =A0 =A0 =A0case TABLETPC:
->>> + =A0 =A0 =A0 case TABLETPCE:
->>> =A0 =A0 =A0 =A0case TABLETPC2FG:
->>> =A0 =A0 =A0 =A0case MTSCREEN:
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0sync =3D wacom_tpc_irq(wacom_wac, le=
-n);
->>> @@ -1569,6 +1571,7 @@ int wacom_setup_input_capabilities(struct inp=
-ut_dev *input_dev,
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* fall through */
->>>
->>> =A0 =A0 =A0 =A0case TABLETPC:
->>> + =A0 =A0 =A0 case TABLETPCE:
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__clear_bit(ABS_MISC, input_dev->abs=
-bit);
->>>
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(INPUT_PROP_DIRECT, input_d=
-ev->propbit);
->>> @@ -1886,6 +1889,12 @@ static const struct wacom_features wacom_fea=
-tures_0xE6 =3D
->>> =A0static const struct wacom_features wacom_features_0xEC =3D
->>> =A0 =A0 =A0 =A0{ "Wacom ISDv4 EC", =A0 =A0 =A0 WACOM_PKGLEN_GRAPHIR=
-E, =A025710, 14500, =A0255,
->>> =A0 =A0 =A0 =A0 =A00, TABLETPC, =A0 =A0WACOM_INTUOS_RES, WACOM_INTU=
-OS_RES };
->>> +static const struct wacom_features wacom_features_0xED =3D
->>> + =A0 =A0 =A0 { "Wacom ISDv4 ED", =A0 =A0 =A0 WACOM_PKGLEN_GRAPHIRE=
-, =A026202, 16325, =A0255,
->>> + =A0 =A0 =A0 =A0 0, TABLETPCE, WACOM_INTUOS_RES, WACOM_INTUOS_RES =
-};
->>> +static const struct wacom_features wacom_features_0xEF =3D
->>> + =A0 =A0 =A0 { "Wacom ISDv4 EF", =A0 =A0 =A0 WACOM_PKGLEN_GRAPHIRE=
-, =A026202, 16325, =A0255,
->>> + =A0 =A0 =A0 =A0 0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES }=
-;
->>
->> I can't find reason why you've created a TABLETPCE. =A0I was looking=
- for
->> some sort of logic that hit's "if (type <=3D TABLETPC" that your try=
-ing
->> to avoid on 0xED but I couldn't find it.
->
-> In response to myself, I think I found the difference. A value of
-> TABLETPC would avoid calling the Wacom PEN Packet mode on PEN device;
-> which a lot of TPC avoid doing.
->
-> Just to be safe though, was it on purpose that 0xEF is a TABLETPC?
+=46or both patches:
 
-Yes, 0xEF is a pen only TPC while 0xED supports one finger touch.
-Thank you for reviewing the patchset.
+Acked-by: Chris Bagwell <chris@cnpbagwell.com>
 
-Ping
-
+On Fri, May 11, 2012 at 8:24 PM, Ping Cheng <pinglinux@gmail.com> wrote=
+:
+> So we can simplify a few type related if statements
 >
-> Chris
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
+> ---
+> =A0drivers/input/tablet/wacom_sys.c | =A0 10 +++-------
+> =A0drivers/input/tablet/wacom_wac.c | =A0 =A06 ++----
+> =A0drivers/input/tablet/wacom_wac.h | =A0 =A06 +++---
+> =A03 files changed, 8 insertions(+), 14 deletions(-)
 >
->>
->> Is the type needed?
->>
->> Chris
->>
->>> =A0static const struct wacom_features wacom_features_0x47 =3D
->>> =A0 =A0 =A0 =A0{ "Wacom Intuos2 6x8", =A0 =A0WACOM_PKGLEN_INTUOS, =A0=
- =A020320, 16240, 1023,
->>> =A0 =A0 =A0 =A0 =A031, INTUOS, WACOM_INTUOS_RES, WACOM_INTUOS_RES }=
-;
->>> @@ -2060,6 +2069,8 @@ const struct usb_device_id wacom_ids[] =3D {
->>> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xE5) },
->>> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xE6) },
->>> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xEC) },
->>> + =A0 =A0 =A0 { USB_DEVICE_WACOM(0xED) },
->>> + =A0 =A0 =A0 { USB_DEVICE_WACOM(0xEF) },
->>> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0x47) },
->>> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xF4) },
->>> =A0 =A0 =A0 =A0{ USB_DEVICE_LENOVO(0x6004) },
->>> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/table=
-t/wacom_wac.h
->>> index 8708043..bd5d37b 100644
->>> --- a/drivers/input/tablet/wacom_wac.h
->>> +++ b/drivers/input/tablet/wacom_wac.h
->>> @@ -48,6 +48,7 @@
->>> =A0#define WACOM_REPORT_TPCMT =A0 =A0 =A0 =A0 =A0 =A0 13
->>> =A0#define WACOM_REPORT_TPCHID =A0 =A0 =A0 =A0 =A0 =A015
->>> =A0#define WACOM_REPORT_TPCST =A0 =A0 =A0 =A0 =A0 =A0 16
->>> +#define WACOM_REPORT_TPC1FGE =A0 =A0 =A0 =A0 =A0 18
->>>
->>> =A0/* device quirks */
->>> =A0#define WACOM_QUIRK_MULTI_INPUT =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A00=
-x0001
->>> @@ -80,6 +81,7 @@ enum {
->>> =A0 =A0 =A0 =A0WIRELESS,
->>> =A0 =A0 =A0 =A0BAMBOO_PT,
->>> =A0 =A0 =A0 =A0TABLETPC, =A0 /* add new TPC below */
->>> + =A0 =A0 =A0 TABLETPCE,
->>> =A0 =A0 =A0 =A0TABLETPC2FG,
->>> =A0 =A0 =A0 =A0MTSCREEN,
->>> =A0 =A0 =A0 =A0MAX_TYPE
->>> --
->>> 1.7.9.5
->>>
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe linux-inp=
-ut" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at =A0http://vger.kernel.org/majordomo-info.htm=
-l
+> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/=
+wacom_sys.c
+> index b3a8bd3..79b5cfb 100644
+> --- a/drivers/input/tablet/wacom_sys.c
+> +++ b/drivers/input/tablet/wacom_sys.c
+> @@ -440,8 +440,7 @@ static int wacom_query_tablet_data(struct usb_int=
+erface *intf, struct wacom_feat
+> =A0 =A0 =A0 =A0/* ask to report Wacom data */
+> =A0 =A0 =A0 =A0if (features->device_type =3D=3D BTN_TOOL_FINGER) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* if it is an MT Tablet PC touch */
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (features->type =3D=3D TABLETPC2FG |=
+|
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->type =3D=3D MTSCREEN)=
+ {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (features->type > TABLETPC) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0do {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rep_da=
+ta[0] =3D 3;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rep_da=
+ta[1] =3D 4;
+> @@ -460,7 +459,7 @@ static int wacom_query_tablet_data(struct usb_int=
+erface *intf, struct wacom_feat
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0} while ((error < 0 ||=
+ rep_data[1] !=3D 4) &&
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 limit=
+++ < WAC_MSG_RETRIES);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> - =A0 =A0 =A0 } else if (features->type !=3D TABLETPC &&
+> + =A0 =A0 =A0 } else if (features->type <=3D BAMBOO_PT &&
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->type !=3D WIRELESS &&
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->device_type =3D=3D BTN_=
+TOOL_PEN) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0do {
+> @@ -510,10 +509,7 @@ static int wacom_retrieve_hid_descriptor(struct =
+usb_interface *intf,
+> =A0 =A0 =A0 =A0}
+>
+> =A0 =A0 =A0 =A0/* only devices that support touch need to retrieve th=
+e info */
+> - =A0 =A0 =A0 if (features->type !=3D TABLETPC &&
+> - =A0 =A0 =A0 =A0 =A0 features->type !=3D TABLETPC2FG &&
+> - =A0 =A0 =A0 =A0 =A0 features->type !=3D BAMBOO_PT &&
+> - =A0 =A0 =A0 =A0 =A0 features->type !=3D MTSCREEN) {
+> + =A0 =A0 =A0 if (features->type < BAMBOO_PT) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto out;
+> =A0 =A0 =A0 =A0}
+>
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/=
+wacom_wac.c
+> index 004bc1b..c40dcb7 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -1317,10 +1317,8 @@ void wacom_setup_device_quirks(struct wacom_fe=
+atures *features)
+> =A0 =A0 =A0 =A0}
+>
+> =A0 =A0 =A0 =A0/* these device have multiple inputs */
+> - =A0 =A0 =A0 if (features->type =3D=3D TABLETPC || features->type =3D=
+=3D TABLETPC2FG ||
+> - =A0 =A0 =A0 =A0 =A0 features->type =3D=3D BAMBOO_PT || features->ty=
+pe =3D=3D WIRELESS ||
+> - =A0 =A0 =A0 =A0 =A0 (features->type >=3D INTUOS5S && features->type=
+ <=3D INTUOS5L) ||
+> - =A0 =A0 =A0 =A0 =A0 features->type =3D=3D MTSCREEN)
+> + =A0 =A0 =A0 if (features->type >=3D WIRELESS ||
+> + =A0 =A0 =A0 =A0 =A0 (features->type >=3D INTUOS5S && features->type=
+ <=3D INTUOS5L))
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->quirks |=3D WACOM_QUIRK_MULT=
+I_INPUT;
+>
+> =A0 =A0 =A0 =A0/* quirk for bamboo touch with 2 low res touches */
+> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/=
+wacom_wac.h
+> index 78fbd3f..8708043 100644
+> --- a/drivers/input/tablet/wacom_wac.h
+> +++ b/drivers/input/tablet/wacom_wac.h
+> @@ -62,8 +62,6 @@ enum {
+> =A0 =A0 =A0 =A0PTU,
+> =A0 =A0 =A0 =A0PL,
+> =A0 =A0 =A0 =A0DTU,
+> - =A0 =A0 =A0 BAMBOO_PT,
+> - =A0 =A0 =A0 WIRELESS,
+> =A0 =A0 =A0 =A0INTUOS,
+> =A0 =A0 =A0 =A0INTUOS3S,
+> =A0 =A0 =A0 =A0INTUOS3,
+> @@ -79,7 +77,9 @@ enum {
+> =A0 =A0 =A0 =A0CINTIQ,
+> =A0 =A0 =A0 =A0WACOM_BEE,
+> =A0 =A0 =A0 =A0WACOM_MO,
+> - =A0 =A0 =A0 TABLETPC,
+> + =A0 =A0 =A0 WIRELESS,
+> + =A0 =A0 =A0 BAMBOO_PT,
+> + =A0 =A0 =A0 TABLETPC, =A0 /* add new TPC below */
+> =A0 =A0 =A0 =A0TABLETPC2FG,
+> =A0 =A0 =A0 =A0MTSCREEN,
+> =A0 =A0 =A0 =A0MAX_TYPE
+> --
+> 1.7.9.5
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

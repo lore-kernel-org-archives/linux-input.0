@@ -1,171 +1,563 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH 2/2] input - wacom : add two new devices (0xed and 0xef)
-Date: Thu, 17 May 2012 11:28:32 -0500
-Message-ID: <CAGzDe_bOR6dJTc4A3WfkYxCPm=1DTqVTBk_AWZ=SvYnCiLSF6g@mail.gmail.com>
-References: <1336785920-2397-1-git-send-email-pinglinux@gmail.com>
-	<CAGzDe_bW-K=p=h4LOE=+TGuChJH=9ZYO_6P=z3D_7m+XH_oo2Q@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH RESEND v3 1/2] input: keyboard: Add keys driver for the
+ LPC32xx SoC
+Date: Thu, 17 May 2012 10:38:14 -0700
+Message-ID: <20120517173814.GA26948@core.coreip.homeip.net>
+References: <1337199955-26441-1-git-send-email-stigge@antcom.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:42691 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751366Ab2EQQ2e convert rfc822-to-8bit (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:47772 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762209Ab2EQRiW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 May 2012 12:28:34 -0400
-Received: by lbbgm6 with SMTP id gm6so1432929lbb.19
-        for <linux-input@vger.kernel.org>; Thu, 17 May 2012 09:28:33 -0700 (PDT)
-In-Reply-To: <CAGzDe_bW-K=p=h4LOE=+TGuChJH=9ZYO_6P=z3D_7m+XH_oo2Q@mail.gmail.com>
+	Thu, 17 May 2012 13:38:22 -0400
+Content-Disposition: inline
+In-Reply-To: <1337199955-26441-1-git-send-email-stigge@antcom.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
+To: Roland Stigge <stigge@antcom.de>
+Cc: axel.lin@gmail.com, riyer@nvidia.com, michael.hennerich@analog.com, grant.likely@secretlab.ca, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com, devicetree-discuss@lists.ozlabs.org, rob.herring@calxeda.com
 
-On Thu, May 17, 2012 at 11:21 AM, Chris Bagwell <chris@cnpbagwell.com> =
-wrote:
-> On Fri, May 11, 2012 at 8:25 PM, Ping Cheng <pinglinux@gmail.com> wro=
-te:
->> 0xed supports pen and one finger touch; 0xef is pen only.
->>
->> Signed-off-by: Ping Cheng <pingc@wacom.com>
->> ---
->> =A0drivers/input/tablet/wacom_wac.c | =A0 13 ++++++++++++-
->> =A0drivers/input/tablet/wacom_wac.h | =A0 =A02 ++
->> =A02 files changed, 14 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet=
-/wacom_wac.c
->> index c40dcb7..fd0cf4d3 100644
->> --- a/drivers/input/tablet/wacom_wac.c
->> +++ b/drivers/input/tablet/wacom_wac.c
->> @@ -888,7 +888,7 @@ static int wacom_tpc_single_touch(struct wacom_w=
-ac *wacom, size_t len)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0prox =3D data[0] & 0x=
-01;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0x =3D get_unaligned_l=
-e16(&data[1]);
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0y =3D get_unaligned_l=
-e16(&data[3]);
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else { /* with capacity */
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0prox =3D data[1] & 0x=
-01;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0x =3D le16_to_cpup((_=
-_le16 *)&data[2]);
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0y =3D le16_to_cpup((_=
-_le16 *)&data[4]);
->> @@ -961,6 +961,7 @@ static int wacom_tpc_irq(struct wacom_wac *wacom=
-, size_t len)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case WACOM_REPORT_TPC1FG:
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case WACOM_REPORT_TPCHID:
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case WACOM_REPORT_TPCST:
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 case WACOM_REPORT_TPC1FGE:
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return wacom_tpc_sing=
-le_touch(wacom, len);
->>
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case WACOM_REPORT_TPCMT:
->> @@ -1244,6 +1245,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac=
-, size_t len)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
->>
->> =A0 =A0 =A0 =A0case TABLETPC:
->> + =A0 =A0 =A0 case TABLETPCE:
->> =A0 =A0 =A0 =A0case TABLETPC2FG:
->> =A0 =A0 =A0 =A0case MTSCREEN:
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0sync =3D wacom_tpc_irq(wacom_wac, len=
-);
->> @@ -1569,6 +1571,7 @@ int wacom_setup_input_capabilities(struct inpu=
-t_dev *input_dev,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* fall through */
->>
->> =A0 =A0 =A0 =A0case TABLETPC:
->> + =A0 =A0 =A0 case TABLETPCE:
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__clear_bit(ABS_MISC, input_dev->absb=
-it);
->>
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(INPUT_PROP_DIRECT, input_de=
-v->propbit);
->> @@ -1886,6 +1889,12 @@ static const struct wacom_features wacom_feat=
-ures_0xE6 =3D
->> =A0static const struct wacom_features wacom_features_0xEC =3D
->> =A0 =A0 =A0 =A0{ "Wacom ISDv4 EC", =A0 =A0 =A0 WACOM_PKGLEN_GRAPHIRE=
-, =A025710, 14500, =A0255,
->> =A0 =A0 =A0 =A0 =A00, TABLETPC, =A0 =A0WACOM_INTUOS_RES, WACOM_INTUO=
-S_RES };
->> +static const struct wacom_features wacom_features_0xED =3D
->> + =A0 =A0 =A0 { "Wacom ISDv4 ED", =A0 =A0 =A0 WACOM_PKGLEN_GRAPHIRE,=
- =A026202, 16325, =A0255,
->> + =A0 =A0 =A0 =A0 0, TABLETPCE, WACOM_INTUOS_RES, WACOM_INTUOS_RES }=
-;
->> +static const struct wacom_features wacom_features_0xEF =3D
->> + =A0 =A0 =A0 { "Wacom ISDv4 EF", =A0 =A0 =A0 WACOM_PKGLEN_GRAPHIRE,=
- =A026202, 16325, =A0255,
->> + =A0 =A0 =A0 =A0 0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
->
-> I can't find reason why you've created a TABLETPCE. =A0I was looking =
-for
-> some sort of logic that hit's "if (type <=3D TABLETPC" that your tryi=
-ng
-> to avoid on 0xED but I couldn't find it.
+Hi Roland,
 
-In response to myself, I think I found the difference. A value of
-TABLETPC would avoid calling the Wacom PEN Packet mode on PEN device;
-which a lot of TPC avoid doing.
+On Wed, May 16, 2012 at 10:25:54PM +0200, Roland Stigge wrote:
+> This patch adds a driver for the key scan interface of the LPC32xx SoC
+> 
+> Signed-off-by: Roland Stigge <stigge@antcom.de>
+> 
+> ---
+> Applies to v3.4-rc7
+> 
+> Please pick this patch for the input subsystem.
+> 
+> Changes since v2:
+> * Fixed case of lpc32XX_* -> lpc32xx_*
+> * Removed unnecessary casts
+> * Removed unnecessary unlikely()
+> * Use unsigned for key bits
+> * Included Russell's lpc32xx_mod_states() algorithm change suggestion
+> * Replaced (res == NULL) with (!res)
+> * clk_enable() -> clk_prepare_enable()
+> * Moved clk_prepare_enable() and clk_disable_unprepare() to input's
+>   open()/close() callbacks to save power
+> * Handle clk_prepare_enable() return value appropriately
+> * DT: Use "keypad,num-rows", "keypad,num-columns" and "linux,keymap" properties
+> 
+> Thanks to Axel Lin and Russell King for reviewing!
+> 
+>  Documentation/devicetree/bindings/input/lpc32xx-key.txt |   28 +
+>  drivers/input/keyboard/Kconfig                          |   10 
+>  drivers/input/keyboard/Makefile                         |    1 
+>  drivers/input/keyboard/lpc32xx-keys.c                   |  382 ++++++++++++++++
+>  4 files changed, 421 insertions(+)
+> 
+> --- /dev/null
+> +++ linux-2.6/Documentation/devicetree/bindings/input/lpc32xx-key.txt
+> @@ -0,0 +1,28 @@
+> +NXP LPC32xx Key Scan Interface
+> +
+> +Required Properties:
+> +- compatible: Should be "nxp,lpc3220-key"
+> +- reg: Physical base address of the controller and length of memory mapped
+> +  region.
+> +- interrupts: The interrupt number to the cpu.
+> +- keypad,num-rows: Number of rows and columns, e.g. 1: 1x1, 6: 6x6
+> +- keypad,num-columns: Must be equal to keypad,num-rows since LPC32xx only
+> +  supports square matrices
+> +- nxp,debounce-delay-ms: Debounce delay in ms
+> +- nxp,scan-delay-ms: Repeated scan period in ms
+> +- linux,keymap: the key-code to be reported when the key is pressed
+> +  and released, see also
+> +  Documentation/devicetree/bindings/input/matrix-keymap.txt
+> +
+> +Example:
+> +
+> +	key@40050000 {
+> +		compatible = "nxp,lpc3220-key";
+> +		reg = <0x40050000 0x1000>;
+> +		interrupts = <54 0>;
+> +		keypad,num-rows = <1>;
+> +		keypad,num-columns = <1>;
+> +		nxp,debounce-delay-ms = <3>;
+> +		nxp,scan-delay-ms = <34>;
+> +		linux,keymap = <0x00000002>;
+> +	};
+> --- linux-2.6.orig/drivers/input/keyboard/Kconfig
+> +++ linux-2.6/drivers/input/keyboard/Kconfig
+> @@ -318,6 +318,16 @@ config KEYBOARD_LOCOMO
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called locomokbd.
+>  
+> +config KEYBOARD_LPC32XX
+> +	tristate "LPC32XX matrix key scanner support"
+> +	depends on ARCH_LPC32XX
+> +	help
+> +	  Say Y here if you want to use NXP LPC32XX SoC key scanner interface,
+> +	  connected to a key matrix.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called lpc32xx-keys.
+> +
+>  config KEYBOARD_MAPLE
+>  	tristate "Maple bus keyboard"
+>  	depends on SH_DREAMCAST && MAPLE
+> --- linux-2.6.orig/drivers/input/keyboard/Makefile
+> +++ linux-2.6/drivers/input/keyboard/Makefile
+> @@ -25,6 +25,7 @@ obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada
+>  obj-$(CONFIG_KEYBOARD_LKKBD)		+= lkkbd.o
+>  obj-$(CONFIG_KEYBOARD_LM8323)		+= lm8323.o
+>  obj-$(CONFIG_KEYBOARD_LOCOMO)		+= locomokbd.o
+> +obj-$(CONFIG_KEYBOARD_LPC32XX)		+= lpc32xx-keys.o
+>  obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
+>  obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
+>  obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
+> --- /dev/null
+> +++ linux-2.6/drivers/input/keyboard/lpc32xx-keys.c
+> @@ -0,0 +1,382 @@
+> +/*
+> + * NXP LPC32xx SoC Key Scan Interface
+> + *
+> + * Authors:
+> + *    Kevin Wells <kevin.wells@nxp.com>
+> + *    Roland Stigge <stigge@antcom.de>
+> + *
+> + * Copyright (C) 2010 NXP Semiconductors
+> + * Copyright (C) 2012 Roland Stigge
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/slab.h>
+> +#include <linux/irq.h>
+> +#include <linux/pm.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/input.h>
+> +#include <linux/clk.h>
+> +#include <linux/io.h>
+> +#include <linux/of.h>
+> +
+> +/*
+> + * Key scanner register offsets
+> + */
+> +#define LPC32XX_KS_DEB(x)			((x) + 0x00)
+> +#define LPC32XX_KS_STATE_COND(x)		((x) + 0x04)
+> +#define LPC32XX_KS_IRQ(x)			((x) + 0x08)
+> +#define LPC32XX_KS_SCAN_CTL(x)			((x) + 0x0C)
+> +#define LPC32XX_KS_FAST_TST(x)			((x) + 0x10)
+> +#define LPC32XX_KS_MATRIX_DIM(x)		((x) + 0x14)
+> +#define LPC32XX_KS_DATA(x, y)			((x) + 0x40 + ((y) << 2))
+> +
+> +#define LPC32XX_KSCAN_DEB_NUM_DEB_PASS(n)	((n) & 0xFF)
+> +
+> +#define LPC32XX_KSCAN_SCOND_IN_IDLE		0x0
+> +#define LPC32XX_KSCAN_SCOND_IN_SCANONCE		0x1
+> +#define LPC32XX_KSCAN_SCOND_IN_IRQGEN		0x2
+> +#define LPC32XX_KSCAN_SCOND_IN_SCAN_MATRIX	0x3
+> +
+> +#define LPC32XX_KSCAN_IRQ_PENDING_CLR		0x1
+> +
+> +#define LPC32XX_KSCAN_SCTRL_SCAN_DELAY(n)	((n) & 0xFF)
+> +
+> +#define LPC32XX_KSCAN_FTST_FORCESCANONCE	0x1
+> +#define LPC32XX_KSCAN_FTST_USE32K_CLK		0x2
+> +
+> +#define LPC32XX_KSCAN_MSEL_SELECT(n)		((n) & 0xF)
+> +
+> +/*
+> + * Key scanner platform configuration structure
+> + */
+> +struct lpc32xx_kscan_cfg {
+> +	u32	matrix_sz;	/* Size of matrix in XxY, ie. 3 = 3x3 */
+> +	int	*keymap;	/* Pointer to key map for the scan matrix */
+> +	u32	deb_clks;	/* Debounce clocks (based on 32KHz clock) */
+> +	u32	scan_delay;	/* Scan delay (based on 32KHz clock) */
+> +};
 
-Just to be safe though, was it on purpose that 0xEF is a TABLETPC?
+Hmm, this is not usedul if it is hidden in this driver. You need to
+decide if you want to split it into a separate header file and place it
+in include/linux/input/... or include/linux/platform_data/... so that it
+can be used by the platform code, or make your driver pure DT driver and
+have it depend on DT support and require all board carry DT bindings.
 
-Chris
+> +
+> +struct lpc32xx_kscan_drv {
+> +	struct input_dev *input;
+> +	struct lpc32xx_kscan_cfg *kscancfg;
+> +	struct clk *clk;
+> +	void __iomem *kscan_base;
+> +	int irq;
+> +	u8 lastkeystates[8];
+> +};
+> +
+> +static void lpc32xx_mod_states(struct lpc32xx_kscan_drv *kscandat, int off)
+> +{
+> +	u8 key;
+> +	int j;
+> +	unsigned changed, scancode, keycode;
+> +
+> +	key = readl(LPC32XX_KS_DATA(kscandat->kscan_base, off));
+> +	changed = key ^ kscandat->lastkeystates[off];
+> +	if (changed) {
+> +		for (j = 0; j < kscandat->kscancfg->matrix_sz; j++) {
+> +			if (changed & (1 << j)) {
+> +				/* Key state changed, signal an event */
+> +				scancode =
+> +				    (j * kscandat->kscancfg->matrix_sz) + off;
 
->
-> Is the type needed?
->
-> Chris
->
->> =A0static const struct wacom_features wacom_features_0x47 =3D
->> =A0 =A0 =A0 =A0{ "Wacom Intuos2 6x8", =A0 =A0WACOM_PKGLEN_INTUOS, =A0=
- =A020320, 16240, 1023,
->> =A0 =A0 =A0 =A0 =A031, INTUOS, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
->> @@ -2060,6 +2069,8 @@ const struct usb_device_id wacom_ids[] =3D {
->> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xE5) },
->> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xE6) },
->> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xEC) },
->> + =A0 =A0 =A0 { USB_DEVICE_WACOM(0xED) },
->> + =A0 =A0 =A0 { USB_DEVICE_WACOM(0xEF) },
->> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0x47) },
->> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xF4) },
->> =A0 =A0 =A0 =A0{ USB_DEVICE_LENOVO(0x6004) },
->> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet=
-/wacom_wac.h
->> index 8708043..bd5d37b 100644
->> --- a/drivers/input/tablet/wacom_wac.h
->> +++ b/drivers/input/tablet/wacom_wac.h
->> @@ -48,6 +48,7 @@
->> =A0#define WACOM_REPORT_TPCMT =A0 =A0 =A0 =A0 =A0 =A0 13
->> =A0#define WACOM_REPORT_TPCHID =A0 =A0 =A0 =A0 =A0 =A015
->> =A0#define WACOM_REPORT_TPCST =A0 =A0 =A0 =A0 =A0 =A0 16
->> +#define WACOM_REPORT_TPC1FGE =A0 =A0 =A0 =A0 =A0 18
->>
->> =A0/* device quirks */
->> =A0#define WACOM_QUIRK_MULTI_INPUT =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A00x=
-0001
->> @@ -80,6 +81,7 @@ enum {
->> =A0 =A0 =A0 =A0WIRELESS,
->> =A0 =A0 =A0 =A0BAMBOO_PT,
->> =A0 =A0 =A0 =A0TABLETPC, =A0 /* add new TPC below */
->> + =A0 =A0 =A0 TABLETPCE,
->> =A0 =A0 =A0 =A0TABLETPC2FG,
->> =A0 =A0 =A0 =A0MTSCREEN,
->> =A0 =A0 =A0 =A0MAX_TYPE
->> --
->> 1.7.9.5
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-inpu=
-t" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please use:
+
+	scancode = MATRIX_SCAN_CODE(j, off, kscandat->row_shift);
+
+BTW, instead of "j" and "off" maybe switch to "row" and "col" naming?
+
+> +				keycode = kscandat->kscancfg->keymap[scancode];
+> +				input_report_key(kscandat->input, keycode,
+> +						 key & (1 << j));
+
+You might consider emitting MSC_SCAN as well.
+
+> +			}
+> +		}
+> +
+> +		kscandat->lastkeystates[off] = key;
+> +	}
+> +}
+> +
+> +static irqreturn_t lpc32xx_kscan_irq(int irq, void *dev_id)
+> +{
+> +	int i;
+> +	struct lpc32xx_kscan_drv *kscandat = dev_id;
+> +
+> +	for (i = 0; i < kscandat->kscancfg->matrix_sz; i++)
+> +		lpc32xx_mod_states(kscandat, i);
+> +
+> +	writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
+> +
+> +	input_sync(kscandat->input);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int lpc32xx_kscan_open(struct input_dev *dev)
+> +{
+> +	struct lpc32xx_kscan_drv *kscandat = input_get_drvdata(dev);
+> +
+> +	return clk_prepare_enable(kscandat->clk);
+> +}
+> +
+> +static void lpc32xx_kscan_close(struct input_dev *dev)
+> +{
+> +	struct lpc32xx_kscan_drv *kscandat = input_get_drvdata(dev);
+> +
+> +	clk_disable_unprepare(kscandat->clk);
+> +}
+> +
+> +#ifdef CONFIG_OF
+> +static struct lpc32xx_kscan_cfg *lpc32xx_parse_dt(struct device *dev)
+> +{
+> +	struct lpc32xx_kscan_cfg *pdata;
+> +	struct device_node *np = dev->of_node;
+> +	int key_count;
+> +	int i;
+> +	u32 rows, columns;
+> +	const __be32 *prop;
+> +	int proplen;
+> +
+> +	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
+> +	if (!pdata) {
+> +		dev_err(dev, "could not allocate memory for platform data\n");
+> +		return NULL;
+> +	}
+> +
+> +	of_property_read_u32(np, "keypad,num-rows", &rows);
+> +	of_property_read_u32(np, "keypad,num-columns", &columns);
+> +	if (!rows || rows != columns) {
+> +		dev_err(dev, "rows and columns must be specified and be equal!\n");
+
+Why?
+
+> +		return NULL;
+> +	}
+> +
+> +	pdata->matrix_sz = rows;
+> +	key_count = rows * columns;
+> +
+> +	of_property_read_u32(np, "nxp,debounce-delay-ms", &pdata->deb_clks);
+> +	of_property_read_u32(np, "nxp,scan-delay-ms", &pdata->scan_delay);
+> +	if (!pdata->deb_clks || !pdata->scan_delay) {
+> +		dev_err(dev, "debounce or scan delay not specified\n");
+> +		return NULL;
+> +	}
+> +
+> +	pdata->keymap = devm_kzalloc(dev, sizeof(int) * key_count, GFP_KERNEL);
+> +	if (!pdata->keymap) {
+> +		dev_err(dev, "could not allocate memory for keymap\n");
+> +		return NULL;
+> +	}
+> +
+> +	prop = of_get_property(np, "linux,keymap", &proplen);
+> +	if (!prop) {
+> +		dev_err(dev, "linux,keymap not specified\n");
+> +		return NULL;
+> +	}
+> +
+> +	if (proplen % sizeof(u32)) {
+> +		dev_err(dev, "bad linux,keymap property size: %d\n", proplen);
+> +		return NULL;
+> +	}
+> +	proplen /= sizeof(u32);
+> +
+> +	for (i = 0; i < proplen; i++) {
+> +		u32 tmp = be32_to_cpup(prop + i);
+> +		u32 row, column, key_code;
+> +
+> +		row = (tmp >> 24) & 0xff;
+> +		column = (tmp >> 16) & 0xff;
+> +		key_code = tmp & 0xffff;
+> +		pdata->keymap[row * columns + column] = key_code;
+> +	}
+
+If you use matrix_keypad_build_keymap() most of this code will go away.
+
+> +
+> +	return pdata;
+> +}
+> +#else
+> +static struct lpc32xx_kscan_cfg *lpc32xx_parse_dt(struct device *dev)
+> +{
+> +	return NULL;
+> +}
+> +#endif
+> +
+> +static int __devinit lpc32xx_kscan_probe(struct platform_device *pdev)
+> +{
+> +	struct lpc32xx_kscan_drv *kscandat;
+> +	struct resource *res;
+> +	int retval, i, keynum;
+> +
+> +	kscandat = kzalloc(sizeof(struct lpc32xx_kscan_drv), GFP_KERNEL);
+> +	if (!kscandat) {
+> +		dev_err(&pdev->dev, "failed to allocate memory\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!res) {
+> +		dev_err(&pdev->dev, "failed to get platform I/O memory\n");
+> +		retval = -EBUSY;
+> +		goto out1;
+> +	}
+> +
+> +	kscandat->kscan_base = devm_request_and_ioremap(&pdev->dev, res);
+
+I would prefer you did not mix devm_* and nonmanaged resources in the
+driver; stick with nonmanaged ones.
+
+> +	if (kscandat->kscan_base == NULL) {
+> +		dev_err(&pdev->dev, "failed to request and remap I/O memory\n");
+> +		retval = -EBUSY;
+> +		goto out1;
+> +	}
+> +
+> +	/* Get the key scanner clock */
+> +	kscandat->clk = clk_get(&pdev->dev, NULL);
+> +	if (IS_ERR(kscandat->clk)) {
+> +		dev_err(&pdev->dev, "failed to get clock\n");
+> +		retval = -ENODEV;
+
+Do not clobber retval:
+
+		retval = PTR_ERR(kscandat->clk);
+
+BTW, can we call it "error" pleasei since you return "0" explicitly on
+success?
+
+> +		goto out1;
+> +	}
+> +
+> +	kscandat->irq = platform_get_irq(pdev, 0);
+> +	if ((kscandat->irq < 0) || (kscandat->irq >= NR_IRQS)) {
+> +		dev_err(&pdev->dev, "failed to get platform irq\n");
+> +		retval = -EINVAL;
+> +		goto out2;
+> +	}
+> +	retval = request_irq(kscandat->irq, lpc32xx_kscan_irq,
+> +			     0, pdev->name, kscandat);
+> +	if (retval) {
+> +		dev_err(&pdev->dev, "failed to request irq\n");
+> +		goto out2;
+> +	}
+> +
+> +	kscandat->input = input_allocate_device();
+> +	if (kscandat->input == NULL) {
+> +		dev_err(&pdev->dev, "failed to allocate device\n");
+> +		retval = -ENOMEM;
+> +		goto out3;
+> +	}
+> +
+> +	if (pdev->dev.of_node)
+> +		kscandat->kscancfg = lpc32xx_parse_dt(&pdev->dev);
+> +	else
+> +		kscandat->kscancfg = pdev->dev.platform_data;
+> +	if (!kscandat->kscancfg) {
+> +		dev_err(&pdev->dev, "failed to get platform data\n");
+> +		retval = -EINVAL;
+> +		goto out4;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, kscandat);
+> +
+> +	/* Setup key input */
+> +	kscandat->input->evbit[0]	= BIT_MASK(EV_KEY);
+> +	kscandat->input->name		= pdev->name;
+> +	kscandat->input->phys		= "matrix-keys/input0";
+> +	kscandat->input->dev.parent	=  &pdev->dev;
+> +	kscandat->input->id.vendor	= 0x0001;
+> +	kscandat->input->id.product	= 0x0001;
+> +	kscandat->input->id.version	= 0x0100;
+> +	kscandat->input->open		= &lpc32xx_kscan_open;
+
+No need for '&'.
+
+> +	kscandat->input->close		= &lpc32xx_kscan_close;
+
+> +	keynum = kscandat->kscancfg->matrix_sz * kscandat->kscancfg->matrix_sz;
+> +	for (i = 0; i < keynum; i++)
+> +		__set_bit(kscandat->kscancfg->keymap[i],
+> +			kscandat->input->keybit);
+
+This should use matrix_keypad_build_keymap() with support for OF maps
+(see 'next' branch in my tree).
+
+> +
+> +	input_set_drvdata(kscandat->input, kscandat);
+> +	input_set_capability(kscandat->input, EV_MSC, MSC_SCAN);
+> +
+> +	retval = input_register_device(kscandat->input);
+> +	if (retval) {
+> +		dev_err(&pdev->dev, "failed to register input device\n");
+> +		goto out4;
+> +	}
+> +
+> +	/* Configure the key scanner */
+> +	writel(kscandat->kscancfg->deb_clks,
+> +		LPC32XX_KS_DEB(kscandat->kscan_base));
+> +	writel(kscandat->kscancfg->scan_delay,
+> +		LPC32XX_KS_SCAN_CTL(kscandat->kscan_base));
+> +	writel(LPC32XX_KSCAN_FTST_USE32K_CLK,
+> +		LPC32XX_KS_FAST_TST(kscandat->kscan_base));
+> +	writel(kscandat->kscancfg->matrix_sz,
+> +		LPC32XX_KS_MATRIX_DIM(kscandat->kscan_base));
+> +	writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
+> +
+> +	return 0;
+> +
+> +out4:
+> +	input_free_device(kscandat->input);
+> +out3:
+> +	free_irq(kscandat->irq, pdev);
+> +out2:
+> +	clk_put(kscandat->clk);
+> +out1:
+> +	kfree(kscandat);
+> +
+> +	return retval;
+> +}
+> +
+> +static int __devexit lpc32xx_kscan_remove(struct platform_device *pdev)
+> +{
+> +	struct lpc32xx_kscan_drv *kscandat = platform_get_drvdata(pdev);
+> +
+> +	free_irq(kscandat->irq, pdev);
+> +	input_unregister_device(kscandat->input);
+> +	clk_put(kscandat->clk);
+> +	kfree(kscandat);
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM
+
+Please use CONFIG_PM_SLEEP since you do not use runtime PM.
+
+> +static int lpc32xx_kscan_suspend(struct platform_device *pdev,
+> +	pm_message_t state)
+
+Please convert to dev_pm_ops structure instead of legacy PM methods.
+
+> +{
+> +	struct lpc32xx_kscan_drv *kscandat = platform_get_drvdata(pdev);
+> +
+> +	/* Clear IRQ and disable clock */
+> +	writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
+> +	clk_disable_unprepare(kscandat->clk);
+> +
+> +	return 0;
+> +}
+> +
+> +static int lpc32xx_kscan_resume(struct platform_device *pdev)
+> +{
+> +	struct lpc32xx_kscan_drv *kscandat = platform_get_drvdata(pdev);
+> +
+> +	/* Enable clock and clear IRQ */
+> +	clk_prepare_enable(kscandat->clk);
+> +	writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
+> +
+> +	return 0;
+> +}
+> +#else
+> +#define lpc32xx_kscan_suspend	NULL
+> +#define lpc32xx_kscan_resume	NULL
+> +#endif
+
+Use "static SIMPLE_DEV_PM_OPS()" outside of #ifdef block. You won't need
+defining lpc32xx_kscan_suspend/lpc32xx_kscan_resume to NULL.
+
+> +
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id lpc32xx_kscan_match[] = {
+> +	{ .compatible = "nxp,lpc3220-key" },
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, lpc32xx_kscan_match);
+> +#endif
+> +
+> +static struct platform_driver lpc32xx_kscan_driver = {
+> +	.probe		= lpc32xx_kscan_probe,
+> +	.remove		= __devexit_p(lpc32xx_kscan_remove),
+> +	.suspend	= lpc32xx_kscan_suspend,
+> +	.resume		= lpc32xx_kscan_resume,
+
+These 2 should go away.
+
+> +	.driver		= {
+> +		.name	= "lpc32xx_keys",
+> +		.of_match_table = of_match_ptr(lpc32xx_kscan_match),
+
+		.pm	= lpc32xx_kscan_pm_ops,
+		.owner	= THIS_MODULE,
+> +	}
+> +};
+> +
+> +module_platform_driver(lpc32xx_kscan_driver);
+> +
+> +MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Kevin Wells <kevin.wells@nxp.com>");
+> +MODULE_AUTHOR("Roland Stigge <stigge@antcom.de>");
+> +MODULE_DESCRIPTION("Key scanner driver for LPC32XX devices");
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,89 +1,39 @@
-From: Rob Herring <robherring2@gmail.com>
-Subject: Re: [PATCH RESEND v3 2/2] ARM: LPC32xx: Make platform use key driver
-Date: Thu, 17 May 2012 18:32:10 -0500
-Message-ID: <4FB58A7A.4060606@gmail.com>
-References: <1337199955-26441-1-git-send-email-stigge@antcom.de> <1337199955-26441-2-git-send-email-stigge@antcom.de>
+From: "Poddar, Sourav" <sourav.poddar@ti.com>
+Subject: Re: [RESEND/PATCHv2] Input: omap-keypad: dynamically handle register offsets
+Date: Fri, 18 May 2012 10:04:28 +0530
+Message-ID: <CAKdam55YzfuGk+AHb=SgBqtLYJeLh_UpHAaxdVBp_Nv55iBCDw@mail.gmail.com>
+References: <1335419677-24934-1-git-send-email-sourav.poddar@ti.com>
+	<20120509051809.GA10514@core.coreip.homeip.net>
+	<CAKdam56kv2qia-2DMeTRMYwWJbskOeiJkW46wJqfMU9-pVkXwQ@mail.gmail.com>
+	<20120509074539.GI10514@core.coreip.homeip.net>
+	<CAKdam567nCNbMX8hW=bKS5bSQs_z9wP-GaM3sWsM2fjhmVQZMg@mail.gmail.com>
+	<CAKdam57xYtKw7iNJFd+5r-VS-6Mn8OG26xEFUR9SiMvk8gPW4A@mail.gmail.com>
+	<CAKdam55EAHZvM6-r138UgVnqw5t_cE1=+t_Hwm=WmMk8nMwKuA@mail.gmail.com>
+	<20120517152556.GA25976@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:33707 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030596Ab2ERBvf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 May 2012 21:51:35 -0400
-In-Reply-To: <1337199955-26441-2-git-send-email-stigge@antcom.de>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20120517152556.GA25976@core.coreip.homeip.net>
+Sender: linux-omap-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, balbi@ti.com, akpm@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
-To: Roland Stigge <stigge@antcom.de>
-Cc: dmitry.torokhov@gmail.com, axel.lin@gmail.com, riyer@nvidia.com, michael.hennerich@analog.com, grant.likely@secretlab.ca, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com, devicetree-discuss@lists.ozlabs.org, rob.herring@calxeda.com
 
-On 05/16/2012 03:25 PM, Roland Stigge wrote:
-> This patch connects the lpc32xx-key driver to the LPC32xx platform (via
-> lpc32xx.dtsi), and more specifically to the reference board via its dts file.
-> The clock.c file needs to be changed to match the automatic device name to its
-> clock.
-> 
-> Signed-off-by: Roland Stigge <stigge@antcom.de>
-
-Acked-by: Rob Herring <rob.herring@calxeda.com>
-
-> 
-> ---
-> Applies to v3.4-rc7 + LPC32xx DT patches
-> 
-> Please pick this patch for the arm-soc subsystem.
-> 
-> Changes since v2:
-> * DT: Use "keypad,num-rows", "keypad,num-columns" and "linux,keymap" properties
-> 
->  arch/arm/boot/dts/lpc32xx.dtsi |    2 ++
->  arch/arm/boot/dts/phy3250.dts  |    9 +++++++++
->  arch/arm/mach-lpc32xx/clock.c  |    2 +-
->  3 files changed, 12 insertions(+), 1 deletion(-)
-> 
-> --- linux-2.6.orig/arch/arm/boot/dts/lpc32xx.dtsi
-> +++ linux-2.6/arch/arm/boot/dts/lpc32xx.dtsi
-> @@ -249,6 +249,8 @@
->  			key@40050000 {
->  				compatible = "nxp,lpc3220-key";
->  				reg = <0x40050000 0x1000>;
-> +				interrupts = <54 0>;
-> +				status = "disable";
->  			};
->  
->  		};
-> --- linux-2.6.orig/arch/arm/boot/dts/phy3250.dts
-> +++ linux-2.6/arch/arm/boot/dts/phy3250.dts
-> @@ -135,6 +135,15 @@
->  			tsc@40048000 {
->  				status = "okay";
->  			};
-> +
-> +			key@40050000 {
-> +				status = "okay";
-> +				keypad,num-rows = <1>;
-> +				keypad,num-columns = <1>;
-> +				nxp,debounce-delay-ms = <3>;
-> +				nxp,scan-delay-ms = <34>;
-> +				linux,keymap = <0x00000002>;
-> +			};
->  		};
->  	};
->  
-> --- linux-2.6.orig/arch/arm/mach-lpc32xx/clock.c
-> +++ linux-2.6/arch/arm/mach-lpc32xx/clock.c
-> @@ -1134,7 +1134,7 @@ static struct clk_lookup lookups[] = {
->  	CLKDEV_INIT("31020300.i2c", NULL, &clk_i2c2),
->  	CLKDEV_INIT("dev:ssp0", NULL, &clk_ssp0),
->  	CLKDEV_INIT("dev:ssp1", NULL, &clk_ssp1),
-> -	CLKDEV_INIT("lpc32xx_keys.0", NULL, &clk_kscan),
-> +	CLKDEV_INIT("40050000.key", NULL, &clk_kscan),
->  	CLKDEV_INIT("20020000.flash", NULL, &clk_nand),
->  	CLKDEV_INIT("200a8000.flash", NULL, &clk_nand_mlc),
->  	CLKDEV_INIT("40048000.adc", NULL, &clk_adc),
-> _______________________________________________
-> devicetree-discuss mailing list
-> devicetree-discuss@lists.ozlabs.org
-> https://lists.ozlabs.org/listinfo/devicetree-discuss
-
+On Thu, May 17, 2012 at 8:55 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Sourav,
+>
+> On Thu, May 17, 2012 at 07:01:49PM +0530, Poddar, Sourav wrote:
+>> Hi Dmitry,
+>>
+>> Gentle Ping on this..
+>
+> The patch has been committed to my 'next' branch for 3.5 on 05/11/12:
+>
+Thanks.
+> http://git.kernel.org/?p=linux/kernel/git/dtor/input.git;a=commit;h=f77621cc640a7c50b3d8c5254ecc5d91eaa99d0d
+>
+> Thanks.
+>
+> --
+> Dmitry

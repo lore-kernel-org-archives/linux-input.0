@@ -1,70 +1,58 @@
-From: Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH] Input: synaptics - reject out of range position values
-Date: Fri, 18 May 2012 10:00:24 -0500
-Message-ID: <1337353224-12333-1-git-send-email-seth.forshee@canonical.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: allocate event circular buffer separately
+Date: Fri, 18 May 2012 08:22:13 -0700
+Message-ID: <20120518152213.GA2646@core.coreip.homeip.net>
+References: <1337085984-5811-1-git-send-email-mika.kuoppala@nokia.com>
+ <20120516194018.GB15920@core.coreip.homeip.net>
+ <1337331174.28599.22.camel@rosetta.research.nokia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:41337 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750835Ab2ERPA2 (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:62667 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752513Ab2ERPWU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 May 2012 11:00:28 -0400
+	Fri, 18 May 2012 11:22:20 -0400
+Received: by pbbrp8 with SMTP id rp8so4078272pbb.19
+        for <linux-input@vger.kernel.org>; Fri, 18 May 2012 08:22:20 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1337331174.28599.22.camel@rosetta.research.nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Seth Forshee <seth.forshee@canonical.com>
+To: Mika Kuoppala <mika.kuoppala@nokia.com>
+Cc: linux-input@vger.kernel.org, rydberg@euromail.se
 
-The synaptics touchpad on the Acer Aspire One D250 will report y
-coordinate values in excess of 8000 near the bottom of the touchpad,
-well outside of the range of values that the synaptics documentation
-says should be reported.
+On Fri, May 18, 2012 at 11:52:54AM +0300, Mika Kuoppala wrote:
+> On ke, 2012-05-16 at 12:40 -0700, ext Dmitry Torokhov wrote:
+> > Hi Mika,
+> > 
+> > On Tue, May 15, 2012 at 03:46:24PM +0300, Mika Kuoppala wrote:
+> > > If struct evdev_client is added to the already power of two
+> > > buffer allocation and the buffer is large, for multitouch devices,
+> > > the allocation will spill over into the the next page.
+> > > Alloc buffer separately instead of binding it to evdev_client struct
+> > > to avoid multipage kmalloc.
+> > 
+> > Not counting the event buffer, size of evdev_client is fairly small
+> > (under 100 bytes?) so I wonder how often this split actually helps (i.e.
+> > buffer and client each are less than page size but combined are more).
+> 
+> With normal input devices this never happens as the default event buffer
+> size seem to be 1024 (64 * 16) bytes. But the event buffer size
+> heuristics for multi touch devices this happens very easily. The
+> heuristics will look for ABS_MT_TRACKING_ID min and max values to
+> determine the amount of contacts delivered between two syn events. With
+> 10 contacts and moderate amount of ABS_MT* events between MT_SYNS, you
+> end up easily to more than a page worth of stuff.
+> 
+> See driver/input/input.c:input_estimate_events_per_packet()
 
-In addition, the y values abruptly change from very low values to these
-very high values. After the calculation to invert the y coordinates,
-userspace gets y coordinates that can jump suddenly between large
-positive and moderately large negative values, causing sudden jumps in
-the pointer position.
+That was not my question. I was askig how often it happens that not
+only input_estimate_events_per_packet() * <packet size> produces large
+value, but it is less than 4K, but close enough to 4K so that
+event_client allocated together with the buffer pushes it up over 4K.
 
-To work around this odd behavior, reject any coordinates with values
-outside of absolute limits specified by Synaptics, which is 6143 for
-both axes.
+Thanks.
 
-BugLink: http://bugs.launchpad.net/bugs/1001251
-Cc: stable@vger.kernel.org
-Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
----
-I'm not sure whether the limits here should be the hard-coded value or
-the coordinates reported by the device when that's supported (i.e.
-whether the coordinates reported by the device are always within the
-range of 0 to 6143). If the latter is more appropriate I can modify the
-patch to use the device-reported values and fall back to the hard-coded
-values.
-
- drivers/input/mouse/synaptics.c |    5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index e07eb9b..f62299d 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -40,6 +40,8 @@
-  * Note that newer firmware allows querying device for maximum useable
-  * coordinates.
-  */
-+#define XMAX 6143
-+#define YMAX 6143
- #define XMIN_NOMINAL 1472
- #define XMAX_NOMINAL 5472
- #define YMIN_NOMINAL 1408
-@@ -555,6 +557,9 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
- 		hw->right = (buf[0] & 0x02) ? 1 : 0;
- 	}
- 
-+	if (hw->x > XMAX || hw->y > YMAX)
-+		return 1;
-+
- 	return 0;
- }
- 
 -- 
-1.7.9.5
-
+Dmitry

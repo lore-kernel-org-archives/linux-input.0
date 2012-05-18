@@ -1,52 +1,47 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 01/16] Input: Add Device Tree support to the ab8500-ponkey driver
-Date: Fri, 18 May 2012 09:39:00 +0100
-Message-ID: <1337330355-17747-2-git-send-email-lee.jones@linaro.org>
-References: <1337330355-17747-1-git-send-email-lee.jones@linaro.org>
+From: Mika Kuoppala <mika.kuoppala@nokia.com>
+Subject: Re: [PATCH] input: allocate event circular buffer separately
+Date: Fri, 18 May 2012 11:52:54 +0300
+Message-ID: <1337331174.28599.22.camel@rosetta.research.nokia.com>
+References: <1337085984-5811-1-git-send-email-mika.kuoppala@nokia.com>
+	 <20120516194018.GB15920@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:53297 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933136Ab2ERIjY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 May 2012 04:39:24 -0400
-Received: by wgbdr13 with SMTP id dr13so2556594wgb.1
-        for <linux-input@vger.kernel.org>; Fri, 18 May 2012 01:39:23 -0700 (PDT)
-In-Reply-To: <1337330355-17747-1-git-send-email-lee.jones@linaro.org>
+Received: from smtp.nokia.com ([147.243.1.47]:44667 "EHLO mgw-sa01.nokia.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932954Ab2ERIxC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 May 2012 04:53:02 -0400
+In-Reply-To: <20120516194018.GB15920@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, arnd@arndb.de, linus.walleij@stericsson.com, grant.likely@secretlab.ca, cjb@laptop.org, broonie@opensource.wolfsonmicro.com, sameo@linux.intel.com
-Cc: Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org
+To: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, rydberg@euromail.se
 
-This patch will allow the ab8500-ponkey driver to be probed during
-boot when Device Tree is enabled.
+On ke, 2012-05-16 at 12:40 -0700, ext Dmitry Torokhov wrote:
+> Hi Mika,
+> 
+> On Tue, May 15, 2012 at 03:46:24PM +0300, Mika Kuoppala wrote:
+> > If struct evdev_client is added to the already power of two
+> > buffer allocation and the buffer is large, for multitouch devices,
+> > the allocation will spill over into the the next page.
+> > Alloc buffer separately instead of binding it to evdev_client struct
+> > to avoid multipage kmalloc.
+> 
+> Not counting the event buffer, size of evdev_client is fairly small
+> (under 100 bytes?) so I wonder how often this split actually helps (i.e.
+> buffer and client each are less than page size but combined are more).
 
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/input/misc/ab8500-ponkey.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+With normal input devices this never happens as the default event buffer
+size seem to be 1024 (64 * 16) bytes. But the event buffer size
+heuristics for multi touch devices this happens very easily. The
+heuristics will look for ABS_MT_TRACKING_ID min and max values to
+determine the amount of contacts delivered between two syn events. With
+10 contacts and moderate amount of ABS_MT* events between MT_SYNS, you
+end up easily to more than a page worth of stuff.
 
-diff --git a/drivers/input/misc/ab8500-ponkey.c b/drivers/input/misc/ab8500-ponkey.c
-index 350fd0c..394aa1f 100644
---- a/drivers/input/misc/ab8500-ponkey.c
-+++ b/drivers/input/misc/ab8500-ponkey.c
-@@ -131,10 +131,16 @@ static int __devexit ab8500_ponkey_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static const struct of_device_id ab8500_ponkey_match[] = {
-+	{ .compatible = "stericsson,ab8500-ponkey", },
-+	{}
-+};
-+
- static struct platform_driver ab8500_ponkey_driver = {
- 	.driver		= {
- 		.name	= "ab8500-poweron-key",
- 		.owner	= THIS_MODULE,
-+		.of_match_table = ab8500_ponkey_match,
- 	},
- 	.probe		= ab8500_ponkey_probe,
- 	.remove		= __devexit_p(ab8500_ponkey_remove),
--- 
-1.7.9.5
+See driver/input/input.c:input_estimate_events_per_packet()
+
+-Mika
+
 

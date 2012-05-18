@@ -1,47 +1,45 @@
-From: Mika Kuoppala <mika.kuoppala@nokia.com>
-Subject: Re: [PATCH] input: allocate event circular buffer separately
-Date: Fri, 18 May 2012 11:52:54 +0300
-Message-ID: <1337331174.28599.22.camel@rosetta.research.nokia.com>
-References: <1337085984-5811-1-git-send-email-mika.kuoppala@nokia.com>
-	 <20120516194018.GB15920@core.coreip.homeip.net>
+From: Roland Stigge <stigge@antcom.de>
+Subject: Re: [PATCH RESEND v3 1/2] input: keyboard: Add keys driver for the
+ LPC32xx SoC
+Date: Fri, 18 May 2012 11:12:18 +0200
+Message-ID: <4FB61272.5080700@antcom.de>
+References: <1337199955-26441-1-git-send-email-stigge@antcom.de> <20120517173814.GA26948@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([147.243.1.47]:44667 "EHLO mgw-sa01.nokia.com"
+Received: from antcom.de ([188.40.178.216]:53254 "EHLO chuck.antcom.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932954Ab2ERIxC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 May 2012 04:53:02 -0400
-In-Reply-To: <20120516194018.GB15920@core.coreip.homeip.net>
+	id S967112Ab2ERJMV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 May 2012 05:12:21 -0400
+In-Reply-To: <20120517173814.GA26948@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, rydberg@euromail.se
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: axel.lin@gmail.com, riyer@nvidia.com, michael.hennerich@analog.com, grant.likely@secretlab.ca, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com, devicetree-discuss@lists.ozlabs.org, rob.herring@calxeda.com
 
-On ke, 2012-05-16 at 12:40 -0700, ext Dmitry Torokhov wrote:
-> Hi Mika,
+Hi Dmitry!
+
+thanks for your suggestions, will include them into the next patch update.
+
+On 05/17/2012 07:38 PM, Dmitry Torokhov wrote:
+>> +	of_property_read_u32(np, "keypad,num-rows", &rows);
+>> +	of_property_read_u32(np, "keypad,num-columns", &columns);
+>> +	if (!rows || rows != columns) {
+>> +		dev_err(dev, "rows and columns must be specified and be equal!\n");
 > 
-> On Tue, May 15, 2012 at 03:46:24PM +0300, Mika Kuoppala wrote:
-> > If struct evdev_client is added to the already power of two
-> > buffer allocation and the buffer is large, for multitouch devices,
-> > the allocation will spill over into the the next page.
-> > Alloc buffer separately instead of binding it to evdev_client struct
-> > to avoid multipage kmalloc.
-> 
-> Not counting the event buffer, size of evdev_client is fairly small
-> (under 100 bytes?) so I wonder how often this split actually helps (i.e.
-> buffer and client each are less than page size but combined are more).
+> Why?
 
-With normal input devices this never happens as the default event buffer
-size seem to be 1024 (64 * 16) bytes. But the event buffer size
-heuristics for multi touch devices this happens very easily. The
-heuristics will look for ABS_MT_TRACKING_ID min and max values to
-determine the amount of contacts delivered between two syn events. With
-10 contacts and moderate amount of ABS_MT* events between MT_SYNS, you
-end up easily to more than a page worth of stuff.
+The LPC32xx key scanner hardware is always configured with a square
+matrix (rows == columns). So I had the choice to force "keypad,num-rows"
+== "keypad,num-columns" (as done currently) to show potential error to
+the DTS/DTB provider, or ignore problems here and use
+max("keypad,num-rows", "keypad,num-columns") for actual hardware setup.
 
-See driver/input/input.c:input_estimate_events_per_packet()
+(You can and will leave out unconnected keys in the keymap anyway.)
 
--Mika
+So do you think we should change my current approach here?
 
+Thanks in advance,
 
+Roland

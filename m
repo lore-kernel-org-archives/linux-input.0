@@ -1,23 +1,23 @@
 From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: [PATCH v3] input: Add MELFAS mms114 touchscreen driver
-Date: Fri, 18 May 2012 15:57:11 +0900
-Message-ID: <1337324231-28832-1-git-send-email-jy0922.shim@samsung.com>
+Subject: [PATCH v4] input: Add MELFAS mms114 touchscreen driver
+Date: Fri, 18 May 2012 16:18:47 +0900
+Message-ID: <1337325527-5272-1-git-send-email-jy0922.shim@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:52658 "EHLO
+Received: from mailout3.samsung.com ([203.254.224.33]:62918 "EHLO
 	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751713Ab2ERG47 (ORCPT
+	with ESMTP id S1757238Ab2ERHSg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 May 2012 02:56:59 -0400
+	Fri, 18 May 2012 03:18:36 -0400
 Received: from epcpsbgm1.samsung.com (mailout3.samsung.com [203.254.224.33])
  by mailout3.samsung.com
  (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
- 17 2011)) with ESMTP id <0M4700EU7HY4MDL0@mailout3.samsung.com> for
- linux-input@vger.kernel.org; Fri, 18 May 2012 15:56:57 +0900 (KST)
+ 17 2011)) with ESMTP id <0M4700E9ZIYTVRN0@mailout3.samsung.com> for
+ linux-input@vger.kernel.org; Fri, 18 May 2012 16:18:34 +0900 (KST)
 Received: from localhost.localdomain ([165.213.219.123])
- by mmp1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ by mmp2.samsung.com (Oracle Communications Messaging Server 7u4-24.01
  (7.0.4.24.0) 64bit (built Nov 17 2011))
- with ESMTPA id <0M47007EIHYXBV80@mmp1.samsung.com> for
- linux-input@vger.kernel.org; Fri, 18 May 2012 15:56:57 +0900 (KST)
+ with ESMTPA id <0M4700DOHIYXFH50@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Fri, 18 May 2012 16:18:34 +0900 (KST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
@@ -29,6 +29,8 @@ It uses I2C interface and supports 10 multi touch.
 Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
 Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
 ---
+This is quick updated patch from v3.
+
 Changelog
 
 from v1:
@@ -46,14 +48,16 @@ from v2:
 - Add open and close function including regulator configuration
 - Use module_i2c_driver()
 
-Thanks.
+from v3:
+- Use check input_dev->users in PM functions
 
+Thanks.
 
  drivers/input/touchscreen/Kconfig  |   12 +
  drivers/input/touchscreen/Makefile |    1 +
- drivers/input/touchscreen/mms114.c |  559 ++++++++++++++++++++++++++++++++++++
+ drivers/input/touchscreen/mms114.c |  568 ++++++++++++++++++++++++++++++++++++
  include/linux/i2c/mms114.h         |   24 ++
- 4 files changed, 596 insertions(+), 0 deletions(-)
+ 4 files changed, 605 insertions(+), 0 deletions(-)
  create mode 100644 drivers/input/touchscreen/mms114.c
  create mode 100644 include/linux/i2c/mms114.h
 
@@ -94,10 +98,10 @@ index 3d5cf8c..882da14 100644
  obj-$(CONFIG_TOUCHSCREEN_MK712)		+= mk712.o
 diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
 new file mode 100644
-index 0000000..1e8a50b
+index 0000000..f886101
 --- /dev/null
 +++ b/drivers/input/touchscreen/mms114.c
-@@ -0,0 +1,559 @@
+@@ -0,0 +1,568 @@
 +/*
 + * Copyright (C) 2012 Samsung Electronics Co.Ltd
 + * Author: Joonyoung Shim <jy0922.shim@samsung.com>
@@ -605,7 +609,10 @@ index 0000000..1e8a50b
 +	input_mt_report_pointer_emulation(input_dev, true);
 +	input_sync(input_dev);
 +
-+	mms114_stop(data);
++	mutex_lock(&input_dev->mutex);
++	if (input_dev->users)
++		mms114_stop(data);
++	mutex_unlock(&input_dev->mutex);
 +
 +	if (data->pdata->cfg_pin)
 +		data->pdata->cfg_pin(false);
@@ -617,17 +624,23 @@ index 0000000..1e8a50b
 +{
 +	struct i2c_client *client = to_i2c_client(dev);
 +	struct mms114_data *data = i2c_get_clientdata(client);
++	struct input_dev *input_dev = data->input_dev;
 +	int error;
 +
 +	if (data->pdata->cfg_pin)
 +		data->pdata->cfg_pin(true);
 +
-+	error = mms114_start(data);
-+	if (error < 0)
-+		return error;
++	mutex_lock(&input_dev->mutex);
++	if (input_dev->users) {
++		error = mms114_start(data);
++		if (error < 0) {
++			mutex_unlock(&input_dev->mutex);
++			return error;
++		}
++	}
++	mutex_unlock(&input_dev->mutex);
 +
 +	enable_irq(client->irq);
-+
 +	return 0;
 +}
 +#endif

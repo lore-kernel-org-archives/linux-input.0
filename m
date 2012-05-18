@@ -1,58 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: allocate event circular buffer separately
-Date: Fri, 18 May 2012 08:22:13 -0700
-Message-ID: <20120518152213.GA2646@core.coreip.homeip.net>
-References: <1337085984-5811-1-git-send-email-mika.kuoppala@nokia.com>
- <20120516194018.GB15920@core.coreip.homeip.net>
- <1337331174.28599.22.camel@rosetta.research.nokia.com>
+From: =?ISO-8859-1?Q?=C9ric_Piel?= <e.a.b.piel@tudelft.nl>
+Subject: Re: Rotation Sensor in EEE Slate
+Date: Fri, 18 May 2012 18:04:39 +0200
+Message-ID: <4FB67317.1060404@tudelft.nl>
+References: <20120518094959.GB10073@engine.Speedport_W723_V_Typ_A_1_00_092>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:62667 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752513Ab2ERPWU (ORCPT
+Received: from mailservice.tudelft.nl ([130.161.131.5]:60897 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932469Ab2ERQes (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 May 2012 11:22:20 -0400
-Received: by pbbrp8 with SMTP id rp8so4078272pbb.19
-        for <linux-input@vger.kernel.org>; Fri, 18 May 2012 08:22:20 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1337331174.28599.22.camel@rosetta.research.nokia.com>
+	Fri, 18 May 2012 12:34:48 -0400
+In-Reply-To: <20120518094959.GB10073@engine.Speedport_W723_V_Typ_A_1_00_092>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mika Kuoppala <mika.kuoppala@nokia.com>
-Cc: linux-input@vger.kernel.org, rydberg@euromail.se
+To: Cedric Sodhi <manday@gmx.net>
+Cc: linux-input@vger.kernel.org
 
-On Fri, May 18, 2012 at 11:52:54AM +0300, Mika Kuoppala wrote:
-> On ke, 2012-05-16 at 12:40 -0700, ext Dmitry Torokhov wrote:
-> > Hi Mika,
-> > 
-> > On Tue, May 15, 2012 at 03:46:24PM +0300, Mika Kuoppala wrote:
-> > > If struct evdev_client is added to the already power of two
-> > > buffer allocation and the buffer is large, for multitouch devices,
-> > > the allocation will spill over into the the next page.
-> > > Alloc buffer separately instead of binding it to evdev_client struct
-> > > to avoid multipage kmalloc.
-> > 
-> > Not counting the event buffer, size of evdev_client is fairly small
-> > (under 100 bytes?) so I wonder how often this split actually helps (i.e.
-> > buffer and client each are less than page size but combined are more).
-> 
-> With normal input devices this never happens as the default event buffer
-> size seem to be 1024 (64 * 16) bytes. But the event buffer size
-> heuristics for multi touch devices this happens very easily. The
-> heuristics will look for ABS_MT_TRACKING_ID min and max values to
-> determine the amount of contacts delivered between two syn events. With
-> 10 contacts and moderate amount of ABS_MT* events between MT_SYNS, you
-> end up easily to more than a page worth of stuff.
-> 
-> See driver/input/input.c:input_estimate_events_per_packet()
+On 18/05/12 11:49, Cedric Sodhi wrote:
+> Hello everyone,
+>
+> my EEE Slate Tablet PC just returned from repairs where it had Window=
+s
+> reinstalled. This enables me to verify that it actually *does* have a
+> rotation sensor - something, of which I had not been so certain since=
+ I
+> installed Linux, because I found no trace of any such device on the P=
+CI
+> Bus(ses).
+>
+> Windows Shows "Asus G Sensor", Location "Unknown". Before I go about
+> uninstalling Windows, is there any more information I could try to
+> obtain? Do you have any idea how to get this sensor working in Linux?
+Hi,
+This is a bit a shot in the dark, but I've seen that there are some x86=
+=20
+Asus tablets which got android support. Apparently the accelerometer=20
+support is done via an extension to the "asus-laptop" module (which=20
+work via special ACPI interfaces). See:
+https://github.com/rbraken/wetab-ICS-device-tree/blob/master/kernel_mod=
+s/asus-laptop/asus-laptop.c
 
-That was not my question. I was askig how often it happens that not
-only input_estimate_events_per_packet() * <packet size> produces large
-value, but it is less than 4K, but close enough to 4K so that
-event_client allocated together with the buffer pushes it up over 4K.
+Maybe your hardware has the same/similar interface to the accelerometer=
+=2E=20
+=46or a quick look, you could try to strings/disassemble the ACPI table=
+s=20
+and look for a method like "XLRX".
 
-Thanks.
+Well, all said, none of this requires Windows, sorry ;-)
 
--- 
-Dmitry
+Good luck!
+=C9ric
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

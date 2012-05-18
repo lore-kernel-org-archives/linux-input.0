@@ -1,31 +1,70 @@
-From: Cedric Sodhi <manday@gmx.net>
-Subject: Rotation Sensor in EEE Slate
-Date: Fri, 18 May 2012 11:49:59 +0200
-Message-ID: <20120518094959.GB10073@engine.Speedport_W723_V_Typ_A_1_00_092>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH] Input: synaptics - reject out of range position values
+Date: Fri, 18 May 2012 10:00:24 -0500
+Message-ID: <1337353224-12333-1-git-send-email-seth.forshee@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.23]:55666 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S967112Ab2ERJrD (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:41337 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750835Ab2ERPA2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 May 2012 05:47:03 -0400
-Content-Disposition: inline
+	Fri, 18 May 2012 11:00:28 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Seth Forshee <seth.forshee@canonical.com>
 
-Hello everyone,
+The synaptics touchpad on the Acer Aspire One D250 will report y
+coordinate values in excess of 8000 near the bottom of the touchpad,
+well outside of the range of values that the synaptics documentation
+says should be reported.
 
-my EEE Slate Tablet PC just returned from repairs where it had Windows
-reinstalled. This enables me to verify that it actually *does* have a
-rotation sensor - something, of which I had not been so certain since I
-installed Linux, because I found no trace of any such device on the PCI
-Bus(ses).
+In addition, the y values abruptly change from very low values to these
+very high values. After the calculation to invert the y coordinates,
+userspace gets y coordinates that can jump suddenly between large
+positive and moderately large negative values, causing sudden jumps in
+the pointer position.
 
-Windows Shows "Asus G Sensor", Location "Unknown". Before I go about
-uninstalling Windows, is there any more information I could try to
-obtain? Do you have any idea how to get this sensor working in Linux?
+To work around this odd behavior, reject any coordinates with values
+outside of absolute limits specified by Synaptics, which is 6143 for
+both axes.
 
-regards,
-Cedric
+BugLink: http://bugs.launchpad.net/bugs/1001251
+Cc: stable@vger.kernel.org
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+---
+I'm not sure whether the limits here should be the hard-coded value or
+the coordinates reported by the device when that's supported (i.e.
+whether the coordinates reported by the device are always within the
+range of 0 to 6143). If the latter is more appropriate I can modify the
+patch to use the device-reported values and fall back to the hard-coded
+values.
+
+ drivers/input/mouse/synaptics.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index e07eb9b..f62299d 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -40,6 +40,8 @@
+  * Note that newer firmware allows querying device for maximum useable
+  * coordinates.
+  */
++#define XMAX 6143
++#define YMAX 6143
+ #define XMIN_NOMINAL 1472
+ #define XMAX_NOMINAL 5472
+ #define YMIN_NOMINAL 1408
+@@ -555,6 +557,9 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+ 		hw->right = (buf[0] & 0x02) ? 1 : 0;
+ 	}
+ 
++	if (hw->x > XMAX || hw->y > YMAX)
++		return 1;
++
+ 	return 0;
+ }
+ 
+-- 
+1.7.9.5
+

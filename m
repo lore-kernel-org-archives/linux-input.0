@@ -1,63 +1,46 @@
-From: Daniel Nicoletti <dantti12@gmail.com>
-Subject: Re: [GIT PULL RFC] directly poll battery strength when reading power_supply
-Date: Sat, 19 May 2012 01:10:35 -0300
-Message-ID: <CACo8zOc_kO81Mo9FDuON5Ru-jhsNp+2d+jP30Sewan+kA3uQmw@mail.gmail.com>
-References: <4EC75224.7070207@goop.org>
-	<alpine.LNX.2.00.1111191212140.15187@pobox.suse.cz>
-	<4EC820F8.4070900@goop.org>
-	<alpine.LNX.2.00.1111201110480.15187@pobox.suse.cz>
-	<4ECA7E7D.80207@goop.org>
-	<alpine.LNX.2.00.1111220028130.28728@pobox.suse.cz>
-	<4ECAE019.4000409@goop.org>
-	<alpine.LNX.2.00.1111220049470.28728@pobox.suse.cz>
-	<4ECCB38A.8000503@goop.org>
-	<alpine.LNX.2.00.1111281111510.15446@pobox.suse.cz>
-	<CACo8zOd45i3EnCVMyJoDPP4bx2AnD9mEjDiC=bJKvmX=TWfXGg@mail.gmail.com>
-	<4ED90E6D.8090402@goop.org>
-	<CACo8zOcvKwr0wDkytvJfqyx4kV0ceYyCt+qnDqiSgxNywpzeHg@mail.gmail.com>
-	<4ED9BDF8.3010600@goop.org>
-	<alpine.LNX.2.00.1112061016020.18207@pobox.suse.cz>
-	<4EE01936.70807@goop.org>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: [-next regression] USB keyboard stops working occasionally
+Date: Sun, 20 May 2012 00:17:29 +0200
+Message-ID: <4FB81BF9.7040705@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:33656 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750908Ab2ESEKg (ORCPT
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:32781 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754872Ab2ESWRc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 19 May 2012 00:10:36 -0400
-Received: by obbtb18 with SMTP id tb18so4840455obb.19
-        for <linux-input@vger.kernel.org>; Fri, 18 May 2012 21:10:35 -0700 (PDT)
-In-Reply-To: <4EE01936.70807@goop.org>
+	Sat, 19 May 2012 18:17:32 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
 Hi,
-I was just informed that my HID patch to probe the
-battery status was merged upstream, but it misses
-my:
-USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI
-on the hid-input.c file, also if you notice Jeremy Fitzhardinge
-tested on  a 2011 model which had the issue, my model
-is from 2007 and also has the issue, shouldn't we include
-the models in between?
-As I don't have commit access should I make a proper
-patch just for this extra quirk?
 
-BTW, these Apple devices allow for changing their
-names, when you pair them on a Mac the OS put
-it's hostname on the device, I don't think automating
-to this level is useful but the feature is important
-since my devices have my boss Mac hostname :/
-is this already available on HID devices or would be
-another specif addition?
+sometimes, in the middle of writing, my USB HID keyboard stops sending
+interrupts (no changes in /proc/interrupts). I have to hit a key on
+another USB interface of that keyboard to resurrect the other. It
+happens once or twice a day. It happens with -next since around Friday 4th.
 
-Thanks.
+I tried to bisect it a bit (three or four times because of fuzz) in the
+past 3 weeks and my suspect number one is currently:
+commit 3d9545cc375d117554a9b35dfddadf9189c62775
+Author: Alan Stern <stern@rowland.harvard.edu>
+Date:   Mon Apr 23 13:54:36 2012 -0400
 
-static const struct hid_device_id hid_battery_quirks[] = {
-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
-			       USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI),
-	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
-	{}
-};
+    EHCI: maintain the ehci->command value properly
+
+===
+
+I'm currently running on -next 20120518 with that commit reverted for
+one whole day and the issue seems to be gone.
+
+Could you take a look and double-check that commit? (Or do you have any
+other ideas where to take a look?)
+
+thanks,
+-- 
+js
+suse labs
+

@@ -1,54 +1,53 @@
-From: Nicola Alessi <nialessi@gmx.com>
-Subject: Elantech touchpad detected as Logitech PS2 Wheel Mouse
-Date: Sun, 20 May 2012 20:36:37 +0200
-Message-ID: <4FB939B5.4000309@gmx.com>
+From: Jonathan Nieder <jrnieder@gmail.com>
+Subject: Re: Elantech touchpad detected as Logitech PS2 Wheel Mouse
+Date: Sun, 20 May 2012 14:20:52 -0500
+Message-ID: <20120520192052.GA3959@burratino>
+References: <4FB939B5.4000309@gmx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-eu.gmx.com ([213.165.64.42]:45121 "HELO
-	mailout-eu.gmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1756711Ab2ETSgl (ORCPT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:63912 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750877Ab2ETTVA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 May 2012 14:36:41 -0400
+	Sun, 20 May 2012 15:21:00 -0400
+Received: by obbtb18 with SMTP id tb18so7026318obb.19
+        for <linux-input@vger.kernel.org>; Sun, 20 May 2012 12:20:59 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4FB939B5.4000309@gmx.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jj_ding@emc.com.tw, 673588@bugs.debian.org
+To: Nicola Alessi <nialessi@gmx.com>
+Cc: linux-input@vger.kernel.org, jj_ding@emc.com.tw
 
-Hi,
+Nicola Alessi wrote:
 
-I'm running debian wheezy with latest kernel (uname -a gives me: Linux
-ehehehpc 3.2.0-2-686-pae #1 SMP Sun May 13 07:51:23 UTC 2012 i686
-GNU/Linux).
-While I'm expecting the kernel to correctly detect my touchpad, it's
-detected as a mouse. No scrolling, no multitouch.
-Below there's a snippet of my /proc/bus/input/devices:
+> While I'm expecting the kernel to correctly detect my touchpad, it's
+> detected as a mouse. No scrolling, no multitouch.
+> Below there's a snippet of my /proc/bus/input/devices:
+
+Kernel log:
+
+ http://bugs.debian.org/cgi-bin/bugreport.cgi?msg=15;filename=dmesg.txt;att=3;bug=673588
 
 [...]
-I: Bus=0011 Vendor=0002 Product=0001 Version=0063
-N: Name="PS/2 Logitech Wheel Mouse"
-P: Phys=isa0060/serio4/input0
-S: Sysfs=/devices/platform/i8042/serio4/input/input7
-U: Uniq=
-H: Handlers=mouse0 event7
-B: PROP=0
-B: EV=7
-B: KEY=70000 0 0 0 0 0 0 0 0
-B: REL=103
-[...]
+> The notebook I'm using is a Fujitsu Siemens Amilo pi2515.
+> I also tried kernel version 3.3.6 with same results.
 
-The notebook I'm using is a Fujitsu Siemens Amilo pi2515.
-I also tried kernel version 3.3.6 with same results.
-In both cases grep ELANTECH .config gives me:
+Can you get a log with the following patch applied?
 
-CONFIG_MOUSE_PS2_ELANTECH=y
+Thanks,
+Jonathan
 
-so I suppose it shouldn't be a kernel configuration problem.
-I opened a bug on http://bugs.debian.org/673588
-You can find more information and preliminary testing there.
-Thank you very much for your attention.
-Regards.
-
-
-Nicola
+diff --git i/drivers/input/mouse/elantech.c w/drivers/input/mouse/elantech.c
+index d2c0db159b18..a1d59e11e2d3 100644
+--- i/drivers/input/mouse/elantech.c
++++ w/drivers/input/mouse/elantech.c
+@@ -10,6 +10,7 @@
+  * Trademarks are the property of their respective owners.
+  */
+ 
++#define DEBUG
+ #include <linux/delay.h>
+ #include <linux/slab.h>
+ #include <linux/module.h>

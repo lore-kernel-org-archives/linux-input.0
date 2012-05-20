@@ -1,66 +1,52 @@
-From: David Rientjes <rientjes@google.com>
-Subject: Re: [PATCH] HID: wacom: Add LED selector control for Wacom Intuos4
- WL
-Date: Sat, 19 May 2012 19:11:55 -0700 (PDT)
-Message-ID: <alpine.DEB.2.00.1205191905430.24674@chino.kir.corp.google.com>
-References: <1336674232-5410-1-git-send-email-przemo@firszt.eu> <alpine.LNX.2.00.1205111448350.17928@pobox.suse.cz>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: [PATCH 0/1] HID: User-space HID I/O driver (UHID)
+Date: Sun, 20 May 2012 12:40:14 +0200
+Message-ID: <CANq1E4R_6ByuBALh0z9gxQzy5ZrT4-MY=6RqrcaVFgK0owjtxw@mail.gmail.com>
+References: <1335799650-17597-1-git-send-email-dh.herrmann@googlemail.com>
+	<CAAngNMabAxO9fVN2DM=5xPJAVk_is3QoS1=+TGZPJAbY3TYHMQ@mail.gmail.com>
+	<CANq1E4QaRHtGxt3d=Z2mvqAFhTY2zid20GGNZ2ZzHjStGepc+A@mail.gmail.com>
+	<alpine.LNX.2.00.1205101218030.31253@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1205111448350.17928@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Przemo Firszt <przemo@firszt.eu>, pinglinux@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:41608 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750745Ab2ETKkQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 20 May 2012 06:40:16 -0400
+In-Reply-To: <alpine.LNX.2.00.1205101218030.31253@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Joao Paulo Rechi Vita <jprvita@openbossa.org>, linux-input@vger.kernel.org, marcel@holtmann.org, claudio.takahasi@openbossa.org, linux-bluetooth@vger.kernel.org
 
-On Fri, 11 May 2012, Jiri Kosina wrote:
+Hi Jiri
 
-> > Add sysfs attribute to control LED selector on Wacom Intuos4. 
-> 
-> Applied, thanks.
-> 
+On Thu, May 10, 2012 at 12:19 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Thu, 3 May 2012, David Herrmann wrote:
+>
+>> > Thanks for your work, David. I'll test and review this new version.
+>> > Did you find out the what is the problem when passing BUS_BLUETOOTH on
+>> > the 'bus' field of the create request?
+>>
+>> I've spent some time looking into that but I haven't found the
+>> problem, yet. Maybe Jiri can comment here.
+>
+> This should now all be handled correctly using the hid-generic mechanism.
+> If you still see any problems with this (currently in linux-next, more
+> precisely 'device-groups' branch in hid.git), please let me know.
 
-This results in a build failure if you've enabled CONFIG_HID_WACOM without 
-CONFIG_NEW_LEDS, which is required for CONFIG_LEDS_CLASS.
+That is working correctly now. Do you have any update on this patch?
+There is no time pressure in merging it but I would like to get some
+feedback what you are thinking about it so I can continue working on
+it.
 
-drivers/built-in.o: In function `led_classdev_unregister':
-(.text+0x3ff685): undefined reference to `led_brightness_set'
-drivers/built-in.o: In function `led_classdev_unregister':
-(.text+0x3ff695): undefined reference to `leds_list_lock'
-drivers/built-in.o: In function `led_classdev_unregister':
-(.text+0x3ff6ab): undefined reference to `leds_list_lock'
-drivers/built-in.o: In function `led_classdev_register':
-(.text+0x3ff6e9): undefined reference to `leds_list_lock'
-drivers/built-in.o: In function `led_classdev_register':
-(.text+0x3ff6f5): undefined reference to `leds_list'
-drivers/built-in.o: In function `led_classdev_register':
-(.text+0x3ff700): undefined reference to `leds_list'
-drivers/built-in.o: In function `led_classdev_register':
-(.text+0x3ff70c): undefined reference to `leds_list_lock'
+If you like I can resend it split into multiple patches. Let me know
+of any problems with it.
 
-Please apply the patch below.
+> --
+> Jiri Kosina
+> SUSE Labs
 
-
-hid, wacom: fix build breakage without CONFIG_LEDS_CLASS
-
-CONFIG_HID_WACOM must depend on CONFIG_LEDS_CLASS, otherwise 
-CONFIG_NEW_LEDS may be disabled.
-
-Signed-off-by: David Rientjes <rientjes@google.com>
----
- drivers/hid/Kconfig |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -613,8 +613,8 @@ config THRUSTMASTER_FF
- config HID_WACOM
- 	tristate "Wacom Bluetooth devices support"
- 	depends on BT_HIDP
-+	depends on LEDS_CLASS
- 	select POWER_SUPPLY
--	select LEDS_CLASS
- 	---help---
- 	Support for Wacom Graphire Bluetooth and Intuos4 WL tablets.
- 
+Regards
+David

@@ -1,52 +1,116 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH 0/1] HID: User-space HID I/O driver (UHID)
-Date: Sun, 20 May 2012 12:40:14 +0200
-Message-ID: <CANq1E4R_6ByuBALh0z9gxQzy5ZrT4-MY=6RqrcaVFgK0owjtxw@mail.gmail.com>
-References: <1335799650-17597-1-git-send-email-dh.herrmann@googlemail.com>
-	<CAAngNMabAxO9fVN2DM=5xPJAVk_is3QoS1=+TGZPJAbY3TYHMQ@mail.gmail.com>
-	<CANq1E4QaRHtGxt3d=Z2mvqAFhTY2zid20GGNZ2ZzHjStGepc+A@mail.gmail.com>
-	<alpine.LNX.2.00.1205101218030.31253@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: [PATCH 1/1] HID: waltop: Extend barrel button fix
+Date: Sun, 20 May 2012 21:23:36 +0300
+Message-ID: <1337538216-7406-1-git-send-email-spbnick@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:41608 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750745Ab2ETKkQ (ORCPT
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:50096 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755640Ab2ETSXz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 May 2012 06:40:16 -0400
-In-Reply-To: <alpine.LNX.2.00.1205101218030.31253@pobox.suse.cz>
+	Sun, 20 May 2012 14:23:55 -0400
+Received: by bkcji2 with SMTP id ji2so3383791bkc.19
+        for <linux-input@vger.kernel.org>; Sun, 20 May 2012 11:23:54 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Joao Paulo Rechi Vita <jprvita@openbossa.org>, linux-input@vger.kernel.org, marcel@holtmann.org, claudio.takahasi@openbossa.org, linux-bluetooth@vger.kernel.org
+Cc: linux-input <linux-input@vger.kernel.org>, DIGImend-users <digimend-users@lists.sourceforge.net>, "Eduardo H. Silva" <hoboprimate@gmail.com>, Nikolai Kondrashov <spbnick@gmail.com>
 
-Hi Jiri
+Extend Waltop barrel button fix to all models: ignore reported pressure when a
+barrel button is pressed, because it is rarely correct. Report zero pressure in
+such cases instead.
 
-On Thu, May 10, 2012 at 12:19 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Thu, 3 May 2012, David Herrmann wrote:
->
->> > Thanks for your work, David. I'll test and review this new version.
->> > Did you find out the what is the problem when passing BUS_BLUETOOTH on
->> > the 'bus' field of the create request?
->>
->> I've spent some time looking into that but I haven't found the
->> problem, yet. Maybe Jiri can comment here.
->
-> This should now all be handled correctly using the hid-generic mechanism.
-> If you still see any problems with this (currently in linux-next, more
-> precisely 'device-groups' branch in hid.git), please let me know.
+Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
+---
+ drivers/hid/hid-waltop.c |   45 +++++++--------------------------------------
+ 1 file changed, 7 insertions(+), 38 deletions(-)
 
-That is working correctly now. Do you have any update on this patch?
-There is no time pressure in merging it but I would like to get some
-feedback what you are thinking about it so I can continue working on
-it.
+diff --git a/drivers/hid/hid-waltop.c b/drivers/hid/hid-waltop.c
+index 9a48438..745e4e9 100644
+--- a/drivers/hid/hid-waltop.c
++++ b/drivers/hid/hid-waltop.c
+@@ -638,28 +638,10 @@ static __u8 sirius_battery_free_tablet_rdesc_fixed[] = {
+ 	0xC0                /*  End Collection                      */
+ };
+ 
+-struct waltop_state {
+-	u8 pressure0;
+-	u8 pressure1;
+-};
+-
+ static int waltop_probe(struct hid_device *hdev,
+ 			const struct hid_device_id *id)
+ {
+ 	int ret;
+-	struct waltop_state *s;
+-
+-	s = kzalloc(sizeof(*s), GFP_KERNEL);
+-	if (s == NULL) {
+-		hid_err(hdev, "can't allocate device state\n");
+-		ret = -ENOMEM;
+-		goto err;
+-	}
+-
+-	s->pressure0 = 0;
+-	s->pressure1 = 0;
+-
+-	hid_set_drvdata(hdev, s);
+ 
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+@@ -675,7 +657,6 @@ static int waltop_probe(struct hid_device *hdev,
+ 
+ 	return 0;
+ err:
+-	kfree(s);
+ 	return ret;
+ }
+ 
+@@ -732,27 +713,18 @@ static __u8 *waltop_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ static int waltop_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		     u8 *data, int size)
+ {
+-	/* If this is a pen input report of a tablet with PID 0038 */
+-	if (hdev->product == USB_DEVICE_ID_WALTOP_PID_0038 &&
+-	    report->type == HID_INPUT_REPORT &&
+-	    report->id == 16 &&
+-	    size == 8) {
+-		struct waltop_state *s = hid_get_drvdata(hdev);
+-
++	/* If this is a pen input report */
++	if (report->type == HID_INPUT_REPORT && report->id == 16 && size >= 8) {
+ 		/*
+-		 * Ignore maximum pressure reported when a barrel button is
+-		 * pressed.
++		 * Ignore reported pressure when a barrel button is pressed,
++		 * because it is rarely correct.
+ 		 */
+ 
+ 		/* If a barrel button is pressed */
+ 		if ((data[1] & 0xF) > 1) {
+-			/* Use the last known pressure */
+-			data[6] = s->pressure0;
+-			data[7] = s->pressure1;
+-		} else {
+-			/* Remember reported pressure */
+-			s->pressure0 = data[6];
+-			s->pressure1 = data[7];
++			/* Report zero pressure */
++			data[6] = 0;
++			data[7] = 0;
+ 		}
+ 	}
+ 
+@@ -806,10 +778,7 @@ static int waltop_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 
+ static void waltop_remove(struct hid_device *hdev)
+ {
+-	struct waltop_state *s = hid_get_drvdata(hdev);
+-
+ 	hid_hw_stop(hdev);
+-	kfree(s);
+ }
+ 
+ static const struct hid_device_id waltop_devices[] = {
+-- 
+1.7.10
 
-If you like I can resend it split into multiple patches. Let me know
-of any problems with it.
-
-> --
-> Jiri Kosina
-> SUSE Labs
-
-Regards
-David

@@ -1,99 +1,31 @@
-From: Jonathan Nieder <jrnieder@gmail.com>
-Subject: Re: Elantech touchpad detected as Logitech PS2 Wheel Mouse
-Date: Mon, 21 May 2012 03:28:09 -0500
-Message-ID: <20120521082809.GA5304@burratino>
-References: <4FB939B5.4000309@gmx.com>
- <20120520192052.GA3959@burratino>
- <4FB951A0.6020102@gmx.com>
- <20120521051825.GB3840@burratino>
- <877gw655mi.fsf@emc.com.tw>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/1] HID: waltop: Extend barrel button fix
+Date: Mon, 21 May 2012 13:22:59 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1205211322490.22314@pobox.suse.cz>
+References: <1337538216-7406-1-git-send-email-spbnick@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:58058 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753656Ab2EUI2S (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 May 2012 04:28:18 -0400
-Received: by yenm10 with SMTP id m10so4071622yen.19
-        for <linux-input@vger.kernel.org>; Mon, 21 May 2012 01:28:17 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <877gw655mi.fsf@emc.com.tw>
+Received: from cantor2.suse.de ([195.135.220.15]:48197 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751107Ab2EULXH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 May 2012 07:23:07 -0400
+In-Reply-To: <1337538216-7406-1-git-send-email-spbnick@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nicola Alessi <nialessi@gmx.com>
-Cc: JJ Ding <jj_ding@emc.com.tw>, linux-input@vger.kernel.org
+To: Nikolai Kondrashov <spbnick@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, DIGImend-users <digimend-users@lists.sourceforge.net>, "Eduardo H. Silva" <hoboprimate@gmail.com>
 
-JJ Ding wrote:
+On Sun, 20 May 2012, Nikolai Kondrashov wrote:
 
-> We used to have a "force_elantech" module param to force the TP to be
-> detected as Elan, but I removed it when I was updating elantech.c to
-> support newer models. Maybe you can convince Dmitry to add it back, but
-> still, this kind of Elan touchpads is not supported as multi-touch
-> pointing device, so I wouldn't recommand it.
+> Extend Waltop barrel button fix to all models: ignore reported pressure when a
+> barrel button is pressed, because it is rarely correct. Report zero pressure in
+> such cases instead.
+> 
+> Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
 
-Neat.
+Applied, thanks.
 
-> I hope this helps.
-
-Definitely; thanks for explaining.  Nicola, I'm still curious about
-the following:
-
->> E.g., is there another OS with a driver that detects it as Elantech?
-
-If another OS offers more functionality, then we would know the
-hardware is capable of it.
-
-The patch JJ described follows, in case you want to experiment.
-
--- >8 --
-Subject: Input: elantech - allow forcing Elantech protocol when knock fails
-
-This does not quite revert 4af61e90270e35bafa9e99a3c48fb3f363da592d
-("Input: elantech - remove module parameter force_elantech") --- the
-old force_elantech parameter was about ignoring an unrecognized
-response to ETP_FW_VERSION_QUERY, while this one is about ignoring
-unrecognized responses to the magic knock.
-
-This patch is just for experimentation and is not meant for inclusion.
----
- drivers/input/mouse/elantech.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index d2c0db159b18..55ac1aa5e943 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -27,6 +27,10 @@
- 					fmt, ##__VA_ARGS__);		\
- 	} while (0)
- 
-+static bool force_elantech;
-+module_param_named(force_elantech, force_elantech, bool, 0644);
-+MODULE_PARM_DESC(force_elantech, "Force the Elantech PS/2 protocol extension to be used, 1 = enabled, 0 = disabled (default).");
-+
- /*
-  * Send a Synaptics style sliced query command
-  */
-@@ -1195,10 +1199,14 @@ int elantech_detect(struct psmouse *psmouse, bool set_properties)
- 	 */
- 	if (param[0] != 0x3c || param[1] != 0x03 ||
- 	    (param[2] != 0xc8 && param[2] != 0x00)) {
--		psmouse_dbg(psmouse,
--			    "unexpected magic knock result 0x%02x, 0x%02x, 0x%02x.\n",
--			    param[0], param[1], param[2]);
--		return -1;
-+		if (!force_elantech) {
-+			psmouse_dbg(psmouse,
-+				    "unexpected magic knock result 0x%02x, 0x%02x, 0x%02x.\n",
-+				    param[0], param[1], param[2]);
-+			return -1;
-+		}
-+		psmouse_warning(psmouse, "Unexpected magic knock result.\n");
-+		psmouse_info(psmouse, "Enabling anyway due to force_elantech.\n");
- 	}
- 
- 	/*
 -- 
-1.7.10.2
-
+Jiri Kosina
+SUSE Labs

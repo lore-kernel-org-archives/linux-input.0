@@ -1,53 +1,41 @@
-From: chris@cnpbagwell.com
-Subject: [PATCH 2/2] input: wacom - Bamboo One 1024 pressure fix
-Date: Sun, 20 May 2012 20:43:32 -0500
-Message-ID: <1337564612-15301-2-git-send-email-chris@cnpbagwell.com>
-References: <1337564612-15301-1-git-send-email-chris@cnpbagwell.com>
+From: Jonathan Nieder <jrnieder@gmail.com>
+Subject: Re: Elantech touchpad detected as Logitech PS2 Wheel Mouse
+Date: Mon, 21 May 2012 00:23:11 -0500
+Message-ID: <20120521051825.GB3840@burratino>
+References: <4FB939B5.4000309@gmx.com>
+ <20120520192052.GA3959@burratino>
+ <4FB951A0.6020102@gmx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:50505 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755213Ab2EUBnl (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:45252 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752366Ab2EUFXT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 May 2012 21:43:41 -0400
-Received: by obbtb18 with SMTP id tb18so7412531obb.19
-        for <linux-input@vger.kernel.org>; Sun, 20 May 2012 18:43:40 -0700 (PDT)
-In-Reply-To: <1337564612-15301-1-git-send-email-chris@cnpbagwell.com>
+	Mon, 21 May 2012 01:23:19 -0400
+Received: by yenm10 with SMTP id m10so4003137yen.19
+        for <linux-input@vger.kernel.org>; Sun, 20 May 2012 22:23:19 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4FB951A0.6020102@gmx.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, pinglinux@gmail.com
-Cc: Chris Bagwell <chris@cnpbagwell.com>
+To: Nicola Alessi <nialessi@gmx.com>
+Cc: linux-input@vger.kernel.org, jj_ding@emc.com.tw
 
-From: Chris Bagwell <chris@cnpbagwell.com>
+Nicola Alessi wrote:
 
-Bamboo One's with ID of 0x6a and 0x6b were added with correct
-indication of 1024 pressure levels but the Graphire packet routine
-was only looking at 9 bits.  Increased to 10 bits.
+> [    6.734445] psmouse serio4: elantech: unexpected magic knock result 0x3c, 0x03, 0x3c.
+>
+> I hope this can help.
 
-This bug caused these devices to roll over to zero pressure at half
-way mark.
+Yes, thanks much.
 
-The other devices using this routine only support 256 or 512 range
-and look to fix unused bits at zero.
+One more question: how do you know this touchpad is an Elantech pad?
+E.g., is there another OS with a driver that detects it as Elantech?
 
-Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
-Reported-by: Tushant Mirchandani <tushantin@gmail.com>
----
- drivers/input/tablet/wacom_wac.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Based on [1] it seems the Amilo Pi 2515 ships with a variety of
+different touchpad models.
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 004bc1b..869e057 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -248,7 +248,7 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
- 		input_report_abs(input, ABS_X, le16_to_cpup((__le16 *)&data[2]));
- 		input_report_abs(input, ABS_Y, le16_to_cpup((__le16 *)&data[4]));
- 		if (wacom->tool[0] != BTN_TOOL_MOUSE) {
--			input_report_abs(input, ABS_PRESSURE, data[6] | ((data[7] & 0x01) << 8));
-+			input_report_abs(input, ABS_PRESSURE, data[6] | ((data[7] & 0x03) << 8));
- 			input_report_key(input, BTN_TOUCH, data[1] & 0x01);
- 			input_report_key(input, BTN_STYLUS, data[1] & 0x02);
- 			input_report_key(input, BTN_STYLUS2, data[1] & 0x04);
--- 
-1.7.10.1
+Jonathan
 
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=10942

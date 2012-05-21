@@ -1,30 +1,76 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] HID: waltop: Extend barrel button fix
-Date: Mon, 21 May 2012 13:22:59 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1205211322490.22314@pobox.suse.cz>
-References: <1337538216-7406-1-git-send-email-spbnick@gmail.com>
+Subject: Re: [PATCH] HID: wacom: Add LED selector control for Wacom Intuos4
+ WL
+Date: Mon, 21 May 2012 15:28:50 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1205211528300.22314@pobox.suse.cz>
+References: <1336674232-5410-1-git-send-email-przemo@firszt.eu> <alpine.LNX.2.00.1205111448350.17928@pobox.suse.cz> <alpine.DEB.2.00.1205191905430.24674@chino.kir.corp.google.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:48197 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:56081 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751107Ab2EULXH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 May 2012 07:23:07 -0400
-In-Reply-To: <1337538216-7406-1-git-send-email-spbnick@gmail.com>
+	id S1751864Ab2EUN3A (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 May 2012 09:29:00 -0400
+In-Reply-To: <alpine.DEB.2.00.1205191905430.24674@chino.kir.corp.google.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, DIGImend-users <digimend-users@lists.sourceforge.net>, "Eduardo H. Silva" <hoboprimate@gmail.com>
+To: David Rientjes <rientjes@google.com>
+Cc: Przemo Firszt <przemo@firszt.eu>, pinglinux@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
 
-On Sun, 20 May 2012, Nikolai Kondrashov wrote:
+On Sat, 19 May 2012, David Rientjes wrote:
 
-> Extend Waltop barrel button fix to all models: ignore reported pressure when a
-> barrel button is pressed, because it is rarely correct. Report zero pressure in
-> such cases instead.
+> On Fri, 11 May 2012, Jiri Kosina wrote:
 > 
-> Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
+> > > Add sysfs attribute to control LED selector on Wacom Intuos4. 
+> > 
+> > Applied, thanks.
+> > 
+> 
+> This results in a build failure if you've enabled CONFIG_HID_WACOM without 
+> CONFIG_NEW_LEDS, which is required for CONFIG_LEDS_CLASS.
+> 
+> drivers/built-in.o: In function `led_classdev_unregister':
+> (.text+0x3ff685): undefined reference to `led_brightness_set'
+> drivers/built-in.o: In function `led_classdev_unregister':
+> (.text+0x3ff695): undefined reference to `leds_list_lock'
+> drivers/built-in.o: In function `led_classdev_unregister':
+> (.text+0x3ff6ab): undefined reference to `leds_list_lock'
+> drivers/built-in.o: In function `led_classdev_register':
+> (.text+0x3ff6e9): undefined reference to `leds_list_lock'
+> drivers/built-in.o: In function `led_classdev_register':
+> (.text+0x3ff6f5): undefined reference to `leds_list'
+> drivers/built-in.o: In function `led_classdev_register':
+> (.text+0x3ff700): undefined reference to `leds_list'
+> drivers/built-in.o: In function `led_classdev_register':
+> (.text+0x3ff70c): undefined reference to `leds_list_lock'
+> 
+> Please apply the patch below.
+> 
+> 
+> hid, wacom: fix build breakage without CONFIG_LEDS_CLASS
+> 
+> CONFIG_HID_WACOM must depend on CONFIG_LEDS_CLASS, otherwise 
+> CONFIG_NEW_LEDS may be disabled.
+> 
+> Signed-off-by: David Rientjes <rientjes@google.com>
+> ---
+>  drivers/hid/Kconfig |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -613,8 +613,8 @@ config THRUSTMASTER_FF
+>  config HID_WACOM
+>  	tristate "Wacom Bluetooth devices support"
+>  	depends on BT_HIDP
+> +	depends on LEDS_CLASS
+>  	select POWER_SUPPLY
+> -	select LEDS_CLASS
+>  	---help---
+>  	Support for Wacom Graphire Bluetooth and Intuos4 WL tablets.
 
-Applied, thanks.
+Right, thanks for your report. Now queued.
 
 -- 
 Jiri Kosina

@@ -1,34 +1,74 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 01/16] Input: Add Device Tree support to the ab8500-ponkey driver
-Date: Mon, 21 May 2012 23:32:45 +0200
-Message-ID: <CACRpkdZmJyod2=X-RJODf9PgPDXuD_o73crNEVAewEdinMGagg@mail.gmail.com>
-References: <1337330355-17747-1-git-send-email-lee.jones@linaro.org>
-	<1337330355-17747-2-git-send-email-lee.jones@linaro.org>
+From: Tai-hwa Liang <avatar@sentelic.com>
+Subject: Re: [PATCH] input: Force Sentelic reconnect when mode setting has
+ failed
+Date: Tue, 22 May 2012 11:42:28 +0800 (CST)
+Message-ID: <12052211372417.9614@cnaqrzbavhz.fragryvp.pbz>
+References: <1337468192-16337-1-git-send-email-mjg@redhat.com>
+ <12052123215711.9614@cnaqrzbavhz.fragryvp.pbz> <20120521152851.GA3552@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463809760-1554920753-1337658148=:9614"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f174.google.com ([209.85.216.174]:33521 "EHLO
-	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753780Ab2EUVcp (ORCPT
+Received: from hermod.sentelic.com ([203.69.18.19]:15981 "EHLO
+	hermod.sentelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759456Ab2EVDnT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 May 2012 17:32:45 -0400
-Received: by qcro28 with SMTP id o28so3556151qcr.19
-        for <linux-input@vger.kernel.org>; Mon, 21 May 2012 14:32:45 -0700 (PDT)
-In-Reply-To: <1337330355-17747-2-git-send-email-lee.jones@linaro.org>
+	Mon, 21 May 2012 23:43:19 -0400
+In-Reply-To: <20120521152851.GA3552@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, arnd@arndb.de, linus.walleij@stericsson.com, grant.likely@secretlab.ca, cjb@laptop.org, broonie@opensource.wolfsonmicro.com, sameo@linux.intel.com, linux-input@vger.kernel.org
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: os@ohmu.fi, dtor@mail.ru, linux-input@vger.kernel.org
 
-On Fri, May 18, 2012 at 10:39 AM, Lee Jones <lee.jones@linaro.org> wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> This patch will allow the ab8500-ponkey driver to be probed during
-> boot when Device Tree is enabled.
+---1463809760-1554920753-1337658148=:9614
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+
+On Mon, 21 May 2012, Matthew Garrett wrote:
+> On Mon, May 21, 2012 at 11:22:07PM +0800, Tai-hwa Liang wrote:
+>> On Sat, 19 May 2012, Matthew Garrett wrote:
+>>> The Sentelic touchpad in an Asus UX-21 failed to work since the native
+>>> driver was merged. Examination showed that the FSP_REG_SWC1 register had
+>>> reverted back to 0x80 and so the pad was sending normal packets despite
+>>> the driver expecting absolute ones.
+>>
+>>    Sounds to me that the hardware was reset, which usually happens if
+>> there's intermittent power failure events.  Is there any particular step
+>> to reproduce this unexpected resetting?
 >
-> Cc: linux-input@vger.kernel.org
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> None that I've identified. It only seems to do it once, and afterwards
+> it's fine. I agree that this seems to be covering up some more insidious
+> bug, but I spent most of Friday and Saturday failing to find one.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Hi Matthew,
 
-Thanks,
-Linus Walleij
+   Would you please run the attached script and post the result next time
+when you run into the abnormal scenario(FSP sends normal instead of abs.
+packets)?
+
+   You probably need to do this experiment without the reconnecting patch
+applied.
+
+Thank you,
+
+Tai-hwa Liang
+---1463809760-1554920753-1337658148=:9614
+Content-Type: APPLICATION/x-sh; name=get_state.sh
+Content-Transfer-Encoding: BASE64
+Content-ID: <12052211422817.9614@cnaqrzbavhz.fragryvp.pbz>
+Content-Description: 
+Content-Disposition: attachment; filename=get_state.sh
+
+IyEvYmluL3NoCmZvciBpIGluIC9zeXMvYnVzL3NlcmlvL2RyaXZlcnMvcHNt
+b3VzZS9zZXJpbyo7IGRvCglpZiBbIC1lICR7aX0vZ2V0cmVnIF07IHRoZW4K
+CQlQQUdFPWBjYXQgJHtpfS9wYWdlYAoJCWVjaG8gLW4gMHgwMCA+ICR7aX0v
+cGFnZQoJCWVjaG8gLW4gMHgwNyA+ICR7aX0vZ2V0cmVnCgkJVE1QPWBjYXQg
+JHtpfS9nZXRyZWdgCgkJZWNobyAtbiAweDBiID4gJHtpfS9wYWdlCgkJZWNo
+byAtbiAweDQwID4gJHtpfS9nZXRyZWcKCQlTTjA9YGNhdCAke2l9L2dldHJl
+Z2AKCQllY2hvIC1uIDB4NDEgPiAke2l9L2dldHJlZwoJCVNOMT1gY2F0ICR7
+aX0vZ2V0cmVnYAoJCWVjaG8gLW4gMHg0MiA+ICR7aX0vZ2V0cmVnCgkJU04y
+PWBjYXQgJHtpfS9nZXRyZWdgCgkJZWNobyAtbiAke1BBR0V9ID4gJHtpfS9w
+YWdlCgkJZWNobyAiJFRNUCwgJFNOMCwgJFNOMSwgJFNOMiIKCWZpCmRvbmUK
+
+---1463809760-1554920753-1337658148=:9614--

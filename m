@@ -1,65 +1,78 @@
-From: Thierry Reding <thierry.reding@avionic-design.de>
-Subject: Re: [PATCH 2/2] input: Add support for the Semtech SX8634 controller
-Date: Tue, 22 May 2012 15:48:34 +0200
-Message-ID: <20120522134834.GC21187@avionic-0098.mockup.avionic-design.de>
-References: <1334229613-678-1-git-send-email-thierry.reding@avionic-design.de>
- <1334229613-678-2-git-send-email-thierry.reding@avionic-design.de>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 2/2] input: wacom - Bamboo One 1024 pressure fix
+Date: Tue, 22 May 2012 10:42:44 -0700
+Message-ID: <CAF8JNhLCeS3w9ST4=waLOz1y4TPD_LM4F9dnAVe3TDYhv6txhg@mail.gmail.com>
+References: <1337564612-15301-1-git-send-email-chris@cnpbagwell.com>
+	<1337564612-15301-2-git-send-email-chris@cnpbagwell.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/e2eDi0V/xtL+Mc8"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.187]:55901 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752235Ab2EVNsj (ORCPT
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:56234 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754508Ab2EVRmp convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 May 2012 09:48:39 -0400
-Content-Disposition: inline
-In-Reply-To: <1334229613-678-2-git-send-email-thierry.reding@avionic-design.de>
+	Tue, 22 May 2012 13:42:45 -0400
+Received: by yhmm54 with SMTP id m54so5698030yhm.19
+        for <linux-input@vger.kernel.org>; Tue, 22 May 2012 10:42:44 -0700 (PDT)
+In-Reply-To: <1337564612-15301-2-git-send-email-chris@cnpbagwell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, devicetree-discuss@lists.ozlabs.org
+To: chris@cnpbagwell.com
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
+On Sun, May 20, 2012 at 6:43 PM,  <chris@cnpbagwell.com> wrote:
+> From: Chris Bagwell <chris@cnpbagwell.com>
+>
+> Bamboo One's with ID of 0x6a and 0x6b were added with correct
+> indication of 1024 pressure levels but the Graphire packet routine
+> was only looking at 9 bits. =A0Increased to 10 bits.
+>
+> This bug caused these devices to roll over to zero pressure at half
+> way mark.
+>
+> The other devices using this routine only support 256 or 512 range
+> and look to fix unused bits at zero.
+>
+> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+> Reported-by: Tushant Mirchandani <tushantin@gmail.com>
 
---/e2eDi0V/xtL+Mc8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Reviewed-by: Ping Cheng <pingc@wacom.com>
 
-* Thierry Reding wrote:
-> This commit adds support for the Semtech SX8634 Capacitive Button and
-> Slider Touch controller.
->=20
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Grant Likely <grant.likely@secretlab.ca>
-> Cc: Rob Herring <rob.herring@calxeda.com>
-> Cc: devicetree-discuss@lists.ozlabs.org
-> Signed-off-by: Thierry Reding <thierry.reding@avionic-design.de>
+Ping
+
 > ---
->  Documentation/devicetree/bindings/input/sx8634.txt |   58 ++
->  drivers/input/misc/Kconfig                         |   10 +
->  drivers/input/misc/Makefile                        |    1 +
->  drivers/input/misc/sx8634.c                        |  745 ++++++++++++++=
-++++++
->  include/linux/input/sx8634.h                       |   32 +
->  5 files changed, 846 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/sx8634.txt
->  create mode 100644 drivers/input/misc/sx8634.c
->  create mode 100644 include/linux/input/sx8634.h
-
-Any comments on this one?
-
-Thierry
-
---/e2eDi0V/xtL+Mc8
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
-
-iEYEARECAAYFAk+7mTIACgkQZ+BJyKLjJp/XkwCgqk+qi56/XRxlB5OSNpXfp3jQ
-OHQAn1oQpVBdkhMdzZBzqqKHae9l02uH
-=yQbt
------END PGP SIGNATURE-----
-
---/e2eDi0V/xtL+Mc8--
+> =A0drivers/input/tablet/wacom_wac.c | =A0 =A02 +-
+> =A01 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/=
+wacom_wac.c
+> index 004bc1b..869e057 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -248,7 +248,7 @@ static int wacom_graphire_irq(struct wacom_wac *w=
+acom)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_abs(input, ABS_X, le16_to=
+_cpup((__le16 *)&data[2]));
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_abs(input, ABS_Y, le16_to=
+_cpup((__le16 *)&data[4]));
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (wacom->tool[0] !=3D BTN_TOOL_MOUSE=
+) {
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input,=
+ ABS_PRESSURE, data[6] | ((data[7] & 0x01) << 8));
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input,=
+ ABS_PRESSURE, data[6] | ((data[7] & 0x03) << 8));
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_key(input=
+, BTN_TOUCH, data[1] & 0x01);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_key(input=
+, BTN_STYLUS, data[1] & 0x02);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_key(input=
+, BTN_STYLUS2, data[1] & 0x04);
+> --
+> 1.7.10.1
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

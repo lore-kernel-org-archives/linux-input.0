@@ -1,232 +1,45 @@
-From: "Henrik Rydberg" <rydberg@bitmath.se>
-Subject: Re: [PATCH v4] input: Add MELFAS mms114 touchscreen driver
-Date: Wed, 23 May 2012 13:52:03 +0200
-Message-ID: <20120523115203.GA2506@polaris.bitmath.org>
-References: <1337325527-5272-1-git-send-email-jy0922.shim@samsung.com>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH 0/1] HID: User-space HID I/O driver (UHID)
+Date: Wed, 23 May 2012 15:55:29 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1205231554450.30445@pobox.suse.cz>
+References: <1335799650-17597-1-git-send-email-dh.herrmann@googlemail.com> <CAAngNMabAxO9fVN2DM=5xPJAVk_is3QoS1=+TGZPJAbY3TYHMQ@mail.gmail.com> <CANq1E4QaRHtGxt3d=Z2mvqAFhTY2zid20GGNZ2ZzHjStGepc+A@mail.gmail.com> <alpine.LNX.2.00.1205101218030.31253@pobox.suse.cz>
+ <CANq1E4R_6ByuBALh0z9gxQzy5ZrT4-MY=6RqrcaVFgK0owjtxw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp2.one.com ([91.198.169.22]:15849 "EHLO csmtp2.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751939Ab2EWLpW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 May 2012 07:45:22 -0400
-Content-Disposition: inline
-In-Reply-To: <1337325527-5272-1-git-send-email-jy0922.shim@samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CANq1E4R_6ByuBALh0z9gxQzy5ZrT4-MY=6RqrcaVFgK0owjtxw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Cc: Joao Paulo Rechi Vita <jprvita-430g2QfJUUCGglJvpFV4uA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org, claudio.takahasi-430g2QfJUUCGglJvpFV4uA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, kyungmin.park@samsung.com
 
-Hi Joonyoung,
+On Sun, 20 May 2012, David Herrmann wrote:
 
-> This is a initial driver for new touchscreen chip mms114 of MELFAS.
-> It uses I2C interface and supports 10 multi touch.
+> >> > Thanks for your work, David. I'll test and review this new version.
+> >> > Did you find out the what is the problem when passing BUS_BLUETOOTH on
+> >> > the 'bus' field of the create request?
+> >>
+> >> I've spent some time looking into that but I haven't found the
+> >> problem, yet. Maybe Jiri can comment here.
+> >
+> > This should now all be handled correctly using the hid-generic mechanism.
+> > If you still see any problems with this (currently in linux-next, more
+> > precisely 'device-groups' branch in hid.git), please let me know.
 > 
-> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-> ---
+> That is working correctly now. 
 
-Look good overall, some minor comments below which may be
-ignored. Thank you,
+Thanks for checking.
 
-    Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+> Do you have any update on this patch? There is no time pressure in 
+> merging it but I would like to get some feedback what you are thinking 
+> about it so I can continue working on it.
+> 
+> If you like I can resend it split into multiple patches. Let me know
+> of any problems with it.
 
-Henrik
+Yes, that would be very much preferred on my side -- huge condensed 
+patches are much harder to review (if the split is done properly). Thanks!
 
-> +static void mms114_proc_mt(struct mms114_data *data, u8 *buf)
-> +{
-> +	const struct mms114_platform_data *pdata = data->pdata;
-> +	struct i2c_client *client = data->client;
-> +	struct input_dev *input_dev = data->input_dev;
-> +	unsigned int id;
-> +	unsigned int type;
-> +	unsigned int pressed;
-> +	unsigned int x;
-> +	unsigned int y;
-> +	unsigned int width;
-> +	unsigned int strength;
-> +
-> +	id = (buf[0] & MMS114_ID_MASK) - 1;
-> +	if (id >= MMS114_MAX_TOUCH) {
-> +		dev_dbg(&client->dev, "Wrong touch id (%d)\n", id);
-> +		return;
-> +	}
-> +
-> +	type = (buf[0] >> MMS114_TYPE_OFFSET) & MMS114_TYPE_MASK;
-> +	if (type != MMS114_TYPE_TOUCHSCREEN) {
-> +		dev_dbg(&client->dev, "Wrong touch type (%d)\n", type);
-> +		return;
-> +	}
-> +
-> +	x = buf[2] | (buf[1] & 0xf) << 8;
-> +	y = buf[3] | ((buf[1] >> 4) & 0xf) << 8;
-> +	if (x > pdata->x_size || y > pdata->y_size) {
-> +		dev_dbg(&client->dev, "Wrong touch coordinates (%d, %d)\n",
-> +				x, y);
-> +		return;
-> +	}
-> +
-> +	if (pdata->x_invert)
-> +		x = pdata->x_size - x;
-> +	if (pdata->y_invert)
-> +		y = pdata->y_size - y;
-> +
-> +	pressed = (buf[0] >> MMS114_ACT_OFFSET) & MMS114_ACT_MASK;
-> +	width = buf[4];
-> +	strength = buf[5];
-
-Why not pass a struct like this instead:
-
-struct mms114_touch {
-       u8 id : 4, type : 3, pressed : 1;
-       u8 x_hi : 4, y_hi : 4;
-       u8 x_lo;
-       u8 y_lo;
-       u8 width;
-       u8 strength;
-} __packed;
-
-Most of the code above would go away, together with some defines.
-
-> +
-> +	dev_dbg(&client->dev, "id: %d, type: %d, pressed: %d\n",
-> +			id, type, pressed);
-> +	dev_dbg(&client->dev, "x: %d, y: %d, width: %d, strength: %d\n",
-> +			x, y, width, strength);
-> +
-> +	input_mt_slot(input_dev, id);
-> +	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, pressed);
-> +
-> +	if (pressed) {
-> +		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, width);
-> +		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
-> +		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
-> +		input_report_abs(input_dev, ABS_MT_PRESSURE, strength);
-> +	}
-> +}
-
-> +static int mms114_start(struct mms114_data *data)
-> +{
-> +	int error;
-> +
-> +	mutex_lock(&data->mutex);
-> +	if (!data->enabled) {
-> +		if (data->core_reg)
-> +			regulator_enable(data->core_reg);
-> +		if (data->io_reg)
-> +			regulator_enable(data->io_reg);
-> +		mdelay(MMS114_POWERON_DELAY);
-> +
-> +		error = mms114_setup_regs(data);
-> +		if (error < 0) {
-> +			mutex_unlock(&data->mutex);
-> +			return error;
-> +		}
-> +
-> +		data->enabled = true;
-> +	}
-> +	mutex_unlock(&data->mutex);
-> +	return 0;
-> +}
-
-A more canonical formulation of the above function would be:
-
-  int error = 0;
-
-  mutex_lock(&data->mutex);
-  if (data->enabled)
-          goto out;
-
-  if (data->core_reg)
-          regulator_enable(data->core_reg);
-  if (data->io_reg)
-          regulator_enable(data->io_reg);
-  mdelay(MMS114_POWERON_DELAY);
-
-  error = mms114_setup_regs(data);
-  if (error)
-          goto out;
-
-  data->enabled = true;
-out:
-  mutex_unlock(&data->mutex);
-  return error;
-
-
-> +static void mms114_stop(struct mms114_data *data)
-> +{
-> +	mutex_lock(&data->mutex);
-> +	if (data->enabled) {
-> +		if (data->io_reg)
-> +			regulator_disable(data->io_reg);
-> +		if (data->core_reg)
-> +			regulator_disable(data->core_reg);
-> +
-> +		data->enabled = false;
-> +	}
-> +	mutex_unlock(&data->mutex);
-> +}
-
-Ditto.
-
-> +static int mms114_suspend(struct device *dev)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct mms114_data *data = i2c_get_clientdata(client);
-> +	struct input_dev *input_dev = data->input_dev;
-> +	int id;
-> +
-> +	disable_irq(client->irq);
-> +
-> +	/* Release all touch */
-> +	for (id = 0; id < MMS114_MAX_TOUCH; id++) {
-> +		input_mt_slot(input_dev, id);
-> +		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, false);
-> +	}
-> +
-> +	input_mt_report_pointer_emulation(input_dev, true);
-> +	input_sync(input_dev);
-> +
-> +	mutex_lock(&input_dev->mutex);
-> +	if (input_dev->users)
-> +		mms114_stop(data);
-
-It should really stop unconditionally here, but the above ought to
-yield the same result.
-
-> +	mutex_unlock(&input_dev->mutex);
-> +
-> +	if (data->pdata->cfg_pin)
-> +		data->pdata->cfg_pin(false);
-> +
-> +	return 0;
-> +}
-
-> +static int mms114_resume(struct device *dev)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct mms114_data *data = i2c_get_clientdata(client);
-> +	struct input_dev *input_dev = data->input_dev;
-> +	int error;
-> +
-> +	if (data->pdata->cfg_pin)
-> +		data->pdata->cfg_pin(true);
-> +
-> +	mutex_lock(&input_dev->mutex);
-> +	if (input_dev->users) {
-> +		error = mms114_start(data);
-> +		if (error < 0) {
-> +			mutex_unlock(&input_dev->mutex);
-> +			return error;
-> +		}
-> +	}
-> +	mutex_unlock(&input_dev->mutex);
-> +
-> +	enable_irq(client->irq);
-> +	return 0;
-> +}
-
-Could use more gotos here as well.
-
-Thanks,
-Henrik
+-- 
+Jiri Kosina
+SUSE Labs

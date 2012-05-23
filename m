@@ -1,369 +1,232 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [Linuxwacom-devel] [PATCH] Input: wacom - add support for the
- DTI-520 graphics tablet
-Date: Tue, 22 May 2012 15:12:38 -0700
-Message-ID: <CAF8JNh+fUShE5WMDcOyLfZoU3b06zWB5i43cUJaaA-ELBPgb8Q@mail.gmail.com>
-References: <4F892952.6020409@shikadi.net>
-	<4FB86BD7.6030304@shikadi.net>
+From: "Henrik Rydberg" <rydberg@bitmath.se>
+Subject: Re: [PATCH v4] input: Add MELFAS mms114 touchscreen driver
+Date: Wed, 23 May 2012 13:52:03 +0200
+Message-ID: <20120523115203.GA2506@polaris.bitmath.org>
+References: <1337325527-5272-1-git-send-email-jy0922.shim@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:41341 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755158Ab2EVWMj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 May 2012 18:12:39 -0400
-In-Reply-To: <4FB86BD7.6030304@shikadi.net>
+Received: from csmtp2.one.com ([91.198.169.22]:15849 "EHLO csmtp2.one.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751939Ab2EWLpW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 May 2012 07:45:22 -0400
+Content-Disposition: inline
+In-Reply-To: <1337325527-5272-1-git-send-email-jy0922.shim@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Adam Nielsen <a.nielsen@shikadi.net>
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>, linuxwacom-devel@lists.sourceforge.net, linux-input <linux-input@vger.kernel.org>
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, kyungmin.park@samsung.com
 
-On Sat, May 19, 2012 at 8:58 PM, Adam Nielsen <a.nielsen@shikadi.net> w=
-rote:
-> Add support for the two interfaces provided by the Wacom DTI-520 tabl=
-et. =A0This
-> allows both the tablet itself as well as the hardware buttons to be s=
-een by the
-> kernel.
->
-> Signed-off-by: Adam Nielsen <a.nielsen@shikadi.net>
+Hi Joonyoung,
+
+> This is a initial driver for new touchscreen chip mms114 of MELFAS.
+> It uses I2C interface and supports 10 multi touch.
+> 
+> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
 > ---
-> Hi all,
->
-> I'm resending this and CC'ing the linuxwacom-devel list as suggested.=
- =A0There
-> are no changes since the previous post. =A0This is the kernel code th=
-at makes the
-> tablet appear as an input device.
 
-I don't have the device to test this patch. Just to share my comments
-(inline) based on the code itself. I am cc'ing linux-input, where this
-patch normally goes.
+Look good overall, some minor comments below which may be
+ignored. Thank you,
 
-Ping
+    Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 
->
-> Cheers,
-> Adam.
->
-> =A0drivers/input/tablet/wacom_sys.c | =A0 13 +++++
-> =A0drivers/input/tablet/wacom_wac.c | =A0113 ++++++++++++++++++++++++=
-+++++++++++++-
-> =A0drivers/input/tablet/wacom_wac.h | =A0 =A03 +
-> =A03 files changed, 128 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/=
-wacom_sys.c
-> index 0d26921..5d1e35d 100644
-> --- a/drivers/input/tablet/wacom_sys.c
-> +++ b/drivers/input/tablet/wacom_sys.c
-> @@ -459,6 +459,19 @@ static int wacom_retrieve_hid_descriptor(struct =
-usb_interface *intf,
-> =A0 =A0 =A0 =A0features->y_fuzz =3D 4;
-> =A0 =A0 =A0 =A0features->pressure_fuzz =3D 0;
-> =A0 =A0 =A0 =A0features->distance_fuzz =3D 0;
-> + =A0 =A0 =A0 features->x_phy =3D 0;
-> + =A0 =A0 =A0 features->y_phy =3D 0;
-> +
-> + =A0 =A0 =A0 /* DTI devices have two interfaces */
-> + =A0 =A0 =A0 if (features->type =3D=3D WACOM_DTI) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (interface->desc.bInterfaceNumber =3D=
-=3D 0) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* digitizer */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* buttons */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->device_type =3D=
- 0;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->pktlen =3D WA=
-COM_PKGLEN_DTIBTN;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> + =A0 =A0 =A0 }
->
-> =A0 =A0 =A0 =A0/*
-> =A0 =A0 =A0 =A0 * The wireless device HID is basic and layout conflic=
-ts with
-> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/=
-wacom_wac.c
-> index cecd35c..f0ada18 100644
-> --- a/drivers/input/tablet/wacom_wac.c
-> +++ b/drivers/input/tablet/wacom_wac.c
-> @@ -1073,6 +1073,80 @@ static int wacom_wireless_irq(struct wacom_wac=
- *wacom, size_t len)
-> =A0 =A0 =A0 =A0return 0;
-> =A0}
->
-> +static int wacom_dti_pen(struct wacom_wac *wacom)
+Henrik
+
+> +static void mms114_proc_mt(struct mms114_data *data, u8 *buf)
 > +{
-> + =A0 =A0 =A0 struct wacom_features *features =3D &wacom->features;
-> + =A0 =A0 =A0 char *data =3D wacom->data;
-> + =A0 =A0 =A0 struct input_dev *input =3D wacom->input;
-> + =A0 =A0 =A0 int pressure;
-> + =A0 =A0 =A0 bool prox =3D data[1] & 0x40;
+> +	const struct mms114_platform_data *pdata = data->pdata;
+> +	struct i2c_client *client = data->client;
+> +	struct input_dev *input_dev = data->input_dev;
+> +	unsigned int id;
+> +	unsigned int type;
+> +	unsigned int pressed;
+> +	unsigned int x;
+> +	unsigned int y;
+> +	unsigned int width;
+> +	unsigned int strength;
 > +
-> + =A0 =A0 =A0 if (data[0] !=3D WACOM_REPORT_PENABLED) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dbg("wacom_dti_pen: received unknown re=
-port #%d", data[0]);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
-> + =A0 =A0 =A0 }
+> +	id = (buf[0] & MMS114_ID_MASK) - 1;
+> +	if (id >= MMS114_MAX_TOUCH) {
+> +		dev_dbg(&client->dev, "Wrong touch id (%d)\n", id);
+> +		return;
+> +	}
 > +
-> + =A0 =A0 =A0 input_report_key(input, wacom->tool[0], prox);
-
-The line above should  be after the if statement below. Otherwise
-wacom->tool can be uninitialized.
-
+> +	type = (buf[0] >> MMS114_TYPE_OFFSET) & MMS114_TYPE_MASK;
+> +	if (type != MMS114_TYPE_TOUCHSCREEN) {
+> +		dev_dbg(&client->dev, "Wrong touch type (%d)\n", type);
+> +		return;
+> +	}
 > +
-> + =A0 =A0 =A0 if (prox) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->tool[0] =3D BTN_TOOL_PEN;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->id[0] =3D STYLUS_DEVICE_ID;
-> + =A0 =A0 =A0 }
-> + =A0 =A0 =A0 if (wacom->id[0]) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_STYLUS, dat=
-a[7] & 0x01);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_STYLUS2, da=
-ta[7] & 0x02);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_X, be16_to_=
-cpup((__be16 *)&data[2]));
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_Y, be16_to_=
-cpup((__be16 *)&data[4]));
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pressure =3D (data[6] << 1) | ((data[7]=
- & 0x80) >> 7);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (pressure < 0)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pressure =3D features->=
-pressure_max + pressure + 1;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_PRESSURE, p=
-ressure);
-
-Need tp post wacom->id[0] through ABS_MISC here.
-
+> +	x = buf[2] | (buf[1] & 0xf) << 8;
+> +	y = buf[3] | ((buf[1] >> 4) & 0xf) << 8;
+> +	if (x > pdata->x_size || y > pdata->y_size) {
+> +		dev_dbg(&client->dev, "Wrong touch coordinates (%d, %d)\n",
+> +				x, y);
+> +		return;
+> +	}
 > +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 1;
-> + =A0 =A0 =A0 }
+> +	if (pdata->x_invert)
+> +		x = pdata->x_size - x;
+> +	if (pdata->y_invert)
+> +		y = pdata->y_size - y;
 > +
-> + =A0 =A0 =A0 if (!prox)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->id[0] =3D 0;
+> +	pressed = (buf[0] >> MMS114_ACT_OFFSET) & MMS114_ACT_MASK;
+> +	width = buf[4];
+> +	strength = buf[5];
 
-This short if block should be inside the long if block above.
+Why not pass a struct like this instead:
+
+struct mms114_touch {
+       u8 id : 4, type : 3, pressed : 1;
+       u8 x_hi : 4, y_hi : 4;
+       u8 x_lo;
+       u8 y_lo;
+       u8 width;
+       u8 strength;
+} __packed;
+
+Most of the code above would go away, together with some defines.
 
 > +
-> + =A0 =A0 =A0 return 0;
+> +	dev_dbg(&client->dev, "id: %d, type: %d, pressed: %d\n",
+> +			id, type, pressed);
+> +	dev_dbg(&client->dev, "x: %d, y: %d, width: %d, strength: %d\n",
+> +			x, y, width, strength);
+> +
+> +	input_mt_slot(input_dev, id);
+> +	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, pressed);
+> +
+> +	if (pressed) {
+> +		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, width);
+> +		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
+> +		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
+> +		input_report_abs(input_dev, ABS_MT_PRESSURE, strength);
+> +	}
 > +}
-> +
-> +static int wacom_dti_pad(struct wacom_wac *wacom)
+
+> +static int mms114_start(struct mms114_data *data)
 > +{
-> + =A0 =A0 =A0 char *data =3D wacom->data;
-> + =A0 =A0 =A0 struct input_dev *input =3D wacom->input;
+> +	int error;
 > +
-> + =A0 =A0 =A0 if (data[0] =3D=3D WACOM_REPORT_DTIBTN) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_3, data[1] =
-& 0x01); /* up */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_4, data[1] =
-& 0x02); /* down */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_0, data[1] =
-& 0x04); /* L */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_2, data[1] =
-& 0x08); /* R */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_1, data[1] =
-& 0x10); /* both Ctrl */
-
-Looks like we could define default vaules for those buttons.
-
+> +	mutex_lock(&data->mutex);
+> +	if (!data->enabled) {
+> +		if (data->core_reg)
+> +			regulator_enable(data->core_reg);
+> +		if (data->io_reg)
+> +			regulator_enable(data->io_reg);
+> +		mdelay(MMS114_POWERON_DELAY);
 > +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Buttons along the top of the display=
- */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_7, data[2] =
-& 0x01);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_5, data[2] =
-& 0x02);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_6, data[2] =
-& 0x04);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_8, data[2] =
-& 0x08);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_9, data[2] =
-& 0x10);
+> +		error = mms114_setup_regs(data);
+> +		if (error < 0) {
+> +			mutex_unlock(&data->mutex);
+> +			return error;
+> +		}
 > +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 1;
-> + =A0 =A0 =A0 }
-> +
-> + =A0 =A0 =A0 dbg("wacom_dti_pad: received unknown report #%d", data[=
-0]);
-> + =A0 =A0 =A0 return 0;
+> +		data->enabled = true;
+> +	}
+> +	mutex_unlock(&data->mutex);
+> +	return 0;
 > +}
-> +
-> +static int wacom_dti_irq(struct wacom_wac *wacom, size_t len)
+
+A more canonical formulation of the above function would be:
+
+  int error = 0;
+
+  mutex_lock(&data->mutex);
+  if (data->enabled)
+          goto out;
+
+  if (data->core_reg)
+          regulator_enable(data->core_reg);
+  if (data->io_reg)
+          regulator_enable(data->io_reg);
+  mdelay(MMS114_POWERON_DELAY);
+
+  error = mms114_setup_regs(data);
+  if (error)
+          goto out;
+
+  data->enabled = true;
+out:
+  mutex_unlock(&data->mutex);
+  return error;
+
+
+> +static void mms114_stop(struct mms114_data *data)
 > +{
-> + =A0 =A0 =A0 if (len =3D=3D WACOM_PKGLEN_GRAPHIRE)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return wacom_dti_pen(wacom);
-> + =A0 =A0 =A0 else if (len =3D=3D WACOM_PKGLEN_DTIBTN)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return wacom_dti_pad(wacom);
+> +	mutex_lock(&data->mutex);
+> +	if (data->enabled) {
+> +		if (data->io_reg)
+> +			regulator_disable(data->io_reg);
+> +		if (data->core_reg)
+> +			regulator_disable(data->core_reg);
 > +
-> + =A0 =A0 =A0 return 0;
+> +		data->enabled = false;
+> +	}
+> +	mutex_unlock(&data->mutex);
 > +}
-> +
-> =A0void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
-> =A0{
-> =A0 =A0 =A0 =A0bool sync;
-> @@ -1127,6 +1201,10 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac=
-, size_t len)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0sync =3D wacom_wireless_irq(wacom_wac,=
- len);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
->
-> + =A0 =A0 =A0 case WACOM_DTI:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 sync =3D wacom_dti_irq(wacom_wac, len);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> +
-> =A0 =A0 =A0 =A0default:
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0sync =3D false;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
-> @@ -1241,7 +1319,7 @@ void wacom_setup_input_capabilities(struct inpu=
-t_dev *input_dev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* penabled devices have fixed resolut=
-ion for each model */
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_abs_set_res(input_dev, ABS_X, fe=
-atures->x_resolution);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_abs_set_res(input_dev, ABS_Y, fe=
-atures->y_resolution);
-> - =A0 =A0 =A0 } else {
-> + =A0 =A0 =A0 } else if ((features->x_phy > 0) && (features->y_phy > =
-0)) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_abs_set_res(input_dev, ABS_X,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0wacom_calculate_touch_=
-res(features->x_max,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0features->x_phy));
-> @@ -1404,6 +1482,35 @@ void wacom_setup_input_capabilities(struct inp=
-ut_dev *input_dev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(INPUT_PROP_DIRECT, input_dev=
-->propbit);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
->
-> + =A0 =A0 =A0 case WACOM_DTI:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 __clear_bit(ABS_MISC, input_dev->absbit=
-);
 
-Why do we clear ABS_MISC for pen tool?
+Ditto.
 
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 switch (features->device_type) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 case BTN_TOOL_PEN:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_TOOL_PEN,=
- input_dev->keybit);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_STYLUS, i=
-nput_dev->keybit);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_STYLUS2, =
-input_dev->keybit);
+> +static int mms114_suspend(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct mms114_data *data = i2c_get_clientdata(client);
+> +	struct input_dev *input_dev = data->input_dev;
+> +	int id;
 > +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(INPUT_PROP_DI=
-RECT, input_dev->propbit);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> +	disable_irq(client->irq);
 > +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 case 0:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_0, input_=
-dev->keybit);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_1, input_=
-dev->keybit);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_2, input_=
-dev->keybit);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_3, input_=
-dev->keybit);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_4, input_=
-dev->keybit);
+> +	/* Release all touch */
+> +	for (id = 0; id < MMS114_MAX_TOUCH; id++) {
+> +		input_mt_slot(input_dev, id);
+> +		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, false);
+> +	}
 > +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_5, input_=
-dev->keybit);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_6, input_=
-dev->keybit);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_7, input_=
-dev->keybit);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_8, input_=
-dev->keybit);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_9, input_=
-dev->keybit);
+> +	input_mt_report_pointer_emulation(input_dev, true);
+> +	input_sync(input_dev);
 > +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __clear_bit(BTN_TOUCH, =
-input_dev->keybit);
+> +	mutex_lock(&input_dev->mutex);
+> +	if (input_dev->users)
+> +		mms114_stop(data);
 
-This interface does not support ABS_X and ABS_Y either, right? Do we
-need a tool type for this button box?
+It should really stop unconditionally here, but the above ought to
+yield the same result.
 
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> +	mutex_unlock(&input_dev->mutex);
 > +
-> =A0 =A0 =A0 =A0case PTU:
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(BTN_STYLUS2, input_dev->keyb=
-it);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* fall through */
-> @@ -1566,6 +1673,9 @@ static const struct wacom_features wacom_featur=
-es_0x38 =3D
-> =A0static const struct wacom_features wacom_features_0x39 =3D
-> =A0 =A0 =A0 =A0{ "Wacom DTU710", =A0 =A0 =A0 =A0 WACOM_PKGLEN_GRAPHIR=
-E, =A034080, 27660, =A0511,
-> =A0 =A0 =A0 =A0 =A00, PL, WACOM_PL_RES, WACOM_PL_RES };
-> +static const struct wacom_features wacom_features_0x3A =3D
-> + =A0 =A0 =A0 { "Wacom DTI520UB/L", =A0 =A0 WACOM_PKGLEN_GRAPHIRE, =A0=
- 6282, =A04762, =A0511,
-> + =A0 =A0 =A0 =A0 0, WACOM_DTI, WACOM_PL_RES, WACOM_PL_RES };
-> =A0static const struct wacom_features wacom_features_0xC4 =3D
-> =A0 =A0 =A0 =A0{ "Wacom DTF521", =A0 =A0 =A0 =A0 WACOM_PKGLEN_GRAPHIR=
-E, =A0 6282, =A04762, =A0511,
-> =A0 =A0 =A0 =A0 =A00, PL, WACOM_PL_RES, WACOM_PL_RES };
-> @@ -1780,6 +1890,7 @@ const struct usb_device_id wacom_ids[] =3D {
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0x37) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0x38) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0x39) },
-> + =A0 =A0 =A0 { USB_DEVICE_WACOM(0x3A) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xC4) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xC0) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xC2) },
-> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/=
-wacom_wac.h
-> index ba5a334..008aa12 100644
-> --- a/drivers/input/tablet/wacom_wac.h
-> +++ b/drivers/input/tablet/wacom_wac.h
-> @@ -15,6 +15,7 @@
-> =A0#define WACOM_PKGLEN_MAX =A0 =A0 =A0 64
->
-> =A0/* packet length for individual models */
-> +#define WACOM_PKGLEN_DTIBTN =A0 =A0 3
-> =A0#define WACOM_PKGLEN_PENPRTN =A0 =A07
-> =A0#define WACOM_PKGLEN_GRAPHIRE =A0 8
-> =A0#define WACOM_PKGLEN_BBFUN =A0 =A0 =A09
-> @@ -35,6 +36,7 @@
->
-> =A0/* wacom data packet report IDs */
-> =A0#define WACOM_REPORT_PENABLED =A0 =A0 =A0 =A0 =A02
-> +#define WACOM_REPORT_DTIBTN =A0 =A0 =A0 =A0 =A0 =A04
-> =A0#define WACOM_REPORT_INTUOSREAD =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A05
-> =A0#define WACOM_REPORT_INTUOSWRITE =A0 =A0 =A0 6
-> =A0#define WACOM_REPORT_INTUOSPAD =A0 =A0 =A0 =A0 12
-> @@ -72,6 +74,7 @@ enum {
-> =A0 =A0 =A0 =A0WACOM_MO,
-> =A0 =A0 =A0 =A0TABLETPC,
-> =A0 =A0 =A0 =A0TABLETPC2FG,
-> + =A0 =A0 =A0 WACOM_DTI,
-> =A0 =A0 =A0 =A0MAX_TYPE
-> =A0};
->
-> -- 1.7.10
->
->
-> ---------------------------------------------------------------------=
----------
-> Live Security Virtual Conference
-> Exclusive live event will cover all the ways today's security and
-> threat landscape has changed and how IT managers can respond. Discuss=
-ions
-> will include endpoint security, mobile security and the latest in mal=
-ware
-> threats. http://www.accelacomm.com/jaw/sfrnl04242012/114/50122263/
-> _______________________________________________
-> Linuxwacom-devel mailing list
-> Linuxwacom-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +	if (data->pdata->cfg_pin)
+> +		data->pdata->cfg_pin(false);
+> +
+> +	return 0;
+> +}
+
+> +static int mms114_resume(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct mms114_data *data = i2c_get_clientdata(client);
+> +	struct input_dev *input_dev = data->input_dev;
+> +	int error;
+> +
+> +	if (data->pdata->cfg_pin)
+> +		data->pdata->cfg_pin(true);
+> +
+> +	mutex_lock(&input_dev->mutex);
+> +	if (input_dev->users) {
+> +		error = mms114_start(data);
+> +		if (error < 0) {
+> +			mutex_unlock(&input_dev->mutex);
+> +			return error;
+> +		}
+> +	}
+> +	mutex_unlock(&input_dev->mutex);
+> +
+> +	enable_irq(client->irq);
+> +	return 0;
+> +}
+
+Could use more gotos here as well.
+
+Thanks,
+Henrik

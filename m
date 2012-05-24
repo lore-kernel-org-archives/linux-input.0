@@ -1,38 +1,53 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Subject: Re: [git pull] Input updates for 3.5-rc0
-Date: Thu, 24 May 2012 14:07:29 -0700
-Message-ID: <CA+55aFybQDXjGaEK0k=60gS88bxwE8vC7XvOffaQAf3de9cCfg@mail.gmail.com>
+Date: Fri, 25 May 2012 06:26:55 +0900
+Message-ID: <20120524212655.GA16113@kroah.com>
 References: <20120524083216.GD10562@core.coreip.homeip.net>
  <CA+55aFxw0HRpizzJZxhhA2oqPpzg4DPUvH2r7YoYfctXS6K=WQ@mail.gmail.com>
- <20120524180154.GA15036@core.coreip.homeip.net> <CA+55aFx0ww=BtYAj9WEbqMT2R30ZZpjd014cYCpC=b+HRtUf_A@mail.gmail.com>
- <20120524195851.GA15306@core.coreip.homeip.net> <CA+55aFxX+xidcuVXb1h4oFTemtHo+ANECaoOw=vxtKN231N+cA@mail.gmail.com>
- <20120524203647.GA16024@core.coreip.homeip.net> <CA+55aFz9Fp2J=oCkoDAwNTnEJoBeKC9tn+5dqMCKf4C22CAi6Q@mail.gmail.com>
- <20120524205952.GA16621@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:35228 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754005Ab2EXVHu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 May 2012 17:07:50 -0400
-In-Reply-To: <20120524205952.GA16621@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CA+55aFxw0HRpizzJZxhhA2oqPpzg4DPUvH2r7YoYfctXS6K=WQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, May 24, 2012 at 1:59 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> I was concerned about the _next_ device (the one that will be created
-> the moment I plug in the tablet back into the same port) having exact
-> same name as the one that is half dead and clashing in sysfs and
-> elsewhere. We used to have issues with this.
+On Thu, May 24, 2012 at 10:33:49AM -0700, Linus Torvalds wrote:
+> On Thu, May 24, 2012 at 1:32 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > Hi Linus,
+> >
+> > to receive updates for the input subsystem. You will get:
+> 
+> I get an annoying conflict, and the reason I call it annoying is not
+> because it's hard to resolve, it's because doing that shows that you
+> seem to have preferred using
+> 
+>    dev_dbg(&input->dev.parent, ...)
+> 
+> over the much more natural
+> 
+>    dev_dbg(&input->dev, ...)
+> 
+> which would seem to make more sense.
+> 
+> Why? Are the input layer device names so bad that using them for debug
+> output is useless? And if so, why *are* they so bad?
+> 
+> I'm going to take your version over Greg's more straightforward one,
+> because I assume Greg did things a bit more mindlessly and I think you
+> presumably had a *reason* for your extra (stupid) ".parent" part. But
+> I'm unhappy with it, because I suspect the reason you did that implies
+> that the input layer does something bad.
 
-Ok, that's certainly a valid concern.
+I reworked these patches 3 different times, they were anything but
+"mindless" (well, maybe the first ones were...)  Dmitry and I seem to
+disagree on showing useful names to the users, but as he is the one who
+needs to handle user issues when they report things, I'll defer to his
+version of the changes.
 
-It's still - I think - really sad/wrong that the device name is then
-so useless than the drivers end up basically not using it.
+thanks,
 
-                      Linus
+greg k-h

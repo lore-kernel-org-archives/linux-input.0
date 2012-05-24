@@ -1,29 +1,43 @@
-From: loody <miloody@gmail.com>
-Subject: about input/hid
-Date: Thu, 24 May 2012 21:38:51 +0800
-Message-ID: <CANudz+v1RNDDwDLMWX-AbCUwagXrBH3xP5+-kimZuBsgCafkWw@mail.gmail.com>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+Subject: RE: about input/hid
+Date: Thu, 24 May 2012 15:16:37 +0000
+Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A91930E332@ORSMSX104.amr.corp.intel.com>
+References: <CANudz+v1RNDDwDLMWX-AbCUwagXrBH3xP5+-kimZuBsgCafkWw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gh0-f174.google.com ([209.85.160.174]:59461 "EHLO
-	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752221Ab2EXNiw (ORCPT
+Received: from mga11.intel.com ([192.55.52.93]:30079 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753034Ab2EXPQj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 May 2012 09:38:52 -0400
+	Thu, 24 May 2012 11:16:39 -0400
+In-Reply-To: <CANudz+v1RNDDwDLMWX-AbCUwagXrBH3xP5+-kimZuBsgCafkWw@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+To: loody <miloody@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+
+I think it should be independent of USB and should be part of hid-core.c.
+There is a possibility that HID over I2C, proprietary specs used by Win8 can be a standard in future.
+
+Thanks,
+Srinivas
+
+
+-----Original Message-----
+From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.kernel.org] On Behalf Of loody
+Sent: Thursday, May 24, 2012 6:39 AM
+To: linux-input@vger.kernel.org; linux-usb@vger.kernel.org
+Subject: about input/hid
 
 hi all:
 I have some questions about input/hid devices.
-1. it seems only usb hid has reports_desc, why don't we put hid parse
-in usbhid/hid-core.c instead of hid/hid-core.c?
+1. it seems only usb hid has reports_desc, why don't we put hid parse in usbhid/hid-core.c instead of hid/hid-core.c?
 2. at the end of mail is the report from mouse hid.
-    i. where is the "USAGE_PAGE (Button) " defined, I cannot find
-Button id in usage table.
+    i. where is the "USAGE_PAGE (Button) " defined, I cannot find Button id in usage table.
     ii. REPORT_SIZE (1) always mean the unit is bit?
-3. Spec seems only describe the value of the item mean, where I can
-find the rules of the layout of the descriptor?
+3. Spec seems only describe the value of the item mean, where I can find the rules of the layout of the descriptor?
 
 char ReportDescriptor[50] = {
 02     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
@@ -55,3 +69,5 @@ char ReportDescriptor[50] = {
 28 };
 
 Thanks for your help in advance,
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" in the body of a message to majordomo@vger.kernel.org More majordomo info at  http://vger.kernel.org/majordomo-info.html

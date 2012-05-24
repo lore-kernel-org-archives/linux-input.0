@@ -1,74 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [git pull] Input updates for 3.5-rc0
-Date: Thu, 24 May 2012 13:59:52 -0700
-Message-ID: <20120524205952.GA16621@core.coreip.homeip.net>
+Date: Thu, 24 May 2012 14:07:29 -0700
+Message-ID: <CA+55aFybQDXjGaEK0k=60gS88bxwE8vC7XvOffaQAf3de9cCfg@mail.gmail.com>
 References: <20120524083216.GD10562@core.coreip.homeip.net>
  <CA+55aFxw0HRpizzJZxhhA2oqPpzg4DPUvH2r7YoYfctXS6K=WQ@mail.gmail.com>
- <20120524180154.GA15036@core.coreip.homeip.net>
- <CA+55aFx0ww=BtYAj9WEbqMT2R30ZZpjd014cYCpC=b+HRtUf_A@mail.gmail.com>
- <20120524195851.GA15306@core.coreip.homeip.net>
- <CA+55aFxX+xidcuVXb1h4oFTemtHo+ANECaoOw=vxtKN231N+cA@mail.gmail.com>
- <20120524203647.GA16024@core.coreip.homeip.net>
- <CA+55aFz9Fp2J=oCkoDAwNTnEJoBeKC9tn+5dqMCKf4C22CAi6Q@mail.gmail.com>
+ <20120524180154.GA15036@core.coreip.homeip.net> <CA+55aFx0ww=BtYAj9WEbqMT2R30ZZpjd014cYCpC=b+HRtUf_A@mail.gmail.com>
+ <20120524195851.GA15306@core.coreip.homeip.net> <CA+55aFxX+xidcuVXb1h4oFTemtHo+ANECaoOw=vxtKN231N+cA@mail.gmail.com>
+ <20120524203647.GA16024@core.coreip.homeip.net> <CA+55aFz9Fp2J=oCkoDAwNTnEJoBeKC9tn+5dqMCKf4C22CAi6Q@mail.gmail.com>
+ <20120524205952.GA16621@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:65081 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757869Ab2EXU76 (ORCPT
+Received: from mail-we0-f174.google.com ([74.125.82.174]:35228 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754005Ab2EXVHu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 May 2012 16:59:58 -0400
-Content-Disposition: inline
-In-Reply-To: <CA+55aFz9Fp2J=oCkoDAwNTnEJoBeKC9tn+5dqMCKf4C22CAi6Q@mail.gmail.com>
+	Thu, 24 May 2012 17:07:50 -0400
+In-Reply-To: <20120524205952.GA16621@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, May 24, 2012 at 01:48:57PM -0700, Linus Torvalds wrote:
-> On Thu, May 24, 2012 at 1:36 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> >
-> > Hmm, I guess we are better now with cleaning and turning devices into
-> > zombies waiting to be reaped.
-> 
-> No, that wasn't the silly part of your statement.
-> 
-> The silly part is that
-> 
->   dev_set_name(&dev->dev, "input-%s", dev_name(dev->dev.parent));
-> 
-> works perfectly fine if the parent goes away, for a damn simple
-> reason: it generates the string *once*, and doesn't care one *whit*
-> about the parent pointer ever again afterwards.
+On Thu, May 24, 2012 at 1:59 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> I was concerned about the _next_ device (the one that will be created
+> the moment I plug in the tablet back into the same port) having exact
+> same name as the one that is half dead and clashing in sysfs and
+> elsewhere. We used to have issues with this.
 
-I was concerned about the _next_ device (the one that will be created
-the moment I plug in the tablet back into the same port) having exact
-same name as the one that is half dead and clashing in sysfs and
-elsewhere. We used to have issues with this.
+Ok, that's certainly a valid concern.
 
-> 
-> For exactly the same that your current
-> 
->   dev_set_name(&dev->dev, "input%d", atomic_inc_return(&input_no) - 1);
-> 
-> doesn't care *at*all* about that "input_no" variable afterwards -
-> dev_set_name() will have turned it into a string, and "input_no" can
-> change as much as it wants, and that won't change the name of the
-> device.
+It's still - I think - really sad/wrong that the device name is then
+so useless than the drivers end up basically not using it.
 
-and it guarantees to make the name unique, that is all we need.
-
-> 
-> See? So no "refcounting parents" or "zombie devices" or any crap like
-> that. The name is just a string.
-> 
-> Anyway, I can't be bothered to argue. If you think "input1" is such a
-> great name, and then that results in nobody actually ever *using* it
-> because everybody agrees it useless and will use something else,
-> whatever.
-> 
->                 Linus
-
--- 
-Dmitry
+                      Linus

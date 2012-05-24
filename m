@@ -1,42 +1,79 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 5/7] input/nomadik-ske: move key scanning to delayed work
-Date: Thu, 24 May 2012 11:50:36 +0200
-Message-ID: <CACRpkdaH=wTGdM_23khEnsNc42c6-LmEitC+qcjtmyHCJL8BjQ@mail.gmail.com>
-References: <1336913049-10153-1-git-send-email-linus.walleij@stericsson.com>
-	<20120516183327.GB14471@core.coreip.homeip.net>
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: Re: Reg. kernel crash while using pixcir touchscreen driver
+Date: Thu, 24 May 2012 15:35:52 +0530
+Message-ID: <CAK9yfHwMwC1j2mGJqGgG7kYKP51K-cAQhASKocCAOxVyt3aKuQ@mail.gmail.com>
+References: <CAK9yfHzGgYTSE7mJ1xmnCrZ-_eYxBvbZp-hQ8tSJ77=TLvFdvQ@mail.gmail.com>
+	<20120524074705.GA10562@core.coreip.homeip.net>
+	<CAK9yfHzcT_fK1xiBf0opYBy-Qj6G8CUKcpfeZ81q0sY7byjGaA@mail.gmail.com>
+	<20120524082202.GC10562@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f174.google.com ([209.85.216.174]:56964 "EHLO
+Received: from mail-qc0-f174.google.com ([209.85.216.174]:60851 "EHLO
 	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751127Ab2EXJui (ORCPT
+	with ESMTP id S1752568Ab2EXKFx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 May 2012 05:50:38 -0400
-Received: by qcro28 with SMTP id o28so5495674qcr.19
-        for <linux-input@vger.kernel.org>; Thu, 24 May 2012 02:50:37 -0700 (PDT)
-In-Reply-To: <20120516183327.GB14471@core.coreip.homeip.net>
+	Thu, 24 May 2012 06:05:53 -0400
+Received: by qcro28 with SMTP id o28so5501305qcr.19
+        for <linux-input@vger.kernel.org>; Thu, 24 May 2012 03:05:53 -0700 (PDT)
+In-Reply-To: <20120524082202.GC10562@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Walleij <linus.walleij@stericsson.com>, linux-input@vger.kernel.org, NaveenKumar Gaddipati <naveen.gaddipati@stericsson.com>
+Cc: linux-input@vger.kernel.org, jcbian@pixcir.com.cn, rydberg@euromail.se
 
-On Wed, May 16, 2012 at 8:33 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-
-> Hi Linus,
->
-> On Sun, May 13, 2012 at 02:44:09PM +0200, Linus Walleij wrote:
->> From: Karl-Johan Perntz <karl-johan.perntz@stericsson.com>
+On 24/05/2012, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On Thu, May 24, 2012 at 01:41:27PM +0530, Sachin Kamat wrote:
+>> Hi Dmitry,
 >>
->> Move the key scanning to a delayed work thread, drop the threaded
->> IRQ since all the IRQ work can now be done quickly.
+>> Thank you for your reply.
+>>
+>>
+>> On 24/05/2012, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+>> > Hi Sachin,
+>> >
+>> > On Thu, May 24, 2012 at 11:20:01AM +0530, Sachin Kamat wrote:
+>> >> Hi,
+>> >>
+>> >> I encountered a kernel crash while integrating Pixcir touchscreen
+>> >> driver with one of our hardware. The log is attached at the end of the
+>> >> mail (inline).
+>> >>
+>> >> The following ISR code:
+>> >>
+>> >> while (!tsdata->exiting) {
+>> >>         pixcir_ts_poscheck(tsdata);
+>> >>
+>> >>         if (tsdata->chip->attb_read_val())
+>> >>               break;
+>> >>
+>> >>         msleep(20);
+>> >> }
+>> >>
+>> >> seems to run until the if condition is false. However, when it exits
+>> >> the loop (when the condition becomes true), it crashes saying "exiting
+>> >> task "irq/438-pixcir_" (1011) is an active IRQ thread".
+>> >
+>> > It actually crashes earlier, in pixcir_ts_isr() itself. The message is
+>> > coming from do_exit() when ISR thread dies. Did you porvide
+>> > attb_read_val implementation?
+>>
+>> Yes, i did provide the implementation for it.
+>> In fact even a simplest implementation where I return a positive
+>> integer (for testing) results in the above crash.
 >
-> Justification for the change is missing. What are the benefits of doing
-> such move, why threaded IRQ does not work for you.
+> Hmm, this is wierd... are you sure you do not discard platform data
+> after binding to the touchscreen?
 
-I'll try to hunt down the reason for this, could you apply patches
-1 thru 4 in the meantime, and we put 5-7 on hold? They are not
-dependent in any way.
+Yes, you are right. The platform data was getting freed after the binding.
+It now works fine. Thanks for your help.
 
-Yours,
-Linus Walleij
+>
+> --
+> Dmitry
+>
+
+
+-- 
+With warm regards,
+Sachin

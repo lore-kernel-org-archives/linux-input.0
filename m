@@ -1,63 +1,46 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Reg. kernel crash while using pixcir touchscreen driver
-Date: Thu, 24 May 2012 00:47:05 -0700
-Message-ID: <20120524074705.GA10562@core.coreip.homeip.net>
-References: <CAK9yfHzGgYTSE7mJ1xmnCrZ-_eYxBvbZp-hQ8tSJ77=TLvFdvQ@mail.gmail.com>
+Subject: Re: [PATCH v5] input: Add MELFAS mms114 touchscreen driver
+Date: Thu, 24 May 2012 00:53:52 -0700
+Message-ID: <20120524075352.GB10562@core.coreip.homeip.net>
+References: <1337841467-20717-1-git-send-email-jy0922.shim@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:57371 "EHLO
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:40144 "EHLO
 	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750840Ab2EXHrK (ORCPT
+	with ESMTP id S1750819Ab2EXHx5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 May 2012 03:47:10 -0400
-Received: by dady13 with SMTP id y13so10940752dad.19
-        for <linux-input@vger.kernel.org>; Thu, 24 May 2012 00:47:09 -0700 (PDT)
+	Thu, 24 May 2012 03:53:57 -0400
+Received: by dady13 with SMTP id y13so10948312dad.19
+        for <linux-input@vger.kernel.org>; Thu, 24 May 2012 00:53:56 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAK9yfHzGgYTSE7mJ1xmnCrZ-_eYxBvbZp-hQ8tSJ77=TLvFdvQ@mail.gmail.com>
+In-Reply-To: <1337841467-20717-1-git-send-email-jy0922.shim@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: linux-input@vger.kernel.org, jcbian@pixcir.com.cn, rydberg@euromail.se
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: linux-input@vger.kernel.org, rydberg@euromail.se, kyungmin.park@samsung.com
 
-Hi Sachin,
+Hi Joonyoung,
 
-On Thu, May 24, 2012 at 11:20:01AM +0530, Sachin Kamat wrote:
-> Hi,
-> 
-> I encountered a kernel crash while integrating Pixcir touchscreen
-> driver with one of our hardware. The log is attached at the end of the
-> mail (inline).
-> 
-> The following ISR code:
-> 
-> while (!tsdata->exiting) {
->         pixcir_ts_poscheck(tsdata);
-> 
->         if (tsdata->chip->attb_read_val())
->               break;
-> 
->         msleep(20);
-> }
-> 
-> seems to run until the if condition is false. However, when it exits
-> the loop (when the condition becomes true), it crashes saying "exiting
-> task "irq/438-pixcir_" (1011) is an active IRQ thread".
+On Thu, May 24, 2012 at 03:37:47PM +0900, Joonyoung Shim wrote:
+> +
+> +static int mms114_start(struct mms114_data *data)
+> +{
+> +	int error;
+> +
+> +	mutex_lock(&data->mutex);
+> +	if (data->enabled)
+> +		goto out;
 
-It actually crashes earlier, in pixcir_ts_isr() itself. The message is
-coming from do_exit() when ISR thread dies. Did you porvide
-attb_read_val implementation?
+This seems too complicated. You already take input_dev->mutex in
+suspend/resume and open/close are called with this mutex held so you do
+not need yet another mutex here.
 
-> 
-> I have 2 questions here:
-> 1. Do we need such a loop and the if condition. In my case it worked
-> with the isr just doing
-> pixcir_ts_poscheck(tsdata);
-> 
-> 2. What exactly is expected by attb_read_val() function.
+Same goes for data->enabled - you can go by the fact that number of
+users != 0.
 
-I believe it is supposed to indicate if touch is detected so we can keep
-polling.
+It also looks like you want to bring enabling/disabling IRQ into
+start/stop and probably cfg_pin as well.
 
 Thanks.
 

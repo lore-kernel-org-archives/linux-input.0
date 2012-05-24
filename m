@@ -1,76 +1,71 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [git pull] Input updates for 3.5-rc0
-Date: Thu, 24 May 2012 11:01:54 -0700
-Message-ID: <20120524180154.GA15036@core.coreip.homeip.net>
+Date: Thu, 24 May 2012 11:21:20 -0700
+Message-ID: <CA+55aFx0ww=BtYAj9WEbqMT2R30ZZpjd014cYCpC=b+HRtUf_A@mail.gmail.com>
 References: <20120524083216.GD10562@core.coreip.homeip.net>
- <CA+55aFxw0HRpizzJZxhhA2oqPpzg4DPUvH2r7YoYfctXS6K=WQ@mail.gmail.com>
+ <CA+55aFxw0HRpizzJZxhhA2oqPpzg4DPUvH2r7YoYfctXS6K=WQ@mail.gmail.com> <20120524180154.GA15036@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:65450 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933458Ab2EXSCB (ORCPT
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:36152 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933295Ab2EXSVm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 May 2012 14:02:01 -0400
-Content-Disposition: inline
-In-Reply-To: <CA+55aFxw0HRpizzJZxhhA2oqPpzg4DPUvH2r7YoYfctXS6K=WQ@mail.gmail.com>
+	Thu, 24 May 2012 14:21:42 -0400
+In-Reply-To: <20120524180154.GA15036@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, May 24, 2012 at 10:33:49AM -0700, Linus Torvalds wrote:
-> On Thu, May 24, 2012 at 1:32 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Linus,
-> >
-> > to receive updates for the input subsystem. You will get:
-> 
-> I get an annoying conflict, and the reason I call it annoying is not
-> because it's hard to resolve, it's because doing that shows that you
-> seem to have preferred using
-> 
->    dev_dbg(&input->dev.parent, ...)
-> 
-> over the much more natural
-> 
->    dev_dbg(&input->dev, ...)
-> 
-> which would seem to make more sense.
-> 
-> Why? Are the input layer device names so bad that using them for debug
-> output is useless? And if so, why *are* they so bad?
-> 
-> I'm going to take your version over Greg's more straightforward one,
-> because I assume Greg did things a bit more mindlessly and I think you
-> presumably had a *reason* for your extra (stupid) ".parent" part. But
-> I'm unhappy with it, because I suspect the reason you did that implies
-> that the input layer does something bad.
+On Thu, May 24, 2012 at 11:01 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> A couple of points:
 
-A couple of points:
+*NEITHER* of your points actually address my issue.
 
-1. A driver should try to use the same device for all its messages and
-input devices are not created yet at the time we try to bind USB
-interface to a driver. Most (all?) USB probe() methods use interface's
-device with dev_xxx() which shows exactly which interface we are dealing
-with.
+If the "inputX" name is useless (and dammit, I agree), then why do you
+continue to use it then?
 
-2. Input devices are essentially driver-less (they are class devices) and
-therefore do not provide useful information if used in messages as the
-format of the message would be:
+IOW, why the hell do you set a name that is so useful that no sane
+person would ever want to use it?
 
-	input inputX: some message
+Basically, my complaint is that the input layer drivers end up doing
+stupid things ("dev_dbg(input->dev.parent..") because the input layer
+has done stupid things (dev_set_name(&dev->dev, "input%ld").
 
-which does not identify neitehr the driver nor hardware device.  By
-using input->dev.parent we get to the USB interface thus getting more
-meaningful messages:
+So let me be more blunt and direct: which part of "that's f*cking
+stupid" do you disagree with?
 
-	wacom 2-1.2:1.0: some error happened
+So instead of making drivers do stupid things because you've made the
+input layer names so damn useless, why don't you make the input layer
+use better naming? Doesn't that seem to be the *smart* thing to do?
 
-We had a discussion with Greg about this and he was going to change his
-patchset to use USB interfaces in the messages...
+Wouldn't everybody be much happier if they saw useful names in the
+device tree? And then the drivers could actually *use* those useful
+names, instead of clearly saying "our names are so shitty that we have
+to look up the parent name just to get a useful printout"?
 
-Thanks.
+Do people really *want* to see names like "input2" when working with a
+keyboard? Do we have some stupid userlevel interface that requires
+these useless and nondescriptive names that are so useless that even
+the input layer itself doesn't want to use them?
 
--- 
-Dmitry
+Wouldn't it be *much* nicer if the input layer would, for example, do
+something like
+
+   dev_set_name(&dev->dev, "input-%s", dev_name(dev->dev.parent));
+
+or whatever? Better yet, make it easy for the driver to say what it
+is, so that it really can just say "wacom %s" or whatever.
+
+Because the basic reason you seem to want to use "dev.parent" instead
+of just "dev" *all* seem to boil down to a very simple reason:
+
+ - other subsystems name their devices better, so you want to use
+those better names
+
+Fix the underlying *reason*, instead of the symptoms. That's what I'm saying.
+
+              Linus

@@ -1,54 +1,73 @@
-From: Joao Paulo Rechi Vita <jprvita@openbossa.org>
-Subject: HID Output and Feature Reports
-Date: Fri, 25 May 2012 17:51:28 -0300
-Message-ID: <CAAngNMZDfgcaf+pO+Lx=c+BLYCXKWP5k4bUKhmTyiiheiUH+3A@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Fabio Estevam <festevam@gmail.com>
+Subject: [PATCH 05/15] keyboard: imx_keypad: Use clk_prepare_enable/clk_disable_unprepare
+Date: Fri, 25 May 2012 20:14:46 -0300
+Message-ID: <1337987696-31728-5-git-send-email-festevam@gmail.com>
+References: <1337987696-31728-1-git-send-email-festevam@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:34120 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756401Ab2EYUv3 convert rfc822-to-8bit (ORCPT
+Received: from mail-vc0-f174.google.com ([209.85.220.174]:47450 "EHLO
+	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759031Ab2EYXPT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 May 2012 16:51:29 -0400
-Received: by pbbrp8 with SMTP id rp8so2210480pbb.19
-        for <linux-input@vger.kernel.org>; Fri, 25 May 2012 13:51:28 -0700 (PDT)
+	Fri, 25 May 2012 19:15:19 -0400
+Received: by mail-vc0-f174.google.com with SMTP id f11so727674vcb.19
+        for <linux-input@vger.kernel.org>; Fri, 25 May 2012 16:15:18 -0700 (PDT)
+In-Reply-To: <1337987696-31728-1-git-send-email-festevam@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, gregkh@linuxfoundation.org
-Cc: Claudio Takahasi <claudio.takahasi@openbossa.org>, Andre Guedes <andre.guedes@openbossa.org>, David Herrmann <dh.herrmann@googlemail.com>
+To: kernel@pengutronix.de
+Cc: shawn.guo@freescale.com, Fabio Estevam <fabio.estevam@freescale.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Hello all,
+From: Fabio Estevam <fabio.estevam@freescale.com>
 
-I'm working to support HID over GATT (HoG), which is HID over
-Bluetooth Low Energy links, both on kernel and userspace. Traffic
-coming from the remote peripheral through a L2CAP socket will be
-handled in usespace, where the HID input reports are decapsulated from
-GATT and injected back into the kernel through the new uHID module
-written by David Herrmann. This module works similar to uinput, but
-dealing with HID traffic.
+Prepare the clock before enabling it.
 
-The input part is working without problems and now I looking how to
-support Output and Feature reports. Doing some basic testing it seems
-we don't support Output reports very well. A basic use-case for that
-is synchronizing keyboard leds (CAPS, NUM, etc) when there is more
-than one keyboard connected, and I couldn't get this to work on my
-tests. I didn't try to test feature reports since it's still not very
-clear to me when they're used. The HID spec says that they exist for
-setting values/controls on the peripheral that are not visible to the
-user, but I haven't discovered any real-world use case for them. What
-is the current state for these reports, do we support them somehow?
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: <linux-input@vger.kernel.org>
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ drivers/input/keyboard/imx_keypad.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-Also, I've found usbhid-dump by Greg K-H, but it doesn't seem to dump
-data coming from the host to the device. Is this on the plans for this
-tool? I can try to send a patch for it, if someone can guide me on how
-this whole output/feature reports thing should work.
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index 6ee7421..9d57945 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -378,7 +378,7 @@ static void imx_keypad_close(struct input_dev *dev)
+ 	imx_keypad_inhibit(keypad);
+ 
+ 	/* Disable clock unit */
+-	clk_disable(keypad->clk);
++	clk_disable_unprepare(keypad->clk);
+ }
+ 
+ static int imx_keypad_open(struct input_dev *dev)
+@@ -391,7 +391,7 @@ static int imx_keypad_open(struct input_dev *dev)
+ 	keypad->enabled = true;
+ 
+ 	/* Enable the kpp clock */
+-	clk_enable(keypad->clk);
++	clk_prepare_enable(keypad->clk);
+ 	imx_keypad_config(keypad);
+ 
+ 	/* Sanity control, not all the rows must be actived now. */
+@@ -581,7 +581,7 @@ static int imx_kbd_suspend(struct device *dev)
+ 	mutex_lock(&input_dev->mutex);
+ 
+ 	if (input_dev->users)
+-		clk_disable(kbd->clk);
++		clk_disable_unprepare(kbd->clk);
+ 
+ 	mutex_unlock(&input_dev->mutex);
+ 
+@@ -603,7 +603,7 @@ static int imx_kbd_resume(struct device *dev)
+ 	mutex_lock(&input_dev->mutex);
+ 
+ 	if (input_dev->users)
+-		clk_enable(kbd->clk);
++		clk_prepare_enable(kbd->clk);
+ 
+ 	mutex_unlock(&input_dev->mutex);
+ 
+-- 
+1.7.1
 
---=20
-Jo=C3=A3o Paulo Rechi Vita
-Openbossa Labs - INdT
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

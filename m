@@ -1,73 +1,65 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH 05/15] keyboard: imx_keypad: Use clk_prepare_enable/clk_disable_unprepare
-Date: Fri, 25 May 2012 20:14:46 -0300
-Message-ID: <1337987696-31728-5-git-send-email-festevam@gmail.com>
-References: <1337987696-31728-1-git-send-email-festevam@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f174.google.com ([209.85.220.174]:47450 "EHLO
-	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759031Ab2EYXPT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 May 2012 19:15:19 -0400
-Received: by mail-vc0-f174.google.com with SMTP id f11so727674vcb.19
-        for <linux-input@vger.kernel.org>; Fri, 25 May 2012 16:15:18 -0700 (PDT)
-In-Reply-To: <1337987696-31728-1-git-send-email-festevam@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Subject: Re: HID Output and Feature Reports
+Date: Sat, 26 May 2012 12:44:51 +0200
+Message-ID: <CANq1E4RhVzukWTTQLykSa9aMCNuUkOk6BBKYu5jhOTHtDX8EqQ@mail.gmail.com>
+References: <CAAngNMZDfgcaf+pO+Lx=c+BLYCXKWP5k4bUKhmTyiiheiUH+3A@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAAngNMZDfgcaf+pO+Lx=c+BLYCXKWP5k4bUKhmTyiiheiUH+3A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Joao Paulo Rechi Vita <jprvita-430g2QfJUUCGglJvpFV4uA@public.gmane.org>
+Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Claudio Takahasi <claudio.takahasi-430g2QfJUUCGglJvpFV4uA@public.gmane.org>, Andre Guedes <andre.guedes-430g2QfJUUCGglJvpFV4uA@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: kernel@pengutronix.de
-Cc: shawn.guo@freescale.com, Fabio Estevam <fabio.estevam@freescale.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam@freescale.com>
+Hi Joao
 
-Prepare the clock before enabling it.
+I CC'ed Jiri as he is the HID maintainer.
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: <linux-input@vger.kernel.org>
-Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
----
- drivers/input/keyboard/imx_keypad.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+On Fri, May 25, 2012 at 10:51 PM, Joao Paulo Rechi Vita
+<jprvita-430g2QfJUUCGglJvpFV4uA@public.gmane.org> wrote:
+> Hello all,
+>
+> I'm working to support HID over GATT (HoG), which is HID over
+> Bluetooth Low Energy links, both on kernel and userspace. Traffic
+> coming from the remote peripheral through a L2CAP socket will be
+> handled in usespace, where the HID input reports are decapsulated from
+> GATT and injected back into the kernel through the new uHID module
+> written by David Herrmann. This module works similar to uinput, but
+> dealing with HID traffic.
+>
+> The input part is working without problems and now I looking how to
+> support Output and Feature reports. Doing some basic testing it seems
+> we don't support Output reports very well. A basic use-case for that
+> is synchronizing keyboard leds (CAPS, NUM, etc) when there is more
+> than one keyboard connected, and I couldn't get this to work on my
+> tests. I didn't try to test feature reports since it's still not very
+> clear to me when they're used. The HID spec says that they exist for
+> setting values/controls on the peripheral that are not visible to the
+> user, but I haven't discovered any real-world use case for them. What
+> is the current state for these reports, do we support them somehow?
 
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index 6ee7421..9d57945 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -378,7 +378,7 @@ static void imx_keypad_close(struct input_dev *dev)
- 	imx_keypad_inhibit(keypad);
- 
- 	/* Disable clock unit */
--	clk_disable(keypad->clk);
-+	clk_disable_unprepare(keypad->clk);
- }
- 
- static int imx_keypad_open(struct input_dev *dev)
-@@ -391,7 +391,7 @@ static int imx_keypad_open(struct input_dev *dev)
- 	keypad->enabled = true;
- 
- 	/* Enable the kpp clock */
--	clk_enable(keypad->clk);
-+	clk_prepare_enable(keypad->clk);
- 	imx_keypad_config(keypad);
- 
- 	/* Sanity control, not all the rows must be actived now. */
-@@ -581,7 +581,7 @@ static int imx_kbd_suspend(struct device *dev)
- 	mutex_lock(&input_dev->mutex);
- 
- 	if (input_dev->users)
--		clk_disable(kbd->clk);
-+		clk_disable_unprepare(kbd->clk);
- 
- 	mutex_unlock(&input_dev->mutex);
- 
-@@ -603,7 +603,7 @@ static int imx_kbd_resume(struct device *dev)
- 	mutex_lock(&input_dev->mutex);
- 
- 	if (input_dev->users)
--		clk_enable(kbd->clk);
-+		clk_prepare_enable(kbd->clk);
- 
- 	mutex_unlock(&input_dev->mutex);
- 
--- 
-1.7.1
+I think my last revision of uhid added support for feature-reports.
+However, they are not used by the generic hid-input driver. If there
+is currently no specialized bluetooth-LE HID driver, you also do not
+need to worry about it.
 
+I think the new generic HID battery-detection code uses the
+feature-reports. However, its disabled by default if I remember
+correctly.
+
+About output-reports: Do you correctly receive the UHID_OUTPUT_EV
+request in user-space? Do you send the packet to the device? How do
+you format it?
+
+> Also, I've found usbhid-dump by Greg K-H, but it doesn't seem to dump
+> data coming from the host to the device. Is this on the plans for this
+> tool? I can try to send a patch for it, if someone can guide me on how
+> this whole output/feature reports thing should work.
+
+Regards
+David
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

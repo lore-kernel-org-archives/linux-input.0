@@ -1,60 +1,46 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: Re: [-next regression] USB keyboard stops working occasionally
-Date: Mon, 28 May 2012 17:41:47 +0200
-Message-ID: <4FC39CBB.3040204@suse.cz>
-References: <4FB81BF9.7040705@suse.cz> <20120519223903.GA12572@kroah.com>
+From: Daniel Nicoletti <dantti12@gmail.com>
+Subject: [Patch] Add Apple wireless keyboard to the quirk list
+Date: Mon, 28 May 2012 18:11:59 -0300
+Message-ID: <CACo8zOc24xxmfT4F2nfrMreL28OBXw+HF6=or4vVVMZv90MYDw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:50234 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751214Ab2E1Plw (ORCPT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:40499 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750954Ab2E1VMA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 May 2012 11:41:52 -0400
-In-Reply-To: <20120519223903.GA12572@kroah.com>
+	Mon, 28 May 2012 17:12:00 -0400
+Received: by obbtb18 with SMTP id tb18so5851674obb.19
+        for <linux-input@vger.kernel.org>; Mon, 28 May 2012 14:11:59 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jirislaby@gmail.com>, Alan Stern <stern@rowland.harvard.edu>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, vojtech@ucw.cz, Przemo Firszt <przemo@firszt.eu>, Jeremy Fitzhardinge <jeremy@goop.org>
 
-On 05/20/2012 12:39 AM, Greg Kroah-Hartman wrote:
-> On Sun, May 20, 2012 at 12:17:29AM +0200, Jiri Slaby wrote:
->> Hi,
->>
->> sometimes, in the middle of writing, my USB HID keyboard stops sending
->> interrupts (no changes in /proc/interrupts). I have to hit a key on
->> another USB interface of that keyboard to resurrect the other. It
->> happens once or twice a day. It happens with -next since around Friday 4th.
->>
->> I tried to bisect it a bit (three or four times because of fuzz) in the
->> past 3 weeks and my suspect number one is currently:
->> commit 3d9545cc375d117554a9b35dfddadf9189c62775
->> Author: Alan Stern <stern@rowland.harvard.edu>
->> Date:   Mon Apr 23 13:54:36 2012 -0400
->>
->>     EHCI: maintain the ehci->command value properly
->>
->> ===
->>
->> I'm currently running on -next 20120518 with that commit reverted for
->> one whole day and the issue seems to be gone.
->>
->> Could you take a look and double-check that commit? (Or do you have any
->> other ideas where to take a look?)
-> 
-> Yes, we realized this a few days ago, and I committed a fix for this a
-> few hours ago to the usb-next tree, and should show up in the next -next
-> release.
-> 
-> I've included the patch below that should fix this problem, please let
-> me know if it doesn't for you.
+Hi,
+some time ago I sent the patch to probe the battery status of devices,
+but Jeremy improved it to go to hid-input and created a quirk list,
+at that time I was quite busy with other projects that I didn't had the
+chance to put my model on that list, so, now that the patch got upstream
+I'm having I/O errors when reading that...
 
-FWIW after running the kernel a couple of days without a glitch I can
-conclude that it is fixed now.
+I'd also suggest to include all the other keyboard models between his and
+mine, but I don't know if doing this without testing is ok.
 
-thanks,
--- 
-js
-suse labs
+I've tested and with this, it works just fine, thanks.
 
+Daniel.
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 132b001..33d88d1 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -301,6 +301,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
+        { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+                               USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI),
+          HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
++       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
++                              USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI),
++         HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
+        {}
+ };

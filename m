@@ -1,91 +1,60 @@
-From: Che-liang Chiou <clchiou@chromium.org>
-Subject: Re: [PATCH 0/5] Input: serio_raw - add monitor/replay debugging interface
-Date: Mon, 28 May 2012 17:41:09 +0800
-Message-ID: <CANJuy2+Gboe-_3boJ3NEMKH_FpDZX_+73KDaykBqdazDNSwzZA@mail.gmail.com>
-References: <1328084386-31110-1-git-send-email-clchiou@chromium.org>
- <1328671497-20880-1-git-send-email-clchiou@chromium.org> <CAGS+omDWrSyLtDYWAubyc5F=BUqKOnKmCnyWPn5nNcoREar_aw@mail.gmail.com>
- <20120421062130.GC27551@core.coreip.homeip.net>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: Re: [-next regression] USB keyboard stops working occasionally
+Date: Mon, 28 May 2012 17:41:47 +0200
+Message-ID: <4FC39CBB.3040204@suse.cz>
+References: <4FB81BF9.7040705@suse.cz> <20120519223903.GA12572@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120421062130.GC27551@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Kurtz <djkurtz@google.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:50234 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751214Ab2E1Plw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 May 2012 11:41:52 -0400
+In-Reply-To: <20120519223903.GA12572@kroah.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jirislaby@gmail.com>, Alan Stern <stern@rowland.harvard.edu>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Hi Dmitry,
-
-I am sorry for getting back to you so late. See below.
-
-On Sat, Apr 21, 2012 at 2:21 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Feb 14, 2012 at 11:18:38AM +0800, Daniel Kurtz wrote:
->> On Wed, Feb 8, 2012 at 11:24 AM, Che-Liang Chiou <clchiou@chromium.o=
-rg> wrote:
->> >
->> > The serio_raw driver is designed to provide "raw access" to mice, =
-keyboards
->> > etc; thus, a driver accessing serio_raw may live entirely in userl=
-and.
->> >
->> > However, serio_raw lacks testability. =C2=A0It is practically impo=
-ssible to do
->> > regression tests on changes to a serio_raw -based userland driver.=
- =C2=A0On the other
->> > hand, the kernel's input subsystem has good testability support. =C2=
-=A0With the help
->> > of tools like utouch-evemu, we may capture and replay input events=
- for evdev
->> > drivers in regression tests.
->> >
->> > This patchset contains extensions to the serio_raw driver which ad=
-d debugfs
->> > entries for monitoring and replaying byte sequence between a userl=
-and driver
->> > and device. =C2=A0These byte sequences can be used in regression t=
-ests of the
->> > userland driver. =C2=A0This patchset closes the gap between serio_=
-raw and the input
->> > subsystem regarding testability.
->> >
->> > This patchset is successfully applied on kernel version 3.3-rc2.
->> >
->> > Che-Liang Chiou (5):
->> > =C2=A0Input: serio_raw - return proper result when serio_raw_read =
-fails
->> > =C2=A0Input: serio_raw - extract queue interface
->> > =C2=A0Input: serio_raw - factor out common pattern of write
->> > =C2=A0Input: serio_raw - add debugfs interface
->> > =C2=A0Input: serio_raw - implement debugfs interface
+On 05/20/2012 12:39 AM, Greg Kroah-Hartman wrote:
+> On Sun, May 20, 2012 at 12:17:29AM +0200, Jiri Slaby wrote:
+>> Hi,
 >>
->> For patches 3-5:
->> Reviewed-by: Daniel Kurtz <djkurtz@google.com>
+>> sometimes, in the middle of writing, my USB HID keyboard stops sending
+>> interrupts (no changes in /proc/interrupts). I have to hit a key on
+>> another USB interface of that keyboard to resurrect the other. It
+>> happens once or twice a day. It happens with -next since around Friday 4th.
 >>
->> For patch 1 (and its implication on queue_read() in patch 2, I'd
->> prefer to hear feedback from the list.
->
-> I have already taken the patch 1, but I am unsure why we need kernel
-> support for the monitor and replay. It seems you should only need a
-> userspace program that would sit between the driver being tested and
-> serio_raw misc device and pipe data back and forth, optionally saving
-> it for subsequent replay.
+>> I tried to bisect it a bit (three or four times because of fuzz) in the
+>> past 3 weeks and my suspect number one is currently:
+>> commit 3d9545cc375d117554a9b35dfddadf9189c62775
+>> Author: Alan Stern <stern@rowland.harvard.edu>
+>> Date:   Mon Apr 23 13:54:36 2012 -0400
+>>
+>>     EHCI: maintain the ehci->command value properly
+>>
+>> ===
+>>
+>> I'm currently running on -next 20120518 with that commit reverted for
+>> one whole day and the issue seems to be gone.
+>>
+>> Could you take a look and double-check that commit? (Or do you have any
+>> other ideas where to take a look?)
+> 
+> Yes, we realized this a few days ago, and I committed a fix for this a
+> few hours ago to the usb-next tree, and should show up in the next -next
+> release.
+> 
+> I've included the patch below that should fix this problem, please let
+> me know if it doesn't for you.
 
-Sadly some user space drivers hard codes path, like
-"/dev/serio_raw%d", and quite often their source codes are not
-available; so it is effectively impossible to monitor these drivers
-without kernel's help.
+FWIW after running the kernel a couple of days without a glitch I can
+conclude that it is fixed now.
 
-Besides, changing from accessing a char device to communicating
-through IPC requires rewriting the user space driver, no matter it's a
-pair of named pipes or a socket. This may sometimes be quite hard
-depending on the I/O strategy of the driver.
+thanks,
+-- 
+js
+suse labs
 
-> Thanks.
->
-> --
-> Dmitry
-
-Regards,
-Che-Liang

@@ -1,99 +1,83 @@
-From: Joao Paulo Rechi Vita <jprvita-430g2QfJUUCGglJvpFV4uA@public.gmane.org>
-Subject: Re: HID Output and Feature Reports
-Date: Tue, 29 May 2012 19:14:47 -0300
-Message-ID: <CAAngNMa1EZN-U5MZ6kwMJbUs0F2v-3A3UyaSz8+v1Uy6+BMLrg@mail.gmail.com>
-References: <CAAngNMZDfgcaf+pO+Lx=c+BLYCXKWP5k4bUKhmTyiiheiUH+3A@mail.gmail.com>
-	<CANq1E4RhVzukWTTQLykSa9aMCNuUkOk6BBKYu5jhOTHtDX8EqQ@mail.gmail.com>
+From: Michael Hennerich <michael.hennerich@analog.com>
+Subject: Re: [PATCH] ads7846: enable usage of internal vref for AD7873
+Date: Wed, 30 May 2012 14:45:19 +0200
+Message-ID: <4FC6165F.3060603@analog.com>
+References: <4FC4E9B7.7050100@tqsc.de>
+Reply-To: <michael.hennerich@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CANq1E4RhVzukWTTQLykSa9aMCNuUkOk6BBKYu5jhOTHtDX8EqQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Claudio Takahasi <claudio.takahasi-430g2QfJUUCGglJvpFV4uA@public.gmane.org>, Andre Guedes <andre.guedes-430g2QfJUUCGglJvpFV4uA@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Content-Type: text/plain; charset="ISO-8859-15"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from db3ehsobe005.messaging.microsoft.com ([213.199.154.143]:58054
+	"EHLO db3outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753629Ab2E3Mpu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 May 2012 08:45:50 -0400
+In-Reply-To: <4FC4E9B7.7050100@tqsc.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Markus Niebel <list-09_linux_input@tqsc.de>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hello David,
-
-On Sat, May 26, 2012 at 7:44 AM, David Herrmann
-<dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org> wrote:
-> Hi Joao
+On 05/29/2012 05:22 PM, Markus Niebel wrote:
+> Touchscreen samples are taken in differential mode.
+> Therefore an external reference is not needed.
+> When working with internal vref disabling vref after
+> every touchscreen sample leads to settling effects in sampling
+> and errors in position data.
 >
-> I CC'ed Jiri as he is the HID maintainer.
+> This patch disables the internal vref only if keep_vref_on us
+> is not set in platform_data.
 >
-> On Fri, May 25, 2012 at 10:51 PM, Joao Paulo Rechi Vita
-> <jprvita-430g2QfJUUCGglJvpFV4uA@public.gmane.org> wrote:
->> Hello all,
->>
->> I'm working to support HID over GATT (HoG), which is HID over
->> Bluetooth Low Energy links, both on kernel and userspace. Traffic
->> coming from the remote peripheral through a L2CAP socket will be
->> handled in usespace, where the HID input reports are decapsulated fr=
-om
->> GATT and injected back into the kernel through the new uHID module
->> written by David Herrmann. This module works similar to uinput, but
->> dealing with HID traffic.
->>
->> The input part is working without problems and now I looking how to
->> support Output and Feature reports. Doing some basic testing it seem=
-s
->> we don't support Output reports very well. A basic use-case for that
->> is synchronizing keyboard leds (CAPS, NUM, etc) when there is more
->> than one keyboard connected, and I couldn't get this to work on my
->> tests. I didn't try to test feature reports since it's still not ver=
-y
->> clear to me when they're used. The HID spec says that they exist for
->> setting values/controls on the peripheral that are not visible to th=
-e
->> user, but I haven't discovered any real-world use case for them. Wha=
-t
->> is the current state for these reports, do we support them somehow?
+> Tested on i.MX35 with costum board
 >
-> I think my last revision of uhid added support for feature-reports.
-> However, they are not used by the generic hid-input driver. If there
-> is currently no specialized bluetooth-LE HID driver, you also do not
-> need to worry about it.
 >
-
-Yes, I've seen the new event types for them, what I'm looking for is
-how to trigger them.
-
-> I think the new generic HID battery-detection code uses the
-> feature-reports. However, its disabled by default if I remember
-> correctly.
+> Signed-off-by: Markus Niebel<Markus.Niebel@tqs.de>
+> ---
+>   drivers/input/touchscreen/ads7846.c |    9 ++++-----
+>   1 files changed, 4 insertions(+), 5 deletions(-)
 >
+> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+> index f02028e..b271633 100644
+> --- a/drivers/input/touchscreen/ads7846.c
+> +++ b/drivers/input/touchscreen/ads7846.c
+> @@ -1001,15 +1001,14 @@ static void __devinit ads7846_setup_spi_msg(struct ads7846 *ts,
+>          struct ads7846_packet *packet = ts->packet;
+>          int vref = pdata->keep_vref_on;
+>
+> -       if (ts->model == 7873) {
+> +       if (ts->model == 7873)
+>                  /*
+>                   * The AD7873 is almost identical to the ADS7846
+> -                * keep VREF off during differential/ratiometric
+> -                * conversion modes.
+> +                * set VREF off during differential/ratiometric
+> +                * conversion modes if keep_vref_on is not set.
+> +                * TODO: does keep_vref_on collide with usage of external vref?
+>                   */
+>                  ts->model = 7846;
+> -               vref = 0;
+> -       }
 
-I will check this out, thanks for the hint.
+I would scrap this section from ads7846_setup_spi_msg() completely
+and force ts->model to 7846 in ads7846_probe() when 7873 is specified.
 
-> About output-reports: Do you correctly receive the UHID_OUTPUT_EV
-> request in user-space? Do you send the packet to the device? How do
-> you format it?
+>
+>          ts->msg_count = 1;
+>          spi_message_init(m);
+> --
+> 1.7.0.4
 >
 
-I was correctly receiving it with the previous version of your patch.
-With this new version I still receive an event coming from the host,
-but with ev.type value out of the enum range (different values like
-this: 2062073856).
 
-What is the difference between UHID_OUTPUT_EV and UHID_OUTPUT events?
-Should both of them be written to the device?
+-- 
+Greetings,
+Michael
 
->> Also, I've found usbhid-dump by Greg K-H, but it doesn't seem to dum=
-p
->> data coming from the host to the device. Is this on the plans for th=
-is
->> tool? I can try to send a patch for it, if someone can guide me on h=
-ow
->> this whole output/feature reports thing should work.
->
-> Regards
-> David
-
---=20
-Jo=C3=A3o Paulo Rechi Vita
-Openbossa Labs - INdT
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
+Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin,
+Margaret Seif
+
+

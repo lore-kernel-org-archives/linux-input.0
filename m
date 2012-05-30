@@ -1,83 +1,53 @@
-From: Michael Hennerich <michael.hennerich@analog.com>
-Subject: Re: [PATCH] ads7846: enable usage of internal vref for AD7873
-Date: Wed, 30 May 2012 14:45:19 +0200
-Message-ID: <4FC6165F.3060603@analog.com>
-References: <4FC4E9B7.7050100@tqsc.de>
-Reply-To: <michael.hennerich@analog.com>
+From: Markus Niebel <list-09_linux_input@tqsc.de>
+Subject: Re: Input: ads7846 - sampling logic issues with AD7873
+Date: Wed, 30 May 2012 19:53:11 +0200
+Message-ID: <4FC65E87.1040805@tqsc.de>
+References: <4FC4A93E.9040305@tqsc.de> <4FC4C042.5060100@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-15"; format=flowed
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from db3ehsobe005.messaging.microsoft.com ([213.199.154.143]:58054
-	"EHLO db3outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753629Ab2E3Mpu (ORCPT
+Received: from smtprelay01.ispgateway.de ([80.67.31.24]:34942 "EHLO
+	smtprelay01.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757110Ab2E3RxS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 May 2012 08:45:50 -0400
-In-Reply-To: <4FC4E9B7.7050100@tqsc.de>
+	Wed, 30 May 2012 13:53:18 -0400
+In-Reply-To: <4FC4C042.5060100@analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Markus Niebel <list-09_linux_input@tqsc.de>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: michael.hennerich@analog.com
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 
-On 05/29/2012 05:22 PM, Markus Niebel wrote:
-> Touchscreen samples are taken in differential mode.
-> Therefore an external reference is not needed.
-> When working with internal vref disabling vref after
-> every touchscreen sample leads to settling effects in sampling
-> and errors in position data.
->
-> This patch disables the internal vref only if keep_vref_on us
-> is not set in platform_data.
->
-> Tested on i.MX35 with costum board
->
->
-> Signed-off-by: Markus Niebel<Markus.Niebel@tqs.de>
-> ---
->   drivers/input/touchscreen/ads7846.c |    9 ++++-----
->   1 files changed, 4 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-> index f02028e..b271633 100644
-> --- a/drivers/input/touchscreen/ads7846.c
-> +++ b/drivers/input/touchscreen/ads7846.c
-> @@ -1001,15 +1001,14 @@ static void __devinit ads7846_setup_spi_msg(struct ads7846 *ts,
->          struct ads7846_packet *packet = ts->packet;
->          int vref = pdata->keep_vref_on;
->
-> -       if (ts->model == 7873) {
-> +       if (ts->model == 7873)
->                  /*
->                   * The AD7873 is almost identical to the ADS7846
-> -                * keep VREF off during differential/ratiometric
-> -                * conversion modes.
-> +                * set VREF off during differential/ratiometric
-> +                * conversion modes if keep_vref_on is not set.
-> +                * TODO: does keep_vref_on collide with usage of external vref?
->                   */
->                  ts->model = 7846;
-> -               vref = 0;
-> -       }
+Am 29.05.2012 14:25, wrote Michael Hennerich:
+> On 05/29/2012 12:47 PM, Markus Niebel wrote:
+>> Hi,
+>>
+>> we use the AD7873 controller with internal reference. The current implementation for AD7873 in the ads7846 driver forces the vref to switch off after every sample. So measurements especially in the edge of the screen become unreliable due to the settling time for the internal reference (I guess). Is there a special reason to override the "keep_vref_of" setting of the platform data for the AD7873 in ads7846_setup_spi_msg?
+>>
+>> We did already some tests and found out, that leaving vref on makes out system usable with AD7873.
+>>
+>> Markus
+>>
+>>
+> Hi Markus,
+> 
+> from top of my head - I don't remember why I forced Vref OFF for the AD7873.
+> Looking at the datasheet doesn't refresh my memory either.
+> I know there are some minor differences with respect to the PENIRQ behavior in one
+> PD bits combination - but that doesn't explain why we force it off.
+> 
+> From a power savings aspect Vref should be turned off, but if
+> settling time worsens your results, then leaving Vref ON is the way to go.
+> 
+> Feel free to submit a patch.
+> 
+Hi Michael,
 
-I would scrap this section from ads7846_setup_spi_msg() completely
-and force ts->model to 7846 in ads7846_probe() when 7873 is specified.
+did some research in the datasheet for AD7873 and ADS7846 together with collegues from the hardware and also in the history for the driver.
 
->
->          ts->msg_count = 1;
->          spi_message_init(m);
-> --
-> 1.7.0.4
->
+1) in principal the initial support for AD7873 is correct. Vref is not needed for ratiometric measurement.
+2) there was a patch (commit	de2defd96d7d92fe8b5f9cf2bfd385d8d4819923, "Input: ads7846 - optionally leave Vref on during differential measurements" which states, that leaving vref on can result in much improved measurement results.
 
+I will change the patch as you suggested in your comment and refer the above fact in the patch comment.
 
--- 
-Greetings,
-Michael
-
---
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
-Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin,
-Margaret Seif
-
-
+Markus

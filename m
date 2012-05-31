@@ -1,53 +1,104 @@
-From: Markus Niebel <list-09_linux_input@tqsc.de>
-Subject: Re: Input: ads7846 - sampling logic issues with AD7873
-Date: Wed, 30 May 2012 19:53:11 +0200
-Message-ID: <4FC65E87.1040805@tqsc.de>
-References: <4FC4A93E.9040305@tqsc.de> <4FC4C042.5060100@analog.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH v2] input: wacom: Report correct touch contact size for I5/Bamboo
+Date: Wed, 30 May 2012 17:08:42 -0700
+Message-ID: <1338422922-1461-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay01.ispgateway.de ([80.67.31.24]:34942 "EHLO
-	smtprelay01.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757110Ab2E3RxS (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:39353 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752818Ab2EaAIx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 May 2012 13:53:18 -0400
-In-Reply-To: <4FC4C042.5060100@analog.com>
+	Wed, 30 May 2012 20:08:53 -0400
+Received: by pbbrp8 with SMTP id rp8so652017pbb.19
+        for <linux-input@vger.kernel.org>; Wed, 30 May 2012 17:08:53 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: michael.hennerich@analog.com
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org, chris@cnpbagwell.com
+Cc: Jason Gerecke <killertofu@gmail.com>
 
-Am 29.05.2012 14:25, wrote Michael Hennerich:
-> On 05/29/2012 12:47 PM, Markus Niebel wrote:
->> Hi,
->>
->> we use the AD7873 controller with internal reference. The current implementation for AD7873 in the ads7846 driver forces the vref to switch off after every sample. So measurements especially in the edge of the screen become unreliable due to the settling time for the internal reference (I guess). Is there a special reason to override the "keep_vref_of" setting of the platform data for the AD7873 in ads7846_setup_spi_msg?
->>
->> We did already some tests and found out, that leaving vref on makes out system usable with AD7873.
->>
->> Markus
->>
->>
-> Hi Markus,
-> 
-> from top of my head - I don't remember why I forced Vref OFF for the AD7873.
-> Looking at the datasheet doesn't refresh my memory either.
-> I know there are some minor differences with respect to the PENIRQ behavior in one
-> PD bits combination - but that doesn't explain why we force it off.
-> 
-> From a power savings aspect Vref should be turned off, but if
-> settling time worsens your results, then leaving Vref ON is the way to go.
-> 
-> Feel free to submit a patch.
-> 
-Hi Michael,
+This changes how the touch packets for Intuos5 and 3rd-gen Bamboo
+are interpreted, so that proper values for the MAJOR and MINOR
+axes are reported. Instead of using the amplitude field (data[6]),
+we use the size field (data[5]) and do some calculation to
+transform it from a scaled-down area into axis lengths.
 
-did some research in the datasheet for AD7873 and ADS7846 together with collegues from the hardware and also in the history for the driver.
+Note that even though we assume a circular contact, both MAJOR and
+MINOR are reported since the resolution of the X and Y axes differ.
+---
+ Changes from v1:
+   * Changed name from "Use touch size for ABS_MT_TOUCH_MAJOR"
 
-1) in principal the initial support for AD7873 is correct. Vref is not needed for ratiometric measurement.
-2) there was a patch (commit	de2defd96d7d92fe8b5f9cf2bfd385d8d4819923, "Input: ads7846 - optionally leave Vref on during differential measurements" which states, that leaving vref on can result in much improved measurement results.
+   * Also populate ABS_MT_TOUCH_MINOR to avoid some userspace
+     assumptions.
 
-I will change the patch as you suggested in your comment and refer the above fact in the patch comment.
+   * Experimentally determined the calculations necessary to produce
+     proper values instead of simply using the raw value in data[5].
 
-Markus
+ drivers/input/tablet/wacom_wac.c |   28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 004bc1b..940caf3 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -25,6 +25,11 @@
+ #define WACOM_INTUOS_RES	100
+ #define WACOM_INTUOS3_RES	200
+ 
++/* Scale factor relating reported contact size to logical contact area.
++ * 2^14/pi is a good approximation on Intuos5 and 3rd-gen Bamboo
++ */
++#define WACOM_CONTACT_AREA_SCALE 5215
++
+ static int wacom_penpartner_irq(struct wacom_wac *wacom)
+ {
+ 	unsigned char *data = wacom->data;
+@@ -1036,11 +1041,21 @@ static void wacom_bpt3_touch_msg(struct wacom_wac *wacom, unsigned char *data)
+ 	if (touch) {
+ 		int x = (data[2] << 4) | (data[4] >> 4);
+ 		int y = (data[3] << 4) | (data[4] & 0x0f);
+-		int w = data[6];
++		int a = data[5];
++
++		// "a" is a scaled-down area which we assume is roughly
++		// circular and which can be described as: a*C=(pi*r^2).
++		int x_res = input_abs_get_res(input, ABS_X);
++		int y_res = input_abs_get_res(input, ABS_Y);
++		int logical_diameter  = 2 * int_sqrt(a * WACOM_CONTACT_AREA_SCALE);
++		int physical_diameter = logical_diameter / ((x_res + y_res) / 2);
++		int logical_width  = physical_diameter * x_res;
++		int logical_height = physical_diameter * y_res;
+ 
+ 		input_report_abs(input, ABS_MT_POSITION_X, x);
+ 		input_report_abs(input, ABS_MT_POSITION_Y, y);
+-		input_report_abs(input, ABS_MT_TOUCH_MAJOR, w);
++		input_report_abs(input, ABS_MT_TOUCH_MAJOR, logical_width);
++		input_report_abs(input, ABS_MT_TOUCH_MINOR, logical_height);
+ 	}
+ }
+ 
+@@ -1520,7 +1535,9 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 			input_mt_init_slots(input_dev, features->touch_max);
+ 
+ 			input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
+-			                     0, 255, 0, 0);
++			                     0, features->x_max, 0, 0);
++			input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR,
++			                     0, features->y_max, 0, 0);
+ 
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+ 					     0, features->x_max,
+@@ -1625,7 +1642,10 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 
+ 				input_set_abs_params(input_dev,
+ 						     ABS_MT_TOUCH_MAJOR,
+-						     0, 255, 0, 0);
++						     0, features->x_max, 0, 0);
++				input_set_abs_params(input_dev,
++						     ABS_MT_TOUCH_MINOR,
++						     0, features->y_max, 0, 0);
+ 			}
+ 
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+-- 
+1.7.10.2
+

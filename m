@@ -1,104 +1,49 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v2] input: wacom: Report correct touch contact size for I5/Bamboo
-Date: Wed, 30 May 2012 17:08:42 -0700
-Message-ID: <1338422922-1461-1-git-send-email-killertofu@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:39353 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752818Ab2EaAIx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 May 2012 20:08:53 -0400
-Received: by pbbrp8 with SMTP id rp8so652017pbb.19
-        for <linux-input@vger.kernel.org>; Wed, 30 May 2012 17:08:53 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 5/9] Input: tegra-kbc - add clk_prepare/clk_unprepare
+Date: Fri, 1 Jun 2012 14:42:44 +0530
+Message-ID: <1338541968-7961-6-git-send-email-pgaikwad@nvidia.com>
+References: <1338541968-7961-1-git-send-email-pgaikwad@nvidia.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1338541968-7961-1-git-send-email-pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, chris@cnpbagwell.com
-Cc: Jason Gerecke <killertofu@gmail.com>
 
-This changes how the touch packets for Intuos5 and 3rd-gen Bamboo
-are interpreted, so that proper values for the MAJOR and MINOR
-axes are reported. Instead of using the amplitude field (data[6]),
-we use the size field (data[5]) and do some calculation to
-transform it from a scaled-down area into axis lengths.
+Use clk_prepare/clk_unprepare as required by the generic clk framework.
 
-Note that even though we assume a circular contact, both MAJOR and
-MINOR are reported since the resolution of the X and Y axes differ.
+This patch should go through Tegra tree since other patches to port tegra
+to generic clock framework are dependent on it. Posting here to get ack from
+the maintainers.
+
+Signed-off-by: Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 ---
- Changes from v1:
-   * Changed name from "Use touch size for ABS_MT_TOUCH_MAJOR"
+ drivers/input/keyboard/tegra-kbc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-   * Also populate ABS_MT_TOUCH_MINOR to avoid some userspace
-     assumptions.
-
-   * Experimentally determined the calculations necessary to produce
-     proper values instead of simply using the raw value in data[5].
-
- drivers/input/tablet/wacom_wac.c |   28 ++++++++++++++++++++++++----
- 1 file changed, 24 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 004bc1b..940caf3 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -25,6 +25,11 @@
- #define WACOM_INTUOS_RES	100
- #define WACOM_INTUOS3_RES	200
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 4ffe64d..2c1c9ed 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -492,7 +492,7 @@ static int tegra_kbc_start(struct tegra_kbc *kbc)
+ 	unsigned int debounce_cnt;
+ 	u32 val = 0;
  
-+/* Scale factor relating reported contact size to logical contact area.
-+ * 2^14/pi is a good approximation on Intuos5 and 3rd-gen Bamboo
-+ */
-+#define WACOM_CONTACT_AREA_SCALE 5215
-+
- static int wacom_penpartner_irq(struct wacom_wac *wacom)
- {
- 	unsigned char *data = wacom->data;
-@@ -1036,11 +1041,21 @@ static void wacom_bpt3_touch_msg(struct wacom_wac *wacom, unsigned char *data)
- 	if (touch) {
- 		int x = (data[2] << 4) | (data[4] >> 4);
- 		int y = (data[3] << 4) | (data[4] & 0x0f);
--		int w = data[6];
-+		int a = data[5];
-+
-+		// "a" is a scaled-down area which we assume is roughly
-+		// circular and which can be described as: a*C=(pi*r^2).
-+		int x_res = input_abs_get_res(input, ABS_X);
-+		int y_res = input_abs_get_res(input, ABS_Y);
-+		int logical_diameter  = 2 * int_sqrt(a * WACOM_CONTACT_AREA_SCALE);
-+		int physical_diameter = logical_diameter / ((x_res + y_res) / 2);
-+		int logical_width  = physical_diameter * x_res;
-+		int logical_height = physical_diameter * y_res;
+-	clk_enable(kbc->clk);
++	clk_prepare_enable(kbc->clk);
  
- 		input_report_abs(input, ABS_MT_POSITION_X, x);
- 		input_report_abs(input, ABS_MT_POSITION_Y, y);
--		input_report_abs(input, ABS_MT_TOUCH_MAJOR, w);
-+		input_report_abs(input, ABS_MT_TOUCH_MAJOR, logical_width);
-+		input_report_abs(input, ABS_MT_TOUCH_MINOR, logical_height);
- 	}
+ 	/* Reset the KBC controller to clear all previous status.*/
+ 	tegra_periph_reset_assert(kbc->clk);
+@@ -556,7 +556,7 @@ static void tegra_kbc_stop(struct tegra_kbc *kbc)
+ 	disable_irq(kbc->irq);
+ 	del_timer_sync(&kbc->timer);
+ 
+-	clk_disable(kbc->clk);
++	clk_disable_unprepare(kbc->clk);
  }
  
-@@ -1520,7 +1535,9 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 			input_mt_init_slots(input_dev, features->touch_max);
- 
- 			input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
--			                     0, 255, 0, 0);
-+			                     0, features->x_max, 0, 0);
-+			input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR,
-+			                     0, features->y_max, 0, 0);
- 
- 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
- 					     0, features->x_max,
-@@ -1625,7 +1642,10 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 
- 				input_set_abs_params(input_dev,
- 						     ABS_MT_TOUCH_MAJOR,
--						     0, 255, 0, 0);
-+						     0, features->x_max, 0, 0);
-+				input_set_abs_params(input_dev,
-+						     ABS_MT_TOUCH_MINOR,
-+						     0, features->y_max, 0, 0);
- 			}
- 
- 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+ static int tegra_kbc_open(struct input_dev *dev)
 -- 
-1.7.10.2
-
+1.7.4.1

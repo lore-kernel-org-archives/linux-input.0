@@ -1,43 +1,88 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] Input: wacom: Remove code duplication
-Date: Fri,  1 Jun 2012 09:39:01 -0700
-Message-ID: <1338568741-28365-1-git-send-email-killertofu@gmail.com>
+From: Marc Dionne <marc.c.dionne@gmail.com>
+Subject: [PATCH] hid: logitech: don't use stack based dj_report structures
+Date: Fri,  1 Jun 2012 18:12:14 -0400
+Message-ID: <1338588734-2902-1-git-send-email-marc.c.dionne@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:62786 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965403Ab2FAQjM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Jun 2012 12:39:12 -0400
-Received: by dady13 with SMTP id y13so3009157dad.19
-        for <linux-input@vger.kernel.org>; Fri, 01 Jun 2012 09:39:09 -0700 (PDT)
+Received: from mail-vb0-f46.google.com ([209.85.212.46]:51127 "EHLO
+	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965557Ab2FAWMd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Jun 2012 18:12:33 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jason Gerecke <killertofu@gmail.com>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Marc Dionne <marc.c.dionne@gmail.com>
 
-Replaces code to calculate Intuos5 physical dimensions with a call
-to an existing function that performs the same task.
+On a system with a logitech wireless keyboard/mouse and DMA-API debugging
+enabled, this warning appears at boot:
 
-Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+kernel: WARNING: at lib/dma-debug.c:929 check_for_stack.part.12+0x70/0xa7()
+kernel: Hardware name: MS-7593
+kernel: uhci_hcd 0000:00:1d.1: DMA-API: device driver maps memory fromstack [addr=ffff8801b0079c29]
+
+Make logi_dj_recv_query_paired_devices and logi_dj_recv_switch_to_dj_mode
+use a structure allocated with kzalloc rather than a stack based one.
+
+Signed-off-by: Marc Dionne <marc.c.dionne@gmail.com>
 ---
- drivers/input/tablet/wacom_sys.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/hid/hid-logitech-dj.c |   38 ++++++++++++++++++++++++--------------
+ 1 file changed, 24 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index b3a8bd3..50a804d 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -1144,10 +1144,7 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 			features->device_type = BTN_TOOL_FINGER;
- 			features->pktlen = WACOM_PKGLEN_BBTOUCH3;
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index 5e8a7ed..0f9c146 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -436,27 +436,37 @@ static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
  
--			features->x_phy =
--				(features->x_max * 100) / features->x_resolution;
--			features->y_phy =
--				(features->y_max * 100) / features->y_resolution;
-+			wacom_set_phy_from_res(features);
+ static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
+ {
+-	struct dj_report dj_report;
++	struct dj_report *dj_report;
++	int retval;
  
- 			features->x_max = 4096;
- 			features->y_max = 4096;
+-	memset(&dj_report, 0, sizeof(dj_report));
+-	dj_report.report_id = REPORT_ID_DJ_SHORT;
+-	dj_report.device_index = 0xFF;
+-	dj_report.report_type = REPORT_TYPE_CMD_GET_PAIRED_DEVICES;
+-	return logi_dj_recv_send_report(djrcv_dev, &dj_report);
++	dj_report = kzalloc(sizeof(dj_report), GFP_KERNEL);
++	if (!dj_report)
++		return -ENOMEM;
++	dj_report->report_id = REPORT_ID_DJ_SHORT;
++	dj_report->device_index = 0xFF;
++	dj_report->report_type = REPORT_TYPE_CMD_GET_PAIRED_DEVICES;
++	retval = logi_dj_recv_send_report(djrcv_dev, dj_report);
++	kfree(dj_report);
++	return retval;
+ }
+ 
+ static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
+ 					  unsigned timeout)
+ {
+-	struct dj_report dj_report;
++	struct dj_report *dj_report;
++	int retval;
+ 
+-	memset(&dj_report, 0, sizeof(dj_report));
+-	dj_report.report_id = REPORT_ID_DJ_SHORT;
+-	dj_report.device_index = 0xFF;
+-	dj_report.report_type = REPORT_TYPE_CMD_SWITCH;
+-	dj_report.report_params[CMD_SWITCH_PARAM_DEVBITFIELD] = 0x3F;
+-	dj_report.report_params[CMD_SWITCH_PARAM_TIMEOUT_SECONDS] = (u8)timeout;
+-	return logi_dj_recv_send_report(djrcv_dev, &dj_report);
++	dj_report = kzalloc(sizeof(dj_report), GFP_KERNEL);
++	if (!dj_report)
++		return -ENOMEM;
++	dj_report->report_id = REPORT_ID_DJ_SHORT;
++	dj_report->device_index = 0xFF;
++	dj_report->report_type = REPORT_TYPE_CMD_SWITCH;
++	dj_report->report_params[CMD_SWITCH_PARAM_DEVBITFIELD] = 0x3F;
++	dj_report->report_params[CMD_SWITCH_PARAM_TIMEOUT_SECONDS] = (u8)timeout;
++	retval = logi_dj_recv_send_report(djrcv_dev, dj_report);
++	kfree(dj_report);
++	return retval;
+ }
+ 
+ 
 -- 
-1.7.10.3
+1.7.10.2
 

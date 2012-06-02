@@ -1,88 +1,47 @@
-From: Marc Dionne <marc.c.dionne@gmail.com>
-Subject: [PATCH] hid: logitech: don't use stack based dj_report structures
-Date: Fri,  1 Jun 2012 18:12:14 -0400
-Message-ID: <1338588734-2902-1-git-send-email-marc.c.dionne@gmail.com>
+From: Tai-hwa Liang <avatar@sentelic.com>
+Subject: [PATCH] Input: sentelic - filtering out erratic movement
+Date: Sat,  2 Jun 2012 22:23:41 +0800
+Message-ID: <1338647021-11013-1-git-send-email-avatar@sentelic.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vb0-f46.google.com ([209.85.212.46]:51127 "EHLO
-	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965557Ab2FAWMd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Jun 2012 18:12:33 -0400
+Received: from hermod.sentelic.com ([203.69.18.19]:44983 "EHLO
+	hermod.sentelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752074Ab2FBOXr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 2 Jun 2012 10:23:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Marc Dionne <marc.c.dionne@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On a system with a logitech wireless keyboard/mouse and DMA-API debugging
-enabled, this warning appears at boot:
+It turns out that certain hardware sometime generates unexpected movement
+during normal operation. This patch tries to filter out these erratic
+movements which will cause unexpected cursor jumping to the top-left corner.
 
-kernel: WARNING: at lib/dma-debug.c:929 check_for_stack.part.12+0x70/0xa7()
-kernel: Hardware name: MS-7593
-kernel: uhci_hcd 0000:00:1d.1: DMA-API: device driver maps memory fromstack [addr=ffff8801b0079c29]
-
-Make logi_dj_recv_query_paired_devices and logi_dj_recv_switch_to_dj_mode
-use a structure allocated with kzalloc rather than a stack based one.
-
-Signed-off-by: Marc Dionne <marc.c.dionne@gmail.com>
+Bugzilla:	https://bugzilla.kernel.org/show_bug.cgi?id=43197
+Reported-by:	Aleksey Spiridonov <leks13@leks13.ru>
+Tested-by:	Aleksey Spiridonov <leks13@leks13.ru>
+Signed-off-by: Tai-hwa Liang <avatar@sentelic.com>
 ---
- drivers/hid/hid-logitech-dj.c |   38 ++++++++++++++++++++++++--------------
- 1 file changed, 24 insertions(+), 14 deletions(-)
+ drivers/input/mouse/sentelic.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 5e8a7ed..0f9c146 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -436,27 +436,37 @@ static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index 3f5649f..48967a4 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -721,6 +721,14 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
  
- static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
- {
--	struct dj_report dj_report;
-+	struct dj_report *dj_report;
-+	int retval;
- 
--	memset(&dj_report, 0, sizeof(dj_report));
--	dj_report.report_id = REPORT_ID_DJ_SHORT;
--	dj_report.device_index = 0xFF;
--	dj_report.report_type = REPORT_TYPE_CMD_GET_PAIRED_DEVICES;
--	return logi_dj_recv_send_report(djrcv_dev, &dj_report);
-+	dj_report = kzalloc(sizeof(dj_report), GFP_KERNEL);
-+	if (!dj_report)
-+		return -ENOMEM;
-+	dj_report->report_id = REPORT_ID_DJ_SHORT;
-+	dj_report->device_index = 0xFF;
-+	dj_report->report_type = REPORT_TYPE_CMD_GET_PAIRED_DEVICES;
-+	retval = logi_dj_recv_send_report(djrcv_dev, dj_report);
-+	kfree(dj_report);
-+	return retval;
- }
- 
- static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
- 					  unsigned timeout)
- {
--	struct dj_report dj_report;
-+	struct dj_report *dj_report;
-+	int retval;
- 
--	memset(&dj_report, 0, sizeof(dj_report));
--	dj_report.report_id = REPORT_ID_DJ_SHORT;
--	dj_report.device_index = 0xFF;
--	dj_report.report_type = REPORT_TYPE_CMD_SWITCH;
--	dj_report.report_params[CMD_SWITCH_PARAM_DEVBITFIELD] = 0x3F;
--	dj_report.report_params[CMD_SWITCH_PARAM_TIMEOUT_SECONDS] = (u8)timeout;
--	return logi_dj_recv_send_report(djrcv_dev, &dj_report);
-+	dj_report = kzalloc(sizeof(dj_report), GFP_KERNEL);
-+	if (!dj_report)
-+		return -ENOMEM;
-+	dj_report->report_id = REPORT_ID_DJ_SHORT;
-+	dj_report->device_index = 0xFF;
-+	dj_report->report_type = REPORT_TYPE_CMD_SWITCH;
-+	dj_report->report_params[CMD_SWITCH_PARAM_DEVBITFIELD] = 0x3F;
-+	dj_report->report_params[CMD_SWITCH_PARAM_TIMEOUT_SECONDS] = (u8)timeout;
-+	retval = logi_dj_recv_send_report(djrcv_dev, dj_report);
-+	kfree(dj_report);
-+	return retval;
- }
- 
+ 	switch (psmouse->packet[0] >> FSP_PKT_TYPE_SHIFT) {
+ 	case FSP_PKT_TYPE_ABS:
++		if ((packet[0] == 0x48 || packet[0] == 0x49) &&
++		    packet[1] == 0 && packet[2] == 0) {
++			/*
++			 * filtering out erratic movement which will cause
++			 * unexpected cursor jumping to top-left corner
++			 */
++			packet[3] &= 0xf0;
++		}
+ 		abs_x = GET_ABS_X(packet);
+ 		abs_y = GET_ABS_Y(packet);
  
 -- 
-1.7.10.2
+1.7.10
 

@@ -1,98 +1,81 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: logitech: don't use stack based dj_report
- structures
-Date: Sun, 3 Jun 2012 15:12:43 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1206031512370.5478@pobox.suse.cz>
-References: <1338588734-2902-1-git-send-email-marc.c.dionne@gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1338588734-2902-1-git-send-email-marc.c.dionne@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Marc Dionne <marc.c.dionne@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Roland Stigge <stigge@antcom.de>
+Subject: [PATCH v4 2/2] ARM: LPC32xx: Make platform use key driver
+Date: Sun,  3 Jun 2012 20:33:32 +0200
+Message-ID: <1338748412-29527-2-git-send-email-stigge@antcom.de>
+References: <1338748412-29527-1-git-send-email-stigge@antcom.de>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.work-microwave.de ([62.245.205.51]:50924 "EHLO
+	work-microwave.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754103Ab2FCSeH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 3 Jun 2012 14:34:07 -0400
+In-Reply-To: <1338748412-29527-1-git-send-email-stigge@antcom.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, axel.lin@gmail.com, riyer@nvidia.com, michael.hennerich@analog.com, grant.likely@secretlab.ca, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com, devicetree-discuss@lists.ozlabs.org, rob.herring@calxeda.com
+Cc: Roland Stigge <stigge@antcom.de>
 
-On Fri, 1 Jun 2012, Marc Dionne wrote:
+This patch connects the lpc32xx-key driver to the LPC32xx platform (via
+lpc32xx.dtsi), and more specifically to the reference board via its dts file.
+The clock.c file needs to be changed to match the automatic device name to its
+clock.
 
-> On a system with a logitech wireless keyboard/mouse and DMA-API debugging
-> enabled, this warning appears at boot:
-> 
-> kernel: WARNING: at lib/dma-debug.c:929 check_for_stack.part.12+0x70/0xa7()
-> kernel: Hardware name: MS-7593
-> kernel: uhci_hcd 0000:00:1d.1: DMA-API: device driver maps memory fromstack [addr=ffff8801b0079c29]
-> 
-> Make logi_dj_recv_query_paired_devices and logi_dj_recv_switch_to_dj_mode
-> use a structure allocated with kzalloc rather than a stack based one.
-> 
-> Signed-off-by: Marc Dionne <marc.c.dionne@gmail.com>
+Signed-off-by: Roland Stigge <stigge@antcom.de>
+Acked-by: Rob Herring <rob.herring@calxeda.com>
 
-Applied, thanks Marc.
+---
 
-> ---
->  drivers/hid/hid-logitech-dj.c |   38 ++++++++++++++++++++++++--------------
->  1 file changed, 24 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-> index 5e8a7ed..0f9c146 100644
-> --- a/drivers/hid/hid-logitech-dj.c
-> +++ b/drivers/hid/hid-logitech-dj.c
-> @@ -436,27 +436,37 @@ static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
->  
->  static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
->  {
-> -	struct dj_report dj_report;
-> +	struct dj_report *dj_report;
-> +	int retval;
->  
-> -	memset(&dj_report, 0, sizeof(dj_report));
-> -	dj_report.report_id = REPORT_ID_DJ_SHORT;
-> -	dj_report.device_index = 0xFF;
-> -	dj_report.report_type = REPORT_TYPE_CMD_GET_PAIRED_DEVICES;
-> -	return logi_dj_recv_send_report(djrcv_dev, &dj_report);
-> +	dj_report = kzalloc(sizeof(dj_report), GFP_KERNEL);
-> +	if (!dj_report)
-> +		return -ENOMEM;
-> +	dj_report->report_id = REPORT_ID_DJ_SHORT;
-> +	dj_report->device_index = 0xFF;
-> +	dj_report->report_type = REPORT_TYPE_CMD_GET_PAIRED_DEVICES;
-> +	retval = logi_dj_recv_send_report(djrcv_dev, dj_report);
-> +	kfree(dj_report);
-> +	return retval;
->  }
->  
->  static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
->  					  unsigned timeout)
->  {
-> -	struct dj_report dj_report;
-> +	struct dj_report *dj_report;
-> +	int retval;
->  
-> -	memset(&dj_report, 0, sizeof(dj_report));
-> -	dj_report.report_id = REPORT_ID_DJ_SHORT;
-> -	dj_report.device_index = 0xFF;
-> -	dj_report.report_type = REPORT_TYPE_CMD_SWITCH;
-> -	dj_report.report_params[CMD_SWITCH_PARAM_DEVBITFIELD] = 0x3F;
-> -	dj_report.report_params[CMD_SWITCH_PARAM_TIMEOUT_SECONDS] = (u8)timeout;
-> -	return logi_dj_recv_send_report(djrcv_dev, &dj_report);
-> +	dj_report = kzalloc(sizeof(dj_report), GFP_KERNEL);
-> +	if (!dj_report)
-> +		return -ENOMEM;
-> +	dj_report->report_id = REPORT_ID_DJ_SHORT;
-> +	dj_report->device_index = 0xFF;
-> +	dj_report->report_type = REPORT_TYPE_CMD_SWITCH;
-> +	dj_report->report_params[CMD_SWITCH_PARAM_DEVBITFIELD] = 0x3F;
-> +	dj_report->report_params[CMD_SWITCH_PARAM_TIMEOUT_SECONDS] = (u8)timeout;
-> +	retval = logi_dj_recv_send_report(djrcv_dev, dj_report);
-> +	kfree(dj_report);
-> +	return retval;
->  }
->  
->  
-> -- 
-> 1.7.10.2
-> 
+Applies to v3.5-rc1
 
--- 
-Jiri Kosina
-SUSE Labs
+Please pick this patch for the arm-soc subsystem.
+
+Changes since v3:
+* None
+
+Changes since v2:
+* DT: Use "keypad,num-rows", "keypad,num-columns" and "linux,keymap" properties
+
+ arch/arm/boot/dts/lpc32xx.dtsi |    2 ++
+ arch/arm/boot/dts/phy3250.dts  |    9 +++++++++
+ arch/arm/mach-lpc32xx/clock.c  |    2 +-
+ 3 files changed, 12 insertions(+), 1 deletion(-)
+
+--- linux-2.6.orig/arch/arm/boot/dts/lpc32xx.dtsi
++++ linux-2.6/arch/arm/boot/dts/lpc32xx.dtsi
+@@ -249,6 +249,8 @@
+ 			key@40050000 {
+ 				compatible = "nxp,lpc3220-key";
+ 				reg = <0x40050000 0x1000>;
++				interrupts = <54 0>;
++				status = "disable";
+ 			};
+ 
+ 		};
+--- linux-2.6.orig/arch/arm/boot/dts/phy3250.dts
++++ linux-2.6/arch/arm/boot/dts/phy3250.dts
+@@ -135,6 +135,15 @@
+ 			tsc@40048000 {
+ 				status = "okay";
+ 			};
++
++			key@40050000 {
++				status = "okay";
++				keypad,num-rows = <1>;
++				keypad,num-columns = <1>;
++				nxp,debounce-delay-ms = <3>;
++				nxp,scan-delay-ms = <34>;
++				linux,keymap = <0x00000002>;
++			};
+ 		};
+ 	};
+ 
+--- linux-2.6.orig/arch/arm/mach-lpc32xx/clock.c
++++ linux-2.6/arch/arm/mach-lpc32xx/clock.c
+@@ -1131,7 +1131,7 @@ static struct clk_lookup lookups[] = {
+ 	CLKDEV_INIT("31020300.i2c", NULL, &clk_i2c2),
+ 	CLKDEV_INIT("dev:ssp0", NULL, &clk_ssp0),
+ 	CLKDEV_INIT("dev:ssp1", NULL, &clk_ssp1),
+-	CLKDEV_INIT("lpc32xx_keys.0", NULL, &clk_kscan),
++	CLKDEV_INIT("40050000.key", NULL, &clk_kscan),
+ 	CLKDEV_INIT("20020000.flash", NULL, &clk_nand),
+ 	CLKDEV_INIT("200a8000.flash", NULL, &clk_nand_mlc),
+ 	CLKDEV_INIT("40048000.adc", NULL, &clk_adc),

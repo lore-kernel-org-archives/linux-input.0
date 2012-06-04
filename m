@@ -1,63 +1,72 @@
-From: Giuseppe Bilotta <giuseppe.bilotta@gmail.com>
-Subject: [RFC][PATCH 2/2] HID: wiimote: report keys in Accelerometer too
-Date: Mon,  4 Jun 2012 21:19:13 +0200
-Message-ID: <1338837553-10756-3-git-send-email-giuseppe.bilotta@gmail.com>
-References: <1338837553-10756-1-git-send-email-giuseppe.bilotta@gmail.com>
+From: Austin Hendrix <ahendrix@willowgarage.com>
+Subject: [PATCH] Add Support for Novatek Touchscreen
+Date: Mon, 4 Jun 2012 15:27:51 -0700
+Message-ID: <CAOY97VZN2a36OBsacQS21P8G70L2tbtbWK5OMWhZYa=D74XO+w@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:55292 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752948Ab2FDTTj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jun 2012 15:19:39 -0400
-Received: by bkcji2 with SMTP id ji2so3924690bkc.19
-        for <linux-input@vger.kernel.org>; Mon, 04 Jun 2012 12:19:37 -0700 (PDT)
-In-Reply-To: <1338837553-10756-1-git-send-email-giuseppe.bilotta@gmail.com>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:41978 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756253Ab2FDW1w (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jun 2012 18:27:52 -0400
+Received: by weyu7 with SMTP id u7so3175300wey.19
+        for <linux-input@vger.kernel.org>; Mon, 04 Jun 2012 15:27:51 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: David Herrmann <dh.herrmann@googlemail.com>, Vojtech Pavlik <vojtech@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Giuseppe Bilotta <giuseppe.bilotta@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-The main input device registered by the wiimote driver gets classified
-as a gamepad because it reports the presence of a BTN_A button. This
-results in the detection of a joystick device with 7 buttons and no axes
-(thus unusable) when a Wii Remote is connected.
+Add support for a Novatek touchscreen panel as a generic HID multitouch
+panel.
 
-By letting the Accelerometer input device also report buttons, we get it
-to be recognized as a 7-buttons, 3-axes gamepad, that can be used on
-games with no direct Wii Remote support through the joydev interface.
-
-This approach is currently not perfect: button presses gets reported on
-two devices (Remote and Accelerometer), and the main device is still
-classified as a gamepad due to the mapping.
-
-Signed-off-by: Giuseppe Bilotta <giuseppe.bilotta@gmail.com>
+Signed-off-by: Austin Hendrix <ahendrix@willowgarage.com>
 ---
- drivers/hid/hid-wiimote-core.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ hid-core.c       |    1 +
+ hid-ids.h        |    3 +++
+ hid-multitouch.c |    5 +++++
+ 3 files changed, 9 insertions(+)
 
-diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index ece9c28..2177dbe 100644
---- a/drivers/hid/hid-wiimote-core.c
-+++ b/drivers/hid/hid-wiimote-core.c
-@@ -741,6 +741,7 @@ static void handler_accel(struct wiimote_data *wdata, const __u8 *payload)
- 	input_report_abs(wdata->accel, ABS_RX, x - 0x200);
- 	input_report_abs(wdata->accel, ABS_RY, y - 0x200);
- 	input_report_abs(wdata->accel, ABS_RZ, z - 0x200);
-+	report_keys(wdata->accel, wiiproto_keymap, payload);
- 	input_sync(wdata->accel);
- }
- 
-@@ -1096,6 +1097,11 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- 	input_set_abs_params(wdata->accel, ABS_RY, -500, 500, 2, 4);
- 	input_set_abs_params(wdata->accel, ABS_RZ, -500, 500, 2, 4);
- 
-+	set_bit(EV_KEY, wdata->accel->evbit);
-+	for (i = 0; i < WIIPROTO_KEY_COUNT; ++i)
-+		set_bit(wiiproto_keymap[i], wdata->accel->keybit);
-+
-+
- 	wdata->ir = input_allocate_device();
- 	if (!wdata->ir)
- 		goto err_ir;
--- 
-1.7.10.rc3.204.g95589
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8e3a6b2..0d6dde1 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1605,6 +1605,7 @@ static const struct hid_device_id
+hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_16) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_17) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_PCT) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX,
+USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 9373f53..734a2b9 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -564,6 +564,9 @@
+ #define USB_VENDOR_ID_NINTENDO		0x057e
+ #define USB_DEVICE_ID_NINTENDO_WIIMOTE	0x0306
 
++#define USB_VENDOR_ID_NOVATEK		0x0603
++#define USB_DEVICE_ID_NOVATEK_PCT	0x0600
++
+ #define USB_VENDOR_ID_NTRIG		0x1b96
+ #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN   0x0001
+ #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1   0x0003
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 6e3332a..fae08df 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -951,6 +951,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_PANASONIC,
+ 			USB_DEVICE_ID_PANABOARD_UBT880) },
+
++	/* Novatek Panel */
++	{ .driver_data = MT_CLS_DEFAULT,
++		HID_USB_DEVICE(USB_VENDOR_ID_NOVATEK,
++			USB_DEVICE_ID_NOVATEK_PCT) },
++
+ 	/* PenMount panels */
+ 	{ .driver_data = MT_CLS_CONFIDENCE,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_PENMOUNT,

@@ -1,56 +1,63 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] drivers/input/mouse: Fix a "make randconfig" warning at MOUSE_APPLETOUCH dependency with USB_SUPPORT and USB_ARCH_HAS_HCD
-Date: Tue, 05 Jun 2012 12:20:49 -0700
-Message-ID: <1575762.xp4W0eRkvE@dtor-d630.eng.vmware.com>
-References: <1337037329-23618-1-git-send-email-devendra.aaru@gmail.com> <alpine.LNX.2.00.1206051140540.5478@pobox.suse.cz> <CAHdPZaNSBQ4weycXG1bNrM-Qq_4zpyL0J1GeZcL3CgkNB+R-HA@mail.gmail.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: ATMEL MXT224 Touch Controller
+Date: Tue, 05 Jun 2012 12:41:59 -0700
+Message-ID: <4FCE6107.8080609@itdev.co.uk>
+References: <CAKdam56qoB4uKg4_ZyOqnz=Go3Th0uVUF=xSefdTdeMGqS5JxQ@mail.gmail.com> <CAGS+omAn5_hGbbD1A=vpEOJRaaFc8v0BaDK10E+dt=ZgT4h-Bw@mail.gmail.com> <CAKdam54qJBkPQ7kU0pfQy_wqr1iNtioEzJunfxE3xVfdZAKdOA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:59165 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750810Ab2FETU5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jun 2012 15:20:57 -0400
-Received: by dady13 with SMTP id y13so7704813dad.19
-        for <linux-input@vger.kernel.org>; Tue, 05 Jun 2012 12:20:57 -0700 (PDT)
-In-Reply-To: <CAHdPZaNSBQ4weycXG1bNrM-Qq_4zpyL0J1GeZcL3CgkNB+R-HA@mail.gmail.com>
+Received: from [89.21.227.130] ([89.21.227.130]:50412 "EHLO
+	mail.epsilon.itdev.co.uk" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751117Ab2FETmF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Jun 2012 15:42:05 -0400
+In-Reply-To: <CAKdam54qJBkPQ7kU0pfQy_wqr1iNtioEzJunfxE3xVfdZAKdOA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "devendra.aaru" <devendra.aaru@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Paul Parsons <lost.distance@yahoo.com>, Jan Steinhoff <mail@jan-steinhoff.de>, linux-input@vger.kernel.org
+To: "Poddar, Sourav" <sourav.poddar@ti.com>
+Cc: Daniel Kurtz <djkurtz@chromium.org>, Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, Felipe Balbi <balbi@ti.com>, "Tiwari, Atul" <Atul.Tiwari@atmel.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>
 
-On Tuesday, June 05, 2012 03:55:31 PM devendra.aaru wrote:
-> Hi Jiri,
+> The issue which I am facing is that there are many interrupts that comes
+> during the probe and it keeps coming after bootup even if I dont touch
+> the touch panel.
+
+It sounds like your configuration may need tuning.
+
+> One point which I want to clarify is the use of the RESET pin in the 
+> controller. If I dont do a "RESET", the probe fails at the first i2c
+> read/write. I am doing this reset of the touchscreen controller in my
+> board file by the use of a particular gpio. Are you also doing a RESET
+
+Try putting in a delay before the first read, eg 500ms. It may be that the
+chip is not ready, it takes some time to settle after power on.
+
+> I saw a lot of patches from you on this driver, which are not there in 
+> mainline yet. Are you using any local patches also?
+
+Daniel does have some other stuff that hasn't been merged yet.
+
+You will also find some official atmel kernel updates, and some useful
+utilities here:
+https://github.com/atmel-maxtouch
+
+It would be desirable to push this work upstream, I don't know of any
+manufacturer which is shipping the unchanged mainline kernel, most of them
+have diverged considerably.
+
+> Is it possible for you to share your touchscreen configuration 
+> parameters as there might be some parameters which I might be
+> configuring wrong?
 > 
-> Thanks for the review.
-> 
-> On Tue, Jun 5, 2012 at 3:11 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> >> diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-> >> index cd6268c..044378f 100644
-> >> --- a/drivers/input/mouse/Kconfig
-> >> +++ b/drivers/input/mouse/Kconfig
-> >> @@ -152,7 +152,7 @@ config MOUSE_SERIAL
-> >>  config MOUSE_APPLETOUCH
-> >>       tristate "Apple USB Touchpad support"
-> >>       depends on USB_ARCH_HAS_HCD
-> >> -     select USB
-> >> +     select USB if USB_SUPPORT && USB_ARCH_HAS_HCD
-> > 
-> > Depending on USB_ARCH_HAS_HCD and then having it as a part of 'if'
-> > condition seems odd.
-> 
-> So,
-> +    depends on USB_SUPPORT && USB_ARCH_HAS_HCD
-> will be good ?
+> Any pointer on above point will be really helpful.
 
-I'd rather we "select"ed the new symbol. So please do
+I don't know what platform you are working on, but if you contact your
+Atmel sales representatives they can provide you with the protocol guide
+documentation on the tuning parameters. It generally requires an NDA.
 
-	depends on USB_ARCH_HAS_HCD
-	select USB
-+	select USB_SUPPORT
-	
-Thanks.
-
-
+cheers
 -- 
-Dmitry
+Nick Dyer
+Software Engineer, ITDev Ltd
+Hardware and Software Development Consultancy
+Website: http://www.itdev.co.uk

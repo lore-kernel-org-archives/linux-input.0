@@ -1,52 +1,31 @@
-From: Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v3 5/9] Input: tegra-kbc - add clk_prepare/clk_unprepare
-Date: Tue, 5 Jun 2012 09:59:39 +0530
-Message-ID: <1338870583-8704-6-git-send-email-pgaikwad@nvidia.com>
-References: <1338870583-8704-1-git-send-email-pgaikwad@nvidia.com>
+From: Shubhrajyoti <shubhrajyoti@ti.com>
+Subject: Re: [PATCH v2 5/9] Input: tegra-kbc - add clk_prepare/clk_unprepare
+Date: Tue, 05 Jun 2012 10:50:14 +0530
+Message-ID: <4FCD970E.7080301@ti.com>
+References: <1338869966-8430-1-git-send-email-pgaikwad@nvidia.com> <1338869966-8430-6-git-send-email-pgaikwad@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1338870583-8704-1-git-send-email-pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org, Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog119.obsmtp.com ([74.125.149.246]:45314 "EHLO
+	na3sys009aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755815Ab2FEFUV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Jun 2012 01:20:21 -0400
+Received: by obbuo13 with SMTP id uo13so9590040obb.29
+        for <linux-input@vger.kernel.org>; Mon, 04 Jun 2012 22:20:19 -0700 (PDT)
+In-Reply-To: <1338869966-8430-6-git-send-email-pgaikwad@nvidia.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Prashant Gaikwad <pgaikwad@nvidia.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Use clk_prepare/clk_unprepare as required by the generic clk framework.
+On Tuesday 05 June 2012 09:49 AM, Prashant Gaikwad wrote:
+> Use clk_prepare/clk_unprepare as required by the generic clk framework.
+Not a comment just curious to know what does
 
-Signed-off-by: Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
-Please ignore previous versions. Updated commit message and
-maintainers properly in this version. No other change.
+clk_prepare/clk_unprepare do differently vis a vis enable.
 
-This patch should go through Tegra tree since other patches to port tegra
-to generic clock framework are dependent on it. Posting here to get ack from
-the maintainers.
+> Signed-off-by: Prashant Gaikwad <pgaikwad@nvidia.com>
+> ---
 
- drivers/input/keyboard/tegra-kbc.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 4ffe64d..2c1c9ed 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -492,7 +492,7 @@ static int tegra_kbc_start(struct tegra_kbc *kbc)
- 	unsigned int debounce_cnt;
- 	u32 val = 0;
- 
--	clk_enable(kbc->clk);
-+	clk_prepare_enable(kbc->clk);
- 
- 	/* Reset the KBC controller to clear all previous status.*/
- 	tegra_periph_reset_assert(kbc->clk);
-@@ -556,7 +556,7 @@ static void tegra_kbc_stop(struct tegra_kbc *kbc)
- 	disable_irq(kbc->irq);
- 	del_timer_sync(&kbc->timer);
- 
--	clk_disable(kbc->clk);
-+	clk_disable_unprepare(kbc->clk);
- }
- 
- static int tegra_kbc_open(struct input_dev *dev)
--- 
-1.7.4.1

@@ -1,81 +1,56 @@
-From: Seth Forshee <seth.forshee@canonical.com>
-Subject: Re: [PATCH] Input: synaptics - reject out of range position values
-Date: Wed, 6 Jun 2012 10:35:38 -0500
-Message-ID: <20120606153538.GC23884@thinkpad-t410>
-References: <1337353224-12333-1-git-send-email-seth.forshee@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:58322 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756379Ab2FFPfn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jun 2012 11:35:43 -0400
-Content-Disposition: inline
-In-Reply-To: <1337353224-12333-1-git-send-email-seth.forshee@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+From: srinivas pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH, 1/7] HID-Sensors: Add Intel HID sensor
+Date: Wed,  6 Jun 2012 08:39:18 -0700
+Message-ID: <1338997164-5077-2-git-send-email-srinivas.pandruvada@intel.com>
+References: <1338997164-5077-1-git-send-email-srinivas.pandruvada@intel.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1338997164-5077-1-git-send-email-srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srinivas pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-Ping. Any problem with this patch?
+Added Intel vendor id/product id and added in the list
+for ignoring Intel vendor id/product id for HID.
 
-On Fri, May 18, 2012 at 10:00:24AM -0500, Seth Forshee wrote:
-> The synaptics touchpad on the Acer Aspire One D250 will report y
-> coordinate values in excess of 8000 near the bottom of the touchpad,
-> well outside of the range of values that the synaptics documentation
-> says should be reported.
-> 
-> In addition, the y values abruptly change from very low values to these
-> very high values. After the calculation to invert the y coordinates,
-> userspace gets y coordinates that can jump suddenly between large
-> positive and moderately large negative values, causing sudden jumps in
-> the pointer position.
-> 
-> To work around this odd behavior, reject any coordinates with values
-> outside of absolute limits specified by Synaptics, which is 6143 for
-> both axes.
-> 
-> BugLink: http://bugs.launchpad.net/bugs/1001251
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-> ---
-> I'm not sure whether the limits here should be the hard-coded value or
-> the coordinates reported by the device when that's supported (i.e.
-> whether the coordinates reported by the device are always within the
-> range of 0 to 6143). If the latter is more appropriate I can modify the
-> patch to use the device-reported values and fall back to the hard-coded
-> values.
-> 
->  drivers/input/mouse/synaptics.c |    5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index e07eb9b..f62299d 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -40,6 +40,8 @@
->   * Note that newer firmware allows querying device for maximum useable
->   * coordinates.
->   */
-> +#define XMAX 6143
-> +#define YMAX 6143
->  #define XMIN_NOMINAL 1472
->  #define XMAX_NOMINAL 5472
->  #define YMIN_NOMINAL 1408
-> @@ -555,6 +557,9 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
->  		hw->right = (buf[0] & 0x02) ? 1 : 0;
->  	}
->  
-> +	if (hw->x > XMAX || hw->y > YMAX)
-> +		return 1;
-> +
->  	return 0;
->  }
->  
-> -- 
-> 1.7.9.5
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: srinivas pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/hid/hid-core.c |    6 ++++++
+ drivers/hid/hid-ids.h  |    5 +++++
+ 2 files changed, 11 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index f160aab..fad31c5 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1444,6 +1444,12 @@ static const struct hid_device_id hid_have_special_driver[] = {
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6650) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK, USB_DEVICE_ID_HOLTEK_ON_LINE_GRIP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ILITEK, USB_DEVICE_ID_ILITEK_MULTITOUCH) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8086,
++					USB_DEVICE_ID_SENSOR_HUB_1020) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
++					USB_DEVICE_ID_SENSOR_HUB_09FA) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
++					USB_DEVICE_ID_SENSOR_HUB_09FA) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS, USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KEYTOUCH, USB_DEVICE_ID_KEYTOUCH_IEC) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 7409750..928fe57 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -401,6 +401,11 @@
+ #define USB_VENDOR_ID_IMATION		0x0718
+ #define USB_DEVICE_ID_DISC_STAKKA	0xd000
+ 
++#define USB_VENDOR_ID_INTEL_8086	0x8086
++#define USB_VENDOR_ID_INTEL_8087	0x8087
++#define USB_DEVICE_ID_SENSOR_HUB_1020	0x1020
++#define USB_DEVICE_ID_SENSOR_HUB_09FA	0x09FA
++
+ #define USB_VENDOR_ID_IRTOUCHSYSTEMS	0x6615
+ #define USB_DEVICE_ID_IRTOUCH_INFRARED_USB	0x0070
+ 
+-- 
+1.7.7.6

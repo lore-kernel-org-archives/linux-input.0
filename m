@@ -1,120 +1,81 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Add Support for Novatek Touchscreen
-Date: Wed, 6 Jun 2012 16:44:41 +0200
-Message-ID: <CAN+gG=EjBkOn6MGAO0bfO0Bj-3YDp-kzseMu9DfiXWJaMkWUXA@mail.gmail.com>
-References: <CAOY97VZN2a36OBsacQS21P8G70L2tbtbWK5OMWhZYa=D74XO+w@mail.gmail.com>
-	<alpine.LNX.2.00.1206051134020.5478@pobox.suse.cz>
-	<CAN+gG=FSTxE9d8o4O6+kQHmyg9PdJK28x6=Gjpgr+_xppiRVbQ@mail.gmail.com>
-	<alpine.LNX.2.00.1206061601460.12208@pobox.suse.cz>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: [PATCH] Input: synaptics - reject out of range position values
+Date: Wed, 6 Jun 2012 10:35:38 -0500
+Message-ID: <20120606153538.GC23884@thinkpad-t410>
+References: <1337353224-12333-1-git-send-email-seth.forshee@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1206061601460.12208@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Austin Hendrix <ahendrix@willowgarage.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:58322 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756379Ab2FFPfn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jun 2012 11:35:43 -0400
+Content-Disposition: inline
+In-Reply-To: <1337353224-12333-1-git-send-email-seth.forshee@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Wed, Jun 6, 2012 at 4:03 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Tue, 5 Jun 2012, Benjamin Tissoires wrote:
->
->> >> Add support for a Novatek touchscreen panel as a generic HID mult=
-itouch
->> >> panel.
->> >>
->> >> Signed-off-by: Austin Hendrix <ahendrix@willowgarage.com>
->> >> ---
->> >> =A0hid-core.c =A0 =A0 =A0 | =A0 =A01 +
->> >> =A0hid-ids.h =A0 =A0 =A0 =A0| =A0 =A03 +++
->> >> =A0hid-multitouch.c | =A0 =A05 +++++
->> >> =A03 files changed, 9 insertions(+)
->> >>
->> >> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->> >> index 8e3a6b2..0d6dde1 100644
->> >> --- a/drivers/hid/hid-core.c
->> >> +++ b/drivers/hid/hid-core.c
->> >> @@ -1605,6 +1605,7 @@ static const struct hid_device_id
->> >> hid_have_special_driver[] =3D {
->> >
->> > Austin,
->> >
->> > thanks for the patch. Your mail client is corrupting (line-wrappin=
-g)
->> > patches. Please fix that for your future submissions.
->> >
->> > I have now fixed that up manually and applied.
->> >
->> >> =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_N=
-TRIG_TOUCH_SCREEN_16) },
->> >> =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_N=
-TRIG_TOUCH_SCREEN_17) },
->> >> =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_N=
-TRIG_TOUCH_SCREEN_18) },
->> >> + =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_N=
-OVATEK_PCT) },
->>
->> I don't think this should be included in 3.5-rc+ (the whole MT-relat=
-ed
->> devices has been removed from this list).
->
-> Yeah, I have noticed this and fixed it in 3.5-rc+ branch.
->
->>
->> >> =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_O=
-RTEK_PKB1700) },
->> >> =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_O=
-RTEK_WKB2000) },
->> >> =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX,
->> >> USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
->> >> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
->> >> index 9373f53..734a2b9 100644
->> >> --- a/drivers/hid/hid-ids.h
->> >> +++ b/drivers/hid/hid-ids.h
->> >> @@ -564,6 +564,9 @@
->> >> =A0#define USB_VENDOR_ID_NINTENDO =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x0=
-57e
->> >> =A0#define USB_DEVICE_ID_NINTENDO_WIIMOTE =A0 =A0 =A0 0x0306
->> >>
->> >> +#define USB_VENDOR_ID_NOVATEK =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A00x0=
-603
->> >> +#define USB_DEVICE_ID_NOVATK_PCT =A0 =A00x0600
->> >> +
->> >> =A0#define USB_VENDOR_ID_NTRIG =A0 =A0 =A0 =A0 =A00x1b96
->> >> =A0#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN =A0 0x0001
->> >> =A0#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1 =A0 0x0003
->> >> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multi=
-touch.c
->> >> index 6e3332a..fae08df 100644
->> >> --- a/drivers/hid/hid-multitouch.c
->> >> +++ b/drivers/hid/hid-multitouch.c
->> >> @@ -951,6 +951,11 @@ static const struct hid_device_id mt_devices=
-[] =3D {
->> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 MT_USB_DEVICE(USB_VENDOR_ID_PANASONIC=
-,
->> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 USB_DEVICE_ID_PANABOA=
-RD_UBT880) },
->> >>
->> >> + =A0 =A0 /* Novatek Panel */
->> >> + =A0 =A0 { .driver_data =3D MT_CLS_DEFAULT,
->> >> + =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_DEVICE(USB_VENDOR_ID_NOVATEK,
->> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 USB_DEVICE_ID_NOVATEK_P=
-CT) },
->>
->> Shouldn't we use MT_USB_DEVICE instead?
->
-> We should, I have missed this and will fix this up with your Reported=
--by:,
-> ok?
+Ping. Any problem with this patch?
 
-No-problem.
-
-Thanks,
-Benjamin
-
->
-> Thanks!
->
+On Fri, May 18, 2012 at 10:00:24AM -0500, Seth Forshee wrote:
+> The synaptics touchpad on the Acer Aspire One D250 will report y
+> coordinate values in excess of 8000 near the bottom of the touchpad,
+> well outside of the range of values that the synaptics documentation
+> says should be reported.
+> 
+> In addition, the y values abruptly change from very low values to these
+> very high values. After the calculation to invert the y coordinates,
+> userspace gets y coordinates that can jump suddenly between large
+> positive and moderately large negative values, causing sudden jumps in
+> the pointer position.
+> 
+> To work around this odd behavior, reject any coordinates with values
+> outside of absolute limits specified by Synaptics, which is 6143 for
+> both axes.
+> 
+> BugLink: http://bugs.launchpad.net/bugs/1001251
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> ---
+> I'm not sure whether the limits here should be the hard-coded value or
+> the coordinates reported by the device when that's supported (i.e.
+> whether the coordinates reported by the device are always within the
+> range of 0 to 6143). If the latter is more appropriate I can modify the
+> patch to use the device-reported values and fall back to the hard-coded
+> values.
+> 
+>  drivers/input/mouse/synaptics.c |    5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index e07eb9b..f62299d 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -40,6 +40,8 @@
+>   * Note that newer firmware allows querying device for maximum useable
+>   * coordinates.
+>   */
+> +#define XMAX 6143
+> +#define YMAX 6143
+>  #define XMIN_NOMINAL 1472
+>  #define XMAX_NOMINAL 5472
+>  #define YMIN_NOMINAL 1408
+> @@ -555,6 +557,9 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+>  		hw->right = (buf[0] & 0x02) ? 1 : 0;
+>  	}
+>  
+> +	if (hw->x > XMAX || hw->y > YMAX)
+> +		return 1;
+> +
+>  	return 0;
+>  }
+>  
+> -- 
+> 1.7.9.5
+> 
 > --
-> Jiri Kosina
-> SUSE Labs
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

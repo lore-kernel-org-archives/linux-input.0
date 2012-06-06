@@ -1,500 +1,314 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: [PATCH, 4/7] HID-Sensors: Added accelerometer 3D
-Date: Wed, 06 Jun 2012 17:28:31 +0100
-Message-ID: <c31622ba-ce24-494c-8c28-d66747eff659@email.android.com>
-References: <1338997164-5077-1-git-send-email-srinivas.pandruvada@intel.com> <1338997164-5077-5-git-send-email-srinivas.pandruvada@intel.com>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+Subject: RE: [PATCH, 4/7] HID-Sensors: Added accelerometer 3D
+Date: Wed, 6 Jun 2012 16:57:13 +0000
+Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A91931B547@ORSMSX104.amr.corp.intel.com>
+References: <1338997164-5077-1-git-send-email-srinivas.pandruvada@intel.com>
+ <1338997164-5077-5-git-send-email-srinivas.pandruvada@intel.com>
+ <c31622ba-ce24-494c-8c28-d66747eff659@email.android.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-51.csi.cam.ac.uk ([131.111.8.151]:53316 "EHLO
-	ppsw-51.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757434Ab2FFQ2y convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jun 2012 12:28:54 -0400
-In-Reply-To: <1338997164-5077-5-git-send-email-srinivas.pandruvada@intel.com>
+Received: from mga03.intel.com ([143.182.124.21]:19304 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756188Ab2FFQ5h (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Jun 2012 12:57:37 -0400
+In-Reply-To: <c31622ba-ce24-494c-8c28-d66747eff659@email.android.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: srinivas pandruvada <srinivas.pandruvada@intel.com>, linux-input@vger.kernel.org
-Cc: linux-iio@vger.kernel.org
+To: Jonathan Cameron <jic23@cam.ac.uk>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>
 
-
-
-srinivas pandruvada <srinivas.pandruvada@intel.com> wrote:
-
->From: Srinivas pandruvada <srinivas.pandruvada@intel.com>
->
->Added usage id processing for Accelrometer 3D. This uses IIO
->interfaces "ring/buffer and trigger interface" to present
->data to user mode.
-
-I do not understand the data format.  The way iio describes the format is done through sysfs attrs built from the iio_Chan spec... that way a scan is made up of a number of channel readings each taken at roughly the same time.  However each is separately described.  Perhaps the description needs extending.  Please describe the format.
->
->Signed-off-by: Srinivas pandruvada <srinivas.pandruvada@intel.com>
->---
-> drivers/staging/hid-sensors/Makefile               |    1 +
->drivers/staging/hid-sensors/hid-sensor-accel-3d.c  |  387
->++++++++++++++++++++
-> drivers/staging/hid-sensors/hid-sensor-hub.c       |    1 +
-> drivers/staging/hid-sensors/hid-sensor-interface.h |    3 +
-> 4 files changed, 392 insertions(+), 0 deletions(-)
-> create mode 100644 drivers/staging/hid-sensors/hid-sensor-accel-3d.c
->
->diff --git a/drivers/staging/hid-sensors/Makefile
->b/drivers/staging/hid-sensors/Makefile
->index 9a03953..4412079 100644
->--- a/drivers/staging/hid-sensors/Makefile
->+++ b/drivers/staging/hid-sensors/Makefile
->@@ -9,4 +9,5 @@ hid-sensors-y := hid-sensor-hub.o
-> hid-sensors-y += hid-sensor-attributes.o
-> hid-sensors-y += hid-sensor-ring.o
-> hid-sensors-y += hid-sensor-trigger.o
->+hid-sensors-y += hid-sensor-accel-3d.o
-> obj-$(CONFIG_HID_SENSORS) += hid-sensors.o
->diff --git a/drivers/staging/hid-sensors/hid-sensor-accel-3d.c
->b/drivers/staging/hid-sensors/hid-sensor-accel-3d.c
->new file mode 100644
->index 0000000..ffe2639
->--- /dev/null
->+++ b/drivers/staging/hid-sensors/hid-sensor-accel-3d.c
->@@ -0,0 +1,387 @@
->+/*
->+ * HID Sensors Driver
->+ * Copyright (c) 2012, Intel Corporation.
->+ *
->+ * This program is free software; you can redistribute it and/or
->modify it
->+ * under the terms and conditions of the GNU General Public License,
->+ * version 2, as published by the Free Software Foundation.
->+ *
->+ * This program is distributed in the hope it will be useful, but
->WITHOUT
->+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
->or
->+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
->License for
->+ * more details.
->+ *
->+ * You should have received a copy of the GNU General Public License
->along with
->+ * this program; if not, write to the Free Software Foundation, Inc.,
->+ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
->+ *
->+ */
->+#include <linux/device.h>
->+#include <linux/hid.h>
->+#include <linux/usb.h>
->+#include "usbhid/usbhid.h"
->+#include <linux/module.h>
->+#include <linux/slab.h>
->+#include "iio/iio.h"
->+#include "iio/sysfs.h"
->+#include "iio/ring_sw.h"
->+#include "iio/trigger.h"
->+#include "hid-sensor-ids.h"
->+#include "hid-sensor-interface.h"
->+#include "hid-sensor-attributes.h"
->+
->+
->+struct accel_3d_sample {
->+	u16 x_sz;
->+	u32 accel_x;
->+	u16 y_sz;
->+	u32 accel_y;
->+	u16 z_sz;
->+	u32 accel_z;
->+} __packed;
->+
->+struct accel_3d_state {
->+	struct hid_sensor_hub_attribute_info accel_x;
->+	struct hid_sensor_hub_attribute_info accel_y;
->+	struct hid_sensor_hub_attribute_info accel_z;
->+	struct accel_3d_sample accel_sample_data;
->+};
->+
->+
->+enum accel_3d_chan {
->+	ACCEL_X_Y_Z,
->+};
->+
->+enum accel_3d_scan {
->+	ACCEL_3D_SCAN_ACC_X_Y_Z,
->+};
->+
->+static struct iio_chan_spec accel_3d_channels[] = {
->+	IIO_CHAN(IIO_ACCEL, 1, 0, 0, NULL, 0, IIO_MOD_X_AND_Y_AND_Z,
->+	IIO_CHAN_INFO_SCALE_SEPARATE_BIT |
->+	IIO_CHAN_INFO_OFFSET_SEPARATE_BIT,
->+	ACCEL_X_Y_Z, ACCEL_3D_SCAN_ACC_X_Y_Z,
->+		 IIO_ST('u', sizeof(struct accel_3d_sample) * 8,
->+		sizeof(struct accel_3d_sample) * 8, 0), 0),
->+};
->+
->+static ssize_t accel_3d_read_accel(struct device *dev,
->+				struct device_attribute *attr,
->+				char *buf)
->+{
->+	struct iio_dev *indio_dev = dev_get_drvdata(dev);
->+	struct hid_sensor_attributes *st = iio_priv(indio_dev);
->+	struct accel_3d_state *accel_state =
->+			(struct accel_3d_state *)st->private;
->+	struct iio_dev_attr *this_attr = to_iio_dev_attr(attr);
->+	int report_id = -1;
->+
->+	switch (this_attr->address) {
->+	case HID_USAGE_SENSOR_DATA_MOTION_ACCELERATION_X_AXIS:
->+		report_id = accel_state->accel_x.report_id;
->+		break;
->+	case HID_USAGE_SENSOR_DATA_MOTION_ACCELERATION_Y_AXIS:
->+		report_id = accel_state->accel_y.report_id;
->+		break;
->+	case HID_USAGE_SENSOR_DATA_MOTION_ACCELERATION_Z_AXIS:
->+		report_id = accel_state->accel_z.report_id;
->+		break;
->+	default:
->+		break;
->+	}
->+	if (report_id < 0)
->+		return -EINVAL;
->+
->+	return sensor_hub_input_attr_get_value(st->hdev,
->+			HID_USAGE_SENSOR_ACCEL_3D, this_attr->address,
->+			report_id, 4, buf);
->+}
->+
->+static int accel_3d_read_raw(struct iio_dev *indio_dev,
->+			      struct iio_chan_spec const *chan,
->+			      int *val, int *val2,
->+			      long mask)
->+{
->+	struct hid_sensor_attributes *st = iio_priv(indio_dev);
->+	struct accel_3d_state *accel_state =
->+			(struct accel_3d_state *)st->private;
->+	*val = 0;
->+	*val2 = 0;
->+
->+	switch (mask) {
->+	case 0:
->+		break;
->+	case IIO_CHAN_INFO_SCALE:
->+		*val = accel_state->accel_x.units;
->+		break;
->+	case IIO_CHAN_INFO_OFFSET:
->+		*val = accel_state->accel_x.unit_expo;
->+		break;
->+	default:
->+		break;
->+
->+	}
->+	return IIO_VAL_INT;
->+}
->+
->+static int accel_3d_write_raw(struct iio_dev *indio_dev,
->+			       struct iio_chan_spec const *chan,
->+			       int val,
->+			       int val2,
->+			       long mask)
->+{
->+	printk(KERN_ERR "%s\n", __func__);
->+
->+	return 0;
->+}
->+
->+/* Usage specific attributes */
->+#define IIO_DEV_ATTR_ACCEL_OFFSET(_mode, _show, _store, _addr)  \
->+	IIO_DEVICE_ATTR(accel_offset, _mode, _show, _store, _addr)
->+
->+#define IIO_DEV_ATTR_ACCEL_X_OFFSET(_mode, _show, _store, _addr)      
-> \
->+	IIO_DEVICE_ATTR(accel_x_offset, _mode, _show, _store, _addr)
->+
->+#define IIO_DEV_ATTR_ACCEL_Y_OFFSET(_mode, _show, _store, _addr)      
-> \
->+	IIO_DEVICE_ATTR(accel_y_offset, _mode, _show, _store, _addr)
->+
->+#define IIO_DEV_ATTR_ACCEL_Z_OFFSET(_mode, _show, _store, _addr)      
-> \
->+	IIO_DEVICE_ATTR(accel_z_offset, _mode, _show, _store, _addr)
->+
->+#define IIO_DEV_ATTR_ACCEL_SENSITIVITY(_mode, _show, _store, _addr)   
->    \
->+	IIO_DEVICE_ATTR(accel_sensitivity, _mode, _show, _store, _addr)
->+
->+static IIO_DEV_ATTR_ACCEL_X_OFFSET(S_IWUSR | S_IRUGO,
->accel_3d_read_accel,
->+		 NULL, HID_USAGE_SENSOR_DATA_MOTION_ACCELERATION_X_AXIS);
->+static IIO_DEV_ATTR_ACCEL_Y_OFFSET(S_IWUSR | S_IRUGO,
->accel_3d_read_accel,
->+		 NULL, HID_USAGE_SENSOR_DATA_MOTION_ACCELERATION_Y_AXIS);
->+static IIO_DEV_ATTR_ACCEL_Z_OFFSET(S_IWUSR | S_IRUGO,
->accel_3d_read_accel,
->+		 NULL, HID_USAGE_SENSOR_DATA_MOTION_ACCELERATION_Z_AXIS);
->+
->+static struct attribute *accel_3d_attributes[] = {
->+	/* common attributes */
->+	&iio_dev_attr_poll_interval.dev_attr.attr,
->+	&iio_dev_attr_sensitivity.dev_attr.attr,
->+	&iio_dev_attr_activate.dev_attr.attr,
->+	/* Usage specific attributes */
->+	&iio_dev_attr_accel_x_offset.dev_attr.attr,
->+	&iio_dev_attr_accel_y_offset.dev_attr.attr,
->+	&iio_dev_attr_accel_z_offset.dev_attr.attr,
->+	NULL,
->+};
->+
->+static const struct attribute_group accel_3d_attribute_group = {
->+	.attrs = accel_3d_attributes,
->+};
->+
->+static const struct iio_info accel_3d_info = {
->+	.attrs = &accel_3d_attribute_group,
->+	.driver_module = THIS_MODULE,
->+	.read_raw = &accel_3d_read_raw,
->+	.write_raw = &accel_3d_write_raw,
->+};
->+
->+
->+/* Function to push data to IIO ring */
->+int accel_3d_proc_event(struct hid_device *hdev, unsigned usage_id,
->void *priv)
->+{
->+	struct iio_dev *indio_dev = (struct iio_dev *)priv;
->+	struct hid_sensor_attributes *st = iio_priv(indio_dev);
->+	struct accel_3d_state *accel_state =
->+			(struct accel_3d_state *)st->private;
->+
->+	hid_dbg(hdev, "accel_3d_proc_event\n");
->+	if (st->data_ready)
->+		hid_sensor_push_data_to_ring(indio_dev,
->+				(u8 *)&accel_state->accel_sample_data,
->+				sizeof(struct accel_3d_sample));
->+	else
->+		hid_dbg(hdev, "accel_3d_proc_event data not ready\n");
->+	return 0;
->+}
->+
->+/* Capture samples in local storage */
->+int accel_3d_capture_sample(struct hid_device *hdev, unsigned
->usage_id,
->+				 size_t raw_len, char *raw_data, void *priv)
->+{
->+	struct iio_dev *indio_dev = (struct iio_dev *)priv;
->+	struct hid_sensor_attributes *st = iio_priv(indio_dev);
->+	struct accel_3d_state *accel_state =
->+			(struct accel_3d_state *)st->private;
->+
->+	switch (usage_id) {
->+	case HID_USAGE_SENSOR_DATA_MOTION_ACCELERATION_X_AXIS:
->+		accel_state->accel_sample_data.x_sz = raw_len;
->+		accel_state->accel_sample_data.accel_x =
->+		*(u32 *)raw_data;
->+		break;
->+	case HID_USAGE_SENSOR_DATA_MOTION_ACCELERATION_Y_AXIS:
->+		accel_state->accel_sample_data.y_sz = raw_len;
->+		accel_state->accel_sample_data.accel_y =
->+		*(u32 *)raw_data;
->+		break;
->+	case HID_USAGE_SENSOR_DATA_MOTION_ACCELERATION_Z_AXIS:
->+		accel_state->accel_sample_data.z_sz = raw_len;
->+		accel_state->accel_sample_data.accel_z =
->+		*(u32 *)raw_data;
->+		break;
->+	default:
->+		break;
->+	}
->+	return 0;
->+}
->+
->+
->+/* Parse report which is specific to an usage id*/
->+static int accel_3d_parse_report(struct hid_device *hdev, unsigned
->usage_id,
->+				struct accel_3d_state *st)
->+{
->+	int ret;
->+
->+	ret = sensor_hub_input_get_attribute_info(hdev, HID_INPUT_REPORT,
->+			usage_id,
->+			HID_USAGE_SENSOR_DATA_MOTION_ACCELERATION_X_AXIS,
->+			&st->accel_x);
->+	if (!ret)
->+		hid_dbg(hdev, "No Accel X attribute\n");
->+
->+
->+	ret = sensor_hub_input_get_attribute_info(hdev, HID_INPUT_REPORT,
->+			usage_id,
->+			HID_USAGE_SENSOR_DATA_MOTION_ACCELERATION_Y_AXIS,
->+			&st->accel_y);
->+	if (!ret)
->+		hid_dbg(hdev, "No Accel Y attribute\n");
->+
->+
->+	ret = sensor_hub_input_get_attribute_info(hdev, HID_INPUT_REPORT,
->+			usage_id,
->+			HID_USAGE_SENSOR_DATA_MOTION_ACCELERATION_Z_AXIS,
->+			&st->accel_z);
->+	if (!ret)
->+		hid_dbg(hdev, "No Accel Z attribute\n");
->+
->+	hid_dbg(hdev, "accel_3d %x:%x, %x:%x, %x:%x\n", st->accel_x.index,
->+			st->accel_x.report_id,
->+			st->accel_y.index, st->accel_y.report_id,
->+			st->accel_z.index, st->accel_z.report_id);
->+
->+	return 0;
->+}
->+
->+/* Entry function to initialize the processing for usage id */
->+static int accel_3d_enter(struct hid_device *hdev, unsigned usage_id,
->+				void **priv)
->+{
->+	int ret = 0;
->+	static char *name = "accel_3d";
->+	struct iio_dev *indio_dev;
->+	struct accel_3d_state *accel_state;
->+	struct hid_sensor_attributes *st;
->+
->+	accel_state = kzalloc(sizeof(struct accel_3d_state), GFP_KERNEL);
->+	if (accel_state == NULL) {
->+		ret = -ENOMEM;
->+		goto error_ret;
->+	}
->+
->+	indio_dev = iio_allocate_device(sizeof(struct
->hid_sensor_attributes));
->+	if (indio_dev == NULL) {
->+		ret = -ENOMEM;
->+		goto error_free_state;
->+	}
->+	st = iio_priv(indio_dev);
->+	st->usage_id = usage_id;
->+	st->hdev = hdev;
->+	st->private = (void *)accel_state;
->+
->+	ret = hid_sensor_parse_common_attributes(hdev, usage_id, st);
->+	if (ret) {
->+		hid_err(hdev, "failed to setup common attributes\n");
->+		goto error_free_dev;
->+	}
->+	ret = accel_3d_parse_report(hdev, usage_id, accel_state);
->+	if (ret) {
->+		hid_err(hdev, "failed to setup attributes\n");
->+		goto error_free_dev;
->+	}
->+
->+	indio_dev->channels = accel_3d_channels;
->+	indio_dev->num_channels =
->+				ARRAY_SIZE(accel_3d_channels);
->+	indio_dev->dev.parent = &hdev->dev;
->+	indio_dev->info = &accel_3d_info;
->+	indio_dev->name = name;
->+	indio_dev->modes = INDIO_DIRECT_MODE;
->+
->+	ret = hid_sensor_configure_ring(indio_dev);
->+	if (ret) {
->+		hid_err(hdev, "failed to initialize the ring\n");
->+		goto error_free_dev;
->+	}
->+
->+	ret = iio_buffer_register(indio_dev,
->+					accel_3d_channels,
->+					ARRAY_SIZE(accel_3d_channels));
->+	if (ret) {
->+		hid_err(hdev, "failed to initialize the ring\n");
->+		goto error_unreg_ring_funcs;
->+	}
->+	st->data_ready = true;
->+	ret = hid_sensor_setup_trigger(indio_dev, name);
->+	if (ret < 0) {
->+		hid_err(hdev, "trigger setup failed\n");
->+		goto error_uninit_ring;
->+	}
->+
->+	ret = iio_device_register(indio_dev);
->+	if (ret) {
->+		hid_err(hdev, "device register failed\n");
->+		goto error_remove_trigger;
->+	}
->+	*priv = (void *)indio_dev;
->+	return ret;
->+
->+error_remove_trigger:
->+		hid_sensor_remove_trigger(indio_dev);
->+error_uninit_ring:
->+		iio_buffer_unregister(indio_dev);
->+error_unreg_ring_funcs:
->+		hid_sensor_ring_cleanup(indio_dev);
->+error_free_dev:
->+		iio_free_device(indio_dev);
->+error_free_state:
->+		kfree(accel_state);
->+error_ret:
->+		return ret;
->+}
->+
->+static int accel_3d_exit(struct hid_device *hdev, void *priv)
->+{
->+	int ret = 0;
->+	struct iio_dev *indio_dev = (struct iio_dev *)priv;
->+	struct hid_sensor_attributes *st = iio_priv(indio_dev);
->+	struct accel_3d_state *accel_state =
->+			(struct accel_3d_state *)st->private;
->+
->+	iio_device_unregister(indio_dev);
->+	hid_sensor_remove_trigger(indio_dev);
->+	iio_buffer_unregister(indio_dev);
->+	hid_sensor_ring_cleanup(indio_dev);
->+	iio_free_device(indio_dev);
->+
->+	kfree(accel_state);
->+	return ret;
->+}
->+
->+static struct sensor_hub_callbacks accel_3d_callbacks = {
->+	.enter = accel_3d_enter,
->+	.exit = accel_3d_exit,
->+	.send_event = accel_3d_proc_event,
->+	.capture_sample = accel_3d_capture_sample,
->+};
->+
->+struct sensor_hub_callbacks  *accel_3d_register_callbacks(void)
->+{
->+	return &accel_3d_callbacks;
->+}
->diff --git a/drivers/staging/hid-sensors/hid-sensor-hub.c
->b/drivers/staging/hid-sensors/hid-sensor-hub.c
->index 384e0d0..55ae562 100644
->--- a/drivers/staging/hid-sensors/hid-sensor-hub.c
->+++ b/drivers/staging/hid-sensors/hid-sensor-hub.c
->@@ -60,6 +60,7 @@ struct sensor_hub_callbacks_list {
-> };
-> 
-> static struct sensor_hub_callbacks_list usage_callbacks[] = {
->+	{HID_USAGE_SENSOR_ACCEL_3D, accel_3d_register_callbacks},
-> 	{0}
-> };
-> 
->diff --git a/drivers/staging/hid-sensors/hid-sensor-interface.h
->b/drivers/staging/hid-sensors/hid-sensor-interface.h
->index 477494f..3f4fe57 100644
->--- a/drivers/staging/hid-sensors/hid-sensor-interface.h
->+++ b/drivers/staging/hid-sensors/hid-sensor-interface.h
->@@ -84,4 +84,7 @@ void hid_sensor_push_data_to_ring(struct iio_dev
->*indio_dev, u8 *data,
-> int hid_sensor_setup_trigger(struct iio_dev *indio_dev, char *name);
-> void hid_sensor_remove_trigger(struct iio_dev *indio_dev);
-> 
->+/* Sensor usage id processing callbacks */
->+struct sensor_hub_callbacks  *accel_3d_register_callbacks(void);
->+
-> #endif
->-- 
->1.7.7.6
->
->--
->To unsubscribe from this list: send the line "unsubscribe linux-iio" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
--- 
-Sent from my Android phone with K-9 Mail. Please excuse my brevity.
+VGhlIFVTQiBzZW5zb3Igc3BlYyBoYXMgYSByZXBvcnQgc3RydWN0dXJlIHdoaWNoIGl0IHNlbmRz
+IGFzIHBhcnQgb2YgcmVwb3J0IGRlc2NyaXB0b3Igd2UgZ2V0IGR1cmluZyBpbml0aWFsIHBsdWcg
+aW4uIFRoaXMgcmVwb3J0IHN0cnVjdHVyZSBkZXNjcmliZXMgZWxlbWVudHMgYW5kIHRoZWlyIHNp
+emVzLiBGb3IgZXhhbXBsZSwgaXQgbWF5IHNheSB0aGF0IGFuIEFjY2VsZXJvbWV0ZXIgWCBheGlz
+IHZhbHVlIGFzIDQgYnl0ZXMgbG9uZyBhbmQgd2hhdCBpcyB0aGUgZXhwb25lbnQgYW5kIHVuaXQu
+IEFsc28gaXQgc2VuZHMgd2hhdCBjb250cm9sIGVsZW1lbnRzIGl0IGhhcy4NClRoZSBzZXF1ZW5j
+ZSBpcw0KLSBTZXQgc2Vuc2l0aXZpdHksIGludGVydmFsLCBhY3RpdmF0ZSBzeXMtZnMgaW50ZXJm
+YWNlLiBUaGUgVVNCIHNlbnNvciB3aWxsIHNlbmQgYW4gZXZlbnQgYnkgVVNCLUlOIHJlcG9ydCB3
+aGVuIHRoZSBjYXB0dXJlZCBzYW1wbGUgaXMgY2hhbmdlZCBieSBzZW5zaXRpdml0eSB2YWx1ZSBh
+bmQgc3RhYmxlIGZvciBhdCBsZWFzdCBpbnRlcnZhbC4gQWxzbyB5b3UgbmVlZCB0byBhY3RpdmF0
+ZSB0aGUgc2Vuc29yIHNvIHRoYXQgdGhlIHVzYiB3aWxsIHN0YXJ0IHNlbmRpbmcgZXZlbnRzLg0K
+DQotIE9uY2UgVVNCIHJlcG9ydCB3aXRoIHRoZSBjYXB0dXJlZCBzYW1wbGUgYXJyaXZlcywgSSBm
+b3JtYXQgdGhlIGRhdGEgYXMgZGVmaW5lZCBpbiAiIHN0cnVjdCBhY2NlbF8zZF9zYW1wbGUiIGJl
+bG93IGFuZCBwdXNoIHRvIElJTyByaW5nIGJ1ZmZlci4NCkkgZGVmaW5lIGEgc2luZ2xlIGNoYW5u
+ZWwNCglJSU9fQ0hBTihJSU9fQUNDRUwsIDEsIDAsIDAsIE5VTEwsIDAsIElJT19NT0RfWF9BTkRf
+WV9BTkRfWiwNCglJSU9fQ0hBTl9JTkZPX1NDQUxFX1NFUEFSQVRFX0JJVCB8DQoJSUlPX0NIQU5f
+SU5GT19PRkZTRVRfU0VQQVJBVEVfQklULA0KCUFDQ0VMX1hfWV9aLCBBQ0NFTF8zRF9TQ0FOX0FD
+Q19YX1lfWiwNCgkJIElJT19TVCgndScsIHNpemVvZihzdHJ1Y3QgYWNjZWxfM2Rfc2FtcGxlKSAq
+IDgsDQoJCXNpemVvZihzdHJ1Y3QgYWNjZWxfM2Rfc2FtcGxlKSAqIDgsIDApLCAwKSwgfTsNCg0K
+UGxlYXNlIHN1Z2dlc3QgbWUgaWYgdGhpcyBpcyBub3QgdGhlIHdheSBJSU8gY2hhbm5lbCB1c2Vk
+LiANCg0KVGhhbmtzLA0KU3Jpbml2YXMNCg0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0t
+DQpGcm9tOiBKb25hdGhhbiBDYW1lcm9uIFttYWlsdG86amljMjNAY2FtLmFjLnVrXSANClNlbnQ6
+IFdlZG5lc2RheSwgSnVuZSAwNiwgMjAxMiA5OjI5IEFNDQpUbzogUGFuZHJ1dmFkYSwgU3Jpbml2
+YXM7IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZw0KQ2M6IGxpbnV4LWlpb0B2Z2VyLmtlcm5l
+bC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0gsIDQvN10gSElELVNlbnNvcnM6IEFkZGVkIGFjY2Vs
+ZXJvbWV0ZXIgM0QNCg0KDQoNCnNyaW5pdmFzIHBhbmRydXZhZGEgPHNyaW5pdmFzLnBhbmRydXZh
+ZGFAaW50ZWwuY29tPiB3cm90ZToNCg0KPkZyb206IFNyaW5pdmFzIHBhbmRydXZhZGEgPHNyaW5p
+dmFzLnBhbmRydXZhZGFAaW50ZWwuY29tPg0KPg0KPkFkZGVkIHVzYWdlIGlkIHByb2Nlc3Npbmcg
+Zm9yIEFjY2Vscm9tZXRlciAzRC4gVGhpcyB1c2VzIElJTyBpbnRlcmZhY2VzIA0KPiJyaW5nL2J1
+ZmZlciBhbmQgdHJpZ2dlciBpbnRlcmZhY2UiIHRvIHByZXNlbnQgZGF0YSB0byB1c2VyIG1vZGUu
+DQoNCkkgZG8gbm90IHVuZGVyc3RhbmQgdGhlIGRhdGEgZm9ybWF0LiAgVGhlIHdheSBpaW8gZGVz
+Y3JpYmVzIHRoZSBmb3JtYXQgaXMgZG9uZSB0aHJvdWdoIHN5c2ZzIGF0dHJzIGJ1aWx0IGZyb20g
+dGhlIGlpb19DaGFuIHNwZWMuLi4gdGhhdCB3YXkgYSBzY2FuIGlzIG1hZGUgdXAgb2YgYSBudW1i
+ZXIgb2YgY2hhbm5lbCByZWFkaW5ncyBlYWNoIHRha2VuIGF0IHJvdWdobHkgdGhlIHNhbWUgdGlt
+ZS4gIEhvd2V2ZXIgZWFjaCBpcyBzZXBhcmF0ZWx5IGRlc2NyaWJlZC4gIFBlcmhhcHMgdGhlIGRl
+c2NyaXB0aW9uIG5lZWRzIGV4dGVuZGluZy4gIFBsZWFzZSBkZXNjcmliZSB0aGUgZm9ybWF0Lg0K
+Pg0KPlNpZ25lZC1vZmYtYnk6IFNyaW5pdmFzIHBhbmRydXZhZGEgPHNyaW5pdmFzLnBhbmRydXZh
+ZGFAaW50ZWwuY29tPg0KPi0tLQ0KPiBkcml2ZXJzL3N0YWdpbmcvaGlkLXNlbnNvcnMvTWFrZWZp
+bGUgICAgICAgICAgICAgICB8ICAgIDEgKw0KPmRyaXZlcnMvc3RhZ2luZy9oaWQtc2Vuc29ycy9o
+aWQtc2Vuc29yLWFjY2VsLTNkLmMgIHwgIDM4Nw0KPisrKysrKysrKysrKysrKysrKysrDQo+IGRy
+aXZlcnMvc3RhZ2luZy9oaWQtc2Vuc29ycy9oaWQtc2Vuc29yLWh1Yi5jICAgICAgIHwgICAgMSAr
+DQo+IGRyaXZlcnMvc3RhZ2luZy9oaWQtc2Vuc29ycy9oaWQtc2Vuc29yLWludGVyZmFjZS5oIHwg
+ICAgMyArDQo+IDQgZmlsZXMgY2hhbmdlZCwgMzkyIGluc2VydGlvbnMoKyksIDAgZGVsZXRpb25z
+KC0pIGNyZWF0ZSBtb2RlIDEwMDY0NCANCj4gZHJpdmVycy9zdGFnaW5nL2hpZC1zZW5zb3JzL2hp
+ZC1zZW5zb3ItYWNjZWwtM2QuYw0KPg0KPmRpZmYgLS1naXQgYS9kcml2ZXJzL3N0YWdpbmcvaGlk
+LXNlbnNvcnMvTWFrZWZpbGUNCj5iL2RyaXZlcnMvc3RhZ2luZy9oaWQtc2Vuc29ycy9NYWtlZmls
+ZQ0KPmluZGV4IDlhMDM5NTMuLjQ0MTIwNzkgMTAwNjQ0DQo+LS0tIGEvZHJpdmVycy9zdGFnaW5n
+L2hpZC1zZW5zb3JzL01ha2VmaWxlDQo+KysrIGIvZHJpdmVycy9zdGFnaW5nL2hpZC1zZW5zb3Jz
+L01ha2VmaWxlDQo+QEAgLTksNCArOSw1IEBAIGhpZC1zZW5zb3JzLXkgOj0gaGlkLXNlbnNvci1o
+dWIubyAgaGlkLXNlbnNvcnMteSArPSANCj5oaWQtc2Vuc29yLWF0dHJpYnV0ZXMubyAgaGlkLXNl
+bnNvcnMteSArPSBoaWQtc2Vuc29yLXJpbmcubyAgDQo+aGlkLXNlbnNvcnMteSArPSBoaWQtc2Vu
+c29yLXRyaWdnZXIubw0KPitoaWQtc2Vuc29ycy15ICs9IGhpZC1zZW5zb3ItYWNjZWwtM2Qubw0K
+PiBvYmotJChDT05GSUdfSElEX1NFTlNPUlMpICs9IGhpZC1zZW5zb3JzLm8gZGlmZiAtLWdpdCAN
+Cj5hL2RyaXZlcnMvc3RhZ2luZy9oaWQtc2Vuc29ycy9oaWQtc2Vuc29yLWFjY2VsLTNkLmMNCj5i
+L2RyaXZlcnMvc3RhZ2luZy9oaWQtc2Vuc29ycy9oaWQtc2Vuc29yLWFjY2VsLTNkLmMNCj5uZXcg
+ZmlsZSBtb2RlIDEwMDY0NA0KPmluZGV4IDAwMDAwMDAuLmZmZTI2MzkNCj4tLS0gL2Rldi9udWxs
+DQo+KysrIGIvZHJpdmVycy9zdGFnaW5nL2hpZC1zZW5zb3JzL2hpZC1zZW5zb3ItYWNjZWwtM2Qu
+Yw0KPkBAIC0wLDAgKzEsMzg3IEBADQo+Ky8qDQo+KyAqIEhJRCBTZW5zb3JzIERyaXZlcg0KPisg
+KiBDb3B5cmlnaHQgKGMpIDIwMTIsIEludGVsIENvcnBvcmF0aW9uLg0KPisgKg0KPisgKiBUaGlz
+IHByb2dyYW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29y
+DQo+bW9kaWZ5IGl0DQo+KyAqIHVuZGVyIHRoZSB0ZXJtcyBhbmQgY29uZGl0aW9ucyBvZiB0aGUg
+R05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UsDQo+KyAqIHZlcnNpb24gMiwgYXMgcHVibGlzaGVk
+IGJ5IHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb24uDQo+KyAqDQo+KyAqIFRoaXMgcHJvZ3Jh
+bSBpcyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSBpdCB3aWxsIGJlIHVzZWZ1bCwgYnV0DQo+V0lU
+SE9VVA0KPisgKiBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZlbiB0aGUgaW1wbGllZCB3YXJyYW50
+eSBvZiBNRVJDSEFOVEFCSUxJVFkNCj5vcg0KPisgKiBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIg
+UFVSUE9TRS4gIFNlZSB0aGUgR05VIEdlbmVyYWwgUHVibGljDQo+TGljZW5zZSBmb3INCj4rICog
+bW9yZSBkZXRhaWxzLg0KPisgKg0KPisgKiBZb3Ugc2hvdWxkIGhhdmUgcmVjZWl2ZWQgYSBjb3B5
+IG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZQ0KPmFsb25nIHdpdGgNCj4rICogdGhp
+cyBwcm9ncmFtOyBpZiBub3QsIHdyaXRlIHRvIHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb24s
+IEluYy4sDQo+KyAqIDUxIEZyYW5rbGluIFN0IC0gRmlmdGggRmxvb3IsIEJvc3RvbiwgTUEgMDIx
+MTAtMTMwMSBVU0EuDQo+KyAqDQo+KyAqLw0KPisjaW5jbHVkZSA8bGludXgvZGV2aWNlLmg+DQo+
+KyNpbmNsdWRlIDxsaW51eC9oaWQuaD4NCj4rI2luY2x1ZGUgPGxpbnV4L3VzYi5oPg0KPisjaW5j
+bHVkZSAidXNiaGlkL3VzYmhpZC5oIg0KPisjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+DQo+KyNp
+bmNsdWRlIDxsaW51eC9zbGFiLmg+DQo+KyNpbmNsdWRlICJpaW8vaWlvLmgiDQo+KyNpbmNsdWRl
+ICJpaW8vc3lzZnMuaCINCj4rI2luY2x1ZGUgImlpby9yaW5nX3N3LmgiDQo+KyNpbmNsdWRlICJp
+aW8vdHJpZ2dlci5oIg0KPisjaW5jbHVkZSAiaGlkLXNlbnNvci1pZHMuaCINCj4rI2luY2x1ZGUg
+ImhpZC1zZW5zb3ItaW50ZXJmYWNlLmgiDQo+KyNpbmNsdWRlICJoaWQtc2Vuc29yLWF0dHJpYnV0
+ZXMuaCINCj4rDQo+Kw0KPitzdHJ1Y3QgYWNjZWxfM2Rfc2FtcGxlIHsNCj4rCXUxNiB4X3N6Ow0K
+PisJdTMyIGFjY2VsX3g7DQo+Kwl1MTYgeV9zejsNCj4rCXUzMiBhY2NlbF95Ow0KPisJdTE2IHpf
+c3o7DQo+Kwl1MzIgYWNjZWxfejsNCj4rfSBfX3BhY2tlZDsNCj4rDQo+K3N0cnVjdCBhY2NlbF8z
+ZF9zdGF0ZSB7DQo+KwlzdHJ1Y3QgaGlkX3NlbnNvcl9odWJfYXR0cmlidXRlX2luZm8gYWNjZWxf
+eDsNCj4rCXN0cnVjdCBoaWRfc2Vuc29yX2h1Yl9hdHRyaWJ1dGVfaW5mbyBhY2NlbF95Ow0KPisJ
+c3RydWN0IGhpZF9zZW5zb3JfaHViX2F0dHJpYnV0ZV9pbmZvIGFjY2VsX3o7DQo+KwlzdHJ1Y3Qg
+YWNjZWxfM2Rfc2FtcGxlIGFjY2VsX3NhbXBsZV9kYXRhOyB9Ow0KPisNCj4rDQo+K2VudW0gYWNj
+ZWxfM2RfY2hhbiB7DQo+KwlBQ0NFTF9YX1lfWiwNCj4rfTsNCj4rDQo+K2VudW0gYWNjZWxfM2Rf
+c2NhbiB7DQo+KwlBQ0NFTF8zRF9TQ0FOX0FDQ19YX1lfWiwNCj4rfTsNCj4rDQo+K3N0YXRpYyBz
+dHJ1Y3QgaWlvX2NoYW5fc3BlYyBhY2NlbF8zZF9jaGFubmVsc1tdID0gew0KPisJSUlPX0NIQU4o
+SUlPX0FDQ0VMLCAxLCAwLCAwLCBOVUxMLCAwLCBJSU9fTU9EX1hfQU5EX1lfQU5EX1osDQo+KwlJ
+SU9fQ0hBTl9JTkZPX1NDQUxFX1NFUEFSQVRFX0JJVCB8DQo+KwlJSU9fQ0hBTl9JTkZPX09GRlNF
+VF9TRVBBUkFURV9CSVQsDQo+KwlBQ0NFTF9YX1lfWiwgQUNDRUxfM0RfU0NBTl9BQ0NfWF9ZX1os
+DQo+KwkJIElJT19TVCgndScsIHNpemVvZihzdHJ1Y3QgYWNjZWxfM2Rfc2FtcGxlKSAqIDgsDQo+
+KwkJc2l6ZW9mKHN0cnVjdCBhY2NlbF8zZF9zYW1wbGUpICogOCwgMCksIDApLCB9Ow0KPisNCj4r
+c3RhdGljIHNzaXplX3QgYWNjZWxfM2RfcmVhZF9hY2NlbChzdHJ1Y3QgZGV2aWNlICpkZXYsDQo+
+KwkJCQlzdHJ1Y3QgZGV2aWNlX2F0dHJpYnV0ZSAqYXR0ciwNCj4rCQkJCWNoYXIgKmJ1ZikNCj4r
+ew0KPisJc3RydWN0IGlpb19kZXYgKmluZGlvX2RldiA9IGRldl9nZXRfZHJ2ZGF0YShkZXYpOw0K
+PisJc3RydWN0IGhpZF9zZW5zb3JfYXR0cmlidXRlcyAqc3QgPSBpaW9fcHJpdihpbmRpb19kZXYp
+Ow0KPisJc3RydWN0IGFjY2VsXzNkX3N0YXRlICphY2NlbF9zdGF0ZSA9DQo+KwkJCShzdHJ1Y3Qg
+YWNjZWxfM2Rfc3RhdGUgKilzdC0+cHJpdmF0ZTsNCj4rCXN0cnVjdCBpaW9fZGV2X2F0dHIgKnRo
+aXNfYXR0ciA9IHRvX2lpb19kZXZfYXR0cihhdHRyKTsNCj4rCWludCByZXBvcnRfaWQgPSAtMTsN
+Cj4rDQo+Kwlzd2l0Y2ggKHRoaXNfYXR0ci0+YWRkcmVzcykgew0KPisJY2FzZSBISURfVVNBR0Vf
+U0VOU09SX0RBVEFfTU9USU9OX0FDQ0VMRVJBVElPTl9YX0FYSVM6DQo+KwkJcmVwb3J0X2lkID0g
+YWNjZWxfc3RhdGUtPmFjY2VsX3gucmVwb3J0X2lkOw0KPisJCWJyZWFrOw0KPisJY2FzZSBISURf
+VVNBR0VfU0VOU09SX0RBVEFfTU9USU9OX0FDQ0VMRVJBVElPTl9ZX0FYSVM6DQo+KwkJcmVwb3J0
+X2lkID0gYWNjZWxfc3RhdGUtPmFjY2VsX3kucmVwb3J0X2lkOw0KPisJCWJyZWFrOw0KPisJY2Fz
+ZSBISURfVVNBR0VfU0VOU09SX0RBVEFfTU9USU9OX0FDQ0VMRVJBVElPTl9aX0FYSVM6DQo+KwkJ
+cmVwb3J0X2lkID0gYWNjZWxfc3RhdGUtPmFjY2VsX3oucmVwb3J0X2lkOw0KPisJCWJyZWFrOw0K
+PisJZGVmYXVsdDoNCj4rCQlicmVhazsNCj4rCX0NCj4rCWlmIChyZXBvcnRfaWQgPCAwKQ0KPisJ
+CXJldHVybiAtRUlOVkFMOw0KPisNCj4rCXJldHVybiBzZW5zb3JfaHViX2lucHV0X2F0dHJfZ2V0
+X3ZhbHVlKHN0LT5oZGV2LA0KPisJCQlISURfVVNBR0VfU0VOU09SX0FDQ0VMXzNELCB0aGlzX2F0
+dHItPmFkZHJlc3MsDQo+KwkJCXJlcG9ydF9pZCwgNCwgYnVmKTsNCj4rfQ0KPisNCj4rc3RhdGlj
+IGludCBhY2NlbF8zZF9yZWFkX3JhdyhzdHJ1Y3QgaWlvX2RldiAqaW5kaW9fZGV2LA0KPisJCQkg
+ICAgICBzdHJ1Y3QgaWlvX2NoYW5fc3BlYyBjb25zdCAqY2hhbiwNCj4rCQkJICAgICAgaW50ICp2
+YWwsIGludCAqdmFsMiwNCj4rCQkJICAgICAgbG9uZyBtYXNrKQ0KPit7DQo+KwlzdHJ1Y3QgaGlk
+X3NlbnNvcl9hdHRyaWJ1dGVzICpzdCA9IGlpb19wcml2KGluZGlvX2Rldik7DQo+KwlzdHJ1Y3Qg
+YWNjZWxfM2Rfc3RhdGUgKmFjY2VsX3N0YXRlID0NCj4rCQkJKHN0cnVjdCBhY2NlbF8zZF9zdGF0
+ZSAqKXN0LT5wcml2YXRlOw0KPisJKnZhbCA9IDA7DQo+KwkqdmFsMiA9IDA7DQo+Kw0KPisJc3dp
+dGNoIChtYXNrKSB7DQo+KwljYXNlIDA6DQo+KwkJYnJlYWs7DQo+KwljYXNlIElJT19DSEFOX0lO
+Rk9fU0NBTEU6DQo+KwkJKnZhbCA9IGFjY2VsX3N0YXRlLT5hY2NlbF94LnVuaXRzOw0KPisJCWJy
+ZWFrOw0KPisJY2FzZSBJSU9fQ0hBTl9JTkZPX09GRlNFVDoNCj4rCQkqdmFsID0gYWNjZWxfc3Rh
+dGUtPmFjY2VsX3gudW5pdF9leHBvOw0KPisJCWJyZWFrOw0KPisJZGVmYXVsdDoNCj4rCQlicmVh
+azsNCj4rDQo+Kwl9DQo+KwlyZXR1cm4gSUlPX1ZBTF9JTlQ7DQo+K30NCj4rDQo+K3N0YXRpYyBp
+bnQgYWNjZWxfM2Rfd3JpdGVfcmF3KHN0cnVjdCBpaW9fZGV2ICppbmRpb19kZXYsDQo+KwkJCSAg
+ICAgICBzdHJ1Y3QgaWlvX2NoYW5fc3BlYyBjb25zdCAqY2hhbiwNCj4rCQkJICAgICAgIGludCB2
+YWwsDQo+KwkJCSAgICAgICBpbnQgdmFsMiwNCj4rCQkJICAgICAgIGxvbmcgbWFzaykNCj4rew0K
+PisJcHJpbnRrKEtFUk5fRVJSICIlc1xuIiwgX19mdW5jX18pOw0KPisNCj4rCXJldHVybiAwOw0K
+Pit9DQo+Kw0KPisvKiBVc2FnZSBzcGVjaWZpYyBhdHRyaWJ1dGVzICovDQo+KyNkZWZpbmUgSUlP
+X0RFVl9BVFRSX0FDQ0VMX09GRlNFVChfbW9kZSwgX3Nob3csIF9zdG9yZSwgX2FkZHIpICBcDQo+
+KwlJSU9fREVWSUNFX0FUVFIoYWNjZWxfb2Zmc2V0LCBfbW9kZSwgX3Nob3csIF9zdG9yZSwgX2Fk
+ZHIpDQo+Kw0KPisjZGVmaW5lIElJT19ERVZfQVRUUl9BQ0NFTF9YX09GRlNFVChfbW9kZSwgX3No
+b3csIF9zdG9yZSwgX2FkZHIpICAgICAgDQo+IFwNCj4rCUlJT19ERVZJQ0VfQVRUUihhY2NlbF94
+X29mZnNldCwgX21vZGUsIF9zaG93LCBfc3RvcmUsIF9hZGRyKQ0KPisNCj4rI2RlZmluZSBJSU9f
+REVWX0FUVFJfQUNDRUxfWV9PRkZTRVQoX21vZGUsIF9zaG93LCBfc3RvcmUsIF9hZGRyKSAgICAg
+IA0KPiBcDQo+KwlJSU9fREVWSUNFX0FUVFIoYWNjZWxfeV9vZmZzZXQsIF9tb2RlLCBfc2hvdywg
+X3N0b3JlLCBfYWRkcikNCj4rDQo+KyNkZWZpbmUgSUlPX0RFVl9BVFRSX0FDQ0VMX1pfT0ZGU0VU
+KF9tb2RlLCBfc2hvdywgX3N0b3JlLCBfYWRkcikgICAgICANCj4gXA0KPisJSUlPX0RFVklDRV9B
+VFRSKGFjY2VsX3pfb2Zmc2V0LCBfbW9kZSwgX3Nob3csIF9zdG9yZSwgX2FkZHIpDQo+Kw0KPisj
+ZGVmaW5lIElJT19ERVZfQVRUUl9BQ0NFTF9TRU5TSVRJVklUWShfbW9kZSwgX3Nob3csIF9zdG9y
+ZSwgX2FkZHIpICAgDQo+ICAgIFwNCj4rCUlJT19ERVZJQ0VfQVRUUihhY2NlbF9zZW5zaXRpdml0
+eSwgX21vZGUsIF9zaG93LCBfc3RvcmUsIF9hZGRyKQ0KPisNCj4rc3RhdGljIElJT19ERVZfQVRU
+Ul9BQ0NFTF9YX09GRlNFVChTX0lXVVNSIHwgU19JUlVHTywNCj5hY2NlbF8zZF9yZWFkX2FjY2Vs
+LA0KPisJCSBOVUxMLCBISURfVVNBR0VfU0VOU09SX0RBVEFfTU9USU9OX0FDQ0VMRVJBVElPTl9Y
+X0FYSVMpOw0KPitzdGF0aWMgSUlPX0RFVl9BVFRSX0FDQ0VMX1lfT0ZGU0VUKFNfSVdVU1IgfCBT
+X0lSVUdPLA0KPmFjY2VsXzNkX3JlYWRfYWNjZWwsDQo+KwkJIE5VTEwsIEhJRF9VU0FHRV9TRU5T
+T1JfREFUQV9NT1RJT05fQUNDRUxFUkFUSU9OX1lfQVhJUyk7DQo+K3N0YXRpYyBJSU9fREVWX0FU
+VFJfQUNDRUxfWl9PRkZTRVQoU19JV1VTUiB8IFNfSVJVR08sDQo+YWNjZWxfM2RfcmVhZF9hY2Nl
+bCwNCj4rCQkgTlVMTCwgSElEX1VTQUdFX1NFTlNPUl9EQVRBX01PVElPTl9BQ0NFTEVSQVRJT05f
+Wl9BWElTKTsNCj4rDQo+K3N0YXRpYyBzdHJ1Y3QgYXR0cmlidXRlICphY2NlbF8zZF9hdHRyaWJ1
+dGVzW10gPSB7DQo+KwkvKiBjb21tb24gYXR0cmlidXRlcyAqLw0KPisJJmlpb19kZXZfYXR0cl9w
+b2xsX2ludGVydmFsLmRldl9hdHRyLmF0dHIsDQo+KwkmaWlvX2Rldl9hdHRyX3NlbnNpdGl2aXR5
+LmRldl9hdHRyLmF0dHIsDQo+KwkmaWlvX2Rldl9hdHRyX2FjdGl2YXRlLmRldl9hdHRyLmF0dHIs
+DQo+KwkvKiBVc2FnZSBzcGVjaWZpYyBhdHRyaWJ1dGVzICovDQo+KwkmaWlvX2Rldl9hdHRyX2Fj
+Y2VsX3hfb2Zmc2V0LmRldl9hdHRyLmF0dHIsDQo+KwkmaWlvX2Rldl9hdHRyX2FjY2VsX3lfb2Zm
+c2V0LmRldl9hdHRyLmF0dHIsDQo+KwkmaWlvX2Rldl9hdHRyX2FjY2VsX3pfb2Zmc2V0LmRldl9h
+dHRyLmF0dHIsDQo+KwlOVUxMLA0KPit9Ow0KPisNCj4rc3RhdGljIGNvbnN0IHN0cnVjdCBhdHRy
+aWJ1dGVfZ3JvdXAgYWNjZWxfM2RfYXR0cmlidXRlX2dyb3VwID0gew0KPisJLmF0dHJzID0gYWNj
+ZWxfM2RfYXR0cmlidXRlcywNCj4rfTsNCj4rDQo+K3N0YXRpYyBjb25zdCBzdHJ1Y3QgaWlvX2lu
+Zm8gYWNjZWxfM2RfaW5mbyA9IHsNCj4rCS5hdHRycyA9ICZhY2NlbF8zZF9hdHRyaWJ1dGVfZ3Jv
+dXAsDQo+KwkuZHJpdmVyX21vZHVsZSA9IFRISVNfTU9EVUxFLA0KPisJLnJlYWRfcmF3ID0gJmFj
+Y2VsXzNkX3JlYWRfcmF3LA0KPisJLndyaXRlX3JhdyA9ICZhY2NlbF8zZF93cml0ZV9yYXcsDQo+
+K307DQo+Kw0KPisNCj4rLyogRnVuY3Rpb24gdG8gcHVzaCBkYXRhIHRvIElJTyByaW5nICovIGlu
+dCBhY2NlbF8zZF9wcm9jX2V2ZW50KHN0cnVjdCANCj4raGlkX2RldmljZSAqaGRldiwgdW5zaWdu
+ZWQgdXNhZ2VfaWQsDQo+dm9pZCAqcHJpdikNCj4rew0KPisJc3RydWN0IGlpb19kZXYgKmluZGlv
+X2RldiA9IChzdHJ1Y3QgaWlvX2RldiAqKXByaXY7DQo+KwlzdHJ1Y3QgaGlkX3NlbnNvcl9hdHRy
+aWJ1dGVzICpzdCA9IGlpb19wcml2KGluZGlvX2Rldik7DQo+KwlzdHJ1Y3QgYWNjZWxfM2Rfc3Rh
+dGUgKmFjY2VsX3N0YXRlID0NCj4rCQkJKHN0cnVjdCBhY2NlbF8zZF9zdGF0ZSAqKXN0LT5wcml2
+YXRlOw0KPisNCj4rCWhpZF9kYmcoaGRldiwgImFjY2VsXzNkX3Byb2NfZXZlbnRcbiIpOw0KPisJ
+aWYgKHN0LT5kYXRhX3JlYWR5KQ0KPisJCWhpZF9zZW5zb3JfcHVzaF9kYXRhX3RvX3JpbmcoaW5k
+aW9fZGV2LA0KPisJCQkJKHU4ICopJmFjY2VsX3N0YXRlLT5hY2NlbF9zYW1wbGVfZGF0YSwNCj4r
+CQkJCXNpemVvZihzdHJ1Y3QgYWNjZWxfM2Rfc2FtcGxlKSk7DQo+KwllbHNlDQo+KwkJaGlkX2Ri
+ZyhoZGV2LCAiYWNjZWxfM2RfcHJvY19ldmVudCBkYXRhIG5vdCByZWFkeVxuIik7DQo+KwlyZXR1
+cm4gMDsNCj4rfQ0KPisNCj4rLyogQ2FwdHVyZSBzYW1wbGVzIGluIGxvY2FsIHN0b3JhZ2UgKi8g
+aW50IA0KPithY2NlbF8zZF9jYXB0dXJlX3NhbXBsZShzdHJ1Y3QgaGlkX2RldmljZSAqaGRldiwg
+dW5zaWduZWQNCj51c2FnZV9pZCwNCj4rCQkJCSBzaXplX3QgcmF3X2xlbiwgY2hhciAqcmF3X2Rh
+dGEsIHZvaWQgKnByaXYpIHsNCj4rCXN0cnVjdCBpaW9fZGV2ICppbmRpb19kZXYgPSAoc3RydWN0
+IGlpb19kZXYgKilwcml2Ow0KPisJc3RydWN0IGhpZF9zZW5zb3JfYXR0cmlidXRlcyAqc3QgPSBp
+aW9fcHJpdihpbmRpb19kZXYpOw0KPisJc3RydWN0IGFjY2VsXzNkX3N0YXRlICphY2NlbF9zdGF0
+ZSA9DQo+KwkJCShzdHJ1Y3QgYWNjZWxfM2Rfc3RhdGUgKilzdC0+cHJpdmF0ZTsNCj4rDQo+Kwlz
+d2l0Y2ggKHVzYWdlX2lkKSB7DQo+KwljYXNlIEhJRF9VU0FHRV9TRU5TT1JfREFUQV9NT1RJT05f
+QUNDRUxFUkFUSU9OX1hfQVhJUzoNCj4rCQlhY2NlbF9zdGF0ZS0+YWNjZWxfc2FtcGxlX2RhdGEu
+eF9zeiA9IHJhd19sZW47DQo+KwkJYWNjZWxfc3RhdGUtPmFjY2VsX3NhbXBsZV9kYXRhLmFjY2Vs
+X3ggPQ0KPisJCSoodTMyICopcmF3X2RhdGE7DQo+KwkJYnJlYWs7DQo+KwljYXNlIEhJRF9VU0FH
+RV9TRU5TT1JfREFUQV9NT1RJT05fQUNDRUxFUkFUSU9OX1lfQVhJUzoNCj4rCQlhY2NlbF9zdGF0
+ZS0+YWNjZWxfc2FtcGxlX2RhdGEueV9zeiA9IHJhd19sZW47DQo+KwkJYWNjZWxfc3RhdGUtPmFj
+Y2VsX3NhbXBsZV9kYXRhLmFjY2VsX3kgPQ0KPisJCSoodTMyICopcmF3X2RhdGE7DQo+KwkJYnJl
+YWs7DQo+KwljYXNlIEhJRF9VU0FHRV9TRU5TT1JfREFUQV9NT1RJT05fQUNDRUxFUkFUSU9OX1pf
+QVhJUzoNCj4rCQlhY2NlbF9zdGF0ZS0+YWNjZWxfc2FtcGxlX2RhdGEuel9zeiA9IHJhd19sZW47
+DQo+KwkJYWNjZWxfc3RhdGUtPmFjY2VsX3NhbXBsZV9kYXRhLmFjY2VsX3ogPQ0KPisJCSoodTMy
+ICopcmF3X2RhdGE7DQo+KwkJYnJlYWs7DQo+KwlkZWZhdWx0Og0KPisJCWJyZWFrOw0KPisJfQ0K
+PisJcmV0dXJuIDA7DQo+K30NCj4rDQo+Kw0KPisvKiBQYXJzZSByZXBvcnQgd2hpY2ggaXMgc3Bl
+Y2lmaWMgdG8gYW4gdXNhZ2UgaWQqLyBzdGF0aWMgaW50IA0KPithY2NlbF8zZF9wYXJzZV9yZXBv
+cnQoc3RydWN0IGhpZF9kZXZpY2UgKmhkZXYsIHVuc2lnbmVkDQo+dXNhZ2VfaWQsDQo+KwkJCQlz
+dHJ1Y3QgYWNjZWxfM2Rfc3RhdGUgKnN0KQ0KPit7DQo+KwlpbnQgcmV0Ow0KPisNCj4rCXJldCA9
+IHNlbnNvcl9odWJfaW5wdXRfZ2V0X2F0dHJpYnV0ZV9pbmZvKGhkZXYsIEhJRF9JTlBVVF9SRVBP
+UlQsDQo+KwkJCXVzYWdlX2lkLA0KPisJCQlISURfVVNBR0VfU0VOU09SX0RBVEFfTU9USU9OX0FD
+Q0VMRVJBVElPTl9YX0FYSVMsDQo+KwkJCSZzdC0+YWNjZWxfeCk7DQo+KwlpZiAoIXJldCkNCj4r
+CQloaWRfZGJnKGhkZXYsICJObyBBY2NlbCBYIGF0dHJpYnV0ZVxuIik7DQo+Kw0KPisNCj4rCXJl
+dCA9IHNlbnNvcl9odWJfaW5wdXRfZ2V0X2F0dHJpYnV0ZV9pbmZvKGhkZXYsIEhJRF9JTlBVVF9S
+RVBPUlQsDQo+KwkJCXVzYWdlX2lkLA0KPisJCQlISURfVVNBR0VfU0VOU09SX0RBVEFfTU9USU9O
+X0FDQ0VMRVJBVElPTl9ZX0FYSVMsDQo+KwkJCSZzdC0+YWNjZWxfeSk7DQo+KwlpZiAoIXJldCkN
+Cj4rCQloaWRfZGJnKGhkZXYsICJObyBBY2NlbCBZIGF0dHJpYnV0ZVxuIik7DQo+Kw0KPisNCj4r
+CXJldCA9IHNlbnNvcl9odWJfaW5wdXRfZ2V0X2F0dHJpYnV0ZV9pbmZvKGhkZXYsIEhJRF9JTlBV
+VF9SRVBPUlQsDQo+KwkJCXVzYWdlX2lkLA0KPisJCQlISURfVVNBR0VfU0VOU09SX0RBVEFfTU9U
+SU9OX0FDQ0VMRVJBVElPTl9aX0FYSVMsDQo+KwkJCSZzdC0+YWNjZWxfeik7DQo+KwlpZiAoIXJl
+dCkNCj4rCQloaWRfZGJnKGhkZXYsICJObyBBY2NlbCBaIGF0dHJpYnV0ZVxuIik7DQo+Kw0KPisJ
+aGlkX2RiZyhoZGV2LCAiYWNjZWxfM2QgJXg6JXgsICV4OiV4LCAleDoleFxuIiwgc3QtPmFjY2Vs
+X3guaW5kZXgsDQo+KwkJCXN0LT5hY2NlbF94LnJlcG9ydF9pZCwNCj4rCQkJc3QtPmFjY2VsX3ku
+aW5kZXgsIHN0LT5hY2NlbF95LnJlcG9ydF9pZCwNCj4rCQkJc3QtPmFjY2VsX3ouaW5kZXgsIHN0
+LT5hY2NlbF96LnJlcG9ydF9pZCk7DQo+Kw0KPisJcmV0dXJuIDA7DQo+K30NCj4rDQo+Ky8qIEVu
+dHJ5IGZ1bmN0aW9uIHRvIGluaXRpYWxpemUgdGhlIHByb2Nlc3NpbmcgZm9yIHVzYWdlIGlkICov
+IHN0YXRpYyANCj4raW50IGFjY2VsXzNkX2VudGVyKHN0cnVjdCBoaWRfZGV2aWNlICpoZGV2LCB1
+bnNpZ25lZCB1c2FnZV9pZCwNCj4rCQkJCXZvaWQgKipwcml2KQ0KPit7DQo+KwlpbnQgcmV0ID0g
+MDsNCj4rCXN0YXRpYyBjaGFyICpuYW1lID0gImFjY2VsXzNkIjsNCj4rCXN0cnVjdCBpaW9fZGV2
+ICppbmRpb19kZXY7DQo+KwlzdHJ1Y3QgYWNjZWxfM2Rfc3RhdGUgKmFjY2VsX3N0YXRlOw0KPisJ
+c3RydWN0IGhpZF9zZW5zb3JfYXR0cmlidXRlcyAqc3Q7DQo+Kw0KPisJYWNjZWxfc3RhdGUgPSBr
+emFsbG9jKHNpemVvZihzdHJ1Y3QgYWNjZWxfM2Rfc3RhdGUpLCBHRlBfS0VSTkVMKTsNCj4rCWlm
+IChhY2NlbF9zdGF0ZSA9PSBOVUxMKSB7DQo+KwkJcmV0ID0gLUVOT01FTTsNCj4rCQlnb3RvIGVy
+cm9yX3JldDsNCj4rCX0NCj4rDQo+KwlpbmRpb19kZXYgPSBpaW9fYWxsb2NhdGVfZGV2aWNlKHNp
+emVvZihzdHJ1Y3QNCj5oaWRfc2Vuc29yX2F0dHJpYnV0ZXMpKTsNCj4rCWlmIChpbmRpb19kZXYg
+PT0gTlVMTCkgew0KPisJCXJldCA9IC1FTk9NRU07DQo+KwkJZ290byBlcnJvcl9mcmVlX3N0YXRl
+Ow0KPisJfQ0KPisJc3QgPSBpaW9fcHJpdihpbmRpb19kZXYpOw0KPisJc3QtPnVzYWdlX2lkID0g
+dXNhZ2VfaWQ7DQo+KwlzdC0+aGRldiA9IGhkZXY7DQo+KwlzdC0+cHJpdmF0ZSA9ICh2b2lkICop
+YWNjZWxfc3RhdGU7DQo+Kw0KPisJcmV0ID0gaGlkX3NlbnNvcl9wYXJzZV9jb21tb25fYXR0cmli
+dXRlcyhoZGV2LCB1c2FnZV9pZCwgc3QpOw0KPisJaWYgKHJldCkgew0KPisJCWhpZF9lcnIoaGRl
+diwgImZhaWxlZCB0byBzZXR1cCBjb21tb24gYXR0cmlidXRlc1xuIik7DQo+KwkJZ290byBlcnJv
+cl9mcmVlX2RldjsNCj4rCX0NCj4rCXJldCA9IGFjY2VsXzNkX3BhcnNlX3JlcG9ydChoZGV2LCB1
+c2FnZV9pZCwgYWNjZWxfc3RhdGUpOw0KPisJaWYgKHJldCkgew0KPisJCWhpZF9lcnIoaGRldiwg
+ImZhaWxlZCB0byBzZXR1cCBhdHRyaWJ1dGVzXG4iKTsNCj4rCQlnb3RvIGVycm9yX2ZyZWVfZGV2
+Ow0KPisJfQ0KPisNCj4rCWluZGlvX2Rldi0+Y2hhbm5lbHMgPSBhY2NlbF8zZF9jaGFubmVsczsN
+Cj4rCWluZGlvX2Rldi0+bnVtX2NoYW5uZWxzID0NCj4rCQkJCUFSUkFZX1NJWkUoYWNjZWxfM2Rf
+Y2hhbm5lbHMpOw0KPisJaW5kaW9fZGV2LT5kZXYucGFyZW50ID0gJmhkZXYtPmRldjsNCj4rCWlu
+ZGlvX2Rldi0+aW5mbyA9ICZhY2NlbF8zZF9pbmZvOw0KPisJaW5kaW9fZGV2LT5uYW1lID0gbmFt
+ZTsNCj4rCWluZGlvX2Rldi0+bW9kZXMgPSBJTkRJT19ESVJFQ1RfTU9ERTsNCj4rDQo+KwlyZXQg
+PSBoaWRfc2Vuc29yX2NvbmZpZ3VyZV9yaW5nKGluZGlvX2Rldik7DQo+KwlpZiAocmV0KSB7DQo+
+KwkJaGlkX2VycihoZGV2LCAiZmFpbGVkIHRvIGluaXRpYWxpemUgdGhlIHJpbmdcbiIpOw0KPisJ
+CWdvdG8gZXJyb3JfZnJlZV9kZXY7DQo+Kwl9DQo+Kw0KPisJcmV0ID0gaWlvX2J1ZmZlcl9yZWdp
+c3RlcihpbmRpb19kZXYsDQo+KwkJCQkJYWNjZWxfM2RfY2hhbm5lbHMsDQo+KwkJCQkJQVJSQVlf
+U0laRShhY2NlbF8zZF9jaGFubmVscykpOw0KPisJaWYgKHJldCkgew0KPisJCWhpZF9lcnIoaGRl
+diwgImZhaWxlZCB0byBpbml0aWFsaXplIHRoZSByaW5nXG4iKTsNCj4rCQlnb3RvIGVycm9yX3Vu
+cmVnX3JpbmdfZnVuY3M7DQo+Kwl9DQo+KwlzdC0+ZGF0YV9yZWFkeSA9IHRydWU7DQo+KwlyZXQg
+PSBoaWRfc2Vuc29yX3NldHVwX3RyaWdnZXIoaW5kaW9fZGV2LCBuYW1lKTsNCj4rCWlmIChyZXQg
+PCAwKSB7DQo+KwkJaGlkX2VycihoZGV2LCAidHJpZ2dlciBzZXR1cCBmYWlsZWRcbiIpOw0KPisJ
+CWdvdG8gZXJyb3JfdW5pbml0X3Jpbmc7DQo+Kwl9DQo+Kw0KPisJcmV0ID0gaWlvX2RldmljZV9y
+ZWdpc3RlcihpbmRpb19kZXYpOw0KPisJaWYgKHJldCkgew0KPisJCWhpZF9lcnIoaGRldiwgImRl
+dmljZSByZWdpc3RlciBmYWlsZWRcbiIpOw0KPisJCWdvdG8gZXJyb3JfcmVtb3ZlX3RyaWdnZXI7
+DQo+Kwl9DQo+KwkqcHJpdiA9ICh2b2lkICopaW5kaW9fZGV2Ow0KPisJcmV0dXJuIHJldDsNCj4r
+DQo+K2Vycm9yX3JlbW92ZV90cmlnZ2VyOg0KPisJCWhpZF9zZW5zb3JfcmVtb3ZlX3RyaWdnZXIo
+aW5kaW9fZGV2KTsNCj4rZXJyb3JfdW5pbml0X3Jpbmc6DQo+KwkJaWlvX2J1ZmZlcl91bnJlZ2lz
+dGVyKGluZGlvX2Rldik7DQo+K2Vycm9yX3VucmVnX3JpbmdfZnVuY3M6DQo+KwkJaGlkX3NlbnNv
+cl9yaW5nX2NsZWFudXAoaW5kaW9fZGV2KTsNCj4rZXJyb3JfZnJlZV9kZXY6DQo+KwkJaWlvX2Zy
+ZWVfZGV2aWNlKGluZGlvX2Rldik7DQo+K2Vycm9yX2ZyZWVfc3RhdGU6DQo+KwkJa2ZyZWUoYWNj
+ZWxfc3RhdGUpOw0KPitlcnJvcl9yZXQ6DQo+KwkJcmV0dXJuIHJldDsNCj4rfQ0KPisNCj4rc3Rh
+dGljIGludCBhY2NlbF8zZF9leGl0KHN0cnVjdCBoaWRfZGV2aWNlICpoZGV2LCB2b2lkICpwcml2
+KSB7DQo+KwlpbnQgcmV0ID0gMDsNCj4rCXN0cnVjdCBpaW9fZGV2ICppbmRpb19kZXYgPSAoc3Ry
+dWN0IGlpb19kZXYgKilwcml2Ow0KPisJc3RydWN0IGhpZF9zZW5zb3JfYXR0cmlidXRlcyAqc3Qg
+PSBpaW9fcHJpdihpbmRpb19kZXYpOw0KPisJc3RydWN0IGFjY2VsXzNkX3N0YXRlICphY2NlbF9z
+dGF0ZSA9DQo+KwkJCShzdHJ1Y3QgYWNjZWxfM2Rfc3RhdGUgKilzdC0+cHJpdmF0ZTsNCj4rDQo+
+KwlpaW9fZGV2aWNlX3VucmVnaXN0ZXIoaW5kaW9fZGV2KTsNCj4rCWhpZF9zZW5zb3JfcmVtb3Zl
+X3RyaWdnZXIoaW5kaW9fZGV2KTsNCj4rCWlpb19idWZmZXJfdW5yZWdpc3RlcihpbmRpb19kZXYp
+Ow0KPisJaGlkX3NlbnNvcl9yaW5nX2NsZWFudXAoaW5kaW9fZGV2KTsNCj4rCWlpb19mcmVlX2Rl
+dmljZShpbmRpb19kZXYpOw0KPisNCj4rCWtmcmVlKGFjY2VsX3N0YXRlKTsNCj4rCXJldHVybiBy
+ZXQ7DQo+K30NCj4rDQo+K3N0YXRpYyBzdHJ1Y3Qgc2Vuc29yX2h1Yl9jYWxsYmFja3MgYWNjZWxf
+M2RfY2FsbGJhY2tzID0gew0KPisJLmVudGVyID0gYWNjZWxfM2RfZW50ZXIsDQo+KwkuZXhpdCA9
+IGFjY2VsXzNkX2V4aXQsDQo+Kwkuc2VuZF9ldmVudCA9IGFjY2VsXzNkX3Byb2NfZXZlbnQsDQo+
+KwkuY2FwdHVyZV9zYW1wbGUgPSBhY2NlbF8zZF9jYXB0dXJlX3NhbXBsZSwgfTsNCj4rDQo+K3N0
+cnVjdCBzZW5zb3JfaHViX2NhbGxiYWNrcyAgKmFjY2VsXzNkX3JlZ2lzdGVyX2NhbGxiYWNrcyh2
+b2lkKQ0KPit7DQo+KwlyZXR1cm4gJmFjY2VsXzNkX2NhbGxiYWNrczsNCj4rfQ0KPmRpZmYgLS1n
+aXQgYS9kcml2ZXJzL3N0YWdpbmcvaGlkLXNlbnNvcnMvaGlkLXNlbnNvci1odWIuYw0KPmIvZHJp
+dmVycy9zdGFnaW5nL2hpZC1zZW5zb3JzL2hpZC1zZW5zb3ItaHViLmMNCj5pbmRleCAzODRlMGQw
+Li41NWFlNTYyIDEwMDY0NA0KPi0tLSBhL2RyaXZlcnMvc3RhZ2luZy9oaWQtc2Vuc29ycy9oaWQt
+c2Vuc29yLWh1Yi5jDQo+KysrIGIvZHJpdmVycy9zdGFnaW5nL2hpZC1zZW5zb3JzL2hpZC1zZW5z
+b3ItaHViLmMNCj5AQCAtNjAsNiArNjAsNyBAQCBzdHJ1Y3Qgc2Vuc29yX2h1Yl9jYWxsYmFja3Nf
+bGlzdCB7ICB9Ow0KPiANCj4gc3RhdGljIHN0cnVjdCBzZW5zb3JfaHViX2NhbGxiYWNrc19saXN0
+IHVzYWdlX2NhbGxiYWNrc1tdID0gew0KPisJe0hJRF9VU0FHRV9TRU5TT1JfQUNDRUxfM0QsIGFj
+Y2VsXzNkX3JlZ2lzdGVyX2NhbGxiYWNrc30sDQo+IAl7MH0NCj4gfTsNCj4gDQo+ZGlmZiAtLWdp
+dCBhL2RyaXZlcnMvc3RhZ2luZy9oaWQtc2Vuc29ycy9oaWQtc2Vuc29yLWludGVyZmFjZS5oDQo+
+Yi9kcml2ZXJzL3N0YWdpbmcvaGlkLXNlbnNvcnMvaGlkLXNlbnNvci1pbnRlcmZhY2UuaA0KPmlu
+ZGV4IDQ3NzQ5NGYuLjNmNGZlNTcgMTAwNjQ0DQo+LS0tIGEvZHJpdmVycy9zdGFnaW5nL2hpZC1z
+ZW5zb3JzL2hpZC1zZW5zb3ItaW50ZXJmYWNlLmgNCj4rKysgYi9kcml2ZXJzL3N0YWdpbmcvaGlk
+LXNlbnNvcnMvaGlkLXNlbnNvci1pbnRlcmZhY2UuaA0KPkBAIC04NCw0ICs4NCw3IEBAIHZvaWQg
+aGlkX3NlbnNvcl9wdXNoX2RhdGFfdG9fcmluZyhzdHJ1Y3QgaWlvX2RldiANCj4qaW5kaW9fZGV2
+LCB1OCAqZGF0YSwgIGludCBoaWRfc2Vuc29yX3NldHVwX3RyaWdnZXIoc3RydWN0IGlpb19kZXYg
+DQo+KmluZGlvX2RldiwgY2hhciAqbmFtZSk7ICB2b2lkIGhpZF9zZW5zb3JfcmVtb3ZlX3RyaWdn
+ZXIoc3RydWN0IGlpb19kZXYgDQo+KmluZGlvX2Rldik7DQo+IA0KPisvKiBTZW5zb3IgdXNhZ2Ug
+aWQgcHJvY2Vzc2luZyBjYWxsYmFja3MgKi8gc3RydWN0IHNlbnNvcl9odWJfY2FsbGJhY2tzICAN
+Cj4rKmFjY2VsXzNkX3JlZ2lzdGVyX2NhbGxiYWNrcyh2b2lkKTsNCj4rDQo+ICNlbmRpZg0KPi0t
+DQo+MS43LjcuNg0KPg0KPi0tDQo+VG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQg
+dGhlIGxpbmUgInVuc3Vic2NyaWJlIGxpbnV4LWlpbyIgaW4gDQo+dGhlIGJvZHkgb2YgYSBtZXNz
+YWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5lbC5vcmcgTW9yZSBtYWpvcmRvbW8gaW5mbyANCj5h
+dCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1sDQoNCi0tDQpTZW50
+IGZyb20gbXkgQW5kcm9pZCBwaG9uZSB3aXRoIEstOSBNYWlsLiBQbGVhc2UgZXhjdXNlIG15IGJy
+ZXZpdHkuDQo=

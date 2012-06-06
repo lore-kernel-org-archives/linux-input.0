@@ -1,56 +1,60 @@
 From: srinivas pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH, 1/7] HID-Sensors: Add Intel HID sensor
-Date: Wed,  6 Jun 2012 08:39:18 -0700
-Message-ID: <1338997164-5077-2-git-send-email-srinivas.pandruvada@intel.com>
-References: <1338997164-5077-1-git-send-email-srinivas.pandruvada@intel.com>
+Subject: [PATCH, 0/7] HID Sensor Driver
+Date: Wed,  6 Jun 2012 08:39:17 -0700
+Message-ID: <1338997164-5077-1-git-send-email-srinivas.pandruvada@intel.com>
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1338997164-5077-1-git-send-email-srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srinivas pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Added Intel vendor id/product id and added in the list
-for ignoring Intel vendor id/product id for HID.
+This submits a set of patches to enable USB HID Sensor driver.
+It is implemented as a HID driver and exports sensor interface
+via Linux IIO interfaces. This implements a basic usage id processing
+for Accelerometer 3D, Gyro 3D, Magnetometer 3D and ALS.
 
-Signed-off-by: srinivas pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
----
- drivers/hid/hid-core.c |    6 ++++++
- drivers/hid/hid-ids.h  |    5 +++++
- 2 files changed, 11 insertions(+), 0 deletions(-)
+Srinivas pandruvada (5):
+  HID-Sensors: Common attributes and interfaces
+  HID-Sensors: Added accelerometer 3D
+  HID-Sensors: Added Gyro 3D
+  HID-Sensors: Added Compass 3D
+  HID-Sensors: Added ALS
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index f160aab..fad31c5 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1444,6 +1444,12 @@ static const struct hid_device_id hid_have_special_driver[] = {
-  	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6650) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK, USB_DEVICE_ID_HOLTEK_ON_LINE_GRIP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ILITEK, USB_DEVICE_ID_ILITEK_MULTITOUCH) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8086,
-+					USB_DEVICE_ID_SENSOR_HUB_1020) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
-+					USB_DEVICE_ID_SENSOR_HUB_09FA) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
-+					USB_DEVICE_ID_SENSOR_HUB_09FA) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS, USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KEYTOUCH, USB_DEVICE_ID_KEYTOUCH_IEC) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 7409750..928fe57 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -401,6 +401,11 @@
- #define USB_VENDOR_ID_IMATION		0x0718
- #define USB_DEVICE_ID_DISC_STAKKA	0xd000
- 
-+#define USB_VENDOR_ID_INTEL_8086	0x8086
-+#define USB_VENDOR_ID_INTEL_8087	0x8087
-+#define USB_DEVICE_ID_SENSOR_HUB_1020	0x1020
-+#define USB_DEVICE_ID_SENSOR_HUB_09FA	0x09FA
-+
- #define USB_VENDOR_ID_IRTOUCHSYSTEMS	0x6615
- #define USB_DEVICE_ID_IRTOUCH_INFRARED_USB	0x0070
- 
+srinivas pandruvada (2):
+  HID-Sensors: Add Intel HID sensor
+  HID-Sensors: Sensor framework
+
+ drivers/hid/hid-core.c                             |    6 +
+ drivers/hid/hid-ids.h                              |    5 +
+ drivers/staging/Kconfig                            |    2 +
+ drivers/staging/Makefile                           |    1 +
+ drivers/staging/hid-sensors/Kconfig                |   19 +
+ drivers/staging/hid-sensors/Makefile               |   16 +
+ drivers/staging/hid-sensors/hid-sensor-accel-3d.c  |  387 +++++++++++
+ drivers/staging/hid-sensors/hid-sensor-als.c       |  326 +++++++++
+ .../staging/hid-sensors/hid-sensor-attributes.c    |  203 ++++++
+ .../staging/hid-sensors/hid-sensor-attributes.h    |   67 ++
+ .../staging/hid-sensors/hid-sensor-compass-3d.c    |  385 +++++++++++
+ drivers/staging/hid-sensors/hid-sensor-gyro-3d.c   |  384 +++++++++++
+ drivers/staging/hid-sensors/hid-sensor-hub.c       |  709 ++++++++++++++++++++
+ drivers/staging/hid-sensors/hid-sensor-ids.h       |  117 ++++
+ drivers/staging/hid-sensors/hid-sensor-interface.h |   93 +++
+ drivers/staging/hid-sensors/hid-sensor-ring.c      |  104 +++
+ drivers/staging/hid-sensors/hid-sensor-trigger.c   |   81 +++
+ 17 files changed, 2905 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/staging/hid-sensors/Kconfig
+ create mode 100644 drivers/staging/hid-sensors/Makefile
+ create mode 100644 drivers/staging/hid-sensors/hid-sensor-accel-3d.c
+ create mode 100644 drivers/staging/hid-sensors/hid-sensor-als.c
+ create mode 100644 drivers/staging/hid-sensors/hid-sensor-attributes.c
+ create mode 100644 drivers/staging/hid-sensors/hid-sensor-attributes.h
+ create mode 100644 drivers/staging/hid-sensors/hid-sensor-compass-3d.c
+ create mode 100644 drivers/staging/hid-sensors/hid-sensor-gyro-3d.c
+ create mode 100644 drivers/staging/hid-sensors/hid-sensor-hub.c
+ create mode 100644 drivers/staging/hid-sensors/hid-sensor-ids.h
+ create mode 100644 drivers/staging/hid-sensors/hid-sensor-interface.h
+ create mode 100644 drivers/staging/hid-sensors/hid-sensor-ring.c
+ create mode 100644 drivers/staging/hid-sensors/hid-sensor-trigger.c
+
 -- 
 1.7.7.6

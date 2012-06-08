@@ -1,36 +1,57 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: HID Output and Feature Reports
-Date: Fri, 8 Jun 2012 10:26:32 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1206081024000.12208@pobox.suse.cz>
-References: <CAAngNMZDfgcaf+pO+Lx=c+BLYCXKWP5k4bUKhmTyiiheiUH+3A@mail.gmail.com> <CANq1E4RhVzukWTTQLykSa9aMCNuUkOk6BBKYu5jhOTHtDX8EqQ@mail.gmail.com> <CAAngNMa1EZN-U5MZ6kwMJbUs0F2v-3A3UyaSz8+v1Uy6+BMLrg@mail.gmail.com>
+Subject: Re: [PATCH 3/4] HID: roccat: Renamed roccat_common functions to
+ roccat_common2
+Date: Fri, 8 Jun 2012 10:29:24 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1206081029180.12208@pobox.suse.cz>
+References: <1337546704.19878.32.camel@neuromancer.tessier-ashpool>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57918 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:58127 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756041Ab2FHI0k (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 8 Jun 2012 04:26:40 -0400
-In-Reply-To: <CAAngNMa1EZN-U5MZ6kwMJbUs0F2v-3A3UyaSz8+v1Uy6+BMLrg@mail.gmail.com>
+	id S932177Ab2FHI3b (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 8 Jun 2012 04:29:31 -0400
+In-Reply-To: <1337546704.19878.32.camel@neuromancer.tessier-ashpool>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joao Paulo Rechi Vita <jprvita@openbossa.org>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, gregkh@linuxfoundation.org, Claudio Takahasi <claudio.takahasi@openbossa.org>, Andre Guedes <andre.guedes@openbossa.org>
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: Rob Landley <rob@landley.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 29 May 2012, Joao Paulo Rechi Vita wrote:
+On Sun, 20 May 2012, Stefan Achatz wrote:
 
-> > I think the new generic HID battery-detection code uses the
-> > feature-reports. However, its disabled by default if I remember
-> > correctly.
+> Did this to illustrate my understanding of the firmware generations:
+> Valo and Kone were 1st generation
+> Arvo was externaly developed and lies in the middle
+> All others until now are considered 2nd generation
 > 
-> I will check this out, thanks for the hint.
+> Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+> ---
+>  drivers/hid/hid-roccat-arvo.c     |   16 ++++++++--------
+>  drivers/hid/hid-roccat-common.c   |   34 +++++++++++++++++-----------------
+>  drivers/hid/hid-roccat-common.h   |   10 +++++-----
+>  drivers/hid/hid-roccat-isku.c     |    6 +++---
+>  drivers/hid/hid-roccat-koneplus.c |   24 ++++++++++++------------
+>  drivers/hid/hid-roccat-kovaplus.c |   20 ++++++++++----------
+>  drivers/hid/hid-roccat-pyra.c     |   20 ++++++++++----------
+>  drivers/hid/hid-roccat-savu.c     |    4 ++--
+>  8 files changed, 67 insertions(+), 67 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-roccat-arvo.c b/drivers/hid/hid-roccat-arvo.c
+> index 093bfad..327f9b8 100644
+> --- a/drivers/hid/hid-roccat-arvo.c
+> +++ b/drivers/hid/hid-roccat-arvo.c
+> @@ -39,7 +39,7 @@ static ssize_t arvo_sysfs_show_mode_key(struct device *dev,
+>  	int retval;
+>  
+>  	mutex_lock(&arvo->arvo_lock);
+> -	retval = roccat_common_receive(usb_dev, ARVO_COMMAND_MODE_KEY,
+> +	retval = roccat_common2_receive(usb_dev, ARVO_COMMAND_MODE_KEY,
 
-Yes, battery power level is one place where feature reports are currently 
-being used.
+Could you please give it some more descriptive name, that will clearly 
+illustrate that the differentiating factor is the firmware 
+version/generation?
 
-There are also several devices that need specific feature report to be 
-sent to them in order to be able to use them at all (initialization). 
-Magicmouse, to name another example, uses feature report to switch it 
-between singletouch and multitouch modes. Etc.
+Thanks,
 
 -- 
 Jiri Kosina

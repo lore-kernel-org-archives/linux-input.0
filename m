@@ -1,207 +1,259 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 14/16] HID: uhid: add documentation
-Date: Sun, 10 Jun 2012 15:16:26 +0200
-Message-ID: <1339334188-21766-15-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 13/16] HID: uhid: implement feature requests
+Date: Sun, 10 Jun 2012 15:16:25 +0200
+Message-ID: <1339334188-21766-14-git-send-email-dh.herrmann@googlemail.com>
 References: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:61152 "EHLO
+Received: from mail-we0-f174.google.com ([74.125.82.174]:49312 "EHLO
 	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755343Ab2FJNQx (ORCPT
+	with ESMTP id S1755325Ab2FJNQv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Jun 2012 09:16:53 -0400
-Received: by mail-we0-f174.google.com with SMTP id u7so1506983wey.19
-        for <linux-input@vger.kernel.org>; Sun, 10 Jun 2012 06:16:52 -0700 (PDT)
+	Sun, 10 Jun 2012 09:16:51 -0400
+Received: by mail-we0-f174.google.com with SMTP id u7so1506957wey.19
+        for <linux-input@vger.kernel.org>; Sun, 10 Jun 2012 06:16:50 -0700 (PDT)
 In-Reply-To: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-This describes the protocol used by uhid for user-space applications. It
-describes the details like non-blocking I/O and readv/writev for multiple
-events per syscall.
+HID standard allows sending a feature request to the device which is
+answered by an HID report. uhid implements this by sending a UHID_FEATURE
+event to user-space which then must answer with UHID_FEATURE_ANSWER. If it
+doesn't do this in a timely manner, the request is discarded silently.
+
+We serialize the feature requests, that is, there is always only a single
+active feature-request sent to user-space, other requests have to wait.
+HIDP and USB-HID do it the same way.
+
+Because we discard feature-requests silently, we must make sure to match
+a response to the corresponding request. We use sequence-IDs for this so
+user-space must copy the ID from the request into the answer.
+Feature-answers are ignored if they do not contain the same ID as the
+currently pending feature request.
+
+Internally, we must make sure that feature-requests are synchronized with
+UHID_DESTROY and close() events. We must not dead-lock when closing the
+HID device, either, so we have to use separate locks.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- Documentation/hid/uhid.txt |  169 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 169 insertions(+)
- create mode 100644 Documentation/hid/uhid.txt
+ drivers/hid/uhid.c   |  120 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ include/linux/uhid.h |   17 +++++++
+ 2 files changed, 136 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/hid/uhid.txt b/Documentation/hid/uhid.txt
-new file mode 100644
-index 0000000..4627c42
---- /dev/null
-+++ b/Documentation/hid/uhid.txt
-@@ -0,0 +1,169 @@
-+      UHID - User-space I/O driver support for HID subsystem
-+     ========================================================
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index 421c492..ea560bf 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -42,6 +42,12 @@ struct uhid_device {
+ 	__u8 head;
+ 	__u8 tail;
+ 	struct uhid_event *outq[UHID_BUFSIZE];
 +
-+The HID subsystem needs two kinds of drivers. In this document we call them:
++	struct mutex report_lock;
++	wait_queue_head_t report_wait;
++	atomic_t report_done;
++	atomic_t report_id;
++	struct uhid_event report_buf;
+ };
+ 
+ static struct miscdevice uhid_misc;
+@@ -143,7 +149,84 @@ static int uhid_hid_parse(struct hid_device *hid)
+ static int uhid_hid_get_raw(struct hid_device *hid, unsigned char rnum,
+ 			    __u8 *buf, size_t count, unsigned char rtype)
+ {
+-	return 0;
++	struct uhid_device *uhid = hid->driver_data;
++	__u8 report_type;
++	struct uhid_event *ev;
++	unsigned long flags;
++	int ret;
++	size_t len;
++	struct uhid_feature_answer_req *req;
 +
-+ 1. The "HID I/O Driver" is the driver that performs raw data I/O to the
-+    low-level device. Internally, they register an hid_ll_driver structure with
-+    the HID core. They perform device setup, read raw data from the device and
-+    push it into the HID subsystem and they provide a callback so the HID
-+    subsystem can send data to the device.
++	if (!uhid->running)
++		return -EIO;
 +
-+ 2. The "HID Device Driver" is the driver that parses HID reports and reacts on
-+    them. There are generic drivers like "generic-usb" and "generic-bluetooth"
-+    which adhere to the HID specification and provide the standardizes features.
-+    But there may be special drivers and quirks for each non-standard device out
-+    there. Internally, they use the hid_driver structure.
++	switch (rtype) {
++	case HID_FEATURE_REPORT:
++		report_type = UHID_FEATURE_REPORT;
++		break;
++	case HID_OUTPUT_REPORT:
++		report_type = UHID_OUTPUT_REPORT;
++		break;
++	case HID_INPUT_REPORT:
++		report_type = UHID_INPUT_REPORT;
++		break;
++	default:
++		return -EINVAL;
++	}
 +
-+Historically, the USB stack was the first subsystem to provide an HID I/O
-+Driver. However, other standards like Bluetooth have adopted the HID specs and
-+may provide HID I/O Drivers, too. The UHID driver allows to implement HID I/O
-+Drivers in user-space and feed the data into the kernel HID-subsystem.
++	ret = mutex_lock_interruptible(&uhid->report_lock);
++	if (ret)
++		return ret;
 +
-+This allows user-space to operate on the same level as USB-HID, Bluetooth-HID
-+and similar. It does not provide a way to write HID Device Drivers, though. Use
-+hidraw for this purpose.
++	ev = kzalloc(sizeof(*ev), GFP_KERNEL);
++	if (!ev) {
++		ret = -ENOMEM;
++		goto unlock;
++	}
 +
-+There is an example user-space application in ./samples/uhid/uhid-example.c
++	spin_lock_irqsave(&uhid->qlock, flags);
++	ev->type = UHID_FEATURE;
++	ev->u.feature.id = atomic_inc_return(&uhid->report_id);
++	ev->u.feature.rnum = rnum;
++	ev->u.feature.rtype = report_type;
 +
-+The UHID API
-+------------
++	atomic_set(&uhid->report_done, 0);
++	uhid_queue(uhid, ev);
++	spin_unlock_irqrestore(&uhid->qlock, flags);
 +
-+UHID is accessed through a character misc-device. The minor-number is allocated
-+dynamically so you need to rely on udev (or similar) to create the device node.
-+This is /dev/uhid by default.
++	ret = wait_event_interruptible_timeout(uhid->report_wait,
++				atomic_read(&uhid->report_done), 5 * HZ);
 +
-+If a new device is detected by your HID I/O Driver and you want to register this
-+device with the HID subsystem, then you need to open /dev/uhid once for each
-+device you want to register. All further communication is done by read()'ing or
-+write()'ing "struct uhid_event" objects. Non-blocking operations are supported
-+by setting O_NONBLOCK.
++	/*
++	 * Make sure "uhid->running" is cleared on shutdown before
++	 * "uhid->report_done" is set.
++	 */
++	smp_rmb();
++	if (!ret || !uhid->running) {
++		ret = -EIO;
++	} else if (ret < 0) {
++		ret = -ERESTARTSYS;
++	} else {
++		spin_lock_irqsave(&uhid->qlock, flags);
++		req = &uhid->report_buf.u.feature_answer;
 +
-+struct uhid_event {
-+        __u32 type;
-+        union {
-+                struct uhid_create_req create;
-+                struct uhid_data_req data;
-+                ...
-+        } u;
++		if (req->err) {
++			ret = -EIO;
++		} else {
++			ret = 0;
++			len = min(count,
++				min_t(size_t, req->size, UHID_DATA_MAX));
++			memcpy(buf, req->data, len);
++		}
++
++		spin_unlock_irqrestore(&uhid->qlock, flags);
++	}
++
++	atomic_set(&uhid->report_done, 1);
++
++unlock:
++	mutex_unlock(&uhid->report_lock);
++	return ret ? ret : len;
+ }
+ 
+ static int uhid_hid_output_raw(struct hid_device *hid, __u8 *buf, size_t count,
+@@ -265,7 +348,11 @@ static int uhid_dev_destroy(struct uhid_device *uhid)
+ 	if (!uhid->running)
+ 		return -EINVAL;
+ 
++	/* clear "running" before setting "report_done" */
+ 	uhid->running = false;
++	smp_wmb();
++	atomic_set(&uhid->report_done, 1);
++	wake_up_interruptible(&uhid->report_wait);
+ 
+ 	hid_destroy_device(uhid->hid);
+ 	kfree(uhid->rd_data);
+@@ -284,6 +371,31 @@ static int uhid_dev_input(struct uhid_device *uhid, struct uhid_event *ev)
+ 	return 0;
+ }
+ 
++static int uhid_dev_feature_answer(struct uhid_device *uhid,
++				   struct uhid_event *ev)
++{
++	unsigned long flags;
++
++	if (!uhid->running)
++		return -EINVAL;
++
++	spin_lock_irqsave(&uhid->qlock, flags);
++
++	/* id for old report; drop it silently */
++	if (atomic_read(&uhid->report_id) != ev->u.feature_answer.id)
++		goto unlock;
++	if (atomic_read(&uhid->report_done))
++		goto unlock;
++
++	memcpy(&uhid->report_buf, ev, sizeof(*ev));
++	atomic_set(&uhid->report_done, 1);
++	wake_up_interruptible(&uhid->report_wait);
++
++unlock:
++	spin_unlock_irqrestore(&uhid->qlock, flags);
++	return 0;
++}
++
+ static int uhid_char_open(struct inode *inode, struct file *file)
+ {
+ 	struct uhid_device *uhid;
+@@ -293,9 +405,12 @@ static int uhid_char_open(struct inode *inode, struct file *file)
+ 		return -ENOMEM;
+ 
+ 	mutex_init(&uhid->devlock);
++	mutex_init(&uhid->report_lock);
+ 	spin_lock_init(&uhid->qlock);
+ 	init_waitqueue_head(&uhid->waitq);
++	init_waitqueue_head(&uhid->report_wait);
+ 	uhid->running = false;
++	atomic_set(&uhid->report_done, 1);
+ 
+ 	file->private_data = uhid;
+ 	nonseekable_open(inode, file);
+@@ -398,6 +513,9 @@ static ssize_t uhid_char_write(struct file *file, const char __user *buffer,
+ 	case UHID_INPUT:
+ 		ret = uhid_dev_input(uhid, &uhid->input_buf);
+ 		break;
++	case UHID_FEATURE_ANSWER:
++		ret = uhid_dev_feature_answer(uhid, &uhid->input_buf);
++		break;
+ 	default:
+ 		ret = -EOPNOTSUPP;
+ 	}
+diff --git a/include/linux/uhid.h b/include/linux/uhid.h
+index 2c97255..9c6974f 100644
+--- a/include/linux/uhid.h
++++ b/include/linux/uhid.h
+@@ -32,6 +32,8 @@ enum uhid_event_type {
+ 	UHID_OUTPUT,
+ 	UHID_OUTPUT_EV,
+ 	UHID_INPUT,
++	UHID_FEATURE,
++	UHID_FEATURE_ANSWER,
+ };
+ 
+ struct uhid_create_req {
+@@ -73,6 +75,19 @@ struct uhid_output_ev_req {
+ 	__s32 value;
+ } __attribute__((__packed__));
+ 
++struct uhid_feature_req {
++	__u32 id;
++	__u8 rnum;
++	__u8 rtype;
++} __attribute__((__packed__));
++
++struct uhid_feature_answer_req {
++	__u32 id;
++	__u16 err;
++	__u16 size;
++	__u8 data[UHID_DATA_MAX];
 +};
 +
-+The "type" field contains the ID of the event. Depending on the ID different
-+payloads are sent. You must not split a single event across multiple read()'s or
-+multiple write()'s. A single event must always be sent as a whole. Furthermore,
-+only a single event can be sent per read() or write(). Pending data is ignored.
-+If you want to handle multiple events in a single syscall, then use vectored
-+I/O with readv()/writev().
-+
-+The first thing you should do is sending an UHID_CREATE event. This will
-+register the device. UHID will respond with an UHID_START event. You can now
-+start sending data to and reading data from UHID. However, unless UHID sends the
-+UHID_OPEN event, the internally attached HID Device Driver has no user attached.
-+That is, you might put your device asleep unless you receive the UHID_OPEN
-+event. If you receive the UHID_OPEN event, you should start I/O. If the last
-+user closes the HID device, you will receive an UHID_CLOSE event. This may be
-+followed by an UHID_OPEN event again and so on. There is no need to perform
-+reference-counting in user-space. That is, you will never receive multiple
-+UHID_OPEN events without an UHID_CLOSE event. The HID subsystem performs
-+ref-counting for you.
-+You may decide to ignore UHID_OPEN/UHID_CLOSE, though. I/O is allowed even
-+though the device may have no users.
-+
-+If you want to send data to the HID subsystem, you send an HID_INPUT event with
-+your raw data payload. If the kernel wants to send data to the device, you will
-+read an UHID_OUTPUT or UHID_OUTPUT_EV event.
-+
-+If your device disconnects, you should send an UHID_DESTROY event. This will
-+unregister the device. You can now send UHID_CREATE again to register a new
-+device.
-+If you close() the fd, the device is automatically unregistered and destroyed
-+internally.
-+
-+write()
-+-------
-+write() allows you to modify the state of the device and feed input data into
-+the kernel. The following types are supported: UHID_CREATE, UHID_DESTROY and
-+UHID_INPUT. The kernel will parse the event immediately and if the event ID is
-+not supported, it will return -EOPNOTSUPP. If the payload is invalid, then
-+-EINVAL is returned, otherwise, the amount of data that was read is returned and
-+the request was handled successfully.
-+
-+  UHID_CREATE:
-+  This creates the internal HID device. No I/O is possible until you send this
-+  event to the kernel. The payload is of type struct uhid_create_req and
-+  contains information about your device. You can start I/O now.
-+
-+  UHID_DESTROY:
-+  This destroys the internal HID device. No further I/O will be accepted. There
-+  may still be pending messages that you can receive with read() but no further
-+  UHID_INPUT events can be sent to the kernel.
-+  You can create a new device by sending UHID_CREATE again. There is no need to
-+  reopen the character device.
-+
-+  UHID_INPUT:
-+  You must send UHID_CREATE before sending input to the kernel! This event
-+  contains a data-payload. This is the raw data that you read from your device.
-+  The kernel will parse the HID reports and react on it.
-+
-+  UHID_FEATURE_ANSWER:
-+  If you receive a UHID_FEATURE request you must answer with this request. You
-+  must copy the "id" field from the request into the answer. Set the "err" field
-+  to 0 if no error occured or to EIO if an I/O error occurred.
-+  If "err" is 0 then you should fill the buffer of the answer with the results
-+  of the feature request and set "size" correspondingly.
-+
-+read()
-+------
-+read() will return a queued ouput report. These output reports can be of type
-+UHID_START, UHID_STOP, UHID_OPEN, UHID_CLOSE, UHID_OUTPUT or UHID_OUTPUT_EV. No
-+reaction is required to any of them but you should handle them according to your
-+needs. Only UHID_OUTPUT and UHID_OUTPUT_EV have payloads.
-+
-+  UHID_START:
-+  This is sent when the HID device is started. Consider this as an answer to
-+  UHID_CREATE. This is always the first event that is sent.
-+
-+  UHID_STOP:
-+  This is sent when the HID device is stopped. Consider this as an answer to
-+  UHID_DESTROY.
-+  If the kernel HID device driver closes the device manually (that is, you
-+  didn't send UHID_DESTROY) then you should consider this device closed and send
-+  an UHID_DESTROY event. You may want to reregister your device, though. This is
-+  always the last message that is sent to you unless you reopen the device with
-+  UHID_CREATE.
-+
-+  UHID_OPEN:
-+  This is sent when the HID device is opened. That is, the data that the HID
-+  device provides is read by some other process. You may ignore this event but
-+  it is useful for power-management. As long as you haven't received this event
-+  there is actually no other process that reads your data so there is no need to
-+  send UHID_INPUT events to the kernel.
-+
-+  UHID_CLOSE:
-+  This is sent when there are no more processes which read the HID data. It is
-+  the counterpart of UHID_OPEN and you may as well ignore this event.
-+
-+  UHID_OUTPUT:
-+  This is sent if the HID device driver wants to send raw data to the I/O
-+  device. You should read the payload and forward it to the device. The payload
-+  is of type "struct uhid_data_req".
-+  This may be received even though you haven't received UHID_OPEN, yet.
-+
-+  UHID_OUTPUT_EV:
-+  Same as UHID_OUTPUT but this contains a "struct input_event" as payload. This
-+  is called for force-feedback, LED or similar events which are received through
-+  an input device by the HID subsystem. You should convert this into raw reports
-+  and send them to your device similar to events of type UHID_OUTPUT.
-+
-+  UHID_FEATURE:
-+  This event is sent if the kernel driver wants to perform a feature request as
-+  described in the HID specs. The report-type and report-number are available in
-+  the payload.
-+  The kernel serializes feature requests so there will never be two in parallel.
-+  However, if you fail to respond with a UHID_FEATURE_ANSWER in a time-span of 5
-+  seconds, then the requests will be dropped and a new one might be sent.
-+  Therefore, the payload also contains an "id" field that identifies every
-+  request.
-+
-+Document by:
-+  David Herrmann <dh.herrmann@googlemail.com>
+ struct uhid_event {
+ 	__u32 type;
+ 
+@@ -81,6 +96,8 @@ struct uhid_event {
+ 		struct uhid_input_req input;
+ 		struct uhid_output_req output;
+ 		struct uhid_output_ev_req output_ev;
++		struct uhid_feature_req feature;
++		struct uhid_feature_answer_req feature_answer;
+ 	} u;
+ } __attribute__((__packed__));
+ 
 -- 
 1.7.10.4
 

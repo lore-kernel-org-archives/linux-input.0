@@ -1,47 +1,129 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 16/16] MAINTAINERS: add UHID entry
-Date: Sun, 10 Jun 2012 15:16:28 +0200
-Message-ID: <1339334188-21766-17-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 12/16] HID: uhid: forward raw output reports to user-space
+Date: Sun, 10 Jun 2012 15:16:24 +0200
+Message-ID: <1339334188-21766-13-git-send-email-dh.herrmann@googlemail.com>
 References: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:60560 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755439Ab2FJNQx (ORCPT
+Received: from mail-wg0-f42.google.com ([74.125.82.42]:46761 "EHLO
+	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755256Ab2FJNQu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Jun 2012 09:16:53 -0400
-Received: by mail-wi0-f172.google.com with SMTP id hj8so1970186wib.1
-        for <linux-input@vger.kernel.org>; Sun, 10 Jun 2012 06:16:52 -0700 (PDT)
+	Sun, 10 Jun 2012 09:16:50 -0400
+Received: by mail-wg0-f42.google.com with SMTP id ds11so2574811wgb.1
+        for <linux-input@vger.kernel.org>; Sun, 10 Jun 2012 06:16:49 -0700 (PDT)
 In-Reply-To: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-Add an UHID entry to the MAINTAINERS file.
+Some drivers that use non-standard HID features require raw output reports
+sent to the device. We now forward these requests directly to user-space
+so the transport-level driver can correctly send it to the device or
+handle it correspondingly.
+
+There is no way to signal back whether the transmission was successful,
+moreover, there might be lots of messages coming out from the driver
+flushing the output-queue. However, there is currently no driver that
+causes this so we are safe. If some drivers need to transmit lots of data
+this way, we need a method to synchronize this and can implement another
+UHID_OUTPUT_SYNC event.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- MAINTAINERS |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/hid/uhid.c   |   34 +++++++++++++++++++++++++++++++++-
+ include/linux/uhid.h |   14 ++++++++++++++
+ 2 files changed, 47 insertions(+), 1 deletion(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index aa067a9..4997519 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6886,6 +6886,13 @@ S:	Maintained
- F:	Documentation/filesystems/ufs.txt
- F:	fs/ufs/
- 
-+UHID USERSPACE HID IO DRIVER:
-+M:	David Herrmann <dh.herrmann@googlemail.com>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	drivers/hid/uhid.c
-+F:	include/linux/uhid.h
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index 4dd693e..421c492 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -149,7 +149,39 @@ static int uhid_hid_get_raw(struct hid_device *hid, unsigned char rnum,
+ static int uhid_hid_output_raw(struct hid_device *hid, __u8 *buf, size_t count,
+ 			       unsigned char report_type)
+ {
+-	return 0;
++	struct uhid_device *uhid = hid->driver_data;
++	__u8 rtype;
++	unsigned long flags;
++	struct uhid_event *ev;
 +
- ULTRA-WIDEBAND (UWB) SUBSYSTEM:
- L:	linux-usb@vger.kernel.org
- S:	Orphan
++	switch (report_type) {
++	case HID_FEATURE_REPORT:
++		rtype = UHID_FEATURE_REPORT;
++		break;
++	case HID_OUTPUT_REPORT:
++		rtype = UHID_OUTPUT_REPORT;
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	if (count < 1 || count > UHID_DATA_MAX)
++		return -EINVAL;
++
++	ev = kzalloc(sizeof(*ev), GFP_KERNEL);
++	if (!ev)
++		return -ENOMEM;
++
++	ev->type = UHID_OUTPUT;
++	ev->u.output.size = count;
++	ev->u.output.rtype = rtype;
++	memcpy(ev->u.output.data, buf, count);
++
++	spin_lock_irqsave(&uhid->qlock, flags);
++	uhid_queue(uhid, ev);
++	spin_unlock_irqrestore(&uhid->qlock, flags);
++
++	return count;
+ }
+ 
+ static struct hid_ll_driver uhid_hid_driver = {
+diff --git a/include/linux/uhid.h b/include/linux/uhid.h
+index 3fa4849..2c97255 100644
+--- a/include/linux/uhid.h
++++ b/include/linux/uhid.h
+@@ -29,6 +29,7 @@ enum uhid_event_type {
+ 	UHID_STOP,
+ 	UHID_OPEN,
+ 	UHID_CLOSE,
++	UHID_OUTPUT,
+ 	UHID_OUTPUT_EV,
+ 	UHID_INPUT,
+ };
+@@ -49,11 +50,23 @@ struct uhid_create_req {
+ 
+ #define UHID_DATA_MAX 4096
+ 
++enum uhid_report_type {
++	UHID_FEATURE_REPORT,
++	UHID_OUTPUT_REPORT,
++	UHID_INPUT_REPORT,
++};
++
+ struct uhid_input_req {
+ 	__u8 data[UHID_DATA_MAX];
+ 	__u16 size;
+ } __attribute__((__packed__));
+ 
++struct uhid_output_req {
++	__u8 data[UHID_DATA_MAX];
++	__u16 size;
++	__u8 rtype;
++} __attribute__((__packed__));
++
+ struct uhid_output_ev_req {
+ 	__u16 type;
+ 	__u16 code;
+@@ -66,6 +79,7 @@ struct uhid_event {
+ 	union {
+ 		struct uhid_create_req create;
+ 		struct uhid_input_req input;
++		struct uhid_output_req output;
+ 		struct uhid_output_ev_req output_ev;
+ 	} u;
+ } __attribute__((__packed__));
 -- 
 1.7.10.4
 

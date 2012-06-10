@@ -1,99 +1,83 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 07/16] HID: uhid: allow feeding input data into uhid devices
-Date: Sun, 10 Jun 2012 15:16:19 +0200
-Message-ID: <1339334188-21766-8-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 05/16] HID: uhid: implement write() on uhid devices
+Date: Sun, 10 Jun 2012 15:16:17 +0200
+Message-ID: <1339334188-21766-6-git-send-email-dh.herrmann@googlemail.com>
 References: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:49312 "EHLO
+Received: from mail-we0-f174.google.com ([74.125.82.174]:33409 "EHLO
 	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754901Ab2FJNQq (ORCPT
+	with ESMTP id S1754803Ab2FJNQp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Jun 2012 09:16:46 -0400
-Received: by mail-we0-f174.google.com with SMTP id u7so1506957wey.19
-        for <linux-input@vger.kernel.org>; Sun, 10 Jun 2012 06:16:45 -0700 (PDT)
+	Sun, 10 Jun 2012 09:16:45 -0400
+Received: by weyu7 with SMTP id u7so1506960wey.19
+        for <linux-input@vger.kernel.org>; Sun, 10 Jun 2012 06:16:44 -0700 (PDT)
 In-Reply-To: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-This adds a new event type UHID_INPUT which allows user-space to feed raw
-HID reports into the HID subsystem. We copy the data into kernel memory
-and directly feed it into the HID core.
+Similar to read() you can only write() a single event with one call to an
+uhid device. To write multiple events use writev() which is supported by
+uhid.
 
-There is no error handling of the events couldn't be parsed so user-space
-should consider all events successfull unless read() returns an error.
+We currently always return -EOPNOTSUPP but other events will be added in
+later patches.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/uhid.c   |   14 ++++++++++++++
- include/linux/uhid.h |    9 +++++++++
- 2 files changed, 23 insertions(+)
+ drivers/hid/uhid.c |   31 ++++++++++++++++++++++++++++++-
+ 1 file changed, 30 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index 61ee7cc..3d1ebda 100644
+index 9386082..31e8379 100644
 --- a/drivers/hid/uhid.c
 +++ b/drivers/hid/uhid.c
-@@ -210,6 +210,17 @@ static int uhid_dev_destroy(struct uhid_device *uhid)
- 	return 0;
- }
+@@ -30,6 +30,7 @@
+ struct uhid_device {
+ 	struct mutex devlock;
+ 	struct hid_device *hid;
++	struct uhid_event input_buf;
  
-+static int uhid_dev_input(struct uhid_device *uhid, struct uhid_event *ev)
-+{
-+	if (!uhid->running)
+ 	wait_queue_head_t waitq;
+ 	spinlock_t qlock;
+@@ -156,7 +157,35 @@ try_again:
+ static ssize_t uhid_char_write(struct file *file, const char __user *buffer,
+ 				size_t count, loff_t *ppos)
+ {
+-	return 0;
++	struct uhid_device *uhid = file->private_data;
++	int ret;
++	size_t len;
++
++	/* we need at least the "type" member of uhid_event */
++	if (count < sizeof(__u32))
 +		return -EINVAL;
 +
-+	hid_input_report(uhid->hid, HID_INPUT_REPORT, ev->u.input.data,
-+			 min_t(size_t, ev->u.input.size, UHID_DATA_MAX), 0);
++	ret = mutex_lock_interruptible(&uhid->devlock);
++	if (ret)
++		return ret;
 +
-+	return 0;
-+}
++	memset(&uhid->input_buf, 0, sizeof(uhid->input_buf));
++	len = min(count, sizeof(uhid->input_buf));
++	if (copy_from_user(&uhid->input_buf, buffer, len)) {
++		ret = -EFAULT;
++		goto unlock;
++	}
 +
- static int uhid_char_open(struct inode *inode, struct file *file)
- {
- 	struct uhid_device *uhid;
-@@ -321,6 +332,9 @@ static ssize_t uhid_char_write(struct file *file, const char __user *buffer,
- 	case UHID_DESTROY:
- 		ret = uhid_dev_destroy(uhid);
- 		break;
-+	case UHID_INPUT:
-+		ret = uhid_dev_input(uhid, &uhid->input_buf);
-+		break;
- 	default:
- 		ret = -EOPNOTSUPP;
- 	}
-diff --git a/include/linux/uhid.h b/include/linux/uhid.h
-index 8a493e6..6eb42be 100644
---- a/include/linux/uhid.h
-+++ b/include/linux/uhid.h
-@@ -25,6 +25,7 @@
- enum uhid_event_type {
- 	UHID_CREATE,
- 	UHID_DESTROY,
-+	UHID_INPUT,
- };
- 
- struct uhid_create_req {
-@@ -41,11 +42,19 @@ struct uhid_create_req {
- 	__u32 country;
- } __attribute__((__packed__));
- 
-+#define UHID_DATA_MAX 4096
++	switch (uhid->input_buf.type) {
++	default:
++		ret = -EOPNOTSUPP;
++	}
 +
-+struct uhid_input_req {
-+	__u8 data[UHID_DATA_MAX];
-+	__u16 size;
-+} __attribute__((__packed__));
++unlock:
++	mutex_unlock(&uhid->devlock);
 +
- struct uhid_event {
- 	__u32 type;
++	/* return "count" not "len" to not confuse the caller */
++	return ret ? ret : count;
+ }
  
- 	union {
- 		struct uhid_create_req create;
-+		struct uhid_input_req input;
- 	} u;
- } __attribute__((__packed__));
- 
+ static unsigned int uhid_char_poll(struct file *file, poll_table *wait)
 -- 
 1.7.10.4
 

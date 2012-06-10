@@ -1,223 +1,185 @@
-From: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
-Subject: [PATCH] input: gpio_keys_polled: convert to dt
-Date: Sun, 10 Jun 2012 03:02:58 -0300
-Message-ID: <1339308178-10807-1-git-send-email-aletes.xgr@gmail.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: [PATCH 02/16] HID: uhid: add internal message buffer
+Date: Sun, 10 Jun 2012 15:16:14 +0200
+Message-ID: <1339334188-21766-3-git-send-email-dh.herrmann@googlemail.com>
+References: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gh0-f174.google.com ([209.85.160.174]:34055 "EHLO
-	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750852Ab2FJGDb (ORCPT
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:49372 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754421Ab2FJNQm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Jun 2012 02:03:31 -0400
+	Sun, 10 Jun 2012 09:16:42 -0400
+Received: by wgbdr13 with SMTP id dr13so2307598wgb.1
+        for <linux-input@vger.kernel.org>; Sun, 10 Jun 2012 06:16:41 -0700 (PDT)
+In-Reply-To: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Alexandre Pereira da Silva <aletes.xgr@gmail.com>, JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-Add device tree support to gpio_keys_polled.c
+When receiving messages from the HID subsystem, we need to process them
+and store them in an internal buffer so user-space can read() on the char
+device to retrieve the messages.
 
-Signed-off-by: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
+This adds a static buffer for 32 messages to each uhid device. Each
+message is dynamically allocated so the uhid_device structure does not get
+too big.
+
+uhid_queue() adds a message to the buffer. If the buffer is full, the
+message is discarded. uhid_queue_event() is an helper for messages without
+payload.
+
+This also adds a public header: uhid.h. It contains the declarations for
+the user-space API. It is built around "struct uhid_event" which contains
+a type field which specifies the event type and each event can then add a
+variable-length payload. For now, there is only a dummy event but later
+patches will add new event types and payloads.
+
+Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/input/keyboard/gpio_keys_polled.c |  121 +++++++++++++++++++++++++++--
- 1 file changed, 113 insertions(+), 8 deletions(-)
+ drivers/hid/uhid.c   |   65 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/Kbuild |    1 +
+ include/linux/uhid.h |   33 +++++++++++++++++++++++++
+ 3 files changed, 99 insertions(+)
+ create mode 100644 include/linux/uhid.h
 
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index 20c8ab1..a64b361 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -25,6 +25,8 @@
- #include <linux/platform_device.h>
- #include <linux/gpio.h>
- #include <linux/gpio_keys.h>
-+#include <linux/of_platform.h>
-+#include <linux/of_gpio.h>
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index 5b02d6c..05ef4b0 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -25,16 +25,81 @@
+ #include <linux/wait.h>
  
- #define DRV_NAME	"gpio-keys-polled"
+ #define UHID_NAME	"uhid"
++#define UHID_BUFSIZE	32
++
++struct uhid_device {
++	struct hid_device *hid;
++
++	wait_queue_head_t waitq;
++	spinlock_t qlock;
++	__u8 head;
++	__u8 tail;
++	struct uhid_event *outq[UHID_BUFSIZE];
++};
  
-@@ -38,7 +40,7 @@ struct gpio_keys_button_data {
- struct gpio_keys_polled_dev {
- 	struct input_polled_dev *poll_dev;
- 	struct device *dev;
--	struct gpio_keys_platform_data *pdata;
-+	struct gpio_keys_platform_data pdata;
- 	struct gpio_keys_button_data data[0];
- };
+ static struct miscdevice uhid_misc;
  
-@@ -67,11 +69,11 @@ static void gpio_keys_polled_check_state(struct input_dev *input,
- static void gpio_keys_polled_poll(struct input_polled_dev *dev)
- {
- 	struct gpio_keys_polled_dev *bdev = dev->private;
--	struct gpio_keys_platform_data *pdata = bdev->pdata;
-+	struct gpio_keys_platform_data *pdata = &bdev->pdata;
- 	struct input_dev *input = dev->input;
- 	int i;
- 
--	for (i = 0; i < bdev->pdata->nbuttons; i++) {
-+	for (i = 0; i < pdata->nbuttons; i++) {
- 		struct gpio_keys_button_data *bdata = &bdev->data[i];
- 
- 		if (bdata->count < bdata->threshold)
-@@ -85,7 +87,7 @@ static void gpio_keys_polled_poll(struct input_polled_dev *dev)
- static void gpio_keys_polled_open(struct input_polled_dev *dev)
- {
- 	struct gpio_keys_polled_dev *bdev = dev->private;
--	struct gpio_keys_platform_data *pdata = bdev->pdata;
-+	struct gpio_keys_platform_data *pdata = &bdev->pdata;
- 
- 	if (pdata->enable)
- 		pdata->enable(bdev->dev);
-@@ -94,23 +96,125 @@ static void gpio_keys_polled_open(struct input_polled_dev *dev)
- static void gpio_keys_polled_close(struct input_polled_dev *dev)
- {
- 	struct gpio_keys_polled_dev *bdev = dev->private;
--	struct gpio_keys_platform_data *pdata = bdev->pdata;
-+	struct gpio_keys_platform_data *pdata = &bdev->pdata;
- 
- 	if (pdata->disable)
- 		pdata->disable(bdev->dev);
- }
-+#ifdef CONFIG_OF
-+static int gpio_keys_polled_get_devtree_pdata(struct device *dev,
-+			    struct gpio_keys_platform_data *pdata)
++static void uhid_queue(struct uhid_device *uhid, struct uhid_event *ev)
 +{
-+	struct device_node *node, *pp;
-+	int i;
-+	struct gpio_keys_button *buttons;
-+	u32 reg;
++	__u8 newhead;
 +
-+	node = dev->of_node;
-+	if (node == NULL)
-+		return -ENODEV;
++	newhead = (uhid->head + 1) % UHID_BUFSIZE;
 +
-+	memset(pdata, 0, sizeof *pdata);
++	if (newhead != uhid->tail) {
++		uhid->outq[uhid->head] = ev;
++		uhid->head = newhead;
++		wake_up_interruptible(&uhid->waitq);
++	} else {
++		hid_warn(uhid->hid, "Output queue is full\n");
++		kfree(ev);
++	}
++}
 +
-+	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
++static int uhid_queue_event(struct uhid_device *uhid, __u32 event)
++{
++	unsigned long flags;
++	struct uhid_event *ev;
 +
-+	if (of_property_read_u32(node, "poll-interval", &reg) == 0)
-+		pdata->poll_interval = reg;
-+
-+	/* First count the subnodes */
-+	pdata->nbuttons = 0;
-+	pp = NULL;
-+	while ((pp = of_get_next_child(node, pp)))
-+		pdata->nbuttons++;
-+
-+	if (pdata->nbuttons == 0)
-+		return -ENODEV;
-+
-+	buttons = kzalloc(pdata->nbuttons * (sizeof *buttons), GFP_KERNEL);
-+	if (!buttons)
++	ev = kzalloc(sizeof(*ev), GFP_KERNEL);
++	if (!ev)
 +		return -ENOMEM;
 +
-+	pp = NULL;
-+	i = 0;
-+	while ((pp = of_get_next_child(node, pp))) {
-+		enum of_gpio_flags flags;
++	ev->type = event;
 +
-+		if (!of_find_property(pp, "gpios", NULL)) {
-+			pdata->nbuttons--;
-+			dev_warn(dev, "Found button without gpios\n");
-+			continue;
-+		}
-+		buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
-+		buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
-+
-+		if (of_property_read_u32(pp, "linux,code", &reg)) {
-+			dev_err(dev, "Button without keycode: 0x%x\n", buttons[i].gpio);
-+			goto out_fail;
-+		}
-+		buttons[i].code = reg;
-+
-+		buttons[i].desc = of_get_property(pp, "label", NULL);
-+
-+		if (of_property_read_u32(pp, "linux,input-type", &reg) == 0)
-+			buttons[i].type = reg;
-+		else
-+			buttons[i].type = EV_KEY;
-+
-+		buttons[i].wakeup = !!of_get_property(pp, "gpio-key,wakeup", NULL);
-+
-+		if (of_property_read_u32(pp, "debounce-interval", &reg) == 0)
-+			buttons[i].debounce_interval = reg;
-+		else
-+			buttons[i].debounce_interval = 5;
-+
-+		i++;
-+	}
-+
-+	pdata->buttons = buttons;
++	spin_lock_irqsave(&uhid->qlock, flags);
++	uhid_queue(uhid, ev);
++	spin_unlock_irqrestore(&uhid->qlock, flags);
 +
 +	return 0;
-+
-+out_fail:
-+	kfree(buttons);
-+	return -ENODEV;
 +}
 +
-+static struct of_device_id gpio_keys_polled_of_match[] = {
-+	{ .compatible = "gpio-keys-polled", },
-+	{ },
+ static int uhid_char_open(struct inode *inode, struct file *file)
+ {
++	struct uhid_device *uhid;
++
++	uhid = kzalloc(sizeof(*uhid), GFP_KERNEL);
++	if (!uhid)
++		return -ENOMEM;
++
++	spin_lock_init(&uhid->qlock);
++	init_waitqueue_head(&uhid->waitq);
++
++	file->private_data = uhid;
++	nonseekable_open(inode, file);
++
+ 	return 0;
+ }
+ 
+ static int uhid_char_release(struct inode *inode, struct file *file)
+ {
++	struct uhid_device *uhid = file->private_data;
++	unsigned int i;
++
++	for (i = 0; i < UHID_BUFSIZE; ++i)
++		kfree(uhid->outq[i]);
++
++	kfree(uhid);
++
+ 	return 0;
+ }
+ 
+diff --git a/include/linux/Kbuild b/include/linux/Kbuild
+index 3973783..8cdabec 100644
+--- a/include/linux/Kbuild
++++ b/include/linux/Kbuild
+@@ -373,6 +373,7 @@ header-y += tty.h
+ header-y += types.h
+ header-y += udf_fs_i.h
+ header-y += udp.h
++header-y += uhid.h
+ header-y += uinput.h
+ header-y += uio.h
+ header-y += ultrasound.h
+diff --git a/include/linux/uhid.h b/include/linux/uhid.h
+new file mode 100644
+index 0000000..16b786a
+--- /dev/null
++++ b/include/linux/uhid.h
+@@ -0,0 +1,33 @@
++#ifndef __UHID_H_
++#define __UHID_H_
++
++/*
++ * User-space I/O driver support for HID subsystem
++ * Copyright (c) 2012 David Herrmann
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++/*
++ * Public header for user-space communication. We try to keep every structure
++ * aligned but to be safe we also use __attribute__((__packed__)). Therefore,
++ * the communication should be ABI compatible even between architectures.
++ */
++
++#include <linux/input.h>
++#include <linux/types.h>
++
++enum uhid_event_type {
++	UHID_DUMMY,
 +};
-+MODULE_DEVICE_TABLE(of, gpio_keys_polled_of_match);
-+#else
 +
-+static int gpio_keys_polled_get_devtree_pdata(struct device *dev,
-+			    struct gpio_keys_platform_data *altp)
-+{
-+	return -ENODEV;
-+}
++struct uhid_event {
++	__u32 type;
++} __attribute__((__packed__));
 +
-+#define gpio_keys_polled_of_match NULL
-+
-+#endif
- 
- static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
- {
- 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
- 	struct device *dev = &pdev->dev;
-+	struct gpio_keys_platform_data alt_pdata;
- 	struct gpio_keys_polled_dev *bdev;
- 	struct input_polled_dev *poll_dev;
- 	struct input_dev *input;
- 	int error;
- 	int i;
- 
--	if (!pdata || !pdata->poll_interval)
-+	if (!pdata) {
-+	    error = gpio_keys_polled_get_devtree_pdata(dev, &alt_pdata);
-+		if (error)
-+			return error;
-+		pdata = &alt_pdata;
-+	}
-+
-+	if (!pdata->poll_interval)
- 		return -EINVAL;
- 
- 	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
-@@ -184,7 +288,7 @@ static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 	bdev->poll_dev = poll_dev;
- 	bdev->dev = dev;
--	bdev->pdata = pdata;
-+	bdev->pdata = *pdata;
- 	platform_set_drvdata(pdev, bdev);
- 
- 	error = input_register_polled_device(poll_dev);
-@@ -217,7 +321,7 @@ err_free_bdev:
- static int __devexit gpio_keys_polled_remove(struct platform_device *pdev)
- {
- 	struct gpio_keys_polled_dev *bdev = platform_get_drvdata(pdev);
--	struct gpio_keys_platform_data *pdata = bdev->pdata;
-+	struct gpio_keys_platform_data *pdata = &bdev->pdata;
- 	int i;
- 
- 	input_unregister_polled_device(bdev->poll_dev);
-@@ -239,6 +343,7 @@ static struct platform_driver gpio_keys_polled_driver = {
- 	.driver	= {
- 		.name	= DRV_NAME,
- 		.owner	= THIS_MODULE,
-+		.of_match_table = gpio_keys_polled_of_match,
- 	},
- };
- module_platform_driver(gpio_keys_polled_driver);
++#endif /* __UHID_H_ */
 -- 
-1.7.10
+1.7.10.4
 

@@ -1,185 +1,110 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 02/16] HID: uhid: add internal message buffer
-Date: Sun, 10 Jun 2012 15:16:14 +0200
-Message-ID: <1339334188-21766-3-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 04/16] HID: uhid: implement read() on uhid devices
+Date: Sun, 10 Jun 2012 15:16:16 +0200
+Message-ID: <1339334188-21766-5-git-send-email-dh.herrmann@googlemail.com>
 References: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:49372 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754421Ab2FJNQm (ORCPT
+Received: from mail-we0-f174.google.com ([74.125.82.174]:49312 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754796Ab2FJNQo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Jun 2012 09:16:42 -0400
-Received: by wgbdr13 with SMTP id dr13so2307598wgb.1
-        for <linux-input@vger.kernel.org>; Sun, 10 Jun 2012 06:16:41 -0700 (PDT)
+	Sun, 10 Jun 2012 09:16:44 -0400
+Received: by weyu7 with SMTP id u7so1506957wey.19
+        for <linux-input@vger.kernel.org>; Sun, 10 Jun 2012 06:16:43 -0700 (PDT)
 In-Reply-To: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-When receiving messages from the HID subsystem, we need to process them
-and store them in an internal buffer so user-space can read() on the char
-device to retrieve the messages.
+User-space can use read() to get a single event from uhid devices. read()
+does never return multiple events. This allows us to extend the event
+structure and still keep backwards compatibility.
 
-This adds a static buffer for 32 messages to each uhid device. Each
-message is dynamically allocated so the uhid_device structure does not get
-too big.
+If user-space wants to get multiple events in one syscall, they should use
+the readv()/writev() syscalls which are supported by uhid.
 
-uhid_queue() adds a message to the buffer. If the buffer is full, the
-message is discarded. uhid_queue_event() is an helper for messages without
-payload.
-
-This also adds a public header: uhid.h. It contains the declarations for
-the user-space API. It is built around "struct uhid_event" which contains
-a type field which specifies the event type and each event can then add a
-variable-length payload. For now, there is only a dummy event but later
-patches will add new event types and payloads.
+This introduces a new lock which helps us synchronizing simultaneous reads
+from user-space. We also correctly return -EINVAL/-EFAULT only on errors
+and retry the read() when some other thread captured the event faster than
+we did.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/uhid.c   |   65 ++++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/Kbuild |    1 +
- include/linux/uhid.h |   33 +++++++++++++++++++++++++
- 3 files changed, 99 insertions(+)
- create mode 100644 include/linux/uhid.h
+ drivers/hid/uhid.c |   46 +++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 45 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index 5b02d6c..05ef4b0 100644
+index b1a477f..9386082 100644
 --- a/drivers/hid/uhid.c
 +++ b/drivers/hid/uhid.c
-@@ -25,16 +25,81 @@
- #include <linux/wait.h>
+@@ -28,6 +28,7 @@
+ #define UHID_BUFSIZE	32
  
- #define UHID_NAME	"uhid"
-+#define UHID_BUFSIZE	32
-+
-+struct uhid_device {
-+	struct hid_device *hid;
-+
-+	wait_queue_head_t waitq;
-+	spinlock_t qlock;
-+	__u8 head;
-+	__u8 tail;
-+	struct uhid_event *outq[UHID_BUFSIZE];
-+};
+ struct uhid_device {
++	struct mutex devlock;
+ 	struct hid_device *hid;
  
- static struct miscdevice uhid_misc;
+ 	wait_queue_head_t waitq;
+@@ -81,6 +82,7 @@ static int uhid_char_open(struct inode *inode, struct file *file)
+ 	if (!uhid)
+ 		return -ENOMEM;
  
-+static void uhid_queue(struct uhid_device *uhid, struct uhid_event *ev)
-+{
-+	__u8 newhead;
-+
-+	newhead = (uhid->head + 1) % UHID_BUFSIZE;
-+
-+	if (newhead != uhid->tail) {
-+		uhid->outq[uhid->head] = ev;
-+		uhid->head = newhead;
-+		wake_up_interruptible(&uhid->waitq);
-+	} else {
-+		hid_warn(uhid->hid, "Output queue is full\n");
-+		kfree(ev);
-+	}
-+}
-+
-+static int uhid_queue_event(struct uhid_device *uhid, __u32 event)
-+{
-+	unsigned long flags;
-+	struct uhid_event *ev;
-+
-+	ev = kzalloc(sizeof(*ev), GFP_KERNEL);
-+	if (!ev)
-+		return -ENOMEM;
-+
-+	ev->type = event;
-+
-+	spin_lock_irqsave(&uhid->qlock, flags);
-+	uhid_queue(uhid, ev);
-+	spin_unlock_irqrestore(&uhid->qlock, flags);
-+
-+	return 0;
-+}
-+
- static int uhid_char_open(struct inode *inode, struct file *file)
++	mutex_init(&uhid->devlock);
+ 	spin_lock_init(&uhid->qlock);
+ 	init_waitqueue_head(&uhid->waitq);
+ 
+@@ -106,7 +108,49 @@ static int uhid_char_release(struct inode *inode, struct file *file)
+ static ssize_t uhid_char_read(struct file *file, char __user *buffer,
+ 				size_t count, loff_t *ppos)
  {
-+	struct uhid_device *uhid;
-+
-+	uhid = kzalloc(sizeof(*uhid), GFP_KERNEL);
-+	if (!uhid)
-+		return -ENOMEM;
-+
-+	spin_lock_init(&uhid->qlock);
-+	init_waitqueue_head(&uhid->waitq);
-+
-+	file->private_data = uhid;
-+	nonseekable_open(inode, file);
-+
- 	return 0;
- }
- 
- static int uhid_char_release(struct inode *inode, struct file *file)
- {
+-	return 0;
 +	struct uhid_device *uhid = file->private_data;
-+	unsigned int i;
++	int ret;
++	unsigned long flags;
++	size_t len;
 +
-+	for (i = 0; i < UHID_BUFSIZE; ++i)
-+		kfree(uhid->outq[i]);
++	/* they need at least the "type" member of uhid_event */
++	if (count < sizeof(__u32))
++		return -EINVAL;
 +
-+	kfree(uhid);
++try_again:
++	if (file->f_flags & O_NONBLOCK) {
++		if (uhid->head == uhid->tail)
++			return -EAGAIN;
++	} else {
++		ret = wait_event_interruptible(uhid->waitq,
++						uhid->head != uhid->tail);
++		if (ret)
++			return ret;
++	}
 +
- 	return 0;
++	ret = mutex_lock_interruptible(&uhid->devlock);
++	if (ret)
++		return ret;
++
++	if (uhid->head == uhid->tail) {
++		mutex_unlock(&uhid->devlock);
++		goto try_again;
++	} else {
++		len = min(count, sizeof(**uhid->outq));
++		if (copy_to_user(buffer, &uhid->outq[uhid->tail], len)) {
++			ret = -EFAULT;
++		} else {
++			kfree(uhid->outq[uhid->tail]);
++			uhid->outq[uhid->tail] = NULL;
++
++			spin_lock_irqsave(&uhid->qlock, flags);
++			uhid->tail = (uhid->tail + 1) % UHID_BUFSIZE;
++			spin_unlock_irqrestore(&uhid->qlock, flags);
++		}
++	}
++
++	mutex_unlock(&uhid->devlock);
++	return ret ? ret : len;
  }
  
-diff --git a/include/linux/Kbuild b/include/linux/Kbuild
-index 3973783..8cdabec 100644
---- a/include/linux/Kbuild
-+++ b/include/linux/Kbuild
-@@ -373,6 +373,7 @@ header-y += tty.h
- header-y += types.h
- header-y += udf_fs_i.h
- header-y += udp.h
-+header-y += uhid.h
- header-y += uinput.h
- header-y += uio.h
- header-y += ultrasound.h
-diff --git a/include/linux/uhid.h b/include/linux/uhid.h
-new file mode 100644
-index 0000000..16b786a
---- /dev/null
-+++ b/include/linux/uhid.h
-@@ -0,0 +1,33 @@
-+#ifndef __UHID_H_
-+#define __UHID_H_
-+
-+/*
-+ * User-space I/O driver support for HID subsystem
-+ * Copyright (c) 2012 David Herrmann
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+/*
-+ * Public header for user-space communication. We try to keep every structure
-+ * aligned but to be safe we also use __attribute__((__packed__)). Therefore,
-+ * the communication should be ABI compatible even between architectures.
-+ */
-+
-+#include <linux/input.h>
-+#include <linux/types.h>
-+
-+enum uhid_event_type {
-+	UHID_DUMMY,
-+};
-+
-+struct uhid_event {
-+	__u32 type;
-+} __attribute__((__packed__));
-+
-+#endif /* __UHID_H_ */
+ static ssize_t uhid_char_write(struct file *file, const char __user *buffer,
 -- 
 1.7.10.4
 

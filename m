@@ -1,141 +1,223 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH] Input: synaptics - reject out of range position values
-Date: Sat, 9 Jun 2012 14:43:18 +0800
-Message-ID: <CAGS+omAoDG4rXj+X2Xmve4AvgpCGgREL3gxcY5D8bX8Sqm5P1A@mail.gmail.com>
-References: <1337353224-12333-1-git-send-email-seth.forshee@canonical.com>
- <20120606153538.GC23884@thinkpad-t410> <CAGS+omBQ0PLvjRFVWrSSm1v3fegO5V968s7kLT3hGj3+Bhoebg@mail.gmail.com>
- <20120607195658.GB15138@thinkpad-t410> <20120608165313.GA27117@thinkpad-t410>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
+Subject: [PATCH] input: gpio_keys_polled: convert to dt
+Date: Sun, 10 Jun 2012 03:02:58 -0300
+Message-ID: <1339308178-10807-1-git-send-email-aletes.xgr@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f174.google.com ([209.85.216.174]:44394 "EHLO
-	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751176Ab2FIGnj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Jun 2012 02:43:39 -0400
-Received: by qcro28 with SMTP id o28so1201246qcr.19
-        for <linux-input@vger.kernel.org>; Fri, 08 Jun 2012 23:43:38 -0700 (PDT)
-In-Reply-To: <20120608165313.GA27117@thinkpad-t410>
+Received: from mail-gh0-f174.google.com ([209.85.160.174]:34055 "EHLO
+	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750852Ab2FJGDb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 10 Jun 2012 02:03:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Alexandre Pereira da Silva <aletes.xgr@gmail.com>, JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
 
-On Sat, Jun 9, 2012 at 12:53 AM, Seth Forshee
-<seth.forshee@canonical.com> wrote:
->
-> On Thu, Jun 07, 2012 at 02:56:58PM -0500, Seth Forshee wrote:
-> > > Or, alternatively, we could actually report negative values to
-> > > userspace in this case:
-> > >
-> > > y =3D (y <=3D 6143) ? y : (y - 8192);
-> >
-> > Well, they won't be negative anymore when userspace sees them ;)
-> >
-> > But yeah, either of these should work. I don't feel like it's neces=
-sary
-> > since this is apparently a one-off problem on aging hardware, and s=
-ince
-> > Windows also doesn't seem to be using the portion of the touchpad
-> > reporting the out of range values (although humorously I can get th=
-e
-> > pointer to jump sometimes under Windows too). Between the two
-> > implementations you suggest I'd feel more comfortable with the latt=
-er,
-> > as it should leave the values reported unchanged for other hardware=
-=2E
-> >
-> > I do have one question I'd still like to clear up. Am I correct in
-> > interpreting the Synaptics documentation to say that the touchpads
-> > should never report values greater than 6143, even for models that
-> > report the maximum possible x/y values? That's what I think it's sa=
-ying,
-> > but I also feel like there's a little ambiguity on the point. Espec=
-ially
-> > since I'm already seeing values outside of the documented range :)
->
-> The following is working fine for me, if you think this would be
-> preferable. The only downside I see is that if there are touchpads ou=
-t
-> there that exceed 6143 then this is likely to cause them to start
-> behaving oddly.
->
->
-> From 2664e38cbebe7e9de652d22d9bc408dd210e6c0b Mon Sep 17 00:00:00 200=
-1
-> From: Seth Forshee <seth.forshee@canonical.com>
-> Date: Fri, 8 Jun 2012 10:19:39 -0500
-> Subject: [PATCH] Input: synaptics - handle negative values on the y a=
-xis
->
-> The touchpad on the Acer Aspire One D250 will report out of range val=
-ues
-> in the extreme lower portion of the touchpad. These appear as abrupt
-> changes in the values reported by the hardware from very low values t=
-o
-> very high values, which can cause unexpected vertical jumps in the
-> position of the mouse pointer.
->
-> What seems to be happening is that the value is wrapping to a negativ=
-e
-> 13-bit value, which is being truncated to the 12-bit range reported i=
-n
-> the touchpad packets. In order to deal with this, convert values outs=
-ide
-> the maximum y axis value specified by synaptics to the appropriate
-> negative value.
->
-> BugLink: http://bugs.launchpad.net/bugs/1001251
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+Add device tree support to gpio_keys_polled.c
 
-Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
+Signed-off-by: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
+---
+ drivers/input/keyboard/gpio_keys_polled.c |  121 +++++++++++++++++++++++++++--
+ 1 file changed, 113 insertions(+), 8 deletions(-)
 
-> ---
-> =A0drivers/input/mouse/synaptics.c | =A0 10 ++++++++++
-> =A01 file changed, 10 insertions(+)
->
-> diff --git a/drivers/input/mouse/synaptics.c
-> b/drivers/input/mouse/synaptics.c
-> index e07eb9b..7dc1bd5 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -40,6 +40,7 @@
-> =A0* Note that newer firmware allows querying device for maximum usea=
-ble
-> =A0* coordinates.
-> =A0*/
-> +#define YMAX 6143
-> =A0#define XMIN_NOMINAL 1472
-> =A0#define XMAX_NOMINAL 5472
-> =A0#define YMIN_NOMINAL 1408
-> @@ -555,6 +556,15 @@ static int synaptics_parse_hw_state(const unsign=
-ed
-> char buf[],
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0hw->right =3D (buf[0] & 0x02) ? 1 : 0;
-> =A0 =A0 =A0 =A0}
->
-> + =A0 =A0 =A0 /*
-> + =A0 =A0 =A0 =A0* Some Synaptics touchpads have been known to wrap n=
-egative
-> + =A0 =A0 =A0 =A0* on the y axis. These appear to be a 13-bit negativ=
-e numbers
-> + =A0 =A0 =A0 =A0* truncated to a 12-bit value. To work around this, =
-treat any
-> + =A0 =A0 =A0 =A0* value above the upper limit defined by Synaptics a=
-s actually
-> + =A0 =A0 =A0 =A0* being a negative 13-bit value.
-> + =A0 =A0 =A0 =A0*/
-> + =A0 =A0 =A0 hw->y =3D (hw->y <=3D YMAX) ? hw->y : (hw->y - 8192);
-> +
-> =A0 =A0 =A0 =A0return 0;
-> =A0}
->
-> --
-> 1.7.9.5
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index 20c8ab1..a64b361 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -25,6 +25,8 @@
+ #include <linux/platform_device.h>
+ #include <linux/gpio.h>
+ #include <linux/gpio_keys.h>
++#include <linux/of_platform.h>
++#include <linux/of_gpio.h>
+ 
+ #define DRV_NAME	"gpio-keys-polled"
+ 
+@@ -38,7 +40,7 @@ struct gpio_keys_button_data {
+ struct gpio_keys_polled_dev {
+ 	struct input_polled_dev *poll_dev;
+ 	struct device *dev;
+-	struct gpio_keys_platform_data *pdata;
++	struct gpio_keys_platform_data pdata;
+ 	struct gpio_keys_button_data data[0];
+ };
+ 
+@@ -67,11 +69,11 @@ static void gpio_keys_polled_check_state(struct input_dev *input,
+ static void gpio_keys_polled_poll(struct input_polled_dev *dev)
+ {
+ 	struct gpio_keys_polled_dev *bdev = dev->private;
+-	struct gpio_keys_platform_data *pdata = bdev->pdata;
++	struct gpio_keys_platform_data *pdata = &bdev->pdata;
+ 	struct input_dev *input = dev->input;
+ 	int i;
+ 
+-	for (i = 0; i < bdev->pdata->nbuttons; i++) {
++	for (i = 0; i < pdata->nbuttons; i++) {
+ 		struct gpio_keys_button_data *bdata = &bdev->data[i];
+ 
+ 		if (bdata->count < bdata->threshold)
+@@ -85,7 +87,7 @@ static void gpio_keys_polled_poll(struct input_polled_dev *dev)
+ static void gpio_keys_polled_open(struct input_polled_dev *dev)
+ {
+ 	struct gpio_keys_polled_dev *bdev = dev->private;
+-	struct gpio_keys_platform_data *pdata = bdev->pdata;
++	struct gpio_keys_platform_data *pdata = &bdev->pdata;
+ 
+ 	if (pdata->enable)
+ 		pdata->enable(bdev->dev);
+@@ -94,23 +96,125 @@ static void gpio_keys_polled_open(struct input_polled_dev *dev)
+ static void gpio_keys_polled_close(struct input_polled_dev *dev)
+ {
+ 	struct gpio_keys_polled_dev *bdev = dev->private;
+-	struct gpio_keys_platform_data *pdata = bdev->pdata;
++	struct gpio_keys_platform_data *pdata = &bdev->pdata;
+ 
+ 	if (pdata->disable)
+ 		pdata->disable(bdev->dev);
+ }
++#ifdef CONFIG_OF
++static int gpio_keys_polled_get_devtree_pdata(struct device *dev,
++			    struct gpio_keys_platform_data *pdata)
++{
++	struct device_node *node, *pp;
++	int i;
++	struct gpio_keys_button *buttons;
++	u32 reg;
++
++	node = dev->of_node;
++	if (node == NULL)
++		return -ENODEV;
++
++	memset(pdata, 0, sizeof *pdata);
++
++	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
++
++	if (of_property_read_u32(node, "poll-interval", &reg) == 0)
++		pdata->poll_interval = reg;
++
++	/* First count the subnodes */
++	pdata->nbuttons = 0;
++	pp = NULL;
++	while ((pp = of_get_next_child(node, pp)))
++		pdata->nbuttons++;
++
++	if (pdata->nbuttons == 0)
++		return -ENODEV;
++
++	buttons = kzalloc(pdata->nbuttons * (sizeof *buttons), GFP_KERNEL);
++	if (!buttons)
++		return -ENOMEM;
++
++	pp = NULL;
++	i = 0;
++	while ((pp = of_get_next_child(node, pp))) {
++		enum of_gpio_flags flags;
++
++		if (!of_find_property(pp, "gpios", NULL)) {
++			pdata->nbuttons--;
++			dev_warn(dev, "Found button without gpios\n");
++			continue;
++		}
++		buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
++		buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
++
++		if (of_property_read_u32(pp, "linux,code", &reg)) {
++			dev_err(dev, "Button without keycode: 0x%x\n", buttons[i].gpio);
++			goto out_fail;
++		}
++		buttons[i].code = reg;
++
++		buttons[i].desc = of_get_property(pp, "label", NULL);
++
++		if (of_property_read_u32(pp, "linux,input-type", &reg) == 0)
++			buttons[i].type = reg;
++		else
++			buttons[i].type = EV_KEY;
++
++		buttons[i].wakeup = !!of_get_property(pp, "gpio-key,wakeup", NULL);
++
++		if (of_property_read_u32(pp, "debounce-interval", &reg) == 0)
++			buttons[i].debounce_interval = reg;
++		else
++			buttons[i].debounce_interval = 5;
++
++		i++;
++	}
++
++	pdata->buttons = buttons;
++
++	return 0;
++
++out_fail:
++	kfree(buttons);
++	return -ENODEV;
++}
++
++static struct of_device_id gpio_keys_polled_of_match[] = {
++	{ .compatible = "gpio-keys-polled", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, gpio_keys_polled_of_match);
++#else
++
++static int gpio_keys_polled_get_devtree_pdata(struct device *dev,
++			    struct gpio_keys_platform_data *altp)
++{
++	return -ENODEV;
++}
++
++#define gpio_keys_polled_of_match NULL
++
++#endif
+ 
+ static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
+ {
+ 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+ 	struct device *dev = &pdev->dev;
++	struct gpio_keys_platform_data alt_pdata;
+ 	struct gpio_keys_polled_dev *bdev;
+ 	struct input_polled_dev *poll_dev;
+ 	struct input_dev *input;
+ 	int error;
+ 	int i;
+ 
+-	if (!pdata || !pdata->poll_interval)
++	if (!pdata) {
++	    error = gpio_keys_polled_get_devtree_pdata(dev, &alt_pdata);
++		if (error)
++			return error;
++		pdata = &alt_pdata;
++	}
++
++	if (!pdata->poll_interval)
+ 		return -EINVAL;
+ 
+ 	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
+@@ -184,7 +288,7 @@ static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
+ 
+ 	bdev->poll_dev = poll_dev;
+ 	bdev->dev = dev;
+-	bdev->pdata = pdata;
++	bdev->pdata = *pdata;
+ 	platform_set_drvdata(pdev, bdev);
+ 
+ 	error = input_register_polled_device(poll_dev);
+@@ -217,7 +321,7 @@ err_free_bdev:
+ static int __devexit gpio_keys_polled_remove(struct platform_device *pdev)
+ {
+ 	struct gpio_keys_polled_dev *bdev = platform_get_drvdata(pdev);
+-	struct gpio_keys_platform_data *pdata = bdev->pdata;
++	struct gpio_keys_platform_data *pdata = &bdev->pdata;
+ 	int i;
+ 
+ 	input_unregister_polled_device(bdev->poll_dev);
+@@ -239,6 +343,7 @@ static struct platform_driver gpio_keys_polled_driver = {
+ 	.driver	= {
+ 		.name	= DRV_NAME,
+ 		.owner	= THIS_MODULE,
++		.of_match_table = gpio_keys_polled_of_match,
+ 	},
+ };
+ module_platform_driver(gpio_keys_polled_driver);
+-- 
+1.7.10
+

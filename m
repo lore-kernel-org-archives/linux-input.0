@@ -1,83 +1,175 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 05/16] HID: uhid: implement write() on uhid devices
-Date: Sun, 10 Jun 2012 15:16:17 +0200
-Message-ID: <1339334188-21766-6-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 01/16] HID: uhid: introduce user-space I/O driver support for HID
+Date: Sun, 10 Jun 2012 15:16:13 +0200
+Message-ID: <1339334188-21766-2-git-send-email-dh.herrmann@googlemail.com>
 References: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:33409 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754803Ab2FJNQp (ORCPT
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:53280 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754327Ab2FJNQm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Jun 2012 09:16:45 -0400
-Received: by weyu7 with SMTP id u7so1506960wey.19
-        for <linux-input@vger.kernel.org>; Sun, 10 Jun 2012 06:16:44 -0700 (PDT)
+	Sun, 10 Jun 2012 09:16:42 -0400
+Received: by wgbdr13 with SMTP id dr13so2307590wgb.1
+        for <linux-input@vger.kernel.org>; Sun, 10 Jun 2012 06:16:40 -0700 (PDT)
 In-Reply-To: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-Similar to read() you can only write() a single event with one call to an
-uhid device. To write multiple events use writev() which is supported by
-uhid.
+This adds a dummy driver that will support user-space I/O drivers for the
+HID subsystem. This allows to write transport-level drivers like USB-HID
+and Bluetooth-HID in user-space.
 
-We currently always return -EOPNOTSUPP but other events will be added in
-later patches.
+Low-Energy Bluetooth needs this to feed HID data that is parsed in
+user-space back into the kernel.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/uhid.c |   31 ++++++++++++++++++++++++++++++-
- 1 file changed, 30 insertions(+), 1 deletion(-)
+ drivers/hid/Kconfig  |   21 ++++++++++++
+ drivers/hid/Makefile |    1 +
+ drivers/hid/uhid.c   |   88 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 110 insertions(+)
+ create mode 100644 drivers/hid/uhid.c
 
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index ca7e76c..89bd6b4 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -59,6 +59,27 @@ config HIDRAW
+ 
+ 	If unsure, say Y.
+ 
++config UHID
++	tristate "User-space I/O driver support for HID subsystem"
++	depends on HID
++	default n
++	---help---
++	Say Y here if you want to provide HID I/O Drivers from user-space.
++	This allows to write I/O drivers in user-space and feed the data from
++	the device into the kernel. The kernel parses the HID reports, loads the
++	corresponding HID Device Driver or provides input devices on top of your
++	user-space device.
++
++	This driver cannot be used to parse HID-reports in user-space and write
++	special HID-drivers. You should use hidraw for that.
++	Instead, this driver allows to write the transport-layer driver in
++	user-space like USB-HID and Bluetooth-HID do in kernel-space.
++
++	If unsure, say N.
++
++	To compile this driver as a module, choose M here: the
++	module will be called uhid.
++
+ source "drivers/hid/usbhid/Kconfig"
+ 
+ menu "Special HID drivers"
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 05913c5..dedc932 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -8,6 +8,7 @@ ifdef CONFIG_DEBUG_FS
+ endif
+ 
+ obj-$(CONFIG_HID)		+= hid.o
++obj-$(CONFIG_UHID)		+= uhid.o
+ 
+ obj-$(CONFIG_HID_GENERIC)	+= hid-generic.o
+ 
 diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index 9386082..31e8379 100644
---- a/drivers/hid/uhid.c
+new file mode 100644
+index 0000000..5b02d6c
+--- /dev/null
 +++ b/drivers/hid/uhid.c
-@@ -30,6 +30,7 @@
- struct uhid_device {
- 	struct mutex devlock;
- 	struct hid_device *hid;
-+	struct uhid_event input_buf;
- 
- 	wait_queue_head_t waitq;
- 	spinlock_t qlock;
-@@ -156,7 +157,35 @@ try_again:
- static ssize_t uhid_char_write(struct file *file, const char __user *buffer,
- 				size_t count, loff_t *ppos)
- {
--	return 0;
-+	struct uhid_device *uhid = file->private_data;
-+	int ret;
-+	size_t len;
+@@ -0,0 +1,88 @@
++/*
++ * User-space I/O driver support for HID subsystem
++ * Copyright (c) 2012 David Herrmann
++ */
 +
-+	/* we need at least the "type" member of uhid_event */
-+	if (count < sizeof(__u32))
-+		return -EINVAL;
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
 +
-+	ret = mutex_lock_interruptible(&uhid->devlock);
-+	if (ret)
-+		return ret;
++#include <linux/atomic.h>
++#include <linux/device.h>
++#include <linux/fs.h>
++#include <linux/hid.h>
++#include <linux/input.h>
++#include <linux/miscdevice.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/poll.h>
++#include <linux/sched.h>
++#include <linux/spinlock.h>
++#include <linux/uhid.h>
++#include <linux/wait.h>
 +
-+	memset(&uhid->input_buf, 0, sizeof(uhid->input_buf));
-+	len = min(count, sizeof(uhid->input_buf));
-+	if (copy_from_user(&uhid->input_buf, buffer, len)) {
-+		ret = -EFAULT;
-+		goto unlock;
-+	}
++#define UHID_NAME	"uhid"
 +
-+	switch (uhid->input_buf.type) {
-+	default:
-+		ret = -EOPNOTSUPP;
-+	}
++static struct miscdevice uhid_misc;
 +
-+unlock:
-+	mutex_unlock(&uhid->devlock);
++static int uhid_char_open(struct inode *inode, struct file *file)
++{
++	return 0;
++}
 +
-+	/* return "count" not "len" to not confuse the caller */
-+	return ret ? ret : count;
- }
- 
- static unsigned int uhid_char_poll(struct file *file, poll_table *wait)
++static int uhid_char_release(struct inode *inode, struct file *file)
++{
++	return 0;
++}
++
++static ssize_t uhid_char_read(struct file *file, char __user *buffer,
++				size_t count, loff_t *ppos)
++{
++	return 0;
++}
++
++static ssize_t uhid_char_write(struct file *file, const char __user *buffer,
++				size_t count, loff_t *ppos)
++{
++	return 0;
++}
++
++static unsigned int uhid_char_poll(struct file *file, poll_table *wait)
++{
++	return 0;
++}
++
++static const struct file_operations uhid_fops = {
++	.owner		= THIS_MODULE,
++	.open		= uhid_char_open,
++	.release	= uhid_char_release,
++	.read		= uhid_char_read,
++	.write		= uhid_char_write,
++	.poll		= uhid_char_poll,
++	.llseek		= no_llseek,
++};
++
++static struct miscdevice uhid_misc = {
++	.fops		= &uhid_fops,
++	.minor		= MISC_DYNAMIC_MINOR,
++	.name		= UHID_NAME,
++};
++
++static int __init uhid_init(void)
++{
++	return misc_register(&uhid_misc);
++}
++
++static void __exit uhid_exit(void)
++{
++	misc_deregister(&uhid_misc);
++}
++
++module_init(uhid_init);
++module_exit(uhid_exit);
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("David Herrmann <dh.herrmann@gmail.com>");
++MODULE_DESCRIPTION("User-space I/O driver support for HID subsystem");
 -- 
 1.7.10.4
 

@@ -1,140 +1,72 @@
-From: weixing <weixing@hanwang.com.cn>
-Subject: [PATCH] Input: hanwang - add support for Art Master II tablet
-Date: Mon, 11 Jun 2012 22:10:39 +0800
-Message-ID: <1339423839-9716-1-git-send-email-weixing@hanwang.com.cn>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hanwang.com.cn ([221.122.51.51]:45509 "EHLO mail.hanwang.com.cn"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754994Ab2FKORs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jun 2012 10:17:48 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Igor Grinberg <grinberg@compulab.co.il>
+Subject: Re: [PATCH 5/5] Input: ads7846: set proper debounce time in driver
+ level
+Date: Mon, 11 Jun 2012 17:37:33 +0300
+Message-ID: <4FD602AD.1060304@compulab.co.il>
+References: <zumeng.chen@gmail.com> <1339423216-1323-1-git-send-email-zumeng.chen@gmail.com> <1339423216-1323-6-git-send-email-zumeng.chen@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1339423216-1323-6-git-send-email-zumeng.chen@gmail.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Zumeng Chen <zumeng.chen@gmail.com>
+Cc: tony@atomide.com, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, khasim@ti.com, ajay.gupta@ti.com, Vaibhav Hiremath <hvaibhav@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, weixing@hanwang.com.cn
 
-this adds support for old hanwang Art master II tablet
+Hi,
 
-Signed-off-by: weixing <weixing@hanwang.com.cn>
----
- drivers/input/tablet/hanwang.c |   63 ++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 61 insertions(+), 2 deletions(-)
+This is input subsystem, add Dmitry and linux-input.
 
-diff --git a/drivers/input/tablet/hanwang.c b/drivers/input/tablet/hanwang.c
-index b2db3cf..4154c1d 100644
---- a/drivers/input/tablet/hanwang.c
-+++ b/drivers/input/tablet/hanwang.c
-@@ -63,6 +63,7 @@ MODULE_LICENSE(DRIVER_LICENSE);
- enum hanwang_tablet_type {
- 	HANWANG_ART_MASTER_III,
- 	HANWANG_ART_MASTER_HD,
-+	HANWANG_ART_MASTER_II,
- };
- 
- struct hanwang {
-@@ -99,6 +100,8 @@ static const struct hanwang_features features_array[] = {
- 	  ART_MASTER_PKGLEN_MAX, 0x7f00, 0x4f60, 0x3f, 0x7f, 2048 },
- 	{ 0x8401, "Hanwang Art Master HD 5012", HANWANG_ART_MASTER_HD,
- 	  ART_MASTER_PKGLEN_MAX, 0x678e, 0x4150, 0x3f, 0x7f, 1024 },
-+	{ 0x8503, "Hanwang Art Master II", HANWANG_ART_MASTER_II,
-+	  ART_MASTER_PKGLEN_MAX, 0x27de, 0x1cfe, 0x3f, 0x7f, 1024 },
- };
- 
- static const int hw_eventtypes[] = {
-@@ -120,6 +123,55 @@ static const int hw_mscevents[] = {
- 	MSC_SERIAL,
- };
- 
-+static void hanwang_parse_ArtmasterII_packet(struct hanwang *hanwang)
-+{
-+	unsigned char *data = hanwang->data;
-+	struct input_dev *input_dev = hanwang->dev;
-+	struct usb_device *dev = hanwang->usbdev;
-+	u16 x, y, p;
-+
-+	hanwang->current_tool = BTN_TOOL_PEN;
-+
-+	switch (data[0]) {
-+	case 0x02:	/* correct report id */
-+		switch (data[1]) {
-+		case 0x00:	/* pen leave */
-+			hanwang->current_id = 0;
-+			input_report_key(input_dev, hanwang->current_tool, 0);
-+			break;
-+		default:
-+			hanwang->current_id = STYLUS_DEVICE_ID;
-+			x = (data[2] << 8) | data[3];
-+			y = (data[4] << 8) | data[5];
-+			p = (data[7] >> 6) | (data[6] << 2);
-+
-+			input_report_key(input_dev, BTN_TOOL_PEN, 1);
-+			input_report_abs(input_dev, ABS_X,
-+						le16_to_cpup((__le16 *)&x));
-+			input_report_abs(input_dev, ABS_Y,
-+						le16_to_cpup((__le16 *)&y));
-+			input_report_abs(input_dev, ABS_PRESSURE,
-+						le16_to_cpup((__le16 *)&p));
-+			input_report_abs(input_dev, ABS_TILT_X, data[7] & 0x3f);
-+			input_report_abs(input_dev, ABS_TILT_Y, data[8] & 0x7f);
-+			input_report_key(input_dev, BTN_STYLUS2,
-+						data[1] & 0x02);
-+			break;
-+		}
-+
-+		input_report_abs(input_dev, ABS_MISC, hanwang->current_id);
-+		input_event(input_dev, EV_MSC, MSC_SERIAL,
-+				hanwang->features->pid);
-+		break;
-+
-+	default:
-+		dev_dbg(&dev->dev, "unknown report id  %02x\n", data[0]);
-+		break;
-+	}
-+
-+	input_sync(input_dev);
-+}
-+
- static void hanwang_parse_packet(struct hanwang *hanwang)
- {
- 	unsigned char *data = hanwang->data;
-@@ -129,6 +181,11 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
- 	int i;
- 	u16 x, y, p;
- 
-+	if (type == HANWANG_ART_MASTER_II) {
-+		hanwang_parse_ArtmasterII_packet(hanwang);
-+		return;
-+	}
-+
- 	switch (data[0]) {
- 	case 0x02:	/* data packet */
- 		switch (data[1]) {
-@@ -154,7 +211,7 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
- 			default:
- 				hanwang->current_id = 0;
- 				dev_dbg(&dev->dev,
--					"unknown tablet tool %02x ", data[0]);
-+					"unknown tablet tool %02x\n", data[0]);
- 				break;
- 			}
- 			break;
-@@ -227,6 +284,8 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
- 					 BTN_5 + i, data[6] & (1 << i));
- 			}
- 			break;
-+		default:
-+			break;
- 		}
- 
- 		input_report_abs(input_dev, ABS_MISC, hanwang->current_id);
-@@ -234,7 +293,7 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
- 		break;
- 
- 	default:
--		dev_dbg(&dev->dev, "error packet  %02x ", data[0]);
-+		dev_dbg(&dev->dev, "error packet  %02x\n", data[0]);
- 		break;
- 	}
- 
+On 06/11/12 17:00, Zumeng Chen wrote:
+> If we don't set proper debouce time for ads7846, then there are
+> flooded interrupt counters of ads7846 responding to one time
+> touch on screen, so the driver couldn't work well.
+> 
+> And since most OMAP3 series boards pass NULL pointer of board_pdata
+> to omap_ads7846_init, so it's more proper to set it in driver level
+> after having gpio_request done.
+
+What about other non-OMAP platforms?
+
+NULL pointer for board_pdata, only means that the default pdata is used.
+Please, see the common-board-devices.c file more closely.
+
+> 
+> This patch has been validated on 3530evm.
+> 
+> Signed-off-by: Zumeng Chen <zumeng.chen@gmail.com>
+> Signed-off-by: Syed Mohammed Khasim <khasim@ti.com>
+> Signed-off-by: Tony Lindgren <tony@atomide.com>
+> ---
+>  drivers/input/touchscreen/ads7846.c |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+> index f02028e..a82a5fb 100644
+> --- a/drivers/input/touchscreen/ads7846.c
+> +++ b/drivers/input/touchscreen/ads7846.c
+> @@ -61,6 +61,7 @@
+>  
+>  /* this driver doesn't aim at the peak continuous sample rate */
+>  #define	SAMPLE_BITS	(8 /*cmd*/ + 16 /*sample*/ + 2 /* before, after */)
+> +#define	DEBOUNCE_TIME	310 /* About 10 ms */
+
+I think hard coding this value is wrong.
+Can't it be derived from the pdata->debounce_* fields?
+
+>  
+>  struct ts_event {
+>  	/*
+> @@ -980,6 +981,7 @@ static int __devinit ads7846_setup_pendown(struct spi_device *spi, struct ads784
+>  		}
+>  
+>  		ts->gpio_pendown = pdata->gpio_pendown;
+> +		gpio_set_debounce(pdata->gpio_pendown, DEBOUNCE_TIME);
+>  
+>  	} else {
+>  		dev_err(&spi->dev, "no get_pendown_state nor gpio_pendown?\n");
+
 -- 
-1.7.4.1
-
+Regards,
+Igor.

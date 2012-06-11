@@ -1,93 +1,140 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 11/16] HID: uhid: forward output request to user-space
-Date: Sun, 10 Jun 2012 15:16:23 +0200
-Message-ID: <1339334188-21766-12-git-send-email-dh.herrmann@googlemail.com>
-References: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
+From: weixing <weixing@hanwang.com.cn>
+Subject: [PATCH] Input: hanwang - add support for Art Master II tablet
+Date: Mon, 11 Jun 2012 22:10:39 +0800
+Message-ID: <1339423839-9716-1-git-send-email-weixing@hanwang.com.cn>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:33409 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755208Ab2FJNQt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Jun 2012 09:16:49 -0400
-Received: by mail-we0-f174.google.com with SMTP id u7so1506960wey.19
-        for <linux-input@vger.kernel.org>; Sun, 10 Jun 2012 06:16:48 -0700 (PDT)
-In-Reply-To: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
+Received: from hanwang.com.cn ([221.122.51.51]:45509 "EHLO mail.hanwang.com.cn"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754994Ab2FKORs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Jun 2012 10:17:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, weixing@hanwang.com.cn
 
-If the hid-driver wants to send standardized data to the device it uses a
-linux input_event. We forward this to the user-space transport-level
-driver so they can perform the requested action on the device.
+this adds support for old hanwang Art master II tablet
 
-Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+Signed-off-by: weixing <weixing@hanwang.com.cn>
 ---
- drivers/hid/uhid.c   |   18 ++++++++++++++++++
- include/linux/uhid.h |    8 ++++++++
- 2 files changed, 26 insertions(+)
+ drivers/input/tablet/hanwang.c |   63 ++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 61 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index 0226ba3f..4dd693e 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -112,6 +112,24 @@ static void uhid_hid_close(struct hid_device *hid)
- static int uhid_hid_input(struct input_dev *input, unsigned int type,
- 			  unsigned int code, int value)
- {
-+	struct hid_device *hid = input_get_drvdata(input);
-+	struct uhid_device *uhid = hid->driver_data;
-+	unsigned long flags;
-+	struct uhid_event *ev;
-+
-+	ev = kzalloc(sizeof(*ev), GFP_ATOMIC);
-+	if (!ev)
-+		return -ENOMEM;
-+
-+	ev->type = UHID_OUTPUT_EV;
-+	ev->u.output_ev.type = type;
-+	ev->u.output_ev.code = code;
-+	ev->u.output_ev.value = value;
-+
-+	spin_lock_irqsave(&uhid->qlock, flags);
-+	uhid_queue(uhid, ev);
-+	spin_unlock_irqrestore(&uhid->qlock, flags);
-+
- 	return 0;
- }
- 
-diff --git a/include/linux/uhid.h b/include/linux/uhid.h
-index 351650b..3fa4849 100644
---- a/include/linux/uhid.h
-+++ b/include/linux/uhid.h
-@@ -29,6 +29,7 @@ enum uhid_event_type {
- 	UHID_STOP,
- 	UHID_OPEN,
- 	UHID_CLOSE,
-+	UHID_OUTPUT_EV,
- 	UHID_INPUT,
+diff --git a/drivers/input/tablet/hanwang.c b/drivers/input/tablet/hanwang.c
+index b2db3cf..4154c1d 100644
+--- a/drivers/input/tablet/hanwang.c
++++ b/drivers/input/tablet/hanwang.c
+@@ -63,6 +63,7 @@ MODULE_LICENSE(DRIVER_LICENSE);
+ enum hanwang_tablet_type {
+ 	HANWANG_ART_MASTER_III,
+ 	HANWANG_ART_MASTER_HD,
++	HANWANG_ART_MASTER_II,
  };
  
-@@ -53,12 +54,19 @@ struct uhid_input_req {
- 	__u16 size;
- } __attribute__((__packed__));
+ struct hanwang {
+@@ -99,6 +100,8 @@ static const struct hanwang_features features_array[] = {
+ 	  ART_MASTER_PKGLEN_MAX, 0x7f00, 0x4f60, 0x3f, 0x7f, 2048 },
+ 	{ 0x8401, "Hanwang Art Master HD 5012", HANWANG_ART_MASTER_HD,
+ 	  ART_MASTER_PKGLEN_MAX, 0x678e, 0x4150, 0x3f, 0x7f, 1024 },
++	{ 0x8503, "Hanwang Art Master II", HANWANG_ART_MASTER_II,
++	  ART_MASTER_PKGLEN_MAX, 0x27de, 0x1cfe, 0x3f, 0x7f, 1024 },
+ };
  
-+struct uhid_output_ev_req {
-+	__u16 type;
-+	__u16 code;
-+	__s32 value;
-+} __attribute__((__packed__));
+ static const int hw_eventtypes[] = {
+@@ -120,6 +123,55 @@ static const int hw_mscevents[] = {
+ 	MSC_SERIAL,
+ };
+ 
++static void hanwang_parse_ArtmasterII_packet(struct hanwang *hanwang)
++{
++	unsigned char *data = hanwang->data;
++	struct input_dev *input_dev = hanwang->dev;
++	struct usb_device *dev = hanwang->usbdev;
++	u16 x, y, p;
 +
- struct uhid_event {
- 	__u32 type;
++	hanwang->current_tool = BTN_TOOL_PEN;
++
++	switch (data[0]) {
++	case 0x02:	/* correct report id */
++		switch (data[1]) {
++		case 0x00:	/* pen leave */
++			hanwang->current_id = 0;
++			input_report_key(input_dev, hanwang->current_tool, 0);
++			break;
++		default:
++			hanwang->current_id = STYLUS_DEVICE_ID;
++			x = (data[2] << 8) | data[3];
++			y = (data[4] << 8) | data[5];
++			p = (data[7] >> 6) | (data[6] << 2);
++
++			input_report_key(input_dev, BTN_TOOL_PEN, 1);
++			input_report_abs(input_dev, ABS_X,
++						le16_to_cpup((__le16 *)&x));
++			input_report_abs(input_dev, ABS_Y,
++						le16_to_cpup((__le16 *)&y));
++			input_report_abs(input_dev, ABS_PRESSURE,
++						le16_to_cpup((__le16 *)&p));
++			input_report_abs(input_dev, ABS_TILT_X, data[7] & 0x3f);
++			input_report_abs(input_dev, ABS_TILT_Y, data[8] & 0x7f);
++			input_report_key(input_dev, BTN_STYLUS2,
++						data[1] & 0x02);
++			break;
++		}
++
++		input_report_abs(input_dev, ABS_MISC, hanwang->current_id);
++		input_event(input_dev, EV_MSC, MSC_SERIAL,
++				hanwang->features->pid);
++		break;
++
++	default:
++		dev_dbg(&dev->dev, "unknown report id  %02x\n", data[0]);
++		break;
++	}
++
++	input_sync(input_dev);
++}
++
+ static void hanwang_parse_packet(struct hanwang *hanwang)
+ {
+ 	unsigned char *data = hanwang->data;
+@@ -129,6 +181,11 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
+ 	int i;
+ 	u16 x, y, p;
  
- 	union {
- 		struct uhid_create_req create;
- 		struct uhid_input_req input;
-+		struct uhid_output_ev_req output_ev;
- 	} u;
- } __attribute__((__packed__));
++	if (type == HANWANG_ART_MASTER_II) {
++		hanwang_parse_ArtmasterII_packet(hanwang);
++		return;
++	}
++
+ 	switch (data[0]) {
+ 	case 0x02:	/* data packet */
+ 		switch (data[1]) {
+@@ -154,7 +211,7 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
+ 			default:
+ 				hanwang->current_id = 0;
+ 				dev_dbg(&dev->dev,
+-					"unknown tablet tool %02x ", data[0]);
++					"unknown tablet tool %02x\n", data[0]);
+ 				break;
+ 			}
+ 			break;
+@@ -227,6 +284,8 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
+ 					 BTN_5 + i, data[6] & (1 << i));
+ 			}
+ 			break;
++		default:
++			break;
+ 		}
+ 
+ 		input_report_abs(input_dev, ABS_MISC, hanwang->current_id);
+@@ -234,7 +293,7 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
+ 		break;
+ 
+ 	default:
+-		dev_dbg(&dev->dev, "error packet  %02x ", data[0]);
++		dev_dbg(&dev->dev, "error packet  %02x\n", data[0]);
+ 		break;
+ 	}
  
 -- 
-1.7.10.4
+1.7.4.1
 

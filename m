@@ -1,107 +1,56 @@
-From: Zumeng Chen <zumeng.chen@windriver.com>
-Subject: Re: [PATCH V2 2/5] ARM: OMAP3EVM: Adding USB internal LDOs board
- file
-Date: Wed, 13 Jun 2012 16:23:19 +0800
-Message-ID: <4FD84DF7.8050400@windriver.com>
-References: <zumeng.chen@gmail.com> <1339551850-20827-1-git-send-email-zumeng.chen@gmail.com> <1339551850-20827-3-git-send-email-zumeng.chen@gmail.com> <4FD84C57.5000605@compulab.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH 1/2] Input: wm831x-ts - Convert to devm_kzalloc()
+Date: Tue, 12 Jun 2012 09:16:27 +0800
+Message-ID: <1339463788-5436-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:58835 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751511Ab2FMIYZ (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:50147 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751639Ab2FMJDC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jun 2012 04:24:25 -0400
-In-Reply-To: <4FD84C57.5000605@compulab.co.il>
+	Wed, 13 Jun 2012 05:03:02 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Igor Grinberg <grinberg@compulab.co.il>
-Cc: Zumeng Chen <zumeng.chen@gmail.com>, tony@atomide.com, jon-hunter@ti.com, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, khasim@ti.com, ajay.gupta@ti.com, hvaibhav@ti.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-=E4=BA=8E 2012=E5=B9=B406=E6=9C=8813=E6=97=A5 16:16, Igor Grinberg =E5=86=
-=99=E9=81=93:
-> On 06/13/12 04:44, Zumeng Chen wrote:
->> From: Zumeng Chen<zumeng.chen@windriver.com>
->>
->> EHCI PHY requires these regulators:
->>          EVM Rev>=3DE  -->  VAUX2
->>          EVM Rev<  E  -->  VUSB1V5, VUSB1V8
->>
->> Adding USB internal LDOs (vusb1v5&  vusb1v8) and VAUX2 to omap3evm
->> board file. Also removing vaux2_{1/2/3} supplies as they are not
->> used on omap3 evm.
->>
->> But we need not to add vaux2 in twl4030_platform_data since it will
->> be added conditionally.
->>
->> Signed-off-by: Ajay Kumar Gupta<ajay.gupta@ti.com>
->> Signed-off-by: Vaibhav Hiremath<hvaibhav@ti.com>
->> Signed-off-by: Zumeng Chen<zumeng.chen@windriver.com>
->> ---
->>   arch/arm/mach-omap2/board-omap3evm.c |   27 ++++++++++++++++++++++=
-+++++
->>   1 files changed, 27 insertions(+), 0 deletions(-)
->>
->> diff --git a/arch/arm/mach-omap2/board-omap3evm.c b/arch/arm/mach-om=
-ap2/board-omap3evm.c
->> index 0b83d0e..3c91534 100644
->> --- a/arch/arm/mach-omap2/board-omap3evm.c
->> +++ b/arch/arm/mach-omap2/board-omap3evm.c
->> @@ -466,6 +466,30 @@ struct wl12xx_platform_data omap3evm_wlan_data =
-__initdata =3D {
->>   };
->>   #endif
->>
->> +/* VAUX2 for USB */
->> +static struct regulator_consumer_supply omap3evm_vaux2_supplies[] =3D=
- {
->> +	REGULATOR_SUPPLY("VDD_CSIPHY1", "omap3isp"),	/* OMAP ISP */
->> +	REGULATOR_SUPPLY("VDD_CSIPHY2", "omap3isp"),	/* OMAP ISP */
->> +	REGULATOR_SUPPLY("hsusb1", "ehci-omap.0"),
->> +	{
->> +		.supply		=3D "vaux2",
->> +	}
-> This too can use the REGULATOR_SUPPLY() macro, why not use it?
-Yes, Of course from me, I'll try to see if there is other consideration=
-s
-from the original patch. If no I'll change it.
+Saves a little code and eliminates the possibility of introducing some
+leaks.
 
-Regards,
-Zumeng
->> +};
->> +
->> +static struct regulator_init_data omap3evm_vaux2 =3D {
->> +	.constraints =3D {
->> +		.min_uV		=3D 2800000,
->> +		.max_uV		=3D 2800000,
->> +		.apply_uV	=3D true,
->> +		.valid_modes_mask	=3D REGULATOR_MODE_NORMAL
->> +					| REGULATOR_MODE_STANDBY,
->> +		.valid_ops_mask		=3D REGULATOR_CHANGE_MODE
->> +					| REGULATOR_CHANGE_STATUS,
->> +	},
->> +	.num_consumer_supplies		=3D ARRAY_SIZE(omap3evm_vaux2_supplies),
->> +	.consumer_supplies		=3D omap3evm_vaux2_supplies,
->> +};
->> +
->>   static struct twl4030_platform_data omap3evm_twldata =3D {
->>   	/* platform_data for children goes here */
->>   	.keypad		=3D&omap3evm_kp_data,
->> @@ -659,6 +683,9 @@ static void __init omap3_evm_init(void)
->>   	omap_mux_init_gpio(63, OMAP_PIN_INPUT);
->>   	omap_hsmmc_init(mmc);
->>
->> +	if (get_omap3_evm_rev()>=3D OMAP3EVM_BOARD_GEN_2)
->> +		omap3evm_twldata.vaux2 =3D&omap3evm_vaux2;
->> +
->>   	omap3_evm_i2c_init();
->>
->>   	omap_display_init(&omap3_evm_dss_data);
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/input/touchscreen/wm831x-ts.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/touchscreen/wm831x-ts.c b/drivers/input/touchscreen/wm831x-ts.c
+index ac667e46..362f78d 100644
+--- a/drivers/input/touchscreen/wm831x-ts.c
++++ b/drivers/input/touchscreen/wm831x-ts.c
+@@ -245,7 +245,8 @@ static __devinit int wm831x_ts_probe(struct platform_device *pdev)
+ 	if (core_pdata)
+ 		pdata = core_pdata->touch;
+ 
+-	wm831x_ts = kzalloc(sizeof(struct wm831x_ts), GFP_KERNEL);
++	wm831x_ts = devm_kzalloc(&pdev->dev, sizeof(struct wm831x_ts),
++				 GFP_KERNEL);
+ 	input_dev = input_allocate_device();
+ 	if (!wm831x_ts || !input_dev) {
+ 		error = -ENOMEM;
+@@ -376,7 +377,6 @@ err_data_irq:
+ 	free_irq(wm831x_ts->data_irq, wm831x_ts);
+ err_alloc:
+ 	input_free_device(input_dev);
+-	kfree(wm831x_ts);
+ 
+ 	return error;
+ }
+@@ -388,7 +388,6 @@ static __devexit int wm831x_ts_remove(struct platform_device *pdev)
+ 	free_irq(wm831x_ts->pd_irq, wm831x_ts);
+ 	free_irq(wm831x_ts->data_irq, wm831x_ts);
+ 	input_unregister_device(wm831x_ts->input_dev);
+-	kfree(wm831x_ts);
+ 
+ 	return 0;
+ }
+-- 
+1.7.10
+

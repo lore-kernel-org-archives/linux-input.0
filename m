@@ -1,57 +1,79 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH 2/2] Input: wm831x-on - Convert to devm_kzalloc()
-Date: Tue, 12 Jun 2012 09:16:28 +0800
-Message-ID: <1339463788-5436-2-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <1339463788-5436-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Zumeng Chen <zumeng.chen@windriver.com>
+Subject: Re: [PATCH V2 5/5] Input: ads7846: set proper debounce time in driver
+ level
+Date: Wed, 13 Jun 2012 17:03:55 +0800
+Message-ID: <4FD8577B.1010408@windriver.com>
+References: <zumeng.chen@gmail.com> <1339551850-20827-1-git-send-email-zumeng.chen@gmail.com> <1339551850-20827-6-git-send-email-zumeng.chen@gmail.com> <4FD8467E.4010302@compulab.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:50146 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751395Ab2FMJDB (ORCPT
+Received: from mail.windriver.com ([147.11.1.11]:35898 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751156Ab2FMJFD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jun 2012 05:03:01 -0400
-In-Reply-To: <1339463788-5436-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+	Wed, 13 Jun 2012 05:05:03 -0400
+In-Reply-To: <4FD8467E.4010302@compulab.co.il>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Igor Grinberg <grinberg@compulab.co.il>
+Cc: Zumeng Chen <zumeng.chen@gmail.com>, tony@atomide.com, jon-hunter@ti.com, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, khasim@ti.com, ajay.gupta@ti.com, hvaibhav@ti.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Saves a small amount of code and reduces the potential for leaks.
+=E4=BA=8E 2012=E5=B9=B406=E6=9C=8813=E6=97=A5 15:51, Igor Grinberg =E5=86=
+=99=E9=81=93:
+> On 06/13/12 04:44, Zumeng Chen wrote:
+>> From: Zumeng Chen<zumeng.chen@windriver.com>
+>>
+>> If we don't set proper debouce time for ads7846, then there are
+>> flooded interrupt counters of ads7846 responding to one time
+>> touch on screen, so the driver couldn't work well.
+>>
+>> And since most OMAP3 series boards pass NULL pointer of board_pdata
+>> to omap_ads7846_init, so it's more proper to set it in driver level
+>> after having gpio_request done.
+>>
+>> This patch has been validated on 3530evm.
+>>
+>> Signed-off-by: Zumeng Chen<zumeng.chen@windriver.com>
+>> Signed-off-by: Syed Mohammed Khasim<khasim@ti.com>
+>> ---
+>>   drivers/input/touchscreen/ads7846.c |    4 ++++
+>>   1 files changed, 4 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/tou=
+chscreen/ads7846.c
+>> index f02028e..459ff29 100644
+>> --- a/drivers/input/touchscreen/ads7846.c
+>> +++ b/drivers/input/touchscreen/ads7846.c
+>> @@ -980,6 +980,10 @@ static int __devinit ads7846_setup_pendown(stru=
+ct spi_device *spi, struct ads784
+>>   		}
+>>
+>>   		ts->gpio_pendown =3D pdata->gpio_pendown;
+>> +#ifdef CONFIG_ARCH_OMAP3
+>> +		/* 310 means about 10 microsecond for omap3 */
+>> +		gpio_set_debounce(pdata->gpio_pendown, 310);
+>> +#endif
+> Unless this concerns many boards/archs/platforms,
+Yes, this is the case.
+> I'd suggest you to implement
+> the get_pendown_state() method in the board file.
+it seems they are different way between gpio and
+get_pendown_state, and gpio way is used for omap3
+to drive ads7846, so I guess we may have to do like this.
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
- drivers/input/misc/wm831x-on.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+Regards,
+Zumeng
+> If more users will need this, it can be facilitated in the driver.
+> (and of course not with the ugly ifdefs...)
+>
+>>
+>>   	} else {
+>>   		dev_err(&spi->dev, "no get_pendown_state nor gpio_pendown?\n");
 
-diff --git a/drivers/input/misc/wm831x-on.c b/drivers/input/misc/wm831x-on.c
-index 6790a81..fa8b390 100644
---- a/drivers/input/misc/wm831x-on.c
-+++ b/drivers/input/misc/wm831x-on.c
-@@ -76,7 +76,8 @@ static int __devinit wm831x_on_probe(struct platform_device *pdev)
- 	int irq = wm831x_irq(wm831x, platform_get_irq(pdev, 0));
- 	int ret;
- 
--	wm831x_on = kzalloc(sizeof(struct wm831x_on), GFP_KERNEL);
-+	wm831x_on = devm_kzalloc(&pdev->dev, sizeof(struct wm831x_on),
-+				 GFP_KERNEL);
- 	if (!wm831x_on) {
- 		dev_err(&pdev->dev, "Can't allocate data\n");
- 		return -ENOMEM;
-@@ -120,7 +121,6 @@ err_irq:
- err_input_dev:
- 	input_free_device(wm831x_on->dev);
- err:
--	kfree(wm831x_on);
- 	return ret;
- }
- 
-@@ -132,7 +132,6 @@ static int __devexit wm831x_on_remove(struct platform_device *pdev)
- 	free_irq(irq, wm831x_on);
- 	cancel_delayed_work_sync(&wm831x_on->work);
- 	input_unregister_device(wm831x_on->dev);
--	kfree(wm831x_on);
- 
- 	return 0;
- }
--- 
-1.7.10
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

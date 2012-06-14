@@ -1,159 +1,907 @@
-From: Zumeng Chen <zumeng.chen@windriver.com>
-Subject: Re: [PATCH V2 5/5] Input: ads7846: set proper debounce time in driver
- level
-Date: Thu, 14 Jun 2012 16:18:29 +0800
-Message-ID: <4FD99E55.80603@windriver.com>
-References: <zumeng.chen@gmail.com> <1339551850-20827-1-git-send-email-zumeng.chen@gmail.com> <1339551850-20827-6-git-send-email-zumeng.chen@gmail.com> <79CD15C6BA57404B839C016229A409A83EA4F07F@DBDE01.ent.ti.com> <4FD96CBF.5040106@windriver.com> <4FD98856.8070601@compulab.co.il> <4FD98DDA.9050806@windriver.com> <4FD99B91.9030705@compulab.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Olivier Sobrie <olivier@sobrie.be>
+Subject: [PATCH] input: edt-ft5x06 - Touchscreen driver for FT5x06 based EDT displays
+Date: Thu, 14 Jun 2012 13:01:46 +0200
+Message-ID: <1339671707-24662-1-git-send-email-olivier@sobrie.be>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:62401 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751375Ab2FNITb (ORCPT
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:45931 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754225Ab2FNLDL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Jun 2012 04:19:31 -0400
-In-Reply-To: <4FD99B91.9030705@compulab.co.il>
+	Thu, 14 Jun 2012 07:03:11 -0400
+Received: by wibhj8 with SMTP id hj8so6392322wib.1
+        for <linux-input@vger.kernel.org>; Thu, 14 Jun 2012 04:03:09 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Igor Grinberg <grinberg@compulab.co.il>
-Cc: "Hiremath, Vaibhav" <hvaibhav@ti.com>, mike@compulab.co.il, Zumeng Chen <zumeng.chen@gmail.com>, "tony@atomide.com" <tony@atomide.com>, "Hunter, Jon" <jon-hunter@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "Hilman, Kevin" <khilman@ti.com>, "Syed Mohammed, Khasim" <khasim@ti.com>, "Gupta, Ajay Kumar" <ajay.gupta@ti.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
+Cc: Simon Budig <simon.budig@kernelconcepts.de>, Jan Paesmans <jan.paesmans@gmail.com>, Olivier Sobrie <olivier@sobrie.be>
 
-=E4=BA=8E 2012=E5=B9=B406=E6=9C=8814=E6=97=A5 16:06, Igor Grinberg =E5=86=
-=99=E9=81=93:
-> On 06/14/12 10:08, Zumeng Chen wrote:
->> =E4=BA=8E 2012=E5=B9=B406=E6=9C=8814=E6=97=A5 14:44, Igor Grinberg =E5=
-=86=99=E9=81=93:
->>> On 06/14/12 07:46, Zumeng Chen wrote:
->>>>> =E4=BA=8E 2012=E5=B9=B406=E6=9C=8813=E6=97=A5 20:18, Hiremath, Va=
-ibhav =E5=86=99=E9=81=93:
->>>>>>> On Wed, Jun 13, 2012 at 07:14:10, Zumeng Chen wrote:
->>>>>>>>> From: Zumeng Chen<zumeng.chen@windriver.com>
->>>>>>>>>
->>>>>>>>> If we don't set proper debouce time for ads7846, then there a=
-re
->>>>>>>>> flooded interrupt counters of ads7846 responding to one time
->>>>>>>>> touch on screen, so the driver couldn't work well.
->>>>>>>>>
->>>>>>>>> And since most OMAP3 series boards pass NULL pointer of board=
-_pdata
->>>>>>>>> to omap_ads7846_init, so it's more proper to set it in driver=
- level
->>>>>>>>> after having gpio_request done.
->>>>>>>>>
->>>>>>>>> This patch has been validated on 3530evm.
->>>>>>>>>
->>>>>>>>> Signed-off-by: Zumeng Chen<zumeng.chen@windriver.com>
->>>>>>>>> Signed-off-by: Syed Mohammed Khasim<khasim@ti.com>
->>>>>>>>> ---
->>>>>>>>>    drivers/input/touchscreen/ads7846.c |    4 ++++
->>>>>>>>>    1 files changed, 4 insertions(+), 0 deletions(-)
->>>>>>>>>
->>>>>>>>> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/in=
-put/touchscreen/ads7846.c
->>>>>>>>> index f02028e..459ff29 100644
->>>>>>>>> --- a/drivers/input/touchscreen/ads7846.c
->>>>>>>>> +++ b/drivers/input/touchscreen/ads7846.c
->>>>>>>>> @@ -980,6 +980,10 @@ static int __devinit ads7846_setup_pendo=
-wn(struct spi_device *spi, struct ads784
->>>>>>>>>            }
->>>>>>>>>
->>>>>>>>>            ts->gpio_pendown =3D pdata->gpio_pendown;
->>>>>>>>> +#ifdef CONFIG_ARCH_OMAP3
->>>>>>>>> +        /* 310 means about 10 microsecond for omap3 */
->>>>>>>>> +        gpio_set_debounce(pdata->gpio_pendown, 310);
->>>>>>>>> +#endif
->>>>>>>>>
->>>>>>> Zumeng,
->>>>>>>
->>>>>>> With my sign-off you are changing the original code, that too
->>>>>>> without my sign-off and ack.
->>>>>>> I wouldn't mind you to submit patches from my tree, but the exp=
-ectation is
->>>>>>> if you are changing the original code, it should be under your =
-sign-off.
->>>>> Thanks, good to learn. I'll remove in next time.
->>>>>>> Coming to the patch, #ifdef in driver is not recommended, and t=
-his 10msec
->>>>>>> delay is specific to OMAP GPIO and driver should not be aware o=
-f this,
->>>>>>> that's where you will find the original patch handling it in bo=
-ard file.
->>>>> According to the git blame of the board-omap3evm.c I think
->>>>> 96974a24 did a good thing to all the related codes for omap3
->>>>> boards. So I think we can call board and driver as BSP level :-)
->>>>>
->>>>> If #ifdef in driver can save many codes, I guess it's deserved.
->>> No, platform/board specific ifdefs in the generic driver code are n=
-ever
->>> deserved.
->>> How about the attached patch, does it fix the problem for you?
->> Sorry Igor, I just read your patch, yes, most are there, and we
->> just have to set get_pendown_state as you early said. Really
->> *thanks* for your drive :)
-> No, with my patch, you don't need the get_pendown_state() and
-> you don't need to change the board-omap3evm.c ADS7846 related code.
-> So, I'm going to submit my patch properly.
-=46eel free to do that
+This driver adds support for the EDT touchscreens based on the
+FocalTech chips.
 
->> Regards,
->> Zumeng
->>> -- Regards, Igor.
->>> ads7846.patch
->>>
->>>
->>> diff --git a/arch/arm/mach-omap2/common-board-devices.c b/arch/arm/=
-mach-omap2/common-board-devices.c
->>> index 1706ebc..c187586 100644
->>> --- a/arch/arm/mach-omap2/common-board-devices.c
->>> +++ b/arch/arm/mach-omap2/common-board-devices.c
->>> @@ -63,28 +63,30 @@ void __init omap_ads7846_init(int bus_num, int =
-gpio_pendown, int gpio_debounce,
->>>   	struct spi_board_info *spi_bi =3D&ads7846_spi_board_info;
->>>   	int err;
->>>
->>> -	if (board_pdata&&  board_pdata->get_pendown_state) {
->>> -		err =3D gpio_request_one(gpio_pendown, GPIOF_IN, "TSPenDown");
->>> -		if (err) {
->>> -			pr_err("Couldn't obtain gpio for TSPenDown: %d\n", err);
->>> -			return;
->>> -		}
->>> -		gpio_export(gpio_pendown, 0);
->>> -
->>> -		if (gpio_debounce)
->>> -			gpio_set_debounce(gpio_pendown, gpio_debounce);
->>> +	err =3D gpio_request_one(gpio_pendown, GPIOF_IN, "TSPenDown");
->>> +	if (err) {
->>> +		pr_err("Couldn't obtain gpio for TSPenDown: %d\n", err);
->>> +		return;
->>>   	}
->>>   =09
->>> +	if (gpio_debounce)
->>> +		gpio_set_debounce(gpio_pendown, gpio_debounce);
->>> +
->>>   	spi_bi->bus_num	=3D bus_num;
->>>   	spi_bi->irq	=3D gpio_to_irq(gpio_pendown);
->>>
->>>   	if (board_pdata) {
->>>   		board_pdata->gpio_pendown =3D gpio_pendown;
->>>   		spi_bi->platform_data =3D board_pdata;
->>> +		if (board_pdata->get_pendown_state)
->>> +			gpio_export(gpio_pendown, 0);
->>>   	} else {
->>>   		ads7846_config.gpio_pendown =3D gpio_pendown;
->>>   	}
->>>
->>> +	if (!board_pdata || (board_pdata&&  !board_pdata->get_pendown_sta=
-te))
->>> +		gpio_free(gpio_pendown);
->>> +
->>>   	spi_register_board_info(&ads7846_spi_board_info, 1);
->>>   }
->>>   #else
+Some part of the driver are based on patch for this chip sent by
+Simon Budig to the linux-input mailing list.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Olivier Sobrie <olivier@sobrie.be>
+---
+ drivers/input/touchscreen/Kconfig      |   12 +
+ drivers/input/touchscreen/Makefile     |    1 +
+ drivers/input/touchscreen/edt-ft5x06.c |  816 ++++++++++++++++++++++++++++++++
+ include/linux/input/edt-ft5x06.h       |    8 +
+ 4 files changed, 837 insertions(+)
+ create mode 100644 drivers/input/touchscreen/edt-ft5x06.c
+ create mode 100644 include/linux/input/edt-ft5x06.h
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index f67657b..032cbea 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -216,6 +216,18 @@ config TOUCHSCREEN_DYNAPRO
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called dynapro.
+ 
++config TOUCHSCREEN_EDT_FT5X06
++	tristate "EDT FocalTech FT5x06 I2C Touchscreen support"
++	help
++	  Say Y here if you have an EDT "Polytouch" touchscreen based
++	  on the FocalTech FT5x06 family of controllers connected to
++	  your system.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called edt-ft5x06.
++
+ config TOUCHSCREEN_HAMPSHIRE
+ 	tristate "Hampshire serial touchscreen"
+ 	select SERIO
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index eb8bfe1..bed430d7 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -24,6 +24,7 @@ obj-$(CONFIG_TOUCHSCREEN_CYTTSP_SPI)	+= cyttsp_spi.o
+ obj-$(CONFIG_TOUCHSCREEN_DA9034)	+= da9034-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_DA9052)	+= da9052_tsi.o
+ obj-$(CONFIG_TOUCHSCREEN_DYNAPRO)	+= dynapro.o
++obj-$(CONFIG_TOUCHSCREEN_EDT_FT5X06)	+= edt-ft5x06.o
+ obj-$(CONFIG_TOUCHSCREEN_HAMPSHIRE)	+= hampshire.o
+ obj-$(CONFIG_TOUCHSCREEN_GUNZE)		+= gunze.o
+ obj-$(CONFIG_TOUCHSCREEN_EETI)		+= eeti_ts.o
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+new file mode 100644
+index 0000000..43c72a0
+--- /dev/null
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -0,0 +1,816 @@
++/*
++ * Part of this code is inspired from a first version of a driver for
++ * this chip sent by Simon Budig to the linux-input mailing list
++ */
++
++#include <linux/module.h>
++#include <linux/interrupt.h>
++#include <linux/input.h>
++#include <linux/i2c.h>
++#include <linux/uaccess.h>
++#include <linux/delay.h>
++#include <linux/slab.h>
++#include <linux/gpio.h>
++#include <linux/input/mt.h>
++#include <linux/input/edt-ft5x06.h>
++
++/* Commands in working mode */
++#define CMD_RDWR_REG		0xfc
++#define CMD_GET_TOUCH_DATA	0xf9
++#define CMD_GET_FW_VERSION	0xbb
++
++/* Commands in factory mode */
++#define CMD_RDWR_REG_FACTORY	0xf3
++#define CMD_RDATA_SHOW_FACTORY	0xf5
++
++/* Registers in working mode */
++#define W_REGISTER_THRESHOLD	0x00
++#define W_REGISTER_RATE		0x08
++#define W_REGISTER_GAIN		0x30
++#define W_REGISTER_OFFSET	0x31
++#define W_REGISTER_NUM_X	0x33
++#define W_REGISTER_NUM_Y	0x34
++#define W_REGISTER_OPMODE	0x3c
++
++/* Registers in factory mode */
++#define F_REGISTER_OPMODE	0x01
++#define F_REGISTER_RAWDATA	0x08
++
++/* Various defines */
++#define SENSOR_RESOLUTION	64
++#define MAX_TOUCHES		5
++#define CHANGE_MODE_RETRIES	10
++#define CHANGE_MODE_DELAY	5
++#define RAW_DATA_RETRIES	5
++#define RAW_DATA_DELAY		20
++#define MODEL_FW_LEN		22
++#define RX_TOUCH_DATA_HEADER	0xaaaa
++
++/* Events */
++#define EVENT_TOUCH_DOWN	(0 << 2)
++#define EVENT_TOUCH_UP		(1 << 2)
++#define EVENT_TOUCH_ON		(2 << 2)
++#define EVENT_TOUCH_RESERVED	(3 << 2)
++
++#define FOREACH_TOUCH(p, frm) \
++	for (p = &frm->p[0]; p < &frm->p[frm->ntouches]; p++)
++
++struct ft5x06 {
++	struct i2c_client *client;
++	struct input_dev *input;
++	int gpio_reset;
++	char model[MODEL_FW_LEN];
++	char fw_version[MODEL_FW_LEN];
++	int num_x;
++	int num_y;
++	/* mutex used to prevent access problems when switching between
++	 * modes */
++	struct mutex mutex;
++	bool factory_mode;
++};
++
++struct tx_write_reg {
++	u8 addr;
++	u8 val;
++	u8 crc;
++} __packed;
++
++struct rx_read_reg {
++	u8 val;
++	u8 crc;
++} __packed;
++
++struct rx_touch_data {
++	__be16 header;
++	u8 len;
++	u8 ntouches;
++	u8 reserved;
++	struct ft5x06_xy_coordinate {
++#if defined(__LITTLE_ENDIAN_BITFIELD)
++		u8 x_high:4;
++		u8 event:4;
++#else
++		u8 event:4;
++		u8 x_high:4;
++#endif
++		u8 x_low;
++
++#if defined(__LITTLE_ENDIAN_BITFIELD)
++		u8 y_high:4;
++		u8 tid:4;
++#else
++		u8 tid:4;
++		u8 y_high:4;
++#endif
++		u8 y_low;
++	} __packed p[MAX_TOUCHES];
++	u8 crc;
++} __packed;
++
++static int ft5x06_i2c_cmd(const struct i2c_client *client, u8 cmd,
++			  void *wr_buf, size_t wr_len,
++			  void *rd_buf, size_t rd_len)
++{
++	struct i2c_msg msgs[3];
++	int i = 1, rc;
++
++	msgs[0].addr  = client->addr;
++	msgs[0].flags = 0;
++	msgs[0].len = sizeof(cmd);
++	msgs[0].buf = &cmd;
++
++	if (wr_len) {
++		msgs[i].addr  = client->addr;
++		msgs[i].flags = 0;
++		msgs[i].len = wr_len;
++		msgs[i].buf = wr_buf;
++		i++;
++	}
++
++	if (rd_len) {
++		msgs[i].addr  = client->addr;
++		msgs[i].flags = I2C_M_RD;
++		msgs[i].len = rd_len;
++		msgs[i].buf = rd_buf;
++		i++;
++	}
++
++	rc = i2c_transfer(client->adapter, msgs, i);
++	if (rc != i) {
++		dev_err(&client->dev, "i2c_transfer failed, error: %d\n",
++			rc);
++		return -EIO;
++	}
++
++	return rc;
++}
++
++static int ft5x06_check_frame_crc(const struct rx_touch_data *frm)
++{
++	const u8 *_frm = (const void *) frm;
++	u8 crc = 0;
++	int i;
++
++	for (i = 0; i < sizeof(struct rx_touch_data); i++)
++		crc ^= _frm[i];
++
++	return crc ? -EINVAL : 0;
++}
++
++static void ft5x06_report_events(const struct ft5x06 *priv,
++				 const struct rx_touch_data *frm)
++{
++	struct device *dev = &priv->client->dev;
++	struct input_dev *input = priv->input;
++	int x, y;
++	const struct ft5x06_xy_coordinate *p;
++	char touch[MAX_TOUCHES];
++	int i;
++
++	if (frm->header != RX_TOUCH_DATA_HEADER
++	    || frm->len != sizeof(struct rx_touch_data)
++	    || frm->ntouches > MAX_TOUCHES) {
++		dev_dbg(dev,
++			"Invalid frame header (%04x), len (%d) or ntouches (%d)\n",
++			frm->header, frm->len, frm->ntouches);
++		return;
++	}
++
++	if (ft5x06_check_frame_crc(frm) < 0) {
++		dev_dbg(dev, "Invalid frame CRC\n");
++		return;
++	}
++
++	memset(touch, 0x00, sizeof(touch));
++
++	FOREACH_TOUCH(p, frm) {
++		if (p->event == EVENT_TOUCH_RESERVED)
++			continue;
++
++		if (p->tid > MAX_TOUCHES - 1)
++			continue;
++
++		touch[p->tid] = 1;
++
++		input_mt_slot(input, p->tid);
++		input_mt_report_slot_state(input, MT_TOOL_FINGER,
++					   p->event != EVENT_TOUCH_UP);
++
++		if (p->event != EVENT_TOUCH_UP) {
++			x = (p->x_high << 8) | p->x_low;
++			y = (p->y_high << 8) | p->y_low;
++
++			input_report_abs(input, ABS_MT_POSITION_X, x);
++			input_report_abs(input, ABS_MT_POSITION_Y, y);
++		}
++	}
++
++	/* This loop is needed because the hardware doesn't always
++	 * report the 'TOUCH_UP' event */
++	for (i = 0; i < MAX_TOUCHES; i++) {
++		if (touch[i])
++			continue;
++
++		input_mt_slot(input, i);
++		input_mt_report_slot_state(input, MT_TOOL_FINGER, 0);
++	}
++
++	input_mt_report_pointer_emulation(input, false);
++	input_sync(input);
++}
++
++static irqreturn_t ft5x06_isr(int irq, void *irq_data)
++{
++	struct ft5x06 *priv = irq_data;
++	struct i2c_client *client = priv->client;
++	struct device *dev = &client->dev;
++	struct rx_touch_data frm;
++	int rc;
++
++	memset(&frm, 0, sizeof(frm));
++
++	rc = ft5x06_i2c_cmd(client, CMD_GET_TOUCH_DATA, NULL, 0,
++			    &frm, sizeof(frm));
++	if (rc < 0) {
++		dev_err(dev, "Unable to get touch data, error: %d\n", rc);
++		goto out;
++	}
++
++	ft5x06_report_events(priv, &frm);
++
++out:
++	return IRQ_HANDLED;
++}
++
++static int ft5x06_register_write(const struct ft5x06 *priv, u8 addr,
++				 u8 value)
++{
++	struct tx_write_reg wr_reg;
++	u8 cmd;
++
++	if (priv->factory_mode) {
++		cmd = CMD_RDWR_REG_FACTORY;
++		wr_reg.addr = addr & 0x7f;
++	} else {
++		cmd = CMD_RDWR_REG;
++		wr_reg.addr = addr & 0x3f;
++	}
++
++	wr_reg.val = value;
++	wr_reg.crc = cmd ^ wr_reg.addr ^ wr_reg.val;
++
++	return ft5x06_i2c_cmd(priv->client, cmd, &wr_reg, sizeof(wr_reg),
++			      NULL, 0);
++}
++
++static int ft5x06_register_read(const struct ft5x06 *priv, u8 addr)
++{
++	struct i2c_client *client = priv->client;
++	struct device *dev = &client->dev;
++	struct rx_read_reg rd_reg;
++	int rc;
++	u8 cmd;
++
++	if (priv->factory_mode) {
++		cmd  = CMD_RDWR_REG_FACTORY;
++		addr = (addr & 0x7f) | 0x80;
++	} else {
++		cmd  = CMD_RDWR_REG;
++		addr = (addr & 0x3f) | 0x40;
++	}
++
++	rc = ft5x06_i2c_cmd(client, cmd, &addr, sizeof(addr),
++			    &rd_reg, sizeof(rd_reg));
++
++	if ((cmd ^ addr ^ rd_reg.val) != rd_reg.crc)
++		dev_err(dev, "crc error: 0x%02x expected, got 0x%02x\n",
++			(cmd ^ addr ^ rd_reg.val), rd_reg.crc);
++
++	return (rc < 0) ? rc : rd_reg.val;
++}
++
++static ssize_t ft5x06_setting_show(struct device *dev, u8 addr, char *buf)
++{
++	struct ft5x06 *priv = dev_get_drvdata(dev);
++	int rc = 0;
++
++	mutex_lock(&priv->mutex);
++
++	if (priv->factory_mode) {
++		dev_err(dev, "Cannot get registers in factory mode\n");
++		rc = -EIO;
++		goto out;
++	}
++
++	rc = ft5x06_register_read(priv, addr);
++	if (rc < 0) {
++		dev_err(dev, "Unable to get register value, error: %d\n",
++			rc);
++		goto out;
++	}
++
++	rc = sprintf(buf, "%d\n", rc);
++
++out:
++	mutex_unlock(&priv->mutex);
++	return rc;
++}
++
++static ssize_t ft5x06_setting_store(struct device *dev, u8 addr,
++				    unsigned int val)
++{
++	struct ft5x06 *priv = dev_get_drvdata(dev);
++	int rc = 0;
++
++	mutex_lock(&priv->mutex);
++
++	if (priv->factory_mode) {
++		dev_err(dev, "Cannot set registers in factory mode\n");
++		rc = -EIO;
++		goto out;
++	}
++
++	rc = ft5x06_register_write(priv, addr, val);
++	if (rc < 0) {
++		dev_err(dev, "Unable to set register value, error: %d\n",
++			rc);
++		goto out;
++	}
++
++out:
++	mutex_unlock(&priv->mutex);
++	return rc;
++}
++
++static unsigned int get_value(const char *buf, unsigned int min,
++			      unsigned int max)
++{
++	unsigned int val;
++
++	if (kstrtouint(buf, 10, &val))
++		return -EINVAL;
++
++	if ((val < min) || (val > max))
++		return -EINVAL;
++
++	return val;
++}
++
++static ssize_t ft5x06_store_rate(struct device *dev,
++				 struct device_attribute *attr,
++				 const char *buf, size_t count)
++{
++	struct ft5x06 *priv = dev_get_drvdata(dev);
++	unsigned int max = 12;
++	unsigned int val;
++
++	if (!strcmp(priv->model, "EP0570M06")
++	    || !strcmp(priv->model, "EP0700M06"))
++		max = 8;
++
++	val = get_value(buf, 3, max);
++	if (val < 0) {
++		dev_err(dev, "Invalid value for rate (min: 3, max: %d)\n",
++			max);
++		return val;
++	}
++
++	return ft5x06_setting_store(dev, W_REGISTER_RATE, val) ? : count;
++}
++
++static ssize_t ft5x06_show_rate(struct device *dev,
++				struct device_attribute *attr,
++				char *buf)
++{
++	return ft5x06_setting_show(dev, W_REGISTER_RATE, buf);
++}
++static DEVICE_ATTR(rate, 0664, ft5x06_show_rate, ft5x06_store_rate);
++
++#define ft5x06_setting(name, addr, min, max) \
++static ssize_t ft5x06_store_##name(struct device *dev, \
++				   struct device_attribute *attr, \
++				   const char *buf, size_t count) \
++{ \
++	unsigned int val = get_value(buf, min, max); \
++	if (val < 0) { \
++		dev_err(dev, "Invalid value for " #name \
++			"(min: %d, max: %d)\n", min, max); \
++		return val; \
++	} \
++	return ft5x06_setting_store(dev, addr, val) ? : count; \
++} \
++static ssize_t ft5x06_show_##name(struct device *dev, \
++				  struct device_attribute *attr, \
++				  char *buf) \
++{ \
++	return ft5x06_setting_show(dev, addr, buf); \
++} \
++static DEVICE_ATTR(name, 0664, ft5x06_show_##name, ft5x06_store_##name)
++
++ft5x06_setting(threshold, W_REGISTER_THRESHOLD, 20, 80);
++ft5x06_setting(gain, W_REGISTER_GAIN, 0, 31);
++ft5x06_setting(offset, W_REGISTER_OFFSET, 0, 31);
++
++static ssize_t ft5x06_factory_mode_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct ft5x06 *priv = dev_get_drvdata(dev);
++	return sprintf(buf, "%d\n", priv->factory_mode);
++}
++
++static int ft5x06_change_mode(struct device *dev, bool factory_mode)
++{
++	struct ft5x06 *priv = dev_get_drvdata(dev);
++	u8 reg, new_reg, val;
++	int i, rc;
++
++	if (factory_mode) {
++		reg = W_REGISTER_OPMODE;
++		new_reg = F_REGISTER_OPMODE;
++		val = 0x03;
++	} else {
++		reg = F_REGISTER_OPMODE;
++		new_reg = W_REGISTER_OPMODE;
++		val = 0x01;
++	}
++
++	rc = ft5x06_register_write(priv, reg, val);
++	if (rc < 0) {
++		dev_err(dev, "Failed to change mode, error: %d\n", rc);
++		return rc;
++	}
++
++	priv->factory_mode = factory_mode;
++
++	i = CHANGE_MODE_RETRIES;
++	do {
++		mdelay(CHANGE_MODE_DELAY);
++		rc = ft5x06_register_read(priv, new_reg);
++		if (rc == val)
++			break;
++	} while (--i);
++
++	if (rc != val) {
++		priv->factory_mode = factory_mode ? false : true;
++		dev_err(dev, "Not in %s mode after %d ms.\n",
++			factory_mode ? "factory" : "working",
++			CHANGE_MODE_RETRIES * CHANGE_MODE_DELAY);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static ssize_t ft5x06_factory_mode_store(struct device *dev,
++					 struct device_attribute *attr,
++					 const char *buf, size_t count)
++{
++	struct ft5x06 *priv = dev_get_drvdata(dev);
++	struct i2c_client *client = to_i2c_client(dev);
++	unsigned int fmode;
++	int rc;
++
++	if (kstrtouint(buf, 10, &fmode))
++		return -EINVAL;
++
++	if (fmode > 1) {
++		dev_err(dev, "Invalid mode\n");
++		return -EINVAL;
++	}
++
++	if (fmode == priv->factory_mode)
++		return count;
++
++	mutex_lock(&priv->mutex);
++
++	if (fmode)
++		disable_irq(client->irq);
++
++	rc = ft5x06_change_mode(dev, fmode);
++
++	if (!priv->factory_mode)
++		enable_irq(client->irq);
++
++	mutex_unlock(&priv->mutex);
++	return rc ? : count;
++}
++static DEVICE_ATTR(factory_mode, 0664, ft5x06_factory_mode_show,
++		   ft5x06_factory_mode_store);
++
++static ssize_t ft5x06_raw_data_show(struct device *dev,
++				    struct device_attribute *attr,
++				    char *buf)
++{
++	struct ft5x06 *priv = dev_get_drvdata(dev);
++	int i, rc;
++	char *ptr, wrbuf[2];
++
++	mutex_lock(&priv->mutex);
++
++	if (!priv->factory_mode) {
++		dev_err(dev, "Raw data not available in work mode\n");
++		rc = -EIO;
++		goto out;
++	}
++
++	rc = ft5x06_register_write(priv, F_REGISTER_RAWDATA, 0x01);
++	if (rc < 0) {
++		dev_err(dev,
++			"Error writing in rawdata register, error: %d\n",
++			rc);
++		goto out;
++	}
++
++	i = RAW_DATA_RETRIES;
++	do {
++		rc = ft5x06_register_read(priv, F_REGISTER_RAWDATA);
++		if (rc < 1)
++			break;
++		msleep(RAW_DATA_DELAY);
++	} while (--i);
++
++	if (rc < 0) {
++		rc = (rc < 0) ? rc : -ETIMEDOUT;
++		dev_err(dev, "Waiting time exceeded or error: %d\n", rc);
++		goto out;
++	}
++
++	ptr = buf;
++	wrbuf[0] = 0x0e;
++	for (i = 0; i <= priv->num_x; i++) {
++		wrbuf[1] = i;
++		rc = ft5x06_i2c_cmd(priv->client, CMD_RDATA_SHOW_FACTORY,
++				     wrbuf, sizeof(wrbuf),
++				     ptr, priv->num_y * 2);
++		if (rc < 0)
++			goto out;
++
++		ptr += priv->num_y * 2;
++	}
++
++	rc = ptr - buf;
++out:
++	mutex_unlock(&priv->mutex);
++	return rc;
++}
++static DEVICE_ATTR(raw_data, 0444, ft5x06_raw_data_show, NULL);
++
++static struct attribute *ft5x06_attrs[] = {
++	&dev_attr_gain.attr,
++	&dev_attr_offset.attr,
++	&dev_attr_threshold.attr,
++	&dev_attr_rate.attr,
++	&dev_attr_factory_mode.attr,
++	&dev_attr_raw_data.attr,
++	NULL
++};
++
++static const struct attribute_group ft5x06_attr_group = {
++	.attrs = ft5x06_attrs,
++};
++
++static
++int __devinit ft5x06_get_model_and_fw(const struct i2c_client *client,
++				      char model[MODEL_FW_LEN],
++				      char fw_version[MODEL_FW_LEN])
++{
++	const struct device *dev = &client->dev;
++	u8 buf[MODEL_FW_LEN];
++	int rc;
++	char *tmp;
++
++	rc = ft5x06_i2c_cmd(client, CMD_GET_FW_VERSION, NULL, 0,
++			     buf, MODEL_FW_LEN);
++	if (rc < 0) {
++		dev_err(dev, "Failed to get firmware version, error: %d\n",
++			rc);
++		return rc;
++	}
++
++	/* Format: 0xbb,EPxx0M06*Azz_YYMMDD$ (22 chars) */
++	if (buf[0] != 0xbb || buf[MODEL_FW_LEN-1] != 0x24)
++		return -EINVAL;
++
++	buf[MODEL_FW_LEN-1] = 0x00;
++
++	tmp = strchr(buf, '*');
++	if (tmp) {
++		tmp[0] = '\0';
++		strlcpy(fw_version, ++tmp, MODEL_FW_LEN);
++	}
++
++	strlcpy(model, &buf[1], MODEL_FW_LEN);
++
++	return 0;
++}
++
++static int __devinit ft5x06_reset(struct ft5x06 *priv)
++{
++	struct i2c_client *client = priv->client;
++	struct device *dev = &client->dev;
++	struct edt_ft5x06_platform_data *pdata = dev->platform_data;
++	int rc;
++
++	priv->gpio_reset = pdata->gpio_reset;
++	if (!gpio_is_valid(priv->gpio_reset))
++		return 0;
++
++	rc = gpio_request_one(priv->gpio_reset, GPIOF_OUT_INIT_LOW,
++			      "edt-ft5x06 reset pin");
++	if (rc < 0) {
++		dev_err(dev,
++			"Failed to get reset pin (GPIO %d), error %d\n",
++			priv->gpio_reset, rc);
++		return rc;
++	}
++
++	mdelay(50);
++	gpio_set_value(priv->gpio_reset, 1);
++	mdelay(100);
++
++	return 0;
++}
++
++static void __devinit ft5x06_init_input_dev(struct ft5x06 *priv)
++{
++	struct i2c_client *client = priv->client;
++	struct device *dev = &client->dev;
++	struct input_dev *input = priv->input;
++
++	priv->num_x = ft5x06_register_read(priv, W_REGISTER_NUM_X);
++	priv->num_y = ft5x06_register_read(priv, W_REGISTER_NUM_Y);
++
++	__set_bit(EV_SYN, input->evbit);
++	__set_bit(EV_KEY, input->evbit);
++	__set_bit(EV_ABS, input->evbit);
++	__set_bit(BTN_TOUCH, input->keybit);
++
++	/* Single touch */
++	input_set_abs_params(input, ABS_X, 0,
++			     priv->num_x * SENSOR_RESOLUTION - 1, 0, 0);
++	input_set_abs_params(input, ABS_Y, 0,
++			     priv->num_y * SENSOR_RESOLUTION - 1, 0, 0);
++
++	/* Multi touch */
++	input_mt_init_slots(input, MAX_TOUCHES);
++	input_set_abs_params(input, ABS_MT_POSITION_X, 0,
++			     priv->num_x * SENSOR_RESOLUTION - 1, 0, 0);
++	input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
++			     priv->num_y * SENSOR_RESOLUTION - 1, 0, 0);
++
++	input->name = priv->model;
++	input->id.bustype = BUS_I2C;
++	input->dev.parent = dev;
++
++	input_set_drvdata(input, priv);
++
++	dev_dbg(dev, "Model: %s, Firmware: %s, %dx%d sensors\n",
++		priv->model, priv->fw_version ? : "Unknown",
++		priv->num_x, priv->num_y);
++}
++
++static int __devinit ft5x06_i2c_probe(struct i2c_client *client,
++				      const struct i2c_device_id *id)
++{
++	struct ft5x06 *priv;
++	struct device *dev = &client->dev;
++	int rc;
++
++	dev_dbg(dev, "Probing for EDT FT5x06 I2C\n");
++
++	if (!client->irq) {
++		dev_err(dev, "No IRQ?\n");
++		return -EINVAL;
++	}
++
++	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
++	if (!priv) {
++		dev_err(dev, "Failed to allocate driver data!\n");
++		rc = -ENOMEM;
++		goto err_mem;
++	}
++
++	priv->input = input_allocate_device();
++	if (!priv->input) {
++		dev_err(dev, "Failed to allocate input device!\n");
++		rc = -ENOMEM;
++		goto err_mem;
++	}
++
++	dev_set_drvdata(dev, priv);
++	priv->client = client;
++	mutex_init(&priv->mutex);
++
++	rc = ft5x06_reset(priv);
++	if (rc)
++		goto err_reset;
++
++	rc = ft5x06_get_model_and_fw(client, priv->model,
++				     priv->fw_version);
++	if (rc)
++		goto err_reset;
++
++	ft5x06_init_input_dev(priv);
++
++	rc = request_threaded_irq(client->irq, NULL, ft5x06_isr,
++				  IRQF_TRIGGER_FALLING,
++				  client->name, priv);
++	if (rc) {
++		dev_err(dev, "Unable to get touchscreen IRQ, error: %d\n",
++			rc);
++		goto err_irq;
++	}
++
++	rc = sysfs_create_group(&dev->kobj, &ft5x06_attr_group);
++	if (rc)
++		goto err_sysfs;
++
++	rc = input_register_device(priv->input);
++	if (rc)
++		goto err_register;
++
++	device_init_wakeup(dev, 1);
++
++	dev_dbg(dev, "EDT FT5x06 initialized (IRQ %d)\n", client->irq);
++
++	return 0;
++
++err_register:
++	sysfs_remove_group(&dev->kobj, &ft5x06_attr_group);
++err_sysfs:
++	free_irq(client->irq, priv);
++err_irq:
++	if (gpio_is_valid(priv->gpio_reset))
++		gpio_free(priv->gpio_reset);
++err_reset:
++	input_free_device(priv->input);
++err_mem:
++	kfree(priv);
++	return rc;
++}
++
++static int __devexit ft5x06_i2c_remove(struct i2c_client *client)
++{
++	struct ft5x06 *priv = dev_get_drvdata(&client->dev);
++	struct device *dev = &client->dev;
++
++	sysfs_remove_group(&dev->kobj, &ft5x06_attr_group);
++
++	free_irq(client->irq, priv);
++
++	input_unregister_device(priv->input);
++
++	if (gpio_is_valid(priv->gpio_reset))
++		gpio_free(priv->gpio_reset);
++
++	kfree(priv);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int ft5x06_i2c_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++
++	if (device_may_wakeup(dev))
++		enable_irq_wake(client->irq);
++
++	return 0;
++}
++
++static int ft5x06_i2c_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++
++	if (device_may_wakeup(dev))
++		disable_irq_wake(client->irq);
++
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(ft5x06_pm, ft5x06_i2c_suspend, ft5x06_i2c_resume);
++
++static const struct i2c_device_id ft5x06_i2c_id[] = {
++	{ "edt-ft5x06", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, ft5x06_i2c_id);
++
++static struct i2c_driver ft5x06_i2c_driver = {
++	.driver = {
++		.owner = THIS_MODULE,
++		.name = "edt-ft5x06_i2c",
++		.pm = &ft5x06_pm,
++	},
++	.id_table = ft5x06_i2c_id,
++	.probe    = ft5x06_i2c_probe,
++	.remove   = __devexit_p(ft5x06_i2c_remove),
++};
++module_i2c_driver(ft5x06_i2c_driver);
++
++MODULE_AUTHOR("Olivier Sobrie <olivier@sobrie.be>");
++MODULE_DESCRIPTION("EDT FT5x06 I2C Touchscreen Driver");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/input/edt-ft5x06.h b/include/linux/input/edt-ft5x06.h
+new file mode 100644
+index 0000000..e687ffb
+--- /dev/null
++++ b/include/linux/input/edt-ft5x06.h
+@@ -0,0 +1,8 @@
++#ifndef _EDT_FT5X06_H
++#define _EDT_FT5X06_H
++
++struct edt_ft5x06_platform_data {
++	unsigned int gpio_reset;
++};
++
++#endif
+-- 
+1.7.9.5
+

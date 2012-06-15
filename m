@@ -1,61 +1,85 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: [PATCH 1/2] Input: twl4030-vibra: Convert to use devm_* in probe
-Date: Fri, 15 Jun 2012 13:22:11 +0300
-Message-ID: <1339755732-23774-2-git-send-email-peter.ujfalusi@ti.com>
-References: <1339755732-23774-1-git-send-email-peter.ujfalusi@ti.com>
+From: "Poddar, Sourav" <sourav.poddar@ti.com>
+Subject: Re: [RESEND/PATCHv5 2/2] arm/dts: omap4-sdp: Add keypad data
+Date: Fri, 15 Jun 2012 20:28:56 +0530
+Message-ID: <CAKdam57V3Ko0QxuXQRrUn6zDaPop=kHtS2NcuS2FKm9zWrsWEg@mail.gmail.com>
+References: <1339152780-25301-1-git-send-email-sourav.poddar@ti.com>
+	<1339152780-25301-2-git-send-email-sourav.poddar@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1339755732-23774-1-git-send-email-peter.ujfalusi@ti.com>
+In-Reply-To: <1339152780-25301-2-git-send-email-sourav.poddar@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dtor@mail.ru>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, peter.ujfalusi@ti.com
+To: devicetree-discuss@lists.ozlabs.org, Dmitry Torokhov <dtor@mail.ru>
+Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, sourav.poddar@ti.com, Andrew Morton <akpm@linux-foundation.org>, Benoit Cousson <b-cousson@ti.com>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Felipe Balbi <balbi@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-Cleanup to use devm_* when it is possible at probe time.
-
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
----
- drivers/input/misc/twl4030-vibra.c |    8 ++------
- 1 files changed, 2 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
-index fc0ed9b..d1e1a7e 100644
---- a/drivers/input/misc/twl4030-vibra.c
-+++ b/drivers/input/misc/twl4030-vibra.c
-@@ -205,7 +205,7 @@ static int __devinit twl4030_vibra_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	info = kzalloc(sizeof(*info), GFP_KERNEL);
-+	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
- 	if (!info)
- 		return -ENOMEM;
- 
-@@ -216,8 +216,7 @@ static int __devinit twl4030_vibra_probe(struct platform_device *pdev)
- 	info->input_dev = input_allocate_device();
- 	if (info->input_dev == NULL) {
- 		dev_err(&pdev->dev, "couldn't allocate input device\n");
--		ret = -ENOMEM;
--		goto err_kzalloc;
-+		return -ENOMEM;
- 	}
- 
- 	input_set_drvdata(info->input_dev, info);
-@@ -250,8 +249,6 @@ err_iff:
- 	input_ff_destroy(info->input_dev);
- err_ialloc:
- 	input_free_device(info->input_dev);
--err_kzalloc:
--	kfree(info);
- 	return ret;
- }
- 
-@@ -261,7 +258,6 @@ static int __devexit twl4030_vibra_remove(struct platform_device *pdev)
- 
- 	/* this also free ff-memless and calls close if needed */
- 	input_unregister_device(info->input_dev);
--	kfree(info);
- 	platform_set_drvdata(pdev, NULL);
- 
- 	return 0;
--- 
-1.7.8.6
+SGkgQWxsLAoKT24gRnJpLCBKdW4gOCwgMjAxMiBhdCA0OjIzIFBNLCBTb3VyYXYgUG9kZGFyIDxz
+b3VyYXYucG9kZGFyQHRpLmNvbT4gd3JvdGU6Cj4KPiBBZGQga2V5cGFkIGRhdGEgbm9kZSBpbiBv
+bWFwNCBkZXZpY2UgdHJlZSBmaWxlLgo+IEFsc28gZmlsbCB0aGUgZGV2aWNlIHRyZWUgYmluZGlu
+ZyBwYXJhbWV0ZXJzCj4gd2l0aCB0aGUgcmVxdWlyZWQgdmFsdWUgaW4gIm9tYXA0LXNkcCIgZHRz
+IGZpbGUuCj4KPiBUZXN0ZWQgb24gb21hcDQ0MzAgc2RwIHdpdGggZG1pdHJ5J3MgJ25leHQnIGJy
+YW5jaC4KPgo+IENjOiBBbmRyZXcgTW9ydG9uIDxha3BtQGxpbnV4LWZvdW5kYXRpb24ub3JnPgo+
+IENjOiBCZW5vaXQgQ291c3NvbiA8Yi1jb3Vzc29uQHRpLmNvbT4KPiBDYzogUm9iIEhlcnJpbmcg
+PHJvYi5oZXJyaW5nQGNhbHhlZGEuY29tPgo+IENjOiBHcmFudCBMaWtlbHkgPGdyYW50Lmxpa2Vs
+eUBzZWNyZXRsYWIuY2E+Cj4gQ2M6IEZlbGlwZSBCYWxiaSA8YmFsYmlAdGkuY29tPgo+IENjOiBE
+bWl0cnkgVG9yb2tob3YgPGR0b3JAbWFpbC5ydT4KPiBTaWduZWQtb2ZmLWJ5OiBTb3VyYXYgUG9k
+ZGFyIDxzb3VyYXYucG9kZGFyQHRpLmNvbT4KPiAtLS0KPiCgYXJjaC9hcm0vYm9vdC9kdHMvb21h
+cDQtc2RwLmR0cyB8IKAgNjMKPiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysKPiCgYXJjaC9hcm0vYm9vdC9kdHMvb21hcDQuZHRzaSCgIKB8IKAgoDUgKysrCj4goDIgZmls
+ZXMgY2hhbmdlZCwgNjggaW5zZXJ0aW9ucygrKSwgMCBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1n
+aXQgYS9hcmNoL2FybS9ib290L2R0cy9vbWFwNC1zZHAuZHRzCj4gYi9hcmNoL2FybS9ib290L2R0
+cy9vbWFwNC1zZHAuZHRzCj4gaW5kZXggNjNjNmIyYi4uMGM5YjNiZiAxMDA2NDQKPiAtLS0gYS9h
+cmNoL2FybS9ib290L2R0cy9vbWFwNC1zZHAuZHRzCj4gKysrIGIvYXJjaC9hcm0vYm9vdC9kdHMv
+b21hcDQtc2RwLmR0cwo+IEBAIC0xNyw0ICsxNyw2NyBAQAo+IKAgoCCgIKAgoCCgIKAgoGRldmlj
+ZV90eXBlID0gIm1lbW9yeSI7Cj4goCCgIKAgoCCgIKAgoCCgcmVnID0gPDB4ODAwMDAwMDAgMHg0
+MDAwMDAwMD47IC8qIDEgR0IgKi8KPiCgIKAgoCCgfTsKPiArCj4gKyCgIKAgoCBrZXlwYWRANGFl
+MWMwMDAgewo+ICsgoCCgIKAgoCCgIKAgoCBrZXlwYWQsbnVtLXJvd3MgPSA8OD47Cj4gKyCgIKAg
+oCCgIKAgoCCgIGtleXBhZCxudW0tY29sdW1ucyA9IDw4PjsKPiArIKAgoCCgIKAgoCCgIKAgbGlu
+dXgsa2V5bWFwID0gPCAweDAwMDAwMDEyCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwMDAx
+MDAxMwo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDAwMjAwMTQKPiArIKAgoCCgIKAgoCCg
+IKAgoCCgIKAgoCAweDAwMDMwMDY2Cj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwMDA0MDAz
+Zgo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDAwNjAwMTcKPiArIKAgoCCgIKAgoCCgIKAg
+oCCgIKAgoCAweDAwMDcwMDJhCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwMTAwMDAyMAo+
+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDEwMTAwMjEKPiArIKAgoCCgIKAgoCCgIKAgoCCg
+IKAgoCAweDAxMDIwMDIyCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwMTAzMDA1NAo+ICsg
+oCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDEwNDAwNDAKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAg
+oCAweDAxMDYwMDI1Cj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwMTA3MDAxYwo+ICsgoCCg
+IKAgoCCgIKAgoCCgIKAgoCCgIDB4MDIwMDAwMmQKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAw
+eDAyMDEwMDJlCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwMjAyMDAyZgo+ICsgoCCgIKAg
+oCCgIKAgoCCgIKAgoCCgIDB4MDIwMzAwNmIKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDAy
+MDQwMDQxCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwMjA2MDAzNAo+ICsgoCCgIKAgoCCg
+IKAgoCCgIKAgoCCgIDB4MDIwNzAwM2EKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDAzMDAw
+MDJjCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwMzAxMDA0ZQo+ICsgoCCgIKAgoCCgIKAg
+oCCgIKAgoCCgIDB4MDMwMjAwMzAKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDAzMDMwMDNi
+Cj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwMzA0MDA0Mgo+ICsgoCCgIKAgoCCgIKAgoCCg
+IKAgoCCgIDB4MDMwNjAwMTgKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDAzMDcwMDM5Cj4g
+KyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwNDAwMDAxMQo+ICsgoCCgIKAgoCCgIKAgoCCgIKAg
+oCCgIDB4MDQwMTAwMTUKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA0MDIwMDE2Cj4gKyCg
+IKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwNDAzMDAzYwo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCg
+IDB4MDQwNDAwNzMKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA0MDYwMDI2Cj4gKyCgIKAg
+oCCgIKAgoCCgIKAgoCCgIKAgMHgwNDA3MDA2OQo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4
+MDUwMDAwMWYKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA1MDEwMDIzCj4gKyCgIKAgoCCg
+IKAgoCCgIKAgoCCgIKAgMHgwNTAyMDAyNAo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDUw
+MzAwM2QKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA1MDQwMDQzCj4gKyCgIKAgoCCgIKAg
+oCCgIKAgoCCgIKAgMHgwNTA1MDA3Mgo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDUwNjAw
+MzIKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA1MDcwMDZhCj4gKyCgIKAgoCCgIKAgoCCg
+IKAgoCCgIKAgMHgwNjAwMDAxMAo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDYwMTAwMWUK
+PiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA2MDIwMDMxCj4gKyCgIKAgoCCgIKAgoCCgIKAg
+oCCgIKAgMHgwNjAzMDA1Ywo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDYwNDAwMGUKPiAr
+IKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA2MDYwMDE5Cj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCg
+IKAgMHgwNjA3MDA2Nwo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDcwMDAwOTQKPiArIKAg
+oCCgIKAgoCCgIKAgoCCgIKAgoCAweDA3MDEwMDk1Cj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAg
+MHgwNzAyMDBjYQo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDcwMzAwY2IKPiArIKAgoCCg
+IKAgoCCgIKAgoCCgIKAgoCAweDA3MDQwMDNlCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgw
+NzA2MDE2MAo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDcwNzAwNmMgPjsKPiArIKAgoCCg
+IKAgoCCgIKAgbGludXgsaW5wdXQtbm8tYXV0b3JlcGVhdDsKPiArIKAgoCCgIH07Cj4goH07Cj4g
+ZGlmZiAtLWdpdCBhL2FyY2gvYXJtL2Jvb3QvZHRzL29tYXA0LmR0c2kgYi9hcmNoL2FybS9ib290
+L2R0cy9vbWFwNC5kdHNpCj4gaW5kZXggM2QzNTU1OS4uZTBmNjc4YSAxMDA2NDQKPiAtLS0gYS9h
+cmNoL2FybS9ib290L2R0cy9vbWFwNC5kdHNpCj4gKysrIGIvYXJjaC9hcm0vYm9vdC9kdHMvb21h
+cDQuZHRzaQo+IEBAIC0xNTYsNCArMTU2LDkgQEAKPiCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgoHRp
+LGh3bW9kcyA9ICJpMmM0IjsKPiCgIKAgoCCgIKAgoCCgIKB9Owo+IKAgoCCgIKB9Owo+ICsKPiAr
+IKAgoCCgIGtleXBhZEA0YWUxYzAwMCB7Cj4gKyCgIKAgoCCgIKAgoCCgIGNvbXBhdGlibGUgPSAi
+dGksb21hcDQta2V5cGFkIjsKPiArIKAgoCCgIKAgoCCgIKAgdGksaHdtb2RzID0gImtiZCI7Cj4g
+KyCgIKAgoCB9Owo+IKB9Owo+IC0tCj4gMS43LjEKPgpHZW50bGUgUGluZyBvbiB0aGlzLi4KCn5T
+b3VyYXYK

@@ -1,57 +1,97 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH 00/16] HID: uhid: User-space HID I/O driver
-Date: Sat, 16 Jun 2012 14:44:30 +0200
-Message-ID: <CANq1E4QmXjmDEPiGAuN7vq5u8=YS30s4RtZgP=PX0E7YtfD44Q@mail.gmail.com>
-References: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
-	<CAAngNMZwxu0uf_YeXt_TnokxeCGUfAAjV7jkgGs37b5Kp3cEmg@mail.gmail.com>
-	<CANq1E4SCbURdH+fhoMinTz_R0SN_Y4PEPST5jNZSN6czt=q+DQ@mail.gmail.com>
-	<CAAngNMa3GMqrgZUrx=XqaRWfK2MaFMewK6OEQU_=4oPj1FOMNw@mail.gmail.com>
-	<CAAngNMYehtuW5405+U7Kkw+dyCFDT0t08gteTDfxH-gbK0Zhug@mail.gmail.com>
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: Re: [PATCH V2 5/5] Input: ads7846: set proper debounce time in driver level
+Date: Sat, 16 Jun 2012 15:27:22 +0200
+Message-ID: <201206161527.22560.marek.vasut@gmail.com>
+References: <zumeng.chen@gmail.com> <4FD8577B.1010408@windriver.com> <4FD867CC.30302@compulab.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:37899 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751121Ab2FPMoc convert rfc822-to-8bit (ORCPT
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:33487 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756878Ab2FPN12 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 16 Jun 2012 08:44:32 -0400
-Received: by wibhn6 with SMTP id hn6so438831wib.1
-        for <linux-input@vger.kernel.org>; Sat, 16 Jun 2012 05:44:31 -0700 (PDT)
-In-Reply-To: <CAAngNMYehtuW5405+U7Kkw+dyCFDT0t08gteTDfxH-gbK0Zhug@mail.gmail.com>
+	Sat, 16 Jun 2012 09:27:28 -0400
+In-Reply-To: <4FD867CC.30302@compulab.co.il>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joao Paulo Rechi Vita <jprvita@openbossa.org>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Igor Grinberg <grinberg@compulab.co.il>
+Cc: Zumeng Chen <zumeng.chen@windriver.com>, Zumeng Chen <zumeng.chen@gmail.com>, tony@atomide.com, jon-hunter@ti.com, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, khasim@ti.com, ajay.gupta@ti.com, hvaibhav@ti.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Hi Joao
+Dear Igor Grinberg,
 
-On Fri, Jun 15, 2012 at 12:05 AM, Joao Paulo Rechi Vita
-<jprvita@openbossa.org> wrote:
-> On Mon, Jun 11, 2012 at 11:40 PM, Joao Paulo Rechi Vita
-> (sorry, I forgot to cc the list on the original response)
->
-> I've tested this new version split in several patches. Input reports
-> support works fine, but the event_type value is still broken. This is
-> a minor issue IMO, since it just affects output and feature reports
-> support, which is not completed implemented in the userspace side of
-> HoG yet. I don't see a problem in having the series integrated
-> upstream and we fix this problem later on.
+> On 06/13/12 12:03, Zumeng Chen wrote:
+> > =E4=BA=8E 2012=E5=B9=B406=E6=9C=8813=E6=97=A5 15:51, Igor Grinberg =
+=E5=86=99=E9=81=93:
+> >> On 06/13/12 04:44, Zumeng Chen wrote:
+> >>> From: Zumeng Chen<zumeng.chen@windriver.com>
+> >>>=20
+> >>> If we don't set proper debouce time for ads7846, then there are
+> >>> flooded interrupt counters of ads7846 responding to one time
+> >>> touch on screen, so the driver couldn't work well.
+> >>>=20
+> >>> And since most OMAP3 series boards pass NULL pointer of board_pda=
+ta
+> >>> to omap_ads7846_init, so it's more proper to set it in driver lev=
+el
+> >>> after having gpio_request done.
+> >>>=20
+> >>> This patch has been validated on 3530evm.
+> >>>=20
+> >>> Signed-off-by: Zumeng Chen<zumeng.chen@windriver.com>
+> >>> Signed-off-by: Syed Mohammed Khasim<khasim@ti.com>
+> >>> ---
+> >>>=20
+> >>>   drivers/input/touchscreen/ads7846.c |    4 ++++
+> >>>   1 files changed, 4 insertions(+), 0 deletions(-)
+> >>>=20
+> >>> diff --git a/drivers/input/touchscreen/ads7846.c
+> >>> b/drivers/input/touchscreen/ads7846.c index f02028e..459ff29 1006=
+44
+> >>> --- a/drivers/input/touchscreen/ads7846.c
+> >>> +++ b/drivers/input/touchscreen/ads7846.c
+> >>> @@ -980,6 +980,10 @@ static int __devinit ads7846_setup_pendown(s=
+truct
+> >>> spi_device *spi, struct ads784
+> >>>=20
+> >>>           }
+> >>>          =20
+> >>>           ts->gpio_pendown =3D pdata->gpio_pendown;
+> >>>=20
+> >>> +#ifdef CONFIG_ARCH_OMAP3
+> >>> +        /* 310 means about 10 microsecond for omap3 */
+> >>> +        gpio_set_debounce(pdata->gpio_pendown, 310);
+> >>> +#endif
+> >>=20
+> >> Unless this concerns many boards/archs/platforms,
+> >=20
+> > Yes, this is the case.
+> >=20
+> >> I'd suggest you to implement
+> >> the get_pendown_state() method in the board file.
+> >=20
+> > it seems they are different way between gpio and
+> > get_pendown_state, and gpio way is used for omap3
+> > to drive ads7846, so I guess we may have to do like this.
+>=20
+> No, this is not (and does not have to be) OMAP wide.
+> The decision for this is made on per-board basis.
 
-I tested the full patchset again to be sure and it works fine here.
-Can you describe your problem in more detail? You applied the full
-patchset, right? And all the events work except the FEATURE request?
-What isn't working exactly here? Do you never receive the feature
-request? What does the "type" field say exactly? What do you expect it
-to report? Please describe the whole test-case you run as I cannot
-follow.
++1 agreed
 
-Regards
-David
+> > Regards,
+> > Zumeng
+> >=20
+> >> If more users will need this, it can be facilitated in the driver.
+> >> (and of course not with the ugly ifdefs...)
+> >>=20
+> >>>       } else {
+> >>>      =20
+> >>>           dev_err(&spi->dev, "no get_pendown_state nor
+> >>>           gpio_pendown?\n");
 
-> --
-> Jo=E3o Paulo Rechi Vita
-> Openbossa Labs - INdT
+Best regards,
+Marek Vasut
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

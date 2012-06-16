@@ -1,147 +1,87 @@
-From: "weixing" <weixing@hanwang.com.cn>
-Subject: Re: Re: [PATCH] Input: hanwang - add support for Art Master II tablet
-Date: Sat, 16 Jun 2012 21:59:34 +0800
-Message-ID: <201206162159340106339@hanwang.com.cn>
-References: <1339423839-9716-1-git-send-email-weixing@hanwang.com.cn>
+From: Jonathan Nieder <jrnieder@gmail.com>
+Subject: Re: [RFC/PATCH] Revert "Input: wacom - add 0xE5 (MT device) support"
+Date: Sat, 16 Jun 2012 17:25:45 -0500
+Message-ID: <20120616222545.GA1660@burratino>
+References: <1335402856-11256-1-git-send-email-pinglinux@gmail.com>
+ <20120614212335.GA4210@burratino>
+ <CAF8JNh+dzJdoYC5AD+4HnOKmjumMR5acLCBFsi=ZAYtGZCja+w@mail.gmail.com>
+ <20120615002705.GA7140@burratino>
+ <CAF8JNh+-5z7xDJrTTTE1GP5E-MD1AnWPJiC43aTbjNLGv8pbwA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hanwang.com.cn ([221.122.51.51]:52588 "EHLO mail.hanwang.com.cn"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756660Ab2FPOAL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 16 Jun 2012 10:00:11 -0400
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:60786 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756892Ab2FPWZy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 16 Jun 2012 18:25:54 -0400
+Received: by obbtb18 with SMTP id tb18so6085227obb.19
+        for <linux-input@vger.kernel.org>; Sat, 16 Jun 2012 15:25:53 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CAF8JNh+-5z7xDJrTTTE1GP5E-MD1AnWPJiC43aTbjNLGv8pbwA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: dmitry.torokhov@gmail.com, =?utf-8?B?QmrDuHJu?= Mork <bjorn@mork.no>, linux-input@vger.kernel.org, Jason Gerecke <killertofu@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, Nils Kanning <nils@kanning.de>
 
-Hi Dmitry Torokhov,
+Hi Ping,
 
-On 2012-06-13 14:38:19,you wrote:
->
->Hi,
->
->On Mon, Jun 11, 2012 at 10:10:39PM +0800, weixing wrote:
->> this adds support for old hanwang Art master II tablet
->> 
->> Signed-off-by: weixing <weixing@hanwang.com.cn>
->> ---
->>  drivers/input/tablet/hanwang.c |   63 ++++++++++++++++++++++++++++++++++++++-
->>  1 files changed, 61 insertions(+), 2 deletions(-)
->> 
->> diff --git a/drivers/input/tablet/hanwang.c b/drivers/input/tablet/hanwang.c
->> index b2db3cf..4154c1d 100644
->> --- a/drivers/input/tablet/hanwang.c
->> +++ b/drivers/input/tablet/hanwang.c
->> @@ -63,6 +63,7 @@ MODULE_LICENSE(DRIVER_LICENSE);
->>  enum hanwang_tablet_type {
->>  	HANWANG_ART_MASTER_III,
->>  	HANWANG_ART_MASTER_HD,
->> +	HANWANG_ART_MASTER_II,
->>  };
->>  
->>  struct hanwang {
->> @@ -99,6 +100,8 @@ static const struct hanwang_features features_array[] = {
->>  	  ART_MASTER_PKGLEN_MAX, 0x7f00, 0x4f60, 0x3f, 0x7f, 2048 },
->>  	{ 0x8401, "Hanwang Art Master HD 5012", HANWANG_ART_MASTER_HD,
->>  	  ART_MASTER_PKGLEN_MAX, 0x678e, 0x4150, 0x3f, 0x7f, 1024 },
->> +	{ 0x8503, "Hanwang Art Master II", HANWANG_ART_MASTER_II,
->> +	  ART_MASTER_PKGLEN_MAX, 0x27de, 0x1cfe, 0x3f, 0x7f, 1024 },
->>  };
->>  
->>  static const int hw_eventtypes[] = {
->> @@ -120,6 +123,55 @@ static const int hw_mscevents[] = {
->>  	MSC_SERIAL,
->>  };
->>  
->> +static void hanwang_parse_ArtmasterII_packet(struct hanwang *hanwang)
->
->Caps are disliked. Why don't you call it
->hanwang_parse_artmaster2_packet()?
->
+Ping Cheng wrote:
 
-Ok,I'll fix it.
+> Here is an update on my testing (for hardware, I have to test to be
+> sure). The result shows driver in upstream and 3.2.20 both work with
+> TPC2FG.
 
->> +{
->> +	unsigned char *data = hanwang->data;
->> +	struct input_dev *input_dev = hanwang->dev;
->> +	struct usb_device *dev = hanwang->usbdev;
->> +	u16 x, y, p;
->> +
->> +	hanwang->current_tool = BTN_TOOL_PEN;
->> +
->i> +	switch (data[0]) {
->> +	case 0x02:	/* correct report id */
->> +		switch (data[1]) {
->> +		case 0x00:	/* pen leave */
->> +			hanwang->current_id = 0;
->> +			input_report_key(input_dev, hanwang->current_tool, 0);
->> +			break;
->> +		default:
->> +			hanwang->current_id = STYLUS_DEVICE_ID;
->> +			x = (data[2] << 8) | data[3];
->> +			y = (data[4] << 8) | data[5];
->> +			p = (data[7] >> 6) | (data[6] << 2);
->> +
->> +			input_report_key(input_dev, BTN_TOOL_PEN, 1);
->> +			input_report_abs(input_dev, ABS_X,
->> +						le16_to_cpup((__le16 *)&x));
->> +			input_report_abs(input_dev, ABS_Y,
->> +						le16_to_cpup((__le16 *)&y));
->> +			input_report_abs(input_dev, ABS_PRESSURE,
->> +						le16_to_cpup((__le16 *)&p));
->
->This does not make any sense. You first manually conver BE data to CPU
->format and then you do "le16_to_cpup((__le16 *)&x" for no reason...
->
->It looks what you need is:
->
->			input_report_abs(input_dev, ABS_X,
->					 be16_to_cpup((__be16 *)&data[2]);
->			input_report_abs(input_dev, ABS_Y,
->					 be16_to_cpup((__be16 *)&data[3]);
->			input_report_abs(input_dev, ABS_PRESSURE,
->					 (data[7] >> 6) | (data[6] << 2));
->
->I see that the original driver has the same issue.. My bad, we need to
->fix it as well.
->
+Again, thanks much for this.
 
-Sorry,I'll fix it.A little formalism here,my bad.Really appreciate ur advice and comment. 
+Nils (cc-ed) tested Linus's "master" branch (3.5-rc2+) this morning.
+The outcome:
 
->> +			input_report_abs(input_dev, ABS_TILT_X, data[7] & 0x3f);
->> +			input_report_abs(input_dev, ABS_TILT_Y, data[8] & 0x7f);
->> +			input_report_key(input_dev, BTN_STYLUS2,
->> +						data[1] & 0x02);
->> +			break;
->> +		}
->> +
->> +		input_report_abs(input_dev, ABS_MISC, hanwang->current_id);
->> +		input_event(input_dev, EV_MSC, MSC_SERIAL,
->> +				hanwang->features->pid);
->
->Hmm, so the difference between ArtmasterII and others is that you it
->does not have BTN_STYLUS, only BTN_STYLUS2 (why, BTW? I'd expect if a
->device had only one button on a stylus it woudl report BTN_STYLUS, not
->BTN_STYLUS2); and it sends hanwang->features->pid instead of 0xffffffff
->in MSC_SERIAL. Does it have to be a separate fucntion that is 99% the
->same as the original one?
->
-ok, i'll fix that.
+| I built the kernel from the git repository as you described. The tablet
+| does not work. 
+|
+| lsusb -t gives:
+| Port 5: Dev 5, If 0, Class=HID, Driver=, 12M
+|
+| The dmesg output is attached. The two input files mentioned in this
+| file, which are related to the wacom tablet, are not there after
+| booting.
 
->Thanks.
->
->-- 
->Dmitry
->--
->To unsubscribe from this list: send the line "unsubscribe linux-input" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+Logs at [1].
 
+For comparison, v3.4.2 works fine.  v3.4.2 plus some unrelated
+Intuous5 support patches (9fee619505bd + f860e581fd47 + 9b5b95dd516a +
+ae584ca47328) also works fine.
 
+Nils also tested v3.4.2 plus the following patch.
 
-Thanks.
+  f393ee2b814e Input: wacom - retrieve maximum number of touch points
+               from the HID usage table when it is supported
 
+The exact patch used is at [2].  That produced:
+
+| Linux video capture interface: v2.00
+| ------------[ cut here ]------------
+| kernel BUG at mm/slab.c:505!
+| invalid opcode: 0000 [#1] SMP 
+[...]
+| Pid: 579, comm: modprobe Not tainted 3.4.2-amd64 #1 LENOVO 42992QG/42992QG
+[...]
+| Call Trace:
+|  [<ffffffff810ef84e>] ? kfree+0x50/0x6c
+|  [<ffffffffa04029cd>] ? wacom_probe+0x52c/0x957 [wacom]
+|  [<ffffffffa006866b>] ? usb_probe_interface+0xf2/0x15d [usbcore]
+
+which is "BUG_ON(!PageSlab(page))" in page_get_cache() and represents
+a free of an invalid pointer.
+
+Full log at [3].
+
+Known problem?  Any ideas for tracking it down?
+
+Thanks again and hope that helps,
+Jonathan
+
+[1] http://bugs.debian.org/677164#87
+[2] http://bugs.debian.org/677164#50
+[3] http://bugs.debian.org/cgi-bin/bugreport.cgi?msg=77;filename=dmesg_0001;att=1;bug=677164

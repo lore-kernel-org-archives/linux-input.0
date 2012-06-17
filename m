@@ -1,50 +1,49 @@
-From: Apostolos Bartziokas <barz621@gmail.com>
-Subject: Possible bug in HID Logitech Unifying receivers
-Date: Sun, 17 Jun 2012 10:23:54 +0300
-Message-ID: <4FDD860A.8040505@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Bryan Wu <bryan.wu@canonical.com>
+Subject: [PATCH] HID: select NEW_LEDS for driver of Lenovo ThinkPad USB Keyboard with TrackPoint
+Date: Sun, 17 Jun 2012 18:52:34 +0800
+Message-ID: <1339930354-1040-1-git-send-email-bryan.wu@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:56185 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752079Ab2FQHY3 (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:44366 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754850Ab2FQKwt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Jun 2012 03:24:29 -0400
-Received: by weyu7 with SMTP id u7so2944728wey.19
-        for <linux-input@vger.kernel.org>; Sun, 17 Jun 2012 00:24:28 -0700 (PDT)
+	Sun, 17 Jun 2012 06:52:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: mail@bernhard-seibold.de, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, torvalds@linux-foundation.org, jkosina@suse.cz, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, rdunlap@xenotime.net
 
-Hello
+commit 'HID: Driver for Lenovo Keyboard with Trackpoint'
+(c1dcad2d32d0252e8a3023d20311b52a187ecda3) introduced a compiling error due to
+unmetting dependency of CONFIG_LEDS_CLASS.
 
-I am having trouble with my logitech mouse which comes with a unifying 
-receiver.
+on i386:
 
-The mouse is not recognized on boot and i have to unplug replug the 
-receiver multiple times in some cases. I tried it on an older kernel 
-(2.6 series) that i had available and it worked just fine.
+ERROR: "led_brightness_set" [drivers/leds/led-class.ko] undefined!
+ERROR: "leds_list" [drivers/leds/led-class.ko] undefined!
+ERROR: "leds_list_lock" [drivers/leds/led-class.ko] undefined!
 
-This problem was present in 3.3.8 and in the 3.4.2 kernel. The problem 
-was also reported in Ubuntu: https://bugs.launchpad.net/ubuntu/+bug/958174
+and possibly related:
 
-My dmesg read something like after the problem occurred:
+warning: (ADB_PMU_LED && IWLWIFI && IWLEGACY && ATH5K && ATH9K && ATH9K_HTC && CARL9170_LEDS && TABLET_USB_WACOM && INPUT_WISTRON_BTNS && SENSORS_APPLESMC && IR_WINBOND_CIR && BACKLIGHT_ADP8860 && BACKLIGHT_ADP8870 && HID_LENOVO_TPKBD && ACER_WMI && ASUS_LAPTOP && DELL_LAPTOP && HP_ACCEL && THINKPAD_ACPI && EEEPC_LAPTOP && ASUS_WMI && ACPI_TOSHIBA && SAMSUNG_LAPTOP) selects LEDS_CLASS which has unmet direct dependencies (NEW_LEDS)
 
-dmesg | grep -i logitech
-[    4.146194] logitech-djreceiver 0003:046D:C52B.0005: hiddev0,hidraw2:
-USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:05:00.0-1/input2
-[   31.374886] logitech-djreceiver 0003:046D:C52B.0008: hiddev0,hidraw2:
-USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:05:00.0-2/input2
-[   40.383383] logitech-djreceiver 0003:046D:C52B.000B: hiddev0,hidraw2:
-USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:05:00.0-1/input2
-[   60.006344] logitech-djreceiver 0003:046D:C52B.000E: hiddev0,hidraw2:
-USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:05:00.0-2/input2
-[   60.015325] input: Logitech Unifying Device. Wireless PID:101a as
-/devices/pci0000:00/0000:00:1c.4/0000:05:00.0/usb3/3-2/3-2:1.2/0003:046D:C52B.000E/input/input14 
+Reported-by: Randy Dunlap <rdunlap@xenotime.net>
+Signed-off-by: Bryan Wu <bryan.wu@canonical.com>
+---
+ drivers/hid/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-[   60.015571] logitech-djdevice 0003:046D:C52B.000F: input,hidraw3: USB
-HID v1.11 Mouse [Logitech Unifying Device. Wireless PID:101a] on
-usb-0000:05:00.0-2:1
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index bb4fd6b..cea0951 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -271,6 +271,7 @@ config HID_LCPOWER
+ config HID_LENOVO_TPKBD
+ 	tristate "Lenovo ThinkPad USB Keyboard with TrackPoint"
+ 	depends on USB_HID
++	select NEW_LEDS
+ 	select LEDS_CLASS
+ 	---help---
+ 	Support for the Lenovo ThinkPad USB Keyboard with TrackPoint.
+-- 
+1.7.10.4
 
-Thanks in advance

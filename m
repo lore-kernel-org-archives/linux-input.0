@@ -1,49 +1,36 @@
-From: Bryan Wu <bryan.wu@canonical.com>
-Subject: [PATCH] HID: select NEW_LEDS for driver of Lenovo ThinkPad USB Keyboard with TrackPoint
-Date: Sun, 17 Jun 2012 18:52:34 +0800
-Message-ID: <1339930354-1040-1-git-send-email-bryan.wu@canonical.com>
+From: Linus Walleij <linus.walleij@stericsson.com>
+Subject: [PATCH 0/4] Nomadik SKE keypad updates
+Date: Sun, 17 Jun 2012 16:17:29 +0200
+Message-ID: <1339942649-20049-1-git-send-email-linus.walleij@stericsson.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:44366 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754850Ab2FQKwt (ORCPT
+Received: from eu1sys200aog117.obsmtp.com ([207.126.144.143]:42484 "EHLO
+	eu1sys200aog117.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757385Ab2FQORr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Jun 2012 06:52:49 -0400
+	Sun, 17 Jun 2012 10:17:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mail@bernhard-seibold.de, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, torvalds@linux-foundation.org, jkosina@suse.cz, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, rdunlap@xenotime.net
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Linus Walleij <linus.walleij@linaro.org>
 
-commit 'HID: Driver for Lenovo Keyboard with Trackpoint'
-(c1dcad2d32d0252e8a3023d20311b52a187ecda3) introduced a compiling error due to
-unmetting dependency of CONFIG_LEDS_CLASS.
+From: Linus Walleij <linus.walleij@linaro.org>
 
-on i386:
+This is a cut down version of the earlier sent Nomadik SKE
+keypad patch set excluding the controversial switch to a
+workqueue for the key scanning. This is done in order for us
+to move forward reducing the delta of this driver.
 
-ERROR: "led_brightness_set" [drivers/leds/led-class.ko] undefined!
-ERROR: "leds_list" [drivers/leds/led-class.ko] undefined!
-ERROR: "leds_list_lock" [drivers/leds/led-class.ko] undefined!
+Naveen Kumar Gaddipati (4):
+  input/nomadik-ske: add multi key press support
+  input/nomadik-ske: suspend and resume support
+  input/nomadik-ske: get rid of multiple interrupts
+  input/nomadik-ske: cleanup of probe and some more code style
 
-and possibly related:
+ drivers/input/keyboard/nomadik-ske-keypad.c |  236 ++++++++++++++++-----------
+ 1 file changed, 138 insertions(+), 98 deletions(-)
 
-warning: (ADB_PMU_LED && IWLWIFI && IWLEGACY && ATH5K && ATH9K && ATH9K_HTC && CARL9170_LEDS && TABLET_USB_WACOM && INPUT_WISTRON_BTNS && SENSORS_APPLESMC && IR_WINBOND_CIR && BACKLIGHT_ADP8860 && BACKLIGHT_ADP8870 && HID_LENOVO_TPKBD && ACER_WMI && ASUS_LAPTOP && DELL_LAPTOP && HP_ACCEL && THINKPAD_ACPI && EEEPC_LAPTOP && ASUS_WMI && ACPI_TOSHIBA && SAMSUNG_LAPTOP) selects LEDS_CLASS which has unmet direct dependencies (NEW_LEDS)
-
-Reported-by: Randy Dunlap <rdunlap@xenotime.net>
-Signed-off-by: Bryan Wu <bryan.wu@canonical.com>
----
- drivers/hid/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index bb4fd6b..cea0951 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -271,6 +271,7 @@ config HID_LCPOWER
- config HID_LENOVO_TPKBD
- 	tristate "Lenovo ThinkPad USB Keyboard with TrackPoint"
- 	depends on USB_HID
-+	select NEW_LEDS
- 	select LEDS_CLASS
- 	---help---
- 	Support for the Lenovo ThinkPad USB Keyboard with TrackPoint.
 -- 
-1.7.10.4
+1.7.9.2
 

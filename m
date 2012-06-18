@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 21/22 v4] Input: atmel_mxt_ts - send all MT-B slots in one input report
-Date: Mon, 18 Jun 2012 12:08:41 +0800
-Message-ID: <1339992522-22073-22-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 11/22 v4] Input: atmel_mxt_ts - add variable length __mxt_write_reg
+Date: Mon, 18 Jun 2012 12:08:31 +0800
+Message-ID: <1339992522-22073-12-git-send-email-djkurtz@chromium.org>
 References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
@@ -10,60 +10,65 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromai
 Cc: Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-Each interrupt contains information for all contacts with changing
-properties.  Process all of this information at once, and send it all in a
-a single input report (ie input events ending in EV_SYN/SYN_REPORT).
+The i2c bus requires 4 bytes to do a 1-byte write
+(1 byte i2c address + 2 byte offset + 1 byte data).
 
-This patch was tested using an MXT224E.
+By taking a length with writes, the driver can amortize transaction
+overhead by performing larger transactions where appropriate.
+
+This patch just sets up the new API.  Later patches refactor writes
+to take advantage of the larger transactions.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   15 ++++++++++-----
- 1 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   22 +++++++++++++++++-----
+ 1 files changed, 17 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 460c10f..06f2b7a 100644
+index 1ef3aef..2e49488 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -540,9 +540,6 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 		input_report_abs(input_dev, ABS_MT_PRESSURE, pressure);
- 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
- 	}
--
--	input_mt_report_pointer_emulation(input_dev, false);
--	input_sync(input_dev);
+@@ -430,17 +430,24 @@ static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
+ 	return __mxt_read_reg(client, reg, 1, val);
  }
  
- static irqreturn_t mxt_interrupt(int irq, void *dev_id)
-@@ -554,6 +551,7 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- 	u8 reportid;
- 	u8 max_reportid;
- 	u8 min_reportid;
-+	bool update_input = false;
+-static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
++static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
++			   const void *val)
+ {
+-	u8 buf[3];
++	u8 *buf;
++	size_t count;
+ 	int ret;
  
- 	do {
- 		if (mxt_read_message(data, &message)) {
-@@ -567,12 +565,19 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- 		min_reportid = data->T9_reportid_min;
- 		id = reportid - min_reportid;
- 
--		if (reportid >= min_reportid && reportid <= max_reportid)
-+		if (reportid >= min_reportid && reportid <= max_reportid) {
- 			mxt_input_touchevent(data, &message, id);
--		else
-+			update_input = true;
-+		} else {
- 			mxt_dump_message(dev, &message);
-+		}
- 	} while (reportid != 0xff);
- 
-+	if (update_input) {
-+		input_mt_report_pointer_emulation(data->input_dev, false);
-+		input_sync(data->input_dev);
-+	}
++	count = len + 2;
++	buf = kmalloc(count, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
 +
- end:
- 	return IRQ_HANDLED;
+ 	buf[0] = reg & 0xff;
+ 	buf[1] = (reg >> 8) & 0xff;
+-	buf[2] = val;
++	memcpy(&buf[2], val, len);
+ 
+-	ret = i2c_master_send(client, buf, 3);
+-	if (ret == 3) {
++	ret = i2c_master_send(client, buf, count);
++	if (ret == count) {
+ 		ret = 0;
+ 	} else {
+ 		if (ret >= 0)
+@@ -452,6 +459,11 @@ static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
+ 	return ret;
  }
+ 
++static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
++{
++	return __mxt_write_reg(client, reg, 1, &val);
++}
++
+ static int mxt_read_object_table(struct i2c_client *client,
+ 				      u16 reg, u8 *object_buf)
+ {
 -- 
 1.7.7.3

@@ -1,32 +1,63 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 22/22 v4] Input: atmel_mxt_ts - parse T6 reports
-Date: Mon, 18 Jun 2012 16:09:53 +0100
-Message-ID: <4FDF44C1.70500@itdev.co.uk>
-References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org> <1339992522-22073-23-git-send-email-djkurtz@chromium.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH] HID: uhid: silence gcc warning
+Date: Mon, 18 Jun 2012 17:12:25 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1206181711260.15308@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-7
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [89.21.227.130] ([89.21.227.130]:46536 "EHLO
-	mail.epsilon.itdev.co.uk" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751294Ab2FRPJz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Jun 2012 11:09:55 -0400
-In-Reply-To: <1339992522-22073-23-git-send-email-djkurtz@chromium.org>
+Received: from cantor2.suse.de ([195.135.220.15]:60882 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751999Ab2FRPMh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Jun 2012 11:12:37 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: linux-input@vger.kernel.org
 
-Daniel Kurtz wrote:
-> The normal messages sent after boot or NVRAM update are T6 reports,
-> containing a status, and the config memory checksum.  Parse them and dump
-> a useful info message.
+gcc is giving me:
 
-This can cause a lot of dmesg output - for instance you get 2 messages per
-calibration, and the chip can trigger them itself if noise suppression or
-anti-touch calibration are enabled. So perhaps dev_dbg()?
+drivers/hid/uhid.c: In function =A1uhid_hid_get_raw=A2:
+drivers/hid/uhid.c:157: warning: =A1len=A2 may be used uninitialized in=
+ this function
 
--- 
-Nick Dyer
-Software Engineer, ITDev Ltd
+which is clearly bogus, as
+
+- when used as memcpy() argument, it's initialized properly
+- the code is structured in a way that either 'ret' or 'len'
+  is always initialized, so the return statement always has
+  an initialized value.
+
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+David,
+
+I have applied this on top of your uhid series in my tree.
+
+ drivers/hid/uhid.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index ea560bf..119b7e6 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -154,7 +154,7 @@ static int uhid_hid_get_raw(struct hid_device *hid,=
+ unsigned char rnum,
+ 	struct uhid_event *ev;
+ 	unsigned long flags;
+ 	int ret;
+-	size_t len;
++	size_t uninitialized_var(len);
+ 	struct uhid_feature_answer_req *req;
+=20
+ 	if (!uhid->running)
+
+--=20
+Jiri Kosina
+SUSE Labs
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

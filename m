@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 09/22 v4] Input: atmel_mxt_ts - print all instances when dumping objects
-Date: Mon, 18 Jun 2012 12:08:29 +0800
-Message-ID: <1339992522-22073-10-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 14/22 v4] Input: atmel_mxt_ts - don't re-read matrix after applying pdata
+Date: Mon, 18 Jun 2012 12:08:34 +0800
+Message-ID: <1339992522-22073-15-git-send-email-djkurtz@chromium.org>
 References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
@@ -10,65 +10,61 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromai
 Cc: Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-For objects with multiple instances, dump them all, prepending each with
-its "Instance #".
+The matrix x/y size in the Info ID Block represents the number of x/y
+trace lines on the device.  There is no need to re-read them after
+applying pdata config, since pdata only configures the object table
+etnries.  The matrix size read from the ID can only be updated by a
+firmware update.
+
+As a side affect, to squash a compiler warning, remove the 1-byte limited
+mxt_read_reg() since it no longer has any callers.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   30 +++++++++++++++++++++---------
- 1 files changed, 21 insertions(+), 9 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   17 -----------------
+ 1 files changed, 0 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 65fd89b..281fcbd 100644
+index 87004ec..214bf8d 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -882,7 +882,7 @@ static ssize_t mxt_object_show(struct device *dev,
- 	struct mxt_data *data = dev_get_drvdata(dev);
- 	struct mxt_object *object;
- 	int count = 0;
--	int i, j;
-+	int i, j, k;
+@@ -426,11 +426,6 @@ static int __mxt_read_reg(struct i2c_client *client,
+ 	return ret;
+ }
+ 
+-static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
+-{
+-	return __mxt_read_reg(client, reg, 1, val);
+-}
+-
+ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+ 			   const void *val)
+ {
+@@ -805,7 +800,6 @@ static int mxt_initialize(struct mxt_data *data)
+ 	struct i2c_client *client = data->client;
+ 	struct mxt_info *info = &data->info;
  	int error;
- 	u8 val;
- 	u8 *obuf;
-@@ -902,18 +902,30 @@ static ssize_t mxt_object_show(struct device *dev,
- 		count += scnprintf(buf + count, PAGE_SIZE - count,
- 				"T%u:\n", object->type);
+-	u8 val;
  
--		error = __mxt_read_reg(data->client, object->start_address,
--				object->size + 1, obuf);
--		if (error)
--			break;
-+		for (j = 0; j < object->instances + 1; j++) {
-+			u16 size = object->size + 1;
-+			u16 addr = object->start_address + j * size;
-+
-+			error = __mxt_read_reg(data->client, addr, size, obuf);
-+			if (error)
-+				break;
+ 	error = mxt_get_info(data);
+ 	if (error)
+@@ -842,17 +836,6 @@ static int mxt_initialize(struct mxt_data *data)
+ 			MXT_COMMAND_RESET, 1);
+ 	msleep(MXT_RESET_TIME);
  
--		for (j = 0; j < object->size + 1; j++) {
--			val = obuf[j];
-+			if (object->instances > 0)
-+				count += scnprintf(buf + count,
-+						PAGE_SIZE - count,
-+						"Instance %u\n", j);
- 
-+			for (k = 0; k < object->size + 1; k++) {
-+				val = obuf[k];
-+
-+				count += scnprintf(buf + count,
-+						PAGE_SIZE - count,
-+						"\t[%2u]: %02x (%d)\n",
-+						k, val, val);
-+			}
- 			count += scnprintf(buf + count, PAGE_SIZE - count,
--					"\t[%2d]: %02x (%d)\n", j, val, val);
-+					"\n");
- 		}
--		count += scnprintf(buf + count, PAGE_SIZE - count, "\n");
- 	}
- 
- 	kfree(obuf);
+-	/* Update matrix size at info struct */
+-	error = mxt_read_reg(client, MXT_MATRIX_X_SIZE, &val);
+-	if (error)
+-		return error;
+-	info->matrix_xsize = val;
+-
+-	error = mxt_read_reg(client, MXT_MATRIX_Y_SIZE, &val);
+-	if (error)
+-		return error;
+-	info->matrix_ysize = val;
+-
+ 	dev_info(&client->dev,
+ 			"Family ID: %d Variant ID: %d Version: %d Build: %d\n",
+ 			info->family_id, info->variant_id, info->version,
 -- 
 1.7.7.3

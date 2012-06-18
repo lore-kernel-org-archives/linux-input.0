@@ -1,51 +1,48 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH 14/22 v4] Input: atmel_mxt_ts - don't re-read matrix after
- applying pdata
-Date: Mon, 18 Jun 2012 23:28:01 +0800
-Message-ID: <CAGS+omB9kixY29f7awPDaRc-t9t0LJ+Lwz=gBzUoXro5f9jYXg@mail.gmail.com>
+Subject: Re: [PATCH 22/22 v4] Input: atmel_mxt_ts - parse T6 reports
+Date: Mon, 18 Jun 2012 23:29:59 +0800
+Message-ID: <CAGS+omDgwEYMOPxsk4gjbZSO7ocz=PPzqtowBEsfnRb=0ogi4w@mail.gmail.com>
 References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
- <1339992522-22073-15-git-send-email-djkurtz@chromium.org> <4FDF4345.40508@itdev.co.uk>
+ <1339992522-22073-23-git-send-email-djkurtz@chromium.org> <4FDF44C1.70500@itdev.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4FDF4345.40508@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gg0-f174.google.com ([209.85.161.174]:36220 "EHLO
+	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752390Ab2FRPaU convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Jun 2012 11:30:20 -0400
+Received: by gglu4 with SMTP id u4so3766168ggl.19
+        for <linux-input@vger.kernel.org>; Mon, 18 Jun 2012 08:30:19 -0700 (PDT)
+In-Reply-To: <4FDF44C1.70500@itdev.co.uk>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Nick Dyer <nick.dyer@itdev.co.uk>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 18, 2012 at 11:03 PM, Nick Dyer <nick.dyer@itdev.co.uk> wro=
+On Mon, Jun 18, 2012 at 11:09 PM, Nick Dyer <nick.dyer@itdev.co.uk> wro=
 te:
->
 > Daniel Kurtz wrote:
-> > The matrix x/y size in the Info ID Block represents the number of x=
-/y
-> > trace lines on the device. =A0There is no need to re-read them afte=
-r
-> > applying pdata config, since pdata only configures the object table
-> > etnries. =A0The matrix size read from the ID can only be updated by=
- a
-> > firmware update.
+>> The normal messages sent after boot or NVRAM update are T6 reports,
+>> containing a status, and the config memory checksum. =A0Parse them a=
+nd dump
+>> a useful info message.
 >
-> This isn't correct. For example, mXT224 can be configured as 16x14, 1=
-7x13,
-> 18x12, etc. This only takes effect when the chip is reset, which is w=
-hy it
-> is necessary to re-read them after applying the config.
+> This can cause a lot of dmesg output - for instance you get 2 message=
+s per
+> calibration, and the chip can trigger them itself if noise suppressio=
+n or
+> anti-touch calibration are enabled. So perhaps dev_dbg()?
 
-Ah, so is that what T46.1 (Mode) does?  I hadn't played with that yet.
-Ok, I'll move this patch into the next series which cleans up all of
-the configuration stuff.
+Sounds good to me.
 
--Dan
-
->
->
-> cheers
 >
 > --
 > Nick Dyer
 > Software Engineer, ITDev Ltd
-> Hardware and Software Development Consultancy
-> Website: http://www.itdev.co.uk
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 01/22 v4] Input: atmel_mxt_ts - set phys to i2c client adapter name
-Date: Mon, 18 Jun 2012 12:08:21 +0800
-Message-ID: <1339992522-22073-2-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 21/22 v4] Input: atmel_mxt_ts - send all MT-B slots in one input report
+Date: Mon, 18 Jun 2012 12:08:41 +0800
+Message-ID: <1339992522-22073-22-git-send-email-djkurtz@chromium.org>
 References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
@@ -10,25 +10,60 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromai
 Cc: Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-This allows userspace to more easily distinguish which bus a particular
-atmel_mxt_ts device is attached to.
+Each interrupt contains information for all contacts with changing
+properties.  Process all of this information at once, and send it all in a
+a single input report (ie input events ending in EV_SYN/SYN_REPORT).
+
+This patch was tested using an MXT224E.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   15 ++++++++++-----
+ 1 files changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 42e6450..eda9eed 100644
+index 460c10f..06f2b7a 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -1106,6 +1106,7 @@ static int __devinit mxt_probe(struct i2c_client *client,
+@@ -540,9 +540,6 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 		input_report_abs(input_dev, ABS_MT_PRESSURE, pressure);
+ 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
  	}
+-
+-	input_mt_report_pointer_emulation(input_dev, false);
+-	input_sync(input_dev);
+ }
  
- 	input_dev->name = "Atmel maXTouch Touchscreen";
-+	input_dev->phys = client->adapter->name;
- 	input_dev->id.bustype = BUS_I2C;
- 	input_dev->dev.parent = &client->dev;
- 	input_dev->open = mxt_input_open;
+ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+@@ -554,6 +551,7 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 	u8 reportid;
+ 	u8 max_reportid;
+ 	u8 min_reportid;
++	bool update_input = false;
+ 
+ 	do {
+ 		if (mxt_read_message(data, &message)) {
+@@ -567,12 +565,19 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 		min_reportid = data->T9_reportid_min;
+ 		id = reportid - min_reportid;
+ 
+-		if (reportid >= min_reportid && reportid <= max_reportid)
++		if (reportid >= min_reportid && reportid <= max_reportid) {
+ 			mxt_input_touchevent(data, &message, id);
+-		else
++			update_input = true;
++		} else {
+ 			mxt_dump_message(dev, &message);
++		}
+ 	} while (reportid != 0xff);
+ 
++	if (update_input) {
++		input_mt_report_pointer_emulation(data->input_dev, false);
++		input_sync(data->input_dev);
++	}
++
+ end:
+ 	return IRQ_HANDLED;
+ }
 -- 
 1.7.7.3

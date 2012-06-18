@@ -1,48 +1,67 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH 22/22 v4] Input: atmel_mxt_ts - parse T6 reports
-Date: Mon, 18 Jun 2012 23:29:59 +0800
-Message-ID: <CAGS+omDgwEYMOPxsk4gjbZSO7ocz=PPzqtowBEsfnRb=0ogi4w@mail.gmail.com>
-References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
- <1339992522-22073-23-git-send-email-djkurtz@chromium.org> <4FDF44C1.70500@itdev.co.uk>
+From: Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: [PATCH] HID: select NEW_LEDS for driver of Lenovo ThinkPad USB
+ Keyboard with TrackPoint
+Date: Mon, 18 Jun 2012 10:24:54 -0700
+Message-ID: <4FDF6466.2040808@xenotime.net>
+References: <1339930354-1040-1-git-send-email-bryan.wu@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gg0-f174.google.com ([209.85.161.174]:36220 "EHLO
-	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752390Ab2FRPaU convert rfc822-to-8bit (ORCPT
+Received: from oproxy6-pub.bluehost.com ([67.222.54.6]:50575 "HELO
+	oproxy6-pub.bluehost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752272Ab2FRRZQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Jun 2012 11:30:20 -0400
-Received: by gglu4 with SMTP id u4so3766168ggl.19
-        for <linux-input@vger.kernel.org>; Mon, 18 Jun 2012 08:30:19 -0700 (PDT)
-In-Reply-To: <4FDF44C1.70500@itdev.co.uk>
+	Mon, 18 Jun 2012 13:25:16 -0400
+In-Reply-To: <1339930354-1040-1-git-send-email-bryan.wu@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org
+To: Bryan Wu <bryan.wu@canonical.com>
+Cc: mail@bernhard-seibold.de, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, torvalds@linux-foundation.org, jkosina@suse.cz, linux-input@vger.kernel.org, linux-leds@vger.kernel.org
 
-On Mon, Jun 18, 2012 at 11:09 PM, Nick Dyer <nick.dyer@itdev.co.uk> wro=
-te:
-> Daniel Kurtz wrote:
->> The normal messages sent after boot or NVRAM update are T6 reports,
->> containing a status, and the config memory checksum. =A0Parse them a=
-nd dump
->> a useful info message.
->
-> This can cause a lot of dmesg output - for instance you get 2 message=
-s per
-> calibration, and the chip can trigger them itself if noise suppressio=
-n or
-> anti-touch calibration are enabled. So perhaps dev_dbg()?
+On 06/17/2012 03:52 AM, Bryan Wu wrote:
 
-Sounds good to me.
+> commit 'HID: Driver for Lenovo Keyboard with Trackpoint'
+> (c1dcad2d32d0252e8a3023d20311b52a187ecda3) introduced a compiling error due to
+> unmetting dependency of CONFIG_LEDS_CLASS.
+> 
+> on i386:
+> 
+> ERROR: "led_brightness_set" [drivers/leds/led-class.ko] undefined!
+> ERROR: "leds_list" [drivers/leds/led-class.ko] undefined!
+> ERROR: "leds_list_lock" [drivers/leds/led-class.ko] undefined!
+> 
+> and possibly related:
+> 
+> warning: (ADB_PMU_LED && IWLWIFI && IWLEGACY && ATH5K && ATH9K && ATH9K_HTC && CARL9170_LEDS && TABLET_USB_WACOM && INPUT_WISTRON_BTNS && SENSORS_APPLESMC && IR_WINBOND_CIR && BACKLIGHT_ADP8860 && BACKLIGHT_ADP8870 && HID_LENOVO_TPKBD && ACER_WMI && ASUS_LAPTOP && DELL_LAPTOP && HP_ACCEL && THINKPAD_ACPI && EEEPC_LAPTOP && ASUS_WMI && ACPI_TOSHIBA && SAMSUNG_LAPTOP) selects LEDS_CLASS which has unmet direct dependencies (NEW_LEDS)
+> 
+> Reported-by: Randy Dunlap <rdunlap@xenotime.net>
+> Signed-off-by: Bryan Wu <bryan.wu@canonical.com>
 
->
-> --
-> Nick Dyer
-> Software Engineer, ITDev Ltd
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+Acked-by: Randy Dunlap <rdunlap@xenotime.net>
+
+Thanks.
+
+
+> ---
+>  drivers/hid/Kconfig |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index bb4fd6b..cea0951 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -271,6 +271,7 @@ config HID_LCPOWER
+>  config HID_LENOVO_TPKBD
+>  	tristate "Lenovo ThinkPad USB Keyboard with TrackPoint"
+>  	depends on USB_HID
+> +	select NEW_LEDS
+>  	select LEDS_CLASS
+>  	---help---
+>  	Support for the Lenovo ThinkPad USB Keyboard with TrackPoint.
+
+
+
+-- 
+~Randy

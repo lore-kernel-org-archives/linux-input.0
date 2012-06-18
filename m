@@ -1,37 +1,46 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 02/22 v4] Input: atmel_mxt_ts - use client name for irq
-Date: Mon, 18 Jun 2012 12:08:22 +0800
-Message-ID: <1339992522-22073-3-git-send-email-djkurtz@chromium.org>
-References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org
-Cc: Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 00/16] HID: uhid: User-space HID I/O driver
+Date: Mon, 18 Jun 2012 13:46:17 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1206181345330.15308@pobox.suse.cz>
+References: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:34643 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751439Ab2FRLqt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Jun 2012 07:46:49 -0400
+In-Reply-To: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: linux-input@vger.kernel.org
 
-The atmel_mxt_ts driver can support multiple devices simultaneously.
-Use the i2c_client name instead of the driver name when requesting an
-interrupt to make the different interrupts distinguishable in
-/proc/interrupts and top.
+On Sun, 10 Jun 2012, David Herrmann wrote:
 
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
----
- drivers/input/touchscreen/atmel_mxt_ts.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+> This adds a new low-level HID driver that allows user-space to implement the
+> transport-layer. This is needed by HOGP (HID over Gatt on Bluetooth Low Energy).
+> There is already an implementation of HOGP, see the
+> linux-bluetooth@vger.kernel.org mailing list for this.
+> 
+> I've split this into multiple patches to make review easier. This patchset is
+> already working for several months for the HOGP developers but there may still
+> be some issues with it. Please review.
+> 
+> The uhid_*() functions implement the basic module functionality. The
+> uhid_char_*() functions handle character-device related functionality. The
+> uhid_dev_*() functions handle the uhid-device object and the uhid_hid_*()
+> functions are HID-callbacks.
+> 
+> I am open for any suggestions.
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index eda9eed..cb191fe 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -1150,7 +1150,7 @@ static int __devinit mxt_probe(struct i2c_client *client,
- 		goto err_free_object;
- 
- 	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
--			pdata->irqflags, client->dev.driver->name, data);
-+			pdata->irqflags, client->name, data);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to register interrupt\n");
- 		goto err_free_object;
+David,
+
+I have just finished my review and haven't found any principal issues. I 
+am queueing the patchset in my tree.
+
+Thanks a lot for your work on this,
+
 -- 
-1.7.7.3
+Jiri Kosina
+SUSE Labs

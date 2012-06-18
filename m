@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 18/22 v4] Input: atmel_mxt_ts - add detail to touchevent debug message
-Date: Mon, 18 Jun 2012 12:08:38 +0800
-Message-ID: <1339992522-22073-19-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 12/22 v4] Input: atmel_mxt_ts - optimize writing of object table entries
+Date: Mon, 18 Jun 2012 12:08:32 +0800
+Message-ID: <1339992522-22073-13-git-send-email-djkurtz@chromium.org>
 References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
@@ -10,50 +10,56 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromai
 Cc: Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-Update the debug message:
- * print inidividual status bits
- * print the pressure value
- * use '%u' for unsigned quantities
+Write each object using a single bulk i2c write transfer.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+Reviewed-by: Joonyoung Shim <jy0922.shim@samsung.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   17 ++++++++++++++---
- 1 files changed, 14 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   24 ++++++++++++------------
+ 1 files changed, 12 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 02ff914..d71ecf0 100644
+index 2e49488..efce50f 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -195,6 +195,7 @@
- #define MXT_BOOT_STATUS_MASK	0x3f
+@@ -653,7 +653,8 @@ static int mxt_check_reg_init(struct mxt_data *data)
+ 	struct mxt_object *object;
+ 	struct device *dev = &data->client->dev;
+ 	int index = 0;
+-	int i, j, config_offset;
++	int i, size;
++	int ret;
  
- /* Touch status */
-+#define MXT_UNGRIP		(1 << 0)
- #define MXT_SUPPRESS		(1 << 1)
- #define MXT_AMP			(1 << 2)
- #define MXT_VECTOR		(1 << 3)
-@@ -524,9 +525,19 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 	area = message->message[4];
- 	pressure = message->message[5];
+ 	if (!pdata->config) {
+ 		dev_dbg(dev, "No cfg data defined, skipping reg init\n");
+@@ -666,18 +667,17 @@ static int mxt_check_reg_init(struct mxt_data *data)
+ 		if (!mxt_object_writable(object->type))
+ 			continue;
  
--	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
--		status & MXT_MOVE ? "moved" : "pressed",
--		x, y, area);
-+	dev_dbg(dev,
-+		"[%u] %c%c%c%c%c%c%c%c x: %5u y: %5u area: %3u amp: %3u\n",
-+		id,
-+		(status & MXT_DETECT) ? 'D' : '.',
-+		(status & MXT_PRESS) ? 'P' : '.',
-+		(status & MXT_RELEASE) ? 'R' : '.',
-+		(status & MXT_MOVE) ? 'M' : '.',
-+		(status & MXT_VECTOR) ? 'V' : '.',
-+		(status & MXT_AMP) ? 'A' : '.',
-+		(status & MXT_SUPPRESS) ? 'S' : '.',
-+		(status & MXT_UNGRIP) ? 'U' : '.',
-+		x, y, area, pressure);
+-		for (j = 0;
+-		     j < (object->size + 1) * (object->instances + 1);
+-		     j++) {
+-			config_offset = index + j;
+-			if (config_offset > pdata->config_length) {
+-				dev_err(dev, "Not enough config data!\n");
+-				return -EINVAL;
+-			}
+-			mxt_write_object(data, object->type, j,
+-					 pdata->config[config_offset]);
++		size = (object->size + 1) * (object->instances + 1);
++		if (index + size > pdata->config_length) {
++			dev_err(dev, "Not enough config data!\n");
++			return -EINVAL;
+ 		}
+-		index += (object->size + 1) * (object->instances + 1);
 +
- 	input_mt_slot(input_dev, id);
- 	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
- 				   status & MXT_DETECT);
++		ret = __mxt_write_reg(data->client, object->start_address,
++				size, &pdata->config[index]);
++		if (ret)
++			return ret;
++		index += size;
+ 	}
+ 
+ 	return 0;
 -- 
 1.7.7.3

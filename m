@@ -1,88 +1,62 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 10/22 v4] Input: atmel_mxt_ts - return errors from i2c layer
-Date: Mon, 18 Jun 2012 12:08:30 +0800
-Message-ID: <1339992522-22073-11-git-send-email-djkurtz@chromium.org>
-References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 00/22 v4] cleanup atmel_mxt_ts
+Date: Mon, 18 Jun 2012 12:08:20 +0800
+Message-ID: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gg0-f202.google.com ([209.85.161.202]:45248 "EHLO
+	mail-gg0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751296Ab2FREIr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Jun 2012 00:08:47 -0400
+Received: by ggeh3 with SMTP id h3so403954gge.1
+        for <linux-input@vger.kernel.org>; Sun, 17 Jun 2012 21:08:47 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org
 Cc: Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
-List-Id: linux-input@vger.kernel.org
 
-The i2c layer can report a variety of errors, including -ENXIO for an i2c
-NAK.  Instead of treating them all as -EIO, pass the actual i2c layer
-error up to the caller.
+This patchset cleans up the atmel_mxt_ts touchscreen driver.
 
-However, still report as -EIO the unlikely case that a transaction was
-partially completed, and no error message was returned from i2c_*().
+These patches mostly contain non-controversial changes that were previously
+reviewed in previous versions of the patchset.  However, based on feedback from
+Henrik, the individual patches are now all much smaller and easier to review.
 
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
----
- drivers/input/touchscreen/atmel_mxt_ts.c |   28 ++++++++++++++++++++--------
- 1 files changed, 20 insertions(+), 8 deletions(-)
+They were tested using an MXT224E, and apply cleanly to input/next.
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 281fcbd..1ef3aef 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -395,6 +395,7 @@ static int __mxt_read_reg(struct i2c_client *client,
- {
- 	struct i2c_msg xfer[2];
- 	u8 buf[2];
-+	int ret;
- 
- 	buf[0] = reg & 0xff;
- 	buf[1] = (reg >> 8) & 0xff;
-@@ -411,12 +412,17 @@ static int __mxt_read_reg(struct i2c_client *client,
- 	xfer[1].len = len;
- 	xfer[1].buf = val;
- 
--	if (i2c_transfer(client->adapter, xfer, 2) != 2) {
--		dev_err(&client->dev, "%s: i2c transfer failed\n", __func__);
--		return -EIO;
-+	ret = i2c_transfer(client->adapter, xfer, 2);
-+	if (ret == 2) {
-+		ret = 0;
-+	} else {
-+		if (ret >= 0)
-+			ret = -EIO;
-+		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
-+			__func__, ret);
- 	}
- 
--	return 0;
-+	return ret;
- }
- 
- static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
-@@ -427,17 +433,23 @@ static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
- static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
- {
- 	u8 buf[3];
-+	int ret;
- 
- 	buf[0] = reg & 0xff;
- 	buf[1] = (reg >> 8) & 0xff;
- 	buf[2] = val;
- 
--	if (i2c_master_send(client, buf, 3) != 3) {
--		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
--		return -EIO;
-+	ret = i2c_master_send(client, buf, 3);
-+	if (ret == 3) {
-+		ret = 0;
-+	} else {
-+		if (ret >= 0)
-+			ret = -EIO;
-+		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
-+			__func__, ret);
- 	}
- 
--	return 0;
-+	return ret;
- }
- 
- static int mxt_read_object_table(struct i2c_client *client,
+Whenever these patches (or their descendants) are accepted, there is a larger
+patchset full of additional features and more significant changes that will
+follow.
+
+Daniel Kurtz (22):
+  Input: atmel_mxt_ts - set phys to i2c client adapter name
+  Input: atmel_mxt_ts - use client name for irq
+  Input: atmel_mxt_ts - detect OOM when creating mt slots
+  Input: atmel_mxt_ts - warn if sysfs could not be created
+  Input: atmel_mxt_ts - don't read T5 when dumping objects
+  Input: atmel_mxt_ts - use scnprintf for object sysfs entry
+  Input: atmel_mxt_ts - optimize reading objects in object sysfs entry
+  Input: atmel_mxt_ts - print less overhead when dumping objects
+  Input: atmel_mxt_ts - print all instances when dumping objects
+  Input: atmel_mxt_ts - return errors from i2c layer
+  Input: atmel_mxt_ts - add variable length __mxt_write_reg
+  Input: atmel_mxt_ts - optimize writing of object table entries
+  Input: atmel_mxt_ts - read ID information block in one i2c
+    transaction
+  Input: atmel_mxt_ts - don't re-read matrix after applying pdata
+  Input: atmel_mxt_ts - update driver ID info logging
+  Input: atmel_mxt_ts - add sysfs entries to read fw and hw version
+  Input: atmel_mxt_ts - simplify event reporting
+  Input: atmel_mxt_ts - add detail to touchevent debug message
+  Input: atmel_mxt_ts - cache T9 reportid range when reading object
+    table
+  Input: atmel_mxt_ts - use T9 reportid range to init number of mt
+    slots
+  Input: atmel_mxt_ts - send all MT-B slots in one input report
+  Input: atmel_mxt_ts - parse T6 reports
+
+ drivers/input/touchscreen/atmel_mxt_ts.c |  449 ++++++++++++++----------------
+ 1 files changed, 212 insertions(+), 237 deletions(-)
+
 -- 
 1.7.7.3
+

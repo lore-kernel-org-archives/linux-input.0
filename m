@@ -1,55 +1,76 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH] HID: uhid: silence gcc warning
-Date: Mon, 18 Jun 2012 20:09:29 +0200
-Message-ID: <CANq1E4SUTegcC+_=UJcMpJQpTUiD9TG489Nh=wyA+-_vMhrWzA@mail.gmail.com>
-References: <alpine.LNX.2.00.1206181711260.15308@pobox.suse.cz>
+From: Yufeng Shen <miletus@google.com>
+Subject: Re: [PATCH 14/22 v4] Input: atmel_mxt_ts - don't re-read matrix after
+ applying pdata
+Date: Mon, 18 Jun 2012 15:50:01 -0400
+Message-ID: <CAPDwgkMATDg5_FyJhR2aDCOzHu9DQbxzPHMn7MCC8KmBsS2bhg@mail.gmail.com>
+References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
+	<1339992522-22073-15-git-send-email-djkurtz@chromium.org>
+	<4FDF4345.40508@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:34237 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751951Ab2FRSJa convert rfc822-to-8bit (ORCPT
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:49507 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751464Ab2FRTuD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Jun 2012 14:09:30 -0400
-Received: by wibhj8 with SMTP id hj8so2366959wib.1
-        for <linux-input@vger.kernel.org>; Mon, 18 Jun 2012 11:09:29 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1206181711260.15308@pobox.suse.cz>
+	Mon, 18 Jun 2012 15:50:03 -0400
+Received: by wgbdr13 with SMTP id dr13so5994179wgb.1
+        for <linux-input@vger.kernel.org>; Mon, 18 Jun 2012 12:50:01 -0700 (PDT)
+In-Reply-To: <4FDF4345.40508@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Daniel Kurtz <djkurtz@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org
 
-Hi Jiri
+On Mon, Jun 18, 2012 at 11:03 AM, Nick Dyer <nick.dyer@itdev.co.uk> wro=
+te:
+> Daniel Kurtz wrote:
+>> The matrix x/y size in the Info ID Block represents the number of x/=
+y
+>> trace lines on the device. =A0There is no need to re-read them after
+>> applying pdata config, since pdata only configures the object table
+>> etnries. =A0The matrix size read from the ID can only be updated by =
+a
+>> firmware update.
+>
+> This isn't correct. For example, mXT224 can be configured as 16x14, 1=
+7x13,
+> 18x12, etc. This only takes effect when the chip is reset, which is w=
+hy it
+> is necessary to re-read them after applying the config.
+>
 
-On Mon, Jun 18, 2012 at 5:12 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> gcc is giving me:
->
-> drivers/hid/uhid.c: In function =91uhid_hid_get_raw=92:
-> drivers/hid/uhid.c:157: warning: =91len=92 may be used uninitialized =
-in this function
->
-> which is clearly bogus, as
->
-> - when used as memcpy() argument, it's initialized properly
-> - the code is structured in a way that either 'ret' or 'len'
-> =A0is always initialized, so the return statement always has
-> =A0an initialized value.
->
-> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> ---
-> David,
->
-> I have applied this on top of your uhid series in my tree.
+so look at structure mxt_info
 
-Yes, looks totally bogus to me, too. I also don't get the warning with
-gcc-4.7.0. Thanks for applying it, looks ok to me.
+ struct mxt_info {
+          u8 family_id;
+          u8 variant_id;
+          u8 version;
+          u8 build;
+          u8 matrix_xsize;
+          u8 matrix_ysize;
+          u8 object_num;
+};
 
-Regards
-David
+I think it is meant to be corresponding to Information Block of the
+device, of which
+the matrix_xsize and matrix_ysize mean "The size of the matrix the
+device supports",
+which should be fixed for a certain chip.
 
-> =A0drivers/hid/uhid.c | =A0 =A02 +-
-> =A01 files changed, 1 insertions(+), 1 deletions(-)
+The configurable matrix size is in T9 XSIZE/YSIZE, which, if ever
+needed to be read back,
+probably read back into something other than mxt_info struct.
+
+
+> cheers
+>
+> --
+> Nick Dyer
+> Software Engineer, ITDev Ltd
+> Hardware and Software Development Consultancy
+> Website: http://www.itdev.co.uk
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

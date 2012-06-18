@@ -1,63 +1,51 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] HID: uhid: silence gcc warning
-Date: Mon, 18 Jun 2012 17:12:25 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1206181711260.15308@pobox.suse.cz>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH 14/22 v4] Input: atmel_mxt_ts - don't re-read matrix after
+ applying pdata
+Date: Mon, 18 Jun 2012 23:28:01 +0800
+Message-ID: <CAGS+omB9kixY29f7awPDaRc-t9t0LJ+Lwz=gBzUoXro5f9jYXg@mail.gmail.com>
+References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
+ <1339992522-22073-15-git-send-email-djkurtz@chromium.org> <4FDF4345.40508@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-7
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:60882 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751999Ab2FRPMh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Jun 2012 11:12:37 -0400
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4FDF4345.40508@itdev.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: linux-input@vger.kernel.org
 
-gcc is giving me:
+On Mon, Jun 18, 2012 at 11:03 PM, Nick Dyer <nick.dyer@itdev.co.uk> wro=
+te:
+>
+> Daniel Kurtz wrote:
+> > The matrix x/y size in the Info ID Block represents the number of x=
+/y
+> > trace lines on the device. =A0There is no need to re-read them afte=
+r
+> > applying pdata config, since pdata only configures the object table
+> > etnries. =A0The matrix size read from the ID can only be updated by=
+ a
+> > firmware update.
+>
+> This isn't correct. For example, mXT224 can be configured as 16x14, 1=
+7x13,
+> 18x12, etc. This only takes effect when the chip is reset, which is w=
+hy it
+> is necessary to re-read them after applying the config.
 
-drivers/hid/uhid.c: In function =A1uhid_hid_get_raw=A2:
-drivers/hid/uhid.c:157: warning: =A1len=A2 may be used uninitialized in=
- this function
+Ah, so is that what T46.1 (Mode) does?  I hadn't played with that yet.
+Ok, I'll move this patch into the next series which cleans up all of
+the configuration stuff.
 
-which is clearly bogus, as
+-Dan
 
-- when used as memcpy() argument, it's initialized properly
-- the code is structured in a way that either 'ret' or 'len'
-  is always initialized, so the return statement always has
-  an initialized value.
-
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
-David,
-
-I have applied this on top of your uhid series in my tree.
-
- drivers/hid/uhid.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index ea560bf..119b7e6 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -154,7 +154,7 @@ static int uhid_hid_get_raw(struct hid_device *hid,=
- unsigned char rnum,
- 	struct uhid_event *ev;
- 	unsigned long flags;
- 	int ret;
--	size_t len;
-+	size_t uninitialized_var(len);
- 	struct uhid_feature_answer_req *req;
-=20
- 	if (!uhid->running)
-
---=20
-Jiri Kosina
-SUSE Labs
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>
+> cheers
+>
+> --
+> Nick Dyer
+> Software Engineer, ITDev Ltd
+> Hardware and Software Development Consultancy
+> Website: http://www.itdev.co.uk

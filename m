@@ -1,348 +1,84 @@
 From: "Poddar, Sourav" <sourav.poddar@ti.com>
-Subject: Re: [RESEND/PATCHv5 1/2] drivers: input: keypad: Add device tree support
-Date: Tue, 19 Jun 2012 19:55:44 +0530
-Message-ID: <CAKdam56W025H_0MKMcX_7h61n7FQ7ZEbAG_SYWOU5Tj=nRDbEQ@mail.gmail.com>
+Subject: Re: [RESEND/PATCHv5 2/2] arm/dts: omap4-sdp: Add keypad data
+Date: Tue, 19 Jun 2012 19:57:24 +0530
+Message-ID: <CAKdam57z02eeQzvwOYmXOhvRHj6GzvoyyUsNYsf9WquXj9OjZQ@mail.gmail.com>
 References: <1339152780-25301-1-git-send-email-sourav.poddar@ti.com>
+	<1339152780-25301-2-git-send-email-sourav.poddar@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1339152780-25301-1-git-send-email-sourav.poddar@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1339152780-25301-2-git-send-email-sourav.poddar@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: devicetree-discuss@lists.ozlabs.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, sourav.poddar@ti.com, Andrew Morton <akpm@linux-foundation.org>, Benoit Cousson <b-cousson@ti.com>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Felipe Balbi <balbi@ti.com>, Dmitry Torokhov <dtor@mail.ru>, Randy Dunlap <rdunlap@xenotime.net>, lo <linux-omap@vger.kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, sourav.poddar@ti.com, Andrew Morton <akpm@linux-foundation.org>, Benoit Cousson <b-cousson@ti.com>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Felipe Balbi <balbi@ti.com>, Dmitry Torokhov <dtor@mail.ru>, lo <linux-omap@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-+cc linux-omap
-
-On Fri, Jun 8, 2012 at 4:22 PM, Sourav Poddar <sourav.poddar@ti.com> wr=
-ote:
-> Update the Documentation with omap4 keypad device tree
-> binding information.
-> Add device tree support for omap4 keypad driver.
->
-> Tested on omap4430 sdp.
->
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Benoit Cousson <b-cousson@ti.com>
-> Cc: Rob Herring <rob.herring@calxeda.com>
-> Cc: Grant Likely <grant.likely@secretlab.ca>
-> Cc: Felipe Balbi <balbi@ti.com>
-> Cc: Dmitry Torokhov <dtor@mail.ru>
-> Cc: Randy Dunlap <rdunlap@xenotime.net>
-> Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
-> ---
-> changes since v4:
-> - Developed it on top of dmitry's 'next' branch due to
-> dependency on generic "matrix_keypad_build_keymap" api
-> patches queued in that branch
-> - Adapted the driver to fill "keymap" in device tree
-> using "matrix_keypad_build_keymap" api defined in
-> drivers/input/matrix-keymap.c
-> =A0.../devicetree/bindings/input/omap-keypad.txt =A0 =A0 =A0| =A0 31 =
-++++++
-> =A0drivers/input/keyboard/omap4-keypad.c =A0 =A0 =A0 =A0 =A0 =A0 =A0|=
- =A0108 +++++++++++++++-----
-> =A02 files changed, 111 insertions(+), 28 deletions(-)
-> =A0create mode 100644 Documentation/devicetree/bindings/input/omap-ke=
-ypad.txt
->
-> diff --git a/Documentation/devicetree/bindings/input/omap-keypad.txt =
-b/Documentation/devicetree/bindings/input/omap-keypad.txt
-> new file mode 100644
-> index 0000000..722425b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/omap-keypad.txt
-> @@ -0,0 +1,31 @@
-> +* TI's Keypad Controller device tree bindings
-> +
-> +TI's Keypad controller is used to interface a SoC with a matrix-type
-> +keypad device. The keypad controller supports multiple row and colum=
-n lines.
-> +A key can be placed at each intersection of a unique row and a uniqu=
-e column.
-> +The keypad controller can sense a key-press and key-release and repo=
-rt the
-> +event using a interrupt to the cpu.
-> +
-> +Required SoC Specific Properties:
-> +- compatible: should be one of the following
-> + =A0 - "ti,omap4-keypad": For controllers compatible with omap4 keyp=
-ad
-> + =A0 =A0 =A0controller.
-> +
-> +Required Board Specific Properties, in addition to those specified b=
-y
-> +the shared matrix-keyboard bindings:
-> +- keypad,num-rows: Number of row lines connected to the keypad
-> + =A0controller.
-> +
-> +- keypad,num-columns: Number of column lines connected to the
-> + =A0keypad controller.
-> +
-> +Optional Properties specific to linux:
-> +- linux,keypad-no-autorepeat: do no enable autorepeat feature.
-> +
-> +Example:
-> + =A0 =A0 =A0 =A0keypad@4ae1c000{
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0compatible =3D "ti,omap4-keypad";
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0keypad,num-rows =3D <2>;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0keypad,num-columns =3D <8>;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 linux,keypad-no-autorepeat;
-> + =A0 =A0 =A0 };
-> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/ke=
-yboard/omap4-keypad.c
-> index aed5f69..d5a2d1a 100644
-> --- a/drivers/input/keyboard/omap4-keypad.c
-> +++ b/drivers/input/keyboard/omap4-keypad.c
-> @@ -27,6 +27,7 @@
-> =A0#include <linux/platform_device.h>
-> =A0#include <linux/errno.h>
-> =A0#include <linux/io.h>
-> +#include <linux/of.h>
-> =A0#include <linux/input.h>
-> =A0#include <linux/slab.h>
-> =A0#include <linux/pm_runtime.h>
-> @@ -75,6 +76,7 @@ enum {
->
-> =A0struct omap4_keypad {
-> =A0 =A0 =A0 =A0struct input_dev *input;
-> + =A0 =A0 =A0 struct matrix_keymap_data *keymap_data;
->
-> =A0 =A0 =A0 =A0void __iomem *base;
-> =A0 =A0 =A0 =A0unsigned int irq;
-> @@ -84,6 +86,7 @@ struct omap4_keypad {
-> =A0 =A0 =A0 =A0u32 reg_offset;
-> =A0 =A0 =A0 =A0u32 irqreg_offset;
-> =A0 =A0 =A0 =A0unsigned int row_shift;
-> + =A0 =A0 =A0 bool no_autorepeat;
-> =A0 =A0 =A0 =A0unsigned char key_state[8];
-> =A0 =A0 =A0 =A0unsigned short keymap[];
-> =A0};
-> @@ -208,25 +211,74 @@ static void omap4_keypad_close(struct input_dev=
- *input)
-> =A0 =A0 =A0 =A0pm_runtime_put_sync(input->dev.parent);
-> =A0}
->
-> +static struct omap4_keypad *omap_keypad_parse_dt(struct device *dev,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 uint32_=
-t rows, uint32_t cols,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct =
-input_dev *input_dev)
-> +{
-> + =A0 =A0 =A0 struct device_node *np =3D dev->of_node;
-> + =A0 =A0 =A0 struct platform_device *pdev =3D to_platform_device(dev=
-);
-> + =A0 =A0 =A0 struct omap4_keypad *keypad_data =3D platform_get_drvda=
-ta(pdev);
-> + =A0 =A0 =A0 int error;
-> +
-> + =A0 =A0 =A0 error =3D matrix_keypad_build_keymap(NULL, "linux,keyma=
-p",
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rows, c=
-ols, keypad_data->keymap, input_dev);
-> + =A0 =A0 =A0 if (error) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "failed to build ke=
-ymap\n");
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_free_device(input_dev);
-> + =A0 =A0 =A0 }
-> +
-> + =A0 =A0 =A0 if (of_get_property(np, "linux,input-no-autorepeat", NU=
-LL))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->no_autorepeat =3D true;
-> +
-> + =A0 =A0 =A0 return keypad_data;
-> +}
-> +
-> =A0static int __devinit omap4_keypad_probe(struct platform_device *pd=
-ev)
-> =A0{
-> + =A0 =A0 =A0 struct device *dev =3D &pdev->dev;
-> + =A0 =A0 =A0 struct device_node *np =3D dev->of_node;
-> =A0 =A0 =A0 =A0const struct omap4_keypad_platform_data *pdata;
-> =A0 =A0 =A0 =A0struct omap4_keypad *keypad_data;
-> =A0 =A0 =A0 =A0struct input_dev *input_dev;
-> =A0 =A0 =A0 =A0struct resource *res;
-> =A0 =A0 =A0 =A0resource_size_t size;
-> - =A0 =A0 =A0 unsigned int row_shift, max_keys;
-> + =A0 =A0 =A0 unsigned int row_shift =3D 0, max_keys =3D 0;
-> + =A0 =A0 =A0 uint32_t num_rows =3D 0, num_cols =3D 0;
-> =A0 =A0 =A0 =A0int rev;
-> =A0 =A0 =A0 =A0int irq;
-> =A0 =A0 =A0 =A0int error;
->
-> =A0 =A0 =A0 =A0/* platform data */
-> =A0 =A0 =A0 =A0pdata =3D pdev->dev.platform_data;
-> - =A0 =A0 =A0 if (!pdata) {
-> + =A0 =A0 =A0 if (np) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_property_read_u32(np, "keypad,num-ro=
-ws", &num_rows);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_property_read_u32(np, "keypad,num-co=
-lumns", &num_cols);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!num_rows || !num_cols) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "nu=
-mber of keypad rows/columns not specified\n");
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> + =A0 =A0 =A0 } else if (pdata) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 num_rows =3D pdata->rows;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 num_cols =3D pdata->cols;
-> + =A0 =A0 =A0 } else {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_err(&pdev->dev, "no platform data =
-defined\n");
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -EINVAL;
-> =A0 =A0 =A0 =A0}
->
-> + =A0 =A0 =A0 row_shift =3D get_count_order(num_cols);
-> + =A0 =A0 =A0 max_keys =3D num_rows << row_shift;
-> +
-> + =A0 =A0 =A0 keypad_data =3D devm_kzalloc(dev, sizeof(struct omap4_k=
-eypad) +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 max_keys * sizeof(keypa=
-d_data->keymap[0]),
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 GFP_KER=
-NEL);
-> +
-> + =A0 =A0 =A0 if (!keypad_data) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "keypad_data memory=
- allocation failed\n");
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENOMEM;
-> + =A0 =A0 =A0 }
-> +
-> + =A0 =A0 =A0 platform_set_drvdata(pdev, keypad_data);
-> +
-> =A0 =A0 =A0 =A0res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0)=
-;
-> =A0 =A0 =A0 =A0if (!res) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_err(&pdev->dev, "no base address s=
-pecified\n");
-> @@ -239,22 +291,6 @@ static int __devinit omap4_keypad_probe(struct p=
-latform_device *pdev)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -EINVAL;
-> =A0 =A0 =A0 =A0}
->
-> - =A0 =A0 =A0 if (!pdata->keymap_data) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "no keymap data def=
-ined\n");
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
-> - =A0 =A0 =A0 }
-> -
-> - =A0 =A0 =A0 row_shift =3D get_count_order(pdata->cols);
-> - =A0 =A0 =A0 max_keys =3D pdata->rows << row_shift;
-> -
-> - =A0 =A0 =A0 keypad_data =3D kzalloc(sizeof(struct omap4_keypad) +
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 max_key=
-s * sizeof(keypad_data->keymap[0]),
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 GFP_KERNEL)=
-;
-> - =A0 =A0 =A0 if (!keypad_data) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "keypad_data memory=
- allocation failed\n");
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENOMEM;
-> - =A0 =A0 =A0 }
-> -
-> =A0 =A0 =A0 =A0size =3D resource_size(res);
->
-> =A0 =A0 =A0 =A0res =3D request_mem_region(res->start, size, pdev->nam=
-e);
-> @@ -271,10 +307,10 @@ static int __devinit omap4_keypad_probe(struct =
-platform_device *pdev)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto err_release_mem;
-> =A0 =A0 =A0 =A0}
->
-> + =A0 =A0 =A0 keypad_data->rows =3D num_rows;
-> + =A0 =A0 =A0 keypad_data->cols =3D num_cols;
-> =A0 =A0 =A0 =A0keypad_data->irq =3D irq;
-> =A0 =A0 =A0 =A0keypad_data->row_shift =3D row_shift;
-> - =A0 =A0 =A0 keypad_data->rows =3D pdata->rows;
-> - =A0 =A0 =A0 keypad_data->cols =3D pdata->cols;
->
-> =A0 =A0 =A0 =A0/*
-> =A0 =A0 =A0 =A0* Enable clocks for the keypad module so that we can r=
-ead
-> @@ -322,15 +358,25 @@ static int __devinit omap4_keypad_probe(struct =
-platform_device *pdev)
-> =A0 =A0 =A0 =A0input_dev->open =3D omap4_keypad_open;
-> =A0 =A0 =A0 =A0input_dev->close =3D omap4_keypad_close;
->
-> - =A0 =A0 =A0 error =3D matrix_keypad_build_keymap(pdata->keymap_data=
-, NULL,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0pdata->rows, pdata->cols,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0keypad_data->keymap, input_dev);
-> - =A0 =A0 =A0 if (error) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "failed to build ke=
-ymap\n");
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_free_input;
-> + =A0 =A0 =A0 if (np) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data =3D omap_keypad_parse_dt(&p=
-dev->dev,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_=
-data->rows, keypad_data->cols,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_d=
-ev);
-> + =A0 =A0 =A0 } else {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_data->keymap_data =3D
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (struct matrix_keymap_d=
-ata *)pdata->keymap_data;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D matrix_keypad_build_keymap(ke=
-ypad_data->keymap_data,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 NULL, k=
-eypad_data->rows, keypad_data->cols,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad_=
-data->keymap, input_dev);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (error) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "fa=
-iled to build keymap\n");
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_free_input;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> =A0 =A0 =A0 =A0}
->
-> - =A0 =A0 =A0 __set_bit(EV_REP, input_dev->evbit);
-> + =A0 =A0 =A0 if (!keypad_data->no_autorepeat)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(EV_REP, input_dev->evbit);
-> +
-> =A0 =A0 =A0 =A0input_set_capability(input_dev, EV_MSC, MSC_SCAN);
->
-> =A0 =A0 =A0 =A0input_set_drvdata(input_dev, keypad_data);
-> @@ -351,7 +397,6 @@ static int __devinit omap4_keypad_probe(struct pl=
-atform_device *pdev)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto err_pm_disable;
-> =A0 =A0 =A0 =A0}
->
-> - =A0 =A0 =A0 platform_set_drvdata(pdev, keypad_data);
-> =A0 =A0 =A0 =A0return 0;
->
-> =A0err_pm_disable:
-> @@ -392,12 +437,19 @@ static int __devexit omap4_keypad_remove(struct=
- platform_device *pdev)
-> =A0 =A0 =A0 =A0return 0;
-> =A0}
->
-> +static const struct of_device_id omap_keypad_dt_match[] =3D {
-> + =A0 =A0 =A0 { .compatible =3D "ti,omap4-keypad" },
-> + =A0 =A0 =A0 {},
-> +};
-> +MODULE_DEVICE_TABLE(of, omap_keypad_dt_match);
-> +
-> =A0static struct platform_driver omap4_keypad_driver =3D {
-> =A0 =A0 =A0 =A0.probe =A0 =A0 =A0 =A0 =A0=3D omap4_keypad_probe,
-> =A0 =A0 =A0 =A0.remove =A0 =A0 =A0 =A0 =3D __devexit_p(omap4_keypad_r=
-emove),
-> =A0 =A0 =A0 =A0.driver =A0 =A0 =A0 =A0 =3D {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.name =A0 =3D "omap4-keypad",
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.owner =A0=3D THIS_MODULE,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .of_match_table =3D of_match_ptr(omap_k=
-eypad_dt_match),
-> =A0 =A0 =A0 =A0},
-> =A0};
-> =A0module_platform_driver(omap4_keypad_driver);
-> --
-> 1.7.1
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+K2NjIGxpbnV4LW9tYXAKCk9uIEZyaSwgSnVuIDgsIDIwMTIgYXQgNDoyMyBQTSwgU291cmF2IFBv
+ZGRhciA8c291cmF2LnBvZGRhckB0aS5jb20+IHdyb3RlOgo+IEFkZCBrZXlwYWQgZGF0YSBub2Rl
+IGluIG9tYXA0IGRldmljZSB0cmVlIGZpbGUuCj4gQWxzbyBmaWxsIHRoZSBkZXZpY2UgdHJlZSBi
+aW5kaW5nIHBhcmFtZXRlcnMKPiB3aXRoIHRoZSByZXF1aXJlZCB2YWx1ZSBpbiAib21hcDQtc2Rw
+IiBkdHMgZmlsZS4KPgo+IFRlc3RlZCBvbiBvbWFwNDQzMCBzZHAgd2l0aCBkbWl0cnkncyAnbmV4
+dCcgYnJhbmNoLgo+Cj4gQ2M6IEFuZHJldyBNb3J0b24gPGFrcG1AbGludXgtZm91bmRhdGlvbi5v
+cmc+Cj4gQ2M6IEJlbm9pdCBDb3Vzc29uIDxiLWNvdXNzb25AdGkuY29tPgo+IENjOiBSb2IgSGVy
+cmluZyA8cm9iLmhlcnJpbmdAY2FseGVkYS5jb20+Cj4gQ2M6IEdyYW50IExpa2VseSA8Z3JhbnQu
+bGlrZWx5QHNlY3JldGxhYi5jYT4KPiBDYzogRmVsaXBlIEJhbGJpIDxiYWxiaUB0aS5jb20+Cj4g
+Q2M6IERtaXRyeSBUb3Jva2hvdiA8ZHRvckBtYWlsLnJ1Pgo+IFNpZ25lZC1vZmYtYnk6IFNvdXJh
+diBQb2RkYXIgPHNvdXJhdi5wb2RkYXJAdGkuY29tPgo+IC0tLQo+IKBhcmNoL2FybS9ib290L2R0
+cy9vbWFwNC1zZHAuZHRzIHwgoCA2MyArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysKPiCgYXJjaC9hcm0vYm9vdC9kdHMvb21hcDQuZHRzaSCgIKB8IKAgoDUgKysrCj4goDIg
+ZmlsZXMgY2hhbmdlZCwgNjggaW5zZXJ0aW9ucygrKSwgMCBkZWxldGlvbnMoLSkKPgo+IGRpZmYg
+LS1naXQgYS9hcmNoL2FybS9ib290L2R0cy9vbWFwNC1zZHAuZHRzIGIvYXJjaC9hcm0vYm9vdC9k
+dHMvb21hcDQtc2RwLmR0cwo+IGluZGV4IDYzYzZiMmIuLjBjOWIzYmYgMTAwNjQ0Cj4gLS0tIGEv
+YXJjaC9hcm0vYm9vdC9kdHMvb21hcDQtc2RwLmR0cwo+ICsrKyBiL2FyY2gvYXJtL2Jvb3QvZHRz
+L29tYXA0LXNkcC5kdHMKPiBAQCAtMTcsNCArMTcsNjcgQEAKPiCgIKAgoCCgIKAgoCCgIKBkZXZp
+Y2VfdHlwZSA9ICJtZW1vcnkiOwo+IKAgoCCgIKAgoCCgIKAgoHJlZyA9IDwweDgwMDAwMDAwIDB4
+NDAwMDAwMDA+OyAvKiAxIEdCICovCj4goCCgIKAgoH07Cj4gKwo+ICsgoCCgIKAga2V5cGFkQDRh
+ZTFjMDAwIHsKPiArIKAgoCCgIKAgoCCgIKAga2V5cGFkLG51bS1yb3dzID0gPDg+Owo+ICsgoCCg
+IKAgoCCgIKAgoCBrZXlwYWQsbnVtLWNvbHVtbnMgPSA8OD47Cj4gKyCgIKAgoCCgIKAgoCCgIGxp
+bnV4LGtleW1hcCA9IDwgMHgwMDAwMDAxMgo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDAw
+MTAwMTMKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDAwMDIwMDE0Cj4gKyCgIKAgoCCgIKAg
+oCCgIKAgoCCgIKAgMHgwMDAzMDA2Ngo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDAwNDAw
+M2YKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDAwMDYwMDE3Cj4gKyCgIKAgoCCgIKAgoCCg
+IKAgoCCgIKAgMHgwMDA3MDAyYQo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDEwMDAwMjAK
+PiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDAxMDEwMDIxCj4gKyCgIKAgoCCgIKAgoCCgIKAg
+oCCgIKAgMHgwMTAyMDAyMgo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDEwMzAwNTQKPiAr
+IKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDAxMDQwMDQwCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCg
+IKAgMHgwMTA2MDAyNQo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDEwNzAwMWMKPiArIKAg
+oCCgIKAgoCCgIKAgoCCgIKAgoCAweDAyMDAwMDJkCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAg
+MHgwMjAxMDAyZQo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDIwMjAwMmYKPiArIKAgoCCg
+IKAgoCCgIKAgoCCgIKAgoCAweDAyMDMwMDZiCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgw
+MjA0MDA0MQo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDIwNjAwMzQKPiArIKAgoCCgIKAg
+oCCgIKAgoCCgIKAgoCAweDAyMDcwMDNhCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwMzAw
+MDAyYwo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDMwMTAwNGUKPiArIKAgoCCgIKAgoCCg
+IKAgoCCgIKAgoCAweDAzMDIwMDMwCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwMzAzMDAz
+Ygo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDMwNDAwNDIKPiArIKAgoCCgIKAgoCCgIKAg
+oCCgIKAgoCAweDAzMDYwMDE4Cj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwMzA3MDAzOQo+
+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDQwMDAwMTEKPiArIKAgoCCgIKAgoCCgIKAgoCCg
+IKAgoCAweDA0MDEwMDE1Cj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwNDAyMDAxNgo+ICsg
+oCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4MDQwMzAwM2MKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAg
+oCAweDA0MDQwMDczCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwNDA2MDAyNgo+ICsgoCCg
+IKAgoCCgIKAgoCCgIKAgoCCgIDB4MDQwNzAwNjkKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAw
+eDA1MDAwMDFmCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwNTAxMDAyMwo+ICsgoCCgIKAg
+oCCgIKAgoCCgIKAgoCCgIDB4MDUwMjAwMjQKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA1
+MDMwMDNkCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwNTA0MDA0Mwo+ICsgoCCgIKAgoCCg
+IKAgoCCgIKAgoCCgIDB4MDUwNTAwNzIKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA1MDYw
+MDMyCj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwNTA3MDA2YQo+ICsgoCCgIKAgoCCgIKAg
+oCCgIKAgoCCgIDB4MDYwMDAwMTAKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA2MDEwMDFl
+Cj4gKyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwNjAyMDAzMQo+ICsgoCCgIKAgoCCgIKAgoCCg
+IKAgoCCgIDB4MDYwMzAwNWMKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA2MDQwMDBlCj4g
+KyCgIKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwNjA2MDAxOQo+ICsgoCCgIKAgoCCgIKAgoCCgIKAg
+oCCgIDB4MDYwNzAwNjcKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA3MDAwMDk0Cj4gKyCg
+IKAgoCCgIKAgoCCgIKAgoCCgIKAgMHgwNzAxMDA5NQo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCg
+IDB4MDcwMjAwY2EKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA3MDMwMGNiCj4gKyCgIKAg
+oCCgIKAgoCCgIKAgoCCgIKAgMHgwNzA0MDAzZQo+ICsgoCCgIKAgoCCgIKAgoCCgIKAgoCCgIDB4
+MDcwNjAxNjAKPiArIKAgoCCgIKAgoCCgIKAgoCCgIKAgoCAweDA3MDcwMDZjID47Cj4gKyCgIKAg
+oCCgIKAgoCCgIGxpbnV4LGlucHV0LW5vLWF1dG9yZXBlYXQ7Cj4gKyCgIKAgoCB9Owo+IKB9Owo+
+IGRpZmYgLS1naXQgYS9hcmNoL2FybS9ib290L2R0cy9vbWFwNC5kdHNpIGIvYXJjaC9hcm0vYm9v
+dC9kdHMvb21hcDQuZHRzaQo+IGluZGV4IDNkMzU1NTkuLmUwZjY3OGEgMTAwNjQ0Cj4gLS0tIGEv
+YXJjaC9hcm0vYm9vdC9kdHMvb21hcDQuZHRzaQo+ICsrKyBiL2FyY2gvYXJtL2Jvb3QvZHRzL29t
+YXA0LmR0c2kKPiBAQCAtMTU2LDQgKzE1Niw5IEBACj4goCCgIKAgoCCgIKAgoCCgIKAgoCCgIKB0
+aSxod21vZHMgPSAiaTJjNCI7Cj4goCCgIKAgoCCgIKAgoCCgfTsKPiCgIKAgoCCgfTsKPiArCj4g
+KyCgIKAgoCBrZXlwYWRANGFlMWMwMDAgewo+ICsgoCCgIKAgoCCgIKAgoCBjb21wYXRpYmxlID0g
+InRpLG9tYXA0LWtleXBhZCI7Cj4gKyCgIKAgoCCgIKAgoCCgIHRpLGh3bW9kcyA9ICJrYmQiOwo+
+ICsgoCCgIKAgfTsKPiCgfTsKPiAtLQo+IDEuNy4xCj4K

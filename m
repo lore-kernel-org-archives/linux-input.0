@@ -1,8 +1,8 @@
 From: Maxim Mikityanskiy <maxtram95@gmail.com>
-Subject: [PATCH 1/2] drivers/input/mouse, drivers/platform/x86: add Lenovo
+Subject: [PATCH 2/2] drivers/input/mouse, drivers/platform/x86: add Lenovo
  IdeaPad Z570 support
-Date: Tue, 19 Jun 2012 22:22:14 +0300
-Message-ID: <1340133734.3636.10.camel@lenovo-ideapad-z570.olymp.linuxd.org>
+Date: Tue, 19 Jun 2012 22:23:26 +0300
+Message-ID: <1340133806.3636.11.camel@lenovo-ideapad-z570.olymp.linuxd.org>
 References: <1340133637.3636.8.camel@lenovo-ideapad-z570.olymp.linuxd.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
@@ -16,100 +16,236 @@ List-Id: linux-input@vger.kernel.org
 
 From: Maxim Mikityanskiy <maxtram95@gmail.com>
 
-The patch adds interface to enable/disable PS/2 mouse or touchpad from other
-kernel modules.
---
-As for now, the only correct way for disabling touchpad in software in Linux is
-via X server driver xf86-input-synaptics. (I think that unbinding driver from
-serio1 is not right way to disable touchpad.) Some laptops have special key to
-disable touchpad. This key has very different behavior on different laptops.
-Some laptops toggle touchpad in hardware when user presses the key, so these
-ones shouldn't have any problems. Other laptops don't toggle touchpad in
-hardware at all but expect that software turns it on and off when the key is
-pressed. These laptops should send KEY_TOUCHPAD_TOGGLE keycode, so graphical
-desktop environment could change touchpad state via xf86-input-synaptics driver.
-But there is also third type of laptops. I own one of them, it's Lenovo IdeaPad
-Z570. This laptop mixes hardware and software touchpad control. It has special
-key for touchpad toggling and LED that should show touchpad state (glows ==
-disabled). When user presses the key, touchpad doesn't become disabled in
-hardware, but LED state toggles and there is no way to control the LED state
-properly. So toggling touchpad state in userspace is a really bad idea, because
-there isn't any unified interface to tell userspace touchpad state, so LED state
-may become out of sync with real touchpad state, for example, when switching
-between X sessions. So we need some low-level way to turn touchpad off directly
-from platform driver. In that case ideapad-laptop driver would tell psmouse to
-enable/disable touchpad and send KEY_TOUCHPAD_ON/KEY_TOUCHPAD_OFF keycode so
-that LED never goes out of sync and GNOME could show graphical notifications
-about touchpad state. This patch lets psmouse export functions to control
-touchpad state from platform drivers.
+The patch adds support for Lenovo IdeaPad Z570 laptop. It makes all special
+keys working, adds possibility to control fan like Windows does, controls
+Touchpad Disabled LED, toggles touchpad state via psmouse with previous
+patch and corrects touchpad behavior on resume from suspend. It is new,
+modified version of patch.
 
 Signed-off-by: Maxim Mikityanskiy <maxtram95@gmail.com>
---- linux/drivers/input/mouse/psmouse-base.c.orig
-+++ linux/drivers/input/mouse/psmouse-base.c
-@@ -23,6 +23,7 @@
- #include <linux/init.h>
- #include <linux/libps2.h>
- #include <linux/mutex.h>
-+#include <linux/device.h>
+--- linux/drivers/platform/x86/ideapad-laptop.c.orig
++++ linux/drivers/platform/x86/ideapad-laptop.c
+@@ -36,6 +36,7 @@
+ #include <linux/fb.h>
+ #include <linux/debugfs.h>
+ #include <linux/seq_file.h>
++#include <linux/input/psmouse.h>
  
- #include "psmouse.h"
- #include "synaptics.h"
-@@ -1786,6 +1787,48 @@ static int psmouse_get_maxproto(char *bu
- 	return sprintf(buffer, "%s", psmouse_protocol_by_type(type)->name);
+ #define IDEAPAD_RFKILL_DEV_NUM	(3)
+ 
+@@ -62,9 +63,12 @@ enum {
+ 	VPCCMD_W_CAMERA,
+ 	VPCCMD_R_3G,
+ 	VPCCMD_W_3G,
+-	VPCCMD_R_ODD, /* 0x21 */
+-	VPCCMD_R_RF = 0x23,
+-	VPCCMD_W_RF,
++	VPCCMD_R_ODD,
++	VPCCMD_W_FAN,
++	VPCCMD_R_RF,
++	VPCCMD_W_RF, /* 0x24 */
++	VPCCMD_R_FAN = 0x2B,
++	VPCCMD_R_SPECIAL_BUTTONS = 0x31,
+ 	VPCCMD_W_BL_POWER = 0x33,
+ };
+ 
+@@ -363,8 +367,47 @@ static ssize_t store_ideapad_cam(struct
+ 
+ static DEVICE_ATTR(camera_power, 0644, show_ideapad_cam, store_ideapad_cam);
+ 
++static ssize_t show_ideapad_fan(struct device *dev,
++				struct device_attribute *attr,
++				char *buf)
++{
++	unsigned long result;
++
++	if (read_ec_data(ideapad_handle, VPCCMD_R_FAN, &result))
++		return sprintf(buf, "-1\n");
++	return sprintf(buf, "%lu\n", result);
++}
++
++static ssize_t store_ideapad_fan(struct device *dev,
++				 struct device_attribute *attr,
++				 const char *buf, size_t count)
++{
++	int ret, state;
++
++	if (!count)
++		return 0;
++	if (sscanf(buf, "%i", &state) != 1)
++		return -EINVAL;
++	/* WARNING: these fan states are not speed
++	 * so it isn't cooling_device interface
++	 * 0 = super silent mode
++	 * 1 = standard mode
++	 * 2 = dust cleaning
++	 * 4 = efficient thermal dissipation mode
++	 */
++	if (state < 0 || state > 4 || state == 3)
++		return -EINVAL;
++	ret = write_ec_cmd(ideapad_handle, VPCCMD_W_FAN, state);
++	if (ret < 0)
++		return ret;
++	return count;
++}
++
++static DEVICE_ATTR(fan_mode, 0644, show_ideapad_fan, store_ideapad_fan);
++
+ static struct attribute *ideapad_attributes[] = {
+ 	&dev_attr_camera_power.attr,
++	&dev_attr_fan_mode.attr,
+ 	NULL
+ };
+ 
+@@ -379,6 +422,10 @@ static umode_t ideapad_is_visible(struct
+ 	if (attr == &dev_attr_camera_power.attr)
+ 		supported = test_bit(CFG_CAMERA_BIT, &(priv->cfg));
+ 	else
++	if (attr == &dev_attr_fan_mode.attr) {
++		unsigned long value;
++		supported = !read_ec_data(ideapad_handle, VPCCMD_R_FAN, &value);
++	} else
+ 		supported = true;
+ 
+ 	return supported ? attr->mode : 0;
+@@ -519,9 +566,15 @@ static void ideapad_platform_exit(struct
+  */
+ static const struct key_entry ideapad_keymap[] = {
+ 	{ KE_KEY, 6,  { KEY_SWITCHVIDEOMODE } },
++	{ KE_KEY, 7,  { KEY_CAMERA } },
++	{ KE_KEY, 11, { KEY_F16 } },
+ 	{ KE_KEY, 13, { KEY_WLAN } },
+ 	{ KE_KEY, 16, { KEY_PROG1 } },
+ 	{ KE_KEY, 17, { KEY_PROG2 } },
++	{ KE_KEY, 64, { KEY_PROG3 } },
++	{ KE_KEY, 65, { KEY_PROG4 } },
++	{ KE_KEY, 66, { KEY_TOUCHPAD_OFF } },
++	{ KE_KEY, 67, { KEY_TOUCHPAD_ON } },
+ 	{ KE_END, 0 },
+ };
+ 
+@@ -692,6 +745,25 @@ static const struct acpi_device_id ideap
+ };
+ MODULE_DEVICE_TABLE(acpi, ideapad_device_ids);
+ 
++static void ideapad_sync_touchpad_state(struct acpi_device *adevice)
++{
++	struct ideapad_private *priv = dev_get_drvdata(&adevice->dev);
++	unsigned long value;
++
++	/* Without reading from EC touchpad LED doesn't switch state */
++	if (!read_ec_data(adevice->handle, VPCCMD_R_TOUCHPAD, &value)) {
++		/* Some IdeaPads don't really turn off touchpad - they only
++		 * switch the LED state. We (de)activate psmouse to turn
++		 * touchpad off and on. We send KEY_TOUCHPAD_OFF and
++		 * KEY_TOUCHPAD_ON to not to get out of sync with LED */
++		if (value)
++			psmouse_enable();
++		else
++			psmouse_disable();
++		ideapad_input_report(priv, value ? 67 : 66);
++	}
++}
++
+ static int __devinit ideapad_acpi_add(struct acpi_device *adevice)
+ {
+ 	int ret, i;
+@@ -728,6 +800,7 @@ static int __devinit ideapad_acpi_add(st
+ 			priv->rfk[i] = NULL;
+ 	}
+ 	ideapad_sync_rfk_state(priv);
++	ideapad_sync_touchpad_state(adevice);
+ 
+ 	if (!acpi_video_backlight_support()) {
+ 		ret = ideapad_backlight_init(priv);
+@@ -767,6 +840,26 @@ static int __devexit ideapad_acpi_remove
+ 	return 0;
  }
  
-+static int psmouse_match(struct device *dev, void *data)
++static void ideapad_check_special_buttons(struct ideapad_private *priv,
++					  unsigned long state)
 +{
-+	return 1;
++	unsigned long bit;
++	for (bit = 0; bit < 16; bit++) {
++		if (test_bit(bit, &state)) {
++			switch (bit) {
++			case 6:
++				/* Thermal Management button */
++				ideapad_input_report(priv, 65);
++				break;
++			case 1:
++				/* OneKey Theater button */
++				ideapad_input_report(priv, 64);
++				break;
++			}
++		}
++	}
 +}
 +
-+static struct psmouse *psmouse_get_struct(void)
-+{
-+	struct device *dev;
-+	struct serio *serio;
-+	struct psmouse *psmouse;
-+
-+	dev = driver_find_device(&psmouse_drv.driver, NULL, NULL,
-+			psmouse_match);
-+	if (dev == NULL)
-+		return NULL;
-+
-+	serio = to_serio_port(dev);
-+	psmouse = serio_get_drvdata(serio);
-+
-+	return psmouse;
-+}
-+
-+void psmouse_enable(void)
-+{
-+	struct psmouse *psmouse;
-+
-+	psmouse = psmouse_get_struct();
-+	if (psmouse != NULL)
-+		psmouse_activate(psmouse);
-+}
-+EXPORT_SYMBOL(psmouse_enable);
-+
-+void psmouse_disable(void)
-+{
-+	struct psmouse *psmouse;
-+
-+	psmouse = psmouse_get_struct();
-+	if (psmouse != NULL)
-+		psmouse_deactivate(psmouse);
-+}
-+EXPORT_SYMBOL(psmouse_disable);
-+
- static int __init psmouse_init(void)
+ static void ideapad_acpi_notify(struct acpi_device *adevice, u32 event)
  {
- 	int err;
---- /dev/null
-+++ linux/include/linux/input/psmouse.h
-@@ -0,0 +1,7 @@
-+#ifndef _INPUT_PSMOUSE_H
-+#define _INPUT_PSMOUSE_H
+ 	struct ideapad_private *priv = dev_get_drvdata(&adevice->dev);
+@@ -785,6 +878,9 @@ static void ideapad_acpi_notify(struct a
+ 			case 9:
+ 				ideapad_sync_rfk_state(priv);
+ 				break;
++			case 5:
++				ideapad_sync_touchpad_state(adevice);
++				break;
+ 			case 4:
+ 				ideapad_backlight_notify_brightness(priv);
+ 				break;
+@@ -794,6 +890,14 @@ static void ideapad_acpi_notify(struct a
+ 			case 2:
+ 				ideapad_backlight_notify_power(priv);
+ 				break;
++			case 0:
++				{
++				unsigned long value;
++				read_ec_data(handle, VPCCMD_R_SPECIAL_BUTTONS,
++					     &value);
++				ideapad_check_special_buttons(priv, value);
++				}
++				break;
+ 			default:
+ 				ideapad_input_report(priv, vpc_bit);
+ 			}
+@@ -801,6 +905,12 @@ static void ideapad_acpi_notify(struct a
+ 	}
+ }
+ 
++static int ideapad_acpi_resume(struct acpi_device *adevice)
++{
++	ideapad_sync_touchpad_state(adevice);
++	return 0;
++}
 +
-+void psmouse_enable(void);
-+void psmouse_disable(void);
-+
-+#endif
+ static struct acpi_driver ideapad_acpi_driver = {
+ 	.name = "ideapad_acpi",
+ 	.class = "IdeaPad",
+@@ -808,6 +918,7 @@ static struct acpi_driver ideapad_acpi_d
+ 	.ops.add = ideapad_acpi_add,
+ 	.ops.remove = ideapad_acpi_remove,
+ 	.ops.notify = ideapad_acpi_notify,
++	.ops.resume = ideapad_acpi_resume,
+ 	.owner = THIS_MODULE,
+ };
+ 
+--- linux/Documentation/ABI/testing/sysfs-platform-ideapad-laptop.orig
++++ linux/Documentation/ABI/testing/sysfs-platform-ideapad-laptop
+@@ -5,4 +5,14 @@ Contact:	"Ike Panhc <ike.pan@canonical.c
+ Description:
+ 		Control the power of camera module. 1 means on, 0 means off.
+ 
+-
++What:		/sys/devices/platform/ideapad/fan_mode
++Date:		June 2012
++KernelVersion:	3.5
++Contact:	"Maxim Mikityanskiy <maxtram95@gmail.com>"
++Description:
++		Change fan mode
++		There are four available modes:
++		    * 0 -> Super Silent Mode
++		    * 1 -> Standard Mode
++		    * 2 -> Dust Cleaning
++		    * 4 -> Efficient Thermal Dissipation Mode

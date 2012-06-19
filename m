@@ -1,72 +1,75 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 14/22 v4] Input: atmel_mxt_ts - don't re-read matrix after
- applying pdata
-Date: Tue, 19 Jun 2012 11:26:05 +0100
-Message-ID: <4FE053BD.2090605@itdev.co.uk>
-References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org> <1339992522-22073-15-git-send-email-djkurtz@chromium.org> <4FDF4345.40508@itdev.co.uk> <CAPDwgkMATDg5_FyJhR2aDCOzHu9DQbxzPHMn7MCC8KmBsS2bhg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAPDwgkMATDg5_FyJhR2aDCOzHu9DQbxzPHMn7MCC8KmBsS2bhg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yufeng Shen <miletus@google.com>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org, "Bowens, Alan" <Alan.Bowens@atmel.com>
+From: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
+Subject: [PATCH 1/3] HID: hid-multitouch: fix input mode feature command
+Date: Tue, 19 Jun 2012 14:39:52 +0200
+Message-ID: <1340109594-10732-1-git-send-email-benjamin.tissoires@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:62455 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752209Ab2FSMkJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Jun 2012 08:40:09 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Yufeng Shen wrote:
-> On Mon, Jun 18, 2012 at 11:03 AM, Nick Dyer <nick.dyer@itdev.co.uk> wrote:
->> Daniel Kurtz wrote:
->>> The matrix x/y size in the Info ID Block represents the number of x/y
->>> trace lines on the device.  There is no need to re-read them after
->>> applying pdata config, since pdata only configures the object table
->>> etnries.  The matrix size read from the ID can only be updated by a
->>> firmware update.
->>
->> This isn't correct. For example, mXT224 can be configured as 16x14, 17x13,
->> 18x12, etc. This only takes effect when the chip is reset, which is why it
->> is necessary to re-read them after applying the config.
-> 
-> so look at structure mxt_info
-> 
->  struct mxt_info {
->           u8 family_id;
->           u8 variant_id;
->           u8 version;
->           u8 build;
->           u8 matrix_xsize;
->           u8 matrix_ysize;
->           u8 object_num;
-> };
-> 
-> I think it is meant to be corresponding to Information Block of the
-> device, of which
-> the matrix_xsize and matrix_ysize mean "The size of the matrix the
-> device supports",
-> which should be fixed for a certain chip.
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-As I said, it's not fixed, there is a mode setting (T28 byte 2) which
-alters the matrix size. This is documented in the protocol guide, if you
-have it.
+Zytronic panels shows a new way of setting the Input Mode feature.
+This feature is put in the second usage in the HID feature, instead
+of the first, as the majority of the multitouch devices.
 
-You can also verify this if you want: change mode setting, backup, reset,
-and read the information block, you'll see the matrix size changes. I've
-just checked that myself on an mXT224.
+This patch adds a detection step when the feature is presented to know
+where the feature is located in the report. We can then trigger the right
+command to the device. This removes the magic number "0" in the function
+mt_set_input_mode.
 
-I also asked the guys at Atmel that I work with, and they confirm that this
-behaviour is as designed.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+---
+ drivers/hid/hid-multitouch.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-> The configurable matrix size is in T9 XSIZE/YSIZE, which, if ever
-> needed to be read back,
-> probably read back into something other than mxt_info struct.
-
-The position of the touchscreen within the matrix is a separate
-configurable setting, you're confusing the two.
-
-cheers
-
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 61cc4cb..9a3891e 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -83,6 +83,7 @@ struct mt_device {
+ 	unsigned last_field_index;	/* last field index of the report */
+ 	unsigned last_slot_field;	/* the last field of a slot */
+ 	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
++	__s8 inputmode_index;	/* InputMode HID feature index in the report */
+ 	__s8 maxcontact_report_id;	/* Maximum Contact Number HID feature,
+ 				   -1 if non-existent */
+ 	__u8 num_received;	/* how many contacts we received */
+@@ -260,10 +261,20 @@ static void mt_feature_mapping(struct hid_device *hdev,
+ 		struct hid_field *field, struct hid_usage *usage)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hdev);
++	int i;
+ 
+ 	switch (usage->hid) {
+ 	case HID_DG_INPUTMODE:
+ 		td->inputmode = field->report->id;
++		td->inputmode_index = 0; /* has to be updated below */
++
++		for (i=0; i < field->maxusage; i++) {
++			if (field->usage[i].hid == usage->hid) {
++				td->inputmode_index = i;
++				break;
++			}
++		}
++
+ 		break;
+ 	case HID_DG_CONTACTMAX:
+ 		td->maxcontact_report_id = field->report->id;
+@@ -618,7 +629,7 @@ static void mt_set_input_mode(struct hid_device *hdev)
+ 	re = &(hdev->report_enum[HID_FEATURE_REPORT]);
+ 	r = re->report_id_hash[td->inputmode];
+ 	if (r) {
+-		r->field[0]->value[0] = 0x02;
++		r->field[0]->value[td->inputmode_index] = 0x02;
+ 		usbhid_submit_report(hdev, r, USB_DIR_OUT);
+ 	}
+ }
 -- 
-Nick Dyer
-Software Engineer, ITDev Ltd
-Hardware and Software Development Consultancy
-Website: http://www.itdev.co.uk
+1.7.10.2
+

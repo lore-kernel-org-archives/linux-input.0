@@ -1,64 +1,40 @@
-From: Alexander Shiyan <shc_work@mail.ru>
-Subject: [PATCH] input: gpio_keys: added setup call for extending functionality of driver
-Date: Wed, 20 Jun 2012 20:09:57 +0400
-Message-ID: <1340208597-31865-1-git-send-email-shc_work@mail.ru>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fallback6.mail.ru ([94.100.176.134]:56761 "EHLO
-	fallback6.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757076Ab2FTQVD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jun 2012 12:21:03 -0400
-Received: from smtp2.mail.ru (smtp2.mail.ru [94.100.176.130])
-	by fallback6.mail.ru (mPOP.Fallback_MX) with ESMTP id 949CC8B7F3F9
-	for <linux-input@vger.kernel.org>; Wed, 20 Jun 2012 20:10:11 +0400 (MSK)
-Sender: linux-input-owner@vger.kernel.org
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH Stable 3.4.x] HID: hid-multitouch: fix wrong protocol
+ detection
+Date: Wed, 20 Jun 2012 18:28:12 +0200
+Message-ID: <20120620162812.GA433@polaris.bitmath.org>
+References: <1340111206-11659-1-git-send-email-benjamin.tissoires@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1340111206-11659-1-git-send-email-benjamin.tissoires@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, Linus Walleij <linus.walleij@stericsson.com>, Alexander Shiyan <shc_work@mail.ru>
 
-This additional call can be used for extending functionality of
-driver. For example we can add EV_SND, EV_LED, etc. handlers.
+On Tue, Jun 19, 2012 at 03:06:46PM +0200, benjamin.tissoires wrote:
+> From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> 
+> The previous implementation introduced a randomness in the splitting
+> of the different touches reported by the device. This version is more
+> robust as we don't rely on hi->input->absbit, but on our own structure.
+> 
+> This also prepares hid-multitouch to better support Win8 devices.
+> 
+> [commit 3ac36d15557d1bedfb1151d9911b9587b2d40759 in Linus' tree]
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
+> 
+> Hi Jiri,
+> 
+> This patch is a port of the one included in the future 3.5.
+> I already had users complaining about the broken behavior in 3.4, then this
+> respin for 3.4. Kernels 3.3 and below are not impacted by the bug.
 
-Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
----
- drivers/input/keyboard/gpio_keys.c |    3 +++
- include/linux/gpio_keys.h          |    2 ++
- 2 files changed, 5 insertions(+), 0 deletions(-)
+    Acked-by: Henrik Rydberg <rydberg@euromail.se>
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 62bfce4..2b1bcb2 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -707,6 +707,9 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 			wakeup = 1;
- 	}
- 
-+	if (pdata->setup)
-+		pdata->setup(input);
-+
- 	error = sysfs_create_group(&pdev->dev.kobj, &gpio_keys_attr_group);
- 	if (error) {
- 		dev_err(dev, "Unable to export keys/switches, error: %d\n",
-diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
-index a7e977f..0dfd3fe 100644
---- a/include/linux/gpio_keys.h
-+++ b/include/linux/gpio_keys.h
-@@ -2,6 +2,7 @@
- #define _GPIO_KEYS_H
- 
- struct device;
-+struct input_dev;
- 
- struct gpio_keys_button {
- 	/* Configuration parameters */
-@@ -25,6 +26,7 @@ struct gpio_keys_platform_data {
- 	unsigned int rep:1;		/* enable input subsystem auto repeat */
- 	int (*enable)(struct device *dev);
- 	void (*disable)(struct device *dev);
-+	int (*setup)(struct input_dev *input);
- 	const char *name;		/* input device name */
- };
- 
--- 
-1.7.3.4
-
+Thanks,
+Henrik

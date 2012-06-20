@@ -1,103 +1,224 @@
-From: Zumeng Chen <zumeng.chen@windriver.com>
-Subject: Re: [PATCH V2 5/5] Input: ads7846: set proper debounce time in driver
- level
-Date: Wed, 20 Jun 2012 13:28:46 +0800
-Message-ID: <4FE15F8E.4000008@windriver.com>
-References: <zumeng.chen@gmail.com> <1339551850-20827-1-git-send-email-zumeng.chen@gmail.com> <1339551850-20827-6-git-send-email-zumeng.chen@gmail.com> <79CD15C6BA57404B839C016229A409A83EA4F07F@DBDE01.ent.ti.com> <4FD96CBF.5040106@windriver.com> <79CD15C6BA57404B839C016229A409A83EA4FC98@DBDE01.ent.ti.com> <4FD98BD0.7090901@windriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-2022-JP"
-Content-Transfer-Encoding: 7bit
+From: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
+Subject: [PATCH RESEND] input: gpio_keys_polled: convert to dt
+Date: Wed, 20 Jun 2012 08:34:21 -0300
+Message-ID: <1340192062-10565-1-git-send-email-aletes.xgr@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:46015 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752115Ab2FTF35 (ORCPT
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:36605 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752416Ab2FTLfj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jun 2012 01:29:57 -0400
-In-Reply-To: <4FD98BD0.7090901@windriver.com>
+	Wed, 20 Jun 2012 07:35:39 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "mike@compulab.co.il" <mike@compulab.co.il>
-Cc: "Hiremath, Vaibhav" <hvaibhav@ti.com>, Zumeng Chen <zumeng.chen@gmail.com>, "tony@atomide.com" <tony@atomide.com>, "Hunter, Jon" <jon-hunter@ti.com>, "grinberg@compulab.co.il" <grinberg@compulab.co.il>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "Hilman, Kevin" <khilman@ti.com>, "Syed Mohammed, Khasim" <khasim@ti.com>, "Gupta, Ajay Kumar" <ajay.gupta@ti.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Alexandre Pereira da Silva <aletes.xgr@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, JJ Ding <dgdunix@gmail.com>, Roland Stigge <stigge@antcom.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
 
-于 2012年06月14日 14:59, Zumeng Chen 写道:
-> 于 2012年06月14日 14:31, Hiremath, Vaibhav 写道:
->> On Thu, Jun 14, 2012 at 10:16:55, Zumeng Chen wrote:
->>> 于 2012年06月13日 20:18, Hiremath, Vaibhav 写道:
->>>> On Wed, Jun 13, 2012 at 07:14:10, Zumeng Chen wrote:
->>>>> From: Zumeng Chen<zumeng.chen@windriver.com>
->>>>>
->>>>> If we don't set proper debouce time for ads7846, then there are
->>>>> flooded interrupt counters of ads7846 responding to one time
->>>>> touch on screen, so the driver couldn't work well.
->>>>>
->>>>> And since most OMAP3 series boards pass NULL pointer of board_pdata
->>>>> to omap_ads7846_init, so it's more proper to set it in driver level
->>>>> after having gpio_request done.
->>>>>
->>>>> This patch has been validated on 3530evm.
->>>>>
->>>>> Signed-off-by: Zumeng Chen<zumeng.chen@windriver.com>
->>>>> Signed-off-by: Syed Mohammed Khasim<khasim@ti.com>
->>>>> ---
->>>>>   drivers/input/touchscreen/ads7846.c |    4 ++++
->>>>>   1 files changed, 4 insertions(+), 0 deletions(-)
->>>>>
->>>>> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
->>>>> index f02028e..459ff29 100644
->>>>> --- a/drivers/input/touchscreen/ads7846.c
->>>>> +++ b/drivers/input/touchscreen/ads7846.c
->>>>> @@ -980,6 +980,10 @@ static int __devinit ads7846_setup_pendown(struct spi_device *spi, struct ads784
->>>>>   		}
->>>>>
->>>>>   		ts->gpio_pendown = pdata->gpio_pendown;
->>>>> +#ifdef CONFIG_ARCH_OMAP3
->>>>> +		/* 310 means about 10 microsecond for omap3 */
->>>>> +		gpio_set_debounce(pdata->gpio_pendown, 310);
->>>>> +#endif
->>>>>
->>>> Zumeng,
->>>>
->>>> With my sign-off you are changing the original code, that too
->>>> without my sign-off and ack.
->>>> I wouldn't mind you to submit patches from my tree, but the expectation is
->>>> if you are changing the original code, it should be under your sign-off.
->>> Thanks, good to learn. I'll remove in next time.
->>>> Coming to the patch, #ifdef in driver is not recommended, and this 10msec
->>>> delay is specific to OMAP GPIO and driver should not be aware of this,
->>>> that's where you will find the original patch handling it in board file.
->>> According to the git blame of the board-omap3evm.c I think
->>> 96974a24 did a good thing to all the related codes for omap3
->>> boards. So I think we can call board and driver as BSP level :-)
->>>
->>> If #ifdef in driver can save many codes, I guess it's deserved.
->>>
->> No, not really.
->>
->> In the same commit, the debounce time is already handled as an argument to 
->> the function omap_ads7846_init(), and that’s the way it should be.
-> That means you'd like to implement the same get_pendown_state for every
-> omap3 board? Currently, board_pdata is NULL.
->
-> And actually, the reason why I agree 96974a24 is that get_pendown_state
-> for all omap3 boards is the common chip level gpio operations. so I think
-> we should set debounce for them in one common point.
->
-> But since Igor and you don't like them, I have created and tested the
-> attachment
-> patch, and I'd like Mike to check if convenience too
-> But obviously there are more codes than mine before :-)
-Hi Mike,
+Add device tree support to gpio_keys_polled.c
 
-I'll send V3 with the change on the attachment to you for 5/5,
-if you happen to get it, it's high appreciated to review it.
+Signed-off-by: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
+Tested-by: Roland Stigge <stigge@antcom.de>
+---
+ drivers/input/keyboard/gpio_keys_polled.c |  121 +++++++++++++++++++++++++++--
+ 1 file changed, 113 insertions(+), 8 deletions(-)
 
-Regards,
-Zumeng
->
-> Regards,
-> Zumeng
->> So no need for #ifdefs in driver...
->>
->> Thanks,
->> Vaibhav
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index 20c8ab1..a64b361 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -25,6 +25,8 @@
+ #include <linux/platform_device.h>
+ #include <linux/gpio.h>
+ #include <linux/gpio_keys.h>
++#include <linux/of_platform.h>
++#include <linux/of_gpio.h>
+ 
+ #define DRV_NAME	"gpio-keys-polled"
+ 
+@@ -38,7 +40,7 @@ struct gpio_keys_button_data {
+ struct gpio_keys_polled_dev {
+ 	struct input_polled_dev *poll_dev;
+ 	struct device *dev;
+-	struct gpio_keys_platform_data *pdata;
++	struct gpio_keys_platform_data pdata;
+ 	struct gpio_keys_button_data data[0];
+ };
+ 
+@@ -67,11 +69,11 @@ static void gpio_keys_polled_check_state(struct input_dev *input,
+ static void gpio_keys_polled_poll(struct input_polled_dev *dev)
+ {
+ 	struct gpio_keys_polled_dev *bdev = dev->private;
+-	struct gpio_keys_platform_data *pdata = bdev->pdata;
++	struct gpio_keys_platform_data *pdata = &bdev->pdata;
+ 	struct input_dev *input = dev->input;
+ 	int i;
+ 
+-	for (i = 0; i < bdev->pdata->nbuttons; i++) {
++	for (i = 0; i < pdata->nbuttons; i++) {
+ 		struct gpio_keys_button_data *bdata = &bdev->data[i];
+ 
+ 		if (bdata->count < bdata->threshold)
+@@ -85,7 +87,7 @@ static void gpio_keys_polled_poll(struct input_polled_dev *dev)
+ static void gpio_keys_polled_open(struct input_polled_dev *dev)
+ {
+ 	struct gpio_keys_polled_dev *bdev = dev->private;
+-	struct gpio_keys_platform_data *pdata = bdev->pdata;
++	struct gpio_keys_platform_data *pdata = &bdev->pdata;
+ 
+ 	if (pdata->enable)
+ 		pdata->enable(bdev->dev);
+@@ -94,23 +96,125 @@ static void gpio_keys_polled_open(struct input_polled_dev *dev)
+ static void gpio_keys_polled_close(struct input_polled_dev *dev)
+ {
+ 	struct gpio_keys_polled_dev *bdev = dev->private;
+-	struct gpio_keys_platform_data *pdata = bdev->pdata;
++	struct gpio_keys_platform_data *pdata = &bdev->pdata;
+ 
+ 	if (pdata->disable)
+ 		pdata->disable(bdev->dev);
+ }
++#ifdef CONFIG_OF
++static int gpio_keys_polled_get_devtree_pdata(struct device *dev,
++			    struct gpio_keys_platform_data *pdata)
++{
++	struct device_node *node, *pp;
++	int i;
++	struct gpio_keys_button *buttons;
++	u32 reg;
++
++	node = dev->of_node;
++	if (node == NULL)
++		return -ENODEV;
++
++	memset(pdata, 0, sizeof *pdata);
++
++	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
++
++	if (of_property_read_u32(node, "poll-interval", &reg) == 0)
++		pdata->poll_interval = reg;
++
++	/* First count the subnodes */
++	pdata->nbuttons = 0;
++	pp = NULL;
++	while ((pp = of_get_next_child(node, pp)))
++		pdata->nbuttons++;
++
++	if (pdata->nbuttons == 0)
++		return -ENODEV;
++
++	buttons = kzalloc(pdata->nbuttons * (sizeof *buttons), GFP_KERNEL);
++	if (!buttons)
++		return -ENOMEM;
++
++	pp = NULL;
++	i = 0;
++	while ((pp = of_get_next_child(node, pp))) {
++		enum of_gpio_flags flags;
++
++		if (!of_find_property(pp, "gpios", NULL)) {
++			pdata->nbuttons--;
++			dev_warn(dev, "Found button without gpios\n");
++			continue;
++		}
++		buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
++		buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
++
++		if (of_property_read_u32(pp, "linux,code", &reg)) {
++			dev_err(dev, "Button without keycode: 0x%x\n", buttons[i].gpio);
++			goto out_fail;
++		}
++		buttons[i].code = reg;
++
++		buttons[i].desc = of_get_property(pp, "label", NULL);
++
++		if (of_property_read_u32(pp, "linux,input-type", &reg) == 0)
++			buttons[i].type = reg;
++		else
++			buttons[i].type = EV_KEY;
++
++		buttons[i].wakeup = !!of_get_property(pp, "gpio-key,wakeup", NULL);
++
++		if (of_property_read_u32(pp, "debounce-interval", &reg) == 0)
++			buttons[i].debounce_interval = reg;
++		else
++			buttons[i].debounce_interval = 5;
++
++		i++;
++	}
++
++	pdata->buttons = buttons;
++
++	return 0;
++
++out_fail:
++	kfree(buttons);
++	return -ENODEV;
++}
++
++static struct of_device_id gpio_keys_polled_of_match[] = {
++	{ .compatible = "gpio-keys-polled", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, gpio_keys_polled_of_match);
++#else
++
++static int gpio_keys_polled_get_devtree_pdata(struct device *dev,
++			    struct gpio_keys_platform_data *altp)
++{
++	return -ENODEV;
++}
++
++#define gpio_keys_polled_of_match NULL
++
++#endif
+ 
+ static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
+ {
+ 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+ 	struct device *dev = &pdev->dev;
++	struct gpio_keys_platform_data alt_pdata;
+ 	struct gpio_keys_polled_dev *bdev;
+ 	struct input_polled_dev *poll_dev;
+ 	struct input_dev *input;
+ 	int error;
+ 	int i;
+ 
+-	if (!pdata || !pdata->poll_interval)
++	if (!pdata) {
++	    error = gpio_keys_polled_get_devtree_pdata(dev, &alt_pdata);
++		if (error)
++			return error;
++		pdata = &alt_pdata;
++	}
++
++	if (!pdata->poll_interval)
+ 		return -EINVAL;
+ 
+ 	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
+@@ -184,7 +288,7 @@ static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
+ 
+ 	bdev->poll_dev = poll_dev;
+ 	bdev->dev = dev;
+-	bdev->pdata = pdata;
++	bdev->pdata = *pdata;
+ 	platform_set_drvdata(pdev, bdev);
+ 
+ 	error = input_register_polled_device(poll_dev);
+@@ -217,7 +321,7 @@ err_free_bdev:
+ static int __devexit gpio_keys_polled_remove(struct platform_device *pdev)
+ {
+ 	struct gpio_keys_polled_dev *bdev = platform_get_drvdata(pdev);
+-	struct gpio_keys_platform_data *pdata = bdev->pdata;
++	struct gpio_keys_platform_data *pdata = &bdev->pdata;
+ 	int i;
+ 
+ 	input_unregister_polled_device(bdev->poll_dev);
+@@ -239,6 +343,7 @@ static struct platform_driver gpio_keys_polled_driver = {
+ 	.driver	= {
+ 		.name	= DRV_NAME,
+ 		.owner	= THIS_MODULE,
++		.of_match_table = gpio_keys_polled_of_match,
+ 	},
+ };
+ module_platform_driver(gpio_keys_polled_driver);
+-- 
+1.7.10
 

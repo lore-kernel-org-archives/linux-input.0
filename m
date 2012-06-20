@@ -1,352 +1,103 @@
-From: mathieu.poirier@linaro.org
-Subject: [PATCH] input: Add keyreset driver.
-Date: Tue, 19 Jun 2012 15:13:34 -0600
-Message-ID: <1340140414-9720-1-git-send-email-mathieu.poirier@linaro.org>
+From: Zumeng Chen <zumeng.chen@windriver.com>
+Subject: Re: [PATCH V2 5/5] Input: ads7846: set proper debounce time in driver
+ level
+Date: Wed, 20 Jun 2012 13:28:46 +0800
+Message-ID: <4FE15F8E.4000008@windriver.com>
+References: <zumeng.chen@gmail.com> <1339551850-20827-1-git-send-email-zumeng.chen@gmail.com> <1339551850-20827-6-git-send-email-zumeng.chen@gmail.com> <79CD15C6BA57404B839C016229A409A83EA4F07F@DBDE01.ent.ti.com> <4FD96CBF.5040106@windriver.com> <79CD15C6BA57404B839C016229A409A83EA4FC98@DBDE01.ent.ti.com> <4FD98BD0.7090901@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: mathieu.poirier@linaro.org, john.stultz@linaro.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?= <arve@android.com>, kernel-team@android.com, dmitry.torokhov@gmail.com
+Content-Type: text/plain; charset="ISO-2022-JP"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.windriver.com ([147.11.1.11]:46015 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752115Ab2FTF35 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Jun 2012 01:29:57 -0400
+In-Reply-To: <4FD98BD0.7090901@windriver.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "mike@compulab.co.il" <mike@compulab.co.il>
+Cc: "Hiremath, Vaibhav" <hvaibhav@ti.com>, Zumeng Chen <zumeng.chen@gmail.com>, "tony@atomide.com" <tony@atomide.com>, "Hunter, Jon" <jon-hunter@ti.com>, "grinberg@compulab.co.il" <grinberg@compulab.co.il>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "Hilman, Kevin" <khilman@ti.com>, "Syed Mohammed, Khasim" <khasim@ti.com>, "Gupta, Ajay Kumar" <ajay.gupta@ti.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-=46rom: Arve Hj=C3=B8nnev=C3=A5g <arve@android.com>
+于 2012年06月14日 14:59, Zumeng Chen 写道:
+> 于 2012年06月14日 14:31, Hiremath, Vaibhav 写道:
+>> On Thu, Jun 14, 2012 at 10:16:55, Zumeng Chen wrote:
+>>> 于 2012年06月13日 20:18, Hiremath, Vaibhav 写道:
+>>>> On Wed, Jun 13, 2012 at 07:14:10, Zumeng Chen wrote:
+>>>>> From: Zumeng Chen<zumeng.chen@windriver.com>
+>>>>>
+>>>>> If we don't set proper debouce time for ads7846, then there are
+>>>>> flooded interrupt counters of ads7846 responding to one time
+>>>>> touch on screen, so the driver couldn't work well.
+>>>>>
+>>>>> And since most OMAP3 series boards pass NULL pointer of board_pdata
+>>>>> to omap_ads7846_init, so it's more proper to set it in driver level
+>>>>> after having gpio_request done.
+>>>>>
+>>>>> This patch has been validated on 3530evm.
+>>>>>
+>>>>> Signed-off-by: Zumeng Chen<zumeng.chen@windriver.com>
+>>>>> Signed-off-by: Syed Mohammed Khasim<khasim@ti.com>
+>>>>> ---
+>>>>>   drivers/input/touchscreen/ads7846.c |    4 ++++
+>>>>>   1 files changed, 4 insertions(+), 0 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+>>>>> index f02028e..459ff29 100644
+>>>>> --- a/drivers/input/touchscreen/ads7846.c
+>>>>> +++ b/drivers/input/touchscreen/ads7846.c
+>>>>> @@ -980,6 +980,10 @@ static int __devinit ads7846_setup_pendown(struct spi_device *spi, struct ads784
+>>>>>   		}
+>>>>>
+>>>>>   		ts->gpio_pendown = pdata->gpio_pendown;
+>>>>> +#ifdef CONFIG_ARCH_OMAP3
+>>>>> +		/* 310 means about 10 microsecond for omap3 */
+>>>>> +		gpio_set_debounce(pdata->gpio_pendown, 310);
+>>>>> +#endif
+>>>>>
+>>>> Zumeng,
+>>>>
+>>>> With my sign-off you are changing the original code, that too
+>>>> without my sign-off and ack.
+>>>> I wouldn't mind you to submit patches from my tree, but the expectation is
+>>>> if you are changing the original code, it should be under your sign-off.
+>>> Thanks, good to learn. I'll remove in next time.
+>>>> Coming to the patch, #ifdef in driver is not recommended, and this 10msec
+>>>> delay is specific to OMAP GPIO and driver should not be aware of this,
+>>>> that's where you will find the original patch handling it in board file.
+>>> According to the git blame of the board-omap3evm.c I think
+>>> 96974a24 did a good thing to all the related codes for omap3
+>>> boards. So I think we can call board and driver as BSP level :-)
+>>>
+>>> If #ifdef in driver can save many codes, I guess it's deserved.
+>>>
+>> No, not really.
+>>
+>> In the same commit, the debounce time is already handled as an argument to 
+>> the function omap_ads7846_init(), and that’s the way it should be.
+> That means you'd like to implement the same get_pendown_state for every
+> omap3 board? Currently, board_pdata is NULL.
+>
+> And actually, the reason why I agree 96974a24 is that get_pendown_state
+> for all omap3 boards is the common chip level gpio operations. so I think
+> we should set debounce for them in one common point.
+>
+> But since Igor and you don't like them, I have created and tested the
+> attachment
+> patch, and I'd like Mike to check if convenience too
+> But obviously there are more codes than mine before :-)
+Hi Mike,
 
-This patch originates from the Android tree and is being submitted
-for review and inclusion in the mainline kernel.
+I'll send V3 with the change on the attachment to you for 5/5,
+if you happen to get it, it's high appreciated to review it.
 
-Add a platform device in the board file to specify a reset key-combo.
-The first time the key-combo is detected a work function that syncs
-the filesystems is scheduled. If all the keys are released and then
-pressed again, it calls panic. Reboot on panic should be set for
-this to work.
+Regards,
+Zumeng
+>
+> Regards,
+> Zumeng
+>> So no need for #ifdefs in driver...
+>>
+>> Thanks,
+>> Vaibhav
 
-Cc: kernel-team@android.com
-Cc: dmitry.torokhov@gmail.com
-Signed-off-by: Arve Hj=C3=B8nnev=C3=A5g <arve@android.com>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
----
- drivers/input/Kconfig    |    9 ++
- drivers/input/Makefile   |    1 +
- drivers/input/keyreset.c |  239 ++++++++++++++++++++++++++++++++++++++=
-++++++++
- include/linux/keyreset.h |   28 ++++++
- 4 files changed, 277 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/keyreset.c
- create mode 100644 include/linux/keyreset.h
-
-diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
-index 55f7e57..771b64cd 100644
---- a/drivers/input/Kconfig
-+++ b/drivers/input/Kconfig
-@@ -174,6 +174,15 @@ config INPUT_APMPOWER
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called apm-power.
-=20
-+config INPUT_KEYRESET
-+	tristate "Reset key"
-+	depends on INPUT
-+	---help---
-+	  Say Y here if you want to reboot when some keys are pressed;
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called keyreset.
-+
- comment "Input Device Drivers"
-=20
- source "drivers/input/keyboard/Kconfig"
-diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-index 5ca3f63..191ea43 100644
---- a/drivers/input/Makefile
-+++ b/drivers/input/Makefile
-@@ -25,3 +25,4 @@ obj-$(CONFIG_INPUT_TOUCHSCREEN)	+=3D touchscreen/
- obj-$(CONFIG_INPUT_MISC)	+=3D misc/
-=20
- obj-$(CONFIG_INPUT_APMPOWER)	+=3D apm-power.o
-+obj-$(CONFIG_INPUT_KEYRESET)	+=3D keyreset.o
-diff --git a/drivers/input/keyreset.c b/drivers/input/keyreset.c
-new file mode 100644
-index 0000000..36208fe
---- /dev/null
-+++ b/drivers/input/keyreset.c
-@@ -0,0 +1,239 @@
-+/* drivers/input/keyreset.c
-+ *
-+ * Copyright (C) 2008 Google, Inc.
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, an=
-d
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#include <linux/input.h>
-+#include <linux/keyreset.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/reboot.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/syscalls.h>
-+
-+
-+struct keyreset_state {
-+	struct input_handler input_handler;
-+	unsigned long keybit[BITS_TO_LONGS(KEY_CNT)];
-+	unsigned long upbit[BITS_TO_LONGS(KEY_CNT)];
-+	unsigned long key[BITS_TO_LONGS(KEY_CNT)];
-+	spinlock_t lock;
-+	int key_down_target;
-+	int key_down;
-+	int key_up;
-+	int restart_disabled;
-+	int (*reset_fn)(void);
-+};
-+
-+int restart_requested;
-+static void deferred_restart(struct work_struct *dummy)
-+{
-+	restart_requested =3D 2;
-+	sys_sync();
-+	restart_requested =3D 3;
-+	kernel_restart(NULL);
-+}
-+static DECLARE_WORK(restart_work, deferred_restart);
-+
-+static void keyreset_event(struct input_handle *handle, unsigned int t=
-ype,
-+			   unsigned int code, int value)
-+{
-+	unsigned long flags;
-+	struct keyreset_state *state =3D handle->private;
-+
-+	if (type !=3D EV_KEY)
-+		return;
-+
-+	if (code >=3D KEY_MAX)
-+		return;
-+
-+	if (!test_bit(code, state->keybit))
-+		return;
-+
-+	spin_lock_irqsave(&state->lock, flags);
-+	if (!test_bit(code, state->key) =3D=3D !value)
-+		goto done;
-+	__change_bit(code, state->key);
-+	if (test_bit(code, state->upbit)) {
-+		if (value) {
-+			state->restart_disabled =3D 1;
-+			state->key_up++;
-+		} else
-+			state->key_up--;
-+	} else {
-+		if (value)
-+			state->key_down++;
-+		else
-+			state->key_down--;
-+	}
-+	if (state->key_down =3D=3D 0 && state->key_up =3D=3D 0)
-+		state->restart_disabled =3D 0;
-+
-+	pr_debug("reset key changed %d %d new state %d-%d-%d\n", code, value,
-+		 state->key_down, state->key_up, state->restart_disabled);
-+
-+	if (value && !state->restart_disabled &&
-+	    state->key_down =3D=3D state->key_down_target) {
-+		state->restart_disabled =3D 1;
-+		if (restart_requested)
-+			panic("keyboard reset failed, %d", restart_requested);
-+		if (state->reset_fn) {
-+			restart_requested =3D state->reset_fn();
-+		} else {
-+			pr_info("keyboard reset\n");
-+			schedule_work(&restart_work);
-+			restart_requested =3D 1;
-+		}
-+	}
-+done:
-+	spin_unlock_irqrestore(&state->lock, flags);
-+}
-+
-+static int keyreset_connect(struct input_handler *handler,
-+					  struct input_dev *dev,
-+					  const struct input_device_id *id)
-+{
-+	int i;
-+	int ret;
-+	struct input_handle *handle;
-+	struct keyreset_state *state =3D
-+		container_of(handler, struct keyreset_state, input_handler);
-+
-+	for (i =3D 0; i < KEY_MAX; i++) {
-+		if (test_bit(i, state->keybit) && test_bit(i, dev->keybit))
-+			break;
-+	}
-+	if (i =3D=3D KEY_MAX)
-+		return -ENODEV;
-+
-+	handle =3D kzalloc(sizeof(*handle), GFP_KERNEL);
-+	if (!handle)
-+		return -ENOMEM;
-+
-+	handle->dev =3D dev;
-+	handle->handler =3D handler;
-+	handle->name =3D "keyreset";
-+	handle->private =3D state;
-+
-+	ret =3D input_register_handle(handle);
-+	if (ret)
-+		goto err_input_register_handle;
-+
-+	ret =3D input_open_device(handle);
-+	if (ret)
-+		goto err_input_open_device;
-+
-+	pr_info("using input dev %s for key reset\n", dev->name);
-+
-+	return 0;
-+
-+err_input_open_device:
-+	input_unregister_handle(handle);
-+err_input_register_handle:
-+	kfree(handle);
-+	return ret;
-+}
-+
-+static void keyreset_disconnect(struct input_handle *handle)
-+{
-+	input_close_device(handle);
-+	input_unregister_handle(handle);
-+	kfree(handle);
-+}
-+
-+static const struct input_device_id keyreset_ids[] =3D {
-+	{
-+		.flags =3D INPUT_DEVICE_ID_MATCH_EVBIT,
-+		.evbit =3D { BIT_MASK(EV_KEY) },
-+	},
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(input, keyreset_ids);
-+
-+static int keyreset_probe(struct platform_device *pdev)
-+{
-+	int ret;
-+	int key, *keyp;
-+	struct keyreset_state *state;
-+	struct keyreset_platform_data *pdata =3D pdev->dev.platform_data;
-+
-+	if (!pdata)
-+		return -EINVAL;
-+
-+	state =3D kzalloc(sizeof(*state), GFP_KERNEL);
-+	if (!state)
-+		return -ENOMEM;
-+
-+	spin_lock_init(&state->lock);
-+	keyp =3D pdata->keys_down;
-+	while ((key =3D *keyp++)) {
-+		if (key >=3D KEY_MAX)
-+			continue;
-+		state->key_down_target++;
-+		__set_bit(key, state->keybit);
-+	}
-+	if (pdata->keys_up) {
-+		keyp =3D pdata->keys_up;
-+		while ((key =3D *keyp++)) {
-+			if (key >=3D KEY_MAX)
-+				continue;
-+			__set_bit(key, state->keybit);
-+			__set_bit(key, state->upbit);
-+		}
-+	}
-+
-+	if (pdata->reset_fn)
-+		state->reset_fn =3D pdata->reset_fn;
-+
-+	state->input_handler.event =3D keyreset_event;
-+	state->input_handler.connect =3D keyreset_connect;
-+	state->input_handler.disconnect =3D keyreset_disconnect;
-+	state->input_handler.name =3D KEYRESET_NAME;
-+	state->input_handler.id_table =3D keyreset_ids;
-+	ret =3D input_register_handler(&state->input_handler);
-+	if (ret) {
-+		kfree(state);
-+		return ret;
-+	}
-+	platform_set_drvdata(pdev, state);
-+	return 0;
-+}
-+
-+int keyreset_remove(struct platform_device *pdev)
-+{
-+	struct keyreset_state *state =3D platform_get_drvdata(pdev);
-+	input_unregister_handler(&state->input_handler);
-+	kfree(state);
-+	return 0;
-+}
-+
-+
-+struct platform_driver keyreset_driver =3D {
-+	.driver.name =3D KEYRESET_NAME,
-+	.probe =3D keyreset_probe,
-+	.remove =3D keyreset_remove,
-+};
-+
-+static int __init keyreset_init(void)
-+{
-+	return platform_driver_register(&keyreset_driver);
-+}
-+
-+static void __exit keyreset_exit(void)
-+{
-+	return platform_driver_unregister(&keyreset_driver);
-+}
-+
-+module_init(keyreset_init);
-+module_exit(keyreset_exit);
-diff --git a/include/linux/keyreset.h b/include/linux/keyreset.h
-new file mode 100644
-index 0000000..a2ac49e
---- /dev/null
-+++ b/include/linux/keyreset.h
-@@ -0,0 +1,28 @@
-+/*
-+ * include/linux/keyreset.h - platform data structure for resetkeys dr=
-iver
-+ *
-+ * Copyright (C) 2008 Google, Inc.
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, an=
-d
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#ifndef _LINUX_KEYRESET_H
-+#define _LINUX_KEYRESET_H
-+
-+#define KEYRESET_NAME "keyreset"
-+
-+struct keyreset_platform_data {
-+	int (*reset_fn)(void);
-+	int *keys_up;
-+	int keys_down[]; /* 0 terminated */
-+};
-+
-+#endif /* _LINUX_KEYRESET_H */
---=20
-1.7.5.4

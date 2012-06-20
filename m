@@ -1,65 +1,33 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 2/3] HID: hid-multitouch: support arrays for the split of
- the touches in a report
-Date: Wed, 20 Jun 2012 18:53:56 +0200
-Message-ID: <20120620165356.GA2850@polaris.bitmath.org>
-References: <1340109594-10732-1-git-send-email-benjamin.tissoires@gmail.com>
- <1340109594-10732-2-git-send-email-benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 00/22 v4] cleanup atmel_mxt_ts
+Date: Wed, 20 Jun 2012 19:38:32 +0200
+Message-ID: <20120620173832.GA5304@polaris.bitmath.org>
+References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:43298 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754019Ab2FTQvQ (ORCPT
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:55717 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752284Ab2FTRfw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jun 2012 12:51:16 -0400
+	Wed, 20 Jun 2012 13:35:52 -0400
 Content-Disposition: inline
-In-Reply-To: <1340109594-10732-2-git-send-email-benjamin.tissoires@gmail.com>
+In-Reply-To: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
+Hi Daniel,
 
-> Win8 certification introduced the ability to transmit two X and two Y per
-> touch. The specification precises that it must be in an array, with a
-> report count == 2.
+> This patchset cleans up the atmel_mxt_ts touchscreen driver.
 > 
-> This test guarantees that we split the touches on the last element
-> in this array.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> ---
->  drivers/hid/hid-multitouch.c |    5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 9a3891e..a5ef877 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -601,7 +601,10 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->  			return 0;
->  		}
->  
-> -		if (usage->hid == td->last_slot_field)
-> +		if (usage->hid == td->last_slot_field &&
-> +			usage == &field->usage[field->maxusage - 1])
-> +			/* we only take into account the last report
-> +			 * of a field if report_count > 1 */
+> These patches mostly contain non-controversial changes that were previously
+> reviewed in previous versions of the patchset.
 
-This just looks so fragile... The report index should really be amount
-the arguments to mt_event(). Since we rely on the pointer to reveal
-the index, why not try something like (usage - &field->usage[0]) ==
-(field->report_count - 1)? At least it shows clearly what we use the
-point for.
+I have queued patches 1-10 locally, review of the others will follow (eventually).
 
->  			mt_complete_slot(td);
->  
->  		if (field->index == td->last_field_index
-> -- 
-> 1.7.10.2
-> 
+I will push this set to next in a week or so unless Dmitry wants to takes it.
 
 Thanks,
 Henrik

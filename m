@@ -1,224 +1,277 @@
-From: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
-Subject: [PATCH RESEND] input: gpio_keys_polled: convert to dt
-Date: Wed, 20 Jun 2012 08:34:21 -0300
-Message-ID: <1340192062-10565-1-git-send-email-aletes.xgr@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:36605 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752416Ab2FTLfj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jun 2012 07:35:39 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Ike Panhc <ike.pan@canonical.com>
+Subject: Re: [PATCH 2/2] drivers/input/mouse, drivers/platform/x86: add Lenovo
+ IdeaPad Z570 support
+Date: Wed, 20 Jun 2012 21:34:17 +0800
+Message-ID: <4FE1D159.5030902@canonical.com>
+References: <1340133637.3636.8.camel@lenovo-ideapad-z570.olymp.linuxd.org> <1340133806.3636.11.camel@lenovo-ideapad-z570.olymp.linuxd.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <1340133806.3636.11.camel@lenovo-ideapad-z570.olymp.linuxd.org>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Maxim Mikityanskiy <maxtram95@gmail.com>
+Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alessandro Rubini <rubini@cvml.unipv.it>
 List-Id: linux-input@vger.kernel.org
-Cc: Alexandre Pereira da Silva <aletes.xgr@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, JJ Ding <dgdunix@gmail.com>, Roland Stigge <stigge@antcom.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
 
-Add device tree support to gpio_keys_polled.c
+On 06/20/2012 03:23 AM, Maxim Mikityanskiy wrote:
+> From: Maxim Mikityanskiy <maxtram95@gmail.com>
+> 
+> The patch adds support for Lenovo IdeaPad Z570 laptop. It makes all special
+> keys working, adds possibility to control fan like Windows does, controls
+> Touchpad Disabled LED, toggles touchpad state via psmouse with previous
+> patch and corrects touchpad behavior on resume from suspend. It is new,
+> modified version of patch.
+> 
+> Signed-off-by: Maxim Mikityanskiy <maxtram95@gmail.com>
+> --- linux/drivers/platform/x86/ideapad-laptop.c.orig
+> +++ linux/drivers/platform/x86/ideapad-laptop.c
+> @@ -36,6 +36,7 @@
+>  #include <linux/fb.h>
+>  #include <linux/debugfs.h>
+>  #include <linux/seq_file.h>
+> +#include <linux/input/psmouse.h>
 
-Signed-off-by: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
-Tested-by: Roland Stigge <stigge@antcom.de>
----
- drivers/input/keyboard/gpio_keys_polled.c |  121 +++++++++++++++++++++++++++--
- 1 file changed, 113 insertions(+), 8 deletions(-)
+let IDEAPAD_LAPTOP depends on MOUSE_PS2 in Kconfig. Other build will fail without MOUSE_PS2 selected. Of course I know the chance is rare.
 
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index 20c8ab1..a64b361 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -25,6 +25,8 @@
- #include <linux/platform_device.h>
- #include <linux/gpio.h>
- #include <linux/gpio_keys.h>
-+#include <linux/of_platform.h>
-+#include <linux/of_gpio.h>
- 
- #define DRV_NAME	"gpio-keys-polled"
- 
-@@ -38,7 +40,7 @@ struct gpio_keys_button_data {
- struct gpio_keys_polled_dev {
- 	struct input_polled_dev *poll_dev;
- 	struct device *dev;
--	struct gpio_keys_platform_data *pdata;
-+	struct gpio_keys_platform_data pdata;
- 	struct gpio_keys_button_data data[0];
- };
- 
-@@ -67,11 +69,11 @@ static void gpio_keys_polled_check_state(struct input_dev *input,
- static void gpio_keys_polled_poll(struct input_polled_dev *dev)
- {
- 	struct gpio_keys_polled_dev *bdev = dev->private;
--	struct gpio_keys_platform_data *pdata = bdev->pdata;
-+	struct gpio_keys_platform_data *pdata = &bdev->pdata;
- 	struct input_dev *input = dev->input;
- 	int i;
- 
--	for (i = 0; i < bdev->pdata->nbuttons; i++) {
-+	for (i = 0; i < pdata->nbuttons; i++) {
- 		struct gpio_keys_button_data *bdata = &bdev->data[i];
- 
- 		if (bdata->count < bdata->threshold)
-@@ -85,7 +87,7 @@ static void gpio_keys_polled_poll(struct input_polled_dev *dev)
- static void gpio_keys_polled_open(struct input_polled_dev *dev)
- {
- 	struct gpio_keys_polled_dev *bdev = dev->private;
--	struct gpio_keys_platform_data *pdata = bdev->pdata;
-+	struct gpio_keys_platform_data *pdata = &bdev->pdata;
- 
- 	if (pdata->enable)
- 		pdata->enable(bdev->dev);
-@@ -94,23 +96,125 @@ static void gpio_keys_polled_open(struct input_polled_dev *dev)
- static void gpio_keys_polled_close(struct input_polled_dev *dev)
- {
- 	struct gpio_keys_polled_dev *bdev = dev->private;
--	struct gpio_keys_platform_data *pdata = bdev->pdata;
-+	struct gpio_keys_platform_data *pdata = &bdev->pdata;
- 
- 	if (pdata->disable)
- 		pdata->disable(bdev->dev);
- }
-+#ifdef CONFIG_OF
-+static int gpio_keys_polled_get_devtree_pdata(struct device *dev,
-+			    struct gpio_keys_platform_data *pdata)
-+{
-+	struct device_node *node, *pp;
-+	int i;
-+	struct gpio_keys_button *buttons;
-+	u32 reg;
-+
-+	node = dev->of_node;
-+	if (node == NULL)
-+		return -ENODEV;
-+
-+	memset(pdata, 0, sizeof *pdata);
-+
-+	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
-+
-+	if (of_property_read_u32(node, "poll-interval", &reg) == 0)
-+		pdata->poll_interval = reg;
-+
-+	/* First count the subnodes */
-+	pdata->nbuttons = 0;
-+	pp = NULL;
-+	while ((pp = of_get_next_child(node, pp)))
-+		pdata->nbuttons++;
-+
-+	if (pdata->nbuttons == 0)
-+		return -ENODEV;
-+
-+	buttons = kzalloc(pdata->nbuttons * (sizeof *buttons), GFP_KERNEL);
-+	if (!buttons)
-+		return -ENOMEM;
-+
-+	pp = NULL;
-+	i = 0;
-+	while ((pp = of_get_next_child(node, pp))) {
-+		enum of_gpio_flags flags;
-+
-+		if (!of_find_property(pp, "gpios", NULL)) {
-+			pdata->nbuttons--;
-+			dev_warn(dev, "Found button without gpios\n");
-+			continue;
-+		}
-+		buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
-+		buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
-+
-+		if (of_property_read_u32(pp, "linux,code", &reg)) {
-+			dev_err(dev, "Button without keycode: 0x%x\n", buttons[i].gpio);
-+			goto out_fail;
-+		}
-+		buttons[i].code = reg;
-+
-+		buttons[i].desc = of_get_property(pp, "label", NULL);
-+
-+		if (of_property_read_u32(pp, "linux,input-type", &reg) == 0)
-+			buttons[i].type = reg;
-+		else
-+			buttons[i].type = EV_KEY;
-+
-+		buttons[i].wakeup = !!of_get_property(pp, "gpio-key,wakeup", NULL);
-+
-+		if (of_property_read_u32(pp, "debounce-interval", &reg) == 0)
-+			buttons[i].debounce_interval = reg;
-+		else
-+			buttons[i].debounce_interval = 5;
-+
-+		i++;
-+	}
-+
-+	pdata->buttons = buttons;
-+
-+	return 0;
-+
-+out_fail:
-+	kfree(buttons);
-+	return -ENODEV;
-+}
-+
-+static struct of_device_id gpio_keys_polled_of_match[] = {
-+	{ .compatible = "gpio-keys-polled", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, gpio_keys_polled_of_match);
-+#else
-+
-+static int gpio_keys_polled_get_devtree_pdata(struct device *dev,
-+			    struct gpio_keys_platform_data *altp)
-+{
-+	return -ENODEV;
-+}
-+
-+#define gpio_keys_polled_of_match NULL
-+
-+#endif
- 
- static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
- {
- 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
- 	struct device *dev = &pdev->dev;
-+	struct gpio_keys_platform_data alt_pdata;
- 	struct gpio_keys_polled_dev *bdev;
- 	struct input_polled_dev *poll_dev;
- 	struct input_dev *input;
- 	int error;
- 	int i;
- 
--	if (!pdata || !pdata->poll_interval)
-+	if (!pdata) {
-+	    error = gpio_keys_polled_get_devtree_pdata(dev, &alt_pdata);
-+		if (error)
-+			return error;
-+		pdata = &alt_pdata;
-+	}
-+
-+	if (!pdata->poll_interval)
- 		return -EINVAL;
- 
- 	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
-@@ -184,7 +288,7 @@ static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 	bdev->poll_dev = poll_dev;
- 	bdev->dev = dev;
--	bdev->pdata = pdata;
-+	bdev->pdata = *pdata;
- 	platform_set_drvdata(pdev, bdev);
- 
- 	error = input_register_polled_device(poll_dev);
-@@ -217,7 +321,7 @@ err_free_bdev:
- static int __devexit gpio_keys_polled_remove(struct platform_device *pdev)
- {
- 	struct gpio_keys_polled_dev *bdev = platform_get_drvdata(pdev);
--	struct gpio_keys_platform_data *pdata = bdev->pdata;
-+	struct gpio_keys_platform_data *pdata = &bdev->pdata;
- 	int i;
- 
- 	input_unregister_polled_device(bdev->poll_dev);
-@@ -239,6 +343,7 @@ static struct platform_driver gpio_keys_polled_driver = {
- 	.driver	= {
- 		.name	= DRV_NAME,
- 		.owner	= THIS_MODULE,
-+		.of_match_table = gpio_keys_polled_of_match,
- 	},
- };
- module_platform_driver(gpio_keys_polled_driver);
--- 
-1.7.10
+>  
+>  #define IDEAPAD_RFKILL_DEV_NUM	(3)
+>  
+> @@ -62,9 +63,12 @@ enum {
+>  	VPCCMD_W_CAMERA,
+>  	VPCCMD_R_3G,
+>  	VPCCMD_W_3G,
+> -	VPCCMD_R_ODD, /* 0x21 */
+> -	VPCCMD_R_RF = 0x23,
+> -	VPCCMD_W_RF,
+> +	VPCCMD_R_ODD,
+> +	VPCCMD_W_FAN,
+> +	VPCCMD_R_RF,
+> +	VPCCMD_W_RF, /* 0x24 */
+> +	VPCCMD_R_FAN = 0x2B,
+> +	VPCCMD_R_SPECIAL_BUTTONS = 0x31,
+>  	VPCCMD_W_BL_POWER = 0x33,
+>  };
+>  
+> @@ -363,8 +367,47 @@ static ssize_t store_ideapad_cam(struct
+>  
+>  static DEVICE_ATTR(camera_power, 0644, show_ideapad_cam, store_ideapad_cam);
+>  
+> +static ssize_t show_ideapad_fan(struct device *dev,
+> +				struct device_attribute *attr,
+> +				char *buf)
+> +{
+> +	unsigned long result;
+> +
+> +	if (read_ec_data(ideapad_handle, VPCCMD_R_FAN, &result))
+> +		return sprintf(buf, "-1\n");
+> +	return sprintf(buf, "%lu\n", result);
+> +}
+> +
+> +static ssize_t store_ideapad_fan(struct device *dev,
+> +				 struct device_attribute *attr,
+> +				 const char *buf, size_t count)
+> +{
+> +	int ret, state;
+> +
+> +	if (!count)
+> +		return 0;
+> +	if (sscanf(buf, "%i", &state) != 1)
+> +		return -EINVAL;
+> +	/* WARNING: these fan states are not speed
+> +	 * so it isn't cooling_device interface
+> +	 * 0 = super silent mode
+> +	 * 1 = standard mode
+> +	 * 2 = dust cleaning
+> +	 * 4 = efficient thermal dissipation mode
+> +	 */
 
+I think the file in Documentation is doing good, no need to comment here.
+
+> +	if (state < 0 || state > 4 || state == 3)
+> +		return -EINVAL;
+> +	ret = write_ec_cmd(ideapad_handle, VPCCMD_W_FAN, state);
+> +	if (ret < 0)
+> +		return ret;
+
+return -EIO is better, write_ec_cmd only return -1.
+
+> +	return count;
+> +}
+> +
+> +static DEVICE_ATTR(fan_mode, 0644, show_ideapad_fan, store_ideapad_fan);
+> +
+>  static struct attribute *ideapad_attributes[] = {
+>  	&dev_attr_camera_power.attr,
+> +	&dev_attr_fan_mode.attr,
+>  	NULL
+>  };
+>  
+> @@ -379,6 +422,10 @@ static umode_t ideapad_is_visible(struct
+>  	if (attr == &dev_attr_camera_power.attr)
+>  		supported = test_bit(CFG_CAMERA_BIT, &(priv->cfg));
+>  	else
+> +	if (attr == &dev_attr_fan_mode.attr) {
+> +		unsigned long value;
+> +		supported = !read_ec_data(ideapad_handle, VPCCMD_R_FAN, &value);
+
+I will test this with my ideapads.
+
+> +	} else
+>  		supported = true;
+>  
+>  	return supported ? attr->mode : 0;
+> @@ -519,9 +566,15 @@ static void ideapad_platform_exit(struct
+>   */
+>  static const struct key_entry ideapad_keymap[] = {
+>  	{ KE_KEY, 6,  { KEY_SWITCHVIDEOMODE } },
+> +	{ KE_KEY, 7,  { KEY_CAMERA } },
+> +	{ KE_KEY, 11, { KEY_F16 } },
+>  	{ KE_KEY, 13, { KEY_WLAN } },
+>  	{ KE_KEY, 16, { KEY_PROG1 } },
+>  	{ KE_KEY, 17, { KEY_PROG2 } },
+> +	{ KE_KEY, 64, { KEY_PROG3 } },
+> +	{ KE_KEY, 65, { KEY_PROG4 } },
+> +	{ KE_KEY, 66, { KEY_TOUCHPAD_OFF } },
+> +	{ KE_KEY, 67, { KEY_TOUCHPAD_ON } },
+>  	{ KE_END, 0 },
+>  };
+>  
+> @@ -692,6 +745,25 @@ static const struct acpi_device_id ideap
+>  };
+>  MODULE_DEVICE_TABLE(acpi, ideapad_device_ids);
+>  
+> +static void ideapad_sync_touchpad_state(struct acpi_device *adevice)
+> +{
+> +	struct ideapad_private *priv = dev_get_drvdata(&adevice->dev);
+> +	unsigned long value;
+> +
+> +	/* Without reading from EC touchpad LED doesn't switch state */
+> +	if (!read_ec_data(adevice->handle, VPCCMD_R_TOUCHPAD, &value)) {
+> +		/* Some IdeaPads don't really turn off touchpad - they only
+> +		 * switch the LED state. We (de)activate psmouse to turn
+> +		 * touchpad off and on. We send KEY_TOUCHPAD_OFF and
+> +		 * KEY_TOUCHPAD_ON to not to get out of sync with LED */
+> +		if (value)
+> +			psmouse_enable();
+> +		else
+> +			psmouse_disable();
+> +		ideapad_input_report(priv, value ? 67 : 66);
+> +	}
+> +}
+> +
+>  static int __devinit ideapad_acpi_add(struct acpi_device *adevice)
+>  {
+>  	int ret, i;
+> @@ -728,6 +800,7 @@ static int __devinit ideapad_acpi_add(st
+>  			priv->rfk[i] = NULL;
+>  	}
+>  	ideapad_sync_rfk_state(priv);
+> +	ideapad_sync_touchpad_state(adevice);
+>  
+>  	if (!acpi_video_backlight_support()) {
+>  		ret = ideapad_backlight_init(priv);
+> @@ -767,6 +840,26 @@ static int __devexit ideapad_acpi_remove
+>  	return 0;
+>  }
+>  
+> +static void ideapad_check_special_buttons(struct ideapad_private *priv,
+> +					  unsigned long state)
+> +{
+> +	unsigned long bit;
+> +	for (bit = 0; bit < 16; bit++) {
+> +		if (test_bit(bit, &state)) {
+> +			switch (bit) {
+> +			case 6:
+> +				/* Thermal Management button */
+> +				ideapad_input_report(priv, 65);
+> +				break;
+> +			case 1:
+> +				/* OneKey Theater button */
+> +				ideapad_input_report(priv, 64);
+> +				break;
+> +			}
+> +		}
+> +	}
+> +}
+> +
+>  static void ideapad_acpi_notify(struct acpi_device *adevice, u32 event)
+>  {
+>  	struct ideapad_private *priv = dev_get_drvdata(&adevice->dev);
+> @@ -785,6 +878,9 @@ static void ideapad_acpi_notify(struct a
+>  			case 9:
+>  				ideapad_sync_rfk_state(priv);
+>  				break;
+> +			case 5:
+> +				ideapad_sync_touchpad_state(adevice);
+> +				break;
+>  			case 4:
+>  				ideapad_backlight_notify_brightness(priv);
+>  				break;
+> @@ -794,6 +890,14 @@ static void ideapad_acpi_notify(struct a
+>  			case 2:
+>  				ideapad_backlight_notify_power(priv);
+>  				break;
+> +			case 0:
+> +				{
+> +				unsigned long value;
+> +				read_ec_data(handle, VPCCMD_R_SPECIAL_BUTTONS,
+> +					     &value);
+> +				ideapad_check_special_buttons(priv, value);
+> +				}
+> +				break;
+>  			default:
+>  				ideapad_input_report(priv, vpc_bit);
+>  			}
+> @@ -801,6 +905,12 @@ static void ideapad_acpi_notify(struct a
+>  	}
+>  }
+>  
+> +static int ideapad_acpi_resume(struct acpi_device *adevice)
+> +{
+> +	ideapad_sync_touchpad_state(adevice);
+
+Good idea, I will see if we need ideapad_sync_rfk_state() also.
+
+> +	return 0;
+> +}
+> +
+>  static struct acpi_driver ideapad_acpi_driver = {
+>  	.name = "ideapad_acpi",
+>  	.class = "IdeaPad",
+> @@ -808,6 +918,7 @@ static struct acpi_driver ideapad_acpi_d
+>  	.ops.add = ideapad_acpi_add,
+>  	.ops.remove = ideapad_acpi_remove,
+>  	.ops.notify = ideapad_acpi_notify,
+> +	.ops.resume = ideapad_acpi_resume,
+>  	.owner = THIS_MODULE,
+>  };
+>  
+> --- linux/Documentation/ABI/testing/sysfs-platform-ideapad-laptop.orig
+> +++ linux/Documentation/ABI/testing/sysfs-platform-ideapad-laptop
+> @@ -5,4 +5,14 @@ Contact:	"Ike Panhc <ike.pan@canonical.c
+>  Description:
+>  		Control the power of camera module. 1 means on, 0 means off.
+>  
+> -
+> +What:		/sys/devices/platform/ideapad/fan_mode
+> +Date:		June 2012
+> +KernelVersion:	3.5
+
+Shall be 3.6
+
+> +Contact:	"Maxim Mikityanskiy <maxtram95@gmail.com>"
+> +Description:
+> +		Change fan mode
+> +		There are four available modes:
+> +		    * 0 -> Super Silent Mode
+> +		    * 1 -> Standard Mode
+> +		    * 2 -> Dust Cleaning
+> +		    * 4 -> Efficient Thermal Dissipation Mode
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe platform-driver-x86" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

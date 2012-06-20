@@ -1,18 +1,20 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 1/3] HID: hid-multitouch: fix input mode feature command
-Date: Wed, 20 Jun 2012 18:32:38 +0200
-Message-ID: <20120620163238.GA447@polaris.bitmath.org>
+Subject: Re: [PATCH 2/3] HID: hid-multitouch: support arrays for the split of
+ the touches in a report
+Date: Wed, 20 Jun 2012 18:53:56 +0200
+Message-ID: <20120620165356.GA2850@polaris.bitmath.org>
 References: <1340109594-10732-1-git-send-email-benjamin.tissoires@gmail.com>
+ <1340109594-10732-2-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b11.telenor.se ([62.127.194.20]:55188 "EHLO
-	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757002Ab2FTQ35 (ORCPT
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:43298 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754019Ab2FTQvQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jun 2012 12:29:57 -0400
+	Wed, 20 Jun 2012 12:51:16 -0400
 Content-Disposition: inline
-In-Reply-To: <1340109594-10732-1-git-send-email-benjamin.tissoires@gmail.com>
+In-Reply-To: <1340109594-10732-2-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
@@ -20,72 +22,41 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, 
 
 Hi Benjamin,
 
-> Zytronic panels shows a new way of setting the Input Mode feature.
-> This feature is put in the second usage in the HID feature, instead
-> of the first, as the majority of the multitouch devices.
+> Win8 certification introduced the ability to transmit two X and two Y per
+> touch. The specification precises that it must be in an array, with a
+> report count == 2.
 > 
-> This patch adds a detection step when the feature is presented to know
-> where the feature is located in the report. We can then trigger the right
-> command to the device. This removes the magic number "0" in the function
-> mt_set_input_mode.
+> This test guarantees that we split the touches on the last element
+> in this array.
 > 
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 > ---
->  drivers/hid/hid-multitouch.c |   13 ++++++++++++-
->  1 file changed, 12 insertions(+), 1 deletion(-)
+>  drivers/hid/hid-multitouch.c |    5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 > 
 > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 61cc4cb..9a3891e 100644
+> index 9a3891e..a5ef877 100644
 > --- a/drivers/hid/hid-multitouch.c
 > +++ b/drivers/hid/hid-multitouch.c
-> @@ -83,6 +83,7 @@ struct mt_device {
->  	unsigned last_field_index;	/* last field index of the report */
->  	unsigned last_slot_field;	/* the last field of a slot */
->  	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
-> +	__s8 inputmode_index;	/* InputMode HID feature index in the report */
->  	__s8 maxcontact_report_id;	/* Maximum Contact Number HID feature,
->  				   -1 if non-existent */
->  	__u8 num_received;	/* how many contacts we received */
-> @@ -260,10 +261,20 @@ static void mt_feature_mapping(struct hid_device *hdev,
->  		struct hid_field *field, struct hid_usage *usage)
->  {
->  	struct mt_device *td = hid_get_drvdata(hdev);
-> +	int i;
-
-Or a separate function to keep thing neat?
-
+> @@ -601,7 +601,10 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+>  			return 0;
+>  		}
 >  
->  	switch (usage->hid) {
->  	case HID_DG_INPUTMODE:
->  		td->inputmode = field->report->id;
-> +		td->inputmode_index = 0; /* has to be updated below */
+> -		if (usage->hid == td->last_slot_field)
+> +		if (usage->hid == td->last_slot_field &&
+> +			usage == &field->usage[field->maxusage - 1])
+> +			/* we only take into account the last report
+> +			 * of a field if report_count > 1 */
 
-Isn't this zero already?
+This just looks so fragile... The report index should really be amount
+the arguments to mt_event(). Since we rely on the pointer to reveal
+the index, why not try something like (usage - &field->usage[0]) ==
+(field->report_count - 1)? At least it shows clearly what we use the
+point for.
 
-> +
-> +		for (i=0; i < field->maxusage; i++) {
-> +			if (field->usage[i].hid == usage->hid) {
-> +				td->inputmode_index = i;
-> +				break;
-
-The break here is an optimization of the dubious kind. ;-)
-Or do we expect more than one occurence?
-
-> +			}
-> +		}
-> +
->  		break;
->  	case HID_DG_CONTACTMAX:
->  		td->maxcontact_report_id = field->report->id;
-> @@ -618,7 +629,7 @@ static void mt_set_input_mode(struct hid_device *hdev)
->  	re = &(hdev->report_enum[HID_FEATURE_REPORT]);
->  	r = re->report_id_hash[td->inputmode];
->  	if (r) {
-> -		r->field[0]->value[0] = 0x02;
-> +		r->field[0]->value[td->inputmode_index] = 0x02;
->  		usbhid_submit_report(hdev, r, USB_DIR_OUT);
->  	}
->  }
+>  			mt_complete_slot(td);
+>  
+>  		if (field->index == td->last_field_index
 > -- 
 > 1.7.10.2
 > 

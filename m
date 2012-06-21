@@ -1,58 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND] input: gpio_keys_polled: convert to dt
-Date: Thu, 21 Jun 2012 02:18:33 -0700
-Message-ID: <20120621091833.GH2193@core.coreip.homeip.net>
-References: <1340192062-10565-1-git-send-email-aletes.xgr@gmail.com>
+From: Simon Budig <simon.budig@kernelconcepts.de>
+Subject: Re: [PATCH] input: edt-ft5x06 - Touchscreen driver for FT5x06 based
+ EDT displays
+Date: Thu, 21 Jun 2012 11:39:24 +0200
+Message-ID: <4FE2EBCC.2020108@kernelconcepts.de>
+References: <1339671707-24662-1-git-send-email-olivier@sobrie.be> <20120620184015.GA5390@polaris.bitmath.org> <4FE24024.9010807@kernelconcepts.de> <20120621083940.GA2193@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1340192062-10565-1-git-send-email-aletes.xgr@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
-Cc: Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, JJ Ding <dgdunix@gmail.com>, Roland Stigge <stigge@antcom.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.kernelconcepts.de ([212.60.202.196]:40487 "EHLO
+	mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754915Ab2FUJj3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 Jun 2012 05:39:29 -0400
+In-Reply-To: <20120621083940.GA2193@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Olivier Sobrie <olivier@sobrie.be>, linux-input@vger.kernel.org, Jan Paesmans <jan.paesmans@gmail.com>, Anatolij Gustshin <agust@denx.de>, Ilya Yanok <yanok@emcraft.com>
 
-Hi Alexandre,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Wed, Jun 20, 2012 at 08:34:21AM -0300, Alexandre Pereira da Silva wrote:
-> Add device tree support to gpio_keys_polled.c
-> 
-> Signed-off-by: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
-> Tested-by: Roland Stigge <stigge@antcom.de>
-> ---
->  drivers/input/keyboard/gpio_keys_polled.c |  121 +++++++++++++++++++++++++++--
->  1 file changed, 113 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-> index 20c8ab1..a64b361 100644
-> --- a/drivers/input/keyboard/gpio_keys_polled.c
-> +++ b/drivers/input/keyboard/gpio_keys_polled.c
-> @@ -25,6 +25,8 @@
->  #include <linux/platform_device.h>
->  #include <linux/gpio.h>
->  #include <linux/gpio_keys.h>
-> +#include <linux/of_platform.h>
-> +#include <linux/of_gpio.h>
->  
->  #define DRV_NAME	"gpio-keys-polled"
->  
-> @@ -38,7 +40,7 @@ struct gpio_keys_button_data {
->  struct gpio_keys_polled_dev {
->  	struct input_polled_dev *poll_dev;
->  	struct device *dev;
-> -	struct gpio_keys_platform_data *pdata;
-> +	struct gpio_keys_platform_data pdata;
+On 06/21/2012 10:39 AM, Dmitry Torokhov wrote:
+>> Anyway. I have reviewed the changes Dmitry suggested and will
+>> test them on real hardware tomorrow.
 
-I am not sure why this change is needed. Also it seems that the driver
-leaks DT-created pdata on unload.
+Ok, the bad news is, that it doesn't work with your changes. There was
+one oops I was able to resolve (i2c_set_clientdata must happen before
+sysfs_create_group) but the touch also failed to deliver input events
+and mode switching doesn't work.
 
-> +
-> +#define gpio_keys_polled_of_match NULL
+I'll try to incorporate your patch incrementally, but this might have
+to wait for the weekend.
 
-Please use of_match_ptr() instead.
+> That would be great as I already reviewed your version. If there
+> is something missing from your version that is present in Olivier,
+> I woudl prefer getting an incremental patch.
 
-Thanks.
+One thing Olivier did which is not in my patch is, that he used the
+type B protocol while I am still on type A. This is something I could
+change.
 
--- 
-Dmitry
+Bye,
+        Simon
+
+- -- 
+       Simon Budig                        kernel concepts GmbH
+       simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
+       +49-271-771091-17                  D-57072 Siegen
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk/i68wACgkQO2O/RXesiHA/hwCfQEZDL+KukaCsKpMMRdpuPfo2
+FQQAnRqAtrPoAmLDeQ5bonidXMSlrtMk
+=DPlX
+-----END PGP SIGNATURE-----

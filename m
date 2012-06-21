@@ -1,40 +1,38 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: gpio_keys: added setup call for extending
- functionality of driver
-Date: Thu, 21 Jun 2012 01:50:45 -0700
-Message-ID: <20120621085045.GD2193@core.coreip.homeip.net>
-References: <1340208597-31865-1-git-send-email-shc_work@mail.ru>
+Subject: Re: gpio_keys_polled.c and DT
+Date: Thu, 21 Jun 2012 01:53:40 -0700
+Message-ID: <20120621085340.GE2193@core.coreip.homeip.net>
+References: <4FE0946B.8030201@antcom.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:36617 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758907Ab2FUIuu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Jun 2012 04:50:50 -0400
-Received: by dady13 with SMTP id y13so579984dad.19
-        for <linux-input@vger.kernel.org>; Thu, 21 Jun 2012 01:50:50 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1340208597-31865-1-git-send-email-shc_work@mail.ru>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <4FE0946B.8030201@antcom.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Roland Stigge <stigge@antcom.de>
+Cc: dgdunix@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Shiyan <shc_work@mail.ru>
-Cc: linux-input@vger.kernel.org, Grant Likely <grant.likely@secretlab.ca>, Linus Walleij <linus.walleij@stericsson.com>
 
-Hi Alexander,
+Hi Roland,
 
-On Wed, Jun 20, 2012 at 08:09:57PM +0400, Alexander Shiyan wrote:
-> This additional call can be used for extending functionality of
-> driver. For example we can add EV_SND, EV_LED, etc. handlers.
+On Tue, Jun 19, 2012 at 05:02:03PM +0200, Roland Stigge wrote:
+> Hi,
 > 
+> as far as I can see, gpio_keys_polled.c currently doesn't support DT
+> initialization. Is there a plan in this regard?
+> 
+> Rather than duplicating the respective code from gpio_keys.c, maybe
+> gpio_keys.c could be changed to support a polled mode also? This way,
+> gpio_keys_polled.c could be removed.
 
-I am not sure that gpio_keys is quite ready to handle events besides
-EV_KEY and EV_SW, additional changes are needed; and if you make those
-additional changes then I think current platform data should be
-sufficient to specify all supported even types.
+We had several attempts at gpio_keys and adding a polled mode and we
+ended up with the driver getting too complex and having unwanted
+dependencies. At the moment I believe that the split between gpio_keys.c
+and gpio_keys_polled.c is justified even it it may lead to certain code
+duplication.
 
-Also, given the general push towards DT-ased setups platform-supplied
-board setup code might not be the best approach.
+However, if DT bindings are really the same we could split them off into
+a separate library module used by both drivers.
 
 Thanks.
 

@@ -1,34 +1,63 @@
-From: David VomLehn <vomlehn@texas.net>
-Subject: Re: Keyboard problem on HP Envy 17 3D
-Date: Thu, 21 Jun 2012 22:39:20 -0700
-Message-ID: <20120622053920.GA7821@texas.net>
-References: <4FE24873.8010106@texas.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qmta01.emeryville.ca.mail.comcast.net ([76.96.30.16]:33290 "EHLO
-	qmta01.emeryville.ca.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1761192Ab2FVFpI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Jun 2012 01:45:08 -0400
-Content-Disposition: inline
-In-Reply-To: <4FE24873.8010106@texas.net>
-Sender: linux-input-owner@vger.kernel.org
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH] HID: Fix the Kconfig option for generic device handling
+Date: Fri, 22 Jun 2012 11:13:10 +0200
+Message-ID: <1340356390-4614-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jan Beulich <jbeulich@suse.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-On Wed, Jun 20, 2012 at 10:08:30PM +0000, David VomLehn wrote:
-> I have a keyboard problem that I figure *must* be a keyboard
-> hardware problem, but it doesn't really look like it.
-...
-> My system is an HP Envy 17" 3D (2090nr).
+The generic HID driver is obviously not a special driver, so move
+it outside of the special drivers menu. Explain the usage and make
+the default follow the HID setting. This should simplify migration
+from older kernels.
 
-So, I did what I should have done before but the results were what I
-expected--I hooked up a spare USB keyboard and there is no problem.
-Which narrows the problem down to the keyboard decoding. I would
-appreciate any help I can get with hints I can use to determine
-that this is hardware or fix the driver.
+Reported-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+Hi Jiri,
 
-Thanks!
---
-David VL
+As pointed out by Jan Beulich, the generic hid driver Kconfig option
+is confusing. This patch ought to fix most of the concerns. For 3.5.
+
+Thanks,
+Henrik
+
+ drivers/hid/Kconfig |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 034c80a..fabf817 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -61,21 +61,22 @@ config HIDRAW
+ 
+ source "drivers/hid/usbhid/Kconfig"
+ 
+-menu "Special HID drivers"
+-	depends on HID
+-
+ config HID_GENERIC
+ 	tristate "Generic HID driver"
+ 	depends on HID
+-	default y
++	default HID
+ 	---help---
+-	Support for generic HID devices.
++	Support for generic devices on the HID bus. This includes most
++	keyboards and mice, joysticks, tablets and digitizers.
+ 
+ 	To compile this driver as a module, choose M here: the module
+ 	will be called hid-generic.
+ 
+ 	If unsure, say Y.
+ 
++menu "Special HID drivers"
++	depends on HID
++
+ config HID_A4TECH
+ 	tristate "A4 tech mice" if EXPERT
+ 	depends on USB_HID
+-- 
+1.7.10.4

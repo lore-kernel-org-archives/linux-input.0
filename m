@@ -1,47 +1,48 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH Stable 3.4.x] HID: hid-multitouch: fix wrong protocol
- detection
-Date: Fri, 22 Jun 2012 15:38:23 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1206221538100.18612@pobox.suse.cz>
-References: <1340111206-11659-1-git-send-email-benjamin.tissoires@gmail.com> <20120620162812.GA433@polaris.bitmath.org>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Yufeng Shen <miletus@chromium.org>
+Subject: [PATCH] HID: magicmouse: Correct report range of major / minor axes
+Date: Fri, 22 Jun 2012 12:31:53 -0400
+Message-ID: <1340382713-2957-1-git-send-email-miletus@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58551 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754561Ab2FVNib (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Jun 2012 09:38:31 -0400
-In-Reply-To: <20120620162812.GA433@polaris.bitmath.org>
+Received: from mail-vb0-f74.google.com ([209.85.212.74]:49013 "EHLO
+	mail-vb0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755463Ab2FVQi0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Jun 2012 12:38:26 -0400
+Received: by vbnl22 with SMTP id l22so208040vbn.1
+        for <linux-input@vger.kernel.org>; Fri, 22 Jun 2012 09:38:25 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, Yufeng Shen <miletus@chromium.org>, Andrew de los Reyes <adlr@chromium.org>
 
-On Wed, 20 Jun 2012, Henrik Rydberg wrote:
+In patch "HID: magicmouse: Adjust major / minor axes to scale",
+touch_major and touch_minor axes are scaled by a factor of
+four when reported but the max touch_major/minor is not scaled
+accordingly. This patch scales the max touch_major/minor to
+be consistent with the reported value.
 
-> > From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> > 
-> > The previous implementation introduced a randomness in the splitting
-> > of the different touches reported by the device. This version is more
-> > robust as we don't rely on hi->input->absbit, but on our own structure.
-> > 
-> > This also prepares hid-multitouch to better support Win8 devices.
-> > 
-> > [commit 3ac36d15557d1bedfb1151d9911b9587b2d40759 in Linus' tree]
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> > ---
-> > 
-> > Hi Jiri,
-> > 
-> > This patch is a port of the one included in the future 3.5.
-> > I already had users complaining about the broken behavior in 3.4, then this
-> > respin for 3.4. Kernels 3.3 and below are not impacted by the bug.
-> 
->     Acked-by: Henrik Rydberg <rydberg@euromail.se>
+Signed-off-by: Yufeng Shen <miletus@chromium.org>
+---
+ drivers/hid/hid-magicmouse.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-Thanks, I am pushing that for -stable.
-
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 7cf3ffe..40ac665 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -426,8 +426,10 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+ 		__set_bit(EV_ABS, input->evbit);
+ 
+ 		input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15, 0, 0);
+-		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255, 4, 0);
+-		input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255, 4, 0);
++		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255 << 2,
++				     4, 0);
++		input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255 << 2,
++				     4, 0);
+ 		input_set_abs_params(input, ABS_MT_ORIENTATION, -31, 32, 1, 0);
+ 
+ 		/* Note: Touch Y position from the device is inverted relative
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.7.3
+

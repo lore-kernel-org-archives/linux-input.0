@@ -1,49 +1,77 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 01/22 v4] Input: atmel_mxt_ts - set phys to i2c client
- adapter name
-Date: Mon, 25 Jun 2012 10:15:58 +0200
-Message-ID: <20120625081558.GA641@polaris.bitmath.org>
-References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
- <1339992522-22073-2-git-send-email-djkurtz@chromium.org>
- <20120621084107.GB2193@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Matthieu CASTET <matthieu.castet@parrot.com>
+Subject: [PATCH v2] hidraw : fix list->buffer memleak
+Date: Mon, 25 Jun 2012 10:14:29 +0200
+Message-ID: <1340612069-25044-1-git-send-email-matthieu.castet@parrot.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:59907 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751275Ab2FYIMw (ORCPT
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:55448 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754600Ab2FYIOn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jun 2012 04:12:52 -0400
-Content-Disposition: inline
-In-Reply-To: <20120621084107.GB2193@core.coreip.homeip.net>
+	Mon, 25 Jun 2012 04:14:43 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org
+To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Matthieu CASTET <matthieu.castet@parrot.com>
 
-On Thu, Jun 21, 2012 at 01:41:07AM -0700, Dmitry Torokhov wrote:
-> On Mon, Jun 18, 2012 at 12:08:21PM +0800, Daniel Kurtz wrote:
-> > This allows userspace to more easily distinguish which bus a particular
-> > atmel_mxt_ts device is attached to.
-> > 
-> > Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-> > ---
-> >  drivers/input/touchscreen/atmel_mxt_ts.c |    1 +
-> >  1 files changed, 1 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> > index 42e6450..eda9eed 100644
-> > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> > @@ -1106,6 +1106,7 @@ static int __devinit mxt_probe(struct i2c_client *client,
-> >  	}
-> >  
-> >  	input_dev->name = "Atmel maXTouch Touchscreen";
-> > +	input_dev->phys = client->adapter->name;
-> 
-> Normally we set phys to 'xxx/input0' nstead of just the adaptor name.
+If we don't read fast enough hidraw device, hidraw_report_event
+will cycle and we will leak list->buffer.
+Also list->buffer are not free on release.
+After this patch, kmemleak report nothing.
 
-Daniel, will we be seeing another version of this patch?
+Signed-off-by: Matthieu CASTET <matthieu.castet@parrot.com>
+---
+ drivers/hid/hidraw.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-Thanks,
-Henrik
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 36fa77b..3b6f7bf 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -96,6 +96,7 @@ static ssize_t hidraw_read(struct file *file, char __user *buffer, size_t count,
+ 		}
+ 
+ 		kfree(list->buffer[list->tail].value);
++		list->buffer[list->tail].value = NULL;
+ 		list->tail = (list->tail + 1) & (HIDRAW_BUFFER_SIZE - 1);
+ 	}
+ out:
+@@ -300,6 +301,7 @@ static int hidraw_release(struct inode * inode, struct file * file)
+ 	struct hidraw *dev;
+ 	struct hidraw_list *list = file->private_data;
+ 	int ret;
++	int i;
+ 
+ 	mutex_lock(&minors_lock);
+ 	if (!hidraw_table[minor]) {
+@@ -317,6 +319,9 @@ static int hidraw_release(struct inode * inode, struct file * file)
+ 			kfree(list->hidraw);
+ 		}
+ 	}
++
++	for (i = 0; i < HIDRAW_BUFFER_SIZE; ++i)
++		kfree(list->buffer[i].value);
+ 	kfree(list);
+ 	ret = 0;
+ unlock:
+@@ -446,12 +451,17 @@ int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+ 	int ret = 0;
+ 
+ 	list_for_each_entry(list, &dev->list, node) {
++		int new_head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
++
++		if (new_head == list->tail)
++			continue;
++
+ 		if (!(list->buffer[list->head].value = kmemdup(data, len, GFP_ATOMIC))) {
+ 			ret = -ENOMEM;
+ 			break;
+ 		}
+ 		list->buffer[list->head].len = len;
+-		list->head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
++		list->head = new_head;
+ 		kill_fasync(&list->fasync, SIGIO, POLL_IN);
+ 	}
+ 
+-- 
+1.7.10.4
+

@@ -1,251 +1,58 @@
-From: Rob Herring <robherring2@gmail.com>
-Subject: Re: [PATCH RESEND] input: gpio_keys_polled: convert to dt
-Date: Mon, 25 Jun 2012 07:43:08 -0500
-Message-ID: <4FE85CDC.1090604@gmail.com>
-References: <1340192062-10565-1-git-send-email-aletes.xgr@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH] HID: magicmouse: Correct report range of major / minor
+ axes
+Date: Mon, 25 Jun 2012 14:04:07 +0200
+Message-ID: <20120625120407.GA522@polaris.bitmath.org>
+References: <1340382713-2957-1-git-send-email-miletus@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1340192062-10565-1-git-send-email-aletes.xgr@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, JJ Ding <dgdunix@gmail.com>, Roland Stigge <stigge@antcom.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:58009 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756472Ab2FYMzh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Jun 2012 08:55:37 -0400
+Content-Disposition: inline
+In-Reply-To: <1340382713-2957-1-git-send-email-miletus@chromium.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Yufeng Shen <miletus@chromium.org>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Andrew de los Reyes <adlr@chromium.org>
 
-On 06/20/2012 06:34 AM, Alexandre Pereira da Silva wrote:
-> Add device tree support to gpio_keys_polled.c
+On Fri, Jun 22, 2012 at 12:31:53PM -0400, Yufeng Shen wrote:
+> In patch "HID: magicmouse: Adjust major / minor axes to scale",
+> touch_major and touch_minor axes are scaled by a factor of
+> four when reported but the max touch_major/minor is not scaled
+> accordingly. This patch scales the max touch_major/minor to
+> be consistent with the reported value.
 > 
-> Signed-off-by: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
-> Tested-by: Roland Stigge <stigge@antcom.de>
+> Signed-off-by: Yufeng Shen <miletus@chromium.org>
 > ---
->  drivers/input/keyboard/gpio_keys_polled.c |  121 +++++++++++++++++++++++++++--
->  1 file changed, 113 insertions(+), 8 deletions(-)
-
-Needs binding documentation.
-
+>  drivers/hid/hid-magicmouse.c |    6 ++++--
+>  1 files changed, 4 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-> index 20c8ab1..a64b361 100644
-> --- a/drivers/input/keyboard/gpio_keys_polled.c
-> +++ b/drivers/input/keyboard/gpio_keys_polled.c
-> @@ -25,6 +25,8 @@
->  #include <linux/platform_device.h>
->  #include <linux/gpio.h>
->  #include <linux/gpio_keys.h>
-> +#include <linux/of_platform.h>
-> +#include <linux/of_gpio.h>
+> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> index 7cf3ffe..40ac665 100644
+> --- a/drivers/hid/hid-magicmouse.c
+> +++ b/drivers/hid/hid-magicmouse.c
+> @@ -426,8 +426,10 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+>  		__set_bit(EV_ABS, input->evbit);
 >  
->  #define DRV_NAME	"gpio-keys-polled"
+>  		input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15, 0, 0);
+> -		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255, 4, 0);
+> -		input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255, 4, 0);
+> +		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255 << 2,
+> +				     4, 0);
+> +		input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255 << 2,
+> +				     4, 0);
+>  		input_set_abs_params(input, ABS_MT_ORIENTATION, -31, 32, 1, 0);
 >  
-> @@ -38,7 +40,7 @@ struct gpio_keys_button_data {
->  struct gpio_keys_polled_dev {
->  	struct input_polled_dev *poll_dev;
->  	struct device *dev;
-> -	struct gpio_keys_platform_data *pdata;
-> +	struct gpio_keys_platform_data pdata;
->  	struct gpio_keys_button_data data[0];
->  };
->  
-> @@ -67,11 +69,11 @@ static void gpio_keys_polled_check_state(struct input_dev *input,
->  static void gpio_keys_polled_poll(struct input_polled_dev *dev)
->  {
->  	struct gpio_keys_polled_dev *bdev = dev->private;
-> -	struct gpio_keys_platform_data *pdata = bdev->pdata;
-> +	struct gpio_keys_platform_data *pdata = &bdev->pdata;
->  	struct input_dev *input = dev->input;
->  	int i;
->  
-> -	for (i = 0; i < bdev->pdata->nbuttons; i++) {
-> +	for (i = 0; i < pdata->nbuttons; i++) {
->  		struct gpio_keys_button_data *bdata = &bdev->data[i];
->  
->  		if (bdata->count < bdata->threshold)
-> @@ -85,7 +87,7 @@ static void gpio_keys_polled_poll(struct input_polled_dev *dev)
->  static void gpio_keys_polled_open(struct input_polled_dev *dev)
->  {
->  	struct gpio_keys_polled_dev *bdev = dev->private;
-> -	struct gpio_keys_platform_data *pdata = bdev->pdata;
-> +	struct gpio_keys_platform_data *pdata = &bdev->pdata;
->  
->  	if (pdata->enable)
->  		pdata->enable(bdev->dev);
-> @@ -94,23 +96,125 @@ static void gpio_keys_polled_open(struct input_polled_dev *dev)
->  static void gpio_keys_polled_close(struct input_polled_dev *dev)
->  {
->  	struct gpio_keys_polled_dev *bdev = dev->private;
-> -	struct gpio_keys_platform_data *pdata = bdev->pdata;
-> +	struct gpio_keys_platform_data *pdata = &bdev->pdata;
->  
->  	if (pdata->disable)
->  		pdata->disable(bdev->dev);
->  }
-> +#ifdef CONFIG_OF
-> +static int gpio_keys_polled_get_devtree_pdata(struct device *dev,
-> +			    struct gpio_keys_platform_data *pdata)
-> +{
-> +	struct device_node *node, *pp;
-> +	int i;
-> +	struct gpio_keys_button *buttons;
-> +	u32 reg;
-> +
-> +	node = dev->of_node;
-> +	if (node == NULL)
-> +		return -ENODEV;
-> +
-> +	memset(pdata, 0, sizeof *pdata);
+>  		/* Note: Touch Y position from the device is inverted relative
+> -- 
+> 1.7.7.3
+> 
 
-parentheses around *pdata.
+    Acked-by: Henrik Rydberg <rydberg@euromail.se>
 
-> +
-> +	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
-> +
-> +	if (of_property_read_u32(node, "poll-interval", &reg) == 0)
-> +		pdata->poll_interval = reg;
-
-You can just do this instead of the if:
-
-of_property_read_u32(node, "poll-interval", &pdata->poll_interval);
-
-
-> +
-> +	/* First count the subnodes */
-> +	pdata->nbuttons = 0;
-
-You already to this to 0.
-
-> +	pp = NULL;
-> +	while ((pp = of_get_next_child(node, pp)))
-> +		pdata->nbuttons++;
-
-of_get_child_count()
-
-> +
-> +	if (pdata->nbuttons == 0)
-> +		return -ENODEV;
-> +
-> +	buttons = kzalloc(pdata->nbuttons * (sizeof *buttons), GFP_KERNEL);
-> +	if (!buttons)
-> +		return -ENOMEM;
-> +
-> +	pp = NULL;
-> +	i = 0;
-> +	while ((pp = of_get_next_child(node, pp))) {
-
-for_each_child_of_node
-
-> +		enum of_gpio_flags flags;
-> +
-> +		if (!of_find_property(pp, "gpios", NULL)) {
-> +			pdata->nbuttons--;
-> +			dev_warn(dev, "Found button without gpios\n");
-> +			continue;
-> +		}
-> +		buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
-> +		buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
-> +
-> +		if (of_property_read_u32(pp, "linux,code", &reg)) {
-> +			dev_err(dev, "Button without keycode: 0x%x\n", buttons[i].gpio);
-> +			goto out_fail;
-> +		}
-> +		buttons[i].code = reg;
-> +
-> +		buttons[i].desc = of_get_property(pp, "label", NULL);
-> +
-> +		if (of_property_read_u32(pp, "linux,input-type", &reg) == 0)
-> +			buttons[i].type = reg;
-> +		else
-> +			buttons[i].type = EV_KEY;
-
-if (of_property_read_u32(pp, "linux,input-type", &buttons[i].type))
-	buttons[i].type = EV_KEY;
-
-> +
-> +		buttons[i].wakeup = !!of_get_property(pp, "gpio-key,wakeup", NULL);
-> +
-> +		if (of_property_read_u32(pp, "debounce-interval", &reg) == 0)
-> +			buttons[i].debounce_interval = reg;
-> +		else
-> +			buttons[i].debounce_interval = 5;
-
-ditto
-
-> +
-> +		i++;
-> +	}
-> +
-> +	pdata->buttons = buttons;
-> +
-> +	return 0;
-> +
-> +out_fail:
-> +	kfree(buttons);
-> +	return -ENODEV;
-> +}
-> +
-> +static struct of_device_id gpio_keys_polled_of_match[] = {
-> +	{ .compatible = "gpio-keys-polled", },
-> +	{ },
-> +};
-> +MODULE_DEVICE_TABLE(of, gpio_keys_polled_of_match);
-> +#else
-> +
-> +static int gpio_keys_polled_get_devtree_pdata(struct device *dev,
-> +			    struct gpio_keys_platform_data *altp)
-> +{
-> +	return -ENODEV;
-> +}
-> +
-> +#define gpio_keys_polled_of_match NULL
-> +
-> +#endif
->  
->  static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
->  {
->  	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
->  	struct device *dev = &pdev->dev;
-> +	struct gpio_keys_platform_data alt_pdata;
->  	struct gpio_keys_polled_dev *bdev;
->  	struct input_polled_dev *poll_dev;
->  	struct input_dev *input;
->  	int error;
->  	int i;
->  
-> -	if (!pdata || !pdata->poll_interval)
-> +	if (!pdata) {
-> +	    error = gpio_keys_polled_get_devtree_pdata(dev, &alt_pdata);
-> +		if (error)
-> +			return error;
-> +		pdata = &alt_pdata;
-> +	}
-> +
-> +	if (!pdata->poll_interval)
->  		return -EINVAL;
->  
->  	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
-> @@ -184,7 +288,7 @@ static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
->  
->  	bdev->poll_dev = poll_dev;
->  	bdev->dev = dev;
-> -	bdev->pdata = pdata;
-> +	bdev->pdata = *pdata;
->  	platform_set_drvdata(pdev, bdev);
->  
->  	error = input_register_polled_device(poll_dev);
-> @@ -217,7 +321,7 @@ err_free_bdev:
->  static int __devexit gpio_keys_polled_remove(struct platform_device *pdev)
->  {
->  	struct gpio_keys_polled_dev *bdev = platform_get_drvdata(pdev);
-> -	struct gpio_keys_platform_data *pdata = bdev->pdata;
-> +	struct gpio_keys_platform_data *pdata = &bdev->pdata;
->  	int i;
->  
->  	input_unregister_polled_device(bdev->poll_dev);
-> @@ -239,6 +343,7 @@ static struct platform_driver gpio_keys_polled_driver = {
->  	.driver	= {
->  		.name	= DRV_NAME,
->  		.owner	= THIS_MODULE,
-> +		.of_match_table = gpio_keys_polled_of_match,
->  	},
->  };
->  module_platform_driver(gpio_keys_polled_driver);
+Thanks,
+Henrik

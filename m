@@ -1,50 +1,49 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Keyboard problem on HP Envy 17 3D
-Date: Mon, 25 Jun 2012 11:43:14 -0700
-Message-ID: <2842883.2Br7QRospJ@dtor-d630.eng.vmware.com>
-References: <4FE24873.8010106@texas.net> <20120622053920.GA7821@texas.net>
+Subject: Re: [PATCH] input: Add keyreset driver.
+Date: Mon, 25 Jun 2012 11:59:23 -0700
+Message-ID: <20120625185922.GA20660@core.coreip.homeip.net>
+References: <1340140414-9720-1-git-send-email-mathieu.poirier@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:61061 "EHLO
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:33453 "EHLO
 	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756145Ab2FYSnU (ORCPT
+	with ESMTP id S1754409Ab2FYS7b (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jun 2012 14:43:20 -0400
-Received: by dady13 with SMTP id y13so5694099dad.19
-        for <linux-input@vger.kernel.org>; Mon, 25 Jun 2012 11:43:20 -0700 (PDT)
-In-Reply-To: <20120622053920.GA7821@texas.net>
+	Mon, 25 Jun 2012 14:59:31 -0400
+Content-Disposition: inline
+In-Reply-To: <1340140414-9720-1-git-send-email-mathieu.poirier@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David VomLehn <vomlehn@texas.net>
-Cc: linux-input@vger.kernel.org
+To: mathieu.poirier@linaro.org
+Cc: linux-input@vger.kernel.org, john.stultz@linaro.org, linux-kernel@vger.kernel.org, Arve =?iso-8859-1?B?SGr4bm5lduVn?= <arve@android.com>, kernel-team@android.com
 
-On Thursday, June 21, 2012 10:39:20 PM David VomLehn wrote:
-> On Wed, Jun 20, 2012 at 10:08:30PM +0000, David VomLehn wrote:
-> > I have a keyboard problem that I figure *must* be a keyboard
-> > hardware problem, but it doesn't really look like it.
-> 
-> ...
-> 
-> > My system is an HP Envy 17" 3D (2090nr).
-> 
-> So, I did what I should have done before but the results were what I
-> expected--I hooked up a spare USB keyboard and there is no problem.
-> Which narrows the problem down to the keyboard decoding. I would
-> appreciate any help I can get with hints I can use to determine
-> that this is hardware or fix the driver.
+Hi Arve,
 
-If you enable debug option of i8042:
+On Tue, Jun 19, 2012 at 03:13:34PM -0600, mathieu.poirier@linaro.org wr=
+ote:
+> From: Arve Hj=F8nnev=E5g <arve@android.com>
+>=20
+> This patch originates from the Android tree and is being submitted
+> for review and inclusion in the mainline kernel.
+>=20
+> Add a platform device in the board file to specify a reset key-combo.
+> The first time the key-combo is detected a work function that syncs
+> the filesystems is scheduled. If all the keys are released and then
+> pressed again, it calls panic. Reboot on panic should be set for
+> this to work.
 
-	echo 1 > /sys/module/i8042/parameters/debug
-
-you can save a raw stream of keyboard contorller data and analyze it.
-
-However it could be something simpler - could your palm be brushing against
-the touchpad and cause pasting of random garbage?
+This sounds a lot like SYSRQ handler, but with configurable key sequenc=
+e.
+Why don't you extend drivers/tty/sysrq.c instead?
 
 Thanks.
 
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

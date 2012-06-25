@@ -1,281 +1,958 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6] input: keyboard: Add keys driver for the LPC32xx SoC
-Date: Mon, 25 Jun 2012 00:06:14 -0700
-Message-ID: <20120625070614.GA13876@core.coreip.homeip.net>
-References: <1340549078-8973-1-git-send-email-stigge@antcom.de>
+Subject: Re: [PATCH v6] Touchscreen driver for FT5x06 based EDT displays
+Date: Mon, 25 Jun 2012 00:20:15 -0700
+Message-ID: <20120625072015.GB13876@core.coreip.homeip.net>
+References: <1333564079-23893-2-git-send-email-simon.budig@kernelconcepts.de>
+ <1340408898-491-1-git-send-email-simon.budig@kernelconcepts.de>
+ <1340408898-491-2-git-send-email-simon.budig@kernelconcepts.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:43646 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751951Ab2FYHUW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Jun 2012 03:20:22 -0400
+Received: by dady13 with SMTP id y13so4942699dad.19
+        for <linux-input@vger.kernel.org>; Mon, 25 Jun 2012 00:20:22 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1340549078-8973-1-git-send-email-stigge@antcom.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Roland Stigge <stigge@antcom.de>
-Cc: axel.lin@gmail.com, riyer@nvidia.com, michael.hennerich@analog.com, grant.likely@secretlab.ca, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com, devicetree-discuss@lists.ozlabs.org, rob.herring@calxeda.com, aletes.xgr@gmail.com
+In-Reply-To: <1340408898-491-2-git-send-email-simon.budig@kernelconcepts.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: simon.budig@kernelconcepts.de
+Cc: linux-input@vger.kernel.org, rydberg@euromail.se, olivier@sobrie.be, agust@denx.de, yanok@emcraft.com
 
-HI Roland,
+Hi Simon,
 
-On Sun, Jun 24, 2012 at 04:44:38PM +0200, Roland Stigge wrote:
-> This patch adds a driver for the key scan interface of the LPC32xx SoC
+On Sat, Jun 23, 2012 at 01:48:18AM +0200, simon.budig@kernelconcepts.de wrote:
+> From: Simon Budig <simon.budig@kernelconcepts.de>
 > 
-> Signed-off-by: Roland Stigge <stigge@antcom.de>
+> This is a driver for the EDT "Polytouch" family of touch controllers
+> based on the FocalTech FT5x06 line of chips.
 > 
 
-This looks _very_ good, I just have a couple more comments:
+This looks good to me. Henrik, are you OK with MT-B handling?
 
+Thanks.
+
+> Signed-off-by: Simon Budig <simon.budig@kernelconcepts.de>
+> ---
+>  Documentation/input/edt-ft5x06.txt     |   49 ++
+>  drivers/input/touchscreen/Kconfig      |   13 +
+>  drivers/input/touchscreen/Makefile     |    1 +
+>  drivers/input/touchscreen/edt-ft5x06.c |  783 ++++++++++++++++++++++++++++++++
+>  include/linux/input/edt-ft5x06.h       |   17 +
+>  5 files changed, 863 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/input/edt-ft5x06.txt
+>  create mode 100644 drivers/input/touchscreen/edt-ft5x06.c
+>  create mode 100644 include/linux/input/edt-ft5x06.h
+> 
+> diff --git a/Documentation/input/edt-ft5x06.txt b/Documentation/input/edt-ft5x06.txt
+> new file mode 100644
+> index 0000000..4fc44fe
+> --- /dev/null
+> +++ b/Documentation/input/edt-ft5x06.txt
+> @@ -0,0 +1,49 @@
+> +EDT ft5x06 based Polytouch devices
+> +----------------------------------
 > +
-> +static int lpc32xx_kscan_open(struct input_dev *dev)
+> +The edt-ft5x06 driver is useful for the EDT "Polytouch" family of capacitive
+> +touch screens. Note that it is *not* suitable for other devices based on the
+> +focaltec ft5x06 devices, since they contain vendor-specific firmware. In
+> +particular this driver is not suitable for the Nook tablet.
+> +
+> +It has been tested with the following devices:
+> +  * EP0350M06
+> +  * EP0430M06
+> +  * EP0570M06
+> +  * EP0700M06
+> +
+> +The driver allows configuration of the touch screen via a set of sysfs files:
+> +
+> +/sys/class/input/eventX/device/device/threshold:
+> +    allows setting the "click"-threshold in the range from 20 to 80.
+> +
+> +/sys/class/input/eventX/device/device/gain:
+> +    allows setting the sensitivity in the range from 0 to 31. Note that
+> +    lower values indicate higher sensitivity.
+> +
+> +/sys/class/input/eventX/device/device/offset:
+> +    allows setting the edge compensation in the range from 0 to 31.
+> +
+> +/sys/class/input/eventX/device/device/report_rate:
+> +    allows setting the report rate in the range from 3 to 14.
+> +
+> +
+> +The touch screens have a "factory mode" that allows access to the raw sensor
+> +data. However, the above mentioned settings are not available in this mode.
+> +In particular this limits the use of the raw data for tuning the parameters
+> +to a specific setup. Also the scan rate of the touch screen changes compared
+> +to the regular operation mode.
+> +
+> +To access the raw data switch to factory mode:
+> +    echo 1 > /sys/class/input/eventX/device/device/mode
+> +
+> +then read out the "raw_data" file. It contains X*Y big endian 16 bit values
+> +where X and Y are the number of sensor fields of the touch glass. These values
+> +are model specific and get be determined by dividing maximum x and y
+> +coordinate by 64.
+> +
+> +Note that reading raw_data gives a I/O error when the device is not in factory
+> +mode. The same happens when reading/writing to the parameter files when the
+> +device is not in regular operation mode.
+> +
+> +
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 98d2635..2008d72 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -460,6 +460,19 @@ config TOUCHSCREEN_PENMOUNT
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called penmount.
+>  
+> +config TOUCHSCREEN_EDT_FT5X06
+> +	tristate "EDT FocalTech FT5x06 I2C Touchscreen support"
+> +	depends on I2C
+> +	help
+> +	  Say Y here if you have an EDT "Polytouch" touchscreen based
+> +	  on the FocalTech FT5x06 family of controllers connected to
+> +	  your system.
+> +
+> +	  If unsure, say N.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called edt-ft5x06.
+> +
+>  config TOUCHSCREEN_MIGOR
+>  	tristate "Renesas MIGO-R touchscreen"
+>  	depends on SH_MIGOR && I2C
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index eb8bfe1..bed430d7 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -24,6 +24,7 @@ obj-$(CONFIG_TOUCHSCREEN_CYTTSP_SPI)	+= cyttsp_spi.o
+>  obj-$(CONFIG_TOUCHSCREEN_DA9034)	+= da9034-ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_DA9052)	+= da9052_tsi.o
+>  obj-$(CONFIG_TOUCHSCREEN_DYNAPRO)	+= dynapro.o
+> +obj-$(CONFIG_TOUCHSCREEN_EDT_FT5X06)	+= edt-ft5x06.o
+>  obj-$(CONFIG_TOUCHSCREEN_HAMPSHIRE)	+= hampshire.o
+>  obj-$(CONFIG_TOUCHSCREEN_GUNZE)		+= gunze.o
+>  obj-$(CONFIG_TOUCHSCREEN_EETI)		+= eeti_ts.o
+> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> new file mode 100644
+> index 0000000..f69d87b
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> @@ -0,0 +1,783 @@
+> +/*
+> + * Copyright (C) 2011 Simon Budig, <simon.budig@kernelconcepts.de>
+> + *
+> + * This software is licensed under the terms of the GNU General Public
+> + * License version 2, as published by the Free Software Foundation, and
+> + * may be copied, distributed, and modified under those terms.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public
+> + * License along with this library; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+> + */
+> +
+> +/*
+> + * This is a driver for the EDT "Polytouch" family of touch controllers
+> + * based on the FocalTech FT5x06 line of chips.
+> + *
+> + * Development of this driver has been sponsored by Glyn:
+> + *    http://www.glyn.com/Products/Displays
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/input.h>
+> +#include <linux/i2c.h>
+> +#include <linux/uaccess.h>
+> +#include <linux/delay.h>
+> +#include <linux/slab.h>
+> +#include <linux/gpio.h>
+> +#include <linux/input/mt.h>
+> +#include <linux/input/edt-ft5x06.h>
+> +
+> +#define DRIVER_VERSION "v0.7"
+> +
+> +#define MAX_SUPPORT_POINTS		5
+> +
+> +#define WORK_REGISTER_THRESHOLD		0x00
+> +#define WORK_REGISTER_REPORT_RATE	0x08
+> +#define WORK_REGISTER_GAIN		0x30
+> +#define WORK_REGISTER_OFFSET		0x31
+> +#define WORK_REGISTER_NUM_X		0x33
+> +#define WORK_REGISTER_NUM_Y		0x34
+> +
+> +#define WORK_REGISTER_OPMODE		0x3c
+> +#define FACTORY_REGISTER_OPMODE		0x01
+> +
+> +#define TOUCH_EVENT_DOWN		0x00
+> +#define TOUCH_EVENT_UP			0x01
+> +#define TOUCH_EVENT_ON			0x02
+> +#define TOUCH_EVENT_RESERVED		0x03
+> +
+> +#define EDT_NAME_LEN			23
+> +#define EDT_SWITCH_MODE_RETRIES		10
+> +#define EDT_SWITCH_MODE_DELAY		5 /* msec */
+> +#define EDT_RAW_DATA_RETRIES		100
+> +#define EDT_RAW_DATA_DELAY		1 /* msec */
+> +
+> +struct edt_ft5x06_i2c_ts_data {
+> +	struct i2c_client *client;
+> +	struct input_dev *input;
+> +	int num_x;
+> +	int num_y;
+> +
+> +	struct mutex mutex;
+> +	bool factory_mode;
+> +	int threshold;
+> +	int gain;
+> +	int offset;
+> +	int report_rate;
+> +
+> +	char name[EDT_NAME_LEN];
+> +};
+> +
+> +static int edt_ft5x06_ts_readwrite(struct i2c_client *client,
+> +				   u16 wr_len, u8 *wr_buf,
+> +				   u16 rd_len, u8 *rd_buf)
 > +{
-> +	struct lpc32xx_kscan_drv *kscandat = input_get_drvdata(dev);
+> +	struct i2c_msg wrmsg[2];
+> +	int i = 0;
+> +	int ret;
 > +
-> +	return clk_prepare_enable(kscandat->clk);
-
-Don't you need to clear IRQ here, the same way you do it in resume?
-
+> +	i = 0;
+> +	if (wr_len) {
+> +		wrmsg[i].addr  = client->addr;
+> +		wrmsg[i].flags = 0;
+> +		wrmsg[i].len = wr_len;
+> +		wrmsg[i].buf = wr_buf;
+> +		i++;
+> +	}
+> +	if (rd_len) {
+> +		wrmsg[i].addr  = client->addr;
+> +		wrmsg[i].flags = I2C_M_RD;
+> +		wrmsg[i].len = rd_len;
+> +		wrmsg[i].buf = rd_buf;
+> +		i++;
+> +	}
+> +
+> +	ret = i2c_transfer(client->adapter, wrmsg, i);
+> +	if (ret < 0)
+> +		return ret;
+> +	if (ret != i)
+> +		return -EIO;
+> +
+> +	return 0;
 > +}
 > +
-> +static void lpc32xx_kscan_close(struct input_dev *dev)
+> +static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
 > +{
-> +	struct lpc32xx_kscan_drv *kscandat = input_get_drvdata(dev);
+> +	struct edt_ft5x06_i2c_ts_data *tsdata = dev_id;
+> +	u8 cmd = 0xf9;
+> +	u8 rdbuf[26];
+> +	int i, type, x, y, id;
+> +	int error;
 > +
-> +	clk_disable_unprepare(kscandat->clk);
-
-And same here.
-
+> +	memset(rdbuf, 0, sizeof(rdbuf));
+> +
+> +	error = edt_ft5x06_ts_readwrite(tsdata->client,
+> +					sizeof(cmd), &cmd,
+> +					sizeof(rdbuf), rdbuf);
+> +	if (error) {
+> +		dev_err(&tsdata->client->dev,
+> +			"Unable to write to fetch data, error: %d\n", error);
+> +		goto out;
+> +	}
+> +
+> +	if (rdbuf[0] != 0xaa || rdbuf[1] != 0xaa || rdbuf[2] != 26) {
+> +		dev_err(&tsdata->client->dev,
+> +			"Unexpected header: %02x%02x%02x!\n",
+> +			rdbuf[0], rdbuf[1], rdbuf[2]);
+> +		goto out;
+> +	}
+> +
+> +	for (i = 0; i < MAX_SUPPORT_POINTS; i++) {
+> +		u8 *buf = &rdbuf[i * 4];
+> +		bool down;
+> +
+> +		type = buf[5] >> 6;
+> +		/* ignore Reserved events */
+> +		if (type == TOUCH_EVENT_RESERVED)
+> +			continue;
+> +
+> +		x = ((buf[5] << 8) | buf[6]) & 0x0fff;
+> +		y = ((buf[7] << 8) | buf[8]) & 0x0fff;
+> +		id = (buf[7] >> 4) & 0x0f;
+> +		down = (type != TOUCH_EVENT_UP);
+> +
+> +		input_mt_slot(tsdata->input, id);
+> +		input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER, down);
+> +
+> +		if (!down)
+> +			continue;
+> +
+> +		input_report_abs(tsdata->input, ABS_MT_POSITION_X, x);
+> +		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, y);
+> +	}
+> +
+> +	input_mt_report_pointer_emulation(tsdata->input, true);
+> +	input_sync(tsdata->input);
+> +
+> +out:
+> +	return IRQ_HANDLED;
 > +}
 > +
-> +int lpc32xx_parse_dt(struct platform_device *pdev)
-
-Static? Also why don't you pass kscandat instead of platform device?
+> +static int edt_ft5x06_i2c_register_write(struct edt_ft5x06_i2c_ts_data *tsdata,
+> +					 u8 addr, u8 value)
 > +{
-> +	struct lpc32xx_kscan_drv *kscandat = platform_get_drvdata(pdev);
-> +	struct device_node *np = pdev->dev.of_node;
-> +	u32 rows, columns;
+> +	u8 wrbuf[4];
 > +
-> +	of_property_read_u32(np, "keypad,num-rows", &rows);
-> +	of_property_read_u32(np, "keypad,num-columns", &columns);
-> +	if (!rows || rows != columns) {
-> +		dev_err(&pdev->dev,
-> +			"rows and columns must be specified and be equal!\n");
+> +	wrbuf[0] = tsdata->factory_mode ? 0xf3 : 0xfc;
+> +	wrbuf[1] = tsdata->factory_mode ? addr & 0x7f : addr & 0x3f;
+> +	wrbuf[2] = value;
+> +	wrbuf[3] = wrbuf[0] ^ wrbuf[1] ^ wrbuf[2];
+> +
+> +	return edt_ft5x06_ts_readwrite(tsdata->client, 4, wrbuf, 0, NULL);
+> +}
+> +
+> +static int edt_ft5x06_i2c_register_read(struct edt_ft5x06_i2c_ts_data *tsdata,
+> +					u8 addr)
+> +{
+> +	u8 wrbuf[2], rdbuf[2];
+> +	int error;
+> +
+> +	wrbuf[0] = tsdata->factory_mode ? 0xf3 : 0xfc;
+> +	wrbuf[1] = tsdata->factory_mode ? addr & 0x7f : addr & 0x3f;
+> +	wrbuf[1] |= tsdata->factory_mode ? 0x80 : 0x40;
+> +
+> +	error = edt_ft5x06_ts_readwrite(tsdata->client, 2, wrbuf, 2, rdbuf);
+> +	if (error)
+> +		return error;
+> +
+> +	if ((wrbuf[0] ^ wrbuf[1] ^ rdbuf[0]) != rdbuf[1]) {
+> +		dev_err(&tsdata->client->dev,
+> +			"crc error: 0x%02x expected, got 0x%02x\n",
+> +			wrbuf[0] ^ wrbuf[1] ^ rdbuf[0], rdbuf[1]);
+> +		return -EIO;
+> +	}
+> +
+> +	return rdbuf[0];
+> +}
+> +
+> +struct edt_ft5x06_attribute {
+> +	struct device_attribute dattr;
+> +	size_t field_offset;
+> +	u8 limit_low;
+> +	u8 limit_high;
+> +	u8 addr;
+> +};
+> +
+> +#define EDT_ATTR(_field, _mode, _addr, _limit_low, _limit_high)		\
+> +	struct edt_ft5x06_attribute edt_ft5x06_attr_##_field = {	\
+> +		.dattr = __ATTR(_field, _mode,				\
+> +				edt_ft5x06_i2c_setting_show,		\
+> +				edt_ft5x06_i2c_setting_store),		\
+> +		.field_offset =						\
+> +			offsetof(struct edt_ft5x06_i2c_ts_data, _field),\
+> +		.limit_low = _limit_low,				\
+> +		.limit_high = _limit_high,				\
+> +		.addr = _addr,						\
+> +	}
+> +
+> +static ssize_t edt_ft5x06_i2c_setting_show(struct device *dev,
+> +					   struct device_attribute *dattr,
+> +					   char *buf)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct edt_ft5x06_i2c_ts_data *tsdata = i2c_get_clientdata(client);
+> +	struct edt_ft5x06_attribute *attr =
+> +			container_of(dattr, struct edt_ft5x06_attribute, dattr);
+> +	u8 *field = (u8 *)((char *)tsdata + attr->field_offset);
+> +	int val;
+> +	size_t count = 0;
+> +	int error = 0;
+> +
+> +	mutex_lock(&tsdata->mutex);
+> +
+> +	if (tsdata->factory_mode) {
+> +		error = -EIO;
+> +		goto out;
+> +	}
+> +
+> +	val = edt_ft5x06_i2c_register_read(tsdata, attr->addr);
+> +	if (val < 0) {
+> +		error = val;
+> +		dev_err(&tsdata->client->dev,
+> +			"Failed to fetch attribute %s, error %d\n",
+> +			dattr->attr.name, error);
+> +		goto out;
+> +	}
+> +
+> +	if (val != *field) {
+> +		dev_warn(&tsdata->client->dev,
+> +			 "%s: read (%d) and stored value (%d) differ\n",
+> +			 dattr->attr.name, val, *field);
+> +		*field = val;
+> +	}
+> +
+> +	count = scnprintf(buf, PAGE_SIZE, "%d\n", val);
+> +out:
+> +	mutex_unlock(&tsdata->mutex);
+> +	return error ?: count;
+> +}
+> +
+> +static ssize_t edt_ft5x06_i2c_setting_store(struct device *dev,
+> +					    struct device_attribute *dattr,
+> +					    const char *buf, size_t count)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct edt_ft5x06_i2c_ts_data *tsdata = i2c_get_clientdata(client);
+> +	struct edt_ft5x06_attribute *attr =
+> +			container_of(dattr, struct edt_ft5x06_attribute, dattr);
+> +	u8 *field = (u8 *)((char *)tsdata + attr->field_offset);
+> +	unsigned int val;
+> +	int error;
+> +
+> +	mutex_lock(&tsdata->mutex);
+> +
+> +	if (tsdata->factory_mode) {
+> +		error = -EIO;
+> +		goto out;
+> +	}
+> +
+> +	error = kstrtouint(buf, 0, &val);
+> +	if (error)
+> +		goto out;
+> +
+> +	if (val < attr->limit_low || val > attr->limit_high) {
+> +		error = -ERANGE;
+> +		goto out;
+> +	}
+> +
+> +	error = edt_ft5x06_i2c_register_write(tsdata, attr->addr, val);
+> +	if (error) {
+> +		dev_err(&tsdata->client->dev,
+> +			"Failed to update attribute %s, error: %d\n",
+> +			dattr->attr.name, error);
+> +		goto out;
+> +	}
+> +
+> +	*field = val;
+> +
+> +out:
+> +	mutex_unlock(&tsdata->mutex);
+> +	return error ?: count;
+> +}
+> +
+> +static ssize_t edt_ft5x06_i2c_mode_show(struct device *dev,
+> +					struct device_attribute *attr,
+> +					char *buf)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct edt_ft5x06_i2c_ts_data *tsdata = i2c_get_clientdata(client);
+> +
+> +	return sprintf(buf, "%d\n", tsdata->factory_mode);
+> +}
+> +
+> +static int edt_ft5x06_i2c_factory_mode(struct edt_ft5x06_i2c_ts_data *tsdata)
+> +{
+> +	int retries = EDT_SWITCH_MODE_RETRIES;
+> +	int ret;
+> +	int error;
+> +
+> +	disable_irq(tsdata->client->irq);
+> +
+> +	/* mode register is 0x3c when in the work mode */
+> +	error = edt_ft5x06_i2c_register_write(tsdata,
+> +					    WORK_REGISTER_OPMODE, 0x03);
+> +	if (error) {
+> +		dev_err(&tsdata->client->dev,
+> +			"failed to switch to factory mode, error %d\n",
+> +			error);
+> +		goto err_out;
+> +	}
+> +
+> +	tsdata->factory_mode = true;
+> +	do {
+> +		mdelay(EDT_SWITCH_MODE_DELAY);
+> +		/* mode register is 0x01 when in factory mode */
+> +		ret = edt_ft5x06_i2c_register_read(tsdata,
+> +						   FACTORY_REGISTER_OPMODE);
+> +		if (ret == 0x03)
+> +			break;
+> +	} while (--retries > 0);
+> +
+> +	if (retries == 0) {
+> +		dev_err(&tsdata->client->dev,
+> +			"not in factory mode after %dms.\n",
+> +			EDT_SWITCH_MODE_RETRIES * EDT_SWITCH_MODE_DELAY);
+> +		error = -EIO;
+> +		goto err_out;
+> +	}
+> +
+> +	return 0;
+> +
+> +err_out:
+> +	tsdata->factory_mode = false;
+> +	enable_irq(tsdata->client->irq);
+> +	return error;
+> +}
+> +
+> +static int edt_ft5x06_i2c_work_mode(struct edt_ft5x06_i2c_ts_data *tsdata)
+> +{
+> +	int retries = EDT_SWITCH_MODE_RETRIES;
+> +	int ret;
+> +	int error;
+> +
+> +	/* mode register is 0x01 when in the factory mode */
+> +	error = edt_ft5x06_i2c_register_write(tsdata,
+> +					      FACTORY_REGISTER_OPMODE, 0x01);
+> +	if (error) {
+> +		dev_err(&tsdata->client->dev,
+> +			"failed to switch to work mode, error: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+> +	tsdata->factory_mode = false;
+> +
+> +	do {
+> +		mdelay(EDT_SWITCH_MODE_DELAY);
+> +		/* mode register is 0x01 when in factory mode */
+> +		ret = edt_ft5x06_i2c_register_read(tsdata,
+> +						   WORK_REGISTER_OPMODE);
+> +		if (ret == 0x01)
+> +			break;
+> +	} while (--retries > 0);
+> +
+> +	if (retries == 0) {
+> +		dev_err(&tsdata->client->dev,
+> +			"not in work mode after %dms.\n",
+> +			EDT_SWITCH_MODE_RETRIES * EDT_SWITCH_MODE_DELAY);
+> +		tsdata->factory_mode = true;
+> +		return -EIO;
+> +	}
+> +
+> +	/* restore parameters */
+> +	edt_ft5x06_i2c_register_write(tsdata,
+> +				      WORK_REGISTER_THRESHOLD,
+> +				      tsdata->threshold);
+> +	edt_ft5x06_i2c_register_write(tsdata,
+> +				      WORK_REGISTER_GAIN,
+> +				      tsdata->gain);
+> +	edt_ft5x06_i2c_register_write(tsdata,
+> +				      WORK_REGISTER_OFFSET,
+> +				      tsdata->offset);
+> +	edt_ft5x06_i2c_register_write(tsdata,
+> +				      WORK_REGISTER_REPORT_RATE,
+> +				      tsdata->report_rate);
+> +
+> +	enable_irq(tsdata->client->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static ssize_t edt_ft5x06_i2c_mode_store(struct device *dev,
+> +					 struct device_attribute *attr,
+> +					 const char *buf, size_t count)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct edt_ft5x06_i2c_ts_data *tsdata = i2c_get_clientdata(client);
+> +	unsigned int mode;
+> +	int error;
+> +
+> +	error = kstrtouint(buf, 0, &mode);
+> +	if (error)
+> +		return error;
+> +
+> +	if (mode > 1)
+> +		return -ERANGE;
+> +
+> +	mutex_lock(&tsdata->mutex);
+> +
+> +	if (mode != tsdata->factory_mode) {
+> +		error = mode ? edt_ft5x06_i2c_factory_mode(tsdata) :
+> +			       edt_ft5x06_i2c_work_mode(tsdata);
+> +	}
+> +
+> +	mutex_unlock(&tsdata->mutex);
+> +	return error ?: count;
+> +}
+> +
+> +static ssize_t edt_ft5x06_i2c_raw_data_show(struct device *dev,
+> +					    struct device_attribute *attr,
+> +					    char *buf)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct edt_ft5x06_i2c_ts_data *tsdata = i2c_get_clientdata(client);
+> +	int retries  = EDT_RAW_DATA_RETRIES;
+> +	size_t count = 0;
+> +	int i, ret;
+> +	int error;
+> +	char wrbuf[3];
+> +
+> +	/* Make sure we have enough space */
+> +	if (tsdata->num_x * tsdata->num_y * 2 >= PAGE_SIZE)
+> +		return -ENOBUFS;
+> +
+> +	mutex_lock(&tsdata->mutex);
+> +
+> +	if (!tsdata->factory_mode) {
+> +		error = -EIO;
+> +		goto out;
+> +	}
+> +
+> +	error = edt_ft5x06_i2c_register_write(tsdata, 0x08, 0x01);
+> +	if (error) {
+> +		dev_dbg(dev, "failed to write 0x08 register, error %d\n",
+> +			error);
+> +		goto out;
+> +	}
+> +
+> +	do {
+> +		msleep(EDT_RAW_DATA_DELAY);
+> +		ret = edt_ft5x06_i2c_register_read(tsdata, 0x08);
+> +		if (ret < 1)
+> +			break;
+> +	} while (--retries > 0);
+> +
+> +	if (ret < 0) {
+> +		error = ret;
+> +		dev_dbg(dev, "failed to read 0x08 register, error %d\n", error);
+> +		goto out;
+> +	}
+> +
+> +	if (retries == 0) {
+> +		dev_dbg(dev, "timed out waiting for register to settle\n");
+> +		error = -ETIMEDOUT;
+> +		goto out;
+> +	}
+> +
+> +	wrbuf[0] = 0xf5;
+> +	wrbuf[1] = 0x0e;
+> +	for (i = 0; i < tsdata->num_x; i++) {
+> +		wrbuf[2] = i;
+> +		error = edt_ft5x06_ts_readwrite(tsdata->client,
+> +						sizeof(wrbuf), wrbuf,
+> +						tsdata->num_y * 2,
+> +						&buf[count]);
+> +		if (error)
+> +			goto out;
+> +
+> +		count += tsdata->num_y * 2;
+> +	}
+> +
+> +out:
+> +	mutex_unlock(&tsdata->mutex);
+> +	return error ?: count;
+> +}
+> +
+> +static EDT_ATTR(gain, S_IWUSR | S_IRUGO, WORK_REGISTER_GAIN, 0, 31);
+> +static EDT_ATTR(offset, S_IWUSR | S_IRUGO, WORK_REGISTER_OFFSET, 0, 31);
+> +static EDT_ATTR(threshold, S_IWUSR | S_IRUGO,
+> +		WORK_REGISTER_THRESHOLD, 20, 80);
+> +static EDT_ATTR(report_rate, S_IWUSR | S_IRUGO,
+> +		WORK_REGISTER_REPORT_RATE, 3, 14);
+> +
+> +static DEVICE_ATTR(mode, S_IWUSR | S_IRUGO,
+> +		   edt_ft5x06_i2c_mode_show, edt_ft5x06_i2c_mode_store);
+> +static DEVICE_ATTR(raw_data, S_IRUGO, edt_ft5x06_i2c_raw_data_show, NULL);
+> +
+> +static struct attribute *edt_ft5x06_i2c_attrs[] = {
+> +	&edt_ft5x06_attr_gain.dattr.attr,
+> +	&edt_ft5x06_attr_offset.dattr.attr,
+> +	&edt_ft5x06_attr_threshold.dattr.attr,
+> +	&edt_ft5x06_attr_report_rate.dattr.attr,
+> +	&dev_attr_mode.attr,
+> +	&dev_attr_raw_data.attr,
+> +	NULL
+> +};
+> +
+> +static const struct attribute_group edt_ft5x06_i2c_attr_group = {
+> +	.attrs = edt_ft5x06_i2c_attrs,
+> +};
+> +
+> +static int __devinit edt_ft5x06_i2c_ts_reset(struct i2c_client *client,
+> +					     int reset_pin)
+> +{
+> +	int error;
+> +
+> +	if (gpio_is_valid(reset_pin)) {
+> +		/* this pulls reset down, enabling the low active reset */
+> +		error = gpio_request_one(reset_pin, GPIOF_OUT_INIT_LOW,
+> +					 "edt-ft5x06 reset");
+> +		if (error) {
+> +			dev_err(&client->dev,
+> +				"Failed to request GPIO %d as reset pin, error %d\n",
+> +				reset_pin, error);
+> +			return error;
+> +		}
+> +
+> +		mdelay(50);
+> +		gpio_set_value(reset_pin, 1);
+> +		mdelay(100);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int __devinit edt_ft5x06_i2c_ts_identify(struct i2c_client *client,
+> +						char *model_name,
+> +						char *fw_version)
+> +{
+> +	u8 rdbuf[EDT_NAME_LEN];
+> +	char *p;
+> +	int error;
+> +
+> +	error = edt_ft5x06_ts_readwrite(client,
+> +					1, "\xbb", EDT_NAME_LEN - 1, rdbuf);
+> +	if (error)
+> +		return error;
+> +
+> +	/* remove last '$' end marker */
+> +	rdbuf[EDT_NAME_LEN - 1] = '\0';
+> +	if (rdbuf[EDT_NAME_LEN - 2] == '$')
+> +		rdbuf[EDT_NAME_LEN - 2] = '\0';
+> +
+> +	/* look for Model/Version separator */
+> +	p = strchr(rdbuf, '*');
+> +	if (p)
+> +		*p++ = '\0';
+> +
+> +	strlcpy(model_name, rdbuf + 1, EDT_NAME_LEN);
+> +	strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __devinit edt_ft5x06_i2c_ts_probe(struct i2c_client *client,
+> +					     const struct i2c_device_id *id)
+> +{
+> +
+> +	const struct edt_ft5x06_platform_data *pdata =
+> +						client->dev.platform_data;
+> +	struct edt_ft5x06_i2c_ts_data *tsdata;
+> +	struct input_dev *input;
+> +	int error;
+> +	char fw_version[EDT_NAME_LEN];
+> +
+> +	dev_dbg(&client->dev, "probing for EDT FT5x06 I2C\n");
+> +
+> +	if (!pdata) {
+> +		dev_err(&client->dev, "no platform data?\n");
 > +		return -EINVAL;
 > +	}
 > +
-> +	kscandat->matrix_sz = rows;
-> +	kscandat->row_shift = get_count_order(columns);
+> +	error = edt_ft5x06_i2c_ts_reset(client, pdata->reset_pin);
+> +	if (error)
+> +		return error;
 > +
-> +	of_property_read_u32(np, "nxp,debounce-delay-ms", &kscandat->deb_clks);
-> +	of_property_read_u32(np, "nxp,scan-delay-ms", &kscandat->scan_delay);
-> +	if (!kscandat->deb_clks || !kscandat->scan_delay) {
-> +		dev_err(&pdev->dev, "debounce or scan delay not specified\n");
-> +		return -ENXIO;
+> +	if (gpio_is_valid(pdata->irq_pin)) {
+> +		error = gpio_request_one(pdata->irq_pin,
+> +					 GPIOF_IN, "edt-ft5x06 irq");
+> +		if (error) {
+> +			dev_err(&client->dev,
+> +				"Failed to request GPIO %d, error %d\n",
+> +				pdata->irq_pin, error);
+> +			return error;
+> +		}
 > +	}
 > +
-> +	kscandat->keymap = kzalloc(sizeof(kscandat->keymap[0]) *
-> +				(rows << kscandat->row_shift), GFP_KERNEL);
-> +	if (!kscandat->keymap) {
-> +		dev_err(&pdev->dev, "could not allocate memory for keymap\n");
-> +		return -ENOMEM;
-> +	}
-
-I think this allocation belongs to the probe().
-
-> +
-> +	return 0;
-> +}
-> +
-> +static int __devinit lpc32xx_kscan_probe(struct platform_device *pdev)
-> +{
-> +	struct lpc32xx_kscan_drv *kscandat;
-> +	struct resource *res;
-> +	int error;
-> +	int irq;
-> +
-> +	kscandat = kzalloc(sizeof(struct lpc32xx_kscan_drv), GFP_KERNEL);
-> +	if (!kscandat) {
-> +		dev_err(&pdev->dev, "failed to allocate memory\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res) {
-> +		dev_err(&pdev->dev, "failed to get platform I/O memory\n");
-> +		error = -EBUSY;
-> +		goto out1;
-> +	}
-> +
-> +	res = request_mem_region(res->start, resource_size(res), pdev->name);
-> +	if (!res) {
-> +		dev_err(&pdev->dev, "failed to request I/O memory\n");
-> +		error = -EBUSY;
-> +		goto out1;
-> +	}
-> +	kscandat->io_p_start = res->start;
-> +	kscandat->io_p_size = resource_size(res);
-> +
-> +	kscandat->kscan_base = ioremap(res->start, resource_size(res));
-> +	if (!kscandat->kscan_base) {
-> +		dev_err(&pdev->dev, "failed to remap I/O memory\n");
-> +		error = -EBUSY;
-> +		goto out2;
-> +	}
-> +
-> +	/* Get the key scanner clock */
-> +	kscandat->clk = clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(kscandat->clk)) {
-> +		dev_err(&pdev->dev, "failed to get clock\n");
-> +		error = PTR_ERR(kscandat->clk);
-> +		goto out3;
-> +	}
-> +	clk_enable(kscandat->clk);
-
-Why not clk_prepare_enable()? Also I think you need to move it down, to
-where you actually write to the device's registers.
-
-> +
-> +	irq = platform_get_irq(pdev, 0);
-> +	if ((irq < 0) || (irq >= NR_IRQS)) {
-> +		dev_err(&pdev->dev, "failed to get platform irq\n");
-> +		error = -EINVAL;
-> +		goto out4;
-> +	}
-> +	error = request_irq(irq, lpc32xx_kscan_irq, 0, pdev->name, kscandat);
-> +	if (error) {
-> +		dev_err(&pdev->dev, "failed to request irq\n");
-> +		goto out4;
-> +	}
-> +
-> +	kscandat->input = input_allocate_device();
-> +	if (kscandat->input == NULL) {
-> +		dev_err(&pdev->dev, "failed to allocate device\n");
+> +	tsdata = kzalloc(sizeof(*tsdata), GFP_KERNEL);
+> +	input = input_allocate_device();
+> +	if (!tsdata || !input) {
+> +		dev_err(&client->dev, "failed to allocate driver data.\n");
 > +		error = -ENOMEM;
-> +		goto out5;
+> +		goto err_free_mem;
 > +	}
-
-This might be too late - IRQ is alreday registered and clock is enabled
-- what is to stop interrupts to be delivered? I'd allocate the input
-device together with kscandat structure.
-
 > +
-> +	platform_set_drvdata(pdev, kscandat);
+> +	mutex_init(&tsdata->mutex);
+> +	tsdata->client = client;
+> +	tsdata->input = input;
+> +	tsdata->factory_mode = false;
 > +
-> +	error = lpc32xx_parse_dt(pdev);
+> +	error = edt_ft5x06_i2c_ts_identify(client, tsdata->name, fw_version);
 > +	if (error) {
-> +		dev_err(&pdev->dev, "failed to parse device tree\n");
-> +		goto out6;
+> +		dev_err(&client->dev, "touchscreen probe failed\n");
+> +		goto err_free_mem;
 > +	}
 > +
-> +	/* Setup key input */
-> +	kscandat->input->evbit[0]	= BIT_MASK(EV_KEY);
-> +	kscandat->input->name		= pdev->name;
-> +	kscandat->input->phys		= "matrix-keys/input0";
-> +	kscandat->input->id.vendor	= 0x0001;
-> +	kscandat->input->id.product	= 0x0001;
-> +	kscandat->input->id.version	= 0x0100;
-> +	kscandat->input->open		= lpc32xx_kscan_open;
-> +	kscandat->input->close		= lpc32xx_kscan_close;
-> +	kscandat->input->dev.parent	= &pdev->dev;
+> +	tsdata->threshold = edt_ft5x06_i2c_register_read(tsdata,
+> +						WORK_REGISTER_THRESHOLD);
+> +	tsdata->gain = edt_ft5x06_i2c_register_read(tsdata,
+> +						WORK_REGISTER_GAIN);
+> +	tsdata->offset = edt_ft5x06_i2c_register_read(tsdata,
+> +						WORK_REGISTER_OFFSET);
+> +	tsdata->report_rate = edt_ft5x06_i2c_register_read(tsdata,
+> +						WORK_REGISTER_REPORT_RATE);
+> +	tsdata->num_x = edt_ft5x06_i2c_register_read(tsdata,
+> +						WORK_REGISTER_NUM_X);
+> +	tsdata->num_y = edt_ft5x06_i2c_register_read(tsdata,
+> +						WORK_REGISTER_NUM_Y);
 > +
-> +	error = matrix_keypad_build_keymap(NULL, NULL, kscandat->matrix_sz,
-> +					   kscandat->matrix_sz,
-> +					   kscandat->keymap, kscandat->input);
+> +	dev_dbg(&client->dev,
+> +		"Model \"%s\", Rev. \"%s\", %dx%d sensors\n",
+> +		tsdata->name, fw_version, tsdata->num_x, tsdata->num_y);
+> +
+> +	input->name = tsdata->name;
+> +	input->id.bustype = BUS_I2C;
+> +	input->dev.parent = &client->dev;
+> +
+> +	__set_bit(EV_SYN, input->evbit);
+> +	__set_bit(EV_KEY, input->evbit);
+> +	__set_bit(EV_ABS, input->evbit);
+> +	__set_bit(BTN_TOUCH, input->keybit);
+> +	input_set_abs_params(input, ABS_X, 0, tsdata->num_x * 64 - 1, 0, 0);
+> +	input_set_abs_params(input, ABS_Y, 0, tsdata->num_y * 64 - 1, 0, 0);
+> +	input_set_abs_params(input, ABS_MT_POSITION_X,
+> +			     0, tsdata->num_x * 64 - 1, 0, 0);
+> +	input_set_abs_params(input, ABS_MT_POSITION_Y,
+> +			     0, tsdata->num_y * 64 - 1, 0, 0);
+> +	input_mt_init_slots(input, MAX_SUPPORT_POINTS);
+> +
+> +	input_set_drvdata(input, tsdata);
+> +	i2c_set_clientdata(client, tsdata);
+> +
+> +	error = request_threaded_irq(client->irq, NULL, edt_ft5x06_ts_isr,
+> +				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> +				     client->name, tsdata);
 > +	if (error) {
-> +		dev_err(&pdev->dev, "failed to build keymap\n");
-> +		goto out6;
+> +		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
+> +		goto err_free_mem;
 > +	}
 > +
-> +	input_set_drvdata(kscandat->input, kscandat);
-> +	input_set_capability(kscandat->input, EV_MSC, MSC_SCAN);
+> +	error = sysfs_create_group(&client->dev.kobj,
+> +				   &edt_ft5x06_i2c_attr_group);
+> +	if (error)
+> +		goto err_free_irq;
 > +
-> +	error = input_register_device(kscandat->input);
-> +	if (error) {
-> +		dev_err(&pdev->dev, "failed to register input device\n");
-> +		goto out6;
-> +	}
+> +	error = input_register_device(input);
+> +	if (error)
+> +		goto err_remove_attrs;
 > +
-
-I think this needs to be done before you register input device as as
-soon as it is registered it may be used.
-
-> +	/* Configure the key scanner */
-> +	writel(kscandat->deb_clks, LPC32XX_KS_DEB(kscandat->kscan_base));
-> +	writel(kscandat->scan_delay, LPC32XX_KS_SCAN_CTL(kscandat->kscan_base));
-> +	writel(LPC32XX_KSCAN_FTST_USE32K_CLK,
-> +	       LPC32XX_KS_FAST_TST(kscandat->kscan_base));
-> +	writel(kscandat->matrix_sz,
-> +	       LPC32XX_KS_MATRIX_DIM(kscandat->kscan_base));
-> +	writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
-> +	clk_disable(kscandat->clk);
-
-clk_disable_unprepare()?
-
+> +	device_init_wakeup(&client->dev, 1);
+> +
+> +	dev_dbg(&tsdata->client->dev,
+> +		"EDT FT5x06 initialized: IRQ pin %d, Reset pin %d.\n",
+> +		pdata->irq_pin, pdata->reset_pin);
+> +
 > +	return 0;
 > +
-> +out6:
-> +	input_free_device(kscandat->input);
-> +out5:
-> +	free_irq(irq, pdev);
-> +out4:
-> +	clk_disable(kscandat->clk);
-> +	clk_put(kscandat->clk);
-> +out3:
-> +	iounmap(kscandat->kscan_base);
-> +out2:
-> +	release_mem_region(kscandat->io_p_start, kscandat->io_p_size);
-> +out1:
-> +	kfree(kscandat);
+> +err_remove_attrs:
+> +	sysfs_remove_group(&client->dev.kobj, &edt_ft5x06_i2c_attr_group);
+> +err_free_irq:
+> +	free_irq(client->irq, tsdata);
+> +err_free_mem:
+> +	input_free_device(input);
+> +	kfree(tsdata);
+> +
+> +	if (gpio_is_valid(pdata->irq_pin))
+> +		gpio_free(pdata->irq_pin);
 > +
 > +	return error;
 > +}
 > +
-> +static int __devexit lpc32xx_kscan_remove(struct platform_device *pdev)
+> +static int __devexit edt_ft5x06_i2c_ts_remove(struct i2c_client *client)
 > +{
-> +	struct lpc32xx_kscan_drv *kscandat = platform_get_drvdata(pdev);
+> +	const struct edt_ft5x06_platform_data *pdata =
+> +						client->dev.platform_data;
+> +	struct edt_ft5x06_i2c_ts_data *tsdata = i2c_get_clientdata(client);
 > +
-> +	input_unregister_device(kscandat->input);
-
-Are we certain it is safe to free input device before freeing IRQ? I see
-we have close(), still I'd feel safer if you swapper unregister and
-free_irq().
-
-> +	free_irq(platform_get_irq(pdev, 0), pdev);
-> +	clk_put(kscandat->clk);
-> +	iounmap(kscandat->kscan_base);
-> +	release_mem_region(kscandat->io_p_start, kscandat->io_p_size);
-> +	kfree(kscandat);
+> +	sysfs_remove_group(&client->dev.kobj, &edt_ft5x06_i2c_attr_group);
+> +
+> +	free_irq(client->irq, tsdata);
+> +	input_unregister_device(tsdata->input);
+> +	if (gpio_is_valid(pdata->irq_pin))
+> +		gpio_free(pdata->irq_pin);
+> +	if (gpio_is_valid(pdata->reset_pin))
+> +		gpio_free(pdata->reset_pin);
+> +	kfree(tsdata);
 > +
 > +	return 0;
 > +}
 > +
 > +#ifdef CONFIG_PM_SLEEP
-> +static int lpc32xx_kscan_suspend(struct device *dev)
+> +static int edt_ft5x06_i2c_ts_suspend(struct device *dev)
 > +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct lpc32xx_kscan_drv *kscandat = platform_get_drvdata(pdev);
+> +	struct i2c_client *client = to_i2c_client(dev);
 > +
-> +	/* Clear IRQ and disable clock */
-> +	writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
-> +	clk_disable_unprepare(kscandat->clk);
+> +	if (device_may_wakeup(dev))
+> +		enable_irq_wake(client->irq);
 > +
-
-This may race with open()/close(). You need to take input_dev->mutex and
-avoid touching the device if it sis not opened (users == 0).
-
 > +	return 0;
 > +}
 > +
-> +static int lpc32xx_kscan_resume(struct device *dev)
+> +static int edt_ft5x06_i2c_ts_resume(struct device *dev)
 > +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct lpc32xx_kscan_drv *kscandat = platform_get_drvdata(pdev);
+> +	struct i2c_client *client = to_i2c_client(dev);
 > +
-> +	/* Enable clock and clear IRQ */
-> +	clk_prepare_enable(kscandat->clk);
-> +	writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
+> +	if (device_may_wakeup(dev))
+> +		disable_irq_wake(client->irq);
 > +
-
-Same here.
-
-Thanks!
+> +	return 0;
+> +}
+> +#endif
+> +
+> +static SIMPLE_DEV_PM_OPS(edt_ft5x06_i2c_ts_pm_ops,
+> +			 edt_ft5x06_i2c_ts_suspend, edt_ft5x06_i2c_ts_resume);
+> +
+> +static const struct i2c_device_id edt_ft5x06_i2c_ts_id[] = {
+> +	{ "edt-ft5x06", 0 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, edt_ft5x06_i2c_ts_id);
+> +
+> +static struct i2c_driver edt_ft5x06_i2c_ts_driver = {
+> +	.driver = {
+> +		.owner = THIS_MODULE,
+> +		.name = "edt_ft5x06_i2c",
+> +		.pm = &edt_ft5x06_i2c_ts_pm_ops,
+> +	},
+> +	.id_table = edt_ft5x06_i2c_ts_id,
+> +	.probe    = edt_ft5x06_i2c_ts_probe,
+> +	.remove   = __devexit_p(edt_ft5x06_i2c_ts_remove),
+> +};
+> +
+> +module_i2c_driver(edt_ft5x06_i2c_ts_driver);
+> +
+> +MODULE_AUTHOR("Simon Budig <simon.budig@kernelconcepts.de>");
+> +MODULE_DESCRIPTION("EDT FT5x06 I2C Touchscreen Driver");
+> +MODULE_LICENSE("GPL");
+> diff --git a/include/linux/input/edt-ft5x06.h b/include/linux/input/edt-ft5x06.h
+> new file mode 100644
+> index 0000000..db4130d
+> --- /dev/null
+> +++ b/include/linux/input/edt-ft5x06.h
+> @@ -0,0 +1,17 @@
+> +#ifndef _EDT_FT5X06_H
+> +#define _EDT_FT5X06_H
+> +
+> +/*
+> + * Copyright (c) 2011 Simon Budig, <simon.budig@kernelconcepts.de>
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2 as published by
+> + * the Free Software Foundation.
+> + */
+> +
+> +struct edt_ft5x06_platform_data {
+> +	int irq_pin;
+> +	int reset_pin;
+> +};
+> +
+> +#endif /* _EDT_FT5X06_H */
+> -- 
+> 1.7.2.5
+> 
 
 -- 
 Dmitry

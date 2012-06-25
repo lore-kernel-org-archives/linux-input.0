@@ -1,446 +1,305 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 1/5] input - wacom: fix retrieving touch_max bug
-Date: Mon, 25 Jun 2012 13:32:40 -0700
-Message-ID: <CAF8JNh+gdhAQ2N_kK5zbZrm2HhWd0CfgeCmXX9Bne1gmkeFHmA@mail.gmail.com>
-References: <1340655986-25427-1-git-send-email-pinglinux@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:65372 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753178Ab2FYUcm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jun 2012 16:32:42 -0400
-Received: by bkcji2 with SMTP id ji2so3609453bkc.19
-        for <linux-input@vger.kernel.org>; Mon, 25 Jun 2012 13:32:40 -0700 (PDT)
-In-Reply-To: <1340655986-25427-1-git-send-email-pinglinux@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
+Subject: [PATCH v2] input: gpio_keys_polled: convert to dt
+Date: Mon, 25 Jun 2012 17:44:03 -0300
+Message-ID: <1340657047-8517-1-git-send-email-aletes.xgr@gmail.com>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Roland Stigge <stigge@antcom.de>
+Cc: Alexandre Pereira da Silva <aletes.xgr@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tobias Klauser <tklauser@distanz.ch>, David Jander <david@protonic.nl>, JJ Ding <dgdunix@gmail.com>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Sorry for the noise. Please ignore this patch. Something is wrong with
-my codebase.
+Signed-off-by: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
+---
+Applies to v3.5-rc4
 
-Ping
+Changes since v1:
+* Add biding documentation
+* Fix sizeof in memset
+* Cleanup dt properties extraction
+* Use for_each macro
+* Fix memleak on buttons
 
-On Mon, Jun 25, 2012 at 1:26 PM, Ping Cheng <pinglinux@gmail.com> wrote=
-:
-> rep_data has already been declared as a pointer.
->
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
-> ---
-> =A0drivers/input/tablet/wacom.h =A0 =A0 | =A0 =A02 +-
-> =A0drivers/input/tablet/wacom_sys.c | =A0 49 ++++++++-------------
-> =A0drivers/input/tablet/wacom_wac.c | =A0 90 +-----------------------=
---------------
-> =A0drivers/input/tablet/wacom_wac.h | =A0 =A08 ---
-> =A04 files changed, 21 insertions(+), 128 deletions(-)
->
-> diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/waco=
-m.h
-> index b79d451..51b7e37 100644
-> --- a/drivers/input/tablet/wacom.h
-> +++ b/drivers/input/tablet/wacom.h
-> @@ -135,6 +135,6 @@ extern const struct usb_device_id wacom_ids[];
->
-> =A0void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len);
-> =A0void wacom_setup_device_quirks(struct wacom_features *features);
-> -int wacom_setup_input_capabilities(struct input_dev *input_dev,
-> +void wacom_setup_input_capabilities(struct input_dev *input_dev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 s=
-truct wacom_wac *wacom_wac);
-> =A0#endif
-> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/=
-wacom_sys.c
-> index 9e8fdcf..0494cec 100644
-> --- a/drivers/input/tablet/wacom_sys.c
-> +++ b/drivers/input/tablet/wacom_sys.c
-> @@ -213,7 +213,7 @@ static void wacom_retrieve_report_data(struct usb=
-_interface *intf,
->
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rep_data[0] =3D 12;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0result =3D wacom_get_report(intf, WAC_=
-HID_FEATURE_REPORT,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 rep_data[0], &rep_data, 2,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 rep_data[0], rep_data, 2,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0WAC_MSG_RETRIES);
->
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (result >=3D 0 && rep_data[1] > 2)
-> @@ -318,9 +318,6 @@ static int wacom_parse_hid(struct usb_interface *=
-intf,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->pktlen =3D WACOM_PKGL=
-EN_TPC2FG;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0}
->
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 if (features->type =3D=3D MTSCREEN)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->pktlen =3D WACOM_PKG=
-LEN_MTOUCH;
-> -
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0if (features->type =3D=3D BAMBOO_PT) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* need to reset back */
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->pktlen =3D WACOM_PKGL=
-EN_BBTOUCH;
-> @@ -355,7 +352,7 @@ static int wacom_parse_hid(struct usb_interface *=
-intf,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0if (finger) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0int type =3D features->type;
->
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 if (type =3D=3D TABLETPC2FG || type =3D=3D MTS=
-CREEN) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 if (type =3D=3D TABLETPC2FG) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->y_max =3D
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0get_unaligned_l=
-e16(&report[i + 3]);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0features->y_phy =3D
-> @@ -437,28 +434,22 @@ static int wacom_query_tablet_data(struct usb_i=
-nterface *intf, struct wacom_feat
-> =A0 =A0 =A0 =A0if (!rep_data)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return error;
->
-> - =A0 =A0 =A0 /* ask to report Wacom data */
-> - =A0 =A0 =A0 if (features->device_type =3D=3D BTN_TOOL_FINGER) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* if it is an MT Tablet PC touch */
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (features->type > TABLETPC) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 do {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rep_dat=
-a[0] =3D 3;
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rep_dat=
-a[1] =3D 4;
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rep_dat=
-a[2] =3D 0;
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rep_dat=
-a[3] =3D 0;
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 report_=
-id =3D 3;
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D=
- wacom_set_report(intf,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0WAC_HID_FEATURE_REPORT,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0report_id,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rep_data, 4, 1);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (err=
-or >=3D 0)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 error =3D wacom_get_report(intf,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 WAC_HID_FEATURE_REPORT,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 report_id,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rep_data, 4, 1);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 } while ((error < 0 || =
-rep_data[1] !=3D 4) &&
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0limi=
-t++ < WAC_MSG_RETRIES);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> + =A0 =A0 =A0 /* ask to report tablet data if it is MT Tablet PC or
-> + =A0 =A0 =A0 =A0* not a Tablet PC */
-> + =A0 =A0 =A0 if (features->type =3D=3D TABLETPC2FG) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 do {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rep_data[0] =3D 3;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rep_data[1] =3D 4;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rep_data[2] =3D 0;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rep_data[3] =3D 0;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 report_id =3D 3;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D wacom_set_rep=
-ort(intf, WAC_HID_FEATURE_REPORT,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0report_id, rep_data, 4, 1);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (error >=3D 0)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D=
- wacom_get_report(intf,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 WAC_HID_FEATURE_REPORT,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 report_id, rep_data, 4, 1);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 } while ((error < 0 || rep_data[1] !=3D=
- 4) && limit++ < WAC_MSG_RETRIES);
-> =A0 =A0 =A0 =A0} else if (features->type <=3D BAMBOO_PT &&
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->type !=3D WIRELESS &&
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->device_type =3D=3D BTN_=
-TOOL_PEN) {
-> @@ -1005,9 +996,7 @@ static int wacom_register_input(struct wacom *wa=
-com)
-> =A0 =A0 =A0 =A0input_set_drvdata(input_dev, wacom);
->
-> =A0 =A0 =A0 =A0wacom_wac->input =3D input_dev;
-> - =A0 =A0 =A0 error =3D wacom_setup_input_capabilities(input_dev, wac=
-om_wac);
-> - =A0 =A0 =A0 if (error)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail1;
-> + =A0 =A0 =A0 wacom_setup_input_capabilities(input_dev, wacom_wac);
->
-> =A0 =A0 =A0 =A0error =3D input_register_device(input_dev);
-> =A0 =A0 =A0 =A0if (error)
-> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/=
-wacom_wac.c
-> index 4453864..1491a91 100644
-> --- a/drivers/input/tablet/wacom_wac.c
-> +++ b/drivers/input/tablet/wacom_wac.c
-> @@ -776,72 +776,6 @@ static int wacom_intuos_irq(struct wacom_wac *wa=
-com)
-> =A0 =A0 =A0 =A0return 1;
-> =A0}
->
-> -static int find_slot_from_contactid(struct wacom_wac *wacom, int con=
-tactid)
-> -{
-> - =A0 =A0 =A0 int touch_max =3D wacom->features.touch_max;
-> - =A0 =A0 =A0 int i;
-> -
-> - =A0 =A0 =A0 if (!wacom->slots)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -1;
-> -
-> - =A0 =A0 =A0 for (i =3D 0; i < touch_max; ++i) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (wacom->slots[i] =3D=3D contactid)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return i;
-> - =A0 =A0 =A0 }
-> - =A0 =A0 =A0 for (i =3D 0; i < touch_max; ++i) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (wacom->slots[i] =3D=3D -1)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return i;
-> - =A0 =A0 =A0 }
-> - =A0 =A0 =A0 return -1;
-> -}
-> -
-> -static int wacom_mt_touch(struct wacom_wac *wacom)
-> -{
-> - =A0 =A0 =A0 struct input_dev *input =3D wacom->input;
-> - =A0 =A0 =A0 char *data =3D wacom->data;
-> - =A0 =A0 =A0 int i;
-> - =A0 =A0 =A0 int current_num_contacts =3D data[2];
-> - =A0 =A0 =A0 int contacts_to_send =3D 0;
-> -
-> - =A0 =A0 =A0 /*
-> - =A0 =A0 =A0 =A0* First packet resets the counter since only the fir=
-st
-> - =A0 =A0 =A0 =A0* packet in series will have non-zero current_num_co=
-ntacts.
-> - =A0 =A0 =A0 =A0*/
-> - =A0 =A0 =A0 if (current_num_contacts)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->num_contacts_left =3D current_nu=
-m_contacts;
-> -
-> - =A0 =A0 =A0 /* There are at most 5 contacts per packet */
-> - =A0 =A0 =A0 contacts_to_send =3D min(5, wacom->num_contacts_left);
-> -
-> - =A0 =A0 =A0 for (i =3D 0; i < contacts_to_send; i++) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 int offset =3D (WACOM_BYTES_PER_MT_PACK=
-ET * i) + 3;
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 bool touch =3D data[offset] & 0x1;
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 int id =3D le16_to_cpup((__le16 *)&data=
-[offset + 1]);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 int slot =3D find_slot_from_contactid(w=
-acom, id);
-> -
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (slot < 0)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
-> -
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_mt_slot(input, slot);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_mt_report_slot_state(input, MT_TO=
-OL_FINGER, touch);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (touch) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 int x =3D le16_to_cpup(=
-(__le16 *)&data[offset + 7]);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 int y =3D le16_to_cpup(=
-(__le16 *)&data[offset + 9]);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input,=
- ABS_MT_POSITION_X, x);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input,=
- ABS_MT_POSITION_Y, y);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->slots[slot] =3D touch ? id : -1;
-> - =A0 =A0 =A0 }
-> -
-> - =A0 =A0 =A0 input_mt_report_pointer_emulation(input, true);
-> -
-> - =A0 =A0 =A0 wacom->num_contacts_left -=3D contacts_to_send;
-> - =A0 =A0 =A0 if (wacom->num_contacts_left < 0)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->num_contacts_left =3D 0;
-> -
-> - =A0 =A0 =A0 return 1;
-> -}
-> -
-> =A0static int wacom_tpc_mt_touch(struct wacom_wac *wacom)
-> =A0{
-> =A0 =A0 =A0 =A0struct input_dev *input =3D wacom->input;
-> @@ -880,9 +814,6 @@ static int wacom_tpc_single_touch(struct wacom_wa=
-c *wacom, size_t len)
-> =A0 =A0 =A0 =A0bool prox;
-> =A0 =A0 =A0 =A0int x =3D 0, y =3D 0;
->
-> - =A0 =A0 =A0 if (wacom->features.touch_max > 1 || len > WACOM_PKGLEN=
-_TPC2FG)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
-> -
-> =A0 =A0 =A0 =A0if (!wacom->shared->stylus_in_proximity) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (len =3D=3D WACOM_PKGLEN_TPC1FG) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0prox =3D data[0] & 0x0=
-1;
-> @@ -964,9 +895,6 @@ static int wacom_tpc_irq(struct wacom_wac *wacom,=
- size_t len)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case WACOM_REPORT_TPC1FGE:
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return wacom_tpc_singl=
-e_touch(wacom, len);
->
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 case WACOM_REPORT_TPCMT:
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return wacom_mt_touch(w=
-acom);
-> -
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case WACOM_REPORT_PENABLED:
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return wacom_tpc_pen(w=
-acom);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
-> @@ -1247,7 +1175,6 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac,=
- size_t len)
-> =A0 =A0 =A0 =A0case TABLETPC:
-> =A0 =A0 =A0 =A0case TABLETPCE:
-> =A0 =A0 =A0 =A0case TABLETPC2FG:
-> - =A0 =A0 =A0 case MTSCREEN:
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0sync =3D wacom_tpc_irq(wacom_wac, len)=
-;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
->
-> @@ -1351,7 +1278,7 @@ static unsigned int wacom_calculate_touch_res(u=
-nsigned int logical_max,
-> =A0 =A0 =A0 =A0return (logical_max * 100) / physical_max;
-> =A0}
->
-> -int wacom_setup_input_capabilities(struct input_dev *input_dev,
-> +void wacom_setup_input_capabilities(struct input_dev *input_dev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 s=
-truct wacom_wac *wacom_wac)
-> =A0{
-> =A0 =A0 =A0 =A0struct wacom_features *features =3D &wacom_wac->featur=
-es;
-> @@ -1548,18 +1475,8 @@ int wacom_setup_input_capabilities(struct inpu=
-t_dev *input_dev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
->
-> =A0 =A0 =A0 =A0case TABLETPC2FG:
-> - =A0 =A0 =A0 case MTSCREEN:
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (features->device_type =3D=3D BTN_T=
-OOL_FINGER) {
->
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom_wac->slots =3D km=
-alloc(features->touch_max *
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 sizeof(int),
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0GFP_KERNEL);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!wacom_wac->slots)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return =
--ENOMEM;
-> -
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (i =3D 0; i < featu=
-res->touch_max; i++)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom_w=
-ac->slots[i] =3D -1;
-> -
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_mt_init_slots(in=
-put_dev, features->touch_max);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(i=
-nput_dev, ABS_MT_TOOL_TYPE,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A00, MT_TOOL_MAX, 0, 0);
-> @@ -1646,7 +1563,6 @@ int wacom_setup_input_capabilities(struct input=
-_dev *input_dev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
-> =A0 =A0 =A0 =A0}
-> - =A0 =A0 =A0 return 0;
-> =A0}
->
-> =A0static const struct wacom_features wacom_features_0x00 =3D
-> @@ -1879,9 +1795,6 @@ static const struct wacom_features wacom_featur=
-es_0xE3 =3D
-> =A0 =A0 =A0 =A0{ "Wacom ISDv4 E3", =A0 =A0 =A0 WACOM_PKGLEN_TPC2FG, =A0=
- =A026202, 16325, =A0255,
-> =A0 =A0 =A0 =A0 =A00, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES=
-,
-> =A0 =A0 =A0 =A0 =A0.touch_max =3D 2 };
-> -static const struct wacom_features wacom_features_0xE5 =3D
-> - =A0 =A0 =A0 { "Wacom ISDv4 E5", =A0 =A0 =A0 WACOM_PKGLEN_MTOUCH, =A0=
- =A026202, 16325, =A0255,
-> - =A0 =A0 =A0 =A0 0, MTSCREEN, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-> =A0static const struct wacom_features wacom_features_0xE6 =3D
-> =A0 =A0 =A0 =A0{ "Wacom ISDv4 E6", =A0 =A0 =A0 WACOM_PKGLEN_TPC2FG, =A0=
- =A027760, 15694, =A0255,
-> =A0 =A0 =A0 =A0 =A00, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES=
-,
-> @@ -2066,7 +1979,6 @@ const struct usb_device_id wacom_ids[] =3D {
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0x9F) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xE2) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xE3) },
-> - =A0 =A0 =A0 { USB_DEVICE_WACOM(0xE5) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xE6) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xEC) },
-> =A0 =A0 =A0 =A0{ USB_DEVICE_WACOM(0xED) },
-> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/=
-wacom_wac.h
-> index bd5d37b..219272f 100644
-> --- a/drivers/input/tablet/wacom_wac.h
-> +++ b/drivers/input/tablet/wacom_wac.h
-> @@ -25,10 +25,6 @@
-> =A0#define WACOM_PKGLEN_BBTOUCH3 =A064
-> =A0#define WACOM_PKGLEN_BBPEN =A0 =A0 10
-> =A0#define WACOM_PKGLEN_WIRELESS =A032
-> -#define WACOM_PKGLEN_MTOUCH =A0 =A062
-> -
-> -/* wacom data size per MT contact */
-> -#define WACOM_BYTES_PER_MT_PACKET =A0 =A0 =A011
->
-> =A0/* device IDs */
-> =A0#define STYLUS_DEVICE_ID =A0 =A0 =A0 0x02
-> @@ -45,7 +41,6 @@
-> =A0#define WACOM_REPORT_INTUOS5PAD =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A03
-> =A0#define WACOM_REPORT_TPC1FG =A0 =A0 =A0 =A0 =A0 =A06
-> =A0#define WACOM_REPORT_TPC2FG =A0 =A0 =A0 =A0 =A0 =A013
-> -#define WACOM_REPORT_TPCMT =A0 =A0 =A0 =A0 =A0 =A0 13
-> =A0#define WACOM_REPORT_TPCHID =A0 =A0 =A0 =A0 =A0 =A015
-> =A0#define WACOM_REPORT_TPCST =A0 =A0 =A0 =A0 =A0 =A0 16
-> =A0#define WACOM_REPORT_TPC1FGE =A0 =A0 =A0 =A0 =A0 18
-> @@ -83,7 +78,6 @@ enum {
-> =A0 =A0 =A0 =A0TABLETPC, =A0 /* add new TPC below */
-> =A0 =A0 =A0 =A0TABLETPCE,
-> =A0 =A0 =A0 =A0TABLETPC2FG,
-> - =A0 =A0 =A0 MTSCREEN,
-> =A0 =A0 =A0 =A0MAX_TYPE
-> =A0};
->
-> @@ -126,8 +120,6 @@ struct wacom_wac {
-> =A0 =A0 =A0 =A0struct input_dev *input;
-> =A0 =A0 =A0 =A0int pid;
-> =A0 =A0 =A0 =A0int battery_capacity;
-> - =A0 =A0 =A0 int num_contacts_left;
-> - =A0 =A0 =A0 int *slots;
-> =A0};
->
-> =A0#endif
-> --
-> 1.7.7.6
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks Rob Herring, Dmitry Torokhov and Roland Stiege for reviewing and 
+improvements suggestions.
+
+ .../devicetree/bindings/input/gpio-keys-polled.txt |   38 ++++++
+ drivers/input/keyboard/gpio_keys_polled.c          |  131 ++++++++++++++++++--
+ 2 files changed, 158 insertions(+), 11 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/gpio-keys-polled.txt
+
+diff --git a/Documentation/devicetree/bindings/input/gpio-keys-polled.txt b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
+new file mode 100644
+index 0000000..313abef
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
+@@ -0,0 +1,38 @@
++Device-Tree bindings for input/gpio_keys_polled.c keyboard driver
++
++Required properties:
++	- compatible = "gpio-keys-polled";
++	- poll-interval: Poll interval time in milliseconds
++
++Optional properties:
++	- autorepeat: Boolean, Enable auto repeat feature of Linux input
++	  subsystem.
++
++Each button (key) is represented as a sub-node of "gpio-keys-polled":
++Subnode properties:
++
++	- gpios: OF device-tree gpio specification.
++	- label: Descriptive name of the key.
++	- linux,code: Keycode to emit.
++
++Optional subnode-properties:
++	- linux,input-type: Specify event type this button/key generates.
++	  If not specified defaults to <1> == EV_KEY.
++	- debounce-interval: Debouncing interval time in milliseconds.
++	  If not specified defaults to 5.
++	- gpio-key,wakeup: Boolean, button can wake-up the system.
++
++Example nodes:
++
++	gpio_keys_polled {
++			compatible = "gpio-keys-polled";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			poll-interval = <100>;
++			autorepeat;
++			button@21 {
++				label = "GPIO Key UP";
++				linux,code = <103>;
++				gpios = <&gpio1 0 1>;
++			};
++			...
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index 20c8ab1..e5cb3ef 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -25,6 +25,8 @@
+ #include <linux/platform_device.h>
+ #include <linux/gpio.h>
+ #include <linux/gpio_keys.h>
++#include <linux/of_platform.h>
++#include <linux/of_gpio.h>
+ 
+ #define DRV_NAME	"gpio-keys-polled"
+ 
+@@ -38,7 +40,7 @@ struct gpio_keys_button_data {
+ struct gpio_keys_polled_dev {
+ 	struct input_polled_dev *poll_dev;
+ 	struct device *dev;
+-	struct gpio_keys_platform_data *pdata;
++	struct gpio_keys_platform_data pdata;
+ 	struct gpio_keys_button_data data[0];
+ };
+ 
+@@ -67,11 +69,11 @@ static void gpio_keys_polled_check_state(struct input_dev *input,
+ static void gpio_keys_polled_poll(struct input_polled_dev *dev)
+ {
+ 	struct gpio_keys_polled_dev *bdev = dev->private;
+-	struct gpio_keys_platform_data *pdata = bdev->pdata;
++	struct gpio_keys_platform_data *pdata = &bdev->pdata;
+ 	struct input_dev *input = dev->input;
+ 	int i;
+ 
+-	for (i = 0; i < bdev->pdata->nbuttons; i++) {
++	for (i = 0; i < pdata->nbuttons; i++) {
+ 		struct gpio_keys_button_data *bdata = &bdev->data[i];
+ 
+ 		if (bdata->count < bdata->threshold)
+@@ -85,7 +87,7 @@ static void gpio_keys_polled_poll(struct input_polled_dev *dev)
+ static void gpio_keys_polled_open(struct input_polled_dev *dev)
+ {
+ 	struct gpio_keys_polled_dev *bdev = dev->private;
+-	struct gpio_keys_platform_data *pdata = bdev->pdata;
++	struct gpio_keys_platform_data *pdata = &bdev->pdata;
+ 
+ 	if (pdata->enable)
+ 		pdata->enable(bdev->dev);
+@@ -94,31 +96,125 @@ static void gpio_keys_polled_open(struct input_polled_dev *dev)
+ static void gpio_keys_polled_close(struct input_polled_dev *dev)
+ {
+ 	struct gpio_keys_polled_dev *bdev = dev->private;
+-	struct gpio_keys_platform_data *pdata = bdev->pdata;
++	struct gpio_keys_platform_data *pdata = &bdev->pdata;
+ 
+ 	if (pdata->disable)
+ 		pdata->disable(bdev->dev);
+ }
++#ifdef CONFIG_OF
++static int gpio_keys_polled_get_devtree_pdata(struct device *dev,
++			    struct gpio_keys_platform_data *pdata)
++{
++	struct device_node *node, *pp;
++	int i;
++	struct gpio_keys_button *buttons;
++
++	node = dev->of_node;
++	if (node == NULL)
++		return -ENODEV;
++
++	memset(pdata, 0, sizeof(*pdata));
++
++	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
++
++	of_property_read_u32(node, "poll-interval", &pdata->poll_interval);
++
++	pdata->nbuttons = of_get_child_count(node);
++	if (pdata->nbuttons == 0)
++		return -ENODEV;
++
++	buttons = kzalloc(pdata->nbuttons * (sizeof *buttons), GFP_KERNEL);
++	if (!buttons)
++		return -ENOMEM;
++
++	i = 0;
++	for_each_child_of_node(node, pp) {
++		enum of_gpio_flags flags;
++
++		if (!of_find_property(pp, "gpios", NULL)) {
++			pdata->nbuttons--;
++			dev_warn(dev, "Found button without gpios\n");
++			continue;
++		}
++		buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
++		buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
++
++		if (of_property_read_u32(pp, "linux,code", &buttons[i].code)) {
++			dev_err(dev, "Button without keycode: 0x%x\n",
++				buttons[i].gpio);
++			goto out_fail;
++		}
++
++		buttons[i].desc = of_get_property(pp, "label", NULL);
++
++		if (of_property_read_u32(pp, "linux,input-type",
++			&buttons[i].type))
++			buttons[i].type = EV_KEY;
++
++		buttons[i].wakeup = !!of_get_property(pp, "gpio-key,wakeup",
++			NULL);
++
++		if (of_property_read_u32(pp, "debounce-interval",
++			&buttons[i].debounce_interval))
++			buttons[i].debounce_interval = 5;
++
++		i++;
++	}
++
++	pdata->buttons = buttons;
++
++	return 0;
++
++out_fail:
++	kfree(buttons);
++	return -ENODEV;
++}
++
++static struct of_device_id gpio_keys_polled_of_match[] = {
++	{ .compatible = "gpio-keys-polled", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, gpio_keys_polled_of_match);
++
++#else
++
++static int gpio_keys_polled_get_devtree_pdata(struct device *dev,
++			    struct gpio_keys_platform_data *altp)
++{
++	return -ENODEV;
++}
++#endif
+ 
+ static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
+ {
+ 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+ 	struct device *dev = &pdev->dev;
++	struct gpio_keys_platform_data alt_pdata;
+ 	struct gpio_keys_polled_dev *bdev;
+ 	struct input_polled_dev *poll_dev;
+ 	struct input_dev *input;
+ 	int error;
+ 	int i;
+ 
+-	if (!pdata || !pdata->poll_interval)
+-		return -EINVAL;
++	if (!pdata) {
++		error = gpio_keys_polled_get_devtree_pdata(dev, &alt_pdata);
++		if (error)
++			return error;
++		pdata = &alt_pdata;
++	}
++
++	if (!pdata->poll_interval) {
++		error = -EINVAL;
++		goto err_free_buttons;
++	}
+ 
+ 	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
+ 		       pdata->nbuttons * sizeof(struct gpio_keys_button_data),
+ 		       GFP_KERNEL);
+ 	if (!bdev) {
+ 		dev_err(dev, "no memory for private data\n");
+-		return -ENOMEM;
++		error = -ENOMEM;
++		goto err_free_buttons;
+ 	}
+ 
+ 	poll_dev = input_allocate_polled_device();
+@@ -184,7 +280,7 @@ static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
+ 
+ 	bdev->poll_dev = poll_dev;
+ 	bdev->dev = dev;
+-	bdev->pdata = pdata;
++	bdev->pdata = *pdata;
+ 	platform_set_drvdata(pdev, bdev);
+ 
+ 	error = input_register_polled_device(poll_dev);
+@@ -209,15 +305,19 @@ err_free_gpio:
+ 
+ err_free_bdev:
+ 	kfree(bdev);
+-
+ 	platform_set_drvdata(pdev, NULL);
++
++err_free_buttons:
++	/* If we have no platform_data, we allocated buttons dynamically. */
++	if (!pdev->dev.platform_data)
++		kfree(pdata->buttons);
+ 	return error;
+ }
+ 
+ static int __devexit gpio_keys_polled_remove(struct platform_device *pdev)
+ {
+ 	struct gpio_keys_polled_dev *bdev = platform_get_drvdata(pdev);
+-	struct gpio_keys_platform_data *pdata = bdev->pdata;
++	struct gpio_keys_platform_data *pdata = &bdev->pdata;
+ 	int i;
+ 
+ 	input_unregister_polled_device(bdev->poll_dev);
+@@ -227,6 +327,14 @@ static int __devexit gpio_keys_polled_remove(struct platform_device *pdev)
+ 
+ 	input_free_polled_device(bdev->poll_dev);
+ 
++	/*
++	 * If we had no platform_data, we allocated buttons dynamically, and
++	 * must free them here. pdata->buttons is the pointer to the
++	 * beginning of the allocated array.
++	 */
++	if (!pdev->dev.platform_data)
++		kfree(pdata->buttons);
++
+ 	kfree(bdev);
+ 	platform_set_drvdata(pdev, NULL);
+ 
+@@ -239,6 +347,7 @@ static struct platform_driver gpio_keys_polled_driver = {
+ 	.driver	= {
+ 		.name	= DRV_NAME,
+ 		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(gpio_keys_polled_of_match),
+ 	},
+ };
+ module_platform_driver(gpio_keys_polled_driver);
+-- 
+1.7.10
+

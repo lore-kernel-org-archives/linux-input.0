@@ -1,45 +1,50 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: Fix the Kconfig option for generic device
- handling
-Date: Mon, 25 Jun 2012 17:26:25 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1206251726110.18612@pobox.suse.cz>
-References: <1340356390-4614-1-git-send-email-rydberg@euromail.se> <alpine.LNX.2.00.1206251537190.18612@pobox.suse.cz> <20120625151615.GA11770@polaris.bitmath.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Keyboard problem on HP Envy 17 3D
+Date: Mon, 25 Jun 2012 11:43:14 -0700
+Message-ID: <2842883.2Br7QRospJ@dtor-d630.eng.vmware.com>
+References: <4FE24873.8010106@texas.net> <20120622053920.GA7821@texas.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:51630 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752361Ab2FYP0d (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jun 2012 11:26:33 -0400
-In-Reply-To: <20120625151615.GA11770@polaris.bitmath.org>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:61061 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756145Ab2FYSnU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Jun 2012 14:43:20 -0400
+Received: by dady13 with SMTP id y13so5694099dad.19
+        for <linux-input@vger.kernel.org>; Mon, 25 Jun 2012 11:43:20 -0700 (PDT)
+In-Reply-To: <20120622053920.GA7821@texas.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jan Beulich <jbeulich@suse.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David VomLehn <vomlehn@texas.net>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 25 Jun 2012, Henrik Rydberg wrote:
-
-> > > The generic HID driver is obviously not a special driver, so move
-> > > it outside of the special drivers menu. Explain the usage and make
-> > > the default follow the HID setting. This should simplify migration
-> > > from older kernels.
-> > > 
-> > > Reported-by: Jan Beulich <jbeulich@suse.com>
-> > > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> > > ---
-> > > Hi Jiri,
-> > > 
-> > > As pointed out by Jan Beulich, the generic hid driver Kconfig option
-> > > is confusing. This patch ought to fix most of the concerns. For 3.5.
-> > 
-> > The change makes sense. I'd however propose to perhaps unify 
-> > CONFIG_HID_SUPPORT and CONFIG_HID, while we are at it ... ?
+On Thursday, June 21, 2012 10:39:20 PM David VomLehn wrote:
+> On Wed, Jun 20, 2012 at 10:08:30PM +0000, David VomLehn wrote:
+> > I have a keyboard problem that I figure *must* be a keyboard
+> > hardware problem, but it doesn't really look like it.
 > 
-> Here is a version putting together both patches sent previously, and in 
-> addition removing the HID_SUPPORT option.
+> ...
+> 
+> > My system is an HP Envy 17" 3D (2090nr).
+> 
+> So, I did what I should have done before but the results were what I
+> expected--I hooked up a spare USB keyboard and there is no problem.
+> Which narrows the problem down to the keyboard decoding. I would
+> appreciate any help I can get with hints I can use to determine
+> that this is hardware or fix the driver.
 
-Applied, thank you Henrik.
+If you enable debug option of i8042:
+
+	echo 1 > /sys/module/i8042/parameters/debug
+
+you can save a raw stream of keyboard contorller data and analyze it.
+
+However it could be something simpler - could your palm be brushing against
+the touchpad and cause pasting of random garbage?
+
+Thanks.
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

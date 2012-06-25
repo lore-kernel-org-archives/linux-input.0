@@ -1,45 +1,37 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH] HID: Fix the Kconfig option for generic device handling
-Date: Mon, 25 Jun 2012 16:09:24 +0200
-Message-ID: <20120625140924.GA489@polaris.bitmath.org>
-References: <1340356390-4614-1-git-send-email-rydberg@euromail.se>
- <alpine.LNX.2.00.1206251537190.18612@pobox.suse.cz>
+From: Dharam Kumar <dharam.kumar.gupta@gmail.com>
+Subject: Missing Key-codes from <linux/input.h> file
+Date: Mon, 25 Jun 2012 19:39:25 +0530
+Message-ID: <CAOt5+pRZ=qqEZ2Ra3yFbLqoHhDGFkzHs4cEXvFv5trbukd4MdA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:33936 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756951Ab2FYOGP (ORCPT
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:50883 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756070Ab2FYOJr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jun 2012 10:06:15 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1206251537190.18612@pobox.suse.cz>
+	Mon, 25 Jun 2012 10:09:47 -0400
+Received: by lbbgm6 with SMTP id gm6so6552654lbb.19
+        for <linux-input@vger.kernel.org>; Mon, 25 Jun 2012 07:09:45 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jan Beulich <jbeulich@suse.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input <linux-input@vger.kernel.org>
 
-On Mon, Jun 25, 2012 at 03:38:40PM +0200, Jiri Kosina wrote:
-> On Fri, 22 Jun 2012, Henrik Rydberg wrote:
-> 
-> > The generic HID driver is obviously not a special driver, so move
-> > it outside of the special drivers menu. Explain the usage and make
-> > the default follow the HID setting. This should simplify migration
-> > from older kernels.
-> > 
-> > Reported-by: Jan Beulich <jbeulich@suse.com>
-> > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> > ---
-> > Hi Jiri,
-> > 
-> > As pointed out by Jan Beulich, the generic hid driver Kconfig option
-> > is confusing. This patch ought to fix most of the concerns. For 3.5.
-> 
-> The change makes sense. I'd however propose to perhaps unify 
-> CONFIG_HID_SUPPORT and CONFIG_HID, while we are at it ... ?
+Hi,
+I'm working on a module which is an input device and hence it needs to
+report certain key events.
 
-I started out doing precisely that, but I wanted the 3.5 patch to be
-as small as possible... I will increase the scope slightly and resend.
+While browsing through the <linux/input.h>, I did find most of the
+key-codes(which I need to use) already defined but not all.
 
-Cheers,
-Henrik
+Few of the KEY_xxx which i could not find are:
+
+a.) A Key for going to the previous channel.
+b.) Keys for Moving upper-right, lower-right, upper-left and
+lower-left direction(probably a GUI(or a grid of icons),where you move
+diagonally)
+d.) A key for Subpicture (this 'subpicture' key is defined in CEA-931C).
+
+Any pointers?
+
+Thanks,
+Dharam

@@ -1,60 +1,65 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH 0/4] E6 bug fix and code cleanup
-Date: Tue, 26 Jun 2012 14:46:05 -0400
-Message-ID: <4FEA036D.2050107@seas.upenn.edu>
-References: <1340660124-27323-1-git-send-email-pinglinux@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v6] Touchscreen driver for FT5x06 based EDT displays
+Date: Tue, 26 Jun 2012 21:17:56 +0200
+Message-ID: <20120626191756.GA271@polaris.bitmath.org>
+References: <1333564079-23893-2-git-send-email-simon.budig@kernelconcepts.de>
+ <1340408898-491-1-git-send-email-simon.budig@kernelconcepts.de>
+ <1340408898-491-2-git-send-email-simon.budig@kernelconcepts.de>
+ <20120625085113.GA648@polaris.bitmath.org>
+ <20120626020600.GD24705@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from talbot.seas.upenn.edu ([158.130.67.217]:56512 "EHLO
-	talbot.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757918Ab2FZSxA (ORCPT
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:33712 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751410Ab2FZTOk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jun 2012 14:53:00 -0400
-In-Reply-To: <1340660124-27323-1-git-send-email-pinglinux@gmail.com>
+	Tue, 26 Jun 2012 15:14:40 -0400
+Received: from ipb3.telenor.se (ipb3.telenor.se [195.54.127.166])
+	by smtprelay-b22.telenor.se (Postfix) with ESMTP id A4DA4C61D
+	for <linux-input@vger.kernel.org>; Tue, 26 Jun 2012 21:14:38 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <20120626020600.GD24705@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: simon.budig@kernelconcepts.de, linux-input@vger.kernel.org, olivier@sobrie.be, agust@denx.de, yanok@emcraft.com
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> Regarding extending input interface - let's talk about what is missing.
+> You mentioned memory-mapped access, but I am not sure if it should be
+> implemented within current input structure or if it should be a
+> completely separate interface. If we implement it we should also make
+> sure we stabdardize the data stream and not simply dump raw device
+> data, as this would be a sep backwards.
 
-On 06/25/12 17:35, Ping Cheng wrote:
-> The first two patches fix 0xE6 bug. The other two are just cleanup.
-> 
-> Ping Cheng (4): input - wacom: fix retrieving touch_max bug input - wacom:
-> don't retrieve touch_max when it is predefined input - wacom:
-> BTN_TOOL_DOUBLETAP is not a valid device_type input - wacom: TPC2FG doesn't
-> store touch id for slots
-> 
-> drivers/input/tablet/wacom_sys.c |    8 +++++--- 
-> drivers/input/tablet/wacom_wac.c |    6 ++++-- 2 files changed, 9
-> insertions(+), 5 deletions(-)
-> 
+>From a data perspective, what is missing is the notion of a large
+collection of values of the same kind. The immediate usecase in mind
+is of course a pressure or intensity value, mapped onto a surface. The
+current (key, value) event model works in principle, but becomes
+increasingly inefficient with increasing collection size. A simple way
+of transporting a large collection where values change sparsely is via
+a memory-mapped multi-dimensional array.
 
-Tested-by: Rafi Rubin <rafi@seas.upenn.edu>
+True, it is not given that such data needs to be incorporated into the
+current input structure, and it may be benficial not to do so; the
+memory map, be it real or device memory, serves as its own state and
+there is no need to keep any other state. However, it seems reasonable
+to inherit the input event semantics, since the data to transport is
+not new, there are only more data points of the same kind. Other
+possibilities exist, of course, such as using descriptors similar to
+HID, or a more elaborate sysfs tree, but it does not seem necessary.
 
-Applying this set of patches reverted a "dead-digitizer" regression for me.
-Tested with an E6 digitizer.
+Therefore, what I propose initially is a model of an n-dimensional,
+memory-mapped array, specififed by a set of input event types. For
+example, to formulate a matrix of pressure values in the X-Y plane,
+all you need to specify are the three values (ABS_PRESSURE, ABS_X,
+ABS_Y), listed in the preferred loop order. The value ranges are given
+by the absinfo structs, which also gives the dimension of the array.
 
-Rafi
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+The above does not need to be implemented using struct input_dev, it
+could be its own machinery, possibly using uio. Since no event drivers
+such as evdev are needed, no bus structure is needed either. The files
+could simply be exported in a manner quite similar to sysfs nodes.
 
-iQIcBAEBAgAGBQJP6gNqAAoJEPILXytRLnK2HBkQAKULqtywJeDxtbvFpRBMnQy2
-wM6zQ9yH4ofLxxuzuKj998jSU1yDb/5Nj7pWk9V0rxfvc9NF2MsypUpADYCmMabA
-CvTt1/Sgu+tanetE9t8VshvRLHCV0tpffF8s1UHyjZ8gSMzwm92b/hL8SB1KP/KC
-xrJmaYV1Kmcnr53uaBaZqCWv8wJlhK3NVa8A5izyx2UQKBYYmpBcHoUtjIDbSo0o
-sfMbmOtyW86HBXTcP+BZqID2Pp9uYDpx5EaPMdfRJpFScLW317xe8QRXFwKI8XOj
-J0LGquf8RaVvVL9HiVboYQiF/bhSo5ofWyNyhTXwJlTtSLnz8EvhdrT1SIBtuvwf
-Yuv4x5xhGBhTiJK7xixNtlE9zCGH61Fd7uhfHjlPqxU5VA8R23FxvBy9X0dd2YkZ
-1yNkhCNaZlcSK212Gjzisl+FCogNQOpjm5Jg/VMIpkXVuETZJJDBihTcmApFe7pk
-gDVT0ZG2AYBVoDa8jYRnEw9cdr5+rltV3OC2BIVjVPVfela66xZkTe7ezEgjDZsr
-pAUS/35uXY9qXk9L5f/AAOtunhJiD/5Va2CiIf/4k4DlxYHi2rvgM3E5n62Usvcx
-OHeh+HXZ6w58EqrMpxMIPC8BG5ZLx2z5y5UHviha+bZNtgc8UzbRNq3IDL0udG7M
-reef64N293NTIXdSXCvk
-=7Xpa
------END PGP SIGNATURE-----
+Thanks,
+Henrik

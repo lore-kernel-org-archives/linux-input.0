@@ -1,15 +1,15 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 12/21 v5] Input: atmel_mxt_ts - optimize writing of object table entries
-Date: Tue, 26 Jun 2012 14:57:00 +0800
-Message-ID: <1340693829-18665-13-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 20/21 v5] Input: atmel_mxt_ts - send all MT-B slots in one input report
+Date: Tue, 26 Jun 2012 14:57:08 +0800
+Message-ID: <1340693829-18665-21-git-send-email-djkurtz@chromium.org>
 References: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f202.google.com ([209.85.217.202]:39226 "EHLO
+Received: from mail-lb0-f202.google.com ([209.85.217.202]:39524 "EHLO
 	mail-lb0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757513Ab2FZG5W (ORCPT
+	with ESMTP id S1757427Ab2FZG5V (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jun 2012 02:57:22 -0400
-Received: by lbbgp10 with SMTP id gp10so348819lbb.1
+	Tue, 26 Jun 2012 02:57:21 -0400
+Received: by lbbgp10 with SMTP id gp10so348816lbb.1
         for <linux-input@vger.kernel.org>; Mon, 25 Jun 2012 23:57:20 -0700 (PDT)
 In-Reply-To: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
@@ -17,57 +17,61 @@ List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org
 Cc: Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
 
-Write each object using a single bulk i2c write transfer.
+Each interrupt contains information for all contacts with changing
+properties.  Process all of this information at once, and send it all in a
+a single input report (ie input events ending in EV_SYN/SYN_REPORT).
+
+This patch was tested using an MXT224E.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-Reviewed-by: Joonyoung Shim <jy0922.shim@samsung.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   24 ++++++++++++------------
- 1 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   15 ++++++++++-----
+ 1 files changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index d9e7e68..c16fd9c 100644
+index b218b5f..f9a9be9 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -654,7 +654,8 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 	struct mxt_object *object;
- 	struct device *dev = &data->client->dev;
- 	int index = 0;
--	int i, j, config_offset;
-+	int i, size;
-+	int ret;
- 
- 	if (!pdata->config) {
- 		dev_dbg(dev, "No cfg data defined, skipping reg init\n");
-@@ -667,18 +668,17 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 		if (!mxt_object_writable(object->type))
- 			continue;
- 
--		for (j = 0;
--		     j < (object->size + 1) * (object->instances + 1);
--		     j++) {
--			config_offset = index + j;
--			if (config_offset > pdata->config_length) {
--				dev_err(dev, "Not enough config data!\n");
--				return -EINVAL;
--			}
--			mxt_write_object(data, object->type, j,
--					 pdata->config[config_offset]);
-+		size = (object->size + 1) * (object->instances + 1);
-+		if (index + size > pdata->config_length) {
-+			dev_err(dev, "Not enough config data!\n");
-+			return -EINVAL;
- 		}
--		index += (object->size + 1) * (object->instances + 1);
-+
-+		ret = __mxt_write_reg(data->client, object->start_address,
-+				size, &pdata->config[index]);
-+		if (ret)
-+			return ret;
-+		index += size;
+@@ -546,9 +546,6 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 		input_report_abs(input_dev, ABS_MT_PRESSURE, pressure);
+ 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
  	}
+-
+-	input_mt_report_pointer_emulation(input_dev, false);
+-	input_sync(input_dev);
+ }
  
- 	return 0;
+ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+@@ -560,6 +557,7 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 	u8 reportid;
+ 	u8 max_reportid;
+ 	u8 min_reportid;
++	bool update_input = false;
+ 
+ 	do {
+ 		if (mxt_read_message(data, &message)) {
+@@ -573,12 +571,19 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 		min_reportid = data->T9_reportid_min;
+ 		id = reportid - min_reportid;
+ 
+-		if (reportid >= min_reportid && reportid <= max_reportid)
++		if (reportid >= min_reportid && reportid <= max_reportid) {
+ 			mxt_input_touchevent(data, &message, id);
+-		else
++			update_input = true;
++		} else {
+ 			mxt_dump_message(dev, &message);
++		}
+ 	} while (reportid != 0xff);
+ 
++	if (update_input) {
++		input_mt_report_pointer_emulation(data->input_dev, false);
++		input_sync(data->input_dev);
++	}
++
+ end:
+ 	return IRQ_HANDLED;
+ }
 -- 
 1.7.7.3
 

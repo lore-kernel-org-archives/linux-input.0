@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 17/21 v5] Input: atmel_mxt_ts - add detail to touchevent debug message
-Date: Tue, 26 Jun 2012 14:57:05 +0800
-Message-ID: <1340693829-18665-18-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 21/21 v5] Input: atmel_mxt_ts - parse T6 reports
+Date: Tue, 26 Jun 2012 14:57:09 +0800
+Message-ID: <1340693829-18665-22-git-send-email-djkurtz@chromium.org>
 References: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
@@ -10,50 +10,76 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromai
 Cc: Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-Update the debug message:
- * print inidividual status bits
- * print the pressure value
- * use '%u' for unsigned quantities
+The normal messages sent after boot or NVRAM update are T6 reports,
+containing a status, and the config memory checksum.  Parse them and dump
+a useful info message.
+
+This patch tested on an MXT224E.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   17 ++++++++++++++---
- 1 files changed, 14 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   21 ++++++++++++++-------
+ 1 files changed, 14 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index c4e6747..7b042e5 100644
+index f9a9be9..8350bcc 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -195,6 +195,7 @@
- #define MXT_BOOT_STATUS_MASK	0x3f
+@@ -248,6 +248,7 @@ struct mxt_data {
+ 	unsigned int max_y;
  
- /* Touch status */
-+#define MXT_UNGRIP		(1 << 0)
- #define MXT_SUPPRESS		(1 << 1)
- #define MXT_AMP			(1 << 2)
- #define MXT_VECTOR		(1 << 3)
-@@ -530,9 +531,19 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 	area = message->message[4];
- 	pressure = message->message[5];
+ 	/* Cached parameters from object table */
++	u8 T6_reportid;
+ 	u8 T9_reportid_min;
+ 	u8 T9_reportid_max;
+ };
+@@ -555,8 +556,6 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 	struct device *dev = &data->client->dev;
+ 	int id;
+ 	u8 reportid;
+-	u8 max_reportid;
+-	u8 min_reportid;
+ 	bool update_input = false;
  
--	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
--		status & MXT_MOVE ? "moved" : "pressed",
--		x, y, area);
-+	dev_dbg(dev,
-+		"[%u] %c%c%c%c%c%c%c%c x: %5u y: %5u area: %3u amp: %3u\n",
-+		id,
-+		(status & MXT_DETECT) ? 'D' : '.',
-+		(status & MXT_PRESS) ? 'P' : '.',
-+		(status & MXT_RELEASE) ? 'R' : '.',
-+		(status & MXT_MOVE) ? 'M' : '.',
-+		(status & MXT_VECTOR) ? 'V' : '.',
-+		(status & MXT_AMP) ? 'A' : '.',
-+		(status & MXT_SUPPRESS) ? 'S' : '.',
-+		(status & MXT_UNGRIP) ? 'U' : '.',
-+		x, y, area, pressure);
-+
- 	input_mt_slot(input_dev, id);
- 	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
- 				   status & MXT_DETECT);
+ 	do {
+@@ -567,11 +566,15 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 
+ 		reportid = message.reportid;
+ 
+-		max_reportid = data->T9_reportid_max;
+-		min_reportid = data->T9_reportid_min;
+-		id = reportid - min_reportid;
+-
+-		if (reportid >= min_reportid && reportid <= max_reportid) {
++		if (reportid == data->T6_reportid) {
++			unsigned csum = message.message[1] |
++					(message.message[2] << 8) |
++					(message.message[3] << 16);
++			dev_dbg(dev, "Status: %02x Config Checksum: %06x\n",
++				message.message[0], csum);
++		} else if (reportid >= data->T9_reportid_min &&
++			    reportid <= data->T9_reportid_max) {
++			id = reportid - data->T9_reportid_min;
+ 			mxt_input_touchevent(data, &message, id);
+ 			update_input = true;
+ 		} else {
+@@ -749,6 +752,9 @@ static int mxt_get_object_table(struct mxt_data *data)
+ 			 object->instances + 1, min_id, max_id);
+ 
+ 		switch (object->type) {
++		case MXT_GEN_COMMAND_T6:
++			data->T6_reportid = min_id;
++			break;
+ 		case MXT_TOUCH_MULTI_T9:
+ 			data->T9_reportid_min = min_id;
+ 			data->T9_reportid_max = max_id;
+@@ -1008,6 +1014,7 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 		/* Destroy old object table and any cached fields */
+ 		kfree(data->object_table);
+ 		data->object_table = NULL;
++		data->T6_reportid = 0;
+ 		data->T9_reportid_min = 0;
+ 		data->T9_reportid_max = 0;
+ 
 -- 
 1.7.7.3

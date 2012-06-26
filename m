@@ -1,15 +1,15 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 20/21 v5] Input: atmel_mxt_ts - send all MT-B slots in one input report
-Date: Tue, 26 Jun 2012 14:57:08 +0800
-Message-ID: <1340693829-18665-21-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 19/21 v5] Input: atmel_mxt_ts - use T9 reportid range to init number of mt slots
+Date: Tue, 26 Jun 2012 14:57:07 +0800
+Message-ID: <1340693829-18665-20-git-send-email-djkurtz@chromium.org>
 References: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f202.google.com ([209.85.217.202]:39524 "EHLO
-	mail-lb0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757427Ab2FZG5V (ORCPT
+Received: from mail-wg0-f74.google.com ([74.125.82.74]:54372 "EHLO
+	mail-wg0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757471Ab2FZG5V (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Tue, 26 Jun 2012 02:57:21 -0400
-Received: by lbbgp10 with SMTP id gp10so348816lbb.1
+Received: by wgbdt11 with SMTP id dt11so286842wgb.1
         for <linux-input@vger.kernel.org>; Mon, 25 Jun 2012 23:57:20 -0700 (PDT)
 In-Reply-To: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
@@ -17,61 +17,74 @@ List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org
 Cc: Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
 
-Each interrupt contains information for all contacts with changing
-properties.  Process all of this information at once, and send it all in a
-a single input report (ie input events ending in EV_SYN/SYN_REPORT).
+Atmel mxt devices can report one finger for each T9 reportid.
+Therefore, this range can be used to report the max number of MT-B slots
+to userspace instead of assuming a fixed 10.
 
-This patch was tested using an MXT224E.
+Note that mxt_initialized() must complete early, since the input_dev
+properties now depend on values in the object table.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   15 ++++++++++-----
- 1 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index b218b5f..f9a9be9 100644
+index 4da12a9..b218b5f 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -546,9 +546,6 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 		input_report_abs(input_dev, ABS_MT_PRESSURE, pressure);
- 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
- 	}
+@@ -212,8 +212,6 @@
+ /* Touchscreen absolute values */
+ #define MXT_MAX_AREA		0xff
+ 
+-#define MXT_MAX_FINGER		10
 -
--	input_mt_report_pointer_emulation(input_dev, false);
--	input_sync(input_dev);
- }
+ struct mxt_info {
+ 	u8 family_id;
+ 	u8 variant_id;
+@@ -1074,6 +1072,7 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 	struct mxt_data *data;
+ 	struct input_dev *input_dev;
+ 	int error;
++	unsigned int num_mt_slots;
  
- static irqreturn_t mxt_interrupt(int irq, void *dev_id)
-@@ -560,6 +557,7 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- 	u8 reportid;
- 	u8 max_reportid;
- 	u8 min_reportid;
-+	bool update_input = false;
+ 	if (!pdata)
+ 		return -EINVAL;
+@@ -1103,6 +1102,10 @@ static int __devinit mxt_probe(struct i2c_client *client,
  
- 	do {
- 		if (mxt_read_message(data, &message)) {
-@@ -573,12 +571,19 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- 		min_reportid = data->T9_reportid_min;
- 		id = reportid - min_reportid;
+ 	mxt_calc_resolution(data);
  
--		if (reportid >= min_reportid && reportid <= max_reportid)
-+		if (reportid >= min_reportid && reportid <= max_reportid) {
- 			mxt_input_touchevent(data, &message, id);
--		else
-+			update_input = true;
-+		} else {
- 			mxt_dump_message(dev, &message);
-+		}
- 	} while (reportid != 0xff);
- 
-+	if (update_input) {
-+		input_mt_report_pointer_emulation(data->input_dev, false);
-+		input_sync(data->input_dev);
-+	}
++	error = mxt_initialize(data);
++	if (error)
++		goto err_free_object;
 +
- end:
- 	return IRQ_HANDLED;
- }
+ 	__set_bit(EV_ABS, input_dev->evbit);
+ 	__set_bit(EV_KEY, input_dev->evbit);
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
+@@ -1116,9 +1119,10 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 			     0, 255, 0, 0);
+ 
+ 	/* For multi touch */
+-	error = input_mt_init_slots(input_dev, MXT_MAX_FINGER);
++	num_mt_slots = data->T9_reportid_max - data->T9_reportid_min + 1;
++	error = input_mt_init_slots(input_dev, num_mt_slots);
+ 	if (error)
+-		goto err_free_mem;
++		goto err_free_object;
+ 	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
+ 			     0, MXT_MAX_AREA, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+@@ -1131,10 +1135,6 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 	input_set_drvdata(input_dev, data);
+ 	i2c_set_clientdata(client, data);
+ 
+-	error = mxt_initialize(data);
+-	if (error)
+-		goto err_free_object;
+-
+ 	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
+ 			pdata->irqflags, client->name, data);
+ 	if (error) {
 -- 
 1.7.7.3
 

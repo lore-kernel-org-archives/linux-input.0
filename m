@@ -1,81 +1,94 @@
 From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Subject: RE: [PATCH, 0/6] HID-Sensors v3
-Date: Tue, 26 Jun 2012 15:59:13 +0000
-Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A91933EBBB@ORSMSX104.amr.corp.intel.com>
+Subject: RE: [PATCH, 2/6] HID-Sensors: Sensor framework
+Date: Tue, 26 Jun 2012 16:00:27 +0000
+Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A91933EBDE@ORSMSX104.amr.corp.intel.com>
 References: <1340672054-16591-1-git-send-email-srinivas.pandruvada@intel.com>
- <alpine.LNX.2.00.1206261402130.18612@pobox.suse.cz>
+ <1340672054-16591-3-git-send-email-srinivas.pandruvada@intel.com>
+ <alpine.LNX.2.00.1206261356160.18612@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:8923 "EHLO mga01.intel.com"
+Received: from mga01.intel.com ([192.55.52.88]:33469 "EHLO mga01.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757918Ab2FZP7P convert rfc822-to-8bit (ORCPT
+	id S1757849Ab2FZQA3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jun 2012 11:59:15 -0400
-In-Reply-To: <alpine.LNX.2.00.1206261402130.18612@pobox.suse.cz>
+	Tue, 26 Jun 2012 12:00:29 -0400
+In-Reply-To: <alpine.LNX.2.00.1206261356160.18612@pobox.suse.cz>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
 Cc: "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "jic23.cam.ac.uk@suse.de" <jic23.cam.ac.uk@suse.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-That is a good idea. I will submit a patch for documentation.
+OK. I can use debugfs. If you have some other comments, I can bundle all of them together in the next set.
 
 Thanks,
 Srinivas
 
 -----Original Message-----
-From: Jiri Kosina [mailto:jkosina@suse.cz] 
-Sent: Tuesday, June 26, 2012 5:04 AM
+From: linux-iio-owner@vger.kernel.org [mailto:linux-iio-owner@vger.kernel.org] On Behalf Of Jiri Kosina
+Sent: Tuesday, June 26, 2012 5:02 AM
 To: Pandruvada, Srinivas
 Cc: linux-iio@vger.kernel.org; jic23.cam.ac.uk@suse.de; linux-input@vger.kernel.org
-Subject: Re: [PATCH, 0/6] HID-Sensors v3
+Subject: Re: [PATCH, 2/6] HID-Sensors: Sensor framework
 
 On Mon, 25 Jun 2012, srinivas pandruvada wrote:
 
-> v3 :
-> - Using TRIGGERRED BUFFER
+> Adding processing for HID Sensor usage table as defined by HID 1.12, 
+> Request #: HUTRR39, dated 05 May, 2011.
+> This driver uses HID driver framework to register, send and receive 
+> events.
+> This uses MFD framework, so that actual processing for a specific 
+> usage id can be done in a different driver. For example an 
+> accelerometer driver can be a separate driver and use the interface 
+> provided by this driver to register for events.
 > 
-> - Using MFD framework
-> The sensor hub driver is submiited to drivers/hid. This contains core 
-> processing of hid sensor usage table, registers as an hid driver and 
-> adds registration function for routing data to individual sensor 
-> driver. So core driver independent of user mode interface method 
-> (IIO/input etc.)
+> Signed-off-by: srinivas pandruvada <srinivas.pandruvada@intel.com>
+> ---
+>  drivers/hid/Kconfig            |   18 +
+>  drivers/hid/Makefile           |    1 +
+>  drivers/hid/hid-sensor-hub.c   |  883 ++++++++++++++++++++++++++++++++++++++++
+>  include/linux/hid-sensor-hub.h |   99 +++++
+>  include/linux/hid-sensor-ids.h |  116 ++++++
+>  5 files changed, 1117 insertions(+), 0 deletions(-)  create mode 
+> 100644 drivers/hid/hid-sensor-hub.c  create mode 100644 
+> include/linux/hid-sensor-hub.h  create mode 100644 
+> include/linux/hid-sensor-ids.h
 > 
-> - Submiiting four drivers for Accelerometer-3D, Gyro-3D, Compass-3D 
-> and ALS. These uses IIO triggered buffer interface. They are childrens of hid sensor hub driver.
-> They reside in iio/accel, iio/gyro iio/magnetometer and iio/light.
-> 
-> - Still using driver/staging/iio. Not able to test with driver/iio.
-> 
-> v2 :
-> - Replaced Ring-SW with KFiFO
-> - Accel-3d, Gyro-3D and Compass-3D uses 3 different channels for X, Y 
-> and Z
-> - SysFS (
-> --- Changed "polling_interval" to sampling_frequency 
-> (IIO_DEV_ATTR_SAMP_FREQ) with units HZ
-> --- Changed "sensitivity" to hyst_raw, which is already used by some 
-> ADC modules
-> --- Removed "Activate". No longer need this. Using trigger state to 
-> activate/deactivate
-> )
-> - Removed sysfs attributes for "xxx_offset". Instead using mask 0 in 
-> read_raw. So each sensor have only channels, sampling_frequency and hyst_raw as the ABI.
-> - Additional patch to enable ST Micro sensor hub
-> 
-> v1:
-> Base implementation for comments
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig index 
+> ffddcba..0c86ab0 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -644,6 +644,24 @@ config HID_ZYDACRON
+>  	---help---
+>  	Support for Zydacron remote control.
+>  
+> +config HID_SENSOR_HUB
+> +	tristate "HID Sensors framework support"
+> +	depends on USB_HID
+> +	select MFD_CORE
+> +	default n
+> +	-- help---
+> +	  Support for HID Sensor framework. This will provide MFD framework for
+> +	  adding different sensors, using HID sensor usage table. This defines
+> +	  a set of interface functions to register callbacks for events so
+> +	  that the events are transferred to user space using either input
+> +	  or IIO ineterfaces.
+> +
+> +config HID_SENSOR_HUB_DEBUG
+> +	tristate "HID Sensor debug support"
+> +	default n
+> +	-- help---
+> +	  Debug support for Hid sensors. Enable this flag to debug only.
+> +
 
-Could you perhaps please provide somewhere (Documentation/hid/* or
-whatever) some overview about the general infrastructure design?
+Why not use debugfs (which is what the rest of the HID code and drivers do for debugging)?
 
-It's not immediately obvious to me how exactly the interaction between your hid-sensor-hub driver, MFD and IIO is going to look like.
-
-If I understand it correctly, hid-sensor-hub will have to bind to all the supported devices in any case, and the distribution to other drivers that will be doing the processing will be done through callbacks, right?
+Thanks,
 
 --
 Jiri Kosina
 SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-iio" in the body of a message to majordomo@vger.kernel.org More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,90 +1,96 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 07/21 v5] Input: atmel_mxt_ts - optimize reading objects in object sysfs entry
-Date: Tue, 26 Jun 2012 14:56:55 +0800
-Message-ID: <1340693829-18665-8-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 10/21 v5] Input: atmel_mxt_ts - return errors from i2c layer
+Date: Tue, 26 Jun 2012 14:56:58 +0800
+Message-ID: <1340693829-18665-11-git-send-email-djkurtz@chromium.org>
 References: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-fa0-f74.google.com ([209.85.161.74]:33323 "EHLO
+	mail-fa0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757091Ab2FZG5U (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Jun 2012 02:57:20 -0400
+Received: by fat25 with SMTP id 25so285888fat.1
+        for <linux-input@vger.kernel.org>; Mon, 25 Jun 2012 23:57:19 -0700 (PDT)
 In-Reply-To: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org
 Cc: Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
-List-Id: linux-input@vger.kernel.org
 
-Read each object in a single i2c transaction instead of byte-by-byte
+The i2c layer can report a variety of errors, including -ENXIO for an i2c
+NAK.  Instead of treating them all as -EIO, pass the actual i2c layer
+error up to the caller.
+
+However, still report as -EIO the unlikely case that a transaction was
+partially completed, and no error message was returned from i2c_*().
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   35 ++++++++++++-----------------
- 1 files changed, 15 insertions(+), 20 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   28 ++++++++++++++++++++--------
+ 1 files changed, 20 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 55855b8..94dd1d1 100644
+index 25d3dd5..3672553 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -479,20 +479,6 @@ static int mxt_read_message(struct mxt_data *data,
- 			sizeof(struct mxt_message), message);
- }
- 
--static int mxt_read_object(struct mxt_data *data,
--				u8 type, u8 offset, u8 *val)
--{
--	struct mxt_object *object;
--	u16 reg;
--
--	object = mxt_get_object(data, type);
--	if (!object)
--		return -EINVAL;
--
--	reg = object->start_address;
--	return __mxt_read_reg(data->client, reg + offset, 1, val);
--}
--
- static int mxt_write_object(struct mxt_data *data,
- 				 u8 type, u8 offset, u8 val)
+@@ -396,6 +396,7 @@ static int __mxt_read_reg(struct i2c_client *client,
  {
-@@ -900,7 +886,14 @@ static ssize_t mxt_object_show(struct device *dev,
- 	int i, j;
- 	int error;
- 	u8 val;
-+	u8 *obuf;
-+
-+	/* Pre-allocate buffer large enough to hold max sized object. */
-+	obuf = kmalloc(256, GFP_KERNEL);
-+	if (!obuf)
-+		return -ENOMEM;
+ 	struct i2c_msg xfer[2];
+ 	u8 buf[2];
++	int ret;
  
-+	error = 0;
- 	for (i = 0; i < data->info.object_num; i++) {
- 		object = data->object_table + i;
+ 	buf[0] = reg & 0xff;
+ 	buf[1] = (reg >> 8) & 0xff;
+@@ -412,12 +413,17 @@ static int __mxt_read_reg(struct i2c_client *client,
+ 	xfer[1].len = len;
+ 	xfer[1].buf = val;
  
-@@ -914,20 +907,22 @@ static ssize_t mxt_object_show(struct device *dev,
- 			continue;
- 		}
- 
-+		error = __mxt_read_reg(data->client, object->start_address,
-+				object->size + 1, obuf);
-+		if (error)
-+			break;
-+
- 		for (j = 0; j < object->size + 1; j++) {
--			error = mxt_read_object(data,
--						object->type, j, &val);
--			if (error)
--				return error;
-+			val = obuf[j];
- 
- 			count += scnprintf(buf + count, PAGE_SIZE - count,
- 					"\t[%2d]: %02x (%d)\n", j, val, val);
- 		}
--
- 		count += scnprintf(buf + count, PAGE_SIZE - count, "\n");
+-	if (i2c_transfer(client->adapter, xfer, 2) != 2) {
+-		dev_err(&client->dev, "%s: i2c transfer failed\n", __func__);
+-		return -EIO;
++	ret = i2c_transfer(client->adapter, xfer, 2);
++	if (ret == 2) {
++		ret = 0;
++	} else {
++		if (ret >= 0)
++			ret = -EIO;
++		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
++			__func__, ret);
  	}
  
--	return count;
-+	kfree(obuf);
-+	return error ?: count;
+-	return 0;
++	return ret;
  }
  
- static int mxt_load_fw(struct device *dev, const char *fn)
+ static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
+@@ -428,17 +434,23 @@ static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
+ static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
+ {
+ 	u8 buf[3];
++	int ret;
+ 
+ 	buf[0] = reg & 0xff;
+ 	buf[1] = (reg >> 8) & 0xff;
+ 	buf[2] = val;
+ 
+-	if (i2c_master_send(client, buf, 3) != 3) {
+-		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
+-		return -EIO;
++	ret = i2c_master_send(client, buf, 3);
++	if (ret == 3) {
++		ret = 0;
++	} else {
++		if (ret >= 0)
++			ret = -EIO;
++		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
++			__func__, ret);
+ 	}
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int mxt_read_object_table(struct i2c_client *client,
 -- 
 1.7.7.3
+

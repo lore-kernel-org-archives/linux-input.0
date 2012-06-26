@@ -1,72 +1,61 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH, 2/6] HID-Sensors: Sensor framework
-Date: Tue, 26 Jun 2012 14:02:08 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1206261356160.18612@pobox.suse.cz>
-References: <1340672054-16591-1-git-send-email-srinivas.pandruvada@intel.com> <1340672054-16591-3-git-send-email-srinivas.pandruvada@intel.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH, 0/6] HID-Sensors v3
+Date: Tue, 26 Jun 2012 14:03:55 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1206261402130.18612@pobox.suse.cz>
+References: <1340672054-16591-1-git-send-email-srinivas.pandruvada@intel.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1340672054-16591-3-git-send-email-srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: srinivas pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23.cam.ac.uk-l3A5Bk7waGM@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:54084 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754298Ab2FZMEC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Jun 2012 08:04:02 -0400
+In-Reply-To: <1340672054-16591-1-git-send-email-srinivas.pandruvada@intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: srinivas pandruvada <srinivas.pandruvada@intel.com>
+Cc: linux-iio@vger.kernel.org, jic23.cam.ac.uk@suse.de, linux-input@vger.kernel.org
 
 On Mon, 25 Jun 2012, srinivas pandruvada wrote:
 
-> Adding processing for HID Sensor usage table as defined by
-> HID 1.12, Request #: HUTRR39, dated 05 May, 2011.
-> This driver uses HID driver framework to register, send and
-> receive events.
-> This uses MFD framework, so that actual processing for a
-> specific usage id can be done in a different driver. For
-> example an accelerometer driver can be a separate driver and
-> use the interface provided by this driver to register for
-> events.
+> v3 :
+> - Using TRIGGERRED BUFFER
 > 
-> Signed-off-by: srinivas pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/hid/Kconfig            |   18 +
->  drivers/hid/Makefile           |    1 +
->  drivers/hid/hid-sensor-hub.c   |  883 ++++++++++++++++++++++++++++++++++++++++
->  include/linux/hid-sensor-hub.h |   99 +++++
->  include/linux/hid-sensor-ids.h |  116 ++++++
->  5 files changed, 1117 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/hid/hid-sensor-hub.c
->  create mode 100644 include/linux/hid-sensor-hub.h
->  create mode 100644 include/linux/hid-sensor-ids.h
+> - Using MFD framework
+> The sensor hub driver is submiited to drivers/hid. This contains core processing of hid sensor
+> usage table, registers as an hid driver and adds registration function for routing data
+> to individual sensor driver. So core driver independent of user mode interface method (IIO/input etc.)
 > 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index ffddcba..0c86ab0 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -644,6 +644,24 @@ config HID_ZYDACRON
->  	---help---
->  	Support for Zydacron remote control.
->  
-> +config HID_SENSOR_HUB
-> +	tristate "HID Sensors framework support"
-> +	depends on USB_HID
-> +	select MFD_CORE
-> +	default n
-> +	-- help---
-> +	  Support for HID Sensor framework. This will provide MFD framework for
-> +	  adding different sensors, using HID sensor usage table. This defines
-> +	  a set of interface functions to register callbacks for events so
-> +	  that the events are transferred to user space using either input
-> +	  or IIO ineterfaces.
-> +
-> +config HID_SENSOR_HUB_DEBUG
-> +	tristate "HID Sensor debug support"
-> +	default n
-> +	-- help---
-> +	  Debug support for Hid sensors. Enable this flag to debug only.
-> +
+> - Submiiting four drivers for Accelerometer-3D, Gyro-3D, Compass-3D and ALS. These uses IIO triggered
+> buffer interface. They are childrens of hid sensor hub driver.
+> They reside in iio/accel, iio/gyro iio/magnetometer and iio/light.
+> 
+> - Still using driver/staging/iio. Not able to test with driver/iio.
+> 
+> v2 :
+> - Replaced Ring-SW with KFiFO
+> - Accel-3d, Gyro-3D and Compass-3D uses 3 different channels for X, Y and Z
+> - SysFS (
+> --- Changed "polling_interval" to sampling_frequency (IIO_DEV_ATTR_SAMP_FREQ) with units HZ
+> --- Changed "sensitivity" to hyst_raw, which is already used by some ADC modules
+> --- Removed "Activate". No longer need this. Using trigger state to activate/deactivate
+> )
+> - Removed sysfs attributes for "xxx_offset". Instead using mask 0 in read_raw. So each
+> sensor have only channels, sampling_frequency and hyst_raw as the ABI.
+> - Additional patch to enable ST Micro sensor hub 
+> 
+> v1:
+> Base implementation for comments
 
-Why not use debugfs (which is what the rest of the HID code and drivers do 
-for debugging)?
+Could you perhaps please provide somewhere (Documentation/hid/* or 
+whatever) some overview about the general infrastructure design?
 
-Thanks,
+It's not immediately obvious to me how exactly the interaction between 
+your hid-sensor-hub driver, MFD and IIO is going to look like.
+
+If I understand it correctly, hid-sensor-hub will have to bind to all the 
+supported devices in any case, and the distribution to other drivers that 
+will be doing the processing will be done through callbacks, right?
 
 -- 
 Jiri Kosina

@@ -1,94 +1,47 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Subject: RE: [PATCH, 2/6] HID-Sensors: Sensor framework
-Date: Tue, 26 Jun 2012 16:00:27 +0000
-Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A91933EBDE@ORSMSX104.amr.corp.intel.com>
-References: <1340672054-16591-1-git-send-email-srinivas.pandruvada@intel.com>
- <1340672054-16591-3-git-send-email-srinivas.pandruvada@intel.com>
- <alpine.LNX.2.00.1206261356160.18612@pobox.suse.cz>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v6] Touchscreen driver for FT5x06 based EDT displays
+Date: Tue, 26 Jun 2012 20:21:37 +0200
+Message-ID: <20120626182137.GA259@polaris.bitmath.org>
+References: <1333564079-23893-2-git-send-email-simon.budig@kernelconcepts.de>
+ <1340408898-491-1-git-send-email-simon.budig@kernelconcepts.de>
+ <1340408898-491-2-git-send-email-simon.budig@kernelconcepts.de>
+ <20120625085113.GA648@polaris.bitmath.org>
+ <20120626020600.GD24705@core.coreip.homeip.net>
+ <4FE97B99.9050506@kernelconcepts.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:33469 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757849Ab2FZQA3 convert rfc822-to-8bit (ORCPT
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:34606 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758903Ab2FZSSW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jun 2012 12:00:29 -0400
-In-Reply-To: <alpine.LNX.2.00.1206261356160.18612@pobox.suse.cz>
-Content-Language: en-US
+	Tue, 26 Jun 2012 14:18:22 -0400
+Received: from ipb3.telenor.se (ipb3.telenor.se [195.54.127.166])
+	by smtprelay-b11.telenor.se (Postfix) with ESMTP id 6B38ACE15
+	for <linux-input@vger.kernel.org>; Tue, 26 Jun 2012 20:18:20 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <4FE97B99.9050506@kernelconcepts.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "jic23.cam.ac.uk@suse.de" <jic23.cam.ac.uk@suse.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Simon Budig <simon.budig@kernelconcepts.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, olivier@sobrie.be, agust@denx.de, yanok@emcraft.com
 
-OK. I can use debugfs. If you have some other comments, I can bundle all of them together in the next set.
+> So yeah, the raw data is not as useful as one might hope and I am
+> perfectly fine with moving it (together with the "mode" parameter) to
+> the debugfs.
 
-Thanks,
-Srinivas
+Great, thanks.
 
------Original Message-----
-From: linux-iio-owner@vger.kernel.org [mailto:linux-iio-owner@vger.kernel.org] On Behalf Of Jiri Kosina
-Sent: Tuesday, June 26, 2012 5:02 AM
-To: Pandruvada, Srinivas
-Cc: linux-iio@vger.kernel.org; jic23.cam.ac.uk@suse.de; linux-input@vger.kernel.org
-Subject: Re: [PATCH, 2/6] HID-Sensors: Sensor framework
+> I think adding gain/offset/threshold to the platform data makes a lot
+> of sense, since different defaults for devices with a 4mm glass plate
+> in front of the sensor are necessary and can be done in the board
+> file. However, I think it has to be possible to change them at
+> runtime, and I don't think that is a debug only thing. Hence I'd
+> prefer to have them somewhere else than in debugfs.
 
-On Mon, 25 Jun 2012, srinivas pandruvada wrote:
-
-> Adding processing for HID Sensor usage table as defined by HID 1.12, 
-> Request #: HUTRR39, dated 05 May, 2011.
-> This driver uses HID driver framework to register, send and receive 
-> events.
-> This uses MFD framework, so that actual processing for a specific 
-> usage id can be done in a different driver. For example an 
-> accelerometer driver can be a separate driver and use the interface 
-> provided by this driver to register for events.
-> 
-> Signed-off-by: srinivas pandruvada <srinivas.pandruvada@intel.com>
-> ---
->  drivers/hid/Kconfig            |   18 +
->  drivers/hid/Makefile           |    1 +
->  drivers/hid/hid-sensor-hub.c   |  883 ++++++++++++++++++++++++++++++++++++++++
->  include/linux/hid-sensor-hub.h |   99 +++++
->  include/linux/hid-sensor-ids.h |  116 ++++++
->  5 files changed, 1117 insertions(+), 0 deletions(-)  create mode 
-> 100644 drivers/hid/hid-sensor-hub.c  create mode 100644 
-> include/linux/hid-sensor-hub.h  create mode 100644 
-> include/linux/hid-sensor-ids.h
-> 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig index 
-> ffddcba..0c86ab0 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -644,6 +644,24 @@ config HID_ZYDACRON
->  	---help---
->  	Support for Zydacron remote control.
->  
-> +config HID_SENSOR_HUB
-> +	tristate "HID Sensors framework support"
-> +	depends on USB_HID
-> +	select MFD_CORE
-> +	default n
-> +	-- help---
-> +	  Support for HID Sensor framework. This will provide MFD framework for
-> +	  adding different sensors, using HID sensor usage table. This defines
-> +	  a set of interface functions to register callbacks for events so
-> +	  that the events are transferred to user space using either input
-> +	  or IIO ineterfaces.
-> +
-> +config HID_SENSOR_HUB_DEBUG
-> +	tristate "HID Sensor debug support"
-> +	default n
-> +	-- help---
-> +	  Debug support for Hid sensors. Enable this flag to debug only.
-> +
-
-Why not use debugfs (which is what the rest of the HID code and drivers do for debugging)?
+This sounds like a reasonable compromise. It removes the direct need
+for userspace tuning, but leaves the possibility open for the so
+inclined.
 
 Thanks,
-
---
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-iio" in the body of a message to majordomo@vger.kernel.org More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Henrik

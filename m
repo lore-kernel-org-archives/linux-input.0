@@ -1,67 +1,77 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 00/21 v5] cleanup atmel_mxt_ts
-Date: Tue, 26 Jun 2012 14:56:48 +0800
-Message-ID: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 15/21 v5] Input: atmel_mxt_ts - add sysfs entries to read fw and hw version
+Date: Tue, 26 Jun 2012 14:57:03 +0800
+Message-ID: <1340693829-18665-16-git-send-email-djkurtz@chromium.org>
+References: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f202.google.com ([209.85.212.202]:64651 "EHLO
-	mail-wi0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756894Ab2FZG5T (ORCPT
+Received: from mail-lb0-f202.google.com ([209.85.217.202]:57213 "EHLO
+	mail-lb0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757370Ab2FZG5V (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jun 2012 02:57:19 -0400
-Received: by wibhr14 with SMTP id hr14so115159wib.1
-        for <linux-input@vger.kernel.org>; Mon, 25 Jun 2012 23:57:17 -0700 (PDT)
+	Tue, 26 Jun 2012 02:57:21 -0400
+Received: by lbbgp10 with SMTP id gp10so348813lbb.1
+        for <linux-input@vger.kernel.org>; Mon, 25 Jun 2012 23:57:19 -0700 (PDT)
+In-Reply-To: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org
 Cc: Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
 
-This patchset cleans up the atmel_mxt_ts touchscreen driver.
+Make firmware and hardware version strings available to userspace.
+This is useful, for example, to allow a userspace program to implement
+a firwmare update policy.
 
-These patches mostly contain non-controversial changes that were previously
-reviewed in previous versions of the patchset.  However, based on feedback from
-Henrik, the individual patches are now all much smaller and easier to review.
+Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c |   24 ++++++++++++++++++++++++
+ 1 files changed, 24 insertions(+), 0 deletions(-)
 
-They were tested using an MXT224E, and apply cleanly to input/next.
-
-Whenever these patches (or their descendants) are accepted, there is a larger
-patchset full of additional features and more significant changes that will
-follow.
-
-Changes in v5:
- * Fixed phys per Dmitry's comments
- * Removed "re-read matrix after applying pdata" per Nick
- * T6 spew changd to dev_dbg per Nick
-
-
-Daniel Kurtz (21):
-  Input: atmel_mxt_ts - derive phys from i2c client adapter
-  Input: atmel_mxt_ts - use client name for irq
-  Input: atmel_mxt_ts - detect OOM when creating mt slots
-  Input: atmel_mxt_ts - warn if sysfs could not be created
-  Input: atmel_mxt_ts - don't read T5 when dumping objects
-  Input: atmel_mxt_ts - use scnprintf for object sysfs entry
-  Input: atmel_mxt_ts - optimize reading objects in object sysfs entry
-  Input: atmel_mxt_ts - print less overhead when dumping objects
-  Input: atmel_mxt_ts - print all instances when dumping objects
-  Input: atmel_mxt_ts - return errors from i2c layer
-  Input: atmel_mxt_ts - add variable length __mxt_write_reg
-  Input: atmel_mxt_ts - optimize writing of object table entries
-  Input: atmel_mxt_ts - read ID information block in one i2c
-    transaction
-  Input: atmel_mxt_ts - update driver ID info logging
-  Input: atmel_mxt_ts - add sysfs entries to read fw and hw version
-  Input: atmel_mxt_ts - simplify event reporting
-  Input: atmel_mxt_ts - add detail to touchevent debug message
-  Input: atmel_mxt_ts - cache T9 reportid range when reading object
-    table
-  Input: atmel_mxt_ts - use T9 reportid range to init number of mt
-    slots
-  Input: atmel_mxt_ts - send all MT-B slots in one input report
-  Input: atmel_mxt_ts - parse T6 reports
-
- drivers/input/touchscreen/atmel_mxt_ts.c |  438 +++++++++++++++---------------
- 1 files changed, 217 insertions(+), 221 deletions(-)
-
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index be7da72..0baff14 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -881,6 +881,26 @@ static void mxt_calc_resolution(struct mxt_data *data)
+ 	}
+ }
+ 
++/* Firmware Version is returned as Major.Minor.Build */
++static ssize_t mxt_fw_version_show(struct device *dev,
++				   struct device_attribute *attr, char *buf)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	struct mxt_info *info = &data->info;
++	return scnprintf(buf, PAGE_SIZE, "%u.%u.%02X\n",
++			 info->version >> 4, info->version & 0xf, info->build);
++}
++
++/* Hardware Version is returned as FamilyID.VariantID */
++static ssize_t mxt_hw_version_show(struct device *dev,
++				   struct device_attribute *attr, char *buf)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	struct mxt_info *info = &data->info;
++	return scnprintf(buf, PAGE_SIZE, "%u.%u\n",
++			 info->family_id, info->variant_id);
++}
++
+ static ssize_t mxt_object_show(struct device *dev,
+ 				    struct device_attribute *attr, char *buf)
+ {
+@@ -1042,10 +1062,14 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 	return count;
+ }
+ 
++static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
++static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+ static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
+ 
+ static struct attribute *mxt_attrs[] = {
++	&dev_attr_fw_version.attr,
++	&dev_attr_hw_version.attr,
+ 	&dev_attr_object.attr,
+ 	&dev_attr_update_fw.attr,
+ 	NULL
 -- 
 1.7.7.3
 

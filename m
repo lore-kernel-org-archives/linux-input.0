@@ -1,20 +1,20 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 11/21 v5] Input: atmel_mxt_ts - add variable length
- __mxt_write_reg
-Date: Wed, 27 Jun 2012 20:59:40 +0200
-Message-ID: <20120627185940.GA14026@polaris.bitmath.org>
+Subject: Re: [PATCH 18/21 v5] Input: atmel_mxt_ts - cache T9 reportid range
+ when reading object table
+Date: Wed, 27 Jun 2012 21:44:05 +0200
+Message-ID: <20120627194405.GA21712@polaris.bitmath.org>
 References: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
- <1340693829-18665-12-git-send-email-djkurtz@chromium.org>
+ <1340693829-18665-19-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b11.telenor.se ([62.127.194.20]:38860 "EHLO
-	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751969Ab2F0S4S (ORCPT
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:40293 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756046Ab2F0Tko (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jun 2012 14:56:18 -0400
+	Wed, 27 Jun 2012 15:40:44 -0400
 Content-Disposition: inline
-In-Reply-To: <1340693829-18665-12-git-send-email-djkurtz@chromium.org>
+In-Reply-To: <1340693829-18665-19-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Daniel Kurtz <djkurtz@chromium.org>
@@ -22,69 +22,183 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@sam
 
 Hi Daniel,
 
-> The i2c bus requires 4 bytes to do a 1-byte write
-> (1 byte i2c address + 2 byte offset + 1 byte data).
+> Streamline interrupt processing by caching the T9 reportid range when
+> first reading the object table.
 > 
-> By taking a length with writes, the driver can amortize transaction
-> overhead by performing larger transactions where appropriate.
+> In the process, refactor reading the object descriptor table.
+> First, since the object_table entries are now exactly the same layout
+> in device memory and in the driver, allocate an appropriately sized
+> array and fetch the entire table directly into it in a single i2c
+> transaction.  Since a 6 byte table object requires 10 bytes to read,
+> doing this dramatically reduces overhead.
 > 
-> This patch just sets up the new API.  Later patches refactor writes
-> to take advantage of the larger transactions.
+> Note: The cached T9 reportid's are initialized to 0, which is an invalid
+> reportid.  Thus, the checks in the interrupt handler will always fail for
+> devices that do not support the T9 object.  Therefore, after doing a
+> firmware update, the old object table is destroyed and all cached object
+> values are reset to 0, before reading the new object table, in case
+> the new firmware does not have the old objects.
+> 
+> This patch tested on an MXT224E.
 > 
 > Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 > ---
->  drivers/input/touchscreen/atmel_mxt_ts.c |   22 +++++++++++++++++-----
->  1 files changed, 17 insertions(+), 5 deletions(-)
+>  drivers/input/touchscreen/atmel_mxt_ts.c |   80 +++++++++++++++++-------------
+>  1 files changed, 45 insertions(+), 35 deletions(-)
 > 
 > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 3672553..d9e7e68 100644
+> index 7b042e5..4da12a9 100644
 > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -431,17 +431,24 @@ static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
->  	return __mxt_read_reg(client, reg, 1, val);
+> @@ -227,13 +227,10 @@ struct mxt_info {
+>  struct mxt_object {
+>  	u8 type;
+>  	u16 start_address;
+> -	u8 size;
+> -	u8 instances;
+> +	u8 size;		/* Size of each instance - 1 */
+> +	u8 instances;		/* Number of instances - 1 */
+>  	u8 num_report_ids;
+> -
+> -	/* to map object and message */
+> -	u8 max_reportid;
+> -};
+> +} __packed;
+>  
+>  struct mxt_message {
+>  	u8 reportid;
+> @@ -251,6 +248,10 @@ struct mxt_data {
+>  	unsigned int irq;
+>  	unsigned int max_x;
+>  	unsigned int max_y;
+> +
+> +	/* Cached parameters from object table */
+> +	u8 T9_reportid_min;
+> +	u8 T9_reportid_max;
+>  };
+>  
+>  static bool mxt_object_readable(unsigned int type)
+> @@ -458,13 +459,6 @@ static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
+>  	return __mxt_write_reg(client, reg, 1, &val);
 >  }
 >  
-> -static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
-> +static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
-> +			   const void *val)
+> -static int mxt_read_object_table(struct i2c_client *client,
+> -				      u16 reg, u8 *object_buf)
+> -{
+> -	return __mxt_read_reg(client, reg, MXT_OBJECT_SIZE,
+> -				   object_buf);
+> -}
+> -
+>  static struct mxt_object *
+>  mxt_get_object(struct mxt_data *data, u8 type)
 >  {
-> -	u8 buf[3];
-> +	u8 *buf;
-> +	size_t count;
->  	int ret;
->  
-> +	count = len + 2;
-> +	buf = kmalloc(count, GFP_KERNEL);
-> +	if (!buf)
-> +		return -ENOMEM;
-> +
->  	buf[0] = reg & 0xff;
->  	buf[1] = (reg >> 8) & 0xff;
-> -	buf[2] = val;
-> +	memcpy(&buf[2], val, len);
->  
-> -	ret = i2c_master_send(client, buf, 3);
-> -	if (ret == 3) {
-> +	ret = i2c_master_send(client, buf, count);
-> +	if (ret == count) {
->  		ret = 0;
->  	} else {
->  		if (ret >= 0)
-> @@ -453,6 +460,11 @@ static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
-
-kfree(buf);
-
->  	return ret;
->  }
->  
-> +static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
-> +{
-> +	return __mxt_write_reg(client, reg, 1, &val);
-> +}
-> +
->  static int mxt_read_object_table(struct i2c_client *client,
->  				      u16 reg, u8 *object_buf)
+> @@ -563,7 +557,6 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
 >  {
+>  	struct mxt_data *data = dev_id;
+>  	struct mxt_message message;
+> -	struct mxt_object *object;
+>  	struct device *dev = &data->client->dev;
+>  	int id;
+>  	u8 reportid;
+> @@ -578,13 +571,8 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+>  
+>  		reportid = message.reportid;
+>  
+> -		/* whether reportid is thing of MXT_TOUCH_MULTI_T9 */
+> -		object = mxt_get_object(data, MXT_TOUCH_MULTI_T9);
+> -		if (!object)
+> -			goto end;
+> -
+> -		max_reportid = object->max_reportid;
+> -		min_reportid = max_reportid - object->num_report_ids + 1;
+> +		max_reportid = data->T9_reportid_max;
+> +		min_reportid = data->T9_reportid_min;
+>  		id = reportid - min_reportid;
+>  
+>  		if (reportid >= min_reportid && reportid <= max_reportid)
+> @@ -719,30 +707,49 @@ static int mxt_get_info(struct mxt_data *data)
+>  
+>  static int mxt_get_object_table(struct mxt_data *data)
+>  {
+> +	struct i2c_client *client = data->client;
+> +	size_t table_size;
+>  	int error;
+>  	int i;
+> -	u16 reg;
+> -	u8 reportid = 0;
+> -	u8 buf[MXT_OBJECT_SIZE];
+> +	u8 reportid;
+>  
+> +	table_size = data->info.object_num * sizeof(struct mxt_object);
+> +	error = __mxt_read_reg(client, MXT_OBJECT_START, table_size,
+> +			data->object_table);
+> +	if (error) {
+> +		kfree(data->object_table);
+> +		data->object_table = NULL;
+> +		return error;
+
+Freeing the object table here does not look right. Either free it in
+mxt_initialize() or move the allocation into this function as well.
+
+> +	}
+> +
+> +	/* Valid Report IDs start counting from 1 */
+> +	reportid = 1;
+>  	for (i = 0; i < data->info.object_num; i++) {
+>  		struct mxt_object *object = data->object_table + i;
+> +		u8 min_id, max_id;
+>  
+> -		reg = MXT_OBJECT_START + MXT_OBJECT_SIZE * i;
+> -		error = mxt_read_object_table(data->client, reg, buf);
+> -		if (error)
+> -			return error;
+> -
+> -		object->type = buf[0];
+> -		object->start_address = (buf[2] << 8) | buf[1];
+> -		object->size = buf[3];
+> -		object->instances = buf[4];
+> -		object->num_report_ids = buf[5];
+> +		le16_to_cpus(&object->start_address);
+>  
+>  		if (object->num_report_ids) {
+> +			min_id = reportid;
+>  			reportid += object->num_report_ids *
+>  					(object->instances + 1);
+> -			object->max_reportid = reportid;
+> +			max_id = reportid - 1;
+> +		} else {
+> +			min_id = 0;
+> +			max_id = 0;
+> +		}
+> +
+> +		dev_info(&data->client->dev,
+> +			 "Type %2d Start %3d Size %3d Instances %2d ReportIDs %3u : %3u\n",
+> +			 object->type, object->start_address, object->size + 1,
+> +			 object->instances + 1, min_id, max_id);
+
+On a normal boot, how many lines of output does this driver generate?
+
+> +
+> +		switch (object->type) {
+> +		case MXT_TOUCH_MULTI_T9:
+> +			data->T9_reportid_min = min_id;
+> +			data->T9_reportid_max = max_id;
+> +			break;
+>  		}
+>  	}
+>  
+> @@ -995,8 +1002,11 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+>  		/* Wait for reset */
+>  		msleep(MXT_FWRESET_TIME);
+>  
+> +		/* Destroy old object table and any cached fields */
+>  		kfree(data->object_table);
+>  		data->object_table = NULL;
+> +		data->T9_reportid_min = 0;
+> +		data->T9_reportid_max = 0;
+>  
+>  		mxt_initialize(data);
+>  	}
 > -- 
 > 1.7.7.3
 > 

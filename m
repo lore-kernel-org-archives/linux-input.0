@@ -1,65 +1,105 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v6] Touchscreen driver for FT5x06 based EDT displays
-Date: Tue, 26 Jun 2012 21:17:56 +0200
-Message-ID: <20120626191756.GA271@polaris.bitmath.org>
-References: <1333564079-23893-2-git-send-email-simon.budig@kernelconcepts.de>
- <1340408898-491-1-git-send-email-simon.budig@kernelconcepts.de>
- <1340408898-491-2-git-send-email-simon.budig@kernelconcepts.de>
- <20120625085113.GA648@polaris.bitmath.org>
- <20120626020600.GD24705@core.coreip.homeip.net>
+From: Benson Leung <bleung@chromium.org>
+Subject: Re: [PATCH 01/22 v4] Input: atmel_mxt_ts - set phys to i2c client
+ adapter name
+Date: Tue, 26 Jun 2012 17:42:08 -0700
+Message-ID: <CANLzEksg2ak9GMOWveMgU+QS-fM92ac-RV+_hNWKZe2gTpsbwQ@mail.gmail.com>
+References: <1339992522-22073-1-git-send-email-djkurtz@chromium.org>
+	<1339992522-22073-2-git-send-email-djkurtz@chromium.org>
+	<20120621084107.GB2193@core.coreip.homeip.net>
+	<20120625081558.GA641@polaris.bitmath.org>
+	<CAGS+omD5xp1PeXGMdsz6uP-QL2rU+sfoPBmOPGqi2p8NE9S4Jw@mail.gmail.com>
+	<20120626012751.GB24705@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:33712 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751410Ab2FZTOk (ORCPT
+Received: from mail-qa0-f46.google.com ([209.85.216.46]:44966 "EHLO
+	mail-qa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754709Ab2F0AmJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jun 2012 15:14:40 -0400
-Received: from ipb3.telenor.se (ipb3.telenor.se [195.54.127.166])
-	by smtprelay-b22.telenor.se (Postfix) with ESMTP id A4DA4C61D
-	for <linux-input@vger.kernel.org>; Tue, 26 Jun 2012 21:14:38 +0200 (CEST)
-Content-Disposition: inline
-In-Reply-To: <20120626020600.GD24705@core.coreip.homeip.net>
+	Tue, 26 Jun 2012 20:42:09 -0400
+Received: by qadb17 with SMTP id b17so2179754qad.19
+        for <linux-input@vger.kernel.org>; Tue, 26 Jun 2012 17:42:08 -0700 (PDT)
+In-Reply-To: <20120626012751.GB24705@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: simon.budig@kernelconcepts.de, linux-input@vger.kernel.org, olivier@sobrie.be, agust@denx.de, yanok@emcraft.com
+Cc: Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, Iiro Valkonen <iiro.valkonen@atmel.com>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org
 
-> Regarding extending input interface - let's talk about what is missing.
-> You mentioned memory-mapped access, but I am not sure if it should be
-> implemented within current input structure or if it should be a
-> completely separate interface. If we implement it we should also make
-> sure we stabdardize the data stream and not simply dump raw device
-> data, as this would be a sep backwards.
+[oops. sorry for duplicate send... resending in plaintext]
 
->From a data perspective, what is missing is the notion of a large
-collection of values of the same kind. The immediate usecase in mind
-is of course a pressure or intensity value, mapped onto a surface. The
-current (key, value) event model works in principle, but becomes
-increasingly inefficient with increasing collection size. A simple way
-of transporting a large collection where values change sparsely is via
-a memory-mapped multi-dimensional array.
+Would it more sense to more completely describe the bus type, adapter,
+and address in this case, rather than using the client->adapter->name?
 
-True, it is not given that such data needs to be incorporated into the
-current input structure, and it may be benficial not to do so; the
-memory map, be it real or device memory, serves as its own state and
-there is no need to keep any other state. However, it seems reasonable
-to inherit the input event semantics, since the data to transport is
-not new, there are only more data points of the same kind. Other
-possibilities exist, of course, such as using descriptors similar to
-HID, or a more elaborate sysfs tree, but it does not seem necessary.
+Just to give an example from our system, client->adapter->name is
+"i915 gmbus panel", so your suggestion would be "i915 gmbus
+panel/input0"
 
-Therefore, what I propose initially is a model of an n-dimensional,
-memory-mapped array, specififed by a set of input event types. For
-example, to formulate a matrix of pressure values in the X-Y plane,
-all you need to specify are the three values (ABS_PRESSURE, ABS_X,
-ABS_Y), listed in the preferred loop order. The value ranges are given
-by the absinfo structs, which also gives the dimension of the array.
+How about this instead :
+i2c-2-004a/input0
 
-The above does not need to be implemented using struct input_dev, it
-could be its own machinery, possibly using uio. Since no event drivers
-such as evdev are needed, no bus structure is needed either. The files
-could simply be exported in a manner quite similar to sysfs nodes.
+This seems to me more consistent with what is done with USB input
+devices, which show a phys field like this :
+usb-00:01.2-2.2/input0
 
-Thanks,
-Henrik
+Benson
+
+On Mon, Jun 25, 2012 at 6:27 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> On Mon, Jun 25, 2012 at 05:58:46PM +0800, Daniel Kurtz wrote:
+> > On Mon, Jun 25, 2012 at 4:15 PM, Henrik Rydberg <rydberg@euromail.s=
+e>
+> > wrote:
+> > >
+> > > On Thu, Jun 21, 2012 at 01:41:07AM -0700, Dmitry Torokhov wrote:
+> > > > On Mon, Jun 18, 2012 at 12:08:21PM +0800, Daniel Kurtz wrote:
+> > > > > This allows userspace to more easily distinguish which bus a
+> > > > > particular
+> > > > > atmel_mxt_ts device is attached to.
+> > > > >
+> > > > > Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> > > > > ---
+> > > > > =A0drivers/input/touchscreen/atmel_mxt_ts.c | =A0 =A01 +
+> > > > > =A01 files changed, 1 insertions(+), 0 deletions(-)
+> > > > >
+> > > > > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c
+> > > > > b/drivers/input/touchscreen/atmel_mxt_ts.c
+> > > > > index 42e6450..eda9eed 100644
+> > > > > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> > > > > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> > > > > @@ -1106,6 +1106,7 @@ static int __devinit mxt_probe(struct
+> > > > > i2c_client
+> > > > > *client,
+> > > > > =A0 =A0 }
+> > > > >
+> > > > > =A0 =A0 input_dev->name =3D "Atmel maXTouch Touchscreen";
+> > > > > + =A0 input_dev->phys =3D client->adapter->name;
+> > > >
+> > > > Normally we set phys to 'xxx/input0' nstead of just the adaptor
+> > > > name.
+> > >
+> > > Daniel, will we be seeing another version of this patch?
+> >
+> > Yes. =A0Any guidance on "xxx" ? =A0atmel_mxt_ts?
+>
+> What you have before (client->adapter->name) + "/input0" shoudl work
+> splendidly.
+>
+> Thanks.
+>
+> --
+> Dmitry
+
+
+
+
+--
+Benson Leung
+Software Engineer,=A0Chrom* OS
+bleung@chromium.org
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

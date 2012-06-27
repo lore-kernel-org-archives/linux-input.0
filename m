@@ -1,51 +1,54 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] lm8333: Fix check ordering
-Date: Wed, 27 Jun 2012 17:36:06 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1206271735570.17549@pobox.suse.cz>
-References: <20120627110156.5587.52764.stgit@localhost.localdomain>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH 0/4] E6 bug fix and code cleanup
+Date: Wed, 27 Jun 2012 09:56:35 -0700
+Message-ID: <CANRwn3SgoGNWpVbwjeC-SvWjC9+fq=busBNmfQF41aLYXqefog@mail.gmail.com>
+References: <1340660124-27323-1-git-send-email-pinglinux@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38630 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751564Ab2F0PgM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jun 2012 11:36:12 -0400
-In-Reply-To: <20120627110156.5587.52764.stgit@localhost.localdomain>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:47826 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757764Ab2F0Q4g convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Jun 2012 12:56:36 -0400
+Received: by wibhr14 with SMTP id hr14so1287212wib.1
+        for <linux-input@vger.kernel.org>; Wed, 27 Jun 2012 09:56:35 -0700 (PDT)
+In-Reply-To: <1340660124-27323-1-git-send-email-pinglinux@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ping Cheng <pinglinux@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-On Wed, 27 Jun 2012, Alan Cox wrote:
+On Mon, Jun 25, 2012 at 2:35 PM, Ping Cheng <pinglinux@gmail.com> wrote=
+:
+> The first two patches fix 0xE6 bug. The other two are just cleanup.
+>
+> Ping Cheng (4):
+> =C2=A0input - wacom: fix retrieving touch_max bug
+> =C2=A0input - wacom: don't retrieve touch_max when it is predefined
+> =C2=A0input - wacom: BTN_TOOL_DOUBLETAP is not a valid device_type
+> =C2=A0input - wacom: TPC2FG doesn't store touch id for slots
+>
+> =C2=A0drivers/input/tablet/wacom_sys.c | =C2=A0 =C2=A08 +++++---
+> =C2=A0drivers/input/tablet/wacom_wac.c | =C2=A0 =C2=A06 ++++--
+> =C2=A02 files changed, 9 insertions(+), 5 deletions(-)
+>
+> --
+> 1.7.7.6
+>
+> --
 
-> From: Alan Cox <alan@linux.intel.com>
-> 
-> Fix harmless reference off end of array
-> 
-> Reported-by: <dcb314@hotmail.com>
-> Resolves-bug: https://bugzilla.kernel.org/show_bug.cgi?43861
-> Signed-off-by: Alan Cox <alan@linux.intel.com>
-> ---
-> 
->  drivers/input/keyboard/lm8333.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/lm8333.c b/drivers/input/keyboard/lm8333.c
-> index ca168a6..081fd9e 100644
-> --- a/drivers/input/keyboard/lm8333.c
-> +++ b/drivers/input/keyboard/lm8333.c
-> @@ -91,7 +91,7 @@ static void lm8333_key_handler(struct lm8333 *lm8333)
->  		return;
->  	}
->  
-> -	for (i = 0; keys[i] && i < LM8333_FIFO_TRANSFER_SIZE; i++) {
-> +	for (i = 0; i < LM8333_FIFO_TRANSFER_SIZE && keys[i]; i++) {
->  		pressed = keys[i] & 0x80;
->  		code = keys[i] & 0x7f;
->  
+Reviewed-by: Jason Gerecke <killertofu@gmail.com>
 
-Applied to trivial, thanks Alan.
+Jason
 
--- 
-Jiri Kosina
-SUSE Labs
+---
+Day xee-nee-svsh duu-'ushtlh-ts'it;
+nuu-wee-ya' duu-xan' 'vm-nvshtlh-ts'it.
+Huu-chan xuu naa~-gha.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

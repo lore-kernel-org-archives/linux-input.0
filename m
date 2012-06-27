@@ -1,104 +1,104 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 19/21 v5] Input: atmel_mxt_ts - use T9 reportid range to
- init number of mt slots
-Date: Wed, 27 Jun 2012 22:12:26 +0200
-Message-ID: <20120627201226.GA22231@polaris.bitmath.org>
+Subject: Re: [PATCH 21/21 v5] Input: atmel_mxt_ts - parse T6 reports
+Date: Wed, 27 Jun 2012 22:32:21 +0200
+Message-ID: <20120627203221.GA22585@polaris.bitmath.org>
 References: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
- <1340693829-18665-20-git-send-email-djkurtz@chromium.org>
+ <1340693829-18665-22-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:52676 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752709Ab2F0UJE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jun 2012 16:09:04 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1340693829-18665-20-git-send-email-djkurtz@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <1340693829-18665-22-git-send-email-djkurtz@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Daniel Kurtz <djkurtz@chromium.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Hi Daniel,
+Hi Daniel
 
-> Atmel mxt devices can report one finger for each T9 reportid.
-> Therefore, this range can be used to report the max number of MT-B slots
-> to userspace instead of assuming a fixed 10.
+> The normal messages sent after boot or NVRAM update are T6 reports,
+> containing a status, and the config memory checksum.  Parse them and dump
+> a useful info message.
 > 
-> Note that mxt_initialized() must complete early, since the input_dev
-> properties now depend on values in the object table.
+> This patch tested on an MXT224E.
 > 
 > Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 > ---
->  drivers/input/touchscreen/atmel_mxt_ts.c |   16 ++++++++--------
->  1 files changed, 8 insertions(+), 8 deletions(-)
+>  drivers/input/touchscreen/atmel_mxt_ts.c |   21 ++++++++++++++-------
+>  1 files changed, 14 insertions(+), 7 deletions(-)
 > 
 > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 4da12a9..b218b5f 100644
+> index f9a9be9..8350bcc 100644
 > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -212,8 +212,6 @@
->  /* Touchscreen absolute values */
->  #define MXT_MAX_AREA		0xff
+> @@ -248,6 +248,7 @@ struct mxt_data {
+>  	unsigned int max_y;
 >  
-> -#define MXT_MAX_FINGER		10
+>  	/* Cached parameters from object table */
+> +	u8 T6_reportid;
+>  	u8 T9_reportid_min;
+>  	u8 T9_reportid_max;
+>  };
+> @@ -555,8 +556,6 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+>  	struct device *dev = &data->client->dev;
+>  	int id;
+>  	u8 reportid;
+> -	u8 max_reportid;
+> -	u8 min_reportid;
+>  	bool update_input = false;
+>  
+>  	do {
+> @@ -567,11 +566,15 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+>  
+>  		reportid = message.reportid;
+>  
+> -		max_reportid = data->T9_reportid_max;
+> -		min_reportid = data->T9_reportid_min;
+> -		id = reportid - min_reportid;
 > -
->  struct mxt_info {
->  	u8 family_id;
->  	u8 variant_id;
-> @@ -1074,6 +1072,7 @@ static int __devinit mxt_probe(struct i2c_client *client,
->  	struct mxt_data *data;
->  	struct input_dev *input_dev;
->  	int error;
-> +	unsigned int num_mt_slots;
->  
->  	if (!pdata)
->  		return -EINVAL;
-> @@ -1103,6 +1102,10 @@ static int __devinit mxt_probe(struct i2c_client *client,
->  
->  	mxt_calc_resolution(data);
->  
-> +	error = mxt_initialize(data);
-> +	if (error)
-> +		goto err_free_object;
-> +
+> -		if (reportid >= min_reportid && reportid <= max_reportid) {
+> +		if (reportid == data->T6_reportid) {
+> +			unsigned csum = message.message[1] |
+> +					(message.message[2] << 8) |
+> +					(message.message[3] << 16);
+> +			dev_dbg(dev, "Status: %02x Config Checksum: %06x\n",
+> +				message.message[0], csum);
 
-The comment on the previous patch actually stems from problems in
-mxt_initialize(); if a function fails, there should be no need to tear
-down stuff created inside the failing function. IOW, it should be goto
-err_free_mem here, and mxt_initialize() should be fixed accordingly.
+The formatting here may pass checkpatch, but it is really ugly. When
+the patches start to require a lot of line breaks, and this series
+contains quite a few, then please break out new functions.
 
->  	__set_bit(EV_ABS, input_dev->evbit);
->  	__set_bit(EV_KEY, input_dev->evbit);
->  	__set_bit(BTN_TOUCH, input_dev->keybit);
-> @@ -1116,9 +1119,10 @@ static int __devinit mxt_probe(struct i2c_client *client,
->  			     0, 255, 0, 0);
+> +		} else if (reportid >= data->T9_reportid_min &&
+> +			    reportid <= data->T9_reportid_max) {
+> +			id = reportid - data->T9_reportid_min;
+>  			mxt_input_touchevent(data, &message, id);
+>  			update_input = true;
+>  		} else {
+> @@ -749,6 +752,9 @@ static int mxt_get_object_table(struct mxt_data *data)
+>  			 object->instances + 1, min_id, max_id);
 >  
->  	/* For multi touch */
-> -	error = input_mt_init_slots(input_dev, MXT_MAX_FINGER);
-> +	num_mt_slots = data->T9_reportid_max - data->T9_reportid_min + 1;
-> +	error = input_mt_init_slots(input_dev, num_mt_slots);
->  	if (error)
-> -		goto err_free_mem;
-> +		goto err_free_object;
->  	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
->  			     0, MXT_MAX_AREA, 0, 0);
->  	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-> @@ -1131,10 +1135,6 @@ static int __devinit mxt_probe(struct i2c_client *client,
->  	input_set_drvdata(input_dev, data);
->  	i2c_set_clientdata(client, data);
+>  		switch (object->type) {
+> +		case MXT_GEN_COMMAND_T6:
+> +			data->T6_reportid = min_id;
+> +			break;
+>  		case MXT_TOUCH_MULTI_T9:
+>  			data->T9_reportid_min = min_id;
+>  			data->T9_reportid_max = max_id;
+> @@ -1008,6 +1014,7 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+>  		/* Destroy old object table and any cached fields */
+>  		kfree(data->object_table);
+>  		data->object_table = NULL;
+> +		data->T6_reportid = 0;
+>  		data->T9_reportid_min = 0;
+>  		data->T9_reportid_max = 0;
+
+This bunch of lines, for instance, would fit perfectly in a
+mxt_destroy() function, which would also make the comment superfluous.
+
 >  
-> -	error = mxt_initialize(data);
-> -	if (error)
-> -		goto err_free_object;
-> -
->  	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
->  			pdata->irqflags, client->name, data);
->  	if (error) {
 > -- 
 > 1.7.7.3
 > 
 
-Thanks,
+Thanks.
 Henrik

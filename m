@@ -1,27 +1,50 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: RE: [PATCH, 3/6] HID-Sensors: Added accelerometer 3D
-Date: Wed, 27 Jun 2012 17:35:00 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1206271733490.17549@pobox.suse.cz>
-References: <1340672054-16591-1-git-send-email-srinivas.pandruvada@intel.com> <1340672054-16591-4-git-send-email-srinivas.pandruvada@intel.com> <4FEACE58.20008@metafoo.de> <4FA419E87744DF4DAECD5BCE1214B7A91933F4DA@ORSMSX104.amr.corp.intel.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] lm8333: Fix check ordering
+Date: Wed, 27 Jun 2012 17:36:06 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1206271735570.17549@pobox.suse.cz>
+References: <20120627110156.5587.52764.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4FA419E87744DF4DAECD5BCE1214B7A91933F4DA-P5GAC/sN6hk64kNsxIetb7fspsVTdybXVpNB7YpNyf8@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "jic23.cam.ac.uk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <jic23.cam.ac.uk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:38630 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751564Ab2F0PgM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Jun 2012 11:36:12 -0400
+In-Reply-To: <20120627110156.5587.52764.stgit@localhost.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-input@vger.kernel.org
 
-On Wed, 27 Jun 2012, Pandruvada, Srinivas wrote:
+On Wed, 27 Jun 2012, Alan Cox wrote:
 
-> <IIO has moved out of staging in 3.5, so this won't build with the latest upstream>
->
-> Can you please let me know which tree it is merged? I don't see in 
-> Linus's tree. I can see in gregkh/staging.git. But don't see your latest 
-> changes.
+> From: Alan Cox <alan@linux.intel.com>
+> 
+> Fix harmless reference off end of array
+> 
+> Reported-by: <dcb314@hotmail.com>
+> Resolves-bug: https://bugzilla.kernel.org/show_bug.cgi?43861
+> Signed-off-by: Alan Cox <alan@linux.intel.com>
+> ---
+> 
+>  drivers/input/keyboard/lm8333.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/lm8333.c b/drivers/input/keyboard/lm8333.c
+> index ca168a6..081fd9e 100644
+> --- a/drivers/input/keyboard/lm8333.c
+> +++ b/drivers/input/keyboard/lm8333.c
+> @@ -91,7 +91,7 @@ static void lm8333_key_handler(struct lm8333 *lm8333)
+>  		return;
+>  	}
+>  
+> -	for (i = 0; keys[i] && i < LM8333_FIFO_TRANSFER_SIZE; i++) {
+> +	for (i = 0; i < LM8333_FIFO_TRANSFER_SIZE && keys[i]; i++) {
+>  		pressed = keys[i] & 0x80;
+>  		code = keys[i] & 0x7f;
+>  
 
-It's in Linus' tree, in drivers/iio. Commit a980e046 moved it out of 
-staging. It first appeared in 3.5-rc1.
+Applied to trivial, thanks Alan.
 
 -- 
 Jiri Kosina

@@ -1,54 +1,93 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH 0/4] E6 bug fix and code cleanup
-Date: Wed, 27 Jun 2012 09:56:35 -0700
-Message-ID: <CANRwn3SgoGNWpVbwjeC-SvWjC9+fq=busBNmfQF41aLYXqefog@mail.gmail.com>
-References: <1340660124-27323-1-git-send-email-pinglinux@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 11/21 v5] Input: atmel_mxt_ts - add variable length
+ __mxt_write_reg
+Date: Wed, 27 Jun 2012 20:59:40 +0200
+Message-ID: <20120627185940.GA14026@polaris.bitmath.org>
+References: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
+ <1340693829-18665-12-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:47826 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757764Ab2F0Q4g convert rfc822-to-8bit (ORCPT
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:38860 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751969Ab2F0S4S (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jun 2012 12:56:36 -0400
-Received: by wibhr14 with SMTP id hr14so1287212wib.1
-        for <linux-input@vger.kernel.org>; Wed, 27 Jun 2012 09:56:35 -0700 (PDT)
-In-Reply-To: <1340660124-27323-1-git-send-email-pinglinux@gmail.com>
+	Wed, 27 Jun 2012 14:56:18 -0400
+Content-Disposition: inline
+In-Reply-To: <1340693829-18665-12-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org
 
-On Mon, Jun 25, 2012 at 2:35 PM, Ping Cheng <pinglinux@gmail.com> wrote=
-:
-> The first two patches fix 0xE6 bug. The other two are just cleanup.
->
-> Ping Cheng (4):
-> =C2=A0input - wacom: fix retrieving touch_max bug
-> =C2=A0input - wacom: don't retrieve touch_max when it is predefined
-> =C2=A0input - wacom: BTN_TOOL_DOUBLETAP is not a valid device_type
-> =C2=A0input - wacom: TPC2FG doesn't store touch id for slots
->
-> =C2=A0drivers/input/tablet/wacom_sys.c | =C2=A0 =C2=A08 +++++---
-> =C2=A0drivers/input/tablet/wacom_wac.c | =C2=A0 =C2=A06 ++++--
-> =C2=A02 files changed, 9 insertions(+), 5 deletions(-)
->
-> --
-> 1.7.7.6
->
-> --
+Hi Daniel,
 
-Reviewed-by: Jason Gerecke <killertofu@gmail.com>
+> The i2c bus requires 4 bytes to do a 1-byte write
+> (1 byte i2c address + 2 byte offset + 1 byte data).
+> 
+> By taking a length with writes, the driver can amortize transaction
+> overhead by performing larger transactions where appropriate.
+> 
+> This patch just sets up the new API.  Later patches refactor writes
+> to take advantage of the larger transactions.
+> 
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> ---
+>  drivers/input/touchscreen/atmel_mxt_ts.c |   22 +++++++++++++++++-----
+>  1 files changed, 17 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 3672553..d9e7e68 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -431,17 +431,24 @@ static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
+>  	return __mxt_read_reg(client, reg, 1, val);
+>  }
+>  
+> -static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
+> +static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+> +			   const void *val)
+>  {
+> -	u8 buf[3];
+> +	u8 *buf;
+> +	size_t count;
+>  	int ret;
+>  
+> +	count = len + 2;
+> +	buf = kmalloc(count, GFP_KERNEL);
+> +	if (!buf)
+> +		return -ENOMEM;
+> +
+>  	buf[0] = reg & 0xff;
+>  	buf[1] = (reg >> 8) & 0xff;
+> -	buf[2] = val;
+> +	memcpy(&buf[2], val, len);
+>  
+> -	ret = i2c_master_send(client, buf, 3);
+> -	if (ret == 3) {
+> +	ret = i2c_master_send(client, buf, count);
+> +	if (ret == count) {
+>  		ret = 0;
+>  	} else {
+>  		if (ret >= 0)
+> @@ -453,6 +460,11 @@ static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
 
-Jason
+kfree(buf);
 
----
-Day xee-nee-svsh duu-'ushtlh-ts'it;
-nuu-wee-ya' duu-xan' 'vm-nvshtlh-ts'it.
-Huu-chan xuu naa~-gha.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  	return ret;
+>  }
+>  
+> +static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
+> +{
+> +	return __mxt_write_reg(client, reg, 1, &val);
+> +}
+> +
+>  static int mxt_read_object_table(struct i2c_client *client,
+>  				      u16 reg, u8 *object_buf)
+>  {
+> -- 
+> 1.7.7.3
+> 
+
+Thanks,
+Henrik

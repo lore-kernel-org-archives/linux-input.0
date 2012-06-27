@@ -1,104 +1,122 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 21/21 v5] Input: atmel_mxt_ts - parse T6 reports
-Date: Wed, 27 Jun 2012 22:32:21 +0200
-Message-ID: <20120627203221.GA22585@polaris.bitmath.org>
-References: <1340693829-18665-1-git-send-email-djkurtz@chromium.org>
- <1340693829-18665-22-git-send-email-djkurtz@chromium.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1340693829-18665-22-git-send-email-djkurtz@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org, Iiro Valkonen <iiro.valkonen@atmel.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org
+From: Olivier Goffart <ogoffart@woboq.com>
+Subject: [PATCH] Fix sentelic multi-touch driver
+Date: Wed, 27 Jun 2012 22:36:15 +0200
+Message-ID: <1340829375-4995-1-git-send-email-ogoffart@woboq.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail01.worldserver.net ([217.13.200.41]:40195 "EHLO
+	mail01.worldserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932136Ab2F0VrK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Jun 2012 17:47:10 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: avatar@sentelic.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Olivier Goffart <ogoffart@woboq.com>
 
-Hi Daniel
+Always report both finger between the sync.  Even if the documentation
+of input-mt says one can only report one at the time, it does not
+work otherwise. This fix scrolling in X11 which flickers a lot.
 
-> The normal messages sent after boot or NVRAM update are T6 reports,
-> containing a status, and the config memory checksum.  Parse them and dump
-> a useful info message.
-> 
-> This patch tested on an MXT224E.
-> 
-> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c |   21 ++++++++++++++-------
->  1 files changed, 14 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index f9a9be9..8350bcc 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -248,6 +248,7 @@ struct mxt_data {
->  	unsigned int max_y;
->  
->  	/* Cached parameters from object table */
-> +	u8 T6_reportid;
->  	u8 T9_reportid_min;
->  	u8 T9_reportid_max;
->  };
-> @@ -555,8 +556,6 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
->  	struct device *dev = &data->client->dev;
->  	int id;
->  	u8 reportid;
-> -	u8 max_reportid;
-> -	u8 min_reportid;
->  	bool update_input = false;
->  
->  	do {
-> @@ -567,11 +566,15 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
->  
->  		reportid = message.reportid;
->  
-> -		max_reportid = data->T9_reportid_max;
-> -		min_reportid = data->T9_reportid_min;
-> -		id = reportid - min_reportid;
-> -
-> -		if (reportid >= min_reportid && reportid <= max_reportid) {
-> +		if (reportid == data->T6_reportid) {
-> +			unsigned csum = message.message[1] |
-> +					(message.message[2] << 8) |
-> +					(message.message[3] << 16);
-> +			dev_dbg(dev, "Status: %02x Config Checksum: %06x\n",
-> +				message.message[0], csum);
+Ignore the duplicate or release events. They keep some gestures from
+working (such as the two-finger tap)
 
-The formatting here may pass checkpatch, but it is really ugly. When
-the patches start to require a lot of line breaks, and this series
-contains quite a few, then please break out new functions.
+This seems to fix the problems reported here:
+https://bugzilla.kernel.org/show_bug.cgi?id=43591
 
-> +		} else if (reportid >= data->T9_reportid_min &&
-> +			    reportid <= data->T9_reportid_max) {
-> +			id = reportid - data->T9_reportid_min;
->  			mxt_input_touchevent(data, &message, id);
->  			update_input = true;
->  		} else {
-> @@ -749,6 +752,9 @@ static int mxt_get_object_table(struct mxt_data *data)
->  			 object->instances + 1, min_id, max_id);
->  
->  		switch (object->type) {
-> +		case MXT_GEN_COMMAND_T6:
-> +			data->T6_reportid = min_id;
-> +			break;
->  		case MXT_TOUCH_MULTI_T9:
->  			data->T9_reportid_min = min_id;
->  			data->T9_reportid_max = max_id;
-> @@ -1008,6 +1014,7 @@ static ssize_t mxt_update_fw_store(struct device *dev,
->  		/* Destroy old object table and any cached fields */
->  		kfree(data->object_table);
->  		data->object_table = NULL;
-> +		data->T6_reportid = 0;
->  		data->T9_reportid_min = 0;
->  		data->T9_reportid_max = 0;
+Signed-off-by: Olivier Goffart <ogoffart@woboq.com>
+---
+ drivers/input/mouse/sentelic.c | 46 +++++++++++++++++++++++++++++++++++++-----
+ drivers/input/mouse/sentelic.h |  3 +++
+ 2 files changed, 44 insertions(+), 5 deletions(-)
 
-This bunch of lines, for instance, would fit perfectly in a
-mxt_destroy() function, which would also make the comment superfluous.
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index 3f5649f..b205857 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -731,6 +731,17 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
+ 			 */
+ 			fgrs = 2;
+ 
++			if (abs_x == 0 && abs_y == 0) {
++				/*
++				 * We can ignore multi-finger release events.
++				 * We notice a finger has left the touchpad
++				 * when we receive events for the other finger.
++				 * And for the last finger, we receive
++				 * single-finger release events.
++				 */
++				return PSMOUSE_FULL_PACKET;
++			}
++
+ 			/* MFMC packet */
+ 			if (packet[0] & FSP_PB0_MFMC_FGR2) {
+ 				/* 2nd finger */
+@@ -742,10 +753,16 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
+ 					 */
+ 					fgrs = 1;
+ 					fsp_set_slot(dev, 0, false, 0, 0);
++					fsp_set_slot(dev, 1, fgrs == 1,
++						     abs_x, abs_y);
++				} else {
++					ad->last_mt_fgr = 2;
++					fsp_set_slot(dev, 0, true,
++						     ad->finger1_abs_x,
++						     ad->finger1_abs_y);
++					fsp_set_slot(dev, 1, fgrs == 2,
++						     abs_x, abs_y);
+ 				}
+-				ad->last_mt_fgr = 2;
+-
+-				fsp_set_slot(dev, 1, fgrs == 2, abs_x, abs_y);
+ 			} else {
+ 				/* 1st finger */
+ 				if (ad->last_mt_fgr == 1) {
+@@ -755,10 +772,29 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
+ 					 * the 2nd finger is up
+ 					 */
+ 					fgrs = 1;
++					fsp_set_slot(dev, 0, fgrs != 0,
++						     abs_x, abs_y);
+ 					fsp_set_slot(dev, 1, false, 0, 0);
++				} else {
++					ad->finger1_abs_x = abs_x;
++					ad->finger1_abs_y = abs_y;
++
++					/*
++					 * There is a superflous event from the
++					 * driver when the two fingers are put
++					 * on the touchpad. Don't set
++					 * last_mt_fgr if we have not seen the
++					 * second figner yet, so the previous
++					 * workarond is not triggered and the
++					 * superflous event is ignored.
++					 * This is required to get the two
++					 * finger tap gesture working.
++					 */
++					if (ad->last_mt_fgr != 0)
++						ad->last_mt_fgr = 1;
++
++					return PSMOUSE_FULL_PACKET;
+ 				}
+-				ad->last_mt_fgr = 1;
+-				fsp_set_slot(dev, 0, fgrs != 0, abs_x, abs_y);
+ 			}
+ 		} else {
+ 			/* SFAC packet */
+diff --git a/drivers/input/mouse/sentelic.h b/drivers/input/mouse/sentelic.h
+index aa697ec..7224f84 100644
+--- a/drivers/input/mouse/sentelic.h
++++ b/drivers/input/mouse/sentelic.h
+@@ -117,6 +117,9 @@ struct fsp_data {
+ 	unsigned char	last_reg;	/* Last register we requested read from */
+ 	unsigned char	last_val;
+ 	unsigned int	last_mt_fgr;	/* Last seen finger(multitouch) */
++
++	unsigned short finger1_abs_x; /* finger1 absolute position */
++	unsigned short finger1_abs_y;
+ };
+ 
+ #ifdef CONFIG_MOUSE_PS2_SENTELIC
+-- 
+1.7.11.1
 
->  
-> -- 
-> 1.7.7.3
-> 
-
-Thanks.
-Henrik

@@ -1,108 +1,108 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 1/2] Input: synaptics - print firmware ID and board number at init
-Date: Thu, 28 Jun 2012 12:51:56 +0800
-Message-ID: <1340859117-19654-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
-Cc: Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
+From: Dharam Kumar <dharam.kumar.gupta@gmail.com>
+Subject: Re: Missing Key-codes from <linux/input.h> file
+Date: Thu, 28 Jun 2012 11:44:43 +0530
+Message-ID: <CAOt5+pTx+c2PsPdLCrpLZ5hwBwj0wAzHApEU2WBh3820Yj14zw@mail.gmail.com>
+References: <CAOt5+pRZ=qqEZ2Ra3yFbLqoHhDGFkzHs4cEXvFv5trbukd4MdA@mail.gmail.com>
+ <20120625142606.GA13212@redhat.com> <CAOt5+pTm5mzGjnOWRdqDZY+tFha4jDazZ35F04r9gAdJV-D9Jw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:61162 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932289Ab2F1GPG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 Jun 2012 02:15:06 -0400
+Received: by lbbgm6 with SMTP id gm6so2627314lbb.19
+        for <linux-input@vger.kernel.org>; Wed, 27 Jun 2012 23:15:04 -0700 (PDT)
+In-Reply-To: <CAOt5+pTm5mzGjnOWRdqDZY+tFha4jDazZ35F04r9gAdJV-D9Jw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jarod Wilson <jarod@redhat.com>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-Read the Firmware ID and Board Number from a synaptics device at init
-and display them in the system log.
+Hi Jarod,  All
 
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
----
- drivers/input/mouse/synaptics.c |   38 ++++++++++++++++++++++++++++++++++++--
- drivers/input/mouse/synaptics.h |    3 +++
- 2 files changed, 39 insertions(+), 2 deletions(-)
+I'm giving some more info regarding what I queried earlier. I hope
+this will put my query in better light.
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index c778f27..81685c1 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -139,6 +139,35 @@ static int synaptics_model_id(struct psmouse *psmouse)
- }
- 
- /*
-+ * Read the board id from the touchpad
-+ * The board id is encoded in the "QUERY MODES" response
-+ */
-+static int synaptics_board_id(struct psmouse *psmouse)
-+{
-+	struct synaptics_data *priv = psmouse->private;
-+	unsigned char bid[3];
-+
-+	if (synaptics_send_cmd(psmouse, SYN_QUE_MODES, bid))
-+		return -1;
-+	priv->board_id = (((unsigned)bid[0] & 0xfc) << 6) | (unsigned)bid[1];
-+	return 0;
-+}
-+
-+/*
-+ * Read the firmware id from the touchpad
-+ */
-+static int synaptics_firmware_id(struct psmouse *psmouse)
-+{
-+	struct synaptics_data *priv = psmouse->private;
-+	unsigned char fwid[3];
-+
-+	if (synaptics_send_cmd(psmouse, SYN_QUE_FIRMWARE_ID, fwid))
-+		return -1;
-+	priv->firmware_id = (fwid[0] << 16) | (fwid[1] << 8) | fwid[2];
-+	return 0;
-+}
-+
-+/*
-  * Read the capability-bits from the touchpad
-  * see also the SYN_CAP_* macros
-  */
-@@ -261,6 +290,10 @@ static int synaptics_query_hardware(struct psmouse *psmouse)
- 		return -1;
- 	if (synaptics_model_id(psmouse))
- 		return -1;
-+	if (synaptics_firmware_id(psmouse))
-+		return -1;
-+	if (synaptics_board_id(psmouse))
-+		return -1;
- 	if (synaptics_capability(psmouse))
- 		return -1;
- 	if (synaptics_resolution(psmouse))
-@@ -1434,11 +1467,12 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
- 	priv->pkt_type = SYN_MODEL_NEWABS(priv->model_id) ? SYN_NEWABS : SYN_OLDABS;
- 
- 	psmouse_info(psmouse,
--		     "Touchpad model: %ld, fw: %ld.%ld, id: %#lx, caps: %#lx/%#lx/%#lx\n",
-+		     "Touchpad model: %ld, fw: %ld.%ld, id: %#lx, caps: %#lx/%#lx/%#lx, board id: %lu, fw id: %lu\n",
- 		     SYN_ID_MODEL(priv->identity),
- 		     SYN_ID_MAJOR(priv->identity), SYN_ID_MINOR(priv->identity),
- 		     priv->model_id,
--		     priv->capabilities, priv->ext_cap, priv->ext_cap_0c);
-+		     priv->capabilities, priv->ext_cap, priv->ext_cap_0c,
-+		     priv->board_id, priv->firmware_id);
- 
- 	set_input_params(psmouse->dev, priv);
- 
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index fd26ccc..e594af0 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -18,6 +18,7 @@
- #define SYN_QUE_SERIAL_NUMBER_SUFFIX	0x07
- #define SYN_QUE_RESOLUTION		0x08
- #define SYN_QUE_EXT_CAPAB		0x09
-+#define SYN_QUE_FIRMWARE_ID		0x0a
- #define SYN_QUE_EXT_CAPAB_0C		0x0c
- #define SYN_QUE_EXT_MAX_COORDS		0x0d
- #define SYN_QUE_EXT_MIN_COORDS		0x0f
-@@ -148,6 +149,8 @@ struct synaptics_hw_state {
- struct synaptics_data {
- 	/* Data read from the touchpad */
- 	unsigned long int model_id;		/* Model-ID */
-+	unsigned long int firmware_id;		/* Firmware-ID */
-+	unsigned long int board_id;		/* Board-ID */
- 	unsigned long int capabilities;		/* Capabilities */
- 	unsigned long int ext_cap;		/* Extended Capabilities */
- 	unsigned long int ext_cap_0c;		/* Ext Caps from 0x0c query */
--- 
-1.7.7.3
+The missing keys which I've mentioned earlier are basically Remote
+Controller keys as specified in MHL specifications( www.mhltech.org ).
+Now, as MHL Specifications are closely related to HDMI(and CEC), hence
+most probably these 'missing' keys are part of HDMI/CEC specifications
+too. And hence, my doubt on why these standard keys are missing from
+<linux/input.h> ?
+
+Jarod,
+You previously mentioned some of the  missing keys being similar to
+Joystick keys.  I will really appreciate if you could pin-point the
+location of joystick keys' existence ? It makes sense to me too if
+joystick(basically a wired remote control) keys are similar to
+TV/Monitor Remote Control keys.
+
+In case, the keys (like upper-left, upper-right, lower-left,
+lower-right ) are different from Joystick keys(and hence missing from
+input.h ), How can I proceed to add these keys ?
+
+Thanks and Regards,
+Dharam
+
+
+On Mon, Jun 25, 2012 at 8:15 PM, Dharam Kumar
+<dharam.kumar.gupta@gmail.com> wrote:
+> On Mon, Jun 25, 2012 at 7:56 PM, Jarod Wilson <jarod@redhat.com> wrot=
+e:
+>> On Mon, Jun 25, 2012 at 07:39:25PM +0530, Dharam Kumar wrote:
+>>> Hi,
+>>> I'm working on a module which is an input device and hence it needs=
+ to
+>>> report certain key events.
+>>>
+>>> While browsing through the <linux/input.h>, I did find most of the
+>>> key-codes(which I need to use) already defined but not all.
+>>>
+>>> Few of the KEY_xxx which i could not find are:
+>>>
+>>> a.) A Key for going to the previous channel.
+>>
+>> I believe that's what this one is intended for:
+>>
+>> #define KEY_PREVIOUS =A0 =A0 =A0 =A0 =A0 =A00x19c
+>>
+>
+> Hmm..I looked at it, but i was not sure ,whether it is the right key
+> code for the 'Previous channel'.
+> To be specific about what the key is supposed to do:
+> "Select the channel used before most recent new channel selection."
+> Also, there is another define:
+> #define KEY_LAST =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x195 =A0/* =
+Recall last */
+> confusing...No?
+>
+>>> b.) Keys for Moving upper-right, lower-right, upper-left and
+>>> lower-left direction(probably a GUI(or a grid of icons),where you m=
+ove
+>>> diagonally)
+>>
+>> Sounds a bit like joystick functionality, which already exists.
+>
+> Will you please be bit more specfic? Which keys/defines exactly you
+> are talking about?
+> Apologies for me being so naive. :)
+>>
+>>> d.) A key for Subpicture (this 'subpicture' key is defined in CEA-9=
+31C).
+>>
+>> Could have sworn there was a picture-in-picture button, which may or=
+ may
+>> not be the same thing, but I don't see it now...
+>>
+>> --
+>> Jarod Wilson
+>> jarod@redhat.com
+>>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

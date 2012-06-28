@@ -1,90 +1,77 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 07/23 v6] Input: atmel_mxt_ts - optimize reading objects in object sysfs entry
-Date: Thu, 28 Jun 2012 21:08:08 +0800
-Message-ID: <1340888904-15620-8-git-send-email-djkurtz@chromium.org>
-References: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, Yufeng Shen <miletus@chromium.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
+From: Matthieu CASTET <matthieu.castet@parrot.com>
+Subject: [PATCH v2] hidraw : fix list->buffer memleak
+Date: Thu, 28 Jun 2012 16:51:56 +0200
+Message-ID: <1340895116-13002-1-git-send-email-matthieu.castet@parrot.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:37690 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751128Ab2F1OxA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 Jun 2012 10:53:00 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, Matthieu CASTET <matthieu.castet@parrot.com>
 
-Read each object in a single i2c transaction instead of byte-by-byte
+If we don't read fast enough hidraw device, hidraw_report_event
+will cycle and we will leak list->buffer.
+Also list->buffer are not free on release.
+After this patch, kmemleak report nothing.
 
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+Signed-off-by: Matthieu CASTET <matthieu.castet@parrot.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   35 ++++++++++++-----------------
- 1 files changed, 15 insertions(+), 20 deletions(-)
+ drivers/hid/hidraw.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 55855b8..94dd1d1 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -479,20 +479,6 @@ static int mxt_read_message(struct mxt_data *data,
- 			sizeof(struct mxt_message), message);
- }
- 
--static int mxt_read_object(struct mxt_data *data,
--				u8 type, u8 offset, u8 *val)
--{
--	struct mxt_object *object;
--	u16 reg;
--
--	object = mxt_get_object(data, type);
--	if (!object)
--		return -EINVAL;
--
--	reg = object->start_address;
--	return __mxt_read_reg(data->client, reg + offset, 1, val);
--}
--
- static int mxt_write_object(struct mxt_data *data,
- 				 u8 type, u8 offset, u8 val)
- {
-@@ -900,7 +886,14 @@ static ssize_t mxt_object_show(struct device *dev,
- 	int i, j;
- 	int error;
- 	u8 val;
-+	u8 *obuf;
-+
-+	/* Pre-allocate buffer large enough to hold max sized object. */
-+	obuf = kmalloc(256, GFP_KERNEL);
-+	if (!obuf)
-+		return -ENOMEM;
- 
-+	error = 0;
- 	for (i = 0; i < data->info.object_num; i++) {
- 		object = data->object_table + i;
- 
-@@ -914,20 +907,22 @@ static ssize_t mxt_object_show(struct device *dev,
- 			continue;
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 36fa77b..3b6f7bf 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -96,6 +96,7 @@ static ssize_t hidraw_read(struct file *file, char __user *buffer, size_t count,
  		}
  
-+		error = __mxt_read_reg(data->client, object->start_address,
-+				object->size + 1, obuf);
-+		if (error)
-+			break;
-+
- 		for (j = 0; j < object->size + 1; j++) {
--			error = mxt_read_object(data,
--						object->type, j, &val);
--			if (error)
--				return error;
-+			val = obuf[j];
+ 		kfree(list->buffer[list->tail].value);
++		list->buffer[list->tail].value = NULL;
+ 		list->tail = (list->tail + 1) & (HIDRAW_BUFFER_SIZE - 1);
+ 	}
+ out:
+@@ -300,6 +301,7 @@ static int hidraw_release(struct inode * inode, struct file * file)
+ 	struct hidraw *dev;
+ 	struct hidraw_list *list = file->private_data;
+ 	int ret;
++	int i;
  
- 			count += scnprintf(buf + count, PAGE_SIZE - count,
- 					"\t[%2d]: %02x (%d)\n", j, val, val);
+ 	mutex_lock(&minors_lock);
+ 	if (!hidraw_table[minor]) {
+@@ -317,6 +319,9 @@ static int hidraw_release(struct inode * inode, struct file * file)
+ 			kfree(list->hidraw);
  		}
--
- 		count += scnprintf(buf + count, PAGE_SIZE - count, "\n");
+ 	}
++
++	for (i = 0; i < HIDRAW_BUFFER_SIZE; ++i)
++		kfree(list->buffer[i].value);
+ 	kfree(list);
+ 	ret = 0;
+ unlock:
+@@ -446,12 +451,17 @@ int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+ 	int ret = 0;
+ 
+ 	list_for_each_entry(list, &dev->list, node) {
++		int new_head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
++
++		if (new_head == list->tail)
++			continue;
++
+ 		if (!(list->buffer[list->head].value = kmemdup(data, len, GFP_ATOMIC))) {
+ 			ret = -ENOMEM;
+ 			break;
+ 		}
+ 		list->buffer[list->head].len = len;
+-		list->head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
++		list->head = new_head;
+ 		kill_fasync(&list->fasync, SIGIO, POLL_IN);
  	}
  
--	return count;
-+	kfree(obuf);
-+	return error ?: count;
- }
- 
- static int mxt_load_fw(struct device *dev, const char *fn)
 -- 
-1.7.7.3
+1.7.10.4
+

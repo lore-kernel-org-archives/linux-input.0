@@ -1,71 +1,103 @@
-From: Matthieu CASTET <matthieu.castet-ITF29qwbsa/QT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] hid-core : optimize in case of hidraw
-Date: Thu, 28 Jun 2012 16:53:11 +0200
-Message-ID: <1340895191-13059-1-git-send-email-matthieu.castet@parrot.com>
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jkosina-AlSwsSmVLrQ@public.gmane.org, Matthieu CASTET <matthieu.castet-ITF29qwbsa/QT0dZR+AlfA@public.gmane.org>
+From: Yufeng Shen <miletus@chromium.org>
+Subject: [PATCH] HID: magicmouse: Implement Multi-touch Protocol B (MT-B)
+Date: Thu, 28 Jun 2012 15:54:31 -0400
+Message-ID: <1340913271-588-1-git-send-email-miletus@chromium.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f202.google.com ([209.85.217.202]:61806 "EHLO
+	mail-lb0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752410Ab2F1Tyn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 Jun 2012 15:54:43 -0400
+Received: by lbbgp10 with SMTP id gp10so158672lbb.1
+        for <linux-input@vger.kernel.org>; Thu, 28 Jun 2012 12:54:42 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Andrew de los Reyes <adlr@chromium.org>
 
-When using hidraw, hid buffer can be big and take lot's of
-time to process (interrupt) kernel context.
-Don't try to parse report if we are only interrested in hidraw.
+The driver for Apple Magic Trackpad/Mouse currently uses
+Multi-touch Protocol A (MT-A) to report touch events and uses
+ABS_MT_TRACKING_ID to do finger tracking. The fact of the device
+being able to track individual finger makes it possible to
+report touch events using MT-B. This patch adds the support
+for the driver to report MT-B and makes it configurable through
+module parameter so that existing codes that are relying on its
+MT-A implemtation don't get affected.
 
-Also don't prepare data for debug stuff if no debugfs file
-are opened.
-
-Signed-off-by: Matthieu CASTET <matthieu.castet-ITF29qwbsa/QT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Yufeng Shen <miletus@chromium.org>
 ---
- drivers/hid/hid-core.c    |   10 ++++++++--
- drivers/hid/hid-picolcd.c |    2 +-
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ drivers/hid/hid-magicmouse.c |   29 ++++++++++++++++++++++++-----
+ 1 files changed, 24 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 8e3a6b2..9f8f7c6 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1194,8 +1194,10 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
- 			goto out;
- 	}
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 40ac665..18d1ea0 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -17,6 +17,7 @@
+ #include <linux/device.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
++#include <linux/input/mt.h>
+ #include <linux/slab.h>
+ #include <linux/usb.h>
  
--	for (a = 0; a < report->maxfield; a++)
--		hid_input_field(hid, report->field[a], cdata, interrupt);
-+	if (hid->claimed != HID_CLAIMED_HIDRAW) {
-+		for (a = 0; a < report->maxfield; a++)
-+			hid_input_field(hid, report->field[a], cdata, interrupt);
-+	}
+@@ -56,6 +57,10 @@ static bool report_undeciphered;
+ module_param(report_undeciphered, bool, 0644);
+ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state field using a MSC_RAW event");
  
- 	if (hid->claimed & HID_CLAIMED_INPUT)
- 		hidinput_report_event(hid, report);
-@@ -1243,6 +1245,10 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
- 		goto unlock;
- 	}
- 
-+	/* Avoid unnecessary overhead if debugfs is disabled */
-+	if (list_empty(&hid->debug_list))
-+		goto nomem;
++static bool use_MTB;
++module_param(use_MTB, bool, 0644);
++MODULE_PARM_DESC(use_MTB, "Whether using MT-B protocol to report touch events");
 +
- 	buf = kmalloc(sizeof(char) * HID_DEBUG_BUFSIZE, GFP_ATOMIC);
+ #define TRACKPAD_REPORT_ID 0x28
+ #define MOUSE_REPORT_ID    0x29
+ #define DOUBLE_REPORT_ID   0xf7
+@@ -275,9 +280,18 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+ 	} else if (msc->single_touch_id == id)
+ 		msc->single_touch_id = SINGLE_TOUCH_UP;
  
- 	if (!buf)
-diff --git a/drivers/hid/hid-picolcd.c b/drivers/hid/hid-picolcd.c
-index 45c3433..3e0a1e5 100644
---- a/drivers/hid/hid-picolcd.c
-+++ b/drivers/hid/hid-picolcd.c
-@@ -1846,7 +1846,7 @@ static void picolcd_debug_out_report(struct picolcd_data *data,
- #define BUFF_SZ 256
++	if (!report_touches)
++		return;
++
++	if (use_MTB) {
++		input_mt_slot(input, id);
++		input_mt_report_slot_state(input, MT_TOOL_FINGER, down);
++	}
++
+ 	/* Generate the input events for this touch. */
+-	if (report_touches && down) {
+-		input_report_abs(input, ABS_MT_TRACKING_ID, id);
++	if (down) {
++		if (!use_MTB)
++			input_report_abs(input, ABS_MT_TRACKING_ID, id);
+ 		input_report_abs(input, ABS_MT_TOUCH_MAJOR, touch_major << 2);
+ 		input_report_abs(input, ABS_MT_TOUCH_MINOR, touch_minor << 2);
+ 		input_report_abs(input, ABS_MT_ORIENTATION, -orientation);
+@@ -290,8 +304,8 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+ 			else /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
+ 				input_event(input, EV_MSC, MSC_RAW, tdata[8]);
+ 		}
+-
+-		input_mt_sync(input);
++		if (!use_MTB)
++			input_mt_sync(input);
+ 	}
+ }
  
- 	/* Avoid unnecessary overhead if debugfs is disabled */
--	if (!hdev->debug_events)
-+	if (list_empty(&hdev->debug_list))
- 		return;
+@@ -425,7 +439,12 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+ 	if (report_touches) {
+ 		__set_bit(EV_ABS, input->evbit);
  
- 	buff = kmalloc(BUFF_SZ, GFP_ATOMIC);
+-		input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15, 0, 0);
++		if (use_MTB)
++			input_mt_init_slots(input, 16);
++		else
++			input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15,
++					     0, 0);
++
+ 		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255 << 2,
+ 				     4, 0);
+ 		input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255 << 2,
 -- 
-1.7.10.4
+1.7.7.3
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

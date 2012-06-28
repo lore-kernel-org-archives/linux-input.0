@@ -1,186 +1,44 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 19/23 v6] Input: atmel_mxt_ts - cache T9 reportid range when reading object table
-Date: Thu, 28 Jun 2012 21:08:20 +0800
-Message-ID: <1340888904-15620-20-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 14/23 v6] Input: atmel_mxt_ts - update driver ID info logging
+Date: Thu, 28 Jun 2012 21:08:15 +0800
+Message-ID: <1340888904-15620-15-git-send-email-djkurtz@chromium.org>
 References: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f74.google.com ([209.85.216.74]:45279 "EHLO
-	mail-qa0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754600Ab2F1NIb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jun 2012 09:08:31 -0400
-Received: by qabg24 with SMTP id g24so3527qab.1
-        for <linux-input@vger.kernel.org>; Thu, 28 Jun 2012 06:08:29 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, Yufeng Shen <miletus@chromium.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
+List-Id: linux-input@vger.kernel.org
 
-Streamline interrupt processing by caching the T9 reportid range when
-first reading the object table.
-
-In the process, refactor reading the object descriptor table.
-First, since the object_table entries are now exactly the same layout
-in device memory and in the driver, allocate an appropriately sized
-array and fetch the entire table directly into it in a single i2c
-transaction.  Since a 6 byte table object requires 10 bytes to read,
-doing this dramatically reduces overhead.
-
-Note: The cached T9 reportid's are initialized to 0, which is an invalid
-reportid.  Thus, the checks in the interrupt handler will always fail for
-devices that do not support the T9 object.  Therefore, after doing a
-firmware update, the old object table is destroyed and all cached object
-values are reset to 0, before reading the new object table, in case
-the new firmware does not have the old objects.
-
-This patch tested on an MXT224E.
+Print unsigned values as '%u'.
+Also, parse and print the firmware version in its canonical format, as
+suggested by Nick Dyer.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   76 ++++++++++++++++--------------
- 1 files changed, 41 insertions(+), 35 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 488e3e8..48f3637 100644
+index fac3791..7a839d1 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -227,13 +227,10 @@ struct mxt_info {
- struct mxt_object {
- 	u8 type;
- 	u16 start_address;
--	u8 size;
--	u8 instances;
-+	u8 size;		/* Size of each instance - 1 */
-+	u8 instances;		/* Number of instances - 1 */
- 	u8 num_report_ids;
--
--	/* to map object and message */
--	u8 max_reportid;
--};
-+} __packed;
+@@ -856,12 +856,12 @@ static int mxt_initialize(struct mxt_data *data)
+ 	info->matrix_ysize = val;
  
- struct mxt_message {
- 	u8 reportid;
-@@ -251,6 +248,10 @@ struct mxt_data {
- 	unsigned int irq;
- 	unsigned int max_x;
- 	unsigned int max_y;
-+
-+	/* Cached parameters from object table */
-+	u8 T9_reportid_min;
-+	u8 T9_reportid_max;
- };
+ 	dev_info(&client->dev,
+-			"Family ID: %d Variant ID: %d Version: %d Build: %d\n",
+-			info->family_id, info->variant_id, info->version,
+-			info->build);
++			"Family ID: %u Variant ID: %u Major.Minor.Build: %u.%u.%02X\n",
++			info->family_id, info->variant_id, info->version >> 4,
++			info->version & 0xf, info->build);
  
- static bool mxt_object_readable(unsigned int type)
-@@ -459,13 +460,6 @@ static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
- 	return __mxt_write_reg(client, reg, 1, &val);
- }
+ 	dev_info(&client->dev,
+-			"Matrix X Size: %d Matrix Y Size: %d Object Num: %d\n",
++			"Matrix X Size: %u Matrix Y Size: %u Object Num: %u\n",
+ 			info->matrix_xsize, info->matrix_ysize,
+ 			info->object_num);
  
--static int mxt_read_object_table(struct i2c_client *client,
--				      u16 reg, u8 *object_buf)
--{
--	return __mxt_read_reg(client, reg, MXT_OBJECT_SIZE,
--				   object_buf);
--}
--
- static struct mxt_object *
- mxt_get_object(struct mxt_data *data, u8 type)
- {
-@@ -564,7 +558,6 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- {
- 	struct mxt_data *data = dev_id;
- 	struct mxt_message message;
--	struct mxt_object *object;
- 	struct device *dev = &data->client->dev;
- 	int id;
- 	u8 reportid;
-@@ -579,13 +572,8 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- 
- 		reportid = message.reportid;
- 
--		/* whether reportid is thing of MXT_TOUCH_MULTI_T9 */
--		object = mxt_get_object(data, MXT_TOUCH_MULTI_T9);
--		if (!object)
--			goto end;
--
--		max_reportid = object->max_reportid;
--		min_reportid = max_reportid - object->num_report_ids + 1;
-+		max_reportid = data->T9_reportid_max;
-+		min_reportid = data->T9_reportid_min;
- 		id = reportid - min_reportid;
- 
- 		if (reportid >= min_reportid && reportid <= max_reportid)
-@@ -720,30 +708,46 @@ static int mxt_get_info(struct mxt_data *data)
- 
- static int mxt_get_object_table(struct mxt_data *data)
- {
-+	struct i2c_client *client = data->client;
-+	size_t table_size;
- 	int error;
- 	int i;
--	u16 reg;
--	u8 reportid = 0;
--	u8 buf[MXT_OBJECT_SIZE];
-+	u8 reportid;
-+
-+	table_size = data->info.object_num * sizeof(struct mxt_object);
-+	error = __mxt_read_reg(client, MXT_OBJECT_START, table_size,
-+			data->object_table);
-+	if (error)
-+		return error;
- 
-+	/* Valid Report IDs start counting from 1 */
-+	reportid = 1;
- 	for (i = 0; i < data->info.object_num; i++) {
- 		struct mxt_object *object = data->object_table + i;
-+		u8 min_id, max_id;
- 
--		reg = MXT_OBJECT_START + MXT_OBJECT_SIZE * i;
--		error = mxt_read_object_table(data->client, reg, buf);
--		if (error)
--			return error;
--
--		object->type = buf[0];
--		object->start_address = (buf[2] << 8) | buf[1];
--		object->size = buf[3];
--		object->instances = buf[4];
--		object->num_report_ids = buf[5];
-+		le16_to_cpus(&object->start_address);
- 
- 		if (object->num_report_ids) {
-+			min_id = reportid;
- 			reportid += object->num_report_ids *
- 					(object->instances + 1);
--			object->max_reportid = reportid;
-+			max_id = reportid - 1;
-+		} else {
-+			min_id = 0;
-+			max_id = 0;
-+		}
-+
-+		dev_dbg(&data->client->dev,
-+			"Type %2d Start %3d Size %3d Instances %2d ReportIDs %3u : %3u\n",
-+			object->type, object->start_address, object->size + 1,
-+			object->instances + 1, min_id, max_id);
-+
-+		switch (object->type) {
-+		case MXT_TOUCH_MULTI_T9:
-+			data->T9_reportid_min = min_id;
-+			data->T9_reportid_max = max_id;
-+			break;
- 		}
- 	}
- 
-@@ -754,6 +758,8 @@ static void mxt_free_object_table(struct mxt_data *data)
- {
- 	kfree(data->object_table);
- 	data->object_table = NULL;
-+	data->T9_reportid_min = 0;
-+	data->T9_reportid_max = 0;
- }
- 
- static int mxt_initialize(struct mxt_data *data)
 -- 
 1.7.7.3
-

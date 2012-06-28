@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 23/23 v6] Input: atmel_mxt_ts - parse T6 reports
-Date: Thu, 28 Jun 2012 21:08:24 +0800
-Message-ID: <1340888904-15620-24-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 01/23 v6] Input: atmel_mxt_ts - derive phys from i2c client adapter
+Date: Thu, 28 Jun 2012 21:08:02 +0800
+Message-ID: <1340888904-15620-2-git-send-email-djkurtz@chromium.org>
 References: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
@@ -10,88 +10,39 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromai
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-The normal messages sent after boot or NVRAM update are T6 reports,
-containing a status, and the config memory checksum.  Parse them and dump
-a useful info message.
+This allows userspace to more easily distinguish which bus a particular
+atmel_mxt_ts device is attached to.
 
-This patch tested on an MXT224E.
+The resulting phys will be something like:
+ i2c-1-0067/input0
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   23 +++++++++++++++++++----
- 1 files changed, 19 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 4c9a06c..37190ab 100644
+index 42e6450..b1108ca 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -248,6 +248,7 @@ struct mxt_data {
- 	unsigned int max_y;
- 
- 	/* Cached parameters from object table */
-+	u8 T6_reportid;
- 	u8 T9_reportid_min;
- 	u8 T9_reportid_max;
- };
-@@ -549,6 +550,11 @@ static void mxt_input_touchevent(struct mxt_data *data,
+@@ -250,6 +250,7 @@ struct mxt_finger {
+ struct mxt_data {
+ 	struct i2c_client *client;
+ 	struct input_dev *input_dev;
++	char phys[64];		/* device physical location */
+ 	const struct mxt_platform_data *pdata;
+ 	struct mxt_object *object_table;
+ 	struct mxt_info info;
+@@ -1106,6 +1107,10 @@ static int __devinit mxt_probe(struct i2c_client *client,
  	}
- }
  
-+static unsigned mxt_extract_T6_csum(const u8 *csum)
-+{
-+	return csum[0] | (csum[1] << 8) | (csum[2] << 16);
-+}
+ 	input_dev->name = "Atmel maXTouch Touchscreen";
++	snprintf(data->phys, sizeof(data->phys), "i2c-%u-%04x/input0",
++		 client->adapter->nr, client->addr);
++	input_dev->phys = data->phys;
 +
- static bool mxt_is_T9_message(struct mxt_data *data, struct mxt_message *msg)
- {
- 	u8 id = msg->reportid;
-@@ -559,8 +565,8 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- {
- 	struct mxt_data *data = dev_id;
- 	struct mxt_message message;
-+	const u8 *payload = &message.message[0];
- 	struct device *dev = &data->client->dev;
--	int id;
- 	u8 reportid;
- 	bool update_input = false;
- 
-@@ -572,9 +578,13 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- 
- 		reportid = message.reportid;
- 
--		id = reportid - data->T9_reportid_min;
--
--		if (mxt_is_T9_message(data, &message)) {
-+		if (reportid == data->T6_reportid) {
-+			u8 status = payload[0];
-+			unsigned csum = mxt_extract_T6_csum(&payload[1]);
-+			dev_dbg(dev, "Status: %02x Config Checksum: %06x\n",
-+				status, csum);
-+		} else if (mxt_is_T9_message(data, &message)) {
-+			int id = reportid - data->T9_reportid_min;
- 			mxt_input_touchevent(data, &message, id);
- 			update_input = true;
- 		} else {
-@@ -749,6 +759,9 @@ static int mxt_get_object_table(struct mxt_data *data)
- 			object->instances + 1, min_id, max_id);
- 
- 		switch (object->type) {
-+		case MXT_GEN_COMMAND_T6:
-+			data->T6_reportid = min_id;
-+			break;
- 		case MXT_TOUCH_MULTI_T9:
- 			data->T9_reportid_min = min_id;
- 			data->T9_reportid_max = max_id;
-@@ -763,8 +776,10 @@ static void mxt_free_object_table(struct mxt_data *data)
- {
- 	kfree(data->object_table);
- 	data->object_table = NULL;
-+	data->T6_reportid = 0;
- 	data->T9_reportid_min = 0;
- 	data->T9_reportid_max = 0;
-+
- }
- 
- static int mxt_initialize(struct mxt_data *data)
+ 	input_dev->id.bustype = BUS_I2C;
+ 	input_dev->dev.parent = &client->dev;
+ 	input_dev->open = mxt_input_open;
 -- 
 1.7.7.3

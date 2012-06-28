@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 13/23 v6] Input: atmel_mxt_ts - read ID information block in one i2c transaction
-Date: Thu, 28 Jun 2012 21:08:14 +0800
-Message-ID: <1340888904-15620-14-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 18/23 v6] Input: atmel_mxt_ts - refactor when and how object table is freed
+Date: Thu, 28 Jun 2012 21:08:19 +0800
+Message-ID: <1340888904-15620-19-git-send-email-djkurtz@chromium.org>
 References: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
@@ -10,60 +10,100 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromai
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-Reading the whole info block in one i2c transaction speeds up driver
-probe significantly, especially on slower i2c busses.
+The Object Table is freed in three cases:
+  1) When the driver is being removed.
+  2) In the error path of mxt_initialize().
+  3) Just after a firmware update, when a new object table is
+     about to be read.
+
+For cases 2 & 3, the driver is not immediately unloaded, so this patch
+refactors these cases to use a common cleanup function.  It also refactors
+the mxt_initialize error paths to ensure that this cleanup happens.
+
+Note: mxt_update_fw_store() does not handle errors during mxt_initialize().
+A proposed fix for this is in a subsequent patchset.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   26 +++-----------------------
- 1 files changed, 3 insertions(+), 23 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   23 ++++++++++++++++-------
+ 1 files changed, 16 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 99d5210..fac3791 100644
+index d6b64a0f..488e3e8 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -36,6 +36,7 @@
- #define MXT_FW_NAME		"maxtouch.fw"
- 
- /* Registers */
-+#define MXT_INFO		0x00
- #define MXT_FAMILY_ID		0x00
- #define MXT_VARIANT_ID		0x01
- #define MXT_VERSION		0x02
-@@ -760,32 +761,11 @@ static int mxt_get_info(struct mxt_data *data)
- 	struct i2c_client *client = data->client;
- 	struct mxt_info *info = &data->info;
- 	int error;
--	u8 val;
--
--	error = mxt_read_reg(client, MXT_FAMILY_ID, &val);
--	if (error)
--		return error;
--	info->family_id = val;
--
--	error = mxt_read_reg(client, MXT_VARIANT_ID, &val);
--	if (error)
--		return error;
--	info->variant_id = val;
--
--	error = mxt_read_reg(client, MXT_VERSION, &val);
--	if (error)
--		return error;
--	info->version = val;
--
--	error = mxt_read_reg(client, MXT_BUILD, &val);
--	if (error)
--		return error;
--	info->build = val;
- 
--	error = mxt_read_reg(client, MXT_OBJECT_NUM, &val);
-+	/* Read 7-byte info block starting at address 0 */
-+	error = __mxt_read_reg(client, MXT_INFO, sizeof(*info), info);
- 	if (error)
- 		return error;
--	info->object_num = val;
- 
+@@ -750,6 +750,12 @@ static int mxt_get_object_table(struct mxt_data *data)
  	return 0;
  }
+ 
++static void mxt_free_object_table(struct mxt_data *data)
++{
++	kfree(data->object_table);
++	data->object_table = NULL;
++}
++
+ static int mxt_initialize(struct mxt_data *data)
+ {
+ 	struct i2c_client *client = data->client;
+@@ -772,12 +778,12 @@ static int mxt_initialize(struct mxt_data *data)
+ 	/* Get object table information */
+ 	error = mxt_get_object_table(data);
+ 	if (error)
+-		return error;
++		goto err_free_object_table;
+ 
+ 	/* Check register init values */
+ 	error = mxt_check_reg_init(data);
+ 	if (error)
+-		return error;
++		goto err_free_object_table;
+ 
+ 	mxt_handle_pdata(data);
+ 
+@@ -795,12 +801,12 @@ static int mxt_initialize(struct mxt_data *data)
+ 	/* Update matrix size at info struct */
+ 	error = mxt_read_reg(client, MXT_MATRIX_X_SIZE, &val);
+ 	if (error)
+-		return error;
++		goto err_free_object_table;
+ 	info->matrix_xsize = val;
+ 
+ 	error = mxt_read_reg(client, MXT_MATRIX_Y_SIZE, &val);
+ 	if (error)
+-		return error;
++		goto err_free_object_table;
+ 	info->matrix_ysize = val;
+ 
+ 	dev_info(&client->dev,
+@@ -814,6 +820,10 @@ static int mxt_initialize(struct mxt_data *data)
+ 			info->object_num);
+ 
+ 	return 0;
++
++err_free_object_table:
++	mxt_free_object_table(data);
++	return error;
+ }
+ 
+ static void mxt_calc_resolution(struct mxt_data *data)
+@@ -1000,8 +1010,7 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 		/* Wait for reset */
+ 		msleep(MXT_FWRESET_TIME);
+ 
+-		kfree(data->object_table);
+-		data->object_table = NULL;
++		mxt_free_object_table(data);
+ 
+ 		mxt_initialize(data);
+ 	}
+@@ -1128,7 +1137,7 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 
+ 	error = mxt_initialize(data);
+ 	if (error)
+-		goto err_free_object;
++		goto err_free_mem;
+ 
+ 	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
+ 			pdata->irqflags, client->name, data);
 -- 
 1.7.7.3

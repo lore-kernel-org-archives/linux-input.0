@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 18/23 v6] Input: atmel_mxt_ts - refactor when and how object table is freed
-Date: Thu, 28 Jun 2012 21:08:19 +0800
-Message-ID: <1340888904-15620-19-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 21/23 v6] Input: atmel_mxt_ts - use T9 reportid range to init number of mt slots
+Date: Thu, 28 Jun 2012 21:08:22 +0800
+Message-ID: <1340888904-15620-22-git-send-email-djkurtz@chromium.org>
 References: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
@@ -10,100 +10,73 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromai
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-The Object Table is freed in three cases:
-  1) When the driver is being removed.
-  2) In the error path of mxt_initialize().
-  3) Just after a firmware update, when a new object table is
-     about to be read.
+Atmel mxt devices can report one finger for each T9 reportid.
+Therefore, this range can be used to report the max number of MT-B slots
+to userspace instead of assuming a fixed 10.
 
-For cases 2 & 3, the driver is not immediately unloaded, so this patch
-refactors these cases to use a common cleanup function.  It also refactors
-the mxt_initialize error paths to ensure that this cleanup happens.
-
-Note: mxt_update_fw_store() does not handle errors during mxt_initialize().
-A proposed fix for this is in a subsequent patchset.
+Note that mxt_initialized() must complete early, since the input_dev
+properties now depend on values in the object table.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   23 ++++++++++++++++-------
- 1 files changed, 16 insertions(+), 7 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index d6b64a0f..488e3e8 100644
+index a9e0b54..2746b0d 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -750,6 +750,12 @@ static int mxt_get_object_table(struct mxt_data *data)
- 	return 0;
- }
+@@ -212,8 +212,6 @@
+ /* Touchscreen absolute values */
+ #define MXT_MAX_AREA		0xff
  
-+static void mxt_free_object_table(struct mxt_data *data)
-+{
-+	kfree(data->object_table);
-+	data->object_table = NULL;
-+}
-+
- static int mxt_initialize(struct mxt_data *data)
- {
- 	struct i2c_client *client = data->client;
-@@ -772,12 +778,12 @@ static int mxt_initialize(struct mxt_data *data)
- 	/* Get object table information */
- 	error = mxt_get_object_table(data);
- 	if (error)
--		return error;
-+		goto err_free_object_table;
+-#define MXT_MAX_FINGER		10
+-
+ struct mxt_info {
+ 	u8 family_id;
+ 	u8 variant_id;
+@@ -1086,6 +1084,7 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 	struct mxt_data *data;
+ 	struct input_dev *input_dev;
+ 	int error;
++	unsigned int num_mt_slots;
  
- 	/* Check register init values */
- 	error = mxt_check_reg_init(data);
- 	if (error)
--		return error;
-+		goto err_free_object_table;
+ 	if (!pdata)
+ 		return -EINVAL;
+@@ -1115,6 +1114,10 @@ static int __devinit mxt_probe(struct i2c_client *client,
  
- 	mxt_handle_pdata(data);
+ 	mxt_calc_resolution(data);
  
-@@ -795,12 +801,12 @@ static int mxt_initialize(struct mxt_data *data)
- 	/* Update matrix size at info struct */
- 	error = mxt_read_reg(client, MXT_MATRIX_X_SIZE, &val);
- 	if (error)
--		return error;
-+		goto err_free_object_table;
- 	info->matrix_xsize = val;
- 
- 	error = mxt_read_reg(client, MXT_MATRIX_Y_SIZE, &val);
- 	if (error)
--		return error;
-+		goto err_free_object_table;
- 	info->matrix_ysize = val;
- 
- 	dev_info(&client->dev,
-@@ -814,6 +820,10 @@ static int mxt_initialize(struct mxt_data *data)
- 			info->object_num);
- 
- 	return 0;
-+
-+err_free_object_table:
-+	mxt_free_object_table(data);
-+	return error;
- }
- 
- static void mxt_calc_resolution(struct mxt_data *data)
-@@ -1000,8 +1010,7 @@ static ssize_t mxt_update_fw_store(struct device *dev,
- 		/* Wait for reset */
- 		msleep(MXT_FWRESET_TIME);
- 
--		kfree(data->object_table);
--		data->object_table = NULL;
-+		mxt_free_object_table(data);
- 
- 		mxt_initialize(data);
- 	}
-@@ -1128,7 +1137,7 @@ static int __devinit mxt_probe(struct i2c_client *client,
- 
- 	error = mxt_initialize(data);
- 	if (error)
--		goto err_free_object;
++	error = mxt_initialize(data);
++	if (error)
 +		goto err_free_mem;
++
+ 	__set_bit(EV_ABS, input_dev->evbit);
+ 	__set_bit(EV_KEY, input_dev->evbit);
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
+@@ -1128,9 +1131,10 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 			     0, 255, 0, 0);
  
+ 	/* For multi touch */
+-	error = input_mt_init_slots(input_dev, MXT_MAX_FINGER);
++	num_mt_slots = data->T9_reportid_max - data->T9_reportid_min + 1;
++	error = input_mt_init_slots(input_dev, num_mt_slots);
+ 	if (error)
+-		goto err_free_mem;
++		goto err_free_object;
+ 	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
+ 			     0, MXT_MAX_AREA, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+@@ -1143,10 +1147,6 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 	input_set_drvdata(input_dev, data);
+ 	i2c_set_clientdata(client, data);
+ 
+-	error = mxt_initialize(data);
+-	if (error)
+-		goto err_free_mem;
+-
  	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
  			pdata->irqflags, client->name, data);
+ 	if (error) {
 -- 
 1.7.7.3

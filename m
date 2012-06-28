@@ -1,40 +1,48 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/3] HID: hid-multitouch: fix input mode feature
- command
-Date: Thu, 28 Jun 2012 10:31:10 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1206281030070.17549@pobox.suse.cz>
-References: <1340109594-10732-1-git-send-email-benjamin.tissoires@gmail.com>
+From: Olivier Goffart <olivier@woboq.com>
+Subject: Re: [PATCH] Fix sentelic multi-touch driver
+Date: Thu, 28 Jun 2012 10:25:19 +0200
+Message-ID: <1624632.HRAD290WOc@gargamel>
+References: <1340829375-4995-1-git-send-email-ogoffart@woboq.com> <1206281559091.19930@cnaqrzbavhz.fragryvp.pbz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:50599 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751450Ab2F1IbR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jun 2012 04:31:17 -0400
-In-Reply-To: <1340109594-10732-1-git-send-email-benjamin.tissoires@gmail.com>
+Received: from mail01.worldserver.net ([217.13.200.41]:33820 "EHLO
+	mail01.worldserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753119Ab2F1IcI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 Jun 2012 04:32:08 -0400
+In-Reply-To: <1206281559091.19930@cnaqrzbavhz.fragryvp.pbz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Tai-hwa Liang <avatar@sentelic.com>, linux-input@vger.kernel.org
 
-On Tue, 19 Jun 2012, benjamin.tissoires wrote:
-
-> From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+On Thursday 28 June 2012 16:02:15 Tai-hwa Liang wrote:
+> On Wed, 27 Jun 2012, Olivier Goffart wrote:
+> > Always report both finger between the sync.  Even if the documentation
+> > of input-mt says one can only report one at the time, it does not
+> > work otherwise. This fix scrolling in X11 which flickers a lot.
 > 
-> Zytronic panels shows a new way of setting the Input Mode feature.
-> This feature is put in the second usage in the HID feature, instead
-> of the first, as the majority of the multitouch devices.
+>    I have a similar patch to address this issue. Would you please try to
+> see if https://bugzilla.kernel.org/attachment.cgi?id=73991 works for you?
+
+
+Hi,
+
+That patch also fixes the issue here.  (It fixes scrolling and two finger tap)
+But the case in which you put two finger into the touchpad then release one 
+finger is not handled properly. (I took care of that issue)
+
+(I have a Asus Zenbook UX31)
+
+ 
+> > Ignore the duplicate or release events. They keep some gestures from
+> > working (such as the two-finger tap)
+> > 
+> > This seems to fix the problems reported here:
+> > https://bugzilla.kernel.org/show_bug.cgi?id=43591
 > 
-> This patch adds a detection step when the feature is presented to know
-> where the feature is located in the report. We can then trigger the right
-> command to the device. This removes the magic number "0" in the function
-> mt_set_input_mode.
+>    FWIW, https://bugzilla.kernel.org/show_bug.cgi?id=43197 is the original
+> thread of the aforementioned patch.
 
-I have applied 1/3 and 3/3. For 2/3, Henrik raised concern which I'd like 
-to have resolved first.
 
-Thanks!
-
--- 
-Jiri Kosina
-SUSE Labs

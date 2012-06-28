@@ -1,73 +1,78 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 12/23 v6] Input: atmel_mxt_ts - optimize writing of object table entries
-Date: Thu, 28 Jun 2012 21:08:13 +0800
-Message-ID: <1340888904-15620-13-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 11/23 v6] Input: atmel_mxt_ts - add variable length __mxt_write_reg
+Date: Thu, 28 Jun 2012 21:08:12 +0800
+Message-ID: <1340888904-15620-12-git-send-email-djkurtz@chromium.org>
 References: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gg0-f202.google.com ([209.85.161.202]:51026 "EHLO
-	mail-gg0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754515Ab2F1NIa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jun 2012 09:08:30 -0400
-Received: by ggeh3 with SMTP id h3so204553gge.1
-        for <linux-input@vger.kernel.org>; Thu, 28 Jun 2012 06:08:29 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, Yufeng Shen <miletus@chromium.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
+List-Id: linux-input@vger.kernel.org
 
-Write each object using a single bulk i2c write transfer.
+The i2c bus requires 4 bytes to do a 1-byte write
+(1 byte i2c address + 2 byte offset + 1 byte data).
+
+By taking a length with writes, the driver can amortize transaction
+overhead by performing larger transactions where appropriate.
+
+This patch just sets up the new API.  Later patches refactor writes
+to take advantage of the larger transactions.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-Reviewed-by: Joonyoung Shim <jy0922.shim@samsung.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   24 ++++++++++++------------
- 1 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   23 ++++++++++++++++++-----
+ 1 files changed, 18 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index dd2577b..99d5210 100644
+index a68b227..dd2577b 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -655,7 +655,8 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 	struct mxt_object *object;
- 	struct device *dev = &data->client->dev;
- 	int index = 0;
--	int i, j, config_offset;
-+	int i, size;
-+	int ret;
+@@ -431,17 +431,24 @@ static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
+ 	return __mxt_read_reg(client, reg, 1, val);
+ }
  
- 	if (!pdata->config) {
- 		dev_dbg(dev, "No cfg data defined, skipping reg init\n");
-@@ -668,18 +669,17 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 		if (!mxt_object_writable(object->type))
- 			continue;
+-static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
++static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
++			   const void *val)
+ {
+-	u8 buf[3];
++	u8 *buf;
++	size_t count;
+ 	int ret;
  
--		for (j = 0;
--		     j < (object->size + 1) * (object->instances + 1);
--		     j++) {
--			config_offset = index + j;
--			if (config_offset > pdata->config_length) {
--				dev_err(dev, "Not enough config data!\n");
--				return -EINVAL;
--			}
--			mxt_write_object(data, object->type, j,
--					 pdata->config[config_offset]);
-+		size = (object->size + 1) * (object->instances + 1);
-+		if (index + size > pdata->config_length) {
-+			dev_err(dev, "Not enough config data!\n");
-+			return -EINVAL;
- 		}
--		index += (object->size + 1) * (object->instances + 1);
++	count = len + 2;
++	buf = kmalloc(count, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
 +
-+		ret = __mxt_write_reg(data->client, object->start_address,
-+				size, &pdata->config[index]);
-+		if (ret)
-+			return ret;
-+		index += size;
+ 	buf[0] = reg & 0xff;
+ 	buf[1] = (reg >> 8) & 0xff;
+-	buf[2] = val;
++	memcpy(&buf[2], val, len);
+ 
+-	ret = i2c_master_send(client, buf, 3);
+-	if (ret == 3) {
++	ret = i2c_master_send(client, buf, count);
++	if (ret == count) {
+ 		ret = 0;
+ 	} else {
+ 		if (ret >= 0)
+@@ -450,9 +457,15 @@ static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
+ 			__func__, ret);
  	}
  
- 	return 0;
++	kfree(buf);
+ 	return ret;
+ }
+ 
++static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
++{
++	return __mxt_write_reg(client, reg, 1, &val);
++}
++
+ static int mxt_read_object_table(struct i2c_client *client,
+ 				      u16 reg, u8 *object_buf)
+ {
 -- 
 1.7.7.3
-

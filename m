@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 09/23 v6] Input: atmel_mxt_ts - print all instances when dumping objects
-Date: Thu, 28 Jun 2012 21:08:10 +0800
-Message-ID: <1340888904-15620-10-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 07/23 v6] Input: atmel_mxt_ts - optimize reading objects in object sysfs entry
+Date: Thu, 28 Jun 2012 21:08:08 +0800
+Message-ID: <1340888904-15620-8-git-send-email-djkurtz@chromium.org>
 References: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
@@ -10,81 +10,81 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromai
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-For objects with multiple instances, dump them all, prepending each with
-its "Instance #".
+Read each object in a single i2c transaction instead of byte-by-byte
 
-[rydberg@euromail.se: break out mxt_show_instance()]
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   36 +++++++++++++++++++++--------
- 1 files changed, 26 insertions(+), 10 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   35 ++++++++++++-----------------
+ 1 files changed, 15 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index c8cfd7b..ee37b0b 100644
+index 55855b8..94dd1d1 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -877,6 +877,24 @@ static void mxt_calc_resolution(struct mxt_data *data)
- 	}
+@@ -479,20 +479,6 @@ static int mxt_read_message(struct mxt_data *data,
+ 			sizeof(struct mxt_message), message);
  }
  
-+static ssize_t mxt_show_instance(char *buf, int count,
-+				 struct mxt_object *object, int instance,
-+				 const u8 *val)
-+{
-+	int i;
-+
-+	if (object->instances > 0)
-+		count += scnprintf(buf + count, PAGE_SIZE - count,
-+				   "Instance %u\n", instance);
-+
-+	for (i = 0; i < object->size + 1; i++)
-+		count += scnprintf(buf + count, PAGE_SIZE - count,
-+				"\t[%2u]: %02x (%d)\n", i, val[i], val[i]);
-+	count += scnprintf(buf + count, PAGE_SIZE - count, "\n");
-+
-+	return count;
-+}
-+
- static ssize_t mxt_object_show(struct device *dev,
- 				    struct device_attribute *attr, char *buf)
+-static int mxt_read_object(struct mxt_data *data,
+-				u8 type, u8 offset, u8 *val)
+-{
+-	struct mxt_object *object;
+-	u16 reg;
+-
+-	object = mxt_get_object(data, type);
+-	if (!object)
+-		return -EINVAL;
+-
+-	reg = object->start_address;
+-	return __mxt_read_reg(data->client, reg + offset, 1, val);
+-}
+-
+ static int mxt_write_object(struct mxt_data *data,
+ 				 u8 type, u8 offset, u8 val)
  {
-@@ -885,7 +903,6 @@ static ssize_t mxt_object_show(struct device *dev,
- 	int count = 0;
+@@ -900,7 +886,14 @@ static ssize_t mxt_object_show(struct device *dev,
  	int i, j;
  	int error;
--	u8 val;
- 	u8 *obuf;
+ 	u8 val;
++	u8 *obuf;
++
++	/* Pre-allocate buffer large enough to hold max sized object. */
++	obuf = kmalloc(256, GFP_KERNEL);
++	if (!obuf)
++		return -ENOMEM;
  
- 	/* Pre-allocate buffer large enough to hold max sized object. */
-@@ -903,20 +920,19 @@ static ssize_t mxt_object_show(struct device *dev,
- 		count += scnprintf(buf + count, PAGE_SIZE - count,
- 				"T%u:\n", object->type);
++	error = 0;
+ 	for (i = 0; i < data->info.object_num; i++) {
+ 		object = data->object_table + i;
  
--		error = __mxt_read_reg(data->client, object->start_address,
--				object->size + 1, obuf);
--		if (error)
--			break;
-+		for (j = 0; j < object->instances + 1; j++) {
-+			u16 size = object->size + 1;
-+			u16 addr = object->start_address + j * size;
- 
--		for (j = 0; j < object->size + 1; j++) {
--			val = obuf[j];
-+			error = __mxt_read_reg(data->client, addr, size, obuf);
-+			if (error)
-+				goto done;
- 
--			count += scnprintf(buf + count, PAGE_SIZE - count,
--					"\t[%2d]: %02x (%d)\n", j, val, val);
-+			count = mxt_show_instance(buf, count, object, j, obuf);
+@@ -914,20 +907,22 @@ static ssize_t mxt_object_show(struct device *dev,
+ 			continue;
  		}
--		count += scnprintf(buf + count, PAGE_SIZE - count, "\n");
+ 
++		error = __mxt_read_reg(data->client, object->start_address,
++				object->size + 1, obuf);
++		if (error)
++			break;
++
+ 		for (j = 0; j < object->size + 1; j++) {
+-			error = mxt_read_object(data,
+-						object->type, j, &val);
+-			if (error)
+-				return error;
++			val = obuf[j];
+ 
+ 			count += scnprintf(buf + count, PAGE_SIZE - count,
+ 					"\t[%2d]: %02x (%d)\n", j, val, val);
+ 		}
+-
+ 		count += scnprintf(buf + count, PAGE_SIZE - count, "\n");
  	}
  
-+done:
- 	kfree(obuf);
- 	return error ?: count;
+-	return count;
++	kfree(obuf);
++	return error ?: count;
  }
+ 
+ static int mxt_load_fw(struct device *dev, const char *fn)
 -- 
 1.7.7.3

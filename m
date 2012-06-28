@@ -1,103 +1,81 @@
-From: Yufeng Shen <miletus@chromium.org>
-Subject: [PATCH] HID: magicmouse: Implement Multi-touch Protocol B (MT-B)
-Date: Thu, 28 Jun 2012 15:54:31 -0400
-Message-ID: <1340913271-588-1-git-send-email-miletus@chromium.org>
+From: Donald Kayser <linux@kayser.net>
+Subject: Re: /dev/input/by-path/<link> unreliable with MultiTouch device
+Date: Thu, 28 Jun 2012 15:34:34 -0500
+Message-ID: <2DE32D19-969D-44F6-BE9F-83CD2447D8E5@kayser.net>
+References: <73A57920-C505-48DF-A1F2-393BF18585DC@kayser.net> <CAN+gG=F8eH-p3S3gH=_8+UZf63LcoyEU_9xu+hFcfsQwmqbWwg@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v936)
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f202.google.com ([209.85.217.202]:61806 "EHLO
-	mail-lb0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752410Ab2F1Tyn (ORCPT
+Received: from omr14.networksolutionsemail.com ([205.178.146.64]:43956 "EHLO
+	omr14.networksolutionsemail.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750769Ab2F1Uen (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jun 2012 15:54:43 -0400
-Received: by lbbgp10 with SMTP id gp10so158672lbb.1
-        for <linux-input@vger.kernel.org>; Thu, 28 Jun 2012 12:54:42 -0700 (PDT)
+	Thu, 28 Jun 2012 16:34:43 -0400
+Received: from cm-omr11 (mail.networksolutionsemail.com [205.178.146.50])
+	by omr14.networksolutionsemail.com (8.13.8/8.13.8) with ESMTP id q5SKYhXZ008567
+	for <linux-input@vger.kernel.org>; Thu, 28 Jun 2012 16:34:43 -0400
+In-Reply-To: <CAN+gG=F8eH-p3S3gH=_8+UZf63LcoyEU_9xu+hFcfsQwmqbWwg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Andrew de los Reyes <adlr@chromium.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-The driver for Apple Magic Trackpad/Mouse currently uses
-Multi-touch Protocol A (MT-A) to report touch events and uses
-ABS_MT_TRACKING_ID to do finger tracking. The fact of the device
-being able to track individual finger makes it possible to
-report touch events using MT-B. This patch adds the support
-for the driver to report MT-B and makes it configurable through
-module parameter so that existing codes that are relying on its
-MT-A implemtation don't get affected.
+Hi Benjamin,
 
-Signed-off-by: Yufeng Shen <miletus@chromium.org>
----
- drivers/hid/hid-magicmouse.c |   29 ++++++++++++++++++++++++-----
- 1 files changed, 24 insertions(+), 5 deletions(-)
+> So:
+> 1) between 2.6.34 and 2.6.39, Mosart devices are handled in
+> hid-mosart, and since 3.0 through hid-multitouch. Using these drivers
+> will allow you to have a better support of your devices.
+> However I'm not 100% sure it won't create more than one input device
+> if your hardware declares more than one interface.
+>
+> 2) Using the quirk HID_QUIRK_MULTI_INPUT is the exact opposite of what
+> you want to do -> it creates several inputs when it sees several
+> touches -> you then have a lot of inputs with unusable stuff.
+>
+I have returned to this problem today. I've turned off the QUIRK and  
+added the hid_mosart driver. These devices are new so I added their  
+ID's so the mosart driver would recognize them. I end up with the same  
+results I had before ever trying the QUIRK: the event codes from the  
+device are not ABS_X and ABS_Y, but ABS_HAT2X and ABS_HAT2Y.  These  
+ABS_HAT2? events make it through the system device files and I can  
+read them using the linux input API. The problem is that the xorg  
+evdev driver does not process the ABS_HAT2? events. The QUIRK made the  
+events change to ABS_X and ABS_Y. The usbhid driver and hid_mosart  
+driver end up giving the same results with respect to the data being  
+reported via linux input API.
+>
+> - patch your kernel (> 2.6.35) using the patches here:
+> http://www.lii-enac.fr/en/architecture/linux-input/multitouch-howto.html#get
+> (but I did not tested old kernel releases) -> you will get the same
+> input layer for multitouch than a 3.4 kernel (the older the kernel is,
+> the more intrusive it is).
 
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index 40ac665..18d1ea0 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -17,6 +17,7 @@
- #include <linux/device.h>
- #include <linux/hid.h>
- #include <linux/module.h>
-+#include <linux/input/mt.h>
- #include <linux/slab.h>
- #include <linux/usb.h>
- 
-@@ -56,6 +57,10 @@ static bool report_undeciphered;
- module_param(report_undeciphered, bool, 0644);
- MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state field using a MSC_RAW event");
- 
-+static bool use_MTB;
-+module_param(use_MTB, bool, 0644);
-+MODULE_PARM_DESC(use_MTB, "Whether using MT-B protocol to report touch events");
-+
- #define TRACKPAD_REPORT_ID 0x28
- #define MOUSE_REPORT_ID    0x29
- #define DOUBLE_REPORT_ID   0xf7
-@@ -275,9 +280,18 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
- 	} else if (msc->single_touch_id == id)
- 		msc->single_touch_id = SINGLE_TOUCH_UP;
- 
-+	if (!report_touches)
-+		return;
-+
-+	if (use_MTB) {
-+		input_mt_slot(input, id);
-+		input_mt_report_slot_state(input, MT_TOOL_FINGER, down);
-+	}
-+
- 	/* Generate the input events for this touch. */
--	if (report_touches && down) {
--		input_report_abs(input, ABS_MT_TRACKING_ID, id);
-+	if (down) {
-+		if (!use_MTB)
-+			input_report_abs(input, ABS_MT_TRACKING_ID, id);
- 		input_report_abs(input, ABS_MT_TOUCH_MAJOR, touch_major << 2);
- 		input_report_abs(input, ABS_MT_TOUCH_MINOR, touch_minor << 2);
- 		input_report_abs(input, ABS_MT_ORIENTATION, -orientation);
-@@ -290,8 +304,8 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
- 			else /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
- 				input_event(input, EV_MSC, MSC_RAW, tdata[8]);
- 		}
--
--		input_mt_sync(input);
-+		if (!use_MTB)
-+			input_mt_sync(input);
- 	}
- }
- 
-@@ -425,7 +439,12 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
- 	if (report_touches) {
- 		__set_bit(EV_ABS, input->evbit);
- 
--		input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15, 0, 0);
-+		if (use_MTB)
-+			input_mt_init_slots(input, 16);
-+		else
-+			input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15,
-+					     0, 0);
-+
- 		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255 << 2,
- 				     4, 0);
- 		input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255 << 2,
--- 
-1.7.7.3
+I am reluctant to patch the kernel we end up qualifying for our  
+systems. It is an unknown for me trying to deliver a product soon.
+
+> - work on an udev rule that detect the physical path, and creates a
+> symlink /dev/input/mosart-X
+
+This is helpful and made it where I could get the QUIRK solution  
+working okay. Without the QUIRK there isn't an entry problem in the / 
+dev/input/by-path directory.
+
+> - rely on xorg input rules system to detect your devices (though I
+> don't know when they added the physical path in the configuration
+> options).
+
+
+
+I have been attempting to get the driver layer to send up ABS_X and  
+ABS_Y so that evdev would work. I mod'd evdev to process the new  
+events but it got screwy. I prefer to get the system to send up events  
+that evdev will handle and I won't have to modify it further. I don't  
+need any kind of multi-touch capability until the next major revision  
+of our application software, so I am taking the shortest path to get  
+there.
+
+Thanks,
+Donald
 

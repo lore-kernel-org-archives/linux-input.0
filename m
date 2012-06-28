@@ -1,45 +1,57 @@
-From: Olivier Goffart <olivier@woboq.com>
-Subject: Re: [PATCH] Fix sentelic multi-touch driver
-Date: Thu, 28 Jun 2012 11:44:21 +0200
-Message-ID: <1523768.XhBRLqFZzh@gargamel>
-References: <1340829375-4995-1-git-send-email-ogoffart@woboq.com> <1624632.HRAD290WOc@gargamel> <12062817144218.19930@cnaqrzbavhz.fragryvp.pbz>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 1/3] HID: hid-multitouch: fix input mode feature command
+Date: Thu, 28 Jun 2012 12:08:04 +0200
+Message-ID: <CAN+gG=GRO3PXK1QF4rUq49Z-7gXd6VDz=cbTNNmJBP6NLcgCKQ@mail.gmail.com>
+References: <1340109594-10732-1-git-send-email-benjamin.tissoires@gmail.com>
+	<alpine.LNX.2.00.1206281030070.17549@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail01.worldserver.net ([217.13.200.41]:52640 "EHLO
-	mail01.worldserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755483Ab2F1Joq (ORCPT
+Received: from mail-gg0-f174.google.com ([209.85.161.174]:36819 "EHLO
+	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932777Ab2F1KIF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jun 2012 05:44:46 -0400
-In-Reply-To: <12062817144218.19930@cnaqrzbavhz.fragryvp.pbz>
+	Thu, 28 Jun 2012 06:08:05 -0400
+In-Reply-To: <alpine.LNX.2.00.1206281030070.17549@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tai-hwa Liang <avatar@sentelic.com>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thursday 28 June 2012 17:17:50 Tai-hwa Liang wrote:
-> On Thu, 28 Jun 2012, Olivier Goffart wrote:
-> > On Thursday 28 June 2012 16:02:15 Tai-hwa Liang wrote:
-> [...]
-> 
-> >>    I have a similar patch to address this issue. Would you please try to
-> >> 
-> >> see if https://bugzilla.kernel.org/attachment.cgi?id=73991 works for you?
-> > 
-> > Hi,
-> > 
-> > That patch also fixes the issue here.  (It fixes scrolling and two finger
-> > tap) But the case in which you put two finger into the touchpad then
-> > release one finger is not handled properly. (I took care of that issue)
-> 
->    Would you please be more specific about the steps to reproduce this?
-> I've tested both of these two patches but failed to see the difference in
-> this case.
+Hi Jiri,
 
+Thanks a lot for that.
+My apologies. I didn't thanked Henrik and commented his review. So
+thank you Henrik. (the "break" here is not an optimisation as
+field->maxusage may be greater than the real report count).
 
- - Touch the touchpad with one finger and move it: this moves the cursor
- - Place a second finger: this allows you to scoll
- - Release a finger: you should now be able to move the cursor again.  This is 
-the part that does not work in one of the patch
+I'm currently quite overloaded with the hid over i2c bus, and I'm
+getting some very goods results. I'm stuck with the acpi part, but the
+rest of it is working pretty good for a draft. I'll keep you inform
+soon.
 
+Cheers,
+Benjamin
+
+On Thu, Jun 28, 2012 at 10:31 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Tue, 19 Jun 2012, benjamin.tissoires wrote:
+>
+>> From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+>>
+>> Zytronic panels shows a new way of setting the Input Mode feature.
+>> This feature is put in the second usage in the HID feature, instead
+>> of the first, as the majority of the multitouch devices.
+>>
+>> This patch adds a detection step when the feature is presented to know
+>> where the feature is located in the report. We can then trigger the right
+>> command to the device. This removes the magic number "0" in the function
+>> mt_set_input_mode.
+>
+> I have applied 1/3 and 3/3. For 2/3, Henrik raised concern which I'd like
+> to have resolved first.
+>
+> Thanks!
+>
+> --
+> Jiri Kosina
+> SUSE Labs

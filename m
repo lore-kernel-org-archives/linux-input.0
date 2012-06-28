@@ -1,41 +1,88 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/3] HID: hid-multitouch: fix input mode feature
- command
-Date: Thu, 28 Jun 2012 12:10:40 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1206281209530.17549@pobox.suse.cz>
-References: <1340109594-10732-1-git-send-email-benjamin.tissoires@gmail.com> <alpine.LNX.2.00.1206281030070.17549@pobox.suse.cz> <CAN+gG=GRO3PXK1QF4rUq49Z-7gXd6VDz=cbTNNmJBP6NLcgCKQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:56741 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753165Ab2F1KKr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jun 2012 06:10:47 -0400
-In-Reply-To: <CAN+gG=GRO3PXK1QF4rUq49Z-7gXd6VDz=cbTNNmJBP6NLcgCKQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: [PATCH 10/23 v6] Input: atmel_mxt_ts - return errors from i2c layer
+Date: Thu, 28 Jun 2012 21:08:11 +0800
+Message-ID: <1340888904-15620-11-git-send-email-djkurtz@chromium.org>
+References: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, Yufeng Shen <miletus@chromium.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 28 Jun 2012, Benjamin Tissoires wrote:
+The i2c layer can report a variety of errors, including -ENXIO for an i2c
+NAK.  Instead of treating them all as -EIO, pass the actual i2c layer
+error up to the caller.
 
-> Thanks a lot for that.
-> My apologies. I didn't thanked Henrik and commented his review. So
-> thank you Henrik. (the "break" here is not an optimisation as
-> field->maxusage may be greater than the real report count).
+However, still report as -EIO the unlikely case that a transaction was
+partially completed, and no error message was returned from i2c_*().
 
-Yes, I thought so, and therefore applied that patch. 2/3 I am still 
-keeping unapplied.
+Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c |   28 ++++++++++++++++++++--------
+ 1 files changed, 20 insertions(+), 8 deletions(-)
 
-> I'm currently quite overloaded with the hid over i2c bus, and I'm 
-> getting some very goods results. I'm stuck with the acpi part, but the 
-> rest of it is working pretty good for a draft. I'll keep you inform 
-> soon.
-
-Sounds great, looking forward to seeing the implementation :)
-
-Thanks,
-
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index ee37b0b..a68b227 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -396,6 +396,7 @@ static int __mxt_read_reg(struct i2c_client *client,
+ {
+ 	struct i2c_msg xfer[2];
+ 	u8 buf[2];
++	int ret;
+ 
+ 	buf[0] = reg & 0xff;
+ 	buf[1] = (reg >> 8) & 0xff;
+@@ -412,12 +413,17 @@ static int __mxt_read_reg(struct i2c_client *client,
+ 	xfer[1].len = len;
+ 	xfer[1].buf = val;
+ 
+-	if (i2c_transfer(client->adapter, xfer, 2) != 2) {
+-		dev_err(&client->dev, "%s: i2c transfer failed\n", __func__);
+-		return -EIO;
++	ret = i2c_transfer(client->adapter, xfer, 2);
++	if (ret == 2) {
++		ret = 0;
++	} else {
++		if (ret >= 0)
++			ret = -EIO;
++		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
++			__func__, ret);
+ 	}
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
+@@ -428,17 +434,23 @@ static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
+ static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
+ {
+ 	u8 buf[3];
++	int ret;
+ 
+ 	buf[0] = reg & 0xff;
+ 	buf[1] = (reg >> 8) & 0xff;
+ 	buf[2] = val;
+ 
+-	if (i2c_master_send(client, buf, 3) != 3) {
+-		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
+-		return -EIO;
++	ret = i2c_master_send(client, buf, 3);
++	if (ret == 3) {
++		ret = 0;
++	} else {
++		if (ret >= 0)
++			ret = -EIO;
++		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
++			__func__, ret);
+ 	}
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int mxt_read_object_table(struct i2c_client *client,
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.7.3

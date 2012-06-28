@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 10/23 v6] Input: atmel_mxt_ts - return errors from i2c layer
-Date: Thu, 28 Jun 2012 21:08:11 +0800
-Message-ID: <1340888904-15620-11-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 05/23 v6] Input: atmel_mxt_ts - don't read T5 when dumping objects
+Date: Thu, 28 Jun 2012 21:08:06 +0800
+Message-ID: <1340888904-15620-6-git-send-email-djkurtz@chromium.org>
 References: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
@@ -10,79 +10,27 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromai
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-The i2c layer can report a variety of errors, including -ENXIO for an i2c
-NAK.  Instead of treating them all as -EIO, pass the actual i2c layer
-error up to the caller.
-
-However, still report as -EIO the unlikely case that a transaction was
-partially completed, and no error message was returned from i2c_*().
+T5 is the message processor object.  Reading it will only have two
+outcomes, neither of which is particularly useful:
+ 1) the message count decrements, and a valid message will be lost
+ 2) an invalid message will be read (reportid == 0xff)
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   28 ++++++++++++++++++++--------
- 1 files changed, 20 insertions(+), 8 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index ee37b0b..a68b227 100644
+index c72f595..9f8dd97 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -396,6 +396,7 @@ static int __mxt_read_reg(struct i2c_client *client,
+@@ -263,7 +263,6 @@ struct mxt_data {
+ static bool mxt_object_readable(unsigned int type)
  {
- 	struct i2c_msg xfer[2];
- 	u8 buf[2];
-+	int ret;
- 
- 	buf[0] = reg & 0xff;
- 	buf[1] = (reg >> 8) & 0xff;
-@@ -412,12 +413,17 @@ static int __mxt_read_reg(struct i2c_client *client,
- 	xfer[1].len = len;
- 	xfer[1].buf = val;
- 
--	if (i2c_transfer(client->adapter, xfer, 2) != 2) {
--		dev_err(&client->dev, "%s: i2c transfer failed\n", __func__);
--		return -EIO;
-+	ret = i2c_transfer(client->adapter, xfer, 2);
-+	if (ret == 2) {
-+		ret = 0;
-+	} else {
-+		if (ret >= 0)
-+			ret = -EIO;
-+		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
-+			__func__, ret);
- 	}
- 
--	return 0;
-+	return ret;
- }
- 
- static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
-@@ -428,17 +434,23 @@ static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
- static int mxt_write_reg(struct i2c_client *client, u16 reg, u8 val)
- {
- 	u8 buf[3];
-+	int ret;
- 
- 	buf[0] = reg & 0xff;
- 	buf[1] = (reg >> 8) & 0xff;
- 	buf[2] = val;
- 
--	if (i2c_master_send(client, buf, 3) != 3) {
--		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
--		return -EIO;
-+	ret = i2c_master_send(client, buf, 3);
-+	if (ret == 3) {
-+		ret = 0;
-+	} else {
-+		if (ret >= 0)
-+			ret = -EIO;
-+		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
-+			__func__, ret);
- 	}
- 
--	return 0;
-+	return ret;
- }
- 
- static int mxt_read_object_table(struct i2c_client *client,
+ 	switch (type) {
+-	case MXT_GEN_MESSAGE_T5:
+ 	case MXT_GEN_COMMAND_T6:
+ 	case MXT_GEN_POWER_T7:
+ 	case MXT_GEN_ACQUIRE_T8:
 -- 
 1.7.7.3

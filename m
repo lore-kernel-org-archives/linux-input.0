@@ -1,149 +1,74 @@
-From: weixing <weixing@hanwang.com.cn>
-Subject: [PATCH 1/1] Input: hanwang - add support for Art Master II tablet
-Date: Fri, 29 Jun 2012 22:14:06 +0800
-Message-ID: <1340979246-2941-1-git-send-email-weixing@hanwang.com.cn>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 00/23 v6] cleanup atmel_mxt_ts
+Date: Fri, 29 Jun 2012 16:23:45 +0200
+Message-ID: <20120629142345.GA8411@polaris.bitmath.org>
+References: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hanwang.com.cn ([221.122.51.51]:53274 "EHLO mail.hanwang.com.cn"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750887Ab2F2OOi (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Jun 2012 10:14:38 -0400
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:40401 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750806Ab2F2OUL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 29 Jun 2012 10:20:11 -0400
+Content-Disposition: inline
+In-Reply-To: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, xing_wei777@126.com, weixing <weixing@hanwang.com.cn>
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>
 
-this adds support for old hanwang Art master II tablet
+> This patchset cleans up the atmel_mxt_ts touchscreen driver.
+> 
+> They were tested using an MXT224E, and apply cleanly to input/next.
+> 
+> Changes in v6:
+>  * Patches 1-8: No change
+>  * Patch 9: refactor per Henrik, and abort on error
+>  * Patch 10: rebased
+>  * Patch 11: kfree()
+>  * Patch 12-17: rebased
+>  * Patch 18: refactored per Henrik
+>  * Patch 19: Moved init spew from info -> debug & refactor kfree()
+>  * Patch 20, 23: refactored per Henrik
+>  * Patch 21-22: rebased
+>  * Patch 23: refactored per Henrik
+> 
+> Daniel Kurtz (23):
+>   Input: atmel_mxt_ts - derive phys from i2c client adapter
+>   Input: atmel_mxt_ts - use client name for irq
+>   Input: atmel_mxt_ts - detect OOM when creating mt slots
+>   Input: atmel_mxt_ts - warn if sysfs could not be created
+>   Input: atmel_mxt_ts - don't read T5 when dumping objects
+>   Input: atmel_mxt_ts - use scnprintf for object sysfs entry
+>   Input: atmel_mxt_ts - optimize reading objects in object sysfs entry
+>   Input: atmel_mxt_ts - print less overhead when dumping objects
+>   Input: atmel_mxt_ts - print all instances when dumping objects
+>   Input: atmel_mxt_ts - return errors from i2c layer
+>   Input: atmel_mxt_ts - add variable length __mxt_write_reg
+>   Input: atmel_mxt_ts - optimize writing of object table entries
+>   Input: atmel_mxt_ts - read ID information block in one i2c
+>     transaction
+>   Input: atmel_mxt_ts - update driver ID info logging
+>   Input: atmel_mxt_ts - add sysfs entries to read fw and hw version
+>   Input: atmel_mxt_ts - simplify event reporting
+>   Input: atmel_mxt_ts - add detail to touchevent debug message
+>   Input: atmel_mxt_ts - refactor when and how object table is freed
+>   Input: atmel_mxt_ts - cache T9 reportid range when reading object
+>     table
+>   Input: atmel_mxt_ts - refactor reportid checking in mxt_interrupt
+>   Input: atmel_mxt_ts - use T9 reportid range to init number of mt
+>     slots
+>   Input: atmel_mxt_ts - send all MT-B slots in one input report
+>   Input: atmel_mxt_ts - parse T6 reports
+> 
+>  drivers/input/touchscreen/atmel_mxt_ts.c |  468 +++++++++++++++--------------
+>  1 files changed, 242 insertions(+), 226 deletions(-)
+> 
+> -- 
+> 1.7.7.3
+> 
 
-Signed-off-by: weixing <weixing@hanwang.com.cn>
----
- drivers/input/tablet/hanwang.c |   50 ++++++++++++++++++++++++++++------------
- 1 files changed, 35 insertions(+), 15 deletions(-)
+All 23 patches applied and pushed. Thank you!
 
-diff --git a/drivers/input/tablet/hanwang.c b/drivers/input/tablet/hanwang.c
-index b2db3cf..b652de3 100644
---- a/drivers/input/tablet/hanwang.c
-+++ b/drivers/input/tablet/hanwang.c
-@@ -63,6 +63,7 @@ MODULE_LICENSE(DRIVER_LICENSE);
- enum hanwang_tablet_type {
- 	HANWANG_ART_MASTER_III,
- 	HANWANG_ART_MASTER_HD,
-+	HANWANG_ART_MASTER_II,
- };
- 
- struct hanwang {
-@@ -99,6 +100,8 @@ static const struct hanwang_features features_array[] = {
- 	  ART_MASTER_PKGLEN_MAX, 0x7f00, 0x4f60, 0x3f, 0x7f, 2048 },
- 	{ 0x8401, "Hanwang Art Master HD 5012", HANWANG_ART_MASTER_HD,
- 	  ART_MASTER_PKGLEN_MAX, 0x678e, 0x4150, 0x3f, 0x7f, 1024 },
-+	{ 0x8503, "Hanwang Art Master II", HANWANG_ART_MASTER_II,
-+	  ART_MASTER_PKGLEN_MAX, 0x27de, 0x1cfe, 0x3f, 0x7f, 1024 },
- };
- 
- static const int hw_eventtypes[] = {
-@@ -127,16 +130,30 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
- 	struct usb_device *dev = hanwang->usbdev;
- 	enum hanwang_tablet_type type = hanwang->features->type;
- 	int i;
--	u16 x, y, p;
-+	u16 p;
-+
-+	if (type == HANWANG_ART_MASTER_II) {
-+		hanwang->current_tool = BTN_TOOL_PEN;
-+		hanwang->current_id = STYLUS_DEVICE_ID;
-+	}
- 
- 	switch (data[0]) {
- 	case 0x02:	/* data packet */
- 		switch (data[1]) {
- 		case 0x80:	/* tool prox out */
--			hanwang->current_id = 0;
--			input_report_key(input_dev, hanwang->current_tool, 0);
-+			if (type != HANWANG_ART_MASTER_II) {
-+				hanwang->current_id = 0;
-+				input_report_key(input_dev,
-+					hanwang->current_tool, 0);
-+			}
-+			break;
-+		case 0x00:	/* artmaster ii pen leave */
-+			if (type == HANWANG_ART_MASTER_II) {
-+				hanwang->current_id = 0;
-+				input_report_key(input_dev,
-+					hanwang->current_tool, 0);
-+			}
- 			break;
--
- 		case 0xc2:	/* first time tool prox in */
- 			switch (data[3] & 0xf0) {
- 			case 0x20:	/* art_master III */
-@@ -154,23 +171,20 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
- 			default:
- 				hanwang->current_id = 0;
- 				dev_dbg(&dev->dev,
--					"unknown tablet tool %02x ", data[0]);
-+					"unknown tablet tool %02x\n", data[0]);
- 				break;
- 			}
- 			break;
- 
- 		default:	/* tool data packet */
--			x = (data[2] << 8) | data[3];
--			y = (data[4] << 8) | data[5];
--
- 			switch (type) {
- 			case HANWANG_ART_MASTER_III:
- 				p = (data[6] << 3) |
- 				    ((data[7] & 0xc0) >> 5) |
- 				    (data[1] & 0x01);
- 				break;
--
- 			case HANWANG_ART_MASTER_HD:
-+			case HANWANG_ART_MASTER_II:
- 				p = (data[7] >> 6) | (data[6] << 2);
- 				break;
- 
-@@ -180,15 +194,18 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
- 			}
- 
- 			input_report_abs(input_dev, ABS_X,
--						le16_to_cpup((__le16 *)&x));
-+					be16_to_cpup((__be16 *)&data[2]));
- 			input_report_abs(input_dev, ABS_Y,
--						le16_to_cpup((__le16 *)&y));
--			input_report_abs(input_dev, ABS_PRESSURE,
--						le16_to_cpup((__le16 *)&p));
-+					be16_to_cpup((__be16 *)&data[4]));
-+			input_report_abs(input_dev, ABS_PRESSURE, p);
- 			input_report_abs(input_dev, ABS_TILT_X, data[7] & 0x3f);
- 			input_report_abs(input_dev, ABS_TILT_Y, data[8] & 0x7f);
- 			input_report_key(input_dev, BTN_STYLUS, data[1] & 0x02);
--			input_report_key(input_dev, BTN_STYLUS2, data[1] & 0x04);
-+			if (type != HANWANG_ART_MASTER_II)
-+				input_report_key(input_dev, BTN_STYLUS2,
-+						data[1] & 0x04);
-+			else
-+				input_report_key(input_dev, BTN_TOOL_PEN, 1);
- 			break;
- 		}
- 		input_report_abs(input_dev, ABS_MISC, hanwang->current_id);
-@@ -227,6 +244,9 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
- 					 BTN_5 + i, data[6] & (1 << i));
- 			}
- 			break;
-+		case HANWANG_ART_MASTER_II:
-+			dev_dbg(&dev->dev, "error packet  %02x\n", data[0]);
-+			return;
- 		}
- 
- 		input_report_abs(input_dev, ABS_MISC, hanwang->current_id);
-@@ -234,7 +254,7 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
- 		break;
- 
- 	default:
--		dev_dbg(&dev->dev, "error packet  %02x ", data[0]);
-+		dev_dbg(&dev->dev, "error packet  %02x\n", data[0]);
- 		break;
- 	}
- 
--- 
-1.7.4.1
-
+Henrik

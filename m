@@ -1,53 +1,149 @@
-From: Olivier Goffart <olivier@woboq.com>
-Subject: Re: [PATCH] Fix sentelic multi-touch driver
-Date: Fri, 29 Jun 2012 09:52:12 +0200
-Message-ID: <10241529.n8evo9c2RU@gargamel>
-References: <1340829375-4995-1-git-send-email-ogoffart@woboq.com> <1523768.XhBRLqFZzh@gargamel> <1206291029033.19930@cnaqrzbavhz.fragryvp.pbz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+From: weixing <weixing@hanwang.com.cn>
+Subject: [PATCH 1/1] Input: hanwang - add support for Art Master II tablet
+Date: Fri, 29 Jun 2012 22:14:06 +0800
+Message-ID: <1340979246-2941-1-git-send-email-weixing@hanwang.com.cn>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail01.worldserver.net ([217.13.200.41]:36148 "EHLO
-	mail01.worldserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750812Ab2F2Hwj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Jun 2012 03:52:39 -0400
-In-Reply-To: <1206291029033.19930@cnaqrzbavhz.fragryvp.pbz>
+Received: from hanwang.com.cn ([221.122.51.51]:53274 "EHLO mail.hanwang.com.cn"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750887Ab2F2OOi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 29 Jun 2012 10:14:38 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tai-hwa Liang <avatar@sentelic.com>
-Cc: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, xing_wei777@126.com, weixing <weixing@hanwang.com.cn>
 
-On Friday 29 June 2012 11:03:12 Tai-hwa Liang wrote:
-> On Thu, 28 Jun 2012, Olivier Goffart wrote:
-> [...]
-> 
-> > - Touch the touchpad with one finger and move it: this moves the cursor
-> > - Place a second finger: this allows you to scoll
-> > - Release a finger: you should now be able to move the cursor again.  This
-> > is the part that does not work in one of the patch
-> 
->    Sorry, I didn't realise that one of my patch submitted a few months ago
-> (namely, http://www.spinics.net/lists/linux-input/msg19443.html) isn't
-> in the master tree, which is different from my local working copy.
-> 
->    With the correct flag(FSP_BIT_SWC1_EN_GID) being set, the hardware
-> clears MFMC bit during 2 -> 1 finger transition.  The attached patch is
-> an aggregated version against Dmitry's master branch, which supposes to fix
-> the testing case listed above.
-> 
-> Thanks,
-> 
-> Tai-hwa Liang
+this adds support for old hanwang Art master II tablet
 
-I am testing against the stable 3.4.y branch.
-With that patch, scrolling is very slow, and it emits middle click sometimes 
-while I want to scroll fast. 
+Signed-off-by: weixing <weixing@hanwang.com.cn>
+---
+ drivers/input/tablet/hanwang.c |   50 ++++++++++++++++++++++++++++------------
+ 1 files changed, 35 insertions(+), 15 deletions(-)
 
-Looking at the debug output, i see a lot of NOTIFY packets, for the same  
-number of packets/seconds (77). So then there is 5 times less multi touch 
-events. Maybe that's why.
-
-Regards
+diff --git a/drivers/input/tablet/hanwang.c b/drivers/input/tablet/hanwang.c
+index b2db3cf..b652de3 100644
+--- a/drivers/input/tablet/hanwang.c
++++ b/drivers/input/tablet/hanwang.c
+@@ -63,6 +63,7 @@ MODULE_LICENSE(DRIVER_LICENSE);
+ enum hanwang_tablet_type {
+ 	HANWANG_ART_MASTER_III,
+ 	HANWANG_ART_MASTER_HD,
++	HANWANG_ART_MASTER_II,
+ };
+ 
+ struct hanwang {
+@@ -99,6 +100,8 @@ static const struct hanwang_features features_array[] = {
+ 	  ART_MASTER_PKGLEN_MAX, 0x7f00, 0x4f60, 0x3f, 0x7f, 2048 },
+ 	{ 0x8401, "Hanwang Art Master HD 5012", HANWANG_ART_MASTER_HD,
+ 	  ART_MASTER_PKGLEN_MAX, 0x678e, 0x4150, 0x3f, 0x7f, 1024 },
++	{ 0x8503, "Hanwang Art Master II", HANWANG_ART_MASTER_II,
++	  ART_MASTER_PKGLEN_MAX, 0x27de, 0x1cfe, 0x3f, 0x7f, 1024 },
+ };
+ 
+ static const int hw_eventtypes[] = {
+@@ -127,16 +130,30 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
+ 	struct usb_device *dev = hanwang->usbdev;
+ 	enum hanwang_tablet_type type = hanwang->features->type;
+ 	int i;
+-	u16 x, y, p;
++	u16 p;
++
++	if (type == HANWANG_ART_MASTER_II) {
++		hanwang->current_tool = BTN_TOOL_PEN;
++		hanwang->current_id = STYLUS_DEVICE_ID;
++	}
+ 
+ 	switch (data[0]) {
+ 	case 0x02:	/* data packet */
+ 		switch (data[1]) {
+ 		case 0x80:	/* tool prox out */
+-			hanwang->current_id = 0;
+-			input_report_key(input_dev, hanwang->current_tool, 0);
++			if (type != HANWANG_ART_MASTER_II) {
++				hanwang->current_id = 0;
++				input_report_key(input_dev,
++					hanwang->current_tool, 0);
++			}
++			break;
++		case 0x00:	/* artmaster ii pen leave */
++			if (type == HANWANG_ART_MASTER_II) {
++				hanwang->current_id = 0;
++				input_report_key(input_dev,
++					hanwang->current_tool, 0);
++			}
+ 			break;
+-
+ 		case 0xc2:	/* first time tool prox in */
+ 			switch (data[3] & 0xf0) {
+ 			case 0x20:	/* art_master III */
+@@ -154,23 +171,20 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
+ 			default:
+ 				hanwang->current_id = 0;
+ 				dev_dbg(&dev->dev,
+-					"unknown tablet tool %02x ", data[0]);
++					"unknown tablet tool %02x\n", data[0]);
+ 				break;
+ 			}
+ 			break;
+ 
+ 		default:	/* tool data packet */
+-			x = (data[2] << 8) | data[3];
+-			y = (data[4] << 8) | data[5];
+-
+ 			switch (type) {
+ 			case HANWANG_ART_MASTER_III:
+ 				p = (data[6] << 3) |
+ 				    ((data[7] & 0xc0) >> 5) |
+ 				    (data[1] & 0x01);
+ 				break;
+-
+ 			case HANWANG_ART_MASTER_HD:
++			case HANWANG_ART_MASTER_II:
+ 				p = (data[7] >> 6) | (data[6] << 2);
+ 				break;
+ 
+@@ -180,15 +194,18 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
+ 			}
+ 
+ 			input_report_abs(input_dev, ABS_X,
+-						le16_to_cpup((__le16 *)&x));
++					be16_to_cpup((__be16 *)&data[2]));
+ 			input_report_abs(input_dev, ABS_Y,
+-						le16_to_cpup((__le16 *)&y));
+-			input_report_abs(input_dev, ABS_PRESSURE,
+-						le16_to_cpup((__le16 *)&p));
++					be16_to_cpup((__be16 *)&data[4]));
++			input_report_abs(input_dev, ABS_PRESSURE, p);
+ 			input_report_abs(input_dev, ABS_TILT_X, data[7] & 0x3f);
+ 			input_report_abs(input_dev, ABS_TILT_Y, data[8] & 0x7f);
+ 			input_report_key(input_dev, BTN_STYLUS, data[1] & 0x02);
+-			input_report_key(input_dev, BTN_STYLUS2, data[1] & 0x04);
++			if (type != HANWANG_ART_MASTER_II)
++				input_report_key(input_dev, BTN_STYLUS2,
++						data[1] & 0x04);
++			else
++				input_report_key(input_dev, BTN_TOOL_PEN, 1);
+ 			break;
+ 		}
+ 		input_report_abs(input_dev, ABS_MISC, hanwang->current_id);
+@@ -227,6 +244,9 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
+ 					 BTN_5 + i, data[6] & (1 << i));
+ 			}
+ 			break;
++		case HANWANG_ART_MASTER_II:
++			dev_dbg(&dev->dev, "error packet  %02x\n", data[0]);
++			return;
+ 		}
+ 
+ 		input_report_abs(input_dev, ABS_MISC, hanwang->current_id);
+@@ -234,7 +254,7 @@ static void hanwang_parse_packet(struct hanwang *hanwang)
+ 		break;
+ 
+ 	default:
+-		dev_dbg(&dev->dev, "error packet  %02x ", data[0]);
++		dev_dbg(&dev->dev, "error packet  %02x\n", data[0]);
+ 		break;
+ 	}
+ 
 -- 
-Olivier
+1.7.4.1
+

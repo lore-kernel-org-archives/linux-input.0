@@ -1,91 +1,130 @@
-From: Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v3] Input: synaptics - handle out of bounds values from the hardware
-Date: Fri, 29 Jun 2012 13:22:18 -0500
-Message-ID: <1340994138-8969-1-git-send-email-seth.forshee@canonical.com>
+From: "George Spelvin" <linux@horizon.com>
+Subject: Subject: [PATCH v2] Input: atkbd - make repeat period more accurate.
+Date: 1 Jul 2012 04:36:08 -0400
+Message-ID: <20120701083608.9889.qmail@science.horizon.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:39567 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755383Ab2F2SWX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Jun 2012 14:22:23 -0400
+Received: from science.horizon.com ([71.41.210.146]:12022 "HELO
+	science.horizon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751436Ab2GAImv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Jul 2012 04:42:51 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>
+To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux@horizon.com
 
-The touchpad on the Acer Aspire One D250 will report out of range values
-in the extreme lower portion of the touchpad. These appear as abrupt
-changes in the values reported by the hardware from very low values to
-very high values, which can cause unexpected vertical jumps in the
-position of the mouse pointer.
+This replaces some inaccurate lookup tables with an exact
+computation.  Although the diff adds source comments,
+it shrinks binary size.  (By only 50 bytes, but hey.)
 
-What seems to be happening is that the value is wrapping to a two's
-compliment negative value of higher resolution than the 13-bit value
-reported by the hardware, with the high-order bits being truncated. The
-safest way to deal with this is to clamp any out of bounds values to the
-minimum or maximum value for the axis.
+AT keyboard repeat rates are multiples of 1/240 second
+expressed in a 0.2.3 bit floating point format.  That
+is, possible values are ({8..15} << {0..3}) / 240 s.
 
-Distinguishing between positive and negative is problematic, since we
-lack definitive sign information in the value reported by the hardware.
-The approach taken here is to split the difference between the maximum
-legitimate value for the axis and the maximum possible value that the
-hardware can report, treating values greater than this number as
-negative and all other values as positive. This can be tweaked later if
-hardware is found that operates outside of these parameters.
+In addition to a slightly inaccurate lookup table, the
+old code would round up to the next repeat period.
+E.g. to get a period of 9/60 = 0.15 seconds, you had to
+ask for no more than 149 ms; if you asked for 150, it
+would round up to 167.  The new code rounds to nearest.
 
-BugLink: http://bugs.launchpad.net/bugs/1001251
-Cc: stable@vger.kernel.org
-Cc: Daniel Kurtz <djkurtz@chromium.org>
-Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+User-visible changes to the repeat periods reported by EVIOCGREP:
+
+Old	 37	109	116	149	182	232
+Exact	 37.50	108.33	116.66	150.00	183.33	233.33
+New	 38	108	117	150	183	233
+
+Old	270	303	370	435	470
+Exact	266.66	300.00	366.66	433.33	466.66
+New	267	300	367	433	467
+
+This does not bother utilities like kbdrate(8).
+
+Signed-off-by: George Spelvin <linux@horizon.com>
 ---
- drivers/input/mouse/synaptics.c |   27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/input/keyboard/atkbd.c |   47 +++++++++++++++++++++++++++++++----------------
+ 1 file changed, 31 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index c6d9869..698f1b8 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -40,6 +40,10 @@
-  * Note that newer firmware allows querying device for maximum useable
-  * coordinates.
-  */
-+#define XMIN 0
-+#define XMAX 6143
-+#define YMIN 0
-+#define YMAX 6143
- #define XMIN_NOMINAL 1472
- #define XMAX_NOMINAL 5472
- #define YMIN_NOMINAL 1408
-@@ -555,6 +559,29 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
- 		hw->right = (buf[0] & 0x02) ? 1 : 0;
- 	}
- 
-+	/*
-+	 * Some hardware is known to wrap negative on the y axis,
-+	 * providing the low-order bits of a higher resolution negative
-+	 * number as a 13-bit unsigned value. No hardware is known to
-+	 * give out-of-bounds values on the high end, but since we're
-+	 * dealing with unspecified behavior we take a conservative
-+	 * approach to handling the out of bounds values.
-+	 *
-+	 * Clamp out of bounds values to the minimum or maximum value
-+	 * for the axis. Use the midpoint between the maximum axis
-+	 * value and maximum possible reported value as the dividing
-+	 * line between positive and negative values.
-+	 */
-+	if (hw->x > ((1 << 13) + XMAX) / 2)
-+		hw->x = XMIN;
-+	else if (hw->x > XMAX)
-+		hw->x = XMAX;
-+
-+	if (hw->y > ((1 << 13) + YMAX) / 2)
-+		hw->y = YMIN;
-+	else if (hw->y > YMAX)
-+		hw->y = YMAX;
-+
- 	return 0;
+(Resend since no response after several weeks.)
+
+Now that I've tweaked it (v1 had an error in rounding near exponent
+range boundaries), I think it's ready for merging upstream.
+
+Dmitry, you seem to be the one constant name in all recent changes to
+this file, so I'm sending it to you directly as well as linux-input.
+
+
+One possible bug I observed in the code that calls this:
+
+Users of the KDKBDREP ioctl seem to assume that it returns the actual
+values set, but I'm not sure it really works that way; I don't think
+the command to change the parameters makes its way through the event
+queue and atkbd's schedule_delayed_work() to actually set dev->rep[]
+to the rounded values before kbd_rate_helper returns them to userspace.
+
+If desired, the fix that's most obvious to me would be to split this
+function in two: perform the conversion to a command byte synchronously,
+and only defer the actual ps2_command().
+
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index e05a2e7..3181b86 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -524,27 +524,42 @@ out:
+ 	return IRQ_HANDLED;
  }
  
--- 
-1.7.9.5
++/*
++ * AT keyboard repeat rates are set using a 2-bit initial repeat delay
++ * (250, 500, 750 or 1000 ms), and a 5-bit repeat period.  The latter
++ * is a 0.2.3-bit floating-point number (no sign, 2-bit exponent, and
++ * 3-bit mantissa), encoding a value from 8/240 to 120/240 of second.
++ *
++ * Given the requested delay and period in milliseconds, round to the
++ * nearest representable value, and convert the rounded values back to
++ * milliseconds to report the chosen values.
++ */
+ static int atkbd_set_repeat_rate(struct atkbd *atkbd)
+ {
+-	const short period[32] =
+-		{ 33,  37,  42,  46,  50,  54,  58,  63,  67,  75,  83,  92, 100, 109, 116, 125,
+-		 133, 149, 167, 182, 200, 217, 232, 250, 270, 303, 333, 370, 400, 435, 470, 500 };
+-	const short delay[4] =
+-		{ 250, 500, 750, 1000 };
+-
+ 	struct input_dev *dev = atkbd->dev;
+ 	unsigned char param;
+-	int i = 0, j = 0;
+-
+-	while (i < ARRAY_SIZE(period) - 1 && period[i] < dev->rep[REP_PERIOD])
+-		i++;
+-	dev->rep[REP_PERIOD] = period[i];
+-
+-	while (j < ARRAY_SIZE(delay) - 1 && delay[j] < dev->rep[REP_DELAY])
+-		j++;
+-	dev->rep[REP_DELAY] = delay[j];
++	unsigned exp = 3;	/* Period exponent */
++	int period;		/* Period mantissa */
++	int delay = clamp(dev->rep[REP_DELAY], 125, 1000);
++
++	/* AT kbd delay is {1..4} * 250 ms.  Round to 2 bits. */
++	delay = (delay + 125) / 250u;
++	/* Store actual value back */
++	dev->rep[REP_DELAY] = delay * 250;
++
++	/* AT kbd period is ({8..15} << {0..3}) / 240 s. */
++	period = clamp(dev->rep[REP_PERIOD], 33, 500);
++	/* Get correct exponent.  Split is at 258.333 ms */
++	while (period < 259) {
++		period <<= 1;
++		exp--;
++	}
++	/* Convert from 259..516 ms to 8..15 30ths of a second */
++	period = (period * 3 + 50) / 100u;
++	/* Store actual value back.  x * 1000 / 240 = x * 25 / 6 */
++	dev->rep[REP_PERIOD] = ((period << exp) * 25 + 3) / 6u;
+ 
+-	param = i | (j << 5);
++	param = (delay - 1) << 5 | exp << 3 | (period - 8);
+ 	return ps2_command(&atkbd->ps2dev, &param, ATKBD_CMD_SETREP);
+ }
+ 
 

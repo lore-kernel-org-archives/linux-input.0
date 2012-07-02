@@ -1,32 +1,45 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH] input: Request threaded-only IRQs with IRQF_ONESHOT
-Date: Mon, 02 Jul 2012 13:50:28 +0200
-Message-ID: <4FF18B04.4040005@metafoo.de>
-References: <1341229460-23732-1-git-send-email-lars@metafoo.de>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 1/2] Input: synaptics - print firmware ID and board
+ number at init
+Date: Mon, 2 Jul 2012 14:37:15 +0200
+Message-ID: <20120702123715.GA1898@polaris.bitmath.org>
+References: <1340859117-19654-1-git-send-email-djkurtz@chromium.org>
+ <20120702072740.GA624@polaris.bitmath.org>
+ <CAGS+omCy9g8Q6gJhcgMatr+jWPkAzHge6sZOR8HOM92+-xBhXA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out-137.synserver.de ([212.40.185.137]:1043 "EHLO
-	smtp-out-134.synserver.de" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750768Ab2GBLqj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Jul 2012 07:46:39 -0400
-In-Reply-To: <1341229460-23732-1-git-send-email-lars@metafoo.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAGS+omCy9g8Q6gJhcgMatr+jWPkAzHge6sZOR8HOM92+-xBhXA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fabien Marteau <fabien.marteau@armadeus.com>, HeungJun Kim <riverful.kim@samsung.com>, Zhang Jiejing <jiejing.zhang@freescale.com>, Bo Shen <voice.shen@atmel.com>, Sriramakrishnan <srk@ti.com>, Kyle Manna <kyle.manna@fuel7.com>, Cyril Chemparathy <cyril@ti.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alan Cox <alan@linux.intel.com>, Jianchun Bian <jcbian@pixcir.com.cn>, Aaro Koskinen <aaro.koskinen@nokia.com>, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org
 
-On 07/02/2012 01:44 PM, Lars-Peter Clausen wrote:
-> Since commit 1c6c69525b ("genirq: Reject bogus threaded irq requests") threaded
-> IRQs without a primary handler need to be requested with IRQF_ONESHOT, otherwise
-> the request will fail. This patch adds the IRQF_ONESHOT to IIO drivers where it
+> > Is there a specific usecase for this, except the nice-to-have?
+> 
+> Use cases (these are all very real use cases, that we use today, they
+> are not hypothetical):
+>   * To include firmware and hardware versions in user feedback reports.
+>   * Used by factory tests to ensure systems are being built and
+> deployed correctly.
+>   * Lastly, these are also precursor patches for a larger set that
+> adds firmware update capability.  A userspace firmware update script
+> can use these APIs to determine which file to load and/or whether such
+> a load is necessary.
 
-oops, copy & paste error, "IIO" should obviously been "input".
+Thanks. Future firmware update patches is the prime reason for the
+sysfs interface, IOW.
 
-> is missing. Not modified by this patch are those drivers where the requested IRQ
-> will always be a nested IRQ (e.g. because it's part of an MFD), since for this
-> special case IRQF_ONESHOT is not required to be specified when requesting the
-> IRQ.
+> If there is a standard non-driver-specific way of achieving these use
+> cases, I'd be happy to modify the implementation to adopt that
+> standard.  From what I've seen, however, it looks like most drivers
+> have their own ad hoc way of exposing device/vendor specific
+> properties.
 
+Precisely. If there is no standard, it is quite alright to try to come
+up with one. Otherwise we might as well leave all firmware-related
+code in userspace.
+
+Thanks,
+Henrik

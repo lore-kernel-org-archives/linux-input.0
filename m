@@ -1,111 +1,40 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH] HID: magicmouse: Implement Multi-touch Protocol B (MT-B)
-Date: Mon, 02 Jul 2012 11:52:12 -0700
-Message-ID: <4FF1EDDC.601@canonical.com>
-References: <1340913271-588-1-git-send-email-miletus@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: Request threaded-only IRQs with IRQF_ONESHOT
+Date: Mon, 2 Jul 2012 12:04:02 -0700
+Message-ID: <20120702190402.GA16271@core.coreip.homeip.net>
+References: <1341229460-23732-1-git-send-email-lars@metafoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:47955 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753277Ab2GBSwS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Jul 2012 14:52:18 -0400
-In-Reply-To: <1340913271-588-1-git-send-email-miletus@chromium.org>
+Received: from mail-gh0-f174.google.com ([209.85.160.174]:36486 "EHLO
+	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751047Ab2GBTEN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Jul 2012 15:04:13 -0400
+Received: by ghrr11 with SMTP id r11so4454224ghr.19
+        for <linux-input@vger.kernel.org>; Mon, 02 Jul 2012 12:04:11 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1341229460-23732-1-git-send-email-lars@metafoo.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yufeng Shen <miletus@chromium.org>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>, Andrew de los Reyes <adlr@chromium.org>
+To: Lars-Peter Clausen <lars@metafoo.de>, Thomas Gleixner <tglx@linutronix.de>
+Cc: Fabien Marteau <fabien.marteau@armadeus.com>, HeungJun Kim <riverful.kim@samsung.com>, Zhang Jiejing <jiejing.zhang@freescale.com>, Bo Shen <voice.shen@atmel.com>, Sriramakrishnan <srk@ti.com>, Kyle Manna <kyle.manna@fuel7.com>, Cyril Chemparathy <cyril@ti.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alan Cox <alan@linux.intel.com>, Jianchun Bian <jcbian@pixcir.com.cn>, Aaro Koskinen <aaro.koskinen@nokia.com>, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org
 
-On 06/28/2012 12:54 PM, Yufeng Shen wrote:
-> The driver for Apple Magic Trackpad/Mouse currently uses
-> Multi-touch Protocol A (MT-A) to report touch events and uses
-> ABS_MT_TRACKING_ID to do finger tracking. The fact of the device
-> being able to track individual finger makes it possible to
-> report touch events using MT-B. This patch adds the support
-> for the driver to report MT-B and makes it configurable through
-> module parameter so that existing codes that are relying on its
-> MT-A implemtation don't get affected.
->
-> Signed-off-by: Yufeng Shen <miletus@chromium.org>
-> ---
->   drivers/hid/hid-magicmouse.c |   29 ++++++++++++++++++++++++-----
->   1 files changed, 24 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index 40ac665..18d1ea0 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -17,6 +17,7 @@
->   #include <linux/device.h>
->   #include <linux/hid.h>
->   #include <linux/module.h>
-> +#include <linux/input/mt.h>
->   #include <linux/slab.h>
->   #include <linux/usb.h>
->
-> @@ -56,6 +57,10 @@ static bool report_undeciphered;
->   module_param(report_undeciphered, bool, 0644);
->   MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state field using a MSC_RAW event");
->
-> +static bool use_MTB;
-> +module_param(use_MTB, bool, 0644);
-> +MODULE_PARM_DESC(use_MTB, "Whether using MT-B protocol to report touch events");
-> +
->   #define TRACKPAD_REPORT_ID 0x28
->   #define MOUSE_REPORT_ID    0x29
->   #define DOUBLE_REPORT_ID   0xf7
-> @@ -275,9 +280,18 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->   	} else if (msc->single_touch_id == id)
->   		msc->single_touch_id = SINGLE_TOUCH_UP;
->
-> +	if (!report_touches)
-> +		return;
-> +
-> +	if (use_MTB) {
-> +		input_mt_slot(input, id);
-> +		input_mt_report_slot_state(input, MT_TOOL_FINGER, down);
-> +	}
-> +
->   	/* Generate the input events for this touch. */
-> -	if (report_touches && down) {
-> -		input_report_abs(input, ABS_MT_TRACKING_ID, id);
-> +	if (down) {
-> +		if (!use_MTB)
-> +			input_report_abs(input, ABS_MT_TRACKING_ID, id);
->   		input_report_abs(input, ABS_MT_TOUCH_MAJOR, touch_major << 2);
->   		input_report_abs(input, ABS_MT_TOUCH_MINOR, touch_minor << 2);
->   		input_report_abs(input, ABS_MT_ORIENTATION, -orientation);
-> @@ -290,8 +304,8 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->   			else /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
->   				input_event(input, EV_MSC, MSC_RAW, tdata[8]);
->   		}
-> -
-> -		input_mt_sync(input);
-> +		if (!use_MTB)
-> +			input_mt_sync(input);
->   	}
->   }
->
-> @@ -425,7 +439,12 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
->   	if (report_touches) {
->   		__set_bit(EV_ABS, input->evbit);
->
-> -		input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15, 0, 0);
-> +		if (use_MTB)
-> +			input_mt_init_slots(input, 16);
-> +		else
-> +			input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15,
-> +					     0, 0);
-> +
->   		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255 << 2,
->   				     4, 0);
->   		input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255 << 2,
+H Lars, Thomas,
 
-I can't easily test this right now, but this looks correct to me. It 
-almost seems too simple :). Please remove the use_MTB option, and then I 
-will be happy to send my acked-by tag.
+On Mon, Jul 02, 2012 at 01:44:20PM +0200, Lars-Peter Clausen wrote:
+> Since commit 1c6c69525b ("genirq: Reject bogus threaded irq requests") threaded
+> IRQs without a primary handler need to be requested with IRQF_ONESHOT, otherwise
+> the request will fail. This patch adds the IRQF_ONESHOT to IIO drivers where it
+> is missing. Not modified by this patch are those drivers where the requested IRQ
+> will always be a nested IRQ (e.g. because it's part of an MFD), since for this
+> special case IRQF_ONESHOT is not required to be specified when requesting the
+> IRQ.
 
-Thanks!
+This is not very helpful. Why, instead of bailing out, genirq case does
+not add IRQF_ONESHOT itself to the flags? Then we would not need to
+alter zillions of drivers.
 
--- Chase
+Thanks.
+
+-- 
+Dmitry

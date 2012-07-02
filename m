@@ -1,47 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: Request threaded-only IRQs with IRQF_ONESHOT
-Date: Mon, 2 Jul 2012 12:22:52 -0700
-Message-ID: <20120702192252.GA17212@core.coreip.homeip.net>
-References: <1341229460-23732-1-git-send-email-lars@metafoo.de>
- <20120702190402.GA16271@core.coreip.homeip.net>
- <alpine.LFD.2.02.1207022111190.2793@ionos>
+From: Joao Paulo Rechi Vita <jprvita@openbossa.org>
+Subject: Re: [PATCH 00/16] HID: uhid: User-space HID I/O driver
+Date: Mon, 2 Jul 2012 18:05:08 -0300
+Message-ID: <CAAngNMZDFi9TLb+5Cfeg-iUBjjmcYixr235BL8q4=pO6n9ziSA@mail.gmail.com>
+References: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com>
+	<alpine.LNX.2.00.1206181345330.15308@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:35866 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751047Ab2GBTW7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Jul 2012 15:22:59 -0400
-Received: by pbbrp8 with SMTP id rp8so7930307pbb.19
-        for <linux-input@vger.kernel.org>; Mon, 02 Jul 2012 12:22:59 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.02.1207022111190.2793@ionos>
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:39638 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932137Ab2GBVFJ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Jul 2012 17:05:09 -0400
+Received: by yenl2 with SMTP id l2so4570652yen.19
+        for <linux-input@vger.kernel.org>; Mon, 02 Jul 2012 14:05:08 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1206181345330.15308@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Lars-Peter Clausen <lars@metafoo.de>, Fabien Marteau <fabien.marteau@armadeus.com>, HeungJun Kim <riverful.kim@samsung.com>, Zhang Jiejing <jiejing.zhang@freescale.com>, Bo Shen <voice.shen@atmel.com>, Sriramakrishnan <srk@ti.com>, Kyle Manna <kyle.manna@fuel7.com>, Cyril Chemparathy <cyril@ti.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alan Cox <alan@linux.intel.com>, Jianchun Bian <jcbian@pixcir.com.cn>, Aaro Koskinen <aaro.koskinen@nokia.com>, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: David Herrmann <dh.herrmann@googlemail.com>, linux-input@vger.kernel.org
 
-On Mon, Jul 02, 2012 at 09:11:44PM +0200, Thomas Gleixner wrote:
-> On Mon, 2 Jul 2012, Dmitry Torokhov wrote:
-> 
-> > H Lars, Thomas,
-> > 
-> > On Mon, Jul 02, 2012 at 01:44:20PM +0200, Lars-Peter Clausen wrote:
-> > > Since commit 1c6c69525b ("genirq: Reject bogus threaded irq requests") threaded
-> > > IRQs without a primary handler need to be requested with IRQF_ONESHOT, otherwise
-> > > the request will fail. This patch adds the IRQF_ONESHOT to IIO drivers where it
-> > > is missing. Not modified by this patch are those drivers where the requested IRQ
-> > > will always be a nested IRQ (e.g. because it's part of an MFD), since for this
-> > > special case IRQF_ONESHOT is not required to be specified when requesting the
-> > > IRQ.
-> > 
-> > This is not very helpful. Why, instead of bailing out, genirq case does
-> > not add IRQF_ONESHOT itself to the flags? Then we would not need to
-> > alter zillions of drivers.
-> 
-> https://lkml.org/lkml/2012/6/12/151
+On Mon, Jun 18, 2012 at 8:46 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Sun, 10 Jun 2012, David Herrmann wrote:
+>
+>> This adds a new low-level HID driver that allows user-space to imple=
+ment the
+>> transport-layer. This is needed by HOGP (HID over Gatt on Bluetooth =
+Low Energy).
+>> There is already an implementation of HOGP, see the
+>> linux-bluetooth@vger.kernel.org mailing list for this.
+>>
+>> I've split this into multiple patches to make review easier. This pa=
+tchset is
+>> already working for several months for the HOGP developers but there=
+ may still
+>> be some issues with it. Please review.
+>>
+>> The uhid_*() functions implement the basic module functionality. The
+>> uhid_char_*() functions handle character-device related functionalit=
+y. The
+>> uhid_dev_*() functions handle the uhid-device object and the uhid_hi=
+d_*()
+>> functions are HID-callbacks.
+>>
+>> I am open for any suggestions.
+>
+> David,
+>
+> I have just finished my review and haven't found any principal issues=
+=2E I
+> am queueing the patchset in my tree.
+>
 
-Hm, OK, Linus wins... I guess I need to queue this for 3.5 then...
+Just for information, when is this going to hit upstream trees (not
+sure if its Linus' directly or other intermediate tree)? 3.6 merge
+window?
 
--- 
-Dmitry
+--=20
+Jo=C3=A3o Paulo Rechi Vita
+Openbossa Labs - INdT
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

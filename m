@@ -1,33 +1,42 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 00/16] HID: uhid: User-space HID I/O driver
-Date: Tue, 3 Jul 2012 04:15:48 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1207030415080.17304@pobox.suse.cz>
-References: <1339334188-21766-1-git-send-email-dh.herrmann@googlemail.com> <alpine.LNX.2.00.1206181345330.15308@pobox.suse.cz> <CAAngNMZDFi9TLb+5Cfeg-iUBjjmcYixr235BL8q4=pO6n9ziSA@mail.gmail.com>
- <CANq1E4RsZDN1QpwPMfotFPSoqo0DEYnxmo2XdyNE0Mvmi-_7ow@mail.gmail.com>
+From: "Henrik Rydberg" <rydberg@bitmath.se>
+Subject: Re: [PATCH] Input: MT - Include win8 support
+Date: Tue, 3 Jul 2012 19:58:42 +0200
+Message-ID: <20120703175842.GA472@polaris.bitmath.org>
+References: <1340785690-13652-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40414 "EHLO mx2.suse.de"
+Received: from csmtp3.one.com ([91.198.169.23]:47307 "EHLO csmtp3.one.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932139Ab2GCCPx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Jul 2012 22:15:53 -0400
-In-Reply-To: <CANq1E4RsZDN1QpwPMfotFPSoqo0DEYnxmo2XdyNE0Mvmi-_7ow@mail.gmail.com>
+	id S1754906Ab2GCR6Z (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Jul 2012 13:58:25 -0400
+Content-Disposition: inline
+In-Reply-To: <1340785690-13652-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: Joao Paulo Rechi Vita <jprvita@openbossa.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, chatty@enac.fr, benjamin.tissoires@gmail.com, peter.hutterer@who-t.net, chasedouglas@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 2 Jul 2012, David Herrmann wrote:
-
-> > Just for information, when is this going to hit upstream trees (not
-> > sure if its Linus' directly or other intermediate tree)? 3.6 merge
-> > window?
+On Wed, Jun 27, 2012 at 10:28:10AM +0200, Henrik Rydberg wrote:
+> The newly released HID protocol for win8 multitouch devices is capable
+> of transmitting more information about each touch. In particular, it
+> includes details useful for touch alignment. This patch completes the
+> MT protocol with the ABS_MT_TOOL_X/Y events, and documents how to map
+> win8 devices.
 > 
-> If Jiri does not delay it due to bugs in linux-next it will hit
-> upstream with next merge window (hopefully ;)).
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+> Hi all,
+> 
+> Here is the patch following the RFC on win8 MT support. An ascii-art
+> version of the figure has been included, Peter's orientation text is
+> there, and the usage section has been extended with more semantics and
+> mappings. Hopefully the similarities and differences between the
+> models are clearer now. Also, the usage of azimuth has been left out,
+> awaiting an actual device using it.
 
-Yup, I am indeed scheduling uhid for 3.6 merge window.
+I would like to have a couple of ACK's on this patch, if
+possible. Please? :-)
 
--- 
-Jiri Kosina
-SUSE Labs
+Thanks,
+Henrik

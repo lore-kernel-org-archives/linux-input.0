@@ -1,42 +1,160 @@
-From: "Henrik Rydberg" <rydberg@bitmath.se>
-Subject: Re: [PATCH] Input: MT - Include win8 support
-Date: Tue, 3 Jul 2012 19:58:42 +0200
-Message-ID: <20120703175842.GA472@polaris.bitmath.org>
-References: <1340785690-13652-1-git-send-email-rydberg@euromail.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Yufeng Shen <miletus@chromium.org>
+Subject: [PATCH 1/2 v2] HID: magicmouse: Removing report_touches switch
+Date: Tue,  3 Jul 2012 14:53:41 -0400
+Message-ID: <1341341621-15560-1-git-send-email-miletus@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp3.one.com ([91.198.169.23]:47307 "EHLO csmtp3.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754906Ab2GCR6Z (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Jul 2012 13:58:25 -0400
-Content-Disposition: inline
-In-Reply-To: <1340785690-13652-1-git-send-email-rydberg@euromail.se>
+Received: from mail-vb0-f74.google.com ([209.85.212.74]:35259 "EHLO
+	mail-vb0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932732Ab2GCSxt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Jul 2012 14:53:49 -0400
+Received: by vbnl22 with SMTP id l22so741727vbn.1
+        for <linux-input@vger.kernel.org>; Tue, 03 Jul 2012 11:53:48 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, chatty@enac.fr, benjamin.tissoires@gmail.com, peter.hutterer@who-t.net, chasedouglas@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>, Andrew de los Reyes <adlr@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Yufeng Shen <miletus@chromium.org>
 
-On Wed, Jun 27, 2012 at 10:28:10AM +0200, Henrik Rydberg wrote:
-> The newly released HID protocol for win8 multitouch devices is capable
-> of transmitting more information about each touch. In particular, it
-> includes details useful for touch alignment. This patch completes the
-> MT protocol with the ABS_MT_TOOL_X/Y events, and documents how to map
-> win8 devices.
-> 
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
-> Hi all,
-> 
-> Here is the patch following the RFC on win8 MT support. An ascii-art
-> version of the figure has been included, Peter's orientation text is
-> there, and the usage section has been extended with more semantics and
-> mappings. Hopefully the similarities and differences between the
-> models are clearer now. Also, the usage of azimuth has been left out,
-> awaiting an actual device using it.
+Remove the report_touches switch as it is not so useful to turn
+off reporting touch events for a touch device. Let the userspace
+to do the filtering if the turning off is needed.
 
-I would like to have a couple of ACK's on this patch, if
-possible. Please? :-)
+V2: Remove report_touches as suggeted by Chase Douglas
 
-Thanks,
-Henrik
+Signed-off-by: Yufeng Shen <miletus@chromium.org>
+---
+ drivers/hid/hid-magicmouse.c |   95 ++++++++++++++++++++----------------------
+ 1 files changed, 45 insertions(+), 50 deletions(-)
+
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 40ac665..fd88f21 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -48,10 +48,6 @@ static bool scroll_acceleration = false;
+ module_param(scroll_acceleration, bool, 0644);
+ MODULE_PARM_DESC(scroll_acceleration, "Accelerate sequential scroll events");
+ 
+-static bool report_touches = true;
+-module_param(report_touches, bool, 0644);
+-MODULE_PARM_DESC(report_touches, "Emit touch records (otherwise, only use them for emulation)");
+-
+ static bool report_undeciphered;
+ module_param(report_undeciphered, bool, 0644);
+ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state field using a MSC_RAW event");
+@@ -276,7 +272,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+ 		msc->single_touch_id = SINGLE_TOUCH_UP;
+ 
+ 	/* Generate the input events for this touch. */
+-	if (report_touches && down) {
++	if (down) {
+ 		input_report_abs(input, ABS_MT_TRACKING_ID, id);
+ 		input_report_abs(input, ABS_MT_TOUCH_MAJOR, touch_major << 2);
+ 		input_report_abs(input, ABS_MT_TOUCH_MINOR, touch_minor << 2);
+@@ -335,7 +331,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+ 		for (ii = 0; ii < npoints; ii++)
+ 			magicmouse_emit_touch(msc, ii, data + ii * 8 + 6);
+ 
+-		if (report_touches && msc->ntouches == 0)
++		if (msc->ntouches == 0)
+ 			input_mt_sync(input);
+ 
+ 		/* When emulating three-button mode, it is important
+@@ -422,53 +418,52 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+ 		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+ 	}
+ 
+-	if (report_touches) {
+-		__set_bit(EV_ABS, input->evbit);
+-
+-		input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15, 0, 0);
+-		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255 << 2,
+-				     4, 0);
+-		input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255 << 2,
+-				     4, 0);
+-		input_set_abs_params(input, ABS_MT_ORIENTATION, -31, 32, 1, 0);
+-
+-		/* Note: Touch Y position from the device is inverted relative
+-		 * to how pointer motion is reported (and relative to how USB
+-		 * HID recommends the coordinates work).  This driver keeps
+-		 * the origin at the same position, and just uses the additive
+-		 * inverse of the reported Y.
+-		 */
+-		if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
+-			input_set_abs_params(input, ABS_MT_POSITION_X,
+-				MOUSE_MIN_X, MOUSE_MAX_X, 4, 0);
+-			input_set_abs_params(input, ABS_MT_POSITION_Y,
+-				MOUSE_MIN_Y, MOUSE_MAX_Y, 4, 0);
+-
+-			input_abs_set_res(input, ABS_MT_POSITION_X,
+-				MOUSE_RES_X);
+-			input_abs_set_res(input, ABS_MT_POSITION_Y,
+-				MOUSE_RES_Y);
+-		} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
+-			input_set_abs_params(input, ABS_X, TRACKPAD_MIN_X,
+-				TRACKPAD_MAX_X, 4, 0);
+-			input_set_abs_params(input, ABS_Y, TRACKPAD_MIN_Y,
+-				TRACKPAD_MAX_Y, 4, 0);
+-			input_set_abs_params(input, ABS_MT_POSITION_X,
+-				TRACKPAD_MIN_X, TRACKPAD_MAX_X, 4, 0);
+-			input_set_abs_params(input, ABS_MT_POSITION_Y,
+-				TRACKPAD_MIN_Y, TRACKPAD_MAX_Y, 4, 0);
+-
+-			input_abs_set_res(input, ABS_X, TRACKPAD_RES_X);
+-			input_abs_set_res(input, ABS_Y, TRACKPAD_RES_Y);
+-			input_abs_set_res(input, ABS_MT_POSITION_X,
+-				TRACKPAD_RES_X);
+-			input_abs_set_res(input, ABS_MT_POSITION_Y,
+-				TRACKPAD_RES_Y);
+-		}
+ 
+-		input_set_events_per_packet(input, 60);
++	__set_bit(EV_ABS, input->evbit);
++
++	input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15, 0, 0);
++	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255 << 2,
++			     4, 0);
++	input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255 << 2,
++			     4, 0);
++	input_set_abs_params(input, ABS_MT_ORIENTATION, -31, 32, 1, 0);
++
++	/* Note: Touch Y position from the device is inverted relative
++	 * to how pointer motion is reported (and relative to how USB
++	 * HID recommends the coordinates work).  This driver keeps
++	 * the origin at the same position, and just uses the additive
++	 * inverse of the reported Y.
++	 */
++	if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
++		input_set_abs_params(input, ABS_MT_POSITION_X,
++				     MOUSE_MIN_X, MOUSE_MAX_X, 4, 0);
++		input_set_abs_params(input, ABS_MT_POSITION_Y,
++				     MOUSE_MIN_Y, MOUSE_MAX_Y, 4, 0);
++
++		input_abs_set_res(input, ABS_MT_POSITION_X,
++				  MOUSE_RES_X);
++		input_abs_set_res(input, ABS_MT_POSITION_Y,
++				  MOUSE_RES_Y);
++	} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
++		input_set_abs_params(input, ABS_X, TRACKPAD_MIN_X,
++				     TRACKPAD_MAX_X, 4, 0);
++		input_set_abs_params(input, ABS_Y, TRACKPAD_MIN_Y,
++				     TRACKPAD_MAX_Y, 4, 0);
++		input_set_abs_params(input, ABS_MT_POSITION_X,
++				     TRACKPAD_MIN_X, TRACKPAD_MAX_X, 4, 0);
++		input_set_abs_params(input, ABS_MT_POSITION_Y,
++				     TRACKPAD_MIN_Y, TRACKPAD_MAX_Y, 4, 0);
++
++		input_abs_set_res(input, ABS_X, TRACKPAD_RES_X);
++		input_abs_set_res(input, ABS_Y, TRACKPAD_RES_Y);
++		input_abs_set_res(input, ABS_MT_POSITION_X,
++				  TRACKPAD_RES_X);
++		input_abs_set_res(input, ABS_MT_POSITION_Y,
++				  TRACKPAD_RES_Y);
+ 	}
+ 
++	input_set_events_per_packet(input, 60);
++
+ 	if (report_undeciphered) {
+ 		__set_bit(EV_MSC, input->evbit);
+ 		__set_bit(MSC_RAW, input->mscbit);
+-- 
+1.7.7.3
+

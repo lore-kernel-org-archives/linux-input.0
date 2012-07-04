@@ -1,41 +1,60 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
+From: Daniel Kurtz <djkurtz@chromium.org>
 Subject: Re: [PATCH 1/2 v2] HID: magicmouse: Removing report_touches switch
-Date: Wed, 4 Jul 2012 09:40:49 +0200
-Message-ID: <20120704074049.GA380@polaris.bitmath.org>
+Date: Wed, 4 Jul 2012 15:49:47 +0800
+Message-ID: <CAGS+omDHQkWdmETOwaDu3nkAQEhJeNkLDdDmF+4N=XDTO6+FWg@mail.gmail.com>
 References: <1341341621-15560-1-git-send-email-miletus@chromium.org>
- <4FF35597.7020408@canonical.com>
+ <4FF35597.7020408@canonical.com> <20120704074049.GA380@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:47637 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932986Ab2GDHk2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Jul 2012 03:40:28 -0400
-Content-Disposition: inline
-In-Reply-To: <4FF35597.7020408@canonical.com>
+Received: from mail-qa0-f46.google.com ([209.85.216.46]:45183 "EHLO
+	mail-qa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752642Ab2GDHuJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Jul 2012 03:50:09 -0400
+Received: by qadb17 with SMTP id b17so3158713qad.19
+        for <linux-input@vger.kernel.org>; Wed, 04 Jul 2012 00:50:08 -0700 (PDT)
+In-Reply-To: <20120704074049.GA380@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>, Andrew de los Reyes <adlr@chromium.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Chase Douglas <chase.douglas@canonical.com>, Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Andrew de los Reyes <adlr@chromium.org>
 
-On Tue, Jul 03, 2012 at 01:27:03PM -0700, Chase Douglas wrote:
-> On 07/03/2012 11:53 AM, Yufeng Shen wrote:
-> >Remove the report_touches switch as it is not so useful to turn
-> >off reporting touch events for a touch device. Let the userspace
-> >to do the filtering if the turning off is needed.
-> >
-> >V2: Remove report_touches as suggeted by Chase Douglas
-> >
-> >Signed-off-by: Yufeng Shen <miletus@chromium.org>
-> 
-> Acked-by: Chase Douglas <chase.douglas@canonical.com>
+On Wed, Jul 4, 2012 at 3:40 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> On Tue, Jul 03, 2012 at 01:27:03PM -0700, Chase Douglas wrote:
+>> On 07/03/2012 11:53 AM, Yufeng Shen wrote:
+>> >Remove the report_touches switch as it is not so useful to turn
+>> >off reporting touch events for a touch device. Let the userspace
+>> >to do the filtering if the turning off is needed.
+>> >
+>> >V2: Remove report_touches as suggeted by Chase Douglas
+>> >
+>> >Signed-off-by: Yufeng Shen <miletus@chromium.org>
+>>
+>> Acked-by: Chase Douglas <chase.douglas@canonical.com>
+>
+> Hi Chase,
+>
+> While testing the new patches, I noticed that only four fingers would
+> come through; a fifth finger would make everything freeze. This
+> behavior is also present without the new patches. Didn't we have ten
+> fingers working at some point?
+>
+> Cheers,
+> Henrik
 
-Hi Chase,
+Hi Henrik,
 
-While testing the new patches, I noticed that only four fingers would
-come through; a fifth finger would make everything freeze. This
-behavior is also present without the new patches. Didn't we have ten
-fingers working at some point?
+What Bluetooth host controller are you using?
+Which part are you testing (Magic TP or mouse)?
 
-Cheers,
-Henrik
+I've been trying to test these patches on a Magic Trackpad using two
+computers, with two different ath3k parts.
+On one of them, the BT communication freezes immediately after the
+first report with 3 fingers.
+On the other, it reports all 10 fingers, just fine.
+
+The only difference I can tell is the version of the Atheros Bluetooth chip.
+
+What does your freeze look like?
+
+-Dan

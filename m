@@ -1,207 +1,84 @@
-From: Yufeng Shen <miletus@chromium.org>
-Subject: [PATCH 2/2 v4] HID: magicmouse: Implement Multi-touch Protocol B (MT-B)
-Date: Wed,  4 Jul 2012 12:15:43 -0400
-Message-ID: <1341418543-29517-1-git-send-email-miletus@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fa0-f74.google.com ([209.85.161.74]:34620 "EHLO
-	mail-fa0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754086Ab2GDQPq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Jul 2012 12:15:46 -0400
-Received: by fat25 with SMTP id 25so327244fat.1
-        for <linux-input@vger.kernel.org>; Wed, 04 Jul 2012 09:15:45 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: [PATCH] HID: roccat: Added sensor bin-sysfs-attr for Savu
+Date: Wed, 04 Jul 2012 18:45:03 +0200
+Message-ID: <1341420303.3266.22.camel@neuromancer.tessier-ashpool>
+Reply-To: erazor_de@users.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Rob Landley <rob@landley.net>, Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>, Andrew de los Reyes <adlr@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Yufeng Shen <miletus@chromium.org>
 
-The driver for Apple Magic Trackpad/Mouse currently uses
-Multi-touch Protocol A (MT-A) to report touch events and uses
-ABS_MT_TRACKING_ID to do finger tracking. The fact of the device
-being able to track individual finger makes it possible to
-report touch events using MT-B. This patch converts the driver
-to use MT-B as it is preferred to MT-A.
+The sensor attr can be used to tweak the optical sensor of the Savu.
 
-V4: Removed BTN_TOUCH evnet.
-V3: Removed the single touch related logic.
-V2: Converting entirely to MT-B as Henrik Rydberg suggested.
-
-Signed-off-by: Yufeng Shen <miletus@chromium.org>
+Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
 ---
- drivers/hid/hid-magicmouse.c |   66 ++++++++++++++----------------------------
- 1 files changed, 22 insertions(+), 44 deletions(-)
+ .../ABI/testing/sysfs-driver-hid-roccat-savu       |    9 +++++++++
+ drivers/hid/hid-roccat-savu.c                      |    2 ++
+ drivers/hid/hid-roccat-savu.h                      |    2 ++
+ 3 files changed, 13 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index fd88f21..7364726 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -16,6 +16,7 @@
+diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-savu b/Documentation/ABI/testing/sysfs-driver-hid-roccat-savu
+index e233490..b42922c 100644
+--- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-savu
++++ b/Documentation/ABI/testing/sysfs-driver-hid-roccat-savu
+@@ -66,3 +66,12 @@ Description:	The mouse can store 5 profiles which can be switched by the
+ 		The data has to be 3 bytes long.
+ 		The mouse will reject invalid data.
+ Users:		http://roccat.sourceforge.net
++
++What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/savu/roccatsavu<minor>/sensor
++Date:		July 2012
++Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
++Description:	The mouse has a Avago ADNS-3090 sensor.
++		This file allows reading and writing of the mouse sensors registers.
++		The data has to be 4 bytes long.
++Users:		http://roccat.sourceforge.net
++
+diff --git a/drivers/hid/hid-roccat-savu.c b/drivers/hid/hid-roccat-savu.c
+index 29e87d7..014afba 100644
+--- a/drivers/hid/hid-roccat-savu.c
++++ b/drivers/hid/hid-roccat-savu.c
+@@ -121,6 +121,7 @@ SAVU_SYSFS_RW(general, GENERAL)
+ SAVU_SYSFS_RW(buttons, BUTTONS)
+ SAVU_SYSFS_RW(macro, MACRO)
+ SAVU_SYSFS_R(info, INFO)
++SAVU_SYSFS_RW(sensor, SENSOR)
  
- #include <linux/device.h>
- #include <linux/hid.h>
-+#include <linux/input/mt.h>
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/usb.h>
-@@ -68,15 +69,6 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
- 
- #define SCROLL_ACCEL_DEFAULT 7
- 
--/* Single touch emulation should only begin when no touches are currently down.
-- * This is true when single_touch_id is equal to NO_TOUCHES. If multiple touches
-- * are down and the touch providing for single touch emulation is lifted,
-- * single_touch_id is equal to SINGLE_TOUCH_UP. While single touch emulation is
-- * occurring, single_touch_id corresponds with the tracking id of the touch used.
-- */
--#define NO_TOUCHES -1
--#define SINGLE_TOUCH_UP -2
--
- /* Touch surface information. Dimension is in hundredths of a mm, min and max
-  * are in units. */
- #define MOUSE_DIMENSION_X (float)9056
-@@ -125,7 +117,6 @@ struct magicmouse_sc {
- 		u8 size;
- 	} touches[16];
- 	int tracking_ids[16];
--	int single_touch_id;
+ static struct bin_attribute savu_bin_attributes[] = {
+ 	SAVU_BIN_ATTRIBUTE_W(control, CONTROL),
+@@ -129,6 +130,7 @@ static struct bin_attribute savu_bin_attributes[] = {
+ 	SAVU_BIN_ATTRIBUTE_RW(buttons, BUTTONS),
+ 	SAVU_BIN_ATTRIBUTE_RW(macro, MACRO),
+ 	SAVU_BIN_ATTRIBUTE_R(info, INFO),
++	SAVU_BIN_ATTRIBUTE_RW(sensor, SENSOR),
+ 	__ATTR_NULL
  };
  
- static int magicmouse_firm_touch(struct magicmouse_sc *msc)
-@@ -264,16 +255,14 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
- 		}
- 	}
+diff --git a/drivers/hid/hid-roccat-savu.h b/drivers/hid/hid-roccat-savu.h
+index b15a1bb..9120ba7 100644
+--- a/drivers/hid/hid-roccat-savu.h
++++ b/drivers/hid/hid-roccat-savu.h
+@@ -21,6 +21,7 @@ enum {
+ 	SAVU_SIZE_BUTTONS = 0x2f,
+ 	SAVU_SIZE_MACRO = 0x0823,
+ 	SAVU_SIZE_INFO = 0x08,
++	SAVU_SIZE_SENSOR = 0x04,
+ };
  
--	if (down) {
-+	if (down)
- 		msc->ntouches++;
--		if (msc->single_touch_id == NO_TOUCHES)
--			msc->single_touch_id = id;
--	} else if (msc->single_touch_id == id)
--		msc->single_touch_id = SINGLE_TOUCH_UP;
-+
-+	input_mt_slot(input, id);
-+	input_mt_report_slot_state(input, MT_TOOL_FINGER, down);
+ enum savu_control_requests {
+@@ -35,6 +36,7 @@ enum savu_commands {
+ 	SAVU_COMMAND_BUTTONS = 0x7,
+ 	SAVU_COMMAND_MACRO = 0x8,
+ 	SAVU_COMMAND_INFO = 0x9,
++	SAVU_COMMAND_SENSOR = 0xc,
+ };
  
- 	/* Generate the input events for this touch. */
- 	if (down) {
--		input_report_abs(input, ABS_MT_TRACKING_ID, id);
- 		input_report_abs(input, ABS_MT_TOUCH_MAJOR, touch_major << 2);
- 		input_report_abs(input, ABS_MT_TOUCH_MINOR, touch_minor << 2);
- 		input_report_abs(input, ABS_MT_ORIENTATION, -orientation);
-@@ -286,8 +275,6 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
- 			else /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
- 				input_event(input, EV_MSC, MSC_RAW, tdata[8]);
- 		}
--
--		input_mt_sync(input);
- 	}
- }
- 
-@@ -308,12 +295,6 @@ static int magicmouse_raw_event(struct hid_device *hdev,
- 		for (ii = 0; ii < npoints; ii++)
- 			magicmouse_emit_touch(msc, ii, data + ii * 9 + 4);
- 
--		/* We don't need an MT sync here because trackpad emits a
--		 * BTN_TOUCH event in a new frame when all touches are released.
--		 */
--		if (msc->ntouches == 0)
--			msc->single_touch_id = NO_TOUCHES;
--
- 		clicks = data[1];
- 
- 		/* The following bits provide a device specific timestamp. They
-@@ -331,9 +312,6 @@ static int magicmouse_raw_event(struct hid_device *hdev,
- 		for (ii = 0; ii < npoints; ii++)
- 			magicmouse_emit_touch(msc, ii, data + ii * 8 + 6);
- 
--		if (msc->ntouches == 0)
--			input_mt_sync(input);
--
- 		/* When emulating three-button mode, it is important
- 		 * to have the current touch information before
- 		 * generating a click event.
-@@ -366,25 +344,17 @@ static int magicmouse_raw_event(struct hid_device *hdev,
- 		input_report_rel(input, REL_Y, y);
- 	} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
- 		input_report_key(input, BTN_MOUSE, clicks & 1);
--		input_report_key(input, BTN_TOUCH, msc->ntouches > 0);
--		input_report_key(input, BTN_TOOL_FINGER, msc->ntouches == 1);
--		input_report_key(input, BTN_TOOL_DOUBLETAP, msc->ntouches == 2);
--		input_report_key(input, BTN_TOOL_TRIPLETAP, msc->ntouches == 3);
--		input_report_key(input, BTN_TOOL_QUADTAP, msc->ntouches == 4);
--		if (msc->single_touch_id >= 0) {
--			input_report_abs(input, ABS_X,
--				msc->touches[msc->single_touch_id].x);
--			input_report_abs(input, ABS_Y,
--				msc->touches[msc->single_touch_id].y);
--		}
-+		input_mt_report_pointer_emulation(input, true);
- 	}
- 
- 	input_sync(input);
- 	return 1;
- }
- 
--static void magicmouse_setup_input(struct input_dev *input, struct hid_device *hdev)
-+static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hdev)
- {
-+	int error;
-+
- 	__set_bit(EV_KEY, input->evbit);
- 
- 	if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
-@@ -413,6 +383,7 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
- 		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
- 		__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
- 		__set_bit(BTN_TOOL_QUADTAP, input->keybit);
-+		__set_bit(BTN_TOOL_QUINTTAP, input->keybit);
- 		__set_bit(BTN_TOUCH, input->keybit);
- 		__set_bit(INPUT_PROP_POINTER, input->propbit);
- 		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-@@ -421,7 +392,9 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
- 
- 	__set_bit(EV_ABS, input->evbit);
- 
--	input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15, 0, 0);
-+	error = input_mt_init_slots(input, 16);
-+	if (error)
-+		return error;
- 	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255 << 2,
- 			     4, 0);
- 	input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255 << 2,
-@@ -468,6 +441,8 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
- 		__set_bit(EV_MSC, input->evbit);
- 		__set_bit(MSC_RAW, input->mscbit);
- 	}
-+
-+	return 0;
- }
- 
- static int magicmouse_input_mapping(struct hid_device *hdev,
-@@ -506,8 +481,6 @@ static int magicmouse_probe(struct hid_device *hdev,
- 	msc->quirks = id->driver_data;
- 	hid_set_drvdata(hdev, msc);
- 
--	msc->single_touch_id = NO_TOUCHES;
--
- 	ret = hid_parse(hdev);
- 	if (ret) {
- 		hid_err(hdev, "magicmouse hid parse failed\n");
-@@ -523,8 +496,13 @@ static int magicmouse_probe(struct hid_device *hdev,
- 	/* We do this after hid-input is done parsing reports so that
- 	 * hid-input uses the most natural button and axis IDs.
- 	 */
--	if (msc->input)
--		magicmouse_setup_input(msc->input, hdev);
-+	if (msc->input) {
-+		ret = magicmouse_setup_input(msc->input, hdev);
-+		if (ret) {
-+			hid_err(hdev, "magicmouse setup input failed (%d)\n", ret);
-+			goto err_stop_hw;
-+		}
-+	}
- 
- 	if (id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
- 		report = hid_register_report(hdev, HID_INPUT_REPORT,
+ struct savu_mouse_report_special {
 -- 
-1.7.7.3
+1.7.3.4
+
+
 

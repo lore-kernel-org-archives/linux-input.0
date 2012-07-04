@@ -1,44 +1,38 @@
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Subject: [PATCH] input: tca6416-keypad: add IRQF_ONESHOT IRQ flag
-Date: Wed, 4 Jul 2012 12:19:13 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1207041217420.21042@axis700.grange>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 1/2 v2] Input: synaptics - print firmware ID and board
+ number at init
+Date: Wed, 4 Jul 2012 14:56:59 +0200
+Message-ID: <20120704125659.GA261@polaris.bitmath.org>
+References: <1341392837-19115-1-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.9]:58705 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932623Ab2GDKTP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Jul 2012 06:19:15 -0400
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:58158 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750941Ab2GDM4h (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Jul 2012 08:56:37 -0400
+Content-Disposition: inline
+In-Reply-To: <1341392837-19115-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-request_threaded_irq() without a hard IRQ handler can only be used, if the
-driver also requests to keep the interrupt masked by using the IRQF_ONESHOT
-IRQ flag.
+On Wed, Jul 04, 2012 at 05:07:16PM +0800, Daniel Kurtz wrote:
+> Read the Firmware ID and Board Number from a synaptics device at init
+> and display them in the system log.
+> 
+> Device behavior is very board and firmware dependent.
+> It may prove useful for users to include this information when providing
+> bug reports or other feedback.
+> 
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> ---
+>  drivers/input/mouse/synaptics.c |   38 ++++++++++++++++++++++++++++++++++++--
+>  drivers/input/mouse/synaptics.h |    3 +++
+>  2 files changed, 39 insertions(+), 2 deletions(-)
 
-Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
----
+    Acked-by: Henrik Rydberg <rydberg@euromail.se>
 
-This has to go to 3.5 to fix otherwise broken platforms.
-
- drivers/input/keyboard/tca6416-keypad.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/keyboard/tca6416-keypad.c b/drivers/input/keyboard/tca6416-keypad.c
-index 3afea3f..4559859 100644
---- a/drivers/input/keyboard/tca6416-keypad.c
-+++ b/drivers/input/keyboard/tca6416-keypad.c
-@@ -278,7 +278,7 @@ static int __devinit tca6416_keypad_probe(struct i2c_client *client,
- 
- 		error = request_threaded_irq(chip->irqnum, NULL,
- 					     tca6416_keys_isr,
--					     IRQF_TRIGGER_FALLING,
-+					     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
- 					     "tca6416-keypad", chip);
- 		if (error) {
- 			dev_dbg(&client->dev,
--- 
-1.7.2.5
-
+Thanks,
+Henrik

@@ -1,51 +1,101 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 1/2 v2] HID: magicmouse: Removing report_touches switch
-Date: Wed, 4 Jul 2012 10:38:41 +0200
-Message-ID: <20120704083841.GA722@polaris.bitmath.org>
-References: <1341341621-15560-1-git-send-email-miletus@chromium.org>
- <4FF35597.7020408@canonical.com>
- <20120704074049.GA380@polaris.bitmath.org>
- <CAGS+omDHQkWdmETOwaDu3nkAQEhJeNkLDdDmF+4N=XDTO6+FWg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b11.telenor.se ([62.127.194.20]:39226 "EHLO
-	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752520Ab2GDIiU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Jul 2012 04:38:20 -0400
-Content-Disposition: inline
-In-Reply-To: <CAGS+omDHQkWdmETOwaDu3nkAQEhJeNkLDdDmF+4N=XDTO6+FWg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: [PATCH 2/2 v2] Input: synaptics - add sysfs access to firmware ID & board ID
+Date: Wed,  4 Jul 2012 17:07:17 +0800
+Message-ID: <1341392837-19115-2-git-send-email-djkurtz@chromium.org>
+References: <1341392837-19115-1-git-send-email-djkurtz@chromium.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1341392837-19115-1-git-send-email-djkurtz@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
+Cc: Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Chase Douglas <chase.douglas@canonical.com>, Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Andrew de los Reyes <adlr@chromium.org>
 
-Hi Daniel,
+Allow userspace to query firmware ID and board ID, which are read and
+cached during device initialization.
 
-> What Bluetooth host controller are you using?
+This information can be read, for instance, by a userspace feedback
+reporting tool, to include this information in its reports.
 
-It is a USB device (0a5c:4500), part of a BCM2046 sitting in a MacBook
-Air. The driver is btusb.
+Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+---
+ drivers/input/mouse/synaptics.c |   41 +++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 41 insertions(+), 0 deletions(-)
 
-> Which part are you testing (Magic TP or mouse)?
-
-Magic trackpad.
-
-> I've been trying to test these patches on a Magic Trackpad using two
-> computers, with two different ath3k parts.
-> On one of them, the BT communication freezes immediately after the
-> first report with 3 fingers.
-> On the other, it reports all 10 fingers, just fine.
-
-Interesting. Clearly not a HID problem, then.
-
-> The only difference I can tell is the version of the Atheros Bluetooth chip.
-> 
-> What does your freeze look like?
-
-The input events stop coming when I have more than four fingers on the
-pad, but they start again if I remove the excess fingers. As if the
-transport layer chokes on messages longer than some value...
-
-Thanks,
-Henrik
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 7e0eca7..3b24a0f 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -1258,6 +1258,17 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
+ 	}
+ }
+ 
++/*****************************************************************************
++ *	sysfs interface
++ ****************************************************************************/
++/* Sysfs entry for board ID */
++static ssize_t synaptics_show_board_id(struct psmouse *psmouse, void *data,
++				       char *buf)
++{
++	struct synaptics_data *priv = psmouse->private;
++	return scnprintf(buf, PAGE_SIZE, "%lu\n", priv->board_id);
++}
++
+ static ssize_t synaptics_show_disable_gesture(struct psmouse *psmouse,
+ 					      void *data, char *buf)
+ {
+@@ -1296,9 +1307,30 @@ static ssize_t synaptics_set_disable_gesture(struct psmouse *psmouse,
+ 	return len;
+ }
+ 
++/* Sysfs entry for firmware ID */
++static ssize_t synaptics_show_firmware_id(struct psmouse *psmouse, void *data,
++					  char *buf)
++{
++	struct synaptics_data *priv = psmouse->private;
++	return scnprintf(buf, PAGE_SIZE, "%lu\n", priv->firmware_id);
++}
++
++PSMOUSE_DEFINE_RO_ATTR(board_id, S_IRUGO, NULL, synaptics_show_board_id);
+ PSMOUSE_DEFINE_ATTR(disable_gesture, S_IWUSR | S_IRUGO, NULL,
+ 		    synaptics_show_disable_gesture,
+ 		    synaptics_set_disable_gesture);
++PSMOUSE_DEFINE_RO_ATTR(firmware_id, S_IRUGO, NULL, synaptics_show_firmware_id);
++
++static struct attribute *synaptics_attrs[] = {
++	&psmouse_attr_board_id.dattr.attr,
++	&psmouse_attr_firmware_id.dattr.attr,
++	NULL
++};
++
++static struct attribute_group synaptics_attr_group = {
++	.attrs = synaptics_attrs,
++};
++
+ 
+ static void synaptics_disconnect(struct psmouse *psmouse)
+ {
+@@ -1308,6 +1340,9 @@ static void synaptics_disconnect(struct psmouse *psmouse)
+ 		device_remove_file(&psmouse->ps2dev.serio->dev,
+ 				   &psmouse_attr_disable_gesture.dattr);
+ 
++	sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj,
++			   &synaptics_attr_group);
++
+ 	synaptics_reset(psmouse);
+ 	kfree(priv);
+ 	psmouse->private = NULL;
+@@ -1528,6 +1563,12 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+ 		}
+ 	}
+ 
++	err = sysfs_create_group(&psmouse->ps2dev.serio->dev.kobj,
++				 &synaptics_attr_group);
++	if (err)
++		psmouse_warn(psmouse,
++			    "Failed to create sysfs attributes (%d)", err);
++
+ 	return 0;
+ 
+  init_fail:
+-- 
+1.7.7.3

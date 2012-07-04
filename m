@@ -1,84 +1,43 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH] HID: roccat: Added sensor bin-sysfs-attr for Savu
-Date: Wed, 04 Jul 2012 18:45:03 +0200
-Message-ID: <1341420303.3266.22.camel@neuromancer.tessier-ashpool>
-Reply-To: erazor_de@users.sourceforge.net
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 1/2 v2] HID: magicmouse: Removing report_touches switch
+Date: Wed, 4 Jul 2012 20:41:57 +0200
+Message-ID: <20120704184157.GA272@polaris.bitmath.org>
+References: <1341341621-15560-1-git-send-email-miletus@chromium.org>
+ <4FF35597.7020408@canonical.com>
+ <20120704074049.GA380@polaris.bitmath.org>
+ <CAGS+omDHQkWdmETOwaDu3nkAQEhJeNkLDdDmF+4N=XDTO6+FWg@mail.gmail.com>
+ <20120704083841.GA722@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Rob Landley <rob@landley.net>, Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:33683 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755110Ab2GDSle (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Jul 2012 14:41:34 -0400
+Content-Disposition: inline
+In-Reply-To: <20120704083841.GA722@polaris.bitmath.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Chase Douglas <chase.douglas@canonical.com>, Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Andrew de los Reyes <adlr@chromium.org>
 
-The sensor attr can be used to tweak the optical sensor of the Savu.
+> The input events stop coming when I have more than four fingers on the
+> pad, but they start again if I remove the excess fingers. As if the
+> transport layer chokes on messages longer than some value...
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
----
- .../ABI/testing/sysfs-driver-hid-roccat-savu       |    9 +++++++++
- drivers/hid/hid-roccat-savu.c                      |    2 ++
- drivers/hid/hid-roccat-savu.h                      |    2 ++
- 3 files changed, 13 insertions(+), 0 deletions(-)
+Yep, that's it. On my system, something sets the L2CAP MTU to a
+whopping 48 bytes, and the code below, from l2cap_core.c,
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-savu b/Documentation/ABI/testing/sysfs-driver-hid-roccat-savu
-index e233490..b42922c 100644
---- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-savu
-+++ b/Documentation/ABI/testing/sysfs-driver-hid-roccat-savu
-@@ -66,3 +66,12 @@ Description:	The mouse can store 5 profiles which can be switched by the
- 		The data has to be 3 bytes long.
- 		The mouse will reject invalid data.
- Users:		http://roccat.sourceforge.net
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/savu/roccatsavu<minor>/sensor
-+Date:		July 2012
-+Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-+Description:	The mouse has a Avago ADNS-3090 sensor.
-+		This file allows reading and writing of the mouse sensors registers.
-+		The data has to be 4 bytes long.
-+Users:		http://roccat.sourceforge.net
-+
-diff --git a/drivers/hid/hid-roccat-savu.c b/drivers/hid/hid-roccat-savu.c
-index 29e87d7..014afba 100644
---- a/drivers/hid/hid-roccat-savu.c
-+++ b/drivers/hid/hid-roccat-savu.c
-@@ -121,6 +121,7 @@ SAVU_SYSFS_RW(general, GENERAL)
- SAVU_SYSFS_RW(buttons, BUTTONS)
- SAVU_SYSFS_RW(macro, MACRO)
- SAVU_SYSFS_R(info, INFO)
-+SAVU_SYSFS_RW(sensor, SENSOR)
- 
- static struct bin_attribute savu_bin_attributes[] = {
- 	SAVU_BIN_ATTRIBUTE_W(control, CONTROL),
-@@ -129,6 +130,7 @@ static struct bin_attribute savu_bin_attributes[] = {
- 	SAVU_BIN_ATTRIBUTE_RW(buttons, BUTTONS),
- 	SAVU_BIN_ATTRIBUTE_RW(macro, MACRO),
- 	SAVU_BIN_ATTRIBUTE_R(info, INFO),
-+	SAVU_BIN_ATTRIBUTE_RW(sensor, SENSOR),
- 	__ATTR_NULL
- };
- 
-diff --git a/drivers/hid/hid-roccat-savu.h b/drivers/hid/hid-roccat-savu.h
-index b15a1bb..9120ba7 100644
---- a/drivers/hid/hid-roccat-savu.h
-+++ b/drivers/hid/hid-roccat-savu.h
-@@ -21,6 +21,7 @@ enum {
- 	SAVU_SIZE_BUTTONS = 0x2f,
- 	SAVU_SIZE_MACRO = 0x0823,
- 	SAVU_SIZE_INFO = 0x08,
-+	SAVU_SIZE_SENSOR = 0x04,
- };
- 
- enum savu_control_requests {
-@@ -35,6 +36,7 @@ enum savu_commands {
- 	SAVU_COMMAND_BUTTONS = 0x7,
- 	SAVU_COMMAND_MACRO = 0x8,
- 	SAVU_COMMAND_INFO = 0x9,
-+	SAVU_COMMAND_SENSOR = 0xc,
- };
- 
- struct savu_mouse_report_special {
--- 
-1.7.3.4
+	switch (chan->mode) {
+	case L2CAP_MODE_BASIC:
+		/* If socket recv buffers overflows we drop data here
+		 * which is *bad* because L2CAP has to be reliable.
+		 * But we don't have any other choice. L2CAP doesn't
+		 * provide flow control mechanism. */
 
+		if (chan->imtu < skb->len)
+			goto drop;
 
+silently ignores packets larger than that value. Duh.
 
+Henrik

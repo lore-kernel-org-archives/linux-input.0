@@ -1,300 +1,73 @@
-From: "Poddar, Sourav" <sourav.poddar@ti.com>
-Subject: Re: [RESEND/PATCHv5 1/2] drivers: input: keypad: Add device tree support
-Date: Thu, 5 Jul 2012 19:37:57 +0530
-Message-ID: <CAKdam56uDiMUSAnEpKz=BhG=RE-NJSQt0tfCgtoZ_fCgifvDKg@mail.gmail.com>
-References: <1339152780-25301-1-git-send-email-sourav.poddar@ti.com>
-	<CAKdam56W025H_0MKMcX_7h61n7FQ7ZEbAG_SYWOU5Tj=nRDbEQ@mail.gmail.com>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 5/8] HID-Sensors: Added accelerometer 3D
+Date: Thu, 5 Jul 2012 15:32:42 +0000
+Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A91935DF35@ORSMSX104.amr.corp.intel.com>
+References: <1341431532-15060-1-git-send-email-srinivas.pandruvada@intel.com>
+	<1341431532-15060-6-git-send-email-srinivas.pandruvada@intel.com>
+ <CANq1E4R8yutQ0QWw_No4fHDwmp=YkCX_xz7KJ7gfRoy2F40CZw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog119.obsmtp.com ([74.125.149.246]:44657 "EHLO
-	na3sys009aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755929Ab2GEOIE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 5 Jul 2012 10:08:04 -0400
-Received: by bkty5 with SMTP id y5so665392bkt.35
-        for <linux-input@vger.kernel.org>; Thu, 05 Jul 2012 07:07:58 -0700 (PDT)
-In-Reply-To: <CAKdam56W025H_0MKMcX_7h61n7FQ7ZEbAG_SYWOU5Tj=nRDbEQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CANq1E4R8yutQ0QWw_No4fHDwmp=YkCX_xz7KJ7gfRoy2F40CZw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Cc: "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "jkosina-AlSwsSmVLrQ@public.gmane.org" <jkosina-AlSwsSmVLrQ@public.gmane.org>, "lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org" <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, "jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org" <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: devicetree-discuss@lists.ozlabs.org, Dmitry Torokhov <dtor@mail.ru>
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, sourav.poddar@ti.com, Andrew Morton <akpm@linux-foundation.org>, Benoit Cousson <b-cousson@ti.com>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Felipe Balbi <balbi@ti.com>, Randy Dunlap <rdunlap@xenotime.net>, lo <linux-omap@vger.kernel.org>
 
-Hi Dmitry,
-On Tue, Jun 19, 2012 at 7:55 PM, Poddar, Sourav <sourav.poddar@ti.com> wrote:
-> +cc linux-omap
+Hi David,
+
+It is a typo. There are three places in Kconfig Help, "3G" is typed instead of "3D". I will correct this.
+
+Thanks,
+Srinivas
+
+-----Original Message-----
+From: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of David Herrmann
+Sent: Wednesday, July 04, 2012 2:28 PM
+To: Pandruvada, Srinivas
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; jkosina-AlSwsSmVLrQ@public.gmane.org; lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org; jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org
+Subject: Re: [PATCH 5/8] HID-Sensors: Added accelerometer 3D
+
+Hi Srinivas
+
+On Wed, Jul 4, 2012 at 9:52 PM, srinivas pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+> Added usage id processing for Accelerometer 3D.This uses IIO 
+> interfaces for triggerred buffer to present data to user mode.This 
+> uses HID sensor framework for registering callback events from the 
+> sensor hub.
 >
-> On Fri, Jun 8, 2012 at 4:22 PM, Sourav Poddar <sourav.poddar@ti.com> wrote:
->> Update the Documentation with omap4 keypad device tree
->> binding information.
->> Add device tree support for omap4 keypad driver.
->>
->> Tested on omap4430 sdp.
->>
->> Cc: Andrew Morton <akpm@linux-foundation.org>
->> Cc: Benoit Cousson <b-cousson@ti.com>
->> Cc: Rob Herring <rob.herring@calxeda.com>
->> Cc: Grant Likely <grant.likely@secretlab.ca>
->> Cc: Felipe Balbi <balbi@ti.com>
->> Cc: Dmitry Torokhov <dtor@mail.ru>
->> Cc: Randy Dunlap <rdunlap@xenotime.net>
->> Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
->> ---
->> changes since v4:
->> - Developed it on top of dmitry's 'next' branch due to
->> dependency on generic "matrix_keypad_build_keymap" api
->> patches queued in that branch
->> - Adapted the driver to fill "keymap" in device tree
->> using "matrix_keypad_build_keymap" api defined in
->> drivers/input/matrix-keymap.c
->>  .../devicetree/bindings/input/omap-keypad.txt      |   31 ++++++
->>  drivers/input/keyboard/omap4-keypad.c              |  108 +++++++++++++++-----
->>  2 files changed, 111 insertions(+), 28 deletions(-)
->>  create mode 100644 Documentation/devicetree/bindings/input/omap-keypad.txt
->>
->> diff --git a/Documentation/devicetree/bindings/input/omap-keypad.txt b/Documentation/devicetree/bindings/input/omap-keypad.txt
->> new file mode 100644
->> index 0000000..722425b
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/input/omap-keypad.txt
->> @@ -0,0 +1,31 @@
->> +* TI's Keypad Controller device tree bindings
->> +
->> +TI's Keypad controller is used to interface a SoC with a matrix-type
->> +keypad device. The keypad controller supports multiple row and column lines.
->> +A key can be placed at each intersection of a unique row and a unique column.
->> +The keypad controller can sense a key-press and key-release and report the
->> +event using a interrupt to the cpu.
->> +
->> +Required SoC Specific Properties:
->> +- compatible: should be one of the following
->> +   - "ti,omap4-keypad": For controllers compatible with omap4 keypad
->> +      controller.
->> +
->> +Required Board Specific Properties, in addition to those specified by
->> +the shared matrix-keyboard bindings:
->> +- keypad,num-rows: Number of row lines connected to the keypad
->> +  controller.
->> +
->> +- keypad,num-columns: Number of column lines connected to the
->> +  keypad controller.
->> +
->> +Optional Properties specific to linux:
->> +- linux,keypad-no-autorepeat: do no enable autorepeat feature.
->> +
->> +Example:
->> +        keypad@4ae1c000{
->> +                compatible = "ti,omap4-keypad";
->> +                keypad,num-rows = <2>;
->> +                keypad,num-columns = <8>;
->> +               linux,keypad-no-autorepeat;
->> +       };
->> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
->> index aed5f69..d5a2d1a 100644
->> --- a/drivers/input/keyboard/omap4-keypad.c
->> +++ b/drivers/input/keyboard/omap4-keypad.c
->> @@ -27,6 +27,7 @@
->>  #include <linux/platform_device.h>
->>  #include <linux/errno.h>
->>  #include <linux/io.h>
->> +#include <linux/of.h>
->>  #include <linux/input.h>
->>  #include <linux/slab.h>
->>  #include <linux/pm_runtime.h>
->> @@ -75,6 +76,7 @@ enum {
->>
->>  struct omap4_keypad {
->>        struct input_dev *input;
->> +       struct matrix_keymap_data *keymap_data;
->>
->>        void __iomem *base;
->>        unsigned int irq;
->> @@ -84,6 +86,7 @@ struct omap4_keypad {
->>        u32 reg_offset;
->>        u32 irqreg_offset;
->>        unsigned int row_shift;
->> +       bool no_autorepeat;
->>        unsigned char key_state[8];
->>        unsigned short keymap[];
->>  };
->> @@ -208,25 +211,74 @@ static void omap4_keypad_close(struct input_dev *input)
->>        pm_runtime_put_sync(input->dev.parent);
->>  }
->>
->> +static struct omap4_keypad *omap_keypad_parse_dt(struct device *dev,
->> +                               uint32_t rows, uint32_t cols,
->> +                               struct input_dev *input_dev)
->> +{
->> +       struct device_node *np = dev->of_node;
->> +       struct platform_device *pdev = to_platform_device(dev);
->> +       struct omap4_keypad *keypad_data = platform_get_drvdata(pdev);
->> +       int error;
->> +
->> +       error = matrix_keypad_build_keymap(NULL, "linux,keymap",
->> +                               rows, cols, keypad_data->keymap, input_dev);
->> +       if (error) {
->> +               dev_err(&pdev->dev, "failed to build keymap\n");
->> +               input_free_device(input_dev);
->> +       }
->> +
->> +       if (of_get_property(np, "linux,input-no-autorepeat", NULL))
->> +               keypad_data->no_autorepeat = true;
->> +
->> +       return keypad_data;
->> +}
->> +
->>  static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->>  {
->> +       struct device *dev = &pdev->dev;
->> +       struct device_node *np = dev->of_node;
->>        const struct omap4_keypad_platform_data *pdata;
->>        struct omap4_keypad *keypad_data;
->>        struct input_dev *input_dev;
->>        struct resource *res;
->>        resource_size_t size;
->> -       unsigned int row_shift, max_keys;
->> +       unsigned int row_shift = 0, max_keys = 0;
->> +       uint32_t num_rows = 0, num_cols = 0;
->>        int rev;
->>        int irq;
->>        int error;
->>
->>        /* platform data */
->>        pdata = pdev->dev.platform_data;
->> -       if (!pdata) {
->> +       if (np) {
->> +               of_property_read_u32(np, "keypad,num-rows", &num_rows);
->> +               of_property_read_u32(np, "keypad,num-columns", &num_cols);
->> +               if (!num_rows || !num_cols) {
->> +                       dev_err(&pdev->dev, "number of keypad rows/columns not specified\n");
->> +                       return -EINVAL;
->> +               }
->> +       } else if (pdata) {
->> +               num_rows = pdata->rows;
->> +               num_cols = pdata->cols;
->> +       } else {
->>                dev_err(&pdev->dev, "no platform data defined\n");
->>                return -EINVAL;
->>        }
->>
->> +       row_shift = get_count_order(num_cols);
->> +       max_keys = num_rows << row_shift;
->> +
->> +       keypad_data = devm_kzalloc(dev, sizeof(struct omap4_keypad) +
->> +                       max_keys * sizeof(keypad_data->keymap[0]),
->> +                               GFP_KERNEL);
->> +
->> +       if (!keypad_data) {
->> +               dev_err(&pdev->dev, "keypad_data memory allocation failed\n");
->> +               return -ENOMEM;
->> +       }
->> +
->> +       platform_set_drvdata(pdev, keypad_data);
->> +
->>        res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->>        if (!res) {
->>                dev_err(&pdev->dev, "no base address specified\n");
->> @@ -239,22 +291,6 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->>                return -EINVAL;
->>        }
->>
->> -       if (!pdata->keymap_data) {
->> -               dev_err(&pdev->dev, "no keymap data defined\n");
->> -               return -EINVAL;
->> -       }
->> -
->> -       row_shift = get_count_order(pdata->cols);
->> -       max_keys = pdata->rows << row_shift;
->> -
->> -       keypad_data = kzalloc(sizeof(struct omap4_keypad) +
->> -                               max_keys * sizeof(keypad_data->keymap[0]),
->> -                             GFP_KERNEL);
->> -       if (!keypad_data) {
->> -               dev_err(&pdev->dev, "keypad_data memory allocation failed\n");
->> -               return -ENOMEM;
->> -       }
->> -
->>        size = resource_size(res);
->>
->>        res = request_mem_region(res->start, size, pdev->name);
->> @@ -271,10 +307,10 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->>                goto err_release_mem;
->>        }
->>
->> +       keypad_data->rows = num_rows;
->> +       keypad_data->cols = num_cols;
->>        keypad_data->irq = irq;
->>        keypad_data->row_shift = row_shift;
->> -       keypad_data->rows = pdata->rows;
->> -       keypad_data->cols = pdata->cols;
->>
->>        /*
->>        * Enable clocks for the keypad module so that we can read
->> @@ -322,15 +358,25 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->>        input_dev->open = omap4_keypad_open;
->>        input_dev->close = omap4_keypad_close;
->>
->> -       error = matrix_keypad_build_keymap(pdata->keymap_data, NULL,
->> -                                          pdata->rows, pdata->cols,
->> -                                          keypad_data->keymap, input_dev);
->> -       if (error) {
->> -               dev_err(&pdev->dev, "failed to build keymap\n");
->> -               goto err_free_input;
->> +       if (np) {
->> +               keypad_data = omap_keypad_parse_dt(&pdev->dev,
->> +                               keypad_data->rows, keypad_data->cols,
->> +                               input_dev);
->> +       } else {
->> +               keypad_data->keymap_data =
->> +                       (struct matrix_keymap_data *)pdata->keymap_data;
->> +               error = matrix_keypad_build_keymap(keypad_data->keymap_data,
->> +                               NULL, keypad_data->rows, keypad_data->cols,
->> +                               keypad_data->keymap, input_dev);
->> +               if (error) {
->> +                       dev_err(&pdev->dev, "failed to build keymap\n");
->> +                       goto err_free_input;
->> +               }
->>        }
->>
->> -       __set_bit(EV_REP, input_dev->evbit);
->> +       if (!keypad_data->no_autorepeat)
->> +               __set_bit(EV_REP, input_dev->evbit);
->> +
->>        input_set_capability(input_dev, EV_MSC, MSC_SCAN);
->>
->>        input_set_drvdata(input_dev, keypad_data);
->> @@ -351,7 +397,6 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->>                goto err_pm_disable;
->>        }
->>
->> -       platform_set_drvdata(pdev, keypad_data);
->>        return 0;
->>
->>  err_pm_disable:
->> @@ -392,12 +437,19 @@ static int __devexit omap4_keypad_remove(struct platform_device *pdev)
->>        return 0;
->>  }
->>
->> +static const struct of_device_id omap_keypad_dt_match[] = {
->> +       { .compatible = "ti,omap4-keypad" },
->> +       {},
->> +};
->> +MODULE_DEVICE_TABLE(of, omap_keypad_dt_match);
->> +
->>  static struct platform_driver omap4_keypad_driver = {
->>        .probe          = omap4_keypad_probe,
->>        .remove         = __devexit_p(omap4_keypad_remove),
->>        .driver         = {
->>                .name   = "omap4-keypad",
->>                .owner  = THIS_MODULE,
->> +               .of_match_table = of_match_ptr(omap_keypad_dt_match),
->>        },
->>  };
->>  module_platform_driver(omap4_keypad_driver);
->> --
->> 1.7.1
->>
-This patch is lying here for too long.
-If there is no comment, can it be taken into your tree?
+> Signed-off-by: srinivas pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/staging/iio/accel/Kconfig               |   10 +
+>  drivers/staging/iio/accel/Makefile              |    3 +
+>  drivers/staging/iio/accel/hid-sensor-accel-3d.c |  451 
+> +++++++++++++++++++++++
+>  3 files changed, 464 insertions(+), 0 deletions(-)  create mode 
+> 100644 drivers/staging/iio/accel/hid-sensor-accel-3d.c
+>
+> diff --git a/drivers/staging/iio/accel/Kconfig 
+> b/drivers/staging/iio/accel/Kconfig
+> index 5ab7167..6ab1efa 100644
+> --- a/drivers/staging/iio/accel/Kconfig
+> +++ b/drivers/staging/iio/accel/Kconfig
+> @@ -102,4 +102,14 @@ config SCA3000
+>           Say yes here to build support for the VTI SCA3000 series of SPI
+>           accelerometers. These devices use a hardware ring buffer.
+>
+> +config HID_SENSOR_ACCEL_3D
+> +       depends on HID_SENSOR_HUB
+> +       select IIO_BUFFER
+> +       select IIO_TRIGGERED_BUFFER
+> +       select HID_SENSOR_IIO_COMMON
+> +       tristate "HID Acelerometers 3D"
+> +       help
+> +         Say yes here to build support for the HID SENSOR
+> +         accelerometers 3G.
 
-~Sourav
+Maybe it's just me missing something, but why do all the Kconfig entries mention "3G" instead of "3D"? I couldn't find any other place where "3G" is used, only lots of "3D". What does 3G stand for?
+
+Or maybe I just didn't pay enough attention.. ;) Regards David
+--
+To unsubscribe from this list: send the line "unsubscribe linux-iio" in the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo info at  http://vger.kernel.org/majordomo-info.html

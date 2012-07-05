@@ -1,188 +1,368 @@
-From: Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
-Subject: Re: [PATCH 1/8] HID-Sensors: Documentation
-Date: Thu, 5 Jul 2012 02:56:32 +0200 (CEST)
-Message-ID: <alpine.DEB.2.01.1207050243500.22508@pmeerw.net>
-References: <1341431532-15060-1-git-send-email-srinivas.pandruvada@intel.com> <1341431532-15060-2-git-send-email-srinivas.pandruvada@intel.com>
+From: littlebat <dashing.meng@gmail.com>
+Subject: Bug#679750: Lenovo G360: ALPS Touchpad Recognized as "PS/2 Generic
+	Mouse"
+Date: Thu, 5 Jul 2012 10:58:34 +0800
+Message-ID: <CAAT31jY5_P13xjybsYFm3oix0pjbbzRihCrjecQ+cXkrHhnrCQ@mail.gmail.com>
+Reply-To: littlebat <dashing.meng@gmail.com>, 679750@bugs.debian.org
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1341431532-15060-2-git-send-email-srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: srinivas pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org
+Content-Type: multipart/alternative; boundary=20cf307d0386d2e6e204c40c5221
+Return-path: <bounce-debian-bugs-dist=glddb-debian-bugs-dist=m.gmane.org@lists.debian.org>
+Resent-To: debian-bugs-dist@lists.debian.org
+Resent-Message-ID: <handler.679750.B679750.134145712219256@bugs.debian.org>
+List-Post: <mailto:debian-bugs-dist@lists.debian.org>
+List-Help: <mailto:debian-bugs-dist-request@lists.debian.org?subject=help>
+List-Subscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=subscribe>
+List-Unsubscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=unsubscribe>
+To: linux-input@vger.kernel.org
+Cc: seth.forshee@canonical.com, 679750@bugs.debian.org, jrnieder@gmail.com
 List-Id: linux-input@vger.kernel.org
 
+--20cf307d0386d2e6e204c40c5221
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-nitpicking below
+found 679750 linux-2.6/2.6.32-45 , linux-2.6/3.2.4-1 , linux/3.4.4-1
+quit
 
-> Added a summary of HID sensor framework.
-> 
-> Signed-off-by: srinivas pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> ---
->  Documentation/hid/hid-sensor.txt |  139 ++++++++++++++++++++++++++++++++++++++
->  1 files changed, 139 insertions(+), 0 deletions(-)
->  create mode 100755 Documentation/hid/hid-sensor.txt
-> 
-> diff --git a/Documentation/hid/hid-sensor.txt b/Documentation/hid/hid-sensor.txt
-> new file mode 100755
-> index 0000000..a4b565f
-> --- /dev/null
-> +++ b/Documentation/hid/hid-sensor.txt
-> @@ -0,0 +1,139 @@
-> +
-> +HID Sensors Framework
-> +======================
-> +HID sensor framework provides necessary interfaces to implement sensor drivers,
-> +which are connected to a sensor hub. The sensor hub is HID device and it provides
-is a HID device
-> +a report descriptor confirming to HID 1.12 sensor usage tables.
-conforming
-> +
-> +Description from the HID 1.12 "HID Sensor Usages" specification:
-> +"Standardization of HID usages for sensors would allow (but not require) sensor
-> +hardware vendors to provide a consistent Plug And Play interface at the USB boundary,
-> +Thereby enabling some operating systems to incorporate common device drivers that
-thereby
-> +could be reused between vendors, alleviating any need for the vendors to provide
-> +the drivers themselves."
-> +
-> +This specification describes many usage IDs, which describe the type of sensor
-> +and also the individual data fields. Each sensor can have variable number of
-> +data fields and length and order is specified in the report descriptor. For
-maybe a comma after fields?
-> +example a part of report descriptor can look like:
-> +
-> +   INPUT(1)[INPUT]
-> + ..
-> +    Field(2)
-> +      Physical(0020.0073)
-> +      Usage(1)
-> +        0020.045f
-> +      Logical Minimum(-32767)
-> +      Logical Maximum(32767)
-> +      Report Size(8)
-> +      Report Count(1)
-> +      Report Offset(16)
-> +      Flags(Variable Absolute)
-> +..
-> +..
-> +
-> +The report is indicating "sensor page (0x20)" contains an accelerometer-3D (0x73).
-> +This accelerometer-3D has some fields. Here for example field 2 is motion intensity
-> +(0x045f) with a logical minimum value of -32767 and logical maximum of 32767. The
-> +order of fields and length of each field is important as the input event raw
-> +data will use this format.
-> +
-> +
-> +Implementation
-> +=================
-> +
-> +This specification defines many different types of sensors with different set of
-sets
-> +data fields. It is difficult to have a common input event to user space applications,
-> +for different sensors. For example an accelerometer can send X,Y and Z data, whereas
-> +an ambient light sensor can send illumination data. 
-> +So the implementation has two parts:
-> +- Core hid driver
-> +- Individual sensor processing part (sensor drivers)
-> +
-> +Core driver
-> +-----------
-> +The core driver registers (hid-sensor-hub) registers as a HID driver. It parses
-> +report descriptors and identifies all the sensors present. It adds an MFD device
-> +with name HID-SENSOR-xxxx (where xxxx is usage id from the specification).
-> +For example 
-> +HID-SENSOR-200073 is registered for an Accelerometer 3D driver.
-> +So if any driver with this name is inserted, then the probe routine for that
-> +function will be called. So an accelerometer processing driver can register
-> +with this name and will be probed if there is an accelerometer-3D is detected.
-accelerometer-3D detected.
-> +
-> +The core driver provides a set of APIs which can be used by the processing
-> +drivers to register and get events for that usage id. Also it provides a parsing
-> +functions, get and set each input/feature/output report.
-Also it provides parsing functions which get and set eaach 
-input/feature/output report. ??
-> +
-> +Individual sensor processing part (sensor drivers)
-> +-----------
-> +The processing driver will use interface provided by core driver to parse
-an interface provided by the core driver
-> +the report and get the indexes of the fields and also can get events. This driver
-> +can use IIO interface to use the standard ABI defined for a type of sensor.
-> +
-> +
-> +Core driver Interface
-> +=====================
-> +
-> +Callback structure:
-> +Each processing driver can use this structure to set some callbacks.
-> +	int (*suspend)(..): Callback when HID suspend is received
-> +	int (*resume)(..): Callback when HID resume is received
-> +	int (*capture_sample)(..): Capture a sample for one of its data field
-fields
-> +	int (*send_event)(..): One complete event is received which can have
-> +                               multiple data fields. 
-> +
-> +
-> +Registration functions:
-> +int sensor_hub_register_callback(struct hid_sensor_hub_device *hsdev,
-> +			u32 usage_id,
-> +			struct hid_sensor_hub_callbacks *usage_callback):
-> +
-> +Registers callbacks for an usage id.
-> +
-> +
-> +int sensor_hub_remove_callback(struct hid_sensor_hub_device *hsdev,
-> +			u32 usage_id):
-> +
-> +Removes callbacks for an usage id.
-> +
-> +
-> +Parsing function:
-> +int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
-> +			u8 type,
-> +			u32 usage_id, u32 attr_usage_id,
-> +			struct hid_sensor_hub_attribute_info *info);
-> +
-> +A processing driver can look for some field of interest and check if it exists
-> +in a report descriptor. If it exists the it will store necessary information
-it exists it will
-> +so that that field can be set or get individually.
-so that fields
-> +These indexes avoid searching every time and getting field index to get or set.
-> +
-> +
-> +Set Feature report
-> +int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-> +			u32 field_index, s32 value);
-> +
-> +This interface is used to set a value for a field in feature report. For example
-> +if there is a field report_interval, which is parsed by a call to 
-> +sensor_hub_input_get_attribute_info before, then it can directly set that individual
-> +field.
-> +
-> +int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-> +			u32 field_index, s32 *value);
-> +
-> +
-> +This interface is used to get a value for a field in input report. For example
-> +if there is a field report_interval, which is parsed by a call to 
-> +sensor_hub_input_get_attribute_info before, then it can directly get that individual
-> +field value.
-> +
-> +int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
-> +			u32 usage_id,
-> +			u32 attr_usage_id, u32 report_id);
-> +
-> +This is used to get a particular field value through input reports. For example
-> +accelerometer wants to poll X axis value, then it can call this function with
-> +the usage id of X axis. HID sensors can provide events, so this is not necessary
-> +to poll for any field. If there is some new sample, the core driver will call
-> +registered callback function to process the sample.
-> 
+Hi,
+Dear kernel developers.
 
--- 
+According to the advice at " http://bugs.debian.org/679750 ", I report a
+kernel bug about ALPS touchpad to you.
 
-Peter Meerwald
-+43-664-2444418 (mobile)
+My lenovo G360 has an ALPS touchpad, show in Windows 7 Home Editition
+OEM in this laptop. Under Debian Squeeze or Ubuntu 12.04 LTS LiveCD in same
+laptop, the left and
+right key, single and double tap, tracking  of touchpad works well.
+But, there isn't touchpad tab in gnome mouse setting dialog, so I
+can't setup edge scrolling and disable touchpad on typing. xinput
+shows it is a "PS/2 Generic Mouse". Below is the detail information.
+
+System information:
+
+Debian Squeeze, tried kernel: 2.6.32-45, 3.2.4-1~bpo60+1,
+3.4.4-1~experimental.1
+And tried Ubuntu 12.04 LTS LiveCD, kernel: 3.2 (has the same bug as in
+Debian)
+
+The below information come from Debian Squeeze with 3.2.4-1~bpo60+1 kernel.
+The other kerneld and sytem tried above should has the same result.
+
+"synclient -l" shows:
+
+Couldn't find synaptics properties. No synaptics driver loaded?
+
+"xinput --list" shows:
+
+ =E2=8E=A1 Virtual core pointer                        id=3D2    [master po=
+inter  (3)]
+=E2=8E=9C   =E2=86=B3 Virtual core XTEST pointer                  id=3D4   =
+ [slave  pointer
+(2)]
+=E2=8E=9C   =E2=86=B3  USB OPTICAL MOUSE                          id=3D11  =
+  [slave  pointer
+(2)]
+=E2=8E=9C   =E2=86=B3 PS/2 Generic Mouse                          id=3D14  =
+  [slave  pointer
+(2)]
+=E2=8E=A3 Virtual core keyboard                       id=3D3    [master key=
+board (2)]
+    =E2=86=B3 Virtual core XTEST keyboard                 id=3D5    [slave =
+ keyboard
+(3)]
+    =E2=86=B3 Power Button                                id=3D6    [slave =
+ keyboard
+(3)]
+    =E2=86=B3 Video Bus                                   id=3D7    [slave =
+ keyboard
+(3)]
+    =E2=86=B3 Video Bus                                   id=3D8    [slave =
+ keyboard
+(3)]
+    =E2=86=B3 Power Button                                id=3D9    [slave =
+ keyboard
+(3)]
+    =E2=86=B3 Sleep Button                                id=3D10    [slave=
+  keyboard
+(3)]
+    =E2=86=B3 Lenovo EasyCamera                           id=3D12    [slave=
+  keyboard
+(3)]
+    =E2=86=B3 AT Translated Set 2 keyboard                id=3D13    [slave=
+  keyboard
+(3)]
+    =E2=86=B3 Ideapad extra buttons                       id=3D15    [slave=
+  keyboard
+(3)]
+    =E2=86=B3 ACPI Virtual Keyboard Device                id=3D16    [slave=
+  keyboard
+(3)]
+
+
+"cat /proc/bus/input/devices" shows (only post the section of "PS/2 Generic
+Mouse"):
+I: Bus=3D0011 Vendor=3D0002 Product=3D0001 Version=3D0000
+N: Name=3D"PS/2 Generic Mouse"
+P: Phys=3Disa0060/serio4/input0
+S: Sysfs=3D/devices/platform/i8042/serio4/input/input9
+U: Uniq=3D
+H: Handlers=3Dmouse1 event9
+B: PROP=3D0
+B: EV=3D7
+B: KEY=3D70000 0 0 0 0
+B: REL=3D3
+
+Some related section in "/var/log/Xorg.0.log" is:
+
+[    30.929] (II) config/udev: Adding input device PS/2 Generic Mouse
+(/dev/input/event9)
+[    30.929] (**) PS/2 Generic Mouse: Applying InputClass "evdev pointer
+catchall"
+[    30.929] (II) Using input driver 'evdev' for 'PS/2 Generic Mouse'
+[    30.929] (II) Loading /usr/lib/xorg/modules/input/evdev_drv.so
+[    30.929] (**) PS/2 Generic Mouse: always reports core events
+[    30.929] (**) PS/2 Generic Mouse: Device: "/dev/input/event9"
+[    30.929] (--) PS/2 Generic Mouse: Found 3 mouse buttons
+[    30.929] (--) PS/2 Generic Mouse: Found relative axes
+[    30.929] (--) PS/2 Generic Mouse: Found x and y relative axes
+[    30.929] (II) PS/2 Generic Mouse: Configuring as mouse
+[    30.929] (**) PS/2 Generic Mouse: YAxisMapping: buttons 4 and 5
+[    30.929] (**) PS/2 Generic Mouse: EmulateWheelButton: 4,
+EmulateWheelInertia: 10, EmulateWheelTimeout: 200
+[    30.929] (**) Option "config_info"
+"udev:/sys/devices/platform/i8042/serio4/input/input9/event9"
+[    30.929] (II) XINPUT: Adding extended input device "PS/2 Generic Mouse"
+(type: MOUSE)
+[    30.929] (II) PS/2 Generic Mouse: initialized for relative axes.
+[    30.929] (**) PS/2 Generic Mouse: (accel) keeping acceleration scheme 1
+[    30.929] (**) PS/2 Generic Mouse: (accel) acceleration profile 0
+[    30.929] (**) PS/2 Generic Mouse: (accel) acceleration factor: 2.000
+[    30.929] (**) PS/2 Generic Mouse: (accel) acceleration threshold: 4
+[    30.930] (II) config/udev: Adding input device PS/2 Generic Mouse
+(/dev/input/mouse1)
+
+There is no touchpad or synaptics information in the "/var/log/Xorg.0.log"
+
+I have tried too many methods found on internet, such as:
+
+1, add "psmouse.proto=3Dimps(or exps)" into kernel parameters;
+
+2, add file "etc/X11/xorg.d/10-synaptics.conf", the content as below:
+
+Section "InputClass"
+    Identifier      "touchpad catchall"
+    Driver          "synaptics"
+    MatchIsTouchpad "on"
+    MatchDevicePath "/dev/input/event*"
+    Option          "SHMConfig" "on"
+    Option          "TapButton1" "1"
+    Option          "TapButton2" "2"
+    Option          "TapButton3" "3"
+    Option          "VertTwoFingerScroll" "on"
+    Option          "HorizTwoFingerScroll" "on"
+EndSection
+
+3, Thanks to the help of "How to disable Alps touchpad while typing or when
+using an external mouse in Linux" at:
+http://www.imega.cz/Linux-Alps-Touchpad-Dell-E6410/Linux-Alps-touchpad-disa=
+ble.php
+I resolved the problem of "disable touchpad on typing" by using a python
+script, but I can't make edge scrolling work yet.
+
+According to the advice of the page above, I downloaded linux-source-3.2,
+and applied patch at " https://patchwork.kernel.org/patch/118834/ "), I
+have not use cat *.patch | patch -p1, just copy the modified code into
+linux-source-3.2 and recompile psmouse.ko. But no lucky, edge scrolling
+can't work.
+
+4, etc..
+
+My DMI information:
+
+me@debian:/sys/class/dmi/id$ for file in *; do if [ -f "$file" -a -r
+"$file" ]; then echo $file: `cat $file` ; fi; done
+bios_date: 10/27/2011
+bios_vendor: LENOVO
+bios_version: 61CN06WW
+board_asset_tag:
+board_name: LL1
+board_vendor: Lenovo
+board_version: Rev 1.0
+chassis_asset_tag: No Asset Tag
+chassis_type: 10
+chassis_vendor: Lenovo
+chassis_version: Rev 1.0
+modalias:
+dmi:bvnLENOVO:bvr61CN06WW:bd10/27/2011:svnLENOVO:pnG360:pvrRev1.0:rvnLenovo=
+:rnLL1:rvrRev1.0:cvnLenovo:ct10:cvrRev1.0:
+product_name: G360
+product_version: Rev 1.0
+sys_vendor: LENOVO
+uevent:
+MODALIAS=3Ddmi:bvnLENOVO:bvr61CN06WW:bd10/27/2011:svnLENOVO:pnG360:pvrRev1.=
+0:rvnLenovo:rnLL1:rvrRev1.0:cvnLenovo:ct10:cvrRev1.0:
+
+Tell me If need more detail information.
+
+Thanks.
+
+--20cf307d0386d2e6e204c40c5221
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+found 679750 linux-2.6/2.6.32-45 , linux-2.6/3.2.4-1 , linux/3.4.4-1<br>qui=
+t<br><br>Hi,<br>Dear kernel developers.<br><br>According to the advice at &=
+quot; <a href=3D"http://bugs.debian.org/679750">http://bugs.debian.org/6797=
+50</a> &quot;, I report a kernel bug about ALPS touchpad to you.<br>
+<br>My lenovo G360 has an ALPS touchpad, show in Windows 7 Home Editition<b=
+r>OEM in this laptop. Under Debian Squeeze or Ubuntu 12.04 LTS LiveCD in sa=
+me laptop, the left and<br>right key, single and double tap, tracking=C2=A0=
+ of touchpad works well.<br>
+But, there isn&#39;t touchpad tab in gnome mouse setting dialog, so I<br>ca=
+n&#39;t setup edge scrolling and disable touchpad on typing. xinput<br>show=
+s it is a &quot;PS/2 Generic Mouse&quot;. Below is the detail information.<=
+br>
+<br>System information:<br><br>Debian Squeeze, tried kernel: 2.6.32-45, 3.2=
+.4-1~bpo60+1, 3.4.4-1~experimental.1<br>And tried Ubuntu 12.04 LTS LiveCD, =
+kernel: 3.2 (has the same bug as in Debian)<br><br>The below information co=
+me from Debian Squeeze with 3.2.4-1~bpo60+1 kernel. The other kerneld and s=
+ytem tried above should has the same result.<br>
+<br>&quot;synclient -l&quot; shows:<br><br>Couldn&#39;t find synaptics prop=
+erties. No synaptics driver loaded?<br><br>&quot;xinput --list&quot; shows:=
+<br><br>=C2=A0=E2=8E=A1 Virtual core pointer=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0 =C2=A0=C2=A0=C2=A0 id=3D2=C2=A0=C2=A0=C2=A0 [master pointer=C2=A0=
+ (3)]<br>
+=E2=8E=9C=C2=A0=C2=A0 =E2=86=B3 Virtual core XTEST pointer=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=
+=A0=C2=A0 id=3D4=C2=A0=C2=A0=C2=A0 [slave=C2=A0 pointer=C2=A0 (2)]<br>=E2=
+=8E=9C=C2=A0=C2=A0 =E2=86=B3=C2=A0 USB OPTICAL MOUSE=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 id=3D11=C2=A0=C2=A0=C2=A0=
+ [slave=C2=A0 pointer=C2=A0 (2)]<br>=E2=8E=9C=C2=A0=C2=A0 =E2=86=B3 PS/2 Ge=
+neric Mouse=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=
+=A0=C2=A0 id=3D14=C2=A0=C2=A0=C2=A0 [slave=C2=A0 pointer=C2=A0 (2)]<br>
+=E2=8E=A3 Virtual core keyboard=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=
+=C2=A0=C2=A0 id=3D3=C2=A0=C2=A0=C2=A0 [master keyboard (2)]<br>=C2=A0=C2=A0=
+=C2=A0 =E2=86=B3 Virtual core XTEST keyboard=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 id=3D5=C2=A0=
+=C2=A0=C2=A0 [slave=C2=A0 keyboard (3)]<br>=C2=A0=C2=A0=C2=A0 =E2=86=B3 Pow=
+er Button=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 id=3D6=C2=A0=C2=A0=C2=A0 [slave=C2=
+=A0 keyboard (3)]<br>
+=C2=A0=C2=A0=C2=A0 =E2=86=B3 Video Bus=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=
+=A0=C2=A0=C2=A0 id=3D7=C2=A0=C2=A0=C2=A0 [slave=C2=A0 keyboard (3)]<br>=C2=
+=A0=C2=A0=C2=A0 =E2=86=B3 Video Bus=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=
+=C2=A0=C2=A0 id=3D8=C2=A0=C2=A0=C2=A0 [slave=C2=A0 keyboard (3)]<br>=C2=A0=
+=C2=A0=C2=A0 =E2=86=B3 Power Button=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 id=3D9=
+=C2=A0=C2=A0=C2=A0 [slave=C2=A0 keyboard (3)]<br>
+=C2=A0=C2=A0=C2=A0 =E2=86=B3 Sleep Button=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 i=
+d=3D10=C2=A0=C2=A0=C2=A0 [slave=C2=A0 keyboard (3)]<br>=C2=A0=C2=A0=C2=A0 =
+=E2=86=B3 Lenovo EasyCamera=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0 =C2=A0=C2=A0=C2=A0 id=3D12=C2=A0=C2=A0=C2=A0 [slave=C2=A0 keyboar=
+d (3)]<br>=C2=A0=C2=A0=C2=A0 =E2=86=B3 AT Translated Set 2 keyboard=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=
+=C2=A0 id=3D13=C2=A0=C2=A0=C2=A0 [slave=C2=A0 keyboard (3)]<br>
+=C2=A0=C2=A0=C2=A0 =E2=86=B3 Ideapad extra buttons=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0 =C2=A0=C2=A0=C2=A0 id=3D15=C2=A0=C2=A0=C2=A0 [slave=C2=A0 keyboar=
+d (3)]<br>=C2=A0=C2=A0=C2=A0 =E2=86=B3 ACPI Virtual Keyboard Device=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=
+=C2=A0 id=3D16=C2=A0=C2=A0=C2=A0 [slave=C2=A0 keyboard (3)]<br><br><br>&quo=
+t;cat /proc/bus/input/devices&quot; shows (only post the section of &quot;P=
+S/2 Generic<br>
+Mouse&quot;):<br>I: Bus=3D0011 Vendor=3D0002 Product=3D0001 Version=3D0000<=
+br>N: Name=3D&quot;PS/2 Generic Mouse&quot;<br>P: Phys=3Disa0060/serio4/inp=
+ut0<br>S: Sysfs=3D/devices/platform/i8042/serio4/input/input9<br>U: Uniq=3D=
+<br>H: Handlers=3Dmouse1 event9<br>
+B: PROP=3D0<br>B: EV=3D7<br>B: KEY=3D70000 0 0 0 0<br>B: REL=3D3<br><br>Som=
+e related section in &quot;/var/log/Xorg.0.log&quot; is:<br><br>[=C2=A0=C2=
+=A0=C2=A0 30.929] (II) config/udev: Adding input device PS/2 Generic Mouse<=
+br>(/dev/input/event9)<br>
+[=C2=A0=C2=A0=C2=A0 30.929] (**) PS/2 Generic Mouse: Applying InputClass &q=
+uot;evdev pointer<br>catchall&quot;<br>[=C2=A0=C2=A0=C2=A0 30.929] (II) Usi=
+ng input driver &#39;evdev&#39; for &#39;PS/2 Generic Mouse&#39;<br>[=C2=A0=
+=C2=A0=C2=A0 30.929] (II) Loading /usr/lib/xorg/modules/input/evdev_drv.so<=
+br>
+[=C2=A0=C2=A0=C2=A0 30.929] (**) PS/2 Generic Mouse: always reports core ev=
+ents<br>[=C2=A0=C2=A0=C2=A0 30.929] (**) PS/2 Generic Mouse: Device: &quot;=
+/dev/input/event9&quot;<br>[=C2=A0=C2=A0=C2=A0 30.929] (--) PS/2 Generic Mo=
+use: Found 3 mouse buttons<br>[=C2=A0=C2=A0=C2=A0 30.929] (--) PS/2 Generic=
+ Mouse: Found relative axes<br>
+[=C2=A0=C2=A0=C2=A0 30.929] (--) PS/2 Generic Mouse: Found x and y relative=
+ axes<br>[=C2=A0=C2=A0=C2=A0 30.929] (II) PS/2 Generic Mouse: Configuring a=
+s mouse<br>[=C2=A0=C2=A0=C2=A0 30.929] (**) PS/2 Generic Mouse: YAxisMappin=
+g: buttons 4 and 5<br>[=C2=A0=C2=A0=C2=A0 30.929] (**) PS/2 Generic Mouse: =
+EmulateWheelButton: 4,<br>
+EmulateWheelInertia: 10, EmulateWheelTimeout: 200<br>[=C2=A0=C2=A0=C2=A0 30=
+.929] (**) Option &quot;config_info&quot;<br>&quot;udev:/sys/devices/platfo=
+rm/i8042/serio4/input/input9/event9&quot;<br>[=C2=A0=C2=A0=C2=A0 30.929] (I=
+I) XINPUT: Adding extended input device &quot;PS/2 Generic Mouse&quot;<br>
+(type: MOUSE)<br>[=C2=A0=C2=A0=C2=A0 30.929] (II) PS/2 Generic Mouse: initi=
+alized for relative axes.<br>[=C2=A0=C2=A0=C2=A0 30.929] (**) PS/2 Generic =
+Mouse: (accel) keeping acceleration scheme 1<br>[=C2=A0=C2=A0=C2=A0 30.929]=
+ (**) PS/2 Generic Mouse: (accel) acceleration profile 0<br>
+[=C2=A0=C2=A0=C2=A0 30.929] (**) PS/2 Generic Mouse: (accel) acceleration f=
+actor: 2.000<br>[=C2=A0=C2=A0=C2=A0 30.929] (**) PS/2 Generic Mouse: (accel=
+) acceleration threshold: 4<br>[=C2=A0=C2=A0=C2=A0 30.930] (II) config/udev=
+: Adding input device PS/2 Generic Mouse<br>
+(/dev/input/mouse1)<br><br>There is no touchpad or synaptics information in=
+ the &quot;/var/log/Xorg.0.log&quot;<br><br>I have tried too many methods f=
+ound on internet, such as:<br><br>1, add &quot;psmouse.proto=3Dimps(or exps=
+)&quot; into kernel parameters;<br>
+<br>2, add file &quot;etc/X11/xorg.d/10-synaptics.conf&quot;, the content a=
+s below:<br><br>Section &quot;InputClass&quot;<br>=C2=A0=C2=A0=C2=A0 Identi=
+fier=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 &quot;touchpad catchall&quot;<br>=C2=A0=
+=C2=A0=C2=A0 Driver=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 &=
+quot;synaptics&quot;<br>
+=C2=A0=C2=A0=C2=A0 MatchIsTouchpad &quot;on&quot;<br>=C2=A0=C2=A0=C2=A0 Mat=
+chDevicePath &quot;/dev/input/event*&quot;<br>=C2=A0=C2=A0=C2=A0 Option=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 &quot;SHMConfig&quot; &=
+quot;on&quot;<br>=C2=A0=C2=A0=C2=A0 Option=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 &quot;TapButton1&quot; &quot;1&quot;<br>=C2=A0=C2=A0=
+=C2=A0 Option=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 &quot;T=
+apButton2&quot; &quot;2&quot;<br>
+=C2=A0=C2=A0=C2=A0 Option=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0 &quot;TapButton3&quot; &quot;3&quot;<br>=C2=A0=C2=A0=C2=A0 Option=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 &quot;VertTwoFingerScro=
+ll&quot; &quot;on&quot;<br>=C2=A0=C2=A0=C2=A0 Option=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 &quot;HorizTwoFingerScroll&quot; &quot;on=
+&quot;<br>EndSection<br><br>3, Thanks to the help of &quot;How to disable A=
+lps touchpad while typing or when using an external mouse in Linux&quot; at=
+: <a href=3D"http://www.imega.cz/Linux-Alps-Touchpad-Dell-E6410/Linux-Alps-=
+touchpad-disable.php">http://www.imega.cz/Linux-Alps-Touchpad-Dell-E6410/Li=
+nux-Alps-touchpad-disable.php</a><br>
+I resolved the problem of &quot;disable touchpad on typing&quot; by using a=
+ python script, but I can&#39;t make edge scrolling work yet. <br><br>Accor=
+ding to the advice of the page above, I downloaded linux-source-3.2, and ap=
+plied patch at &quot; <a href=3D"https://patchwork.kernel.org/patch/118834/=
+">https://patchwork.kernel.org/patch/118834/</a> &quot;), I have not use ca=
+t *.patch | patch -p1, just copy the modified code into linux-source-3.2 an=
+d recompile psmouse.ko. But no lucky, edge scrolling can&#39;t work.<br>
+<br>4, etc..<br><br>My DMI information:<br><br>me@debian:/sys/class/dmi/id$=
+ for file in *; do if [ -f &quot;$file&quot; -a -r<br>&quot;$file&quot; ]; =
+then echo $file: `cat $file` ; fi; done<br>bios_date: 10/27/2011<br>bios_ve=
+ndor: LENOVO<br>
+bios_version: 61CN06WW<br>board_asset_tag:<br>board_name: LL1<br>board_vend=
+or: Lenovo<br>board_version: Rev 1.0<br>chassis_asset_tag: No Asset Tag<br>=
+chassis_type: 10<br>chassis_vendor: Lenovo<br>chassis_version: Rev 1.0<br>
+modalias: dmi:bvnLENOVO:bvr61CN06WW:bd10/27/2011:svnLENOVO:pnG360:pvrRev1.0=
+:rvnLenovo:rnLL1:rvrRev1.0:cvnLenovo:ct10:cvrRev1.0:<br>product_name: G360<=
+br>product_version: Rev 1.0<br>sys_vendor: LENOVO<br>uevent: MODALIAS=3Ddmi=
+:bvnLENOVO:bvr61CN06WW:bd10/27/2011:svnLENOVO:pnG360:pvrRev1.0:rvnLenovo:rn=
+LL1:rvrRev1.0:cvnLenovo:ct10:cvrRev1.0:<br>
+<br>Tell me If need more detail information.<br><br>Thanks.<br>
+
+--20cf307d0386d2e6e204c40c5221--

@@ -1,32 +1,70 @@
-From: Rik Theys <rik.theys@gmail.com>
-Subject: Bug#679750: Lenovo G360: ALPS Touchpad Recognized as "PS/2 Generic Mouse"
-Date: Thu, 5 Jul 2012 11:15:38 +0200
-Message-ID: <CAPwv0J=wwMJZn0mZpH4c5U9Td=y4LtZxj2XrUeKUR4Ez38pW8A@mail.gmail.com>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: Lenovo G360: ALPS Touchpad Recognized as "PS/2 Generic Mouse"
+Date: Thu, 5 Jul 2012 08:30:36 -0500
+Message-ID: <20120705133036.GA28604@thinkpad-t410>
+References: <CAAT31jY5_P13xjybsYFm3oix0pjbbzRihCrjecQ+cXkrHhnrCQ@mail.gmail.com>
+ <20120705032009.GA8748@burratino>
+ <20120705154545.8d7492cc.dashing.meng@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gg0-f174.google.com ([209.85.161.174]:39392 "EHLO
-	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752801Ab2GEJPj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Jul 2012 05:15:39 -0400
-Received: by gglu4 with SMTP id u4so7140597ggl.19
-        for <linux-input@vger.kernel.org>; Thu, 05 Jul 2012 02:15:39 -0700 (PDT)
+Received: from youngberry.canonical.com ([91.189.89.112]:60425 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932438Ab2GENaj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Jul 2012 09:30:39 -0400
+Content-Disposition: inline
+In-Reply-To: <20120705154545.8d7492cc.dashing.meng@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Nieder <jrnieder@gmail.com>, dashing.meng@gmail.com
-Cc: linux-input@vger.kernel.org, seth.forshee@canonical.com, 679750@bugs.debian.org
+To: littlebat <dashing.meng@gmail.com>
+Cc: Jonathan Nieder <jrnieder@gmail.com>, linux-input@vger.kernel.org, 679750@bugs.debian.org
 
-Hi,
+On Thu, Jul 05, 2012 at 03:45:45PM +0800, littlebat wrote:
+> > Is the following summary correct?
+> > 
+> >  - 2.6.32.y (Debian squeeze) works well, using xinput or synclient to
+> >    configure
+> >  - 3.2.y (Ubuntu 12.04 LTS) sees a generic mouse, unconfigurable
+> >  - 3.2.y (Debian squeeze-backports) is likewise unconfigurable
+> >  - 3.4.4 (Debian experimental) is also unconfigurable
+> 
+> No, none of these four kernels can configure a full functional ALPS
+> touchpad. Under all of these four kernels:
+> 1, "synclient -l" shows "Couldn't find synaptics properties. No
+> synaptics driver loaded? "
+> 2, "xinput --list" shows it is a "PS/2 Generic Mouse"
+> 3, "cat /proc/bus/input/devices" shows it is "N: Name="PS/2 Generic
+> Mouse""
+> 4, Can't find any string like "touchpad", "synaptics" in
+> "/var/log/Xorg.0.log" 
+> 5, There isn't touchpad tab in gnome mouse setting dialog, so I
+> can't setup edge scrolling and disable touchpad on typing.
 
-I believe this is the same bug as launchpad bug 606238:
+ALPS refuses to provide information about their touchpad protocols, so
+any support we have for ALPS touchpads is based on reverse engineering
+the protocol. It's likely that yours uses some version of the protocol
+that isn't supported, in which case someone with access to the hardware
+will need to do the reverse engineering work.
 
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/606238
+There's a slight chance that it uses a known protocol but just has an
+unknown model signature. In that case the fix is easy, but it will
+require some trial and error to see if that's the case.
 
-The bug discusses various Dell laptops with ALPS touchpad that don't
-work. They now work in the ubuntu 12.04 kernel (and I believe upstream
-as well), but some (such as the one found in an Inspiron 15R N5110)
-still don't work because they use yet another protocol version.
+> > Could you provide full "dmesg" output from booting a working and
+> > non-working kernel?
+> 
+> The laptop isn't here, I will post full "dmesg" output under "3.4.4
+> (Debian experimental)" kernel later.
 
-Regards,
+When you send dmesg it would help if you could use a build with the
+following line added to the top of drivers/input/mouse/alps.c, before
+the includes.
 
-Rik
+ #define DEBUG
+
+This will cause the model signature for your touchpad to be included in
+the log.
+
+Thanks,
+Seth
+

@@ -1,47 +1,43 @@
-From: Bob Ross <pigiron@gmx.com>
-Subject: [PATCH] synaptics_usb: Remove TrackPoint name trailing whitespace
-Date: Fri, 6 Jul 2012 12:28:17 -0500
-Message-ID: <20120706122817.4ff2cdbf@atom.pigiron.org>
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Subject: [PATCH v2 2/3]  keyboard: imx_keypad: Adapt the new kpp clock name
+Date: Fri, 6 Jul 2012 14:41:53 -0300
+Message-ID: <1341596514-15972-2-git-send-email-fabio.estevam@freescale.com>
+References: <1341596514-15972-1-git-send-email-fabio.estevam@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-us.gmx.com ([74.208.5.67]:59751 "HELO
-	mailout-us.mail.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with SMTP id S1753986Ab2GFR2d (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Jul 2012 13:28:33 -0400
+Received: from co1ehsobe004.messaging.microsoft.com ([216.32.180.187]:38224
+	"EHLO co1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757636Ab2GFRmC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Jul 2012 13:42:02 -0400
+In-Reply-To: <1341596514-15972-1-git-send-email-fabio.estevam@freescale.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jan Steinhoff <mail@jan-steinhoff.de>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: kernel@pengutronix.de, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
+With the new i.mx clock framework we should pass NULL as the keypad clock name.
 
-The USB TrackPoint name string contains a space at the trailing end that
-can cause confusion/difficulty when creating udev rules. Example:
-
- "Synaptics Inc. Composite TouchPad / TrackPoint (Stick) "
-
-This patch removes the trailing space.
-
-Signed-off-by: Bob Ross <pigiron@gmx.com>
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 ---
-This patch was based from the "torvalds" git tree.
+ drivers/input/keyboard/imx_keypad.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
- drivers/input/mouse/synaptics_usb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/mouse/synaptics_usb.c b/drivers/input/mouse/synaptics_usb.c
-index 3c5eaaa..64cf34e 100644
---- a/drivers/input/mouse/synaptics_usb.c
-+++ b/drivers/input/mouse/synaptics_usb.c
-@@ -364,7 +364,7 @@ static int synusb_probe(struct usb_interface *intf,
- 			 le16_to_cpu(udev->descriptor.idProduct));
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index 9d57945..4830615 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -467,7 +467,7 @@ static int __devinit imx_keypad_probe(struct platform_device *pdev)
+ 		goto failed_free_priv;
+ 	}
  
- 	if (synusb->flags & SYNUSB_STICK)
--		strlcat(synusb->name, " (Stick) ", sizeof(synusb->name));
-+		strlcat(synusb->name, " (Stick)", sizeof(synusb->name));
- 
- 	usb_make_path(udev, synusb->phys, sizeof(synusb->phys));
- 	strlcat(synusb->phys, "/input0", sizeof(synusb->phys));
+-	keypad->clk = clk_get(&pdev->dev, "kpp");
++	keypad->clk = clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(keypad->clk)) {
+ 		dev_err(&pdev->dev, "failed to get keypad clock\n");
+ 		error = PTR_ERR(keypad->clk);
 -- 
-1.7.11
+1.7.1
+
 

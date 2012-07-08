@@ -1,244 +1,90 @@
-From: Tai-hwa Liang <avatar@sentelic.com>
-Subject: Re: [PATCH] Input: sentelic - filtering out erratic movement
-Date: Sun, 8 Jul 2012 08:30:49 +0800 (CST)
-Message-ID: <12070808300713.10533@cnaqrzbavhz.fragryvp.pbz>
-References: <1341553769-30324-1-git-send-email-avatar@sentelic.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: touchscreen ad7879 add option to correct xy axis
+Date: Sat, 7 Jul 2012 17:52:12 -0700
+Message-ID: <20120708005212.GA19007@core.coreip.homeip.net>
+References: <1338547021-2931-1-git-send-email-michael.hennerich@analog.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hermod.sentelic.com ([203.69.18.19]:40824 "EHLO
-	hermod.sentelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750916Ab2GHAax (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Jul 2012 20:30:53 -0400
-In-Reply-To: <1341553769-30324-1-git-send-email-avatar@sentelic.com>
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:35100 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750916Ab2GHAwS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Jul 2012 20:52:18 -0400
+Received: by pbbrp8 with SMTP id rp8so16999332pbb.19
+        for <linux-input@vger.kernel.org>; Sat, 07 Jul 2012 17:52:18 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1338547021-2931-1-git-send-email-michael.hennerich@analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: michael.hennerich@analog.com
+Cc: linux-input@vger.kernel.org, sebastian.zenker@gmx.de
 
-On Fri, 6 Jul 2012, Tai-hwa Liang wrote:
-> It turns out that certain hardware sometime generates unexpected movement
-> during normal operation. This patch tries to filter out these erratic
-> movements which will cause unexpected cursor jumping to the top-left corner.
->
-> This patch also tries to fix jumpy(back and forth) scrolling in X11 by
-> accumulating both fingers' coordinates before reporting to the input-mt layer.
->
-> Bugzilla:	https://bugzilla.kernel.org/show_bug.cgi?id=43197
-> Reported-and-tested-by:	Aleksey Spiridonov <leks13@leks13.ru>
-> Tested-by:	Eddie Dunn <eddie.dunn@gmail.com>
-> Tested-by:	Olivier Goffart <olivier@woboq.com>
+On Fri, Jun 01, 2012 at 12:37:01PM +0200, michael.hennerich@analog.com wrote:
+> From: Michael Hennerich <michael.hennerich@analog.com>
+> 
+> Sebastian Zenker reported that driver swaps x and y samples when the
+> touchscreen leads are connected in accordance with the datasheet specification.
+> Transposed axis can be typically corrected by touch screen calibration
+> however this bug also negatively influences touch pressure measurements.
+> 
+> Add an option to correct x and y axis.
+> 
+> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+> Reported-and-tested-by: Sebastian Zenker <sebastian.zenker@gmx.de>
 
-   Signed-off-by:	Tai-hwa Liang <avatar@sentelic.com>
+Applied, thank you Michael.
 
 > ---
-> drivers/input/mouse/sentelic.c |  114 ++++++++++++++++++++++++++--------------
-> drivers/input/mouse/sentelic.h |   35 ++++++++++++
-> 2 files changed, 110 insertions(+), 39 deletions(-)
->
-> diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
-> index 3f5649f..995b395 100644
-> --- a/drivers/input/mouse/sentelic.c
-> +++ b/drivers/input/mouse/sentelic.c
-> @@ -707,7 +707,7 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
-> 	struct fsp_data *ad = psmouse->private;
-> 	unsigned char *packet = psmouse->packet;
-> 	unsigned char button_status = 0, lscroll = 0, rscroll = 0;
-> -	unsigned short abs_x, abs_y, fgrs = 0;
-> +	unsigned short abs_x, abs_y, fgrs;
-> 	int rel_x, rel_y;
->
-> 	if (psmouse->pktcnt < 4)
-> @@ -721,64 +721,100 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
->
-> 	switch (psmouse->packet[0] >> FSP_PKT_TYPE_SHIFT) {
-> 	case FSP_PKT_TYPE_ABS:
-> +		if ((packet[0] == 0x48 || packet[0] == 0x49) &&
-> +		    packet[1] == 0 && packet[2] == 0) {
-> +			/*
-> +			 * filtering out erratic movement which will cause
-> +			 * unexpected cursor jumping to the top-left corner
-> +			 */
-> +			packet[3] &= 0xf0;
-> +		}
-> 		abs_x = GET_ABS_X(packet);
-> 		abs_y = GET_ABS_Y(packet);
->
-> -		if (packet[0] & FSP_PB0_MFMC) {
-> +		if (!IS_MFMC(packet[0]) && (packet[0] & (FSP_PB0_LBTN |
-> +		    FSP_PB0_PHY_BTN)) == FSP_PB0_LBTN) {
-> 			/*
-> -			 * MFMC packet: assume that there are two fingers on
-> -			 * pad
-> +			 * On-pad click in SFAC mode should be handled
-> +			 * by userspace.  On-pad clicks in MFMC mode
-> +			 * are real clickpad clicks, and not ignored.
-> 			 */
-> -			fgrs = 2;
-> +			packet[0] &= ~FSP_PB0_LBTN;
-> +		}
-> +		if (abs_x == 0 || abs_y == 0) {
-> +			/*
-> +			 * workaround for buggy firmware which sends zero
-> +			 * coordinates even if there is finger on pad
-> +			 */
-> +			if (!IS_MFMC(packet[0])) {
-> +				/* don't report bad movement */
-> +				fgrs = 0;
-> +			} else {
-> +				/*
-> +				 * ignore finger up event for multiple finger
-> +				 * scenario
-> +				 */
-> +				return PSMOUSE_FULL_PACKET;
-> +			}
-> +		} else {
-> +			/* finger(s) down */
-> +			if (!IS_MFMC(packet[0])) {
-> +				/* SFAC, MFMC CPB packet */
-> +				fgrs = 1;
->
-> -			/* MFMC packet */
-> -			if (packet[0] & FSP_PB0_MFMC_FGR2) {
-> -				/* 2nd finger */
-> -				if (ad->last_mt_fgr == 2) {
-> +				/* no multi-finger information */
-> +				ad->last_mt_fgr = 0;
+>  drivers/input/touchscreen/ad7879.c |    5 +++++
+>  include/linux/spi/ad7879.h         |    1 +
+>  2 files changed, 6 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+> index e2482b4..e607092 100644
+> --- a/drivers/input/touchscreen/ad7879.c
+> +++ b/drivers/input/touchscreen/ad7879.c
+> @@ -118,6 +118,7 @@ struct ad7879 {
+>  	unsigned int		irq;
+>  	bool			disabled;	/* P: input->mutex */
+>  	bool			suspended;	/* P: input->mutex */
+> +	bool			swap_xy;
+>  	u16			conversion_data[AD7879_NR_SENSE];
+>  	char			phys[32];
+>  	u8			first_conversion_delay;
+> @@ -161,6 +162,9 @@ static int ad7879_report(struct ad7879 *ts)
+>  	z1 = ts->conversion_data[AD7879_SEQ_Z1] & MAX_12BIT;
+>  	z2 = ts->conversion_data[AD7879_SEQ_Z2] & MAX_12BIT;
+>  
+> +	if (ts->swap_xy)
+> +		swap(x, y);
 > +
-> +				fsp_set_slot(dev, 0, true, abs_x, abs_y);
-> +				fsp_set_slot(dev, 1, false, 0, 0);
-> +			} else if (IS_MFMC_FGR1(packet[0])) {
-> +				/* MFMC 1st finger */
-> +				if (ad->last_mt_fgr == 1) {
-> 					/*
-> 					 * workaround for buggy firmware
-> 					 * which doesn't clear MFMC bit if
-> -					 * the 1st finger is up
-> +					 * the 2nd finger is up
-> 					 */
-> 					fgrs = 1;
-> -					fsp_set_slot(dev, 0, false, 0, 0);
-> -				}
-> -				ad->last_mt_fgr = 2;
-> +					fsp_set_slot(dev, 0, true,
-> +						     abs_x, abs_y);
-> +					fsp_set_slot(dev, 1, false, 0, 0);
-> +				} else {
-> +					fgrs = 2;
-> +					ad->last_mt_fgr = 1;
->
-> -				fsp_set_slot(dev, 1, fgrs == 2, abs_x, abs_y);
-> +					/*
-> +					 * accumulate the coordaintes and
-> +					 * proceed to the next run
-> +					 */
-> +					ad->mfmc_x1 = abs_x;
-> +					ad->mfmc_y1 = abs_y;
-> +				}
-> 			} else {
-> -				/* 1st finger */
-> -				if (ad->last_mt_fgr == 1) {
-> +				/* MFMC 2nd finger */
-> +				if (ad->last_mt_fgr == 2) {
-> 					/*
-> 					 * workaround for buggy firmware
-> 					 * which doesn't clear MFMC bit if
-> -					 * the 2nd finger is up
-> +					 * the 1st finger is up
-> 					 */
-> 					fgrs = 1;
-> -					fsp_set_slot(dev, 1, false, 0, 0);
-> +					fsp_set_slot(dev, 0, false, 0, 0);
-> +					fsp_set_slot(dev, 1, true,
-> +						     abs_x, abs_y);
-> +				} else {
-> +					fgrs = 2;
-> +					ad->last_mt_fgr = 2;
-> +
-> +					/* report both fingers' coordinate */
-> +					fsp_set_slot(dev, 1, true,
-> +						     abs_x, abs_y);
-> +					abs_x = ad->mfmc_x1;
-> +					abs_y = ad->mfmc_y1;
-> +					fsp_set_slot(dev, 0, true,
-> +						     abs_x, abs_y);
-> 				}
-> -				ad->last_mt_fgr = 1;
-> -				fsp_set_slot(dev, 0, fgrs != 0, abs_x, abs_y);
-> -			}
-> -		} else {
-> -			/* SFAC packet */
-> -			if ((packet[0] & (FSP_PB0_LBTN|FSP_PB0_PHY_BTN)) ==
-> -				FSP_PB0_LBTN) {
-> -				/* On-pad click in SFAC mode should be handled
-> -				 * by userspace.  On-pad clicks in MFMC mode
-> -				 * are real clickpad clicks, and not ignored.
-> -				 */
-> -				packet[0] &= ~FSP_PB0_LBTN;
-> 			}
-> -
-> -			/* no multi-finger information */
-> -			ad->last_mt_fgr = 0;
-> -
-> -			if (abs_x != 0 && abs_y != 0)
-> -				fgrs = 1;
-> -
-> -			fsp_set_slot(dev, 0, fgrs > 0, abs_x, abs_y);
-> -			fsp_set_slot(dev, 1, false, 0, 0);
-> 		}
-> 		if (fgrs > 0) {
-> 			input_report_abs(dev, ABS_X, abs_x);
-> diff --git a/drivers/input/mouse/sentelic.h b/drivers/input/mouse/sentelic.h
-> index aa697ec..0173fc5 100644
-> --- a/drivers/input/mouse/sentelic.h
-> +++ b/drivers/input/mouse/sentelic.h
-> @@ -90,6 +90,39 @@
-> #define	FSP_PB0_MUST_SET	BIT(3)
-> #define	FSP_PB0_PHY_BTN		BIT(4)
-> #define	FSP_PB0_MFMC		BIT(5)
-> +/* packet type. See FSP_PKT_TYPE_XXX */
-> +#define	FSP_PB0_TYPE		(BIT(7) | BIT(6))
-> +#define	FSP_PB0_TYPE_REL	(0)
-> +#define	FSP_PB0_TYPE_ABS	BIT(6)
-> +#define	FSP_PB0_TYPE_NOTIFY	BIT(7)
-> +#define	FSP_PB0_TYPE_CUSTOM	(BIT(7) | BIT(6))
-> +
-> +/*
-> + * physical clickpad button = MFMC packet without physical button.
-> + */
-> +#define	IS_PHY_CPB(_pb0_)	\
-> +	(((_pb0_) & (FSP_PB0_TYPE | FSP_PB0_MFMC | FSP_PB0_PHY_BTN)) == \
-> +	(FSP_PB0_TYPE_ABS | FSP_PB0_MFMC))
-> +/*
-> + * single-finger absolute coordinate
-> + */
-> +#define	IS_SFAC(_pb0_)		\
-> +	(((_pb0_) & (FSP_PB0_TYPE | FSP_PB0_MFMC)) == FSP_PB0_TYPE_ABS)
-> +/*
-> + * multi-finger multi-coordinate (physical clickpad button is excluded)
-> + */
-> +#define	IS_MFMC(_pb0_)		\
-> +	(((_pb0_) & (FSP_PB0_TYPE | FSP_PB0_MFMC | FSP_PB0_PHY_BTN)) == \
-> +	(FSP_PB0_TYPE_ABS | FSP_PB0_MFMC | FSP_PB0_PHY_BTN))
-> +#define	IS_MFMC_FGR1(_pb0_)	\
-> +	(((_pb0_) & (FSP_PB0_TYPE | FSP_PB0_MFMC | FSP_PB0_PHY_BTN | \
-> +		FSP_PB0_MFMC_FGR2)) == (FSP_PB0_TYPE_ABS | \
-> +		FSP_PB0_MFMC | FSP_PB0_PHY_BTN))
-> +#define	IS_MFMC_FGR2(_pb0_)	\
-> +	(((_pb0_) & (FSP_PB0_TYPE | FSP_PB0_MFMC | FSP_PB0_PHY_BTN | \
-> +		FSP_PB0_MFMC_FGR2)) == (FSP_PB0_TYPE_ABS | \
-> +		FSP_PB0_MFMC | FSP_PB0_PHY_BTN | FSP_PB0_MFMC_FGR2))
-> +
->
-> /* hardware revisions */
-> #define	FSP_VER_STL3888_A4	(0xC1)
-> @@ -117,6 +150,8 @@ struct fsp_data {
-> 	unsigned char	last_reg;	/* Last register we requested read from */
-> 	unsigned char	last_val;
-> 	unsigned int	last_mt_fgr;	/* Last seen finger(multitouch) */
-> +	unsigned short	mfmc_x1;	/* X coordinate for the 1st finger */
-> +	unsigned short	mfmc_y1;	/* Y coordinate for the 1st finger */
-> };
->
-> #ifdef CONFIG_MOUSE_PS2_SENTELIC
->
+>  	/*
+>  	 * The samples processed here are already preprocessed by the AD7879.
+>  	 * The preprocessing function consists of a median and an averaging
+> @@ -520,6 +524,7 @@ struct ad7879 *ad7879_probe(struct device *dev, u8 devid, unsigned int irq,
+>  	ts->dev = dev;
+>  	ts->input = input_dev;
+>  	ts->irq = irq;
+> +	ts->swap_xy = pdata->swap_xy;
+>  
+>  	setup_timer(&ts->timer, ad7879_timer, (unsigned long) ts);
+>  
+> diff --git a/include/linux/spi/ad7879.h b/include/linux/spi/ad7879.h
+> index 6334cee..9113a59 100644
+> --- a/include/linux/spi/ad7879.h
+> +++ b/include/linux/spi/ad7879.h
+> @@ -12,6 +12,7 @@ struct ad7879_platform_data {
+>  	u16	y_min, y_max;
+>  	u16	pressure_min, pressure_max;
+>  
+> +	bool	swap_xy;		/* swap x and y axes */
+>  	/* [0..255] 0=OFF Starts at 1=550us and goes
+>  	 * all the way to 9.440ms in steps of 35us.
+>  	 */
+> -- 
+> 1.7.0.4
+> 
+> 
+
+-- 
+Dmitry

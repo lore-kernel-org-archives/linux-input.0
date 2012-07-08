@@ -1,60 +1,244 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: Regression in hid-multitouch?
-Date: Sat, 7 Jul 2012 20:26:01 +0200
-Message-ID: <CAN+gG=Ewk-wNszs+iaiQ+v31QMbrGom+fjN4WoCeA2o++sRxww@mail.gmail.com>
-References: <20120707215541.GB2484@slate.Speedport_W723_V_Typ_A_1_00_092>
-	<20120707224832.GA2074@slate.Speedport_W723_V_Typ_A_1_00_092>
+From: Tai-hwa Liang <avatar@sentelic.com>
+Subject: Re: [PATCH] Input: sentelic - filtering out erratic movement
+Date: Sun, 8 Jul 2012 08:30:49 +0800 (CST)
+Message-ID: <12070808300713.10533@cnaqrzbavhz.fragryvp.pbz>
+References: <1341553769-30324-1-git-send-email-avatar@sentelic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gg0-f174.google.com ([209.85.161.174]:45176 "EHLO
-	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751031Ab2GGS0B (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Jul 2012 14:26:01 -0400
-Received: by mail-gg0-f174.google.com with SMTP id u4so9359072ggl.19
-        for <linux-input@vger.kernel.org>; Sat, 07 Jul 2012 11:26:01 -0700 (PDT)
-In-Reply-To: <20120707224832.GA2074@slate.Speedport_W723_V_Typ_A_1_00_092>
+Received: from hermod.sentelic.com ([203.69.18.19]:40824 "EHLO
+	hermod.sentelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750916Ab2GHAax (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Jul 2012 20:30:53 -0400
+In-Reply-To: <1341553769-30324-1-git-send-email-avatar@sentelic.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Cedric Sodhi <manday@gmx.net>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-Hi Cedric,
-
-I'm a little bit lost there. You still have the same problems than the
-one described in the thread in xorg-devel? I don't get the "though the
-touchpoints are correctly recognized"...
-
-Can you send us your dmesg output and the trace from evtest?
-I also would like to know which kernel version is working and which is not.
-
-Thanks,
-Benjamin
-
-On Sun, Jul 8, 2012 at 12:48 AM, Cedric Sodhi <manday@gmx.net> wrote:
-> Sorry, this is not a regression. I just reverted to said commit and I
-> still have those problems (described in detail, here:
+On Fri, 6 Jul 2012, Tai-hwa Liang wrote:
+> It turns out that certain hardware sometime generates unexpected movement
+> during normal operation. This patch tries to filter out these erratic
+> movements which will cause unexpected cursor jumping to the top-left corner.
 >
-> http://comments.gmane.org/gmane.comp.freedesktop.xorg.devel/31159
+> This patch also tries to fix jumpy(back and forth) scrolling in X11 by
+> accumulating both fingers' coordinates before reporting to the input-mt layer.
 >
-> - though the touchpoints are correctly recognized).
+> Bugzilla:	https://bugzilla.kernel.org/show_bug.cgi?id=43197
+> Reported-and-tested-by:	Aleksey Spiridonov <leks13@leks13.ru>
+> Tested-by:	Eddie Dunn <eddie.dunn@gmail.com>
+> Tested-by:	Olivier Goffart <olivier@woboq.com>
+
+   Signed-off-by:	Tai-hwa Liang <avatar@sentelic.com>
+
+> ---
+> drivers/input/mouse/sentelic.c |  114 ++++++++++++++++++++++++++--------------
+> drivers/input/mouse/sentelic.h |   35 ++++++++++++
+> 2 files changed, 110 insertions(+), 39 deletions(-)
 >
-> On Sat, Jul 07, 2012 at 11:55:41PM +0200, Cedric Sodhi wrote:
->> What previously seems to have been fixed by
->>
->> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commit;h=3ac36d15557d1bedfb1151d9911b9587b2d40759
->>
->> has again stopped working in 3.5.0-rc5 - at least I get the exact same
->> problems I used to have before 3ac36d... although the code from 3ac36d
->> is still there.
->>
->> regards,
->> Cedric
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+> index 3f5649f..995b395 100644
+> --- a/drivers/input/mouse/sentelic.c
+> +++ b/drivers/input/mouse/sentelic.c
+> @@ -707,7 +707,7 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
+> 	struct fsp_data *ad = psmouse->private;
+> 	unsigned char *packet = psmouse->packet;
+> 	unsigned char button_status = 0, lscroll = 0, rscroll = 0;
+> -	unsigned short abs_x, abs_y, fgrs = 0;
+> +	unsigned short abs_x, abs_y, fgrs;
+> 	int rel_x, rel_y;
+>
+> 	if (psmouse->pktcnt < 4)
+> @@ -721,64 +721,100 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
+>
+> 	switch (psmouse->packet[0] >> FSP_PKT_TYPE_SHIFT) {
+> 	case FSP_PKT_TYPE_ABS:
+> +		if ((packet[0] == 0x48 || packet[0] == 0x49) &&
+> +		    packet[1] == 0 && packet[2] == 0) {
+> +			/*
+> +			 * filtering out erratic movement which will cause
+> +			 * unexpected cursor jumping to the top-left corner
+> +			 */
+> +			packet[3] &= 0xf0;
+> +		}
+> 		abs_x = GET_ABS_X(packet);
+> 		abs_y = GET_ABS_Y(packet);
+>
+> -		if (packet[0] & FSP_PB0_MFMC) {
+> +		if (!IS_MFMC(packet[0]) && (packet[0] & (FSP_PB0_LBTN |
+> +		    FSP_PB0_PHY_BTN)) == FSP_PB0_LBTN) {
+> 			/*
+> -			 * MFMC packet: assume that there are two fingers on
+> -			 * pad
+> +			 * On-pad click in SFAC mode should be handled
+> +			 * by userspace.  On-pad clicks in MFMC mode
+> +			 * are real clickpad clicks, and not ignored.
+> 			 */
+> -			fgrs = 2;
+> +			packet[0] &= ~FSP_PB0_LBTN;
+> +		}
+> +		if (abs_x == 0 || abs_y == 0) {
+> +			/*
+> +			 * workaround for buggy firmware which sends zero
+> +			 * coordinates even if there is finger on pad
+> +			 */
+> +			if (!IS_MFMC(packet[0])) {
+> +				/* don't report bad movement */
+> +				fgrs = 0;
+> +			} else {
+> +				/*
+> +				 * ignore finger up event for multiple finger
+> +				 * scenario
+> +				 */
+> +				return PSMOUSE_FULL_PACKET;
+> +			}
+> +		} else {
+> +			/* finger(s) down */
+> +			if (!IS_MFMC(packet[0])) {
+> +				/* SFAC, MFMC CPB packet */
+> +				fgrs = 1;
+>
+> -			/* MFMC packet */
+> -			if (packet[0] & FSP_PB0_MFMC_FGR2) {
+> -				/* 2nd finger */
+> -				if (ad->last_mt_fgr == 2) {
+> +				/* no multi-finger information */
+> +				ad->last_mt_fgr = 0;
+> +
+> +				fsp_set_slot(dev, 0, true, abs_x, abs_y);
+> +				fsp_set_slot(dev, 1, false, 0, 0);
+> +			} else if (IS_MFMC_FGR1(packet[0])) {
+> +				/* MFMC 1st finger */
+> +				if (ad->last_mt_fgr == 1) {
+> 					/*
+> 					 * workaround for buggy firmware
+> 					 * which doesn't clear MFMC bit if
+> -					 * the 1st finger is up
+> +					 * the 2nd finger is up
+> 					 */
+> 					fgrs = 1;
+> -					fsp_set_slot(dev, 0, false, 0, 0);
+> -				}
+> -				ad->last_mt_fgr = 2;
+> +					fsp_set_slot(dev, 0, true,
+> +						     abs_x, abs_y);
+> +					fsp_set_slot(dev, 1, false, 0, 0);
+> +				} else {
+> +					fgrs = 2;
+> +					ad->last_mt_fgr = 1;
+>
+> -				fsp_set_slot(dev, 1, fgrs == 2, abs_x, abs_y);
+> +					/*
+> +					 * accumulate the coordaintes and
+> +					 * proceed to the next run
+> +					 */
+> +					ad->mfmc_x1 = abs_x;
+> +					ad->mfmc_y1 = abs_y;
+> +				}
+> 			} else {
+> -				/* 1st finger */
+> -				if (ad->last_mt_fgr == 1) {
+> +				/* MFMC 2nd finger */
+> +				if (ad->last_mt_fgr == 2) {
+> 					/*
+> 					 * workaround for buggy firmware
+> 					 * which doesn't clear MFMC bit if
+> -					 * the 2nd finger is up
+> +					 * the 1st finger is up
+> 					 */
+> 					fgrs = 1;
+> -					fsp_set_slot(dev, 1, false, 0, 0);
+> +					fsp_set_slot(dev, 0, false, 0, 0);
+> +					fsp_set_slot(dev, 1, true,
+> +						     abs_x, abs_y);
+> +				} else {
+> +					fgrs = 2;
+> +					ad->last_mt_fgr = 2;
+> +
+> +					/* report both fingers' coordinate */
+> +					fsp_set_slot(dev, 1, true,
+> +						     abs_x, abs_y);
+> +					abs_x = ad->mfmc_x1;
+> +					abs_y = ad->mfmc_y1;
+> +					fsp_set_slot(dev, 0, true,
+> +						     abs_x, abs_y);
+> 				}
+> -				ad->last_mt_fgr = 1;
+> -				fsp_set_slot(dev, 0, fgrs != 0, abs_x, abs_y);
+> -			}
+> -		} else {
+> -			/* SFAC packet */
+> -			if ((packet[0] & (FSP_PB0_LBTN|FSP_PB0_PHY_BTN)) ==
+> -				FSP_PB0_LBTN) {
+> -				/* On-pad click in SFAC mode should be handled
+> -				 * by userspace.  On-pad clicks in MFMC mode
+> -				 * are real clickpad clicks, and not ignored.
+> -				 */
+> -				packet[0] &= ~FSP_PB0_LBTN;
+> 			}
+> -
+> -			/* no multi-finger information */
+> -			ad->last_mt_fgr = 0;
+> -
+> -			if (abs_x != 0 && abs_y != 0)
+> -				fgrs = 1;
+> -
+> -			fsp_set_slot(dev, 0, fgrs > 0, abs_x, abs_y);
+> -			fsp_set_slot(dev, 1, false, 0, 0);
+> 		}
+> 		if (fgrs > 0) {
+> 			input_report_abs(dev, ABS_X, abs_x);
+> diff --git a/drivers/input/mouse/sentelic.h b/drivers/input/mouse/sentelic.h
+> index aa697ec..0173fc5 100644
+> --- a/drivers/input/mouse/sentelic.h
+> +++ b/drivers/input/mouse/sentelic.h
+> @@ -90,6 +90,39 @@
+> #define	FSP_PB0_MUST_SET	BIT(3)
+> #define	FSP_PB0_PHY_BTN		BIT(4)
+> #define	FSP_PB0_MFMC		BIT(5)
+> +/* packet type. See FSP_PKT_TYPE_XXX */
+> +#define	FSP_PB0_TYPE		(BIT(7) | BIT(6))
+> +#define	FSP_PB0_TYPE_REL	(0)
+> +#define	FSP_PB0_TYPE_ABS	BIT(6)
+> +#define	FSP_PB0_TYPE_NOTIFY	BIT(7)
+> +#define	FSP_PB0_TYPE_CUSTOM	(BIT(7) | BIT(6))
+> +
+> +/*
+> + * physical clickpad button = MFMC packet without physical button.
+> + */
+> +#define	IS_PHY_CPB(_pb0_)	\
+> +	(((_pb0_) & (FSP_PB0_TYPE | FSP_PB0_MFMC | FSP_PB0_PHY_BTN)) == \
+> +	(FSP_PB0_TYPE_ABS | FSP_PB0_MFMC))
+> +/*
+> + * single-finger absolute coordinate
+> + */
+> +#define	IS_SFAC(_pb0_)		\
+> +	(((_pb0_) & (FSP_PB0_TYPE | FSP_PB0_MFMC)) == FSP_PB0_TYPE_ABS)
+> +/*
+> + * multi-finger multi-coordinate (physical clickpad button is excluded)
+> + */
+> +#define	IS_MFMC(_pb0_)		\
+> +	(((_pb0_) & (FSP_PB0_TYPE | FSP_PB0_MFMC | FSP_PB0_PHY_BTN)) == \
+> +	(FSP_PB0_TYPE_ABS | FSP_PB0_MFMC | FSP_PB0_PHY_BTN))
+> +#define	IS_MFMC_FGR1(_pb0_)	\
+> +	(((_pb0_) & (FSP_PB0_TYPE | FSP_PB0_MFMC | FSP_PB0_PHY_BTN | \
+> +		FSP_PB0_MFMC_FGR2)) == (FSP_PB0_TYPE_ABS | \
+> +		FSP_PB0_MFMC | FSP_PB0_PHY_BTN))
+> +#define	IS_MFMC_FGR2(_pb0_)	\
+> +	(((_pb0_) & (FSP_PB0_TYPE | FSP_PB0_MFMC | FSP_PB0_PHY_BTN | \
+> +		FSP_PB0_MFMC_FGR2)) == (FSP_PB0_TYPE_ABS | \
+> +		FSP_PB0_MFMC | FSP_PB0_PHY_BTN | FSP_PB0_MFMC_FGR2))
+> +
+>
+> /* hardware revisions */
+> #define	FSP_VER_STL3888_A4	(0xC1)
+> @@ -117,6 +150,8 @@ struct fsp_data {
+> 	unsigned char	last_reg;	/* Last register we requested read from */
+> 	unsigned char	last_val;
+> 	unsigned int	last_mt_fgr;	/* Last seen finger(multitouch) */
+> +	unsigned short	mfmc_x1;	/* X coordinate for the 1st finger */
+> +	unsigned short	mfmc_y1;	/* Y coordinate for the 1st finger */
+> };
+>
+> #ifdef CONFIG_MOUSE_PS2_SENTELIC
+>

@@ -1,60 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch -resend] Input: ff-memless - fix a couple min_t() casts
-Date: Sat, 7 Jul 2012 18:18:27 -0700
-Message-ID: <20120708011827.GH19007@core.coreip.homeip.net>
-References: <20120627085800.GA3007@mwanda>
- <20120627091118.GX31212@elgon.mountain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:41005 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750916Ab2GHBSc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Jul 2012 21:18:32 -0400
-Content-Disposition: inline
-In-Reply-To: <20120627091118.GX31212@elgon.mountain>
-Sender: linux-input-owner@vger.kernel.org
+From: Yuri Khan <yurivkhan@gmail.com>
+Subject: [PATCH v2 1/1] Input: xpad - Handle all variations of Mad Catz Beat Pad
+Date: Sun,  8 Jul 2012 12:49:49 +0700
+Message-ID: <1341726589-5400-1-git-send-email-yurivkhan@gmail.com>
+References: <1341592324-665-1-git-send-email-yurivkhan@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1341592324-665-1-git-send-email-yurivkhan@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, Yuri Khan <yurivkhan@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Anssi Hannula <anssi.hannula@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Wed, Jun 27, 2012 at 12:11:19PM +0300, Dan Carpenter wrote:
-> envelope->attack_level is a u16 type.  We're trying to clamp it here
-> so it's between 0 and 0x7fff.  Unfortunately, the cast to __s16 turns
-> all the values larger than 0x7fff into negative numbers and min_t()
-> thinks they are less than 0x7fff.  envelope_level is an int so now
-> we've got negative values stored there.
-> 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+* Add a quirk to usbhid to ignore this device
+---
+ drivers/hid/hid-ids.h           |    3 +++
+ drivers/hid/usbhid/hid-quirks.c |    2 ++
+ drivers/input/joystick/xpad.c   |    1 +
+ 3 files changed, 6 insertions(+)
 
-Applied, thank you Dan.
-
-> ---
-> Originally sent on Mon, 26 Sep 2011.  I have added Anssi Hannula to the
-> CC list.
-> 
-> diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
-> index 5f55885..b107922 100644
-> --- a/drivers/input/ff-memless.c
-> +++ b/drivers/input/ff-memless.c
-> @@ -176,7 +176,7 @@ static int apply_envelope(struct ml_effect_state *state, int value,
->  			 value, envelope->attack_level);
->  		time_from_level = jiffies_to_msecs(now - state->play_at);
->  		time_of_envelope = envelope->attack_length;
-> -		envelope_level = min_t(__s16, envelope->attack_level, 0x7fff);
-> +		envelope_level = min_t(u16, envelope->attack_level, 0x7fff);
->  
->  	} else if (envelope->fade_length && effect->replay.length &&
->  		   time_after(now,
-> @@ -184,7 +184,7 @@ static int apply_envelope(struct ml_effect_state *state, int value,
->  		   time_before(now, state->stop_at)) {
->  		time_from_level = jiffies_to_msecs(state->stop_at - now);
->  		time_of_envelope = envelope->fade_length;
-> -		envelope_level = min_t(__s16, envelope->fade_level, 0x7fff);
-> +		envelope_level = min_t(u16, envelope->fade_level, 0x7fff);
->  	} else
->  		return value;
->  
-
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index d1cdd2d..43c3d75 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -518,6 +518,9 @@
+ #define USB_DEVICE_ID_CRYSTALTOUCH	0x0006
+ #define USB_DEVICE_ID_CRYSTALTOUCH_DUAL	0x0007
+ 
++#define USB_VENDOR_ID_MADCATZ		0x0738
++#define USB_DEVICE_ID_MADCATZ_BEATPAD	0x4540
++
+ #define USB_VENDOR_ID_MCC		0x09db
+ #define USB_DEVICE_ID_MCC_PMD1024LS	0x0076
+ #define USB_DEVICE_ID_MCC_PMD1208LS	0x007a
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 0597ee6..8726d33 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -45,6 +45,8 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
+ 	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
+ 
++	{ USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_BEATPAD, HID_QUIRK_IGNORE },
++
+ 	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_FULLSPEED_INTERVAL },
+ 
+ 	{ USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II, HID_QUIRK_MULTI_INPUT },
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index ee16fb6..16974ef 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -238,6 +238,7 @@ static struct usb_device_id xpad_table [] = {
+ 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech X-Box 360 style controllers */
+ 	XPAD_XBOX360_VENDOR(0x0738),		/* Mad Catz X-Box 360 controllers */
++	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
+ 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x12ab),		/* X-Box 360 dance pads */
+ 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
 -- 
-Dmitry
+1.7.9.5

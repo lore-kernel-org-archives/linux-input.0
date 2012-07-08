@@ -1,86 +1,71 @@
-From: Cedric Sodhi <manday@gmx.net>
-Subject: Re: Regression in hid-multitouch?
-Date: Sun, 8 Jul 2012 23:19:58 +0200
-Message-ID: <20120708211958.GA9260@engine.Speedport_W723_V_Typ_A_1_00_092>
-References: <20120707215541.GB2484@slate.Speedport_W723_V_Typ_A_1_00_092>
- <20120707224832.GA2074@slate.Speedport_W723_V_Typ_A_1_00_092>
- <CAN+gG=Ewk-wNszs+iaiQ+v31QMbrGom+fjN4WoCeA2o++sRxww@mail.gmail.com>
+From: Richard Weinberger <richard@nod.at>
+Subject: Re: input: eeti_ts.c build error
+Date: Sun, 08 Jul 2012 23:38:03 +0200
+Message-ID: <4FF9FDBB.8010702@nod.at>
+References: <4FF83E48.6060303@nod.at> <20120708010520.GC19007@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig14E9AB125CA5C982B36A3E7C"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.23]:43310 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752431Ab2GHVQj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 8 Jul 2012 17:16:39 -0400
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=Ewk-wNszs+iaiQ+v31QMbrGom+fjN4WoCeA2o++sRxww@mail.gmail.com>
+Received: from a.ns.miles-group.at ([95.130.255.143]:47834 "EHLO radon.swed.at"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752075Ab2GHViJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 8 Jul 2012 17:38:09 -0400
+In-Reply-To: <20120708010520.GC19007@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: daniel@caiaq.de, rusty@rustcorp.com.au, mchehab@redhat.com, axel.lin@gmail.com, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Sat, Jul 07, 2012 at 08:26:01PM +0200, Benjamin Tissoires wrote:
-> Hi Cedric,
-> 
-> I'm a little bit lost there. You still have the same problems than the
-> one described in the thread in xorg-devel? I don't get the "though the
-> touchpoints are correctly recognized"...
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig14E9AB125CA5C982B36A3E7C
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Hello Benjamin,
+Am 08.07.2012 03:05, schrieb Dmitry Torokhov:
+> Hi Richard,
+>=20
+> On Sat, Jul 07, 2012 at 03:48:56PM +0200, Richard Weinberger wrote:
+>> Hi!
+>>
+>> While building a kernel for an ARM board the following build error cam=
+e across:
+>>
+>> drivers/input/touchscreen/eeti_ts.c: In function 'eeti_ts_irq_active':=
 
-yes, the same problems as described on xorg-devel - For instance when I
-single click somewhere, I get behaviour similar to if I had dragged.
-I've posted to Xorg-devel
+>> drivers/input/touchscreen/eeti_ts.c:65:2: error: implicit declaration =
+of function 'irq_to_gpio' [-Werror=3Dimplicit-function-declaration]
+>>
+>> .config is attached.
+>> Happens on 3.4.4 and Linus's tree as of today.
+>=20
+> Could you please try the patch below? I have had it for a long time but=
 
-http://www.mail-archive.com/xorg-devel@lists.x.org/msg31772.html ff.
+> could not find anyone to test it.
 
-I'm now partly convinced this is a bug in X.org/evdev, as I said there.
+I don't have such a device.
+The only thing I can do is a compile test.
 
-If I change my mind, I'll sure let you know ;)
+Thanks,
+//richard
 
-In the meantime, if you still like the dmesg, etc., let me know. As for
-which kernel version I get the bug on, it's on all kernels. The
-touchpoint bug was successfully fixed by your commit and did *not*
-return. Everything seems to be all right on the kernel's side of things.
 
-best regards,
-Cedric
+--------------enig14E9AB125CA5C982B36A3E7C
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-> 
-> Can you send us your dmesg output and the trace from evtest?
-> I also would like to know which kernel version is working and which is not.
-> 
-> Thanks,
-> Benjamin
-> 
-> On Sun, Jul 8, 2012 at 12:48 AM, Cedric Sodhi <manday@gmx.net> wrote:
-> > Sorry, this is not a regression. I just reverted to said commit and I
-> > still have those problems (described in detail, here:
-> >
-> > http://comments.gmane.org/gmane.comp.freedesktop.xorg.devel/31159
-> >
-> > - though the touchpoints are correctly recognized).
-> >
-> > On Sat, Jul 07, 2012 at 11:55:41PM +0200, Cedric Sodhi wrote:
-> >> What previously seems to have been fixed by
-> >>
-> >> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commit;h=3ac36d15557d1bedfb1151d9911b9587b2d40759
-> >>
-> >> has again stopped working in 3.5.0-rc5 - at least I get the exact same
-> >> problems I used to have before 3ac36d... although the code from 3ac36d
-> >> is still there.
-> >>
-> >> regards,
-> >> Cedric
-> >> --
-> >> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> >> the body of a message to majordomo@vger.kernel.org
-> >> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.18 (GNU/Linux)
+
+iQEcBAEBAgAGBQJP+f28AAoJEN9758yqZn9esmsH/iCjS4pkHD6IC2kRvUms3OSa
+IFzJ2ZX/0lj3fiYjccKCzRBFCoPE5SfClbYkkWtBHaLXg6vOFqCVaSOugcs7x6eZ
+61Vy6pQkMxwKWpwEjqgSMIATmAVt5RAFiywlrRDFz4jKYj3Mu1T4Zgi7xUiNHEip
+eJkVHmW37mUZpvfEhvgndySWiDif9sisVrllPUt4L6R5VmmBOSGPt2CE2sde1aLN
+2+cmtRpA5WhJ2+exrqcW+yeCHixN/MlEioYGiVbHPrkLtCPXbbs1aghdKlpAGgk5
+d1XQ0sVMhjv2Lndaw0n/b7KHp1ks6uKOFlyGgn/uDwV81NzuwR1qFUsHEcjyPRE=
+=mEpZ
+-----END PGP SIGNATURE-----
+
+--------------enig14E9AB125CA5C982B36A3E7C--

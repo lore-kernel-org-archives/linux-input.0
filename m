@@ -1,61 +1,65 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] usbhid: add Sennheiser BTD500USB device support
-Date: Mon, 9 Jul 2012 16:21:50 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1207091621440.19366@pobox.suse.cz>
-References: <1341520369-13655-1-git-send-email-xxxxxmichl@googlemail.com>
+Subject: Re: [PATCH] Input: hid-input: Add suport for the brightness control
+ keys on HP keyboards
+Date: Mon, 9 Jul 2012 16:27:16 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1207091626090.19366@pobox.suse.cz>
+References: <1341569171-12990-1-git-send-email-kengyu@canonical.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:41023 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:41277 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750932Ab2GIOV4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 9 Jul 2012 10:21:56 -0400
-In-Reply-To: <1341520369-13655-1-git-send-email-xxxxxmichl@googlemail.com>
+	id S1752349Ab2GIO1W (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 9 Jul 2012 10:27:22 -0400
+In-Reply-To: <1341569171-12990-1-git-send-email-kengyu@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Kunz <xxxxxmichl@googlemail.com>
-Cc: linux-input@vger.kernel.org
+To: Keng-Yu Lin <kengyu@canonical.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 5 Jul 2012, xxxxxmichl@googlemail.com wrote:
+On Fri, 6 Jul 2012, Keng-Yu Lin wrote:
 
-> From: Frank Kunz <xxxxxmichl@googlemail.com>
+> The keys are found on the keyboards bundled with HP All-In-One machines
+> with USB VID/PID of 04ca:004d and 04f2:1061.
 > 
-> The Sennheiser BTD500USB composit device requires the
-> HID_QUIRK_NOGET flag to be set for working proper. Without the
-> flag the device crashes during hid intialization.
-> 
-> Signed-off-by: Frank Kunz <xxxxxmichl@googlemail.com>
+> Signed-off-by: Keng-Yu Lin <kengyu@canonical.com>
 > ---
->  drivers/hid/hid-ids.h           |    3 +++
->  drivers/hid/usbhid/hid-quirks.c |    1 +
->  2 files changed, 4 insertions(+), 0 deletions(-)
+>  drivers/hid/hid-input.c |    9 +++++++++
+>  include/linux/hid.h     |    1 +
+>  2 files changed, 10 insertions(+)
 > 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index d1cdd2d..fc0c68e 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -653,6 +653,9 @@
->  #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
->  #define USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE	0x0600
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index f333139..ecb8e48 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -648,6 +648,15 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+>  		}
+>  		break;
 >  
-> +#define USB_VENDOR_ID_SENNHEISER	0x1395
-> +#define USB_DEVICE_ID_SENNHEISER_BTD500USB	0x002c
+> +	case HID_UP_HPVENDOR2:
+> +		set_bit(EV_REP, input->evbit);
+> +		switch (usage->hid & HID_USAGE) {
+> +		case 0x003: map_key_clear(KEY_BRIGHTNESSDOWN);	break;
+> +		case 0x004: map_key_clear(KEY_BRIGHTNESSUP);	break;
+> +		default:    goto ignore;
+> +		}
+> +		break;
 > +
->  #define USB_VENDOR_ID_SIGMA_MICRO	0x1c4f
->  #define USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD	0x0002
+>  	case HID_UP_MSVENDOR:
+>  		goto ignore;
 >  
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index 0597ee6..903eef3 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -76,6 +76,7 @@ static const struct hid_blacklist {
->  	{ USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, HID_QUIRK_NOGET },
->  	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NOGET },
->  	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008, HID_QUIRK_NOGET },
-> +	{ USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB, HID_QUIRK_NOGET },
->  	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
->  	{ USB_VENDOR_ID_SYMBOL, USB_DEVICE_ID_SYMBOL_SCANNER_1, HID_QUIRK_NOGET },
->  	{ USB_VENDOR_ID_SYMBOL, USB_DEVICE_ID_SYMBOL_SCANNER_2, HID_QUIRK_NOGET },
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index c235e4e..4365959 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -198,6 +198,7 @@ struct hid_item {
+>  #define HID_UP_DIGITIZER	0x000d0000
+>  #define HID_UP_PID		0x000f0000
+>  #define HID_UP_HPVENDOR         0xff7f0000
+> +#define HID_UP_HPVENDOR2        0xff010000
+
+Let's hope these vendor-specific usage pages don't start out-of-control 
+spreading.
 
 Applied, thanks.
 

@@ -1,71 +1,74 @@
-From: Richard Weinberger <richard@nod.at>
-Subject: Re: input: eeti_ts.c build error
-Date: Sun, 08 Jul 2012 23:38:03 +0200
-Message-ID: <4FF9FDBB.8010702@nod.at>
-References: <4FF83E48.6060303@nod.at> <20120708010520.GC19007@core.coreip.homeip.net>
+From: Ryan Bourgeois <bluedragonx@gmail.com>
+Subject: [PATCH] MacBook Pro Retina Keyboard Support
+Date: Sun, 8 Jul 2012 21:36:33 -0500
+Message-ID: <CAMUYeoea-v0+kYvdMjLzdjV3d8BDu3ygNVt5hrw4p+x118X11w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig14E9AB125CA5C982B36A3E7C"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from a.ns.miles-group.at ([95.130.255.143]:47834 "EHLO radon.swed.at"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752075Ab2GHViJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 8 Jul 2012 17:38:09 -0400
-In-Reply-To: <20120708010520.GC19007@core.coreip.homeip.net>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:54201 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751508Ab2GICgf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 8 Jul 2012 22:36:35 -0400
+Received: by wibhr14 with SMTP id hr14so2866070wib.1
+        for <linux-input@vger.kernel.org>; Sun, 08 Jul 2012 19:36:33 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: daniel@caiaq.de, rusty@rustcorp.com.au, mchehab@redhat.com, axel.lin@gmail.com, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig14E9AB125CA5C982B36A3E7C
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Am 08.07.2012 03:05, schrieb Dmitry Torokhov:
-> Hi Richard,
->=20
-> On Sat, Jul 07, 2012 at 03:48:56PM +0200, Richard Weinberger wrote:
->> Hi!
->>
->> While building a kernel for an ARM board the following build error cam=
-e across:
->>
->> drivers/input/touchscreen/eeti_ts.c: In function 'eeti_ts_irq_active':=
-
->> drivers/input/touchscreen/eeti_ts.c:65:2: error: implicit declaration =
-of function 'irq_to_gpio' [-Werror=3Dimplicit-function-declaration]
->>
->> .config is attached.
->> Happens on 3.4.4 and Linus's tree as of today.
->=20
-> Could you please try the patch below? I have had it for a long time but=
-
-> could not find anyone to test it.
-
-I don't have such a device.
-The only thing I can do is a compile test.
-
-Thanks,
-//richard
+This is a patch to enable full keyboard support for the MacBook Pro
+Retina. It enables the function key shortcuts present in previous
+MacBook iterations. The patch is against 3.5-r6.
 
 
---------------enig14E9AB125CA5C982B36A3E7C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+diff -urNp a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+--- a/drivers/hid/hid-apple.c	2012-07-08 00:32:24.923451001 -0500
++++ b/drivers/hid/hid-apple.c	2012-07-08 00:35:16.763450998 -0500
+@@ -517,6 +517,12 @@ static const struct hid_device_id apple_
+ 		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING7_ANSI),
++		.driver_data = APPLE_HAS_FN },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING7_ISO),
++		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING7_JIS),
++		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
+diff -urNp a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+--- a/drivers/hid/hid-core.c	2012-07-08 00:32:24.927451001 -0500
++++ b/drivers/hid/hid-core.c	2012-07-08 00:38:08.946451088 -0500
+@@ -1503,6 +1503,9 @@ static const struct hid_device_id hid_ha
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE,
+USB_DEVICE_ID_APPLE_WELLSPRING6A_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6A_ISO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6A_JIS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING7_ANSI) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING7_ISO) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING7_JIS) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
+diff -urNp a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+--- a/drivers/hid/hid-ids.h	2012-07-08 00:32:24.926451001 -0500
++++ b/drivers/hid/hid-ids.h	2012-07-08 00:34:31.641450978 -0500
+@@ -125,6 +125,9 @@
+ #define USB_DEVICE_ID_APPLE_WELLSPRING6_ANSI	0x024c
+ #define USB_DEVICE_ID_APPLE_WELLSPRING6_ISO	0x024d
+ #define USB_DEVICE_ID_APPLE_WELLSPRING6_JIS	0x024e
++#define USB_DEVICE_ID_APPLE_WELLSPRING7_ANSI	0x0262
++#define USB_DEVICE_ID_APPLE_WELLSPRING7_ISO	0x0263
++#define USB_DEVICE_ID_APPLE_WELLSPRING7_JIS	0x0264
+ #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI  0x0239
+ #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO   0x023a
+ #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
 
-iQEcBAEBAgAGBQJP+f28AAoJEN9758yqZn9esmsH/iCjS4pkHD6IC2kRvUms3OSa
-IFzJ2ZX/0lj3fiYjccKCzRBFCoPE5SfClbYkkWtBHaLXg6vOFqCVaSOugcs7x6eZ
-61Vy6pQkMxwKWpwEjqgSMIATmAVt5RAFiywlrRDFz4jKYj3Mu1T4Zgi7xUiNHEip
-eJkVHmW37mUZpvfEhvgndySWiDif9sisVrllPUt4L6R5VmmBOSGPt2CE2sde1aLN
-2+cmtRpA5WhJ2+exrqcW+yeCHixN/MlEioYGiVbHPrkLtCPXbbs1aghdKlpAGgk5
-d1XQ0sVMhjv2Lndaw0n/b7KHp1ks6uKOFlyGgn/uDwV81NzuwR1qFUsHEcjyPRE=
-=mEpZ
------END PGP SIGNATURE-----
-
---------------enig14E9AB125CA5C982B36A3E7C--
+Signed-off-by: Ryan Bourgeois <bluedragonx@gmail.com>

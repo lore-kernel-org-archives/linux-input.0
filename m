@@ -1,31 +1,38 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH v3 1/1] Input: xpad - Handle all variations of Mad Catz
  Beat Pad
-Date: Tue, 10 Jul 2012 22:05:39 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1207102205290.19366@pobox.suse.cz>
-References: <1341592324-665-1-git-send-email-yurivkhan@gmail.com> <1341941602-18418-1-git-send-email-yurivkhan@gmail.com>
+Date: Tue, 10 Jul 2012 13:42:05 -0700
+Message-ID: <20120710204205.GA31649@core.coreip.homeip.net>
+References: <1341592324-665-1-git-send-email-yurivkhan@gmail.com>
+ <1341941602-18418-1-git-send-email-yurivkhan@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:60904 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751640Ab2GJUFp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Jul 2012 16:05:45 -0400
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:34237 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752245Ab2GJUmL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Jul 2012 16:42:11 -0400
+Content-Disposition: inline
 In-Reply-To: <1341941602-18418-1-git-send-email-yurivkhan@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Yuri Khan <yurivkhan@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Wed, 11 Jul 2012, Yuri Khan wrote:
+Hi Yuri,
 
+On Wed, Jul 11, 2012 at 12:33:22AM +0700, Yuri Khan wrote:
 > * Add this device to usbhid ignore list
+
+Please do not forget your "Signed-off-by: " so that I can apply the
+patch.
+
+Thanks.
+
 > ---
 >  drivers/hid/hid-core.c        |    1 +
 >  drivers/hid/hid-ids.h         |    3 +++
-
-Acked-by: Jiri Kosina <jkosina@suse.cz>
-
 >  drivers/input/joystick/xpad.c |    1 +
 >  3 files changed, 5 insertions(+)
 > 
@@ -72,5 +79,4 @@ Acked-by: Jiri Kosina <jkosina@suse.cz>
 > 
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

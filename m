@@ -1,48 +1,302 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: bcm5974 - Add support for 2012 MacBook Pro
- Retina
-Date: Tue, 10 Jul 2012 09:52:01 -0700
-Message-ID: <20120710165201.GA29317@core.coreip.homeip.net>
-References: <1341838006-22407-1-git-send-email-rydberg@euromail.se>
- <1341838006-22407-2-git-send-email-rydberg@euromail.se>
- <alpine.LRH.2.00.1207101211070.16114@twin.jikos.cz>
+Subject: Re: [PATCH V7 4/4] input: add onkey support to 88PM80X PMIC
+Date: Tue, 10 Jul 2012 10:03:03 -0700
+Message-ID: <20120710170303.GB29317@core.coreip.homeip.net>
+References: <1341911858-10851-1-git-send-email-zhouqiao@marvell.com>
+ <1341911858-10851-5-git-send-email-zhouqiao@marvell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:56305 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754094Ab2GJQwH (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:52433 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753203Ab2GJRDJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Jul 2012 12:52:07 -0400
+	Tue, 10 Jul 2012 13:03:09 -0400
+Received: by pbbrp8 with SMTP id rp8so535674pbb.19
+        for <linux-input@vger.kernel.org>; Tue, 10 Jul 2012 10:03:09 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <alpine.LRH.2.00.1207101211070.16114@twin.jikos.cz>
+In-Reply-To: <1341911858-10851-5-git-send-email-zhouqiao@marvell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Qiao Zhou <zhouqiao@marvell.com>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org
 
-On Tue, Jul 10, 2012 at 12:11:55PM +0200, Jiri Kosina wrote:
-> On Mon, 9 Jul 2012, Henrik Rydberg wrote:
-> 
-> > Add support for the 15'' MacBook Pro Retina model (MacBookPro10,1).
-> > 
-> > Patch originally written by clipcarl (forums.opensuse.org).
-> > 
-> > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> > ---
-> > Hi Dmitry,
-> > 
-> > Here is a patch for the new retina I picked up from the anonymous
-> > heroes on the linux forums. Looks simple enough for 3.5 to me.  Either
-> > way, the usual sync with Jiri is needed.
-> 
-> 	Acked-by: Jiri Kosina <jkosina@suse.cz> 
-> 
-> for "[PATCH 1/2] HID: Add support for 2012 MacBook Pro Retina". Dmitry, 
-> please either take that through your tree, or send me your Ack for this 
-> one and I'll take it.
+Hi Qiao,
 
-Thanks Jiri, I'll take it throug my tree then.
+On Tue, Jul 10, 2012 at 05:17:38PM +0800, Qiao Zhou wrote:
+> add onkey support to MARVELL 88PM80X PMIC.
+> 
+> Signed-off-by: Qiao Zhou <zhouqiao@marvell.com>
+> ---
+>  drivers/input/misc/88pm80x_onkey.c |  176 ++++++++++++++++++++++++++++++++++++
+>  drivers/input/misc/Kconfig         |   10 ++
+>  drivers/input/misc/Makefile        |    1 +
+>  3 files changed, 187 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/misc/88pm80x_onkey.c
+> 
+> diff --git a/drivers/input/misc/88pm80x_onkey.c b/drivers/input/misc/88pm80x_onkey.c
+> new file mode 100644
+> index 0000000..807587f
+> --- /dev/null
+> +++ b/drivers/input/misc/88pm80x_onkey.c
+> @@ -0,0 +1,176 @@
+> +/*
+> + * 88pm80x_onkey.c - Marvell 88PM80x ONKEY driver
+
+No file names in comments please - if you need to rename the driver you
+won't have to change it here.
+
+> + *
+> + * Copyright (C) 2012 Marvell International Ltd.
+> + * Haojian Zhuang <haojian.zhuang@marvell.com>
+> + * Qiao Zhou <zhouqiao@marvell.com>
+> + *
+> + * This file is subject to the terms and conditions of the GNU General
+> + * Public License. See the file "COPYING" in the main directory of this
+> + * archive for more details.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/input.h>
+> +#include <linux/mfd/88pm80x.h>
+> +#include <linux/regmap.h>
+> +#include <linux/slab.h>
+> +
+> +#define PM800_LONG_ONKEY_EN		(1 << 0)
+> +#define PM800_LONG_KEY_DELAY		(8)	/* 1 .. 16 seconds */
+> +#define PM800_LONKEY_PRESS_TIME		((PM800_LONG_KEY_DELAY-1) << 4)
+> +#define PM800_LONKEY_PRESS_TIME_MASK	(0xF0)
+> +#define PM800_SW_PDOWN			(1 << 5)
+> +
+> +struct pm80x_onkey_info {
+> +	struct input_dev *idev;
+> +	struct pm80x_chip *pm80x;
+> +	struct regmap *map;
+> +	int irq;
+> +};
+> +
+> +/* 88PM80x gives us an interrupt when ONKEY is held */
+> +static irqreturn_t pm80x_onkey_handler(int irq, void *data)
+> +{
+> +	struct pm80x_onkey_info *info = data;
+> +	int ret = 0;
+> +
+> +	regmap_read(info->map, PM800_STATUS_1, &ret);
+
+Error handling please.
+
+> +	ret &= PM800_ONKEY_STS1;
+> +
+> +	input_report_key(info->idev, KEY_POWER, ret);
+> +	input_sync(info->idev);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +#ifdef CONFIG_PM
+
+Should be CONFIG_PM_SLEEP
+
+> +static int pm80x_onkey_suspend(struct device *dev)
+> +{
+> +	return pm80x_dev_suspend(dev);
+> +}
+> +
+> +static int pm80x_onkey_resume(struct device *dev)
+> +{
+> +	return pm80x_dev_resume(dev);
+> +}
+> +#endif
+> +
+> +static SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_onkey_suspend,
+> +			 pm80x_onkey_resume);
+
+Hmm, why do you need these at all? Couldn't you have said:
+
+static SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops,
+			 pm80x_dev_suspend, pm80x_dev_resume)
+
+?
+
+> +
+> +static int __devinit pm80x_onkey_probe(struct platform_device *pdev)
+> +{
+> +
+> +	void *chip = dev_get_drvdata(pdev->dev.parent);
+
+Why not
+
+	struct pm80x_chip *chip = dev_get_drvdata(pdev->dev.parent);
+
+Then you would not have the cast below.
+
+> +	struct pm80x_onkey_info *info;
+> +	int ret;
+> +
+> +	info =
+> +	    devm_kzalloc(&pdev->dev, sizeof(struct pm80x_onkey_info),
+> +			 GFP_KERNEL);
+> +	if (!info)
+> +		return -ENOMEM;
+> +
+> +	info->pm80x = (struct pm80x_chip *)chip;
+> +
+> +	info->irq = platform_get_irq(pdev, 0);
+> +	if (info->irq < 0) {
+> +		dev_err(&pdev->dev, "No IRQ resource!\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	info->map = info->pm80x->regmap;
+> +	if (!info->map) {
+> +		dev_err(&pdev->dev, "no regmap!\n");
+> +		ret = -EINVAL;
+> +		goto out;
+> +	}
+> +
+> +	info->idev = input_allocate_device();
+> +	if (!info->idev) {
+> +		dev_err(&pdev->dev, "Failed to allocate input dev\n");
+> +		ret = -ENOMEM;
+> +		goto out;
+> +	}
+> +
+> +	info->idev->name = "88pm80x_on";
+> +	info->idev->phys = "88pm80x_on/input0";
+> +	info->idev->id.bustype = BUS_I2C;
+> +	info->idev->dev.parent = &pdev->dev;
+> +	info->idev->evbit[0] = BIT_MASK(EV_KEY);
+> +	info->idev->keybit[BIT_WORD(KEY_POWER)] = BIT_MASK(KEY_POWER);
+> +
+> +	ret = input_register_device(info->idev);
+> +	if (ret) {
+
+Can we call this variable "error" please?
+
+> +		dev_err(&pdev->dev, "Can't register input device: %d\n", ret);
+> +		goto out_reg;
+> +	}
+> +
+> +	ret = pm80x_request_irq(info->pm80x, info->irq, pm80x_onkey_handler,
+> +					    IRQF_ONESHOT, "onkey", info);
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "Failed to request IRQ: #%d: %d\n",
+> +			info->irq, ret);
+> +		goto out_irq;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, info);
+> +
+> +	/* Enable long onkey detection */
+> +	regmap_update_bits(info->map, PM800_RTC_MISC4, PM800_LONG_ONKEY_EN,
+> +			   PM800_LONG_ONKEY_EN);
+> +	/* Set 8-second interval */
+> +	regmap_update_bits(info->map, PM800_RTC_MISC3,
+> +			   PM800_LONKEY_PRESS_TIME_MASK,
+> +			   PM800_LONKEY_PRESS_TIME);
+> +
+> +	device_init_wakeup(&pdev->dev, 1);
+> +	return 0;
+> +
+> +out_irq:
+> +	input_unregister_device(info->idev);
+> +out_reg:
+> +	input_free_device(info->idev);
+
+You can not use input_free_device() after calling
+input_unregister_device() as it will lead to double free. I recommend
+requesting IRQ first and then registering input device as the last
+action so that you never have to call input_unregister_device() in your
+erro path.
+
+> +out:
+> +	devm_kfree(&pdev->dev, info);
+
+If you are not using devm_* facilities (which you are not, you are
+freeing 'info' manually i all cases but one) use standard kzalloc/kfree
+please.
+
+> +	return ret;
+> +}
+> +
+> +static int __devexit pm80x_onkey_remove(struct platform_device *pdev)
+> +{
+> +	struct pm80x_onkey_info *info = platform_get_drvdata(pdev);
+> +
+> +	pm80x_free_irq(info->pm80x, info->irq, info);
+> +	input_unregister_device(info->idev);
+> +	input_free_device(info->idev);
+
+Please remove.
+
+> +	devm_kfree(&pdev->dev, info);
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver pm80x_onkey_driver = {
+> +	.driver = {
+> +		   .name = "88pm80x-onkey",
+> +		   .owner = THIS_MODULE,
+> +		   .pm = &pm80x_onkey_pm_ops,
+> +		   },
+> +	.probe = pm80x_onkey_probe,
+> +	.remove = __devexit_p(pm80x_onkey_remove),
+> +};
+> +
+> +module_platform_driver(pm80x_onkey_driver);
+> +
+> +MODULE_LICENSE("GPL");
+> +MODULE_DESCRIPTION("Marvell 88PM80x ONKEY driver");
+> +MODULE_AUTHOR("Qiao Zhou <zhouqiao@marvell.com>");
+> +MODULE_ALIAS("platform:88pm80x-onkey");
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 7faf4a7..7c0f1ec 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -22,6 +22,16 @@ config INPUT_88PM860X_ONKEY
+>  	  To compile this driver as a module, choose M here: the module
+>  	  will be called 88pm860x_onkey.
+>  
+> +config INPUT_88PM80X_ONKEY
+> +	tristate "88PM80x ONKEY support"
+> +	depends on MFD_88PM800
+> +	help
+> +	  Support the ONKEY of Marvell 88PM80x PMICs as an input device
+> +	  reporting power button status.
+> +
+> +	  To compile this driver as a module, choose M here: the module
+> +	  will be called 88pm80x_onkey.
+> +
+>  config INPUT_AB8500_PONKEY
+>  	tristate "AB8500 Pon (PowerOn) Key"
+>  	depends on AB8500_CORE
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index f55cdf4..83fe6f5 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -5,6 +5,7 @@
+>  # Each configuration option enables a list of files.
+>  
+>  obj-$(CONFIG_INPUT_88PM860X_ONKEY)	+= 88pm860x_onkey.o
+> +obj-$(CONFIG_INPUT_88PM80X_ONKEY)	+= 88pm80x_onkey.o
+>  obj-$(CONFIG_INPUT_AB8500_PONKEY)	+= ab8500-ponkey.o
+>  obj-$(CONFIG_INPUT_AD714X)		+= ad714x.o
+>  obj-$(CONFIG_INPUT_AD714X_I2C)		+= ad714x-i2c.o
+> -- 
+> 1.7.0.4
+> 
+
+Thanks.
 
 -- 
 Dmitry

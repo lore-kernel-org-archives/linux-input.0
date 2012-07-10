@@ -1,37 +1,45 @@
-From: "Henrik Rydberg" <rydberg@bitmath.se>
-Subject: Re: [PATCH] MacBook Pro Retina Keyboard Support
-Date: Tue, 10 Jul 2012 12:06:09 +0200
-Message-ID: <20120710100609.GA4314@polaris.bitmath.org>
-References: <20120709084534.GA4347@polaris.bitmath.org>
- <alpine.LNX.2.00.1207101147260.19366@pobox.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2/2] Input: bcm5974 - Add support for 2012 MacBook Pro
+ Retina
+Date: Tue, 10 Jul 2012 12:11:55 +0200 (CEST)
+Message-ID: <alpine.LRH.2.00.1207101211070.16114@twin.jikos.cz>
+References: <1341838006-22407-1-git-send-email-rydberg@euromail.se> <1341838006-22407-2-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp2.one.com ([91.198.169.22]:8520 "EHLO csmtp2.one.com"
+Received: from cantor2.suse.de ([195.135.220.15]:58446 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752723Ab2GJKGJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Jul 2012 06:06:09 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1207101147260.19366@pobox.suse.cz>
+	id S1753120Ab2GJKMD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Jul 2012 06:12:03 -0400
+In-Reply-To: <1341838006-22407-2-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Ryan Bourgeois <bluedragonx@gmail.com>, linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Jul 10, 2012 at 11:48:00AM +0200, Jiri Kosina wrote:
-> On Mon, 9 Jul 2012, Henrik Rydberg wrote:
-> 
-> > Please keep the patch message clear of things you do not want to end
-> > up in the git log. Also, if you could manage to get an Originally-by:
-> > or Tested-by from the right person, that would be splendid.
-> 
-> Also, Ryan, the patch has been corrupted (line-wrapping), likely by your 
-> mail client, so I can't apply it as-is.
-> 
-> Could you please fix that up, and resend?
+On Mon, 9 Jul 2012, Henrik Rydberg wrote:
 
-Since it seemed reasonable to add the mouse-ignore lines to the same
-patch, I fixed up the patch in the process and resent yesterday.
+> Add support for the 15'' MacBook Pro Retina model (MacBookPro10,1).
+> 
+> Patch originally written by clipcarl (forums.opensuse.org).
+> 
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+> Hi Dmitry,
+> 
+> Here is a patch for the new retina I picked up from the anonymous
+> heroes on the linux forums. Looks simple enough for 3.5 to me.  Either
+> way, the usual sync with Jiri is needed.
+
+	Acked-by: Jiri Kosina <jkosina@suse.cz> 
+
+for "[PATCH 1/2] HID: Add support for 2012 MacBook Pro Retina". Dmitry, 
+please either take that through your tree, or send me your Ack for this 
+one and I'll take it.
 
 Thanks,
-Henrik
+
+-- 
+Jiri Kosina
+SUSE Labs
+

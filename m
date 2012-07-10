@@ -1,75 +1,42 @@
 From: Qiao Zhou <zhouqiao@marvell.com>
-Subject: [PATCH V7 3/4] rtc: add rtc support to 88PM80X PMIC
-Date: Tue, 10 Jul 2012 17:17:37 +0800
-Message-ID: <1341911858-10851-4-git-send-email-zhouqiao@marvell.com>
+Subject: [PATCH V7 4/4] input: add onkey support to 88PM80X PMIC
+Date: Tue, 10 Jul 2012 17:17:38 +0800
+Message-ID: <1341911858-10851-5-git-send-email-zhouqiao@marvell.com>
 References: <1341911858-10851-1-git-send-email-zhouqiao@marvell.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog126.obsmtp.com ([74.125.149.155]:34727 "HELO
+Received: from na3sys009aog126.obsmtp.com ([74.125.149.155]:44927 "HELO
 	na3sys009aog126.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1753274Ab2GJJSD (ORCPT
+	by vger.kernel.org with SMTP id S1753274Ab2GJJSK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Jul 2012 05:18:03 -0400
+	Tue, 10 Jul 2012 05:18:10 -0400
 In-Reply-To: <1341911858-10851-1-git-send-email-zhouqiao@marvell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org
 Cc: Qiao Zhou <zhouqiao@marvell.com>
 
-add rtc driver for MARVELL 88PM80X PMIC and enable rtc function.
+add onkey support to MARVELL 88PM80X PMIC.
 
 Signed-off-by: Qiao Zhou <zhouqiao@marvell.com>
 ---
- drivers/rtc/Kconfig       |   10 ++
- drivers/rtc/Makefile      |    1 +
- drivers/rtc/rtc-88pm80x.c |  371 +++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 382 insertions(+), 0 deletions(-)
- create mode 100644 drivers/rtc/rtc-88pm80x.c
+ drivers/input/misc/88pm80x_onkey.c |  176 ++++++++++++++++++++++++++++++++++++
+ drivers/input/misc/Kconfig         |   10 ++
+ drivers/input/misc/Makefile        |    1 +
+ 3 files changed, 187 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/88pm80x_onkey.c
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 08cbdb9..f049c02 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -135,6 +135,16 @@ config RTC_DRV_88PM860X
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-88pm860x.
- 
-+config RTC_DRV_88PM80X
-+	tristate "Marvell 88PM80x"
-+	depends on RTC_CLASS && I2C && MFD_88PM800
-+	help
-+	  If you say yes here you get support for RTC function in Marvell
-+	  88PM80x chips.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-88pm80x.
-+
- config RTC_DRV_DS1307
- 	tristate "Dallas/Maxim DS1307/37/38/39/40, ST M41T00, EPSON RX-8025"
- 	help
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 2973921..0d5b2b6 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -16,6 +16,7 @@ rtc-core-$(CONFIG_RTC_INTF_SYSFS) += rtc-sysfs.o
- # Keep the list ordered.
- 
- obj-$(CONFIG_RTC_DRV_88PM860X)  += rtc-88pm860x.o
-+obj-$(CONFIG_RTC_DRV_88PM80X)	+= rtc-88pm80x.o
- obj-$(CONFIG_RTC_DRV_AB3100)	+= rtc-ab3100.o
- obj-$(CONFIG_RTC_DRV_AB8500)	+= rtc-ab8500.o
- obj-$(CONFIG_RTC_DRV_AT32AP700X)+= rtc-at32ap700x.o
-diff --git a/drivers/rtc/rtc-88pm80x.c b/drivers/rtc/rtc-88pm80x.c
+diff --git a/drivers/input/misc/88pm80x_onkey.c b/drivers/input/misc/88pm80x_onkey.c
 new file mode 100644
-index 0000000..a2f956d
+index 0000000..807587f
 --- /dev/null
-+++ b/drivers/rtc/rtc-88pm80x.c
-@@ -0,0 +1,371 @@
++++ b/drivers/input/misc/88pm80x_onkey.c
+@@ -0,0 +1,176 @@
 +/*
-+ * Real Time Clock driver for Marvell 88PM80x PMIC
++ * 88pm80x_onkey.c - Marvell 88PM80x ONKEY driver
 + *
-+ * Copyright (c) 2012 Marvell International Ltd.
-+ *  Wenzeng Chen<wzch@marvell.com>
-+ *  Qiao Zhou <zhouqiao@marvell.com>
++ * Copyright (C) 2012 Marvell International Ltd.
++ * Haojian Zhuang <haojian.zhuang@marvell.com>
++ * Qiao Zhou <zhouqiao@marvell.com>
 + *
 + * This file is subject to the terms and conditions of the GNU General
 + * Public License. See the file "COPYING" in the main directory of this
@@ -87,354 +54,192 @@ index 0000000..a2f956d
 +
 +#include <linux/kernel.h>
 +#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/regmap.h>
-+#include <linux/mfd/core.h>
++#include <linux/input.h>
 +#include <linux/mfd/88pm80x.h>
-+#include <linux/rtc.h>
++#include <linux/regmap.h>
++#include <linux/slab.h>
 +
-+#define PM800_RTC_COUNTER1		(0xD1)
-+#define PM800_RTC_COUNTER2		(0xD2)
-+#define PM800_RTC_COUNTER3		(0xD3)
-+#define PM800_RTC_COUNTER4		(0xD4)
-+#define PM800_RTC_EXPIRE1_1		(0xD5)
-+#define PM800_RTC_EXPIRE1_2		(0xD6)
-+#define PM800_RTC_EXPIRE1_3		(0xD7)
-+#define PM800_RTC_EXPIRE1_4		(0xD8)
-+#define PM800_RTC_TRIM1			(0xD9)
-+#define PM800_RTC_TRIM2			(0xDA)
-+#define PM800_RTC_TRIM3			(0xDB)
-+#define PM800_RTC_TRIM4			(0xDC)
-+#define PM800_RTC_EXPIRE2_1		(0xDD)
-+#define PM800_RTC_EXPIRE2_2		(0xDE)
-+#define PM800_RTC_EXPIRE2_3		(0xDF)
-+#define PM800_RTC_EXPIRE2_4		(0xE0)
++#define PM800_LONG_ONKEY_EN		(1 << 0)
++#define PM800_LONG_KEY_DELAY		(8)	/* 1 .. 16 seconds */
++#define PM800_LONKEY_PRESS_TIME		((PM800_LONG_KEY_DELAY-1) << 4)
++#define PM800_LONKEY_PRESS_TIME_MASK	(0xF0)
++#define PM800_SW_PDOWN			(1 << 5)
 +
-+#define PM800_POWER_DOWN_LOG1	(0xE5)
-+#define PM800_POWER_DOWN_LOG2	(0xE6)
-+
-+struct pm80x_rtc_info {
-+	struct pm80x_chip *chip;
++struct pm80x_onkey_info {
++	struct input_dev *idev;
++	struct pm80x_chip *pm80x;
 +	struct regmap *map;
-+	struct rtc_device *rtc_dev;
-+	struct device *dev;
-+	struct delayed_work calib_work;
-+
 +	int irq;
-+	int vrtc;
 +};
 +
-+static irqreturn_t rtc_update_handler(int irq, void *data)
++/* 88PM80x gives us an interrupt when ONKEY is held */
++static irqreturn_t pm80x_onkey_handler(int irq, void *data)
 +{
-+	struct pm80x_rtc_info *info = (struct pm80x_rtc_info *)data;
-+	int mask;
++	struct pm80x_onkey_info *info = data;
++	int ret = 0;
 +
-+	mask = PM800_ALARM | PM800_ALARM_WAKEUP;
-+	regmap_update_bits(info->map, PM800_RTC_CONTROL, mask | PM800_ALARM1_EN,
-+			   mask);
-+	rtc_update_irq(info->rtc_dev, 1, RTC_AF);
++	regmap_read(info->map, PM800_STATUS_1, &ret);
++	ret &= PM800_ONKEY_STS1;
++
++	input_report_key(info->idev, KEY_POWER, ret);
++	input_sync(info->idev);
++
 +	return IRQ_HANDLED;
 +}
 +
-+static int pm80x_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
-+{
-+	struct pm80x_rtc_info *info = dev_get_drvdata(dev);
-+
-+	if (enabled)
-+		regmap_update_bits(info->map, PM800_RTC_CONTROL,
-+				   PM800_ALARM1_EN, PM800_ALARM1_EN);
-+	else
-+		regmap_update_bits(info->map, PM800_RTC_CONTROL,
-+				   PM800_ALARM1_EN, 0);
-+	return 0;
-+}
-+
-+/*
-+ * Calculate the next alarm time given the requested alarm time mask
-+ * and the current time.
-+ */
-+static void rtc_next_alarm_time(struct rtc_time *next, struct rtc_time *now,
-+				struct rtc_time *alrm)
-+{
-+	unsigned long next_time;
-+	unsigned long now_time;
-+
-+	next->tm_year = now->tm_year;
-+	next->tm_mon = now->tm_mon;
-+	next->tm_mday = now->tm_mday;
-+	next->tm_hour = alrm->tm_hour;
-+	next->tm_min = alrm->tm_min;
-+	next->tm_sec = alrm->tm_sec;
-+
-+	rtc_tm_to_time(now, &now_time);
-+	rtc_tm_to_time(next, &next_time);
-+
-+	if (next_time < now_time) {
-+		/* Advance one day */
-+		next_time += 60 * 60 * 24;
-+		rtc_time_to_tm(next_time, next);
-+	}
-+}
-+
-+static int pm80x_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct pm80x_rtc_info *info = dev_get_drvdata(dev);
-+	unsigned char buf[4];
-+	unsigned long ticks, base, data;
-+	regmap_raw_read(info->map, PM800_RTC_EXPIRE2_1, buf, 4);
-+	base = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	dev_dbg(info->dev, "%x-%x-%x-%x\n", buf[0], buf[1], buf[2], buf[3]);
-+
-+	/* load 32-bit read-only counter */
-+	regmap_raw_read(info->map, PM800_RTC_COUNTER1, buf, 4);
-+	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	ticks = base + data;
-+	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
-+		base, data, ticks);
-+	rtc_time_to_tm(ticks, tm);
-+	return 0;
-+}
-+
-+static int pm80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct pm80x_rtc_info *info = dev_get_drvdata(dev);
-+	unsigned char buf[4];
-+	unsigned long ticks, base, data;
-+	if ((tm->tm_year < 70) || (tm->tm_year > 138)) {
-+		dev_dbg(info->dev,
-+			"Set time %d out of range. Please set time between 1970 to 2038.\n",
-+			1900 + tm->tm_year);
-+		return -EINVAL;
-+	}
-+	rtc_tm_to_time(tm, &ticks);
-+
-+	/* load 32-bit read-only counter */
-+	regmap_raw_read(info->map, PM800_RTC_COUNTER1, buf, 4);
-+	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	base = ticks - data;
-+	dev_dbg(info->dev, "set base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
-+		base, data, ticks);
-+	buf[0] = base & 0xFF;
-+	buf[1] = (base >> 8) & 0xFF;
-+	buf[2] = (base >> 16) & 0xFF;
-+	buf[3] = (base >> 24) & 0xFF;
-+	regmap_raw_write(info->map, PM800_RTC_EXPIRE2_1, buf, 4);
-+
-+	return 0;
-+}
-+
-+static int pm80x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct pm80x_rtc_info *info = dev_get_drvdata(dev);
-+	unsigned char buf[4];
-+	unsigned long ticks, base, data;
-+	int ret;
-+
-+	regmap_raw_read(info->map, PM800_RTC_EXPIRE2_1, buf, 4);
-+	base = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	dev_dbg(info->dev, "%x-%x-%x-%x\n", buf[0], buf[1], buf[2], buf[3]);
-+
-+	regmap_raw_read(info->map, PM800_RTC_EXPIRE1_1, buf, 4);
-+	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	ticks = base + data;
-+	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
-+		base, data, ticks);
-+
-+	rtc_time_to_tm(ticks, &alrm->time);
-+	regmap_read(info->map, PM800_RTC_CONTROL, &ret);
-+	alrm->enabled = (ret & PM800_ALARM1_EN) ? 1 : 0;
-+	alrm->pending = (ret & (PM800_ALARM | PM800_ALARM_WAKEUP)) ? 1 : 0;
-+	return 0;
-+}
-+
-+static int pm80x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct pm80x_rtc_info *info = dev_get_drvdata(dev);
-+	struct rtc_time now_tm, alarm_tm;
-+	unsigned long ticks, base, data;
-+	unsigned char buf[4];
-+	int mask;
-+
-+	regmap_update_bits(info->map, PM800_RTC_CONTROL, PM800_ALARM1_EN, 0);
-+
-+	regmap_raw_read(info->map, PM800_RTC_EXPIRE2_1, buf, 4);
-+	base = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	dev_dbg(info->dev, "%x-%x-%x-%x\n", buf[0], buf[1], buf[2], buf[3]);
-+
-+	/* load 32-bit read-only counter */
-+	regmap_raw_read(info->map, PM800_RTC_COUNTER1, buf, 4);
-+	data = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	ticks = base + data;
-+	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
-+		base, data, ticks);
-+
-+	rtc_time_to_tm(ticks, &now_tm);
-+	dev_dbg(info->dev, "%s, now time : %lu\n", __func__, ticks);
-+	rtc_next_alarm_time(&alarm_tm, &now_tm, &alrm->time);
-+	/* get new ticks for alarm in 24 hours */
-+	rtc_tm_to_time(&alarm_tm, &ticks);
-+	dev_dbg(info->dev, "%s, alarm time: %lu\n", __func__, ticks);
-+	data = ticks - base;
-+
-+	buf[0] = data & 0xff;
-+	buf[1] = (data >> 8) & 0xff;
-+	buf[2] = (data >> 16) & 0xff;
-+	buf[3] = (data >> 24) & 0xff;
-+	regmap_raw_write(info->map, PM800_RTC_EXPIRE1_1, buf, 4);
-+	if (alrm->enabled) {
-+		mask = PM800_ALARM | PM800_ALARM_WAKEUP | PM800_ALARM1_EN;
-+		regmap_update_bits(info->map, PM800_RTC_CONTROL, mask, mask);
-+	} else {
-+		mask = PM800_ALARM | PM800_ALARM_WAKEUP | PM800_ALARM1_EN;
-+		regmap_update_bits(info->map, PM800_RTC_CONTROL, mask,
-+				   PM800_ALARM | PM800_ALARM_WAKEUP);
-+	}
-+	return 0;
-+}
-+
-+static const struct rtc_class_ops pm80x_rtc_ops = {
-+	.read_time = pm80x_rtc_read_time,
-+	.set_time = pm80x_rtc_set_time,
-+	.read_alarm = pm80x_rtc_read_alarm,
-+	.set_alarm = pm80x_rtc_set_alarm,
-+	.alarm_irq_enable = pm80x_rtc_alarm_irq_enable,
-+};
-+
 +#ifdef CONFIG_PM
-+static int pm80x_rtc_suspend(struct device *dev)
++static int pm80x_onkey_suspend(struct device *dev)
 +{
 +	return pm80x_dev_suspend(dev);
 +}
 +
-+static int pm80x_rtc_resume(struct device *dev)
++static int pm80x_onkey_resume(struct device *dev)
 +{
 +	return pm80x_dev_resume(dev);
 +}
 +#endif
 +
-+static SIMPLE_DEV_PM_OPS(pm80x_rtc_pm_ops, pm80x_rtc_suspend, pm80x_rtc_resume);
++static SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_onkey_suspend,
++			 pm80x_onkey_resume);
 +
-+static int __devinit pm80x_rtc_probe(struct platform_device *pdev)
++static int __devinit pm80x_onkey_probe(struct platform_device *pdev)
 +{
-+	struct pm80x_chip *chip = dev_get_drvdata(pdev->dev.parent);
-+	struct pm80x_platform_data *pm80x_pdata;
-+	struct pm80x_rtc_pdata *pdata = NULL;
-+	struct pm80x_rtc_info *info;
-+	struct rtc_time tm;
-+	unsigned long ticks = 0;
++
++	void *chip = dev_get_drvdata(pdev->dev.parent);
++	struct pm80x_onkey_info *info;
 +	int ret;
 +
-+	pdata = pdev->dev.platform_data;
-+	if (pdata == NULL)
-+		dev_warn(&pdev->dev, "No platform data!\n");
-+
 +	info =
-+	    devm_kzalloc(&pdev->dev, sizeof(struct pm80x_rtc_info), GFP_KERNEL);
++	    devm_kzalloc(&pdev->dev, sizeof(struct pm80x_onkey_info),
++			 GFP_KERNEL);
 +	if (!info)
 +		return -ENOMEM;
++
++	info->pm80x = (struct pm80x_chip *)chip;
++
 +	info->irq = platform_get_irq(pdev, 0);
 +	if (info->irq < 0) {
 +		dev_err(&pdev->dev, "No IRQ resource!\n");
-+		ret = -EINVAL;
-+		goto out;
++		return -EINVAL;
 +	}
 +
-+	info->chip = chip;
-+	info->map = chip->regmap;
++	info->map = info->pm80x->regmap;
 +	if (!info->map) {
 +		dev_err(&pdev->dev, "no regmap!\n");
 +		ret = -EINVAL;
 +		goto out;
 +	}
 +
-+	info->dev = &pdev->dev;
-+	dev_set_drvdata(&pdev->dev, info);
-+
-+	ret = pm80x_request_irq(chip, info->irq, rtc_update_handler,
-+				IRQF_ONESHOT, "rtc", info);
-+	if (ret < 0) {
-+		dev_err(chip->dev, "Failed to request IRQ: #%d: %d\n",
-+			info->irq, ret);
++	info->idev = input_allocate_device();
++	if (!info->idev) {
++		dev_err(&pdev->dev, "Failed to allocate input dev\n");
++		ret = -ENOMEM;
 +		goto out;
 +	}
 +
-+	ret = pm80x_rtc_read_time(&pdev->dev, &tm);
++	info->idev->name = "88pm80x_on";
++	info->idev->phys = "88pm80x_on/input0";
++	info->idev->id.bustype = BUS_I2C;
++	info->idev->dev.parent = &pdev->dev;
++	info->idev->evbit[0] = BIT_MASK(EV_KEY);
++	info->idev->keybit[BIT_WORD(KEY_POWER)] = BIT_MASK(KEY_POWER);
++
++	ret = input_register_device(info->idev);
++	if (ret) {
++		dev_err(&pdev->dev, "Can't register input device: %d\n", ret);
++		goto out_reg;
++	}
++
++	ret = pm80x_request_irq(info->pm80x, info->irq, pm80x_onkey_handler,
++					    IRQF_ONESHOT, "onkey", info);
 +	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to read initial time.\n");
-+		goto out_rtc;
++		dev_err(&pdev->dev, "Failed to request IRQ: #%d: %d\n",
++			info->irq, ret);
++		goto out_irq;
 +	}
-+	if ((tm.tm_year < 70) || (tm.tm_year > 138)) {
-+		tm.tm_year = 70;
-+		tm.tm_mon = 0;
-+		tm.tm_mday = 1;
-+		tm.tm_hour = 0;
-+		tm.tm_min = 0;
-+		tm.tm_sec = 0;
-+		ret = pm80x_rtc_set_time(&pdev->dev, &tm);
-+		if (ret < 0) {
-+			dev_err(&pdev->dev, "Failed to set initial time.\n");
-+			goto out_rtc;
-+		}
-+	}
-+	rtc_tm_to_time(&tm, &ticks);
 +
-+	info->rtc_dev = rtc_device_register("88pm80x-rtc", &pdev->dev,
-+					    &pm80x_rtc_ops, THIS_MODULE);
-+	ret = PTR_ERR(info->rtc_dev);
-+	if (IS_ERR(info->rtc_dev)) {
-+		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
-+		goto out_rtc;
-+	}
-+	/*
-+	 * enable internal XO instead of internal 3.25MHz clock since it can
-+	 * free running in PMIC power-down state.
-+	 */
-+	regmap_update_bits(info->map, PM800_RTC_CONTROL, PM800_RTC1_USE_XO,
-+			   PM800_RTC1_USE_XO);
++	platform_set_drvdata(pdev, info);
 +
-+	if (pdev->dev.parent->platform_data) {
-+		pm80x_pdata = pdev->dev.parent->platform_data;
-+		pdata = pm80x_pdata->rtc;
-+		if (pdata)
-+			info->rtc_dev->dev.platform_data = &pdata->rtc_wakeup;
-+	}
++	/* Enable long onkey detection */
++	regmap_update_bits(info->map, PM800_RTC_MISC4, PM800_LONG_ONKEY_EN,
++			   PM800_LONG_ONKEY_EN);
++	/* Set 8-second interval */
++	regmap_update_bits(info->map, PM800_RTC_MISC3,
++			   PM800_LONKEY_PRESS_TIME_MASK,
++			   PM800_LONKEY_PRESS_TIME);
 +
 +	device_init_wakeup(&pdev->dev, 1);
-+
 +	return 0;
-+out_rtc:
-+	pm80x_free_irq(chip, info->irq, info);
++
++out_irq:
++	input_unregister_device(info->idev);
++out_reg:
++	input_free_device(info->idev);
 +out:
 +	devm_kfree(&pdev->dev, info);
 +	return ret;
 +}
 +
-+static int __devexit pm80x_rtc_remove(struct platform_device *pdev)
++static int __devexit pm80x_onkey_remove(struct platform_device *pdev)
 +{
-+	struct pm80x_rtc_info *info = platform_get_drvdata(pdev);
-+	platform_set_drvdata(pdev, NULL);
-+	rtc_device_unregister(info->rtc_dev);
-+	pm80x_free_irq(info->chip, info->irq, info);
++	struct pm80x_onkey_info *info = platform_get_drvdata(pdev);
++
++	pm80x_free_irq(info->pm80x, info->irq, info);
++	input_unregister_device(info->idev);
++	input_free_device(info->idev);
 +	devm_kfree(&pdev->dev, info);
 +	return 0;
 +}
 +
-+static struct platform_driver pm80x_rtc_driver = {
++static struct platform_driver pm80x_onkey_driver = {
 +	.driver = {
-+		   .name = "88pm80x-rtc",
++		   .name = "88pm80x-onkey",
 +		   .owner = THIS_MODULE,
-+		   .pm = &pm80x_rtc_pm_ops,
++		   .pm = &pm80x_onkey_pm_ops,
 +		   },
-+	.probe = pm80x_rtc_probe,
-+	.remove = __devexit_p(pm80x_rtc_remove),
++	.probe = pm80x_onkey_probe,
++	.remove = __devexit_p(pm80x_onkey_remove),
 +};
 +
-+module_platform_driver(pm80x_rtc_driver);
++module_platform_driver(pm80x_onkey_driver);
 +
 +MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Marvell 88PM80x RTC driver");
++MODULE_DESCRIPTION("Marvell 88PM80x ONKEY driver");
 +MODULE_AUTHOR("Qiao Zhou <zhouqiao@marvell.com>");
-+MODULE_ALIAS("platform:88pm80x-rtc");
++MODULE_ALIAS("platform:88pm80x-onkey");
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 7faf4a7..7c0f1ec 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -22,6 +22,16 @@ config INPUT_88PM860X_ONKEY
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called 88pm860x_onkey.
+ 
++config INPUT_88PM80X_ONKEY
++	tristate "88PM80x ONKEY support"
++	depends on MFD_88PM800
++	help
++	  Support the ONKEY of Marvell 88PM80x PMICs as an input device
++	  reporting power button status.
++
++	  To compile this driver as a module, choose M here: the module
++	  will be called 88pm80x_onkey.
++
+ config INPUT_AB8500_PONKEY
+ 	tristate "AB8500 Pon (PowerOn) Key"
+ 	depends on AB8500_CORE
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index f55cdf4..83fe6f5 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -5,6 +5,7 @@
+ # Each configuration option enables a list of files.
+ 
+ obj-$(CONFIG_INPUT_88PM860X_ONKEY)	+= 88pm860x_onkey.o
++obj-$(CONFIG_INPUT_88PM80X_ONKEY)	+= 88pm80x_onkey.o
+ obj-$(CONFIG_INPUT_AB8500_PONKEY)	+= ab8500-ponkey.o
+ obj-$(CONFIG_INPUT_AD714X)		+= ad714x.o
+ obj-$(CONFIG_INPUT_AD714X_I2C)		+= ad714x-i2c.o
 -- 
 1.7.0.4
 

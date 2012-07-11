@@ -1,67 +1,77 @@
-From: Yuri Khan <yurivkhan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v4 1/1] Input: xpad - Handle all variations of Mad Catz Beat Pad
-Date: Wed, 11 Jul 2012 14:02:19 +0700
-Message-ID: <1341990139-3864-1-git-send-email-yurivkhan@gmail.com>
-References: <1341592324-665-1-git-send-email-yurivkhan@gmail.com>
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1341592324-665-1-git-send-email-yurivkhan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH v9] input: keyboard: Add keys driver for the LPC32xx SoC
+Date: Wed, 11 Jul 2012 09:49:04 +0200
+Message-ID: <4FFD2FF0.8030000@antcom.de>
+References: <1341948910-6530-1-git-send-email-stigge@antcom.de>
+ <20120710205507.GA377@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <20120710205507.GA377-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
 To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yuri Khan <yurivkhan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: srinivas.bakki-3arQi8VN3Tc@public.gmane.org, aletes.xgr-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin.wells-3arQi8VN3Tc@public.gmane.org, riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-* Add this device to usbhid ignore list
+On 07/10/2012 10:55 PM, Dmitry Torokhov wrote:
+> Hi Roland,
+> 
+> On Tue, Jul 10, 2012 at 09:35:10PM +0200, Roland Stigge wrote:
+>> This patch adds a driver for the key scan interface of the LPC32xx SoC
+>>
+> 
+> Could of more things that I had in my patch but forgot to specifically
+> call out:
+> 
+>> +
+>> +	/* Configure the key scanner */
+>> +	clk_prepare_enable(kscandat->clk);
+> 
+> This may fail so we should handle errors.
+> 
+>> +	writel(kscandat->deb_clks, LPC32XX_KS_DEB(kscandat->kscan_base));
+>> +	writel(kscandat->scan_delay, LPC32XX_KS_SCAN_CTL(kscandat->kscan_base));
+>> +	writel(LPC32XX_KSCAN_FTST_USE32K_CLK,
+>> +	       LPC32XX_KS_FAST_TST(kscandat->kscan_base));
+>> +	writel(kscandat->matrix_sz,
+>> +	       LPC32XX_KS_MATRIX_DIM(kscandat->kscan_base));
+>> +	writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
+>> +	clk_disable_unprepare(kscandat->clk);
+>> +
+>> +	error = request_irq(irq, lpc32xx_kscan_irq, 0, pdev->name, kscandat);
+> 
+> ...
+> 
+>> +
+>> +	free_irq(platform_get_irq(pdev, 0), pdev);
+> 
+> You are requesting IRQ with kscandat as an argument but freeing it with
+> 'pdev' which will fail.
+> 
+>> +
+>> +	if (kscandat->input->users) {
+>> +		/* Enable clock and clear IRQ */
+>> +		clk_prepare_enable(kscandat->clk);
+> 
+> Need to handle errors here as well.
+> 
+> Since I am partial to my rearrangement (basically I started preferring
+> err_<action> style of error labels as they more explanatory than out2 or
+> fail3 style of labels), could you try this version of my patch (on top
+> of your v9 one). Third time is a charm maybe? :)
 
-Signed-off-by: Yuri Khan <yurivkhan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Acked-by: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
----
- drivers/hid/hid-core.c        |    1 +
- drivers/hid/hid-ids.h         |    3 +++
- drivers/input/joystick/xpad.c |    1 +
- 3 files changed, 5 insertions(+)
+Yes, works fine!
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 6ac0286..1540934 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1995,6 +1995,7 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_MCT) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_HYBRID) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_HEATCONTROL) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_BEATPAD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MCC, USB_DEVICE_ID_MCC_PMD1024LS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MCC, USB_DEVICE_ID_MCC_PMD1208LS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICKIT1) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index d1cdd2d..43c3d75 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -518,6 +518,9 @@
- #define USB_DEVICE_ID_CRYSTALTOUCH	0x0006
- #define USB_DEVICE_ID_CRYSTALTOUCH_DUAL	0x0007
- 
-+#define USB_VENDOR_ID_MADCATZ		0x0738
-+#define USB_DEVICE_ID_MADCATZ_BEATPAD	0x4540
-+
- #define USB_VENDOR_ID_MCC		0x09db
- #define USB_DEVICE_ID_MCC_PMD1024LS	0x0076
- #define USB_DEVICE_ID_MCC_PMD1208LS	0x007a
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index ee16fb6..16974ef 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -238,6 +238,7 @@ static struct usb_device_id xpad_table [] = {
- 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech X-Box 360 style controllers */
- 	XPAD_XBOX360_VENDOR(0x0738),		/* Mad Catz X-Box 360 controllers */
-+	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
- 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x12ab),		/* X-Box 360 dance pads */
- 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
--- 
-1.7.9.5
+Thanks!
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Acked-by: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>

@@ -1,58 +1,88 @@
-From: Olivier Goffart <olivier@woboq.com>
-Subject: Re: [PATCH] Fix sentelic multi-touch driver
-Date: Wed, 11 Jul 2012 10:50:36 +0200
-Message-ID: <67102780.rnFSl1U0Ei@gargamel>
-References: <1340829375-4995-1-git-send-email-ogoffart@woboq.com> <12062922475617.19930@cnaqrzbavhz.fragryvp.pbz> <2421405.kgV4JOQPin@gargamel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+From: Qiao Zhou <zhouqiao@marvell.com>
+Subject: [PATCH V8] add 88pm80x onkey driver
+Date: Wed, 11 Jul 2012 17:03:41 +0800
+Message-ID: <1341997422-23422-1-git-send-email-zhouqiao@marvell.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail01.worldserver.net ([217.13.200.41]:41300 "EHLO
-	mail01.worldserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750857Ab2GKIul (ORCPT
+Received: from na3sys009aog136.obsmtp.com ([74.125.149.85]:43230 "HELO
+	na3sys009aog136.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751850Ab2GKJEB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Jul 2012 04:50:41 -0400
-In-Reply-To: <2421405.kgV4JOQPin@gargamel>
+	Wed, 11 Jul 2012 05:04:01 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tai-hwa Liang <avatar@sentelic.com>
-Cc: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org
+Cc: Qiao Zhou <zhouqiao@marvell.com>
 
-On Friday 29 June 2012 17:00:39 Olivier Goffart wrote:
-> On Friday 29 June 2012 22:51:16 Tai-hwa Liang wrote:
-> > On Fri, 29 Jun 2012, Olivier Goffart wrote:
-> > > On Friday 29 June 2012 11:03:12 Tai-hwa Liang wrote:
-> > [...]
-> > 
-> > >>    With the correct flag(FSP_BIT_SWC1_EN_GID) being set, the hardware
-> > >> 
-> > >> clears MFMC bit during 2 -> 1 finger transition.  The attached patch is
-> > >> an aggregated version against Dmitry's master branch, which supposes to
-> > >> fix
-> > >> the testing case listed above.
-> > > 
-> > > I am testing against the stable 3.4.y branch.
-> > > With that patch, scrolling is very slow, and it emits middle click
-> > > sometimes while I want to scroll fast.
-> > > 
-> > > Looking at the debug output, i see a lot of NOTIFY packets, for the same
-> > > number of packets/seconds (77). So then there is 5 times less multi
-> > > touch
-> > > events. Maybe that's why.
-> > > 
-> >    I see. It appears to me that we'd better to revert back to the
-> > 
-> > last_mt_fgr workaround to avoid such delay.
-> 
-> That last patch seems to work perfectly.
-> 
-> Thanks
+as the first 3 patches are already applied, so don't send those patches
+out for review again.
 
-Hi,
+change log [v8->v7]:
+1, remove file name in comments.
+2, add error handling to regmap_read.
+3, remove unnecessary onkey suspend/resume wrapper api.
+4, remove the pm80x_chip cast by directly define the struct type.
+5, fix the double free input device issue.
 
-Is there any news regarding this issue?  When is it going to be fixed 
-upstream?
-I am using that last patch and it is working very well.
+change log [v7->v6]:
+1, add the ack by Arnd for the first two patches.
+2, add NULL terminater for id_table in 88pm800.c & 88pm805.c.
 
--- 
-Olivier
+change log [v6->v5]:
+export_symbol_gpl for pm80x_regmap_config to fix build issue for module.
+
+change log [v5->v4]:
+1, change the file name, from 88pm800-core.c, 88pm805-core.c, 88pm80x-i2c.c
+to 88pm800.c, 88pm805.c, 88pm80x.c, and modified Makefile accordingly.
+2, replace the spinlock used to protect wakeup flag, with using set_bit/
+clear_bit, which is suitable adn enough in SMP env.
+3, add the version number in each patch.
+
+change log [v4->v3]:
+1, provide unified suspend/resume api for all sub-devices, and add
+protection for 800 & 805 wakeup flag in SMP case.
+2, clean register definition in 88pm80x.h, and thanks Arnd's help.
+3, some minor changes in mfd Kconfig/Makefile.
+
+change log [v3->v2]:
+1, dynamically get the irq_base, for both regmap_add_irq_chip and
+mfd_add_devices. add pm80x_request_irq & pm80x_free_irq for sub-driver
+facility, and modify related irq thread operation. remove irq_base member
+from 80x_chip & platform data.
+2, split 88pm80x.o into 3 separate modules.
+3, remove the 88pm80x r/w API, and directly use open-coded regmap api.
+4, minor change: move pm80x_id_table from 80x-i2c.c to 800/805-core.c,
+exported pm80x_init, pm80x_deinit, and pm80x_bulk_read, add callback in
+pdata.
+
+change log [v2->v1]:
+1, split 88pm80x-core.c into 88pm800-core.c and 88pm805.c, per Arnd's
+suggestion. after the re-arch, 88pm80x-i2c handles the 800 & 805 common
+parts, while 800-core.c & 805-core.c handle the specific parts in each
+chip.
+2, add details about the workaround adding a i2c companion between 800 &
+805, and make a separate patch for it, per Arnd's suggestion.
+3, remove callback in pdata. but still keep the pdata currently.
+4, only keep necessary register in 88pm80x.h, including registers for
+regulator/rtc/onkey/power/codec etc, and remove other registers from global
+visibility.
+5, exported r/w API which requires regmap handle. as currently the pm800
+chip has 3 i2c device, only passing a pm80x_chip info can't ensure r/w the
+register in correct i2c device.
+
+change log [v1]:
+1, pm800 and pm805 are decoupled and probed separately;
+2, re-used the most of API for pm800 and pm805 per Arnd's comments;
+3, use regmap_irq, instead of previous 88pm80x_irq_data per Mark's comments.
+use regmap_add_irq_chip, and remove previous 88pm80x irq handling.
+4, remove callback function in rtc pdata per Arnd's comments.
+5, updated some coding style issue.
+
+Qiao Zhou (1):
+  input: add onkey support to 88PM80X PMIC
+
+ drivers/input/misc/88pm80x_onkey.c |  169 ++++++++++++++++++++++++++++++++++++
+ drivers/input/misc/Kconfig         |   10 ++
+ drivers/input/misc/Makefile        |    1 +
+ 3 files changed, 180 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/88pm80x_onkey.c
+

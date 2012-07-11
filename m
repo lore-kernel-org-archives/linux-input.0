@@ -1,341 +1,182 @@
-From: "Poddar, Sourav" <sourav.poddar@ti.com>
-Subject: Re: [RESEND/PATCHv5 1/2] drivers: input: keypad: Add device tree support
-Date: Wed, 11 Jul 2012 15:15:47 +0530
-Message-ID: <CAKdam54gZoMEaH93FDL9D--GB=TqcSTEGz69TcZ99NdnvnQzsg@mail.gmail.com>
-References: <1339152780-25301-1-git-send-email-sourav.poddar@ti.com>
-	<20120710061326.GA29257@core.coreip.homeip.net>
+From: Jonathan BISSON <bissonjonathan@gmail.com>
+Subject: Linux Kernel: Microsoft Digital Media Keyboard 3000
+Date: Wed, 11 Jul 2012 11:56:51 +0200
+Message-ID: <4FFD4DE3.8010305@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120710061326.GA29257@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Benoit Cousson <b-cousson@ti.com>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Felipe Balbi <balbi@ti.com>, Randy Dunlap <rdunlap@xenotime.net>
+Content-Type: multipart/mixed;
+ boundary="------------070108060904020509030902"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:61554 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756847Ab2GKJyW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Jul 2012 05:54:22 -0400
+Received: by eekb15 with SMTP id b15so162919eek.19
+        for <linux-input@vger.kernel.org>; Wed, 11 Jul 2012 02:54:21 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, dtor@mail.ru, jkosina@suse.cz
 
-Hi Dmitry,
+This is a multi-part message in MIME format.
+--------------070108060904020509030902
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 10, 2012 at 11:43 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Sourav,
->
-> On Fri, Jun 08, 2012 at 04:22:59PM +0530, Sourav Poddar wrote:
->> Update the Documentation with omap4 keypad device tree
->> binding information.
->> Add device tree support for omap4 keypad driver.
->>
->> Tested on omap4430 sdp.
->>
->
-> Sorry for the delay, I have a few comments:
->
->>
->>       /* platform data */
->>       pdata = pdev->dev.platform_data;
->> -     if (!pdata) {
->> +     if (np) {
->> +             of_property_read_u32(np, "keypad,num-rows", &num_rows);
->> +             of_property_read_u32(np, "keypad,num-columns", &num_cols);
->> +             if (!num_rows || !num_cols) {
->> +                     dev_err(&pdev->dev, "number of keypad rows/columns not specified\n");
->> +                     return -EINVAL;
->> +             }
->> +     } else if (pdata) {
->> +             num_rows = pdata->rows;
->> +             num_cols = pdata->cols;
->> +     } else {
->>               dev_err(&pdev->dev, "no platform data defined\n");
->>               return -EINVAL;
->>       }
->>
->
-> I believe drivers should use platform data if it is supplied and use DT
-> data if platform data is omitted. This way one can override firmware
-> data if needed.
->
-> Does the patch below (if applied on top of your) work for you?
->
-Yes, the above patch works fine for me.
-Acked-by: Sourav Poddar <sourav.poddar@ti.com>
+Hi,
 
-Note, I did some mux setting changes in the bootloader for DT case.
 
-Thanks,
-Sourav
-> Thanks.
->
-> --
-> Dmitry
->
-> Input: omap4-keypad - misc fixes
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->
->  drivers/input/keyboard/omap4-keypad.c |  152 ++++++++++++++++-----------------
->  1 file changed, 74 insertions(+), 78 deletions(-)
->
->
-> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-> index d5a2d1a..033168e 100644
-> --- a/drivers/input/keyboard/omap4-keypad.c
-> +++ b/drivers/input/keyboard/omap4-keypad.c
-> @@ -76,7 +76,6 @@ enum {
->
->  struct omap4_keypad {
->         struct input_dev *input;
-> -       struct matrix_keymap_data *keymap_data;
->
->         void __iomem *base;
->         unsigned int irq;
-> @@ -88,7 +87,7 @@ struct omap4_keypad {
->         unsigned int row_shift;
->         bool no_autorepeat;
->         unsigned char key_state[8];
-> -       unsigned short keymap[];
-> +       unsigned short *keymap;
->  };
->
->  static int kbd_readl(struct omap4_keypad *keypad_data, u32 offset)
-> @@ -211,74 +210,52 @@ static void omap4_keypad_close(struct input_dev *input)
->         pm_runtime_put_sync(input->dev.parent);
->  }
->
-> -static struct omap4_keypad *omap_keypad_parse_dt(struct device *dev,
-> -                               uint32_t rows, uint32_t cols,
-> -                               struct input_dev *input_dev)
-> +#ifdef CONFIG_OF
-> +static int __devinit omap4_keypad_parse_dt(struct device *dev,
-> +                                          struct omap4_keypad *keypad_data)
->  {
->         struct device_node *np = dev->of_node;
-> -       struct platform_device *pdev = to_platform_device(dev);
-> -       struct omap4_keypad *keypad_data = platform_get_drvdata(pdev);
->         int error;
->
-> -       error = matrix_keypad_build_keymap(NULL, "linux,keymap",
-> -                               rows, cols, keypad_data->keymap, input_dev);
-> -       if (error) {
-> -               dev_err(&pdev->dev, "failed to build keymap\n");
-> -               input_free_device(input_dev);
-> +       if (!np) {
-> +               dev_err(dev, "missing DT data");
-> +               return -EINVAL;
-> +       }
-> +
-> +       of_property_read_u32(np, "keypad,num-rows", &keypad_data->rows);
-> +       of_property_read_u32(np, "keypad,num-columns", &keypad_data->cols);
-> +       if (!keypad_data->rows || !keypad_data->cols) {
-> +               dev_err(dev, "number of keypad rows/columns not specified\n");
-> +               return -EINVAL;
->         }
->
->         if (of_get_property(np, "linux,input-no-autorepeat", NULL))
->                 keypad_data->no_autorepeat = true;
->
-> -       return keypad_data;
-> +       return 0;
-> +}
-> +#else
-> +static inline int omap4_keypad_parse_dt(struct device *dev,
-> +                                       struct omap4_keypad *keypad_data)
-> +{
-> +       return -ENOSYS;
->  }
-> +#endif
->
->  static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->  {
-> -       struct device *dev = &pdev->dev;
-> -       struct device_node *np = dev->of_node;
-> -       const struct omap4_keypad_platform_data *pdata;
-> +       const struct omap4_keypad_platform_data *pdata =
-> +                               dev_get_platdata(&pdev->dev);
-> +       const struct matrix_keymap_data *keymap_data =
-> +                               pdata ? pdata->keymap_data : NULL;
->         struct omap4_keypad *keypad_data;
->         struct input_dev *input_dev;
->         struct resource *res;
-> -       resource_size_t size;
-> -       unsigned int row_shift = 0, max_keys = 0;
-> -       uint32_t num_rows = 0, num_cols = 0;
-> +       unsigned int max_keys;
->         int rev;
->         int irq;
->         int error;
->
-> -       /* platform data */
-> -       pdata = pdev->dev.platform_data;
-> -       if (np) {
-> -               of_property_read_u32(np, "keypad,num-rows", &num_rows);
-> -               of_property_read_u32(np, "keypad,num-columns", &num_cols);
-> -               if (!num_rows || !num_cols) {
-> -                       dev_err(&pdev->dev, "number of keypad rows/columns not specified\n");
-> -                       return -EINVAL;
-> -               }
-> -       } else if (pdata) {
-> -               num_rows = pdata->rows;
-> -               num_cols = pdata->cols;
-> -       } else {
-> -               dev_err(&pdev->dev, "no platform data defined\n");
-> -               return -EINVAL;
-> -       }
-> -
-> -       row_shift = get_count_order(num_cols);
-> -       max_keys = num_rows << row_shift;
-> -
-> -       keypad_data = devm_kzalloc(dev, sizeof(struct omap4_keypad) +
-> -                       max_keys * sizeof(keypad_data->keymap[0]),
-> -                               GFP_KERNEL);
-> -
-> -       if (!keypad_data) {
-> -               dev_err(&pdev->dev, "keypad_data memory allocation failed\n");
-> -               return -ENOMEM;
-> -       }
-> -
-> -       platform_set_drvdata(pdev, keypad_data);
-> -
->         res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->         if (!res) {
->                 dev_err(&pdev->dev, "no base address specified\n");
-> @@ -291,9 +268,24 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->                 return -EINVAL;
->         }
->
-> -       size = resource_size(res);
-> +       keypad_data = kzalloc(sizeof(struct omap4_keypad), GFP_KERNEL);
-> +       if (!keypad_data) {
-> +               dev_err(&pdev->dev, "keypad_data memory allocation failed\n");
-> +               return -ENOMEM;
-> +       }
-> +
-> +       keypad_data->irq = irq;
-> +
-> +       if (pdata) {
-> +               keypad_data->rows = pdata->rows;
-> +               keypad_data->cols = pdata->cols;
-> +       } else {
-> +               error = omap4_keypad_parse_dt(&pdev->dev, keypad_data);
-> +               if (error)
-> +                       return error;
-> +       }
->
-> -       res = request_mem_region(res->start, size, pdev->name);
-> +       res = request_mem_region(res->start, resource_size(res), pdev->name);
->         if (!res) {
->                 dev_err(&pdev->dev, "can't request mem region\n");
->                 error = -EBUSY;
-> @@ -307,15 +299,11 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->                 goto err_release_mem;
->         }
->
-> -       keypad_data->rows = num_rows;
-> -       keypad_data->cols = num_cols;
-> -       keypad_data->irq = irq;
-> -       keypad_data->row_shift = row_shift;
->
->         /*
-> -       * Enable clocks for the keypad module so that we can read
-> -       * revision register.
-> -       */
-> +        * Enable clocks for the keypad module so that we can read
-> +        * revision register.
-> +        */
->         pm_runtime_enable(&pdev->dev);
->         error = pm_runtime_get_sync(&pdev->dev);
->         if (error) {
-> @@ -358,29 +346,30 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->         input_dev->open = omap4_keypad_open;
->         input_dev->close = omap4_keypad_close;
->
-> -       if (np) {
-> -               keypad_data = omap_keypad_parse_dt(&pdev->dev,
-> -                               keypad_data->rows, keypad_data->cols,
-> -                               input_dev);
-> -       } else {
-> -               keypad_data->keymap_data =
-> -                       (struct matrix_keymap_data *)pdata->keymap_data;
-> -               error = matrix_keypad_build_keymap(keypad_data->keymap_data,
-> -                               NULL, keypad_data->rows, keypad_data->cols,
-> -                               keypad_data->keymap, input_dev);
-> -               if (error) {
-> -                       dev_err(&pdev->dev, "failed to build keymap\n");
-> -                       goto err_free_input;
-> -               }
-> -       }
-> -
-> +       input_set_capability(input_dev, EV_MSC, MSC_SCAN);
->         if (!keypad_data->no_autorepeat)
->                 __set_bit(EV_REP, input_dev->evbit);
->
-> -       input_set_capability(input_dev, EV_MSC, MSC_SCAN);
-> -
->         input_set_drvdata(input_dev, keypad_data);
->
-> +       keypad_data->row_shift = get_count_order(keypad_data->cols);
-> +       max_keys = keypad_data->rows << keypad_data->row_shift;
-> +       keypad_data->keymap = kzalloc(max_keys * sizeof(keypad_data->keymap[0]),
-> +                                     GFP_KERNEL);
-> +       if (!keypad_data->keymap) {
-> +               dev_err(&pdev->dev, "Not enough memory for keymap\n");
-> +               error = -ENOMEM;
-> +               goto err_free_input;
-> +       }
-> +
-> +       error = matrix_keypad_build_keymap(keymap_data, NULL,
-> +                                          keypad_data->rows, keypad_data->cols,
-> +                                          keypad_data->keymap, input_dev);
-> +       if (error) {
-> +               dev_err(&pdev->dev, "failed to build keymap\n");
-> +               goto err_free_keymap;
-> +       }
-> +
->         error = request_irq(keypad_data->irq, omap4_keypad_interrupt,
->                              IRQF_TRIGGER_RISING,
->                              "omap4-keypad", keypad_data);
-> @@ -397,11 +386,14 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->                 goto err_pm_disable;
->         }
->
-> +       platform_set_drvdata(pdev, keypad_data);
->         return 0;
->
->  err_pm_disable:
->         pm_runtime_disable(&pdev->dev);
->         free_irq(keypad_data->irq, keypad_data);
-> +err_free_keymap:
-> +       kfree(keypad_data->keymap);
->  err_free_input:
->         input_free_device(input_dev);
->  err_pm_put_sync:
-> @@ -409,7 +401,7 @@ err_pm_put_sync:
->  err_unmap:
->         iounmap(keypad_data->base);
->  err_release_mem:
-> -       release_mem_region(res->start, size);
-> +       release_mem_region(res->start, resource_size(res));
->  err_free_keypad:
->         kfree(keypad_data);
->         return error;
-> @@ -431,17 +423,21 @@ static int __devexit omap4_keypad_remove(struct platform_device *pdev)
->         res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->         release_mem_region(res->start, resource_size(res));
->
-> +       kfree(keypad_data->keymap);
->         kfree(keypad_data);
-> +
->         platform_set_drvdata(pdev, NULL);
->
->         return 0;
->  }
->
-> +#ifdef CONFIG_OF
->  static const struct of_device_id omap_keypad_dt_match[] = {
->         { .compatible = "ti,omap4-keypad" },
->         {},
->  };
->  MODULE_DEVICE_TABLE(of, omap_keypad_dt_match);
-> +#endif
->
->  static struct platform_driver omap4_keypad_driver = {
->         .probe          = omap4_keypad_probe,
+I've a problem with my Microsoft Digital Media Keyboard 3000.
+
+One part of the keyboard is seen as a joystick by the hid layer of the
+kernel (creating a js0 node with udev…)
+
+The lsusb output is in the attachements.
+
+
+as you can see inside it, the keyboard declares two interfaces:
+bNumInterfaces          2
+
+
+One with :
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      1 Boot Interface Subclass
+      bInterfaceProtocol      1 Keyboard
+
+which seems ok
+
+and one with:
+
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 No Subclass
+      bInterfaceProtocol      0 None
+
+The device is cut in two by event system :
+pci-0000:00:1d.7-usb-0:1.2:1.0-event-kbd
+pci-0000:00:1d.7-usb-0:1.2:1.1-event-kbd
+
+but this last one is also provided to :
+pci-0000:00:1d.7-usb-0:1.2:1.1-kbd -> ../js0
+
+The signals sent on it are nothing like a joystick (some garbage
+sometimes, but nothing that seems coherent).
+
+Special keys seems to be sent only to the second input event device. But
+I managed to get them working by remapping them :
+/usr/lib/udev/keymap input/event11 0xc022d back 0xc022e forward 0xc01b6
+camera 0xc01a2 f19
+
+the only one which is not working is the "Aero" key, giving a scancode
+of 0x1A2, I can see it in the /sys/kernel/debug/hid/…/event but it
+doesn't seems to be declared as a valid scancode judging by what I see
+in include/linux/input.h of a 3.4 kernel.
+
+Do you think it can be possible to avoid the kernel seeing this as a
+joystick (joydev module) and to add this 0x1A2 scan code ?
+
+
+If you need any further information, I may provide them to you.
+
+
+Thanks for your work on the kernel.
+
+
+
+--------------070108060904020509030902
+Content-Type: text/plain; charset=UTF-8;
+ name="lsusb.txt"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment;
+ filename="lsusb.txt"
+
+
+Bus 002 Device 009: ID 045e:0730 Microsoft Corp. Digital Media Keyboard 3000
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0         8
+  idVendor           0x045e Microsoft Corp.
+  idProduct          0x0730 Digital Media Keyboard 3000
+  bcdDevice            2.00
+  iManufacturer           1 Microsoft
+  iProduct                2 Microsoft® Digital Media Keyboard 3000
+  iSerial                 0 
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           59
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              100mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      1 Boot Interface Subclass
+      bInterfaceProtocol      1 Keyboard
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength      60
+         Report Descriptors: 
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval              10
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 No Subclass
+      bInterfaceProtocol      0 None
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength     106
+         Report Descriptors: 
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval              10
+Device Status:     0x0000
+  (Bus Powered)
+
+--------------070108060904020509030902--

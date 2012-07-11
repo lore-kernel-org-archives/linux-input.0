@@ -1,238 +1,341 @@
-From: Qiao Zhou <zhouqiao@marvell.com>
-Subject: [PATCH V8] input: add onkey support to 88PM80X PMIC
-Date: Wed, 11 Jul 2012 17:05:04 +0800
-Message-ID: <1341997504-23522-2-git-send-email-zhouqiao@marvell.com>
-References: <1341997504-23522-1-git-send-email-zhouqiao@marvell.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog135.obsmtp.com ([74.125.149.84]:49526 "HELO
-	na3sys009aog135.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751835Ab2GKJGa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Jul 2012 05:06:30 -0400
-In-Reply-To: <1341997504-23522-1-git-send-email-zhouqiao@marvell.com>
-Sender: linux-input-owner@vger.kernel.org
+From: "Poddar, Sourav" <sourav.poddar@ti.com>
+Subject: Re: [RESEND/PATCHv5 1/2] drivers: input: keypad: Add device tree support
+Date: Wed, 11 Jul 2012 15:15:47 +0530
+Message-ID: <CAKdam54gZoMEaH93FDL9D--GB=TqcSTEGz69TcZ99NdnvnQzsg@mail.gmail.com>
+References: <1339152780-25301-1-git-send-email-sourav.poddar@ti.com>
+	<20120710061326.GA29257@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120710061326.GA29257@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Benoit Cousson <b-cousson@ti.com>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Felipe Balbi <balbi@ti.com>, Randy Dunlap <rdunlap@xenotime.net>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org
-Cc: Qiao Zhou <zhouqiao@marvell.com>
 
-add onkey support to MARVELL 88PM80X PMIC.
+Hi Dmitry,
 
-Signed-off-by: Qiao Zhou <zhouqiao@marvell.com>
----
- drivers/input/misc/88pm80x_onkey.c |  169 ++++++++++++++++++++++++++++++++++++
- drivers/input/misc/Kconfig         |   10 ++
- drivers/input/misc/Makefile        |    1 +
- 3 files changed, 180 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/88pm80x_onkey.c
+On Tue, Jul 10, 2012 at 11:43 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Sourav,
+>
+> On Fri, Jun 08, 2012 at 04:22:59PM +0530, Sourav Poddar wrote:
+>> Update the Documentation with omap4 keypad device tree
+>> binding information.
+>> Add device tree support for omap4 keypad driver.
+>>
+>> Tested on omap4430 sdp.
+>>
+>
+> Sorry for the delay, I have a few comments:
+>
+>>
+>>       /* platform data */
+>>       pdata = pdev->dev.platform_data;
+>> -     if (!pdata) {
+>> +     if (np) {
+>> +             of_property_read_u32(np, "keypad,num-rows", &num_rows);
+>> +             of_property_read_u32(np, "keypad,num-columns", &num_cols);
+>> +             if (!num_rows || !num_cols) {
+>> +                     dev_err(&pdev->dev, "number of keypad rows/columns not specified\n");
+>> +                     return -EINVAL;
+>> +             }
+>> +     } else if (pdata) {
+>> +             num_rows = pdata->rows;
+>> +             num_cols = pdata->cols;
+>> +     } else {
+>>               dev_err(&pdev->dev, "no platform data defined\n");
+>>               return -EINVAL;
+>>       }
+>>
+>
+> I believe drivers should use platform data if it is supplied and use DT
+> data if platform data is omitted. This way one can override firmware
+> data if needed.
+>
+> Does the patch below (if applied on top of your) work for you?
+>
+Yes, the above patch works fine for me.
+Acked-by: Sourav Poddar <sourav.poddar@ti.com>
 
-diff --git a/drivers/input/misc/88pm80x_onkey.c b/drivers/input/misc/88pm80x_onkey.c
-new file mode 100644
-index 0000000..964aec6
---- /dev/null
-+++ b/drivers/input/misc/88pm80x_onkey.c
-@@ -0,0 +1,169 @@
-+/*
-+ * Marvell 88PM80x ONKEY driver
-+ *
-+ * Copyright (C) 2012 Marvell International Ltd.
-+ * Haojian Zhuang <haojian.zhuang@marvell.com>
-+ * Qiao Zhou <zhouqiao@marvell.com>
-+ *
-+ * This file is subject to the terms and conditions of the GNU General
-+ * Public License. See the file "COPYING" in the main directory of this
-+ * archive for more details.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/input.h>
-+#include <linux/mfd/88pm80x.h>
-+#include <linux/regmap.h>
-+#include <linux/slab.h>
-+
-+#define PM800_LONG_ONKEY_EN		(1 << 0)
-+#define PM800_LONG_KEY_DELAY		(8)	/* 1 .. 16 seconds */
-+#define PM800_LONKEY_PRESS_TIME		((PM800_LONG_KEY_DELAY-1) << 4)
-+#define PM800_LONKEY_PRESS_TIME_MASK	(0xF0)
-+#define PM800_SW_PDOWN			(1 << 5)
-+
-+struct pm80x_onkey_info {
-+	struct input_dev *idev;
-+	struct pm80x_chip *pm80x;
-+	struct regmap *map;
-+	int irq;
-+};
-+
-+/* 88PM80x gives us an interrupt when ONKEY is held */
-+static irqreturn_t pm80x_onkey_handler(int irq, void *data)
-+{
-+	struct pm80x_onkey_info *info = data;
-+	int ret = 0;
-+	unsigned int val;
-+
-+	ret = regmap_read(info->map, PM800_STATUS_1, &val);
-+	if (ret < 0) {
-+		pr_err("%s: failed to read status: %d\n", __func__, ret);
-+		return IRQ_NONE;
-+	}
-+	val &= PM800_ONKEY_STS1;
-+
-+	input_report_key(info->idev, KEY_POWER, val);
-+	input_sync(info->idev);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_dev_suspend,
-+			 pm80x_dev_resume);
-+
-+static int __devinit pm80x_onkey_probe(struct platform_device *pdev)
-+{
-+
-+	struct pm80x_chip *chip = dev_get_drvdata(pdev->dev.parent);
-+	struct pm80x_onkey_info *info;
-+	int err;
-+
-+	info =
-+	    devm_kzalloc(&pdev->dev, sizeof(struct pm80x_onkey_info),
-+			 GFP_KERNEL);
-+	if (!info)
-+		return -ENOMEM;
-+
-+	info->pm80x = chip;
-+
-+	info->irq = platform_get_irq(pdev, 0);
-+	if (info->irq < 0) {
-+		dev_err(&pdev->dev, "No IRQ resource!\n");
-+		err = -EINVAL;
-+		goto out;
-+	}
-+
-+	info->map = info->pm80x->regmap;
-+	if (!info->map) {
-+		dev_err(&pdev->dev, "no regmap!\n");
-+		err = -EINVAL;
-+		goto out;
-+	}
-+
-+	err = pm80x_request_irq(info->pm80x, info->irq, pm80x_onkey_handler,
-+					    IRQF_ONESHOT, "onkey", info);
-+	if (err < 0) {
-+		dev_err(&pdev->dev, "Failed to request IRQ: #%d: %d\n",
-+			info->irq, err);
-+		goto out;
-+	}
-+
-+	info->idev = input_allocate_device();
-+	if (!info->idev) {
-+		dev_err(&pdev->dev, "Failed to allocate input dev\n");
-+		err = -ENOMEM;
-+		goto out_irq;
-+	}
-+
-+	info->idev->name = "88pm80x_on";
-+	info->idev->phys = "88pm80x_on/input0";
-+	info->idev->id.bustype = BUS_I2C;
-+	info->idev->dev.parent = &pdev->dev;
-+	info->idev->evbit[0] = BIT_MASK(EV_KEY);
-+	info->idev->keybit[BIT_WORD(KEY_POWER)] = BIT_MASK(KEY_POWER);
-+
-+	err = input_register_device(info->idev);
-+	if (err) {
-+		dev_err(&pdev->dev, "Can't register input device: %d\n", err);
-+		goto out_reg;
-+	}
-+
-+	platform_set_drvdata(pdev, info);
-+
-+	/* Enable long onkey detection */
-+	regmap_update_bits(info->map, PM800_RTC_MISC4, PM800_LONG_ONKEY_EN,
-+			   PM800_LONG_ONKEY_EN);
-+	/* Set 8-second interval */
-+	regmap_update_bits(info->map, PM800_RTC_MISC3,
-+			   PM800_LONKEY_PRESS_TIME_MASK,
-+			   PM800_LONKEY_PRESS_TIME);
-+
-+	device_init_wakeup(&pdev->dev, 1);
-+	return 0;
-+
-+out_reg:
-+	input_free_device(info->idev);
-+out_irq:
-+	pm80x_free_irq(info->pm80x, info->irq, info);
-+out:
-+	devm_kfree(&pdev->dev, info);
-+	return err;
-+}
-+
-+static int __devexit pm80x_onkey_remove(struct platform_device *pdev)
-+{
-+	struct pm80x_onkey_info *info = platform_get_drvdata(pdev);
-+
-+	input_unregister_device(info->idev);
-+	pm80x_free_irq(info->pm80x, info->irq, info);
-+	devm_kfree(&pdev->dev, info);
-+	return 0;
-+}
-+
-+static struct platform_driver pm80x_onkey_driver = {
-+	.driver = {
-+		   .name = "88pm80x-onkey",
-+		   .owner = THIS_MODULE,
-+		   .pm = &pm80x_onkey_pm_ops,
-+		   },
-+	.probe = pm80x_onkey_probe,
-+	.remove = __devexit_p(pm80x_onkey_remove),
-+};
-+
-+module_platform_driver(pm80x_onkey_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Marvell 88PM80x ONKEY driver");
-+MODULE_AUTHOR("Qiao Zhou <zhouqiao@marvell.com>");
-+MODULE_ALIAS("platform:88pm80x-onkey");
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 7faf4a7..7c0f1ec 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -22,6 +22,16 @@ config INPUT_88PM860X_ONKEY
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called 88pm860x_onkey.
- 
-+config INPUT_88PM80X_ONKEY
-+	tristate "88PM80x ONKEY support"
-+	depends on MFD_88PM800
-+	help
-+	  Support the ONKEY of Marvell 88PM80x PMICs as an input device
-+	  reporting power button status.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called 88pm80x_onkey.
-+
- config INPUT_AB8500_PONKEY
- 	tristate "AB8500 Pon (PowerOn) Key"
- 	depends on AB8500_CORE
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index f55cdf4..83fe6f5 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -5,6 +5,7 @@
- # Each configuration option enables a list of files.
- 
- obj-$(CONFIG_INPUT_88PM860X_ONKEY)	+= 88pm860x_onkey.o
-+obj-$(CONFIG_INPUT_88PM80X_ONKEY)	+= 88pm80x_onkey.o
- obj-$(CONFIG_INPUT_AB8500_PONKEY)	+= ab8500-ponkey.o
- obj-$(CONFIG_INPUT_AD714X)		+= ad714x.o
- obj-$(CONFIG_INPUT_AD714X_I2C)		+= ad714x-i2c.o
--- 
-1.7.0.4
+Note, I did some mux setting changes in the bootloader for DT case.
 
+Thanks,
+Sourav
+> Thanks.
+>
+> --
+> Dmitry
+>
+> Input: omap4-keypad - misc fixes
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>
+>  drivers/input/keyboard/omap4-keypad.c |  152 ++++++++++++++++-----------------
+>  1 file changed, 74 insertions(+), 78 deletions(-)
+>
+>
+> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+> index d5a2d1a..033168e 100644
+> --- a/drivers/input/keyboard/omap4-keypad.c
+> +++ b/drivers/input/keyboard/omap4-keypad.c
+> @@ -76,7 +76,6 @@ enum {
+>
+>  struct omap4_keypad {
+>         struct input_dev *input;
+> -       struct matrix_keymap_data *keymap_data;
+>
+>         void __iomem *base;
+>         unsigned int irq;
+> @@ -88,7 +87,7 @@ struct omap4_keypad {
+>         unsigned int row_shift;
+>         bool no_autorepeat;
+>         unsigned char key_state[8];
+> -       unsigned short keymap[];
+> +       unsigned short *keymap;
+>  };
+>
+>  static int kbd_readl(struct omap4_keypad *keypad_data, u32 offset)
+> @@ -211,74 +210,52 @@ static void omap4_keypad_close(struct input_dev *input)
+>         pm_runtime_put_sync(input->dev.parent);
+>  }
+>
+> -static struct omap4_keypad *omap_keypad_parse_dt(struct device *dev,
+> -                               uint32_t rows, uint32_t cols,
+> -                               struct input_dev *input_dev)
+> +#ifdef CONFIG_OF
+> +static int __devinit omap4_keypad_parse_dt(struct device *dev,
+> +                                          struct omap4_keypad *keypad_data)
+>  {
+>         struct device_node *np = dev->of_node;
+> -       struct platform_device *pdev = to_platform_device(dev);
+> -       struct omap4_keypad *keypad_data = platform_get_drvdata(pdev);
+>         int error;
+>
+> -       error = matrix_keypad_build_keymap(NULL, "linux,keymap",
+> -                               rows, cols, keypad_data->keymap, input_dev);
+> -       if (error) {
+> -               dev_err(&pdev->dev, "failed to build keymap\n");
+> -               input_free_device(input_dev);
+> +       if (!np) {
+> +               dev_err(dev, "missing DT data");
+> +               return -EINVAL;
+> +       }
+> +
+> +       of_property_read_u32(np, "keypad,num-rows", &keypad_data->rows);
+> +       of_property_read_u32(np, "keypad,num-columns", &keypad_data->cols);
+> +       if (!keypad_data->rows || !keypad_data->cols) {
+> +               dev_err(dev, "number of keypad rows/columns not specified\n");
+> +               return -EINVAL;
+>         }
+>
+>         if (of_get_property(np, "linux,input-no-autorepeat", NULL))
+>                 keypad_data->no_autorepeat = true;
+>
+> -       return keypad_data;
+> +       return 0;
+> +}
+> +#else
+> +static inline int omap4_keypad_parse_dt(struct device *dev,
+> +                                       struct omap4_keypad *keypad_data)
+> +{
+> +       return -ENOSYS;
+>  }
+> +#endif
+>
+>  static int __devinit omap4_keypad_probe(struct platform_device *pdev)
+>  {
+> -       struct device *dev = &pdev->dev;
+> -       struct device_node *np = dev->of_node;
+> -       const struct omap4_keypad_platform_data *pdata;
+> +       const struct omap4_keypad_platform_data *pdata =
+> +                               dev_get_platdata(&pdev->dev);
+> +       const struct matrix_keymap_data *keymap_data =
+> +                               pdata ? pdata->keymap_data : NULL;
+>         struct omap4_keypad *keypad_data;
+>         struct input_dev *input_dev;
+>         struct resource *res;
+> -       resource_size_t size;
+> -       unsigned int row_shift = 0, max_keys = 0;
+> -       uint32_t num_rows = 0, num_cols = 0;
+> +       unsigned int max_keys;
+>         int rev;
+>         int irq;
+>         int error;
+>
+> -       /* platform data */
+> -       pdata = pdev->dev.platform_data;
+> -       if (np) {
+> -               of_property_read_u32(np, "keypad,num-rows", &num_rows);
+> -               of_property_read_u32(np, "keypad,num-columns", &num_cols);
+> -               if (!num_rows || !num_cols) {
+> -                       dev_err(&pdev->dev, "number of keypad rows/columns not specified\n");
+> -                       return -EINVAL;
+> -               }
+> -       } else if (pdata) {
+> -               num_rows = pdata->rows;
+> -               num_cols = pdata->cols;
+> -       } else {
+> -               dev_err(&pdev->dev, "no platform data defined\n");
+> -               return -EINVAL;
+> -       }
+> -
+> -       row_shift = get_count_order(num_cols);
+> -       max_keys = num_rows << row_shift;
+> -
+> -       keypad_data = devm_kzalloc(dev, sizeof(struct omap4_keypad) +
+> -                       max_keys * sizeof(keypad_data->keymap[0]),
+> -                               GFP_KERNEL);
+> -
+> -       if (!keypad_data) {
+> -               dev_err(&pdev->dev, "keypad_data memory allocation failed\n");
+> -               return -ENOMEM;
+> -       }
+> -
+> -       platform_set_drvdata(pdev, keypad_data);
+> -
+>         res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>         if (!res) {
+>                 dev_err(&pdev->dev, "no base address specified\n");
+> @@ -291,9 +268,24 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
+>                 return -EINVAL;
+>         }
+>
+> -       size = resource_size(res);
+> +       keypad_data = kzalloc(sizeof(struct omap4_keypad), GFP_KERNEL);
+> +       if (!keypad_data) {
+> +               dev_err(&pdev->dev, "keypad_data memory allocation failed\n");
+> +               return -ENOMEM;
+> +       }
+> +
+> +       keypad_data->irq = irq;
+> +
+> +       if (pdata) {
+> +               keypad_data->rows = pdata->rows;
+> +               keypad_data->cols = pdata->cols;
+> +       } else {
+> +               error = omap4_keypad_parse_dt(&pdev->dev, keypad_data);
+> +               if (error)
+> +                       return error;
+> +       }
+>
+> -       res = request_mem_region(res->start, size, pdev->name);
+> +       res = request_mem_region(res->start, resource_size(res), pdev->name);
+>         if (!res) {
+>                 dev_err(&pdev->dev, "can't request mem region\n");
+>                 error = -EBUSY;
+> @@ -307,15 +299,11 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
+>                 goto err_release_mem;
+>         }
+>
+> -       keypad_data->rows = num_rows;
+> -       keypad_data->cols = num_cols;
+> -       keypad_data->irq = irq;
+> -       keypad_data->row_shift = row_shift;
+>
+>         /*
+> -       * Enable clocks for the keypad module so that we can read
+> -       * revision register.
+> -       */
+> +        * Enable clocks for the keypad module so that we can read
+> +        * revision register.
+> +        */
+>         pm_runtime_enable(&pdev->dev);
+>         error = pm_runtime_get_sync(&pdev->dev);
+>         if (error) {
+> @@ -358,29 +346,30 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
+>         input_dev->open = omap4_keypad_open;
+>         input_dev->close = omap4_keypad_close;
+>
+> -       if (np) {
+> -               keypad_data = omap_keypad_parse_dt(&pdev->dev,
+> -                               keypad_data->rows, keypad_data->cols,
+> -                               input_dev);
+> -       } else {
+> -               keypad_data->keymap_data =
+> -                       (struct matrix_keymap_data *)pdata->keymap_data;
+> -               error = matrix_keypad_build_keymap(keypad_data->keymap_data,
+> -                               NULL, keypad_data->rows, keypad_data->cols,
+> -                               keypad_data->keymap, input_dev);
+> -               if (error) {
+> -                       dev_err(&pdev->dev, "failed to build keymap\n");
+> -                       goto err_free_input;
+> -               }
+> -       }
+> -
+> +       input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+>         if (!keypad_data->no_autorepeat)
+>                 __set_bit(EV_REP, input_dev->evbit);
+>
+> -       input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+> -
+>         input_set_drvdata(input_dev, keypad_data);
+>
+> +       keypad_data->row_shift = get_count_order(keypad_data->cols);
+> +       max_keys = keypad_data->rows << keypad_data->row_shift;
+> +       keypad_data->keymap = kzalloc(max_keys * sizeof(keypad_data->keymap[0]),
+> +                                     GFP_KERNEL);
+> +       if (!keypad_data->keymap) {
+> +               dev_err(&pdev->dev, "Not enough memory for keymap\n");
+> +               error = -ENOMEM;
+> +               goto err_free_input;
+> +       }
+> +
+> +       error = matrix_keypad_build_keymap(keymap_data, NULL,
+> +                                          keypad_data->rows, keypad_data->cols,
+> +                                          keypad_data->keymap, input_dev);
+> +       if (error) {
+> +               dev_err(&pdev->dev, "failed to build keymap\n");
+> +               goto err_free_keymap;
+> +       }
+> +
+>         error = request_irq(keypad_data->irq, omap4_keypad_interrupt,
+>                              IRQF_TRIGGER_RISING,
+>                              "omap4-keypad", keypad_data);
+> @@ -397,11 +386,14 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
+>                 goto err_pm_disable;
+>         }
+>
+> +       platform_set_drvdata(pdev, keypad_data);
+>         return 0;
+>
+>  err_pm_disable:
+>         pm_runtime_disable(&pdev->dev);
+>         free_irq(keypad_data->irq, keypad_data);
+> +err_free_keymap:
+> +       kfree(keypad_data->keymap);
+>  err_free_input:
+>         input_free_device(input_dev);
+>  err_pm_put_sync:
+> @@ -409,7 +401,7 @@ err_pm_put_sync:
+>  err_unmap:
+>         iounmap(keypad_data->base);
+>  err_release_mem:
+> -       release_mem_region(res->start, size);
+> +       release_mem_region(res->start, resource_size(res));
+>  err_free_keypad:
+>         kfree(keypad_data);
+>         return error;
+> @@ -431,17 +423,21 @@ static int __devexit omap4_keypad_remove(struct platform_device *pdev)
+>         res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>         release_mem_region(res->start, resource_size(res));
+>
+> +       kfree(keypad_data->keymap);
+>         kfree(keypad_data);
+> +
+>         platform_set_drvdata(pdev, NULL);
+>
+>         return 0;
+>  }
+>
+> +#ifdef CONFIG_OF
+>  static const struct of_device_id omap_keypad_dt_match[] = {
+>         { .compatible = "ti,omap4-keypad" },
+>         {},
+>  };
+>  MODULE_DEVICE_TABLE(of, omap_keypad_dt_match);
+> +#endif
+>
+>  static struct platform_driver omap4_keypad_driver = {
+>         .probe          = omap4_keypad_probe,

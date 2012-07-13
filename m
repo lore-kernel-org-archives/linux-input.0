@@ -1,236 +1,43 @@
-From: Qiao Zhou <zhouqiao@marvell.com>
-Subject: [PATCH V9] input: add onkey support to 88PM80X PMIC
-Date: Fri, 13 Jul 2012 16:32:43 +0800
-Message-ID: <1342168363-14299-2-git-send-email-zhouqiao@marvell.com>
-References: <1342168363-14299-1-git-send-email-zhouqiao@marvell.com>
+From: Fengguang Wu <fengguang.wu@intel.com>
+Subject: [input:next 43/45] drivers/input/keyboard/omap4-keypad.c:218:6:
+ warning: unused variable 'error'
+Date: Sat, 14 Jul 2012 04:23:05 +0800
+Message-ID: <20120713202305.GA26333@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog118.obsmtp.com ([74.125.149.244]:52072 "HELO
-	na3sys009aog118.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1753565Ab2GMIeI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Jul 2012 04:34:08 -0400
-In-Reply-To: <1342168363-14299-1-git-send-email-zhouqiao@marvell.com>
+Received: from mga01.intel.com ([192.55.52.88]:52328 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751495Ab2GMUXI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 Jul 2012 16:23:08 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org
-Cc: Qiao Zhou <zhouqiao@marvell.com>
+To: Sourav Poddar <sourav.poddar@ti.com>
+Cc: kernel-janitors@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-add onkey support to MARVELL 88PM80X PMIC.
+Hi Sourav,
 
-Signed-off-by: Qiao Zhou <zhouqiao@marvell.com>
+There are new compile warnings show up in
+
+tree:   git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+head:   7545a8052565aa68eeb4dfb59c1fb5d21a6867e7
+commit: 3dad34659e6646ab578d82b75a023cc4640fe322 [43/45] Input: omap4-keypad - add device tree support
+
+All warnings:
+
+drivers/input/keyboard/omap4-keypad.c: In function 'omap4_keypad_parse_dt':
+drivers/input/keyboard/omap4-keypad.c:218:6: warning: unused variable 'error' [-Wunused-variable]
+
+vim +218 drivers/input/keyboard/omap4-keypad.c
+   215						   struct omap4_keypad *keypad_data)
+   216	{
+   217		struct device_node *np = dev->of_node;
+ > 218		int error;
+   219	
+   220		if (!np) {
+   221			dev_err(dev, "missing DT data");
+
 ---
- drivers/input/misc/88pm80x_onkey.c |  167 ++++++++++++++++++++++++++++++++++++
- drivers/input/misc/Kconfig         |   10 ++
- drivers/input/misc/Makefile        |    1 +
- 3 files changed, 178 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/88pm80x_onkey.c
-
-diff --git a/drivers/input/misc/88pm80x_onkey.c b/drivers/input/misc/88pm80x_onkey.c
-new file mode 100644
-index 0000000..e844c14
---- /dev/null
-+++ b/drivers/input/misc/88pm80x_onkey.c
-@@ -0,0 +1,167 @@
-+/*
-+ * Marvell 88PM80x ONKEY driver
-+ *
-+ * Copyright (C) 2012 Marvell International Ltd.
-+ * Haojian Zhuang <haojian.zhuang@marvell.com>
-+ * Qiao Zhou <zhouqiao@marvell.com>
-+ *
-+ * This file is subject to the terms and conditions of the GNU General
-+ * Public License. See the file "COPYING" in the main directory of this
-+ * archive for more details.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/input.h>
-+#include <linux/mfd/88pm80x.h>
-+#include <linux/regmap.h>
-+#include <linux/slab.h>
-+
-+#define PM800_LONG_ONKEY_EN		(1 << 0)
-+#define PM800_LONG_KEY_DELAY		(8)	/* 1 .. 16 seconds */
-+#define PM800_LONKEY_PRESS_TIME		((PM800_LONG_KEY_DELAY-1) << 4)
-+#define PM800_LONKEY_PRESS_TIME_MASK	(0xF0)
-+#define PM800_SW_PDOWN			(1 << 5)
-+
-+struct pm80x_onkey_info {
-+	struct input_dev *idev;
-+	struct pm80x_chip *pm80x;
-+	struct regmap *map;
-+	int irq;
-+};
-+
-+/* 88PM80x gives us an interrupt when ONKEY is held */
-+static irqreturn_t pm80x_onkey_handler(int irq, void *data)
-+{
-+	struct pm80x_onkey_info *info = data;
-+	int ret = 0;
-+	unsigned int val;
-+
-+	ret = regmap_read(info->map, PM800_STATUS_1, &val);
-+	if (ret < 0) {
-+		pr_err("%s: failed to read status: %d\n", __func__, ret);
-+		return IRQ_NONE;
-+	}
-+	val &= PM800_ONKEY_STS1;
-+
-+	input_report_key(info->idev, KEY_POWER, val);
-+	input_sync(info->idev);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_dev_suspend,
-+			 pm80x_dev_resume);
-+
-+static int __devinit pm80x_onkey_probe(struct platform_device *pdev)
-+{
-+
-+	struct pm80x_chip *chip = dev_get_drvdata(pdev->dev.parent);
-+	struct pm80x_onkey_info *info;
-+	int err;
-+
-+	info = kzalloc(sizeof(struct pm80x_onkey_info), GFP_KERNEL);
-+	if (!info)
-+		return -ENOMEM;
-+
-+	info->pm80x = chip;
-+
-+	info->irq = platform_get_irq(pdev, 0);
-+	if (info->irq < 0) {
-+		dev_err(&pdev->dev, "No IRQ resource!\n");
-+		err = -EINVAL;
-+		goto out;
-+	}
-+
-+	info->map = info->pm80x->regmap;
-+	if (!info->map) {
-+		dev_err(&pdev->dev, "no regmap!\n");
-+		err = -EINVAL;
-+		goto out;
-+	}
-+
-+	info->idev = input_allocate_device();
-+	if (!info->idev) {
-+		dev_err(&pdev->dev, "Failed to allocate input dev\n");
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	info->idev->name = "88pm80x_on";
-+	info->idev->phys = "88pm80x_on/input0";
-+	info->idev->id.bustype = BUS_I2C;
-+	info->idev->dev.parent = &pdev->dev;
-+	info->idev->evbit[0] = BIT_MASK(EV_KEY);
-+	__set_bit(KEY_POWER, info->idev->keybit);
-+
-+	err = pm80x_request_irq(info->pm80x, info->irq, pm80x_onkey_handler,
-+					    IRQF_ONESHOT, "onkey", info);
-+	if (err < 0) {
-+		dev_err(&pdev->dev, "Failed to request IRQ: #%d: %d\n",
-+			info->irq, err);
-+		goto out_reg;
-+	}
-+
-+	err = input_register_device(info->idev);
-+	if (err) {
-+		dev_err(&pdev->dev, "Can't register input device: %d\n", err);
-+		goto out_irq;
-+	}
-+
-+	platform_set_drvdata(pdev, info);
-+
-+	/* Enable long onkey detection */
-+	regmap_update_bits(info->map, PM800_RTC_MISC4, PM800_LONG_ONKEY_EN,
-+			   PM800_LONG_ONKEY_EN);
-+	/* Set 8-second interval */
-+	regmap_update_bits(info->map, PM800_RTC_MISC3,
-+			   PM800_LONKEY_PRESS_TIME_MASK,
-+			   PM800_LONKEY_PRESS_TIME);
-+
-+	device_init_wakeup(&pdev->dev, 1);
-+	return 0;
-+
-+out_irq:
-+	pm80x_free_irq(info->pm80x, info->irq, info);
-+out_reg:
-+	input_free_device(info->idev);
-+out:
-+	kfree(info);
-+	return err;
-+}
-+
-+static int __devexit pm80x_onkey_remove(struct platform_device *pdev)
-+{
-+	struct pm80x_onkey_info *info = platform_get_drvdata(pdev);
-+
-+	pm80x_free_irq(info->pm80x, info->irq, info);
-+	input_unregister_device(info->idev);
-+	kfree(info);
-+	return 0;
-+}
-+
-+static struct platform_driver pm80x_onkey_driver = {
-+	.driver = {
-+		   .name = "88pm80x-onkey",
-+		   .owner = THIS_MODULE,
-+		   .pm = &pm80x_onkey_pm_ops,
-+		   },
-+	.probe = pm80x_onkey_probe,
-+	.remove = __devexit_p(pm80x_onkey_remove),
-+};
-+
-+module_platform_driver(pm80x_onkey_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Marvell 88PM80x ONKEY driver");
-+MODULE_AUTHOR("Qiao Zhou <zhouqiao@marvell.com>");
-+MODULE_ALIAS("platform:88pm80x-onkey");
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 7faf4a7..7c0f1ec 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -22,6 +22,16 @@ config INPUT_88PM860X_ONKEY
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called 88pm860x_onkey.
- 
-+config INPUT_88PM80X_ONKEY
-+	tristate "88PM80x ONKEY support"
-+	depends on MFD_88PM800
-+	help
-+	  Support the ONKEY of Marvell 88PM80x PMICs as an input device
-+	  reporting power button status.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called 88pm80x_onkey.
-+
- config INPUT_AB8500_PONKEY
- 	tristate "AB8500 Pon (PowerOn) Key"
- 	depends on AB8500_CORE
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index f55cdf4..83fe6f5 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -5,6 +5,7 @@
- # Each configuration option enables a list of files.
- 
- obj-$(CONFIG_INPUT_88PM860X_ONKEY)	+= 88pm860x_onkey.o
-+obj-$(CONFIG_INPUT_88PM80X_ONKEY)	+= 88pm80x_onkey.o
- obj-$(CONFIG_INPUT_AB8500_PONKEY)	+= ab8500-ponkey.o
- obj-$(CONFIG_INPUT_AD714X)		+= ad714x.o
- obj-$(CONFIG_INPUT_AD714X_I2C)		+= ad714x-i2c.o
--- 
-1.7.0.4
-
+0-DAY kernel build testing backend         Open Source Technology Centre
+Fengguang Wu <wfg@linux.intel.com>                     Intel Corporation

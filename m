@@ -1,104 +1,67 @@
-From: Qiao Zhou <zhouqiao@marvell.com>
-Subject: Re: [PATCH V8] add 88pm80x onkey driver
-Date: Fri, 13 Jul 2012 08:52:38 +0800
-Message-ID: <4FFF7156.7000501@marvell.com>
-References: <1341997504-23522-1-git-send-email-zhouqiao@marvell.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: eeti_ts: Mark as CONFIG_BROKEN
+Date: Fri, 13 Jul 2012 00:01:02 -0700
+Message-ID: <20120713070102.GA2223@core.coreip.homeip.net>
+References: <1333777207-4151-1-git-send-email-olof@lixom.net>
+ <20120407070206.GA17623@core.coreip.homeip.net>
+ <4F8089A9.6080704@raumfeld.com>
+ <20120503043651.GA11830@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog101.obsmtp.com ([74.125.149.67]:40035 "HELO
-	na3sys009aog101.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1758975Ab2GMA7q (ORCPT
+Received: from mail-gg0-f174.google.com ([209.85.161.174]:41477 "EHLO
+	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752751Ab2GMHBK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Jul 2012 20:59:46 -0400
-In-Reply-To: <1341997504-23522-1-git-send-email-zhouqiao@marvell.com>
+	Fri, 13 Jul 2012 03:01:10 -0400
+Content-Disposition: inline
+In-Reply-To: <20120503043651.GA11830@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "sameo@linux.intel.com" <sameo@linux.intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Sven Neumann <s.neumann@raumfeld.com>
+Cc: Olof Johansson <olof@lixom.net>, Daniel Mack <daniel@caiaq.de>, Daniel Mack <zonque@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 07/11/2012 05:05 PM, Qiao Zhou wrote:
-> as the first 3 patches are already applied, so don't send those patches
-> out for review again.
->
-> change log [v8->v7]:
-> 1, remove file name in comments.
-> 2, add error handling to regmap_read.
-> 3, remove unnecessary onkey suspend/resume wrapper api.
-> 4, remove the pm80x_chip cast by directly define the struct type.
-> 5, fix the double free input device issue.
->
-> change log [v7->v6]:
-> 1, add the ack by Arnd for the first two patches.
-> 2, add NULL terminater for id_table in 88pm800.c & 88pm805.c.
->
-> change log [v6->v5]:
-> export_symbol_gpl for pm80x_regmap_config to fix build issue for module.
->
-> change log [v5->v4]:
-> 1, change the file name, from 88pm800-core.c, 88pm805-core.c, 88pm80x-i2c.c
-> to 88pm800.c, 88pm805.c, 88pm80x.c, and modified Makefile accordingly.
-> 2, replace the spinlock used to protect wakeup flag, with using set_bit/
-> clear_bit, which is suitable adn enough in SMP env.
-> 3, add the version number in each patch.
->
-> change log [v4->v3]:
-> 1, provide unified suspend/resume api for all sub-devices, and add
-> protection for 800 & 805 wakeup flag in SMP case.
-> 2, clean register definition in 88pm80x.h, and thanks Arnd's help.
-> 3, some minor changes in mfd Kconfig/Makefile.
->
-> change log [v3->v2]:
-> 1, dynamically get the irq_base, for both regmap_add_irq_chip and
-> mfd_add_devices. add pm80x_request_irq & pm80x_free_irq for sub-driver
-> facility, and modify related irq thread operation. remove irq_base member
-> from 80x_chip & platform data.
-> 2, split 88pm80x.o into 3 separate modules.
-> 3, remove the 88pm80x r/w API, and directly use open-coded regmap api.
-> 4, minor change: move pm80x_id_table from 80x-i2c.c to 800/805-core.c,
-> exported pm80x_init, pm80x_deinit, and pm80x_bulk_read, add callback in
-> pdata.
->
-> change log [v2->v1]:
-> 1, split 88pm80x-core.c into 88pm800-core.c and 88pm805.c, per Arnd's
-> suggestion. after the re-arch, 88pm80x-i2c handles the 800 & 805 common
-> parts, while 800-core.c & 805-core.c handle the specific parts in each
-> chip.
-> 2, add details about the workaround adding a i2c companion between 800 &
-> 805, and make a separate patch for it, per Arnd's suggestion.
-> 3, remove callback in pdata. but still keep the pdata currently.
-> 4, only keep necessary register in 88pm80x.h, including registers for
-> regulator/rtc/onkey/power/codec etc, and remove other registers from global
-> visibility.
-> 5, exported r/w API which requires regmap handle. as currently the pm800
-> chip has 3 i2c device, only passing a pm80x_chip info can't ensure r/w the
-> register in correct i2c device.
->
-> change log [v1]:
-> 1, pm800 and pm805 are decoupled and probed separately;
-> 2, re-used the most of API for pm800 and pm805 per Arnd's comments;
-> 3, use regmap_irq, instead of previous 88pm80x_irq_data per Mark's comments.
-> use regmap_add_irq_chip, and remove previous 88pm80x irq handling.
-> 4, remove callback function in rtc pdata per Arnd's comments.
-> 5, updated some coding style issue.
->
-> Qiao Zhou (1):
->    input: add onkey support to 88PM80X PMIC
->
->   drivers/input/misc/88pm80x_onkey.c |  169 ++++++++++++++++++++++++++++++++++++
->   drivers/input/misc/Kconfig         |   10 ++
->   drivers/input/misc/Makefile        |    1 +
->   3 files changed, 180 insertions(+), 0 deletions(-)
->   create mode 100644 drivers/input/misc/88pm80x_onkey.c
->
-Hi Dmitry,
+On Wed, May 02, 2012 at 09:36:51PM -0700, Dmitry Torokhov wrote:
+> Hi Sven,
+> 
+> On Sat, Apr 07, 2012 at 08:38:33PM +0200, Sven Neumann wrote:
+> > Hi,
+> > 
+> > On 07.04.12 09:02, Dmitry Torokhov wrote:
+> > >On Fri, Apr 06, 2012 at 10:40:07PM -0700, Olof Johansson wrote:
+> > >>This seems to have been broken since 2010, so obviously noone actually
+> > >>cares about the driver:
+> > >>
+> > >>make[4]: *** [drivers/input/touchscreen/eeti_ts.o] Error 1
+> > >>drivers/input/touchscreen/eeti_ts.c: In function 'eeti_ts_irq_active':
+> > >>drivers/input/touchscreen/eeti_ts.c:65:2: error: implicit declaration of function 'irq_to_gpio' [-Werror=implicit-function-declaration]
+> > >>
+> > >>irq_to_gpio isn't available on most platforms today, so the driver
+> > >>will need some rework by someone who has hardware access and can test
+> > >>(to make sure that, for example, switching to level interrupts and just
+> > >>keep taking them while there's more to process works).
+> > >>
+> > >>I guess it could just be scheduled for removal, but let's start with
+> > >>marking it CONFIG_BROKEN.
+> > >
+> > >Well, it probably works quite well on arches that do have irq_to_gpio(),
+> > >let's ask Daniel and Sven if they still have this hardware and if they
+> > >can try the patch below that implements what you suggested.
+> > 
+> > This hardware is still in use and we also still follow kernel
+> > development and try to update our customer devices to recent kernel
+> > versions regularly. Currently we are at 3.1.10 and the touchscreen
+> > works well with that. I'll try to update to a more recent kernel
+> > next week and will try your patch.
+> > 
+> 
+> Did you have a chance to test the patch?
 
-This is the updated version per your suggestions. any comments? thanks!
+*ping*
+
+It would be nice to get driver in mainline compile [and work] again...
+
+Thanks.
 
 -- 
-
-Best Regards
-Qiao
-
-
+Dmitry

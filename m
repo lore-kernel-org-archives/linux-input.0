@@ -1,88 +1,90 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.5-rc6
-Date: Fri, 13 Jul 2012 00:46:33 -0700
-Message-ID: <20120713074633.GA23271@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
+From: Qiao Zhou <zhouqiao@marvell.com>
+Subject: [PATCH V9] add 88pm80x onkey driver
+Date: Fri, 13 Jul 2012 16:32:42 +0800
+Message-ID: <1342168363-14299-1-git-send-email-zhouqiao@marvell.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:59385 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754547Ab2GMHqh (ORCPT
+Received: from na3sys009aog118.obsmtp.com ([74.125.149.244]:44898 "HELO
+	na3sys009aog118.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752596Ab2GMIeC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Jul 2012 03:46:37 -0400
-Content-Disposition: inline
+	Fri, 13 Jul 2012 04:34:02 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org
+Cc: Qiao Zhou <zhouqiao@marvell.com>
 
+change log [v9->v8]:
+1, remove devm_xxx api.
+2, fix the potential oops issue.
+3, use __set_bit to set key_bit.
 
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+change log [v8->v7]:
+1, remove file name in comments.
+2, add error handling to regmap_read.
+3, remove unnecessary onkey suspend/resume wrapper api.
+4, remove the pm80x_chip cast by directly define the struct type.
+5, fix the double free input device issue.
 
-Hi Linus,
+change log [v7->v6]:
+1, add the ack by Arnd for the first two patches.
+2, add NULL terminater for id_table in 88pm800.c & 88pm805.c.
 
-Please pull from:
+change log [v6->v5]:
+export_symbol_gpl for pm80x_regmap_config to fix build issue for module.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+change log [v5->v4]:
+1, change the file name, from 88pm800-core.c, 88pm805-core.c, 88pm80x-i2c.c
+to 88pm800.c, 88pm805.c, 88pm80x.c, and modified Makefile accordingly.
+2, replace the spinlock used to protect wakeup flag, with using set_bit/
+clear_bit, which is suitable adn enough in SMP env.
+3, add the version number in each patch.
 
-to receive updates for the input subsystem. The changes are limited to
-adding new VID/PID combinations to drivers to enable support for new
-versions of hardware, most notably hardware found in new MacBook Pro
-Retina boxes.
+change log [v4->v3]:
+1, provide unified suspend/resume api for all sub-devices, and add
+protection for 800 & 805 wakeup flag in SMP case.
+2, clean register definition in 88pm80x.h, and thanks Arnd's help.
+3, some minor changes in mfd Kconfig/Makefile.
 
-Changelog:
----------
+change log [v3->v2]:
+1, dynamically get the irq_base, for both regmap_add_irq_chip and
+mfd_add_devices. add pm80x_request_irq & pm80x_free_irq for sub-driver
+facility, and modify related irq thread operation. remove irq_base member
+from 80x_chip & platform data.
+2, split 88pm80x.o into 3 separate modules.
+3, remove the 88pm80x r/w API, and directly use open-coded regmap api.
+4, minor change: move pm80x_id_table from 80x-i2c.c to 800/805-core.c,
+exported pm80x_init, pm80x_deinit, and pm80x_bulk_read, add callback in
+pdata.
 
-Henrik Rydberg (1):
-      Input: bcm5974 - Add support for 2012 MacBook Pro Retina
+change log [v2->v1]:
+1, split 88pm80x-core.c into 88pm800-core.c and 88pm805.c, per Arnd's
+suggestion. after the re-arch, 88pm80x-i2c handles the 800 & 805 common
+parts, while 800-core.c & 805-core.c handle the specific parts in each
+chip.
+2, add details about the workaround adding a i2c companion between 800 &
+805, and make a separate patch for it, per Arnd's suggestion.
+3, remove callback in pdata. but still keep the pdata currently.
+4, only keep necessary register in 88pm80x.h, including registers for
+regulator/rtc/onkey/power/codec etc, and remove other registers from global
+visibility.
+5, exported r/w API which requires regmap handle. as currently the pm800
+chip has 3 i2c device, only passing a pm80x_chip info can't ensure r/w the
+register in correct i2c device.
 
-Ilia Katsnelson (1):
-      Input: xpad - add signature for Razer Onza Tournament Edition
+change log [v1]:
+1, pm800 and pm805 are decoupled and probed separately;
+2, re-used the most of API for pm800 and pm805 per Arnd's comments;
+3, use regmap_irq, instead of previous 88pm80x_irq_data per Mark's comments.
+use regmap_add_irq_chip, and remove previous 88pm80x irq handling.
+4, remove callback function in rtc pdata per Arnd's comments.
+5, updated some coding style issue.
 
-Ryan Bourgeois (1):
-      HID: add support for 2012 MacBook Pro Retina
+Qiao Zhou (1):
+  input: add onkey support to 88PM80X PMIC
 
-Yuri Khan (2):
-      Input: xpad - handle all variations of Mad Catz Beat Pad
-      Input: xpad - add Andamiro Pump It Up pad
+ drivers/input/misc/88pm80x_onkey.c |  167 ++++++++++++++++++++++++++++++++++++
+ drivers/input/misc/Kconfig         |   10 ++
+ drivers/input/misc/Makefile        |    1 +
+ 3 files changed, 178 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/88pm80x_onkey.c
 
-
-Diffstat:
---------
-
- drivers/hid/hid-apple.c       |    6 ++++++
- drivers/hid/hid-core.c        |    7 +++++++
- drivers/hid/hid-ids.h         |    6 ++++++
- drivers/input/joystick/xpad.c |    6 +++++-
- drivers/input/mouse/bcm5974.c |   20 ++++++++++++++++++++
- 5 files changed, 44 insertions(+), 1 deletion(-)
-
---=20
-Dmitry
-
---TB36FDmn/VVEgNH/
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJP/9JYAAoJEH70+W8r6ZYq7VgP/jtuXcZTznjW3ZgVVRb6Spnt
-Dd48Kast/RhKBPgShF4m+/5m0ZPAXNj0g1E0MXw3p2SJz7DRzkhKZs7MzgwfRyjm
-SJ7NRU1EgxJ7WteaL4JQYOkgJZshrfUBH29+wdm8suR5NES3/OyoTMHqD4A3F7Ed
-vgT+RZitE3wJj9eAs55Xdu4W4mgpcGj720pMz9ZyjAPcilQJBSiZEJP4FXev28oV
-dgk4y9x6R4NChbcZwwl73q19wY6XxmPo83oK0upIaI6mCyf7cRB5bTI42NnJ8AI9
-l6zDhZlWT3oL0f63cU59YZUHtiKcWCgbbIkkh3w1ezjR/mt2VniHVwId+BpEleMh
-glxGLyKjlIK5FBfu4kEgglZum+XjdfkvA+BBAXIZKAxvIRcjV6Y08REDOl9Ld3BD
-mPucxH4naAX5f6YXlrq5fF6M01UTFQwnV4Vgwt4N65aohQyWX78GO5+nzc12TqEY
-ANoYqksSFYDH7WFj4JuGF7Vhtr7Cw+3sKCCx/4m6W4V56jxlmrwHoi0p+Mkkgf7h
-lUaKgLOgir91Vx5TsmvfCE5zcngWKY9l9+QeEJIo7ieubHGn824pLgMi5YRQRfcy
-jicMVQYmfXrKiB8Y1D27GieZ9/IEY+FD3F6MY7B4TVrx4qAKB+fiqDd6+vC2Acew
-4m96a89tU6MKQCjAUvJ2
-=kA8s
------END PGP SIGNATURE-----
-
---TB36FDmn/VVEgNH/--

@@ -1,46 +1,67 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 3/3] HID: wiimote: explicitly claim hid devices with HID_CLAIMED_OTHER
-Date: Sun, 15 Jul 2012 20:21:49 +0200
-Message-ID: <1342376509-7228-4-git-send-email-dh.herrmann@googlemail.com>
-References: <1342376509-7228-1-git-send-email-dh.herrmann@googlemail.com>
+From: Daniel Mack <zonque@gmail.com>
+Subject: Re: [PATCH] Input: eeti_ts: Mark as CONFIG_BROKEN
+Date: Sun, 15 Jul 2012 20:21:41 +0200
+Message-ID: <50030A35.9010500@gmail.com>
+References: <1333777207-4151-1-git-send-email-olof@lixom.net> <20120407070206.GA17623@core.coreip.homeip.net> <4F8089A9.6080704@raumfeld.com> <20120503043651.GA11830@core.coreip.homeip.net> <20120713070102.GA2223@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:32856 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751757Ab2GOSWT (ORCPT
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:64168 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751757Ab2GOSWu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Jul 2012 14:22:19 -0400
-Received: by wibhm11 with SMTP id hm11so2105466wib.1
-        for <linux-input@vger.kernel.org>; Sun, 15 Jul 2012 11:22:18 -0700 (PDT)
-In-Reply-To: <1342376509-7228-1-git-send-email-dh.herrmann@googlemail.com>
+	Sun, 15 Jul 2012 14:22:50 -0400
+In-Reply-To: <20120713070102.GA2223@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sven Neumann <s.neumann@raumfeld.com>, Olof Johansson <olof@lixom.net>, Daniel Mack <daniel@caiaq.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-We allow hidraw to be loaded on wiimote devices but if a kernel is
-compiled without hidraw, calling hid_hw_start() will always fail as no
-driver claims the device. Therefore, we now explicitly set
-HID_CLAIMED_OTHER so the hid-core will allow loading the device even if no
-generic driver claimed it. The wiimote driver will correctly handle the
-device, anyway.
+On 13.07.2012 09:01, Dmitry Torokhov wrote:
+> On Wed, May 02, 2012 at 09:36:51PM -0700, Dmitry Torokhov wrote:
+>> Hi Sven,
+>>
+>> On Sat, Apr 07, 2012 at 08:38:33PM +0200, Sven Neumann wrote:
+>>> Hi,
+>>>
+>>> On 07.04.12 09:02, Dmitry Torokhov wrote:
+>>>> On Fri, Apr 06, 2012 at 10:40:07PM -0700, Olof Johansson wrote:
+>>>>> This seems to have been broken since 2010, so obviously noone actually
+>>>>> cares about the driver:
+>>>>>
+>>>>> make[4]: *** [drivers/input/touchscreen/eeti_ts.o] Error 1
+>>>>> drivers/input/touchscreen/eeti_ts.c: In function 'eeti_ts_irq_active':
+>>>>> drivers/input/touchscreen/eeti_ts.c:65:2: error: implicit declaration of function 'irq_to_gpio' [-Werror=implicit-function-declaration]
+>>>>>
+>>>>> irq_to_gpio isn't available on most platforms today, so the driver
+>>>>> will need some rework by someone who has hardware access and can test
+>>>>> (to make sure that, for example, switching to level interrupts and just
+>>>>> keep taking them while there's more to process works).
+>>>>>
+>>>>> I guess it could just be scheduled for removal, but let's start with
+>>>>> marking it CONFIG_BROKEN.
+>>>>
+>>>> Well, it probably works quite well on arches that do have irq_to_gpio(),
+>>>> let's ask Daniel and Sven if they still have this hardware and if they
+>>>> can try the patch below that implements what you suggested.
+>>>
+>>> This hardware is still in use and we also still follow kernel
+>>> development and try to update our customer devices to recent kernel
+>>> versions regularly. Currently we are at 3.1.10 and the touchscreen
+>>> works well with that. I'll try to update to a more recent kernel
+>>> next week and will try your patch.
+>>>
+>>
+>> Did you have a chance to test the patch?
+> 
+> *ping*
+> 
+> It would be nice to get driver in mainline compile [and work] again...
 
-Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
----
- drivers/hid/hid-wiimote-core.c | 1 +
- 1 file changed, 1 insertion(+)
+Sorry, I got too much stuff to do right now. Please give me a week or so
+and I'll be able to test this.
 
-diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index 84e2fbe..39154ff9 100644
---- a/drivers/hid/hid-wiimote-core.c
-+++ b/drivers/hid/hid-wiimote-core.c
-@@ -1189,6 +1189,7 @@ static int wiimote_hid_probe(struct hid_device *hdev,
- 		goto err;
- 	}
- 
-+	hdev->claimed |= HID_CLAIMED_OTHER;
- 	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
- 	if (ret) {
- 		hid_err(hdev, "HW start failed\n");
--- 
-1.7.11.2
 
+Thanks,
+Daniel

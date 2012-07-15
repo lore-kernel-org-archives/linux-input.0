@@ -1,67 +1,36 @@
-From: Daniel Mack <zonque@gmail.com>
-Subject: Re: [PATCH] Input: eeti_ts: Mark as CONFIG_BROKEN
-Date: Sun, 15 Jul 2012 20:21:41 +0200
-Message-ID: <50030A35.9010500@gmail.com>
-References: <1333777207-4151-1-git-send-email-olof@lixom.net> <20120407070206.GA17623@core.coreip.homeip.net> <4F8089A9.6080704@raumfeld.com> <20120503043651.GA11830@core.coreip.homeip.net> <20120713070102.GA2223@core.coreip.homeip.net>
+From: Yann Cantin <yann.cantin@laposte.net>
+Subject: On the fly input_set_abs_params changes
+Date: Sun, 15 Jul 2012 21:13:40 +0200
+Message-ID: <50031664.6090302@laposte.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:64168 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751757Ab2GOSWu (ORCPT
+Received: from smtp08.smtpout.orange.fr ([80.12.242.130]:34221 "EHLO
+	smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750905Ab2GOTNj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Jul 2012 14:22:50 -0400
-In-Reply-To: <20120713070102.GA2223@core.coreip.homeip.net>
+	Sun, 15 Jul 2012 15:13:39 -0400
+Received: from [192.168.1.100] (coyote.ysoft.org [192.168.1.100])
+	by nestor.ysoft.org (Postfix) with ESMTP id 6596D2023F
+	for <linux-input@vger.kernel.org>; Sun, 15 Jul 2012 21:13:36 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Sven Neumann <s.neumann@raumfeld.com>, Olof Johansson <olof@lixom.net>, Daniel Mack <daniel@caiaq.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On 13.07.2012 09:01, Dmitry Torokhov wrote:
-> On Wed, May 02, 2012 at 09:36:51PM -0700, Dmitry Torokhov wrote:
->> Hi Sven,
->>
->> On Sat, Apr 07, 2012 at 08:38:33PM +0200, Sven Neumann wrote:
->>> Hi,
->>>
->>> On 07.04.12 09:02, Dmitry Torokhov wrote:
->>>> On Fri, Apr 06, 2012 at 10:40:07PM -0700, Olof Johansson wrote:
->>>>> This seems to have been broken since 2010, so obviously noone actually
->>>>> cares about the driver:
->>>>>
->>>>> make[4]: *** [drivers/input/touchscreen/eeti_ts.o] Error 1
->>>>> drivers/input/touchscreen/eeti_ts.c: In function 'eeti_ts_irq_active':
->>>>> drivers/input/touchscreen/eeti_ts.c:65:2: error: implicit declaration of function 'irq_to_gpio' [-Werror=implicit-function-declaration]
->>>>>
->>>>> irq_to_gpio isn't available on most platforms today, so the driver
->>>>> will need some rework by someone who has hardware access and can test
->>>>> (to make sure that, for example, switching to level interrupts and just
->>>>> keep taking them while there's more to process works).
->>>>>
->>>>> I guess it could just be scheduled for removal, but let's start with
->>>>> marking it CONFIG_BROKEN.
->>>>
->>>> Well, it probably works quite well on arches that do have irq_to_gpio(),
->>>> let's ask Daniel and Sven if they still have this hardware and if they
->>>> can try the patch below that implements what you suggested.
->>>
->>> This hardware is still in use and we also still follow kernel
->>> development and try to update our customer devices to recent kernel
->>> versions regularly. Currently we are at 3.1.10 and the touchscreen
->>> works well with that. I'll try to update to a more recent kernel
->>> next week and will try your patch.
->>>
->>
->> Did you have a chance to test the patch?
-> 
-> *ping*
-> 
-> It would be nice to get driver in mainline compile [and work] again...
+Hi,
 
-Sorry, I got too much stuff to do right now. Please give me a week or so
-and I'll be able to test this.
+I'm working on a kernel input driver for eBeam devices (see http://www.e-beam.com).
 
+This hardware is very special, and his handling don't fit in any existing category
+(or i've not found it yet).
 
-Thanks,
-Daniel
+I'm wondering if it's ok to change min/max parameters after registration, and how
+it should be handled by xorg's evdev.
+
+I've some other input related questions, is it the right place to post ?
+
+-- 
+Yann Cantin
+A4FEB47F
+--

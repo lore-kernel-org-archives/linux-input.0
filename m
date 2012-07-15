@@ -1,65 +1,51 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 1/3] HID: Add HID_CLAIMED_OTHER for non-generic drivers
-Date: Sun, 15 Jul 2012 20:21:47 +0200
-Message-ID: <1342376509-7228-2-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 2/3] HID: picolcd: explicitly claim hid devices with HID_CLAIMED_OTHER
+Date: Sun, 15 Jul 2012 20:21:48 +0200
+Message-ID: <1342376509-7228-3-git-send-email-dh.herrmann@googlemail.com>
 References: <1342376509-7228-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-wg0-f44.google.com ([74.125.82.44]:37971 "EHLO
 	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750808Ab2GOSWQ (ORCPT
+	with ESMTP id S1751757Ab2GOSWS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Jul 2012 14:22:16 -0400
+	Sun, 15 Jul 2012 14:22:18 -0400
 Received: by mail-wg0-f44.google.com with SMTP id dr13so309295wgb.1
-        for <linux-input@vger.kernel.org>; Sun, 15 Jul 2012 11:22:15 -0700 (PDT)
+        for <linux-input@vger.kernel.org>; Sun, 15 Jul 2012 11:22:17 -0700 (PDT)
 In-Reply-To: <1342376509-7228-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-All normal devices that correctly conform to the HID specs are handled by
-the hid-input driver. However, for non-standard drivers we often don't
-want hid-input to handle them but rather use specific hid drivers. But
-hid_connect() requires at least one generic driver to claim the devices.
-As hid_hw_start() calls hid_connect() we currently use an ugly workaround
-by adding HID_CLAIMED_INPUT to hid->claimed and clear it after
-hid_hw_start() again (see hid-picolcd.c for examples).
-
-This adds the HID_CLAIMED_OTHER flag which can be set by device drivers to
-tell the hid-core that they handle the device without the need of any
-generic driver like hidinput, hiddev or hidraw.
+Instead of using an ugly workaround to make hid_hw_start() correctly
+initialize the device, we now explicitely set HID_CLAIMED_OTHER before
+initializing the hid device. This tells the hid-core to accept the device
+even if no generic hid driver gets loaded.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-core.c | 2 ++
- include/linux/hid.h    | 1 +
- 2 files changed, 3 insertions(+)
+ drivers/hid/hid-picolcd.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 9cdc74e..2039f32 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1391,6 +1391,8 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 	if (hdev->claimed & HID_CLAIMED_HIDRAW)
- 		len += sprintf(buf + len, "%shidraw%d", len ? "," : "",
- 				((struct hidraw *)hdev->hidraw)->minor);
-+	if (hdev->claimed & HID_CLAIMED_OTHER)
-+		len += sprintf(buf + len, "%sother", len ? "," : "");
+diff --git a/drivers/hid/hid-picolcd.c b/drivers/hid/hid-picolcd.c
+index 45c3433..36a11a8 100644
+--- a/drivers/hid/hid-picolcd.c
++++ b/drivers/hid/hid-picolcd.c
+@@ -2613,11 +2613,10 @@ static int picolcd_probe(struct hid_device *hdev,
+ 		goto err_cleanup_data;
+ 	}
  
- 	type = "Device";
- 	for (i = 0; i < hdev->maxcollection; i++) {
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 449fa38..26b336a 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -452,6 +452,7 @@ struct hid_output_fifo {
- #define HID_CLAIMED_INPUT	1
- #define HID_CLAIMED_HIDDEV	2
- #define HID_CLAIMED_HIDRAW	4
-+#define HID_CLAIMED_OTHER	8
- 
- #define HID_STAT_ADDED		1
- #define HID_STAT_PARSED		2
+-	/* We don't use hidinput but hid_hw_start() fails if nothing is
+-	 * claimed. So spoof claimed input. */
+-	hdev->claimed = HID_CLAIMED_INPUT;
++	/* Tell hid-core that we handle the device without the need of any
++	 * generic hid-driver by setting the HID_CLAIMED_OTHER flag. */
++	hdev->claimed |= HID_CLAIMED_OTHER;
+ 	error = hid_hw_start(hdev, 0);
+-	hdev->claimed = 0;
+ 	if (error) {
+ 		hid_err(hdev, "hardware start failed\n");
+ 		goto err_cleanup_data;
 -- 
 1.7.11.2
 

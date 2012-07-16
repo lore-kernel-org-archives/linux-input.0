@@ -1,37 +1,107 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 1/3] HID: Add HID_CLAIMED_OTHER for non-generic drivers
-Date: Mon, 16 Jul 2012 23:14:38 +0200
-Message-ID: <20120716211438.GA668@polaris.bitmath.org>
-References: <20120716184530.GA407@polaris.bitmath.org>
- <CANq1E4Q2AoA7JP9rL39gEkyMCy+-a3vcysn_kWOdB8Z4okAf+A@mail.gmail.com>
- <20120716193502.GA617@polaris.bitmath.org>
- <CANq1E4QuFX1-KVTb1udzMP6QUuWe=zhmu4RS2cgQ2=CdfJf5gg@mail.gmail.com>
- <20120716205937.GA603@polaris.bitmath.org>
- <CANq1E4RJQrKTVBBpfiCDGtZL-T_mN7zcS3Mr-nFnHTTaOYnNPw@mail.gmail.com>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: [PATCH v3] Input: synaptics - handle out of bounds values from
+ the hardware
+Date: Mon, 16 Jul 2012 15:18:07 -0700
+Message-ID: <20120716221807.GA11710@ubuntu-530U>
+References: <1340994138-8969-1-git-send-email-seth.forshee@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:52619 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752291Ab2GPVN7 (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:49652 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752540Ab2GPWSM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Jul 2012 17:13:59 -0400
-Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
-	by smtprelay-b21.telenor.se (Postfix) with ESMTP id BAC83C86E
-	for <linux-input@vger.kernel.org>; Mon, 16 Jul 2012 23:13:57 +0200 (CEST)
+	Mon, 16 Jul 2012 18:18:12 -0400
 Content-Disposition: inline
-In-Reply-To: <CANq1E4RJQrKTVBBpfiCDGtZL-T_mN7zcS3Mr-nFnHTTaOYnNPw@mail.gmail.com>
+In-Reply-To: <1340994138-8969-1-git-send-email-seth.forshee@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>
 
-> Yes, that works fine. I just want some nice comment there so people
-> know we are using some heuristics. If you don't mind, I will wrap this
-> up tomorrow and send a new version of the patch(set). Otherwise, feel
-> free to send it yourself.
+Ping. Any objections to this version?
 
-I don't mind at all, tomorrow it is.
+Thanks,
+Seth
 
-Cheers,
-Henrik
+On Fri, Jun 29, 2012 at 01:22:18PM -0500, Seth Forshee wrote:
+> The touchpad on the Acer Aspire One D250 will report out of range values
+> in the extreme lower portion of the touchpad. These appear as abrupt
+> changes in the values reported by the hardware from very low values to
+> very high values, which can cause unexpected vertical jumps in the
+> position of the mouse pointer.
+> 
+> What seems to be happening is that the value is wrapping to a two's
+> compliment negative value of higher resolution than the 13-bit value
+> reported by the hardware, with the high-order bits being truncated. The
+> safest way to deal with this is to clamp any out of bounds values to the
+> minimum or maximum value for the axis.
+> 
+> Distinguishing between positive and negative is problematic, since we
+> lack definitive sign information in the value reported by the hardware.
+> The approach taken here is to split the difference between the maximum
+> legitimate value for the axis and the maximum possible value that the
+> hardware can report, treating values greater than this number as
+> negative and all other values as positive. This can be tweaked later if
+> hardware is found that operates outside of these parameters.
+> 
+> BugLink: http://bugs.launchpad.net/bugs/1001251
+> Cc: stable@vger.kernel.org
+> Cc: Daniel Kurtz <djkurtz@chromium.org>
+> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> ---
+>  drivers/input/mouse/synaptics.c |   27 +++++++++++++++++++++++++++
+>  1 file changed, 27 insertions(+)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index c6d9869..698f1b8 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -40,6 +40,10 @@
+>   * Note that newer firmware allows querying device for maximum useable
+>   * coordinates.
+>   */
+> +#define XMIN 0
+> +#define XMAX 6143
+> +#define YMIN 0
+> +#define YMAX 6143
+>  #define XMIN_NOMINAL 1472
+>  #define XMAX_NOMINAL 5472
+>  #define YMIN_NOMINAL 1408
+> @@ -555,6 +559,29 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+>  		hw->right = (buf[0] & 0x02) ? 1 : 0;
+>  	}
+>  
+> +	/*
+> +	 * Some hardware is known to wrap negative on the y axis,
+> +	 * providing the low-order bits of a higher resolution negative
+> +	 * number as a 13-bit unsigned value. No hardware is known to
+> +	 * give out-of-bounds values on the high end, but since we're
+> +	 * dealing with unspecified behavior we take a conservative
+> +	 * approach to handling the out of bounds values.
+> +	 *
+> +	 * Clamp out of bounds values to the minimum or maximum value
+> +	 * for the axis. Use the midpoint between the maximum axis
+> +	 * value and maximum possible reported value as the dividing
+> +	 * line between positive and negative values.
+> +	 */
+> +	if (hw->x > ((1 << 13) + XMAX) / 2)
+> +		hw->x = XMIN;
+> +	else if (hw->x > XMAX)
+> +		hw->x = XMAX;
+> +
+> +	if (hw->y > ((1 << 13) + YMAX) / 2)
+> +		hw->y = YMIN;
+> +	else if (hw->y > YMAX)
+> +		hw->y = YMAX;
+> +
+>  	return 0;
+>  }
+>  
+> -- 
+> 1.7.9.5
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,36 +1,50 @@
-From: Yann Cantin <yann.cantin@laposte.net>
-Subject: On the fly input_set_abs_params changes
-Date: Sun, 15 Jul 2012 21:13:40 +0200
-Message-ID: <50031664.6090302@laposte.net>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH 04/23 v6] Input: atmel_mxt_ts - warn if sysfs could not be created
+Date: Mon, 16 Jul 2012 10:34:14 +0800
+Message-ID: <CAGS+omCtWiWWeW241mxh_jcYXVfsmBVcKT8VZS_f-war=L+gJQ@mail.gmail.com>
+References: <1340888904-15620-1-git-send-email-djkurtz@chromium.org>
+ <1340888904-15620-5-git-send-email-djkurtz@chromium.org> <20120705172230.GB31383@core.coreip.homeip.net>
+ <20120705191539.GA14454@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp08.smtpout.orange.fr ([80.12.242.130]:34221 "EHLO
-	smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750905Ab2GOTNj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Jul 2012 15:13:39 -0400
-Received: from [192.168.1.100] (coyote.ysoft.org [192.168.1.100])
-	by nestor.ysoft.org (Postfix) with ESMTP id 6596D2023F
-	for <linux-input@vger.kernel.org>; Sun, 15 Jul 2012 21:13:36 +0200 (CEST)
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120705191539.GA14454@polaris.bitmath.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hi,
+On Fri, Jul 6, 2012 at 3:15 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> On Thu, Jul 05, 2012 at 10:22:30AM -0700, Dmitry Torokhov wrote:
+>> Hi Daniel, Henrik,
+>>
+>> On Thu, Jun 28, 2012 at 09:08:05PM +0800, Daniel Kurtz wrote:
+>> > If sysfs entry creation fails, the driver is still usable, so don't
+>> > just abort probe.  Just warn and continue.
+>> >
+>>
+>> I understand that I am a bit late to the party :) but I do not agree
+>> with this change. Failure to create attributes is not sometihng that
+>> user could cause (at least not easily) and thus would not be a setup
+>> issue but something more severe. I believe we should fail loading the
+>> driver so sysfs attribute breakage will be noticed as soon as possible,
+>> instead of discovering it much much later in the process.
+>>
+>> So I think we should revert this one.
+>
+> Ok, I agree. Applied and pushed.
+>
+> Daniel, I should probably have asked this before: what was the reason
+> for this patch in the first place?
+>
+> Thanks,
+> Henrik
 
-I'm working on a kernel input driver for eBeam devices (see http://www.e-beam.com).
+No additional reason beyond what is stated in the commit message -
+that the driver is still usable without its sysfs entries, so no need
+to abort probe.
 
-This hardware is very special, and his handling don't fit in any existing category
-(or i've not found it yet).
+I'm fine with reverting back to the fail fast approach, too.
 
-I'm wondering if it's ok to change min/max parameters after registration, and how
-it should be handled by xorg's evdev.
-
-I've some other input related questions, is it the right place to post ?
-
--- 
-Yann Cantin
-A4FEB47F
---
+Thanks,
+Daniel

@@ -1,120 +1,95 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH v3] Input: synaptics - handle out of bounds values from
- the hardware
-Date: Tue, 17 Jul 2012 10:21:51 +0800
-Message-ID: <CAGS+omDkgJA_wvdsGtowjpq5AJF8q2+oVefbsozTS19kxdNJGg@mail.gmail.com>
-References: <1340994138-8969-1-git-send-email-seth.forshee@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Qiao Zhou <zhouqiao@marvell.com>
+Subject: [PATCH V10] add 88pm80x onkey driver
+Date: Tue, 17 Jul 2012 15:17:38 +0800
+Message-ID: <1342509459-16976-1-git-send-email-zhouqiao@marvell.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gh0-f174.google.com ([209.85.160.174]:49802 "EHLO
-	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753908Ab2GQCWM (ORCPT
+Received: from na3sys009aog125.obsmtp.com ([74.125.149.153]:49490 "HELO
+	na3sys009aog125.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1750806Ab2GQHZI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Jul 2012 22:22:12 -0400
-Received: by ghrr11 with SMTP id r11so5703262ghr.19
-        for <linux-input@vger.kernel.org>; Mon, 16 Jul 2012 19:22:11 -0700 (PDT)
-In-Reply-To: <1340994138-8969-1-git-send-email-seth.forshee@canonical.com>
+	Tue, 17 Jul 2012 03:25:08 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org
+Cc: Qiao Zhou <zhouqiao@marvell.com>
 
-On Sat, Jun 30, 2012 at 2:22 AM, Seth Forshee
-<seth.forshee@canonical.com> wrote:
-> The touchpad on the Acer Aspire One D250 will report out of range values
-> in the extreme lower portion of the touchpad. These appear as abrupt
-> changes in the values reported by the hardware from very low values to
-> very high values, which can cause unexpected vertical jumps in the
-> position of the mouse pointer.
->
-> What seems to be happening is that the value is wrapping to a two's
-> compliment negative value of higher resolution than the 13-bit value
-> reported by the hardware, with the high-order bits being truncated. The
-> safest way to deal with this is to clamp any out of bounds values to the
-> minimum or maximum value for the axis.
->
-> Distinguishing between positive and negative is problematic, since we
-> lack definitive sign information in the value reported by the hardware.
-> The approach taken here is to split the difference between the maximum
-> legitimate value for the axis and the maximum possible value that the
-> hardware can report, treating values greater than this number as
-> negative and all other values as positive. This can be tweaked later if
-> hardware is found that operates outside of these parameters.
->
-> BugLink: http://bugs.launchpad.net/bugs/1001251
-> Cc: stable@vger.kernel.org
-> Cc: Daniel Kurtz <djkurtz@chromium.org>
-> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-> ---
->  drivers/input/mouse/synaptics.c |   27 +++++++++++++++++++++++++++
->  1 file changed, 27 insertions(+)
->
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index c6d9869..698f1b8 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -40,6 +40,10 @@
->   * Note that newer firmware allows querying device for maximum useable
->   * coordinates.
->   */
-> +#define XMIN 0
-> +#define XMAX 6143
-> +#define YMIN 0
-> +#define YMAX 6143
->  #define XMIN_NOMINAL 1472
->  #define XMAX_NOMINAL 5472
->  #define YMIN_NOMINAL 1408
-> @@ -555,6 +559,29 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
->                 hw->right = (buf[0] & 0x02) ? 1 : 0;
->         }
->
-> +       /*
-> +        * Some hardware is known to wrap negative on the y axis,
-> +        * providing the low-order bits of a higher resolution negative
-> +        * number as a 13-bit unsigned value. No hardware is known to
-> +        * give out-of-bounds values on the high end, but since we're
-> +        * dealing with unspecified behavior we take a conservative
-> +        * approach to handling the out of bounds values.
-> +        *
-> +        * Clamp out of bounds values to the minimum or maximum value
-> +        * for the axis. Use the midpoint between the maximum axis
-> +        * value and maximum possible reported value as the dividing
-> +        * line between positive and negative values.
-> +        */
-> +       if (hw->x > ((1 << 13) + XMAX) / 2)
+change log [v10->v9]:
+1, change pr_err to dev_err.
+2, add device_init_wakeup(,0) when device removes.
+3, add ack by Dmitry.
 
-These are constants too, it might be clearer to define:
+change log [v9->v8]:
+1, remove devm_xxx api.
+2, fix the potential oops issue.
+3, use __set_bit to set key_bit.
 
-/*
- * Values reported above these limits are considered "wrapped around
-negative numbers",
- * and are clipped to XMIN/YMIN.
- */
-#define X_MAX_POSITIVE  ((1 << 13) + XMAX) / 2)
-#define Y_MAX_POSITIVE  ((1 << 13) + YMAX) / 2)
+change log [v8->v7]:
+1, remove file name in comments.
+2, add error handling to regmap_read.
+3, remove unnecessary onkey suspend/resume wrapper api.
+4, remove the pm80x_chip cast by directly define the struct type.
+5, fix the double free input device issue.
 
-> +               hw->x = XMIN;
+change log [v7->v6]:
+1, add the ack by Arnd for the first two patches.
+2, add NULL terminater for id_table in 88pm800.c & 88pm805.c.
 
-IMHO, though, I think it might be better to just report the negative
-value rather than clamping.  Clamping like this introduces a dead zone
-on the trackpad, which leads to a degraded user experience on at least
-one real, known, device, whereas clamping might prevent a potential
-problem on other, unknown, devices.  This doesn't seem like the best
-tradeoff.
+change log [v6->v5]:
+export_symbol_gpl for pm80x_regmap_config to fix build issue for module.
 
--Dan
+change log [v5->v4]:
+1, change the file name, from 88pm800-core.c, 88pm805-core.c, 88pm80x-i2c.c
+to 88pm800.c, 88pm805.c, 88pm80x.c, and modified Makefile accordingly.
+2, replace the spinlock used to protect wakeup flag, with using set_bit/
+clear_bit, which is suitable adn enough in SMP env.
+3, add the version number in each patch.
 
-> +       else if (hw->x > XMAX)
-> +               hw->x = XMAX;
-> +
-> +       if (hw->y > ((1 << 13) + YMAX) / 2)
-> +               hw->y = YMIN;
-> +       else if (hw->y > YMAX)
-> +               hw->y = YMAX;
-> +
->         return 0;
->  }
->
-> --
-> 1.7.9.5
+change log [v4->v3]:
+1, provide unified suspend/resume api for all sub-devices, and add
+protection for 800 & 805 wakeup flag in SMP case.
+2, clean register definition in 88pm80x.h, and thanks Arnd's help.
+3, some minor changes in mfd Kconfig/Makefile.
+
+change log [v3->v2]:
+1, dynamically get the irq_base, for both regmap_add_irq_chip and
+mfd_add_devices. add pm80x_request_irq & pm80x_free_irq for sub-driver
+facility, and modify related irq thread operation. remove irq_base member
+from 80x_chip & platform data.
+2, split 88pm80x.o into 3 separate modules.
+3, remove the 88pm80x r/w API, and directly use open-coded regmap api.
+4, minor change: move pm80x_id_table from 80x-i2c.c to 800/805-core.c,
+exported pm80x_init, pm80x_deinit, and pm80x_bulk_read, add callback in
+pdata.
+
+change log [v2->v1]:
+1, split 88pm80x-core.c into 88pm800-core.c and 88pm805.c, per Arnd's
+suggestion. after the re-arch, 88pm80x-i2c handles the 800 & 805 common
+parts, while 800-core.c & 805-core.c handle the specific parts in each
+chip.
+2, add details about the workaround adding a i2c companion between 800 &
+805, and make a separate patch for it, per Arnd's suggestion.
+3, remove callback in pdata. but still keep the pdata currently.
+4, only keep necessary register in 88pm80x.h, including registers for
+regulator/rtc/onkey/power/codec etc, and remove other registers from global
+visibility.
+5, exported r/w API which requires regmap handle. as currently the pm800
+chip has 3 i2c device, only passing a pm80x_chip info can't ensure r/w the
+register in correct i2c device.
+
+change log [v1]:
+1, pm800 and pm805 are decoupled and probed separately;
+2, re-used the most of API for pm800 and pm805 per Arnd's comments;
+3, use regmap_irq, instead of previous 88pm80x_irq_data per Mark's comments.
+use regmap_add_irq_chip, and remove previous 88pm80x irq handling.
+4, remove callback function in rtc pdata per Arnd's comments.
+5, updated some coding style issue.
+
+Qiao Zhou (1):
+  input: add onkey support to 88PM80X PMIC
+
+ drivers/input/misc/88pm80x_onkey.c |  168 ++++++++++++++++++++++++++++++++++++
+ drivers/input/misc/Kconfig         |   10 ++
+ drivers/input/misc/Makefile        |    1 +
+ 3 files changed, 179 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/88pm80x_onkey.c
+

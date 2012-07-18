@@ -1,15 +1,15 @@
 From: Chung-yih Wang <cywang@chromium.org>
-Subject: [PATCH] CHROMIUM: Input: synaptics - use firmware data for Cr-48
-Date: Wed, 18 Jul 2012 14:03:45 +0800
-Message-ID: <1342591425-17730-1-git-send-email-cywang@chromium.org>
+Subject: [PATCH v2] Input: synaptics - use firmware data for Cr-48
+Date: Wed, 18 Jul 2012 18:22:03 +0800
+Message-ID: <1342606923-9997-1-git-send-email-cywang@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f202.google.com ([209.85.216.202]:57985 "EHLO
-	mail-qc0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751675Ab2GRGEO (ORCPT
+Received: from mail-ey0-f202.google.com ([209.85.215.202]:51038 "EHLO
+	mail-ey0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751010Ab2GRKWa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Jul 2012 02:04:14 -0400
-Received: by qcqs25 with SMTP id s25so127111qcq.1
-        for <linux-input@vger.kernel.org>; Tue, 17 Jul 2012 23:04:13 -0700 (PDT)
+	Wed, 18 Jul 2012 06:22:30 -0400
+Received: by eaao13 with SMTP id o13so78827eaa.1
+        for <linux-input@vger.kernel.org>; Wed, 18 Jul 2012 03:22:28 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -36,7 +36,7 @@ Signed-off-by: Chung-yih Wang <cywang@chromium.org>
  1 files changed, 93 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index c703d53..6575be5 100644
+index d5b390f..0215c7c 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
 @@ -45,6 +45,7 @@
@@ -47,7 +47,7 @@ index c703d53..6575be5 100644
  
  /*****************************************************************************
   *	Stuff we need even when we do not want native Synaptics support
-@@ -970,6 +971,75 @@ static void synaptics_image_sensor_process(struct psmouse *psmouse,
+@@ -1003,6 +1004,75 @@ static void synaptics_image_sensor_process(struct psmouse *psmouse,
  	priv->agm_pending = false;
  }
  
@@ -123,7 +123,7 @@ index c703d53..6575be5 100644
  /*
   *  called for each full received packet from the touchpad
   */
-@@ -1033,6 +1103,12 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+@@ -1066,6 +1136,12 @@ static void synaptics_process_packet(struct psmouse *psmouse)
  		finger_width = 0;
  	}
  
@@ -136,7 +136,7 @@ index c703d53..6575be5 100644
  	if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c))
  		synaptics_report_semi_mt_data(dev, &hw, &priv->agm,
  					      num_fingers);
-@@ -1194,6 +1270,9 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
+@@ -1227,6 +1303,9 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
  					ABS_MT_POSITION_Y);
  	}
  
@@ -146,7 +146,7 @@ index c703d53..6575be5 100644
  	if (SYN_CAP_PALMDETECT(priv->capabilities))
  		input_set_abs_params(dev, ABS_TOOL_WIDTH, 0, 15, 0, 0);
  
-@@ -1389,10 +1468,24 @@ static const struct dmi_system_id __initconst olpc_dmi_table[] = {
+@@ -1422,10 +1501,24 @@ static const struct dmi_system_id __initconst olpc_dmi_table[] = {
  	{ }
  };
  

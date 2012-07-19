@@ -1,159 +1,66 @@
-From: Chase Douglas <chase.douglas@canonical.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
 Subject: Re: [PATCH v2] Input: synaptics - use firmware data for Cr-48
-Date: Thu, 19 Jul 2012 10:34:33 -0700
-Message-ID: <50084529.2030001@canonical.com>
-References: <1342606923-9997-1-git-send-email-cywang@chromium.org> <5006D86C.7030208@canonical.com> <CAM2ehZbftDja6CBGjhL3Jp+30DtYJj+8_4e=_wWcj3pCDGD7AA@mail.gmail.com> <500832D7.4040805@canonical.com> <CAGS+omA-PwoM=U3xP_Gtadaow9SGt555NPWor_-HuvVE8-R3MQ@mail.gmail.com>
+Date: Thu, 19 Jul 2012 20:44:19 +0200
+Message-ID: <20120719184419.GA3626@polaris.bitmath.org>
+References: <1342606923-9997-1-git-send-email-cywang@chromium.org>
+ <5006D86C.7030208@canonical.com>
+ <CAM2ehZbftDja6CBGjhL3Jp+30DtYJj+8_4e=_wWcj3pCDGD7AA@mail.gmail.com>
+ <500832D7.4040805@canonical.com>
+ <CAGS+omA-PwoM=U3xP_Gtadaow9SGt555NPWor_-HuvVE8-R3MQ@mail.gmail.com>
+ <50084529.2030001@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:36215 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752492Ab2GSRek (ORCPT
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:54616 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751808Ab2GSSnQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Jul 2012 13:34:40 -0400
-In-Reply-To: <CAGS+omA-PwoM=U3xP_Gtadaow9SGt555NPWor_-HuvVE8-R3MQ@mail.gmail.com>
+	Thu, 19 Jul 2012 14:43:16 -0400
+Content-Disposition: inline
+In-Reply-To: <50084529.2030001@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: =?UTF-8?B?IkNodW5nLVlpaCBXYW5nICjnjovltIfmh78pIg==?= <cywang@google.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Daniel Kurtz <djkurtz@chromium.org>, =?utf-8?B?IkNodW5nLVlpaCBXYW5nICjnjovltIfmh78pIg==?= <cywang@google.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 07/19/2012 10:05 AM, Daniel Kurtz wrote:
-> On Fri, Jul 20, 2012 at 12:16 AM, Chase Douglas
-> <chase.douglas@canonical.com> wrote:
->>
->> On 07/18/2012 08:02 PM, Chung-Yih Wang (=E7=8E=8B=E5=B4=87=E6=87=BF)=
- wrote:
->>>
->>> Hi Chase,
->>>
->>>      Thanks for your great comments. You are right, it is impossibl=
-e to
->>> get  correct finger tracking if both fingers are moving. However, w=
-e
->>> think it still worth to have the firmware tracking of the fingers a=
-s
->>> they could perform well for most one-stationary-one-moving cases. T=
-his
->>> will be good enough for the one-stationary-one-moving gestures we w=
-ant
->>> to provide on Cr-48. And that's why we want to make the patch speci=
-fic
->>> to Cr-48.
->>
->>
->> Can you provide more details on what you are attempting to accomplis=
-h?
->
-> The Cr-48 profile sensor is also a Clickpad.  Thus, one of the most
-> common user gestures is to click the pad with one finger (to start a
-> selection) and then swipe a second (almost always "upper") finger
-> across the pad to extend the selection (or move a selected object).
->
-> The semi-mt approach is breaking down when the swiping finger moves
-> horizontally and "crosses over top" of a lower "stationary" finger.
-> For example, if a user clicks their finger in the bottom center of th=
-e
-> pad, and while using a second finger to horizontally extend a
-> selection, the fingers cross in the X direction.
->
-> As the moving finger approaches the same X coordinate as the
-> stationary finger, the reported position of the bottom finger will
-> start to move significantly towards the upper finger due to a
-> "pulling" affect of the profile sensor.  Thus, that bottom, stationar=
-y
-> finger starts to move towards the finger that is actually moving.
-> Eventually, when the moving finger gets close enough to the stationar=
-y
-> finger, the reported X coordinate of the two fingers becomes the same
-> - the two fingers' reported X coordinates "merge".  As the moving
-> finger continues to move towards, over and past the lower finger, the
-> reported position of the two fingers moves together, until the moving
-> finger gets significantly far enough away (in X) from the lower
-> finger, at which point the lower finger's reported position starts
-> moving back to its actual position.
->
-> Due to this effect, when using semi-mt, it is very difficult to know
-> at which point the "finger pattern" of the bounding box changes; in
-> other words, when the fingers change from "BottomLeft / TopRight" to
-> "BottomRight / TopLeft".  It can be approximated by assuming that the
-> "finger pattern" changes when the merged X coordinate passes over the
-> original starting point of the bottom finger.  However, this
-> approximation only holds when the bottom finger is perfectly
-> stationary.  In the real world, the bottom finger rolls/wiggles or
-> otherwise moves, causing the actual crossing point to change.  Or, as
-> is also likely, the lower finger is already being pulled when the
-> upper finger starts moving, so its reported position is already not a=
-t
-> the correct crossing point.  Thus, using semi-mt with this profile
-> sensor clickpad, we have not been able to generate smooth pointer
-> motion when an upper finger crosses a lower finger.
->
-> What we found, though, is that the firmware does do a much better job
-> of tracking such horizontal crosses.  Therefore, we would like to get
-> this raw data from the kernel.  It is trivial for userspace to conver=
-t
-> the raw finger position data to a bounding box format for use with
-> other gestures.
->
-> In any case, we really aren't that familiar with how other "synaptics
-> semi-mt-compatible" touchpads work.  Using this patch may or may not
-> be better than semi-mt.  Or, their firmware may or may not follow the
-> same "always report upper finger in sgm" rule (we have seen other
-> Synaptics trackpads that do "always report oldest finger in sgm").
-> This is why we chose to isolate this change to just one hardware type=
-,
-> so that the change, which improves the experience of a Cr-48 user, ha=
-s
-> no deleterious affect on users of any other hardware.
->
-> If others try this method with their hardware and it works for them,
-> then great!   We would be happy to help review additional patches tha=
-t
-> extend it to additional systems.
+> I understand the usefulness of this functionality, but I also worry
+> about proliferating the number of properties for devices (there are
+> only 32 bits we can use, IIRC). I see four options off the top of my
+> head:
+> 
+> * Don't do anything, leave it as SEMI_MT. Obviously this would suck,
+> but it is an option.
+> 
+> * Make the trackpad advertise itself as *not* SEMI_MT. This would be
+> broken, however, if the user performs a rotation where the touches
+> cross in the Y axis. I feel this is plain wrong according to the
+> stated protocol documentation and previous behavior, so I don't want
+> to do this.
+> 
+> * Add a new device property (INVALID_Y_AXIS_CROSSING?) that
+> describes the exact behavior of this device. I would be ok with this
+> if everyone else is, but only because proper clickpad behavior
+> (which I consider very importand) is broken without this knowledge.
+> 
+> * Leave the device as SEMI_MT, but provide the real locations, and
+> allow userspace to determine the device vendor/model/etc. If
+> userspace knows that a specific device behaves in a specific way, it
+> can do its own quirking handling. Given the specificity of this
+> behavior to only some devices of one brand, this would be my
+> suggested resolution to the issue.
 
-Ok, that's very helpful to know, thanks for providing such a detailed=20
-response!
+A fifth option is to quirk the driver to remove the pulling effect
+from the reported bounding box, such that the simple userspace scheme
+for determining the position of the moving finger actually works.
 
-So the problem is that you want to support the kernel providing two=20
-touches, but the touch locations are only valid if they do not cross in=
-=20
-the Y axis. That's a very nuanced property of the device, one that is=20
-only specific to certain touchpads from one manufacturer.
+For instance, consider the simple algorithm "the slowest corner is the
+stationary finger". As long as this is true, the behavior will be
+smooth. If the sensor data clutters this behavior, it shows up in the
+driver as a mismatch between the point as computed above and the
+better estimate available in the driver. For frames where this
+happens, one can simply alter the bounding box slightly so that the
+algorithm works.
 
-I understand the usefulness of this functionality, but I also worry=20
-about proliferating the number of properties for devices (there are onl=
-y=20
-32 bits we can use, IIRC). I see four options off the top of my head:
+It should be possible to formulate such a scheme in a couple of lines.
 
-* Don't do anything, leave it as SEMI_MT. Obviously this would suck, bu=
-t=20
-it is an option.
-
-* Make the trackpad advertise itself as *not* SEMI_MT. This would be=20
-broken, however, if the user performs a rotation where the touches cros=
-s=20
-in the Y axis. I feel this is plain wrong according to the stated=20
-protocol documentation and previous behavior, so I don't want to do thi=
-s.
-
-* Add a new device property (INVALID_Y_AXIS_CROSSING?) that describes=20
-the exact behavior of this device. I would be ok with this if everyone=20
-else is, but only because proper clickpad behavior (which I consider=20
-very importand) is broken without this knowledge.
-
-* Leave the device as SEMI_MT, but provide the real locations, and allo=
-w=20
-userspace to determine the device vendor/model/etc. If userspace knows=20
-that a specific device behaves in a specific way, it can do its own=20
-quirking handling. Given the specificity of this behavior to only some=20
-devices of one brand, this would be my suggested resolution to the issu=
-e.
-
--- Chase
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Henrik

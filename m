@@ -1,66 +1,50 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2] Input: synaptics - use firmware data for Cr-48
-Date: Thu, 19 Jul 2012 20:44:19 +0200
-Message-ID: <20120719184419.GA3626@polaris.bitmath.org>
-References: <1342606923-9997-1-git-send-email-cywang@chromium.org>
- <5006D86C.7030208@canonical.com>
- <CAM2ehZbftDja6CBGjhL3Jp+30DtYJj+8_4e=_wWcj3pCDGD7AA@mail.gmail.com>
- <500832D7.4040805@canonical.com>
- <CAGS+omA-PwoM=U3xP_Gtadaow9SGt555NPWor_-HuvVE8-R3MQ@mail.gmail.com>
- <50084529.2030001@canonical.com>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: Lenovo G360: ALPS Touchpad Recognized as "PS/2 Generic
+ Mouse"(with newly dmesg information)
+Date: Thu, 19 Jul 2012 12:47:40 -0700
+Message-ID: <20120719194740.GA21315@ubuntu-530U>
+References: <20120706113942.40152322.dashing.meng@gmail.com>
+ <20120706051141.GA2937@thinkpad-t410>
+ <20120707133519.25bf82d4.dashing.meng@gmail.com>
+ <20120709144508.GB4985@thinkpad-t410>
+ <20120710121627.22558c22.dashing.meng@gmail.com>
+ <20120710045714.GA3429@ubuntu-mba>
+ <20120715101557.e20a039b.dashing.meng@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:54616 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751808Ab2GSSnQ (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:36701 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751325Ab2GSTrn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Jul 2012 14:43:16 -0400
+	Thu, 19 Jul 2012 15:47:43 -0400
 Content-Disposition: inline
-In-Reply-To: <50084529.2030001@canonical.com>
+In-Reply-To: <20120715101557.e20a039b.dashing.meng@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, =?utf-8?B?IkNodW5nLVlpaCBXYW5nICjnjovltIfmh78pIg==?= <cywang@google.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: littlebat <dashing.meng@gmail.com>
+Cc: linux-input@vger.kernel.org, 679750@bugs.debian.org, jrnieder@gmail.com, rik.theys@gmail.com
 
-> I understand the usefulness of this functionality, but I also worry
-> about proliferating the number of properties for devices (there are
-> only 32 bits we can use, IIRC). I see four options off the top of my
-> head:
-> 
-> * Don't do anything, leave it as SEMI_MT. Obviously this would suck,
-> but it is an option.
-> 
-> * Make the trackpad advertise itself as *not* SEMI_MT. This would be
-> broken, however, if the user performs a rotation where the touches
-> cross in the Y axis. I feel this is plain wrong according to the
-> stated protocol documentation and previous behavior, so I don't want
-> to do this.
-> 
-> * Add a new device property (INVALID_Y_AXIS_CROSSING?) that
-> describes the exact behavior of this device. I would be ok with this
-> if everyone else is, but only because proper clickpad behavior
-> (which I consider very importand) is broken without this knowledge.
-> 
-> * Leave the device as SEMI_MT, but provide the real locations, and
-> allow userspace to determine the device vendor/model/etc. If
-> userspace knows that a specific device behaves in a specific way, it
-> can do its own quirking handling. Given the specificity of this
-> behavior to only some devices of one brand, this would be my
-> suggested resolution to the issue.
+On Sun, Jul 15, 2012 at 10:15:57AM +0800, littlebat wrote:
+> In the Windows 7 guest OS, the touchpad "Lenovo pointing device"
+> disappeared from the hardwares list. And, the log file in Ubuntu 11.10
+> has the content below: 
+> y@y-PC:~$ cat ./psmouse-reverse/reverse.log 
+> S ff
+> R fe
+> S ff
+> R fe
+> S ff
+> R fe
+> S ed
+> R fe
 
-A fifth option is to quirk the driver to remove the pulling effect
-from the reported bounding box, such that the simple userspace scheme
-for determining the position of the moving finger actually works.
+>From the outset this doesn't look right. When reset is sent (0xff) the
+touchpad should respond with and acknowledge (0xfa) and a couple more
+bytes. Something obviously isn't working right, but I'm not sure what.
 
-For instance, consider the simple algorithm "the slowest corner is the
-stationary finger". As long as this is true, the behavior will be
-smooth. If the sensor data clutters this behavior, it shows up in the
-driver as a mismatch between the point as computed above and the
-better estimate available in the driver. For frames where this
-happens, one can simply alter the bounding box slightly so that the
-algorithm works.
+The only suggestion I have is to start debugging and try to see what's
+going wrong. Is the data from the guest OS getting to the hardware okay,
+and vice versa? Are you sure you've got the correct device?
 
-It should be possible to formulate such a scheme in a couple of lines.
-
-Henrik
+Seth

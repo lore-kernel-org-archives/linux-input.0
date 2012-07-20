@@ -1,91 +1,84 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: uhid: Fix sending events with invalid data
-Date: Fri, 20 Jul 2012 09:57:44 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1207200957330.21929@pobox.suse.cz>
-References: <1342303165-28708-1-git-send-email-vinicius.gomes@openbossa.org> <CANq1E4RO4r0Cx=j9oR=mgHd0CwcQd5LtUiGNvgEyS1BtTP5Pxg@mail.gmail.com>
+Subject: Re: [PATCH v2] hidraw : fix list->buffer memleak
+Date: Fri, 20 Jul 2012 10:13:36 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1207201013210.21929@pobox.suse.cz>
+References: <1340895116-13002-1-git-send-email-matthieu.castet@parrot.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53095 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:54148 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753146Ab2GTH5u (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Jul 2012 03:57:50 -0400
-In-Reply-To: <CANq1E4RO4r0Cx=j9oR=mgHd0CwcQd5LtUiGNvgEyS1BtTP5Pxg@mail.gmail.com>
+	id S1751653Ab2GTINo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 Jul 2012 04:13:44 -0400
+In-Reply-To: <1340895116-13002-1-git-send-email-matthieu.castet@parrot.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: Vinicius Costa Gomes <vinicius.gomes@openbossa.org>, linux-input@vger.kernel.org
+To: Matthieu CASTET <matthieu.castet@parrot.com>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sun, 15 Jul 2012, David Herrmann wrote:
+On Thu, 28 Jun 2012, Matthieu CASTET wrote:
 
-> Hi Vinicius
+> If we don't read fast enough hidraw device, hidraw_report_event
+> will cycle and we will leak list->buffer.
+> Also list->buffer are not free on release.
+> After this patch, kmemleak report nothing.
 > 
-> CC'ing Jiri
+> Signed-off-by: Matthieu CASTET <matthieu.castet@parrot.com>
+> ---
+>  drivers/hid/hidraw.c |   12 +++++++++++-
+>  1 file changed, 11 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+> index 36fa77b..3b6f7bf 100644
+> --- a/drivers/hid/hidraw.c
+> +++ b/drivers/hid/hidraw.c
+> @@ -96,6 +96,7 @@ static ssize_t hidraw_read(struct file *file, char __user *buffer, size_t count,
+>  		}
+>  
+>  		kfree(list->buffer[list->tail].value);
+> +		list->buffer[list->tail].value = NULL;
+>  		list->tail = (list->tail + 1) & (HIDRAW_BUFFER_SIZE - 1);
+>  	}
+>  out:
+> @@ -300,6 +301,7 @@ static int hidraw_release(struct inode * inode, struct file * file)
+>  	struct hidraw *dev;
+>  	struct hidraw_list *list = file->private_data;
+>  	int ret;
+> +	int i;
+>  
+>  	mutex_lock(&minors_lock);
+>  	if (!hidraw_table[minor]) {
+> @@ -317,6 +319,9 @@ static int hidraw_release(struct inode * inode, struct file * file)
+>  			kfree(list->hidraw);
+>  		}
+>  	}
+> +
+> +	for (i = 0; i < HIDRAW_BUFFER_SIZE; ++i)
+> +		kfree(list->buffer[i].value);
+>  	kfree(list);
+>  	ret = 0;
+>  unlock:
+> @@ -446,12 +451,17 @@ int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+>  	int ret = 0;
+>  
+>  	list_for_each_entry(list, &dev->list, node) {
+> +		int new_head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
+> +
+> +		if (new_head == list->tail)
+> +			continue;
+> +
+>  		if (!(list->buffer[list->head].value = kmemdup(data, len, GFP_ATOMIC))) {
+>  			ret = -ENOMEM;
+>  			break;
+>  		}
+>  		list->buffer[list->head].len = len;
+> -		list->head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
+> +		list->head = new_head;
+>  		kill_fasync(&list->fasync, SIGIO, POLL_IN);
+>  	}
+>  
 
-Thanks guys. Applied to uhid branch.
-
-> 
-> On Sat, Jul 14, 2012 at 11:59 PM, Vinicius Costa Gomes
-> <vinicius.gomes@openbossa.org> wrote:
-> > This was detected because events with invalid types were arriving
-> > to userspace.
-> >
-> > The code before this patch would only work for the first event in the
-> > queue (when uhid->tail is 0).
-> >
-> > Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@openbossa.org>
-> > ---
-> > David,
-> >
-> > Do you have any clue why it took so long for us to detect this issue?
-> 
-> Ugh! Thanks for spotting this! I actually have no idea why this wasn't
-> detected earlier. I always run the sample file in ./samples/uhid/ and
-> they worked fine. Could it be that this only occurs when the queue
-> runs full? That is, there is more than one event in the queue? This
-> would explain why I never saw this bug. Or maybe the first event is
-> just repeated all the time instead of reporting the new events which
-> would explain why the example in ./samples/uhid works fine.
-> 
-> It definitely has to do with the late transition from a fixed array to
-> a dynamically allocated pointer-array so all the early tests from the
-> bluez guys worked fine. This is probably also the reason why we all
-> didn't encounter this in the early tests.
-> 
-> I just recompiled the example with the old code and it still works
-> fine. I occasionally see the "invalid event" warnings now, but only 1
-> or 2 times. Maybe it's just dropping all except the 32'th package
-> (buffer-size) so I cannot see it and the mouse-emulation still works
-> smoothly (but at 1/32th of the original speed). Anyway, the patch
-> looks good, thanks!
-> 
-> Reviewed-by: David Herrmann <dh.herrmann@googlemail.com>
-> Thanks!
-> 
-> David
-> 
-> > Cheers,
-> >
-> >
-> >  drivers/hid/uhid.c |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-> > index 119b7e6..714cd8c 100644
-> > --- a/drivers/hid/uhid.c
-> > +++ b/drivers/hid/uhid.c
-> > @@ -465,7 +465,7 @@ try_again:
-> >                 goto try_again;
-> >         } else {
-> >                 len = min(count, sizeof(**uhid->outq));
-> > -               if (copy_to_user(buffer, &uhid->outq[uhid->tail], len)) {
-> > +               if (copy_to_user(buffer, uhid->outq[uhid->tail], len)) {
-> >                         ret = -EFAULT;
-> >                 } else {
-> >                         kfree(uhid->outq[uhid->tail]);
-> > --
-> > 1.7.10.4
-> 
+Applied, thank you Matthieu.
 
 -- 
 Jiri Kosina

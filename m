@@ -1,37 +1,39 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: "Henrik Rydberg" <rydberg@bitmath.se>
 Subject: Re: [PATCH] HID: Make the HID bus visible in the Kconfig options
-Date: Fri, 20 Jul 2012 13:38:07 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1207201337570.21929@pobox.suse.cz>
+Date: Fri, 20 Jul 2012 14:20:49 +0200
+Message-ID: <20120720122049.GA1199@polaris.bitmath.org>
 References: <1340356731-4745-1-git-send-email-rydberg@euromail.se>
+ <alpine.LNX.2.00.1207201337570.21929@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:35519 "EHLO mx2.suse.de"
+Received: from csmtp2.one.com ([91.198.169.22]:29711 "EHLO csmtp2.one.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751653Ab2GTLiN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Jul 2012 07:38:13 -0400
-In-Reply-To: <1340356731-4745-1-git-send-email-rydberg@euromail.se>
+	id S1751188Ab2GTMTl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 Jul 2012 08:19:41 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1207201337570.21929@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
+To: Jiri Kosina <jkosina@suse.cz>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Fri, 22 Jun 2012, Henrik Rydberg wrote:
-
-> The HID subsystem was made a proper bus in 2008, but the config
-> options do not reflect this. Modify the HID and USB_HID entries
-> to better explain what they do.
+> > The HID subsystem was made a proper bus in 2008, but the config
+> > options do not reflect this. Modify the HID and USB_HID entries
+> > to better explain what they do.
+> > 
+> > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> > ---
+> > Hi Jiri,
+> > 
+> > As the HID subsystem moves more and more towards a regular bus, the
+> > config options become less and less apt. This patch, for next, only
+> > scratches the surface but hopefully in the right direction.
 > 
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
-> Hi Jiri,
-> 
-> As the HID subsystem moves more and more towards a regular bus, the
-> config options become less and less apt. This patch, for next, only
-> scratches the surface but hopefully in the right direction.
+> Applied, thank you Henrik.
 
-Applied, thank you Henrik.
+This patch has actually been applied already, we added it to the patch
+for 3.5.
 
--- 
-Jiri Kosina
-SUSE Labs
+Thanks,
+Henrik

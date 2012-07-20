@@ -1,80 +1,37 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH v3] HID: Allow drivers to be their own listener
-Date: Fri, 20 Jul 2012 11:49:09 +0200
-Message-ID: <1342777749-31457-1-git-send-email-dh.herrmann@googlemail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Make the HID bus visible in the Kconfig options
+Date: Fri, 20 Jul 2012 13:38:07 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1207201337570.21929@pobox.suse.cz>
+References: <1340356731-4745-1-git-send-email-rydberg@euromail.se>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f170.google.com ([209.85.212.170]:36748 "EHLO
-	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752905Ab2GTJtC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Jul 2012 05:49:02 -0400
-Received: by wibhq12 with SMTP id hq12so357012wib.1
-        for <linux-input@vger.kernel.org>; Fri, 20 Jul 2012 02:49:01 -0700 (PDT)
+Received: from cantor2.suse.de ([195.135.220.15]:35519 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751653Ab2GTLiN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 Jul 2012 07:38:13 -0400
+In-Reply-To: <1340356731-4745-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, rydberg@euromail.se, David Herrmann <dh.herrmann@googlemail.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-hid-picolcd and hid-wiimote do not allow any of hidinput, hiddev or hidraw
-to claim the device but still want to remain on the bus. Hence, if a
-driver uses the raw_event callback but no other listener claimed the
-device, we still leave it on the bus as the driver handles everything by
-itself. It thus becomes its own listener.
+On Fri, 22 Jun 2012, Henrik Rydberg wrote:
 
-Under some circumstances (eg., hidinput_connect() fails and raw_event set)
-a device may be left on the bus even though it requires external
-listeners. But then if hidinput_connect() fails there are bigger issues
-than a device that is left unhandled. So we can safely use this heuristic
-to avoid adding another flag for special devices like hid-picolcd and
-hid-wiimote.
+> The HID subsystem was made a proper bus in 2008, but the config
+> options do not reflect this. Modify the HID and USB_HID entries
+> to better explain what they do.
+> 
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+> Hi Jiri,
+> 
+> As the HID subsystem moves more and more towards a regular bus, the
+> config options become less and less apt. This patch, for next, only
+> scratches the surface but hopefully in the right direction.
 
-This also removes the ugly hack from hid-picolcd as this is no longer
-required.
+Applied, thank you Henrik.
 
-Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
----
-Sorry for the delay. I had two exams this week that got into my way. Anyway, I
-hope this time the patch looks ok.
-
-Thanks to Henrik for reviewing it the previous times.
-
- drivers/hid/hid-core.c    | 6 ++++--
- drivers/hid/hid-picolcd.c | 4 ----
- 2 files changed, 4 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 9cdc74e..925774a 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1373,8 +1373,10 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 	if ((connect_mask & HID_CONNECT_HIDRAW) && !hidraw_connect(hdev))
- 		hdev->claimed |= HID_CLAIMED_HIDRAW;
- 
--	if (!hdev->claimed) {
--		hid_err(hdev, "claimed by neither input, hiddev nor hidraw\n");
-+	/* Drivers with the ->raw_event callback set are not required to connect
-+	 * to any other listener. */
-+	if (!hdev->claimed && !hdev->driver->raw_event) {
-+		hid_err(hdev, "device has no listeners, quitting\n");
- 		return -ENODEV;
- 	}
- 
-diff --git a/drivers/hid/hid-picolcd.c b/drivers/hid/hid-picolcd.c
-index 45c3433..74c388d 100644
---- a/drivers/hid/hid-picolcd.c
-+++ b/drivers/hid/hid-picolcd.c
-@@ -2613,11 +2613,7 @@ static int picolcd_probe(struct hid_device *hdev,
- 		goto err_cleanup_data;
- 	}
- 
--	/* We don't use hidinput but hid_hw_start() fails if nothing is
--	 * claimed. So spoof claimed input. */
--	hdev->claimed = HID_CLAIMED_INPUT;
- 	error = hid_hw_start(hdev, 0);
--	hdev->claimed = 0;
- 	if (error) {
- 		hid_err(hdev, "hardware start failed\n");
- 		goto err_cleanup_data;
 -- 
-1.7.11.2
-
+Jiri Kosina
+SUSE Labs

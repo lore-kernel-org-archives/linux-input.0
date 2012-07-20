@@ -1,52 +1,93 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3] HID: Allow drivers to be their own listener
-Date: Fri, 20 Jul 2012 14:49:41 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1207201449290.21929@pobox.suse.cz>
-References: <1342777749-31457-1-git-send-email-dh.herrmann@googlemail.com> <20120720122801.GA1463@polaris.bitmath.org>
+From: "Henrik Rydberg" <rydberg@bitmath.se>
+Subject: Re: [PATCH v2] Input: synaptics - use firmware data for Cr-48
+Date: Fri, 20 Jul 2012 15:03:50 +0200
+Message-ID: <20120720130350.GA1508@polaris.bitmath.org>
+References: <1342606923-9997-1-git-send-email-cywang@chromium.org>
+ <5006D86C.7030208@canonical.com>
+ <CAM2ehZbftDja6CBGjhL3Jp+30DtYJj+8_4e=_wWcj3pCDGD7AA@mail.gmail.com>
+ <500832D7.4040805@canonical.com>
+ <CAGS+omA-PwoM=U3xP_Gtadaow9SGt555NPWor_-HuvVE8-R3MQ@mail.gmail.com>
+ <50084529.2030001@canonical.com>
+ <20120719184419.GA3626@polaris.bitmath.org>
+ <CAM2ehZaLeJsxCOkqLv9jSko9y3Awix1jjobfTo5WQj8rcrYquA@mail.gmail.com>
+ <20120720072510.GA986@polaris.bitmath.org>
+ <CAGS+omBmkdrpLds4xE==BNp1yctOmA1xj-p2s4S8Bvh7Q=ixxw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38960 "EHLO mx2.suse.de"
+Received: from csmtp2.one.com ([91.198.169.22]:48111 "EHLO csmtp2.one.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753563Ab2GTMtr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Jul 2012 08:49:47 -0400
-In-Reply-To: <20120720122801.GA1463@polaris.bitmath.org>
+	id S1753132Ab2GTNCm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 Jul 2012 09:02:42 -0400
+Content-Disposition: inline
+In-Reply-To: <CAGS+omBmkdrpLds4xE==BNp1yctOmA1xj-p2s4S8Bvh7Q=ixxw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.se>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, linux-input@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Chung-Yih Wang =?utf-8?B?KOeOi+W0h+aHvyk=?= <cywang@google.com>, Chase Douglas <chase.douglas@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 20 Jul 2012, Henrik Rydberg wrote:
-
-> > hid-picolcd and hid-wiimote do not allow any of hidinput, hiddev or hidraw
-> > to claim the device but still want to remain on the bus. Hence, if a
-> > driver uses the raw_event callback but no other listener claimed the
-> > device, we still leave it on the bus as the driver handles everything by
-> > itself. It thus becomes its own listener.
-> > 
-> > Under some circumstances (eg., hidinput_connect() fails and raw_event set)
-> > a device may be left on the bus even though it requires external
-> > listeners. But then if hidinput_connect() fails there are bigger issues
-> > than a device that is left unhandled. So we can safely use this heuristic
-> > to avoid adding another flag for special devices like hid-picolcd and
-> > hid-wiimote.
-> > 
-> > This also removes the ugly hack from hid-picolcd as this is no longer
-> > required.
-> > 
-> > Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
-> > ---
-> > Sorry for the delay. I had two exams this week that got into my way. Anyway, I
-> > hope this time the patch looks ok.
-> > 
-> > Thanks to Henrik for reviewing it the previous times.
+> > Propagating information about various sensor defects to userspace
+> > sounds horrid to me. The sooner we can forget about these devices, the
+> > better.
 > 
-> Thanks, David, looking good now.
+> Not providing the userspace driver with enough information to give
+> users the best experience possible sounds horrid to me.
+
+The question was whether we should add those to the long-lived input
+interface or not, sorry if that sounded like a rant.
+
+> It turns out
+> that using a bounding box with fixed "[(min_x, min_y), (max_x,
+> max_y)]", and no per-finger pressure information, instead of the
+> coordinates and pressures provided by the firmware, is throwing away
+> useful data that could be used by the userspace driver.
+
+So far, we have provided the baseline of reliable data from similar
+devices.
+
+> What we would like is a way to tell userspace what the firmware
+> originally intended, but with a caveat that the firmware can't be 100%
+> trusted.  And, since this is for a relatively small class of hardware,
+> to do it in a way that doesn't consume precious resources, like
+> additional input properties.
+
+Input properties are not a precious resource, there is no limit on the
+bitmask values or anything like that, but there is no rush to add new
+ones.
+
+> >> > > * Leave the device as SEMI_MT, but provide the real locations, and
+> >> > > allow userspace to determine the device vendor/model/etc. If
+> >> > > userspace knows that a specific device behaves in a specific way, it
+> >> > > can do its own quirking handling. Given the specificity of this
+> >> > > behavior to only some devices of one brand, this would be my
+> >> > > suggested resolution to the issue.
+> >> >
 > 
->     Acked-by: Henrik Rydberg <rydberg@euromail.se>
+> This is essentially what this patch does.
 
-Now queued for 3.6. Thanks,
+I am interpreting Chase's suggestion as simply reporting the raw
+values instead of min/max.
 
--- 
-Jiri Kosina
-SUSE Labs
+> It sets the SEMI_MT flag to
+> indicate that the kernel data cannot be totally trusted, and then
+> provides real MT-B (including per-finger pressures), instead of a
+> fixed bounding box.  It leaves it to userspace to treat the two slots
+> worth of coordinates as a bounding box or as actual fingers using its
+> own heuristics.  By limiting to only one hardware type (using DMI),
+> any breakage caused by this alternative use of the SEMI_MT flag is
+> limited.
+
+So it seems there is no need to add logic to the driver, only change
+one line from min/max to raw data for this particular hardware. That
+would solve your problem, yes?
+
+> Hopefully it is clear what we are trying to accomplish.  I don't see
+> how we can make a bounding box, even an improved bounding box, work.
+> Perhaps Henrik has a really good idea, but I haven't been able to
+> figure out what he is suggesting.
+
+I understand you are not interested in looking into this, and your
+main objective is quite clear.
+
+Thanks,
+Henrik

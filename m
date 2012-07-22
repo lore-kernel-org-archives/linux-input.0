@@ -1,61 +1,131 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH v2] Input: synaptics - use firmware data for Cr-48
-Date: Fri, 20 Jul 2012 11:31:30 -0700
-Message-ID: <5009A402.2060601@canonical.com>
-References: <1342606923-9997-1-git-send-email-cywang@chromium.org> <5006D86C.7030208@canonical.com> <CAM2ehZbftDja6CBGjhL3Jp+30DtYJj+8_4e=_wWcj3pCDGD7AA@mail.gmail.com> <500832D7.4040805@canonical.com> <CAGS+omA-PwoM=U3xP_Gtadaow9SGt555NPWor_-HuvVE8-R3MQ@mail.gmail.com> <50084529.2030001@canonical.com> <20120719184419.GA3626@polaris.bitmath.org> <CAM2ehZaLeJsxCOkqLv9jSko9y3Awix1jjobfTo5WQj8rcrYquA@mail.gmail.com> <20120720072510.GA986@polaris.bitmath.org> <CAGS+omBmkdrpLds4xE==BNp1yctOmA1xj-p2s4S8Bvh7Q=ixxw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: "George Spelvin" <linux@horizon.com>
+Subject: [REPOST #3 PATCH v2] Input: atkbd - make repeat period more accurate.
+Date: 21 Jul 2012 23:42:28 -0400
+Message-ID: <20120722034228.14345.qmail@science.horizon.com>
+References: <20120714110114.31895.qmail@science.horizon.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:41290 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751114Ab2GTSbf (ORCPT
+Received: from science.horizon.com ([71.41.210.146]:54894 "HELO
+	science.horizon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751126Ab2GVDmc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Jul 2012 14:31:35 -0400
-In-Reply-To: <CAGS+omBmkdrpLds4xE==BNp1yctOmA1xj-p2s4S8Bvh7Q=ixxw@mail.gmail.com>
+	Sat, 21 Jul 2012 23:42:32 -0400
+In-Reply-To: <20120714110114.31895.qmail@science.horizon.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Henrik Rydberg <rydberg@euromail.se>, =?UTF-8?B?IkNodW5nLVlpaCBXYW5nIA==?= =?UTF-8?B?KOeOi+W0h+aHvyki?= <cywang@google.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux@horizon.com
 
-On 07/20/2012 02:03 AM, Daniel Kurtz wrote:
->>>>> * Leave the device as SEMI_MT, but provide the real locations, and
->>>>> allow userspace to determine the device vendor/model/etc. If
->>>>> userspace knows that a specific device behaves in a specific way, it
->>>>> can do its own quirking handling. Given the specificity of this
->>>>> behavior to only some devices of one brand, this would be my
->>>>> suggested resolution to the issue.
->
-> This is essentially what this patch does.  It sets the SEMI_MT flag to
-> indicate that the kernel data cannot be totally trusted, and then
-> provides real MT-B (including per-finger pressures), instead of a
-> fixed bounding box.  It leaves it to userspace to treat the two slots
-> worth of coordinates as a bounding box or as actual fingers using its
-> own heuristics.  By limiting to only one hardware type (using DMI),
-> any breakage caused by this alternative use of the SEMI_MT flag is
-> limited.
+This replaces some inaccurate lookup tables with an exact
+computation.  Although the diff adds source comments,
+it shrinks binary size.  (By only 50 bytes, but hey.)
 
-So I was worried that you were trying to remove the SEMI_MT flag, and I 
-apologise for not looking closely enough to notice that wasn't the case. 
-The documentation for the flag says:
+AT keyboard repeat rates are multiples of 1/240 second
+expressed in a 0.2.3 bit floating point format.  That
+is, possible values are ({8..15} << {0..3}) / 240 s.
 
-"""
-Some touchpads, most common between 2008 and 2011, can detect the 
-presence of multiple contacts without resolving the individual 
-positions; only the number of contacts and a rectangular shape is known. 
-For such touchpads, the semi-mt property should be set.
+In addition to a slightly inaccurate lookup table, the
+old code would round up to the next repeat period.
+E.g. to get a period of 9/60 = 0.15 seconds, you had to
+ask for no more than 149 ms; if you asked for 150, it
+would round up to 167.  The new code rounds to nearest.
 
-Depending on the device, the rectangle may enclose all touches, like a 
-bounding box, or just some of them, for instance the two most recent 
-touches. The diversity makes the rectangle of limited use, but some 
-gestures can normally be extracted from it.
-"""
+User-visible changes to the repeat periods reported by EVIOCGREP:
 
-Since the documentation doesn't say the data must be provided as min/max 
-values, this patch actually appears to be perfectly fine as is.
+Old	 37	109	116	149	182	232
+Exact	 37.50	108.33	116.66	150.00	183.33	233.33
+New	 38	108	117	150	183	233
 
-My next question is: how are you going to tell from userspace if the 
-hardware actually provides correct data? IIRC, it was decided that we 
-wouldn't provide sysfs nodes for the device IDs.
+Old	270	303	370	435	470
+Exact	266.66	300.00	366.66	433.33	466.66
+New	267	300	367	433	467
 
--- Chase
+This does not bother utilities like kbdrate(8).
+
+Signed-off-by: George Spelvin <linux@horizon.com>
+---
+ drivers/input/keyboard/atkbd.c |   47 +++++++++++++++++++++++++++++++----------------
+ 1 file changed, 31 insertions(+), 16 deletions(-)
+
+Now that 3.5 is out, I'm posting this for a FOURTH time,
+hoping for some comments of any sort.
+
+
+Now that I've tweaked it (v1 had an error in rounding near exponent
+range boundaries), I think it's ready for merging upstream.
+
+
+One possible bug I observed in the code that calls this:
+
+Users of the KDKBDREP ioctl seem to assume that it returns the actual
+values set, but I'm not sure it really works that way; I don't think
+the command to change the parameters makes its way through the event
+queue and atkbd's schedule_delayed_work() to actually set dev->rep[]
+to the rounded values before kbd_rate_helper returns them to userspace.
+
+If desired, the fix that's most obvious to me would be to split this
+function in two: perform the conversion to a command byte synchronously,
+and only defer the actual ps2_command().
+
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index e05a2e7..3181b86 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -524,27 +524,42 @@ out:
+ 	return IRQ_HANDLED;
+ }
+ 
++/*
++ * AT keyboard repeat rates are set using a 2-bit initial repeat delay
++ * (250, 500, 750 or 1000 ms), and a 5-bit repeat period.  The latter
++ * is a 0.2.3-bit floating-point number (no sign, 2-bit exponent, and
++ * 3-bit mantissa), encoding a value from 8/240 to 120/240 of second.
++ *
++ * Given the requested delay and period in milliseconds, round to the
++ * nearest representable value, and convert the rounded values back to
++ * milliseconds to report the chosen values.
++ */
+ static int atkbd_set_repeat_rate(struct atkbd *atkbd)
+ {
+-	const short period[32] =
+-		{ 33,  37,  42,  46,  50,  54,  58,  63,  67,  75,  83,  92, 100, 109, 116, 125,
+-		 133, 149, 167, 182, 200, 217, 232, 250, 270, 303, 333, 370, 400, 435, 470, 500 };
+-	const short delay[4] =
+-		{ 250, 500, 750, 1000 };
+-
+ 	struct input_dev *dev = atkbd->dev;
+ 	unsigned char param;
+-	int i = 0, j = 0;
+-
+-	while (i < ARRAY_SIZE(period) - 1 && period[i] < dev->rep[REP_PERIOD])
+-		i++;
+-	dev->rep[REP_PERIOD] = period[i];
+-
+-	while (j < ARRAY_SIZE(delay) - 1 && delay[j] < dev->rep[REP_DELAY])
+-		j++;
+-	dev->rep[REP_DELAY] = delay[j];
++	unsigned exp = 3;	/* Period exponent */
++	int period;		/* Period mantissa */
++	int delay = clamp(dev->rep[REP_DELAY], 125, 1000);
++
++	/* AT kbd delay is {1..4} * 250 ms.  Round to 2 bits. */
++	delay = (delay + 125) / 250u;
++	/* Store actual value back */
++	dev->rep[REP_DELAY] = delay * 250;
++
++	/* AT kbd period is ({8..15} << {0..3}) / 240 s. */
++	period = clamp(dev->rep[REP_PERIOD], 33, 500);
++	/* Get correct exponent.  Split is at 258.333 ms */
++	while (period < 259) {
++		period <<= 1;
++		exp--;
++	}
++	/* Convert from 259..516 ms to 8..15 30ths of a second */
++	period = (period * 3 + 50) / 100u;
++	/* Store actual value back.  x * 1000 / 240 = x * 25 / 6 */
++	dev->rep[REP_PERIOD] = ((period << exp) * 25 + 3) / 6u;
+ 
+-	param = i | (j << 5);
++	param = (delay - 1) << 5 | exp << 3 | (period - 8);
+ 	return ps2_command(&atkbd->ps2dev, &param, ATKBD_CMD_SETREP);
+ }
+ 

@@ -1,86 +1,90 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 2/2] input: Add support for the Semtech SX8634
- controller
-Date: Mon, 23 Jul 2012 09:48:16 -0700
-Message-ID: <20120723164816.GA26577@core.coreip.homeip.net>
-References: <1343045927-22063-1-git-send-email-thierry.reding@avionic-design.de>
- <1343045927-22063-2-git-send-email-thierry.reding@avionic-design.de>
+Subject: Re: [PATCH] Input: eeti_ts: Mark as CONFIG_BROKEN
+Date: Mon, 23 Jul 2012 09:51:20 -0700
+Message-ID: <20120723165120.GB26577@core.coreip.homeip.net>
+References: <1333777207-4151-1-git-send-email-olof@lixom.net>
+ <20120407070206.GA17623@core.coreip.homeip.net>
+ <4F8089A9.6080704@raumfeld.com>
+ <20120503043651.GA11830@core.coreip.homeip.net>
+ <20120713070102.GA2223@core.coreip.homeip.net>
+ <500561AF.9090901@gmail.com>
+ <5008296C.5070709@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:55773 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754190Ab2GWQsW (ORCPT
+Received: from mail-gg0-f174.google.com ([209.85.161.174]:36427 "EHLO
+	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753359Ab2GWQv0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Jul 2012 12:48:22 -0400
-Received: by pbbrp8 with SMTP id rp8so11133590pbb.19
-        for <linux-input@vger.kernel.org>; Mon, 23 Jul 2012 09:48:21 -0700 (PDT)
+	Mon, 23 Jul 2012 12:51:26 -0400
 Content-Disposition: inline
-In-Reply-To: <1343045927-22063-2-git-send-email-thierry.reding@avionic-design.de>
+In-Reply-To: <5008296C.5070709@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thierry Reding <thierry.reding@avionic-design.de>
-Cc: linux-input@vger.kernel.org, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, devicetree-discuss@lists.ozlabs.org
+To: Daniel Mack <zonque@gmail.com>
+Cc: Sven Neumann <s.neumann@raumfeld.com>, Olof Johansson <olof@lixom.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Thierry,
+On Thu, Jul 19, 2012 at 05:36:12PM +0200, Daniel Mack wrote:
+> On 17.07.2012 14:59, Daniel Mack wrote:
+> > On 13.07.2012 09:01, Dmitry Torokhov wrote:
+> >> On Wed, May 02, 2012 at 09:36:51PM -0700, Dmitry Torokhov wrote:
+> >>> Hi Sven,
+> >>>
+> >>> On Sat, Apr 07, 2012 at 08:38:33PM +0200, Sven Neumann wrote:
+> >>>> Hi,
+> >>>>
+> >>>> On 07.04.12 09:02, Dmitry Torokhov wrote:
+> >>>>> On Fri, Apr 06, 2012 at 10:40:07PM -0700, Olof Johansson wrote:
+> >>>>>> This seems to have been broken since 2010, so obviously noone actually
+> >>>>>> cares about the driver:
+> >>>>>>
+> >>>>>> make[4]: *** [drivers/input/touchscreen/eeti_ts.o] Error 1
+> >>>>>> drivers/input/touchscreen/eeti_ts.c: In function 'eeti_ts_irq_active':
+> >>>>>> drivers/input/touchscreen/eeti_ts.c:65:2: error: implicit declaration of function 'irq_to_gpio' [-Werror=implicit-function-declaration]
+> >>>>>>
+> >>>>>> irq_to_gpio isn't available on most platforms today, so the driver
+> >>>>>> will need some rework by someone who has hardware access and can test
+> >>>>>> (to make sure that, for example, switching to level interrupts and just
+> >>>>>> keep taking them while there's more to process works).
+> >>>>>>
+> >>>>>> I guess it could just be scheduled for removal, but let's start with
+> >>>>>> marking it CONFIG_BROKEN.
+> >>>>>
+> >>>>> Well, it probably works quite well on arches that do have irq_to_gpio(),
+> >>>>> let's ask Daniel and Sven if they still have this hardware and if they
+> >>>>> can try the patch below that implements what you suggested.
+> >>>>
+> >>>> This hardware is still in use and we also still follow kernel
+> >>>> development and try to update our customer devices to recent kernel
+> >>>> versions regularly. Currently we are at 3.1.10 and the touchscreen
+> >>>> works well with that. I'll try to update to a more recent kernel
+> >>>> next week and will try your patch.
+> >>>>
+> >>>
+> >>> Did you have a chance to test the patch?
+> >>
+> >> *ping*
+> >>
+> >> It would be nice to get driver in mainline compile [and work] again...
+> > 
+> > We gave that patch a quick try today and it doesn't seem to work. We
+> > don't get any events from the touch screen anymore. We need to debug
+> > this further, hopefully by the end of this week.
+> > 
+> > If there's anything obvious in the setup of the threaded IRQ handler,
+> > please let us know. Otherwise, I'll get back once I have a fixed version
+> > of the patch.
+> 
+> Ok, finally I found some time. In general, the patch works fine. The
+> only detail I had to amend was the irqflags, which were changed from
+> IRQF_TRIGGER_RISING/IRQF_TRIGGER_FALLING to
+> IRQF_TRIGGER_HIGH/IRQF_TRIGGER_LOW, which doesn't work as the PXA can't
+> deal with level-based IRQs. Changing this back to RISING/FALLING makes
+> the driver work again.
 
-On Mon, Jul 23, 2012 at 02:18:47PM +0200, Thierry Reding wrote:
-> +
-> +	if (gpio_is_valid(sx->power_gpio)) {
-> +		err = gpio_request(sx->power_gpio, "sx8634 power");
-> +		if (err < 0) {
-> +			dev_err(&client->dev,
-> +				"failed to request power GPIO#%u: %d\n",
-> +				sx->power_gpio, err);
-> +			goto free_input_device;
-> +		}
-> +
-> +		err = gpio_direction_output(sx->power_gpio, 1);
-> +		if (err < 0) {
-> +			dev_err(&client->dev, "failed to enable power: %d\n",
-> +				err);
-> +			goto free_power_gpio;
-> +		}
-
-I think there is gpio_request_one() that will take care of tehse 2
-calls.
-
-> +
-> +		msleep(150);
-> +	}
-> +
-> +	err = sx8634_setup(sx, pdata);
-> +	if (err < 0)
-> +		goto free_power_gpio;
-> +
-> +	err = sysfs_create_group(&client->dev.kobj, &sx8634_attr_group);
-> +	if (err < 0)
-> +		goto free_power_gpio;
-> +
-> +	err = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> +					sx8634_irq, IRQF_ONESHOT, "sx8634",
-> +					sx);
-
-Please do not use devm_* interface here as it make the driverr bomb in
-remove() where you unregister input device but keep interrupt handler
-active until after remove() finishes.
-
-> +
-> +#ifdef CONFIG_PM_SLEEP
-> +static int sx8634_i2c_suspend(struct device *dev)
-> +{
-> +	return 0;
-> +}
-> +
-> +static int sx8634_i2c_resume(struct device *dev)
-> +{
-> +	return 0;
-> +}
-> +#endif
-> +
-> +static SIMPLE_DEV_PM_OPS(sx8634_i2c_pm, sx8634_i2c_suspend, sx8634_i2c_resume);
-
-Why are these stubs needed?
+Hmm, but that would mean we need to restore reading the data in open()
+to make sure we re-arm IRQ in case somebody touched the screen before it
+was opened by userspace...
 
 Thanks.
 

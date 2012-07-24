@@ -1,118 +1,278 @@
-From: Qiao Zhou <zhouqiao@marvell.com>
-Subject: Re: [PATCH V10] add 88pm80x onkey driver
-Date: Tue, 24 Jul 2012 14:44:46 +0800
-Message-ID: <500E445E.3000307@marvell.com>
-References: <1342509459-16976-1-git-send-email-zhouqiao@marvell.com> <500591FB.3020600@marvell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog107.obsmtp.com ([74.125.149.197]:37263 "EHLO
-	na3sys009aog107.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754530Ab2GXGov (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Jul 2012 02:44:51 -0400
-In-Reply-To: <500591FB.3020600@marvell.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
+Subject: [PATCH v3] input: gpio_keys_polled: convert to dt
+Date: Tue, 24 Jul 2012 10:59:06 -0300
+Message-ID: <1343138346-11942-1-git-send-email-aletes.xgr@gmail.com>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Alexandre Pereira da Silva <aletes.xgr@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tobias Klauser <tklauser@distanz.ch>, David Jander <david@protonic.nl>, JJ Ding <dgdunix@gmail.com>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On 07/18/2012 12:25 AM, Qiao Zhou wrote:
-> On 07/17/2012 03:17 PM, Qiao Zhou wrote:
->> change log [v10->v9]:
->> 1, change pr_err to dev_err.
->> 2, add device_init_wakeup(,0) when device removes.
->> 3, add ack by Dmitry.
->>
->> change log [v9->v8]:
->> 1, remove devm_xxx api.
->> 2, fix the potential oops issue.
->> 3, use __set_bit to set key_bit.
->>
->> change log [v8->v7]:
->> 1, remove file name in comments.
->> 2, add error handling to regmap_read.
->> 3, remove unnecessary onkey suspend/resume wrapper api.
->> 4, remove the pm80x_chip cast by directly define the struct type.
->> 5, fix the double free input device issue.
->>
->> change log [v7->v6]:
->> 1, add the ack by Arnd for the first two patches.
->> 2, add NULL terminater for id_table in 88pm800.c & 88pm805.c.
->>
->> change log [v6->v5]:
->> export_symbol_gpl for pm80x_regmap_config to fix build issue for module.
->>
->> change log [v5->v4]:
->> 1, change the file name, from 88pm800-core.c, 88pm805-core.c,
->> 88pm80x-i2c.c
->> to 88pm800.c, 88pm805.c, 88pm80x.c, and modified Makefile accordingly.
->> 2, replace the spinlock used to protect wakeup flag, with using set_bit/
->> clear_bit, which is suitable adn enough in SMP env.
->> 3, add the version number in each patch.
->>
->> change log [v4->v3]:
->> 1, provide unified suspend/resume api for all sub-devices, and add
->> protection for 800 & 805 wakeup flag in SMP case.
->> 2, clean register definition in 88pm80x.h, and thanks Arnd's help.
->> 3, some minor changes in mfd Kconfig/Makefile.
->>
->> change log [v3->v2]:
->> 1, dynamically get the irq_base, for both regmap_add_irq_chip and
->> mfd_add_devices. add pm80x_request_irq & pm80x_free_irq for sub-driver
->> facility, and modify related irq thread operation. remove irq_base member
->> from 80x_chip & platform data.
->> 2, split 88pm80x.o into 3 separate modules.
->> 3, remove the 88pm80x r/w API, and directly use open-coded regmap api.
->> 4, minor change: move pm80x_id_table from 80x-i2c.c to 800/805-core.c,
->> exported pm80x_init, pm80x_deinit, and pm80x_bulk_read, add callback in
->> pdata.
->>
->> change log [v2->v1]:
->> 1, split 88pm80x-core.c into 88pm800-core.c and 88pm805.c, per Arnd's
->> suggestion. after the re-arch, 88pm80x-i2c handles the 800 & 805 common
->> parts, while 800-core.c & 805-core.c handle the specific parts in each
->> chip.
->> 2, add details about the workaround adding a i2c companion between 800 &
->> 805, and make a separate patch for it, per Arnd's suggestion.
->> 3, remove callback in pdata. but still keep the pdata currently.
->> 4, only keep necessary register in 88pm80x.h, including registers for
->> regulator/rtc/onkey/power/codec etc, and remove other registers from
->> global
->> visibility.
->> 5, exported r/w API which requires regmap handle. as currently the pm800
->> chip has 3 i2c device, only passing a pm80x_chip info can't ensure r/w
->> the
->> register in correct i2c device.
->>
->> change log [v1]:
->> 1, pm800 and pm805 are decoupled and probed separately;
->> 2, re-used the most of API for pm800 and pm805 per Arnd's comments;
->> 3, use regmap_irq, instead of previous 88pm80x_irq_data per Mark's
->> comments.
->> use regmap_add_irq_chip, and remove previous 88pm80x irq handling.
->> 4, remove callback function in rtc pdata per Arnd's comments.
->> 5, updated some coding style issue.
->>
->> Qiao Zhou (1):
->>    input: add onkey support to 88PM80X PMIC
->>
->>   drivers/input/misc/88pm80x_onkey.c |  168
->> ++++++++++++++++++++++++++++++++++++
->>   drivers/input/misc/Kconfig         |   10 ++
->>   drivers/input/misc/Makefile        |    1 +
->>   3 files changed, 179 insertions(+), 0 deletions(-)
->>   create mode 100644 drivers/input/misc/88pm80x_onkey.c
->>
-> Hi Samuel,
->
-> would you please help check and apply this patch as it's ACKed by Dmitry?
->
-Hi Samuel,
+Signed-off-by: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+Dmitry, I've made a few adjustments from your patch.
 
-do you have any suggestion about this patch?
+Applies to linux-next next-20120723
 
+Changes since v2:
+* Use modification suggestion from Dmitry and avoid pdata copy
+
+Changes since v1:
+* Add biding documentation
+* Fix sizeof in memset
+* Cleanup dt properties extraction
+* Use for_each macro
+* Fix memleak on buttons
+
+ .../devicetree/bindings/input/gpio-keys-polled.txt |   38 ++++++
+ drivers/input/keyboard/gpio_keys_polled.c          |  140 +++++++++++++++++++-
+ 2 files changed, 173 insertions(+), 5 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/gpio-keys-polled.txt
+
+diff --git a/Documentation/devicetree/bindings/input/gpio-keys-polled.txt b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
+new file mode 100644
+index 0000000..313abef
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
+@@ -0,0 +1,38 @@
++Device-Tree bindings for input/gpio_keys_polled.c keyboard driver
++
++Required properties:
++	- compatible = "gpio-keys-polled";
++	- poll-interval: Poll interval time in milliseconds
++
++Optional properties:
++	- autorepeat: Boolean, Enable auto repeat feature of Linux input
++	  subsystem.
++
++Each button (key) is represented as a sub-node of "gpio-keys-polled":
++Subnode properties:
++
++	- gpios: OF device-tree gpio specification.
++	- label: Descriptive name of the key.
++	- linux,code: Keycode to emit.
++
++Optional subnode-properties:
++	- linux,input-type: Specify event type this button/key generates.
++	  If not specified defaults to <1> == EV_KEY.
++	- debounce-interval: Debouncing interval time in milliseconds.
++	  If not specified defaults to 5.
++	- gpio-key,wakeup: Boolean, button can wake-up the system.
++
++Example nodes:
++
++	gpio_keys_polled {
++			compatible = "gpio-keys-polled";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			poll-interval = <100>;
++			autorepeat;
++			button@21 {
++				label = "GPIO Key UP";
++				linux,code = <103>;
++				gpios = <&gpio1 0 1>;
++			};
++			...
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index 20c8ab1..c728aba 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -25,6 +25,8 @@
+ #include <linux/platform_device.h>
+ #include <linux/gpio.h>
+ #include <linux/gpio_keys.h>
++#include <linux/of_platform.h>
++#include <linux/of_gpio.h>
+ 
+ #define DRV_NAME	"gpio-keys-polled"
+ 
+@@ -100,6 +102,108 @@ static void gpio_keys_polled_close(struct input_polled_dev *dev)
+ 		pdata->disable(bdev->dev);
+ }
+ 
++#ifdef CONFIG_OF
++static struct gpio_keys_platform_data * __devinit
++gpio_keys_polled_get_devtree_pdata(struct device *dev)
++{
++	struct device_node *node, *pp;
++	struct gpio_keys_platform_data *pdata;
++	struct gpio_keys_button *buttons;
++	int error;
++	int nbuttons;
++	int i;
++
++	node = dev->of_node;
++	if (!node) {
++		error = -ENODEV;
++		goto err_out;
++	}
++
++	nbuttons = of_get_child_count(node);
++	if (nbuttons == 0) {
++		error = -ENODEV;
++		goto err_out;
++	}
++
++	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
++	if (!pdata) {
++		error = -ENOMEM;
++		goto err_out;
++	}
++
++	buttons = kzalloc(nbuttons * sizeof(*buttons), GFP_KERNEL);
++	if (!buttons) {
++		error = -ENOMEM;
++		goto err_free_pdata;
++	}
++
++	pdata->nbuttons = nbuttons;
++	pdata->buttons = buttons;
++
++	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
++	of_property_read_u32(node, "poll-interval", &pdata->poll_interval);
++
++	i = 0;
++	for_each_child_of_node(node, pp) {
++		enum of_gpio_flags flags;
++
++		if (!of_find_property(pp, "gpios", NULL)) {
++			pdata->nbuttons--;
++			dev_warn(dev, "Found button without gpios\n");
++			continue;
++		}
++
++		buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
++		buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
++
++		if (of_property_read_u32(pp, "linux,code", &buttons[i].code)) {
++			dev_err(dev, "Button without keycode: 0x%x\n",
++				buttons[i].gpio);
++			error = -EINVAL;
++			goto err_free_buttons;
++		}
++
++		buttons[i].desc = of_get_property(pp, "label", NULL);
++
++		if (of_property_read_u32(pp, "linux,input-type",
++				&buttons[i].type))
++			buttons[i].type = EV_KEY;
++
++		buttons[i].wakeup = !!of_get_property(pp, "gpio-key,wakeup",
++			NULL);
++
++		if (of_property_read_u32(pp, "debounce-interval",
++					 &buttons[i].debounce_interval))
++			buttons[i].debounce_interval = 5;
++
++		i++;
++	}
++
++	return pdata;
++
++err_free_buttons:
++	kfree(buttons);
++err_free_pdata:
++	kfree(pdata);
++err_out:
++	return ERR_PTR(error);
++}
++
++static struct of_device_id gpio_keys_polled_of_match[] = {
++	{ .compatible = "gpio-keys-polled", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, gpio_keys_polled_of_match);
++
++#else
++
++static inline struct gpio_keys_platform_data *
++gpio_keys_polled_get_devtree_pdata(struct device *dev)
++{
++	return ERR_PTR(-ENODEV);
++}
++#endif
++
+ static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
+ {
+ 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+@@ -110,15 +214,24 @@ static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
+ 	int error;
+ 	int i;
+ 
+-	if (!pdata || !pdata->poll_interval)
+-		return -EINVAL;
++	if (!pdata) {
++		pdata = gpio_keys_polled_get_devtree_pdata(dev);
++		if (IS_ERR(pdata))
++			return PTR_ERR(pdata);
++	}
++
++	if (!pdata->poll_interval) {
++		error = -EINVAL;
++		goto err_free_pdata;
++	}
+ 
+ 	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
+ 		       pdata->nbuttons * sizeof(struct gpio_keys_button_data),
+ 		       GFP_KERNEL);
+ 	if (!bdev) {
+ 		dev_err(dev, "no memory for private data\n");
+-		return -ENOMEM;
++		error = -ENOMEM;
++		goto err_free_pdata;
+ 	}
+ 
+ 	poll_dev = input_allocate_polled_device();
+@@ -197,7 +310,7 @@ static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
+ 	/* report initial state of the buttons */
+ 	for (i = 0; i < pdata->nbuttons; i++)
+ 		gpio_keys_polled_check_state(input, &pdata->buttons[i],
+-					 &bdev->data[i]);
++					     &bdev->data[i]);
+ 
+ 	return 0;
+ 
+@@ -209,8 +322,15 @@ err_free_gpio:
+ 
+ err_free_bdev:
+ 	kfree(bdev);
+-
+ 	platform_set_drvdata(pdev, NULL);
++
++err_free_pdata:
++	/* If we have no platform_data, we allocated pdata dynamically.  */
++	if (!dev_get_platdata(&pdev->dev)) {
++		kfree(pdata->buttons);
++		kfree(pdata);
++	}
++
+ 	return error;
+ }
+ 
+@@ -227,6 +347,15 @@ static int __devexit gpio_keys_polled_remove(struct platform_device *pdev)
+ 
+ 	input_free_polled_device(bdev->poll_dev);
+ 
++	/*
++	 * If we had no platform_data, we allocated pdata dynamically and
++	 * must free it here.
++	 */
++	if (!dev_get_platdata(&pdev->dev)) {
++		kfree(pdata->buttons);
++		kfree(pdata);
++	}
++
+ 	kfree(bdev);
+ 	platform_set_drvdata(pdev, NULL);
+ 
+@@ -239,6 +368,7 @@ static struct platform_driver gpio_keys_polled_driver = {
+ 	.driver	= {
+ 		.name	= DRV_NAME,
+ 		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(gpio_keys_polled_of_match),
+ 	},
+ };
+ module_platform_driver(gpio_keys_polled_driver);
 -- 
+1.7.10
 
-Best Regards
-Qiao

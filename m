@@ -1,85 +1,93 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH] fixed coding style issues
-Date: Wed, 25 Jul 2012 00:30:06 -0700
-Message-ID: <1343201406.30161.10.camel@joe2Laptop>
-References: <1343200277-14385-1-git-send-email-chenbdchenbd@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [REPOST #3 PATCH v2] Input: atkbd - make repeat period more
+ accurate.
+Date: Wed, 25 Jul 2012 00:39:40 -0700
+Message-ID: <20120725073940.GB15997@core.coreip.homeip.net>
+References: <20120714110114.31895.qmail@science.horizon.com>
+ <20120722034228.14345.qmail@science.horizon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from perches-mx.perches.com ([206.117.179.246]:51359 "EHLO
-	labridge.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751858Ab2GYHaH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Jul 2012 03:30:07 -0400
-In-Reply-To: <1343200277-14385-1-git-send-email-chenbdchenbd@gmail.com>
+Received: from mail-gh0-f174.google.com ([209.85.160.174]:42868 "EHLO
+	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751858Ab2GYHjq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Jul 2012 03:39:46 -0400
+Content-Disposition: inline
+In-Reply-To: <20120722034228.14345.qmail@science.horizon.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Baodong Chen <chenbdchenbd@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: George Spelvin <linux@horizon.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 2012-07-25 at 15:11 +0800, Baodong Chen wrote:
-> Fexed coding style issues from scripts/checkpatch.pl in drivers/input
+Hi George,
 
-Not all checkpatch messages need to be "fexed". :)
+On Sat, Jul 21, 2012 at 11:42:28PM -0400, George Spelvin wrote:
+> This replaces some inaccurate lookup tables with an exact
+> computation.  Although the diff adds source comments,
+> it shrinks binary size.  (By only 50 bytes, but hey.)
+> 
+> AT keyboard repeat rates are multiples of 1/240 second
+> expressed in a 0.2.3 bit floating point format.  That
+> is, possible values are ({8..15} << {0..3}) / 240 s.
 
-Please use some taste and judgment before submitting
-patches based solely on checkpatch output.
+OK.
 
-> diff --git a/drivers/input/apm-power.c b/drivers/input/apm-power.c
-[]
-> @@ -33,7 +33,7 @@ static void system_power_event(unsigned int keycode)
->  }
->  
->  static void apmpower_event(struct input_handle *handle, unsigned int type,
-> -		        unsigned int code, int value)
-> +			unsigned int code, int value)
+> 
+> In addition to a slightly inaccurate lookup table, the
+> old code would round up to the next repeat period.
+> E.g. to get a period of 9/60 = 0.15 seconds, you had to
+> ask for no more than 149 ms; if you asked for 150, it
+> would round up to 167.
 
-Perhaps prefer alignment to immediately after open parenthesis.
+This works as intended - it was designed to never have faster than
+requested.
 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-[]
-> @@ -547,16 +547,44 @@ static int handle_eviocgbit(struct input_dev *dev,
->  
->  	switch (type) {
->  
-> -	case      0: bits = dev->evbit;  len = EV_MAX;  break;
-[]
-> +	case      0:
-> +		bits = dev->evbit;
-> +		len = EV_MAX;
-> +		break;
+>  The new code rounds to nearest.
+> 
+> User-visible changes to the repeat periods reported by EVIOCGREP:
+> 
+> Old	 37	109	116	149	182	232
+> Exact	 37.50	108.33	116.66	150.00	183.33	233.33
+> New	 38	108	117	150	183	233
+> 
+> Old	270	303	370	435	470
+> Exact	266.66	300.00	366.66	433.33	466.66
+> New	267	300	367	433	467
+> 
+> This does not bother utilities like kbdrate(8).
+> 
+> Signed-off-by: George Spelvin <linux@horizon.com>
 
-not all that better really.
+I am sorry but I have to ask - is this your real name?
 
-> @@ -567,8 +595,8 @@ static int handle_eviocgbit(struct input_dev *dev,
->  	if (type == EV_KEY && size == OLD_KEY_MAX) {
->  		len = OLD_KEY_MAX;
->  		if (printk_timed_ratelimit(&keymax_warn_time, 10 * 1000))
-> -			pr_warning("(EVIOCGBIT): Suspicious buffer size %u, "
-> -				   "limiting output to %zu bytes. See "
-> +			pr_warn("(EVIOCGBIT): Suspicious buffer size %u, " \
-> +				   "limiting output to %zu bytes. See "	\
+> ---
+>  drivers/input/keyboard/atkbd.c |   47 +++++++++++++++++++++++++++++++----------------
+>  1 file changed, 31 insertions(+), 16 deletions(-)
+> 
+> Now that 3.5 is out, I'm posting this for a FOURTH time,
+> hoping for some comments of any sort.
+> 
+> 
+> Now that I've tweaked it (v1 had an error in rounding near exponent
+> range boundaries), I think it's ready for merging upstream.
+> 
+> 
+> One possible bug I observed in the code that calls this:
+> 
+> Users of the KDKBDREP ioctl seem to assume that it returns the actual
+> values set, but I'm not sure it really works that way; I don't think
+> the command to change the parameters makes its way through the event
+> queue and atkbd's schedule_delayed_work() to actually set dev->rep[]
+> to the rounded values before kbd_rate_helper returns them to userspace.
+> 
+> If desired, the fix that's most obvious to me would be to split this
+> function in two: perform the conversion to a command byte synchronously,
+> and only defer the actual ps2_command().
 
-The line continuations are also not necessary and I think are
-really ugly.  Just coalesce the format.
+Yes, I agree, this is a problem.
 
->  				   "http://userweb.kernel.org/~dtor/eviocgbit-bug.html\n",
+Thanks.
 
-dead link I think.
-
-> diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
-[]
-> @@ -138,8 +138,8 @@ int input_ff_upload(struct input_dev *dev, struct ff_effect *effect,
->  
->  	if (effect->id == -1) {
->  		for (id = 0; id < ff->max_effects; id++)
-> -		     if (!ff->effect_owners[id])
-> -			break;
-> +			if (!ff->effect_owners[id])
-> +				break;
-
-Better surrounded by braces too.
-
-cheers, Joe
-
-
+-- 
+Dmitry

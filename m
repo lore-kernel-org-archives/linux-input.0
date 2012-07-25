@@ -1,44 +1,48 @@
-From: Seth Forshee <seth.forshee@canonical.com>
-Subject: Re: [PATCH v4] Input: synaptics - handle out of bounds values from
- the hardware
-Date: Wed, 25 Jul 2012 08:47:18 -0500
-Message-ID: <20120725134718.GA5687@thinkpad-t410>
-References: <CAGS+omDkgJA_wvdsGtowjpq5AJF8q2+oVefbsozTS19kxdNJGg@mail.gmail.com>
- <1343158279-25308-1-git-send-email-seth.forshee@canonical.com>
- <CAGS+omAJD9CH-1fbiWae6SDiXMaz+b09TG9wusNmD5Q_SGBLFg@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/2] input: rotary-encoder: switch to devm_*
+ allocation of GPIOs and IRQs
+Date: Wed, 25 Jul 2012 09:05:10 -0700
+Message-ID: <20120725160510.GA6276@core.coreip.homeip.net>
+References: <1343202228-1507-1-git-send-email-zonque@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:58066 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932917Ab2GYNrV (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:52059 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755497Ab2GYQF0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Jul 2012 09:47:21 -0400
+	Wed, 25 Jul 2012 12:05:26 -0400
+Received: by pbbrp8 with SMTP id rp8so1613594pbb.19
+        for <linux-input@vger.kernel.org>; Wed, 25 Jul 2012 09:05:25 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAGS+omAJD9CH-1fbiWae6SDiXMaz+b09TG9wusNmD5Q_SGBLFg@mail.gmail.com>
+In-Reply-To: <1343202228-1507-1-git-send-email-zonque@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Daniel Mack <zonque@gmail.com>
+Cc: linux-input@vger.kernel.org, jhovold@gmail.com, hartleys@visionengravers.com
 
-On Wed, Jul 25, 2012 at 10:50:15AM +0800, Daniel Kurtz wrote:
-> > +       /* Convert wrap-around values to negative */
-> > +       if (hw->x > X_MAX_POSITIVE)
-> > +               hw->x = hw->x - (1 << ABS_POS_BITS);
-> 
-> Hi Seth,
-> 
-> Perhaps:
-> hw->x -= (1 << ABS_POS_BITS);
+On Wed, Jul 25, 2012 at 09:43:47AM +0200, Daniel Mack wrote:
+> @@ -263,12 +243,7 @@ exit_free_mem:
+>  static int __devexit rotary_encoder_remove(struct platform_device *pdev)
+>  {
+>  	struct rotary_encoder *encoder = platform_get_drvdata(pdev);
+> -	struct rotary_encoder_platform_data *pdata = pdev->dev.platform_data;
+>  
+> -	free_irq(encoder->irq_a, encoder);
+> -	free_irq(encoder->irq_b, encoder);
+> -	gpio_free(pdata->gpio_a);
+> -	gpio_free(pdata->gpio_b);
+>  	input_unregister_device(encoder->input);
 
-It makes no difference to me, either way it works the same. I don't
-think I'll send another patch just to change this though, unless Dmitry
-asks for it :)
+Another botched devm_ conversion. *sigh*
 
-> Either way, it looks good, thanks!
-> 
-> Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
+Input device gone, IRQ arrives, kernel goes oops, machine hangs hard.
 
-Thanks!
+Please, do not use devm_ interfaces unless... Actually, just do not use
+nor suggest devm_interfaces until all resources are devm-ized. Mixing 2
+styles of releasing resources leads to trouble.
 
-Seth
+Thanks.
+
+-- 
+Dmitry

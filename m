@@ -1,93 +1,74 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [REPOST #3 PATCH v2] Input: atkbd - make repeat period more
- accurate.
-Date: Wed, 25 Jul 2012 00:39:40 -0700
-Message-ID: <20120725073940.GB15997@core.coreip.homeip.net>
-References: <20120714110114.31895.qmail@science.horizon.com>
- <20120722034228.14345.qmail@science.horizon.com>
+From: Daniel Mack <zonque@gmail.com>
+Subject: Re: [PATCH 2/2] input: rotary-encoder: defer calls gpio_to_irq()
+Date: Wed, 25 Jul 2012 09:43:03 +0200
+Message-ID: <500FA387.5010504@gmail.com>
+References: <1343151487-27841-1-git-send-email-zonque@gmail.com> <1343151487-27841-2-git-send-email-zonque@gmail.com> <ADE657CA350FB648AAC2C43247A983F00206AABE13B5@AUSP01VMBX24.collaborationhost.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gh0-f174.google.com ([209.85.160.174]:42868 "EHLO
-	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751858Ab2GYHjq (ORCPT
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:44944 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755202Ab2GYHnI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Jul 2012 03:39:46 -0400
-Content-Disposition: inline
-In-Reply-To: <20120722034228.14345.qmail@science.horizon.com>
+	Wed, 25 Jul 2012 03:43:08 -0400
+Received: by wgbdr13 with SMTP id dr13so446598wgb.1
+        for <linux-input@vger.kernel.org>; Wed, 25 Jul 2012 00:43:07 -0700 (PDT)
+In-Reply-To: <ADE657CA350FB648AAC2C43247A983F00206AABE13B5@AUSP01VMBX24.collaborationhost.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: George Spelvin <linux@horizon.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: H Hartley Sweeten <hartleys@visionengravers.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "jhovold@gmail.com" <jhovold@gmail.com>
 
-Hi George,
+On 24.07.2012 21:45, H Hartley Sweeten wrote:
+> On Tuesday, July 24, 2012 10:38 AM, Daniel Mack wrote:
+>> Don't call gpio_to_irq() on GPIOs before gpio_request() succeeded on
+>> them. This avoids Ooopses with incorrect DT bindings.
+>>
+>> Signed-off-by: Daniel Mack <zonque@gmail.com>
+>> ---
+>>  drivers/input/misc/rotary_encoder.c |    5 +++--
+>>  1 file changed, 3 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
+>> index 350cbd1..474b04f 100644
+>> --- a/drivers/input/misc/rotary_encoder.c
+>> +++ b/drivers/input/misc/rotary_encoder.c
+>> @@ -223,8 +223,6 @@ static int __devinit rotary_encoder_probe(struct platform_device *pdev)
+>>  
+>>  	encoder->input = input;
+>>  	encoder->pdata = pdata;
+>> -	encoder->irq_a = gpio_to_irq(pdata->gpio_a);
+>> -	encoder->irq_b = gpio_to_irq(pdata->gpio_b);
+>>  
+>>  	/* create and register the input driver */
+>>  	input->name = pdev->name;
+>> @@ -275,6 +273,9 @@ static int __devinit rotary_encoder_probe(struct platform_device *pdev)
+>>  		goto exit_free_gpio_a;
+>>  	}
+>>  
+>> +	encoder->irq_a = gpio_to_irq(pdata->gpio_a);
+>> +	encoder->irq_b = gpio_to_irq(pdata->gpio_b);
+>> +
+>>  	/* request the IRQs */
+>>  	if (pdata->half_period) {
+>>  		handler = &rotary_encoder_half_period_irq;
+> 
+> Daniel,
+> 
+> You might want to put this patch first before adding the DT binding
+> stuff.
+> 
+> You also might consider using gpio_request_one() or even the
+> devm_* version, instead of doing the gpio_request() followed
+> by the  gpio_direction_input().
+> 
+> Actually, if you convert the probe to use the managed resource
+> devm_* stuff it would really cleanup the error path and the remove.
 
-On Sat, Jul 21, 2012 at 11:42:28PM -0400, George Spelvin wrote:
-> This replaces some inaccurate lookup tables with an exact
-> computation.  Although the diff adds source comments,
-> it shrinks binary size.  (By only 50 bytes, but hey.)
-> 
-> AT keyboard repeat rates are multiples of 1/240 second
-> expressed in a 0.2.3 bit floating point format.  That
-> is, possible values are ({8..15} << {0..3}) / 240 s.
+Yes, you're right. Thanks for the hint. New version coming up. Does your
+Reviewed-by: still apply?
 
-OK.
 
-> 
-> In addition to a slightly inaccurate lookup table, the
-> old code would round up to the next repeat period.
-> E.g. to get a period of 9/60 = 0.15 seconds, you had to
-> ask for no more than 149 ms; if you asked for 150, it
-> would round up to 167.
+Daniel
 
-This works as intended - it was designed to never have faster than
-requested.
-
->  The new code rounds to nearest.
-> 
-> User-visible changes to the repeat periods reported by EVIOCGREP:
-> 
-> Old	 37	109	116	149	182	232
-> Exact	 37.50	108.33	116.66	150.00	183.33	233.33
-> New	 38	108	117	150	183	233
-> 
-> Old	270	303	370	435	470
-> Exact	266.66	300.00	366.66	433.33	466.66
-> New	267	300	367	433	467
-> 
-> This does not bother utilities like kbdrate(8).
-> 
-> Signed-off-by: George Spelvin <linux@horizon.com>
-
-I am sorry but I have to ask - is this your real name?
-
-> ---
->  drivers/input/keyboard/atkbd.c |   47 +++++++++++++++++++++++++++++++----------------
->  1 file changed, 31 insertions(+), 16 deletions(-)
-> 
-> Now that 3.5 is out, I'm posting this for a FOURTH time,
-> hoping for some comments of any sort.
-> 
-> 
-> Now that I've tweaked it (v1 had an error in rounding near exponent
-> range boundaries), I think it's ready for merging upstream.
-> 
-> 
-> One possible bug I observed in the code that calls this:
-> 
-> Users of the KDKBDREP ioctl seem to assume that it returns the actual
-> values set, but I'm not sure it really works that way; I don't think
-> the command to change the parameters makes its way through the event
-> queue and atkbd's schedule_delayed_work() to actually set dev->rep[]
-> to the rounded values before kbd_rate_helper returns them to userspace.
-> 
-> If desired, the fix that's most obvious to me would be to split this
-> function in two: perform the conversion to a command byte synchronously,
-> and only defer the actual ps2_command().
-
-Yes, I agree, this is a problem.
-
-Thanks.
-
--- 
-Dmitry

@@ -1,66 +1,47 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/2] input: rotary-encoder: switch to devm_*
- allocation of GPIOs and IRQs
-Date: Wed, 25 Jul 2012 09:29:49 -0700
-Message-ID: <20120725162948.GB6276@core.coreip.homeip.net>
-References: <1343202228-1507-1-git-send-email-zonque@gmail.com>
- <20120725160510.GA6276@core.coreip.homeip.net>
- <501019BC.1070703@gmail.com>
+From: H Hartley Sweeten <hartleys@visionengravers.com>
+Subject: RE: [PATCH 2/2] input: rotary-encoder: defer calls gpio_to_irq()
+Date: Wed, 25 Jul 2012 11:38:34 -0500
+Message-ID: <ADE657CA350FB648AAC2C43247A983F00206AABE159A@AUSP01VMBX24.collaborationhost.net>
+References: <1343151487-27841-1-git-send-email-zonque@gmail.com>
+ <1343151487-27841-2-git-send-email-zonque@gmail.com>
+ <ADE657CA350FB648AAC2C43247A983F00206AABE13B5@AUSP01VMBX24.collaborationhost.net>
+ <500FA387.5010504@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:40266 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756427Ab2GYQ3y (ORCPT
+Received: from mail127.messagelabs.com ([216.82.250.115]:49558 "EHLO
+	mail127.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755288Ab2GYQii convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Jul 2012 12:29:54 -0400
-Received: by yenl2 with SMTP id l2so899381yen.19
-        for <linux-input@vger.kernel.org>; Wed, 25 Jul 2012 09:29:54 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <501019BC.1070703@gmail.com>
+	Wed, 25 Jul 2012 12:38:38 -0400
+In-Reply-To: <500FA387.5010504@gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Daniel Mack <zonque@gmail.com>
-Cc: linux-input@vger.kernel.org, jhovold@gmail.com, hartleys@visionengravers.com
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "jhovold@gmail.com" <jhovold@gmail.com>
 
-On Wed, Jul 25, 2012 at 06:07:24PM +0200, Daniel Mack wrote:
-> On 25.07.2012 18:05, Dmitry Torokhov wrote:
-> > On Wed, Jul 25, 2012 at 09:43:47AM +0200, Daniel Mack wrote:
-> >> @@ -263,12 +243,7 @@ exit_free_mem:
-> >>  static int __devexit rotary_encoder_remove(struct platform_device *pdev)
-> >>  {
-> >>  	struct rotary_encoder *encoder = platform_get_drvdata(pdev);
-> >> -	struct rotary_encoder_platform_data *pdata = pdev->dev.platform_data;
-> >>  
-> >> -	free_irq(encoder->irq_a, encoder);
-> >> -	free_irq(encoder->irq_b, encoder);
-> >> -	gpio_free(pdata->gpio_a);
-> >> -	gpio_free(pdata->gpio_b);
-> >>  	input_unregister_device(encoder->input);
-> > 
-> > Another botched devm_ conversion. *sigh*
-> > 
-> > Input device gone, IRQ arrives, kernel goes oops, machine hangs hard.
-> > 
-> > Please, do not use devm_ interfaces unless... Actually, just do not use
-> > nor suggest devm_interfaces until all resources are devm-ized. Mixing 2
-> > styles of releasing resources leads to trouble.
-> 
-> Ok, makes sense. Thanks for noticing. Are you happy with the first
-> version I submitted then?
+On Wednesday, July 25, 2012 12:43 AM, Daniel Mack wrote:
+> On 24.07.2012 21:45, H Hartley Sweeten wrote:
+>> You might want to put this patch first before adding the DT binding
+>> stuff.
+>> 
+>> You also might consider using gpio_request_one() or even the
+>> devm_* version, instead of doing the gpio_request() followed
+>> by the  gpio_direction_input().
+>> 
+>> Actually, if you convert the probe to use the managed resource
+>> devm_* stuff it would really cleanup the error path and the remove.
+>
+> Yes, you're right. Thanks for the hint. New version coming up. Does your
+> Reviewed-by: still apply?
 
-I have a few issues with that version as well:
+As pointed out by Dmitry, the devm_* stuff will not work with this driver.
 
-1. It writes over platform_data field in the device which does nto
-belong to the driver (this field belongs to the platform/board code);
+Please update the patch to just use the gpio_request_one() and I'll
+review it again.
 
-2. I believe we should favor kernel supplied data over firmware
-allowing users to override DT bindings, if needed;
+Sorry about that.
 
-3. It still uses devm_* to allocate memory and as I said I do not like
-mixing 2 styles of managign resources in one driver.
-
-Thanks.
-
--- 
-Dmitry
+Hartley

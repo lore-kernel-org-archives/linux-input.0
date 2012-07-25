@@ -1,168 +1,160 @@
 From: Daniel Mack <zonque@gmail.com>
-Subject: [PATCH v2 2/2] input: rotary-encoder: add DT bindings
-Date: Wed, 25 Jul 2012 09:43:48 +0200
-Message-ID: <1343202228-1507-2-git-send-email-zonque@gmail.com>
-References: <1343202228-1507-1-git-send-email-zonque@gmail.com>
+Subject: [PATCH v2 1/2] input: rotary-encoder: switch to devm_* allocation of GPIOs and IRQs
+Date: Wed, 25 Jul 2012 09:43:47 +0200
+Message-ID: <1343202228-1507-1-git-send-email-zonque@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from svenfoo.org ([82.94.215.22]:41906 "EHLO mail.zonque.de"
+Received: from svenfoo.org ([82.94.215.22]:41903 "EHLO mail.zonque.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755239Ab2GYHo7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	id S1755304Ab2GYHo7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
 	Wed, 25 Jul 2012 03:44:59 -0400
-In-Reply-To: <1343202228-1507-1-git-send-email-zonque@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jhovold@gmail.com, hartleys@visionengravers.com, Daniel Mack <zonque@gmail.com>
 
-This adds devicetree bindings to the rotary encoder driver and some
-documenation about how to use them. Tested on a PXA3xx platform.
+This simplifies the error unwind pathes.
+
+Also, don't call gpio_to_irq() on GPIOs before dev_gpio_request_one()
+succeeded on them. This avoids Ooopses with incorrect DT bindings.
 
 Signed-off-by: Daniel Mack <zonque@gmail.com>
 ---
- .../devicetree/bindings/input/rotary-encoder.txt   |   37 ++++++++++++
- drivers/input/misc/rotary_encoder.c                |   63 +++++++++++++++++++-
- 2 files changed, 99 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/input/rotary-encoder.txt
+ drivers/input/misc/rotary_encoder.c |   67 +++++++++++------------------------
+ 1 file changed, 21 insertions(+), 46 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-new file mode 100644
-index 0000000..dd1f634
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-@@ -0,0 +1,37 @@
-+Rotary encoder DT bindings
-+
-+Required properties:
-+- gpios: a spec for two GPIOs to be used
-+
-+Optional properties:
-+- linux,axis: the input subsystem axis to map to this rotary encoder.
-+  Defaults to 0 (ABS_X / REL_X)
-+- rotary-encoder,steps: Number of steps in a full turnaround of the
-+  encoder. Only relevant for absolute axis. Defaults to 24 which is a
-+  typical value for such devices.
-+- rotary-encoder,relative-axis: register a relative axis rather than an
-+  absolute one. Relative axis will only generate +1/-1 events on the input
-+  device, hence no steps need to be passed.
-+- rotary-encoder,rollover: Automatic rollove when the rotary value becomes
-+  greater than the specified steps or smaller than 0. For absolute axis only.
-+- rotary-encoder,half-period: Makes the driver work on half-period mode.
-+
-+See Documentation/input/rotary-encoder.txt for more information.
-+
-+Example:
-+
-+		rotary@0 {
-+			compatible = "rotary-encoder";
-+			gpios = <&gpio 19 1>, <&gpio 20 0>; /* GPIO19 is inverted */
-+			linux,axis = <0>; /* REL_X */
-+			rotary-encoder,relative-axis;
-+		};
-+
-+		rotary@1 {
-+			compatible = "rotary-encoder";
-+			gpios = <&gpio 21 0>, <&gpio 22 0>;
-+			linux,axis = <1>; /* ABS_Y */
-+			rotary-encoder,steps = <24>;
-+			rotary-encoder,rollover;
-+		};
-+
 diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
-index d4e0abb..6a14fef 100644
+index f07f784..d4e0abb 100644
 --- a/drivers/input/misc/rotary_encoder.c
 +++ b/drivers/input/misc/rotary_encoder.c
-@@ -24,6 +24,8 @@
- #include <linux/gpio.h>
- #include <linux/rotary_encoder.h>
- #include <linux/slab.h>
-+#include <linux/of_platform.h>
-+#include <linux/of_gpio.h>
- 
- #define DRV_NAME "rotary-encoder"
- 
-@@ -140,15 +142,73 @@ static irqreturn_t rotary_encoder_half_period_irq(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+#ifdef CONFIG_OF
-+static struct of_device_id rotary_encoder_of_match[] = {
-+	{ .compatible = "rotary-encoder", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, rotary_encoder_of_match);
-+
-+static int rotary_encoder_probe_dt(struct platform_device *pdev)
-+{
-+	int tmp;
-+	enum of_gpio_flags flags;
-+	struct rotary_encoder_platform_data *pdata;
-+	struct device_node *np = pdev->dev.of_node;
-+	const struct of_device_id *of_id =
-+		of_match_device(rotary_encoder_of_match, &pdev->dev);
-+
-+	if (!of_id)
-+		return 0;
-+
-+	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata)
-+		return -ENOMEM;
-+
-+	if (of_property_read_u32(np, "rotary-encoder,steps", &tmp) == 0)
-+		pdata->steps = tmp;
-+	if (of_property_read_u32(np, "linux,axis", &tmp) == 0)
-+		pdata->axis = tmp;
-+
-+	pdata->gpio_a = of_get_gpio_flags(np, 0, &flags);
-+	pdata->inverted_a = flags & OF_GPIO_ACTIVE_LOW;
-+
-+	pdata->gpio_b = of_get_gpio_flags(np, 1, &flags);
-+	pdata->inverted_b = flags & OF_GPIO_ACTIVE_LOW;
-+
-+	if (of_get_property(np, "rotary-encoder,relative-axis", NULL))
-+		pdata->relative_axis = 1;
-+	if (of_get_property(np, "rotary-encoder,rollover", NULL))
-+		pdata->rollover = 1;
-+	if (of_get_property(np, "rotary-encoder,half-period", NULL))
-+		pdata->half_period = 1;
-+
-+	pdev->dev.platform_data = pdata;
-+
-+	return 0;
-+}
-+#else
-+static inline int rotary_encoder_probe_dt(struct platform_device *)
-+{
-+	return 0;
-+}
-+#endif
-+
- static int __devinit rotary_encoder_probe(struct platform_device *pdev)
- {
--	struct rotary_encoder_platform_data *pdata = pdev->dev.platform_data;
-+	struct rotary_encoder_platform_data *pdata;
+@@ -145,6 +145,7 @@ static int __devinit rotary_encoder_probe(struct platform_device *pdev)
+ 	struct rotary_encoder_platform_data *pdata = pdev->dev.platform_data;
  	struct rotary_encoder *encoder;
  	struct input_dev *input;
- 	struct device *dev = &pdev->dev;
++	struct device *dev = &pdev->dev;
  	irq_handler_t handler;
  	int err;
  
-+	err = rotary_encoder_probe_dt(pdev);
-+	if (err)
-+		return err;
-+
-+	pdata = pdev->dev.platform_data;
-+
- 	if (!pdata) {
- 		dev_err(&pdev->dev, "missing platform data\n");
- 		return -ENOENT;
-@@ -257,6 +317,7 @@ static struct platform_driver rotary_encoder_driver = {
- 	.driver		= {
- 		.name	= DRV_NAME,
- 		.owner	= THIS_MODULE,
-+		.of_match_table = of_match_ptr(rotary_encoder_of_match),
+@@ -163,13 +164,11 @@ static int __devinit rotary_encoder_probe(struct platform_device *pdev)
+ 
+ 	encoder->input = input;
+ 	encoder->pdata = pdata;
+-	encoder->irq_a = gpio_to_irq(pdata->gpio_a);
+-	encoder->irq_b = gpio_to_irq(pdata->gpio_b);
+ 
+ 	/* create and register the input driver */
+ 	input->name = pdev->name;
+ 	input->id.bustype = BUS_HOST;
+-	input->dev.parent = &pdev->dev;
++	input->dev.parent = dev;
+ 
+ 	if (pdata->relative_axis) {
+ 		input->evbit[0] = BIT_MASK(EV_REL);
+@@ -182,38 +181,27 @@ static int __devinit rotary_encoder_probe(struct platform_device *pdev)
+ 
+ 	err = input_register_device(input);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to register input device\n");
++		dev_err(dev, "failed to register input device\n");
+ 		goto exit_free_mem;
  	}
- };
- module_platform_driver(rotary_encoder_driver);
+ 
+ 	/* request the GPIOs */
+-	err = gpio_request(pdata->gpio_a, DRV_NAME);
++	err = devm_gpio_request_one(dev, pdata->gpio_a,
++				    GPIOF_IN, dev_name(dev));
+ 	if (err) {
+-		dev_err(&pdev->dev, "unable to request GPIO %d\n",
+-			pdata->gpio_a);
++		dev_err(dev, "unable to request GPIO %d\n", pdata->gpio_a);
+ 		goto exit_unregister_input;
+ 	}
+ 
+-	err = gpio_direction_input(pdata->gpio_a);
++	err = devm_gpio_request_one(dev, pdata->gpio_b,
++				    GPIOF_IN, dev_name(dev));
+ 	if (err) {
+-		dev_err(&pdev->dev, "unable to set GPIO %d for input\n",
+-			pdata->gpio_a);
++		dev_err(dev, "unable to request GPIO %d\n", pdata->gpio_b);
+ 		goto exit_unregister_input;
+ 	}
+ 
+-	err = gpio_request(pdata->gpio_b, DRV_NAME);
+-	if (err) {
+-		dev_err(&pdev->dev, "unable to request GPIO %d\n",
+-			pdata->gpio_b);
+-		goto exit_free_gpio_a;
+-	}
+-
+-	err = gpio_direction_input(pdata->gpio_b);
+-	if (err) {
+-		dev_err(&pdev->dev, "unable to set GPIO %d for input\n",
+-			pdata->gpio_b);
+-		goto exit_free_gpio_a;
+-	}
++	encoder->irq_a = gpio_to_irq(pdata->gpio_a);
++	encoder->irq_b = gpio_to_irq(pdata->gpio_b);
+ 
+ 	/* request the IRQs */
+ 	if (pdata->half_period) {
+@@ -223,34 +211,26 @@ static int __devinit rotary_encoder_probe(struct platform_device *pdev)
+ 		handler = &rotary_encoder_irq;
+ 	}
+ 
+-	err = request_irq(encoder->irq_a, handler,
+-			  IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+-			  DRV_NAME, encoder);
++	err = devm_request_irq(dev, encoder->irq_a, handler,
++			       IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
++			       dev_name(dev), encoder);
+ 	if (err) {
+-		dev_err(&pdev->dev, "unable to request IRQ %d\n",
+-			encoder->irq_a);
+-		goto exit_free_gpio_b;
++		dev_err(dev, "unable to request IRQ %d\n", encoder->irq_a);
++		goto exit_unregister_input;
+ 	}
+ 
+-	err = request_irq(encoder->irq_b, handler,
+-			  IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+-			  DRV_NAME, encoder);
++	err = devm_request_irq(dev, encoder->irq_b, handler,
++			       IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
++			       dev_name(dev), encoder);
+ 	if (err) {
+-		dev_err(&pdev->dev, "unable to request IRQ %d\n",
+-			encoder->irq_b);
+-		goto exit_free_irq_a;
++		dev_err(dev, "unable to request IRQ %d\n", encoder->irq_b);
++		goto exit_unregister_input;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, encoder);
+ 
+ 	return 0;
+ 
+-exit_free_irq_a:
+-	free_irq(encoder->irq_a, encoder);
+-exit_free_gpio_b:
+-	gpio_free(pdata->gpio_b);
+-exit_free_gpio_a:
+-	gpio_free(pdata->gpio_a);
+ exit_unregister_input:
+ 	input_unregister_device(input);
+ 	input = NULL; /* so we don't try to free it */
+@@ -263,12 +243,7 @@ exit_free_mem:
+ static int __devexit rotary_encoder_remove(struct platform_device *pdev)
+ {
+ 	struct rotary_encoder *encoder = platform_get_drvdata(pdev);
+-	struct rotary_encoder_platform_data *pdata = pdev->dev.platform_data;
+ 
+-	free_irq(encoder->irq_a, encoder);
+-	free_irq(encoder->irq_b, encoder);
+-	gpio_free(pdata->gpio_a);
+-	gpio_free(pdata->gpio_b);
+ 	input_unregister_device(encoder->input);
+ 	platform_set_drvdata(pdev, NULL);
+ 	kfree(encoder);
 -- 
 1.7.10.4
 

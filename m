@@ -1,82 +1,260 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: sentelic - filtering out erratic movement
-Date: Wed, 25 Jul 2012 00:08:37 -0700
-Message-ID: <20120725070837.GA15997@core.coreip.homeip.net>
-References: <1341553769-30324-1-git-send-email-avatar@sentelic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Baodong Chen <chenbdchenbd@gmail.com>
+Subject: [PATCH] fixed coding style issues
+Date: Wed, 25 Jul 2012 15:11:17 +0800
+Message-ID: <1343200277-14385-1-git-send-email-chenbdchenbd@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:60750 "EHLO
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:38132 "EHLO
 	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751418Ab2GYHIm (ORCPT
+	with ESMTP id S1751195Ab2GYHLp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Jul 2012 03:08:42 -0400
-Received: by pbbrp8 with SMTP id rp8so954996pbb.19
-        for <linux-input@vger.kernel.org>; Wed, 25 Jul 2012 00:08:42 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1341553769-30324-1-git-send-email-avatar@sentelic.com>
+	Wed, 25 Jul 2012 03:11:45 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tai-hwa Liang <avatar@sentelic.com>
-Cc: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Baodong Chen <chenbdchenbd@gmail.com>
 
-Hi Tai-hwa,
+Fexed coding style issues from scripts/checkpatch.pl in drivers/input
 
-On Fri, Jul 06, 2012 at 01:49:29PM +0800, Tai-hwa Liang wrote:
-> It turns out that certain hardware sometime generates unexpected movement
-> during normal operation. This patch tries to filter out these erratic
-> movements which will cause unexpected cursor jumping to the top-left corner.
-> 
-> This patch also tries to fix jumpy(back and forth) scrolling in X11 by
-> accumulating both fingers' coordinates before reporting to the input-mt layer.
-> 
-> Bugzilla:	https://bugzilla.kernel.org/show_bug.cgi?id=43197
-> Reported-and-tested-by:	Aleksey Spiridonov <leks13@leks13.ru>
-> Tested-by:	Eddie Dunn <eddie.dunn@gmail.com>
-> Tested-by:	Olivier Goffart <olivier@woboq.com>
-> ---
->  drivers/input/mouse/sentelic.c |  114 ++++++++++++++++++++++++++--------------
->  drivers/input/mouse/sentelic.h |   35 ++++++++++++
->  2 files changed, 110 insertions(+), 39 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
-> index 3f5649f..995b395 100644
-> --- a/drivers/input/mouse/sentelic.c
-> +++ b/drivers/input/mouse/sentelic.c
-> @@ -707,7 +707,7 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
->  	struct fsp_data *ad = psmouse->private;
->  	unsigned char *packet = psmouse->packet;
->  	unsigned char button_status = 0, lscroll = 0, rscroll = 0;
-> -	unsigned short abs_x, abs_y, fgrs = 0;
-> +	unsigned short abs_x, abs_y, fgrs;
->  	int rel_x, rel_y;
->  
->  	if (psmouse->pktcnt < 4)
-> @@ -721,64 +721,100 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
->  
->  	switch (psmouse->packet[0] >> FSP_PKT_TYPE_SHIFT) {
->  	case FSP_PKT_TYPE_ABS:
-> +		if ((packet[0] == 0x48 || packet[0] == 0x49) &&
-> +		    packet[1] == 0 && packet[2] == 0) {
-> +			/*
-> +			 * filtering out erratic movement which will cause
-> +			 * unexpected cursor jumping to the top-left corner
-> +			 */
-> +			packet[3] &= 0xf0;
-> +		}
+Signed-off-by: Baodong Chen <chenbdchenbd@gmail.com>
+---
+ drivers/input/apm-power.c     |    2 +-
+ drivers/input/evdev.c         |   52 +++++++++++++++++++++++++++++++---------
+ drivers/input/ff-core.c       |    4 +-
+ drivers/input/ff-memless.c    |   12 ++++----
+ drivers/input/joydev.c        |    2 +-
+ drivers/input/mousedev.c      |   32 ++++++++++++++++--------
+ drivers/input/sparse-keymap.c |    4 +-
+ 7 files changed, 73 insertions(+), 35 deletions(-)
 
-I am not sure if I understand this patch. According to the documentation
-the above values for the packet[0] have the 'valid' bit 0 which means
-that the touch data should be completely ignored instead of massaging
-data like you seem to be doing.
-
-Overall I wonder if you want to increase the size of the buffer to hold
-both packets (for both fingers) and analyze both of them together...
-
-It also appears that the patch does too many things at one and should be
-split into several addressing individual issues.
-
-Thanks.
-
+diff --git a/drivers/input/apm-power.c b/drivers/input/apm-power.c
+index e90ee3d..543d85b 100644
+--- a/drivers/input/apm-power.c
++++ b/drivers/input/apm-power.c
+@@ -33,7 +33,7 @@ static void system_power_event(unsigned int keycode)
+ }
+ 
+ static void apmpower_event(struct input_handle *handle, unsigned int type,
+-		        unsigned int code, int value)
++			unsigned int code, int value)
+ {
+ 	/* only react on key down events */
+ 	if (value != 1)
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 6c58bff..a0104bd 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -547,16 +547,44 @@ static int handle_eviocgbit(struct input_dev *dev,
+ 
+ 	switch (type) {
+ 
+-	case      0: bits = dev->evbit;  len = EV_MAX;  break;
+-	case EV_KEY: bits = dev->keybit; len = KEY_MAX; break;
+-	case EV_REL: bits = dev->relbit; len = REL_MAX; break;
+-	case EV_ABS: bits = dev->absbit; len = ABS_MAX; break;
+-	case EV_MSC: bits = dev->mscbit; len = MSC_MAX; break;
+-	case EV_LED: bits = dev->ledbit; len = LED_MAX; break;
+-	case EV_SND: bits = dev->sndbit; len = SND_MAX; break;
+-	case EV_FF:  bits = dev->ffbit;  len = FF_MAX;  break;
+-	case EV_SW:  bits = dev->swbit;  len = SW_MAX;  break;
+-	default: return -EINVAL;
++	case      0:
++		bits = dev->evbit;
++		len = EV_MAX;
++		break;
++	case EV_KEY:
++		bits = dev->keybit;
++		len = KEY_MAX;
++		break;
++	case EV_REL:
++		bits = dev->relbit;
++		len = REL_MAX;
++		break;
++	case EV_ABS:
++		bits = dev->absbit;
++		len = ABS_MAX;
++		break;
++	case EV_MSC:
++		bits = dev->mscbit;
++		len = MSC_MAX;
++		break;
++	case EV_LED:
++		bits = dev->ledbit;
++		len = LED_MAX;
++		break;
++	case EV_SND:
++		bits = dev->sndbit;
++		len = SND_MAX;
++		break;
++	case EV_FF:
++		bits = dev->ffbit;
++		len = FF_MAX;
++		break;
++	case EV_SW:
++		bits = dev->swbit;
++		len = SW_MAX;
++		break;
++	default:
++		return -EINVAL;
+ 	}
+ 
+ 	/*
+@@ -567,8 +595,8 @@ static int handle_eviocgbit(struct input_dev *dev,
+ 	if (type == EV_KEY && size == OLD_KEY_MAX) {
+ 		len = OLD_KEY_MAX;
+ 		if (printk_timed_ratelimit(&keymax_warn_time, 10 * 1000))
+-			pr_warning("(EVIOCGBIT): Suspicious buffer size %u, "
+-				   "limiting output to %zu bytes. See "
++			pr_warn("(EVIOCGBIT): Suspicious buffer size %u, " \
++				   "limiting output to %zu bytes. See "	\
+ 				   "http://userweb.kernel.org/~dtor/eviocgbit-bug.html\n",
+ 				   OLD_KEY_MAX,
+ 				   BITS_TO_LONGS(OLD_KEY_MAX) * sizeof(long));
+diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
+index 480eb9d..f50f6dd 100644
+--- a/drivers/input/ff-core.c
++++ b/drivers/input/ff-core.c
+@@ -138,8 +138,8 @@ int input_ff_upload(struct input_dev *dev, struct ff_effect *effect,
+ 
+ 	if (effect->id == -1) {
+ 		for (id = 0; id < ff->max_effects; id++)
+-		     if (!ff->effect_owners[id])
+-			break;
++			if (!ff->effect_owners[id])
++				break;
+ 
+ 		if (id >= ff->max_effects) {
+ 			ret = -ENOSPC;
+diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+index 5f55885..a237cf2 100644
+--- a/drivers/input/ff-memless.c
++++ b/drivers/input/ff-memless.c
+@@ -72,12 +72,12 @@ static const struct ff_envelope *get_envelope(const struct ff_effect *effect)
+ 	static const struct ff_envelope empty_envelope;
+ 
+ 	switch (effect->type) {
+-		case FF_PERIODIC:
+-			return &effect->u.periodic.envelope;
+-		case FF_CONSTANT:
+-			return &effect->u.constant.envelope;
+-		default:
+-			return &empty_envelope;
++	case FF_PERIODIC:
++		return &effect->u.periodic.envelope;
++	case FF_CONSTANT:
++		return &effect->u.constant.envelope;
++	default:
++		return &empty_envelope;
+ 	}
+ }
+ 
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index 26043cc..78f323e 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -711,7 +711,7 @@ static long joydev_ioctl(struct file *file,
+ 
+ 	case JS_SET_ALL:
+ 		retval = copy_from_user(&joydev->glue, argp,
+-					sizeof(joydev->glue)) ? -EFAULT: 0;
++					sizeof(joydev->glue)) ? -EFAULT : 0;
+ 		break;
+ 
+ 	case JS_GET_ALL:
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index 0110b5a..80bbe52 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -236,25 +236,36 @@ static void mousedev_key_event(struct mousedev *mousedev,
+ 
+ 	case BTN_TOUCH:
+ 	case BTN_0:
+-	case BTN_LEFT:		index = 0; break;
++	case BTN_LEFT:
++		index = 0;
++		break;
+ 
+ 	case BTN_STYLUS:
+ 	case BTN_1:
+-	case BTN_RIGHT:		index = 1; break;
++	case BTN_RIGHT:
++		index = 1;
++		break;
+ 
+ 	case BTN_2:
+ 	case BTN_FORWARD:
+ 	case BTN_STYLUS2:
+-	case BTN_MIDDLE:	index = 2; break;
++	case BTN_MIDDLE:
++		index = 2;
++		break;
+ 
+ 	case BTN_3:
+ 	case BTN_BACK:
+-	case BTN_SIDE:		index = 3; break;
++	case BTN_SIDE:
++		index = 3;
++		break;
+ 
+ 	case BTN_4:
+-	case BTN_EXTRA:		index = 4; break;
++	case BTN_EXTRA:
++		index = 4;
++		break;
+ 
+-	default:		return;
++	default:
++		return;
+ 	}
+ 
+ 	if (value) {
+@@ -551,17 +562,16 @@ static int mousedev_open(struct inode *inode, struct file *file)
+ 		return -ENODEV;
+ 
+ 	error = mutex_lock_interruptible(&mousedev_table_mutex);
+-	if (error) {
++	if (error)
+ 		return error;
+-	}
++
+ 	mousedev = mousedev_table[i];
+ 	if (mousedev)
+ 		get_device(&mousedev->dev);
+ 	mutex_unlock(&mousedev_table_mutex);
+ 
+-	if (!mousedev) {
++	if (!mousedev)
+ 		return -ENODEV;
+-	}
+ 
+ 	client = kzalloc(sizeof(struct mousedev_client), GFP_KERNEL);
+ 	if (!client) {
+@@ -1088,7 +1098,7 @@ static int __init mousedev_init(void)
+ #ifdef CONFIG_INPUT_MOUSEDEV_PSAUX
+ 	error = misc_register(&psaux_mouse);
+ 	if (error)
+-		pr_warning("could not register psaux device, error: %d\n",
++		pr_warn("could not register psaux device, error: %d\n",
+ 			   error);
+ 	else
+ 		psaux_registered = 1;
+diff --git a/drivers/input/sparse-keymap.c b/drivers/input/sparse-keymap.c
+index 75fb040..a70aa55 100644
+--- a/drivers/input/sparse-keymap.c
++++ b/drivers/input/sparse-keymap.c
+@@ -180,11 +180,11 @@ int sparse_keymap_setup(struct input_dev *dev,
+ 	for (e = keymap; e->type != KE_END; e++)
+ 		map_size++;
+ 
+-	map = kcalloc(map_size, sizeof (struct key_entry), GFP_KERNEL);
++	map = kcalloc(map_size, sizeof(struct key_entry), GFP_KERNEL);
+ 	if (!map)
+ 		return -ENOMEM;
+ 
+-	memcpy(map, keymap, map_size * sizeof (struct key_entry));
++	memcpy(map, keymap, map_size * sizeof(struct key_entry));
+ 
+ 	for (i = 0; i < map_size; i++) {
+ 		entry = &map[i];
 -- 
-Dmitry
+1.7.0.4
+

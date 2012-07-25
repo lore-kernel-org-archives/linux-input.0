@@ -1,60 +1,77 @@
-From: Baodong Chen <chenbdchenbd@gmail.com>
-Subject: Re: [PATCH] fixed coding style issues
-Date: Wed, 25 Jul 2012 16:25:47 +0800
-Message-ID: <CAEAuANOJaVb2prSMF4N4zxKTAxpEWvmdOPFODQNAR+fFo3hKEA@mail.gmail.com>
-References: <1343200277-14385-1-git-send-email-chenbdchenbd@gmail.com>
-	<1343201406.30161.10.camel@joe2Laptop>
-	<CAEAuANO7itUw64z=w9ve_suvQBoPirnmZ_5WBbc=Tn=ESeG6OA@mail.gmail.com>
-	<1343203282.30161.29.camel@joe2Laptop>
+From: "AnilKumar, Chimata" <anilkumar@ti.com>
+Subject: RE: [PATCH] lis3lv02d: Add STMicroelectronics lis33ldlh digital
+Date: Wed, 25 Jul 2012 08:57:22 +0000
+Message-ID: <331ABD5ECB02734CA317220B2BBEABC13EA0319F@DBDE01.ent.ti.com>
+References: <1324617892-14576-1-git-send-email-anilkumar@ti.com>
+ <201201181711.15751.arnd@arndb.de>
+ <331ABD5ECB02734CA317220B2BBEABC13177DFF6@DBDE01.ent.ti.com>
+ <201201191710.45862.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gh0-f174.google.com ([209.85.160.174]:62930 "EHLO
-	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932748Ab2GYIZs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Jul 2012 04:25:48 -0400
-In-Reply-To: <1343203282.30161.29.camel@joe2Laptop>
+Received: from bear.ext.ti.com ([192.94.94.41]:38120 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755809Ab2GYI7A (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Jul 2012 04:59:00 -0400
+In-Reply-To: <201201191710.45862.arnd@arndb.de>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Jonathan Cameron <jic23@cam.ac.uk>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "greg@kroah.com" <greg@kroah.com>, "eric.piel@tremplin-utc.net" <eric.piel@tremplin-utc.net>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "broonie@opensource.wolfsonmicro.com" <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Nori, Sekhar" <nsekhar@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Wed, Jul 25, 2012 at 4:01 PM, Joe Perches <joe@perches.com> wrote:
-> On Wed, 2012-07-25 at 15:44 +0800, Baodong Chen wrote:
->> i want to participate in and to start from
->> fixing simple issues!
->
-> That's fine Baodong.  Welcome.
->
->> how could i choose issues form checkpatch's output to find which
->> should be fixed which are
->> not?
->
-> checkpatch output is merely a guide for submission of patches
-> to conform to some generic "kernel style".  I think there are
-> times when really ugly code should have a pass to make it more
-> "kernel style" like.  Most of those cleanup type changes should
-> be done only to code in the "drivers/staging" directory.
->
-> I think most of the time, unless you are also fixing some other
-> underlying code defect or shortcoming, checkpatch only cleanups
-> to existing code are best avoided.
->
-> I suggest for now, until you are really comfortable with the
-> preferred style, you confine yourself to drivers/staging.
->
-hi,Joe;
-thank for your explaining!
-ok, i will start from drivers/staging
-
->> or checkpatch.pl should be updated??
->
-> You could work on that too.
->
-> One possibility is to write a utility to take checkpatch output
-> and generate patches automatically, or perhaps extend checkpatch
-> itself to do that.  (ie: add a --fix option)
->
-> cheers, Joe
->
+SGkgQXJuZCwNCg0KT24gVGh1LCBKYW4gMTksIDIwMTIgYXQgMjI6NDA6NDUsIEFybmQgQmVyZ21h
+bm4gd3JvdGU6DQo+IE9uIFRodXJzZGF5IDE5IEphbnVhcnkgMjAxMiwgQW5pbEt1bWFyLCBDaGlt
+YXRhIHdyb3RlOg0KPiA+IEFuZHJvaWQgdXNlcnNwYWNlIHJ1bm5pbmcgb24gVEkgQU0zMzV4IEVW
+TSBpcyB1c2luZyB0aGUgaW50ZXJmYWNlDQo+ID4gcHJvdmlkZWQgYnkgbGlzM2x2MDJkLiBUaGV5
+IHdlcmUgYXNraW5nIHNvbWUgbW9yZSBpbnRlcmZhY2VzIGZyb20NCj4gPiBsaXMzbHZvMmQgZHJp
+dmVyLg0KPiA+IA0KPiA+IFRoZXJlIGFyZSBtdWx0aXBsZSB3YXlzIHdlIGNhbiBpbnRlcmZhY2Ug
+YWNjZWxlcm9tZXRlciB0byBBbmRyb2lkIGxheWVycywNCj4gPiB3aGljaCBpcyBpbXBsZW1lbnRl
+ZCBvbiBoYXJkd2FyZSBhYnN0cmFjdGlvbiBsYXllciAoSEFMKSBpbiBBbmRyaW9kLg0KPiA+IA0K
+PiA+IDEpIEludGVycnVwdCBtb2RlDQo+ID4gMikgUG9sbGluZyBtb2RlDQo+ID4gICAgMmEpIEtl
+cm5lbCBwb2xsaW5nDQo+ID4gICAgMmIpIFRpbWVyIHBvbGxpbmcNCj4gPiANCj4gPiBCYXNlZCBv
+biB0aGUgaW50ZXJmYWNlcyBwcm92aWRlZCBieSB0aGUgbGlzM2x2MDJkIGFzIHdlbGwgYXMNCj4g
+PiBsaXMzMzFkbGggKEgvVyBub3Qgc3VwcG9ydGluZyB0aGUgaW50ZXJydXB0cykgdGhleSB3ZXJl
+IGltcGxlbWVudGluZw0KPiA+IHRoZSBrZXJuZWwgcG9sbGluZyBtZWNoYW5pc20uDQo+ID4gDQo+
+ID4gU28gaW1wbGVtZW50YXRpb24gb24gSEFMIGlzIGxpa2UgdGhpcyBpZiBhY2NlbGVyb21ldGVy
+IGludGVyZmFjZSBpcw0KPiA+IG9wZW5lZCB0aGVuIGtlcm5lbCB3aWxsIHN0YXJ0IHBvbGxpbmcg
+dGhpcyBkcml2ZXIgcGVyaW9kaWNhbGx5IGFuZA0KPiA+IHBhc3MgZXZlbnRzIHRvIGlucHV0IHN1
+YnN5c3RlbS4gKEl0J3MgYSBsaXR0bGUgYml0IG92ZXIgaGVhZCkNCj4gPiANCj4gPiBHZW5lcmFs
+bHkgdGhlIGRldmljZSBzaG91bGQgYmUgb3BlbiBidXQga2VybmVsIHNob3VsZCBvbmx5IHBvbGwN
+Cj4gPiB3aGVuIGFuIGFwcCB0aGF0IHVzZXMgYWNjZWxlcm9tZXRlciBpcyBzdGFydGVkLg0KPiA+
+IA0KPiA+IFRoZSBiaWdnZXN0IHJlcXVpcmVtZW50IGZvciB0aGVtIChBbmRyaW9kIHBlb3BsZSkg
+aXMgdG8gYWxsb3cgdXNlciB0bw0KPiA+IGVuYWJsZSAvIGRpc2FibGUgYWNjZWxlcm9tZXRlciBm
+cm9tIHVzZXIgc3BhY2UgYW5kIHRvIGNvbmZpZ3VyZQ0KPiA+IHRoZSBhY2NlbGVyb21ldGVyIHBv
+bGxpbmcgZnJlcXVlbmN5Lg0KPiA+IA0KPiA+IFRvZGF5IHRoZXJlIGlzIG5vIG9wdGlvbiBpbiBs
+aXMzbHZvMmQgZHJpdmVyIHRvIHByb3ZpZGUgdGhpcyBraW5kDQo+ID4gb2YgZnVuY3Rpb25hbGl0
+aWVzDQo+IA0KPiBIaSBBbmlsS3VtYXIsDQo+IA0KPiBUaGlzIGFsbCBzb3VuZHMgbGlrZSB0aGUg
+aW50ZXJmYWNlIGlzIG5vdCBjb21wbGV0ZWx5IHRob3VnaHQgdGhyb3VnaC4NCj4gDQo+IEkgZGlk
+IG5vdCByZWFsaXplIHRoYXQgdGhlIGRyaXZlciBhY3R1YWxseSB1c2VzIHRoZSBpbnB1dCBzdWJz
+eXN0ZW0NCj4gaW4gYWRkaXRpb24gdG8gaXRzIG93biBpbnRlcmZhY2VzLiBUaGlzIGlzIGRlZmlu
+aXRlbHkgZ29vZCwgYW5kIGl0DQo+IG1lYW5zIHRoYXQgd2UgY2FuIG1vdmUgdGhlIGZpbGVzIGZy
+b20gZHJpdmVycy9taXNjIHRvIGRyaXZlcnMvaW5wdXQvbWlzYw0KPiBvciBkcml2ZXJzL2lucHV0
+L2FjY2VsZXJvbWV0ZXIsIG1ha2luZyBpdCBEbWl0cnkncyBwcm9ibGVtIGluc3RlYWQgb2YNCj4g
+bWluZSA7LSkNCj4gDQo+IEhhdmluZyBjdXN0b20gdXNlciBpbnRlcmZhY2VzIGluc2lkZSBhbiBp
+bnB1dCBkcml2ZXIgaG93ZXZlciBpcyB2ZXJ5DQo+IGJhZC4gSSdtIHN1cmUgdGhhdCBvdGhlciBh
+Y2NlbGVyb21ldGVycyB3aWxsIGhhdmUgdGhlIHNhbWUgcmVxdWlyZW1lbnRzDQo+IHJlZ2FyZGlu
+ZyBwb2xsaW5nIGZyZXF1ZW5jeSBhbmQgZW5hYmxlL2Rpc2FibGUgaW4gYW5kcm9pZCBhcyB3ZWxs
+IGFzDQo+IGFueXR3aGVyZSBlbHNlIGFuZCBpdCBzaG91bGQgYWJzb2x1dGVseSBub3QgYmUgaGFu
+ZGxlZCBieSBhIHVzZXIgc3BhY2UNCj4gSEFMIGJ1dCBpbnN0ZWFkIGluc2lkZSBvZiB0aGUga2Vy
+bmVsLCB1c2luZyBhIGNvbW1vbiBtZXRob2QgZm9yIGFsbA0KPiBhdmFpbGFibGUgZHJpdmVycy4N
+Cj4gDQo+IEJhc2VkIG9uIHRoYXQsIEkgYWxzbyBkb3VidCB3ZSBzaG91bGQgYXBwbHkgeW91ciBw
+YXRjaCB0byBhZGQgdGhlDQo+ICJyYW5nZSIgYXR0cmlidXRlIChhZGRpbmcgc3VwcG9ydCBmb3Ig
+bGlzMzNsZGxoIGlzIGZpbmUgdGhvdWdoKS4NCj4NCj4gSW5zdGVhZCBJIHdvdWxkIGFzayB5b3Ug
+dG8gZmlyc3QgZml4IHdoYXQncyB0aGVyZSBieSBtb3ZpbmcgdGhlDQo+IHVzZXIgc3BhY2UgaW50
+ZXJmYWNlcyBpbnRvIHRoZSBpbnB1dCBjb3JlIGZyb20gdGhlIGRyaXZlcg0KPiBhbmQgZG9jdW1l
+bnRpbmcgdGhlbS4NCj4NCj4gSSBkb24ndCBrbm93IHdoYXQgdGhlIHByZWZlcnJlZCB3YXkgZm9y
+IGRvaW5nIHRoaW5ncyBpcyB0aGVyZQ0KPiAoam95c3RpY2sgaW9jdGwsIHN5c2ZzIGF0dHJpYnV0
+ZSwgLi4uKSBidXQgRG1pdHJ5IHNob3VsZA0KPiBiZSBhYmxlIHRvIHByb3ZpZGUgYWR2aWNlIHRo
+ZXJlLiBUaGVuIGFkZCBpbnRlcmZhY2VzIGZvciB0aGUNCj4gYWRkaXRpb25hbCBzdHVmZiB5b3Ug
+bmVlZCAocmFuZ2UsIGRpc2FibGUsIC4uLikgaW4gdGhlIHNhbWUNCj4gcGxhY2UgYW5kIGltcGxl
+bWVudCB0aGVtIGFzIGNhbGxiYWNrcyBpbiB0aGUgZHJpdmVyIGl0c2VsZi4NCg0KSSB3aWxsIHJl
+bW92ZSB0aGUgcmFuZ2UgYXR0cmlidXRlIGFuZCBJIHdpbGwgc3VibWl0IHYyLiBUaGUgcmVzdCBv
+Zg0KdGhlIHBhdGNoIGRlYWxzIHdpdGggYWRkaW5nIHN1cHBvcnQgZm9yIGxpczMzbGRsaCBhbmQg
+c2hvdWxkIGJlIGZhaXJseQ0Kbm9uLWNvbnRyb3ZlcnNpYWwuIFdlIGNhbiByZXZpc2l0IHRoZSBy
+YW5nZSBhdHRyaWJ1dGUgYWRkaXRpb24gYXQgYQ0KbGF0ZXIgdGltZS4NCg0KUmVnYXJkcw0KQW5p
+bEt1bWFyDQo=

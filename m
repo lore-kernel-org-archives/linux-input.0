@@ -1,92 +1,73 @@
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCH] Input: omap4-keypad: Fix the probe error handling
-Date: Wed, 25 Jul 2012 15:05:16 +0530
-Message-ID: <1343208916-19149-1-git-send-email-shubhrajyoti@ti.com>
+From: Tai-hwa Liang <avatar@sentelic.com>
+Subject: Re: [PATCH] Input: sentelic - filtering out erratic movement
+Date: Wed, 25 Jul 2012 18:22:26 +0800 (CST)
+Message-ID: <1207251810289.28223@cnaqrzbavhz.fragryvp.pbz>
+References: <1341553769-30324-1-git-send-email-avatar@sentelic.com>
+ <20120725070837.GA15997@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Shubhrajyoti D <shubhrajyoti@ti.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from hermod.sentelic.com ([203.69.18.19]:32896 "EHLO
+	hermod.sentelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754192Ab2GYKWl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Jul 2012 06:22:41 -0400
+In-Reply-To: <20120725070837.GA15997@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-- pm_runtime_disable call is missed in some of the error cases
-  fix the same.
-- In the error path pm_runtime_put_sync is called after pm_runtime_disable
- fix the same.
-- keypad_data->keymap free was missed in one of the error path fix it.
+On Wed, 25 Jul 2012, Dmitry Torokhov wrote:
+> Hi Tai-hwa,
+>
+> On Fri, Jul 06, 2012 at 01:49:29PM +0800, Tai-hwa Liang wrote:
+>> It turns out that certain hardware sometime generates unexpected movement
+>> during normal operation. This patch tries to filter out these erratic
+>> movements which will cause unexpected cursor jumping to the top-left corner.
+>>
+>> This patch also tries to fix jumpy(back and forth) scrolling in X11 by
+>> accumulating both fingers' coordinates before reporting to the input-mt layer.
+[...]
+>> @@ -721,64 +721,100 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
+>>
+>>  	switch (psmouse->packet[0] >> FSP_PKT_TYPE_SHIFT) {
+>>  	case FSP_PKT_TYPE_ABS:
+>> +		if ((packet[0] == 0x48 || packet[0] == 0x49) &&
+>> +		    packet[1] == 0 && packet[2] == 0) {
+>> +			/*
+>> +			 * filtering out erratic movement which will cause
+>> +			 * unexpected cursor jumping to the top-left corner
+>> +			 */
+>> +			packet[3] &= 0xf0;
+>> +		}
+>
+> I am not sure if I understand this patch. According to the documentation
+> the above values for the packet[0] have the 'valid' bit 0 which means
+> that the touch data should be completely ignored instead of massaging
+> data like you seem to be doing.
 
-Also while at it call pm_runtime_put_sync after the register access in probe
-instead of waiting for input registration etc.
+   I was thinking about keeping external button events for this case;
+however, given that there is no input_report_key() for such events
+(honestly, I don't even know any Real World setup for these),
+a quick 'return PSMOUSE_FULL_PACKET;' should be enough.
 
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
----
- drivers/input/keyboard/omap4-keypad.c |   16 +++++++---------
- 1 files changed, 7 insertions(+), 9 deletions(-)
+> Overall I wonder if you want to increase the size of the buffer to hold
+> both packets (for both fingers) and analyze both of them together...
 
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index c05f98c..17efede 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -310,6 +310,7 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
- 		goto err_unmap;
- 	}
- 	rev = __raw_readl(keypad_data->base + OMAP4_KBD_REVISION);
-+	pm_runtime_put_sync(&pdev->dev);
- 	rev &= 0x03 << 30;
- 	rev >>= 30;
- 	switch (rev) {
-@@ -325,14 +326,14 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev,
- 			"Keypad reports unsupported revision %d", rev);
- 		error = -EINVAL;
--		goto err_pm_put_sync;
-+		goto err_unmap;
- 	}
- 
- 	/* input device allocation */
- 	keypad_data->input = input_dev = input_allocate_device();
- 	if (!input_dev) {
- 		error = -ENOMEM;
--		goto err_pm_put_sync;
-+		goto err_unmap;
- 	}
- 
- 	input_dev->name = pdev->name;
-@@ -374,30 +375,27 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
- 			     "omap4-keypad", keypad_data);
- 	if (error) {
- 		dev_err(&pdev->dev, "failed to register interrupt\n");
--		goto err_free_input;
-+		goto err_free_keymap;
- 	}
- 
--	pm_runtime_put_sync(&pdev->dev);
- 
- 	error = input_register_device(keypad_data->input);
- 	if (error < 0) {
- 		dev_err(&pdev->dev, "failed to register input device\n");
--		goto err_pm_disable;
-+		goto err_free_irq;
- 	}
- 
- 	platform_set_drvdata(pdev, keypad_data);
- 	return 0;
- 
--err_pm_disable:
--	pm_runtime_disable(&pdev->dev);
-+err_free_irq:
- 	free_irq(keypad_data->irq, keypad_data);
- err_free_keymap:
- 	kfree(keypad_data->keymap);
- err_free_input:
- 	input_free_device(input_dev);
--err_pm_put_sync:
--	pm_runtime_put_sync(&pdev->dev);
- err_unmap:
-+	pm_runtime_disable(&pdev->dev);
- 	iounmap(keypad_data->base);
- err_release_mem:
- 	release_mem_region(res->start, resource_size(res));
+   Would you please elaborate this a little more?  For now mfmc_[xy]1 are
+used to store one finger such that driver can report both figners'
+coordinates at once.  If you're referring to erratic movement packet like
+the above, filtering one at a time should be enough since they can be
+considered as sporadic noise input.
+
+> It also appears that the patch does too many things at one and should be
+> split into several addressing individual issues.
+
+   Sure. I'll split jumping to top-left corner and jumpy X11 scrolling into
+two different patches.
+
 -- 
-1.7.5.4
+Thanks,
+
+Tai-hwa Liang

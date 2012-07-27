@@ -1,79 +1,70 @@
-From: "George Spelvin" <linux@horizon.com>
-Subject: Re: [REPOST #3 PATCH v2] Input: atkbd - make repeat period more accurate.
-Date: 26 Jul 2012 11:15:24 -0400
-Message-ID: <20120726151524.17390.qmail@science.horizon.com>
-References: <20120725073940.GB15997@core.coreip.homeip.net>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH v2] Input: synaptics - use firmware data for Cr-48
+Date: Fri, 27 Jul 2012 18:40:02 +0800
+Message-ID: <CAGS+omCAQm-5ybbHwEr+ktAnu=+bvr9rVvP+70vudnn2Ui5ZxQ@mail.gmail.com>
+References: <1342606923-9997-1-git-send-email-cywang@chromium.org>
+ <5006D86C.7030208@canonical.com> <CAM2ehZbftDja6CBGjhL3Jp+30DtYJj+8_4e=_wWcj3pCDGD7AA@mail.gmail.com>
+ <500832D7.4040805@canonical.com> <CAGS+omA-PwoM=U3xP_Gtadaow9SGt555NPWor_-HuvVE8-R3MQ@mail.gmail.com>
+ <50084529.2030001@canonical.com> <20120719184419.GA3626@polaris.bitmath.org>
+ <CAM2ehZaLeJsxCOkqLv9jSko9y3Awix1jjobfTo5WQj8rcrYquA@mail.gmail.com>
+ <20120720072510.GA986@polaris.bitmath.org> <CAGS+omBmkdrpLds4xE==BNp1yctOmA1xj-p2s4S8Bvh7Q=ixxw@mail.gmail.com>
+ <5009A402.2060601@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120725073940.GB15997@core.coreip.homeip.net>
+In-Reply-To: <5009A402.2060601@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux@horizon.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, =?UTF-8?B?IkNodW5nLVlpaCBXYW5nICjnjovltIfmh78pIg==?= <cywang@google.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Thanks for the response!  I'd been checking mailing list archive sites
-to see if my submissions were making it out to the list.
+On Sat, Jul 21, 2012 at 2:31 AM, Chase Douglas
+<chase.douglas@canonical.com> wrote:
+>
+> On 07/20/2012 02:03 AM, Daniel Kurtz wrote:
+>>>>>>
+>>>>>> * Leave the device as SEMI_MT, but provide the real locations, and
+>>>>>> allow userspace to determine the device vendor/model/etc. If
+>>>>>> userspace knows that a specific device behaves in a specific way, it
+>>>>>> can do its own quirking handling. Given the specificity of this
+>>>>>> behavior to only some devices of one brand, this would be my
+>>>>>> suggested resolution to the issue.
+>>
+>>
+>> This is essentially what this patch does.  It sets the SEMI_MT flag to
+>> indicate that the kernel data cannot be totally trusted, and then
+>> provides real MT-B (including per-finger pressures), instead of a
+>> fixed bounding box.  It leaves it to userspace to treat the two slots
+>> worth of coordinates as a bounding box or as actual fingers using its
+>> own heuristics.  By limiting to only one hardware type (using DMI),
+>> any breakage caused by this alternative use of the SEMI_MT flag is
+>> limited.
+>
+>
+> So I was worried that you were trying to remove the SEMI_MT flag, and I apologise for not looking closely enough to notice that wasn't the case. The documentation for the flag says:
+>
+> """
+> Some touchpads, most common between 2008 and 2011, can detect the presence of multiple contacts without resolving the individual positions; only the number of contacts and a rectangular shape is known. For such touchpads, the semi-mt property should be set.
+>
+> Depending on the device, the rectangle may enclose all touches, like a bounding box, or just some of them, for instance the two most recent touches. The diversity makes the rectangle of limited use, but some gestures can normally be extracted from it.
+> """
+>
+> Since the documentation doesn't say the data must be provided as min/max values, this patch actually appears to be perfectly fine as is.
+>
+> My next question is: how are you going to tell from userspace if the hardware actually provides correct data? IIRC, it was decided that we wouldn't provide sysfs nodes for the device IDs.
+>
 
->> In addition to a slightly inaccurate lookup table, the
->> old code would round up to the next repeat period.
->> E.g. to get a period of 9/60 = 0.15 seconds, you had to
->> ask for no more than 149 ms; if you asked for 150, it
->> would round up to 167.
+Excellent question.  We haven't solved this in any elegant way.  When
+building images for this particular hardware platform, we set a flag
+in our user-space touchpad driver.  It then knows to process this
+device's data as "non-bounding box semi-mt".
 
-> This works as intended - it was designed to never have faster than
-> requested.
+-Daniel
 
-The old code didn't do *that* correctly, either.  If you asked for 370
-or 470 ms, it would give you 366.66 or 466.66 ms, respectively.
-
-I can amend the code to do the same, but this leads to some questions:
-
-Should the reported values be rounded down so that setting the repeat
-period to the reported value is always safe?  Or should it allow rounding
-down by <= 0.5 ms, so that asking for 117 ms will give you 166.66
-without complaint?
-
-And what do you do if the requested delay or period is longer than can
-be supported (1000 and 500 ms, respectively)?
-
-Finally, is this rounding documented clearly anywhere?  I thought rounding
-to nearest gave the least surprising results for someone using various
-slightly-inaccurate lists of the repeatable keyboard rates.  Including,
-particularly, the previous code's values.
-
->> Signed-off-by: George Spelvin <linux@horizon.com>
-
-> I am sorry but I have to ask - is this your real name?
-
-Well, it's meant to be an obvious pen name, but since I use it
-consistently and live in a common-law country, it's a "real"
-as any other.
-
->> One possible bug I observed in the code that calls this:
->> 
->> Users of the KDKBDREP ioctl seem to assume that it returns the actual
->> values set, but I'm not sure it really works that way; I don't think
->> the command to change the parameters makes its way through the event
->> queue and atkbd's schedule_delayed_work() to actually set dev->rep[]
->> to the rounded values before kbd_rate_helper returns them to userspace.
->> 
->> If desired, the fix that's most obvious to me would be to split this
->> function in two: perform the conversion to a command byte synchronously,
->> and only defer the actual ps2_command().
-
-> Yes, I agree, this is a problem.
-
-I was trying to start simple, since this is a separate issue,
-but I could make an attempt at this fix, too.
-
-The *big* problsm is what if there's a peripheral that actually requires
-a USB transaction to set the rate before being able to determine what
-the rounded rate to report is, it'll require a major overhaul of the
-in-kernel interfaces.
-
-
-Another thing that would be possible is supporting an arbitrary repeat
-rate, as long as it's slower than the maximum autorepeat rate.  Just set
-the hardware repeat slightly faster than the software repeat rate and
-buffer the autorepeat reports until the correct software-repeat time.
-
-I don't know if it's worth bothering, though.
+> -- Chase
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,31 +1,49 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] fixed coding style issues
-Date: Sun, 29 Jul 2012 22:53:41 -0700
-Message-ID: <20120730055341.GC5830@core.coreip.homeip.net>
-References: <1343200277-14385-1-git-send-email-chenbdchenbd@gmail.com>
+Subject: Re: [RFC ebeam PATCH 3/3] input: misc: New USB eBeam input driver.
+Date: Sun, 29 Jul 2012 22:56:23 -0700
+Message-ID: <20120730055623.GD5830@core.coreip.homeip.net>
+References: <1343433754-3887-1-git-send-email-yann.cantin@laposte.net>
+ <1343433754-3887-4-git-send-email-yann.cantin@laposte.net>
+ <20120728014252.GB19817@core.coreip.homeip.net>
+ <5013AA95.7090006@laposte.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:41880 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751289Ab2G3Fxr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jul 2012 01:53:47 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1343200277-14385-1-git-send-email-chenbdchenbd@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <5013AA95.7090006@laposte.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Yann Cantin <yann.cantin@laposte.net>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Baodong Chen <chenbdchenbd@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Baodong,
-
-On Wed, Jul 25, 2012 at 03:11:17PM +0800, Baodong Chen wrote:
-> Fexed coding style issues from scripts/checkpatch.pl in drivers/input
+On Sat, Jul 28, 2012 at 11:02:13AM +0200, Yann Cantin wrote:
+> Hi Dmitry,
 > 
+> >> +config INPUT_EBEAM_USB_CLASSIC
+> >> +	bool "eBeam Classic Projection support"
+> >> +	depends on INPUT_EBEAM_USB
+> >> +	default y
+> > 
+> > Will there be support for other eBean devices (are there any)? If there
+> > will how soon? How different are they? If not the we probably do not
+> > need this INPUT_EBEAM_USB_CLASSIC selector.
+> 
+> I know at least one re-branded same hardware by 3M, i will be able to borrow
+> one in a month or so. According to the wikipedia article, there's probably more.
+> 
+> There's also newer models and embeded ones in some video projector setup, also
+> re-branded, based on the same technology and that might use the same type of
+> protocol, but i can't be sure until someone can inspect them.
+> These pieces of hardware are quite expensive, and mostly used in educational
+> or corporate, they are not easy to grab.
+> 
+> The code structure (device selector + functions indirection) also seems overkill
+> to me for now, but permit to anticipate device's variations. If it appears that they
+> all works in the same way, it'll be easy (and more comfortable to me) to step down,
+> the opposite seems more difficult.
 
-Thank you for your patch. I picked up the parts that made sense and
-dropped the rest.
+Actually I am hesitant to add infrastructure if it is unclear if we need
+it at all.
 
 Thanks.
 

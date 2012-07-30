@@ -1,76 +1,92 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: [PATCH 6/7] HID: picoLCD: disable version check during probe
-Date: Mon, 30 Jul 2012 21:38:59 +0200
-Message-ID: <20120730213859.063173c1@neptune.home>
-References: <20120730213656.0a9f6d30@neptune.home>
+From: Benson Leung <bleung@chromium.org>
+Subject: Re: [PATCH] Input: gpio_keys - Report wakeup events if device may wakeup
+Date: Mon, 30 Jul 2012 12:50:39 -0700
+Message-ID: <CANLzEkvN2SG+qrRyNYqKgNQUbK29LumxKkBsvzB015xd=pi85w@mail.gmail.com>
+References: <1343283113-16952-1-git-send-email-bleung@chromium.org>
+	<20120730055009.GB5830@core.coreip.homeip.net>
+	<CANLzEktXNikod3Cj=a4hM85z2X29KZVptWWLVh7SMtjROxCx4w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
-Cc: Jaya Kumar <jayalk@intworks.biz>, linux-fbdev@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qc0-f174.google.com ([209.85.216.174]:38125 "EHLO
+	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754656Ab2G3Tuk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Jul 2012 15:50:40 -0400
+Received: by qcro28 with SMTP id o28so3244901qcr.19
+        for <linux-input@vger.kernel.org>; Mon, 30 Jul 2012 12:50:39 -0700 (PDT)
+In-Reply-To: <CANLzEktXNikod3Cj=a4hM85z2X29KZVptWWLVh7SMtjROxCx4w@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, neilb@suse.de
 
-Commit 4ea5454203d991ec85264f64f89ca8855fce69b0
-[HID: Fix race condition between driver core and ll-driver] introduced
-new locking around proce/remove functions that prevent any report/reply
-from hardware to reach driver until it returned from probe.
+Actually, I take it back. It doesn't look like it's necessary.
 
-As such, the ask-reply way to checking picoLCD firmware version during
-probe is bound to timeout and let probe fail.
+Benson
 
-Disabling the check lets driver sucessfully probe again.
+On Mon, Jul 30, 2012 at 12:28 PM, Benson Leung <bleung@chromium.org> wrote:
+> Hi Dmitry,
+>
+> Yes I see Neil's changes. Thank you for letting me know.
+>
+> By the way, looking at Neil's changes, would it make sense to check
+> for device_may_wakeup(dev) like in my patch so that the wakeup
+> behavior can be turned off by setting power/wakeup to disabled?
+>
+> Benson
+>
+> On Sun, Jul 29, 2012 at 10:50 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> Hi Benson,
+>>
+>> On Wed, Jul 25, 2012 at 11:11:53PM -0700, Benson Leung wrote:
+>>> If a button is configured to wake the system, report a pm wakeup event.
+>>>
+>>
+>> Thank you for your patch, however I applied more complete patch sent by
+>> NeilBrown.
+>>
+>>> Signed-off-by: Benson Leung <bleung@chromium.org>
+>>> ---
+>>>  drivers/input/keyboard/gpio_keys.c |    4 ++++
+>>>  1 files changed, 4 insertions(+), 0 deletions(-)
+>>>
+>>> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+>>> index cbb1add..15a80e2 100644
+>>> --- a/drivers/input/keyboard/gpio_keys.c
+>>> +++ b/drivers/input/keyboard/gpio_keys.c
+>>> @@ -328,9 +328,13 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+>>>  {
+>>>       const struct gpio_keys_button *button = bdata->button;
+>>>       struct input_dev *input = bdata->input;
+>>> +     struct device *dev = input->dev.parent;
+>>>       unsigned int type = button->type ?: EV_KEY;
+>>>       int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button->active_low;
+>>>
+>>> +     if (button->wakeup && device_may_wakeup(dev))
+>>> +             pm_wakeup_event(dev, 0);
+>>> +
+>>>       if (type == EV_ABS) {
+>>>               if (state)
+>>>                       input_event(input, type, button->code, button->value);
+>>> --
+>>> 1.7.7.3
+>>>
+>>
+>> --
+>> Dmitry
+>
+>
+>
+> --
+> Benson Leung
+> Software Engineer, Chrom* OS
+> bleung@chromium.org
 
-Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
----
- drivers/hid/hid-picolcd_core.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_c=
-ore.c
-index 2d7ef68..42d0791 100644
---- a/drivers/hid/hid-picolcd_core.c
-+++ b/drivers/hid/hid-picolcd_core.c
-@@ -478,13 +478,13 @@ static int picolcd_probe_lcd(struct hid_device *h=
-dev, struct picolcd_data *data)
- {
- 	int error;
-=20
--	error =3D picolcd_check_version(hdev);
-+/*	error =3D picolcd_check_version(hdev);
- 	if (error)
- 		return error;
-=20
- 	if (data->version[0] !=3D 0 && data->version[1] !=3D 3)
- 		hid_info(hdev, "Device with untested firmware revision, please submi=
-t /sys/kernel/debug/hid/%s/rdesc for this device.\n",
--			 dev_name(&hdev->dev));
-+			 dev_name(&hdev->dev)); */
-=20
- 	/* Setup keypad input device */
- 	error =3D picolcd_init_keys(data, picolcd_in_report(REPORT_KEY_STATE,=
- hdev));
-@@ -534,7 +534,7 @@ err:
-=20
- static int picolcd_probe_bootloader(struct hid_device *hdev, struct pi=
-colcd_data *data)
- {
--	int error;
-+/*	int error;
-=20
- 	error =3D picolcd_check_version(hdev);
- 	if (error)
-@@ -542,7 +542,7 @@ static int picolcd_probe_bootloader(struct hid_devi=
-ce *hdev, struct picolcd_data
-=20
- 	if (data->version[0] !=3D 1 && data->version[1] !=3D 0)
- 		hid_info(hdev, "Device with untested bootloader revision, please sub=
-mit /sys/kernel/debug/hid/%s/rdesc for this device.\n",
--			 dev_name(&hdev->dev));
-+			 dev_name(&hdev->dev)); */
-=20
- 	picolcd_init_devfs(data, NULL, NULL,
- 			picolcd_out_report(REPORT_BL_READ_MEMORY, hdev),
---=20
-1.7.8.6
+
+-- 
+Benson Leung
+Software Engineer, Chrom* OS
+bleung@chromium.org

@@ -1,41 +1,41 @@
-From: Yann Cantin <yann.cantin@laposte.net>
-Subject: Re: [RFC ebeam PATCH 3/3] input: misc: New USB eBeam input driver.
-Date: Mon, 30 Jul 2012 16:25:00 +0200
-Message-ID: <5016993C.9010906@laposte.net>
-References: <1343433754-3887-1-git-send-email-yann.cantin@laposte.net> <1343433754-3887-4-git-send-email-yann.cantin@laposte.net> <20120728014252.GB19817@core.coreip.homeip.net> <5013AA95.7090006@laposte.net> <20120730055623.GD5830@core.coreip.homeip.net>
+From: Ben Gamari <bgamari.foss@gmail.com>
+Subject: Re: New Alps protocol in the wild?
+Date: Mon, 30 Jul 2012 12:19:50 -0400
+Message-ID: <87hasp6x21.fsf@gmail.com>
+References: <87vch9w51w.fsf@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp06.smtpout.orange.fr ([80.12.242.128]:41617 "EHLO
-	smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754270Ab2G3OYr (ORCPT
+Received: from mail-vc0-f174.google.com ([209.85.220.174]:48947 "EHLO
+	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752934Ab2G3QTw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jul 2012 10:24:47 -0400
-In-Reply-To: <20120730055623.GD5830@core.coreip.homeip.net>
+	Mon, 30 Jul 2012 12:19:52 -0400
+Received: by vcbfk26 with SMTP id fk26so4823623vcb.19
+        for <linux-input@vger.kernel.org>; Mon, 30 Jul 2012 09:19:52 -0700 (PDT)
+In-Reply-To: <87vch9w51w.fsf@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Andrew Skalski <askalski@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Vojtech Pavlik <vojtech@suse.cz>, Peter Osterlund <pekero2@telia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi,
+Just to keep everyone in the loop, I've tried both VirtualBox and Qemu
+now and the Alps driver appears to work under neither. After some
+reflection, I finally resolved to brave the jungle that is Windows
+driver development and now have the beginnings of a PS/2 filter
+driver[1]. It's quite hacked together and is likely a textbook example
+of how not to write a Windows driver, but it's nearly working. That
+being said, if anyone has experience with NT kernel development, feel
+free to assist in any way you can.
 
->> The code structure (device selector + functions indirection) also seems overkill
->> to me for now, but permit to anticipate device's variations. If it appears that they
->> all works in the same way, it'll be easy (and more comfortable to me) to step down,
->> the opposite seems more difficult.
-> 
-> Actually I am hesitant to add infrastructure if it is unclear if we need
-> it at all.
+That being said, I'd recommend you don't install it at the moment; it
+currently BSODs from use of DebugPrint in an ISR. Before breaking it,
+however, I was able to get incoming data from the trackpad. The breaking
+changes were an attempt to gather outgoing commands to the device so I'm
+(hopefully) not far from having traces.
 
-Understand.
+Cheers,
 
-I've thrown some hook to see if i can get my hands on other devices.
+- Ben
 
-In the meantime, i'll bet on uniform support and strip down the driver. Wish me luck.
 
-Thanks.
--- 
-Yann Cantin
-A4FEB47F
---
+[1] https://github.com/bgamari/ps2log

@@ -1,41 +1,79 @@
-From: Ben Gamari <bgamari.foss@gmail.com>
-Subject: Re: New Alps protocol in the wild?
-Date: Mon, 30 Jul 2012 12:19:50 -0400
-Message-ID: <87hasp6x21.fsf@gmail.com>
-References: <87vch9w51w.fsf@gmail.com>
+From: Benson Leung <bleung@chromium.org>
+Subject: Re: [PATCH] Input: gpio_keys - Report wakeup events if device may wakeup
+Date: Mon, 30 Jul 2012 12:28:34 -0700
+Message-ID: <CANLzEktXNikod3Cj=a4hM85z2X29KZVptWWLVh7SMtjROxCx4w@mail.gmail.com>
+References: <1343283113-16952-1-git-send-email-bleung@chromium.org>
+	<20120730055009.GB5830@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f174.google.com ([209.85.220.174]:48947 "EHLO
-	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752934Ab2G3QTw (ORCPT
+Received: from mail-qc0-f174.google.com ([209.85.216.174]:61586 "EHLO
+	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754958Ab2G3T2h (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jul 2012 12:19:52 -0400
-Received: by vcbfk26 with SMTP id fk26so4823623vcb.19
-        for <linux-input@vger.kernel.org>; Mon, 30 Jul 2012 09:19:52 -0700 (PDT)
-In-Reply-To: <87vch9w51w.fsf@gmail.com>
+	Mon, 30 Jul 2012 15:28:37 -0400
+Received: by qcro28 with SMTP id o28so3230560qcr.19
+        for <linux-input@vger.kernel.org>; Mon, 30 Jul 2012 12:28:35 -0700 (PDT)
+In-Reply-To: <20120730055009.GB5830@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Andrew Skalski <askalski@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Vojtech Pavlik <vojtech@suse.cz>, Peter Osterlund <pekero2@telia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, neilb@suse.de
 
-Just to keep everyone in the loop, I've tried both VirtualBox and Qemu
-now and the Alps driver appears to work under neither. After some
-reflection, I finally resolved to brave the jungle that is Windows
-driver development and now have the beginnings of a PS/2 filter
-driver[1]. It's quite hacked together and is likely a textbook example
-of how not to write a Windows driver, but it's nearly working. That
-being said, if anyone has experience with NT kernel development, feel
-free to assist in any way you can.
+Hi Dmitry,
 
-That being said, I'd recommend you don't install it at the moment; it
-currently BSODs from use of DebugPrint in an ISR. Before breaking it,
-however, I was able to get incoming data from the trackpad. The breaking
-changes were an attempt to gather outgoing commands to the device so I'm
-(hopefully) not far from having traces.
+Yes I see Neil's changes. Thank you for letting me know.
 
-Cheers,
+By the way, looking at Neil's changes, would it make sense to check
+for device_may_wakeup(dev) like in my patch so that the wakeup
+behavior can be turned off by setting power/wakeup to disabled?
 
-- Ben
+Benson
+
+On Sun, Jul 29, 2012 at 10:50 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Benson,
+>
+> On Wed, Jul 25, 2012 at 11:11:53PM -0700, Benson Leung wrote:
+>> If a button is configured to wake the system, report a pm wakeup event.
+>>
+>
+> Thank you for your patch, however I applied more complete patch sent by
+> NeilBrown.
+>
+>> Signed-off-by: Benson Leung <bleung@chromium.org>
+>> ---
+>>  drivers/input/keyboard/gpio_keys.c |    4 ++++
+>>  1 files changed, 4 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+>> index cbb1add..15a80e2 100644
+>> --- a/drivers/input/keyboard/gpio_keys.c
+>> +++ b/drivers/input/keyboard/gpio_keys.c
+>> @@ -328,9 +328,13 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+>>  {
+>>       const struct gpio_keys_button *button = bdata->button;
+>>       struct input_dev *input = bdata->input;
+>> +     struct device *dev = input->dev.parent;
+>>       unsigned int type = button->type ?: EV_KEY;
+>>       int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button->active_low;
+>>
+>> +     if (button->wakeup && device_may_wakeup(dev))
+>> +             pm_wakeup_event(dev, 0);
+>> +
+>>       if (type == EV_ABS) {
+>>               if (state)
+>>                       input_event(input, type, button->code, button->value);
+>> --
+>> 1.7.7.3
+>>
+>
+> --
+> Dmitry
 
 
-[1] https://github.com/bgamari/ps2log
+
+-- 
+Benson Leung
+Software Engineer, Chrom* OS
+bleung@chromium.org

@@ -1,40 +1,91 @@
-From: NeilBrown <neilb@suse.de>
-Subject: [PATCH 2/2] Input: twl4030-pwrbutton: report a wakeup_event on button
- press.
-Date: Mon, 30 Jul 2012 11:09:02 +1000
-Message-ID: <20120730010902.22579.94791.stgit@notabene.brown>
-References: <20120730010746.22579.52841.stgit@notabene.brown>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.6-rc0 (2nd set)
+Date: Sun, 29 Jul 2012 22:40:47 -0700
+Message-ID: <20120730054047.GA18037@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120730010746.22579.52841.stgit@notabene.brown>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, NeilBrown <neilb@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:36839 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751289Ab2G3Fkv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Jul 2012 01:40:51 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-As the power button causes a wake from suspend, we need to register
-the event with the pm sustem to avoid racing with suspend.
 
-As the input event is reported in the interrupt handler, as simple
-pm_wakeup_event() is sufficient.
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: NeilBrown <neilb@suse.de>
----
+Hi Linus,
 
- drivers/input/misc/twl4030-pwrbutton.c |    1 +
- 1 file changed, 1 insertion(+)
+Please pull from:
 
-diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
-index 38e4b50..b3dd96d 100644
---- a/drivers/input/misc/twl4030-pwrbutton.c
-+++ b/drivers/input/misc/twl4030-pwrbutton.c
-@@ -42,6 +42,7 @@ static irqreturn_t powerbutton_irq(int irq, void *_pwr)
- 	err = twl_i2c_read_u8(TWL4030_MODULE_PM_MASTER, &value,
- 				STS_HW_CONDITIONS);
- 	if (!err)  {
-+		pm_wakeup_event(pwr->dev.parent, 0);
- 		input_report_key(pwr, KEY_POWER, value & PWR_PWRON_IRQ);
- 		input_sync(pwr);
- 	} else {
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive 2nd set of updates for the input subsystem for the 3.6 merge
+window. You will get a new driver for FT5x06 based EDT displays and a
+couple of other driver changes.
+
+Changelog:
+---------
+
+Ping Cheng (1):
+      Input: wacom - add support to Cintiq 22HD
+
+Seth Forshee (1):
+      Input: synaptics - handle out of bounds values from the hardware
+
+Simon Budig (1):
+      Input: add driver for FT5x06 based EDT displays
+
+
+Diffstat:
+--------
+
+ Documentation/input/edt-ft5x06.txt     |   54 ++
+ drivers/input/mouse/synaptics.c        |   22 +
+ drivers/input/tablet/wacom_wac.c       |   21 +-
+ drivers/input/tablet/wacom_wac.h       |    3 +-
+ drivers/input/touchscreen/Kconfig      |   13 +
+ drivers/input/touchscreen/Makefile     |    1 +
+ drivers/input/touchscreen/edt-ft5x06.c |  898 ++++++++++++++++++++++++++++=
+++++
+ include/linux/input/edt-ft5x06.h       |   24 +
+ 8 files changed, 1033 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/input/edt-ft5x06.txt
+ create mode 100644 drivers/input/touchscreen/edt-ft5x06.c
+ create mode 100644 include/linux/input/edt-ft5x06.h
+
+--=20
+Dmitry
+
+
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQFh5fAAoJEH70+W8r6ZYqoNoP/jK1OIKujhNSgyHuxZ9AD9YB
+hLIVD8Y++FQ61SJPKppbholOrm+XSApse6kLAlfIDKWCfrMUYmTGlth8obNM1ZRB
+en2r5awlEBKhiVQPlFSOGJKL6b9qcmIFOkg56zkeRwIIoSVh0IMDK/PrfiAhukd3
+vFHlB4rAf4/dZB59L1luXVR+yfV9ocB6pkgDk0L41jZk4C3CdSLo1axSy+QbHzmy
+7oytYsLUtYOM6haUXbwftznh3gPOb4Gxcl+tXiDB5SjgQdw1VD7hNlFfTQm+fVCn
+HK9R5+4YWPNev2nsHQCl/v30tmSTUikqXUxd4kb2oOrXXFqHazDERFlYBH1HlzuM
+1b774jcE73i7NcmiKEWdt/kZ0w+yUNq4F92SK1BjQ4oCcT2XU0us6CqZ+exSdEJ9
+YAk5ef7GhSc17B4aIEhIH6CVOO846WmRmWa9vWvyfyhhkRjn3daBeKHWVlOIIvIx
+sMEhta9+twY2pmYS55Mc1zgRbd3Y6Cl4v6WPqdqGfkLTrnL7PsMWUWutuduNtPBr
+pJu3q1m35Yz0qbHZVp8rmFSvf/mJ3J83MVrgKvKhtgdvnMeTmg623lVdShA3WzMl
+koHaXHOzpLvM9fTefUzCOCYhVMpgQRaKb/WEz1CMYCnaIJq9j5TiCSJ4/+sCodP5
+u906nSMcc27ozmwHuNpb
+=wfjT
+-----END PGP SIGNATURE-----
+
+--0F1p//8PRICkK4MW--

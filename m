@@ -1,49 +1,120 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC ebeam PATCH 3/3] input: misc: New USB eBeam input driver.
-Date: Sun, 29 Jul 2012 22:56:23 -0700
-Message-ID: <20120730055623.GD5830@core.coreip.homeip.net>
-References: <1343433754-3887-1-git-send-email-yann.cantin@laposte.net>
- <1343433754-3887-4-git-send-email-yann.cantin@laposte.net>
- <20120728014252.GB19817@core.coreip.homeip.net>
- <5013AA95.7090006@laposte.net>
+Subject: Re: [REPOST #3 PATCH v2] Input: atkbd - make repeat period more
+ accurate.
+Date: Sun, 29 Jul 2012 23:11:14 -0700
+Message-ID: <20120730061114.GE5830@core.coreip.homeip.net>
+References: <20120725073940.GB15997@core.coreip.homeip.net>
+ <20120726151524.17390.qmail@science.horizon.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gg0-f174.google.com ([209.85.161.174]:54371 "EHLO
+	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751972Ab2G3GML (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Jul 2012 02:12:11 -0400
 Content-Disposition: inline
-In-Reply-To: <5013AA95.7090006@laposte.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yann Cantin <yann.cantin@laposte.net>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20120726151524.17390.qmail@science.horizon.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: George Spelvin <linux@horizon.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Jul 28, 2012 at 11:02:13AM +0200, Yann Cantin wrote:
-> Hi Dmitry,
+On Thu, Jul 26, 2012 at 11:15:24AM -0400, George Spelvin wrote:
+> Thanks for the response!  I'd been checking mailing list archive sites
+> to see if my submissions were making it out to the list.
 > 
-> >> +config INPUT_EBEAM_USB_CLASSIC
-> >> +	bool "eBeam Classic Projection support"
-> >> +	depends on INPUT_EBEAM_USB
-> >> +	default y
-> > 
-> > Will there be support for other eBean devices (are there any)? If there
-> > will how soon? How different are they? If not the we probably do not
-> > need this INPUT_EBEAM_USB_CLASSIC selector.
+> >> In addition to a slightly inaccurate lookup table, the
+> >> old code would round up to the next repeat period.
+> >> E.g. to get a period of 9/60 = 0.15 seconds, you had to
+> >> ask for no more than 149 ms; if you asked for 150, it
+> >> would round up to 167.
 > 
-> I know at least one re-branded same hardware by 3M, i will be able to borrow
-> one in a month or so. According to the wikipedia article, there's probably more.
+> > This works as intended - it was designed to never have faster than
+> > requested.
 > 
-> There's also newer models and embeded ones in some video projector setup, also
-> re-branded, based on the same technology and that might use the same type of
-> protocol, but i can't be sure until someone can inspect them.
-> These pieces of hardware are quite expensive, and mostly used in educational
-> or corporate, they are not easy to grab.
+> The old code didn't do *that* correctly, either.  If you asked for 370
+> or 470 ms, it would give you 366.66 or 466.66 ms, respectively.
 > 
-> The code structure (device selector + functions indirection) also seems overkill
-> to me for now, but permit to anticipate device's variations. If it appears that they
-> all works in the same way, it'll be easy (and more comfortable to me) to step down,
-> the opposite seems more difficult.
+> I can amend the code to do the same, but this leads to some questions:
+> 
+> Should the reported values be rounded down so that setting the repeat
+> period to the reported value is always safe?  Or should it allow rounding
+> down by <= 0.5 ms, so that asking for 117 ms will give you 166.66
+> without complaint?
+> 
+> And what do you do if the requested delay or period is longer than can
+> be supported (1000 and 500 ms, respectively)?
+> 
+> Finally, is this rounding documented clearly anywhere?  I thought rounding
+> to nearest gave the least surprising results for someone using various
+> slightly-inaccurate lists of the repeatable keyboard rates.  Including,
+> particularly, the previous code's values.
 
-Actually I am hesitant to add infrastructure if it is unclear if we need
-it at all.
+I do not believe rounding is documented anywhere; the rates are
+mentioned in kbdrate manpage.
+
+Frankly at this time I'd just leave this all as is since there were no
+complaints from users about repeat rates on keyboards and most clients
+(X) implement their own, software-based, rate control.
+
+> 
+> >> Signed-off-by: George Spelvin <linux@horizon.com>
+> 
+> > I am sorry but I have to ask - is this your real name?
+> 
+> Well, it's meant to be an obvious pen name,
+
+I do not think it is that obvious to anyone who is not living in the US.
+The only reason I paid attention to the name is I recognized your e-mail
+from LKML as one never signing your name.
+
+> but since I use it
+> consistently and live in a common-law country, it's a "real"
+> as any other.
+
+I am not sure whether common law countries allow anyone pick any name of
+their choosing and use it as their legal name; I know that we had to
+refuse submission from another developer wishing to use a pen name
+(HDAPS driver).
+
+> 
+> >> One possible bug I observed in the code that calls this:
+> >> 
+> >> Users of the KDKBDREP ioctl seem to assume that it returns the actual
+> >> values set, but I'm not sure it really works that way; I don't think
+> >> the command to change the parameters makes its way through the event
+> >> queue and atkbd's schedule_delayed_work() to actually set dev->rep[]
+> >> to the rounded values before kbd_rate_helper returns them to userspace.
+> >> 
+> >> If desired, the fix that's most obvious to me would be to split this
+> >> function in two: perform the conversion to a command byte synchronously,
+> >> and only defer the actual ps2_command().
+> 
+> > Yes, I agree, this is a problem.
+> 
+> I was trying to start simple, since this is a separate issue,
+> but I could make an attempt at this fix, too.
+> 
+> The *big* problsm is what if there's a peripheral that actually requires
+> a USB transaction to set the rate before being able to determine what
+> the rounded rate to report is, it'll require a major overhaul of the
+> in-kernel interfaces.
+
+Luckily we are using software based repeat on USB (and most other input
+devices).
+
+> 
+> 
+> Another thing that would be possible is supporting an arbitrary repeat
+> rate, as long as it's slower than the maximum autorepeat rate.  Just set
+> the hardware repeat slightly faster than the software repeat rate and
+> buffer the autorepeat reports until the correct software-repeat time.
+> 
+> I don't know if it's worth bothering, though.
+
+No, I do not think it's worth it as we have software-based repeat
+implementation that allows arbitrary rates.
 
 Thanks.
 

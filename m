@@ -1,7 +1,7 @@
 From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: [PATCH 5/7] HID: picoLCD: Improve unplug handling
-Date: Mon, 30 Jul 2012 21:38:57 +0200
-Message-ID: <20120730213857.75d34cf8@neptune.home>
+Subject: [PATCH 4/7] HID: picoLCD: satify some checkpatch warnings
+Date: Mon, 30 Jul 2012 21:38:54 +0200
+Message-ID: <20120730213854.4bb52224@neptune.home>
 References: <20120730213656.0a9f6d30@neptune.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -12,226 +12,50 @@ To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkos
 Cc: Jaya Kumar <jayalk@intworks.biz>, linux-fbdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Stop earlier attempting to submit new reports/URBs (though locking and
-usbhid still prevents to bail out early enough to not produce multiple
-  hid-picolcd 0003:04D8:C002.0003: usb_submit_urb(out) failed: -19
-messages in kernel log.
+WARNING: static const char * array should probably be static const char=
+ * const
++static const char *error_codes[] =3D {
 
-Strengthen framebuffer removal to be less racy, though quick
-bind/unbind sequences triggered via sysfs still trigger weird behavior:
-- either SLAB corruptions
-  Seems related to fbdefio
-- immediate system reboot
-  Unexplained as there is no explaining output on any console, not even
-  serial console.
-(note: picoLCD is hosting fbcon in both cases, but manual plug/unplug
-seems too slow to trigger madness)
+WARNING: min() should probably be min_t(size_t, 20, s)
++       raw_data[2] =3D min((size_t)20, s);
+
+Note: the second min_t suggestion cannot be followed because GCC is not
+smart enough to track constants through it and make
+copy_from_user_overflow() check happy.
+
+WARNING: min() should probably be min_t(u8, 20, raw_data[2])
++       if (copy_from_user(raw_data+3, u, min((u8)20, raw_data[2])))
+                return -EFAULT;
 
 Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
 ---
- drivers/hid/hid-picolcd_backlight.c |    3 +-
- drivers/hid/hid-picolcd_core.c      |   21 ++++++++++++-----
- drivers/hid/hid-picolcd_fb.c        |   41 +++++++++++++++++++++------=
--------
- drivers/hid/hid-picolcd_lcd.c       |    3 +-
- drivers/hid/hid-picolcd_leds.c      |    3 +-
- 5 files changed, 46 insertions(+), 25 deletions(-)
+ drivers/hid/hid-picolcd_debugfs.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-picolcd_backlight.c b/drivers/hid/hid-pico=
-lcd_backlight.c
-index cd1ccd7..b91f309 100644
---- a/drivers/hid/hid-picolcd_backlight.c
-+++ b/drivers/hid/hid-picolcd_backlight.c
-@@ -45,7 +45,8 @@ static int picolcd_set_brightness(struct backlight_de=
-vice *bdev)
- 	data->lcd_power      =3D bdev->props.power;
- 	spin_lock_irqsave(&data->lock, flags);
- 	hid_set_field(report->field[0], 0, data->lcd_power =3D=3D FB_BLANK_UN=
-BLANK ? data->lcd_brightness : 0);
--	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
-+	if (!(data->status & PICOLCD_FAILED))
-+		usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
- 	spin_unlock_irqrestore(&data->lock, flags);
- 	return 0;
- }
-diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_c=
-ore.c
-index 8d5d341..2d7ef68 100644
---- a/drivers/hid/hid-picolcd_core.c
-+++ b/drivers/hid/hid-picolcd_core.c
-@@ -105,12 +105,17 @@ struct picolcd_pending *picolcd_send_and_wait(str=
-uct hid_device *hdev,
- 			hid_set_field(report->field[i], j, k < size ? raw_data[k] : 0);
- 			k++;
- 		}
--	data->pending =3D work;
--	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
--	spin_unlock_irqrestore(&data->lock, flags);
--	wait_for_completion_interruptible_timeout(&work->ready, HZ*2);
--	spin_lock_irqsave(&data->lock, flags);
--	data->pending =3D NULL;
-+	if (data->status & PICOLCD_FAILED) {
-+		kfree(work);
-+		work =3D NULL;
-+	} else {
-+		data->pending =3D work;
-+		usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
-+		spin_unlock_irqrestore(&data->lock, flags);
-+		wait_for_completion_interruptible_timeout(&work->ready, HZ*2);
-+		spin_lock_irqsave(&data->lock, flags);
-+		data->pending =3D NULL;
-+	}
- 	spin_unlock_irqrestore(&data->lock, flags);
- 	mutex_unlock(&data->mutex);
- 	return work;
-@@ -235,6 +240,10 @@ int picolcd_reset(struct hid_device *hdev)
+diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-picolc=
+d_debugfs.c
+index ff74645..f2491fa 100644
+--- a/drivers/hid/hid-picolcd_debugfs.c
++++ b/drivers/hid/hid-picolcd_debugfs.c
+@@ -135,7 +135,7 @@ static ssize_t picolcd_debug_eeprom_write(struct fi=
+le *f, const char __user *u,
+ 	memset(raw_data, 0, sizeof(raw_data));
+ 	raw_data[0] =3D *off & 0xff;
+ 	raw_data[1] =3D (*off >> 8) & 0xff;
+-	raw_data[2] =3D min((size_t)20, s);
++	raw_data[2] =3D min_t(size_t, 20, s);
+ 	if (*off + raw_data[2] > 0xff)
+ 		raw_data[2] =3D 0x100 - *off;
 =20
- 	/* perform the reset */
- 	hid_set_field(report->field[0], 0, 1);
-+	if (data->status & PICOLCD_FAILED) {
-+		spin_unlock_irqrestore(&data->lock, flags);
-+		return -ENODEV;
-+	}
- 	usbhid_submit_report(hdev, report, USB_DIR_OUT);
- 	spin_unlock_irqrestore(&data->lock, flags);
-=20
-diff --git a/drivers/hid/hid-picolcd_fb.c b/drivers/hid/hid-picolcd_fb.=
-c
-index 602786c..4d8e22c 100644
---- a/drivers/hid/hid-picolcd_fb.c
-+++ b/drivers/hid/hid-picolcd_fb.c
-@@ -226,13 +226,16 @@ int picolcd_fb_reset(struct picolcd_data *data, i=
-nt clear)
- }
-=20
- /* Update fb_vbitmap from the screen_base and send changed tiles to de=
-vice */
--static void picolcd_fb_update(struct picolcd_data *data)
-+static void picolcd_fb_update(struct fb_info *info)
- {
- 	int chip, tile, n;
- 	unsigned long flags;
-+	struct picolcd_data *data;
-=20
-+	mutex_lock(&info->lock);
-+	data =3D info->par;
- 	if (!data)
--		return;
-+		goto out;
-=20
- 	spin_lock_irqsave(&data->lock, flags);
- 	if (!(data->status & PICOLCD_READY_FB)) {
-@@ -256,17 +259,31 @@ static void picolcd_fb_update(struct picolcd_data=
- *data)
- 					data->fb_bitmap, data->fb_bpp, chip, tile) ||
- 				data->fb_force) {
- 				n +=3D 2;
--				if (data->status & PICOLCD_FAILED)
--					return; /* device lost! */
- 				if (n >=3D HID_OUTPUT_FIFO_SIZE / 2) {
-+					mutex_unlock(&info->lock);
- 					usbhid_wait_io(data->hdev);
-+					mutex_lock(&info->lock);
-+					data =3D info->par;
-+					if (!data)
-+						goto out;
-+					spin_lock_irqsave(&data->lock, flags);
-+					if (data->status & PICOLCD_FAILED) {
-+						spin_unlock_irqrestore(&data->lock, flags);
-+						goto out;
-+					}
-+					spin_unlock_irqrestore(&data->lock, flags);
- 					n =3D 0;
- 				}
- 				picolcd_fb_send_tile(data->hdev, chip, tile);
- 			}
- 	data->fb_force =3D false;
--	if (n)
-+	if (n) {
-+		mutex_unlock(&info->lock);
- 		usbhid_wait_io(data->hdev);
-+		return;
-+	}
-+out:
-+	mutex_unlock(&info->lock);
- }
-=20
- /* Stub to call the system default and update the image on the picoLCD=
- */
-@@ -327,17 +344,12 @@ static int picolcd_fb_blank(int blank, struct fb_=
-info *info)
-=20
- static void picolcd_fb_destroy(struct fb_info *info)
- {
--	struct picolcd_data *data;
--
- 	/* make sure no work is deferred */
--	cancel_delayed_work_sync(&info->deferred_work);
--	data =3D info->par;
--	info->par =3D NULL;
--	if (data)
--		data->fb_info =3D NULL;
-+	fb_deferred_io_cleanup(info);
-=20
- 	vfree((u8 *)info->fix.smem_start);
- 	framebuffer_release(info);
-+	printk(KERN_DEBUG "picolcd_fb_destroy(%p)\n", info);
- }
-=20
- static int picolcd_fb_check_var(struct fb_var_screeninfo *var, struct =
-fb_info *info)
-@@ -425,7 +437,7 @@ static struct fb_ops picolcdfb_ops =3D {
- /* Callback from deferred IO workqueue */
- static void picolcd_fb_deferred_io(struct fb_info *info, struct list_h=
-ead *pagelist)
- {
--	picolcd_fb_update(info->par);
-+	picolcd_fb_update(info);
- }
-=20
- static const struct fb_deferred_io picolcd_fb_defio =3D {
-@@ -582,10 +594,7 @@ void picolcd_exit_framebuffer(struct picolcd_data =
-*data)
- 		return;
-=20
- 	device_remove_file(&data->hdev->dev, &dev_attr_fb_update_rate);
--	mutex_lock(&info->lock);
--	fb_deferred_io_cleanup(info);
- 	info->par =3D NULL;
--	mutex_unlock(&info->lock);
- 	unregister_framebuffer(info);
- 	data->fb_vbitmap =3D NULL;
- 	data->fb_bitmap  =3D NULL;
-diff --git a/drivers/hid/hid-picolcd_lcd.c b/drivers/hid/hid-picolcd_lc=
-d.c
-index 64a067f..2d0ddc5 100644
---- a/drivers/hid/hid-picolcd_lcd.c
-+++ b/drivers/hid/hid-picolcd_lcd.c
-@@ -47,7 +47,8 @@ static int picolcd_set_contrast(struct lcd_device *ld=
-ev, int contrast)
- 	data->lcd_contrast =3D contrast & 0x0ff;
- 	spin_lock_irqsave(&data->lock, flags);
- 	hid_set_field(report->field[0], 0, data->lcd_contrast);
--	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
-+	if (!(data->status & PICOLCD_FAILED))
-+		usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
- 	spin_unlock_irqrestore(&data->lock, flags);
- 	return 0;
- }
-diff --git a/drivers/hid/hid-picolcd_leds.c b/drivers/hid/hid-picolcd_l=
-eds.c
-index 5573cd8..28cb6a4 100644
---- a/drivers/hid/hid-picolcd_leds.c
-+++ b/drivers/hid/hid-picolcd_leds.c
-@@ -54,7 +54,8 @@ void picolcd_leds_set(struct picolcd_data *data)
-=20
- 	spin_lock_irqsave(&data->lock, flags);
- 	hid_set_field(report->field[0], 0, data->led_state);
--	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
-+	if (!(data->status & PICOLCD_FAILED))
-+		usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
- 	spin_unlock_irqrestore(&data->lock, flags);
- }
-=20
+@@ -370,7 +370,7 @@ static const struct file_operations picolcd_debug_f=
+lash_fops =3D {
+ /*
+  * Helper code for HID report level dumping/debugging
+  */
+-static const char *error_codes[] =3D {
++static const char * const error_codes[] =3D {
+ 	"success", "parameter missing", "data_missing", "block readonly",
+ 	"block not erasable", "block too big", "section overflow",
+ 	"invalid command length", "invalid data length",
 --=20
 1.7.8.6

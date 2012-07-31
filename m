@@ -1,51 +1,126 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH 0/7] HID: picoLCD updates
-Date: Tue, 31 Jul 2012 09:59:09 +0200
-Message-ID: <20120731095909.08d60f70@pluto.restena.lu>
-References: <20120730213656.0a9f6d30@neptune.home>
-	<CANq1E4Tb1Er+O54rN3OteMXqeXAXDr4Z-dvY+RQxZW_NdAfifw@mail.gmail.com>
+From: Daniel Mack <zonque@gmail.com>
+Subject: Re: [PATCH v3 3/3] input: rotary-encoder: add DT bindings
+Date: Tue, 31 Jul 2012 15:56:10 +0200
+Message-ID: <5017E3FA.9060604@gmail.com>
+References: <1343240714-11399-1-git-send-email-zonque@gmail.com> <1343240714-11399-3-git-send-email-zonque@gmail.com> <20120731061214.GB32327@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay.restena.lu ([158.64.1.62]:48474 "EHLO
-	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754656Ab2GaH7M (ORCPT
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:48011 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751133Ab2GaN42 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Jul 2012 03:59:12 -0400
-In-Reply-To: <CANq1E4Tb1Er+O54rN3OteMXqeXAXDr4Z-dvY+RQxZW_NdAfifw@mail.gmail.com>
+	Tue, 31 Jul 2012 09:56:28 -0400
+Received: by wgbdr13 with SMTP id dr13so5886520wgb.1
+        for <linux-input@vger.kernel.org>; Tue, 31 Jul 2012 06:56:27 -0700 (PDT)
+In-Reply-To: <20120731061214.GB32327@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jaya Kumar <jayalk@intworks.biz>, linux-fbdev@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, jhovold@gmail.com, hartleys@visionengravers.com
 
-Hi David,
+On 31.07.2012 08:12, Dmitry Torokhov wrote:
+> Still, I do not line the copying of pdata over, maybe we coudl have
+> something like the patch below?
 
-On Tue, 31 Jul 2012 09:26:07 David Herrmann wrote:
-> This is not directly related to this patchset, but did you fix the
-> locking issue with hid-core? It is still on my todo-list but I haven't
-> gotten around fixing it, yet. However, I plan on fixing it this
-> summer, but if picolcd does not require it, it's probably not worth
-> the work.
+[...]
 
-I worked around it with patch 6/7 as in disabling the version check.
+> diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
+> index ea51265..0f9d746 100644
+> --- a/drivers/input/misc/rotary_encoder.c
+> +++ b/drivers/input/misc/rotary_encoder.c
+> @@ -24,6 +24,8 @@
+>  #include <linux/gpio.h>
+>  #include <linux/rotary_encoder.h>
+>  #include <linux/slab.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/of_gpio.h>
+>  
+>  #define DRV_NAME "rotary-encoder"
+>  
+> @@ -140,6 +142,56 @@ static irqreturn_t rotary_encoder_half_period_irq(int irq, void *dev_id)
+>  	return IRQ_HANDLED;
+>  }
+>  
+> +#ifdef CONFIG_OF
+> +static struct of_device_id rotary_encoder_of_match[] = {
+> +	{ .compatible = "rotary-encoder", },
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(of, rotary_encoder_of_match);
+> +
+> +static struct rotary_encoder_platform_data * __devinit
+> +rotary_encoder_parse_dt(struct device *dev)
+> +{
+> +	const struct of_device_id *of_id =
+> +				of_match_device(rotary_encoder_of_match, dev);
+> +	struct device_node *np = dev->of_node;
+> +	struct rotary_encoder_platform_data *pdata;
+> +	enum of_gpio_flags flags;
+> +
+> +	if (!of_id || !np)
+> +		return NULL;
+> +
+> +	pdata = kzalloc(sizeof(struct rotary_encoder_platform_data),
+> +			GFP_KERNEL);
+> +	if (!pdata)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	of_property_read_u32(np, "rotary-encoder,steps", &pdata->steps);
+> +	of_property_read_u32(np, "linux,axis", &pdata->axis);
+> +
+> +	pdata->gpio_a = of_get_gpio_flags(np, 0, &flags);
+> +	pdata->inverted_a = flags & OF_GPIO_ACTIVE_LOW;
+> +
+> +	pdata->gpio_b = of_get_gpio_flags(np, 1, &flags);
+> +	pdata->inverted_b = flags & OF_GPIO_ACTIVE_LOW;
+> +
+> +	pdata->relative_axis = !!of_get_property(np,
+> +					"rotary-encoder,relative-axis", NULL);
+> +	pdata->rollover = !!of_get_property(np,
+> +					"rotary-encoder,rollover", NULL);
+> +	pdata->half_period = !!of_get_property(np,
+> +					"rotary-encoder,half-period", NULL))
 
-The other probing steps don't expect a response from the hardware, thus
-are not affected.
+Syntax error.
 
-But it would definitely be helpful to be able to revert that one.
-Understanding and fixing the FB-related misbehavior on quick bind/unbind
-seems more important though.
+> +
+> +	return pdata;
+> +}
+> +#else
+> +static inline struct rotary_encoder_platform_data *
+> +rotary_encoder_parse_dt(struct device *dev)
+> +{
+> +	return NULL;
+> +}
+> +#endif
+> +
+>  static int __devinit rotary_encoder_probe(struct platform_device *pdev)
+>  {
+>  	struct device *dev = &pdev->dev;
+> @@ -150,14 +202,19 @@ static int __devinit rotary_encoder_probe(struct platform_device *pdev)
+>  	int err;
+>  
+>  	if (!pdata) {
+> -		dev_err(&pdev->dev, "missing platform data\n");
+> -		return -ENOENT;
+> +		pdata = rotary_encoder_parse_dt(dev);
+> +		if (IS_ERR(pdata))
+> +			return PTR_ERR(pdata);
+> +
+> +		if (!pdata) {
+> +			dev_err(dev, "missing platform data\n");
+> +			return -EINVAL;
+> +		}
+
+Well, then you would only parse DT parameters in case of no kernel
+provided struct. I thought you were up to a solution where board file
+data could override just parts of the DT provided information. But I
+don't think the latter would be any useful anyway, so I'm happy with
+your solution :)
 
 
-Not related with this, getting a return value from
-usbhid_submit_report() as in -EAGAIN or -ENODEV would help in order
-to avoid the ugly 
-  hid-picolcd 0003:04D8:C002.0003: usb_submit_urb(out) failed: -19
-lines in kernel log and stopping interaction with hardware when it's
-gone already or giving it time to consume its queue when there is lots
-of data being sent.
+Thanks for your help,
+Daniel
 
-
-Regards,
-Bruno

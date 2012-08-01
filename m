@@ -1,51 +1,50 @@
-From: Ben Gamari <bgamari.foss@gmail.com>
-Subject: Re: New Alps protocol in the wild?
-Date: Tue, 31 Jul 2012 16:50:11 -0400
-Message-ID: <877gtju03g.fsf@gmail.com>
-References: <87vch9w51w.fsf@gmail.com> <87hasp6x21.fsf@gmail.com> <87obmwld7n.fsf@gmail.com> <20120731060156.GA32327@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: USB Creative Technology SB Arena Headset Quirk Question
+Date: Tue, 31 Jul 2012 17:35:51 -0700
+Message-ID: <1932702.uGcqoS09g5@dtor-d630.eng.vmware.com>
+References: <50182D25.3080503@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vb0-f46.google.com ([209.85.212.46]:61435 "EHLO
-	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753754Ab2GaUuO (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:48600 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753472Ab2HAAgH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Jul 2012 16:50:14 -0400
-Received: by vbbff1 with SMTP id ff1so6250219vbb.19
-        for <linux-input@vger.kernel.org>; Tue, 31 Jul 2012 13:50:13 -0700 (PDT)
-In-Reply-To: <20120731060156.GA32327@core.coreip.homeip.net>
+	Tue, 31 Jul 2012 20:36:07 -0400
+Received: by pbbrp8 with SMTP id rp8so133046pbb.19
+        for <linux-input@vger.kernel.org>; Tue, 31 Jul 2012 17:36:06 -0700 (PDT)
+In-Reply-To: <50182D25.3080503@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, opensource@dell.com
-Cc: linux-input@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Andrew Skalski <askalski@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Vojtech Pavlik <vojtech@suse.cz>, Neil Brown <neilb@cse.unsw.edu.au>, Sebastian Kapfer <sebastian_kapfer@gmx.net>
+To: Chris J Arges <chris.j.arges@canonical.com>
+Cc: linux-input@vger.kernel.org
 
-Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+On Tuesday, July 31, 2012 02:08:21 PM Chris J Arges wrote:
+> Hello,
+> I am trying to find the best way to resolve a hardware issue with a USB
+> Creative Technology SB Arena Headset (0x41e:0x403).
+> 
+> The headset also has buttons on it which register as a keyboard:
+> [252903.181] (II) XINPUT: Adding extended input device "Creative
+> Technology SB Arena Headset" (type: KEYBOARD, id 15)
+> 
+> When it is plugged in, it then starts sending button 3 presses for the
+> entire time it is plugged in causing input from other devices to not be
+> useable.
+> 
+> Here is the current bug with more information:
+> https://bugs.launchpad.net/ubuntu/+source/xorg-server/+bug/1007575
+> 
+> I'd like to help fix this, and am wondering if it makes sense to quirk
+> the kernel HID driver, or rather quirk the X evdev module as was
+> suggested by another developer.
 
-> Given how unwilling they are to share details of their protocol I would
-> not be surprised if they tried to detect virtual environment on purpose.
->
-Sadly, you very well could be right.
+Since kernel emits bogus events repeatedly it should be quirked in
+kernel (but if device really sends interrupts constantly it the
+firmware is probable what shoudl be blamed in the first place).
 
-That being said, I don't know what they could be checking for. I'm
-passing "-cpu host" to qemu which should eliminate the CPUID
-hint. Otherwise, the only obvious hint I can find is the hard drive
-which mentions Qemu in its vendor string. Taking a quick look at the
-apfiltr.sys I can't find any strings that might imply it's looking at
-device/vendor strings. Perhaps they could be using ACPI tables (although
-I see no ACPI-ish strings in the driver)? I guess SMBIOS and DMI are
-also targets although I know little about their implementation.
+Thanks.
 
-Anyways, I suppose at this point it is probably time to bring this
-discussion over to the qemu list to discuss future directions for
-virtualization. Unfortunately, it becomes very difficult to maintain
-motivation on problems like this when Alps will likely render whatever
-reverse engineering knowledge gained now obsolete in the next iteration
-of hardware. It seems clear that the only sustainable way to get
-open-source support for these and future Alps devices is with some
-cooperation from Alps and/or a major customer. It seems that Dell is in
-an ideal position to help here.
-
-Cheers,
-
-- Ben
-
+-- 
+Dmitry

@@ -1,66 +1,88 @@
-From: Simon Farnsworth <simon.farnsworth@onelan.co.uk>
-Subject: Re: Problems with a Zytronic touchscreen on kernel 3.5 (USB ID 0x14c8:0x0005) - regression from kernel 3.0
-Date: Wed, 01 Aug 2012 11:35:19 +0100
-Message-ID: <1937294.3n9nv0bdlA@f17simon>
-References: <1514977.1uDfr8LPn9@f17simon> <CAN+gG=EZHh0AU43DzU35M0z5tyE75aRU8_XYwOhxmVHQYycGtw@mail.gmail.com>
+From: Till Crueger <T.Crueger@fh-trier.de>
+Subject: Using an eGalax touchpad on ARM
+Date: Thu, 02 Aug 2012 13:52:30 +0200
+Message-ID: <501A69FE.2050104@fh-trier.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart3322132.dUGWsCr8hL"; micalg="pgp-sha1"; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from claranet-outbound-smtp05.uk.clara.net ([195.8.89.38]:58071 "EHLO
-	claranet-outbound-smtp05.uk.clara.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750902Ab2HAKf3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 1 Aug 2012 06:35:29 -0400
-In-Reply-To: <CAN+gG=EZHh0AU43DzU35M0z5tyE75aRU8_XYwOhxmVHQYycGtw@mail.gmail.com>
+Received: from gateway-0.fh-trier.de ([143.93.54.122]:43879 "EHLO
+	gateway-0.fh-trier.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751634Ab2HBMDe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Aug 2012 08:03:34 -0400
+Received: from gateway-b.fh-trier.de (gateway-b.fh-trier.de [143.93.54.182])
+	by gateway-0.fh-trier.de (Postfix) with ESMTP id 142C31C3E8
+	for <linux-input@vger.kernel.org>; Thu,  2 Aug 2012 13:56:48 +0200 (CEST)
+Received: from [143.93.53.29] (infpc06.fh-trier.de [143.93.53.29])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	(Authenticated sender: crueger)
+	by gateway-b.fh-trier.de (Postfix) with ESMTPSA id DCA4B17B46F
+	for <linux-input@vger.kernel.org>; Thu,  2 Aug 2012 13:56:32 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Greg Kroah-Hartman <greg@kroah.com>
+To: linux-input <linux-input@vger.kernel.org>
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Hi,
+
+I am currently trying to get an D-Wav/eGalax touchpad to work under
+linux on an ARM board (pandaboard). I can use the touchpad just fine
+from most laptops running gentoo or ubuntu.
+
+To get the device to work I followed the guide I found at
+https://wiki.archlinux.org/index.php/Multitouch_Displays. This means I
+load the hid-multitouch driver and then issue
+
+# echo 3 0eef 72f0 259 >
+/sys/module/hid_multitouch/drivers/hid\:hid-multitouch/new_id
+
+which activates the device on my laptop running gentoo.
+
+The same procedure on the pandaboard does not activate the touchpad
+however. I can see the touchpad just fine using lsusb, but somehow the
+activation fails.
+
+What could be the cause for the activation failure under a different
+architecture?
 
 
---nextPart3322132.dUGWsCr8hL
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+One possible reason why this may not work, that I am currently
+considering is the BUS-Number. When I first tried to activate the device
+on the laptop I assumed this number was refering to the USB-Bus to which
+the device was connected. However after re-reading the guide for
+arch-linux, I figured out that this number is 3 for any USB-device.
+However I could not figure out what this magic number is referring to.
+Is it possible, that this number is different on the pandaboard? If so,
+how could I find out the correct number to use for activation of the device?
 
-On Wednesday 1 August 2012 11:50:28 Benjamin Tissoires wrote:
-> Hi Simon,
-> 
-> well, it's a known bug. This panel is now fixed in 3.6-rc0, and I
-> submitted the fix for stable. I'm still waiting for the stable
-> approval.
-> 
-<snip>
-> 
-> PS: the fix is at
-> 
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commit;h=4aceed37e315e8eaa26cb4c8dfd619a32fa24669
-> 
-I've just confirmed that applying 4aceed37e315e8eaa26cb4c8dfd619a32fa24669 on 
-top of 3.5 fixes my problem.
 
-Thanks,
--- 
-Simon Farnsworth
-Software Engineer
-ONELAN Ltd
-http://www.onelan.com
+If you need any additional information (output from dmesg, lsusb etc)
+just let me know and I'll get the necessary information from the board.
 
---nextPart3322132.dUGWsCr8hL
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
+Thank you for your help,
 
+  Till Crueger
+
+- -- 
+Dipl. Inform. Till Crueger
+
+Department of Computer Science
+Trier University of Applied Sciences
+Postfach 1826
+54208 Trier
+GERMANY
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
+Version: GnuPG v2.0.19 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iQEcBAABAgAGBQJQGQZtAAoJEIKsye9/dtRWMt0H+wSvJN/ZTH7ev+Iqt70vXKul
-BIGGP7tVtfDF9AvCKCRWgGbcBSIKjHutiRaSaxK1TgUjQCBMyxcdwqCC+8kbFUo1
-fd7IrF8VLF1PMIY4NxgwsnnBnJoCXUJjo28ZU8Ga8/H3D9NVlxvNTVKwgjR4leKG
-rbGXP+OwhuzkXpenStbfaZd6pueuxjOILqeeMvzlILGgcgzZzQ7k27yykQBUeJU4
-4tlTPf1eoK2rxujFRzy0GkxEGQFdoURgkJ66RhD1XQsZ88oKIJVJZM4/9oEcT03F
-UQaZWjJWPCGUZFhnsQsI8vOe1lCBiSswCXrNEnmGWGkogTJKwW9Iwb5tCdsfyU0=
-=0xn/
+iQEcBAEBAgAGBQJQGmn+AAoJEMyqYnfSqLbVYMIIAI+GUSJI29e87OtWITCewebc
+aE4STPUcl9StOREOGtMoOoLmG2n6YDOt1xNi6ynUih/H5MdHRPz4d7VNWaTdC5rs
+hVp8gQ5c2DGvHTNVb88ezoDb2FudsxBDEpXoQU+TXgN0ke6PpVfvtwPsarvBFHv5
+lvxLXTi0o3mHSWw/XTZw90UP7O49l1pCjISfvQdkRCcVrySEDNJAQFkJQAeARzim
+cBqvjHBscUZJO/5ddE1v1QWY3QEPuMiXLptL0sKAMDK6X/R29XtAVVzX5z0W7E6f
+Kj5u8qqvEvvHaMyMC2p+Tp/zlmnKVvQCKs1COlwcBRLvy3BTnUc9pzGP3wb4K2w=
+=Ar2y
 -----END PGP SIGNATURE-----
-
---nextPart3322132.dUGWsCr8hL--
-

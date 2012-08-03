@@ -1,106 +1,77 @@
-From: Fabio Estevam <fabio.estevam@freescale.com>
-Subject: [PATCH] Input: gpio_keys - fix NULL pointer dereference for dt case
-Date: Fri, 3 Aug 2012 10:41:54 -0300
-Message-ID: <1344001314-2250-1-git-send-email-fabio.estevam@freescale.com>
+From: Yann Cantin <yann.cantin-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
+Subject: Re: [RFC ebeam PATCH v2 3/3] input: misc: New USB eBeam input driver.
+Date: Fri, 03 Aug 2012 17:30:48 +0200
+Message-ID: <501BEEA8.4060702@laposte.net>
+References: <1343912397-18353-1-git-send-email-yann.cantin@laposte.net> <1343912397-18353-4-git-send-email-yann.cantin@laposte.net> <alpine.LRH.2.00.1208031424250.15211@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from va3ehsobe002.messaging.microsoft.com ([216.32.180.12]:31154
-	"EHLO va3outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751303Ab2HCNmD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Aug 2012 09:42:03 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LRH.2.00.1208031424250.15211-1ReQVI26iDCaZKY3DrU6dA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: shawn.guo@linaro.org, kernel@pengutronix.de, aletes.xgr@gmail.com, rob.herring@calxeda.com, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-Commit 30161f6b2e7d1 (Input: gpio_keys - clean up device tree parser) 
-introduced the following kernel crash for a dt based kernel:
-..
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
-pgd = 80004000
-[00000004] *pgd=00000000
-Internal error: Oops: 805 [#1] ARM
-Modules linked in:
-CPU: 0    Not tainted  (3.5.0-next-20120802+ #1366)
-PC is at gpio_keys_probe+0x154/0x8c0
-LR is at of_gpiochip_find_and_xlate+0x54/0x70
-pc : [<803ddbac>]    lr : [<801ed2f4>]    psr: 60000013
-sp : 9f851df8  ip : 00000002  fp : 9f851e5c
-r10: 9f873d00  r9 : 00000001  r8 : 9fa2f900
-r7 : 809c0920  r6 : 9f873d08  r5 : 00000000  r4 : 809c09d4
-r3 : 805af10c  r2 : 000000c0  r1 : 9f851db4  r0 : 000000d5
-Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment kernel
-Control: 10c5387d  Table: 90004019  DAC: 00000015
-Process swapper (pid: 1, stack limit = 0x9f8502e8)
-Stack: (0x9f851df8 to 0x9f852000)
-....
+Hi,
 
-The reason for the crash was due to 'button = &pdata->buttons[i++];' 
-returning a NULL pointer, and then 'button' was accessed afterwards 
-without checking for NULL.
+>> +#include <linux/hid.h>
+> 
+> As this driver is not a HID bus driver, why do you need this include?
 
-Fix this by correctly assigning 'pdata->buttons' and also add a NULL 
-pointer check for 'button' pointer.
+Cinder, removed
 
-Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
-Acked-by: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
----
- drivers/input/keyboard/gpio_keys.c |   16 ++++++++++++----
- 1 files changed, 12 insertions(+), 4 deletions(-)
+>> +#define DRIVER_VERSION	"v0.7"
+> 
+> I don't think we need to be tracking driver versions for newly submitted 
+> drivers, git is much better at tracking changes.
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 6ee68ec..620ef24 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -559,7 +559,6 @@ gpio_keys_get_devtree_pdata(struct device *dev)
- 	struct gpio_keys_button *button;
- 	int error;
- 	int nbuttons;
--	int i;
+Old habit, removed.
+
+>> +	u16			 X, Y;		/* raw coordinates	     */
+>> +	int			 x, y;		/* computed coordinates      */
+> 
+> X,x being different fields seems confusing to me. How about, let's say, x, 
+> raw_x?
+
+Done.
  
- 	node = dev->of_node;
- 	if (!node) {
-@@ -580,9 +579,11 @@ gpio_keys_get_devtree_pdata(struct device *dev)
- 		goto err_out;
- 	}
- 
-+	pdata->buttons = (struct gpio_keys_button *) (pdata + 1);
-+	pdata->nbuttons = nbuttons;
-+
- 	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
- 
--	i = 0;
- 	for_each_child_of_node(node, pp) {
- 		enum of_gpio_flags flags;
- 
-@@ -592,8 +593,13 @@ gpio_keys_get_devtree_pdata(struct device *dev)
- 			continue;
- 		}
- 
--		button = &pdata->buttons[i++];
--
-+		button = pdata->buttons;
-+
-+		if (!button)	{
-+			error = -ENOMEM;
-+			goto err_free_pdata;
-+		}
-+
- 		button->gpio = of_get_gpio_flags(pp, 0, &flags);
- 		button->active_low = flags & OF_GPIO_ACTIVE_LOW;
- 
-@@ -614,6 +620,8 @@ gpio_keys_get_devtree_pdata(struct device *dev)
- 		if (of_property_read_u32(pp, "debounce-interval",
- 					 &button->debounce_interval))
- 			button->debounce_interval = 5;
-+
-+		button++;
- 	}
- 
- 	if (pdata->nbuttons == 0) {
+>> +DEVICE_H_ATTR(1);
+>> +DEVICE_H_ATTR(2);
+>> +DEVICE_H_ATTR(3);
+>> +DEVICE_H_ATTR(4);
+>> +DEVICE_H_ATTR(5);
+>> +DEVICE_H_ATTR(6);
+>> +DEVICE_H_ATTR(7);
+>> +DEVICE_H_ATTR(8);
+>> +DEVICE_H_ATTR(9);
+> 
+> You are adding a number of sysfs files. If they are really necessary, 
+> you'll probably need to document those in Documentation/ABI.
+
+Will do, in testing i suppose.
+
+BTW : The driver need lot of parameters to be passed from user-space calibration
+tool. The best way to do it isn't decided yet : one sysfs file per parameter, or
+one sysfs file for all, with a big sscanf parsing. Any idea ?
+
+>> +		strlcat(ebeam->name, ")", sizeof(ebeam->name));
+> 
+> I'd suggest checking the length, making sure that you don't overflow the 
+> ->name buffer.
+
+Something like this ? :
+
+if (strlcat(ebeam->name, ")", sizeof(ebeam->name))>=sizeof(ebeam->name)) {
+	// overflowed, closing ) anyway
+	ebeam->name[sizeof(ebeam->name)-2] = ')';
+
+Thanks.
 -- 
-1.7.1
-
-
+Yann Cantin
+A4FEB47F
+--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

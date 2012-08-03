@@ -1,118 +1,132 @@
-From: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
-Subject: Re: imx51 crashes at gpio_keys_probe
-Date: Thu, 2 Aug 2012 22:12:03 -0300
-Message-ID: <CAAAP30FEOAPOCC2aJMas_eRrHE43wgwRa_ddbETRgjVop1oQwQ@mail.gmail.com>
-References: <CAOMZO5D9CZ2=ON2zNxcMa+PW549NE12=aeS522cor67F8Soaww@mail.gmail.com>
-	<CAOMZO5C_x=1KhgofYAV9oKYVvCYB_37mBj-wak9rf5VcUODUCg@mail.gmail.com>
-	<CAOMZO5DV6yDh95SKAOtb1=tpbnNuztCsiCR+2QzX+KvrPq4FBg@mail.gmail.com>
+From: Daniel Mack <zonque@gmail.com>
+Subject: Re: [PATCH v3 3/3] input: rotary-encoder: add DT bindings
+Date: Fri, 03 Aug 2012 06:59:47 +0200
+Message-ID: <501B5AC3.50005@gmail.com>
+References: <1343240714-11399-1-git-send-email-zonque@gmail.com> <1343240714-11399-3-git-send-email-zonque@gmail.com> <20120731061214.GB32327@core.coreip.homeip.net> <5017E3FA.9060604@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f174.google.com ([209.85.220.174]:45207 "EHLO
-	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751744Ab2HCBME (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Aug 2012 21:12:04 -0400
-Received: by vcbfk26 with SMTP id fk26so194567vcb.19
-        for <linux-input@vger.kernel.org>; Thu, 02 Aug 2012 18:12:03 -0700 (PDT)
-In-Reply-To: <CAOMZO5DV6yDh95SKAOtb1=tpbnNuztCsiCR+2QzX+KvrPq4FBg@mail.gmail.com>
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:53805 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751079Ab2HCE7w (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Aug 2012 00:59:52 -0400
+Received: by bkwj10 with SMTP id j10so84291bkw.19
+        for <linux-input@vger.kernel.org>; Thu, 02 Aug 2012 21:59:50 -0700 (PDT)
+In-Reply-To: <5017E3FA.9060604@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: Shawn Guo <shawn.guo@linaro.org>, rob.herring@calxeda.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, jhovold@gmail.com, hartleys@visionengravers.com
 
-On Thu, Aug 2, 2012 at 10:01 PM, Fabio Estevam <festevam@gmail.com> wrote:
-> On Thu, Aug 2, 2012 at 8:58 PM, Fabio Estevam <festevam@gmail.com> wrote:
->> On Thu, Aug 2, 2012 at 7:49 PM, Fabio Estevam <festevam@gmail.com> wrote:
->>> Hi,
->>>
->>> Running today's linux-next on a imx51-babbage board I get the
->>> following (with a dt kernel):
->>>
->>> ...
->>> Unable to handle kernel NULL pointer dereference at virtual address 00000004
->>> pgd = 80004000
->>> [00000004] *pgd=00000000
->>> Internal error: Oops: 805 [#1] ARM
->>> Modules linked in:
->>
->> Reverting 30161f6b2e7d1 (Input: gpio_keys - clean up device tree
->> parser ) fixes the issue for me.
->
-> Ok, the patch below fixes the issue on top of today's linux-next:
+On 31.07.2012 15:56, Daniel Mack wrote:
+> On 31.07.2012 08:12, Dmitry Torokhov wrote:
+>> Still, I do not line the copying of pdata over, maybe we coudl have
+>> something like the patch below?
 
-Hi,
+Was that merged yet? Sorry, just want to forget about it :)
 
-Thanks for the fix.
 
-Looks good to me.
 
-You can add:
-Acked-by: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
+> 
+> [...]
+> 
+>> diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
+>> index ea51265..0f9d746 100644
+>> --- a/drivers/input/misc/rotary_encoder.c
+>> +++ b/drivers/input/misc/rotary_encoder.c
+>> @@ -24,6 +24,8 @@
+>>  #include <linux/gpio.h>
+>>  #include <linux/rotary_encoder.h>
+>>  #include <linux/slab.h>
+>> +#include <linux/of_platform.h>
+>> +#include <linux/of_gpio.h>
+>>  
+>>  #define DRV_NAME "rotary-encoder"
+>>  
+>> @@ -140,6 +142,56 @@ static irqreturn_t rotary_encoder_half_period_irq(int irq, void *dev_id)
+>>  	return IRQ_HANDLED;
+>>  }
+>>  
+>> +#ifdef CONFIG_OF
+>> +static struct of_device_id rotary_encoder_of_match[] = {
+>> +	{ .compatible = "rotary-encoder", },
+>> +	{ },
+>> +};
+>> +MODULE_DEVICE_TABLE(of, rotary_encoder_of_match);
+>> +
+>> +static struct rotary_encoder_platform_data * __devinit
+>> +rotary_encoder_parse_dt(struct device *dev)
+>> +{
+>> +	const struct of_device_id *of_id =
+>> +				of_match_device(rotary_encoder_of_match, dev);
+>> +	struct device_node *np = dev->of_node;
+>> +	struct rotary_encoder_platform_data *pdata;
+>> +	enum of_gpio_flags flags;
+>> +
+>> +	if (!of_id || !np)
+>> +		return NULL;
+>> +
+>> +	pdata = kzalloc(sizeof(struct rotary_encoder_platform_data),
+>> +			GFP_KERNEL);
+>> +	if (!pdata)
+>> +		return ERR_PTR(-ENOMEM);
+>> +
+>> +	of_property_read_u32(np, "rotary-encoder,steps", &pdata->steps);
+>> +	of_property_read_u32(np, "linux,axis", &pdata->axis);
+>> +
+>> +	pdata->gpio_a = of_get_gpio_flags(np, 0, &flags);
+>> +	pdata->inverted_a = flags & OF_GPIO_ACTIVE_LOW;
+>> +
+>> +	pdata->gpio_b = of_get_gpio_flags(np, 1, &flags);
+>> +	pdata->inverted_b = flags & OF_GPIO_ACTIVE_LOW;
+>> +
+>> +	pdata->relative_axis = !!of_get_property(np,
+>> +					"rotary-encoder,relative-axis", NULL);
+>> +	pdata->rollover = !!of_get_property(np,
+>> +					"rotary-encoder,rollover", NULL);
+>> +	pdata->half_period = !!of_get_property(np,
+>> +					"rotary-encoder,half-period", NULL))
+> 
+> Syntax error.
+> 
+>> +
+>> +	return pdata;
+>> +}
+>> +#else
+>> +static inline struct rotary_encoder_platform_data *
+>> +rotary_encoder_parse_dt(struct device *dev)
+>> +{
+>> +	return NULL;
+>> +}
+>> +#endif
+>> +
+>>  static int __devinit rotary_encoder_probe(struct platform_device *pdev)
+>>  {
+>>  	struct device *dev = &pdev->dev;
+>> @@ -150,14 +202,19 @@ static int __devinit rotary_encoder_probe(struct platform_device *pdev)
+>>  	int err;
+>>  
+>>  	if (!pdata) {
+>> -		dev_err(&pdev->dev, "missing platform data\n");
+>> -		return -ENOENT;
+>> +		pdata = rotary_encoder_parse_dt(dev);
+>> +		if (IS_ERR(pdata))
+>> +			return PTR_ERR(pdata);
+>> +
+>> +		if (!pdata) {
+>> +			dev_err(dev, "missing platform data\n");
+>> +			return -EINVAL;
+>> +		}
+> 
+> Well, then you would only parse DT parameters in case of no kernel
+> provided struct. I thought you were up to a solution where board file
+> data could override just parts of the DT provided information. But I
+> don't think the latter would be any useful anyway, so I'm happy with
+> your solution :)
+> 
+> 
+> Thanks for your help,
+> Daniel
+> 
 
-> ---
->  drivers/input/keyboard/gpio_keys.c |   16 ++++++++++++----
->  1 files changed, 12 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/input/keyboard/gpio_keys.c
-> b/drivers/input/keyboard/gpio_keys.c
-> index 6ee68ec..620ef24 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -559,7 +559,6 @@ gpio_keys_get_devtree_pdata(struct device *dev)
->         struct gpio_keys_button *button;
->         int error;
->         int nbuttons;
-> -       int i;
->
->         node = dev->of_node;
->         if (!node) {
-> @@ -580,9 +579,11 @@ gpio_keys_get_devtree_pdata(struct device *dev)
->                 goto err_out;
->         }
->
-> +       pdata->buttons = (struct gpio_keys_button *) (pdata + 1);
-> +       pdata->nbuttons = nbuttons;
-> +
->         pdata->rep = !!of_get_property(node, "autorepeat", NULL);
->
-> -       i = 0;
->         for_each_child_of_node(node, pp) {
->                 enum of_gpio_flags flags;
->
-> @@ -592,8 +593,13 @@ gpio_keys_get_devtree_pdata(struct device *dev)
->                         continue;
->                 }
->
-> -               button = &pdata->buttons[i++];
-> -
-> +               button = pdata->buttons;
-> +
-> +               if (!button)    {
-> +                       error = -ENOMEM;
-> +                       goto err_free_pdata;
-> +               }
-> +
->                 button->gpio = of_get_gpio_flags(pp, 0, &flags);
->                 button->active_low = flags & OF_GPIO_ACTIVE_LOW;
->
-> @@ -614,6 +620,8 @@ gpio_keys_get_devtree_pdata(struct device *dev)
->                 if (of_property_read_u32(pp, "debounce-interval",
->                                          &button->debounce_interval))
->                         button->debounce_interval = 5;
-> +
-> +               button++;
->         }
->
->         if (pdata->nbuttons == 0) {
-> --
-> 1.7.1
->
-> I based it on the initial dt submission from Shawn:
-> http://patches.linaro.org/2743/
->
-> Please let me know if the patch looks correct and I can send a formal
-> one to the list.
->
-> Thanks,
->
-> Fabio Estevam

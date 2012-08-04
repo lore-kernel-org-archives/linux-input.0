@@ -1,57 +1,38 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 1/2] HID: wacom: Use half of brightness for low state
-Date: Fri, 3 Aug 2012 10:42:40 -0700
-Message-ID: <CAF8JNh+55Z4ZmBA=2yF7HBz464ZYs68NSU5OEYSkqP-s_bvEYg@mail.gmail.com>
-References: <1343755676-2999-1-git-send-email-przemo@firszt.eu>
+From: Bernard GODARD <bernard.godard@gmail.com>
+Subject: 1A34:0802 acrux gamepad is not initialized if plugged in at boot time
+Date: Sat, 4 Aug 2012 15:51:00 +0200
+Message-ID: <CAFxvmmdQ3=TohcYn+Bg-tNP0YGqxhobF8BvwyzjyPaj2nzdxbQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lpp01m010-f46.google.com ([209.85.215.46]:33577 "EHLO
-	mail-lpp01m010-f46.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751290Ab2HCRmm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Aug 2012 13:42:42 -0400
-Received: by lahd3 with SMTP id d3so517420lah.19
-        for <linux-input@vger.kernel.org>; Fri, 03 Aug 2012 10:42:40 -0700 (PDT)
-In-Reply-To: <1343755676-2999-1-git-send-email-przemo@firszt.eu>
+Received: from mail-gh0-f174.google.com ([209.85.160.174]:35066 "EHLO
+	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752484Ab2HDNvB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Aug 2012 09:51:01 -0400
+Received: by ghrr11 with SMTP id r11so1626776ghr.19
+        for <linux-input@vger.kernel.org>; Sat, 04 Aug 2012 06:51:01 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Przemo Firszt <przemo@firszt.eu>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Tue, Jul 31, 2012 at 10:27 AM, Przemo Firszt <przemo@firszt.eu> wrote:
-> Intuos4 WL leds have 2 states: high and low. With no activity tablet
-> uses low state; using pen triggers high state. Both can be set
-> independently, but it would require setting another led device to
-> control them separately. This patch uses the brightness set through leds
-> subsytem as high and half of that value as low.
->
-> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+This problem was initially reported here:
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1019587
 
-Acked-by: Ping Cheng <pingc@wacom.com> for the whole set.
+acrux gamepad is not initialized if present at boot time. Error
+message "can't reset device" appears continuously in dmesg:
 
-Thank you, Przemo, for your effort.
+[  254.607949] acrux 0003:1A34:0802.0002: can't reset device,
+0000:00:1d.3-1/input0, status -32
 
-Ping
+Temporary solution is to unplug device and plug it in again. Also
+there is no problem if the device is plugged in when the computer is
+already in use.
+Otherwise the device works well (including force feedback).
 
-> ---
->  drivers/hid/hid-wacom.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-> index fe23a1e..848842e 100644
-> --- a/drivers/hid/hid-wacom.c
-> +++ b/drivers/hid/hid-wacom.c
-> @@ -91,7 +91,8 @@ static void wacom_leds_set_brightness(struct led_classdev *led_dev,
->         if (buf) {
->                 buf[0] = WAC_CMD_LED_CONTROL;
->                 buf[1] = led;
-> -               buf[2] = value;
-> +               buf[2] = value >> 2;
-> +               buf[3] = value;
->                 hdev->hid_output_raw_report(hdev, buf, 9, HID_FEATURE_REPORT);
->                 kfree(buf);
->         }
-> --
-> 1.7.10.2
->
+This problem has been present in several kernel versions including 3.0 and 3.5.
+
+Let me know if you would like me to provide any additional information
+or if you would like me to run some particular tests.
+
+Thank you,

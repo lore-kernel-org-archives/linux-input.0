@@ -1,38 +1,67 @@
-From: Bernard GODARD <bernard.godard@gmail.com>
-Subject: 1A34:0802 acrux gamepad is not initialized if plugged in at boot time
-Date: Sat, 4 Aug 2012 15:51:00 +0200
-Message-ID: <CAFxvmmdQ3=TohcYn+Bg-tNP0YGqxhobF8BvwyzjyPaj2nzdxbQ@mail.gmail.com>
+From: Daniel Mack <zonque@gmail.com>
+Subject: Re: Emulating level IRQs
+Date: Sun, 05 Aug 2012 18:22:51 +0200
+Message-ID: <501E9DDB.3020807@gmail.com>
+References: <1333777207-4151-1-git-send-email-olof@lixom.net> <20120407070206.GA17623@core.coreip.homeip.net> <4F8089A9.6080704@raumfeld.com> <20120503043651.GA11830@core.coreip.homeip.net> <20120713070102.GA2223@core.coreip.homeip.net> <500561AF.9090901@gmail.com> <5008296C.5070709@gmail.com> <20120723165120.GB26577@core.coreip.homeip.net> <500EE314.7040708@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gh0-f174.google.com ([209.85.160.174]:35066 "EHLO
-	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752484Ab2HDNvB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Aug 2012 09:51:01 -0400
-Received: by ghrr11 with SMTP id r11so1626776ghr.19
-        for <linux-input@vger.kernel.org>; Sat, 04 Aug 2012 06:51:01 -0700 (PDT)
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:38925 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753348Ab2HEQW4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Aug 2012 12:22:56 -0400
+In-Reply-To: <500EE314.7040708@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sven Neumann <s.neumann@raumfeld.com>, Olof Johansson <olof@lixom.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Haojian Zhuang <haojian.zhuang@gmail.com>, Eric Miao <eric.y.miao@gmail.com>, Thomas Gleixner <tglx@linutronix.de>
 
-This problem was initially reported here:
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1019587
+On 24.07.2012 20:01, Daniel Mack wrote:
+> On 23.07.2012 18:51, Dmitry Torokhov wrote:
+>> On Thu, Jul 19, 2012 at 05:36:12PM +0200, Daniel Mack wrote:
+> 
+>>> Ok, finally I found some time. In general, the patch works fine. The
+>>> only detail I had to amend was the irqflags, which were changed from
+>>> IRQF_TRIGGER_RISING/IRQF_TRIGGER_FALLING to
+>>> IRQF_TRIGGER_HIGH/IRQF_TRIGGER_LOW, which doesn't work as the PXA can't
+>>> deal with level-based IRQs. Changing this back to RISING/FALLING makes
+>>> the driver work again.
+>>
+>> Hmm, but that would mean we need to restore reading the data in open()
+>> to make sure we re-arm IRQ in case somebody touched the screen before it
+>> was opened by userspace...
+> 
+> I had another look at this and don't really know what to do here. We
+> definitely need level interrupts for this device as the interrupt line's
+> level is the only that tells us when we can stop reading from the
+> device. So it's not just the start condition that bites us here.
+> 
+> I copied some people that might help find a solution.
+> 
+> To summarize the problem: The EETI touchscreen is a device that asserts
+> a GPIO line when it has events to deliver and waits for I2C commands to
+> empty its buffers. When there are no more buffered events, it will
+> de-assert the line.
+> 
+> This device is connected to a PXA GPIO that is only able to deliver edge
+> IRQs, and the old implemenation was to wait for an interrupt and then
+> read data as long as the IRQ's corresponding GPIO was asserted. However,
+> expecting that an IRQ is mappable to a GPIO is not something we should
+> do, so the only clean solution is to teach the PXA GPIO controller level
+> IRQs.
+> 
+> So it boils down to the question: Is there any easy and generic way to
+> emulate level irq on chips that don't support that natively?
 
-acrux gamepad is not initialized if present at boot time. Error
-message "can't reset device" appears continuously in dmesg:
+Otherwise, we would need some sort of generic irq_to_gpio() again, and
+the interrupt line the driver listens to must have support for that sort
+of mapping.
 
-[  254.607949] acrux 0003:1A34:0802.0002: can't reset device,
-0000:00:1d.3-1/input0, status -32
+Any opinion on this, anyone?
 
-Temporary solution is to unplug device and plug it in again. Also
-there is no problem if the device is plugged in when the computer is
-already in use.
-Otherwise the device works well (including force feedback).
 
-This problem has been present in several kernel versions including 3.0 and 3.5.
 
-Let me know if you would like me to provide any additional information
-or if you would like me to run some particular tests.
+Thanks,
+Daniel
 
-Thank you,

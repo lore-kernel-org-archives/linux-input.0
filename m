@@ -1,156 +1,108 @@
-From: =?big5?B?vEK5xcJA?= <scott.liu@emc.com.tw>
-Subject: RE: [PATCH 1/1]hid:hid-multitouch:  add mt_resume for ELAN's production
-Date: Mon, 6 Aug 2012 11:14:01 +0800
-Message-ID: <1D0CA16CE8BA4331BC7C995D25717BFE@elan.corp>
-References: <87y5lw5mbv.fsf@emc.com.tw>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Anthony Olech <anthony.olech.opensource@diasemi.com>
+Subject: [NEW DRIVER V2 0/7] DA9058 PMIC - please comment on this new driver
+Date: Sun, 5 Aug 2012 21:43:44 +0100
+Message-ID: <201208060735.q767ZYc5005436@ubuntu>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <87y5lw5mbv.fsf@emc.com.tw>
 Sender: linux-kernel-owner@vger.kernel.org
-To: 'Jian-Jhong Ding' <jj_ding@emc.com.tw>, "'benjamin.tissoires'" <benjamin.tissoires@gmail.com>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Jiri Kosina' <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, eleghost@gmail.com
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Andrew Jones <drjones@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Anton Vorontov <cbou@mail.ru>, Arnd Bergmann <arnd@arndb.de>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Axel Lin <axel.lin@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Donggeun Kim <dg77.kim@samsung.com>, Eric Andersson <eric.andersson@unixphere.com>, Grant Likely <grant.likely@secretlab.ca>, Guenter Roeck <guenter.roeck@ericsson.com>, Jean Delvare <khali@linux-fr.org>, Liam Girdwood <lrg@ti.com>, Linus Walleij <linus.walleij@stericsson.com>, linux-input@vger.kernel.org, lm-sensors@lm-sensors.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Michael Krufky <mkrufky@kernellabs.com>, Paul Gortmaker <p_gortmaker@yahoo.com>, Randy Dunlop <randy.dunlap@oracle.com>, rtc-linux@googlegroups.com, Samuel Ortiz <sameo@linux.intel.com>, Steven Toth <stoth@kernellabs.com>
 List-Id: linux-input@vger.kernel.org
 
+This is submission attempt number 2 to have this driver included in
+the linux kernel source tree. This is the driver for the Dialog DA9058.
 
-Mode change to 0644.
+The DA9058 is a low power Power Management Integrated Circuit with extra
+functionality. It is a Multi Function Device controlled only from an I2C
+bus whose components can raise an interrupt request on a single IRQ line.
 
-=46rom: Scott Liu<scott.liu@emc.com.tw>
-Signed-off-by: Scott Liu <scott.liu@emc.com.tw>
+The driver for the DA9058 consists of a core (i2c) device driver that
+instantiates the individual component device drivers for:
 
----
- 0 files changed
- mode change 100755 =3D> 100644 drivers/hid/hid-ids.h
- mode change 100755 =3D> 100644 drivers/hid/hid-multitouch.c
+hwmon - 5 ADC channels
+gpio - 2 available pins
+onkey - 1 device
+regulator - 4 BUCKS, 19 LDO and 3 fixed
+rtc - low power clock
+power - battery information
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-old mode 100755
-new mode 100644
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.=
-c
-old mode 100755
-new mode 100644
---=20
-1.7.9.5
+All the above six component device drivers depend on the 'core' driver,
+which is number one in the patch series.
 
+This driver has been tested on a Samsung SMDK6410 connected to a Dialog
+DA9058 Evaluation Board via one GPIO and a 3-wire I2C connection.
 
------Original Message-----
-=46rom: linux-input-owner@vger.kernel.org
-[mailto:linux-input-owner@vger.kernel.org] On Behalf Of Jian-Jhong Ding
-Sent: Friday, August 03, 2012 5:58 PM
-To: =BCB=B9=C5=C2@; 'benjamin.tissoires'; 'Dmitry Torokhov'; 'Jiri Kosi=
-na'
-Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org;
-eleghost@gmail.com
-Subject: Re: [PATCH 1/1]hid:hid-multitouch: add mt_resume for ELAN's
-production
+All the components can be builtin to the kernel or compiled as modules.
+As far as I can tell, all the latest APIs both for the core driver and
+all the component drivers have been adhered to, but if I have missed
+something please let me know.
 
-Hi Scott,
+Many thanks,
+Anthony Olech, Dialog Semiconductor Ltd.
 
-=BCB=B9=C5=C2@ <scott.liu@emc.com.tw> writes:
-> Some of ELAN=A1=A6s production need to issue set_idle when resume.
->
-> Signed-off-by: Scott Liu <scott.liu@emc.com.tw>
+Anthony Olech (Drivers Team) (7):
+  DA9058 MFD core and ADC driver
+  DA9058 ONKEY driver
+  DA9058 POWER driver
+  DA9058 RTC driver
+  DA9058 GPIO driver
+  DA9058 HWMON driver
+  DA9058 REGULATOR driver
 
-You might want to add a From: line at the top of mail body to make your
-name go along with the SoB line.
+ drivers/gpio/Kconfig                 |   12 +
+ drivers/gpio/Makefile                |    1 +
+ drivers/gpio/gpio-da9058.c           |  376 ++++++++++++++++++++++++++
+ drivers/hwmon/Kconfig                |   10 +
+ drivers/hwmon/Makefile               |    1 +
+ drivers/hwmon/da9058-hwmon.c         |  390 +++++++++++++++++++++++++++
+ drivers/input/misc/Kconfig           |   10 +
+ drivers/input/misc/Makefile          |    1 +
+ drivers/input/misc/da9058_onkey.c    |  171 ++++++++++++
+ drivers/mfd/Kconfig                  |   18 ++
+ drivers/mfd/Makefile                 |    3 +
+ drivers/mfd/da9058-core.c            |  268 +++++++++++++++++++
+ drivers/mfd/da9058-i2c.c             |  102 +++++++
+ drivers/mfd/da9058-irq.c             |   57 ++++
+ drivers/power/Kconfig                |   10 +
+ drivers/power/Makefile               |    1 +
+ drivers/power/da9058_power.c         |  404 ++++++++++++++++++++++++++++
+ drivers/regulator/Kconfig            |   11 +
+ drivers/regulator/Makefile           |    1 +
+ drivers/regulator/da9058-regulator.c |  239 +++++++++++++++++
+ drivers/rtc/Kconfig                  |   10 +
+ drivers/rtc/Makefile                 |    1 +
+ drivers/rtc/rtc-da9058.c             |  446 +++++++++++++++++++++++++++++++
+ include/linux/mfd/da9058/bat.h       |   33 +++
+ include/linux/mfd/da9058/codec.h     |   21 ++
+ include/linux/mfd/da9058/core.h      |   58 ++++
+ include/linux/mfd/da9058/gpio.h      |   19 ++
+ include/linux/mfd/da9058/hwmon.h     |   20 ++
+ include/linux/mfd/da9058/irq.h       |   50 ++++
+ include/linux/mfd/da9058/onkey.h     |   17 ++
+ include/linux/mfd/da9058/pdata.h     |   28 ++
+ include/linux/mfd/da9058/registers.h |  480 ++++++++++++++++++++++++++++++++++
+ include/linux/mfd/da9058/regulator.h |   33 +++
+ include/linux/mfd/da9058/rtc.h       |   17 ++
+ 34 files changed, 3319 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/gpio/gpio-da9058.c
+ create mode 100644 drivers/hwmon/da9058-hwmon.c
+ create mode 100644 drivers/input/misc/da9058_onkey.c
+ create mode 100644 drivers/mfd/da9058-core.c
+ create mode 100644 drivers/mfd/da9058-i2c.c
+ create mode 100644 drivers/mfd/da9058-irq.c
+ create mode 100644 drivers/power/da9058_power.c
+ create mode 100644 drivers/regulator/da9058-regulator.c
+ create mode 100644 drivers/rtc/rtc-da9058.c
+ create mode 100644 include/linux/mfd/da9058/bat.h
+ create mode 100644 include/linux/mfd/da9058/codec.h
+ create mode 100644 include/linux/mfd/da9058/core.h
+ create mode 100644 include/linux/mfd/da9058/gpio.h
+ create mode 100644 include/linux/mfd/da9058/hwmon.h
+ create mode 100644 include/linux/mfd/da9058/irq.h
+ create mode 100644 include/linux/mfd/da9058/onkey.h
+ create mode 100644 include/linux/mfd/da9058/pdata.h
+ create mode 100644 include/linux/mfd/da9058/registers.h
+ create mode 100644 include/linux/mfd/da9058/regulator.h
+ create mode 100644 include/linux/mfd/da9058/rtc.h
 
-> ---
->  drivers/hid/hid-ids.h        |    3 +++
->  drivers/hid/hid-multitouch.c |   27 +++++++++++++++++++++++++++
->  2 files changed, 30 insertions(+)
->  mode change 100644 =3D> 100755 drivers/hid/hid-ids.h
->  mode change 100644 =3D> 100755 drivers/hid/hid-multitouch.c
-
-I believe these two files are merely plain text source file. No need to
-make them executives.
-
-And, please consider using git send-mail to send the patches. Your MTA
-is still making the indent pretty ugly.
-
-Thanks,
--JJ
-
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> old mode 100644
-> new mode 100755
-> index 41c34f2..703aaed
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -829,4 +829,7 @@
->  #define USB_VENDOR_ID_PRIMAX  0x0461
->  #define USB_DEVICE_ID_PRIMAX_KEYBOARD     0x4e05
-> =20
-> +#define USB_VENDOR_ID_ELAN      0x04f3
-> +#define USB_DEVICE_ID_ELAN_MOCCA 0x000a
-> +
->  #endif
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouc=
-h.c
-> old mode 100644
-> new mode 100755
-> index 59c8b5c..2c898bb
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -767,6 +767,32 @@ static int mt_reset_resume(struct hid_device *hd=
-ev)
->        mt_set_input_mode(hdev);
->        return 0;
->  }
-> +
-> +static int mt_resume(struct hid_device *hdev)
-> +{
-> +      struct usb_interface *intf =3D to_usb_interface(hdev->dev.pare=
-nt);
-> +      struct usb_host_interface *interface =3D intf->cur_altsetting;
-> +
-> +      struct usb_device *dev =3D hid_to_usb_dev(hdev);
-> +
-> +
-> +      if (hdev->vendor =3D=3D USB_VENDOR_ID_ELAN &&=20
-> +                      hdev->product =3D=3D USB_DEVICE_ID_ELAN_MOCCA)=
- {
-> +
-> +              usb_control_msg(dev,=20
-> +                                              usb_sndctrlpipe(dev, 0=
-),
-
-> +                              HID_REQ_SET_IDLE,=20
-> +                                              USB_TYPE_CLASS |
-USB_RECIP_INTERFACE,=20
-> +                                              0,
-> +                              interface->desc.bInterfaceNumber,=20
-> +                                              NULL,=20
-> +                                              0,=20
-> +                                              USB_CTRL_SET_TIMEOUT);
-> +      }
-> +
-> +      return 0;
-> +}
-> +
->  #endif
-> =20
->  static void mt_remove(struct hid_device *hdev)
-> @@ -1092,6 +1118,7 @@ static struct hid_driver mt_driver =3D {
->        .event =3D mt_event,
->  #ifdef CONFIG_PM
->        .reset_resume =3D mt_reset_resume,
-> +      .resume=3Dmt_resume,
->  #endif
->  };
-> =20
-> --=20
-> 1.7.9.5
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
-l" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+end-of-patch for NEW DRIVER V2

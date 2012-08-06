@@ -1,39 +1,62 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: Emulating level IRQs
-Date: Mon, 6 Aug 2012 17:36:15 +0100
-Message-ID: <20120806163615.GG29272@sirena.org.uk>
-References: <20120503043651.GA11830@core.coreip.homeip.net>
- <20120713070102.GA2223@core.coreip.homeip.net>
- <500561AF.9090901@gmail.com>
- <5008296C.5070709@gmail.com>
- <20120723165120.GB26577@core.coreip.homeip.net>
- <500EE314.7040708@gmail.com>
- <501E9DDB.3020807@gmail.com>
- <CAN1soZy-_MdjqS3r3Tc1XET6tPzMxDqjYq3Tn0fYLBNNUkdVAg@mail.gmail.com>
- <501EB3C5.1080501@gmail.com>
- <CAMPhdO8fZoFrUymb347whDpFkbgxsu8vVSqw5BSd=L4gicfXgg@mail.gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/1] Input: ab8500-ponkey: Make the distinction between
+ DT and non-DT boots
+Date: Mon, 6 Aug 2012 18:24:07 +0100
+Message-ID: <20120806172406.GC31409@gmail.com>
+References: <1344256323-10484-1-git-send-email-lee.jones@linaro.org>
+ <20120806081915.GA4518@core.coreip.homeip.net>
+ <20120806153750.GI10524@gmail.com>
+ <20120806160226.GF29272@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:37785 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932242Ab2HFQgR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Aug 2012 12:36:17 -0400
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:41709 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753721Ab2HFRYN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Aug 2012 13:24:13 -0400
+Received: by eaac11 with SMTP id c11so923643eaa.19
+        for <linux-input@vger.kernel.org>; Mon, 06 Aug 2012 10:24:12 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAMPhdO8fZoFrUymb347whDpFkbgxsu8vVSqw5BSd=L4gicfXgg@mail.gmail.com>
+In-Reply-To: <20120806160226.GF29272@sirena.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: Daniel Mack <zonque@gmail.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sven Neumann <s.neumann@raumfeld.com>, Olof Johansson <olof@lixom.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linus.walleij@stericsson.com, arnd@arndb.de, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linux-arm-kernel@lists.infradead.org
 
-On Mon, Aug 06, 2012 at 09:45:13AM +0800, Eric Miao wrote:
+On Mon, Aug 06, 2012 at 05:02:26PM +0100, Mark Brown wrote:
+> On Mon, Aug 06, 2012 at 04:37:52PM +0100, Lee Jones wrote:
+> > On Mon, Aug 06, 2012 at 01:19:15AM -0700, Dmitry Torokhov wrote:
+>=20
+> > > > +	ponkey->irq_dbf =3D (np) ? ab8500_irq_get_virq(ab8500, irq_db=
+f) : irq_dbf;
+> > > > +	ponkey->irq_dbr =3D (np) ? ab8500_irq_get_virq(ab8500, irq_db=
+r) : irq_dbr;
+>=20
+> > > Why this isn't done inside ab8500_irq_get_virq()?
+>=20
+> > There's no reason why it can't be.
+>=20
+> > My first version of the patch did just that in fact.
+>=20
+> > Would that be your preference?
+>=20
+> Restating my comment elsewhere...  why do we even need to do this in
+> _get_virq() - I'd *really* expect this to be handled by the irq domai=
+n
+> code.
 
-> So my understanding, if it's correct, that we can treat the EETI chip as having
-> two separate inputs: one IRQ line (for the event notification) and one GPIO line
-> (for a condition where data are emptied), we could naturally have two numbers
-> in the driver, but unfortunately they end up being in sync as they are
-> physically
-> one pin.
+I really should stop reading my emails backwards. :)
 
-...unless the interrupt controller supports level IRQs at which point we
-don't need the GPIO, of course :/ .
+I'll look into this tomorrow.
+
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

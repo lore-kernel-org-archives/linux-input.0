@@ -1,39 +1,39 @@
 From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 1/1] Input: ab8500-ponkey: Make the distinction between
- DT and non-DT boots
-Date: Mon, 6 Aug 2012 17:02:26 +0100
-Message-ID: <20120806160226.GF29272@sirena.org.uk>
-References: <1344256323-10484-1-git-send-email-lee.jones@linaro.org>
- <20120806081915.GA4518@core.coreip.homeip.net>
- <20120806153750.GI10524@gmail.com>
+Subject: Re: Emulating level IRQs
+Date: Mon, 6 Aug 2012 17:36:15 +0100
+Message-ID: <20120806163615.GG29272@sirena.org.uk>
+References: <20120503043651.GA11830@core.coreip.homeip.net>
+ <20120713070102.GA2223@core.coreip.homeip.net>
+ <500561AF.9090901@gmail.com>
+ <5008296C.5070709@gmail.com>
+ <20120723165120.GB26577@core.coreip.homeip.net>
+ <500EE314.7040708@gmail.com>
+ <501E9DDB.3020807@gmail.com>
+ <CAN1soZy-_MdjqS3r3Tc1XET6tPzMxDqjYq3Tn0fYLBNNUkdVAg@mail.gmail.com>
+ <501EB3C5.1080501@gmail.com>
+ <CAMPhdO8fZoFrUymb347whDpFkbgxsu8vVSqw5BSd=L4gicfXgg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:36167 "EHLO
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:37785 "EHLO
 	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756618Ab2HFQC3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Aug 2012 12:02:29 -0400
+	with ESMTP id S932242Ab2HFQgR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Aug 2012 12:36:17 -0400
 Content-Disposition: inline
-In-Reply-To: <20120806153750.GI10524@gmail.com>
+In-Reply-To: <CAMPhdO8fZoFrUymb347whDpFkbgxsu8vVSqw5BSd=L4gicfXgg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linus.walleij@stericsson.com, arnd@arndb.de, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linux-arm-kernel@lists.infradead.org
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: Daniel Mack <zonque@gmail.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sven Neumann <s.neumann@raumfeld.com>, Olof Johansson <olof@lixom.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
 
-On Mon, Aug 06, 2012 at 04:37:52PM +0100, Lee Jones wrote:
-> On Mon, Aug 06, 2012 at 01:19:15AM -0700, Dmitry Torokhov wrote:
+On Mon, Aug 06, 2012 at 09:45:13AM +0800, Eric Miao wrote:
 
-> > > +	ponkey->irq_dbf = (np) ? ab8500_irq_get_virq(ab8500, irq_dbf) : irq_dbf;
-> > > +	ponkey->irq_dbr = (np) ? ab8500_irq_get_virq(ab8500, irq_dbr) : irq_dbr;
+> So my understanding, if it's correct, that we can treat the EETI chip as having
+> two separate inputs: one IRQ line (for the event notification) and one GPIO line
+> (for a condition where data are emptied), we could naturally have two numbers
+> in the driver, but unfortunately they end up being in sync as they are
+> physically
+> one pin.
 
-> > Why this isn't done inside ab8500_irq_get_virq()?
-
-> There's no reason why it can't be.
-
-> My first version of the patch did just that in fact.
-
-> Would that be your preference?
-
-Restating my comment elsewhere...  why do we even need to do this in
-_get_virq() - I'd *really* expect this to be handled by the irq domain
-code.
+...unless the interrupt controller supports level IRQs at which point we
+don't need the GPIO, of course :/ .

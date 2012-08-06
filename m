@@ -1,62 +1,71 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/1] Input: ab8500-ponkey: Make the distinction between
- DT and non-DT boots
-Date: Mon, 6 Aug 2012 18:24:07 +0100
-Message-ID: <20120806172406.GC31409@gmail.com>
-References: <1344256323-10484-1-git-send-email-lee.jones@linaro.org>
- <20120806081915.GA4518@core.coreip.homeip.net>
- <20120806153750.GI10524@gmail.com>
- <20120806160226.GF29272@sirena.org.uk>
+From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
+Subject: Re: [PATCH] Input: gpio_keys - fix NULL pointer dereference for dt case
+Date: Mon, 6 Aug 2012 23:09:46 +0530
+Message-ID: <CANQgH-ayQJ3MSogJgWR1CyfiO_PjBXbMWW0XwcQTZPpxRROy8A@mail.gmail.com>
+References: <1344001314-2250-1-git-send-email-fabio.estevam@freescale.com>
+	<501F8553.40902@ti.com>
+	<20120806082036.GB4518@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:41709 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753721Ab2HFRYN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Aug 2012 13:24:13 -0400
-Received: by eaac11 with SMTP id c11so923643eaa.19
-        for <linux-input@vger.kernel.org>; Mon, 06 Aug 2012 10:24:12 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20120806160226.GF29272@sirena.org.uk>
+Received: from na3sys009aog133.obsmtp.com ([74.125.149.82]:44268 "EHLO
+	na3sys009aog133.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753685Ab2HFRjy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 6 Aug 2012 13:39:54 -0400
+Received: by vbbfs19 with SMTP id fs19so5848144vbb.1
+        for <linux-input@vger.kernel.org>; Mon, 06 Aug 2012 10:39:46 -0700 (PDT)
+In-Reply-To: <20120806082036.GB4518@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linus.walleij@stericsson.com, arnd@arndb.de, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linux-arm-kernel@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Fabio Estevam <fabio.estevam@freescale.com>, shawn.guo@linaro.org, kernel@pengutronix.de, aletes.xgr@gmail.com, rob.herring@calxeda.com, linux-input@vger.kernel.org
 
-On Mon, Aug 06, 2012 at 05:02:26PM +0100, Mark Brown wrote:
-> On Mon, Aug 06, 2012 at 04:37:52PM +0100, Lee Jones wrote:
-> > On Mon, Aug 06, 2012 at 01:19:15AM -0700, Dmitry Torokhov wrote:
->=20
-> > > > +	ponkey->irq_dbf =3D (np) ? ab8500_irq_get_virq(ab8500, irq_db=
-f) : irq_dbf;
-> > > > +	ponkey->irq_dbr =3D (np) ? ab8500_irq_get_virq(ab8500, irq_db=
-r) : irq_dbr;
->=20
-> > > Why this isn't done inside ab8500_irq_get_virq()?
->=20
-> > There's no reason why it can't be.
->=20
-> > My first version of the patch did just that in fact.
->=20
-> > Would that be your preference?
->=20
-> Restating my comment elsewhere...  why do we even need to do this in
-> _get_virq() - I'd *really* expect this to be handled by the irq domai=
-n
-> code.
+On Mon, Aug 6, 2012 at 1:50 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Mon, Aug 06, 2012 at 02:20:27PM +0530, Shubhrajyoti wrote:
+>> On Friday 03 August 2012 07:11 PM, Fabio Estevam wrote:
+>> > Commit 30161f6b2e7d1 (Input: gpio_keys - clean up device tree parser)
+>> > introduced the following kernel crash for a dt based kernel:
+>> > ..
+>> > Unable to handle kernel NULL pointer dereference at virtual address 00000004
+>> > pgd = 80004000
+>> > [00000004] *pgd=00000000
+>> > Internal error: Oops: 805 [#1] ARM
+>> > Modules linked in:
+>> > CPU: 0    Not tainted  (3.5.0-next-20120802+ #1366)
+>> > PC is at gpio_keys_probe+0x154/0x8c0
+>> > LR is at of_gpiochip_find_and_xlate+0x54/0x70
+>> > pc : [<803ddbac>]    lr : [<801ed2f4>]    psr: 60000013
+>> > sp : 9f851df8  ip : 00000002  fp : 9f851e5c
+>> > r10: 9f873d00  r9 : 00000001  r8 : 9fa2f900
+>> > r7 : 809c0920  r6 : 9f873d08  r5 : 00000000  r4 : 809c09d4
+>> > r3 : 805af10c  r2 : 000000c0  r1 : 9f851db4  r0 : 000000d5
+>> > Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment kernel
+>> > Control: 10c5387d  Table: 90004019  DAC: 00000015
+>> > Process swapper (pid: 1, stack limit = 0x9f8502e8)
+>> > Stack: (0x9f851df8 to 0x9f852000)
+>> > ....
+>> >
+>> > The reason for the crash was due to 'button = &pdata->buttons[i++];'
+>> > returning a NULL pointer, and then 'button' was accessed afterwards
+>> > without checking for NULL.
+>> >
+>> > Fix this by correctly assigning 'pdata->buttons' and also add a NULL
+>> > pointer check for 'button' pointer.
+>> >
+>> > Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+>> > Acked-by: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
+>> >
+>> Should we cc stable?
+>
+> No, because it hasn't hit mainline.
 
-I really should stop reading my emails backwards. :)
+ops should have checked that.
+thanks,
 
-I'll look into this tomorrow.
-
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+> Thanks.
+>
+> --
+> Dmitry

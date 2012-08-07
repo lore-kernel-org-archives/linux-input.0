@@ -1,78 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC ebeam PATCH v3 1/2] hid: Blacklist new eBeam classic device
-Date: Mon, 6 Aug 2012 18:45:10 -0700
-Message-ID: <20120807014510.GB21477@core.coreip.homeip.net>
-References: <1344288104-20731-1-git-send-email-yann.cantin@laposte.net>
- <1344288104-20731-2-git-send-email-yann.cantin@laposte.net>
- <20120806214340.GA30355@kroah.com>
- <1975621.3ErbANJ9at@dtor-d630.eng.vmware.com>
- <50206DA9.1070503@laposte.net>
+From: Yann Cantin <yann.cantin@laposte.net>
+Subject: Re: [RFC ebeam PATCH v3 0/2]
+Date: Tue, 07 Aug 2012 03:45:59 +0200
+Message-ID: <50207357.5080208@laposte.net>
+References: <1344288104-20731-1-git-send-email-yann.cantin@laposte.net> <20120806214423.GC30355@kroah.com> <1743577.8bRY3CPqxH@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <50206DA9.1070503@laposte.net>
+In-Reply-To: <1743577.8bRY3CPqxH@dtor-d630.eng.vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Yann Cantin <yann.cantin@laposte.net>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Greg KH <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Aug 07, 2012 at 03:21:45AM +0200, Yann Cantin wrote:
-> Le 07/08/2012 00:07, Dmitry Torokhov a =E9crit :
-> > On Monday, August 06, 2012 02:43:40 PM Greg KH wrote:
-> >> On Mon, Aug 06, 2012 at 11:21:43PM +0200, Yann Cantin wrote:
-> >>> Signed-off-by: Yann Cantin <yann.cantin@laposte.net>
-> >>> ---
-> >>>
-> >>>  drivers/hid/hid-core.c |    3 +++
-> >>>  drivers/hid/hid-ids.h  |    3 +++
-> >>>  2 files changed, 6 insertions(+)
-> >>>
-> >>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> >>> index 60ea284..b1ed8ee 100644
-> >>> --- a/drivers/hid/hid-core.c
-> >>> +++ b/drivers/hid/hid-core.c
-> >>> @@ -1908,6 +1908,9 @@ static const struct hid_device_id hid_ignor=
-e_list[]
-> >>> =3D {>=20
-> >>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_E=
-M_LT20)
-> >>>  	},
-> >>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x0004) },
-> >>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x000a) },
-> >>>
-> >>> +#if defined(CONFIG_INPUT_EBEAM_USB)
-> >>> +	{ HID_USB_DEVICE(USB_VENDOR_ID_EFI, USB_DEVICE_ID_EFI_CLASSIC) =
-},
-> >>> +#endif
-> >>
-> >> Why is this #if in here?  Just always do it, how could it not be
-> >> defined?
-> >=20
-> > User might disable the driver and CONFIG_INPUT_EBEAM_USB will not b=
-e
-> > set. But I agree, since the device is unusable with generic HID dri=
-ver
-> > there is no point in doing this conditionally.
+Le 07/08/2012 00:09, Dmitry Torokhov a =E9crit :
+> On Monday, August 06, 2012 02:44:23 PM Greg KH wrote:
+>> On Mon, Aug 06, 2012 at 11:21:42PM +0200, Yann Cantin wrote:
+>>> Hi,
+>>>
+>>> New USB input driver for eBeam devices.
+>>>
+>>> Currently, only the Luidia eBeam classic projection model is suppor=
+ted.
+>>> Edge model and a NEC interactive video-projector support planned fo=
+r the
+>>> end of the mounth.
+>>>
+>>> Patch 1 to blacklist the device for hid generic-usb.
+>>>
+>>> Patch 2 is the actual driver.
+>>>
+>>> Changes from previous :
+>>> - switch to div64_s64 for portable 64/64-bits divisions
 >=20
-> There's a closed-source user-space stack (libusb based daemon + xorg =
-driver
-> + wine apps) provided for some distro (Ubuntu 10.04, works on mandriv=
-a 2010,
-> maybe others but break on recent xorg).
+> Do you really need this much precision? It will be slower on 32 bits.=
+=2E
+
+Yes. I can give the details if you want (homography computation without
+floating point maths).
+
+>>> - some cosmetics in device name
+>>> - unused include and def removed
+>>> - variables name changes for readability
+>>>
+>>> Pending issues :
+>>>
+>>> - sysfs custom files : need to pass 13 parameters for calibration :
+>>>   choice is between lots of simply-handled, or few with a big sscan=
+f.
+>>
+>> sysfs is "one value per file", so use lots of different files please=
+=2E
 >=20
-> I don't know exactly what to do : i don't want to break hypothetical =
-support,
-> even proprietary.
-> Leaving the choice at kernel compile time seems to be safer, no ?
+> This is kind of a "one value" though - it is a transformation matrix.
+> Maybe switch it to binary - 9 s32?
 
-If they are using libusb that means that they use userspace solution an=
-d
-do not require HID or any other in-kernel driver. They should still be
-able to claim the port even if your driver is in use.
+Right, but this somehow obfuscate the api. In the other hand, i doubt
+there will be lots of calibration tools other that mine.
 
-Thanks.
+Is there any drawback for numerous sysfs custom files ?
 
 --=20
-Dmitry
+Yann Cantin
+A4FEB47F
+--

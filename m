@@ -1,89 +1,63 @@
-From: Yann Cantin <yann.cantin@laposte.net>
-Subject: Re: [RFC ebeam PATCH v3 1/2] hid: Blacklist new eBeam classic device
-Date: Tue, 07 Aug 2012 10:10:34 +0200
-Message-ID: <5020CD7A.4060808@laposte.net>
-References: <1344288104-20731-1-git-send-email-yann.cantin@laposte.net> <1344288104-20731-2-git-send-email-yann.cantin@laposte.net> <20120806214340.GA30355@kroah.com> <1975621.3ErbANJ9at@dtor-d630.eng.vmware.com> <50206DA9.1070503@laposte.net> <20120807014510.GB21477@core.coreip.homeip.net>
+From: Hui Wang <jason77.wang@gmail.com>
+Subject: [PATCH 1/2] Input: egalax_ts: get gpio from devicetree node
+Date: Tue, 7 Aug 2012 17:39:31 +0800
+Message-ID: <1344332372-9287-2-git-send-email-jason77.wang@gmail.com>
+References: <1344332372-9287-1-git-send-email-jason77.wang@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp03.smtpout.orange.fr ([80.12.242.125]:60564 "EHLO
-	smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751434Ab2HGIJv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Aug 2012 04:09:51 -0400
-In-Reply-To: <20120807014510.GB21477@core.coreip.homeip.net>
+Received: from mail1.windriver.com ([147.11.146.13]:61728 "EHLO
+	mail1.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752009Ab2HGJkH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Aug 2012 05:40:07 -0400
+In-Reply-To: <1344332372-9287-1-git-send-email-jason77.wang@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, jiejing.zhang@freescale.com
+Cc: linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
 
-Le 07/08/2012 03:45, Dmitry Torokhov a =E9crit :
-> On Tue, Aug 07, 2012 at 03:21:45AM +0200, Yann Cantin wrote:
->> Le 07/08/2012 00:07, Dmitry Torokhov a =E9crit :
->>> On Monday, August 06, 2012 02:43:40 PM Greg KH wrote:
->>>> On Mon, Aug 06, 2012 at 11:21:43PM +0200, Yann Cantin wrote:
->>>>> Signed-off-by: Yann Cantin <yann.cantin@laposte.net>
->>>>> ---
->>>>>
->>>>>  drivers/hid/hid-core.c |    3 +++
->>>>>  drivers/hid/hid-ids.h  |    3 +++
->>>>>  2 files changed, 6 insertions(+)
->>>>>
->>>>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->>>>> index 60ea284..b1ed8ee 100644
->>>>> --- a/drivers/hid/hid-core.c
->>>>> +++ b/drivers/hid/hid-core.c
->>>>> @@ -1908,6 +1908,9 @@ static const struct hid_device_id hid_ignor=
-e_list[]
->>>>> =3D {>=20
->>>>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_E=
-M_LT20)
->>>>>  	},
->>>>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x0004) },
->>>>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x000a) },
->>>>>
->>>>> +#if defined(CONFIG_INPUT_EBEAM_USB)
->>>>> +	{ HID_USB_DEVICE(USB_VENDOR_ID_EFI, USB_DEVICE_ID_EFI_CLASSIC) =
-},
->>>>> +#endif
->>>>
->>>> Why is this #if in here?  Just always do it, how could it not be
->>>> defined?
->>>
->>> User might disable the driver and CONFIG_INPUT_EBEAM_USB will not b=
-e
->>> set. But I agree, since the device is unusable with generic HID dri=
-ver
->>> there is no point in doing this conditionally.
->>
->> There's a closed-source user-space stack (libusb based daemon + xorg=
- driver
->> + wine apps) provided for some distro (Ubuntu 10.04, works on mandri=
-va 2010,
->> maybe others but break on recent xorg).
->>
->> I don't know exactly what to do : i don't want to break hypothetical=
- support,
->> even proprietary.
->> Leaving the choice at kernel compile time seems to be safer, no ?
->=20
-> If they are using libusb that means that they use userspace solution =
-and
-> do not require HID or any other in-kernel driver. They should still b=
-e
-> able to claim the port even if your driver is in use.
+The irq_to_gpio() is old, most platforms use GENERIC_GPIO framework and
+don't support this API anymore.
 
-Ok, that solve one of my issue.
-But if the driver isn't built, there will be absolutely no kernel suppo=
-rt,
-even basic hiddev/hidraw. Is there a kernel policy for that situation ?
+The i.MX6q sabrelite platform equips an egalax touchscreen controller,
+and this platform already transfered to GENERIC_GPIO framework, to
+support this driver, we use a more generic way to get gpio.
 
---=20
-Yann Cantin
-A4FEB47F
---
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Hui Wang <jason77.wang@gmail.com>
+---
+ drivers/input/touchscreen/egalax_ts.c |   12 ++++++++++--
+ 1 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+index 70524dd..b94eb50 100644
+--- a/drivers/input/touchscreen/egalax_ts.c
++++ b/drivers/input/touchscreen/egalax_ts.c
+@@ -28,6 +28,7 @@
+ #include <linux/slab.h>
+ #include <linux/bitops.h>
+ #include <linux/input/mt.h>
++#include <linux/of_gpio.h>
+ 
+ /*
+  * Mouse Mode: some panel may configure the controller to mouse mode,
+@@ -122,8 +123,15 @@ static irqreturn_t egalax_ts_interrupt(int irq, void *dev_id)
+ /* wake up controller by an falling edge of interrupt gpio.  */
+ static int egalax_wake_up_device(struct i2c_client *client)
+ {
+-	int gpio = irq_to_gpio(client->irq);
+-	int ret;
++	struct device_node *np = client->dev.of_node;
++	int gpio, ret;
++
++	if (!np)
++		return -ENODEV;
++
++	gpio = of_get_named_gpio(np, "irq-gpio", 0);
++	if (!gpio_is_valid(gpio))
++		return -ENODEV;
+ 
+ 	ret = gpio_request(gpio, "egalax_irq");
+ 	if (ret < 0) {
+-- 
+1.7.6
+

@@ -1,48 +1,194 @@
-From: Simon Budig <simon.budig@kernelconcepts.de>
-Subject: Re: [PATCH] Input: Fix edt-ft5x06 build error seen if CONFIG_DEBUG_FS
- is not defined
-Date: Tue, 07 Aug 2012 12:01:15 +0200
-Message-ID: <5020E76B.7070801@kernelconcepts.de>
-References: <1344308525-11262-1-git-send-email-linux@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernelconcepts.de ([212.60.202.196]:58098 "EHLO
-	mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752165Ab2HGKBU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Aug 2012 06:01:20 -0400
-In-Reply-To: <1344308525-11262-1-git-send-email-linux@roeck-us.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: [PATCH] Input: twl6040-vibra: Code cleanup in probe with devm_* conversion
+Date: Tue,  7 Aug 2012 15:59:43 +0300
+Message-ID: <1344344383-28670-1-git-send-email-peter.ujfalusi@ti.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dtor@mail.ru>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Convert the probe to use devm_*. At the same time reorder the calls
+so we will register the input device as the last step when the driver
+is loaded.
 
-On 08/07/2012 05:02 AM, Guenter Roeck wrote:
-> Fix:
-> 
-> edt-ft5x06.c: In function edt_ft5x06_ts_remove: 
-> edt-ft5x06.c:846:14: error: struct edt_ft5x06_ts_data has no member
-> named raw_buffer
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+---
+ drivers/input/misc/twl6040-vibra.c |   99 ++++++++++++++++-------------------
+ 1 files changed, 45 insertions(+), 54 deletions(-)
 
-Oops sorry, forgot to test compiling the driver without DEBUGFS. The
-change looks correct to me.
-
-Bye,
-        Simon
-- -- 
-       Simon Budig                        kernel concepts GmbH
-       simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
-       +49-271-771091-17                  D-57072 Siegen
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAlAg52sACgkQO2O/RXesiHC79gCfUyq8IGeS2rau3myvrtU6Bo4O
-hiIAniXUa0AIzWJSvJ0gsQMgNA+1hnwd
-=JBXZ
------END PGP SIGNATURE-----
+diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
+index c8a288a..ef380d8 100644
+--- a/drivers/input/misc/twl6040-vibra.c
++++ b/drivers/input/misc/twl6040-vibra.c
+@@ -275,7 +275,7 @@ static int __devinit twl6040_vibra_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	info = kzalloc(sizeof(*info), GFP_KERNEL);
++	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
+ 	if (!info) {
+ 		dev_err(&pdev->dev, "couldn't allocate memory\n");
+ 		return -ENOMEM;
+@@ -309,53 +309,23 @@ static int __devinit twl6040_vibra_probe(struct platform_device *pdev)
+ 	if ((!info->vibldrv_res && !info->viblmotor_res) ||
+ 	    (!info->vibrdrv_res && !info->vibrmotor_res)) {
+ 		dev_err(info->dev, "invalid vibra driver/motor resistance\n");
+-		ret = -EINVAL;
+-		goto err_kzalloc;
++		return -EINVAL;
+ 	}
+ 
+ 	info->irq = platform_get_irq(pdev, 0);
+ 	if (info->irq < 0) {
+ 		dev_err(info->dev, "invalid irq\n");
+-		ret = -EINVAL;
+-		goto err_kzalloc;
++		return -EINVAL;
+ 	}
+ 
+ 	mutex_init(&info->mutex);
+ 
+-	info->input_dev = input_allocate_device();
+-	if (info->input_dev == NULL) {
+-		dev_err(info->dev, "couldn't allocate input device\n");
+-		ret = -ENOMEM;
+-		goto err_kzalloc;
+-	}
+-
+-	input_set_drvdata(info->input_dev, info);
+-
+-	info->input_dev->name = "twl6040:vibrator";
+-	info->input_dev->id.version = 1;
+-	info->input_dev->dev.parent = pdev->dev.parent;
+-	info->input_dev->close = twl6040_vibra_close;
+-	__set_bit(FF_RUMBLE, info->input_dev->ffbit);
+-
+-	ret = input_ff_create_memless(info->input_dev, NULL, vibra_play);
+-	if (ret < 0) {
+-		dev_err(info->dev, "couldn't register vibrator to FF\n");
+-		goto err_ialloc;
+-	}
+-
+-	ret = input_register_device(info->input_dev);
+-	if (ret < 0) {
+-		dev_err(info->dev, "couldn't register input device\n");
+-		goto err_iff;
+-	}
+-
+-	platform_set_drvdata(pdev, info);
+-
+-	ret = request_threaded_irq(info->irq, NULL, twl6040_vib_irq_handler, 0,
+-				   "twl6040_irq_vib", info);
++	ret = devm_request_threaded_irq(&pdev->dev, info->irq, NULL,
++					twl6040_vib_irq_handler, 0,
++					"twl6040_irq_vib", info);
+ 	if (ret) {
+ 		dev_err(info->dev, "VIB IRQ request failed: %d\n", ret);
+-		goto err_irq;
++		return ret;
+ 	}
+ 
+ 	info->supplies[0].supply = "vddvibl";
+@@ -368,7 +338,7 @@ static int __devinit twl6040_vibra_probe(struct platform_device *pdev)
+ 				 ARRAY_SIZE(info->supplies), info->supplies);
+ 	if (ret) {
+ 		dev_err(info->dev, "couldn't get regulators %d\n", ret);
+-		goto err_regulator;
++		return ret;
+ 	}
+ 
+ 	if (vddvibl_uV) {
+@@ -377,7 +347,7 @@ static int __devinit twl6040_vibra_probe(struct platform_device *pdev)
+ 		if (ret) {
+ 			dev_err(info->dev, "failed to set VDDVIBL volt %d\n",
+ 				ret);
+-			goto err_voltage;
++			goto err_regulator;
+ 		}
+ 	}
+ 
+@@ -387,7 +357,7 @@ static int __devinit twl6040_vibra_probe(struct platform_device *pdev)
+ 		if (ret) {
+ 			dev_err(info->dev, "failed to set VDDVIBR volt %d\n",
+ 				ret);
+-			goto err_voltage;
++			goto err_regulator;
+ 		}
+ 	}
+ 
+@@ -395,26 +365,49 @@ static int __devinit twl6040_vibra_probe(struct platform_device *pdev)
+ 	if (info->workqueue == NULL) {
+ 		dev_err(info->dev, "couldn't create workqueue\n");
+ 		ret = -ENOMEM;
+-		goto err_voltage;
++		goto err_regulator;
+ 	}
+ 	INIT_WORK(&info->play_work, vibra_play_work);
+ 
++	info->input_dev = input_allocate_device();
++	if (info->input_dev == NULL) {
++		dev_err(info->dev, "couldn't allocate input device\n");
++		ret = -ENOMEM;
++		goto err_wq;
++	}
++
++	input_set_drvdata(info->input_dev, info);
++
++	info->input_dev->name = "twl6040:vibrator";
++	info->input_dev->id.version = 1;
++	info->input_dev->dev.parent = pdev->dev.parent;
++	info->input_dev->close = twl6040_vibra_close;
++	__set_bit(FF_RUMBLE, info->input_dev->ffbit);
++
++	ret = input_ff_create_memless(info->input_dev, NULL, vibra_play);
++	if (ret < 0) {
++		dev_err(info->dev, "couldn't register vibrator to FF\n");
++		goto err_ialloc;
++	}
++
++	ret = input_register_device(info->input_dev);
++	if (ret < 0) {
++		dev_err(info->dev, "couldn't register input device\n");
++		goto err_iff;
++	}
++
++	platform_set_drvdata(pdev, info);
++
+ 	return 0;
+ 
+-err_voltage:
+-	regulator_bulk_free(ARRAY_SIZE(info->supplies), info->supplies);
+-err_regulator:
+-	free_irq(info->irq, info);
+-err_irq:
+-	input_unregister_device(info->input_dev);
+-	info->input_dev = NULL;
+ err_iff:
+-	if (info->input_dev)
+-		input_ff_destroy(info->input_dev);
++	input_ff_destroy(info->input_dev);
+ err_ialloc:
+ 	input_free_device(info->input_dev);
+-err_kzalloc:
+-	kfree(info);
++err_wq:
++	destroy_workqueue(info->workqueue);
++err_regulator:
++	regulator_bulk_free(ARRAY_SIZE(info->supplies), info->supplies);
+ 	return ret;
+ }
+ 
+@@ -423,10 +416,8 @@ static int __devexit twl6040_vibra_remove(struct platform_device *pdev)
+ 	struct vibra_info *info = platform_get_drvdata(pdev);
+ 
+ 	input_unregister_device(info->input_dev);
+-	free_irq(info->irq, info);
+ 	regulator_bulk_free(ARRAY_SIZE(info->supplies), info->supplies);
+ 	destroy_workqueue(info->workqueue);
+-	kfree(info);
+ 
+ 	return 0;
+ }
+-- 
+1.7.8.6

@@ -1,54 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC ebeam PATCH v3 0/2]
-Date: Mon, 06 Aug 2012 15:09:01 -0700
-Message-ID: <1743577.8bRY3CPqxH@dtor-d630.eng.vmware.com>
-References: <1344288104-20731-1-git-send-email-yann.cantin@laposte.net> <20120806214423.GC30355@kroah.com>
+From: Yann Cantin <yann.cantin@laposte.net>
+Subject: Re: [RFC ebeam PATCH v3 2/2] input: misc: New USB eBeam input driver.
+Date: Tue, 07 Aug 2012 02:56:40 +0200
+Message-ID: <502067C8.2020204@laposte.net>
+References: <1344288104-20731-1-git-send-email-yann.cantin@laposte.net> <1344288104-20731-3-git-send-email-yann.cantin@laposte.net> <20120806214359.GB30355@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:40068 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756660Ab2HFWJL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Aug 2012 18:09:11 -0400
-In-Reply-To: <20120806214423.GC30355@kroah.com>
+Received: from smtp02.smtpout.orange.fr ([80.12.242.124]:27195 "EHLO
+	smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756315Ab2HGA4D (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Aug 2012 20:56:03 -0400
+In-Reply-To: <20120806214359.GB30355@kroah.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Greg KH <gregkh@linuxfoundation.org>
-Cc: Yann Cantin <yann.cantin@laposte.net>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-On Monday, August 06, 2012 02:44:23 PM Greg KH wrote:
-> On Mon, Aug 06, 2012 at 11:21:42PM +0200, Yann Cantin wrote:
-> > Hi,
-> > 
-> > New USB input driver for eBeam devices.
-> > 
-> > Currently, only the Luidia eBeam classic projection model is supported.
-> > Edge model and a NEC interactive video-projector support planned for the
-> > end of the mounth.
-> > 
-> > Patch 1 to blacklist the device for hid generic-usb.
-> > 
-> > Patch 2 is the actual driver.
-> > 
-> > Changes from previous :
-> > - switch to div64_s64 for portable 64/64-bits divisions
+Hi,
 
-Do you really need this much precision? It will be slower on 32 bits..
+Le 06/08/2012 23:43, Greg KH a =E9crit :
+> On Mon, Aug 06, 2012 at 11:21:44PM +0200, Yann Cantin wrote:
+>>
+>> Signed-off-by: Yann Cantin <yann.cantin@laposte.net>
+>> ---
+>>  drivers/input/misc/ebeam.c |  764 +++++++++++++++++++++++++++++++++=
++++++++++++
+>>  1 file changed, 764 insertions(+)
+>>  create mode 100644 drivers/input/misc/ebeam.c
+>=20
+> What adds this file to the build?
+=20
+Sorry, i don't get it : what do you mean ?
 
-> > - some cosmetics in device name
-> > - unused include and def removed
-> > - variables name changes for readability
-> > 
-> > Pending issues :
-> > 
-> > - sysfs custom files : need to pass 13 parameters for calibration :
-> >   choice is between lots of simply-handled, or few with a big sscanf.
-> 
-> sysfs is "one value per file", so use lots of different files please.
+> greg k-h
 
-This is kind of a "one value" though - it is a transformation matrix.
-Maybe switch it to binary - 9 s32?
-
--- 
-Dmitry
+--=20
+Yann Cantin
+A4FEB47F
+--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

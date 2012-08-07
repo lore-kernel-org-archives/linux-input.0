@@ -1,37 +1,48 @@
-From: Hui Wang <jason77.wang@gmail.com>
-Subject: [PATCH 0/2] Input: egalax_ts: parse devicetree to get gpio
-Date: Tue, 7 Aug 2012 17:39:30 +0800
-Message-ID: <1344332372-9287-1-git-send-email-jason77.wang@gmail.com>
+From: Simon Budig <simon.budig@kernelconcepts.de>
+Subject: Re: [PATCH] Input: Fix edt-ft5x06 build error seen if CONFIG_DEBUG_FS
+ is not defined
+Date: Tue, 07 Aug 2012 12:01:15 +0200
+Message-ID: <5020E76B.7070801@kernelconcepts.de>
+References: <1344308525-11262-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:57256 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751690Ab2HGJkG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Aug 2012 05:40:06 -0400
+Received: from mail.kernelconcepts.de ([212.60.202.196]:58098 "EHLO
+	mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752165Ab2HGKBU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Aug 2012 06:01:20 -0400
+In-Reply-To: <1344308525-11262-1-git-send-email-linux@roeck-us.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, jiejing.zhang@freescale.com
-Cc: linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-eeti touch screen controller is an external chip for most platforms,
-it connect to CPU via i2c bus, and it has a irq request pin need to be
-connected to a gpio of the CPU, this irq request pin also act as a
-wake up signal for touch screen controller, we need to get this gpio
-number and operate it to wake up the controller, the old way to get
-gpio is irq_to_gpio(), this API is dying and most platforms don't support
-it, we change it to a more generic way to use devcietree.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+On 08/07/2012 05:02 AM, Guenter Roeck wrote:
+> Fix:
+> 
+> edt-ft5x06.c: In function edt_ft5x06_ts_remove: 
+> edt-ft5x06.c:846:14: error: struct edt_ft5x06_ts_data has no member
+> named raw_buffer
 
-Hui Wang (2):
-  Input: egalax_ts: get gpio from devicetree node
-  Input: add devicetree binding note for egalax_ts
+Oops sorry, forgot to test compiling the driver without DEBUGFS. The
+change looks correct to me.
 
- .../bindings/input/touchscreen/egalax-ts.txt       |   17 +++++++++++++++++
- drivers/input/touchscreen/egalax_ts.c              |   12 ++++++++++--
- 2 files changed, 27 insertions(+), 2 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
+Bye,
+        Simon
+- -- 
+       Simon Budig                        kernel concepts GmbH
+       simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
+       +49-271-771091-17                  D-57072 Siegen
 
--- 
-1.7.6
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
+iEYEARECAAYFAlAg52sACgkQO2O/RXesiHC79gCfUyq8IGeS2rau3myvrtU6Bo4O
+hiIAniXUa0AIzWJSvJ0gsQMgNA+1hnwd
+=JBXZ
+-----END PGP SIGNATURE-----

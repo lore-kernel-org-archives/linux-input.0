@@ -1,66 +1,49 @@
-From: Yann Cantin <yann.cantin@laposte.net>
-Subject: Re: [RFC ebeam PATCH v3 0/2]
-Date: Tue, 07 Aug 2012 03:45:59 +0200
-Message-ID: <50207357.5080208@laposte.net>
-References: <1344288104-20731-1-git-send-email-yann.cantin@laposte.net> <20120806214423.GC30355@kroah.com> <1743577.8bRY3CPqxH@dtor-d630.eng.vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1743577.8bRY3CPqxH@dtor-d630.eng.vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] Input: Fix edt-ft5x06 build error seen if CONFIG_DEBUG_FS is not defined
+Date: Mon,  6 Aug 2012 20:02:05 -0700
+Message-ID: <1344308525-11262-1-git-send-email-linux@roeck-us.net>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.active-venture.com ([67.228.131.205]:59474 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932599Ab2HGDCK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Aug 2012 23:02:10 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Simon Budig <simon.budig@kernelconcepts.de>
 
-Le 07/08/2012 00:09, Dmitry Torokhov a =E9crit :
-> On Monday, August 06, 2012 02:44:23 PM Greg KH wrote:
->> On Mon, Aug 06, 2012 at 11:21:42PM +0200, Yann Cantin wrote:
->>> Hi,
->>>
->>> New USB input driver for eBeam devices.
->>>
->>> Currently, only the Luidia eBeam classic projection model is suppor=
-ted.
->>> Edge model and a NEC interactive video-projector support planned fo=
-r the
->>> end of the mounth.
->>>
->>> Patch 1 to blacklist the device for hid generic-usb.
->>>
->>> Patch 2 is the actual driver.
->>>
->>> Changes from previous :
->>> - switch to div64_s64 for portable 64/64-bits divisions
->=20
-> Do you really need this much precision? It will be slower on 32 bits.=
-=2E
+Fix:
 
-Yes. I can give the details if you want (homography computation without
-floating point maths).
+edt-ft5x06.c: In function edt_ft5x06_ts_remove:
+edt-ft5x06.c:846:14: error: struct edt_ft5x06_ts_data has no member named
+raw_buffer
 
->>> - some cosmetics in device name
->>> - unused include and def removed
->>> - variables name changes for readability
->>>
->>> Pending issues :
->>>
->>> - sysfs custom files : need to pass 13 parameters for calibration :
->>>   choice is between lots of simply-handled, or few with a big sscan=
-f.
->>
->> sysfs is "one value per file", so use lots of different files please=
-=2E
->=20
-> This is kind of a "one value" though - it is a transformation matrix.
-> Maybe switch it to binary - 9 s32?
+Cc: Simon Budig <simon.budig@kernelconcepts.de>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/input/touchscreen/edt-ft5x06.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Right, but this somehow obfuscate the api. In the other hand, i doubt
-there will be lots of calibration tools other that mine.
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 9afc777..b06a5e3 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -602,6 +602,7 @@ edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x06_ts_data *tsdata)
+ {
+ 	if (tsdata->debug_dir)
+ 		debugfs_remove_recursive(tsdata->debug_dir);
++	kfree(tsdata->raw_buffer);
+ }
+ 
+ #else
+@@ -843,7 +844,6 @@ static int __devexit edt_ft5x06_ts_remove(struct i2c_client *client)
+ 	if (gpio_is_valid(pdata->reset_pin))
+ 		gpio_free(pdata->reset_pin);
+ 
+-	kfree(tsdata->raw_buffer);
+ 	kfree(tsdata);
+ 
+ 	return 0;
+-- 
+1.7.9.7
 
-Is there any drawback for numerous sysfs custom files ?
-
---=20
-Yann Cantin
-A4FEB47F
---

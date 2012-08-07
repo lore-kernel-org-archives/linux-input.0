@@ -1,39 +1,52 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 1/1] Input: ab8500-ponkey: Make the distinction between
- DT and non-DT boots
-Date: Tue, 7 Aug 2012 18:03:34 +0100
-Message-ID: <20120807170333.GV16861@opensource.wolfsonmicro.com>
-References: <1344256323-10484-1-git-send-email-lee.jones@linaro.org>
- <20120806081915.GA4518@core.coreip.homeip.net>
- <20120806153750.GI10524@gmail.com>
- <20120806160226.GF29272@sirena.org.uk>
- <20120807170129.GA3759@gmail.com>
+From: Jesper Juhl <jj@chaosbits.net>
+Subject: [PATCH] Input: omap4-keypad - don't leak in omap4_keypad_probe()
+Date: Tue, 7 Aug 2012 20:16:55 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1208072014140.3227@swampdragon.chaosbits.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:58999 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755688Ab2HGRDg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Aug 2012 13:03:36 -0400
-Content-Disposition: inline
-In-Reply-To: <20120807170129.GA3759@gmail.com>
+Received: from 1010ds2-suoe.0.fullrate.dk ([90.184.90.115]:10847 "EHLO
+	swampdragon.chaosbits.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753016Ab2HGSQ5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Aug 2012 14:16:57 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linus.walleij@stericsson.com, arnd@arndb.de, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linux-arm-kernel@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sourav Poddar <sourav.poddar@ti.com>, Felipe Balbi <balbi@ti.com>, JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Syed Rafiuddin <rafiuddin.syed@ti.com>
 
-On Tue, Aug 07, 2012 at 06:01:30PM +0100, Lee Jones wrote:
+If omap4_keypad_parse_dt() does not return 0 (zero) in
+omap4_keypad_probe() we will leak the memory we allocated for
+'keypad_data' with kzalloc() when we return and the variable goes out
+of scope.
+Fix the leak by jumping to the 'err_free_keypad' label where we
+properly free the allocated memory, instead of returning directly.
 
-> Okay, so I've just spent a small amount of time looking at this. I think
-> the best place for this would be in *_get_virq(), using the same logic that
-> selected a *_legacy or *_linear domain in the first place. The only thing 
-> the domain can test for is the 'type' of domain and the requested IRQ. This
-> is where the issue lies. If a hwirq to virq conversion is requested, but a
-> virq is passed (which happens in the non-DT case) a WARN() is triggered
-> because the irq passed is bigger than first_irq + size. I think *_get_virq()
-> should ensure that only a hwirq is passed to irq_create_mapping().
+Signed-off-by: Jesper Juhl <jj@chaosbits.net>
+---
+ drivers/input/keyboard/omap4-keypad.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Let me know if you had other ideas.
+ Compile tested only.
 
-I'd expect your driver to always pass a hwirq into _get_virq() here.
+diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+index c05f98c..9c2ac87 100644
+--- a/drivers/input/keyboard/omap4-keypad.c
++++ b/drivers/input/keyboard/omap4-keypad.c
+@@ -281,7 +281,7 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
+ 	} else {
+ 		error = omap4_keypad_parse_dt(&pdev->dev, keypad_data);
+ 		if (error)
+-			return error;
++			goto err_free_keypad;
+ 	}
+ 
+ 	res = request_mem_region(res->start, resource_size(res), pdev->name);
+-- 
+1.7.11.4
+
+
+-- 
+Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
+Don't top-post http://www.catb.org/jargon/html/T/top-post.html
+Plain text mails only, please.
+

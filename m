@@ -1,39 +1,33 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: HID: hid-multitouch: Switch to device groups
-Date: Wed, 8 Aug 2012 21:07:58 +0300
-Message-ID: <20120808180758.GC3734@mwanda>
-References: <20120808134408.GA25857@elgon.mountain>
- <20120808172829.GA1001@polaris.bitmath.org>
+From: Jesper Juhl <jj@chaosbits.net>
+Subject: Re: [PATCH] Input: omap4-keypad - don't leak in
+ omap4_keypad_probe()
+Date: Wed, 8 Aug 2012 21:36:51 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1208082135410.10061@swampdragon.chaosbits.net>
+References: <alpine.LNX.2.00.1208072014140.3227@swampdragon.chaosbits.net> <CAK9yfHxS=VvZ8Cuhd4LAUG+JnOK0g6=xCEoX45mtuVwj-+8D_g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from acsinet15.oracle.com ([141.146.126.227]:28829 "EHLO
-	acsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030507Ab2HHSIN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Aug 2012 14:08:13 -0400
-Content-Disposition: inline
-In-Reply-To: <20120808172829.GA1001@polaris.bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAK9yfHxS=VvZ8Cuhd4LAUG+JnOK0g6=xCEoX45mtuVwj-+8D_g@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sourav Poddar <sourav.poddar@ti.com>, Felipe Balbi <balbi@ti.com>, JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Syed Rafiuddin <rafiuddin.syed@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org
 
-On Wed, Aug 08, 2012 at 07:28:29PM +0200, Henrik Rydberg wrote:
-> Hi Dan,
+On Wed, 8 Aug 2012, Sachin Kamat wrote:
+
+> On 7 August 2012 23:46, Jesper Juhl <jj@chaosbits.net> wrote:
+> > If omap4_keypad_parse_dt() does not return 0 (zero) in
+> > omap4_keypad_probe() we will leak the memory we allocated for
+> > 'keypad_data' with kzalloc() when we return and the variable goes out
+> > of scope.
 > 
-> > This is a semi-automatic email about new static checker warnings.
-> > 
-> > The patch 4fa3a5837b84: "HID: hid-multitouch: Switch to device 
-> > groups" from May 1, 2012, leads to the following Smatch complaint:
-> > 
-> > drivers/hid/hid-multitouch.c:735 mt_probe()
-> > 	 error: we previously assumed 'id' could be null (see line 694)
+> How about using devm_kzalloc() instead which will take care of freeing
+> the memory on detach?
 > 
-> Yes, and the same patch also removes the reason 'id' could be null.
+Perhaps. I'm not (yet) familiar with how that function works, so I had 
+not considered it. I'll look into it.
 
-Great.  Could you remove the unneeded check in mt_probe() and give
-me a Reported-by: tag?
-
-regards,
-dan carpenter
-
+-- 
+Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
+Don't top-post http://www.catb.org/jargon/html/T/top-post.html
+Plain text mails only, please.

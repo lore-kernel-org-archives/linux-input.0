@@ -1,66 +1,57 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: Re: [PATCH] Input: omap4-keypad - don't leak in omap4_keypad_probe()
-Date: Wed, 8 Aug 2012 09:13:19 +0530
-Message-ID: <CAK9yfHxS=VvZ8Cuhd4LAUG+JnOK0g6=xCEoX45mtuVwj-+8D_g@mail.gmail.com>
-References: <alpine.LNX.2.00.1208072014140.3227@swampdragon.chaosbits.net>
+From: Zhang Jiejing-B33651 <B33651@freescale.com>
+Subject: Re: [PATCH 1/2] Input: egalax_ts: get gpio from devicetree node
+Date: Wed, 8 Aug 2012 03:44:00 +0000
+Message-ID: <8CDC3AFB-52FC-40B1-8D83-FBB5C7AD76F7@freescale.com>
+References: <1344332372-9287-1-git-send-email-jason77.wang@gmail.com>
+ <1344332372-9287-2-git-send-email-jason77.wang@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1208072014140.3227@swampdragon.chaosbits.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jesper Juhl <jj@chaosbits.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sourav Poddar <sourav.poddar@ti.com>, Felipe Balbi <balbi@ti.com>, JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Syed Rafiuddin <rafiuddin.syed@ti.com>
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from db3ehsobe005.messaging.microsoft.com ([213.199.154.143]:56552
+	"EHLO db3outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756244Ab2HHDoF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 Aug 2012 23:44:05 -0400
+In-Reply-To: <1344332372-9287-2-git-send-email-jason77.wang@gmail.com>
+Content-Language: en-US
+Content-ID: <A2455582161E26499DC19108A3FBEA73@mgd.freescale.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hui Wang <jason77.wang@gmail.com>
+Cc: "<dmitry.torokhov@gmail.com>" <dmitry.torokhov@gmail.com>, Zhang Jiejing-B33651 <B33651@freescale.com>, "<linux-input@vger.kernel.org>" <linux-input@vger.kernel.org>, "<devicetree-discuss@lists.ozlabs.org>" <devicetree-discuss@lists.ozlabs.org>
 
-On 7 August 2012 23:46, Jesper Juhl <jj@chaosbits.net> wrote:
-> If omap4_keypad_parse_dt() does not return 0 (zero) in
-> omap4_keypad_probe() we will leak the memory we allocated for
-> 'keypad_data' with kzalloc() when we return and the variable goes out
-> of scope.
+SGkgSHVpLA0KDQpZb3UgcGF0Y2ggbG9va3MgZ29vZCB0byBtZSwgYnV0IGNhbiB5b3UgYWRkIGEg
+Y2hlY2sgd2hlbiBpdCBjYWxsaW5nIHRoZSBlZ2FsYXhfd2FrZV91cF9kZXZpY2UoKSBmdW5jdGlv
+biBpbiBlZ2FsYXhfdHNfcHJvYmUoKSA/IElmIHNvbWUgY29uZmlndXJlIGdvc2Ugd3JvbmcsIHRo
+ZSBwcm9iZSBvZiBkcml2ZXIgd2lsbCBleGl0LCByYXRoZXIgdGhhbiB0aGUgc3VzcGVuZCBmYWls
+dXJlIGV2ZXJ5IHRpbWUuDQoNCkJSLA0KSmllamluZw0K1NogMjAxMi04LTejrM/Czuc1OjM5o6xI
+dWkgV2FuZyA8amFzb243Ny53YW5nQGdtYWlsLmNvbT4g0LS1wKO6DQoNCj4gVGhlIGlycV90b19n
+cGlvKCkgaXMgb2xkLCBtb3N0IHBsYXRmb3JtcyB1c2UgR0VORVJJQ19HUElPIGZyYW1ld29yayBh
+bmQNCj4gZG9uJ3Qgc3VwcG9ydCB0aGlzIEFQSSBhbnltb3JlLg0KPiANCj4gVGhlIGkuTVg2cSBz
+YWJyZWxpdGUgcGxhdGZvcm0gZXF1aXBzIGFuIGVnYWxheCB0b3VjaHNjcmVlbiBjb250cm9sbGVy
+LA0KPiBhbmQgdGhpcyBwbGF0Zm9ybSBhbHJlYWR5IHRyYW5zZmVyZWQgdG8gR0VORVJJQ19HUElP
+IGZyYW1ld29yaywgdG8NCj4gc3VwcG9ydCB0aGlzIGRyaXZlciwgd2UgdXNlIGEgbW9yZSBnZW5l
+cmljIHdheSB0byBnZXQgZ3Bpby4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEh1aSBXYW5nIDxqYXNv
+bjc3LndhbmdAZ21haWwuY29tPg0KPiAtLS0NCj4gZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9l
+Z2FsYXhfdHMuYyB8ICAgMTIgKysrKysrKysrKy0tDQo+IDEgZmlsZXMgY2hhbmdlZCwgMTAgaW5z
+ZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lu
+cHV0L3RvdWNoc2NyZWVuL2VnYWxheF90cy5jIGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9l
+Z2FsYXhfdHMuYw0KPiBpbmRleCA3MDUyNGRkLi5iOTRlYjUwIDEwMDY0NA0KPiAtLS0gYS9kcml2
+ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2VnYWxheF90cy5jDQo+ICsrKyBiL2RyaXZlcnMvaW5wdXQv
+dG91Y2hzY3JlZW4vZWdhbGF4X3RzLmMNCj4gQEAgLTI4LDYgKzI4LDcgQEANCj4gI2luY2x1ZGUg
+PGxpbnV4L3NsYWIuaD4NCj4gI2luY2x1ZGUgPGxpbnV4L2JpdG9wcy5oPg0KPiAjaW5jbHVkZSA8
+bGludXgvaW5wdXQvbXQuaD4NCj4gKyNpbmNsdWRlIDxsaW51eC9vZl9ncGlvLmg+DQo+IA0KPiAv
+Kg0KPiAgKiBNb3VzZSBNb2RlOiBzb21lIHBhbmVsIG1heSBjb25maWd1cmUgdGhlIGNvbnRyb2xs
+ZXIgdG8gbW91c2UgbW9kZSwNCj4gQEAgLTEyMiw4ICsxMjMsMTUgQEAgc3RhdGljIGlycXJldHVy
+bl90IGVnYWxheF90c19pbnRlcnJ1cHQoaW50IGlycSwgdm9pZCAqZGV2X2lkKQ0KPiAvKiB3YWtl
+IHVwIGNvbnRyb2xsZXIgYnkgYW4gZmFsbGluZyBlZGdlIG9mIGludGVycnVwdCBncGlvLiAgKi8N
+Cj4gc3RhdGljIGludCBlZ2FsYXhfd2FrZV91cF9kZXZpY2Uoc3RydWN0IGkyY19jbGllbnQgKmNs
+aWVudCkNCj4gew0KPiAtCWludCBncGlvID0gaXJxX3RvX2dwaW8oY2xpZW50LT5pcnEpOw0KPiAt
+CWludCByZXQ7DQo+ICsJc3RydWN0IGRldmljZV9ub2RlICpucCA9IGNsaWVudC0+ZGV2Lm9mX25v
+ZGU7DQo+ICsJaW50IGdwaW8sIHJldDsNCj4gKw0KPiArCWlmICghbnApDQo+ICsJCXJldHVybiAt
+RU5PREVWOw0KPiArDQo+ICsJZ3BpbyA9IG9mX2dldF9uYW1lZF9ncGlvKG5wLCAiaXJxLWdwaW8i
+LCAwKTsNCj4gKwlpZiAoIWdwaW9faXNfdmFsaWQoZ3BpbykpDQo+ICsJCXJldHVybiAtRU5PREVW
+Ow0KPiANCj4gCXJldCA9IGdwaW9fcmVxdWVzdChncGlvLCAiZWdhbGF4X2lycSIpOw0KPiAJaWYg
+KHJldCA8IDApIHsNCj4gLS0gDQo+IDEuNy42DQo+IA0KPiANCg0K
 
-How about using devm_kzalloc() instead which will take care of freeing
-the memory on detach?
-
-> Fix the leak by jumping to the 'err_free_keypad' label where we
-> properly free the allocated memory, instead of returning directly.
->
-> Signed-off-by: Jesper Juhl <jj@chaosbits.net>
-> ---
->  drivers/input/keyboard/omap4-keypad.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
->  Compile tested only.
->
-> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-> index c05f98c..9c2ac87 100644
-> --- a/drivers/input/keyboard/omap4-keypad.c
-> +++ b/drivers/input/keyboard/omap4-keypad.c
-> @@ -281,7 +281,7 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->         } else {
->                 error = omap4_keypad_parse_dt(&pdev->dev, keypad_data);
->                 if (error)
-> -                       return error;
-> +                       goto err_free_keypad;
->         }
->
->         res = request_mem_region(res->start, resource_size(res), pdev->name);
-> --
-> 1.7.11.4
->
->
-> --
-> Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
-> Don't top-post http://www.catb.org/jargon/html/T/top-post.html
-> Plain text mails only, please.
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
--- 
-Regards,
-Sachin

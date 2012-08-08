@@ -1,47 +1,36 @@
-From: Benoit Cousson <b-cousson@ti.com>
-Subject: Re: [PATCH 04/11] MFD: twl4030-audio: Add DT support
-Date: Wed, 8 Aug 2012 17:41:47 +0200
-Message-ID: <502288BB.6020709@ti.com>
-References: <1344418887-5262-1-git-send-email-peter.ujfalusi@ti.com>
- <1344418887-5262-5-git-send-email-peter.ujfalusi@ti.com>
- <5022529D.3090406@ti.com>
- <20120808125252.GR16861@opensource.wolfsonmicro.com>
- <50227936.3040701@ti.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: HID: hid-multitouch: Switch to device groups
+Date: Wed, 8 Aug 2012 19:28:29 +0200
+Message-ID: <20120808172829.GA1001@polaris.bitmath.org>
+References: <20120808134408.GA25857@elgon.mountain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <50227936.3040701@ti.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: alsa-devel@alsa-project.org, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dtor@mail.ru>, devicetree-discuss@lists.ozlabs.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Liam Girdwood <lrg@ti.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:43174 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758928Ab2HHRZT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Aug 2012 13:25:19 -0400
+Received: from ipb3.telenor.se (ipb3.telenor.se [195.54.127.166])
+	by smtprelay-b11.telenor.se (Postfix) with ESMTP id 03CBFEAC14
+	for <linux-input@vger.kernel.org>; Wed,  8 Aug 2012 19:25:16 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <20120808134408.GA25857@elgon.mountain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: linux-input@vger.kernel.org
 
-On 08/08/2012 04:35 PM, Peter Ujfalusi wrote:
-> On 08/08/2012 03:52 PM, Mark Brown wrote:
->> On Wed, Aug 08, 2012 at 01:50:53PM +0200, Benoit Cousson wrote:
->>
->>> That being said, since we do have the clock binding now, maybe we should
->>> create a clock provider at board level for the sys_clk and thus you will
->>> just have to create a phandle to it in your audio description.
->>
->> Yes, we should be doing this.
+Hi Dan,
+
+> This is a semi-automatic email about new static checker warnings.
 > 
-> Does this needs the common clock framework on the platform? OMAP3 certainly
-> does not have it enabled since it has not been adopted.
+> The patch 4fa3a5837b84: "HID: hid-multitouch: Switch to device 
+> groups" from May 1, 2012, leads to the following Smatch complaint:
 > 
+> drivers/hid/hid-multitouch.c:735 mt_probe()
+> 	 error: we previously assumed 'id' could be null (see line 694)
 
-Yeah, good point, we are still not there yet. Rajendra is still working
-on it and I hope we can get something for 3.7, but let's avoid having a
-strong dependency on that migration for the moment.
+Yes, and the same patch also removes the reason 'id' could be null.
 
-Regards,
-Benoit
+Thanks,
+Henrik

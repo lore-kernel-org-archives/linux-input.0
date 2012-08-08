@@ -1,57 +1,98 @@
-From: Zhang Jiejing-B33651 <B33651@freescale.com>
+From: Hui Wang <jason77.wang@gmail.com>
 Subject: Re: [PATCH 1/2] Input: egalax_ts: get gpio from devicetree node
-Date: Wed, 8 Aug 2012 03:44:00 +0000
-Message-ID: <8CDC3AFB-52FC-40B1-8D83-FBB5C7AD76F7@freescale.com>
-References: <1344332372-9287-1-git-send-email-jason77.wang@gmail.com>
- <1344332372-9287-2-git-send-email-jason77.wang@gmail.com>
+Date: Wed, 8 Aug 2012 13:35:11 +0800
+Message-ID: <5021FA8F.5070308@gmail.com>
+References: <1344332372-9287-1-git-send-email-jason77.wang@gmail.com> <1344332372-9287-2-git-send-email-jason77.wang@gmail.com> <8CDC3AFB-52FC-40B1-8D83-FBB5C7AD76F7@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=gb2312
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from db3ehsobe005.messaging.microsoft.com ([213.199.154.143]:56552
-	"EHLO db3outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756244Ab2HHDoF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Aug 2012 23:44:05 -0400
-In-Reply-To: <1344332372-9287-2-git-send-email-jason77.wang@gmail.com>
-Content-Language: en-US
-Content-ID: <A2455582161E26499DC19108A3FBEA73@mgd.freescale.com>
+Received: from mail.windriver.com ([147.11.1.11]:38084 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751415Ab2HHFft (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Aug 2012 01:35:49 -0400
+In-Reply-To: <8CDC3AFB-52FC-40B1-8D83-FBB5C7AD76F7@freescale.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hui Wang <jason77.wang@gmail.com>
-Cc: "<dmitry.torokhov@gmail.com>" <dmitry.torokhov@gmail.com>, Zhang Jiejing-B33651 <B33651@freescale.com>, "<linux-input@vger.kernel.org>" <linux-input@vger.kernel.org>, "<devicetree-discuss@lists.ozlabs.org>" <devicetree-discuss@lists.ozlabs.org>
+To: Zhang Jiejing-B33651 <B33651@freescale.com>
+Cc: Hui Wang <jason77.wang@gmail.com>, "<dmitry.torokhov@gmail.com>" <dmitry.torokhov@gmail.com>, "<linux-input@vger.kernel.org>" <linux-input@vger.kernel.org>, "<devicetree-discuss@lists.ozlabs.org>" <devicetree-discuss@lists.ozlabs.org>
 
-SGkgSHVpLA0KDQpZb3UgcGF0Y2ggbG9va3MgZ29vZCB0byBtZSwgYnV0IGNhbiB5b3UgYWRkIGEg
-Y2hlY2sgd2hlbiBpdCBjYWxsaW5nIHRoZSBlZ2FsYXhfd2FrZV91cF9kZXZpY2UoKSBmdW5jdGlv
-biBpbiBlZ2FsYXhfdHNfcHJvYmUoKSA/IElmIHNvbWUgY29uZmlndXJlIGdvc2Ugd3JvbmcsIHRo
-ZSBwcm9iZSBvZiBkcml2ZXIgd2lsbCBleGl0LCByYXRoZXIgdGhhbiB0aGUgc3VzcGVuZCBmYWls
-dXJlIGV2ZXJ5IHRpbWUuDQoNCkJSLA0KSmllamluZw0K1NogMjAxMi04LTejrM/Czuc1OjM5o6xI
-dWkgV2FuZyA8amFzb243Ny53YW5nQGdtYWlsLmNvbT4g0LS1wKO6DQoNCj4gVGhlIGlycV90b19n
-cGlvKCkgaXMgb2xkLCBtb3N0IHBsYXRmb3JtcyB1c2UgR0VORVJJQ19HUElPIGZyYW1ld29yayBh
-bmQNCj4gZG9uJ3Qgc3VwcG9ydCB0aGlzIEFQSSBhbnltb3JlLg0KPiANCj4gVGhlIGkuTVg2cSBz
-YWJyZWxpdGUgcGxhdGZvcm0gZXF1aXBzIGFuIGVnYWxheCB0b3VjaHNjcmVlbiBjb250cm9sbGVy
-LA0KPiBhbmQgdGhpcyBwbGF0Zm9ybSBhbHJlYWR5IHRyYW5zZmVyZWQgdG8gR0VORVJJQ19HUElP
-IGZyYW1ld29yaywgdG8NCj4gc3VwcG9ydCB0aGlzIGRyaXZlciwgd2UgdXNlIGEgbW9yZSBnZW5l
-cmljIHdheSB0byBnZXQgZ3Bpby4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEh1aSBXYW5nIDxqYXNv
-bjc3LndhbmdAZ21haWwuY29tPg0KPiAtLS0NCj4gZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9l
-Z2FsYXhfdHMuYyB8ICAgMTIgKysrKysrKysrKy0tDQo+IDEgZmlsZXMgY2hhbmdlZCwgMTAgaW5z
-ZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lu
-cHV0L3RvdWNoc2NyZWVuL2VnYWxheF90cy5jIGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9l
-Z2FsYXhfdHMuYw0KPiBpbmRleCA3MDUyNGRkLi5iOTRlYjUwIDEwMDY0NA0KPiAtLS0gYS9kcml2
-ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2VnYWxheF90cy5jDQo+ICsrKyBiL2RyaXZlcnMvaW5wdXQv
-dG91Y2hzY3JlZW4vZWdhbGF4X3RzLmMNCj4gQEAgLTI4LDYgKzI4LDcgQEANCj4gI2luY2x1ZGUg
-PGxpbnV4L3NsYWIuaD4NCj4gI2luY2x1ZGUgPGxpbnV4L2JpdG9wcy5oPg0KPiAjaW5jbHVkZSA8
-bGludXgvaW5wdXQvbXQuaD4NCj4gKyNpbmNsdWRlIDxsaW51eC9vZl9ncGlvLmg+DQo+IA0KPiAv
-Kg0KPiAgKiBNb3VzZSBNb2RlOiBzb21lIHBhbmVsIG1heSBjb25maWd1cmUgdGhlIGNvbnRyb2xs
-ZXIgdG8gbW91c2UgbW9kZSwNCj4gQEAgLTEyMiw4ICsxMjMsMTUgQEAgc3RhdGljIGlycXJldHVy
-bl90IGVnYWxheF90c19pbnRlcnJ1cHQoaW50IGlycSwgdm9pZCAqZGV2X2lkKQ0KPiAvKiB3YWtl
-IHVwIGNvbnRyb2xsZXIgYnkgYW4gZmFsbGluZyBlZGdlIG9mIGludGVycnVwdCBncGlvLiAgKi8N
-Cj4gc3RhdGljIGludCBlZ2FsYXhfd2FrZV91cF9kZXZpY2Uoc3RydWN0IGkyY19jbGllbnQgKmNs
-aWVudCkNCj4gew0KPiAtCWludCBncGlvID0gaXJxX3RvX2dwaW8oY2xpZW50LT5pcnEpOw0KPiAt
-CWludCByZXQ7DQo+ICsJc3RydWN0IGRldmljZV9ub2RlICpucCA9IGNsaWVudC0+ZGV2Lm9mX25v
-ZGU7DQo+ICsJaW50IGdwaW8sIHJldDsNCj4gKw0KPiArCWlmICghbnApDQo+ICsJCXJldHVybiAt
-RU5PREVWOw0KPiArDQo+ICsJZ3BpbyA9IG9mX2dldF9uYW1lZF9ncGlvKG5wLCAiaXJxLWdwaW8i
-LCAwKTsNCj4gKwlpZiAoIWdwaW9faXNfdmFsaWQoZ3BpbykpDQo+ICsJCXJldHVybiAtRU5PREVW
-Ow0KPiANCj4gCXJldCA9IGdwaW9fcmVxdWVzdChncGlvLCAiZWdhbGF4X2lycSIpOw0KPiAJaWYg
-KHJldCA8IDApIHsNCj4gLS0gDQo+IDEuNy42DQo+IA0KPiANCg0K
+OK, will add it in the V2.
 
+Thanks,
+Hui.
+
+Zhang Jiejing-B33651 wrote:
+> Hi Hui,
+>
+> You patch looks good to me, but can you add a check when it calling t=
+he egalax_wake_up_device() function in egalax_ts_probe() ? If some conf=
+igure gose wrong, the probe of driver will exit, rather than the suspen=
+d failure every time.
+>
+> BR,
+> Jiejing
+> =D4=DA 2012-8-7=A3=AC=CF=C2=CE=E75:39=A3=ACHui Wang <jason77.wang@gma=
+il.com> =D0=B4=B5=C0=A3=BA
+>
+>  =20
+>> The irq_to_gpio() is old, most platforms use GENERIC_GPIO framework =
+and
+>> don't support this API anymore.
+>>
+>> The i.MX6q sabrelite platform equips an egalax touchscreen controlle=
+r,
+>> and this platform already transfered to GENERIC_GPIO framework, to
+>> support this driver, we use a more generic way to get gpio.
+>>
+>> Signed-off-by: Hui Wang <jason77.wang@gmail.com>
+>> ---
+>> drivers/input/touchscreen/egalax_ts.c |   12 ++++++++++--
+>> 1 files changed, 10 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/t=
+ouchscreen/egalax_ts.c
+>> index 70524dd..b94eb50 100644
+>> --- a/drivers/input/touchscreen/egalax_ts.c
+>> +++ b/drivers/input/touchscreen/egalax_ts.c
+>> @@ -28,6 +28,7 @@
+>> #include <linux/slab.h>
+>> #include <linux/bitops.h>
+>> #include <linux/input/mt.h>
+>> +#include <linux/of_gpio.h>
+>>
+>> /*
+>>  * Mouse Mode: some panel may configure the controller to mouse mode=
+,
+>> @@ -122,8 +123,15 @@ static irqreturn_t egalax_ts_interrupt(int irq,=
+ void *dev_id)
+>> /* wake up controller by an falling edge of interrupt gpio.  */
+>> static int egalax_wake_up_device(struct i2c_client *client)
+>> {
+>> -	int gpio =3D irq_to_gpio(client->irq);
+>> -	int ret;
+>> +	struct device_node *np =3D client->dev.of_node;
+>> +	int gpio, ret;
+>> +
+>> +	if (!np)
+>> +		return -ENODEV;
+>> +
+>> +	gpio =3D of_get_named_gpio(np, "irq-gpio", 0);
+>> +	if (!gpio_is_valid(gpio))
+>> +		return -ENODEV;
+>>
+>> 	ret =3D gpio_request(gpio, "egalax_irq");
+>> 	if (ret < 0) {
+>> --=20
+>> 1.7.6
+>>
+>>
+>>    =20
+>
+>  =20
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

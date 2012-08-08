@@ -1,34 +1,36 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 2/6] ARM: pxa remove irq_to_gpio from eeti_ts driver
-Date: Wed, 8 Aug 2012 14:38:04 +0000
-Message-ID: <201208081438.04931.arnd@arndb.de>
-References: <1344430493-5304-1-git-send-email-arnd@arndb.de> <201208081419.17181.arnd@arndb.de> <50227615.1090907@gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 04/11] MFD: twl4030-audio: Add DT support
+Date: Wed, 8 Aug 2012 15:39:27 +0100
+Message-ID: <20120808143927.GB24328@opensource.wolfsonmicro.com>
+References: <1344418887-5262-1-git-send-email-peter.ujfalusi@ti.com>
+ <1344418887-5262-5-git-send-email-peter.ujfalusi@ti.com>
+ <5022529D.3090406@ti.com>
+ <20120808125252.GR16861@opensource.wolfsonmicro.com>
+ <50227936.3040701@ti.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.8]:53582 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752727Ab2HHOiN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Aug 2012 10:38:13 -0400
-In-Reply-To: <50227615.1090907@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Disposition: inline
+In-Reply-To: <50227936.3040701@ti.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: alsa-devel@alsa-project.org, Benoit Cousson <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dtor@mail.ru>, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Liam Girdwood <lrg@ti.com>, linux-arm-kernel@lists.infradead.org, Samuel Ortiz <sameo@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <zonque@gmail.com>
-Cc: Haojian Zhuang <haojian.zhuang@gmail.com>, linux-arm-kernel@lists.infradead.org, arm@kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sven Neumann <s.neumann@raumfeld.com>, linux-input@vger.kernel.org
 
-On Wednesday 08 August 2012, Daniel Mack wrote:
-> > 
-> > I've taken your patch instead now, 
-> 
-> Will that go to some other tree than linux-input now?
+On Wed, Aug 08, 2012 at 05:35:34PM +0300, Peter Ujfalusi wrote:
 
-I have it in the arm-soc tree for now, but I don't really care
-which tree it goes through, as long as it does. I've kept a
-version of this patch in one branch with random fixes that
-I try to clear out now.
+> Does this needs the common clock framework on the platform? OMAP3 certainly
+> does not have it enabled since it has not been adopted.
 
-Other than that, I'm fine with whatever Dmitry prefers.
-
-	Arnd
+I'd hope at least the binding code for finding clocks has been done at
+the clkdev level so it can be used on other platforms but perhaps that's
+not the case.

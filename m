@@ -1,45 +1,125 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 1/1] Input: ab8500-ponkey: Make the distinction between DT and non-DT boots
-Date: Wed, 8 Aug 2012 08:28:35 +0000
-Message-ID: <201208080828.35451.arnd@arndb.de>
-References: <20120807170333.GV16861@opensource.wolfsonmicro.com> <20120808080411.GB4728@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] hid:hid-multitouch: add mt_resume for ELAN's production
+Date: Wed, 8 Aug 2012 11:08:12 +0200
+Message-ID: <CAN+gG=FTZwX-fLdodD-P=F8NdC-9V0cQR2ZecR3SjhSQPjoTAA@mail.gmail.com>
+References: <1344390033-14139-1-git-send-email-scott.liu@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.187]:61878 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932330Ab2HHI2o (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Aug 2012 04:28:44 -0400
-In-Reply-To: <20120808080411.GB4728@gmail.com>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:60086 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932502Ab2HHJIN convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Aug 2012 05:08:13 -0400
+In-Reply-To: <1344390033-14139-1-git-send-email-scott.liu@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linus.walleij@stericsson.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linux-arm-kernel@lists.infradead.org
+To: Scott Liu <scott.liu@emc.com.tw>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, eleghost@gmail.com
 
-On Wednesday 08 August 2012, Lee Jones wrote:
-> Okay, actually this isn't so easy. Currently we have:
-> 
-> During DT boot:
->  - No platform data is passed, hence no IRQ base for AB8500 is either
->  - No IRQ base means we register a Linear IRQ Domain
->  - MFD sees there is no base and leaves the IRQ resource as a hwirq
->  - AB8500 child devices use *_get_virq() to convert the hwirq to a virq
-> 
-> During non-DT boot:
->  - Platform data is passed, which contains an IRQ base
->  - If an IRQ base is requested we use it to register a Legacy IRQ Domain
->  - MFD adds the IRQ base to the hwirq and registers it as a virq
->  - AB8500 child devices use *_get_virq() to convert virq to virq - ERROR
-> 
-> I guess my suggestion falls-back to placing logic in *_get_virq() to only
-> call irq_create_mapping() when when !ab8500->irq_base.
+Hi Scott,
 
-In general, it seems easier to use the same domain type for both cases.
-I don't think that MOP500_AB8500_VIR_GPIO_IRQ_BASE is used anywhere
-else besides the .irq_base definition in board-mop500.c, so I would guess
-that you can just remove that identifier and always use the linear
-domain.
+There is a few white space problems and a maybe an oops.
+Sorry for not having seen this before.
 
-	Arnd
+On Wed, Aug 8, 2012 at 3:40 AM, Scott Liu <scott.liu@emc.com.tw> wrote:
+> Some of ELAN=92s production need to issue set_idle when resume.
+>
+> Signed-off-by: Scott Liu <scott.liu@emc.com.tw>
+> ---
+>  drivers/hid/hid-ids.h        |    3 +++
+>  drivers/hid/hid-multitouch.c |   26 ++++++++++++++++++++++++++
+>  2 files changed, 29 insertions(+)
+>
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 41c34f2..703aaed 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -829,4 +829,7 @@
+>  #define USB_VENDOR_ID_PRIMAX   0x0461
+>  #define USB_DEVICE_ID_PRIMAX_KEYBOARD  0x4e05
+>
+> +#define USB_VENDOR_ID_ELAN     0x04f3
+> +#define USB_DEVICE_ID_ELAN_MOCCA       0x000a
+> +
+>  #endif
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouc=
+h.c
+> index 59c8b5c..a086a16 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -767,6 +767,31 @@ static int mt_reset_resume(struct hid_device *hd=
+ev)
+>         mt_set_input_mode(hdev);
+>         return 0;
+>  }
+> +
+> +static int mt_resume(struct hid_device *hdev)
+> +{
+> +       struct usb_interface *intf =3D to_usb_interface(hdev->dev.par=
+ent);
+> +       struct usb_host_interface *interface =3D intf->cur_altsetting=
+;
+
+There is at least one bluetooth multitouch device, so maybe intf will
+be null....
+
+> +
+> +       struct usb_device *dev =3D hid_to_usb_dev(hdev);
+> +
+> +       if (hdev->vendor =3D=3D USB_VENDOR_ID_ELAN &&
+> +                       hdev->product =3D=3D USB_DEVICE_ID_ELAN_MOCCA=
+) {
+
+moving this test at the beginning will prevent us from null or random p=
+ointers.
+
+> +
+> +               usb_control_msg(dev,
+> +                                               usb_sndctrlpipe(dev, =
+0),
+> +                               HID_REQ_SET_IDLE,
+
+mix tab/spaces....
+
+> +                                               USB_TYPE_CLASS | USB_=
+RECIP_INTERFACE,
+> +                                               0,
+> +                               interface->desc.bInterfaceNumber,
+
+again....
+
+> +                                               NULL,
+> +                                               0,
+> +                                               USB_CTRL_SET_TIMEOUT)=
+;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+>  #endif
+>
+>  static void mt_remove(struct hid_device *hdev)
+> @@ -1092,6 +1117,7 @@ static struct hid_driver mt_driver =3D {
+>         .event =3D mt_event,
+>  #ifdef CONFIG_PM
+>         .reset_resume =3D mt_reset_resume,
+> +       .resume=3Dmt_resume,
+
+spaces are need before and after the equal sign....
+
+Cheers,
+Benjamin
+
+>  #endif
+>  };
+>
+> --
+> 1.7.9.5
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

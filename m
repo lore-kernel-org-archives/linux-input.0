@@ -1,39 +1,50 @@
-From: Zhang Jiejing-B33651 <B33651@freescale.com>
-Subject: Re: [PATCH v2 1/2] Input: egalax_ts: get gpio from devicetree node
-Date: Wed, 8 Aug 2012 10:08:19 +0000
-Message-ID: <F8B9A610-71CC-4500-A758-DFA361D0272F@freescale.com>
-References: <1344417034-30175-1-git-send-email-jason77.wang@gmail.com>
- <1344417034-30175-2-git-send-email-jason77.wang@gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/1] Input: ab8500-ponkey: Make the distinction between
+ DT and non-DT boots
+Date: Wed, 8 Aug 2012 12:40:38 +0100
+Message-ID: <20120808114037.GB8227@gmail.com>
+References: <20120807170333.GV16861@opensource.wolfsonmicro.com>
+ <20120808080411.GB4728@gmail.com>
+ <20120808094952.GH16861@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch1ehsobe002.messaging.microsoft.com ([216.32.181.182]:16080
-	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752788Ab2HHKIY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 8 Aug 2012 06:08:24 -0400
-In-Reply-To: <1344417034-30175-2-git-send-email-jason77.wang@gmail.com>
-Content-Language: en-US
-Content-ID: <EA48AF9E32869B49BFAF93845770E1E4@mgd.freescale.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20120808094952.GH16861@opensource.wolfsonmicro.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linus.walleij@stericsson.com, arnd@arndb.de, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Hui Wang <jason77.wang@gmail.com>
-Cc: "<dmitry.torokhov@gmail.com>" <dmitry.torokhov@gmail.com>, Zhang Jiejing-B33651 <B33651@freescale.com>, "<linux-input@vger.kernel.org>" <linux-input@vger.kernel.org>, "<devicetree-discuss@lists.ozlabs.org>" <devicetree-discuss@lists.ozlabs.org>
 
-SGkgSHVpLA0KDQrU2iAyMDEyLTgtOKOsz8LO5zU6MTCjrEh1aSBXYW5nIDxqYXNvbjc3LndhbmdA
-Z21haWwuY29tPg0KINC0tcCjug0KDQo+IFRoZSBpcnFfdG9fZ3BpbygpIGlzIG9sZCwgbW9zdCBw
-bGF0Zm9ybXMgdXNlIEdFTkVSSUNfR1BJTyBmcmFtZXdvcmsNCj4gYW5kIGRvbid0IHN1cHBvcnQg
-dGhpcyBBUEkgYW55bW9yZS4NCj4gDQo+IFRoZSBpLk1YNnEgc2FicmVsaXRlIHBsYXRmb3JtIGVx
-dWlwcyBhbiBlZ2FsYXggdG91Y2hzY3JlZW4gY29udHJvbGxlciwNCj4gYW5kIHRoaXMgcGxhdGZv
-cm0gYWxyZWFkeSB0cmFuc2ZlcmVkIHRvIEdFTkVSSUNfR1BJTyBmcmFtZXdvcmssIHRvDQo+IHN1
-cHBvcnQgdGhpcyBkcml2ZXIsIHdlIHVzZSBhIG1vcmUgZ2VuZXJpYyB3YXkgdG8gZ2V0IGdwaW8u
-DQo+IA0KPiBBZGQgYSByZXR1cm4gdmFsdWUgY2hlY2tpbmcgZm9yIHdha2luZyB1cCB0aGUgY29u
-dHJvbGxlciBpbiB0aGUgcHJvYmUNCj4gZnVuY3Rpb24sIHRoaXMgZ3VhcmFudGVlIG9ubHkgYSB3
-b3JrYWJsZSBkZXZpY2UgY2FuIHBhc3MgaW5pdC4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEh1aSBX
-YW5nIDxqYXNvbjc3LndhbmdAZ21haWwuY29tPg0KQWNreWVkLWJ5IFpoYW5nIEppZWppbmcgPGpp
-ZWppbmcuemhhbmdAZnJlZXNjYWxlLmNvbT4gDQo+IC0tLQ0KPiBkcml2ZXJzL2lucHV0L3RvdWNo
-c2NyZWVuL2VnYWxheF90cy5jIHwgICAxOSArKysrKysrKysrKysrKysrLS0tDQo+IDEgZmlsZXMg
-Y2hhbmdlZCwgMTYgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkNCg0KDQpCZXN0IFJlZ2Fy
-ZHMNCkppZWppbmcNCg0KDQoNCg==
+On Wed, Aug 08, 2012 at 10:49:52AM +0100, Mark Brown wrote:
+> On Wed, Aug 08, 2012 at 09:04:12AM +0100, Lee Jones wrote:
+>=20
+> > During non-DT boot:
+> >  - Platform data is passed, which contains an IRQ base
+> >  - If an IRQ base is requested we use it to register a Legacy IRQ D=
+omain
+> >  - MFD adds the IRQ base to the hwirq and registers it as a virq
+>=20
+> Just don't do this step - the only reason to do it is for mapping bac=
+k
+> into a linear domain but if you're going to do this...
+>=20
+> >  - AB8500 child devices use *_get_virq() to convert virq to virq - =
+*ERROR*
+>=20
+> ...then it's redundant.  The mapping functions in the domain code
+> replace this functionality.
 
+No, the other way round. This is now required all the time.
+
+Now we force the use of hwirq, the driver needs to convert that into a
+virq before requesting the resource. So we need to put *_get_virq()'s i=
+nto
+every child device that requests an IRQ.
+
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

@@ -1,34 +1,39 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 1/1] Input: ab8500-ponkey: Make the distinction between
- DT and non-DT boots
-Date: Wed, 8 Aug 2012 10:59:29 +0100
-Message-ID: <20120808095928.GI16861@opensource.wolfsonmicro.com>
-References: <20120807170333.GV16861@opensource.wolfsonmicro.com>
- <20120808080411.GB4728@gmail.com>
- <201208080828.35451.arnd@arndb.de>
+From: Zhang Jiejing-B33651 <B33651@freescale.com>
+Subject: Re: [PATCH v2 1/2] Input: egalax_ts: get gpio from devicetree node
+Date: Wed, 8 Aug 2012 10:08:19 +0000
+Message-ID: <F8B9A610-71CC-4500-A758-DFA361D0272F@freescale.com>
+References: <1344417034-30175-1-git-send-email-jason77.wang@gmail.com>
+ <1344417034-30175-2-git-send-email-jason77.wang@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:36691 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751992Ab2HHJ7b (ORCPT
+Received: from ch1ehsobe002.messaging.microsoft.com ([216.32.181.182]:16080
+	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752788Ab2HHKIY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 8 Aug 2012 05:59:31 -0400
-Content-Disposition: inline
-In-Reply-To: <201208080828.35451.arnd@arndb.de>
+	Wed, 8 Aug 2012 06:08:24 -0400
+In-Reply-To: <1344417034-30175-2-git-send-email-jason77.wang@gmail.com>
+Content-Language: en-US
+Content-ID: <EA48AF9E32869B49BFAF93845770E1E4@mgd.freescale.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linus.walleij@stericsson.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linux-arm-kernel@lists.infradead.org
+To: Hui Wang <jason77.wang@gmail.com>
+Cc: "<dmitry.torokhov@gmail.com>" <dmitry.torokhov@gmail.com>, Zhang Jiejing-B33651 <B33651@freescale.com>, "<linux-input@vger.kernel.org>" <linux-input@vger.kernel.org>, "<devicetree-discuss@lists.ozlabs.org>" <devicetree-discuss@lists.ozlabs.org>
 
-On Wed, Aug 08, 2012 at 08:28:35AM +0000, Arnd Bergmann wrote:
+SGkgSHVpLA0KDQrU2iAyMDEyLTgtOKOsz8LO5zU6MTCjrEh1aSBXYW5nIDxqYXNvbjc3LndhbmdA
+Z21haWwuY29tPg0KINC0tcCjug0KDQo+IFRoZSBpcnFfdG9fZ3BpbygpIGlzIG9sZCwgbW9zdCBw
+bGF0Zm9ybXMgdXNlIEdFTkVSSUNfR1BJTyBmcmFtZXdvcmsNCj4gYW5kIGRvbid0IHN1cHBvcnQg
+dGhpcyBBUEkgYW55bW9yZS4NCj4gDQo+IFRoZSBpLk1YNnEgc2FicmVsaXRlIHBsYXRmb3JtIGVx
+dWlwcyBhbiBlZ2FsYXggdG91Y2hzY3JlZW4gY29udHJvbGxlciwNCj4gYW5kIHRoaXMgcGxhdGZv
+cm0gYWxyZWFkeSB0cmFuc2ZlcmVkIHRvIEdFTkVSSUNfR1BJTyBmcmFtZXdvcmssIHRvDQo+IHN1
+cHBvcnQgdGhpcyBkcml2ZXIsIHdlIHVzZSBhIG1vcmUgZ2VuZXJpYyB3YXkgdG8gZ2V0IGdwaW8u
+DQo+IA0KPiBBZGQgYSByZXR1cm4gdmFsdWUgY2hlY2tpbmcgZm9yIHdha2luZyB1cCB0aGUgY29u
+dHJvbGxlciBpbiB0aGUgcHJvYmUNCj4gZnVuY3Rpb24sIHRoaXMgZ3VhcmFudGVlIG9ubHkgYSB3
+b3JrYWJsZSBkZXZpY2UgY2FuIHBhc3MgaW5pdC4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEh1aSBX
+YW5nIDxqYXNvbjc3LndhbmdAZ21haWwuY29tPg0KQWNreWVkLWJ5IFpoYW5nIEppZWppbmcgPGpp
+ZWppbmcuemhhbmdAZnJlZXNjYWxlLmNvbT4gDQo+IC0tLQ0KPiBkcml2ZXJzL2lucHV0L3RvdWNo
+c2NyZWVuL2VnYWxheF90cy5jIHwgICAxOSArKysrKysrKysrKysrKysrLS0tDQo+IDEgZmlsZXMg
+Y2hhbmdlZCwgMTYgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkNCg0KDQpCZXN0IFJlZ2Fy
+ZHMNCkppZWppbmcNCg0KDQoNCg==
 
-> In general, it seems easier to use the same domain type for both cases.
-> I don't think that MOP500_AB8500_VIR_GPIO_IRQ_BASE is used anywhere
-> else besides the .irq_base definition in board-mop500.c, so I would guess
-> that you can just remove that identifier and always use the linear
-> domain.
-
-Given how easy this is to get working it doesn't seem sensible to avoid
-it - there's a clear pattern already for maintaining support for legacy
-domains.

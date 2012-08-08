@@ -1,98 +1,57 @@
-From: Ferruh Yigit <fery@cypress.com>
-Subject: Re: [PATCH 1/4] Input: cyttsp4 - bus driver for Cypress TMA4XX touchscreen
- devices
-Date: Wed, 8 Aug 2012 08:53:03 +0300
-Message-ID: <5021FEBF.7050803@cypress.com>
-References: <fery@cypress.com> <1344344978-30453-1-git-send-email-fery@cypress.com> <CABxcv=n-bTQ=91=f8jaCt7kgP+0WL6hbZyY40rHDxw8-VUjZvQ@mail.gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/1] Input: ab8500-ponkey: Make the distinction between
+ DT and non-DT boots
+Date: Wed, 8 Aug 2012 08:35:19 +0100
+Message-ID: <20120808073518.GA4728@gmail.com>
+References: <1344256323-10484-1-git-send-email-lee.jones@linaro.org>
+ <20120806081915.GA4518@core.coreip.homeip.net>
+ <20120806153750.GI10524@gmail.com>
+ <20120806160226.GF29272@sirena.org.uk>
+ <20120807170129.GA3759@gmail.com>
+ <20120807170333.GV16861@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay.ihostexchange.net ([66.46.182.51]:3694 "EHLO
-	relay.ihostexchange.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756250Ab2HHFxL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Aug 2012 01:53:11 -0400
-In-Reply-To: <CABxcv=n-bTQ=91=f8jaCt7kgP+0WL6hbZyY40rHDxw8-VUjZvQ@mail.gmail.com>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:34564 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757515Ab2HHHfY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Aug 2012 03:35:24 -0400
+Received: by eaac11 with SMTP id c11so109210eaa.19
+        for <linux-input@vger.kernel.org>; Wed, 08 Aug 2012 00:35:23 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20120807170333.GV16861@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier@dowhile0.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin McNeely <kev@cypress.com>, Henrik Rydberg <rydberg@euromail.se>, Shawn Landden <shawnlandden@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Olivier Sobrie <olivier@sobrie.be>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linus.walleij@stericsson.com, arnd@arndb.de, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linux-arm-kernel@lists.infradead.org
 
-Hello Javier,
+> Restating my comment elsewhere...  why do we even need to do this in
+> _get_virq() - I'd *really* expect this to be handled by the irq domai=
+n
+> code.
 
-We needed a new modular driver mechanism so that we can handle the very
-flexible new generation of Cypress multi-touch devices (TMA4XX and TMA5XX).
+> > Okay, so I've just spent a small amount of time looking at this. I =
+think
+> > the best place for this would be in *_get_virq(), using the same lo=
+gic that
+> > selected a *_legacy or *_linear domain in the first place.=20
 
-With this initial set of patches we are providing the primary function
-of multi-touch processing, according to protocol B, as the foundation
-for future enhancements and future generations of our parts.
+> I'd expect your driver to always pass a hwirq into _get_virq() here.
 
-We plan to submit patches in the near future for additional modules such
-as handling of integrated button codes and firmware class loader
-capability.
+I actually had this thought last night.
 
-The Gen3 memory map is very different from the Gen4 and Gen5 products,
-however it is not difficult to upgrade the current Gen3 code into a new
-set of modules that can fit into this model.
+(I really must learn to switch off in the evenings.) ;)
 
-Adding a module patchset for Gen3 also will allow us to add Gen2 support
-in that module as well.
+That's even easier then. I'll make the changes and submit.
 
-Thanks and Best Regards,
-ferruh
-
-On 08/07/2012 11:05 PM, Javier Martinez Canillas wrote:
-> On Tue, Aug 7, 2012 at 3:09 PM, Ferruh Yigit <fery@cypress.com> wrote:
->> From: Ferruh YIGIT <fery@cypress.com>
->>
->> This driver is for Cypress TrueTouch(tm) Standard Product controllers,
->> Generation4 devices.
->>
->> Driver consist of four main modules:
->>
->> Bus driver: Linux bus driver implementation, binds other modules.
->> Core driver: Core module that communicate with TTSP controller.
->> MT driver: MultiTouch driver, converts touch information to host specific
->> touch events
->> Adapter driver: Communication adapter between host and controller, like
->> I2C or SPI.
->>
->> This is Cyttsp4 TTSP Bus Driver,
->> Provides binding between Adapter, Core, and TTSP Modules.
->>
->> A complete set of corresponding Adapter, Core, and TTSP module
->> devices and drivers must be registered with the TTSP Bus handler
->>
-> Hi Ferruh,
->
-> There is already a driver in the kernel that supports Cypress
-> TrueTouch(TM) Standard Product (TTSP) controllers Generation3 (Cypress
-> Txx3xx parts).
->
-> The driver has a similar architecture that yours and it has a generic
-> driver to control the device and a driver for each communication bus
-> used to communicate with the controller. Drivers for SPI and I2C data
-> buses are already implemented.
->
-> The drivers are:
->
-> drivers/input/touchscreen/cyttsp_core.c
-> drivers/input/touchscreen/cyttsp_i2c.c
-> drivers/input/touchscreen/cyttsp_spi.c
->
-> This driver was original developed by Kevin for Android and used
-> multi-touch protocol type A. Since the hardware is able to track
-> contacts by hardware I added protocol type B support and cleaned the
-> driver to be merged on mainline.
->
-> I wonder how big is the delta between cyttsp Gen3 and cyttsp Gen4 and
-> if both drivers could be merged or at least refactored to reuse some
-> common code. I don't have the specification for any of the device
-> families but by looking at your code it seems that this may be
-> possible.
->
-> Thanks a lot and best regards,
-> Javier
-
-
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

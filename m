@@ -1,89 +1,50 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: HID: hid-multitouch: Switch to device groups
-Date: Wed, 8 Aug 2012 21:54:29 +0200
-Message-ID: <20120808195429.GA1425@polaris.bitmath.org>
-References: <20120808134408.GA25857@elgon.mountain>
- <20120808172829.GA1001@polaris.bitmath.org>
- <20120808180758.GC3734@mwanda>
+From: Jesper Juhl <jj@chaosbits.net>
+Subject: Re: [PATCH] Input: omap4-keypad - don't leak in
+ omap4_keypad_probe()
+Date: Wed, 8 Aug 2012 21:57:10 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1208082156100.10061@swampdragon.chaosbits.net>
+References: <alpine.LNX.2.00.1208072014140.3227@swampdragon.chaosbits.net> <CAK9yfHxS=VvZ8Cuhd4LAUG+JnOK0g6=xCEoX45mtuVwj-+8D_g@mail.gmail.com> <alpine.LNX.2.00.1208082135410.10061@swampdragon.chaosbits.net> <1545778.bUhk8oTdlK@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:46321 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030484Ab2HHTvR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Aug 2012 15:51:17 -0400
-Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
-	by smtprelay-b22.telenor.se (Postfix) with ESMTP id 8014EEA0BC
-	for <linux-input@vger.kernel.org>; Wed,  8 Aug 2012 21:51:15 +0200 (CEST)
-Content-Disposition: inline
-In-Reply-To: <20120808180758.GC3734@mwanda>
+Received: from 1010ds2-suoe.0.fullrate.dk ([90.184.90.115]:15105 "EHLO
+	swampdragon.chaosbits.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753315Ab2HHT5M (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Aug 2012 15:57:12 -0400
+In-Reply-To: <1545778.bUhk8oTdlK@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Dan Carpenter <dan.carpenter@oracle.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sachin Kamat <sachin.kamat@linaro.org>, Sourav Poddar <sourav.poddar@ti.com>, Felipe Balbi <balbi@ti.com>, JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Syed Rafiuddin <rafiuddin.syed@ti.com>
 
-On Wed, Aug 08, 2012 at 09:07:58PM +0300, Dan Carpenter wrote:
-> On Wed, Aug 08, 2012 at 07:28:29PM +0200, Henrik Rydberg wrote:
-> > Hi Dan,
-> > 
-> > > This is a semi-automatic email about new static checker warnings.
+On Wed, 8 Aug 2012, Dmitry Torokhov wrote:
+
+> On Wednesday, August 08, 2012 09:36:51 PM Jesper Juhl wrote:
+> > On Wed, 8 Aug 2012, Sachin Kamat wrote:
+> > > On 7 August 2012 23:46, Jesper Juhl <jj@chaosbits.net> wrote:
+> > > > If omap4_keypad_parse_dt() does not return 0 (zero) in
+> > > > omap4_keypad_probe() we will leak the memory we allocated for
+> > > > 'keypad_data' with kzalloc() when we return and the variable goes out
+> > > > of scope.
 > > > 
-> > > The patch 4fa3a5837b84: "HID: hid-multitouch: Switch to device 
-> > > groups" from May 1, 2012, leads to the following Smatch complaint:
-> > > 
-> > > drivers/hid/hid-multitouch.c:735 mt_probe()
-> > > 	 error: we previously assumed 'id' could be null (see line 694)
+> > > How about using devm_kzalloc() instead which will take care of freeing
+> > > the memory on detach?
 > > 
-> > Yes, and the same patch also removes the reason 'id' could be null.
+> > Perhaps. I'm not (yet) familiar with how that function works, so I had
+> > not considered it. I'll look into it.
 > 
-> Great.  Could you remove the unneeded check in mt_probe() and give
-> me a Reported-by: tag?
+> Actually please not yet - I guess at some point I'll have to add devm_*
+> variants for input_device_* operations but for now I prefer not to mix
+> the 2 styles of managing resources.
+> 
+> BTW, I think I need to redo a few patches so I plan on folding this fix
+> into the original change.
+> 
+Ok. I'll just leave this alone for now then and let you do whatever you 
+feel is best :-) .
 
-Ok, now I get it - I was pretty sure that test was not in mainline
-anymore, but obviously I was wrong. Jiri, here is a patch for it, at
-your convenience.
-
-Thanks,
-Henrik
-
----
-
->From 9e763540dd474648544da165955e44549a3990a0 Mon Sep 17 00:00:00 2001
-From: Henrik Rydberg <rydberg@euromail.se>
-Date: Wed, 8 Aug 2012 21:45:50 +0200
-Subject: [PATCH] HID: hid-multitouch: Remove misleading null test
-
-A null test was left behind during the autoloading work;
-the test was introduced by 8d179a9e, but was never completely
-reverted.
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/hid/hid-multitouch.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 59c8b5c..f027cc9 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -691,12 +691,10 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	struct mt_device *td;
- 	struct mt_class *mtclass = mt_classes; /* MT_CLS_DEFAULT */
- 
--	if (id) {
--		for (i = 0; mt_classes[i].name ; i++) {
--			if (id->driver_data == mt_classes[i].name) {
--				mtclass = &(mt_classes[i]);
--				break;
--			}
-+	for (i = 0; mt_classes[i].name ; i++) {
-+		if (id->driver_data == mt_classes[i].name) {
-+			mtclass = &(mt_classes[i]);
-+			break;
- 		}
- 	}
- 
 -- 
-1.7.11.4
+Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
+Don't top-post http://www.catb.org/jargon/html/T/top-post.html
+Plain text mails only, please.
 

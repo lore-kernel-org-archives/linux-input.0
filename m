@@ -1,98 +1,98 @@
-From: Hui Wang <jason77.wang@gmail.com>
-Subject: Re: [PATCH 1/2] Input: egalax_ts: get gpio from devicetree node
-Date: Wed, 8 Aug 2012 13:35:11 +0800
-Message-ID: <5021FA8F.5070308@gmail.com>
-References: <1344332372-9287-1-git-send-email-jason77.wang@gmail.com> <1344332372-9287-2-git-send-email-jason77.wang@gmail.com> <8CDC3AFB-52FC-40B1-8D83-FBB5C7AD76F7@freescale.com>
+From: Ferruh Yigit <fery@cypress.com>
+Subject: Re: [PATCH 1/4] Input: cyttsp4 - bus driver for Cypress TMA4XX touchscreen
+ devices
+Date: Wed, 8 Aug 2012 08:53:03 +0300
+Message-ID: <5021FEBF.7050803@cypress.com>
+References: <fery@cypress.com> <1344344978-30453-1-git-send-email-fery@cypress.com> <CABxcv=n-bTQ=91=f8jaCt7kgP+0WL6hbZyY40rHDxw8-VUjZvQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=gb2312
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:38084 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751415Ab2HHFft (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Aug 2012 01:35:49 -0400
-In-Reply-To: <8CDC3AFB-52FC-40B1-8D83-FBB5C7AD76F7@freescale.com>
+Received: from relay.ihostexchange.net ([66.46.182.51]:3694 "EHLO
+	relay.ihostexchange.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756250Ab2HHFxL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Aug 2012 01:53:11 -0400
+In-Reply-To: <CABxcv=n-bTQ=91=f8jaCt7kgP+0WL6hbZyY40rHDxw8-VUjZvQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Zhang Jiejing-B33651 <B33651@freescale.com>
-Cc: Hui Wang <jason77.wang@gmail.com>, "<dmitry.torokhov@gmail.com>" <dmitry.torokhov@gmail.com>, "<linux-input@vger.kernel.org>" <linux-input@vger.kernel.org>, "<devicetree-discuss@lists.ozlabs.org>" <devicetree-discuss@lists.ozlabs.org>
+To: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin McNeely <kev@cypress.com>, Henrik Rydberg <rydberg@euromail.se>, Shawn Landden <shawnlandden@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Olivier Sobrie <olivier@sobrie.be>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-OK, will add it in the V2.
+Hello Javier,
 
-Thanks,
-Hui.
+We needed a new modular driver mechanism so that we can handle the very
+flexible new generation of Cypress multi-touch devices (TMA4XX and TMA5XX).
 
-Zhang Jiejing-B33651 wrote:
-> Hi Hui,
->
-> You patch looks good to me, but can you add a check when it calling t=
-he egalax_wake_up_device() function in egalax_ts_probe() ? If some conf=
-igure gose wrong, the probe of driver will exit, rather than the suspen=
-d failure every time.
->
-> BR,
-> Jiejing
-> =D4=DA 2012-8-7=A3=AC=CF=C2=CE=E75:39=A3=ACHui Wang <jason77.wang@gma=
-il.com> =D0=B4=B5=C0=A3=BA
->
->  =20
->> The irq_to_gpio() is old, most platforms use GENERIC_GPIO framework =
-and
->> don't support this API anymore.
->>
->> The i.MX6q sabrelite platform equips an egalax touchscreen controlle=
-r,
->> and this platform already transfered to GENERIC_GPIO framework, to
->> support this driver, we use a more generic way to get gpio.
->>
->> Signed-off-by: Hui Wang <jason77.wang@gmail.com>
->> ---
->> drivers/input/touchscreen/egalax_ts.c |   12 ++++++++++--
->> 1 files changed, 10 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/t=
-ouchscreen/egalax_ts.c
->> index 70524dd..b94eb50 100644
->> --- a/drivers/input/touchscreen/egalax_ts.c
->> +++ b/drivers/input/touchscreen/egalax_ts.c
->> @@ -28,6 +28,7 @@
->> #include <linux/slab.h>
->> #include <linux/bitops.h>
->> #include <linux/input/mt.h>
->> +#include <linux/of_gpio.h>
->>
->> /*
->>  * Mouse Mode: some panel may configure the controller to mouse mode=
-,
->> @@ -122,8 +123,15 @@ static irqreturn_t egalax_ts_interrupt(int irq,=
- void *dev_id)
->> /* wake up controller by an falling edge of interrupt gpio.  */
->> static int egalax_wake_up_device(struct i2c_client *client)
->> {
->> -	int gpio =3D irq_to_gpio(client->irq);
->> -	int ret;
->> +	struct device_node *np =3D client->dev.of_node;
->> +	int gpio, ret;
->> +
->> +	if (!np)
->> +		return -ENODEV;
->> +
->> +	gpio =3D of_get_named_gpio(np, "irq-gpio", 0);
->> +	if (!gpio_is_valid(gpio))
->> +		return -ENODEV;
->>
->> 	ret =3D gpio_request(gpio, "egalax_irq");
->> 	if (ret < 0) {
->> --=20
->> 1.7.6
->>
->>
->>    =20
->
->  =20
+With this initial set of patches we are providing the primary function
+of multi-touch processing, according to protocol B, as the foundation
+for future enhancements and future generations of our parts.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+We plan to submit patches in the near future for additional modules such
+as handling of integrated button codes and firmware class loader
+capability.
+
+The Gen3 memory map is very different from the Gen4 and Gen5 products,
+however it is not difficult to upgrade the current Gen3 code into a new
+set of modules that can fit into this model.
+
+Adding a module patchset for Gen3 also will allow us to add Gen2 support
+in that module as well.
+
+Thanks and Best Regards,
+ferruh
+
+On 08/07/2012 11:05 PM, Javier Martinez Canillas wrote:
+> On Tue, Aug 7, 2012 at 3:09 PM, Ferruh Yigit <fery@cypress.com> wrote:
+>> From: Ferruh YIGIT <fery@cypress.com>
+>>
+>> This driver is for Cypress TrueTouch(tm) Standard Product controllers,
+>> Generation4 devices.
+>>
+>> Driver consist of four main modules:
+>>
+>> Bus driver: Linux bus driver implementation, binds other modules.
+>> Core driver: Core module that communicate with TTSP controller.
+>> MT driver: MultiTouch driver, converts touch information to host specific
+>> touch events
+>> Adapter driver: Communication adapter between host and controller, like
+>> I2C or SPI.
+>>
+>> This is Cyttsp4 TTSP Bus Driver,
+>> Provides binding between Adapter, Core, and TTSP Modules.
+>>
+>> A complete set of corresponding Adapter, Core, and TTSP module
+>> devices and drivers must be registered with the TTSP Bus handler
+>>
+> Hi Ferruh,
+>
+> There is already a driver in the kernel that supports Cypress
+> TrueTouch(TM) Standard Product (TTSP) controllers Generation3 (Cypress
+> Txx3xx parts).
+>
+> The driver has a similar architecture that yours and it has a generic
+> driver to control the device and a driver for each communication bus
+> used to communicate with the controller. Drivers for SPI and I2C data
+> buses are already implemented.
+>
+> The drivers are:
+>
+> drivers/input/touchscreen/cyttsp_core.c
+> drivers/input/touchscreen/cyttsp_i2c.c
+> drivers/input/touchscreen/cyttsp_spi.c
+>
+> This driver was original developed by Kevin for Android and used
+> multi-touch protocol type A. Since the hardware is able to track
+> contacts by hardware I added protocol type B support and cleaned the
+> driver to be merged on mainline.
+>
+> I wonder how big is the delta between cyttsp Gen3 and cyttsp Gen4 and
+> if both drivers could be merged or at least refactored to reuse some
+> common code. I don't have the specification for any of the device
+> families but by looking at your code it seems that this may be
+> possible.
+>
+> Thanks a lot and best regards,
+> Javier
+
+
+This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.

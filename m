@@ -1,86 +1,54 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Subject: Re: [PATCH 04/11] MFD: twl4030-audio: Add DT support
-Date: Wed, 8 Aug 2012 14:52:53 +0100
-Message-ID: <20120808135253.GC16861@opensource.wolfsonmicro.com>
+Date: Wed, 08 Aug 2012 17:16:58 +0300
+Message-ID: <502274DA.9020204@ti.com>
 References: <1344418887-5262-1-git-send-email-peter.ujfalusi@ti.com>
  <1344418887-5262-5-git-send-email-peter.ujfalusi@ti.com>
  <20120808131356.GS16861@opensource.wolfsonmicro.com>
  <50226CF4.1010202@ti.com>
+ <20120808135253.GC16861@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:52783 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1030268Ab2HHNwz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 8 Aug 2012 09:52:55 -0400
-Content-Disposition: inline
-In-Reply-To: <50226CF4.1010202@ti.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20120808135253.GC16861@opensource.wolfsonmicro.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: alsa-devel@alsa-project.org, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dtor@mail.ru>, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Liam Girdwood <lrg@ti.com>, linux-arm-kernel@lists.infradead.org, Benoit Cousson <b-cousson@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dtor@mail.ru>, alsa-devel@alsa-project.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, Benoit Cousson <b-cousson@ti.com>
 
-On Wed, Aug 08, 2012 at 04:43:16PM +0300, Peter Ujfalusi wrote:
-> On 08/08/2012 04:13 PM, Mark Brown wrote:
+On 08/08/2012 04:52 PM, Mark Brown wrote:
+>> The hs_extmute is used for reducing pop noise on the headset. The sequen=
+ce is
+>> described in the TRM and it need to be done within the codec driver sinc=
+e it
+>> is within the sequence.
+> =
 
-> > This doesn't seem like something that should be in the CODEC driver
-> > really, there's a general need for something which can unmute contr=
-ols
-> > at the end of the power up sequence and mute before power down.  Al=
-so,
-> > if this is going to be part of the binding shouldn't we just omit t=
-he
-> > first property and simply check for the presence of the property wh=
-ich
-> > specifies the GPIO?
+> Is the point it's at in the sequence the end?
 
-> The hs_extmute is used for reducing pop noise on the headset. The seq=
-uence is
-> described in the TRM and it need to be done within the codec driver s=
-ince it
-> is within the sequence.
+On both ends :o
+On HS enable: the extmute has to be enabled, run the power on sequence for =
+the
+HS, wait for ramp, disable the HS extmute.
 
-Is the point it's at in the sequence the end?
+On stop: enable the extmute, run the sequence, wait for ramp, release the e=
+xtmute.
 
-> >> +#ifdef CONFIG_OF
-> >> +	if (of_find_node_by_name(node, "codec"))
-> >> +		return true;
-> >> +#endif
+> We can always add a patch stubbing it out as part of the series, or in a
+> branch in the OF tree that we can pull in.
 
-> > This really seems like we should be stubbing out of_find_node_by_na=
-me()
-> > to return false in non-OF cases.
+If you are OK with the hassle I can add a patch to the series for
+include/linux/of.h to handle this.
 
-> Yes, most likely the of_find_node_by_name() deserves the same treatme=
-nt as
-> some selected of_* function in case CONFIG_OF is not selected.
-> But at the moment this is not the case, we need to protect with ifdef=
- since we
-> might break other randconfigs where CONFIG_OF is not set.
+-- =
 
-We can always add a patch stubbing it out as part of the series, or in =
-a
-branch in the OF tree that we can pull in.
-
->=20
-> >> +#ifdef CONFIG_OF
-> >> +	if (!of_property_read_u32(node, "ti,enable-vibra", &vibra) && vi=
-bra)
-> >> +		return true;
-> >> +#endif
-> >=20
-> > Similarly here.
->=20
-> Here the ifdef is no needed. of_property_read_u32() return -ENOSYS in=
- case
-> CONFIG_OF is not selected.
->=20
-> --=20
-> P=E9ter
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+P=E9ter

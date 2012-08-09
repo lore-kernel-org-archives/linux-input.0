@@ -1,88 +1,69 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: [PATCH 04/11] MFD: twl4030-audio: Add DT support
-Date: Thu, 09 Aug 2012 13:18:50 +0300
-Message-ID: <50238E8A.5030902@ti.com>
-References: <1344418887-5262-1-git-send-email-peter.ujfalusi@ti.com> <1344418887-5262-5-git-send-email-peter.ujfalusi@ti.com> <20120808131356.GS16861@opensource.wolfsonmicro.com> <50226CF4.1010202@ti.com> <20120808135253.GC16861@opensource.wolfsonmicro.com> <502274DA.9020204@ti.com> <20120808141849.GA24328@opensource.wolfsonmicro.com> <50227837.10400@ti.com> <20120808144933.GC24328@opensource.wolfsonmicro.com>
+Date: Thu, 9 Aug 2012 11:36:00 +0100
+Message-ID: <20120809103600.GI24328@opensource.wolfsonmicro.com>
+References: <1344418887-5262-1-git-send-email-peter.ujfalusi@ti.com>
+ <1344418887-5262-5-git-send-email-peter.ujfalusi@ti.com>
+ <20120808131356.GS16861@opensource.wolfsonmicro.com>
+ <50226CF4.1010202@ti.com>
+ <20120808135253.GC16861@opensource.wolfsonmicro.com>
+ <502274DA.9020204@ti.com>
+ <20120808141849.GA24328@opensource.wolfsonmicro.com>
+ <50227837.10400@ti.com>
+ <20120808144933.GC24328@opensource.wolfsonmicro.com>
+ <50238E8A.5030902@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog128.obsmtp.com ([74.125.149.141]:58303 "EHLO
-	na3sys009aog128.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755668Ab2HIKSu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 9 Aug 2012 06:18:50 -0400
-Received: by obbtb18 with SMTP id tb18so577911obb.21
-        for <linux-input@vger.kernel.org>; Thu, 09 Aug 2012 03:18:49 -0700 (PDT)
-In-Reply-To: <20120808144933.GC24328@opensource.wolfsonmicro.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Disposition: inline
+In-Reply-To: <50238E8A.5030902@ti.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: alsa-devel@alsa-project.org, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dtor@mail.ru>, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Liam Girdwood <lrg@ti.com>, linux-arm-kernel@lists.infradead.org, Benoit Cousson <b-cousson@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dtor@mail.ru>, alsa-devel@alsa-project.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, Benoit Cousson <b-cousson@ti.com>
 
-On 08/08/2012 05:49 PM, Mark Brown wrote:
-> That makes sense if the GPIO is actively driven, open drain should be
-> better here, but it's still a generic thing which it'd be nice to
-> extract.
+On Thu, Aug 09, 2012 at 01:18:50PM +0300, Peter Ujfalusi wrote:
+> On 08/08/2012 05:49 PM, Mark Brown wrote:
 
-Yes, the idea in it's core is generic, but right now I can not think of=
- a
-generic implementation which would work.
-In case of twl4030 this is how it looks like:
+> > That makes sense if the GPIO is actively driven, open drain should be
+> > better here, but it's still a generic thing which it'd be nice to
+> > extract.
 
-1. if extmute is requested
- 1.1. if GPIO number is not valid
-   Use the internal MUTE functionality (HS_POPN_SET register, EXTMUTE b=
-it)
- 1.2. if GPIO number is valid
-   set the GPIO to 1
-2. Execute the sequence for the power up/down
-3. if extmute is requested
- 3.1. if GPIO number is not valid
-   Use the internal MUTE functionality (HS_POPN_SET register, EXTMUTE b=
-it)
- 3.2. if GPIO number is valid
-   set the GPIO to 0
+> To cover all of this in a generic way is not that straight forward IMHO.
 
-=46or other devices it could be simpler:
-1. Set GPIO for mute
-2. Toggle a bit in the codec
-3. Clear the GPIO to unmute
+The sequence is just:
 
-another device would need a sequence in step 2 instead of a single bit =
-change.
+  1. Enable mutes (at _PRE time)
+  2. Do whatever the device needs
+  3. Disable the mutes (at _POST time)
 
-To cover all of this in a generic way is not that straight forward IMHO=
-=2E
+I'm not sure there's any reason for you not to use the internal mute
+even if the external mute is present but if there is that's the only
+thing that's weird here.  If there's no reason not to do it it just goes
+into step 2 and then it's fine, even if there is you can make it
+conditional in step 2.
 
-> Still, the main thing here was the fact that we should be able to dro=
-p
-> the flag for the feature in the first place.
+> Sure I could do this:
+> hs_extmute: if only this is set we shall use the chip built in functionality
+> hs_extmute_gpio: if this is set we use the extmute feature but with external
+>                  GPIO.
 
-Which flag you are referring?
-I can (and have dropped) the hs_extmute_disable_level flag, but separat=
-e
-hs_extmute, hs_extmute_gpio is needed for this device.
+> But both need to be documented and supported.
 
-hs_extmute tells that the board implemented some sort of HS extmute fun=
-ctionality.
-hs_extmute_gpio tells if the board is _not_ using the built in function=
-ality,
-but it is using external GPIO line to enable/disable the mute.
-
-Sure I could do this:
-hs_extmute: if only this is set we shall use the chip built in function=
-ality
-hs_extmute_gpio: if this is set we use the extmute feature but with ext=
-ernal
-                 GPIO.
-
-But both need to be documented and supported.
-
---=20
-P=E9ter
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Is there any actual case where an external mute is supplied via a
+mechanism other than a GPIO, and if there is would it not either need
+its own DT property or already need to interact with the driver from
+code, making the DT property redundant?  My thinking here is that the
+flag should be redundant because we already need to specify how we do
+the mute, what I'd expect is that we activate the external mute
+functionality as a result of being given another way of doing it so we
+don't need to provide a flag.

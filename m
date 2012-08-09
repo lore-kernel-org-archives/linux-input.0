@@ -1,102 +1,150 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH 04/11] MFD: twl4030-audio: Add DT support
-Date: Thu, 09 Aug 2012 16:53:26 +0300
-Message-ID: <5023C0D6.8040600@ti.com>
-References: <1344418887-5262-1-git-send-email-peter.ujfalusi@ti.com>
- <1344418887-5262-5-git-send-email-peter.ujfalusi@ti.com>
- <20120808131356.GS16861@opensource.wolfsonmicro.com>
- <50226CF4.1010202@ti.com>
- <20120808135253.GC16861@opensource.wolfsonmicro.com>
- <502274DA.9020204@ti.com>
- <20120808141849.GA24328@opensource.wolfsonmicro.com> <50227837.10400@ti.com>
- <20120808144933.GC24328@opensource.wolfsonmicro.com>
- <50238E8A.5030902@ti.com>
- <20120809103600.GI24328@opensource.wolfsonmicro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20120809103600.GI24328@opensource.wolfsonmicro.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: alsa-devel@alsa-project.org, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dtor@mail.ru>, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Liam Girdwood <lrg@ti.com>, linux-arm-kernel@lists.infradead.org, Benoit Cousson <b-cousson@ti.com>
+From: =?big5?B?vEK5xcJA?= <scott.liu@emc.com.tw>
+Subject: Re: [patch v2 1/1] HID:hid-multitouch: Add ELAN prouction request when resume
+Date: Thu, 9 Aug 2012 22:20:28 +0800
+Message-ID: <FCF2C2C2-FE22-4B9C-9784-ACAF9CF79897@emc.com.tw>
+References: <1344504164-2337-1-git-send-email-scott.liu@emc.com.tw> <CAN+gG=EP3doQMKmPMC9WVsBuQL+W88ri5qfk0-nb_FdvpKikeQ@mail.gmail.com>
+Mime-Version: 1.0 (Mac OS X Mail 6.0 \(1485\))
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from msr2.hinet.net ([168.95.4.102]:60321 "EHLO msr2.hinet.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030188Ab2HIOUn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Aug 2012 10:20:43 -0400
+In-Reply-To: <CAN+gG=EP3doQMKmPMC9WVsBuQL+W88ri5qfk0-nb_FdvpKikeQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, eleghost@gmail.com, =?big5?B?REdEILxCucXCQA==?= <scott.liu@emc.com.tw>
 
-On 08/09/2012 01:36 PM, Mark Brown wrote:
-> On Thu, Aug 09, 2012 at 01:18:50PM +0300, Peter Ujfalusi wrote:
->> On 08/08/2012 05:49 PM, Mark Brown wrote:
-> =
 
->>> That makes sense if the GPIO is actively driven, open drain should be
->>> better here, but it's still a generic thing which it'd be nice to
->>> extract.
-> =
+Hi Benjamin:
+	Revision will be update later.=20
 
->> To cover all of this in a generic way is not that straight forward IMHO.
-> =
 
-> The sequence is just:
-> =
 
->   1. Enable mutes (at _PRE time)
->   2. Do whatever the device needs
->   3. Disable the mutes (at _POST time)
-> =
+Benjamin Tissoires <benjamin.tissoires@gmail.com> =A9=F3 2012/8/9 =A4U=A4=
+=C87:27 =BCg=B9D=A1G
 
-> I'm not sure there's any reason for you not to use the internal mute
-> even if the external mute is present but if there is that's the only
-> thing that's weird here.  If there's no reason not to do it it just goes
-> into step 2 and then it's fine, even if there is you can make it
-> conditional in step 2.
+> Hi Scott,
+>=20
+> we are getting closer. Just a few nitpicks:
+>=20
+> On Thu, Aug 9, 2012 at 11:22 AM, Scott Liu <scott.liu@emc.com.tw> wro=
+te:
+>> Some of ELAN's production need to with set_idle commmand when reusme=
+=2E
+>=20
+> reusme -> resume
+>=20
+>>=20
+>> Signed-off-by: Scott Liu <scott.liu@emc.com.tw>
+>> ---
+>> drivers/hid/hid-ids.h        |    3 +++
+>> drivers/hid/hid-multitouch.c |   20 ++++++++++++++++++++
+>> 2 files changed, 23 insertions(+)
+>>=20
+>> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+>> index 41c34f2..a4d810c 100644
+>> --- a/drivers/hid/hid-ids.h
+>> +++ b/drivers/hid/hid-ids.h
+>> @@ -829,4 +829,7 @@
+>> #define USB_VENDOR_ID_PRIMAX   0x0461
+>> #define USB_DEVICE_ID_PRIMAX_KEYBOARD  0x4e05
+>>=20
+>> +#define USB_VENDOR_ID_ELAN  0x04f3
+>> +#define USB_DEVICE_ID_ELAN_MOCCA    0x000a
+>> +
+>=20
+> We try to keep the list alphabetically sorted. So it should go just
+> before USB_VENDOR_ID_ELECOM.
+>=20
+> Also, the device you sent to me has the PID 0x0732 and is behaving th=
+e
+> same way (need to call the mt_reset command).
+> Is 0x000a a mistake or do all of your product behave like this?
+> If it's the latter, then we may purely remove the PID test.
+>=20
+> Jiri, any ideas?
 
-Not sure, but it should not cause issues. The PIN is multiplexed between
-GPIO6/PWM0/MUTE functionality.
-For that matter probably I could just don't care about flags here and
-configure the extmute (the internal one) all the time. Not sure, it has bee=
-n a
-long time I have dealt with the twl4030...
 
->> Sure I could do this:
->> hs_extmute: if only this is set we shall use the chip built in functiona=
-lity
->> hs_extmute_gpio: if this is set we use the extmute feature but with exte=
-rnal
->>                  GPIO.
-> =
+No, not all ELAN production needs set_idle command after resume, only f=
+or previous chipset.=20
 
->> But both need to be documented and supported.
-> =
 
-> Is there any actual case where an external mute is supplied via a
-> mechanism other than a GPIO, and if there is would it not either need
-> its own DT property or already need to interact with the driver from
-> code, making the DT property redundant?
+Thanks.
+Scott
 
-Not with my knowledge. The only board using it is the zoom2 upstream. I know
-other boards (not in upstream) which either uses the internal mute or GPIO.
+>=20
+>> #endif
+>> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitou=
+ch.c
+>> index 59c8b5c..b06b7d3 100644
+>> --- a/drivers/hid/hid-multitouch.c
+>> +++ b/drivers/hid/hid-multitouch.c
+>> @@ -767,6 +767,25 @@ static int mt_reset_resume(struct hid_device *h=
+dev)
+>>        mt_set_input_mode(hdev);
+>>        return 0;
+>> }
+>> +
+>> +static int mt_resume(struct hid_device *hdev)
+>> +{
+>> +       if (hdev->vendor =3D=3D USB_VENDOR_ID_ELAN &&
+>> +               hdev->product =3D=3D USB_DEVICE_ID_ELAN_MOCCA) {
+>> +
+>> +               struct usb_interface *intf =3D to_usb_interface(hdev=
+->dev.parent);
+>> +               struct usb_host_interface *interface =3D intf->cur_a=
+ltsetting;
+>> +               struct usb_device *dev =3D hid_to_usb_dev(hdev);
+>> +
+>> +               usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+>> +                                               HID_REQ_SET_IDLE, US=
+B_TYPE_CLASS | USB_RECIP_INTERFACE,
+>=20
+> As we are on it, this line is more than 80 characters. Tabs are 8
+> characters length.
+>=20
+>> +                                               0, interface->desc.b=
+InterfaceNumber,
+>> +                                               NULL, 0, USB_CTRL_SE=
+T_TIMEOUT);
+>> +    }
+>=20
+> spaces instead of tabs.
+>=20
+>> +
+>> +    return 0;
+>=20
+> idem, spaces instead of tabs.
+>=20
+> Anyway, I really appreciate your efforts Scott.
+>=20
+> Cheers,
+> Benjamin
+>=20
+>=20
+>> +}
+>> +
+>> #endif
+>>=20
+>> static void mt_remove(struct hid_device *hdev)
+>> @@ -1092,6 +1111,7 @@ static struct hid_driver mt_driver =3D {
+>>        .event =3D mt_event,
+>> #ifdef CONFIG_PM
+>>        .reset_resume =3D mt_reset_resume,
+>> +       .resume =3D mt_resume,
+>> #endif
+>> };
+>>=20
+>> --
+>> 1.7.9.5
+>>=20
+> i
 
-> My thinking here is that the
-> flag should be redundant because we already need to specify how we do
-> the mute, what I'd expect is that we activate the external mute
-> functionality as a result of being given another way of doing it so we
-> don't need to provide a flag.
-
-I perfectly understand your point. However how would you imagine this in th=
-e core?
-We should have something similar to DAPM_SUPPLY which we can attach to the
-widget which needs this sort of mute, but how big change we would need in t=
-he
-core to do this I'm not sure.
-I can take a look at this, but I would do it as a follow up series.
-
--- =
-
-P=E9ter
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

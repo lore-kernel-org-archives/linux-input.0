@@ -1,75 +1,88 @@
-From: Scott Liu <scott.liu@emc.com.tw>
-Subject: [patch v2 1/1] HID:hid-multitouch: Add ELAN prouction request when resume
-Date: Thu,  9 Aug 2012 17:22:44 +0800
-Message-ID: <1344504164-2337-1-git-send-email-scott.liu@emc.com.tw>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH 04/11] MFD: twl4030-audio: Add DT support
+Date: Thu, 09 Aug 2012 13:18:50 +0300
+Message-ID: <50238E8A.5030902@ti.com>
+References: <1344418887-5262-1-git-send-email-peter.ujfalusi@ti.com> <1344418887-5262-5-git-send-email-peter.ujfalusi@ti.com> <20120808131356.GS16861@opensource.wolfsonmicro.com> <50226CF4.1010202@ti.com> <20120808135253.GC16861@opensource.wolfsonmicro.com> <502274DA.9020204@ti.com> <20120808141849.GA24328@opensource.wolfsonmicro.com> <50227837.10400@ti.com> <20120808144933.GC24328@opensource.wolfsonmicro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:44161 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752421Ab2HIJVl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Aug 2012 05:21:41 -0400
+Received: from na3sys009aog128.obsmtp.com ([74.125.149.141]:58303 "EHLO
+	na3sys009aog128.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755668Ab2HIKSu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Aug 2012 06:18:50 -0400
+Received: by obbtb18 with SMTP id tb18so577911obb.21
+        for <linux-input@vger.kernel.org>; Thu, 09 Aug 2012 03:18:49 -0700 (PDT)
+In-Reply-To: <20120808144933.GC24328@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, eleghost@gmail.com
-Cc: Scott Liu <scott.liu@emc.com.tw>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dtor@mail.ru>, alsa-devel@alsa-project.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, Benoit Cousson <b-cousson@ti.com>
 
-Some of ELAN's production need to with set_idle commmand when reusme.
+On 08/08/2012 05:49 PM, Mark Brown wrote:
+> That makes sense if the GPIO is actively driven, open drain should be
+> better here, but it's still a generic thing which it'd be nice to
+> extract.
 
-Signed-off-by: Scott Liu <scott.liu@emc.com.tw>
----
- drivers/hid/hid-ids.h        |    3 +++
- drivers/hid/hid-multitouch.c |   20 ++++++++++++++++++++
- 2 files changed, 23 insertions(+)
+Yes, the idea in it's core is generic, but right now I can not think of=
+ a
+generic implementation which would work.
+In case of twl4030 this is how it looks like:
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 41c34f2..a4d810c 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -829,4 +829,7 @@
- #define USB_VENDOR_ID_PRIMAX	0x0461
- #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
- 
-+#define USB_VENDOR_ID_ELAN  0x04f3
-+#define USB_DEVICE_ID_ELAN_MOCCA    0x000a
-+
- #endif
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 59c8b5c..b06b7d3 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -767,6 +767,25 @@ static int mt_reset_resume(struct hid_device *hdev)
- 	mt_set_input_mode(hdev);
- 	return 0;
- }
-+
-+static int mt_resume(struct hid_device *hdev)
-+{
-+	if (hdev->vendor == USB_VENDOR_ID_ELAN &&
-+		hdev->product == USB_DEVICE_ID_ELAN_MOCCA) {
-+
-+		struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+		struct usb_host_interface *interface = intf->cur_altsetting;
-+		struct usb_device *dev = hid_to_usb_dev(hdev);
-+
-+		usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
-+						HID_REQ_SET_IDLE, USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-+						0, interface->desc.bInterfaceNumber,
-+						NULL, 0, USB_CTRL_SET_TIMEOUT);
-+    }
-+
-+    return 0;
-+}
-+
- #endif
- 
- static void mt_remove(struct hid_device *hdev)
-@@ -1092,6 +1111,7 @@ static struct hid_driver mt_driver = {
- 	.event = mt_event,
- #ifdef CONFIG_PM
- 	.reset_resume = mt_reset_resume,
-+	.resume = mt_resume,
- #endif
- };
- 
--- 
-1.7.9.5
+1. if extmute is requested
+ 1.1. if GPIO number is not valid
+   Use the internal MUTE functionality (HS_POPN_SET register, EXTMUTE b=
+it)
+ 1.2. if GPIO number is valid
+   set the GPIO to 1
+2. Execute the sequence for the power up/down
+3. if extmute is requested
+ 3.1. if GPIO number is not valid
+   Use the internal MUTE functionality (HS_POPN_SET register, EXTMUTE b=
+it)
+ 3.2. if GPIO number is valid
+   set the GPIO to 0
 
+=46or other devices it could be simpler:
+1. Set GPIO for mute
+2. Toggle a bit in the codec
+3. Clear the GPIO to unmute
+
+another device would need a sequence in step 2 instead of a single bit =
+change.
+
+To cover all of this in a generic way is not that straight forward IMHO=
+=2E
+
+> Still, the main thing here was the fact that we should be able to dro=
+p
+> the flag for the feature in the first place.
+
+Which flag you are referring?
+I can (and have dropped) the hs_extmute_disable_level flag, but separat=
+e
+hs_extmute, hs_extmute_gpio is needed for this device.
+
+hs_extmute tells that the board implemented some sort of HS extmute fun=
+ctionality.
+hs_extmute_gpio tells if the board is _not_ using the built in function=
+ality,
+but it is using external GPIO line to enable/disable the mute.
+
+Sure I could do this:
+hs_extmute: if only this is set we shall use the chip built in function=
+ality
+hs_extmute_gpio: if this is set we use the extmute feature but with ext=
+ernal
+                 GPIO.
+
+But both need to be documented and supported.
+
+--=20
+P=E9ter
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

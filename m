@@ -1,69 +1,47 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 04/11] MFD: twl4030-audio: Add DT support
-Date: Thu, 9 Aug 2012 11:36:00 +0100
-Message-ID: <20120809103600.GI24328@opensource.wolfsonmicro.com>
-References: <1344418887-5262-1-git-send-email-peter.ujfalusi@ti.com>
- <1344418887-5262-5-git-send-email-peter.ujfalusi@ti.com>
- <20120808131356.GS16861@opensource.wolfsonmicro.com>
- <50226CF4.1010202@ti.com>
- <20120808135253.GC16861@opensource.wolfsonmicro.com>
- <502274DA.9020204@ti.com>
- <20120808141849.GA24328@opensource.wolfsonmicro.com>
- <50227837.10400@ti.com>
- <20120808144933.GC24328@opensource.wolfsonmicro.com>
- <50238E8A.5030902@ti.com>
+From: Shubhrajyoti D <shubhrajyoti@ti.com>
+Subject: [PATCH] Input: omap4-keypad: Fix the pm_runtime_get_sync return check
+Date: Thu, 9 Aug 2012 16:41:30 +0530
+Message-ID: <1344510690-13030-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-Content-Disposition: inline
-In-Reply-To: <50238E8A.5030902@ti.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: alsa-devel@alsa-project.org, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dtor@mail.ru>, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Liam Girdwood <lrg@ti.com>, linux-arm-kernel@lists.infradead.org, Benoit Cousson <b-cousson@ti.com>
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bear.ext.ti.com ([192.94.94.41]:60693 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757922Ab2HILLg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Aug 2012 07:11:36 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Shubhrajyoti D <shubhrajyoti@ti.com>
 
-On Thu, Aug 09, 2012 at 01:18:50PM +0300, Peter Ujfalusi wrote:
-> On 08/08/2012 05:49 PM, Mark Brown wrote:
+A non-zero on pm_runtime_get_sync shouldnt be considered as an error
+it only means that there was another user. Fix the error check to check
+for negative values only.
 
-> > That makes sense if the GPIO is actively driven, open drain should be
-> > better here, but it's still a generic thing which it'd be nice to
-> > extract.
+This should fix issues like below
+[  917.049713] omap4-keypad omap4-keypad: pm_runtime_get_sync() failed
+[  917.056457] omap4-keypad: probe of omap4-keypad failed with error 1
 
-> To cover all of this in a generic way is not that straight forward IMHO.
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+---
+ drivers/input/keyboard/omap4-keypad.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-The sequence is just:
+diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+index 17efede..34cddaf 100644
+--- a/drivers/input/keyboard/omap4-keypad.c
++++ b/drivers/input/keyboard/omap4-keypad.c
+@@ -305,8 +305,8 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
+ 	 */
+ 	pm_runtime_enable(&pdev->dev);
+ 	error = pm_runtime_get_sync(&pdev->dev);
+-	if (error) {
+-		dev_err(&pdev->dev, "pm_runtime_get_sync() failed\n");
++	if (IS_ERR_VALUE(error)) {
++		dev_err(&pdev->dev, "pm_runtime_get_sync() failed %d\n", error);
+ 		goto err_unmap;
+ 	}
+ 	rev = __raw_readl(keypad_data->base + OMAP4_KBD_REVISION);
+-- 
+1.7.5.4
 
-  1. Enable mutes (at _PRE time)
-  2. Do whatever the device needs
-  3. Disable the mutes (at _POST time)
-
-I'm not sure there's any reason for you not to use the internal mute
-even if the external mute is present but if there is that's the only
-thing that's weird here.  If there's no reason not to do it it just goes
-into step 2 and then it's fine, even if there is you can make it
-conditional in step 2.
-
-> Sure I could do this:
-> hs_extmute: if only this is set we shall use the chip built in functionality
-> hs_extmute_gpio: if this is set we use the extmute feature but with external
->                  GPIO.
-
-> But both need to be documented and supported.
-
-Is there any actual case where an external mute is supplied via a
-mechanism other than a GPIO, and if there is would it not either need
-its own DT property or already need to interact with the driver from
-code, making the DT property redundant?  My thinking here is that the
-flag should be redundant because we already need to specify how we do
-the mute, what I'd expect is that we activate the external mute
-functionality as a result of being given another way of doing it so we
-don't need to provide a flag.

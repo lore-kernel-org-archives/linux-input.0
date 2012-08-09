@@ -1,50 +1,49 @@
-From: Jesper Juhl <jj@chaosbits.net>
-Subject: Re: [PATCH] Input: omap4-keypad - don't leak in
- omap4_keypad_probe()
-Date: Wed, 8 Aug 2012 21:57:10 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1208082156100.10061@swampdragon.chaosbits.net>
-References: <alpine.LNX.2.00.1208072014140.3227@swampdragon.chaosbits.net> <CAK9yfHxS=VvZ8Cuhd4LAUG+JnOK0g6=xCEoX45mtuVwj-+8D_g@mail.gmail.com> <alpine.LNX.2.00.1208082135410.10061@swampdragon.chaosbits.net> <1545778.bUhk8oTdlK@dtor-d630.eng.vmware.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Thierry Reding <thierry.reding@avionic-design.de>
+Subject: [PATCH] HID: multitouch: Add support for eGalax 0x73f7
+Date: Thu,  9 Aug 2012 08:34:48 +0200
+Message-ID: <1344494088-3438-1-git-send-email-thierry.reding@avionic-design.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1010ds2-suoe.0.fullrate.dk ([90.184.90.115]:15105 "EHLO
-	swampdragon.chaosbits.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753315Ab2HHT5M (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Aug 2012 15:57:12 -0400
-In-Reply-To: <1545778.bUhk8oTdlK@dtor-d630.eng.vmware.com>
+Received: from moutng.kundenserver.de ([212.227.17.10]:62452 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750986Ab2HIGex (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Aug 2012 02:34:53 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Sachin Kamat <sachin.kamat@linaro.org>, Sourav Poddar <sourav.poddar@ti.com>, Felipe Balbi <balbi@ti.com>, JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Syed Rafiuddin <rafiuddin.syed@ti.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 8 Aug 2012, Dmitry Torokhov wrote:
+Signed-off-by: Thierry Reding <thierry.reding@avionic-design.de>
+---
+ drivers/hid/hid-ids.h        | 1 +
+ drivers/hid/hid-multitouch.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
-> On Wednesday, August 08, 2012 09:36:51 PM Jesper Juhl wrote:
-> > On Wed, 8 Aug 2012, Sachin Kamat wrote:
-> > > On 7 August 2012 23:46, Jesper Juhl <jj@chaosbits.net> wrote:
-> > > > If omap4_keypad_parse_dt() does not return 0 (zero) in
-> > > > omap4_keypad_probe() we will leak the memory we allocated for
-> > > > 'keypad_data' with kzalloc() when we return and the variable goes out
-> > > > of scope.
-> > > 
-> > > How about using devm_kzalloc() instead which will take care of freeing
-> > > the memory on detach?
-> > 
-> > Perhaps. I'm not (yet) familiar with how that function works, so I had
-> > not considered it. I'll look into it.
-> 
-> Actually please not yet - I guess at some point I'll have to add devm_*
-> variants for input_device_* operations but for now I prefer not to mix
-> the 2 styles of managing resources.
-> 
-> BTW, I think I need to redo a few patches so I plan on folding this fix
-> into the original change.
-> 
-Ok. I'll just leave this alone for now then and let you do whatever you 
-feel is best :-) .
-
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 5a91bf6..9614a65 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -270,6 +270,7 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_72FA	0x72fa
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7302	0x7302
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
++#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7	0x73f7
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
+ 
+ #define USB_VENDOR_ID_ELECOM		0x056e
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 59c8b5c..115dca2 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -885,6 +885,9 @@ static const struct hid_device_id mt_devices[] = {
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349) },
+ 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7) },
++	{ .driver_data = MT_CLS_EGALAX_SERIAL,
++		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
+ 
+ 	/* Elo TouchSystems IntelliTouch Plus panel */
 -- 
-Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
-Don't top-post http://www.catb.org/jargon/html/T/top-post.html
-Plain text mails only, please.
+1.7.11.4
 

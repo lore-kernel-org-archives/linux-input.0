@@ -1,49 +1,75 @@
-From: Thierry Reding <thierry.reding@avionic-design.de>
-Subject: [PATCH] HID: multitouch: Add support for eGalax 0x73f7
-Date: Thu,  9 Aug 2012 08:34:48 +0200
-Message-ID: <1344494088-3438-1-git-send-email-thierry.reding@avionic-design.de>
+From: Scott Liu <scott.liu@emc.com.tw>
+Subject: [patch v2 1/1] HID:hid-multitouch: Add ELAN prouction request when resume
+Date: Thu,  9 Aug 2012 17:22:44 +0800
+Message-ID: <1344504164-2337-1-git-send-email-scott.liu@emc.com.tw>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.10]:62452 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750986Ab2HIGex (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Aug 2012 02:34:53 -0400
+Received: from emcscan.emc.com.tw ([192.72.220.5]:44161 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752421Ab2HIJVl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Aug 2012 05:21:41 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, eleghost@gmail.com
+Cc: Scott Liu <scott.liu@emc.com.tw>
 
-Signed-off-by: Thierry Reding <thierry.reding@avionic-design.de>
+Some of ELAN's production need to with set_idle commmand when reusme.
+
+Signed-off-by: Scott Liu <scott.liu@emc.com.tw>
 ---
- drivers/hid/hid-ids.h        | 1 +
- drivers/hid/hid-multitouch.c | 3 +++
- 2 files changed, 4 insertions(+)
+ drivers/hid/hid-ids.h        |    3 +++
+ drivers/hid/hid-multitouch.c |   20 ++++++++++++++++++++
+ 2 files changed, 23 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 5a91bf6..9614a65 100644
+index 41c34f2..a4d810c 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -270,6 +270,7 @@
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_72FA	0x72fa
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7302	0x7302
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
-+#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7	0x73f7
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
+@@ -829,4 +829,7 @@
+ #define USB_VENDOR_ID_PRIMAX	0x0461
+ #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
  
- #define USB_VENDOR_ID_ELECOM		0x056e
++#define USB_VENDOR_ID_ELAN  0x04f3
++#define USB_DEVICE_ID_ELAN_MOCCA    0x000a
++
+ #endif
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 59c8b5c..115dca2 100644
+index 59c8b5c..b06b7d3 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -885,6 +885,9 @@ static const struct hid_device_id mt_devices[] = {
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349) },
- 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
- 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7) },
-+	{ .driver_data = MT_CLS_EGALAX_SERIAL,
-+		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
+@@ -767,6 +767,25 @@ static int mt_reset_resume(struct hid_device *hdev)
+ 	mt_set_input_mode(hdev);
+ 	return 0;
+ }
++
++static int mt_resume(struct hid_device *hdev)
++{
++	if (hdev->vendor == USB_VENDOR_ID_ELAN &&
++		hdev->product == USB_DEVICE_ID_ELAN_MOCCA) {
++
++		struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
++		struct usb_host_interface *interface = intf->cur_altsetting;
++		struct usb_device *dev = hid_to_usb_dev(hdev);
++
++		usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
++						HID_REQ_SET_IDLE, USB_TYPE_CLASS | USB_RECIP_INTERFACE,
++						0, interface->desc.bInterfaceNumber,
++						NULL, 0, USB_CTRL_SET_TIMEOUT);
++    }
++
++    return 0;
++}
++
+ #endif
  
- 	/* Elo TouchSystems IntelliTouch Plus panel */
+ static void mt_remove(struct hid_device *hdev)
+@@ -1092,6 +1111,7 @@ static struct hid_driver mt_driver = {
+ 	.event = mt_event,
+ #ifdef CONFIG_PM
+ 	.reset_resume = mt_reset_resume,
++	.resume = mt_resume,
+ #endif
+ };
+ 
 -- 
-1.7.11.4
+1.7.9.5
 

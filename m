@@ -1,52 +1,44 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: re: Input: eeti_ts: pass gpio value instead of IRQ
-Date: Fri, 10 Aug 2012 15:25:25 +0300
-Message-ID: <20120810122525.GA22941@elgon.mountain>
+From: =?UTF-8?B?RMOibmllbA==?= Fraga <fragabr@gmail.com>
+Subject: 3.5.1 hid_generic causes mouse locking until a button is clicked
+Date: Sat, 11 Aug 2012 16:55:57 -0300
+Message-ID: <k06dcc$u9q$1@dough.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rcsinet15.oracle.com ([148.87.113.117]:51445 "EHLO
-	rcsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752044Ab2HJMZk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Aug 2012 08:25:40 -0400
-Content-Disposition: inline
+Received: from plane.gmane.org ([80.91.229.3]:48758 "EHLO plane.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752051Ab2HKUAH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 11 Aug 2012 16:00:07 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <glki-linux-input-2@m.gmane.org>)
+	id 1T0Hqv-00018Z-4z
+	for linux-input@vger.kernel.org; Sat, 11 Aug 2012 22:00:05 +0200
+Received: from 187.37.50.86 ([187.37.50.86])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Sat, 11 Aug 2012 22:00:05 +0200
+Received: from fragabr by 187.37.50.86 with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Sat, 11 Aug 2012 22:00:05 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: arnd@arndb.de
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hello Arnd Bergmann,
+	I upgraded from 3.4.4 to 3.5.1 kernel and now I see the new
+hid_generic module is causing problem with my mouse (a regular Logitech
+USB optical mouse).
 
-This is a semi-automatic email about new static checker warnings.
+	The problem is: after 2 seconds without moving the mouse, the
+pointer will NOT move again UNLESS I click a mouse button.
 
-The patch 4eef6cbfcc03: "Input: eeti_ts: pass gpio value instead of 
-IRQ" from Apr 30, 2012, leads to the following Smatch complaint:
+	So now I have to click a button everytime I want to "unlock"
+the mouse pointer. It didn't happen with 3.4.4 so it's clearly a
+regression.
 
-drivers/input/touchscreen/eeti_ts.c:209 eeti_ts_probe()
-	 warn: variable dereferenced before check 'pdata' (see line 202)
+Any hints? I can try patches. Thanks.
 
-drivers/input/touchscreen/eeti_ts.c
-   201		priv->input = input;
-   202		priv->irq_gpio = pdata->irq_gpio;
-                                 ^^^^^^^^^^^^^^^
-   203		priv->irq = gpio_to_irq(pdata->irq_gpio);
-                                        ^^^^^^^^^^^^^^^
-   204	
-   205		err = gpio_request_one(pdata->irq_gpio, GPIOF_IN, client->name);
-                                       ^^^^^^^^^^^^^^^
-New dereferences.
+-- 
+http://www.youtube.com/DanielFragaBR
 
-   206		if (err < 0)
-   207			goto err1;
-   208	
-   209		if (pdata)
-                    ^^^^^
-Old check.
-
-   210			priv->irq_active_high = pdata->irq_active_high;
-   211	
-
-regards,
-dan carpenter
 

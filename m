@@ -1,101 +1,262 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 00/19] Input and HID updates for 3.7
-Date: Sun, 12 Aug 2012 23:42:18 +0200
-Message-ID: <1344807757-2217-1-git-send-email-rydberg@euromail.se>
+Subject: [PATCH 01/19] Input: Break out MT data
+Date: Sun, 12 Aug 2012 23:42:19 +0200
+Message-ID: <1344807757-2217-2-git-send-email-rydberg@euromail.se>
+References: <1344807757-2217-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b11.telenor.se ([62.127.194.20]:44537 "EHLO
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:44538 "EHLO
 	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751544Ab2HLVjZ (ORCPT
+	with ESMTP id S1751737Ab2HLVjZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Sun, 12 Aug 2012 17:39:25 -0400
+In-Reply-To: <1344807757-2217-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-Dmitry, Jiri,
+Move all MT-related things to a separate place. This saves some
+bytes for non-mt input devices, and prepares for new MT features.
 
-Here is the tentative patchset planned for 3.7. It touches both the
-Input and HID subsystems, so I decided to send it to both of you at
-once. How to distribute the patches can be decided later.
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/evdev.c    | 10 ++++++----
+ drivers/input/input-mt.c | 47 +++++++++++++++++++++++++++--------------------
+ drivers/input/input.c    |  9 ++++-----
+ include/linux/input.h    |  9 ++-------
+ include/linux/input/mt.h | 16 ++++++++++++++--
+ 5 files changed, 53 insertions(+), 38 deletions(-)
 
-The gist of the set is in-kernel tracking and latency. As I started
-measuring irqsoff times, I realized we did quite poorly in that
-department. Consequently, some of the patches are general and
-substantial speedups which ought to make everybody happy.
-
-Patches 1-6 rearranges the input core to send packets of events
-instead of one event at a time.
-
-Patch 7 implements this in evdev.
-
-Patches 8-11 incorporate more duplicated code into mt core, and
-implements a simple - but correct - form of tracking. Earlier variants
-have either been complex, approximate or slow. This one is only about
-50 lines of code and fast enough to handle ten fingers in interrupt
-context.
-
-Patches 12-15 convert bcm5974 to MT-B.
-
-Patch 16 is janitory.
-
-Patch 17 provides a substantial latency improvement on simple key
-strokes.
-
-Patches 18-19 are for hid-multitouch, reducing memory and simplifying
-the driver.
-
-Thanks,
-Henrik
-
-Henrik Rydberg (19):
-  Input: Break out MT data
-  Input: Improve the events-per-packet estimate
-  Input: Remove redundant packet estimates
-  Input: Make sure we follow all EV_KEY events
-  Input: Move autorepeat to the event-passing phase
-  Input: Send events one packet at a time
-  Input: evdev - Add the events() callback
-  Input: MT - Add flags to input_mt_init_slots()
-  Input: MT - Handle frame synchronization in core
-  Input: MT - Add in-kernel tracking
-  Input: MT - Add slot assignment by id
-  Input: bcm5974 - Preparatory renames
-  Input: bcm5974 - Drop pressure and width emulation
-  Input: bcm5974 - Drop the logical dimensions
-  Input: bcm5974 - Convert to MT-B
-  HID: hid-multitouch: Remove misleading null test
-  HID: Only dump input if someone is listening
-  HID: Add an input configured notification callback
-  HID: multitouch: Remove the redundant touch state
-
- drivers/hid/hid-core.c                   |   3 +-
- drivers/hid/hid-input.c                  |  15 +-
- drivers/hid/hid-magicmouse.c             |   4 +-
- drivers/hid/hid-multitouch.c             | 172 ++++++++----------
- drivers/input/evdev.c                    |  78 +++++---
- drivers/input/input-mt.c                 | 297 ++++++++++++++++++++++++++++---
- drivers/input/input.c                    | 252 +++++++++++++++-----------
- drivers/input/misc/uinput.c              |   2 +-
- drivers/input/mouse/alps.c               |   2 +-
- drivers/input/mouse/bcm5974.c            | 274 ++++++++++------------------
- drivers/input/mouse/elantech.c           |   4 +-
- drivers/input/mouse/sentelic.c           |   2 +-
- drivers/input/mouse/synaptics.c          |   4 +-
- drivers/input/tablet/wacom_wac.c         |   6 +-
- drivers/input/touchscreen/atmel_mxt_ts.c |   2 +-
- drivers/input/touchscreen/cyttsp_core.c  |   2 +-
- drivers/input/touchscreen/edt-ft5x06.c   |   2 +-
- drivers/input/touchscreen/egalax_ts.c    |   2 +-
- drivers/input/touchscreen/ili210x.c      |   2 +-
- drivers/input/touchscreen/mms114.c       |   2 +-
- drivers/input/touchscreen/penmount.c     |   2 +-
- drivers/input/touchscreen/wacom_w8001.c  |   2 +-
- include/linux/hid.h                      |   3 +
- include/linux/input.h                    |  35 ++--
- include/linux/input/mt.h                 |  53 +++++-
- 25 files changed, 744 insertions(+), 478 deletions(-)
-
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 6c58bff..a0692c5 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -653,20 +653,22 @@ static int evdev_handle_mt_request(struct input_dev *dev,
+ 				   unsigned int size,
+ 				   int __user *ip)
+ {
+-	const struct input_mt_slot *mt = dev->mt;
++	const struct input_mt *mt = dev->mt;
+ 	unsigned int code;
+ 	int max_slots;
+ 	int i;
+ 
+ 	if (get_user(code, &ip[0]))
+ 		return -EFAULT;
+-	if (!input_is_mt_value(code))
++	if (!mt || !input_is_mt_value(code))
+ 		return -EINVAL;
+ 
+ 	max_slots = (size - sizeof(__u32)) / sizeof(__s32);
+-	for (i = 0; i < dev->mtsize && i < max_slots; i++)
+-		if (put_user(input_mt_get_value(&mt[i], code), &ip[1 + i]))
++	for (i = 0; i < mt->num_slots && i < max_slots; i++) {
++		int value = input_mt_get_value(&mt->slots[i], code);
++		if (put_user(value, &ip[1 + i]))
+ 			return -EFAULT;
++	}
+ 
+ 	return 0;
+ }
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+index 70a16c7..c6df704 100644
+--- a/drivers/input/input-mt.c
++++ b/drivers/input/input-mt.c
+@@ -27,26 +27,28 @@
+  */
+ int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots)
+ {
++	struct input_mt *mt = dev->mt;
+ 	int i;
+ 
+ 	if (!num_slots)
+ 		return 0;
+-	if (dev->mt)
+-		return dev->mtsize != num_slots ? -EINVAL : 0;
++	if (mt)
++		return mt->num_slots != num_slots ? -EINVAL : 0;
+ 
+-	dev->mt = kcalloc(num_slots, sizeof(struct input_mt_slot), GFP_KERNEL);
+-	if (!dev->mt)
++	mt = kzalloc(sizeof(*mt) + num_slots * sizeof(*mt->slots), GFP_KERNEL);
++	if (!mt)
+ 		return -ENOMEM;
+ 
+-	dev->mtsize = num_slots;
++	mt->num_slots = num_slots;
+ 	input_set_abs_params(dev, ABS_MT_SLOT, 0, num_slots - 1, 0, 0);
+ 	input_set_abs_params(dev, ABS_MT_TRACKING_ID, 0, TRKID_MAX, 0, 0);
+ 	input_set_events_per_packet(dev, 6 * num_slots);
+ 
+ 	/* Mark slots as 'unused' */
+ 	for (i = 0; i < num_slots; i++)
+-		input_mt_set_value(&dev->mt[i], ABS_MT_TRACKING_ID, -1);
++		input_mt_set_value(&mt->slots[i], ABS_MT_TRACKING_ID, -1);
+ 
++	dev->mt = mt;
+ 	return 0;
+ }
+ EXPORT_SYMBOL(input_mt_init_slots);
+@@ -62,9 +64,7 @@ void input_mt_destroy_slots(struct input_dev *dev)
+ {
+ 	kfree(dev->mt);
+ 	dev->mt = NULL;
+-	dev->mtsize = 0;
+ 	dev->slot = 0;
+-	dev->trkid = 0;
+ }
+ EXPORT_SYMBOL(input_mt_destroy_slots);
+ 
+@@ -83,18 +83,19 @@ EXPORT_SYMBOL(input_mt_destroy_slots);
+ void input_mt_report_slot_state(struct input_dev *dev,
+ 				unsigned int tool_type, bool active)
+ {
+-	struct input_mt_slot *mt;
++	struct input_mt *mt = dev->mt;
++	struct input_mt_slot *slot;
+ 	int id;
+ 
+-	if (!dev->mt || !active) {
++	if (!mt || !active) {
+ 		input_event(dev, EV_ABS, ABS_MT_TRACKING_ID, -1);
+ 		return;
+ 	}
+ 
+-	mt = &dev->mt[dev->slot];
+-	id = input_mt_get_value(mt, ABS_MT_TRACKING_ID);
+-	if (id < 0 || input_mt_get_value(mt, ABS_MT_TOOL_TYPE) != tool_type)
+-		id = input_mt_new_trkid(dev);
++	slot = &mt->slots[dev->slot];
++	id = input_mt_get_value(slot, ABS_MT_TRACKING_ID);
++	if (id < 0 || input_mt_get_value(slot, ABS_MT_TOOL_TYPE) != tool_type)
++		id = input_mt_new_trkid(mt);
+ 
+ 	input_event(dev, EV_ABS, ABS_MT_TRACKING_ID, id);
+ 	input_event(dev, EV_ABS, ABS_MT_TOOL_TYPE, tool_type);
+@@ -135,13 +136,19 @@ EXPORT_SYMBOL(input_mt_report_finger_count);
+  */
+ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count)
+ {
+-	struct input_mt_slot *oldest = NULL;
+-	int oldid = dev->trkid;
+-	int count = 0;
+-	int i;
++	struct input_mt *mt = dev->mt;
++	struct input_mt_slot *oldest;
++	int oldid, count, i;
++
++	if (!mt)
++		return;
++
++	oldest = 0;
++	oldid = mt->trkid;
++	count = 0;
+ 
+-	for (i = 0; i < dev->mtsize; ++i) {
+-		struct input_mt_slot *ps = &dev->mt[i];
++	for (i = 0; i < mt->num_slots; ++i) {
++		struct input_mt_slot *ps = &mt->slots[i];
+ 		int id = input_mt_get_value(ps, ABS_MT_TRACKING_ID);
+ 
+ 		if (id < 0)
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 8921c61..6e90705 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -174,7 +174,7 @@ static int input_handle_abs_event(struct input_dev *dev,
+ 		 * "Stage" the event; we'll flush it later, when we
+ 		 * get actual touch data.
+ 		 */
+-		if (*pval >= 0 && *pval < dev->mtsize)
++		if (dev->mt && *pval >= 0 && *pval < dev->mt->num_slots)
+ 			dev->slot = *pval;
+ 
+ 		return INPUT_IGNORE_EVENT;
+@@ -185,8 +185,7 @@ static int input_handle_abs_event(struct input_dev *dev,
+ 	if (!is_mt_event) {
+ 		pold = &dev->absinfo[code].value;
+ 	} else if (dev->mt) {
+-		struct input_mt_slot *mtslot = &dev->mt[dev->slot];
+-		pold = &mtslot->abs[code - ABS_MT_FIRST];
++		pold = &dev->mt->slots[dev->slot].abs[code - ABS_MT_FIRST];
+ 	} else {
+ 		/*
+ 		 * Bypass filtering for multi-touch events when
+@@ -1751,8 +1750,8 @@ static unsigned int input_estimate_events_per_packet(struct input_dev *dev)
+ 	int i;
+ 	unsigned int events;
+ 
+-	if (dev->mtsize) {
+-		mt_slots = dev->mtsize;
++	if (dev->mt) {
++		mt_slots = dev->mt->num_slots;
+ 	} else if (test_bit(ABS_MT_TRACKING_ID, dev->absbit)) {
+ 		mt_slots = dev->absinfo[ABS_MT_TRACKING_ID].maximum -
+ 			   dev->absinfo[ABS_MT_TRACKING_ID].minimum + 1,
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 725dcd0..76d6788 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -1203,11 +1203,8 @@ struct ff_effect {
+  *	software autorepeat
+  * @timer: timer for software autorepeat
+  * @rep: current values for autorepeat parameters (delay, rate)
+- * @mt: pointer to array of struct input_mt_slot holding current values
+- *	of tracked contacts
+- * @mtsize: number of MT slots the device uses
++ * @mt: pointer to multitouch state
+  * @slot: MT slot currently being transmitted
+- * @trkid: stores MT tracking ID for the current contact
+  * @absinfo: array of &struct input_absinfo elements holding information
+  *	about absolute axes (current value, min, max, flat, fuzz,
+  *	resolution)
+@@ -1287,10 +1284,8 @@ struct input_dev {
+ 
+ 	int rep[REP_CNT];
+ 
+-	struct input_mt_slot *mt;
+-	int mtsize;
++	struct input_mt *mt;
+ 	int slot;
+-	int trkid;
+ 
+ 	struct input_absinfo *absinfo;
+ 
+diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
+index f867375..4ae275c 100644
+--- a/include/linux/input/mt.h
++++ b/include/linux/input/mt.h
+@@ -23,6 +23,18 @@ struct input_mt_slot {
+ 	int abs[ABS_MT_LAST - ABS_MT_FIRST + 1];
+ };
+ 
++/**
++ * struct input_mt - state of tracked contacts
++ * @trkid: stores MT tracking ID for the next contact
++ * @num_slots: number of MT slots the device uses
++ * @slots: array of slots holding current values of tracked contacts
++ */
++struct input_mt {
++	int trkid;
++	int num_slots;
++	struct input_mt_slot slots[];
++};
++
+ static inline void input_mt_set_value(struct input_mt_slot *slot,
+ 				      unsigned code, int value)
+ {
+@@ -38,9 +50,9 @@ static inline int input_mt_get_value(const struct input_mt_slot *slot,
+ int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots);
+ void input_mt_destroy_slots(struct input_dev *dev);
+ 
+-static inline int input_mt_new_trkid(struct input_dev *dev)
++static inline int input_mt_new_trkid(struct input_mt *mt)
+ {
+-	return dev->trkid++ & TRKID_MAX;
++	return mt->trkid++ & TRKID_MAX;
+ }
+ 
+ static inline void input_mt_slot(struct input_dev *dev, int slot)
 -- 
 1.7.11.4
 

@@ -1,63 +1,46 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: 3.5.1 hid_generic causes mouse locking until a button is
- clicked
-Date: Sun, 12 Aug 2012 19:53:29 +0200
-Message-ID: <20120812195329.2cb454c3@neptune.home>
-References: <k06dcc$u9q$1@dough.gmane.org>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 04/11] MFD: twl4030-audio: Add DT support
+Date: Sun, 12 Aug 2012 19:50:12 +0100
+Message-ID: <20120812185012.GB10627@opensource.wolfsonmicro.com>
+References: <20120808131356.GS16861@opensource.wolfsonmicro.com>
+ <50226CF4.1010202@ti.com>
+ <20120808135253.GC16861@opensource.wolfsonmicro.com>
+ <502274DA.9020204@ti.com>
+ <20120808141849.GA24328@opensource.wolfsonmicro.com>
+ <50227837.10400@ti.com>
+ <20120808144933.GC24328@opensource.wolfsonmicro.com>
+ <50238E8A.5030902@ti.com>
+ <20120809103600.GI24328@opensource.wolfsonmicro.com>
+ <5023C0D6.8040600@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay.restena.lu ([158.64.1.62]:41927 "EHLO
-	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752045Ab2HLRyL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Aug 2012 13:54:11 -0400
-In-Reply-To: <k06dcc$u9q$1@dough.gmane.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Disposition: inline
+In-Reply-To: <5023C0D6.8040600@ti.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: alsa-devel@alsa-project.org, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dtor@mail.ru>, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Liam Girdwood <lrg@ti.com>, linux-arm-kernel@lists.infradead.org, Benoit Cousson <b-cousson@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?RMOibmllbA==?= Fraga <fragabr@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-Hi,
+On Thu, Aug 09, 2012 at 04:53:26PM +0300, Peter Ujfalusi wrote:
+> On 08/09/2012 01:36 PM, Mark Brown wrote:
 
-On Sat, 11 August 2012 D=C3=A2niel Fraga <fragabr@gmail.com> wrote:
-> 	I upgraded from 3.4.4 to 3.5.1 kernel and now I see the new
-> hid_generic module is causing problem with my mouse (a regular Logite=
-ch
-> USB optical mouse).
->=20
-> 	The problem is: after 2 seconds without moving the mouse, the
-> pointer will NOT move again UNLESS I click a mouse button.
->=20
-> 	So now I have to click a button everytime I want to "unlock"
-> the mouse pointer. It didn't happen with 3.4.4 so it's clearly a
-> regression.
->=20
-> Any hints? I can try patches. Thanks.
+> > Is there any actual case where an external mute is supplied via a
+> > mechanism other than a GPIO, and if there is would it not either need
+> > its own DT property or already need to interact with the driver from
+> > code, making the DT property redundant?
 
-This might be USB-autosuspend. 2 seconds seems to match the default
-delay for autosuspending USB devices.
+> Not with my knowledge. The only board using it is the zoom2 upstream. I know
+> other boards (not in upstream) which either uses the internal mute or GPIO.
 
-Have a look at the values under /power/ for your USB devices.
-(probably the port to which your mouse is connected and/or the mouse
-itself).
-Check if disabling USB-autosuspend helps.
-
-Compare the output of:
-  grep . /sys/bus/usb/devices/*/power/*
-for the time your mouse can move your pointer and when it can't.
-Also change the autosuspend delay or disable autosuspend for the
-mouse.
-
-See also in your kernel sources:
-  Documentation/usb/power-management.txt
-  Documentation/ABI/testing/sysfs-bus-usb
-
-
-Bruno
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+OK, so we can probably only support GPIO for now then worry about other
+external mutes when there's something to work with.

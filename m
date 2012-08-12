@@ -1,63 +1,101 @@
-From: =?UTF-8?B?RMOibmllbA==?= Fraga <fragabr@gmail.com>
-Subject: Re: 3.5.1 hid_generic causes mouse locking until a button is
- clicked
-Date: Sun, 12 Aug 2012 18:16:22 -0300
-Message-ID: <50281d29.516eec0a.683e.1052@mx.google.com>
-References: <k06dcc$u9q$1@dough.gmane.org>
-	<20120812195329.2cb454c3@neptune.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH 00/19] Input and HID updates for 3.7
+Date: Sun, 12 Aug 2012 23:42:18 +0200
+Message-ID: <1344807757-2217-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gh0-f174.google.com ([209.85.160.174]:42995 "EHLO
-	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751607Ab2HLVQ0 (ORCPT
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:44537 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751544Ab2HLVjZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Aug 2012 17:16:26 -0400
-Received: by ghrr11 with SMTP id r11so2506283ghr.19
-        for <linux-input@vger.kernel.org>; Sun, 12 Aug 2012 14:16:26 -0700 (PDT)
-In-Reply-To: <20120812195329.2cb454c3@neptune.home>
+	Sun, 12 Aug 2012 17:39:25 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-On Sun, 12 Aug 2012 19:53:29 +0200
-Bruno Pr=C3=A9mont <bonbons@linux-vserver.org> wrote:
+Dmitry, Jiri,
 
-> This might be USB-autosuspend. 2 seconds seems to match the default
-> delay for autosuspending USB devices.
+Here is the tentative patchset planned for 3.7. It touches both the
+Input and HID subsystems, so I decided to send it to both of you at
+once. How to distribute the patches can be decided later.
 
-	Hi Bruno. That's it!=20
+The gist of the set is in-kernel tracking and latency. As I started
+measuring irqsoff times, I realized we did quite poorly in that
+department. Consequently, some of the patches are general and
+substantial speedups which ought to make everybody happy.
 
-	I raised the autosuspend value and I'm using it as a
-workaround... but the default values are the same as the kernel 3.4.4
-values, so something has changed:
+Patches 1-6 rearranges the input core to send packets of events
+instead of one event at a time.
 
-/sys/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.6/power$ cat
-autosuspend*=20
-2 <----- autosuspend
-2000 <-- autosuspend_delay_ms
+Patch 7 implements this in evdev.
 
-	So, if the values are the same, why the behaviour has changed
-from kernel 3.4 to 3.5?
+Patches 8-11 incorporate more duplicated code into mt core, and
+implements a simple - but correct - form of tracking. Earlier variants
+have either been complex, approximate or slow. This one is only about
+50 lines of code and fast enough to handle ten fingers in interrupt
+context.
 
-	I mean, it seems that with kernel 3.4 simply moving the mouse
-would wake up the usb port and now with kernel 3.5 it only works if I
-press a button.
+Patches 12-15 convert bcm5974 to MT-B.
 
-	So, kernel 3.5 is supposed to wake up the usb port when we move
-the mouse or not?
+Patch 16 is janitory.
 
-	Is there a way to restore the old behaviour from kernel 3.4?
-=09
-	Thanks.
+Patch 17 provides a substantial latency improvement on simple key
+strokes.
 
---=20
-Linux 3.5.1: Saber-toothed Squirrel
-http://www.youtube.com/DanielFragaBR
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Patches 18-19 are for hid-multitouch, reducing memory and simplifying
+the driver.
+
+Thanks,
+Henrik
+
+Henrik Rydberg (19):
+  Input: Break out MT data
+  Input: Improve the events-per-packet estimate
+  Input: Remove redundant packet estimates
+  Input: Make sure we follow all EV_KEY events
+  Input: Move autorepeat to the event-passing phase
+  Input: Send events one packet at a time
+  Input: evdev - Add the events() callback
+  Input: MT - Add flags to input_mt_init_slots()
+  Input: MT - Handle frame synchronization in core
+  Input: MT - Add in-kernel tracking
+  Input: MT - Add slot assignment by id
+  Input: bcm5974 - Preparatory renames
+  Input: bcm5974 - Drop pressure and width emulation
+  Input: bcm5974 - Drop the logical dimensions
+  Input: bcm5974 - Convert to MT-B
+  HID: hid-multitouch: Remove misleading null test
+  HID: Only dump input if someone is listening
+  HID: Add an input configured notification callback
+  HID: multitouch: Remove the redundant touch state
+
+ drivers/hid/hid-core.c                   |   3 +-
+ drivers/hid/hid-input.c                  |  15 +-
+ drivers/hid/hid-magicmouse.c             |   4 +-
+ drivers/hid/hid-multitouch.c             | 172 ++++++++----------
+ drivers/input/evdev.c                    |  78 +++++---
+ drivers/input/input-mt.c                 | 297 ++++++++++++++++++++++++++++---
+ drivers/input/input.c                    | 252 +++++++++++++++-----------
+ drivers/input/misc/uinput.c              |   2 +-
+ drivers/input/mouse/alps.c               |   2 +-
+ drivers/input/mouse/bcm5974.c            | 274 ++++++++++------------------
+ drivers/input/mouse/elantech.c           |   4 +-
+ drivers/input/mouse/sentelic.c           |   2 +-
+ drivers/input/mouse/synaptics.c          |   4 +-
+ drivers/input/tablet/wacom_wac.c         |   6 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c |   2 +-
+ drivers/input/touchscreen/cyttsp_core.c  |   2 +-
+ drivers/input/touchscreen/edt-ft5x06.c   |   2 +-
+ drivers/input/touchscreen/egalax_ts.c    |   2 +-
+ drivers/input/touchscreen/ili210x.c      |   2 +-
+ drivers/input/touchscreen/mms114.c       |   2 +-
+ drivers/input/touchscreen/penmount.c     |   2 +-
+ drivers/input/touchscreen/wacom_w8001.c  |   2 +-
+ include/linux/hid.h                      |   3 +
+ include/linux/input.h                    |  35 ++--
+ include/linux/input/mt.h                 |  53 +++++-
+ 25 files changed, 744 insertions(+), 478 deletions(-)
+
+-- 
+1.7.11.4
+

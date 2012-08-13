@@ -1,48 +1,81 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: 3.5.1 hid_generic causes mouse locking until a button is clicked
-Date: Mon, 13 Aug 2012 08:30:35 +0200
-Message-ID: <2204600.iAkYKzSYsi@linux-lqwf.site>
-References: <k06dcc$u9q$1@dough.gmane.org> <20120812195329.2cb454c3@neptune.home> <50281d29.516eec0a.683e.1052@mx.google.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [RFC ebeam PATCH v2 3/3] input: misc: New USB eBeam input
+ driver.
+Date: Mon, 13 Aug 2012 11:06:41 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1208131106040.29827@pobox.suse.cz>
+References: <1343912397-18353-1-git-send-email-yann.cantin@laposte.net> <1343912397-18353-4-git-send-email-yann.cantin@laposte.net> <alpine.LRH.2.00.1208031424250.15211@twin.jikos.cz> <501BEEA8.4060702@laposte.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38268 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:41861 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751777Ab2HMICM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Aug 2012 04:02:12 -0400
-In-Reply-To: <50281d29.516eec0a.683e.1052@mx.google.com>
+	id S1750826Ab2HMJGt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Aug 2012 05:06:49 -0400
+In-Reply-To: <501BEEA8.4060702@laposte.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?D=E2niel?= Fraga <fragabr@gmail.com>
-Cc: Bruno =?ISO-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>, linux-input@vger.kernel.org
+To: Yann Cantin <yann.cantin@laposte.net>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
 
-On Sunday 12 August 2012 18:16:22 D=E2niel Fraga wrote:
+On Fri, 3 Aug 2012, Yann Cantin wrote:
 
-> 	I mean, it seems that with kernel 3.4 simply moving the mouse
-> would wake up the usb port and now with kernel 3.5 it only works if I
-> press a button.
->=20
-> 	So, kernel 3.5 is supposed to wake up the usb port when we move
-> the mouse or not?
+> >> +#include <linux/hid.h>
+> > 
+> > As this driver is not a HID bus driver, why do you need this include?
+> 
+> Cinder, removed
+> 
+> >> +#define DRIVER_VERSION	"v0.7"
+> > 
+> > I don't think we need to be tracking driver versions for newly submitted 
+> > drivers, git is much better at tracking changes.
+> 
+> Old habit, removed.
+> 
+> >> +	u16			 X, Y;		/* raw coordinates	     */
+> >> +	int			 x, y;		/* computed coordinates      */
+> > 
+> > X,x being different fields seems confusing to me. How about, let's say, x, 
+> > raw_x?
+> 
+> Done.
+>  
+> >> +DEVICE_H_ATTR(1);
+> >> +DEVICE_H_ATTR(2);
+> >> +DEVICE_H_ATTR(3);
+> >> +DEVICE_H_ATTR(4);
+> >> +DEVICE_H_ATTR(5);
+> >> +DEVICE_H_ATTR(6);
+> >> +DEVICE_H_ATTR(7);
+> >> +DEVICE_H_ATTR(8);
+> >> +DEVICE_H_ATTR(9);
+> > 
+> > You are adding a number of sysfs files. If they are really necessary, 
+> > you'll probably need to document those in Documentation/ABI.
+> 
+> Will do, in testing i suppose.
+> 
+> BTW : The driver need lot of parameters to be passed from user-space calibration
+> tool. The best way to do it isn't decided yet : one sysfs file per parameter, or
+> one sysfs file for all, with a big sscanf parsing. Any idea ?
 
-The kernel doesn't do this. Mice are told to wake up when they have inp=
-ut
-data. They decide themselves what data should be collected while they
-sleep. The USB HID spec offers no way to learn what will wake up a devi=
-ce.
-In fact, it does'nt mention power management.
+Sysfs always had a rule one value per file, so please stick to that.
 
-> 	Is there a way to restore the old behaviour from kernel 3.4?
+> >> +		strlcat(ebeam->name, ")", sizeof(ebeam->name));
+> > 
+> > I'd suggest checking the length, making sure that you don't overflow the 
+> > ->name buffer.
+> 
+> Something like this ? :
+> 
+> if (strlcat(ebeam->name, ")", sizeof(ebeam->name))>=sizeof(ebeam->name)) {
+> 	// overflowed, closing ) anyway
+> 	ebeam->name[sizeof(ebeam->name)-2] = ')';
 
-Probably the device didn't autosuspend. Disable autosuspension.
+Some variation on that, yes.
 
-	Regards
-		Oliver
+Thanks,
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs

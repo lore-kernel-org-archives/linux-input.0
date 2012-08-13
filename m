@@ -1,42 +1,155 @@
-From: Vojtech Bocek <vbocek@gmail.com>
-Subject: [PATCH 1/1] Input: joydev - fix axes values sent in initial js_event
-Date: Tue, 14 Aug 2012 00:11:54 +0200
-Message-ID: <1344895914-32127-1-git-send-email-vbocek@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [ 63/65] Input: eeti_ts: pass gpio value instead of IRQ
+Date: Mon, 13 Aug 2012 15:14:47 -0700
+Message-ID: <20120813221420.549981186@linuxfoundation.org>
+References: <20120813221414.965154048@linuxfoundation.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120813221414.965154048@linuxfoundation.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Vojtech Bocek <vbocek@gmail.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Greg KH <gregkh@linuxfoundation.org>, torvalds@linux-foundation.org, akpm@linux-foundation.org, alan@lxorguk.ukuu.org.uk, Daniel Mack <zonque@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sven Neumann <s.neumann@raumfeld.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Initial input event has not yet arrived in joydev_connect()
-where values are set, which means default values of input_absinfo
-are used for init event, not the actual values from joystick.
+From: Greg KH <gregkh@linuxfoundation.org>
 
-Signed-off-by: Vojtech Bocek <vbocek@gmail.com>
+3.4-stable review patch.  If anyone has any objections, please let me know.
+
+------------------
+
+From: Arnd Bergmann <arnd@arndb.de>
+
+commit 4eef6cbfcc03b294d9d334368a851b35b496ce53 upstream.
+
+The EETI touchscreen asserts its IRQ line as soon as it has data in its
+internal buffers. The line is automatically deasserted once all data has
+been read via I2C. Hence, the driver has to monitor the GPIO line and
+cannot simply rely on the interrupt handler reception.
+
+In the current implementation of the driver, irq_to_gpio() is used to
+determine the GPIO number from the i2c_client's IRQ value.
+
+As irq_to_gpio() is not available on all platforms, this patch changes
+this and makes the driver ignore the passed in IRQ. Instead, a GPIO is
+added to the platform_data struct and gpio_to_irq is used to derive the
+IRQ from that GPIO. If this fails, bail out. The driver is only able to
+work in environments where the touchscreen GPIO can be mapped to an
+IRQ.
+
+Without this patch, building raumfeld_defconfig results in:
+
+drivers/input/touchscreen/eeti_ts.c: In function 'eeti_ts_irq_active':
+drivers/input/touchscreen/eeti_ts.c:65:2: error: implicit declaration of function 'irq_to_gpio' [-Werror=implicit-function-declaration]
+
+Signed-off-by: Daniel Mack <zonque@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sven Neumann <s.neumann@raumfeld.com>
+Cc: linux-input@vger.kernel.org
+Cc: Haojian Zhuang <haojian.zhuang@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/input/joydev.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/arm/mach-pxa/raumfeld.c        |    2 +-
+ drivers/input/touchscreen/eeti_ts.c |   21 +++++++++++++--------
+ include/linux/input/eeti_ts.h       |    1 +
+ 3 files changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-index 26043cc..11f24b4 100644
---- a/drivers/input/joydev.c
-+++ b/drivers/input/joydev.c
-@@ -318,9 +318,14 @@ static int joydev_generate_startup_event(struct joydev_client *client,
- 			event->value = !!test_bit(joydev->keypam[event->number],
- 						  input->key);
- 		} else {
-+			int evnum = client->startup - joydev->nkey;
-+			int val = input_abs_get_val(input, joydev->abspam[evnum]);
-+
-+			joydev->abs[evnum] = joydev_correct(val, &joydev->corr[evnum]);
-+
- 			event->type = JS_EVENT_AXIS | JS_EVENT_INIT;
--			event->number = client->startup - joydev->nkey;
--			event->value = joydev->abs[event->number];
-+			event->number = evnum;
-+			event->value = joydev->abs[evnum];
- 		}
- 		client->startup++;
+--- a/arch/arm/mach-pxa/raumfeld.c
++++ b/arch/arm/mach-pxa/raumfeld.c
+@@ -953,12 +953,12 @@ static struct i2c_board_info raumfeld_co
+ 
+ static struct eeti_ts_platform_data eeti_ts_pdata = {
+ 	.irq_active_high = 1,
++	.irq_gpio = GPIO_TOUCH_IRQ,
+ };
+ 
+ static struct i2c_board_info raumfeld_controller_i2c_board_info __initdata = {
+ 	.type	= "eeti_ts",
+ 	.addr	= 0x0a,
+-	.irq	= PXA_GPIO_TO_IRQ(GPIO_TOUCH_IRQ),
+ 	.platform_data = &eeti_ts_pdata,
+ };
+ 
+--- a/drivers/input/touchscreen/eeti_ts.c
++++ b/drivers/input/touchscreen/eeti_ts.c
+@@ -48,7 +48,7 @@ struct eeti_ts_priv {
+ 	struct input_dev *input;
+ 	struct work_struct work;
+ 	struct mutex mutex;
+-	int irq, irq_active_high;
++	int irq_gpio, irq, irq_active_high;
+ };
+ 
+ #define EETI_TS_BITDEPTH	(11)
+@@ -62,7 +62,7 @@ struct eeti_ts_priv {
+ 
+ static inline int eeti_ts_irq_active(struct eeti_ts_priv *priv)
+ {
+-	return gpio_get_value(irq_to_gpio(priv->irq)) == priv->irq_active_high;
++	return gpio_get_value(priv->irq_gpio) == priv->irq_active_high;
+ }
+ 
+ static void eeti_ts_read(struct work_struct *work)
+@@ -157,7 +157,7 @@ static void eeti_ts_close(struct input_d
+ static int __devinit eeti_ts_probe(struct i2c_client *client,
+ 				   const struct i2c_device_id *idp)
+ {
+-	struct eeti_ts_platform_data *pdata;
++	struct eeti_ts_platform_data *pdata = client->dev.platform_data;
+ 	struct eeti_ts_priv *priv;
+ 	struct input_dev *input;
+ 	unsigned int irq_flags;
+@@ -199,9 +199,12 @@ static int __devinit eeti_ts_probe(struc
+ 
+ 	priv->client = client;
+ 	priv->input = input;
+-	priv->irq = client->irq;
++	priv->irq_gpio = pdata->irq_gpio;
++	priv->irq = gpio_to_irq(pdata->irq_gpio);
+ 
+-	pdata = client->dev.platform_data;
++	err = gpio_request_one(pdata->irq_gpio, GPIOF_IN, client->name);
++	if (err < 0)
++		goto err1;
+ 
+ 	if (pdata)
+ 		priv->irq_active_high = pdata->irq_active_high;
+@@ -215,13 +218,13 @@ static int __devinit eeti_ts_probe(struc
+ 
+ 	err = input_register_device(input);
+ 	if (err)
+-		goto err1;
++		goto err2;
+ 
+ 	err = request_irq(priv->irq, eeti_ts_isr, irq_flags,
+ 			  client->name, priv);
+ 	if (err) {
+ 		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
+-		goto err2;
++		goto err3;
  	}
--- 
-1.7.10.4
+ 
+ 	/*
+@@ -233,9 +236,11 @@ static int __devinit eeti_ts_probe(struc
+ 	device_init_wakeup(&client->dev, 0);
+ 	return 0;
+ 
+-err2:
++err3:
+ 	input_unregister_device(input);
+ 	input = NULL; /* so we dont try to free it below */
++err2:
++	gpio_free(pdata->irq_gpio);
+ err1:
+ 	input_free_device(input);
+ 	kfree(priv);
+--- a/include/linux/input/eeti_ts.h
++++ b/include/linux/input/eeti_ts.h
+@@ -2,6 +2,7 @@
+ #define LINUX_INPUT_EETI_TS_H
+ 
+ struct eeti_ts_platform_data {
++	int irq_gpio;
+ 	unsigned int irq_active_high;
+ };
+ 

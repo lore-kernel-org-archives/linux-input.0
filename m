@@ -1,81 +1,48 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [RFC ebeam PATCH v2 3/3] input: misc: New USB eBeam input
- driver.
-Date: Mon, 13 Aug 2012 11:06:41 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1208131106040.29827@pobox.suse.cz>
-References: <1343912397-18353-1-git-send-email-yann.cantin@laposte.net> <1343912397-18353-4-git-send-email-yann.cantin@laposte.net> <alpine.LRH.2.00.1208031424250.15211@twin.jikos.cz> <501BEEA8.4060702@laposte.net>
+From: =?UTF-8?B?RMOibmllbA==?= Fraga <fragabr@gmail.com>
+Subject: Re: 3.5.1 hid_generic causes mouse locking until a button is
+ clicked
+Date: Mon, 13 Aug 2012 06:18:55 -0300
+Message-ID: <5028c683.0a4bec0a.097b.4fca@mx.google.com>
+References: <k06dcc$u9q$1@dough.gmane.org>
+	<20120812195329.2cb454c3@neptune.home>
+	<50281d29.516eec0a.683e.1052@mx.google.com>
+	<2204600.iAkYKzSYsi@linux-lqwf.site>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:41861 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750826Ab2HMJGt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Aug 2012 05:06:49 -0400
-In-Reply-To: <501BEEA8.4060702@laposte.net>
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:46596 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750929Ab2HMJTA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Aug 2012 05:19:00 -0400
+Received: by yenl14 with SMTP id l14so1665138yen.19
+        for <linux-input@vger.kernel.org>; Mon, 13 Aug 2012 02:19:00 -0700 (PDT)
+In-Reply-To: <2204600.iAkYKzSYsi@linux-lqwf.site>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yann Cantin <yann.cantin@laposte.net>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
+To: Oliver Neukum <oneukum@suse.de>
+Cc: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>, linux-input@vger.kernel.org
 
-On Fri, 3 Aug 2012, Yann Cantin wrote:
+On Mon, 13 Aug 2012 08:30:35 +0200
+Oliver Neukum <oneukum@suse.de> wrote:
 
-> >> +#include <linux/hid.h>
-> > 
-> > As this driver is not a HID bus driver, why do you need this include?
-> 
-> Cinder, removed
-> 
-> >> +#define DRIVER_VERSION	"v0.7"
-> > 
-> > I don't think we need to be tracking driver versions for newly submitted 
-> > drivers, git is much better at tracking changes.
-> 
-> Old habit, removed.
-> 
-> >> +	u16			 X, Y;		/* raw coordinates	     */
-> >> +	int			 x, y;		/* computed coordinates      */
-> > 
-> > X,x being different fields seems confusing to me. How about, let's say, x, 
-> > raw_x?
-> 
-> Done.
->  
-> >> +DEVICE_H_ATTR(1);
-> >> +DEVICE_H_ATTR(2);
-> >> +DEVICE_H_ATTR(3);
-> >> +DEVICE_H_ATTR(4);
-> >> +DEVICE_H_ATTR(5);
-> >> +DEVICE_H_ATTR(6);
-> >> +DEVICE_H_ATTR(7);
-> >> +DEVICE_H_ATTR(8);
-> >> +DEVICE_H_ATTR(9);
-> > 
-> > You are adding a number of sysfs files. If they are really necessary, 
-> > you'll probably need to document those in Documentation/ABI.
-> 
-> Will do, in testing i suppose.
-> 
-> BTW : The driver need lot of parameters to be passed from user-space calibration
-> tool. The best way to do it isn't decided yet : one sysfs file per parameter, or
-> one sysfs file for all, with a big sscanf parsing. Any idea ?
+> The kernel doesn't do this. Mice are told to wake up when they have input
+> data. They decide themselves what data should be collected while they
+> sleep. The USB HID spec offers no way to learn what will wake up a device.
+> In fact, it does'nt mention power management.
 
-Sysfs always had a rule one value per file, so please stick to that.
+	Ok.
 
-> >> +		strlcat(ebeam->name, ")", sizeof(ebeam->name));
-> > 
-> > I'd suggest checking the length, making sure that you don't overflow the 
-> > ->name buffer.
-> 
-> Something like this ? :
-> 
-> if (strlcat(ebeam->name, ")", sizeof(ebeam->name))>=sizeof(ebeam->name)) {
-> 	// overflowed, closing ) anyway
-> 	ebeam->name[sizeof(ebeam->name)-2] = ')';
+> Probably the device didn't autosuspend. Disable autosuspension.
 
-Some variation on that, yes.
+	Nice, this is a good workaround:
 
-Thanks,
+/sys/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.6/power$ echo -1 >
+autosuspend
+
+	Now it's correct. Thank you ;)
 
 -- 
-Jiri Kosina
-SUSE Labs
+Linux 3.5.1: Saber-toothed Squirrel
+http://www.youtube.com/DanielFragaBR

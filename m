@@ -1,32 +1,42 @@
-From: "Aguirre Rodriguez, Sergio A" <sergio.a.aguirre.rodriguez@intel.com>
-Subject: [Query] Best place inside kernel for mobile sensors?
-Date: Mon, 13 Aug 2012 21:29:47 +0000
-Message-ID: <93C0B00A428C6E4EA1CA440678FE8AF59A74F8@FMSMSX101.amr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:46565 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752615Ab2HMV3s convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Aug 2012 17:29:48 -0400
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+From: Vojtech Bocek <vbocek@gmail.com>
+Subject: [PATCH 1/1] Input: joydev - fix axes values sent in initial js_event
+Date: Tue, 14 Aug 2012 00:11:54 +0200
+Message-ID: <1344895914-32127-1-git-send-email-vbocek@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Vojtech Bocek <vbocek@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi all,
+Initial input event has not yet arrived in joydev_connect()
+where values are set, which means default values of input_absinfo
+are used for init event, not the actual values from joystick.
 
-I'm pretty new to the input device drivers, and trying to understand the right place for the following sensor types:
+Signed-off-by: Vojtech Bocek <vbocek@gmail.com>
+---
+ drivers/input/joydev.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-- Accelerometer
-- Gyroscope
-- Barometer
-
-Would it be appropriate to have them all under drivers/input/misc?
-
-Thanks in advance for any response, and sorry if this is something pretty basic. Please bear with me.
-
-Regards,
-Sergio
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index 26043cc..11f24b4 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -318,9 +318,14 @@ static int joydev_generate_startup_event(struct joydev_client *client,
+ 			event->value = !!test_bit(joydev->keypam[event->number],
+ 						  input->key);
+ 		} else {
++			int evnum = client->startup - joydev->nkey;
++			int val = input_abs_get_val(input, joydev->abspam[evnum]);
++
++			joydev->abs[evnum] = joydev_correct(val, &joydev->corr[evnum]);
++
+ 			event->type = JS_EVENT_AXIS | JS_EVENT_INIT;
+-			event->number = client->startup - joydev->nkey;
+-			event->value = joydev->abs[event->number];
++			event->number = evnum;
++			event->value = joydev->abs[evnum];
+ 		}
+ 		client->startup++;
+ 	}
+-- 
+1.7.10.4

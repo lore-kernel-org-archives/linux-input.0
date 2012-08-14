@@ -1,45 +1,31 @@
-From: Tejun Heo <tj@kernel.org>
-Subject: Re: [PATCH 0/7] HID: picoLCD updates
-Date: Tue, 14 Aug 2012 10:31:24 -0700
-Message-ID: <20120814173124.GO25632@google.com>
-References: <20120730213656.0a9f6d30@neptune.home>
- <20120809200947.2194e89f@neptune.home>
- <20120813232708.GF25632@google.com>
- <20120814083044.78b401d2@pluto.restena.lu>
+From: Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: linux-next: Tree for Aug 14 (drivers/input/touchscreen/edt-ft5x06.c)
+Date: Tue, 14 Aug 2012 10:59:28 -0700
+Message-ID: <502A9200.1020606@xenotime.net>
+References: <20120814135506.b6b86e3c8cb9da1eefb7bbd6@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gg0-f174.google.com ([209.85.161.174]:62376 "EHLO
-	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755082Ab2HNRb2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Aug 2012 13:31:28 -0400
-Content-Disposition: inline
-In-Reply-To: <20120814083044.78b401d2@pluto.restena.lu>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120814135506.b6b86e3c8cb9da1eefb7bbd6@canb.auug.org.au>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Simon Budig <simon.budig@kernelconcepts.de>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bruno =?iso-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-fbdev@vger.kernel.org
 
-Hello,
+On 08/13/2012 08:55 PM, Stephen Rothwell wrote:
 
-On Tue, Aug 14, 2012 at 08:30:44AM +0200, Bruno Pr=E9mont wrote:
-> > I'm kinda shooting in the dark but who flushes / cancels
-> > fb_info->deferred_work?
->=20
-> fb_deferred_io_cleanup() does so and is called by destroy fbops
-> (when last reference to fb_info is returned):
+> Hi all,
+> 
+> Changes since 20120813:
+> 
 
-I see.  Sorry but just from glancing it I can't really tell what's
-going wrong.
 
-Thanks.
+on x86_64, when CONFIG_DEBUG_FS is not enabled:
 
---=20
-tejun
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+drivers/input/touchscreen/edt-ft5x06.c: In function 'edt_ft5x06_ts_remove':
+drivers/input/touchscreen/edt-ft5x06.c:846:14: error: 'struct edt_ft5x06_ts_data' has no member named 'raw_buffer'
+
+
+-- 
+~Randy

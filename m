@@ -1,141 +1,96 @@
-From: James <linux-input@madingley.org>
-Subject: Re: New Alps protocol in the wild?
-Date: Tue, 14 Aug 2012 11:35:53 +0100
-Message-ID: <20120814103553.GF23370@arianrhod.panaceas.james.local>
-References: <87obmwld7n.fsf@gmail.com>
+From: Russell King <rmk-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Subject: Re: USB interrupt times
+Date: Tue, 14 Aug 2012 13:18:04 +0100
+Message-ID: <20120814121804.GC7105@flint.arm.linux.org.uk>
+References: <20120814103936.GA7105@flint.arm.linux.org.uk> <alpine.LNX.2.00.1208141250020.12490@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="bAmEntskrkuBymla"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 78-105-106-38.zone3.bethere.co.uk ([78.105.106.38]:42702 "EHLO
-	new-global.panaceas.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755958Ab2HNL3W (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Aug 2012 07:29:22 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <87obmwld7n.fsf@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <alpine.LNX.2.00.1208141250020.12490-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Henrik Rydberg <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
+On Tue, Aug 14, 2012 at 12:54:00PM +0200, Jiri Kosina wrote:
+> Actually, Henrik (added to CC) has been doing some latency improvements 
+> both for input core in general, and for HID devices as well lately. I 
+> still have his patchset in my to-review queue, as I have just came back 
+> from offline vacation, but the patch below definitely can't hurt and 
+> should significantly lower the time spent in handling the irq for hid 
+> device in common situation (i.e. noone listening for debugfs events).
+> 
+> Could you please measure how much it helps on your system?
 
---bAmEntskrkuBymla
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Ok, it looks like it's changed the maximum USB interrupt execution
+time from around 364us to 255us.
 
-I just got a Dell E6230 with the same E7 report: 73 03 0a
-As noted above using the qemu serio logging doesn't work.
-The driver only enables multitouch if it sees the right
-name for the device in the DSDT.
+If I also do a similar trick with the debug code in hid_input_report()
+then I get down to 212us - iow, something like the patch below.
 
-The following patch (against the seabios in qemu-0.14.1)
-enables the windows 7 driver (7.1211.101.114 from
-http://www.dell.com/support/drivers/us/en/04/DriverDetails/DriverFileFormats/Product/latitude-e6230?DriverId=CKNFN&FileId=2988050063&urlProductCode=False 
-) to bind successfully and alows one to get data from the serio
-logging patch
+Given that debugfs is fairly ubiquitous in the kernel, and that this is
+fairly invasive in terms of interrupt execution impact, wouldn't having
+this debug code enabled by a separate Kconfig symbol be reasonable too?
 
-Are there any standard tools for reverse engineering the
-protocol - I saw mention of an alps-reg-dump but was
-unable to find it?
-
-thanks,
-
-James.
-
---bAmEntskrkuBymla
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="make-6230-touchpad-bind-in-win7.patch"
-
---- ./qemu-0.14.1/roms/seabios/src/acpi-dsdt.dsl	2011-05-06 20:02:01.000000000 +0100
-+++ ./qemu-0.14.1.jmm/roms/seabios/src/acpi-dsdt.dsl	2012-08-14 11:09:22.000000000 +0100
-@@ -253,7 +253,7 @@
-             }
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 6ac0286..8daf4d1 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1220,8 +1220,6 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
+ 	struct hid_report_enum *report_enum;
+ 	struct hid_driver *hdrv;
+ 	struct hid_report *report;
+-	char *buf;
+-	unsigned int i;
+ 	int ret = 0;
  
-             /* Keyboard seems to be important for WinXP install */
--            Device (KBD)
-+            Device (PS2K)
-             {
-                 Name (_HID, EisaId ("PNP0303"))
-                 Method (_STA, 0, NotSerialized)
-@@ -261,10 +261,8 @@
-                     Return (0x0f)
-                 }
+ 	if (!hid)
+@@ -1243,23 +1241,27 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
+ 		goto unlock;
+ 	}
  
--                Method (_CRS, 0, NotSerialized)
-+		Name (_CRS, ResourceTemplate ()
-                 {
--                     Name (TMP, ResourceTemplate ()
--                     {
-                     IO (Decode16,
-                         0x0060,             // Address Range Minimum
-                         0x0060,             // Address Range Maximum
-@@ -277,30 +275,52 @@
-                         0x01,               // Address Alignment
-                         0x01,               // Address Length
-                         )
-+                IRQ (Edge, ActiveHigh, Exclusive, )
-+                    {1}
-+
-+                })
-+
-+
-+
-+
-+            Name (_PRS, ResourceTemplate ()
-+            {
-+                StartDependentFn (0x00, 0x00)
-+                {
-+                    FixedIO (
-+                        0x0060,             // Address
-+                        0x01,               // Length
-+                        )
-+                    FixedIO (
-+                        0x0064,             // Address
-+                        0x01,               // Length
-+                        )
-                     IRQNoFlags ()
-                         {1}
--                    })
--                    Return (TMP)
-                 }
--            }
-+                EndDependentFn ()
-+            })
+-	buf = kmalloc(sizeof(char) * HID_DEBUG_BUFSIZE, GFP_ATOMIC);
++	if (!list_empty(&hid->debug_list)) {
++		unsigned int i;
++		char *buf;
+ 
+-	if (!buf)
+-		goto nomem;
++		buf = kmalloc(sizeof(char) * HID_DEBUG_BUFSIZE, GFP_ATOMIC);
++		if (!buf)
++			goto nomem;
+ 
+-	/* dump the report */
+-	snprintf(buf, HID_DEBUG_BUFSIZE - 1,
++		/* dump the report */
++		snprintf(buf, HID_DEBUG_BUFSIZE - 1,
+ 			"\nreport (size %u) (%snumbered) = ", size, report_enum->numbered ? "" : "un");
+-	hid_debug_event(hid, buf);
++		hid_debug_event(hid, buf);
+ 
+-	for (i = 0; i < size; i++) {
+-		snprintf(buf, HID_DEBUG_BUFSIZE - 1,
++		for (i = 0; i < size; i++) {
++			snprintf(buf, HID_DEBUG_BUFSIZE - 1,
+ 				" %02x", data[i]);
+-		hid_debug_event(hid, buf);
++			hid_debug_event(hid, buf);
 +		}
++		hid_debug_event(hid, "\n");
++		kfree(buf);
+ 	}
+-	hid_debug_event(hid, "\n");
+-	kfree(buf);
  
- 	    /* PS/2 mouse */
--            Device (MOU)
-+            Device (PS2M)
-             {
--                Name (_HID, EisaId ("PNP0F13"))
--                Method (_STA, 0, NotSerialized)
--                {
--                    Return (0x0f)
--                }
--
--                Method (_CRS, 0, NotSerialized)
-+                Name (_CID, EisaId ("PNP0F13"))
-+		Name (_HID, EisaId ("DLL0532"))
-+            Name (_CRS, ResourceTemplate ()
-+            {
-+                IRQ (Edge, ActiveHigh, Exclusive, )
-+                    {12}
-+            })
-+            Name (_PRS, ResourceTemplate ()
-+            {
-+                StartDependentFn (0x00, 0x00)
-                 {
--                    Name (TMP, ResourceTemplate ()
--                    {
--                         IRQNoFlags () {12}
--                    })
--                    Return (TMP)
-+                    IRQNoFlags ()
-+                        {12}
-                 }
-+                EndDependentFn ()
-+            })
-             }
- 
- 	    /* PS/2 floppy controller */
+ nomem:
+ 	report = hid_get_report(report_enum, data);
 
---bAmEntskrkuBymla--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,81 +1,85 @@
 From: Hui Wang <jason77.wang@gmail.com>
-Subject: [PATCH v3 1/3] Input: egalax_ts: get gpio from devicetree node
-Date: Wed, 15 Aug 2012 18:31:46 +0800
-Message-ID: <1345026708-14139-2-git-send-email-jason77.wang@gmail.com>
+Subject: [PATCH v3 3/3] ARM: dts: imx6q-sabrelite: add eeti egalax
+Date: Wed, 15 Aug 2012 18:31:48 +0800
+Message-ID: <1345026708-14139-4-git-send-email-jason77.wang@gmail.com>
 References: <1345026708-14139-1-git-send-email-jason77.wang@gmail.com>
+ <1345026708-14139-2-git-send-email-jason77.wang@gmail.com>
+ <1345026708-14139-3-git-send-email-jason77.wang@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:37423 "EHLO
+Received: from mail.windriver.com ([147.11.1.11]:37433 "EHLO
 	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751447Ab2HOKcg (ORCPT
+	with ESMTP id S1751604Ab2HOKcj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Aug 2012 06:32:36 -0400
-In-Reply-To: <1345026708-14139-1-git-send-email-jason77.wang@gmail.com>
+	Wed, 15 Aug 2012 06:32:39 -0400
+In-Reply-To: <1345026708-14139-3-git-send-email-jason77.wang@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, jiejing.zhang@freescale.com, shawn.guo@linaro.org
 Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree-discuss@lists.ozlabs.org
 
-The irq_to_gpio() is old, most platforms use GENERIC_GPIO framework
-and don't support this API anymore.
-
-The i.MX6q sabrelite platform equips an egalax touchscreen controller,
-and this platform already transfered to GENERIC_GPIO framework, to
-support this driver, we use a more generic way to get gpio.
-
-Add a return value checking for waking up the controller in the probe
-function, this guarantee only a workable device can pass init.
+i.MX6Q sabrelite board uses i2c3 to connect an eeti egalax
+touchscreen controller, add it as an i2c slave device in the dts.
 
 Signed-off-by: Hui Wang <jason77.wang@gmail.com>
 ---
- drivers/input/touchscreen/egalax_ts.c |   19 ++++++++++++++++---
- 1 files changed, 16 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/imx6q-sabrelite.dts |   16 ++++++++++++++++
+ arch/arm/boot/dts/imx6q.dtsi          |    7 +++++++
+ 2 files changed, 23 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
-index 70524dd..54361c9 100644
---- a/drivers/input/touchscreen/egalax_ts.c
-+++ b/drivers/input/touchscreen/egalax_ts.c
-@@ -28,6 +28,7 @@
- #include <linux/slab.h>
- #include <linux/bitops.h>
- #include <linux/input/mt.h>
-+#include <linux/of_gpio.h>
- 
- /*
-  * Mouse Mode: some panel may configure the controller to mouse mode,
-@@ -122,8 +123,15 @@ static irqreturn_t egalax_ts_interrupt(int irq, void *dev_id)
- /* wake up controller by an falling edge of interrupt gpio.  */
- static int egalax_wake_up_device(struct i2c_client *client)
- {
--	int gpio = irq_to_gpio(client->irq);
--	int ret;
-+	struct device_node *np = client->dev.of_node;
-+	int gpio, ret;
+diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
+index 72f30f3..4a68e1f 100644
+--- a/arch/arm/boot/dts/imx6q-sabrelite.dts
++++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
+@@ -54,6 +54,7 @@
+ 							   144  0x80000000	/* MX6Q_PAD_EIM_D22__GPIO_3_22 */
+ 							   121  0x80000000	/* MX6Q_PAD_EIM_D19__GPIO_3_19 */
+ 							   953  0x80000000	/* MX6Q_PAD_GPIO_0__CCM_CLKO */
++							   972  0x10		/* MX6Q_PAD_GPIO_9__GPIO_1_9 */
+ 							   >;
+ 					};
+ 				};
+@@ -115,6 +116,21 @@
+ 					VDDIO-supply = <&reg_3p3v>;
+ 				};
+ 			};
 +
-+	if (!np)
-+		return -ENODEV;
++			i2c@021a8000 { /* I2C3 */
++				status = "okay";
++				clock-frequency = <100000>;
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_i2c3_1>;
 +
-+	gpio = of_get_named_gpio(np, "wakeup-gpios", 0);
-+	if (!gpio_is_valid(gpio))
-+		return -ENODEV;
++				egalax_ts@04 {
++					compatible = "eeti,egalax_ts";
++					reg = <0x04>;
++					interrupt-parent = <&gpio1>;
++					interrupts = <9 2>;
++					wakeup-gpios = <&gpio1 9 0>;
++				};
++			};
+ 		};
+ 	};
  
- 	ret = gpio_request(gpio, "egalax_irq");
- 	if (ret < 0) {
-@@ -181,7 +189,12 @@ static int __devinit egalax_ts_probe(struct i2c_client *client,
- 	ts->input_dev = input_dev;
+diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+index fd57079..6f833b3 100644
+--- a/arch/arm/boot/dts/imx6q.dtsi
++++ b/arch/arm/boot/dts/imx6q.dtsi
+@@ -552,6 +552,13 @@
+ 					};
+ 				};
  
- 	/* controller may be in sleep, wake it up. */
--	egalax_wake_up_device(client);
-+	ret = egalax_wake_up_device(client);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "Failed to wake up the controller\n");
-+		error = ret;
-+		goto err_free_dev;
-+	}
- 
- 	ret = egalax_firmware_version(client);
- 	if (ret < 0) {
++				i2c3 {
++					pinctrl_i2c3_1: i2c3grp-1 {
++						fsl,pins = <1013 0x4001b8b1	/* MX6Q_PAD_GPIO_5__I2C3_SCL */
++							    1037 0x4001b8b1>;	/* MX6Q_PAD_GPIO_16__I2C3_SDA */
++					};
++				};
++
+ 				serial2 {
+ 					pinctrl_serial2_1: serial2grp-1 {
+ 						fsl,pins = <183 0x1b0b1		/* MX6Q_PAD_EIM_D26__UART2_TXD */
 -- 
 1.7.6
 

@@ -1,49 +1,76 @@
-From: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: USB interrupt times
-Date: Wed, 15 Aug 2012 10:15:54 +0100
-Message-ID: <20120815091554.GD7105@flint.arm.linux.org.uk>
-References: <20120814103936.GA7105@flint.arm.linux.org.uk> <alpine.LNX.2.00.1208141250020.12490@pobox.suse.cz> <20120814121804.GC7105@flint.arm.linux.org.uk> <alpine.LNX.2.00.1208151102040.7026@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Scott Liu <scott.liu@emc.com.tw>
+Subject: [PATCH v4 1/1] HID:hid-multitouch: Add ELAN production request when resume.
+Date: Wed, 15 Aug 2012 17:21:55 +0800
+Message-ID: <1345022515-17272-1-git-send-email-scott.liu@emc.com.tw>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from caramon.arm.linux.org.uk ([78.32.30.218]:38986 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751463Ab2HOJQE (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:58457 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753251Ab2HOJUu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Aug 2012 05:16:04 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1208151102040.7026@pobox.suse.cz>
+	Wed, 15 Aug 2012 05:20:50 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Henrik Rydberg <rydberg@euromail.se>
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, eleghost@gmail.com
+Cc: Scott Liu <scott.liu@emc.com.tw>
 
-On Wed, Aug 15, 2012 at 11:02:37AM +0200, Jiri Kosina wrote:
-> On Tue, 14 Aug 2012, Russell King wrote:
-> 
-> > > Actually, Henrik (added to CC) has been doing some latency improvements 
-> > > both for input core in general, and for HID devices as well lately. I 
-> > > still have his patchset in my to-review queue, as I have just came back 
-> > > from offline vacation, but the patch below definitely can't hurt and 
-> > > should significantly lower the time spent in handling the irq for hid 
-> > > device in common situation (i.e. noone listening for debugfs events).
-> > > 
-> > > Could you please measure how much it helps on your system?
-> > 
-> > Ok, it looks like it's changed the maximum USB interrupt execution
-> > time from around 364us to 255us.
-> > 
-> > If I also do a similar trick with the debug code in hid_input_report()
-> > then I get down to 212us - iow, something like the patch below.
-> 
-> Are you testing with kernel that contains b94e3c94aae04 already? That 
-> should cover that case.
+Add ELAN production request when resume.
 
-No - the kernel I'm dealing with is unfortunately based upon v3.5.0-rc5
-with many other patches on top (which add support for this platform.)
-However, I'll pick that commit into this tree.
+Some Elan legacy devices require SET_IDLE to be set on resume.
+It should be safe to send it to other devices too.
+Tested on 3M, Stantum, Cypress, Zytronic, eGalax, and Elan panels. 
 
+
+Signed-off-by: Scott Liu <scott.liu@emc.com.tw>
+Suggested-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+---
+ drivers/hid/hid-multitouch.c |   27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 59c8b5c..e824c37 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -767,6 +767,32 @@ static int mt_reset_resume(struct hid_device *hdev)
+ 	mt_set_input_mode(hdev);
+ 	return 0;
+ }
++
++static int mt_resume(struct hid_device *hdev)
++{
++	struct usb_interface *intf;
++	struct usb_host_interface *interface;
++	struct usb_device *dev;
++
++	if (hdev->bus != BUS_USB)
++		return 0;
++
++	intf = to_usb_interface(hdev->dev.parent);
++	interface = intf->cur_altsetting;
++	dev = hid_to_usb_dev(hdev);
++
++	/* Some Elan legacy devices require SET_IDLE to be set on resume.
++	 * It should be safe to send it to other devices too.
++	 * Tested on 3M, Stantum, Cypress, Zytronic, eGalax, and Elan panels. */
++
++	usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
++			HID_REQ_SET_IDLE,
++			USB_TYPE_CLASS | USB_RECIP_INTERFACE,
++			0, interface->desc.bInterfaceNumber,
++			NULL, 0, USB_CTRL_SET_TIMEOUT);
++
++	return 0;
++}
+ #endif
+ 
+ static void mt_remove(struct hid_device *hdev)
+@@ -1092,6 +1118,7 @@ static struct hid_driver mt_driver = {
+ 	.event = mt_event,
+ #ifdef CONFIG_PM
+ 	.reset_resume = mt_reset_resume,
++	.resume = mt_resume,
+ #endif
+ };
+ 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+1.7.9.5
+

@@ -1,247 +1,62 @@
-From: Anthony Olech <anthony.olech.opensource@diasemi.com>
-Subject: [NEW DRIVER V3 3/8] DA9058 ONKEY driver
-Date: Wed, 15 Aug 2012 16:05:22 +0100
-Message-ID: <201208151518.q7FFINn3011629@latitude.olech.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailrelay1.diasemi.com ([82.210.246.133]:11810 "EHLO
-	mailrelay1.diasemi.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753657Ab2HOPSc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Aug 2012 11:18:32 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Subject: [PATCH] HID: hidraw: improve error handling in hidraw_init()
+Date: Wed, 15 Aug 2012 23:31:45 +0400
+Message-ID: <1345059105-26827-1-git-send-email-khoroshilov@ispras.ru>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@ispras.ru
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Eric Andersson <eric.andersson@unixphere.com>, Andrew Jones <drjones@redhat.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>
 
-This is the ONKEY component driver of the Dialog DA9058 PMIC.
-This driver is just one component of the whole DA9058 PMIC driver.
-It depends on the CORE component driver of the DA9058 MFD.
+Several improvements in error handling:
+- do not report success if alloc_chrdev_region() failed
+- check for error code of cdev_add()
+- use unregister_chrdev_region() instead of unregister_chrdev()
+  if class_create() failed
 
-Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
-Signed-off-by: David Dajun Chen <david.chen@diasemi.com>
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
 ---
- drivers/input/misc/Kconfig        |   10 ++
- drivers/input/misc/Makefile       |    1 +
- drivers/input/misc/da9058_onkey.c |  177 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 188 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/da9058_onkey.c
+ drivers/hid/hidraw.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 7faf4a7..697b703 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -73,6 +73,16 @@ config INPUT_BMA150
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called bma150.
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 36fa77b..15e6660 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -549,21 +549,28 @@ int __init hidraw_init(void)
  
-+config INPUT_DA9058_ONKEY
-+	tristate "DA9058 ONKEY support"
-+	depends on MFD_DA9058
-+	help
-+	  Support the ONKEY of DA9058 PMICs as an input device
-+	  reporting power button status.
+ 	if (result < 0) {
+ 		pr_warn("can't get major number\n");
+-		result = 0;
+ 		goto out;
+ 	}
+ 
+ 	hidraw_class = class_create(THIS_MODULE, "hidraw");
+ 	if (IS_ERR(hidraw_class)) {
+ 		result = PTR_ERR(hidraw_class);
+-		unregister_chrdev(hidraw_major, "hidraw");
+-		goto out;
++		goto error_cdev;
+ 	}
+ 
+         cdev_init(&hidraw_cdev, &hidraw_ops);
+-        cdev_add(&hidraw_cdev, dev_id, HIDRAW_MAX_DEVICES);
++	result = cdev_add(&hidraw_cdev, dev_id, HIDRAW_MAX_DEVICES);
++	if (result < 0)
++		goto error_class;
 +
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called da9058_onkey.
+ out:
+ 	return result;
 +
- config INPUT_PCSPKR
- 	tristate "PC Speaker support"
- 	depends on PCSPKR_PLATFORM
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index f55cdf4..048d50e 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -41,6 +41,7 @@ obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
- obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
- obj-$(CONFIG_INPUT_PM8XXX_VIBRATOR)	+= pm8xxx-vibrator.o
- obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+= pmic8xxx-pwrkey.o
-+obj-$(CONFIG_INPUT_DA9058_ONKEY)		+= da9058_onkey.o
- obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
- obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
- obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
-diff --git a/drivers/input/misc/da9058_onkey.c b/drivers/input/misc/da9058_onkey.c
-new file mode 100644
-index 0000000..0b351d1
---- /dev/null
-+++ b/drivers/input/misc/da9058_onkey.c
-@@ -0,0 +1,177 @@
-+/*
-+ *  Copyright (C) 2012 Dialog Semiconductor Ltd.
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/mfd/core.h>
-+#include <linux/regmap.h>
-+
-+#include <linux/mfd/da9058/version.h>
-+#include <linux/mfd/da9058/registers.h>
-+#include <linux/mfd/da9058/core.h>
-+#include <linux/mfd/da9058/irq.h>
-+#include <linux/mfd/da9058/onkey.h>
-+
-+struct da9058_onkey {
-+	struct da9058 *da9058;
-+	struct platform_device *pdev;
-+	struct input_dev *input;
-+	struct delayed_work work;
-+	int irq;
-+};
-+
-+static void da9058_onkey_poll(struct work_struct *work)
-+{
-+	struct da9058_onkey *onkey = container_of(work, struct da9058_onkey,
-+							work.work);
-+	struct da9058 *da9058 = onkey->da9058;
-+	int poll, ret;
-+	unsigned int sa;
-+
-+	ret = da9058_reg_read(da9058, DA9058_STATUSA_REG, &sa);
-+	if (ret) {
-+		dev_dbg(&onkey->pdev->dev, "Failed to read ONKEY: %d\n", ret);
-+		poll = 1;
-+	} else if (sa & DA9058_STATUSA_NONKEY) {
-+		poll = 0;
-+	} else {
-+		poll = 1;
-+	}
-+
-+	input_report_key(onkey->input, KEY_POWER, poll);
-+	input_sync(onkey->input);
-+
-+	if (poll)
-+		schedule_delayed_work(&onkey->work, msecs_to_jiffies(50));
-+}
-+
-+static irqreturn_t da9058_onkey_event_handler(int irq, void *data)
-+{
-+	struct da9058_onkey *onkey = data;
-+
-+	schedule_delayed_work(&onkey->work, 0);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int __devinit da9058_onkey_probe(struct platform_device *pdev)
-+{
-+	struct da9058 *da9058 = dev_get_drvdata(pdev->dev.parent);
-+	const struct mfd_cell *cell = mfd_get_cell(pdev);
-+	struct da9058_onkey_pdata *onkey_pdata;
-+	struct da9058_onkey *onkey;
-+	int ret;
-+
-+	if (cell == NULL) {
-+		ret = -ENODEV;
-+		goto exit;
-+	}
-+
-+	onkey_pdata = cell->platform_data;
-+
-+	if (onkey_pdata == NULL) {
-+		ret = -EINVAL;
-+		goto exit;
-+	}
-+
-+	dev_info(&pdev->dev, "Starting ONKEY\n");
-+
-+	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9058_onkey),
-+				GFP_KERNEL);
-+	if (!onkey) {
-+		ret = -ENOMEM;
-+		goto exit;
-+	}
-+
-+	platform_set_drvdata(pdev, onkey);
-+
-+	onkey->da9058 = da9058;
-+	onkey->pdev = pdev;
-+
-+	onkey->irq = platform_get_irq(pdev, 0);
-+	if (onkey->irq < 0) {
-+		dev_err(&pdev->dev, "can not get ONKEY IRQ error=%d\n",
-+				onkey->irq);
-+		ret = -ENODEV;
-+		goto failed_to_get_irq;
-+	}
-+
-+	INIT_DELAYED_WORK(&onkey->work, da9058_onkey_poll);
-+
-+	onkey->input = input_allocate_device();
-+	if (!onkey->input) {
-+		dev_err(&pdev->dev, "failed to allocate data device\n");
-+		ret = -ENOMEM;
-+		goto failed_to_allocate_device;
-+	}
-+
-+	onkey->input->evbit[0] = BIT_MASK(EV_KEY);
-+	onkey->input->keybit[BIT_WORD(KEY_POWER)] = BIT_MASK(KEY_POWER);
-+	onkey->input->name = "da9058-onkey";
-+	onkey->input->phys = "da9058-onkey/input0";
-+	onkey->input->dev.parent = &pdev->dev;
-+
-+	ret = input_register_device(onkey->input);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"Unable to register input ONKEY device: %d\n", ret);
-+		goto failed_to_register_device;
-+	}
-+
-+	ret = request_threaded_irq(da9058_to_virt_irq_num(da9058, onkey->irq),
-+				NULL, da9058_onkey_event_handler,
-+				IRQF_TRIGGER_RISING | IRQF_ONESHOT,
-+				"DA9058 keydown", onkey);
-+
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to get ONKEY keydown IRQ %d: %d\n",
-+			onkey->irq, ret);
-+		goto failed_to_get_onkey_irq;
-+	}
-+	goto exit;
-+
-+failed_to_get_onkey_irq:
-+failed_to_register_device:
-+	input_free_device(onkey->input);
-+failed_to_get_irq:
-+failed_to_allocate_device:
-+	platform_set_drvdata(pdev, NULL);
-+exit:
-+	return ret;
-+}
-+
-+static int __devexit da9058_onkey_remove(struct platform_device *pdev)
-+{
-+	struct da9058_onkey *onkey = platform_get_drvdata(pdev);
-+	struct da9058 *da9058 = onkey->da9058;
-+
-+	free_irq(da9058_to_virt_irq_num(da9058, onkey->irq), onkey);
-+	cancel_delayed_work_sync(&onkey->work);
-+	input_unregister_device(onkey->input);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver da9058_onkey_driver = {
-+	.probe = da9058_onkey_probe,
-+	.remove = __devexit_p(da9058_onkey_remove),
-+	.driver = {
-+		.name = "da9058-onkey",
-+		.owner = THIS_MODULE,
-+	}
-+};
-+
-+module_platform_driver(da9058_onkey_driver);
-+
-+MODULE_AUTHOR("Anthony Olech <Anthony.Olech@diasemi.com>");
-+MODULE_DESCRIPTION("Dialog DA9058 PMIC Onkey Driver");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:da9058-onkey");
++error_class:
++	class_destroy(hidraw_class);
++error_cdev:
++	unregister_chrdev_region(dev_id, HIDRAW_MAX_DEVICES);
++	goto out;
+ }
+ 
+ void hidraw_exit(void)
 -- 
-end-of-patch for NEW DRIVER V3
-
+1.7.9.5

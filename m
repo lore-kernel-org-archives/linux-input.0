@@ -1,85 +1,59 @@
-From: Hui Wang <jason77.wang@gmail.com>
-Subject: [PATCH v3 3/3] ARM: dts: imx6q-sabrelite: add eeti egalax
-Date: Wed, 15 Aug 2012 18:31:48 +0800
-Message-ID: <1345026708-14139-4-git-send-email-jason77.wang@gmail.com>
-References: <1345026708-14139-1-git-send-email-jason77.wang@gmail.com>
- <1345026708-14139-2-git-send-email-jason77.wang@gmail.com>
- <1345026708-14139-3-git-send-email-jason77.wang@gmail.com>
+From: Marek Vasut <marex@denx.de>
+Subject: Re: [PATCH 1/2] input: usb: hid: Bump maximum global item tag report size to 128 bytes
+Date: Wed, 15 Aug 2012 13:56:42 +0200
+Message-ID: <201208151356.42323.marex@denx.de>
+References: <1344203835-8308-1-git-send-email-marex@denx.de> <alpine.LNX.2.00.1208151032340.7026@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:37433 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751604Ab2HOKcj (ORCPT
+Received: from mail-out.m-online.net ([212.18.0.10]:41068 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751129Ab2HOL4v (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Aug 2012 06:32:39 -0400
-In-Reply-To: <1345026708-14139-3-git-send-email-jason77.wang@gmail.com>
+	Wed, 15 Aug 2012 07:56:51 -0400
+In-Reply-To: <alpine.LNX.2.00.1208151032340.7026@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, jiejing.zhang@freescale.com, shawn.guo@linaro.org
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree-discuss@lists.ozlabs.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Chen Peter <B29397@freescale.com>, Greg KH <greg@kroah.com>
 
-i.MX6Q sabrelite board uses i2c3 to connect an eeti egalax
-touchscreen controller, add it as an i2c slave device in the dts.
+Dear Jiri Kosina,
 
-Signed-off-by: Hui Wang <jason77.wang@gmail.com>
----
- arch/arm/boot/dts/imx6q-sabrelite.dts |   16 ++++++++++++++++
- arch/arm/boot/dts/imx6q.dtsi          |    7 +++++++
- 2 files changed, 23 insertions(+), 0 deletions(-)
+> On Sun, 5 Aug 2012, Marek Vasut wrote:
+> > The Freescale i.MX28 BootROM USB recovery mode implements the USB HID
+> > protocol, yet the global item tag report size is 128. Linux checks if
+> > this is 96 as of now, see [1]. This causes Linux to refuse to communicate
+> > with this device, making it impossible to use the recovery mode.
+> > 
+> > This is not a standard HID device per se, but rather a software emulation
+> > implemented within the BootROM code and realized through USB OTG-capable
+> > port switched to device mode present on the device.
+> > 
+> > Previous attempt to discuss this issue dates back to 2011, see [2]. There
+> > has been not much response. Also noteworthy is the [3], where there seems
+> > to be a pointing device that has issue similar to this one.
+> > 
+> > The tool making use of the USB recovery mode is available at [4].
+> > 
+> > [1] http://comments.gmane.org/gmane.linux.kernel.input/22328
+> > [2] http://www.spinics.net/lists/linux-usb/msg43463.html
+> > [3] https://bbs.archlinux.org/viewtopic.php?pid=1141340
+> > [4] http://git.bfuser.eu/?p=marex/mxsldr.git;a=summary
+> > 
+> > Signed-off-by: Marek Vasut <marex@denx.de>
+> > Cc: Chen Peter <B29397@freescale.com>
+> > Cc: Greg KH <greg@kroah.com>
+> > Cc: Jiri Kosina <jkosina@suse.cz>
+> 
+> I have not admit I don't remember where the original limit came from --
+> the spec doesn't mandate it as far as I can tell.
+> 
+> I am queueing this patch now for next merge window. Thanks.
+[...]
 
-diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
-index 72f30f3..4a68e1f 100644
---- a/arch/arm/boot/dts/imx6q-sabrelite.dts
-+++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
-@@ -54,6 +54,7 @@
- 							   144  0x80000000	/* MX6Q_PAD_EIM_D22__GPIO_3_22 */
- 							   121  0x80000000	/* MX6Q_PAD_EIM_D19__GPIO_3_19 */
- 							   953  0x80000000	/* MX6Q_PAD_GPIO_0__CCM_CLKO */
-+							   972  0x10		/* MX6Q_PAD_GPIO_9__GPIO_1_9 */
- 							   >;
- 					};
- 				};
-@@ -115,6 +116,21 @@
- 					VDDIO-supply = <&reg_3p3v>;
- 				};
- 			};
-+
-+			i2c@021a8000 { /* I2C3 */
-+				status = "okay";
-+				clock-frequency = <100000>;
-+				pinctrl-names = "default";
-+				pinctrl-0 = <&pinctrl_i2c3_1>;
-+
-+				egalax_ts@04 {
-+					compatible = "eeti,egalax_ts";
-+					reg = <0x04>;
-+					interrupt-parent = <&gpio1>;
-+					interrupts = <9 2>;
-+					wakeup-gpios = <&gpio1 9 0>;
-+				};
-+			};
- 		};
- 	};
- 
-diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
-index fd57079..6f833b3 100644
---- a/arch/arm/boot/dts/imx6q.dtsi
-+++ b/arch/arm/boot/dts/imx6q.dtsi
-@@ -552,6 +552,13 @@
- 					};
- 				};
- 
-+				i2c3 {
-+					pinctrl_i2c3_1: i2c3grp-1 {
-+						fsl,pins = <1013 0x4001b8b1	/* MX6Q_PAD_GPIO_5__I2C3_SCL */
-+							    1037 0x4001b8b1>;	/* MX6Q_PAD_GPIO_16__I2C3_SDA */
-+					};
-+				};
-+
- 				serial2 {
- 					pinctrl_serial2_1: serial2grp-1 {
- 						fsl,pins = <183 0x1b0b1		/* MX6Q_PAD_EIM_D26__UART2_TXD */
--- 
-1.7.6
+Thanks!
 
+Best regards,
+Marek Vasut

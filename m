@@ -1,61 +1,58 @@
 From: Hui Wang <jason77.wang@gmail.com>
-Subject: [PATCH v3 0/3] Input: egalax_ts: parse devicetree to get gpio
-Date: Wed, 15 Aug 2012 18:31:45 +0800
-Message-ID: <1345026708-14139-1-git-send-email-jason77.wang@gmail.com>
+Subject: [PATCH v3 2/3] Input: add devicetree binding note for egalax_ts
+Date: Wed, 15 Aug 2012 18:31:47 +0800
+Message-ID: <1345026708-14139-3-git-send-email-jason77.wang@gmail.com>
+References: <1345026708-14139-1-git-send-email-jason77.wang@gmail.com>
+ <1345026708-14139-2-git-send-email-jason77.wang@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.windriver.com ([147.11.146.13]:54091 "EHLO
+Received: from mail1.windriver.com ([147.11.146.13]:54092 "EHLO
 	mail1.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751299Ab2HOKcg (ORCPT
+	with ESMTP id S1751604Ab2HOKch (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Aug 2012 06:32:36 -0400
+	Wed, 15 Aug 2012 06:32:37 -0400
+In-Reply-To: <1345026708-14139-2-git-send-email-jason77.wang@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, jiejing.zhang@freescale.com, shawn.guo@linaro.org
 Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree-discuss@lists.ozlabs.org
 
-V3:
+The egalax_ts driver needs to get the gpio number of the irq pin,
+and use this gpio to wake up the controller. So add a note
+for this change.
 
-Although have got Ack-by from driver author in the V2, i have to send
-V3 since the driver is changed due to the change of a property name
-in the dts.
-
-As Shawn.guo suggested, i renamed property "irq-gpio" to "wakeup-gpios".
-The reason is that, firstly the idiom of gpio naming in DT is *-gpios,
-even though most of time, it could be just one gpio, secondly as the pin is
-accessed as a gpio only in egalax_wake_up_device for waking up the device.
-
-This time i send the patches both to linux-input and linux-arm, 0001 and
-0002 belongs to linux-input, while the 0003 belongs to linux-arm.
-
-V2:
-
-Add return value checking for waking up the controller in the probe
-function.
-
-V1:
-
-eeti touch screen controller is an external chip for most platforms,
-it connect to CPU via i2c bus, and it has a irq request pin need to be
-connected to a gpio of the CPU, this irq request pin also act as a
-wake up signal for touch screen controller, we need to get this gpio
-number and operate it to wake up the controller, the old way to get
-gpio is irq_to_gpio(), this API is dying and most platforms don't support
-it, we change it to a more generic way to use devcietree.
-
-Hui Wang (3):
-  Input: egalax_ts: get gpio from devicetree node
-  Input: add devicetree binding note for egalax_ts
-  ARM: dts: imx6q-sabrelite: add eeti egalax touchscreen
-
+Signed-off-by: Hui Wang <jason77.wang@gmail.com>
+---
  .../bindings/input/touchscreen/egalax-ts.txt       |   19 +++++++++++++++++++
- arch/arm/boot/dts/imx6q-sabrelite.dts              |   16 ++++++++++++++++
- arch/arm/boot/dts/imx6q.dtsi                       |    7 +++++++
- drivers/input/touchscreen/egalax_ts.c              |   19 ++++++++++++++++---
- 4 files changed, 58 insertions(+), 3 deletions(-)
+ 1 files changed, 19 insertions(+), 0 deletions(-)
  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
 
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt b/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
+new file mode 100644
+index 0000000..df70318
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
+@@ -0,0 +1,19 @@
++* EETI eGalax Multiple Touch Controller
++
++Required properties:
++- compatible: must be "eeti,egalax_ts"
++- reg: i2c slave address
++- interrupt-parent: the phandle for the interrupt controller
++- interrupts: touch controller interrupt
++- wakeup-gpios: the gpio pin to be used for waking up the controller
++  as well as uased as irq pin
++
++Example:
++
++	egalax_ts@04 {
++		compatible = "eeti,egalax_ts";
++		reg = <0x04>;
++		interrupt-parent = <&gpio1>;
++		interrupts = <9 2>;
++		wakeup-gpios = <&gpio1 9 0>;
++	};
 -- 
 1.7.6
 

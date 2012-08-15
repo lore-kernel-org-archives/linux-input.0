@@ -1,97 +1,74 @@
-From: Shawn Guo <shawn.guo@linaro.org>
-Subject: Re: [PATCH v3 3/3] ARM: dts: imx6q-sabrelite: add eeti egalax
-Date: Wed, 15 Aug 2012 21:01:11 +0800
-Message-ID: <20120815130108.GB2258@S2101-09.ap.freescale.net>
-References: <1345026708-14139-1-git-send-email-jason77.wang@gmail.com>
- <1345026708-14139-2-git-send-email-jason77.wang@gmail.com>
- <1345026708-14139-3-git-send-email-jason77.wang@gmail.com>
- <1345026708-14139-4-git-send-email-jason77.wang@gmail.com>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: [PATCH 0/7] HID: picoLCD updates
+Date: Wed, 15 Aug 2012 17:16:35 +0200
+Message-ID: <20120815171635.2564a4a8@neptune.home>
+References: <20120730213656.0a9f6d30@neptune.home>
+	<alpine.LNX.2.00.1208151016221.7026@pobox.suse.cz>
+	<20120815114236.0f7db40e@neptune.home>
+	<alpine.LNX.2.00.1208151409500.7026@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gg0-f174.google.com ([209.85.161.174]:47805 "EHLO
-	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754415Ab2HONBW (ORCPT
+Received: from smtprelay.restena.lu ([158.64.1.62]:43228 "EHLO
+	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750828Ab2HOPRS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Aug 2012 09:01:22 -0400
-Received: by ggdk6 with SMTP id k6so1716000ggd.19
-        for <linux-input@vger.kernel.org>; Wed, 15 Aug 2012 06:01:22 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1345026708-14139-4-git-send-email-jason77.wang@gmail.com>
+	Wed, 15 Aug 2012 11:17:18 -0400
+In-Reply-To: <alpine.LNX.2.00.1208151409500.7026@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hui Wang <jason77.wang@gmail.com>
-Cc: dmitry.torokhov@gmail.com, jiejing.zhang@freescale.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree-discuss@lists.ozlabs.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
 
-On Wed, Aug 15, 2012 at 06:31:48PM +0800, Hui Wang wrote:
-> i.MX6Q sabrelite board uses i2c3 to connect an eeti egalax
-> touchscreen controller, add it as an i2c slave device in the dts.
-> 
-> Signed-off-by: Hui Wang <jason77.wang@gmail.com>
-> ---
->  arch/arm/boot/dts/imx6q-sabrelite.dts |   16 ++++++++++++++++
->  arch/arm/boot/dts/imx6q.dtsi          |    7 +++++++
->  2 files changed, 23 insertions(+), 0 deletions(-)
-> 
-> diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
-> index 72f30f3..4a68e1f 100644
-> --- a/arch/arm/boot/dts/imx6q-sabrelite.dts
-> +++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
-> @@ -54,6 +54,7 @@
->  							   144  0x80000000	/* MX6Q_PAD_EIM_D22__GPIO_3_22 */
->  							   121  0x80000000	/* MX6Q_PAD_EIM_D19__GPIO_3_19 */
->  							   953  0x80000000	/* MX6Q_PAD_GPIO_0__CCM_CLKO */
-> +							   972  0x10		/* MX6Q_PAD_GPIO_9__GPIO_1_9 */
->  							   >;
->  					};
->  				};
-> @@ -115,6 +116,21 @@
->  					VDDIO-supply = <&reg_3p3v>;
->  				};
->  			};
-> +
-> +			i2c@021a8000 { /* I2C3 */
-> +				status = "okay";
-> +				clock-frequency = <100000>;
-> +				pinctrl-names = "default";
-> +				pinctrl-0 = <&pinctrl_i2c3_1>;
-> +
-> +				egalax_ts@04 {
-> +					compatible = "eeti,egalax_ts";
-> +					reg = <0x04>;
-> +					interrupt-parent = <&gpio1>;
-> +					interrupts = <9 2>;
+Hi Jiri,
 
-So you take this interrupt as falling-edge, while I see IRQF_TRIGGER_LOW
-is used in driver with request_threaded_irq call.
+On Wed, 15 August 2012 Jiri Kosina <jkosina@suse.cz> wrote:
+> I see. Alan Stern has fixed a huge pile of things in this area in 3.6-rc1. 
+> I have expected all of those to actually be on theoretical problems not 
+> ever having happened in the wild, but it might be that you are actually 
+> chasing on of those.
+>
+> Could you please retest with latest Linus' tree (or at least eb055fd0560b) 
+> to see whether this hasn't actually been fixed already by Alan's series?
 
-Regards,
-Shawn
+I've started trying that out, it seems Alan's work improved things.
 
-> +					wakeup-gpios = <&gpio1 9 0>;
-> +				};
-> +			};
->  		};
->  	};
->  
-> diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
-> index fd57079..6f833b3 100644
-> --- a/arch/arm/boot/dts/imx6q.dtsi
-> +++ b/arch/arm/boot/dts/imx6q.dtsi
-> @@ -552,6 +552,13 @@
->  					};
->  				};
->  
-> +				i2c3 {
-> +					pinctrl_i2c3_1: i2c3grp-1 {
-> +						fsl,pins = <1013 0x4001b8b1	/* MX6Q_PAD_GPIO_5__I2C3_SCL */
-> +							    1037 0x4001b8b1>;	/* MX6Q_PAD_GPIO_16__I2C3_SDA */
-> +					};
-> +				};
-> +
->  				serial2 {
->  					pinctrl_serial2_1: serial2grp-1 {
->  						fsl,pins = <183 0x1b0b1		/* MX6Q_PAD_EIM_D26__UART2_TXD */
-> -- 
-> 1.7.6
-> 
+For the first few attempts I have not seen SLAB corruptions, though after
+a few rounds I hit accumulation of the following messages:
+[  297.174828] hid-picolcd 0003:04D8:C002.0003: output queue full
+[  297.181098] hid-picolcd 0003:04D8:C002.0003: output queue full
+[  297.187820] hid-picolcd 0003:04D8:C002.0003: output queue full
+[  297.194087] hid-picolcd 0003:04D8:C002.0003: output queue full
+
+with sporadically in between:
+[  292.668019] hid-picolcd 0003:04D8:C002.0003: usb_submit_urb(out) failed: -1
+
+At first glance I think the queue filling up and never draining is caused
+by hid_hw_stop() stalling the queue and the time between both being just too
+short.
+Maybe me (un)binding on hid-picolcd driver level is the major cause of this
+and (un)binding at lower usb level would kill the queue thus preventing
+it just growing until full...
+
+
+Is there a proper way to do rate-limiting or throttling when submitting
+reports (which are the urbs deeper in the stack) and catch -ENODEV early
+while remove() is delayed for locking reasons?
+At least until 3.5 submitting reports provides no return value for driver
+which could convey errors like -ENODEV, -EBUSY.
+
+
+
+After a few bind-unbind iterations I have also hit a race in hid-picolcd
+with regard to fbdefio.
+That looks like chicken-egg release sequencing between hid-picolcd and
+fb_info subdev -- though I'm wondering how that happens as the only framebuffer
+user I know of - fbcon - should have stopped using it after
+unregister_framebuffer() returned and released the last reference!
+
+But that part can be improved rather easily with a new spinlock synchronizing
+interoperation between hid side and framebuffer side.
+
+Thanks,
+Bruno

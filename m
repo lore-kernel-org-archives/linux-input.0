@@ -1,41 +1,57 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: HID: hid-multitouch: Switch to device groups
-Date: Wed, 15 Aug 2012 10:38:07 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1208151037280.7026@pobox.suse.cz>
-References: <20120808134408.GA25857@elgon.mountain> <20120808172829.GA1001@polaris.bitmath.org> <20120808180758.GC3734@mwanda> <20120808195429.GA1425@polaris.bitmath.org>
+Subject: Re: [PATCH] HID: multitouch: Add support for eGalax 0x73f7
+Date: Wed, 15 Aug 2012 10:39:25 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1208151039160.7026@pobox.suse.cz>
+References: <1344494088-3438-1-git-send-email-thierry.reding@avionic-design.de>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33841 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:33887 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752189Ab2HOIiP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Aug 2012 04:38:15 -0400
-In-Reply-To: <20120808195429.GA1425@polaris.bitmath.org>
+	id S1753340Ab2HOIjd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Aug 2012 04:39:33 -0400
+In-Reply-To: <1344494088-3438-1-git-send-email-thierry.reding@avionic-design.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, linux-input@vger.kernel.org
+To: Thierry Reding <thierry.reding@avionic-design.de>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 8 Aug 2012, Henrik Rydberg wrote:
+On Thu, 9 Aug 2012, Thierry Reding wrote:
 
-> > > > This is a semi-automatic email about new static checker warnings.
-> > > > 
-> > > > The patch 4fa3a5837b84: "HID: hid-multitouch: Switch to device 
-> > > > groups" from May 1, 2012, leads to the following Smatch complaint:
-> > > > 
-> > > > drivers/hid/hid-multitouch.c:735 mt_probe()
-> > > > 	 error: we previously assumed 'id' could be null (see line 694)
-> > > 
-> > > Yes, and the same patch also removes the reason 'id' could be null.
-> > 
-> > Great.  Could you remove the unneeded check in mt_probe() and give
-> > me a Reported-by: tag?
+> Signed-off-by: Thierry Reding <thierry.reding@avionic-design.de>
+> ---
+>  drivers/hid/hid-ids.h        | 1 +
+>  drivers/hid/hid-multitouch.c | 3 +++
+>  2 files changed, 4 insertions(+)
 > 
-> Ok, now I get it - I was pretty sure that test was not in mainline
-> anymore, but obviously I was wrong. Jiri, here is a patch for it, at
-> your convenience.
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 5a91bf6..9614a65 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -270,6 +270,7 @@
+>  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_72FA	0x72fa
+>  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7302	0x7302
+>  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
+> +#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7	0x73f7
+>  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
+>  
+>  #define USB_VENDOR_ID_ELECOM		0x056e
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 59c8b5c..115dca2 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -885,6 +885,9 @@ static const struct hid_device_id mt_devices[] = {
+>  			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349) },
+>  	{ .driver_data = MT_CLS_EGALAX_SERIAL,
+>  		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+> +			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7) },
+> +	{ .driver_data = MT_CLS_EGALAX_SERIAL,
+> +		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+>  			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
+>  
+>  	/* Elo TouchSystems IntelliTouch Plus panel */
 
-Applied, thanks Dan, thanks Henrik.
+Applied, thanks Thierry.
 
 -- 
 Jiri Kosina

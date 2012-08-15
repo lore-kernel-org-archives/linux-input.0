@@ -1,73 +1,97 @@
-From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3 2/3] Input: add devicetree binding note for egalax_ts
-Date: Wed, 15 Aug 2012 20:53:56 +0800
-Message-ID: <20120815125353.GA2258@S2101-09.ap.freescale.net>
+From: Shawn Guo <shawn.guo@linaro.org>
+Subject: Re: [PATCH v3 3/3] ARM: dts: imx6q-sabrelite: add eeti egalax
+Date: Wed, 15 Aug 2012 21:01:11 +0800
+Message-ID: <20120815130108.GB2258@S2101-09.ap.freescale.net>
 References: <1345026708-14139-1-git-send-email-jason77.wang@gmail.com>
  <1345026708-14139-2-git-send-email-jason77.wang@gmail.com>
  <1345026708-14139-3-git-send-email-jason77.wang@gmail.com>
+ <1345026708-14139-4-git-send-email-jason77.wang@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gg0-f174.google.com ([209.85.161.174]:47805 "EHLO
+	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754415Ab2HONBW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Aug 2012 09:01:22 -0400
+Received: by ggdk6 with SMTP id k6so1716000ggd.19
+        for <linux-input@vger.kernel.org>; Wed, 15 Aug 2012 06:01:22 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1345026708-14139-3-git-send-email-jason77.wang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Hui Wang <jason77.wang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jiejing.zhang-KZfg59tc24xl57MIdRCFDg@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1345026708-14139-4-git-send-email-jason77.wang@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hui Wang <jason77.wang@gmail.com>
+Cc: dmitry.torokhov@gmail.com, jiejing.zhang@freescale.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree-discuss@lists.ozlabs.org
 
-On Wed, Aug 15, 2012 at 06:31:47PM +0800, Hui Wang wrote:
-> The egalax_ts driver needs to get the gpio number of the irq pin,
-> and use this gpio to wake up the controller. So add a note
-> for this change.
+On Wed, Aug 15, 2012 at 06:31:48PM +0800, Hui Wang wrote:
+> i.MX6Q sabrelite board uses i2c3 to connect an eeti egalax
+> touchscreen controller, add it as an i2c slave device in the dts.
 > 
-> Signed-off-by: Hui Wang <jason77.wang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Hui Wang <jason77.wang@gmail.com>
 > ---
->  .../bindings/input/touchscreen/egalax-ts.txt       |   19 +++++++++++++++++++
->  1 files changed, 19 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
+>  arch/arm/boot/dts/imx6q-sabrelite.dts |   16 ++++++++++++++++
+>  arch/arm/boot/dts/imx6q.dtsi          |    7 +++++++
+>  2 files changed, 23 insertions(+), 0 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt b/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
-> new file mode 100644
-> index 0000000..df70318
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
-> @@ -0,0 +1,19 @@
-> +* EETI eGalax Multiple Touch Controller
+> diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
+> index 72f30f3..4a68e1f 100644
+> --- a/arch/arm/boot/dts/imx6q-sabrelite.dts
+> +++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
+> @@ -54,6 +54,7 @@
+>  							   144  0x80000000	/* MX6Q_PAD_EIM_D22__GPIO_3_22 */
+>  							   121  0x80000000	/* MX6Q_PAD_EIM_D19__GPIO_3_19 */
+>  							   953  0x80000000	/* MX6Q_PAD_GPIO_0__CCM_CLKO */
+> +							   972  0x10		/* MX6Q_PAD_GPIO_9__GPIO_1_9 */
+>  							   >;
+>  					};
+>  				};
+> @@ -115,6 +116,21 @@
+>  					VDDIO-supply = <&reg_3p3v>;
+>  				};
+>  			};
 > +
-> +Required properties:
-> +- compatible: must be "eeti,egalax_ts"
+> +			i2c@021a8000 { /* I2C3 */
+> +				status = "okay";
+> +				clock-frequency = <100000>;
+> +				pinctrl-names = "default";
+> +				pinctrl-0 = <&pinctrl_i2c3_1>;
+> +
+> +				egalax_ts@04 {
+> +					compatible = "eeti,egalax_ts";
+> +					reg = <0x04>;
+> +					interrupt-parent = <&gpio1>;
+> +					interrupts = <9 2>;
 
-Since we define this in the binding anyway, can we have an corresponding
-.of_match_table in the driver?
+So you take this interrupt as falling-edge, while I see IRQF_TRIGGER_LOW
+is used in driver with request_threaded_irq call.
 
 Regards,
 Shawn
 
-> +- reg: i2c slave address
-> +- interrupt-parent: the phandle for the interrupt controller
-> +- interrupts: touch controller interrupt
-> +- wakeup-gpios: the gpio pin to be used for waking up the controller
-> +  as well as uased as irq pin
+> +					wakeup-gpios = <&gpio1 9 0>;
+> +				};
+> +			};
+>  		};
+>  	};
+>  
+> diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+> index fd57079..6f833b3 100644
+> --- a/arch/arm/boot/dts/imx6q.dtsi
+> +++ b/arch/arm/boot/dts/imx6q.dtsi
+> @@ -552,6 +552,13 @@
+>  					};
+>  				};
+>  
+> +				i2c3 {
+> +					pinctrl_i2c3_1: i2c3grp-1 {
+> +						fsl,pins = <1013 0x4001b8b1	/* MX6Q_PAD_GPIO_5__I2C3_SCL */
+> +							    1037 0x4001b8b1>;	/* MX6Q_PAD_GPIO_16__I2C3_SDA */
+> +					};
+> +				};
 > +
-> +Example:
-> +
-> +	egalax_ts@04 {
-> +		compatible = "eeti,egalax_ts";
-> +		reg = <0x04>;
-> +		interrupt-parent = <&gpio1>;
-> +		interrupts = <9 2>;
-> +		wakeup-gpios = <&gpio1 9 0>;
-> +	};
+>  				serial2 {
+>  					pinctrl_serial2_1: serial2grp-1 {
+>  						fsl,pins = <183 0x1b0b1		/* MX6Q_PAD_EIM_D26__UART2_TXD */
 > -- 
 > 1.7.6
 > 

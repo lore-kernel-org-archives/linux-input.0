@@ -1,258 +1,155 @@
-From: anish singh <anish198519851985@gmail.com>
-Subject: Re: [PATCH] [RFC]Extcon: Change to add standard cable names in
- individual drivers.
-Date: Tue, 28 Aug 2012 08:47:22 +0530
-Message-ID: <CAK7N6vrmz_JPkzam68A6O77vR4FsDyu_H_6+ZAvoJLkiz0MOLQ@mail.gmail.com>
-References: <1345904049-26568-1-git-send-email-anish198519851985@gmail.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [NEW DRIVER V3 0/8] DA9058 PMIC - please comment
+ on this new driver
+Date: Thu, 16 Aug 2012 20:10:15 +0100
+Message-ID: <502D4597.6080006@kernel.org>
+References: <201208151518.q7FFI98a011599@latitude.olech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f174.google.com ([209.85.220.174]:45514 "EHLO
-	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751133Ab2H1DRZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Aug 2012 23:17:25 -0400
-In-Reply-To: <1345904049-26568-1-git-send-email-anish198519851985@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <lm-sensors-bounces@lm-sensors.org>
+In-Reply-To: <201208151518.q7FFI98a011599@latitude.olech.com>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/options/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors/>
+List-Post: <mailto:lm-sensors@lm-sensors.org>
+List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
+Sender: lm-sensors-bounces@lm-sensors.org
+Errors-To: lm-sensors-bounces@lm-sensors.org
+To: Anthony Olech <anthony.olech.opensource@diasemi.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, linux-iio@vger.kernel.org, Grant Likely <grant.likely@secretlab.ca>, Randy Dunlap <rdunlap@xenotime.net>, Jonathan Cameron <jic23@cam.ac.uk>, rtc-linux@googlegroups.com, lm-sensors@lm-sensors.org, Eric Andersson <eric.andersson@unixphere.com>, linux-input@vger.kernel.org, Axel Lin <axel.lin@gmail.com>, Liam Girdwood <lrg@ti.com>, Paul Gortmaker <p_gortmaker@yahoo.com>, Andrew Jones <drjones@redhat.com>, Michael Krufky <mkrufky@kernellabs.com>, Arnd Bergmann <arnd@arndb.de>, Samuel Ortiz <sameo@linux.intel.com>, Alessandro Zummo <a.zummo@towertech.it>, Linus Walleij <linus.walleij@stericsson.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, LKML <linux-kernel@vger.kernel.org>, Steven Toth <stoth@kernellabs.com>, Anton Vorontov <cb>
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel-mail <linux-kernel@vger.kernel.org>, Neil Brown <neilb@suse.de>
-Cc: linux-input@vger.kernel.org
 
-Hi,
+You've obviously gone to a lot of effort to get the various parts of this patch
+to go to the right people / lists.
 
-Here is the requirement:
-driver has to give the core the list of standard cable names(exported by
-the core) and can also specify the custom cable names.
+There are however dependencies. I'd like to see the drivers that are dependent
+on the iio one and obviously everyone may be interested in the core parts.
 
-Something as this :
-char *cable_names_supported = {
-        [0] = EXTCON_USB,   /*defined in extcon core */
-        [1] = EXTCON_HEADSET,/*defined in extcon core */
-        [2] = CUSTOM_CABLE /*Not defined in extcon core */
- }
-As of now this is not possible because of some limitations in the extcon core.
+Hence I'd suggest just sending the whole series to everyone concerned.
+We are all well practiced in the art of pressing delete if we don't want
+to read something :)
 
-So, I proposed this attached patch(with limitations) and below is the gist:
-In the core( .C file):
-char *cable_name[] = { "USB",
-                                   "Cable1",
-                                   "Cable2",
-                                   ......
-                                }
-In the core ( .h file):
-enum cable_name{
-             USB = 0,
-             CABLE1,
-             CABLE2,
-}
+(Given Lars-Peter has highlighted some bits and bobs in the adc driver
+- and he always does a good job - I'll probably wait for the next version
+before taking a look).
 
-enum cable_name_support{
-             USB_SUPPORT = 1<<USB,
-             CABLE1 = 1 << CABLE1,
-             CABLE2 = 1 << CABLE2,
- }
+Good to see this driver making progress!
 
-and driver can use it this way:
-list_of_cable = EXTCON_MIC_IN_SUPPORT |
-                     EXTCON_HEADPHONE_OUT_SUPPORT |
-                     EXTCON_MECHANICAL_SUPPORT;
+> This is submission attempt number 3 to have this driver included in
+> the linux kernel source tree. This is the driver for the Dialog DA9058.
+> 
+> The DA9058 is a low power Power Management Integrated Circuit with extra
+> functionality. It is a Multi Function Device controlled only from an I2C
+> bus whose components can raise an interrupt request on a single IRQ line.
+> 
+> The driver for the DA9058 consists of a core (i2c) device driver that
+> instantiates the individual component device drivers for:
+> 
+> adc - 5 ADC channels
+> gpio - 2 available pins
+> onkey - 1 device
+> regulator - 4 BUCKS, 19 LDO and 3 fixed
+> rtc - low power clock
+> hwmon - 5 monitored voltages/temperatures
+> power - battery information
+> 
+> All the above seven component device drivers depend on the 'core'
+> component driver, which is number one in the patch series.
+> 
+> This driver has been tested on a Samsung SMDK6410 connected to a Dialog
+> DA9058 Evaluation Board via one GPIO and a 3-wire I2C connection.
+> 
+> All the components can be builtin to the kernel or compiled as modules.
+> As far as I can tell, all the latest APIs both for the core driver and
+> all the component drivers have been adhered to, but if I have missed
+> something please let me know.
+> 
+> Many thanks,
+> Anthony Olech, Dialog Semiconductor Ltd.
+> 
+> Tony Olech (at Home) (8):
+>   DA9058 MFD core driver
+>   DA9058 ADC driver
+>   DA9058 ONKEY driver
+>   DA9058 POWER driver
+>   DA9058 RTC driver
+>   DA9058 GPIO driver
+>   DA9058 HWMON driver
+>   DA9058 REGULATOR driver
+> 
+>  Documentation/hwmon/da9058           |   30 ++
+>  drivers/gpio/Kconfig                 |   12 +
+>  drivers/gpio/Makefile                |    1 +
+>  drivers/gpio/gpio-da9058.c           |  367 +++++++++++++
+>  drivers/hwmon/Kconfig                |   10 +
+>  drivers/hwmon/Makefile               |    1 +
+>  drivers/hwmon/da9058-hwmon.c         |  425 +++++++++++++++
+>  drivers/iio/adc/Kconfig              |   10 +
+>  drivers/iio/adc/Makefile             |    1 +
+>  drivers/iio/adc/da9058-adc.c         |  397 ++++++++++++++
+>  drivers/input/misc/Kconfig           |   10 +
+>  drivers/input/misc/Makefile          |    1 +
+>  drivers/input/misc/da9058_onkey.c    |  177 +++++++
+>  drivers/mfd/Kconfig                  |   18 +
+>  drivers/mfd/Makefile                 |    3 +
+>  drivers/mfd/da9058-core.c            |   83 +++
+>  drivers/mfd/da9058-i2c.c             |   97 ++++
+>  drivers/mfd/da9058-info.c            |  935 ++++++++++++++++++++++++++++++++++
+>  drivers/mfd/da9058-irq.c             |   56 ++
+>  drivers/power/Kconfig                |   10 +
+>  drivers/power/Makefile               |    1 +
+>  drivers/power/da9058_power.c         |  397 ++++++++++++++
+>  drivers/regulator/Kconfig            |   11 +
+>  drivers/regulator/Makefile           |    1 +
+>  drivers/regulator/da9058-regulator.c |  251 +++++++++
+>  drivers/rtc/Kconfig                  |   10 +
+>  drivers/rtc/Makefile                 |    1 +
+>  drivers/rtc/rtc-da9058.c             |  458 +++++++++++++++++
+>  include/linux/mfd/da9058/bat.h       |   33 ++
+>  include/linux/mfd/da9058/codec.h     |   22 +
+>  include/linux/mfd/da9058/conf.h      |   22 +
+>  include/linux/mfd/da9058/core.h      |   66 +++
+>  include/linux/mfd/da9058/gpio.h      |   19 +
+>  include/linux/mfd/da9058/hwmon.h     |   36 ++
+>  include/linux/mfd/da9058/i2c.h       |   22 +
+>  include/linux/mfd/da9058/irq.h       |   50 ++
+>  include/linux/mfd/da9058/onkey.h     |   17 +
+>  include/linux/mfd/da9058/pdata.h     |   32 ++
+>  include/linux/mfd/da9058/registers.h |  480 +++++++++++++++++
+>  include/linux/mfd/da9058/regulator.h |   33 ++
+>  include/linux/mfd/da9058/rtc.h       |   17 +
+>  41 files changed, 4623 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/hwmon/da9058
+>  create mode 100644 drivers/gpio/gpio-da9058.c
+>  create mode 100644 drivers/hwmon/da9058-hwmon.c
+>  create mode 100644 drivers/iio/adc/da9058-adc.c
+>  create mode 100644 drivers/input/misc/da9058_onkey.c
+>  create mode 100644 drivers/mfd/da9058-core.c
+>  create mode 100644 drivers/mfd/da9058-i2c.c
+>  create mode 100644 drivers/mfd/da9058-info.c
+>  create mode 100644 drivers/mfd/da9058-irq.c
+>  create mode 100644 drivers/power/da9058_power.c
+>  create mode 100644 drivers/regulator/da9058-regulator.c
+>  create mode 100644 drivers/rtc/rtc-da9058.c
+>  create mode 100644 include/linux/mfd/da9058/bat.h
+>  create mode 100644 include/linux/mfd/da9058/codec.h
+>  create mode 100644 include/linux/mfd/da9058/conf.h
+>  create mode 100644 include/linux/mfd/da9058/core.h
+>  create mode 100644 include/linux/mfd/da9058/gpio.h
+>  create mode 100644 include/linux/mfd/da9058/hwmon.h
+>  create mode 100644 include/linux/mfd/da9058/i2c.h
+>  create mode 100644 include/linux/mfd/da9058/irq.h
+>  create mode 100644 include/linux/mfd/da9058/onkey.h
+>  create mode 100644 include/linux/mfd/da9058/pdata.h
+>  create mode 100644 include/linux/mfd/da9058/registers.h
+>  create mode 100644 include/linux/mfd/da9058/regulator.h
+>  create mode 100644 include/linux/mfd/da9058/rtc.h
+> 
 
-Limitations of this patch:
-1. We can't specify the custom cable names and
-2. It can't grow beyond 32.
-
-One more approach that comes to mind is using the #defines
-for all the cable names but that looks ugly.
-
-Is there any better approach to make it work?
-
--a-n-i-s-h-
-
-On Sat, Aug 25, 2012 at 7:44 PM, anish kumar
-<anish198519851985@gmail.com> wrote:
-> From: anish kumar <anish198519851985@gmail.com>
->
-> Right now we are forced to define our own cable names instead of what
-> is exported by extcon framework.We should use the standard cable
-> names.With this change, individual drivers can define cable names
-> as below:
->
-> edev.list_of_cable = EXTCON_MIC_IN_SUPPORT |
->                      EXTCON_HEADPHONE_OUT_SUPPORT |
->                      EXTCON_MECHANICAL_SUPPORT;
-> Signed-off-by: anish kumar <anish198519851985@gmail.com>
-> ---
->  drivers/extcon/extcon-arizona.c |   11 +++--------
->  drivers/extcon/extcon-class.c   |   35 +++++++++++++++++++++++++----------
->  include/linux/extcon.h          |   29 ++++++++++++++++++++++++++++-
->  3 files changed, 56 insertions(+), 19 deletions(-)
->
-> diff --git a/drivers/extcon/extcon-arizona.c b/drivers/extcon/extcon-arizona.c
-> index fa2114f..7a690f2 100644
-> --- a/drivers/extcon/extcon-arizona.c
-> +++ b/drivers/extcon/extcon-arizona.c
-> @@ -74,13 +74,6 @@ static struct {
->  #define ARIZONA_CABLE_MICROPHONE 1
->  #define ARIZONA_CABLE_HEADPHONE  2
->
-> -static const char *arizona_cable[] = {
-> -       "Mechanical",
-> -       "Microphone",
-> -       "Headphone",
-> -       NULL,
-> -};
-> -
->  static void arizona_extcon_set_mode(struct arizona_extcon_info *info, int mode)
->  {
->         struct arizona *arizona = info->arizona;
-> @@ -381,7 +374,9 @@ static int __devinit arizona_extcon_probe(struct platform_device *pdev)
->         }
->
->         info->edev.name = "Headset Jack";
-> -       info->edev.supported_cable = arizona_cable;
-> +       info->edev.list_of_cable = EXTCON_MIC_IN_SUPPORT |
-> +                                       EXTCON_HEADPHONE_OUT_SUPPORT |
-> +                                               EXTCON_MECHANICAL_SUPPORT;
->
->         ret = extcon_dev_register(&info->edev, arizona->dev);
->         if (ret < 0) {
-> diff --git a/drivers/extcon/extcon-class.c b/drivers/extcon/extcon-class.c
-> index 481cfa0..22aa4b8 100644
-> --- a/drivers/extcon/extcon-class.c
-> +++ b/drivers/extcon/extcon-class.c
-> @@ -95,7 +95,7 @@ static int check_mutually_exclusive(struct extcon_dev *edev, u32 new_state)
->                 u32 correspondants = new_state & edev->mutually_exclusive[i];
->                 u32 exp = 1;
->
-> -               for (j = 0; j < 32; j++) {
-> +               for (j = 0; j < SUPPORTED_CABLE_MAX; j++) {
->                         if (exp & correspondants)
->                                 count++;
->                         if (count > 1)
-> @@ -580,6 +580,7 @@ static void extcon_cleanup(struct extcon_dev *edev, bool skip)
->                 put_device(edev->dev);
->         }
->
-> +       kfree(edev->supported_cable);
->         kfree(edev->dev);
->  }
->
-> @@ -607,7 +608,7 @@ static void dummy_sysfs_dev_release(struct device *dev)
->   */
->  int extcon_dev_register(struct extcon_dev *edev, struct device *dev)
->  {
-> -       int ret, index = 0;
-> +       int ret, index = 0, i = 0;
->
->         if (!extcon_class) {
->                 ret = create_extcon_class();
-> @@ -615,23 +616,36 @@ int extcon_dev_register(struct extcon_dev *edev, struct device *dev)
->                         return ret;
->         }
->
-> -       if (edev->supported_cable) {
-> -               /* Get size of array */
-> -               for (index = 0; edev->supported_cable[index]; index++)
-> -                       ;
-> -               edev->max_supported = index;
-> -       } else {
-> -               edev->max_supported = 0;
-> +       edev->max_supported = 0;
-> +
-> +       /* get the total number of cables */
-> +       for_each_set_bit(i, &edev->list_of_cable, BITS_PER_LONG) {
-> +               index++;
->         }
-> +       edev->max_supported = index;
->
->         if (index > SUPPORTED_CABLE_MAX) {
->                 dev_err(edev->dev, "extcon: maximum number of supported cables exceeded.\n");
->                 return -EINVAL;
->         }
->
-> +       edev->supported_cable = kzalloc(sizeof(char *) * index, GFP_KERNEL);
-> +       if (!edev->supported_cable) {
-> +               pr_err("extcon supported cable allocation failed\n");
-> +               return -ENOMEM;
-> +       }
-> +
-> +       index = 0;
-> +       for_each_set_bit(i, &edev->list_of_cable, BITS_PER_LONG) {
-> +               edev->supported_cable[index++] = extcon_cable_name[i];
-> +       }
-> +
->         edev->dev = kzalloc(sizeof(struct device), GFP_KERNEL);
-> -       if (!edev->dev)
-> +       if (!edev->dev) {
-> +               pr_err("extcon device allocation failed\n");
->                 return -ENOMEM;
-> +       }
-> +
->         edev->dev->parent = dev;
->         edev->dev->class = extcon_class;
->         edev->dev->release = extcon_dev_release;
-> @@ -799,6 +813,7 @@ err_alloc_cables:
->         if (edev->max_supported)
->                 kfree(edev->cables);
->  err_sysfs_alloc:
-> +       kfree(edev->supported_cable);
->         kfree(edev->dev);
->         return ret;
->  }
-> diff --git a/include/linux/extcon.h b/include/linux/extcon.h
-> index cdd4014..65cc23a 100644
-> --- a/include/linux/extcon.h
-> +++ b/include/linux/extcon.h
-> @@ -70,6 +70,32 @@ enum extcon_cable_name {
->  };
->  extern const char *extcon_cable_name[];
->
-> +/* Please use this enum's to add support for cables in your drivers
-> + * Please add any other "standard" cables used with extcon dev.
-> + */
-> +enum extcon_cable_name_support {
-> +       EXTCON_USB_SUPPORT              = 1 << EXTCON_USB,
-> +       EXTCON_USB_HOST_SUPPORT         = 1 << EXTCON_USB_HOST,
-> +       EXTCON_TA_SUPPORT               = 1 << EXTCON_TA,
-> +       EXTCON_FAST_CHARGER_SUPPORT     = 1 << EXTCON_FAST_CHARGER,
-> +       EXTCON_SLOW_CHARGER_SUPPORT     = 1 << EXTCON_SLOW_CHARGER,
-> +       EXTCON_CHARGE_DOWNSTREAM_SUPPORT = 1 << EXTCON_CHARGE_DOWNSTREAM,
-> +       EXTCON_HDMI_SUPPORT             = 1 << EXTCON_HDMI,
-> +       EXTCON_MHL_SUPPORT              = 1 << EXTCON_MHL,
-> +       EXTCON_DVI_SUPPORT              = 1 << EXTCON_DVI,
-> +       EXTCON_VGA_SUPPORT              = 1 << EXTCON_VGA,
-> +       EXTCON_DOCK_SUPPORT             = 1 << EXTCON_DOCK,
-> +       EXTCON_LINE_IN_SUPPORT          = 1 << EXTCON_LINE_IN,
-> +       EXTCON_LINE_OUT_SUPPORT         = 1 << EXTCON_LINE_OUT,
-> +       EXTCON_MIC_IN_SUPPORT           = 1 << EXTCON_MIC_IN,
-> +       EXTCON_HEADPHONE_OUT_SUPPORT    = 1 << EXTCON_HEADPHONE_OUT,
-> +       EXTCON_SPDIF_IN_SUPPORT         = 1 << EXTCON_SPDIF_IN,
-> +       EXTCON_SPDIF_OUT_SUPPORT        = 1 << EXTCON_SPDIF_OUT,
-> +       EXTCON_VIDEO_IN_SUPPORT         = 1 << EXTCON_VIDEO_IN,
-> +       EXTCON_VIDEO_OUT_SUPPORT        = 1 << EXTCON_VIDEO_OUT,
-> +       EXTCON_MECHANICAL_SUPPORT       = 1 << EXTCON_MECHANICAL,
-> +};
-> +
->  struct extcon_cable;
->
->  /**
-> @@ -111,7 +137,7 @@ struct extcon_cable;
->  struct extcon_dev {
->         /* --- Optional user initializing data --- */
->         const char      *name;
-> -       const char **supported_cable;
-> +       unsigned long   list_of_cable;
->         const u32       *mutually_exclusive;
->
->         /* --- Optional callbacks to override class functions --- */
-> @@ -120,6 +146,7 @@ struct extcon_dev {
->
->         /* --- Internal data. Please do not set. --- */
->         struct device   *dev;
-> +       const char **supported_cable;
->         u32             state;
->         struct raw_notifier_head nh;
->         struct list_head entry;
-> --
-> 1.7.1
->
+_______________________________________________
+lm-sensors mailing list
+lm-sensors@lm-sensors.org
+http://lists.lm-sensors.org/mailman/listinfo/lm-sensors

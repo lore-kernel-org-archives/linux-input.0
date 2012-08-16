@@ -1,54 +1,70 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/7] HID: picoLCD updates
-Date: Thu, 16 Aug 2012 18:47:04 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1208161846240.28475@pobox.suse.cz>
-References: <20120730213656.0a9f6d30@neptune.home> <alpine.LNX.2.00.1208151016221.7026@pobox.suse.cz> <20120815114236.0f7db40e@neptune.home> <alpine.LNX.2.00.1208151409500.7026@pobox.suse.cz> <20120815171635.2564a4a8@neptune.home> <alpine.LNX.2.00.1208152329580.7026@pobox.suse.cz>
- <20120816183021.68c37f37@neptune.home>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 09/19] Input: MT - Handle frame synchronization in core
+Date: Thu, 16 Aug 2012 20:07:32 +0200
+Message-ID: <20120816180732.GA451@polaris.bitmath.org>
+References: <1344807757-2217-1-git-send-email-rydberg@euromail.se>
+ <1344807757-2217-10-git-send-email-rydberg@euromail.se>
+ <CAF8JNhLBO72-Rpm7dFWfYLPvbhDZZsm2yOy_7sREnNhTWqZ04w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120816183021.68c37f37@neptune.home>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:53322 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750954Ab2HPSDZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Aug 2012 14:03:25 -0400
+Content-Disposition: inline
+In-Reply-To: <CAF8JNhLBO72-Rpm7dFWfYLPvbhDZZsm2yOy_7sREnNhTWqZ04w@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 16 Aug 2012, Bruno Pr=C3=A9mont wrote:
+On Wed, Aug 15, 2012 at 04:28:17PM -0700, Ping Cheng wrote:
+> On Sun, Aug 12, 2012 at 2:42 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> > Collect common frame synchronization tasks in a new function,
+> > input_mt_sync_frame(). Depending on the flags set, it drops
+> > unseen contacts and performs pointer emulation.
+> >
+> > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> 
+> I went through the patchset except those for bcm5974. Since there are
+> changes that affect other drivers, do you plan to update the affected
+> drivers as well?
 
-> > I don't really understand this explanation. Once usb_kill_urb() ret=
-urns,=20
-> > the URB should be available for future use (and therefore all queue=
-s=20
-> > completely drained).
->=20
-> I won't have time today to check, though my guess is that on each
-> echo $usb-id > bind; echo $usb-id > unbind
-> under /sys/bus/hid/drivers/hid-picolcd/ the USB urb queue fills a bit=
- does
-> not get cleared.
->=20
-> Is usb_kill_urb() called when unbinding just the specific hid driver?=
-=20
+I am not sure what you mean here? There is a patch with in-kernel api
+changes, which also changes all drivers using the api. Some of those
+drivers will benefit from further changes, but that is a different
+story.
 
-Yup, through hid_hw_stop() -> usbhid_stop().
+> > +void input_mt_sync_frame(struct input_dev *dev)
+> > +{
+> > +       struct input_mt *mt = dev->mt;
+> > +       struct input_mt_slot *s;
+> > +
+> > +       if (!mt)
+> > +               return;
+> > +
+> > +       if (mt->flags & INPUT_MT_DROP_UNUSED) {
+> > +               for (s = mt->slots; s != mt->slots + mt->num_slots; s++) {
+> > +                       if (s->frame == mt->frame)
+> > +                               continue;
+> > +                       input_mt_slot(dev, s - mt->slots);
+> > +                       input_event(dev, EV_ABS, ABS_MT_TRACKING_ID, -1);
+> > +               }
+> > +       }
+> > +
+> > +       if (mt->flags & INPUT_MT_POINTER)
+> > +               input_mt_report_pointer_emulation(dev, true);
+> > +
+> > +       if (mt->flags & INPUT_MT_DIRECT)
+> > +               input_mt_report_pointer_emulation(dev, false);
+> > +
+> > +       mt->frame++;
+> 
+> Where do we reset this frame counter?
 
-> If so my short timing between bind/unbind must be triggering somethin=
-g=20
-> else...
->=20
-> Otherwise I'm missing something as at first time I got no "output que=
-ue full"
-> messages, but as I repeated the bind/unbind sequences the prints per =
-bind/unbind
-> iteration increased in number.
->=20
-> Anyhow, on Friday evening/week-end I will continue digging and report=
- back with my
-> findings.
+Why would we reset it? It is used in the core to keep track of changes
+per frame, and may wrap around without issues.
 
-Thank you, Bruno.
-
---=20
-Jiri Kosina
-SUSE Labs
+Henrik

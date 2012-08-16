@@ -1,50 +1,56 @@
-From: Ben Gamari <bgamari.foss@gmail.com>
-Subject: Re: New Alps protocol in the wild?
-Date: Thu, 16 Aug 2012 01:04:32 -0400
-Message-ID: <87sjbnzau7.fsf@gmail.com>
-References: <20120814103553.GF23370@arianrhod.panaceas.james.local> <87mx1xxy1y.fsf@gmail.com> <20120814160519.GC12473@artemis.panaceas.org> <87ipckwvp4.fsf@gmail.com>
+From: Hui Wang <jason77.wang@gmail.com>
+Subject: Re: [PATCH v3 2/3] Input: add devicetree binding note for egalax_ts
+Date: Thu, 16 Aug 2012 14:48:00 +0800
+Message-ID: <502C97A0.2010902@gmail.com>
+References: <1345026708-14139-1-git-send-email-jason77.wang@gmail.com> <1345026708-14139-2-git-send-email-jason77.wang@gmail.com> <1345026708-14139-3-git-send-email-jason77.wang@gmail.com> <20120815125353.GA2258@S2101-09.ap.freescale.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f174.google.com ([209.85.216.174]:53001 "EHLO
-	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752807Ab2HPFEf (ORCPT
+Received: from mail.windriver.com ([147.11.1.11]:53339 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754602Ab2HPGsx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Aug 2012 01:04:35 -0400
-Received: by qcro28 with SMTP id o28so1836296qcr.19
-        for <linux-input@vger.kernel.org>; Wed, 15 Aug 2012 22:04:35 -0700 (PDT)
-In-Reply-To: <87ipckwvp4.fsf@gmail.com>
+	Thu, 16 Aug 2012 02:48:53 -0400
+In-Reply-To: <20120815125353.GA2258@S2101-09.ap.freescale.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: James <james@madingley.org>, Ignacio Casal Quinteiro <nacho.resa@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Shawn Guo <shawn.guo@linaro.org>
+Cc: Hui Wang <jason77.wang@gmail.com>, dmitry.torokhov@gmail.com, jiejing.zhang@freescale.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree-discuss@lists.ozlabs.org
 
-Ben Gamari <bgamari.foss@gmail.com> writes:
-
-snip
+Shawn Guo wrote:
+> On Wed, Aug 15, 2012 at 06:31:47PM +0800, Hui Wang wrote:
+>   
+>> The egalax_ts driver needs to get the gpio number of the irq pin,
+>> and use this gpio to wake up the controller. So add a note
+>> for this change.
+>>
+>> Signed-off-by: Hui Wang <jason77.wang@gmail.com>
+>> ---
+>>  .../bindings/input/touchscreen/egalax-ts.txt       |   19 +++++++++++++++++++
+>>  1 files changed, 19 insertions(+), 0 deletions(-)
+>>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
+>>
+>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt b/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
+>> new file mode 100644
+>> index 0000000..df70318
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
+>> @@ -0,0 +1,19 @@
+>> +* EETI eGalax Multiple Touch Controller
+>> +
+>> +Required properties:
+>> +- compatible: must be "eeti,egalax_ts"
+>>     
 >
-> Hopefully I'll find some more time in the next few days to figure out
-> the last few bits (primarily how multitouch events work). I wouldn't be
-> sad if someone finished the task for me, however.
+> Since we define this in the binding anyway, can we have an corresponding
+> .of_match_table in the driver?
 >
-Success! As it turns out, the process was actually not so bad. While I
-wasted much of the night trying to reverse the protocol, I realized that
-what I had come up with was nearly identical to the version 3
-documentation.  Trying the version 3 protocol with the device, I found
-that it was nearly immediately functional. It seems that while the
-initialization procedure has changed, the position report format is
-identical to previous generations.
+> Regards,
+> Shawn
+>
+>   
+OK, will add it in the driver.
 
-My tree[1] currently has a hacked brute-force initialization
-implementation, although it would probably be nice to figure out what
-this sequence actually means. Otherwise, it seems support for this device
-is a solved problem.
-
-Feel free to give my tree a try. I'd be interested to know whether it
-works for you.
-
-Cheers,
-
-- Ben
-
-[1] https://github.com/bgamari/linux/tree/alps
+Regards,
+Hui.

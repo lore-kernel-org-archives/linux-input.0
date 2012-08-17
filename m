@@ -1,19 +1,21 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [RFC PATCH 6/17] input: RMI4 firmware update
-Date: Fri, 17 Aug 2012 15:17:46 -0700
-Message-ID: <1345241877-16200-7-git-send-email-cheiny@synaptics.com>
+Subject: [RFC PATCH 5/17] input: rmidev character driver for RMI4 sensors
+Date: Fri, 17 Aug 2012 15:17:45 -0700
+Message-ID: <1345241877-16200-6-git-send-email-cheiny@synaptics.com>
 References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from [12.239.217.82] ([12.239.217.82]:28612 "EHLO
 	venom.synaptics.com" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1758899Ab2HQXUz (ORCPT
+	with ESMTP id S1757196Ab2HQXUu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Aug 2012 19:20:55 -0400
+	Fri, 17 Aug 2012 19:20:50 -0400
 In-Reply-To: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+
+Driver for Synaptics touchscreens using RMI4 protocol.
 
 Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
 
@@ -26,17 +28,17 @@ Acked-by: Jean Delvare <khali@linux-fr.org>
 
 ---
 
- drivers/input/rmi4/rmi_fw_update.c |  724 ++++++++++++++++++++++++++++++++++++
- 1 files changed, 724 insertions(+), 0 deletions(-)
+ drivers/input/rmi4/rmi_dev.c |  448 ++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 448 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_fw_update.c b/drivers/input/rmi4/rmi_fw_update.c
+diff --git a/drivers/input/rmi4/rmi_dev.c b/drivers/input/rmi4/rmi_dev.c
 new file mode 100644
-index 0000000..7f6c315
+index 0000000..080db55
 --- /dev/null
-+++ b/drivers/input/rmi4/rmi_fw_update.c
-@@ -0,0 +1,724 @@
++++ b/drivers/input/rmi4/rmi_dev.c
+@@ -0,0 +1,448 @@
 +/*
-+ * Copyright (c) 2012 Synaptics Incorporated
++ * Copyright (c) 2011 Synaptics Incorporated
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -53,709 +55,433 @@ index 0000000..7f6c315
 + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
 +
-+#define DEBUG
-+
-+#define RIM_HACK 1
-+
++#include <linux/fs.h>
 +#include <linux/delay.h>
-+#include <linux/firmware.h>
-+#include <linux/ihex.h>
-+#include <linux/kernel.h>
-+#include<linux/moduleparam.h>
++#include <linux/uaccess.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/syscalls.h>
++
 +#include <linux/rmi.h>
-+#include <linux/time.h>
 +#include "rmi_driver.h"
-+#include "rmi_f01.h"
-+#include "rmi_f34.h"
 +
-+#define HAS_BSR_MASK 0x20
++#define CHAR_DEVICE_NAME "rmi"
++#define DEVICE_CLASS_NAME "rmidev"
 +
-+#define CHECKSUM_OFFSET 0
-+#define BOOTLOADER_VERSION_OFFSET 0x07
-+#define IMAGE_SIZE_OFFSET 0x08
-+#define CONFIG_SIZE_OFFSET 0x0C
-+#define PRODUCT_ID_OFFSET 0x10
-+#define PRODUCT_ID_SIZE 10
-+#define PRODUCT_INFO_OFFSET 0x1E
-+#define PRODUCT_INFO_SIZE 2
++#define RMI_CHAR_DEV_TMPBUF_SZ 128
++#define RMI_REG_ADDR_PAGE_SELECT 0xFF
++#define REG_ADDR_LIMIT 0xFFFF
 +
-+#define F01_RESET_MASK 0x01
++struct rmidev_data {
++	/* mutex for file operation*/
++	struct mutex file_mutex;
++	/* main char dev structure */
++	struct cdev main_dev;
 +
-+#define ENABLE_WAIT_US (300 * 1000)
-+
-+/** Image file V5, Option 0
-+ */
-+struct image_header {
-+	u32 checksum;
-+	unsigned int image_size;
-+	unsigned int config_size;
-+	unsigned char options;
-+	unsigned char bootloader_version;
-+	u8 product_id[RMI_PRODUCT_ID_LENGTH + 1];
-+	unsigned char product_info[PRODUCT_INFO_SIZE];
-+};
-+
-+static u32 extract_u32(const u8 *ptr)
-+{
-+	return (u32)ptr[0] +
-+		(u32)ptr[1] * 0x100 +
-+		(u32)ptr[2] * 0x10000 +
-+		(u32)ptr[3] * 0x1000000;
-+}
-+
-+struct reflash_data {
++	/* pointer to the corresponding RMI4 device.  We use this to do */
++	/* read, write, etc. */
 +	struct rmi_device *rmi_dev;
-+	struct pdt_entry *f01_pdt;
-+	union f01_basic_queries f01_queries;
-+	union f01_device_control_0 f01_controls;
-+	char product_id[RMI_PRODUCT_ID_LENGTH+1];
-+	struct pdt_entry *f34_pdt;
-+	u8 bootloader_id[2];
-+	union f34_query_regs f34_queries;
-+	union f34_control_status f34_controls;
-+	const u8 *firmware_data;
-+	const u8 *config_data;
++	/* reference count */
++	int ref_count;
++
++	struct class *device_class;
 +};
 +
-+/* If this parameter is true, we will update the firmware regardless of
-+ * the versioning info.
++/*store dynamically allocated major number of char device*/
++static int rmidev_major_num;
++
++
++static struct class *rmidev_device_class;
++
++
++/* file operations for RMI char device */
++
++/*
++ * rmidev_llseek: - use to setup register address
++ *
++ * @filp: file structure for seek
++ * @off: offset
++ *       if whence == SEEK_SET,
++ *       high 16 bits: page address
++ *       low 16 bits: register address
++ *
++ *       if whence == SEEK_CUR,
++ *       offset from current position
++ *
++ *       if whence == SEEK_END,
++ *       offset from END(0xFFFF)
++ *
++ * @whence: SEEK_SET , SEEK_CUR or SEEK_END
 + */
-+static bool force = 1;
-+module_param(force, bool, S_IRUGO | S_IWUSR);
-+MODULE_PARM_DESC(param, "Force reflash of RMI4 devices");
-+
-+/* If this parameter is not NULL, we'll use that name for the firmware image,
-+ * instead of getting it from the F01 queries.
-+ */
-+static char *img_name;
-+module_param(img_name, charp, S_IRUGO | S_IWUSR);
-+MODULE_PARM_DESC(param, "Name of the RMI4 firmware image");
-+
-+#define RMI4_IMAGE_FILE_REV1_OFFSET 30
-+#define RMI4_IMAGE_FILE_REV2_OFFSET 31
-+#define IMAGE_FILE_CHECKSUM_SIZE 4
-+#define FIRMWARE_IMAGE_AREA_OFFSET 0x100
-+
-+static void extract_header(const u8 *data, int pos, struct image_header *header)
++static loff_t rmidev_llseek(struct file *filp, loff_t off, int whence)
 +{
-+	header->checksum = extract_u32(&data[pos + CHECKSUM_OFFSET]);
-+	header->bootloader_version = data[pos + BOOTLOADER_VERSION_OFFSET];
-+	header->image_size = extract_u32(&data[pos + IMAGE_SIZE_OFFSET]);
-+	header->config_size = extract_u32(&data[pos + CONFIG_SIZE_OFFSET]);
-+	memcpy(header->product_id, &data[pos + PRODUCT_ID_OFFSET],
-+	       RMI_PRODUCT_ID_LENGTH);
-+	header->product_id[PRODUCT_ID_SIZE] = 0;
-+	memcpy(header->product_info, &data[pos + PRODUCT_INFO_OFFSET],
-+	       RMI_PRODUCT_ID_LENGTH);
-+}
++	loff_t newpos;
++	struct rmidev_data *data = filp->private_data;
 +
-+static int rescan_pdt(struct reflash_data *data)
-+{
-+	int retval;
-+	bool f01_found;
-+	bool f34_found;
-+	struct pdt_entry pdt_entry;
-+	int i;
-+	struct rmi_device *rmi_dev = data->rmi_dev;
-+	struct pdt_entry *f34_pdt = data->f34_pdt;
-+	struct pdt_entry *f01_pdt = data->f01_pdt;
-+
-+	/* Per spec, once we're in reflash we only need to look at the first
-+	 * PDT page for potentially changed F01 and F34 information.
-+	 */
-+	for (i = PDT_START_SCAN_LOCATION; i >= PDT_END_SCAN_LOCATION;
-+			i -= sizeof(pdt_entry)) {
-+		retval = rmi_read_block(rmi_dev, i, (u8 *)&pdt_entry,
-+					sizeof(pdt_entry));
-+		if (retval != sizeof(pdt_entry)) {
-+			dev_err(&rmi_dev->dev,
-+				"Read PDT entry at %#06x failed: %d.\n",
-+				i, retval);
-+			return retval;
-+		}
-+
-+		if (RMI4_END_OF_PDT(pdt_entry.function_number))
-+			break;
-+
-+		if (pdt_entry.function_number == 0x01) {
-+			memcpy(f01_pdt, &pdt_entry, sizeof(pdt_entry));
-+			f01_found = true;
-+		} else if (pdt_entry.function_number == 0x34) {
-+			memcpy(f34_pdt, &pdt_entry, sizeof(pdt_entry));
-+			f34_found = true;
-+		}
++	if (IS_ERR(data)) {
++		pr_err("%s: pointer of char device is invalid", __func__);
++		return -EBADF;
 +	}
 +
-+	if (!f01_found) {
-+		dev_err(&rmi_dev->dev, "Failed to find F01 PDT entry.\n");
-+		retval = -ENODEV;
-+	} else if (!f34_found) {
-+		dev_err(&rmi_dev->dev, "Failed to find F34 PDT entry.\n");
-+		retval = -ENODEV;
-+	} else
-+		retval = 0;
++	mutex_lock(&(data->file_mutex));
 +
-+	return retval;
-+}
++	switch (whence) {
++	case SEEK_SET:
++		newpos = off;
++		break;
 +
-+static int read_f34_controls(struct reflash_data *data)
-+{
-+	int retval;
++	case SEEK_CUR:
++		newpos = filp->f_pos + off;
++		break;
 +
-+	retval = rmi_read(data->rmi_dev, data->f34_controls.address,
-+			  data->f34_controls.regs);
-+	if (retval < 0)
-+		return retval;
++	case SEEK_END:
++		newpos = REG_ADDR_LIMIT + off;
++		break;
 +
-+	return 0;
-+}
-+
-+static int read_f01_status(struct reflash_data *data,
-+			   union f01_device_status *device_status)
-+{
-+	int retval;
-+
-+	retval = rmi_read(data->rmi_dev, data->f01_pdt->data_base_addr,
-+			  device_status->regs);
-+	if (retval < 0)
-+		return retval;
-+
-+	return 0;
-+}
-+
-+static int read_f01_controls(struct reflash_data *data)
-+{
-+	int retval;
-+
-+	retval = rmi_read(data->rmi_dev, data->f01_pdt->control_base_addr,
-+			  data->f01_controls.regs);
-+	if (retval < 0)
-+		return retval;
-+	return 0;
-+}
-+
-+static int write_f01_controls(struct reflash_data *data)
-+{
-+	int retval;
-+
-+	retval = rmi_write(data->rmi_dev, data->f01_pdt->control_base_addr,
-+			  data->f01_controls.regs[0]);
-+	if (retval < 0)
-+		return retval;
-+	return 0;
-+}
-+
-+#define MIN_SLEEP_TIME_US 50
-+#define MAX_SLEEP_TIME_US 100
-+
-+/* Wait until the status is idle and we're ready to continue */
-+static int wait_for_idle(struct reflash_data *data, int timeout_ms)
-+{
-+	int timeout_count = ((timeout_ms * 1000) / MAX_SLEEP_TIME_US) + 1;
-+	int count = 0;
-+	union f34_control_status *controls = &data->f34_controls;
-+	int retval;
-+
-+	do {
-+		if (count || timeout_count == 1)
-+			usleep_range(MIN_SLEEP_TIME_US, MAX_SLEEP_TIME_US);
-+		retval = read_f34_controls(data);
-+		count++;
-+		if (retval < 0)
-+			continue;
-+		else if (IS_IDLE(controls)) {
-+			if (!data->f34_controls.program_enabled) {
-+				/** This works around a bug in certain device
-+				 * firmwares, where the idle state is reached,
-+				 * but the program_enabled bit is not yet set.
-+				 */
-+				dev_warn(&data->rmi_dev->dev, "Yikes!  We're not enabled!\n");
-+				msleep(1000);
-+				read_f34_controls(data);
-+			}
-+			return 0;
-+		}
-+	} while (count < timeout_count);
-+
-+	dev_err(&data->rmi_dev->dev,
-+		"ERROR: Timeout waiting for idle status, last status: %#04x.\n",
-+		controls->regs[0]);
-+	dev_err(&data->rmi_dev->dev, "Command: %#04x\n", controls->command);
-+	dev_err(&data->rmi_dev->dev, "Status:  %#04x\n", controls->status);
-+	dev_err(&data->rmi_dev->dev, "Enabled: %d\n",
-+			controls->program_enabled);
-+	dev_err(&data->rmi_dev->dev, "Idle:    %d\n", IS_IDLE(controls));
-+	return -ETIMEDOUT;
-+}
-+
-+
-+static int read_f01_queries(struct reflash_data *data)
-+{
-+	int retval;
-+	u16 addr = data->f01_pdt->query_base_addr;
-+
-+	retval = rmi_read_block(data->rmi_dev, addr, data->f01_queries.regs,
-+				ARRAY_SIZE(data->f01_queries.regs));
-+	if (retval < 0) {
-+		dev_err(&data->rmi_dev->dev,
-+			"Failed to read F34 queries (code %d).\n", retval);
-+		return retval;
-+	}
-+	addr += ARRAY_SIZE(data->f01_queries.regs);
-+
-+	retval = rmi_read_block(data->rmi_dev, addr, data->product_id,
-+				RMI_PRODUCT_ID_LENGTH);
-+	if (retval < 0) {
-+		dev_err(&data->rmi_dev->dev,
-+			"Failed to read product ID (code %d).\n", retval);
-+		return retval;
-+	}
-+	data->product_id[RMI_PRODUCT_ID_LENGTH] = 0;
-+	dev_info(&data->rmi_dev->dev, "F01 Product id:   %s\n",
-+			data->product_id);
-+	dev_info(&data->rmi_dev->dev, "F01 product info: %#04x %#04x\n",
-+			data->f01_queries.productinfo_1,
-+			data->f01_queries.productinfo_2);
-+
-+	return 0;
-+}
-+
-+static int read_f34_queries(struct reflash_data *data)
-+{
-+	int retval;
-+	u8 id_str[3];
-+
-+	retval = rmi_read_block(data->rmi_dev, data->f34_pdt->query_base_addr,
-+				data->bootloader_id, 2);
-+	if (retval < 0) {
-+		dev_err(&data->rmi_dev->dev,
-+			"Failed to read F34 bootloader_id (code %d).\n",
-+			retval);
-+		return retval;
-+	}
-+	retval = rmi_read_block(data->rmi_dev, data->f34_pdt->query_base_addr+2,
-+			data->f34_queries.regs,
-+			ARRAY_SIZE(data->f34_queries.regs));
-+	if (retval < 0) {
-+		dev_err(&data->rmi_dev->dev,
-+			"Failed to read F34 queries (code %d).\n", retval);
-+		return retval;
-+	}
-+	data->f34_queries.block_size =
-+			le16_to_cpu(data->f34_queries.block_size);
-+	data->f34_queries.fw_block_count =
-+			le16_to_cpu(data->f34_queries.fw_block_count);
-+	data->f34_queries.config_block_count =
-+			le16_to_cpu(data->f34_queries.config_block_count);
-+	id_str[0] = data->bootloader_id[0];
-+	id_str[1] = data->bootloader_id[1];
-+	id_str[2] = 0;
-+#ifdef DEBUG
-+	dev_info(&data->rmi_dev->dev, "Got F34 data->f34_queries.\n");
-+	dev_info(&data->rmi_dev->dev, "F34 bootloader id: %s (%#04x %#04x)\n",
-+		 id_str, data->bootloader_id[0], data->bootloader_id[1]);
-+	dev_info(&data->rmi_dev->dev, "F34 has config id: %d\n",
-+		 data->f34_queries.has_config_id);
-+	dev_info(&data->rmi_dev->dev, "F34 unlocked:      %d\n",
-+		 data->f34_queries.unlocked);
-+	dev_info(&data->rmi_dev->dev, "F34 regMap:        %d\n",
-+		 data->f34_queries.reg_map);
-+	dev_info(&data->rmi_dev->dev, "F34 block size:    %d\n",
-+		 data->f34_queries.block_size);
-+	dev_info(&data->rmi_dev->dev, "F34 fw blocks:     %d\n",
-+		 data->f34_queries.fw_block_count);
-+	dev_info(&data->rmi_dev->dev, "F34 config blocks: %d\n",
-+		 data->f34_queries.config_block_count);
-+#endif
-+
-+	data->f34_controls.address = data->f34_pdt->data_base_addr +
-+			F34_BLOCK_DATA_OFFSET + data->f34_queries.block_size;
-+
-+	return 0;
-+}
-+
-+static int write_bootloader_id(struct reflash_data *data)
-+{
-+	int retval;
-+	struct rmi_device *rmi_dev = data->rmi_dev;
-+	struct pdt_entry *f34_pdt = data->f34_pdt;
-+
-+	retval = rmi_write_block(rmi_dev,
-+			f34_pdt->data_base_addr + F34_BLOCK_DATA_OFFSET,
-+			data->bootloader_id, ARRAY_SIZE(data->bootloader_id));
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev,
-+			"Failed to write bootloader ID. Code: %d.\n", retval);
-+		return retval;
++	default:		/* can't happen */
++		newpos = -EINVAL;
++		goto clean_up;
 +	}
 +
-+	return 0;
-+}
-+
-+static int write_f34_command(struct reflash_data *data, u8 command)
-+{
-+	int retval;
-+	struct rmi_device *rmi_dev = data->rmi_dev;
-+
-+	retval = rmi_write(rmi_dev, data->f34_controls.address, command);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev,
-+			"Failed to write F34 command %#04x. Code: %d.\n",
-+			command, retval);
-+		return retval;
++	if (newpos < 0 || newpos > REG_ADDR_LIMIT) {
++		dev_err(&data->rmi_dev->dev, "newpos 0x%04x is invalid.\n",
++			(unsigned int)newpos);
++		newpos = -EINVAL;
++		goto clean_up;
 +	}
 +
-+	return 0;
-+}
++	filp->f_pos = newpos;
 +
-+static int enter_flash_programming(struct reflash_data *data)
-+{
-+	int retval;
-+	union f01_device_status device_status;
-+	struct rmi_device *rmi_dev = data->rmi_dev;
-+
-+	retval = write_bootloader_id(data);
-+	if (retval < 0)
-+		return retval;
-+
-+	dev_info(&rmi_dev->dev, "Enabling flash programming.\n");
-+	retval = write_f34_command(data, F34_ENABLE_FLASH_PROG);
-+	if (retval < 0)
-+		return retval;
-+
-+#if	RIM_HACK
-+	data->f01_controls.nosleep = true;
-+	retval = write_f01_controls(data);
-+	if (retval < 0)
-+		return retval;
-+#endif
-+
-+	retval = wait_for_idle(data, F34_ENABLE_WAIT_MS);
-+	if (retval) {
-+		dev_err(&rmi_dev->dev, "Did not reach idle state after %d ms. Code: %d.\n",
-+			F34_ENABLE_WAIT_MS, retval);
-+		return retval;
-+	}
-+	if (!data->f34_controls.program_enabled) {
-+		dev_err(&rmi_dev->dev, "Reached idle, but programming not enabled (current status register: %#04x).\n",
-+					data->f34_controls.regs[0]);
-+		return -EINVAL;
-+	}
-+	dev_info(&rmi_dev->dev, "HOORAY! Programming is enabled!\n");
-+
-+	retval = rescan_pdt(data);
-+	if (retval) {
-+		dev_err(&rmi_dev->dev, "Failed to rescan pdt.  Code: %d.\n",
-+			retval);
-+		return retval;
-+	}
-+
-+	retval = read_f01_status(data, &device_status);
-+	if (retval) {
-+		dev_err(&rmi_dev->dev, "Failed to read F01 status after enabling reflash. Code: %d.\n",
-+			retval);
-+		return retval;
-+	}
-+	if (!(device_status.flash_prog)) {
-+		dev_err(&rmi_dev->dev, "Device reports as not in flash programming mode.\n");
-+		return -EINVAL;
-+	}
-+
-+	retval = read_f34_queries(data);
-+	if (retval) {
-+		dev_err(&rmi_dev->dev, "F34 queries failed, code = %d.\n",
-+			retval);
-+		return retval;
-+	}
-+
-+	retval = read_f01_controls(data);
-+	if (retval) {
-+		dev_err(&rmi_dev->dev, "F01 controls read failed, code = %d.\n",
-+			retval);
-+		return retval;
-+	}
-+	data->f01_controls.nosleep = true;
-+	data->f01_controls.sleep_mode = RMI_SLEEP_MODE_NORMAL;
-+
-+	retval = write_f01_controls(data);
-+	if (retval) {
-+		dev_err(&rmi_dev->dev, "F01 controls write failed, code = %d.\n",
-+			retval);
-+		return retval;
-+	}
-+
-+	return retval;
-+}
-+
-+static void reset_device(struct reflash_data *data)
-+{
-+	int retval;
-+	struct rmi_device_platform_data *pdata =
-+		to_rmi_platform_data(data->rmi_dev);
-+
-+	dev_info(&data->rmi_dev->dev, "Resetting...\n");
-+	retval = rmi_write(data->rmi_dev, data->f01_pdt->command_base_addr,
-+			   F01_RESET_MASK);
-+	if (retval < 0)
-+		dev_warn(&data->rmi_dev->dev,
-+			 "WARNING - post-flash reset failed, code: %d.\n",
-+			 retval);
-+	msleep(pdata->reset_delay_ms);
-+	dev_info(&data->rmi_dev->dev, "Reset completed.\n");
++clean_up:
++	mutex_unlock(&(data->file_mutex));
++	return newpos;
 +}
 +
 +/*
-+ * Send data to the device one block at a time.
++ *  rmidev_read: - use to read data from RMI stream
++ *
++ *  @filp: file structure for read
++ *  @buf: user-level buffer pointer
++ *
++ *  @count: number of byte read
++ *  @f_pos: offset (starting register address)
++ *
++ *	@return number of bytes read into user buffer (buf) if succeeds
++ *          negative number if error occurs.
 + */
-+static int write_blocks(struct reflash_data *data, u8 *block_ptr,
-+			u16 block_count, u8 cmd)
++static ssize_t rmidev_read(struct file *filp, char __user *buf,
++		size_t count, loff_t *f_pos)
 +{
-+	int block_num;
-+	u8 zeros[] = {0, 0};
-+	int retval;
-+	u16 addr = data->f34_pdt->data_base_addr + F34_BLOCK_DATA_OFFSET;
++	struct rmidev_data *data = filp->private_data;
++	ssize_t retval  = 0;
++	unsigned char tmpbuf[count+1];
 +
-+	retval = rmi_write_block(data->rmi_dev, data->f34_pdt->data_base_addr,
-+				 zeros, ARRAY_SIZE(zeros));
++	/* limit offset to REG_ADDR_LIMIT-1 */
++	if (count > (REG_ADDR_LIMIT - *f_pos))
++		count = REG_ADDR_LIMIT - *f_pos;
++
++	if (count == 0)
++		return 0;
++
++	if (IS_ERR(data)) {
++		pr_err("%s: pointer of char device is invalid", __func__);
++		return -EBADF;
++	}
++
++	mutex_lock(&(data->file_mutex));
++
++	retval = rmi_read_block(data->rmi_dev, *f_pos, tmpbuf, count);
++
++	if (retval < 0)
++		goto clean_up;
++
++	if (copy_to_user(buf, tmpbuf, count))
++		retval = -EFAULT;
++	else
++		*f_pos += retval;
++
++clean_up:
++
++	mutex_unlock(&(data->file_mutex));
++
++	return retval;
++}
++
++/*
++ * rmidev_write: - use to write data into RMI stream
++ *
++ * @filep : file structure for write
++ * @buf: user-level buffer pointer contains data to be written
++ * @count: number of byte be be written
++ * @f_pos: offset (starting register address)
++ *
++ * @return number of bytes written from user buffer (buf) if succeeds
++ *         negative number if error occurs.
++ */
++static ssize_t rmidev_write(struct file *filp, const char __user *buf,
++		size_t count, loff_t *f_pos)
++{
++	struct rmidev_data *data = filp->private_data;
++	ssize_t retval  = 0;
++	unsigned char tmpbuf[count+1];
++
++	/* limit offset to REG_ADDR_LIMIT-1 */
++	if (count > (REG_ADDR_LIMIT - *f_pos))
++		count = REG_ADDR_LIMIT - *f_pos;
++
++	if (count == 0)
++		return 0;
++
++	if (IS_ERR(data)) {
++		pr_err("%s: pointer of char device is invalid", __func__);
++		return -EBADF;
++	}
++
++	if (copy_from_user(tmpbuf, buf, count))
++		return -EFAULT;
++
++	mutex_lock(&(data->file_mutex));
++
++	retval = rmi_write_block(data->rmi_dev, *f_pos, tmpbuf, count);
++
++	if (retval >= 0)
++		*f_pos += count;
++
++	mutex_unlock(&(data->file_mutex));
++
++	return retval;
++}
++
++/*
++ * rmidev_open: - get a new handle for from RMI stream
++ * @inp : inode struture
++ * @filp: file structure for read/write
++ *
++ * @return 0 if succeeds
++ */
++static int rmidev_open(struct inode *inp, struct file *filp)
++{
++	struct rmidev_data *data = container_of(inp->i_cdev,
++			struct rmidev_data, main_dev);
++	int retval = 0;
++
++	filp->private_data = data;
++
++	if (!data->rmi_dev)
++		return -EACCES;
++
++	mutex_lock(&(data->file_mutex));
++	if (data->ref_count < 1)
++		data->ref_count++;
++	else
++		retval = -EACCES;
++
++	mutex_unlock(&(data->file_mutex));
++
++	return retval;
++}
++
++/*
++ *  rmidev_release: - release an existing handle
++ *  @inp: inode structure
++ *  @filp: file structure for read/write
++ *
++ *  @return 0 if succeeds
++ */
++static int rmidev_release(struct inode *inp, struct file *filp)
++{
++	struct rmidev_data *data = container_of(inp->i_cdev,
++			struct rmidev_data, main_dev);
++
++	if (!data->rmi_dev)
++		return -EACCES;
++
++	mutex_lock(&(data->file_mutex));
++
++	data->ref_count--;
++	if (data->ref_count < 0)
++		data->ref_count = 0;
++
++	mutex_unlock(&(data->file_mutex));
++
++	return 0;
++}
++
++static const struct file_operations rmidev_fops = {
++	.owner =    THIS_MODULE,
++	.llseek =   rmidev_llseek,
++	.read =     rmidev_read,
++	.write =    rmidev_write,
++	.open =     rmidev_open,
++	.release =  rmidev_release,
++};
++
++/*
++ * rmidev_device_cleanup - release memory or unregister driver
++ * @rmidev_data: instance data for a particular device.
++ *
++ */
++static void rmidev_device_cleanup(struct rmidev_data *data)
++{
++	dev_t devno;
++
++	/* Get rid of our char dev entries */
++	if (data) {
++		devno = data->main_dev.dev;
++
++		if (data->device_class)
++			device_destroy(data->device_class, devno);
++
++		cdev_del(&data->main_dev);
++		kfree(data);
++
++		/* cleanup_module is never called if registering failed */
++		unregister_chrdev_region(devno, 1);
++		pr_debug("%s: rmidev device is removed\n", __func__);
++	}
++}
++
++/*
++ * rmi_char_devnode - return device permission
++ *
++ * @dev: char device structure
++ * @mode: file permission
++ *
++ */
++static char *rmi_char_devnode(struct device *dev, mode_t *mode)
++{
++	if (!mode)
++		return NULL;
++	/**mode = 0666*/
++	*mode = (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
++
++	return kasprintf(GFP_KERNEL, "rmi/%s", dev_name(dev));
++}
++
++static int rmidev_init_device(struct rmi_char_device *cd)
++{
++	struct rmi_device *rmi_dev = cd->rmi_dev;
++	struct rmidev_data *data;
++	dev_t dev_no;
++	int retval;
++	struct device *device_ptr;
++
++	if (rmidev_major_num) {
++		dev_no = MKDEV(rmidev_major_num, cd->rmi_dev->number);
++		retval = register_chrdev_region(dev_no, 1, CHAR_DEVICE_NAME);
++	} else {
++		retval = alloc_chrdev_region(&dev_no, 0, 1, CHAR_DEVICE_NAME);
++		/* let kernel allocate a major for us */
++		rmidev_major_num = MAJOR(dev_no);
++		dev_info(&rmi_dev->dev, "Major number of rmidev: %d\n",
++				 rmidev_major_num);
++	}
 +	if (retval < 0) {
-+		dev_err(&data->rmi_dev->dev, "Failed to write initial zeros. Code=%d.\n",
++		dev_err(&rmi_dev->dev,
++			"Failed to get minor dev number %d, code %d.\n",
++			cd->rmi_dev->number, retval);
++		return retval;
++	} else
++		dev_info(&rmi_dev->dev, "Allocated rmidev %d %d.\n",
++			 MAJOR(dev_no), MINOR(dev_no));
++
++	data = kzalloc(sizeof(struct rmidev_data), GFP_KERNEL);
++	if (!data) {
++		dev_err(&rmi_dev->dev, "Failed to allocate rmidev_data.\n");
++		/* unregister the char device region */
++		__unregister_chrdev(rmidev_major_num, MINOR(dev_no), 1,
++				CHAR_DEVICE_NAME);
++		return -ENOMEM;
++	}
++
++	mutex_init(&data->file_mutex);
++
++	data->rmi_dev = cd->rmi_dev;
++	cd->data = data;
++
++	cdev_init(&data->main_dev, &rmidev_fops);
++
++	retval = cdev_add(&data->main_dev, dev_no, 1);
++	if (retval) {
++		dev_err(&cd->rmi_dev->dev, "Error %d adding rmi_char_dev.\n",
 +			retval);
++		rmidev_device_cleanup(data);
 +		return retval;
 +	}
 +
-+	for (block_num = 0; block_num < block_count; ++block_num) {
-+		retval = rmi_write_block(data->rmi_dev, addr, block_ptr,
-+					 data->f34_queries.block_size);
-+		if (retval < 0) {
-+			dev_err(&data->rmi_dev->dev, "Failed to write block %d. Code=%d.\n",
-+				block_num, retval);
-+			return retval;
-+		}
++	dev_set_name(&cd->dev, "rmidev%d", MINOR(dev_no));
++	data->device_class = rmidev_device_class;
++	device_ptr = device_create(
++			data->device_class,
++			NULL, dev_no, NULL,
++			CHAR_DEVICE_NAME"%d",
++			MINOR(dev_no));
 +
-+		retval = write_f34_command(data, cmd);
-+		if (retval) {
-+			dev_err(&data->rmi_dev->dev, "Failed to write command for block %d. Code=%d.\n",
-+				block_num, retval);
-+			return retval;
-+		}
-+
-+
-+		retval = wait_for_idle(data, F34_IDLE_WAIT_MS);
-+		if (retval) {
-+			dev_err(&data->rmi_dev->dev, "Failed to go idle after writing block %d. Code=%d.\n",
-+				block_num, retval);
-+			return retval;
-+		}
-+
-+		block_ptr += data->f34_queries.block_size;
++	if (IS_ERR(device_ptr)) {
++		dev_err(&cd->rmi_dev->dev, "Failed to create rmi device.\n");
++		rmidev_device_cleanup(data);
++		return -ENODEV;
 +	}
 +
 +	return 0;
 +}
 +
-+static int write_firmware(struct reflash_data *data)
++static void rmidev_remove_device(struct rmi_char_device *cd)
 +{
-+	return write_blocks(data, (u8 *) data->firmware_data,
-+		data->f34_queries.fw_block_count, F34_WRITE_FW_BLOCK);
++	struct rmidev_data *data;
++
++	dev_dbg(&cd->dev, "%s: removing an rmidev device.\n", __func__);
++	if (!cd)
++		return;
++
++	data = cd->data;
++	if (data)
++		rmidev_device_cleanup(data);
 +}
 +
-+static int write_configuration(struct reflash_data *data)
++static struct rmi_char_driver rmidev_driver = {
++	.driver = {
++		.name = "rmidev",
++		.owner = THIS_MODULE,
++	},
++
++	.init = rmidev_init_device,
++	.remove = rmidev_remove_device,
++};
++
++static int __init rmidev_init(void)
 +{
-+	return write_blocks(data, (u8 *) data->config_data,
-+		data->f34_queries.config_block_count, F34_WRITE_CONFIG_BLOCK);
++	int error = 0;
++	pr_debug("%s: rmi_dev initialization.\n", __func__);
++
++	/* create device node */
++	rmidev_device_class = class_create(THIS_MODULE, DEVICE_CLASS_NAME);
++
++	if (IS_ERR(rmidev_device_class)) {
++		pr_err("%s: ERROR - Failed to create /dev/%s.\n", __func__,
++			CHAR_DEVICE_NAME);
++		return -ENODEV;
++	}
++	/* setup permission */
++	rmidev_device_class->devnode = rmi_char_devnode;
++
++	error = rmi_register_character_driver(&rmidev_driver);
++	if (error)
++		class_destroy(rmidev_device_class);
++	return error;
 +}
 +
-+static void reflash_firmware(struct reflash_data *data)
++static void __exit rmidev_exit(void)
 +{
-+#ifdef DEBUG
-+	struct timespec start;
-+	struct timespec end;
-+	s64 duration_ns;
-+#endif
-+	int retval = 0;
-+
-+	retval = enter_flash_programming(data);
-+	if (retval)
-+		return;
-+
-+	retval = write_bootloader_id(data);
-+	if (retval)
-+		return;
-+
-+#ifdef	DEBUG
-+	dev_info(&data->rmi_dev->dev, "Erasing FW...\n");
-+	getnstimeofday(&start);
-+#endif
-+	retval = write_f34_command(data, F34_ERASE_ALL);
-+	if (retval)
-+		return;
-+
-+	retval = wait_for_idle(data, F34_ERASE_WAIT_MS);
-+	if (retval) {
-+		dev_err(&data->rmi_dev->dev,
-+			"Failed to reach idle state. Code: %d.\n", retval);
-+		return;
-+	}
-+#ifdef	DEBUG
-+	getnstimeofday(&end);
-+	duration_ns = timespec_to_ns(&end) - timespec_to_ns(&start);
-+	dev_info(&data->rmi_dev->dev,
-+		 "Erase complete, time: %lld ns.\n", duration_ns);
-+#endif
-+
-+	if (data->firmware_data) {
-+#ifdef	DEBUG
-+		dev_info(&data->rmi_dev->dev, "Writing firmware...\n");
-+		getnstimeofday(&start);
-+#endif
-+		retval = write_firmware(data);
-+		if (retval)
-+			return;
-+#ifdef	DEBUG
-+		getnstimeofday(&end);
-+		duration_ns = timespec_to_ns(&end) - timespec_to_ns(&start);
-+		dev_info(&data->rmi_dev->dev,
-+			 "Done writing FW, time: %lld ns.\n", duration_ns);
-+#endif
-+	}
-+
-+	if (data->config_data) {
-+#ifdef	DEBUG
-+		dev_info(&data->rmi_dev->dev, "Writing configuration...\n");
-+		getnstimeofday(&start);
-+#endif
-+		retval = write_configuration(data);
-+		if (retval)
-+			return;
-+#ifdef	DEBUG
-+		getnstimeofday(&end);
-+		duration_ns = timespec_to_ns(&end) - timespec_to_ns(&start);
-+		dev_info(&data->rmi_dev->dev,
-+			 "Done writing config, time: %lld ns.\n", duration_ns);
-+#endif
-+	}
++	pr_debug("%s: exiting.\n", __func__);
++	rmi_unregister_character_driver(&rmidev_driver);
++	class_destroy(rmidev_device_class);
 +}
 +
-+/* Returns false if the firmware should not be reflashed.
-+ */
-+static bool go_nogo(struct reflash_data *data, struct image_header *header)
-+{
-+	union f01_device_status device_status;
-+	int retval;
++module_init(rmidev_init);
++module_exit(rmidev_exit);
 +
-+	if (data->f01_queries.productinfo_1 < header->product_info[0] ||
-+		data->f01_queries.productinfo_2 < header->product_info[1]) {
-+		dev_info(&data->rmi_dev->dev,
-+			 "FW product ID is older than image product ID.\n");
-+		return true;
-+	}
-+
-+	retval = read_f01_status(data, &device_status);
-+	if (retval)
-+		dev_err(&data->rmi_dev->dev,
-+			"Failed to read F01 status. Code: %d.\n", retval);
-+
-+	return device_status.flash_prog || force;
-+}
-+
-+void rmi4_fw_update(struct rmi_device *rmi_dev,
-+		struct pdt_entry *f01_pdt, struct pdt_entry *f34_pdt)
-+{
-+#ifdef DEBUG
-+	struct timespec start;
-+	struct timespec end;
-+	s64 duration_ns;
-+#endif
-+	char firmware_name[RMI_PRODUCT_ID_LENGTH + 12];
-+	const struct firmware *fw_entry = NULL;
-+	int retval;
-+	struct image_header header;
-+	union pdt_properties pdt_props;
-+	struct reflash_data data = {
-+		.rmi_dev = rmi_dev,
-+		.f01_pdt = f01_pdt,
-+		.f34_pdt = f34_pdt,
-+	};
-+	struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
-+
-+	dev_info(&rmi_dev->dev, "%s called.\n", __func__);
-+#ifdef	DEBUG
-+	getnstimeofday(&start);
-+#endif
-+
-+	retval = rmi_read(rmi_dev, PDT_PROPERTIES_LOCATION, pdt_props.regs);
-+	if (retval < 0) {
-+		dev_warn(&rmi_dev->dev,
-+			 "Failed to read PDT props at %#06x (code %d). Assuming 0x00.\n",
-+			 PDT_PROPERTIES_LOCATION, retval);
-+	}
-+	if (pdt_props.has_bsr) {
-+		dev_warn(&rmi_dev->dev,
-+			 "Firmware update for LTS not currently supported.\n");
-+		return;
-+	}
-+
-+	retval = read_f01_queries(&data);
-+	if (retval) {
-+		dev_err(&rmi_dev->dev, "F01 queries failed, code = %d.\n",
-+			retval);
-+		return;
-+	}
-+	retval = read_f34_queries(&data);
-+	if (retval) {
-+		dev_err(&rmi_dev->dev, "F34 queries failed, code = %d.\n",
-+			retval);
-+		return;
-+	}
-+	if (pdata->firmware_name && strlen(pdata->firmware_name))
-+		snprintf(firmware_name, sizeof(firmware_name), "rmi4/%s.img",
-+			pdata->firmware_name);
-+	else
-+		snprintf(firmware_name, sizeof(firmware_name), "rmi4/%s.img",
-+			(img_name && strlen(img_name))
-+				? img_name : data.product_id);
-+	dev_info(&rmi_dev->dev, "Requesting %s.\n", firmware_name);
-+	retval = request_firmware(&fw_entry, firmware_name, &rmi_dev->dev);
-+	if (retval != 0) {
-+		dev_err(&rmi_dev->dev, "Firmware %s not available, code = %d\n",
-+			firmware_name, retval);
-+		return;
-+	}
-+
-+#ifdef	DEBUG
-+	dev_info(&rmi_dev->dev, "Got firmware, size: %d.\n", fw_entry->size);
-+	extract_header(fw_entry->data, 0, &header);
-+	dev_info(&rmi_dev->dev, "Img checksum:           %#08X\n",
-+		 header.checksum);
-+	dev_info(&rmi_dev->dev, "Img image size:         %d\n",
-+		 header.image_size);
-+	dev_info(&rmi_dev->dev, "Img config size:        %d\n",
-+		 header.config_size);
-+	dev_info(&rmi_dev->dev, "Img bootloader version: %d\n",
-+		 header.bootloader_version);
-+	dev_info(&rmi_dev->dev, "Img product id:         %s\n",
-+		 header.product_id);
-+	dev_info(&rmi_dev->dev, "Img product info:       %#04x %#04x\n",
-+		 header.product_info[0], header.product_info[1]);
-+#endif
-+
-+	if (header.image_size)
-+		data.firmware_data = fw_entry->data + F34_FW_IMAGE_OFFSET;
-+	if (header.config_size)
-+		data.config_data = fw_entry->data + F34_FW_IMAGE_OFFSET +
-+			header.image_size;
-+
-+	if (go_nogo(&data, &header)) {
-+		reflash_firmware(&data);
-+		reset_device(&data);
-+	} else
-+		dev_info(&rmi_dev->dev, "Go/NoGo said don't reflash.\n");
-+
-+	if (fw_entry)
-+		release_firmware(fw_entry);
-+#ifdef	DEBUG
-+	getnstimeofday(&end);
-+	duration_ns = timespec_to_ns(&end) - timespec_to_ns(&start);
-+	dev_info(&rmi_dev->dev, "Time to reflash: %lld ns.\n", duration_ns);
-+#endif
-+}
++MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com>");
++MODULE_DESCRIPTION("RMI4 Char Device");
++MODULE_LICENSE("GPL");

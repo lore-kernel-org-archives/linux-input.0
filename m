@@ -1,14 +1,14 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [RFC PATCH 12/17] input: RMI4 F1A simple capacitive buttons
-Date: Fri, 17 Aug 2012 15:17:52 -0700
-Message-ID: <1345241877-16200-13-git-send-email-cheiny@synaptics.com>
+Subject: [RFC PATCH 14/17] input: RMI4 F30 GPIO/LED control
+Date: Fri, 17 Aug 2012 15:17:54 -0700
+Message-ID: <1345241877-16200-15-git-send-email-cheiny@synaptics.com>
 References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from [12.239.217.82] ([12.239.217.82]:28612 "EHLO
 	venom.synaptics.com" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1758918Ab2HQXVC (ORCPT
+	with ESMTP id S1758919Ab2HQXVD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Aug 2012 19:21:02 -0400
+	Fri, 17 Aug 2012 19:21:03 -0400
 In-Reply-To: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -26,15 +26,15 @@ Acked-by: Jean Delvare <khali@linux-fr.org>
 
 ---
 
- drivers/input/rmi4/rmi_f1a.c | 1025 ++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 1025 insertions(+), 0 deletions(-)
+ drivers/input/rmi4/rmi_f30.c | 1247 ++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 1247 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_f1a.c b/drivers/input/rmi4/rmi_f1a.c
+diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
 new file mode 100644
-index 0000000..a7cccfa
+index 0000000..4bc2932
 --- /dev/null
-+++ b/drivers/input/rmi4/rmi_f1a.c
-@@ -0,0 +1,1025 @@
++++ b/drivers/input/rmi4/rmi_f30.c
+@@ -0,0 +1,1247 @@
 +/*
 + * Copyright (c) 2012 Synaptics Incorporated
 + *
@@ -52,8 +52,8 @@ index 0000000..a7cccfa
 + * along with this program; if not, write to the Free Software
 + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
-+#define FUNCTION_DATA f1a_data
-+#define FNUM 1a
++#define FUNCTION_DATA rmi_fn_30_data
++#define FNUM 30
 +
 +#include <linux/kernel.h>
 +#include <linux/rmi.h>
@@ -61,620 +61,648 @@ index 0000000..a7cccfa
 +#include <linux/slab.h>
 +#include "rmi_driver.h"
 +
-+#define QUERY_BASE_INDEX 1
-+#define MAX_NAME_LEN 256
-+#define MAX_BUFFER_LEN 80
 +
-+#define FILTER_MODE_MIN				0
-+#define FILTER_MODE_MAX				3
-+#define MULTI_BUTTON_REPORT_MIN			0
-+#define MULTI_BUTTON_REPORT_MAX			3
-+#define TX_RX_BUTTON_MIN			0
-+#define TX_RX_BUTTON_MAX			255
-+#define THREADHOLD_BUTTON_MIN			0
-+#define THREADHOLD_BUTTON_MAX			255
-+#define RELEASE_THREADHOLD_BUTTON_MIN		0
-+#define RELEASE_THREADHOLD_BUTTON_MAX		255
-+#define STRONGEST_BUTTON_HYSTERESIS_MIN		0
-+#define STRONGEST_BUTTON_HYSTERESIS_MAX		255
-+#define FILTER_STRENGTH_MIN			0
-+#define FILTER_STRENGTH_MAX			255
++#define MAX_LEN 256
 +
-+union f1a_0d_query {
++/* data specific to fn $30 that needs to be kept around */
++union f30_query {
 +	struct {
-+		u8 max_button_count:3;
-+		u8 reserved:5;
-+
-+		u8 has_general_control:1;
-+		u8 has_interrupt_enable:1;
-+		u8 has_multibutton_select:1;
-+		u8 has_tx_rx_map:1;
-+		u8 has_perbutton_threshold:1;
-+		u8 has_release_threshold:1;
-+		u8 has_strongestbtn_hysteresis:1;
-+		u8 has_filter_strength:1;
-+	} __attribute__((__packed__));
++		u8 extended_patterns:1;
++		u8 has_mappable_buttons:1;
++		u8 has_led:1;
++		u8 has_gpio:1;
++		u8 has_haptic:1;
++		u8 has_gpio_driver_control:1;
++		u8 gpio_led_count:5;
++	};
 +	struct {
 +		u8 regs[2];
 +		u16 address;
-+	} __attribute__((__packed__));
++	};
 +};
 +
-+union f1a_0d_control_0 {
++struct f30_gpio_ctrl_0n {
++	u8 led_sel;
++};
++
++struct f30_gpio_ctrl_0 {
++	struct f30_gpio_ctrl_0n *regs;
++	u16 address;
++	u8 length;
++};
++
++union f30_gpio_ctrl_1 {
 +	struct {
-+		u8 multibutton_report:2;
-+		u8 filter_mode:2;
-+	} __attribute__((__packed__));
-+	struct {
-+		u8 regs[1];
-+		u16 address;
-+	} __attribute__((__packed__));
-+};
-+
-+struct f1a_0d_control_1n {
-+	u8 interrupt_enabled_button;
-+};
-+
-+struct f1a_0d_control_1 {
-+	struct f1a_0d_control_1n *regs;
-+	u16 address;
-+	u8 length;
-+} __attribute__((__packed__));
-+
-+struct f1a_0d_control_2n {
-+	u8 multi_button;
-+};
-+
-+struct f1a_0d_control_2 {
-+	struct f1a_0d_control_2n *regs;
-+	u16 address;
-+	u8 length;
-+} __attribute__((__packed__));
-+
-+struct f1a_0d_control_3_4n {
-+	u8 transmitterbtn;
-+	u8 receiverbtn;
-+} __attribute__((__packed__));
-+
-+struct f1a_0d_control_3_4 {
-+	struct f1a_0d_control_3_4n *regs;
-+	u16 address;
-+	u8 length;
-+} __attribute__((__packed__));
-+
-+struct f1a_0d_control_5n {
-+	u8 threshold_button;
-+};
-+
-+struct f1a_0d_control_5 {
-+	struct f1a_0d_control_5n *regs;
-+	u16 address;
-+	u8 length;
-+} __attribute__((__packed__));
-+
-+union f1a_0d_control_6 {
-+	struct {
-+		u8 button_release_threshold;
++		u8 gpio_debounce:1;
++		u8 reserved:3;
++		u8 halt:1;
++		u8 halted:1;
++		u8 reserved2:2;
 +	};
 +	struct {
 +		u8 regs[1];
 +		u16 address;
-+	} __attribute__((__packed__));
++	};
 +};
 +
-+union f1a_0d_control_7 {
++struct f30_gpio_ctrl_2n {
++	u8 dir;
++};
++
++struct f30_gpio_ctrl_2 {
++	struct f30_gpio_ctrl_2n *regs;
++	u16 address;
++	u8 length;
++};
++
++struct f30_gpio_ctrl_3n {
++	u8 gpiodata;
++};
++
++struct f30_gpio_ctrl_3 {
++	struct f30_gpio_ctrl_3n *regs;
++	u16 address;
++	u8 length;
++};
++
++struct f30_gpio_ctrl_4n {
++	u8 led_act;
++};
++
++struct f30_gpio_ctrl_4 {
++	struct f30_gpio_ctrl_4n *regs;
++	u16 address;
++	u8 length;
++};
++
++struct f30_gpio_ctrl_5n {
++	u8 ramp_period_a;
++	u8 ramp_period_b;
++};
++
++struct f30_gpio_ctrl_5 {
++	struct f30_gpio_ctrl_5n *regs;
++	u16 address;
++	u8 length;
++};
++
++union f30_gpio_ctrl_6n {
 +	struct {
-+		u8 strongest_button_hysteresis;
++		u8 reserved:1;
++		u8 SPCTRL:3;
++		u8 STRPD:1;
++		u8 reserved2:1;
++		u8 STRPU:1;
++		u8 reserved3:1;
++	};
++	struct {
++		u8 brightness:4;
++		u8 pattern:4;
++	};
++};
++
++struct f30_gpio_ctrl_6 {
++	union f30_gpio_ctrl_6n *regs;
++	u16 address;
++	u8 length;
++};
++
++struct f30_gpio_ctrl_7n {
++	u8 capacity_btn_nbr:5;
++	u8 valid:1;
++	u8 invert:1;
++	u8 open_drain:1;
++};
++
++struct f30_gpio_ctrl_7 {
++	struct f30_gpio_ctrl_7n *regs;
++	u16 address;
++	u8 length;
++};
++
++struct f30_gpio_ctrl_8n {
++	u8 gpio_ctrl8_0;
++	u8 gpio_ctrl8_1;
++};
++
++struct f30_gpio_ctrl_8 {
++	struct f30_gpio_ctrl_8n *regs;
++	u16 address;
++	u8 length;
++};
++
++union f30_gpio_ctrl_9 {
++	struct {
++		u8 haptic_duration;
 +	};
 +	struct {
 +		u8 regs[1];
 +		u16 address;
-+	} __attribute__((__packed__));
-+};
-+
-+union f1a_0d_control_8 {
-+	struct {
-+		u8 filter_strength;
 +	};
-+	struct {
-+		u8 regs[1];
-+		u16 address;
-+	} __attribute__((__packed__));
 +};
 +
-+struct f1a_0d_control {
-+	union f1a_0d_control_0 *reg_0;
-+	struct f1a_0d_control_1 *reg_1;
-+	struct f1a_0d_control_2 *reg_2;
-+	struct f1a_0d_control_3_4 *reg_3_4;
-+	struct f1a_0d_control_5 *reg_5;
-+	union f1a_0d_control_6 *reg_6;
-+	union f1a_0d_control_7 *reg_7;
-+	union f1a_0d_control_8 *reg_8;
++struct f30_control {
++	struct f30_gpio_ctrl_0 *reg_0;
++	union f30_gpio_ctrl_1 *reg_1;
++	struct f30_gpio_ctrl_2 *reg_2;
++	struct f30_gpio_ctrl_3 *reg_3;
++	struct f30_gpio_ctrl_4 *reg_4;
++	struct f30_gpio_ctrl_5 *reg_5;
++	struct f30_gpio_ctrl_6 *reg_6;
++	struct f30_gpio_ctrl_7 *reg_7;
++	struct f30_gpio_ctrl_8 *reg_8;
++	union f30_gpio_ctrl_9 *reg_9;
 +};
 +
-+/* data specific to fn $1a that needs to be kept around */
-+struct f1a_data {
-+	struct f1a_0d_control control;
-+	union f1a_0d_query query;
-+	u8 sensor_button_count;
-+	int button_bitmask_size;
-+	u8 *button_data_buffer;
-+	u8 button_map_size;
-+	u8 *button_map;
-+	char input_name[MAX_NAME_LEN];
-+	char input_phys[MAX_NAME_LEN];
++struct f30_data_0n {
++	u8 gpi_led_data:1;
++};
++
++struct f30_data_0 {
++	struct f30_data_0n *regs;
++	u16 address;
++	u8 length;
++};
++
++struct f30_data {
++	struct f30_data_0 *datareg_0;
++	u16 address;
++	u8 length;
++};
++
++struct rmi_fn_30_data {
++	union f30_query query;
++	struct f30_data data;
++	struct f30_control control;
++	unsigned char gpioled_count;
++	unsigned char gpioled_bitmask_size;
++	unsigned char gpioled_byte_size;
++	unsigned char *button_data_buffer;
++	unsigned char button_bitmask_size;
++	unsigned short *gpioled_map;
++	char input_name[MAX_LEN];
++	char input_phys[MAX_LEN];
 +	struct input_dev *input;
 +	struct mutex control_mutex;
 +	struct mutex data_mutex;
 +};
 +
++static int rmi_f30_alloc_memory(struct rmi_function_container *fc);
 +
-+static int rmi_f1a_alloc_memory(struct rmi_function_container *fc);
++static void rmi_f30_free_memory(struct rmi_function_container *fc);
 +
-+static void rmi_f1a_free_memory(struct rmi_function_container *fc);
++static int rmi_f30_initialize(struct rmi_function_container *fc);
 +
-+static int rmi_f1a_initialize(struct rmi_function_container *fc);
++static int rmi_f30_register_device(struct rmi_function_container *fc);
 +
-+static int rmi_f1a_register_device(struct rmi_function_container *fc);
++static int rmi_f30_config(struct rmi_function_container *fc);
 +
-+static int rmi_f1a_create_sysfs(struct rmi_function_container *fc);
++static int rmi_f30_create_sysfs(struct rmi_function_container *fc);
 +
-+static int rmi_f1a_config(struct rmi_function_container *fc);
-+
-+static int rmi_f1a_reset(struct rmi_function_container *fc);
 +
 +/* Query sysfs files */
-+show_union_struct_prototype(max_button_count)
-+show_union_struct_prototype(has_general_control)
-+show_union_struct_prototype(has_interrupt_enable)
-+show_union_struct_prototype(has_multibutton_select)
-+show_union_struct_prototype(has_tx_rx_map)
-+show_union_struct_prototype(has_perbutton_threshold)
-+show_union_struct_prototype(has_release_threshold)
-+show_union_struct_prototype(has_strongestbtn_hysteresis)
-+show_union_struct_prototype(has_filter_strength)
 +
-+static struct attribute *attrs[] = {
-+	attrify(max_button_count),
-+	attrify(has_general_control),
-+	attrify(has_interrupt_enable),
-+	attrify(has_multibutton_select),
-+	attrify(has_tx_rx_map),
-+	attrify(has_perbutton_threshold),
-+	attrify(has_release_threshold),
-+	attrify(has_strongestbtn_hysteresis),
-+	attrify(has_filter_strength),
++show_union_struct_prototype(extended_patterns)
++show_union_struct_prototype(has_mappable_buttons)
++show_union_struct_prototype(has_led)
++show_union_struct_prototype(has_gpio)
++show_union_struct_prototype(has_haptic)
++show_union_struct_prototype(has_gpio_driver_control)
++show_union_struct_prototype(gpio_led_count)
++
++static struct attribute *attrs1[] = {
++	attrify(extended_patterns),
++	attrify(has_mappable_buttons),
++	attrify(has_led),
++	attrify(has_gpio),
++	attrify(has_haptic),
++	attrify(has_gpio_driver_control),
++	attrify(gpio_led_count),
 +	NULL
 +};
 +
-+static struct attribute_group attrs_query = GROUP(attrs);
++static struct attribute_group attrs_query = GROUP(attrs1);
 +
 +/* Control sysfs files */
-+show_store_union_struct_prototype(multibutton_report)
-+show_store_union_struct_prototype(filter_mode)
-+show_store_union_struct_prototype(interrupt_enabled_button)
-+show_store_union_struct_prototype(multi_button)
-+show_union_struct_prototype(tx_rx_map)
-+show_store_union_struct_prototype(threshold_button)
-+show_store_union_struct_prototype(button_release_threshold)
-+show_store_union_struct_prototype(strongest_button_hysteresis)
-+show_store_union_struct_prototype(filter_strength)
 +
-+static int rmi_f1a_read_control_parameters(struct rmi_device *rmi_dev,
-+	struct f1a_data *f1a)
++show_store_union_struct_prototype(led_sel)
++show_store_union_struct_prototype(gpio_debounce)
++show_store_union_struct_prototype(halt)
++show_store_union_struct_prototype(halted)
++show_store_union_struct_prototype(dir)
++show_store_union_struct_prototype(gpiodata)
++show_store_union_struct_prototype(led_act)
++show_store_union_struct_prototype(ramp_period_a)
++show_store_union_struct_prototype(ramp_period_b)
++show_store_union_struct_prototype(SPCTRL)
++show_store_union_struct_prototype(STRPD)
++show_store_union_struct_prototype(STRPU)
++show_store_union_struct_prototype(brightness)
++show_store_union_struct_prototype(pattern)
++
++show_store_union_struct_prototype(capacity_btn_nbr)
++show_store_union_struct_prototype(valid)
++show_store_union_struct_prototype(invert)
++show_store_union_struct_prototype(open_drain)
++show_store_union_struct_prototype(gpio_ctrl8_0)
++show_store_union_struct_prototype(gpio_ctrl8_1)
++show_store_union_struct_prototype(haptic_duration)
++
++/* Data sysfs files */
++show_store_union_struct_prototype(gpi_led_data)
++
++static struct attribute *attrs_ctrl_reg_0[] = {
++	attrify(led_sel),
++	NULL
++};
++
++static struct attribute *attrs_ctrl_reg_1[] = {
++	attrify(gpio_debounce),
++	attrify(halt),
++	attrify(halted),
++	NULL
++};
++
++static struct attribute *attrs_ctrl_reg_2[] = {
++	attrify(dir),
++	NULL
++};
++
++static struct attribute *attrs_ctrl_reg_3[] = {
++	attrify(gpiodata),
++	NULL
++};
++
++static struct attribute *attrs_ctrl_reg_4[] = {
++	attrify(led_act),
++	NULL
++};
++
++static struct attribute *attrs_ctrl_reg_5[] = {
++	attrify(ramp_period_a),
++	attrify(ramp_period_b),
++	NULL
++};
++
++static struct attribute *attrs_ctrl_reg_6_gpio[] = {
++	attrify(SPCTRL),
++	attrify(STRPD),
++	attrify(STRPU),
++	NULL
++};
++
++static struct attribute *attrs_ctrl_reg_6_led[] = {
++	attrify(brightness),
++	attrify(pattern),
++	NULL
++};
++
++static struct attribute *attrs_ctrl_reg_7[] = {
++	attrify(capacity_btn_nbr),
++	attrify(valid),
++	attrify(invert),
++	attrify(open_drain),
++	NULL
++};
++
++static struct attribute *attrs_ctrl_reg_8[] = {
++	attrify(gpio_ctrl8_0),
++	attrify(gpio_ctrl8_1),
++	NULL
++};
++
++static struct attribute *attrs_ctrl_reg_9[] = {
++	attrify(haptic_duration),
++	NULL
++};
++
++static struct attribute_group attrs_ctrl_regs[] = {
++	GROUP(attrs_ctrl_reg_0),
++	GROUP(attrs_ctrl_reg_1),
++	GROUP(attrs_ctrl_reg_2),
++	GROUP(attrs_ctrl_reg_3),
++	GROUP(attrs_ctrl_reg_4),
++	GROUP(attrs_ctrl_reg_5),
++	GROUP(attrs_ctrl_reg_6_gpio),
++	GROUP(attrs_ctrl_reg_6_led),
++	GROUP(attrs_ctrl_reg_7),
++	GROUP(attrs_ctrl_reg_8),
++	GROUP(attrs_ctrl_reg_9),
++};
++
++bool f30_attrs_regs_exist[ARRAY_SIZE(attrs_ctrl_regs)];
++
++static struct attribute *attrs_gpileddata[] = {
++	attrify(gpi_led_data),
++	NULL
++};
++
++static struct attribute_group attrs_data = GROUP(attrs_gpileddata);
++
++int rmi_f30_read_control_parameters(struct rmi_device *rmi_dev,
++	struct rmi_fn_30_data *f30)
 +{
 +	int retval = 0;
-+	union f1a_0d_query *query = &f1a->query;
-+	struct f1a_0d_control *control = &f1a->control;
++	struct f30_control *control = &f30->control;
 +
-+	if (query->has_general_control) {
-+		retval = rmi_read_block(rmi_dev, control->reg_0->address,
-+				(u8 *)control->reg_0->regs,
-+				sizeof(control->reg_0->regs));
-+		if (retval < 0) {
-+			dev_err(&rmi_dev->dev, "Could not read control reg0 to %#06x.\n",
-+					control->reg_0->address);
-+			return retval;
-+		}
++	retval = rmi_read_block(rmi_dev, control->reg_0->address,
++			(u8 *)control->reg_0->regs,
++			control->reg_0->length);
++	if (retval < 0) {
++		dev_err(&rmi_dev->dev,
++			"%s : Could not read control reg0 to 0x%x\n",
++			__func__, control->reg_0->address);
++		return retval;
 +	}
 +
-+	if (query->has_interrupt_enable) {
-+		retval = rmi_read_block(rmi_dev, control->reg_1->address,
-+			(u8 *)control->reg_1->regs, f1a->button_bitmask_size);
-+		if (retval < 0) {
-+			dev_err(&rmi_dev->dev, "Could not read control reg1 to %#06x.\n",
-+				 control->reg_1->address);
-+			return retval;
-+		}
++	retval = rmi_read_block(rmi_dev, control->reg_1->address,
++			(u8 *)control->reg_1->regs,
++			sizeof(control->reg_1->regs));
++	if (retval < 0) {
++		dev_err(&rmi_dev->dev,
++			"%s : Could not read control reg1 to 0x%x\n",
++			 __func__, control->reg_1->address);
++		return retval;
 +	}
 +
-+	if (query->has_multibutton_select) {
-+		retval = rmi_read_block(rmi_dev, control->reg_2->address,
-+			(u8 *)control->reg_2->regs, f1a->button_bitmask_size);
-+		if (retval < 0) {
-+			dev_err(&rmi_dev->dev, "Could not read control reg2 to %#06x.\n",
-+				 control->reg_2->address);
-+			return retval;
-+		}
++	retval = rmi_read_block(rmi_dev, control->reg_2->address,
++			(u8 *)control->reg_2->regs, control->reg_2->length);
++	if (retval < 0) {
++		dev_err(&rmi_dev->dev,
++			"%s : Could not read control reg_2 to 0x%x\n",
++			 __func__, control->reg_2->address);
++		return retval;
 +	}
 +
-+	if (query->has_tx_rx_map) {
-+		retval = rmi_read_block(rmi_dev, control->reg_3_4->address,
-+			(u8 *)control->reg_3_4->regs,
-+			sizeof(struct f1a_0d_control_3_4n) *
-+					f1a->sensor_button_count);
-+		if (retval < 0) {
-+			dev_err(&rmi_dev->dev, "Could not read control reg 3_4 to %#06x.\n",
-+				 control->reg_3_4->address);
-+			return retval;
-+		}
++	retval = rmi_read_block(rmi_dev, control->reg_3->address,
++			(u8 *)control->reg_3->regs, control->reg_3->length);
++	if (retval < 0) {
++		dev_err(&rmi_dev->dev,
++			"%s : Could not read control reg_3 to 0x%x\n",
++			 __func__, control->reg_3->address);
++		return retval;
 +	}
 +
-+	if (query->has_perbutton_threshold) {
-+		retval = rmi_read_block(rmi_dev, control->reg_5->address,
-+			(u8 *)control->reg_5->regs, f1a->sensor_button_count);
-+		if (retval < 0) {
-+			dev_err(&rmi_dev->dev, "Could not read control reg 5 to %#06x.\n",
-+				 control->reg_5->address);
-+			return retval;
-+		}
++	retval = rmi_read_block(rmi_dev, control->reg_4->address,
++			(u8 *)control->reg_4->regs, control->reg_4->length);
++	if (retval < 0) {
++		dev_err(&rmi_dev->dev,
++			"%s : Could not read control reg4 to 0x%x\n",
++			 __func__, control->reg_4->address);
++		return retval;
 +	}
 +
-+	if (query->has_release_threshold) {
-+		retval = rmi_read_block(rmi_dev, control->reg_6->address,
-+				(u8 *)control->reg_6->regs,
-+				sizeof(control->reg_6->regs));
-+		if (retval < 0) {
-+			dev_err(&rmi_dev->dev, "Could not read control reg 6 to %#06x.\n",
-+					control->reg_6->address);
-+			return retval;
-+		}
++	retval = rmi_read_block(rmi_dev, control->reg_5->address,
++			(u8 *)control->reg_5->regs,
++			control->reg_5->length);
++	if (retval < 0) {
++		dev_err(&rmi_dev->dev,
++			"%s : Could not read control reg5 to 0x%x\n", __func__,
++			control->reg_5->address);
++		return retval;
 +	}
 +
-+	if (query->has_strongestbtn_hysteresis) {
-+		retval = rmi_read_block(rmi_dev, control->reg_7->address,
-+				(u8 *)control->reg_7->regs,
-+				sizeof(control->reg_7->regs));
-+		if (retval < 0) {
-+			dev_err(&rmi_dev->dev, "Could not read control reg 7 to %#06x.\n",
-+					control->reg_7->address);
-+			return retval;
-+		}
++	retval = rmi_read_block(rmi_dev, control->reg_6->address,
++			(u8 *)control->reg_6->regs,
++			control->reg_6->length);
++	if (retval < 0) {
++		dev_err(&rmi_dev->dev,
++			"%s : Could not read control reg6 to 0x%x\n", __func__,
++		control->reg_6->address);
++		return retval;
 +	}
 +
-+	if (query->has_filter_strength) {
-+		retval = rmi_read_block(rmi_dev, control->reg_8->address,
-+				(u8 *)control->reg_8->regs,
-+				sizeof(control->reg_8->regs));
-+		if (retval < 0) {
-+			dev_err(&rmi_dev->dev, "Could not read control reg 8 to %#06x.\n",
-+					control->reg_8->address);
-+			return retval;
-+		}
++	retval = rmi_read_block(rmi_dev, control->reg_7->address,
++		(u8 *)control->reg_7->regs,
++		control->reg_7->length);
++	if (retval < 0) {
++		dev_err(&rmi_dev->dev,
++			"%s : Could not read control reg7 to 0x%x\n", __func__,
++		control->reg_7->address);
++		return retval;
++	}
++
++	retval = rmi_read_block(rmi_dev, control->reg_8->address,
++		(u8 *)control->reg_8->regs,
++		control->reg_8->length);
++	if (retval < 0) {
++		dev_err(&rmi_dev->dev,
++			"%s : Could not read control reg8 to 0x%x\n", __func__,
++		control->reg_8->address);
++		return retval;
++	}
++
++	retval = rmi_read_block(rmi_dev, control->reg_9->address,
++		(u8 *)control->reg_9->regs,
++		sizeof(control->reg_9->regs));
++	if (retval < 0) {
++		dev_err(&rmi_dev->dev,
++			"%s : Could not read control reg9 to 0x%x\n", __func__,
++		control->reg_9->address);
++		return retval;
 +	}
 +	return 0;
 +}
 +
-+
-+static int rmi_f1a_init(struct rmi_function_container *fc)
++static int rmi_f30_init(struct rmi_function_container *fc)
 +{
 +	int rc;
++	struct rmi_fn_30_data *f30 = fc->data;
 +
-+	rc = rmi_f1a_alloc_memory(fc);
++	rc = rmi_f30_alloc_memory(fc);
 +	if (rc < 0)
-+		goto err_free_data;
++		goto error_exit;
 +
-+	rc = rmi_f1a_initialize(fc);
++	rc = rmi_f30_initialize(fc);
 +	if (rc < 0)
-+		goto err_free_data;
++		goto error_exit;
 +
-+	rc = rmi_f1a_register_device(fc);
++	rc = rmi_f30_register_device(fc);
 +	if (rc < 0)
-+		goto err_free_data;
++		goto error_exit;
 +
-+	rc = rmi_f1a_create_sysfs(fc);
++	rc = rmi_f30_create_sysfs(fc);
 +	if (rc < 0)
-+		goto err_free_data;
-+
++		goto error_uregister_exit;
 +	return 0;
 +
-+err_free_data:
-+	rmi_f1a_free_memory(fc);
++error_uregister_exit:
++	input_unregister_device(f30->input);
++
++error_exit:
++	rmi_f30_free_memory(fc);
 +
 +	return rc;
++
 +}
 +
-+
-+static int rmi_f1a_alloc_memory(struct rmi_function_container *fc)
++static inline int rmi_f30_alloc_memory(struct rmi_function_container *fc)
 +{
-+	struct f1a_data *f1a;
-+	int rc;
-+	int regSize;
-+	u16 ctrl_base_addr;
++	struct rmi_fn_30_data *f30;
++	int retval;
 +
-+	f1a = kzalloc(sizeof(struct f1a_data), GFP_KERNEL);
-+	if (!f1a) {
-+		dev_err(&fc->dev, "Failed to allocate function data.\n");
++	f30 = kzalloc(sizeof(struct rmi_fn_30_data), GFP_KERNEL);
++	if (!f30) {
++		dev_err(&fc->dev, "Failed to allocate rmi_fn_30_data.\n");
 +		return -ENOMEM;
 +	}
-+	fc->data = f1a;
++	fc->data = f30;
 +
-+	rc = rmi_read_block(fc->rmi_dev, fc->fd.query_base_addr,
-+			f1a->query.regs, sizeof(f1a->query.regs));
-+	if (rc < 0) {
++	retval = rmi_read_block(fc->rmi_dev,
++						fc->fd.query_base_addr,
++						f30->query.regs,
++					ARRAY_SIZE(f30->query.regs));
++
++	if (retval < 0) {
 +		dev_err(&fc->dev, "Failed to read query register.\n");
-+		return rc;
++		return retval;
 +	}
 +
-+	f1a->sensor_button_count = f1a->query.max_button_count+1;
-+
-+	f1a->button_bitmask_size =
-+			sizeof(u8)*(f1a->sensor_button_count + 7) / 8;
-+	f1a->button_data_buffer = kcalloc(f1a->button_bitmask_size,
-+			sizeof(u8), GFP_KERNEL);
-+	if (!f1a->button_data_buffer) {
++	f30->gpioled_count = f30->query.gpio_led_count;
++	f30->button_bitmask_size = sizeof(u8)*(f30->gpioled_count + 7) / 8;
++	f30->button_data_buffer =
++	    kcalloc(f30->button_bitmask_size,
++		    sizeof(unsigned char), GFP_KERNEL);
++	if (!f30->button_data_buffer) {
 +		dev_err(&fc->dev, "Failed to allocate button data buffer.\n");
 +		return -ENOMEM;
 +	}
 +
-+	f1a->button_map = kcalloc(f1a->sensor_button_count,
-+				sizeof(unsigned char), GFP_KERNEL);
-+	if (!f1a->button_map) {
++	f30->gpioled_map = kcalloc(f30->gpioled_count,
++				sizeof(unsigned short), GFP_KERNEL);
++	if (!f30->gpioled_map) {
 +		dev_err(&fc->dev, "Failed to allocate button map.\n");
 +		return -ENOMEM;
-+	}
-+
-+	/* allocate memory for control reg */
-+	/* reg 0 */
-+	ctrl_base_addr = fc->fd.control_base_addr;
-+	if (f1a->query.has_general_control) {
-+		f1a->control.reg_0 =
-+			kzalloc(sizeof(f1a->control.reg_0->regs), GFP_KERNEL);
-+		if (!f1a->control.reg_0) {
-+			dev_err(&fc->dev, "Failed to allocate reg_0 control registers.");
-+			return -ENOMEM;
-+		}
-+		f1a->control.reg_0->address = ctrl_base_addr;
-+		ctrl_base_addr += sizeof(f1a->control.reg_0->regs);
-+	}
-+	/* reg 1 */
-+	if (f1a->query.has_interrupt_enable) {
-+		f1a->control.reg_1 =
-+			kzalloc(sizeof(struct f1a_0d_control_1), GFP_KERNEL);
-+		if (!f1a->control.reg_1) {
-+			dev_err(&fc->dev, "Failed to allocate reg_1 control registers.");
-+			return -ENOMEM;
-+		}
-+		f1a->control.reg_1->regs =
-+				kzalloc(f1a->button_bitmask_size, GFP_KERNEL);
-+		if (!f1a->control.reg_1->regs) {
-+			dev_err(&fc->dev, "Failed to allocate reg_1->regs control registers.");
-+			return -ENOMEM;
-+		}
-+		f1a->control.reg_1->address = ctrl_base_addr;
-+		f1a->control.reg_1->length = f1a->button_bitmask_size;
-+		ctrl_base_addr += f1a->button_bitmask_size;
-+	}
-+
-+	/* reg 2 */
-+	if (f1a->query.has_multibutton_select) {
-+		f1a->control.reg_2 =
-+			kzalloc(sizeof(struct f1a_0d_control_2), GFP_KERNEL);
-+		if (!f1a->control.reg_2) {
-+			dev_err(&fc->dev, "Failed to allocate reg_2 control registers.");
-+			return -ENOMEM;
-+		}
-+		f1a->control.reg_2->regs =
-+				kzalloc(f1a->button_bitmask_size, GFP_KERNEL);
-+		if (!f1a->control.reg_2->regs) {
-+			dev_err(&fc->dev, "Failed to allocate reg_2->regs control registers.");
-+			return -ENOMEM;
-+		}
-+		f1a->control.reg_2->address = ctrl_base_addr;
-+		f1a->control.reg_2->length = f1a->button_bitmask_size;
-+		ctrl_base_addr += f1a->button_bitmask_size;
-+	}
-+
-+	/* reg 3_4*/
-+	if (f1a->query.has_tx_rx_map) {
-+		f1a->control.reg_3_4 =
-+			kzalloc(sizeof(struct f1a_0d_control_3_4), GFP_KERNEL);
-+		if (!f1a->control.reg_3_4) {
-+			dev_err(&fc->dev, "Failed to allocate reg_3_4 control registers.");
-+			return -ENOMEM;
-+		}
-+		regSize = sizeof(struct f1a_0d_control_3_4n);
-+		f1a->control.reg_3_4->regs =
-+			kzalloc(regSize * f1a->sensor_button_count, GFP_KERNEL);
-+		if (!f1a->control.reg_3_4->regs) {
-+			dev_err(&fc->dev, "Failed to allocate reg_3_4->regs control registers.");
-+			return -ENOMEM;
-+		}
-+		f1a->control.reg_3_4->address = ctrl_base_addr;
-+		f1a->control.reg_3_4->length =
-+					regSize * f1a->sensor_button_count;
-+		ctrl_base_addr += regSize * f1a->sensor_button_count;
-+	}
-+
-+	/* reg 5 */
-+	if (f1a->query.has_perbutton_threshold) {
-+		f1a->control.reg_5 =
-+			kzalloc(sizeof(struct f1a_0d_control_5), GFP_KERNEL);
-+		if (!f1a->control.reg_5) {
-+			dev_err(&fc->dev, "Failed to allocate reg_5 control registers.");
-+			return -ENOMEM;
-+		}
-+		f1a->control.reg_5->regs =
-+				kzalloc(f1a->sensor_button_count, GFP_KERNEL);
-+		if (!f1a->control.reg_5->regs) {
-+			dev_err(&fc->dev, "Failed to allocate reg_5->regs control registers.");
-+			return -ENOMEM;
-+		}
-+		f1a->control.reg_5->address = ctrl_base_addr;
-+		f1a->control.reg_5->length = f1a->sensor_button_count;
-+		ctrl_base_addr += f1a->sensor_button_count;
-+	}
-+
-+	/* reg 6 */
-+	if (f1a->query.has_release_threshold) {
-+		f1a->control.reg_6 =
-+			kzalloc(sizeof(f1a->control.reg_6->regs), GFP_KERNEL);
-+		if (!f1a->control.reg_6) {
-+			dev_err(&fc->dev, "Failed to allocate reg_6 control registers.");
-+			return -ENOMEM;
-+		}
-+		f1a->control.reg_6->address = ctrl_base_addr;
-+		ctrl_base_addr += sizeof(f1a->control.reg_6->regs);
-+	}
-+	/* reg 7 */
-+	if (f1a->query.has_strongestbtn_hysteresis) {
-+		f1a->control.reg_7 =
-+			kzalloc(sizeof(f1a->control.reg_7->regs), GFP_KERNEL);
-+		if (!f1a->control.reg_7) {
-+			dev_err(&fc->dev, "Failed to allocate reg_7 control registers.");
-+			return -ENOMEM;
-+		}
-+		f1a->control.reg_7->address = ctrl_base_addr;
-+		ctrl_base_addr += sizeof(f1a->control.reg_7->regs);
-+	}
-+	/* reg 8 */
-+	if (f1a->query.has_filter_strength) {
-+		f1a->control.reg_8 =
-+			kzalloc(sizeof(f1a->control.reg_8->regs), GFP_KERNEL);
-+		if (!f1a->control.reg_8) {
-+			dev_err(&fc->dev, "Failed to allocate reg_8 control registers.");
-+			return -ENOMEM;
-+		}
-+		f1a->control.reg_8->address = ctrl_base_addr;
-+		ctrl_base_addr += sizeof(f1a->control.reg_8->regs);
 +	}
 +	return 0;
 +}
 +
-+
-+
-+static void rmi_f1a_free_memory(struct rmi_function_container *fc)
++static inline void rmi_f30_free_memory(struct rmi_function_container *fc)
 +{
-+	union f1a_0d_query *query;
-+	struct f1a_data *f1a = fc->data;
-+
-+	query = &f1a->query;
++	struct rmi_fn_30_data *f30 = fc->data;
++	u8 reg_num = 0;
 +	sysfs_remove_group(&fc->dev.kobj, &attrs_query);
++	sysfs_remove_group(&fc->dev.kobj, &attrs_data);
++	for (reg_num = 0; reg_num < ARRAY_SIZE(attrs_ctrl_regs); reg_num++)
++		sysfs_remove_group(&fc->dev.kobj, &attrs_ctrl_regs[reg_num]);
++	if (f30) {
++		if (f30->control.reg_0)
++			kfree(f30->control.reg_0->regs);
++		kfree(f30->control.reg_0);
 +
-+	if (query->has_general_control) {
-+		sysfs_remove_file(&fc->dev.kobj, attrify(multibutton_report));
-+		sysfs_remove_file(&fc->dev.kobj, attrify(filter_mode));
-+	}
++		if (f30->control.reg_1)
++			kfree(f30->control.reg_1->regs);
++		kfree(f30->control.reg_1);
 +
-+	if (query->has_interrupt_enable)
-+		sysfs_remove_file(&fc->dev.kobj,
-+			attrify(interrupt_enabled_button));
++		if (f30->control.reg_2)
++			kfree(f30->control.reg_2->regs);
++		kfree(f30->control.reg_2);
 +
-+	if (query->has_multibutton_select)
-+		sysfs_remove_file(&fc->dev.kobj, attrify(multi_button));
++		if (f30->control.reg_3)
++			kfree(f30->control.reg_3->regs);
++		kfree(f30->control.reg_3);
 +
-+	if (query->has_tx_rx_map)
-+		sysfs_remove_file(&fc->dev.kobj, attrify(tx_rx_map));
++		if (f30->control.reg_4)
++			kfree(f30->control.reg_4->regs);
++		kfree(f30->control.reg_4);
 +
-+	if (query->has_perbutton_threshold)
-+		sysfs_remove_file(&fc->dev.kobj, attrify(threshold_button));
++		if (f30->control.reg_5)
++			kfree(f30->control.reg_5->regs);
++		kfree(f30->control.reg_5);
 +
-+	if (query->has_release_threshold)
-+		sysfs_remove_file(&fc->dev.kobj,
-+				attrify(button_release_threshold));
++		if (f30->control.reg_6)
++			kfree(f30->control.reg_6->regs);
++		kfree(f30->control.reg_6);
 +
-+	if (query->has_strongestbtn_hysteresis)
-+		sysfs_remove_file(&fc->dev.kobj,
-+				attrify(strongest_button_hysteresis));
++		if (f30->control.reg_7)
++			kfree(f30->control.reg_7->regs);
++		kfree(f30->control.reg_7);
 +
-+	if (query->has_filter_strength)
-+		sysfs_remove_file(&fc->dev.kobj, attrify(filter_strength));
++		if (f30->control.reg_8)
++			kfree(f30->control.reg_8->regs);
++		kfree(f30->control.reg_8);
 +
-+	if (f1a) {
-+		kfree(f1a->button_data_buffer);
-+		kfree(f1a->button_map);
-+		kfree(f1a->control.reg_0);
-+		if (f1a->control.reg_1) {
-+			kfree(f1a->control.reg_1->regs);
-+			kfree(f1a->control.reg_1);
-+		}
-+		if (f1a->control.reg_2) {
-+			kfree(f1a->control.reg_2->regs);
-+			kfree(f1a->control.reg_2);
-+		}
-+		if (f1a->control.reg_3_4) {
-+			kfree(f1a->control.reg_3_4->regs);
-+			kfree(f1a->control.reg_3_4);
-+		}
-+		if (f1a->control.reg_5) {
-+			kfree(f1a->control.reg_5->regs);
-+			kfree(f1a->control.reg_5);
-+		}
-+		kfree(f1a->control.reg_5);
-+		kfree(f1a->control.reg_6);
-+		kfree(f1a->control.reg_7);
-+		kfree(f1a->control.reg_8);
-+		kfree(f1a);
++		if (f30->control.reg_9)
++			kfree(f30->control.reg_9->regs);
++		kfree(f30->control.reg_9);
++
++		if (!f30->data.datareg_0)
++			kfree(f30->data.datareg_0->regs);
++		kfree(f30->data.datareg_0);
++
++		kfree(f30->button_data_buffer);
++		kfree(f30->gpioled_map);
++		kfree(f30);
 +		fc->data = NULL;
 +	}
 +}
 +
-+
-+static int rmi_f1a_initialize(struct rmi_function_container *fc)
++int rmi_f30_attention(struct rmi_function_container *fc, u8 *irq_bits)
 +{
-+	int i;
-+	int retval;
 +	struct rmi_device *rmi_dev = fc->rmi_dev;
-+	struct rmi_device_platform_data *pdata;
-+	struct f1a_data *f1a = fc->data;
++	int data_base_addr = fc->fd.data_base_addr;
++	struct rmi_fn_30_data *f30 = fc->data;
++	int error;
++	int gpiled;
++	bool gpiled_status = false;
++	int status = 0;
 +
-+	dev_dbg(&fc->dev, "Intializing F1A values.");
++	/* Read the button data. */
 +
-+	/* initial all default values for f1a data here */
-+	pdata = to_rmi_platform_data(rmi_dev);
-+	if (pdata) {
-+		if (!pdata->f1a_button_map)
-+			dev_warn(&fc->dev, "%s - button_map is NULL", __func__);
-+		else if (!pdata->f1a_button_map->map)
++	error = rmi_read_block(rmi_dev, data_base_addr,
++			f30->button_data_buffer,
++			f30->button_bitmask_size);
++	if (error < 0) {
++		dev_err(&fc->dev,
++			"%s: Failed to read button data registers.\n",
++			__func__);
++		return error;
++	}
++
++	/* Read the gpi led data. */
++	f30->data.address = fc->fd.data_base_addr;
++	error = rmi_read_block(fc->rmi_dev, f30->data.address,
++		(u8 *)&f30->data, f30->gpioled_count);
++
++	if (error < 0) {
++		dev_err(&fc->dev, "%s: Failed to read f30 data registers.\n",
++			__func__);
++		return error;
++	}
++	/* Generate events for buttons that change state. */
++	for (gpiled = 0; gpiled < f30->gpioled_count; gpiled++) {
++		status = f30->data.datareg_0->regs[gpiled].gpi_led_data;
++		dev_warn(&fc->dev,
++			"rmi_f30 attention gpiled=%d data status=%d\n",
++			gpiled,
++			f30->data.datareg_0->regs[gpiled].gpi_led_data);
++		/* check if gpio */
++		if (!(f30->control.reg_0->regs[gpiled].led_sel)) {
++			if (f30->control.reg_2->regs[gpiled].dir == 0) {
++				gpiled_status = status != 0;
++
++		/* if the gpiled data state changed from the
++		* last time report it and store the new state */
++		/* Generate an event here. */
 +			dev_warn(&fc->dev,
-+				 "Platformdata button map is missing!\n");
-+		else {
-+			if (pdata->f1a_button_map->nbuttons !=
-+					f1a->sensor_button_count)
-+				dev_warn(&fc->dev,
-+					"Platform data buttonmap size(%d) != number buttons on device(%d)\n",
-+					pdata->f1a_button_map->nbuttons,
-+					f1a->sensor_button_count);
-+			f1a->button_map_size = min(f1a->sensor_button_count,
-+					 pdata->f1a_button_map->nbuttons);
-+			for (i = 0; i < f1a->button_map_size; i++)
-+				f1a->button_map[i] =
-+					pdata->f1a_button_map->map[i];
++			"rmi_f30 attention call input_report_key\n");
++			input_report_key(f30->input,
++				f30->data.datareg_0->regs[gpiled].gpi_led_data,
++				gpiled_status);
++			}
 +		}
 +	}
-+
-+	retval = rmi_f1a_read_control_parameters(rmi_dev, f1a);
-+	if (retval < 0) {
-+		dev_err(&fc->dev,
-+			"Failed to initialize F1a control params.\n");
-+		return retval;
-+	}
-+
-+	mutex_init(&f1a->control_mutex);
-+	mutex_init(&f1a->data_mutex);
++	input_sync(f30->input); /* sync after groups of events */
 +	return 0;
 +}
 +
-+
-+
-+static int rmi_f1a_register_device(struct rmi_function_container *fc)
++static int rmi_f30_register_device(struct rmi_function_container *fc)
 +{
++	struct rmi_device *rmi_dev = fc->rmi_dev;
++	struct input_dev *input_dev;
++	struct rmi_fn_30_data *f30 = fc->data;
 +	int i;
 +	int rc;
-+	struct input_dev *input_dev;
-+	struct rmi_device *rmi_dev = fc->rmi_dev;
-+	struct f1a_data *f1a = fc->data;
 +
 +	input_dev = input_allocate_device();
 +	if (!input_dev) {
@@ -682,28 +710,25 @@ index 0000000..a7cccfa
 +		return -ENOMEM;
 +	}
 +
-+	f1a->input = input_dev;
-+	snprintf(f1a->input_name, MAX_NAME_LEN, "%sfn%02x",
-+			dev_name(&rmi_dev->dev), fc->fd.function_number);
-+	input_dev->name = f1a->input_name;
-+	snprintf(f1a->input_phys, MAX_NAME_LEN, "%s/input0", input_dev->name);
-+	input_dev->phys = f1a->input_phys;
++	f30->input = input_dev;
++	snprintf(f30->input_name, MAX_LEN, "%sfn%02x", dev_name(&rmi_dev->dev),
++		fc->fd.function_number);
++	input_dev->name = f30->input_name;
++	snprintf(f30->input_phys, MAX_LEN, "%s/input0", input_dev->name);
++	input_dev->phys = f30->input_phys;
 +	input_dev->dev.parent = &rmi_dev->dev;
-+	input_set_drvdata(input_dev, f1a);
++	input_set_drvdata(input_dev, f30);
 +
 +	/* Set up any input events. */
 +	set_bit(EV_SYN, input_dev->evbit);
 +	set_bit(EV_KEY, input_dev->evbit);
-+
-+	/* manage button map using input subsystem */
-+	input_dev->keycode = f1a->button_map;
-+	input_dev->keycodesize = sizeof(f1a->button_map);
-+	input_dev->keycodemax = f1a->button_map_size;
-+
-+	/* set bits for each button. */
-+	for (i = 0; i < f1a->button_map_size; i++) {
-+		set_bit(f1a->button_map[i], input_dev->keybit);
-+		input_set_capability(input_dev, EV_KEY, f1a->button_map[i]);
++	input_dev->keycode = f30->gpioled_map;
++	input_dev->keycodesize = 1;
++	input_dev->keycodemax = f30->gpioled_count;
++	/* set bits for each qpio led pin... */
++	for (i = 0; i < f30->gpioled_count; i++) {
++		set_bit(f30->gpioled_map[i], input_dev->keybit);
++		input_set_capability(input_dev, EV_KEY, f30->gpioled_map[i]);
 +	}
 +
 +	rc = input_register_device(input_dev);
@@ -711,7 +736,6 @@ index 0000000..a7cccfa
 +		dev_err(&fc->dev, "Failed to register input device.\n");
 +		goto error_free_device;
 +	}
-+
 +	return 0;
 +
 +error_free_device:
@@ -721,251 +745,483 @@ index 0000000..a7cccfa
 +}
 +
 +
-+static int rmi_f1a_create_sysfs(struct rmi_function_container *fc)
++static int rmi_f30_config(struct rmi_function_container *fc)
 +{
-+	struct f1a_data *f19 = fc->data;
-+	union f1a_0d_query *query = &f19->query;
++	struct rmi_fn_30_data *data = fc->data;
++	int gpio_led_cnt = data->query.gpio_led_count;
++	int bytecnt = gpio_led_cnt / 7 + 1;
++	int regs_size = 0;
++	int rc;
++	/* repeated register functions */
 +
-+	dev_dbg(&fc->dev, "Creating sysfs files.\n");
++	/* Write Control Register values back to device */
++	rc = rmi_write_block(fc->rmi_dev, data->control.reg_0->address,
++				(u8 *)data->control.reg_0,
++				bytecnt * sizeof(struct f30_gpio_ctrl_0n));
++	if (rc < 0) {
++		dev_err(&fc->dev, "%s error %d: Could not write control 0 to 0x%x\n",
++				__func__, rc, data->control.reg_0->address);
++		return rc;
++	}
++
++	rc = rmi_write_block(fc->rmi_dev, data->control.reg_1->address,
++			(u8 *) data->control.reg_1->regs,
++			sizeof(union f30_gpio_ctrl_1));
++	if (rc < 0) {
++		dev_err(&fc->dev, "%s error %d: Could not write control 1 to 0x%x\n",
++				__func__, rc, data->control.reg_1->address);
++		return rc;
++	}
++
++	regs_size = data->control.reg_2->length;
++
++	rc = rmi_write_block(fc->rmi_dev, data->control.reg_2->address,
++			(u8 *) data->control.reg_2->regs,
++			regs_size);
++	if (rc < 0) {
++		dev_err(&fc->dev, "%s error %d: Could not write control 2 to 0x%x\n",
++				__func__, rc, data->control.reg_2->address);
++		return rc;
++	}
++
++	regs_size = data->control.reg_3->length;
++
++	rc = rmi_write_block(fc->rmi_dev, data->control.reg_3->address,
++			(u8 *) data->control.reg_3->regs,
++			regs_size);
++	if (rc < 0) {
++		dev_err(&fc->dev, "%s error %d: Could not write control 3 to 0x%x\n",
++				__func__, rc, data->control.reg_3->address);
++		return rc;
++	}
++
++	regs_size = data->control.reg_4->length;
++	rc = rmi_write_block(fc->rmi_dev, data->control.reg_4->address,
++			(u8 *) data->control.reg_4->regs,
++			regs_size);
++	if (rc < 0) {
++		dev_err(&fc->dev, "%s error %d: Could not write control 4 to 0x%x\n",
++				__func__, rc, data->control.reg_4->address);
++		return rc;
++	}
++
++	regs_size = data->control.reg_5->length;
++	rc = rmi_write_block(fc->rmi_dev, data->control.reg_5->address,
++			(u8 *) data->control.reg_5->regs,
++			regs_size);
++	if (rc < 0) {
++		dev_err(&fc->dev, "%s error %d: Could not write control 5 to 0x%x\n",
++				__func__, rc, data->control.reg_5->address);
++		return rc;
++	}
++
++	regs_size = data->control.reg_6->length;
++	rc = rmi_write_block(fc->rmi_dev, data->control.reg_6->address,
++			(u8 *) data->control.reg_6->regs,
++			regs_size);
++	if (rc < 0) {
++		dev_err(&fc->dev, "%s error %d: Could not write control 6 to 0x%x\n",
++				__func__, rc, data->control.reg_6->address);
++		return rc;
++	}
++
++	regs_size = data->control.reg_7->length;
++	rc = rmi_write_block(fc->rmi_dev, data->control.reg_7->address,
++			(u8 *) data->control.reg_7->regs,
++			regs_size);
++	if (rc < 0) {
++		dev_err(&fc->dev, "%s error %d: Could not write control 7 to 0x%x\n",
++			__func__, rc, data->control.reg_7->address);
++		return rc;
++	}
++
++	regs_size = data->control.reg_8->length;
++	rc = rmi_write_block(fc->rmi_dev, data->control.reg_8->address,
++			(u8 *) data->control.reg_8->regs, regs_size);
++	if (rc < 0) {
++		dev_err(&fc->dev, "%s error %d: Could not write control 9 to 0x%x\n",
++			__func__, rc, data->control.reg_8->address);
++		return rc;
++	}
++
++	rc = rmi_write_block(fc->rmi_dev, data->control.reg_9->address,
++			(u8 *) data->control.reg_9->regs,
++			sizeof(union f30_gpio_ctrl_9));
++	if (rc < 0) {
++		dev_err(&fc->dev, "%s error %d: Could not write control 9 to 0x%x\n",
++				__func__, rc, data->control.reg_9->address);
++		return rc;
++	}
++
++	return 0;
++}
++
++static inline int rmi_f30_initialize(struct rmi_function_container *fc)
++{
++	struct rmi_device *rmi_dev = fc->rmi_dev;
++	struct rmi_device_platform_data *pdata;
++	struct rmi_fn_30_data *instance_data = fc->data;
++
++	int retval = 0;
++	u16 next_loc;
++	int  gpio_led_cnt = 0;
++	int regs_size = 0;
++	u8 reg_num = 0;
++	int reg_flg;
++	int hasgpio, hasled, hasmbtn, hashaptic;
++	struct f30_control *control = &instance_data->control;
++
++	/* Read F30 Query Data */
++	instance_data->query.address = fc->fd.query_base_addr;
++	retval = rmi_read_block(fc->rmi_dev, instance_data->query.address,
++		(u8 *)&instance_data->query, sizeof(instance_data->query));
++	if (retval < 0) {
++		dev_err(&fc->dev,
++		"Could not read query registers from 0x%04x\n",
++		instance_data->query.address);
++		return retval;
++	}
++
++	/* initialize gpioled_map data */
++	hasgpio = instance_data->query.has_gpio;
++	hasled = instance_data->query.has_led;
++	hasmbtn = instance_data->query.has_mappable_buttons;
++	hashaptic = instance_data->query.has_haptic ;
++	gpio_led_cnt = instance_data->query.gpio_led_count;
++
++	pdata = to_rmi_platform_data(rmi_dev);
++	if (pdata) {
++		if (!pdata->gpioled_map) {
++			dev_warn(&fc->dev,
++			"%s - gpioled_map is NULL", __func__);
++		} else if (pdata->gpioled_map->ngpioleds != gpio_led_cnt) {
++			dev_warn(&fc->dev,
++				"Platformdata gpioled map size (%d) != number "
++				"of buttons on device (%d) - ignored.\n",
++				pdata->gpioled_map->ngpioleds,
++				gpio_led_cnt);
++		} else if (!pdata->gpioled_map->map) {
++			dev_warn(&fc->dev,
++				 "Platformdata button map is missing!\n");
++		} else {
++			int i;
++			for (i = 0; i < pdata->gpioled_map->ngpioleds; i++)
++				instance_data->gpioled_map[i] =
++					pdata->gpioled_map->map[i];
++		}
++	}
++
++	/* Initialize Control Data */
++
++	next_loc = fc->fd.control_base_addr;
++
++	/* calculate reg size */
++
++	instance_data->gpioled_bitmask_size = sizeof(u8)*(gpio_led_cnt + 7) / 8;
++	instance_data->gpioled_byte_size = sizeof(u8)*gpio_led_cnt;
++
++	/* reg_0 */
++	control->reg_0 =
++			kzalloc(sizeof(struct f30_gpio_ctrl_0), GFP_KERNEL);
++	if (!control->reg_0) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++
++	if (hasgpio && hasled)
++		reg_flg = 1;
++
++	f30_attrs_regs_exist[reg_num] = true;
++	regs_size = max(sizeof(struct f30_gpio_ctrl_0n) * reg_flg *
++					instance_data->gpioled_bitmask_size, 1);
++	control->reg_0->regs =
++			kzalloc(regs_size, GFP_KERNEL);
++
++	if (!control->reg_0->regs) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++	control->reg_0->address = next_loc;
++	control->reg_0->length = regs_size;
++	next_loc += regs_size;
++	reg_num++;
++
++	/* reg_1 */
++	control->reg_1 =
++			kzalloc(sizeof(union f30_gpio_ctrl_1), GFP_KERNEL);
++	if (!control->reg_1) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++	f30_attrs_regs_exist[reg_num] = true;
++	reg_num++;
++	instance_data->control.reg_1->address = next_loc;
++	next_loc += regs_size;
++
++	/* reg_2 */
++	instance_data->control.reg_2 =
++			kzalloc(sizeof(struct f30_gpio_ctrl_2), GFP_KERNEL);
++	if (!control->reg_2) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++
++	reg_flg = hasgpio;
++	f30_attrs_regs_exist[reg_num] = true;
++	regs_size = max(sizeof(struct f30_gpio_ctrl_2n)*reg_flg*
++					instance_data->gpioled_bitmask_size, 1);
++	control->reg_2->regs =
++			kzalloc(regs_size, GFP_KERNEL);
++
++	if (!control->reg_2->regs) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++	control->reg_2->address = next_loc;
++	control->reg_2->length = regs_size;
++	next_loc += regs_size;
++	reg_num++;
++
++	/* reg_3 */
++	instance_data->control.reg_3 =
++			kzalloc(sizeof(struct f30_gpio_ctrl_3), GFP_KERNEL);
++	if (!control->reg_3) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++
++	reg_flg = hasgpio;
++	f30_attrs_regs_exist[reg_num] = true;
++	regs_size = max(sizeof(struct f30_gpio_ctrl_3n) * reg_flg *
++					instance_data->gpioled_bitmask_size, 1);
++	control->reg_3->regs =
++			kzalloc(regs_size, GFP_KERNEL);
++
++	if (!control->reg_3->regs) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++	control->reg_3->address = next_loc;
++	control->reg_3->length = regs_size;
++	next_loc += regs_size;
++	reg_num++;
++
++	/* reg_4 */
++	control->reg_4 =
++			kzalloc(sizeof(struct f30_gpio_ctrl_4), GFP_KERNEL);
++	if (!control->reg_4) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++
++	reg_flg = hasled;
++	f30_attrs_regs_exist[reg_num] = true;
++	regs_size = max(sizeof(struct f30_gpio_ctrl_4n)*reg_flg*
++					instance_data->gpioled_bitmask_size,
++					sizeof(struct f30_gpio_ctrl_4n));
++	control->reg_4->regs =
++			kzalloc(regs_size, GFP_KERNEL);
++	if (!control->reg_4->regs) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++	control->reg_4->address = next_loc;
++	control->reg_4->length = regs_size;
++	next_loc += regs_size;
++	reg_num++;
++
++	/* reg_5 */
++	control->reg_5 =
++			kzalloc(sizeof(struct f30_gpio_ctrl_5), GFP_KERNEL);
++	if (!control->reg_5) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++
++	reg_flg = hasled;
++	f30_attrs_regs_exist[reg_num] = true;
++	regs_size = max(6 * reg_flg, 2);
++	control->reg_5->regs =
++			kzalloc(regs_size, GFP_KERNEL);
++	if (!control->reg_5->regs) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++	control->reg_5->address = next_loc;
++	control->reg_5->length = regs_size;
++	next_loc += regs_size;
++	reg_num++;
++
++	/* reg_6 */
++	control->reg_6 =
++			kzalloc(sizeof(struct f30_gpio_ctrl_6), GFP_KERNEL);
++	if (!control->reg_6) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++	reg_flg = hasled || (!hasled
++		&& instance_data->query.has_gpio_driver_control);
++
++	regs_size = max(sizeof(union f30_gpio_ctrl_6n)*reg_flg*gpio_led_cnt,
++					sizeof(union f30_gpio_ctrl_6n));
++	if (!hasled
++		&& instance_data->query.has_gpio_driver_control)
++		f30_attrs_regs_exist[reg_num] = true;
++
++	reg_num++;
++	if (hasled)
++		f30_attrs_regs_exist[reg_num] = true;
++
++	reg_num++;
++
++	control->reg_6->regs =
++			kzalloc(regs_size, GFP_KERNEL);
++	if (!control->reg_6->regs) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++	control->reg_6->address = next_loc;
++	control->reg_6->length = regs_size;
++	next_loc += regs_size;
++
++	/* reg_7 */
++	reg_flg = hasmbtn;
++	control->reg_7 =
++			kzalloc(sizeof(struct f30_gpio_ctrl_7), GFP_KERNEL);
++	if (!control->reg_7) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++	if (hasmbtn)
++		regs_size = sizeof(struct f30_gpio_ctrl_7n)*gpio_led_cnt;
++	else
++		regs_size = sizeof(struct f30_gpio_ctrl_7n);
++
++	regs_size = max(sizeof(struct f30_gpio_ctrl_7n)*reg_flg*
++					gpio_led_cnt,
++					sizeof(struct f30_gpio_ctrl_7n));
++	f30_attrs_regs_exist[reg_num] = true;
++	control->reg_7->regs =
++			kzalloc(regs_size, GFP_KERNEL);
++	if (!control->reg_7->regs) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++	control->reg_7->address = next_loc;
++	control->reg_7->length = regs_size;
++	next_loc += regs_size;
++	reg_num++;
++
++	/* reg_8 */
++	control->reg_8 =
++			kzalloc(sizeof(struct f30_gpio_ctrl_8), GFP_KERNEL);
++	if (!control->reg_8) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++
++	regs_size = max(sizeof(struct f30_gpio_ctrl_8n)*hashaptic*
++					gpio_led_cnt,
++					sizeof(struct f30_gpio_ctrl_8n));
++	f30_attrs_regs_exist[reg_num] = true;
++	control->reg_8->regs =
++			kzalloc(regs_size, GFP_KERNEL);
++	if (!control->reg_8->regs) {
++		dev_err(&fc->dev, "Failed to allocate control registers.");
++		return -ENOMEM;
++	}
++	control->reg_8->address = next_loc;
++	control->reg_8->length = regs_size;
++	next_loc += regs_size;
++	reg_num++;
++
++	/* reg_9 */
++	control->reg_9 =
++			kzalloc(sizeof(union f30_gpio_ctrl_9), GFP_KERNEL);
++	if (!control->reg_9) {
++		dev_err(&fc->dev, "Failed to allocate control register.");
++		return -ENOMEM;
++	}
++	if (instance_data->query.has_haptic)
++		f30_attrs_regs_exist[reg_num] = true;
++	control->reg_9->address = next_loc;
++	next_loc += sizeof(control->reg_9->regs);
++
++	/* data reg_0 */
++	instance_data->data.datareg_0 =
++			kzalloc(sizeof(struct f30_data_0), GFP_KERNEL);
++	if (!instance_data->data.datareg_0) {
++		dev_err(&fc->dev, "Failed to allocate control register.");
++		return -ENOMEM;
++	}
++
++	regs_size = sizeof(struct f30_data_0n)*
++				instance_data->gpioled_byte_size;
++	instance_data->data.datareg_0->address = fc->fd.data_base_addr;
++	next_loc += sizeof(instance_data->data.datareg_0->regs);
++
++	retval = rmi_f30_read_control_parameters(rmi_dev, instance_data);
++	if (retval < 0) {
++		dev_err(&fc->dev,
++			"Failed to initialize F19 control params.\n");
++		return retval;
++	}
++
++	mutex_init(&instance_data->control_mutex);
++	mutex_init(&instance_data->data_mutex);
++	return 0;
++}
++
++static int rmi_f30_create_sysfs(struct rmi_function_container *fc)
++{
++	u8 reg_num;
++
++	dev_dbg(&fc->dev, "Creating sysfs files.");
++
 +	/* Set up sysfs device attributes. */
 +	if (sysfs_create_group(&fc->dev.kobj, &attrs_query) < 0) {
 +		dev_err(&fc->dev, "Failed to create query sysfs files.");
 +		return -ENODEV;
 +	}
++	if (sysfs_create_group(&fc->dev.kobj, &attrs_data) < 0) {
++		dev_err(&fc->dev, "Failed to create data sysfs files.");
++		return -ENODEV;
++	}
 +
-+	if (query->has_general_control) {
-+		if (sysfs_create_file(&fc->dev.kobj,
-+				attrify(multibutton_report)) < 0) {
-+			dev_err(&fc->dev, "Failed to create control sysfs files.");
-+			return -ENODEV;
-+		}
-+		if (sysfs_create_file(&fc->dev.kobj,
-+				attrify(filter_mode)) < 0) {
-+			dev_err(&fc->dev, "Failed to create control sysfs files.");
-+			return -ENODEV;
++	for (reg_num = 0; reg_num < ARRAY_SIZE(attrs_ctrl_regs);
++		reg_num++) {
++		if (f30_attrs_regs_exist[reg_num]) {
++			if (sysfs_create_group(&fc->dev.kobj,
++					&attrs_ctrl_regs[reg_num]) < 0) {
++				dev_err(&fc->dev,
++					"Failed to create "
++					"sysfs file group for reg"
++					"group %d.",
++					reg_num);
++				return -ENODEV;
++			}
++
 +		}
 +	}
 +
-+	if (query->has_interrupt_enable) {
-+		if (sysfs_create_file(&fc->dev.kobj,
-+				attrify(interrupt_enabled_button)) < 0) {
-+			dev_err(&fc->dev, "Failed to create control sysfs files.");
-+			return -ENODEV;
-+		}
-+	}
-+
-+	if (query->has_multibutton_select) {
-+		if (sysfs_create_file(&fc->dev.kobj,
-+				attrify(multi_button)) < 0) {
-+			dev_err(&fc->dev, "Failed to create control sysfs files.");
-+			return -ENODEV;
-+		}
-+	}
-+
-+	if (query->has_tx_rx_map) {
-+		if (sysfs_create_file(&fc->dev.kobj,
-+				attrify(tx_rx_map)) < 0) {
-+			dev_err(&fc->dev, "Failed to create control sysfs files.");
-+			return -ENODEV;
-+		}
-+	}
-+
-+	if (query->has_perbutton_threshold) {
-+		if (sysfs_create_file(&fc->dev.kobj,
-+				attrify(threshold_button)) < 0) {
-+			dev_err(&fc->dev, "Failed to create control sysfs files.");
-+			return -ENODEV;
-+		}
-+	}
-+
-+	if (query->has_release_threshold) {
-+		if (sysfs_create_file(&fc->dev.kobj,
-+				attrify(button_release_threshold)) < 0) {
-+			dev_err(&fc->dev, "Failed to create control sysfs files.");
-+			return -ENODEV;
-+		}
-+	}
-+
-+	if (query->has_strongestbtn_hysteresis) {
-+		if (sysfs_create_file(&fc->dev.kobj,
-+				attrify(strongest_button_hysteresis)) < 0) {
-+			dev_err(&fc->dev, "Failed to create control sysfs files.");
-+			return -ENODEV;
-+		}
-+	}
-+
-+	if (query->has_filter_strength) {
-+		if (sysfs_create_file(&fc->dev.kobj,
-+				attrify(filter_strength)) < 0) {
-+			dev_err(&fc->dev, "Failed to create control sysfs files.");
-+			return -ENODEV;
-+		}
-+	}
 +	return 0;
 +}
 +
-+
-+
-+static int rmi_f1a_config(struct rmi_function_container *fc)
++static void rmi_f30_remove(struct rmi_function_container *fc)
 +{
-+	int retval;
-+	struct f1a_data *f1a = fc->data;
-+	union f1a_0d_query *query = &f1a->query;
-+	struct f1a_0d_control *control = &f1a->control;
-+
-+	if (query->has_general_control) {
-+		retval = rmi_write_block(fc->rmi_dev, control->reg_0->address,
-+			(u8 *)control->reg_0->regs,
-+			sizeof(control->reg_0->regs));
-+		if (retval < 0) {
-+			dev_err(&fc->dev, "%s : Could not write reg0 to 0x%x\n",
-+					__func__, control->reg_0->address);
-+			return retval;
-+		}
-+	}
-+	if (query->has_interrupt_enable) {
-+		retval = rmi_write_block(fc->rmi_dev, control->reg_1->address,
-+				(u8 *)control->reg_1->regs,
-+				f1a->button_bitmask_size);
-+		if (retval < 0) {
-+			dev_err(&fc->dev, "%s : Could not write reg 1 to 0x%x\n",
-+				__func__, control->reg_1->address);
-+			return retval;
-+		}
-+	}
-+	if (query->has_multibutton_select) {
-+		retval = rmi_write_block(fc->rmi_dev, control->reg_2->address,
-+				(u8 *)control->reg_2->regs,
-+				f1a->button_bitmask_size);
-+		if (retval < 0) {
-+			dev_err(&fc->dev, "%s : Could not write reg 2 to 0x%x\n",
-+				__func__, control->reg_2->address);
-+			return -EINVAL;
-+		}
-+	}
-+	if (query->has_tx_rx_map) {
-+		retval = rmi_write_block(fc->rmi_dev, control->reg_3_4->address,
-+				(u8 *)control->reg_3_4->regs,
-+				f1a->sensor_button_count);
-+		if (retval < 0) {
-+			dev_err(&fc->dev, "%s : Could not write reg_3_4 to 0x%x\n",
-+					__func__, control->reg_3_4->address);
-+			return -EINVAL;
-+		}
-+	}
-+	if (query->has_perbutton_threshold) {
-+		retval = rmi_write_block(fc->rmi_dev, control->reg_5->address,
-+				(u8 *)control->reg_5->regs,
-+				f1a->sensor_button_count);
-+		if (retval < 0) {
-+			dev_err(&fc->dev, "%s : Could not write to reg 5 to 0x%x\n",
-+				__func__, control->reg_5->address);
-+			return retval;
-+		}
-+	}
-+	if (query->has_release_threshold) {
-+		retval = rmi_write_block(fc->rmi_dev, control->reg_6->address,
-+			(u8 *)control->reg_6->regs,
-+			sizeof(control->reg_6->regs));
-+		if (retval < 0) {
-+			dev_err(&fc->dev, "%s : Could not write  reg 6 to 0x%x\n",
-+				__func__, control->reg_6->address);
-+			return -EINVAL;
-+		}
-+	}
-+	if (query->has_strongestbtn_hysteresis) {
-+		retval = rmi_write_block(fc->rmi_dev, control->reg_7->address,
-+			(u8 *)control->reg_7->regs,
-+			sizeof(control->reg_7->regs));
-+		if (retval < 0) {
-+			dev_err(&fc->dev, "%s : Could not write reg 7 to 0x%x\n",
-+				__func__, control->reg_7->address);
-+			return -EINVAL;
-+		}
-+	}
-+	if (query->has_filter_strength) {
-+		retval = rmi_write_block(fc->rmi_dev, control->reg_8->address,
-+			(u8 *)control->reg_8->regs,
-+			sizeof(control->reg_8->regs));
-+		if (retval < 0) {
-+			dev_err(&fc->dev, "%s : Could not write reg 8 to 0x%x\n",
-+				__func__, control->reg_8->address);
-+			return -EINVAL;
-+		}
-+	}
-+	return 0;
-+}
-+
-+
-+static int rmi_f1a_reset(struct rmi_function_container *fc)
-+{
-+	/* we do nnothing here */
-+	return 0;
-+}
-+
-+
-+static void rmi_f1a_remove(struct rmi_function_container *fc)
-+{
-+	struct f1a_data *f1a = fc->data;
-+
-+	input_unregister_device(f1a->input);
-+
-+	rmi_f1a_free_memory(fc);
-+}
-+
-+static int rmi_f1a_attention(struct rmi_function_container *fc, u8 *irq_bits)
-+{
-+	int error;
-+	int button;
-+	struct rmi_device *rmi_dev = fc->rmi_dev;
-+	struct f1a_data *f1a = fc->data;
-+	u16 data_base_addr = fc->fd.data_base_addr;
-+
-+	/* Read the button data. */
-+	error = rmi_read_block(rmi_dev, data_base_addr, f1a->button_data_buffer,
-+			f1a->button_bitmask_size);
-+	if (error < 0) {
-+		dev_err(&fc->dev, "%s: Failed to read button data registers.\n",
-+			__func__);
-+		return error;
-+	}
-+
-+	/* Generate events for buttons that change state. */
-+	for (button = 0; button < f1a->sensor_button_count; button++) {
-+		int button_reg;
-+		int button_shift;
-+		bool button_status;
-+
-+		/* determine which data byte the button status is in */
-+		button_reg = button / 8;
-+		/* bit shift to get button's status */
-+		button_shift = button % 8;
-+		button_status =
-+		    ((f1a->button_data_buffer[button_reg] >> button_shift)
-+			& 0x01) != 0;
-+
-+		dev_dbg(&fc->dev, "%s: Button %d (code %d) -> %d.\n",
-+			__func__, button, f1a->button_map[button],
-+				button_status);
-+		/* Generate an event here. */
-+		input_report_key(f1a->input, f1a->button_map[button],
-+					button_status);
-+	}
-+
-+	input_sync(f1a->input); /* sync after groups of events */
-+	return 0;
++	dev_info(&fc->dev, "Removing F30.");
++	rmi_f30_free_memory(fc);
 +}
 +
 +static struct rmi_function_handler function_handler = {
-+	.func = 0x1a,
-+	.init = rmi_f1a_init,
-+	.config = rmi_f1a_config,
-+	.reset = rmi_f1a_reset,
-+	.attention = rmi_f1a_attention,
-+	.remove = rmi_f1a_remove
++	.func = 0x30,
++	.init = rmi_f30_init,
++	.config = rmi_f30_config,
++	.attention = rmi_f30_attention,
++	.remove = rmi_f30_remove
 +};
 +
-+static int __init rmi_f1a_module_init(void)
++static int __init rmi_f30_module_init(void)
 +{
 +	int error;
 +
@@ -974,89 +1230,55 @@ index 0000000..a7cccfa
 +		pr_err("%s: register failed!\n", __func__);
 +		return error;
 +	}
-+
 +	return 0;
 +}
 +
-+static void rmi_f1a_module_exit(void)
++static void rmi_f30_module_exit(void)
 +{
 +	rmi_unregister_function_driver(&function_handler);
 +}
 +
 +/* sysfs functions */
 +/* Query */
-+simple_show_union_struct_unsigned(query, max_button_count)
-+simple_show_union_struct_unsigned(query, has_general_control)
-+simple_show_union_struct_unsigned(query, has_interrupt_enable)
-+simple_show_union_struct_unsigned(query, has_multibutton_select)
-+simple_show_union_struct_unsigned(query, has_tx_rx_map)
-+simple_show_union_struct_unsigned(query, has_perbutton_threshold)
-+simple_show_union_struct_unsigned(query, has_release_threshold)
-+simple_show_union_struct_unsigned(query, has_strongestbtn_hysteresis)
-+simple_show_union_struct_unsigned(query, has_filter_strength)
++simple_show_union_struct_unsigned(query, extended_patterns)
++simple_show_union_struct_unsigned(query, has_mappable_buttons)
++simple_show_union_struct_unsigned(query, has_led)
++simple_show_union_struct_unsigned(query, has_gpio)
++simple_show_union_struct_unsigned(query, has_haptic)
++simple_show_union_struct_unsigned(query, has_gpio_driver_control)
++simple_show_union_struct_unsigned(query, gpio_led_count)
 +
 +/* Control */
-+show_store_union_struct_unsigned(control, reg_0, multibutton_report)
-+show_store_union_struct_unsigned(control, reg_0, filter_mode)
-+show_store_union_struct_unsigned(control, reg_6, button_release_threshold)
-+show_store_union_struct_unsigned(control, reg_7, strongest_button_hysteresis)
-+show_store_union_struct_unsigned(control, reg_8, filter_strength)
++show_store_union_struct_unsigned(control, reg_1, gpio_debounce)
++show_store_union_struct_unsigned(control, reg_1, halt)
++show_store_union_struct_unsigned(control, reg_1, halted)
++show_store_union_struct_unsigned(control, reg_9, haptic_duration)
 +
 +/* repeated register functions */
-+show_store_repeated_union_struct_unsigned(control, reg_1,
-+						interrupt_enabled_button)
-+show_store_repeated_union_struct_unsigned(control, reg_2, multi_button)
-+show_store_repeated_union_struct_unsigned(control, reg_5, threshold_button)
++show_store_repeated_union_struct_unsigned(control, reg_0, led_sel)
++show_store_repeated_union_struct_unsigned(control, reg_2, dir)
++show_store_repeated_union_struct_unsigned(control, reg_3, gpiodata)
++show_store_repeated_union_struct_unsigned(control, reg_4, led_act)
++show_store_repeated_union_struct_unsigned(control, reg_5, ramp_period_a)
++show_store_repeated_union_struct_unsigned(control, reg_5, ramp_period_b)
++show_store_repeated_union_struct_unsigned(control, reg_6, SPCTRL)
++show_store_repeated_union_struct_unsigned(control, reg_6, STRPD)
++show_store_repeated_union_struct_unsigned(control, reg_6, STRPU)
++show_store_repeated_union_struct_unsigned(control, reg_6, brightness)
++show_store_repeated_union_struct_unsigned(control, reg_6, pattern)
++show_store_repeated_union_struct_unsigned(control, reg_7, capacity_btn_nbr)
++show_store_repeated_union_struct_unsigned(control, reg_7, valid)
++show_store_repeated_union_struct_unsigned(control, reg_7, invert)
++show_store_repeated_union_struct_unsigned(control, reg_7, open_drain)
++show_store_repeated_union_struct_unsigned(control, reg_8, gpio_ctrl8_0)
++show_store_repeated_union_struct_unsigned(control, reg_8, gpio_ctrl8_1)
 +
-+static ssize_t rmi_fn_1a_tx_rx_map_show(struct device *dev,
-+				struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct rmi_function_container *fc;
-+	struct FUNCTION_DATA *data;
-+	struct f1a_0d_control *control;
-+	int reg_length;
-+	int result, size = 0;
-+	char *temp;
-+	int i;
++/* Data */
++show_store_repeated_union_struct_unsigned(data, datareg_0, gpi_led_data)
 +
-+	fc = to_rmi_function_container(dev);
-+	data = fc->data;
-+	control = &data->control;
-+	/* Read current regtype values */
-+	reg_length = control->reg_3_4->length;
-+	result = rmi_read_block(fc->rmi_dev, control->reg_3_4->address,
-+			(u8 *)control->reg_3_4->regs,
-+			reg_length * sizeof(u8));
++module_init(rmi_f30_module_init);
++module_exit(rmi_f30_module_exit);
 +
-+	if (result < 0) {
-+		dev_dbg(dev, "%s : Could not read regtype at 0x%x\n Data may be outdated.",
-+				__func__, control->reg_3_4->address);
-+	}
-+	temp = buf;
-+	for (i = 0; i < reg_length/2; i++) {
-+		result = snprintf(temp, PAGE_SIZE - size, "%u-%u ",
-+				control->reg_3_4->regs[i].transmitterbtn,
-+				control->reg_3_4->regs[i].receiverbtn);
-+		if (result < 0) {
-+			dev_err(dev, "%s : Could not write output.", __func__);
-+			return result;
-+		}
-+		size += result;
-+		temp += result;
-+	}
-+	result = snprintf(temp, PAGE_SIZE - size, "\n");
-+	if (result < 0) {
-+			dev_err(dev, "%s : Could not write output.", __func__);
-+			return result;
-+	}
-+	return size + result;
-+}
-+
-+module_init(rmi_f1a_module_init);
-+module_exit(rmi_f1a_module_exit);
-+
-+MODULE_AUTHOR("Vivian Ly <vly@synaptics.com>");
-+MODULE_DESCRIPTION("RMI F1a module");
++MODULE_AUTHOR("Allie Xiong <axiong@Synaptics.com>");
++MODULE_DESCRIPTION("RMI f30 module");
 +MODULE_LICENSE("GPL");
-+MODULE_VERSION(RMI_DRIVER_VERSION);

@@ -1,37 +1,46 @@
-From: Hui Wang <jason77.wang@gmail.com>
-Subject: Re: [PATCH v4 3/3] ARM: dts: imx6q-sabrelite: add eeti egalax
-Date: Fri, 17 Aug 2012 09:20:59 +0800
-Message-ID: <502D9C7B.6070203@gmail.com>
-References: <1345114051-3052-1-git-send-email-jason77.wang@gmail.com> <1345114051-3052-2-git-send-email-jason77.wang@gmail.com> <1345114051-3052-3-git-send-email-jason77.wang@gmail.com> <1345114051-3052-4-git-send-email-jason77.wang@gmail.com> <20120817003329.GC24242@S2101-09.ap.freescale.net>
+From: Simon Budig <simon.budig@kernelconcepts.de>
+Subject: Re: [PATCH] Input: Let the FT5x06 driver build without debugfs
+Date: Fri, 17 Aug 2012 10:09:01 +0200
+Message-ID: <502DFC1D.20903@kernelconcepts.de>
+References: <87k3wy1ii3.fsf@xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:47865 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755178Ab2HQBVv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Aug 2012 21:21:51 -0400
-In-Reply-To: <20120817003329.GC24242@S2101-09.ap.freescale.net>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <87k3wy1ii3.fsf@xmission.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shawn Guo <shawn.guo@linaro.org>
-Cc: Hui Wang <jason77.wang@gmail.com>, dmitry.torokhov@gmail.com, jiejing.zhang@freescale.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree-discuss@lists.ozlabs.org
 
-Shawn Guo wrote:
-> On Thu, Aug 16, 2012 at 06:47:31PM +0800, Hui Wang wrote:
->   
->> i.MX6Q sabrelite board uses i2c3 to connect an eeti egalax
->> touchscreen controller, add it as an i2c slave device in the dts.
->>
->> Signed-off-by: Hui Wang <jason77.wang@gmail.com>
->>     
->
-> Looks good.  Will apply it after the driver part gets accepted.
->
->   
-Got it, thanks.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Regards,
-Hui.
+On 08/17/2012 02:15 AM, Eric W. Biederman wrote:
+> When testing to make certain my user namespace code works in
+> various configurations I tripped over the tf5x06.c not building
+> with debugfs disabled.
 
+Sorry for that.
+
+There already is a patch for this issue which I slightly prefer. You
+can find it in the mail from Guenther Roeck:
+   http://www.mail-archive.com/linux-input@vger.kernel.org/msg00646.html
+
+Thanks,
+        Simon
+
+
+- -- 
+       Simon Budig                        kernel concepts GmbH
+       simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
+       +49-271-771091-17                  D-57072 Siegen
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAlAt/B0ACgkQO2O/RXesiHCszgCeID9FyWmWea9eyktU38ikzPQP
+V2gAoLfff/V9CtE9xpVmS2wIyyrC2d0J
+=SSUc
+-----END PGP SIGNATURE-----

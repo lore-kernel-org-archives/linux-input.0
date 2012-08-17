@@ -1,14 +1,14 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [RFC PATCH 14/17] input: RMI4 F30 GPIO/LED control
-Date: Fri, 17 Aug 2012 15:17:54 -0700
-Message-ID: <1345241877-16200-15-git-send-email-cheiny@synaptics.com>
+Subject: [RFC PATCH 3/17] input: RMI4 physical layer drivers for I2C and SPI
+Date: Fri, 17 Aug 2012 15:17:43 -0700
+Message-ID: <1345241877-16200-4-git-send-email-cheiny@synaptics.com>
 References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from [12.239.217.82] ([12.239.217.82]:28612 "EHLO
 	venom.synaptics.com" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1758919Ab2HQXVD (ORCPT
+	with ESMTP id S1758920Ab2HQXVE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Aug 2012 19:21:03 -0400
+	Fri, 17 Aug 2012 19:21:04 -0400
 In-Reply-To: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -26,17 +26,19 @@ Acked-by: Jean Delvare <khali@linux-fr.org>
 
 ---
 
- drivers/input/rmi4/rmi_f30.c | 1247 ++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 1247 insertions(+), 0 deletions(-)
+ drivers/input/rmi4/rmi_i2c.c |  452 +++++++++++++++++++++
+ drivers/input/rmi4/rmi_spi.c |  911 ++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 1363 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
+diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
 new file mode 100644
-index 0000000..4bc2932
+index 0000000..1da8d96
 --- /dev/null
-+++ b/drivers/input/rmi4/rmi_f30.c
-@@ -0,0 +1,1247 @@
++++ b/drivers/input/rmi4/rmi_i2c.c
+@@ -0,0 +1,452 @@
 +/*
-+ * Copyright (c) 2012 Synaptics Incorporated
++ * Copyright (c) 2011, 2012 Synaptics Incorporated
++ * Copyright (c) 2011 Unixphere
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -52,1233 +54,1354 @@ index 0000000..4bc2932
 + * along with this program; if not, write to the Free Software
 + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
-+#define FUNCTION_DATA rmi_fn_30_data
-+#define FNUM 30
++
++#define COMMS_DEBUG 0
++
++#define IRQ_DEBUG 0
++
++#if COMMS_DEBUG || IRQ_DEBUG
++#define DEBUG
++#endif
 +
 +#include <linux/kernel.h>
-+#include <linux/rmi.h>
-+#include <linux/input.h>
++#include <linux/lockdep.h>
++#include <linux/module.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/delay.h>
 +#include <linux/slab.h>
++#include <linux/pm.h>
++#include <linux/gpio.h>
++#include <linux/rmi.h>
 +#include "rmi_driver.h"
 +
++#define RMI_PAGE_SELECT_REGISTER 0xff
++#define RMI_I2C_PAGE(addr) (((addr) >> 8) & 0xff)
 +
-+#define MAX_LEN 256
++static char *phys_proto_name = "i2c";
 +
-+/* data specific to fn $30 that needs to be kept around */
-+union f30_query {
-+	struct {
-+		u8 extended_patterns:1;
-+		u8 has_mappable_buttons:1;
-+		u8 has_led:1;
-+		u8 has_gpio:1;
-+		u8 has_haptic:1;
-+		u8 has_gpio_driver_control:1;
-+		u8 gpio_led_count:5;
-+	};
-+	struct {
-+		u8 regs[2];
-+		u16 address;
-+	};
++struct rmi_i2c_data {
++	struct mutex page_mutex;
++	int page;
++	int enabled;
++	int irq;
++	int irq_flags;
++	struct rmi_phys_device *phys;
 +};
 +
-+struct f30_gpio_ctrl_0n {
-+	u8 led_sel;
-+};
-+
-+struct f30_gpio_ctrl_0 {
-+	struct f30_gpio_ctrl_0n *regs;
-+	u16 address;
-+	u8 length;
-+};
-+
-+union f30_gpio_ctrl_1 {
-+	struct {
-+		u8 gpio_debounce:1;
-+		u8 reserved:3;
-+		u8 halt:1;
-+		u8 halted:1;
-+		u8 reserved2:2;
-+	};
-+	struct {
-+		u8 regs[1];
-+		u16 address;
-+	};
-+};
-+
-+struct f30_gpio_ctrl_2n {
-+	u8 dir;
-+};
-+
-+struct f30_gpio_ctrl_2 {
-+	struct f30_gpio_ctrl_2n *regs;
-+	u16 address;
-+	u8 length;
-+};
-+
-+struct f30_gpio_ctrl_3n {
-+	u8 gpiodata;
-+};
-+
-+struct f30_gpio_ctrl_3 {
-+	struct f30_gpio_ctrl_3n *regs;
-+	u16 address;
-+	u8 length;
-+};
-+
-+struct f30_gpio_ctrl_4n {
-+	u8 led_act;
-+};
-+
-+struct f30_gpio_ctrl_4 {
-+	struct f30_gpio_ctrl_4n *regs;
-+	u16 address;
-+	u8 length;
-+};
-+
-+struct f30_gpio_ctrl_5n {
-+	u8 ramp_period_a;
-+	u8 ramp_period_b;
-+};
-+
-+struct f30_gpio_ctrl_5 {
-+	struct f30_gpio_ctrl_5n *regs;
-+	u16 address;
-+	u8 length;
-+};
-+
-+union f30_gpio_ctrl_6n {
-+	struct {
-+		u8 reserved:1;
-+		u8 SPCTRL:3;
-+		u8 STRPD:1;
-+		u8 reserved2:1;
-+		u8 STRPU:1;
-+		u8 reserved3:1;
-+	};
-+	struct {
-+		u8 brightness:4;
-+		u8 pattern:4;
-+	};
-+};
-+
-+struct f30_gpio_ctrl_6 {
-+	union f30_gpio_ctrl_6n *regs;
-+	u16 address;
-+	u8 length;
-+};
-+
-+struct f30_gpio_ctrl_7n {
-+	u8 capacity_btn_nbr:5;
-+	u8 valid:1;
-+	u8 invert:1;
-+	u8 open_drain:1;
-+};
-+
-+struct f30_gpio_ctrl_7 {
-+	struct f30_gpio_ctrl_7n *regs;
-+	u16 address;
-+	u8 length;
-+};
-+
-+struct f30_gpio_ctrl_8n {
-+	u8 gpio_ctrl8_0;
-+	u8 gpio_ctrl8_1;
-+};
-+
-+struct f30_gpio_ctrl_8 {
-+	struct f30_gpio_ctrl_8n *regs;
-+	u16 address;
-+	u8 length;
-+};
-+
-+union f30_gpio_ctrl_9 {
-+	struct {
-+		u8 haptic_duration;
-+	};
-+	struct {
-+		u8 regs[1];
-+		u16 address;
-+	};
-+};
-+
-+struct f30_control {
-+	struct f30_gpio_ctrl_0 *reg_0;
-+	union f30_gpio_ctrl_1 *reg_1;
-+	struct f30_gpio_ctrl_2 *reg_2;
-+	struct f30_gpio_ctrl_3 *reg_3;
-+	struct f30_gpio_ctrl_4 *reg_4;
-+	struct f30_gpio_ctrl_5 *reg_5;
-+	struct f30_gpio_ctrl_6 *reg_6;
-+	struct f30_gpio_ctrl_7 *reg_7;
-+	struct f30_gpio_ctrl_8 *reg_8;
-+	union f30_gpio_ctrl_9 *reg_9;
-+};
-+
-+struct f30_data_0n {
-+	u8 gpi_led_data:1;
-+};
-+
-+struct f30_data_0 {
-+	struct f30_data_0n *regs;
-+	u16 address;
-+	u8 length;
-+};
-+
-+struct f30_data {
-+	struct f30_data_0 *datareg_0;
-+	u16 address;
-+	u8 length;
-+};
-+
-+struct rmi_fn_30_data {
-+	union f30_query query;
-+	struct f30_data data;
-+	struct f30_control control;
-+	unsigned char gpioled_count;
-+	unsigned char gpioled_bitmask_size;
-+	unsigned char gpioled_byte_size;
-+	unsigned char *button_data_buffer;
-+	unsigned char button_bitmask_size;
-+	unsigned short *gpioled_map;
-+	char input_name[MAX_LEN];
-+	char input_phys[MAX_LEN];
-+	struct input_dev *input;
-+	struct mutex control_mutex;
-+	struct mutex data_mutex;
-+};
-+
-+static int rmi_f30_alloc_memory(struct rmi_function_container *fc);
-+
-+static void rmi_f30_free_memory(struct rmi_function_container *fc);
-+
-+static int rmi_f30_initialize(struct rmi_function_container *fc);
-+
-+static int rmi_f30_register_device(struct rmi_function_container *fc);
-+
-+static int rmi_f30_config(struct rmi_function_container *fc);
-+
-+static int rmi_f30_create_sysfs(struct rmi_function_container *fc);
-+
-+
-+/* Query sysfs files */
-+
-+show_union_struct_prototype(extended_patterns)
-+show_union_struct_prototype(has_mappable_buttons)
-+show_union_struct_prototype(has_led)
-+show_union_struct_prototype(has_gpio)
-+show_union_struct_prototype(has_haptic)
-+show_union_struct_prototype(has_gpio_driver_control)
-+show_union_struct_prototype(gpio_led_count)
-+
-+static struct attribute *attrs1[] = {
-+	attrify(extended_patterns),
-+	attrify(has_mappable_buttons),
-+	attrify(has_led),
-+	attrify(has_gpio),
-+	attrify(has_haptic),
-+	attrify(has_gpio_driver_control),
-+	attrify(gpio_led_count),
-+	NULL
-+};
-+
-+static struct attribute_group attrs_query = GROUP(attrs1);
-+
-+/* Control sysfs files */
-+
-+show_store_union_struct_prototype(led_sel)
-+show_store_union_struct_prototype(gpio_debounce)
-+show_store_union_struct_prototype(halt)
-+show_store_union_struct_prototype(halted)
-+show_store_union_struct_prototype(dir)
-+show_store_union_struct_prototype(gpiodata)
-+show_store_union_struct_prototype(led_act)
-+show_store_union_struct_prototype(ramp_period_a)
-+show_store_union_struct_prototype(ramp_period_b)
-+show_store_union_struct_prototype(SPCTRL)
-+show_store_union_struct_prototype(STRPD)
-+show_store_union_struct_prototype(STRPU)
-+show_store_union_struct_prototype(brightness)
-+show_store_union_struct_prototype(pattern)
-+
-+show_store_union_struct_prototype(capacity_btn_nbr)
-+show_store_union_struct_prototype(valid)
-+show_store_union_struct_prototype(invert)
-+show_store_union_struct_prototype(open_drain)
-+show_store_union_struct_prototype(gpio_ctrl8_0)
-+show_store_union_struct_prototype(gpio_ctrl8_1)
-+show_store_union_struct_prototype(haptic_duration)
-+
-+/* Data sysfs files */
-+show_store_union_struct_prototype(gpi_led_data)
-+
-+static struct attribute *attrs_ctrl_reg_0[] = {
-+	attrify(led_sel),
-+	NULL
-+};
-+
-+static struct attribute *attrs_ctrl_reg_1[] = {
-+	attrify(gpio_debounce),
-+	attrify(halt),
-+	attrify(halted),
-+	NULL
-+};
-+
-+static struct attribute *attrs_ctrl_reg_2[] = {
-+	attrify(dir),
-+	NULL
-+};
-+
-+static struct attribute *attrs_ctrl_reg_3[] = {
-+	attrify(gpiodata),
-+	NULL
-+};
-+
-+static struct attribute *attrs_ctrl_reg_4[] = {
-+	attrify(led_act),
-+	NULL
-+};
-+
-+static struct attribute *attrs_ctrl_reg_5[] = {
-+	attrify(ramp_period_a),
-+	attrify(ramp_period_b),
-+	NULL
-+};
-+
-+static struct attribute *attrs_ctrl_reg_6_gpio[] = {
-+	attrify(SPCTRL),
-+	attrify(STRPD),
-+	attrify(STRPU),
-+	NULL
-+};
-+
-+static struct attribute *attrs_ctrl_reg_6_led[] = {
-+	attrify(brightness),
-+	attrify(pattern),
-+	NULL
-+};
-+
-+static struct attribute *attrs_ctrl_reg_7[] = {
-+	attrify(capacity_btn_nbr),
-+	attrify(valid),
-+	attrify(invert),
-+	attrify(open_drain),
-+	NULL
-+};
-+
-+static struct attribute *attrs_ctrl_reg_8[] = {
-+	attrify(gpio_ctrl8_0),
-+	attrify(gpio_ctrl8_1),
-+	NULL
-+};
-+
-+static struct attribute *attrs_ctrl_reg_9[] = {
-+	attrify(haptic_duration),
-+	NULL
-+};
-+
-+static struct attribute_group attrs_ctrl_regs[] = {
-+	GROUP(attrs_ctrl_reg_0),
-+	GROUP(attrs_ctrl_reg_1),
-+	GROUP(attrs_ctrl_reg_2),
-+	GROUP(attrs_ctrl_reg_3),
-+	GROUP(attrs_ctrl_reg_4),
-+	GROUP(attrs_ctrl_reg_5),
-+	GROUP(attrs_ctrl_reg_6_gpio),
-+	GROUP(attrs_ctrl_reg_6_led),
-+	GROUP(attrs_ctrl_reg_7),
-+	GROUP(attrs_ctrl_reg_8),
-+	GROUP(attrs_ctrl_reg_9),
-+};
-+
-+bool f30_attrs_regs_exist[ARRAY_SIZE(attrs_ctrl_regs)];
-+
-+static struct attribute *attrs_gpileddata[] = {
-+	attrify(gpi_led_data),
-+	NULL
-+};
-+
-+static struct attribute_group attrs_data = GROUP(attrs_gpileddata);
-+
-+int rmi_f30_read_control_parameters(struct rmi_device *rmi_dev,
-+	struct rmi_fn_30_data *f30)
++static irqreturn_t rmi_i2c_irq_thread(int irq, void *p)
 +{
-+	int retval = 0;
-+	struct f30_control *control = &f30->control;
++	struct rmi_phys_device *phys = p;
++	struct rmi_device *rmi_dev = phys->rmi_dev;
++	struct rmi_driver *driver = rmi_dev->driver;
++	struct rmi_device_platform_data *pdata = phys->dev->platform_data;
 +
-+	retval = rmi_read_block(rmi_dev, control->reg_0->address,
-+			(u8 *)control->reg_0->regs,
-+			control->reg_0->length);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev,
-+			"%s : Could not read control reg0 to 0x%x\n",
-+			__func__, control->reg_0->address);
-+		return retval;
++#if IRQ_DEBUG
++	dev_dbg(phys->dev, "ATTN gpio, value: %d.\n",
++			gpio_get_value(pdata->attn_gpio));
++#endif
++	if (gpio_get_value(pdata->attn_gpio) == pdata->attn_polarity) {
++		phys->info.attn_count++;
++		if (driver && driver->irq_handler && rmi_dev)
++			driver->irq_handler(rmi_dev, irq);
 +	}
 +
-+	retval = rmi_read_block(rmi_dev, control->reg_1->address,
-+			(u8 *)control->reg_1->regs,
-+			sizeof(control->reg_1->regs));
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev,
-+			"%s : Could not read control reg1 to 0x%x\n",
-+			 __func__, control->reg_1->address);
-+		return retval;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev, control->reg_2->address,
-+			(u8 *)control->reg_2->regs, control->reg_2->length);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev,
-+			"%s : Could not read control reg_2 to 0x%x\n",
-+			 __func__, control->reg_2->address);
-+		return retval;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev, control->reg_3->address,
-+			(u8 *)control->reg_3->regs, control->reg_3->length);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev,
-+			"%s : Could not read control reg_3 to 0x%x\n",
-+			 __func__, control->reg_3->address);
-+		return retval;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev, control->reg_4->address,
-+			(u8 *)control->reg_4->regs, control->reg_4->length);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev,
-+			"%s : Could not read control reg4 to 0x%x\n",
-+			 __func__, control->reg_4->address);
-+		return retval;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev, control->reg_5->address,
-+			(u8 *)control->reg_5->regs,
-+			control->reg_5->length);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev,
-+			"%s : Could not read control reg5 to 0x%x\n", __func__,
-+			control->reg_5->address);
-+		return retval;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev, control->reg_6->address,
-+			(u8 *)control->reg_6->regs,
-+			control->reg_6->length);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev,
-+			"%s : Could not read control reg6 to 0x%x\n", __func__,
-+		control->reg_6->address);
-+		return retval;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev, control->reg_7->address,
-+		(u8 *)control->reg_7->regs,
-+		control->reg_7->length);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev,
-+			"%s : Could not read control reg7 to 0x%x\n", __func__,
-+		control->reg_7->address);
-+		return retval;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev, control->reg_8->address,
-+		(u8 *)control->reg_8->regs,
-+		control->reg_8->length);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev,
-+			"%s : Could not read control reg8 to 0x%x\n", __func__,
-+		control->reg_8->address);
-+		return retval;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev, control->reg_9->address,
-+		(u8 *)control->reg_9->regs,
-+		sizeof(control->reg_9->regs));
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev,
-+			"%s : Could not read control reg9 to 0x%x\n", __func__,
-+		control->reg_9->address);
-+		return retval;
-+	}
-+	return 0;
++	return IRQ_HANDLED;
 +}
 +
-+static int rmi_f30_init(struct rmi_function_container *fc)
++/*
++ * rmi_set_page - Set RMI page
++ * @phys: The pointer to the rmi_phys_device struct
++ * @page: The new page address.
++ *
++ * RMI devices have 16-bit addressing, but some of the physical
++ * implementations (like SMBus) only have 8-bit addressing. So RMI implements
++ * a page address at 0xff of every page so we can reliable page addresses
++ * every 256 registers.
++ *
++ * The page_mutex lock must be held when this function is entered.
++ *
++ * Returns zero on success, non-zero on failure.
++ */
++static int rmi_set_page(struct rmi_phys_device *phys, unsigned int page)
 +{
-+	int rc;
-+	struct rmi_fn_30_data *f30 = fc->data;
-+
-+	rc = rmi_f30_alloc_memory(fc);
-+	if (rc < 0)
-+		goto error_exit;
-+
-+	rc = rmi_f30_initialize(fc);
-+	if (rc < 0)
-+		goto error_exit;
-+
-+	rc = rmi_f30_register_device(fc);
-+	if (rc < 0)
-+		goto error_exit;
-+
-+	rc = rmi_f30_create_sysfs(fc);
-+	if (rc < 0)
-+		goto error_uregister_exit;
-+	return 0;
-+
-+error_uregister_exit:
-+	input_unregister_device(f30->input);
-+
-+error_exit:
-+	rmi_f30_free_memory(fc);
-+
-+	return rc;
-+
-+}
-+
-+static inline int rmi_f30_alloc_memory(struct rmi_function_container *fc)
-+{
-+	struct rmi_fn_30_data *f30;
++	struct i2c_client *client = to_i2c_client(phys->dev);
++	struct rmi_i2c_data *data = phys->data;
++	char txbuf[2] = {RMI_PAGE_SELECT_REGISTER, page};
 +	int retval;
 +
-+	f30 = kzalloc(sizeof(struct rmi_fn_30_data), GFP_KERNEL);
-+	if (!f30) {
-+		dev_err(&fc->dev, "Failed to allocate rmi_fn_30_data.\n");
-+		return -ENOMEM;
++#if COMMS_DEBUG
++	dev_dbg(&client->dev, "RMI4 I2C writes 3 bytes: %02x %02x\n",
++		txbuf[0], txbuf[1]);
++#endif
++	phys->info.tx_count++;
++	phys->info.tx_bytes += sizeof(txbuf);
++	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
++	if (retval != sizeof(txbuf)) {
++		phys->info.tx_errs++;
++		dev_err(&client->dev,
++			"%s: set page failed: %d.", __func__, retval);
++		return (retval < 0) ? retval : -EIO;
 +	}
-+	fc->data = f30;
-+
-+	retval = rmi_read_block(fc->rmi_dev,
-+						fc->fd.query_base_addr,
-+						f30->query.regs,
-+					ARRAY_SIZE(f30->query.regs));
-+
-+	if (retval < 0) {
-+		dev_err(&fc->dev, "Failed to read query register.\n");
-+		return retval;
-+	}
-+
-+	f30->gpioled_count = f30->query.gpio_led_count;
-+	f30->button_bitmask_size = sizeof(u8)*(f30->gpioled_count + 7) / 8;
-+	f30->button_data_buffer =
-+	    kcalloc(f30->button_bitmask_size,
-+		    sizeof(unsigned char), GFP_KERNEL);
-+	if (!f30->button_data_buffer) {
-+		dev_err(&fc->dev, "Failed to allocate button data buffer.\n");
-+		return -ENOMEM;
-+	}
-+
-+	f30->gpioled_map = kcalloc(f30->gpioled_count,
-+				sizeof(unsigned short), GFP_KERNEL);
-+	if (!f30->gpioled_map) {
-+		dev_err(&fc->dev, "Failed to allocate button map.\n");
-+		return -ENOMEM;
-+	}
++	data->page = page;
 +	return 0;
 +}
 +
-+static inline void rmi_f30_free_memory(struct rmi_function_container *fc)
++static int rmi_i2c_write_block(struct rmi_phys_device *phys, u16 addr, u8 *buf,
++			       int len)
 +{
-+	struct rmi_fn_30_data *f30 = fc->data;
-+	u8 reg_num = 0;
-+	sysfs_remove_group(&fc->dev.kobj, &attrs_query);
-+	sysfs_remove_group(&fc->dev.kobj, &attrs_data);
-+	for (reg_num = 0; reg_num < ARRAY_SIZE(attrs_ctrl_regs); reg_num++)
-+		sysfs_remove_group(&fc->dev.kobj, &attrs_ctrl_regs[reg_num]);
-+	if (f30) {
-+		if (f30->control.reg_0)
-+			kfree(f30->control.reg_0->regs);
-+		kfree(f30->control.reg_0);
++	struct i2c_client *client = to_i2c_client(phys->dev);
++	struct rmi_i2c_data *data = phys->data;
++	u8 txbuf[len + 1];
++	int retval;
++#if	COMMS_DEBUG
++	char debug_buf[len*3 + 1];
++	int i, n;
++#endif
 +
-+		if (f30->control.reg_1)
-+			kfree(f30->control.reg_1->regs);
-+		kfree(f30->control.reg_1);
++	txbuf[0] = addr & 0xff;
++	memcpy(txbuf + 1, buf, len);
 +
-+		if (f30->control.reg_2)
-+			kfree(f30->control.reg_2->regs);
-+		kfree(f30->control.reg_2);
++	mutex_lock(&data->page_mutex);
 +
-+		if (f30->control.reg_3)
-+			kfree(f30->control.reg_3->regs);
-+		kfree(f30->control.reg_3);
-+
-+		if (f30->control.reg_4)
-+			kfree(f30->control.reg_4->regs);
-+		kfree(f30->control.reg_4);
-+
-+		if (f30->control.reg_5)
-+			kfree(f30->control.reg_5->regs);
-+		kfree(f30->control.reg_5);
-+
-+		if (f30->control.reg_6)
-+			kfree(f30->control.reg_6->regs);
-+		kfree(f30->control.reg_6);
-+
-+		if (f30->control.reg_7)
-+			kfree(f30->control.reg_7->regs);
-+		kfree(f30->control.reg_7);
-+
-+		if (f30->control.reg_8)
-+			kfree(f30->control.reg_8->regs);
-+		kfree(f30->control.reg_8);
-+
-+		if (f30->control.reg_9)
-+			kfree(f30->control.reg_9->regs);
-+		kfree(f30->control.reg_9);
-+
-+		if (!f30->data.datareg_0)
-+			kfree(f30->data.datareg_0->regs);
-+		kfree(f30->data.datareg_0);
-+
-+		kfree(f30->button_data_buffer);
-+		kfree(f30->gpioled_map);
-+		kfree(f30);
-+		fc->data = NULL;
-+	}
-+}
-+
-+int rmi_f30_attention(struct rmi_function_container *fc, u8 *irq_bits)
-+{
-+	struct rmi_device *rmi_dev = fc->rmi_dev;
-+	int data_base_addr = fc->fd.data_base_addr;
-+	struct rmi_fn_30_data *f30 = fc->data;
-+	int error;
-+	int gpiled;
-+	bool gpiled_status = false;
-+	int status = 0;
-+
-+	/* Read the button data. */
-+
-+	error = rmi_read_block(rmi_dev, data_base_addr,
-+			f30->button_data_buffer,
-+			f30->button_bitmask_size);
-+	if (error < 0) {
-+		dev_err(&fc->dev,
-+			"%s: Failed to read button data registers.\n",
-+			__func__);
-+		return error;
++	if (RMI_I2C_PAGE(addr) != data->page) {
++		retval = rmi_set_page(phys, RMI_I2C_PAGE(addr));
++		if (retval < 0)
++			goto exit;
 +	}
 +
-+	/* Read the gpi led data. */
-+	f30->data.address = fc->fd.data_base_addr;
-+	error = rmi_read_block(fc->rmi_dev, f30->data.address,
-+		(u8 *)&f30->data, f30->gpioled_count);
++#if COMMS_DEBUG
++	n = 0;
++	for (i = 0; i < len; i++)
++		n = snprintf(debug_buf+n, 4, "%02x ", buf[i]);
++	dev_dbg(&client->dev, "RMI4 I2C writes %d bytes at %#06x: %s\n",
++		len, addr, debug_buf);
++#endif
 +
-+	if (error < 0) {
-+		dev_err(&fc->dev, "%s: Failed to read f30 data registers.\n",
-+			__func__);
-+		return error;
-+	}
-+	/* Generate events for buttons that change state. */
-+	for (gpiled = 0; gpiled < f30->gpioled_count; gpiled++) {
-+		status = f30->data.datareg_0->regs[gpiled].gpi_led_data;
-+		dev_warn(&fc->dev,
-+			"rmi_f30 attention gpiled=%d data status=%d\n",
-+			gpiled,
-+			f30->data.datareg_0->regs[gpiled].gpi_led_data);
-+		/* check if gpio */
-+		if (!(f30->control.reg_0->regs[gpiled].led_sel)) {
-+			if (f30->control.reg_2->regs[gpiled].dir == 0) {
-+				gpiled_status = status != 0;
-+
-+		/* if the gpiled data state changed from the
-+		* last time report it and store the new state */
-+		/* Generate an event here. */
-+			dev_warn(&fc->dev,
-+			"rmi_f30 attention call input_report_key\n");
-+			input_report_key(f30->input,
-+				f30->data.datareg_0->regs[gpiled].gpi_led_data,
-+				gpiled_status);
-+			}
-+		}
-+	}
-+	input_sync(f30->input); /* sync after groups of events */
-+	return 0;
-+}
-+
-+static int rmi_f30_register_device(struct rmi_function_container *fc)
-+{
-+	struct rmi_device *rmi_dev = fc->rmi_dev;
-+	struct input_dev *input_dev;
-+	struct rmi_fn_30_data *f30 = fc->data;
-+	int i;
-+	int rc;
-+
-+	input_dev = input_allocate_device();
-+	if (!input_dev) {
-+		dev_err(&fc->dev, "Failed to allocate input device.\n");
-+		return -ENOMEM;
-+	}
-+
-+	f30->input = input_dev;
-+	snprintf(f30->input_name, MAX_LEN, "%sfn%02x", dev_name(&rmi_dev->dev),
-+		fc->fd.function_number);
-+	input_dev->name = f30->input_name;
-+	snprintf(f30->input_phys, MAX_LEN, "%s/input0", input_dev->name);
-+	input_dev->phys = f30->input_phys;
-+	input_dev->dev.parent = &rmi_dev->dev;
-+	input_set_drvdata(input_dev, f30);
-+
-+	/* Set up any input events. */
-+	set_bit(EV_SYN, input_dev->evbit);
-+	set_bit(EV_KEY, input_dev->evbit);
-+	input_dev->keycode = f30->gpioled_map;
-+	input_dev->keycodesize = 1;
-+	input_dev->keycodemax = f30->gpioled_count;
-+	/* set bits for each qpio led pin... */
-+	for (i = 0; i < f30->gpioled_count; i++) {
-+		set_bit(f30->gpioled_map[i], input_dev->keybit);
-+		input_set_capability(input_dev, EV_KEY, f30->gpioled_map[i]);
-+	}
-+
-+	rc = input_register_device(input_dev);
-+	if (rc < 0) {
-+		dev_err(&fc->dev, "Failed to register input device.\n");
-+		goto error_free_device;
-+	}
-+	return 0;
-+
-+error_free_device:
-+	input_free_device(input_dev);
-+
-+	return rc;
-+}
-+
-+
-+static int rmi_f30_config(struct rmi_function_container *fc)
-+{
-+	struct rmi_fn_30_data *data = fc->data;
-+	int gpio_led_cnt = data->query.gpio_led_count;
-+	int bytecnt = gpio_led_cnt / 7 + 1;
-+	int regs_size = 0;
-+	int rc;
-+	/* repeated register functions */
-+
-+	/* Write Control Register values back to device */
-+	rc = rmi_write_block(fc->rmi_dev, data->control.reg_0->address,
-+				(u8 *)data->control.reg_0,
-+				bytecnt * sizeof(struct f30_gpio_ctrl_0n));
-+	if (rc < 0) {
-+		dev_err(&fc->dev, "%s error %d: Could not write control 0 to 0x%x\n",
-+				__func__, rc, data->control.reg_0->address);
-+		return rc;
-+	}
-+
-+	rc = rmi_write_block(fc->rmi_dev, data->control.reg_1->address,
-+			(u8 *) data->control.reg_1->regs,
-+			sizeof(union f30_gpio_ctrl_1));
-+	if (rc < 0) {
-+		dev_err(&fc->dev, "%s error %d: Could not write control 1 to 0x%x\n",
-+				__func__, rc, data->control.reg_1->address);
-+		return rc;
-+	}
-+
-+	regs_size = data->control.reg_2->length;
-+
-+	rc = rmi_write_block(fc->rmi_dev, data->control.reg_2->address,
-+			(u8 *) data->control.reg_2->regs,
-+			regs_size);
-+	if (rc < 0) {
-+		dev_err(&fc->dev, "%s error %d: Could not write control 2 to 0x%x\n",
-+				__func__, rc, data->control.reg_2->address);
-+		return rc;
-+	}
-+
-+	regs_size = data->control.reg_3->length;
-+
-+	rc = rmi_write_block(fc->rmi_dev, data->control.reg_3->address,
-+			(u8 *) data->control.reg_3->regs,
-+			regs_size);
-+	if (rc < 0) {
-+		dev_err(&fc->dev, "%s error %d: Could not write control 3 to 0x%x\n",
-+				__func__, rc, data->control.reg_3->address);
-+		return rc;
-+	}
-+
-+	regs_size = data->control.reg_4->length;
-+	rc = rmi_write_block(fc->rmi_dev, data->control.reg_4->address,
-+			(u8 *) data->control.reg_4->regs,
-+			regs_size);
-+	if (rc < 0) {
-+		dev_err(&fc->dev, "%s error %d: Could not write control 4 to 0x%x\n",
-+				__func__, rc, data->control.reg_4->address);
-+		return rc;
-+	}
-+
-+	regs_size = data->control.reg_5->length;
-+	rc = rmi_write_block(fc->rmi_dev, data->control.reg_5->address,
-+			(u8 *) data->control.reg_5->regs,
-+			regs_size);
-+	if (rc < 0) {
-+		dev_err(&fc->dev, "%s error %d: Could not write control 5 to 0x%x\n",
-+				__func__, rc, data->control.reg_5->address);
-+		return rc;
-+	}
-+
-+	regs_size = data->control.reg_6->length;
-+	rc = rmi_write_block(fc->rmi_dev, data->control.reg_6->address,
-+			(u8 *) data->control.reg_6->regs,
-+			regs_size);
-+	if (rc < 0) {
-+		dev_err(&fc->dev, "%s error %d: Could not write control 6 to 0x%x\n",
-+				__func__, rc, data->control.reg_6->address);
-+		return rc;
-+	}
-+
-+	regs_size = data->control.reg_7->length;
-+	rc = rmi_write_block(fc->rmi_dev, data->control.reg_7->address,
-+			(u8 *) data->control.reg_7->regs,
-+			regs_size);
-+	if (rc < 0) {
-+		dev_err(&fc->dev, "%s error %d: Could not write control 7 to 0x%x\n",
-+			__func__, rc, data->control.reg_7->address);
-+		return rc;
-+	}
-+
-+	regs_size = data->control.reg_8->length;
-+	rc = rmi_write_block(fc->rmi_dev, data->control.reg_8->address,
-+			(u8 *) data->control.reg_8->regs, regs_size);
-+	if (rc < 0) {
-+		dev_err(&fc->dev, "%s error %d: Could not write control 9 to 0x%x\n",
-+			__func__, rc, data->control.reg_8->address);
-+		return rc;
-+	}
-+
-+	rc = rmi_write_block(fc->rmi_dev, data->control.reg_9->address,
-+			(u8 *) data->control.reg_9->regs,
-+			sizeof(union f30_gpio_ctrl_9));
-+	if (rc < 0) {
-+		dev_err(&fc->dev, "%s error %d: Could not write control 9 to 0x%x\n",
-+				__func__, rc, data->control.reg_9->address);
-+		return rc;
-+	}
-+
-+	return 0;
-+}
-+
-+static inline int rmi_f30_initialize(struct rmi_function_container *fc)
-+{
-+	struct rmi_device *rmi_dev = fc->rmi_dev;
-+	struct rmi_device_platform_data *pdata;
-+	struct rmi_fn_30_data *instance_data = fc->data;
-+
-+	int retval = 0;
-+	u16 next_loc;
-+	int  gpio_led_cnt = 0;
-+	int regs_size = 0;
-+	u8 reg_num = 0;
-+	int reg_flg;
-+	int hasgpio, hasled, hasmbtn, hashaptic;
-+	struct f30_control *control = &instance_data->control;
-+
-+	/* Read F30 Query Data */
-+	instance_data->query.address = fc->fd.query_base_addr;
-+	retval = rmi_read_block(fc->rmi_dev, instance_data->query.address,
-+		(u8 *)&instance_data->query, sizeof(instance_data->query));
-+	if (retval < 0) {
-+		dev_err(&fc->dev,
-+		"Could not read query registers from 0x%04x\n",
-+		instance_data->query.address);
-+		return retval;
-+	}
-+
-+	/* initialize gpioled_map data */
-+	hasgpio = instance_data->query.has_gpio;
-+	hasled = instance_data->query.has_led;
-+	hasmbtn = instance_data->query.has_mappable_buttons;
-+	hashaptic = instance_data->query.has_haptic ;
-+	gpio_led_cnt = instance_data->query.gpio_led_count;
-+
-+	pdata = to_rmi_platform_data(rmi_dev);
-+	if (pdata) {
-+		if (!pdata->gpioled_map) {
-+			dev_warn(&fc->dev,
-+			"%s - gpioled_map is NULL", __func__);
-+		} else if (pdata->gpioled_map->ngpioleds != gpio_led_cnt) {
-+			dev_warn(&fc->dev,
-+				"Platformdata gpioled map size (%d) != number "
-+				"of buttons on device (%d) - ignored.\n",
-+				pdata->gpioled_map->ngpioleds,
-+				gpio_led_cnt);
-+		} else if (!pdata->gpioled_map->map) {
-+			dev_warn(&fc->dev,
-+				 "Platformdata button map is missing!\n");
-+		} else {
-+			int i;
-+			for (i = 0; i < pdata->gpioled_map->ngpioleds; i++)
-+				instance_data->gpioled_map[i] =
-+					pdata->gpioled_map->map[i];
-+		}
-+	}
-+
-+	/* Initialize Control Data */
-+
-+	next_loc = fc->fd.control_base_addr;
-+
-+	/* calculate reg size */
-+
-+	instance_data->gpioled_bitmask_size = sizeof(u8)*(gpio_led_cnt + 7) / 8;
-+	instance_data->gpioled_byte_size = sizeof(u8)*gpio_led_cnt;
-+
-+	/* reg_0 */
-+	control->reg_0 =
-+			kzalloc(sizeof(struct f30_gpio_ctrl_0), GFP_KERNEL);
-+	if (!control->reg_0) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+
-+	if (hasgpio && hasled)
-+		reg_flg = 1;
-+
-+	f30_attrs_regs_exist[reg_num] = true;
-+	regs_size = max(sizeof(struct f30_gpio_ctrl_0n) * reg_flg *
-+					instance_data->gpioled_bitmask_size, 1);
-+	control->reg_0->regs =
-+			kzalloc(regs_size, GFP_KERNEL);
-+
-+	if (!control->reg_0->regs) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+	control->reg_0->address = next_loc;
-+	control->reg_0->length = regs_size;
-+	next_loc += regs_size;
-+	reg_num++;
-+
-+	/* reg_1 */
-+	control->reg_1 =
-+			kzalloc(sizeof(union f30_gpio_ctrl_1), GFP_KERNEL);
-+	if (!control->reg_1) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+	f30_attrs_regs_exist[reg_num] = true;
-+	reg_num++;
-+	instance_data->control.reg_1->address = next_loc;
-+	next_loc += regs_size;
-+
-+	/* reg_2 */
-+	instance_data->control.reg_2 =
-+			kzalloc(sizeof(struct f30_gpio_ctrl_2), GFP_KERNEL);
-+	if (!control->reg_2) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+
-+	reg_flg = hasgpio;
-+	f30_attrs_regs_exist[reg_num] = true;
-+	regs_size = max(sizeof(struct f30_gpio_ctrl_2n)*reg_flg*
-+					instance_data->gpioled_bitmask_size, 1);
-+	control->reg_2->regs =
-+			kzalloc(regs_size, GFP_KERNEL);
-+
-+	if (!control->reg_2->regs) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+	control->reg_2->address = next_loc;
-+	control->reg_2->length = regs_size;
-+	next_loc += regs_size;
-+	reg_num++;
-+
-+	/* reg_3 */
-+	instance_data->control.reg_3 =
-+			kzalloc(sizeof(struct f30_gpio_ctrl_3), GFP_KERNEL);
-+	if (!control->reg_3) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+
-+	reg_flg = hasgpio;
-+	f30_attrs_regs_exist[reg_num] = true;
-+	regs_size = max(sizeof(struct f30_gpio_ctrl_3n) * reg_flg *
-+					instance_data->gpioled_bitmask_size, 1);
-+	control->reg_3->regs =
-+			kzalloc(regs_size, GFP_KERNEL);
-+
-+	if (!control->reg_3->regs) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+	control->reg_3->address = next_loc;
-+	control->reg_3->length = regs_size;
-+	next_loc += regs_size;
-+	reg_num++;
-+
-+	/* reg_4 */
-+	control->reg_4 =
-+			kzalloc(sizeof(struct f30_gpio_ctrl_4), GFP_KERNEL);
-+	if (!control->reg_4) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+
-+	reg_flg = hasled;
-+	f30_attrs_regs_exist[reg_num] = true;
-+	regs_size = max(sizeof(struct f30_gpio_ctrl_4n)*reg_flg*
-+					instance_data->gpioled_bitmask_size,
-+					sizeof(struct f30_gpio_ctrl_4n));
-+	control->reg_4->regs =
-+			kzalloc(regs_size, GFP_KERNEL);
-+	if (!control->reg_4->regs) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+	control->reg_4->address = next_loc;
-+	control->reg_4->length = regs_size;
-+	next_loc += regs_size;
-+	reg_num++;
-+
-+	/* reg_5 */
-+	control->reg_5 =
-+			kzalloc(sizeof(struct f30_gpio_ctrl_5), GFP_KERNEL);
-+	if (!control->reg_5) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+
-+	reg_flg = hasled;
-+	f30_attrs_regs_exist[reg_num] = true;
-+	regs_size = max(6 * reg_flg, 2);
-+	control->reg_5->regs =
-+			kzalloc(regs_size, GFP_KERNEL);
-+	if (!control->reg_5->regs) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+	control->reg_5->address = next_loc;
-+	control->reg_5->length = regs_size;
-+	next_loc += regs_size;
-+	reg_num++;
-+
-+	/* reg_6 */
-+	control->reg_6 =
-+			kzalloc(sizeof(struct f30_gpio_ctrl_6), GFP_KERNEL);
-+	if (!control->reg_6) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+	reg_flg = hasled || (!hasled
-+		&& instance_data->query.has_gpio_driver_control);
-+
-+	regs_size = max(sizeof(union f30_gpio_ctrl_6n)*reg_flg*gpio_led_cnt,
-+					sizeof(union f30_gpio_ctrl_6n));
-+	if (!hasled
-+		&& instance_data->query.has_gpio_driver_control)
-+		f30_attrs_regs_exist[reg_num] = true;
-+
-+	reg_num++;
-+	if (hasled)
-+		f30_attrs_regs_exist[reg_num] = true;
-+
-+	reg_num++;
-+
-+	control->reg_6->regs =
-+			kzalloc(regs_size, GFP_KERNEL);
-+	if (!control->reg_6->regs) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+	control->reg_6->address = next_loc;
-+	control->reg_6->length = regs_size;
-+	next_loc += regs_size;
-+
-+	/* reg_7 */
-+	reg_flg = hasmbtn;
-+	control->reg_7 =
-+			kzalloc(sizeof(struct f30_gpio_ctrl_7), GFP_KERNEL);
-+	if (!control->reg_7) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+	if (hasmbtn)
-+		regs_size = sizeof(struct f30_gpio_ctrl_7n)*gpio_led_cnt;
++	phys->info.tx_count++;
++	phys->info.tx_bytes += sizeof(txbuf);
++	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
++	if (retval < 0)
++		phys->info.tx_errs++;
 +	else
-+		regs_size = sizeof(struct f30_gpio_ctrl_7n);
++		retval--; /* don't count the address byte */
 +
-+	regs_size = max(sizeof(struct f30_gpio_ctrl_7n)*reg_flg*
-+					gpio_led_cnt,
-+					sizeof(struct f30_gpio_ctrl_7n));
-+	f30_attrs_regs_exist[reg_num] = true;
-+	control->reg_7->regs =
-+			kzalloc(regs_size, GFP_KERNEL);
-+	if (!control->reg_7->regs) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+	control->reg_7->address = next_loc;
-+	control->reg_7->length = regs_size;
-+	next_loc += regs_size;
-+	reg_num++;
-+
-+	/* reg_8 */
-+	control->reg_8 =
-+			kzalloc(sizeof(struct f30_gpio_ctrl_8), GFP_KERNEL);
-+	if (!control->reg_8) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+
-+	regs_size = max(sizeof(struct f30_gpio_ctrl_8n)*hashaptic*
-+					gpio_led_cnt,
-+					sizeof(struct f30_gpio_ctrl_8n));
-+	f30_attrs_regs_exist[reg_num] = true;
-+	control->reg_8->regs =
-+			kzalloc(regs_size, GFP_KERNEL);
-+	if (!control->reg_8->regs) {
-+		dev_err(&fc->dev, "Failed to allocate control registers.");
-+		return -ENOMEM;
-+	}
-+	control->reg_8->address = next_loc;
-+	control->reg_8->length = regs_size;
-+	next_loc += regs_size;
-+	reg_num++;
-+
-+	/* reg_9 */
-+	control->reg_9 =
-+			kzalloc(sizeof(union f30_gpio_ctrl_9), GFP_KERNEL);
-+	if (!control->reg_9) {
-+		dev_err(&fc->dev, "Failed to allocate control register.");
-+		return -ENOMEM;
-+	}
-+	if (instance_data->query.has_haptic)
-+		f30_attrs_regs_exist[reg_num] = true;
-+	control->reg_9->address = next_loc;
-+	next_loc += sizeof(control->reg_9->regs);
-+
-+	/* data reg_0 */
-+	instance_data->data.datareg_0 =
-+			kzalloc(sizeof(struct f30_data_0), GFP_KERNEL);
-+	if (!instance_data->data.datareg_0) {
-+		dev_err(&fc->dev, "Failed to allocate control register.");
-+		return -ENOMEM;
-+	}
-+
-+	regs_size = sizeof(struct f30_data_0n)*
-+				instance_data->gpioled_byte_size;
-+	instance_data->data.datareg_0->address = fc->fd.data_base_addr;
-+	next_loc += sizeof(instance_data->data.datareg_0->regs);
-+
-+	retval = rmi_f30_read_control_parameters(rmi_dev, instance_data);
-+	if (retval < 0) {
-+		dev_err(&fc->dev,
-+			"Failed to initialize F19 control params.\n");
-+		return retval;
-+	}
-+
-+	mutex_init(&instance_data->control_mutex);
-+	mutex_init(&instance_data->data_mutex);
-+	return 0;
++exit:
++	mutex_unlock(&data->page_mutex);
++	return retval;
 +}
 +
-+static int rmi_f30_create_sysfs(struct rmi_function_container *fc)
++static int rmi_i2c_write(struct rmi_phys_device *phys, u16 addr, u8 data)
 +{
-+	u8 reg_num;
++	int retval = rmi_i2c_write_block(phys, addr, &data, 1);
++	return (retval < 0) ? retval : 0;
++}
 +
-+	dev_dbg(&fc->dev, "Creating sysfs files.");
++static int rmi_i2c_read_block(struct rmi_phys_device *phys, u16 addr, u8 *buf,
++			      int len)
++{
++	struct i2c_client *client = to_i2c_client(phys->dev);
++	struct rmi_i2c_data *data = phys->data;
++	u8 txbuf[1] = {addr & 0xff};
++	int retval;
++#if	COMMS_DEBUG
++	char debug_buf[len*3 + 1];
++	char *temp = debug_buf;
++	int i, n;
++#endif
 +
-+	/* Set up sysfs device attributes. */
-+	if (sysfs_create_group(&fc->dev.kobj, &attrs_query) < 0) {
-+		dev_err(&fc->dev, "Failed to create query sysfs files.");
-+		return -ENODEV;
++	mutex_lock(&data->page_mutex);
++
++	if (RMI_I2C_PAGE(addr) != data->page) {
++		retval = rmi_set_page(phys, RMI_I2C_PAGE(addr));
++		if (retval < 0)
++			goto exit;
 +	}
-+	if (sysfs_create_group(&fc->dev.kobj, &attrs_data) < 0) {
-+		dev_err(&fc->dev, "Failed to create data sysfs files.");
-+		return -ENODEV;
++
++#if COMMS_DEBUG
++	dev_dbg(&client->dev, "RMI4 I2C writes 1 bytes: %02x\n", txbuf[0]);
++#endif
++	phys->info.tx_count++;
++	phys->info.tx_bytes += sizeof(txbuf);
++	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
++	if (retval != sizeof(txbuf)) {
++		phys->info.tx_errs++;
++		retval = (retval < 0) ? retval : -EIO;
++		goto exit;
 +	}
 +
-+	for (reg_num = 0; reg_num < ARRAY_SIZE(attrs_ctrl_regs);
-+		reg_num++) {
-+		if (f30_attrs_regs_exist[reg_num]) {
-+			if (sysfs_create_group(&fc->dev.kobj,
-+					&attrs_ctrl_regs[reg_num]) < 0) {
-+				dev_err(&fc->dev,
-+					"Failed to create "
-+					"sysfs file group for reg"
-+					"group %d.",
-+					reg_num);
-+				return -ENODEV;
-+			}
++	retval = i2c_master_recv(client, buf, len);
 +
++	phys->info.rx_count++;
++	phys->info.rx_bytes += len;
++	if (retval < 0)
++		phys->info.rx_errs++;
++#if COMMS_DEBUG
++	else {
++		n = 0;
++		for (i = 0; i < len; i++) {
++			n = sprintf(temp, " %02x", buf[i]);
++			temp += n;
++		}
++		dev_dbg(&client->dev, "RMI4 I2C read %d bytes at %#06x:%s\n",
++			len, addr, debug_buf);
++	}
++#endif
++
++exit:
++	mutex_unlock(&data->page_mutex);
++	return retval;
++}
++
++static int rmi_i2c_read(struct rmi_phys_device *phys, u16 addr, u8 *buf)
++{
++	int retval = rmi_i2c_read_block(phys, addr, buf, 1);
++	return (retval < 0) ? retval : 0;
++}
++
++static int acquire_attn_irq(struct rmi_i2c_data *data)
++{
++	return request_threaded_irq(data->irq, NULL, rmi_i2c_irq_thread,
++			data->irq_flags, dev_name(data->phys->dev), data->phys);
++}
++
++static int enable_device(struct rmi_phys_device *phys)
++{
++	int retval = 0;
++
++	struct rmi_i2c_data *data = phys->data;
++
++	if (data->enabled)
++		return 0;
++
++	retval = acquire_attn_irq(data);
++	if (retval)
++		goto error_exit;
++
++	data->enabled = true;
++	dev_dbg(phys->dev, "Physical device enabled.\n");
++	return 0;
++
++error_exit:
++	dev_err(phys->dev, "Failed to enable physical device. Code=%d.\n",
++		retval);
++	return retval;
++}
++
++static void disable_device(struct rmi_phys_device *phys)
++{
++	struct rmi_i2c_data *data = phys->data;
++
++	if (!data->enabled)
++		return;
++
++	disable_irq(data->irq);
++	free_irq(data->irq, data->phys);
++
++	dev_dbg(phys->dev, "Physical device disabled.\n");
++	data->enabled = false;
++}
++
++static int __devinit rmi_i2c_probe(struct i2c_client *client,
++				  const struct i2c_device_id *id)
++{
++	struct rmi_phys_device *rmi_phys;
++	struct rmi_i2c_data *data;
++	struct rmi_device_platform_data *pdata = client->dev.platform_data;
++	int error;
++
++	if (!pdata) {
++		dev_err(&client->dev, "no platform data\n");
++		return -EINVAL;
++	}
++	dev_info(&client->dev, "Probing %s at %#02x (IRQ %d).\n",
++		pdata->sensor_name ? pdata->sensor_name : "-no name-",
++		client->addr, pdata->attn_gpio);
++
++	if (pdata->gpio_config) {
++		dev_info(&client->dev, "Configuring GPIOs.\n");
++		error = pdata->gpio_config(pdata->gpio_data, true);
++		if (error < 0) {
++			dev_err(&client->dev, "Failed to configure GPIOs, code: %d.\n",
++				error);
++			return error;
++		}
++		dev_info(&client->dev, "Done with GPIO configuration.\n");
++	}
++
++	error = i2c_check_functionality(client->adapter, I2C_FUNC_I2C);
++	if (!error) {
++		dev_err(&client->dev, "i2c_check_functionality error %d.\n",
++			error);
++		return error;
++	}
++
++	rmi_phys = kzalloc(sizeof(struct rmi_phys_device), GFP_KERNEL);
++	if (!rmi_phys)
++		return -ENOMEM;
++
++	data = kzalloc(sizeof(struct rmi_i2c_data), GFP_KERNEL);
++	if (!data) {
++		error = -ENOMEM;
++		goto err_phys;
++	}
++
++	data->enabled = true;	/* We plan to come up enabled. */
++	data->irq = gpio_to_irq(pdata->attn_gpio);
++	if (pdata->level_triggered) {
++		data->irq_flags = IRQF_ONESHOT |
++			((pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH) ?
++			IRQF_TRIGGER_HIGH : IRQF_TRIGGER_LOW);
++	} else {
++		data->irq_flags =
++			(pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH) ?
++			IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
++	}
++	data->phys = rmi_phys;
++
++	rmi_phys->data = data;
++	rmi_phys->dev = &client->dev;
++
++	rmi_phys->write = rmi_i2c_write;
++	rmi_phys->write_block = rmi_i2c_write_block;
++	rmi_phys->read = rmi_i2c_read;
++	rmi_phys->read_block = rmi_i2c_read_block;
++	rmi_phys->enable_device = enable_device;
++	rmi_phys->disable_device = disable_device;
++
++	rmi_phys->info.proto = phys_proto_name;
++
++	mutex_init(&data->page_mutex);
++
++	/* Setting the page to zero will (a) make sure the PSR is in a
++	 * known state, and (b) make sure we can talk to the device.
++	 */
++	error = rmi_set_page(rmi_phys, 0);
++	if (error) {
++		dev_err(&client->dev, "Failed to set page select to 0.\n");
++		goto err_data;
++	}
++
++	error = rmi_register_phys_device(rmi_phys);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to register physical driver at 0x%.2X.\n",
++			client->addr);
++		goto err_gpio;
++	}
++	i2c_set_clientdata(client, rmi_phys);
++
++	if (pdata->attn_gpio > 0) {
++		error = acquire_attn_irq(data);
++		if (error < 0) {
++			dev_err(&client->dev,
++				"request_threaded_irq failed %d\n",
++				pdata->attn_gpio);
++			goto err_unregister;
 +		}
 +	}
 +
++#if defined(CONFIG_RMI4_DEV)
++	error = gpio_export(pdata->attn_gpio, false);
++	if (error) {
++		dev_warn(&client->dev,
++			 "WARNING: Failed to export ATTN gpio!\n");
++		error = 0;
++	} else {
++		error = gpio_export_link(&(rmi_phys->rmi_dev->dev), "attn",
++					pdata->attn_gpio);
++		if (error) {
++			dev_warn(&(rmi_phys->rmi_dev->dev),
++				 "WARNING: Failed to symlink ATTN gpio!\n");
++			error = 0;
++		} else {
++			dev_info(&(rmi_phys->rmi_dev->dev),
++				"%s: Exported ATTN GPIO %d.", __func__,
++				pdata->attn_gpio);
++		}
++	}
++#endif /* CONFIG_RMI4_DEV */
++
++	dev_info(&client->dev, "registered rmi i2c driver at %#04x.\n",
++			client->addr);
++	return 0;
++
++err_unregister:
++	rmi_unregister_phys_device(rmi_phys);
++err_gpio:
++	if (pdata->gpio_config)
++		pdata->gpio_config(pdata->gpio_data, false);
++err_data:
++	kfree(data);
++err_phys:
++	kfree(rmi_phys);
++	return error;
++}
++
++static int __devexit rmi_i2c_remove(struct i2c_client *client)
++{
++	struct rmi_phys_device *phys = i2c_get_clientdata(client);
++	struct rmi_device_platform_data *pd = client->dev.platform_data;
++
++	disable_device(phys);
++	rmi_unregister_phys_device(phys);
++	kfree(phys->data);
++	kfree(phys);
++
++	if (pd->gpio_config)
++		pd->gpio_config(&pd->gpio_data, false);
++
 +	return 0;
 +}
 +
-+static void rmi_f30_remove(struct rmi_function_container *fc)
-+{
-+	dev_info(&fc->dev, "Removing F30.");
-+	rmi_f30_free_memory(fc);
-+}
++static const struct i2c_device_id rmi_id[] = {
++	{ "rmi", 0 },
++	{ "rmi_i2c", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, rmi_id);
 +
-+static struct rmi_function_handler function_handler = {
-+	.func = 0x30,
-+	.init = rmi_f30_init,
-+	.config = rmi_f30_config,
-+	.attention = rmi_f30_attention,
-+	.remove = rmi_f30_remove
++static struct i2c_driver rmi_i2c_driver = {
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= "rmi_i2c"
++	},
++	.id_table	= rmi_id,
++	.probe		= rmi_i2c_probe,
++	.remove		= __devexit_p(rmi_i2c_remove),
 +};
 +
-+static int __init rmi_f30_module_init(void)
++static int __init rmi_i2c_init(void)
 +{
++	return i2c_add_driver(&rmi_i2c_driver);
++}
++
++static void __exit rmi_i2c_exit(void)
++{
++	i2c_del_driver(&rmi_i2c_driver);
++}
++
++module_init(rmi_i2c_init);
++module_exit(rmi_i2c_exit);
++
++MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com>");
++MODULE_DESCRIPTION("RMI I2C driver");
++MODULE_LICENSE("GPL");
++MODULE_VERSION(RMI_DRIVER_VERSION);
+diff --git a/drivers/input/rmi4/rmi_spi.c b/drivers/input/rmi4/rmi_spi.c
+new file mode 100644
+index 0000000..4f446af
+--- /dev/null
++++ b/drivers/input/rmi4/rmi_spi.c
+@@ -0,0 +1,911 @@
++/*
++ * Copyright (c) 2011, 2012 Synaptics Incorporated
++ * Copyright (c) 2011 Unixphere
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/spi/spi.h>
++#include <linux/delay.h>
++#include <linux/slab.h>
++#include <linux/completion.h>
++#include <linux/sched.h>
++#include <linux/gpio.h>
++#include <linux/rmi.h>
++
++#define COMMS_DEBUG 0
++#define FF_DEBUG 0
++
++#define RMI_PROTOCOL_VERSION_ADDRESS	0xa0fd
++#define SPI_V2_UNIFIED_READ		0xc0
++#define SPI_V2_WRITE			0x40
++#define SPI_V2_PREPARE_SPLIT_READ	0xc8
++#define SPI_V2_EXECUTE_SPLIT_READ	0xca
++
++#define RMI_SPI_BLOCK_DELAY_US		65
++#define RMI_SPI_BYTE_DELAY_US		65
++#define RMI_SPI_WRITE_DELAY_US		0
++
++#define RMI_V1_READ_FLAG		0x80
++
++#define RMI_PAGE_SELECT_REGISTER 0x00FF
++#define RMI_SPI_PAGE(addr) (((addr) >> 8) & 0x80)
++
++#define DEFAULT_POLL_INTERVAL_MS	13
++
++static char *spi_v1_proto_name = "spi";
++static char *spi_v2_proto_name = "spiv2";
++
++struct rmi_spi_data {
++	struct mutex page_mutex;
++	int page;
++	int (*set_page) (struct rmi_phys_device *phys, u8 page);
++	bool split_read_pending;
++	int enabled;
++	int irq;
++	int irq_flags;
++	struct rmi_phys_device *phys;
++	struct completion irq_comp;
++
++	/* Following are used when polling. */
++	struct hrtimer poll_timer;
++	struct work_struct poll_work;
++	int poll_interval;
++
++};
++
++static irqreturn_t rmi_spi_hard_irq(int irq, void *p)
++{
++	struct rmi_phys_device *phys = p;
++	struct rmi_spi_data *data = phys->data;
++	struct rmi_device_platform_data *pdata = phys->dev->platform_data;
++
++	if (data->split_read_pending &&
++		      gpio_get_value(pdata->attn_gpio) ==
++		      pdata->attn_polarity) {
++		phys->info.attn_count++;
++		complete(&data->irq_comp);
++		return IRQ_HANDLED;
++	}
++
++	return IRQ_WAKE_THREAD;
++}
++
++static irqreturn_t rmi_spi_irq_thread(int irq, void *p)
++{
++	struct rmi_phys_device *phys = p;
++	struct rmi_device *rmi_dev = phys->rmi_dev;
++	struct rmi_driver *driver = rmi_dev->driver;
++	struct rmi_device_platform_data *pdata = phys->dev->platform_data;
++
++	if (gpio_get_value(pdata->attn_gpio) == pdata->attn_polarity) {
++		phys->info.attn_count++;
++		if (driver && driver->irq_handler)
++			driver->irq_handler(rmi_dev, irq);
++	}
++
++	return IRQ_HANDLED;
++}
++
++static void spi_poll_work(struct work_struct *work)
++{
++	struct rmi_spi_data *data =
++			container_of(work, struct rmi_spi_data, poll_work);
++	struct rmi_device *rmi_dev = data->phys->rmi_dev;
++	struct rmi_driver *driver = rmi_dev->driver;
++
++	if (driver && driver->irq_handler)
++		driver->irq_handler(rmi_dev, 0);
++}
++
++/* This is the timer function for polling - it simply has to schedule work
++ * and restart the timer. */
++static enum hrtimer_restart spi_poll_timer(struct hrtimer *timer)
++{
++	struct rmi_spi_data *data =
++			container_of(timer, struct rmi_spi_data, poll_timer);
++
++	if (!work_pending(&data->poll_work))
++		schedule_work(&data->poll_work);
++	hrtimer_start(&data->poll_timer, ktime_set(0, data->poll_interval),
++		      HRTIMER_MODE_REL);
++	return HRTIMER_NORESTART;
++}
++
++
++
++static int rmi_spi_xfer(struct rmi_phys_device *phys,
++		    const u8 *txbuf, unsigned n_tx, u8 *rxbuf, unsigned n_rx)
++{
++	struct spi_device *client = to_spi_device(phys->dev);
++	struct rmi_spi_data *v2_data = phys->data;
++	struct rmi_device_platform_data *pdata = phys->dev->platform_data;
++	int status;
++	struct spi_message message;
++	struct spi_transfer *xfers;
++	int total_bytes = n_tx + n_rx;
++	u8 local_buf[total_bytes];
++	int xfer_count = 0;
++	int xfer_index = 0;
++	int block_delay = n_rx > 0 ? pdata->spi_data.block_delay_us : 0;
++	int byte_delay = n_rx > 1 ? pdata->spi_data.read_delay_us : 0;
++	int write_delay = n_tx > 1 ? pdata->spi_data.write_delay_us : 0;
++#if FF_DEBUG
++	bool bad_data = true;
++#endif
++#if COMMS_DEBUG || FF_DEBUG
++	int i;
++#endif
++
++	if (v2_data->split_read_pending) {
++		block_delay =
++		    n_rx > 0 ? pdata->spi_data.split_read_block_delay_us : 0;
++		byte_delay =
++		    n_rx > 1 ? pdata->spi_data.split_read_byte_delay_us : 0;
++		write_delay = 0;
++	}
++
++	if (n_tx) {
++		phys->info.tx_count++;
++		phys->info.tx_bytes += n_tx;
++		if (write_delay)
++			xfer_count += n_tx;
++		else
++			xfer_count += 1;
++	}
++
++	if (n_rx) {
++		phys->info.rx_count++;
++		phys->info.rx_bytes += n_rx;
++		if (byte_delay)
++			xfer_count += n_rx;
++		else
++			xfer_count += 1;
++	}
++
++	xfers = kcalloc(xfer_count,
++			    sizeof(struct spi_transfer), GFP_KERNEL);
++	if (!xfers)
++		return -ENOMEM;
++
++	spi_message_init(&message);
++
++	if (n_tx) {
++		if (write_delay) {
++			for (xfer_index = 0; xfer_index < n_tx;
++					xfer_index++) {
++				memset(&xfers[xfer_index], 0,
++				       sizeof(struct spi_transfer));
++				xfers[xfer_index].len = 1;
++				xfers[xfer_index].delay_usecs = write_delay;
++				xfers[xfer_index].tx_buf = txbuf + xfer_index;
++				spi_message_add_tail(&xfers[xfer_index],
++						     &message);
++			}
++		} else {
++			memset(&xfers[0], 0, sizeof(struct spi_transfer));
++			xfers[0].len = n_tx;
++			spi_message_add_tail(&xfers[0], &message);
++			memcpy(local_buf, txbuf, n_tx);
++			xfers[0].tx_buf = local_buf;
++			xfer_index++;
++		}
++		if (block_delay)
++			xfers[xfer_index-1].delay_usecs = block_delay;
++	}
++	if (n_rx) {
++		if (byte_delay) {
++			int buffer_offset = n_tx;
++			for (; xfer_index < xfer_count; xfer_index++) {
++				memset(&xfers[xfer_index], 0,
++				       sizeof(struct spi_transfer));
++				xfers[xfer_index].len = 1;
++				xfers[xfer_index].delay_usecs = byte_delay;
++				xfers[xfer_index].rx_buf =
++				    local_buf + buffer_offset;
++				buffer_offset++;
++				spi_message_add_tail(&xfers[xfer_index],
++						     &message);
++			}
++		} else {
++			memset(&xfers[xfer_index], 0,
++			       sizeof(struct spi_transfer));
++			xfers[xfer_index].len = n_rx;
++			xfers[xfer_index].rx_buf = local_buf + n_tx;
++			spi_message_add_tail(&xfers[xfer_index], &message);
++			xfer_index++;
++		}
++	}
++
++#if COMMS_DEBUG
++	if (n_tx) {
++		dev_dbg(&client->dev, "SPI sends %d bytes: ", n_tx);
++		for (i = 0; i < n_tx; i++)
++			pr_info("%02X ", txbuf[i]);
++		pr_info("\n");
++	}
++#endif
++
++	/* do the i/o */
++	if (pdata->spi_data.cs_assert) {
++		status = pdata->spi_data.cs_assert(
++			pdata->spi_data.cs_assert_data, true);
++		if (status) {
++			dev_err(phys->dev, "Failed to assert CS, code %d.\n",
++				status);
++			/* nonzero means error */
++			status = -1;
++			goto error_exit;
++		} else
++			status = 0;
++	}
++
++	if (pdata->spi_data.pre_delay_us)
++		udelay(pdata->spi_data.pre_delay_us);
++
++	status = spi_sync(client, &message);
++
++	if (pdata->spi_data.post_delay_us)
++		udelay(pdata->spi_data.post_delay_us);
++
++	if (pdata->spi_data.cs_assert) {
++		status = pdata->spi_data.cs_assert(
++			pdata->spi_data.cs_assert_data, false);
++		if (status) {
++			dev_err(phys->dev, "Failed to deassert CS. code %d.\n",
++				status);
++			/* nonzero means error */
++			status = -1;
++			goto error_exit;
++		} else
++			status = 0;
++	}
++
++	if (status == 0) {
++		memcpy(rxbuf, local_buf + n_tx, n_rx);
++		status = message.status;
++	} else {
++		if (n_tx)
++			phys->info.tx_errs++;
++		if (n_rx)
++			phys->info.rx_errs++;
++		dev_err(phys->dev, "spi_sync failed with error code %d.",
++		       status);
++		goto error_exit;
++	}
++
++#if COMMS_DEBUG
++	if (n_rx) {
++		dev_dbg(&client->dev, "SPI received %d bytes: ", n_rx);
++		for (i = 0; i < n_rx; i++)
++			pr_info("%02X ", rxbuf[i]);
++		pr_info("\n");
++	}
++#endif
++#if FF_DEBUG
++	if (n_rx) {
++		for (i = 0; i < n_rx; i++) {
++			if (rxbuf[i] != 0xFF) {
++				bad_data = false;
++				break;
++			}
++		}
++		if (bad_data) {
++			phys->info.rx_errs++;
++			dev_err(phys->dev, "BAD READ %lu out of %lu.\n",
++				phys->info.rx_errs, phys->info.rx_count);
++		}
++	}
++#endif
++
++error_exit:
++	kfree(xfers);
++	return status;
++}
++
++static int rmi_spi_v2_write_block(struct rmi_phys_device *phys, u16 addr,
++				  u8 *buf, int len)
++{
++	struct rmi_spi_data *data = phys->data;
++	u8 txbuf[len + 4];
 +	int error;
 +
-+	error = rmi_register_function_driver(&function_handler);
++	txbuf[0] = SPI_V2_WRITE;
++	txbuf[1] = (addr >> 8) & 0x00FF;
++	txbuf[2] = addr & 0x00FF;
++	txbuf[3] = len;
++
++	memcpy(&txbuf[4], buf, len);
++
++	mutex_lock(&data->page_mutex);
++
++	if (RMI_SPI_PAGE(addr) != data->page) {
++		error = data->set_page(phys, RMI_SPI_PAGE(addr));
++		if (error < 0)
++			goto exit;
++	}
++
++	error = rmi_spi_xfer(phys, buf, len + 4, NULL, 0);
++	if (error < 0)
++		goto exit;
++	error = len;
++
++exit:
++	mutex_unlock(&data->page_mutex);
++	return error;
++}
++
++static int rmi_spi_v2_write(struct rmi_phys_device *phys, u16 addr, u8 data)
++{
++	int error = rmi_spi_v2_write_block(phys, addr, &data, 1);
++
++	return (error == 1) ? 0 : error;
++}
++
++static int rmi_spi_v1_write_block(struct rmi_phys_device *phys, u16 addr,
++				  u8 *buf, int len)
++{
++	struct rmi_spi_data *data = phys->data;
++	unsigned char txbuf[len + 2];
++	int error;
++
++	txbuf[0] = (addr >> 8) & ~RMI_V1_READ_FLAG;
++	txbuf[1] = addr;
++	memcpy(txbuf+2, buf, len);
++
++	mutex_lock(&data->page_mutex);
++
++	if (RMI_SPI_PAGE(addr) != data->page) {
++		error = data->set_page(phys, RMI_SPI_PAGE(addr));
++		if (error < 0)
++			goto exit;
++	}
++
++	error = rmi_spi_xfer(phys, txbuf, len + 2, NULL, 0);
++	if (error < 0)
++		goto exit;
++	error = len;
++
++exit:
++	mutex_unlock(&data->page_mutex);
++	return error;
++}
++
++static int rmi_spi_v1_write(struct rmi_phys_device *phys, u16 addr, u8 data)
++{
++	int error = rmi_spi_v1_write_block(phys, addr, &data, 1);
++
++	return (error == 1) ? 0 : error;
++}
++
++static int rmi_spi_v2_split_read_block(struct rmi_phys_device *phys, u16 addr,
++				       u8 *buf, int len)
++{
++	struct rmi_spi_data *data = phys->data;
++	u8 txbuf[4];
++	u8 rxbuf[len + 1]; /* one extra byte for read length */
++	int error;
++
++	txbuf[0] = SPI_V2_PREPARE_SPLIT_READ;
++	txbuf[1] = (addr >> 8) & 0x00FF;
++	txbuf[2] = addr & 0x00ff;
++	txbuf[3] = len;
++
++	mutex_lock(&data->page_mutex);
++
++	if (RMI_SPI_PAGE(addr) != data->page) {
++		error = data->set_page(phys, RMI_SPI_PAGE(addr));
++		if (error < 0)
++			goto exit;
++	}
++
++	data->split_read_pending = true;
++
++	error = rmi_spi_xfer(phys, txbuf, 4, NULL, 0);
 +	if (error < 0) {
-+		pr_err("%s: register failed!\n", __func__);
++		data->split_read_pending = false;
++		goto exit;
++	}
++
++	wait_for_completion(&data->irq_comp);
++
++	txbuf[0] = SPI_V2_EXECUTE_SPLIT_READ;
++	txbuf[1] = 0;
++
++	error = rmi_spi_xfer(phys, txbuf, 2, rxbuf, len + 1);
++	data->split_read_pending = false;
++	if (error < 0)
++		goto exit;
++
++	/* first byte is length */
++	if (rxbuf[0] != len) {
++		error = -EIO;
++		goto exit;
++	}
++
++	memcpy(buf, rxbuf + 1, len);
++	error = len;
++
++exit:
++	mutex_unlock(&data->page_mutex);
++	return error;
++}
++
++static int rmi_spi_v2_read_block(struct rmi_phys_device *phys, u16 addr,
++				 u8 *buf, int len)
++{
++	struct rmi_spi_data *data = phys->data;
++	u8 txbuf[4];
++	int error;
++
++	txbuf[0] = SPI_V2_UNIFIED_READ;
++	txbuf[1] = (addr >> 8) & 0x00FF;
++	txbuf[2] = addr & 0x00ff;
++	txbuf[3] = len;
++
++	mutex_lock(&data->page_mutex);
++
++	if (RMI_SPI_PAGE(addr) != data->page) {
++		error = data->set_page(phys, RMI_SPI_PAGE(addr));
++		if (error < 0)
++			goto exit;
++	}
++
++	error = rmi_spi_xfer(phys, txbuf, 4, buf, len);
++	if (error < 0)
++		goto exit;
++	error = len;
++
++exit:
++	mutex_unlock(&data->page_mutex);
++	return error;
++}
++
++static int rmi_spi_v2_read(struct rmi_phys_device *phys, u16 addr, u8 *buf)
++{
++	int error = rmi_spi_v2_read_block(phys, addr, buf, 1);
++
++	return (error == 1) ? 0 : error;
++}
++
++static int rmi_spi_v1_read_block(struct rmi_phys_device *phys, u16 addr,
++				 u8 *buf, int len)
++{
++	struct rmi_spi_data *data = phys->data;
++	u8 txbuf[2];
++	int error;
++
++	txbuf[0] = (addr >> 8) | RMI_V1_READ_FLAG;
++	txbuf[1] = addr;
++
++	mutex_lock(&data->page_mutex);
++
++	if (RMI_SPI_PAGE(addr) != data->page) {
++		error = data->set_page(phys, RMI_SPI_PAGE(addr));
++		if (error < 0)
++			goto exit;
++	}
++
++	error = rmi_spi_xfer(phys, txbuf, 2, buf, len);
++	if (error < 0)
++		goto exit;
++	error = len;
++
++exit:
++	mutex_unlock(&data->page_mutex);
++	return error;
++}
++
++static int rmi_spi_v1_read(struct rmi_phys_device *phys, u16 addr, u8 *buf)
++{
++	int error = rmi_spi_v1_read_block(phys, addr, buf, 1);
++
++	return (error == 1) ? 0 : error;
++}
++
++#define RMI_SPI_PAGE_SELECT_WRITE_LENGTH 1
++
++static int rmi_spi_v1_set_page(struct rmi_phys_device *phys, u8 page)
++{
++	struct rmi_spi_data *data = phys->data;
++	u8 txbuf[] = {RMI_PAGE_SELECT_REGISTER >> 8,
++		RMI_PAGE_SELECT_REGISTER & 0xFF, page};
++	int error;
++
++	error = rmi_spi_xfer(phys, txbuf, sizeof(txbuf), NULL, 0);
++	if (error < 0) {
++		dev_err(phys->dev, "Failed to set page select, code: %d.\n",
++			error);
 +		return error;
 +	}
++
++	data->page = page;
++
++	return RMI_SPI_PAGE_SELECT_WRITE_LENGTH;
++}
++
++static int rmi_spi_v2_set_page(struct rmi_phys_device *phys, u8 page)
++{
++	struct rmi_spi_data *data = phys->data;
++	u8 txbuf[] = {SPI_V2_WRITE, RMI_PAGE_SELECT_REGISTER >> 8,
++		RMI_PAGE_SELECT_REGISTER & 0xFF,
++		RMI_SPI_PAGE_SELECT_WRITE_LENGTH, page};
++	int error;
++
++	error = rmi_spi_xfer(phys, txbuf, sizeof(txbuf), NULL, 0);
++	if (error < 0) {
++		dev_err(phys->dev, "Failed to set page select, code: %d.\n",
++			error);
++		return error;
++	}
++
++	data->page = page;
++
++	return RMI_SPI_PAGE_SELECT_WRITE_LENGTH;
++}
++
++
++static int acquire_attn_irq(struct rmi_spi_data *data)
++{
++	int retval;
++	struct rmi_phys_device *rmi_phys = data->phys;
++
++	retval = request_threaded_irq(data->irq, rmi_spi_hard_irq,
++				rmi_spi_irq_thread, data->irq_flags,
++				dev_name(rmi_phys->dev), rmi_phys);
++	if (retval < 0) {
++		dev_err(&(rmi_phys->rmi_dev->dev), "request_threaded_irq "
++			"failed, code: %d.\n", retval);
++	}
++	return retval;
++}
++
++static int setup_attn(struct rmi_spi_data *data)
++{
++	int retval;
++	struct rmi_phys_device *rmi_phys = data->phys;
++	struct rmi_device_platform_data *pdata = rmi_phys->dev->platform_data;
++
++	retval = acquire_attn_irq(data);
++	if (retval < 0)
++		return retval;
++
++#if defined(CONFIG_RMI4_DEV)
++	retval = gpio_export(pdata->attn_gpio, false);
++	if (retval) {
++		dev_warn(&(rmi_phys->rmi_dev->dev),
++			 "WARNING: Failed to export ATTN gpio!\n");
++		retval = 0;
++	} else {
++		retval = gpio_export_link(&(rmi_phys->rmi_dev->dev), "attn",
++					pdata->attn_gpio);
++		if (retval) {
++			dev_warn(&(rmi_phys->rmi_dev->dev), "WARNING: "
++				"Failed to symlink ATTN gpio!\n");
++			retval = 0;
++		} else {
++			dev_info(&(rmi_phys->rmi_dev->dev),
++				"%s: Exported GPIO %d.", __func__,
++				pdata->attn_gpio);
++		}
++	}
++#endif /* CONFIG_RMI4_DEV */
++
++	return retval;
++}
++
++static int setup_polling(struct rmi_spi_data *data)
++{
++	INIT_WORK(&data->poll_work, spi_poll_work);
++	hrtimer_init(&data->poll_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++	data->poll_timer.function = spi_poll_timer;
++	hrtimer_start(&data->poll_timer, ktime_set(1, 0), HRTIMER_MODE_REL);
++
 +	return 0;
 +}
 +
-+static void rmi_f30_module_exit(void)
++static int enable_device(struct rmi_phys_device *phys)
 +{
-+	rmi_unregister_function_driver(&function_handler);
++	int retval = 0;
++
++	struct rmi_spi_data *data = phys->data;
++
++	if (data->enabled) {
++		dev_dbg(phys->dev, "Physical device already enabled.\n");
++		return 0;
++	}
++
++	retval = acquire_attn_irq(data);
++	if (retval)
++		goto error_exit;
++
++	data->enabled = true;
++	dev_dbg(phys->dev, "Physical device enabled.\n");
++	return 0;
++
++error_exit:
++	dev_err(phys->dev, "Failed to enable physical device. Code=%d.\n",
++		retval);
++	return retval;
 +}
 +
-+/* sysfs functions */
-+/* Query */
-+simple_show_union_struct_unsigned(query, extended_patterns)
-+simple_show_union_struct_unsigned(query, has_mappable_buttons)
-+simple_show_union_struct_unsigned(query, has_led)
-+simple_show_union_struct_unsigned(query, has_gpio)
-+simple_show_union_struct_unsigned(query, has_haptic)
-+simple_show_union_struct_unsigned(query, has_gpio_driver_control)
-+simple_show_union_struct_unsigned(query, gpio_led_count)
++static void disable_device(struct rmi_phys_device *phys)
++{
++	struct rmi_spi_data *data = phys->data;
 +
-+/* Control */
-+show_store_union_struct_unsigned(control, reg_1, gpio_debounce)
-+show_store_union_struct_unsigned(control, reg_1, halt)
-+show_store_union_struct_unsigned(control, reg_1, halted)
-+show_store_union_struct_unsigned(control, reg_9, haptic_duration)
++	if (!data->enabled) {
++		dev_warn(phys->dev, "Physical device already disabled.\n");
++		return;
++	}
++	disable_irq(data->irq);
++	free_irq(data->irq, data->phys);
 +
-+/* repeated register functions */
-+show_store_repeated_union_struct_unsigned(control, reg_0, led_sel)
-+show_store_repeated_union_struct_unsigned(control, reg_2, dir)
-+show_store_repeated_union_struct_unsigned(control, reg_3, gpiodata)
-+show_store_repeated_union_struct_unsigned(control, reg_4, led_act)
-+show_store_repeated_union_struct_unsigned(control, reg_5, ramp_period_a)
-+show_store_repeated_union_struct_unsigned(control, reg_5, ramp_period_b)
-+show_store_repeated_union_struct_unsigned(control, reg_6, SPCTRL)
-+show_store_repeated_union_struct_unsigned(control, reg_6, STRPD)
-+show_store_repeated_union_struct_unsigned(control, reg_6, STRPU)
-+show_store_repeated_union_struct_unsigned(control, reg_6, brightness)
-+show_store_repeated_union_struct_unsigned(control, reg_6, pattern)
-+show_store_repeated_union_struct_unsigned(control, reg_7, capacity_btn_nbr)
-+show_store_repeated_union_struct_unsigned(control, reg_7, valid)
-+show_store_repeated_union_struct_unsigned(control, reg_7, invert)
-+show_store_repeated_union_struct_unsigned(control, reg_7, open_drain)
-+show_store_repeated_union_struct_unsigned(control, reg_8, gpio_ctrl8_0)
-+show_store_repeated_union_struct_unsigned(control, reg_8, gpio_ctrl8_1)
++	dev_dbg(phys->dev, "Physical device disabled.\n");
++	data->enabled = false;
++}
 +
-+/* Data */
-+show_store_repeated_union_struct_unsigned(data, datareg_0, gpi_led_data)
++#define DUMMY_READ_SLEEP_US 10
 +
-+module_init(rmi_f30_module_init);
-+module_exit(rmi_f30_module_exit);
++static int rmi_spi_check_device(struct rmi_phys_device *rmi_phys)
++{
++	u8 buf[6];
++	int error;
++	int i;
 +
-+MODULE_AUTHOR("Allie Xiong <axiong@Synaptics.com>");
-+MODULE_DESCRIPTION("RMI f30 module");
++	/* Some SPI subsystems return 0 for the very first read you do.  So
++	 * we use this dummy read to get that out of the way.
++	 */
++	error = rmi_spi_v1_read_block(rmi_phys, PDT_START_SCAN_LOCATION,
++				      buf, sizeof(buf));
++	if (error < 0) {
++		dev_err(rmi_phys->dev, "dummy read failed with %d.\n", error);
++		return error;
++	}
++	udelay(DUMMY_READ_SLEEP_US);
++
++	/* Force page select to 0.
++	 */
++	error = rmi_spi_v1_set_page(rmi_phys, 0x00);
++	if (error < 0)
++		return error;
++
++	/* Now read the first PDT entry.  We know where this is, and if the
++	 * RMI4 device is out there, these 6 bytes will be something other
++	 * than all 0x00 or 0xFF.  We need to check for 0x00 and 0xFF,
++	 * because many (maybe all) SPI implementations will return all 0x00
++	 * or all 0xFF on read if the device is not connected.
++	 */
++	error = rmi_spi_v1_read_block(rmi_phys, PDT_START_SCAN_LOCATION,
++				      buf, sizeof(buf));
++	if (error < 0) {
++		dev_err(rmi_phys->dev, "probe read failed with %d.\n", error);
++		return error;
++	}
++	for (i = 0; i < sizeof(buf); i++) {
++		if (buf[i] != 0x00 && buf[i] != 0xFF)
++			return error;
++	}
++
++	dev_err(rmi_phys->dev, "probe read returned invalid block.\n");
++	return -ENODEV;
++}
++
++
++static int __devinit rmi_spi_probe(struct spi_device *spi)
++{
++	struct rmi_phys_device *rmi_phys;
++	struct rmi_spi_data *data;
++	struct rmi_device_platform_data *pdata = spi->dev.platform_data;
++	u8 buf[2];
++	int retval;
++
++	if (!pdata) {
++		dev_err(&spi->dev, "no platform data\n");
++		return -EINVAL;
++	}
++
++	if (spi->master->flags & SPI_MASTER_HALF_DUPLEX)
++		return -EINVAL;
++
++	spi->bits_per_word = 8;
++	spi->mode = SPI_MODE_3;
++	retval = spi_setup(spi);
++	if (retval < 0) {
++		dev_err(&spi->dev, "spi_setup failed!\n");
++		return retval;
++	}
++
++	if (pdata->gpio_config) {
++		retval = pdata->gpio_config(pdata->gpio_data, true);
++		if (retval < 0) {
++			dev_err(&spi->dev, "Failed to setup GPIOs, code: %d.\n",
++				retval);
++			return retval;
++		}
++	}
++
++	rmi_phys = kzalloc(sizeof(struct rmi_phys_device), GFP_KERNEL);
++	if (!rmi_phys)
++		return -ENOMEM;
++
++	data = kzalloc(sizeof(struct rmi_spi_data), GFP_KERNEL);
++	if (!data) {
++		retval = -ENOMEM;
++		goto err_phys;
++	}
++	data->enabled = true;	/* We plan to come up enabled. */
++	data->irq = gpio_to_irq(pdata->attn_gpio);
++	if (pdata->level_triggered) {
++		data->irq_flags = IRQF_ONESHOT |
++			((pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH) ?
++			IRQF_TRIGGER_HIGH : IRQF_TRIGGER_LOW);
++	} else {
++		data->irq_flags =
++			(pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH) ?
++			IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
++	}
++	data->phys = rmi_phys;
++
++	rmi_phys->data = data;
++	rmi_phys->dev = &spi->dev;
++
++	rmi_phys->write = rmi_spi_v1_write;
++	rmi_phys->write_block = rmi_spi_v1_write_block;
++	rmi_phys->read = rmi_spi_v1_read;
++	rmi_phys->read_block = rmi_spi_v1_read_block;
++	rmi_phys->enable_device = enable_device;
++	rmi_phys->disable_device = disable_device;
++	data->set_page = rmi_spi_v1_set_page;
++
++	rmi_phys->info.proto = spi_v1_proto_name;
++
++	mutex_init(&data->page_mutex);
++
++	dev_set_drvdata(&spi->dev, rmi_phys);
++
++	pdata->spi_data.block_delay_us = pdata->spi_data.block_delay_us ?
++			pdata->spi_data.block_delay_us : RMI_SPI_BLOCK_DELAY_US;
++	pdata->spi_data.read_delay_us = pdata->spi_data.read_delay_us ?
++			pdata->spi_data.read_delay_us : RMI_SPI_BYTE_DELAY_US;
++	pdata->spi_data.write_delay_us = pdata->spi_data.write_delay_us ?
++			pdata->spi_data.write_delay_us : RMI_SPI_BYTE_DELAY_US;
++	pdata->spi_data.split_read_block_delay_us =
++			pdata->spi_data.split_read_block_delay_us ?
++			pdata->spi_data.split_read_block_delay_us :
++			RMI_SPI_BLOCK_DELAY_US;
++	pdata->spi_data.split_read_byte_delay_us =
++			pdata->spi_data.split_read_byte_delay_us ?
++			pdata->spi_data.split_read_byte_delay_us :
++			RMI_SPI_BYTE_DELAY_US;
++
++	retval = rmi_spi_check_device(rmi_phys);
++	if (retval < 0)
++		goto err_gpio;
++
++	/* check if this is an SPI v2 device */
++	retval = rmi_spi_v1_read_block(rmi_phys, RMI_PROTOCOL_VERSION_ADDRESS,
++				      buf, 2);
++	if (retval < 0) {
++		dev_err(&spi->dev, "failed to get SPI version number!\n");
++		goto err_gpio;
++	}
++	dev_dbg(&spi->dev, "SPI version is %d", buf[0]);
++
++	if (buf[0] == 1) {
++		/* SPIv2 */
++		rmi_phys->write		= rmi_spi_v2_write;
++		rmi_phys->write_block	= rmi_spi_v2_write_block;
++		rmi_phys->read		= rmi_spi_v2_read;
++		data->set_page		= rmi_spi_v2_set_page;
++
++		rmi_phys->info.proto = spi_v2_proto_name;
++
++		if (pdata->attn_gpio > 0) {
++			init_completion(&data->irq_comp);
++			rmi_phys->read_block = rmi_spi_v2_split_read_block;
++		} else {
++			dev_warn(&spi->dev, "WARNING: SPI V2 detected, but no "
++				"attention GPIO was specified. This is unlikely"
++				" to work well.\n");
++			rmi_phys->read_block = rmi_spi_v2_read_block;
++		}
++	} else if (buf[0] != 0) {
++		dev_err(&spi->dev, "Unrecognized SPI version %d.\n", buf[0]);
++		retval = -ENODEV;
++		goto err_gpio;
++	}
++
++	retval = rmi_register_phys_device(rmi_phys);
++	if (retval) {
++		dev_err(&spi->dev, "failed to register physical driver\n");
++		goto err_gpio;
++	}
++
++	if (pdata->attn_gpio > 0) {
++		retval = setup_attn(data);
++		if (retval < 0)
++			goto err_unregister;
++	} else {
++		retval = setup_polling(data);
++		if (retval < 0)
++			goto err_unregister;
++	}
++
++	dev_info(&spi->dev, "registered RMI SPI driver\n");
++	return 0;
++
++err_unregister:
++	rmi_unregister_phys_device(rmi_phys);
++err_gpio:
++	if (pdata->gpio_config)
++		pdata->gpio_config(pdata->gpio_data, false);
++err_data:
++	kfree(data);
++err_phys:
++	kfree(rmi_phys);
++	return retval;
++}
++
++static int __devexit rmi_spi_remove(struct spi_device *spi)
++{
++	struct rmi_phys_device *phys = dev_get_drvdata(&spi->dev);
++	struct rmi_device_platform_data *pd = spi->dev.platform_data;
++
++	disable_device(phys);
++	rmi_unregister_phys_device(phys);
++	kfree(phys->data);
++	kfree(phys);
++
++	if (pd->gpio_config)
++		pd->gpio_config(pdata->gpio_data, false);
++
++	return 0;
++}
++
++static const struct spi_device_id rmi_id[] = {
++	{ "rmi", 0 },
++	{ "rmi_spi", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(spi, rmi_id);
++
++static struct spi_driver rmi_spi_driver = {
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= "rmi_spi",
++	},
++	.id_table	= rmi_id,
++	.probe		= rmi_spi_probe,
++	.remove		= __devexit_p(rmi_spi_remove),
++};
++
++static int __init rmi_spi_init(void)
++{
++	return spi_register_driver(&rmi_spi_driver);
++}
++
++static void __exit rmi_spi_exit(void)
++{
++	spi_unregister_driver(&rmi_spi_driver);
++}
++
++module_init(rmi_spi_init);
++module_exit(rmi_spi_exit);
++
++MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com>");
++MODULE_DESCRIPTION("RMI SPI driver");
 +MODULE_LICENSE("GPL");
++MODULE_VERSION(RMI_DRIVER_VERSION);

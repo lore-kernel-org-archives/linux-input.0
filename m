@@ -1,79 +1,102 @@
-From: Ben Gamari <bgamari.foss@gmail.com>
-Subject: Re: New Alps protocol in the wild?
-Date: Fri, 17 Aug 2012 13:04:40 -0400
-Message-ID: <87zk5ta1qv.fsf@gmail.com>
-References: <20120814103553.GF23370@arianrhod.panaceas.james.local> <87mx1xxy1y.fsf@gmail.com> <20120814160519.GC12473@artemis.panaceas.org> <87ipckwvp4.fsf@gmail.com> <87sjbnzau7.fsf@gmail.com> <502E756C.4080509@dahetral.com>
+From: Shubhrajyoti <shubhrajyoti@ti.com>
+Subject: Re: [PATCH] input: qt1070: add device tree support
+Date: Fri, 17 Aug 2012 23:56:18 +0530
+Message-ID: <502E8CCA.6090601@ti.com>
+References: <1345197788-32116-1-git-send-email-voice.shen@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f174.google.com ([209.85.220.174]:33948 "EHLO
-	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751938Ab2HQREp (ORCPT
+Received: from na3sys009aog138.obsmtp.com ([74.125.149.19]:58446 "EHLO
+	na3sys009aog138.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758755Ab2HQS0Z (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Aug 2012 13:04:45 -0400
-Received: by vcbfk26 with SMTP id fk26so3096856vcb.19
-        for <linux-input@vger.kernel.org>; Fri, 17 Aug 2012 10:04:44 -0700 (PDT)
-In-Reply-To: <502E756C.4080509@dahetral.com>
+	Fri, 17 Aug 2012 14:26:25 -0400
+Received: by yhr47 with SMTP id 47so5238513yhr.14
+        for <linux-input@vger.kernel.org>; Fri, 17 Aug 2012 11:26:23 -0700 (PDT)
+In-Reply-To: <1345197788-32116-1-git-send-email-voice.shen@atmel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dturvene <dturvene@dahetral.com>, James <james@madingley.org>
-Cc: Ignacio Casal Quinteiro <nacho.resa@gmail.com>, linux-input@vger.kernel.org
+To: Bo Shen <voice.shen@atmel.com>
+Cc: dmitry.torokhov@gmail.com, nicolas.ferre@atmel.com, jm.lin@atmel.com, linux-input@vger.kernel.org
 
-dturvene <dturvene@dahetral.com> writes:
-
-> Ben -
+Hi Bo,
+On Friday 17 August 2012 03:33 PM, Bo Shen wrote:
+> This patch enable the qt1070 device tree support
 >
-> I tried your fix on a Dell Inspiron 15R N5110 (I15R).  It did not work.  
-> Things I noticed:
+> If using device tree, the node of qt1070 looks like
+> i2c@0 {					     // this is an example
+> 	status = "okay";		     // Enable i2c master
+> 	qt1070@1b {
+> 		compatible = "atmel,qt1070"; // FDT device id
+> 		reg = <0x1b>;		     // qt1070 i2c address
+> 		change-gpio = <&pioA 7 1>;   // gpio used as interrupt
+> 	};
+> };
 >
-> 1) Consistent with prior observations, the touchpad E7 signature for it 
-> is: 0x73 0x03 0x50, different than yours on the E6230.
+> Signed-off-by: Bo Shen <voice.shen@atmel.com>
+> ---
+>  drivers/input/keyboard/qt1070.c |   19 ++++++++++++++++---
+>  1 file changed, 16 insertions(+), 3 deletions(-)
 >
-Alright. Good to know.
-
-> 2) Your alps_hw_init_v5 sequence does not work for my I15R.  I noticed 
-> that the sequence enters/exits command mode a couple times. Why not 
-> enter once, do the init and then exit?
->
-Frankly, I didn't put much (honestly, any) time into figuring out the
-meaning behind command sequence. I grabbed a dump from the VM and
-implemented exactly what the Windows driver did. At that point I was
-under the impression I was dealing with an entirely new protocol so it
-didn't make much sense to put time into reasoning out the command
-structure. Given the v3 report format is used I should revisit
-this. I'll hopefully have a chance to do this this weekend. Given you
-seem to recognize the command structure, you could probably do this even
-faster than me. Take a stab at it if you feel so inclined. Pull requests
-accepted.
-
-> 3) When in command mode, the I15R accurately sets and retrieves 
-> registers (e.g. 0x0008 returns 0x00 0x08 0x02).  When not in command 
-> mode, all register reads return -1.  Oddly, the check in 
-> alps_enter_command_mode is 0x73 0x01 rather than 0x88 0x07.
->
-> So I think either I'm doing something wrong or I'm dealing with YAAP 
-> (Yet Another ALPS Protocol).
->
-Hopefully not.
-
-> My question:  how did you get the protocol trace?  I think you said 
-> previously that the drive does some direct register I/O.  I couldn't see 
-> anything beyond PS/2 commands running under Virtual Box.
->
-I used Seth Foreshee's method[1] under Qemu. Note that the Alps driver
-for the E6230 (and, given the behavior you see, likely your machine as
-well) checks for the presence of an entry in the ACPI DSDT (if not
-present, the driver falls back onto generic PS/2 behavior).
-Consequently, you may need to do some editing of the Qemu DSDT as
-pointed out earlier in this thread by James (Message-Id:
-<20120814103553.GF23370@arianrhod.panaceas.james.local>) I'm not
-terribly familiar with ACPI, I'll defer to him to explain precisely how
-he determined the relevant sections.
-
-Cheers,
-
-- Ben
-
-
-[1] http://swapspace.forshee.me/2011/11/touchpad-protocol-reverse-engineering.html
+> diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+> index ca68f29..7d656b5 100644
+> --- a/drivers/input/keyboard/qt1070.c
+> +++ b/drivers/input/keyboard/qt1070.c
+> @@ -33,6 +33,8 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/jiffies.h>
+>  #include <linux/delay.h>
+> +#include <linux/of.h>
+> +#include <linux/of_gpio.h>
+>  
+>  /* Address for each register */
+>  #define CHIP_ID            0x00
+> @@ -155,6 +157,10 @@ static int __devinit qt1070_probe(struct i2c_client *client,
+>  		return -ENODEV;
+>  	}
+>  
+> +	if (client->dev.of_node)
+> +		client->irq = of_get_named_gpio(client->dev.of_node,
+> +				"change-gpio", 0);
+> +
+>  	if (!client->irq) {
+>  		dev_err(&client->dev, "please assign the irq to this device\n");
+>  		return -EINVAL;
+> @@ -200,9 +206,9 @@ static int __devinit qt1070_probe(struct i2c_client *client,
+>  	qt1070_write(client, RESET, 1);
+>  	msleep(QT1070_RESET_TIME);
+>  
+> -	err = request_threaded_irq(client->irq, NULL, qt1070_interrupt,
+> -				   IRQF_TRIGGER_NONE | IRQF_ONESHOT,
+> -				   client->dev.driver->name, data);
+where is the gpio request done?
+Am I missing something?
+> +	err = request_threaded_irq(gpio_to_irq(client->irq), NULL,
+> +			qt1070_interrupt, IRQF_TRIGGER_NONE | IRQF_ONESHOT,
+> +			client->dev.driver->name, data);
+>  	if (err) {
+>  		dev_err(&client->dev, "fail to request irq\n");
+>  		goto err_free_mem;
+> @@ -243,6 +249,12 @@ static int __devexit qt1070_remove(struct i2c_client *client)
+>  	return 0;
+>  }
+>  
+> +static const struct of_device_id atmel_qt1070_of_match[] = {
+> +	{ .compatible = "atmel,qt1070", },
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(of, atmel_qt1070_of_match);
+> +
+>  static const struct i2c_device_id qt1070_id[] = {
+>  	{ "qt1070", 0 },
+>  	{ },
+> @@ -253,6 +265,7 @@ static struct i2c_driver qt1070_driver = {
+>  	.driver	= {
+>  		.name	= "qt1070",
+>  		.owner	= THIS_MODULE,
+> +		.of_match_table = atmel_qt1070_of_match,
+>  	},
+>  	.id_table	= qt1070_id,
+>  	.probe		= qt1070_probe,
 

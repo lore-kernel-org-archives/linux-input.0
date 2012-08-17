@@ -1,93 +1,74 @@
-From: Bo Shen <voice.shen@atmel.com>
-Subject: [PATCH] input: qt1070: add device tree support
-Date: Fri, 17 Aug 2012 18:03:08 +0800
-Message-ID: <1345197788-32116-1-git-send-email-voice.shen@atmel.com>
+From: dturvene <dturvene@dahetral.com>
+Subject: Re: New Alps protocol in the wild?
+Date: Fri, 17 Aug 2012 12:46:36 -0400
+Message-ID: <502E756C.4080509@dahetral.com>
+References: <20120814103553.GF23370@arianrhod.panaceas.james.local> <87mx1xxy1y.fsf@gmail.com> <20120814160519.GC12473@artemis.panaceas.org> <87ipckwvp4.fsf@gmail.com> <87sjbnzau7.fsf@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:42080 "EHLO
-	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755804Ab2HQKiF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Aug 2012 06:38:05 -0400
+Received: from dahetral.com ([128.177.27.153]:39539 "EHLO dahetral.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758509Ab2HQQqo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Aug 2012 12:46:44 -0400
+In-Reply-To: <87sjbnzau7.fsf@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: nicolas.ferre@atmel.com, jm.lin@atmel.com, linux-input@vger.kernel.org, Bo Shen <voice.shen@atmel.com>
+To: Ben Gamari <bgamari.foss@gmail.com>
+Cc: James <james@madingley.org>, Ignacio Casal Quinteiro <nacho.resa@gmail.com>, linux-input@vger.kernel.org
 
-This patch enable the qt1070 device tree support
+On 08/16/2012 01:04 AM, Ben Gamari wrote:
+> Ben Gamari <bgamari.foss@gmail.com> writes:
+>
+> snip
+>> Hopefully I'll find some more time in the next few days to figure out
+>> the last few bits (primarily how multitouch events work). I wouldn't be
+>> sad if someone finished the task for me, however.
+>>
+> Success! As it turns out, the process was actually not so bad. While I
+> wasted much of the night trying to reverse the protocol, I realized that
+> what I had come up with was nearly identical to the version 3
+> documentation.  Trying the version 3 protocol with the device, I found
+> that it was nearly immediately functional. It seems that while the
+> initialization procedure has changed, the position report format is
+> identical to previous generations.
+>
+> My tree[1] currently has a hacked brute-force initialization
+> implementation, although it would probably be nice to figure out what
+> this sequence actually means. Otherwise, it seems support for this device
+> is a solved problem.
+>
+> Feel free to give my tree a try. I'd be interested to know whether it
+> works for you.
+>
+> Cheers,
+>
+> - Ben
+>
+> [1] https://github.com/bgamari/linux/tree/alps
+Ben -
 
-If using device tree, the node of qt1070 looks like
-i2c@0 {					     // this is an example
-	status = "okay";		     // Enable i2c master
-	qt1070@1b {
-		compatible = "atmel,qt1070"; // FDT device id
-		reg = <0x1b>;		     // qt1070 i2c address
-		change-gpio = <&pioA 7 1>;   // gpio used as interrupt
-	};
-};
+I tried your fix on a Dell Inspiron 15R N5110 (I15R).  It did not work.  
+Things I noticed:
 
-Signed-off-by: Bo Shen <voice.shen@atmel.com>
----
- drivers/input/keyboard/qt1070.c |   19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+1) Consistent with prior observations, the touchpad E7 signature for it 
+is: 0x73 0x03 0x50, different than yours on the E6230.
 
-diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
-index ca68f29..7d656b5 100644
---- a/drivers/input/keyboard/qt1070.c
-+++ b/drivers/input/keyboard/qt1070.c
-@@ -33,6 +33,8 @@
- #include <linux/interrupt.h>
- #include <linux/jiffies.h>
- #include <linux/delay.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
- 
- /* Address for each register */
- #define CHIP_ID            0x00
-@@ -155,6 +157,10 @@ static int __devinit qt1070_probe(struct i2c_client *client,
- 		return -ENODEV;
- 	}
- 
-+	if (client->dev.of_node)
-+		client->irq = of_get_named_gpio(client->dev.of_node,
-+				"change-gpio", 0);
-+
- 	if (!client->irq) {
- 		dev_err(&client->dev, "please assign the irq to this device\n");
- 		return -EINVAL;
-@@ -200,9 +206,9 @@ static int __devinit qt1070_probe(struct i2c_client *client,
- 	qt1070_write(client, RESET, 1);
- 	msleep(QT1070_RESET_TIME);
- 
--	err = request_threaded_irq(client->irq, NULL, qt1070_interrupt,
--				   IRQF_TRIGGER_NONE | IRQF_ONESHOT,
--				   client->dev.driver->name, data);
-+	err = request_threaded_irq(gpio_to_irq(client->irq), NULL,
-+			qt1070_interrupt, IRQF_TRIGGER_NONE | IRQF_ONESHOT,
-+			client->dev.driver->name, data);
- 	if (err) {
- 		dev_err(&client->dev, "fail to request irq\n");
- 		goto err_free_mem;
-@@ -243,6 +249,12 @@ static int __devexit qt1070_remove(struct i2c_client *client)
- 	return 0;
- }
- 
-+static const struct of_device_id atmel_qt1070_of_match[] = {
-+	{ .compatible = "atmel,qt1070", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, atmel_qt1070_of_match);
-+
- static const struct i2c_device_id qt1070_id[] = {
- 	{ "qt1070", 0 },
- 	{ },
-@@ -253,6 +265,7 @@ static struct i2c_driver qt1070_driver = {
- 	.driver	= {
- 		.name	= "qt1070",
- 		.owner	= THIS_MODULE,
-+		.of_match_table = atmel_qt1070_of_match,
- 	},
- 	.id_table	= qt1070_id,
- 	.probe		= qt1070_probe,
--- 
-1.7.10
+2) Your alps_hw_init_v5 sequence does not work for my I15R.  I noticed 
+that the sequence enters/exits command mode a couple times. Why not 
+enter once, do the init and then exit?
+
+3) When in command mode, the I15R accurately sets and retrieves 
+registers (e.g. 0x0008 returns 0x00 0x08 0x02).  When not in command 
+mode, all register reads return -1.  Oddly, the check in 
+alps_enter_command_mode is 0x73 0x01 rather than 0x88 0x07.
+
+So I think either I'm doing something wrong or I'm dealing with YAAP 
+(Yet Another ALPS Protocol).
+
+My question:  how did you get the protocol trace?  I think you said 
+previously that the drive does some direct register I/O.  I couldn't see 
+anything beyond PS/2 commands running under Virtual Box.
+
+Dave
 

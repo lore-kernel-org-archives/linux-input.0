@@ -1,21 +1,19 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [RFC PATCH 5/17] input: rmidev character driver for RMI4 sensors
-Date: Fri, 17 Aug 2012 15:17:45 -0700
-Message-ID: <1345241877-16200-6-git-send-email-cheiny@synaptics.com>
+Subject: [RFC PATCH 8/17] input: RMI4 F09 Built-In Self Test
+Date: Fri, 17 Aug 2012 15:17:48 -0700
+Message-ID: <1345241877-16200-9-git-send-email-cheiny@synaptics.com>
 References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from [12.239.217.82] ([12.239.217.82]:28612 "EHLO
 	venom.synaptics.com" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1757196Ab2HQXUu (ORCPT
+	with ESMTP id S1758900Ab2HQXU6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Aug 2012 19:20:50 -0400
+	Fri, 17 Aug 2012 19:20:58 -0400
 In-Reply-To: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
-
-Driver for Synaptics touchscreens using RMI4 protocol.
 
 Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
 
@@ -28,17 +26,17 @@ Acked-by: Jean Delvare <khali@linux-fr.org>
 
 ---
 
- drivers/input/rmi4/rmi_dev.c |  448 ++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 448 insertions(+), 0 deletions(-)
+ drivers/input/rmi4/rmi_f09.c |  772 ++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 772 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_dev.c b/drivers/input/rmi4/rmi_dev.c
+diff --git a/drivers/input/rmi4/rmi_f09.c b/drivers/input/rmi4/rmi_f09.c
 new file mode 100644
-index 0000000..080db55
+index 0000000..ee3058e
 --- /dev/null
-+++ b/drivers/input/rmi4/rmi_dev.c
-@@ -0,0 +1,448 @@
++++ b/drivers/input/rmi4/rmi_f09.c
+@@ -0,0 +1,772 @@
 +/*
-+ * Copyright (c) 2011 Synaptics Incorporated
++ * Copyright (c) 2011, 2012 Synaptics Incorporated
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -54,434 +52,758 @@ index 0000000..080db55
 + * along with this program; if not, write to the Free Software
 + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
-+
-+#include <linux/fs.h>
-+#include <linux/delay.h>
-+#include <linux/uaccess.h>
-+#include <linux/slab.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/syscalls.h>
-+
++#include <linux/kernel.h>
 +#include <linux/rmi.h>
++#include <linux/input.h>
++#include <linux/slab.h>
 +#include "rmi_driver.h"
 +
-+#define CHAR_DEVICE_NAME "rmi"
-+#define DEVICE_CLASS_NAME "rmidev"
++#define QUERY_BASE_INDEX 1
 +
-+#define RMI_CHAR_DEV_TMPBUF_SZ 128
-+#define RMI_REG_ADDR_PAGE_SELECT 0xFF
-+#define REG_ADDR_LIMIT 0xFFFF
-+
-+struct rmidev_data {
-+	/* mutex for file operation*/
-+	struct mutex file_mutex;
-+	/* main char dev structure */
-+	struct cdev main_dev;
-+
-+	/* pointer to the corresponding RMI4 device.  We use this to do */
-+	/* read, write, etc. */
-+	struct rmi_device *rmi_dev;
-+	/* reference count */
-+	int ref_count;
-+
-+	struct class *device_class;
++/* data specific to fn $09 that needs to be kept around */
++struct f09_query {
++	u8 limit_register_count;
++	union {
++		struct {
++			u8 result_register_count:3;
++			u8 reserved:3;
++			u8 internal_limits:1;
++			u8 host_test_enable:1;
++		};
++		u8 f09_bist_query1;
++	};
 +};
 +
-+/*store dynamically allocated major number of char device*/
-+static int rmidev_major_num;
++struct f09_control {
++	union {
++		struct {
++			u8 test1_limit_low:8;
++			u8 test1_limit_high:8;
++			u8 test1_limit_diff:8;
++		};
++		u8 f09_control_test1[3];
++	};
++	union {
++		struct {
++			u8 test2_limit_low:8;
++			u8 test2_limit_high:8;
++			u8 test2_limit_diff:8;
++		};
++		u8 f09_control_test2[3];
++	};
++};
++
++struct f09_data {
++	u8 test_number_control;
++	u8 overall_bist_result;
++	u8 test_result1;
++	u8 test_result2;
++	u8 transmitter_number;
++
++	union {
++		struct {
++			u8 receiver_number:6;
++			u8 limit_failure_code:2;
++		};
++		u8 f09_bist_data2;
++	};
++};
++
++struct f09_cmd {
++	union {
++		struct {
++			u8 run_bist:1;
++		};
++		u8 f09_bist_cmd0;
++	};
++};
++
++struct rmi_fn_09_data {
++	struct f09_query query;
++	struct f09_data data;
++	struct f09_cmd cmd;
++	struct f09_control control;
++	signed char status;
++};
 +
 +
-+static struct class *rmidev_device_class;
++static ssize_t rmi_f09_status_show(struct device *dev,
++				     struct device_attribute *attr, char *buf);
++
++static ssize_t rmi_f09_status_store(struct device *dev,
++				struct device_attribute *attr,
++				const char *buf, size_t count);
++
++static ssize_t rmi_f09_limit_register_count_show(struct device *dev,
++				struct device_attribute *attr, char *buf);
++
++static ssize_t rmi_f09_host_test_enable_show(struct device *dev,
++				struct device_attribute *attr, char *buf);
++
++static ssize_t rmi_f09_host_test_enable_store(struct device *dev,
++					  struct device_attribute *attr,
++					  const char *buf, size_t count);
++
++static ssize_t rmi_f09_internal_limits_show(struct device *dev,
++				struct device_attribute *attr, char *buf);
++
++static ssize_t rmi_f09_result_register_count_show(struct device *dev,
++				struct device_attribute *attr, char *buf);
++
++static ssize_t rmi_f09_overall_bist_result_show(struct device *dev,
++				      struct device_attribute *attr, char *buf);
++
++static ssize_t rmi_f09_test_number_control_show(struct device *dev,
++				      struct device_attribute *attr, char *buf);
++
++static ssize_t rmi_f09_test_number_control_store(struct device *dev,
++				      struct device_attribute *attr,
++					const char *buf, size_t count);
++
++static ssize_t rmi_f09_run_bist_show(struct device *dev,
++				      struct device_attribute *attr, char *buf);
++
++static ssize_t rmi_f09_run_bist_store(struct device *dev,
++				      struct device_attribute *attr,
++					const char *buf, size_t count);
++
++static ssize_t rmi_f09_test_result1_show(struct device *dev,
++				      struct device_attribute *attr, char *buf);
++
++static ssize_t rmi_f09_test_result2_show(struct device *dev,
++				      struct device_attribute *attr, char *buf);
++
++static ssize_t rmi_f09_control_test1_show(struct device *dev,
++				      struct device_attribute *attr, char *buf);
++
++static ssize_t rmi_f09_control_test1_store(struct device *dev,
++				      struct device_attribute *attr,
++					const char *buf, size_t count);
++
++static ssize_t rmi_f09_control_test2_show(struct device *dev,
++				      struct device_attribute *attr, char *buf);
++
++static ssize_t rmi_f09_control_test2_store(struct device *dev,
++				      struct device_attribute *attr,
++					const char *buf, size_t count);
++
++static int rmi_f09_alloc_memory(struct rmi_function_container *fc);
++
++static void rmi_f09_free_memory(struct rmi_function_container *fc);
++
++static int rmi_f09_initialize(struct rmi_function_container *fc);
++
++static int rmi_f09_config(struct rmi_function_container *fc);
++
++static int rmi_f09_reset(struct rmi_function_container *fc);
++
++static int rmi_f09_create_sysfs(struct rmi_function_container *fc);
 +
 +
-+/* file operations for RMI char device */
++static struct device_attribute attrs[] = {
++	__ATTR(status, RMI_RW_ATTR,
++		   rmi_f09_status_show, rmi_f09_status_store),
++	__ATTR(limitRegisterCount, RMI_RO_ATTR,
++	       rmi_f09_limit_register_count_show, rmi_store_error),
++	__ATTR(hostTestEnable, RMI_RW_ATTR,
++	       rmi_f09_host_test_enable_show, rmi_f09_host_test_enable_store),
++	__ATTR(internalLimits, RMI_RO_ATTR,
++	       rmi_f09_internal_limits_show, rmi_store_error),
++	__ATTR(resultRegisterCount, RMI_RO_ATTR,
++	       rmi_f09_result_register_count_show, rmi_store_error),
++	__ATTR(overall_bist_result, RMI_RO_ATTR,
++	       rmi_f09_overall_bist_result_show, rmi_store_error),
++	__ATTR(test_number_control, RMI_RW_ATTR,
++	       rmi_f09_test_number_control_show,
++	       rmi_f09_test_number_control_store),
++	__ATTR(test_result1, RMI_RO_ATTR,
++	       rmi_f09_test_result1_show, rmi_store_error),
++	__ATTR(test_result2, RMI_RO_ATTR,
++	       rmi_f09_test_result2_show, rmi_store_error),
++	__ATTR(run_bist, RMI_RW_ATTR,
++	       rmi_f09_run_bist_show, rmi_f09_run_bist_store),
++	__ATTR(f09_control_test1, RMI_RW_ATTR,
++	       rmi_f09_control_test1_show, rmi_f09_control_test1_store),
++	__ATTR(f09_control_test2, RMI_RW_ATTR,
++	       rmi_f09_control_test2_show, rmi_f09_control_test2_store),
++};
 +
-+/*
-+ * rmidev_llseek: - use to setup register address
-+ *
-+ * @filp: file structure for seek
-+ * @off: offset
-+ *       if whence == SEEK_SET,
-+ *       high 16 bits: page address
-+ *       low 16 bits: register address
-+ *
-+ *       if whence == SEEK_CUR,
-+ *       offset from current position
-+ *
-+ *       if whence == SEEK_END,
-+ *       offset from END(0xFFFF)
-+ *
-+ * @whence: SEEK_SET , SEEK_CUR or SEEK_END
-+ */
-+static loff_t rmidev_llseek(struct file *filp, loff_t off, int whence)
++static int rmi_f09_init(struct rmi_function_container *fc)
 +{
-+	loff_t newpos;
-+	struct rmidev_data *data = filp->private_data;
++	int rc;
 +
-+	if (IS_ERR(data)) {
-+		pr_err("%s: pointer of char device is invalid", __func__);
-+		return -EBADF;
-+	}
++	dev_info(&fc->dev, "Intializing F09 values.");
 +
-+	mutex_lock(&(data->file_mutex));
++	rc = rmi_f09_alloc_memory(fc);
++	if (rc < 0)
++		goto error_exit;
 +
-+	switch (whence) {
-+	case SEEK_SET:
-+		newpos = off;
-+		break;
++	rc = rmi_f09_initialize(fc);
++	if (rc < 0)
++		goto error_exit;
 +
-+	case SEEK_CUR:
-+		newpos = filp->f_pos + off;
-+		break;
-+
-+	case SEEK_END:
-+		newpos = REG_ADDR_LIMIT + off;
-+		break;
-+
-+	default:		/* can't happen */
-+		newpos = -EINVAL;
-+		goto clean_up;
-+	}
-+
-+	if (newpos < 0 || newpos > REG_ADDR_LIMIT) {
-+		dev_err(&data->rmi_dev->dev, "newpos 0x%04x is invalid.\n",
-+			(unsigned int)newpos);
-+		newpos = -EINVAL;
-+		goto clean_up;
-+	}
-+
-+	filp->f_pos = newpos;
-+
-+clean_up:
-+	mutex_unlock(&(data->file_mutex));
-+	return newpos;
-+}
-+
-+/*
-+ *  rmidev_read: - use to read data from RMI stream
-+ *
-+ *  @filp: file structure for read
-+ *  @buf: user-level buffer pointer
-+ *
-+ *  @count: number of byte read
-+ *  @f_pos: offset (starting register address)
-+ *
-+ *	@return number of bytes read into user buffer (buf) if succeeds
-+ *          negative number if error occurs.
-+ */
-+static ssize_t rmidev_read(struct file *filp, char __user *buf,
-+		size_t count, loff_t *f_pos)
-+{
-+	struct rmidev_data *data = filp->private_data;
-+	ssize_t retval  = 0;
-+	unsigned char tmpbuf[count+1];
-+
-+	/* limit offset to REG_ADDR_LIMIT-1 */
-+	if (count > (REG_ADDR_LIMIT - *f_pos))
-+		count = REG_ADDR_LIMIT - *f_pos;
-+
-+	if (count == 0)
-+		return 0;
-+
-+	if (IS_ERR(data)) {
-+		pr_err("%s: pointer of char device is invalid", __func__);
-+		return -EBADF;
-+	}
-+
-+	mutex_lock(&(data->file_mutex));
-+
-+	retval = rmi_read_block(data->rmi_dev, *f_pos, tmpbuf, count);
-+
-+	if (retval < 0)
-+		goto clean_up;
-+
-+	if (copy_to_user(buf, tmpbuf, count))
-+		retval = -EFAULT;
-+	else
-+		*f_pos += retval;
-+
-+clean_up:
-+
-+	mutex_unlock(&(data->file_mutex));
-+
-+	return retval;
-+}
-+
-+/*
-+ * rmidev_write: - use to write data into RMI stream
-+ *
-+ * @filep : file structure for write
-+ * @buf: user-level buffer pointer contains data to be written
-+ * @count: number of byte be be written
-+ * @f_pos: offset (starting register address)
-+ *
-+ * @return number of bytes written from user buffer (buf) if succeeds
-+ *         negative number if error occurs.
-+ */
-+static ssize_t rmidev_write(struct file *filp, const char __user *buf,
-+		size_t count, loff_t *f_pos)
-+{
-+	struct rmidev_data *data = filp->private_data;
-+	ssize_t retval  = 0;
-+	unsigned char tmpbuf[count+1];
-+
-+	/* limit offset to REG_ADDR_LIMIT-1 */
-+	if (count > (REG_ADDR_LIMIT - *f_pos))
-+		count = REG_ADDR_LIMIT - *f_pos;
-+
-+	if (count == 0)
-+		return 0;
-+
-+	if (IS_ERR(data)) {
-+		pr_err("%s: pointer of char device is invalid", __func__);
-+		return -EBADF;
-+	}
-+
-+	if (copy_from_user(tmpbuf, buf, count))
-+		return -EFAULT;
-+
-+	mutex_lock(&(data->file_mutex));
-+
-+	retval = rmi_write_block(data->rmi_dev, *f_pos, tmpbuf, count);
-+
-+	if (retval >= 0)
-+		*f_pos += count;
-+
-+	mutex_unlock(&(data->file_mutex));
-+
-+	return retval;
-+}
-+
-+/*
-+ * rmidev_open: - get a new handle for from RMI stream
-+ * @inp : inode struture
-+ * @filp: file structure for read/write
-+ *
-+ * @return 0 if succeeds
-+ */
-+static int rmidev_open(struct inode *inp, struct file *filp)
-+{
-+	struct rmidev_data *data = container_of(inp->i_cdev,
-+			struct rmidev_data, main_dev);
-+	int retval = 0;
-+
-+	filp->private_data = data;
-+
-+	if (!data->rmi_dev)
-+		return -EACCES;
-+
-+	mutex_lock(&(data->file_mutex));
-+	if (data->ref_count < 1)
-+		data->ref_count++;
-+	else
-+		retval = -EACCES;
-+
-+	mutex_unlock(&(data->file_mutex));
-+
-+	return retval;
-+}
-+
-+/*
-+ *  rmidev_release: - release an existing handle
-+ *  @inp: inode structure
-+ *  @filp: file structure for read/write
-+ *
-+ *  @return 0 if succeeds
-+ */
-+static int rmidev_release(struct inode *inp, struct file *filp)
-+{
-+	struct rmidev_data *data = container_of(inp->i_cdev,
-+			struct rmidev_data, main_dev);
-+
-+	if (!data->rmi_dev)
-+		return -EACCES;
-+
-+	mutex_lock(&(data->file_mutex));
-+
-+	data->ref_count--;
-+	if (data->ref_count < 0)
-+		data->ref_count = 0;
-+
-+	mutex_unlock(&(data->file_mutex));
++	rc = rmi_f09_create_sysfs(fc);
++	if (rc < 0)
++		goto error_exit;
 +
 +	return 0;
++
++error_exit:
++	rmi_f09_free_memory(fc);
++
++	return rc;
 +}
 +
-+static const struct file_operations rmidev_fops = {
-+	.owner =    THIS_MODULE,
-+	.llseek =   rmidev_llseek,
-+	.read =     rmidev_read,
-+	.write =    rmidev_write,
-+	.open =     rmidev_open,
-+	.release =  rmidev_release,
-+};
-+
-+/*
-+ * rmidev_device_cleanup - release memory or unregister driver
-+ * @rmidev_data: instance data for a particular device.
-+ *
-+ */
-+static void rmidev_device_cleanup(struct rmidev_data *data)
++static int rmi_f09_alloc_memory(struct rmi_function_container *fc)
 +{
-+	dev_t devno;
++	struct rmi_fn_09_data *f09;
 +
-+	/* Get rid of our char dev entries */
-+	if (data) {
-+		devno = data->main_dev.dev;
-+
-+		if (data->device_class)
-+			device_destroy(data->device_class, devno);
-+
-+		cdev_del(&data->main_dev);
-+		kfree(data);
-+
-+		/* cleanup_module is never called if registering failed */
-+		unregister_chrdev_region(devno, 1);
-+		pr_debug("%s: rmidev device is removed\n", __func__);
-+	}
-+}
-+
-+/*
-+ * rmi_char_devnode - return device permission
-+ *
-+ * @dev: char device structure
-+ * @mode: file permission
-+ *
-+ */
-+static char *rmi_char_devnode(struct device *dev, mode_t *mode)
-+{
-+	if (!mode)
-+		return NULL;
-+	/**mode = 0666*/
-+	*mode = (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
-+
-+	return kasprintf(GFP_KERNEL, "rmi/%s", dev_name(dev));
-+}
-+
-+static int rmidev_init_device(struct rmi_char_device *cd)
-+{
-+	struct rmi_device *rmi_dev = cd->rmi_dev;
-+	struct rmidev_data *data;
-+	dev_t dev_no;
-+	int retval;
-+	struct device *device_ptr;
-+
-+	if (rmidev_major_num) {
-+		dev_no = MKDEV(rmidev_major_num, cd->rmi_dev->number);
-+		retval = register_chrdev_region(dev_no, 1, CHAR_DEVICE_NAME);
-+	} else {
-+		retval = alloc_chrdev_region(&dev_no, 0, 1, CHAR_DEVICE_NAME);
-+		/* let kernel allocate a major for us */
-+		rmidev_major_num = MAJOR(dev_no);
-+		dev_info(&rmi_dev->dev, "Major number of rmidev: %d\n",
-+				 rmidev_major_num);
-+	}
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev,
-+			"Failed to get minor dev number %d, code %d.\n",
-+			cd->rmi_dev->number, retval);
-+		return retval;
-+	} else
-+		dev_info(&rmi_dev->dev, "Allocated rmidev %d %d.\n",
-+			 MAJOR(dev_no), MINOR(dev_no));
-+
-+	data = kzalloc(sizeof(struct rmidev_data), GFP_KERNEL);
-+	if (!data) {
-+		dev_err(&rmi_dev->dev, "Failed to allocate rmidev_data.\n");
-+		/* unregister the char device region */
-+		__unregister_chrdev(rmidev_major_num, MINOR(dev_no), 1,
-+				CHAR_DEVICE_NAME);
++	f09 = kzalloc(sizeof(struct rmi_fn_09_data), GFP_KERNEL);
++	if (!f09) {
++		dev_err(&fc->dev, "Failed to allocate rmi_fn_09_data.\n");
 +		return -ENOMEM;
 +	}
++	fc->data = f09;
 +
-+	mutex_init(&data->file_mutex);
++	return 0;
++}
 +
-+	data->rmi_dev = cd->rmi_dev;
-+	cd->data = data;
++static void rmi_f09_free_memory(struct rmi_function_container *fc)
++{
++	kfree(fc->data);
++	fc->data = NULL;
++}
 +
-+	cdev_init(&data->main_dev, &rmidev_fops);
++static int rmi_f09_initialize(struct rmi_function_container *fc)
++{
++	struct rmi_device *rmi_dev = fc->rmi_dev;
++	struct rmi_device_platform_data *pdata;
++	struct rmi_fn_09_data *f09 = fc->data;
++	u16 query_base_addr;
++	int rc;
 +
-+	retval = cdev_add(&data->main_dev, dev_no, 1);
-+	if (retval) {
-+		dev_err(&cd->rmi_dev->dev, "Error %d adding rmi_char_dev.\n",
-+			retval);
-+		rmidev_device_cleanup(data);
-+		return retval;
-+	}
 +
-+	dev_set_name(&cd->dev, "rmidev%d", MINOR(dev_no));
-+	data->device_class = rmidev_device_class;
-+	device_ptr = device_create(
-+			data->device_class,
-+			NULL, dev_no, NULL,
-+			CHAR_DEVICE_NAME"%d",
-+			MINOR(dev_no));
++	pdata = to_rmi_platform_data(rmi_dev);
++	query_base_addr = fc->fd.query_base_addr;
 +
-+	if (IS_ERR(device_ptr)) {
-+		dev_err(&cd->rmi_dev->dev, "Failed to create rmi device.\n");
-+		rmidev_device_cleanup(data);
-+		return -ENODEV;
++	/* initial all default values for f09 query here */
++	rc = rmi_read_block(rmi_dev, query_base_addr,
++		(u8 *)&f09->query, sizeof(f09->query));
++	if (rc < 0) {
++		dev_err(&fc->dev, "Failed to read query register."
++			" from 0x%04x\n", query_base_addr);
++		return rc;
 +	}
 +
 +	return 0;
 +}
 +
-+static void rmidev_remove_device(struct rmi_char_device *cd)
++static int rmi_f09_create_sysfs(struct rmi_function_container *fc)
 +{
-+	struct rmidev_data *data;
++	int attr_count = 0;
++	int rc;
 +
-+	dev_dbg(&cd->dev, "%s: removing an rmidev device.\n", __func__);
-+	if (!cd)
-+		return;
++	dev_dbg(&fc->dev, "Creating sysfs files.");
++	/* Set up sysfs device attributes. */
++	for (attr_count = 0; attr_count < ARRAY_SIZE(attrs); attr_count++) {
++		if (sysfs_create_file
++		    (&fc->dev.kobj, &attrs[attr_count].attr) < 0) {
++			dev_err(&fc->dev, "Failed to create sysfs file for %s.",
++			     attrs[attr_count].attr.name);
++			rc = -ENODEV;
++			goto err_remove_sysfs;
++		}
++	}
 +
-+	data = cd->data;
-+	if (data)
-+		rmidev_device_cleanup(data);
++	return 0;
++
++err_remove_sysfs:
++	for (attr_count--; attr_count >= 0; attr_count--)
++		sysfs_remove_file(&fc->dev.kobj,
++				  &attrs[attr_count].attr);
++
++	return rc;
 +}
 +
-+static struct rmi_char_driver rmidev_driver = {
-+	.driver = {
-+		.name = "rmidev",
-+		.owner = THIS_MODULE,
-+	},
++static int rmi_f09_config(struct rmi_function_container *fc)
++{
++	/*we do nothing here. instead reset should notify the user.*/
++	return 0;
++}
 +
-+	.init = rmidev_init_device,
-+	.remove = rmidev_remove_device,
++static int rmi_f09_reset(struct rmi_function_container *fc)
++{
++	struct  rmi_fn_09_data  *instance_data = fc->data;
++
++	instance_data->status = -ECONNRESET;
++
++	return 0;
++}
++
++static void rmi_f09_remove(struct rmi_function_container *fc)
++{
++	int attr_count;
++
++	for (attr_count = 0; attr_count < ARRAY_SIZE(attrs); attr_count++)
++		sysfs_remove_file(&fc->dev.kobj,
++				  &attrs[attr_count].attr);
++
++	rmi_f09_free_memory(fc);
++}
++
++static int rmi_f09_attention(struct rmi_function_container *fc, u8 *irq_bits)
++{
++	struct rmi_device *rmi_dev = fc->rmi_dev;
++	struct rmi_fn_09_data *data = fc->data;
++	int error;
++	error = rmi_read_block(rmi_dev, fc->fd.command_base_addr,
++			(u8 *)&data->cmd, sizeof(data->cmd));
++
++	if (error < 0) {
++		dev_err(&fc->dev, "Failed to read command register.\n");
++		return error;
++	}
++	/* If the command register is cleared, meaning the value is 0 */
++	if (data->status == ECONNRESET) {
++		dev_warn(&rmi_dev->dev, "RESET occured: %#04x.\n",
++			data->status);
++	} else if (data->cmd.run_bist) {
++		dev_warn(&rmi_dev->dev,
++			"Command register not cleared: %#04x.\n",
++			data->cmd.run_bist);
++	}
++	return 0;
++}
++
++static struct rmi_function_handler function_handler = {
++	.func = 0x09,
++	.init = rmi_f09_init,
++	.config = rmi_f09_config,
++	.attention = rmi_f09_attention,
++	.reset = rmi_f09_reset,
++	.remove = rmi_f09_remove
 +};
 +
-+static int __init rmidev_init(void)
++static int __init rmi_f09_module_init(void)
 +{
-+	int error = 0;
-+	pr_debug("%s: rmi_dev initialization.\n", __func__);
++	int error;
 +
-+	/* create device node */
-+	rmidev_device_class = class_create(THIS_MODULE, DEVICE_CLASS_NAME);
-+
-+	if (IS_ERR(rmidev_device_class)) {
-+		pr_err("%s: ERROR - Failed to create /dev/%s.\n", __func__,
-+			CHAR_DEVICE_NAME);
-+		return -ENODEV;
++	error = rmi_register_function_driver(&function_handler);
++	if (error < 0) {
++		pr_err("%s: register failed!\n", __func__);
++		return error;
 +	}
-+	/* setup permission */
-+	rmidev_device_class->devnode = rmi_char_devnode;
 +
-+	error = rmi_register_character_driver(&rmidev_driver);
-+	if (error)
-+		class_destroy(rmidev_device_class);
-+	return error;
++	return 0;
 +}
 +
-+static void __exit rmidev_exit(void)
++static void rmi_f09_module_exit(void)
 +{
-+	pr_debug("%s: exiting.\n", __func__);
-+	rmi_unregister_character_driver(&rmidev_driver);
-+	class_destroy(rmidev_device_class);
++	rmi_unregister_function_driver(&function_handler);
 +}
 +
-+module_init(rmidev_init);
-+module_exit(rmidev_exit);
++static ssize_t rmi_f09_status_show(struct device *dev,
++				struct device_attribute *attr,
++				char *buf)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *instance_data;
 +
-+MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com>");
-+MODULE_DESCRIPTION("RMI4 Char Device");
++	fc = to_rmi_function_container(dev);
++	instance_data = fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "%d\n", instance_data->status);
++}
++
++static ssize_t rmi_f09_status_store(struct device *dev,
++				struct device_attribute *attr,
++				const char *buf, size_t count)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *instance_data;
++
++	fc = to_rmi_function_container(dev);
++	instance_data = fc->data;
++
++	/* any write to status resets 1 */
++	instance_data->status = 0;
++
++	return 0;
++}
++
++static ssize_t rmi_f09_limit_register_count_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	return snprintf(buf, PAGE_SIZE, "%u\n",
++			data->query.limit_register_count);
++}
++
++static ssize_t rmi_f09_host_test_enable_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	return snprintf(buf, PAGE_SIZE, "%u\n",
++			data->query.host_test_enable);
++}
++
++static ssize_t rmi_f09_host_test_enable_store(struct device *dev,
++					  struct device_attribute *attr,
++					  const char *buf, size_t count)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++	unsigned int new_value;
++	int result;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	if (sscanf(buf, "%u", &new_value) != 1) {
++		dev_err(dev,
++			"%s: Error - hostTestEnable has an invalid length.\n",
++			__func__);
++		return -EINVAL;
++	}
++
++	if (new_value < 0 || new_value > 1) {
++		dev_err(dev, "%s: Invalid hostTestEnable bit %s.",
++			__func__, buf);
++		return -EINVAL;
++	}
++	data->query.host_test_enable = new_value;
++	result = rmi_write(fc->rmi_dev, fc->fd.query_base_addr,
++		data->query.host_test_enable);
++	if (result < 0) {
++		dev_err(dev, "%s: Could not write hostTestEnable to 0x%x\n",
++				__func__, fc->fd.query_base_addr);
++		return result;
++	}
++
++	return count;
++
++}
++
++static ssize_t rmi_f09_internal_limits_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	return snprintf(buf, PAGE_SIZE, "%u\n",
++			data->query.internal_limits);
++}
++
++static ssize_t rmi_f09_result_register_count_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	return snprintf(buf, PAGE_SIZE, "%u\n",
++			data->query.result_register_count);
++}
++
++static ssize_t rmi_f09_overall_bist_result_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	return snprintf(buf, PAGE_SIZE, "%u\n",
++			data->data.overall_bist_result);
++}
++
++static ssize_t rmi_f09_test_result1_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	return snprintf(buf, PAGE_SIZE, "%u\n",
++			data->data.test_result1);
++}
++
++static ssize_t rmi_f09_test_result2_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	return snprintf(buf, PAGE_SIZE, "%u\n",
++			data->data.test_result2);
++}
++
++static ssize_t rmi_f09_run_bist_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	return snprintf(buf, PAGE_SIZE, "%u\n",
++			data->cmd.run_bist);
++}
++
++static ssize_t rmi_f09_run_bist_store(struct device *dev,
++				      struct device_attribute *attr,
++					const char *buf, size_t count)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++	unsigned int new_value;
++	int result;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	if (sscanf(buf, "%u", &new_value) != 1) {
++		dev_err(dev,
++		"%s: Error - run_bist_store has an "
++		"invalid len.\n",
++		__func__);
++		return -EINVAL;
++	}
++
++	if (new_value < 0 || new_value > 1) {
++		dev_err(dev, "%s: Invalid run_bist bit %s.", __func__, buf);
++		return -EINVAL;
++	}
++	data->cmd.run_bist = new_value;
++	result = rmi_write(fc->rmi_dev, fc->fd.command_base_addr,
++		data->cmd.run_bist);
++	if (result < 0) {
++		dev_err(dev, "%s : Could not write run_bist_store to 0x%x\n",
++				__func__, fc->fd.command_base_addr);
++		return result;
++	}
++
++	return count;
++
++}
++
++static ssize_t rmi_f09_control_test1_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	return snprintf(buf, PAGE_SIZE, "%u %u %u\n",
++			data->control.test1_limit_low,
++			data->control.test1_limit_high,
++			data->control.test1_limit_diff);
++}
++
++static ssize_t rmi_f09_control_test1_store(struct device *dev,
++				      struct device_attribute *attr,
++					const char *buf, size_t count)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++	unsigned int new_low, new_high, new_diff;
++	int result;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	if (sscanf(buf, "%u %u %u", &new_low, &new_high, &new_diff) != 3) {
++		dev_err(dev,
++		"%s: Error - f09_control_test1_store has an "
++		"invalid len.\n",
++		__func__);
++		return -EINVAL;
++	}
++
++	if (new_low < 0 || new_low > 1 || new_high < 0 || new_high
++			|| new_diff < 0 || new_diff) {
++		dev_err(dev, "%s: Invalid f09_control_test1_diff bit %s.",
++			__func__, buf);
++		return -EINVAL;
++	}
++	data->control.test1_limit_low = new_low;
++	data->control.test1_limit_high = new_high;
++	data->control.test1_limit_diff = new_diff;
++	result = rmi_write(fc->rmi_dev, fc->fd.control_base_addr,
++		data->control.test1_limit_low);
++	if (result < 0) {
++		dev_err(dev, "%s : Could not write f09_control_test1_limit_low to 0x%x\n",
++				__func__, fc->fd.control_base_addr);
++		return result;
++	}
++
++	result = rmi_write(fc->rmi_dev, fc->fd.control_base_addr,
++		data->control.test1_limit_high);
++	if (result < 0) {
++		dev_err(dev, "%s : Could not write f09_control_test1_limit_high to 0x%x\n",
++				__func__, fc->fd.control_base_addr);
++		return result;
++	}
++
++	result = rmi_write(fc->rmi_dev, fc->fd.control_base_addr,
++		data->control.test1_limit_diff);
++	if (result < 0) {
++		dev_err(dev, "%s : Could not write f09_control_test1_limit_diff to 0x%x\n",
++				__func__, fc->fd.control_base_addr);
++		return result;
++	}
++
++	return count;
++
++}
++
++static ssize_t rmi_f09_control_test2_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	return snprintf(buf, PAGE_SIZE, "%u %u %u\n",
++			data->control.test2_limit_low,
++			data->control.test2_limit_high,
++			data->control.test2_limit_diff);
++}
++
++static ssize_t rmi_f09_control_test2_store(struct device *dev,
++				      struct device_attribute *attr,
++					const char *buf, size_t count)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++	unsigned int new_low, new_high, new_diff;
++	int result;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	if (sscanf(buf, "%u %u %u", &new_low, &new_high, &new_diff) != 3) {
++		dev_err(dev,
++		"%s: Error - f09_control_test1_store has an "
++		"invalid len.\n",
++		__func__);
++		return -EINVAL;
++	}
++
++	if (new_low < 0 || new_low > 1 || new_high < 0 || new_high > 1 ||
++			new_diff < 0 || new_diff > 1) {
++		dev_err(dev, "%s: Invalid f09_control_test2_diff bit %s.",
++			__func__, buf);
++		return -EINVAL;
++	}
++	data->control.test2_limit_low = new_low;
++	data->control.test2_limit_high = new_high;
++	data->control.test2_limit_diff = new_diff;
++	result = rmi_write(fc->rmi_dev, fc->fd.control_base_addr,
++		data->control.test2_limit_low);
++	if (result < 0) {
++		dev_err(dev, "%s : Could not write f09_control_test2_limit_low to 0x%x\n",
++				__func__, fc->fd.control_base_addr);
++		return result;
++	}
++
++	result = rmi_write(fc->rmi_dev, fc->fd.control_base_addr,
++		data->control.test2_limit_high);
++	if (result < 0) {
++		dev_err(dev, "%s : Could not write f09_control_test2_limit_high to 0x%x\n",
++				__func__, fc->fd.control_base_addr);
++		return result;
++	}
++
++	result = rmi_write(fc->rmi_dev, fc->fd.control_base_addr,
++		data->control.test2_limit_diff);
++	if (result < 0) {
++		dev_err(dev, "%s : Could not write f09_control_test2_limit_diff to 0x%x\n",
++				__func__, fc->fd.control_base_addr);
++		return result;
++	}
++
++	return count;
++
++}
++
++
++static ssize_t rmi_f09_test_number_control_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	return snprintf(buf, PAGE_SIZE, "%u\n",
++			data->data.test_number_control);
++}
++
++static ssize_t rmi_f09_test_number_control_store(struct device *dev,
++				      struct device_attribute *attr,
++					const char *buf, size_t count)
++{
++	struct rmi_function_container *fc;
++	struct rmi_fn_09_data *data;
++	unsigned int new_value;
++	int result;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	if (sscanf(buf, "%u", &new_value) != 1) {
++		dev_err(dev,
++		"%s: Error - test_number_control_store has an "
++		"invalid len.\n",
++		__func__);
++		return -EINVAL;
++	}
++
++	if (new_value < 0 || new_value > 1) {
++		dev_err(dev, "%s: Invalid test_number_control bit %s.",
++			__func__, buf);
++		return -EINVAL;
++	}
++	data->data.test_number_control = new_value;
++	result = rmi_write(fc->rmi_dev, fc->fd.control_base_addr,
++		data->data.test_number_control);
++	if (result < 0) {
++		dev_err(dev, "%s : Could not write "
++				"test_number_control_store to 0x%x\n",
++				__func__, fc->fd.data_base_addr);
++		return result;
++	}
++
++	return count;
++}
++
++module_init(rmi_f09_module_init);
++module_exit(rmi_f09_module_exit);
++
++MODULE_AUTHOR("Allie Xiong <axiong@Synaptics.com>");
++MODULE_DESCRIPTION("RMI F09 module");
 +MODULE_LICENSE("GPL");
++MODULE_VERSION(RMI_DRIVER_VERSION);

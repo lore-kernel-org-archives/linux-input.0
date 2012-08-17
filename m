@@ -1,14 +1,14 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [RFC PATCH 4/17] input: RMI4 configs and makefiles
-Date: Fri, 17 Aug 2012 15:17:44 -0700
-Message-ID: <1345241877-16200-5-git-send-email-cheiny@synaptics.com>
+Subject: [RFC PATCH 10/17] input: RM4 F17 Pointing sticks
+Date: Fri, 17 Aug 2012 15:17:50 -0700
+Message-ID: <1345241877-16200-11-git-send-email-cheiny@synaptics.com>
 References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from [12.239.217.82] ([12.239.217.82]:28612 "EHLO
 	venom.synaptics.com" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756906Ab2HQXUr (ORCPT
+	with ESMTP id S1758180Ab2HQXUx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Aug 2012 19:20:47 -0400
+	Fri, 17 Aug 2012 19:20:53 -0400
 In-Reply-To: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -26,327 +26,725 @@ Acked-by: Jean Delvare <khali@linux-fr.org>
 
 ---
 
- drivers/input/Kconfig       |    2 +
- drivers/input/Makefile      |    4 +-
- drivers/input/rmi4/Kconfig  |  262 +++++++++++++++++++++++++++++++++++++++++++
- drivers/input/rmi4/Makefile |   18 +++
- 4 files changed, 284 insertions(+), 2 deletions(-)
+ drivers/input/rmi4/rmi_f17.c |  713 ++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 713 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
-index 1903c0f..0cdd8a5 100644
---- a/drivers/input/Kconfig
-+++ b/drivers/input/Kconfig
-@@ -185,6 +185,8 @@ source "drivers/input/touchscreen/Kconfig"
- 
- source "drivers/input/misc/Kconfig"
- 
-+source "drivers/input/rmi4/Kconfig"
-+
- endif
- 
- menu "Hardware I/O ports"
-diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-index 09614ce..cfb383e 100644
---- a/drivers/input/Makefile
-+++ b/drivers/input/Makefile
-@@ -23,6 +23,6 @@ obj-$(CONFIG_INPUT_TABLET)	+= tablet/
- obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
- obj-$(CONFIG_INPUT_MISC)	+= misc/
- 
--obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
-+obj-$(CONFIG_INPUT_RMI4) += rmi4/
- 
--obj-$(CONFIG_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
-+obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+diff --git a/drivers/input/rmi4/rmi_f17.c b/drivers/input/rmi4/rmi_f17.c
 new file mode 100644
-index 0000000..3cedf8b
+index 0000000..006a716
 --- /dev/null
-+++ b/drivers/input/rmi4/Kconfig
-@@ -0,0 +1,262 @@
-+#
-+# RMI4 configuration
-+#
-+config RMI4_BUS
-+	bool "Synaptics RMI4 bus support"
-+	help
-+	  Say Y here if you want to support the Synaptics RMI4 bus.  This is
-+	  required for all RMI4 device support.
++++ b/drivers/input/rmi4/rmi_f17.c
+@@ -0,0 +1,713 @@
++/*
++ * Copyright (c) 2012 Synaptics Incorporated
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++#include <linux/kernel.h>
++#include <linux/rmi.h>
++#include <linux/input.h>
++#include <linux/slab.h>
++#include "rmi_driver.h"
++
++#define QUERY_BASE_INDEX 1
++#define MAX_NAME_LENGTH 256
++
++union f17_device_query {
++	struct {
++		u8 number_of_sticks:3;
++	};
++	u8 regs[1];
++};
++
++#define F17_MANUFACTURER_SYNAPTICS 0
++#define F17_MANUFACTURER_NMB 1
++#define F17_MANUFACTURER_ALPS 2
++
++struct f17_stick_query {
++	union {
++		struct {
++			u8 manufacturer:4;
++			u8 resistive:1;
++			u8 ballistics:1;
++			u8 reserved1:2;
++			u8 has_relative:1;
++			u8 has_absolute:1;
++			u8 has_gestures:1;
++			u8 has_dribble:1;
++			u8 reserved2:4;
++		};
++		u8 regs[2];
++	} general;
++
++	union {
++		struct {
++			u8 has_single_tap:1;
++			u8 has_tap_and_hold:1;
++			u8 has_double_tap:1;
++			u8 has_early_tap:1;
++			u8 has_press:1;
++		};
++		u8 regs[1];
++	} gestures;
++};
++
++union f17_device_controls {
++	struct {
++		u8 reporting_mode:3;
++		u8 dribble:1;
++	};
++	u8 regs[1];
++};
++
++struct f17_stick_controls {
++	union {
++		struct {
++			u8 z_force_threshold;
++			u8 radial_force_threshold;
++		};
++		u8 regs[3];
++	} general;
++
++	union {
++		struct {
++			u8 motion_sensitivity:4;
++			u8 antijitter:1;
++		};
++		u8 regs[1];
++	} relative;
++
++	union {
++		struct {
++			u8 single_tap:1;
++			u8 tap_and_hold:1;
++
++			u8 double_tap:1;
++			u8 early_tap:1;
++			u8 press:1;
++		};
++		u8 regs[1];
++	} enable;
++
++	u8 maximum_tap_time;
++	u8 minimum_press_time;
++	u8 maximum_radial_force;
++};
++
++
++union f17_device_commands {
++	struct {
++		u8 rezero:1;
++	};
++	u8 regs[1];
++};
++
++struct f17_stick_data {
++	union {
++		struct {
++			u8 x_force_high:8;
++			u8 y_force_high:8;
++			u8 y_force_low:4;
++			u8 x_force_low:4;
++			u8 z_force:8;
++		} __attribute__((__packed__));
++		struct {
++			u8 regs[4];
++			u16 address;
++		};
++	} abs;
++	union {
++		struct {
++			s8 x_delta:8;
++			s8 y_delta:8;
++		} __attribute__((__packed__));
++		struct {
++			u8 regs[2];
++			u16 address;
++		};
++	} rel;
++	union {
++		struct {
++			u8 single_tap:1;
++			u8 tap_and_hold:1;
++			u8 double_tap:1;
++			u8 early_tap:1;
++			u8 press:1;
++			u8 reserved:3;
++		} __attribute__((__packed__));
++		struct {
++			u8 regs[1];
++			u16 address;
++		};
++	} gestures;
++};
 +
-+	  If unsure, say Y.
-+
-+	  This feature is not currently available as a loadable module.
-+
-+config RMI4_DEBUG
-+	bool "RMI4 Debugging"
-+	depends on RMI4_BUS
-+	help
-+	  Say Y here to enable debug feature in the RMI4 driver.
-+
-+	  Note that the RMI4 driver debug features can generate a lot of
-+	  output (potentially clogging up your dmesg output) and generally
-+	  slow down driver operation.  It's recommended to enable them only
-+	  if you are actively developing/debugging RMI4 features.
-+
-+	  If unsure, say N.
-+
-+config RMI4_SPECIAL_EARLYSUSPEND
-+	bool "Synaptics RMI4 special early suspend"
-+	depends on RMI4_BUS && HAS_EARLYSUSPEND
-+	help
-+	  Say Y here to enable special suspend handling in the RMI4 driver.
-+
-+	  This feature causes the RMI4 sensors to be placed in full suspend
-+	  state during the early suspend process.  The standard early suspend
-+	  and late resume handlers will be replaced by the suspend and resume
-+	  handling routines.  The result will be a small savings in power
-+	  consumption, at the expense of decreased UI responsiveness at late
-+	  resume.  Enable this feature only if you have extremely limited
-+	  power resources in your system.
-+
-+	  If unsure, say N.
-+
-+config RMI4_FWLIB
-+	bool "RMI4 Firmware Update"
-+	depends on RMI4_BUS
-+	help
-+	  Say Y here to enable in-kernel firmware update capability.
-+
-+	  The RMI4 driver will check for firmware updates during the device
-+	  initialization process, and apply the updates if appropriate.
-+
-+	  This feature is not available as a loadable module.
-+
-+
-+config RMI4_I2C
-+	bool "RMI4 I2C Support"
-+	depends on RMI4_BUS && I2C
-+	help
-+	  Say Y here if you want to support RMI4 devices connected to an I2C
-+	  bus.
-+
-+	  If unsure, say Y.
-+
-+	  This feature is not currently available as a loadable module.
-+
-+config RMI4_SPI
-+	bool "RMI4 SPI Support"
-+	depends on RMI4_BUS && SPI
-+	help
-+	  Say Y here if you want to support RMI4 devices connected to an SPI
-+	  bus.
-+
-+	  If unsure, say Y.
-+
-+	  This feature is not currently available as a loadable module.
-+
-+config RMI4_SMB
-+	bool "RMI4 SMB Support"
-+	depends on RMI4_BUS
-+	help
-+	  Say Y here if you want to support RMI4 devices connected to an SMB
-+	  bus.
-+
-+	  If unsure, say Y.
-+
-+	  This feature is not currently available as a loadable module.
-+
-+config RMI4_GENERIC
-+	bool "RMI4 Generic driver"
-+	depends on RMI4_BUS
-+	help
-+	  Say Y here if you want to support generic RMI4 devices.
-+
-+	  This is pretty much required if you want to do anything useful with
-+	  your RMI device.
-+
-+	  This feature is not currently available as a loadable module.
-+
-+
-+config RMI4_F1A
-+	tristate "RMI4 Function 1A (capacitive button sensor)"
-+	depends on RMI4_BUS && RMI4_GENERIC
-+	help
-+	  Say Y here if you want to add support for RMI4 function 1A.
-+
-+	  Function 1A provides self testing for touchscreens and touchpads.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rmi-f1a.
-+
-+config RMI4_F09
-+	tristate "RMI4 Function 09 (self testing)"
-+	depends on RMI4_BUS && RMI4_GENERIC
-+	help
-+	  Say Y here if you want to add support for RMI4 function 09.
-+
-+	  Function 09 provides self testing for touchscreens and touchpads.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rmi-f09.
-+
-+config RMI4_F11
-+	tristate "RMI4 Function 11 (2D pointing)"
-+	depends on RMI4_BUS && RMI4_GENERIC
-+	help
-+	  Say Y here if you want to add support for RMI4 function 11.
-+
-+	  Function 11 provides 2D multifinger pointing for touchscreens and
-+	  touchpads.  For sensors that support relative pointing, F11 also
-+	  provides mouse input.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rmi-f11.
-+
-+config RMI4_F11_PEN
-+	bool "RMI4 F11 Pen Support"
-+	depends on RMI4_F11
-+	help
-+	  Say Y here to add support for pen input to RMI4 function 11.
-+
-+	  If this feature is enabled, when pen inputs are detected they
-+	  will be reported to the input stream as MT_TOOL_PEN.  Otherwise,
-+	  pens will be treated the same as fingers.
-+
-+	  Not all UI implementations deal gracefully with pen discrimination.
-+	  If your system is not recognizing pen touches and you know your
-+	  sensor supports pen input, you probably want to turn this feature
-+	  off.
-+
-+config RMI4_F11_TYPEB
-+	bool "RMI4 F11 Type B Support"
-+	depends on RMI4_F11
-+	help
-+	  Say Y here to add support for Type B multi-touch.
-+
-+	  If this feature is enabled, the driver will support type B multi-
-+	  touch input.
-+
-+	  See Documentation/input/multi-touch-protocol for details.
-+
-+config RMI4_VIRTUAL_BUTTON
-+	tristate "RMI4 Vitual Button"
-+	depends on RMI4_F11
-+	help
-+	  Say Y here if you want to add support for RMI4 virtual button to F11.
-+
-+	  The virtual button feature implement the virtual button device in
-+	  certain RMI4 touch sensors.
-+
-+	  This works only if your sensor supports F11 gestures.
-+
-+config RMI4_F17
-+	tristate "RMI4 Function 17 (pointing sticks)"
-+	depends on RMI4_BUS && RMI4_GENERIC
-+	help
-+	  Say Y here if you want to add support for RMI4 function 17.
-+
-+	  Function 19 provides support for capacitive and resistive
-+	  pointing sticks.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rmi-f17.
-+
-+config RMI4_F19
-+	tristate "RMI4 Function 19 (0D pointing)"
-+	depends on RMI4_BUS && RMI4_GENERIC
-+	help
-+	  Say Y here if you want to add support for RMI4 function 19.
-+
-+	  Function 19 provides support for capacitive buttons for sensors
-+	  that implement capacitive buttons.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rmi-f19.
-+
-+config RMI4_F21
-+	tristate "RMI4 Function 21 (2D Force)"
-+	depends on RMI4_BUS && RMI4_GENERIC
-+	help
-+	  Say Y here if you want to add support for RMI4 function 21.
-+
-+	  Function 21 provides 2D Force Sensing for ForcePad products.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rmi-f21.
-+
-+config RMI4_F30
-+	tristate "RMI4 Function 30 (GPIO LED)"
-+	depends on RMI4_BUS && RMI4_GENERIC
-+	help
-+	  Say Y here if you want to add support for RMI4 function 30.
-+
-+	  Function 30 provides GPIO LED support for sensors.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rmi-f30.
-+
-+config RMI4_F34
-+	tristate "RMI4 Function 34 (device reflash)"
-+	depends on RMI4_BUS && RMI4_GENERIC
-+	help
-+	  Say Y here if you want to add support for RMI4 function 34.
-+
-+	  Function 34 provides firmware upgrade capability for your sensor.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rmi-f34.
-+
-+config RMI4_F41
-+	tristate "RMI4 Function 41 (active pen)"
-+	depends on RMI4_BUS && RMI4_GENERIC
-+	help
-+	  Say Y here if you want to add support for RMI4 function 41.
-+
-+	  Function 41 provides active pen support for active pen enabled sensors.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rmi-f41.
-+
-+config RMI4_F54
-+	tristate "RMI4 Function 54 (analog diagnostics)"
-+	depends on RMI4_BUS && RMI4_GENERIC
-+	help
-+	  Say Y here if you want to add support for RMI4 function 54.
-+
-+	  Function 54 provides access to various diagnostic features in
-+	  certain RMI4 touch sensors.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rmi-f54.
-+
-+config RMI4_DEV
-+	tristate "Synaptics direct RMI device support (rmidev)"
-+	depends on GPIO_SYSFS && (RMI4_I2C || RMI4_SPI)
-+	help
-+	  Say Y here to add support for rmidev.
-+
-+	  The rmidev feature implements a character device providing access
-+	  to RMI4 sensor register maps.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rmi-dev.
-diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-new file mode 100644
-index 0000000..4a14a21
---- /dev/null
-+++ b/drivers/input/rmi4/Makefile
-@@ -0,0 +1,18 @@
-+obj-$(CONFIG_RMI4_BUS) += rmi_bus.o
-+obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
-+obj-$(CONFIG_RMI4_SPI) += rmi_spi.o
-+obj-$(CONFIG_RMI4_SMB) += rmi_smbus.o
-+obj-$(CONFIG_RMI4_GENERIC) += rmi_driver.o rmi_f01.o
-+obj-$(CONFIG_RMI4_FWLIB) += rmi_fw_update.o
-+obj-$(CONFIG_RMI4_F09) += rmi_f09.o
-+obj-$(CONFIG_RMI4_F1A) += rmi_f1a.o
-+obj-$(CONFIG_RMI4_F11) += rmi_f11.o
-+obj-$(CONFIG_RMI4_F17) += rmi_f17.o
-+obj-$(CONFIG_RMI4_F19) += rmi_f19.o
-+obj-$(CONFIG_RMI4_F21) += rmi_f21.o
-+obj-$(CONFIG_RMI4_F30) += rmi_f30.o
-+obj-$(CONFIG_RMI4_F34) += rmi_f34.o
-+obj-$(CONFIG_RMI4_F41) += rmi_f41.o
-+obj-$(CONFIG_RMI4_F54) += rmi_f54.o
-+obj-$(CONFIG_RMI4_DEV) += rmi_dev.o
-+
++
++/* data specific to f17 that needs to be kept around */
++
++struct rmi_f17_stick_data {
++	struct f17_stick_query query;
++	struct f17_stick_controls controls;
++	struct f17_stick_data data;
++
++	u16 control_address;
++
++	int index;
++
++	char input_name[MAX_NAME_LENGTH];
++	char input_phys[MAX_NAME_LENGTH];
++	struct input_dev *input;
++	char mouse_name[MAX_NAME_LENGTH];
++	char mouse_phys[MAX_NAME_LENGTH];
++	struct input_dev *mouse;
++};
++
++struct rmi_f17_device_data {
++	u16 control_address;
++
++	union f17_device_query query;
++	union f17_device_commands commands;
++	union f17_device_controls controls;
++
++	struct rmi_f17_stick_data *sticks;
++
++};
++
++static ssize_t f17_rezero_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf);
++static ssize_t f17_rezero_store(struct device *dev,
++					 struct device_attribute *attr,
++					 const char *buf, size_t count);
++
++
++
++static int f17_alloc_memory(struct rmi_function_container *fc);
++
++static void f17_free_memory(struct rmi_function_container *fc);
++
++static int f17_initialize(struct rmi_function_container *fc);
++
++static int f17_register_devices(struct rmi_function_container *fc);
++
++static int f17_create_sysfs(struct rmi_function_container *fc);
++
++static int f17_config(struct rmi_function_container *fc);
++
++
++static struct device_attribute attrs[] = {
++	__ATTR(rezero, RMI_RW_ATTR,
++		f17_rezero_show, f17_rezero_store),
++};
++
++
++int f17_read_control_parameters(struct rmi_device *rmi_dev,
++	struct rmi_f17_device_data *f17)
++{
++	int retval = 0;
++
++	/* TODO: read this or delete the function */
++
++	return retval;
++}
++
++
++static int f17_init(struct rmi_function_container *fc)
++{
++	int retval;
++
++	retval = f17_alloc_memory(fc);
++	if (retval < 0)
++		goto err_free_data;
++
++	retval = f17_initialize(fc);
++	if (retval < 0)
++		goto err_free_data;
++
++	retval = f17_register_devices(fc);
++	if (retval < 0)
++		goto err_free_data;
++
++	retval = f17_create_sysfs(fc);
++	if (retval < 0)
++		goto err_free_data;
++
++	return 0;
++
++err_free_data:
++	f17_free_memory(fc);
++
++	return retval;
++}
++
++static int f17_alloc_memory(struct rmi_function_container *fc)
++{
++	struct rmi_f17_device_data *f17;
++	int retval;
++
++	f17 = kzalloc(sizeof(struct rmi_f17_device_data), GFP_KERNEL);
++	if (!f17) {
++		dev_err(&fc->dev, "Failed to allocate function data.\n");
++		return -ENOMEM;
++	}
++	fc->data = f17;
++
++	retval = rmi_read_block(fc->rmi_dev, fc->fd.query_base_addr,
++				f17->query.regs, sizeof(f17->query.regs));
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to read query register.\n");
++		goto error_exit;
++	}
++
++	f17->sticks = kcalloc(f17->query.number_of_sticks + 1,
++			sizeof(struct rmi_f17_stick_data), GFP_KERNEL);
++	if (!f17->sticks) {
++		dev_err(&fc->dev, "Failed to allocate per stick data.\n");
++		return -ENOMEM;
++	}
++
++	return 0;
++
++error_exit:
++	kfree(f17);
++	fc->data = NULL;
++	return retval;
++}
++
++static void f17_free_memory(struct rmi_function_container *fc)
++{
++	struct rmi_f17_device_data *f17 = fc->data;
++
++	if (f17) {
++		kfree(f17->sticks);
++		f17->sticks = NULL;
++	}
++	kfree(f17);
++	fc->data = NULL;
++}
++
++static int f17_init_stick(struct rmi_device *rmi_dev,
++			  struct rmi_f17_stick_data *stick,
++			  u16 *next_query_reg, u16 *next_data_reg,
++			  u16 *next_control_reg) {
++	int retval = 0;
++
++	retval = rmi_read_block(rmi_dev, *next_query_reg,
++		stick->query.general.regs,
++		sizeof(stick->query.general.regs));
++	if (retval < 0) {
++		dev_err(&rmi_dev->dev, "Failed to read stick general query.\n");
++		return retval;
++	}
++	*next_query_reg += sizeof(stick->query.general.regs);
++
++	dev_dbg(&rmi_dev->dev, "Stick %d found\n", stick->index);
++	dev_dbg(&rmi_dev->dev, "    Manufacturer: %d.\n",
++				stick->query.general.manufacturer);
++	dev_dbg(&rmi_dev->dev, "    Resistive:    %d.\n",
++				stick->query.general.resistive);
++	dev_dbg(&rmi_dev->dev, "    Ballistics:   %d.\n",
++				stick->query.general.ballistics);
++	dev_dbg(&rmi_dev->dev, "    Manufacturer: %d.\n",
++				stick->query.general.ballistics);
++	dev_dbg(&rmi_dev->dev, "    Has relative: %d.\n",
++				stick->query.general.has_relative);
++	dev_dbg(&rmi_dev->dev, "    Has absolute: %d.\n",
++				stick->query.general.has_absolute);
++	dev_dbg(&rmi_dev->dev, "    Had dribble:  %d.\n",
++				stick->query.general.has_dribble);
++	dev_dbg(&rmi_dev->dev, "    Has gestures: %d.\n",
++				stick->query.general.has_gestures);
++
++	if (stick->query.general.has_gestures) {
++		retval = rmi_read_block(rmi_dev, *next_query_reg,
++			stick->query.gestures.regs,
++			sizeof(stick->query.gestures.regs));
++		if (retval < 0) {
++			dev_err(&rmi_dev->dev,
++				"Failed to read F17 gestures query, code %d.\n",
++				retval);
++			return retval;
++		}
++		*next_query_reg += sizeof(stick->query.gestures.regs);
++		dev_dbg(&rmi_dev->dev, "        single tap: %d.\n",
++					stick->query.gestures.has_single_tap);
++		dev_dbg(&rmi_dev->dev, "        tap & hold: %d.\n",
++					stick->query.gestures.has_tap_and_hold);
++		dev_dbg(&rmi_dev->dev, "        double tap: %d.\n",
++					stick->query.gestures.has_double_tap);
++		dev_dbg(&rmi_dev->dev, "        early tap:  %d.\n",
++					stick->query.gestures.has_early_tap);
++		dev_dbg(&rmi_dev->dev, "        press:      %d.\n",
++					stick->query.gestures.has_press);
++	}
++	if (stick->query.general.has_absolute) {
++		stick->data.abs.address = *next_data_reg;
++		*next_data_reg += sizeof(stick->data.abs.regs);
++	}
++	if (stick->query.general.has_relative) {
++		stick->data.rel.address = *next_data_reg;
++		*next_data_reg += sizeof(stick->data.rel.regs);
++	}
++	if (stick->query.general.has_gestures) {
++		stick->data.gestures.address = *next_data_reg;
++		*next_data_reg += sizeof(stick->data.gestures.regs);
++	}
++
++	return retval;
++}
++
++static int f17_initialize(struct rmi_function_container *fc)
++{
++	struct rmi_device *rmi_dev = fc->rmi_dev;
++	struct rmi_f17_device_data *f17 = fc->data;
++	int i;
++	int retval;
++	u16 next_query_reg = fc->fd.query_base_addr;
++	u16 next_data_reg = fc->fd.data_base_addr;
++	u16 next_control_reg = fc->fd.control_base_addr;
++
++	retval = rmi_read_block(fc->rmi_dev, fc->fd.query_base_addr,
++				f17->query.regs, sizeof(f17->query.regs));
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to read query register.\n");
++		return retval;
++	}
++	dev_info(&fc->dev, "Found F17 with %d sticks.\n",
++		 f17->query.number_of_sticks + 1);
++	next_query_reg += sizeof(f17->query.regs);
++
++	retval = rmi_read_block(rmi_dev, fc->fd.command_base_addr,
++		f17->commands.regs, sizeof(f17->commands.regs));
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to read command register.\n");
++		return retval;
++	}
++
++	f17->control_address = fc->fd.control_base_addr;
++	retval = f17_read_control_parameters(rmi_dev, f17);
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to initialize F17 control params.\n");
++		return retval;
++	}
++
++	for (i = 0; i < f17->query.number_of_sticks + 1; i++) {
++		f17->sticks[i].index = i;
++		retval = f17_init_stick(rmi_dev, &f17->sticks[i],
++					&next_query_reg, &next_data_reg,
++					&next_control_reg);
++		if (!retval) {
++			dev_err(&fc->dev, "Failed to init stick %d.\n", i);
++			return retval;
++		}
++	}
++
++	return retval;
++}
++
++static int f17_register_stick(struct rmi_function_container *fc,
++			      struct rmi_f17_stick_data *stick) {
++	struct rmi_device *rmi_dev = fc->rmi_dev;
++	int retval = 0;
++
++	if (stick->query.general.has_absolute) {
++		struct input_dev *input_dev;
++		input_dev = input_allocate_device();
++		if (!input_dev) {
++			dev_err(&rmi_dev->dev, "Failed to allocate stick device %d.\n",
++				stick->index);
++			return -ENOMEM;
++		}
++
++		snprintf(stick->input_name, sizeof(stick->input_name),
++			"RMI F%02x Stick %d", 0x17, stick->index);
++		snprintf(stick->input_phys, sizeof(stick->input_phys),
++			 "sensor00fn%02x/stick%d", 0x17, stick->index);
++		input_dev->name = stick->input_name;
++		input_dev->phys = stick->input_phys;
++		input_dev->dev.parent = &fc->dev;
++		input_set_drvdata(input_dev, stick);
++
++		retval = input_register_device(input_dev);
++		if (retval < 0) {
++			dev_err(&rmi_dev->dev, "Failed to register stick device %d.\n",
++				stick->index);
++			goto error_free_device;
++		}
++		stick->input = input_dev;
++	}
++
++	if (stick->query.general.has_relative) {
++		struct input_dev *input_dev_mouse;
++		/*create input device for mouse events  */
++		input_dev_mouse = input_allocate_device();
++		if (!input_dev_mouse) {
++			retval = -ENOMEM;
++			goto error_free_device;
++		}
++
++		snprintf(stick->mouse_name, sizeof(stick->mouse_name),
++			"RMI F%02x Mouse %d", 0x17, stick->index);
++		snprintf(stick->mouse_phys, sizeof(stick->mouse_name),
++			 "sensor00fn%02x/mouse%d", 0x17, stick->index);
++		input_dev_mouse->name = stick->mouse_name;
++		input_dev_mouse->phys = stick->mouse_phys;
++		input_dev_mouse->dev.parent = &fc->dev;
++
++		input_dev_mouse->id.vendor  = 0x18d1;
++		input_dev_mouse->id.product = 0x0210;
++		input_dev_mouse->id.version = 0x0100;
++
++		set_bit(EV_REL, input_dev_mouse->evbit);
++		set_bit(REL_X, input_dev_mouse->relbit);
++		set_bit(REL_Y, input_dev_mouse->relbit);
++
++		set_bit(BTN_MOUSE, input_dev_mouse->evbit);
++		/* Register device's buttons and keys */
++		set_bit(EV_KEY, input_dev_mouse->evbit);
++		set_bit(BTN_LEFT, input_dev_mouse->keybit);
++		set_bit(BTN_MIDDLE, input_dev_mouse->keybit);
++		set_bit(BTN_RIGHT, input_dev_mouse->keybit);
++
++		retval = input_register_device(input_dev_mouse);
++		if (retval < 0)
++			goto error_free_device;
++		stick->mouse = input_dev_mouse;
++	}
++
++	return 0;
++
++error_free_device:
++	if (stick->input) {
++		input_free_device(stick->input);
++		stick->input = NULL;
++	}
++	if (stick->mouse) {
++		input_free_device(stick->mouse);
++		stick->mouse = NULL;
++	}
++	return retval;
++}
++
++static int f17_register_devices(struct rmi_function_container *fc)
++{
++	struct rmi_f17_device_data *f17 = fc->data;
++	int i;
++	int retval = 0;
++
++	for (i = 0; i < f17->query.number_of_sticks + 1 && !retval; i++)
++		retval = f17_register_stick(fc, &f17->sticks[i]);
++
++	return retval;
++}
++
++static int f17_create_sysfs(struct rmi_function_container *fc)
++{
++	int attr_count = 0;
++	int rc;
++
++	dev_dbg(&fc->dev, "Creating sysfs files.\n");
++	/* Set up sysfs device attributes. */
++	for (attr_count = 0; attr_count < ARRAY_SIZE(attrs); attr_count++) {
++		if (sysfs_create_file
++		    (&fc->dev.kobj, &attrs[attr_count].attr) < 0) {
++			dev_err(&fc->dev,
++				"Failed to create sysfs file for %s.",
++				attrs[attr_count].attr.name);
++			rc = -ENODEV;
++			goto err_remove_sysfs;
++		}
++	}
++
++	return 0;
++
++err_remove_sysfs:
++	for (attr_count--; attr_count >= 0; attr_count--)
++		sysfs_remove_file(&fc->dev.kobj, &attrs[attr_count].attr);
++	return rc;
++
++}
++
++static int f17_config(struct rmi_function_container *fc)
++{
++	struct rmi_f17_device_data *f17 = fc->data;
++	int retval;
++
++	retval = rmi_write_block(fc->rmi_dev, f17->control_address,
++		f17->controls.regs, sizeof(f17->controls.regs));
++	if (retval < 0) {
++		dev_err(&fc->dev, "Could not write stick controls to 0x%04x\n",
++				f17->control_address);
++		return retval;
++	}
++
++	return retval;
++}
++
++static void f17_remove(struct rmi_function_container *fc)
++{
++	struct rmi_f17_device_data *f17 = fc->data;
++	int i = 0;
++
++	for (i = 0; i < ARRAY_SIZE(attrs); i++)
++		sysfs_remove_file(&fc->dev.kobj, &attrs[i].attr);
++
++	for (i = 0; i < f17->query.number_of_sticks + 1; i++)
++		input_unregister_device(f17->sticks[i].input);
++
++	f17_free_memory(fc);
++}
++
++static int f17_process_stick(struct rmi_device *rmi_dev,
++			     struct rmi_f17_stick_data *stick) {
++	int retval = 0;
++
++	if (stick->query.general.has_absolute) {
++		retval = rmi_read_block(rmi_dev, stick->data.abs.address,
++			stick->data.abs.regs, sizeof(stick->data.abs.regs));
++		if (retval < 0) {
++			dev_err(&rmi_dev->dev,
++				"Failed to read abs data for stick %d, code %d.\n",
++				stick->index, retval);
++			goto error_exit;
++		}
++	}
++	if (stick->query.general.has_relative) {
++		retval = rmi_read_block(rmi_dev, stick->data.rel.address,
++			stick->data.rel.regs, sizeof(stick->data.rel.regs));
++		if (retval < 0) {
++			dev_err(&rmi_dev->dev,
++				"Failed to read rel data for stick %d, code %d.\n",
++				stick->index, retval);
++			goto error_exit;
++		}
++		dev_dbg(&rmi_dev->dev, "Reporting dX: %d, dy: %d\n",
++			stick->data.rel.x_delta, stick->data.rel.y_delta);
++		input_report_rel(stick->mouse, REL_X, stick->data.rel.x_delta);
++		input_report_rel(stick->mouse, REL_Y, stick->data.rel.y_delta);
++	}
++	if (stick->query.general.has_gestures) {
++		retval = rmi_read_block(rmi_dev, stick->data.gestures.address,
++			stick->data.gestures.regs,
++			sizeof(stick->data.gestures.regs));
++		if (retval < 0) {
++			dev_err(&rmi_dev->dev,
++				"Failed to read gestures for stick %d, code %d.\n",
++				stick->index, retval);
++			goto error_exit;
++		}
++	}
++	retval = 0;
++
++error_exit:
++	if (stick->input)
++		input_sync(stick->input);
++	if (stick->mouse)
++		input_sync(stick->mouse);
++	return retval;
++}
++
++static int f17_attention(struct rmi_function_container *fc, u8 *irq_bits)
++{
++	struct rmi_device *rmi_dev = fc->rmi_dev;
++	struct rmi_f17_device_data *f17 = fc->data;
++	int i;
++	int retval = 0;
++
++	for (i = 0; i < f17->query.number_of_sticks + 1 && !retval; i++)
++		retval = f17_process_stick(rmi_dev, &f17->sticks[i]);
++
++	return retval;
++}
++
++static struct rmi_function_handler function_handler = {
++	.func = 0x17,
++	.init = f17_init,
++	.config = f17_config,
++	.attention = f17_attention,
++	.remove = f17_remove
++};
++
++static int __init f17_module_init(void)
++{
++	int error;
++
++	error = rmi_register_function_driver(&function_handler);
++	if (error < 0) {
++		pr_err("%s: register failed!\n", __func__);
++		return error;
++	}
++
++	return 0;
++}
++
++static void f17_module_exit(void)
++{
++	rmi_unregister_function_driver(&function_handler);
++}
++
++
++static ssize_t f17_rezero_show(struct device *dev,
++				struct device_attribute *attr,
++				char *buf)
++{
++	struct rmi_function_container *fc;
++	struct rmi_f17_device_data *f17;
++
++	fc = to_rmi_function_container(dev);
++	f17 = fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "%u\n",
++			f17->commands.rezero);
++
++}
++
++static ssize_t f17_rezero_store(struct device *dev,
++					 struct device_attribute *attr,
++					 const char *buf,
++					 size_t count)
++{
++	struct rmi_function_container *fc;
++	struct rmi_f17_device_data *data;
++	unsigned int new_value;
++	int len;
++
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	len = sscanf(buf, "%u", &new_value);
++	if (new_value != 0 && new_value != 1) {
++		dev_err(dev,
++			"%s: Error - rezero is not a valid value 0x%x.\n",
++			__func__, new_value);
++		return -EINVAL;
++	}
++	data->commands.rezero = new_value;
++	len = rmi_write(fc->rmi_dev, fc->fd.command_base_addr,
++		data->commands.rezero);
++
++	if (len < 0) {
++		dev_err(dev, "%s : Could not write rezero to 0x%x\n",
++				__func__, fc->fd.command_base_addr);
++		return -EINVAL;
++	}
++	return count;
++}
++
++module_init(f17_module_init);
++module_exit(f17_module_exit);
++
++MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com>");
++MODULE_DESCRIPTION("RMI F17 module");
++MODULE_LICENSE("GPL");
++MODULE_VERSION(RMI_DRIVER_VERSION);

@@ -1,60 +1,37 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: [PATCH] Input: Let the FT5x06 driver build without debugfs
-Date: Thu, 16 Aug 2012 17:15:16 -0700
-Message-ID: <87k3wy1ii3.fsf@xmission.com>
+From: Shawn Guo <shawn.guo@linaro.org>
+Subject: Re: [PATCH v4 1/3] Input: egalax_ts: get gpio from devicetree node
+Date: Fri, 17 Aug 2012 08:31:27 +0800
+Message-ID: <20120817003125.GA24242@S2101-09.ap.freescale.net>
+References: <1345114051-3052-1-git-send-email-jason77.wang@gmail.com>
+ <1345114051-3052-2-git-send-email-jason77.wang@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out01.mta.xmission.com ([166.70.13.231]:40813 "EHLO
-	out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751531Ab2HQAPZ convert rfc822-to-8bit (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:33874 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754664Ab2HQAb1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Aug 2012 20:15:25 -0400
+	Thu, 16 Aug 2012 20:31:27 -0400
+Received: by pbbrr13 with SMTP id rr13so2393838pbb.19
+        for <linux-input@vger.kernel.org>; Thu, 16 Aug 2012 17:31:26 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1345114051-3052-2-git-send-email-jason77.wang@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Budig <simon.budig@kernelconcepts.de>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Hui Wang <jason77.wang@gmail.com>
+Cc: dmitry.torokhov@gmail.com, jiejing.zhang@freescale.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree-discuss@lists.ozlabs.org
 
+On Thu, Aug 16, 2012 at 06:47:29PM +0800, Hui Wang wrote:
+> The irq_to_gpio() is old, most platforms use GENERIC_GPIO framework
+> and don't support this API anymore.
+> 
+> The i.MX6q sabrelite platform equips an egalax touchscreen controller,
+> and this platform already transfered to GENERIC_GPIO framework, to
+> support this driver, we use a more generic way to get gpio.
+> 
+> Add a return value checking for waking up the controller in the probe
+> function, this guarantee only a workable device can pass init.
+> 
+> Signed-off-by: Hui Wang <jason77.wang@gmail.com>
 
-When testing to make certain my user namespace code works
-in various configurations I tripped over the tf5x06.c not
-building with debugfs disabled.
-
-drivers/input/touchscreen/edt-ft5x06.c: In function =E2=80=98edt_ft5x06=
-_ts_remove=E2=80=99:
-drivers/input/touchscreen/edt-ft5x06.c:846:14: error: =E2=80=98struct e=
-dt_ft5x06_ts_data=E2=80=99 has no member named =E2=80=98raw_buffer=E2=80=
-=99
-
-=46ix the build by placing an #ifdef around the problem kfree.
-
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
----
- drivers/input/touchscreen/edt-ft5x06.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/tou=
-chscreen/edt-ft5x06.c
-index 9afc777..bc160b3 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -843,7 +843,9 @@ static int __devexit edt_ft5x06_ts_remove(struct i2=
-c_client *client)
- 	if (gpio_is_valid(pdata->reset_pin))
- 		gpio_free(pdata->reset_pin);
-=20
-+#if defined(CONFIG_DEBUG_FS)
- 	kfree(tsdata->raw_buffer);
-+#endif
- 	kfree(tsdata);
-=20
- 	return 0;
---=20
-1.7.5.4
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Reviewed-by: Shawn Guo <shawn.guo@linaro.org>

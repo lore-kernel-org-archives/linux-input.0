@@ -1,37 +1,118 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [PATCH] Input: Let the FT5x06 driver build without debugfs
-Date: Fri, 17 Aug 2012 12:21:34 -0700
-Message-ID: <87boi91g01.fsf@xmission.com>
-References: <87k3wy1ii3.fsf@xmission.com> <502DFC1D.20903@kernelconcepts.de>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [RFC PATCH 00/11] input: Synaptics RMI4 Touchscreen Driver
+Date: Fri, 17 Aug 2012 15:17:40 -0700
+Message-ID: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out03.mta.xmission.com ([166.70.13.233]:45384 "EHLO
-	out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752506Ab2HQTWF (ORCPT
+Received: from [12.239.217.82] ([12.239.217.82]:28612 "EHLO
+	venom.synaptics.com" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756833Ab2HQXUp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Aug 2012 15:22:05 -0400
-In-Reply-To: <502DFC1D.20903@kernelconcepts.de> (Simon Budig's message of
-	"Fri, 17 Aug 2012 10:09:01 +0200")
+	Fri, 17 Aug 2012 19:20:45 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Budig <simon.budig@kernelconcepts.de>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-Simon Budig <simon.budig@kernelconcepts.de> writes:
+This patch implements a driver supporting Synaptics ClearPad and other
+touchscreen sensors that use the RMI4 protocol, as defined here:
 
-> On 08/17/2012 02:15 AM, Eric W. Biederman wrote:
->> When testing to make certain my user namespace code works in
->> various configurations I tripped over the tf5x06.c not building
->> with debugfs disabled.
->
-> Sorry for that.
->
-> There already is a patch for this issue which I slightly prefer. You
-> can find it in the mail from Guenther Roeck:
->    http://www.mail-archive.com/linux-input@vger.kernel.org/msg00646.html
+    http://www.synaptics.com/sites/default/files/511-000136-01-Rev-E-RMI4%20Intrfacing%20Guide.pdf
 
-If you guys could get that merged into 3.6 I would appreciate it.
+as well as successor documents that haven't made their way through to
+publication yet.
 
-Thanks,
-Eric
+This code supersedes the patch submitted on 2011-12-21.  We believe that all
+outstanding issues arising from the previous submissions have been addressed,
+except certain issues relating to the use of device_type and the binding of 
+the individual function drivers (see below).
+
+
+This patch is against the v2.6.38 tag of Linus' kernel tree, commit
+521cb40b0c44418a4fd36dc633f575813d59a43d.  This will be our last patch against
+such an old kernel version, future patches will be against 3.x kernels.
+
+
+
+Included in this patch are:
+    - full support for an RMI virtual bus as a standard kernel bus
+
+    - physical layer implementations for I2C and SPI
+
+    - function implementations for the following RMI4 functions:
+        * F01 device control
+        * F09 self test (aka BIST)
+        * F11 multifinger pointing
+        * F17 pointing sticks
+        * F19 capacitive buttons
+        * F1A simple capacitive buttons
+        * F21 force sensing
+        * F30 GPIO and LED controls
+        * F34 device reflash
+        * F41 active pen pointing
+        * F54 analog data reporting
+
+    - character device access to the RMI4 register map via rmidev
+    
+    - firmware reflash using the request_firmware mechanism
+
+The driver supports a system having one or more RMI sensors attached to it.
+Most devices have just a single touch sensor, but some have more than one.
+An example is the Fuse concept phone, which has 4 RMI sensors in it.
+
+Each sensor is presented as a device on the RMI logical bus (/sys/bus/rmi).
+Devices are named/numbered in the order they are discovered on the bus,
+starting with /sys/bus/rmi/devices/sensor00 for the first once, .../sensor01
+for the second one, and so on.
+
+Individual RMI functions are presented as child devices of the sensor device.
+For example, sensor00/fn01, sensor00/fn11, and so on.  Control of an RMI
+function's operating parameters is implemented via sysfs.
+
+For diagnostic purposes, the rmidev interface is provided.  This implements
+a character device (/dev/rmi0, and so on) that provides flat file access to
+the RMI4 register map.  For more information, see the file
+Documentation/input/rmidev.txt.
+
+
+
+Note regarding device_type and functional driver matching.
+
+Feedback on our patch submission from 2011-12 requested that we use device_type
+to help match drivers that worked directly with the sensor (such as rmi_dev.c)
+and drivers that work with individual functions (such as rmi_f11.c).  We spent
+some effort on this request, but in the meantime the original customer
+requirements that led to the differentiation between the two types of driver
+no longer exist.  As a result, we have rolled back that work, and plan to merge
+the rmi_dev functionality into the core of the driver, eliminating the need
+to support two device_types and their drivers.  This will be included in our
+next patch submission, along with changes to how function drivers are matched
+functions.
+
+We considered postponing this patch until that was done, but it's been a 
+very long time since the last one, and we wanted to make the other work
+available.
+
+
+Due to the large amount of code, we've broken this patch into 17 parts, as
+follows:
+    01 - public header files and documentation
+    02 - core sensor and bus implementation
+    03 - physical layer drivers
+    04 - Kconfigs and Makefiles
+    05 - rmidev
+    06 - firmware update
+    07..17 - drivers for individual RMI functions
+
+
+Comments and other feedback on this driver are welcomed.
+
+Christopher Heiny and the Synaptics RMI4 driver team
+
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+
+Cc: Jean Delvare <khali@linux-fr.org>
+Cc: Linus Walleij <linus.walleij@stericsson.com>
+Cc: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+Cc: Joeri de Gram <j.de.gram@gmail.com>
+
+---

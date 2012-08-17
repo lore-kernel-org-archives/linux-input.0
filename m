@@ -1,14 +1,19 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [RFC PATCH 11/17] input: RMI4 F19 capacitive buttons
-Date: Fri, 17 Aug 2012 15:17:51 -0700
-Message-ID: <1345241877-16200-12-git-send-email-cheiny@synaptics.com>
+Subject: [RFC PATCH 12/17] input: RMI4 F1A simple capacitive buttons
+Date: Fri, 17 Aug 2012 15:17:52 -0700
+Message-ID: <1345241877-16200-13-git-send-email-cheiny@synaptics.com>
 References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from [12.239.217.82] ([12.239.217.82]:28612 "EHLO
+	venom.synaptics.com" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1758918Ab2HQXVC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Aug 2012 19:21:02 -0400
 In-Reply-To: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
-List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
 
@@ -21,15 +26,15 @@ Acked-by: Jean Delvare <khali@linux-fr.org>
 
 ---
 
- drivers/input/rmi4/rmi_f19.c |  869 ++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 869 insertions(+), 0 deletions(-)
+ drivers/input/rmi4/rmi_f1a.c | 1025 ++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 1025 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_f19.c b/drivers/input/rmi4/rmi_f19.c
+diff --git a/drivers/input/rmi4/rmi_f1a.c b/drivers/input/rmi4/rmi_f1a.c
 new file mode 100644
-index 0000000..9e9ea93
+index 0000000..a7cccfa
 --- /dev/null
-+++ b/drivers/input/rmi4/rmi_f19.c
-@@ -0,0 +1,869 @@
++++ b/drivers/input/rmi4/rmi_f1a.c
+@@ -0,0 +1,1025 @@
 +/*
 + * Copyright (c) 2012 Synaptics Incorporated
 + *
@@ -47,8 +52,8 @@ index 0000000..9e9ea93
 + * along with this program; if not, write to the Free Software
 + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
-+#define FUNCTION_DATA f19_data
-+#define FNUM 19
++#define FUNCTION_DATA f1a_data
++#define FNUM 1a
 +
 +#include <linux/kernel.h>
 +#include <linux/rmi.h>
@@ -57,25 +62,37 @@ index 0000000..9e9ea93
 +#include "rmi_driver.h"
 +
 +#define QUERY_BASE_INDEX 1
-+#define MAX_LEN 256
++#define MAX_NAME_LEN 256
 +#define MAX_BUFFER_LEN 80
 +
-+#define SENSOR_MAP_MIN			0
-+#define SENSOR_MAP_MAX			127
-+#define SENSITIVITY_ADJ_MIN		0
-+#define SENSITIVITY_ADJ_MAX		31
-+#define HYSTERESIS_THRESHOLD_MIN	0
-+#define HYSTERESIS_THRESHOLD_MAX	15
++#define FILTER_MODE_MIN				0
++#define FILTER_MODE_MAX				3
++#define MULTI_BUTTON_REPORT_MIN			0
++#define MULTI_BUTTON_REPORT_MAX			3
++#define TX_RX_BUTTON_MIN			0
++#define TX_RX_BUTTON_MAX			255
++#define THREADHOLD_BUTTON_MIN			0
++#define THREADHOLD_BUTTON_MAX			255
++#define RELEASE_THREADHOLD_BUTTON_MIN		0
++#define RELEASE_THREADHOLD_BUTTON_MAX		255
++#define STRONGEST_BUTTON_HYSTERESIS_MIN		0
++#define STRONGEST_BUTTON_HYSTERESIS_MAX		255
++#define FILTER_STRENGTH_MIN			0
++#define FILTER_STRENGTH_MAX			255
 +
-+union f19_0d_query {
++union f1a_0d_query {
 +	struct {
-+		u8 configurable:1;
-+		u8 has_sensitivity_adjust:1;
-+		u8 has_hysteresis_threshold:1;
-+		u8 reserved_1:5;
++		u8 max_button_count:3;
++		u8 reserved:5;
 +
-+		u8 button_count:5;
-+		u8 reserved_2:3;
++		u8 has_general_control:1;
++		u8 has_interrupt_enable:1;
++		u8 has_multibutton_select:1;
++		u8 has_tx_rx_map:1;
++		u8 has_perbutton_threshold:1;
++		u8 has_release_threshold:1;
++		u8 has_strongestbtn_hysteresis:1;
++		u8 has_filter_strength:1;
 +	} __attribute__((__packed__));
 +	struct {
 +		u8 regs[2];
@@ -83,9 +100,9 @@ index 0000000..9e9ea93
 +	} __attribute__((__packed__));
 +};
 +
-+union f19_0d_control_0 {
++union f1a_0d_control_0 {
 +	struct {
-+		u8 button_usage:2;
++		u8 multibutton_report:2;
 +		u8 filter_mode:2;
 +	} __attribute__((__packed__));
 +	struct {
@@ -93,50 +110,51 @@ index 0000000..9e9ea93
 +		u16 address;
 +	} __attribute__((__packed__));
 +};
-+/* rewrite control regs */
-+struct f19_0d_control_1n {
-+	u8 int_enabled_button;
++
++struct f1a_0d_control_1n {
++	u8 interrupt_enabled_button;
 +};
 +
-+struct f19_0d_control_1 {
-+	struct f19_0d_control_1n *regs;
++struct f1a_0d_control_1 {
++	struct f1a_0d_control_1n *regs;
 +	u16 address;
 +	u8 length;
 +} __attribute__((__packed__));
 +
-+struct f19_0d_control_2n {
-+	u8 single_button;
++struct f1a_0d_control_2n {
++	u8 multi_button;
 +};
 +
-+struct f19_0d_control_2 {
-+	struct f19_0d_control_2n *regs;
++struct f1a_0d_control_2 {
++	struct f1a_0d_control_2n *regs;
 +	u16 address;
 +	u8 length;
 +} __attribute__((__packed__));
 +
-+struct f19_0d_control_3n {
-+	u8 sensor_map_button:7;
-+};
++struct f1a_0d_control_3_4n {
++	u8 transmitterbtn;
++	u8 receiverbtn;
++} __attribute__((__packed__));
 +
-+struct f19_0d_control_3 {
-+	struct f19_0d_control_3n *regs;
++struct f1a_0d_control_3_4 {
++	struct f1a_0d_control_3_4n *regs;
 +	u16 address;
 +	u8 length;
 +} __attribute__((__packed__));
 +
-+struct f19_0d_control_4n {
-+	u8 sensitivity_button:7;
++struct f1a_0d_control_5n {
++	u8 threshold_button;
 +};
 +
-+struct f19_0d_control_4 {
-+	struct f19_0d_control_4n *regs;
++struct f1a_0d_control_5 {
++	struct f1a_0d_control_5n *regs;
 +	u16 address;
 +	u8 length;
 +} __attribute__((__packed__));
 +
-+union f19_0d_control_5 {
++union f1a_0d_control_6 {
 +	struct {
-+		u8 sensitivity_adj:5;
++		u8 button_release_threshold;
 +	};
 +	struct {
 +		u8 regs[1];
@@ -144,9 +162,9 @@ index 0000000..9e9ea93
 +	} __attribute__((__packed__));
 +};
 +
-+union f19_0d_control_6 {
++union f1a_0d_control_7 {
 +	struct {
-+		u8 hysteresis_threshold:4;
++		u8 strongest_button_hysteresis;
 +	};
 +	struct {
 +		u8 regs[1];
@@ -154,239 +172,255 @@ index 0000000..9e9ea93
 +	} __attribute__((__packed__));
 +};
 +
-+struct f19_0d_control {
-+	union f19_0d_control_0 *reg_0;
-+	struct f19_0d_control_1 *reg_1;
-+	struct f19_0d_control_2 *reg_2;
-+	struct f19_0d_control_3 *reg_3;
-+	struct f19_0d_control_4 *reg_4;
-+	union f19_0d_control_5 *reg_5;
-+	union f19_0d_control_6 *reg_6;
++union f1a_0d_control_8 {
++	struct {
++		u8 filter_strength;
++	};
++	struct {
++		u8 regs[1];
++		u16 address;
++	} __attribute__((__packed__));
 +};
 +
-+/* data specific to fn $19 that needs to be kept around */
-+struct f19_data {
-+	struct f19_0d_control control;
-+	union f19_0d_query query;
-+	u8 button_rezero;
-+	unsigned char button_count;
-+	unsigned char button_bitmask_size;
-+	unsigned char *button_data_buffer;
-+	unsigned short *button_map;
-+	char input_name[MAX_LEN];
-+	char input_phys[MAX_LEN];
++struct f1a_0d_control {
++	union f1a_0d_control_0 *reg_0;
++	struct f1a_0d_control_1 *reg_1;
++	struct f1a_0d_control_2 *reg_2;
++	struct f1a_0d_control_3_4 *reg_3_4;
++	struct f1a_0d_control_5 *reg_5;
++	union f1a_0d_control_6 *reg_6;
++	union f1a_0d_control_7 *reg_7;
++	union f1a_0d_control_8 *reg_8;
++};
++
++/* data specific to fn $1a that needs to be kept around */
++struct f1a_data {
++	struct f1a_0d_control control;
++	union f1a_0d_query query;
++	u8 sensor_button_count;
++	int button_bitmask_size;
++	u8 *button_data_buffer;
++	u8 button_map_size;
++	u8 *button_map;
++	char input_name[MAX_NAME_LEN];
++	char input_phys[MAX_NAME_LEN];
 +	struct input_dev *input;
 +	struct mutex control_mutex;
 +	struct mutex data_mutex;
 +};
 +
 +
-+static int rmi_f19_alloc_memory(struct rmi_function_container *fc);
++static int rmi_f1a_alloc_memory(struct rmi_function_container *fc);
 +
-+static void rmi_f19_free_memory(struct rmi_function_container *fc);
++static void rmi_f1a_free_memory(struct rmi_function_container *fc);
 +
-+static int rmi_f19_initialize(struct rmi_function_container *fc);
++static int rmi_f1a_initialize(struct rmi_function_container *fc);
 +
-+static int rmi_f19_register_device(struct rmi_function_container *fc);
++static int rmi_f1a_register_device(struct rmi_function_container *fc);
 +
-+static int rmi_f19_create_sysfs(struct rmi_function_container *fc);
++static int rmi_f1a_create_sysfs(struct rmi_function_container *fc);
 +
-+static int rmi_f19_config(struct rmi_function_container *fc);
++static int rmi_f1a_config(struct rmi_function_container *fc);
 +
-+static int rmi_f19_reset(struct rmi_function_container *fc);
++static int rmi_f1a_reset(struct rmi_function_container *fc);
 +
 +/* Query sysfs files */
-+show_union_struct_prototype(configurable)
-+show_union_struct_prototype(has_sensitivity_adjust)
-+show_union_struct_prototype(has_hysteresis_threshold)
-+show_union_struct_prototype(button_count)
++show_union_struct_prototype(max_button_count)
++show_union_struct_prototype(has_general_control)
++show_union_struct_prototype(has_interrupt_enable)
++show_union_struct_prototype(has_multibutton_select)
++show_union_struct_prototype(has_tx_rx_map)
++show_union_struct_prototype(has_perbutton_threshold)
++show_union_struct_prototype(has_release_threshold)
++show_union_struct_prototype(has_strongestbtn_hysteresis)
++show_union_struct_prototype(has_filter_strength)
 +
 +static struct attribute *attrs[] = {
-+	attrify(configurable),
-+	attrify(has_sensitivity_adjust),
-+	attrify(has_hysteresis_threshold),
-+	attrify(button_count),
++	attrify(max_button_count),
++	attrify(has_general_control),
++	attrify(has_interrupt_enable),
++	attrify(has_multibutton_select),
++	attrify(has_tx_rx_map),
++	attrify(has_perbutton_threshold),
++	attrify(has_release_threshold),
++	attrify(has_strongestbtn_hysteresis),
++	attrify(has_filter_strength),
 +	NULL
 +};
 +
 +static struct attribute_group attrs_query = GROUP(attrs);
++
 +/* Control sysfs files */
-+show_store_union_struct_prototype(button_usage)
++show_store_union_struct_prototype(multibutton_report)
 +show_store_union_struct_prototype(filter_mode)
-+show_store_union_struct_prototype(int_enabled_button)
-+show_store_union_struct_prototype(single_button)
-+show_store_union_struct_prototype(sensitivity_button)
-+show_store_union_struct_prototype(sensitivity_adj)
-+show_store_union_struct_prototype(hysteresis_threshold)
++show_store_union_struct_prototype(interrupt_enabled_button)
++show_store_union_struct_prototype(multi_button)
++show_union_struct_prototype(tx_rx_map)
++show_store_union_struct_prototype(threshold_button)
++show_store_union_struct_prototype(button_release_threshold)
++show_store_union_struct_prototype(strongest_button_hysteresis)
++show_store_union_struct_prototype(filter_strength)
 +
-+
-+static struct attribute *attrsCtrl[] = {
-+	attrify(button_usage),
-+	attrify(filter_mode),
-+	attrify(int_enabled_button),
-+	attrify(single_button),
-+	attrify(sensitivity_button),
-+	NULL
-+};
-+static struct attribute_group attrs_control = GROUP(attrsCtrl);
-+
-+static ssize_t rmi_fn_19_sensor_map_button_show(struct device *dev,
-+				     struct device_attribute *attr, char *buf);
-+static ssize_t rmi_fn_19_sensor_map_button_store(struct device *dev,
-+					 struct device_attribute *attr,
-+					 const char *buf, size_t count);
-+static struct device_attribute sensor_map_attr = __ATTR(sensor_map_button,
-+			RMI_RW_ATTR, rmi_fn_19_sensor_map_button_show,
-+			rmi_fn_19_sensor_map_button_store);
-+
-+static struct device_attribute sensor_map_ro_attr =  __ATTR(sensor_map_button,
-+			RMI_RO_ATTR, rmi_fn_19_sensor_map_button_show,
-+			 rmi_store_error);
-+
-+/* Command sysfs files */
-+static ssize_t f19_rezero_store(struct device *dev,
-+					struct device_attribute *attr,
-+					const char *buf, size_t count);
-+static DEVICE_ATTR(rezero, RMI_WO_ATTR,
-+		rmi_show_error,
-+		f19_rezero_store);
-+
-+static struct attribute *attrsCommand[] = {
-+	attrify(rezero),
-+	NULL
-+};
-+static struct attribute_group attrs_command = GROUP(attrsCommand);
-+
-+int rmi_f19_read_control_parameters(struct rmi_device *rmi_dev,
-+	struct f19_data *f19)
++static int rmi_f1a_read_control_parameters(struct rmi_device *rmi_dev,
++	struct f1a_data *f1a)
 +{
 +	int retval = 0;
-+	union f19_0d_query *query = &f19->query;
-+	struct f19_0d_control *control = &f19->control;
++	union f1a_0d_query *query = &f1a->query;
++	struct f1a_0d_control *control = &f1a->control;
 +
-+
-+	retval = rmi_read_block(rmi_dev, control->reg_0->address,
-+			(u8 *)control->reg_0->regs,
-+			sizeof(control->reg_0->regs));
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev, "Could not read control reg0 to %#06x.\n",
-+				control->reg_0->address);
-+		return retval;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev, control->reg_1->address,
-+			(u8 *)control->reg_1->regs, f19->button_bitmask_size);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev, "Could not read control reg1 to %#06x.\n",
-+			 control->reg_1->address);
-+		return retval;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev, control->reg_2->address,
-+			(u8 *)control->reg_2->regs, f19->button_bitmask_size);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev, "Could not read control reg2 to %#06x.\n",
-+			 control->reg_2->address);
-+		return retval;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev, control->reg_3->address,
-+			(u8 *)control->reg_3->regs, f19->button_count);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev, "Could not read control reg3 to %#06x.\n",
-+			 control->reg_3->address);
-+		return retval;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev, control->reg_4->address,
-+			(u8 *)control->reg_4->regs, f19->button_count);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev, "Could not read control reg3 to %#06x.\n",
-+			 control->reg_4->address);
-+		return retval;
-+	}
-+
-+	if (query->has_sensitivity_adjust) {
-+		retval = rmi_read_block(rmi_dev, control->reg_5->address,
-+				(u8 *)control->reg_5->regs,
-+				sizeof(control->reg_5->regs));
++	if (query->has_general_control) {
++		retval = rmi_read_block(rmi_dev, control->reg_0->address,
++				(u8 *)control->reg_0->regs,
++				sizeof(control->reg_0->regs));
 +		if (retval < 0) {
-+			dev_err(&rmi_dev->dev, "Could not read control reg5 to %#06x.\n",
-+				control->reg_5->address);
++			dev_err(&rmi_dev->dev, "Could not read control reg0 to %#06x.\n",
++					control->reg_0->address);
 +			return retval;
 +		}
 +	}
-+	if (query->has_hysteresis_threshold) {
++
++	if (query->has_interrupt_enable) {
++		retval = rmi_read_block(rmi_dev, control->reg_1->address,
++			(u8 *)control->reg_1->regs, f1a->button_bitmask_size);
++		if (retval < 0) {
++			dev_err(&rmi_dev->dev, "Could not read control reg1 to %#06x.\n",
++				 control->reg_1->address);
++			return retval;
++		}
++	}
++
++	if (query->has_multibutton_select) {
++		retval = rmi_read_block(rmi_dev, control->reg_2->address,
++			(u8 *)control->reg_2->regs, f1a->button_bitmask_size);
++		if (retval < 0) {
++			dev_err(&rmi_dev->dev, "Could not read control reg2 to %#06x.\n",
++				 control->reg_2->address);
++			return retval;
++		}
++	}
++
++	if (query->has_tx_rx_map) {
++		retval = rmi_read_block(rmi_dev, control->reg_3_4->address,
++			(u8 *)control->reg_3_4->regs,
++			sizeof(struct f1a_0d_control_3_4n) *
++					f1a->sensor_button_count);
++		if (retval < 0) {
++			dev_err(&rmi_dev->dev, "Could not read control reg 3_4 to %#06x.\n",
++				 control->reg_3_4->address);
++			return retval;
++		}
++	}
++
++	if (query->has_perbutton_threshold) {
++		retval = rmi_read_block(rmi_dev, control->reg_5->address,
++			(u8 *)control->reg_5->regs, f1a->sensor_button_count);
++		if (retval < 0) {
++			dev_err(&rmi_dev->dev, "Could not read control reg 5 to %#06x.\n",
++				 control->reg_5->address);
++			return retval;
++		}
++	}
++
++	if (query->has_release_threshold) {
 +		retval = rmi_read_block(rmi_dev, control->reg_6->address,
 +				(u8 *)control->reg_6->regs,
 +				sizeof(control->reg_6->regs));
 +		if (retval < 0) {
-+			dev_err(&rmi_dev->dev, "Could not read control reg6 to %#06x.\n",
-+				control->reg_6->address);
++			dev_err(&rmi_dev->dev, "Could not read control reg 6 to %#06x.\n",
++					control->reg_6->address);
++			return retval;
++		}
++	}
++
++	if (query->has_strongestbtn_hysteresis) {
++		retval = rmi_read_block(rmi_dev, control->reg_7->address,
++				(u8 *)control->reg_7->regs,
++				sizeof(control->reg_7->regs));
++		if (retval < 0) {
++			dev_err(&rmi_dev->dev, "Could not read control reg 7 to %#06x.\n",
++					control->reg_7->address);
++			return retval;
++		}
++	}
++
++	if (query->has_filter_strength) {
++		retval = rmi_read_block(rmi_dev, control->reg_8->address,
++				(u8 *)control->reg_8->regs,
++				sizeof(control->reg_8->regs));
++		if (retval < 0) {
++			dev_err(&rmi_dev->dev, "Could not read control reg 8 to %#06x.\n",
++					control->reg_8->address);
 +			return retval;
 +		}
 +	}
 +	return 0;
 +}
-+static int rmi_f19_init(struct rmi_function_container *fc)
++
++
++static int rmi_f1a_init(struct rmi_function_container *fc)
 +{
-+	int rc = rmi_f19_alloc_memory(fc);
++	int rc;
++
++	rc = rmi_f1a_alloc_memory(fc);
 +	if (rc < 0)
 +		goto err_free_data;
 +
-+	rc = rmi_f19_initialize(fc);
++	rc = rmi_f1a_initialize(fc);
 +	if (rc < 0)
 +		goto err_free_data;
 +
-+	rc = rmi_f19_register_device(fc);
++	rc = rmi_f1a_register_device(fc);
 +	if (rc < 0)
 +		goto err_free_data;
 +
-+	rc = rmi_f19_create_sysfs(fc);
++	rc = rmi_f1a_create_sysfs(fc);
 +	if (rc < 0)
 +		goto err_free_data;
 +
 +	return 0;
 +
 +err_free_data:
-+	rmi_f19_free_memory(fc);
++	rmi_f1a_free_memory(fc);
++
 +	return rc;
 +}
 +
 +
-+static int rmi_f19_alloc_memory(struct rmi_function_container *fc)
++static int rmi_f1a_alloc_memory(struct rmi_function_container *fc)
 +{
-+	struct f19_data *f19;
++	struct f1a_data *f1a;
 +	int rc;
++	int regSize;
 +	u16 ctrl_base_addr;
 +
-+	/* allow memory for fn19 data */
-+	f19 = kzalloc(sizeof(struct f19_data), GFP_KERNEL);
-+	if (!f19) {
++	f1a = kzalloc(sizeof(struct f1a_data), GFP_KERNEL);
++	if (!f1a) {
 +		dev_err(&fc->dev, "Failed to allocate function data.\n");
 +		return -ENOMEM;
 +	}
-+	fc->data = f19;
++	fc->data = f1a;
++
 +	rc = rmi_read_block(fc->rmi_dev, fc->fd.query_base_addr,
-+				(u8 *)&f19->query,
-+				sizeof(f19->query.regs));
++			f1a->query.regs, sizeof(f1a->query.regs));
 +	if (rc < 0) {
 +		dev_err(&fc->dev, "Failed to read query register.\n");
 +		return rc;
 +	}
-+	f19->query.address = fc->fd.query_base_addr;
 +
-+	f19->button_bitmask_size = sizeof(u8)*(f19->query.button_count + 7) / 8;
-+	f19->button_data_buffer = kcalloc(f19->button_bitmask_size,
-+		    sizeof(unsigned char), GFP_KERNEL);
-+	if (!f19->button_data_buffer) {
++	f1a->sensor_button_count = f1a->query.max_button_count+1;
++
++	f1a->button_bitmask_size =
++			sizeof(u8)*(f1a->sensor_button_count + 7) / 8;
++	f1a->button_data_buffer = kcalloc(f1a->button_bitmask_size,
++			sizeof(u8), GFP_KERNEL);
++	if (!f1a->button_data_buffer) {
 +		dev_err(&fc->dev, "Failed to allocate button data buffer.\n");
 +		return -ENOMEM;
 +	}
 +
-+	f19->button_map = kcalloc(f19->query.button_count,
-+				sizeof(unsigned short), GFP_KERNEL);
-+	if (!f19->button_map) {
++	f1a->button_map = kcalloc(f1a->sensor_button_count,
++				sizeof(unsigned char), GFP_KERNEL);
++	if (!f1a->button_map) {
 +		dev_err(&fc->dev, "Failed to allocate button map.\n");
 +		return -ENOMEM;
 +	}
@@ -394,229 +428,284 @@ index 0000000..9e9ea93
 +	/* allocate memory for control reg */
 +	/* reg 0 */
 +	ctrl_base_addr = fc->fd.control_base_addr;
-+	f19->control.reg_0 =
-+			kzalloc(sizeof(f19->control.reg_0->regs), GFP_KERNEL);
-+	if (!f19->control.reg_0) {
-+		dev_err(&fc->dev, "Failed to allocate reg_0 control registers.");
-+		return -ENOMEM;
++	if (f1a->query.has_general_control) {
++		f1a->control.reg_0 =
++			kzalloc(sizeof(f1a->control.reg_0->regs), GFP_KERNEL);
++		if (!f1a->control.reg_0) {
++			dev_err(&fc->dev, "Failed to allocate reg_0 control registers.");
++			return -ENOMEM;
++		}
++		f1a->control.reg_0->address = ctrl_base_addr;
++		ctrl_base_addr += sizeof(f1a->control.reg_0->regs);
 +	}
-+	f19->control.reg_0->address = ctrl_base_addr;
-+	ctrl_base_addr += sizeof(f19->control.reg_0->regs);
-+
 +	/* reg 1 */
-+	f19->control.reg_1 =
-+			kzalloc(sizeof(struct f19_0d_control_1), GFP_KERNEL);
-+	if (!f19->control.reg_1) {
-+		dev_err(&fc->dev, "Failed to allocate reg_1 control registers.");
-+		return -ENOMEM;
++	if (f1a->query.has_interrupt_enable) {
++		f1a->control.reg_1 =
++			kzalloc(sizeof(struct f1a_0d_control_1), GFP_KERNEL);
++		if (!f1a->control.reg_1) {
++			dev_err(&fc->dev, "Failed to allocate reg_1 control registers.");
++			return -ENOMEM;
++		}
++		f1a->control.reg_1->regs =
++				kzalloc(f1a->button_bitmask_size, GFP_KERNEL);
++		if (!f1a->control.reg_1->regs) {
++			dev_err(&fc->dev, "Failed to allocate reg_1->regs control registers.");
++			return -ENOMEM;
++		}
++		f1a->control.reg_1->address = ctrl_base_addr;
++		f1a->control.reg_1->length = f1a->button_bitmask_size;
++		ctrl_base_addr += f1a->button_bitmask_size;
 +	}
-+	f19->control.reg_1->regs =
-+			kzalloc(f19->button_bitmask_size, GFP_KERNEL);
-+	if (!f19->control.reg_1->regs) {
-+		dev_err(&fc->dev, "Failed to allocate reg_1->regs control registers.");
-+		return -ENOMEM;
-+	}
-+	f19->control.reg_1->address = ctrl_base_addr;
-+	f19->control.reg_1->length = f19->button_bitmask_size;
-+	ctrl_base_addr += f19->button_bitmask_size;
 +
 +	/* reg 2 */
-+	f19->control.reg_2 =
-+			kzalloc(sizeof(struct f19_0d_control_2), GFP_KERNEL);
-+	if (!f19->control.reg_2) {
-+		dev_err(&fc->dev, "Failed to allocate reg_2 control registers.");
-+		return -ENOMEM;
++	if (f1a->query.has_multibutton_select) {
++		f1a->control.reg_2 =
++			kzalloc(sizeof(struct f1a_0d_control_2), GFP_KERNEL);
++		if (!f1a->control.reg_2) {
++			dev_err(&fc->dev, "Failed to allocate reg_2 control registers.");
++			return -ENOMEM;
++		}
++		f1a->control.reg_2->regs =
++				kzalloc(f1a->button_bitmask_size, GFP_KERNEL);
++		if (!f1a->control.reg_2->regs) {
++			dev_err(&fc->dev, "Failed to allocate reg_2->regs control registers.");
++			return -ENOMEM;
++		}
++		f1a->control.reg_2->address = ctrl_base_addr;
++		f1a->control.reg_2->length = f1a->button_bitmask_size;
++		ctrl_base_addr += f1a->button_bitmask_size;
 +	}
-+	f19->control.reg_2->regs =
-+			kzalloc(f19->button_bitmask_size, GFP_KERNEL);
-+	if (!f19->control.reg_2->regs) {
-+		dev_err(&fc->dev, "Failed to allocate reg_2->regs control registers.");
-+		return -ENOMEM;
-+	}
-+	f19->control.reg_2->address = ctrl_base_addr;
-+	f19->control.reg_2->length = f19->button_bitmask_size;
-+	ctrl_base_addr += f19->button_bitmask_size;
 +
-+	/* reg 3 */
-+	f19->control.reg_3 =
-+			kzalloc(sizeof(struct f19_0d_control_3), GFP_KERNEL);
-+	if (!f19->control.reg_3) {
-+		dev_err(&fc->dev, "Failed to allocate reg_3 control registers.");
-+		return -ENOMEM;
++	/* reg 3_4*/
++	if (f1a->query.has_tx_rx_map) {
++		f1a->control.reg_3_4 =
++			kzalloc(sizeof(struct f1a_0d_control_3_4), GFP_KERNEL);
++		if (!f1a->control.reg_3_4) {
++			dev_err(&fc->dev, "Failed to allocate reg_3_4 control registers.");
++			return -ENOMEM;
++		}
++		regSize = sizeof(struct f1a_0d_control_3_4n);
++		f1a->control.reg_3_4->regs =
++			kzalloc(regSize * f1a->sensor_button_count, GFP_KERNEL);
++		if (!f1a->control.reg_3_4->regs) {
++			dev_err(&fc->dev, "Failed to allocate reg_3_4->regs control registers.");
++			return -ENOMEM;
++		}
++		f1a->control.reg_3_4->address = ctrl_base_addr;
++		f1a->control.reg_3_4->length =
++					regSize * f1a->sensor_button_count;
++		ctrl_base_addr += regSize * f1a->sensor_button_count;
 +	}
-+	f19->control.reg_3->regs =
-+			kzalloc(f19->query.button_count, GFP_KERNEL);
-+	if (!f19->control.reg_3->regs) {
-+		dev_err(&fc->dev, "Failed to allocate reg_3->regs control registers.");
-+		return -ENOMEM;
-+	}
-+	f19->control.reg_3->address = ctrl_base_addr;
-+	f19->control.reg_3->length = f19->query.button_count;
-+	ctrl_base_addr += f19->query.button_count;
-+
-+	/* reg 4 */
-+	f19->control.reg_4 =
-+			kzalloc(sizeof(struct f19_0d_control_4), GFP_KERNEL);
-+	if (!f19->control.reg_4) {
-+		dev_err(&fc->dev, "Failed to allocate reg_3 control registers.");
-+		return -ENOMEM;
-+	}
-+	f19->control.reg_4->regs =
-+			kzalloc(f19->query.button_count, GFP_KERNEL);
-+	if (!f19->control.reg_4->regs) {
-+		dev_err(&fc->dev, "Failed to allocate reg_3->regs control registers.");
-+		return -ENOMEM;
-+	}
-+	f19->control.reg_4->address = ctrl_base_addr;
-+	f19->control.reg_4->length = f19->query.button_count;
-+	ctrl_base_addr += f19->query.button_count;
 +
 +	/* reg 5 */
-+	if (f19->query.has_sensitivity_adjust) {
-+		f19->control.reg_5 =
-+			kzalloc(sizeof(f19->control.reg_5->regs), GFP_KERNEL);
-+		if (!f19->control.reg_5) {
++	if (f1a->query.has_perbutton_threshold) {
++		f1a->control.reg_5 =
++			kzalloc(sizeof(struct f1a_0d_control_5), GFP_KERNEL);
++		if (!f1a->control.reg_5) {
 +			dev_err(&fc->dev, "Failed to allocate reg_5 control registers.");
 +			return -ENOMEM;
 +		}
-+		f19->control.reg_5->address = ctrl_base_addr;
-+		ctrl_base_addr += sizeof(f19->control.reg_5->regs);
++		f1a->control.reg_5->regs =
++				kzalloc(f1a->sensor_button_count, GFP_KERNEL);
++		if (!f1a->control.reg_5->regs) {
++			dev_err(&fc->dev, "Failed to allocate reg_5->regs control registers.");
++			return -ENOMEM;
++		}
++		f1a->control.reg_5->address = ctrl_base_addr;
++		f1a->control.reg_5->length = f1a->sensor_button_count;
++		ctrl_base_addr += f1a->sensor_button_count;
 +	}
++
 +	/* reg 6 */
-+	if (f19->query.has_hysteresis_threshold) {
-+		f19->control.reg_6 =
-+			kzalloc(sizeof(f19->control.reg_6->regs), GFP_KERNEL);
-+		if (!f19->control.reg_6) {
++	if (f1a->query.has_release_threshold) {
++		f1a->control.reg_6 =
++			kzalloc(sizeof(f1a->control.reg_6->regs), GFP_KERNEL);
++		if (!f1a->control.reg_6) {
 +			dev_err(&fc->dev, "Failed to allocate reg_6 control registers.");
 +			return -ENOMEM;
 +		}
-+		f19->control.reg_6->address = ctrl_base_addr;
++		f1a->control.reg_6->address = ctrl_base_addr;
++		ctrl_base_addr += sizeof(f1a->control.reg_6->regs);
++	}
++	/* reg 7 */
++	if (f1a->query.has_strongestbtn_hysteresis) {
++		f1a->control.reg_7 =
++			kzalloc(sizeof(f1a->control.reg_7->regs), GFP_KERNEL);
++		if (!f1a->control.reg_7) {
++			dev_err(&fc->dev, "Failed to allocate reg_7 control registers.");
++			return -ENOMEM;
++		}
++		f1a->control.reg_7->address = ctrl_base_addr;
++		ctrl_base_addr += sizeof(f1a->control.reg_7->regs);
++	}
++	/* reg 8 */
++	if (f1a->query.has_filter_strength) {
++		f1a->control.reg_8 =
++			kzalloc(sizeof(f1a->control.reg_8->regs), GFP_KERNEL);
++		if (!f1a->control.reg_8) {
++			dev_err(&fc->dev, "Failed to allocate reg_8 control registers.");
++			return -ENOMEM;
++		}
++		f1a->control.reg_8->address = ctrl_base_addr;
++		ctrl_base_addr += sizeof(f1a->control.reg_8->regs);
 +	}
 +	return 0;
 +}
 +
 +
 +
-+static void rmi_f19_free_memory(struct rmi_function_container *fc)
++static void rmi_f1a_free_memory(struct rmi_function_container *fc)
 +{
-+	union f19_0d_query *query;
-+	struct f19_data *f19 = fc->data;
++	union f1a_0d_query *query;
++	struct f1a_data *f1a = fc->data;
 +
-+	query = &f19->query;
++	query = &f1a->query;
 +	sysfs_remove_group(&fc->dev.kobj, &attrs_query);
-+	sysfs_remove_group(&fc->dev.kobj, &attrs_control);
-+	if (query->has_sensitivity_adjust)
-+		sysfs_remove_file(&fc->dev.kobj, attrify(sensitivity_adj));
 +
-+	if (query->has_hysteresis_threshold)
++	if (query->has_general_control) {
++		sysfs_remove_file(&fc->dev.kobj, attrify(multibutton_report));
++		sysfs_remove_file(&fc->dev.kobj, attrify(filter_mode));
++	}
++
++	if (query->has_interrupt_enable)
 +		sysfs_remove_file(&fc->dev.kobj,
-+				attrify(hysteresis_threshold));
-+	sysfs_remove_group(&fc->dev.kobj, &attrs_command);
-+	if (query->configurable)
-+		sysfs_remove_file(&fc->dev.kobj, &sensor_map_attr.attr);
-+	else
-+		sysfs_remove_file(&fc->dev.kobj, &sensor_map_ro_attr.attr);
++			attrify(interrupt_enabled_button));
 +
-+	if (f19) {
-+		kfree(f19->button_data_buffer);
-+		kfree(f19->button_map);
-+		kfree(f19->control.reg_0);
-+		kfree(f19->control.reg_1);
-+		kfree(f19->control.reg_1->regs);
-+		kfree(f19->control.reg_2);
-+		kfree(f19->control.reg_2->regs);
-+		kfree(f19->control.reg_3);
-+		kfree(f19->control.reg_3->regs);
-+		kfree(f19->control.reg_5);
-+		kfree(f19->control.reg_6);
-+		kfree(f19);
++	if (query->has_multibutton_select)
++		sysfs_remove_file(&fc->dev.kobj, attrify(multi_button));
++
++	if (query->has_tx_rx_map)
++		sysfs_remove_file(&fc->dev.kobj, attrify(tx_rx_map));
++
++	if (query->has_perbutton_threshold)
++		sysfs_remove_file(&fc->dev.kobj, attrify(threshold_button));
++
++	if (query->has_release_threshold)
++		sysfs_remove_file(&fc->dev.kobj,
++				attrify(button_release_threshold));
++
++	if (query->has_strongestbtn_hysteresis)
++		sysfs_remove_file(&fc->dev.kobj,
++				attrify(strongest_button_hysteresis));
++
++	if (query->has_filter_strength)
++		sysfs_remove_file(&fc->dev.kobj, attrify(filter_strength));
++
++	if (f1a) {
++		kfree(f1a->button_data_buffer);
++		kfree(f1a->button_map);
++		kfree(f1a->control.reg_0);
++		if (f1a->control.reg_1) {
++			kfree(f1a->control.reg_1->regs);
++			kfree(f1a->control.reg_1);
++		}
++		if (f1a->control.reg_2) {
++			kfree(f1a->control.reg_2->regs);
++			kfree(f1a->control.reg_2);
++		}
++		if (f1a->control.reg_3_4) {
++			kfree(f1a->control.reg_3_4->regs);
++			kfree(f1a->control.reg_3_4);
++		}
++		if (f1a->control.reg_5) {
++			kfree(f1a->control.reg_5->regs);
++			kfree(f1a->control.reg_5);
++		}
++		kfree(f1a->control.reg_5);
++		kfree(f1a->control.reg_6);
++		kfree(f1a->control.reg_7);
++		kfree(f1a->control.reg_8);
++		kfree(f1a);
 +		fc->data = NULL;
 +	}
 +}
 +
-+static int rmi_f19_initialize(struct rmi_function_container *fc)
++
++static int rmi_f1a_initialize(struct rmi_function_container *fc)
 +{
 +	int i;
-+	int rc;
++	int retval;
 +	struct rmi_device *rmi_dev = fc->rmi_dev;
 +	struct rmi_device_platform_data *pdata;
-+	struct f19_data *f19 = fc->data;
++	struct f1a_data *f1a = fc->data;
 +
-+	/* initial all default values for f19 data here */
-+	rc = rmi_read(rmi_dev, fc->fd.command_base_addr,
-+		(u8 *)&f19->button_rezero);
-+	if (rc < 0) {
-+		dev_err(&fc->dev, "Failed to read command register.\n");
-+		return rc;
-+	}
-+	f19->button_rezero = f19->button_rezero & 1;
++	dev_dbg(&fc->dev, "Intializing F1A values.");
 +
++	/* initial all default values for f1a data here */
 +	pdata = to_rmi_platform_data(rmi_dev);
 +	if (pdata) {
-+		if (!pdata->f19_button_map)
-+			dev_warn(&fc->dev, "F19 button_map is NULL");
-+		else if (!pdata->f19_button_map->map)
++		if (!pdata->f1a_button_map)
++			dev_warn(&fc->dev, "%s - button_map is NULL", __func__);
++		else if (!pdata->f1a_button_map->map)
 +			dev_warn(&fc->dev,
 +				 "Platformdata button map is missing!\n");
 +		else {
-+			if (pdata->f19_button_map->nbuttons !=
-+						f19->query.button_count)
-+				dev_warn(&fc->dev, "Platformdata button map size (%d) != number of buttons on device (%d) - ignored.\n",
-+					pdata->f19_button_map->nbuttons,
-+					f19->query.button_count);
-+			f19->button_count = min(pdata->f19_button_map->nbuttons,
-+					 (u8) f19->query.button_count);
-+			for (i = 0; i < f19->button_count; i++)
-+				f19->button_map[i] =
-+					pdata->f19_button_map->map[i];
++			if (pdata->f1a_button_map->nbuttons !=
++					f1a->sensor_button_count)
++				dev_warn(&fc->dev,
++					"Platform data buttonmap size(%d) != number buttons on device(%d)\n",
++					pdata->f1a_button_map->nbuttons,
++					f1a->sensor_button_count);
++			f1a->button_map_size = min(f1a->sensor_button_count,
++					 pdata->f1a_button_map->nbuttons);
++			for (i = 0; i < f1a->button_map_size; i++)
++				f1a->button_map[i] =
++					pdata->f1a_button_map->map[i];
 +		}
 +	}
-+	rc = rmi_f19_read_control_parameters(rmi_dev, f19);
-+	if (rc < 0) {
++
++	retval = rmi_f1a_read_control_parameters(rmi_dev, f1a);
++	if (retval < 0) {
 +		dev_err(&fc->dev,
-+			"Failed to initialize F19 control params.\n");
-+		return rc;
++			"Failed to initialize F1a control params.\n");
++		return retval;
 +	}
 +
-+	mutex_init(&f19->control_mutex);
-+	mutex_init(&f19->data_mutex);
++	mutex_init(&f1a->control_mutex);
++	mutex_init(&f1a->data_mutex);
 +	return 0;
 +}
 +
-+static int rmi_f19_register_device(struct rmi_function_container *fc)
++
++
++static int rmi_f1a_register_device(struct rmi_function_container *fc)
 +{
 +	int i;
 +	int rc;
++	struct input_dev *input_dev;
 +	struct rmi_device *rmi_dev = fc->rmi_dev;
-+	struct f19_data *f19 = fc->data;
-+	struct input_dev *input_dev = input_allocate_device();
++	struct f1a_data *f1a = fc->data;
 +
++	input_dev = input_allocate_device();
 +	if (!input_dev) {
 +		dev_err(&fc->dev, "Failed to allocate input device.\n");
 +		return -ENOMEM;
 +	}
 +
-+	f19->input = input_dev;
-+	snprintf(f19->input_name, MAX_LEN, "%sfn%02x", dev_name(&rmi_dev->dev),
-+		fc->fd.function_number);
-+	input_dev->name = f19->input_name;
-+	snprintf(f19->input_phys, MAX_LEN, "%s/input0", input_dev->name);
-+	input_dev->phys = f19->input_phys;
++	f1a->input = input_dev;
++	snprintf(f1a->input_name, MAX_NAME_LEN, "%sfn%02x",
++			dev_name(&rmi_dev->dev), fc->fd.function_number);
++	input_dev->name = f1a->input_name;
++	snprintf(f1a->input_phys, MAX_NAME_LEN, "%s/input0", input_dev->name);
++	input_dev->phys = f1a->input_phys;
 +	input_dev->dev.parent = &rmi_dev->dev;
-+	input_set_drvdata(input_dev, f19);
++	input_set_drvdata(input_dev, f1a);
 +
 +	/* Set up any input events. */
 +	set_bit(EV_SYN, input_dev->evbit);
 +	set_bit(EV_KEY, input_dev->evbit);
 +
 +	/* manage button map using input subsystem */
-+	input_dev->keycode = f19->button_map;
-+	input_dev->keycodesize = sizeof(f19->button_map);
-+	input_dev->keycodemax = f19->button_count;
++	input_dev->keycode = f1a->button_map;
++	input_dev->keycodesize = sizeof(f1a->button_map);
++	input_dev->keycodemax = f1a->button_map_size;
 +
-+	/* set bits for each button... */
-+	for (i = 0; i < f19->button_count; i++)
-+		set_bit(f19->button_map[i], input_dev->keybit);
++	/* set bits for each button. */
++	for (i = 0; i < f1a->button_map_size; i++) {
++		set_bit(f1a->button_map[i], input_dev->keybit);
++		input_set_capability(input_dev, EV_KEY, f1a->button_map[i]);
++	}
++
 +	rc = input_register_device(input_dev);
 +	if (rc < 0) {
 +		dev_err(&fc->dev, "Failed to register input device.\n");
@@ -632,168 +721,217 @@ index 0000000..9e9ea93
 +}
 +
 +
-+static int rmi_f19_create_sysfs(struct rmi_function_container *fc)
++static int rmi_f1a_create_sysfs(struct rmi_function_container *fc)
 +{
-+	struct f19_data *f19 = fc->data;
-+	union f19_0d_query *query = &f19->query;
++	struct f1a_data *f19 = fc->data;
++	union f1a_0d_query *query = &f19->query;
 +
 +	dev_dbg(&fc->dev, "Creating sysfs files.\n");
-+
 +	/* Set up sysfs device attributes. */
 +	if (sysfs_create_group(&fc->dev.kobj, &attrs_query) < 0) {
 +		dev_err(&fc->dev, "Failed to create query sysfs files.");
 +		return -ENODEV;
 +	}
-+	if (sysfs_create_group(&fc->dev.kobj, &attrs_control) < 0) {
-+		dev_err(&fc->dev, "Failed to create control sysfs files.");
-+		return -ENODEV;
-+	}
-+	if (query->has_sensitivity_adjust) {
++
++	if (query->has_general_control) {
 +		if (sysfs_create_file(&fc->dev.kobj,
-+				attrify(sensitivity_adj)) < 0) {
-+			dev_err(&fc->dev,
-+				"Failed to create control sysfs files.");
++				attrify(multibutton_report)) < 0) {
++			dev_err(&fc->dev, "Failed to create control sysfs files.");
++			return -ENODEV;
++		}
++		if (sysfs_create_file(&fc->dev.kobj,
++				attrify(filter_mode)) < 0) {
++			dev_err(&fc->dev, "Failed to create control sysfs files.");
 +			return -ENODEV;
 +		}
 +	}
-+	if (query->has_hysteresis_threshold) {
++
++	if (query->has_interrupt_enable) {
 +		if (sysfs_create_file(&fc->dev.kobj,
-+				attrify(hysteresis_threshold)) < 0) {
-+			dev_err(&fc->dev,
-+				"Failed to create control sysfs files.");
++				attrify(interrupt_enabled_button)) < 0) {
++			dev_err(&fc->dev, "Failed to create control sysfs files.");
 +			return -ENODEV;
 +		}
 +	}
-+	if (sysfs_create_group(&fc->dev.kobj, &attrs_command) < 0) {
-+		dev_err(&fc->dev, "Failed to create command sysfs files.");
-+		return -ENODEV;
-+	}
-+	if (query->configurable) {
++
++	if (query->has_multibutton_select) {
 +		if (sysfs_create_file(&fc->dev.kobj,
-+					&sensor_map_attr.attr) < 0) {
-+			dev_err(&fc->dev,
-+				"Failed to create control sysfs files.");
++				attrify(multi_button)) < 0) {
++			dev_err(&fc->dev, "Failed to create control sysfs files.");
 +			return -ENODEV;
 +		}
-+	} else {
++	}
++
++	if (query->has_tx_rx_map) {
 +		if (sysfs_create_file(&fc->dev.kobj,
-+					&sensor_map_ro_attr.attr) < 0) {
-+			dev_err(&fc->dev,
-+				"Failed to create control sysfs files.");
++				attrify(tx_rx_map)) < 0) {
++			dev_err(&fc->dev, "Failed to create control sysfs files.");
++			return -ENODEV;
++		}
++	}
++
++	if (query->has_perbutton_threshold) {
++		if (sysfs_create_file(&fc->dev.kobj,
++				attrify(threshold_button)) < 0) {
++			dev_err(&fc->dev, "Failed to create control sysfs files.");
++			return -ENODEV;
++		}
++	}
++
++	if (query->has_release_threshold) {
++		if (sysfs_create_file(&fc->dev.kobj,
++				attrify(button_release_threshold)) < 0) {
++			dev_err(&fc->dev, "Failed to create control sysfs files.");
++			return -ENODEV;
++		}
++	}
++
++	if (query->has_strongestbtn_hysteresis) {
++		if (sysfs_create_file(&fc->dev.kobj,
++				attrify(strongest_button_hysteresis)) < 0) {
++			dev_err(&fc->dev, "Failed to create control sysfs files.");
++			return -ENODEV;
++		}
++	}
++
++	if (query->has_filter_strength) {
++		if (sysfs_create_file(&fc->dev.kobj,
++				attrify(filter_strength)) < 0) {
++			dev_err(&fc->dev, "Failed to create control sysfs files.");
 +			return -ENODEV;
 +		}
 +	}
 +	return 0;
 +}
 +
-+static int rmi_f19_config(struct rmi_function_container *fc)
++
++
++static int rmi_f1a_config(struct rmi_function_container *fc)
 +{
-+	struct f19_data *f19 = fc->data;
-+	int retval = 0;
-+	union f19_0d_query *query = &f19->query;
-+	struct f19_0d_control *control = &f19->control;
++	int retval;
++	struct f1a_data *f1a = fc->data;
++	union f1a_0d_query *query = &f1a->query;
++	struct f1a_0d_control *control = &f1a->control;
 +
-+	retval = rmi_write_block(fc->rmi_dev, control->reg_0->address,
++	if (query->has_general_control) {
++		retval = rmi_write_block(fc->rmi_dev, control->reg_0->address,
 +			(u8 *)control->reg_0->regs,
-+			sizeof(u8));
-+	if (retval < 0) {
-+		dev_err(&fc->dev, "Could not write control reg0 to %#06x.\n",
-+				control->reg_0->address);
-+		return retval;
++			sizeof(control->reg_0->regs));
++		if (retval < 0) {
++			dev_err(&fc->dev, "%s : Could not write reg0 to 0x%x\n",
++					__func__, control->reg_0->address);
++			return retval;
++		}
 +	}
-+
-+	retval = rmi_write_block(fc->rmi_dev, control->reg_1->address,
-+			(u8 *)control->reg_1->regs, f19->button_bitmask_size);
-+	if (retval < 0) {
-+		dev_err(&fc->dev, "Could not write control reg1 to %#06x.\n",
-+			 control->reg_1->address);
-+		return retval;
++	if (query->has_interrupt_enable) {
++		retval = rmi_write_block(fc->rmi_dev, control->reg_1->address,
++				(u8 *)control->reg_1->regs,
++				f1a->button_bitmask_size);
++		if (retval < 0) {
++			dev_err(&fc->dev, "%s : Could not write reg 1 to 0x%x\n",
++				__func__, control->reg_1->address);
++			return retval;
++		}
 +	}
-+
-+	retval = rmi_write_block(fc->rmi_dev, control->reg_2->address,
-+			(u8 *)control->reg_2->regs, f19->button_bitmask_size);
-+	if (retval < 0) {
-+		dev_err(&fc->dev, "Could not write control reg2 to %#06x.\n",
-+			 control->reg_2->address);
-+		return retval;
++	if (query->has_multibutton_select) {
++		retval = rmi_write_block(fc->rmi_dev, control->reg_2->address,
++				(u8 *)control->reg_2->regs,
++				f1a->button_bitmask_size);
++		if (retval < 0) {
++			dev_err(&fc->dev, "%s : Could not write reg 2 to 0x%x\n",
++				__func__, control->reg_2->address);
++			return -EINVAL;
++		}
 +	}
-+
-+	retval = rmi_write_block(fc->rmi_dev, control->reg_3->address,
-+			(u8 *)control->reg_3->regs, query->button_count);
-+	if (retval < 0) {
-+		dev_err(&fc->dev, "Could not write control reg3 to %#06x.\n",
-+			 control->reg_3->address);
-+		return retval;
++	if (query->has_tx_rx_map) {
++		retval = rmi_write_block(fc->rmi_dev, control->reg_3_4->address,
++				(u8 *)control->reg_3_4->regs,
++				f1a->sensor_button_count);
++		if (retval < 0) {
++			dev_err(&fc->dev, "%s : Could not write reg_3_4 to 0x%x\n",
++					__func__, control->reg_3_4->address);
++			return -EINVAL;
++		}
 +	}
-+
-+	retval = rmi_write_block(fc->rmi_dev, control->reg_4->address,
-+			(u8 *)control->reg_4->regs, query->button_count);
-+	if (retval < 0) {
-+		dev_err(&fc->dev, "Could not write control reg3 to %#06x.\n",
-+			 control->reg_4->address);
-+		return retval;
-+	}
-+
-+	if (query->has_sensitivity_adjust) {
++	if (query->has_perbutton_threshold) {
 +		retval = rmi_write_block(fc->rmi_dev, control->reg_5->address,
 +				(u8 *)control->reg_5->regs,
-+				sizeof(control->reg_5->regs));
++				f1a->sensor_button_count);
 +		if (retval < 0) {
-+			dev_err(&fc->dev,
-+				"Could not write control reg5 to %#06x.\n",
-+				control->reg_5->address);
++			dev_err(&fc->dev, "%s : Could not write to reg 5 to 0x%x\n",
++				__func__, control->reg_5->address);
 +			return retval;
 +		}
 +	}
-+	if (query->has_hysteresis_threshold) {
++	if (query->has_release_threshold) {
 +		retval = rmi_write_block(fc->rmi_dev, control->reg_6->address,
-+				(u8 *)control->reg_6->regs,
-+				sizeof(control->reg_6->regs));
++			(u8 *)control->reg_6->regs,
++			sizeof(control->reg_6->regs));
 +		if (retval < 0) {
-+			dev_err(&fc->dev,
-+				"Could not write control reg6 to %#06x.\n",
-+				control->reg_6->address);
-+			return retval;
++			dev_err(&fc->dev, "%s : Could not write  reg 6 to 0x%x\n",
++				__func__, control->reg_6->address);
++			return -EINVAL;
++		}
++	}
++	if (query->has_strongestbtn_hysteresis) {
++		retval = rmi_write_block(fc->rmi_dev, control->reg_7->address,
++			(u8 *)control->reg_7->regs,
++			sizeof(control->reg_7->regs));
++		if (retval < 0) {
++			dev_err(&fc->dev, "%s : Could not write reg 7 to 0x%x\n",
++				__func__, control->reg_7->address);
++			return -EINVAL;
++		}
++	}
++	if (query->has_filter_strength) {
++		retval = rmi_write_block(fc->rmi_dev, control->reg_8->address,
++			(u8 *)control->reg_8->regs,
++			sizeof(control->reg_8->regs));
++		if (retval < 0) {
++			dev_err(&fc->dev, "%s : Could not write reg 8 to 0x%x\n",
++				__func__, control->reg_8->address);
++			return -EINVAL;
 +		}
 +	}
 +	return 0;
 +}
 +
 +
-+static int rmi_f19_reset(struct rmi_function_container *fc)
++static int rmi_f1a_reset(struct rmi_function_container *fc)
 +{
 +	/* we do nnothing here */
 +	return 0;
 +}
 +
 +
-+static void rmi_f19_remove(struct rmi_function_container *fc)
++static void rmi_f1a_remove(struct rmi_function_container *fc)
 +{
-+	struct f19_data *f19 = fc->data;
++	struct f1a_data *f1a = fc->data;
 +
-+	input_unregister_device(f19->input);
-+	rmi_f19_free_memory(fc);
++	input_unregister_device(f1a->input);
++
++	rmi_f1a_free_memory(fc);
 +}
 +
-+static int rmi_f19_attention(struct rmi_function_container *fc, u8 *irq_bits)
++static int rmi_f1a_attention(struct rmi_function_container *fc, u8 *irq_bits)
 +{
 +	int error;
 +	int button;
 +	struct rmi_device *rmi_dev = fc->rmi_dev;
-+	struct f19_data *f19 = fc->data;
++	struct f1a_data *f1a = fc->data;
 +	u16 data_base_addr = fc->fd.data_base_addr;
 +
 +	/* Read the button data. */
-+	error = rmi_read_block(rmi_dev, data_base_addr, f19->button_data_buffer,
-+			f19->button_bitmask_size);
++	error = rmi_read_block(rmi_dev, data_base_addr, f1a->button_data_buffer,
++			f1a->button_bitmask_size);
 +	if (error < 0) {
 +		dev_err(&fc->dev, "%s: Failed to read button data registers.\n",
 +			__func__);
 +		return error;
 +	}
 +
-+	/* Generate events for buttons. */
-+	for (button = 0; button < f19->button_count; button++) {
++	/* Generate events for buttons that change state. */
++	for (button = 0; button < f1a->sensor_button_count; button++) {
 +		int button_reg;
 +		int button_shift;
 +		bool button_status;
@@ -803,27 +941,31 @@ index 0000000..9e9ea93
 +		/* bit shift to get button's status */
 +		button_shift = button % 8;
 +		button_status =
-+		    ((f19->button_data_buffer[button_reg] >> button_shift)
++		    ((f1a->button_data_buffer[button_reg] >> button_shift)
 +			& 0x01) != 0;
++
++		dev_dbg(&fc->dev, "%s: Button %d (code %d) -> %d.\n",
++			__func__, button, f1a->button_map[button],
++				button_status);
 +		/* Generate an event here. */
-+		input_report_key(f19->input, f19->button_map[button],
-+				 button_status);
++		input_report_key(f1a->input, f1a->button_map[button],
++					button_status);
 +	}
 +
-+	input_sync(f19->input); /* sync after groups of events */
++	input_sync(f1a->input); /* sync after groups of events */
 +	return 0;
 +}
 +
 +static struct rmi_function_handler function_handler = {
-+	.func = 0x19,
-+	.init = rmi_f19_init,
-+	.config = rmi_f19_config,
-+	.reset = rmi_f19_reset,
-+	.attention = rmi_f19_attention,
-+	.remove = rmi_f19_remove
++	.func = 0x1a,
++	.init = rmi_f1a_init,
++	.config = rmi_f1a_config,
++	.reset = rmi_f1a_reset,
++	.attention = rmi_f1a_attention,
++	.remove = rmi_f1a_remove
 +};
 +
-+static int __init rmi_f19_module_init(void)
++static int __init rmi_f1a_module_init(void)
 +{
 +	int error;
 +
@@ -836,66 +978,85 @@ index 0000000..9e9ea93
 +	return 0;
 +}
 +
-+static void rmi_f19_module_exit(void)
++static void rmi_f1a_module_exit(void)
 +{
 +	rmi_unregister_function_driver(&function_handler);
 +}
 +
 +/* sysfs functions */
 +/* Query */
-+simple_show_union_struct_unsigned(query, configurable)
-+simple_show_union_struct_unsigned(query, has_sensitivity_adjust)
-+simple_show_union_struct_unsigned(query, has_hysteresis_threshold)
-+simple_show_union_struct_unsigned(query, button_count)
++simple_show_union_struct_unsigned(query, max_button_count)
++simple_show_union_struct_unsigned(query, has_general_control)
++simple_show_union_struct_unsigned(query, has_interrupt_enable)
++simple_show_union_struct_unsigned(query, has_multibutton_select)
++simple_show_union_struct_unsigned(query, has_tx_rx_map)
++simple_show_union_struct_unsigned(query, has_perbutton_threshold)
++simple_show_union_struct_unsigned(query, has_release_threshold)
++simple_show_union_struct_unsigned(query, has_strongestbtn_hysteresis)
++simple_show_union_struct_unsigned(query, has_filter_strength)
 +
 +/* Control */
-+show_store_union_struct_unsigned(control, reg_0, button_usage)
++show_store_union_struct_unsigned(control, reg_0, multibutton_report)
 +show_store_union_struct_unsigned(control, reg_0, filter_mode)
-+show_store_union_struct_unsigned(control, reg_5, sensitivity_adj)
-+show_store_union_struct_unsigned(control, reg_6, hysteresis_threshold)
++show_store_union_struct_unsigned(control, reg_6, button_release_threshold)
++show_store_union_struct_unsigned(control, reg_7, strongest_button_hysteresis)
++show_store_union_struct_unsigned(control, reg_8, filter_strength)
 +
 +/* repeated register functions */
-+show_store_repeated_union_struct_unsigned(control, reg_1, int_enabled_button)
-+show_store_repeated_union_struct_unsigned(control, reg_2, single_button)
-+show_store_repeated_union_struct_unsigned(control, reg_3, sensor_map_button)
-+show_store_repeated_union_struct_unsigned(control, reg_4, sensitivity_button)
++show_store_repeated_union_struct_unsigned(control, reg_1,
++						interrupt_enabled_button)
++show_store_repeated_union_struct_unsigned(control, reg_2, multi_button)
++show_store_repeated_union_struct_unsigned(control, reg_5, threshold_button)
 +
-+/* command */
-+static ssize_t f19_rezero_store(struct device *dev,
-+					 struct device_attribute *attr,
-+					 const char *buf,
-+					 size_t count)
++static ssize_t rmi_fn_1a_tx_rx_map_show(struct device *dev,
++				struct device_attribute *attr,
++				char *buf)
 +{
-+	unsigned int new_value;
-+	int len;
-+	struct f19_data *f19;
-+	struct rmi_function_container *fc = to_rmi_function_container(dev);
++	struct rmi_function_container *fc;
++	struct FUNCTION_DATA *data;
++	struct f1a_0d_control *control;
++	int reg_length;
++	int result, size = 0;
++	char *temp;
++	int i;
 +
-+	f19 = fc->data;
-+	len = sscanf(buf, "%u", &new_value);
-+	if (new_value != 0 && new_value != 1) {
-+		dev_err(dev, "%s: Error - rezero is not a valid value 0x%x.\n",
-+			__func__, new_value);
-+		return -EINVAL;
-+	}
-+	f19->button_rezero = new_value & 1;
-+	len = rmi_write(fc->rmi_dev, fc->fd.command_base_addr,
-+		f19->button_rezero);
++	fc = to_rmi_function_container(dev);
++	data = fc->data;
++	control = &data->control;
++	/* Read current regtype values */
++	reg_length = control->reg_3_4->length;
++	result = rmi_read_block(fc->rmi_dev, control->reg_3_4->address,
++			(u8 *)control->reg_3_4->regs,
++			reg_length * sizeof(u8));
 +
-+	if (len < 0) {
-+		dev_err(dev, "%s : Could not write rezero to 0x%x\n",
-+				__func__, fc->fd.command_base_addr);
-+		return -EINVAL;
++	if (result < 0) {
++		dev_dbg(dev, "%s : Could not read regtype at 0x%x\n Data may be outdated.",
++				__func__, control->reg_3_4->address);
 +	}
-+	return count;
++	temp = buf;
++	for (i = 0; i < reg_length/2; i++) {
++		result = snprintf(temp, PAGE_SIZE - size, "%u-%u ",
++				control->reg_3_4->regs[i].transmitterbtn,
++				control->reg_3_4->regs[i].receiverbtn);
++		if (result < 0) {
++			dev_err(dev, "%s : Could not write output.", __func__);
++			return result;
++		}
++		size += result;
++		temp += result;
++	}
++	result = snprintf(temp, PAGE_SIZE - size, "\n");
++	if (result < 0) {
++			dev_err(dev, "%s : Could not write output.", __func__);
++			return result;
++	}
++	return size + result;
 +}
 +
-+
-+
-+module_init(rmi_f19_module_init);
-+module_exit(rmi_f19_module_exit);
++module_init(rmi_f1a_module_init);
++module_exit(rmi_f1a_module_exit);
 +
 +MODULE_AUTHOR("Vivian Ly <vly@synaptics.com>");
-+MODULE_DESCRIPTION("RMI F19 module");
++MODULE_DESCRIPTION("RMI F1a module");
 +MODULE_LICENSE("GPL");
 +MODULE_VERSION(RMI_DRIVER_VERSION);

@@ -1,197 +1,50 @@
 From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: [PATCH 3/6] HID: picoLCD: Add support for CIR
-Date: Sun, 19 Aug 2012 19:32:54 +0200
-Message-ID: <20120819193254.6a48348d@neptune.home>
+Subject: [PATCH 4/6] HID: picoLCD: optimize for inactive debugfs
+Date: Sun, 19 Aug 2012 19:33:02 +0200
+Message-ID: <20120819193302.71e682e9@neptune.home>
 References: <20120819192859.74136bb0@neptune.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay.restena.lu ([158.64.1.62]:59767 "EHLO
+Received: from smtprelay.restena.lu ([158.64.1.62]:59771 "EHLO
 	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751851Ab2HSRdi convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1754503Ab2HSRdr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 19 Aug 2012 13:33:38 -0400
+	Sun, 19 Aug 2012 13:33:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Implement support for picoLCD's CIR header using RC_CORE for decoding
-the IR event stream.
+Matthieu CASTET adjusted picolcd_debug_out_report() to only operate whe=
+n
+there is an active listener on debugfs for events.
+
+Do the same on the more important picolcd_debug_raw_event() that is
+called in interrupt context as opposed to picolcd_debug_out_report()
+which happens in whichever context that sends reports to device.
 
 Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
 ---
- drivers/hid/hid-picolcd.h      |    5 ++-
- drivers/hid/hid-picolcd_cir.c  |   95 ++++++++++++++++++++++++++++++++=
-+++++++-
- drivers/hid/hid-picolcd_core.c |    3 +-
- 3 files changed, 98 insertions(+), 5 deletions(-)
+ drivers/hid/hid-picolcd_debugfs.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/hid/hid-picolcd.h b/drivers/hid/hid-picolcd.h
-index dc4c795..240eb1c 100644
---- a/drivers/hid/hid-picolcd.h
-+++ b/drivers/hid/hid-picolcd.h
-@@ -85,7 +85,9 @@ struct picolcd_data {
- 	/* input stuff */
- 	u8 pressed_keys[2];
- 	struct input_dev *input_keys;
--	struct input_dev *input_cir;
-+#ifdef CONFIG_HID_PICOLCD_CIR
-+	struct rc_dev *rc_dev;
-+#endif
- 	unsigned short keycode[PICOLCD_KEYS];
+diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-picolc=
+d_debugfs.c
+index f18a4c2..dbefab7 100644
+--- a/drivers/hid/hid-picolcd_debugfs.c
++++ b/drivers/hid/hid-picolcd_debugfs.c
+@@ -656,7 +656,7 @@ void picolcd_debug_raw_event(struct picolcd_data *d=
+ata,
 =20
- #ifdef CONFIG_HID_PICOLCD_FB
-@@ -114,6 +116,7 @@ struct picolcd_data {
- 	int status;
- #define PICOLCD_BOOTLOADER 1
- #define PICOLCD_FAILED 2
-+#define PICOLCD_CIR_SHUN 4
- };
+ #define BUFF_SZ 256
+ 	/* Avoid unnecessary overhead if debugfs is disabled */
+-	if (!hdev->debug_events)
++	if (list_empty(&hdev->debug_list))
+ 		return;
 =20
- #ifdef CONFIG_HID_PICOLCD_FB
-diff --git a/drivers/hid/hid-picolcd_cir.c b/drivers/hid/hid-picolcd_ci=
-r.c
-index dc632c3..f38af30 100644
---- a/drivers/hid/hid-picolcd_cir.c
-+++ b/drivers/hid/hid-picolcd_cir.c
-@@ -37,6 +37,7 @@
- #include <linux/completion.h>
- #include <linux/uaccess.h>
- #include <linux/module.h>
-+#include <media/rc-core.h>
-=20
- #include "hid-picolcd.h"
-=20
-@@ -44,18 +45,108 @@
- int picolcd_raw_cir(struct picolcd_data *data,
- 		struct hid_report *report, u8 *raw_data, int size)
- {
--	/* Need understanding of CIR data format to implement ... */
-+	unsigned long flags;
-+	int i, w, sz;
-+	DEFINE_IR_RAW_EVENT(rawir);
-+
-+	/* ignore if rc_dev is NULL or status is shunned */
-+	spin_lock_irqsave(&data->lock, flags);
-+	if (data->rc_dev && (data->status & PICOLCD_CIR_SHUN)) {
-+		spin_unlock_irqrestore(&data->lock, flags);
-+		return 1;
-+	}
-+	spin_unlock_irqrestore(&data->lock, flags);
-+
-+	/* PicoLCD USB packets contain 16-bit intervals in network order,
-+	 * with value negated for pulse. Intervals are in microseconds.
-+	 *
-+	 * Note: some userspace LIRC code for PicoLCD says negated values
-+	 * for space - is it a matter of IR chip? (pulse for my TSOP2236)
-+	 *
-+	 * In addition, the first interval seems to be around 15000 + base
-+	 * interval for non-first report of IR data - thus the quirk below
-+	 * to get RC_CODE to understand Sony and JVC remotes I have at hand
-+	 */
-+	sz =3D size > 0 ? min((int)raw_data[0], size-1) : 0;
-+	for (i =3D 0; i+1 < sz; i +=3D 2) {
-+		init_ir_raw_event(&rawir);
-+		w =3D (raw_data[i] << 8) | (raw_data[i+1]);
-+		rawir.pulse =3D !!(w & 0x8000);
-+		rawir.duration =3D US_TO_NS(rawir.pulse ? (65536 - w) : w);
-+		/* Quirk!! - see above */
-+		if (i =3D=3D 0 && rawir.duration > 15000000)
-+			rawir.duration -=3D 15000000;
-+		ir_raw_event_store(data->rc_dev, &rawir);
-+	}
-+	ir_raw_event_handle(data->rc_dev);
-+
- 	return 1;
- }
-=20
-+static int picolcd_cir_open(struct rc_dev *dev)
-+{
-+	struct picolcd_data *data =3D dev->priv;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&data->lock, flags);
-+	data->status &=3D ~PICOLCD_CIR_SHUN;
-+	spin_unlock_irqrestore(&data->lock, flags);
-+	return 0;
-+}
-+
-+static void picolcd_cir_close(struct rc_dev *dev)
-+{
-+	struct picolcd_data *data =3D dev->priv;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&data->lock, flags);
-+	data->status |=3D PICOLCD_CIR_SHUN;
-+	spin_unlock_irqrestore(&data->lock, flags);
-+}
-+
- /* initialize CIR input device */
- int picolcd_init_cir(struct picolcd_data *data, struct hid_report *rep=
-ort)
- {
--	/* support not implemented yet */
-+	struct rc_dev *rdev;
-+	int ret =3D 0;
-+
-+	rdev =3D rc_allocate_device();
-+	if (!rdev)
-+		return -ENOMEM;
-+
-+	rdev->priv             =3D data;
-+	rdev->driver_type      =3D RC_DRIVER_IR_RAW;
-+	rdev->allowed_protos   =3D RC_TYPE_ALL;
-+	rdev->open             =3D picolcd_cir_open;
-+	rdev->close            =3D picolcd_cir_close;
-+	rdev->input_name       =3D data->hdev->name;
-+	rdev->input_phys       =3D data->hdev->phys;
-+	rdev->input_id.bustype =3D data->hdev->bus;
-+	rdev->input_id.vendor  =3D data->hdev->vendor;
-+	rdev->input_id.product =3D data->hdev->product;
-+	rdev->input_id.version =3D data->hdev->version;
-+	rdev->dev.parent       =3D &data->hdev->dev;
-+	rdev->driver_name      =3D PICOLCD_NAME;
-+	rdev->map_name         =3D RC_MAP_RC6_MCE;
-+	rdev->timeout          =3D MS_TO_NS(100);
-+	rdev->rx_resolution    =3D US_TO_NS(1);
-+
-+	ret =3D rc_register_device(rdev);
-+	if (ret)
-+		goto err;
-+	data->rc_dev =3D rdev;
- 	return 0;
-+
-+err:
-+	rc_free_device(rdev);
-+	return ret;
- }
-=20
- void picolcd_exit_cir(struct picolcd_data *data)
- {
-+	struct rc_dev *rdev =3D data->rc_dev;
-+
-+	data->rc_dev =3D NULL;
-+	rc_unregister_device(rdev);
- }
-=20
-diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_c=
-ore.c
-index 76ab173..580269b 100644
---- a/drivers/hid/hid-picolcd_core.c
-+++ b/drivers/hid/hid-picolcd_core.c
-@@ -356,8 +356,7 @@ static int picolcd_raw_event(struct hid_device *hde=
-v,
- 		if (data->input_keys)
- 			ret =3D picolcd_raw_keypad(data, report, raw_data+1, size-1);
- 	} else if (report->id =3D=3D REPORT_IR_DATA) {
--		if (data->input_cir)
--			ret =3D picolcd_raw_cir(data, report, raw_data+1, size-1);
-+		ret =3D picolcd_raw_cir(data, report, raw_data+1, size-1);
- 	} else {
- 		spin_lock_irqsave(&data->lock, flags);
- 		/*
+ 	buff =3D kmalloc(BUFF_SZ, GFP_ATOMIC);
 --=20
 1.7.8.6
 

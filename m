@@ -1,50 +1,32 @@
-From: UN Grant Award <info1@yahoo.com>
-Subject: grant pin #UNF/FBF-816-1119 G-900-94
-Date: Sun, 19 Aug 2012 07:28:50 +1000
-Message-ID: <201208182128.q7ILSopP010123@mail03.syd.optusnet.com.au>
-Reply-To: ungrants@ymail.com
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 0/7] HID: picoLCD updates
+Date: Sat, 18 Aug 2012 20:11:13 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1208182001320.25537-100000@netrider.rowland.org>
+References: <20120818154828.0e992bfe@neptune.home>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: binary
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fallbackmx07.syd.optusnet.com.au ([211.29.132.9]:56374 "EHLO
-	fallbackmx07.syd.optusnet.com.au" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752536Ab2HRVat (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Aug 2012 17:30:49 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120818154828.0e992bfe@neptune.home>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+On Sat, 18 Aug 2012, Bruno Pr=C3=A9mont wrote:
 
+> One thing I just though about, how does usbhid handle the calls to
+> usbhid_submit_report() when hid_hw_stop()/hid_hw_close() have already
+> been called?
 
-Attention: Email Owner, 
+Looks like they aren't synchronized at all.  That's a bug. =20
+usbhid_submit_report() should check the HID_DISCONNECTED flag.
 
-You have been selected by the UN for a 
-Humanitarian Development Cash Grant program
-to enhance and develop the standard of 
-living geared towards poverty eradication as 
-targeted by the year 2020.You have been 
-granted the sum of 800,000.00 Pounds your 
-grant pin #UNF/FBF-816-1119 G-900-94. 
+> I will attempt to see if it makes a difference to shortcut my
+> usbhid_submit_report() calls from the point on I have called hid_hw_c=
+lose()...
 
-Contact payment department for your funds.
-Payment Officer: Mrs.Shannon Maris
-Email:ungrants@ymail.com 
+I don't know bout hid_hw_close().  Certainly no more reports should be=20
+submitted following usbhid_stop().
 
-You are to provide her your information 
-below for claims.
- 
-1 Full Names:
-2 Full Address:
-3 Nationality:
-4 Age:
-5 Gender:
-6 Occupation:
-7 Cell Phone:
-8 Present Country:
-9 Alternate Email Address:
-
-Regards,
-Mrs. Carlton Joan.
-Chairman UNDP Grant Programme.
+Alan Stern

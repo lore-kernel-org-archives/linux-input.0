@@ -1,37 +1,50 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH] Input: Let the FT5x06 driver build without debugfs
-Date: Mon, 20 Aug 2012 06:53:03 -0700
-Message-ID: <20120820135303.GA9278@roeck-us.net>
-References: <87k3wy1ii3.fsf@xmission.com>
- <502DFC1D.20903@kernelconcepts.de>
- <87boi91g01.fsf@xmission.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH RESEND] dj: memory scribble in logi_dj
+Date: Mon, 20 Aug 2012 15:46:10 +0100
+Message-ID: <20120820144554.6301.66896.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <87boi91g01.fsf@xmission.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Simon Budig <simon.budig@kernelconcepts.de>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:53585 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756599Ab2HTO2l (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Aug 2012 10:28:41 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Aug 17, 2012 at 12:21:34PM -0700, Eric W. Biederman wrote:
-> Simon Budig <simon.budig@kernelconcepts.de> writes:
-> 
-> > On 08/17/2012 02:15 AM, Eric W. Biederman wrote:
-> >> When testing to make certain my user namespace code works in
-> >> various configurations I tripped over the tf5x06.c not building
-> >> with debugfs disabled.
-> >
-> > Sorry for that.
-> >
-> > There already is a patch for this issue which I slightly prefer. You
-> > can find it in the mail from Guenther Roeck:
-> >    http://www.mail-archive.com/linux-input@vger.kernel.org/msg00646.html
-> 
-> If you guys could get that merged into 3.6 I would appreciate it.
-> 
-Yes, that would be great. I don't recall seeing an e-mail from Dmitry accepting
-it, though.
+From: Alan Cox <alan@linux.intel.com>
 
-Guenter
+Allocate a structure not a pointer to it !
+
+Signed-off-by: Alan Cox <alan@linux.intel.com>
+---
+
+ drivers/hid/hid-logitech-dj.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index 0f9c146..4d524b5 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -439,7 +439,7 @@ static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
+ 	struct dj_report *dj_report;
+ 	int retval;
+ 
+-	dj_report = kzalloc(sizeof(dj_report), GFP_KERNEL);
++	dj_report = kzalloc(sizeof(struct dj_report), GFP_KERNEL);
+ 	if (!dj_report)
+ 		return -ENOMEM;
+ 	dj_report->report_id = REPORT_ID_DJ_SHORT;
+@@ -456,7 +456,7 @@ static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
+ 	struct dj_report *dj_report;
+ 	int retval;
+ 
+-	dj_report = kzalloc(sizeof(dj_report), GFP_KERNEL);
++	dj_report = kzalloc(sizeof(struct dj_report), GFP_KERNEL);
+ 	if (!dj_report)
+ 		return -ENOMEM;
+ 	dj_report->report_id = REPORT_ID_DJ_SHORT;
+

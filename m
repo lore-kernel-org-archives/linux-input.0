@@ -1,50 +1,51 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH RESEND] dj: memory scribble in logi_dj
-Date: Mon, 20 Aug 2012 15:46:10 +0100
-Message-ID: <20120820144554.6301.66896.stgit@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Subject: [PATCH] Input: imx_keypad - reset the hardware before enabling
+Date: Mon, 20 Aug 2012 17:34:53 +0200
+Message-ID: <1345476893-4737-1-git-send-email-m.grzeschik@pengutronix.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:53585 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756599Ab2HTO2l (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:38307 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756982Ab2HTPe6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Aug 2012 10:28:41 -0400
+	Mon, 20 Aug 2012 11:34:58 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org
 
-From: Alan Cox <alan@linux.intel.com>
+assert the hardware is correctly initialized before requesting the
+interrupt. Otherwise if a key was already touched since power-on the
+kernel enters an interrupt loop. To fix this issue we clear pending
+interrupt sources. We have to ensure to enable clks while changing the
+keypad registers.
 
-Allocate a structure not a pointer to it !
-
-Signed-off-by: Alan Cox <alan@linux.intel.com>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
 ---
+ drivers/input/keyboard/imx_keypad.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
- drivers/hid/hid-logitech-dj.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 0f9c146..4d524b5 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -439,7 +439,7 @@ static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
- 	struct dj_report *dj_report;
- 	int retval;
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index ff4c0a8..ce68e36 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -358,6 +358,7 @@ static void imx_keypad_inhibit(struct imx_keypad *keypad)
+ 	/* Inhibit KDI and KRI interrupts. */
+ 	reg_val = readw(keypad->mmio_base + KPSR);
+ 	reg_val &= ~(KBD_STAT_KRIE | KBD_STAT_KDIE);
++	reg_val |= KBD_STAT_KPKR | KBD_STAT_KPKD;
+ 	writew(reg_val, keypad->mmio_base + KPSR);
  
--	dj_report = kzalloc(sizeof(dj_report), GFP_KERNEL);
-+	dj_report = kzalloc(sizeof(struct dj_report), GFP_KERNEL);
- 	if (!dj_report)
- 		return -ENOMEM;
- 	dj_report->report_id = REPORT_ID_DJ_SHORT;
-@@ -456,7 +456,7 @@ static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
- 	struct dj_report *dj_report;
- 	int retval;
+ 	/* Colums as open drain and disable all rows */
+@@ -515,7 +516,9 @@ static int __devinit imx_keypad_probe(struct platform_device *pdev)
+ 	input_set_drvdata(input_dev, keypad);
  
--	dj_report = kzalloc(sizeof(dj_report), GFP_KERNEL);
-+	dj_report = kzalloc(sizeof(struct dj_report), GFP_KERNEL);
- 	if (!dj_report)
- 		return -ENOMEM;
- 	dj_report->report_id = REPORT_ID_DJ_SHORT;
+ 	/* Ensure that the keypad will stay dormant until opened */
++	clk_enable(keypad->clk);
+ 	imx_keypad_inhibit(keypad);
++	clk_disable(keypad->clk);
+ 
+ 	error = request_irq(irq, imx_keypad_irq_handler, 0,
+ 			    pdev->name, keypad);
+-- 
+1.7.10.4
 

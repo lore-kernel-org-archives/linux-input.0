@@ -1,75 +1,109 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 0/7] HID: picoLCD updates
-Date: Sun, 19 Aug 2012 15:56:24 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1208191545230.7627-100000@netrider.rowland.org>
-References: <20120819182300.63665a0b@neptune.home>
+From: Bo Shen <voice.shen@atmel.com>
+Subject: Re: [PATCH] input: qt1070: add device tree support
+Date: Mon, 20 Aug 2012 10:08:54 +0800
+Message-ID: <50319C36.10605@atmel.com>
+References: <1345197788-32116-1-git-send-email-voice.shen@atmel.com> <502E8CCA.6090601@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120819182300.63665a0b@neptune.home>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:60221 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752917Ab2HTCJJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 19 Aug 2012 22:09:09 -0400
+In-Reply-To: <502E8CCA.6090601@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Shubhrajyoti <shubhrajyoti@ti.com>
+Cc: dmitry.torokhov@gmail.com, nicolas.ferre@atmel.com, jm.lin@atmel.com, linux-input@vger.kernel.org
 
-On Sun, 19 Aug 2012, Bruno Pr=C3=A9mont wrote:
+Hi Sir,
 
-> > I don't know bout hid_hw_close().  Certainly no more reports should=
- be=20
-> > submitted following usbhid_stop().
->=20
-> Ok, I did just that, prevent new calls to usbhid_submit_report(), aft=
-er
-> calling hid_hw_close(), fixed one bug in my code that triggers the NU=
-LL
-> pointer dereference (calling hid_set_drvdata(hdev, NULL) too early).
->=20
-> Now I'm still seeing the bad paging request in _mmx_memcpy(), though =
-rather
-> sporadically.
-> The last ones I saw were during remove() around the time of calling h=
-id_hw_close()
-> and hid_hw_stop(). Adding a printk() between the two (at least while =
-picoLCD
-> is hosting fbcon) makes it very improbably for the bad page to happen=
-=2E
->=20
-> It looks like low-level driver did free memory in hid_hw_close() for =
-some
-> in-flight URB and thus things break in following USB interrupt.
+On 8/18/2012 2:26, Shubhrajyoti wrote:
+> Hi Bo,
+> On Friday 17 August 2012 03:33 PM, Bo Shen wrote:
+>> This patch enable the qt1070 device tree support
+>>
+>> If using device tree, the node of qt1070 looks like
+>> i2c@0 {					     // this is an example
+>> 	status = "okay";		     // Enable i2c master
+>> 	qt1070@1b {
+>> 		compatible = "atmel,qt1070"; // FDT device id
+>> 		reg = <0x1b>;		     // qt1070 i2c address
+>> 		change-gpio = <&pioA 7 1>;   // gpio used as interrupt
+>> 	};
+>> };
+>>
+>> Signed-off-by: Bo Shen <voice.shen@atmel.com>
+>> ---
+>>   drivers/input/keyboard/qt1070.c |   19 ++++++++++++++++---
+>>   1 file changed, 16 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+>> index ca68f29..7d656b5 100644
+>> --- a/drivers/input/keyboard/qt1070.c
+>> +++ b/drivers/input/keyboard/qt1070.c
+>> @@ -33,6 +33,8 @@
+>>   #include <linux/interrupt.h>
+>>   #include <linux/jiffies.h>
+>>   #include <linux/delay.h>
+>> +#include <linux/of.h>
+>> +#include <linux/of_gpio.h>
+>>
+>>   /* Address for each register */
+>>   #define CHIP_ID            0x00
+>> @@ -155,6 +157,10 @@ static int __devinit qt1070_probe(struct i2c_client *client,
+>>   		return -ENODEV;
+>>   	}
+>>
+>> +	if (client->dev.of_node)
+>> +		client->irq = of_get_named_gpio(client->dev.of_node,
+>> +				"change-gpio", 0);
+>> +
+>>   	if (!client->irq) {
+>>   		dev_err(&client->dev, "please assign the irq to this device\n");
+>>   		return -EINVAL;
+>> @@ -200,9 +206,9 @@ static int __devinit qt1070_probe(struct i2c_client *client,
+>>   	qt1070_write(client, RESET, 1);
+>>   	msleep(QT1070_RESET_TIME);
+>>
+>> -	err = request_threaded_irq(client->irq, NULL, qt1070_interrupt,
+>> -				   IRQF_TRIGGER_NONE | IRQF_ONESHOT,
+>> -				   client->dev.driver->name, data);
+> where is the gpio request done?
+> Am I missing something?
 
-No, memory is not freed in usbhid_close().  It is freed in=20
-usbhid_stop().
+OK. I will add gpio request.
 
-> From mapping trace information to source it seems:
-> usbhid/hid-core.c:
-> static int hid_submit_out(struct hid_device *hid)
-> {
->         struct hid_report *report;
->         char *raw_report;
->         struct usbhid_device *usbhid =3D hid->driver_data;
->         int r;
->=20
->         report =3D usbhid->out[usbhid->outtail].report;
->         raw_report =3D usbhid->out[usbhid->outtail].raw_report;
->=20
->         usbhid->urbout->transfer_buffer_length =3D ((report->size - 1=
-) >> 3) +
->                                                  1 + (report->id > 0)=
-;
->         usbhid->urbout->dev =3D hid_to_usb_dev(hid);
->         if (raw_report) {
->                 memcpy(usbhid->outbuf, raw_report,
->                                 usbhid->urbout->transfer_buffer_lengt=
-h);
->                 ^^^^^^^^^^^^^^^_ this is exploding
+Thanks.
 
-Right.  Like I said, usbhid->outbuf is freed in hid_free_buffers(),=20
-which is called from usbhid_stop().
+>> +	err = request_threaded_irq(gpio_to_irq(client->irq), NULL,
+>> +			qt1070_interrupt, IRQF_TRIGGER_NONE | IRQF_ONESHOT,
+>> +			client->dev.driver->name, data);
+>>   	if (err) {
+>>   		dev_err(&client->dev, "fail to request irq\n");
+>>   		goto err_free_mem;
+>> @@ -243,6 +249,12 @@ static int __devexit qt1070_remove(struct i2c_client *client)
+>>   	return 0;
+>>   }
+>>
+>> +static const struct of_device_id atmel_qt1070_of_match[] = {
+>> +	{ .compatible = "atmel,qt1070", },
+>> +	{ },
+>> +};
+>> +MODULE_DEVICE_TABLE(of, atmel_qt1070_of_match);
+>> +
+>>   static const struct i2c_device_id qt1070_id[] = {
+>>   	{ "qt1070", 0 },
+>>   	{ },
+>> @@ -253,6 +265,7 @@ static struct i2c_driver qt1070_driver = {
+>>   	.driver	= {
+>>   		.name	= "qt1070",
+>>   		.owner	= THIS_MODULE,
+>> +		.of_match_table = atmel_qt1070_of_match,
+>>   	},
+>>   	.id_table	= qt1070_id,
+>>   	.probe		= qt1070_probe,
+>
 
-=46orget about usbhid_close().  The race is between hid_submit_out() an=
-d=20
-usbhid_stop().
-
-Alan Stern

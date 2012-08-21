@@ -1,68 +1,70 @@
-From: Felipe Balbi <balbi@ti.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: [PATCH 1/4] mfd: smsc: Add support for smsc gpio io/keypad driver
-Date: Tue, 21 Aug 2012 15:42:45 +0300
-Message-ID: <20120821124243.GG10347@arwen.pp.htv.fi>
+Date: Tue, 21 Aug 2012 14:22:22 +0100
+Message-ID: <20120821132222.GF7995@opensource.wolfsonmicro.com>
 References: <1345545940-2232-1-git-send-email-sourav.poddar@ti.com>
  <1345545940-2232-2-git-send-email-sourav.poddar@ti.com>
  <20120821124146.GA21557@sirena.org.uk>
-Reply-To: balbi@ti.com
+ <20120821124243.GG10347@arwen.pp.htv.fi>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J1ldk4ymECC/Y9sn"
+	protocol="application/pgp-signature"; boundary="3yNHWXBV/QO9xKNm"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog110.obsmtp.com ([74.125.149.203]:36419 "EHLO
-	na3sys009aog110.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754887Ab2HUMqo (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:56679 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755226Ab2HUNWY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Aug 2012 08:46:44 -0400
-Received: by lbbgg13 with SMTP id gg13so823345lbb.41
-        for <linux-input@vger.kernel.org>; Tue, 21 Aug 2012 05:46:42 -0700 (PDT)
+	Tue, 21 Aug 2012 09:22:24 -0400
 Content-Disposition: inline
-In-Reply-To: <20120821124146.GA21557@sirena.org.uk>
+In-Reply-To: <20120821124243.GG10347@arwen.pp.htv.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Felipe Balbi <balbi@ti.com>
 Cc: Sourav Poddar <sourav.poddar@ti.com>, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
 
---J1ldk4ymECC/Y9sn
+--3yNHWXBV/QO9xKNm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 21, 2012 at 01:41:46PM +0100, Mark Brown wrote:
-> > +	regmap_read(smsc->regmap, SMSC_DEV_ID, &ret);
-> > +	dev_dbg(&i2c->dev, "SMSC Device ID: %d\n", ret);
->=20
-> I'd make these log messages dev_info() or something.
+On Tue, Aug 21, 2012 at 03:42:45PM +0300, Felipe Balbi wrote:
+> On Tue, Aug 21, 2012 at 01:41:46PM +0100, Mark Brown wrote:
+> > > +	regmap_read(smsc->regmap, SMSC_DEV_ID, &ret);
+> > > +	dev_dbg(&i2c->dev, "SMSC Device ID: %d\n", ret);
 
-dev_info() ? It'lll just make boot noisier for no good reason. Which
-user wants to see this during boot up ? That's a debugging feature for
-develop IMHO.
+> > I'd make these log messages dev_info() or something.
 
---=20
-balbi
+> dev_info() ? It'lll just make boot noisier for no good reason. Which
+> user wants to see this during boot up ? That's a debugging feature for
+> develop IMHO.
 
---J1ldk4ymECC/Y9sn
+Most of the registers appeared to be chip revision information which is
+most definitely useful to tell people about, though possibly with neater
+formatting ("why is this batch of boards failing...  oh, right").  If
+they're fixed device IDs then the driver should instead be verifying
+that the registers contain the expected values and bombing out if they
+don't.  Either way dev_dbg() isn't too helpful.
+
+--3yNHWXBV/QO9xKNm
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJQM4JDAAoJEIaOsuA1yqREyHgP/2209InzsuTouGTtyopqRUTI
-8KAx2RzoVLNcP0qwGyEDd8jNyYXpcp5x4uwNsSRn3tL8zMC6RWuDl7LtWGTs7pBC
-hn4x2sEOw0IP1jVYjDucX6FICxpXO3sxG3THFU4f6Yu4LvNFZI30mDL1qkd9Dvzj
-71v33lfamXo9QIZJJqUBjNvHy5I4LX8R22kP/0x9DyrBHNcOSq0GWQ0KGqiwEY9V
-OVwsMk5zXnntU1cbj803MIgCQNsVDyJZnFpng6G8/rgcnzQHd7X2tFG/NyMbVpfz
-IrdDLeKpomui8zO7L3nVRdoofauekL4s61gNWb6Zc8Q4FrSfn/qyNZtO9xXHwdJ9
-pBl+Fit18uSWjpG5TLj5NxehpbBe6Gr3+V9wpGb8v8TGdOLn2M+mkKWplnl1yOaB
-ohKeSyrCH1W8szrDp8xQK60h61LPS1hcY8wfQIMQTPkqxtZ5lQ1ipaD1bIllGbDf
-V97Xy0peYc9Oz9PTvT5ktPQAQ6YOZkJPAoZ8FnOD9qlevQ4W2IQBjulY8FSvIV1l
-bRBayJYEfjF/wcrB9bBTqfMCKc4Q8MgbP9nHxuHvokNEbd2/QJDCpn3DnPNu+7iK
-jSjPPqKW99Kp9OIvgDPDD9k8erK1a3xASf+ZAJ3GsLMgnYo1Qf/AuB1gX8ueX6Wy
-UVrH7jQNDoVUY5S/J8LE
-=oLTt
+iQIcBAEBAgAGBQJQM4t4AAoJEFJkBDiqVpZ47ycP/3WlVznBTOKwzSi3GAfbVkUN
+qLeaURQHyUCVP95PzsrrnelTdWJb0nH0fDh51RwpywlwHOjMry8fqVXba4/BVwQS
+xMsGNvhRkhcXfV7CkvqtdGEqBiGH2ZW8ksOoPB9CO2SJhcH5KpzEFnvPlDDg9+8L
+MBGlIuB37WASTj7B8lEdW66FbQe+ZAYIKt5vIolUIoK6P048Ys43bldwq0FjaYZF
+AZv2qdz0CACSDlmcoMBMfw91pavo+kdeHFIUMoThU3QVAkAhbXGyRhhPBPkalGiI
+bvHchuVz3x92IvXclt7EQRkTHFIvHgIgBddYQBsa36lD4A/GfxwGFVtwl8BsPZiX
+34tFTA+KA/oXArE3tO/OmEhXSbSG/AUYYdFfl0b54oV/5+KBGkrCOVsx+UuuysHw
+LQYj6vJPTzNrgnMaP4HyUrBtnt2fyJNZSocpjborf++8B4fTM5jVQInT6IQNnUEM
+XfluppGEUJoLnLeWTGgdev0JzCZ/mzzXaKqtUcxSQO1AELvVOa1AnbxrUcnRIk2M
+8sDnES6BYokH+4UgIOSnucieYTlhI639xCEGJq31Yom1CE2DVrG0DbcncLUhkzmm
+BD6f8h0jmeQ5CbTNGVMgt5hy9wuLK2dEBY9V+Ha1sZD5SPe3k/7Dc5AHsrEKHsIC
+Nnhomm337Jkcj5Ytlelc
+=5Dag
 -----END PGP SIGNATURE-----
 
---J1ldk4ymECC/Y9sn--
+--3yNHWXBV/QO9xKNm--

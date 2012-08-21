@@ -1,48 +1,65 @@
-From: Tobias Klauser <tklauser@distanz.ch>
-Subject: [PATCH 2/2] input: samsung-keypad: Use of_get_child_count() helper
-Date: Tue, 21 Aug 2012 12:42:13 +0200
-Message-ID: <1345545733-27503-1-git-send-email-tklauser@distanz.ch>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.zhaw.ch ([160.85.104.50]:44577 "EHLO mx1.zhaw.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756716Ab2HUKuJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Aug 2012 06:50:09 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH 2/4] Input: keypad: Add smsc ece1099 keypad driver
+Date: Tue, 21 Aug 2012 13:46:48 +0300
+Message-ID: <20120821104647.GU10347@arwen.pp.htv.fi>
+References: <1345545940-2232-1-git-send-email-sourav.poddar@ti.com>
+ <1345545940-2232-3-git-send-email-sourav.poddar@ti.com>
+Reply-To: balbi@ti.com
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CYcXvPfqKSDi0QhV"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1345545940-2232-3-git-send-email-sourav.poddar@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sourav Poddar <sourav.poddar@ti.com>
+Cc: devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-Use of_get_child_count() instead of custom implementation.
 
-Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
----
- drivers/input/keyboard/samsung-keypad.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+--CYcXvPfqKSDi0QhV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-index e2f31c8..277e26d 100644
---- a/drivers/input/keyboard/samsung-keypad.c
-+++ b/drivers/input/keyboard/samsung-keypad.c
-@@ -256,7 +256,7 @@ static struct samsung_keypad_platdata *samsung_keypad_parse_dt(
- 	struct matrix_keymap_data *keymap_data;
- 	uint32_t *keymap, num_rows = 0, num_cols = 0;
- 	struct device_node *np = dev->of_node, *key_np;
--	unsigned int key_count = 0;
-+	unsigned int key_count;
- 
- 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
- 	if (!pdata) {
-@@ -280,9 +280,7 @@ static struct samsung_keypad_platdata *samsung_keypad_parse_dt(
- 	}
- 	pdata->keymap_data = keymap_data;
- 
--	for_each_child_of_node(np, key_np)
--		key_count++;
--
-+	key_count = of_get_child_count(np);
- 	keymap_data->keymap_size = key_count;
- 	keymap = devm_kzalloc(dev, sizeof(uint32_t) * key_count, GFP_KERNEL);
- 	if (!keymap) {
--- 
-1.7.5.4
+Hi,
 
+On Tue, Aug 21, 2012 at 04:15:38PM +0530, Sourav Poddar wrote:
+> +static struct platform_driver smsc_driver =3D {
+> +	.driver =3D {
+> +		.name	=3D "smsc-keypad",
+> +		.of_match_table =3D of_match_ptr(smsc_keypad_dt_match),
+> +		.owner  =3D THIS_MODULE,
+> +	},
+> +	.probe		=3D smsc_probe,
+> +	.remove		=3D smsc_remove,
+
+one extra comment which I forgot. You probably should put your remove on
+__devexit and add __devexit_p(smsc_remove) here.
+
+--=20
+balbi
+
+--CYcXvPfqKSDi0QhV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQM2cXAAoJEIaOsuA1yqREPmUP/AvfScXSgoi2kWD4jh7ksRu+
+RdNDVUDRgngMphOkYn5xIqGsVXPauweofTJqGl+8XRAnotS9WxnmHPww4sB7lbA3
+n4HlfLKw8j6PDeWO9JslvyN6HLI3IJIHIVLOv97XUsra7cPHrHyuwivjp8pLx7I2
+agIEbqpe+Cm9yzdm39J+qmF7+qrgRO8krRIEAwwiad6GWlDblBSjh0hSN2mzkDNy
+Zr+OjXc69gxCXpzaFCi/W+XNL+/h4eVNtCF6AsIKRaq44iE2LunF2mJdZsE6NbC0
+p0AKuQ4ZoqDZegZmnTTHWOS9JXfWrYaiPiVtqRFl9og3tDHTPJXUKd01cbeN6WSy
+E45GJaEMh/+JDcBJFyc6tJbQjvaM5hMVWISsnqWS545h1G3Y5IX9k380+7sffQ5j
++NA5YRYXxZ8106Yl/WqLHWI92vvcuP2FwBDd9uFEAtNxb+5GOHX7L1Sg9f3qskYX
++GiaYFzgrLcMAfeRP5RkMCrO4j577bIgkPu5/zIWKeUWhxFmmLQQLVvr9RyVGFX0
+QrSinE9Vg2RuXwW6EvWRa57f89u0En0EGU2bzV6oEA8oPTf8vNEwbgHdo1bK8brz
+VZ3YoHS1byeE+u1IYyUeGomOM8BdTY0on5LxcMrvrlG/2Ia7DQk+YJJvY/OFCzX5
+OCu1V+LGo9eM7E7Glyw3
+=Swyd
+-----END PGP SIGNATURE-----
+
+--CYcXvPfqKSDi0QhV--

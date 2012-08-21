@@ -1,42 +1,51 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [RFC/PATCH 4/4] gpio: smscece: Add support for gpio IO
- expander feature
-Date: Tue, 21 Aug 2012 15:50:09 +0100
-Message-ID: <20120821145009.GE21557@sirena.org.uk>
-References: <1345545940-2232-1-git-send-email-sourav.poddar@ti.com>
- <1345545940-2232-5-git-send-email-sourav.poddar@ti.com>
- <20120821105333.GW10347@arwen.pp.htv.fi>
- <CAKdam56DiFpnoQwrHe1tjQWLMy5vP9ynstNj_n=OyMxkJJAUOA@mail.gmail.com>
- <20120821120052.GD10347@arwen.pp.htv.fi>
- <CAKdam55SqXiCGv766yxoY1GdDjxNCYNaDdNZPaeLTAXc+3+c6g@mail.gmail.com>
- <20120821122217.GF10347@arwen.pp.htv.fi>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 8/8] input: ab8500-ponkey: Rely on MFD core to convert
+ IRQs to virtual
+Date: Tue, 21 Aug 2012 09:42:44 -0700
+Message-ID: <20120821164244.GA4672@core.coreip.homeip.net>
+References: <1344527635-6163-1-git-send-email-lee.jones@linaro.org>
+ <1344527635-6163-9-git-send-email-lee.jones@linaro.org>
+ <CACRpkdZ-HOGy_sdsCQSNOdYTDzHFszk0OySM88TjO-neSJUz0A@mail.gmail.com>
+ <20120821092328.GC26899@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:54512 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753947Ab2HUOuN (ORCPT
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:34775 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758059Ab2HUQmu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Aug 2012 10:50:13 -0400
+	Tue, 21 Aug 2012 12:42:50 -0400
 Content-Disposition: inline
-In-Reply-To: <20120821122217.GF10347@arwen.pp.htv.fi>
+In-Reply-To: <20120821092328.GC26899@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: "Poddar, Sourav" <sourav.poddar@ti.com>, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, broonie@opensource.wolfsonmicro.com, linux-input@vger.kernel.org
 
-On Tue, Aug 21, 2012 at 03:22:18PM +0300, Felipe Balbi wrote:
-> On Tue, Aug 21, 2012 at 05:50:28PM +0530, Poddar, Sourav wrote:
+On Tue, Aug 21, 2012 at 10:23:29AM +0100, Lee Jones wrote:
+> On Tue, Aug 14, 2012 at 10:31:08AM +0200, Linus Walleij wrote:
+> > On Thu, Aug 9, 2012 at 5:53 PM, Lee Jones <lee.jones@linaro.org> wrote:
+> > 
+> > > There was a plan to place ab8500_irq_get_virq() calls in each AB8500
+> > > child device prior to requesting an IRQ, but as we're no longer using
+> > > Device Tree to collect our IRQ numbers, it's actually better to allow
+> > > the core to do this during device registration time. So the IRQ number
+> > > we pull from its resource has already been converted to a virtual IRQ.
+> > >
+> > > CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > CC: linux-input@vger.kernel.org
+> > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > 
+> > This is looking good, I guess you need all patches to go in at the
+> > same time so Dmitry's ACK is required.
+> 
+> Yep, just waiting for that now.
 
-> > If I am understanding correctly, if they both uses the same bit we cannot
-> > use both for a particular user. ?
+Sorry for the delay. Yes, this shoudl be fine, but since it is
+essentially a revert of the original patch it should be pushed in as
+such.
 
-> we can, it's just a bit more complex. If a user request both LOW and
-> HIGH, then you start with HIGH, once it triggers, before calling the
-> nested IRQ handler, you need to change it LOW. When low triggers, before
-> calling the nested IRQ handler, you need to change it to HIGH again. And
-> so on. I'm just not sure if that's valid on linux IRQ subsystem.
+Thanks.
 
-The given example was for keypress - usually a system would use edge
-triggered interrupts in combination with reading the GPIO state rather
-than level triggered interrupts.
+-- 
+Dmitry

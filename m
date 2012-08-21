@@ -1,99 +1,83 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [RFC/PATCH 4/4] gpio: smscece: Add support for gpio IO expander
- feature
-Date: Tue, 21 Aug 2012 15:22:18 +0300
-Message-ID: <20120821122217.GF10347@arwen.pp.htv.fi>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH 1/4] mfd: smsc: Add support for smsc gpio io/keypad driver
+Date: Tue, 21 Aug 2012 13:41:46 +0100
+Message-ID: <20120821124146.GA21557@sirena.org.uk>
 References: <1345545940-2232-1-git-send-email-sourav.poddar@ti.com>
- <1345545940-2232-5-git-send-email-sourav.poddar@ti.com>
- <20120821105333.GW10347@arwen.pp.htv.fi>
- <CAKdam56DiFpnoQwrHe1tjQWLMy5vP9ynstNj_n=OyMxkJJAUOA@mail.gmail.com>
- <20120821120052.GD10347@arwen.pp.htv.fi>
- <CAKdam55SqXiCGv766yxoY1GdDjxNCYNaDdNZPaeLTAXc+3+c6g@mail.gmail.com>
-Reply-To: balbi@ti.com
+ <1345545940-2232-2-git-send-email-sourav.poddar@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tmZL0FsH2xLo8uCy"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog120.obsmtp.com ([74.125.149.140]:37269 "EHLO
-	na3sys009aog120.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757362Ab2HUM0R (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Aug 2012 08:26:17 -0400
-Received: by lagz14 with SMTP id z14so4598487lag.18
-        for <linux-input@vger.kernel.org>; Tue, 21 Aug 2012 05:26:15 -0700 (PDT)
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAKdam55SqXiCGv766yxoY1GdDjxNCYNaDdNZPaeLTAXc+3+c6g@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1345545940-2232-2-git-send-email-sourav.poddar-l0cyMroinI0@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Sourav Poddar <sourav.poddar-l0cyMroinI0@public.gmane.org>
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: "Poddar, Sourav" <sourav.poddar@ti.com>
-Cc: balbi@ti.com, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
+On Tue, Aug 21, 2012 at 04:15:37PM +0530, Sourav Poddar wrote:
 
---tmZL0FsH2xLo8uCy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> +config MFD_SMSC
+> +       bool "Support for the SMSC ECE1099 series chips"
+> +       depends on I2C=y && MFD_CORE && REGMAP_I2C
 
-On Tue, Aug 21, 2012 at 05:50:28PM +0530, Poddar, Sourav wrote:
-> Hi,
->=20
-> On Tue, Aug 21, 2012 at 5:30 PM, Felipe Balbi <balbi@ti.com> wrote:
-> > Hi,
-> >
-> > On Tue, Aug 21, 2012 at 05:17:37PM +0530, Poddar, Sourav wrote:
-> >> >> +     if (type & IRQ_TYPE_LEVEL_HIGH)
-> >> >> +             sg->int_lvl[bank] |=3D bit;
-> >> >> +     else if (type & IRQ_TYPE_LEVEL_LOW)
-> >> >> +             sg->int_lvl[bank] &=3D ~bit;
-> >> >> +     else
-> >> >> +             return -EINVAL;
-> >> >
-> >> > this looks wrong. You could have a user who wants to trigger on both
-> >> > HIGH and LOW levels, no ?
-> >> >
-> >> Yes, I think there can be a scenario where gpio_keys are attached
-> >> to this driver and signals a "key press" at low and "key release" at
-> >> high. ?
-> >>  Will figure out a way to add support to check for case where
-> >> both High and low levels are used.
-> >
-> > could probably be done on a separate patch, maybe... Just now I saw that
-> > HIGH and LOW levels use the same bit.
-> >
-> If I am understanding correctly, if they both uses the same bit we cannot
-> use both for a particular user. ?
+This needs to select REGMAP_I2C not depend on it.  REGMAP_I2C will only
+be enabled by being selected.
 
-we can, it's just a bit more complex. If a user request both LOW and
-HIGH, then you start with HIGH, once it triggers, before calling the
-nested IRQ handler, you need to change it LOW. When low triggers, before
-calling the nested IRQ handler, you need to change it to HIGH again. And
-so on. I'm just not sure if that's valid on linux IRQ subsystem.
+> +int smsc_read(struct device *child, unsigned int reg,
+> +	unsigned int *dest)
+> +{
+> +	struct smsc     *smsc = dev_get_drvdata(child->parent);
+> +
+> +	return regmap_read(smsc->regmap, reg, dest);
+> +}
+> +EXPORT_SYMBOL_GPL(smsc_read);
 
-Anyone ?
+I'd suggest making these static inlines in the header given that they're
+so trivial.
 
---=20
-balbi
+> +static struct regmap_config smsc_regmap_config = {
+> +		.reg_bits = 8,
+> +		.val_bits = 8,
+> +		.cache_type = REGCACHE_COMPRESSED,
+> +};
 
---tmZL0FsH2xLo8uCy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Indentation is weird here.  For the cache we should have at least
+.max_register defined and given the functionality there must surely be
+some volatile registers (I'm surprised this works at all as it is, the
+cache should break things).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+> +	of_property_read_u32(node, "clock", &smsc->clk);
+> +
 
-iQIcBAEBAgAGBQJQM315AAoJEIaOsuA1yqREck8QALBp1no2U4fGFZTcIQjV0S7d
-5WMkiwkq+nRbL44uRITXFQM/+5LCrsFwbqG72LOy+LKOWP6s9IXgBNwyhc00adxu
-8Ig11wwUIbyRDGcCBfy6g1itqvsN2/ZhUfKP4Z4cYa4/g5MeECcR+jjDt2KKIjQO
-2WYFRP8nyScq2DDQVTUEWzPlEoaKeFIP1zE1KUmrdnZ3B7reNApxCvx1B8foffNV
-x/S6Wc9Jv5Z1EySNH1dOCFNG/nQ97bxE09SGuXlpTmAhXiqmjmDomvCj0Wsl82Lu
-IPw+BXScVGxPss6LjsqPHhZvXyg7Q6/plciksbBkUzW9o5Ko9mLXfLkKldIXndpB
-s4gwvvcl/PEIKIZj7519G+tX7K1lsmHtqU29MDRimaoEzeU1mKV2NWPB3QckVqMI
-mpJP2TAIuOZBNe3epLXWoyvYs7V/I3nAyOsSiFBGW/MR/szy/tC2ttBBfcsVOzyI
-Z+sbZr99rSq2ShLJ3R/SAn4371p9d0Oyh1TwGxOK45M4hKePZC+f7UyK6pPLFE4f
-5iBveAA0zAXI+vddlhZGDYe7QicFv+p6ohRXZPOKJfUOKdXIozkHGwnP4HW8FVXY
-9lgd9W14RURGQ1V5r+s3b/qIaGOW84ywFcSD/vetEaWAhbJBRtDoazDNaMlyLXGB
-JTBxpJ/mVonkuD8ODY+1
-=I3Jp
------END PGP SIGNATURE-----
+This is all unconditional, there should be a dependency on this in
+Kconfig.
 
---tmZL0FsH2xLo8uCy--
+> +	regmap_read(smsc->regmap, SMSC_DEV_ID, &ret);
+> +	dev_dbg(&i2c->dev, "SMSC Device ID: %d\n", ret);
+
+I'd make these log messages dev_info() or something.
+
+> +err:
+> +	kfree(smsc);
+
+Use devm_kzalloc() for this.
+
+> +static const struct i2c_device_id smsc_i2c_id[] = {
+> +	{ "smsc", 0},
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(i2c, smsc_i2c_id);
+
+This should probably list the part name rather than "smsc" - that seems
+far too generic a name to use, obviously smsc produce more than one
+part!

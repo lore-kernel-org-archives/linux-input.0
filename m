@@ -1,7 +1,7 @@
 From: Sourav Poddar <sourav.poddar@ti.com>
-Subject: [PATCH 3/4] arm/dts: omap5-evm: Add keypad support
-Date: Tue, 21 Aug 2012 16:15:39 +0530
-Message-ID: <1345545940-2232-4-git-send-email-sourav.poddar@ti.com>
+Subject: [PATCH 1/4] mfd: smsc: Add support for smsc gpio io/keypad driver
+Date: Tue, 21 Aug 2012 16:15:37 +0530
+Message-ID: <1345545940-2232-2-git-send-email-sourav.poddar@ti.com>
 References: <1345545940-2232-1-git-send-email-sourav.poddar@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -11,123 +11,360 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, sourav.poddar@ti.com
 List-Id: linux-input@vger.kernel.org
 
-Add keypad data node in omap5-evm.
+smsc ece1099 is a keyboard scan or gpio expansion device.
+The patch create keypad and gpio expander child for this
+multi function smsc driver.
 
-Based on I2C support patch for omap5, which has been
-already posted as a different series.
-
+Cc: Samuel Ortiz <sameo@linux.intel.com>
 Cc: Benoit Cousson <b-cousson@ti.com>
 Cc: Felipe Balbi <balbi@ti.com>
 Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>
-Tested on omap5430 sdp with 3.5 custom kernel.
-
 Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
 ---
- arch/arm/boot/dts/omap5-evm.dts |   95 +++++++++++++++++++++++++++++++++++++++
- 1 files changed, 95 insertions(+), 0 deletions(-)
+ Documentation/smsc_ece1099.txt |   56 ++++++++++++++++
+ drivers/mfd/Kconfig            |   10 +++
+ drivers/mfd/Makefile           |    1 +
+ drivers/mfd/smsc-ece1099.c     |  139 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/smsc.h       |   89 +++++++++++++++++++++++++
+ 5 files changed, 295 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/smsc_ece1099.txt
+ create mode 100644 drivers/mfd/smsc-ece1099.c
+ create mode 100644 include/linux/mfd/smsc.h
 
-diff --git a/arch/arm/boot/dts/omap5-evm.dts b/arch/arm/boot/dts/omap5-evm.dts
-index 200c39a..6473983 100644
---- a/arch/arm/boot/dts/omap5-evm.dts
-+++ b/arch/arm/boot/dts/omap5-evm.dts
-@@ -18,3 +18,98 @@
- 		reg = <0x80000000 0x40000000>; /* 1 GB */
- 	};
- };
+diff --git a/Documentation/smsc_ece1099.txt b/Documentation/smsc_ece1099.txt
+new file mode 100644
+index 0000000..6b492e8
+--- /dev/null
++++ b/Documentation/smsc_ece1099.txt
+@@ -0,0 +1,56 @@
++What is smsc-ece1099?
++----------------------
 +
-+&i2c5 {
-+	clock-frequency = <400000>;
++The ECE1099 is a 40-Pin 3.3V Keyboard Scan Expansion
++or GPIO Expansion device. The device supports a keyboard
++scan matrix of 23x8. The device is connected to a Master
++via the SMSC BC-Link interface or via the SMBus.
++Keypad scan Input(KSI) and Keypad Scan Output(KSO) signals
++are multiplexed with GPIOs.
 +
-+	smsc@38 {
-+		compatible = "smsc";
-+		reg = <0x38>;
-+		clock = <0x13>;
-+		keypad {
-+			compatible = "smsc,keypad";
-+			interrupt-parent = <&gpio5>;
-+			interrupts = <23>; /* gpio line 151 */
-+			keypad,num-rows = <8>;
-+			keypad,num-columns = <16>;
-+			linux,keymap = < 0x20041 /*KEY_F7*/
-+					0x30001 /*KEY_ESC*/
-+					0x4003e /*KEY_F4*/
-+					0x50022 /*KEY_G*/
-+					0x70023 /*KEY_H*/
-+					0x9009a /*KEY_CYCLEWINDOWS*/
-+					0xc000e /*KEY_BACKSPACE*/
-+					0xd0057 /*KEY_F11*/
-+					0xe009f /*KEY_FORWARD*/
-+					0xf006e /*KEY_INSERT*/
-+					0x1020036 /*KEY_RIGHTSHIFT*/
-+					0x1030011 /*KEY_W*/
-+					0x1040010 /*KEY_Q*/
-+					0x1050012 /*KEY_E*/
-+					0x1070013 /*KEY_R*/
-+					0x1080016 /*KEY_U*/
-+					0x10c0017 /*KEY_I*/
-+					0x10d0067 /*KEY_UP*/
-+					0x10e0018 /*KEY_O*/
-+					0x10f0019 /*KEY_LEFT*/
-+					0x2020003 /*KEY_2*/
-+					0x2040004 /*KEY_1*/
-+					0x2050005 /*KEY_3*/
-+					0x2070008 /*KEY_4*/
-+					0x2080009 /*KEY_7*/
-+					0x20b0064 /*KEY_8*/
-+					0x20c006c /*KEY_RIGHTALT*/
-+					0x20d000a /*KEY_DOWN*/
-+					0x20e0001 /*KEY_0*/
-+					0x20f006a /*KEY_RIGHT*/
-+					0x3010061 /*KEY_RIGHTCTRL*/
-+					0x302001f /*KEY_S*/
-+					0x303001e /*KEY_A*/
-+					0x3040020 /*KEY_D*/
-+					0x3050021 /*KEY_F*/
-+					0x3070024 /*KEY_J*/
-+					0x3080025 /*KEY_K*/
-+					0x30c001c /*KEY_ENTER*/
-+					0x30d0026 /*KEY_L*/
-+					0x30e0027 /*KEY_SEMICOLON*/
-+					0x400002a /*KEY_LEFTSHIFT*/
-+					0x402002d /*KEY_X*/
-+					0x403002c /*KEY_Z*/
-+					0x404002e /*KEY_C*/
-+					0x405002f /*KEY_V/
-+					0x4070032 /*KEY_M*/
-+					0x4080033 /*KEY_COMMA*/
-+					0x40c0039 /*KEY_SPACE*/
-+					0x40d0033 /*KEY_DOT*/
-+					0x40e0035 /*KEY_SLASH*/
-+					0x40f006b /*KEY_END*/
-+					0x501001d /*KEY_LEFTCTRL*/
-+					0x5020040 /*KEY_F6*/
-+					0x503000f /*KEY_TAB*/
-+					0x504003d /*KEY_F3*/
-+					0x5050014 /*KEY_T*/
-+					0x5070015 /*KEY_Y*/
-+					0x508001a /*KEY_LEFTBRACE*/
-+					0x50d0044 /*KEY_F10*/
-+					0x50e001b /*KEY_RIGHTBRACE*/
-+					0x50f0066 /*KEY_HOME*/
-+					0x602003f /*KEY_F5*/
-+					0x604003c /*KEY_F2*/
-+					0x6050006 /*KEY_5*/
-+					0x60601d0 /*KEY_FN*/
-+					0x6070007 /*KEY_6*/
-+					0x60a008b /*KEY_MENU*/
-+					0x60c002b /*KEY_BACKSLASH*/
-+					0x60d0043 /*KEY_F9*/
-+					0x7020042 /*KEY_F8*/
-+					0x703003a /*KEY_CAPSLOCK*/
-+					0x704003b /*KEY_F1*/
-+					0x7050030 /*KEY_B*/
-+					0x7070031 /*KEY_N*/
-+					0x70b0038 /*KEY_LEFTALT*/
-+					0x70d0058 /*KEY_F12*/
-+					0x70f006f >; /*KEY_DELETE*/
-+			linux,input-no-autorepeat;
-+		};
-+	};
++Interrupt generation
++--------------------
++
++Interrupts can be generated by an edge detection on a GPIO
++pin or an edge detection on one of the bus interface pins.
++Interrupts can also be detected on the keyboard scan interface.
++The bus interrupt pin (BC_INT# or SMBUS_INT#) is asserted if
++any bit in one of the Interrupt Status registers is 1 and
++the corresponding Interrupt Mask bit is also 1.
++
++In order for software to determine which device is the source
++of an interrupt, it should first read the Group Interrupt Status Register
++to determine which Status register group is a source for the interrupt.
++Software should read both the Status register and the associated Mask register,
++then AND the two values together. Bits that are 1 in the result of the AND
++are active interrupts. Software clears an interrupt by writing a 1 to the
++corresponding bit in the Status register.
++
++Communication Protocol
++----------------------
++
++- SMbus slave Interface
++	The host processor communicates with the ECE1099 device
++	through a series of read/write registers via the SMBus
++	interface. SMBus is a serial communication protocol between
++	a computer host and its peripheral devices. The SMBus data
++	rate is 10KHz minimum to 400 KHz maximum
++
++- Slave Bus Interface
++	The ECE1099 device SMBus implementation is a subset of the
++	SMBus interface to the host. The device is a slave-only SMBus device.
++	The implementation in the device is a subset of SMBus since it
++	only supports four protocols.
++
++	The Write Byte, Read Byte, Send Byte, and Receive Byte protocols are the
++	only valid SMBus protocols for the device.
++
++- BC-LinkTM Interface
++	The BC-Link is a proprietary bus that allows communication
++	between a Master device and a Companion device. The Master
++	device uses this serial bus to read and write registers
++	located on the Companion device. The bus comprises three signals,
++	BC_CLK, BC_DAT and BC_INT#. The Master device always provides the
++	clock, BC_CLK, and the Companion device is the source for an
++	independent asynchronous interrupt signal, BC_INT#. The ECE1099
++	supports BC-Link speeds up to 24MHz.
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index d1facef..3b81c17 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -385,6 +385,16 @@ config MFD_T7L66XB
+ 	help
+ 	  Support for Toshiba Mobile IO Controller T7L66XB
+ 
++config MFD_SMSC
++       bool "Support for the SMSC ECE1099 series chips"
++       depends on I2C=y && MFD_CORE && REGMAP_I2C
++       help
++        If you say yes here you get support for the
++        ece1099 chips from SMSC.
++
++        To compile this driver as a module, choose M here: the
++        module will be called smsc.
++
+ config MFD_TC6387XB
+ 	bool "Support Toshiba TC6387XB"
+ 	depends on ARM && HAVE_CLK
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index 79dd22d..f587d91 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -77,6 +77,7 @@ obj-$(CONFIG_EZX_PCAP)		+= ezx-pcap.o
+ obj-$(CONFIG_MCP)		+= mcp-core.o
+ obj-$(CONFIG_MCP_SA11X0)	+= mcp-sa11x0.o
+ obj-$(CONFIG_MCP_UCB1200)	+= ucb1x00-core.o
++obj-$(CONFIG_MFD_SMSC)        += smsc.o
+ obj-$(CONFIG_MCP_UCB1200_TS)	+= ucb1x00-ts.o
+ 
+ ifeq ($(CONFIG_SA1100_ASSABET),y)
+diff --git a/drivers/mfd/smsc-ece1099.c b/drivers/mfd/smsc-ece1099.c
+new file mode 100644
+index 0000000..6ba06b8
+--- /dev/null
++++ b/drivers/mfd/smsc-ece1099.c
+@@ -0,0 +1,139 @@
++/*
++ * TI SMSC MFD Driver
++ *
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com
++ *
++ * Author: Sourav Poddar <sourav.poddar@ti.com>
++ *
++ *  This program is free software; you can redistribute it and/or modify it
++ *  under  the terms of the GNU General  Public License as published by the
++ *  Free Software Foundation;  GPL v2.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/i2c.h>
++#include <linux/gpio.h>
++#include <linux/workqueue.h>
++#include <linux/irq.h>
++#include <linux/regmap.h>
++#include <linux/err.h>
++#include <linux/mfd/core.h>
++#include <linux/mfd/smsc.h>
++#include <linux/of_platform.h>
++
++struct smsc {
++	struct device *dev;
++	struct i2c_client *i2c_clients[SMSC_NUM_CLIENTS];
++	struct regmap *regmap;
++	int clk;
++	/* Stored chip id */
++	int id;
 +};
++
++int smsc_read(struct device *child, unsigned int reg,
++	unsigned int *dest)
++{
++	struct smsc     *smsc = dev_get_drvdata(child->parent);
++
++	return regmap_read(smsc->regmap, reg, dest);
++}
++EXPORT_SYMBOL_GPL(smsc_read);
++
++int smsc_write(struct device *child, unsigned int reg,
++	unsigned int value)
++{
++	struct smsc     *smsc = dev_get_drvdata(child->parent);
++
++	return regmap_write(smsc->regmap, reg, value);
++}
++EXPORT_SYMBOL_GPL(smsc_write);
++
++static struct regmap_config smsc_regmap_config = {
++		.reg_bits = 8,
++		.val_bits = 8,
++		.cache_type = REGCACHE_COMPRESSED,
++};
++
++static const struct of_device_id of_smsc_match[] = {
++	{ .compatible = "smsc,ece1099", },
++	{ },
++};
++
++static int smsc_i2c_probe(struct i2c_client *i2c,
++			const struct i2c_device_id *id)
++{
++	struct device_node              *node = i2c->dev.of_node;
++	struct smsc *smsc;
++	int ret = 0;
++
++	smsc = devm_kzalloc(&i2c->dev, sizeof(struct smsc),
++				GFP_KERNEL);
++
++	smsc->regmap = devm_regmap_init_i2c(i2c, &smsc_regmap_config);
++	if (IS_ERR(smsc->regmap)) {
++		ret = PTR_ERR(smsc->regmap);
++		goto err;
++	}
++
++	i2c_set_clientdata(i2c, smsc);
++	smsc->dev = &i2c->dev;
++
++	of_property_read_u32(node, "clock", &smsc->clk);
++
++	regmap_read(smsc->regmap, SMSC_DEV_ID, &ret);
++	dev_dbg(&i2c->dev, "SMSC Device ID: %d\n", ret);
++
++	regmap_read(smsc->regmap, SMSC_DEV_REV, &ret);
++	dev_dbg(&i2c->dev, "SMSC Device ID: %d\n", ret);
++
++	regmap_read(smsc->regmap, SMSC_VEN_ID_L, &ret);
++	dev_dbg(&i2c->dev, "SMSC Device ID: %d\n", ret);
++
++	regmap_read(smsc->regmap, SMSC_VEN_ID_H, &ret);
++	dev_dbg(&i2c->dev, "SMSC Device ID: %d\n", ret);
++
++	ret = regmap_write(smsc->regmap, SMSC_CLK_CTRL, smsc->clk);
++	if (ret)
++		goto err;
++
++	if (node)
++		ret = of_platform_populate(node, NULL, NULL, &i2c->dev);
++
++	return ret;
++
++err:
++	kfree(smsc);
++	return ret;
++}
++
++static int smsc_i2c_remove(struct i2c_client *i2c)
++{
++	return 0;
++}
++
++static const struct i2c_device_id smsc_i2c_id[] = {
++	{ "smsc", 0},
++	{},
++};
++MODULE_DEVICE_TABLE(i2c, smsc_i2c_id);
++
++static struct i2c_driver smsc_i2c_driver = {
++	.driver = {
++		   .name = "smsc",
++		   .of_match_table = of_smsc_match,
++		   .owner = THIS_MODULE,
++	},
++	.probe = smsc_i2c_probe,
++	.remove = smsc_i2c_remove,
++	.id_table = smsc_i2c_id,
++};
++
++module_i2c_driver(smsc_i2c_driver);
++
++MODULE_AUTHOR("Sourav Poddar <sourav.poddar@ti.com>");
++MODULE_DESCRIPTION("SMSC chip multi-function driver");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/mfd/smsc.h b/include/linux/mfd/smsc.h
+new file mode 100644
+index 0000000..0b048c6
+--- /dev/null
++++ b/include/linux/mfd/smsc.h
+@@ -0,0 +1,89 @@
++/*
++ * SMSC ECE1099
++ *
++ * Copyright 2012 Texas Instruments Inc.
++ *
++ * Author: Sourav Poddar <sourav.poddar@ti.com>
++ *
++ *  This program is free software; you can redistribute it and/or modify it
++ *  under  the terms of the GNU General  Public License as published by the
++ *  Free Software Foundation;  either version 2 of the License, or (at your
++ *  option) any later version.
++ *
++ */
++
++#ifndef __LINUX_MFD_SMSC_H
++#define __LINUX_MFD_SMSC_H
++
++#include <linux/regmap.h>
++
++#define SMSC_ID_ECE1099			1
++#define SMSC_NUM_CLIENTS		2
++
++#define SMSC_BASE_ADDR			0x38
++#define OMAP_GPIO_SMSC_IRQ		151
++
++#define SMSC_MAXGPIO         32
++#define SMSC_BANK(offs)      ((offs) >> 3)
++#define SMSC_BIT(offs)       (1u << ((offs) & 0x7))
++
++struct smsc_gpio;
++struct smsc_keypad;
++
++int smsc_read(struct device *child, unsigned int reg,
++	unsigned int *dest);
++int smsc_write(struct device *child, unsigned int reg,
++	unsigned int value);
++
++/* Registers for SMSC */
++#define SMSC_RESET						0xF5
++#define SMSC_GRP_INT						0xF9
++#define SMSC_CLK_CTRL						0xFA
++#define SMSC_WKUP_CTRL						0xFB
++#define SMSC_DEV_ID						0xFC
++#define SMSC_DEV_REV						0xFD
++#define SMSC_VEN_ID_L						0xFE
++#define SMSC_VEN_ID_H						0xFF
++
++/* CLK VALUE */
++#define SMSC_CLK_VALUE						0x13
++
++/* Registers for function GPIO INPUT */
++#define SMSC_GPIO_DATA_IN_START					0x00
++
++/* Registers for function GPIO OUPUT */
++#define SMSC_GPIO_DATA_OUT_START                                       0x05
++
++/* Definitions for SMSC GPIO CONFIGURATION REGISTER*/
++#define SMSC_GPIO_INPUT_LOW					0x01
++#define SMSC_GPIO_INPUT_RISING					0x09
++#define SMSC_GPIO_INPUT_FALLING					0x11
++#define SMSC_GPIO_INPUT_BOTH_EDGE				0x19
++#define SMSC_GPIO_OUTPUT_PP					0x21
++#define SMSC_GPIO_OUTPUT_OP					0x31
++
++#define GRP_INT_STAT						0xf9
++#define	SMSC_GPI_INT						0x0f
++#define SMSC_CFG_START						0x0A
++
++/* Registers for SMSC GPIO INTERRUPT STATUS REGISTER*/
++#define SMSC_GPIO_INT_STAT_START                                  0x32
++
++/* Registers for SMSC GPIO INTERRUPT MASK REGISTER*/
++#define SMSC_GPIO_INT_MASK_START                               0x37
++
++/* Registers for SMSC function KEYPAD*/
++#define SMSC_KP_OUT						0x40
++#define SMSC_KP_IN						0x41
++#define SMSC_KP_INT_STAT					0x42
++#define SMSC_KP_INT_MASK					0x43
++
++/* Definitions for keypad */
++#define SMSC_KP_KSO           0x70
++#define SMSC_KP_KSI           0x51
++#define SMSC_KSO_ALL_LOW        0x20
++#define SMSC_KP_SET_LOW_PWR        0x0B
++#define SMSC_KP_SET_HIGH           0xFF
++#define SMSC_KSO_EVAL           0x00
++
++#endif /*  __LINUX_MFD_SMSC_H */
 -- 
 1.7.1

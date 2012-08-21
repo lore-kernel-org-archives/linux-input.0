@@ -1,57 +1,54 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 8/8] input: ab8500-ponkey: Rely on MFD core to convert
- IRQs to virtual
-Date: Tue, 21 Aug 2012 10:23:29 +0100
-Message-ID: <20120821092328.GC26899@gmail.com>
-References: <1344527635-6163-1-git-send-email-lee.jones@linaro.org>
- <1344527635-6163-9-git-send-email-lee.jones@linaro.org>
- <CACRpkdZ-HOGy_sdsCQSNOdYTDzHFszk0OySM88TjO-neSJUz0A@mail.gmail.com>
+From: Tobias Klauser <tklauser-93Khv+1bN0NyDzI6CaY1VQ@public.gmane.org>
+Subject: [PATCH 1/2] input: samsung-keypad: Use of_match_ptr()
+Date: Tue, 21 Aug 2012 12:41:46 +0200
+Message-ID: <1345545706-27420-1-git-send-email-tklauser@distanz.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CACRpkdZ-HOGy_sdsCQSNOdYTDzHFszk0OySM88TjO-neSJUz0A@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, broonie@opensource.wolfsonmicro.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Aug 14, 2012 at 10:31:08AM +0200, Linus Walleij wrote:
-> On Thu, Aug 9, 2012 at 5:53 PM, Lee Jones <lee.jones@linaro.org> wrot=
-e:
->=20
-> > There was a plan to place ab8500_irq_get_virq() calls in each AB850=
-0
-> > child device prior to requesting an IRQ, but as we're no longer usi=
-ng
-> > Device Tree to collect our IRQ numbers, it's actually better to all=
-ow
-> > the core to do this during device registration time. So the IRQ num=
-ber
-> > we pull from its resource has already been converted to a virtual I=
-RQ.
-> >
-> > CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > CC: linux-input@vger.kernel.org
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
->=20
-> This is looking good, I guess you need all patches to go in at the
-> same time so Dmitry's ACK is required.
+Instead of having to define the match table to NULL if CONFIG_OF isn't
+set, use the of_match_ptr() macro which will do this for us.
 
-Yep, just waiting for that now.
-=20
-> FWIW:
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
->=20
-> BTW: this makes me suspect that the public ab8500_irq_get_virq()
-> interface can be *deleted* and the function made static in the
-> AB8500 driver, right?
+Signed-off-by: Tobias Klauser <tklauser-93Khv+1bN0NyDzI6CaY1VQ@public.gmane.org>
+---
+ drivers/input/keyboard/samsung-keypad.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
 
-Right. Already taken care of.
-
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
+index a061ba6..e2f31c8 100644
+--- a/drivers/input/keyboard/samsung-keypad.c
++++ b/drivers/input/keyboard/samsung-keypad.c
+@@ -662,8 +662,6 @@ static const struct of_device_id samsung_keypad_dt_match[] = {
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, samsung_keypad_dt_match);
+-#else
+-#define samsung_keypad_dt_match NULL
+ #endif
+ 
+ static struct platform_device_id samsung_keypad_driver_ids[] = {
+@@ -684,7 +682,7 @@ static struct platform_driver samsung_keypad_driver = {
+ 	.driver		= {
+ 		.name	= "samsung-keypad",
+ 		.owner	= THIS_MODULE,
+-		.of_match_table = samsung_keypad_dt_match,
++		.of_match_table = of_match_ptr(samsung_keypad_dt_match),
+ 		.pm	= &samsung_keypad_pm_ops,
+ 	},
+ 	.id_table	= samsung_keypad_driver_ids,
+-- 
+1.7.5.4

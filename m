@@ -1,81 +1,151 @@
 From: "Patil, Rachna" <rachna@ti.com>
-Subject: [PATCH 3/4] input: TSC: ti_tscadc: set FIFO0 threshold Interrupt
-Date: Wed, 22 Aug 2012 16:49:25 +0530
-Message-ID: <1345634365-29893-1-git-send-email-rachna@ti.com>
+Subject: [PATCH 2/4] input: TSC: ti_tscadc: Add Step configuration as platform data
+Date: Wed, 22 Aug 2012 16:49:07 +0530
+Message-ID: <1345634347-29860-1-git-send-email-rachna@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:35469 "EHLO arroyo.ext.ti.com"
+Received: from bear.ext.ti.com ([192.94.94.41]:37684 "EHLO bear.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752257Ab2HVLfi (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Aug 2012 07:35:38 -0400
+	id S1750805Ab2HVLf3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Aug 2012 07:35:29 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, "Patil, Rachna" <rachna@ti.com>
 
-Code currently uses FIFO1 threshold interrupt.
-since this is a MFD, Dedicating FIFO0 to touchscreen
-and making way for other devices to use FIFO1 as well.
-The FIFO can be shared between 2 devices but since the
-interrupt used is threshold interrupt on FIFO1, we would
-end up having wrong interrupts. Hence changing the same.
+There are 16 programmable Step Configuration
+registers which are used by the sequencer.
+Program the Steps in order to configure a channel
+input to be sampled. If the same step is applied
+several times, the coordinate values read are more
+accurate.
+Hence we provide the user an option of how many steps
+should be configured.
+
+For ex: If this value is assigned as 4, This means that
+4 steps are applied to read x co-ordinate and 4 steps to read
+y co-ordinate. Furtheron the interrupt handler already
+holds code to use delta filter and report the best value
+out of these values to the input sub-system.
 
 Signed-off-by: Patil, Rachna <rachna@ti.com>
 ---
- drivers/input/touchscreen/ti_tscadc.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/ti_tscadc.c |   25 +++++++++++++------------
+ include/linux/input/ti_tscadc.h       |    6 ++++++
+ 2 files changed, 19 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
-index c1bd8e5..2cc19b0 100644
+index d198cab..c1bd8e5 100644
 --- a/drivers/input/touchscreen/ti_tscadc.c
 +++ b/drivers/input/touchscreen/ti_tscadc.c
-@@ -42,6 +42,7 @@
+@@ -41,10 +41,6 @@
+ #define REG_CHARGEDELAY		0x060
  #define REG_STEPCONFIG(n)	(0x64 + ((n - 1) * 8))
  #define REG_STEPDELAY(n)	(0x68 + ((n - 1) * 8))
+-#define REG_STEPCONFIG13	0x0C4
+-#define REG_STEPDELAY13		0x0C8
+-#define REG_STEPCONFIG14	0x0CC
+-#define REG_STEPDELAY14		0x0D0
  #define REG_FIFO0CNT		0xE4
-+#define REG_FIFO0THR		0xE8
  #define REG_FIFO1THR		0xF4
  #define REG_FIFO0		0x100
- #define REG_FIFO1		0x200
-@@ -55,6 +56,7 @@
- #define STPENB_STEPENB		STEPENB(0x7FFF)
+@@ -134,6 +130,7 @@ struct tscadc {
+ 	unsigned int		wires;
+ 	unsigned int		x_plate_resistance;
+ 	bool			pen_down;
++	int			steps_to_configure;
+ };
  
- /* IRQ enable */
-+#define IRQENB_FIFO0THRES	BIT(2)
- #define IRQENB_FIFO1THRES	BIT(5)
- #define IRQENB_PENUP		BIT(9)
+ static unsigned int tscadc_readl(struct tscadc *ts, unsigned int reg)
+@@ -150,9 +147,10 @@ static void tscadc_writel(struct tscadc *tsc, unsigned int reg,
+ static void tscadc_step_config(struct tscadc *ts_dev)
+ {
+ 	unsigned int	config;
+-	int i;
++	int i, total_steps;
  
-@@ -277,7 +279,7 @@ static irqreturn_t tscadc_irq(int irq, void *dev)
- 	unsigned int fsm;
+ 	/* Configure the Step registers */
++	total_steps = 2 * ts_dev->steps_to_configure;
  
- 	status = tscadc_readl(ts_dev, REG_IRQSTATUS);
--	if (status & IRQENB_FIFO1THRES) {
-+	if (status & IRQENB_FIFO0THRES) {
- 		tscadc_read_coordinates(ts_dev, &x, &y);
- 
- 		z1 = tscadc_readl(ts_dev, REG_FIFO0) & 0xfff;
-@@ -303,7 +305,7 @@ static irqreturn_t tscadc_irq(int irq, void *dev)
- 				input_sync(input_dev);
- 			}
- 		}
--		irqclr |= IRQENB_FIFO1THRES;
-+		irqclr |= IRQENB_FIFO0THRES;
+ 	config = STEPCONFIG_MODE_HWSYNC |
+ 			STEPCONFIG_AVG_16 | STEPCONFIG_XPP;
+@@ -170,7 +168,7 @@ static void tscadc_step_config(struct tscadc *ts_dev)
+ 		break;
  	}
  
- 	/*
-@@ -446,9 +448,9 @@ static int __devinit tscadc_probe(struct platform_device *pdev)
- 	tscadc_writel(ts_dev, REG_CTRL, ctrl);
+-	for (i = 1; i < 7; i++) {
++	for (i = 1; i <= ts_dev->steps_to_configure; i++) {
+ 		tscadc_writel(ts_dev, REG_STEPCONFIG(i), config);
+ 		tscadc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+ 	}
+@@ -192,7 +190,7 @@ static void tscadc_step_config(struct tscadc *ts_dev)
+ 		break;
+ 	}
  
+-	for (i = 7; i < 13; i++) {
++	for (i = (ts_dev->steps_to_configure + 1); i <= total_steps; i++) {
+ 		tscadc_writel(ts_dev, REG_STEPCONFIG(i), config);
+ 		tscadc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+ 	}
+@@ -211,12 +209,14 @@ static void tscadc_step_config(struct tscadc *ts_dev)
+ 	config = STEPCONFIG_MODE_HWSYNC |
+ 			STEPCONFIG_AVG_16 | STEPCONFIG_YPP |
+ 			STEPCONFIG_XNN | STEPCONFIG_INM_ADCREFM;
+-	tscadc_writel(ts_dev, REG_STEPCONFIG13, config);
+-	tscadc_writel(ts_dev, REG_STEPDELAY13, STEPCONFIG_OPENDLY);
++	tscadc_writel(ts_dev, REG_STEPCONFIG(total_steps + 1), config);
++	tscadc_writel(ts_dev, REG_STEPDELAY(total_steps + 1),
++			STEPCONFIG_OPENDLY);
+ 
+ 	config |= STEPCONFIG_INP_AN3 | STEPCONFIG_FIFO1;
+-	tscadc_writel(ts_dev, REG_STEPCONFIG14, config);
+-	tscadc_writel(ts_dev, REG_STEPDELAY14, STEPCONFIG_OPENDLY);
++	tscadc_writel(ts_dev, REG_STEPCONFIG(total_steps + 2), config);
++	tscadc_writel(ts_dev, REG_STEPDELAY(total_steps + 2),
++			STEPCONFIG_OPENDLY);
+ 
+ 	tscadc_writel(ts_dev, REG_SE, STPENB_STEPENB);
+ }
+@@ -379,6 +379,7 @@ static int __devinit tscadc_probe(struct platform_device *pdev)
+ 	ts_dev->irq = irq;
+ 	ts_dev->wires = pdata->wires;
+ 	ts_dev->x_plate_resistance = pdata->x_plate_resistance;
++	ts_dev->steps_to_configure = pdata->steps_to_configure;
+ 
+ 	res = request_mem_region(res->start, resource_size(res), pdev->name);
+ 	if (!res) {
+@@ -447,7 +448,7 @@ static int __devinit tscadc_probe(struct platform_device *pdev)
  	tscadc_idle_config(ts_dev);
--	tscadc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO1THRES);
-+	tscadc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
+ 	tscadc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO1THRES);
  	tscadc_step_config(ts_dev);
--	tscadc_writel(ts_dev, REG_FIFO1THR, ts_dev->steps_to_configure);
-+	tscadc_writel(ts_dev, REG_FIFO0THR, ts_dev->steps_to_configure);
+-	tscadc_writel(ts_dev, REG_FIFO1THR, 6);
++	tscadc_writel(ts_dev, REG_FIFO1THR, ts_dev->steps_to_configure);
  
  	ctrl |= CNTRLREG_TSCSSENB;
  	tscadc_writel(ts_dev, REG_CTRL, ctrl);
+diff --git a/include/linux/input/ti_tscadc.h b/include/linux/input/ti_tscadc.h
+index b10a527..ad442a3 100644
+--- a/include/linux/input/ti_tscadc.h
++++ b/include/linux/input/ti_tscadc.h
+@@ -7,11 +7,17 @@
+  *			i.e. 4/5/8 wire touchscreen support
+  *			on the platform.
+  * @x_plate_resistance:	X plate resistance.
++ * @steps_to_configure:	The sequencer supports a total of
++ *			16 programmable steps.
++ *			A step configured to read a single
++ *			co-ordinate value, can be applied
++ *			more number of times for better results.
+  */
+ 
+ struct tsc_data {
+ 	int wires;
+ 	int x_plate_resistance;
++	int steps_to_configure;
+ };
+ 
+ #endif
 -- 
 1.7.1
 

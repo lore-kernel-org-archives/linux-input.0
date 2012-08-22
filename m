@@ -1,258 +1,314 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [RFC PATCH 1/17] input: RMI4 public header file and documentation.
-Date: Wed, 22 Aug 2012 21:08:00 +0200
-Message-ID: <CACRpkdbP1uTXC9jVNVG3es0KFRq+8MaUa6=6nPuG5WUz5jgiRQ@mail.gmail.com>
-References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
-	<1345241877-16200-2-git-send-email-cheiny@synaptics.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH v2] HID: multitouch: Remove the redundant touch state
+Date: Wed, 22 Aug 2012 22:58:32 +0200
+Message-ID: <20120822205832.GA18102@polaris.bitmath.org>
+References: <1344807757-2217-1-git-send-email-rydberg@euromail.se>
+ <1344807757-2217-20-git-send-email-rydberg@euromail.se>
+ <CAN+gG=F6hhOxU--mF2v3sCTzFLHqd6vK5JqcvvDXigss7EkPHQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1345241877-16200-2-git-send-email-cheiny@synaptics.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>, "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Henrik Rydberg <rydberg@euromail.se>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:56824 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933298Ab2HVUxo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Aug 2012 16:53:44 -0400
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=F6hhOxU--mF2v3sCTzFLHqd6vK5JqcvvDXigss7EkPHQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Aug 18, 2012 at 12:17 AM, Christopher Heiny
-<cheiny@synaptics.com> wrote:
+With the input_mt_sync_frame() function in place, there is no longer
+any need to keep the full touch state in the driver. This patch
+removes the slot state and replaces the lookup code with the input-mt
+equivalent. The initialization code is moved to mt_input_configured(),
+to make sure the full HID report has been seen.
 
-(...)
-> +#ifdef CONFIG_HAS_EARLYSUSPEND
-> +#include <linux/earlysuspend.h>
-> +#endif
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+Hi Benjamin,
 
-This does not exist in the mainline kernel, I can see you're having fun with
-Android ... check with Rafael on how to really handle this in a contemporary
-kernel.
+Maybe this patch works better? It has received limited testing so far.
 
-> +/**
-> + * struct rmi_f11_axis_alignment - target axis alignment
-> + * @swap_axes: set to TRUE if desired to swap x- and y-axis
-> + * @flip_x: set to TRUE if desired to flip direction on x-axis
-> + * @flip_y: set to TRUE if desired to flip direction on y-axis
+Henrik
 
-This kerneldoc is quite incomplete. There is a *lot* of members below
-that are not documented.
+ drivers/hid/hid-multitouch.c | 133 +++++++++++++++----------------------------
+ 1 file changed, 46 insertions(+), 87 deletions(-)
 
-> + */
-> +struct rmi_f11_2d_axis_alignment {
-> +       bool swap_axes;
-> +       bool flip_x;
-> +       bool flip_y;
-> +       int clip_X_low;
-> +       int clip_Y_low;
-> +       int clip_X_high;
-> +       int clip_Y_high;
-> +       int offset_X;
-> +       int offset_Y;
-> +       int rel_report_enabled;
-> +
-> +#ifdef CONFIG_RMI4_DEBUG
-> +       struct dentry *debugfs_flip;
-> +       struct dentry *debugfs_clip;
-> +       struct dentry *debugfs_offset;
-> +       struct dentry *debugfs_swap;
-> +       u16 reg_debug_addr;
-> +       u8 reg_debug_size;
-> +#endif
-> +};
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index c400d90..dc08a4e 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -56,7 +56,6 @@ struct mt_slot {
+ 	__s32 x, y, p, w, h;
+ 	__s32 contactid;	/* the device ContactID assigned to this slot */
+ 	bool touch_state;	/* is the touch valid? */
+-	bool seen_in_this_frame;/* has this slot been updated */
+ };
+ 
+ struct mt_class {
+@@ -93,7 +92,7 @@ struct mt_device {
+ 				* 1 means we should use a serial protocol
+ 				* > 1 means hybrid (multitouch) protocol */
+ 	bool curvalid;		/* is the current contact valid? */
+-	struct mt_slot *slots;
++	unsigned mt_flags;	/* flags to pass to input-mt */
+ };
+ 
+ /* classes of device behavior */
+@@ -134,25 +133,6 @@ static int cypress_compute_slot(struct mt_device *td)
+ 		return -1;
+ }
+ 
+-static int find_slot_from_contactid(struct mt_device *td)
+-{
+-	int i;
+-	for (i = 0; i < td->maxcontacts; ++i) {
+-		if (td->slots[i].contactid == td->curdata.contactid &&
+-			td->slots[i].touch_state)
+-			return i;
+-	}
+-	for (i = 0; i < td->maxcontacts; ++i) {
+-		if (!td->slots[i].seen_in_this_frame &&
+-			!td->slots[i].touch_state)
+-			return i;
+-	}
+-	/* should not occurs. If this happens that means
+-	 * that the device sent more touches that it says
+-	 * in the report descriptor. It is ignored then. */
+-	return -1;
+-}
+-
+ static struct mt_class mt_classes[] = {
+ 	{ .name = MT_CLS_DEFAULT,
+ 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP },
+@@ -319,24 +299,16 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	* We need to ignore fields that belong to other collections
+ 	* such as Mouse that might have the same GenericDesktop usages. */
+ 	if (field->application == HID_DG_TOUCHSCREEN)
+-		set_bit(INPUT_PROP_DIRECT, hi->input->propbit);
++		td->mt_flags |= INPUT_MT_DIRECT;
+ 	else if (field->application != HID_DG_TOUCHPAD)
+ 		return 0;
+ 
+-	/* In case of an indirect device (touchpad), we need to add
+-	 * specific BTN_TOOL_* to be handled by the synaptics xorg
+-	 * driver.
+-	 * We also consider that touchscreens providing buttons are touchpads.
++	/*
++	 * Model touchscreens providing buttons as touchpads.
+ 	 */
+ 	if (field->application == HID_DG_TOUCHPAD ||
+-	    (usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON ||
+-	    cls->is_indirect) {
+-		set_bit(INPUT_PROP_POINTER, hi->input->propbit);
+-		set_bit(BTN_TOOL_FINGER, hi->input->keybit);
+-		set_bit(BTN_TOOL_DOUBLETAP, hi->input->keybit);
+-		set_bit(BTN_TOOL_TRIPLETAP, hi->input->keybit);
+-		set_bit(BTN_TOOL_QUADTAP, hi->input->keybit);
+-	}
++	    (usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON)
++		td->mt_flags |= INPUT_MT_POINTER;
+ 
+ 	/* eGalax devices provide a Digitizer.Stylus input which overrides
+ 	 * the correct Digitizers.Finger X/Y ranges.
+@@ -353,8 +325,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 					EV_ABS, ABS_MT_POSITION_X);
+ 			set_abs(hi->input, ABS_MT_POSITION_X, field,
+ 				cls->sn_move);
+-			/* touchscreen emulation */
+-			set_abs(hi->input, ABS_X, field, cls->sn_move);
+ 			mt_store_field(usage, td, hi);
+ 			td->last_field_index = field->index;
+ 			return 1;
+@@ -363,8 +333,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 					EV_ABS, ABS_MT_POSITION_Y);
+ 			set_abs(hi->input, ABS_MT_POSITION_Y, field,
+ 				cls->sn_move);
+-			/* touchscreen emulation */
+-			set_abs(hi->input, ABS_Y, field, cls->sn_move);
+ 			mt_store_field(usage, td, hi);
+ 			td->last_field_index = field->index;
+ 			return 1;
+@@ -390,7 +358,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		case HID_DG_CONTACTID:
+ 			if (!td->maxcontacts)
+ 				td->maxcontacts = MT_DEFAULT_MAXCONTACT;
+-			input_mt_init_slots(hi->input, td->maxcontacts, 0);
+ 			mt_store_field(usage, td, hi);
+ 			td->last_field_index = field->index;
+ 			td->touches_by_report++;
+@@ -418,9 +385,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 					EV_ABS, ABS_MT_PRESSURE);
+ 			set_abs(hi->input, ABS_MT_PRESSURE, field,
+ 				cls->sn_pressure);
+-			/* touchscreen emulation */
+-			set_abs(hi->input, ABS_PRESSURE, field,
+-				cls->sn_pressure);
+ 			mt_store_field(usage, td, hi);
+ 			td->last_field_index = field->index;
+ 			return 1;
+@@ -464,7 +428,24 @@ static int mt_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 	return -1;
+ }
+ 
+-static int mt_compute_slot(struct mt_device *td)
++static void mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
++
++{
++	struct mt_device *td = hid_get_drvdata(hdev);
++	struct mt_class *cls = &td->mtclass;
++
++	if (cls->is_indirect)
++		td->mt_flags |= INPUT_MT_POINTER;
++
++	if (cls->quirks & MT_QUIRK_NOT_SEEN_MEANS_UP)
++		td->mt_flags |= INPUT_MT_DROP_UNUSED;
++
++	input_mt_init_slots(hi->input, td->maxcontacts, td->mt_flags);
++
++	td->mt_flags = 0;
++}
++
++static int mt_compute_slot(struct mt_device *td, struct input_dev *input)
+ {
+ 	__s32 quirks = td->mtclass.quirks;
+ 
+@@ -480,42 +461,23 @@ static int mt_compute_slot(struct mt_device *td)
+ 	if (quirks & MT_QUIRK_SLOT_IS_CONTACTID_MINUS_ONE)
+ 		return td->curdata.contactid - 1;
+ 
+-	return find_slot_from_contactid(td);
++	return input_mt_assign_slot_by_id(input, td->curdata.contactid);
+ }
+ 
+ /*
+  * this function is called when a whole contact has been processed,
+  * so that it can assign it to a slot and store the data there
+  */
+-static void mt_complete_slot(struct mt_device *td)
++static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+ {
+-	td->curdata.seen_in_this_frame = true;
+ 	if (td->curvalid) {
+-		int slotnum = mt_compute_slot(td);
+-
+-		if (slotnum >= 0 && slotnum < td->maxcontacts)
+-			td->slots[slotnum] = td->curdata;
+-	}
+-	td->num_received++;
+-}
++		int slotnum = mt_compute_slot(td, input);
++		struct mt_slot *s = &td->curdata;
+ 
++		if (slotnum < 0 || slotnum >= td->maxcontacts)
++			return;
+ 
+-/*
+- * this function is called when a whole packet has been received and processed,
+- * so that it can decide what to send to the input layer.
+- */
+-static void mt_emit_event(struct mt_device *td, struct input_dev *input)
+-{
+-	int i;
+-
+-	for (i = 0; i < td->maxcontacts; ++i) {
+-		struct mt_slot *s = &(td->slots[i]);
+-		if ((td->mtclass.quirks & MT_QUIRK_NOT_SEEN_MEANS_UP) &&
+-			!s->seen_in_this_frame) {
+-			s->touch_state = false;
+-		}
+-
+-		input_mt_slot(input, i);
++		input_mt_slot(input, slotnum);
+ 		input_mt_report_slot_state(input, MT_TOOL_FINGER,
+ 			s->touch_state);
+ 		if (s->touch_state) {
+@@ -532,16 +494,22 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
+ 			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
+ 			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
+ 		}
+-		s->seen_in_this_frame = false;
+-
+ 	}
+ 
+-	input_mt_report_pointer_emulation(input, true);
+-	input_sync(input);
+-	td->num_received = 0;
++	td->num_received++;
+ }
+ 
+ 
++/*
++ * this function is called when a whole packet has been received and processed,
++ * so that it can decide what to send to the input layer.
++ */
++static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
++{
++	input_mt_sync_frame(input);
++	input_sync(input);
++	td->num_received = 0;
++}
+ 
+ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 				struct hid_usage *usage, __s32 value)
+@@ -549,7 +517,7 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 	struct mt_device *td = hid_get_drvdata(hid);
+ 	__s32 quirks = td->mtclass.quirks;
+ 
+-	if (hid->claimed & HID_CLAIMED_INPUT && td->slots) {
++	if (hid->claimed & HID_CLAIMED_INPUT) {
+ 		switch (usage->hid) {
+ 		case HID_DG_INRANGE:
+ 			if (quirks & MT_QUIRK_ALWAYS_VALID)
+@@ -602,11 +570,11 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 		}
+ 
+ 		if (usage->hid == td->last_slot_field)
+-			mt_complete_slot(td);
++			mt_complete_slot(td, field->hidinput->input);
+ 
+ 		if (field->index == td->last_field_index
+ 			&& td->num_received >= td->num_expected)
+-			mt_emit_event(td, field->hidinput->input);
++			mt_sync_frame(td, field->hidinput->input);
+ 
+ 	}
+ 
+@@ -735,15 +703,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (id->vendor == HID_ANY_ID && id->product == HID_ANY_ID)
+ 		mt_post_parse_default_settings(td);
+ 
+-	td->slots = kzalloc(td->maxcontacts * sizeof(struct mt_slot),
+-				GFP_KERNEL);
+-	if (!td->slots) {
+-		dev_err(&hdev->dev, "cannot allocate multitouch slots\n");
+-		hid_hw_stop(hdev);
+-		ret = -ENOMEM;
+-		goto fail;
+-	}
+-
+ 	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
+ 
+ 	mt_set_maxcontacts(hdev);
+@@ -774,7 +733,6 @@ static void mt_remove(struct hid_device *hdev)
+ 	struct mt_device *td = hid_get_drvdata(hdev);
+ 	sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
+ 	hid_hw_stop(hdev);
+-	kfree(td->slots);
+ 	kfree(td);
+ 	hid_set_drvdata(hdev, NULL);
+ }
+@@ -1087,6 +1045,7 @@ static struct hid_driver mt_driver = {
+ 	.remove = mt_remove,
+ 	.input_mapping = mt_input_mapping,
+ 	.input_mapped = mt_input_mapped,
++	.input_configured = mt_input_configured,
+ 	.feature_mapping = mt_feature_mapping,
+ 	.usage_table = mt_grabbed_usages,
+ 	.event = mt_event,
+-- 
+1.7.11.5
 
-(...)
-> +struct rmi_f11_virtualbutton_map {
-> +       u8 buttons;
-> +       struct virtualbutton_map *map;
-> +};
-
-<newline> (nitpick)
-
-> +struct rmi_device_platform_data_spi {
-> +       int block_delay_us;
-> +       int split_read_block_delay_us;
-> +       int read_delay_us;
-> +       int write_delay_us;
-> +       int split_read_byte_delay_us;
-> +       int pre_delay_us;
-> +       int post_delay_us;
-> +
-> +       void *cs_assert_data;
-> +       int (*cs_assert) (const void *cs_assert_data, const bool assert);
-> +};
-> +
-> +/**
-> + * struct rmi_device_platform_data - system specific configuration info.
-> + *
-> + * @firmware_name - if specified will override default firmware name,
-> + * for reflashing.
-> + *
-> + * @f11_type_b - Force F11 to treat the sensor as a multitouch Type B sensor.
-> + * This is useful for older Type B RMI4 sensors that can't be queried for this
-> + * information, but will cause problems if you force a Type A sensor to be
-> + * treated as type_b.
-> + *
-> + * @pre_suspend - this will be called before any other suspend operations are
-> + * done.
-> + * @post_suspend - this will be called after all suspend operations are
-> + * completed.  This is the ONLY safe place to power off an RMI sensor
-> + * during the suspend process.
-> + * @pre_resume - this is called before any other resume operations.  If you
-> + * powered off the RMI4 sensor in post_suspend(), then you MUST power it back
-> + * here, and you MUST wait an appropriate time for the ASIC to come up
-> + * (100ms to 200ms, depending on the sensor) before returning.
-> + * @pm_data - this will be passed to the various (pre|post)_(suspend/resume)
-> + * functions.
-
-This kerneldoc is incomplete, maybe intentional, I don't know...
-
-(...)
-> +struct rmi_function_handler {
-> +       int func;
-> +       int (*init)(struct rmi_function_container *fc);
-> +       int (*config)(struct rmi_function_container *fc);
-> +       int (*reset)(struct rmi_function_container *fc);
-> +       int (*attention)(struct rmi_function_container *fc, u8 *irq_bits);
-> +#ifdef CONFIG_PM
-> +       int (*suspend)(struct rmi_function_container *fc);
-> +       int (*resume)(struct rmi_function_container *fc);
-> +#if defined(CONFIG_HAS_EARLYSUSPEND) && \
-> +               !defined(CONFIG_RMI4_SPECIAL_EARLYSUSPEND)
-
-There is this earlysuspend again, now with some turbo-version
-which is "special" as well :-)
-
-> +       int (*early_suspend)(struct rmi_function_container *fc);
-> +       int (*late_resume)(struct rmi_function_container *fc);
-> +#endif
-> +#endif
-> +       void (*remove)(struct rmi_function_container *fc);
-> +};
-
-(...)
-> +/**
-> + * struct rmi_device - represents an RMI device
-> + * @dev: The device created for the RMI bus
-> + * @number: Unique number for the device on the bus.
-> + * @driver: Pointer to associated driver
-> + * @phys: Pointer to the physical interface
-> + * @early_suspend_handler: Pointers to early_suspend and late_resume, if
-> + * configured.
-> + *
-> + * This structs represent an RMI device.
-> + *
-> + */
-> +struct rmi_device {
-> +       struct device dev;
-> +       int number;
-> +
-> +       struct rmi_driver *driver;
-> +       struct rmi_phys_device *phys;
-> +
-> +#ifdef CONFIG_HAS_EARLYSUSPEND
-> +       struct early_suspend early_suspend_handler;
-> +#endif
-
-...and here...
-
-> +#ifdef CONFIG_RMI4_DEBUG
-> +       struct dentry *debugfs_root;
-> +#endif
-> +};
-
-(...)
-> +/* Helper fn to convert a byte array representing a short in the RMI
-> + * endian-ness to a short in the native processor's specific endianness.
-> + * We don't use ntohs/htons here because, well, we're not dealing with
-> + * a pair of shorts. And casting dest to short* wouldn't work, because
-> + * that would imply knowing the byte order of short in the first place.
-> + */
-> +static inline void batohs(unsigned short *dest, unsigned char *src)
-
-Change this prototype to use kernel-internal types, and what is
-wron with using the return value??
-
-static inline void batohs(unsigned short *dest, unsigned char *src)
-
-> +{
-> +       *dest = src[1] * 0x100 + src[0];
-> +}
-
-Doing this instead of casting is good style. But I would have done like this:
-
-static inline u16 batohs(u8 *src)
-{
-   return src[1] << 8 | src[0];
-}
-
-Which the compiler *hopufully will emit, but since we're doing
-arithmetic, not maths, please use shifts and OR:s.
-
-And at the call sites, instead of
-
-unsigned short mr16;
-unsigned char mr_arrary[2];
-batohs(&mr16, &mr_array[0]);
-
-Just:
-
-u16 mr16;
-u8 mr_array[2];
-
-mr16 = batohs(&mr_array[0]);
-
-> +/* Helper function to convert a short (in host processor endianess) to
-> + * a byte array in the RMI endianess for shorts.  See above comment for
-> + * why we dont us htons or something like that.
-> + */
-> +static inline void hstoba(unsigned char *dest, unsigned short src)
-
-Here yuou need to pass a pointer to the destination for sure.
-
-> +{
-> +       dest[0] = src % 0x100;
-> +       dest[1] = src / 0x100;
-> +}
-
-I would have done the above like this:
-
-static inline void hstoba(u8 *dest, u16 src)
-{
-  dest[0] = src & 0xFF;
-  dest[1] = src >> 8;
-}
-
-(...)
-> +/* utility function for bit access of u8*'s */
-
-No, do not reinvent the wheel. Use
-#include <linux/bitmap.h>
-(which in turn will include <linux/bitops.h> for you)
-Those bitmaps use unsigned int but that does not
-really matter, they should work just fine using the lower
-8 bits.
-
-> +void u8_set_bit(u8 *target, int pos);
-
-Use set_bit() from <linux/bitops.h>
-
-> +void u8_clear_bit(u8 *target, int pos);
-
-Use clear_bit() from <linux/bitops.h>
-
-> +bool u8_is_set(u8 *target, int pos);
-
-Use test_bit() from <linux/bitops.h>
-
-> +bool u8_is_any_set(u8 *target, int size);
-
-Use find_first_bit(), if this returns 0 none is set, !find_first_bit() for
-example serves the same purpose.
-
-> +void u8_or(u8 *dest, u8* target1, u8* target2, int size);
-
-Use bitmap_or()
-
-> +void u8_and(u8 *dest, u8* target1, u8* target2, int size);
-
-Use bitmap_and()
-
-Yours,
-Linus Walleij

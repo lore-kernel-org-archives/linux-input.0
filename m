@@ -1,43 +1,63 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [RFC PATCH 00/11] input: Synaptics RMI4 Touchscreen Driver
-Date: Wed, 22 Aug 2012 14:50:48 +0200
-Message-ID: <CACRpkda6Aq_rmYjMx6fcYvPnEexZ47dhaiA3hsCozLyUT0Mikw@mail.gmail.com>
-References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH -next] HID: picoLCD: Add missing #include
+ <linux/uaccess.h>
+Date: Wed, 22 Aug 2012 16:28:27 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1208221628190.32304@pobox.suse.cz>
+References: <1345581683-2099-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:54150 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751972Ab2HVMut (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Aug 2012 08:50:49 -0400
-Received: by weyx8 with SMTP id x8so561179wey.19
-        for <linux-input@vger.kernel.org>; Wed, 22 Aug 2012 05:50:48 -0700 (PDT)
-In-Reply-To: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
+Received: from cantor2.suse.de ([195.135.220.15]:33980 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753085Ab2HVO2g (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Aug 2012 10:28:36 -0400
+In-Reply-To: <1345581683-2099-1-git-send-email-geert@linux-m68k.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>, linux-input@vger.kernel.org, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
 
-On Sat, Aug 18, 2012 at 12:17 AM, Christopher Heiny
-<cheiny@synaptics.com> wrote:
+On Tue, 21 Aug 2012, Geert Uytterhoeven wrote:
 
-> This patch implements a driver supporting Synaptics ClearPad and other
-> touchscreen sensors that use the RMI4 protocol, as defined here:
+> m68k/allmodconfig:
+>=20
+> drivers/hid/hid-picolcd_debugfs.c: In function =E2=80=98picolcd_debug=
+_reset_write=E2=80=99:
+> drivers/hid/hid-picolcd_debugfs.c:54: error: implicit declaration of =
+function =E2=80=98copy_from_user=E2=80=99
+> drivers/hid/hid-picolcd_debugfs.c: In function =E2=80=98picolcd_debug=
+_eeprom_read=E2=80=99:
+> drivers/hid/hid-picolcd_debugfs.c:112: error: implicit declaration of=
+ function =E2=80=98copy_to_user=E2=80=99
+>=20
+> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> ---
+> http://kisskb.ellerman.id.au/kisskb/buildresult/6990818/
+>=20
+>  drivers/hid/hid-picolcd_debugfs.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+>=20
+> diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-pico=
+lcd_debugfs.c
+> index f2491fa..15c22f2 100644
+> --- a/drivers/hid/hid-picolcd_debugfs.c
+> +++ b/drivers/hid/hid-picolcd_debugfs.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/debugfs.h>
+> =20
+>  #include <linux/module.h>
+> +#include <linux/uaccess.h>
+> =20
+>  #include "hid-picolcd.h"
 
-Nice!
+Applied, thanks Geert.
 
-> This patch is against the v2.6.38 tag of Linus' kernel tree, commit
-> 521cb40b0c44418a4fd36dc633f575813d59a43d.  This will be our last patch against
-> such an old kernel version, future patches will be against 3.x kernels.
-
-Please use the head of the subsystem tree to do this work.
-In this case, use Dmitry's git.
-
-Currently I just cannot test this because we have no such old codebase
-around.
-
-But I will attempt to review the patch set!
-
-Yours,
-Linus Walleij
+--=20
+Jiri Kosina
+SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

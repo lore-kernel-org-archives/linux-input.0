@@ -1,35 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC PATCH 1/17] input: RMI4 public header file and documentation.
-Date: Wed, 22 Aug 2012 14:45:35 -0700
-Message-ID: <1965688.fPKEQJnVvJ@dtor-d630.eng.vmware.com>
-References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com> <1345241877-16200-2-git-send-email-cheiny@synaptics.com> <CACRpkdbP1uTXC9jVNVG3es0KFRq+8MaUa6=6nPuG5WUz5jgiRQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+From: Yann Cantin <yann.cantin@laposte.net>
+Subject: [RFC ebeam PATCH v4 0/2] new USB eBeam input driver
+Date: Thu, 23 Aug 2012 00:11:52 +0200
+Message-ID: <1345673514-11575-1-git-send-email-yann.cantin@laposte.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:58604 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932343Ab2HVVpm (ORCPT
+Received: from smtp07.smtpout.orange.fr ([80.12.242.129]:50182 "EHLO
+	smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754269Ab2HVWKe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Aug 2012 17:45:42 -0400
-In-Reply-To: <CACRpkdbP1uTXC9jVNVG3es0KFRq+8MaUa6=6nPuG5WUz5jgiRQ@mail.gmail.com>
+	Wed, 22 Aug 2012 18:10:34 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Christopher Heiny <cheiny@synaptics.com>, "Rafael J. Wysocki" <rjw@sisk.pl>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Henrik Rydberg <rydberg@euromail.se>
+To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-On Wednesday, August 22, 2012 09:08:00 PM Linus Walleij wrote:
-> On Sat, Aug 18, 2012 at 12:17 AM, Christopher Heiny
-> <cheiny@synaptics.com> wrote:
-> 
-> > +/* Helper fn to convert a byte array representing a short in the RMI
-> > + * endian-ness to a short in the native processor's specific endianness.
+Hi,
 
-Is RMI-endiannes different from BE and LE (joking)? Please simply state what 
-on-wire endianness is and use xx_to_cpu() or cpu_to_xx() as needed. I think I 
-mentioned it about a year ago already...
+New USB input driver for eBeam devices.
 
-Thanks.
+Currently supported (tested) :
+- Luidia eBeam classic projection and edge projection models
+- Nec "interactive solution" NP01Wi1 & NP01Wi2 accessories.
 
--- 
-Dmitry
+In fact, from basic usb point of view, all these devices are
+indistinguishable : they have the same usb ids and (blank) hid
+report descriptors. There's other re-branded hardware that need to be
+test, but i bet on same ids. 
+
+So, the code :
+
+Patch 1 to blacklist the devices for hid generic-usb.
+
+Patch 2 is the actual driver.
+
+Notable stuff :
+- use div64_s64 for portable 64/64-bits divisions.
+- 13 sysfs custom files : 9 values for the transformation matrix,
+  4 for xy ranges and a calibration trigger.
+
+The module run fine with a 3.3.6 and a 3.5.0 kernel, both x86_32 and 64.
+
+Thanks for your help.
+
+

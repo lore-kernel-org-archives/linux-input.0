@@ -1,63 +1,59 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH -next] HID: picoLCD: Add missing #include
- <linux/uaccess.h>
-Date: Wed, 22 Aug 2012 16:28:27 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1208221628190.32304@pobox.suse.cz>
-References: <1345581683-2099-1-git-send-email-geert@linux-m68k.org>
+Subject: Re: [PATCH] hid: Remove QUANTA from special drivers list
+Date: Wed, 22 Aug 2012 16:48:40 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1208221648130.32304@pobox.suse.cz>
+References: <1345630637-7142-1-git-send-email-simon.farnsworth@onelan.co.uk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33980 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:36226 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753085Ab2HVO2g (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Aug 2012 10:28:36 -0400
-In-Reply-To: <1345581683-2099-1-git-send-email-geert@linux-m68k.org>
+	id S1752766Ab2HVOst (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Aug 2012 10:48:49 -0400
+In-Reply-To: <1345630637-7142-1-git-send-email-simon.farnsworth@onelan.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>, linux-input@vger.kernel.org, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
+To: Simon Farnsworth <simon.farnsworth@onelan.co.uk>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Henrik Rydberg <rydberg@bitmath.se>
 
-On Tue, 21 Aug 2012, Geert Uytterhoeven wrote:
+On Wed, 22 Aug 2012, Simon Farnsworth wrote:
 
-> m68k/allmodconfig:
->=20
-> drivers/hid/hid-picolcd_debugfs.c: In function =E2=80=98picolcd_debug=
-_reset_write=E2=80=99:
-> drivers/hid/hid-picolcd_debugfs.c:54: error: implicit declaration of =
-function =E2=80=98copy_from_user=E2=80=99
-> drivers/hid/hid-picolcd_debugfs.c: In function =E2=80=98picolcd_debug=
-_eeprom_read=E2=80=99:
-> drivers/hid/hid-picolcd_debugfs.c:112: error: implicit declaration of=
- function =E2=80=98copy_to_user=E2=80=99
->=20
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> This QUANTA device is driven by the generic hid-multitouch.ko driver, and
+> therefore shouldn't be in the special drivers list.
+> 
+> I've gone over the entire special drivers list in hid-core.c; this is the
+> only device I spotted that's listed as needing a special driver, but doesn't
+> have an entry in a struct hid_driver's id_table.
+> 
+> Signed-off-by: Simon Farnsworth <simon.farnsworth@onelan.co.uk>
 > ---
-> http://kisskb.ellerman.id.au/kisskb/buildresult/6990818/
->=20
->  drivers/hid/hid-picolcd_debugfs.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-pico=
-lcd_debugfs.c
-> index f2491fa..15c22f2 100644
-> --- a/drivers/hid/hid-picolcd_debugfs.c
-> +++ b/drivers/hid/hid-picolcd_debugfs.c
-> @@ -27,6 +27,7 @@
->  #include <linux/debugfs.h>
-> =20
->  #include <linux/module.h>
-> +#include <linux/uaccess.h>
-> =20
->  #include "hid-picolcd.h"
+> 
+> Applying just this patch is enough to fix the problem I described in my mail
+> "QUANTA touchscreen controller integrated in HP2310ti no longer recognised
+> (regression in 3.5 and later as compared to 3.3)".
+> 
+> This looks like an oversight in commit 4fa3a58; that commit removes most
+> multitouch screens from this list, but missed this one. Henrik should be
+> able to confirm, though, so I'd appreciate his sign-off.
+> 
+>  drivers/hid/hid-core.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 60ea284..8bf8a64 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1624,7 +1624,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ARVO) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ISKU) },
 
-Applied, thanks Geert.
+Good catch, thank you. I will be pushing this to Linus for 3.6 still.
 
---=20
+-- 
 Jiri Kosina
 SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

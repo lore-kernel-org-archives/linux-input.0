@@ -1,86 +1,44 @@
-From: =?utf-8?Q?Beno=C3=AEt_Th=C3=A9baudeau?= <benoit.thebaudeau@advansee.com>
-Subject: [PATCH] pwm: Call pwm_enable() before pwm_config()
-Date: Thu, 23 Aug 2012 16:19:47 +0200 (CEST)
-Message-ID: <217877237.2758643.1345731587941.JavaMail.root@advansee.com>
-References: <320569847.2756382.1345729013971.JavaMail.root@advansee.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
+Subject: Re: [PATCH] pwm: Call pwm_enable() before pwm_config()
+Date: Thu, 23 Aug 2012 17:43:32 +0200
+Message-ID: <50364FA4.7000401@metafoo.de>
+References: <217877237.2758643.1345731587941.JavaMail.root@advansee.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <320569847.2756382.1345729013971.JavaMail.root@advansee.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Thierry Reding <thierry.reding@avionic-design.de>, linux-kernel@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org
-Cc: =?utf-8?Q?Beno=C3=AEt_Th=C3=A9baudeau?= <benoit.thebaudeau@advansee.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <217877237.2758643.1345731587941.JavaMail.root@advansee.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?UTF-8?B?QmVub8OudCBUaMOpYmF1ZGVhdQ==?= <benoit.thebaudeau@advansee.com>
+Cc: Thierry Reding <thierry.reding@avionic-design.de>, linux-kernel@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-U29tZSBQV00gZHJpdmVycyBlbmFibGUgdGhlIGNsb2NrIG9mIHRoZSBQV00gcGVyaXBoZXJhbCBp
-biBwd21fZW5hYmxlKCkuIEhlbmNlLApmb3IgdGhlc2UgZHJpdmVycywgYSBjYWxsIHRvIHB3bV9j
-b25maWcoKSBkb2VzIG5vdCBoYXZlIGFueSBlZmZlY3QgYmVmb3JlCnB3bV9lbmFibGUoKSBoYXMg
-YmVlbiBjYWxsZWQuCgpUaGlzIHBhdGNoIGZpeGVzIHRoZSBQV00gdXNlcnMgdG8gbWFrZSBzdXJl
-IHRoYXQgdGhleSBjYWxsIHB3bV9lbmFibGUoKSBiZWZvcmUKcHdtX2NvbmZpZygpLgoKVGhpcyBm
-aXhlcyB0aGUgZmlyc3Qgc2V0dGluZyBvZiBicmlnaHRuZXNzIHRocm91Z2ggc3lzZnMgdGhhdCBo
-YWQgbm8gZWZmZWN0IHdpdGgKbGVkcy1wd20gYW5kIHRoZSBpLk1YIFBXTSBkcml2ZXIuCgpDYzog
-VGhpZXJyeSBSZWRpbmcgPHRoaWVycnkucmVkaW5nQGF2aW9uaWMtZGVzaWduLmRlPgpDYzogPGxp
-bnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc+CkNjOiBTYXNjaGEgSGF1ZXIgPGtlcm5lbEBwZW5n
-dXRyb25peC5kZT4KQ2M6IDxsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmc+CkNj
-OiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20+CkNjOiA8bGludXgt
-aW5wdXRAdmdlci5rZXJuZWwub3JnPgpDYzogQnJ5YW4gV3UgPGJyeWFuLnd1QGNhbm9uaWNhbC5j
-b20+CkNjOiBSaWNoYXJkIFB1cmRpZSA8cnB1cmRpZUBycHN5cy5uZXQ+CkNjOiA8bGludXgtbGVk
-c0B2Z2VyLmtlcm5lbC5vcmc+CkNjOiBGbG9yaWFuIFRvYmlhcyBTY2hhbmRpbmF0IDxGbG9yaWFu
-U2NoYW5kaW5hdEBnbXguZGU+CkNjOiA8bGludXgtZmJkZXZAdmdlci5rZXJuZWwub3JnPgpDYzog
-QmVub8OudCBUaMOpYmF1ZGVhdSA8YmVub2l0LnRoZWJhdWRlYXVAYWR2YW5zZWUuY29tPgpTaWdu
-ZWQtb2ZmLWJ5OiBCZW5vw650IFRow6liYXVkZWF1IDxiZW5vaXQudGhlYmF1ZGVhdUBhZHZhbnNl
-ZS5jb20+Ci0tLQogLi4uL2RyaXZlcnMvaW5wdXQvbWlzYy9wd20tYmVlcGVyLmMgICAgICAgICAg
-ICAgICAgfCAgICA2ICsrKy0tLQogLi4uL2RyaXZlcnMvbGVkcy9sZWRzLXB3bS5jICAgICAgICAg
-ICAgICAgICAgICAgICAgfCAgICAyICstCiAuLi4vZHJpdmVycy92aWRlby9iYWNrbGlnaHQvcHdt
-X2JsLmMgICAgICAgICAgICAgICB8ICAgIDIgKy0KIDMgZmlsZXMgY2hhbmdlZCwgNSBpbnNlcnRp
-b25zKCspLCA1IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBsaW51eC1uZXh0LWM5NDQ1NmIub3Jp
-Zy9kcml2ZXJzL2lucHV0L21pc2MvcHdtLWJlZXBlci5jIGxpbnV4LW5leHQtYzk0NDU2Yi9kcml2
-ZXJzL2lucHV0L21pc2MvcHdtLWJlZXBlci5jCmluZGV4IGZjODRjOGEuLjk3ZDMyMmIgMTAwNjQ0
-Ci0tLSBsaW51eC1uZXh0LWM5NDQ1NmIub3JpZy9kcml2ZXJzL2lucHV0L21pc2MvcHdtLWJlZXBl
-ci5jCisrKyBsaW51eC1uZXh0LWM5NDQ1NmIvZHJpdmVycy9pbnB1dC9taXNjL3B3bS1iZWVwZXIu
-YwpAQCAtNTMsMTAgKzUzLDEwIEBAIHN0YXRpYyBpbnQgcHdtX2JlZXBlcl9ldmVudChzdHJ1Y3Qg
-aW5wdXRfZGV2ICppbnB1dCwKIAkJcHdtX2Rpc2FibGUoYmVlcGVyLT5wd20pOwogCX0gZWxzZSB7
-CiAJCXBlcmlvZCA9IEhaX1RPX05BTk9TRUNPTkRTKHZhbHVlKTsKLQkJcmV0ID0gcHdtX2NvbmZp
-ZyhiZWVwZXItPnB3bSwgcGVyaW9kIC8gMiwgcGVyaW9kKTsKKwkJcmV0ID0gcHdtX2VuYWJsZShi
-ZWVwZXItPnB3bSk7CiAJCWlmIChyZXQpCiAJCQlyZXR1cm4gcmV0OwotCQlyZXQgPSBwd21fZW5h
-YmxlKGJlZXBlci0+cHdtKTsKKwkJcmV0ID0gcHdtX2NvbmZpZyhiZWVwZXItPnB3bSwgcGVyaW9k
-IC8gMiwgcGVyaW9kKTsKIAkJaWYgKHJldCkKIAkJCXJldHVybiByZXQ7CiAJCWJlZXBlci0+cGVy
-aW9kID0gcGVyaW9kOwpAQCAtMTU2LDggKzE1Niw4IEBAIHN0YXRpYyBpbnQgcHdtX2JlZXBlcl9y
-ZXN1bWUoc3RydWN0IGRldmljZSAqZGV2KQogCXN0cnVjdCBwd21fYmVlcGVyICpiZWVwZXIgPSBk
-ZXZfZ2V0X2RydmRhdGEoZGV2KTsKIAogCWlmIChiZWVwZXItPnBlcmlvZCkgewotCQlwd21fY29u
-ZmlnKGJlZXBlci0+cHdtLCBiZWVwZXItPnBlcmlvZCAvIDIsIGJlZXBlci0+cGVyaW9kKTsKIAkJ
-cHdtX2VuYWJsZShiZWVwZXItPnB3bSk7CisJCXB3bV9jb25maWcoYmVlcGVyLT5wd20sIGJlZXBl
-ci0+cGVyaW9kIC8gMiwgYmVlcGVyLT5wZXJpb2QpOwogCX0KIAogCXJldHVybiAwOwpkaWZmIC0t
-Z2l0IGxpbnV4LW5leHQtYzk0NDU2Yi5vcmlnL2RyaXZlcnMvbGVkcy9sZWRzLXB3bS5jIGxpbnV4
-LW5leHQtYzk0NDU2Yi9kcml2ZXJzL2xlZHMvbGVkcy1wd20uYwppbmRleCBmMmU0NGM3Li5jMmUw
-YzIyIDEwMDY0NAotLS0gbGludXgtbmV4dC1jOTQ0NTZiLm9yaWcvZHJpdmVycy9sZWRzL2xlZHMt
-cHdtLmMKKysrIGxpbnV4LW5leHQtYzk0NDU2Yi9kcml2ZXJzL2xlZHMvbGVkcy1wd20uYwpAQCAt
-NDIsOCArNDIsOCBAQCBzdGF0aWMgdm9pZCBsZWRfcHdtX3NldChzdHJ1Y3QgbGVkX2NsYXNzZGV2
-ICpsZWRfY2RldiwKIAkJcHdtX2NvbmZpZyhsZWRfZGF0LT5wd20sIDAsIHBlcmlvZCk7CiAJCXB3
-bV9kaXNhYmxlKGxlZF9kYXQtPnB3bSk7CiAJfSBlbHNlIHsKLQkJcHdtX2NvbmZpZyhsZWRfZGF0
-LT5wd20sIGJyaWdodG5lc3MgKiBwZXJpb2QgLyBtYXgsIHBlcmlvZCk7CiAJCXB3bV9lbmFibGUo
-bGVkX2RhdC0+cHdtKTsKKwkJcHdtX2NvbmZpZyhsZWRfZGF0LT5wd20sIGJyaWdodG5lc3MgKiBw
-ZXJpb2QgLyBtYXgsIHBlcmlvZCk7CiAJfQogfQogCmRpZmYgLS1naXQgbGludXgtbmV4dC1jOTQ0
-NTZiLm9yaWcvZHJpdmVycy92aWRlby9iYWNrbGlnaHQvcHdtX2JsLmMgbGludXgtbmV4dC1jOTQ0
-NTZiL2RyaXZlcnMvdmlkZW8vYmFja2xpZ2h0L3B3bV9ibC5jCmluZGV4IDk5NWYwMTYuLmE0YmI5
-NWMgMTAwNjQ0Ci0tLSBsaW51eC1uZXh0LWM5NDQ1NmIub3JpZy9kcml2ZXJzL3ZpZGVvL2JhY2ts
-aWdodC9wd21fYmwuYworKysgbGludXgtbmV4dC1jOTQ0NTZiL2RyaXZlcnMvdmlkZW8vYmFja2xp
-Z2h0L3B3bV9ibC5jCkBAIC02NSw4ICs2NSw4IEBAIHN0YXRpYyBpbnQgcHdtX2JhY2tsaWdodF91
-cGRhdGVfc3RhdHVzKHN0cnVjdCBiYWNrbGlnaHRfZGV2aWNlICpibCkKIAogCQlkdXR5X2N5Y2xl
-ID0gcGItPmx0aF9icmlnaHRuZXNzICsKIAkJICAgICAoZHV0eV9jeWNsZSAqIChwYi0+cGVyaW9k
-IC0gcGItPmx0aF9icmlnaHRuZXNzKSAvIG1heCk7Ci0JCXB3bV9jb25maWcocGItPnB3bSwgZHV0
-eV9jeWNsZSwgcGItPnBlcmlvZCk7CiAJCXB3bV9lbmFibGUocGItPnB3bSk7CisJCXB3bV9jb25m
-aWcocGItPnB3bSwgZHV0eV9jeWNsZSwgcGItPnBlcmlvZCk7CiAJfQogCiAJaWYgKHBiLT5ub3Rp
-ZnlfYWZ0ZXIpCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmlu
-ZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9s
-aW51eC1hcm0ta2VybmVsCg==
+On 08/23/2012 04:19 PM, Beno=C3=AEt Th=C3=A9baudeau wrote:
+> Some PWM drivers enable the clock of the PWM peripheral in pwm_enable=
+(). Hence,
+> for these drivers, a call to pwm_config() does not have any effect be=
+fore
+> pwm_enable() has been called.
+>=20
+> This patch fixes the PWM users to make sure that they call pwm_enable=
+() before
+> pwm_config().
+>=20
+> This fixes the first setting of brightness through sysfs that had no =
+effect with
+> leds-pwm and the i.MX PWM driver.
+
+But isn't this a bug in the PWM peripheral driver? With this change the=
+ PWM
+will start with the old settings first. While this is not so much of a =
+problem
+for a backlight (although it might cause a short flickering) it might c=
+ause
+problems for other applications, like using the PWM pin as a timing gen=
+erator.
+In my opinion it's better to fix the PWM peripheral drivers which have =
+this
+problem instead of trying to work around it in every user of the PWM AP=
+I.
+
+- Lars

@@ -1,457 +1,86 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [RFC PATCH 3/17] input: RMI4 physical layer drivers for I2C and SPI
-Date: Thu, 23 Aug 2012 15:21:43 +0200
-Message-ID: <CACRpkdY5bgMhntpwtP4X+x+tzNeeABuU372GTLh4UGSEAVyWLw@mail.gmail.com>
-References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
-	<1345241877-16200-4-git-send-email-cheiny@synaptics.com>
+From: =?utf-8?Q?Beno=C3=AEt_Th=C3=A9baudeau?= <benoit.thebaudeau@advansee.com>
+Subject: [PATCH] pwm: Call pwm_enable() before pwm_config()
+Date: Thu, 23 Aug 2012 16:19:47 +0200 (CEST)
+Message-ID: <217877237.2758643.1345731587941.JavaMail.root@advansee.com>
+References: <320569847.2756382.1345729013971.JavaMail.root@advansee.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:44717 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758779Ab2HWNVp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Aug 2012 09:21:45 -0400
-Received: by wibhr14 with SMTP id hr14so937592wib.1
-        for <linux-input@vger.kernel.org>; Thu, 23 Aug 2012 06:21:43 -0700 (PDT)
-In-Reply-To: <1345241877-16200-4-git-send-email-cheiny@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <320569847.2756382.1345729013971.JavaMail.root@advansee.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Thierry Reding <thierry.reding@avionic-design.de>, linux-kernel@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org
+Cc: =?utf-8?Q?Beno=C3=AEt_Th=C3=A9baudeau?= <benoit.thebaudeau@advansee.com>
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-On Sat, Aug 18, 2012 at 12:17 AM, Christopher Heiny
-<cheiny@synaptics.com> wrote:
-
->  drivers/input/rmi4/rmi_i2c.c |  452 +++++++++++++++++++++
->  drivers/input/rmi4/rmi_spi.c |  911 ++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 1363 insertions(+), 0 deletions(-)
-
-NB: Mark Brown is looking after SPI FTM so include him!
-
-(...)
-> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-(...)
-> +#define COMMS_DEBUG 0
-> +
-> +#define IRQ_DEBUG 0
-> +
-> +#if COMMS_DEBUG || IRQ_DEBUG
-> +#define DEBUG
-> +#endif
-
-Don't do things like this. Debugging shall always be switched on from the
-Kconfig menus.
-
-Look at this from drivers/pinctrl/:
-
-Kconfig:
-config DEBUG_PINCTRL
-        bool "Debug PINCTRL calls"
-        depends on DEBUG_KERNEL
-        help
-          Say Y here to add some extra checks and diagnostics to PINCTRL calls.
-
-Makefile:
-ccflags-$(CONFIG_DEBUG_PINCTRL) += -DDEBUG
-
-Other more specific defines: same thing. Use Kconfig.
-The kernel also has a native concept of verbos debugging
-see e.g. drivers/dma*:
-
-config DMADEVICES_VDEBUG
-        bool "DMA Engine verbose debugging"
-        depends on DMADEVICES_DEBUG != n
-        help
-          This is an option for use by developers; most people should
-          say N here.  This enables deeper (more verbose) debugging of
-          the DMA engine core and drivers.
-
-ccflags-$(CONFIG_DMADEVICES_VDEBUG) += -DVERBOSE_DEBUG
-
-(...)
-> +static irqreturn_t rmi_i2c_irq_thread(int irq, void *p)
-> +{
-> +       struct rmi_phys_device *phys = p;
-> +       struct rmi_device *rmi_dev = phys->rmi_dev;
-> +       struct rmi_driver *driver = rmi_dev->driver;
-> +       struct rmi_device_platform_data *pdata = phys->dev->platform_data;
-> +
-> +#if IRQ_DEBUG
-> +       dev_dbg(phys->dev, "ATTN gpio, value: %d.\n",
-> +                       gpio_get_value(pdata->attn_gpio));
-> +#endif
-
-If you absolutely cannot just use dev_dbg() or dev_vdbg(), then
-define your own irq debugging macro on top:
-
-#ifdef IRQ_DEBUG
-#define dev_irqdbg        dev_irqdbg
-#else
-#define dev_irqdbg(dev, format, arg...)                           \
-({                                                              \
-        if (0)                                                  \
-                dev_printk(KERN_DEBUG, dev, format, ##arg);     \
-        0;                                                      \
-})
-#endif
-
-(...)
-> +static int rmi_set_page(struct rmi_phys_device *phys, unsigned int page)
-> +{
-> +       struct i2c_client *client = to_i2c_client(phys->dev);
-> +       struct rmi_i2c_data *data = phys->data;
-> +       char txbuf[2] = {RMI_PAGE_SELECT_REGISTER, page};
-> +       int retval;
-> +
-> +#if COMMS_DEBUG
-> +       dev_dbg(&client->dev, "RMI4 I2C writes 3 bytes: %02x %02x\n",
-> +               txbuf[0], txbuf[1]);
-> +#endif
-
-Same comment, mutatis mutandis.
-
-(...)
-> +static int acquire_attn_irq(struct rmi_i2c_data *data)
-> +{
-> +       return request_threaded_irq(data->irq, NULL, rmi_i2c_irq_thread,
-> +                       data->irq_flags, dev_name(data->phys->dev), data->phys);
-> +}
-
-Do you really need a separate function to just call another function?
-Inline this instead.
-
-(...)
-> +static int __devinit rmi_i2c_probe(struct i2c_client *client,
-> +                                 const struct i2c_device_id *id)
-> +{
-> +       struct rmi_phys_device *rmi_phys;
-> +       struct rmi_i2c_data *data;
-> +       struct rmi_device_platform_data *pdata = client->dev.platform_data;
-> +       int error;
-> +
-> +       if (!pdata) {
-> +               dev_err(&client->dev, "no platform data\n");
-> +               return -EINVAL;
-> +       }
-> +       dev_info(&client->dev, "Probing %s at %#02x (IRQ %d).\n",
-> +               pdata->sensor_name ? pdata->sensor_name : "-no name-",
-> +               client->addr, pdata->attn_gpio);
-> +
-> +       if (pdata->gpio_config) {
-> +               dev_info(&client->dev, "Configuring GPIOs.\n");
-> +               error = pdata->gpio_config(pdata->gpio_data, true);
-> +               if (error < 0) {
-> +                       dev_err(&client->dev, "Failed to configure GPIOs, code: %d.\n",
-> +                               error);
-> +                       return error;
-> +               }
-> +               dev_info(&client->dev, "Done with GPIO configuration.\n");
-> +       }
-> +
-> +       error = i2c_check_functionality(client->adapter, I2C_FUNC_I2C);
-> +       if (!error) {
-> +               dev_err(&client->dev, "i2c_check_functionality error %d.\n",
-> +                       error);
-> +               return error;
-> +       }
-> +
-> +       rmi_phys = kzalloc(sizeof(struct rmi_phys_device), GFP_KERNEL);
-
-Could you use devm_kzalloc(&client->dev, ... ) ?
-
-> +
-> +       data = kzalloc(sizeof(struct rmi_i2c_data), GFP_KERNEL);
-
-Dito.
-
-> +       data->enabled = true;   /* We plan to come up enabled. */
-> +       data->irq = gpio_to_irq(pdata->attn_gpio);
-> +       if (pdata->level_triggered) {
-> +               data->irq_flags = IRQF_ONESHOT |
-> +                       ((pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH) ?
-> +                       IRQF_TRIGGER_HIGH : IRQF_TRIGGER_LOW);
-> +       } else {
-> +               data->irq_flags =
-
-I'm uncertain to whether this is not IRQF_ONESHOT, I realized why
-you do this for edge triggers but will the threads handle this properly?
-The irq thread will have to be fully reentrant.
-
-> +                       (pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH) ?
-> +                       IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
-> +       }
-> +       data->phys = rmi_phys;
-(...)
-> +       error = rmi_register_phys_device(rmi_phys);
-> +       if (error) {
-> +               dev_err(&client->dev,
-> +                       "failed to register physical driver at 0x%.2X.\n",
-> +                       client->addr);
-> +               goto err_gpio;
-> +       }
-> +       i2c_set_clientdata(client, rmi_phys);
-
-Especially since it's associated with this one client, devm_kzalloc() and
-friends are apropriate.
-
-> +#if defined(CONFIG_RMI4_DEV)
-
-Nowadays much code is moving away from using any #ifdef:s
-and instead relying on constructs using IS_ENABLED from
-<linux/kconfig.h> like this:
-
-if (IS_ENABLED(CONFIG_FOO)) {}
-
-If that resolves to if (0) the compiler will strip out the
-code.
-
-(...)
-> +static int __devexit rmi_i2c_remove(struct i2c_client *client)
-> +{
-> +       struct rmi_phys_device *phys = i2c_get_clientdata(client);
-> +       struct rmi_device_platform_data *pd = client->dev.platform_data;
-> +
-> +       disable_device(phys);
-> +       rmi_unregister_phys_device(phys);
-> +       kfree(phys->data);
-> +       kfree(phys);
-
-So these kfree():s would not be needed if you used devm_*
-
-(...)
-> +static const struct i2c_device_id rmi_id[] = {
-> +       { "rmi", 0 },
-> +       { "rmi_i2c", 0 },
-> +       { }
-> +};
-
-Why is just "rmi" an acceptable device ID? Since the
-SPI driver also allows the same it's a bit confusing.
-
-(...)
-> +++ b/drivers/input/rmi4/rmi_spi.c
-> +#define COMMS_DEBUG 0
-> +#define FF_DEBUG 0
-
-Same comment as about the other custom debug stuff.
-
-(...)
-> +static char *spi_v1_proto_name = "spi";
-> +static char *spi_v2_proto_name = "spiv2";
-
-const!
-
-And can this be a bit more specific, like "rmi-spiv1", "rmi-spiv2"?
-
-(...)
-> +static irqreturn_t rmi_spi_hard_irq(int irq, void *p)
-> +{
-> +       struct rmi_phys_device *phys = p;
-> +       struct rmi_spi_data *data = phys->data;
-> +       struct rmi_device_platform_data *pdata = phys->dev->platform_data;
-> +
-> +       if (data->split_read_pending &&
-> +                     gpio_get_value(pdata->attn_gpio) ==
-> +                     pdata->attn_polarity) {
-> +               phys->info.attn_count++;
-> +               complete(&data->irq_comp);
-
-Nice use of completion here!
-
-(...)
-> +static int rmi_spi_xfer(struct rmi_phys_device *phys,
-> +                   const u8 *txbuf, unsigned n_tx, u8 *rxbuf, unsigned n_rx)
-> +{
-> +       struct spi_device *client = to_spi_device(phys->dev);
-> +       struct rmi_spi_data *v2_data = phys->data;
-> +       struct rmi_device_platform_data *pdata = phys->dev->platform_data;
-> +       int status;
-> +       struct spi_message message;
-> +       struct spi_transfer *xfers;
-> +       int total_bytes = n_tx + n_rx;
-> +       u8 local_buf[total_bytes];
-> +       int xfer_count = 0;
-> +       int xfer_index = 0;
-> +       int block_delay = n_rx > 0 ? pdata->spi_data.block_delay_us : 0;
-> +       int byte_delay = n_rx > 1 ? pdata->spi_data.read_delay_us : 0;
-> +       int write_delay = n_tx > 1 ? pdata->spi_data.write_delay_us : 0;
-> +#if FF_DEBUG
-> +       bool bad_data = true;
-> +#endif
-> +#if COMMS_DEBUG || FF_DEBUG
-> +       int i;
-> +#endif
-
-This is overzealous I think, this #ifdeffery is looking complex.
-
-(...)
-> +#if COMMS_DEBUG
-> +       if (n_tx) {
-> +               dev_dbg(&client->dev, "SPI sends %d bytes: ", n_tx);
-> +               for (i = 0; i < n_tx; i++)
-> +                       pr_info("%02X ", txbuf[i]);
-> +               pr_info("\n");
-> +       }
-
-Atleast move the definiton of i into this #ifdef, or break it out as a
-separate function which in turn is ifdeffed.
-
-(...)
-> +static int rmi_spi_v1_write(struct rmi_phys_device *phys, u16 addr, u8 data)
-> +{
-> +       int error = rmi_spi_v1_write_block(phys, addr, &data, 1);
-> +
-> +       return (error == 1) ? 0 : error;
-> +}
-
-Isn't this overabstracted? Cut this function and call rmi_spi_v1_write_block()
-directly instead.
-
-(...)
-> +static int rmi_spi_v2_read(struct rmi_phys_device *phys, u16 addr, u8 *buf)
-> +{
-> +       int error = rmi_spi_v2_read_block(phys, addr, buf, 1);
-> +
-> +       return (error == 1) ? 0 : error;
-> +}
-
-Dito.
-
-(...)
-> +static int rmi_spi_v1_read(struct rmi_phys_device *phys, u16 addr, u8 *buf)
-> +{
-> +       int error = rmi_spi_v1_read_block(phys, addr, buf, 1);
-> +
-> +       return (error == 1) ? 0 : error;
-> +}
-
-Dito.
-
-(...)
-> +static int rmi_spi_check_device(struct rmi_phys_device *rmi_phys)
-> +{
-> +       u8 buf[6];
-> +       int error;
-> +       int i;
-> +
-> +       /* Some SPI subsystems return 0 for the very first read you do.  So
-> +        * we use this dummy read to get that out of the way.
-> +        */
-
-This is not looking good. It's like there are bugs in some SPI drivers
-and then you put on some duct-tape to fix it?
-
-You must rely on the SPI framework to do its work.
-So instead fix the bug in the SPI driver, not at this level in the stack.
-
-I think I know where the bug is, actually:
-
-For each SPI struct spi_transfer transfer, there is a field named
-.delay_usecs that can set the delay for a certain transfer. This
-must be handled in the driver.
-
-So set this delay in the struct spi_transfer, then debug the
-driver, because maybe not all of them are respecting that
-delay (but they should!) consult the code in the function
-giveback() in drivers/spi/spi-pl022.c for example.
-
-If it's a bug in the RMI4 device-side stack that's another
-issue, then the fix needs to be here, of course, but I
-didn't get that impression?
-
-(...)
-> +static int __devinit rmi_spi_probe(struct spi_device *spi)
-> +{
-> +       struct rmi_phys_device *rmi_phys;
-> +       struct rmi_spi_data *data;
-> +       struct rmi_device_platform_data *pdata = spi->dev.platform_data;
-> +       u8 buf[2];
-> +       int retval;
-> +
-> +       if (!pdata) {
-> +               dev_err(&spi->dev, "no platform data\n");
-> +               return -EINVAL;
-> +       }
-> +
-> +       if (spi->master->flags & SPI_MASTER_HALF_DUPLEX)
-> +               return -EINVAL;
-> +
-> +       spi->bits_per_word = 8;
-> +       spi->mode = SPI_MODE_3;
-> +       retval = spi_setup(spi);
-> +       if (retval < 0) {
-> +               dev_err(&spi->dev, "spi_setup failed!\n");
-> +               return retval;
-> +       }
-> +
-> +       if (pdata->gpio_config) {
-> +               retval = pdata->gpio_config(pdata->gpio_data, true);
-> +               if (retval < 0) {
-> +                       dev_err(&spi->dev, "Failed to setup GPIOs, code: %d.\n",
-> +                               retval);
-> +                       return retval;
-> +               }
-> +       }
-> +
-> +       rmi_phys = kzalloc(sizeof(struct rmi_phys_device), GFP_KERNEL);
-
-Again this can use devm_kzalloc(&spi->dev, ...)
-
-> +       if (!rmi_phys)
-> +               return -ENOMEM;
-> +
-> +       data = kzalloc(sizeof(struct rmi_spi_data), GFP_KERNEL);
-
-Here too...
-
-(...)
-> +       if (buf[0] == 1) {
-> +               /* SPIv2 */
-> +               rmi_phys->write         = rmi_spi_v2_write;
-> +               rmi_phys->write_block   = rmi_spi_v2_write_block;
-> +               rmi_phys->read          = rmi_spi_v2_read;
-> +               data->set_page          = rmi_spi_v2_set_page;
-
-I really like how you auto-detect and switch vtable for the
-different protocol versions here.
-
-(...)
-> +err_data:
-> +       kfree(data);
-> +err_phys:
-> +       kfree(rmi_phys);
-
-Managed resources simplifies the error path here a lot.
-
-> +       return retval;
-> +}
-
-(...)
-> +static int __devexit rmi_spi_remove(struct spi_device *spi)
-> +{
-> +       struct rmi_phys_device *phys = dev_get_drvdata(&spi->dev);
-> +       struct rmi_device_platform_data *pd = spi->dev.platform_data;
-> +
-> +       disable_device(phys);
-> +       rmi_unregister_phys_device(phys);
-> +       kfree(phys->data);
-> +       kfree(phys);
-
-And here.
-
-> +       if (pd->gpio_config)
-> +               pd->gpio_config(pdata->gpio_data, false);
-> +
-> +       return 0;
-> +}
-> +
-> +static const struct spi_device_id rmi_id[] = {
-> +       { "rmi", 0 },
-
-Why? Why not just "rmi-spi"
-
-Apart from this it looks really nice, and has progressed enormously!
-
-Yours,
-Linus Walleij
+U29tZSBQV00gZHJpdmVycyBlbmFibGUgdGhlIGNsb2NrIG9mIHRoZSBQV00gcGVyaXBoZXJhbCBp
+biBwd21fZW5hYmxlKCkuIEhlbmNlLApmb3IgdGhlc2UgZHJpdmVycywgYSBjYWxsIHRvIHB3bV9j
+b25maWcoKSBkb2VzIG5vdCBoYXZlIGFueSBlZmZlY3QgYmVmb3JlCnB3bV9lbmFibGUoKSBoYXMg
+YmVlbiBjYWxsZWQuCgpUaGlzIHBhdGNoIGZpeGVzIHRoZSBQV00gdXNlcnMgdG8gbWFrZSBzdXJl
+IHRoYXQgdGhleSBjYWxsIHB3bV9lbmFibGUoKSBiZWZvcmUKcHdtX2NvbmZpZygpLgoKVGhpcyBm
+aXhlcyB0aGUgZmlyc3Qgc2V0dGluZyBvZiBicmlnaHRuZXNzIHRocm91Z2ggc3lzZnMgdGhhdCBo
+YWQgbm8gZWZmZWN0IHdpdGgKbGVkcy1wd20gYW5kIHRoZSBpLk1YIFBXTSBkcml2ZXIuCgpDYzog
+VGhpZXJyeSBSZWRpbmcgPHRoaWVycnkucmVkaW5nQGF2aW9uaWMtZGVzaWduLmRlPgpDYzogPGxp
+bnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc+CkNjOiBTYXNjaGEgSGF1ZXIgPGtlcm5lbEBwZW5n
+dXRyb25peC5kZT4KQ2M6IDxsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmc+CkNj
+OiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20+CkNjOiA8bGludXgt
+aW5wdXRAdmdlci5rZXJuZWwub3JnPgpDYzogQnJ5YW4gV3UgPGJyeWFuLnd1QGNhbm9uaWNhbC5j
+b20+CkNjOiBSaWNoYXJkIFB1cmRpZSA8cnB1cmRpZUBycHN5cy5uZXQ+CkNjOiA8bGludXgtbGVk
+c0B2Z2VyLmtlcm5lbC5vcmc+CkNjOiBGbG9yaWFuIFRvYmlhcyBTY2hhbmRpbmF0IDxGbG9yaWFu
+U2NoYW5kaW5hdEBnbXguZGU+CkNjOiA8bGludXgtZmJkZXZAdmdlci5rZXJuZWwub3JnPgpDYzog
+QmVub8OudCBUaMOpYmF1ZGVhdSA8YmVub2l0LnRoZWJhdWRlYXVAYWR2YW5zZWUuY29tPgpTaWdu
+ZWQtb2ZmLWJ5OiBCZW5vw650IFRow6liYXVkZWF1IDxiZW5vaXQudGhlYmF1ZGVhdUBhZHZhbnNl
+ZS5jb20+Ci0tLQogLi4uL2RyaXZlcnMvaW5wdXQvbWlzYy9wd20tYmVlcGVyLmMgICAgICAgICAg
+ICAgICAgfCAgICA2ICsrKy0tLQogLi4uL2RyaXZlcnMvbGVkcy9sZWRzLXB3bS5jICAgICAgICAg
+ICAgICAgICAgICAgICAgfCAgICAyICstCiAuLi4vZHJpdmVycy92aWRlby9iYWNrbGlnaHQvcHdt
+X2JsLmMgICAgICAgICAgICAgICB8ICAgIDIgKy0KIDMgZmlsZXMgY2hhbmdlZCwgNSBpbnNlcnRp
+b25zKCspLCA1IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBsaW51eC1uZXh0LWM5NDQ1NmIub3Jp
+Zy9kcml2ZXJzL2lucHV0L21pc2MvcHdtLWJlZXBlci5jIGxpbnV4LW5leHQtYzk0NDU2Yi9kcml2
+ZXJzL2lucHV0L21pc2MvcHdtLWJlZXBlci5jCmluZGV4IGZjODRjOGEuLjk3ZDMyMmIgMTAwNjQ0
+Ci0tLSBsaW51eC1uZXh0LWM5NDQ1NmIub3JpZy9kcml2ZXJzL2lucHV0L21pc2MvcHdtLWJlZXBl
+ci5jCisrKyBsaW51eC1uZXh0LWM5NDQ1NmIvZHJpdmVycy9pbnB1dC9taXNjL3B3bS1iZWVwZXIu
+YwpAQCAtNTMsMTAgKzUzLDEwIEBAIHN0YXRpYyBpbnQgcHdtX2JlZXBlcl9ldmVudChzdHJ1Y3Qg
+aW5wdXRfZGV2ICppbnB1dCwKIAkJcHdtX2Rpc2FibGUoYmVlcGVyLT5wd20pOwogCX0gZWxzZSB7
+CiAJCXBlcmlvZCA9IEhaX1RPX05BTk9TRUNPTkRTKHZhbHVlKTsKLQkJcmV0ID0gcHdtX2NvbmZp
+ZyhiZWVwZXItPnB3bSwgcGVyaW9kIC8gMiwgcGVyaW9kKTsKKwkJcmV0ID0gcHdtX2VuYWJsZShi
+ZWVwZXItPnB3bSk7CiAJCWlmIChyZXQpCiAJCQlyZXR1cm4gcmV0OwotCQlyZXQgPSBwd21fZW5h
+YmxlKGJlZXBlci0+cHdtKTsKKwkJcmV0ID0gcHdtX2NvbmZpZyhiZWVwZXItPnB3bSwgcGVyaW9k
+IC8gMiwgcGVyaW9kKTsKIAkJaWYgKHJldCkKIAkJCXJldHVybiByZXQ7CiAJCWJlZXBlci0+cGVy
+aW9kID0gcGVyaW9kOwpAQCAtMTU2LDggKzE1Niw4IEBAIHN0YXRpYyBpbnQgcHdtX2JlZXBlcl9y
+ZXN1bWUoc3RydWN0IGRldmljZSAqZGV2KQogCXN0cnVjdCBwd21fYmVlcGVyICpiZWVwZXIgPSBk
+ZXZfZ2V0X2RydmRhdGEoZGV2KTsKIAogCWlmIChiZWVwZXItPnBlcmlvZCkgewotCQlwd21fY29u
+ZmlnKGJlZXBlci0+cHdtLCBiZWVwZXItPnBlcmlvZCAvIDIsIGJlZXBlci0+cGVyaW9kKTsKIAkJ
+cHdtX2VuYWJsZShiZWVwZXItPnB3bSk7CisJCXB3bV9jb25maWcoYmVlcGVyLT5wd20sIGJlZXBl
+ci0+cGVyaW9kIC8gMiwgYmVlcGVyLT5wZXJpb2QpOwogCX0KIAogCXJldHVybiAwOwpkaWZmIC0t
+Z2l0IGxpbnV4LW5leHQtYzk0NDU2Yi5vcmlnL2RyaXZlcnMvbGVkcy9sZWRzLXB3bS5jIGxpbnV4
+LW5leHQtYzk0NDU2Yi9kcml2ZXJzL2xlZHMvbGVkcy1wd20uYwppbmRleCBmMmU0NGM3Li5jMmUw
+YzIyIDEwMDY0NAotLS0gbGludXgtbmV4dC1jOTQ0NTZiLm9yaWcvZHJpdmVycy9sZWRzL2xlZHMt
+cHdtLmMKKysrIGxpbnV4LW5leHQtYzk0NDU2Yi9kcml2ZXJzL2xlZHMvbGVkcy1wd20uYwpAQCAt
+NDIsOCArNDIsOCBAQCBzdGF0aWMgdm9pZCBsZWRfcHdtX3NldChzdHJ1Y3QgbGVkX2NsYXNzZGV2
+ICpsZWRfY2RldiwKIAkJcHdtX2NvbmZpZyhsZWRfZGF0LT5wd20sIDAsIHBlcmlvZCk7CiAJCXB3
+bV9kaXNhYmxlKGxlZF9kYXQtPnB3bSk7CiAJfSBlbHNlIHsKLQkJcHdtX2NvbmZpZyhsZWRfZGF0
+LT5wd20sIGJyaWdodG5lc3MgKiBwZXJpb2QgLyBtYXgsIHBlcmlvZCk7CiAJCXB3bV9lbmFibGUo
+bGVkX2RhdC0+cHdtKTsKKwkJcHdtX2NvbmZpZyhsZWRfZGF0LT5wd20sIGJyaWdodG5lc3MgKiBw
+ZXJpb2QgLyBtYXgsIHBlcmlvZCk7CiAJfQogfQogCmRpZmYgLS1naXQgbGludXgtbmV4dC1jOTQ0
+NTZiLm9yaWcvZHJpdmVycy92aWRlby9iYWNrbGlnaHQvcHdtX2JsLmMgbGludXgtbmV4dC1jOTQ0
+NTZiL2RyaXZlcnMvdmlkZW8vYmFja2xpZ2h0L3B3bV9ibC5jCmluZGV4IDk5NWYwMTYuLmE0YmI5
+NWMgMTAwNjQ0Ci0tLSBsaW51eC1uZXh0LWM5NDQ1NmIub3JpZy9kcml2ZXJzL3ZpZGVvL2JhY2ts
+aWdodC9wd21fYmwuYworKysgbGludXgtbmV4dC1jOTQ0NTZiL2RyaXZlcnMvdmlkZW8vYmFja2xp
+Z2h0L3B3bV9ibC5jCkBAIC02NSw4ICs2NSw4IEBAIHN0YXRpYyBpbnQgcHdtX2JhY2tsaWdodF91
+cGRhdGVfc3RhdHVzKHN0cnVjdCBiYWNrbGlnaHRfZGV2aWNlICpibCkKIAogCQlkdXR5X2N5Y2xl
+ID0gcGItPmx0aF9icmlnaHRuZXNzICsKIAkJICAgICAoZHV0eV9jeWNsZSAqIChwYi0+cGVyaW9k
+IC0gcGItPmx0aF9icmlnaHRuZXNzKSAvIG1heCk7Ci0JCXB3bV9jb25maWcocGItPnB3bSwgZHV0
+eV9jeWNsZSwgcGItPnBlcmlvZCk7CiAJCXB3bV9lbmFibGUocGItPnB3bSk7CisJCXB3bV9jb25m
+aWcocGItPnB3bSwgZHV0eV9jeWNsZSwgcGItPnBlcmlvZCk7CiAJfQogCiAJaWYgKHBiLT5ub3Rp
+ZnlfYWZ0ZXIpCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+XwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmlu
+ZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9s
+aW51eC1hcm0ta2VybmVsCg==

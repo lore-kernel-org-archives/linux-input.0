@@ -1,63 +1,58 @@
-From: Simon Farnsworth <simon.farnsworth@onelan.co.uk>
-Subject: [PATCH] hid: Remove duplicate ID for QUANTA 3001 touchscreen
-Date: Thu, 23 Aug 2012 11:12:47 +0100
-Message-ID: <1345716767-2872-1-git-send-email-simon.farnsworth@onelan.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from claranet-outbound-smtp06.uk.clara.net ([195.8.89.39]:53419 "EHLO
-	claranet-outbound-smtp06.uk.clara.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752847Ab2HWKMx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Aug 2012 06:12:53 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH 0/5] Support for TSC/ADC MFD driver
+Date: Thu, 23 Aug 2012 16:18:05 +0530
+Message-ID: <1345718886-15737-1-git-send-email-rachna@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@bitmath.se>, Simon Farnsworth <simon.farnsworth@onelan.co.uk>
 
-For some reason, we had two IDs for the QUANTA 3001 touchscreen controller,
-one USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001 and one
-USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN. As this has caused
-confusion, remove USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN
-completely, and fix places where it was used to refer to
-USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001.
+This patch set adds a MFD core driver which registers
+touchscreen and ADC as its client drivers.
+The existing touchscreen has been modified to work as
+a MFD client driver and a new ADC driver has been added
+in the IIO subsystem.
 
-Signed-off-by: Simon Farnsworth <simon.farnsworth@onelan.co.uk>
----
-Henrik suggested removing the duplicate IDs from the QUANTA devices.
+There are 8 analog input lines, which can be used as:
+1. 8 general purpose ADC channels
+2. 4 wire TS, with 4 general purpose ADC channels
+3. 5 wire TS, with 3 general purpose ADC channels
 
-I've torn out the PIXART one, as we have a vendor ID for PIXART, and I
-suspect that it's simply that PIXART sold a rebranded QUANTA device for a
-while, and the first example of the QUANTA controller was under PIXART
-branding.
+This patch set has been tested on AM335x EVM.
 
- drivers/hid/hid-ids.h           | 1 -
- drivers/hid/usbhid/hid-quirks.c | 2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+These set of patches are based on top of Touchscreen patch
+set submitted.
+Subject: [PATCH 0/4] input: TSC: ti_tscadc: TI Touchscreen driver updates [1]
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 1dcb76f..d615ecb 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -652,7 +652,6 @@
- #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH		0x3000
- #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001		0x3001
- #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008		0x3008
--#define USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN	0x3001
- 
- #define USB_VENDOR_ID_ROCCAT		0x1e7d
- #define USB_DEVICE_ID_ROCCAT_ARVO	0x30d4
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index 903eef3..58bd4f2 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -74,7 +74,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN2, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, HID_QUIRK_NOGET },
--	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NOGET },
-+	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
--- 
-1.7.11.2
 
+[1] http://www.spinics.net/lists/linux-input/msg22107.html
+
+Patil, Rachna (5):
+  input: TSC: ti_tscadc: Rename the existing touchscreen driver
+  MFD: ti_tscadc: Add support for TI's TSC/ADC MFDevice
+  input: TSC: ti_tsc: Convert TSC into a MFDevice
+  IIO : ADC: tiadc: Add support of TI's ADC driver
+  MFD: ti_tscadc: Add check on number of i/p channels
+
+ drivers/iio/adc/Kconfig               |    7 +
+ drivers/iio/adc/Makefile              |    1 +
+ drivers/iio/adc/ti_adc.c              |  219 ++++++++++++++
+ drivers/input/touchscreen/Kconfig     |    4 +-
+ drivers/input/touchscreen/Makefile    |    2 +-
+ drivers/input/touchscreen/ti_tsc.c    |  358 ++++++++++++++++++++++
+ drivers/input/touchscreen/ti_tscadc.c |  522 ---------------------------------
+ drivers/mfd/Kconfig                   |    9 +
+ drivers/mfd/Makefile                  |    1 +
+ drivers/mfd/ti_tscadc.c               |  218 ++++++++++++++
+ include/linux/mfd/ti_tscadc.h         |  146 +++++++++
+ include/linux/platform_data/ti_adc.h  |    9 +
+ 12 files changed, 971 insertions(+), 525 deletions(-)
+ create mode 100644 drivers/iio/adc/ti_adc.c
+ create mode 100644 drivers/input/touchscreen/ti_tsc.c
+ delete mode 100644 drivers/input/touchscreen/ti_tscadc.c
+ create mode 100644 drivers/mfd/ti_tscadc.c
+ create mode 100644 include/linux/mfd/ti_tscadc.h
+ create mode 100644 include/linux/platform_data/ti_adc.h

@@ -1,46 +1,105 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH] hid: Remove QUANTA from special drivers list
-Date: Thu, 23 Aug 2012 18:48:59 +0200
-Message-ID: <20120823164859.GB611@polaris.bitmath.org>
-References: <1345630637-7142-1-git-send-email-simon.farnsworth@onelan.co.uk>
- <alpine.LNX.2.00.1208221648130.32304@pobox.suse.cz>
- <20120822170052.GA6158@polaris.bitmath.org>
- <1458729.LvjituALLn@f17simon>
+From: =?utf-8?Q?Beno=C3=AEt_Th=C3=A9baudeau?=
+	<benoit.thebaudeau@advansee.com>
+Subject: Re: [PATCH] pwm: Call pwm_enable() before pwm_config()
+Date: Thu, 23 Aug 2012 18:57:05 +0200 (CEST)
+Message-ID: <36966374.2768747.1345741025741.JavaMail.root@advansee.com>
+References: <50364FA4.7000401@metafoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:56990 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751767Ab2HWQoE (ORCPT
+Received: from zose-mta15.web4all.fr ([176.31.217.11]:44211 "EHLO
+	zose-mta15.web4all.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750788Ab2HWQvm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Aug 2012 12:44:04 -0400
-Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
-	by smtprelay-b12.telenor.se (Postfix) with ESMTP id C225CD977
-	for <linux-input@vger.kernel.org>; Thu, 23 Aug 2012 18:44:02 +0200 (CEST)
-Content-Disposition: inline
-In-Reply-To: <1458729.LvjituALLn@f17simon>
+	Thu, 23 Aug 2012 12:51:42 -0400
+In-Reply-To: <50364FA4.7000401@metafoo.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Farnsworth <simon.farnsworth@onelan.co.uk>
-Cc: Henrik Rydberg <rydberg@bitmath.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Benjamin Tissoires <benjamin.tissoires@enac.fr>
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Thierry Reding <thierry.reding@avionic-design.de>, linux-kernel@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org
 
-> I'll send a follow-on patch to remove the PIXART_IMAGING identifier. I tried
-> removing the HID_QURIK_NOGET quirk, but it appears to be needed: without it,
-> I get:
-> 
-> [    1.472269] usb 6-1: New USB device found, idVendor=0408, idProduct=3001
-> [    1.472275] usb 6-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-> [    1.472279] usb 6-1: Product: Optical Touch Screen
-> [    1.472284] usb 6-1: Manufacturer: QUANTA
-> <snip>
-> [   15.884252] hid-multitouch 0003:0408:3001.0001: usb_submit_urb(ctrl) failed: -1
-> [   15.884337] hid-multitouch 0003:0408:3001.0001: timeout initializing reports
-> [   15.884584] input: QUANTA Optical Touch Screen as /devices/pci0000:00/0000:00:1d.1/usb6/6-1/6-1:1.0/input/input10
-> [   15.884783] hid-multitouch 0003:0408:3001.0001: input,hidraw0: USB HID v1.10 Device [QUANTA Optical Touch Screen] on usb-0000:00:1d.1-1/input0
-> 
-> If I leave the quirk in place, I don't get the 14 second delay, suggesting 
-> that the quirk is needed on this hardware.
+On Thursday, August 23, 2012 5:43:32 PM, Lars-Peter Clausen wrote:
+> On 08/23/2012 04:19 PM, Beno=C3=AEt Th=C3=A9baudeau wrote:
+> > Some PWM drivers enable the clock of the PWM peripheral in
+> > pwm_enable(). Hence,
+> > for these drivers, a call to pwm_config() does not have any effect
+> > before
+> > pwm_enable() has been called.
+> >=20
+> > This patch fixes the PWM users to make sure that they call
+> > pwm_enable() before
+> > pwm_config().
+> >=20
+> > This fixes the first setting of brightness through sysfs that had
+> > no effect with
+> > leds-pwm and the i.MX PWM driver.
+>=20
+> But isn't this a bug in the PWM peripheral driver? With this change
+> the PWM
+> will start with the old settings first. While this is not so much of
+> a problem
+> for a backlight (although it might cause a short flickering) it might
+> cause
+> problems for other applications, like using the PWM pin as a timing
+> generator.
+> In my opinion it's better to fix the PWM peripheral drivers which
+> have this
+> problem instead of trying to work around it in every user of the PWM
+> API.
 
-It makes sense, the same applies to 0x3008. Thanks for checking.
+I don't know. See my detailed description of this issue here:
+http://lists.infradead.org/pipermail/linux-arm-kernel/2012-August/11566=
+7.html
 
-Henrik
+Where the bug is depends on the detailed definition of the PWM API, whi=
+ch I
+don't find documented anywhere.
+
+If pwm_enable() means "start PWM timer with the configured settings", t=
+hen the
+bug is in the drivers. If it means "enable the PWM peripheral so that w=
+e can
+work with it", then the bug is in the PWM users.
+
+I don't really have time to work on this, so I suggested this patch as =
+a simple
+solution. Otherwise, it means reworking several PWM drivers for differe=
+nt
+hardware that is not available to everyone for testing.
+
+If we decide to only change the i.MX PWM driver, the fix would be:
+pwm_config()
+{
+        save passed config in private data;
+        if (pwm enabled)
+                apply passed config;
+}
+
+pwm_enable()
+{
+        if (!(pwm enabled)) {
+                enable pwm ip clk;
+                apply config from private data;
+        }
+}
+
+If we fix only this driver, we must not forget that the same issue prob=
+ably
+exists with several other PWM drivers.
+
+As I said in my bug description, the PWM users set the duty cycle to 0 =
+before
+calling pwm_disable(), so fixing the PWM users should not be an issue, =
+even in
+the timing generator use case you're talking about.
+
+I don't have a strong opinion about what should be fixed here.
+
+Best regards,
+Beno=C3=AEt
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

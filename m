@@ -1,154 +1,150 @@
-From: Thierry Reding <thierry.reding@avionic-design.de>
-Subject: Re: [PATCH] pwm: Call pwm_enable() before pwm_config()
-Date: Thu, 23 Aug 2012 21:11:08 +0200
-Message-ID: <20120823191108.GB8127@avionic-0098.mockup.avionic-design.de>
-References: <36966374.2768747.1345741025741.JavaMail.root@advansee.com>
- <50366464.4070801@metafoo.de>
+From: =?utf-8?Q?Beno=C3=AEt_Th=C3=A9baudeau?=
+	<benoit.thebaudeau@advansee.com>
+Subject: [PATCH] pwm-imx: Fix config / enable / disable
+Date: Thu, 23 Aug 2012 23:03:57 +0200 (CEST)
+Message-ID: <1305545087.2775440.1345755837651.JavaMail.root@advansee.com>
+References: <20120823191108.GB8127@avionic-0098.mockup.avionic-design.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Pd0ReVV5GZGQvF3a"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.171]:64798 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751162Ab2HWTLN (ORCPT
+Received: from zose-mta15.web4all.fr ([176.31.217.11]:49502 "EHLO
+	zose-mta15.web4all.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934358Ab2HWU6c convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Aug 2012 15:11:13 -0400
-Content-Disposition: inline
-In-Reply-To: <50366464.4070801@metafoo.de>
+	Thu, 23 Aug 2012 16:58:32 -0400
+In-Reply-To: <20120823191108.GB8127@avionic-0098.mockup.avionic-design.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: =?utf-8?Q?Beno=C3=AEt_Th=C3=A9baudeau?= <benoit.thebaudeau@advansee.com>, linux-kernel@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org
+To: Thierry Reding <thierry.reding@avionic-design.de>, linux-kernel@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>
 
+imx_pwm_config() did not enable the PWM IP clock while accessing the re=
+gisters.
+Hence, a call to pwm_config() had no effect before pwm_enable() had bee=
+n called,
+which does not comply to the PWM API.
 
---Pd0ReVV5GZGQvF3a
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Moreover, calling pwm_disable() then pwm_enable() must be a transparent
+operation.
 
-On Thu, Aug 23, 2012 at 07:12:04PM +0200, Lars-Peter Clausen wrote:
-> On 08/23/2012 06:57 PM, Beno=C3=AEt Th=C3=A9baudeau wrote:
-> > On Thursday, August 23, 2012 5:43:32 PM, Lars-Peter Clausen wrote:
-> >> On 08/23/2012 04:19 PM, Beno=C3=AEt Th=C3=A9baudeau wrote:
-> >>> Some PWM drivers enable the clock of the PWM peripheral in
-> >>> pwm_enable(). Hence,
-> >>> for these drivers, a call to pwm_config() does not have any effect
-> >>> before
-> >>> pwm_enable() has been called.
-> >>>
-> >>> This patch fixes the PWM users to make sure that they call
-> >>> pwm_enable() before
-> >>> pwm_config().
-> >>>
-> >>> This fixes the first setting of brightness through sysfs that had
-> >>> no effect with
-> >>> leds-pwm and the i.MX PWM driver.
-> >>
-> >> But isn't this a bug in the PWM peripheral driver? With this change
-> >> the PWM
-> >> will start with the old settings first. While this is not so much of
-> >> a problem
-> >> for a backlight (although it might cause a short flickering) it might
-> >> cause
-> >> problems for other applications, like using the PWM pin as a timing
-> >> generator.
-> >> In my opinion it's better to fix the PWM peripheral drivers which
-> >> have this
-> >> problem instead of trying to work around it in every user of the PWM
-> >> API.
-> >=20
-> > I don't know. See my detailed description of this issue here:
-> > http://lists.infradead.org/pipermail/linux-arm-kernel/2012-August/11566=
-7.html
-> >=20
-> > Where the bug is depends on the detailed definition of the PWM API, whi=
-ch I
-> > don't find documented anywhere.
-> >=20
-> > If pwm_enable() means "start PWM timer with the configured settings", t=
-hen the
-> > bug is in the drivers. If it means "enable the PWM peripheral so that w=
-e can
-> > work with it", then the bug is in the PWM users.
->=20
-> It really is the former. See the description of pwm_enable() in drivers/p=
-wm/core.c
+This fixes the first setting of brightness through sysfs that had no ef=
+fect with
+leds-pwm.
 
-Yes. pwm_enable() is only for starting the PWM and *not* the peripheral.
-I should update the documentation to make this clearer.
+Cc: Thierry Reding <thierry.reding@avionic-design.de>
+Cc: <linux-kernel@vger.kernel.org>
+Cc: Sascha Hauer <kernel@pengutronix.de>
+Cc: <linux-arm-kernel@lists.infradead.org>
+Cc: Beno=C3=AEt Th=C3=A9baudeau <benoit.thebaudeau@advansee.com>
+Signed-off-by: Beno=C3=AEt Th=C3=A9baudeau <benoit.thebaudeau@advansee.=
+com>
+---
+ .../drivers/pwm/pwm-imx.c                          |   55 ++++++++++++=
++++-----
+ 1 file changed, 43 insertions(+), 12 deletions(-)
 
-> > I don't really have time to work on this, so I suggested this patch as =
-a simple
-> > solution. Otherwise, it means reworking several PWM drivers for differe=
-nt
-> > hardware that is not available to everyone for testing.
-> >=20
-> > If we decide to only change the i.MX PWM driver, the fix would be:
-> > pwm_config()
-> > {
-> >         save passed config in private data;
-> >         if (pwm enabled)
-> >                 apply passed config;
-> > }
-> >=20
-> > pwm_enable()
-> > {
-> >         if (!(pwm enabled)) {
-> >                 enable pwm ip clk;
-> >                 apply config from private data;
-> >         }
-> > }
->=20
-> Another option is to enable the clock if it is disabled when the device is
-> configured. E.g. that's what tegra does.
-
-Yes, that would have been my proposal as well.
-
-> > If we fix only this driver, we must not forget that the same issue prob=
-ably
-> > exists with several other PWM drivers.
->=20
-> Since this seems to be a common pattern in a number of PWM drivers it mig=
-ht
-> make sense to simply add support for enabling/disabling a clk to the pwm =
-core.
-> Or maybe just use the runtime pm API for this. This probably makes even m=
-ore
-> sense and grab a reference to the pm context when the enable() is called,
-> release it when disable() is called and also grab it before calling the
-> device's config callback and release it afterward.
-
-The problem with adding this kind of support in the core is that the
-device or platform doesn't necessarily support runtime PM. Perhaps
-adding a flag to mark compatible drivers would be an option. If the
-runtime PM API gracefully handles cases where no callbacks are
-implemented (and therefore assumed unneeded) things should also work.
-
-On the other hand this really is very driver-specific stuff. A lot of
-hardware doesn't require an explicit clock being enabled to write
-registers so those wouldn't need the implicit PM calls either.
-
-Thierry
-
---Pd0ReVV5GZGQvF3a
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQNoBMAAoJEN0jrNd/PrOhFNAP/2uhljseGNlGBked4DEv/e9R
-1/KQaSlNw9Hm1eQPN5f1hDyn4SRLHBXT0YFCwE5D8bJlk0K9/FJ8KThNSXZe3Szh
-cEer2WYdb01RJxF2oOaZ0/vd+xIHGqWBfZYryY0ritKUNbea72S1eUMJx9MckgRX
-MoAYDIXJRFTopmdZB+AqXceDfxKpW6Li7qTSi/J/73k2HmeyqT0C0+8gfJ4rhqgI
-ImRkRugf8X6XmbsSvYRlbrl+6BWv7GJm3L8tECPADtXx9YFF2HbsTrtWjq+RJYm3
-jRxyC4UtReu2I3FWGq0PcaCimoSUIJDbBBALuDyd5KKaHpA04SE+V5QQcROvixfH
-1uvGaXR0cuk1hZbuCs8PFKAsWXmNwzLu+hJa3wiV+UpMyQHUTwP5vqchk6OXSl+9
-FywJxTCFyzg1zcyGiokh6uxDiglLrAqnpib2YN0lfp4tjmdBiHPiSsmF9EbZfl6O
-9TmVxxPsS2M86FBT3ub5T2LueNdEVzjriYBMRIsdH8o+tKofMVstljzpTvU9Rw8L
-46m9+GIIBARgjfUUUXqhj5ndmcENX8vztpgHUdKXqEnua5rNeC/BSuto67gQgcax
-+eRduop6fGf1ZGNbVstyX/d1gSbEF68Ag8Om0srTo3hSA288+0pRyw7ZqdKbbFRW
-qCF8TC8TnDxdfQKcvdYk
-=8IkA
------END PGP SIGNATURE-----
-
---Pd0ReVV5GZGQvF3a--
+diff --git linux-next-c94456b.orig/drivers/pwm/pwm-imx.c linux-next-c94=
+456b/drivers/pwm/pwm-imx.c
+index 2a0b353..0519bf2 100644
+--- linux-next-c94456b.orig/drivers/pwm/pwm-imx.c
++++ linux-next-c94456b/drivers/pwm/pwm-imx.c
+@@ -55,6 +55,16 @@ static int imx_pwm_config(struct pwm_chip *chip,
+ {
+ 	struct imx_chip *imx =3D to_imx_chip(chip);
+=20
++	/*
++	 * If the PWM is disabled, make sure to turn on the clock before
++	 * accessing the registers.
++	 */
++	if (!imx->clk_enabled) {
++		int rc =3D clk_prepare_enable(imx->clk);
++		if (rc)
++			return rc;
++	}
++
+ 	if (!(cpu_is_mx1() || cpu_is_mx21())) {
+ 		unsigned long long c;
+ 		unsigned long period_cycles, duty_cycles, prescale;
+@@ -85,8 +95,11 @@ static int imx_pwm_config(struct pwm_chip *chip,
+ 		writel(period_cycles, imx->mmio_base + MX3_PWMPR);
+=20
+ 		cr =3D MX3_PWMCR_PRESCALER(prescale) |
+-			MX3_PWMCR_DOZEEN | MX3_PWMCR_WAITEN |
+-			MX3_PWMCR_DBGEN | MX3_PWMCR_EN;
++			MX3_PWMCR_DOZEEN | MX3_PWMCR_WAITEN | MX3_PWMCR_DBGEN;
++
++		/* If the PWM is enabled, keep it so. */
++		if (imx->clk_enabled)
++			cr |=3D MX3_PWMCR_EN;
+=20
+ 		if (cpu_is_mx25())
+ 			cr |=3D MX3_PWMCR_CLKSRC_IPG;
+@@ -118,32 +131,50 @@ static int imx_pwm_config(struct pwm_chip *chip,
+ 		BUG();
+ 	}
+=20
++	/* If the PWM is disabled, turn the clock off again to save power. */
++	if (!imx->clk_enabled)
++		clk_disable_unprepare(imx->clk);
++
+ 	return 0;
+ }
+=20
+ static int imx_pwm_enable(struct pwm_chip *chip, struct pwm_device *pw=
+m)
+ {
+ 	struct imx_chip *imx =3D to_imx_chip(chip);
+-	int rc =3D 0;
++	int rc;
+=20
+-	if (!imx->clk_enabled) {
+-		rc =3D clk_prepare_enable(imx->clk);
+-		if (!rc)
+-			imx->clk_enabled =3D 1;
++	if (imx->clk_enabled)
++		return 0;
++
++	rc =3D clk_prepare_enable(imx->clk);
++	if (rc)
++		return rc;
++
++	if (!(cpu_is_mx1() || cpu_is_mx21())) {
++		u32 cr =3D readl(imx->mmio_base + MX3_PWMCR);
++		cr |=3D MX3_PWMCR_EN;
++		writel(cr, imx->mmio_base + MX3_PWMCR);
+ 	}
+-	return rc;
++
++	imx->clk_enabled =3D 1;
++	return 0;
+ }
+=20
+ static void imx_pwm_disable(struct pwm_chip *chip, struct pwm_device *=
+pwm)
+ {
+ 	struct imx_chip *imx =3D to_imx_chip(chip);
+=20
+-	writel(0, imx->mmio_base + MX3_PWMCR);
++	if (!imx->clk_enabled)
++		return;
+=20
+-	if (imx->clk_enabled) {
+-		clk_disable_unprepare(imx->clk);
+-		imx->clk_enabled =3D 0;
++	if (!(cpu_is_mx1() || cpu_is_mx21())) {
++		u32 cr =3D readl(imx->mmio_base + MX3_PWMCR);
++		cr &=3D ~MX3_PWMCR_EN;
++		writel(cr, imx->mmio_base + MX3_PWMCR);
+ 	}
++
++	clk_disable_unprepare(imx->clk);
++	imx->clk_enabled =3D 0;
+ }
+=20
+ static struct pwm_ops imx_pwm_ops =3D {
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

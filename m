@@ -1,54 +1,155 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [RFC ebeam PATCH v4 2/2] input: misc: New USB eBeam input driver.
-Date: Thu, 23 Aug 2012 09:23:55 +0200
-Message-ID: <1368810.q4rGz16CTW@linux-lqwf.site>
-References: <1345673514-11575-1-git-send-email-yann.cantin@laposte.net> <1345673514-11575-3-git-send-email-yann.cantin@laposte.net>
+From: Bo Shen <voice.shen@atmel.com>
+Subject: Re: [PATCH v2] input: dts: qt1070: add device tree support
+Date: Thu, 23 Aug 2012 16:50:07 +0800
+Message-ID: <5035EEBF.1010506@atmel.com>
+References: <1345434070-6539-1-git-send-email-voice.shen@atmel.com> <20120822055537.GE20624@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:46403 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932144Ab2HWHZH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Aug 2012 03:25:07 -0400
-In-Reply-To: <1345673514-11575-3-git-send-email-yann.cantin@laposte.net>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:32037 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751833Ab2HWIuW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Aug 2012 04:50:22 -0400
+In-Reply-To: <20120822055537.GE20624@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yann Cantin <yann.cantin@laposte.net>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: shubhrajyoti@ti.com, nicolas.ferre@atmel.com, jm.lin@atmel.com, linux-input@vger.kernel.org
 
-On Thursday 23 August 2012 00:11:54 Yann Cantin wrote:
-> +static int ebeam_resume(struct usb_interface *intf)
-> +{
-> +       struct ebeam_device *ebeam = usb_get_intfdata(intf);
-> +       struct input_dev *input = ebeam->input;
-> +       int result = 0;
-> +
-> +       mutex_lock(&input->mutex);
-> +       if (input->users)
-> +               result = usb_submit_urb(ebeam->irq, GFP_NOIO);
-> +       mutex_unlock(&input->mutex);
-> +
-> +       return result;
-> +}
-> +
-> +static int ebeam_reset_resume(struct usb_interface *intf)
-> +{
-> +       struct ebeam_device *ebeam = usb_get_intfdata(intf);
-> +       struct input_dev *input = ebeam->input;
-> +       int err = 0;
-> +
-> +       /* restart IO if needed */
-> +       mutex_lock(&input->mutex);
-> +       if (input->users)
-> +               err = usb_submit_urb(ebeam->irq, GFP_NOIO);
-> +       mutex_unlock(&input->mutex);
-> +
-> +       return err;
-> +}
+Hi Dmitry,
 
-These functions are identical. You should unify them.
+On 8/22/2012 13:55, Dmitry Torokhov wrote:
+> Hi Bo,
+>
+> On Mon, Aug 20, 2012 at 11:41:10AM +0800, Bo Shen wrote:
+>> This patch enable the qt1070 device tree support
+>>
+>> If using device tree, the node of qt1070 looks like
+>> i2c@0 {					     // this is an example
+>>   	status = "okay";		     // Enable i2c master
+>>   	qt1070@1b {
+>>   		compatible = "atmel,qt1070"; // FDT device id
+>>   		reg = <0x1b>;		     // qt1070 i2c address
+>>   		change-gpio = <&pioA 7 1>;   // gpio used as interrupt
+>>   	};
+>> };
+>>
+>> Signed-off-by: Bo Shen <voice.shen@atmel.com>
+>> ---
+>> change since v1
+>>    Add gpio relative stuff, gpio_is_valid, gpio_request
+>>
+>> ---
+>>   drivers/input/keyboard/qt1070.c |   31 +++++++++++++++++++++++++++----
+>>   1 file changed, 27 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+>> index ca68f29..2717bb4 100644
+>> --- a/drivers/input/keyboard/qt1070.c
+>> +++ b/drivers/input/keyboard/qt1070.c
+>> @@ -33,6 +33,8 @@
+>>   #include <linux/interrupt.h>
+>>   #include <linux/jiffies.h>
+>>   #include <linux/delay.h>
+>> +#include <linux/of.h>
+>> +#include <linux/of_gpio.h>
+>>
+>>   /* Address for each register */
+>>   #define CHIP_ID            0x00
+>> @@ -155,11 +157,25 @@ static int __devinit qt1070_probe(struct i2c_client *client,
+>>   		return -ENODEV;
+>>   	}
+>>
+>> -	if (!client->irq) {
+>> +	if (client->dev.of_node)
+>> +		client->irq = of_get_named_gpio(client->dev.of_node,
+>> +				"change-gpio", 0);
+>
+> I'd say this gpio to irq DT mapping should be done by the same code that
+> parses I2C address and creates client structure.
 
-	Regards
-		Oliver
+After digging it, I think this need some other parts support. Maybe gpio 
+pinctrl or something else, I am not sure.
+
+I try add two line as following in dts node. But can not get irq when 
+test it on my DT supported platform.
+----------cut here---------
++               qt1070@1b {
++                       compatible = "atmel,qt1070";
++                       reg = <0x1b>;
++                       interrupt-parent = <&pioA>;
++                       interrupts = <7 2>;
+---------------------------
+
+So, please give me some advice for this.
+Thanks.
+
+>
+>> +
+>> +	if (!client->irq || client->irq < 0) {
+>>   		dev_err(&client->dev, "please assign the irq to this device\n");
+>>   		return -EINVAL;
+>>   	}
+>>
+>> +	if (gpio_is_valid(client->irq)) {
+>> +		if (gpio_request(client->irq, "qt1070-change")) {
+>> +			dev_err(&client->dev, "request gpio failed\n");
+>> +			return -EINVAL;
+>> +		}
+>> +	} else {
+>> +		dev_err(&client->dev, "gpio is not valid\n");
+>> +		return -EINVAL;
+>> +	}
+>> +
+>>   	/* Identify the qt1070 chip */
+>>   	if (!qt1070_identify(client))
+>>   		return -ENODEV;
+>> @@ -200,9 +216,9 @@ static int __devinit qt1070_probe(struct i2c_client *client,
+>>   	qt1070_write(client, RESET, 1);
+>>   	msleep(QT1070_RESET_TIME);
+>>
+>> -	err = request_threaded_irq(client->irq, NULL, qt1070_interrupt,
+>> -				   IRQF_TRIGGER_NONE | IRQF_ONESHOT,
+>> -				   client->dev.driver->name, data);
+>> +	err = request_threaded_irq(gpio_to_irq(client->irq), NULL,
+>
+> This will surely break non-DT case.
+
+Thanks, I will fix it in next version.
+
+>
+>> +			qt1070_interrupt, IRQF_TRIGGER_NONE | IRQF_ONESHOT,
+>> +			"qt1070-change", data);
+>>   	if (err) {
+>>   		dev_err(&client->dev, "fail to request irq\n");
+>>   		goto err_free_mem;
+>> @@ -243,6 +259,12 @@ static int __devexit qt1070_remove(struct i2c_client *client)
+>>   	return 0;
+>>   }
+>>
+>> +static const struct of_device_id atmel_qt1070_of_match[] = {
+>> +	{ .compatible = "atmel,qt1070", },
+>> +	{ },
+>> +};
+>> +MODULE_DEVICE_TABLE(of, atmel_qt1070_of_match);
+>> +
+>>   static const struct i2c_device_id qt1070_id[] = {
+>>   	{ "qt1070", 0 },
+>>   	{ },
+>> @@ -253,6 +275,7 @@ static struct i2c_driver qt1070_driver = {
+>>   	.driver	= {
+>>   		.name	= "qt1070",
+>>   		.owner	= THIS_MODULE,
+>> +		.of_match_table = atmel_qt1070_of_match,
+>>   	},
+>>   	.id_table	= qt1070_id,
+>>   	.probe		= qt1070_probe,
+>> --
+>> 1.7.10
+>>
+>
+> Thanks.
+>
 

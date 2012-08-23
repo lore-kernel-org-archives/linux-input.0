@@ -1,44 +1,78 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH] pwm: Call pwm_enable() before pwm_config()
-Date: Thu, 23 Aug 2012 17:43:32 +0200
-Message-ID: <50364FA4.7000401@metafoo.de>
-References: <217877237.2758643.1345731587941.JavaMail.root@advansee.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH] hid: Remove duplicate ID for QUANTA 3001 touchscreen
+Date: Thu, 23 Aug 2012 18:45:15 +0200
+Message-ID: <20120823164515.GA611@polaris.bitmath.org>
+References: <1345716767-2872-1-git-send-email-simon.farnsworth@onelan.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <217877237.2758643.1345731587941.JavaMail.root@advansee.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?B?QmVub8OudCBUaMOpYmF1ZGVhdQ==?= <benoit.thebaudeau@advansee.com>
-Cc: Thierry Reding <thierry.reding@avionic-design.de>, linux-kernel@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:59091 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751393Ab2HWQkV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Aug 2012 12:40:21 -0400
+Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
+	by smtprelay-b11.telenor.se (Postfix) with ESMTP id 9900DCE85
+	for <linux-input@vger.kernel.org>; Thu, 23 Aug 2012 18:40:18 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <1345716767-2872-1-git-send-email-simon.farnsworth@onelan.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Simon Farnsworth <simon.farnsworth@onelan.co.uk>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@bitmath.se>
 
-On 08/23/2012 04:19 PM, Beno=C3=AEt Th=C3=A9baudeau wrote:
-> Some PWM drivers enable the clock of the PWM peripheral in pwm_enable=
-(). Hence,
-> for these drivers, a call to pwm_config() does not have any effect be=
-fore
-> pwm_enable() has been called.
->=20
-> This patch fixes the PWM users to make sure that they call pwm_enable=
-() before
-> pwm_config().
->=20
-> This fixes the first setting of brightness through sysfs that had no =
-effect with
-> leds-pwm and the i.MX PWM driver.
+On Thu, Aug 23, 2012 at 11:12:47AM +0100, Simon Farnsworth wrote:
+> For some reason, we had two IDs for the QUANTA 3001 touchscreen controller,
+> one USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001 and one
+> USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN. As this has caused
+> confusion, remove USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN
+> completely, and fix places where it was used to refer to
+> USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001.
+> 
+> Signed-off-by: Simon Farnsworth <simon.farnsworth@onelan.co.uk>
+> ---
+> Henrik suggested removing the duplicate IDs from the QUANTA devices.
+> 
+> I've torn out the PIXART one, as we have a vendor ID for PIXART, and I
+> suspect that it's simply that PIXART sold a rebranded QUANTA device for a
+> while, and the first example of the QUANTA controller was under PIXART
+> branding.
+> 
+>  drivers/hid/hid-ids.h           | 1 -
+>  drivers/hid/usbhid/hid-quirks.c | 2 +-
+>  2 files changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 1dcb76f..d615ecb 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -652,7 +652,6 @@
+>  #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH		0x3000
+>  #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001		0x3001
+>  #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008		0x3008
+> -#define USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN	0x3001
+>  
+>  #define USB_VENDOR_ID_ROCCAT		0x1e7d
+>  #define USB_DEVICE_ID_ROCCAT_ARVO	0x30d4
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index 903eef3..58bd4f2 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -74,7 +74,7 @@ static const struct hid_blacklist {
+>  	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN2, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, HID_QUIRK_NOGET },
+> -	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NOGET },
+> +	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001, HID_QUIRK_NOGET },
+>  	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008, HID_QUIRK_NOGET },
+>  	{ USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB, HID_QUIRK_NOGET },
+>  	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
+> -- 
+> 1.7.11.2
+> 
 
-But isn't this a bug in the PWM peripheral driver? With this change the=
- PWM
-will start with the old settings first. While this is not so much of a =
-problem
-for a backlight (although it might cause a short flickering) it might c=
-ause
-problems for other applications, like using the PWM pin as a timing gen=
-erator.
-In my opinion it's better to fix the PWM peripheral drivers which have =
-this
-problem instead of trying to work around it in every user of the PWM AP=
-I.
+Excellent, thank you Simon.
 
-- Lars
+    Acked-by: Henrik Rydberg <rydberg@euromail.se>
+
+Henrik

@@ -1,24 +1,117 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH] pwm: Call pwm_enable() before pwm_config()
-Date: Thu, 23 Aug 2012 19:19:36 +0200
-Message-ID: <50366628.5020007@metafoo.de>
-References: <36966374.2768747.1345741025741.JavaMail.root@advansee.com> <50366464.4070801@metafoo.de>
+From: Matthias Kaehlcke <matthias.list@kaehlcke.net>
+Subject: Re: [PATCH 2/5] MFD: ti_tscadc: Add support for TI's TSC/ADC MFDevice
+Date: Thu, 23 Aug 2012 20:48:31 +0200
+Message-ID: <20120823184830.GE27787@darwin>
+References: <1345718997-18304-1-git-send-email-rachna@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <50366464.4070801@metafoo.de>
+Content-Disposition: inline
+In-Reply-To: <1345718997-18304-1-git-send-email-rachna@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?B?QmVub8OudCBUaMOpYmF1ZGVhdQ==?= <benoit.thebaudeau@advansee.com>
-Cc: Thierry Reding <thierry.reding@avionic-design.de>, linux-kernel@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org
+To: "Patil, Rachna" <rachna@ti.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Jonathan Cameron <jic23@cam.ac.uk>, Samuel Ortiz <sameo@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On 08/23/2012 07:12 PM, Lars-Peter Clausen wrote:
->[...]
-> Or maybe just use the runtime pm API for this. This probably makes even more
-> sense and grab a reference to the pm context when the enable() is called,
-> release it when disable() is called and also grab it before calling the
-> device's config callback and release it afterward.
+Hi,
 
-Btw. this seems to be exactly what the pwm-tiecap and pwm-tiehrpwm drivers
-already do today. I'd just make that a core PWM framework feature.
+El Thu, Aug 23, 2012 at 04:19:57PM +0530 Patil, Rachna ha dit:
+
+> Add the mfd core driver which supports touchscreen
+> and ADC.
+> With this patch we are only adding infrastructure to
+> support the MFD clients.
+> 
+> Signed-off-by: Patil, Rachna <rachna@ti.com>
+> ---
+> diff --git a/drivers/mfd/ti_tscadc.c b/drivers/mfd/ti_tscadc.c
+> ...
+> +static	int __devinit ti_tscadc_probe(struct platform_device *pdev)
+> +{
+> +	struct ti_tscadc_dev		*tscadc;
+> +	int				err, ctrl;
+> +	int				clk_value, clock_rate;
+> +	struct resource			*res;
+> +	struct clk			*clk;
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!res) {
+> +		dev_err(&pdev->dev, "no memory resource defined.\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	/* Allocate memory for device */
+> +	tscadc = kzalloc(sizeof(struct ti_tscadc_dev), GFP_KERNEL);
+> +	if (!tscadc) {
+> +		dev_err(&pdev->dev, "failed to allocate memory.\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	res = request_mem_region(res->start, resource_size(res), pdev->name);
+> +	if (!res) {
+> +		dev_err(&pdev->dev, "failed to reserve registers.\n");
+> +		err = -EBUSY;
+> +		goto err_free_mem;
+> +	}
+> +
+> +	tscadc->tscadc_base = ioremap(res->start, resource_size(res));
+> +	if (!tscadc->tscadc_base) {
+> +		dev_err(&pdev->dev, "failed to map registers.\n");
+> +		err = -ENOMEM;
+> +		goto err_release_mem;
+> +	}
+> +
+> +	tscadc->irq = platform_get_irq(pdev, 0);
+> +	if (tscadc->irq < 0) {
+> +		dev_err(&pdev->dev, "no irq ID is specified.\n");
+> +		return -ENODEV;
+
+goto err_iounmap_mem;
+
+> ...
+> +err_fail:
+> +	pm_runtime_put_sync(&pdev->dev);
+> +	pm_runtime_disable(&pdev->dev);
+> +	iounmap(tscadc->tscadc_base);
+> +err_release_mem:
+> +	release_mem_region(res->start, resource_size(res));
+> +	mfd_remove_devices(tscadc->dev);
+> +err_free_mem:
+> +	platform_set_drvdata(pdev, NULL);
+
+shouldn't be necessary as the platform device doesn't exist any longer
+
+> ...
+> +static int __devexit ti_tscadc_remove(struct platform_device *pdev)
+> +{
+> +	struct ti_tscadc_dev	*tscadc = platform_get_drvdata(pdev);
+> +	struct resource		*res;
+> +
+> +	tscadc_writel(tscadc, REG_SE, 0x00);
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	iounmap(tscadc->tscadc_base);
+> +	release_mem_region(res->start, resource_size(res));
+> +
+> +	pm_runtime_put_sync(&pdev->dev);
+> +	pm_runtime_disable(&pdev->dev);
+> +
+> +	mfd_remove_devices(tscadc->dev);
+> +	kfree(tscadc);
+> +
+> +	platform_set_drvdata(pdev, NULL);
+
+same as above
+
+best regards
+
+-- 
+Matthias Kaehlcke
+Embedded Linux Developer
+Amsterdam
+
+         The only way to do great work is to love what you do
+                            (Steve Jobs)
+                                                                 .''`.
+    using free software / Debian GNU/Linux | http://debian.org  : :'  :
+                                                                `. `'`
+gpg --keyserver pgp.mit.edu --recv-keys 47D8E5D4                  `-

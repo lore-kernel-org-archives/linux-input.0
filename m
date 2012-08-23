@@ -1,418 +1,457 @@
-From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 5/5] MFD: ti_tscadc: Add check on number of i/p channels
-Date: Thu, 23 Aug 2012 16:20:35 +0530
-Message-ID: <1345719035-22871-1-git-send-email-rachna@ti.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [RFC PATCH 3/17] input: RMI4 physical layer drivers for I2C and SPI
+Date: Thu, 23 Aug 2012 15:21:43 +0200
+Message-ID: <CACRpkdY5bgMhntpwtP4X+x+tzNeeABuU372GTLh4UGSEAVyWLw@mail.gmail.com>
+References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
+	<1345241877-16200-4-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:44717 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758779Ab2HWNVp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Aug 2012 09:21:45 -0400
+Received: by wibhr14 with SMTP id hr14so937592wib.1
+        for <linux-input@vger.kernel.org>; Thu, 23 Aug 2012 06:21:43 -0700 (PDT)
+In-Reply-To: <1345241877-16200-4-git-send-email-cheiny@synaptics.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-The controller provides a total of 8 analog input
-lines, which can be used as:
-1. 8 general purpose ADC channels
-2. 4 wire TS, with 4 general purpose ADC channels
-3. 5 wire TS, with 3 general purpose ADC channels
+On Sat, Aug 18, 2012 at 12:17 AM, Christopher Heiny
+<cheiny@synaptics.com> wrote:
 
-Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
----
- drivers/iio/adc/ti_adc.c           |   51 +++++-----
- drivers/input/touchscreen/ti_tsc.c |   79 ++++++++-------
- drivers/mfd/ti_tscadc.c            |  202 +++++++++++++++++++-----------------
- 3 files changed, 177 insertions(+), 155 deletions(-)
+>  drivers/input/rmi4/rmi_i2c.c |  452 +++++++++++++++++++++
+>  drivers/input/rmi4/rmi_spi.c |  911 ++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 1363 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/iio/adc/ti_adc.c b/drivers/iio/adc/ti_adc.c
-index a476859..48c5d63 100644
---- a/drivers/iio/adc/ti_adc.c
-+++ b/drivers/iio/adc/ti_adc.c
-@@ -142,37 +142,38 @@ static int __devinit tiadc_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	idev = iio_device_alloc(sizeof(struct adc_device));
--	if (idev == NULL) {
--		dev_err(&pdev->dev, "failed to allocate iio device.\n");
--		err = -ENOMEM;
--		goto err_ret;
--	}
--	adc_dev = iio_priv(idev);
--
--	tscadc_dev->adc = adc_dev;
--	adc_dev->mfd_tscadc = tscadc_dev;
--	adc_dev->idev = idev;
--	adc_dev->adc_channels = board_data->adc_init->adc_channels;
-+	if (board_data->adc_init->adc_channels != 0) {
-+		idev = iio_device_alloc(sizeof(struct adc_device));
-+		if (idev == NULL) {
-+			dev_err(&pdev->dev, "failed to allocate iio device.\n");
-+			err = -ENOMEM;
-+			goto err_ret;
-+		}
-+		adc_dev = iio_priv(idev);
- 
--	idev->dev.parent = &pdev->dev;
--	idev->name = dev_name(&pdev->dev);
--	idev->modes = INDIO_DIRECT_MODE;
--	idev->info = &tiadc_info;
-+		tscadc_dev->adc = adc_dev;
-+		adc_dev->mfd_tscadc = tscadc_dev;
-+		adc_dev->idev = idev;
-+		adc_dev->adc_channels = board_data->adc_init->adc_channels;
- 
--	adc_step_config(adc_dev);
-+		idev->dev.parent = &pdev->dev;
-+		idev->name = dev_name(&pdev->dev);
-+		idev->modes = INDIO_DIRECT_MODE;
-+		idev->info = &tiadc_info;
- 
--	err = tiadc_channel_init(idev, adc_dev);
--	if (err < 0)
--		goto err_fail;
-+		adc_step_config(adc_dev);
- 
--	err = iio_device_register(idev);
--	if (err)
--		goto err_free_channels;
-+		err = tiadc_channel_init(idev, adc_dev);
-+		if (err < 0)
-+			goto err_fail;
- 
--	dev_info(&pdev->dev, "attached adc driver\n");
--	platform_set_drvdata(pdev, idev);
-+		err = iio_device_register(idev);
-+		if (err)
-+			goto err_free_channels;
- 
-+		dev_info(&pdev->dev, "attached adc driver\n");
-+		platform_set_drvdata(pdev, idev);
-+	}
- 	return 0;
- 
- err_free_channels:
-diff --git a/drivers/input/touchscreen/ti_tsc.c b/drivers/input/touchscreen/ti_tsc.c
-index cda3b79..26b2a15 100644
---- a/drivers/input/touchscreen/ti_tsc.c
-+++ b/drivers/input/touchscreen/ti_tsc.c
-@@ -271,50 +271,55 @@ static int __devinit tscadc_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	/* Allocate memory for device */
--	ts_dev = kzalloc(sizeof(struct tscadc), GFP_KERNEL);
--	input_dev = input_allocate_device();
--	if (!ts_dev || !input_dev) {
--		dev_err(&pdev->dev, "failed to allocate memory.\n");
--		err = -ENOMEM;
--		goto err_free_mem;
--	}
-+	if (board_data->tsc_init->wires != 0) {
-+		/* Allocate memory for device */
-+		ts_dev = kzalloc(sizeof(struct tscadc), GFP_KERNEL);
-+		input_dev = input_allocate_device();
-+		if (!ts_dev || !input_dev) {
-+			dev_err(&pdev->dev, "failed to allocate memory.\n");
-+			err = -ENOMEM;
-+			goto err_free_mem;
-+		}
- 
--	tscadc_dev->tsc = ts_dev;
--	ts_dev->mfd_tscadc = tscadc_dev;
--	ts_dev->input = input_dev;
--	ts_dev->irq = tscadc_dev->irq;
--	ts_dev->wires = board_data->tsc_init->wires;
--	ts_dev->x_plate_resistance = board_data->tsc_init->x_plate_resistance;
--	ts_dev->steps_to_configure = board_data->tsc_init->steps_to_configure;
--
--	err = request_irq(ts_dev->irq, tscadc_irq,
--			  0, pdev->dev.driver->name, ts_dev);
--	if (err) {
--		dev_err(&pdev->dev, "failed to allocate irq.\n");
--		goto err_free_mem;
--	}
-+		tscadc_dev->tsc = ts_dev;
-+		ts_dev->mfd_tscadc = tscadc_dev;
-+		ts_dev->input = input_dev;
-+			ts_dev->irq = tscadc_dev->irq;
-+		ts_dev->wires = board_data->tsc_init->wires;
-+		ts_dev->x_plate_resistance =
-+			board_data->tsc_init->x_plate_resistance;
-+		ts_dev->steps_to_configure =
-+			board_data->tsc_init->steps_to_configure;
-+
-+		err = request_irq(ts_dev->irq, tscadc_irq,
-+				  0, pdev->dev.driver->name, ts_dev);
-+		if (err) {
-+			dev_err(&pdev->dev, "failed to allocate irq.\n");
-+			goto err_free_mem;
-+		}
- 
--	tscadc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
--	tscadc_step_config(ts_dev);
--	tscadc_writel(ts_dev, REG_FIFO0THR, ts_dev->steps_to_configure);
-+		tscadc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
-+		tscadc_step_config(ts_dev);
-+		tscadc_writel(ts_dev, REG_FIFO0THR, ts_dev->steps_to_configure);
- 
--	input_dev->name = "ti-tsc";
--	input_dev->dev.parent = &pdev->dev;
-+		input_dev->name = "ti-tsc";
-+		input_dev->dev.parent = &pdev->dev;
- 
--	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+		input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+		input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
- 
--	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
--	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
--	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT, 0, 0);
-+		input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
-+		input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
-+		input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT,
-+				0, 0);
- 
--	/* register to the input system */
--	err = input_register_device(input_dev);
--	if (err)
--		goto err_free_irq;
-+		/* register to the input system */
-+		err = input_register_device(input_dev);
-+		if (err)
-+			goto err_free_irq;
- 
--	platform_set_drvdata(pdev, ts_dev);
-+		platform_set_drvdata(pdev, ts_dev);
-+	}
- 	return 0;
- 
- err_free_irq:
-diff --git a/drivers/mfd/ti_tscadc.c b/drivers/mfd/ti_tscadc.c
-index bf2d488..bac502b 100644
---- a/drivers/mfd/ti_tscadc.c
-+++ b/drivers/mfd/ti_tscadc.c
-@@ -22,6 +22,8 @@
- #include <linux/mfd/core.h>
- #include <linux/pm_runtime.h>
- #include <linux/mfd/ti_tscadc.h>
-+#include <linux/platform_data/ti_adc.h>
-+#include <linux/input/ti_tscadc.h>
- 
- static unsigned int tscadc_readl(struct ti_tscadc_dev *tsadc, unsigned int reg)
- {
-@@ -51,105 +53,119 @@ static	int __devinit ti_tscadc_probe(struct platform_device *pdev)
- 	int				clk_value, clock_rate;
- 	struct resource			*res;
- 	struct clk			*clk;
-+	int				tsc_wires, adc_channels, total_channels;
- 	struct mfd_cell			*cell = NULL;
-+	struct mfd_tscadc_board		*board_data = pdev->dev.platform_data;
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (!res) {
--		dev_err(&pdev->dev, "no memory resource defined.\n");
-+	if (!board_data) {
-+		dev_err(&pdev->dev, "Could not find platform data\n");
- 		return -EINVAL;
- 	}
- 
--	/* Allocate memory for device */
--	tscadc = kzalloc(sizeof(struct ti_tscadc_dev), GFP_KERNEL);
--	if (!tscadc) {
--		dev_err(&pdev->dev, "failed to allocate memory.\n");
--		return -ENOMEM;
--	}
--
--	res = request_mem_region(res->start, resource_size(res), pdev->name);
--	if (!res) {
--		dev_err(&pdev->dev, "failed to reserve registers.\n");
--		err = -EBUSY;
--		goto err_free_mem;
--	}
--
--	tscadc->tscadc_base = ioremap(res->start, resource_size(res));
--	if (!tscadc->tscadc_base) {
--		dev_err(&pdev->dev, "failed to map registers.\n");
--		err = -ENOMEM;
--		goto err_release_mem;
--	}
--
--	tscadc->irq = platform_get_irq(pdev, 0);
--	if (tscadc->irq < 0) {
--		dev_err(&pdev->dev, "no irq ID is specified.\n");
--		return -ENODEV;
--	}
--
--	tscadc->dev = &pdev->dev;
--
--	pm_runtime_enable(&pdev->dev);
--	pm_runtime_get_sync(&pdev->dev);
--
--	/*
--	 * The TSC_ADC_Subsystem has 2 clock domains
--	 * OCP_CLK and ADC_CLK.
--	 * The ADC clock is expected to run at target of 3MHz,
--	 * and expected to capture 12-bit data at a rate of 200 KSPS.
--	 * The TSC_ADC_SS controller design assumes the OCP clock is
--	 * at least 6x faster than the ADC clock.
--	 */
--	clk = clk_get(&pdev->dev, "adc_tsc_fck");
--	if (IS_ERR(clk)) {
--		dev_err(&pdev->dev, "failed to get TSC fck\n");
--		err = PTR_ERR(clk);
--		goto err_fail;
--	}
--	clock_rate = clk_get_rate(clk);
--	clk_put(clk);
--	clk_value = clock_rate / ADC_CLK;
--	if (clk_value < MAX_CLK_DIV) {
--		dev_err(&pdev->dev, "clock input less than min clock requirement\n");
--		err = -EINVAL;
--		goto err_fail;
-+	tsc_wires = board_data->tsc_init->wires;
-+	adc_channels = board_data->adc_init->adc_channels;
-+	total_channels = tsc_wires + adc_channels;
-+
-+	if (total_channels <= 8) {
-+		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+		if (!res) {
-+			dev_err(&pdev->dev, "no memory resource defined.\n");
-+			return -EINVAL;
-+		}
-+
-+		/* Allocate memory for device */
-+		tscadc = kzalloc(sizeof(struct ti_tscadc_dev), GFP_KERNEL);
-+		if (!tscadc) {
-+			dev_err(&pdev->dev, "failed to allocate memory.\n");
-+			return -ENOMEM;
-+		}
-+
-+		res = request_mem_region(res->start, resource_size(res),
-+					pdev->name);
-+		if (!res) {
-+			dev_err(&pdev->dev, "failed to reserve registers.\n");
-+			err = -EBUSY;
-+			goto err_free_mem;
-+		}
-+
-+		tscadc->tscadc_base = ioremap(res->start, resource_size(res));
-+		if (!tscadc->tscadc_base) {
-+			dev_err(&pdev->dev, "failed to map registers.\n");
-+			err = -ENOMEM;
-+			goto err_release_mem;
-+		}
-+
-+		tscadc->irq = platform_get_irq(pdev, 0);
-+		if (tscadc->irq < 0) {
-+			dev_err(&pdev->dev, "no irq ID is specified.\n");
-+			return -ENODEV;
-+		}
-+
-+		tscadc->dev = &pdev->dev;
-+
-+		pm_runtime_enable(&pdev->dev);
-+		pm_runtime_get_sync(&pdev->dev);
-+
-+		/*
-+		 * The TSC_ADC_Subsystem has 2 clock domains
-+		 * OCP_CLK and ADC_CLK.
-+		 * The ADC clock is expected to run at target of 3MHz,
-+		 * and expected to capture 12-bit data at a rate of 200 KSPS.
-+		 * The TSC_ADC_SS controller design assumes the OCP clock is
-+		 * at least 6x faster than the ADC clock.
-+		 */
-+		clk = clk_get(&pdev->dev, "adc_tsc_fck");
-+		if (IS_ERR(clk)) {
-+			dev_err(&pdev->dev, "failed to get TSC fck\n");
-+			err = PTR_ERR(clk);
-+			goto err_fail;
-+		}
-+		clock_rate = clk_get_rate(clk);
-+		clk_put(clk);
-+		clk_value = clock_rate / ADC_CLK;
-+		if (clk_value < MAX_CLK_DIV) {
-+			dev_err(&pdev->dev, "clock input less than min clock requirement\n");
-+			err = -EINVAL;
-+			goto err_fail;
-+		}
-+		/* TSCADC_CLKDIV needs to be configured to the value minus 1 */
-+		clk_value = clk_value - 1;
-+		tscadc_writel(tscadc, REG_CLKDIV, clk_value);
-+
-+		/* Set the control register bits */
-+		ctrl = CNTRLREG_STEPCONFIGWRT |
-+				CNTRLREG_TSCENB |
-+				CNTRLREG_STEPID |
-+				CNTRLREG_4WIRE;
-+		tscadc_writel(tscadc, REG_CTRL, ctrl);
-+
-+		/* Set register bits for Idle Config Mode */
-+		tscadc_idle_config(tscadc);
-+
-+		/* Enable the TSC module enable bit */
-+		ctrl = tscadc_readl(tscadc, REG_CTRL);
-+		ctrl |= CNTRLREG_TSCSSENB;
-+		tscadc_writel(tscadc, REG_CTRL, ctrl);
-+
-+		/* TSC Cell */
-+		cell = &tscadc->cells[TSC_CELL];
-+		cell->name = "tsc";
-+		cell->platform_data = tscadc;
-+		cell->pdata_size = sizeof(*tscadc);
-+
-+		/* ADC Cell */
-+		cell = &tscadc->cells[ADC_CELL];
-+		cell->name = "tiadc";
-+		cell->platform_data = tscadc;
-+		cell->pdata_size = sizeof(*tscadc);
-+
-+		err = mfd_add_devices(&pdev->dev, pdev->id, tscadc->cells,
-+				TSCADC_CELLS, NULL, 0);
-+		if (err < 0)
-+			goto err_fail;
-+
-+		platform_set_drvdata(pdev, tscadc);
- 	}
--	/* TSCADC_CLKDIV needs to be configured to the value minus 1 */
--	clk_value = clk_value - 1;
--	tscadc_writel(tscadc, REG_CLKDIV, clk_value);
--
--	/* Set the control register bits */
--	ctrl = CNTRLREG_STEPCONFIGWRT |
--			CNTRLREG_TSCENB |
--			CNTRLREG_STEPID |
--			CNTRLREG_4WIRE;
--	tscadc_writel(tscadc, REG_CTRL, ctrl);
--
--	/* Set register bits for Idle Config Mode */
--	tscadc_idle_config(tscadc);
--
--	/* Enable the TSC module enable bit */
--	ctrl = tscadc_readl(tscadc, REG_CTRL);
--	ctrl |= CNTRLREG_TSCSSENB;
--	tscadc_writel(tscadc, REG_CTRL, ctrl);
--
--	/* TSC Cell */
--	cell = &tscadc->cells[TSC_CELL];
--	cell->name = "tsc";
--	cell->platform_data = tscadc;
--	cell->pdata_size = sizeof(*tscadc);
--
--	/* ADC Cell */
--	cell = &tscadc->cells[ADC_CELL];
--	cell->name = "tiadc";
--	cell->platform_data = tscadc;
--	cell->pdata_size = sizeof(*tscadc);
--
--	err = mfd_add_devices(&pdev->dev, pdev->id, tscadc->cells,
--			TSCADC_CELLS, NULL, 0);
--	if (err < 0)
--		goto err_fail;
--
--	platform_set_drvdata(pdev, tscadc);
- 	return 0;
- 
- err_fail:
--- 
-1.7.1
+NB: Mark Brown is looking after SPI FTM so include him!
+
+(...)
+> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+(...)
+> +#define COMMS_DEBUG 0
+> +
+> +#define IRQ_DEBUG 0
+> +
+> +#if COMMS_DEBUG || IRQ_DEBUG
+> +#define DEBUG
+> +#endif
+
+Don't do things like this. Debugging shall always be switched on from the
+Kconfig menus.
+
+Look at this from drivers/pinctrl/:
+
+Kconfig:
+config DEBUG_PINCTRL
+        bool "Debug PINCTRL calls"
+        depends on DEBUG_KERNEL
+        help
+          Say Y here to add some extra checks and diagnostics to PINCTRL calls.
+
+Makefile:
+ccflags-$(CONFIG_DEBUG_PINCTRL) += -DDEBUG
+
+Other more specific defines: same thing. Use Kconfig.
+The kernel also has a native concept of verbos debugging
+see e.g. drivers/dma*:
+
+config DMADEVICES_VDEBUG
+        bool "DMA Engine verbose debugging"
+        depends on DMADEVICES_DEBUG != n
+        help
+          This is an option for use by developers; most people should
+          say N here.  This enables deeper (more verbose) debugging of
+          the DMA engine core and drivers.
+
+ccflags-$(CONFIG_DMADEVICES_VDEBUG) += -DVERBOSE_DEBUG
+
+(...)
+> +static irqreturn_t rmi_i2c_irq_thread(int irq, void *p)
+> +{
+> +       struct rmi_phys_device *phys = p;
+> +       struct rmi_device *rmi_dev = phys->rmi_dev;
+> +       struct rmi_driver *driver = rmi_dev->driver;
+> +       struct rmi_device_platform_data *pdata = phys->dev->platform_data;
+> +
+> +#if IRQ_DEBUG
+> +       dev_dbg(phys->dev, "ATTN gpio, value: %d.\n",
+> +                       gpio_get_value(pdata->attn_gpio));
+> +#endif
+
+If you absolutely cannot just use dev_dbg() or dev_vdbg(), then
+define your own irq debugging macro on top:
+
+#ifdef IRQ_DEBUG
+#define dev_irqdbg        dev_irqdbg
+#else
+#define dev_irqdbg(dev, format, arg...)                           \
+({                                                              \
+        if (0)                                                  \
+                dev_printk(KERN_DEBUG, dev, format, ##arg);     \
+        0;                                                      \
+})
+#endif
+
+(...)
+> +static int rmi_set_page(struct rmi_phys_device *phys, unsigned int page)
+> +{
+> +       struct i2c_client *client = to_i2c_client(phys->dev);
+> +       struct rmi_i2c_data *data = phys->data;
+> +       char txbuf[2] = {RMI_PAGE_SELECT_REGISTER, page};
+> +       int retval;
+> +
+> +#if COMMS_DEBUG
+> +       dev_dbg(&client->dev, "RMI4 I2C writes 3 bytes: %02x %02x\n",
+> +               txbuf[0], txbuf[1]);
+> +#endif
+
+Same comment, mutatis mutandis.
+
+(...)
+> +static int acquire_attn_irq(struct rmi_i2c_data *data)
+> +{
+> +       return request_threaded_irq(data->irq, NULL, rmi_i2c_irq_thread,
+> +                       data->irq_flags, dev_name(data->phys->dev), data->phys);
+> +}
+
+Do you really need a separate function to just call another function?
+Inline this instead.
+
+(...)
+> +static int __devinit rmi_i2c_probe(struct i2c_client *client,
+> +                                 const struct i2c_device_id *id)
+> +{
+> +       struct rmi_phys_device *rmi_phys;
+> +       struct rmi_i2c_data *data;
+> +       struct rmi_device_platform_data *pdata = client->dev.platform_data;
+> +       int error;
+> +
+> +       if (!pdata) {
+> +               dev_err(&client->dev, "no platform data\n");
+> +               return -EINVAL;
+> +       }
+> +       dev_info(&client->dev, "Probing %s at %#02x (IRQ %d).\n",
+> +               pdata->sensor_name ? pdata->sensor_name : "-no name-",
+> +               client->addr, pdata->attn_gpio);
+> +
+> +       if (pdata->gpio_config) {
+> +               dev_info(&client->dev, "Configuring GPIOs.\n");
+> +               error = pdata->gpio_config(pdata->gpio_data, true);
+> +               if (error < 0) {
+> +                       dev_err(&client->dev, "Failed to configure GPIOs, code: %d.\n",
+> +                               error);
+> +                       return error;
+> +               }
+> +               dev_info(&client->dev, "Done with GPIO configuration.\n");
+> +       }
+> +
+> +       error = i2c_check_functionality(client->adapter, I2C_FUNC_I2C);
+> +       if (!error) {
+> +               dev_err(&client->dev, "i2c_check_functionality error %d.\n",
+> +                       error);
+> +               return error;
+> +       }
+> +
+> +       rmi_phys = kzalloc(sizeof(struct rmi_phys_device), GFP_KERNEL);
+
+Could you use devm_kzalloc(&client->dev, ... ) ?
+
+> +
+> +       data = kzalloc(sizeof(struct rmi_i2c_data), GFP_KERNEL);
+
+Dito.
+
+> +       data->enabled = true;   /* We plan to come up enabled. */
+> +       data->irq = gpio_to_irq(pdata->attn_gpio);
+> +       if (pdata->level_triggered) {
+> +               data->irq_flags = IRQF_ONESHOT |
+> +                       ((pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH) ?
+> +                       IRQF_TRIGGER_HIGH : IRQF_TRIGGER_LOW);
+> +       } else {
+> +               data->irq_flags =
+
+I'm uncertain to whether this is not IRQF_ONESHOT, I realized why
+you do this for edge triggers but will the threads handle this properly?
+The irq thread will have to be fully reentrant.
+
+> +                       (pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH) ?
+> +                       IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
+> +       }
+> +       data->phys = rmi_phys;
+(...)
+> +       error = rmi_register_phys_device(rmi_phys);
+> +       if (error) {
+> +               dev_err(&client->dev,
+> +                       "failed to register physical driver at 0x%.2X.\n",
+> +                       client->addr);
+> +               goto err_gpio;
+> +       }
+> +       i2c_set_clientdata(client, rmi_phys);
+
+Especially since it's associated with this one client, devm_kzalloc() and
+friends are apropriate.
+
+> +#if defined(CONFIG_RMI4_DEV)
+
+Nowadays much code is moving away from using any #ifdef:s
+and instead relying on constructs using IS_ENABLED from
+<linux/kconfig.h> like this:
+
+if (IS_ENABLED(CONFIG_FOO)) {}
+
+If that resolves to if (0) the compiler will strip out the
+code.
+
+(...)
+> +static int __devexit rmi_i2c_remove(struct i2c_client *client)
+> +{
+> +       struct rmi_phys_device *phys = i2c_get_clientdata(client);
+> +       struct rmi_device_platform_data *pd = client->dev.platform_data;
+> +
+> +       disable_device(phys);
+> +       rmi_unregister_phys_device(phys);
+> +       kfree(phys->data);
+> +       kfree(phys);
+
+So these kfree():s would not be needed if you used devm_*
+
+(...)
+> +static const struct i2c_device_id rmi_id[] = {
+> +       { "rmi", 0 },
+> +       { "rmi_i2c", 0 },
+> +       { }
+> +};
+
+Why is just "rmi" an acceptable device ID? Since the
+SPI driver also allows the same it's a bit confusing.
+
+(...)
+> +++ b/drivers/input/rmi4/rmi_spi.c
+> +#define COMMS_DEBUG 0
+> +#define FF_DEBUG 0
+
+Same comment as about the other custom debug stuff.
+
+(...)
+> +static char *spi_v1_proto_name = "spi";
+> +static char *spi_v2_proto_name = "spiv2";
+
+const!
+
+And can this be a bit more specific, like "rmi-spiv1", "rmi-spiv2"?
+
+(...)
+> +static irqreturn_t rmi_spi_hard_irq(int irq, void *p)
+> +{
+> +       struct rmi_phys_device *phys = p;
+> +       struct rmi_spi_data *data = phys->data;
+> +       struct rmi_device_platform_data *pdata = phys->dev->platform_data;
+> +
+> +       if (data->split_read_pending &&
+> +                     gpio_get_value(pdata->attn_gpio) ==
+> +                     pdata->attn_polarity) {
+> +               phys->info.attn_count++;
+> +               complete(&data->irq_comp);
+
+Nice use of completion here!
+
+(...)
+> +static int rmi_spi_xfer(struct rmi_phys_device *phys,
+> +                   const u8 *txbuf, unsigned n_tx, u8 *rxbuf, unsigned n_rx)
+> +{
+> +       struct spi_device *client = to_spi_device(phys->dev);
+> +       struct rmi_spi_data *v2_data = phys->data;
+> +       struct rmi_device_platform_data *pdata = phys->dev->platform_data;
+> +       int status;
+> +       struct spi_message message;
+> +       struct spi_transfer *xfers;
+> +       int total_bytes = n_tx + n_rx;
+> +       u8 local_buf[total_bytes];
+> +       int xfer_count = 0;
+> +       int xfer_index = 0;
+> +       int block_delay = n_rx > 0 ? pdata->spi_data.block_delay_us : 0;
+> +       int byte_delay = n_rx > 1 ? pdata->spi_data.read_delay_us : 0;
+> +       int write_delay = n_tx > 1 ? pdata->spi_data.write_delay_us : 0;
+> +#if FF_DEBUG
+> +       bool bad_data = true;
+> +#endif
+> +#if COMMS_DEBUG || FF_DEBUG
+> +       int i;
+> +#endif
+
+This is overzealous I think, this #ifdeffery is looking complex.
+
+(...)
+> +#if COMMS_DEBUG
+> +       if (n_tx) {
+> +               dev_dbg(&client->dev, "SPI sends %d bytes: ", n_tx);
+> +               for (i = 0; i < n_tx; i++)
+> +                       pr_info("%02X ", txbuf[i]);
+> +               pr_info("\n");
+> +       }
+
+Atleast move the definiton of i into this #ifdef, or break it out as a
+separate function which in turn is ifdeffed.
+
+(...)
+> +static int rmi_spi_v1_write(struct rmi_phys_device *phys, u16 addr, u8 data)
+> +{
+> +       int error = rmi_spi_v1_write_block(phys, addr, &data, 1);
+> +
+> +       return (error == 1) ? 0 : error;
+> +}
+
+Isn't this overabstracted? Cut this function and call rmi_spi_v1_write_block()
+directly instead.
+
+(...)
+> +static int rmi_spi_v2_read(struct rmi_phys_device *phys, u16 addr, u8 *buf)
+> +{
+> +       int error = rmi_spi_v2_read_block(phys, addr, buf, 1);
+> +
+> +       return (error == 1) ? 0 : error;
+> +}
+
+Dito.
+
+(...)
+> +static int rmi_spi_v1_read(struct rmi_phys_device *phys, u16 addr, u8 *buf)
+> +{
+> +       int error = rmi_spi_v1_read_block(phys, addr, buf, 1);
+> +
+> +       return (error == 1) ? 0 : error;
+> +}
+
+Dito.
+
+(...)
+> +static int rmi_spi_check_device(struct rmi_phys_device *rmi_phys)
+> +{
+> +       u8 buf[6];
+> +       int error;
+> +       int i;
+> +
+> +       /* Some SPI subsystems return 0 for the very first read you do.  So
+> +        * we use this dummy read to get that out of the way.
+> +        */
+
+This is not looking good. It's like there are bugs in some SPI drivers
+and then you put on some duct-tape to fix it?
+
+You must rely on the SPI framework to do its work.
+So instead fix the bug in the SPI driver, not at this level in the stack.
+
+I think I know where the bug is, actually:
+
+For each SPI struct spi_transfer transfer, there is a field named
+.delay_usecs that can set the delay for a certain transfer. This
+must be handled in the driver.
+
+So set this delay in the struct spi_transfer, then debug the
+driver, because maybe not all of them are respecting that
+delay (but they should!) consult the code in the function
+giveback() in drivers/spi/spi-pl022.c for example.
+
+If it's a bug in the RMI4 device-side stack that's another
+issue, then the fix needs to be here, of course, but I
+didn't get that impression?
+
+(...)
+> +static int __devinit rmi_spi_probe(struct spi_device *spi)
+> +{
+> +       struct rmi_phys_device *rmi_phys;
+> +       struct rmi_spi_data *data;
+> +       struct rmi_device_platform_data *pdata = spi->dev.platform_data;
+> +       u8 buf[2];
+> +       int retval;
+> +
+> +       if (!pdata) {
+> +               dev_err(&spi->dev, "no platform data\n");
+> +               return -EINVAL;
+> +       }
+> +
+> +       if (spi->master->flags & SPI_MASTER_HALF_DUPLEX)
+> +               return -EINVAL;
+> +
+> +       spi->bits_per_word = 8;
+> +       spi->mode = SPI_MODE_3;
+> +       retval = spi_setup(spi);
+> +       if (retval < 0) {
+> +               dev_err(&spi->dev, "spi_setup failed!\n");
+> +               return retval;
+> +       }
+> +
+> +       if (pdata->gpio_config) {
+> +               retval = pdata->gpio_config(pdata->gpio_data, true);
+> +               if (retval < 0) {
+> +                       dev_err(&spi->dev, "Failed to setup GPIOs, code: %d.\n",
+> +                               retval);
+> +                       return retval;
+> +               }
+> +       }
+> +
+> +       rmi_phys = kzalloc(sizeof(struct rmi_phys_device), GFP_KERNEL);
+
+Again this can use devm_kzalloc(&spi->dev, ...)
+
+> +       if (!rmi_phys)
+> +               return -ENOMEM;
+> +
+> +       data = kzalloc(sizeof(struct rmi_spi_data), GFP_KERNEL);
+
+Here too...
+
+(...)
+> +       if (buf[0] == 1) {
+> +               /* SPIv2 */
+> +               rmi_phys->write         = rmi_spi_v2_write;
+> +               rmi_phys->write_block   = rmi_spi_v2_write_block;
+> +               rmi_phys->read          = rmi_spi_v2_read;
+> +               data->set_page          = rmi_spi_v2_set_page;
+
+I really like how you auto-detect and switch vtable for the
+different protocol versions here.
+
+(...)
+> +err_data:
+> +       kfree(data);
+> +err_phys:
+> +       kfree(rmi_phys);
+
+Managed resources simplifies the error path here a lot.
+
+> +       return retval;
+> +}
+
+(...)
+> +static int __devexit rmi_spi_remove(struct spi_device *spi)
+> +{
+> +       struct rmi_phys_device *phys = dev_get_drvdata(&spi->dev);
+> +       struct rmi_device_platform_data *pd = spi->dev.platform_data;
+> +
+> +       disable_device(phys);
+> +       rmi_unregister_phys_device(phys);
+> +       kfree(phys->data);
+> +       kfree(phys);
+
+And here.
+
+> +       if (pd->gpio_config)
+> +               pd->gpio_config(pdata->gpio_data, false);
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct spi_device_id rmi_id[] = {
+> +       { "rmi", 0 },
+
+Why? Why not just "rmi-spi"
+
+Apart from this it looks really nice, and has progressed enormously!
+
+Yours,
+Linus Walleij

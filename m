@@ -1,53 +1,35 @@
-From: Yann Cantin <yann.cantin-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
-Subject: Re: [RFC ebeam PATCH v4 2/2] input: misc: New USB eBeam input driver.
-Date: Fri, 24 Aug 2012 16:42:20 +0200
-Message-ID: <503792CC.6050209@laposte.net>
-References: <1345673514-11575-1-git-send-email-yann.cantin@laposte.net> <1368810.q4rGz16CTW@linux-lqwf.site> <50374B69.3040002@laposte.net> <1555763.Oi7gGGn7BU@linux-lqwf.site>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 1/4] Input: cyttsp4 - bus driver for Cypress TMA4XX
+ touchscreen devices
+Date: Fri, 24 Aug 2012 19:34:08 +0200
+Message-ID: <20120824173408.GA6176@polaris.bitmath.org>
+References: <fery@cypress.com>
+ <1344344978-30453-1-git-send-email-fery@cypress.com>
+ <50377C60.4020008@cypress.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1555763.Oi7gGGn7BU-ugxBuEnWX9yG/4A2pS7c2Q@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:56304 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755680Ab2HXR3N (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 24 Aug 2012 13:29:13 -0400
+Content-Disposition: inline
+In-Reply-To: <50377C60.4020008@cypress.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ferruh Yigit <fery@cypress.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin McNeely <kev@cypress.com>, Javier Martinez Canillas <javier@dowhile0.org>, Shawn Landden <shawnlandden@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Olivier Sobrie <olivier@sobrie.be>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi,
+Hi Ferruh,
 
-Le 24/08/2012 13:41, Oliver Neukum a =E9crit :
-> On Friday 24 August 2012 11:37:45 Yann Cantin wrote:
->> Hi,
->>
->> Le 23/08/2012 09:23, Oliver Neukum a =E9crit :
->>> On Thursday 23 August 2012 00:11:54 Yann Cantin wrote:
->=20
->>> These functions are identical. You should unify them.
->>
->> Removed reset_resume from the driver (optional, and not needed
->> for this hardware).
->=20
-> Why did you do that? It is always better to have reset_resume().
-> And you cannot tell whether it will be needed.
+> Hi Henrik,
+> 
+> Is driver reviewed and is there anything we can help on it?
 
-This function was used in usbtouchscreen (which this driver is based on=
-)
-for some hardware specific init after reset. eBeam devices doesn't need=
- that,
-and i didn't mention the similarity of the 2 functions after stripping =
-the code.
+As Javier mentioned, there is already a framework for the Cypress
+devices in the kernel. Please make sure your patches build on what is
+already there. Until then, I have nothing further to add.
 
-According to power-management.txt, reset_resume is optional, and lot of=
- input
-driver lack it. Anyway, if you think it's worth the code, i'll re-add a=
-=20
-reset_resume function proxing resume like wacom_sys.c do.
-
---=20
-Yann Cantin
-A4FEB47F
---
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Henrik

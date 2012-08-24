@@ -1,14 +1,11 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [NEW DRIVER V3 0/8] DA9058 PMIC - please comment
- on this new driver
-Date: Thu, 16 Aug 2012 20:10:15 +0100
-Message-ID: <502D4597.6080006@kernel.org>
-References: <201208151518.q7FFI98a011599@latitude.olech.com>
+From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+Subject: [RFC PATCH 0/8] DA906x PMIC driver
+Date: Fri, 24 Aug 2012 09:32:00 +0100
+Message-ID: <201208240830@sw-eng-lt-dc-vm2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <lm-sensors-bounces@lm-sensors.org>
-In-Reply-To: <201208151518.q7FFI98a011599@latitude.olech.com>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/options/lm-sensors>,
 	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors/>
@@ -18,136 +15,72 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
 	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
 Sender: lm-sensors-bounces@lm-sensors.org
 Errors-To: lm-sensors-bounces@lm-sensors.org
-To: Anthony Olech <anthony.olech.opensource@diasemi.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, linux-iio@vger.kernel.org, Grant Likely <grant.likely@secretlab.ca>, Randy Dunlap <rdunlap@xenotime.net>, Jonathan Cameron <jic23@cam.ac.uk>, rtc-linux@googlegroups.com, lm-sensors@lm-sensors.org, Eric Andersson <eric.andersson@unixphere.com>, linux-input@vger.kernel.org, Axel Lin <axel.lin@gmail.com>, Liam Girdwood <lrg@ti.com>, Paul Gortmaker <p_gortmaker@yahoo.com>, Andrew Jones <drjones@redhat.com>, Michael Krufky <mkrufky@kernellabs.com>, Arnd Bergmann <arnd@arndb.de>, Samuel Ortiz <sameo@linux.intel.com>, Alessandro Zummo <a.zummo@towertech.it>, Linus Walleij <linus.walleij@stericsson.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, LKML <linux-kernel@vger.kernel.org>, Steven Toth <stoth@kernellabs.com>, Anton Vorontov <cb>
+To: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-leds@vger.kernel.org
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Andrew Jones <drjones@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Donggeun Kim <dg77.kim@samsung.com>, Wim Van Sebroeck <wim@iguana.be>, Richard Purdie <rpurdie@rpsys.net>, Bryan Wu <bryan.wu@canonical.com>, Liam Girdwood <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-You've obviously gone to a lot of effort to get the various parts of this patch
-to go to the right people / lists.
+Greetings,
 
-There are however dependencies. I'd like to see the drivers that are dependent
-on the iio one and obviously everyone may be interested in the core parts.
+The following patch set adds new multifunction device providing support for
+DA906x PMIC chips.
 
-Hence I'd suggest just sending the whole series to everyone concerned.
-We are all well practiced in the art of pressing delete if we don't want
-to read something :)
+Please add some comments to the driver, which targets Linux Kernel v3.6.
 
-(Given Lars-Peter has highlighted some bits and bobs in the adc driver
-- and he always does a good job - I'll probably wait for the next version
-before taking a look).
+Thank you,
 
-Good to see this driver making progress!
+---
+Krystian Garbaciak (8):
+  mfd: Add Dialog DA906x core driver.
+  regulator: Add Dialog DA906x voltage regulators support.
+  rtc: Add RTC driver for DA906x PMIC.
+  hwmon: Add DA906x hardware monitoring support.
+  input: Add support for DA906x PMIC OnKey detection.
+  input: Add support for DA906x vibration motor driver.
+  watchdog: Add DA906x PMIC watchdog driver.
+  leds: Add DA906x PMIC LED driver.
 
-> This is submission attempt number 3 to have this driver included in
-> the linux kernel source tree. This is the driver for the Dialog DA9058.
-> 
-> The DA9058 is a low power Power Management Integrated Circuit with extra
-> functionality. It is a Multi Function Device controlled only from an I2C
-> bus whose components can raise an interrupt request on a single IRQ line.
-> 
-> The driver for the DA9058 consists of a core (i2c) device driver that
-> instantiates the individual component device drivers for:
-> 
-> adc - 5 ADC channels
-> gpio - 2 available pins
-> onkey - 1 device
-> regulator - 4 BUCKS, 19 LDO and 3 fixed
-> rtc - low power clock
-> hwmon - 5 monitored voltages/temperatures
-> power - battery information
-> 
-> All the above seven component device drivers depend on the 'core'
-> component driver, which is number one in the patch series.
-> 
-> This driver has been tested on a Samsung SMDK6410 connected to a Dialog
-> DA9058 Evaluation Board via one GPIO and a 3-wire I2C connection.
-> 
-> All the components can be builtin to the kernel or compiled as modules.
-> As far as I can tell, all the latest APIs both for the core driver and
-> all the component drivers have been adhered to, but if I have missed
-> something please let me know.
-> 
-> Many thanks,
-> Anthony Olech, Dialog Semiconductor Ltd.
-> 
-> Tony Olech (at Home) (8):
->   DA9058 MFD core driver
->   DA9058 ADC driver
->   DA9058 ONKEY driver
->   DA9058 POWER driver
->   DA9058 RTC driver
->   DA9058 GPIO driver
->   DA9058 HWMON driver
->   DA9058 REGULATOR driver
-> 
->  Documentation/hwmon/da9058           |   30 ++
->  drivers/gpio/Kconfig                 |   12 +
->  drivers/gpio/Makefile                |    1 +
->  drivers/gpio/gpio-da9058.c           |  367 +++++++++++++
->  drivers/hwmon/Kconfig                |   10 +
->  drivers/hwmon/Makefile               |    1 +
->  drivers/hwmon/da9058-hwmon.c         |  425 +++++++++++++++
->  drivers/iio/adc/Kconfig              |   10 +
->  drivers/iio/adc/Makefile             |    1 +
->  drivers/iio/adc/da9058-adc.c         |  397 ++++++++++++++
->  drivers/input/misc/Kconfig           |   10 +
->  drivers/input/misc/Makefile          |    1 +
->  drivers/input/misc/da9058_onkey.c    |  177 +++++++
->  drivers/mfd/Kconfig                  |   18 +
->  drivers/mfd/Makefile                 |    3 +
->  drivers/mfd/da9058-core.c            |   83 +++
->  drivers/mfd/da9058-i2c.c             |   97 ++++
->  drivers/mfd/da9058-info.c            |  935 ++++++++++++++++++++++++++++++++++
->  drivers/mfd/da9058-irq.c             |   56 ++
->  drivers/power/Kconfig                |   10 +
->  drivers/power/Makefile               |    1 +
->  drivers/power/da9058_power.c         |  397 ++++++++++++++
->  drivers/regulator/Kconfig            |   11 +
->  drivers/regulator/Makefile           |    1 +
->  drivers/regulator/da9058-regulator.c |  251 +++++++++
->  drivers/rtc/Kconfig                  |   10 +
->  drivers/rtc/Makefile                 |    1 +
->  drivers/rtc/rtc-da9058.c             |  458 +++++++++++++++++
->  include/linux/mfd/da9058/bat.h       |   33 ++
->  include/linux/mfd/da9058/codec.h     |   22 +
->  include/linux/mfd/da9058/conf.h      |   22 +
->  include/linux/mfd/da9058/core.h      |   66 +++
->  include/linux/mfd/da9058/gpio.h      |   19 +
->  include/linux/mfd/da9058/hwmon.h     |   36 ++
->  include/linux/mfd/da9058/i2c.h       |   22 +
->  include/linux/mfd/da9058/irq.h       |   50 ++
->  include/linux/mfd/da9058/onkey.h     |   17 +
->  include/linux/mfd/da9058/pdata.h     |   32 ++
->  include/linux/mfd/da9058/registers.h |  480 +++++++++++++++++
->  include/linux/mfd/da9058/regulator.h |   33 ++
->  include/linux/mfd/da9058/rtc.h       |   17 +
->  41 files changed, 4623 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/hwmon/da9058
->  create mode 100644 drivers/gpio/gpio-da9058.c
->  create mode 100644 drivers/hwmon/da9058-hwmon.c
->  create mode 100644 drivers/iio/adc/da9058-adc.c
->  create mode 100644 drivers/input/misc/da9058_onkey.c
->  create mode 100644 drivers/mfd/da9058-core.c
->  create mode 100644 drivers/mfd/da9058-i2c.c
->  create mode 100644 drivers/mfd/da9058-info.c
->  create mode 100644 drivers/mfd/da9058-irq.c
->  create mode 100644 drivers/power/da9058_power.c
->  create mode 100644 drivers/regulator/da9058-regulator.c
->  create mode 100644 drivers/rtc/rtc-da9058.c
->  create mode 100644 include/linux/mfd/da9058/bat.h
->  create mode 100644 include/linux/mfd/da9058/codec.h
->  create mode 100644 include/linux/mfd/da9058/conf.h
->  create mode 100644 include/linux/mfd/da9058/core.h
->  create mode 100644 include/linux/mfd/da9058/gpio.h
->  create mode 100644 include/linux/mfd/da9058/hwmon.h
->  create mode 100644 include/linux/mfd/da9058/i2c.h
->  create mode 100644 include/linux/mfd/da9058/irq.h
->  create mode 100644 include/linux/mfd/da9058/onkey.h
->  create mode 100644 include/linux/mfd/da9058/pdata.h
->  create mode 100644 include/linux/mfd/da9058/registers.h
->  create mode 100644 include/linux/mfd/da9058/regulator.h
->  create mode 100644 include/linux/mfd/da9058/rtc.h
-> 
+ drivers/hwmon/Kconfig                 |    6 +
+ drivers/hwmon/Makefile                |    1 +
+ drivers/hwmon/da906x-hwmon.c          |  393 ++++++++++++
+ drivers/input/misc/Kconfig            |   13 +
+ drivers/input/misc/Makefile           |    2 +
+ drivers/input/misc/da906x-onkey.c     |  139 +++++
+ drivers/input/misc/da906x-vibration.c |  153 +++++
+ drivers/leds/Kconfig                  |    8 +
+ drivers/leds/Makefile                 |    1 +
+ drivers/leds/leds-da906x.c            |  438 +++++++++++++
+ drivers/mfd/Kconfig                   |   11 +
+ drivers/mfd/Makefile                  |    4 +
+ drivers/mfd/da906x-core.c             |  228 +++++++
+ drivers/mfd/da906x-i2c.c              |  389 ++++++++++++
+ drivers/mfd/da906x-irq.c              |  192 ++++++
+ drivers/regulator/Kconfig             |    6 +
+ drivers/regulator/Makefile            |    1 +
+ drivers/regulator/da906x-regulator.c  | 1018 ++++++++++++++++++++++++++++++
+ drivers/rtc/Kconfig                   |    7 +
+ drivers/rtc/Makefile                  |    1 +
+ drivers/rtc/rtc-da906x.c              |  379 ++++++++++++
+ drivers/watchdog/Kconfig              |   27 +
+ drivers/watchdog/Makefile             |    1 +
+ drivers/watchdog/da906x_wdt.c         |  276 +++++++++
+ include/linux/mfd/da906x/core.h       |  121 ++++
+ include/linux/mfd/da906x/pdata.h      |  114 ++++
+ include/linux/mfd/da906x/registers.h  | 1093 +++++++++++++++++++++++++++++++++
+ 27 files changed, 5022 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/hwmon/da906x-hwmon.c
+ create mode 100644 drivers/input/misc/da906x-onkey.c
+ create mode 100644 drivers/input/misc/da906x-vibration.c
+ create mode 100644 drivers/leds/leds-da906x.c
+ create mode 100644 drivers/mfd/da906x-core.c
+ create mode 100644 drivers/mfd/da906x-i2c.c
+ create mode 100644 drivers/mfd/da906x-irq.c
+ create mode 100644 drivers/regulator/da906x-regulator.c
+ create mode 100644 drivers/rtc/rtc-da906x.c
+ create mode 100644 drivers/watchdog/da906x_wdt.c
+ create mode 100644 include/linux/mfd/da906x/core.h
+ create mode 100644 include/linux/mfd/da906x/pdata.h
+ create mode 100644 include/linux/mfd/da906x/registers.h
+
 
 _______________________________________________
 lm-sensors mailing list

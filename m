@@ -1,14 +1,13 @@
 From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
-Subject: [RFC PATCH 7/8] watchdog: Add DA906x PMIC watchdog
-	driver.
-Date: Fri, 24 Aug 2012 15:20:00 +0100
-Message-ID: <201208241520@sw-eng-lt-dc-vm2>
-References: <201208241515@sw-eng-lt-dc-vm2>
+Subject: [RFC PATCH 8/8] leds: Add DA906x PMIC LED driver.
+Date: Fri, 24 Aug 2012 15:25:00 +0100
+Message-ID: <201208241525@sw-eng-lt-dc-vm2>
+References: <201208241520@sw-eng-lt-dc-vm2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <lm-sensors-bounces@lm-sensors.org>
-In-Reply-To: <201208241515@sw-eng-lt-dc-vm2>
+In-Reply-To: <201208241520@sw-eng-lt-dc-vm2>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/options/lm-sensors>,
 	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors/>
@@ -23,78 +22,66 @@ Cc: Alessandro Zummo <a.zummo@towertech.it>, Andrew Jones <drjones@redhat.com>, 
 	Anthony Olech" <anthony.olech@diasemi.com>, Bryan Wu <bryan.wu@canonical.com>, Liam Girdwood <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-This driver supports watchdog device inside DA906x PMIC.
+PMIC can control three LEDs, devoted to work as RGB LED.
+
+Beside standard brightness setting, the driver provides some hardware blinking
+functionality. Driver brings access to blinking register fields inside PMIC
+with LED attributes: hw_blink_dur_regval and hw_blink_frq_regval. When the
+latter is not 0, hardware blinking is enabled. As long as hardware blinking
+is enabled, brightness is set to its maximum.
 
 Signed-off-by: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
 ---
- drivers/watchdog/Kconfig      |   27 ++++
- drivers/watchdog/Makefile     |    1 +
- drivers/watchdog/da906x_wdt.c |  276 +++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 304 insertions(+), 0 deletions(-)
- create mode 100644 drivers/watchdog/da906x_wdt.c
+ drivers/leds/Kconfig       |    8 +
+ drivers/leds/Makefile      |    1 +
+ drivers/leds/leds-da906x.c |  438 ++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 447 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/leds/leds-da906x.c
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 53d7571..ef07575 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -76,6 +76,33 @@ config DA9052_WATCHDOG
-           Alternatively say M to compile the driver as a module,
-           which will be called da9052_wdt.
+diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+index c96bbaa..46dc3dd 100644
+--- a/drivers/leds/Kconfig
++++ b/drivers/leds/Kconfig
+@@ -287,6 +287,14 @@ config LEDS_DA9052
+ 	  This option enables support for on-chip LED drivers found
+ 	  on Dialog Semiconductor DA9052-BC and DA9053-AA/Bx PMICs.
  
-+config DA906X_WATCHDOG
-+	tristate "Dialog DA906X Watchdog"
-+	depends on MFD_DA906X
-+	select WATCHDOG_CORE
-+	help
-+	  Support for the watchdog in the DA906X PMIC.
++config LEDS_DA906X
++        tristate "Dialog DA906x LEDS"
++        depends on LEDS_CLASS
++        depends on MFD_DA906X
++        help
++          This option enables support for on-chip LED drivers found
++          on Dialog Semiconductor DA906x PMICs
 +
-+config DA906X_WDT_DEFAULT_TIMEOUT
-+	int "Watchdog timeout in seconds <2, 4, 8, 16, 32, 65, 131>"
-+	depends on DA906X_WATCHDOG
-+	default 8
-+	range 2 131
-+	help
-+	  Select the default watchdog timer period to be used by the
-+	  Dialog DA906x watchdog driver. Supported values are:
-+	  2, 4, 8, 16, 32, 65, 131 seconds.
-+
-+config DA906X_WDT_FLEXIBLE_TIMEOUT
-+	bool "Flexible watchdog timeout (when requested value is unsupported)"
-+	depends on DA906X_WATCHDOG
-+	default y
-+	help
-+	  Say Y here to allow to select longer watchdog timer period to be
-+	  used when requested value is not supported. The lowest available
-+	  value higher than requested will be used (watchdog will never
-+	  expire before requested timeout).
-+
- config WM831X_WATCHDOG
- 	tristate "WM831x watchdog"
- 	depends on MFD_WM831X
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 572b39b..0746a87 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -164,6 +164,7 @@ obj-$(CONFIG_XEN_WDT) += xen_wdt.o
- 
- # Architecture Independent
- obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
-+obj-$(CONFIG_DA906X_WATCHDOG) += da906x_wdt.o
- obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
- obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
- obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
-diff --git a/drivers/watchdog/da906x_wdt.c b/drivers/watchdog/da906x_wdt.c
+ config LEDS_DAC124S085
+ 	tristate "LED Support for DAC124S085 SPI DAC"
+ 	depends on LEDS_CLASS
+diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
+index a4429a9..1601366 100644
+--- a/drivers/leds/Makefile
++++ b/drivers/leds/Makefile
+@@ -34,6 +34,7 @@ obj-$(CONFIG_LEDS_PCA955X)		+= leds-pca955x.o
+ obj-$(CONFIG_LEDS_PCA9633)		+= leds-pca9633.o
+ obj-$(CONFIG_LEDS_DA903X)		+= leds-da903x.o
+ obj-$(CONFIG_LEDS_DA9052)		+= leds-da9052.o
++obj-$(CONFIG_LEDS_DA906X)		+= leds-da906x.o
+ obj-$(CONFIG_LEDS_WM831X_STATUS)	+= leds-wm831x-status.o
+ obj-$(CONFIG_LEDS_WM8350)		+= leds-wm8350.o
+ obj-$(CONFIG_LEDS_PWM)			+= leds-pwm.o
+diff --git a/drivers/leds/leds-da906x.c b/drivers/leds/leds-da906x.c
 new file mode 100644
-index 0000000..a67e4fa
+index 0000000..3203fc6
 --- /dev/null
-+++ b/drivers/watchdog/da906x_wdt.c
-@@ -0,0 +1,276 @@
++++ b/drivers/leds/leds-da906x.c
+@@ -0,0 +1,438 @@
 +/*
-+ * Watchdog driver for DA906X PMICs.
++ * LEDs driver for Dialog DA906x PMIC series
 + *
-+ * Copyright(c) 2012 Dialog Semiconductor Ltd.
++ * Copyright 2012 Dialog Semiconductors Ltd.
 + *
-+ * Author: Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>
++ * Author: Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>,
++ *         Krystian Garbaciak <krystian.garbaciak@diasemi.com>
 + *
 + *  This program is free software; you can redistribute  it and/or modify it
 + *  under  the terms of  the GNU General  Public License as published by the
@@ -105,266 +92,427 @@ index 0000000..a67e4fa
 +
 +#include <linux/kernel.h>
 +#include <linux/module.h>
-+#include <linux/watchdog.h>
++#include <linux/init.h>
 +#include <linux/platform_device.h>
-+#include <linux/uaccess.h>
 +#include <linux/slab.h>
-+#include <linux/delay.h>
-+
-+#include <linux/mfd/da906x/registers.h>
++#include <linux/leds.h>
++#include <linux/err.h>
 +#include <linux/mfd/da906x/core.h>
++#include <linux/mfd/da906x/pdata.h>
 +
-+#define	SUPPORTED_TIMEOUTS_STR		"2, 4, 8, 16, 32, 65, 131"
++#define DRIVER_NAME		DA906X_DRVNAME_LEDS
 +
-+/* Watchdog selector to timeout in seconds.
-+   0: WDT disabled;
-+   others: timeout = 2048 ms * 2^(TWDSCALE-1). */
-+const int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
-+#define DA906X_TWDSCALE_DISABLE		0
-+#define DA906X_TWDSCALE_MIN		1
-+#define DA906X_TWDSCALE_MAX		(ARRAY_SIZE(wdt_timeout) - 1)
-+#define DA906X_WDT_MIN_TIMEOUT		wdt_timeout[DA906X_TWDSCALE_MIN]
-+#define DA906X_WDT_MAX_TIMEOUT		wdt_timeout[DA906X_TWDSCALE_MAX]
-+#define WATCHDOG_DEFAULT_TIMEOUT	wdt_timeout[3];
++#define	DA906X_GPIO_LED_NUM	3
 +
-+/* module parameters */
-+static int default_timeout = CONFIG_DA906X_WDT_DEFAULT_TIMEOUT;
-+module_param(default_timeout, int, 0);
-+MODULE_PARM_DESC(default_timeout,
-+	"Watchdog timeout in seconds (select from: " SUPPORTED_TIMEOUTS_STR
-+	" default=" __stringify(CONFIG_DA906X_WDT_DEFAULT_TIMEOUT) ")");
++#define DA906X_PWM_MAX		(DA906X_GPIO_PWM_MASK >> DA906X_GPIO_PWM_SHIFT)
++#define DA906X_MAX_BRIGHTNESS	0x5F
++#define DA906X_BLINK_DUR_MAX	(DA906X_BLINK_DUR_MASK >> \
++							DA906X_BLINK_DUR_SHIFT)
++#define DA906X_BLINK_FRQ_MAX	(DA906X_BLINK_FRQ_MASK >> \
++							DA906X_BLINK_FRQ_SHIFT)
 +
-+static bool flex_timeout = CONFIG_DA906X_WDT_FLEXIBLE_TIMEOUT;
-+module_param(flex_timeout, bool, false);
-+MODULE_PARM_DESC(flex_timeout,
-+	"Watchdog flexible timeout, allows longer timeout than requested"
-+	" (default=" __stringify(CONFIG_DA906X_WDT_FLEXIBLE_TIMEOUT) ")");
-+
-+static int nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, int, 0);
-+MODULE_PARM_DESC(nowayout,
-+		 "Watchdog cannot be stopped once started (default="
-+		 __stringify(WATCHDOG_NOWAYOUT) ")");
-+
-+
-+struct da906x_watchdog {
++struct da906x_led {
++	int id;
++	struct led_classdev cdev;
++	struct work_struct work;
 +	struct da906x *da906x;
-+	struct watchdog_device *wdtdev;
-+	struct mutex lock;
++	struct da906x_leds *leds_container;
++
++	int pwm_regval;
 +};
-+static struct da906x_watchdog da906x_watchdog;
 +
-+static int _da906x_wdt_timeout_to_sel(int secs)
++struct da906x_leds {
++	int n_leds;
++	/* Array size to be defined during init. Keep at end. */
++	struct da906x_led led[0];
++};
++
++int da906x_led_pwm_reg[DA906X_LED_NUM] = {
++	DA906X_REG_GPO11_LED,
++	DA906X_REG_GPO14_LED,
++	DA906X_REG_GPO15_LED,
++};
++
++static int da906x_led_get_hw_blinking(struct da906x *da906x,
++				      unsigned *frq, unsigned *dur)
 +{
-+	int i;
++	int ret = da906x_reg_read(da906x, DA906X_REG_CONTROL_D);
++	if (ret < 0)
++		return ret;
 +
-+	for (i = DA906X_TWDSCALE_MIN; i <= DA906X_TWDSCALE_MAX; i++) {
-+		if (wdt_timeout[i] == secs ||
-+		    (flex_timeout && wdt_timeout[i] > secs))
-+			return i;
-+	}
++	if (frq)
++		*frq = (ret & DA906X_BLINK_FRQ_MASK) >> DA906X_BLINK_FRQ_SHIFT;
++
++	if (dur)
++		*dur = (ret & DA906X_BLINK_DUR_MASK) >> DA906X_BLINK_DUR_SHIFT;
 +
 +	return 0;
 +}
 +
-+static int _da906x_wdt_disable(struct da906x *da906x)
++static int
++da906x_led_set_hw_bright(struct da906x *da906x, int id, int pwm_val)
 +{
-+	return da906x_reg_update(da906x, DA906X_REG_CONTROL_D,
-+			DA906X_TWDSCALE_MASK,
-+			DA906X_TWDSCALE_DISABLE << DA906X_TWDSCALE_SHIFT);
++	unsigned int blink_frq;
++	int ret;
++
++	ret = da906x_led_get_hw_blinking(da906x, &blink_frq, NULL);
++	if (ret)
++		return ret;
++
++	/* For enabled blinking, brightness setting is unavailable */
++	if (!blink_frq)
++		ret = da906x_reg_write(da906x, da906x_led_pwm_reg[id],
++				       pwm_val);
++
++	return ret;
 +}
 +
-+static int _da906x_wdt_set_timeout(struct da906x *da906x, unsigned int regval)
++static inline int
++da906x_led_get_hw_bright(struct da906x *da906x, int id)
 +{
-+	if (regval > DA906X_TWDSCALE_MAX)
-+		return -EINVAL;
-+
-+	return da906x_reg_update(da906x, DA906X_REG_CONTROL_D,
-+			DA906X_TWDSCALE_MASK, regval << DA906X_TWDSCALE_SHIFT);
++	return da906x_reg_read(da906x, da906x_led_pwm_reg[id]);
 +}
 +
-+static int _da906x_wdt_kick(struct da906x *da906x)
++static void da906x_led_brightness_set(struct led_classdev *cdev,
++	enum led_brightness brightness)
 +{
-+	return da906x_reg_write(da906x, DA906X_REG_CONTROL_F, DA906X_WATCHDOG);
-+}
++	struct da906x_led *led = container_of(cdev, struct da906x_led, cdev);
 +
-+static int da906x_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct da906x_watchdog *wdt = watchdog_get_drvdata(wdd);
-+	unsigned int selector;
-+	int ret = 0;
-+
-+	mutex_lock(&wdt->lock);
-+	selector = _da906x_wdt_timeout_to_sel(wdt->wdtdev->timeout);
-+	ret = _da906x_wdt_set_timeout(wdt->da906x, selector);
-+	if (ret != 0) {
-+		dev_err(wdt->da906x->dev,
-+			"Watchdog failed to start (err = %d)\n", ret);
++	if (led->pwm_regval != brightness) {
++		led->pwm_regval = brightness;
++		schedule_work(&led->work);
 +	}
-+	mutex_unlock(&wdt->lock);
-+
-+	return ret;
 +}
 +
-+static int da906x_wdt_stop(struct watchdog_device *wdd)
++static void da906x_led_brightness_work(struct work_struct *work)
 +{
-+	struct da906x_watchdog *wdt = watchdog_get_drvdata(wdd);
-+	int ret = 0;
++	struct da906x_led *led = container_of(work, struct da906x_led, work);
++	int ret;
 +
-+	mutex_lock(&wdt->lock);
-+	ret = _da906x_wdt_disable(wdt->da906x);
-+	if (ret < 0)
-+		dev_alert(wdt->da906x->dev,
-+			  "Watchdog failed to stop (err = %d)\n", ret);
-+	mutex_unlock(&wdt->lock);
-+
-+	return ret;
++	ret = da906x_led_set_hw_bright(led->da906x, led->id, led->pwm_regval);
++	if (ret)
++		dev_err(led->da906x->dev,
++			"Failed to set led brightness (err = %d)\n", ret);
 +}
 +
-+static int da906x_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct da906x_watchdog *wdt = watchdog_get_drvdata(wdd);
-+	int ret = 0;
-+
-+	mutex_lock(&wdt->lock);
-+	ret = _da906x_wdt_kick(wdt->da906x);
-+	if (ret < 0)
-+		dev_alert(wdt->da906x->dev,
-+			  "Failed to ping the watchdog (err = %d)\n", ret);
-+	mutex_unlock(&wdt->lock);
-+
-+	return ret;
-+}
-+
-+static int da906x_wdt_set_timeout(struct watchdog_device *wdd,
-+							unsigned int timeout)
-+{
-+	struct da906x_watchdog *wdt = watchdog_get_drvdata(wdd);
-+	unsigned int selector;
-+	int ret = 0;
-+
-+	mutex_lock(&wdt->lock);
-+	selector = _da906x_wdt_timeout_to_sel(timeout);
-+	if (selector == 0) {
-+		dev_err(wdt->da906x->dev,
-+			"Unsupported watchdog timeout (selecto from: "
-+			SUPPORTED_TIMEOUTS_STR ")\n");
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	ret = _da906x_wdt_set_timeout(wdt->da906x, selector);
-+	if (ret < 0) {
-+		dev_err(wdt->da906x->dev,
-+			"Failed to set watchdog timeout (err = %d)\n", ret);
-+		goto out;
-+	}
-+
-+	wdd->timeout = wdt_timeout[selector];
-+
-+out:
-+	mutex_unlock(&wdt->lock);
-+
-+	return ret;
-+}
-+
-+static struct watchdog_info da906x_watchdog_info = {
-+	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.identity	= "DA906x Watchdog",
-+};
-+
-+static struct watchdog_ops da906x_watchdog_ops = {
-+	.owner	= THIS_MODULE,
-+	.start		= da906x_wdt_start,
-+	.stop		= da906x_wdt_stop,
-+	.ping		= da906x_wdt_ping,
-+	.set_timeout	= da906x_wdt_set_timeout,
-+};
-+
-+static struct watchdog_device da906x_watchdog_device = {
-+	.info	= &da906x_watchdog_info,
-+	.ops	= &da906x_watchdog_ops,
-+	.driver_data = &da906x_watchdog,
-+};
-+
-+static int __devinit da906x_wdt_probe(struct platform_device *pdev)
++static int da906x_configure_led_pin(struct da906x_led *led,
++				    int low_level_driven)
 +{
 +	int ret;
-+	struct da906x *da906x = dev_get_drvdata(pdev->dev.parent);
-+	struct da906x_watchdog *wdt = &da906x_watchdog;
-+	unsigned int selector;
++	u16 gpio_cfg_reg;
++	u8 gpio_cfg_mask, gpio_cfg_val;
++	u8 mode_cfg_bit;
 +
-+	if (wdt->da906x != NULL) {
-+		dev_err(da906x->dev, DA906X_DRVNAME_WATCHDOG
-+			" already registered.\n");
-+		return -EBUSY;
++	switch (led->id) {
++	case DA906X_GPIO11_LED:
++		gpio_cfg_reg = DA906X_REG_GPIO_10_11;
++		gpio_cfg_mask = DA906X_GPIO11_PIN_MASK;
++		gpio_cfg_val = DA906X_GPIO11_PIN_GPO_OD;
++		mode_cfg_bit = DA906X_GPIO11_MODE_LED_ACT_LOW;
++		break;
++
++	case DA906X_GPIO14_LED:
++		gpio_cfg_reg = DA906X_REG_GPIO_14_15;
++		gpio_cfg_mask = DA906X_GPIO14_PIN_MASK;
++		gpio_cfg_val = DA906X_GPIO14_PIN_GPO_OD;
++		mode_cfg_bit = DA906X_GPIO14_MODE_LED_ACT_LOW;
++		break;
++
++	case DA906X_GPIO15_LED:
++		gpio_cfg_reg = DA906X_REG_GPIO_14_15;
++		gpio_cfg_mask = DA906X_GPIO15_PIN_MASK;
++		gpio_cfg_val = DA906X_GPIO15_PIN_GPO_OD;
++		mode_cfg_bit = DA906X_GPIO15_MODE_LED_ACT_LOW;
++		break;
++
++	default:
++		BUG();
 +	}
 +
-+	wdt->da906x = da906x;
-+	wdt->wdtdev = &da906x_watchdog_device;
-+	mutex_init(&wdt->lock);
++	/* Configure GPOs for open drain */
++	ret = da906x_reg_update(led->da906x, gpio_cfg_reg, gpio_cfg_mask,
++				gpio_cfg_val);
++	if (ret)
++		return ret;
 +
-+	if (nowayout)
-+		set_bit(WDOG_NO_WAY_OUT, &wdt->wdtdev->status);
-+
-+	if (flex_timeout)
-+		wdt->wdtdev->min_timeout = 1;
++	/* Configure active level */
++	if (low_level_driven)
++		ret = da906x_reg_set_bits(led->da906x,
++					  DA906X_REG_GPIO_MODE_8_15,
++					  mode_cfg_bit);
 +	else
-+		wdt->wdtdev->min_timeout = DA906X_WDT_MIN_TIMEOUT;
++		ret = da906x_reg_clear_bits(led->da906x,
++					    DA906X_REG_GPIO_MODE_8_15,
++					    mode_cfg_bit);
++	if (ret)
++		return ret;
 +
-+	wdt->wdtdev->max_timeout = DA906X_WDT_MAX_TIMEOUT;
++	return 0;
++}
 +
-+	selector = _da906x_wdt_timeout_to_sel(default_timeout);
-+	if (selector == 0) {
-+		wdt->wdtdev->timeout = WATCHDOG_DEFAULT_TIMEOUT;
-+		dev_warn(da906x->dev,
-+			 "Invalid default timeout: %d "
-+			 "(select from: " SUPPORTED_TIMEOUTS_STR ").\n",
-+			 default_timeout);
-+		dev_warn(da906x->dev, "Default timeout is %d secs.\n",
-+			 wdt->wdtdev->timeout);
-+	} else {
-+		wdt->wdtdev->timeout = wdt_timeout[selector];
-+		if (wdt->wdtdev->timeout != default_timeout) {
-+			dev_info(da906x->dev, "Using %d secs timeout.\n",
-+				 wdt->wdtdev->timeout);
++static ssize_t da906x_hw_blink_dur_store(struct device *dev,
++						struct device_attribute *attr,
++						const char *buf, size_t count)
++{
++	struct led_classdev *cdev = dev_get_drvdata(dev);
++	struct da906x_led *led = container_of(cdev, struct da906x_led, cdev);
++	unsigned long dur;
++	int ret;
++
++	ret = kstrtoul(buf, 0, &dur);
++	if (ret || dur > DA906X_BLINK_DUR_MAX) {
++		dev_err(led->da906x->dev,
++			"Invalid parameter (valid are %d..%d)\n",
++			0, DA906X_BLINK_DUR_MAX);
++		return -EINVAL;
++	}
++
++	ret = da906x_reg_update(led->da906x, DA906X_REG_CONTROL_D,
++				DA906X_BLINK_DUR_MASK,
++				dur << DA906X_BLINK_DUR_SHIFT);
++	if (ret < 0)
++		return ret;
++
++	return count;
++}
++
++static ssize_t da906x_hw_blink_dur_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct led_classdev *cdev = dev_get_drvdata(dev);
++	struct da906x_led *led = container_of(cdev, struct da906x_led, cdev);
++	int ret;
++	unsigned int dur;
++
++	ret = da906x_led_get_hw_blinking(led->da906x, NULL, &dur);
++	if (ret < 0)
++		return ret;
++
++	return sprintf(buf, "%u\n", dur);
++}
++
++static ssize_t da906x_hw_blink_frq_store(struct device *dev,
++						struct device_attribute *attr,
++						const char *buf, size_t count)
++{
++	struct led_classdev *cdev = dev_get_drvdata(dev);
++	struct da906x_led *led = container_of(cdev, struct da906x_led, cdev);
++	struct da906x_leds *leds = led->leds_container;
++	unsigned long frq;
++	int i;
++	int ret;
++
++	ret = kstrtoul(buf, 0, &frq);
++	if (ret || frq > DA906X_BLINK_FRQ_MAX) {
++		dev_err(led->da906x->dev,
++			"Invalid parameter (valid are %d..%d)\n",
++			0, DA906X_BLINK_FRQ_MAX);
++		return -EINVAL;
++	}
++
++	if (frq) {
++		/* Reset all LEDs brightness before blinking */
++		for (i = leds->n_leds - 1; i >= 0; i--) {
++			ret = da906x_led_set_hw_bright(led->da906x, i, 0);
++			if (ret < 0)
++				return ret;
 +		}
 +	}
 +
-+	ret = watchdog_register_device(wdt->wdtdev);
-+	if (ret)
-+		dev_err(da906x->dev, DA906X_DRVNAME_WATCHDOG
-+			" registration failed (err = %d)", ret);
++	ret = da906x_reg_update(led->da906x, DA906X_REG_CONTROL_D,
++				DA906X_BLINK_FRQ_MASK,
++				frq << DA906X_BLINK_FRQ_SHIFT);
++	if (ret < 0)
++		return ret;
++
++	if (!frq) {
++		/* Restore all LEDs brightness, when blinking is off */
++		for (i = leds->n_leds - 1; i >= 0; i--) {
++			ret = da906x_led_set_hw_bright(led->da906x, i,
++						      leds->led[i].pwm_regval);
++			if (ret < 0)
++				return ret;
++		}
++	}
++
++	return count;
++}
++
++static ssize_t da906x_hw_blink_frq_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct led_classdev *cdev = dev_get_drvdata(dev);
++	struct da906x_led *led = container_of(cdev, struct da906x_led, cdev);
++	int ret;
++	unsigned int frq;
++
++	ret = da906x_led_get_hw_blinking(led->da906x, &frq, NULL);
++	if (ret < 0)
++		return ret;
++
++	return sprintf(buf, "%u\n", frq);
++}
++
++static DEVICE_ATTR(hw_blink_dur_regval, 0644,
++		   da906x_hw_blink_dur_show, da906x_hw_blink_dur_store);
++static DEVICE_ATTR(hw_blink_frq_regval, 0644,
++		   da906x_hw_blink_frq_show, da906x_hw_blink_frq_store);
++
++static int da906x_led_probe(struct platform_device *pdev)
++{
++	struct da906x *da906x;
++	struct da906x_pdata *pdata;
++	struct led_platform_data *leds_pdata;
++	struct led_info *led_info;
++	struct da906x_leds *leds;
++	struct da906x_led *led;
++	size_t size;
++	int ret;
++	int i, j;
++
++	da906x = dev_get_drvdata(pdev->dev.parent);
++	pdata = da906x->dev->platform_data;
++	if (pdata == NULL) {
++		dev_err(&pdev->dev, "No platform data\n");
++		return -ENODEV;
++	}
++
++	leds_pdata = pdata->leds_pdata;
++	if (leds_pdata == NULL) {
++		dev_err(&pdev->dev, "No platform data for LEDs\n");
++		return -ENODEV;
++	}
++
++	size = sizeof(struct da906x_leds) +
++	       sizeof(struct da906x_led) * leds_pdata->num_leds;
++	leds = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
++	if (leds == NULL) {
++		dev_err(&pdev->dev, "Failed to alloc memory\n");
++		return -ENOMEM;
++	}
++
++	leds->n_leds = leds_pdata->num_leds;
++	platform_set_drvdata(pdev, leds);
++
++	for (i = 0; i < leds_pdata->num_leds; i++) {
++		led_info = &leds_pdata->leds[i];
++
++		if ((led_info->flags & DA906X_LED_ID_MASK) >= DA906X_LED_NUM) {
++			dev_err(&pdev->dev, "Invalid platform data\n");
++			ret = -EINVAL;
++			goto err_register;
++		}
++
++		/* Check, if LED ID is not duplicated */
++		for (led = &leds->led[0], j = 0; j < i; led++, j++) {
++			if (led->id ==
++			    (led_info->flags & DA906X_LED_ID_MASK)) {
++				dev_err(&pdev->dev, "Duplicated LED ID\n");
++				ret = -EINVAL;
++				goto err_register;
++			}
++		}
++
++		led->id = led_info->flags & DA906X_LED_ID_MASK;
++		led->pwm_regval = da906x_led_get_hw_bright(da906x, i);
++		led->cdev.brightness = led->pwm_regval;
++		led->cdev.max_brightness = DA906X_MAX_BRIGHTNESS;
++		led->cdev.brightness_set = da906x_led_brightness_set;
++		led->cdev.default_trigger = led_info->default_trigger;
++		led->cdev.name = led_info->name;
++		led->da906x = da906x;
++		led->leds_container = leds;
++
++		INIT_WORK(&led->work, da906x_led_brightness_work);
++
++		ret = led_classdev_register(pdev->dev.parent, &led->cdev);
++		if (ret) {
++			dev_err(&pdev->dev, "Cannot register LEDs\n");
++			goto err_register;
++		}
++
++		ret = device_create_file(led->cdev.dev,
++					 &dev_attr_hw_blink_dur_regval);
++		if (ret < 0) {
++			dev_err(&pdev->dev,
++				"Failed to create device file (err = %d)\n",
++				ret);
++			goto err_create_dur_attr;
++		}
++
++		ret = device_create_file(led->cdev.dev,
++					 &dev_attr_hw_blink_frq_regval);
++		if (ret < 0) {
++			dev_err(&pdev->dev,
++				"Failed to create device file (err = %d)\n",
++				ret);
++			goto err_create_frq_attr;
++		}
++
++		ret = da906x_configure_led_pin(led,
++				led_info->flags & DA906X_LED_LOW_LEVEL_ACTIVE);
++		if (ret) {
++			dev_err(&pdev->dev, "Failed to configure LED pins\n");
++			goto err_configure_pin;
++		}
++	}
++
++	return 0;
++
++err_register:
++	while (--i >= 0) {
++err_configure_pin:
++		device_remove_file(leds->led[i].cdev.dev,
++				   &dev_attr_hw_blink_frq_regval);
++err_create_frq_attr:
++		device_remove_file(leds->led[i].cdev.dev,
++				   &dev_attr_hw_blink_dur_regval);
++err_create_dur_attr:
++		cancel_work_sync(&leds->led[i].work);
++		led_classdev_unregister(&leds->led[i].cdev);
++	}
++
++	kfree(leds);
 +
 +	return ret;
 +}
 +
-+static int __devexit da906x_wdt_remove(struct platform_device *dev)
++static int da906x_led_remove(struct platform_device *pdev)
 +{
-+	struct da906x_watchdog *wdt = &da906x_watchdog;
++	struct da906x_leds *leds = platform_get_drvdata(pdev);
++	int i;
 +
-+	watchdog_unregister_device(&da906x_watchdog_device);
-+	wdt->da906x = NULL;
-+	wdt->wdtdev = NULL;
++	for (i = leds->n_leds - 1; i >= 0; i--) {
++		device_remove_file(leds->led[i].cdev.dev,
++				   &dev_attr_hw_blink_frq_regval);
++		device_remove_file(leds->led[i].cdev.dev,
++				   &dev_attr_hw_blink_dur_regval);
++		cancel_work_sync(&leds->led[i].work);
++		led_classdev_unregister(&leds->led[i].cdev);
++	}
++
++	kfree(leds);
 +
 +	return 0;
 +}
 +
-+static struct platform_driver da906x_wdt_driver = {
-+	.probe = da906x_wdt_probe,
-+	.remove = __devexit_p(da906x_wdt_remove),
++static struct platform_driver da906x_led_driver = {
 +	.driver = {
-+		.name	= DA906X_DRVNAME_WATCHDOG,
-+		.owner	= THIS_MODULE,
++		.name = DRIVER_NAME,
++		.owner = THIS_MODULE,
 +	},
++	.probe = da906x_led_probe,
++	.remove = __devexit_p(da906x_led_remove),
 +};
 +
-+module_platform_driver(da906x_wdt_driver);
++module_platform_driver(da906x_led_driver);
 +
-+MODULE_AUTHOR("Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>");
-+MODULE_DESCRIPTION("Watchdog driver for Dialog DA906x");
++MODULE_DESCRIPTION("LED driver for Dialog DA906X");
++MODULE_AUTHOR("Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>, Krystian Garbaciak <krystian.garbaciak@diasemi.com>");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:" DA906X_DRVNAME_WATCHDOG);
++MODULE_ALIAS("platform:" DRIVER_NAME);
 -- 
 1.7.0.4
 

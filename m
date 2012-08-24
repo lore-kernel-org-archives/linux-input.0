@@ -1,174 +1,57 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH 07/19] Input: evdev - Add the events() callback
-Date: Fri, 24 Aug 2012 12:07:23 +0800
-Message-ID: <CAGS+omCRsi=irbHXsDah48nOOMHYrNCCsnstCdqUTRvi=ZU99Q@mail.gmail.com>
-References: <1344807757-2217-1-git-send-email-rydberg@euromail.se> <1344807757-2217-8-git-send-email-rydberg@euromail.se>
+From: Yann Cantin <yann.cantin@laposte.net>
+Subject: Re: [RFC ebeam PATCH v4 2/2] input: misc: New USB eBeam input driver.
+Date: Fri, 24 Aug 2012 11:31:08 +0200
+Message-ID: <503749DC.2080808@laposte.net>
+References: <1345673514-11575-1-git-send-email-yann.cantin@laposte.net> <1345673514-11575-3-git-send-email-yann.cantin@laposte.net> <5832321.EK5PCgIIzt@linux-lqwf.site>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f174.google.com ([209.85.216.174]:44415 "EHLO
-	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750707Ab2HXEHo (ORCPT
+Received: from smtp02.smtpout.orange.fr ([80.12.242.124]:21304 "EHLO
+	smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756344Ab2HXJ3f (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Aug 2012 00:07:44 -0400
-Received: by qcro28 with SMTP id o28so975868qcr.19
-        for <linux-input@vger.kernel.org>; Thu, 23 Aug 2012 21:07:44 -0700 (PDT)
-In-Reply-To: <1344807757-2217-8-git-send-email-rydberg@euromail.se>
+	Fri, 24 Aug 2012 05:29:35 -0400
+In-Reply-To: <5832321.EK5PCgIIzt@linux-lqwf.site>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Oliver Neukum <oneukum@suse.de>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-On Mon, Aug 13, 2012 at 5:42 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> By sending a full frame of events at the same time, the irqsoff
-> latency at heavy load is brought down from 200 us to 100 us.
->
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
->  drivers/input/evdev.c | 68 +++++++++++++++++++++++++++++++++++----------------
->  1 file changed, 47 insertions(+), 21 deletions(-)
->
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index a0692c5..1bf4ce5 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -54,16 +54,9 @@ struct evdev_client {
->  static struct evdev *evdev_table[EVDEV_MINORS];
->  static DEFINE_MUTEX(evdev_table_mutex);
->
-> -static void evdev_pass_event(struct evdev_client *client,
-> -                            struct input_event *event,
-> -                            ktime_t mono, ktime_t real)
-> +static void __pass_event(struct evdev_client *client,
-> +                        const struct input_event *event)
->  {
-> -       event->time = ktime_to_timeval(client->clkid == CLOCK_MONOTONIC ?
-> -                                       mono : real);
-> -
-> -       /* Interrupts are disabled, just acquire the lock. */
-> -       spin_lock(&client->buffer_lock);
-> -
->         client->buffer[client->head++] = *event;
->         client->head &= client->bufsize - 1;
->
-> @@ -86,42 +79,74 @@ static void evdev_pass_event(struct evdev_client *client,
->                 client->packet_head = client->head;
->                 kill_fasync(&client->fasync, SIGIO, POLL_IN);
->         }
-> +}
-> +
-> +static void evdev_pass_values(struct evdev_client *client,
-> +                             const struct input_value *vals, size_t count,
-> +                             ktime_t mono, ktime_t real)
-> +{
-> +       struct evdev *evdev = client->evdev;
-> +       const struct input_value *v;
-> +       struct input_event event;
-> +       bool wakeup = false;
-> +
-> +       event.time = ktime_to_timeval(client->clkid == CLOCK_MONOTONIC ?
-> +                                     mono : real);
-> +
-> +       /* Interrupts are disabled, just acquire the lock. */
-> +       spin_lock(&client->buffer_lock);
-> +
-> +       for (v = vals; v != vals + count; v++) {
-> +               event.type = v->type;
-> +               event.code = v->code;
-> +               event.value = v->value;
-> +               __pass_event(client, &event);
-> +               if (v->type == EV_SYN && v->code == SYN_REPORT)
-> +                       wakeup = true;
-> +       }
->
->         spin_unlock(&client->buffer_lock);
-> +
-> +       if (wakeup)
-> +               wake_up_interruptible(&evdev->wait);
->  }
->
->  /*
-> - * Pass incoming event to all connected clients.
-> + * Pass incoming events to all connected clients.
->   */
-> -static void evdev_event(struct input_handle *handle,
-> -                       unsigned int type, unsigned int code, int value)
-> +static void evdev_events(struct input_handle *handle,
-> +                        const struct input_value *vals, size_t count)
->  {
->         struct evdev *evdev = handle->private;
->         struct evdev_client *client;
-> -       struct input_event event;
->         ktime_t time_mono, time_real;
->
->         time_mono = ktime_get();
->         time_real = ktime_sub(time_mono, ktime_get_monotonic_offset());
->
-> -       event.type = type;
-> -       event.code = code;
-> -       event.value = value;
-> -
->         rcu_read_lock();
->
->         client = rcu_dereference(evdev->grab);
->
->         if (client)
-> -               evdev_pass_event(client, &event, time_mono, time_real);
-> +               evdev_pass_values(client, vals, count, time_mono, time_real);
->         else
->                 list_for_each_entry_rcu(client, &evdev->client_list, node)
-> -                       evdev_pass_event(client, &event, time_mono, time_real);
-> +                       evdev_pass_values(client, vals, count,
-> +                                         time_mono, time_real);
+Hi,
 
-Hi Henrik,
+Le 23/08/2012 08:54, Oliver Neukum a =E9crit :
+> On Thursday 23 August 2012 00:11:54 Yann Cantin wrote:
+>> +       /* input final setup */
+>> +       err =3D input_register_device(ebeam->input);
+>> +       if (err) {
+>> +               dev_dbg(&intf->dev,
+>> +                       "%s - input_register_device failed, err: %d\=
+n",
+>> +                       __func__, err);
+>> +               goto out_free_urb;
+>> +       }
+>> +
+>> +       ebeam_setup_input(ebeam, input_dev);
+>> +
+>> +       /* usb final setup */
+>> +       usb_set_intfdata(intf, ebeam);
+>=20
+> Hi,
+>=20
+> this looks like a classic race. You initialize the device after you
+> register it. However, it may be used at that time.
 
-Reading the time just once and applying it as the timestamp to an
-entire frame is very nice.
-However, is it ever possible for the SYN_REPORT to get delayed until
-the next batch of input_values, therefore breaking the assumption that
-the SYN_REPORT timestamp applies to the rest of the input_values for
-its frame?
+Ok, moved ebeam_setup_input before input_register_device.
 
-Also, bonus points if the input driver could set this input frame
-timestamp based on when it first saw a hardware interrupt rather then
-when evdev gets around to sending the frame to userspace.  This could
-potentially remove a lot of the timing jitter userspace sees when
-computing ballistics based on input event timestamps.
+Thanks.
 
-Thanks!
--Daniel
-
->
->         rcu_read_unlock();
-> +}
->
-> -       if (type == EV_SYN && code == SYN_REPORT)
-> -               wake_up_interruptible(&evdev->wait);
-> +/*
-> + * Pass incoming event to all connected clients.
-> + */
-> +static void evdev_event(struct input_handle *handle,
-> +                       unsigned int type, unsigned int code, int value)
-> +{
-> +       struct input_value vals[] = { { type, code, value } };
-> +
-> +       evdev_events(handle, vals, 1);
->  }
->
->  static int evdev_fasync(int fd, struct file *file, int on)
-> @@ -1050,6 +1075,7 @@ MODULE_DEVICE_TABLE(input, evdev_ids);
->
->  static struct input_handler evdev_handler = {
->         .event          = evdev_event,
-> +       .events         = evdev_events,
->         .connect        = evdev_connect,
->         .disconnect     = evdev_disconnect,
->         .fops           = &evdev_fops,
-> --
-> 1.7.11.4
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--=20
+Yann Cantin
+A4FEB47F
+--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

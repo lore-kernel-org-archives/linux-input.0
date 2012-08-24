@@ -1,53 +1,36 @@
-From: Ferruh Yigit <fery@cypress.com>
-Subject: Re: [PATCH 1/4] Input: cyttsp4 - bus driver for Cypress TMA4XX touchscreen
+From: Michal Marek <mmarek@suse.cz>
+Subject: Re: [PATCH 2/4] Input: cyttsp4 - core driver for Cypress TMA4XX touchscreen
  devices
-Date: Fri, 24 Aug 2012 16:06:40 +0300
-Message-ID: <50377C60.4020008@cypress.com>
-References: <Ferruh Yigit <fery@cypress.com> <1344344978-30453-1-git-send-email-fery@cypress.com>
+Date: Fri, 24 Aug 2012 16:21:05 +0200
+Message-ID: <50378DD1.9080806@suse.cz>
+References: <Ferruh Yigit <fery@cypress.com> <1344345000-30494-1-git-send-email-fery@cypress.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay.ihostexchange.net ([66.46.182.55]:42974 "EHLO
-	relay.ihostexchange.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751146Ab2HXNGz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Aug 2012 09:06:55 -0400
-In-Reply-To: <1344344978-30453-1-git-send-email-fery@cypress.com>
+Received: from cantor2.suse.de ([195.135.220.15]:40423 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754396Ab2HXOVg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 24 Aug 2012 10:21:36 -0400
+In-Reply-To: <1344345000-30494-1-git-send-email-fery@cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Ferruh Yigit <fery@cypress.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin McNeely <kev@cypress.com>, Javier Martinez Canillas <javier@dowhile0.org>, Shawn Landden <shawnlandden@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Olivier Sobrie <olivier@sobrie.be>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Ferruh Yigit <fery@cypress.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin McNeely <kev@cypress.com>, Javier Martinez Canillas <javier@dowhile0.org>, Henrik Rydberg <rydberg@euromail.se>, Shawn Landden <shawnlandden@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Olivier Sobrie <olivier@sobrie.be>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 08/07/2012 04:09 PM, Ferruh Yigit wrote:
-> From: Ferruh YIGIT <fery@cypress.com>
->
-> This driver is for Cypress TrueTouch(tm) Standard Product controllers,
-> Generation4 devices.
->
-> Driver consist of four main modules:
->
-> Bus driver: Linux bus driver implementation, binds other modules.
-> Core driver: Core module that communicate with TTSP controller.
-> MT driver: MultiTouch driver, converts touch information to host specific
-> touch events
-> Adapter driver: Communication adapter between host and controller, like
-> I2C or SPI.
->
-> This is Cyttsp4 TTSP Bus Driver,
-> Provides binding between Adapter, Core, and TTSP Modules.
->
-> A complete set of corresponding Adapter, Core, and TTSP module
-> devices and drivers must be registered with the TTSP Bus handler
+Dne 7.8.2012 15:09, Ferruh Yigit napsal(a):
+> +static int __init cyttsp4_core_init(void)
+> +{
+> +       int rc = 0;
+> +
+> +       rc = cyttsp4_register_core_driver(&cyttsp4_core_driver);
+> +       pr_info("%s: Cypress TTSP v4 core driver (Built %s @ %s) rc=%d\n",
+> +                __func__, __DATE__, __TIME__, rc);
 
-Hi Henrik,
+Hi,
 
-Is driver reviewed and is there anything we can help on it?
+please drop the __DATE__ and __TIME__ macros to keep the build
+deterministic.
 
---
-
-Thanks and Regards,
-ferruh
-
-
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+thanks,
+Michal

@@ -1,13 +1,14 @@
 From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
-Subject: [RFC PATCH 3/8] rtc: Add RTC driver for DA906x PMIC.
-Date: Fri, 24 Aug 2012 15:00:00 +0100
-Message-ID: <201208241500@sw-eng-lt-dc-vm2>
-References: <201208241455@sw-eng-lt-dc-vm2>
+Subject: [RFC PATCH 4/8] hwmon: Add DA906x hardware monitoring
+	support.
+Date: Fri, 24 Aug 2012 15:05:00 +0100
+Message-ID: <201208241505@sw-eng-lt-dc-vm2>
+References: <201208241500@sw-eng-lt-dc-vm2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <lm-sensors-bounces@lm-sensors.org>
-In-Reply-To: <201208241455@sw-eng-lt-dc-vm2>
+In-Reply-To: <201208241500@sw-eng-lt-dc-vm2>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/options/lm-sensors>,
 	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors/>
@@ -22,64 +23,66 @@ Cc: Alessandro Zummo <a.zummo@towertech.it>, Andrew Jones <drjones@redhat.com>, 
 	Anthony Olech" <anthony.olech@diasemi.com>, Bryan Wu <bryan.wu@canonical.com>, Liam Girdwood <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-DA906x RTC driver supports date/time and alarm.
+DA906x PMIC provides ADC for voltage and temperature monitoring.
 
-In hardware, PMIC supports alarm setting with a resolution of one minute and
-tick event (every second update event). The driver combines it, providing alarm
-with one second resolution.
-
-The driver requires MFD core driver for operation.
+The driver provides results of following ADC channels:
+ - in0 - system voltage (2500 - 5500 mV)
+ - in1 - universal voltage channel #1 (0 - 2500 mV)
+ - in2 - universal voltage channel #2 (0 - 2500 mV)
+ - in3 - universal voltage channel #3 (0 - 2500 mV)
+ - in4 - backup battery voltage (0 - 5000 mV)
+ - temp1 - PMIC internal junction temperature (-88 - 333 Celcius degrees)
 
 Signed-off-by: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
 ---
- drivers/rtc/Kconfig      |    7 +
- drivers/rtc/Makefile     |    1 +
- drivers/rtc/rtc-da906x.c |  379 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 387 insertions(+), 0 deletions(-)
- create mode 100644 drivers/rtc/rtc-da906x.c
+ drivers/hwmon/Kconfig        |    6 +
+ drivers/hwmon/Makefile       |    1 +
+ drivers/hwmon/da906x-hwmon.c |  393 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 400 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/hwmon/da906x-hwmon.c
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index fabc99a..e6037cd 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -571,6 +571,13 @@ config RTC_DRV_DA9052
- 	  Say y here to support the RTC driver for Dialog Semiconductor
- 	  DA9052-BC and DA9053-AA/Bx PMICs.
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index b0a2e4c..7abc9a0 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -1373,6 +1373,12 @@ config SENSORS_WM8350
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called wm8350-hwmon.
  
-+config RTC_DRV_DA906X
-+	tristate "Dialog DA906X RTC"
++config SENSORS_DA906X
++	tristate "DA906X HWMON device drivers"
 +	depends on MFD_DA906X
 +	help
-+	  Say y here to support the RTC driver for
-+	  Dialog Semiconductor DA906x PMIC.
++	  Support for the HWMON DA906X device driver.
 +
- config RTC_DRV_EFI
- 	tristate "EFI RTC"
- 	depends on IA64
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 0d5b2b6..d9c1e9f 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -29,6 +29,7 @@ obj-$(CONFIG_RTC_DRV_BQ4802)	+= rtc-bq4802.o
- obj-$(CONFIG_RTC_DRV_CMOS)	+= rtc-cmos.o
- obj-$(CONFIG_RTC_DRV_COH901331)	+= rtc-coh901331.o
- obj-$(CONFIG_RTC_DRV_DA9052)	+= rtc-da9052.o
-+obj-$(CONFIG_RTC_DRV_DA906X)	+= rtc-da906x.o
- obj-$(CONFIG_RTC_DRV_DAVINCI)	+= rtc-davinci.o
- obj-$(CONFIG_RTC_DRV_DM355EVM)	+= rtc-dm355evm.o
- obj-$(CONFIG_RTC_DRV_VRTC)	+= rtc-mrst.o
-diff --git a/drivers/rtc/rtc-da906x.c b/drivers/rtc/rtc-da906x.c
+ config SENSORS_ULTRA45
+ 	tristate "Sun Ultra45 PIC16F747"
+ 	depends on SPARC64
+diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
+index 7aa9811..ffbe151 100644
+--- a/drivers/hwmon/Makefile
++++ b/drivers/hwmon/Makefile
+@@ -43,6 +43,7 @@ obj-$(CONFIG_SENSORS_ASC7621)	+= asc7621.o
+ obj-$(CONFIG_SENSORS_ATXP1)	+= atxp1.o
+ obj-$(CONFIG_SENSORS_CORETEMP)	+= coretemp.o
+ obj-$(CONFIG_SENSORS_DA9052_ADC)+= da9052-hwmon.o
++obj-$(CONFIG_SENSORS_DA906X)	+= da906x-hwmon.o
+ obj-$(CONFIG_SENSORS_DME1737)	+= dme1737.o
+ obj-$(CONFIG_SENSORS_DS620)	+= ds620.o
+ obj-$(CONFIG_SENSORS_DS1621)	+= ds1621.o
+diff --git a/drivers/hwmon/da906x-hwmon.c b/drivers/hwmon/da906x-hwmon.c
 new file mode 100644
-index 0000000..0b4fecc
+index 0000000..8ece931
 --- /dev/null
-+++ b/drivers/rtc/rtc-da906x.c
-@@ -0,0 +1,379 @@
++++ b/drivers/hwmon/da906x-hwmon.c
+@@ -0,0 +1,393 @@
 +/*
-+ * Real Time Clock driver for DA906x PMIC family
++ * HW Monitor support for Dialog DA906X PMIC series
 + *
-+ * Copyright 2012 Dialog Semiconductors Ltd.
++ * Copyright 2012 Dialog Semiconductor Ltd.
 + *
-+ * Author: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
++ * Author: Krystian Garbaciak <krystian.garbaciak@diasemi.com>,
++ *         Michal Hajduk <michal.hajduk@diasemi.com>
 + *
 + *  This program is free software; you can redistribute  it and/or modify it
 + *  under  the terms of  the GNU General  Public License as published by the
@@ -87,372 +90,385 @@ index 0000000..0b4fecc
 + *  option) any later version.
 + *
 + */
++
 +#include <linux/kernel.h>
 +#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/platform_device.h>
-+#include <linux/interrupt.h>
-+#include <linux/rtc.h>
-+#include <linux/slab.h>
++#include <linux/err.h>
 +#include <linux/delay.h>
-+#include <linux/mfd/da906x/registers.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++#include <linux/platform_device.h>
++#include <linux/hwmon.h>
++#include <linux/hwmon-sysfs.h>
 +#include <linux/mfd/da906x/core.h>
++#include <linux/mfd/da906x/pdata.h>
 +
-+#define YEARS_TO_DA906X(year)		((year) - 100)
-+#define MONTHS_TO_DA906X(month)		((month) + 1)
-+#define YEARS_FROM_DA906X(year)		((year) + 100)
-+#define MONTHS_FROM_DA906X(month)	((month) - 1)
++/* ADC resolutions for manual and auto modes */
++#define DA906X_ADC_RES		\
++		(1 << (DA906X_ADC_RES_L_BITS + DA906X_ADC_RES_M_BITS))
++#define DA906X_ADC_MAX		(DA906X_ADC_RES - 1)
++#define	DA906X_ADC_AUTO_RES	(1 << DA906X_ADC_RES_M_BITS)
++#define	DA906X_ADC_AUTO_MAX	(DA906X_ADC_AUTO_RES - 1)
 +
-+#define CLOCK_DATA_LEN	(DA906X_REG_COUNT_Y - DA906X_REG_COUNT_S + 1)
-+#define ALARM_DATA_LEN	(DA906X_REG_ALARM_Y - DA906X_REG_ALARM_MI + 1)
-+enum {
-+	DATA_SEC = 0,
-+	DATA_MIN,
-+	DATA_HOUR,
-+	DATA_DAY,
-+	DATA_MONTH,
-+	DATA_YEAR,
++/* Define interpolation table to calculate ADC values  */
++struct i_table {
++	int x0;
++	int a;
++	int b;
++};
++#define ILINE(x1, x2, y1, y2)	{ \
++		.x0 = (x1), \
++		.a = ((y2) - (y1)) * DA906X_ADC_RES / ((x2) - (x1)), \
++		.b = (y1) - ((y2) - (y1)) * (x1) / ((x2) - (x1)), \
++	}
++
++struct channel_info {
++	const char *name;
++	const struct i_table *tbl;
++	int tbl_max;
++	u16 reg_auto_en;
 +};
 +
-+struct da906x_rtc {
-+	struct rtc_device	*rtc_dev;
-+	struct da906x		*hw;
-+	int			irq_alarm;
-+	int			irq_tick;
++enum da906x_adc {
++	DA906X_VSYS,
++	DA906X_ADCIN1,
++	DA906X_ADCIN2,
++	DA906X_ADCIN3,
++	DA906X_TJUNC,
++	DA906X_VBBAT,
 +
-+	/* Config flag */
-+	int			tick_wake;
-+
-+	/* Used to expand alarm precision from minutes up to seconds
-+	   using hardware ticks */
-+	unsigned int		alarmSecs;
-+	unsigned int		alarmTicks;
++	DA906X_CHAN_NUM
 +};
 +
-+static void da906x_data_to_tm(u8 *data, struct rtc_time *tm)
++static const struct i_table vsys_tbl[] = {
++	ILINE(0, DA906X_ADC_MAX, 2500, 5500)
++};
++
++static const struct i_table adcin_tbl[] = {
++	ILINE(0, DA906X_ADC_MAX, 0, 2500)
++};
++
++static const struct i_table tjunc_tbl[] = {
++	ILINE(0, DA906X_ADC_MAX, 333, -86)
++};
++
++static const struct i_table vbbat_tbl[] = {
++	ILINE(0, DA906X_ADC_MAX, 0, 5000)
++};
++
++static const struct channel_info da906x_channels[] = {
++	[DA906X_VSYS]	= { "VSYS",
++			    vsys_tbl, ARRAY_SIZE(vsys_tbl) - 1,
++			    DA906X_REG_VSYS_RES },
++	[DA906X_ADCIN1]	= { "ADCIN1",
++			    adcin_tbl,	ARRAY_SIZE(adcin_tbl) - 1,
++			    DA906X_REG_ADCIN1_RES },
++	[DA906X_ADCIN2]	= { "ADCIN2",
++			    adcin_tbl,	ARRAY_SIZE(adcin_tbl) - 1,
++			    DA906X_REG_ADCIN2_RES },
++	[DA906X_ADCIN3]	= { "ADCIN3",
++			    adcin_tbl,	ARRAY_SIZE(adcin_tbl) - 1,
++			    DA906X_REG_ADCIN3_RES },
++	[DA906X_TJUNC]	= { "TJUNC",
++			    tjunc_tbl,	ARRAY_SIZE(tjunc_tbl) - 1 },
++	[DA906X_VBBAT]	= { "VBBAT",
++			    vbbat_tbl,	ARRAY_SIZE(vbbat_tbl) - 1}
++};
++#define DA906X_ADC_AUTO_MODE_SUPPORT_MASK	(DA906X_ADC_AUTO_VSYS_EN | \
++						 DA906X_ADC_AUTO_AD1_EN | \
++						 DA906X_ADC_AUTO_AD2_EN | \
++						 DA906X_ADC_AUTO_AD3_EN)
++
++struct da906x_hwmon {
++	struct da906x *da906x;
++	struct device *class_dev;
++	struct completion man_adc_rdy;	/* Manual read completion flag */
++	struct mutex hwmon_mutex;	/* Queue concurent manual reads */
++	int irq;
++	u8 adc_auto_en;     /* Bitmask of channels with auto mode enabled */
++	s8 tjunc_offset;    /* Calibration offset for junction temperature */
++};
++
++int da906x_adc_convert(int channel, int x)
 +{
-+	tm->tm_sec = data[DATA_SEC] & DA906X_COUNT_SEC_MASK;
-+	tm->tm_min = data[DATA_MIN] & DA906X_COUNT_MIN_MASK;
-+	tm->tm_hour = data[DATA_HOUR] & DA906X_COUNT_HOUR_MASK;
-+	tm->tm_mday = data[DATA_DAY] & DA906X_COUNT_DAY_MASK;
-+	tm->tm_mon = MONTHS_FROM_DA906X(data[DATA_MONTH] &
-+					 DA906X_COUNT_MONTH_MASK);
-+	tm->tm_year = YEARS_FROM_DA906X(data[DATA_YEAR] &
-+					 DA906X_COUNT_YEAR_MASK);
-+}
++	const struct channel_info *info = &da906x_channels[channel];
++	int i, ret;
 +
-+static void da906x_tm_to_data(struct rtc_time *tm, u8 *data)
-+{
-+	data[DATA_SEC] &= ~DA906X_COUNT_SEC_MASK;
-+	data[DATA_SEC] |= tm->tm_sec & DA906X_COUNT_SEC_MASK;
-+	data[DATA_MIN] &= ~DA906X_COUNT_MIN_MASK;
-+	data[DATA_MIN] |= tm->tm_min & DA906X_COUNT_MIN_MASK;
-+	data[DATA_HOUR] &= ~DA906X_COUNT_HOUR_MASK;
-+	data[DATA_HOUR] |= tm->tm_hour & DA906X_COUNT_HOUR_MASK;
-+	data[DATA_DAY] &= ~DA906X_COUNT_DAY_MASK;
-+	data[DATA_DAY] |= tm->tm_mday & DA906X_COUNT_DAY_MASK;
-+	data[DATA_MONTH] &= ~DA906X_COUNT_MONTH_MASK;
-+	data[DATA_MONTH] |= MONTHS_TO_DA906X(tm->tm_mon) &
-+			    DA906X_COUNT_MONTH_MASK;
-+	data[DATA_YEAR] &= ~DA906X_COUNT_YEAR_MASK;
-+	data[DATA_YEAR] |= YEARS_TO_DA906X(tm->tm_year) &
-+			   DA906X_COUNT_YEAR_MASK;
-+}
++	for (i = info->tbl_max; i > 0; i--)
++		if (info->tbl[i].x0 <= x)
++			break;
 +
-+#define DA906X_ALARM_DELAY	INT_MAX
-+static int da906x_rtc_test_delay(struct rtc_time *alarm, struct rtc_time *cur)
-+{
-+	unsigned long a_time, c_time;
-+
-+	rtc_tm_to_time(alarm, &a_time);
-+	rtc_tm_to_time(cur, &c_time);
-+
-+	/* Alarm time has already passed */
-+	if (a_time < c_time)
-+		return -1;
-+
-+	/* If alarm is set for current minute, return ticks to count down.
-+	   If alarm is set for following minutes, return DA906X_ALARM_DELAY
-+	   to set alarm first.
-+	   But when it is less than 2 seconds for the former to become true,
-+	   return ticks, because alarm needs some time to synchronise. */
-+	if (a_time - c_time < alarm->tm_sec + 2)
-+		return a_time - c_time;
++	ret = info->tbl[i].a * x;
++	if (ret >= 0)
++		ret += DA906X_ADC_RES / 2;
 +	else
-+		return DA906X_ALARM_DELAY;
-+}
-+
-+static int da906x_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct da906x_rtc *rtc = dev_get_drvdata(dev);
-+	u8 data[CLOCK_DATA_LEN];
-+	int ret;
-+
-+	ret = da906x_block_read(rtc->hw,
-+				DA906X_REG_COUNT_S, CLOCK_DATA_LEN, data);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Check, if RTC logic is initialised */
-+	if (!(data[DATA_SEC] & DA906X_RTC_READ))
-+		return -EBUSY;
-+
-+	da906x_data_to_tm(data, tm);
-+
-+	return rtc_valid_tm(tm);
-+}
-+
-+static int da906x_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct da906x_rtc *rtc = dev_get_drvdata(dev);
-+	u8 data[CLOCK_DATA_LEN] = { [0 ... (CLOCK_DATA_LEN - 1)] = 0 };
-+	int ret;
-+
-+	da906x_tm_to_data(tm, data);
-+
-+	ret = da906x_block_write(rtc->hw,
-+				 DA906X_REG_COUNT_S, CLOCK_DATA_LEN, data);
-+
++		ret -= DA906X_ADC_RES / 2;
++	ret = ret / DA906X_ADC_RES + info->tbl[i].b;
 +	return ret;
 +}
 +
-+static int da906x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++static int da906x_adc_manual_read(struct da906x_hwmon *hwmon, int channel)
 +{
-+	struct da906x_rtc *rtc = dev_get_drvdata(dev);
-+	u8 data[CLOCK_DATA_LEN];
 +	int ret;
++	u8 data[2];
 +
-+	ret = da906x_block_read(rtc->hw, DA906X_REG_ALARM_MI, ALARM_DATA_LEN,
-+				&data[DATA_MIN]);
++	mutex_lock(&hwmon->hwmon_mutex);
++
++	init_completion(&hwmon->man_adc_rdy);
++
++	/* Start measurment on selected channel */
++	data[0] = (channel << DA906X_ADC_MUX_SHIFT) & DA906X_ADC_MUX_MASK;
++	data[0] |= DA906X_ADC_MAN;
++	ret = da906x_reg_update(hwmon->da906x, DA906X_REG_ADC_MAN,
++				DA906X_ADC_MUX_MASK | DA906X_ADC_MAN, data[0]);
 +	if (ret < 0)
-+		return ret;
++		goto out;
 +
-+	da906x_data_to_tm(data, &alrm->time);
-+	alrm->time.tm_sec = rtc->alarmSecs;
-+	alrm->enabled = !!(data[DATA_YEAR] & DA906X_ALARM_ON);
-+
-+	/* If there is no ticks left to count down and RTC event is
-+	   not processed yet, indicate pending */
-+	if (rtc->alarmTicks == 0) {
-+		ret = da906x_reg_read(rtc->hw, DA906X_REG_EVENT_A);
-+		if (ret < 0)
-+			return ret;
-+		if (ret & (DA906X_E_ALARM | DA906X_E_TICK))
-+			alrm->pending = 1;
-+	} else {
-+		alrm->pending = 0;
++	/* Wait for interrupt from ADC */
++	ret = wait_for_completion_timeout(&hwmon->man_adc_rdy,
++					  msecs_to_jiffies(1000));
++	if (ret == 0) {
++		ret = -EBUSY;
++		goto out;
 +	}
 +
-+	return 0;
-+}
-+
-+static int da906x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct da906x_rtc *rtc = dev_get_drvdata(dev);
-+	u8 data[CLOCK_DATA_LEN] = { [0 ... (CLOCK_DATA_LEN - 1)] = 0 };
-+	struct rtc_time cur_tm;
-+	int cmp_val;
-+	int ret;
-+
-+	data[DATA_MIN] = DA906X_ALARM_STATUS_ALARM;
-+	data[DATA_MONTH] = DA906X_TICK_TYPE_SEC;
-+	if (rtc->tick_wake)
-+		data[DATA_MONTH] |= DA906X_TICK_WAKE;
-+
-+	ret = da906x_rtc_read_time(dev, &cur_tm);
++	/* Get results */
++	ret = da906x_block_read(hwmon->da906x, DA906X_REG_ADC_RES_L, 2, data);
 +	if (ret < 0)
-+		return ret;
-+
-+	if (alrm->enabled) {
-+		cmp_val = da906x_rtc_test_delay(&alrm->time, &cur_tm);
-+		if (cmp_val == DA906X_ALARM_DELAY) {
-+			/* Set alarm for longer delay */
-+			data[DATA_YEAR] |= DA906X_ALARM_ON;
-+		} else if (cmp_val > 0) {
-+			/* Count ticks for shorter delay */
-+			rtc->alarmTicks = cmp_val - 1;
-+			data[DATA_YEAR] |= DA906X_TICK_ON;
-+		} else if (cmp_val == 0) {
-+			/* Just about time - report event */
-+			rtc_update_irq(rtc->rtc_dev, 1, RTC_IRQF | RTC_AF);
-+		}
-+	}
-+
-+	da906x_tm_to_data(&alrm->time, data);
-+	rtc->alarmSecs = alrm->time.tm_sec;
-+
-+	return da906x_block_write(rtc->hw, DA906X_REG_ALARM_MI, ALARM_DATA_LEN,
-+				 &data[DATA_MIN]);
-+}
-+
-+static int da906x_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
-+{
-+	struct da906x_rtc *rtc = dev_get_drvdata(dev);
-+	struct rtc_wkalrm alrm;
-+	int ret;
-+
-+	ret = da906x_reg_read(rtc->hw, DATA_YEAR);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (enabled) {
-+		/* Enable alarm, if it is not enabled already */
-+		if (!(ret & (DA906X_ALARM_ON | DA906X_TICK_ON))) {
-+			ret = da906x_rtc_read_alarm(dev, &alrm);
-+			if (ret < 0)
-+				return ret;
-+
-+			alrm.enabled = 1;
-+			ret = da906x_rtc_set_alarm(dev, &alrm);
-+		}
-+	} else {
-+		ret = da906x_reg_clear_bits(rtc->hw, DA906X_REG_ALARM_Y,
-+					    DA906X_ALARM_ON);
-+	}
-+
++		goto out;
++	ret = (data[0] & DA906X_ADC_RES_L_MASK) >> DA906X_ADC_RES_L_SHIFT;
++	ret |= data[1] << DA906X_ADC_RES_L_BITS;
++out:
++	mutex_unlock(&hwmon->hwmon_mutex);
 +	return ret;
 +}
 +
-+/* On alarm interrupt, start to count ticks to enable seconds precision
-+   (if alarm seconds != 0). */
-+static irqreturn_t da906x_alarm_event(int irq, void *data)
++static int da906x_adc_auto_read(struct da906x *da906x, int channel)
 +{
-+	struct da906x_rtc *rtc = data;
++	const struct channel_info *info = &da906x_channels[channel];
 +
-+	if (rtc->alarmSecs) {
-+		rtc->alarmTicks = rtc->alarmSecs - 1;
-+		da906x_reg_update(rtc->hw, DA906X_REG_ALARM_Y,
-+				  DA906X_ALARM_ON | DA906X_TICK_ON,
-+				  DA906X_TICK_ON);
-+	} else {
-+		da906x_reg_clear_bits(rtc->hw, DA906X_REG_ALARM_Y,
-+				      DA906X_ALARM_ON);
-+		rtc_update_irq(rtc->rtc_dev, 1, RTC_IRQF | RTC_AF);
-+	}
++	return da906x_reg_read(da906x, info->reg_auto_en);
++}
++
++static irqreturn_t da906x_hwmon_irq_handler(int irq, void *irq_data)
++{
++	struct da906x_hwmon *hwmon = irq_data;
++
++	complete(&hwmon->man_adc_rdy);
 +
 +	return IRQ_HANDLED;
 +}
 +
-+/* On tick interrupt, count down seconds left to timeout */
-+static irqreturn_t da906x_tick_event(int irq, void *data)
++static ssize_t da906x_adc_read(struct device *dev,
++			       struct device_attribute *devattr, char *buf)
 +{
-+	struct da906x_rtc *rtc = data;
++	struct da906x_hwmon *hwmon = dev_get_drvdata(dev);
++	int channel = to_sensor_dev_attr(devattr)->index;
++	int val;
 +
-+	if (rtc->alarmTicks-- == 0) {
-+		da906x_reg_clear_bits(rtc->hw,
-+				      DA906X_REG_ALARM_Y, DA906X_TICK_ON);
-+		rtc_update_irq(rtc->rtc_dev, 1, RTC_IRQF | RTC_UF);
++	if (hwmon->adc_auto_en & (1 << channel)) {
++		val = da906x_adc_auto_read(hwmon->da906x, channel);
++		if (val < 0)
++			return val;
++
++		val *= DA906X_ADC_RES / DA906X_ADC_AUTO_RES;
++		val = da906x_adc_convert(channel, val);
++	} else {
++		val = da906x_adc_manual_read(hwmon, channel);
++		if (val < 0)
++			return val;
++
++		if (channel == DA906X_TJUNC)
++			val += hwmon->tjunc_offset;
++		val = da906x_adc_convert(channel, val);
 +	}
 +
-+	return IRQ_HANDLED;
++	return sprintf(buf, "%d\n", val);
 +}
 +
-+static const struct rtc_class_ops da906x_rtc_ops = {
-+	.read_time = da906x_rtc_read_time,
-+	.set_time = da906x_rtc_set_time,
-+	.read_alarm = da906x_rtc_read_alarm,
-+	.set_alarm = da906x_rtc_set_alarm,
-+	.alarm_irq_enable = da906x_rtc_alarm_irq_enable,
++static ssize_t da906x_show_name(struct device *dev,
++	struct device_attribute *attr, char *buf)
++{
++	return sprintf(buf, DA906X_DRVNAME_HWMON "\n");
++}
++
++static ssize_t da906x_show_label(struct device *dev,
++				 struct device_attribute *devattr, char *buf)
++{
++	const struct channel_info *info;
++
++	info = &da906x_channels[to_sensor_dev_attr(devattr)->index];
++	return sprintf(buf, "%s\n", info->name);
++}
++
++/* Vsys voltage */
++static SENSOR_DEVICE_ATTR(in0_input, S_IRUGO,
++			  da906x_adc_read, NULL, DA906X_VSYS);
++static SENSOR_DEVICE_ATTR(in0_label, S_IRUGO,
++			  da906x_show_label, NULL, DA906X_VSYS);
++
++/* Universal ADC channel #1 */
++static SENSOR_DEVICE_ATTR(in1_input, S_IRUGO,
++			  da906x_adc_read, NULL, DA906X_ADCIN1);
++static SENSOR_DEVICE_ATTR(in1_label, S_IRUGO,
++			  da906x_show_label, NULL, DA906X_ADCIN1);
++
++/* Universal ADC channel #2 */
++static SENSOR_DEVICE_ATTR(in2_input, S_IRUGO,
++			  da906x_adc_read, NULL,
++			  DA906X_ADCIN2);
++static SENSOR_DEVICE_ATTR(in2_label, S_IRUGO,
++			  da906x_show_label, NULL, DA906X_ADCIN2);
++
++/* Universal ADC channel #3 */
++static SENSOR_DEVICE_ATTR(in3_input, S_IRUGO,
++			  da906x_adc_read, NULL, DA906X_ADCIN3);
++static SENSOR_DEVICE_ATTR(in3_label, S_IRUGO,
++			  da906x_show_label, NULL, DA906X_ADCIN3);
++
++/* Backup battery voltage */
++static SENSOR_DEVICE_ATTR(in4_input, S_IRUGO,
++			  da906x_adc_read, NULL, DA906X_VBBAT);
++static SENSOR_DEVICE_ATTR(in4_label, S_IRUGO,
++			  da906x_show_label, NULL, DA906X_VBBAT);
++
++/* Junction temperature */
++static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO,
++			  da906x_adc_read, NULL, DA906X_TJUNC);
++
++static SENSOR_DEVICE_ATTR(temp1_label, S_IRUGO,
++			  da906x_show_label, NULL, DA906X_TJUNC);
++
++/* Device name */
++static DEVICE_ATTR(name, S_IRUGO, da906x_show_name, NULL);
++
++static struct attribute *da906x_attributes[] = {
++	&dev_attr_name.attr,
++	&sensor_dev_attr_in0_input.dev_attr.attr,
++	&sensor_dev_attr_in0_label.dev_attr.attr,
++	&sensor_dev_attr_in1_input.dev_attr.attr,
++	&sensor_dev_attr_in1_label.dev_attr.attr,
++	&sensor_dev_attr_in2_input.dev_attr.attr,
++	&sensor_dev_attr_in2_label.dev_attr.attr,
++	&sensor_dev_attr_in3_input.dev_attr.attr,
++	&sensor_dev_attr_in3_label.dev_attr.attr,
++	&sensor_dev_attr_in4_input.dev_attr.attr,
++	&sensor_dev_attr_in4_label.dev_attr.attr,
++	&sensor_dev_attr_temp1_input.dev_attr.attr,
++	&sensor_dev_attr_temp1_label.dev_attr.attr,
++	NULL
 +};
 +
-+static __devinit int da906x_rtc_probe(struct platform_device *pdev)
++static const struct attribute_group da906x_attr_group = {
++	.attrs = da906x_attributes,
++};
++
++static int __devinit da906x_hwmon_probe(struct platform_device *pdev)
 +{
 +	struct da906x *da906x = dev_get_drvdata(pdev->dev.parent);
-+	struct da906x_rtc *rtc;
++	struct da906x_pdata *da906x_pdata = dev_get_platdata(da906x->dev);
++	struct da906x_hwmon *hwmon;
 +	int ret;
-+	int alarm_mo;
 +
-+	/* Enable RTC hardware */
-+	ret = da906x_reg_set_bits(da906x, DA906X_REG_CONTROL_E, DA906X_RTC_EN);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to enable RTC.\n");
-+		return ret;
-+	}
-+
-+	ret = da906x_reg_set_bits(da906x, DA906X_REG_EN_32K, DA906X_CRYSTAL);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to run 32 KHz OSC.\n");
-+		return ret;
-+	}
-+
-+	ret = da906x_reg_read(da906x, DA906X_REG_ALARM_MO);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to read RTC register.\n");
-+		return ret;
-+	}
-+	alarm_mo = ret;
-+
-+	/* Register RTC device */
-+	rtc = devm_kzalloc(&pdev->dev, sizeof *rtc, GFP_KERNEL);
-+	if (!rtc)
++	hwmon = devm_kzalloc(&pdev->dev, sizeof(struct da906x_hwmon),
++			     GFP_KERNEL);
++	if (!hwmon)
 +		return -ENOMEM;
 +
-+	platform_set_drvdata(pdev, rtc);
++	mutex_init(&hwmon->hwmon_mutex);
++	init_completion(&hwmon->man_adc_rdy);
++	hwmon->da906x = da906x;
 +
-+	rtc->hw = da906x;
-+	rtc->rtc_dev = rtc_device_register(DA906X_DRVNAME_RTC, &pdev->dev,
-+					   &da906x_rtc_ops, THIS_MODULE);
-+	if (IS_ERR(rtc->rtc_dev)) {
-+		dev_err(&pdev->dev, "Failed to register RTC device: %ld\n",
-+			PTR_ERR(rtc->rtc_dev));
-+		return PTR_ERR(rtc->rtc_dev);
-+	}
++	ret = da906x_reg_read(da906x, DA906X_REG_ADC_CONT);
++	if (ret < 0)
++		return ret;
++	hwmon->adc_auto_en = ret & DA906X_ADC_AUTO_MODE_SUPPORT_MASK;
 +
-+	if (alarm_mo & DA906X_TICK_WAKE)
-+		rtc->tick_wake = 1;
++	if (da906x_pdata->flags & DA906X_FLG_FORCE_IN0_MANUAL_MODE)
++		hwmon->adc_auto_en &= ~DA906X_ADC_AUTO_VSYS_EN;
++	else if (da906x_pdata->flags & DA906X_FLG_FORCE_IN0_AUTO_MODE)
++		hwmon->adc_auto_en |= DA906X_ADC_AUTO_VSYS_EN;
 +
-+	/* Register interrupts. Complain on errors but let device
-+	   to be registered at least for date/time. */
-+	rtc->irq_alarm = platform_get_irq_byname(pdev, "ALARM");
-+	ret = request_threaded_irq(rtc->irq_alarm, NULL, da906x_alarm_event,
-+				IRQF_TRIGGER_LOW | IRQF_ONESHOT, "ALARM", rtc);
++	if (da906x_pdata->flags & DA906X_FLG_FORCE_IN1_MANUAL_MODE)
++		hwmon->adc_auto_en &= ~DA906X_ADC_AUTO_AD1_EN;
++	else if (da906x_pdata->flags & DA906X_FLG_FORCE_IN1_AUTO_MODE)
++		hwmon->adc_auto_en |= DA906X_ADC_AUTO_AD1_EN;
++
++	if (da906x_pdata->flags & DA906X_FLG_FORCE_IN2_MANUAL_MODE)
++		hwmon->adc_auto_en &= ~DA906X_ADC_AUTO_AD2_EN;
++	else if (da906x_pdata->flags & DA906X_FLG_FORCE_IN2_AUTO_MODE)
++		hwmon->adc_auto_en |= DA906X_ADC_AUTO_AD2_EN;
++
++	if (da906x_pdata->flags & DA906X_FLG_FORCE_IN3_MANUAL_MODE)
++		hwmon->adc_auto_en &= ~DA906X_ADC_AUTO_AD3_EN;
++	else if (da906x_pdata->flags & DA906X_FLG_FORCE_IN3_AUTO_MODE)
++		hwmon->adc_auto_en |= DA906X_ADC_AUTO_AD3_EN;
++
++	ret = da906x_reg_update(da906x, DA906X_REG_ADC_CONT,
++				DA906X_ADC_AUTO_MODE_SUPPORT_MASK,
++				hwmon->adc_auto_en);
++	if (ret < 0)
++		return ret;
++
++	hwmon->class_dev = hwmon_device_register(&pdev->dev);
++	if (IS_ERR(hwmon->class_dev))
++		return PTR_ERR(hwmon->class_dev);
++
++	hwmon->irq = platform_get_irq_byname(pdev, DA906X_DRVNAME_HWMON);
++	ret = devm_request_threaded_irq(&pdev->dev, hwmon->irq, NULL,
++					da906x_hwmon_irq_handler,
++					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
++					"HWMON", hwmon);
 +	if (ret) {
-+		dev_err(&pdev->dev, "Failed to request ALARM IRQ.\n");
-+		rtc->irq_alarm = -ENXIO;
-+		return 0;
++		dev_err(&pdev->dev, "Failed to request IRQ.\n");
++		goto err;
 +	}
 +
-+	rtc->irq_tick = platform_get_irq_byname(pdev, "TICK");
-+	ret = request_threaded_irq(rtc->irq_tick, NULL, da906x_tick_event,
-+			IRQF_TRIGGER_RISING | IRQF_ONESHOT, "TICK", rtc);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to request TICK IRQ.\n");
-+		rtc->irq_tick = -ENXIO;
-+	}
++	platform_set_drvdata(pdev, hwmon);
++
++	ret = da906x_reg_read(da906x, DA906X_REG_T_OFFSET);
++	if (ret < 0)
++		dev_warn(&pdev->dev, "Could not read temp1 callibration offset.\n");
++	else
++		hwmon->tjunc_offset = (s8)ret;
++
++	ret = sysfs_create_group(&pdev->dev.kobj, &da906x_attr_group);
++	if (ret)
++		goto err;
 +
 +	return 0;
++
++err:
++	hwmon_device_unregister(hwmon->class_dev);
++	return ret;
 +}
 +
-+static int __devexit da906x_rtc_remove(struct platform_device *pdev)
++static int __devexit da906x_hwmon_remove(struct platform_device *pdev)
 +{
-+	struct da906x_rtc *rtc = platform_get_drvdata(pdev);
++	struct da906x_hwmon *hwmon = platform_get_drvdata(pdev);
 +
-+	if (rtc->irq_alarm >= 0)
-+		free_irq(rtc->irq_alarm, rtc);
++	hwmon_device_unregister(hwmon->class_dev);
++	sysfs_remove_group(&pdev->dev.kobj, &da906x_attr_group);
 +
-+	if (rtc->irq_tick >= 0)
-+		free_irq(rtc->irq_tick, rtc);
-+
-+	rtc_device_unregister(rtc->rtc_dev);
 +	return 0;
 +}
 +
-+static struct platform_driver da906x_rtc_driver = {
-+	.probe		= da906x_rtc_probe,
-+	.remove		= __devexit_p(da906x_rtc_remove),
-+	.driver		= {
-+		.name	= DA906X_DRVNAME_RTC,
-+		.owner	= THIS_MODULE,
++static struct platform_driver da906x_hwmon_driver = {
++	.probe = da906x_hwmon_probe,
++	.remove = __devexit_p(da906x_hwmon_remove),
++	.driver = {
++		.name = DA906X_DRVNAME_HWMON,
++		.owner = THIS_MODULE,
 +	},
 +};
 +
-+module_platform_driver(da906x_rtc_driver);
++module_platform_driver(da906x_hwmon_driver);
 +
-+/* Module information */
-+MODULE_AUTHOR("Krystian Garbaciak <krystian.garbaciak@diasemi.com>");
-+MODULE_DESCRIPTION("DA906x RTC driver");
++MODULE_DESCRIPTION("DA906X Hardware monitoring");
++MODULE_AUTHOR("Krystian Garbaciak <krystian.garbaciak@diasemi.com>, Michal Hajduk <michal.hajduk@diasemi.com>");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:" DA906X_DRVNAME_RTC);
++MODULE_ALIAS("paltform:" DA906X_DRVNAME_HWMON);
 -- 
 1.7.0.4
 

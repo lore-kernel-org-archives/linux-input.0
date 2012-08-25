@@ -1,92 +1,56 @@
 From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [RFC PATCH 2/8] regulator: Add Dialog DA906x voltage regulators
- support.
-Date: Sat, 25 Aug 2012 08:10:20 -0700
-Message-ID: <20120825151020.GB6520@opensource.wolfsonmicro.com>
-References: <201208241450@sw-eng-lt-dc-vm2>
- <201208241455@sw-eng-lt-dc-vm2>
+Subject: Re: [PATCH 1/8] mfd: Add Dialog DA906x core driver.
+Date: Sat, 25 Aug 2012 11:31:14 -0700
+Message-ID: <20120825183113.GE6520@opensource.wolfsonmicro.com>
+References: <201208241445@sw-eng-lt-dc-vm2>
+ <201208241450@sw-eng-lt-dc-vm2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:45060 "EHLO
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:36454 "EHLO
 	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753332Ab2HYPKZ (ORCPT
+	by vger.kernel.org with ESMTP id S1755987Ab2HYSbS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 25 Aug 2012 11:10:25 -0400
+	Sat, 25 Aug 2012 14:31:18 -0400
 Content-Disposition: inline
-In-Reply-To: <201208241455@sw-eng-lt-dc-vm2>
+In-Reply-To: <201208241450@sw-eng-lt-dc-vm2>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
 Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-leds@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, Alessandro Zummo <a.zummo@towertech.it>, Jean Delvare <khali@linux-fr.org>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Andrew Jones <drjones@redhat.com>, Donggeun Kim <dg77.kim@samsung.com>, Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>, Wim Van Sebroeck <wim@iguana.be>, Bryan Wu <bryan.wu@canonical.com>, "Richard Purdie <rpurdie@rpsys.net> Anthony Olech" <anthony.olech@diasemi.com>
 
-On Fri, Aug 24, 2012 at 02:55:00PM +0100, Krystian Garbaciak wrote:
+On Fri, Aug 24, 2012 at 02:50:00PM +0100, Krystian Garbaciak wrote:
 
-> +static int da906x_set_voltage(struct regulator_dev *rdev,
-> +				int min_uV, int max_uV, unsigned *selector)
+> This is MFD module providing access to registers and interrupts of DA906x
+> series PMIC. It is used by other functional modules, registered as MFD cells.
+> Driver uses regmap with paging to access extended register list. Register map
+> is divided into two pages, where the second page is used during initialisation.
+
+Your selection of people to CC here appears both large and random...
+
+> +inline unsigned int da906x_to_range_reg(u16 reg)
 > +{
-> +	struct da906x_regulator *regl = rdev_get_drvdata(rdev);
-> +	const struct field *fvol = &regl->info->voltage;
-> +	int ret;
-> +	unsigned val;
-> +
-> +	val = regulator_map_voltage_linear(rdev, min_uV, max_uV);
-> +	if (val < 0)
-> +		return -EINVAL;
-> +
-> +	val = (val + fvol->offset) << fvol->shift;
-> +	ret = da906x_reg_update(regl->hw, fvol->addr, fvol->mask, val);
-> +	if (ret >= 0)
-> +		*selector = val;
-> +
-> +	return ret;
+> +	return reg + DA906X_MAPPING_BASE;
 > +}
 
-This is just set_voltage_sel_regmap().
+I've no real idea what this stuff is all about, it at least needs some
+comments somewhere.  The fact that you're just adding a constant offset
+to all registers is at best odd.
 
-> +static int da906x_enable(struct regulator_dev *rdev)
-> +{
-> +	struct da906x_regulator *regl = rdev_get_drvdata(rdev);
-> +	int ret;
-> +
-> +	if (regl->info->suspend.mask) {
-> +		/* Make sure to exit from suspend mode on enable */
-> +		ret = da906x_reg_clear_bits(regl->hw, regl->info->suspend.addr,
-> +					    regl->info->suspend.mask);
-> +		if (ret < 0)
-> +			return ret;
-> +
-> +		/* BUCKs need mode update after wake-up from suspend state. */
-> +		ret = da906x_update_mode_internal(regl, SYS_STATE_NORMAL);
-> +		if (ret < 0)
-> +			return ret;
-> +	}
-> +
-> +	return regulator_enable_regmap(rdev);
+> +	if (pdata->flags & DA906X_FLG_NO_CACHE)
+> +		config = &da906x_no_cache_regmap_config;
 
-If suspend_mask is optional the regulators using it should just use the
-standard operation.
+No, why would anyone ever want this and why would this not apply to all
+other drivers?
 
-> +/* Regulator event handlers */
-> +irqreturn_t da906x_ldo_lim_event(int irq, void *data)
+> +static const struct i2c_device_id da906x_i2c_id[] = {
+> +	{"da906x", PMIC_DA9063},
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(i2c, da906x_i2c_id);
 
-By "event handler" you mean "interrupt"
+List the actual devices here.
 
-> +	bits = da906x_reg_read(hw, DA906X_REG_STATUS_D);
-> +	if (bits < 0)
-> +		return IRQ_HANDLED;
+> +#define DA906X_IRQ_BASE_OFFSET	0
 
-If you fail to detect an interrupt you report that you handled one...?
-
-> +	if (!da906x_pdata) {
-> +		dev_err(&pdev->dev, "No platform init data supplied\n");
-> +		return -ENODEV;
-> +	}
-
-Platform data should be totally optional.
-
-> +	bcores_merged = (ret & DA906X_BCORE_MERGE) ? true : false;
-> +	bmem_bio_merged = (ret & DA906X_BUCK_MERGE) ? true : false;
-
-The use of the ternery operation here is even worse than normal, you can
-assign the values directly.
+Hrm?

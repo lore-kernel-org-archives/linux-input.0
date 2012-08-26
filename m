@@ -1,134 +1,85 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH] Input: bcm5974 - only setup button urb for TYPE1 devices
-Date: Sat, 25 Aug 2012 23:36:37 +0200
-Message-ID: <1345930597-5228-1-git-send-email-rydberg@euromail.se>
+Subject: [PATCH v2 00/20] Input and HID updates for 3.7
+Date: Sun, 26 Aug 2012 14:57:18 +0200
+Message-ID: <1345985858-445-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:59193 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751589Ab2HYVbj (ORCPT
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:40695 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750862Ab2HZMwf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 25 Aug 2012 17:31:39 -0400
+	Sun, 26 Aug 2012 08:52:35 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-The early generations with this trackpad used the separate mouse
-interface to produce button events. With the introduction of the
-button pads, this information was moved to the trackpad interface,
-leaving the mouse interface unused. The driver is still setting up
-both interfaces, which has not caused any problems - until now.
+Hi Dmitry, Jiri,
 
-It turns out that without the CONFIG_USB_EHCI_TT_NEWSCHED option, the
-driver may return an ENOSPC upon bt_urb submission, resulting in a
-failure to open the device. This happens everytime on the MacBookPro
-Retina (and likely on other mid-2012 models), but earlier MacBook
-models seem to work fine.
+Here is the second version of the patchset for 3.7. Changes in short:
 
-This patch skips the bt_urb setup for TYPE2 devices, which arguably
-should have been done in the first place.
+Patch  1: New patch fixing an upcoming problem with ehci scheduling
+Patch  3: Improved commit message, explaining the chosen packet size.
+Patch  7: Make sure packets always end with a SYN event.
+Patch 10: Bugfix and improved commit message.
+Patch 19: New patch showing report descriptors for unclaimed devices.
+Patch 20: Less is more in the hid-multitouch driver.
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
-Hi Dmitry,
-
-also for 3.7, since no distro seems to have hit this problem. I will
-put it in my tree once the dust has settled.
+That is pretty much it. Please take/comment on the patches you care
+about, and I can carry the rest in my tree.
 
 Thanks,
 Henrik
 
- drivers/input/mouse/bcm5974.c | 43 ++++++++++++++++++++++++++-----------------
- 1 file changed, 26 insertions(+), 17 deletions(-)
+Henrik Rydberg (20):
+  Input: bcm5974 - only setup button urb for TYPE1 devices
+  Input: Break out MT data
+  Input: Improve the events-per-packet estimate
+  Input: Remove redundant packet estimates
+  Input: Make sure we follow all EV_KEY events
+  Input: Move autorepeat to the event-passing phase
+  Input: Send events one packet at a time
+  Input: evdev - Add the events() callback
+  Input: MT - Add flags to input_mt_init_slots()
+  Input: MT - Handle frame synchronization in core
+  Input: MT - Add in-kernel tracking
+  Input: MT - Add slot assignment by id
+  Input: bcm5974 - Preparatory renames
+  Input: bcm5974 - Drop pressure and width emulation
+  Input: bcm5974 - Drop the logical dimensions
+  Input: bcm5974 - Convert to MT-B
+  HID: Only dump input if someone is listening
+  HID: Add an input configured notification callback
+  HID: hid-debug: Show rdesc for unclaimed devices
+  HID: multitouch: Remove the redundant touch state
 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index 6fddee6..9555aa5 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -656,9 +656,11 @@ static int bcm5974_start_traffic(struct bcm5974 *dev)
- 		goto err_out;
- 	}
- 
--	error = usb_submit_urb(dev->bt_urb, GFP_KERNEL);
--	if (error)
--		goto err_reset_mode;
-+	if (dev->bt_urb) {
-+		error = usb_submit_urb(dev->bt_urb, GFP_KERNEL);
-+		if (error)
-+			goto err_reset_mode;
-+	}
- 
- 	error = usb_submit_urb(dev->tp_urb, GFP_KERNEL);
- 	if (error)
-@@ -782,19 +784,23 @@ static int bcm5974_probe(struct usb_interface *iface,
- 	mutex_init(&dev->pm_mutex);
- 
- 	/* setup urbs */
--	dev->bt_urb = usb_alloc_urb(0, GFP_KERNEL);
--	if (!dev->bt_urb)
--		goto err_free_devs;
-+	if (cfg->tp_type == TYPE1) {
-+		dev->bt_urb = usb_alloc_urb(0, GFP_KERNEL);
-+		if (!dev->bt_urb)
-+			goto err_free_devs;
-+	}
- 
- 	dev->tp_urb = usb_alloc_urb(0, GFP_KERNEL);
- 	if (!dev->tp_urb)
- 		goto err_free_bt_urb;
- 
--	dev->bt_data = usb_alloc_coherent(dev->udev,
-+	if (dev->bt_urb) {
-+		dev->bt_data = usb_alloc_coherent(dev->udev,
- 					  dev->cfg.bt_datalen, GFP_KERNEL,
- 					  &dev->bt_urb->transfer_dma);
--	if (!dev->bt_data)
--		goto err_free_urb;
-+		if (!dev->bt_data)
-+			goto err_free_urb;
-+	}
- 
- 	dev->tp_data = usb_alloc_coherent(dev->udev,
- 					  dev->cfg.tp_datalen, GFP_KERNEL,
-@@ -802,10 +808,11 @@ static int bcm5974_probe(struct usb_interface *iface,
- 	if (!dev->tp_data)
- 		goto err_free_bt_buffer;
- 
--	usb_fill_int_urb(dev->bt_urb, udev,
--			 usb_rcvintpipe(udev, cfg->bt_ep),
--			 dev->bt_data, dev->cfg.bt_datalen,
--			 bcm5974_irq_button, dev, 1);
-+	if (dev->bt_urb)
-+		usb_fill_int_urb(dev->bt_urb, udev,
-+				 usb_rcvintpipe(udev, cfg->bt_ep),
-+				 dev->bt_data, dev->cfg.bt_datalen,
-+				 bcm5974_irq_button, dev, 1);
- 
- 	usb_fill_int_urb(dev->tp_urb, udev,
- 			 usb_rcvintpipe(udev, cfg->tp_ep),
-@@ -843,8 +850,9 @@ err_free_buffer:
- 	usb_free_coherent(dev->udev, dev->cfg.tp_datalen,
- 		dev->tp_data, dev->tp_urb->transfer_dma);
- err_free_bt_buffer:
--	usb_free_coherent(dev->udev, dev->cfg.bt_datalen,
--		dev->bt_data, dev->bt_urb->transfer_dma);
-+	if (dev->bt_urb)
-+		usb_free_coherent(dev->udev, dev->cfg.bt_datalen,
-+				  dev->bt_data, dev->bt_urb->transfer_dma);
- err_free_urb:
- 	usb_free_urb(dev->tp_urb);
- err_free_bt_urb:
-@@ -865,8 +873,9 @@ static void bcm5974_disconnect(struct usb_interface *iface)
- 	input_unregister_device(dev->input);
- 	usb_free_coherent(dev->udev, dev->cfg.tp_datalen,
- 			  dev->tp_data, dev->tp_urb->transfer_dma);
--	usb_free_coherent(dev->udev, dev->cfg.bt_datalen,
--			  dev->bt_data, dev->bt_urb->transfer_dma);
-+	if (dev->bt_urb)
-+		usb_free_coherent(dev->udev, dev->cfg.bt_datalen,
-+				  dev->bt_data, dev->bt_urb->transfer_dma);
- 	usb_free_urb(dev->tp_urb);
- 	usb_free_urb(dev->bt_urb);
- 	kfree(dev);
+ drivers/hid/hid-core.c                   |   3 +-
+ drivers/hid/hid-debug.c                  |  12 +-
+ drivers/hid/hid-input.c                  |  15 +-
+ drivers/hid/hid-magicmouse.c             |   4 +-
+ drivers/hid/hid-multitouch.c             | 133 +++++--------
+ drivers/input/evdev.c                    |  78 +++++---
+ drivers/input/input-mt.c                 | 293 +++++++++++++++++++++++++---
+ drivers/input/input.c                    | 257 +++++++++++++++----------
+ drivers/input/misc/uinput.c              |   2 +-
+ drivers/input/mouse/alps.c               |   2 +-
+ drivers/input/mouse/bcm5974.c            | 317 ++++++++++++-------------------
+ drivers/input/mouse/elantech.c           |   4 +-
+ drivers/input/mouse/sentelic.c           |   2 +-
+ drivers/input/mouse/synaptics.c          |   4 +-
+ drivers/input/tablet/wacom_wac.c         |   6 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c |   2 +-
+ drivers/input/touchscreen/cyttsp_core.c  |   2 +-
+ drivers/input/touchscreen/edt-ft5x06.c   |   2 +-
+ drivers/input/touchscreen/egalax_ts.c    |   2 +-
+ drivers/input/touchscreen/ili210x.c      |   2 +-
+ drivers/input/touchscreen/mms114.c       |   2 +-
+ drivers/input/touchscreen/penmount.c     |   2 +-
+ drivers/input/touchscreen/wacom_w8001.c  |   2 +-
+ include/linux/hid.h                      |   3 +
+ include/linux/input.h                    |  35 ++--
+ include/linux/input/mt.h                 |  53 +++++-
+ 26 files changed, 756 insertions(+), 483 deletions(-)
+
 -- 
 1.7.12
+

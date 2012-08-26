@@ -1,123 +1,179 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 01/20] Input: bcm5974 - Only setup button urb for TYPE1 devices
-Date: Sun, 26 Aug 2012 14:57:19 +0200
-Message-ID: <1345985858-445-2-git-send-email-rydberg@euromail.se>
-References: <1345985858-445-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1345985858-445-1-git-send-email-rydberg@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: [PATCH 1/1] HID: uclogic: Add support for UC-Logic TWHA60
+Date: Sun, 26 Aug 2012 20:55:08 +0300
+Message-ID: <1346003708-13032-1-git-send-email-spbnick@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lpp01m010-f46.google.com ([209.85.215.46]:52259 "EHLO
+	mail-lpp01m010-f46.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751087Ab2HZRzX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 26 Aug 2012 13:55:23 -0400
+Received: by lagy9 with SMTP id y9so2107510lag.19
+        for <linux-input@vger.kernel.org>; Sun, 26 Aug 2012 10:55:21 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@vger.kernel.org>, DIGImend-devel <digimend-devel@lists.sourceforge.net>, Nikolai Kondrashov <spbnick@gmail.com>
 
-The early generations with this trackpad used the separate mouse
-interface to produce button events. With the introduction of the
-button pads, this information was moved to the trackpad interface,
-leaving the mouse interface unused. The driver is still setting up
-both interfaces, which has not caused any problems - until now.
+Add support for UC-Logic Tablet TWHA60.
+It is known to be sold as Genius EasyPen M610 and Monoprice MP1060-HA60.
 
-It turns out that without the CONFIG_USB_EHCI_TT_NEWSCHED option, the
-driver may return an ENOSPC upon bt_urb submission, resulting in a
-failure to open the device. This happens everytime on the MacBookPro
-Retina (and likely on other mid-2012 models), but earlier MacBook
-models seem to work fine.
-
-This patch skips the bt_urb setup for TYPE2 devices, which arguably
-should have been done in the first place.
-
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+As this tablet has several variations with different number and different
+assignments of frame buttons, they are simply mapped to F1-F24 range and are
+left for users to remap in userspace.
 ---
- drivers/input/mouse/bcm5974.c | 43 ++++++++++++++++++++++++++-----------------
- 1 file changed, 26 insertions(+), 17 deletions(-)
+ drivers/hid/hid-core.c    |    1 +
+ drivers/hid/hid-ids.h     |    1 +
+ drivers/hid/hid-uclogic.c |   98 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 100 insertions(+)
 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index d528c23..39ac9ff 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -742,9 +742,11 @@ static int bcm5974_start_traffic(struct bcm5974 *dev)
- 		goto err_out;
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8e3a6b2..218e46d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1645,6 +1645,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP1062) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SUPER_JOY_BOX_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 9373f53..2155ac0 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -733,6 +733,7 @@
+ #define USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U	0x0005
+ #define USB_DEVICE_ID_UCLOGIC_TABLET_WP1062	0x0064
+ #define USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850	0x0522
++#define USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60	0x0781
+ 
+ #define USB_VENDOR_ID_UNITEC	0x227d
+ #define USB_DEVICE_ID_UNITEC_USB_TOUCH_0709	0x0709
+diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
+index 3aba02b..2e56a1f 100644
+--- a/drivers/hid/hid-uclogic.c
++++ b/drivers/hid/hid-uclogic.c
+@@ -466,6 +466,86 @@ static __u8 twhl850_rdesc_fixed2[] = {
+ 	0xC0                /*  End Collection                      */
+ };
+ 
++/*
++ * See TWHA60 description, device and HID report descriptors at
++ * http://sf.net/apps/mediawiki/digimend/?title=UC-Logic_Tablet_TWHA60
++ */
++
++/* Size of the original descriptors of TWHA60 tablet */
++#define TWHA60_RDESC_ORIG_SIZE0 254
++#define TWHA60_RDESC_ORIG_SIZE1 139
++
++/* Fixed TWHA60 report descriptor, interface 0 (stylus) */
++static __u8 twha60_rdesc_fixed0[] = {
++	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
++	0x09, 0x02,         /*  Usage (Pen),                        */
++	0xA1, 0x01,         /*  Collection (Application),           */
++	0x85, 0x09,         /*      Report ID (9),                  */
++	0x09, 0x20,         /*      Usage (Stylus),                 */
++	0xA0,               /*      Collection (Physical),          */
++	0x75, 0x01,         /*          Report Size (1),            */
++	0x09, 0x42,         /*          Usage (Tip Switch),         */
++	0x09, 0x44,         /*          Usage (Barrel Switch),      */
++	0x09, 0x46,         /*          Usage (Tablet Pick),        */
++	0x14,               /*          Logical Minimum (0),        */
++	0x25, 0x01,         /*          Logical Maximum (1),        */
++	0x95, 0x03,         /*          Report Count (3),           */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0x95, 0x04,         /*          Report Count (4),           */
++	0x81, 0x01,         /*          Input (Constant),           */
++	0x09, 0x32,         /*          Usage (In Range),           */
++	0x95, 0x01,         /*          Report Count (1),           */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0x75, 0x10,         /*          Report Size (16),           */
++	0x95, 0x01,         /*          Report Count (1),           */
++	0x14,               /*          Logical Minimum (0),        */
++	0xA4,               /*          Push,                       */
++	0x05, 0x01,         /*          Usage Page (Desktop),       */
++	0x55, 0xFD,         /*          Unit Exponent (-3),         */
++	0x65, 0x13,         /*          Unit (Inch),                */
++	0x34,               /*          Physical Minimum (0),       */
++	0x09, 0x30,         /*          Usage (X),                  */
++	0x46, 0x10, 0x27,   /*          Physical Maximum (10000),   */
++	0x27, 0x3F, 0x9C,
++		0x00, 0x00, /*          Logical Maximum (39999),    */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0x09, 0x31,         /*          Usage (Y),                  */
++	0x46, 0x6A, 0x18,   /*          Physical Maximum (6250),    */
++	0x26, 0xA7, 0x61,   /*          Logical Maximum (24999),    */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0xB4,               /*          Pop,                        */
++	0x09, 0x30,         /*          Usage (Tip Pressure),       */
++	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0xC0,               /*      End Collection,                 */
++	0xC0                /*  End Collection                      */
++};
++
++/* Fixed TWHA60 report descriptor, interface 1 (frame buttons) */
++static __u8 twha60_rdesc_fixed1[] = {
++	0x05, 0x01, /*  Usage Page (Desktop),       */
++	0x09, 0x06, /*  Usage (Keyboard),           */
++	0xA1, 0x01, /*  Collection (Application),   */
++	0x85, 0x05, /*      Report ID (5),          */
++	0x05, 0x07, /*      Usage Page (Keyboard),  */
++	0x14,       /*      Logical Minimum (0),    */
++	0x25, 0x01, /*      Logical Maximum (1),    */
++	0x75, 0x01, /*      Report Size (1),        */
++	0x95, 0x08, /*      Report Count (8),       */
++	0x81, 0x01, /*      Input (Constant),       */
++	0x95, 0x0C, /*      Report Count (12),      */
++	0x19, 0x3A, /*      Usage Minimum (KB F1),  */
++	0x29, 0x45, /*      Usage Maximum (KB F12), */
++	0x81, 0x02, /*      Input (Variable),       */
++	0x95, 0x0C, /*      Report Count (12),      */
++	0x19, 0x68, /*      Usage Minimum (KB F13), */
++	0x29, 0x73, /*      Usage Maximum (KB F24), */
++	0x81, 0x02, /*      Input (Variable),       */
++	0x95, 0x08, /*      Report Count (8),       */
++	0x81, 0x01, /*      Input (Constant),       */
++	0xC0        /*  End Collection              */
++};
++
+ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 					unsigned int *rsize)
+ {
+@@ -525,6 +605,22 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 			break;
+ 		}
+ 		break;
++	case USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60:
++		switch (iface_num) {
++		case 0:
++			if (*rsize == TWHA60_RDESC_ORIG_SIZE0) {
++				rdesc = twha60_rdesc_fixed0;
++				*rsize = sizeof(twha60_rdesc_fixed0);
++			}
++			break;
++		case 1:
++			if (*rsize == TWHA60_RDESC_ORIG_SIZE1) {
++				rdesc = twha60_rdesc_fixed1;
++				*rsize = sizeof(twha60_rdesc_fixed1);
++			}
++			break;
++		}
++		break;
  	}
  
--	error = usb_submit_urb(dev->bt_urb, GFP_KERNEL);
--	if (error)
--		goto err_reset_mode;
-+	if (dev->bt_urb) {
-+		error = usb_submit_urb(dev->bt_urb, GFP_KERNEL);
-+		if (error)
-+			goto err_reset_mode;
-+	}
- 
- 	error = usb_submit_urb(dev->tp_urb, GFP_KERNEL);
- 	if (error)
-@@ -868,19 +870,23 @@ static int bcm5974_probe(struct usb_interface *iface,
- 	mutex_init(&dev->pm_mutex);
- 
- 	/* setup urbs */
--	dev->bt_urb = usb_alloc_urb(0, GFP_KERNEL);
--	if (!dev->bt_urb)
--		goto err_free_devs;
-+	if (cfg->tp_type == TYPE1) {
-+		dev->bt_urb = usb_alloc_urb(0, GFP_KERNEL);
-+		if (!dev->bt_urb)
-+			goto err_free_devs;
-+	}
- 
- 	dev->tp_urb = usb_alloc_urb(0, GFP_KERNEL);
- 	if (!dev->tp_urb)
- 		goto err_free_bt_urb;
- 
--	dev->bt_data = usb_alloc_coherent(dev->udev,
-+	if (dev->bt_urb) {
-+		dev->bt_data = usb_alloc_coherent(dev->udev,
- 					  dev->cfg.bt_datalen, GFP_KERNEL,
- 					  &dev->bt_urb->transfer_dma);
--	if (!dev->bt_data)
--		goto err_free_urb;
-+		if (!dev->bt_data)
-+			goto err_free_urb;
-+	}
- 
- 	dev->tp_data = usb_alloc_coherent(dev->udev,
- 					  dev->cfg.tp_datalen, GFP_KERNEL,
-@@ -888,10 +894,11 @@ static int bcm5974_probe(struct usb_interface *iface,
- 	if (!dev->tp_data)
- 		goto err_free_bt_buffer;
- 
--	usb_fill_int_urb(dev->bt_urb, udev,
--			 usb_rcvintpipe(udev, cfg->bt_ep),
--			 dev->bt_data, dev->cfg.bt_datalen,
--			 bcm5974_irq_button, dev, 1);
-+	if (dev->bt_urb)
-+		usb_fill_int_urb(dev->bt_urb, udev,
-+				 usb_rcvintpipe(udev, cfg->bt_ep),
-+				 dev->bt_data, dev->cfg.bt_datalen,
-+				 bcm5974_irq_button, dev, 1);
- 
- 	usb_fill_int_urb(dev->tp_urb, udev,
- 			 usb_rcvintpipe(udev, cfg->tp_ep),
-@@ -929,8 +936,9 @@ err_free_buffer:
- 	usb_free_coherent(dev->udev, dev->cfg.tp_datalen,
- 		dev->tp_data, dev->tp_urb->transfer_dma);
- err_free_bt_buffer:
--	usb_free_coherent(dev->udev, dev->cfg.bt_datalen,
--		dev->bt_data, dev->bt_urb->transfer_dma);
-+	if (dev->bt_urb)
-+		usb_free_coherent(dev->udev, dev->cfg.bt_datalen,
-+				  dev->bt_data, dev->bt_urb->transfer_dma);
- err_free_urb:
- 	usb_free_urb(dev->tp_urb);
- err_free_bt_urb:
-@@ -951,8 +959,9 @@ static void bcm5974_disconnect(struct usb_interface *iface)
- 	input_unregister_device(dev->input);
- 	usb_free_coherent(dev->udev, dev->cfg.tp_datalen,
- 			  dev->tp_data, dev->tp_urb->transfer_dma);
--	usb_free_coherent(dev->udev, dev->cfg.bt_datalen,
--			  dev->bt_data, dev->bt_urb->transfer_dma);
-+	if (dev->bt_urb)
-+		usb_free_coherent(dev->udev, dev->cfg.bt_datalen,
-+				  dev->bt_data, dev->bt_urb->transfer_dma);
- 	usb_free_urb(dev->tp_urb);
- 	usb_free_urb(dev->bt_urb);
- 	kfree(dev);
+ 	return rdesc;
+@@ -543,6 +639,8 @@ static const struct hid_device_id uclogic_devices[] = {
+ 				USB_DEVICE_ID_UCLOGIC_TABLET_WP1062) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
+ 				USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
++				USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, uclogic_devices);
 -- 
-1.7.12
+1.7.10.4
+

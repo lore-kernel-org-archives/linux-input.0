@@ -1,7 +1,7 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 06/20] Input: Move autorepeat to the event-passing phase
-Date: Sun, 26 Aug 2012 14:57:24 +0200
-Message-ID: <1345985858-445-7-git-send-email-rydberg@euromail.se>
+Subject: [PATCH 13/20] Input: bcm5974 - Preparatory renames
+Date: Sun, 26 Aug 2012 14:57:31 +0200
+Message-ID: <1345985858-445-14-git-send-email-rydberg@euromail.se>
 References: <1345985858-445-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1345985858-445-1-git-send-email-rydberg@euromail.se>
@@ -10,91 +10,80 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 List-Id: linux-input@vger.kernel.org
 
-Preparing to split event filtering and event passing, move the
-autorepeat function to the point where the event is actually passed.
+Rename touch properties to match established nomenclature, and define
+the maximum number of fingers.
 
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/input/input.c | 46 +++++++++++++++++++++++++---------------------
- 1 file changed, 25 insertions(+), 21 deletions(-)
+ drivers/input/mouse/bcm5974.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 4d64500..a57c4a5 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -69,6 +69,22 @@ static int input_defuzz_abs_event(int value, int old_val, int fuzz)
- 	return value;
- }
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index 8965824..cb9383e 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -183,18 +183,19 @@ struct tp_finger {
+ 	__le16 abs_y;		/* absolute y coodinate */
+ 	__le16 rel_x;		/* relative x coodinate */
+ 	__le16 rel_y;		/* relative y coodinate */
+-	__le16 size_major;	/* finger size, major axis? */
+-	__le16 size_minor;	/* finger size, minor axis? */
++	__le16 tool_major;	/* tool area, major axis */
++	__le16 tool_minor;	/* tool area, minor axis */
+ 	__le16 orientation;	/* 16384 when point, else 15 bit angle */
+-	__le16 force_major;	/* trackpad force, major axis? */
+-	__le16 force_minor;	/* trackpad force, minor axis? */
++	__le16 touch_major;	/* touch area, major axis */
++	__le16 touch_minor;	/* touch area, minor axis */
+ 	__le16 unused[3];	/* zeros */
+ 	__le16 multi;		/* one finger: varies, more fingers: constant */
+ } __attribute__((packed,aligned(2)));
  
-+static void input_start_autorepeat(struct input_dev *dev, int code)
-+{
-+	if (test_bit(EV_REP, dev->evbit) &&
-+	    dev->rep[REP_PERIOD] && dev->rep[REP_DELAY] &&
-+	    dev->timer.data) {
-+		dev->repeat_key = code;
-+		mod_timer(&dev->timer,
-+			  jiffies + msecs_to_jiffies(dev->rep[REP_DELAY]));
-+	}
-+}
-+
-+static void input_stop_autorepeat(struct input_dev *dev)
-+{
-+	del_timer(&dev->timer);
-+}
-+
- /*
-  * Pass event first through all filters and then, if event has not been
-  * filtered out, through all open handles. This function is called with
-@@ -105,6 +121,15 @@ static void input_pass_event(struct input_dev *dev,
- 	}
+ /* trackpad finger data size, empirically at least ten fingers */
++#define MAX_FINGERS		16
+ #define SIZEOF_FINGER		sizeof(struct tp_finger)
+-#define SIZEOF_ALL_FINGERS	(16 * SIZEOF_FINGER)
++#define SIZEOF_ALL_FINGERS	(MAX_FINGERS * SIZEOF_FINGER)
+ #define MAX_FINGER_ORIENTATION	16384
  
- 	rcu_read_unlock();
-+
-+	/* trigger auto repeat for key events */
-+	if (type == EV_KEY && value != 2) {
-+		if (value)
-+			input_start_autorepeat(dev, code);
-+		else
-+			input_stop_autorepeat(dev);
-+	}
-+
- }
+ /* device-specific parameters */
+@@ -480,13 +481,13 @@ static void report_finger_data(struct input_dev *input,
+ 			       const struct tp_finger *f)
+ {
+ 	input_report_abs(input, ABS_MT_TOUCH_MAJOR,
+-			 raw2int(f->force_major) << 1);
++			 raw2int(f->touch_major) << 1);
+ 	input_report_abs(input, ABS_MT_TOUCH_MINOR,
+-			 raw2int(f->force_minor) << 1);
++			 raw2int(f->touch_minor) << 1);
+ 	input_report_abs(input, ABS_MT_WIDTH_MAJOR,
+-			 raw2int(f->size_major) << 1);
++			 raw2int(f->tool_major) << 1);
+ 	input_report_abs(input, ABS_MT_WIDTH_MINOR,
+-			 raw2int(f->size_minor) << 1);
++			 raw2int(f->tool_minor) << 1);
+ 	input_report_abs(input, ABS_MT_ORIENTATION,
+ 			 MAX_FINGER_ORIENTATION - raw2int(f->orientation));
+ 	input_report_abs(input, ABS_MT_POSITION_X, raw2int(f->abs_x));
+@@ -519,8 +520,8 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 		for (i = 0; i < raw_n; i++)
+ 			report_finger_data(input, c, &f[i]);
  
- /*
-@@ -142,22 +167,6 @@ static void input_repeat_key(unsigned long data)
- 	spin_unlock_irqrestore(&dev->event_lock, flags);
- }
+-		raw_p = raw2int(f->force_major);
+-		raw_w = raw2int(f->size_major);
++		raw_p = raw2int(f->touch_major);
++		raw_w = raw2int(f->tool_major);
+ 		raw_x = raw2int(f->abs_x);
+ 		raw_y = raw2int(f->abs_y);
  
--static void input_start_autorepeat(struct input_dev *dev, int code)
--{
--	if (test_bit(EV_REP, dev->evbit) &&
--	    dev->rep[REP_PERIOD] && dev->rep[REP_DELAY] &&
--	    dev->timer.data) {
--		dev->repeat_key = code;
--		mod_timer(&dev->timer,
--			  jiffies + msecs_to_jiffies(dev->rep[REP_DELAY]));
--	}
--}
--
--static void input_stop_autorepeat(struct input_dev *dev)
--{
--	del_timer(&dev->timer);
--}
--
- #define INPUT_IGNORE_EVENT	0
- #define INPUT_PASS_TO_HANDLERS	1
- #define INPUT_PASS_TO_DEVICE	2
-@@ -251,11 +260,6 @@ static void input_handle_event(struct input_dev *dev,
- 
- 				__change_bit(code, dev->key);
- 				disposition = INPUT_PASS_TO_HANDLERS;
--
--				if (value)
--					input_start_autorepeat(dev, code);
--				else
--					input_stop_autorepeat(dev);
- 			}
- 		}
- 		break;
+@@ -540,7 +541,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 			abs_y = int2bound(&c->y, c->y.devmax - raw_y);
+ 			while (raw_n--) {
+ 				ptest = int2bound(&c->p,
+-						  raw2int(f->force_major));
++						  raw2int(f->touch_major));
+ 				if (ptest > PRESSURE_LOW)
+ 					nmax++;
+ 				if (ptest > PRESSURE_HIGH)
 -- 
 1.7.12

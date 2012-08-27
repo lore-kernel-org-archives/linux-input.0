@@ -1,114 +1,78 @@
-From: Gong Tao <gongtao0607@gmail.com>
-Subject: [PATCH] gpio-keys: register irq buttons from devtree
-Date: Mon, 27 Aug 2012 16:15:23 +0800
-Message-ID: <1346055323-12941-1-git-send-email-gongtao0607@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid: Remove duplicate ID for QUANTA 3001 touchscreen
+Date: Mon, 27 Aug 2012 07:55:58 -0700 (PDT)
+Message-ID: <alpine.LNX.2.00.1208270755490.22447@pobox.suse.cz>
+References: <1345716767-2872-1-git-send-email-simon.farnsworth@onelan.co.uk> <20120823164515.GA611@polaris.bitmath.org>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:41138 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752805Ab2H0IPe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Aug 2012 04:15:34 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:34878 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751781Ab2H0O4K (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Aug 2012 10:56:10 -0400
+In-Reply-To: <20120823164515.GA611@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gong Tao <gongtao0607@gmail.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Simon Farnsworth <simon.farnsworth@onelan.co.uk>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Henrik Rydberg <rydberg@bitmath.se>
 
-add support for registering irq buttons from devtree
+On Thu, 23 Aug 2012, Henrik Rydberg wrote:
 
-Signed-off-by: Gong Tao <gongtao0607@gmail.com>
----
- drivers/input/keyboard/gpio_keys.c | 64 +++++++++++++++++++++++++++++++++++---
- 1 file changed, 59 insertions(+), 5 deletions(-)
+> > For some reason, we had two IDs for the QUANTA 3001 touchscreen controller,
+> > one USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001 and one
+> > USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN. As this has caused
+> > confusion, remove USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN
+> > completely, and fix places where it was used to refer to
+> > USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001.
+> > 
+> > Signed-off-by: Simon Farnsworth <simon.farnsworth@onelan.co.uk>
+> > ---
+> > Henrik suggested removing the duplicate IDs from the QUANTA devices.
+> > 
+> > I've torn out the PIXART one, as we have a vendor ID for PIXART, and I
+> > suspect that it's simply that PIXART sold a rebranded QUANTA device for a
+> > while, and the first example of the QUANTA controller was under PIXART
+> > branding.
+> > 
+> >  drivers/hid/hid-ids.h           | 1 -
+> >  drivers/hid/usbhid/hid-quirks.c | 2 +-
+> >  2 files changed, 1 insertion(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> > index 1dcb76f..d615ecb 100644
+> > --- a/drivers/hid/hid-ids.h
+> > +++ b/drivers/hid/hid-ids.h
+> > @@ -652,7 +652,6 @@
+> >  #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH		0x3000
+> >  #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001		0x3001
+> >  #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008		0x3008
+> > -#define USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN	0x3001
+> >  
+> >  #define USB_VENDOR_ID_ROCCAT		0x1e7d
+> >  #define USB_DEVICE_ID_ROCCAT_ARVO	0x30d4
+> > diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> > index 903eef3..58bd4f2 100644
+> > --- a/drivers/hid/usbhid/hid-quirks.c
+> > +++ b/drivers/hid/usbhid/hid-quirks.c
+> > @@ -74,7 +74,7 @@ static const struct hid_blacklist {
+> >  	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1, HID_QUIRK_NO_INIT_REPORTS },
+> >  	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN2, HID_QUIRK_NO_INIT_REPORTS },
+> >  	{ USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, HID_QUIRK_NOGET },
+> > -	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NOGET },
+> > +	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001, HID_QUIRK_NOGET },
+> >  	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008, HID_QUIRK_NOGET },
+> >  	{ USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB, HID_QUIRK_NOGET },
+> >  	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
+> > -- 
+> > 1.7.11.2
+> > 
+> 
+> Excellent, thank you Simon.
+> 
+>     Acked-by: Henrik Rydberg <rydberg@euromail.se>
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 62bfce4..a89f101 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -3,12 +3,60 @@
-  *
-  * Copyright 2005 Phil Blundell
-  * Copyright 2010, 2011 David Jander <david@protonic.nl>
-+ * Copyright 2012 Gong Tao <gongtao0607@gmail.com>
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2 as
-  * published by the Free Software Foundation.
-  */
- 
-+/*
-+ * Device tree configuration:
-+ *
-+ * Properties:
-+ * - compatible      : "gpio-keys"
-+ * - interrupts      : all interrupt numbers used by keys
-+ * - autorepeat      : optional, enable input subsystem auto repeat
-+ *
-+ * Child properties: please reffer to struct gpio_keys_button
-+ * - label              : gpio_keys_button.desc
-+ * - gpios              : gpio_keys_button.gpio
-+ * - irq                : gpio_keys_button.irq
-+ * - linux,code         : gpio_keys_button.code
-+ * - linux,input-type   : gpio_keys_button.type
-+ *                        optional, default EV_KEY
-+ * - gpio-key,wakeup    : gpio_keys_button.wakeup
-+ *                        optional
-+ * - debounce-interval  : gpio_keys_button.debounce_interval
-+ *	                      optional, default 5
-+ * Example:
-+ *
-+ *  gpio_keys {
-+ *      compatible = "gpio-keys";
-+ *      interrupts = <25>;
-+ *      autorepeat;
-+ *
-+ *      key1 { //GPIO Button
-+ *          label = "key1";
-+ *          gpios = <&gpio0 7 0>;
-+ *          linux,code = <105>;
-+ *          linux,input-type = <1>;
-+ *          gpio-key,wakeup;
-+ *          debounce-interval = <5>;
-+ *      };
-+ *
-+ *      key2 { //IRQ Button
-+ *          label = "key2";
-+ *          irq = <25>;
-+ *          linux,code = <106>;
-+ *          linux,input-type = <1>;
-+ *          gpio-key,wakeup;
-+ *          debounce-interval = <5>;
-+ *      };
-+ *  };
-+ *
-+ */
-+
- #include <linux/module.h>
- 
- #include <linux/init.h>
-@@ -577,12 +625,18 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
- 		enum of_gpio_flags flags;
- 
- 		if (!of_find_property(pp, "gpios", NULL)) {
--			pdata->nbuttons--;
--			dev_warn(dev, "Found button without gpios\n");
--			continue;
-+			if (of_property_read_u32(pp, "irq", &reg) == 0) {
-+				buttons[i].gpio = -1;
-+				buttons[i].irq = reg;
-+			} else {
-+				pdata->nbuttons--;
-+				dev_warn(dev, "Found button without gpios and irq\n");
-+				continue;
-+			}
-+		} else {
-+			buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
-+			buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
- 		}
--		buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
--		buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
- 
- 		if (of_property_read_u32(pp, "linux,code", &reg)) {
- 			dev_err(dev, "Button without keycode: 0x%x\n", buttons[i].gpio);
+Applied, thank you guys.
+
 -- 
-1.7.12
-
+Jiri Kosina
+SUSE Labs

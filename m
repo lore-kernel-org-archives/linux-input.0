@@ -1,47 +1,114 @@
-From: Ferruh Yigit <fery@cypress.com>
-Subject: Re: [PATCH 2/4] Input: cyttsp4 - core driver for Cypress TMA4XX touchscreen
- devices
-Date: Mon, 27 Aug 2012 08:49:40 +0300
-Message-ID: <503B0A74.9070809@cypress.com>
-References: <Ferruh Yigit <fery@cypress.com> <1344345000-30494-1-git-send-email-fery@cypress.com> <50378DD1.9080806@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <50378DD1.9080806@suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michal Marek <mmarek@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin McNeely <kev@cypress.com>, Javier Martinez Canillas <javier@dowhile0.org>, Henrik Rydberg <rydberg@euromail.se>, Shawn Landden <shawnlandden@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Olivier Sobrie <olivier@sobrie.be>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Gong Tao <gongtao0607@gmail.com>
+Subject: [PATCH] gpio-keys: register irq buttons from devtree
+Date: Mon, 27 Aug 2012 16:15:23 +0800
+Message-ID: <1346055323-12941-1-git-send-email-gongtao0607@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:41138 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752805Ab2H0IPe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Aug 2012 04:15:34 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gong Tao <gongtao0607@gmail.com>
 
-On 08/24/2012 05:21 PM, Michal Marek wrote:
-> Dne 7.8.2012 15:09, Ferruh Yigit napsal(a):
->> +static int __init cyttsp4_core_init(void)
->> +{
->> +       int rc = 0;
->> +
->> +       rc = cyttsp4_register_core_driver(&cyttsp4_core_driver);
->> +       pr_info("%s: Cypress TTSP v4 core driver (Built %s @ %s) rc=%d\n",
->> +                __func__, __DATE__, __TIME__, rc);
-> Hi,
->
-> please drop the __DATE__ and __TIME__ macros to keep the build
-> deterministic.
->
-> thanks,
-> Michal
+add support for registering irq buttons from devtree
 
-Thank you Michal,
+Signed-off-by: Gong Tao <gongtao0607@gmail.com>
+---
+ drivers/input/keyboard/gpio_keys.c | 64 +++++++++++++++++++++++++++++++++++---
+ 1 file changed, 59 insertions(+), 5 deletions(-)
 
-Will replace them with fixed release date macro.
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 62bfce4..a89f101 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -3,12 +3,60 @@
+  *
+  * Copyright 2005 Phil Blundell
+  * Copyright 2010, 2011 David Jander <david@protonic.nl>
++ * Copyright 2012 Gong Tao <gongtao0607@gmail.com>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 as
+  * published by the Free Software Foundation.
+  */
+ 
++/*
++ * Device tree configuration:
++ *
++ * Properties:
++ * - compatible      : "gpio-keys"
++ * - interrupts      : all interrupt numbers used by keys
++ * - autorepeat      : optional, enable input subsystem auto repeat
++ *
++ * Child properties: please reffer to struct gpio_keys_button
++ * - label              : gpio_keys_button.desc
++ * - gpios              : gpio_keys_button.gpio
++ * - irq                : gpio_keys_button.irq
++ * - linux,code         : gpio_keys_button.code
++ * - linux,input-type   : gpio_keys_button.type
++ *                        optional, default EV_KEY
++ * - gpio-key,wakeup    : gpio_keys_button.wakeup
++ *                        optional
++ * - debounce-interval  : gpio_keys_button.debounce_interval
++ *	                      optional, default 5
++ * Example:
++ *
++ *  gpio_keys {
++ *      compatible = "gpio-keys";
++ *      interrupts = <25>;
++ *      autorepeat;
++ *
++ *      key1 { //GPIO Button
++ *          label = "key1";
++ *          gpios = <&gpio0 7 0>;
++ *          linux,code = <105>;
++ *          linux,input-type = <1>;
++ *          gpio-key,wakeup;
++ *          debounce-interval = <5>;
++ *      };
++ *
++ *      key2 { //IRQ Button
++ *          label = "key2";
++ *          irq = <25>;
++ *          linux,code = <106>;
++ *          linux,input-type = <1>;
++ *          gpio-key,wakeup;
++ *          debounce-interval = <5>;
++ *      };
++ *  };
++ *
++ */
++
+ #include <linux/module.h>
+ 
+ #include <linux/init.h>
+@@ -577,12 +625,18 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
+ 		enum of_gpio_flags flags;
+ 
+ 		if (!of_find_property(pp, "gpios", NULL)) {
+-			pdata->nbuttons--;
+-			dev_warn(dev, "Found button without gpios\n");
+-			continue;
++			if (of_property_read_u32(pp, "irq", &reg) == 0) {
++				buttons[i].gpio = -1;
++				buttons[i].irq = reg;
++			} else {
++				pdata->nbuttons--;
++				dev_warn(dev, "Found button without gpios and irq\n");
++				continue;
++			}
++		} else {
++			buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
++			buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
+ 		}
+-		buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
+-		buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
+ 
+ 		if (of_property_read_u32(pp, "linux,code", &reg)) {
+ 			dev_err(dev, "Button without keycode: 0x%x\n", buttons[i].gpio);
+-- 
+1.7.12
 
-Regards,
-ferruh
-
---
-
-Regards,
-ferruh
-
-
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.

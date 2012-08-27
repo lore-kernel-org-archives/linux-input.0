@@ -1,20 +1,20 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [RFC PATCH 7/17] input: RMI4 F01 device control
-Date: Mon, 27 Aug 2012 14:59:43 -0700
-Message-ID: <CACRpkdaGoPfieJQnryHmorh9LcxdLU+WjpnER8fXbuMAji2DDA@mail.gmail.com>
+Subject: Re: [RFC PATCH 8/17] input: RMI4 F09 Built-In Self Test
+Date: Mon, 27 Aug 2012 15:07:48 -0700
+Message-ID: <CACRpkdaq7StwG_jg+hZCcU668=VrcUeZa7qP6R_2v9ugkkX38w@mail.gmail.com>
 References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
-	<1345241877-16200-8-git-send-email-cheiny@synaptics.com>
+	<1345241877-16200-9-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:36087 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753222Ab2H0V7o (ORCPT
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:47934 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754654Ab2H0WHt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Aug 2012 17:59:44 -0400
-Received: by weyx8 with SMTP id x8so2624427wey.19
-        for <linux-input@vger.kernel.org>; Mon, 27 Aug 2012 14:59:43 -0700 (PDT)
-In-Reply-To: <1345241877-16200-8-git-send-email-cheiny@synaptics.com>
+	Mon, 27 Aug 2012 18:07:49 -0400
+Received: by wibhr14 with SMTP id hr14so3992171wib.1
+        for <linux-input@vger.kernel.org>; Mon, 27 Aug 2012 15:07:48 -0700 (PDT)
+In-Reply-To: <1345241877-16200-9-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Christopher Heiny <cheiny@synaptics.com>
@@ -22,355 +22,172 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.or
 
 On Fri, Aug 17, 2012 at 3:17 PM, Christopher Heiny <cheiny@synaptics.com> wrote:
 
+Put in a verbose description of what this is.
+
 (...)
-> +++ b/drivers/input/rmi4/rmi_f01.c
-(...)
-> +union f01_device_commands {
-> +       struct {
-> +               u8 reset:1;
-> +               u8 reserved:1;
+> +++ b/drivers/input/rmi4/rmi_f09.c
 
-I would just use bool for one-bit variables.
-
-But I see that some protocol people often cast a piece of data on top
-of  a struct, and have it packed to fit on top of each other.
-
-It looks like that is what is going on here.
-
+> +/* data specific to fn $09 that needs to be kept around */
+> +struct f09_query {
+> +       u8 limit_register_count;
+> +       union {
+> +               struct {
+> +                       u8 result_register_count:3;
+> +                       u8 reserved:3;
+> +                       u8 internal_limits:1;
+> +                       u8 host_test_enable:1;
+> +               };
+> +               u8 f09_bist_query1;
 > +       };
-> +       u8 reg;
 > +};
 
-If you're doing bitstuffing, use
-__attribute__((__packed__));
-after each struct.
+__attribute__((packed));
 
-> +struct f01_device_control {
-> +       union f01_device_control_0 ctrl0;
-> +       u8 *interrupt_enable;
-> +       u8 doze_interval;
-> +       u8 wakeup_threshold;
-> +       u8 doze_holdoff;
-> +};
+?
 
-These could use some kerneldoc.
-
-__attribute__((__packed__));
-
-> +union f01_query_42 {
-> +       struct {
-> +               u8 has_ds4_queries:1;
-> +               u8 has_multi_phy:1;
-> +               u8 has_guest:1;
-> +               u8 reserved:5;
+> +struct f09_control {
+> +       union {
+> +               struct {
+> +                       u8 test1_limit_low:8;
+> +                       u8 test1_limit_high:8;
+> +                       u8 test1_limit_diff:8;
+> +               };
+> +               u8 f09_control_test1[3];
 > +       };
-> +       u8 regs[1];
-> +};
-
-__attribute__((__packed__));
-
-> +union f01_ds4_queries {
-> +       struct {
-> +               u8 length:4;
-> +               u8 reserved_1:4;
-> +
-> +               u8 has_package_id_query:1;
-> +               u8 has_packrat_query:1;
-> +               u8 has_reset_query:1;
-> +               u8 has_maskrev_query:1;
-> +               u8 reserved_2:4;
-> +
-> +               u8 has_i2c_control:1;
-> +               u8 has_spi_control:1;
-> +               u8 has_attn_control:1;
-> +               u8 reserved_3:5;
-> +
-> +               u8 reset_enabled:1;
-> +               u8 reset_polarity:1;
-> +               u8 pullup_enabled:1;
-> +               u8 reserved_4:1;
-> +               u8 reset_pin_number:4;
+> +       union {
+> +               struct {
+> +                       u8 test2_limit_low:8;
+> +                       u8 test2_limit_high:8;
+> +                       u8 test2_limit_diff:8;
+> +               };
+> +               u8 f09_control_test2[3];
 > +       };
-> +       u8 regs[4];
 > +};
 
-__attribute__((__packed__));
+__attribute__((packed));
 
+?
+
+> +struct f09_data {
+> +       u8 test_number_control;
+> +       u8 overall_bist_result;
+> +       u8 test_result1;
+> +       u8 test_result2;
+> +       u8 transmitter_number;
+> +
+> +       union {
+> +               struct {
+> +                       u8 receiver_number:6;
+> +                       u8 limit_failure_code:2;
+> +               };
+> +               u8 f09_bist_data2;
+> +       };
+> +};
+
+__attribute__((packed));
+
+?
+
+> +struct f09_cmd {
+> +       union {
+> +               struct {
+> +                       u8 run_bist:1;
+> +               };
+> +               u8 f09_bist_cmd0;
+> +       };
+> +};
+
+__attribute__((packed));
+
+?
 
 (...)
-> +static struct device_attribute fn_01_attrs[] = {
-> +       __ATTR(productinfo, RMI_RO_ATTR,
-> +              rmi_fn_01_productinfo_show, rmi_store_error),
-> +       __ATTR(productid, RMI_RO_ATTR,
-> +              rmi_fn_01_productid_show, rmi_store_error),
-> +       __ATTR(manufacturer, RMI_RO_ATTR,
-> +              rmi_fn_01_manufacturer_show, rmi_store_error),
-> +       __ATTR(datecode, RMI_RO_ATTR,
-> +              rmi_fn_01_datecode_show, rmi_store_error),
-> +
-> +       /* control register access */
-> +       __ATTR(sleepmode, RMI_RW_ATTR,
-> +              rmi_fn_01_sleepmode_show, rmi_fn_01_sleepmode_store),
-> +       __ATTR(nosleep, RMI_RW_ATTR,
-> +              rmi_fn_01_nosleep_show, rmi_fn_01_nosleep_store),
-> +       __ATTR(chargerinput, RMI_RW_ATTR,
-> +              rmi_fn_01_chargerinput_show, rmi_fn_01_chargerinput_store),
-> +       __ATTR(reportrate, RMI_RW_ATTR,
-> +              rmi_fn_01_reportrate_show, rmi_fn_01_reportrate_store),
-> +       __ATTR(interrupt_enable, RMI_RW_ATTR,
-> +              rmi_fn_01_interrupt_enable_show,
-> +               rmi_fn_01_interrupt_enable_store),
-> +       __ATTR(doze_interval, RMI_RW_ATTR,
-> +              rmi_fn_01_doze_interval_show,
-> +               rmi_fn_01_doze_interval_store),
-> +       __ATTR(wakeup_threshold, RMI_RW_ATTR,
-> +              rmi_fn_01_wakeup_threshold_show,
-> +               rmi_fn_01_wakeup_threshold_store),
-> +       __ATTR(doze_holdoff, RMI_RW_ATTR,
-> +              rmi_fn_01_doze_holdoff_show,
-> +               rmi_fn_01_doze_holdoff_store),
-> +
-> +       /* We make report rate RO, since the driver uses that to look for
-> +        * resets.  We don't want someone faking us out by changing that
-> +        * bit.
-> +        */
-> +       __ATTR(configured, RMI_RO_ATTR,
-> +              rmi_fn_01_configured_show, rmi_store_error),
-> +
-> +       /* Command register access. */
-> +       __ATTR(reset, RMI_WO_ATTR,
-> +              rmi_show_error, rmi_fn_01_reset_store),
-> +
-> +       /* STatus register access. */
-> +       __ATTR(unconfigured, RMI_RO_ATTR,
-> +              rmi_fn_01_unconfigured_show, rmi_store_error),
-> +       __ATTR(flashprog, RMI_RO_ATTR,
-> +              rmi_fn_01_flashprog_show, rmi_store_error),
-> +       __ATTR(statuscode, RMI_RO_ATTR,
-> +              rmi_fn_01_statuscode_show, rmi_store_error),
+> +static struct device_attribute attrs[] = {
+> +       __ATTR(status, RMI_RW_ATTR,
+> +                  rmi_f09_status_show, rmi_f09_status_store),
+> +       __ATTR(limitRegisterCount, RMI_RO_ATTR,
+> +              rmi_f09_limit_register_count_show, rmi_store_error),
+> +       __ATTR(hostTestEnable, RMI_RW_ATTR,
+> +              rmi_f09_host_test_enable_show, rmi_f09_host_test_enable_store),
+> +       __ATTR(internalLimits, RMI_RO_ATTR,
+> +              rmi_f09_internal_limits_show, rmi_store_error),
+> +       __ATTR(resultRegisterCount, RMI_RO_ATTR,
+> +              rmi_f09_result_register_count_show, rmi_store_error),
+> +       __ATTR(overall_bist_result, RMI_RO_ATTR,
+> +              rmi_f09_overall_bist_result_show, rmi_store_error),
+> +       __ATTR(test_number_control, RMI_RW_ATTR,
+> +              rmi_f09_test_number_control_show,
+> +              rmi_f09_test_number_control_store),
+> +       __ATTR(test_result1, RMI_RO_ATTR,
+> +              rmi_f09_test_result1_show, rmi_store_error),
+> +       __ATTR(test_result2, RMI_RO_ATTR,
+> +              rmi_f09_test_result2_show, rmi_store_error),
+> +       __ATTR(run_bist, RMI_RW_ATTR,
+> +              rmi_f09_run_bist_show, rmi_f09_run_bist_store),
+> +       __ATTR(f09_control_test1, RMI_RW_ATTR,
+> +              rmi_f09_control_test1_show, rmi_f09_control_test1_store),
+> +       __ATTR(f09_control_test2, RMI_RW_ATTR,
+> +              rmi_f09_control_test2_show, rmi_f09_control_test2_store),
 > +};
 
-Can you partition this into one set of stuff that goes into sysfs and
-another part that goes into debugfs, depending on usage?
+If this is *only* for tests, then for sure this should be in debugfs?
 
-The sysfs portions need to be documented in
-Documentation/ABI/testing/*
+> +static int rmi_f09_alloc_memory(struct rmi_function_container *fc)
+(...)
+> +static void rmi_f09_free_memory(struct rmi_function_container *fc)
 
-> +/* Utility routine to set the value of a bit field in a register. */
-> +int rmi_set_bit_field(struct rmi_device *rmi_dev,
+Why do you need separate functions for these two?
 
-This is not what the function is doing. It is doing
-read/mask/set/write, so rmi_mask_and_set() is a better name.
-
-> +                     unsigned short address,
-
-u16?
-
-> +                     unsigned char field_mask,
-
-u8?
-
-Just "mask" is fine.
-
-> +                     unsigned char bits)
-
-u8?
-
-Call it "set" (IMHO)?
+If they are only used from one place (which I suspect) then just
+put the code at that site.
 
 (...)
-> +static ssize_t rmi_fn_01_interrupt_enable_store(struct device *dev,
-> +                                         struct device_attribute *attr,
-> +                                         const char *buf, size_t count)
+> +static int rmi_f09_initialize(struct rmi_function_container *fc)
 > +{
-> +       struct rmi_function_container *fc;
-> +       struct f01_data *data;
-> +       int i;
-> +       int irq_count = 0;
-> +       int retval = count;
-> +       int irq_reg = 0;
+> +       struct rmi_device *rmi_dev = fc->rmi_dev;
+> +       struct rmi_device_platform_data *pdata;
+> +       struct rmi_fn_09_data *f09 = fc->data;
+> +       u16 query_base_addr;
+> +       int rc;
 > +
-> +       fc = to_rmi_function_container(dev);
-> +       data = fc->data;
-> +       for (i = 0; i < data->irq_count && *buf != 0;
-> +            i++, buf += 2) {
-> +               int irq_shift;
-> +               int interrupt_enable;
-> +               int result;
 > +
-> +               irq_reg = i / 8;
-> +               irq_shift = i % 8;
+> +       pdata = to_rmi_platform_data(rmi_dev);
+> +       query_base_addr = fc->fd.query_base_addr;
 > +
-> +               /* get next interrupt mapping value and store and bump up to
-> +                * point to next item in buf */
-> +               result = sscanf(buf, "%u", &interrupt_enable);
-> +               if ((result != 1) ||
-> +                       (interrupt_enable != 0 && interrupt_enable != 1)) {
-> +                       dev_err(dev,
-> +                               "%s: Error - interrupt enable[%d]"
-> +                               " is not a valid value 0x%x.\n",
-> +                               __func__, i, interrupt_enable);
-> +                       return -EINVAL;
-> +               }
-> +               if (interrupt_enable == 0) {
-> +                       data->device_control.interrupt_enable[irq_reg] &=
-> +                               (1 << irq_shift) ^ 0xFF;
-> +               } else
-> +                       data->device_control.interrupt_enable[irq_reg] |=
-> +                               (1 << irq_shift);
-> +               irq_count++;
+> +       /* initial all default values for f09 query here */
+> +       rc = rmi_read_block(rmi_dev, query_base_addr,
+> +               (u8 *)&f09->query, sizeof(f09->query));
+> +       if (rc < 0) {
+> +               dev_err(&fc->dev, "Failed to read query register."
+> +                       " from 0x%04x\n", query_base_addr);
+> +               return rc;
 > +       }
 > +
-> +       /* Make sure the irq count matches */
-> +       if (irq_count != data->irq_count) {
-> +               dev_err(dev,
-> +                       "%s: Error - interrupt enable count of %d"
-> +                       " doesn't match device count of %d.\n",
-> +                        __func__, irq_count, data->irq_count);
-> +               return -EINVAL;
-> +       }
-> +
-> +       /* write back to the control register */
-> +       retval = rmi_write_block(fc->rmi_dev, data->interrupt_enable_addr,
-> +                       data->device_control.interrupt_enable,
-> +                       sizeof(u8)*(data->num_of_irq_regs));
-> +       if (retval < 0) {
-> +               dev_err(dev, "%s : Could not write interrupt_enable_store"
-> +                       " to 0x%x\n", __func__, data->interrupt_enable_addr);
-> +               return retval;
-> +       }
-> +
-> +       return count;
-> +
-> +}
-
-I cannot figure out why you would want to enable/disable IRQs from
-sysfs nodes? Please describe the usecase... If this is only for
-debugging and testing, debugfs is the right place.
-
-(...)
-> +static int rmi_f01_reset(struct rmi_function_container *fc)
-> +{
-> +       /*do nothing here */
 > +       return 0;
 > +}
 
-Doesn't look very useful?
+Similar here. Cannot this be brought into the only call site?
 
-> +static int rmi_f01_init(struct rmi_function_container *fc)
+> +static int rmi_f09_config(struct rmi_function_container *fc)
 > +{
+> +       /*we do nothing here. instead reset should notify the user.*/
 > +       return 0;
 > +}
 
-Neither does this.
+Make it optional and just don't define it.
 
-> +static struct rmi_function_handler function_handler = {
-> +       .func = 0x01,
-> +       .init = rmi_f01_init,
-> +       .config = rmi_f01_config,
-> +       .reset = rmi_f01_reset,
-> +       .attention = rmi_f01_attention,
-
-So make .reset and .init by checking for them being NULL in the
-bus driver and avoid calling them in this case like that:
-
-if (!func->init)
-   return 0;
-
-> +#ifdef CONFIG_PM
-> +#if defined(CONFIG_HAS_EARLYSUSPEND) && \
-> +                       !defined(CONFIG_RMI4_SPECIAL_EARLYSUSPEND)
-> +       .early_suspend = rmi_f01_suspend,
-> +       .late_resume = rmi_f01_resume,
-> +#else
-> +       .suspend = rmi_f01_suspend,
-> +       .resume = rmi_f01_resume,
-> +#endif  /* defined(CONFIG_HAS_EARLYSUSPEND) && !def... */
-> +#endif  /* CONFIG_PM */
-
-More Android stuff not in the mainline kernel...
-
-(...)
-> +++ b/drivers/input/rmi4/rmi_f01.h
-(...)
-> +union f01_basic_queries {
-> +       struct {
-> +               u8 manufacturer_id:8;
+> +static int rmi_f09_reset(struct rmi_function_container *fc)
+> +{
+> +       struct  rmi_fn_09_data  *instance_data = fc->data;
 > +
-> +               u8 custom_map:1;
-> +               u8 non_compliant:1;
-> +               u8 has_lts:1;
-> +               u8 has_sensor_id:1;
-> +               u8 has_charger_input:1;
-> +               u8 has_adjustable_doze:1;
-> +               u8 has_adjustable_doze_holdoff:1;
-> +               u8 has_product_properties_2:1;
+> +       instance_data->status = -ECONNRESET;
 > +
-> +               u8 productinfo_1:7;
-> +               u8 q2_bit_7:1;
-> +               u8 productinfo_2:7;
-> +               u8 q3_bit_7:1;
-> +
-> +               u8 year:5;
-> +               u8 month:4;
-> +               u8 day:5;
-> +               u8 cp1:1;
-> +               u8 cp2:1;
-> +               u8 wafer_id1_lsb:8;
-> +               u8 wafer_id1_msb:8;
-> +               u8 wafer_id2_lsb:8;
-> +               u8 wafer_id2_msb:8;
-> +               u8 wafer_id3_lsb:8;
-> +       };
-> +       u8 regs[11];
-> +};
+> +       return 0;
+> +}
 
-__attribute__((packed));
+Dito.
 
-?
-
-> +union f01_device_status {
-> +       struct {
-> +               u8 status_code:4;
-> +               u8 reserved:2;
-> +               u8 flash_prog:1;
-> +               u8 unconfigured:1;
-> +       };
-> +       u8 regs[1];
-> +};
-
-__attribute__((packed));
-
-?
-
-
-> +/* control register bits */
-> +#define RMI_SLEEP_MODE_NORMAL (0x00)
-> +#define RMI_SLEEP_MODE_SENSOR_SLEEP (0x01)
-> +#define RMI_SLEEP_MODE_RESERVED0 (0x02)
-> +#define RMI_SLEEP_MODE_RESERVED1 (0x03)
-
-Funny reserved modes but whatever...
-
-> +
-> +#define RMI_IS_VALID_SLEEPMODE(mode) \
-> +       (mode >= RMI_SLEEP_MODE_NORMAL && mode <= RMI_SLEEP_MODE_RESERVED1)
-> +
-> +union f01_device_control_0 {
-> +       struct {
-> +               u8 sleep_mode:2;
-> +               u8 nosleep:1;
-> +               u8 reserved:2;
-> +               u8 charger_input:1;
-> +               u8 report_rate:1;
-> +               u8 configured:1;
-> +       };
-> +       u8 regs[1];
-> +};
-
-__attribute__((packed));
-
-?
+(Already remarked this at the last patch.)
 
 Yours,
 Linus Walleij

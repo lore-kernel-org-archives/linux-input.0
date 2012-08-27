@@ -1,416 +1,376 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [RFC PATCH 6/17] input: RMI4 firmware update
-Date: Mon, 27 Aug 2012 14:01:43 -0700
-Message-ID: <CACRpkdbhqOLiHPKMJ-EC=PTH+eHkHHUbqSK4N08fF=DmD_OErA@mail.gmail.com>
+Subject: Re: [RFC PATCH 7/17] input: RMI4 F01 device control
+Date: Mon, 27 Aug 2012 14:59:43 -0700
+Message-ID: <CACRpkdaGoPfieJQnryHmorh9LcxdLU+WjpnER8fXbuMAji2DDA@mail.gmail.com>
 References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
-	<1345241877-16200-7-git-send-email-cheiny@synaptics.com>
+	<1345241877-16200-8-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:58470 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754218Ab2H0VBp (ORCPT
+Received: from mail-we0-f174.google.com ([74.125.82.174]:36087 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753222Ab2H0V7o (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Aug 2012 17:01:45 -0400
-Received: by wgbdr13 with SMTP id dr13so3958865wgb.1
-        for <linux-input@vger.kernel.org>; Mon, 27 Aug 2012 14:01:43 -0700 (PDT)
-In-Reply-To: <1345241877-16200-7-git-send-email-cheiny@synaptics.com>
+	Mon, 27 Aug 2012 17:59:44 -0400
+Received: by weyx8 with SMTP id x8so2624427wey.19
+        for <linux-input@vger.kernel.org>; Mon, 27 Aug 2012 14:59:43 -0700 (PDT)
+In-Reply-To: <1345241877-16200-8-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Henrik Rydberg <rydberg@euromail.se>
 
 On Fri, Aug 17, 2012 at 3:17 PM, Christopher Heiny <cheiny@synaptics.com> wrote:
 
-No commit message. Describe exactly what this feature is for and how
-it works and how it differs from standard kernel firmware loading.
-(Where the kernel loads firmware into devices at boot time.)
-i.e. mention that all devices have their own flash memory etc.
+(...)
+> +++ b/drivers/input/rmi4/rmi_f01.c
+(...)
+> +union f01_device_commands {
+> +       struct {
+> +               u8 reset:1;
+> +               u8 reserved:1;
 
-> +#define DEBUG
+I would just use bool for one-bit variables.
 
-No, use previously describe Kconfig approach.
+But I see that some protocol people often cast a piece of data on top
+of  a struct, and have it packed to fit on top of each other.
 
-> +#define RIM_HACK 1
+It looks like that is what is going on here.
 
-Que ce que c'est?
+> +       };
+> +       u8 reg;
+> +};
 
-Should this also be a Kconfig, or mayble always enabled simply,
-and detected at runtime if need be?
+If you're doing bitstuffing, use
+__attribute__((__packed__));
+after each struct.
+
+> +struct f01_device_control {
+> +       union f01_device_control_0 ctrl0;
+> +       u8 *interrupt_enable;
+> +       u8 doze_interval;
+> +       u8 wakeup_threshold;
+> +       u8 doze_holdoff;
+> +};
+
+These could use some kerneldoc.
+
+__attribute__((__packed__));
+
+> +union f01_query_42 {
+> +       struct {
+> +               u8 has_ds4_queries:1;
+> +               u8 has_multi_phy:1;
+> +               u8 has_guest:1;
+> +               u8 reserved:5;
+> +       };
+> +       u8 regs[1];
+> +};
+
+__attribute__((__packed__));
+
+> +union f01_ds4_queries {
+> +       struct {
+> +               u8 length:4;
+> +               u8 reserved_1:4;
+> +
+> +               u8 has_package_id_query:1;
+> +               u8 has_packrat_query:1;
+> +               u8 has_reset_query:1;
+> +               u8 has_maskrev_query:1;
+> +               u8 reserved_2:4;
+> +
+> +               u8 has_i2c_control:1;
+> +               u8 has_spi_control:1;
+> +               u8 has_attn_control:1;
+> +               u8 reserved_3:5;
+> +
+> +               u8 reset_enabled:1;
+> +               u8 reset_polarity:1;
+> +               u8 pullup_enabled:1;
+> +               u8 reserved_4:1;
+> +               u8 reset_pin_number:4;
+> +       };
+> +       u8 regs[4];
+> +};
+
+__attribute__((__packed__));
+
 
 (...)
-> +#define HAS_BSR_MASK 0x20
+> +static struct device_attribute fn_01_attrs[] = {
+> +       __ATTR(productinfo, RMI_RO_ATTR,
+> +              rmi_fn_01_productinfo_show, rmi_store_error),
+> +       __ATTR(productid, RMI_RO_ATTR,
+> +              rmi_fn_01_productid_show, rmi_store_error),
+> +       __ATTR(manufacturer, RMI_RO_ATTR,
+> +              rmi_fn_01_manufacturer_show, rmi_store_error),
+> +       __ATTR(datecode, RMI_RO_ATTR,
+> +              rmi_fn_01_datecode_show, rmi_store_error),
+> +
+> +       /* control register access */
+> +       __ATTR(sleepmode, RMI_RW_ATTR,
+> +              rmi_fn_01_sleepmode_show, rmi_fn_01_sleepmode_store),
+> +       __ATTR(nosleep, RMI_RW_ATTR,
+> +              rmi_fn_01_nosleep_show, rmi_fn_01_nosleep_store),
+> +       __ATTR(chargerinput, RMI_RW_ATTR,
+> +              rmi_fn_01_chargerinput_show, rmi_fn_01_chargerinput_store),
+> +       __ATTR(reportrate, RMI_RW_ATTR,
+> +              rmi_fn_01_reportrate_show, rmi_fn_01_reportrate_store),
+> +       __ATTR(interrupt_enable, RMI_RW_ATTR,
+> +              rmi_fn_01_interrupt_enable_show,
+> +               rmi_fn_01_interrupt_enable_store),
+> +       __ATTR(doze_interval, RMI_RW_ATTR,
+> +              rmi_fn_01_doze_interval_show,
+> +               rmi_fn_01_doze_interval_store),
+> +       __ATTR(wakeup_threshold, RMI_RW_ATTR,
+> +              rmi_fn_01_wakeup_threshold_show,
+> +               rmi_fn_01_wakeup_threshold_store),
+> +       __ATTR(doze_holdoff, RMI_RW_ATTR,
+> +              rmi_fn_01_doze_holdoff_show,
+> +               rmi_fn_01_doze_holdoff_store),
+> +
+> +       /* We make report rate RO, since the driver uses that to look for
+> +        * resets.  We don't want someone faking us out by changing that
+> +        * bit.
+> +        */
+> +       __ATTR(configured, RMI_RO_ATTR,
+> +              rmi_fn_01_configured_show, rmi_store_error),
+> +
+> +       /* Command register access. */
+> +       __ATTR(reset, RMI_WO_ATTR,
+> +              rmi_show_error, rmi_fn_01_reset_store),
+> +
+> +       /* STatus register access. */
+> +       __ATTR(unconfigured, RMI_RO_ATTR,
+> +              rmi_fn_01_unconfigured_show, rmi_store_error),
+> +       __ATTR(flashprog, RMI_RO_ATTR,
+> +              rmi_fn_01_flashprog_show, rmi_store_error),
+> +       __ATTR(statuscode, RMI_RO_ATTR,
+> +              rmi_fn_01_statuscode_show, rmi_store_error),
+> +};
 
-"Has*" sounds like something boolean, I guess this bit tells if you
-have BSR, so say:
+Can you partition this into one set of stuff that goes into sysfs and
+another part that goes into debugfs, depending on usage?
 
-#include <linux/bitops.h>
+The sysfs portions need to be documented in
+Documentation/ABI/testing/*
 
-#define HAS_BSR BIT(5)
+> +/* Utility routine to set the value of a bit field in a register. */
+> +int rmi_set_bit_field(struct rmi_device *rmi_dev,
 
-> +#define PRODUCT_ID_OFFSET 0x10
-> +#define PRODUCT_ID_SIZE 10
-> +#define PRODUCT_INFO_OFFSET 0x1E
-> +#define PRODUCT_INFO_SIZE 2
+This is not what the function is doing. It is doing
+read/mask/set/write, so rmi_mask_and_set() is a better name.
 
-It's really nice that you have this info in the product.
+> +                     unsigned short address,
 
-> +/** Image file V5, Option 0
+u16?
 
-Pls actually add some kerneldoc here :-)
-This is malformed as it looks now, anything following /** will be parsed.
-
-> + */
-> +struct image_header {
-> +       u32 checksum;
-> +       unsigned int image_size;
-
-Should this be size_t?
-
-> +       unsigned int config_size;
-
-size_t?
-
-> +       unsigned char options;
-
-u8? Some kind of enum? (If it's a bitfield use u8.)
-
-> +       unsigned char bootloader_version;
+> +                     unsigned char field_mask,
 
 u8?
 
-> +       u8 product_id[RMI_PRODUCT_ID_LENGTH + 1];
-> +       unsigned char product_info[PRODUCT_INFO_SIZE];
+Just "mask" is fine.
 
-u8[]?
+> +                     unsigned char bits)
 
-> +};
-> +
-> +static u32 extract_u32(const u8 *ptr)
-> +{
-> +       return (u32)ptr[0] +
-> +               (u32)ptr[1] * 0x100 +
-> +               (u32)ptr[2] * 0x10000 +
-> +               (u32)ptr[3] * 0x1000000;
+u8?
 
-This looks very dangerous from an endianness point of view.
-If you run this driver in a big endian system, what happens?
-
-> +}
-> +
-> +struct reflash_data {
-
-This would be nice to kerneldoc.
-
-> +       struct rmi_device *rmi_dev;
-> +       struct pdt_entry *f01_pdt;
-> +       union f01_basic_queries f01_queries;
-> +       union f01_device_control_0 f01_controls;
-> +       char product_id[RMI_PRODUCT_ID_LENGTH+1];
-> +       struct pdt_entry *f34_pdt;
-> +       u8 bootloader_id[2];
-> +       union f34_query_regs f34_queries;
-> +       union f34_control_status f34_controls;
-> +       const u8 *firmware_data;
-> +       const u8 *config_data;
-> +};
-> +
-> +/* If this parameter is true, we will update the firmware regardless of
-> + * the versioning info.
-> + */
-> +static bool force = 1;
-
-= true;
-
-> +module_param(force, bool, S_IRUGO | S_IWUSR);
-> +MODULE_PARM_DESC(param, "Force reflash of RMI4 devices");
-
-Looks reasonable...
-
-> +
-> +/* If this parameter is not NULL, we'll use that name for the firmware image,
-> + * instead of getting it from the F01 queries.
-> + */
-> +static char *img_name;
-> +module_param(img_name, charp, S_IRUGO | S_IWUSR);
-> +MODULE_PARM_DESC(param, "Name of the RMI4 firmware image");
-
-Is there a default name?
+Call it "set" (IMHO)?
 
 (...)
-> +#define MIN_SLEEP_TIME_US 50
-> +#define MAX_SLEEP_TIME_US 100
-> +
-> +/* Wait until the status is idle and we're ready to continue */
-> +static int wait_for_idle(struct reflash_data *data, int timeout_ms)
+> +static ssize_t rmi_fn_01_interrupt_enable_store(struct device *dev,
+> +                                         struct device_attribute *attr,
+> +                                         const char *buf, size_t count)
 > +{
-> +       int timeout_count = ((timeout_ms * 1000) / MAX_SLEEP_TIME_US) + 1;
-
-Use DIV_ROUND_UP() from <linux/kernel.h>:
-
-= DIV_ROUND_UP((timeout_ms * 1000), MAX_SLEEP_TIME_US);
-
-> +       int count = 0;
-
-Consider just int i;
-
-(...)
-> +static int read_f34_queries(struct reflash_data *data)
-> +{
-> +       int retval;
-> +       u8 id_str[3];
-
-If it's a string it should be char id_str[3]; right?
-
-(...)
-> +#ifdef DEBUG
-> +       dev_info(&data->rmi_dev->dev, "Got F34 data->f34_queries.\n");
-
-This is equivalent to using dev_dbg() so use that.
-
-> +       dev_info(&data->rmi_dev->dev, "F34 bootloader id: %s (%#04x %#04x)\n",
-> +                id_str, data->bootloader_id[0], data->bootloader_id[1]);
-> +       dev_info(&data->rmi_dev->dev, "F34 has config id: %d\n",
-> +                data->f34_queries.has_config_id);
-> +       dev_info(&data->rmi_dev->dev, "F34 unlocked:      %d\n",
-> +                data->f34_queries.unlocked);
-> +       dev_info(&data->rmi_dev->dev, "F34 regMap:        %d\n",
-> +                data->f34_queries.reg_map);
-> +       dev_info(&data->rmi_dev->dev, "F34 block size:    %d\n",
-> +                data->f34_queries.block_size);
-> +       dev_info(&data->rmi_dev->dev, "F34 fw blocks:     %d\n",
-> +                data->f34_queries.fw_block_count);
-> +       dev_info(&data->rmi_dev->dev, "F34 config blocks: %d\n",
-> +                data->f34_queries.config_block_count);
-
-Dito.
-
-(...)
-> +static int enter_flash_programming(struct reflash_data *data)
-> +{
-> +       int retval;
-> +       union f01_device_status device_status;
-> +       struct rmi_device *rmi_dev = data->rmi_dev;
+> +       struct rmi_function_container *fc;
+> +       struct f01_data *data;
+> +       int i;
+> +       int irq_count = 0;
+> +       int retval = count;
+> +       int irq_reg = 0;
 > +
-> +       retval = write_bootloader_id(data);
-> +       if (retval < 0)
-> +               return retval;
+> +       fc = to_rmi_function_container(dev);
+> +       data = fc->data;
+> +       for (i = 0; i < data->irq_count && *buf != 0;
+> +            i++, buf += 2) {
+> +               int irq_shift;
+> +               int interrupt_enable;
+> +               int result;
 > +
-> +       dev_info(&rmi_dev->dev, "Enabling flash programming.\n");
-> +       retval = write_f34_command(data, F34_ENABLE_FLASH_PROG);
-> +       if (retval < 0)
-> +               return retval;
+> +               irq_reg = i / 8;
+> +               irq_shift = i % 8;
 > +
-> +#if    RIM_HACK
-> +       data->f01_controls.nosleep = true;
-> +       retval = write_f01_controls(data);
-> +       if (retval < 0)
-> +               return retval;
-> +#endif
-
-So just default-enable this since it's defined to 1? BTW what is an RIM?
-
-(...)
-> +       dev_info(&rmi_dev->dev, "HOORAY! Programming is enabled!\n");
-
-I always enjoy it when the kernel is happy ;-)
-
-(...)
-> +static int write_firmware(struct reflash_data *data)
-> +{
-> +       return write_blocks(data, (u8 *) data->firmware_data,
-> +               data->f34_queries.fw_block_count, F34_WRITE_FW_BLOCK);
-> +}
-> +
-> +static int write_configuration(struct reflash_data *data)
-> +{
-> +       return write_blocks(data, (u8 *) data->config_data,
-> +               data->f34_queries.config_block_count, F34_WRITE_CONFIG_BLOCK);
-> +}
-
-Now there are these one-function call functions again, are you sure you
-can't just inline these?
-
-> +static void reflash_firmware(struct reflash_data *data)
-> +{
-> +#ifdef DEBUG
-> +       struct timespec start;
-> +       struct timespec end;
-> +       s64 duration_ns;
-> +#endif
-
-This actually seems to be a valid case for #ifdef:ing!
-
-> +       int retval = 0;
-> +
-> +       retval = enter_flash_programming(data);
-> +       if (retval)
-> +               return;
-> +
-> +       retval = write_bootloader_id(data);
-> +       if (retval)
-> +               return;
-> +
-> +#ifdef DEBUG
-> +       dev_info(&data->rmi_dev->dev, "Erasing FW...\n");
-
-dev_dbg() includes the DEBUG flag.
-
-> +       getnstimeofday(&start);
-
-But this is a
-
-> +#endif
-> +       retval = write_f34_command(data, F34_ERASE_ALL);
-> +       if (retval)
-> +               return;
-> +
-> +       retval = wait_for_idle(data, F34_ERASE_WAIT_MS);
-> +       if (retval) {
-> +               dev_err(&data->rmi_dev->dev,
-> +                       "Failed to reach idle state. Code: %d.\n", retval);
-> +               return;
-> +       }
-> +#ifdef DEBUG
-> +       getnstimeofday(&end);
-> +       duration_ns = timespec_to_ns(&end) - timespec_to_ns(&start);
-> +       dev_info(&data->rmi_dev->dev,
-> +                "Erase complete, time: %lld ns.\n", duration_ns);
-
-dev_dbg()
-
-> +#endif
-> +
-> +       if (data->firmware_data) {
-> +#ifdef DEBUG
-> +               dev_info(&data->rmi_dev->dev, "Writing firmware...\n");
-> +               getnstimeofday(&start);
-> +#endif
-> +               retval = write_firmware(data);
-> +               if (retval)
-> +                       return;
-> +#ifdef DEBUG
-> +               getnstimeofday(&end);
-> +               duration_ns = timespec_to_ns(&end) - timespec_to_ns(&start);
-> +               dev_info(&data->rmi_dev->dev,
-> +                        "Done writing FW, time: %lld ns.\n", duration_ns);
-> +#endif
+> +               /* get next interrupt mapping value and store and bump up to
+> +                * point to next item in buf */
+> +               result = sscanf(buf, "%u", &interrupt_enable);
+> +               if ((result != 1) ||
+> +                       (interrupt_enable != 0 && interrupt_enable != 1)) {
+> +                       dev_err(dev,
+> +                               "%s: Error - interrupt enable[%d]"
+> +                               " is not a valid value 0x%x.\n",
+> +                               __func__, i, interrupt_enable);
+> +                       return -EINVAL;
+> +               }
+> +               if (interrupt_enable == 0) {
+> +                       data->device_control.interrupt_enable[irq_reg] &=
+> +                               (1 << irq_shift) ^ 0xFF;
+> +               } else
+> +                       data->device_control.interrupt_enable[irq_reg] |=
+> +                               (1 << irq_shift);
+> +               irq_count++;
 > +       }
 > +
-> +       if (data->config_data) {
-> +#ifdef DEBUG
-> +               dev_info(&data->rmi_dev->dev, "Writing configuration...\n");
-> +               getnstimeofday(&start);
-> +#endif
-> +               retval = write_configuration(data);
-> +               if (retval)
-> +                       return;
-> +#ifdef DEBUG
-> +               getnstimeofday(&end);
-> +               duration_ns = timespec_to_ns(&end) - timespec_to_ns(&start);
-> +               dev_info(&data->rmi_dev->dev,
-> +                        "Done writing config, time: %lld ns.\n", duration_ns);
-> +#endif
+> +       /* Make sure the irq count matches */
+> +       if (irq_count != data->irq_count) {
+> +               dev_err(dev,
+> +                       "%s: Error - interrupt enable count of %d"
+> +                       " doesn't match device count of %d.\n",
+> +                        __func__, irq_count, data->irq_count);
+> +               return -EINVAL;
 > +       }
-> +}
-
-Hard to avoid #ifdef:ing here, but maybe you could use some stub functions.
-
-(...)
-> +void rmi4_fw_update(struct rmi_device *rmi_dev,
-> +               struct pdt_entry *f01_pdt, struct pdt_entry *f34_pdt)
-> +{
-> +#ifdef DEBUG
-> +       struct timespec start;
-> +       struct timespec end;
-> +       s64 duration_ns;
-> +#endif
-> +       char firmware_name[RMI_PRODUCT_ID_LENGTH + 12];
-> +       const struct firmware *fw_entry = NULL;
-> +       int retval;
-> +       struct image_header header;
-> +       union pdt_properties pdt_props;
-> +       struct reflash_data data = {
-> +               .rmi_dev = rmi_dev,
-> +               .f01_pdt = f01_pdt,
-> +               .f34_pdt = f34_pdt,
-> +       };
-> +       struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
 > +
-> +       dev_info(&rmi_dev->dev, "%s called.\n", __func__);
-> +#ifdef DEBUG
-> +       getnstimeofday(&start);
-> +#endif
-> +
-> +       retval = rmi_read(rmi_dev, PDT_PROPERTIES_LOCATION, pdt_props.regs);
+> +       /* write back to the control register */
+> +       retval = rmi_write_block(fc->rmi_dev, data->interrupt_enable_addr,
+> +                       data->device_control.interrupt_enable,
+> +                       sizeof(u8)*(data->num_of_irq_regs));
 > +       if (retval < 0) {
-> +               dev_warn(&rmi_dev->dev,
-> +                        "Failed to read PDT props at %#06x (code %d). Assuming 0x00.\n",
-> +                        PDT_PROPERTIES_LOCATION, retval);
-> +       }
-> +       if (pdt_props.has_bsr) {
-> +               dev_warn(&rmi_dev->dev,
-> +                        "Firmware update for LTS not currently supported.\n");
-> +               return;
+> +               dev_err(dev, "%s : Could not write interrupt_enable_store"
+> +                       " to 0x%x\n", __func__, data->interrupt_enable_addr);
+> +               return retval;
 > +       }
 > +
-> +       retval = read_f01_queries(&data);
-> +       if (retval) {
-> +               dev_err(&rmi_dev->dev, "F01 queries failed, code = %d.\n",
-> +                       retval);
-> +               return;
-> +       }
-> +       retval = read_f34_queries(&data);
-> +       if (retval) {
-> +               dev_err(&rmi_dev->dev, "F34 queries failed, code = %d.\n",
-> +                       retval);
-> +               return;
-> +       }
-> +       if (pdata->firmware_name && strlen(pdata->firmware_name))
-> +               snprintf(firmware_name, sizeof(firmware_name), "rmi4/%s.img",
-> +                       pdata->firmware_name);
-
-Aha this works out nicely with the firmware name from pdata...
-
-> +       else
-> +               snprintf(firmware_name, sizeof(firmware_name), "rmi4/%s.img",
-> +                       (img_name && strlen(img_name))
-> +                               ? img_name : data.product_id);
-
-And in the other case as module parameter right?
-
-> +       dev_info(&rmi_dev->dev, "Requesting %s.\n", firmware_name);
-> +       retval = request_firmware(&fw_entry, firmware_name, &rmi_dev->dev);
-> +       if (retval != 0) {
-> +               dev_err(&rmi_dev->dev, "Firmware %s not available, code = %d\n",
-> +                       firmware_name, retval);
-> +               return;
-> +       }
+> +       return count;
 > +
-> +#ifdef DEBUG
+> +}
 
-I don't see why this would be #ifdef DEBUG, it seems to be very useful
-information
-to always have in the dmesg.
+I cannot figure out why you would want to enable/disable IRQs from
+sysfs nodes? Please describe the usecase... If this is only for
+debugging and testing, debugfs is the right place.
 
-> +       dev_info(&rmi_dev->dev, "Got firmware, size: %d.\n", fw_entry->size);
+(...)
+> +static int rmi_f01_reset(struct rmi_function_container *fc)
+> +{
+> +       /*do nothing here */
+> +       return 0;
+> +}
 
-dev_dbg() if you insist to have this as debug only.
+Doesn't look very useful?
 
-> +       extract_header(fw_entry->data, 0, &header);
-> +       dev_info(&rmi_dev->dev, "Img checksum:           %#08X\n",
-> +                header.checksum);
-> +       dev_info(&rmi_dev->dev, "Img image size:         %d\n",
-> +                header.image_size);
-> +       dev_info(&rmi_dev->dev, "Img config size:        %d\n",
-> +                header.config_size);
-> +       dev_info(&rmi_dev->dev, "Img bootloader version: %d\n",
-> +                header.bootloader_version);
-> +       dev_info(&rmi_dev->dev, "Img product id:         %s\n",
-> +                header.product_id);
-> +       dev_info(&rmi_dev->dev, "Img product info:       %#04x %#04x\n",
-> +                header.product_info[0], header.product_info[1]);
-> +#endif
+> +static int rmi_f01_init(struct rmi_function_container *fc)
+> +{
+> +       return 0;
+> +}
+
+Neither does this.
+
+> +static struct rmi_function_handler function_handler = {
+> +       .func = 0x01,
+> +       .init = rmi_f01_init,
+> +       .config = rmi_f01_config,
+> +       .reset = rmi_f01_reset,
+> +       .attention = rmi_f01_attention,
+
+So make .reset and .init by checking for them being NULL in the
+bus driver and avoid calling them in this case like that:
+
+if (!func->init)
+   return 0;
+
+> +#ifdef CONFIG_PM
+> +#if defined(CONFIG_HAS_EARLYSUSPEND) && \
+> +                       !defined(CONFIG_RMI4_SPECIAL_EARLYSUSPEND)
+> +       .early_suspend = rmi_f01_suspend,
+> +       .late_resume = rmi_f01_resume,
+> +#else
+> +       .suspend = rmi_f01_suspend,
+> +       .resume = rmi_f01_resume,
+> +#endif  /* defined(CONFIG_HAS_EARLYSUSPEND) && !def... */
+> +#endif  /* CONFIG_PM */
+
+More Android stuff not in the mainline kernel...
+
+(...)
+> +++ b/drivers/input/rmi4/rmi_f01.h
+(...)
+> +union f01_basic_queries {
+> +       struct {
+> +               u8 manufacturer_id:8;
+> +
+> +               u8 custom_map:1;
+> +               u8 non_compliant:1;
+> +               u8 has_lts:1;
+> +               u8 has_sensor_id:1;
+> +               u8 has_charger_input:1;
+> +               u8 has_adjustable_doze:1;
+> +               u8 has_adjustable_doze_holdoff:1;
+> +               u8 has_product_properties_2:1;
+> +
+> +               u8 productinfo_1:7;
+> +               u8 q2_bit_7:1;
+> +               u8 productinfo_2:7;
+> +               u8 q3_bit_7:1;
+> +
+> +               u8 year:5;
+> +               u8 month:4;
+> +               u8 day:5;
+> +               u8 cp1:1;
+> +               u8 cp2:1;
+> +               u8 wafer_id1_lsb:8;
+> +               u8 wafer_id1_msb:8;
+> +               u8 wafer_id2_lsb:8;
+> +               u8 wafer_id2_msb:8;
+> +               u8 wafer_id3_lsb:8;
+> +       };
+> +       u8 regs[11];
+> +};
+
+__attribute__((packed));
+
+?
+
+> +union f01_device_status {
+> +       struct {
+> +               u8 status_code:4;
+> +               u8 reserved:2;
+> +               u8 flash_prog:1;
+> +               u8 unconfigured:1;
+> +       };
+> +       u8 regs[1];
+> +};
+
+__attribute__((packed));
+
+?
+
+
+> +/* control register bits */
+> +#define RMI_SLEEP_MODE_NORMAL (0x00)
+> +#define RMI_SLEEP_MODE_SENSOR_SLEEP (0x01)
+> +#define RMI_SLEEP_MODE_RESERVED0 (0x02)
+> +#define RMI_SLEEP_MODE_RESERVED1 (0x03)
+
+Funny reserved modes but whatever...
+
+> +
+> +#define RMI_IS_VALID_SLEEPMODE(mode) \
+> +       (mode >= RMI_SLEEP_MODE_NORMAL && mode <= RMI_SLEEP_MODE_RESERVED1)
+> +
+> +union f01_device_control_0 {
+> +       struct {
+> +               u8 sleep_mode:2;
+> +               u8 nosleep:1;
+> +               u8 reserved:2;
+> +               u8 charger_input:1;
+> +               u8 report_rate:1;
+> +               u8 configured:1;
+> +       };
+> +       u8 regs[1];
+> +};
+
+__attribute__((packed));
+
+?
 
 Yours,
 Linus Walleij

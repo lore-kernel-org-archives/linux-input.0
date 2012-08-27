@@ -1,57 +1,61 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [RFC PATCH 4/17] input: RMI4 configs and makefiles
-Date: Mon, 27 Aug 2012 11:39:56 -0700
-Message-ID: <CACRpkdaG1Px6bQjhMSZxRByw70cFtKU6uywXeAsZRqG76LjxeQ@mail.gmail.com>
+Subject: Re: [RFC PATCH 5/17] input: rmidev character driver for RMI4 sensors
+Date: Mon, 27 Aug 2012 11:49:21 -0700
+Message-ID: <CACRpkdYGR=YtgyvDjfH4w8OMnn3iZKuRpQKrTVCE=i=gZ1hPuw@mail.gmail.com>
 References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
-	<1345241877-16200-5-git-send-email-cheiny@synaptics.com>
+	<1345241877-16200-6-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:59513 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753297Ab2H0Sj6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Aug 2012 14:39:58 -0400
-Received: by wibhr14 with SMTP id hr14so3810372wib.1
-        for <linux-input@vger.kernel.org>; Mon, 27 Aug 2012 11:39:56 -0700 (PDT)
-In-Reply-To: <1345241877-16200-5-git-send-email-cheiny@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1345241877-16200-6-git-send-email-cheiny@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Christopher Heiny <cheiny@synaptics.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+List-Id: linux-input@vger.kernel.org
 
 On Fri, Aug 17, 2012 at 3:17 PM, Christopher Heiny <cheiny@synaptics.com> wrote:
 
-> diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-> index 09614ce..cfb383e 100644
-> --- a/drivers/input/Makefile
-> +++ b/drivers/input/Makefile
-> @@ -23,6 +23,6 @@ obj-$(CONFIG_INPUT_TABLET)    += tablet/
->  obj-$(CONFIG_INPUT_TOUCHSCREEN)        += touchscreen/
->  obj-$(CONFIG_INPUT_MISC)       += misc/
->
-> -obj-$(CONFIG_INPUT_APMPOWER)   += apm-power.o
-> +obj-$(CONFIG_INPUT_RMI4) += rmi4/
->
-> -obj-$(CONFIG_XEN_KBDDEV_FRONTEND)      += xen-kbdfront.o
-> +obj-$(CONFIG_INPUT_APMPOWER)   += apm-power.o
+> Driver for Synaptics touchscreens using RMI4 protocol.
 
-Don't touch the other stuff, you just deleted the Xen Kbddev here!
+Really? This looks more like some custom char driver to get a pipe
+into the device from userspace. Put in a proper description of what this
+is for.
 
-> diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+If the purpose is to read/write arbitrary addresses in the device,
+you should use regmap's debugfs interface for this instead,
+it is much better suited for the task.
+
 (...)
-> +config RMI4_BUS
-> +       bool "Synaptics RMI4 bus support"
-> +       help
-> +         Say Y here if you want to support the Synaptics RMI4 bus.  This is
-> +         required for all RMI4 device support.
+> +#define RMI_CHAR_DEV_TMPBUF_SZ 128
+> +#define RMI_REG_ADDR_PAGE_SELECT 0xFF
+> +#define REG_ADDR_LIMIT 0xFFFF
 > +
-> +         If unsure, say Y.
+> +struct rmidev_data {
+> +       /* mutex for file operation*/
+> +       struct mutex file_mutex;
+> +       /* main char dev structure */
+> +       struct cdev main_dev;
+> +
+> +       /* pointer to the corresponding RMI4 device.  We use this to do */
+> +       /* read, write, etc. */
+> +       struct rmi_device *rmi_dev;
+> +       /* reference count */
+> +       int ref_count;
 
-Are RMI4 devices so common that this should be the recommendation?
+Something tells me you should atleast use <linux/kref.h> for this.
+It also solves a few atomicity problems in a good standard way.
+See Documentation/kref.txt
 
-Also put the debug options into this file instead of random local
-#defines in the other files.
+> +/*store dynamically allocated major number of char device*/
+> +static int rmidev_major_num;
+
+You need to patch your desired major number into
+Documentation/devices.txt
+
+> +static struct class *rmidev_device_class;
+
+Last time discussed with Greg, class devices were deprecated,
+and you should just use a bus instead. (But not sure.)
 
 Yours,
 Linus Walleij

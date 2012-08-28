@@ -1,138 +1,47 @@
-From: "Patil, Rachna" <rachna@ti.com>
-Subject: RE: [PATCH 2/5] MFD: ti_tscadc: Add support for TI's TSC/ADC
- MFDevice
-Date: Tue, 28 Aug 2012 10:25:04 +0000
-Message-ID: <4CE347531D4CA947960AF71FF095B9323E94FA2D@DBDE01.ent.ti.com>
-References: <1345718997-18304-1-git-send-email-rachna@ti.com>
- <20120823184830.GE27787@darwin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: srinivas pandruvada <srinivas.pandruvada@intel.com>
+Subject: [PATCH] Add Wacom product id
+Date: Tue, 28 Aug 2012 10:51:38 -0700
+Message-ID: <1346176298-3189-1-git-send-email-srinivas.pandruvada@intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:42510 "EHLO arroyo.ext.ti.com"
+Received: from mga09.intel.com ([134.134.136.24]:11813 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750744Ab2H1KZT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Aug 2012 06:25:19 -0400
-In-Reply-To: <20120823184830.GE27787@darwin>
-Content-Language: en-US
+	id S1752716Ab2H1SB4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Aug 2012 14:01:56 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthias Kaehlcke <matthias.list@kaehlcke.net>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Jonathan Cameron <jic23@cam.ac.uk>, Samuel Ortiz <sameo@linux.intel.com>
+To: linux-input@vger.kernel.org
+Cc: srinivas pandruvada <srinivas.pandruvada@intel.com>
 
-Hi,
+Added 0x00EF as product id for the Wacom drivers.
 
-On Fri, Aug 24, 2012 at 00:18:31, Matthias Kaehlcke wrote:
-> Hi,
-> 
-> El Thu, Aug 23, 2012 at 04:19:57PM +0530 Patil, Rachna ha dit:
-> 
-> > Add the mfd core driver which supports touchscreen and ADC.
-> > With this patch we are only adding infrastructure to support the MFD 
-> > clients.
-> > 
-> > Signed-off-by: Patil, Rachna <rachna@ti.com>
-> > ---
-> > diff --git a/drivers/mfd/ti_tscadc.c b/drivers/mfd/ti_tscadc.c ...
-> > +static	int __devinit ti_tscadc_probe(struct platform_device *pdev)
-> > +{
-> > +	struct ti_tscadc_dev		*tscadc;
-> > +	int				err, ctrl;
-> > +	int				clk_value, clock_rate;
-> > +	struct resource			*res;
-> > +	struct clk			*clk;
-> > +
-> > +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> > +	if (!res) {
-> > +		dev_err(&pdev->dev, "no memory resource defined.\n");
-> > +		return -EINVAL;
-> > +	}
-> > +
-> > +	/* Allocate memory for device */
-> > +	tscadc = kzalloc(sizeof(struct ti_tscadc_dev), GFP_KERNEL);
-> > +	if (!tscadc) {
-> > +		dev_err(&pdev->dev, "failed to allocate memory.\n");
-> > +		return -ENOMEM;
-> > +	}
-> > +
-> > +	res = request_mem_region(res->start, resource_size(res), pdev->name);
-> > +	if (!res) {
-> > +		dev_err(&pdev->dev, "failed to reserve registers.\n");
-> > +		err = -EBUSY;
-> > +		goto err_free_mem;
-> > +	}
-> > +
-> > +	tscadc->tscadc_base = ioremap(res->start, resource_size(res));
-> > +	if (!tscadc->tscadc_base) {
-> > +		dev_err(&pdev->dev, "failed to map registers.\n");
-> > +		err = -ENOMEM;
-> > +		goto err_release_mem;
-> > +	}
-> > +
-> > +	tscadc->irq = platform_get_irq(pdev, 0);
-> > +	if (tscadc->irq < 0) {
-> > +		dev_err(&pdev->dev, "no irq ID is specified.\n");
-> > +		return -ENODEV;
-> 
-> goto err_iounmap_mem;
+Change-Id: Iacdefbd317395309ecb7972f56413829a9c62e1f
+Signed-off-by: srinivas pandruvada <srinivas.pandruvada@intel.com>
+---
+ drivers/input/tablet/wacom_wac.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-Yes. Will add this.
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 58426d0..479dfa7 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -1800,6 +1800,9 @@ static const struct wacom_features wacom_features_0xE6 =
+ static const struct wacom_features wacom_features_0xEC =
+ 	{ "Wacom ISDv4 EC",       WACOM_PKGLEN_GRAPHIRE,  25710, 14500,  255,
+ 	  0, TABLETPC,    WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++static const struct wacom_features wacom_features_0xEF =
++	{ "Wacom ISDv4 EF",       WACOM_PKGLEN_GRAPHIRE,  25710, 14500,  255,
++	  0, TABLETPC,    WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0x47 =
+ 	{ "Wacom Intuos2 6x8",    WACOM_PKGLEN_INTUOS,    20320, 16240, 1023,
+ 	  31, INTUOS, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+@@ -1973,6 +1976,7 @@ const struct usb_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0xE3) },
+ 	{ USB_DEVICE_WACOM(0xE6) },
+ 	{ USB_DEVICE_WACOM(0xEC) },
++	{ USB_DEVICE_WACOM(0xEF) },
+ 	{ USB_DEVICE_WACOM(0x47) },
+ 	{ USB_DEVICE_WACOM(0xF4) },
+ 	{ USB_DEVICE_LENOVO(0x6004) },
+-- 
+1.7.7.6
 
-> 
-> > ...
-> > +err_fail:
-> > +	pm_runtime_put_sync(&pdev->dev);
-> > +	pm_runtime_disable(&pdev->dev);
-> > +	iounmap(tscadc->tscadc_base);
-> > +err_release_mem:
-> > +	release_mem_region(res->start, resource_size(res));
-> > +	mfd_remove_devices(tscadc->dev);
-> > +err_free_mem:
-> > +	platform_set_drvdata(pdev, NULL);
-> 
-> shouldn't be necessary as the platform device doesn't exist any longer
-
-Ok. Will remove this.
-
-> 
-> > ...
-> > +static int __devexit ti_tscadc_remove(struct platform_device *pdev) {
-> > +	struct ti_tscadc_dev	*tscadc = platform_get_drvdata(pdev);
-> > +	struct resource		*res;
-> > +
-> > +	tscadc_writel(tscadc, REG_SE, 0x00);
-> > +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> > +	iounmap(tscadc->tscadc_base);
-> > +	release_mem_region(res->start, resource_size(res));
-> > +
-> > +	pm_runtime_put_sync(&pdev->dev);
-> > +	pm_runtime_disable(&pdev->dev);
-> > +
-> > +	mfd_remove_devices(tscadc->dev);
-> > +	kfree(tscadc);
-> > +
-> > +	platform_set_drvdata(pdev, NULL);
-> 
-> same as above
-
-Will correct this as well.
-
-> 
-> best regards
-> 
-> --
-> Matthias Kaehlcke
-> Embedded Linux Developer
-> Amsterdam
-> 
->          The only way to do great work is to love what you do
->                             (Steve Jobs)
->                                                                  .''`.
->     using free software / Debian GNU/Linux | http://debian.org  : :'  :
->                                                                 `. `'`
-> gpg --keyserver pgp.mit.edu --recv-keys 47D8E5D4                  `-
-> 
-
-Thanks & Regards,
-Rachna

@@ -1,185 +1,132 @@
-From: Sascha Hauer <s.hauer@pengutronix.de>
-Subject: Re: [PATCH] pwm-imx: Fix config / enable / disable
-Date: Tue, 28 Aug 2012 09:37:44 +0200
-Message-ID: <20120828073744.GU26594@pengutronix.de>
-References: <20120823191108.GB8127@avionic-0098.mockup.avionic-design.de>
- <1305545087.2775440.1345755837651.JavaMail.root@advansee.com>
+From: "Patil, Rachna" <rachna@ti.com>
+Subject: RE: [PATCH 4/5] IIO : ADC: tiadc: Add support of TI's ADC driver
+Date: Tue, 28 Aug 2012 10:23:34 +0000
+Message-ID: <4CE347531D4CA947960AF71FF095B9323E94FA21@DBDE01.ent.ti.com>
+References: <1345719021-22835-1-git-send-email-rachna@ti.com>
+ <20120823190239.GF27787@darwin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:57331 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752382Ab2H1Hh4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Aug 2012 03:37:56 -0400
-Content-Disposition: inline
-In-Reply-To: <1305545087.2775440.1345755837651.JavaMail.root@advansee.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120823190239.GF27787@darwin>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Matthias Kaehlcke <matthias.list@kaehlcke.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Jonathan Cameron <jic23@cam.ac.uk>, Samuel Ortiz <sameo@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-15?Q?Beno=EEt_Th=E9baudeau?= <benoit.thebaudeau@advansee.com>
-Cc: Thierry Reding <thierry.reding@avionic-design.de>, linux-kernel@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>
 
-On Thu, Aug 23, 2012 at 11:03:57PM +0200, Beno=EEt Th=E9baudeau wrote:
-> imx_pwm_config() did not enable the PWM IP clock while accessing the =
-registers.
-> Hence, a call to pwm_config() had no effect before pwm_enable() had b=
-een called,
-> which does not comply to the PWM API.
->=20
-> Moreover, calling pwm_disable() then pwm_enable() must be a transpare=
-nt
-> operation.
->=20
-> This fixes the first setting of brightness through sysfs that had no =
-effect with
-> leds-pwm.
+Hi,
 
-I don't really like this patch. I'd like to have this one first, it
-makes further cleanups easier:
+On Fri, Aug 24, 2012 at 00:32:39, Matthias Kaehlcke wrote:
+> Hi,
+> 
+> El Thu, Aug 23, 2012 at 04:20:21PM +0530 Patil, Rachna ha dit:
+> 
+> > This patch adds support for TI's ADC driver.
+> > This is a multifunctional device.
+> > Analog input lines are provided on which voltage measurements can be 
+> > carried out.
+> > You can have upto 8 input lines.
+> > 
+> > Signed-off-by: Patil, Rachna <rachna@ti.com>
+> > ---
+> >
+> > diff --git a/drivers/iio/adc/ti_adc.c b/drivers/iio/adc/ti_adc.c ...
+> > +static int __devinit tiadc_probe(struct platform_device *pdev) {
+> > +	struct iio_dev		*idev;
+> > +	int			err;
+> > +	struct adc_device	*adc_dev = NULL;
+> > +	struct ti_tscadc_dev	*tscadc_dev = pdev->dev.platform_data;
+> > +	struct mfd_tscadc_board	*board_data;
+> > +
+> > +	board_data = (struct mfd_tscadc_board *)tscadc_dev->dev->platform_data;
+> > +	if (!board_data) {
+> > +		dev_err(tscadc_dev->dev, "Could not find platform data\n");
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	idev = iio_device_alloc(sizeof(struct adc_device));
+> > +	if (idev == NULL) {
+> > +		dev_err(&pdev->dev, "failed to allocate iio device.\n");
+> > +		err = -ENOMEM;
+> > +		goto err_ret;
+> > +	}
+> > +	adc_dev = iio_priv(idev);
+> > +
+> > +	tscadc_dev->adc = adc_dev;
+> > +	adc_dev->mfd_tscadc = tscadc_dev;
+> > +	adc_dev->idev = idev;
+> > +	adc_dev->adc_channels = board_data->adc_init->adc_channels;
+> > +
+> > +	idev->dev.parent = &pdev->dev;
+> > +	idev->name = dev_name(&pdev->dev);
+> > +	idev->modes = INDIO_DIRECT_MODE;
+> > +	idev->info = &tiadc_info;
+> > +
+> > +	adc_step_config(adc_dev);
+> > +
+> > +	err = tiadc_channel_init(idev, adc_dev);
+> > +	if (err < 0)
+> > +		goto err_fail;
+> > +
+> > +	err = iio_device_register(idev);
+> > +	if (err)
+> > +		goto err_free_channels;
+> > +
+> > +	dev_info(&pdev->dev, "attached adc driver\n");
+> > +	platform_set_drvdata(pdev, idev);
+> > +
+> > +	return 0;
+> > +
+> > +err_free_channels:
+> > +	tiadc_channel_remove(idev);
+> > +err_fail:
+> > +	iio_device_unregister(idev);
+> > +	iio_device_free(idev);
+> > +err_ret:
+> > +	platform_set_drvdata(pdev, NULL);
+> 
+> not necessary, the platform device doesn't exist anymore
 
-https://lkml.org/lkml/2012/8/28/24
+Ok. I will correct this.
 
-Simililarly, we should probably introduce a imx_pwm_[en|dis]able_v[12]
+> 
+> > +	iio_device_free(idev);
+> 
+> already done some lines above and could be executed without having allocated the iio device (when iio_device_alloc() fails)
+> 
+> > +static int __devexit tiadc_remove(struct platform_device *pdev) {
+> > +	struct ti_tscadc_dev   *tscadc_dev = pdev->dev.platform_data;
+> > +	struct adc_device	*adc_dev = tscadc_dev->adc;
+> > +	struct iio_dev		*idev = adc_dev->idev;
+> > +
+> > +	iio_device_unregister(idev);
+> > +	tiadc_channel_remove(idev);
+> > +
+> > +	tscadc_dev->adc = NULL;
+> > +
+> > +	iio_device_free(idev);
+> > +	platform_set_drvdata(pdev, NULL);
+> 
+> see above
 
-Then, the pwm core already makes sure that pwm_enable/disable are calle=
-d
-only once, so the if (imx->clk_enabled) in pwm_enable/disable is
-unnecessary.
+Yes, will correct this as well.
 
-Sascha
-
->=20
-> Cc: Thierry Reding <thierry.reding@avionic-design.de>
-> Cc: <linux-kernel@vger.kernel.org>
-> Cc: Sascha Hauer <kernel@pengutronix.de>
-> Cc: <linux-arm-kernel@lists.infradead.org>
-> Cc: Beno=EEt Th=E9baudeau <benoit.thebaudeau@advansee.com>
-> Signed-off-by: Beno=EEt Th=E9baudeau <benoit.thebaudeau@advansee.com>
-> ---
->  .../drivers/pwm/pwm-imx.c                          |   55 ++++++++++=
-+++++-----
->  1 file changed, 43 insertions(+), 12 deletions(-)
->=20
-> diff --git linux-next-c94456b.orig/drivers/pwm/pwm-imx.c linux-next-c=
-94456b/drivers/pwm/pwm-imx.c
-> index 2a0b353..0519bf2 100644
-> --- linux-next-c94456b.orig/drivers/pwm/pwm-imx.c
-> +++ linux-next-c94456b/drivers/pwm/pwm-imx.c
-> @@ -55,6 +55,16 @@ static int imx_pwm_config(struct pwm_chip *chip,
->  {
->  	struct imx_chip *imx =3D to_imx_chip(chip);
-> =20
-> +	/*
-> +	 * If the PWM is disabled, make sure to turn on the clock before
-> +	 * accessing the registers.
-> +	 */
-> +	if (!imx->clk_enabled) {
-> +		int rc =3D clk_prepare_enable(imx->clk);
-> +		if (rc)
-> +			return rc;
-> +	}
-> +
->  	if (!(cpu_is_mx1() || cpu_is_mx21())) {
->  		unsigned long long c;
->  		unsigned long period_cycles, duty_cycles, prescale;
-> @@ -85,8 +95,11 @@ static int imx_pwm_config(struct pwm_chip *chip,
->  		writel(period_cycles, imx->mmio_base + MX3_PWMPR);
-> =20
->  		cr =3D MX3_PWMCR_PRESCALER(prescale) |
-> -			MX3_PWMCR_DOZEEN | MX3_PWMCR_WAITEN |
-> -			MX3_PWMCR_DBGEN | MX3_PWMCR_EN;
-> +			MX3_PWMCR_DOZEEN | MX3_PWMCR_WAITEN | MX3_PWMCR_DBGEN;
-> +
-> +		/* If the PWM is enabled, keep it so. */
-> +		if (imx->clk_enabled)
-> +			cr |=3D MX3_PWMCR_EN;
-> =20
->  		if (cpu_is_mx25())
->  			cr |=3D MX3_PWMCR_CLKSRC_IPG;
-> @@ -118,32 +131,50 @@ static int imx_pwm_config(struct pwm_chip *chip=
-,
->  		BUG();
->  	}
-> =20
-> +	/* If the PWM is disabled, turn the clock off again to save power. =
-*/
-> +	if (!imx->clk_enabled)
-> +		clk_disable_unprepare(imx->clk);
-> +
->  	return 0;
->  }
-> =20
->  static int imx_pwm_enable(struct pwm_chip *chip, struct pwm_device *=
-pwm)
->  {
->  	struct imx_chip *imx =3D to_imx_chip(chip);
-> -	int rc =3D 0;
-> +	int rc;
-> =20
-> -	if (!imx->clk_enabled) {
-> -		rc =3D clk_prepare_enable(imx->clk);
-> -		if (!rc)
-> -			imx->clk_enabled =3D 1;
-> +	if (imx->clk_enabled)
-> +		return 0;
-> +
-> +	rc =3D clk_prepare_enable(imx->clk);
-> +	if (rc)
-> +		return rc;
-> +
-> +	if (!(cpu_is_mx1() || cpu_is_mx21())) {
-> +		u32 cr =3D readl(imx->mmio_base + MX3_PWMCR);
-> +		cr |=3D MX3_PWMCR_EN;
-> +		writel(cr, imx->mmio_base + MX3_PWMCR);
->  	}
-> -	return rc;
-> +
-> +	imx->clk_enabled =3D 1;
-> +	return 0;
->  }
-> =20
->  static void imx_pwm_disable(struct pwm_chip *chip, struct pwm_device=
- *pwm)
->  {
->  	struct imx_chip *imx =3D to_imx_chip(chip);
-> =20
-> -	writel(0, imx->mmio_base + MX3_PWMCR);
-> +	if (!imx->clk_enabled)
-> +		return;
-> =20
-> -	if (imx->clk_enabled) {
-> -		clk_disable_unprepare(imx->clk);
-> -		imx->clk_enabled =3D 0;
-> +	if (!(cpu_is_mx1() || cpu_is_mx21())) {
-> +		u32 cr =3D readl(imx->mmio_base + MX3_PWMCR);
-> +		cr &=3D ~MX3_PWMCR_EN;
-> +		writel(cr, imx->mmio_base + MX3_PWMCR);
->  	}
-> +
-> +	clk_disable_unprepare(imx->clk);
-> +	imx->clk_enabled =3D 0;
->  }
-> =20
->  static struct pwm_ops imx_pwm_ops =3D {
+> 
+> best regards
+> 
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-fbdev=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->=20
+> Matthias Kaehlcke
+> Embedded Linux Developer
+> Amsterdam
+> 
+>                If sharing a thing in no way diminishes it,
+>                it is not rightly owned if it is not shared
+>                                                                  .''`.
+>     using free software / Debian GNU/Linux | http://debian.org  : :'  :
+>                                                                 `. `'`
+> gpg --keyserver pgp.mit.edu --recv-keys 47D8E5D4                  `-
+> 
 
---=20
-Pengutronix e.K.                           |                           =
-  |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0  =
-  |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-555=
-5 |
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+Rachna

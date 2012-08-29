@@ -1,40 +1,70 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] Remap micmute to F20
-Date: Wed, 29 Aug 2012 00:36:41 +0100
-Message-ID: <1346197001.1928.16.camel@sirocco.hadess.net>
-References: <1346196739-3619-1-git-send-email-james.leddy@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:48060 "EHLO
-	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750807Ab2H1Xgp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Aug 2012 19:36:45 -0400
-In-Reply-To: <1346196739-3619-1-git-send-email-james.leddy@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+Subject: Re: [PATCH] regulator: Fix bug in regulator_mode_to_status() core function.
+Date: Wed, 29 Aug 2012 14:25:00 +0100
+Message-ID: <201208291425@sw-eng-lt-dc-vm2>
+References: <201208241500@sw-eng-lt-dc-vm2>
+	<201208241505@sw-eng-lt-dc-vm2>
+	<20120824184505.GA7275@roeck-us.net>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120824184505.GA7275@roeck-us.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-leds@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Alessandro Zummo <a.zummo@towertech.it>, Jean Delvare <khali@linux-fr.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Andrew Jones <drjones@redhat.com>, Donggeun Kim <dg77.kim@samsung.com>, Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>, Wim Van Sebroeck <wim@iguana.be>, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, Anthony Olech <anthony.olech@diasemi.com>
 List-Id: linux-input@vger.kernel.org
-To: James M Leddy <james.leddy@canonical.com>
-Cc: linux-input@vger.kernel.org
 
-Em Tue, 2012-08-28 =C3=A0s 19:32 -0400, James M Leddy escreveu:
-> Because of a limitation of the X11 protocol, we can't use micmute in
-> it's current mapping. I've chosen to map this to F20, since we do
-> similar things with the touchpad buttons for the same reason. Whateve=
-r
-> we use, we will have to agree with xkeyboard-config.
->=20
-> http://lists.freedesktop.org/archives/xorg-devel/2012-August/033442.h=
-tml
+> +static const struct i_table vsys_tbl[] = {
+> > +	ILINE(0, DA906X_ADC_MAX, 2500, 5500)
+> > +};
+> > +
+> > +static const struct i_table adcin_tbl[] = {
+> > +	ILINE(0, DA906X_ADC_MAX, 0, 2500)
+> > +};
+> > +
+> > +static const struct i_table tjunc_tbl[] = {
+> > +	ILINE(0, DA906X_ADC_MAX, 333, -86)
+> > +};
+> > +
+> > +static const struct i_table vbbat_tbl[] = {
+> > +	ILINE(0, DA906X_ADC_MAX, 0, 5000)
+> > +};
+> 
+> Since the first parameter to ILINE is always 0, it is not needed. This means
+> that x0 in itable is also always 0 and thus not needed.
+> 
+> > +
+> > +static const struct channel_info da906x_channels[] = {
+> > +	[DA906X_VSYS]	= { "VSYS",
+> > +			    vsys_tbl, ARRAY_SIZE(vsys_tbl) - 1,
+> > +			    DA906X_REG_VSYS_RES },
+> > +	[DA906X_ADCIN1]	= { "ADCIN1",
+> > +			    adcin_tbl,	ARRAY_SIZE(adcin_tbl) - 1,
+> > +			    DA906X_REG_ADCIN1_RES },
+> > +	[DA906X_ADCIN2]	= { "ADCIN2",
+> > +			    adcin_tbl,	ARRAY_SIZE(adcin_tbl) - 1,
+> > +			    DA906X_REG_ADCIN2_RES },
+> > +	[DA906X_ADCIN3]	= { "ADCIN3",
+> > +			    adcin_tbl,	ARRAY_SIZE(adcin_tbl) - 1,
+> > +			    DA906X_REG_ADCIN3_RES },
+> > +	[DA906X_TJUNC]	= { "TJUNC",
+> > +			    tjunc_tbl,	ARRAY_SIZE(tjunc_tbl) - 1 },
+> > +	[DA906X_VBBAT]	= { "VBBAT",
+> > +			    vbbat_tbl,	ARRAY_SIZE(vbbat_tbl) - 1}
+> 
+> 	s/1}/1 }/
+> 
+> > +};
+> 
+> You lost me here a bit (I am missing something ?).
+> 
+> Seems to be each table has exactly one entry. Since the table size is 1,
+> ARRAY_SIZE(vbbat_tbl) - 1 is 0, and ...
 
-=46eel free to implement this once you're done :)
-https://bugzilla.gnome.org/show_bug.cgi?id=3D651051
+An initial idea was to make the interpolation of the channel values using more
+ILINE segments. Eventually, it ended up with one linear segment for every
+channel, so it makes sense to reduce the code as you propose.
 
-Cheers
+As suggested, driver name will be changed from "da906x" to "da9063".
+I will adapt proposed changes and fixes.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thank you for your comments,
+Krystian

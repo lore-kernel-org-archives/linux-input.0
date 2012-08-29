@@ -1,59 +1,36 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] Remap micmute to F20
-Date: Wed, 29 Aug 2012 16:56:19 +0100
-Message-ID: <1346255779.26684.22.camel@novo.hadess.net>
-References: <1346196739-3619-1-git-send-email-james.leddy@canonical.com>
-	 <1346197001.1928.16.camel@sirocco.hadess.net>
-	 <503E3890.3050605@canonical.com>
+From: "Henrik Rydberg" <rydberg@bitmath.se>
+Subject: Re: [PATCH v2 20/20] HID: multitouch: Remove the redundant touch
+ state
+Date: Wed, 29 Aug 2012 18:02:57 +0200
+Message-ID: <20120829160257.GA434@polaris.bitmath.org>
+References: <1345985858-445-1-git-send-email-rydberg@euromail.se>
+ <1345985858-445-21-git-send-email-rydberg@euromail.se>
+ <CAN+gG=H4K2C0fovqv2u2WxcfhxTAH+_et02mFxKCYUaQdMYJMQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:53368 "EHLO
-	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753999Ab2H2P4X convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Aug 2012 11:56:23 -0400
-In-Reply-To: <503E3890.3050605@canonical.com>
+Received: from csmtp2.one.com ([91.198.169.22]:55062 "EHLO csmtp2.one.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752790Ab2H2P50 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Aug 2012 11:57:26 -0400
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=H4K2C0fovqv2u2WxcfhxTAH+_et02mFxKCYUaQdMYJMQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: James M Leddy <james.leddy@canonical.com>
-Cc: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 2012-08-29 at 11:43 -0400, James M Leddy wrote:
-> On 08/28/2012 07:36 PM, Bastien Nocera wrote:
-> > Em Tue, 2012-08-28 =E0s 19:32 -0400, James M Leddy escreveu:
-> >> Because of a limitation of the X11 protocol, we can't use micmute =
-in
-> >> it's current mapping. I've chosen to map this to F20, since we do
-> >> similar things with the touchpad buttons for the same reason. What=
-ever
-> >> we use, we will have to agree with xkeyboard-config.
-> >>
-> >> http://lists.freedesktop.org/archives/xorg-devel/2012-August/03344=
-2.html
-> >=20
-> > Feel free to implement this once you're done :)
-> > https://bugzilla.gnome.org/show_bug.cgi?id=3D651051
->=20
-> Already ahead of you :) Just have to make sure the patch applies clea=
-nly
-> upstream. Thanks for the bug number.
+> - I don't know if it is my configuration or not, but I'm receiving at
+> each frame (between two EV_SYN) all ABS_MT_SLOT events, even when
+> there are not used.
 
-I can tell you it won't, as your copy of gnome-settings-daemon has been
-atrociously mutilated by notify-osd patches.
+Your configuration is fine, I screwed up. Will fix.
 
-I'll add a reference to the patch in the upstream bug, if somebody want=
-s
-to use it as an example.
+> - After a little bit a playing with some surfaces, I can confuse the
+> input_mt_assign_slot_by_id function: for the very same contact id, I
+> got up to four different slots.... This accumulates the clicks and is
+> not very good.... :-(
 
-> https://bazaar.launchpad.net/~jm-leddy/ubuntu/quantal/gnome-settings-=
-daemon/micmute/view/head:/debian/patches/micmute.patch
+Sounds odd, what device would that be?
 
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Henrik

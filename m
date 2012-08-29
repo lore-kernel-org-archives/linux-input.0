@@ -1,36 +1,50 @@
-From: "Henrik Rydberg" <rydberg@bitmath.se>
-Subject: Re: [PATCH v2 20/20] HID: multitouch: Remove the redundant touch
- state
-Date: Wed, 29 Aug 2012 18:02:57 +0200
-Message-ID: <20120829160257.GA434@polaris.bitmath.org>
-References: <1345985858-445-1-git-send-email-rydberg@euromail.se>
- <1345985858-445-21-git-send-email-rydberg@euromail.se>
- <CAN+gG=H4K2C0fovqv2u2WxcfhxTAH+_et02mFxKCYUaQdMYJMQ@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2] HID: multitouch: Remove the redundant touch state
+Date: Wed, 29 Aug 2012 10:18:41 -0700 (PDT)
+Message-ID: <alpine.LNX.2.00.1208291017290.22447@pobox.suse.cz>
+References: <1344807757-2217-1-git-send-email-rydberg@euromail.se> <1344807757-2217-20-git-send-email-rydberg@euromail.se> <CAN+gG=F6hhOxU--mF2v3sCTzFLHqd6vK5JqcvvDXigss7EkPHQ@mail.gmail.com> <20120822205832.GA18102@polaris.bitmath.org>
+ <alpine.LNX.2.00.1208281525060.22447@pobox.suse.cz> <CAN+gG=Gwe5_UBsgp5Vk+5dVEFyC4wwUG2ba=P8QfRwJ6veNm4g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp2.one.com ([91.198.169.22]:55062 "EHLO csmtp2.one.com"
+Received: from cantor2.suse.de ([195.135.220.15]:36576 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752790Ab2H2P50 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Aug 2012 11:57:26 -0400
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=H4K2C0fovqv2u2WxcfhxTAH+_et02mFxKCYUaQdMYJMQ@mail.gmail.com>
+	id S1753606Ab2H2RSw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Aug 2012 13:18:52 -0400
+In-Reply-To: <CAN+gG=Gwe5_UBsgp5Vk+5dVEFyC4wwUG2ba=P8QfRwJ6veNm4g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> - I don't know if it is my configuration or not, but I'm receiving at
-> each frame (between two EV_SYN) all ABS_MT_SLOT events, even when
-> there are not used.
+On Wed, 29 Aug 2012, Benjamin Tissoires wrote:
 
-Your configuration is fine, I screwed up. Will fix.
+> >> With the input_mt_sync_frame() function in place, there is no longer
+> >> any need to keep the full touch state in the driver. This patch
+> >> removes the slot state and replaces the lookup code with the input-mt
+> >> equivalent. The initialization code is moved to mt_input_configured(),
+> >> to make sure the full HID report has been seen.
+> >>
+> >> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> >> ---
+> >> Hi Benjamin,
+> >>
+> >> Maybe this patch works better? It has received limited testing so far.
+> >
+> > What is the status of this patch please? Henrik, Benjamin?
+> 
+> Well, Henrik submitted a new release a few days ago (including this version).
+> I just didn't found the time to test the whole thing on our different devices.
+> It's now on the top of my TODO list.
 
-> - After a little bit a playing with some surfaces, I can confuse the
-> input_mt_assign_slot_by_id function: for the very same contact id, I
-> got up to four different slots.... This accumulates the clicks and is
-> not very good.... :-(
+Ah, I have missed the fact that this one is also part of Henrik's series, 
+sorry for the noise.
 
-Sounds odd, what device would that be?
+I haven't unfortunately reviewed the series yet due to kernel summit & 
+related events, but I'll get to it shortly.
 
-Henrik
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

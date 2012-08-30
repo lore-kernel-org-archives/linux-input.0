@@ -1,410 +1,66 @@
-From: "Patil, Rachna" <rachna@ti.com>
-Subject: [PATCH v2 2/5] MFD: ti_tscadc: Add support for TI's TSC/ADC MFDevice
-Date: Thu, 30 Aug 2012 13:08:23 +0530
-Message-ID: <1346312306-21082-3-git-send-email-rachna@ti.com>
-References: <1346312306-21082-1-git-send-email-rachna@ti.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 8/8] input: ab8500-ponkey: Rely on MFD core to convert
+ IRQs to virtual
+Date: Thu, 30 Aug 2012 14:12:04 +0100
+Message-ID: <20120830131202.GG14145@gmail.com>
+References: <1344527635-6163-1-git-send-email-lee.jones@linaro.org>
+ <1344527635-6163-9-git-send-email-lee.jones@linaro.org>
+ <CACRpkdZ-HOGy_sdsCQSNOdYTDzHFszk0OySM88TjO-neSJUz0A@mail.gmail.com>
+ <20120821092328.GC26899@gmail.com>
+ <20120821164244.GA4672@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:51958 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751516Ab2H3Hz6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Aug 2012 03:55:58 -0400
-In-Reply-To: <1346312306-21082-1-git-send-email-rachna@ti.com>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:45952 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751635Ab2H3NMJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Aug 2012 09:12:09 -0400
+Received: by eaac11 with SMTP id c11so545412eaa.19
+        for <linux-input@vger.kernel.org>; Thu, 30 Aug 2012 06:12:07 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20120821164244.GA4672@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Jonathan Cameron <jic23@cam.ac.uk>, Samuel Ortiz <sameo@linux.intel.com>, "Patil, Rachna" <rachna@ti.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, broonie@opensource.wolfsonmicro.com, linux-input@vger.kernel.org
 
-Add the mfd core driver which supports touchscreen
-and ADC.
-With this patch we are only adding infrastructure to
-support the MFD clients.
+> Sorry for the delay. Yes, this shoudl be fine, but since it is
+> essentially a revert of the original patch it should be pushed in as
+> such.
 
-Signed-off-by: Patil, Rachna <rachna@ti.com>
----
-Changes in v2:
-	Merged "[PATCH 5/5] MFD: ti_tscadc: Add check on number of i/p channels",
-	pacth submitted in pervious version into this file.
+How's this?
 
- drivers/mfd/Kconfig           |    9 ++
- drivers/mfd/Makefile          |    1 +
- drivers/mfd/ti_tscadc.c       |  193 +++++++++++++++++++++++++++++++++++++++++
- include/linux/mfd/ti_tscadc.h |  133 ++++++++++++++++++++++++++++
- 4 files changed, 336 insertions(+), 0 deletions(-)
- create mode 100644 drivers/mfd/ti_tscadc.c
- create mode 100644 include/linux/mfd/ti_tscadc.h
+Author: Lee Jones <lee.jones@linaro.org>
+Date:   Thu Aug 30 14:08:19 2012 +0100
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index d1facef..81eb815 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -94,6 +94,15 @@ config MFD_TI_SSP
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called ti-ssp.
+    Revert "input: ab8500-ponkey: Create AB8500 domain IRQ mapping"
+    
+    This reverts commit ca3b3faf9bee4dc5df4f10eae2d1e48f7de0a8ad.
+    
+    There was a plan to place ab8500_irq_get_virq() calls in each AB8500
+    child device prior to requesting an IRQ, but as we're no longer using
+    Device Tree to collect our IRQ numbers, it's actually better to allow
+    the core to do this during device registration time. So the IRQ number
+    we pull from its resource has already been converted to a virtual IRQ.
+    
+    CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+    CC: linux-input@vger.kernel.org
+    Acked-by: Linus Walleij <linus.walleij@linaro.org>
+    Signed-off-by: Lee Jones <lee.jones@linaro.org>
+
+diff --git a/drivers/input/misc/ab8500-ponkey.c b/drivers/input/misc/ab8500-ponkey.c
+index f06231b..84ec691 100644
+--- a/drivers/input/misc/ab8500-ponkey.c
++++ b/drivers/input/misc/ab8500-ponkey.c
+@@ -74,8 +74,8 @@ static int __devinit ab8500_ponkey_probe(struct platform_device *pdev)
  
-+config MFD_TI_TSCADC
-+	tristate "TI ADC / Touch Screen chip support"
-+	depends on ARCH_OMAP2PLUS
-+	help
-+	  If you say yes here you get support for Texas Instruments series
-+	  of Touch Screen /ADC chips.
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called ti_tscadc.
-+
- config HTC_EGPIO
- 	bool "HTC EGPIO support"
- 	depends on GENERIC_HARDIRQS && GPIOLIB && ARM
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 79dd22d..1537f74 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -16,6 +16,7 @@ obj-$(CONFIG_HTC_I2CPLD)	+= htc-i2cpld.o
- obj-$(CONFIG_MFD_DAVINCI_VOICECODEC)	+= davinci_voicecodec.o
- obj-$(CONFIG_MFD_DM355EVM_MSP)	+= dm355evm_msp.o
- obj-$(CONFIG_MFD_TI_SSP)	+= ti-ssp.o
-+obj-$(CONFIG_MFD_TI_TSCADC)	+= ti_tscadc.o
+        ponkey->idev = input;
+        ponkey->ab8500 = ab8500;
+-       ponkey->irq_dbf = ab8500_irq_get_virq(ab8500, irq_dbf);
+-       ponkey->irq_dbr = ab8500_irq_get_virq(ab8500, irq_dbr);
++       ponkey->irq_dbf = irq_dbf;
++       ponkey->irq_dbr = irq_dbr;
  
- obj-$(CONFIG_MFD_STA2X11)	+= sta2x11-mfd.o
- obj-$(CONFIG_MFD_STMPE)		+= stmpe.o
-diff --git a/drivers/mfd/ti_tscadc.c b/drivers/mfd/ti_tscadc.c
-new file mode 100644
-index 0000000..ac4bf7b
---- /dev/null
-+++ b/drivers/mfd/ti_tscadc.c
-@@ -0,0 +1,193 @@
-+/*
-+ * TI Touch Screen / ADC MFD driver
-+ *
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation version 2.
-+ *
-+ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
-+ * kind, whether express or implied; without even the implied warranty
-+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/err.h>
-+#include <linux/io.h>
-+#include <linux/clk.h>
-+#include <linux/mfd/core.h>
-+#include <linux/pm_runtime.h>
-+#include <linux/mfd/ti_tscadc.h>
-+
-+static unsigned int tscadc_readl(struct ti_tscadc_dev *tsadc, unsigned int reg)
-+{
-+	return readl(tsadc->tscadc_base + reg);
-+}
-+
-+static void tscadc_writel(struct ti_tscadc_dev *tsadc, unsigned int reg,
-+					unsigned int val)
-+{
-+	writel(val, tsadc->tscadc_base + reg);
-+}
-+
-+static void tscadc_idle_config(struct ti_tscadc_dev *config)
-+{
-+	unsigned int idleconfig;
-+
-+	idleconfig = STEPCONFIG_YNN | STEPCONFIG_INM_ADCREFM |
-+			STEPCONFIG_INP_ADCREFM | STEPCONFIG_YPN;
-+
-+	tscadc_writel(config, REG_IDLECONFIG, idleconfig);
-+}
-+
-+static	int __devinit ti_tscadc_probe(struct platform_device *pdev)
-+{
-+	struct ti_tscadc_dev	*tscadc;
-+	struct resource		*res;
-+	struct clk		*clk;
-+	struct mfd_tscadc_board	*pdata = pdev->dev.platform_data;
-+	int			irq;
-+	int			err, ctrl;
-+	int			clk_value, clock_rate;
-+
-+	if (!pdata) {
-+		dev_err(&pdev->dev, "Could not find platform data\n");
-+		return -EINVAL;
-+	}
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res) {
-+		dev_err(&pdev->dev, "no memory resource defined.\n");
-+		return -EINVAL;
-+	}
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		dev_err(&pdev->dev, "no irq ID is specified.\n");
-+		return -EINVAL;
-+	}
-+
-+	/* Allocate memory for device */
-+	tscadc = kzalloc(sizeof(struct ti_tscadc_dev), GFP_KERNEL);
-+	if (!tscadc) {
-+		dev_err(&pdev->dev, "failed to allocate memory.\n");
-+		return -ENOMEM;
-+	}
-+	tscadc->dev = &pdev->dev;
-+	tscadc->irq = irq;
-+
-+	res = request_mem_region(res->start, resource_size(res), pdev->name);
-+	if (!res) {
-+		dev_err(&pdev->dev, "failed to reserve registers.\n");
-+		err = -EBUSY;
-+		goto err_free_mem;
-+	}
-+
-+	tscadc->tscadc_base = ioremap(res->start, resource_size(res));
-+	if (!tscadc->tscadc_base) {
-+		dev_err(&pdev->dev, "failed to map registers.\n");
-+		err = -ENOMEM;
-+		goto err_release_mem_region;
-+	}
-+
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_get_sync(&pdev->dev);
-+
-+	/*
-+	 * The TSC_ADC_Subsystem has 2 clock domains
-+	 * OCP_CLK and ADC_CLK.
-+	 * The ADC clock is expected to run at target of 3MHz,
-+	 * and expected to capture 12-bit data at a rate of 200 KSPS.
-+	 * The TSC_ADC_SS controller design assumes the OCP clock is
-+	 * at least 6x faster than the ADC clock.
-+	 */
-+	clk = clk_get(&pdev->dev, "adc_tsc_fck");
-+	if (IS_ERR(clk)) {
-+		dev_err(&pdev->dev, "failed to get TSC fck\n");
-+		err = PTR_ERR(clk);
-+		goto err_disable_clk;
-+	}
-+	clock_rate = clk_get_rate(clk);
-+	clk_put(clk);
-+	clk_value = clock_rate / ADC_CLK;
-+	if (clk_value < MAX_CLK_DIV) {
-+		dev_err(&pdev->dev, "clock input less than min clock requirement\n");
-+		err = -EINVAL;
-+		goto err_disable_clk;
-+	}
-+	/* TSCADC_CLKDIV needs to be configured to the value minus 1 */
-+	clk_value = clk_value - 1;
-+	tscadc_writel(tscadc, REG_CLKDIV, clk_value);
-+
-+	/* Set the control register bits */
-+	ctrl = CNTRLREG_STEPCONFIGWRT |
-+			CNTRLREG_TSCENB |
-+			CNTRLREG_STEPID |
-+			CNTRLREG_4WIRE;
-+	tscadc_writel(tscadc, REG_CTRL, ctrl);
-+
-+	/* Set register bits for Idle Config Mode */
-+	tscadc_idle_config(tscadc);
-+
-+	/* Enable the TSC module enable bit */
-+	ctrl = tscadc_readl(tscadc, REG_CTRL);
-+	ctrl |= CNTRLREG_TSCSSENB;
-+	tscadc_writel(tscadc, REG_CTRL, ctrl);
-+
-+	err = mfd_add_devices(&pdev->dev, pdev->id, tscadc->cells,
-+			TSCADC_CELLS, NULL, 0);
-+	if (err < 0)
-+		goto err_disable_clk;
-+
-+	platform_set_drvdata(pdev, tscadc);
-+	return 0;
-+
-+err_disable_clk:
-+	pm_runtime_put_sync(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+	iounmap(tscadc->tscadc_base);
-+err_release_mem_region:
-+	release_mem_region(res->start, resource_size(res));
-+	mfd_remove_devices(tscadc->dev);
-+err_free_mem:
-+	kfree(tscadc);
-+	return err;
-+}
-+
-+static int __devexit ti_tscadc_remove(struct platform_device *pdev)
-+{
-+	struct ti_tscadc_dev	*tscadc = platform_get_drvdata(pdev);
-+	struct resource		*res;
-+
-+	tscadc_writel(tscadc, REG_SE, 0x00);
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	iounmap(tscadc->tscadc_base);
-+	release_mem_region(res->start, resource_size(res));
-+
-+	pm_runtime_put_sync(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+
-+	mfd_remove_devices(tscadc->dev);
-+	kfree(tscadc);
-+	return 0;
-+}
-+
-+static struct platform_driver ti_tscadc_driver = {
-+	.driver = {
-+		.name   = "ti_tscadc",
-+		.owner	= THIS_MODULE,
-+	},
-+	.probe	= ti_tscadc_probe,
-+	.remove	= __devexit_p(ti_tscadc_remove),
-+
-+};
-+
-+module_platform_driver(ti_tscadc_driver);
-+
-+MODULE_DESCRIPTION("TI touchscreen / ADC MFD controller driver");
-+MODULE_AUTHOR("Rachna Patil <rachna@ti.com>");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/mfd/ti_tscadc.h b/include/linux/mfd/ti_tscadc.h
-new file mode 100644
-index 0000000..a700085
---- /dev/null
-+++ b/include/linux/mfd/ti_tscadc.h
-@@ -0,0 +1,133 @@
-+#ifndef __LINUX_TI_TSCADC_MFD_H
-+#define __LINUX_TI_TSCADC_MFD_H
-+
-+/*
-+ * TI Touch Screen / ADC MFD driver
-+ *
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation version 2.
-+ *
-+ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
-+ * kind, whether express or implied; without even the implied warranty
-+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/mfd/core.h>
-+
-+#define REG_RAWIRQSTATUS	0x024
-+#define REG_IRQSTATUS		0x028
-+#define REG_IRQENABLE		0x02C
-+#define REG_IRQCLR		0x030
-+#define REG_IRQWAKEUP		0x034
-+#define REG_CTRL		0x040
-+#define REG_ADCFSM		0x044
-+#define REG_CLKDIV		0x04C
-+#define REG_SE			0x054
-+#define REG_IDLECONFIG		0x058
-+#define REG_CHARGECONFIG	0x05C
-+#define REG_CHARGEDELAY		0x060
-+#define REG_STEPCONFIG(n)	(0x64 + ((n - 1) * 8))
-+#define REG_STEPDELAY(n)	(0x68 + ((n - 1) * 8))
-+#define REG_FIFO0CNT		0xE4
-+#define REG_FIFO0THR		0xE8
-+#define REG_FIFO1CNT		0xF0
-+#define REG_FIFO1THR		0xF4
-+#define REG_FIFO0		0x100
-+#define REG_FIFO1		0x200
-+
-+/*	Register Bitfields	*/
-+/* Step Enable */
-+#define STEPENB_MASK		(0x1FFFF << 0)
-+#define STEPENB(val)		((val) << 0)
-+#define STPENB_STEPENB		STEPENB(0x7FFF)
-+
-+/* IRQ enable */
-+#define IRQENB_HW_PEN		BIT(0)
-+#define IRQENB_FIFO0THRES	BIT(2)
-+#define IRQENB_FIFO1THRES	BIT(5)
-+#define IRQENB_PENUP		BIT(9)
-+
-+/* Step Configuration */
-+#define STEPCONFIG_MODE_MASK	(3 << 0)
-+#define STEPCONFIG_MODE(val)	((val) << 0)
-+#define STEPCONFIG_MODE_HWSYNC	STEPCONFIG_MODE(2)
-+#define STEPCONFIG_AVG_MASK	(7 << 2)
-+#define STEPCONFIG_AVG(val)	((val) << 2)
-+#define STEPCONFIG_AVG_16	STEPCONFIG_AVG(4)
-+#define STEPCONFIG_XPP		BIT(5)
-+#define STEPCONFIG_XNN		BIT(6)
-+#define STEPCONFIG_YPP		BIT(7)
-+#define STEPCONFIG_YNN		BIT(8)
-+#define STEPCONFIG_XNP		BIT(9)
-+#define STEPCONFIG_YPN		BIT(10)
-+#define STEPCONFIG_INM_MASK	(0xF << 15)
-+#define STEPCONFIG_INM(val)	((val) << 15)
-+#define STEPCONFIG_INM_ADCREFM	STEPCONFIG_INM(8)
-+#define STEPCONFIG_INP_MASK	(0xF << 19)
-+#define STEPCONFIG_INP(val)	((val) << 19)
-+#define STEPCONFIG_INP_AN2	STEPCONFIG_INP(2)
-+#define STEPCONFIG_INP_AN3	STEPCONFIG_INP(3)
-+#define STEPCONFIG_INP_AN4	STEPCONFIG_INP(4)
-+#define STEPCONFIG_INP_ADCREFM	STEPCONFIG_INP(8)
-+#define STEPCONFIG_FIFO1	BIT(26)
-+
-+/* Delay register */
-+#define STEPDELAY_OPEN_MASK	(0x3FFFF << 0)
-+#define STEPDELAY_OPEN(val)	((val) << 0)
-+#define STEPCONFIG_OPENDLY	STEPDELAY_OPEN(0x098)
-+#define STEPDELAY_SAMPLE_MASK	(0xFF << 24)
-+#define STEPDELAY_SAMPLE(val)	((val) << 24)
-+#define STEPCONFIG_SAMPLEDLY	STEPDELAY_SAMPLE(0)
-+
-+/* Charge Config */
-+#define STEPCHARGE_RFP_MASK	(7 << 12)
-+#define STEPCHARGE_RFP(val)	((val) << 12)
-+#define STEPCHARGE_RFP_XPUL	STEPCHARGE_RFP(1)
-+#define STEPCHARGE_INM_MASK	(0xF << 15)
-+#define STEPCHARGE_INM(val)	((val) << 15)
-+#define STEPCHARGE_INM_AN1	STEPCHARGE_INM(1)
-+#define STEPCHARGE_INP_MASK	(0xF << 19)
-+#define STEPCHARGE_INP(val)	((val) << 19)
-+#define STEPCHARGE_INP_AN1	STEPCHARGE_INP(1)
-+#define STEPCHARGE_RFM_MASK	(3 << 23)
-+#define STEPCHARGE_RFM(val)	((val) << 23)
-+#define STEPCHARGE_RFM_XNUR	STEPCHARGE_RFM(1)
-+
-+/* Charge delay */
-+#define CHARGEDLY_OPEN_MASK	(0x3FFFF << 0)
-+#define CHARGEDLY_OPEN(val)	((val) << 0)
-+#define CHARGEDLY_OPENDLY	CHARGEDLY_OPEN(1)
-+
-+/* Control register */
-+#define CNTRLREG_TSCSSENB	BIT(0)
-+#define CNTRLREG_STEPID		BIT(1)
-+#define CNTRLREG_STEPCONFIGWRT	BIT(2)
-+#define CNTRLREG_POWERDOWN	BIT(4)
-+#define CNTRLREG_AFE_CTRL_MASK	(3 << 5)
-+#define CNTRLREG_AFE_CTRL(val)	((val) << 5)
-+#define CNTRLREG_4WIRE		CNTRLREG_AFE_CTRL(1)
-+#define CNTRLREG_5WIRE		CNTRLREG_AFE_CTRL(2)
-+#define CNTRLREG_8WIRE		CNTRLREG_AFE_CTRL(3)
-+#define CNTRLREG_TSCENB		BIT(7)
-+
-+#define ADC_CLK			3000000
-+#define	MAX_CLK_DIV		7
-+
-+#define TSCADC_CELLS		0
-+
-+struct mfd_tscadc_board {
-+	struct tsc_data *tsc_init;
-+};
-+
-+struct ti_tscadc_dev {
-+	struct device *dev;
-+	void __iomem *tscadc_base;
-+	int irq;
-+	struct mfd_cell cells[TSCADC_CELLS];
-+};
-+
-+#endif
--- 
-1.7.1
-
+        input->name = "AB8500 POn(PowerOn) Key";
+        input->dev.parent = &pdev->dev;

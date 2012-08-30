@@ -1,50 +1,63 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: multitouch: Remove the redundant touch state
-Date: Wed, 29 Aug 2012 10:18:41 -0700 (PDT)
-Message-ID: <alpine.LNX.2.00.1208291017290.22447@pobox.suse.cz>
-References: <1344807757-2217-1-git-send-email-rydberg@euromail.se> <1344807757-2217-20-git-send-email-rydberg@euromail.se> <CAN+gG=F6hhOxU--mF2v3sCTzFLHqd6vK5JqcvvDXigss7EkPHQ@mail.gmail.com> <20120822205832.GA18102@polaris.bitmath.org>
- <alpine.LNX.2.00.1208281525060.22447@pobox.suse.cz> <CAN+gG=Gwe5_UBsgp5Vk+5dVEFyC4wwUG2ba=P8QfRwJ6veNm4g@mail.gmail.com>
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: Re: [PATCH] pwm: Call pwm_enable() before pwm_config()
+Date: Thu, 30 Aug 2012 16:10:11 +0900
+Message-ID: <002001cd867e$7e964130$7bc2c390$%han@samsung.com>
+References: <217877237.2758643.1345731587941.JavaMail.root@advansee.com>
+ <50364FA4.7000401@metafoo.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:36576 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753606Ab2H2RSw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Aug 2012 13:18:52 -0400
-In-Reply-To: <CAN+gG=Gwe5_UBsgp5Vk+5dVEFyC4wwUG2ba=P8QfRwJ6veNm4g@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-reply-to: <50364FA4.7000401@metafoo.de>
+Content-language: ko
+Sender: linux-kernel-owner@vger.kernel.org
+To: 'Lars-Peter Clausen' <lars@metafoo.de>
+Cc: 'Thierry Reding' <thierry.reding@avionic-design.de>, linux-kernel@vger.kernel.org, 'Sascha Hauer' <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, 'Bryan Wu' <bryan.wu@canonical.com>, 'Richard Purdie' <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, 'Florian Tobias Schandinat' <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org, =?utf-8?Q?'Beno=C3=AEt_Th=C3=A9baudeau'?= <benoit.thebaudeau@advansee.com>, 'Jingoo Han' <jg1.han@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 29 Aug 2012, Benjamin Tissoires wrote:
-
-> >> With the input_mt_sync_frame() function in place, there is no longer
-> >> any need to keep the full touch state in the driver. This patch
-> >> removes the slot state and replaces the lookup code with the input-mt
-> >> equivalent. The initialization code is moved to mt_input_configured(),
-> >> to make sure the full HID report has been seen.
-> >>
-> >> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> >> ---
-> >> Hi Benjamin,
-> >>
-> >> Maybe this patch works better? It has received limited testing so far.
+On Friday, August 24, 2012 12:44 AM, Lars-Peter Clausen wrote:
+>=20
+> On 08/23/2012 04:19 PM, Beno=C3=AEt Th=C3=A9baudeau wrote:
+> > Some PWM drivers enable the clock of the PWM peripheral in pwm_enab=
+le(). Hence,
+> > for these drivers, a call to pwm_config() does not have any effect =
+before
+> > pwm_enable() has been called.
 > >
-> > What is the status of this patch please? Henrik, Benjamin?
-> 
-> Well, Henrik submitted a new release a few days ago (including this version).
-> I just didn't found the time to test the whole thing on our different devices.
-> It's now on the top of my TODO list.
+> > This patch fixes the PWM users to make sure that they call pwm_enab=
+le() before
+> > pwm_config().
+> >
+> > This fixes the first setting of brightness through sysfs that had n=
+o effect with
+> > leds-pwm and the i.MX PWM driver.
+>=20
+> But isn't this a bug in the PWM peripheral driver? With this change t=
+he PWM
+> will start with the old settings first. While this is not so much of =
+a problem
+> for a backlight (although it might cause a short flickering) it might=
+ cause
+> problems for other applications, like using the PWM pin as a timing g=
+enerator.
+> In my opinion it's better to fix the PWM peripheral drivers which hav=
+e this
+> problem instead of trying to work around it in every user of the PWM =
+API.
 
-Ah, I have missed the fact that this one is also part of Henrik's series, 
-sorry for the noise.
+Hi Lars-Peter Clausen,
 
-I haven't unfortunately reviewed the series yet due to kernel summit & 
-related events, but I'll get to it shortly.
+I think so.
+It would be better to fix the PWM peripheral drivers.
 
-Thanks,
 
--- 
-Jiri Kosina
-SUSE Labs
+Best regards,
+Jingoo Han
+
+>=20
+> - Lars
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-fbdev=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,63 +1,69 @@
-From: Jingoo Han <jg1.han@samsung.com>
-Subject: Re: [PATCH] pwm: Call pwm_enable() before pwm_config()
-Date: Thu, 30 Aug 2012 16:10:11 +0900
-Message-ID: <002001cd867e$7e964130$7bc2c390$%han@samsung.com>
-References: <217877237.2758643.1345731587941.JavaMail.root@advansee.com>
- <50364FA4.7000401@metafoo.de>
+From: "Patil, Rachna" <rachna@ti.com>
+Subject: [PATCH v2 0/5] Support for TSC/ADC MFD driver
+Date: Thu, 30 Aug 2012 13:08:21 +0530
+Message-ID: <1346312306-21082-1-git-send-email-rachna@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <50364FA4.7000401@metafoo.de>
-Content-language: ko
-Sender: linux-kernel-owner@vger.kernel.org
-To: 'Lars-Peter Clausen' <lars@metafoo.de>
-Cc: 'Thierry Reding' <thierry.reding@avionic-design.de>, linux-kernel@vger.kernel.org, 'Sascha Hauer' <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, 'Bryan Wu' <bryan.wu@canonical.com>, 'Richard Purdie' <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, 'Florian Tobias Schandinat' <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org, =?utf-8?Q?'Beno=C3=AEt_Th=C3=A9baudeau'?= <benoit.thebaudeau@advansee.com>, 'Jingoo Han' <jg1.han@samsung.com>
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from comal.ext.ti.com ([198.47.26.152]:51957 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750879Ab2H3Hz5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Aug 2012 03:55:57 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Jonathan Cameron <jic23@cam.ac.uk>, Samuel Ortiz <sameo@linux.intel.com>, "Patil, Rachna" <rachna@ti.com>
 
-On Friday, August 24, 2012 12:44 AM, Lars-Peter Clausen wrote:
->=20
-> On 08/23/2012 04:19 PM, Beno=C3=AEt Th=C3=A9baudeau wrote:
-> > Some PWM drivers enable the clock of the PWM peripheral in pwm_enab=
-le(). Hence,
-> > for these drivers, a call to pwm_config() does not have any effect =
-before
-> > pwm_enable() has been called.
-> >
-> > This patch fixes the PWM users to make sure that they call pwm_enab=
-le() before
-> > pwm_config().
-> >
-> > This fixes the first setting of brightness through sysfs that had n=
-o effect with
-> > leds-pwm and the i.MX PWM driver.
->=20
-> But isn't this a bug in the PWM peripheral driver? With this change t=
-he PWM
-> will start with the old settings first. While this is not so much of =
-a problem
-> for a backlight (although it might cause a short flickering) it might=
- cause
-> problems for other applications, like using the PWM pin as a timing g=
-enerator.
-> In my opinion it's better to fix the PWM peripheral drivers which hav=
-e this
-> problem instead of trying to work around it in every user of the PWM =
-API.
+This patch set adds a MFD core driver which registers
+touchscreen and ADC as its client drivers.
+The existing touchscreen has been modified to work as
+a MFD client driver and a new ADC driver has been added
+in the IIO subsystem.
 
-Hi Lars-Peter Clausen,
+There are 8 analog input lines, which can be used as:
+1. 8 general purpose ADC channels
+2. 4 wire TS, with 4 general purpose ADC channels
+3. 5 wire TS, with 3 general purpose ADC channels
 
-I think so.
-It would be better to fix the PWM peripheral drivers.
+This patch set has been tested on AM335x EVM.
 
+These set of patches are based on top of Touchscreen patch
+set submitted.
+Subject: [PATCH 0/4] input: TSC: ti_tscadc: TI Touchscreen driver updates [1]
 
-Best regards,
-Jingoo Han
+[1] http://www.spinics.net/lists/linux-input/msg22107.html
 
->=20
-> - Lars
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-fbdev=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Changes in v2:
+	Dropped one patch send in the last version after
+	receiving internal comments. I have merged the changes
+	into existing patches.
+	Also added a new patch to support suspend/resume feature.
+	Fixed review comments by Matthias Kaehlcke.
+
+Patil, Rachna (5):
+  input: TSC: ti_tscadc: Rename the existing touchscreen driver
+  MFD: ti_tscadc: Add support for TI's TSC/ADC MFDevice
+  input: TSC: ti_tsc: Convert TSC into a MFDevice
+  IIO : ADC: tiadc: Add support of TI's ADC driver
+  MFD: ti_tscadc: add suspend/resume functionality
+
+ drivers/iio/adc/Kconfig                            |    7 +
+ drivers/iio/adc/Makefile                           |    1 +
+ drivers/iio/adc/ti_adc.c                           |  248 ++++++++++++++++
+ drivers/input/touchscreen/Kconfig                  |    4 +-
+ drivers/input/touchscreen/Makefile                 |    2 +-
+ .../input/touchscreen/{ti_tscadc.c => ti_tsc.c}    |  310 ++++++--------------
+ drivers/mfd/Kconfig                                |    9 +
+ drivers/mfd/Makefile                               |    1 +
+ drivers/mfd/ti_tscadc.c                            |  251 ++++++++++++++++
+ include/linux/input/{ti_tscadc.h => ti_tsc.h}      |    4 +-
+ include/linux/mfd/ti_tscadc.h                      |  151 ++++++++++
+ include/linux/platform_data/ti_adc.h               |   14 +
+ 12 files changed, 774 insertions(+), 228 deletions(-)
+ create mode 100644 drivers/iio/adc/ti_adc.c
+ rename drivers/input/touchscreen/{ti_tscadc.c => ti_tsc.c} (55%)
+ create mode 100644 drivers/mfd/ti_tscadc.c
+ rename include/linux/input/{ti_tscadc.h => ti_tsc.h} (90%)
+ create mode 100644 include/linux/mfd/ti_tscadc.h
+ create mode 100644 include/linux/platform_data/ti_adc.h
+

@@ -1,87 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.6-rc4
-Date: Thu, 30 Aug 2012 15:53:18 -0700
-Message-ID: <20120830225318.GA21501@core.coreip.homeip.net>
+Subject: Re: [PATCH] Input: Let the FT5x06 driver build without debugfs
+Date: Thu, 30 Aug 2012 15:55:47 -0700
+Message-ID: <20120830225547.GB21501@core.coreip.homeip.net>
+References: <87k3wy1ii3.fsf@xmission.com>
+ <502DFC1D.20903@kernelconcepts.de>
+ <87boi91g01.fsf@xmission.com>
+ <20120820135303.GA9278@roeck-us.net>
+ <20120822054919.GB20624@core.coreip.homeip.net>
+ <alpine.DEB.2.00.1208301524560.14189@chino.kir.corp.google.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:60672 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752524Ab2H3WxX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Aug 2012 18:53:23 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-
-
---lrZ03NoBR/3+SXJZ
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <alpine.DEB.2.00.1208301524560.14189@chino.kir.corp.google.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Rientjes <rientjes@google.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, "Eric W. Biederman" <ebiederm@xmission.com>, Simon Budig <simon.budig@kernelconcepts.de>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Hi Linus,
+On Thu, Aug 30, 2012 at 03:26:21PM -0700, David Rientjes wrote:
+> On Tue, 21 Aug 2012, Dmitry Torokhov wrote:
+> 
+> > > > > On 08/17/2012 02:15 AM, Eric W. Biederman wrote:
+> > > > >> When testing to make certain my user namespace code works in
+> > > > >> various configurations I tripped over the tf5x06.c not building
+> > > > >> with debugfs disabled.
+> > > > >
+> > > > > Sorry for that.
+> > > > >
+> > > > > There already is a patch for this issue which I slightly prefer. You
+> > > > > can find it in the mail from Guenther Roeck:
+> > > > >    http://www.mail-archive.com/linux-input@vger.kernel.org/msg00646.html
+> > > > 
+> > > > If you guys could get that merged into 3.6 I would appreciate it.
+> > > > 
+> > > Yes, that would be great. I don't recall seeing an e-mail from Dmitry accepting
+> > > it, though.
+> > 
+> > Applied, sorry for the delay.
+> > 
+> 
+> This still affects Linus' tree and causes a build breakage without debugfs 
+> configured.  Considering the driver went into 3.5-rc5, could you please 
+> push this fix for 3.6
 
-Please pull from:
+I Just sent a pull request to Linus.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+> (and mark it for stable backport)?
 
-to receive updates for the input subsystem.
+I am pretty sure it was merged in 3.6 merge window, not 3.5, so no need
+to mark for stable.
 
-Changelog:
----------
+Thanks.
 
-Dmitry Torokhov (1):
-      Input: i8042 - add Gigabyte T1005 series netbooks to noloop table
-
-Guenter Roeck (1):
-      Input: edt-ft5x06 - fix build error when compiling wthout CONFIG_DEBU=
-G_FS
-
-Jason Gerecke (1):
-      Input: wacom - add support for EMR on Cintiq 24HD touch
-
-Michael Grzeschik (1):
-      Input: imx_keypad - reset the hardware before enabling
-
-
-Diffstat:
---------
-
- drivers/input/keyboard/imx_keypad.c    |  3 +++
- drivers/input/serio/i8042-x86ia64io.h  | 14 ++++++++++++++
- drivers/input/tablet/wacom_wac.c       |  6 +++++-
- drivers/input/touchscreen/edt-ft5x06.c |  2 +-
- 4 files changed, 23 insertions(+), 2 deletions(-)
-
---=20
+-- 
 Dmitry
-
-
---lrZ03NoBR/3+SXJZ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQP+7eAAoJEH70+W8r6ZYqnQwQAIlqw8DYMpDaSP+rPuXHNkqk
-wx1Ie5ceVQBFw4JtiHiSypIjhXUuPg8r+69ugu7adaPQu/2wCCyj6SZ+iXt3i2zb
-uCon7KQr7bOHmec9JvSS5e5dL+ttC3t/7WYhRr6ZiMyJp6PUFAsEVqM8RVFdKKU5
-7z5609m1NMVQrq1eakz6iIC9+psaRd9ZiNHbiOIZBIog9EEARFwRsC0Q4xFakGAc
-FaIC6baIAyvRdVByb9rDJZkPK85ILDdBAtylvNeGohIKv3VHveFetG3hF++yhKhc
-QKWn/KJTPG3I6KB+UlqCYriGbO1/c8+9WLQOp+i7h72jXe6GLXRglTLrry/roLpc
-d3gfneRt7VIjVOApJDEtOAwVbMrI7wiFhAiNKrBHRfwVL8DbC64fpVFoLOJjdGqt
-mtVBFWdsE38q03YJ3JYZTnz0pbxckRnz2HlI0eNgXLbtyzIKQ+3RtGiE37vw504O
-IWBSx4980G35V/PfmAiWnfMdW7uYvDXdleDk4ePYjdYNALpH+AHGhlUV5qdwOoAu
-4w060XZ7iRPoUwEj9Dql0jIDBQLwIebFYWHuY58D43TqwJNoxGoZqrig5bOwhNgp
-qDsLrA2bDCqH0v3Px2V88uJagDsudqktEltVpkfi9z5ZcrRLYu4l01RzsQ9iE0xQ
-hPR8KenRCaSd8/+t7eFJ
-=AWMy
------END PGP SIGNATURE-----
-
---lrZ03NoBR/3+SXJZ--

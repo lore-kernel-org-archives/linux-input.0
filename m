@@ -1,66 +1,44 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 8/8] input: ab8500-ponkey: Rely on MFD core to convert
- IRQs to virtual
-Date: Thu, 30 Aug 2012 14:12:04 +0100
-Message-ID: <20120830131202.GG14145@gmail.com>
-References: <1344527635-6163-1-git-send-email-lee.jones@linaro.org>
- <1344527635-6163-9-git-send-email-lee.jones@linaro.org>
- <CACRpkdZ-HOGy_sdsCQSNOdYTDzHFszk0OySM88TjO-neSJUz0A@mail.gmail.com>
- <20120821092328.GC26899@gmail.com>
- <20120821164244.GA4672@core.coreip.homeip.net>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [RFC PATCH 2/8] regulator: Add Dialog DA906x voltage regulators
+ support.
+Date: Thu, 30 Aug 2012 10:47:38 -0700
+Message-ID: <20120830174738.GH4356@opensource.wolfsonmicro.com>
+References: <201208241450@sw-eng-lt-dc-vm2>
+ <201208241455@sw-eng-lt-dc-vm2>
+ <20120825151020.GB6520@opensource.wolfsonmicro.com>
+ <201208291550@sw-eng-lt-dc-vm2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:45952 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751635Ab2H3NMJ (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:58834 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751088Ab2H3Rrm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Aug 2012 09:12:09 -0400
-Received: by eaac11 with SMTP id c11so545412eaa.19
-        for <linux-input@vger.kernel.org>; Thu, 30 Aug 2012 06:12:07 -0700 (PDT)
+	Thu, 30 Aug 2012 13:47:42 -0400
 Content-Disposition: inline
-In-Reply-To: <20120821164244.GA4672@core.coreip.homeip.net>
+In-Reply-To: <201208291550@sw-eng-lt-dc-vm2>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, broonie@opensource.wolfsonmicro.com, linux-input@vger.kernel.org
+To: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-leds@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, Alessandro Zummo <a.zummo@towertech.it>, Jean Delvare <khali@linux-fr.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Andrew Jones <drjones@redhat.com>, Donggeun Kim <dg77.kim@samsung.com>, Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>, Wim Van Sebroeck <wim@iguana.be>, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, Anthony Olech <anthony.olech@diasemi.com>
 
-> Sorry for the delay. Yes, this shoudl be fine, but since it is
-> essentially a revert of the original patch it should be pushed in as
-> such.
+On Wed, Aug 29, 2012 at 03:50:00PM +0100, Krystian Garbaciak wrote:
 
-How's this?
+> Because, for some regulators, this is required: val += fvol->offset,
+> I was only able to reduce it to the following form.
 
-Author: Lee Jones <lee.jones@linaro.org>
-Date:   Thu Aug 30 14:08:19 2012 +0100
+What on earth makes you say this?  The above is obviously linear.
 
-    Revert "input: ab8500-ponkey: Create AB8500 domain IRQ mapping"
-    
-    This reverts commit ca3b3faf9bee4dc5df4f10eae2d1e48f7de0a8ad.
-    
-    There was a plan to place ab8500_irq_get_virq() calls in each AB8500
-    child device prior to requesting an IRQ, but as we're no longer using
-    Device Tree to collect our IRQ numbers, it's actually better to allow
-    the core to do this during device registration time. So the IRQ number
-    we pull from its resource has already been converted to a virtual IRQ.
-    
-    CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-    CC: linux-input@vger.kernel.org
-    Acked-by: Linus Walleij <linus.walleij@linaro.org>
-    Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Besides, you're missing several points here.  One is that you should be
+using the framework features, another is that you should be implementing
+_sel.
 
-diff --git a/drivers/input/misc/ab8500-ponkey.c b/drivers/input/misc/ab8500-ponkey.c
-index f06231b..84ec691 100644
---- a/drivers/input/misc/ab8500-ponkey.c
-+++ b/drivers/input/misc/ab8500-ponkey.c
-@@ -74,8 +74,8 @@ static int __devinit ab8500_ponkey_probe(struct platform_device *pdev)
- 
-        ponkey->idev = input;
-        ponkey->ab8500 = ab8500;
--       ponkey->irq_dbf = ab8500_irq_get_virq(ab8500, irq_dbf);
--       ponkey->irq_dbr = ab8500_irq_get_virq(ab8500, irq_dbr);
-+       ponkey->irq_dbf = irq_dbf;
-+       ponkey->irq_dbr = irq_dbr;
- 
-        input->name = "AB8500 POn(PowerOn) Key";
-        input->dev.parent = &pdev->dev;
+> > > +	bits = da906x_reg_read(hw, DA906X_REG_STATUS_D);
+> > > +	if (bits < 0)
+> > > +		return IRQ_HANDLED;
+
+> > If you fail to detect an interrupt you report that you handled one...?
+
+> For me there is no sensible return value for this case.
+
+IRQ_NONE.

@@ -1,48 +1,93 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 1/8] mfd: Add Dialog DA906x core driver.
-Date: Fri, 31 Aug 2012 10:16:56 -0700
-Message-ID: <20120831171655.GC25575@opensource.wolfsonmicro.com>
-References: <201208241445@sw-eng-lt-dc-vm2>
- <201208241450@sw-eng-lt-dc-vm2>
- <20120825183113.GE6520@opensource.wolfsonmicro.com>
- <201208311220@sw-eng-lt-dc-vm2>
+From: Sergei Shtylyov <sshtylyov@mvista.com>
+Subject: Re: [PATCH] Input: usbtouchscreen - initialize eGalax devices
+Date: Fri, 31 Aug 2012 22:50:38 +0400
+Message-ID: <5041077E.8070405@mvista.com>
+References: <20120831135658.GC24820@alittletooquiet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:55804 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754365Ab2HaRRA (ORCPT
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:62462 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754570Ab2HaSwc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Aug 2012 13:17:00 -0400
-Content-Disposition: inline
-In-Reply-To: <201208311220@sw-eng-lt-dc-vm2>
+	Fri, 31 Aug 2012 14:52:32 -0400
+Received: by lbbgj3 with SMTP id gj3so1428598lbb.19
+        for <linux-input@vger.kernel.org>; Fri, 31 Aug 2012 11:52:31 -0700 (PDT)
+In-Reply-To: <20120831135658.GC24820@alittletooquiet.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-leds@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, Alessandro Zummo <a.zummo@towertech.it>, Jean Delvare <khali@linux-fr.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Andrew Jones <drjones@redhat.com>, Donggeun Kim <dg77.kim@samsung.com>, Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>, Wim Van Sebroeck <wim@iguana.be>, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, Anthony Olech <anthony.olech@diasemi.com>
+To: Forest Bond <forest@alittletooquiet.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Ritz <daniel.ritz@gmx.ch>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Fri, Aug 31, 2012 at 12:20:00PM +0100, Krystian Garbaciak wrote:
-> > On Fri, Aug 24, 2012 at 02:50:00PM +0100, Krystian Garbaciak wrote:
+Hello.
 
-> > Your selection of people to CC here appears both large and random...
+On 08/31/2012 05:56 PM, Forest Bond wrote:
 
-> I've added any maintainer for my modules from maintainer list.
+> From: Forest Bond <forest.bond@rapidrollout.com>
 
-You don't need to CC every single persojn on every single patch, and
-quite a few of these people are clearly not active in development.
+> Certain eGalax devices expose an interface with class HID and protocol
+> None.  Some work with usbhid and some work with usbtouchscreen, but
+> there is no easy way to differentiate.  Sending an eGalax diagnostic
+> packet seems to kick them all into using the right protocol for
+> usbtouchscreen, so we can continue to bind them all there (as opposed to
+> handing some off to usbhid).
 
-> > > +inline unsigned int da906x_to_range_reg(u16 reg)
-> > > +{
-> > > +	return reg + DA906X_MAPPING_BASE;
-> > > +}
+> This fixes a regression for devices that were claimed by (and worked
+> with) usbhid prior to commit 139ebe8dc80dd74cb2ac9f5603d18fbf5cff049f,
 
-> > I've no real idea what this stuff is all about, it at least needs some
-> > comments somewhere.  The fact that you're just adding a constant offset
-> > to all registers is at best odd.
+   Please also specify that commit's summary ion parens.
 
-> I will comment it precisely for next version:
+> which made usbtouchscreen claim them instead.  With this patch they will
+> still be claimed by usbtouchscreen, but they will actually report events
+> usbtouchscreen can understand.  Note that these devices will be limited
+> to the usbtouchscreen feature set so e.g. dual touch features are not
+> supported.
 
-This still makes very little sense - this function appears to be
-accomplishing very little.  You're adding a constant offset to every
-single register address that gets used.  Why are we doing this
-dynamically at runtime?
+> I have the distinct pleasure of needing to support devices of both types
+> and have tested accordingly.
+
+> Signed-off-by: Forest Bond <forest.bond@rapidrollout.com>
+> ---
+>  drivers/input/touchscreen/usbtouchscreen.c |   25 +++++++++++++++++++++++++
+>  1 files changed, 25 insertions(+), 0 deletions(-)
+
+> diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+> index e32709e..2ce5308 100644
+> --- a/drivers/input/touchscreen/usbtouchscreen.c
+> +++ b/drivers/input/touchscreen/usbtouchscreen.c
+> @@ -304,6 +304,30 @@ static int e2i_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
+>  #define EGALAX_PKT_TYPE_REPT		0x80
+>  #define EGALAX_PKT_TYPE_DIAG		0x0A
+>  
+> +static int egalax_init(struct usbtouch_usb *usbtouch)
+> +{
+> +	int ret, i;
+> +	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
+> +
+> +	/* An eGalax diagnostic packet kicks the device into using the right
+> +	 * protocol. */
+
+   The preferred multi-line comment style is:
+
+/*
+ * bla
+ * bla
+ */
+
+> +	for (i = 0; i < 3; i++) {
+> +		/* Send a "check active" packet. The response will be read
+> +		 * later and ignored. */
+> +		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+> +				      0,
+> +				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+> +				      0, 0, "\x0A\x01A", 0,
+
+   You probably can't send data from the .const section (as well as off the
+stack) -- they can be DMA'ed and there'll be issues with cache consistency on
+non-x86 arches. You should allocate the data with kmalloc().
+   Although, on the second thought, maybe I'm wrong in this case... not really
+sure about sending -- receiving (to the .data section) could certainly be harmful...
+
+WBR, Sergei
+

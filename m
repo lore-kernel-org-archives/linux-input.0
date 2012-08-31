@@ -1,52 +1,61 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH RESEND #2] dj: memory scribble in logi_dj
-Date: Fri, 31 Aug 2012 12:06:59 +0100
-Message-ID: <20120831110637.16039.45040.stgit@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:39150 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751780Ab2HaKtU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Aug 2012 06:49:20 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+Subject: Re: [PATCH 1/8] mfd: Add Dialog DA906x core driver.
+Date: Fri, 31 Aug 2012 12:20:00 +0100
+Message-ID: <201208311220@sw-eng-lt-dc-vm2>
+References: <201208241445@sw-eng-lt-dc-vm2>
+ <201208241450@sw-eng-lt-dc-vm2>
+ <20120825183113.GE6520@opensource.wolfsonmicro.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120825183113.GE6520@opensource.wolfsonmicro.com>
+Sender: linux-kernel-owner@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-leds@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Alessandro Zummo <a.zummo@towertech.it>, Jean Delvare <khali@linux-fr.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Andrew Jones <drjones@redhat.com>, Donggeun Kim <dg77.kim@samsung.com>, Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>, Wim Van Sebroeck <wim@iguana.be>, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, Anthony Olech <anthony.olech@diasemi.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Alan Cox <alan@linux.intel.com>
+> On Fri, Aug 24, 2012 at 02:50:00PM +0100, Krystian Garbaciak wrote:
+> 
+> > This is MFD module providing access to registers and interrupts of DA906x
+> > series PMIC. It is used by other functional modules, registered as MFD cells.
+> > Driver uses regmap with paging to access extended register list. Register map
+> > is divided into two pages, where the second page is used during initialisation.
+> 
+> Your selection of people to CC here appears both large and random...
 
-Resending as it's not in the input updates for -rc4
+I've added any maintainer for my modules from maintainer list.
 
-Allocate a structure not a pointer to it !
+> > +inline unsigned int da906x_to_range_reg(u16 reg)
+> > +{
+> > +	return reg + DA906X_MAPPING_BASE;
+> > +}
+> 
+> I've no real idea what this stuff is all about, it at least needs some
+> comments somewhere.  The fact that you're just adding a constant offset
+> to all registers is at best odd.
 
-Signed-off-by: Alan Cox <alan@linux.intel.com>
----
+I will comment it precisely for next version:
 
- drivers/hid/hid-logitech-dj.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
++/* Adding virtual register range starting from address DA9063_MAPPING_BASE.
++   It will be used for registers requiring page switching, which in our case
++   are virtually all PMIC registers.
++   Registers from 0 to 255 are used only as a page window and are volatile,
++   except DA9063_REG_PAGE_CON register (page selector), which is cachable. */
++static const struct regmap_range_cfg da9063_range_cfg[] = {
++	{
++		.range_min = DA9063_MAPPING_BASE,
++		.range_max = DA9063_MAPPING_BASE +
++			     ARRAY_SIZE(da9063_reg_flg) - 1,
++		.selector_reg = DA9063_REG_PAGE_CON,
++		.selector_mask = 1 << DA9063_I2C_PAGE_SEL_SHIFT,
++		.selector_shift = DA9063_I2C_PAGE_SEL_SHIFT,
++		.window_start = 0,
++		.window_len = 256,
++	}
++};
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 0f9c146..4d524b5 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -439,7 +439,7 @@ static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
- 	struct dj_report *dj_report;
- 	int retval;
- 
--	dj_report = kzalloc(sizeof(dj_report), GFP_KERNEL);
-+	dj_report = kzalloc(sizeof(struct dj_report), GFP_KERNEL);
- 	if (!dj_report)
- 		return -ENOMEM;
- 	dj_report->report_id = REPORT_ID_DJ_SHORT;
-@@ -456,7 +456,7 @@ static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
- 	struct dj_report *dj_report;
- 	int retval;
- 
--	dj_report = kzalloc(sizeof(dj_report), GFP_KERNEL);
-+	dj_report = kzalloc(sizeof(struct dj_report), GFP_KERNEL);
- 	if (!dj_report)
- 		return -ENOMEM;
- 	dj_report->report_id = REPORT_ID_DJ_SHORT;
+.. and here:
 
++/* Access to any PMIC register is passed through virtual register range,
++   starting at DA9063_MAPPING_BASE. For those registers, paging is required. */
++inline unsigned int da9063_to_range_reg(u16 reg)
++{
++	return reg + DA9063_MAPPING_BASE;
++}

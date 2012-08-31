@@ -1,41 +1,35 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH] Input: s3c2410_ts: Make s3c_ts_pmops const
-Date: Fri, 31 Aug 2012 15:17:17 +0530
-Message-ID: <1346406437-19213-1-git-send-email-sachin.kamat@linaro.org>
+From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+Subject: Re: [RFC PATCH 2/8] regulator: Add Dialog DA906x voltage regulators support.
+Date: Fri, 31 Aug 2012 11:00:00 +0100
+Message-ID: <201208311100@sw-eng-lt-dc-vm2>
+References: <201208241450@sw-eng-lt-dc-vm2>
+ <201208241455@sw-eng-lt-dc-vm2>
+ <20120825151020.GB6520@opensource.wolfsonmicro.com>
+ <201208291550@sw-eng-lt-dc-vm2>
+ <20120830174738.GH4356@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:37953 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751820Ab2HaJtv (ORCPT
+Received: from mailrelay1.diasemi.com ([82.210.246.133]:44325 "EHLO
+	mailrelay1.diasemi.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751864Ab2HaKGK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Aug 2012 05:49:51 -0400
-Received: by pbbrr13 with SMTP id rr13so4557727pbb.19
-        for <linux-input@vger.kernel.org>; Fri, 31 Aug 2012 02:49:50 -0700 (PDT)
+	Fri, 31 Aug 2012 06:06:10 -0400
+In-Reply-To: <20120830174738.GH4356@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org, patches@linaro.org
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-leds@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Alessandro Zummo <a.zummo@towertech.it>, Jean Delvare <khali@linux-fr.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Andrew Jones <drjones@redhat.com>, Donggeun Kim <dg77.kim@samsung.com>, Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>, Wim Van Sebroeck <wim@iguana.be>, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, Anthony Olech <anthony.olech@diasemi.com>
 
-Fixes the following warning:
-WARNING: struct dev_pm_ops should normally be const
+> On Wed, Aug 29, 2012 at 03:50:00PM +0100, Krystian Garbaciak wrote:
+> 
+> > Because, for some regulators, this is required: val += fvol->offset,
+> > I was only able to reduce it to the following form.
+> 
+> What on earth makes you say this?  The above is obviously linear.
+> 
+> Besides, you're missing several points here.  One is that you should be
+> using the framework features, another is that you should be implementing
+> _sel.
 
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
----
- drivers/input/touchscreen/s3c2410_ts.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
-index bf1a064..b3c66d4 100644
---- a/drivers/input/touchscreen/s3c2410_ts.c
-+++ b/drivers/input/touchscreen/s3c2410_ts.c
-@@ -406,7 +406,7 @@ static int s3c2410ts_resume(struct device *dev)
- 	return 0;
- }
- 
--static struct dev_pm_ops s3c_ts_pmops = {
-+static const struct dev_pm_ops s3c_ts_pmops = {
- 	.suspend	= s3c2410ts_suspend,
- 	.resume		= s3c2410ts_resume,
- };
--- 
-1.7.4.1
+Sorry, I've missed an obvious thing here. Instead of adding selector offset at
+runtime, I can substract apropriate voltage from .min_uV. Thanks for pointing
+this out.
 

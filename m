@@ -1,53 +1,97 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: s3c2410_ts: Make s3c_ts_pmops const
-Date: Fri, 31 Aug 2012 07:51:10 -0700
-Message-ID: <20120831145109.GB26858@core.coreip.homeip.net>
-References: <1346406437-19213-1-git-send-email-sachin.kamat@linaro.org>
+Subject: Re: [PATCH] Input: usbtouchscreen - initialize eGalax devices
+Date: Fri, 31 Aug 2012 07:51:51 -0700
+Message-ID: <20120831145149.GC26858@core.coreip.homeip.net>
+References: <20120831135658.GC24820@alittletooquiet.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:60558 "EHLO
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:60575 "EHLO
 	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753710Ab2HaOvO (ORCPT
+	with ESMTP id S1753710Ab2HaOwG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Aug 2012 10:51:14 -0400
-Received: by pbbrr13 with SMTP id rr13so4964271pbb.19
-        for <linux-input@vger.kernel.org>; Fri, 31 Aug 2012 07:51:14 -0700 (PDT)
+	Fri, 31 Aug 2012 10:52:06 -0400
 Content-Disposition: inline
-In-Reply-To: <1346406437-19213-1-git-send-email-sachin.kamat@linaro.org>
+In-Reply-To: <20120831135658.GC24820@alittletooquiet.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: linux-input@vger.kernel.org, patches@linaro.org
+To: Forest Bond <forest@alittletooquiet.net>
+Cc: Daniel Ritz <daniel.ritz@gmx.ch>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Fri, Aug 31, 2012 at 03:17:17PM +0530, Sachin Kamat wrote:
-> Fixes the following warning:
-> WARNING: struct dev_pm_ops should normally be const
+On Fri, Aug 31, 2012 at 09:56:58AM -0400, Forest Bond wrote:
+> From: Forest Bond <forest.bond@rapidrollout.com>
 > 
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> Certain eGalax devices expose an interface with class HID and protocol
+> None.  Some work with usbhid and some work with usbtouchscreen, but
+> there is no easy way to differentiate.  Sending an eGalax diagnostic
+> packet seems to kick them all into using the right protocol for
+> usbtouchscreen, so we can continue to bind them all there (as opposed to
+> handing some off to usbhid).
+> 
+> This fixes a regression for devices that were claimed by (and worked
+> with) usbhid prior to commit 139ebe8dc80dd74cb2ac9f5603d18fbf5cff049f,
+> which made usbtouchscreen claim them instead.  With this patch they will
+> still be claimed by usbtouchscreen, but they will actually report events
+> usbtouchscreen can understand.  Note that these devices will be limited
+> to the usbtouchscreen feature set so e.g. dual touch features are not
+> supported.
+> 
+> I have the distinct pleasure of needing to support devices of both types
+> and have tested accordingly.
+> 
+> Signed-off-by: Forest Bond <forest.bond@rapidrollout.com>
 
-Applied, thanks Sachin.
+Applied, thanks Forest.
 
 > ---
->  drivers/input/touchscreen/s3c2410_ts.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+>  drivers/input/touchscreen/usbtouchscreen.c |   25 +++++++++++++++++++++++++
+>  1 files changed, 25 insertions(+), 0 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
-> index bf1a064..b3c66d4 100644
-> --- a/drivers/input/touchscreen/s3c2410_ts.c
-> +++ b/drivers/input/touchscreen/s3c2410_ts.c
-> @@ -406,7 +406,7 @@ static int s3c2410ts_resume(struct device *dev)
->  	return 0;
->  }
+> diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+> index e32709e..2ce5308 100644
+> --- a/drivers/input/touchscreen/usbtouchscreen.c
+> +++ b/drivers/input/touchscreen/usbtouchscreen.c
+> @@ -304,6 +304,30 @@ static int e2i_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
+>  #define EGALAX_PKT_TYPE_REPT		0x80
+>  #define EGALAX_PKT_TYPE_DIAG		0x0A
 >  
-> -static struct dev_pm_ops s3c_ts_pmops = {
-> +static const struct dev_pm_ops s3c_ts_pmops = {
->  	.suspend	= s3c2410ts_suspend,
->  	.resume		= s3c2410ts_resume,
->  };
+> +static int egalax_init(struct usbtouch_usb *usbtouch)
+> +{
+> +	int ret, i;
+> +	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
+> +
+> +	/* An eGalax diagnostic packet kicks the device into using the right
+> +	 * protocol. */
+> +	for (i = 0; i < 3; i++) {
+> +		/* Send a "check active" packet. The response will be read
+> +		 * later and ignored. */
+> +		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+> +				      0,
+> +				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+> +				      0, 0, "\x0A\x01A", 0,
+> +				      USB_CTRL_SET_TIMEOUT);
+> +		if (ret >= 0)
+> +			break;
+> +		if (ret != -EPIPE)
+> +			return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  static int egalax_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
+>  {
+>  	if ((pkt[0] & EGALAX_PKT_TYPE_MASK) != EGALAX_PKT_TYPE_REPT)
+> @@ -1056,6 +1080,7 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
+>  		.process_pkt	= usbtouch_process_multi,
+>  		.get_pkt_len	= egalax_get_pkt_len,
+>  		.read_data	= egalax_read_data,
+> +		.init		= egalax_init,
+>  	},
+>  #endif
+>  
 > -- 
-> 1.7.4.1
-> 
+> 1.7.0.4
 
 -- 
 Dmitry

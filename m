@@ -1,54 +1,88 @@
-From: Philippe =?ISO-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>
-Subject: Re: [PATCH 1/8] mfd: Add Dialog DA906x core driver.
-Date: Fri, 31 Aug 2012 13:37:12 +0200
-Message-ID: <5755960.24LjLssrFx@laptop>
-References: <201208241445@sw-eng-lt-dc-vm2> <20120825183113.GE6520@opensource.wolfsonmicro.com> <201208311220@sw-eng-lt-dc-vm2>
+From: Forest Bond <forest@alittletooquiet.net>
+Subject: [PATCH] Input: usbtouchscreen - initialize eGalax devices
+Date: Fri, 31 Aug 2012 09:56:58 -0400
+Message-ID: <20120831135658.GC24820@alittletooquiet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp4.epfl.ch ([128.178.224.218]:49566 "HELO smtp4.epfl.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1751366Ab2HaLn5 convert rfc822-to-8bit (ORCPT
+Received: from storm.alittletooquiet.net ([67.23.28.199]:50768 "EHLO
+	storm.alittletooquiet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753429Ab2HaOGu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Aug 2012 07:43:57 -0400
-In-Reply-To: <201208311220@sw-eng-lt-dc-vm2>
+	Fri, 31 Aug 2012 10:06:50 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-leds@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, Alessandro Zummo <a.zummo@towertech.it>, Jean Delvare <khali@linux-fr.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Andrew Jones <drjones@redhat.com>, Donggeun Kim <dg77.kim@samsung.com>, Wim Van Sebroeck <wim@iguana.be>, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, Anthony Olech <anthony.olech@diasemi.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Ritz <daniel.ritz@gmx.ch>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-Le vendredi 31 ao=FBt 2012 12:20:00 Krystian Garbaciak a =E9crit :
-> > On Fri, Aug 24, 2012 at 02:50:00PM +0100, Krystian Garbaciak wrote:
-> > > This is MFD module providing access to registers and interrupts o=
-f
-> > > DA906x
-> > > series PMIC. It is used by other functional modules, registered a=
-s MFD
-> > > cells. Driver uses regmap with paging to access extended register=
- list.
-> > > Register map is divided into two pages, where the second page is =
-used
-> > > during initialisation.>=20
-> > Your selection of people to CC here appears both large and random..=
-=2E
->=20
-> I've added any maintainer for my modules from maintainer list.
+From: Forest Bond <forest.bond@rapidrollout.com>
 
-You should filter manually what get_maintainer.pl tells you, sometimes =
-it's=20
-too verbose.
+Certain eGalax devices expose an interface with class HID and protocol
+None.  Some work with usbhid and some work with usbtouchscreen, but
+there is no easy way to differentiate.  Sending an eGalax diagnostic
+packet seems to kick them all into using the right protocol for
+usbtouchscreen, so we can continue to bind them all there (as opposed to
+handing some off to usbhid).
 
-I'm not maintainer of any of the files/tree this patch is touching.
+This fixes a regression for devices that were claimed by (and worked
+with) usbhid prior to commit 139ebe8dc80dd74cb2ac9f5603d18fbf5cff049f,
+which made usbtouchscreen claim them instead.  With this patch they will
+still be claimed by usbtouchscreen, but they will actually report events
+usbtouchscreen can understand.  Note that these devices will be limited
+to the usbtouchscreen feature set so e.g. dual touch features are not
+supported.
 
-Anyways, it's quite pleasing to see that get_maintainer knows me :)
+I have the distinct pleasure of needing to support devices of both types
+and have tested accordingly.
 
-Regards,
+Signed-off-by: Forest Bond <forest.bond@rapidrollout.com>
+---
+ drivers/input/touchscreen/usbtouchscreen.c |   25 +++++++++++++++++++++++++
+ 1 files changed, 25 insertions(+), 0 deletions(-)
 
-Philippe
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index e32709e..2ce5308 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -304,6 +304,30 @@ static int e2i_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
+ #define EGALAX_PKT_TYPE_REPT		0x80
+ #define EGALAX_PKT_TYPE_DIAG		0x0A
+ 
++static int egalax_init(struct usbtouch_usb *usbtouch)
++{
++	int ret, i;
++	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
++
++	/* An eGalax diagnostic packet kicks the device into using the right
++	 * protocol. */
++	for (i = 0; i < 3; i++) {
++		/* Send a "check active" packet. The response will be read
++		 * later and ignored. */
++		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++				      0,
++				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
++				      0, 0, "\x0A\x01A", 0,
++				      USB_CTRL_SET_TIMEOUT);
++		if (ret >= 0)
++			break;
++		if (ret != -EPIPE)
++			return ret;
++	}
++
++	return 0;
++}
++
+ static int egalax_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
+ {
+ 	if ((pkt[0] & EGALAX_PKT_TYPE_MASK) != EGALAX_PKT_TYPE_REPT)
+@@ -1056,6 +1080,7 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
+ 		.process_pkt	= usbtouch_process_multi,
+ 		.get_pkt_len	= egalax_get_pkt_len,
+ 		.read_data	= egalax_read_data,
++		.init		= egalax_init,
+ 	},
+ #endif
+ 
+-- 
+1.7.0.4

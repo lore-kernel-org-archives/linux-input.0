@@ -1,88 +1,52 @@
-From: Forest Bond <forest@alittletooquiet.net>
-Subject: [PATCH] Input: usbtouchscreen - initialize eGalax devices
-Date: Fri, 31 Aug 2012 09:56:58 -0400
-Message-ID: <20120831135658.GC24820@alittletooquiet.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 8/8] input: ab8500-ponkey: Rely on MFD core to convert
+ IRQs to virtual
+Date: Fri, 31 Aug 2012 07:50:13 -0700
+Message-ID: <20120831145012.GA26858@core.coreip.homeip.net>
+References: <1344527635-6163-1-git-send-email-lee.jones@linaro.org>
+ <1344527635-6163-9-git-send-email-lee.jones@linaro.org>
+ <CACRpkdZ-HOGy_sdsCQSNOdYTDzHFszk0OySM88TjO-neSJUz0A@mail.gmail.com>
+ <20120821092328.GC26899@gmail.com>
+ <20120821164244.GA4672@core.coreip.homeip.net>
+ <20120830131202.GG14145@gmail.com>
+ <20120830230221.GD21501@core.coreip.homeip.net>
+ <20120830230323.GE21501@core.coreip.homeip.net>
+ <20120831073123.GA13298@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from storm.alittletooquiet.net ([67.23.28.199]:50768 "EHLO
-	storm.alittletooquiet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753429Ab2HaOGu (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:55068 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753709Ab2HaOum (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Aug 2012 10:06:50 -0400
+	Fri, 31 Aug 2012 10:50:42 -0400
 Content-Disposition: inline
+In-Reply-To: <20120831073123.GA13298@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Ritz <daniel.ritz@gmx.ch>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, broonie@opensource.wolfsonmicro.com, linux-input@vger.kernel.org
 
-From: Forest Bond <forest.bond@rapidrollout.com>
+On Fri, Aug 31, 2012 at 08:31:33AM +0100, Lee Jones wrote:
+> On Thu, Aug 30, 2012 at 04:03:23PM -0700, Dmitry Torokhov wrote:
+> > On Thu, Aug 30, 2012 at 04:02:21PM -0700, Dmitry Torokhov wrote:
+> > > On Thu, Aug 30, 2012 at 02:12:04PM +0100, Lee Jones wrote:
+> > > > > Sorry for the delay. Yes, this shoudl be fine, but since it is
+> > > > > essentially a revert of the original patch it should be pushed in as
+> > > > > such.
+> > > > 
+> > > > How's this?
+> > > > 
+> > > 
+> > > Excellent.
+> > 
+> > I assume you will be merging it with the rest of AB8500 patches, right?
+> 
+> Yes, if that's okay with you of course?
 
-Certain eGalax devices expose an interface with class HID and protocol
-None.  Some work with usbhid and some work with usbtouchscreen, but
-there is no easy way to differentiate.  Sending an eGalax diagnostic
-packet seems to kick them all into using the right protocol for
-usbtouchscreen, so we can continue to bind them all there (as opposed to
-handing some off to usbhid).
+Sure, please go ahead,
 
-This fixes a regression for devices that were claimed by (and worked
-with) usbhid prior to commit 139ebe8dc80dd74cb2ac9f5603d18fbf5cff049f,
-which made usbtouchscreen claim them instead.  With this patch they will
-still be claimed by usbtouchscreen, but they will actually report events
-usbtouchscreen can understand.  Note that these devices will be limited
-to the usbtouchscreen feature set so e.g. dual touch features are not
-supported.
+Thanks.
 
-I have the distinct pleasure of needing to support devices of both types
-and have tested accordingly.
-
-Signed-off-by: Forest Bond <forest.bond@rapidrollout.com>
----
- drivers/input/touchscreen/usbtouchscreen.c |   25 +++++++++++++++++++++++++
- 1 files changed, 25 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index e32709e..2ce5308 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -304,6 +304,30 @@ static int e2i_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
- #define EGALAX_PKT_TYPE_REPT		0x80
- #define EGALAX_PKT_TYPE_DIAG		0x0A
- 
-+static int egalax_init(struct usbtouch_usb *usbtouch)
-+{
-+	int ret, i;
-+	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
-+
-+	/* An eGalax diagnostic packet kicks the device into using the right
-+	 * protocol. */
-+	for (i = 0; i < 3; i++) {
-+		/* Send a "check active" packet. The response will be read
-+		 * later and ignored. */
-+		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+				      0,
-+				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-+				      0, 0, "\x0A\x01A", 0,
-+				      USB_CTRL_SET_TIMEOUT);
-+		if (ret >= 0)
-+			break;
-+		if (ret != -EPIPE)
-+			return ret;
-+	}
-+
-+	return 0;
-+}
-+
- static int egalax_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
- {
- 	if ((pkt[0] & EGALAX_PKT_TYPE_MASK) != EGALAX_PKT_TYPE_REPT)
-@@ -1056,6 +1080,7 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
- 		.process_pkt	= usbtouch_process_multi,
- 		.get_pkt_len	= egalax_get_pkt_len,
- 		.read_data	= egalax_read_data,
-+		.init		= egalax_init,
- 	},
- #endif
- 
 -- 
-1.7.0.4
+Dmitry

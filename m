@@ -1,123 +1,101 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH v3 11/20] Input: bcm5974 - only setup button urb for TYPE1 devices
-Date: Sat,  1 Sep 2012 21:47:06 +0200
-Message-ID: <1346528835-363-12-git-send-email-rydberg@euromail.se>
+Subject: [PATCH v3 13/20] Input: bcm5974 - Drop pressure and width emulation
+Date: Sat,  1 Sep 2012 21:47:08 +0200
+Message-ID: <1346528835-363-14-git-send-email-rydberg@euromail.se>
 References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:59363 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755800Ab2IATm5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 1 Sep 2012 15:42:57 -0400
 In-Reply-To: <1346528835-363-1-git-send-email-rydberg@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
-List-Id: linux-input@vger.kernel.org
 
-The early generations with this trackpad used the separate mouse
-interface to produce button events. With the introduction of the
-button pads, this information was moved to the trackpad interface,
-leaving the mouse interface unused. The driver is still setting up
-both interfaces, which has not caused any problems - until now.
-
-It turns out that without the CONFIG_USB_EHCI_TT_NEWSCHED option, the
-driver may return an ENOSPC upon bt_urb submission, resulting in a
-failure to open the device. This happens everytime on the MacBookPro
-Retina (and likely on other mid-2012 models), but earlier MacBook
-models seem to work fine.
-
-This patch skips the bt_urb setup for TYPE2 devices, which arguably
-should have been done in the first place.
+The ABS_PRESSURE and ABS_WIDTH have special scales, and were initially
+added solely for thumb and palm recognition in the synaptics driver.
+This never really get used, however, and userspace quickly moved to
+MT solutions instead. This patch drops the unused events.
 
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/input/mouse/bcm5974.c | 43 ++++++++++++++++++++++++++-----------------
- 1 file changed, 26 insertions(+), 17 deletions(-)
+ drivers/input/mouse/bcm5974.c | 26 +++++---------------------
+ 1 file changed, 5 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index d528c23..39ac9ff 100644
+index 2de974c..e033d3a 100644
 --- a/drivers/input/mouse/bcm5974.c
 +++ b/drivers/input/mouse/bcm5974.c
-@@ -742,9 +742,11 @@ static int bcm5974_start_traffic(struct bcm5974 *dev)
- 		goto err_out;
+@@ -417,10 +417,6 @@ static void setup_events_to_report(struct input_dev *input_dev,
+ {
+ 	__set_bit(EV_ABS, input_dev->evbit);
+ 
+-	input_set_abs_params(input_dev, ABS_PRESSURE,
+-				0, cfg->p.dim, cfg->p.fuzz, 0);
+-	input_set_abs_params(input_dev, ABS_TOOL_WIDTH,
+-				0, cfg->w.dim, cfg->w.fuzz, 0);
+ 	input_set_abs_params(input_dev, ABS_X,
+ 				0, cfg->x.dim, cfg->x.fuzz, 0);
+ 	input_set_abs_params(input_dev, ABS_Y,
+@@ -504,9 +500,9 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 	const struct bcm5974_config *c = &dev->cfg;
+ 	const struct tp_finger *f;
+ 	struct input_dev *input = dev->input;
+-	int raw_p, raw_w, raw_x, raw_y, raw_n, i;
++	int raw_p, raw_x, raw_y, raw_n, i;
+ 	int ptest, origin, ibt = 0, nmin = 0, nmax = 0;
+-	int abs_p = 0, abs_w = 0, abs_x = 0, abs_y = 0;
++	int abs_x = 0, abs_y = 0;
+ 
+ 	if (size < c->tp_offset || (size - c->tp_offset) % SIZEOF_FINGER != 0)
+ 		return -EIO;
+@@ -523,22 +519,19 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 			report_finger_data(input, c, &f[i]);
+ 
+ 		raw_p = raw2int(f->touch_major);
+-		raw_w = raw2int(f->tool_major);
+ 		raw_x = raw2int(f->abs_x);
+ 		raw_y = raw2int(f->abs_y);
+ 
+ 		dprintk(9,
+ 			"bcm5974: "
+-			"raw: p: %+05d w: %+05d x: %+05d y: %+05d n: %d\n",
+-			raw_p, raw_w, raw_x, raw_y, raw_n);
++			"raw: p: %+05d x: %+05d y: %+05d n: %d\n",
++			raw_p, raw_x, raw_y, raw_n);
+ 
+ 		ptest = int2bound(&c->p, raw_p);
+ 		origin = raw2int(f->origin);
+ 
+ 		/* while tracking finger still valid, count all fingers */
+ 		if (ptest > PRESSURE_LOW && origin) {
+-			abs_p = ptest;
+-			abs_w = int2bound(&c->w, raw_w);
+ 			abs_x = int2bound(&c->x, raw_x - c->x.devmin);
+ 			abs_y = int2bound(&c->y, c->y.devmax - raw_y);
+ 			while (raw_n--) {
+@@ -568,18 +561,9 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 	input_report_key(input, BTN_TOOL_TRIPLETAP, dev->fingers == 3);
+ 	input_report_key(input, BTN_TOOL_QUADTAP, dev->fingers > 3);
+ 
+-	input_report_abs(input, ABS_PRESSURE, abs_p);
+-	input_report_abs(input, ABS_TOOL_WIDTH, abs_w);
+-
+-	if (abs_p) {
++	if (dev->fingers > 0) {
+ 		input_report_abs(input, ABS_X, abs_x);
+ 		input_report_abs(input, ABS_Y, abs_y);
+-
+-		dprintk(8,
+-			"bcm5974: abs: p: %+05d w: %+05d x: %+05d y: %+05d "
+-			"nmin: %d nmax: %d n: %d ibt: %d\n", abs_p, abs_w,
+-			abs_x, abs_y, nmin, nmax, dev->fingers, ibt);
+-
  	}
  
--	error = usb_submit_urb(dev->bt_urb, GFP_KERNEL);
--	if (error)
--		goto err_reset_mode;
-+	if (dev->bt_urb) {
-+		error = usb_submit_urb(dev->bt_urb, GFP_KERNEL);
-+		if (error)
-+			goto err_reset_mode;
-+	}
- 
- 	error = usb_submit_urb(dev->tp_urb, GFP_KERNEL);
- 	if (error)
-@@ -868,19 +870,23 @@ static int bcm5974_probe(struct usb_interface *iface,
- 	mutex_init(&dev->pm_mutex);
- 
- 	/* setup urbs */
--	dev->bt_urb = usb_alloc_urb(0, GFP_KERNEL);
--	if (!dev->bt_urb)
--		goto err_free_devs;
-+	if (cfg->tp_type == TYPE1) {
-+		dev->bt_urb = usb_alloc_urb(0, GFP_KERNEL);
-+		if (!dev->bt_urb)
-+			goto err_free_devs;
-+	}
- 
- 	dev->tp_urb = usb_alloc_urb(0, GFP_KERNEL);
- 	if (!dev->tp_urb)
- 		goto err_free_bt_urb;
- 
--	dev->bt_data = usb_alloc_coherent(dev->udev,
-+	if (dev->bt_urb) {
-+		dev->bt_data = usb_alloc_coherent(dev->udev,
- 					  dev->cfg.bt_datalen, GFP_KERNEL,
- 					  &dev->bt_urb->transfer_dma);
--	if (!dev->bt_data)
--		goto err_free_urb;
-+		if (!dev->bt_data)
-+			goto err_free_urb;
-+	}
- 
- 	dev->tp_data = usb_alloc_coherent(dev->udev,
- 					  dev->cfg.tp_datalen, GFP_KERNEL,
-@@ -888,10 +894,11 @@ static int bcm5974_probe(struct usb_interface *iface,
- 	if (!dev->tp_data)
- 		goto err_free_bt_buffer;
- 
--	usb_fill_int_urb(dev->bt_urb, udev,
--			 usb_rcvintpipe(udev, cfg->bt_ep),
--			 dev->bt_data, dev->cfg.bt_datalen,
--			 bcm5974_irq_button, dev, 1);
-+	if (dev->bt_urb)
-+		usb_fill_int_urb(dev->bt_urb, udev,
-+				 usb_rcvintpipe(udev, cfg->bt_ep),
-+				 dev->bt_data, dev->cfg.bt_datalen,
-+				 bcm5974_irq_button, dev, 1);
- 
- 	usb_fill_int_urb(dev->tp_urb, udev,
- 			 usb_rcvintpipe(udev, cfg->tp_ep),
-@@ -929,8 +936,9 @@ err_free_buffer:
- 	usb_free_coherent(dev->udev, dev->cfg.tp_datalen,
- 		dev->tp_data, dev->tp_urb->transfer_dma);
- err_free_bt_buffer:
--	usb_free_coherent(dev->udev, dev->cfg.bt_datalen,
--		dev->bt_data, dev->bt_urb->transfer_dma);
-+	if (dev->bt_urb)
-+		usb_free_coherent(dev->udev, dev->cfg.bt_datalen,
-+				  dev->bt_data, dev->bt_urb->transfer_dma);
- err_free_urb:
- 	usb_free_urb(dev->tp_urb);
- err_free_bt_urb:
-@@ -951,8 +959,9 @@ static void bcm5974_disconnect(struct usb_interface *iface)
- 	input_unregister_device(dev->input);
- 	usb_free_coherent(dev->udev, dev->cfg.tp_datalen,
- 			  dev->tp_data, dev->tp_urb->transfer_dma);
--	usb_free_coherent(dev->udev, dev->cfg.bt_datalen,
--			  dev->bt_data, dev->bt_urb->transfer_dma);
-+	if (dev->bt_urb)
-+		usb_free_coherent(dev->udev, dev->cfg.bt_datalen,
-+				  dev->bt_data, dev->bt_urb->transfer_dma);
- 	usb_free_urb(dev->tp_urb);
- 	usb_free_urb(dev->bt_urb);
- 	kfree(dev);
+ 	/* type 2 reports button events via ibt only */
 -- 
 1.7.12
+

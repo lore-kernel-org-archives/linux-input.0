@@ -1,178 +1,40 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH v3 08/20] Input: MT - Handle frame synchronization in core
-Date: Sat,  1 Sep 2012 21:47:03 +0200
-Message-ID: <1346528835-363-9-git-send-email-rydberg@euromail.se>
-References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1346528835-363-1-git-send-email-rydberg@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>
+From: Yann Cantin <yann.cantin-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
+Subject: [eBeam PATCH 0/2] new USB eBeam input driver
+Date: Sun,  2 Sep 2012 00:52:01 +0200
+Message-ID: <1346539923-9704-1-git-send-email-yann.cantin@laposte.net>
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Most MT drivers perform the same actions on frame synchronization.
-Some actions, like dropping unseen contacts, are also unnecessarily
-complex. Collect common frame synchronization tasks in a new function,
-input_mt_sync_frame(). Depending on the flags set, it drops unseen
-contacts and performs pointer emulation.
+Hi,
 
-With init flags and frame synchronization in place, most MT drivers
-can be simplified. First out are the bcm5974 and hid-multitouch
-drivers, following this patch.
+New USB input driver for eBeam devices.
 
-Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/input/input-mt.c | 70 ++++++++++++++++++++++++++++++++++++++++++++++--
- include/linux/input/mt.h |  9 +++++++
- 2 files changed, 77 insertions(+), 2 deletions(-)
+Currently supported (tested) :
+- Luidia eBeam classic projection and edge projection models
+- Nec "interactive solution" NP01Wi1 & NP01Wi2 for video-projectors.
 
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-index 7041737..769c76d 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -14,6 +14,14 @@
- 
- #define TRKID_SGN	((TRKID_MAX + 1) >> 1)
- 
-+static void copy_abs(struct input_dev *dev, unsigned int dst, unsigned int src)
-+{
-+	if (dev->absinfo && test_bit(src, dev->absbit)) {
-+		dev->absinfo[dst] = dev->absinfo[src];
-+		dev->absbit[BIT_WORD(dst)] |= BIT_MASK(dst);
-+	}
-+}
-+
- /**
-  * input_mt_init_slots() - initialize MT input slots
-  * @dev: input device supporting MT events and finger tracking
-@@ -45,6 +53,28 @@ int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots,
- 	input_set_abs_params(dev, ABS_MT_SLOT, 0, num_slots - 1, 0, 0);
- 	input_set_abs_params(dev, ABS_MT_TRACKING_ID, 0, TRKID_MAX, 0, 0);
- 
-+	if (flags & (INPUT_MT_POINTER | INPUT_MT_DIRECT)) {
-+		__set_bit(EV_KEY, dev->evbit);
-+		__set_bit(BTN_TOUCH, dev->keybit);
-+
-+		copy_abs(dev, ABS_X, ABS_MT_POSITION_X);
-+		copy_abs(dev, ABS_Y, ABS_MT_POSITION_Y);
-+		copy_abs(dev, ABS_PRESSURE, ABS_MT_PRESSURE);
-+	}
-+	if (flags & INPUT_MT_POINTER) {
-+		__set_bit(BTN_TOOL_FINGER, dev->keybit);
-+		__set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
-+		if (num_slots >= 3)
-+			__set_bit(BTN_TOOL_TRIPLETAP, dev->keybit);
-+		if (num_slots >= 4)
-+			__set_bit(BTN_TOOL_QUADTAP, dev->keybit);
-+		if (num_slots >= 5)
-+			__set_bit(BTN_TOOL_QUINTTAP, dev->keybit);
-+		__set_bit(INPUT_PROP_POINTER, dev->propbit);
-+	}
-+	if (flags & INPUT_MT_DIRECT)
-+		__set_bit(INPUT_PROP_DIRECT, dev->propbit);
-+
- 	/* Mark slots as 'unused' */
- 	for (i = 0; i < num_slots; i++)
- 		input_mt_set_value(&mt->slots[i], ABS_MT_TRACKING_ID, -1);
-@@ -88,12 +118,17 @@ void input_mt_report_slot_state(struct input_dev *dev,
- 	struct input_mt_slot *slot;
- 	int id;
- 
--	if (!mt || !active) {
-+	if (!mt)
-+		return;
-+
-+	slot = &mt->slots[dev->slot];
-+	slot->frame = mt->frame;
-+
-+	if (!active) {
- 		input_event(dev, EV_ABS, ABS_MT_TRACKING_ID, -1);
- 		return;
- 	}
- 
--	slot = &mt->slots[dev->slot];
- 	id = input_mt_get_value(slot, ABS_MT_TRACKING_ID);
- 	if (id < 0 || input_mt_get_value(slot, ABS_MT_TOOL_TYPE) != tool_type)
- 		id = input_mt_new_trkid(mt);
-@@ -178,3 +213,34 @@ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count)
- 	}
- }
- EXPORT_SYMBOL(input_mt_report_pointer_emulation);
-+
-+/**
-+ * input_mt_sync_frame() - synchronize mt frame
-+ * @dev: input device with allocated MT slots
-+ *
-+ * Close the frame and prepare the internal state for a new one.
-+ * Depending on the flags, marks unused slots as inactive and performs
-+ * pointer emulation.
-+ */
-+void input_mt_sync_frame(struct input_dev *dev)
-+{
-+	struct input_mt *mt = dev->mt;
-+	struct input_mt_slot *s;
-+
-+	if (!mt)
-+		return;
-+
-+	if (mt->flags & INPUT_MT_DROP_UNUSED) {
-+		for (s = mt->slots; s != mt->slots + mt->num_slots; s++) {
-+			if (s->frame == mt->frame)
-+				continue;
-+			input_mt_slot(dev, s - mt->slots);
-+			input_event(dev, EV_ABS, ABS_MT_TRACKING_ID, -1);
-+		}
-+	}
-+
-+	input_mt_report_pointer_emulation(dev, (mt->flags & INPUT_MT_POINTER));
-+
-+	mt->frame++;
-+}
-+EXPORT_SYMBOL(input_mt_sync_frame);
-diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
-index 03c52ce..a11d485 100644
---- a/include/linux/input/mt.h
-+++ b/include/linux/input/mt.h
-@@ -15,12 +15,17 @@
- 
- #define TRKID_MAX	0xffff
- 
-+#define INPUT_MT_POINTER	0x0001	/* pointer device, e.g. trackpad */
-+#define INPUT_MT_DIRECT		0x0002	/* direct device, e.g. touchscreen */
-+#define INPUT_MT_DROP_UNUSED	0x0004	/* drop contacts not seen in frame */
- /**
-  * struct input_mt_slot - represents the state of an input MT slot
-  * @abs: holds current values of ABS_MT axes for this slot
-+ * @frame: last frame at which input_mt_report_slot_state() was called
-  */
- struct input_mt_slot {
- 	int abs[ABS_MT_LAST - ABS_MT_FIRST + 1];
-+	unsigned int frame;
- };
- 
- /**
-@@ -28,12 +33,14 @@ struct input_mt_slot {
-  * @trkid: stores MT tracking ID for the next contact
-  * @num_slots: number of MT slots the device uses
-  * @flags: input_mt operation flags
-+ * @frame: increases every time input_mt_sync_frame() is called
-  * @slots: array of slots holding current values of tracked contacts
-  */
- struct input_mt {
- 	int trkid;
- 	int num_slots;
- 	unsigned int flags;
-+	unsigned int frame;
- 	struct input_mt_slot slots[];
- };
- 
-@@ -79,4 +86,6 @@ void input_mt_report_slot_state(struct input_dev *dev,
- void input_mt_report_finger_count(struct input_dev *dev, int count);
- void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count);
- 
-+void input_mt_sync_frame(struct input_dev *dev);
-+
- #endif
--- 
-1.7.12
+There's others devices (includind re-branded ones) in the wild that
+should be supported out of the box.
+
+So, the code :
+
+Patch 1 to blacklist the devices for hid generic-usb.
+
+Patch 2 is the actual driver.
+
+Notable stuff :
+- use div64_s64 for portable 64/64-bits divisions.
+- 13 sysfs custom files : 9 values for the transformation matrix,
+  4 for xy ranges and a calibration trigger.
+
+The module run fine with a 3.3.6 and a 3.5.0 kernel, both x86_32 and 64.
+
+Thanks for your help.
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

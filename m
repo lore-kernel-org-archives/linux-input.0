@@ -1,7 +1,7 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH v3 06/20] Input: evdev - Add the events() callback
-Date: Sat,  1 Sep 2012 21:47:01 +0200
-Message-ID: <1346528835-363-7-git-send-email-rydberg@euromail.se>
+Subject: [PATCH v3 07/20] Input: MT - Add flags to input_mt_init_slots()
+Date: Sat,  1 Sep 2012 21:47:02 +0200
+Message-ID: <1346528835-363-8-git-send-email-rydberg@euromail.se>
 References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1346528835-363-1-git-send-email-rydberg@euromail.se>
@@ -10,131 +10,324 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 List-Id: linux-input@vger.kernel.org
 
-By sending a full frame of events at the same time, the irqsoff
-latency at heavy load is brought down from 200 us to 100 us.
+Preparing to move more repeated code into the mt core, add a flags
+argument to the input_mt_slots_init() function.
 
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/input/evdev.c | 68 +++++++++++++++++++++++++++++++++++----------------
- 1 file changed, 47 insertions(+), 21 deletions(-)
+ drivers/hid/hid-magicmouse.c             | 2 +-
+ drivers/hid/hid-multitouch.c             | 2 +-
+ drivers/input/input-mt.c                 | 4 +++-
+ drivers/input/misc/uinput.c              | 2 +-
+ drivers/input/mouse/alps.c               | 2 +-
+ drivers/input/mouse/elantech.c           | 4 ++--
+ drivers/input/mouse/sentelic.c           | 2 +-
+ drivers/input/mouse/synaptics.c          | 4 ++--
+ drivers/input/tablet/wacom_wac.c         | 6 +++---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 2 +-
+ drivers/input/touchscreen/cyttsp_core.c  | 2 +-
+ drivers/input/touchscreen/edt-ft5x06.c   | 2 +-
+ drivers/input/touchscreen/egalax_ts.c    | 2 +-
+ drivers/input/touchscreen/ili210x.c      | 2 +-
+ drivers/input/touchscreen/mms114.c       | 2 +-
+ drivers/input/touchscreen/penmount.c     | 2 +-
+ drivers/input/touchscreen/wacom_w8001.c  | 2 +-
+ include/linux/input/mt.h                 | 5 ++++-
+ 18 files changed, 27 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index a0692c5..118d030 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -54,16 +54,9 @@ struct evdev_client {
- static struct evdev *evdev_table[EVDEV_MINORS];
- static DEFINE_MUTEX(evdev_table_mutex);
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 7364726..25ddf3e 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -392,7 +392,7 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
  
--static void evdev_pass_event(struct evdev_client *client,
--			     struct input_event *event,
--			     ktime_t mono, ktime_t real)
-+static void __pass_event(struct evdev_client *client,
-+			 const struct input_event *event)
- {
--	event->time = ktime_to_timeval(client->clkid == CLOCK_MONOTONIC ?
--					mono : real);
--
--	/* Interrupts are disabled, just acquire the lock. */
--	spin_lock(&client->buffer_lock);
--
- 	client->buffer[client->head++] = *event;
- 	client->head &= client->bufsize - 1;
+ 	__set_bit(EV_ABS, input->evbit);
  
-@@ -86,42 +79,74 @@ static void evdev_pass_event(struct evdev_client *client,
- 		client->packet_head = client->head;
- 		kill_fasync(&client->fasync, SIGIO, POLL_IN);
- 	}
-+}
-+
-+static void evdev_pass_values(struct evdev_client *client,
-+			const struct input_value *vals, unsigned int count,
-+			ktime_t mono, ktime_t real)
-+{
-+	struct evdev *evdev = client->evdev;
-+	const struct input_value *v;
-+	struct input_event event;
-+	bool wakeup = false;
-+
-+	event.time = ktime_to_timeval(client->clkid == CLOCK_MONOTONIC ?
-+				      mono : real);
-+
-+	/* Interrupts are disabled, just acquire the lock. */
-+	spin_lock(&client->buffer_lock);
-+
-+	for (v = vals; v != vals + count; v++) {
-+		event.type = v->type;
-+		event.code = v->code;
-+		event.value = v->value;
-+		__pass_event(client, &event);
-+		if (v->type == EV_SYN && v->code == SYN_REPORT)
-+			wakeup = true;
-+	}
- 
- 	spin_unlock(&client->buffer_lock);
-+
-+	if (wakeup)
-+		wake_up_interruptible(&evdev->wait);
- }
- 
- /*
-- * Pass incoming event to all connected clients.
-+ * Pass incoming events to all connected clients.
+-	error = input_mt_init_slots(input, 16);
++	error = input_mt_init_slots(input, 16, 0);
+ 	if (error)
+ 		return error;
+ 	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255 << 2,
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 59c8b5c..c400d90 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -390,7 +390,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		case HID_DG_CONTACTID:
+ 			if (!td->maxcontacts)
+ 				td->maxcontacts = MT_DEFAULT_MAXCONTACT;
+-			input_mt_init_slots(hi->input, td->maxcontacts);
++			input_mt_init_slots(hi->input, td->maxcontacts, 0);
+ 			mt_store_field(usage, td, hi);
+ 			td->last_field_index = field->index;
+ 			td->touches_by_report++;
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+index 58bde77..7041737 100644
+--- a/drivers/input/input-mt.c
++++ b/drivers/input/input-mt.c
+@@ -25,7 +25,8 @@
+  * May be called repeatedly. Returns -EINVAL if attempting to
+  * reinitialize with a different number of slots.
   */
--static void evdev_event(struct input_handle *handle,
--			unsigned int type, unsigned int code, int value)
-+static void evdev_events(struct input_handle *handle,
-+			 const struct input_value *vals, unsigned int count)
+-int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots)
++int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots,
++			unsigned int flags)
  {
- 	struct evdev *evdev = handle->private;
- 	struct evdev_client *client;
--	struct input_event event;
- 	ktime_t time_mono, time_real;
+ 	struct input_mt *mt = dev->mt;
+ 	int i;
+@@ -40,6 +41,7 @@ int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots)
+ 		return -ENOMEM;
  
- 	time_mono = ktime_get();
- 	time_real = ktime_sub(time_mono, ktime_get_monotonic_offset());
+ 	mt->num_slots = num_slots;
++	mt->flags = flags;
+ 	input_set_abs_params(dev, ABS_MT_SLOT, 0, num_slots - 1, 0, 0);
+ 	input_set_abs_params(dev, ABS_MT_TRACKING_ID, 0, TRKID_MAX, 0, 0);
  
--	event.type = type;
--	event.code = code;
--	event.value = value;
--
- 	rcu_read_lock();
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 7360568..6b17975 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -405,7 +405,7 @@ static int uinput_setup_device(struct uinput_device *udev, const char __user *bu
+ 			goto exit;
+ 		if (test_bit(ABS_MT_SLOT, dev->absbit)) {
+ 			int nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
+-			input_mt_init_slots(dev, nslot);
++			input_mt_init_slots(dev, nslot, 0);
+ 		} else if (test_bit(ABS_MT_POSITION_X, dev->absbit)) {
+ 			input_set_events_per_packet(dev, 60);
+ 		}
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 4a1347e..cf5af1f 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1620,7 +1620,7 @@ int alps_init(struct psmouse *psmouse)
+ 	case ALPS_PROTO_V3:
+ 	case ALPS_PROTO_V4:
+ 		set_bit(INPUT_PROP_SEMI_MT, dev1->propbit);
+-		input_mt_init_slots(dev1, 2);
++		input_mt_init_slots(dev1, 2, 0);
+ 		input_set_abs_params(dev1, ABS_MT_POSITION_X, 0, ALPS_V3_X_MAX, 0, 0);
+ 		input_set_abs_params(dev1, ABS_MT_POSITION_Y, 0, ALPS_V3_Y_MAX, 0, 0);
  
- 	client = rcu_dereference(evdev->grab);
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 4790110..1e8e42f 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1004,7 +1004,7 @@ static int elantech_set_input_params(struct psmouse *psmouse)
+ 			input_set_abs_params(dev, ABS_TOOL_WIDTH, ETP_WMIN_V2,
+ 					     ETP_WMAX_V2, 0, 0);
+ 		}
+-		input_mt_init_slots(dev, 2);
++		input_mt_init_slots(dev, 2, 0);
+ 		input_set_abs_params(dev, ABS_MT_POSITION_X, x_min, x_max, 0, 0);
+ 		input_set_abs_params(dev, ABS_MT_POSITION_Y, y_min, y_max, 0, 0);
+ 		break;
+@@ -1035,7 +1035,7 @@ static int elantech_set_input_params(struct psmouse *psmouse)
+ 		input_set_abs_params(dev, ABS_TOOL_WIDTH, ETP_WMIN_V2,
+ 				     ETP_WMAX_V2, 0, 0);
+ 		/* Multitouch capable pad, up to 5 fingers. */
+-		input_mt_init_slots(dev, ETP_MAX_FINGERS);
++		input_mt_init_slots(dev, ETP_MAX_FINGERS, 0);
+ 		input_set_abs_params(dev, ABS_MT_POSITION_X, x_min, x_max, 0, 0);
+ 		input_set_abs_params(dev, ABS_MT_POSITION_Y, y_min, y_max, 0, 0);
+ 		input_abs_set_res(dev, ABS_MT_POSITION_X, x_res);
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index 3f5649f..b47155d 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -960,7 +960,7 @@ static int fsp_set_input_params(struct psmouse *psmouse)
  
- 	if (client)
--		evdev_pass_event(client, &event, time_mono, time_real);
-+		evdev_pass_values(client, vals, count, time_mono, time_real);
- 	else
- 		list_for_each_entry_rcu(client, &evdev->client_list, node)
--			evdev_pass_event(client, &event, time_mono, time_real);
-+			evdev_pass_values(client, vals, count,
-+					  time_mono, time_real);
+ 		input_set_abs_params(dev, ABS_X, 0, abs_x, 0, 0);
+ 		input_set_abs_params(dev, ABS_Y, 0, abs_y, 0, 0);
+-		input_mt_init_slots(dev, 2);
++		input_mt_init_slots(dev, 2, 0);
+ 		input_set_abs_params(dev, ABS_MT_POSITION_X, 0, abs_x, 0, 0);
+ 		input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, abs_y, 0, 0);
+ 	}
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 14eaece..37033ad 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -1232,7 +1232,7 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
+ 	input_set_abs_params(dev, ABS_PRESSURE, 0, 255, 0, 0);
  
- 	rcu_read_unlock();
-+}
+ 	if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) {
+-		input_mt_init_slots(dev, 2);
++		input_mt_init_slots(dev, 2, 0);
+ 		set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
+ 					ABS_MT_POSITION_Y);
+ 		/* Image sensors can report per-contact pressure */
+@@ -1244,7 +1244,7 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
+ 	} else if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c)) {
+ 		/* Non-image sensors with AGM use semi-mt */
+ 		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
+-		input_mt_init_slots(dev, 2);
++		input_mt_init_slots(dev, 2, 0);
+ 		set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
+ 					ABS_MT_POSITION_Y);
+ 	}
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 0020419..5837d07 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -1530,7 +1530,7 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 			__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
+ 			__set_bit(BTN_TOOL_QUADTAP, input_dev->keybit);
  
--	if (type == EV_SYN && code == SYN_REPORT)
--		wake_up_interruptible(&evdev->wait);
-+/*
-+ * Pass incoming event to all connected clients.
-+ */
-+static void evdev_event(struct input_handle *handle,
-+			unsigned int type, unsigned int code, int value)
-+{
-+	struct input_value vals[] = { { type, code, value } };
-+
-+	evdev_events(handle, vals, 1);
+-			input_mt_init_slots(input_dev, features->touch_max);
++			input_mt_init_slots(input_dev, features->touch_max, 0);
+ 
+ 			input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
+ 			                     0, 255, 0, 0);
+@@ -1575,7 +1575,7 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 
+ 	case TABLETPC2FG:
+ 		if (features->device_type == BTN_TOOL_FINGER) {
+-			input_mt_init_slots(input_dev, features->touch_max);
++			input_mt_init_slots(input_dev, features->touch_max, 0);
+ 			input_set_abs_params(input_dev, ABS_MT_TOOL_TYPE,
+ 					0, MT_TOOL_MAX, 0, 0);
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+@@ -1631,7 +1631,7 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 
+ 			__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+ 			__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+-			input_mt_init_slots(input_dev, features->touch_max);
++			input_mt_init_slots(input_dev, features->touch_max, 0);
+ 
+ 			if (features->pktlen == WACOM_PKGLEN_BBTOUCH3) {
+ 				__set_bit(BTN_TOOL_TRIPLETAP,
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 4623cc6..e92615d 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -1152,7 +1152,7 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 
+ 	/* For multi touch */
+ 	num_mt_slots = data->T9_reportid_max - data->T9_reportid_min + 1;
+-	error = input_mt_init_slots(input_dev, num_mt_slots);
++	error = input_mt_init_slots(input_dev, num_mt_slots, 0);
+ 	if (error)
+ 		goto err_free_object;
+ 	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
+diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
+index f030d9e..8e60437 100644
+--- a/drivers/input/touchscreen/cyttsp_core.c
++++ b/drivers/input/touchscreen/cyttsp_core.c
+@@ -571,7 +571,7 @@ struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
+ 	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
+ 			     0, CY_MAXZ, 0, 0);
+ 
+-	input_mt_init_slots(input_dev, CY_MAX_ID);
++	input_mt_init_slots(input_dev, CY_MAX_ID, 0);
+ 
+ 	error = request_threaded_irq(ts->irq, NULL, cyttsp_irq,
+ 				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 9afc777..7b786e7 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -778,7 +778,7 @@ static int __devinit edt_ft5x06_ts_probe(struct i2c_client *client,
+ 			     0, tsdata->num_x * 64 - 1, 0, 0);
+ 	input_set_abs_params(input, ABS_MT_POSITION_Y,
+ 			     0, tsdata->num_y * 64 - 1, 0, 0);
+-	error = input_mt_init_slots(input, MAX_SUPPORT_POINTS);
++	error = input_mt_init_slots(input, MAX_SUPPORT_POINTS, 0);
+ 	if (error) {
+ 		dev_err(&client->dev, "Unable to init MT slots.\n");
+ 		goto err_free_mem;
+diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+index 70524dd..c1e3460 100644
+--- a/drivers/input/touchscreen/egalax_ts.c
++++ b/drivers/input/touchscreen/egalax_ts.c
+@@ -204,7 +204,7 @@ static int __devinit egalax_ts_probe(struct i2c_client *client,
+ 			     ABS_MT_POSITION_X, 0, EGALAX_MAX_X, 0, 0);
+ 	input_set_abs_params(input_dev,
+ 			     ABS_MT_POSITION_X, 0, EGALAX_MAX_Y, 0, 0);
+-	input_mt_init_slots(input_dev, MAX_SUPPORT_POINTS);
++	input_mt_init_slots(input_dev, MAX_SUPPORT_POINTS, 0);
+ 
+ 	input_set_drvdata(input_dev, ts);
+ 
+diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
+index c004417..4ac6976 100644
+--- a/drivers/input/touchscreen/ili210x.c
++++ b/drivers/input/touchscreen/ili210x.c
+@@ -252,7 +252,7 @@ static int __devinit ili210x_i2c_probe(struct i2c_client *client,
+ 	input_set_abs_params(input, ABS_Y, 0, ymax, 0, 0);
+ 
+ 	/* Multi touch */
+-	input_mt_init_slots(input, MAX_TOUCHES);
++	input_mt_init_slots(input, MAX_TOUCHES, 0);
+ 	input_set_abs_params(input, ABS_MT_POSITION_X, 0, xmax, 0, 0);
+ 	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, ymax, 0, 0);
+ 
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index 49c44bb..560cf09 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -404,7 +404,7 @@ static int __devinit mms114_probe(struct i2c_client *client,
+ 	input_set_abs_params(input_dev, ABS_Y, 0, data->pdata->y_size, 0, 0);
+ 
+ 	/* For multi touch */
+-	input_mt_init_slots(input_dev, MMS114_MAX_TOUCH);
++	input_mt_init_slots(input_dev, MMS114_MAX_TOUCH, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
+ 			     0, MMS114_MAX_AREA, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+diff --git a/drivers/input/touchscreen/penmount.c b/drivers/input/touchscreen/penmount.c
+index 4ccde45..b49f0b8 100644
+--- a/drivers/input/touchscreen/penmount.c
++++ b/drivers/input/touchscreen/penmount.c
+@@ -264,7 +264,7 @@ static int pm_connect(struct serio *serio, struct serio_driver *drv)
+ 	input_set_abs_params(pm->dev, ABS_Y, 0, max_y, 0, 0);
+ 
+ 	if (pm->maxcontacts > 1) {
+-		input_mt_init_slots(pm->dev, pm->maxcontacts);
++		input_mt_init_slots(pm->dev, pm->maxcontacts, 0);
+ 		input_set_abs_params(pm->dev,
+ 				     ABS_MT_POSITION_X, 0, max_x, 0, 0);
+ 		input_set_abs_params(pm->dev,
+diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
+index 8f9ad2f..9a83be6 100644
+--- a/drivers/input/touchscreen/wacom_w8001.c
++++ b/drivers/input/touchscreen/wacom_w8001.c
+@@ -471,7 +471,7 @@ static int w8001_setup(struct w8001 *w8001)
+ 		case 5:
+ 			w8001->pktlen = W8001_PKTLEN_TOUCH2FG;
+ 
+-			input_mt_init_slots(dev, 2);
++			input_mt_init_slots(dev, 2, 0);
+ 			input_set_abs_params(dev, ABS_MT_POSITION_X,
+ 						0, touch.x, 0, 0);
+ 			input_set_abs_params(dev, ABS_MT_POSITION_Y,
+diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
+index 4ae275c..03c52ce 100644
+--- a/include/linux/input/mt.h
++++ b/include/linux/input/mt.h
+@@ -27,11 +27,13 @@ struct input_mt_slot {
+  * struct input_mt - state of tracked contacts
+  * @trkid: stores MT tracking ID for the next contact
+  * @num_slots: number of MT slots the device uses
++ * @flags: input_mt operation flags
+  * @slots: array of slots holding current values of tracked contacts
+  */
+ struct input_mt {
+ 	int trkid;
+ 	int num_slots;
++	unsigned int flags;
+ 	struct input_mt_slot slots[];
+ };
+ 
+@@ -47,7 +49,8 @@ static inline int input_mt_get_value(const struct input_mt_slot *slot,
+ 	return slot->abs[code - ABS_MT_FIRST];
  }
  
- static int evdev_fasync(int fd, struct file *file, int on)
-@@ -1050,6 +1075,7 @@ MODULE_DEVICE_TABLE(input, evdev_ids);
+-int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots);
++int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots,
++			unsigned int flags);
+ void input_mt_destroy_slots(struct input_dev *dev);
  
- static struct input_handler evdev_handler = {
- 	.event		= evdev_event,
-+	.events		= evdev_events,
- 	.connect	= evdev_connect,
- 	.disconnect	= evdev_disconnect,
- 	.fops		= &evdev_fops,
+ static inline int input_mt_new_trkid(struct input_mt *mt)
 -- 
 1.7.12

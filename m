@@ -1,40 +1,54 @@
-From: Yann Cantin <yann.cantin-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
-Subject: [eBeam PATCH 0/2] new USB eBeam input driver
-Date: Sun,  2 Sep 2012 00:52:01 +0200
-Message-ID: <1346539923-9704-1-git-send-email-yann.cantin@laposte.net>
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Yann Cantin <yann.cantin@laposte.net>
+Subject: [eBeam PATCH 1/2] hid: Blacklist eBeam devices
+Date: Sun,  2 Sep 2012 00:52:02 +0200
+Message-ID: <1346539923-9704-2-git-send-email-yann.cantin@laposte.net>
+References: <1346539923-9704-1-git-send-email-yann.cantin@laposte.net>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp05.smtpout.orange.fr ([80.12.242.127]:45360 "EHLO
+	smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755783Ab2IAWuM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 1 Sep 2012 18:50:12 -0400
+In-Reply-To: <1346539923-9704-1-git-send-email-yann.cantin@laposte.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, Yann Cantin <yann.cantin@laposte.net>
 
-Hi,
 
-New USB input driver for eBeam devices.
+Signed-off-by: Yann Cantin <yann.cantin@laposte.net>
+---
+ drivers/hid/hid-core.c |    3 +++
+ drivers/hid/hid-ids.h  |    3 +++
+ 2 files changed, 6 insertions(+)
 
-Currently supported (tested) :
-- Luidia eBeam classic projection and edge projection models
-- Nec "interactive solution" NP01Wi1 & NP01Wi2 for video-projectors.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8bf8a64..b4b0baf 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1907,6 +1907,9 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x0004) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x000a) },
++#if defined(CONFIG_INPUT_EBEAM_USB)
++	{ HID_USB_DEVICE(USB_VENDOR_ID_EFI, USB_DEVICE_ID_EFI_EBEAM) },
++#endif
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC4UM) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 1dcb76f..93f5b83 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -271,6 +271,9 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
+ 
++#define USB_VENDOR_ID_EFI		0x2650
++#define USB_DEVICE_ID_EFI_EBEAM		0x1311
++
+ #define USB_VENDOR_ID_ELECOM		0x056e
+ #define USB_DEVICE_ID_ELECOM_BM084	0x0061
+ 
+-- 
+1.7.10
 
-There's others devices (includind re-branded ones) in the wild that
-should be supported out of the box.
-
-So, the code :
-
-Patch 1 to blacklist the devices for hid generic-usb.
-
-Patch 2 is the actual driver.
-
-Notable stuff :
-- use div64_s64 for portable 64/64-bits divisions.
-- 13 sysfs custom files : 9 values for the transformation matrix,
-  4 for xy ranges and a calibration trigger.
-
-The module run fine with a 3.3.6 and a 3.5.0 kernel, both x86_32 and 64.
-
-Thanks for your help.
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

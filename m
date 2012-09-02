@@ -1,57 +1,95 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: Build regressions/improvements in v3.6-rc4
-Date: Sun, 2 Sep 2012 11:33:08 +0200
-Message-ID: <CAMuHMdUSGHF4VXa91=n96hnNTywA3e03xp6Ayc32ZyHBn=Vh5A@mail.gmail.com>
-References: <1346577700-8156-1-git-send-email-geert@linux-m68k.org>
+From: =?utf-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>
+Subject: Re: input0: bad kobj_uevent_env content in show_uevent()
+Date: Sun, 02 Sep 2012 15:41:34 +0200
+Message-ID: <87harg35kh.fsf@nemi.mork.no>
+References: <20120902075946.GA21198@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1346577700-8156-1-git-send-email-geert@linux-m68k.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from canardo.mork.no ([148.122.252.1]:60510 "EHLO canardo.mork.no"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752231Ab2IBNlz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Sep 2012 09:41:55 -0400
+In-Reply-To: <20120902075946.GA21198@localhost> (Fengguang Wu's message of
+	"Sun, 2 Sep 2012 15:59:46 +0800")
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Fengguang Wu <fengguang.wu@intel.com>
+Cc: linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, chunkeey@googlemail.com, linville@tuxdriver.com, LKML <linux-kernel@vger.kernel.org>
 
-On Sun, Sep 2, 2012 at 11:21 AM, Geert Uytterhoeven
-<geert@linux-m68k.org> wrote:
-> JFYI, when comparing v3.6-rc4 to v3.6-rc3[3], the summaries are:
->   - build errors: +6/-13
+=46engguang Wu <fengguang.wu@intel.com> writes:
 
-6 regressions:
-  + drivers/input/touchscreen/edt-ft5x06.c: error: 'struct
-edt_ft5x06_ts_data' has no member named 'raw_buffer':  => 846:14
+> After the __devinit* removal series, I can still get kernel panic in
+> show_uevent(). So there are more sources of bug..
+>
+> Debug patch:
+>
+> @@ -343,8 +343,11 @@ static ssize_t show_uevent(struct device
+>                 goto out;
+>
+>         /* copy keys to file */
+> -       for (i =3D 0; i < env->envp_idx; i++)
+> +       dev_err(dev, "uevent %d env[%d]: %s/.../%s\n", env->buflen, e=
+nv->envp_idx, top_kobj->name, dev->kobj.name);
+> +       for (i =3D 0; i < env->envp_idx; i++) {
+> +               printk(KERN_ERR "uevent %d env[%d]: %s\n", (int)count=
+, i, env->envp[i]);
+>                 count +=3D sprintf(&buf[count], "%s\n", env->envp[i])=
+;
+> +       }
+>
+> Oops message, the env[] is again not properly initilized:
+>
+> [   44.068623] input input0: uevent 61 env[805306368]: input0/.../inp=
+ut0
+> [   44.069552] uevent 0 env[0]: (null)
 
-powerpc-randconfig, fix reported as queued by Dmitry.
+This is a completely different CONFIG_HOTPLUG problem, only
+demonstrating another reason why CONFIG_HOTPLUG should go away.  I had =
+a
+hard time trying to disable it anyway ;-)
 
-  + error: eni.c: relocation truncated to fit: R_PPC64_REL24 against
-symbol `_restgpr0_25' defined in .text.save.restore section in
-arch/powerpc/lib/built-in.o:  => (.text+0x1ff96e4), (.text+0x1ff9438),
-(.text+0x1ff8e74)
-  + error: eni.c: relocation truncated to fit: R_PPC64_REL24 against
-symbol `_restgpr0_28' defined in .text.save.restore section in
-arch/powerpc/lib/built-in.o:  => (.text+0x1ff9848)
-  + error: eni.c: relocation truncated to fit: R_PPC64_REL24 against
-symbol `_restgpr0_30' defined in .text.save.restore section in
-arch/powerpc/lib/built-in.o:  => (.text+0x1ff8ea8), (.text+0x1ff8edc)
-  + error: eni.c: relocation truncated to fit: R_PPC64_REL24 against
-symbol `_savegpr0_29' defined in .text.save.restore section in
-arch/powerpc/lib/built-in.o:  => (.text+0x1ff9cf0)
-  + error: fore200e.c: relocation truncated to fit: R_PPC64_REL24
-against symbol `_restgpr0_22' defined in .text.save.restore section in
-arch/powerpc/lib/built-in.o:  => (.text+0x1ff8608), (.text+0x1ff7e5c)
+The problem this time is lots of code assuming that a call to
+add_uevent_var() will guarantee that env->buflen > 0.  This is not true
+if CONFIG_HOTPLUG is unset.  So things like this end up overwriting
+env->envp_idx because the array index is -1:
 
-powerpc-allyesconfig
+	if (add_uevent_var(env, "MODALIAS=3D"))
+		return -ENOMEM;
+        len =3D input_print_modalias(&env->buf[env->buflen - 1],
+				   sizeof(env->buf) - env->buflen,
+				   dev, 0);
 
-> [1] http://kisskb.ellerman.id.au/kisskb/head/5381/ (all 116 configs)
-> [3] http://kisskb.ellerman.id.au/kisskb/head/5359/ (all 116 configs)
 
-Gr{oetje,eeting}s,
+Don't know what the best action is, given that there seem to be a *lot*
+of this around the kernel.  This patch "fixes" the problem for me, but =
+I
+don't know if it can be considered an appropriate fix:
 
-                        Geert
 
+diff --git a/include/linux/kobject.h b/include/linux/kobject.h
+index fc615a9..1e57449 100644
+--- a/include/linux/kobject.h
++++ b/include/linux/kobject.h
+@@ -224,7 +224,7 @@ static inline int kobject_uevent_env(struct kobject=
+ *kobj,
+=20
+ static inline __printf(2, 3)
+ int add_uevent_var(struct kobj_uevent_env *env, const char *format, ..=
+=2E)
+-{ return 0; }
++{ return -ENOMEM; }
+=20
+ static inline int kobject_action_type(const char *buf, size_t count,
+                                      enum kobject_action *type)
+
+
+
+
+Bj=C3=B8rn
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

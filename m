@@ -1,183 +1,57 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH v3 18/20] HID: hid-multitouch: Simplify setup and frame synchronization
-Date: Sun,  2 Sep 2012 11:34:28 +0200
-Message-ID: <1346578468-16916-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:35609 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755868Ab2IBJ3A (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Sep 2012 05:29:00 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: Build regressions/improvements in v3.6-rc4
+Date: Sun, 2 Sep 2012 11:33:08 +0200
+Message-ID: <CAMuHMdUSGHF4VXa91=n96hnNTywA3e03xp6Ayc32ZyHBn=Vh5A@mail.gmail.com>
+References: <1346577700-8156-1-git-send-email-geert@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1346577700-8156-1-git-send-email-geert@linux-m68k.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-With the input_configured() callback in place, the setup and frame
-synchronization can be simplified. The input device initialization is
-moved to mt_input_configured(), to make sure the full HID report has been
-seen.
+On Sun, Sep 2, 2012 at 11:21 AM, Geert Uytterhoeven
+<geert@linux-m68k.org> wrote:
+> JFYI, when comparing v3.6-rc4 to v3.6-rc3[3], the summaries are:
+>   - build errors: +6/-13
 
-Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/hid/hid-multitouch.c | 67 +++++++++++++++++++++++++-------------------
- 1 file changed, 38 insertions(+), 29 deletions(-)
+6 regressions:
+  + drivers/input/touchscreen/edt-ft5x06.c: error: 'struct
+edt_ft5x06_ts_data' has no member named 'raw_buffer':  => 846:14
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index c400d90..1df86a7 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -92,8 +92,10 @@ struct mt_device {
- 	__u8 touches_by_report;	/* how many touches are present in one report:
- 				* 1 means we should use a serial protocol
- 				* > 1 means hybrid (multitouch) protocol */
-+	bool serial_maybe;	/* need to check for serial protocol */
- 	bool curvalid;		/* is the current contact valid? */
- 	struct mt_slot *slots;
-+	unsigned mt_flags;	/* flags to pass to input-mt */
- };
- 
- /* classes of device behavior */
-@@ -319,24 +321,16 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	* We need to ignore fields that belong to other collections
- 	* such as Mouse that might have the same GenericDesktop usages. */
- 	if (field->application == HID_DG_TOUCHSCREEN)
--		set_bit(INPUT_PROP_DIRECT, hi->input->propbit);
-+		td->mt_flags |= INPUT_MT_DIRECT;
- 	else if (field->application != HID_DG_TOUCHPAD)
- 		return 0;
- 
--	/* In case of an indirect device (touchpad), we need to add
--	 * specific BTN_TOOL_* to be handled by the synaptics xorg
--	 * driver.
--	 * We also consider that touchscreens providing buttons are touchpads.
-+	/*
-+	 * Model touchscreens providing buttons as touchpads.
- 	 */
- 	if (field->application == HID_DG_TOUCHPAD ||
--	    (usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON ||
--	    cls->is_indirect) {
--		set_bit(INPUT_PROP_POINTER, hi->input->propbit);
--		set_bit(BTN_TOOL_FINGER, hi->input->keybit);
--		set_bit(BTN_TOOL_DOUBLETAP, hi->input->keybit);
--		set_bit(BTN_TOOL_TRIPLETAP, hi->input->keybit);
--		set_bit(BTN_TOOL_QUADTAP, hi->input->keybit);
--	}
-+	    (usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON)
-+		td->mt_flags |= INPUT_MT_POINTER;
- 
- 	/* eGalax devices provide a Digitizer.Stylus input which overrides
- 	 * the correct Digitizers.Finger X/Y ranges.
-@@ -353,8 +347,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 					EV_ABS, ABS_MT_POSITION_X);
- 			set_abs(hi->input, ABS_MT_POSITION_X, field,
- 				cls->sn_move);
--			/* touchscreen emulation */
--			set_abs(hi->input, ABS_X, field, cls->sn_move);
- 			mt_store_field(usage, td, hi);
- 			td->last_field_index = field->index;
- 			return 1;
-@@ -363,8 +355,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 					EV_ABS, ABS_MT_POSITION_Y);
- 			set_abs(hi->input, ABS_MT_POSITION_Y, field,
- 				cls->sn_move);
--			/* touchscreen emulation */
--			set_abs(hi->input, ABS_Y, field, cls->sn_move);
- 			mt_store_field(usage, td, hi);
- 			td->last_field_index = field->index;
- 			return 1;
-@@ -388,9 +378,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_CONTACTID:
--			if (!td->maxcontacts)
--				td->maxcontacts = MT_DEFAULT_MAXCONTACT;
--			input_mt_init_slots(hi->input, td->maxcontacts, 0);
- 			mt_store_field(usage, td, hi);
- 			td->last_field_index = field->index;
- 			td->touches_by_report++;
-@@ -418,9 +405,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 					EV_ABS, ABS_MT_PRESSURE);
- 			set_abs(hi->input, ABS_MT_PRESSURE, field,
- 				cls->sn_pressure);
--			/* touchscreen emulation */
--			set_abs(hi->input, ABS_PRESSURE, field,
--				cls->sn_pressure);
- 			mt_store_field(usage, td, hi);
- 			td->last_field_index = field->index;
- 			return 1;
-@@ -536,7 +520,7 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
- 
- 	}
- 
--	input_mt_report_pointer_emulation(input, true);
-+	input_mt_sync_frame(input);
- 	input_sync(input);
- 	td->num_received = 0;
- }
-@@ -685,6 +669,32 @@ static void mt_post_parse(struct mt_device *td)
- 	}
- }
- 
-+static void mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
-+
-+{
-+	struct mt_device *td = hid_get_drvdata(hdev);
-+	struct mt_class *cls = &td->mtclass;
-+	struct input_dev *input = hi->input;
-+
-+	/* Only initialize slots for MT input devices */
-+	if (!test_bit(ABS_MT_POSITION_X, input->absbit))
-+		return;
-+
-+	if (!td->maxcontacts)
-+		td->maxcontacts = MT_DEFAULT_MAXCONTACT;
-+
-+	mt_post_parse(td);
-+	if (td->serial_maybe)
-+		mt_post_parse_default_settings(td);
-+
-+	if (cls->is_indirect)
-+		td->mt_flags |= INPUT_MT_POINTER;
-+
-+	input_mt_init_slots(input, td->maxcontacts, td->mt_flags);
-+
-+	td->mt_flags = 0;
-+}
-+
- static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	int ret, i;
-@@ -722,6 +732,9 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		goto fail;
- 	}
- 
-+	if (id->vendor == HID_ANY_ID && id->product == HID_ANY_ID)
-+		td->serial_maybe = true;
-+
- 	ret = hid_parse(hdev);
- 	if (ret != 0)
- 		goto fail;
-@@ -730,11 +743,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (ret)
- 		goto fail;
- 
--	mt_post_parse(td);
--
--	if (id->vendor == HID_ANY_ID && id->product == HID_ANY_ID)
--		mt_post_parse_default_settings(td);
--
- 	td->slots = kzalloc(td->maxcontacts * sizeof(struct mt_slot),
- 				GFP_KERNEL);
- 	if (!td->slots) {
-@@ -1087,6 +1095,7 @@ static struct hid_driver mt_driver = {
- 	.remove = mt_remove,
- 	.input_mapping = mt_input_mapping,
- 	.input_mapped = mt_input_mapped,
-+	.input_configured = mt_input_configured,
- 	.feature_mapping = mt_feature_mapping,
- 	.usage_table = mt_grabbed_usages,
- 	.event = mt_event,
--- 
-1.7.12
+powerpc-randconfig, fix reported as queued by Dmitry.
 
+  + error: eni.c: relocation truncated to fit: R_PPC64_REL24 against
+symbol `_restgpr0_25' defined in .text.save.restore section in
+arch/powerpc/lib/built-in.o:  => (.text+0x1ff96e4), (.text+0x1ff9438),
+(.text+0x1ff8e74)
+  + error: eni.c: relocation truncated to fit: R_PPC64_REL24 against
+symbol `_restgpr0_28' defined in .text.save.restore section in
+arch/powerpc/lib/built-in.o:  => (.text+0x1ff9848)
+  + error: eni.c: relocation truncated to fit: R_PPC64_REL24 against
+symbol `_restgpr0_30' defined in .text.save.restore section in
+arch/powerpc/lib/built-in.o:  => (.text+0x1ff8ea8), (.text+0x1ff8edc)
+  + error: eni.c: relocation truncated to fit: R_PPC64_REL24 against
+symbol `_savegpr0_29' defined in .text.save.restore section in
+arch/powerpc/lib/built-in.o:  => (.text+0x1ff9cf0)
+  + error: fore200e.c: relocation truncated to fit: R_PPC64_REL24
+against symbol `_restgpr0_22' defined in .text.save.restore section in
+arch/powerpc/lib/built-in.o:  => (.text+0x1ff8608), (.text+0x1ff7e5c)
+
+powerpc-allyesconfig
+
+> [1] http://kisskb.ellerman.id.au/kisskb/head/5381/ (all 116 configs)
+> [3] http://kisskb.ellerman.id.au/kisskb/head/5359/ (all 116 configs)
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

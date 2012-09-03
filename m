@@ -1,45 +1,50 @@
-From: =?utf-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>
-Subject: Re: input0: bad kobj_uevent_env content in show_uevent()
-Date: Mon, 03 Sep 2012 09:01:48 +0200
-Message-ID: <87oblnegir.fsf@nemi.mork.no>
-References: <20120902075946.GA21198@localhost> <87harg35kh.fsf@nemi.mork.no>
-	<20120902163831.GA26191@localhost> <20120903002241.GA20054@kroah.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid: Remove "default m" from HID_LOGITECH_DJ
+Date: Mon, 3 Sep 2012 14:49:42 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1209031449140.20709@pobox.suse.cz>
+References: <20120903044351.GA1590@leaf>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from canardo.mork.no ([148.122.252.1]:45537 "EHLO canardo.mork.no"
+Received: from cantor2.suse.de ([195.135.220.15]:45099 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750923Ab2ICHCS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Sep 2012 03:02:18 -0400
-In-Reply-To: <20120903002241.GA20054@kroah.com> (Greg Kroah-Hartman's message
-	of "Sun, 2 Sep 2012 17:22:41 -0700")
+	id S1751585Ab2ICMtu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Sep 2012 08:49:50 -0400
+In-Reply-To: <20120903044351.GA1590@leaf>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Fengguang Wu <fengguang.wu@intel.com>, linux-input@vger.kernel.org, chunkeey@googlemail.com, linville@tuxdriver.com, LKML <linux-kernel@vger.kernel.org>
+To: Josh Triplett <josh@joshtriplett.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
-> On Mon, Sep 03, 2012 at 12:38:31AM +0800, Fengguang Wu wrote:
->=20
->> It also works reliably for me: 300 boots without a single failure.
->>=20
->> Tested-by: Fengguang Wu <fengguang.wu@intel.com>=20
->
-> Thanks for figuring this out.  I'll apply it for 3.6, but work to get
-> rid of CONFIG_HOTPLUG completly for 3.7 as it just causes problems.
+On Sun, 2 Sep 2012, Josh Triplett wrote:
 
-OK, do you want me to propose some commit message, or do you prefer to
-write something coherent yourself instead?  In any case, if you need it
-for the oneline hack:
+> HID_LOGITECH_DJ uses "default m", which enables it in default kernel
+> builds.  Since this module just enables extra, non-critical
+> functionality for one particular piece of hardware (specifically,
+> differentiating multiple wireless keyboards and mice as separate input
+> devices rather than treating them as one device), and the hardware works
+> just fine with the default USB HID support, drop the "default m".
+> 
+> Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+> ---
+>  drivers/hid/Kconfig |    1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index fbf4950..d004528 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -307,7 +307,6 @@ config HID_LOGITECH
+>  config HID_LOGITECH_DJ
+>  	tristate "Logitech Unifying receivers full support"
+>  	depends on HID_LOGITECH
+> -	default m
+>  	---help---
+>  	Say Y if you want support for Logitech Unifying receivers and devices.
+>  	Unifying receivers are capable of pairing up to 6 Logitech compliant
 
-Signed-off-by: Bj=C3=B8rn Mork <bjorn@mork.no>
+That was an overlook on my side when merging the driver. Applied, thanks.
 
-
-
-Bj=C3=B8rn
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,104 +1,209 @@
-From: Forest Bond <forest-B/PTSs0AgtP3p6jHtUh95NHuzzzSOjJt@public.gmane.org>
-Subject: [PATCH resend2] Input: usbtouchscreen - initialize eGalax devices
-Date: Mon, 3 Sep 2012 13:33:50 -0400
-Message-ID: <20120903173349.GA18666@alittletooquiet.net>
-References: <20120903132648.GC11919@newmaster.mivlgu.local>
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: =?UTF-8?q?=5BPATCH=204/4=5D=20input=3A=20misc=3A=20introduce=20retu-pwrbutton?=
+Date: Mon,  3 Sep 2012 23:23:25 +0300
+Message-ID: <1346703805-31598-5-git-send-email-aaro.koskinen@iki.fi>
+References: <1346703805-31598-1-git-send-email-aaro.koskinen@iki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120903132648.GC11919-TEYkr/UGJhVKdHEj4xO92LjjLBE8jN/0@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1346703805-31598-1-git-send-email-aaro.koskinen@iki.fi>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Forest Bond <forest.bond-XbHmxybg72Wcj+tRJgl41g@public.gmane.org>
+Add Retu power button driver.
 
-Certain eGalax devices expose an interface with class HID and protocol
-None.  Some work with usbhid and some work with usbtouchscreen, but
-there is no easy way to differentiate.  Sending an eGalax diagnostic
-packet seems to kick them all into using the right protocol for
-usbtouchscreen, so we can continue to bind them all there (as opposed to
-handing some off to usbhid).
-
-This fixes a regression for devices that were claimed by (and worked
-with) usbhid prior to commit 139ebe8dc80dd74cb2ac9f5603d18fbf5cff049f
-("Input: usbtouchscreen - fix eGalax HID ignoring"), which made
-usbtouchscreen claim them instead.  With this patch they will still be
-claimed by usbtouchscreen, but they will actually report events
-usbtouchscreen can understand.  Note that these devices will be limited
-to the usbtouchscreen feature set so e.g. dual touch features are not
-supported.
-
-I have the distinct pleasure of needing to support devices of both types
-and have tested accordingly.
-
-Signed-off-by: Forest Bond <forest.bond-XbHmxybg72Wcj+tRJgl41g@public.gmane.org>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
 ---
- drivers/input/touchscreen/usbtouchscreen.c |   39 ++++++++++++++++++++++++++++
- 1 files changed, 39 insertions(+), 0 deletions(-)
+ drivers/input/misc/Kconfig          |   10 +++
+ drivers/input/misc/Makefile         |    1 +
+ drivers/input/misc/retu-pwrbutton.c |  127 +++++++++++++++++++++++++++=
+++++++++
+ 3 files changed, 138 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/retu-pwrbutton.c
 
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index e32709e..c5f4dc0 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -304,6 +304,44 @@ static int e2i_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
- #define EGALAX_PKT_TYPE_REPT		0x80
- #define EGALAX_PKT_TYPE_DIAG		0x0A
- 
-+static int egalax_init(struct usbtouch_usb *usbtouch)
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 7c0f1ec..e5be189 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -367,6 +367,16 @@ config INPUT_CM109
+ 	  To compile this driver as a module, choose M here: the module will =
+be
+ 	  called cm109.
+=20
++config INPUT_RETU_PWRBUTTON
++	tristate "Retu Power button Driver"
++	depends on MFD_RETU
++	help
++	  Say Y here if you want to enable power key reporting via the
++	  Retu chips found in Nokia Internet Tablets (770, N800, N810).
++
++	  To compile this driver as a module, choose M here. The module will
++	  be called retu-pwrbutton.
++
+ config INPUT_TWL4030_PWRBUTTON
+ 	tristate "TWL4030 Power button Driver"
+ 	depends on TWL4030_CORE
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 83fe6f5..4fbee0d 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -45,6 +45,7 @@ obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+=3D pmic8xxx-pwr=
+key.o
+ obj-$(CONFIG_INPUT_POWERMATE)		+=3D powermate.o
+ obj-$(CONFIG_INPUT_PWM_BEEPER)		+=3D pwm-beeper.o
+ obj-$(CONFIG_INPUT_RB532_BUTTON)	+=3D rb532_button.o
++obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+=3D retu-pwrbutton.o
+ obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+=3D rotary_encoder.o
+ obj-$(CONFIG_INPUT_SGI_BTNS)		+=3D sgi_btns.o
+ obj-$(CONFIG_INPUT_SPARCSPKR)		+=3D sparcspkr.o
+diff --git a/drivers/input/misc/retu-pwrbutton.c b/drivers/input/misc/r=
+etu-pwrbutton.c
+new file mode 100644
+index 0000000..f802d4d
+--- /dev/null
++++ b/drivers/input/misc/retu-pwrbutton.c
+@@ -0,0 +1,127 @@
++/*
++ * Retu power button driver.
++ *
++ * Copyright (C) 2004-2010 Nokia Corporation
++ *
++ * Original code written by Ari Saastamoinen, Juha Yrj=C3=B6l=C3=A4 an=
+d Felipe Balbi.
++ * Converted to use to use Retu MFD driver by Aaro Koskinen.
++ *
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License. See the file "COPYING" in the main directory of thi=
+s
++ * archive for more details.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/irq.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/errno.h>
++#include <linux/input.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mfd/retu.h>
++#include <linux/interrupt.h>
++#include <linux/platform_device.h>
++
++#define RETU_STATUS_PWRONX (1 << 5)
++
++struct retu_pwrbutton {
++	struct input_dev	*idev;
++	struct retu_dev		*rdev;
++	struct device		*dev;
++	bool			pressed;
++	int			irq;
++};
++
++static irqreturn_t retu_pwrbutton_irq(int irq, void *_pwr)
 +{
-+	int ret, i;
-+	unsigned char *buf;
-+	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
++	struct retu_pwrbutton *pwr =3D _pwr;
++	bool state;
 +
-+	/* An eGalax diagnostic packet kicks the device into using the right
-+	 * protocol.  We send a "check active" packet.  The response will be
-+	 * read later and ignored.
-+	 */
++	state =3D !(retu_read(pwr->rdev, RETU_REG_STATUS) & RETU_STATUS_PWRON=
+X);
 +
-+	buf = kmalloc(3, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	buf[0] = EGALAX_PKT_TYPE_DIAG;
-+	buf[1] = 1;	/* length */
-+	buf[2] = 'A';	/* command - check active */
-+
-+	for (i = 0; i < 3; i++) {
-+		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
-+				      0,
-+				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-+				      0, 0, buf, 3,
-+				      USB_CTRL_SET_TIMEOUT);
-+		if (ret >= 0) {
-+			ret = 0;
-+			break;
-+		}
-+		if (ret != -EPIPE)
-+			break;
++	if (pwr->pressed !=3D state) {
++		input_report_key(pwr->idev, KEY_POWER, state);
++		input_sync(pwr->idev);
++		pwr->pressed =3D state;
 +	}
 +
-+	kfree(buf);
++	return IRQ_HANDLED;
++}
 +
++static int __devinit retu_pwrbutton_probe(struct platform_device *pdev=
+)
++{
++	struct retu_dev *rdev =3D dev_get_drvdata(pdev->dev.parent);
++	struct retu_pwrbutton *pwr;
++	int ret;
++
++	pwr =3D kzalloc(sizeof(*pwr), GFP_KERNEL);
++	if (!pwr)
++		return -ENOMEM;
++
++	pwr->rdev =3D rdev;
++	pwr->dev  =3D &pdev->dev;
++	pwr->irq  =3D platform_get_irq(pdev, 0);
++	platform_set_drvdata(pdev, pwr);
++
++	ret =3D request_threaded_irq(pwr->irq, NULL, retu_pwrbutton_irq, 0,
++				   "retu-pwrbutton", pwr);
++	if (ret < 0)
++		goto error_irq;
++
++	pwr->idev =3D input_allocate_device();
++	if (!pwr->idev) {
++		ret =3D -ENOMEM;
++		goto error_input;
++	}
++
++	pwr->idev->evbit[0]			=3D BIT_MASK(EV_KEY);
++	pwr->idev->keybit[BIT_WORD(KEY_POWER)]	=3D BIT_MASK(KEY_POWER);
++	pwr->idev->name				=3D "retu-pwrbutton";
++
++	ret =3D input_register_device(pwr->idev);
++	if (ret < 0)
++		goto error_reg;
++
++	return 0;
++
++error_reg:
++	input_free_device(pwr->idev);
++error_input:
++	free_irq(pwr->irq, pwr);
++error_irq:
++	kfree(pwr);
 +	return ret;
 +}
 +
- static int egalax_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
- {
- 	if ((pkt[0] & EGALAX_PKT_TYPE_MASK) != EGALAX_PKT_TYPE_REPT)
-@@ -1056,6 +1094,7 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
- 		.process_pkt	= usbtouch_process_multi,
- 		.get_pkt_len	= egalax_get_pkt_len,
- 		.read_data	= egalax_read_data,
-+		.init		= egalax_init,
- 	},
- #endif
- 
--- 
-1.7.0.4
++static int __devexit retu_pwrbutton_remove(struct platform_device *pde=
+v)
++{
++	struct retu_pwrbutton *pwr =3D platform_get_drvdata(pdev);
++
++	free_irq(pwr->irq, pwr);
++	input_unregister_device(pwr->idev);
++	input_free_device(pwr->idev);
++	kfree(pwr);
++
++	return 0;
++}
++
++static struct platform_driver retu_pwrbutton_driver =3D {
++	.probe		=3D retu_pwrbutton_probe,
++	.remove		=3D __devexit_p(retu_pwrbutton_remove),
++	.driver		=3D {
++		.name	=3D "retu-pwrbutton",
++	},
++};
++module_platform_driver(retu_pwrbutton_driver);
++
++MODULE_ALIAS("platform:retu-pwrbutton");
++MODULE_DESCRIPTION("Retu Power Button");
++MODULE_AUTHOR("Ari Saastamoinen");
++MODULE_AUTHOR("Felipe Balbi");
++MODULE_AUTHOR("Aaro Koskinen <aaro.koskinen@iki.fi>");
++MODULE_LICENSE("GPL");
+--=20
+1.7.2.5
+
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

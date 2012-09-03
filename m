@@ -1,60 +1,50 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [RFC ebeam PATCH v4 2/2] input: misc: New USB eBeam input driver.
-Date: Mon, 03 Sep 2012 14:59:58 +0200
-Message-ID: <1816600.0kCAv4ld5c@linux-lqwf.site>
-References: <1345673514-11575-1-git-send-email-yann.cantin@laposte.net> <1555763.Oi7gGGn7BU@linux-lqwf.site> <503792CC.6050209@laposte.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v3 16/20] HID: Only dump input if someone is listening
+Date: Mon, 3 Sep 2012 15:17:02 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1209031515450.20709@pobox.suse.cz>
+References: <1346528835-363-1-git-send-email-rydberg@euromail.se> <1346528835-363-17-git-send-email-rydberg@euromail.se> <alpine.LNX.2.00.1209020927130.20709@pobox.suse.cz> <20120902085211.GA604@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45428 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:47827 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754088Ab2ICNBR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Sep 2012 09:01:17 -0400
-In-Reply-To: <503792CC.6050209@laposte.net>
+	id S1753115Ab2ICNRL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Sep 2012 09:17:11 -0400
+In-Reply-To: <20120902085211.GA604@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yann Cantin <yann.cantin@laposte.net>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Friday 24 August 2012 16:42:20 Yann Cantin wrote:
-> Hi,
->=20
-> Le 24/08/2012 13:41, Oliver Neukum a =E9crit :
-> > On Friday 24 August 2012 11:37:45 Yann Cantin wrote:
-> >> Hi,
-> >>
-> >> Le 23/08/2012 09:23, Oliver Neukum a =E9crit :
-> >>> On Thursday 23 August 2012 00:11:54 Yann Cantin wrote:
-> >=20
-> >>> These functions are identical. You should unify them.
-> >>
-> >> Removed reset_resume from the driver (optional, and not needed
-> >> for this hardware).
-> >=20
-> > Why did you do that? It is always better to have reset_resume().
-> > And you cannot tell whether it will be needed.
->=20
-> This function was used in usbtouchscreen (which this driver is based =
-on)
-> for some hardware specific init after reset. eBeam devices doesn't ne=
-ed that,
-> and i didn't mention the similarity of the 2 functions after strippin=
-g the code.
->=20
-> According to power-management.txt, reset_resume is optional, and lot =
-of input
-> driver lack it. Anyway, if you think it's worth the code, i'll re-add=
- a=20
-> reset_resume function proxing resume like wacom_sys.c do.
+On Sun, 2 Sep 2012, Henrik Rydberg wrote:
 
-It is always better to have reset_resume() if it can be easily done.
+> > I have applied this one right away, so you can drop it from your series. 
+> > The remaining ones I am still about to review (currently travelling).
+> 
+> Great, thanks. The notification callback can also be applied if you want.
+> 
+> > There is no inter-dependency between the Input and HID ones, and so we can 
+> > handle them with Dmitry as two independent Input and HID series, right?
+> 
+> Not quite, I am afraid. Some of the overlap has disappeared, true.
+> However, the hid-multitouch patches depend on new variables defined in
+> the input-mt patches, which in turn depend on the input core
+> changes. The hid-multitouch patches will apply (with a tiny merge
+> conflict), but they will not compile.
+> 
+> I can split the input-core and hid-core changes into separate sets,
+> and those could be applied separately. The input-mt and bcm5974 will
+> then build on input-core, and hid-multitouch will build on both
+> input-core and hid-core. I am not sure if this helps anyone, though.
 
-	Regards
-		Oliver
+I don't think so.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Let's wait once Dmitry is finished with the input changes, and I can 
+either take the set through my tree with his Signed-off-by: on the Input 
+patches, or vice-versa.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

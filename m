@@ -1,50 +1,69 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: Remove "default m" from HID_LOGITECH_DJ
-Date: Mon, 3 Sep 2012 14:49:42 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1209031449140.20709@pobox.suse.cz>
-References: <20120903044351.GA1590@leaf>
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: Re: [PATCH 20/20] HID: hid-multitouch: Add missing contact count detection
+Date: Mon, 3 Sep 2012 14:59:03 +0200
+Message-ID: <CAN+gG=FwXaSWN_AYnU7Vpxn4GcWYG3Bf100P0QD_8cQfEnGc7A@mail.gmail.com>
+References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
+	<1346528835-363-21-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45099 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751585Ab2ICMtu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 Sep 2012 08:49:50 -0400
-In-Reply-To: <20120903044351.GA1590@leaf>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:63512 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751397Ab2ICM7F (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Sep 2012 08:59:05 -0400
+In-Reply-To: <1346528835-363-21-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Josh Triplett <josh@joshtriplett.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, 2 Sep 2012, Josh Triplett wrote:
-
-> HID_LOGITECH_DJ uses "default m", which enables it in default kernel
-> builds.  Since this module just enables extra, non-critical
-> functionality for one particular piece of hardware (specifically,
-> differentiating multiple wireless keyboards and mice as separate input
-> devices rather than treating them as one device), and the hardware works
-> just fine with the default USB HID support, drop the "default m".
-> 
-> Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+On Sat, Sep 1, 2012 at 9:47 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> Some devices report the number of contacts via the CONTACTCOUNT usage,
+> rather than using the CONTACTMAX feature. Without this patch, such
+> devices will be capped to ten fingers, the default maximum. Fixes a
+> long-standing regression on 3M and similar panels.
+>
+> Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 > ---
->  drivers/hid/Kconfig |    1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index fbf4950..d004528 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -307,7 +307,6 @@ config HID_LOGITECH
->  config HID_LOGITECH_DJ
->  	tristate "Logitech Unifying receivers full support"
->  	depends on HID_LOGITECH
-> -	default m
->  	---help---
->  	Say Y if you want support for Logitech Unifying receivers and devices.
->  	Unifying receivers are capable of pairing up to 6 Logitech compliant
+> Since this patch looks like it could be backported as-is: In 3.6,
+> maxcontacts may be modified after the slots have been initialized,
+> leaving the patch harmless but ineffective.
+>
+>  drivers/hid/hid-multitouch.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index eee19c9..2fc5335 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -388,6 +388,8 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>                         td->last_field_index = field->index;
+>                         return 1;
+>                 case HID_DG_CONTACTCOUNT:
+> +                       if (td->maxcontacts < field->logical_maximum + 1)
+> +                               td->maxcontacts = field->logical_maximum + 1;
 
-That was an overlook on my side when merging the driver. Applied, thanks.
+Hi Henrik,
 
--- 
-Jiri Kosina
-SUSE Labs
+Unfortunately, this is not working. We have bad devices that present either:
+- a null logical_maximum (some Stantum do) -> the value 1 is assigned
+to maxcontacts, and the device is turned into a mono touch....
+- an obviously wrong value (with respect to the current state of the
+devices) -> Quanta devices report 255 there.... and they support only
+2 touches....
+
+And of course, 3M decided to stop sending 60 touches on their recent
+devices: we have here a 0x506 device that present a contact_count of
+max 60, a maximum contact feature of max 60, but whatever I'm doing,
+it does not want to send more than 10 touches....
+
+Cheers,
+Benjamin
+
+>                         td->last_field_index = field->index;
+>                         return 1;
+>                 case HID_DG_CONTACTMAX:
+> --
+> 1.7.12
+>

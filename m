@@ -1,27 +1,29 @@
 From: Fabio Estevam <fabio.estevam@freescale.com>
-Subject: [PATCH] Input: imx_keypad - Fix missing clk conversions
-Date: Tue, 4 Sep 2012 10:24:41 -0300
-Message-ID: <1346765081-30443-1-git-send-email-fabio.estevam@freescale.com>
+Subject: [PATCH v2] Input: imx_keypad - Fix missing clk conversions
+Date: Tue, 4 Sep 2012 10:39:05 -0300
+Message-ID: <1346765945-31453-1-git-send-email-fabio.estevam@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tx2ehsobe001.messaging.microsoft.com ([65.55.88.11]:31068 "EHLO
-	tx2outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757082Ab2IDNYu (ORCPT
+Received: from am1ehsobe006.messaging.microsoft.com ([213.199.154.209]:7278
+	"EHLO am1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753151Ab2IDNjS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 4 Sep 2012 09:24:50 -0400
+	Tue, 4 Sep 2012 09:39:18 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
 Cc: kernel@pengutronix.de, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-commit (Input: imx_keypad - adapt the new kpp clock name) missed to update
-clk_enable/clk_disable from imx_keypad_probe().
+commit a1e636e6d3 (Input: imx_keypad - adapt the new kpp clock name)
+missed to update clk_enable/clk_disable from imx_keypad_probe().
 
 Fix it so that we do not get clk warnings at boot.
 
 Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 ---
+Changes since v1:
+- Add commit id
  drivers/input/keyboard/imx_keypad.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 

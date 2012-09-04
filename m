@@ -1,209 +1,272 @@
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: =?UTF-8?q?=5BPATCH=204/4=5D=20input=3A=20misc=3A=20introduce=20retu-pwrbutton?=
-Date: Mon,  3 Sep 2012 23:23:25 +0300
-Message-ID: <1346703805-31598-5-git-send-email-aaro.koskinen@iki.fi>
-References: <1346703805-31598-1-git-send-email-aaro.koskinen@iki.fi>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [RFC] [PATCH] HID: remove Paul Walmsley's copyright from places
+ where it shouldn't be
+Date: Tue, 4 Sep 2012 13:31:42 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1209041326420.23857@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1346703805-31598-1-git-send-email-aaro.koskinen@iki.fi>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:44425 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752375Ab2IDLbv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 4 Sep 2012 07:31:51 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Paul Walmsley <paul@booyaka.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Add Retu power button driver.
+Paul Walmsley has implemented dynamic quirk handling back in 2007 through 
+commits:
 
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+2eb5dc30eb ("USB HID: encapsulate quirk handling into hid-quirks.c")
+8222fbe67c ("USB HID: clarify static quirk handling as squirks")
+8cef908235 ("USB HID: add support for dynamically-created quirks")
+876b9276b9 ("USB HID: add 'quirks' module parameter")
+
+and as such, his copyright rightly belongs to 
+drivers/hid/usbhid/hid-quirks.c file.
+
+However when generic HID code has been converted to bus and individual 
+quirks separated out to individual drivers on the bus, the copyright has 
+been blindly transfered into all the tiny drivers, which actually don't 
+contain any of Pauls' copyrighted code.
+
+Remove the copyright from those sub-drivers.
+
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 ---
- drivers/input/misc/Kconfig          |   10 +++
- drivers/input/misc/Makefile         |    1 +
- drivers/input/misc/retu-pwrbutton.c |  127 +++++++++++++++++++++++++++=
-++++++++
- 3 files changed, 138 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/retu-pwrbutton.c
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 7c0f1ec..e5be189 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -367,6 +367,16 @@ config INPUT_CM109
- 	  To compile this driver as a module, choose M here: the module will =
-be
- 	  called cm109.
-=20
-+config INPUT_RETU_PWRBUTTON
-+	tristate "Retu Power button Driver"
-+	depends on MFD_RETU
-+	help
-+	  Say Y here if you want to enable power key reporting via the
-+	  Retu chips found in Nokia Internet Tablets (770, N800, N810).
-+
-+	  To compile this driver as a module, choose M here. The module will
-+	  be called retu-pwrbutton.
-+
- config INPUT_TWL4030_PWRBUTTON
- 	tristate "TWL4030 Power button Driver"
- 	depends on TWL4030_CORE
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 83fe6f5..4fbee0d 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -45,6 +45,7 @@ obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+=3D pmic8xxx-pwr=
-key.o
- obj-$(CONFIG_INPUT_POWERMATE)		+=3D powermate.o
- obj-$(CONFIG_INPUT_PWM_BEEPER)		+=3D pwm-beeper.o
- obj-$(CONFIG_INPUT_RB532_BUTTON)	+=3D rb532_button.o
-+obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+=3D retu-pwrbutton.o
- obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+=3D rotary_encoder.o
- obj-$(CONFIG_INPUT_SGI_BTNS)		+=3D sgi_btns.o
- obj-$(CONFIG_INPUT_SPARCSPKR)		+=3D sparcspkr.o
-diff --git a/drivers/input/misc/retu-pwrbutton.c b/drivers/input/misc/r=
-etu-pwrbutton.c
-new file mode 100644
-index 0000000..f802d4d
---- /dev/null
-+++ b/drivers/input/misc/retu-pwrbutton.c
-@@ -0,0 +1,127 @@
-+/*
-+ * Retu power button driver.
-+ *
-+ * Copyright (C) 2004-2010 Nokia Corporation
-+ *
-+ * Original code written by Ari Saastamoinen, Juha Yrj=C3=B6l=C3=A4 an=
-d Felipe Balbi.
-+ * Converted to use to use Retu MFD driver by Aaro Koskinen.
-+ *
-+ * This file is subject to the terms and conditions of the GNU General
-+ * Public License. See the file "COPYING" in the main directory of thi=
-s
-+ * archive for more details.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/irq.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/errno.h>
-+#include <linux/input.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/mfd/retu.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+
-+#define RETU_STATUS_PWRONX (1 << 5)
-+
-+struct retu_pwrbutton {
-+	struct input_dev	*idev;
-+	struct retu_dev		*rdev;
-+	struct device		*dev;
-+	bool			pressed;
-+	int			irq;
-+};
-+
-+static irqreturn_t retu_pwrbutton_irq(int irq, void *_pwr)
-+{
-+	struct retu_pwrbutton *pwr =3D _pwr;
-+	bool state;
-+
-+	state =3D !(retu_read(pwr->rdev, RETU_REG_STATUS) & RETU_STATUS_PWRON=
-X);
-+
-+	if (pwr->pressed !=3D state) {
-+		input_report_key(pwr->idev, KEY_POWER, state);
-+		input_sync(pwr->idev);
-+		pwr->pressed =3D state;
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int __devinit retu_pwrbutton_probe(struct platform_device *pdev=
-)
-+{
-+	struct retu_dev *rdev =3D dev_get_drvdata(pdev->dev.parent);
-+	struct retu_pwrbutton *pwr;
-+	int ret;
-+
-+	pwr =3D kzalloc(sizeof(*pwr), GFP_KERNEL);
-+	if (!pwr)
-+		return -ENOMEM;
-+
-+	pwr->rdev =3D rdev;
-+	pwr->dev  =3D &pdev->dev;
-+	pwr->irq  =3D platform_get_irq(pdev, 0);
-+	platform_set_drvdata(pdev, pwr);
-+
-+	ret =3D request_threaded_irq(pwr->irq, NULL, retu_pwrbutton_irq, 0,
-+				   "retu-pwrbutton", pwr);
-+	if (ret < 0)
-+		goto error_irq;
-+
-+	pwr->idev =3D input_allocate_device();
-+	if (!pwr->idev) {
-+		ret =3D -ENOMEM;
-+		goto error_input;
-+	}
-+
-+	pwr->idev->evbit[0]			=3D BIT_MASK(EV_KEY);
-+	pwr->idev->keybit[BIT_WORD(KEY_POWER)]	=3D BIT_MASK(KEY_POWER);
-+	pwr->idev->name				=3D "retu-pwrbutton";
-+
-+	ret =3D input_register_device(pwr->idev);
-+	if (ret < 0)
-+		goto error_reg;
-+
-+	return 0;
-+
-+error_reg:
-+	input_free_device(pwr->idev);
-+error_input:
-+	free_irq(pwr->irq, pwr);
-+error_irq:
-+	kfree(pwr);
-+	return ret;
-+}
-+
-+static int __devexit retu_pwrbutton_remove(struct platform_device *pde=
-v)
-+{
-+	struct retu_pwrbutton *pwr =3D platform_get_drvdata(pdev);
-+
-+	free_irq(pwr->irq, pwr);
-+	input_unregister_device(pwr->idev);
-+	input_free_device(pwr->idev);
-+	kfree(pwr);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver retu_pwrbutton_driver =3D {
-+	.probe		=3D retu_pwrbutton_probe,
-+	.remove		=3D __devexit_p(retu_pwrbutton_remove),
-+	.driver		=3D {
-+		.name	=3D "retu-pwrbutton",
-+	},
-+};
-+module_platform_driver(retu_pwrbutton_driver);
-+
-+MODULE_ALIAS("platform:retu-pwrbutton");
-+MODULE_DESCRIPTION("Retu Power Button");
-+MODULE_AUTHOR("Ari Saastamoinen");
-+MODULE_AUTHOR("Felipe Balbi");
-+MODULE_AUTHOR("Aaro Koskinen <aaro.koskinen@iki.fi>");
-+MODULE_LICENSE("GPL");
---=20
-1.7.2.5
+Paul,
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I am sending this out to you as RFC, and am not willing to apply it 
+without your explicit Ack.
+
+Thanks.
+
+ drivers/hid/hid-a4tech.c    |    1 -
+ drivers/hid/hid-apple.c     |    1 -
+ drivers/hid/hid-aureal.c    |    1 -
+ drivers/hid/hid-belkin.c    |    1 -
+ drivers/hid/hid-cherry.c    |    1 -
+ drivers/hid/hid-cypress.c   |    1 -
+ drivers/hid/hid-ezkey.c     |    1 -
+ drivers/hid/hid-gyration.c  |    1 -
+ drivers/hid/hid-ids.h       |    1 -
+ drivers/hid/hid-lg.c        |    1 -
+ drivers/hid/hid-microsoft.c |    1 -
+ drivers/hid/hid-monterey.c  |    1 -
+ drivers/hid/hid-petalynx.c  |    1 -
+ drivers/hid/hid-samsung.c   |    1 -
+ drivers/hid/hid-sony.c      |    1 -
+ drivers/hid/hid-sunplus.c   |    1 -
+ drivers/hid/hid-wacom.c     |    1 -
+ 17 files changed, 0 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
+index 902d1df..0a23988 100644
+--- a/drivers/hid/hid-a4tech.c
++++ b/drivers/hid/hid-a4tech.c
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  */
+ 
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 585344b..06ebdbb 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby <jirislaby@gmail.com>
+  */
+ 
+diff --git a/drivers/hid/hid-aureal.c b/drivers/hid/hid-aureal.c
+index ba64b04..7968187 100644
+--- a/drivers/hid/hid-aureal.c
++++ b/drivers/hid/hid-aureal.c
+@@ -9,7 +9,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  */
+ #include <linux/device.h>
+diff --git a/drivers/hid/hid-belkin.c b/drivers/hid/hid-belkin.c
+index a1a765a..a1a5a12 100644
+--- a/drivers/hid/hid-belkin.c
++++ b/drivers/hid/hid-belkin.c
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  */
+ 
+diff --git a/drivers/hid/hid-cherry.c b/drivers/hid/hid-cherry.c
+index 888ece6..af034d3 100644
+--- a/drivers/hid/hid-cherry.c
++++ b/drivers/hid/hid-cherry.c
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  */
+ 
+diff --git a/drivers/hid/hid-cypress.c b/drivers/hid/hid-cypress.c
+index 9e43aac..3e159a5 100644
+--- a/drivers/hid/hid-cypress.c
++++ b/drivers/hid/hid-cypress.c
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  */
+ 
+diff --git a/drivers/hid/hid-ezkey.c b/drivers/hid/hid-ezkey.c
+index ca1163e..6540af2 100644
+--- a/drivers/hid/hid-ezkey.c
++++ b/drivers/hid/hid-ezkey.c
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  */
+ 
+diff --git a/drivers/hid/hid-gyration.c b/drivers/hid/hid-gyration.c
+index e88b951..4442c30 100644
+--- a/drivers/hid/hid-gyration.c
++++ b/drivers/hid/hid-gyration.c
+@@ -4,7 +4,6 @@
+  *  Copyright (c) 1999 Andreas Gal
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  *  Copyright (c) 2006-2008 Jiri Kosina
+  */
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 0709c00..753f3d6 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  */
+ 
+ /*
+diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
+index fc37ed6..e6eca2d 100644
+--- a/drivers/hid/hid-lg.c
++++ b/drivers/hid/hid-lg.c
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  *  Copyright (c) 2010 Hendrik Iben
+  */
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index e5c699b..3acdcfc 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  */
+ 
+diff --git a/drivers/hid/hid-monterey.c b/drivers/hid/hid-monterey.c
+index dedf757..cd3643e 100644
+--- a/drivers/hid/hid-monterey.c
++++ b/drivers/hid/hid-monterey.c
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  */
+ 
+diff --git a/drivers/hid/hid-petalynx.c b/drivers/hid/hid-petalynx.c
+index f1ea3ff..4c521de 100644
+--- a/drivers/hid/hid-petalynx.c
++++ b/drivers/hid/hid-petalynx.c
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  */
+ 
+diff --git a/drivers/hid/hid-samsung.c b/drivers/hid/hid-samsung.c
+index 3c1fd8a..a5821d3 100644
+--- a/drivers/hid/hid-samsung.c
++++ b/drivers/hid/hid-samsung.c
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  *  Copyright (c) 2010 Don Prince <dhprince.devel@yahoo.co.uk>
+  *
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 5cd25bd..7f33ebf 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -4,7 +4,6 @@
+  *  Copyright (c) 1999 Andreas Gal
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  *  Copyright (c) 2006-2008 Jiri Kosina
+  */
+diff --git a/drivers/hid/hid-sunplus.c b/drivers/hid/hid-sunplus.c
+index d484a00..45b4b06 100644
+--- a/drivers/hid/hid-sunplus.c
++++ b/drivers/hid/hid-sunplus.c
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
+  */
+ 
+diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+index fe23a1e..a92d116 100644
+--- a/drivers/hid/hid-wacom.c
++++ b/drivers/hid/hid-wacom.c
+@@ -5,7 +5,6 @@
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby <jirislaby@gmail.com>
+  *  Copyright (c) 2006 Andrew Zabolotny <zap@homelink.ru>
+  *  Copyright (c) 2009 Bastien Nocera <hadess@hadess.net>
+
+-- 
+Jiri Kosina
+SUSE Labs

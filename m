@@ -1,24 +1,49 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 2/2] HID: hid-multitouch: Add Flatfrog support
-Date: Wed,  5 Sep 2012 17:27:37 +0200
-Message-ID: <1346858857-281-2-git-send-email-rydberg@euromail.se>
+Subject: Re: [PATCH 2/2] HID: hid-multitouch: Add Flatfrog support
+Date: Wed, 5 Sep 2012 18:12:18 +0200
+Message-ID: <20120905161218.GA270@polaris.bitmath.org>
 References: <1346858857-281-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1346858857-281-1-git-send-email-rydberg@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>
+ <1346858857-281-2-git-send-email-rydberg@euromail.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:33670 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753895Ab2IEQF4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Sep 2012 12:05:56 -0400
+Content-Disposition: inline
+In-Reply-To: <1346858857-281-2-git-send-email-rydberg@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@enac.fr>
+
+On Wed, Sep 05, 2012 at 05:27:37PM +0200, Henrik Rydberg wrote:
+> Add support for the Flatfrog Multitouch 3200 panel. This panel
+> advertises some fields that it does not use, hence the new quirks.
+> 
+> Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+
+I sent the wrong version, the one below is the correct one. Sorry
+about the fuzz.
+
+Henrik
+
+>From 74a60bb74176c658938e07da301396b6f1d3fbee Mon Sep 17 00:00:00 2001
+From: Henrik Rydberg <rydberg@euromail.se>
+Date: Wed, 5 Sep 2012 18:06:58 +0200
+Subject: [PATCH v2] HID: hid-multitouch: Add Flatfrog support
 
 Add support for the Flatfrog Multitouch 3200 panel. This panel
 advertises some fields that it does not use, hence the new quirks.
 
-Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
  drivers/hid/hid-ids.h        |  3 +++
- drivers/hid/hid-multitouch.c | 34 ++++++++++++++++++++++++++--------
- 2 files changed, 29 insertions(+), 8 deletions(-)
+ drivers/hid/hid-multitouch.c | 33 ++++++++++++++++++++++++++-------
+ 2 files changed, 29 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
 index 1dcb76f..c843db9 100644
@@ -35,7 +60,7 @@ index 1dcb76f..c843db9 100644
  #define USB_DEVICE_ID_ESSENTIAL_REALITY_P5 0x0100
  
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 340db0e..ddd2fb0 100644
+index 63f120b..3cfd376 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
 @@ -51,6 +51,8 @@ MODULE_LICENSE("GPL");
@@ -55,7 +80,7 @@ index 340db0e..ddd2fb0 100644
  
  #define MT_DEFAULT_MAXCONTACT	10
  
-@@ -197,6 +200,12 @@ static struct mt_class mt_classes[] = {
+@@ -199,6 +202,13 @@ static struct mt_class mt_classes[] = {
  		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP,
  		.maxcontacts = 4 },
  
@@ -64,11 +89,12 @@ index 340db0e..ddd2fb0 100644
 +			MT_QUIRK_NO_AREA |
 +			MT_QUIRK_NO_PRESSURE,
 +		.sn_move = 2048,
++		.maxcontacts = 40,
 +	},
  	{ }
  };
  
-@@ -364,26 +373,30 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+@@ -366,26 +376,30 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
  		case HID_DG_WIDTH:
  			hid_map_usage(hi, usage, bit, max,
  					EV_ABS, ABS_MT_TOUCH_MAJOR);
@@ -106,7 +132,7 @@ index 340db0e..ddd2fb0 100644
  			mt_store_field(usage, td, hi);
  			td->last_field_index = field->index;
  			return 1;
-@@ -860,6 +873,11 @@ static const struct hid_device_id mt_devices[] = {
+@@ -860,6 +874,11 @@ static const struct hid_device_id mt_devices[] = {
  		MT_USB_DEVICE(USB_VENDOR_ID_ELO,
  			USB_DEVICE_ID_ELO_TS2515) },
  
@@ -120,3 +146,4 @@ index 340db0e..ddd2fb0 100644
  		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
 -- 
 1.7.12
+

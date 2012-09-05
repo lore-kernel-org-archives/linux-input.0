@@ -1,73 +1,84 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [RFC PATCH 8/17] input: RMI4 F09 Built-In Self Test
-Date: Tue, 4 Sep 2012 17:21:13 -0700
-Message-ID: <50469AF9.7010508@synaptics.com>
-References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com> <1345241877-16200-9-git-send-email-cheiny@synaptics.com> <CACRpkdaq7StwG_jg+hZCcU668=VrcUeZa7qP6R_2v9ugkkX38w@mail.gmail.com>
+Subject: Re: [RFC PATCH 5/17] input: rmidev character driver for RMI4 sensors
+Date: Tue, 4 Sep 2012 17:26:23 -0700
+Message-ID: <50469C2F.2060008@synaptics.com>
+References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com> <1345241877-16200-6-git-send-email-cheiny@synaptics.com> <CACRpkdYGR=YtgyvDjfH4w8OMnn3iZKuRpQKrTVCE=i=gZ1hPuw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx3.synaptics.com ([12.239.217.85]:29084 "EHLO
-	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752882Ab2IEAVP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Sep 2012 20:21:15 -0400
-In-Reply-To: <CACRpkdaq7StwG_jg+hZCcU668=VrcUeZa7qP6R_2v9ugkkX38w@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdYGR=YtgyvDjfH4w8OMnn3iZKuRpQKrTVCE=i=gZ1hPuw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+List-Id: linux-input@vger.kernel.org
 
-On 08/27/2012 03:07 PM, Linus Walleij wrote:
-[snip]
->> >+static struct device_attribute attrs[] = {
->> >+       __ATTR(status, RMI_RW_ATTR,
->> >+                  rmi_f09_status_show, rmi_f09_status_store),
->> >+       __ATTR(limitRegisterCount, RMI_RO_ATTR,
->> >+              rmi_f09_limit_register_count_show, rmi_store_error),
->> >+       __ATTR(hostTestEnable, RMI_RW_ATTR,
->> >+              rmi_f09_host_test_enable_show, rmi_f09_host_test_enable_store),
->> >+       __ATTR(internalLimits, RMI_RO_ATTR,
->> >+              rmi_f09_internal_limits_show, rmi_store_error),
->> >+       __ATTR(resultRegisterCount, RMI_RO_ATTR,
->> >+              rmi_f09_result_register_count_show, rmi_store_error),
->> >+       __ATTR(overall_bist_result, RMI_RO_ATTR,
->> >+              rmi_f09_overall_bist_result_show, rmi_store_error),
->> >+       __ATTR(test_number_control, RMI_RW_ATTR,
->> >+              rmi_f09_test_number_control_show,
->> >+              rmi_f09_test_number_control_store),
->> >+       __ATTR(test_result1, RMI_RO_ATTR,
->> >+              rmi_f09_test_result1_show, rmi_store_error),
->> >+       __ATTR(test_result2, RMI_RO_ATTR,
->> >+              rmi_f09_test_result2_show, rmi_store_error),
->> >+       __ATTR(run_bist, RMI_RW_ATTR,
->> >+              rmi_f09_run_bist_show, rmi_f09_run_bist_store),
->> >+       __ATTR(f09_control_test1, RMI_RW_ATTR,
->> >+              rmi_f09_control_test1_show, rmi_f09_control_test1_store),
->> >+       __ATTR(f09_control_test2, RMI_RW_ATTR,
->> >+              rmi_f09_control_test2_show, rmi_f09_control_test2_store),
->> >+};
-> If this is*only*  for tests, then for sure this should be in debugfs?
+On 08/27/2012 11:49 AM, Linus Walleij wrote:
+> On Fri, Aug 17, 2012 at 3:17 PM, Christopher Heiny <cheiny@synaptics.com> wrote:
+>
+>> Driver for Synaptics touchscreens using RMI4 protocol.
+>
+> Really? This looks more like some custom char driver to get a pipe
+> into the device from userspace. Put in a proper description of what this
+> is for.
+>
+> If the purpose is to read/write arbitrary addresses in the device,
+> you should use regmap's debugfs interface for this instead,
+> it is much better suited for the task.
 
-F09 is used in the final product (for example, a phone or tablet) both 
-on the production line and to diagnose failures in returned products. 
-We can't be certain that the phone/tablet/whatever manufacturer will 
-include debugfs in their production kernel, and if they don't they 
-almost certainly won't want to install a different kernel on the 
-production line to run a test, so we provided a sysfs interface to this.
+We'll look into using regmap not only for that, but possibly for general 
+register access.  It has the potential to greatly simply both the 
+arbitrary register access, as well as the driver itself.
 
 >
->> >+static int rmi_f09_alloc_memory(struct rmi_function_container *fc)
 > (...)
->> >+static void rmi_f09_free_memory(struct rmi_function_container *fc)
-> Why do you need separate functions for these two?
+>> +#define RMI_CHAR_DEV_TMPBUF_SZ 128
+>> +#define RMI_REG_ADDR_PAGE_SELECT 0xFF
+>> +#define REG_ADDR_LIMIT 0xFFFF
+>> +
+>> +struct rmidev_data {
+>> +       /* mutex for file operation*/
+>> +       struct mutex file_mutex;
+>> +       /* main char dev structure */
+>> +       struct cdev main_dev;
+>> +
+>> +       /* pointer to the corresponding RMI4 device.  We use this to do */
+>> +       /* read, write, etc. */
+>> +       struct rmi_device *rmi_dev;
+>> +       /* reference count */
+>> +       int ref_count;
 >
-> If they are only used from one place (which I suspect) then just
-> put the code at that site.
+> Something tells me you should atleast use <linux/kref.h> for this.
+> It also solves a few atomicity problems in a good standard way.
+> See Documentation/kref.txt
 
-Some of the other modules have fairly large and complicated 
-alloc_memory() and free_memory() implementations, so we adopted this as 
-a general convention in all the RMI function implementations.  But as 
-you suggested elsewhere, using devm_kzalloc could tidy things up a lot, 
-in which case the functions could be merged back into their callers.
+Roger.
 
-[snip]
+
+>> +/*store dynamically allocated major number of char device*/
+>> +static int rmidev_major_num;
+>
+> You need to patch your desired major number into
+> Documentation/devices.txt'
+
+We were going by the recommendation in Linux Device Drivers (3rd 
+edition) to use dynamic major number allocation via alloc_chrdev_region. 
+  In particular in section 3.2.3 it says "new numbers are not being 
+assigned".  I guess at this point we need to know whether the info in 
+LDD3 is authoritative or not.  We can always add a number to 
+Documentation/devices.txt if that's the right thing to do, but I'd like 
+to make sure our next submission isn't bounced because we did that, 
+turning the process into Patch Ping-Pong :-).
+
+In any case, it's likely that switching to the regmap interface would 
+make this question irrelevant.
+
+
+>> +static struct class *rmidev_device_class;
+>
+> Last time discussed with Greg, class devices were deprecated,
+> and you should just use a bus instead. (But not sure.)
+
+The references I found online weren't clear on this, so more 
+investigation is required.  We'll defer that till we find out if the 
+regmap changes eliminate the need for this.

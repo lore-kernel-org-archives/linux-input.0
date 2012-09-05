@@ -1,59 +1,112 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: tegra: move platform data header
-Date: Tue, 4 Sep 2012 23:06:00 -0700
-Message-ID: <20120905060600.GA25962@core.coreip.homeip.net>
-References: <1346798431-28839-1-git-send-email-swarren@wwwdotorg.org>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH resend2] Input: usbtouchscreen - initialize eGalax devices
+Date: Tue, 4 Sep 2012 23:07:04 -0700
+Message-ID: <20120905060704.GC25962@core.coreip.homeip.net>
+References: <20120903132648.GC11919@newmaster.mivlgu.local>
+ <20120903173349.GA18666@alittletooquiet.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:48009 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751649Ab2IEGGE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Sep 2012 02:06:04 -0400
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1346798431-28839-1-git-send-email-swarren@wwwdotorg.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20120903173349.GA18666-B/PTSs0AgtP3p6jHtUh95NHuzzzSOjJt@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Forest Bond <forest-B/PTSs0AgtP3p6jHtUh95NHuzzzSOjJt@public.gmane.org>
+Cc: Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, Stephen Warren <swarren@nvidia.com>
 
-On Tue, Sep 04, 2012 at 04:40:31PM -0600, Stephen Warren wrote:
-> From: Stephen Warren <swarren@nvidia.com>
+On Mon, Sep 03, 2012 at 01:33:50PM -0400, Forest Bond wrote:
+> From: Forest Bond <forest.bond-XbHmxybg72Wcj+tRJgl41g@public.gmane.org>
 > 
-> Move the Tegra KBC platform data header out of arch/arm/mach-tegra, as
-> a pre-requisite of single zImage.
+> Certain eGalax devices expose an interface with class HID and protocol
+> None.  Some work with usbhid and some work with usbtouchscreen, but
+> there is no easy way to differentiate.  Sending an eGalax diagnostic
+> packet seems to kick them all into using the right protocol for
+> usbtouchscreen, so we can continue to bind them all there (as opposed to
+> handing some off to usbhid).
 > 
-> Signed-off-by: Stephen Warren <swarren@nvidia.com>
+> This fixes a regression for devices that were claimed by (and worked
+> with) usbhid prior to commit 139ebe8dc80dd74cb2ac9f5603d18fbf5cff049f
+> ("Input: usbtouchscreen - fix eGalax HID ignoring"), which made
+> usbtouchscreen claim them instead.  With this patch they will still be
+> claimed by usbtouchscreen, but they will actually report events
+> usbtouchscreen can understand.  Note that these devices will be limited
+> to the usbtouchscreen feature set so e.g. dual touch features are not
+> supported.
+> 
+> I have the distinct pleasure of needing to support devices of both types
+> and have tested accordingly.
+> 
+> Signed-off-by: Forest Bond <forest.bond-XbHmxybg72Wcj+tRJgl41g@public.gmane.org>
 
-Applied, thank you Stephen.
- 
+Applied, thank you Forest.
+
 > ---
->  drivers/input/keyboard/tegra-kbc.c                 |    2 +-
->  .../mach/kbc.h => include/linux/input/tegra_kbc.h  |    0
->  2 files changed, 1 insertions(+), 1 deletions(-)
->  rename arch/arm/mach-tegra/include/mach/kbc.h => include/linux/input/tegra_kbc.h (100%)
+>  drivers/input/touchscreen/usbtouchscreen.c |   39 ++++++++++++++++++++++++++++
+>  1 files changed, 39 insertions(+), 0 deletions(-)
 > 
-> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-> index 2c1c9ed..5faaf25 100644
-> --- a/drivers/input/keyboard/tegra-kbc.c
-> +++ b/drivers/input/keyboard/tegra-kbc.c
-> @@ -29,8 +29,8 @@
->  #include <linux/of.h>
->  #include <linux/clk.h>
->  #include <linux/slab.h>
-> +#include <linux/input/tegra_kbc.h>
->  #include <mach/clk.h>
-> -#include <mach/kbc.h>
+> diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+> index e32709e..c5f4dc0 100644
+> --- a/drivers/input/touchscreen/usbtouchscreen.c
+> +++ b/drivers/input/touchscreen/usbtouchscreen.c
+> @@ -304,6 +304,44 @@ static int e2i_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
+>  #define EGALAX_PKT_TYPE_REPT		0x80
+>  #define EGALAX_PKT_TYPE_DIAG		0x0A
 >  
->  #define KBC_MAX_DEBOUNCE_CNT	0x3ffu
+> +static int egalax_init(struct usbtouch_usb *usbtouch)
+> +{
+> +	int ret, i;
+> +	unsigned char *buf;
+> +	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
+> +
+> +	/* An eGalax diagnostic packet kicks the device into using the right
+> +	 * protocol.  We send a "check active" packet.  The response will be
+> +	 * read later and ignored.
+> +	 */
+> +
+> +	buf = kmalloc(3, GFP_KERNEL);
+> +	if (!buf)
+> +		return -ENOMEM;
+> +
+> +	buf[0] = EGALAX_PKT_TYPE_DIAG;
+> +	buf[1] = 1;	/* length */
+> +	buf[2] = 'A';	/* command - check active */
+> +
+> +	for (i = 0; i < 3; i++) {
+> +		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+> +				      0,
+> +				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+> +				      0, 0, buf, 3,
+> +				      USB_CTRL_SET_TIMEOUT);
+> +		if (ret >= 0) {
+> +			ret = 0;
+> +			break;
+> +		}
+> +		if (ret != -EPIPE)
+> +			break;
+> +	}
+> +
+> +	kfree(buf);
+> +
+> +	return ret;
+> +}
+> +
+>  static int egalax_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
+>  {
+>  	if ((pkt[0] & EGALAX_PKT_TYPE_MASK) != EGALAX_PKT_TYPE_REPT)
+> @@ -1056,6 +1094,7 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
+>  		.process_pkt	= usbtouch_process_multi,
+>  		.get_pkt_len	= egalax_get_pkt_len,
+>  		.read_data	= egalax_read_data,
+> +		.init		= egalax_init,
+>  	},
+>  #endif
 >  
-> diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/include/linux/input/tegra_kbc.h
-> similarity index 100%
-> rename from arch/arm/mach-tegra/include/mach/kbc.h
-> rename to include/linux/input/tegra_kbc.h
 > -- 
 > 1.7.0.4
-> 
 
 -- 
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,45 +1,41 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [RFC PATCH 17/17] input: RMI4 F54 analog data reporting
-Date: Tue, 4 Sep 2012 17:38:53 -0700
-Message-ID: <50469F1D.5000508@synaptics.com>
-References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com> <1345241877-16200-18-git-send-email-cheiny@synaptics.com> <CACRpkdYNUNmbMinzAth4ZBUojgTuKCvf1msuvDy3EK_3aQ9vRg@mail.gmail.com>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH] HID: hid-lcpower: Use HID_UP_LOGIVENDOR instead of hard
+ coded 0x0ffbc0000
+Date: Wed, 05 Sep 2012 10:19:30 +0800
+Message-ID: <1346811570.3994.0.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx3.synaptics.com ([12.239.217.85]:26918 "EHLO
-	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751980Ab2IEAiy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Sep 2012 20:38:54 -0400
-In-Reply-To: <CACRpkdYNUNmbMinzAth4ZBUojgTuKCvf1msuvDy3EK_3aQ9vRg@mail.gmail.com>
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:44703 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753038Ab2IECTt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Sep 2012 22:19:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Jonathan Cameron <jic23@cam.ac.uk>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Chris Schlund <chrisschlund@gmx.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 08/27/2012 04:01 PM, Linus Walleij wrote:
->
->> >Signed-off-by: Christopher Heiny<cheiny@synaptics.com>
->> >+#include <linux/hrtimer.h>
->> >+#include <linux/kernel.h>
->> >+#include <linux/rmi.h>
->> >+#include <linux/slab.h>
->> >+#include <linux/version.h>
->> >+#include <linux/delay.h>
-> This is not using the existing in-kernel framework for ADC (which I think is
-> what you're doing), in this case use the IIO subsystem so consult
-> drivers/iio/adc and be inspired.
->
-> Just exposing a set of weird sysfs files to userspace is not proper.
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/hid/hid-lcpower.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I don't think the Industrial I/O ADC framework is appropriate for this. 
-  F54 isn't intended to provide access to a general purpose ADC feature, 
-but rather for diagnostic access to the touchscreen's capacitive sense 
-features, which results in a fairly weird (as you noticed) interface. 
-Trying to hammer on it to fit into iio/adc would require a lot of 
-effort, and wind up making it look like something it really isn't.
+diff --git a/drivers/hid/hid-lcpower.c b/drivers/hid/hid-lcpower.c
+index c4fe9bd0..22bc14a 100644
+--- a/drivers/hid/hid-lcpower.c
++++ b/drivers/hid/hid-lcpower.c
+@@ -24,7 +24,7 @@ static int ts_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+ {
+-	if ((usage->hid & HID_USAGE_PAGE) != 0x0ffbc0000)
++	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_LOGIVENDOR)
+ 		return 0;
+ 
+ 	switch (usage->hid & HID_USAGE) {
+-- 
+1.7.9.5
 
-However, it makes sense to move this whole interface to debugfs, given 
-its intended model of use.
 
 

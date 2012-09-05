@@ -1,112 +1,72 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH resend2] Input: usbtouchscreen - initialize eGalax devices
-Date: Tue, 4 Sep 2012 23:07:04 -0700
-Message-ID: <20120905060704.GC25962@core.coreip.homeip.net>
-References: <20120903132648.GC11919@newmaster.mivlgu.local>
- <20120903173349.GA18666@alittletooquiet.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: keyboard: omap-keypad: Fixed coding style issue.
+Date: Tue, 4 Sep 2012 23:11:42 -0700
+Message-ID: <20120905061142.GA31943@core.coreip.homeip.net>
+References: <1345767621-27816-1-git-send-email-joshua.taylor0@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:37133 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750826Ab2IEGLq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Sep 2012 02:11:46 -0400
+Received: by dady13 with SMTP id y13so123608dad.19
+        for <linux-input@vger.kernel.org>; Tue, 04 Sep 2012 23:11:46 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20120903173349.GA18666-B/PTSs0AgtP3p6jHtUh95NHuzzzSOjJt@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Forest Bond <forest-B/PTSs0AgtP3p6jHtUh95NHuzzzSOjJt@public.gmane.org>
-Cc: Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1345767621-27816-1-git-send-email-joshua.taylor0@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Josh <joshua.taylor0@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Mon, Sep 03, 2012 at 01:33:50PM -0400, Forest Bond wrote:
-> From: Forest Bond <forest.bond-XbHmxybg72Wcj+tRJgl41g@public.gmane.org>
-> 
-> Certain eGalax devices expose an interface with class HID and protocol
-> None.  Some work with usbhid and some work with usbtouchscreen, but
-> there is no easy way to differentiate.  Sending an eGalax diagnostic
-> packet seems to kick them all into using the right protocol for
-> usbtouchscreen, so we can continue to bind them all there (as opposed to
-> handing some off to usbhid).
-> 
-> This fixes a regression for devices that were claimed by (and worked
-> with) usbhid prior to commit 139ebe8dc80dd74cb2ac9f5603d18fbf5cff049f
-> ("Input: usbtouchscreen - fix eGalax HID ignoring"), which made
-> usbtouchscreen claim them instead.  With this patch they will still be
-> claimed by usbtouchscreen, but they will actually report events
-> usbtouchscreen can understand.  Note that these devices will be limited
-> to the usbtouchscreen feature set so e.g. dual touch features are not
-> supported.
-> 
-> I have the distinct pleasure of needing to support devices of both types
-> and have tested accordingly.
-> 
-> Signed-off-by: Forest Bond <forest.bond-XbHmxybg72Wcj+tRJgl41g@public.gmane.org>
+On Thu, Aug 23, 2012 at 08:20:21PM -0400, Josh wrote:
+> Fixed spacing error on if statements and fixed tab error.
+> Signed-off-by: Josh <joshua.taylor0@gmail.com>
 
-Applied, thank you Forest.
+Applied, thank you Josh.
 
 > ---
->  drivers/input/touchscreen/usbtouchscreen.c |   39 ++++++++++++++++++++++++++++
->  1 files changed, 39 insertions(+), 0 deletions(-)
+>  drivers/input/keyboard/omap-keypad.c |    8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-> index e32709e..c5f4dc0 100644
-> --- a/drivers/input/touchscreen/usbtouchscreen.c
-> +++ b/drivers/input/touchscreen/usbtouchscreen.c
-> @@ -304,6 +304,44 @@ static int e2i_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
->  #define EGALAX_PKT_TYPE_REPT		0x80
->  #define EGALAX_PKT_TYPE_DIAG		0x0A
+> diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
+> index a0222db..b03c5b9 100644
+> --- a/drivers/input/keyboard/omap-keypad.c
+> +++ b/drivers/input/keyboard/omap-keypad.c
+> @@ -214,7 +214,7 @@ static void omap_kp_tasklet(unsigned long data)
+>  	memcpy(keypad_state, new_state, sizeof(keypad_state));
 >  
-> +static int egalax_init(struct usbtouch_usb *usbtouch)
-> +{
-> +	int ret, i;
-> +	unsigned char *buf;
-> +	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
-> +
-> +	/* An eGalax diagnostic packet kicks the device into using the right
-> +	 * protocol.  We send a "check active" packet.  The response will be
-> +	 * read later and ignored.
-> +	 */
-> +
-> +	buf = kmalloc(3, GFP_KERNEL);
-> +	if (!buf)
-> +		return -ENOMEM;
-> +
-> +	buf[0] = EGALAX_PKT_TYPE_DIAG;
-> +	buf[1] = 1;	/* length */
-> +	buf[2] = 'A';	/* command - check active */
-> +
-> +	for (i = 0; i < 3; i++) {
-> +		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
-> +				      0,
-> +				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-> +				      0, 0, buf, 3,
-> +				      USB_CTRL_SET_TIMEOUT);
-> +		if (ret >= 0) {
-> +			ret = 0;
-> +			break;
-> +		}
-> +		if (ret != -EPIPE)
-> +			break;
-> +	}
-> +
-> +	kfree(buf);
-> +
-> +	return ret;
-> +}
-> +
->  static int egalax_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
->  {
->  	if ((pkt[0] & EGALAX_PKT_TYPE_MASK) != EGALAX_PKT_TYPE_REPT)
-> @@ -1056,6 +1094,7 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
->  		.process_pkt	= usbtouch_process_multi,
->  		.get_pkt_len	= egalax_get_pkt_len,
->  		.read_data	= egalax_read_data,
-> +		.init		= egalax_init,
->  	},
->  #endif
+>  	if (key_down) {
+> -                int delay = HZ / 20;
+> +		int delay = HZ / 20;
+>  		/* some key is pressed - keep irq disabled and use timer
+>  		 * to poll the keypad */
+>  		if (spurious)
+> @@ -413,7 +413,7 @@ static int __devinit omap_kp_probe(struct platform_device *pdev)
+>  	}
+>  	return 0;
+>  err5:
+> -	for (i = irq_idx - 1; i >=0; i--)
+> +	for (i = irq_idx - 1; i >= 0; i--)
+>  		free_irq(row_gpios[i], omap_kp);
+>  err4:
+>  	input_unregister_device(omap_kp->input);
+> @@ -421,10 +421,10 @@ err4:
+>  err3:
+>  	device_remove_file(&pdev->dev, &dev_attr_enable);
+>  err2:
+> -	for (i = row_idx - 1; i >=0; i--)
+> +	for (i = row_idx - 1; i >= 0; i--)
+>  		gpio_free(row_gpios[i]);
+>  err1:
+> -	for (i = col_idx - 1; i >=0; i--)
+> +	for (i = col_idx - 1; i >= 0; i--)
+>  		gpio_free(col_gpios[i]);
 >  
+>  	kfree(omap_kp);
 > -- 
-> 1.7.0.4
+> 1.7.9.5
+> 
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

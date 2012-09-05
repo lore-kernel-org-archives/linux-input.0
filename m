@@ -1,91 +1,51 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [eBeam PATCH 2/2] input: misc: New USB eBeam input driver.
-Date: Wed, 05 Sep 2012 09:29:49 +0200
-Message-ID: <3991181.oZKWSZGdK8@linux-lqwf.site>
-References: <1346539923-9704-1-git-send-email-yann.cantin@laposte.net> <1346539923-9704-3-git-send-email-yann.cantin@laposte.net>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [RFC PATCH 5/17] input: rmidev character driver for RMI4 sensors
+Date: Wed, 5 Sep 2012 10:29:50 +0200
+Message-ID: <CACRpkdaL50Kp4O1=utw+c9yCCN_F5J9jb9s54=FRx1UCHqO3WQ@mail.gmail.com>
+References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
+	<1345241877-16200-6-git-send-email-cheiny@synaptics.com>
+	<CACRpkdYGR=YtgyvDjfH4w8OMnn3iZKuRpQKrTVCE=i=gZ1hPuw@mail.gmail.com>
+	<50469C2F.2060008@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:46168 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750957Ab2IEHbJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Sep 2012 03:31:09 -0400
-In-Reply-To: <1346539923-9704-3-git-send-email-yann.cantin@laposte.net>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:35856 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751219Ab2IEI3w (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Sep 2012 04:29:52 -0400
+Received: by wgbdr13 with SMTP id dr13so385506wgb.1
+        for <linux-input@vger.kernel.org>; Wed, 05 Sep 2012 01:29:51 -0700 (PDT)
+In-Reply-To: <50469C2F.2060008@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yann Cantin <yann.cantin@laposte.net>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, jikos@suse.cz
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-On Sunday 02 September 2012 00:52:03 Yann Cantin wrote:
+On Wed, Sep 5, 2012 at 2:26 AM, Christopher Heiny <cheiny@synaptics.com> wrote:
+> On 08/27/2012 11:49 AM, Linus Walleij wrote:
+>>
+>> You need to patch your desired major number into
+>> Documentation/devices.txt'
+>
+> We were going by the recommendation in Linux Device Drivers (3rd edition) to
+> use dynamic major number allocation via alloc_chrdev_region.  In particular
+> in section 3.2.3 it says "new numbers are not being assigned".  I guess at
+> this point we need to know whether the info in LDD3 is authoritative or not.
 
-Hi,
+You're right, go for dynamic numbers. I was plain wrong.
 
-before we add yet another sysfs interface, we should ask whether calibr=
-ation
-isn't a problem that should be solved with a common API.
+>>> +static struct class *rmidev_device_class;
+>>
+>>
+>> Last time discussed with Greg, class devices were deprecated,
+>> and you should just use a bus instead. (But not sure.)
+>
+> The references I found online weren't clear on this, so more investigation
+> is required.  We'll defer that till we find out if the regmap changes
+> eliminate the need for this.
 
-	Regards
-		Oliver
+Just push Greg to review next version and he'll tell you what to
+do about this, no problem.
 
-> +static ssize_t ebeam_calibrated_set(struct device *dev,
-> +                                   struct device_attribute *attr,
-> +                                   const char *buf,
-> +                                   size_t count)
-> +{
-> +       struct ebeam_device *ebeam =3D dev_get_drvdata(dev);
-> +       int err, c;
-> +
-> +       err =3D kstrtoint(buf, 10, &c);
-> +       if (err)
-> +               return err;
-> +
-> +       if (c =3D=3D 1) {
-> +               memcpy(&ebeam->cursetting, &ebeam->newsetting,
-> +                      sizeof(struct ebeam_settings));
-> +               ebeam->calibrated =3D true;
-> +               ebeam_setup_input(ebeam, ebeam->input);
-> +       } else {
-> +               memcpy(&ebeam->newsetting, &ebeam->cursetting,
-> +                      sizeof(struct ebeam_settings));
-> +               ebeam->calibrated =3D false;
-> +               ebeam_setup_input(ebeam, ebeam->input);
-> +       }
-> +
-> +       return count;
-> +}
-> +
-> +static DEVICE_ATTR(calibrated, S_IRUGO | S_IWUGO,
-> +                  ebeam_calibrated_get, ebeam_calibrated_set);
-> +
-> +static struct attribute *ebeam_attrs[] =3D {
-> +       &dev_attr_min_x.attr,
-> +       &dev_attr_min_y.attr,
-> +       &dev_attr_max_x.attr,
-> +       &dev_attr_max_y.attr,
-> +       &dev_attr_h1.attr,
-> +       &dev_attr_h2.attr,
-> +       &dev_attr_h3.attr,
-> +       &dev_attr_h4.attr,
-> +       &dev_attr_h5.attr,
-> +       &dev_attr_h6.attr,
-> +       &dev_attr_h7.attr,
-> +       &dev_attr_h8.attr,
-> +       &dev_attr_h9.attr,
-> +       &dev_attr_calibrated.attr,
-> +       NULL
-> +};
-> +
---=20
-- - -=20
-SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imend=F6=
-rffer, HRB 16746 (AG N=FCrnberg)=20
-Maxfeldstra=DFe 5                        =20
-90409 N=FCrnberg=20
-Germany=20
-- - -=20
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Yours,
+Linus Walleij

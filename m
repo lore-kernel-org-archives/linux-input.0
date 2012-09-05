@@ -1,59 +1,58 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: imx_keypad - Fix missing clk conversions
-Date: Tue, 4 Sep 2012 23:06:31 -0700
-Message-ID: <20120905060631.GB25962@core.coreip.homeip.net>
-References: <1346765945-31453-1-git-send-email-fabio.estevam@freescale.com>
+Subject: Re: [PATCH] Input: tegra: move platform data header
+Date: Tue, 4 Sep 2012 23:06:00 -0700
+Message-ID: <20120905060600.GA25962@core.coreip.homeip.net>
+References: <1346798431-28839-1-git-send-email-swarren@wwwdotorg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:34956 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750961Ab2IEGGf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Sep 2012 02:06:35 -0400
-Received: by dady13 with SMTP id y13so120798dad.19
-        for <linux-input@vger.kernel.org>; Tue, 04 Sep 2012 23:06:35 -0700 (PDT)
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:48009 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751649Ab2IEGGE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Sep 2012 02:06:04 -0400
 Content-Disposition: inline
-In-Reply-To: <1346765945-31453-1-git-send-email-fabio.estevam@freescale.com>
+In-Reply-To: <1346798431-28839-1-git-send-email-swarren@wwwdotorg.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <fabio.estevam@freescale.com>
-Cc: kernel@pengutronix.de, linux-input@vger.kernel.org
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, Stephen Warren <swarren@nvidia.com>
 
-On Tue, Sep 04, 2012 at 10:39:05AM -0300, Fabio Estevam wrote:
-> commit a1e636e6d3 (Input: imx_keypad - adapt the new kpp clock name)
-> missed to update clk_enable/clk_disable from imx_keypad_probe().
+On Tue, Sep 04, 2012 at 04:40:31PM -0600, Stephen Warren wrote:
+> From: Stephen Warren <swarren@nvidia.com>
 > 
-> Fix it so that we do not get clk warnings at boot.
+> Move the Tegra KBC platform data header out of arch/arm/mach-tegra, as
+> a pre-requisite of single zImage.
 > 
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+> Signed-off-by: Stephen Warren <swarren@nvidia.com>
 
-Applied, thank you Fabio.
-
+Applied, thank you Stephen.
+ 
 > ---
-> Changes since v1:
-> - Add commit id
->  drivers/input/keyboard/imx_keypad.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  drivers/input/keyboard/tegra-kbc.c                 |    2 +-
+>  .../mach/kbc.h => include/linux/input/tegra_kbc.h  |    0
+>  2 files changed, 1 insertions(+), 1 deletions(-)
+>  rename arch/arm/mach-tegra/include/mach/kbc.h => include/linux/input/tegra_kbc.h (100%)
 > 
-> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-> index ce68e36..cdc2526 100644
-> --- a/drivers/input/keyboard/imx_keypad.c
-> +++ b/drivers/input/keyboard/imx_keypad.c
-> @@ -516,9 +516,9 @@ static int __devinit imx_keypad_probe(struct platform_device *pdev)
->  	input_set_drvdata(input_dev, keypad);
+> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+> index 2c1c9ed..5faaf25 100644
+> --- a/drivers/input/keyboard/tegra-kbc.c
+> +++ b/drivers/input/keyboard/tegra-kbc.c
+> @@ -29,8 +29,8 @@
+>  #include <linux/of.h>
+>  #include <linux/clk.h>
+>  #include <linux/slab.h>
+> +#include <linux/input/tegra_kbc.h>
+>  #include <mach/clk.h>
+> -#include <mach/kbc.h>
 >  
->  	/* Ensure that the keypad will stay dormant until opened */
-> -	clk_enable(keypad->clk);
-> +	clk_prepare_enable(keypad->clk);
->  	imx_keypad_inhibit(keypad);
-> -	clk_disable(keypad->clk);
-> +	clk_disable_unprepare(keypad->clk);
+>  #define KBC_MAX_DEBOUNCE_CNT	0x3ffu
 >  
->  	error = request_irq(irq, imx_keypad_irq_handler, 0,
->  			    pdev->name, keypad);
+> diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/include/linux/input/tegra_kbc.h
+> similarity index 100%
+> rename from arch/arm/mach-tegra/include/mach/kbc.h
+> rename to include/linux/input/tegra_kbc.h
 > -- 
-> 1.7.9.5
-> 
+> 1.7.0.4
 > 
 
 -- 

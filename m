@@ -1,41 +1,69 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] HID: hid-lcpower: Use HID_UP_LOGIVENDOR instead of hard
- coded 0x0ffbc0000
-Date: Wed, 05 Sep 2012 10:19:30 +0800
-Message-ID: <1346811570.3994.0.camel@phoenix>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] Input: joydev - fix axes values sent in initial
+ js_event
+Date: Tue, 4 Sep 2012 22:52:18 -0700
+Message-ID: <20120905055218.GA24715@core.coreip.homeip.net>
+References: <1344895914-32127-1-git-send-email-vbocek@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f174.google.com ([209.85.223.174]:44703 "EHLO
-	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753038Ab2IECTt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Sep 2012 22:19:49 -0400
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:55712 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750903Ab2IEFwW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Sep 2012 01:52:22 -0400
+Content-Disposition: inline
+In-Reply-To: <1344895914-32127-1-git-send-email-vbocek@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Chris Schlund <chrisschlund@gmx.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Vojtech Bocek <vbocek@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/hid/hid-lcpower.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi Vojtech,
 
-diff --git a/drivers/hid/hid-lcpower.c b/drivers/hid/hid-lcpower.c
-index c4fe9bd0..22bc14a 100644
---- a/drivers/hid/hid-lcpower.c
-+++ b/drivers/hid/hid-lcpower.c
-@@ -24,7 +24,7 @@ static int ts_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
- {
--	if ((usage->hid & HID_USAGE_PAGE) != 0x0ffbc0000)
-+	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_LOGIVENDOR)
- 		return 0;
- 
- 	switch (usage->hid & HID_USAGE) {
+On Tue, Aug 14, 2012 at 12:11:54AM +0200, Vojtech Bocek wrote:
+> Initial input event has not yet arrived in joydev_connect()
+> where values are set, which means default values of input_absinfo
+> are used for init event, not the actual values from joystick.
+
+So what guarantees that joystick events will arrive in time, before
+joydev_generate_startup_event() is called? It looks like your solution
+is racy...
+
+I wonder if we should not generate the startup event until we have seen
+at least one EV_SYN, i.e. entire device state has been transmitted to
+us.
+> 
+> Signed-off-by: Vojtech Bocek <vbocek@gmail.com>
+> ---
+>  drivers/input/joydev.c |    9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+> index 26043cc..11f24b4 100644
+> --- a/drivers/input/joydev.c
+> +++ b/drivers/input/joydev.c
+> @@ -318,9 +318,14 @@ static int joydev_generate_startup_event(struct joydev_client *client,
+>  			event->value = !!test_bit(joydev->keypam[event->number],
+>  						  input->key);
+>  		} else {
+> +			int evnum = client->startup - joydev->nkey;
+> +			int val = input_abs_get_val(input, joydev->abspam[evnum]);
+> +
+> +			joydev->abs[evnum] = joydev_correct(val, &joydev->corr[evnum]);
+> +
+>  			event->type = JS_EVENT_AXIS | JS_EVENT_INIT;
+> -			event->number = client->startup - joydev->nkey;
+> -			event->value = joydev->abs[event->number];
+> +			event->number = evnum;
+> +			event->value = joydev->abs[evnum];
+>  		}
+>  		client->startup++;
+>  	}
+> -- 
+> 1.7.10.4
+> 
+
+Thanks.
+
 -- 
-1.7.9.5
-
-
-
+Dmitry

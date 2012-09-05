@@ -1,95 +1,91 @@
-From: Yann Cantin <yann.cantin@laposte.net>
-Subject: Re: [eBeam PATCH 2/2] input: misc: New USB eBeam input driver.
-Date: Wed, 05 Sep 2012 21:58:06 +0200
-Message-ID: <5047AECE.80409@laposte.net>
-References: <1346539923-9704-1-git-send-email-yann.cantin@laposte.net> <1346539923-9704-3-git-send-email-yann.cantin@laposte.net> <3991181.oZKWSZGdK8@linux-lqwf.site>
+From: =?ISO-8859-2?Q?Vojt=ECch_Bo=E8ek?= <vbocek@gmail.com>
+Subject: Re: [PATCH 1/1] Input: joydev - fix axes values sent in initial js_event
+Date: Wed, 5 Sep 2012 22:09:57 +0200
+Message-ID: <CAOeGmboLCan-fX4sPPxS5jkyepxLTSnRgvdHJ0-edcH8UCQg+w@mail.gmail.com>
+References: <1344895914-32127-1-git-send-email-vbocek@gmail.com>
+	<20120905055218.GA24715@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp05.smtpout.orange.fr ([80.12.242.127]:57317 "EHLO
-	smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759283Ab2IETzv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Sep 2012 15:55:51 -0400
-In-Reply-To: <3991181.oZKWSZGdK8@linux-lqwf.site>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:48834 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754762Ab2IEUJ6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Sep 2012 16:09:58 -0400
+In-Reply-To: <20120905055218.GA24715@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, jikos@suse.cz
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 Hi,
 
-Le 05/09/2012 09:29, Oliver Neukum a =E9crit :
-> before we add yet another sysfs interface, we should ask whether cali=
-bration
-> isn't a problem that should be solved with a common API.
+2012/9/5 Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> So what guarantees that joystick events will arrive in time, before
+> joydev_generate_startup_event() is called? It looks like your solution
+> is racy...
+>
+> I wonder if we should not generate the startup event until we have seen
+> at least one EV_SYN, i.e. entire device state has been transmitted to
+> us.
 
-Short answer : no.
+I just tried to delay read() until first EV_SYN arrives as you suggested,
+but that was not the problem, at least not the main one. First joystick
+input events arrives immediately after it is plugged in and driver is loaded,
+but when that happens, joydev may not be (and most likely is not)
+opened yet, which means the events will never reach joydev because of
+"if (!handle->open)" check in input_pass_event.
 
-##
-Long answer (may be oot) :
+I wonder how to handle this. Is "if(!handle->open)" valid check? I think so,
+my guess is that joydev is the only handler with internal buffer, and it
+is useless to update that buffer when the device is not opened.
+I think reloading abs values on joydev open should be okay.
 
-Existing calibration tools or procedures (in kernel modules or xorg) fo=
-r absolute
-devices deals with hardware axis mostly matching system's ones (X scree=
-n mainly), modulo
-switching XY, inversion or simple tweaks. Plus you know from the beginn=
-ing the ranges
-used, and all parameters are stable.
+I suppose that if we reload abs values on joydev open, waiting for first
+sync is not needed, yes?
 
-eBeam device track an active stylus in his fov, usually on a whiteboard=
- where a
-video-projector cast the computer screen. It then compute the stylus's =
-position
-and send it to the kernel in his own fixed 2D cartesian coordinate syst=
-em relative
-to the device.
+So the patch could look like this:
 
-The device is by design mobile (you stuck it anywhere on the border of =
-the
-projection plane for a session), his axis never match screen's ones, ne=
-ither in range
-nor orientation. Even worse, due to projection artifact, the two coordi=
-nates
-systems (ebeam and screen) can even not be linearly correlated.
+---
+ drivers/input/joydev.c |   19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-Manufacturer's so-called drivers seems to use second order interpolatio=
-ns,
-i use an homography transformation (which is the right mathematical too=
-l for
-the problem, and seems quicker) to transform between coordinates system=
-s. Anyway,
-this need lot of parameters.
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index 26043cc..22a166c 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -158,6 +158,20 @@ static void joydev_event(struct input_handle *handle,
+ 	wake_up_interruptible(&joydev->wait);
+ }
 
-As ebeams are the only devices to my knowledge that work that way, i do=
-n't think
-a common API can be common, unless we mean an in-kernel generic purpose=
- calibration
-API for input devices (stellar away for me), or a userland one (where s=
-hould it be
-in the stack ?). Sincerely, this look overkill.
++/* joydev must be locked */
++static void joydev_reload_abs(struct joydev *joydev)
++{
++	int i, j, abs;
++	struct input_dev *input = joydev->handle.dev;
++
++	for (i = 0; i < joydev->nabs; ++i) {
++		j = joydev->abspam[i];
++		abs = input_abs_get_val(input, j);
++
++		joydev->abs[i] = joydev_correct(abs, &joydev->corr[i]);
++	}
++}
++
+ static int joydev_fasync(int fd, struct file *file, int on)
+ {
+ 	struct joydev_client *client = file->private_data;
+@@ -202,8 +216,11 @@ static int joydev_open_device(struct joydev *joydev)
+ 		retval = -ENODEV;
+ 	else if (!joydev->open++) {
+ 		retval = input_open_device(&joydev->handle);
+-		if (retval)
++		if (!retval)
++			joydev_reload_abs(joydev);
++		else
+ 			joydev->open--;
++		
+ 	}
 
-In the other hand, the actual ebeam module transformation feeding event=
-s subsys
-works very well and expose straight and usable data to userland (xorg e=
-vdev for now,
-and any program that can eat kernel's input data).
-
-##
-
-I understand the sysfs interface is a problem. Eventually, in last reso=
-rt, i can reduce
-it to 4 files : pass the 9 matrix parameters as one big string, removin=
-g min values. But
-i think this obfuscate the api for a marginal gain.
-
-
---=20
-Yann Cantin
-A4FEB47F
---
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ 	mutex_unlock(&joydev->mutex);
+-- 
+1.7.10.4

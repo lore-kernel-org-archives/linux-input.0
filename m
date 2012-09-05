@@ -1,55 +1,49 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH v2 20/20] HID: hid-multitouch: Fix contact count on 3M panels
-Date: Wed, 5 Sep 2012 17:09:37 +0200
-Message-ID: <20120905150937.GA260@polaris.bitmath.org>
-References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
- <1346528835-363-21-git-send-email-rydberg@euromail.se>
- <CAN+gG=FwXaSWN_AYnU7Vpxn4GcWYG3Bf100P0QD_8cQfEnGc7A@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH 1/2] HID: Allow more fields in the hid report
+Date: Wed,  5 Sep 2012 17:27:36 +0200
+Message-ID: <1346858857-281-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:36908 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751238Ab2IEPDN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Sep 2012 11:03:13 -0400
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=FwXaSWN_AYnU7Vpxn4GcWYG3Bf100P0QD_8cQfEnGc7A@mail.gmail.com>
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:42890 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752246Ab2IEPV2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Sep 2012 11:21:28 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-Some devices report the number of contacts via the unreliable
-CONTACTCOUNT usage, rather than using the CONTACTMAX feature.
-Without this patch, the 3M devices are constrained to the default
-maximum of ten fingers.
+Some recent hardware define more than 128 fields in the report
+descriptor. Increase the limit to 256. This adds another kilobyte of
+memory per report.
 
-Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
-Benjamin, are you ok with 0x506 being treated this way as well?
+Hi Jiri,
+
+The Flatfrog panel (next patch) reports 188 fields, so 256 seems like
+a fair number. I am not overly thrilled about this patch, but the
+alternative looks like a major change. At least it will be easy to
+backport. :-)
 
 Thanks,
 Henrik
 
- drivers/hid/hid-multitouch.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/hid.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index eee19c9..63f120b 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -171,7 +171,9 @@ static struct mt_class mt_classes[] = {
- 			MT_QUIRK_SLOT_IS_CONTACTID,
- 		.sn_move = 2048,
- 		.sn_width = 128,
--		.sn_height = 128 },
-+		.sn_height = 128,
-+		.maxcontacts = 60,
-+	},
- 	{ .name = MT_CLS_CYPRESS,
- 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
- 			MT_QUIRK_CYPRESS,
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index f37da28..7e1f37d 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -414,7 +414,7 @@ struct hid_field {
+ 	__u16 dpad;			/* dpad input code */
+ };
+ 
+-#define HID_MAX_FIELDS 128
++#define HID_MAX_FIELDS 256
+ 
+ struct hid_report {
+ 	struct list_head list;
 -- 
 1.7.12
 

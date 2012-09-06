@@ -1,60 +1,97 @@
-From: Tejun Heo <tj@kernel.org>
-Subject: Re: [PATCH] HID: picoLCD: Remove use of deprecated function
-Date: Thu, 6 Sep 2012 13:15:38 -0700
-Message-ID: <20120906201538.GK29092@google.com>
-References: <1346942780-8091-1-git-send-email-emilgoode@gmail.com>
- <20120906221252.1402ba50@neptune.home>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v3 16/20] HID: Only dump input if someone is listening
+Date: Thu, 6 Sep 2012 22:57:45 +0200
+Message-ID: <20120906205745.GA419@polaris.bitmath.org>
+References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
+ <1346528835-363-17-git-send-email-rydberg@euromail.se>
+ <alpine.LNX.2.00.1209020927130.20709@pobox.suse.cz>
+ <20120902085211.GA604@polaris.bitmath.org>
+ <alpine.LNX.2.00.1209031515450.20709@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:44530 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752151Ab2IFUPn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Sep 2012 16:15:43 -0400
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:54826 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932217Ab2IFUvt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Sep 2012 16:51:49 -0400
 Content-Disposition: inline
-In-Reply-To: <20120906221252.1402ba50@neptune.home>
+In-Reply-To: <alpine.LNX.2.00.1209031515450.20709@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bruno =?iso-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: Emil Goode <emilgoode@gmail.com>, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Sep 06, 2012 at 10:12:52PM +0200, Bruno Pr=C3=A9mont wrote:
-> On Thu, 06 September 2012 Emil Goode <emilgoode@gmail.com> wrote:
-> > The flush_delayed_work_sync function is deprecated,
-> > we can instead call flush_delayed_work directly.
-> >=20
-> > Sparse is giving a warning:
-> > drivers/hid/hid-picolcd_fb.c:611:2: warning:
-> > 	=E2=80=98flush_delayed_work_sync=E2=80=99 is deprecated
-> > 	(declared at include/linux/workqueue.h:454)
-> > 	[-Wdeprecated-declarations]
-> >=20
-> > Signed-off-by: Emil Goode <emilgoode@gmail.com>
->=20
-> Acked-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
->=20
-> This matches a patch by Tejun a few weeks ago which was partially
-> skipped in -next due to merge conflict with code split in picoLCD.
->=20
-> See http://comments.gmane.org/gmane.linux.kernel.next/23740
->=20
-> For the sake of proper bisectability, this should go in after
-> Tejun's workqueue changes (if needed at all depending on how merge
-> happens during pull by Linus).
+> Let's wait once Dmitry is finished with the input changes, and I can 
+> either take the set through my tree with his Signed-off-by: on the Input 
+> patches, or vice-versa.
 
-Yeah, we either can ask Linus to fix it up during merge or send a
-separate patch afterwards.  In this case, I don't think it matters too
-much either way.  I tend to send out pull request fairly early in the
-merge window, I'll try to remember to poke Linus about the merge
-conflict.
+Ok. Meanwhile, the current set is now in a temporary branch on github,
+see below. Given there are no more change requests, I can add the
+right SOBs and push it to my next tree for a while, before sending a
+proper pull request to either of you.
 
-Thanks.
+Thanks,
+Henrik
 
---=20
-tejun
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The following changes since commit 4cbe5a555fa58a79b6ecbb6c531b8bab0650778d:
+
+  Linux 3.6-rc4 (2012-09-01 10:39:58 -0700)
+
+are available in the git repository at:
+
+  git://github.com/rydberg/linux.git maybe
+
+for you to fetch changes up to 631ea780695fdc0d1efa91b6714bd85369daab06:
+
+  HID: hid-multitouch: Add Flatfrog support (2012-09-06 22:21:02 +0200)
+
+----------------------------------------------------------------
+Henrik Rydberg (21):
+      Input: Break out MT data
+      Input: Improve the events-per-packet estimate
+      Input: Make sure we follow all EV_KEY events
+      Input: Move autorepeat to the event-passing phase
+      Input: Send events one packet at a time
+      Input: evdev - Add the events() callback
+      Input: MT - Add flags to input_mt_init_slots()
+      Input: MT - Handle frame synchronization in core
+      Input: MT - Add in-kernel tracking
+      Input: MT - Get slot by key
+      Input: bcm5974 - only setup button urb for TYPE1 devices
+      Input: bcm5974 - Preparatory renames
+      Input: bcm5974 - Drop pressure and width emulation
+      Input: bcm5974 - Drop the logical dimensions
+      Input: bcm5974 - Convert to MT-B
+      HID: Add an input configured notification callback
+      HID: hid-multitouch: Simplify setup and frame synchronization
+      HID: hid-multitouch: Remove the redundant touch state
+      HID: hid-multitouch: Fix contact count on 3M panels
+      HID: Allow more fields in the hid report
+      HID: hid-multitouch: Add Flatfrog support
+
+ drivers/hid/hid-ids.h                    |   3 +
+ drivers/hid/hid-input.c                  |  11 +-
+ drivers/hid/hid-magicmouse.c             |   2 +-
+ drivers/hid/hid-multitouch.c             | 192 +++++++++++++++-----------------
+ drivers/input/evdev.c                    |  78 ++++++++-----
+ drivers/input/input-mt.c                 | 294 +++++++++++++++++++++++++++++++++++++++++++++----
+ drivers/input/input.c                    | 245 +++++++++++++++++++++++++++--------------
+ drivers/input/misc/uinput.c              |   2 +-
+ drivers/input/mouse/alps.c               |   2 +-
+ drivers/input/mouse/bcm5974.c            | 317 ++++++++++++++++++++---------------------------------
+ drivers/input/mouse/elantech.c           |   4 +-
+ drivers/input/mouse/sentelic.c           |   2 +-
+ drivers/input/mouse/synaptics.c          |   4 +-
+ drivers/input/tablet/wacom_wac.c         |   6 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c |   2 +-
+ drivers/input/touchscreen/cyttsp_core.c  |   2 +-
+ drivers/input/touchscreen/edt-ft5x06.c   |   2 +-
+ drivers/input/touchscreen/egalax_ts.c    |   2 +-
+ drivers/input/touchscreen/ili210x.c      |   2 +-
+ drivers/input/touchscreen/mms114.c       |   2 +-
+ drivers/input/touchscreen/penmount.c     |   2 +-
+ drivers/input/touchscreen/wacom_w8001.c  |   2 +-
+ include/linux/hid.h                      |   5 +-
+ include/linux/input.h                    |  33 ++++--
+ include/linux/input/mt.h                 |  55 +++++++++-
+ 25 files changed, 807 insertions(+), 464 deletions(-)

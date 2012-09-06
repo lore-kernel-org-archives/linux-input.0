@@ -1,490 +1,61 @@
-From: "Poddar, Sourav" <sourav.poddar@ti.com>
-Subject: Re: [PATCHv2 4/4] gpio: smscece: Add support for gpio IO expander feature
-Date: Thu, 6 Sep 2012 11:27:38 +0530
-Message-ID: <CAKdam54Vdp4os2Li1cACef6mrDkxO=tUJHZH6hgCdC9debrMLA@mail.gmail.com>
-References: <1346845026-24926-1-git-send-email-sourav.poddar@ti.com>
-	<5047A10D.6070106@ti.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [PATCH] Input: imx_keypad - Fix missing clk conversions
+Date: Thu, 6 Sep 2012 09:26:48 +0200
+Message-ID: <20120906072648.GP26594@pengutronix.de>
+References: <1346765081-30443-1-git-send-email-fabio.estevam@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog132.obsmtp.com ([74.125.149.250]:50475 "EHLO
-	na3sys009aog132.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751977Ab2IFF5k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Sep 2012 01:57:40 -0400
-Received: by vcbfk26 with SMTP id fk26so1911859vcb.19
-        for <linux-input@vger.kernel.org>; Wed, 05 Sep 2012 22:57:38 -0700 (PDT)
-In-Reply-To: <5047A10D.6070106@ti.com>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:52225 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751619Ab2IFH0v (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Sep 2012 03:26:51 -0400
+Content-Disposition: inline
+In-Reply-To: <1346765081-30443-1-git-send-email-fabio.estevam@freescale.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vaibhav Hiremath <hvaibhav@ti.com>
-Cc: devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, santosh.shilimkar@ti.com, b-cousson@ti.com, balbi@ti.com
+To: Fabio Estevam <fabio.estevam@freescale.com>
+Cc: dmitry.torokhov@gmail.com, kernel@pengutronix.de, linux-input@vger.kernel.org
 
-Hi Vaibhav,
+On Tue, Sep 04, 2012 at 10:24:41AM -0300, Fabio Estevam wrote:
+> commit (Input: imx_keypad - adapt the new kpp clock name) missed to update
+> clk_enable/clk_disable from imx_keypad_probe().
+> 
+> Fix it so that we do not get clk warnings at boot.
+> 
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 
-On Thu, Sep 6, 2012 at 12:29 AM, Vaibhav Hiremath <hvaibhav@ti.com> wrote:
->
->
-> On 9/5/2012 5:07 PM, Sourav Poddar wrote:
->> smsc can be used as an gpio io expander device also. So adding
->> support for configuring smsc pins as a gpio.
->>
->> Cc: Benoit Cousson <b-cousson@ti.com>
->> Cc: Felipe Balbi <balbi@ti.com>
->> Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>
->> Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
->> ---
->> Changes since v1:
->>  - Use edge triggering instead of level
->>  - Use devm_reuest_threaded_irq
->>  - In remove part, use "irq_free_desc" and
->>      "irq_remove_domain" api.
->>  drivers/gpio/Kconfig        |    7 +
->>  drivers/gpio/Makefile       |    1 +
->>  drivers/gpio/gpio-smscece.c |  380 +++++++++++++++++++++++++++++++++++++++++++
->>  3 files changed, 388 insertions(+), 0 deletions(-)
->>  create mode 100644 drivers/gpio/gpio-smscece.c
->>
->> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
->> index b16c8a7..e883929 100644
->> --- a/drivers/gpio/Kconfig
->> +++ b/drivers/gpio/Kconfig
->> @@ -444,6 +444,13 @@ config GPIO_ADP5588_IRQ
->>         Say yes here to enable the adp5588 to be used as an interrupt
->>         controller. It requires the driver to be built in the kernel.
->>
->> +config GPIO_SMSCECE
->> +     tristate "SMSCECE 1099 I2C GPIO expander"
->> +     depends on I2C
->> +     help
->> +       This option enables support for 18 GPIOs found
->> +       on SMSC ECE 1099 GPIO Expanders.
->> +
->>  comment "PCI GPIO expanders:"
->>
->>  config GPIO_CS5535
->> diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
->> index 153cace..7c803c5 100644
->> --- a/drivers/gpio/Makefile
->> +++ b/drivers/gpio/Makefile
->> @@ -12,6 +12,7 @@ obj-$(CONFIG_GPIO_74X164)   += gpio-74x164.o
->>  obj-$(CONFIG_GPIO_AB8500)    += gpio-ab8500.o
->>  obj-$(CONFIG_GPIO_ADP5520)   += gpio-adp5520.o
->>  obj-$(CONFIG_GPIO_ADP5588)   += gpio-adp5588.o
->> +obj-$(CONFIG_GPIO_SMSCECE)      += gpio-smscece.o
->>  obj-$(CONFIG_GPIO_AMD8111)   += gpio-amd8111.o
->>  obj-$(CONFIG_GPIO_ARIZONA)   += gpio-arizona.o
->>  obj-$(CONFIG_GPIO_BT8XX)     += gpio-bt8xx.o
->> diff --git a/drivers/gpio/gpio-smscece.c b/drivers/gpio/gpio-smscece.c
->> new file mode 100644
->> index 0000000..68a17fa
->> --- /dev/null
->> +++ b/drivers/gpio/gpio-smscece.c
->> @@ -0,0 +1,380 @@
->> +/*
->> + * GPIO Chip driver for smsc
->> + * SMSC I/O Expander and QWERTY Keypad Controller
->> + *
->> + * Copyright 2012 Texas Instruments Inc.
->> + *
->> + * Licensed under the GPL-2 or later.
->
-> Can you put proper license here?
->
-Ok.
->> + */
->> +
->> +#include <linux/module.h>
->> +#include <linux/kernel.h>
->> +#include <linux/slab.h>
->> +#include <linux/init.h>
->> +#include <linux/i2c.h>
->> +#include <linux/gpio.h>
->> +#include <linux/interrupt.h>
->> +#include <linux/irqdomain.h>
->> +#include <linux/irq.h>
->> +#include <linux/mfd/smsc.h>
->> +#include <linux/err.h>
->> +
->> +struct smsc_gpio {
->> +     struct device *dev;
->> +     struct smsc *smsc;
->> +     struct gpio_chip gpio_chip;
->> +     struct mutex lock;      /* protect cached dir, dat_out */
->> +     /* protect serialized access to the interrupt controller bus */
->> +     struct mutex irq_lock;
->> +     struct irq_domain       *irq_domain;
->> +     unsigned gpio_start;
->> +     int type;
->> +     int flags;
->> +     int irq;
->> +     int irq_base;
->> +     unsigned int gpio_base;
->> +     unsigned int dat_out[5];
->> +     unsigned int dir[5];
->> +     unsigned int irq_trig_fall[5];
->> +     unsigned int irq_trig_raise[5];
->> +     unsigned int int_en[5];
->> +     unsigned int irq_mask[5];
->> +     unsigned int irq_stat[5];
->> +};
->> +
->> +static int smsc_gpio_get_value(struct gpio_chip *chip, unsigned off)
->> +{
->> +     struct smsc_gpio *sg =
->> +             container_of(chip, struct smsc_gpio, gpio_chip);
->> +     unsigned int get;
->> +     return !!(smsc_read(sg->dev,
->> +             (SMSC_GPIO_DATA_IN_START + SMSC_BANK(off)) & SMSC_BIT(off),
->> +                                     &get));
->> +}
->> +
->> +static void smsc_gpio_set_value(struct gpio_chip *chip,
->> +                     unsigned off, int val)
->> +{
->> +     unsigned bank, bit;
->> +     struct smsc_gpio *sg =
->> +             container_of(chip, struct smsc_gpio, gpio_chip);
->> +
->> +     bank = SMSC_BANK(off);
->> +     bit = SMSC_BIT(off);
->> +
->> +     mutex_lock(&sg->lock);
->> +     if (val)
->> +             sg->dat_out[bank] |= bit;
->> +     else
->> +             sg->dat_out[bank] &= ~bit;
->> +
->> +     smsc_write(sg->dev, SMSC_GPIO_DATA_OUT_START + bank,
->> +                        sg->dat_out[bank]);
->> +     mutex_unlock(&sg->lock);
->> +}
->> +
->> +static int smsc_gpio_direction_input(struct gpio_chip *chip, unsigned off)
->> +{
->> +     unsigned int reg;
->> +     struct smsc_gpio *sg =
->> +         container_of(chip, struct smsc_gpio, gpio_chip);
->> +     int reg_dir;
->> +
->> +     mutex_lock(&sg->lock);
->> +     reg_dir = SMSC_CFG_START + off;
->> +     smsc_read(sg->dev, reg_dir, &reg);
->> +     reg |= SMSC_GPIO_INPUT_LOW;
->> +     mutex_unlock(&sg->lock);
->> +
->> +     return smsc_write(sg->dev, reg_dir, reg);
->> +}
->> +
->> +static int smsc_gpio_direction_output(struct gpio_chip *chip,
->> +                                      unsigned off, int val)
->> +{
->> +     unsigned int reg;
->> +     struct smsc_gpio *sg =
->> +         container_of(chip, struct smsc_gpio, gpio_chip);
->> +     int reg_dir;
->> +
->> +     mutex_lock(&sg->lock);
->> +     reg_dir = SMSC_CFG_START + off;
->> +     smsc_read(sg->dev, reg_dir, &reg);
->> +     reg |= SMSC_GPIO_OUTPUT_PP;
->> +     mutex_unlock(&sg->lock);
->> +
->> +     return smsc_write(sg->dev, reg_dir, reg);
->> +}
->> +
->> +static int smsc_gpio_to_irq(struct gpio_chip *chip, unsigned off)
->> +{
->> +     struct smsc_gpio *sg =
->> +             container_of(chip, struct smsc_gpio, gpio_chip);
->> +     return sg->irq_base + off;
->> +}
->> +
->> +static void smsc_irq_bus_lock(struct irq_data *d)
->> +{
->> +     struct smsc_gpio *sg = irq_data_get_irq_chip_data(d);
->> +
->> +     mutex_lock(&sg->irq_lock);
->> +}
->> +
->> +static void smsc_irq_bus_sync_unlock(struct irq_data *d)
->> +{
->> +     struct smsc_gpio *sg = irq_data_get_irq_chip_data(d);
->> +     int i;
->> +
->> +     for (i = 0; i < SMSC_BANK(SMSC_MAXGPIO); i++)
->> +             if (sg->int_en[i] ^ sg->irq_mask[i]) {
->> +                     sg->int_en[i] = sg->irq_mask[i];
->> +                     smsc_write(sg->dev, SMSC_GPIO_INT_MASK_START + i,
->> +                                        sg->int_en[i]);
->> +             }
->> +
->> +     mutex_unlock(&sg->irq_lock);
->> +}
->> +
->> +static void smsc_irq_mask(struct irq_data *d)
->> +{
->> +     struct smsc_gpio *sg = irq_data_get_irq_chip_data(d);
->> +     unsigned gpio = d->irq - sg->irq_base;
->> +
->> +     sg->irq_mask[SMSC_BANK(gpio)] &= ~SMSC_BIT(gpio);
->> +}
->> +
->> +static void smsc_irq_unmask(struct irq_data *d)
->> +{
->> +     struct smsc_gpio *sg = irq_data_get_irq_chip_data(d);
->> +     unsigned gpio = d->irq - sg->irq_base;
->> +
->> +     sg->irq_mask[SMSC_BANK(gpio)] |= SMSC_BIT(gpio);
->> +}
->> +
->> +static int smsc_irq_set_type(struct irq_data *d, unsigned int type)
->> +{
->> +     struct smsc_gpio *sg = irq_data_get_irq_chip_data(d);
->> +     uint16_t gpio = d->irq - sg->irq_base;
->> +     unsigned bank, bit;
->> +
->> +     if ((type & IRQ_TYPE_EDGE_BOTH)) {
->> +             dev_err(sg->dev, "irq %d: unsupported type %d\n",
->> +                     d->irq, type);
->> +             return -EINVAL;
->> +     }
->> +
->> +     bank = SMSC_BANK(gpio);
->> +     bit = SMSC_BIT(gpio);
->> +
->> +     if (type & IRQ_TYPE_EDGE_FALLING)
->> +             sg->irq_trig_fall[bank] |= bit;
->> +     else
->> +             sg->irq_trig_fall[bank] &= ~bit;
->> +
->> +     if (type & IRQ_TYPE_EDGE_RISING)
->> +             sg->irq_trig_raise[bank] |= bit;
->> +     else
->> +             sg->irq_trig_raise[bank] &= ~bit;
->> +
->> +     smsc_gpio_direction_input(&sg->gpio_chip, gpio);
->> +     smsc_write(sg->dev, SMSC_CFG_START + gpio,
->> +                     sg->irq_trig_fall[bank] | sg->irq_trig_raise[bank]);
->> +
->> +     return 0;
->> +}
->> +
->> +static struct irq_chip smsc_irq_chip = {
->> +     .name                   = "smsc",
->> +     .irq_mask               = smsc_irq_mask,
->> +     .irq_unmask             = smsc_irq_unmask,
->> +     .irq_bus_lock           = smsc_irq_bus_lock,
->> +     .irq_bus_sync_unlock    = smsc_irq_bus_sync_unlock,
->> +     .irq_set_type           = smsc_irq_set_type,
->> +};
->> +
->> +static int smsc_gpio_read_intstat(struct smsc_gpio *sg,
->> +                             unsigned int *buf, int i)
->> +{
->> +     int ret = smsc_read(sg->dev,
->> +                     SMSC_GPIO_INT_STAT_START + i, buf);
->> +
->> +     if (ret < 0)
->> +             dev_err(sg->dev, "Read INT_STAT Error\n");
->> +
->> +     return ret;
->> +}
->> +
->> +static irqreturn_t smsc_irq_handler(int irq, void *devid)
->> +{
->> +     struct smsc_gpio *sg = devid;
->> +     unsigned int status, bank, pending;
->> +     int ret;
->> +     smsc_read(sg->dev, GRP_INT_STAT, &status);
->> +
->
-> Add blank line before read statement above.
->
-Ok.
->> +     if (!(status & SMSC_GPI_INT))
->> +             goto out;
->> +
->> +     for (bank = 0; bank <= SMSC_BANK(SMSC_MAXGPIO);
->> +             bank++) {
->> +             pending = sg->irq_stat[bank] & sg->irq_mask[bank];
->> +             ret = smsc_gpio_read_intstat(sg,
->> +                             &sg->irq_stat[bank], bank);
->> +             if (ret < 0)
->> +                     memset(&sg->irq_stat[bank], 0,
->> +                             ARRAY_SIZE(sg->irq_stat));
->> +
->> +             while (pending) {
->> +                     unsigned long   bit = __ffs(pending);
->> +                     unsigned int    irq;
->> +
->> +                     pending &= ~BIT(bit);
->> +                     irq = bit + sg->irq_base;
->> +                     handle_nested_irq(irq);
->> +             }
->> +     }
->> +
->> +out:
->> +     smsc_write(sg->dev, GRP_INT_STAT, status); /* Status is W1C */
->> +
->> +     return IRQ_HANDLED;
->> +}
->> +
->> +static int smsc_irq_setup(struct smsc_gpio *sg)
->> +{
->> +     unsigned gpio;
->> +     int ret;
->> +
->> +     mutex_init(&sg->irq_lock);
->> +
->> +     for (gpio = 0; gpio < sg->gpio_chip.ngpio; gpio++) {
->> +             int irq = gpio + sg->irq_base;
->> +             irq_set_chip_data(irq, sg);
->> +             irq_set_chip_and_handler(irq, &smsc_irq_chip,
->> +                             handle_level_irq);
->> +             irq_set_nested_thread(irq, 1);
->> +#ifdef CONFIG_ARM
->> +             set_irq_flags(irq, IRQF_VALID);
->> +#else
->> +             irq_set_noprobe(irq);
->> +#endif
->> +     }
->> +
->> +     ret = devm_request_threaded_irq(sg->dev, sg->irq, NULL,
->> +                     smsc_irq_handler, sg->flags,
->> +                     "smsc_gpio", sg);
->> +     if (ret) {
->> +             dev_err(sg->dev, "failed to request irq %d\n",
->> +                     sg->irq);
->> +     }
->
-> Isn't return err required here?
->
-Yes, will add.
->> +
->> +     sg->gpio_chip.to_irq = smsc_gpio_to_irq;
->> +
->> +     return 0;
->> +}
->> +
->> +static int __devinit smsc_gpio_probe(struct platform_device *pdev)
->> +{
->> +     struct smsc_gpio *sg;
->> +     struct gpio_chip *gc;
->> +     struct smsc *smsc = dev_get_drvdata(pdev->dev.parent);
->> +     int ret, i, temp;
->> +     struct device *dev = &pdev->dev;
->> +     struct device_node *np = dev->of_node;
->> +     int irq_base;
->> +
->> +     sg = devm_kzalloc(dev, sizeof(*sg), GFP_KERNEL);
->> +     if (sg == NULL) {
->> +             dev_err(&pdev->dev, "failed to alloc memory\n");
->> +             return -ENOMEM;
->> +     }
->> +
->> +     sg->irq = platform_get_irq(pdev, 0);
->> +     if (np) {
->> +             of_property_read_u32(np, "gpio,base", &temp);
->> +             of_property_read_u32(np, "flags", &sg->flags);
->> +     }
->> +
->> +     gc = &sg->gpio_chip;
->> +     gc->direction_input = smsc_gpio_direction_input;
->> +     gc->direction_output = smsc_gpio_direction_output;
->> +     gc->get = smsc_gpio_get_value;
->> +     gc->set = smsc_gpio_set_value;
->> +     gc->can_sleep = 1;
->> +
->> +     gc->base = temp;
->> +     gc->ngpio = SMSC_MAXGPIO;
->> +     gc->owner = THIS_MODULE;
->> +
->> +     sg->smsc = smsc;
->> +     sg->dev = dev;
->> +     mutex_init(&sg->lock);
->> +
->> +     for (i = 0; i <= SMSC_BANK(SMSC_MAXGPIO); i++)
->> +             smsc_read(sg->dev, SMSC_GPIO_DATA_OUT_START + i,
->> +                                     &sg->dat_out[i]);
->> +
->> +     for (i = 0; i < SMSC_MAXGPIO; i++)
->> +             smsc_read(sg->dev, SMSC_CFG_START + i, &sg->dir[i]);
->> +
->> +     irq_base = irq_alloc_descs(-1, 0, sg->gpio_chip.ngpio, 0);
->> +     if (IS_ERR_VALUE(irq_base)) {
->> +             dev_err(sg->dev, "Fail to allocate IRQ descs\n");
->> +             return irq_base;
->> +     }
->> +     sg->irq_base = irq_base;
->> +
->> +     sg->irq_domain = irq_domain_add_legacy(pdev->dev.of_node,
->> +             sg->gpio_chip.ngpio, sg->irq_base, 0,
->> +                     &irq_domain_simple_ops, NULL);
->> +
->> +     ret = smsc_irq_setup(sg);
->> +     if (ret)
->> +             goto err;
->> +
->> +     ret = gpiochip_add(&sg->gpio_chip);
->> +     if (ret)
->> +             goto err;
->> +
->> +     return 0;
->> +
->
-> You don't need separate return statements here.
->
-Ok.
-> On the other side, did you also submit DTS changes for GPIO?
-> Without review will not be complete.
->
-Nope, i have not posted it. I have a local version which I just used
-for boot testing. Since, omap5 has just smsc keypad part, i poulated
-the dts file
-with keypad data.
-> Thanks,
-> Vaibhav
->
->> +err:
->> +     return ret;
->> +}
->> +
->> +static int __devexit smsc_gpio_remove(struct platform_device *pdev)
->> +{
->> +     struct smsc_gpio *sg = dev_get_drvdata(&pdev->dev);
->> +     int ret;
->> +
->> +     ret = gpiochip_remove(&sg->gpio_chip);
->> +     if (ret) {
->> +             dev_err(&pdev->dev, "gpiochip_remove failed %d\n", ret);
->> +             return ret;
->> +     }
->> +
->> +     irq_domain_remove(sg->irq_domain);
->> +     irq_free_descs(sg->irq_base, sg->gpio_chip.ngpio);
->> +
->> +     return 0;
->> +}
->> +
->> +static const struct of_device_id smsc_gpio_dt_match[] = {
->> +     { .compatible = "smsc,gpio" },
->> +     {},
->> +};
->> +MODULE_DEVICE_TABLE(of, smsc_gpio_dt_match);
->> +
->> +static struct platform_driver smsc_gpio_driver = {
->> +     .driver = {
->> +                .name = "smsc_gpio",
->> +                .of_match_table = of_match_ptr(smsc_gpio_dt_match),
->> +                },
->> +     .probe = smsc_gpio_probe,
->> +     .remove = __devexit_p(smsc_gpio_remove),
->> +};
->> +
->> +module_platform_driver(smsc_gpio_driver);
->> +
->> +MODULE_AUTHOR("Sourav Poddar <sourav.poddar@ti.com>");
->> +MODULE_DESCRIPTION("GPIO SMSC Driver");
->> +MODULE_LICENSE("GPL v2");
->>
+Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
+
+
+> ---
+>  drivers/input/keyboard/imx_keypad.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+> index ce68e36..cdc2526 100644
+> --- a/drivers/input/keyboard/imx_keypad.c
+> +++ b/drivers/input/keyboard/imx_keypad.c
+> @@ -516,9 +516,9 @@ static int __devinit imx_keypad_probe(struct platform_device *pdev)
+>  	input_set_drvdata(input_dev, keypad);
+>  
+>  	/* Ensure that the keypad will stay dormant until opened */
+> -	clk_enable(keypad->clk);
+> +	clk_prepare_enable(keypad->clk);
+>  	imx_keypad_inhibit(keypad);
+> -	clk_disable(keypad->clk);
+> +	clk_disable_unprepare(keypad->clk);
+>  
+>  	error = request_irq(irq, imx_keypad_irq_handler, 0,
+>  			    pdev->name, keypad);
+> -- 
+> 1.7.9.5
+> 
+> 
+> 
+
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

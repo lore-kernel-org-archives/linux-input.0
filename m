@@ -1,97 +1,51 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3 16/20] HID: Only dump input if someone is listening
-Date: Thu, 6 Sep 2012 22:57:45 +0200
-Message-ID: <20120906205745.GA419@polaris.bitmath.org>
-References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
- <1346528835-363-17-git-send-email-rydberg@euromail.se>
- <alpine.LNX.2.00.1209020927130.20709@pobox.suse.cz>
- <20120902085211.GA604@polaris.bitmath.org>
- <alpine.LNX.2.00.1209031515450.20709@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH 1/5] Input: wacom - Allow any multi-input Intuos device to set prox
+Date: Thu,  6 Sep 2012 15:53:26 -0700
+Message-ID: <1346972010-1330-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:54826 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932217Ab2IFUvt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Sep 2012 16:51:49 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1209031515450.20709@pobox.suse.cz>
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:51702 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754238Ab2IFWxm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Sep 2012 18:53:42 -0400
+Received: by pbbrr13 with SMTP id rr13so3164584pbb.19
+        for <linux-input@vger.kernel.org>; Thu, 06 Sep 2012 15:53:42 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, pinglinux@gmail.com, chris@cnpbagwell.com
+Cc: Jason Gerecke <killertofu@gmail.com>
 
-> Let's wait once Dmitry is finished with the input changes, and I can 
-> either take the set through my tree with his Signed-off-by: on the Input 
-> patches, or vice-versa.
+The ability to set the proximity flag should apply to any device
+that has both pen and touch input. Rather than listing classes of
+devices known to meet this criteria, simply filter on the quirk
+defining all such devices.
 
-Ok. Meanwhile, the current set is now in a temporary branch on github,
-see below. Given there are no more change requests, I can add the
-right SOBs and push it to my next tree for a while, before sending a
-proper pull request to either of you.
+Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+---
+ drivers/input/tablet/wacom_wac.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks,
-Henrik
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 532d067..a8bc6c9 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -326,7 +326,7 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 
+ 	/* Enter report */
+ 	if ((data[1] & 0xfc) == 0xc0) {
+-		if (features->type >= INTUOS5S && features->type <= INTUOS5L)
++		if (features->quirks == WACOM_QUIRK_MULTI_INPUT)
+ 			wacom->shared->stylus_in_proximity = true;
+ 
+ 		/* serial number of the tool */
+@@ -414,7 +414,7 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 
+ 	/* Exit report */
+ 	if ((data[1] & 0xfe) == 0x80) {
+-		if (features->type >= INTUOS5S && features->type <= INTUOS5L)
++		if (features->quirks == WACOM_QUIRK_MULTI_INPUT)
+ 			wacom->shared->stylus_in_proximity = false;
+ 
+ 		/*
+-- 
+1.7.12
 
-The following changes since commit 4cbe5a555fa58a79b6ecbb6c531b8bab0650778d:
-
-  Linux 3.6-rc4 (2012-09-01 10:39:58 -0700)
-
-are available in the git repository at:
-
-  git://github.com/rydberg/linux.git maybe
-
-for you to fetch changes up to 631ea780695fdc0d1efa91b6714bd85369daab06:
-
-  HID: hid-multitouch: Add Flatfrog support (2012-09-06 22:21:02 +0200)
-
-----------------------------------------------------------------
-Henrik Rydberg (21):
-      Input: Break out MT data
-      Input: Improve the events-per-packet estimate
-      Input: Make sure we follow all EV_KEY events
-      Input: Move autorepeat to the event-passing phase
-      Input: Send events one packet at a time
-      Input: evdev - Add the events() callback
-      Input: MT - Add flags to input_mt_init_slots()
-      Input: MT - Handle frame synchronization in core
-      Input: MT - Add in-kernel tracking
-      Input: MT - Get slot by key
-      Input: bcm5974 - only setup button urb for TYPE1 devices
-      Input: bcm5974 - Preparatory renames
-      Input: bcm5974 - Drop pressure and width emulation
-      Input: bcm5974 - Drop the logical dimensions
-      Input: bcm5974 - Convert to MT-B
-      HID: Add an input configured notification callback
-      HID: hid-multitouch: Simplify setup and frame synchronization
-      HID: hid-multitouch: Remove the redundant touch state
-      HID: hid-multitouch: Fix contact count on 3M panels
-      HID: Allow more fields in the hid report
-      HID: hid-multitouch: Add Flatfrog support
-
- drivers/hid/hid-ids.h                    |   3 +
- drivers/hid/hid-input.c                  |  11 +-
- drivers/hid/hid-magicmouse.c             |   2 +-
- drivers/hid/hid-multitouch.c             | 192 +++++++++++++++-----------------
- drivers/input/evdev.c                    |  78 ++++++++-----
- drivers/input/input-mt.c                 | 294 +++++++++++++++++++++++++++++++++++++++++++++----
- drivers/input/input.c                    | 245 +++++++++++++++++++++++++++--------------
- drivers/input/misc/uinput.c              |   2 +-
- drivers/input/mouse/alps.c               |   2 +-
- drivers/input/mouse/bcm5974.c            | 317 ++++++++++++++++++++---------------------------------
- drivers/input/mouse/elantech.c           |   4 +-
- drivers/input/mouse/sentelic.c           |   2 +-
- drivers/input/mouse/synaptics.c          |   4 +-
- drivers/input/tablet/wacom_wac.c         |   6 +-
- drivers/input/touchscreen/atmel_mxt_ts.c |   2 +-
- drivers/input/touchscreen/cyttsp_core.c  |   2 +-
- drivers/input/touchscreen/edt-ft5x06.c   |   2 +-
- drivers/input/touchscreen/egalax_ts.c    |   2 +-
- drivers/input/touchscreen/ili210x.c      |   2 +-
- drivers/input/touchscreen/mms114.c       |   2 +-
- drivers/input/touchscreen/penmount.c     |   2 +-
- drivers/input/touchscreen/wacom_w8001.c  |   2 +-
- include/linux/hid.h                      |   5 +-
- include/linux/input.h                    |  33 ++++--
- include/linux/input/mt.h                 |  55 +++++++++-
- 25 files changed, 807 insertions(+), 464 deletions(-)

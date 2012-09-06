@@ -1,39 +1,54 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH RESEND #4] dj: memory scribble in logi_dj
-Date: Thu, 6 Sep 2012 13:47:04 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1209061345070.23820@pobox.suse.cz>
-References: <20120904140924.26323.88903.stgit@localhost.localdomain> <CAN+gG=F-KGrfBecqwRa_7LYHvzzRLZebN6hYuAv8NRAD3U6nEw@mail.gmail.com>
+From: Emil Goode <emilgoode@gmail.com>
+Subject: [PATCH] HID: picoLCD: Remove use of deprecated function
+Date: Thu,  6 Sep 2012 16:46:20 +0200
+Message-ID: <1346942780-8091-1-git-send-email-emilgoode@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:35266 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751011Ab2IFLrN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Sep 2012 07:47:13 -0400
-In-Reply-To: <CAN+gG=F-KGrfBecqwRa_7LYHvzzRLZebN6hYuAv8NRAD3U6nEw@mail.gmail.com>
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:54694 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756537Ab2IFOnD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Sep 2012 10:43:03 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Nestor Lopez Casado <nlopezcasad@logitech.com>, torvalds@linux-foundation.org, linux-input@vger.kernel.org
+To: bonbons@linux-vserver.org, jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, Emil Goode <emilgoode@gmail.com>
 
-On Thu, 6 Sep 2012, Benjamin Tissoires wrote:
+The flush_delayed_work_sync function is deprecated,
+we can instead call flush_delayed_work directly.
 
-> Sorry for not seeing this earlier.
-> 
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> 
-> Jiri, can this fall into upstream-fixes?
+Sparse is giving a warning:
+drivers/hid/hid-picolcd_fb.c:611:2: warning:
+	=E2=80=98flush_delayed_work_sync=E2=80=99 is deprecated
+	(declared at include/linux/workqueue.h:454)
+	[-Wdeprecated-declarations]
 
-I have discussed this with Alan a few moments ago ... unfortunately none 
-of the four resends has been sent directly to me (I would have expected at 
-least the resent patch been sent directly to the maintainer as well), but 
-just to the lists ... so it was lost between the cracks of 
-lkml/linux-input.
+Signed-off-by: Emil Goode <emilgoode@gmail.com>
+---
+ drivers/hid/hid-picolcd_fb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Linus has just applied it directly today.
+diff --git a/drivers/hid/hid-picolcd_fb.c b/drivers/hid/hid-picolcd_fb.=
+c
+index 0008a51..eb00357 100644
+--- a/drivers/hid/hid-picolcd_fb.c
++++ b/drivers/hid/hid-picolcd_fb.c
+@@ -608,7 +608,7 @@ void picolcd_exit_framebuffer(struct picolcd_data *=
+data)
+ 	/* make sure there is no running update - thus that fbdata->picolcd
+ 	 * once obtained under lock is guaranteed not to get free() under
+ 	 * the feet of the deferred work */
+-	flush_delayed_work_sync(&info->deferred_work);
++	flush_delayed_work(&info->deferred_work);
+=20
+ 	data->fb_info =3D NULL;
+ 	unregister_framebuffer(info);
+--=20
+1.7.10.4
 
-Thanks everybody,
-
--- 
-Jiri Kosina
-SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

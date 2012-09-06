@@ -1,125 +1,124 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 2/5] Input: wacom - handle split-sensor devices with internal hubs
-Date: Thu,  6 Sep 2012 15:53:27 -0700
-Message-ID: <1346972010-1330-2-git-send-email-killertofu@gmail.com>
+Subject: [PATCH 3/5] Input: wacom - Introduce wacom_fix_phy_from_hid
+Date: Thu,  6 Sep 2012 15:53:28 -0700
+Message-ID: <1346972010-1330-3-git-send-email-killertofu@gmail.com>
 References: <1346972010-1330-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:51702 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754238Ab2IFWxo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Sep 2012 18:53:44 -0400
-Received: by mail-pb0-f46.google.com with SMTP id rr13so3164584pbb.19
-        for <linux-input@vger.kernel.org>; Thu, 06 Sep 2012 15:53:44 -0700 (PDT)
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:36548 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755019Ab2IFWxq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Sep 2012 18:53:46 -0400
+Received: by dady13 with SMTP id y13so1386576dad.19
+        for <linux-input@vger.kernel.org>; Thu, 06 Sep 2012 15:53:45 -0700 (PDT)
 In-Reply-To: <1346972010-1330-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, pinglinux@gmail.com, chris@cnpbagwell.com
 Cc: Jason Gerecke <killertofu@gmail.com>
 
-Like our other pen-and-touch products, the Cintiq 24HD touch
-needs data to be shared between its two sensors to facilitate
-proximity-based palm rejection.
+The Cintiq 24HD touch cannot use wacom_set_phy_from_res to determine
+the physical size of the touch sensor since the pen and touch are
+on separate USB devices. The physical size is, however, provided in
+the HID descriptor, just scaled to a unit we don't use.
 
-Unlike other tablets that report sensor data through separate
-interfaces of the same USB device, the Cintiq 24HD touch has
-separate USB devices that are connected to an internal USB hub.
-
-This patch makes it possible to designate the USB VID/PID of
-the other device so that the two may share data. To ensure
-we don't accidentally link to a sensor from a physically separate
-device (if several have been plugged in), we limit the search
-to siblings (i.e., devices directly connected to the same
-hub).
+This patch introduces the function wacom_fix_phy_from_hid to let
+us make use of the unit and exponent data provided by HID to set
+the [xy]_phy variables to an appropriate value. This function
+relies on a trimmed-down version of hidinput_calc_abs_res from
+the hid-input.c.
 
 Signed-off-by: Jason Gerecke <killertofu@gmail.com>
 ---
- drivers/input/tablet/wacom_sys.c | 31 ++++++++++++++++++++++++++++++-
- drivers/input/tablet/wacom_wac.c |  3 ++-
- drivers/input/tablet/wacom_wac.h |  2 ++
- 3 files changed, 34 insertions(+), 2 deletions(-)
+ drivers/input/tablet/wacom_sys.c | 69 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 69 insertions(+)
 
 diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 0d3219f..d67a996 100644
+index d67a996..08ab0b0 100644
 --- a/drivers/input/tablet/wacom_sys.c
 +++ b/drivers/input/tablet/wacom_sys.c
-@@ -546,6 +546,29 @@ struct wacom_usbdev_data {
- static LIST_HEAD(wacom_udev_list);
- static DEFINE_MUTEX(wacom_udev_list_lock);
+@@ -172,6 +172,74 @@ static void wacom_close(struct input_dev *dev)
+ }
  
-+static struct usb_device *wacom_get_sibling(struct usb_device *dev, int vendor, int product)
+ /*
++ * Calculate the resolution of the X or Y axis, given appropriate HID data.
++ * This function is little more than hidinput_calc_abs_res stripped down.
++ */
++static int wacom_calc_hid_res(int logical_extents, int physical_extents,
++                              unsigned char unit, unsigned char exponent)
 +{
-+	struct usb_device **sibling;
++	int prev, unit_exponent;
 +
-+	if (vendor == 0 && product == 0)
-+		return dev;
++	/* Check if the extents are sane */
++	if (logical_extents <= 0 || physical_extents <= 0)
++		return 0;
 +
-+	if (dev->parent == NULL)
-+		return NULL;
++	/* Get signed value of nybble-sized twos-compliment exponent */
++	unit_exponent = exponent;
++	if (unit_exponent > 7)
++		unit_exponent -= 16;
 +
-+	sibling = dev->parent->children;
-+	while (sibling != NULL && *sibling != NULL) {
-+		struct usb_device_descriptor d = (*sibling)->descriptor;
-+
-+		if (d.idVendor == vendor && d.idProduct == product)
-+			return *sibling;
-+
-+		sibling++;
++	/* Convert physical_extents to millimeters */
++	if (unit == 0x11) {		/* If centimeters */
++		unit_exponent += 1;
++	} else if (unit == 0x13) {	/* If inches */
++		prev = physical_extents;
++		physical_extents *= 254;
++		if (physical_extents < prev)
++			return 0;
++		unit_exponent -= 1;
++	} else {
++		return 0;
 +	}
 +
-+	return NULL;
++	/* Apply negative unit exponent */
++	for (; unit_exponent < 0; unit_exponent++) {
++		prev = logical_extents;
++		logical_extents *= 10;
++		if (logical_extents < prev)
++			return 0;
++	}
++	/* Apply positive unit exponent */
++	for (; unit_exponent > 0; unit_exponent--) {
++		prev = physical_extents;
++		physical_extents *= 10;
++		if (physical_extents < prev)
++			return 0;
++	}
++
++	/* Calculate resolution */
++	return logical_extents / physical_extents;
 +}
 +
- static struct wacom_usbdev_data *wacom_get_usbdev_data(struct usb_device *dev)
- {
- 	struct wacom_usbdev_data *data;
-@@ -1190,13 +1213,19 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	strlcpy(wacom_wac->name, features->name, sizeof(wacom_wac->name));
- 
- 	if (features->quirks & WACOM_QUIRK_MULTI_INPUT) {
-+		struct usb_device *other_dev;
++/*
++ * The physical dimension specified by the HID descriptor is likely not in
++ * the "100th of a mm" units expected by wacom_calculate_touch_res. This
++ * function adjusts the value of [xy]_phy based on the unit and exponent
++ * provided by the HID descriptor. If an error occurs durring conversion
++ * (e.g. from the unit being left unspecified) [xy]_phy is not modified.
++ */
++static void wacom_fix_phy_from_hid(struct wacom_features *features)
++{
++	int xres = wacom_calc_hid_res(features->x_max, features->x_phy, features->unit, features->unitExpo);
++	int yres = wacom_calc_hid_res(features->y_max, features->y_phy, features->unit, features->unitExpo);
 +
- 		/* Append the device type to the name */
- 		strlcat(wacom_wac->name,
- 			features->device_type == BTN_TOOL_PEN ?
- 				" Pen" : " Finger",
- 			sizeof(wacom_wac->name));
- 
--		error = wacom_add_shared_data(wacom_wac, dev);
++	if (xres > 0 && yres > 0) {
++		features->x_phy = (100 * features->x_max) / xres;
++		features->y_phy = (100 * features->y_max) / yres;
++	}
++}
 +
-+		other_dev = wacom_get_sibling(dev, features->oVid, features->oPid);
-+		if (other_dev == NULL || wacom_get_usbdev_data(other_dev) == NULL)
-+			other_dev = dev;
-+		error = wacom_add_shared_data(wacom_wac, other_dev);
- 		if (error)
- 			goto fail3;
- 	}
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index a8bc6c9..9f52ba0 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -1327,7 +1327,8 @@ void wacom_setup_device_quirks(struct wacom_features *features)
++/*
+  * Static values for max X/Y and resolution of Pen interface is stored in
+  * features. This mean physical size of active area can be computed.
+  * This is useful to do when Pen and Touch have same active area of tablet.
+@@ -531,6 +599,7 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
+ 	error = wacom_parse_hid(intf, hid_desc, features);
+ 	if (error)
+ 		goto out;
++	wacom_fix_phy_from_hid(features);
  
- 	/* these device have multiple inputs */
- 	if (features->type >= WIRELESS ||
--	    (features->type >= INTUOS5S && features->type <= INTUOS5L))
-+	    (features->type >= INTUOS5S && features->type <= INTUOS5L) ||
-+	    (features->oVid && features->oPid))
- 		features->quirks |= WACOM_QUIRK_MULTI_INPUT;
- 
- 	/* quirk for bamboo touch with 2 low res touches */
-diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index 96c185c..3f926ec 100644
---- a/drivers/input/tablet/wacom_wac.h
-+++ b/drivers/input/tablet/wacom_wac.h
-@@ -109,6 +109,8 @@ struct wacom_features {
- 	int distance_fuzz;
- 	unsigned quirks;
- 	unsigned touch_max;
-+	int oVid;
-+	int oPid;
- };
- 
- struct wacom_shared {
+  out:
+ 	return error;
 -- 
 1.7.12
 

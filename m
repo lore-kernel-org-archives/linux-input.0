@@ -1,104 +1,120 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH v3 16/20] HID: Only dump input if someone is listening
-Date: Thu, 6 Sep 2012 18:54:01 -0700
-Message-ID: <CAF8JNh+=GT676cpPT7WqhZ3CrbRCuqApRHwB6MTm3iPmxgauAg@mail.gmail.com>
-References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
-	<1346528835-363-17-git-send-email-rydberg@euromail.se>
-	<alpine.LNX.2.00.1209020927130.20709@pobox.suse.cz>
-	<20120902085211.GA604@polaris.bitmath.org>
-	<alpine.LNX.2.00.1209031515450.20709@pobox.suse.cz>
-	<20120906205745.GA419@polaris.bitmath.org>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: Questions about implementing hid driver or input driver
+Date: Fri, 07 Sep 2012 13:24:41 +0800
+Message-ID: <1346995481.3769.4.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120906205745.GA419@polaris.bitmath.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:41594 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751501Ab2IGFYu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Sep 2012 01:24:50 -0400
+Received: by ieje11 with SMTP id e11so4416879iej.19
+        for <linux-input@vger.kernel.org>; Thu, 06 Sep 2012 22:24:50 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dtor@mail.ru>
 
-On Thu, Sep 6, 2012 at 1:57 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
->> Let's wait once Dmitry is finished with the input changes, and I can
->> either take the set through my tree with his Signed-off-by: on the Input
->> patches, or vice-versa.
->
-> Ok. Meanwhile, the current set is now in a temporary branch on github,
-> see below. Given there are no more change requests, I can add the
-> right SOBs and push it to my next tree for a while, before sending a
-> proper pull request to either of you.
->
-> Thanks,
-> Henrik
->
-> The following changes since commit 4cbe5a555fa58a79b6ecbb6c531b8bab0650778d:
->
->   Linux 3.6-rc4 (2012-09-01 10:39:58 -0700)
->
-> are available in the git repository at:
->
->   git://github.com/rydberg/linux.git maybe
+Hi list,
+I have a tablet that shows it is a HID device.
+But the report descriptor looks broken.
 
-This branch is tested with a Wacom Bamboo3 and an Intuos 5 M.
+Below shows the device information:
 
-Tested-by: Ping Cheng <pingc@wacom.com>
+lsusb -v:
 
-Ping
+Bus 002 Device 004: ID 04b4:3045 Cypress Semiconductor Corp.
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x04b4 Cypress Semiconductor Corp.
+  idProduct          0x3045
+  bcdDevice            1.00
+  iManufacturer           1 Ping-IT
+  iProduct                2 RS232_USB
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           34
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          3 Bus power
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              100mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 No Subclass
+      bInterfaceProtocol      0 None
+      iInterface              4 HID
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.10
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength      26
+         Report Descriptors:
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval              10
+Device Status:     0x0000
+  (Bus Powered)
 
-> for you to fetch changes up to 631ea780695fdc0d1efa91b6714bd85369daab06:
->
->   HID: hid-multitouch: Add Flatfrog support (2012-09-06 22:21:02 +0200)
->
-> ----------------------------------------------------------------
-> Henrik Rydberg (21):
->       Input: Break out MT data
->       Input: Improve the events-per-packet estimate
->       Input: Make sure we follow all EV_KEY events
->       Input: Move autorepeat to the event-passing phase
->       Input: Send events one packet at a time
->       Input: evdev - Add the events() callback
->       Input: MT - Add flags to input_mt_init_slots()
->       Input: MT - Handle frame synchronization in core
->       Input: MT - Add in-kernel tracking
->       Input: MT - Get slot by key
->       Input: bcm5974 - only setup button urb for TYPE1 devices
->       Input: bcm5974 - Preparatory renames
->       Input: bcm5974 - Drop pressure and width emulation
->       Input: bcm5974 - Drop the logical dimensions
->       Input: bcm5974 - Convert to MT-B
->       HID: Add an input configured notification callback
->       HID: hid-multitouch: Simplify setup and frame synchronization
->       HID: hid-multitouch: Remove the redundant touch state
->       HID: hid-multitouch: Fix contact count on 3M panels
->       HID: Allow more fields in the hid report
->       HID: hid-multitouch: Add Flatfrog support
->
->  drivers/hid/hid-ids.h                    |   3 +
->  drivers/hid/hid-input.c                  |  11 +-
->  drivers/hid/hid-magicmouse.c             |   2 +-
->  drivers/hid/hid-multitouch.c             | 192 +++++++++++++++-----------------
->  drivers/input/evdev.c                    |  78 ++++++++-----
->  drivers/input/input-mt.c                 | 294 +++++++++++++++++++++++++++++++++++++++++++++----
->  drivers/input/input.c                    | 245 +++++++++++++++++++++++++++--------------
->  drivers/input/misc/uinput.c              |   2 +-
->  drivers/input/mouse/alps.c               |   2 +-
->  drivers/input/mouse/bcm5974.c            | 317 ++++++++++++++++++++---------------------------------
->  drivers/input/mouse/elantech.c           |   4 +-
->  drivers/input/mouse/sentelic.c           |   2 +-
->  drivers/input/mouse/synaptics.c          |   4 +-
->  drivers/input/tablet/wacom_wac.c         |   6 +-
->  drivers/input/touchscreen/atmel_mxt_ts.c |   2 +-
->  drivers/input/touchscreen/cyttsp_core.c  |   2 +-
->  drivers/input/touchscreen/edt-ft5x06.c   |   2 +-
->  drivers/input/touchscreen/egalax_ts.c    |   2 +-
->  drivers/input/touchscreen/ili210x.c      |   2 +-
->  drivers/input/touchscreen/mms114.c       |   2 +-
->  drivers/input/touchscreen/penmount.c     |   2 +-
->  drivers/input/touchscreen/wacom_w8001.c  |   2 +-
->  include/linux/hid.h                      |   5 +-
->  include/linux/input.h                    |  33 ++++--
->  include/linux/input/mt.h                 |  55 +++++++++-
->  25 files changed, 807 insertions(+), 464 deletions(-)
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+And below is the report descriptor ( by usbhid-dump / hidrd-convert )
+
+0x05, 0x0D, /*  Usage Page (Digitizer),         */
+0x09, 0x08, /*  Usage (3D Digitizer),           */
+0xA1, 0x01, /*  Collection (Application),       */
+0x09, 0x01, /*      Usage (Digitizer),          */
+0xA1, 0x00, /*      Collection (Physical),      */
+0x05, 0x01, /*          Usage Page (Desktop),   */
+0x09, 0x3B, /*          Usage (Byte Count),     */
+0x15, 0x00, /*          Logical Minimum (0),    */
+0x25, 0x7F, /*          Logical Maximum (127),  */
+0x75, 0x08, /*          Report Size (8),        */
+0x95, 0x07, /*          Report Count (7),       */
+0x81, 0x02, /*          Input (Variable),       */
+0xC0,       /*      End Collection,             */
+0xC0        /*  End Collection                  */
+
+The report descriptor looks broken to me:
+ 1. The report descriptor does not have Usage for TOOL_PEN/STYLUS/STYLUS2/PRESSURE,
+    so evdev doest not recognized it as a tablet.
+    Actually, the report descriptor does not define any detail of the data.
+    It only shows a 7 bytes report content.
+ 2. It does not have Report ID field. 
+    (Does it make sense to have a report descriptor without Report ID field?)
+
+So in this case, should I implement a HID (special device) driver or
+a input driver (in drivers/input/tablet folder) for this device?
+
+Regards,
+Axel
+
+
+

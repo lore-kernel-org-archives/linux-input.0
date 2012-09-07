@@ -1,129 +1,90 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH v2] HID: hid-multitouch: Add Flatfrog support
-Date: Fri, 7 Sep 2012 20:09:33 +0200
-Message-ID: <20120907180933.GA469@polaris.bitmath.org>
-References: <1346858857-281-1-git-send-email-rydberg@euromail.se>
- <1346858857-281-2-git-send-email-rydberg@euromail.se>
- <20120905161218.GA270@polaris.bitmath.org>
+From: Forest Bond <forest-B/PTSs0AgtP3p6jHtUh95NHuzzzSOjJt@public.gmane.org>
+Subject: Re: [PATCH resend2] Input: usbtouchscreen - initialize eGalax
+ devices
+Date: Fri, 7 Sep 2012 16:42:32 -0400
+Message-ID: <20120907204232.GA24528@alittletooquiet.net>
+References: <20120903132648.GC11919@newmaster.mivlgu.local>
+ <20120903173349.GA18666@alittletooquiet.net>
+ <20120905060704.GC25962@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:58577 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752530Ab2IGSC5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Sep 2012 14:02:57 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120905161218.GA270@polaris.bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20120905060704.GC25962-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-Add support for the Flatfrog Multitouch 3200 panel. This panel
-advertises some fields that it does not use, hence the new quirk.
 
-Cc: Pablo Cases <pablo.cases@flatfrog.com>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
-The Flatfrog team pointed out that the pressure information, which is
-currently present but set to a fixed value, is a scheduled firmware
-update. Therefore, ignoring the pressure information seems
-unnecessary, and I agree. This version is without the pressure quirk,
-and will be pushed to the maybe branch in a couple of days.
+--qDbXVdCdHGoSgWSk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Dmitry,
+
+On Tue, Sep 04, 2012 at 11:07:04PM -0700, Dmitry Torokhov wrote:
+> On Mon, Sep 03, 2012 at 01:33:50PM -0400, Forest Bond wrote:
+> > From: Forest Bond <forest.bond-XbHmxybg72Wcj+tRJgl41g@public.gmane.org>
+> >=20
+> > Certain eGalax devices expose an interface with class HID and protocol
+> > None.  Some work with usbhid and some work with usbtouchscreen, but
+> > there is no easy way to differentiate.  Sending an eGalax diagnostic
+> > packet seems to kick them all into using the right protocol for
+> > usbtouchscreen, so we can continue to bind them all there (as opposed to
+> > handing some off to usbhid).
+> >=20
+> > This fixes a regression for devices that were claimed by (and worked
+> > with) usbhid prior to commit 139ebe8dc80dd74cb2ac9f5603d18fbf5cff049f
+> > ("Input: usbtouchscreen - fix eGalax HID ignoring"), which made
+> > usbtouchscreen claim them instead.  With this patch they will still be
+> > claimed by usbtouchscreen, but they will actually report events
+> > usbtouchscreen can understand.  Note that these devices will be limited
+> > to the usbtouchscreen feature set so e.g. dual touch features are not
+> > supported.
+> >=20
+> > I have the distinct pleasure of needing to support devices of both types
+> > and have tested accordingly.
+> >=20
+> > Signed-off-by: Forest Bond <forest.bond-XbHmxybg72Wcj+tRJgl41g@public.gmane.org>
+>=20
+> Applied, thank you Forest.
+
+Great, thanks a lot.
+
+The other piece to this puzzle is that usbhid should blacklist these device=
+s to
+avoid binding if it happens to be loaded before usbtouchscreen.  To do this,
+usbhid needs to be able to blacklist devices based on interface protocol (r=
+ight
+now it only supports blacklist on VID + PID).
+
+Would you accept a patch set that implements this?
 
 Thanks,
-Henrik
+Forest
+--=20
+Forest Bond
+http://www.alittletooquiet.net
+http://www.rapidrollout.com
 
- drivers/hid/hid-ids.h        |  3 +++
- drivers/hid/hid-multitouch.c | 26 +++++++++++++++++++++-----
- 2 files changed, 24 insertions(+), 5 deletions(-)
+--qDbXVdCdHGoSgWSk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 1dcb76f..c843db9 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -283,6 +283,9 @@
- #define USB_VENDOR_ID_EMS		0x2006
- #define USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II 0x0118
- 
-+#define USB_VENDOR_ID_FLATFROG		0x25b5
-+#define USB_DEVICE_ID_MULTITOUCH_3200	0x0002
-+
- #define USB_VENDOR_ID_ESSENTIAL_REALITY	0x0d7f
- #define USB_DEVICE_ID_ESSENTIAL_REALITY_P5 0x0100
- 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 63f120b..ee0b76b 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -51,6 +51,7 @@ MODULE_LICENSE("GPL");
- #define MT_QUIRK_VALID_IS_INRANGE	(1 << 5)
- #define MT_QUIRK_VALID_IS_CONFIDENCE	(1 << 6)
- #define MT_QUIRK_SLOT_IS_CONTACTID_MINUS_ONE	(1 << 8)
-+#define MT_QUIRK_NO_AREA		(1 << 9)
- 
- struct mt_slot {
- 	__s32 x, y, p, w, h;
-@@ -115,6 +116,7 @@ struct mt_device {
- #define MT_CLS_EGALAX_SERIAL			0x0104
- #define MT_CLS_TOPSEED				0x0105
- #define MT_CLS_PANASONIC			0x0106
-+#define MT_CLS_FLATFROG				0x0107
- 
- #define MT_DEFAULT_MAXCONTACT	10
- 
-@@ -199,6 +201,12 @@ static struct mt_class mt_classes[] = {
- 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP,
- 		.maxcontacts = 4 },
- 
-+	{ .name = MT_CLS_FLATFROG,
-+		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
-+			MT_QUIRK_NO_AREA,
-+		.sn_move = 2048,
-+		.maxcontacts = 40,
-+	},
- 	{ }
- };
- 
-@@ -366,18 +374,21 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		case HID_DG_WIDTH:
- 			hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_TOUCH_MAJOR);
--			set_abs(hi->input, ABS_MT_TOUCH_MAJOR, field,
--				cls->sn_width);
-+			if (!(cls->quirks & MT_QUIRK_NO_AREA))
-+				set_abs(hi->input, ABS_MT_TOUCH_MAJOR, field,
-+					cls->sn_width);
- 			mt_store_field(usage, td, hi);
- 			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_HEIGHT:
- 			hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_TOUCH_MINOR);
--			set_abs(hi->input, ABS_MT_TOUCH_MINOR, field,
--				cls->sn_height);
--			input_set_abs_params(hi->input,
-+			if (!(cls->quirks & MT_QUIRK_NO_AREA)) {
-+				set_abs(hi->input, ABS_MT_TOUCH_MINOR, field,
-+					cls->sn_height);
-+				input_set_abs_params(hi->input,
- 					ABS_MT_ORIENTATION, 0, 1, 0, 0);
-+			}
- 			mt_store_field(usage, td, hi);
- 			td->last_field_index = field->index;
- 			return 1;
-@@ -860,6 +871,11 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_ELO,
- 			USB_DEVICE_ID_ELO_TS2515) },
- 
-+	/* Flatfrog Panels */
-+	{ .driver_data = MT_CLS_FLATFROG,
-+		MT_USB_DEVICE(USB_VENDOR_ID_FLATFROG,
-+			USB_DEVICE_ID_MULTITOUCH_3200) },
-+
- 	/* GeneralTouch panel */
- 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
- 		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
--- 
-1.7.12
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
 
+iEYEARECAAYFAlBKXDgACgkQRO4fQQdv5AzkXACcC3upb94AXzpSfWp+bnVDsd0S
+oKkAoIGclBWWg1pWcPC+Ix8M6ojyWa+d
+=wQdN
+-----END PGP SIGNATURE-----
+
+--qDbXVdCdHGoSgWSk--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

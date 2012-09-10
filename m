@@ -1,168 +1,95 @@
-From: Przemo Firszt <przemo@firszt.eu>
-Subject: [PATCH] USB: input: wacom_sys.c: format OLED image in kernel
-Date: Sun,  9 Sep 2012 15:37:18 -0400
-Message-ID: <1347219438-2598-1-git-send-email-przemo@firszt.eu>
-Return-path: <linux-doc-owner@vger.kernel.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rob@landley.net, pinglinux@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org, Przemo Firszt <przemo@firszt.eu>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH] Input: synaptics - Adjust threshold for treating position values as negative
+Date: Mon, 10 Sep 2012 07:47:07 -0500
+Message-ID: <1347281227-20973-1-git-send-email-seth.forshee@canonical.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:58423 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757761Ab2IJMrM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Sep 2012 08:47:12 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>
 
-This patch adds a new way of handling Wacom Intuos4 family OLEDs.
-Previously the images had to be 'scrambled' by userland application. Now
-the 'scrambling' is done in the kernel module, so user space can send
-simple 64x32 pixels 4-bit grayscale (2 pixels per byte) 0,0 in top left corner
-images straight to a wacom OLED sysfs entry. An example:
+Commit c039450 (Input: synaptics - handle out of bounds values from the
+hardware) caused any hardware reported values over 7167 to be treated as
+a wrapped-around negative value. It turns out that some firmware uses
+the value 8176 to indicate a finger near the edge of the touchpad whose
+actual position cannot be determined. This value now gets treated as
+negative, which can cause pointer jumps and broken edge scrolling on
+these machines.
 
-dd bs=1024 if=image_file \
-of=/sys/bus/usb/drivers/wacom/[DevNo]/wacom_led/button[No]_formattedimg \
-count=1
+I only know of one touchpad which reports negative values, and this
+hardware never reports any value lower than -8 (i.e. 8184). Moving the
+threshold for treating a value as negative up to 8176 should work fine
+then for any hardware we currently know about, and since we're dealing
+with unspecified behavior it's probably the best we can do. The special
+8176 value is also likely to result in sudden jumps in position, so
+let's also clamp this to the maximum speicified value for the axis.
 
-This patch greatly simplifies user space preparation of the image.
-The raw image sysfs enties are still present to avoid breaking API.
-
-Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+BugLink: http://bugs.launchpad.net/bugs/1046512
+Cc: stable@vger.kernel.org
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 ---
- Documentation/ABI/testing/sysfs-driver-wacom |  7 ++++
- drivers/input/tablet/wacom_sys.c             | 60 +++++++++++++++++++++++++---
- 2 files changed, 62 insertions(+), 5 deletions(-)
+ drivers/input/mouse/synaptics.c |   31 +++++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 8 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-wacom b/Documentation/ABI/testing/sysfs-driver-wacom
-index 7fc7810..5b369a3 100644
---- a/Documentation/ABI/testing/sysfs-driver-wacom
-+++ b/Documentation/ABI/testing/sysfs-driver-wacom
-@@ -93,3 +93,10 @@ Description:
- 		byte chunk encodes the image data for two consecutive lines on
- 		the display. The low nibble of each byte contains the first
- 		line, and the high nibble contains the second line.
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/button<n>_formattedimg
-+Date:		September 2012
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		A plain format entry to wacom OLED icons. 1024 byte, 64x32 pixel 4-bit gray image,
-+		2 pixels per byte, 0,0 in top left corner.
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 0d3219f..19c668d 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -654,11 +654,30 @@ static int wacom_led_control(struct wacom *wacom)
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 14eaece..0786919 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -53,14 +53,19 @@
+ #define ABS_POS_BITS 13
  
- 	return retval;
+ /*
+- * Any position values from the hardware above the following limits are
+- * treated as "wrapped around negative" values that have been truncated to
+- * the 13-bit reporting range of the hardware. These are just reasonable
+- * guesses and can be adjusted if hardware is found that operates outside
+- * of these parameters.
++ * These values should represent the absolute maximum value that will
++ * be reported for a positive position value. Some Synaptics firmware
++ * uses this value to indicate a finger near the edge of the touchpad
++ * whose precise position cannot be determined.
++ *
++ * At least one touchpad is known to report positions in excess of this
++ * value which are actually negative values truncated to the 13-bit
++ * reporting range. These values have never been observed to be lower
++ * than 8184 (i.e. -8), so we treat all values greater than 8176 as
++ * negative and any other value as positive.
+  */
+-#define X_MAX_POSITIVE (((1 << ABS_POS_BITS) + XMAX) / 2)
+-#define Y_MAX_POSITIVE (((1 << ABS_POS_BITS) + YMAX) / 2)
++#define X_MAX_POSITIVE 8176
++#define Y_MAX_POSITIVE 8176
+ 
+ /*****************************************************************************
+  *	Stuff we need even when we do not want native Synaptics support
+@@ -604,11 +609,21 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+ 		hw->right = (buf[0] & 0x02) ? 1 : 0;
+ 	}
+ 
+-	/* Convert wrap-around values to negative */
++	/*
++	 * Convert wrap-around values to negative. (X|Y)_MAX_POSITIVE
++	 * is used by some firmware to indicate a finger at the edge of
++	 * the touchpad whose precise position cannot be determined, so
++	 * convert these values to the maximum axis value.
++	 */
+ 	if (hw->x > X_MAX_POSITIVE)
+ 		hw->x -= 1 << ABS_POS_BITS;
++	else if (hw->x == X_MAX_POSITIVE)
++		hw->x = XMAX;
++
+ 	if (hw->y > Y_MAX_POSITIVE)
+ 		hw->y -= 1 << ABS_POS_BITS;
++	else if (hw->y == Y_MAX_POSITIVE)
++		hw->y = YMAX;
+ 
+ 	return 0;
  }
-+static void wacom_scramble(__u8 *image)
-+{
-+	__u8 buf[1024];
-+	int x, y, i;
-+
-+	memcpy(buf, image , 1024);
-+
-+	for (y = 0; y < 16; y++) {
-+		for (x = 0; x < 32; x++) {
-+			i = (2 * x) + (64 * y);
-+			image[i] = (buf[63 - x + 64 * y] << 4) |
-+					 (0x0F & (buf[31 - x + 64 * y]));
-+			image[i + 1] = (0xF0 & buf[63 - x + 64 * y]) |
-+					 (buf[31 - x + 64 * y] >> 4);
-+		}
-+	}
-+}
- 
--static int wacom_led_putimage(struct wacom *wacom, int button_id, const void *img)
-+static int wacom_led_putimage(struct wacom *wacom, int button_id,
-+				 const void *img, int f)
- {
- 	unsigned char *buf;
- 	int i, retval;
-+	__u8 p[1024];
- 
- 	buf = kzalloc(259, GFP_KERNEL);
- 	if (!buf)
-@@ -672,11 +691,16 @@ static int wacom_led_putimage(struct wacom *wacom, int button_id, const void *im
- 	if (retval < 0)
- 		goto out;
- 
-+	memcpy(p, img , 1024);
-+
-+	if (f)
-+		wacom_scramble(p);
-+
- 	buf[0] = WAC_CMD_ICON_XFER;
- 	buf[1] = button_id & 0x07;
- 	for (i = 0; i < 4; i++) {
- 		buf[2] = i;
--		memcpy(buf + 3, img + i * 256, 256);
-+		memcpy(buf + 3, p + i * 256, 256);
- 
- 		retval = wacom_set_report(wacom->intf, 0x03, WAC_CMD_ICON_XFER,
- 					  buf, 259, WAC_CMD_RETRIES);
-@@ -772,7 +796,7 @@ DEVICE_LUMINANCE_ATTR(status1, hlv);
- DEVICE_LUMINANCE_ATTR(buttons, img_lum);
- 
- static ssize_t wacom_button_image_store(struct device *dev, int button_id,
--					const char *buf, size_t count)
-+					const char *buf, size_t count, int f)
- {
- 	struct wacom *wacom = dev_get_drvdata(dev);
- 	int err;
-@@ -782,7 +806,7 @@ static ssize_t wacom_button_image_store(struct device *dev, int button_id,
- 
- 	mutex_lock(&wacom->lock);
- 
--	err = wacom_led_putimage(wacom, button_id, buf);
-+	err = wacom_led_putimage(wacom, button_id, buf, f);
- 
- 	mutex_unlock(&wacom->lock);
- 
-@@ -793,7 +817,7 @@ static ssize_t wacom_button_image_store(struct device *dev, int button_id,
- static ssize_t wacom_btnimg##BUTTON_ID##_store(struct device *dev,	\
- 	struct device_attribute *attr, const char *buf, size_t count)	\
- {									\
--	return wacom_button_image_store(dev, BUTTON_ID, buf, count);	\
-+	return wacom_button_image_store(dev, BUTTON_ID, buf, count, 0);	\
- }									\
- static DEVICE_ATTR(button##BUTTON_ID##_rawimg, S_IWUSR,			\
- 		   NULL, wacom_btnimg##BUTTON_ID##_store)
-@@ -807,6 +831,24 @@ DEVICE_BTNIMG_ATTR(5);
- DEVICE_BTNIMG_ATTR(6);
- DEVICE_BTNIMG_ATTR(7);
- 
-+#define DEVICE_BTNIMG_FORMATTED_ATTR(BUTTON_ID)				\
-+static ssize_t wacom_btnimg##BUTTON_ID##_store_formatted(struct device *dev,\
-+	struct device_attribute *attr, const char *buf, size_t count)	\
-+{									\
-+	return wacom_button_image_store(dev, BUTTON_ID, buf, count, 1);	\
-+}									\
-+static DEVICE_ATTR(button##BUTTON_ID##_formattedimg, S_IWUSR,		\
-+		   NULL, wacom_btnimg##BUTTON_ID##_store_formatted)
-+
-+DEVICE_BTNIMG_FORMATTED_ATTR(0);
-+DEVICE_BTNIMG_FORMATTED_ATTR(1);
-+DEVICE_BTNIMG_FORMATTED_ATTR(2);
-+DEVICE_BTNIMG_FORMATTED_ATTR(3);
-+DEVICE_BTNIMG_FORMATTED_ATTR(4);
-+DEVICE_BTNIMG_FORMATTED_ATTR(5);
-+DEVICE_BTNIMG_FORMATTED_ATTR(6);
-+DEVICE_BTNIMG_FORMATTED_ATTR(7);
-+
- static struct attribute *cintiq_led_attrs[] = {
- 	&dev_attr_status_led0_select.attr,
- 	&dev_attr_status_led1_select.attr,
-@@ -831,6 +873,14 @@ static struct attribute *intuos4_led_attrs[] = {
- 	&dev_attr_button5_rawimg.attr,
- 	&dev_attr_button6_rawimg.attr,
- 	&dev_attr_button7_rawimg.attr,
-+	&dev_attr_button0_formattedimg.attr,
-+	&dev_attr_button1_formattedimg.attr,
-+	&dev_attr_button2_formattedimg.attr,
-+	&dev_attr_button3_formattedimg.attr,
-+	&dev_attr_button4_formattedimg.attr,
-+	&dev_attr_button5_formattedimg.attr,
-+	&dev_attr_button6_formattedimg.attr,
-+	&dev_attr_button7_formattedimg.attr,
- 	NULL
- };
- 
 -- 
-1.7.12
+1.7.9.5
 

@@ -1,42 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 16/20] HID: Only dump input if someone is listening
-Date: Mon, 10 Sep 2012 14:12:19 -0700
-Message-ID: <5556929.93aC5q4087@dtor-d630.eng.vmware.com>
-References: <1346528835-363-1-git-send-email-rydberg@euromail.se> <20120910190226.GA877@polaris.bitmath.org> <alpine.LNX.2.00.1209102248250.22683@pobox.suse.cz>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: [PATCH] Input: synaptics - Adjust threshold for treating
+ position values as negative
+Date: Mon, 10 Sep 2012 16:44:26 -0500
+Message-ID: <20120910214426.GG17662@thinkpad-t410>
+References: <1347281227-20973-1-git-send-email-seth.forshee@canonical.com>
+ <5697296.C0n5qnnV7e@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:42222 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751272Ab2IJVMY (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:32912 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756236Ab2IJVoa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Sep 2012 17:12:24 -0400
-In-Reply-To: <alpine.LNX.2.00.1209102248250.22683@pobox.suse.cz>
+	Mon, 10 Sep 2012 17:44:30 -0400
+Content-Disposition: inline
+In-Reply-To: <5697296.C0n5qnnV7e@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
 
-On Monday, September 10, 2012 10:49:13 PM Jiri Kosina wrote:
-> On Mon, 10 Sep 2012, Henrik Rydberg wrote:
-> > > how do you want to handle this? I am fine with all the HID changes. So
-> > > either I can take it through my tree and add your Sigoff to the Input
-> > > patches (if you are fine with those), or vice versa (or take this
-> > > through
-> > > git branches, i.e. you apply the Input bits, I fetch that branch, and
-> > > apply the rest on top of it).
+On Mon, Sep 10, 2012 at 02:10:13PM -0700, Dmitry Torokhov wrote:
+> On Monday, September 10, 2012 07:47:07 AM Seth Forshee wrote:
+> > Commit c039450 (Input: synaptics - handle out of bounds values from the
+> > hardware) caused any hardware reported values over 7167 to be treated as
+> > a wrapped-around negative value. It turns out that some firmware uses
+> > the value 8176 to indicate a finger near the edge of the touchpad whose
+> > actual position cannot be determined. This value now gets treated as
+> > negative, which can cause pointer jumps and broken edge scrolling on
+> > these machines.
 > > 
-> > I went ahead and pushed the (updated) branch to my for-next, to get
-> > some integration coverage. It is that time. Jiri, I added your
-> > Acked-by on the hid patches for now, hope that is alright.
+> > I only know of one touchpad which reports negative values, and this
+> > hardware never reports any value lower than -8 (i.e. 8184). Moving the
+> > threshold for treating a value as negative up to 8176 should work fine
+> > then for any hardware we currently know about, and since we're dealing
+> > with unspecified behavior it's probably the best we can do. The special
+> > 8176 value is also likely to result in sudden jumps in position, so
+> > let's also clamp this to the maximum speicified value for the axis.
 > 
-> Yes, it is, thanks Henrik.
+> It looks like there is another touchpad that got broken with that "out of 
+> bounds" change, see:
 > 
-> Dmitry, I can pull the whole lot into my tree once you Ack/Signoff the
-> input patches, if you wish.
+> https://bugzilla.kernel.org/show_bug.cgi?id=46371
 
-Yes, let me try to go through the patches tonight and I'll let yo know...
+Thanks for alerting me to the bug, I'll follow up on bugzilla.
 
--- 
-Dmitry
+Thanks,
+Seth
+

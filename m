@@ -1,95 +1,83 @@
 From: Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH] Input: synaptics - Adjust threshold for treating position values as negative
-Date: Mon, 10 Sep 2012 07:47:07 -0500
-Message-ID: <1347281227-20973-1-git-send-email-seth.forshee@canonical.com>
+Subject: Re: [PATCH] Input: synaptics - Adjust threshold for treating
+ position values as negative
+Date: Mon, 10 Sep 2012 09:29:10 -0500
+Message-ID: <20120910142910.GA17662@thinkpad-t410>
+References: <1347281227-20973-1-git-send-email-seth.forshee@canonical.com>
+ <CAGS+omA_bX6FEYP1CU7bD6_UUG3dkpyzbHu1iOQhRWpWpT2tuw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:58423 "EHLO
+Received: from youngberry.canonical.com ([91.189.89.112]:58997 "EHLO
 	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757761Ab2IJMrM (ORCPT
+	with ESMTP id S1751257Ab2IJO3O (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Sep 2012 08:47:12 -0400
+	Mon, 10 Sep 2012 10:29:14 -0400
+Content-Disposition: inline
+In-Reply-To: <CAGS+omA_bX6FEYP1CU7bD6_UUG3dkpyzbHu1iOQhRWpWpT2tuw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Commit c039450 (Input: synaptics - handle out of bounds values from the
-hardware) caused any hardware reported values over 7167 to be treated as
-a wrapped-around negative value. It turns out that some firmware uses
-the value 8176 to indicate a finger near the edge of the touchpad whose
-actual position cannot be determined. This value now gets treated as
-negative, which can cause pointer jumps and broken edge scrolling on
-these machines.
+On Mon, Sep 10, 2012 at 09:31:52PM +0800, Daniel Kurtz wrote:
+> On Mon, Sep 10, 2012 at 8:47 PM, Seth Forshee <seth.forshee@canonical.com>wrote:
+> 
+> > Commit c039450 (Input: synaptics - handle out of bounds values from the
+> > hardware) caused any hardware reported values over 7167 to be treated as
+> > a wrapped-around negative value. It turns out that some firmware uses
+> > the value 8176 to indicate a finger near the edge of the touchpad whose
+> > actual position cannot be determined. This value now gets treated as
+> > negative, which can cause pointer jumps and broken edge scrolling on
+> > these machines.
+> 
+> 
+> > I only know of one touchpad which reports negative values, and this
+> > hardware never reports any value lower than -8 (i.e. 8184). Moving the
+> > threshold for treating a value as negative up to 8176 should work fine
+> > then for any hardware we currently know about, and since we're dealing
+> > with unspecified behavior it's probably the best we can do. The special
+> > 8176 value is also likely to result in sudden jumps in position, so
+> > let's also clamp this to the maximum speicified value for the axis.
+> >
+> 
+> Would 8176 still be reported if it was near the X/Y_MIN edge but cannot be
+> determined?
 
-I only know of one touchpad which reports negative values, and this
-hardware never reports any value lower than -8 (i.e. 8184). Moving the
-threshold for treating a value as negative up to 8176 should work fine
-then for any hardware we currently know about, and since we're dealing
-with unspecified behavior it's probably the best we can do. The special
-8176 value is also likely to result in sudden jumps in position, so
-let's also clamp this to the maximum speicified value for the axis.
+I've been told 0 is reported in that case.
 
-BugLink: http://bugs.launchpad.net/bugs/1046512
-Cc: stable@vger.kernel.org
-Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
----
- drivers/input/mouse/synaptics.c |   31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+> If we just report MAX, will that warp the position all the way across the
+> pad?
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 14eaece..0786919 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -53,14 +53,19 @@
- #define ABS_POS_BITS 13
- 
- /*
-- * Any position values from the hardware above the following limits are
-- * treated as "wrapped around negative" values that have been truncated to
-- * the 13-bit reporting range of the hardware. These are just reasonable
-- * guesses and can be adjusted if hardware is found that operates outside
-- * of these parameters.
-+ * These values should represent the absolute maximum value that will
-+ * be reported for a positive position value. Some Synaptics firmware
-+ * uses this value to indicate a finger near the edge of the touchpad
-+ * whose precise position cannot be determined.
-+ *
-+ * At least one touchpad is known to report positions in excess of this
-+ * value which are actually negative values truncated to the 13-bit
-+ * reporting range. These values have never been observed to be lower
-+ * than 8184 (i.e. -8), so we treat all values greater than 8176 as
-+ * negative and any other value as positive.
-  */
--#define X_MAX_POSITIVE (((1 << ABS_POS_BITS) + XMAX) / 2)
--#define Y_MAX_POSITIVE (((1 << ABS_POS_BITS) + YMAX) / 2)
-+#define X_MAX_POSITIVE 8176
-+#define Y_MAX_POSITIVE 8176
- 
- /*****************************************************************************
-  *	Stuff we need even when we do not want native Synaptics support
-@@ -604,11 +609,21 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
- 		hw->right = (buf[0] & 0x02) ? 1 : 0;
- 	}
- 
--	/* Convert wrap-around values to negative */
-+	/*
-+	 * Convert wrap-around values to negative. (X|Y)_MAX_POSITIVE
-+	 * is used by some firmware to indicate a finger at the edge of
-+	 * the touchpad whose precise position cannot be determined, so
-+	 * convert these values to the maximum axis value.
-+	 */
- 	if (hw->x > X_MAX_POSITIVE)
- 		hw->x -= 1 << ABS_POS_BITS;
-+	else if (hw->x == X_MAX_POSITIVE)
-+		hw->x = XMAX;
-+
- 	if (hw->y > Y_MAX_POSITIVE)
- 		hw->y -= 1 << ABS_POS_BITS;
-+	else if (hw->y == Y_MAX_POSITIVE)
-+		hw->y = YMAX;
- 
- 	return 0;
- }
--- 
-1.7.9.5
+I don't follow. How would this have any impact on the other positions?
+
+The only place where I'd expect to see some sort of impact is
+immediately above or to the left of the location where the touchpad
+starts reporting this value. Reporting MAX seems more reasonable to me
+than reporting 8176, since the adjacent position is almost certainly
+nowhere near 8176. An argument could be made for using the bezel limits
+instead, which probably would be better for devices conforming to the
+published documentation, but then we know that some devices operate
+outside of these parameters.
+
+Or we could just go back to reporting 8176 directly, which is what we
+were doing before my previous patch.
+
+> If this behavior gets too bizarre, instead of making this "one size fits
+> all" solution, is it possible to use some quirks?  I recently added a patch
+> that reads the board_id for the synaptics pads - we could use this to
+> identify a particular type of pad and handle it appropriately.
+
+That could make sense for the touchpad that reports negative values, as
+this appears to be a problem isolated to one or a very small number of
+machines.
+
+But I've had reports of multiple machines reporting 8176, two of which
+I've confirmed and one of which is almost certainly the same issue.
+These are all Asus machines, but different models. There's also a report
+on an Acer machine that could be the same thing, but it's far less
+certain. The bug reports are coming from a 3.2-based kernel, so I don't
+have the board and firmware ids printed in dmesg.
+
+Seth
 

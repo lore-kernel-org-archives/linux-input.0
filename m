@@ -1,78 +1,83 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH 07/17] Input: omap-keypad: Remove dependencies to mach
- includes
-Date: Mon, 10 Sep 2012 23:16:53 -0700
-Message-ID: <20120911061652.GA23092@atomide.com>
-References: <20120911052934.29637.9190.stgit@muffinssi.local>
- <20120911053059.29637.22108.stgit@muffinssi.local>
- <20120911055709.GB17865@arwen.pp.htv.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20120911055709.GB17865@arwen.pp.htv.fi>
-Sender: linux-omap-owner@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Sourav Poddar <sourav.poddar@ti.com>
+From: Bo Shen <voice.shen@atmel.com>
+Subject: [PATCH v3] input: qt1070: Add device tree support
+Date: Tue, 11 Sep 2012 18:14:19 +0800
+Message-ID: <1347358459-11598-1-git-send-email-voice.shen@atmel.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:17891 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758464Ab2IKKUH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Sep 2012 06:20:07 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: shubhrajyoti@ti.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com, jm.lin@atmel.com, Bo Shen <voice.shen@atmel.com>
 
-* Felipe Balbi <balbi@ti.com> [120910 23:02]:
-> 
-> >  
-> > +#ifdef CONFIG_ARCH_OMAP1
-> > +#define omap_kp_24xx()		0
-> > +#else
-> > +#define omap_kp_24xx()		1
-> > +#endif
-> 
-> I would rather use revision detection or different driver names (if
-> revision register is broken).
+Add qt1070 device tree support
+Using device node to parse irq
 
-Hmm actually looks like we can actually remove all the omap2+
-support as we no longer have any users for this one. I think I
-already converted the last one to matrix-keypad a while back.
+Test this on at91sam9x5ek board
+
+Signed-off-by: Bo Shen <voice.shen@atmel.com>
+---
+change since v2
+  Using device node to parse irq,
+  Remove gpio relative stuff
+
+change since v1
+  Add gpio relative stuff, gpio_is_valid, gpio_request
+---
+ .../devicetree/bindings/input/atmel-qt1070.txt     |   16 ++++++++++++++++
+ drivers/input/keyboard/qt1070.c                    |    9 +++++++++
+ 2 files changed, 25 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/atmel-qt1070.txt
+
+diff --git a/Documentation/devicetree/bindings/input/atmel-qt1070.txt b/Documentation/devicetree/bindings/input/atmel-qt1070.txt
+new file mode 100644
+index 0000000..e1fc09e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/atmel-qt1070.txt
+@@ -0,0 +1,16 @@
++Atmel qt1070 keyboard interface
++
++Required Properties:
++- compatible: Should be "atmel,qt1070"
++- reg: I2C slave address
++- interrupt-parent: Depends on SoC
++- interrupts: The interrupt pin number to the cpu, and trigger mode.
++
++Example:
++
++	qt1070@1b {
++		compatible = "atmel,qt1070";
++		reg = <0x1b>;
++		interrupt-parent = <&pioA>;
++		interrupts = <7 0x0>;
++	};
+diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+index ca68f29..60457dc 100644
+--- a/drivers/input/keyboard/qt1070.c
++++ b/drivers/input/keyboard/qt1070.c
+@@ -249,10 +249,19 @@ static const struct i2c_device_id qt1070_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, qt1070_id);
  
-> > +static struct omap_kp *omap_kp;
-> 
-> please don't. This will prevent multiple instances of this driver. Even
-> though I don't think we will ever have an omap with multiple keypad
-> instances, it's still not a good practice IMHO.
-> 
-> Also, this ends up being "hidden" (if you have a better work let me
-> know) in most functions since they either pass omap_kp as argument or
-> define a local omap_kp variable.
++#ifdef CONFIG_OF
++static struct of_device_id atmel_qt1070_of_match[] = {
++	{ .compatible = "atmel,qt1070" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, atmel_qt1070_of_match);
++#endif
++
+ static struct i2c_driver qt1070_driver = {
+ 	.driver	= {
+ 		.name	= "qt1070",
+ 		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(atmel_qt1070_of_match),
+ 	},
+ 	.id_table	= qt1070_id,
+ 	.probe		= qt1070_probe,
+-- 
+1.7.9.5
 
-Yeah good point, I'll update that and remove the omap2+ support
-for this driver.
- 
-> Sourav, is the revision register on this IP working fine across multiple
-> OMAPs ?
-
-Sounds like no need for that, as we're no longer using this for
-omap2+..
- 
-> > @@ -253,9 +256,9 @@ static ssize_t omap_kp_enable_store(struct device *dev, struct device_attribute
-> >  	mutex_lock(&kp_enable_mutex);
-> >  	if (state != kp_enable) {
-> >  		if (state)
-> > -			enable_irq(INT_KEYBOARD);
-> > +			enable_irq(omap_kp->irq);
-> >  		else
-> > -			disable_irq(INT_KEYBOARD);
-> > +			disable_irq(omap_kp->irq);
-> 
-> GREAT!! :-)
-
-Heh yeah that nice way to do it :)
- 
-> >  static int __devinit omap_kp_probe(struct platform_device *pdev)
-> >  {
-> > -	struct omap_kp *omap_kp;
-> 
-> ???? I don't see the point for that global omap_kp, actually ...
-
-Yes you're right. Will send an updated one tomorrow.
-
-Regards,
-
-Tony

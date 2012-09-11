@@ -1,50 +1,153 @@
-From: Seth Forshee <seth.forshee@canonical.com>
-Subject: Re: [PATCH] Input: synaptics - Adjust threshold for treating
- position values as negative
-Date: Mon, 10 Sep 2012 16:44:26 -0500
-Message-ID: <20120910214426.GG17662@thinkpad-t410>
-References: <1347281227-20973-1-git-send-email-seth.forshee@canonical.com>
- <5697296.C0n5qnnV7e@dtor-d630.eng.vmware.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 07/17] Input: omap-keypad: Remove dependencies to mach
+ includes
+Date: Mon, 10 Sep 2012 22:30:59 -0700
+Message-ID: <20120911053059.29637.22108.stgit@muffinssi.local>
+References: <20120911052934.29637.9190.stgit@muffinssi.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:32912 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756236Ab2IJVoa (ORCPT
+Received: from mho-04-ewr.mailhop.org ([204.13.248.74]:13785 "EHLO
+	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753657Ab2IKFbA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Sep 2012 17:44:30 -0400
-Content-Disposition: inline
-In-Reply-To: <5697296.C0n5qnnV7e@dtor-d630.eng.vmware.com>
+	Tue, 11 Sep 2012 01:31:00 -0400
+In-Reply-To: <20120911052934.29637.9190.stgit@muffinssi.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
+To: linux-arm-kernel@lists.infradead.org
+Cc: linux-omap@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, Sep 10, 2012 at 02:10:13PM -0700, Dmitry Torokhov wrote:
-> On Monday, September 10, 2012 07:47:07 AM Seth Forshee wrote:
-> > Commit c039450 (Input: synaptics - handle out of bounds values from the
-> > hardware) caused any hardware reported values over 7167 to be treated as
-> > a wrapped-around negative value. It turns out that some firmware uses
-> > the value 8176 to indicate a finger near the edge of the touchpad whose
-> > actual position cannot be determined. This value now gets treated as
-> > negative, which can cause pointer jumps and broken edge scrolling on
-> > these machines.
-> > 
-> > I only know of one touchpad which reports negative values, and this
-> > hardware never reports any value lower than -8 (i.e. 8184). Moving the
-> > threshold for treating a value as negative up to 8176 should work fine
-> > then for any hardware we currently know about, and since we're dealing
-> > with unspecified behavior it's probably the best we can do. The special
-> > 8176 value is also likely to result in sudden jumps in position, so
-> > let's also clamp this to the maximum speicified value for the axis.
-> 
-> It looks like there is another touchpad that got broken with that "out of 
-> bounds" change, see:
-> 
-> https://bugzilla.kernel.org/show_bug.cgi?id=46371
+We can't build CONFIG_ARCH_OMAP1 set with ARCH_OMAP2PLUS because
+of different compiler flags needed, so we can define omap_kp_24xx()
+instead of using cpu_is_omap24xx(). This way we can remove
+depency to plat and mach headers which is needed for ARM common
+zImage support.
 
-Thanks for alerting me to the bug, I'll follow up on bugzilla.
+Also remove INT_KEYBOARD by using omap_kp->irq.
 
-Thanks,
-Seth
+Note that this patch depends on an earlier patch
+"ARM: OMAP: Move gpio.h to include/linux/platform_data".
+
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ drivers/input/keyboard/omap-keypad.c |   34 ++++++++++++++++++----------------
+ 1 file changed, 18 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
+index a0222db..171d739 100644
+--- a/drivers/input/keyboard/omap-keypad.c
++++ b/drivers/input/keyboard/omap-keypad.c
+@@ -35,16 +35,19 @@
+ #include <linux/mutex.h>
+ #include <linux/errno.h>
+ #include <linux/slab.h>
+-#include <asm/gpio.h>
++#include <linux/gpio.h>
++#include <linux/platform_data/gpio-omap.h>
+ #include <plat/keypad.h>
+-#include <plat/menelaus.h>
+-#include <asm/irq.h>
+-#include <mach/hardware.h>
+-#include <asm/io.h>
+-#include <plat/mux.h>
+ 
+ #undef NEW_BOARD_LEARNING_MODE
+ 
++#ifdef CONFIG_ARCH_OMAP1
++#define omap_kp_24xx()		0
++#else
++#define omap_kp_24xx()		1
++#endif
++
++static struct omap_kp *omap_kp;
+ static void omap_kp_tasklet(unsigned long);
+ static void omap_kp_timer(unsigned long);
+ 
+@@ -99,7 +102,7 @@ static irqreturn_t omap_kp_interrupt(int irq, void *dev_id)
+ 	struct omap_kp *omap_kp = dev_id;
+ 
+ 	/* disable keyboard interrupt and schedule for handling */
+-	if (cpu_is_omap24xx()) {
++	if (omap_kp_24xx()) {
+ 		int i;
+ 
+ 		for (i = 0; i < omap_kp->rows; i++) {
+@@ -134,7 +137,7 @@ static void omap_kp_scan_keypad(struct omap_kp *omap_kp, unsigned char *state)
+ 	int col = 0;
+ 
+ 	/* read the keypad status */
+-	if (cpu_is_omap24xx()) {
++	if (omap_kp_24xx()) {
+ 		/* read the keypad status */
+ 		for (col = 0; col < omap_kp->cols; col++) {
+ 			set_col_gpio_val(omap_kp, ~(1 << col));
+@@ -222,7 +225,7 @@ static void omap_kp_tasklet(unsigned long data)
+ 		mod_timer(&omap_kp_data->timer, jiffies + delay);
+ 	} else {
+ 		/* enable interrupts */
+-		if (cpu_is_omap24xx()) {
++		if (omap_kp_24xx()) {
+ 			int i;
+ 			for (i = 0; i < omap_kp_data->rows; i++)
+ 				enable_irq(gpio_to_irq(row_gpios[i]));
+@@ -253,9 +256,9 @@ static ssize_t omap_kp_enable_store(struct device *dev, struct device_attribute
+ 	mutex_lock(&kp_enable_mutex);
+ 	if (state != kp_enable) {
+ 		if (state)
+-			enable_irq(INT_KEYBOARD);
++			enable_irq(omap_kp->irq);
+ 		else
+-			disable_irq(INT_KEYBOARD);
++			disable_irq(omap_kp->irq);
+ 		kp_enable = state;
+ 	}
+ 	mutex_unlock(&kp_enable_mutex);
+@@ -286,7 +289,6 @@ static int omap_kp_resume(struct platform_device *dev)
+ 
+ static int __devinit omap_kp_probe(struct platform_device *pdev)
+ {
+-	struct omap_kp *omap_kp;
+ 	struct input_dev *input_dev;
+ 	struct omap_kp_platform_data *pdata =  pdev->dev.platform_data;
+ 	int i, col_idx, row_idx, irq_idx, ret;
+@@ -314,7 +316,7 @@ static int __devinit omap_kp_probe(struct platform_device *pdev)
+ 	omap_kp->input = input_dev;
+ 
+ 	/* Disable the interrupt for the MPUIO keyboard */
+-	if (!cpu_is_omap24xx())
++	if (!omap_kp_24xx())
+ 		omap_writew(1, OMAP1_MPUIO_BASE + OMAP_MPUIO_KBD_MASKIT);
+ 
+ 	if (pdata->delay)
+@@ -328,7 +330,7 @@ static int __devinit omap_kp_probe(struct platform_device *pdev)
+ 	omap_kp->rows = pdata->rows;
+ 	omap_kp->cols = pdata->cols;
+ 
+-	if (cpu_is_omap24xx()) {
++	if (omap_kp_24xx()) {
+ 		/* Cols: outputs */
+ 		for (col_idx = 0; col_idx < omap_kp->cols; col_idx++) {
+ 			if (gpio_request(col_gpios[col_idx], "omap_kp_col") < 0) {
+@@ -394,7 +396,7 @@ static int __devinit omap_kp_probe(struct platform_device *pdev)
+ 
+ 	/* scan current status and enable interrupt */
+ 	omap_kp_scan_keypad(omap_kp, keypad_state);
+-	if (!cpu_is_omap24xx()) {
++	if (!omap_kp_24xx()) {
+ 		omap_kp->irq = platform_get_irq(pdev, 0);
+ 		if (omap_kp->irq >= 0) {
+ 			if (request_irq(omap_kp->irq, omap_kp_interrupt, 0,
+@@ -439,7 +441,7 @@ static int __devexit omap_kp_remove(struct platform_device *pdev)
+ 
+ 	/* disable keypad interrupt handling */
+ 	tasklet_disable(&kp_tasklet);
+-	if (cpu_is_omap24xx()) {
++	if (omap_kp_24xx()) {
+ 		int i;
+ 		for (i = 0; i < omap_kp->cols; i++)
+ 			gpio_free(col_gpios[i]);
 

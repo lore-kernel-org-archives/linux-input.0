@@ -1,51 +1,38 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Subject: RE: [PATCH 2/2] HID: hid-sensor-hub: Fix sensor_hub_probe error
- handling
-Date: Thu, 13 Sep 2012 18:24:58 +0000
-Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A919D52336@ORSMSX108.amr.corp.intel.com>
-References: <1347500288.7434.1.camel@phoenix>
- <1347500387.7434.3.camel@phoenix>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v3 13/20] Input: bcm5974 - Drop pressure and width
+ emulation
+Date: Thu, 13 Sep 2012 20:41:44 +0200
+Message-ID: <20120913184144.GB3178@polaris.bitmath.org>
+References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
+ <1346528835-363-14-git-send-email-rydberg@euromail.se>
+ <20120913065723.GH17105@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([143.182.124.21]:42874 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750828Ab2IMSZA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Sep 2012 14:25:00 -0400
-In-Reply-To: <1347500387.7434.3.camel@phoenix>
-Content-Language: en-US
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:42242 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752333Ab2IMSe3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Sep 2012 14:34:29 -0400
+Content-Disposition: inline
+In-Reply-To: <20120913065723.GH17105@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-QWdyZWVkLiBJdCB3b3Jrcy4NCg0KVGhhbmtzLA0KU3Jpbml2YXMNCg0KLS0tLS1PcmlnaW5hbCBN
-ZXNzYWdlLS0tLS0NCkZyb206IEF4ZWwgTGluIFttYWlsdG86YXhlbC5saW5AZ21haWwuY29tXSAN
-ClNlbnQ6IFdlZG5lc2RheSwgU2VwdGVtYmVyIDEyLCAyMDEyIDY6NDAgUE0NClRvOiBKaXJpIEtv
-c2luYQ0KQ2M6IFBhbmRydXZhZGEsIFNyaW5pdmFzOyBKb25hdGhhbiBDYW1lcm9uOyBsaW51eC1p
-bnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNClN1Ympl
-Y3Q6IFtQQVRDSCAyLzJdIEhJRDogaGlkLXNlbnNvci1odWI6IEZpeCBzZW5zb3JfaHViX3Byb2Jl
-IGVycm9yIGhhbmRsaW5nDQoNCkZpeCBiZWxvdyBpc3N1ZXMgaW4gc2Vuc29yX2h1Yl9wcm9iZSBl
-cnJvciBoYW5kbGluZzoNCjEuIEluIHRoZSBjYXNlIG9mIGdvdG8gZXJyX2Nsb3NlLCBoaWRfaHdf
-c3RvcChoZGV2KSBpcyBjYWxsZWQgdHdpY2UuIEZpeCBpdC4NCjIuIElmIGZhaWxzIHRvIGFsbG9j
-YXRlIE1GRCBkZXZpY2UgbmFtZSwgd2UgYWxzbyBuZWVkIHRvIGZyZWUgYWxsDQogICBzdWNjZXNz
-ZnVsbHkgYWxsb2NhdGVkIG5hbWVzIGluIHByZXZpb3VzIGl0ZXJhdGlvbnMuDQoNClNpZ25lZC1v
-ZmYtYnk6IEF4ZWwgTGluIDxheGVsLmxpbkBnbWFpbC5jb20+DQotLS0NCiBkcml2ZXJzL2hpZC9o
-aWQtc2Vuc29yLWh1Yi5jIHwgICAgNCArLS0tDQogMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9u
-KCspLCAzIGRlbGV0aW9ucygtKQ0KDQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLXNlbnNv
-ci1odWIuYyBiL2RyaXZlcnMvaGlkL2hpZC1zZW5zb3ItaHViLmMgaW5kZXggNTBiYzhjNy4uOGJk
-NzYyMCAxMDA2NDQNCi0tLSBhL2RyaXZlcnMvaGlkL2hpZC1zZW5zb3ItaHViLmMNCisrKyBiL2Ry
-aXZlcnMvaGlkL2hpZC1zZW5zb3ItaHViLmMNCkBAIC01ODQsNyArNTg0LDcgQEAgc3RhdGljIGlu
-dCBzZW5zb3JfaHViX3Byb2JlKHN0cnVjdCBoaWRfZGV2aWNlICpoZGV2LA0KIAkJCQloaWRfZXJy
-KGhkZXYsDQogCQkJCQkiRmFpbGVkIE1GRCBkZXZpY2UgbmFtZVxuIik7DQogCQkJCQlyZXQgPSAt
-RU5PTUVNOw0KLQkJCQkJZ290byBlcnJfZnJlZV9jZWxsczsNCisJCQkJCWdvdG8gZXJyX2ZyZWVf
-bmFtZXM7DQogCQkJfQ0KIAkJCXNkLT5oaWRfc2Vuc29yX2h1Yl9jbGllbnRfZGV2c1sNCiAJCQkJ
-c2QtPmhpZF9zZW5zb3JfY2xpZW50X2NudF0ubmFtZSA9IG5hbWU7IEBAIC02MDgsMTAgKzYwOCw4
-IEBAIHN0YXRpYyBpbnQgc2Vuc29yX2h1Yl9wcm9iZShzdHJ1Y3QgaGlkX2RldmljZSAqaGRldiwN
-CiBlcnJfZnJlZV9uYW1lczoNCiAJZm9yIChpID0gMDsgaSA8IHNkLT5oaWRfc2Vuc29yX2NsaWVu
-dF9jbnQgOyArK2kpDQogCQlrZnJlZShzZC0+aGlkX3NlbnNvcl9odWJfY2xpZW50X2RldnNbaV0u
-bmFtZSk7DQotZXJyX2ZyZWVfY2VsbHM6DQogCWtmcmVlKHNkLT5oaWRfc2Vuc29yX2h1Yl9jbGll
-bnRfZGV2cyk7DQogZXJyX2Nsb3NlOg0KLQloaWRfaHdfc3RvcChoZGV2KTsNCiAJaGlkX2h3X2Ns
-b3NlKGhkZXYpOw0KIGVycl9zdG9wX2h3Og0KIAloaWRfaHdfc3RvcChoZGV2KTsNCi0tDQoxLjcu
-OS41DQoNCg0KDQo=
+On Wed, Sep 12, 2012 at 11:57:24PM -0700, Dmitry Torokhov wrote:
+> On Sat, Sep 01, 2012 at 09:47:08PM +0200, Henrik Rydberg wrote:
+> > The ABS_PRESSURE and ABS_WIDTH have special scales, and were initially
+> > added solely for thumb and palm recognition in the synaptics driver.
+> > This never really get used, however, and userspace quickly moved to
+> > MT solutions instead. This patch drops the unused events.
+> 
+> How can you know that? There could still be people using ST emulation
+> with this device. I think we should keep it.
+
+Alright, maybe we need to carry this still. Probability = macbook *
+old_userland * new_kernel * working_synaptics * tuned_palm_parameters,
+must be a pretty large number. ;-)
+
+Henrik

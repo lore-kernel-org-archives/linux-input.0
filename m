@@ -1,71 +1,51 @@
 From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Subject: RE: [PATCH 1/2] HID: hid-sensor-hub: Clear HID_CLAIMED_INPUT bit
- earlier
-Date: Thu, 13 Sep 2012 18:24:00 +0000
-Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A919D52325@ORSMSX108.amr.corp.intel.com>
+Subject: RE: [PATCH 2/2] HID: hid-sensor-hub: Fix sensor_hub_probe error
+ handling
+Date: Thu, 13 Sep 2012 18:24:58 +0000
+Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A919D52336@ORSMSX108.amr.corp.intel.com>
 References: <1347500288.7434.1.camel@phoenix>
- <CAF+7xW=1wJjDHeRSqBHNQuyOkuDrn0J1Eypg9BMAxA=Np5SwLg@mail.gmail.com>
+ <1347500387.7434.3.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAF+7xW=1wJjDHeRSqBHNQuyOkuDrn0J1Eypg9BMAxA=Np5SwLg@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga03.intel.com ([143.182.124.21]:42874 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750828Ab2IMSZA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Sep 2012 14:25:00 -0400
+In-Reply-To: <1347500387.7434.3.camel@phoenix>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "axel.lin@gmail.com" <axel.lin@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Axel Lin <axel.lin@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Axel,
-
-We don't need this anymore as when connect_mask is 0, the hid_connect will not be called.
-So we don't need hdev->claimed = HID_CLAIMED_INPUT anymore.
-
-Thanks for the review.
-
--Srinivas
-
------Original Message-----
-From: Axel Lin [mailto:axel.lin@gmail.com] 
-Sent: Thursday, September 13, 2012 6:25 AM
-To: Jiri Kosina
-Cc: Pandruvada, Srinivas; Jonathan Cameron; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] HID: hid-sensor-hub: Clear HID_CLAIMED_INPUT bit earlier
-
-2012/9/13 Axel Lin <axel.lin@gmail.com>:
-> Clear HID_CLAIMED_INPUT bit of hdev->claimed, this prevents calling
-> hidinput_disconnect() in hid_disconnect(), which is called by hid_hw_stop().
->
-> We need to clear HID_CLAIMED_INPUT bit earlier rather than in
-> sensor_hub_remove() because we also call hid_hw_stop() in 
-> sensor_hub_probe error handling.
->
-> Also adds comments for why we set hdev->claimed = HID_CLAIMED_INPUT.
->
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> ---
-> Hi srinivas,
-> I don't have this hardware, I'd appreciate if you can test these patches.
-> Axel
->
->  drivers/hid/hid-sensor-hub.c |    4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-sensor-hub.c 
-> b/drivers/hid/hid-sensor-hub.c index 4ac759c..50bc8c7 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -539,8 +539,11 @@ static int sensor_hub_probe(struct hid_device *hdev,
->         }
->         INIT_LIST_HEAD(&hdev->inputs);
->
-> +       /* We don't use hidinput but hid_hw_start() fails if nothing is
-> +        * claimed. So spoof claimed input. */
->         hdev->claimed = HID_CLAIMED_INPUT;
->         ret = hid_hw_start(hdev, 0);
-
-I check the implementation of hid_hw_start again, it looks hid_hw_start allows connect_mask to be 0.
-So we don't need setting  "hdev->claimed = HID_CLAIMED_INPUT;" here.
-Comments?
-
-Axel
+QWdyZWVkLiBJdCB3b3Jrcy4NCg0KVGhhbmtzLA0KU3Jpbml2YXMNCg0KLS0tLS1PcmlnaW5hbCBN
+ZXNzYWdlLS0tLS0NCkZyb206IEF4ZWwgTGluIFttYWlsdG86YXhlbC5saW5AZ21haWwuY29tXSAN
+ClNlbnQ6IFdlZG5lc2RheSwgU2VwdGVtYmVyIDEyLCAyMDEyIDY6NDAgUE0NClRvOiBKaXJpIEtv
+c2luYQ0KQ2M6IFBhbmRydXZhZGEsIFNyaW5pdmFzOyBKb25hdGhhbiBDYW1lcm9uOyBsaW51eC1p
+bnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNClN1Ympl
+Y3Q6IFtQQVRDSCAyLzJdIEhJRDogaGlkLXNlbnNvci1odWI6IEZpeCBzZW5zb3JfaHViX3Byb2Jl
+IGVycm9yIGhhbmRsaW5nDQoNCkZpeCBiZWxvdyBpc3N1ZXMgaW4gc2Vuc29yX2h1Yl9wcm9iZSBl
+cnJvciBoYW5kbGluZzoNCjEuIEluIHRoZSBjYXNlIG9mIGdvdG8gZXJyX2Nsb3NlLCBoaWRfaHdf
+c3RvcChoZGV2KSBpcyBjYWxsZWQgdHdpY2UuIEZpeCBpdC4NCjIuIElmIGZhaWxzIHRvIGFsbG9j
+YXRlIE1GRCBkZXZpY2UgbmFtZSwgd2UgYWxzbyBuZWVkIHRvIGZyZWUgYWxsDQogICBzdWNjZXNz
+ZnVsbHkgYWxsb2NhdGVkIG5hbWVzIGluIHByZXZpb3VzIGl0ZXJhdGlvbnMuDQoNClNpZ25lZC1v
+ZmYtYnk6IEF4ZWwgTGluIDxheGVsLmxpbkBnbWFpbC5jb20+DQotLS0NCiBkcml2ZXJzL2hpZC9o
+aWQtc2Vuc29yLWh1Yi5jIHwgICAgNCArLS0tDQogMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9u
+KCspLCAzIGRlbGV0aW9ucygtKQ0KDQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLXNlbnNv
+ci1odWIuYyBiL2RyaXZlcnMvaGlkL2hpZC1zZW5zb3ItaHViLmMgaW5kZXggNTBiYzhjNy4uOGJk
+NzYyMCAxMDA2NDQNCi0tLSBhL2RyaXZlcnMvaGlkL2hpZC1zZW5zb3ItaHViLmMNCisrKyBiL2Ry
+aXZlcnMvaGlkL2hpZC1zZW5zb3ItaHViLmMNCkBAIC01ODQsNyArNTg0LDcgQEAgc3RhdGljIGlu
+dCBzZW5zb3JfaHViX3Byb2JlKHN0cnVjdCBoaWRfZGV2aWNlICpoZGV2LA0KIAkJCQloaWRfZXJy
+KGhkZXYsDQogCQkJCQkiRmFpbGVkIE1GRCBkZXZpY2UgbmFtZVxuIik7DQogCQkJCQlyZXQgPSAt
+RU5PTUVNOw0KLQkJCQkJZ290byBlcnJfZnJlZV9jZWxsczsNCisJCQkJCWdvdG8gZXJyX2ZyZWVf
+bmFtZXM7DQogCQkJfQ0KIAkJCXNkLT5oaWRfc2Vuc29yX2h1Yl9jbGllbnRfZGV2c1sNCiAJCQkJ
+c2QtPmhpZF9zZW5zb3JfY2xpZW50X2NudF0ubmFtZSA9IG5hbWU7IEBAIC02MDgsMTAgKzYwOCw4
+IEBAIHN0YXRpYyBpbnQgc2Vuc29yX2h1Yl9wcm9iZShzdHJ1Y3QgaGlkX2RldmljZSAqaGRldiwN
+CiBlcnJfZnJlZV9uYW1lczoNCiAJZm9yIChpID0gMDsgaSA8IHNkLT5oaWRfc2Vuc29yX2NsaWVu
+dF9jbnQgOyArK2kpDQogCQlrZnJlZShzZC0+aGlkX3NlbnNvcl9odWJfY2xpZW50X2RldnNbaV0u
+bmFtZSk7DQotZXJyX2ZyZWVfY2VsbHM6DQogCWtmcmVlKHNkLT5oaWRfc2Vuc29yX2h1Yl9jbGll
+bnRfZGV2cyk7DQogZXJyX2Nsb3NlOg0KLQloaWRfaHdfc3RvcChoZGV2KTsNCiAJaGlkX2h3X2Ns
+b3NlKGhkZXYpOw0KIGVycl9zdG9wX2h3Og0KIAloaWRfaHdfc3RvcChoZGV2KTsNCi0tDQoxLjcu
+OS41DQoNCg0KDQo=

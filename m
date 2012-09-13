@@ -1,63 +1,222 @@
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: linux-next: Tree for Sept 12 (kernel-panic after pressing any
- key at X login)
-Date: Thu, 13 Sep 2012 22:24:42 +1000
-Message-ID: <20120913222442.a29eac00eb44b27dd1a86a1e@canb.auug.org.au>
-References: <CA+icZUVEQNPGL7_BbLA-urgP6rFvdOh0SUtYESUv6ZJc+w78Nw@mail.gmail.com>
-	<CA+icZUXqzV=YFjHT=5QxUf1_WHwS1-DhuXkhN8QAhn1t9+-PYA@mail.gmail.com>
-	<20120913060412.GB5085@bbox>
-	<CA+icZUUF=vTwSoNrs-+F08H7LAO0RUwztJ3M1_iyNR28TsrFMw@mail.gmail.com>
-	<20120913064909.GF17105@core.coreip.homeip.net>
-	<20120913070410.GA309@polaris.bitmath.org>
-	<CA+icZUVH7Nm6WDau+dSgf9kQGaE5-06tPEOpukSJPc2z7gjR=A@mail.gmail.com>
+From: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Subject: Re: [PATCH v3 4/5] IIO : ADC: tiadc: Add support of TI's ADC driver
+Date: Thu, 13 Sep 2012 14:51:19 +0200
+Message-ID: <5051D6C7.2010700@metafoo.de>
+References: <1347532819-505-1-git-send-email-rachna@ti.com> <1347532819-505-5-git-send-email-rachna@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA256";
- boundary="Signature=_Thu__13_Sep_2012_22_24_42_+1000_+3MJ.41Ud2SwDTD8"
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <CA+icZUVH7Nm6WDau+dSgf9kQGaE5-06tPEOpukSJPc2z7gjR=A@mail.gmail.com>
-Sender: linux-next-owner@vger.kernel.org
-To: sedat.dilek@gmail.com
-Cc: Henrik Rydberg <rydberg@bitmath.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Minchan Kim <minchan@kernel.org>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Ping Cheng <pingc@wacom.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1347532819-505-5-git-send-email-rachna-l0cyMroinI0@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
---Signature=_Thu__13_Sep_2012_22_24_42_+1000_+3MJ.41Ud2SwDTD8
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 09/13/2012 12:40 PM, Patil, Rachna wrote:
+> This patch adds support for TI's ADC driver.
+> This is a multifunctional device.
+> Analog input lines are provided on which
+> voltage measurements can be carried out.
+> You can have upto 8 input lines.
+> 
 
-Hi Sedat,
+Hi,
 
-On Thu, 13 Sep 2012 10:18:28 +0200 Sedat Dilek <sedat.dilek@gmail.com> wrot=
-e:
->
-> Stephen, can you apply this to today's linux-next (next-20120913), please?
+couple of minor issues inline.
 
-Sorry, it was just a little too late.
+> Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
+> ---
+> Changes in v2:
+> 	Addressed review comments from Matthias Kaehlcke
+> 
+> Changes in v3:
+> 	Addressed review comments from Jonathan Cameron.
+> 	Added comments, new line appropriately.
+> 
+>  drivers/iio/adc/Kconfig              |    7 +
+>  drivers/iio/adc/Makefile             |    1 +
+>  drivers/iio/adc/ti_adc.c             |  223 ++++++++++++++++++++++++++++++++++
+>  drivers/mfd/ti_tscadc.c              |   18 +++-
+>  include/linux/mfd/ti_tscadc.h        |    9 ++-
+>  include/linux/platform_data/ti_adc.h |   14 ++
+>  6 files changed, 270 insertions(+), 2 deletions(-)
+>  create mode 100644 drivers/iio/adc/ti_adc.c
+>  create mode 100644 include/linux/platform_data/ti_adc.h
+> 
+[...]
+> +
+> +struct adc_device {
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
+Not really an issue, but I'd use a consistent function/struct prefix.
+Currently you use both "adc" and "tiadc"
 
---Signature=_Thu__13_Sep_2012_22_24_42_+1000_+3MJ.41Ud2SwDTD8
-Content-Type: application/pgp-signature
+> +	struct ti_tscadc_dev *mfd_tscadc;
+> +	struct iio_dev *idev;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+idev is used only once in the remove callback. But you can get a pointer to
+it easily using platform_get_drvdata. So I'd remove it from the adc_device
+struct.
 
-iQIcBAEBCAAGBQJQUdCKAAoJEECxmPOUX5FE4OoP/Rbu8F2t5O/pZoM9fBZDR1p5
-KEvscXX/Q1hzzA6It8cN4/us2uQ3B5LQzg0ryHMgEwNxwz/glby9uN6/XFtTu7Xj
-WcHJMqycJpKzrWg7xps2SDYIwVtUBAsUVhN90VL6F2zy0FxlB7PzcDq19hu/Avqr
-nSCvEnS2anAWSrWoukE+Oi+qgmadadtPt7Z3FsiQ292sn+XHhM8/4T01zJ+5y6+V
-F2W+o8de1+IWbxJXN2kt/m9kk7LHZoay9TwgCnFLXw9AVDwWWPAuqUMR6Wgq8kbB
-npbrYimY3AxfP59COGoyLAsb6QoJeMC/PAaI8EFIMOpgq1cTlutg30NmA5D1cM2G
-TqyJ5RA9yZGKtS+H8CVO6GhbF3SGdK8/ZuKHcZwUSBQI21VI+7LlnnWbidyQKUKv
-BgvDE9Yn7d13WBn3QcVBJ5rGqdjlPj1WaRVCXRlDGyEXOwIELklqph1Jc1DZysvI
-Qpd6gHjA/qfNohlajixbfc/Xe0GKoKkgQOetDoICt9Vq+Qi+KHnU5Yxb+hag3dq4
-7CsLiMhZg5JSva433ulvgatYt833BP11UFt6K75jKksoWRLdvxLgu2lWgpTvzATV
-O43ZQbNhWIJDIseZk5sxb6rWW5klBoUvNAG8hmRWd2sbm4nH9jFwMsPP9ZJkdLay
-WTW6I4yJ9jWLHUxvctEc
-=873h
------END PGP SIGNATURE-----
+> +	int channels;
+> +};
+> +
+> +static unsigned int adc_readl(struct adc_device *adc, unsigned int reg)
+> +{
+> +	return readl(adc->mfd_tscadc->tscadc_base + reg);
+> +}
+> +
+> +static void adc_writel(struct adc_device *adc, unsigned int reg,
+> +					unsigned int val)
+> +{
+> +	writel(val, adc->mfd_tscadc->tscadc_base + reg);
+> +}
+> +
+> +static void adc_step_config(struct adc_device *adc_dev)
+> +{
+> +	unsigned int    stepconfig;
 
---Signature=_Thu__13_Sep_2012_22_24_42_+1000_+3MJ.41Ud2SwDTD8--
+extra whitespace
+
+> +	int i, channels = 0, steps;
+> +
+> +	/*
+> +	 * There are 16 configurable steps and 8 analog input
+> +	 * lines available which are shared between Touchscreen and ADC.
+> +	 *
+> +	 * Steps backwards i.e. from 16 towards 0 are used by ADC
+> +	 * depending on number of input lines needed.
+> +	 * Channel would represent which analog input
+> +	 * needs to be given to ADC to digitalize data.
+> +	 */
+> +
+> +	steps = TOTAL_STEPS - adc_dev->channels;
+> +	channels = TOTAL_CHANNELS - adc_dev->channels;
+> +
+> +	stepconfig = STEPCONFIG_AVG_16 | STEPCONFIG_FIFO1;
+> +
+> +	for (i = (steps + 1); i <= TOTAL_STEPS; i++) {
+> +		adc_writel(adc_dev, REG_STEPCONFIG(i),
+> +				stepconfig | STEPCONFIG_INP(channels));
+> +		adc_writel(adc_dev, REG_STEPDELAY(i),
+> +				STEPCONFIG_OPENDLY);
+> +		channels++;
+> +	}
+> +	adc_writel(adc_dev, REG_SE, STPENB_STEPENB);
+> +}
+> +
+> [...]
+> +
+> +static const struct iio_info tiadc_info = {
+> +	.read_raw = &tiadc_read_raw,
+
+    .driver_module = THIS_MODULE,
+
+> +};
+> +
+> +static int __devinit tiadc_probe(struct platform_device *pdev)
+> +{
+> +	struct iio_dev		*idev;
+
+For consistency with other drivers please rename idev to indio_dev
+throughout the driver.
+
+> +	int			err;
+> +	struct adc_device	*adc_dev;
+> +	struct ti_tscadc_dev	*tscadc_dev = pdev->dev.platform_data;
+> +	struct mfd_tscadc_board	*pdata;
+> +
+> +	pdata = (struct mfd_tscadc_board *)tscadc_dev->dev->platform_data;
+
+The cast should not be necessary.
+
+> +	if (!pdata || !pdata->adc_init) {
+> +		dev_err(tscadc_dev->dev, "Could not find platform data\n");
+
+I'd still use pdev->dev for the device parameter here. Seeing a message
+printed by this driver for another device might be confusing.
+
+> +		return -EINVAL;
+> +	}
+> +
+> +	idev = iio_device_alloc(sizeof(struct adc_device));
+> +	if (idev == NULL) {
+> +		dev_err(&pdev->dev, "failed to allocate iio device.\n");
+> +		err = -ENOMEM;
+> +		goto err_ret;
+> +	}
+> +	adc_dev = iio_priv(idev);
+> +
+> +	tscadc_dev->adc = adc_dev;
+
+This there any reason why you need to store a pointer to the adc struct in
+the mfd struct? Is it going to be used outside of the adc driver? Currently
+it is, as far as I can see, only used in the remove callback and
+suspend/resume handlers. But there you can use iio_priv just as easily to
+get the pointer to the adc device struct and it certainly will be also be
+cleaner to do it that way.
+
+> +	adc_dev->mfd_tscadc = tscadc_dev;
+> +	adc_dev->idev = idev;
+> +	adc_dev->channels = pdata->adc_init->adc_channels;
+> +
+> +	idev->dev.parent = &pdev->dev;
+> +	idev->name = dev_name(&pdev->dev);
+> +	idev->modes = INDIO_DIRECT_MODE;
+> +	idev->info = &tiadc_info;
+> +
+> +	adc_step_config(adc_dev);
+> +
+> +	err = tiadc_channel_init(idev, adc_dev->channels);
+> +	if (err < 0)
+> +		goto err_free_device;
+> +
+> +	err = iio_device_register(idev);
+> +	if (err)
+> +		goto err_free_channels;
+> +
+> +	dev_info(&pdev->dev, "attached adc driver\n");
+
+I'd remove that line, it's just noise.
+
+> +	platform_set_drvdata(pdev, idev);
+> +
+> +	return 0;
+> +
+> +err_free_channels:
+> +	tiadc_channels_remove(idev);
+> +err_free_device:
+> +	iio_device_free(idev);
+> +err_ret:
+> +	return err;
+> +}
+> +
+
+[...]
+> diff --git a/include/linux/platform_data/ti_adc.h b/include/linux/platform_data/ti_adc.h
+> new file mode 100644
+> index 0000000..5a89f1d
+> --- /dev/null
+> +++ b/include/linux/platform_data/ti_adc.h
+> @@ -0,0 +1,14 @@
+> +#ifndef __LINUX_TI_ADC_H
+> +#define __LINUX_TI_ADC_H
+> +
+> +/**
+> + * struct adc_data	ADC Input information
+> + * @adc_channels:	Number of analog inputs
+> + *			available for ADC.
+> + */
+> +
+> +struct adc_data {
+
+The struct name might be a bit to generic.
+
+> +	int adc_channels;
+
+It does not really matter, but considering that there hardly ever going to
+be a negative number of channels I'd make this unsigned.
+
+> +};
+> +
+> +#endif

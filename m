@@ -1,204 +1,30 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [RFC 3/3] input: evdev: use dynamic-minors if running out of static minors
-Date: Thu, 13 Sep 2012 21:19:52 +0200
-Message-ID: <1347563992-27980-4-git-send-email-dh.herrmann@googlemail.com>
-References: <1347563992-27980-1-git-send-email-dh.herrmann@googlemail.com>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: Re: [PATCH 1/2] HID: hid-sensor-hub: Clear HID_CLAIMED_INPUT bit earlier
+Date: Fri, 14 Sep 2012 06:01:56 +0800
+Message-ID: <CAF+7xWnUkj4BiKzF_izq=4ki2YAW7Wn4frwERLvVRhROYBnpRQ@mail.gmail.com>
+References: <1347500288.7434.1.camel@phoenix> <CAF+7xW=1wJjDHeRSqBHNQuyOkuDrn0J1Eypg9BMAxA=Np5SwLg@mail.gmail.com>
+ <4FA419E87744DF4DAECD5BCE1214B7A919D52325@ORSMSX108.amr.corp.intel.com>
+Reply-To: axel.lin@gmail.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:62452 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751224Ab2IMTZ7 (ORCPT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:46235 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758832Ab2IMWCR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Sep 2012 15:25:59 -0400
-Received: by weyx8 with SMTP id x8so1907544wey.19
-        for <linux-input@vger.kernel.org>; Thu, 13 Sep 2012 12:25:58 -0700 (PDT)
-In-Reply-To: <1347563992-27980-1-git-send-email-dh.herrmann@googlemail.com>
+	Thu, 13 Sep 2012 18:02:17 -0400
+In-Reply-To: <4FA419E87744DF4DAECD5BCE1214B7A919D52325@ORSMSX108.amr.corp.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@googlemail.com>
+To: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-When 32 devices were registered and we are running out of minor numbers,
-then use the new dynamic-minor infrastructure to get more minor numbers.
+2012/9/14 Pandruvada, Srinivas <srinivas.pandruvada@intel.com>:
+> Hi Axel,
+>
+> We don't need this anymore as when connect_mask is 0, the hid_connect will not be called.
+> So we don't need hdev->claimed = HID_CLAIMED_INPUT anymore.
+>
 
-This is fully backwards compatible, except devices with dynamic minors
-might not be visible to old userspace programs. However, without this
-patch these devices aren't visible, either, so this is no problem at all.
-
-Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
----
- drivers/input/evdev.c | 95 ++++++++++++++++++++++++++++-----------------------
- 1 file changed, 53 insertions(+), 42 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 6c58bff..d03ab5c 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -12,6 +12,7 @@
- 
- #define EVDEV_MINOR_BASE	64
- #define EVDEV_MINORS		32
-+#define EVDEV_MINOR_MAX		(EVDEV_MINOR_BASE + EVDEV_MINORS - 1)
- #define EVDEV_MIN_BUFFER_SIZE	64U
- #define EVDEV_BUF_PACKETS	8
- 
-@@ -53,6 +54,7 @@ struct evdev_client {
- 
- static struct evdev *evdev_table[EVDEV_MINORS];
- static DEFINE_MUTEX(evdev_table_mutex);
-+static struct input_handler evdev_handler;
- 
- static void evdev_pass_event(struct evdev_client *client,
- 			     struct input_event *event,
-@@ -287,23 +289,30 @@ static int evdev_open(struct inode *inode, struct file *file)
- {
- 	struct evdev *evdev;
- 	struct evdev_client *client;
--	int i = iminor(inode) - EVDEV_MINOR_BASE;
-+	int i, minor = iminor(inode);
- 	unsigned int bufsize;
- 	int error;
-+	struct input_handler *handler;
- 
--	if (i >= EVDEV_MINORS)
--		return -ENODEV;
--
--	error = mutex_lock_interruptible(&evdev_table_mutex);
--	if (error)
--		return error;
--	evdev = evdev_table[i];
--	if (evdev)
-+	i = minor - EVDEV_MINOR_BASE;
-+	if (i >= EVDEV_MINORS) {
-+		evdev = input_minor_get_data(minor);
-+		handler = input_minor_get_handler(minor);
-+		if (handler != &evdev_handler)
-+			return -ENODEV;
- 		get_device(&evdev->dev);
--	mutex_unlock(&evdev_table_mutex);
--
--	if (!evdev)
--		return -ENODEV;
-+	} else {
-+		error = mutex_lock_interruptible(&evdev_table_mutex);
-+		if (error)
-+			return error;
-+		evdev = evdev_table[i];
-+		if (evdev)
-+			get_device(&evdev->dev);
-+		mutex_unlock(&evdev_table_mutex);
-+
-+		if (!evdev)
-+			return -ENODEV;
-+	}
- 
- 	bufsize = evdev_compute_buffer_size(evdev->handle.dev);
- 
-@@ -915,24 +924,18 @@ static const struct file_operations evdev_fops = {
- 	.llseek		= no_llseek,
- };
- 
--static int evdev_install_chrdev(struct evdev *evdev)
--{
--	/*
--	 * No need to do any locking here as calls to connect and
--	 * disconnect are serialized by the input core
--	 */
--	evdev_table[evdev->minor] = evdev;
--	return 0;
--}
--
- static void evdev_remove_chrdev(struct evdev *evdev)
- {
- 	/*
- 	 * Lock evdev table to prevent race with evdev_open()
- 	 */
--	mutex_lock(&evdev_table_mutex);
--	evdev_table[evdev->minor] = NULL;
--	mutex_unlock(&evdev_table_mutex);
-+	if (evdev->minor > EVDEV_MINOR_MAX) {
-+		input_minor_free(evdev->minor);
-+	} else {
-+		mutex_lock(&evdev_table_mutex);
-+		evdev_table[evdev->minor] = NULL;
-+		mutex_unlock(&evdev_table_mutex);
-+	}
- }
- 
- /*
-@@ -973,19 +976,33 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
- 	int minor;
- 	int error;
- 
--	for (minor = 0; minor < EVDEV_MINORS; minor++)
--		if (!evdev_table[minor])
-+	evdev = kzalloc(sizeof(struct evdev), GFP_KERNEL);
-+	if (!evdev)
-+		return -ENOMEM;
-+
-+	/*
-+	 * No need to do any locking here as calls to connect and
-+	 * disconnect are serialized by the input core
-+	 */
-+	for (minor = 0; minor < EVDEV_MINORS; minor++) {
-+		if (!evdev_table[minor]) {
-+			evdev_table[minor] = evdev;
-+			evdev->dev.devt = MKDEV(INPUT_MAJOR,
-+						EVDEV_MINOR_BASE + minor);
- 			break;
-+		}
-+	}
- 
- 	if (minor == EVDEV_MINORS) {
--		pr_err("no more free evdev devices\n");
--		return -ENFILE;
-+		minor = input_minor_alloc(handler, evdev);
-+		if (minor < 0) {
-+			pr_err("no more free evdev devices\n");
-+			kfree(evdev);
-+			return -ENFILE;
-+		}
-+		evdev->dev.devt = MKDEV(INPUT_MAJOR, minor);
- 	}
- 
--	evdev = kzalloc(sizeof(struct evdev), GFP_KERNEL);
--	if (!evdev)
--		return -ENOMEM;
--
- 	INIT_LIST_HEAD(&evdev->client_list);
- 	spin_lock_init(&evdev->client_lock);
- 	mutex_init(&evdev->mutex);
-@@ -1000,7 +1017,6 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
- 	evdev->handle.handler = handler;
- 	evdev->handle.private = evdev;
- 
--	evdev->dev.devt = MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + minor);
- 	evdev->dev.class = &input_class;
- 	evdev->dev.parent = &dev->dev;
- 	evdev->dev.release = evdev_free;
-@@ -1010,21 +1026,16 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
- 	if (error)
- 		goto err_free_evdev;
- 
--	error = evdev_install_chrdev(evdev);
--	if (error)
--		goto err_unregister_handle;
--
- 	error = device_add(&evdev->dev);
- 	if (error)
--		goto err_cleanup_evdev;
-+		goto err_unregister_handle;
- 
- 	return 0;
- 
-- err_cleanup_evdev:
--	evdev_cleanup(evdev);
-  err_unregister_handle:
- 	input_unregister_handle(&evdev->handle);
-  err_free_evdev:
-+	evdev_cleanup(evdev);
- 	put_device(&evdev->dev);
- 	return error;
- }
--- 
-1.7.12
-
+Okay. I'm going to resend the patch for this serial.
+Axel

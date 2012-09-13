@@ -1,108 +1,100 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: linux-next: Tree for Sept 12 (kernel-panic after pressing any
- key at X login)
-Date: Wed, 12 Sep 2012 23:49:09 -0700
-Message-ID: <20120913064909.GF17105@core.coreip.homeip.net>
-References: <CA+icZUVEQNPGL7_BbLA-urgP6rFvdOh0SUtYESUv6ZJc+w78Nw@mail.gmail.com>
- <CA+icZUXqzV=YFjHT=5QxUf1_WHwS1-DhuXkhN8QAhn1t9+-PYA@mail.gmail.com>
- <20120913060412.GB5085@bbox>
- <CA+icZUUF=vTwSoNrs-+F08H7LAO0RUwztJ3M1_iyNR28TsrFMw@mail.gmail.com>
+Subject: Re: [PATCH v3 05/20] Input: Send events one packet at a time
+Date: Wed, 12 Sep 2012 23:56:13 -0700
+Message-ID: <20120913065613.GG17105@core.coreip.homeip.net>
+References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
+ <1346528835-363-6-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:62135 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:46700 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753096Ab2IMGtO (ORCPT
+	with ESMTP id S1751026Ab2IMG4S (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Sep 2012 02:49:14 -0400
+	Thu, 13 Sep 2012 02:56:18 -0400
 Content-Disposition: inline
-In-Reply-To: <CA+icZUUF=vTwSoNrs-+F08H7LAO0RUwztJ3M1_iyNR28TsrFMw@mail.gmail.com>
+In-Reply-To: <1346528835-363-6-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sedat Dilek <sedat.dilek@gmail.com>
-Cc: Minchan Kim <minchan@kernel.org>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Daniel Kurtz <djkurtz@chromium.org>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Ping Cheng <pingc@wacom.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Sep 13, 2012 at 08:36:36AM +0200, Sedat Dilek wrote:
-> On Thu, Sep 13, 2012 at 8:04 AM, Minchan Kim <minchan@kernel.org> wrote:
-> > On Thu, Sep 13, 2012 at 07:29:32AM +0200, Sedat Dilek wrote:
-> >> On Thu, Sep 13, 2012 at 5:18 AM, Sedat Dilek <sedat.dilek@gmail.com> wrote:
-> >> > On Wed, Sep 12, 2012 at 10:46 AM, Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> >> >> Hi all,
-> >> >>
-> >> >> Changes since 201209011:
-> >> >>
-> >> >> The pci tree lost its build failure.
-> >> >>
-> >> >> The mfd tree gained a conflict against Linus' tree.
-> >> >>
-> >> >> The omap_dss2 tree lost its conflict.
-> >> >>
-> >> >> The trivial tree gained a conflict against the mfd tree.
-> >> >>
-> >> >> The kvm tree gained a conflict against Linus' tree.
-> >> >>
-> >> >> The workqueues tree gained a conflict against the omap_dss2 tree.
-> >> >>
-> >> >> The usb tree gained conflicts against the usb.current tree.
-> >> >>
-> >> >> The staging tree gained a conflict against the thermal tree and a build
-> >> >> failure for which I applied a merge fix patch.
-> >> >>
-> >> >> The tegra tree gained conflicts against the usb and arm-perf trees.
-> >> >>
-> >> >> ----------------------------------------------------------------------------
-> >> >>
-> >> >
-> >> > Hi,
-> >> >
-> >> > this weeks linux-next seems to bring new and new issues, yay :-)!
-> >> >
-> >> > I have taken a photo, but can't say what can have caused.
-> >> > The issue is reproducible...
-> >> > Immediately, after pressing any key (when X-display-manager (lightdm)
-> >> > and X-greeter are up) my machine panics and is no more usable (cold
-> >> > rough brutal killer restart).
-> >> > Note: Using upstart or systemd does not matter.
-> >> >
-> >> > Any pointer to an area where to dig into or any feedback in general is welcome!
-> >> >
-> >> > Kind Regards,
-> >> > - Sedat -
-> >>
-> >> [ CC Dmitry Torokhov (linux-input maintainer) plus linux-input ML ]
-> >>
-> >> By looking at my screenshot, someone could imagine that there is a
-> >> problem coming from the input GIT branch(es) merges:
-> >>
-> >> input_to_handler()
-> >> input_pass_values()
-> >> input_handle_event()
-> >> input_event()
-> >>
-> >> Unfortunately, with those 3 revert-patches I see the same kernel-panic.
-> >>
-> >> Dimitry, any idea what can cause this kernel-panic?
-> >
-> > Today, I met similar problem in mmotm-2012-09-12-17-36 on my KVM.
-> > It's hard to reproduce in my mahcine but I confirmed following as
-> > Hoping it helps you.
-> >
+On Sat, Sep 01, 2012 at 09:47:00PM +0200, Henrik Rydberg wrote:
+> On heavy event loads, such as a multitouch driver, the irqsoff latency
+> can be as high as 250 us.  By accumulating a frame worth of data
+> before passing it on, the latency can be dramatically reduced.  As a
+> side effect, the special EV_SYN handling can be removed, since the
+> frame is now atomic.
 > 
-> [ CC more input developers/testers ]
+> This patch adds the events() handler callback and uses it if it
+> exists. The latency is improved by 50 us even without the callback.
 > 
-> Hi Minchan,
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+>  drivers/input/input.c | 176 +++++++++++++++++++++++++++++++++++---------------
+>  include/linux/input.h |  24 ++++++-
+>  2 files changed, 144 insertions(+), 56 deletions(-)
 > 
-> Hey, cool. Thanks for the pointer in the source-code and the call-trace!
-> I had reverted [1], but anyway input folks should look at this.
-> 
-> Kind Regards,
-> - Sedat -
-> 
-> [1] http://git.kernel.org/?p=linux/kernel/git/next/linux-next.git;a=commitdiff;h=b276fc1e875a51e4a9dc3322ed008bf4ae481baf
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index a57c4a5..5b66b2f 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -47,6 +47,8 @@ static DEFINE_MUTEX(input_mutex);
+>  
+>  static struct input_handler *input_table[8];
+>  
+> +static const struct input_value input_value_sync = { EV_SYN, SYN_REPORT, 1 };
+> +
+>  static inline int is_event_supported(unsigned int code,
+>  				     unsigned long *bm, unsigned int max)
+>  {
+> @@ -90,46 +92,81 @@ static void input_stop_autorepeat(struct input_dev *dev)
+>   * filtered out, through all open handles. This function is called with
+>   * dev->event_lock held and interrupts disabled.
+>   */
+> -static void input_pass_event(struct input_dev *dev,
+> -			     unsigned int type, unsigned int code, int value)
+> +static unsigned int input_to_handler(struct input_handle *handle,
+> +			struct input_value *vals, unsigned int count)
+>  {
+> -	struct input_handler *handler;
+> -	struct input_handle *handle;
+> +	struct input_handler *handler = handle->handler;
+> +	struct input_value *end = vals;
+> +	struct input_value *v;
+>  
+> -	rcu_read_lock();
+> +	for (v = vals; v != vals + count; v++) {
+> +		if (handler->filter &&
+> +		    handler->filter(handle, v->type, v->code, v->value))
+> +			continue;
+> +		if (end != v)
+> +			*end = *v;
+> +		end++;
+> +	}
+>  
+> -	handle = rcu_dereference(dev->grab);
+> -	if (handle)
+> -		handle->handler->event(handle, type, code, value);
+> -	else {
+> -		bool filtered = false;
+> +	count = end - vals;
+> +	if (!count)
+> +		return 0;
+>  
+> -		list_for_each_entry_rcu(handle, &dev->h_list, d_node) {
+> -			if (!handle->open)
+> -				continue;
+> +	if (handler->events)
+> +		handler->events(handle, vals, count);
+> +	else
+> +		for (v = vals; v != end; v++)
+> +			handler->event(handle, v->type, v->code, v->value);
 
-Henrik,
+Filter handlers do not typically have ->event() methods, that's the
+reason for reported panic.
 
-It looks like your changes are causing the panic.
+Thanks.
 
 -- 
 Dmitry

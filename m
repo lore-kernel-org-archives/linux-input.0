@@ -1,94 +1,67 @@
-From: Sedat Dilek <sedat.dilek@gmail.com>
-Subject: Re: linux-next: Tree for Sept 12 (kernel-panic after pressing any key
- at X login)
-Date: Thu, 13 Sep 2012 10:18:28 +0200
-Message-ID: <CA+icZUVH7Nm6WDau+dSgf9kQGaE5-06tPEOpukSJPc2z7gjR=A@mail.gmail.com>
-References: <CA+icZUVEQNPGL7_BbLA-urgP6rFvdOh0SUtYESUv6ZJc+w78Nw@mail.gmail.com>
-	<CA+icZUXqzV=YFjHT=5QxUf1_WHwS1-DhuXkhN8QAhn1t9+-PYA@mail.gmail.com>
-	<20120913060412.GB5085@bbox>
-	<CA+icZUUF=vTwSoNrs-+F08H7LAO0RUwztJ3M1_iyNR28TsrFMw@mail.gmail.com>
-	<20120913064909.GF17105@core.coreip.homeip.net>
-	<20120913070410.GA309@polaris.bitmath.org>
-Reply-To: sedat.dilek@gmail.com
+From: Alan Jenkins <alan.christopher.jenkins-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: issues with unknown/new alias
+Date: Thu, 13 Sep 2012 09:27:17 +0100
+Message-ID: <505198E5.6000101@gmail.com>
+References: <50518A75.4030608@codemercs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <20120913070410.GA309@polaris.bitmath.org>
-Sender: linux-next-owner@vger.kernel.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>, Henrik Rydberg <rydberg@bitmath.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Minchan Kim <minchan@kernel.org>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Ping Cheng <pingc@wacom.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-modules-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <50518A75.4030608-xuEmVypu8QqakBO8gow8eQ@public.gmane.org>
+Sender: linux-modules-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Christoph Jung <jung-xuEmVypu8QqakBO8gow8eQ@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-modules-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Sep 13, 2012 at 9:04 AM, Henrik Rydberg <rydberg@bitmath.se> wrote:
->> > >> > this weeks linux-next seems to bring new and new issues, yay :-)!
->> > >> >
->> > >> > I have taken a photo, but can't say what can have caused.
->> > >> > The issue is reproducible...
->> > >> > Immediately, after pressing any key (when X-display-manager (lightdm)
->> > >> > and X-greeter are up) my machine panics and is no more usable (cold
->> > >> > rough brutal killer restart).
->> > >> > Note: Using upstart or systemd does not matter.
->> > >> >
->> > >> > Any pointer to an area where to dig into or any feedback in general is welcome!
->> > >> >
->> > >> > Kind Regards,
->> > >> > - Sedat -
->> >
->> > Hey, cool. Thanks for the pointer in the source-code and the call-trace!
->> > I had reverted [1], but anyway input folks should look at this.
->> >
->> > Kind Regards,
->> > - Sedat -
->> >
->> > [1] http://git.kernel.org/?p=linux/kernel/git/next/linux-next.git;a=commitdiff;h=b276fc1e875a51e4a9dc3322ed008bf4ae481baf
->>
->> Henrik,
->>
->> It looks like your changes are causing the panic.
+On 13/09/12 08:25, Christoph Jung wrote:
+> Hello,
 >
-> Indeed, I have pushed the fix below to next already. Thanks for Sedat,
-> and sorry for not catching this earlier. :-(
+> I am from the company "Code Mercenaries GmbH" from Germany. We have 
+> some USB HID devices wich work with Linux.
+> Since kernel version 2.6 our default products will be included in the 
+> kernel.
 >
+> Devicedetails
+> VendorID: 0x07C0
+> ProductIDs: 0x1500, 0x1501, 0x1511, 0x1512, 0x1503
+> Devicename: iowarrior
+>
+> Now we have some new custom product IDs but this two new devices get 
+> no node in dev/usb/ , but I can find the with "lsusb".
+> If I run "modinfo iowarrior" there will be 5 alias (with the default 
+> pIDs) .
+>
+> The two new pIDs are: 0x158A, 0x158B
+>
+> I have not much experiance with linux (I work with Ubuntu 12.04).
+Same OS and version, but I have no /dev/usb/ directory at all.  My guess 
+is your problem isn't about modules.  I do have /dev/input/ though :).
 
-Hi Hendrik,
+What are you saying; does it not work?  If it has standard buttons 
+(mouse/keyboard equiv), do they work under X?
 
-Wow, so fast :-).
+Check out "ls-input" and "input-events" (apt-get install input-utils).  
+"evtest" is similar, maybe slightly friendlier (apt-get install evtest).
 
-Stephen, can you apply this to today's linux-next (next-20120913), please?
+You can check that your module has bound to the device by inspecting /sys/.
 
-Regards,
-- Sedat -
+                  v-- try replacing usbhid with "iowarrior"
 
-> Henrik
->
-> --
->
-> From ccc6557bfd02efdca4d9dfda6cfdfe5a08d0193b Mon Sep 17 00:00:00 2001
-> From: Henrik Rydberg <rydberg@euromail.se>
-> Date: Thu, 13 Sep 2012 08:59:40 +0200
-> Subject: [PATCH] Input: Fix oops caused by missing null test
->
-> Found in linux-next on September 12, thanks Sedat.
->
-> Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
->  drivers/input/input.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index 5b66b2f..2dff71b 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -114,7 +114,7 @@ static unsigned int input_to_handler(struct input_handle *handle,
->
->         if (handler->events)
->                 handler->events(handle, vals, count);
-> -       else
-> +       else if (handler->event)
->                 for (v = vals; v != end; v++)
->                         handler->event(handle, v->type, v->code, v->value);
->
-> --
-> 1.7.12
->
+$ ls /sys/module/usbhid/drivers/usb:*/
+
+3-2:1.0  bind  module  new_id  remove_id  uevent  unbind
+
+^-- USB address of my standard device (mouse)
+
+
+You could also see the device nodes created by udev, if you run "udevadm 
+monitor --property" and plug the device in.  It's very verbose, but the 
+last event should probably show DEVNAME=/dev/input/eventNN (and 
+SUBSYSTEM=input near the end).
+
+> What have be done to get the device nodes to work with them?
+> Have I add some rules? Or have I edit the iowarrior.ko?
+
+I don't think you need to add custom udev rules.
+
+Alan

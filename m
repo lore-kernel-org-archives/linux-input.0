@@ -1,38 +1,48 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3 13/20] Input: bcm5974 - Drop pressure and width
- emulation
-Date: Thu, 13 Sep 2012 20:41:44 +0200
-Message-ID: <20120913184144.GB3178@polaris.bitmath.org>
-References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
- <1346528835-363-14-git-send-email-rydberg@euromail.se>
- <20120913065723.GH17105@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: [RFC 0/3] input: Dynamic Minor Numbers
+Date: Thu, 13 Sep 2012 21:19:49 +0200
+Message-ID: <1347563992-27980-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b11.telenor.se ([62.127.194.20]:42242 "EHLO
-	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752333Ab2IMSe3 (ORCPT
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:39075 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750783Ab2IMTSR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Sep 2012 14:34:29 -0400
-Content-Disposition: inline
-In-Reply-To: <20120913065723.GH17105@core.coreip.homeip.net>
+	Thu, 13 Sep 2012 15:18:17 -0400
+Received: by wibhi8 with SMTP id hi8so7313145wib.1
+        for <linux-input@vger.kernel.org>; Thu, 13 Sep 2012 12:18:16 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@googlemail.com>
 
-On Wed, Sep 12, 2012 at 11:57:24PM -0700, Dmitry Torokhov wrote:
-> On Sat, Sep 01, 2012 at 09:47:08PM +0200, Henrik Rydberg wrote:
-> > The ABS_PRESSURE and ABS_WIDTH have special scales, and were initially
-> > added solely for thumb and palm recognition in the synaptics driver.
-> > This never really get used, however, and userspace quickly moved to
-> > MT solutions instead. This patch drops the unused events.
-> 
-> How can you know that? There could still be people using ST emulation
-> with this device. I think we should keep it.
+Hi
 
-Alright, maybe we need to carry this still. Probability = macbook *
-old_userland * new_kernel * working_synaptics * tuned_palm_parameters,
-must be a pretty large number. ;-)
+This patchset implements dynamic minor numbers for input devices. We definitely
+need this infrastructure to avoid the current limit of 32 evdev devices. We
+could just increase the number of static minors but I think a dynamic approach
+is the better idea.
 
-Henrik
+The first patch implements the allocation/deallocation of dynamic minor numbers
+in the input-core. The second patch actually increases the maximum device number
+so we can allocate dynamic minors. And the third patch converts the evdev source
+to use dynamic minors when running out of static minor numbers.
+
+I have only compile-tested this, yet. I will try to test this fully tomorrow.
+But any comments are welcome.
+
+Regards
+David
+
+David Herrmann (3):
+  input: add dynamic-minor allocation helpers
+  input: increase INPUT_DEVICES to 512 to allow dynamic minors
+  input: evdev: use dynamic-minors if running out of static minors
+
+ drivers/input/evdev.c |  95 ++++++++++++++++-------------
+ drivers/input/input.c | 164 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ include/linux/input.h |   5 ++
+ 3 files changed, 219 insertions(+), 45 deletions(-)
+
+-- 
+1.7.12
+

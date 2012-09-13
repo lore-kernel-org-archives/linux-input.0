@@ -1,40 +1,77 @@
-From: Sedat Dilek <sedat.dilek@gmail.com>
-Subject: Re: linux-next: Tree for Sept 13 (input causes kernel-panic)
-Date: Thu, 13 Sep 2012 11:12:26 +0200
-Message-ID: <CA+icZUUi3DgkyZe57=zB2tqS95F-uwt_qGtRLjoPxd6baE6APQ@mail.gmail.com>
-Reply-To: sedat.dilek@gmail.com
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 1/1] Input: ab8500-ponkey: Make the distinction between DT
+ and non-DT boots
+Date: Thu, 13 Sep 2012 11:35:43 +0200
+Message-ID: <CACRpkdaKa=NAObnjJyifhxyqu3Hcgj7Fxqi=bdNFqbm7V_8cSw@mail.gmail.com>
+References: <1344256323-10484-1-git-send-email-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-next-owner@vger.kernel.org>
-Sender: linux-next-owner@vger.kernel.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Minchan Kim <minchan.kim@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:48527 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752686Ab2IMJfo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Sep 2012 05:35:44 -0400
+Received: by weyx8 with SMTP id x8so1555929wey.19
+        for <linux-input@vger.kernel.org>; Thu, 13 Sep 2012 02:35:43 -0700 (PDT)
+In-Reply-To: <1344256323-10484-1-git-send-email-lee.jones@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>, arnd@arndb.de, Dmitry Torokhov <dmitry.torokhov@gmail.com>, arm@kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, linux-input@vger.kernel.org
 
-On Thu, Sep 13, 2012 at 10:22 AM, Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> Hi all,
->
-> Changes since 201209012:
->
-> The staging tree gained a conflict against the tty tree.
->
-> The arm-soc tree gained a conflict against the i2c-embedded tree.
->
-> The tegra tree lost 2 conflicts.
->
-> The akpm tree gained 3 build failures for which I applied a merge fix
-> patch and reverted 3 commits.
->
-> ----------------------------------------------------------------------------
->
+On Mon, Aug 6, 2012 at 2:32 PM, Lee Jones <lee.jones@linaro.org> wrote:
 
-Unfortunately, for me an important fix did not make it into today's Linux-Next.
-So, this is a warning for people (like Minchan) seeing the same kernel-panic.
-( Please. follow also the discussion thread in [2] for more details. )
+> If we're booting with Device Tree enabled, we want the IRQ numbers to
+> be taken and translated from the Device Tree binary. If not, they
+> should be taken from the resource allocation defined in the AB8500 MFD
+> core driver.
+>
+> Tested-by: Linus Walleij <linus.walleij@linaro.org>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-Thanks to all involved people!
+Not having this patch in v3.6-rcN gives the following boot noise (and
+the key does not work):
 
-- Sedat -
+------------[ cut here ]------------
+WARNING: at /home/elinwal/linux-stericsson/kernel/irq/irqdomain.c:137
+irq_domain_legacy_revmap+0x20/0x48()
+Modules linked in:
+[<c0014710>] (unwind_backtrace+0x0/0xf8) from [<c001d37c>]
+(warn_slowpath_common+0x4c/0x64)
+[<c001d37c>] (warn_slowpath_common+0x4c/0x64) from [<c001d3b0>]
+(warn_slowpath_null+0x1c/0x24)
+[<c001d3b0>] (warn_slowpath_null+0x1c/0x24) from [<c0064200>]
+(irq_domain_legacy_revmap+0x20/0x48)
+[<c0064200>] (irq_domain_legacy_revmap+0x20/0x48) from [<c02cea28>]
+(ab8500_ponkey_probe+0xd0/0x1f8)
+[<c02cea28>] (ab8500_ponkey_probe+0xd0/0x1f8) from [<c01a1e20>]
+(platform_drv_probe+0x14/0x18)
+[<c01a1e20>] (platform_drv_probe+0x14/0x18) from [<c01a0be4>]
+(driver_probe_device+0x78/0x208)
+[<c01a0be4>] (driver_probe_device+0x78/0x208) from [<c01a0e00>]
+(__driver_attach+0x8c/0x90)
+[<c01a0e00>] (__driver_attach+0x8c/0x90) from [<c019f514>]
+(bus_for_each_dev+0x50/0x7c)
+[<c019f514>] (bus_for_each_dev+0x50/0x7c) from [<c01a0424>]
+(bus_add_driver+0x170/0x23c)
+[<c01a0424>] (bus_add_driver+0x170/0x23c) from [<c01a12b4>]
+(driver_register+0x78/0x144)
+[<c01a12b4>] (driver_register+0x78/0x144) from [<c0008598>]
+(do_one_initcall+0x34/0x174)
+[<c0008598>] (do_one_initcall+0x34/0x174) from [<c03df8e8>]
+(kernel_init+0xfc/0x1bc)
+[<c03df8e8>] (kernel_init+0xfc/0x1bc) from [<c000f1d4>]
+(kernel_thread_exit+0x0/0x8)
+---[ end trace d77aa0db848f0e28 ]---
+ab8500-core ab8500-core.0: Failed to request dbf IRQ#0: -22
+ab8500-poweron-key: probe of ab8500-poweron-key.0 failed with error -22
 
-[1] https://github.com/rydberg/linux/commit/ccc6557bfd02efdca4d9dfda6cfdfe5a08d0193b
-[2] http://marc.info/?t=134751435100001&r=1&w=2
+So how do we proceed to not release v3.6 with this regression?
+
+Shall all of the MFD IRQdomain stuff be pulled into the -rc series?
+
+(Linux-next seems to be working, so the real fix is in there)
+
+Yours,
+Linus Walleij

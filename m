@@ -1,49 +1,75 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: gpio_keys_polled: fix dt pdata->nbuttons
-Date: Wed, 12 Sep 2012 21:49:35 -0700
-Message-ID: <20120913044935.GA17105@core.coreip.homeip.net>
-References: <1347485243-21173-1-git-send-email-aletes.xgr@gmail.com>
+Subject: Re: [PATCH 1/1] Input: joydev - fix axes values sent in initial
+ js_event
+Date: Wed, 12 Sep 2012 21:52:06 -0700
+Message-ID: <20120913045206.GB17105@core.coreip.homeip.net>
+References: <1344895914-32127-1-git-send-email-vbocek@gmail.com>
+ <20120905055218.GA24715@core.coreip.homeip.net>
+ <CAOeGmboLCan-fX4sPPxS5jkyepxLTSnRgvdHJ0-edcH8UCQg+w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:62600 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751405Ab2IMEtk (ORCPT
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:48655 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751992Ab2IMEwM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Sep 2012 00:49:40 -0400
+	Thu, 13 Sep 2012 00:52:12 -0400
 Content-Disposition: inline
-In-Reply-To: <1347485243-21173-1-git-send-email-aletes.xgr@gmail.com>
+In-Reply-To: <CAOeGmboLCan-fX4sPPxS5jkyepxLTSnRgvdHJ0-edcH8UCQg+w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
-Cc: JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?utf-8?B?Vm9qdMSbY2ggQm/EjWVr?= <vbocek@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Sep 12, 2012 at 06:27:23PM -0300, Alexandre Pereira da Silva wrote:
-> pdata->nbuttons should be updated by the dt code.
-> 
-> Signed-off-by: Alexandre Pereira da Silva <aletes.xgr@gmail.com>
+On Wed, Sep 05, 2012 at 10:09:57PM +0200, Vojt=C4=9Bch Bo=C4=8Dek wrote=
+:
+> Hi,
+>=20
+> 2012/9/5 Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > So what guarantees that joystick events will arrive in time, before
+> > joydev_generate_startup_event() is called? It looks like your solut=
+ion
+> > is racy...
+> >
+> > I wonder if we should not generate the startup event until we have =
+seen
+> > at least one EV_SYN, i.e. entire device state has been transmitted =
+to
+> > us.
+>=20
+> I just tried to delay read() until first EV_SYN arrives as you sugges=
+ted,
+> but that was not the problem, at least not the main one. First joysti=
+ck
+> input events arrives immediately after it is plugged in and driver is=
+ loaded,
+> but when that happens, joydev may not be (and most likely is not)
+> opened yet, which means the events will never reach joydev because of
+> "if (!handle->open)" check in input_pass_event.
+>=20
+> I wonder how to handle this. Is "if(!handle->open)" valid check? I th=
+ink so,
+> my guess is that joydev is the only handler with internal buffer, and=
+ it
+> is useless to update that buffer when the device is not opened.
+> I think reloading abs values on joydev open should be okay.
+>=20
+> I suppose that if we reload abs values on joydev open, waiting for fi=
+rst
+> sync is not needed, yes?
+>=20
+> So the patch could look like this:
 
-Applied, thank you Alexandre.
- 
-> ---
->  drivers/input/keyboard/gpio_keys_polled.c |    1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-> index 7908952..f2142de 100644
-> --- a/drivers/input/keyboard/gpio_keys_polled.c
-> +++ b/drivers/input/keyboard/gpio_keys_polled.c
-> @@ -129,6 +129,7 @@ gpio_keys_polled_get_devtree_pdata(struct device *dev)
->  	}
->  
->  	pdata->buttons = (struct gpio_keys_button *)(pdata + 1);
-> +	pdata->nbuttons = nbuttons;
->  
->  	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
->  	of_property_read_u32(node, "poll-interval", &pdata->poll_interval);
-> -- 
-> 1.7.10
-> 
+This makes sense. Just to confirm - have you tried the patch and
+verified it works for you?
 
--- 
+Thanks.
+
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,17 +1,22 @@
-From: Alan Jenkins <alan.christopher.jenkins-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: issues with unknown/new alias
-Date: Thu, 13 Sep 2012 09:27:17 +0100
-Message-ID: <505198E5.6000101@gmail.com>
+From: Alan Jenkins <alan.christopher.jenkins@gmail.com>
+Subject: Re: issues with unknown/new alias [retraction]
+Date: Thu, 13 Sep 2012 09:49:41 +0100
+Message-ID: <50519E25.7080007@gmail.com>
 References: <50518A75.4030608@codemercs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-modules-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <50518A75.4030608-xuEmVypu8QqakBO8gow8eQ@public.gmane.org>
-Sender: linux-modules-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Christoph Jung <jung-xuEmVypu8QqakBO8gow8eQ@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-modules-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:55935 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751863Ab2IMItq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Sep 2012 04:49:46 -0400
+In-Reply-To: <50518A75.4030608@codemercs.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Christoph Jung <jung@codemercs.com>
+Cc: linux-modules@vger.kernel.org, linux-input@vger.kernel.org
 
 On 13/09/12 08:25, Christoph Jung wrote:
 > Hello,
@@ -33,35 +38,17 @@ On 13/09/12 08:25, Christoph Jung wrote:
 >
 > The two new pIDs are: 0x158A, 0x158B
 >
-> I have not much experiance with linux (I work with Ubuntu 12.04).
-Same OS and version, but I have no /dev/usb/ directory at all.  My guess 
-is your problem isn't about modules.  I do have /dev/input/ though :).
-
-What are you saying; does it not work?  If it has standard buttons 
-(mouse/keyboard equiv), do they work under X?
-
-Check out "ls-input" and "input-events" (apt-get install input-utils).  
-"evtest" is similar, maybe slightly friendlier (apt-get install evtest).
-
-You can check that your module has bound to the device by inspecting /sys/.
-
-                  v-- try replacing usbhid with "iowarrior"
-
-$ ls /sys/module/usbhid/drivers/usb:*/
-
-3-2:1.0  bind  module  new_id  remove_id  uevent  unbind
-
-^-- USB address of my standard device (mouse)
-
-
-You could also see the device nodes created by udev, if you run "udevadm 
-monitor --property" and plug the device in.  It's very verbose, but the 
-last event should probably show DEVNAME=/dev/input/eventNN (and 
-SUBSYSTEM=input near the end).
-
-> What have be done to get the device nodes to work with them?
+> I have not much experiance with linux (I work with Ubuntu 12.04). What 
+> have be done to get the device nodes to work with them?
 > Have I add some rules? Or have I edit the iowarrior.ko?
+>
+Argh, sorry, I misread your email and went off on one.
 
-I don't think you need to add custom udev rules.
+You will indeed need to "edit iowarrior.ko".  I.e. change the C source 
+code to include the new pIDs, recompile, test, get patches merged into 
+the mainline kernel etc :).
+
+It's also possible to test new devices with an old driver, i.e. before 
+you modify it.  Possible instructions: http://www.ha19.no/usb/
 
 Alan

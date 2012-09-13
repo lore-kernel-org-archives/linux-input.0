@@ -1,67 +1,49 @@
 From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH 3/3] HID: hid-sensor-hub: Call hid_hw_close() before
- hid_hw_stop()
-Date: Fri, 14 Sep 2012 06:06:41 +0800
-Message-ID: <1347574001.8974.6.camel@phoenix>
-References: <1347573801.8974.2.camel@phoenix>
+Subject: [PATCH] HID: picolcd_core: Remove setting hdev->claimed before
+ calling hid_hw_start()
+Date: Fri, 14 Sep 2012 06:15:36 +0800
+Message-ID: <1347574536.8974.8.camel@phoenix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:41451 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753408Ab2IMWGq (ORCPT
+Received: from mail-oa0-f46.google.com ([209.85.219.46]:62643 "EHLO
+	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752023Ab2IMWPm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Sep 2012 18:06:46 -0400
-Received: by obbuo13 with SMTP id uo13so5329845obb.19
-        for <linux-input@vger.kernel.org>; Thu, 13 Sep 2012 15:06:46 -0700 (PDT)
-In-Reply-To: <1347573801.8974.2.camel@phoenix>
+	Thu, 13 Sep 2012 18:15:42 -0400
+Received: by oago6 with SMTP id o6so2341444oag.19
+        for <linux-input@vger.kernel.org>; Thu, 13 Sep 2012 15:15:41 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: srinivas pandruvada <srinivas.pandruvada@intel.com>, Jonathan Cameron <jic23@kernel.org>, linux-input@vger.kernel.org
+Cc: Bruno =?ISO-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>, linux-input@vger.kernel.org
 
-Also adjust unnecessary change lines for hid_err.
+Current implementation of hid_hw_start() allows connect_mask to be 0.
+Setting hdev->claimed = HID_CLAIMED_INPUT before calling hid_hw_start() is not
+necessary. Remove it.
 
 Signed-off-by: Axel Lin <axel.lin@gmail.com>
 ---
- drivers/hid/hid-sensor-hub.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/hid/hid-picolcd_core.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index f9d6209..b9ce38e 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -564,8 +564,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 						sizeof(struct mfd_cell),
- 						GFP_KERNEL);
- 	if (sd->hid_sensor_hub_client_devs == NULL) {
--		hid_err(hdev,
--			"Failed to allocate memory for mfd cells\n");
-+		hid_err(hdev, "Failed to allocate memory for mfd cells\n");
- 			ret = -ENOMEM;
- 			goto err_close;
+diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_core.c
+index 8c9ec1f..e30e703 100644
+--- a/drivers/hid/hid-picolcd_core.c
++++ b/drivers/hid/hid-picolcd_core.c
+@@ -583,11 +583,7 @@ static int picolcd_probe(struct hid_device *hdev,
+ 		goto err_cleanup_data;
  	}
-@@ -577,8 +576,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 			name = kasprintf(GFP_KERNEL, "HID-SENSOR-%x",
- 						field->physical);
- 			if (name  == NULL) {
--				hid_err(hdev,
--					"Failed MFD device name\n");
-+				hid_err(hdev, "Failed MFD device name\n");
- 					ret = -ENOMEM;
- 					goto err_free_names;
- 			}
-@@ -624,8 +622,8 @@ static void sensor_hub_remove(struct hid_device *hdev)
- 	int i;
  
- 	hid_dbg(hdev, " hardware removed\n");
--	hid_hw_stop(hdev);
- 	hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
- 	spin_lock_irqsave(&data->lock, flags);
- 	if (data->pending.status)
- 		complete(&data->pending.ready);
+-	/* We don't use hidinput but hid_hw_start() fails if nothing is
+-	 * claimed. So spoof claimed input. */
+-	hdev->claimed = HID_CLAIMED_INPUT;
+ 	error = hid_hw_start(hdev, 0);
+-	hdev->claimed = 0;
+ 	if (error) {
+ 		hid_err(hdev, "hardware start failed\n");
+ 		goto err_cleanup_data;
 -- 
 1.7.9.5
 

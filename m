@@ -1,59 +1,60 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH 2/2] HID: hid-sensor-hub: Fix sensor_hub_probe error handling
-Date: Thu, 13 Sep 2012 09:39:47 +0800
-Message-ID: <1347500387.7434.3.camel@phoenix>
-References: <1347500288.7434.1.camel@phoenix>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Synaptics Touchpad incorrectly detected as PS/2 mouse on clausoft MNW737 (aka meenee, aka PX1)
+Date: Wed, 12 Sep 2012 21:48:56 -0700
+Message-ID: <2638287.vWM0xnGHC0@dtor-d630.eng.vmware.com>
+References: <CAMPG4Y-X9g8FUOYgfo4MBpLjKnnjf631=VriEZ30P+ML9f0Hcw@mail.gmail.com> <CAMPG4Y-2CJKHBTVQZPa1mRvHug5pyacr+XJ179wfVxfr0j-sHg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f46.google.com ([209.85.219.46]:38682 "EHLO
-	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751764Ab2IMBjx (ORCPT
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:42861 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750822Ab2IMEtB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Sep 2012 21:39:53 -0400
-In-Reply-To: <1347500288.7434.1.camel@phoenix>
+	Thu, 13 Sep 2012 00:49:01 -0400
+Received: by ieje11 with SMTP id e11so4236858iej.19
+        for <linux-input@vger.kernel.org>; Wed, 12 Sep 2012 21:49:01 -0700 (PDT)
+In-Reply-To: <CAMPG4Y-2CJKHBTVQZPa1mRvHug5pyacr+XJ179wfVxfr0j-sHg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: srinivas pandruvada <srinivas.pandruvada@intel.com>, Jonathan Cameron <jic23@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ed Spittles <ed.spittles@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "755518@bugs.launchpad.net" <755518@bugs.launchpad.net>
 
-Fix below issues in sensor_hub_probe error handling:
-1. In the case of goto err_close, hid_hw_stop(hdev) is called twice. Fix it.
-2. If fails to allocate MFD device name, we also need to free all
-   successfully allocated names in previous iterations.
+On Wednesday, September 12, 2012 09:05:22 PM Ed Spittles wrote:
+> The tpconfig tool is unable to adjust zthreshold or disable tap
+> to click. tpconfig reports this:
+> 
+> # tpconfig -D1 -z0
+> Probing mouse port [/dev/psaux].
+> Grabbing mouse port [/dev/psaux].
+> Trying Synaptics detection.
+> [query 00 => 0x60 0x3 0xc8]
+> Found Synaptics Touchpad.
+> [query 0x3 => 0x60 0x3 0xc8]
+> Firmware: 8.96 (multiple-byte mode).
+> Z threshold set as "0".
+> [query 0x1 => 0x60 0x3 0xc8]
+> [query 0x1 => 0x60 0x3 0xc8]
+> Z threshold: 6 of 7.
+>
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/hid/hid-sensor-hub.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Please do not use tpconfig utility, it hasn't worked since 2.5 kernels.
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 50bc8c7..8bd7620 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -584,7 +584,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 				hid_err(hdev,
- 					"Failed MFD device name\n");
- 					ret = -ENOMEM;
--					goto err_free_cells;
-+					goto err_free_names;
- 			}
- 			sd->hid_sensor_hub_client_devs[
- 				sd->hid_sensor_client_cnt].name = name;
-@@ -608,10 +608,8 @@ static int sensor_hub_probe(struct hid_device *hdev,
- err_free_names:
- 	for (i = 0; i < sd->hid_sensor_client_cnt ; ++i)
- 		kfree(sd->hid_sensor_hub_client_devs[i].name);
--err_free_cells:
- 	kfree(sd->hid_sensor_hub_client_devs);
- err_close:
--	hid_hw_stop(hdev);
- 	hid_hw_close(hdev);
- err_stop_hw:
- 	hid_hw_stop(hdev);
+> 
+> OLD=/tmp/psmouse_debug1
+> NEW=/tmp/psmouse_debug2
+> sudo rmmod psmouse
+> dmesg > $OLD
+> echo 1 | sudo tee -a /sys/module/i8042/parameters/debug
+> sudo modprobe -v psmouse
+> echo 0 | sudo tee -a /sys/module/i8042/parameters/debug
+> dmesg > $NEW
+> diff $OLD $NEW
+
+Can you please simply boot with i8042.debug kernel option and post your
+entire dmesg instead?
+
+Thanks.
+
 -- 
-1.7.9.5
-
-
-
+Dmitry

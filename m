@@ -1,51 +1,54 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] HID: picolcd_core: Remove setting hdev->claimed before
- calling hid_hw_start()
-Date: Fri, 14 Sep 2012 06:15:36 +0800
-Message-ID: <1347574536.8974.8.camel@phoenix>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+Subject: RE: [PATCH 3/3] HID: hid-sensor-hub: Call hid_hw_close() before
+ hid_hw_stop()
+Date: Thu, 13 Sep 2012 22:31:39 +0000
+Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A919D523B1@ORSMSX108.amr.corp.intel.com>
+References: <1347573801.8974.2.camel@phoenix>
+ <1347574001.8974.6.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f46.google.com ([209.85.219.46]:62643 "EHLO
-	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752023Ab2IMWPm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Sep 2012 18:15:42 -0400
-Received: by oago6 with SMTP id o6so2341444oag.19
-        for <linux-input@vger.kernel.org>; Thu, 13 Sep 2012 15:15:41 -0700 (PDT)
+Received: from mga09.intel.com ([134.134.136.24]:53604 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750708Ab2IMWbk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Sep 2012 18:31:40 -0400
+In-Reply-To: <1347574001.8974.6.camel@phoenix>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Bruno =?ISO-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>, linux-input@vger.kernel.org
+To: Axel Lin <axel.lin@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Current implementation of hid_hw_start() allows connect_mask to be 0.
-Setting hdev->claimed = HID_CLAIMED_INPUT before calling hid_hw_start() is not
-necessary. Remove it.
-
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/hid/hid-picolcd_core.c |    4 ----
- 1 file changed, 4 deletions(-)
-
-diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_core.c
-index 8c9ec1f..e30e703 100644
---- a/drivers/hid/hid-picolcd_core.c
-+++ b/drivers/hid/hid-picolcd_core.c
-@@ -583,11 +583,7 @@ static int picolcd_probe(struct hid_device *hdev,
- 		goto err_cleanup_data;
- 	}
- 
--	/* We don't use hidinput but hid_hw_start() fails if nothing is
--	 * claimed. So spoof claimed input. */
--	hdev->claimed = HID_CLAIMED_INPUT;
- 	error = hid_hw_start(hdev, 0);
--	hdev->claimed = 0;
- 	if (error) {
- 		hid_err(hdev, "hardware start failed\n");
- 		goto err_cleanup_data;
--- 
-1.7.9.5
-
-
-
+SSB0aGluayB5b3UgY2FuIG1lcmdlIHRoaXMgcGF0Y2ggd2l0aCB5b3VyIHBhdGNoIDIvMyBhcyBi
+b3RoIGFyZSBhZGRyZXNzaW5nIGhpZF9od19jbG9zZSBhbmQgaGlkX2h3X3N0b3AuDQoNClRoYW5r
+cywNClNyaW5pdmFzDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogQXhlbCBMaW4g
+W21haWx0bzpheGVsLmxpbkBnbWFpbC5jb21dIA0KU2VudDogVGh1cnNkYXksIFNlcHRlbWJlciAx
+MywgMjAxMiAzOjA3IFBNDQpUbzogSmlyaSBLb3NpbmENCkNjOiBQYW5kcnV2YWRhLCBTcmluaXZh
+czsgSm9uYXRoYW4gQ2FtZXJvbjsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnDQpTdWJqZWN0
+OiBbUEFUQ0ggMy8zXSBISUQ6IGhpZC1zZW5zb3ItaHViOiBDYWxsIGhpZF9od19jbG9zZSgpIGJl
+Zm9yZSBoaWRfaHdfc3RvcCgpDQoNCkFsc28gYWRqdXN0IHVubmVjZXNzYXJ5IGNoYW5nZSBsaW5l
+cyBmb3IgaGlkX2Vyci4NCg0KU2lnbmVkLW9mZi1ieTogQXhlbCBMaW4gPGF4ZWwubGluQGdtYWls
+LmNvbT4NCi0tLQ0KIGRyaXZlcnMvaGlkL2hpZC1zZW5zb3ItaHViLmMgfCAgICA4ICsrKy0tLS0t
+DQogMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgNSBkZWxldGlvbnMoLSkNCg0KZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1zZW5zb3ItaHViLmMgYi9kcml2ZXJzL2hpZC9oaWQt
+c2Vuc29yLWh1Yi5jIGluZGV4IGY5ZDYyMDkuLmI5Y2UzOGUgMTAwNjQ0DQotLS0gYS9kcml2ZXJz
+L2hpZC9oaWQtc2Vuc29yLWh1Yi5jDQorKysgYi9kcml2ZXJzL2hpZC9oaWQtc2Vuc29yLWh1Yi5j
+DQpAQCAtNTY0LDggKzU2NCw3IEBAIHN0YXRpYyBpbnQgc2Vuc29yX2h1Yl9wcm9iZShzdHJ1Y3Qg
+aGlkX2RldmljZSAqaGRldiwNCiAJCQkJCQlzaXplb2Yoc3RydWN0IG1mZF9jZWxsKSwNCiAJCQkJ
+CQlHRlBfS0VSTkVMKTsNCiAJaWYgKHNkLT5oaWRfc2Vuc29yX2h1Yl9jbGllbnRfZGV2cyA9PSBO
+VUxMKSB7DQotCQloaWRfZXJyKGhkZXYsDQotCQkJIkZhaWxlZCB0byBhbGxvY2F0ZSBtZW1vcnkg
+Zm9yIG1mZCBjZWxsc1xuIik7DQorCQloaWRfZXJyKGhkZXYsICJGYWlsZWQgdG8gYWxsb2NhdGUg
+bWVtb3J5IGZvciBtZmQgY2VsbHNcbiIpOw0KIAkJCXJldCA9IC1FTk9NRU07DQogCQkJZ290byBl
+cnJfY2xvc2U7DQogCX0NCkBAIC01NzcsOCArNTc2LDcgQEAgc3RhdGljIGludCBzZW5zb3JfaHVi
+X3Byb2JlKHN0cnVjdCBoaWRfZGV2aWNlICpoZGV2LA0KIAkJCW5hbWUgPSBrYXNwcmludGYoR0ZQ
+X0tFUk5FTCwgIkhJRC1TRU5TT1ItJXgiLA0KIAkJCQkJCWZpZWxkLT5waHlzaWNhbCk7DQogCQkJ
+aWYgKG5hbWUgID09IE5VTEwpIHsNCi0JCQkJaGlkX2VycihoZGV2LA0KLQkJCQkJIkZhaWxlZCBN
+RkQgZGV2aWNlIG5hbWVcbiIpOw0KKwkJCQloaWRfZXJyKGhkZXYsICJGYWlsZWQgTUZEIGRldmlj
+ZSBuYW1lXG4iKTsNCiAJCQkJCXJldCA9IC1FTk9NRU07DQogCQkJCQlnb3RvIGVycl9mcmVlX25h
+bWVzOw0KIAkJCX0NCkBAIC02MjQsOCArNjIyLDggQEAgc3RhdGljIHZvaWQgc2Vuc29yX2h1Yl9y
+ZW1vdmUoc3RydWN0IGhpZF9kZXZpY2UgKmhkZXYpDQogCWludCBpOw0KIA0KIAloaWRfZGJnKGhk
+ZXYsICIgaGFyZHdhcmUgcmVtb3ZlZFxuIik7DQotCWhpZF9od19zdG9wKGhkZXYpOw0KIAloaWRf
+aHdfY2xvc2UoaGRldik7DQorCWhpZF9od19zdG9wKGhkZXYpOw0KIAlzcGluX2xvY2tfaXJxc2F2
+ZSgmZGF0YS0+bG9jaywgZmxhZ3MpOw0KIAlpZiAoZGF0YS0+cGVuZGluZy5zdGF0dXMpDQogCQlj
+b21wbGV0ZSgmZGF0YS0+cGVuZGluZy5yZWFkeSk7DQotLQ0KMS43LjkuNQ0KDQoNCg0K

@@ -1,30 +1,55 @@
 From: Axel Lin <axel.lin@gmail.com>
-Subject: Re: [PATCH 1/2] HID: hid-sensor-hub: Clear HID_CLAIMED_INPUT bit earlier
-Date: Fri, 14 Sep 2012 06:01:56 +0800
-Message-ID: <CAF+7xWnUkj4BiKzF_izq=4ki2YAW7Wn4frwERLvVRhROYBnpRQ@mail.gmail.com>
-References: <1347500288.7434.1.camel@phoenix> <CAF+7xW=1wJjDHeRSqBHNQuyOkuDrn0J1Eypg9BMAxA=Np5SwLg@mail.gmail.com>
- <4FA419E87744DF4DAECD5BCE1214B7A919D52325@ORSMSX108.amr.corp.intel.com>
-Reply-To: axel.lin@gmail.com
+Subject: [PATCH 1/3] HID: hid-sensor-hub: Remove setting hdev->claimed
+ before calling hid_hw_start()
+Date: Fri, 14 Sep 2012 06:03:21 +0800
+Message-ID: <1347573801.8974.2.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:46235 "EHLO
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:46602 "EHLO
 	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758832Ab2IMWCR (ORCPT
+	with ESMTP id S1753238Ab2IMWDf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Sep 2012 18:02:17 -0400
-In-Reply-To: <4FA419E87744DF4DAECD5BCE1214B7A919D52325@ORSMSX108.amr.corp.intel.com>
+	Thu, 13 Sep 2012 18:03:35 -0400
+Received: by obbuo13 with SMTP id uo13so5326196obb.19
+        for <linux-input@vger.kernel.org>; Thu, 13 Sep 2012 15:03:34 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: srinivas pandruvada <srinivas.pandruvada@intel.com>, Jonathan Cameron <jic23@kernel.org>, linux-input@vger.kernel.org
 
-2012/9/14 Pandruvada, Srinivas <srinivas.pandruvada@intel.com>:
-> Hi Axel,
->
-> We don't need this anymore as when connect_mask is 0, the hid_connect will not be called.
-> So we don't need hdev->claimed = HID_CLAIMED_INPUT anymore.
->
+Current implementation of hid_hw_start() allows connect_mask to be 0.
+Setting hdev->claimed = HID_CLAIMED_INPUT before calling hid_hw_start() is not
+necessary. Remove it.
 
-Okay. I'm going to resend the patch for this serial.
-Axel
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/hid/hid-sensor-hub.c |    2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 4ac759c..1faacf2 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -539,7 +539,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 	}
+ 	INIT_LIST_HEAD(&hdev->inputs);
+ 
+-	hdev->claimed = HID_CLAIMED_INPUT;
+ 	ret = hid_hw_start(hdev, 0);
+ 	if (ret) {
+ 		hid_err(hdev, "hw start failed\n");
+@@ -627,7 +626,6 @@ static void sensor_hub_remove(struct hid_device *hdev)
+ 	int i;
+ 
+ 	hid_dbg(hdev, " hardware removed\n");
+-	hdev->claimed &= ~HID_CLAIMED_INPUT;
+ 	hid_hw_stop(hdev);
+ 	hid_hw_close(hdev);
+ 	spin_lock_irqsave(&data->lock, flags);
+-- 
+1.7.9.5
+
+
+

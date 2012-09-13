@@ -1,53 +1,50 @@
-From: "Patil, Rachna" <rachna@ti.com>
-Subject: RE: [PATCH 0/4] input: TSC: ti_tscadc: TI Touchscreen driver updates
-Date: Thu, 13 Sep 2012 10:39:12 +0000
-Message-ID: <4CE347531D4CA947960AF71FF095B9323E953A6A@DBDE01.ent.ti.com>
-References: <1345634265-29646-1-git-send-email-rachna@ti.com>
+From: Vojtech Bocek <vbocek@gmail.com>
+Subject: Re: [PATCH 1/1] Input: joydev - fix axes values sent in initial js_event
+Date: Thu, 13 Sep 2012 12:55:01 +0200
+Message-ID: <CAOeGmbp9MYNnXn0RYdsR4cLSV-3KhDjVzRQnL0mKTrQG1_j9GQ@mail.gmail.com>
+References: <1344895914-32127-1-git-send-email-vbocek@gmail.com>
+	<20120905055218.GA24715@core.coreip.homeip.net>
+	<CAOeGmboLCan-fX4sPPxS5jkyepxLTSnRgvdHJ0-edcH8UCQg+w@mail.gmail.com>
+	<20120913045206.GB17105@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:47283 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757410Ab2IMKjw convert rfc822-to-8bit (ORCPT
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:37454 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753811Ab2IMKzC convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Sep 2012 06:39:52 -0400
-In-Reply-To: <1345634265-29646-1-git-send-email-rachna@ti.com>
-Content-Language: en-US
+	Thu, 13 Sep 2012 06:55:02 -0400
+In-Reply-To: <20120913045206.GB17105@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Patil, Rachna" <rachna@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dmitry,
+2012/9/13, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> On Wed, Sep 05, 2012 at 10:09:57PM +0200, Vojt=C4=9Bch Bo=C4=8Dek wro=
+te:
+>
+> This makes sense. Just to confirm - have you tried the patch and
+> verified it works for you?
+>
+> Thanks.
+>
+> --
+> Dmitry
+>
 
-This is just a gentle reminder for the patch set I had submitted viz.
-"[PATCH 0/4] input: TSC: ti_tscadc: TI Touchscreen driver updates"
-Can you please accept this patch set?
-A lot of other patches that I have submitted and going to submit
-are dependent on these patches.
-This patch set just improves the driver and does not break anything existing.
+Yes, I did. Only one thing is incorrect(?). When I plug the joystick in=
+,
+then open my test program, everything is okay, startup event has
+ correct values. Then, I unplug the joystick and plug it in again
+ quickly, after that, startup event has wrong values, but another
+ normal axis event with correct values is fired immediately after.
 
-Regards,
-Rachna
-
-On Wed, Aug 22, 2012 at 16:47:45, Patil, Rachna wrote:
-> This patch set is a cumulative work for
-> 1. Correcting resister usage
-> 2. Adding more platform data
-> 3. Making way for converting touchscreen into Multifunctional device 4. Remove usage of End Of Interrupt(EOI) register
-> 
-> These patches are tested on AM335x EVM.
-> 
-> Patil, Rachna (4):
->   input: TSC: ti_tscadc: Correct register usage
->   input: TSC: ti_tscadc: Add Step configuration as platform data
->   input: TSC: ti_tscadc: set FIFO0 threshold Interrupt
->   input: TSC: ti_tscadc: Remove definition of End Of Interrupt register
-> 
->  drivers/input/touchscreen/ti_tscadc.c |  164 ++++++++++++++++++++-------------
->  include/linux/input/ti_tscadc.h       |    6 +
->  2 files changed, 106 insertions(+), 64 deletions(-)
-> 
-> 
-
+I suppose it does not matter, because in the end, values are
+ correct.  Felt worth mentioning, though.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

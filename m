@@ -1,47 +1,44 @@
-From: Bernhard Seibold <mail@bernhard-seibold.de>
-Subject: Re: [PATCH] HID: lenovo-tpkbd: Fix memory leak in tpkbd_remove_tp()
-Date: Fri, 14 Sep 2012 11:35:27 +0200
-Message-ID: <20120914113527.02666021@bernhard-seibold.de>
-References: <1347513912.3319.1.camel@phoenix>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] HID: picoLCD: off by one in dump_buff_as_hex()
+Date: Fri, 14 Sep 2012 14:04:14 +0300
+Message-ID: <20120914110414.GA1152@elgon.mountain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mcp.e404.de ([78.47.239.181]:47235 "EHLO mcp.e404.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754232Ab2INJnJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Sep 2012 05:43:09 -0400
-In-Reply-To: <1347513912.3319.1.camel@phoenix>
+Received: from rcsinet15.oracle.com ([148.87.113.117]:38882 "EHLO
+	rcsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751759Ab2INLE3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 Sep 2012 07:04:29 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Bruno =?iso-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Thu, 13 Sep 2012 13:25:12 +0800
-Axel Lin <axel.lin@gmail.com> wrote:
+We're placing the NUL terminator one character beyond the end of the
+buffer here.
 
-> We need to kfree names for led_mute and led_micmute in
-> tpkbd_remove_tp().
-> 
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+---
+This change obviously don't make the code worse, but I'm not positive
+it's the right fix.  I'm not sure the lines before are doing the right
+thing either, if we had two chars of remaining space then wouldn't it be
+better to put the new line and NUL in the unused space?
 
-Acked-by: Bernhard Seibold <mail@bernhard-seibold.de>
+If you decide to do it differently, then please feel to sent a patch for
+that and give me a Reported-by cookie.
 
-> ---
->  drivers/hid/hid-lenovo-tpkbd.c |    2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-lenovo-tpkbd.c
-> b/drivers/hid/hid-lenovo-tpkbd.c index 77d2df0..60c4e1e 100644
-> --- a/drivers/hid/hid-lenovo-tpkbd.c
-> +++ b/drivers/hid/hid-lenovo-tpkbd.c
-> @@ -519,6 +519,8 @@ static void tpkbd_remove_tp(struct hid_device
-> *hdev) led_classdev_unregister(&data_pointer->led_mute);
->  
->  	hid_set_drvdata(hdev, NULL);
-> +	kfree(data_pointer->led_micmute.name);
-> +	kfree(data_pointer->led_mute.name);
->  	kfree(data_pointer);
->  }
->  
-
+diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-picolcd_debugfs.c
+index eec85b5..ff271ff0 100644
+--- a/drivers/hid/hid-picolcd_debugfs.c
++++ b/drivers/hid/hid-picolcd_debugfs.c
+@@ -390,7 +390,7 @@ static void dump_buff_as_hex(char *dst, size_t dst_sz, const u8 *data,
+ 		dst[j--] = '\0';
+ 		dst[j] = '\n';
+ 	} else
+-		dst[j] = '\0';
++		dst[dst_sz - 1] = '\0';
+ }
+ 
+ void picolcd_debug_out_report(struct picolcd_data *data,

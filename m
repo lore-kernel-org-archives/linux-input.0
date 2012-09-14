@@ -1,133 +1,68 @@
-From: Ilia Kats <ilia-kats@gmx.net>
-Subject: bumping HID_MAX_USAGES
-Date: Fri, 14 Sep 2012 05:11:35 +0200
-Message-ID: <5052A067.1080603@gmx.net>
-Reply-To: ilia-kats@gmx.net
+From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH v3 5/5] MFD: ti_tscadc: add suspend/resume functionality
+Date: Fri, 14 Sep 2012 04:59:21 +0000
+Message-ID: <4CE347531D4CA947960AF71FF095B9323E953CC3@DBDE01.ent.ti.com>
+References: <1347532819-505-1-git-send-email-rachna@ti.com>
+ <1347532819-505-6-git-send-email-rachna@ti.com> <5051D92F.1090309@metafoo.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------030908050008040802090608"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.22]:41882 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754178Ab2INDLv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Sep 2012 23:11:51 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5051D92F.1090309-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Content-Language: en-US
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030908050008040802090608
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On Thu, Sep 13, 2012 at 18:31:35, Lars-Peter Clausen wrote:
+> On 09/13/2012 12:40 PM, Patil, Rachna wrote:
+> > This patch adds support for suspend/resume of TSC/ADC MFDevice.
+> > 
+> > Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
+> > ---
+> > Changes in v2:
+> > 	Added this patch newly in this patch series.
+> > 
+> > Changes in v3:
+> > 	No changes.
+> > 
+> >  drivers/iio/adc/ti_adc.c           |   32 ++++++++++++++++++++++++++++++++
+> >  drivers/input/touchscreen/ti_tsc.c |   33 +++++++++++++++++++++++++++++++++
+> >  drivers/mfd/ti_tscadc.c            |   33 ++++++++++++++++++++++++++++++++-
+> >  include/linux/mfd/ti_tscadc.h      |    3 +++
+> >  4 files changed, 100 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/drivers/iio/adc/ti_adc.c b/drivers/iio/adc/ti_adc.c index 
+> > 56f8af2..69f19f0 100644
+> > --- a/drivers/iio/adc/ti_adc.c
+> > +++ b/drivers/iio/adc/ti_adc.c
+> > @@ -207,6 +207,36 @@ static int __devexit tiadc_remove(struct platform_device *pdev)
+> >  	return 0;
+> >  }
+> >  
+> [...]
+> >  static struct platform_driver tiadc_driver = {
+> >  	.driver = {
+> >  		.name   = "tiadc",
+> > @@ -214,6 +244,8 @@ static struct platform_driver tiadc_driver = {
+> >  	},
+> >  	.probe	= tiadc_probe,
+> >  	.remove	= __devexit_p(tiadc_remove),
+> > +	.suspend = adc_suspend,
+> > +	.resume = adc_resume,
+> >  };
+> >  
+> 
+> 
+> Using the suspend/resume callbacks is deprecated, please use dev_pm_ops.
+> Same comment applies to the other two drivers.
 
-Hi all,
+Ok. I will make changes in all the 3 driver to use dev_pm_ops instead of suspend/resume callbacks.
 
-I've recently acquired a mouse that reports several input devices, one
-of them being a keyboard (lsusb info attached), and only the keyboard is
-recognized when using a stock kernel. The mouse is thus rendered not
-functional. Applying this patch from two years ago [1] solved the issue.
-My question now is: Is there some particular reason why it was not
-discussed at all and has not made it into mainline, or was it just
-forgotten among all the other stuff? Note that this patch is not
-specific to one device, as my mouse is completely different from the
-device mentioned in the patch, and I've seen several reports on the net
-where this patch was also successfully applied to different brands of
-input devices [2. 3, 4]
+Regards,
+Rachna
 
-If you need further information or testing, please let me know.
-
-Cheers, Ilia
-
-[1] http://www.spinics.net/lists/linux-input/msg09832.html
-[2] http://ubuntuforums.org/showthread.php?t=2021631
-[3]
-http://forums.opensuse.org/english/get-technical-help-here/hardware/473200-usb-gaming-mouse-04d9-a078-not-working-linux-plus-workaround.html
-[4] http://ubuntuforums.org/showthread.php?t=1697286
-
---------------030908050008040802090608
-Content-Type: text/plain; charset=UTF-8;
- name="mouse_lsusb.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="mouse_lsusb.txt"
-
-QnVzIDAwMyBEZXZpY2UgMDAzOiBJRCAwNGQ5OmEwNjcgSG9sdGVrIFNlbWljb25kdWN0b3Is
-IEluYy4KRGV2aWNlIERlc2NyaXB0b3I6CiAgYkxlbmd0aCAgICAgICAgICAgICAgICAxOAog
-IGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDEKICBiY2RVU0IgICAgICAgICAgICAgICAyLjAw
-CiAgYkRldmljZUNsYXNzICAgICAgICAgICAgMCAoRGVmaW5lZCBhdCBJbnRlcmZhY2UgbGV2
-ZWwpCiAgYkRldmljZVN1YkNsYXNzICAgICAgICAgMAogIGJEZXZpY2VQcm90b2NvbCAgICAg
-ICAgIDAKICBiTWF4UGFja2V0U2l6ZTAgICAgICAgICA4CiAgaWRWZW5kb3IgICAgICAgICAg
-IDB4MDRkOSBIb2x0ZWsgU2VtaWNvbmR1Y3RvciwgSW5jLgogIGlkUHJvZHVjdCAgICAgICAg
-ICAweGEwNjcKICBiY2REZXZpY2UgICAgICAgICAgICAxLjE2CiAgaU1hbnVmYWN0dXJlciAg
-ICAgICAgICAgMSBIb2x0ZWsKICBpUHJvZHVjdCAgICAgICAgICAgICAgICAyIFVTQiBHYW1p
-bmcgTW91c2UKICBpU2VyaWFsICAgICAgICAgICAgICAgICAwCiAgYk51bUNvbmZpZ3VyYXRp
-b25zICAgICAgMQogIENvbmZpZ3VyYXRpb24gRGVzY3JpcHRvcjoKICAgIGJMZW5ndGggICAg
-ICAgICAgICAgICAgIDkKICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDIKICAgIHdUb3Rh
-bExlbmd0aCAgICAgICAgICAgODQKICAgIGJOdW1JbnRlcmZhY2VzICAgICAgICAgIDMKICAg
-IGJDb25maWd1cmF0aW9uVmFsdWUgICAgIDEKICAgIGlDb25maWd1cmF0aW9uICAgICAgICAg
-IDAKICAgIGJtQXR0cmlidXRlcyAgICAgICAgIDB4YTAKICAgICAgKEJ1cyBQb3dlcmVkKQog
-ICAgICBSZW1vdGUgV2FrZXVwCiAgICBNYXhQb3dlciAgICAgICAgICAgICAgMTAwbUEKICAg
-IEludGVyZmFjZSBEZXNjcmlwdG9yOgogICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5
-CiAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDQKICAgICAgYkludGVyZmFjZU51bWJl
-ciAgICAgICAgMAogICAgICBiQWx0ZXJuYXRlU2V0dGluZyAgICAgICAwCiAgICAgIGJOdW1F
-bmRwb2ludHMgICAgICAgICAgIDEKICAgICAgYkludGVyZmFjZUNsYXNzICAgICAgICAgMyBI
-dW1hbiBJbnRlcmZhY2UgRGV2aWNlCiAgICAgIGJJbnRlcmZhY2VTdWJDbGFzcyAgICAgIDEg
-Qm9vdCBJbnRlcmZhY2UgU3ViY2xhc3MKICAgICAgYkludGVyZmFjZVByb3RvY29sICAgICAg
-MSBLZXlib2FyZAogICAgICBpSW50ZXJmYWNlICAgICAgICAgICAgICAwCiAgICAgICAgSElE
-IERldmljZSBEZXNjcmlwdG9yOgogICAgICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAg
-OQogICAgICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAzMwogICAgICAgICAgYmNkSElE
-ICAgICAgICAgICAgICAgMS4xMAogICAgICAgICAgYkNvdW50cnlDb2RlICAgICAgICAgICAg
-MCBOb3Qgc3VwcG9ydGVkCiAgICAgICAgICBiTnVtRGVzY3JpcHRvcnMgICAgICAgICAxCiAg
-ICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgIDM0IFJlcG9ydAogICAgICAgICAgd0Rl
-c2NyaXB0b3JMZW5ndGggICAgICA2MwogICAgICAgICBSZXBvcnQgRGVzY3JpcHRvcnM6CiAg
-ICAgICAgICAgKiogVU5BVkFJTEFCTEUgKioKICAgICAgRW5kcG9pbnQgRGVzY3JpcHRvcjoK
-ICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA3CiAgICAgICAgYkRlc2NyaXB0b3JU
-eXBlICAgICAgICAgNQogICAgICAgIGJFbmRwb2ludEFkZHJlc3MgICAgIDB4ODEgIEVQIDEg
-SU4KICAgICAgICBibUF0dHJpYnV0ZXMgICAgICAgICAgICAzCiAgICAgICAgICBUcmFuc2Zl
-ciBUeXBlICAgICAgICAgICAgSW50ZXJydXB0CiAgICAgICAgICBTeW5jaCBUeXBlICAgICAg
-ICAgICAgICAgTm9uZQogICAgICAgICAgVXNhZ2UgVHlwZSAgICAgICAgICAgICAgIERhdGEK
-ICAgICAgICB3TWF4UGFja2V0U2l6ZSAgICAgMHgwMDA4ICAxeCA4IGJ5dGVzCiAgICAgICAg
-YkludGVydmFsICAgICAgICAgICAgICAgMgogICAgSW50ZXJmYWNlIERlc2NyaXB0b3I6CiAg
-ICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDkKICAgICAgYkRlc2NyaXB0b3JUeXBlICAg
-ICAgICAgNAogICAgICBiSW50ZXJmYWNlTnVtYmVyICAgICAgICAxCiAgICAgIGJBbHRlcm5h
-dGVTZXR0aW5nICAgICAgIDAKICAgICAgYk51bUVuZHBvaW50cyAgICAgICAgICAgMQogICAg
-ICBiSW50ZXJmYWNlQ2xhc3MgICAgICAgICAzIEh1bWFuIEludGVyZmFjZSBEZXZpY2UKICAg
-ICAgYkludGVyZmFjZVN1YkNsYXNzICAgICAgMCBObyBTdWJjbGFzcwogICAgICBiSW50ZXJm
-YWNlUHJvdG9jb2wgICAgICAyIE1vdXNlCiAgICAgIGlJbnRlcmZhY2UgICAgICAgICAgICAg
-IDAKICAgICAgICBISUQgRGV2aWNlIERlc2NyaXB0b3I6CiAgICAgICAgICBiTGVuZ3RoICAg
-ICAgICAgICAgICAgICA5CiAgICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgIDMzCiAg
-ICAgICAgICBiY2RISUQgICAgICAgICAgICAgICAxLjEwCiAgICAgICAgICBiQ291bnRyeUNv
-ZGUgICAgICAgICAgICAwIE5vdCBzdXBwb3J0ZWQKICAgICAgICAgIGJOdW1EZXNjcmlwdG9y
-cyAgICAgICAgIDEKICAgICAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgMzQgUmVwb3J0
-CiAgICAgICAgICB3RGVzY3JpcHRvckxlbmd0aCAgICAgMTc1CiAgICAgICAgIFJlcG9ydCBE
-ZXNjcmlwdG9yczoKICAgICAgICAgICAqKiBVTkFWQUlMQUJMRSAqKgogICAgICBFbmRwb2lu
-dCBEZXNjcmlwdG9yOgogICAgICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDcKICAgICAg
-ICBiRGVzY3JpcHRvclR5cGUgICAgICAgICA1CiAgICAgICAgYkVuZHBvaW50QWRkcmVzcyAg
-ICAgMHg4MiAgRVAgMiBJTgogICAgICAgIGJtQXR0cmlidXRlcyAgICAgICAgICAgIDMKICAg
-ICAgICAgIFRyYW5zZmVyIFR5cGUgICAgICAgICAgICBJbnRlcnJ1cHQKICAgICAgICAgIFN5
-bmNoIFR5cGUgICAgICAgICAgICAgICBOb25lCiAgICAgICAgICBVc2FnZSBUeXBlICAgICAg
-ICAgICAgICAgRGF0YQogICAgICAgIHdNYXhQYWNrZXRTaXplICAgICAweDAwMDggIDF4IDgg
-Ynl0ZXMKICAgICAgICBiSW50ZXJ2YWwgICAgICAgICAgICAgICAyCiAgICBJbnRlcmZhY2Ug
-RGVzY3JpcHRvcjoKICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQogICAgICBiRGVz
-Y3JpcHRvclR5cGUgICAgICAgICA0CiAgICAgIGJJbnRlcmZhY2VOdW1iZXIgICAgICAgIDIK
-ICAgICAgYkFsdGVybmF0ZVNldHRpbmcgICAgICAgMAogICAgICBiTnVtRW5kcG9pbnRzICAg
-ICAgICAgICAxCiAgICAgIGJJbnRlcmZhY2VDbGFzcyAgICAgICAgIDMgSHVtYW4gSW50ZXJm
-YWNlIERldmljZQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAgICAwIE5vIFN1YmNsYXNz
-CiAgICAgIGJJbnRlcmZhY2VQcm90b2NvbCAgICAgIDAgTm9uZQogICAgICBpSW50ZXJmYWNl
-ICAgICAgICAgICAgICAwCiAgICAgICAgSElEIERldmljZSBEZXNjcmlwdG9yOgogICAgICAg
-ICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQogICAgICAgICAgYkRlc2NyaXB0b3JUeXBl
-ICAgICAgICAzMwogICAgICAgICAgYmNkSElEICAgICAgICAgICAgICAgMS4xMAogICAgICAg
-ICAgYkNvdW50cnlDb2RlICAgICAgICAgICAgMCBOb3Qgc3VwcG9ydGVkCiAgICAgICAgICBi
-TnVtRGVzY3JpcHRvcnMgICAgICAgICAxCiAgICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAg
-ICAgIDM0IFJlcG9ydAogICAgICAgICAgd0Rlc2NyaXB0b3JMZW5ndGggICAgICAyNgogICAg
-ICAgICBSZXBvcnQgRGVzY3JpcHRvcnM6CiAgICAgICAgICAgKiogVU5BVkFJTEFCTEUgKioK
-ICAgICAgRW5kcG9pbnQgRGVzY3JpcHRvcjoKICAgICAgICBiTGVuZ3RoICAgICAgICAgICAg
-ICAgICA3CiAgICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgNQogICAgICAgIGJFbmRw
-b2ludEFkZHJlc3MgICAgIDB4ODMgIEVQIDMgSU4KICAgICAgICBibUF0dHJpYnV0ZXMgICAg
-ICAgICAgICAzCiAgICAgICAgICBUcmFuc2ZlciBUeXBlICAgICAgICAgICAgSW50ZXJydXB0
-CiAgICAgICAgICBTeW5jaCBUeXBlICAgICAgICAgICAgICAgTm9uZQogICAgICAgICAgVXNh
-Z2UgVHlwZSAgICAgICAgICAgICAgIERhdGEKICAgICAgICB3TWF4UGFja2V0U2l6ZSAgICAg
-MHgwMDA4ICAxeCA4IGJ5dGVzCiAgICAgICAgYkludGVydmFsICAgICAgICAgICAgICAxNgpE
-ZXZpY2UgU3RhdHVzOiAgICAgMHgwMDAwCiAgKEJ1cyBQb3dlcmVkKQo=
---------------030908050008040802090608--
+> 
+> 
+> 

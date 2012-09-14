@@ -1,30 +1,37 @@
-From: Anca Emanuel <anca.emanuel@gmail.com>
-Subject: (unknown)
-Date: Fri, 14 Sep 2012 23:02:17 +0300
-Message-ID: <CAJL_dMuX9nv88CyBbNjurHG0ehaZ_qmX04yv-S42+19GWmeKFA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f174.google.com ([209.85.220.174]:36337 "EHLO
-	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750978Ab2INUCR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Sep 2012 16:02:17 -0400
-Received: by vcbfo13 with SMTP id fo13so4350766vcb.19
-        for <linux-input@vger.kernel.org>; Fri, 14 Sep 2012 13:02:17 -0700 (PDT)
-Subject: 
-Sender: linux-input-owner@vger.kernel.org
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 20/24] input: rpcmouse: use __iomem pointers for MMIO
+Date: Fri, 14 Sep 2012 23:34:48 +0200
+Message-ID: <1347658492-11608-21-git-send-email-arnd@arndb.de>
+References: <1347658492-11608-1-git-send-email-arnd@arndb.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1347658492-11608-1-git-send-email-arnd@arndb.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org, Will Deacon <will.deacon@arm.com>, Russell King <rmk+kernel@arm.linux.org.uk>, Nicolas Pitre <nico@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com
 
->It looks like there is another touchpad that got broken with that "out of
->bounds" change, see:
+ARM is moving to stricter checks on readl/write functions,
+so we need to use the correct types everywhere.
 
->https://bugzilla.kernel.org/show_bug.cgi?id=46371
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/input/mouse/rpcmouse.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-[quote]Comment #8 From Alan Swanson 2012-09-11 10:28:40
-Yes, this patch fixes the issue with my vertical scroll region. Thank
-you.[/quote]
-
-I think that can be an Tested-by tag.
+diff --git a/drivers/input/mouse/rpcmouse.c b/drivers/input/mouse/rpcmouse.c
+index 272dedd..21c60fe 100644
+--- a/drivers/input/mouse/rpcmouse.c
++++ b/drivers/input/mouse/rpcmouse.c
+@@ -42,7 +42,7 @@ static irqreturn_t rpcmouse_irq(int irq, void *dev_id)
+ 
+ 	x = (short) iomd_readl(IOMD_MOUSEX);
+ 	y = (short) iomd_readl(IOMD_MOUSEY);
+-	b = (short) (__raw_readl(0xe0310000) ^ 0x70);
++	b = (short) (__raw_readl(IOMEM(0xe0310000)) ^ 0x70);
+ 
+ 	dx = x - rpcmouse_lastx;
+ 	dy = y - rpcmouse_lasty;
+-- 
+1.7.10

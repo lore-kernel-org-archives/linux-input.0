@@ -1,34 +1,60 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [Patch v1 4/7] DA9055 GPIO driver
-Date: Fri, 14 Sep 2012 17:38:54 +0100
-Message-ID: <20120914163854.GG4684@opensource.wolfsonmicro.com>
-References: <1347629416.18587.15.camel@dhruva>
- <CACRpkdYQutaM2aHyJOmtYZtZ8w6c-pQ4xm5adUAia1UH-SM88Q@mail.gmail.com>
+From: Ferruh Yigit <fery@cypress.com>
+Subject: [PATCH v2 0/3] Input: cyttsp4 - driver for Cypress TMA4XX touchscreen devices
+Date: Fri, 14 Sep 2012 20:48:34 +0300
+Message-ID: <1347644917-13269-1-git-send-email-fery@cypress.com>
+References: <Ferruh Yigit <fery@cypress.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:60402 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751827Ab2INQi5 (ORCPT
+Received: from relay.ihostexchange.net ([66.46.182.53]:10452 "EHLO
+	relay.ihostexchange.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754740Ab2INRsz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Sep 2012 12:38:57 -0400
-Content-Disposition: inline
-In-Reply-To: <CACRpkdYQutaM2aHyJOmtYZtZ8w6c-pQ4xm5adUAia1UH-SM88Q@mail.gmail.com>
+	Fri, 14 Sep 2012 13:48:55 -0400
+In-Reply-To: <Ferruh Yigit <fery@cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Ashish Jangam <ashish.jangam@kpitcummins.com>, Grant Likely <grant.likely@secretlab.ca>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org, David Dajun Chen <dchen@diasemi.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Kevin McNeely <kev@cypress.com>, Phil Warkentin <pwar@cypress.com>, Ferruh Yigit <fery@cypress.com>, Javier Martinez Canillas <javier@dowhile0.org>, Henrik Rydberg <rydberg@euromail.se>, Shawn Landden <shawnlandden@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Olivier Sobrie <olivier@sobrie.be>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Sep 14, 2012 at 04:13:57PM +0200, Linus Walleij wrote:
+This driver is for Cypress TrueTouch(tm) Standard Product controllers,
+Generation4 devices.
 
-> But the parent driver is using regmap, sand you seem not to use the
-> struct da9055
-> for anything else than passing reads/writes, so isn't it simpler to just pass
-> the struct regmap * and use update_bits etc directly and remove a layer of
-> indirection?
+This is second version of driver, code re-structured to match with
+existing Generation3 driver code.
 
-> I'm very uncertain but Mark will know the proper design pattern.
+Driver consist of three modules:
+- Core module: Main module, gets data from TTSP controller,
+sent MT events to Linux
+- I2C module: Underlying communication with I2C bus
+- SPI module: Underlying communication with SPI bus
 
-Either way is fine - usually the device specific functions end up being
-static inlines in the header so the code is the same.  It really depends
-if it's useful to have the full device pointer around for other things.
+Ferruh Yigit (3):
+  Input: cyttsp4 - core driver for Cypress TMA4XX touchscreen devices
+  Input: cyttsp4 - I2C driver for Cypress TMA4XX touchscreen devices
+  Input: cyttsp4 - SPI driver for Cypress TMA4XX touchscreen devices
+
+ drivers/input/touchscreen/Kconfig        |   57 +
+ drivers/input/touchscreen/Makefile       |   14 +
+ drivers/input/touchscreen/cyttsp4_core.c | 2308 ++++++++++++++++++++++++++++++
+ drivers/input/touchscreen/cyttsp4_core.h |  525 +++++++
+ drivers/input/touchscreen/cyttsp4_i2c.c  |  191 +++
+ drivers/input/touchscreen/cyttsp4_i2c.h  |   34 +
+ drivers/input/touchscreen/cyttsp4_spi.c  |  318 ++++
+ drivers/input/touchscreen/cyttsp4_spi.h  |   34 +
+ include/linux/input/cyttsp4.h            |  126 ++
+ 9 files changed, 3607 insertions(+)
+ create mode 100644 drivers/input/touchscreen/cyttsp4_core.c
+ create mode 100644 drivers/input/touchscreen/cyttsp4_core.h
+ create mode 100644 drivers/input/touchscreen/cyttsp4_i2c.c
+ create mode 100644 drivers/input/touchscreen/cyttsp4_i2c.h
+ create mode 100644 drivers/input/touchscreen/cyttsp4_spi.c
+ create mode 100644 drivers/input/touchscreen/cyttsp4_spi.h
+ create mode 100644 include/linux/input/cyttsp4.h
+
+--
+1.7.9.5
+
+
+This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.

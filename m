@@ -1,40 +1,80 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH] HID: Fix return value in hid-core.c
-Date: Fri, 14 Sep 2012 17:16:17 +0530
-Message-ID: <1347623177-14221-1-git-send-email-sachin.kamat@linaro.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:46423 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753952Ab2INLt1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Sep 2012 07:49:27 -0400
-Received: by pbbrr13 with SMTP id rr13so5511808pbb.19
-        for <linux-input@vger.kernel.org>; Fri, 14 Sep 2012 04:49:26 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Ashish Jangam <ashish.jangam@kpitcummins.com>
+Subject: [Patch v1 0/7] DA9055 PMIC driver
+Date: Fri, 14 Sep 2012 18:50:12 +0530
+Message-ID: <1347628812.18587.4.camel@dhruva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Alessandro Zummo <a.zummo@towertech.it>, Wim Van Sebroeck <wim@iguana.be>, Grant Likely <grant.likely@secretlab.ca>, Liam Girdwood <lrg@slimlogic.co.uk>
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, rtc-linux@googlegroups.com, linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org, David Dajun Chen <dchen@diasemi.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, sachin.kamat@linaro.org, patches@linaro.org
 
-Return -ENOMEM instead of -1 if memory allocation fails.
+The following patch series adds support to the DA9055 PMIC.
 
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
----
- drivers/hid/hid-core.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+The DA9055 is a low power Power Management Integrated Circuit. This PMIC
+device is only controlled from an I2C device.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 16d6454..1011a22 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -134,7 +134,7 @@ static int open_collection(struct hid_parser *parser, unsigned type)
- 				parser->device->collection_size * 2, GFP_KERNEL);
- 		if (collection == NULL) {
- 			hid_err(parser->device, "failed to reallocate collection array\n");
--			return -1;
-+			return -ENOMEM;
- 		}
- 		memcpy(collection, parser->device->collection,
- 			sizeof(struct hid_collection) *
--- 
-1.7.4.1
+The driver for the DA9055 consists of a core (i2c) device driver and its
+dependent component device drivers for:
+regulator - 2 BUCKS, 6 LDOs
+rtc - low power clock
+gpio - 3 pins
+hwmon - 5 ADC channels
+watchdog - system monitor
+onkey - button device
 
+These drivers has been tested on a Samsung SMDK6410.
+
+Ashish Jangam (7):
+  DA9058 MFD core
+  DA9058 REGULATOR driver
+  DA9058 RTC driver
+  DA9058 GPIO driver
+  DA9058 HWMON driver
+  DA9058 WATCHDOG driver
+  DA9058 ONKEY driver
+
+ Documentation/hwmon/da9055           |   47 +++
+ drivers/gpio/Kconfig                 |   11 +
+ drivers/gpio/Makefile                |    1 +
+ drivers/gpio/gpio-da9055.c           |  204 ++++++++++
+ drivers/hwmon/Kconfig                |   10 +
+ drivers/hwmon/Makefile               |    1 +
+ drivers/hwmon/da9055-hwmon.c         |  342 ++++++++++++++++
+ drivers/input/misc/Kconfig           |   10 +
+ drivers/input/misc/Makefile          |    1 +
+ drivers/input/misc/da9055_onkey.c    |  121 ++++++
+ drivers/mfd/Kconfig                  |   17 +
+ drivers/mfd/Makefile                 |    3 +
+ drivers/mfd/da9055-core.c            |  423 ++++++++++++++++++++
+ drivers/mfd/da9055-i2c.c             |   93 +++++
+ drivers/regulator/Kconfig            |   10 +
+ drivers/regulator/Makefile           |    1 +
+ drivers/regulator/da9055-regulator.c |  727
+++++++++++++++++++++++++++++++++++
+ drivers/rtc/Kconfig                  |   10 +
+ drivers/rtc/Makefile                 |    1 +
+ drivers/rtc/rtc-da9055.c             |  430 ++++++++++++++++++++
+ drivers/watchdog/Kconfig             |   10 +
+ drivers/watchdog/Makefile            |    1 +
+ drivers/watchdog/da9055_wdt.c        |  227 +++++++++++
+ include/linux/mfd/da9055/core.h      |   94 +++++
+ include/linux/mfd/da9055/pdata.h     |   32 ++
+ include/linux/mfd/da9055/reg.h       |  699
+++++++++++++++++++++++++++++++++
+ 26 files changed, 3526 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/hwmon/da9055
+ create mode 100644 drivers/gpio/gpio-da9055.c
+ create mode 100644 drivers/hwmon/da9055-hwmon.c
+ create mode 100644 drivers/input/misc/da9055_onkey.c
+ create mode 100644 drivers/mfd/da9055-core.c
+ create mode 100644 drivers/mfd/da9055-i2c.c
+ create mode 100644 drivers/regulator/da9055-regulator.c
+ mode change 100644 => 100755 drivers/rtc/Kconfig
+ create mode 100644 drivers/rtc/rtc-da9055.c
+ create mode 100644 drivers/watchdog/da9055_wdt.c
+ create mode 100644 include/linux/mfd/da9055/core.h
+ create mode 100644 include/linux/mfd/da9055/pdata.h
+ create mode 100644 include/linux/mfd/da9055/reg.h

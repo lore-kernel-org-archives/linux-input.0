@@ -1,98 +1,209 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/1] Input: ab8500-ponkey: Make the distinction between
- DT and non-DT boots
-Date: Fri, 14 Sep 2012 09:03:48 +0100
-Message-ID: <20120914080347.GB3374@gmail.com>
-References: <1344256323-10484-1-git-send-email-lee.jones@linaro.org>
- <CACRpkdaKa=NAObnjJyifhxyqu3Hcgj7Fxqi=bdNFqbm7V_8cSw@mail.gmail.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3 4/5] IIO : ADC: tiadc: Add support of TI's ADC driver
+Date: Fri, 14 Sep 2012 09:20:57 +0100
+Message-ID: <5052E8E9.4030206@kernel.org>
+References: <1347532819-505-1-git-send-email-rachna@ti.com> <1347532819-505-5-git-send-email-rachna@ti.com> <5051CDEA.5080200@kernel.org> <4CE347531D4CA947960AF71FF095B9323E953D32@DBDE01.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:62583 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755668Ab2INIDx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Sep 2012 04:03:53 -0400
-Received: by eekc1 with SMTP id c1so2342438eek.19
-        for <linux-input@vger.kernel.org>; Fri, 14 Sep 2012 01:03:52 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CACRpkdaKa=NAObnjJyifhxyqu3Hcgj7Fxqi=bdNFqbm7V_8cSw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4CE347531D4CA947960AF71FF095B9323E953D32-Er742YJ7I/eIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: arnd@arndb.de, Dmitry Torokhov <dmitry.torokhov@gmail.com>, arm@kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, linux-input@vger.kernel.org
 
-On Thu, Sep 13, 2012 at 11:35:43AM +0200, Linus Walleij wrote:
-> On Mon, Aug 6, 2012 at 2:32 PM, Lee Jones <lee.jones@linaro.org> wrot=
-e:
->=20
-> > If we're booting with Device Tree enabled, we want the IRQ numbers =
-to
-> > be taken and translated from the Device Tree binary. If not, they
-> > should be taken from the resource allocation defined in the AB8500 =
-MFD
-> > core driver.
-> >
-> > Tested-by: Linus Walleij <linus.walleij@linaro.org>
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
->=20
-> Not having this patch in v3.6-rcN gives the following boot noise (and
-> the key does not work):
->=20
-> ------------[ cut here ]------------
-> WARNING: at /home/elinwal/linux-stericsson/kernel/irq/irqdomain.c:137
-> irq_domain_legacy_revmap+0x20/0x48()
-> Modules linked in:
-> [<c0014710>] (unwind_backtrace+0x0/0xf8) from [<c001d37c>]
-> (warn_slowpath_common+0x4c/0x64)
-> [<c001d37c>] (warn_slowpath_common+0x4c/0x64) from [<c001d3b0>]
-> (warn_slowpath_null+0x1c/0x24)
-> [<c001d3b0>] (warn_slowpath_null+0x1c/0x24) from [<c0064200>]
-> (irq_domain_legacy_revmap+0x20/0x48)
-> [<c0064200>] (irq_domain_legacy_revmap+0x20/0x48) from [<c02cea28>]
-> (ab8500_ponkey_probe+0xd0/0x1f8)
-> [<c02cea28>] (ab8500_ponkey_probe+0xd0/0x1f8) from [<c01a1e20>]
-> (platform_drv_probe+0x14/0x18)
-> [<c01a1e20>] (platform_drv_probe+0x14/0x18) from [<c01a0be4>]
-> (driver_probe_device+0x78/0x208)
-> [<c01a0be4>] (driver_probe_device+0x78/0x208) from [<c01a0e00>]
-> (__driver_attach+0x8c/0x90)
-> [<c01a0e00>] (__driver_attach+0x8c/0x90) from [<c019f514>]
-> (bus_for_each_dev+0x50/0x7c)
-> [<c019f514>] (bus_for_each_dev+0x50/0x7c) from [<c01a0424>]
-> (bus_add_driver+0x170/0x23c)
-> [<c01a0424>] (bus_add_driver+0x170/0x23c) from [<c01a12b4>]
-> (driver_register+0x78/0x144)
-> [<c01a12b4>] (driver_register+0x78/0x144) from [<c0008598>]
-> (do_one_initcall+0x34/0x174)
-> [<c0008598>] (do_one_initcall+0x34/0x174) from [<c03df8e8>]
-> (kernel_init+0xfc/0x1bc)
-> [<c03df8e8>] (kernel_init+0xfc/0x1bc) from [<c000f1d4>]
-> (kernel_thread_exit+0x0/0x8)
-> ---[ end trace d77aa0db848f0e28 ]---
-> ab8500-core ab8500-core.0: Failed to request dbf IRQ#0: -22
-> ab8500-poweron-key: probe of ab8500-poweron-key.0 failed with error -=
-22
->=20
-> So how do we proceed to not release v3.6 with this regression?
->=20
-> Shall all of the MFD IRQdomain stuff be pulled into the -rc series?
->=20
-> (Linux-next seems to be working, so the real fix is in there)
-
-I haven't tested this, but I think this patch should be pulled out
-of -next and pushed into the -rcs to fix the issue you see above.
-The real fix along with the revert to this patch also resides in
--next and will be applied during the next merge window.
-
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On 14/09/12 07:00, Patil, Rachna wrote:
+> On Thu, Sep 13, 2012 at 17:43:30, Jonathan Cameron wrote:
+>> On 13/09/12 11:40, Patil, Rachna wrote:
+>>> This patch adds support for TI's ADC driver.
+>>> This is a multifunctional device.
+>>> Analog input lines are provided on which voltage measurements can be
+>>> carried out.
+>>> You can have upto 8 input lines.
+>>>
+>>> Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
+>>
+>> There's a little fuzz in applying this due to other drivers that have gone in recently.
+>>
+>> Actually this is going to be 'interesting' to merge. Dmitry, Samuel thoughts on who takes this one and how?  Maybe this is a case for a 'special' branch pulled into more than one tree?
+>>
+>>
+>> One minor thing inline.  I have an aversion to dynamic allocation of
+>> things that are then constant.
+>>
+>> Also the module name is simply ti_adc. Does seem a little 'vague'
+>> given the range of ADC's TI makes :)  Perhaps keep the reference
+>> to the tsc in there?  Personally I'd have preferred the whole thing
+>> being named after a particular part number (any one it support would
+>> do) to avoid a clash in future with a new touch screen adc from TI.
+>> Bit late for that though I guess ;)
+>
+> Yes, true.
+> TI definitely might come up with more IP's of this type.
+> This IP(TSC / ADC) is present on AM335x. If necessary we can rename the driver to ti_am335x_XXX.
+I'd be in favour of doing this now rather than when the problem presents 
+itself.  Anyone mind?
+>
+>>
+>> Jonathan
+>>> ---
+>>> Changes in v2:
+>>> 	Addressed review comments from Matthias Kaehlcke
+>>>
+>>> Changes in v3:
+>>> 	Addressed review comments from Jonathan Cameron.
+>>> 	Added comments, new line appropriately.
+>>>
+>>>    drivers/iio/adc/Kconfig              |    7 +
+>>>    drivers/iio/adc/Makefile             |    1 +
+>>>    drivers/iio/adc/ti_adc.c             |  223 ++++++++++++++++++++++++++++++++++
+>>>    drivers/mfd/ti_tscadc.c              |   18 +++-
+>>>    include/linux/mfd/ti_tscadc.h        |    9 ++-
+>>>    include/linux/platform_data/ti_adc.h |   14 ++
+>>>    6 files changed, 270 insertions(+), 2 deletions(-)
+>>>    create mode 100644 drivers/iio/adc/ti_adc.c
+>>>    create mode 100644 include/linux/platform_data/ti_adc.h
+>>>
+>>> diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
+>>> index 8a78b4f..ad32df8 100644
+>>> --- a/drivers/iio/adc/Kconfig
+>>> +++ b/drivers/iio/adc/Kconfig
+>>> @@ -22,4 +22,11 @@ config AT91_ADC
+>>>    	help
+>>>    	  Say yes here to build support for Atmel AT91 ADC.
+>>>
+>>> +config TI_ADC
+>>> +	tristate "TI's ADC driver"
+>>> +	depends on ARCH_OMAP2PLUS
+>>> +	help
+>>> +	  Say yes here to build support for Texas Instruments ADC
+>>> +	  driver which is also a MFD client.
+>>> +
+>>>    endmenu
+>>> diff --git a/drivers/iio/adc/Makefile b/drivers/iio/adc/Makefile
+>>> index 52eec25..a930cee 100644
+>>> --- a/drivers/iio/adc/Makefile
+>>> +++ b/drivers/iio/adc/Makefile
+>>> @@ -4,3 +4,4 @@
+>>>
+>>>    obj-$(CONFIG_AD7266) += ad7266.o
+>>>    obj-$(CONFIG_AT91_ADC) += at91_adc.o
+>>> +obj-$(CONFIG_TI_ADC) += ti_adc.o
+>>> diff --git a/drivers/iio/adc/ti_adc.c b/drivers/iio/adc/ti_adc.c
+>>> new file mode 100644
+>>> index 0000000..56f8af2
+>>> --- /dev/null
+>>> +++ b/drivers/iio/adc/ti_adc.c
+>>> @@ -0,0 +1,223 @@
+>>> +/*
+>>> + * TI ADC MFD driver
+>>> + *
+>>> + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+>>> + *
+>>> + * This program is free software; you can redistribute it and/or
+>>> + * modify it under the terms of the GNU General Public License as
+>>> + * published by the Free Software Foundation version 2.
+>>> + *
+>>> + * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+>>> + * kind, whether express or implied; without even the implied warranty
+>>> + * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+>>> + * GNU General Public License for more details.
+>>> + */
+>>> +
+>>> +#include <linux/init.h>
+>>> +#include <linux/kernel.h>
+>>> +#include <linux/err.h>
+>>> +#include <linux/module.h>
+>>> +#include <linux/slab.h>
+>>> +#include <linux/interrupt.h>
+>>> +#include <linux/platform_device.h>
+>>> +#include <linux/io.h>
+>>> +#include <linux/iio/iio.h>
+>>> +
+>>> +#include <linux/mfd/ti_tscadc.h>
+>>> +#include <linux/platform_data/ti_adc.h>
+>>> +
+>>> +struct adc_device {
+>>> +	struct ti_tscadc_dev *mfd_tscadc;
+>>> +	struct iio_dev *idev;
+>>> +	int channels;
+>>> +};
+>>> +
+>>> +static unsigned int adc_readl(struct adc_device *adc, unsigned int reg)
+>>> +{
+>>> +	return readl(adc->mfd_tscadc->tscadc_base + reg);
+>>> +}
+>>> +
+>>> +static void adc_writel(struct adc_device *adc, unsigned int reg,
+>>> +					unsigned int val)
+>>> +{
+>>> +	writel(val, adc->mfd_tscadc->tscadc_base + reg);
+>>> +}
+>>> +
+>>> +static void adc_step_config(struct adc_device *adc_dev)
+>>> +{
+>>> +	unsigned int    stepconfig;
+>>> +	int i, channels = 0, steps;
+>>> +
+>>> +	/*
+>>> +	 * There are 16 configurable steps and 8 analog input
+>>> +	 * lines available which are shared between Touchscreen and ADC.
+>>> +	 *
+>>> +	 * Steps backwards i.e. from 16 towards 0 are used by ADC
+>>> +	 * depending on number of input lines needed.
+>>> +	 * Channel would represent which analog input
+>>> +	 * needs to be given to ADC to digitalize data.
+>>> +	 */
+>>> +
+>>> +	steps = TOTAL_STEPS - adc_dev->channels;
+>>> +	channels = TOTAL_CHANNELS - adc_dev->channels;
+>>> +
+>>> +	stepconfig = STEPCONFIG_AVG_16 | STEPCONFIG_FIFO1;
+>>> +
+>>> +	for (i = (steps + 1); i <= TOTAL_STEPS; i++) {
+>>> +		adc_writel(adc_dev, REG_STEPCONFIG(i),
+>>> +				stepconfig | STEPCONFIG_INP(channels));
+>>> +		adc_writel(adc_dev, REG_STEPDELAY(i),
+>>> +				STEPCONFIG_OPENDLY);
+>>> +		channels++;
+>>> +	}
+>>> +	adc_writel(adc_dev, REG_SE, STPENB_STEPENB);
+>>> +}
+>>> +
+>>> +static int tiadc_channel_init(struct iio_dev *idev, int channels)
+>>> +{
+>>> +	struct iio_chan_spec *chan_array;
+>>> +	int i;
+>>> +
+>>> +	idev->num_channels = channels;
+>>> +	chan_array = kcalloc(idev->num_channels, sizeof(struct iio_chan_spec),
+>>> +					GFP_KERNEL);
+>>> +
+>>> +	if (chan_array == NULL)
+>>> +		return -ENOMEM;
+>>> +
+>> Minor point, but I'd be tempted to do this as a static const array and
+>> then just set num_channels appropriately.  Still it's such a simple
+>> driver that I'm not that fussed.
+>
+> I looked at some other drivers, they seem to be doing the same way.
+> I would like to go with the existing convention.
+>
+>>> +	for (i = 0; i < (idev->num_channels); i++) {
+>>> +		struct iio_chan_spec *chan = chan_array + i;
+>>> +		chan->type = IIO_VOLTAGE;
+>>> +		chan->indexed = 1;
+>>> +		chan->channel = i;
+>>> +		chan->info_mask = IIO_CHAN_INFO_RAW_SEPARATE_BIT;
+>>> +	}
+>>> +
+>>> +	idev->channels = chan_array;
+>>> +
+>>> +	return idev->num_channels;
+>>> +}
+>>> +
+>
+> Regards,
+> Rachna
+>

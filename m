@@ -1,48 +1,39 @@
-From: Daniel Nicoletti <dantti12@gmail.com>
-Subject: HID battery strength does not emit power_suppy udev events
-Date: Fri, 14 Sep 2012 23:30:17 -0300
-Message-ID: <CACo8zOe7MFp_O_2rQhkSPc_+LaSUBxHvsQwSY38ukKRioDHusA@mail.gmail.com>
+From: Chris Rankin <rankincj@yahoo.com>
+Subject: [BUG][3.5.4] No keyboard without i8042_nokbd=1 parameter
+Date: Sat, 15 Sep 2012 07:48:44 -0700 (PDT)
+Message-ID: <1347720524.66204.YahooMailNeo@web120302.mail.ne1.yahoo.com>
+Reply-To: Chris Rankin <rankincj@yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vb0-f46.google.com ([209.85.212.46]:64396 "EHLO
-	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755152Ab2IOCaV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Sep 2012 22:30:21 -0400
-Received: by vbbff1 with SMTP id ff1so1259759vbb.19
-        for <linux-input@vger.kernel.org>; Fri, 14 Sep 2012 19:30:18 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Richard Hughes <richard@hughsie.com>
 
 Hi,
-it's been a while that my patch to probe the battery
-strength of HID devices got upstream, though the probe
-is working quite well, upower wasn't, it only worked well
-if the device was there before upower starts.
-So when adding/removing the device upower didn't update,
-and of course I thought the fault was on upower, since on
-cold plug it worked...
 
-Well today I decided to add udev support to one of my applications
-and decided to see what actually happens on the add/remove
-case of my mouse. You can find the whole output
-(removing, empty space, then adding) here http://fpaste.org/Uvbh/
+I have recently upgraded my oldest PC from 3.4.8 to 3.5.4, but was puzzled to discover that the keyboard no longer worked unless I also added the i8042_nokbd=1 boot parameter. It turns out that 3.4.8 didn't use the i8042 keyboard device anyway:
 
-So in short there is no udev event being emitted for the power_supply
-path, which means upower will never be notified, but when starting
-and scanning the udev devices it will find.
+>From 3.4.8:
+...
 
-But I'm don't know exactly what to do differently since the power_supply
-code seems quite right, does anyone has any hints on where to start?
+i8042 aux: probe of 00:07 failed with error -16
+i8042: PNP: PS/2 Controller [PNP0303] at 0x60,0x64 irq 1
+i8042: PNP: PS/2 appears to have AUX port disabled, if this is incorrect please boot with i8042.nopnp
+serio: i8042 KBD port at 0x60,0x64 irq 1
+mousedev: PS/2 mouse device common for all mice
+TCP: cubic registered
+Registering the dns_resolver key type
+Using IPI Shortcut mode
+Freeing unused kernel memory: 268k freed
+Write protecting the kernel text: 1628k
+Write protecting the kernel read-only data: 580k
+input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input0
+...
 
-BTW: why HID has to be built-in for this feature to be available (no I didn't
-write that part :P )
+Hence adding the i8042_nokbd=1 parameter merely forces the kernel to do again what it used to do automatically.Does anyone have any theories as to why the 3.5.x kernel now needs help to set the keyboard up correctly, please?
 
-Best,
-
--- 
-Daniel Nicoletti
-
-KDE Developer - http://dantti.wordpress.com
+Thanks,
+Chris

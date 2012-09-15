@@ -1,69 +1,110 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: Re: [PATCH v2 0/3] Input: cyttsp4 - driver for Cypress TMA4XX
- touchscreen devices
-Date: Sat, 15 Sep 2012 17:42:01 +0200
-Message-ID: <CABxcv=n0+xywzSTiuNFMd+BvLGaNOVZVDqWYJWRXxU=DkJiYLw@mail.gmail.com>
-References: <fery@cypress.com>
-	<1347644917-13269-1-git-send-email-fery@cypress.com>
-	<20120914184636.GA2976@polaris.bitmath.org>
+From: dturvene <dturvene@dahetral.com>
+Subject: Re: New Alps protocol in the wild?
+Date: Sat, 15 Sep 2012 16:49:14 -0400
+Message-ID: <5054E9CA.3070205@dahetral.com>
+References: <20120814103553.GF23370@arianrhod.panaceas.james.local> <87mx1xxy1y.fsf@gmail.com> <20120814160519.GC12473@artemis.panaceas.org> <87ipckwvp4.fsf@gmail.com> <87sjbnzau7.fsf@gmail.com> <502E756C.4080509@dahetral.com> <87zk5ta1qv.fsf@gmail.com> <504B3F49.9020601@dahetral.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120914184636.GA2976@polaris.bitmath.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ferruh Yigit <fery@cypress.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin McNeely <kev@cypress.com>, Phil Warkentin <pwar@cypress.com>, Shawn Landden <shawnlandden@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Olivier Sobrie <olivier@sobrie.be>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from dahetral.com ([128.177.27.153]:57690 "EHLO dahetral.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751271Ab2IOUtV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 15 Sep 2012 16:49:21 -0400
+In-Reply-To: <504B3F49.9020601@dahetral.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ben Gamari <bgamari.foss@gmail.com>
+Cc: James <james@madingley.org>, Ignacio Casal Quinteiro <nacho.resa@gmail.com>, linux-input@vger.kernel.org
 
-On Fri, Sep 14, 2012 at 8:46 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> Hi Ferruh,
->
->> This driver is for Cypress TrueTouch(tm) Standard Product controllers,
->> Generation4 devices.
+On 09/08/2012 08:51 AM, dturvene wrote:
+> On 08/17/2012 01:04 PM, Ben Gamari wrote:
+>> dturvene <dturvene@dahetral.com> writes:
 >>
->> This is second version of driver, code re-structured to match with
->> existing Generation3 driver code.
+>>> Ben -
+>>>
+>>> I tried your fix on a Dell Inspiron 15R N5110 (I15R).  It did not work.
+>>> Things I noticed:
+>>>
+>>> 1) Consistent with prior observations, the touchpad E7 signature for it
+>>> is: 0x73 0x03 0x50, different than yours on the E6230.
+>>>
+>> Alright. Good to know.
+>>
+>>> 2) Your alps_hw_init_v5 sequence does not work for my I15R.  I noticed
+>>> that the sequence enters/exits command mode a couple times. Why not
+>>> enter once, do the init and then exit?
+>>>
+>> Frankly, I didn't put much (honestly, any) time into figuring out the
+>> meaning behind command sequence. I grabbed a dump from the VM and
+>> implemented exactly what the Windows driver did. At that point I was
+>> under the impression I was dealing with an entirely new protocol so it
+>> didn't make much sense to put time into reasoning out the command
+>> structure. Given the v3 report format is used I should revisit
+>> this. I'll hopefully have a chance to do this this weekend. Given you
+>> seem to recognize the command structure, you could probably do this even
+>> faster than me. Take a stab at it if you feel so inclined. Pull requests
+>> accepted.
+>>
+>>> 3) When in command mode, the I15R accurately sets and retrieves
+>>> registers (e.g. 0x0008 returns 0x00 0x08 0x02).  When not in command
+>>> mode, all register reads return -1.  Oddly, the check in
+>>> alps_enter_command_mode is 0x73 0x01 rather than 0x88 0x07.
+>>>
+>>> So I think either I'm doing something wrong or I'm dealing with YAAP
+>>> (Yet Another ALPS Protocol).
+>>>
+>> Hopefully not.
+>>
+>>> My question:  how did you get the protocol trace?  I think you said
+>>> previously that the drive does some direct register I/O.  I couldn't 
+>>> see
+>>> anything beyond PS/2 commands running under Virtual Box.
+>>>
+>> I used Seth Foreshee's method[1] under Qemu. Note that the Alps driver
+>> for the E6230 (and, given the behavior you see, likely your machine as
+>> well) checks for the presence of an entry in the ACPI DSDT (if not
+>> present, the driver falls back onto generic PS/2 behavior).
+>> Consequently, you may need to do some editing of the Qemu DSDT as
+>> pointed out earlier in this thread by James (Message-Id:
+>> <20120814103553.GF23370@arianrhod.panaceas.james.local>) I'm not
+>> terribly familiar with ACPI, I'll defer to him to explain precisely how
+>> he determined the relevant sections.
+>>
+>> Cheers,
+>>
+>> - Ben
+>>
+>>
+>> [1] 
+>> http://swapspace.forshee.me/2011/11/touchpad-protocol-reverse-engineering.html
+>>
+> Hi Ben, etc. -
 >
-> To integrate with the existing gen3 driver is clearly not the same as
-> creating a parallel set of files, which obviously share a lot of code
-> with the gen3 code.
+> I just got back to looking at the Alps driver on a Dell IR15 N5110. I 
+> was using Virtualbox but switched to Qemu (1.1.1) based on your 
+> progress, patched the ps2.c and acpi-dsdt.dsl (making sure to build 
+> the hex  file included in acpi.c .)  I'm running vista as the guest 
+> OS, which normally loads a generic ps/2 driver.  The Alps touchpad 
+> works and ps2 events are being logged.  When I try to install the Alps 
+> driver, it fails because (I guess) qemu has a preconfigured notion of 
+> what hardware is running.  I'm trying to figure out how to configure 
+> qemu to detect the real ALPS touchpad.
 >
-> For instance, the i2c transfer layer seems more or less identical to
-> the existing one; just look at cyttsp_i2c_write_block_data() versus
-> cyttsp4_i2c_write_block_data(). If different generations of device
-> data cannot even be transported through the same _generic_ interface,
-> something is clearly not right.
+> I welcome from the community and you any ideas for qemu to detect the 
+> alps touchpad.
 >
-> You can't seriously expect anyone to want to maintain one set of files
-> for every new version. Please make sure to build on what is already
-> there.
->
-> Thanks.
-> Henrik
-> --
+> Dave
 
-Hi Ferruh,
+I finally got this working.  Briefly, it's a new protocol to init the 
+device and the 6-byte packets coming from it are a new format. I didn't 
+spend much time trying to understand the init sequence, just stuck the 
+qemu packet dump into a new (V6) init function.  But it works; probably 
+needs to be tightened up a little.  I don't understand the thought 
+process behind the different protocols.  It seems like the NRE to keep 
+writing test and production drivers would be unsustainable.
 
-Thanks a lot for taking the time to try to modify your driver to fit
-wit the existent Gen3 driver but I agree with Henrik that it seems
-that at least the transport code from the Gen3 driver could be reused.
+I created a psmouse DLKM with a README at [1].  If there's anybody else 
+with an N5110 who wants to try it out please post your comments.
 
-As he said the i2c layer code is almost identical and even when there
-are some differences on the spi transfer functions I think that the
-current Gen3 spi transport code could be refactor to support it. These
-differences seems to be only minor as far as I understood by looking
-at cyttsp_spi_xfer() and cyttsp4_spi_xfer() functions.
-
-Also it seems that you forgot to post your 1/3 patch from your series
-that adds the Gen4 core driver. At least I couldn't find neither on my
-mailbox nor on linux-input archives the patch:
-
-[PATCH v2 1/3] Input: cyttsp4 - core driver for Cypress TMA4XX
-touchscreen devices
-
-So I couldn't take a look to try to figure out if the current Gen3
-core driver can be extended to support the new Gen4 family or if new
-core driver file is actually needed.
-
-Best regards,
-Javier
+[1]: http://www.dahetral.com/public-download

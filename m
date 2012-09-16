@@ -1,1339 +1,551 @@
-From: Alexandra Chin <alexandra.chin@tw.synaptics.com>
-Subject: [PATCH] Input: Add new driver into Input Subsystem for Synaptics
- DS4 touchscreen I2C devices
-Date: Sun, 16 Sep 2012 09:56:22 +0000
-Message-ID: <CC51EC7B5B7F984AA566DC102237848896F57221@hkdcw-mail1.synaptics-inc.local>
+From: Anton Vorontsov <cbouatmailru@gmail.com>
+Subject: [RFC/PATCH] Input: Add in-kernel input events transformation
+ framework
+Date: Sun, 16 Sep 2012 13:57:50 -0700
+Message-ID: <20120916205750.GA11998@lizard>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tw-mx2.synaptics.com.tw ([203.163.83.68]:56294 "EHLO
-	tw-mx2.synaptics.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751941Ab2IPKIT convert rfc822-to-8bit (ORCPT
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:49357 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751055Ab2IPVA1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 16 Sep 2012 06:08:19 -0400
-Content-Language: zh-TW
+	Sun, 16 Sep 2012 17:00:27 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Synaptics DS4 touchscreen driver implements a generic driver supporting I2C
-protocol for Synaptics Design Studio 4 (DS4) family of Touchscreen Controllers
-which include the following:
+This new driver allows to perform various input events transformations
+in kernel, e.g. remap one key (or combination) to another key.
 
-- S32xX series
-- S730X series
-- S22xx series
+The driver uses configfs (/sys/kernel/config/input_xfrm) and includes
+this small readme:
 
-The driver supports multifinger pointing functionality and power management.
-The driver is based on the original work submitted by
-Linus Walleij <linus.walleij@stericsson.com> and
-Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>.
+  The transformation files (map, modmap) accept writes in this form:
+  	<+/-> <keycode-map-from> <keycode-map-to>
+  Plus sign to add, and minus sign to remove an entry.
+  Keycodes can be found in /usr/include/linux/input.h
+  For example, to remap KEY_LEFTMETA (125) to KEY_LEFTALT (56):
+  	# echo + 125 56 > map
+  Special mappings with a modifier key can be also created.
+  For example, to remap capslock+left to home key:
+  	# echo 58 42 > modkeys
+  	# echo + 105 102 > modmap
+  The first commands maps KEY_CAPSLOCK (58) to a modifier key,
+  the second command creates the mapping. The second argument (42,
+  which is KEY_LEFTSHIFT) to modkeys specifies the unmodifier key:
+  when pressed together with the modifier key, the mappings will
+  temporary turn off. That is, pressing capslock+leftshift will let
+  use capslock as normal again.
 
-This patch is against the v3.1-rc9 tag of Dmitry Torokhov's kernel tree,
-commit bd68dfe0071b50bc69416a92ee22b63d1cc33a3b.
+So far it's not possible to switch keys, but if/when needed, it's
+pretty easy to implement: just need to create a virtual input device,
+and pass events through it.
 
-Changes in this patch:
- - modified:   drivers/input/touchscreen/Kconfig
- - modified:   drivers/input/touchscreen/Makefile
- - new file:   drivers/input/touchscreen/synaptics_ds4_rmi4_i2c.c
- - new file:   drivers/input/touchscreen/synaptics_ds4_rmi4_i2c.h
- - new file:   include/linux/input/synaptics_dsx.h
+Note that the other approach of these transformations would be to
+export input filters to the userland, then intercept events there, and
+pass the transformed events back (or to the uinput instance). But this
+needlessly requires too much efforts for the simple task.
 
-This patch is functionally tested on omap beagleboard-xm.
-
-We will continue to maintain and support this driver officially, including 
-making updates, as well as supporting future Touch Controller revisions 
-from Synaptics.
-
-Any comments are much appreciated.
-
-Alexandra Chin
-
-Signed-off-by: Alexandra Chin <alexandra.chin@tw.synaptics.com>
+Signed-off-by: Anton Vorontsov <cbouatmailru@gmail.com>
 ---
- drivers/input/touchscreen/Kconfig                  |   12 +
- drivers/input/touchscreen/Makefile                 |    1 +
- drivers/input/touchscreen/synaptics_ds4_rmi4_i2c.c | 1085 ++++++++++++++++++++
- drivers/input/touchscreen/synaptics_ds4_rmi4_i2c.h |   94 ++
- include/linux/input/synaptics_dsx.h                |   49 +
- 5 files changed, 1241 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 1ba232c..431c72b 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -900,4 +900,16 @@ config TOUCHSCREEN_TPS6507X
+It started with opensuse 12.1 -> 12.2 upgrade, when my XKB keyboard
+setup got broken again.
+
+For years I used a lengthy .xmodmap to remap keys, but the method was
+always unreliable, i.e. before the upgrade I pretty much knew that I'd
+need spend hours to fix my keys. Lately I switched to xkbcomp, but as
+it appears it wasn't a panacea. Latest firefox no longer respect my
+remappings, while xlib/qt apps still work.
+
+Plus, it appears that some apps can ignore remappings altogether, e.g.
+running QEMU SDL backend never respected my mappings, which always
+annoyed me.
+
+http://ix.io/30i -- That was my xkb setup, if anyone interested.
+It remaps capslock+arrows to home/end/pgup/pgdown, plus win key to alt.
+
+Instead of introducing caps_level2 type I also tried iso level 3 shift,
+and then firefox seem to understand remappings, but then xlib and Qt
+apps break. Heh.
+
+With this driver I can remap keys at the lowest possible level, and so
+it will work everywhere: X11, VTs, SDL, directfb, wayland, etc. It's
+like remapping keys physically, which is exactly what I want.
+
+p.s. Note that I don't use gnome, so it is not the famous "gnome 3.4
+killed my key bindings". :-) Although, maybe it's somehow related,
+dunno.
+
+ drivers/input/misc/Kconfig      |  10 +
+ drivers/input/misc/Makefile     |   1 +
+ drivers/input/misc/input_xfrm.c | 426 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 437 insertions(+)
+ create mode 100644 drivers/input/misc/input_xfrm.c
+
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 7c0f1ec..181e8cb 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -600,4 +600,14 @@ config INPUT_XEN_KBDDEV_FRONTEND
  	  To compile this driver as a module, choose M here: the
- 	  module will be called tps6507x_ts.
+ 	  module will be called xen-kbdfront.
  
-+config TOUCHSCREEN_SYNAPTICS_DS4_RMI4_I2C
-+	tristate "Synaptics ds4 i2c touchscreen"
-+	depends on I2C
++config INPUT_XFRM
++	tristate "Input events transformation framework"
++	depends on CONFIGFS_FS
 +	help
-+	  Say Y here if you have a Synaptics DS4 I2C touchscreen
-+	  connected to your system.
-+
-+	  If unsure, say N.
++	  This driver allows to perform various input events transformations
++	  in kernel, e.g. remap one key (or combination) to another key.
 +
 +	  To compile this driver as a module, choose M here: the
-+	  module will be called synaptics_ds4_rmi4_i2c.
++	  module will be called input_xfrm.
 +
  endif
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 178eb12..61f5f22 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -73,3 +73,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
- obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
- obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
- obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
-+obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_DS4_RMI4_I2C)	+= synaptics_ds4_rmi4_i2c.o
-diff --git a/drivers/input/touchscreen/synaptics_ds4_rmi4_i2c.c b/drivers/input/touchscreen/synaptics_ds4_rmi4_i2c.c
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 83fe6f5..b1b5a01 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -55,4 +55,5 @@ obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
+ obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
+ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
+ obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
++obj-$(CONFIG_INPUT_XFRM)		+= input_xfrm.o
+ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
+diff --git a/drivers/input/misc/input_xfrm.c b/drivers/input/misc/input_xfrm.c
 new file mode 100644
-index 0000000..c3bf46f
+index 0000000..e264a4b
 --- /dev/null
-+++ b/drivers/input/touchscreen/synaptics_ds4_rmi4_i2c.c
-@@ -0,0 +1,1085 @@
++++ b/drivers/input/misc/input_xfrm.c
+@@ -0,0 +1,426 @@
 +/*
-+ * Synaptics DS4 touchscreen driver
++ * Input events transformation framework
 + *
-+ * Copyright (C) 2012 Synaptics Incorporated
-+ *
-+ * Copyright (C) 2012 Alexandra Chin <alexandra.chin@tw.synaptics.com>
-+ * Copyright (C) 2012 Scott Lin <scott.lin@tw.synaptics.com>
-+ * Copyright (C) 2010 Js HA <js.ha@stericsson.com>
-+ * Copyright (C) 2010 Naveen Kumar G <naveen.gaddipati@stericsson.com>
++ * Copyright 2012  Anton Vorontsov <cbouatmailru@gmail.com>
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
 + * the Free Software Foundation; either version 2 of the License, or
 + * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
 +
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mod_devicetable.h>
++#include <linux/printk.h>
 +#include <linux/input.h>
 +#include <linux/slab.h>
-+#include <linux/module.h>
-+#include <linux/i2c.h>
++#include <linux/bitops.h>
 +#include <linux/interrupt.h>
-+#include <linux/regulator/consumer.h>
-+#include <linux/gpio.h>
-+#include <linux/delay.h>
-+#include <linux/input/synaptics_dsx.h>
-+#include "synaptics_ds4_rmi4_i2c.h"
-+
-+#define DRIVER_NAME "synaptics_ds4_i2c"
-+#define INPUT_PHYS_NAME "synaptics_ds4_i2c/input0"
-+
-+#define PAGES_TO_SERVICE 	0xFF
-+#define MAX_INTR_REGISTERS 	4
-+#define MAX_TOUCH_MAJOR	15
-+#define BUF_LEN		37
-+#define PAGE_LEN		2
-+#define DATA_LEN		12
-+#define QUERY_LEN		9
-+#define DATA_BUF_LEN		10
-+#define STD_QUERY_LEN	21
-+
-+#define MASK_16BIT		0xFFFF
-+#define MASK_8BIT		0xFF
-+#define MASK_7BIT		0x7F
-+#define MASK_5BIT		0x1F
-+#define MASK_4BIT		0x0F
-+#define MASK_3BIT		0x07
-+#define MASK_2BIT		0x03
-+#define TOUCH_CTRL_INTR	0x8
-+
-+#define NO_SLEEP_ON		(1 << 3)
-+#define NO_SLEEP_OFF		(0 << 3)
-+#define NORMAL_OPERATION	(0 << 0)
-+#define SENSOR_SLEEP		(1 << 0)
-+#define RMI4_NUMBER_OF_MAX_FINGERS	(10)
-+
-+#ifdef CONFIG_PM
-+static int synaptics_rmi4_suspend(struct device *dev);
-+static int synaptics_rmi4_resume(struct device *dev);
-+#endif
-+
-+/*
-+ * Called by synaptics_rmi4_i2c_read() and synaptics_rmi4_i2c_write().
-+ *
-+ * This function writes to the page select register to switch to the
-+ * assigned page.
-+ */
-+static int synaptics_rmi4_set_page(struct synaptics_ds4_rmi4_data *pdata,
-+					unsigned int address)
-+{
-+	unsigned char	txbuf[PAGE_LEN];
-+	int retval = 0;
-+	unsigned int page;
-+	struct i2c_client *i2c = pdata->i2c_client;
-+
-+	page = ((address >> 8) & MASK_8BIT);
-+	if (page != pdata->current_page) {
-+		txbuf[0] = MASK_8BIT;
-+		txbuf[1] = page;
-+		retval = i2c_master_send(i2c, txbuf, PAGE_LEN);
-+		if (retval != PAGE_LEN)
-+			retval = -EIO;
-+		else
-+			pdata->current_page = page;
-+	} else
-+		retval = PAGE_LEN;
-+
-+	return retval;
-+}
-+
-+/*
-+ * Called by various functions in this driver
-+ *
-+ * This function reads data of an arbitrary length from the sensor, starting
-+ * from an assigned register address of the sensor, via I2C with a retry
-+ * mechanism.
-+ */
-+static int synaptics_rmi4_i2c_read(struct synaptics_ds4_rmi4_data *pdata,
-+			unsigned short addr, unsigned char *data,
-+			unsigned short length)
-+{
-+	int retval = 0;
-+	unsigned char buf;
-+	struct i2c_msg msg[] = {
-+		{
-+			.addr = pdata->i2c_client->addr,
-+			.flags = 0,
-+			.len = 1,
-+			.buf = &buf,
-+		},
-+		{
-+			.addr = pdata->i2c_client->addr,
-+			.flags = I2C_M_RD,
-+			.len = length,
-+			.buf = data,
-+		}
-+	};
-+	buf = addr & MASK_8BIT;
-+
-+	mutex_lock(&(pdata->io_ctrl_mutex));
-+	retval = synaptics_rmi4_set_page(pdata, addr);
-+	if (retval != PAGE_LEN)
-+		goto exit;
-+	retval = i2c_transfer(pdata->i2c_client->adapter, msg, ARRAY_SIZE(msg));
-+	if (retval != ARRAY_SIZE(msg))
-+		retval = -EIO;
-+exit:
-+	mutex_unlock(&(pdata->io_ctrl_mutex));
-+	return retval;
-+}
-+
-+/*
-+ * Called by various functions in this driver
-+ *
-+ * This function writes data of an arbitrary length to the sensor, starting
-+ * from an assigned register address of the sensor, via I2C with a retry
-+ * mechanism.
-+ */
-+static int synaptics_rmi4_i2c_write(struct synaptics_ds4_rmi4_data *pdata,
-+			unsigned short addr, unsigned char *data,
-+			unsigned short length)
-+{
-+	int retval = 0;
-+	unsigned char buf[length + 1];
-+
-+	struct i2c_msg msg[] = {
-+		{
-+			.addr = pdata->i2c_client->addr,
-+			.flags = 0,
-+			.len = length + 1,
-+			.buf = buf,
-+		}
-+	};
-+
-+	mutex_lock(&(pdata->io_ctrl_mutex));
-+	retval = synaptics_rmi4_set_page(pdata, addr);
-+	if (retval != PAGE_LEN)
-+		goto exit;
-+
-+	buf[0] = addr & MASK_8BIT;
-+	memcpy(&buf[1], &data[0], length);
-+
-+	retval = i2c_transfer(pdata->i2c_client->adapter, msg, ARRAY_SIZE(msg));
-+	if (retval != ARRAY_SIZE(msg))
-+		retval = -EIO;
-+exit:
-+	mutex_unlock(&(pdata->io_ctrl_mutex));
-+	return 0;
-+}
-+
-+/*
-+ * Called by synaptics_rmi4_report_device() when valid Function $11
-+ * finger data has been detected.
-+ *
-+ * This function reads the Function $11 data registers, determines the
-+ * status of each finger supported by the Function, processes any
-+ * necessary coordinate manipulation, reports the finger data to
-+ * the input subsystem
-+ */
-+static int synaptics_rmi4_abs_report(struct synaptics_ds4_rmi4_data *pdata,
-+			struct synaptics_ds4_rmi4_fn *function_handler)
-+{
-+	int touch_count = 0; 	/* number of touch points */
-+	int finger;
-+	int fingers_supported;
-+	int finger_registers;
-+	int reg;
-+	int finger_shift;
-+	int finger_status;
-+	int retval;
-+	unsigned short data_base_addr;
-+	unsigned short data_offset;
-+	unsigned char data_reg_blk_size;
-+	unsigned char values[2];
-+	unsigned char data[DATA_LEN];
-+	int x[RMI4_NUMBER_OF_MAX_FINGERS];
-+	int y[RMI4_NUMBER_OF_MAX_FINGERS];
-+	int wx[RMI4_NUMBER_OF_MAX_FINGERS];
-+	int wy[RMI4_NUMBER_OF_MAX_FINGERS];
-+
-+	/* get 2D sensor finger data */
-+	/*
-+	 * First get the finger status field - the size of the finger status
-+	 * field is determined by the number of finger supporte - 2 bits per
-+	 * finger, so the number of registers to read is:
-+	 * registerCount = ceil(numberOfFingers/4).
-+	 * Read the required number of registers and check each 2 bit field to
-+	 * determine if a finger is down:
-+	 *	00 = finger not present,
-+	 *	01 = finger present and data accurate,
-+	 *	10 = finger present but data may not be accurate,
-+	 *	11 = reserved for product use.
-+	 */
-+	fingers_supported = function_handler->num_of_data_points;
-+	finger_registers = (fingers_supported + 3) / 4;
-+	data_base_addr = function_handler->fn_full_addr.data_base_addr;
-+
-+	retval = synaptics_rmi4_i2c_read(pdata, data_base_addr, values,
-+							finger_registers);
-+	if (retval < 0)
-+		return retval;
-+	/*
-+	 * For each finger present, read the proper number of registers
-+	 * to get absolute data.
-+	 */
-+	data_reg_blk_size = function_handler->size_of_data_register_block;
-+	for (finger = 0; finger < fingers_supported; finger++) {
-+		/* Determine which data byte the finger status is in */
-+		reg = finger / 4;
-+		/* Bit shift to get finger's status */
-+		finger_shift = (finger % 4) * 2;
-+		 finger_status	= (values[reg] >> finger_shift) & 3;
-+		/*
-+		 * If finger status indicates a finger is present then
-+		 * read the finger data and report it
-+		 */
-+		if (finger_status == 1 || finger_status == 2) {
-+			/* Read the finger data */
-+			data_offset = data_base_addr +
-+					((finger * data_reg_blk_size) +
-+					finger_registers);
-+			retval = synaptics_rmi4_i2c_read(pdata,
-+						data_offset, data,
-+						data_reg_blk_size);
-+			if (retval < 0)
-+				return retval;
-+			else {
-+				x[touch_count] =
-+					(data[0] << 4) | (data[2] & MASK_4BIT);
-+				y[touch_count] =
-+					(data[1] << 4) |
-+					((data[2] >> 4) & MASK_4BIT);
-+				wy[touch_count] = (data[3] >> 4) & MASK_4BIT;
-+				wx[touch_count] = (data[3] & MASK_4BIT);
-+
-+				if (pdata->board->x_flip)
-+					x[touch_count] =
-+						pdata->sensor_max_x -
-+								x[touch_count];
-+				if (pdata->board->y_flip)
-+					y[touch_count] =
-+						pdata->sensor_max_y -
-+								y[touch_count];
-+			}
-+			/* Number of active touch points */
-+			touch_count++;
-+		}
-+	}
-+
-+	/* Report to input subsystem */
-+	if (touch_count) {
-+		for (finger = 0; finger < touch_count; finger++) {
-+			input_report_abs(pdata->input_dev, ABS_MT_TOUCH_MAJOR,
-+						max(wx[finger] , wy[finger]));
-+			input_report_abs(pdata->input_dev, ABS_MT_POSITION_X,
-+								x[finger]);
-+			input_report_abs(pdata->input_dev, ABS_MT_POSITION_Y,
-+								y[finger]);
-+			input_mt_sync(pdata->input_dev);
-+		}
-+	} else
-+		input_mt_sync(pdata->input_dev);
-+
-+	/* sync after groups of events */
-+	input_sync(pdata->input_dev);
-+	return touch_count;
-+}
-+
-+/*
-+ * Called by synaptics_rmi4_sensor_report().
-+ *
-+ * This function calls the appropriate finger data reporting function
-+ * based on the function handler it receives
-+ */
-+static int synaptics_rmi4_report_device(struct synaptics_ds4_rmi4_data *pdata,
-+				struct synaptics_ds4_rmi4_fn *function_handler)
-+{
-+	int touch_count = 0;
-+	struct i2c_client *client = pdata->i2c_client;
-+
-+	dev_dbg(&pdata->i2c_client->dev, "%s: function number 0x%X\n",
-+				__func__, function_handler->fn_number);
-+
-+	switch (function_handler->fn_number) {
-+	case SYNAPTICS_DS4_RMI4_2D_SENSOR_FUNC:
-+		touch_count = synaptics_rmi4_abs_report(
-+						pdata, function_handler);
-+		break;
-+	default:
-+		dev_info(&client->dev, "%s: F%02X not supported\n",
-+					__func__, function_handler->fn_number);
-+		break;
-+	}
-+	return touch_count;
-+}
-+
-+/*
-+ * Called by synaptics_rmi4_irq().
-+ *
-+ * This function determines the interrupt source(s) from the sensor and
-+ * calls synaptics_rmi4_report_device() with the appropriate function
-+ * handler for each function with valid data inputs.
-+ */
-+static int synaptics_rmi4_sensor_report(struct synaptics_ds4_rmi4_data *pdata)
-+{
-+	unsigned char	intr_status[MAX_INTR_REGISTERS];
-+	int retval;
-+	int touch_count = 0;
-+	struct synaptics_ds4_rmi4_fn *function_handler;
-+	struct synaptics_ds4_rmi4_device_info *rmi;
-+
-+	/*
-+	 * Get the interrupt status from the function $01
-+	 * control register+1 to find which source(s) were interrupting
-+	 * so we can read the data from the source(s) (2D sensor, buttons..)
-+	 */
-+	retval = synaptics_rmi4_i2c_read(pdata,
-+					pdata->fn01_data_base_addr + 1,
-+					intr_status,
-+					pdata->number_of_interrupt_register);
-+	if (retval < 0)
-+		return 0;
-+
-+	if (pdata->touch_stopped) {
-+		dev_warn(&pdata->i2c_client->dev,
-+			 "Not ready to handle interrupts yet!\n");
-+		return 0;
-+	}
-+	/*
-+	 * Check each function that has data sources and if the interrupt for
-+	 * that triggered then call that RMI4 functions report() function to
-+	 * gather data and report it to the input subsystem
-+	 */
-+	rmi = &(pdata->rmi4_mod_info);
-+	list_for_each_entry(function_handler, &rmi->support_fn_list, link) {
-+		if (function_handler->num_of_data_sources) {
-+			if (intr_status[function_handler->index_to_intr_reg] &
-+						function_handler->intr_mask)
-+				touch_count = synaptics_rmi4_report_device(
-+						pdata, function_handler);
-+		}
-+	}
-+	return touch_count;
-+}
-+
-+/*
-+ * Called by the kernel when an interrupt occurs (when the sensor asserts
-+ * the attention irq.
-+ *
-+ * This function is the ISR thread and handles the acquisition and
-+ * the reporting of finger data when the presence of fingers is detected.
-+ */
-+static irqreturn_t synaptics_rmi4_irq(int irq, void *data)
-+{
-+	struct synaptics_ds4_rmi4_data *pdata = data;
-+	int touch_count;
-+	do {
-+		touch_count = synaptics_rmi4_sensor_report(pdata);
-+		if (touch_count)
-+			wait_event_timeout(pdata->wait, pdata->touch_stopped,
-+							msecs_to_jiffies(1));
-+		else
-+			break;
-+	} while (!pdata->touch_stopped);
-+	return IRQ_HANDLED;
-+}
-+
-+/*
-+ * Called by synaptics_rmi4_probe() and the power management functions in
-+ * this driver
-+ *
-+ * This function handles the enabling of the attention irq
-+ * including the setting up of the ISR thread.
-+ */
-+static int synaptics_rmi4_irq_enable(struct synaptics_ds4_rmi4_data *pdata,
-+					bool request)
-+{
-+	int retval = 0;
-+	char intr_status;
-+	const struct synaptics_dsx_platform_data *platformdata =
-+				pdata->i2c_client->dev.platform_data;
-+
-+	mutex_lock(&pdata->irq_request_mutex);
-+	if (pdata->irq_enabled)
-+		goto exit;
-+
-+	/* Clear interrupts */
-+	retval = synaptics_rmi4_i2c_read(pdata,
-+					pdata->fn01_data_base_addr + 1,
-+					&intr_status,
-+					pdata->number_of_interrupt_register);
-+	if (retval < 0)
-+		return retval;
-+	if (request) {
-+		retval = request_threaded_irq(pdata->irq, NULL,
-+					  synaptics_rmi4_irq,
-+					  platformdata->irq_type,
-+					  DRIVER_NAME, pdata);
-+		if (retval) {
-+			dev_err(&pdata->i2c_client->dev,
-+				"%s:Unable to get attn irq %d, type %d\n",
-+				__func__,
-+				pdata->irq,
-+				platformdata->irq_type);
-+			goto exit;
-+		}
-+	} else
-+		enable_irq(pdata->irq);
-+	pdata->irq_enabled  = true;
-+
-+exit:
-+	mutex_unlock(&pdata->irq_request_mutex);
-+	return retval;
-+}
-+
-+/*
-+ * Called by synaptics_rmi4_probe() and the power management functions in
-+ * this driver
-+ *
-+ * This function handles the disabling of the attention irq
-+ * including the setting up of the ISR thread.
-+ */
-+static int synaptics_rmi4_irq_disable(struct synaptics_ds4_rmi4_data *pdata,
-+					bool release)
-+{
-+	int retval = 0;
-+	mutex_lock(&pdata->irq_request_mutex);
-+
-+	if (pdata->irq_enabled) {
-+		disable_irq(pdata->irq);
-+		if (release)
-+			free_irq(pdata->irq, pdata);
-+		pdata->irq_enabled = false;
-+	} else
-+		dev_warn(&pdata->i2c_client->dev,
-+			 "%s:irq has not been reqested\n", __func__);
-+	mutex_unlock(&pdata->irq_request_mutex);
-+	return retval;
-+}
-+
-+/*
-+ * Called by synaptics_rmi4_query_device().
-+ *
-+ * This funtion parses information from the Function 11 registers and
-+ * determines the number of fingers supported, x and y data ranges,
-+ * offset to the associated interrupt status register, interrupt bit mask,
-+ * and gathers finger data acquisition capabilities from the query registers.
-+ */
-+static int synaptics_rmi4_2d_touch_detect(
-+				struct synaptics_ds4_rmi4_data *pdata,
-+				struct synaptics_ds4_rmi4_fn *function_handler,
-+				struct synaptics_ds4_rmi4_fn_desc *fd,
-+				unsigned int interruptcount)
-+{
-+	unsigned char	queries[QUERY_LEN];
-+	unsigned char data[BUF_LEN];
-+	unsigned char	abs_data_size;
-+	unsigned char	abs_data_blk_size;
-+	unsigned short intr_offset;
-+	int i;
-+	int retval;
-+
-+	function_handler->fn_number = fd->fn_number;
-+	function_handler->num_of_data_sources = fd->intr_src_count;
-+
-+	/*
-+	 * need to get number of fingers supported, data size, etc.
-+	 * to be used when getting data since the number of registers to
-+	 * read depends on the number of fingers supported and data size.
-+	 */
-+	retval = synaptics_rmi4_i2c_read(pdata,
-+				function_handler->fn_full_addr.query_base_addr,
-+				queries, sizeof(queries));
-+	if (retval < 0)
-+		return retval;
-+
-+	/* Number of fingers */
-+	if ((queries[1] & MASK_3BIT) <= 4) 	/* add 1 since zero based */
-+		function_handler->num_of_data_points =
-+					(queries[1] & MASK_3BIT) + 1;
-+	else
-+		if ((queries[1] & MASK_3BIT) == 5)
-+			function_handler->num_of_data_points = 10;
-+
-+	/* Max x/y */
-+	retval = synaptics_rmi4_i2c_read(pdata,
-+				function_handler->fn_full_addr.ctrl_base_addr,
-+				data, DATA_BUF_LEN);
-+	if (retval < 0)
-+		return retval;
-+
-+	/* Store these for use later*/
-+	pdata->sensor_max_x = ((data[6] & MASK_8BIT) << 0) |
-+						((data[7] & MASK_4BIT) << 8);
-+	pdata->sensor_max_y = ((data[8] & MASK_8BIT) << 0) |
-+						((data[9] & MASK_4BIT) << 8);
-+
-+
-+	/* Interrupt info for handling interrupts */
-+	function_handler->index_to_intr_reg = (interruptcount + 7) / 8;
-+	if (function_handler->index_to_intr_reg != 0)
-+		function_handler->index_to_intr_reg -= 1;
-+	/*
-+	 * Loop through interrupts for each source in fn $11
-+	 * and or in a bit to the interrupt mask for each.
-+	 */
-+	intr_offset = interruptcount % 8;
-+	function_handler->intr_mask = 0;
-+	for (i = intr_offset;
-+		i < ((fd->intr_src_count & MASK_3BIT) + intr_offset); i++)
-+		function_handler->intr_mask |= 1 << i;
-+
-+	/* Size of just the absolute data for one finger */
-+	abs_data_size	= queries[5] & MASK_2BIT;
-+
-+	/* One each for X and Y, one for LSB for X & Y, one for W, one for Z */
-+	abs_data_blk_size = 3 + (2 * (abs_data_size == 0 ? 1 : 0));
-+	function_handler->size_of_data_register_block = abs_data_blk_size;
-+
-+	return retval;
-+}
-+
-+static int synaptics_rmi4_alloc_func_handler(
-+			struct synaptics_ds4_rmi4_fn **function_handler,
-+			struct synaptics_ds4_rmi4_fn_desc *rmi_fd,
-+			int page_number)
-+{
-+	*function_handler =
-+		kmalloc(sizeof(struct synaptics_ds4_rmi4_fn), GFP_KERNEL);
-+	if (!(*function_handler)) {
-+		return -ENOMEM;
-+	}
-+	(*function_handler)->fn_full_addr.data_base_addr =
-+		(rmi_fd->data_base_addr | (page_number << 8));
-+	(*function_handler)->fn_full_addr.ctrl_base_addr =
-+		(rmi_fd->ctrl_base_addr | (page_number << 8));
-+	(*function_handler)->fn_full_addr.cmd_base_addr =
-+		(rmi_fd->cmd_base_addr | (page_number << 8));
-+	(*function_handler)->fn_full_addr.query_base_addr =
-+		(rmi_fd->query_base_addr | (page_number << 8));
-+	return 0;
-+}
-+
-+/*
-+ * Called by synaptics_rmi4_probe().
-+ *
-+ * This funtion scans the page description table, records the offsets to the
-+ * register types of Function $01, sets up the function handlers for Function
-+ * $11, determines the number of interrupt sources from the
-+ * sensor, adds valid Functions with data inputs to the Function linked list,
-+ * parses information from the query registers of Function $01, and enables
-+ * the interrupt sources from the valid Functions with data inputs.
-+ */
-+static int synaptics_rmi4_query_device(struct synaptics_ds4_rmi4_data *pdata)
-+{
-+	int i, page_number;
-+	int retval;
-+	int data_sources = 0;
-+	unsigned char std_queries[STD_QUERY_LEN];
-+	unsigned char interrupt_mask[MAX_INTR_REGISTERS];
-+	unsigned char intr_count = 0;
-+	unsigned char intr_index = 0;
-+	unsigned short ctrl_offset;
-+	struct synaptics_ds4_rmi4_fn *function_handler;
-+	struct synaptics_ds4_rmi4_fn_desc rmi_fd;
-+	struct synaptics_ds4_rmi4_device_info *rmi;
-+	struct i2c_client *client = pdata->i2c_client;
-+
-+	/* Init the physical drivers RMI module info list of functions */
-+	INIT_LIST_HEAD(&pdata->rmi4_mod_info.support_fn_list);
-+
-+	/* Scan the Page Descriptor Table */
-+	for (page_number = 0; page_number < PAGES_TO_SERVICE; page_number++) {
-+		for (i = SYNAPTICS_DS4_RMI4_PDT_START;
-+			i > SYNAPTICS_DS4_RMI4_PDT_END;
-+			i -= SYNAPTICS_DS4_RMI4_PDT_ENTRY_SIZE) {
-+			function_handler = NULL;
-+			i |= (page_number << 8);
-+
-+			retval = synaptics_rmi4_i2c_read(pdata, i,
-+						(unsigned char *)&rmi_fd,
-+						sizeof(rmi_fd));
-+			if (retval < 0)
-+				return retval;
-+
-+			if (rmi_fd.fn_number == 0)	/* end of the PDT */
-+				break;
-+			dev_dbg(&pdata->i2c_client->dev,
-+					"%s: function F%02X is present\n",
-+					__func__, rmi_fd.fn_number);
-+			switch (rmi_fd.fn_number & MASK_8BIT) {
-+			case SYNAPTICS_DS4_RMI4_DEVICE_CONTROL_FUNC:
-+				pdata->fn01_query_base_addr =
-+						rmi_fd.query_base_addr;
-+				pdata->fn01_ctrl_base_addr =
-+						rmi_fd.ctrl_base_addr;
-+				pdata->fn01_data_base_addr =
-+						rmi_fd.data_base_addr;
-+				break;
-+			case SYNAPTICS_DS4_RMI4_2D_SENSOR_FUNC:
-+				if (rmi_fd.intr_src_count) {
-+					retval =
-+					synaptics_rmi4_alloc_func_handler(
-+							&function_handler,
-+							&rmi_fd,
-+							page_number);
-+					if (retval < 0)
-+						return retval;
-+					retval =
-+					synaptics_rmi4_2d_touch_detect(
-+							pdata,
-+							function_handler,
-+							&rmi_fd,
-+							intr_count);
-+					if (retval < 0)
-+						return retval;
-+				}
-+				break;
-+			}
-+			/* interrupt count for next iteration */
-+			intr_count += (rmi_fd.intr_src_count & MASK_3BIT);
-+			/*
-+			 * add functions to the list that have data associated
-+			 */
-+			if (function_handler && rmi_fd.intr_src_count) {
-+				/* link this function info to RMI module */
-+				mutex_lock(&(pdata->fn_list_mutex));
-+				dev_dbg(&pdata->i2c_client->dev,
-+				    "%s: add fiunction handler 0x%X to list\n",
-+				    __func__, function_handler->fn_number);
-+				list_add_tail(&function_handler->link,
-+					&pdata->rmi4_mod_info.support_fn_list);
-+				mutex_unlock(&(pdata->fn_list_mutex));
-+			}
-+		}
-+	}
-+	/*
-+	 * calculate the interrupt register count - used in the
-+	 * ISR to read the correct number of interrupt registers
-+	 */
-+	pdata->number_of_interrupt_register = (intr_count + 7) / 8;
-+	dev_dbg(&client->dev, "%s: interrupt register count :%d\n",
-+					__func__,
-+					pdata->number_of_interrupt_register);
-+
-+	/* Load up the standard queries and get the RMI4 module info */
-+	retval = synaptics_rmi4_i2c_read(pdata, pdata->fn01_query_base_addr,
-+					std_queries, sizeof(std_queries));
-+	if (retval < 0)
-+		return retval;
-+
-+	/*
-+	 * get manufacturer id, product_props, product info,
-+	 * date code, tester id, serial num and product id (name)
-+	 */
-+	pdata->rmi4_mod_info.manufacturer_id = std_queries[0];
-+	pdata->rmi4_mod_info.product_props = std_queries[1];
-+	pdata->rmi4_mod_info.product_info[0] = std_queries[2];
-+	pdata->rmi4_mod_info.product_info[1] = std_queries[3];
-+	/* year - 2001-2032 */
-+	pdata->rmi4_mod_info.date_code[0] = std_queries[4] & MASK_5BIT;
-+	/* month - 1-12 */
-+	pdata->rmi4_mod_info.date_code[1] = std_queries[5] & MASK_4BIT;
-+	/* day - 1-31 */
-+	pdata->rmi4_mod_info.date_code[2] = std_queries[6] & MASK_5BIT;
-+	pdata->rmi4_mod_info.tester_id = ((std_queries[7] & MASK_7BIT) << 8) |
-+						(std_queries[8] & MASK_7BIT);
-+	pdata->rmi4_mod_info.serial_number =
-+				((std_queries[9] & MASK_7BIT) << 8) |
-+				(std_queries[10] & MASK_7BIT);
-+	memcpy(pdata->rmi4_mod_info.product_id_string, &std_queries[11], 10);
-+
-+	/* Check if this is a Synaptics device - report if not. */
-+	if (pdata->rmi4_mod_info.manufacturer_id != 1)
-+			dev_err(&client->dev, "%s: non-Synaptics mfg id:%d\n",
-+					__func__,
-+					pdata->rmi4_mod_info.manufacturer_id);
-+
-+	memset(interrupt_mask, 0x00, sizeof(interrupt_mask));
-+	list_for_each_entry(function_handler,
-+			&pdata->rmi4_mod_info.support_fn_list, link)
-+			data_sources += function_handler->num_of_data_sources;
-+	if (data_sources) {
-+		rmi = &(pdata->rmi4_mod_info);
-+		list_for_each_entry(function_handler,
-+					&rmi->support_fn_list, link) {
-+			if (function_handler->num_of_data_sources)
-+				intr_index =
-+					function_handler->index_to_intr_reg;
-+				interrupt_mask[intr_index] |=
-+				function_handler->intr_mask;
-+		}
-+	}
-+
-+	for (i = 0; i < MAX_INTR_REGISTERS; i++) {
-+		if (interrupt_mask[i] != 0x00) {
-+			dev_dbg(&client->dev,
-+					"%s: interrupt %d enable mask :0x%X\n",
-+					__func__, i, interrupt_mask[i]);
-+			ctrl_offset = pdata->fn01_ctrl_base_addr + 1 + i;
-+			retval = synaptics_rmi4_i2c_write(pdata,
-+							ctrl_offset,
-+							&(interrupt_mask[i]),
-+							sizeof(interrupt_mask[i]));
-+			if (retval < 0)
-+				return retval;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int __devinit synaptics_rmi4_probe(
-+		struct i2c_client *client, const struct i2c_device_id *dev_id)
-+{
-+	int retval;
-+	struct synaptics_ds4_rmi4_data *pdata;
-+	struct synaptics_ds4_rmi4_fn *function_handler;
-+	const struct synaptics_dsx_platform_data *platformdata =
-+						client->dev.platform_data;
-+
-+	if (!i2c_check_functionality(client->adapter,
-+					I2C_FUNC_SMBUS_BYTE_DATA)) {
-+		dev_err(&client->dev, "i2c smbus byte data not supported\n");
-+		return -EIO;
-+	}
-+
-+	if (!platformdata) {
-+		dev_err(&client->dev, "%s: no platform data\n", __func__);
-+		return -EINVAL;
-+	}
-+
-+	/* Allocate and initialize the instance data for this client */
-+	pdata = kzalloc(sizeof(struct synaptics_ds4_rmi4_data) * 2,
-+							GFP_KERNEL);
-+	if (!pdata) {
-+		dev_err(&client->dev, "%s: no memory allocated\n", __func__);
-+		return -ENOMEM;
-+	}
-+
-+	pdata->input_dev = input_allocate_device();
-+	if (pdata->input_dev == NULL) {
-+		dev_err(&client->dev, "%s:input device alloc failed\n",
-+						__func__);
-+		retval = -ENOMEM;
-+		goto err_input;
-+	}
-+
-+	if (platformdata->regulator_en) {
-+		pdata->regulator = regulator_get(&client->dev, "vdd");
-+		if (IS_ERR(pdata->regulator)) {
-+			dev_err(&client->dev, "%s:get regulator failed\n",
-+								__func__);
-+			retval = PTR_ERR(pdata->regulator);
-+			goto err_regulator;
-+		}
-+		regulator_enable(pdata->regulator);
-+	}
-+	init_waitqueue_head(&pdata->wait);
-+	pdata->i2c_client		= client;
-+	pdata->current_page	= MASK_16BIT;
-+	pdata->board		= platformdata;
-+	pdata->sensor_sleep	= false;
-+	pdata->irq_enabled 	= false;
-+	pdata->touch_stopped	= false;
-+
-+	/* Init the mutexes for maintain the lists */
-+	mutex_init(&(pdata->fn_list_mutex));
-+	mutex_init(&(pdata->io_ctrl_mutex));
-+
-+	/*
-+	 * Register physical driver - this will call the detect function that
-+	 * will then scan the device and determine the supported
-+	 * rmi4 functions.
-+	 */
-+	retval = synaptics_rmi4_query_device(pdata);
-+	if (retval) {
-+		dev_err(&client->dev, "%s: rmi4 query device failed\n",
-+							__func__);
-+		goto err_query_dev;
-+	}
-+
-+	/* Store the instance data in the i2c_client */
-+	i2c_set_clientdata(client, pdata);
-+
-+	/* Initialize the input device parameters */
-+	pdata->input_dev->name = DRIVER_NAME;
-+	pdata->input_dev->phys = INPUT_PHYS_NAME;
-+	pdata->input_dev->id.bustype = BUS_I2C;
-+	pdata->input_dev->dev.parent = &client->dev;
-+	input_set_drvdata(pdata->input_dev, pdata);
-+
-+	/* Initialize the function handlers for rmi4 */
-+	set_bit(EV_SYN, pdata->input_dev->evbit);
-+	set_bit(EV_KEY, pdata->input_dev->evbit);
-+	set_bit(EV_ABS, pdata->input_dev->evbit);
-+#ifdef INPUT_PROP_DIRECT
-+	set_bit(INPUT_PROP_DIRECT, pdata->input_dev->propbit);
-+#endif
-+
-+	input_set_abs_params(pdata->input_dev, ABS_MT_POSITION_X, 0,
-+						pdata->sensor_max_x, 0, 0);
-+	input_set_abs_params(pdata->input_dev, ABS_MT_POSITION_Y, 0,
-+						pdata->sensor_max_y, 0, 0);
-+	input_set_abs_params(pdata->input_dev, ABS_MT_TOUCH_MAJOR, 0,
-+						MAX_TOUCH_MAJOR, 0, 0);
-+
-+	retval = input_register_device(pdata->input_dev);
-+	if (retval) {
-+		dev_err(&client->dev, "%s:input register failed\n", __func__);
-+		goto err_query_dev;
-+	}
-+
-+	/* Gpio configuration */
-+	if (platformdata->gpio_config) {
-+		retval = platformdata->gpio_config(platformdata->gpio, true);
-+		if (retval < 0) {
-+			dev_err(&client->dev,
-+				"Failed to configure GPIOs, code: %d.\n",
-+				retval);
-+			return retval;
-+		}
-+		dev_info(&client->dev, "Done with GPIO configuration.\n");
-+	}
-+	pdata->irq = gpio_to_irq(platformdata->gpio);
-+	mutex_init(&(pdata->irq_request_mutex));
-+	pdata->touch_stopped = false;
-+	retval = synaptics_rmi4_irq_enable(pdata, true);
-+	if (retval) {
-+		dev_err(&client->dev,
-+			"%s:Unable to get attn irq %d, type %d\n, name: %s",
-+			__func__, pdata->irq, platformdata->irq_type,
-+			DRIVER_NAME);
-+		goto err_request_irq;
-+	}
-+
-+	return retval;
-+
-+err_request_irq:
-+	input_unregister_device(pdata->input_dev);
-+err_query_dev:
-+	if (platformdata->regulator_en) {
-+		regulator_disable(pdata->regulator);
-+		regulator_put(pdata->regulator);
-+	}
-+
-+	if (!list_empty(&pdata->rmi4_mod_info.support_fn_list)) {
-+		list_for_each_entry(function_handler,
-+			&pdata->rmi4_mod_info.support_fn_list, link) {
-+			if (function_handler) {
-+				if (function_handler->data)
-+					kfree(function_handler->data);
-+				kfree(function_handler);
-+			}
-+		}
-+	}
-+
-+err_regulator:
-+	input_free_device(pdata->input_dev);
-+	pdata->input_dev = NULL;
-+err_input:
-+	kfree(pdata);
-+
-+	return retval;
-+}
-+
-+static int __devexit synaptics_rmi4_remove(struct i2c_client *client)
-+{
-+	struct synaptics_ds4_rmi4_data *pdata = i2c_get_clientdata(client);
-+	const struct synaptics_dsx_platform_data *platformdata = pdata->board;
-+
-+	pdata->touch_stopped = true;
-+	synaptics_rmi4_irq_disable(pdata, true);
-+
-+	input_unregister_device(pdata->input_dev);
-+	if (platformdata->regulator_en) {
-+		regulator_disable(pdata->regulator);
-+		regulator_put(pdata->regulator);
-+	}
-+	kfree(pdata);
-+	return 0;
-+}
-+
-+/*
-+ * Called by synaptics_rmi4_early_suspend() and synaptics_rmi4_suspend().
-+ *
-+ * This function stops finger data acquisition and puts the sensor to sleep.
-+ */
-+static void synaptics_rmi4_sensor_sleep(struct synaptics_ds4_rmi4_data *pdata)
-+{
-+	int retval;
-+	unsigned char device_ctrl;
-+
-+	if (pdata->sensor_sleep == true)
-+		return;
-+
-+	pdata->touch_stopped = true;
-+	wake_up(&pdata->wait);
-+
-+	retval = synaptics_rmi4_i2c_read(pdata,
-+				pdata->fn01_ctrl_base_addr,
-+				&device_ctrl,
-+				1);
-+
-+	if (retval < 0) {
-+		dev_err(&(pdata->input_dev->dev),
-+			"Failed to enter sleep mode. Code: %d.\n", retval);
-+		pdata->sensor_sleep = false;
-+		return;
-+	}
-+
-+	device_ctrl = (device_ctrl & ~MASK_3BIT);
-+	device_ctrl = (device_ctrl | NO_SLEEP_OFF | SENSOR_SLEEP);
-+
-+	retval = synaptics_rmi4_i2c_write(pdata, pdata->fn01_ctrl_base_addr,
-+						&device_ctrl, 1);
-+
-+	if (retval < 0) {
-+		dev_err(&(pdata->input_dev->dev),
-+			"Failed to enter sleep mode. Code: %d.\n", retval);
-+		pdata->sensor_sleep = false;
-+		return;
-+	} else
-+		pdata->sensor_sleep = true;
-+
-+	return;
-+}
-+
-+/*
-+ * Called by synaptics_rmi4_resume() and synaptics_rmi4_late_resume().
-+ *
-+ * This function wakes the sensor from sleep.
-+ */
-+static void synaptics_rmi4_sensor_wake(struct synaptics_ds4_rmi4_data *pdata)
-+{
-+	int retval;
-+	unsigned char device_ctrl;
-+
-+	if (pdata->sensor_sleep == false)
-+		return;
-+	retval = synaptics_rmi4_i2c_read(pdata,
-+				pdata->fn01_ctrl_base_addr,
-+				&device_ctrl,
-+				1);
-+
-+	if (retval < 0) {
-+		dev_err(&(pdata->input_dev->dev),
-+			"Failed to wake from sleep mode. Code: %d.\n",
-+			retval);
-+		pdata->sensor_sleep = true;
-+		return;
-+	}
-+
-+	device_ctrl = (device_ctrl & ~MASK_3BIT);
-+	device_ctrl = (device_ctrl | NO_SLEEP_OFF | NORMAL_OPERATION);
-+
-+	retval = synaptics_rmi4_i2c_write(pdata, pdata->fn01_ctrl_base_addr,
-+						&device_ctrl, 1);
-+
-+	if (retval < 0) {
-+		dev_err(&(pdata->input_dev->dev),
-+			"Failed to wake from sleep mode. Code: %d.\n",
-+			retval);
-+		pdata->sensor_sleep = true;
-+		return;
-+	} else
-+		pdata->sensor_sleep = false;
-+
-+	return;
-+}
-+
-+#ifdef CONFIG_PM
-+/*
-+ * Called by the kernel during the suspend phase when the system
-+ * enters suspend.
-+ *
-+ * This function stops finger data acquisition and puts the sensor to
-+ * sleep (if not already done so during the early suspend phase),
-+ * disables the interrupt, and turns off the power to the sensor.
-+ */
-+static int synaptics_rmi4_suspend(struct device *dev)
-+{
-+	struct synaptics_ds4_rmi4_data *pdata = dev_get_drvdata(dev);
-+	const struct synaptics_dsx_platform_data *platformdata = pdata->board;
-+
-+	synaptics_rmi4_irq_disable(pdata, false);
-+	synaptics_rmi4_sensor_sleep(pdata);
-+
-+	if (platformdata->regulator_en)
-+		regulator_disable(pdata->regulator);
-+	return 0;
-+}
-+
-+/*
-+ * Called by the kernel during the resume phase when the system
-+ * wakes up from suspend.
-+ *
-+ * This function turns on the power to the sensor, wakes the sensor
-+ * from sleep, enables the interrupt, and starts finger data
-+ * acquisition.
-+ */
-+static int synaptics_rmi4_resume(struct device *dev)
-+{
-+	struct synaptics_ds4_rmi4_data *pdata = dev_get_drvdata(dev);
-+	const struct synaptics_dsx_platform_data *platformdata = pdata->board;
-+
-+	if (platformdata->regulator_en)
-+		regulator_enable(pdata->regulator);
-+
-+	synaptics_rmi4_sensor_wake(pdata);
-+	synaptics_rmi4_irq_enable(pdata, false);
-+	pdata->touch_stopped = false;
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops synaptics_rmi4_dev_pm_ops = {
-+	.suspend = synaptics_rmi4_suspend,
-+	.resume  = synaptics_rmi4_resume,
-+};
-+#endif
-+
-+static const struct i2c_device_id synaptics_rmi4_id_table[] = {
-+	{ DRIVER_NAME, 0 },
-+	{ },
++#include <linux/kfifo.h>
++#include <linux/types.h>
++#include <linux/list.h>
++#include <linux/configfs.h>
++
++#define IXFRM_FIFO_SIZE 8 /* eight should be enough for anyone */
++
++struct ixfrm_event {
++	uint type;
++	uint code;
++	uint val;
 +};
 +
-+MODULE_DEVICE_TABLE(i2c, synaptics_rmi4_id_table);
++struct ixfrm {
++	struct input_handle handle;
++	struct tasklet_struct tlet;
++	int xfrming;
++	bool unxfrm;
++	STRUCT_KFIFO(struct ixfrm_event, IXFRM_FIFO_SIZE) events;
++};
 +
-+static struct i2c_driver synaptics_rmi4_driver = {
-+	.driver = {
-+		.name	=	DRIVER_NAME,
-+		.owner	=	THIS_MODULE,
-+#ifdef CONFIG_PM
-+		.pm	=	&synaptics_rmi4_dev_pm_ops,
-+#endif
++struct ixfrm_map {
++	uint from;
++	uint to;
++	struct list_head node;
++};
++
++struct ixfrm_cfg {
++	struct configfs_subsystem subsys;
++	struct list_head map;
++	struct list_head modmap;
++	uint modkey;
++	uint unmodkey;
++};
++CONFIGFS_ATTR_STRUCT(ixfrm_cfg);
++
++static void ixfrm_event_sender(ulong data)
++{
++	struct ixfrm *ix = (void *)data;
++	struct ixfrm_event ev;
++
++	while (kfifo_out(&ix->events, &ev, 1)) {
++		input_inject_event(&ix->handle, ev.type, ev.code, ev.val);
++		input_inject_event(&ix->handle, EV_SYN, SYN_REPORT, 1);
++	}
++}
++
++static void ixfrm_queue_event(struct ixfrm *ix, uint type, uint code, uint val)
++{
++	struct ixfrm_event event = { type, code, val };
++
++	kfifo_in(&ix->events, &event, 1);
++	tasklet_schedule(&ix->tlet);
++}
++
++static bool ixfrm_do_xfrm(struct ixfrm *ixfrm, struct list_head *list,
++			  uint code, uint val)
++{
++	struct ixfrm_map *map;
++	uint to = KEY_CNT;
++
++	list_for_each_entry(map, list, node) {
++		if (map->from != code)
++			continue;
++		to = map->to;
++		break;
++	}
++
++	if (to == KEY_CNT)
++		return 0;
++
++	ixfrm_queue_event(ixfrm, EV_KEY, to, val);
++	return 1;
++}
++
++static struct ixfrm_cfg ixfrm_cfg;
++
++static bool ixfrm_filter(struct input_handle *handle, uint type, uint code,
++			 int val)
++{
++	struct ixfrm *ix = handle->private;
++	bool ret;
++
++	ret = ixfrm_do_xfrm(ix, &ixfrm_cfg.map, code, val);
++	if (ret)
++		return ret;
++
++	if (code == ixfrm_cfg.modkey) {
++		/* Is the event a part of mode switch seq? Ignore. */
++		if (ix->xfrming > 1)
++			return 1;
++		ix->xfrming = val;
++	} else if (code == ixfrm_cfg.unmodkey && ix->xfrming) {
++		ix->xfrming += val;
++		if (val)
++			return 1;
++		ix->xfrming = 0;
++		ix->unxfrm = !ix->unxfrm;
++		return 1;
++	}
++
++	/* In un-transform mode we behave like normal, pass events thru. */
++	if (ix->unxfrm)
++		return 0;
++
++	/* In transform mode never pass the mod key. */
++	if (code == ixfrm_cfg.modkey)
++		return 1;
++
++	/* Not transforming -> nothing to do, pass events thru. */
++	if (!ix->xfrming)
++		return 0;
++
++	return ixfrm_do_xfrm(ix, &ixfrm_cfg.modmap, code, val);
++}
++
++static int ixfrm_connect(struct input_handler *handler, struct input_dev *dev,
++			 const struct input_device_id *id)
++{
++	struct ixfrm *ix;
++	int ret;
++
++	ix = kzalloc(sizeof(*ix), GFP_KERNEL);
++	if (!ix)
++		return -ENOMEM;
++
++	INIT_KFIFO(ix->events);
++	tasklet_init(&ix->tlet, ixfrm_event_sender, (ulong)ix);
++
++	ix->handle.dev = dev;
++	ix->handle.handler = handler;
++	ix->handle.name = handler->name;
++	ix->handle.private = ix;
++
++	ret = input_register_handle(&ix->handle);
++	if (ret) {
++		pr_err("%s: unable to register input handler: %d\n",
++		       handler->name, ret);
++		goto err_reg;
++	}
++
++	ret = input_open_device(&ix->handle);
++	if (ret) {
++		pr_err("%s: unable to open input device: %d\n",
++		       handler->name, ret);
++		goto err_open;
++	}
++
++	return 0;
++err_open:
++	input_unregister_handle(&ix->handle);
++err_reg:
++	kfree(ix);
++	return ret;
++}
++
++static void ixfrm_disconnect(struct input_handle *handle)
++{
++	struct ixfrm *ix = handle->private;
++
++	tasklet_kill(&ix->tlet);
++	input_close_device(handle);
++	input_unregister_handle(handle);
++	kfree(ix);
++}
++
++static const struct input_device_id ixfrm_ids[] = {
++	{
++		.flags	= INPUT_DEVICE_ID_MATCH_EVBIT |
++			  INPUT_DEVICE_ID_MATCH_KEYBIT,
++		.evbit	= { BIT_MASK(EV_KEY) },
 +	},
-+	.probe		=	synaptics_rmi4_probe,
-+	.remove		=	__devexit_p(synaptics_rmi4_remove),
-+	.id_table	=	synaptics_rmi4_id_table,
++	{},
 +};
 +
-+static int __init synaptics_rmi4_init(void)
++static struct input_handler ixfrm_handler = {
++	.name		= "input_xfrm",
++	.id_table	= ixfrm_ids,
++	.filter		= ixfrm_filter,
++	.connect	= ixfrm_connect,
++	.disconnect	= ixfrm_disconnect,
++};
++
++static inline struct ixfrm_cfg *to_ixfrm_cfg(struct config_item *item)
 +{
-+	return i2c_add_driver(&synaptics_rmi4_driver);
++	if (!item)
++		return NULL;
++	return container_of(to_configfs_subsystem(to_config_group(item)),
++						  struct ixfrm_cfg, subsys);
 +}
 +
-+static void __exit synaptics_rmi4_exit(void)
++static ssize_t __ixfrm_cfg_read_map(struct list_head *map, char *buf)
 +{
-+	i2c_del_driver(&synaptics_rmi4_driver);
++	struct ixfrm_map *ent;
++	ssize_t ret = 0;
++
++	list_for_each_entry(ent, map, node) {
++		ssize_t left = PAGE_SIZE - ret;
++		int c;
++
++		if (left <= 0)
++			return 0;
++
++		c = snprintf(buf, left, "%u %u\n", ent->from, ent->to);
++		if (c < 0)
++			return -EIO;
++
++		buf += c;
++		ret += c;
++	}
++	return ret;
 +}
 +
-+module_init(synaptics_rmi4_init);
-+module_exit(synaptics_rmi4_exit);
++static void ixfrm_try_unregister_handler(void)
++{
++	if (!list_empty(&ixfrm_cfg.map) || !list_empty(&ixfrm_cfg.modmap))
++		return;
++	input_unregister_handler(&ixfrm_handler);
++}
 +
++static int ixfrm_try_register_handler(void)
++{
++	if (!list_empty(&ixfrm_cfg.map) || !list_empty(&ixfrm_cfg.modmap))
++		return 0;
++	return input_register_handler(&ixfrm_handler);
++}
++
++static int ixfrm_cfg_del_map(struct list_head *map, uint from)
++{
++	struct ixfrm_map *ent;
++
++	list_for_each_entry(ent, map, node) {
++		if (ent->from != from)
++			continue;
++		list_del(&ent->node);
++		kfree(ent);
++		ixfrm_try_unregister_handler();
++		return 0;
++	}
++
++	return -ENOENT;
++}
++
++static int ixfrm_cfg_add_map(struct list_head *map, uint from, uint to)
++{
++	struct ixfrm_map *ent;
++	int ret;
++
++	ent = kzalloc(sizeof(*ent), GFP_KERNEL);
++	if (!ent)
++		return -ENOMEM;
++
++	ent->from = from;
++	ent->to = to;
++
++	ret = ixfrm_try_register_handler();
++	if (ret)
++		goto err_reg;
++
++	list_add(&ent->node, map);
++	return 0;
++err_reg:
++	kfree(ent);
++	return ret;
++}
++
++static ssize_t __ixfrm_cfg_store_map(struct list_head *map, const char *buf,
++				     size_t c) {
++	uint from;
++	uint to;
++	int ret;
++
++	if (sscanf(buf, "+ %u %u", &from, &to) == 2) {
++		ret = ixfrm_cfg_add_map(map, from, to);
++		if (ret)
++			return ret;
++	} else if (sscanf(buf, "- %u", &from) == 1) {
++		ret = ixfrm_cfg_del_map(map, from);
++		if (ret)
++			return ret;
++	}
++	return c;
++}
++
++static ssize_t ixfrm_cfg_read_map(struct ixfrm_cfg *ic, char *buf)
++{
++	return __ixfrm_cfg_read_map(&ic->map, buf);
++}
++
++static ssize_t ixfrm_cfg_store_map(struct ixfrm_cfg *ic, const char *buf,
++				   size_t c)
++{
++	return __ixfrm_cfg_store_map(&ic->map, buf, c);
++}
++
++static ssize_t ixfrm_cfg_read_modmap(struct ixfrm_cfg *ic, char *buf)
++{
++	return __ixfrm_cfg_read_map(&ic->modmap, buf);
++}
++
++static ssize_t ixfrm_cfg_store_modmap(struct ixfrm_cfg *ic, const char *buf,
++				      size_t c)
++{
++	return __ixfrm_cfg_store_map(&ic->modmap, buf, c);
++}
++
++static ssize_t ixfrm_cfg_read_modkeys(struct ixfrm_cfg *ic, char *buf)
++{
++	return sprintf(buf, "%u %u\n", ic->modkey, ic->unmodkey);
++}
++
++static ssize_t ixfrm_cfg_store_modkeys(struct ixfrm_cfg *ic, const char *buf,
++				       size_t c)
++{
++	if (sscanf(buf, "%u %u", &ic->modkey, &ic->unmodkey) != 2)
++		return -EINVAL;
++	return c;
++}
++
++static ssize_t ixfrm_cfg_readme(struct ixfrm_cfg *ic, char *buf)
++{
++	return sprintf(buf,
++	  "The transformation files (map, modmap) accept writes in this form:\n"
++	  "	<+/-> <keycode-map-from> <keycode-map-to>\n"
++	  "Plus sign to add, and minus sign to remove an entry.\n"
++	  "Keycodes can be found in /usr/include/linux/input.h\n"
++	  "For example, to remap KEY_LEFTMETA (125) to KEY_LEFTALT (56): \n"
++	  "	# echo + 125 56 > map\n"
++	  "Special mappings with a modifier key can be also created.\n"
++	  "For example, to remap capslock+left to home key:\n"
++	  "	# echo 58 42 > modkeys\n"
++	  "	# echo + 105 102 > modmap\n"
++	  "The first commands maps KEY_CAPSLOCK (58) to a modifier key, \n"
++	  "the second command creates the mapping. The second argument (42, \n"
++	  "which is KEY_LEFTSHIFT) to modkeys specifies the unmodifier key: \n"
++	  "when pressed together with the modifier key, the mappings will \n"
++	  "temporary turn off. That is, pressing capslock+leftshift will let \n"
++	  "use capslock as normal again.\n");
++}
++
++#define IXFRM_CFG_ATTR(_name, _mode, _show, _store) \
++	static struct ixfrm_cfg_attribute ixfrm_cfg_attr_##_name = \
++		__CONFIGFS_ATTR(_name, _mode, _show, _store)
++IXFRM_CFG_ATTR(map, 0600, ixfrm_cfg_read_map, ixfrm_cfg_store_map);
++IXFRM_CFG_ATTR(modmap, 0600, ixfrm_cfg_read_modmap, ixfrm_cfg_store_modmap);
++IXFRM_CFG_ATTR(modkeys, 0600, ixfrm_cfg_read_modkeys, ixfrm_cfg_store_modkeys);
++IXFRM_CFG_ATTR(readme, 0400, ixfrm_cfg_readme, NULL);
++
++static struct configfs_attribute *ixfrm_cfg_attrs[] = {
++	&ixfrm_cfg_attr_map.attr,
++	&ixfrm_cfg_attr_modmap.attr,
++	&ixfrm_cfg_attr_modkeys.attr,
++	&ixfrm_cfg_attr_readme.attr,
++	NULL,
++};
++
++CONFIGFS_ATTR_OPS(ixfrm_cfg);
++
++static struct configfs_item_operations ixfrm_cfg_item_ops = {
++	.show_attribute		= ixfrm_cfg_attr_show,
++	.store_attribute	= ixfrm_cfg_attr_store,
++};
++
++static struct config_item_type ixfrm_cfg_type = {
++	.ct_item_ops	= &ixfrm_cfg_item_ops,
++	.ct_attrs	= ixfrm_cfg_attrs,
++	.ct_owner	= THIS_MODULE,
++};
++
++static struct ixfrm_cfg ixfrm_cfg = {
++	.subsys.su_group.cg_item.ci_namebuf	= "input_xfrm",
++	.subsys.su_group.cg_item.ci_type	= &ixfrm_cfg_type,
++	.map = LIST_HEAD_INIT(ixfrm_cfg.map),
++	.modmap = LIST_HEAD_INIT(ixfrm_cfg.modmap),
++};
++
++static int ixfrm_module_init(void)
++{
++	return configfs_register_subsystem(&ixfrm_cfg.subsys);
++}
++module_init(ixfrm_module_init);
++
++static void ixfrm_module_exit(void)
++{
++	struct ixfrm_map *ent;
++	struct ixfrm_map *tmp;
++
++	configfs_unregister_subsystem(&ixfrm_cfg.subsys);
++
++	list_for_each_entry_safe(ent, tmp, &ixfrm_cfg.map, node) {
++		list_del(&ent->node);
++		kfree(ent);
++	}
++
++	list_for_each_entry_safe(ent, tmp, &ixfrm_cfg.modmap, node) {
++		list_del(&ent->node);
++		kfree(ent);
++	}
++
++	ixfrm_try_unregister_handler();
++}
++module_exit(ixfrm_module_exit);
++
++MODULE_DESCRIPTION("Input events transformation framework");
++MODULE_AUTHOR("Anton Vorontsov <cbouatmailru@gmail.com>");
 +MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Synaptics, Inc.");
-+MODULE_DESCRIPTION("synaptics ds4 i2c touch driver");
-\ No newline at end of file
-diff --git a/drivers/input/touchscreen/synaptics_ds4_rmi4_i2c.h b/drivers/input/touchscreen/synaptics_ds4_rmi4_i2c.h
-new file mode 100644
-index 0000000..58329d9
---- /dev/null
-+++ b/drivers/input/touchscreen/synaptics_ds4_rmi4_i2c.h
-@@ -0,0 +1,94 @@
-+/*
-+ * Synaptics DS4 touchscreen driver
-+ *
-+ * Copyright (C) 2012 Synaptics Incorporated
-+ *
-+ * Copyright (C) 2012 Alexandra Chin <alexandra.chin@tw.synaptics.com>
-+ * Copyright (C) 2012 Scott Lin <scott.lin@tw.synaptics.com>
-+ * Copyright (C) 2010 Js HA <js.ha@stericsson.com>
-+ * Copyright (C) 2010 Naveen Kumar G <naveen.gaddipati@stericsson.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#ifndef _SYNAPTICS_DS4_RMI4_H_
-+#define _SYNAPTICS_DS4_RMI4_H_
-+
-+#define SYNAPTICS_DS4_RMI4_PDT_START				(0x00E9)
-+#define SYNAPTICS_DS4_RMI4_PDT_END				(0x000A)
-+#define SYNAPTICS_DS4_RMI4_PDT_ENTRY_SIZE		(0x0006)
-+#define SYNAPTICS_DS4_RMI4_DEVICE_CONTROL_FUNC	(0x01)
-+#define SYNAPTICS_DS4_RMI4_2D_SENSOR_FUNC		(0x11)
-+
-+/* funtion descriptor information */
-+struct synaptics_ds4_rmi4_fn_desc {
-+	unsigned char	query_base_addr;
-+	unsigned char	cmd_base_addr;
-+	unsigned char	ctrl_base_addr;
-+	unsigned char	data_base_addr;
-+	unsigned char	intr_src_count;
-+	unsigned char	fn_number;
-+};
-+
-+/*  funtion information */
-+struct synaptics_ds4_rmi4_fn {
-+	unsigned char fn_number;
-+	unsigned char num_of_data_sources;
-+	unsigned char num_of_data_points;
-+	unsigned char size_of_data_register_block;
-+	unsigned char index_to_intr_reg;
-+	unsigned char intr_mask;
-+	struct synaptics_ds4_rmi4_fn_desc fn_full_addr;
-+	struct list_head link;
-+	void *data;
-+};
-+
-+/* device information */
-+struct synaptics_ds4_rmi4_device_info {
-+	unsigned char manufacturer_id;
-+	unsigned char product_props;
-+	unsigned char product_info[2];
-+	unsigned char date_code[3];
-+	unsigned short tester_id;
-+	unsigned short serial_number;
-+	unsigned char product_id_string[11];
-+	struct list_head support_fn_list;
-+};
-+
-+/* ds4 rmi4 touch screen data */
-+struct synaptics_ds4_rmi4_data {
-+	const struct synaptics_dsx_platform_data *board;
-+	struct input_dev *input_dev;
-+	struct i2c_client *i2c_client;
-+	struct mutex fn_list_mutex;
-+	struct mutex io_ctrl_mutex;
-+	struct mutex irq_request_mutex;
-+	struct synaptics_ds4_rmi4_device_info rmi4_mod_info;
-+	struct regulator *regulator;
-+	unsigned int number_of_interrupt_register;
-+	unsigned short current_page;
-+	unsigned short fn01_ctrl_base_addr;
-+	unsigned short fn01_query_base_addr;
-+	unsigned short fn01_data_base_addr;
-+	unsigned short sensor_max_x;
-+	unsigned short sensor_max_y;
-+	wait_queue_head_t	 wait;
-+	bool touch_stopped;
-+	bool irq_enabled;
-+	bool sensor_sleep;
-+	int irq;
-+};
-+
-+#endif
-diff --git a/include/linux/input/synaptics_dsx.h b/include/linux/input/synaptics_dsx.h
-new file mode 100644
-index 0000000..4f0d0d6
---- /dev/null
-+++ b/include/linux/input/synaptics_dsx.h
-@@ -0,0 +1,49 @@
-+/*
-+ * Synaptics DS4 touchscreen driver
-+ *
-+ * Copyright (C) 2012 Synaptics Incorporated
-+ *
-+ * Copyright (C) 2012 Alexandra Chin <alexandra.chin@tw.synaptics.com>
-+ * Copyright (C) 2012 Scott Lin <scott.lin@tw.synaptics.com>
-+ * Copyright (C) 2010 Js HA <js.ha@stericsson.com>
-+ * Copyright (C) 2010 Naveen Kumar G <naveen.gaddipati@stericsson.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#ifndef _SYNAPTICS_DSX_H_
-+#define _SYNAPTICS_DSX_H_
-+
-+/*
-+ * struct synaptics_dsx_platform_data - contains the dsx platform data
-+ * @x_flip: x flip flag
-+ * @y_flip: y flip flag
-+ * @regulator_en: regulator enable flag
-+ * @irq_type: irq type
-+ * @gpio: gpio pin assignment
-+ * @gpio_config: callback for gpio set up
-+ *
-+ * This structure gives platform data for dsx.
-+ */
-+struct synaptics_dsx_platform_data {
-+	bool x_flip;
-+	bool y_flip;
-+	bool regulator_en;
-+	int irq_type;
-+	unsigned gpio;
-+	int (*gpio_config)(unsigned interrupt_gpio, bool configure);
-+};
-+
-+#endif
+-- 
+1.7.11.5

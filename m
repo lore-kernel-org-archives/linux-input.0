@@ -1,59 +1,47 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH RFT] HID: sensor-hub: don't hold spin lock while calling
+From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+Subject: RE: [PATCH RFT] HID: sensor-hub: don't hold spin lock while calling
  kzalloc with GFP_KERNEL
-Date: Sun, 16 Sep 2012 10:58:25 +0800
-Message-ID: <1347764305.3748.1.camel@phoenix>
+Date: Sun, 16 Sep 2012 03:30:42 +0000
+Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A919D526B6@ORSMSX108.amr.corp.intel.com>
+References: <1347764305.3748.1.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:57206 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750740Ab2IPC6d (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 15 Sep 2012 22:58:33 -0400
-Received: by pbbrr13 with SMTP id rr13so7438440pbb.19
-        for <linux-input@vger.kernel.org>; Sat, 15 Sep 2012 19:58:33 -0700 (PDT)
+Received: from mga09.intel.com ([134.134.136.24]:41208 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751635Ab2IPDbA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 15 Sep 2012 23:31:00 -0400
+In-Reply-To: <1347764305.3748.1.camel@phoenix>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: srinivas pandruvada <srinivas.pandruvada@intel.com>, Jonathan Cameron <jic23@kernel.org>, linux-input@vger.kernel.org
+To: Axel Lin <axel.lin@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-kzalloc might cause sleep, so don't hold spin lock while calling kzalloc with
-GFP_KERNEL.
-
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/hid/hid-sensor-hub.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 4ac759c..162bf6a 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -173,14 +173,17 @@ int sensor_hub_register_callback(struct hid_sensor_hub_device *hsdev,
- 			spin_unlock(&pdata->dyn_callback_lock);
- 			return -EINVAL;
- 		}
-+	spin_unlock(&pdata->dyn_callback_lock);
-+
- 	callback = kzalloc(sizeof(*callback), GFP_KERNEL);
--	if (!callback) {
--		spin_unlock(&pdata->dyn_callback_lock);
-+	if (!callback)
- 		return -ENOMEM;
--	}
-+
- 	callback->usage_callback = usage_callback;
- 	callback->usage_id = usage_id;
- 	callback->priv = NULL;
-+
-+	spin_lock(&pdata->dyn_callback_lock);
- 	list_add_tail(&callback->list, &pdata->dyn_callback_list);
- 	spin_unlock(&pdata->dyn_callback_lock);
- 
--- 
-1.7.9.5
-
-
-
+VGhlcmUgaXMgYWxyZWFkeSBhIHBhdGNoIHN1Ym1pdHRlZCB0byBjaGFuZ2UgdG8gR0ZQX0FUT01J
+Qywgd2hpY2ggYWRkcmVzcyB0aGlzLg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJv
+bTogQXhlbCBMaW4gW21haWx0bzpheGVsLmxpbkBnbWFpbC5jb21dIA0KU2VudDogU2F0dXJkYXks
+IFNlcHRlbWJlciAxNSwgMjAxMiA3OjU4IFBNDQpUbzogSmlyaSBLb3NpbmENCkNjOiBQYW5kcnV2
+YWRhLCBTcmluaXZhczsgSm9uYXRoYW4gQ2FtZXJvbjsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwu
+b3JnDQpTdWJqZWN0OiBbUEFUQ0ggUkZUXSBISUQ6IHNlbnNvci1odWI6IGRvbid0IGhvbGQgc3Bp
+biBsb2NrIHdoaWxlIGNhbGxpbmcga3phbGxvYyB3aXRoIEdGUF9LRVJORUwNCg0Ka3phbGxvYyBt
+aWdodCBjYXVzZSBzbGVlcCwgc28gZG9uJ3QgaG9sZCBzcGluIGxvY2sgd2hpbGUgY2FsbGluZyBr
+emFsbG9jIHdpdGggR0ZQX0tFUk5FTC4NCg0KU2lnbmVkLW9mZi1ieTogQXhlbCBMaW4gPGF4ZWwu
+bGluQGdtYWlsLmNvbT4NCi0tLQ0KIGRyaXZlcnMvaGlkL2hpZC1zZW5zb3ItaHViLmMgfCAgICA5
+ICsrKysrKy0tLQ0KIDEgZmlsZSBjaGFuZ2VkLCA2IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25z
+KC0pDQoNCmRpZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9oaWQtc2Vuc29yLWh1Yi5jIGIvZHJpdmVy
+cy9oaWQvaGlkLXNlbnNvci1odWIuYyBpbmRleCA0YWM3NTljLi4xNjJiZjZhIDEwMDY0NA0KLS0t
+IGEvZHJpdmVycy9oaWQvaGlkLXNlbnNvci1odWIuYw0KKysrIGIvZHJpdmVycy9oaWQvaGlkLXNl
+bnNvci1odWIuYw0KQEAgLTE3MywxNCArMTczLDE3IEBAIGludCBzZW5zb3JfaHViX3JlZ2lzdGVy
+X2NhbGxiYWNrKHN0cnVjdCBoaWRfc2Vuc29yX2h1Yl9kZXZpY2UgKmhzZGV2LA0KIAkJCXNwaW5f
+dW5sb2NrKCZwZGF0YS0+ZHluX2NhbGxiYWNrX2xvY2spOw0KIAkJCXJldHVybiAtRUlOVkFMOw0K
+IAkJfQ0KKwlzcGluX3VubG9jaygmcGRhdGEtPmR5bl9jYWxsYmFja19sb2NrKTsNCisNCiAJY2Fs
+bGJhY2sgPSBremFsbG9jKHNpemVvZigqY2FsbGJhY2spLCBHRlBfS0VSTkVMKTsNCi0JaWYgKCFj
+YWxsYmFjaykgew0KLQkJc3Bpbl91bmxvY2soJnBkYXRhLT5keW5fY2FsbGJhY2tfbG9jayk7DQor
+CWlmICghY2FsbGJhY2spDQogCQlyZXR1cm4gLUVOT01FTTsNCi0JfQ0KKw0KIAljYWxsYmFjay0+
+dXNhZ2VfY2FsbGJhY2sgPSB1c2FnZV9jYWxsYmFjazsNCiAJY2FsbGJhY2stPnVzYWdlX2lkID0g
+dXNhZ2VfaWQ7DQogCWNhbGxiYWNrLT5wcml2ID0gTlVMTDsNCisNCisJc3Bpbl9sb2NrKCZwZGF0
+YS0+ZHluX2NhbGxiYWNrX2xvY2spOw0KIAlsaXN0X2FkZF90YWlsKCZjYWxsYmFjay0+bGlzdCwg
+JnBkYXRhLT5keW5fY2FsbGJhY2tfbGlzdCk7DQogCXNwaW5fdW5sb2NrKCZwZGF0YS0+ZHluX2Nh
+bGxiYWNrX2xvY2spOw0KIA0KLS0NCjEuNy45LjUNCg0KDQoNCg==

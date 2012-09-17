@@ -1,44 +1,68 @@
-From: Kevin Daughtridge <kevin-ZgHIA9YJVL4@public.gmane.org>
-Subject: [PATCH] usbhid: call report_fixup before comparing descriptors
-Date: Mon, 17 Sep 2012 13:05:06 -0700
-Message-ID: <50578272.1020902@kdau.com>
+From: Ping Cheng <Ping.Cheng@wacom.com>
+Subject: RE: [PATCH v2] HID: wacom: Fix wacom_probe error handling
+Date: Mon, 17 Sep 2012 20:17:26 +0000
+Message-ID: <C6AE45FA1D5BD74994491BCF5D47EED9251677@Exchange1.wacom.com>
+References: <1347872034.7737.4.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from exprod5og114.obsmtp.com ([64.18.0.28]:56174 "HELO
+	exprod5og114.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1753238Ab2IQUbX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Sep 2012 16:31:23 -0400
+In-Reply-To: <1347872034.7737.4.camel@phoenix>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Axel Lin <axel.lin@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "eduard@hasenleithner.at" <eduard@hasenleithner.at>
+Cc: Przemo Firszt <przemo@firszt.eu>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-hid_post_reset checks the stored report descriptor against what is currently
-returned by the device. An HID driver's report_fixup method may have 
-changed the
-stored descriptor, however, creating false positives. These leave some 
-devices
-nonfunctional after a resume, with a "reset_resume error 1" reported. 
-This patch
-passes the new descriptor to the driver's report_fixup method, if any, 
-before it
-is compared to the stored one.
-
-BugLink: http://bugs.launchpad.net/bugs/1049623
-Signed-off-by: Kevin Daughtridge <kevin-ZgHIA9YJVL4@public.gmane.org>
----
---- a/drivers/hid/usbhid/hid-core.c    2012-08-20 10:17:09.000000000 -0700
-+++ b/drivers/hid/usbhid/hid-core.c    2012-09-16 18:51:45.381868737 -0700
-@@ -1436,6 +1436,10 @@ static int hid_post_reset(struct usb_int
-          kfree(rdesc);
-          return 1;
-      }
-+
-+    if (hid->driver && hid->driver->report_fixup)
-+        rdesc = hid->driver->report_fixup(hid, rdesc, &status);
-+
-      status = memcmp(rdesc, hid->rdesc, hid->rsize);
-      kfree(rdesc);
-      if (status != 0) {
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+SWYgZGV2aWNlX3JlbW92ZV9maWxlIGlzIG5lZWRlZCBmb3IgaGlkLXdhY29tLmMsIGl0IHNob3Vs
+ZCBiZSBjb25zaWRlcmVkIGZvciB3YWNtX3N5cy5jIGFzIHdlbGwuIA0KDQpFZHVhcmQsIHdoYXQg
+ZG8geW91IHRoaW5rPw0KDQpQaW5nDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9t
+OiBBeGVsIExpbiBbbWFpbHRvOmF4ZWwubGluQGdtYWlsLmNvbV0gDQpTZW50OiBNb25kYXksIFNl
+cHRlbWJlciAxNywgMjAxMiAxOjU0IEFNDQpUbzogSmlyaSBLb3NpbmENCkNjOiBQcnplbW8gRmly
+c3p0OyBQaW5nIENoZW5nOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFtQ
+QVRDSCB2Ml0gSElEOiB3YWNvbTogRml4IHdhY29tX3Byb2JlIGVycm9yIGhhbmRsaW5nDQoNCk9M
+RURzL0xFRCBhcmUgbm90IGNyaXRpY2FsIGZvciB0YWJsZXQgZnVuY3Rpb25pbmcgdGh1cyBpZ25v
+cmUgT0xFRC9MRUQgaW5pdGlhbGlzYXRpb24gZmFpbHVyZXMuDQoNClRoaXMgcGF0Y2ggZG9lcyBj
+bGVhbiB1cCBhbGwgdGhlIHN5c2ZzIGF0dHJpYnV0ZSBmaWxlcyBpbiBlcnJvciBwYXRocy4NCg0K
+U2lnbmVkLW9mZi1ieTogQXhlbCBMaW4gPGF4ZWwubGluQGdtYWlsLmNvbT4NCi0tLQ0KIGRyaXZl
+cnMvaGlkL2hpZC13YWNvbS5jIHwgICAyMyArKysrKysrKysrKysrKy0tLS0tLS0tLQ0KIDEgZmls
+ZSBjaGFuZ2VkLCAxNCBpbnNlcnRpb25zKCspLCA5IGRlbGV0aW9ucygtKQ0KDQpkaWZmIC0tZ2l0
+IGEvZHJpdmVycy9oaWQvaGlkLXdhY29tLmMgYi9kcml2ZXJzL2hpZC9oaWQtd2Fjb20uYyBpbmRl
+eCBhMGZhZmFjLi4yZjYwZGE5IDEwMDY0NA0KLS0tIGEvZHJpdmVycy9oaWQvaGlkLXdhY29tLmMN
+CisrKyBiL2RyaXZlcnMvaGlkL2hpZC13YWNvbS5jDQpAQCAtODU4LDExICs4NTgsOSBAQCBPTEVE
+X0lOSVQoNyk7DQogCWlmIChoZGV2LT5wcm9kdWN0ID09IFVTQl9ERVZJQ0VfSURfV0FDT01fSU5U
+VU9TNF9CTFVFVE9PVEgpIHsNCiAJCXNwcmludGYoaGRldi0+bmFtZSwgIiVzIiwgIldhY29tIElu
+dHVvczQgV0wiKTsNCiAJCXJldCA9IHdhY29tX2luaXRpYWxpemVfbGVkcyhoZGV2KTsNCi0JCWlm
+IChyZXQpIHsNCisJCWlmIChyZXQpDQogCQkJaGlkX3dhcm4oaGRldiwNCiAJCQkJICJjYW4ndCBj
+cmVhdGUgbGVkIGF0dHJpYnV0ZSwgZXJyOiAlZFxuIiwgcmV0KTsNCi0JCQlnb3RvIGRlc3Ryb3lf
+bGVkczsNCi0JCX0NCiAJfQ0KIA0KIAl3ZGF0YS0+YmF0dGVyeS5wcm9wZXJ0aWVzID0gd2Fjb21f
+YmF0dGVyeV9wcm9wczsgQEAgLTg3NSw4ICs4NzMsOCBAQCBPTEVEX0lOSVQoNyk7DQogDQogCXJl
+dCA9IHBvd2VyX3N1cHBseV9yZWdpc3RlcigmaGRldi0+ZGV2LCAmd2RhdGEtPmJhdHRlcnkpOw0K
+IAlpZiAocmV0KSB7DQotCQloaWRfd2FybihoZGV2LCAiY2FuJ3QgY3JlYXRlIHN5c2ZzIGJhdHRl
+cnkgYXR0cmlidXRlLCBlcnI6ICVkXG4iLA0KLQkJCSByZXQpOw0KKwkJaGlkX2VycihoZGV2LCAi
+Y2FuJ3QgY3JlYXRlIHN5c2ZzIGJhdHRlcnkgYXR0cmlidXRlLCBlcnI6ICVkXG4iLA0KKwkJCXJl
+dCk7DQogCQlnb3RvIGVycl9iYXR0ZXJ5Ow0KIAl9DQogDQpAQCAtODkxLDggKzg4OSw4IEBAIE9M
+RURfSU5JVCg3KTsNCiANCiAJcmV0ID0gcG93ZXJfc3VwcGx5X3JlZ2lzdGVyKCZoZGV2LT5kZXYs
+ICZ3ZGF0YS0+YWMpOw0KIAlpZiAocmV0KSB7DQotCQloaWRfd2FybihoZGV2LA0KLQkJCSAiY2Fu
+J3QgY3JlYXRlIGFjIGJhdHRlcnkgYXR0cmlidXRlLCBlcnI6ICVkXG4iLCByZXQpOw0KKwkJaGlk
+X2VycihoZGV2LA0KKwkJCSJjYW4ndCBjcmVhdGUgYWMgYmF0dGVyeSBhdHRyaWJ1dGUsIGVycjog
+JWRcbiIsIHJldCk7DQogCQlnb3RvIGVycl9hYzsNCiAJfQ0KIA0KQEAgLTkwMiwxMCArOTAwLDE3
+IEBAIE9MRURfSU5JVCg3KTsNCiBlcnJfYWM6DQogCXBvd2VyX3N1cHBseV91bnJlZ2lzdGVyKCZ3
+ZGF0YS0+YmF0dGVyeSk7DQogZXJyX2JhdHRlcnk6DQorCXdhY29tX2Rlc3Ryb3lfbGVkcyhoZGV2
+KTsNCisJZGV2aWNlX3JlbW92ZV9maWxlKCZoZGV2LT5kZXYsICZkZXZfYXR0cl9vbGVkMF9pbWcp
+Ow0KKwlkZXZpY2VfcmVtb3ZlX2ZpbGUoJmhkZXYtPmRldiwgJmRldl9hdHRyX29sZWQxX2ltZyk7
+DQorCWRldmljZV9yZW1vdmVfZmlsZSgmaGRldi0+ZGV2LCAmZGV2X2F0dHJfb2xlZDJfaW1nKTsN
+CisJZGV2aWNlX3JlbW92ZV9maWxlKCZoZGV2LT5kZXYsICZkZXZfYXR0cl9vbGVkM19pbWcpOw0K
+KwlkZXZpY2VfcmVtb3ZlX2ZpbGUoJmhkZXYtPmRldiwgJmRldl9hdHRyX29sZWQ0X2ltZyk7DQor
+CWRldmljZV9yZW1vdmVfZmlsZSgmaGRldi0+ZGV2LCAmZGV2X2F0dHJfb2xlZDVfaW1nKTsNCisJ
+ZGV2aWNlX3JlbW92ZV9maWxlKCZoZGV2LT5kZXYsICZkZXZfYXR0cl9vbGVkNl9pbWcpOw0KKwlk
+ZXZpY2VfcmVtb3ZlX2ZpbGUoJmhkZXYtPmRldiwgJmRldl9hdHRyX29sZWQ3X2ltZyk7DQogCWRl
+dmljZV9yZW1vdmVfZmlsZSgmaGRldi0+ZGV2LCAmZGV2X2F0dHJfc3BlZWQpOw0KIAloaWRfaHdf
+c3RvcChoZGV2KTsNCi1kZXN0cm95X2xlZHM6DQotCXdhY29tX2Rlc3Ryb3lfbGVkcyhoZGV2KTsN
+CiBlcnJfZnJlZToNCiAJa2ZyZWUod2RhdGEpOw0KIAlyZXR1cm4gcmV0Ow0KLS0NCjEuNy45LjUN
+Cg0KDQoNCg==

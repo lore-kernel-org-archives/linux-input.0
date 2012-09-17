@@ -1,89 +1,94 @@
 From: Axel Lin <axel.lin@gmail.com>
-Subject: Re: [PATCH] HID: wacom: Fix wacom_probe error handling
-Date: Mon, 17 Sep 2012 16:39:44 +0800
-Message-ID: <CAF+7xW=Vky_6G3Z0rEj-Ski+fFPk-02g0EEaGB2kQOKakJEqvA@mail.gmail.com>
-References: <1347848940.20002.1.camel@phoenix> <6b8f36c5518404598ba8c60eea6005d6.squirrel@webmail.firszt.eu>
-Reply-To: axel.lin@gmail.com
+Subject: [PATCH v2] HID: wacom: Fix wacom_probe error handling
+Date: Mon, 17 Sep 2012 16:53:54 +0800
+Message-ID: <1347872034.7737.4.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f46.google.com ([209.85.219.46]:45932 "EHLO
+Received: from mail-oa0-f46.google.com ([209.85.219.46]:39213 "EHLO
 	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754852Ab2IQIkF convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1750782Ab2IQIx7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Sep 2012 04:40:05 -0400
-Received: by oago6 with SMTP id o6so4483594oag.19
-        for <linux-input@vger.kernel.org>; Mon, 17 Sep 2012 01:40:04 -0700 (PDT)
-In-Reply-To: <6b8f36c5518404598ba8c60eea6005d6.squirrel@webmail.firszt.eu>
+	Mon, 17 Sep 2012 04:53:59 -0400
+Received: by oago6 with SMTP id o6so4491026oag.19
+        for <linux-input@vger.kernel.org>; Mon, 17 Sep 2012 01:53:58 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: przemo@firszt.eu
-Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pingc@wacom.com>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Przemo Firszt <przemo@firszt.eu>, Ping Cheng <pingc@wacom.com>, linux-input@vger.kernel.org
 
-2012/9/17 Przemo Firszt <przemo@firszt.eu>:
->
-> Dnia 17 Wrze=B6nia 2012, 3:29 am, Pn, Axel Lin napisa=B3(a):
->> In the case of goto destroy_leds, we also need to call hid_hw_stop(h=
-dev)
->> and
->> remove sysfs attribute files we created for speed and oleds.
->>
->> Signed-off-by: Axel Lin <axel.lin@gmail.com>
->> ---
->>  drivers/hid/hid-wacom.c |   12 ++++++++++--
->>  1 file changed, 10 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
->> index a0fafac..fae7fd7 100644
->> --- a/drivers/hid/hid-wacom.c
->> +++ b/drivers/hid/hid-wacom.c
->> @@ -902,10 +902,18 @@ OLED_INIT(7);
->>  err_ac:
->>       power_supply_unregister(&wdata->battery);
->>  err_battery:
->> -     device_remove_file(&hdev->dev, &dev_attr_speed);
->> -     hid_hw_stop(hdev);
->>  destroy_leds:
->>       wacom_destroy_leds(hdev);
->> +     device_remove_file(&hdev->dev, &dev_attr_oled0_img);
->> +     device_remove_file(&hdev->dev, &dev_attr_oled1_img);
->> +     device_remove_file(&hdev->dev, &dev_attr_oled2_img);
->> +     device_remove_file(&hdev->dev, &dev_attr_oled3_img);
->> +     device_remove_file(&hdev->dev, &dev_attr_oled4_img);
->> +     device_remove_file(&hdev->dev, &dev_attr_oled5_img);
->> +     device_remove_file(&hdev->dev, &dev_attr_oled6_img);
->> +     device_remove_file(&hdev->dev, &dev_attr_oled7_img);
->> +     device_remove_file(&hdev->dev, &dev_attr_speed);
->> +     hid_hw_stop(hdev);
->>  err_free:
->>       kfree(wdata);
->>       return ret;
->> --
->> 1.7.9.5
-> Hi Alex,
-It's Axel.
+OLEDs/LED are not critical for tablet functioning thus ignore OLED/LED
+initialisation failures.
 
-> The initial idea was that the OLEDs/LED are not critical for tablet
-> functioning and that's why there was no call of hid_stop_hw if the
-> OLED/LED initialisation faild.
+This patch does clean up all the sysfs attribute files in error paths.
 
-Since it is not critical, current code ignore checking return value whe=
-n
-device_create_file for speed and oleds.
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/hid/hid-wacom.c |   23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-But current code does goto destroy_leds if wacom_initialize_leds fails.
-Which means it returns error code in wacom_probe() and thus it should
-clean up all the allocated resources in the error patch.
+diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+index a0fafac..2f60da9 100644
+--- a/drivers/hid/hid-wacom.c
++++ b/drivers/hid/hid-wacom.c
+@@ -858,11 +858,9 @@ OLED_INIT(7);
+ 	if (hdev->product == USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH) {
+ 		sprintf(hdev->name, "%s", "Wacom Intuos4 WL");
+ 		ret = wacom_initialize_leds(hdev);
+-		if (ret) {
++		if (ret)
+ 			hid_warn(hdev,
+ 				 "can't create led attribute, err: %d\n", ret);
+-			goto destroy_leds;
+-		}
+ 	}
+ 
+ 	wdata->battery.properties = wacom_battery_props;
+@@ -875,8 +873,8 @@ OLED_INIT(7);
+ 
+ 	ret = power_supply_register(&hdev->dev, &wdata->battery);
+ 	if (ret) {
+-		hid_warn(hdev, "can't create sysfs battery attribute, err: %d\n",
+-			 ret);
++		hid_err(hdev, "can't create sysfs battery attribute, err: %d\n",
++			ret);
+ 		goto err_battery;
+ 	}
+ 
+@@ -891,8 +889,8 @@ OLED_INIT(7);
+ 
+ 	ret = power_supply_register(&hdev->dev, &wdata->ac);
+ 	if (ret) {
+-		hid_warn(hdev,
+-			 "can't create ac battery attribute, err: %d\n", ret);
++		hid_err(hdev,
++			"can't create ac battery attribute, err: %d\n", ret);
+ 		goto err_ac;
+ 	}
+ 
+@@ -902,10 +900,17 @@ OLED_INIT(7);
+ err_ac:
+ 	power_supply_unregister(&wdata->battery);
+ err_battery:
++	wacom_destroy_leds(hdev);
++	device_remove_file(&hdev->dev, &dev_attr_oled0_img);
++	device_remove_file(&hdev->dev, &dev_attr_oled1_img);
++	device_remove_file(&hdev->dev, &dev_attr_oled2_img);
++	device_remove_file(&hdev->dev, &dev_attr_oled3_img);
++	device_remove_file(&hdev->dev, &dev_attr_oled4_img);
++	device_remove_file(&hdev->dev, &dev_attr_oled5_img);
++	device_remove_file(&hdev->dev, &dev_attr_oled6_img);
++	device_remove_file(&hdev->dev, &dev_attr_oled7_img);
+ 	device_remove_file(&hdev->dev, &dev_attr_speed);
+ 	hid_hw_stop(hdev);
+-destroy_leds:
+-	wacom_destroy_leds(hdev);
+ err_free:
+ 	kfree(wdata);
+ 	return ret;
+-- 
+1.7.9.5
 
-If you want to ignore wacom_initialize_leds() failure, you should not
-call goto destroy_leds.
 
-Comment?
 
-Axel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

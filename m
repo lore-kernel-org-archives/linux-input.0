@@ -1,53 +1,46 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Subject: RE: [PATCH 3/3] HID: hid-sensor-hub: Call hid_hw_close() before
- hid_hw_stop()
-Date: Mon, 17 Sep 2012 15:20:38 +0000
-Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A919D527D2@ORSMSX108.amr.corp.intel.com>
-References: <1347573801.8974.2.camel@phoenix>
- <1347574001.8974.6.camel@phoenix>
- <4FA419E87744DF4DAECD5BCE1214B7A919D523B1@ORSMSX108.amr.corp.intel.com>
- <alpine.LNX.2.00.1209171257260.31149@pobox.suse.cz>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH 2/2] HID: wiimote: Parse calibration data of balance boards
+Date: Mon, 17 Sep 2012 17:21:04 +0200
+Message-ID: <50573FE0.6000003@butterbrot.org>
+References: <1347877896-23939-1-git-send-email-dh.herrmann@googlemail.com> <1347877896-23939-2-git-send-email-dh.herrmann@googlemail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:55994 "EHLO mga09.intel.com"
+Received: from butterbrot.org ([176.9.106.16]:36082 "EHLO butterbrot.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756502Ab2IQPUl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Sep 2012 11:20:41 -0400
-In-Reply-To: <alpine.LNX.2.00.1209171257260.31149@pobox.suse.cz>
-Content-Language: en-US
+	id S1755163Ab2IQPVG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Sep 2012 11:21:06 -0400
+In-Reply-To: <1347877896-23939-2-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Axel Lin <axel.lin@gmail.com>, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Hi Alex,
+Darn, I just realized there may be an error here:
 
-Can you resubmit your patches merging 2/3 and 3/3?
+On 17.09.2012 12:31, David Herrmann wrote:
+>   drivers/hid/hid-wiimote-ext.c | 39 ++++++++++++++++++++++++++++++++++++++-
+>   1 file changed, 38 insertions(+), 1 deletion(-)
+>
+> +	/* apply calibration data */
+> +	for (i = 0; i < 4; i++) {
+> +		if (val[i] < ext->calib[i][1]) {
+> +			tmp = val[i] - ext->calib[i][0];
+> +			tmp *= 1700;
+> +			tmp /= ext->calib[i][1] - ext->calib[i][0];
+> +		} else {
+> +			tmp = val[i] - ext->calib[i][1];
+> +			tmp *= 1700;
+> +			tmp /= ext->calib[i][2] - ext->calib[i][1] + 1700;
+I think this is not exactly the same formula as in my original patch; 
+I'm quite sure this should read:
 
-Thanks,
-Srinivas
+	tmp /= ext->calib[i][2] - ext->calib[i][1];
+	tmp += 1700;
 
------Original Message-----
-From: Jiri Kosina [mailto:jkosina@suse.cz] 
-Sent: Monday, September 17, 2012 3:58 AM
-To: Pandruvada, Srinivas
-Cc: Axel Lin; Jonathan Cameron; linux-input@vger.kernel.org
-Subject: RE: [PATCH 3/3] HID: hid-sensor-hub: Call hid_hw_close() before hid_hw_stop()
+instead.
 
-On Thu, 13 Sep 2012, Pandruvada, Srinivas wrote:
-
-> I think you can merge this patch with your patch 2/3 as both are 
-> addressing hid_hw_close and hid_hw_stop.
-
-Agreed. In addition to that, I am fine with the changes. As this whole lot is going through Jonathan to Greg, I just add my
-
-	Acked-by: Jiri Kosina <jkosina@suse.cz>
-
-and let Jonathan take it. Thanks,
-
---
-Jiri Kosina
-SUSE Labs
+Florian
+-- 
+SENT FROM MY PDP-11

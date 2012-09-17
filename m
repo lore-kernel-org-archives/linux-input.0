@@ -1,70 +1,49 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [patch] HID: picoLCD: off by one in dump_buff_as_hex()
-Date: Mon, 17 Sep 2012 22:54:37 +0200
-Message-ID: <20120917225437.6f2847ee@neptune.home>
-References: <20120914110414.GA1152@elgon.mountain>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: [PATCH] HID: wiimote: fix weight conversion error for values > 17kg
+Date: Mon, 17 Sep 2012 23:08:25 +0200
+Message-ID: <CANq1E4R5-B-9EcPN6B7sqvATZNphXKMEZwSznt_DEiKKgA1_3w@mail.gmail.com>
+References: <alpine.DEB.2.02.1209172114000.3968@butterbrot>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay.restena.lu ([158.64.1.62]:60103 "EHLO
-	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754924Ab2IQUzc (ORCPT
+Received: from mail-we0-f174.google.com ([74.125.82.174]:33724 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751781Ab2IQVI1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Sep 2012 16:55:32 -0400
-In-Reply-To: <20120914110414.GA1152@elgon.mountain>
+	Mon, 17 Sep 2012 17:08:27 -0400
+Received: by weyx8 with SMTP id x8so4147346wey.19
+        for <linux-input@vger.kernel.org>; Mon, 17 Sep 2012 14:08:25 -0700 (PDT)
+In-Reply-To: <alpine.DEB.2.02.1209172114000.3968@butterbrot>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Florian Echtler <floe@butterbrot.org>
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz
 
-Hi Dan,
-
-On Fri, 14 September 2012 Dan Carpenter <dan.carpenter@oracle.com> wrote:
-> We're placing the NUL terminator one character beyond the end of the
-> buffer here.
-> 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+On Mon, Sep 17, 2012 at 9:15 PM, Florian Echtler <floe@butterbrot.org> wrote:
+> Signed-Off-By: Florian Echtler <floe@butterbrot.org>
 > ---
-> This change obviously don't make the code worse, but I'm not positive
-> it's the right fix.  I'm not sure the lines before are doing the right
-> thing either, if we had two chars of remaining space then wouldn't it be
-> better to put the new line and NUL in the unused space?
+>  drivers/hid/hid-wiimote-ext.c |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-wiimote-ext.c b/drivers/hid/hid-wiimote-ext.c
+> index fc98cc9..bc85bf2 100644
+> --- a/drivers/hid/hid-wiimote-ext.c
+> +++ b/drivers/hid/hid-wiimote-ext.c
+> @@ -585,7 +585,8 @@ static void handler_balance_board(struct wiimote_ext
+> *ext, const __u8 *payload)
+>                 } else {
+>                         tmp = val[i] - ext->calib[i][1];
+>                         tmp *= 1700;
+> -                       tmp /= ext->calib[i][2] - ext->calib[i][1] + 1700;
+> +                       tmp /= ext->calib[i][2] - ext->calib[i][1];
+> +                       tmp += 1700;
 
-The output buffer full should not happen as the 256 bytes buffer can hold
-more than the max expected report size of 64 bytes.
+That's the reason why I split up your extra long line from the
+original :P I should have checked it again. Thanks for the fix. I've
+compared it with the original and I messed it up during conversion.
+Sorry.
 
-An option would be to convert to hex_dump_to_buffer(), but as this happens
-partially under IRQ context - even though for debugging purposes - the
-switch may be a bit too expensive, especially as one still has to append
-linefeed after it.
+Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 
-
-I think I will extend your fix slightly in order to cover "too much input"
-in a way visible to /sys/kernel/hid/*/events reader (for the case that
-reports would grow in size).
-
-Though no need to check for minimal output buffer size as callers are local
-and feed in #defined sized buffer.
-
-
-More on Wednesday evening, too late today and no time tomorrow.
-
-Bruno
-
-> If you decide to do it differently, then please feel to sent a patch for
-> that and give me a Reported-by cookie.
-> 
-> diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-picolcd_debugfs.c
-> index eec85b5..ff271ff0 100644
-> --- a/drivers/hid/hid-picolcd_debugfs.c
-> +++ b/drivers/hid/hid-picolcd_debugfs.c
-> @@ -390,7 +390,7 @@ static void dump_buff_as_hex(char *dst, size_t dst_sz, const u8 *data,
->  		dst[j--] = '\0';
->  		dst[j] = '\n';
->  	} else
-> -		dst[j] = '\0';
-> +		dst[dst_sz - 1] = '\0';
->  }
->  
->  void picolcd_debug_out_report(struct picolcd_data *data,
+Thanks Jiri for applying them.
+David

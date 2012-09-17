@@ -1,48 +1,58 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: edt-ft5x06 - return -EFAULT on copy_to_user() error
-Date: Mon, 17 Sep 2012 13:12:52 +0800
-Message-ID: <1347858772.8376.1.camel@phoenix>
+From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH v3 4/5] IIO : ADC: tiadc: Add support of TI's ADC driver
+Date: Mon, 17 Sep 2012 06:11:53 +0000
+Message-ID: <4CE347531D4CA947960AF71FF095B9323E954363@DBDE01.ent.ti.com>
+References: <1347532819-505-1-git-send-email-rachna@ti.com>
+ <1347532819-505-5-git-send-email-rachna@ti.com>
+ <5051CDEA.5080200@kernel.org>
+ <4CE347531D4CA947960AF71FF095B9323E953D32@DBDE01.ent.ti.com>
+ <5052E8E9.4030206@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f46.google.com ([209.85.219.46]:51167 "EHLO
-	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751450Ab2IQFNB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Sep 2012 01:13:01 -0400
-Received: by oago6 with SMTP id o6so4375423oag.19
-        for <linux-input@vger.kernel.org>; Sun, 16 Sep 2012 22:13:01 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5052E8E9.4030206-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Content-Language: en-US
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Simon Budig <simon.budig@kernelconcepts.de>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-copy_to_user() returns the number of bytes remaining, but we want a
-negative error code here.
+On Fri, Sep 14, 2012 at 13:50:57, Jonathan Cameron wrote:
+> On 14/09/12 07:00, Patil, Rachna wrote:
+> > On Thu, Sep 13, 2012 at 17:43:30, Jonathan Cameron wrote:
+> >> On 13/09/12 11:40, Patil, Rachna wrote:
+> >>> This patch adds support for TI's ADC driver.
+> >>> This is a multifunctional device.
+> >>> Analog input lines are provided on which voltage measurements can be 
+> >>> carried out.
+> >>> You can have upto 8 input lines.
+> >>>
+> >>> Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
+> >>
+> >> There's a little fuzz in applying this due to other drivers that have gone in recently.
+> >>
+> >> Actually this is going to be 'interesting' to merge. Dmitry, Samuel thoughts on who takes this one and how?  Maybe this is a case for a 'special' branch pulled into more than one tree?
+> >>
+> >>
+> >> One minor thing inline.  I have an aversion to dynamic allocation of 
+> >> things that are then constant.
+> >>
+> >> Also the module name is simply ti_adc. Does seem a little 'vague'
+> >> given the range of ADC's TI makes :)  Perhaps keep the reference to 
+> >> the tsc in there?  Personally I'd have preferred the whole thing 
+> >> being named after a particular part number (any one it support would
+> >> do) to avoid a clash in future with a new touch screen adc from TI.
+> >> Bit late for that though I guess ;)
+> >
+> > Yes, true.
+> > TI definitely might come up with more IP's of this type.
+> > This IP(TSC / ADC) is present on AM335x. If necessary we can rename the driver to ti_am335x_XXX.
+> I'd be in favour of doing this now rather than when the problem presents itself.  Anyone mind?
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/touchscreen/edt-ft5x06.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+I will also rename the touchscreen and the MFD driver to reflect the same.
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index bf00b32..02e9dab 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -567,7 +567,9 @@ static ssize_t edt_ft5x06_debugfs_raw_data_read(struct file *file,
- 
- 	read = min_t(size_t, count, tsdata->raw_bufsize - *off);
- 	error = copy_to_user(buf, tsdata->raw_buffer + *off, read);
--	if (!error)
-+	if (error)
-+		error = -EFAULT;
-+	else
- 		*off += read;
- out:
- 	mutex_unlock(&tsdata->mutex);
--- 
-1.7.9.5
+<SNIP>
 
-
-
+Regards,
+Rachna

@@ -1,60 +1,76 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH/RFC] HID: roccat: removing devices from blacklist
-Date: Mon, 17 Sep 2012 08:34:05 +0200
-Message-ID: <1347863645.2606.66.camel@neuromancer.tessier-ashpool>
-Reply-To: erazor_de@users.sourceforge.net
+From: "Przemo Firszt" <przemo@firszt.eu>
+Subject: Re: [PATCH] HID: wacom: Fix wacom_probe error handling
+Date: Mon, 17 Sep 2012 09:28:44 +0100
+Message-ID: <6b8f36c5518404598ba8c60eea6005d6.squirrel@webmail.firszt.eu>
+References: <1347848940.20002.1.camel@phoenix>
+Reply-To: przemo@firszt.eu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-13.arcor-online.net ([151.189.21.53]:39368 "EHLO
-	mail-in-13.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750733Ab2IQGeH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Sep 2012 02:34:07 -0400
+Received: from wren.arvixe.com ([50.97.138.99]:38854 "EHLO wren.arvixe.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750709Ab2IQI2q (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Sep 2012 04:28:46 -0400
+In-Reply-To: <1347848940.20002.1.camel@phoenix>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-
-I would suggest to remove the Roccat devices from generic drivers blacklist.
-
-Some Distros tend to have kernels without the special modules compiled, which
-prevents users of these devices to work with live images or installers.
-
-The Roccat devices work flawlessly with generic drivers (except the old Kone with a
-small glitch). My modules are only needed when using my tools for configuration
-and extended capabilities. These tools come with udev rules which transfer
-the control from generic driver to externally compiled modules if installed.
-
-I have to update these udev rules for the change from generic-usb to hid-generic
-anyway, so I would add a rule to also handle the kernel contained modules.
-
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
----
- drivers/hid/hid-core.c |    8 --------
- 1 files changed, 0 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 8bcd168..4f2ba5a 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1627,14 +1627,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONE) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ARVO) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ISKU) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPLUS) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KOVAPLUS) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_PYRA_WIRED) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_SAVU) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_PS1000) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
--- 
-1.7.3.4
+To: Axel Lin <axel.lin@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Przemo Firszt <przemo@firszt.eu>, Ping Cheng <pingc@wacom.com>, linux-input@vger.kernel.org
 
 
+Dnia 17 Wrze=B6nia 2012, 3:29 am, Pn, Axel Lin napisa=B3(a):
+> In the case of goto destroy_leds, we also need to call hid_hw_stop(hd=
+ev)
+> and
+> remove sysfs attribute files we created for speed and oleds.
+>
+> Signed-off-by: Axel Lin <axel.lin@gmail.com>
+> ---
+>  drivers/hid/hid-wacom.c |   12 ++++++++++--
+>  1 file changed, 10 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+> index a0fafac..fae7fd7 100644
+> --- a/drivers/hid/hid-wacom.c
+> +++ b/drivers/hid/hid-wacom.c
+> @@ -902,10 +902,18 @@ OLED_INIT(7);
+>  err_ac:
+>  	power_supply_unregister(&wdata->battery);
+>  err_battery:
+> -	device_remove_file(&hdev->dev, &dev_attr_speed);
+> -	hid_hw_stop(hdev);
+>  destroy_leds:
+>  	wacom_destroy_leds(hdev);
+> +	device_remove_file(&hdev->dev, &dev_attr_oled0_img);
+> +	device_remove_file(&hdev->dev, &dev_attr_oled1_img);
+> +	device_remove_file(&hdev->dev, &dev_attr_oled2_img);
+> +	device_remove_file(&hdev->dev, &dev_attr_oled3_img);
+> +	device_remove_file(&hdev->dev, &dev_attr_oled4_img);
+> +	device_remove_file(&hdev->dev, &dev_attr_oled5_img);
+> +	device_remove_file(&hdev->dev, &dev_attr_oled6_img);
+> +	device_remove_file(&hdev->dev, &dev_attr_oled7_img);
+> +	device_remove_file(&hdev->dev, &dev_attr_speed);
+> +	hid_hw_stop(hdev);
+>  err_free:
+>  	kfree(wdata);
+>  	return ret;
+> --
+> 1.7.9.5
+Hi Alex,
+The initial idea was that the OLEDs/LED are not critical for tablet
+functioning and that's why there was no call of hid_stop_hw if the
+OLED/LED initialisation faild.
+What's is the general kernel/HID policy: is it OK to have a device work=
+ing
+with some non-essential features missing?
 
+--=20
+Regards,
+Przemo Firszt
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

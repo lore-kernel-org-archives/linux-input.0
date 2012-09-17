@@ -1,51 +1,44 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] HID: cypress: Use swap macro
-Date: Mon, 17 Sep 2012 21:35:32 +0800
-Message-ID: <1347888932.7521.2.camel@phoenix>
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: [PATCH v2] HID: roccat: conditional blacklisting of Roccat modules
+Date: Mon, 17 Sep 2012 16:04:19 +0200
+Message-ID: <1347890659.2398.1.camel@neuromancer.tessier-ashpool>
+Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f46.google.com ([209.85.219.46]:62235 "EHLO
-	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751319Ab2IQNfk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Sep 2012 09:35:40 -0400
-Received: by oago6 with SMTP id o6so4711282oag.19
-        for <linux-input@vger.kernel.org>; Mon, 17 Sep 2012 06:35:40 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org
 
-This simplify the implementation.
+Roccat devices are standard compatible, specific drivers are only needed
+for extended functionality.
+If Roccat drivers are not configured, hid-generic binds these devices now.
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
+Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
 ---
- drivers/hid/hid-cypress.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/hid/hid-core.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/hid-cypress.c b/drivers/hid/hid-cypress.c
-index 3e159a5..3b795a2 100644
---- a/drivers/hid/hid-cypress.c
-+++ b/drivers/hid/hid-cypress.c
-@@ -41,13 +41,9 @@ static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 
- 	for (i = 0; i < *rsize - 4; i++)
- 		if (rdesc[i] == 0x29 && rdesc[i + 2] == 0x19) {
--			__u8 tmp;
--
- 			rdesc[i] = 0x19;
- 			rdesc[i + 2] = 0x29;
--			tmp = rdesc[i + 3];
--			rdesc[i + 3] = rdesc[i + 1];
--			rdesc[i + 1] = tmp;
-+			swap(rdesc[i + 1], rdesc[i + 3]);
- 		}
- 	return rdesc;
- }
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8bcd168..d5042b8 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1627,6 +1627,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
++#if IS_ENABLED(CONFIG_HID_ROCCAT)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ARVO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ISKU) },
+@@ -1635,6 +1636,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_PYRA_WIRED) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_SAVU) },
++#endif
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_PS1000) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
 -- 
-1.7.9.5
-
-
-
+1.7.3.4

@@ -1,67 +1,49 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [patch 2/2] HID: sensors: remove some unneeded checks
-Date: Mon, 17 Sep 2012 12:59:43 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1209171259240.31149@pobox.suse.cz>
-References: <20120914065346.GE11886@elgon.mountain>
+Subject: Re: [PATCH] HID: Fix return value in hid-core.c
+Date: Mon, 17 Sep 2012 13:02:28 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1209171301500.31149@pobox.suse.cz>
+References: <1347623177-14221-1-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:43204 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:43356 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755643Ab2IQK7v (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Sep 2012 06:59:51 -0400
-In-Reply-To: <20120914065346.GE11886@elgon.mountain>
+	id S1755694Ab2IQLCf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Sep 2012 07:02:35 -0400
+In-Reply-To: <1347623177-14221-1-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: srinivas pandruvada <srinivas.pandruvada@intel.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, Jonathan Cameron <jic23@cam.ac.uk>
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-input@vger.kernel.org, patches@linaro.org
 
-On Fri, 14 Sep 2012, Dan Carpenter wrote:
+On Fri, 14 Sep 2012, Sachin Kamat wrote:
 
-> "report_id" is unsigned so it's never less than zero.  These checks can
-> be removed without any problem.
+> Return -ENOMEM instead of -1 if memory allocation fails.
 > 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
-Adding Jonathan to CC as well. Thanks.
-
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> ---
+>  drivers/hid/hid-core.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 > 
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index 0c93b10..22ec3c6 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -214,9 +214,6 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
->  	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
->  	int ret = 0;
->  
-> -	if (report_id < 0)
-> -		return -EINVAL;
-> -
->  	mutex_lock(&data->mutex);
->  	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
->  	if (!report || (field_index >=  report->maxfield)) {
-> @@ -241,9 +238,6 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
->  	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
->  	int ret = 0;
->  
-> -	if (report_id < 0)
-> -		return -EINVAL;
-> -
->  	mutex_lock(&data->mutex);
->  	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
->  	if (!report || (field_index >=  report->maxfield)) {
-> @@ -271,9 +265,6 @@ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
->  	struct hid_report *report;
->  	int ret_val = 0;
->  
-> -	if (report_id < 0)
-> -		return -EINVAL;
-> -
->  	mutex_lock(&data->mutex);
->  	memset(&data->pending, 0, sizeof(data->pending));
->  	init_completion(&data->pending.ready);
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 16d6454..1011a22 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -134,7 +134,7 @@ static int open_collection(struct hid_parser *parser, unsigned type)
+>  				parser->device->collection_size * 2, GFP_KERNEL);
+>  		if (collection == NULL) {
+>  			hid_err(parser->device, "failed to reallocate collection array\n");
+> -			return -1;
+> +			return -ENOMEM;
+
+While you are at it, could you please update the return value in case the 
+collection stack overflows? I'd go with EINVAL. Thanks.
+
+>  		}
+>  		memcpy(collection, parser->device->collection,
+>  			sizeof(struct hid_collection) *
+> -- 
+> 1.7.4.1
 > 
 
 -- 

@@ -1,42 +1,48 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Input and HID updates for 3.7, version 4
-Date: Tue, 18 Sep 2012 13:29:29 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1209181328500.31149@pobox.suse.cz>
-References: <1346528835-363-1-git-send-email-rydberg@euromail.se> <20120910190226.GA877@polaris.bitmath.org> <alpine.LNX.2.00.1209102248250.22683@pobox.suse.cz> <5556929.93aC5q4087@dtor-d630.eng.vmware.com> <20120914192554.GA6498@polaris.bitmath.org>
- <20120915153323.GA1391@polaris.bitmath.org>
+From: Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH] usbhid: call report_fixup before comparing descriptors
+Date: Tue, 18 Sep 2012 16:00:16 +0400
+Message-ID: <50586250.4060208@mvista.com>
+References: <50578272.1020902@kdau.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120915153323.GA1391@polaris.bitmath.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <50578272.1020902-ZgHIA9YJVL4@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kevin Daughtridge <kevin-ZgHIA9YJVL4@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, 15 Sep 2012, Henrik Rydberg wrote:
+Hello.
 
-> Ok, here is version 4 of the patchset. Rather than sending out all the
-> patches again, the diff to linux-next is given below, and the
-> refreshed tree can be pulled from
-> 
->   git://github.com/rydberg/linux.git maybe
-> 
-> All Dmitry's comments are addressed. Changes in short:
-> 
-> * Also move 'slot' to input_mt
-> * Oops fix amended
-> * New patch to allow driver pressure handling
-> * Keep the synaptics specials in bcm5974
-> 
-> Needless to say, I want to move this tree to linux-next soonish, so if
-> there are more comments coming, I would appreciate a heads-up.
+On 18-09-2012 0:05, Kevin Daughtridge wrote:
 
-So if Dmitry has Acked all the input patches and I am going to take it, 
-could you please send me either a proper pull request, or the patch series 
-via e-mail, so that I could apply it?
+> hid_post_reset checks the stored report descriptor against what is currently
+> returned by the device. An HID driver's report_fixup method may have changed the
+> stored descriptor, however, creating false positives. These leave some devices
+> nonfunctional after a resume, with a "reset_resume error 1" reported. This patch
+> passes the new descriptor to the driver's report_fixup method, if any, before it
+> is compared to the stored one.
 
-Thanks Henrik,
+> BugLink: http://bugs.launchpad.net/bugs/1049623
+> Signed-off-by: Kevin Daughtridge <kevin-ZgHIA9YJVL4@public.gmane.org>
+> ---
+> --- a/drivers/hid/usbhid/hid-core.c    2012-08-20 10:17:09.000000000 -0700
+> +++ b/drivers/hid/usbhid/hid-core.c    2012-09-16 18:51:45.381868737 -0700
+> @@ -1436,6 +1436,10 @@ static int hid_post_reset(struct usb_int
+>           kfree(rdesc);
+>           return 1;
+>       }
+> +
+> +    if (hid->driver && hid->driver->report_fixup)
+> +        rdesc = hid->driver->report_fixup(hid, rdesc, &status);
+> +
 
--- 
-Jiri Kosina
-SUSE Labs
+    Your patch is whitespace damaged, i.e. has all tabs replaced by spaces.
+
+WBR, Sergei
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

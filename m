@@ -1,49 +1,55 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH] HID: wiimote: fix weight conversion error for values > 17kg
-Date: Mon, 17 Sep 2012 23:08:25 +0200
-Message-ID: <CANq1E4R5-B-9EcPN6B7sqvATZNphXKMEZwSznt_DEiKKgA1_3w@mail.gmail.com>
-References: <alpine.DEB.2.02.1209172114000.3968@butterbrot>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH RESEND 1/2] HID: hid-sensor-hub: Remove setting
+ hdev->claimed before calling hid_hw_start()
+Date: Tue, 18 Sep 2012 08:52:13 +0800
+Message-ID: <1347929533.6562.0.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:33724 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751781Ab2IQVI1 (ORCPT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:59443 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755834Ab2IRAwX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Sep 2012 17:08:27 -0400
-Received: by weyx8 with SMTP id x8so4147346wey.19
-        for <linux-input@vger.kernel.org>; Mon, 17 Sep 2012 14:08:25 -0700 (PDT)
-In-Reply-To: <alpine.DEB.2.02.1209172114000.3968@butterbrot>
+	Mon, 17 Sep 2012 20:52:23 -0400
+Received: by obbuo13 with SMTP id uo13so9762405obb.19
+        for <linux-input@vger.kernel.org>; Mon, 17 Sep 2012 17:52:22 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Srinivas Pandruvada <srinivas.pandruvada@intel.com>, linux-input@vger.kernel.org
 
-On Mon, Sep 17, 2012 at 9:15 PM, Florian Echtler <floe@butterbrot.org> wrote:
-> Signed-Off-By: Florian Echtler <floe@butterbrot.org>
-> ---
->  drivers/hid/hid-wiimote-ext.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-wiimote-ext.c b/drivers/hid/hid-wiimote-ext.c
-> index fc98cc9..bc85bf2 100644
-> --- a/drivers/hid/hid-wiimote-ext.c
-> +++ b/drivers/hid/hid-wiimote-ext.c
-> @@ -585,7 +585,8 @@ static void handler_balance_board(struct wiimote_ext
-> *ext, const __u8 *payload)
->                 } else {
->                         tmp = val[i] - ext->calib[i][1];
->                         tmp *= 1700;
-> -                       tmp /= ext->calib[i][2] - ext->calib[i][1] + 1700;
-> +                       tmp /= ext->calib[i][2] - ext->calib[i][1];
-> +                       tmp += 1700;
+Current implementation of hid_hw_start() allows connect_mask to be 0.
+Setting hdev->claimed = HID_CLAIMED_INPUT before calling hid_hw_start() is not
+necessary. Remove it.
 
-That's the reason why I split up your extra long line from the
-original :P I should have checked it again. Thanks for the fix. I've
-compared it with the original and I messed it up during conversion.
-Sorry.
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/hid/hid-sensor-hub.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 4ac759c..1faacf2 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -539,7 +539,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 	}
+ 	INIT_LIST_HEAD(&hdev->inputs);
+ 
+-	hdev->claimed = HID_CLAIMED_INPUT;
+ 	ret = hid_hw_start(hdev, 0);
+ 	if (ret) {
+ 		hid_err(hdev, "hw start failed\n");
+@@ -627,7 +626,6 @@ static void sensor_hub_remove(struct hid_device *hdev)
+ 	int i;
+ 
+ 	hid_dbg(hdev, " hardware removed\n");
+-	hdev->claimed &= ~HID_CLAIMED_INPUT;
+ 	hid_hw_stop(hdev);
+ 	hid_hw_close(hdev);
+ 	spin_lock_irqsave(&data->lock, flags);
+-- 
+1.7.9.5
 
-Thanks Jiri for applying them.
-David
+
+

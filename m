@@ -1,120 +1,48 @@
-From: Bo Shen <voice.shen@atmel.com>
-Subject: Re: [PATCH v3] input: qt1070: Add device tree support
-Date: Tue, 18 Sep 2012 10:21:03 +0800
-Message-ID: <5057DA8F.70407@atmel.com>
-References: <1347358459-11598-1-git-send-email-voice.shen@atmel.com> <5056EB60.8080100@atmel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Jesse Sung <jesse.sung@canonical.com>
+Subject: [PATCH] N-Trig: change default value of logical/physical width/height to 1
+Date: Tue, 18 Sep 2012 16:27:08 +0800
+Message-ID: <1347956828-5967-1-git-send-email-jesse.sung@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:7144 "EHLO sjogate2.atmel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932106Ab2IRCV3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Sep 2012 22:21:29 -0400
-In-Reply-To: <5056EB60.8080100@atmel.com>
+Received: from youngberry.canonical.com ([91.189.89.112]:36086 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752277Ab2IRI2O (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Sep 2012 04:28:14 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: devicetree-discuss <devicetree-discuss@lists.ozlabs.org>, dmitry.torokhov@gmail.com, shubhrajyoti@ti.com, linux-input@vger.kernel.org, jm.lin@atmel.com, linux-arm-kernel@lists.infradead.org
+To: linux-input@vger.kernel.org
 
-Hi Nicolas,
+From: Wen-chien Jesse Sung <jesse.sung@canonical.com>
 
-On 9/17/2012 17:20, Nicolas Ferre wrote:
-> On 09/11/2012 12:14 PM, Bo Shen :
->> Add qt1070 device tree support
->> Using device node to parse irq
->>
->> Test this on at91sam9x5ek board
->>
->> Signed-off-by: Bo Shen <voice.shen@atmel.com>
->> ---
->> change since v2
->>    Using device node to parse irq,
->>    Remove gpio relative stuff
->>
->> change since v1
->>    Add gpio relative stuff, gpio_is_valid, gpio_request
->> ---
->>   .../devicetree/bindings/input/atmel-qt1070.txt     |   16 ++++++++++++++++
->>   drivers/input/keyboard/qt1070.c                    |    9 +++++++++
->>   2 files changed, 25 insertions(+)
->>   create mode 100644 Documentation/devicetree/bindings/input/atmel-qt1070.txt
->>
->> diff --git a/Documentation/devicetree/bindings/input/atmel-qt1070.txt b/Documentation/devicetree/bindings/input/atmel-qt1070.txt
->> new file mode 100644
->> index 0000000..e1fc09e
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/input/atmel-qt1070.txt
->> @@ -0,0 +1,16 @@
->> +Atmel qt1070 keyboard interface
->
-> Nitpicking: there is usually a "*" at the beginning to give it a
-> title-ish look ;-)
->
-> Please tell that
+Since something will be divided by these variables in
+show_min_width()/show_min_height() and show_activate_width()/
+show_activate_height(), a divided error would be triggered if
+they are zero.
 
-OK, I will add it. Thanks.
+Signed-off-by: Wen-chien Jesse Sung <jesse.sung@canonical.com>
+---
+ drivers/hid/hid-ntrig.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
->
->> +
->> +Required Properties:
->> +- compatible: Should be "atmel,qt1070"
->> +- reg: I2C slave address
->> +- interrupt-parent: Depends on SoC
->> +- interrupts: The interrupt pin number to the cpu, and trigger mode.
->> +
->> +Example:
->> +
->> +	qt1070@1b {
->
-> I think that you need to replace by a generic name for the node name:
->
-> qt1070: keyboard@1b {
-> 	compatible = "atmel,qt1070";
-> 	[..]
-> };
->
-> I found "keyboard" to be the most appropriate in the ePAPR.
-
-OK. I will modify it like this. Thanks.
-
->
->> +		compatible = "atmel,qt1070";
->> +		reg = <0x1b>;
->> +		interrupt-parent = <&pioA>;
->> +		interrupts = <7 0x0>;
->> +	};
->> diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
->> index ca68f29..60457dc 100644
->> --- a/drivers/input/keyboard/qt1070.c
->> +++ b/drivers/input/keyboard/qt1070.c
->> @@ -249,10 +249,19 @@ static const struct i2c_device_id qt1070_id[] = {
->>   };
->>   MODULE_DEVICE_TABLE(i2c, qt1070_id);
->>
->> +#ifdef CONFIG_OF
->> +static struct of_device_id atmel_qt1070_of_match[] = {
->> +	{ .compatible = "atmel,qt1070" },
->> +	{ },
->> +};
->> +MODULE_DEVICE_TABLE(of, atmel_qt1070_of_match);
->> +#endif
->> +
->>   static struct i2c_driver qt1070_driver = {
->>   	.driver	= {
->>   		.name	= "qt1070",
->>   		.owner	= THIS_MODULE,
->> +		.of_match_table = of_match_ptr(atmel_qt1070_of_match),
->>   	},
->>   	.id_table	= qt1070_id,
->>   	.probe		= qt1070_probe,
->>
->
-> Otherwise, looks good. So, if you agree on my comments and for next
-> revision, you can add my:
->
-> Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
->
-> Bye,
->
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index 9fae2eb..86a969f 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -882,10 +882,10 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	nd->activate_slack = activate_slack;
+ 	nd->act_state = activate_slack;
+ 	nd->deactivate_slack = -deactivate_slack;
+-	nd->sensor_logical_width = 0;
+-	nd->sensor_logical_height = 0;
+-	nd->sensor_physical_width = 0;
+-	nd->sensor_physical_height = 0;
++	nd->sensor_logical_width = 1;
++	nd->sensor_logical_height = 1;
++	nd->sensor_physical_width = 1;
++	nd->sensor_physical_height = 1;
+ 
+ 	hid_set_drvdata(hdev, nd);
+ 
+-- 
+1.7.9.5
 

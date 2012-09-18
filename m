@@ -1,89 +1,342 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH v2 2/2] HID: hid-sensor-hub: Fix sensor_hub_probe error
- handling
-Date: Tue, 18 Sep 2012 08:53:18 +0800
-Message-ID: <1347929598.6562.1.camel@phoenix>
-References: <1347929533.6562.0.camel@phoenix>
+From: David Dillow <dave-i1Mk8JYDVaaSihdK6806/g@public.gmane.org>
+Subject: [PATCH v2] HID: Add support for Sony PS3 BD Remote Control
+Date: Mon, 17 Sep 2012 21:33:58 -0400
+Message-ID: <1347932038.29391.17.camel@obelisk.thedillows.org>
+References: <1346378760.7976.2.camel@obelisk.thedillows.org>
+	 <20120907124559.GA16092@x220>
+	 <CABBYNZ+5E+BC-+9fj0e7iUpEDFJrJBQo8aoMZj8ZEkmiuB=QLA@mail.gmail.com>
+	 <1347284864.3532.1.camel@sirocco.hadess.net>
+	 <CABBYNZJpHkt8CGDsfVwirZ=vecb-fhbpPbrVFKt1UR_rA25mSw@mail.gmail.com>
+	 <CABBYNZ+n9obON7iNcv66x2ZVQCeTs_JoJUDXZFwxJJ6C4cb4YQ@mail.gmail.com>
+	 <CABBYNZKggzJ7bzQWVmWi30kxOUR8bVCyMLL=SM1=Oe74YPwvKg@mail.gmail.com>
+	 <1347394656.1606.10.camel@sirocco.hadess.net>
+	 <CABBYNZ+gpheC9sNeTp2uvDFBV-yPs+cY4PUR2omPt_kLTCafKw@mail.gmail.com>
+	 <1347456657.23874.29.camel@sirocco.hadess.net>
+	 <CABBYNZLwXhF0gixPGKUTJY4sZ7EHynTYmHzGtiZsoRGXgeEFaw@mail.gmail.com>
+	 <CANq1E4SDXVHcumBbEA-4xpeuOQ0SjDxxtL_RqAiNYRPj6ccagQ@mail.gmail.com>
+	 <20120913003628.ce5babb2a66d09fe17fa15de@studenti.unina.it>
+	 <1347591892.6145.14.camel@obelisk.thedillows.org>
+	 <20120917120441.a164d2e10bb02aa9a1e8d523@studenti.unina.it>
+	 <1347929527.29391.9.camel@obelisk.thedillows.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f46.google.com ([209.85.219.46]:60609 "EHLO
-	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752353Ab2IRAxY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Sep 2012 20:53:24 -0400
-Received: by oago6 with SMTP id o6so5444039oag.19
-        for <linux-input@vger.kernel.org>; Mon, 17 Sep 2012 17:53:23 -0700 (PDT)
-In-Reply-To: <1347929533.6562.0.camel@phoenix>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1347929527.29391.9.camel-1q1vX8mYZiGLUyTwlgNVppKKF0rrzTr+@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Luiz Augusto von Dentz <luiz.dentz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Srinivas Pandruvada <srinivas.pandruvada@intel.com>, linux-input@vger.kernel.org
 
-Fix below issues:
-1. In the case of goto err_close, hid_hw_stop(hdev) is called twice. Fix it.
-2. If fails to allocate MFD device name, we also need to free all
-   successfully allocated names in previous iterations.
-3. In sensor_hub_remove(), Call hid_hw_close() before hid_hw_stop().
-4. Adjust unnecessary change lines for hid_err.
+The Sony PS3 Blue-ray Disc Remote Control used to be supported by the
+BlueZ project's user space, but the code that handled it was recently
+removed as its functionality conflicted with a real HSP implementation
+and the mapping was thought to be better handled in the kernel. This is
+a port of the mapping logic from the fakehid driver by Marcel Holtmann
+to the in-kernel HID layer.
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
+We also add support for the Logitech Harmony Adapter for PS3, which
+emulates the BD Remote.
+
+Signed-off-by: David Dillow <dave-i1Mk8JYDVaaSihdK6806/g@public.gmane.org>
 ---
- drivers/hid/hid-sensor-hub.c |   12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ drivers/hid/Kconfig         |   11 ++-
+ drivers/hid/Makefile        |    1 +
+ drivers/hid/hid-core.c      |    2 +
+ drivers/hid/hid-ids.h       |    2 +
+ drivers/hid/hid-ps3remote.c |  199 +++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 214 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 1faacf2..b9ce38e 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -564,8 +564,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 						sizeof(struct mfd_cell),
- 						GFP_KERNEL);
- 	if (sd->hid_sensor_hub_client_devs == NULL) {
--		hid_err(hdev,
--			"Failed to allocate memory for mfd cells\n");
-+		hid_err(hdev, "Failed to allocate memory for mfd cells\n");
- 			ret = -ENOMEM;
- 			goto err_close;
- 	}
-@@ -577,10 +576,9 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 			name = kasprintf(GFP_KERNEL, "HID-SENSOR-%x",
- 						field->physical);
- 			if (name  == NULL) {
--				hid_err(hdev,
--					"Failed MFD device name\n");
-+				hid_err(hdev, "Failed MFD device name\n");
- 					ret = -ENOMEM;
--					goto err_free_cells;
-+					goto err_free_names;
- 			}
- 			sd->hid_sensor_hub_client_devs[
- 				sd->hid_sensor_client_cnt].name = name;
-@@ -604,10 +602,8 @@ static int sensor_hub_probe(struct hid_device *hdev,
- err_free_names:
- 	for (i = 0; i < sd->hid_sensor_client_cnt ; ++i)
- 		kfree(sd->hid_sensor_hub_client_devs[i].name);
--err_free_cells:
- 	kfree(sd->hid_sensor_hub_client_devs);
- err_close:
--	hid_hw_stop(hdev);
- 	hid_hw_close(hdev);
- err_stop_hw:
- 	hid_hw_stop(hdev);
-@@ -626,8 +622,8 @@ static void sensor_hub_remove(struct hid_device *hdev)
- 	int i;
+Here's an updated version of the HID driver for the PS3 BD Remote. I've
+gone ahead and signed off on it as it works for my Harmony adapter, but
+it needs testing with a real BD remote before going upstream. Antonio
+also asked for some text about the pairing process -- I've left it out
+since I don't know what it should be.
+
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index fbf4950..7bf3b1a 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -534,6 +534,14 @@ config HID_PRIMAX
+ 	Support for Primax devices that are not fully compliant with the
+ 	HID standard.
  
- 	hid_dbg(hdev, " hardware removed\n");
--	hid_hw_stop(hdev);
- 	hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
- 	spin_lock_irqsave(&data->lock, flags);
- 	if (data->pending.status)
- 		complete(&data->pending.ready);
--- 
-1.7.9.5
-
-
-
++config HID_PS3REMOTE
++	tristate "Sony PS3 BD Remote"
++	depends on BT_HIDP
++	---help---
++	Support for the Sony PS3 BD Remote and Logitech Harmony Adapter
++	for PS3, which connect over Bluetooth. Support for the 6-axis
++	controllers is provided by HID_SONY.
++
+ config HID_ROCCAT
+ 	tristate "Roccat device support"
+ 	depends on USB_HID
+@@ -561,7 +569,8 @@ config HID_SONY
+ 	tristate "Sony PS3 controller"
+ 	depends on USB_HID
+ 	---help---
+-	Support for Sony PS3 controller.
++	Support for Sony PS3 6-axis controllers. Support for the Sony PS3
++	BD Remote is provided by HID_PS3REMOTE.
+ 
+ config HID_SPEEDLINK
+ 	tristate "Speedlink VAD Cezanne mouse support"
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index f975485..333ed6c 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -70,6 +70,7 @@ obj-$(CONFIG_HID_PANTHERLORD)	+= hid-pl.o
+ obj-$(CONFIG_HID_PETALYNX)	+= hid-petalynx.o
+ obj-$(CONFIG_HID_PICOLCD)	+= hid-picolcd.o
+ obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
++obj-$(CONFIG_HID_PS3REMOTE)	+= hid-ps3remote.o
+ obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o hid-roccat-common.o \
+ 	hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
+ 	hid-roccat-koneplus.o hid-roccat-kovaplus.o hid-roccat-pyra.o \
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 60ea284..a9f0439 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1591,6 +1591,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACETRAVELLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACENAVIGATOR) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD_BOOTLOADER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500) },
+@@ -1641,6 +1642,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_BDREMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 1dcb76f..0f5c2bb 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -492,6 +492,7 @@
+ #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
+ 
+ #define USB_VENDOR_ID_LOGITECH		0x046d
++#define USB_DEVICE_ID_LOGITECH_HARMONY_PS3 0x0306
+ #define USB_DEVICE_ID_LOGITECH_AUDIOHUB 0x0a0e
+ #define USB_DEVICE_ID_LOGITECH_RECEIVER	0xc101
+ #define USB_DEVICE_ID_LOGITECH_HARMONY_FIRST  0xc110
+@@ -684,6 +685,7 @@
+ #define USB_VENDOR_ID_SONY			0x054c
+ #define USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE	0x024b
+ #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
++#define USB_DEVICE_ID_SONY_PS3_BDREMOTE		0x0306
+ #define USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER	0x042f
+ 
+ #define USB_VENDOR_ID_SOUNDGRAPH	0x15c2
+diff --git a/drivers/hid/hid-ps3remote.c b/drivers/hid/hid-ps3remote.c
+new file mode 100644
+index 0000000..e8caef0
+--- /dev/null
++++ b/drivers/hid/hid-ps3remote.c
+@@ -0,0 +1,199 @@
++/*
++ * HID driver for Sony PS3 BD Remote
++ *
++ * Copyright (c) 2012 David Dillow <dave-i1Mk8JYDVaaSihdK6806/g@public.gmane.org>
++ * Based on a blend of the bluez fakehid user-space code by Marcel Holtmann
++ * and other kernel HID drivers.
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++
++#include "hid-ids.h"
++
++/*
++ * The first byte of the raw event report seems to contain a fixed number,
++ * possibly a controller number. The next three bytes contain a bitmask,
++ * in big-endian order, of a portion of the buttons available.
++ *
++ * Button	Bit	Scan	Mapped Key
++ * PS		0	0x43	KEY_HOMEPAGE
++ * Unknown	1-2
++ * Enter	3	0x0b	KEY_ENTER
++ * Unknown	4-7
++ * L2		8	0x58	BTN_TL2
++ * R2		9	0x59	BTN_TR2
++ * L1		10	0x5a	BTN_TL
++ * R1		11	0x5b	BTN_TR
++ * Triangle	12	0x5c	KEY_OPTION
++ * Circle	13	0x5d	KEY_BACK
++ * Cross	14	0x5e	BTN_0
++ * Square	15	0x5f	KEY_SCREEN
++ * Select	16	0x50	KEY_SELECT
++ * L3		17	0x51	BTN_THUMBL
++ * R3		18	0x52	BTN_THUMBR
++ * Start	19	0x53	BTN_START
++ * Up		20	0x54	KEY_UP
++ * Right	21	0x55	KEY_RIGHT
++ * Down		22	0x56	KEY_DOWN
++ * Left		23	0x57	KEY_LEFT
++ *
++ * The keymap is generally ordered by the physical location of the buttons,
++ * as this makes it easier to verify a correct mapping during testing.
++ */
++static const unsigned int ps3remote_keymap[] = {
++	[0x16] = KEY_EJECTCD,
++	[0x64] = KEY_AUDIO,
++	[0x65] = KEY_ANGLE,
++	[0x63] = KEY_SUBTITLE,
++	[0x0f] = KEY_CLEAR,
++	[0x28] = KEY_TIME,
++	[0x00] = KEY_1,
++	[0x01] = KEY_2,
++	[0x02] = KEY_3,
++	[0x03] = KEY_4,
++	[0x04] = KEY_5,
++	[0x05] = KEY_6,
++	[0x06] = KEY_7,
++	[0x07] = KEY_8,
++	[0x08] = KEY_9,
++	[0x09] = KEY_0,
++	[0x81] = KEY_RED,
++	[0x82] = KEY_GREEN,
++	[0x80] = KEY_BLUE,
++	[0x83] = KEY_YELLOW,
++	[0x70] = KEY_INFO,		/* display */
++	[0x1a] = KEY_MENU,		/* top menu */
++	[0x40] = KEY_CONTEXT_MENU,	/* pop up/menu */
++	[0x0e] = KEY_ESC,		/* return */
++	[0x5c] = KEY_OPTION,		/* options/triangle */
++	[0x5d] = KEY_BACK,		/* back/circle */
++	[0x5f] = KEY_SCREEN,		/* view/square */
++	[0x5e] = BTN_0,			/* cross */
++	[0x54] = KEY_UP,
++	[0x56] = KEY_DOWN,
++	[0x57] = KEY_LEFT,
++	[0x55] = KEY_RIGHT,
++	[0x0b] = KEY_ENTER,
++	[0x5a] = BTN_TL,		/* L1 */
++	[0x58] = BTN_TL2,		/* L2 */
++	[0x51] = BTN_THUMBL,		/* L3 */
++	[0x5b] = BTN_TR,		/* R1 */
++	[0x59] = BTN_TR2,		/* R2 */
++	[0x52] = BTN_THUMBR,		/* R3 */
++	[0x43] = KEY_HOMEPAGE,		/* PS button */
++	[0x50] = KEY_SELECT,
++	[0x53] = BTN_START,
++	[0x33] = KEY_REWIND,		/* scan back */
++	[0x32] = KEY_PLAY,
++	[0x34] = KEY_FORWARD,		/* scan forward */
++	[0x30] = KEY_PREVIOUS,
++	[0x38] = KEY_STOP,
++	[0x31] = KEY_NEXT,
++	[0x60] = KEY_FRAMEBACK,		/* slow/step back */
++	[0x39] = KEY_PAUSE,
++	[0x61] = KEY_FRAMEFORWARD,	/* slow/step forward */
++};
++
++static __u8 ps3remote_rdesc[] = {
++	0x05, 0x01,	/* USAGE PAGE (Generic Desktop) */
++	0x09, 0x05,	/* USAGE (Game Pad) */
++	0xa1, 0x01,	/* COLLECTION (Application) */
++
++	/* First four bytes contain a bitmask for some of the buttons, and
++	 * possibly a controller number. We don't need this information,
++	 * as the keys will be reported in the next field as well.
++	 */
++	0x75, 0x20,	/*   REPORT SIZE (32) */
++	0x95, 0x01,	/*   REPORT COUNT (1) */
++	0x81, 0x01,	/*   INPUT (Constant) */
++
++	/* All key presses are reported in this field  */
++	0x05, 0x09,	/*   USAGE PAGE (Button) */
++	0x19, 0x00,	/*   USAGE MINIMUM (0) */
++	0x29, 0xfe,	/*   USAGE MAXIMUM (254) */
++	0x15, 0x00,	/*   LOGICAL MINIMUM (0) */
++	0x25, 0xfe,	/*   LOGICAL MAXIMUM (254) */
++	0x75, 0x08,	/*   REPORT SIZE (8) */
++	0x95, 0x06,	/*   REPORT COUNT (6) */
++	0x81, 0x00,	/*   INPUT (Array, Absolute) */
++
++	/* Ignore press indication */
++	0x75, 0x08,	/*   REPORT SIZE (8) */
++	0x95, 0x01,	/*   REPORT COUNT (1) */
++	0x81, 0x01,	/*   INPUT (Constant) */
++
++	/* Report the battery level */
++	0x05, 0x06,	/*   USAGE PAGE (Generic Device) */
++	0x09, 0x20,	/*   USAGE (Battery Strength) */
++	0x15, 0x00,	/*   LOGICAL MINIMUM (0) */
++	0x25, 0x05,	/*   LOGICAL MAXIMUM (5) */
++	0x75, 0x08,	/*   REPORT SIZE (8) */
++	0x95, 0x01,	/*   REPORT COUNT (1) */
++	0x81, 0x02,	/*   INPUT (Variable, Absolute) */
++	0xc0,		/* END_COLLECTION */
++};
++
++static __u8 *ps3remote_fixup(struct hid_device *hdev, __u8 *rdesc,
++			     unsigned int *rsize)
++{
++	*rsize = sizeof(ps3remote_rdesc);
++	return ps3remote_rdesc;
++}
++
++static int ps3remote_mapping(struct hid_device *hdev, struct hid_input *hi,
++			     struct hid_field *field, struct hid_usage *usage,
++			     unsigned long **bit, int *max)
++{
++	unsigned int key = usage->hid & HID_USAGE;
++
++	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_BUTTON ||
++	    key >= ARRAY_SIZE(ps3remote_keymap))
++		return -1;
++
++	key = ps3remote_keymap[key];
++	if (!key)
++		return -1;
++
++	hid_map_usage_clear(hi, usage, bit, max, EV_KEY, key);
++	return 1;
++}
++
++static const struct hid_device_id ps3remote_devices[] = {
++	/* PS3 BD Remote */
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_BDREMOTE) },
++	/* Logitech Harmony Adapter for PS3 */
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, ps3remote_devices);
++
++static struct hid_driver ps3remote_driver = {
++	.name		= "ps3_remote",
++	.id_table	= ps3remote_devices,
++	.report_fixup	= ps3remote_fixup,
++	.input_mapping	= ps3remote_mapping,
++};
++
++static int __init ps3remote_init(void)
++{
++	return hid_register_driver(&ps3remote_driver);
++}
++
++static void __exit ps3remote_exit(void)
++{
++	hid_unregister_driver(&ps3remote_driver);
++}
++
++module_init(ps3remote_init);
++module_exit(ps3remote_exit);
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("David Dillow <dave-i1Mk8JYDVaaSihdK6806/g@public.gmane.org>");

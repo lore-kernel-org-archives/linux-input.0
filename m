@@ -1,45 +1,42 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 1/1] Input: ab8500-ponkey: Make the distinction between DT
- and non-DT boots
-Date: Tue, 18 Sep 2012 13:22:06 +0200
-Message-ID: <CACRpkdbntZ2k+2mi7=nCL2RV+YcbYi=wbK2RaDKsKNKqsCxMOA@mail.gmail.com>
-References: <1344256323-10484-1-git-send-email-lee.jones@linaro.org>
-	<CACRpkdaKa=NAObnjJyifhxyqu3Hcgj7Fxqi=bdNFqbm7V_8cSw@mail.gmail.com>
-	<20120914080347.GB3374@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Input and HID updates for 3.7, version 4
+Date: Tue, 18 Sep 2012 13:29:29 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1209181328500.31149@pobox.suse.cz>
+References: <1346528835-363-1-git-send-email-rydberg@euromail.se> <20120910190226.GA877@polaris.bitmath.org> <alpine.LNX.2.00.1209102248250.22683@pobox.suse.cz> <5556929.93aC5q4087@dtor-d630.eng.vmware.com> <20120914192554.GA6498@polaris.bitmath.org>
+ <20120915153323.GA1391@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:52665 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757998Ab2IRLWH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Sep 2012 07:22:07 -0400
-Received: by weyx8 with SMTP id x8so4487446wey.19
-        for <linux-input@vger.kernel.org>; Tue, 18 Sep 2012 04:22:06 -0700 (PDT)
-In-Reply-To: <20120914080347.GB3374@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120915153323.GA1391@polaris.bitmath.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>
-Cc: arnd@arndb.de, arm@kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, linux-input@vger.kernel.org
 
-On Fri, Sep 14, 2012 at 10:03 AM, Lee Jones <lee.jones@linaro.org> wrote:
-> On Thu, Sep 13, 2012 at 11:35:43AM +0200, Linus Walleij wrote:
->>
->> Not having this patch in v3.6-rcN gives the following boot noise (and
->> the key does not work):
->>
->> ------------[ cut here ]------------
->> WARNING: at /home/elinwal/linux-stericsson/kernel/irq/irqdomain.c:137
->> irq_domain_legacy_revmap+0x20/0x48()
-(...)
-> I haven't tested this, but I think this patch should be pulled out
-> of -next and pushed into the -rcs to fix the issue you see above.
-> The real fix along with the revert to this patch also resides in
-> -next and will be applied during the next merge window.
+On Sat, 15 Sep 2012, Henrik Rydberg wrote:
 
-Dmitry, can you fix this?
+> Ok, here is version 4 of the patchset. Rather than sending out all the
+> patches again, the diff to linux-next is given below, and the
+> refreshed tree can be pulled from
+> 
+>   git://github.com/rydberg/linux.git maybe
+> 
+> All Dmitry's comments are addressed. Changes in short:
+> 
+> * Also move 'slot' to input_mt
+> * Oops fix amended
+> * New patch to allow driver pressure handling
+> * Keep the synaptics specials in bcm5974
+> 
+> Needless to say, I want to move this tree to linux-next soonish, so if
+> there are more comments coming, I would appreciate a heads-up.
 
-v3.6-rc6 is regressing on us...
+So if Dmitry has Acked all the input patches and I am going to take it, 
+could you please send me either a proper pull request, or the patch series 
+via e-mail, so that I could apply it?
 
-Yours,
-Linus Walleij
+Thanks Henrik,
+
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,56 +1,87 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: Input and HID updates for 3.7, version 4
-Date: Tue, 18 Sep 2012 18:19:56 +0200
-Message-ID: <20120918161956.GA1539@polaris.bitmath.org>
-References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
- <20120910190226.GA877@polaris.bitmath.org>
- <alpine.LNX.2.00.1209102248250.22683@pobox.suse.cz>
- <5556929.93aC5q4087@dtor-d630.eng.vmware.com>
- <20120914192554.GA6498@polaris.bitmath.org>
- <20120915153323.GA1391@polaris.bitmath.org>
- <alpine.LNX.2.00.1209181328500.31149@pobox.suse.cz>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [patch 2/2] HID: sensors: remove some unneeded checks
+Date: Tue, 18 Sep 2012 21:52:38 +0100
+Message-ID: <5058DF16.20002@kernel.org>
+References: <20120914065346.GE11886@elgon.mountain> <alpine.LNX.2.00.1209171259240.31149@pobox.suse.cz> <4FA419E87744DF4DAECD5BCE1214B7A919D527E5@ORSMSX108.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:54060 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755839Ab2IRQMJ (ORCPT
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:42006 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755236Ab2IRUwm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Sep 2012 12:12:09 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1209181328500.31149@pobox.suse.cz>
+	Tue, 18 Sep 2012 16:52:42 -0400
+In-Reply-To: <4FA419E87744DF4DAECD5BCE1214B7A919D527E5@ORSMSX108.amr.corp.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dan Carpenter <dan.carpenter@oracle.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>
 
-On Tue, Sep 18, 2012 at 01:29:29PM +0200, Jiri Kosina wrote:
-> On Sat, 15 Sep 2012, Henrik Rydberg wrote:
+I've add these both to the togreg branch of
+
+git://git.kernel.org/pub/scm/linux/kernel/git/jic23/iio.git
+
+Will send onwards in a few days.
+
+> Tested this and it works.
 > 
-> > Ok, here is version 4 of the patchset. Rather than sending out all the
-> > patches again, the diff to linux-next is given below, and the
-> > refreshed tree can be pulled from
-> > 
-> >   git://github.com/rydberg/linux.git maybe
-> > 
-> > All Dmitry's comments are addressed. Changes in short:
-> > 
-> > * Also move 'slot' to input_mt
-> > * Oops fix amended
-> > * New patch to allow driver pressure handling
-> > * Keep the synaptics specials in bcm5974
-> > 
-> > Needless to say, I want to move this tree to linux-next soonish, so if
-> > there are more comments coming, I would appreciate a heads-up.
+> -----Original Message-----
+> From: Jiri Kosina [mailto:jkosina@suse.cz] 
+> Sent: Monday, September 17, 2012 4:00 AM
+> To: Dan Carpenter
+> Cc: Pandruvada, Srinivas; linux-input@vger.kernel.org; kernel-janitors@vger.kernel.org; Jonathan Cameron
+> Subject: Re: [patch 2/2] HID: sensors: remove some unneeded checks
 > 
-> So if Dmitry has Acked all the input patches and I am going to take it, 
-> could you please send me either a proper pull request, or the patch series 
-> via e-mail, so that I could apply it?
-
-Absolutely, a pull request is the plan, but I have not heard anything
-from Dmitry yet. Dmitry, no news is good news?
-
-Thanks,
-Henrik
-
-ps. Two people got this mail twice, sorry about that.
+> On Fri, 14 Sep 2012, Dan Carpenter wrote:
+> 
+>> "report_id" is unsigned so it's never less than zero.  These checks 
+>> can be removed without any problem.
+>>
+>> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> 
+> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+> 
+> Adding Jonathan to CC as well. Thanks.
+> 
+>>
+>> diff --git a/drivers/hid/hid-sensor-hub.c 
+>> b/drivers/hid/hid-sensor-hub.c index 0c93b10..22ec3c6 100644
+>> --- a/drivers/hid/hid-sensor-hub.c
+>> +++ b/drivers/hid/hid-sensor-hub.c
+>> @@ -214,9 +214,6 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+>>  	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
+>>  	int ret = 0;
+>>  
+>> -	if (report_id < 0)
+>> -		return -EINVAL;
+>> -
+>>  	mutex_lock(&data->mutex);
+>>  	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
+>>  	if (!report || (field_index >=  report->maxfield)) { @@ -241,9 
+>> +238,6 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+>>  	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
+>>  	int ret = 0;
+>>  
+>> -	if (report_id < 0)
+>> -		return -EINVAL;
+>> -
+>>  	mutex_lock(&data->mutex);
+>>  	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
+>>  	if (!report || (field_index >=  report->maxfield)) { @@ -271,9 
+>> +265,6 @@ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
+>>  	struct hid_report *report;
+>>  	int ret_val = 0;
+>>  
+>> -	if (report_id < 0)
+>> -		return -EINVAL;
+>> -
+>>  	mutex_lock(&data->mutex);
+>>  	memset(&data->pending, 0, sizeof(data->pending));
+>>  	init_completion(&data->pending.ready);
+>>
+> 
+> --
+> Jiri Kosina
+> SUSE Labs
+> 

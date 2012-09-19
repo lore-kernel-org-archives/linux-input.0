@@ -1,88 +1,85 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [GIT PULL] Input and HID updates for 3.7
-Date: Wed, 19 Sep 2012 20:56:05 +0200
-Message-ID: <20120919185605.GA778@polaris.bitmath.org>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: [patch] HID: picoLCD: off by one in dump_buff_as_hex()
+Date: Wed, 19 Sep 2012 21:35:35 +0200
+Message-ID: <20120919213535.34712fb5@neptune.home>
+References: <20120914110414.GA1152@elgon.mountain>
+	<20120917225437.6f2847ee@neptune.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay.restena.lu ([158.64.1.62]:58008 "EHLO
+	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750851Ab2ISTgb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Sep 2012 15:36:31 -0400
+In-Reply-To: <20120917225437.6f2847ee@neptune.home>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-Hi Jiri,
+Dan,
 
-Please pull this tree to receive Input and HID updates for 3.7. The
-tree contains input core changes, Acked by Dmitry, which substantially
-reduces the irqsoff latency for all input devices. It also contains MT
-changes which allows further memory reduction, speedup and hardware
-support in the HID Multitouch driver. Lastly, you get the conversion
-of the bcm5974 driver to MT-B, which due to the mixed dependency of
-the tree fits better here than anywhere else.
+What's your opinion on below alternative patch?
+In addition to yours it makes would-overflow visible.
 
-Thanks,
-Henrik
+It does not check for output buffer having non-zero size but
+as callers are local with #defined buffer size I don't think that would
+be needed.
 
-The following changes since commit 4cbe5a555fa58a79b6ecbb6c531b8bab0650778d:
 
-  Linux 3.6-rc4 (2012-09-01 10:39:58 -0700)
 
-are available in the git repository at:
 
-  git://github.com/rydberg/linux.git for-next
 
-for you to fetch changes up to 51c80b74002f86477d691ed7c8ac479dcfa6271c:
+Author: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+Date:   Wed Sep 19 21:18:10 2012 +0200
+Subject: HID: picoLCD: bounds check in dump_buff_as_hex()
 
-  Input: bcm5974 - Convert to MT-B (2012-09-19 19:50:22 +0200)
+Make sure we keep enough space for terminating NUL character after last
+newline. If we have too much data, replace last byte with '.'s to
+make overflow visible.
 
-----------------------------------------------------------------
-Henrik Rydberg (21):
-      Input: Break out MT data
-      Input: Improve the events-per-packet estimate
-      Input: Make sure we follow all EV_KEY events
-      Input: Move autorepeat to the event-passing phase
-      Input: Send events one packet at a time
-      Input: evdev - Add the events() callback
-      Input: MT - Add flags to input_mt_init_slots()
-      Input: MT - Handle frame synchronization in core
-      Input: MT - Add in-kernel tracking
-      Input: MT - Get slot by key
-      Input: MT - Allow legacy pressure computation
-      HID: Add an input configured notification callback
-      HID: Allow more fields in the hid report
-      HID: hid-multitouch: Simplify setup and frame synchronization
-      HID: hid-multitouch: Remove the redundant touch state
-      HID: hid-multitouch: Fix contact count on 3M panels
-      HID: hid-multitouch: Add Flatfrog support
-      Input: bcm5974 - only setup button urb for TYPE1 devices
-      Input: bcm5974 - Preparatory renames
-      Input: bcm5974 - Drop the logical dimensions
-      Input: bcm5974 - Convert to MT-B
+Using hex_dump_to_buffer() is not interesting as it adds more overhead
+and does not append the trailing linefeed.
 
- drivers/hid/hid-ids.h                    |   3 +
- drivers/hid/hid-input.c                  |  11 +-
- drivers/hid/hid-magicmouse.c             |   2 +-
- drivers/hid/hid-multitouch.c             | 185 ++++++++--------
- drivers/input/evdev.c                    |  78 ++++---
- drivers/input/input-mt.c                 | 305 ++++++++++++++++++++++++---
- drivers/input/input.c                    | 254 ++++++++++++++--------
- drivers/input/misc/uinput.c              |   2 +-
- drivers/input/mouse/alps.c               |   2 +-
- drivers/input/mouse/bcm5974.c            | 348 ++++++++++++++-----------------
- drivers/input/mouse/elantech.c           |   4 +-
- drivers/input/mouse/sentelic.c           |   2 +-
- drivers/input/mouse/synaptics.c          |   4 +-
- drivers/input/tablet/wacom_wac.c         |   6 +-
- drivers/input/touchscreen/atmel_mxt_ts.c |   2 +-
- drivers/input/touchscreen/cyttsp_core.c  |   2 +-
- drivers/input/touchscreen/edt-ft5x06.c   |   2 +-
- drivers/input/touchscreen/egalax_ts.c    |   2 +-
- drivers/input/touchscreen/ili210x.c      |   2 +-
- drivers/input/touchscreen/mms114.c       |   2 +-
- drivers/input/touchscreen/penmount.c     |   2 +-
- drivers/input/touchscreen/wacom_w8001.c  |   2 +-
- include/linux/hid.h                      |   5 +-
- include/linux/input.h                    |  35 ++--
- include/linux/input/mt.h                 |  57 ++++-
- 25 files changed, 850 insertions(+), 469 deletions(-)
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+---
+ drivers/hid/hid-picolcd_debugfs.c |   14 ++++++++------
+ 1 files changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-picolc=
+d_debugfs.c
+index 868853a..c5c2fd9 100644
+--- a/drivers/hid/hid-picolcd_debugfs.c
++++ b/drivers/hid/hid-picolcd_debugfs.c
+@@ -381,16 +381,16 @@ static void dump_buff_as_hex(char *dst, size_t ds=
+t_sz, const u8 *data,
+ 		const size_t data_len)
+ {
+ 	int i, j;
+-	for (i =3D j =3D 0; i < data_len && j + 3 < dst_sz; i++) {
++	for (i =3D j =3D 0; i < data_len && j + 4 < dst_sz; i++) {
+ 		dst[j++] =3D hex_asc[(data[i] >> 4) & 0x0f];
+ 		dst[j++] =3D hex_asc[data[i] & 0x0f];
+ 		dst[j++] =3D ' ';
+ 	}
+-	if (j < dst_sz) {
+-		dst[j--] =3D '\0';
+-		dst[j] =3D '\n';
+-	} else
+-		dst[j] =3D '\0';
++	dst[j]   =3D '\0';
++	if (j > 0)
++		dst[j-1] =3D '\n';
++	if (i < data_len && j > 2)
++		dst[j-2] =3D dst[j-3] =3D '.';
+ }
+=20
+ void picolcd_debug_out_report(struct picolcd_data *data,
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

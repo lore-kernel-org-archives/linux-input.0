@@ -1,66 +1,63 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH RESEND 1/2] HID: hid-sensor-hub: Remove setting hdev->claimed
- before calling hid_hw_start()
-Date: Wed, 19 Sep 2012 13:46:03 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1209191345360.31149@pobox.suse.cz>
-References: <1347929533.6562.0.camel@phoenix>
+From: Sergei Shtylyov <sshtylyov@mvista.com>
+Subject: Re: [PATCH v2] HID: leave dev_rdesc unmodified and use it for comparisons
+Date: Wed, 19 Sep 2012 15:47:59 +0400
+Message-ID: <5059B0EF.5020905@mvista.com>
+References: <50592FB1.7000800@kdau.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58325 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754523Ab2ISLqN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Sep 2012 07:46:13 -0400
-In-Reply-To: <1347929533.6562.0.camel@phoenix>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <50592FB1.7000800@kdau.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kevin Daughtridge <kevin@kdau.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@intel.com>, linux-input@vger.kernel.org
 
-On Tue, 18 Sep 2012, Axel Lin wrote:
+Hello.
 
-> Current implementation of hid_hw_start() allows connect_mask to be 0.
-> Setting hdev->claimed = HID_CLAIMED_INPUT before calling hid_hw_start() is not
-> necessary. Remove it.
-> 
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
+On 19-09-2012 6:36, Kevin Daughtridge wrote:
 
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+> The dev_rdesc member of the hid_device structure is meant to store the original
+> report descriptor received from the device, but it is currently passed to any
+> report_fixup method before it is copied to the rdesc member. This patch moves
+> the kmemdup to before, not after, the report_fixup call, keeping dev_rdesc
+> unchanged.
 
-Jonathan, please take it on top of the other changes.
+> usbhid's hid_post_reset checks the report descriptor currently returned by the
+> device against a descriptor that may have been modified by a driver's
+> report_fixup method. That leaves some devices nonfunctional after a resume, with
+> a "reset_resume error 1" reported. This patch checks the new descriptor against
+> the unmodified dev_rdesc instead.
 
-Thanks.
+> BugLink:http://bugs.launchpad.net/bugs/1049623
+> Signed-off-by: Kevin Daughtridge<kevin@kdau.com>
+
+    Need space before the email. I've checked your original mail, it's not my 
+Thunderbird this time (which does this kind of damage while quoting).
 
 > ---
->  drivers/hid/hid-sensor-hub.c |    2 --
->  1 file changed, 2 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index 4ac759c..1faacf2 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -539,7 +539,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
->  	}
->  	INIT_LIST_HEAD(&hdev->inputs);
->  
-> -	hdev->claimed = HID_CLAIMED_INPUT;
->  	ret = hid_hw_start(hdev, 0);
->  	if (ret) {
->  		hid_err(hdev, "hw start failed\n");
-> @@ -627,7 +626,6 @@ static void sensor_hub_remove(struct hid_device *hdev)
->  	int i;
->  
->  	hid_dbg(hdev, " hardware removed\n");
-> -	hdev->claimed &= ~HID_CLAIMED_INPUT;
->  	hid_hw_stop(hdev);
->  	hid_hw_close(hdev);
->  	spin_lock_irqsave(&data->lock, flags);
-> -- 
-> 1.7.9.5
-> 
-> 
-> 
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -775,12 +775,14 @@ int hid_open_report(struct hid_device *d
+>           return -ENODEV;
+>       size = device->dev_rsize;
+>
+> +    start = kmemdup(start, size, GFP_KERNEL);
+> +    if (start == NULL)
+> +        return -ENOMEM;
+> +
+>       if (device->driver->report_fixup)
+>           start = device->driver->report_fixup(device, start, &size);
+>
+> -    device->rdesc = kmemdup(start, size, GFP_KERNEL);
+> -    if (device->rdesc == NULL)
+> -        return -ENOMEM;
+> +    device->rdesc = start;
+>       device->rsize = size;
+>
+>       parser = vzalloc(sizeof(struct hid_parser));
 
--- 
-Jiri Kosina
-SUSE Labs
+    It still seems like the patch is whitespace damaged, but in another way: 
+to every line satrting with space, another spece was added.
+
+WBR, Sergei

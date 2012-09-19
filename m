@@ -1,50 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Input: ab8500-ponkey: Make the distinction between
- DT and non-DT boots
-Date: Wed, 19 Sep 2012 10:11:26 -0700
-Message-ID: <20120919171126.GA16730@core.coreip.homeip.net>
-References: <1344256323-10484-1-git-send-email-lee.jones@linaro.org>
- <CACRpkdaKa=NAObnjJyifhxyqu3Hcgj7Fxqi=bdNFqbm7V_8cSw@mail.gmail.com>
- <20120914080347.GB3374@gmail.com>
- <CACRpkdbntZ2k+2mi7=nCL2RV+YcbYi=wbK2RaDKsKNKqsCxMOA@mail.gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v2] HID: leave dev_rdesc unmodified and use it for
+ comparisons
+Date: Wed, 19 Sep 2012 20:32:31 +0200
+Message-ID: <20120919183231.GA603@polaris.bitmath.org>
+References: <50592FB1.7000800@kdau.com>
+ <50597CAD.7010801@suse.cz>
+ <5059F872.3080203@kdau.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:34751 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754615Ab2ISRLc (ORCPT
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:34949 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754208Ab2ISScd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Sep 2012 13:11:32 -0400
+	Wed, 19 Sep 2012 14:32:33 -0400
 Content-Disposition: inline
-In-Reply-To: <CACRpkdbntZ2k+2mi7=nCL2RV+YcbYi=wbK2RaDKsKNKqsCxMOA@mail.gmail.com>
+In-Reply-To: <5059F872.3080203@kdau.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Lee Jones <lee.jones@linaro.org>, arnd@arndb.de, arm@kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, linux-input@vger.kernel.org
+To: Kevin Daughtridge <kevin@kdau.com>
+Cc: Jiri Slaby <jslaby@suse.cz>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2012 at 01:22:06PM +0200, Linus Walleij wrote:
-> On Fri, Sep 14, 2012 at 10:03 AM, Lee Jones <lee.jones@linaro.org> wrote:
-> > On Thu, Sep 13, 2012 at 11:35:43AM +0200, Linus Walleij wrote:
-> >>
-> >> Not having this patch in v3.6-rcN gives the following boot noise (and
-> >> the key does not work):
-> >>
-> >> ------------[ cut here ]------------
-> >> WARNING: at /home/elinwal/linux-stericsson/kernel/irq/irqdomain.c:137
-> >> irq_domain_legacy_revmap+0x20/0x48()
-> (...)
-> > I haven't tested this, but I think this patch should be pulled out
-> > of -next and pushed into the -rcs to fix the issue you see above.
-> > The real fix along with the revert to this patch also resides in
-> > -next and will be applied during the next merge window.
-> 
-> Dmitry, can you fix this?
-> 
-> v3.6-rc6 is regressing on us...
+Hi Kevin,
 
-OK, I'll revert and send a pull request tonight.
+Thanks for looking to this.
 
-Thanks.
+> Hmm. I hadn't noticed that the other drivers are returning a static
+> structure. In that case, it seems that report_fixup itself is broken
+> from a memory perspective, in that it returns pointers to
+> inconsistent storage types depending on the driver.
 
--- 
-Dmitry
+The driver can either modify the existing buffer, of return a pointer
+to a buffer managed by the driver. The former requires a kmemdup
+before, the latter a kmemdup after.
+
+> 1. Ugly workaround: make a temporary copy of the dev_rdesc, give it
+> to report_fixup, make a copy of the return, store that copy in
+> rdesc, free the temporary copy. Though ugly, this would at least
+> involve the smallest diff.
+
+Yes, it is correct and ugly, in no particular order.
+
+> 2. Standardize the behavior of the drivers' report_fixup
+> implementations. Given that some of them need to change the size of
+> the descriptor, modifying the passed structure is not an option.
+> Probably all of them should return a newly allocated structure,
+> either a modified copy of the input or a copy of their static, that
+> can then be stored directly in rdesc. Especially since report_fixup
+> is only ever called right before a copy is going to be taken anyway.
+
+Relying on the returned pointer to be properly alloc'd is not a good
+idea, in particular since it changes semantics rather drastically.
+
+Since the current function performs two different things, perhaps
+there should be two different functions instead.
+
+> (Adding constness to a parameter isn't considered a severe ABI
+> break, is it?)
+
+Inside the kernel there is no ABI. Go wild.
+
+Thanks,
+Henrik

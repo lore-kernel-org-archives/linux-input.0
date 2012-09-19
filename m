@@ -1,56 +1,58 @@
-From: Kevin Daughtridge <kevin@kdau.com>
-Subject: Re: [PATCH v2] HID: leave dev_rdesc unmodified and use it for comparisons
-Date: Wed, 19 Sep 2012 09:53:06 -0700
-Message-ID: <5059F872.3080203@kdau.com>
-References: <50592FB1.7000800@kdau.com> <50597CAD.7010801@suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Input and HID updates for 3.7, version 4
+Date: Wed, 19 Sep 2012 09:57:07 -0700
+Message-ID: <20120919165706.GA16286@core.coreip.homeip.net>
+References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
+ <20120910190226.GA877@polaris.bitmath.org>
+ <alpine.LNX.2.00.1209102248250.22683@pobox.suse.cz>
+ <5556929.93aC5q4087@dtor-d630.eng.vmware.com>
+ <20120914192554.GA6498@polaris.bitmath.org>
+ <20120915153323.GA1391@polaris.bitmath.org>
+ <alpine.LNX.2.00.1209181328500.31149@pobox.suse.cz>
+ <20120918161956.GA1539@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:43105 "EHLO
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:51608 "EHLO
 	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756307Ab2ISQxK (ORCPT
+	with ESMTP id S1755142Ab2ISQ5N (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Sep 2012 12:53:10 -0400
-Received: by pbbrr13 with SMTP id rr13so2905608pbb.19
-        for <linux-input@vger.kernel.org>; Wed, 19 Sep 2012 09:53:10 -0700 (PDT)
-In-Reply-To: <50597CAD.7010801@suse.cz>
+	Wed, 19 Sep 2012 12:57:13 -0400
+Content-Disposition: inline
+In-Reply-To: <20120918161956.GA1539@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jslaby@suse.cz>, Jiri Kosina <jkosina@suse.cz>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Kevin Daughtridge <kevin@kdau.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 09/19/12 01:05 N.U., Jiri Slaby wrote:
-> AFAICS this is incorrect. Some drivers return pointers to their own 
-> static structure from their .report_fixup. Hence there are two problems:
-> * leak, because kmemdup'ped start is never freed
-> * invalid free -- kfree(device->rdesc) will try to free a static 
-> structure regards, 
+On Tue, Sep 18, 2012 at 06:19:56PM +0200, Henrik Rydberg wrote:
+> On Tue, Sep 18, 2012 at 01:29:29PM +0200, Jiri Kosina wrote:
+> > On Sat, 15 Sep 2012, Henrik Rydberg wrote:
+> > 
+> > > Ok, here is version 4 of the patchset. Rather than sending out all the
+> > > patches again, the diff to linux-next is given below, and the
+> > > refreshed tree can be pulled from
+> > > 
+> > >   git://github.com/rydberg/linux.git maybe
+> > > 
+> > > All Dmitry's comments are addressed. Changes in short:
+> > > 
+> > > * Also move 'slot' to input_mt
+> > > * Oops fix amended
+> > > * New patch to allow driver pressure handling
+> > > * Keep the synaptics specials in bcm5974
+> > > 
+> > > Needless to say, I want to move this tree to linux-next soonish, so if
+> > > there are more comments coming, I would appreciate a heads-up.
+> > 
+> > So if Dmitry has Acked all the input patches and I am going to take it, 
+> > could you please send me either a proper pull request, or the patch series 
+> > via e-mail, so that I could apply it?
+> 
+> Absolutely, a pull request is the plan, but I have not heard anything
+> from Dmitry yet. Dmitry, no news is good news?
 
-On 09/19/12 04:55 N.U., Jiri Kosina wrote:
-> How do you avoid memory leak on 'start' here? 
+Yep, and sorry for the delay.
 
-Hmm. I hadn't noticed that the other drivers are returning a static 
-structure. In that case, it seems that report_fixup itself is broken 
-from a memory perspective, in that it returns pointers to inconsistent 
-storage types depending on the driver. (As evidenced by how my first 
-patch version would have also caused invalid frees that weren't evident 
-from the declaration in hid.h.) I see two options:
-
-1. Ugly workaround: make a temporary copy of the dev_rdesc, give it to 
-report_fixup, make a copy of the return, store that copy in rdesc, free 
-the temporary copy. Though ugly, this would at least involve the 
-smallest diff.
-
-2. Standardize the behavior of the drivers' report_fixup 
-implementations. Given that some of them need to change the size of the 
-descriptor, modifying the passed structure is not an option. Probably 
-all of them should return a newly allocated structure, either a modified 
-copy of the input or a copy of their static, that can then be stored 
-directly in rdesc. Especially since report_fixup is only ever called 
-right before a copy is going to be taken anyway. (Adding constness to a 
-parameter isn't considered a severe ABI break, is it?)
-
-Thoughts?
-
--Kevin
+-- 
+Dmitry

@@ -1,57 +1,86 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: leave dev_rdesc unmodified and use it for
- comparisons
-Date: Wed, 19 Sep 2012 13:55:24 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1209191354110.31149@pobox.suse.cz>
-References: <50592FB1.7000800@kdau.com>
+From: Ferruh Yigit <fery@cypress.com>
+Subject: Re: [PATCH v2 0/3] Input: cyttsp4 - driver for Cypress TMA4XX touchscreen
+ devices
+Date: Wed, 19 Sep 2012 15:02:36 +0300
+Message-ID: <5059B45C.2010105@cypress.com>
+References: <fery@cypress.com> <1347644917-13269-1-git-send-email-fery@cypress.com> <20120914184636.GA2976@polaris.bitmath.org> <CABxcv=n0+xywzSTiuNFMd+BvLGaNOVZVDqWYJWRXxU=DkJiYLw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59488 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753557Ab2ISLzd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Sep 2012 07:55:33 -0400
-In-Reply-To: <50592FB1.7000800@kdau.com>
+Received: from relay.ihostexchange.net ([66.46.182.53]:37147 "EHLO
+	relay.ihostexchange.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751827Ab2ISMCq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Sep 2012 08:02:46 -0400
+In-Reply-To: <CABxcv=n0+xywzSTiuNFMd+BvLGaNOVZVDqWYJWRXxU=DkJiYLw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Daughtridge <kevin@kdau.com>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin McNeely <kev@cypress.com>, Phil Warkentin <pwar@cypress.com>, Shawn Landden <shawnlandden@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Olivier Sobrie <olivier@sobrie.be>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Tue, 18 Sep 2012, Kevin Daughtridge wrote:
+On 09/15/2012 06:42 PM, Javier Martinez Canillas wrote:
+> On Fri, Sep 14, 2012 at 8:46 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+>> Hi Ferruh,
+>>
+>>> This driver is for Cypress TrueTouch(tm) Standard Product controllers,
+>>> Generation4 devices.
+>>>
+>>> This is second version of driver, code re-structured to match with
+>>> existing Generation3 driver code.
+>> To integrate with the existing gen3 driver is clearly not the same as
+>> creating a parallel set of files, which obviously share a lot of code
+>> with the gen3 code.
+>>
+>> For instance, the i2c transfer layer seems more or less identical to
+>> the existing one; just look at cyttsp_i2c_write_block_data() versus
+>> cyttsp4_i2c_write_block_data(). If different generations of device
+>> data cannot even be transported through the same _generic_ interface,
+>> something is clearly not right.
+>>
+>> You can't seriously expect anyone to want to maintain one set of files
+>> for every new version. Please make sure to build on what is already
+>> there.
+>>
+>> Thanks.
+>> Henrik
+>> --
+> Hi Ferruh,
+>
+> Thanks a lot for taking the time to try to modify your driver to fit
+> wit the existent Gen3 driver but I agree with Henrik that it seems
+> that at least the transport code from the Gen3 driver could be reused.
+>
+> As he said the i2c layer code is almost identical and even when there
+> are some differences on the spi transfer functions I think that the
+> current Gen3 spi transport code could be refactor to support it. These
+> differences seems to be only minor as far as I understood by looking
+> at cyttsp_spi_xfer() and cyttsp4_spi_xfer() functions.
+>
+> Also it seems that you forgot to post your 1/3 patch from your series
+> that adds the Gen4 core driver. At least I couldn't find neither on my
+> mailbox nor on linux-input archives the patch:
+>
+> [PATCH v2 1/3] Input: cyttsp4 - core driver for Cypress TMA4XX
+> touchscreen devices
+>
+> So I couldn't take a look to try to figure out if the current Gen3
+> core driver can be extended to support the new Gen4 family or if new
+> core driver file is actually needed.
+>
+> Best regards,
+> Javier
+Hi Javier,
 
-> The dev_rdesc member of the hid_device structure is meant to store the
-> original
-> report descriptor received from the device, but it is currently passed to any
-> report_fixup method before it is copied to the rdesc member. This patch moves
-> the kmemdup to before, not after, the report_fixup call, keeping dev_rdesc
-> unchanged.
-> 
-> usbhid's hid_post_reset checks the report descriptor currently returned by the
-> device against a descriptor that may have been modified by a driver's
-> report_fixup method. That leaves some devices nonfunctional after a resume,
-> with
-> a "reset_resume error 1" reported. This patch checks the new descriptor
-> against
-> the unmodified dev_rdesc instead.
-> 
-> BugLink:http://bugs.launchpad.net/bugs/1049623
-> Signed-off-by: Kevin Daughtridge<kevin@kdau.com>
+As you mentioned there is a difference on SPI because of protocol
+difference.
+But agreed that we can merge transport layer with existing driver.
 
-Your patch is whitespace damaged again, please fix your workload Kevin.
+We will at least start on merging transport layer of Gen4 driver with
+existing driver.
 
-> ---
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -775,12 +775,14 @@ int hid_open_report(struct hid_device *d
->  		return -ENODEV;
->  	size = device->dev_rsize;
->  +	start = kmemdup(start, size, GFP_KERNEL);
-> +	if (start == NULL)
-> +		return -ENOMEM;
-> +
+Thanks & Best Regards,
+ferruh
 
-How do you avoid memory leak on 'start' here?
 
--- 
-Jiri Kosina
-SUSE Labs
+This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.

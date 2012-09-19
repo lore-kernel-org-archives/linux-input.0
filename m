@@ -1,97 +1,40 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: wacom: Fix wacom_probe error handling
-Date: Wed, 19 Sep 2012 13:42:08 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1209191341020.31149@pobox.suse.cz>
-References: <1347872034.7737.4.camel@phoenix> <1348006146.1991.1.camel@localhost>
+Subject: Re: [PATCH 6/7 v2] HID: picoLCD: drop version check during probe
+Date: Wed, 19 Sep 2012 13:45:11 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1209191344500.31149@pobox.suse.cz>
+References: <20120730213656.0a9f6d30@neptune.home> <20120730213859.063173c1@neptune.home> <alpine.LNX.2.00.1208151015220.7026@pobox.suse.cz> <20120819185631.3a984aa4@neptune.home> <20120917202108.3e39dedb@neptune.home>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57947 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:58226 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754958Ab2ISLmR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Sep 2012 07:42:17 -0400
-In-Reply-To: <1348006146.1991.1.camel@localhost>
+	id S1752142Ab2ISLpT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Sep 2012 07:45:19 -0400
+In-Reply-To: <20120917202108.3e39dedb@neptune.home>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Przemo Firszt <przemo@firszt.eu>
-Cc: Axel Lin <axel.lin@gmail.com>, Ping Cheng <pingc@wacom.com>, linux-input@vger.kernel.org
+To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
 
-On Tue, 18 Sep 2012, Przemo Firszt wrote:
+On Mon, 17 Sep 2012, Bruno Pr=C3=A9mont wrote:
 
-> > OLEDs/LED are not critical for tablet functioning thus ignore OLED/LED
-> > initialisation failures.
-> > 
-> > This patch does clean up all the sysfs attribute files in error paths.
-> > 
-> > Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> > ---
-> >  drivers/hid/hid-wacom.c |   23 ++++++++++++++---------
-> >  1 file changed, 14 insertions(+), 9 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-> > index a0fafac..2f60da9 100644
-> > --- a/drivers/hid/hid-wacom.c
-> > +++ b/drivers/hid/hid-wacom.c
-> > @@ -858,11 +858,9 @@ OLED_INIT(7);
-> >  	if (hdev->product == USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH) {
-> >  		sprintf(hdev->name, "%s", "Wacom Intuos4 WL");
-> >  		ret = wacom_initialize_leds(hdev);
-> > -		if (ret) {
-> > +		if (ret)
-> >  			hid_warn(hdev,
-> >  				 "can't create led attribute, err: %d\n", ret);
-> > -			goto destroy_leds;
-> > -		}
-> >  	}
-> >  
-> >  	wdata->battery.properties = wacom_battery_props;
-> > @@ -875,8 +873,8 @@ OLED_INIT(7);
-> >  
-> >  	ret = power_supply_register(&hdev->dev, &wdata->battery);
-> >  	if (ret) {
-> > -		hid_warn(hdev, "can't create sysfs battery attribute, err: %d\n",
-> > -			 ret);
-> > +		hid_err(hdev, "can't create sysfs battery attribute, err: %d\n",
-> > +			ret);
-> >  		goto err_battery;
-> >  	}
-> >  
-> > @@ -891,8 +889,8 @@ OLED_INIT(7);
-> >  
-> >  	ret = power_supply_register(&hdev->dev, &wdata->ac);
-> >  	if (ret) {
-> > -		hid_warn(hdev,
-> > -			 "can't create ac battery attribute, err: %d\n", ret);
-> > +		hid_err(hdev,
-> > +			"can't create ac battery attribute, err: %d\n", ret);
-> >  		goto err_ac;
-> >  	}
-> >  
-> > @@ -902,10 +900,17 @@ OLED_INIT(7);
-> >  err_ac:
-> >  	power_supply_unregister(&wdata->battery);
-> >  err_battery:
-> > +	wacom_destroy_leds(hdev);
-> > +	device_remove_file(&hdev->dev, &dev_attr_oled0_img);
-> > +	device_remove_file(&hdev->dev, &dev_attr_oled1_img);
-> > +	device_remove_file(&hdev->dev, &dev_attr_oled2_img);
-> > +	device_remove_file(&hdev->dev, &dev_attr_oled3_img);
-> > +	device_remove_file(&hdev->dev, &dev_attr_oled4_img);
-> > +	device_remove_file(&hdev->dev, &dev_attr_oled5_img);
-> > +	device_remove_file(&hdev->dev, &dev_attr_oled6_img);
-> > +	device_remove_file(&hdev->dev, &dev_attr_oled7_img);
-> >  	device_remove_file(&hdev->dev, &dev_attr_speed);
-> >  	hid_hw_stop(hdev);
-> > -destroy_leds:
-> > -	wacom_destroy_leds(hdev);
-> >  err_free:
-> >  	kfree(wdata);
-> >  	return ret;
-> 
-> Tested-by: Przemo Firszt <przemo@firszt.eu>
+> You seem not to have applied this one yet (it doesn't show up in pico=
+lcd
+> branch).
+>=20
+> Could you please apply it?
+> (or did I miss locking changes making it obsolete?)
 
-Thanks to both of you. Applied.
+No, sorry, I lost that one. Applied now.
 
--- 
+Have you and David made any progress with the locking?
+
+--=20
 Jiri Kosina
 SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

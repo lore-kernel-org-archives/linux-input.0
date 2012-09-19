@@ -1,61 +1,88 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: Input and HID updates for 3.7, version 4
-Date: Wed, 19 Sep 2012 20:34:36 +0200
-Message-ID: <20120919183436.GA764@polaris.bitmath.org>
-References: <1346528835-363-1-git-send-email-rydberg@euromail.se>
- <20120910190226.GA877@polaris.bitmath.org>
- <alpine.LNX.2.00.1209102248250.22683@pobox.suse.cz>
- <5556929.93aC5q4087@dtor-d630.eng.vmware.com>
- <20120914192554.GA6498@polaris.bitmath.org>
- <20120915153323.GA1391@polaris.bitmath.org>
- <alpine.LNX.2.00.1209181328500.31149@pobox.suse.cz>
- <20120918161956.GA1539@polaris.bitmath.org>
- <20120919165706.GA16286@core.coreip.homeip.net>
+Subject: [GIT PULL] Input and HID updates for 3.7
+Date: Wed, 19 Sep 2012 20:56:05 +0200
+Message-ID: <20120919185605.GA778@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:53040 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754641Ab2ISSeg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Sep 2012 14:34:36 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20120919165706.GA16286@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2012 at 09:57:07AM -0700, Dmitry Torokhov wrote:
-> On Tue, Sep 18, 2012 at 06:19:56PM +0200, Henrik Rydberg wrote:
-> > On Tue, Sep 18, 2012 at 01:29:29PM +0200, Jiri Kosina wrote:
-> > > On Sat, 15 Sep 2012, Henrik Rydberg wrote:
-> > > 
-> > > > Ok, here is version 4 of the patchset. Rather than sending out all the
-> > > > patches again, the diff to linux-next is given below, and the
-> > > > refreshed tree can be pulled from
-> > > > 
-> > > >   git://github.com/rydberg/linux.git maybe
-> > > > 
-> > > > All Dmitry's comments are addressed. Changes in short:
-> > > > 
-> > > > * Also move 'slot' to input_mt
-> > > > * Oops fix amended
-> > > > * New patch to allow driver pressure handling
-> > > > * Keep the synaptics specials in bcm5974
-> > > > 
-> > > > Needless to say, I want to move this tree to linux-next soonish, so if
-> > > > there are more comments coming, I would appreciate a heads-up.
-> > > 
-> > > So if Dmitry has Acked all the input patches and I am going to take it, 
-> > > could you please send me either a proper pull request, or the patch series 
-> > > via e-mail, so that I could apply it?
-> > 
-> > Absolutely, a pull request is the plan, but I have not heard anything
-> > from Dmitry yet. Dmitry, no news is good news?
-> 
-> Yep, and sorry for the delay.
+Hi Jiri,
 
-Thanks, Dmitry. I will send out a pull request shortly.
+Please pull this tree to receive Input and HID updates for 3.7. The
+tree contains input core changes, Acked by Dmitry, which substantially
+reduces the irqsoff latency for all input devices. It also contains MT
+changes which allows further memory reduction, speedup and hardware
+support in the HID Multitouch driver. Lastly, you get the conversion
+of the bcm5974 driver to MT-B, which due to the mixed dependency of
+the tree fits better here than anywhere else.
 
+Thanks,
 Henrik
+
+The following changes since commit 4cbe5a555fa58a79b6ecbb6c531b8bab0650778d:
+
+  Linux 3.6-rc4 (2012-09-01 10:39:58 -0700)
+
+are available in the git repository at:
+
+  git://github.com/rydberg/linux.git for-next
+
+for you to fetch changes up to 51c80b74002f86477d691ed7c8ac479dcfa6271c:
+
+  Input: bcm5974 - Convert to MT-B (2012-09-19 19:50:22 +0200)
+
+----------------------------------------------------------------
+Henrik Rydberg (21):
+      Input: Break out MT data
+      Input: Improve the events-per-packet estimate
+      Input: Make sure we follow all EV_KEY events
+      Input: Move autorepeat to the event-passing phase
+      Input: Send events one packet at a time
+      Input: evdev - Add the events() callback
+      Input: MT - Add flags to input_mt_init_slots()
+      Input: MT - Handle frame synchronization in core
+      Input: MT - Add in-kernel tracking
+      Input: MT - Get slot by key
+      Input: MT - Allow legacy pressure computation
+      HID: Add an input configured notification callback
+      HID: Allow more fields in the hid report
+      HID: hid-multitouch: Simplify setup and frame synchronization
+      HID: hid-multitouch: Remove the redundant touch state
+      HID: hid-multitouch: Fix contact count on 3M panels
+      HID: hid-multitouch: Add Flatfrog support
+      Input: bcm5974 - only setup button urb for TYPE1 devices
+      Input: bcm5974 - Preparatory renames
+      Input: bcm5974 - Drop the logical dimensions
+      Input: bcm5974 - Convert to MT-B
+
+ drivers/hid/hid-ids.h                    |   3 +
+ drivers/hid/hid-input.c                  |  11 +-
+ drivers/hid/hid-magicmouse.c             |   2 +-
+ drivers/hid/hid-multitouch.c             | 185 ++++++++--------
+ drivers/input/evdev.c                    |  78 ++++---
+ drivers/input/input-mt.c                 | 305 ++++++++++++++++++++++++---
+ drivers/input/input.c                    | 254 ++++++++++++++--------
+ drivers/input/misc/uinput.c              |   2 +-
+ drivers/input/mouse/alps.c               |   2 +-
+ drivers/input/mouse/bcm5974.c            | 348 ++++++++++++++-----------------
+ drivers/input/mouse/elantech.c           |   4 +-
+ drivers/input/mouse/sentelic.c           |   2 +-
+ drivers/input/mouse/synaptics.c          |   4 +-
+ drivers/input/tablet/wacom_wac.c         |   6 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c |   2 +-
+ drivers/input/touchscreen/cyttsp_core.c  |   2 +-
+ drivers/input/touchscreen/edt-ft5x06.c   |   2 +-
+ drivers/input/touchscreen/egalax_ts.c    |   2 +-
+ drivers/input/touchscreen/ili210x.c      |   2 +-
+ drivers/input/touchscreen/mms114.c       |   2 +-
+ drivers/input/touchscreen/penmount.c     |   2 +-
+ drivers/input/touchscreen/wacom_w8001.c  |   2 +-
+ include/linux/hid.h                      |   5 +-
+ include/linux/input.h                    |  35 ++--
+ include/linux/input/mt.h                 |  57 ++++-
+ 25 files changed, 850 insertions(+), 469 deletions(-)

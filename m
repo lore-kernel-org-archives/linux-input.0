@@ -1,100 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.6-rc7
-Date: Thu, 20 Sep 2012 00:01:29 -0700
-Message-ID: <20120920070129.GA8561@core.coreip.homeip.net>
+From: Stefano Babic <sbabic@denx.de>
+Subject: Re: [PATCH] input: wrong irq requested in edt-ft5x06.c
+Date: Thu, 20 Sep 2012 10:18:13 +0200
+Message-ID: <505AD145.8050204@denx.de>
+References: <1348066434-2168-1-git-send-email-sbabic@denx.de> <20120919165815.GB16286@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:63137 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753136Ab2ITHBe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Sep 2012 03:01:34 -0400
-Content-Disposition: inline
+Received: from smtpi3.ngi.it ([88.149.128.33]:42945 "EHLO smtpi3.ngi.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751704Ab2ITIS3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 Sep 2012 04:18:29 -0400
+In-Reply-To: <20120919165815.GB16286@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stefano Babic <sbabic@denx.de>, linux-input@vger.kernel.org, Simon Budig <simon.budig@kernelconcepts.de>, Guenter Roeck <linux@roeck-us.net>
+
+On 19/09/2012 18:58, Dmitry Torokhov wrote:
+> Hi Stefano,
+> 
+
+Hi Dmitry,
+
+> On Wed, Sep 19, 2012 at 04:53:54PM +0200, Stefano Babic wrote:
+>> The probe function checks for integrity the pdata->irq_pin,
+>> but then does not request this line for interrupt.
+>> For this reason, no interrupts are generated.
+>>
+>> Tested on a AM3517 board with EP0700M06
+> 
+> Why is your board code does not set client->irq properly?
+
+My concern is related that there are two different setup for the irq.
+Near the client structure, the driver uses a an own platform data
+structure edt_ft5x06_platform_data, where one filed is irq_pin. In whole
+driver the pdata->irq_pin is used, and client->irq is used only for
+requesting the irq.
+
+But they contain the same information, as the irq number can be get easy
+from irq_pin with gpio_to_irq(). Having both, it is possible to set them
+to different values, and this is wrong.
+
+Regards,
+Stefano
 
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Linus,
-
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. Just a few driver updates
-mostly dealing with recent regressions.
-
-Changelog:
----------
-
-Anisse Astier (1):
-      Input: i8042 - disable mux on Toshiba C850D
-
-Axel Lin (1):
-      Input: edt-ft5x06 - return -EFAULT on copy_to_user() error
-
-Dmitry Torokhov (1):
-      Revert "input: ab8500-ponkey: Create AB8500 domain IRQ mapping"
-
-Fabio Estevam (1):
-      Input: imx_keypad - fix missing clk conversions
-
-Forest Bond (1):
-      Input: usbtouchscreen - initialize eGalax devices
-
-Pawel Moll (1):
-      Input: ambakmi - [un]prepare clocks when enabling amd disabling
-
-Tai-hwa Liang (1):
-      Input: sentelic - filter out erratic movement when lifting finger
-
-
-Diffstat:
---------
-
- drivers/input/keyboard/imx_keypad.c        |  4 +--
- drivers/input/misc/ab8500-ponkey.c         |  4 +--
- drivers/input/mouse/sentelic.c             | 11 ++++++++
- drivers/input/serio/ambakmi.c              |  6 ++---
- drivers/input/serio/i8042-x86ia64io.h      |  6 +++++
- drivers/input/touchscreen/edt-ft5x06.c     |  9 ++++---
- drivers/input/touchscreen/usbtouchscreen.c | 40 ++++++++++++++++++++++++++=
-++++
- 7 files changed, 70 insertions(+), 10 deletions(-)
-
---=20
-Dmitry
-
-
---EVF5PPMfhYS0aIcm
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQWr9JAAoJEH70+W8r6ZYqAY8QALLvNQsCAPw6lkc0bPykMjKe
-xeg0vCnhVTYEZu7RxQYKhKgFtSQ1uTd0CEUo3pNxQHiLuDsOOthU+hzhRZ9ytSB3
-6F0qyl3QIfGqTPsCeWJZyDrYleIYZs8mUQjyW0xefqtJa/A8di4eFCS8s2x06N4u
-qSpu+y2jQq4ghW+BXQbH5RfwuGMBDFTEZSJEQBSCLwvYvjCShOgPT5YIm6fsVwnq
-Oc0X2WXmraYYvTKaDgalvpKWOtlfdYfLBhbRip1gMkWJUC39o6OETDqJ00E4bonn
-YccUSzflDBcY/Th0lcZrK68evMH+kZ3HHfVvacYbBvXKL2TS5vmyFol6IfGoMsOz
-r+UrJbfFtgPMdVff31ug8IN7f1X8M6+31K+ceKOkyV9BNH8ZS4jAKYGObb5a5jm9
-Ht5GYAfvbqCt3ZeAniruI+HD7Sioj8yJzuGvFWKDmeq+XQbgFjL/nb2Xtp5f2Ydf
-zljet8hjJbrUGD6NnsSG3lkKDv5th3rPUIBez4v8bfTf9dRoSDPJrYO1w/KE3FkG
-MkAGJBK3+JvXC77+QJRSnQ4PtEcMB6oXnO0P2L4gqKHC6uEv65NV5QSc5F2wOIyH
-ZQlLrNcnp+rRJ3ssTBMhDPPZjJxNFAcjE/v29HUoAfcX3AMn8xywgLYu9nQPX0al
-P/kYZKuGTgmg8df7BhyR
-=w/yx
------END PGP SIGNATURE-----
-
---EVF5PPMfhYS0aIcm--
+-- 
+=====================================================================
+DENX Software Engineering GmbH,     MD: Wolfgang Denk & Detlev Zundel
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+Phone: +49-8142-66989-53 Fax: +49-8142-66989-80 Email: sbabic@denx.de
+=====================================================================

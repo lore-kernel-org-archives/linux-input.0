@@ -1,35 +1,67 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH 04/29] ARM: OMAP1: Move board-ams-delta.h from plat to
- mach
-Date: Thu, 20 Sep 2012 10:12:41 -0700
-Message-ID: <20120920171134.GB28835@atomide.com>
-References: <20120919205732.28074.43697.stgit@muffinssi>
- <20120919210543.28074.10214.stgit@muffinssi>
- <20120920011630.GB17666@opensource.wolfsonmicro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20120920011630.GB17666@opensource.wolfsonmicro.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-fbdev@vger.kernel.org, Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>, Artem Bityutskiy <Artem.Bityutskiy@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, alsa-devel@alsa-project.org, Peter Ujfalusi <peter.ujfalusi@ti.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-mtd@lists.infradead.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Liam Girdwood <lrg@ti.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: [PATCH v2 0/3] input: Dynamic Minor Numbers
+Date: Thu, 20 Sep 2012 19:52:00 +0200
+Message-ID: <1348163523-2062-1-git-send-email-dh.herrmann@googlemail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:54006 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752192Ab2ITRuV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 Sep 2012 13:50:21 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Bernie Thompson <bernie@plugable.com>, David Herrmann <dh.herrmann@googlemail.com>
 
-* Mark Brown <broonie@opensource.wolfsonmicro.com> [120919 19:05]:
-> On Wed, Sep 19, 2012 at 02:05:43PM -0700, Tony Lindgren wrote:
-> > This is only used by omap1.
-> > 
-> > And to fix things properly, this should not be included
-> > from the drivers at all.
-> 
-> Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
-> 
-> or I can apply it if that's easier.
+Hi
 
-Thanks I'll do a series for Arnd on top of the multiplatform
-changes to avoid more merge conflicts.
+This is version 2 of the Dynamic Minor Numbers support for input devices.
+Version 1 can be found here:
+  http://thread.gmane.org/gmane.linux.kernel.input/26842
 
-Regards,
+For historical reasons, each input-handler (like evdev, joydev etc.) gets 32
+minor numbers assigned statically. That means, if we have more than 32 input
+devices, then there will not be any /dev/input/eventX device that user-space can
+use to access the device.
+While 32 devices were enough for a long time, multi-seat machines currently
+cannot create more than 8 seats due to this restriction (assuming 3 devices per
+seat plus some static devices).
 
-Tony
+This patchset allows input-handlers to allocate dynamic minor numbers if they
+run out of static numbers. Patch #1 adds the infrastructure to the input core,
+patch #2 makes sure we allow enough devices so we actually have room for dynamic
+minor numbers and patch #3 converts evdev to use it.
+
+Unused static minors numbers are never used for the dynamic minor numbers pool.
+So existing user-space does not break. But old user-space (not using udev) will
+not be able to use the new devices.
+Existing user-space with udev support will be able to use it, but the xserver
+currently crashes when more than 40 devices are added (which is unrelated to
+this patch).
+
+If you want to test it, you can use this tool which creates dummy input devices
+via uinput:
+  https://gist.github.com/3756232
+
+Example output for 'ls -la /dev/input':
+https://gist.github.com/3755663
+
+I fixed minor coding-style issues since version 1 and a NULL-dereference in
+input_minor_alloc().
+
+Regards
+David
+
+David Herrmann (3):
+  input: add dynamic-minor allocation helpers
+  input: increase INPUT_DEVICES to 512 to allow dynamic minors
+  input: evdev: use dynamic-minors if running out of static minors
+
+ drivers/input/evdev.c |  95 +++++++++++++++-------------
+ drivers/input/input.c | 167 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ include/linux/input.h |   5 ++
+ 3 files changed, 222 insertions(+), 45 deletions(-)
+
+-- 
+1.7.12
+

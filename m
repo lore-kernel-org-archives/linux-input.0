@@ -1,35 +1,145 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] pwm: Call pwm_enable() before pwm_config()
-Date: Thu, 20 Sep 2012 20:05:44 +0100
-Message-ID: <20120920190544.GB13264@sirena.org.uk>
-References: <36966374.2768747.1345741025741.JavaMail.root@advansee.com>
- <50366464.4070801@metafoo.de>
- <50366628.5020007@metafoo.de>
- <20120823190402.GA8127@avionic-0098.mockup.avionic-design.de>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v3] HID: keep dev_rdesc unmodified and use it for
+ comparisons
+Date: Thu, 20 Sep 2012 22:48:25 +0200
+Message-ID: <20120920204825.GA2455@polaris.bitmath.org>
+References: <505b67d0.jarbgcy4b522QzyI%kevin@kdau.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:56271 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754046Ab2ITTFt (ORCPT
+Received: from smtprelay-b11.telenor.se ([62.127.194.20]:44581 "EHLO
+	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753700Ab2ITUsT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Sep 2012 15:05:49 -0400
+	Thu, 20 Sep 2012 16:48:19 -0400
 Content-Disposition: inline
-In-Reply-To: <20120823190402.GA8127@avionic-0098.mockup.avionic-design.de>
+In-Reply-To: <505b67d0.jarbgcy4b522QzyI%kevin@kdau.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thierry Reding <thierry.reding@avionic-design.de>
-Cc: Lars-Peter Clausen <lars@metafoo.de>, Beno??t Th??baudeau <benoit.thebaudeau@advansee.com>, linux-kernel@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org
+To: Kevin Daughtridge <kevin@kdau.com>
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Thu, Aug 23, 2012 at 09:04:02PM +0200, Thierry Reding wrote:
+> The dev_rdesc member of the hid_device structure is meant to store the original
+> report descriptor received from the device, but it is currently passed to any
+> report_fixup method before it is copied to the rdesc member. This patch uses a
+> temporary buffer to shield dev_rdesc from the side effects of many HID drivers'
+> report_fixup implementations.
+> 
+> usbhid's hid_post_reset checks the report descriptor currently returned by the
+> device against a descriptor that may have been modified by a driver's
+> report_fixup method. That leaves some devices nonfunctional after a resume, with
+> a "reset_resume error 1" reported. This patch checks the new descriptor against
+> the unmodified dev_rdesc instead and uses the original, instead of modified,
+> report size.
+> 
+> BugLink: http://bugs.launchpad.net/bugs/1049623
+> Signed-off-by: Kevin Daughtridge <kevin@kdau.com>
+> ---
 
-> Using runtime PM for this sounds indeed like the most generic approach.
-> I'm not very familiar with the API, but I thought it required explicit
-> architecture or bus support (or the driver itself can provide hooks via
-> pm_ops), so it might be difficult to implement for platforms that don't
-> have working runtime PM support. I'll have to look into this some more.
+Looks like it will work, thank you Kevin. The comments below are just
+suggestions, I am fine with the patch as is.
 
-It doesn't require explicit arch support, though many architectures
-choose to integrate their PM frameworks with it either directly or via
-power domains.  If the architecture doesn't do anything with it then it
-should just work at the driver level.
+
+>  drivers/hid/hid-core.c        |   16 +++++++++++++---
+>  drivers/hid/usbhid/hid-core.c |    6 +++---
+>  2 files changed, 16 insertions(+), 6 deletions(-)
+> 
+> Changed in this version: added a temporary buffer to work around report_fixup
+> inconsistencies; using dev_rsize instead of rsize to allocate and read new
+> descriptor.
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 8bcd168..5de3bb3 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -757,6 +757,7 @@ int hid_open_report(struct hid_device *device)
+>  	struct hid_item item;
+>  	unsigned int size;
+>  	__u8 *start;
+> +	__u8 *buf;
+
+It is sad to have to add a temporary here.
+
+>  	__u8 *end;
+>  	int ret;
+>  	static int (*dispatch_type[])(struct hid_parser *parser,
+> @@ -775,12 +776,21 @@ int hid_open_report(struct hid_device *device)
+>  		return -ENODEV;
+>  	size = device->dev_rsize;
+>  
+> +	buf = kmemdup(start, size, GFP_KERNEL);
+> +	if (buf == NULL)
+> +		return -ENOMEM;
+> +
+>  	if (device->driver->report_fixup)
+> -		start = device->driver->report_fixup(device, start, &size);
+> +		start = device->driver->report_fixup(device, buf, &size);
+> +	else
+> +		start = buf;
+>  
+> -	device->rdesc = kmemdup(start, size, GFP_KERNEL);
+> -	if (device->rdesc == NULL)
+> +	start = kmemdup(start, size, GFP_KERNEL);
+> +	kfree(buf);
+
+Changing the semantics of the callback did not seem appealing, but it
+does not prevent us from using our own version internally. So, how
+about something like this:
+
+   static __u8 *hid_alloc_rdesc(struct hid_device *devicew,
+   			     const __u8 *start, unsigned int *size)
+   {
+   	__u8 *rdesc = kmemdup(start, *size, GFP_KERNEL);
+   
+   	if (rdesc && device->driver->report_fixup) {
+   		__u8 *tmp = device->driver->report_fixup(device, rdesc, size);
+   
+   		if (tmp != rdesc) {
+   			tmp = kmemdup(tmp, *size, GFP_KERNEL);
+   			kfree(rdesc);
+   			rdesc = tmp;
+   		}
+   	}
+   
+   	return rdesc;
+   }
+
+
+> +	if (start == NULL)
+>  		return -ENOMEM;
+> +
+> +	device->rdesc = start;
+>  	device->rsize = size;
+>  
+>  	parser = vzalloc(sizeof(struct hid_parser));
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index dedd8e4..8e0c4bf94 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -1415,20 +1415,20 @@ static int hid_post_reset(struct usb_interface *intf)
+>  	 * configuration descriptors passed, we already know that
+>  	 * the size of the HID report descriptor has not changed.
+>  	 */
+> -	rdesc = kmalloc(hid->rsize, GFP_KERNEL);
+> +	rdesc = kmalloc(hid->dev_rsize, GFP_KERNEL);
+>  	if (!rdesc) {
+>  		dbg_hid("couldn't allocate rdesc memory (post_reset)\n");
+>  		return 1;
+>  	}
+>  	status = hid_get_class_descriptor(dev,
+>  				interface->desc.bInterfaceNumber,
+> -				HID_DT_REPORT, rdesc, hid->rsize);
+> +				HID_DT_REPORT, rdesc, hid->dev_rsize);
+>  	if (status < 0) {
+>  		dbg_hid("reading report descriptor failed (post_reset)\n");
+>  		kfree(rdesc);
+>  		return 1;
+>  	}
+> -	status = memcmp(rdesc, hid->rdesc, hid->rsize);
+> +	status = memcmp(rdesc, hid->dev_rdesc, hid->dev_rsize);
+>  	kfree(rdesc);
+>  	if (status != 0) {
+>  		dbg_hid("report descriptor changed\n");
+
+Thanks,
+Henrik

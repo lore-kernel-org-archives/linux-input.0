@@ -1,25 +1,107 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH 06/29] ARM: OMAP1: Move keypad.h from plat to mach
-Date: Thu, 20 Sep 2012 11:14:37 -0700
-Message-ID: <20120920181436.GE28835@atomide.com>
-References: <20120919205732.28074.43697.stgit@muffinssi>
- <20120919210549.28074.7146.stgit@muffinssi>
+From: "Kevin Daughtridge" <kevin-ZgHIA9YJVL4@public.gmane.org>
+Subject: [PATCH v3] HID: keep dev_rdesc unmodified and use it for
+ comparisons
+Date: Thu, 20 Sep 2012 12:00:32 -0700
+Message-ID: <505b67d0.jarbgcy4b522QzyI%kevin@kdau.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20120919210549.28074.7146.stgit@muffinssi>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: linux-omap@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
+Cc: kevin-ZgHIA9YJVL4@public.gmane.org, rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-* Tony Lindgren <tony@atomide.com> [120919 14:07]:
-> This is only used by omap1.
+The dev_rdesc member of the hid_device structure is meant to store the original
+report descriptor received from the device, but it is currently passed to any
+report_fixup method before it is copied to the rdesc member. This patch uses a
+temporary buffer to shield dev_rdesc from the side effects of many HID drivers'
+report_fixup implementations.
 
-Turns out this one is already taken care of by Arnd's
-platform data patches, so I'll drop this one.
+usbhid's hid_post_reset checks the report descriptor currently returned by the
+device against a descriptor that may have been modified by a driver's
+report_fixup method. That leaves some devices nonfunctional after a resume, with
+a "reset_resume error 1" reported. This patch checks the new descriptor against
+the unmodified dev_rdesc instead and uses the original, instead of modified,
+report size.
 
-Regards,
+BugLink: http://bugs.launchpad.net/bugs/1049623
+Signed-off-by: Kevin Daughtridge <kevin-ZgHIA9YJVL4@public.gmane.org>
+---
+ drivers/hid/hid-core.c        |   16 +++++++++++++---
+ drivers/hid/usbhid/hid-core.c |    6 +++---
+ 2 files changed, 16 insertions(+), 6 deletions(-)
 
-Tony
+Changed in this version: added a temporary buffer to work around report_fixup
+inconsistencies; using dev_rsize instead of rsize to allocate and read new
+descriptor.
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8bcd168..5de3bb3 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -757,6 +757,7 @@ int hid_open_report(struct hid_device *device)
+ 	struct hid_item item;
+ 	unsigned int size;
+ 	__u8 *start;
++	__u8 *buf;
+ 	__u8 *end;
+ 	int ret;
+ 	static int (*dispatch_type[])(struct hid_parser *parser,
+@@ -775,12 +776,21 @@ int hid_open_report(struct hid_device *device)
+ 		return -ENODEV;
+ 	size = device->dev_rsize;
+ 
++	buf = kmemdup(start, size, GFP_KERNEL);
++	if (buf == NULL)
++		return -ENOMEM;
++
+ 	if (device->driver->report_fixup)
+-		start = device->driver->report_fixup(device, start, &size);
++		start = device->driver->report_fixup(device, buf, &size);
++	else
++		start = buf;
+ 
+-	device->rdesc = kmemdup(start, size, GFP_KERNEL);
+-	if (device->rdesc == NULL)
++	start = kmemdup(start, size, GFP_KERNEL);
++	kfree(buf);
++	if (start == NULL)
+ 		return -ENOMEM;
++
++	device->rdesc = start;
+ 	device->rsize = size;
+ 
+ 	parser = vzalloc(sizeof(struct hid_parser));
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index dedd8e4..8e0c4bf94 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -1415,20 +1415,20 @@ static int hid_post_reset(struct usb_interface *intf)
+ 	 * configuration descriptors passed, we already know that
+ 	 * the size of the HID report descriptor has not changed.
+ 	 */
+-	rdesc = kmalloc(hid->rsize, GFP_KERNEL);
++	rdesc = kmalloc(hid->dev_rsize, GFP_KERNEL);
+ 	if (!rdesc) {
+ 		dbg_hid("couldn't allocate rdesc memory (post_reset)\n");
+ 		return 1;
+ 	}
+ 	status = hid_get_class_descriptor(dev,
+ 				interface->desc.bInterfaceNumber,
+-				HID_DT_REPORT, rdesc, hid->rsize);
++				HID_DT_REPORT, rdesc, hid->dev_rsize);
+ 	if (status < 0) {
+ 		dbg_hid("reading report descriptor failed (post_reset)\n");
+ 		kfree(rdesc);
+ 		return 1;
+ 	}
+-	status = memcmp(rdesc, hid->rdesc, hid->rsize);
++	status = memcmp(rdesc, hid->dev_rdesc, hid->dev_rsize);
+ 	kfree(rdesc);
+ 	if (status != 0) {
+ 		dbg_hid("report descriptor changed\n");
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

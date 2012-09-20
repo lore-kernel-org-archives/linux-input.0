@@ -1,107 +1,38 @@
-From: "Kevin Daughtridge" <kevin-ZgHIA9YJVL4@public.gmane.org>
-Subject: [PATCH v3] HID: keep dev_rdesc unmodified and use it for
- comparisons
-Date: Thu, 20 Sep 2012 12:00:32 -0700
-Message-ID: <505b67d0.jarbgcy4b522QzyI%kevin@kdau.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] pwm: Call pwm_enable() before pwm_config()
+Date: Thu, 20 Sep 2012 20:03:42 +0100
+Message-ID: <20120920190342.GA13264@sirena.org.uk>
+References: <36966374.2768747.1345741025741.JavaMail.root@advansee.com>
+ <50366464.4070801@metafoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
-Cc: kevin-ZgHIA9YJVL4@public.gmane.org, rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:56243 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754046Ab2ITTEF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 Sep 2012 15:04:05 -0400
+Content-Disposition: inline
+In-Reply-To: <50366464.4070801@metafoo.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Beno??t Th??baudeau <benoit.thebaudeau@advansee.com>, Thierry Reding <thierry.reding@avionic-design.de>, linux-kernel@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <bryan.wu@canonical.com>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org
 
-The dev_rdesc member of the hid_device structure is meant to store the original
-report descriptor received from the device, but it is currently passed to any
-report_fixup method before it is copied to the rdesc member. This patch uses a
-temporary buffer to shield dev_rdesc from the side effects of many HID drivers'
-report_fixup implementations.
+On Thu, Aug 23, 2012 at 07:12:04PM +0200, Lars-Peter Clausen wrote:
+> On 08/23/2012 06:57 PM, Beno??t Th??baudeau wrote:
 
-usbhid's hid_post_reset checks the report descriptor currently returned by the
-device against a descriptor that may have been modified by a driver's
-report_fixup method. That leaves some devices nonfunctional after a resume, with
-a "reset_resume error 1" reported. This patch checks the new descriptor against
-the unmodified dev_rdesc instead and uses the original, instead of modified,
-report size.
+> > exists with several other PWM drivers.
 
-BugLink: http://bugs.launchpad.net/bugs/1049623
-Signed-off-by: Kevin Daughtridge <kevin-ZgHIA9YJVL4@public.gmane.org>
----
- drivers/hid/hid-core.c        |   16 +++++++++++++---
- drivers/hid/usbhid/hid-core.c |    6 +++---
- 2 files changed, 16 insertions(+), 6 deletions(-)
+> Since this seems to be a common pattern in a number of PWM drivers it might
+> make sense to simply add support for enabling/disabling a clk to the pwm core.
+> Or maybe just use the runtime pm API for this. This probably makes even more
+> sense and grab a reference to the pm context when the enable() is called,
+> release it when disable() is called and also grab it before calling the
+> device's config callback and release it afterward.
 
-Changed in this version: added a temporary buffer to work around report_fixup
-inconsistencies; using dev_rsize instead of rsize to allocate and read new
-descriptor.
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 8bcd168..5de3bb3 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -757,6 +757,7 @@ int hid_open_report(struct hid_device *device)
- 	struct hid_item item;
- 	unsigned int size;
- 	__u8 *start;
-+	__u8 *buf;
- 	__u8 *end;
- 	int ret;
- 	static int (*dispatch_type[])(struct hid_parser *parser,
-@@ -775,12 +776,21 @@ int hid_open_report(struct hid_device *device)
- 		return -ENODEV;
- 	size = device->dev_rsize;
- 
-+	buf = kmemdup(start, size, GFP_KERNEL);
-+	if (buf == NULL)
-+		return -ENOMEM;
-+
- 	if (device->driver->report_fixup)
--		start = device->driver->report_fixup(device, start, &size);
-+		start = device->driver->report_fixup(device, buf, &size);
-+	else
-+		start = buf;
- 
--	device->rdesc = kmemdup(start, size, GFP_KERNEL);
--	if (device->rdesc == NULL)
-+	start = kmemdup(start, size, GFP_KERNEL);
-+	kfree(buf);
-+	if (start == NULL)
- 		return -ENOMEM;
-+
-+	device->rdesc = start;
- 	device->rsize = size;
- 
- 	parser = vzalloc(sizeof(struct hid_parser));
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index dedd8e4..8e0c4bf94 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -1415,20 +1415,20 @@ static int hid_post_reset(struct usb_interface *intf)
- 	 * configuration descriptors passed, we already know that
- 	 * the size of the HID report descriptor has not changed.
- 	 */
--	rdesc = kmalloc(hid->rsize, GFP_KERNEL);
-+	rdesc = kmalloc(hid->dev_rsize, GFP_KERNEL);
- 	if (!rdesc) {
- 		dbg_hid("couldn't allocate rdesc memory (post_reset)\n");
- 		return 1;
- 	}
- 	status = hid_get_class_descriptor(dev,
- 				interface->desc.bInterfaceNumber,
--				HID_DT_REPORT, rdesc, hid->rsize);
-+				HID_DT_REPORT, rdesc, hid->dev_rsize);
- 	if (status < 0) {
- 		dbg_hid("reading report descriptor failed (post_reset)\n");
- 		kfree(rdesc);
- 		return 1;
- 	}
--	status = memcmp(rdesc, hid->rdesc, hid->rsize);
-+	status = memcmp(rdesc, hid->dev_rdesc, hid->dev_rsize);
- 	kfree(rdesc);
- 	if (status != 0) {
- 		dbg_hid("report descriptor changed\n");
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+It's a problem with IPs in general, a good proportion of modern SoCs
+need a clock supplying in order to interact with the registers on most
+of their IPs.  runtime PM is the normal way forwards, Tegra recently
+started using regmap's cache code to handle this transparently in the
+driver.

@@ -1,31 +1,100 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 04/29] ARM: OMAP1: Move board-ams-delta.h from plat to
- mach
-Date: Wed, 19 Sep 2012 21:16:31 -0400
-Message-ID: <20120920011630.GB17666@opensource.wolfsonmicro.com>
-References: <20120919205732.28074.43697.stgit@muffinssi>
- <20120919210543.28074.10214.stgit@muffinssi>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.6-rc7
+Date: Thu, 20 Sep 2012 00:01:29 -0700
+Message-ID: <20120920070129.GA8561@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:48838 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751598Ab2ITCEM (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:63137 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753136Ab2ITHBe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Sep 2012 22:04:12 -0400
+	Thu, 20 Sep 2012 03:01:34 -0400
 Content-Disposition: inline
-In-Reply-To: <20120919210543.28074.10214.stgit@muffinssi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-fbdev@vger.kernel.org, Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>, Artem Bityutskiy <Artem.Bityutskiy@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, alsa-devel@alsa-project.org, Peter Ujfalusi <peter.ujfalusi@ti.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-mtd@lists.infradead.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Liam Girdwood <lrg@ti.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, Sep 19, 2012 at 02:05:43PM -0700, Tony Lindgren wrote:
-> This is only used by omap1.
-> 
-> And to fix things properly, this should not be included
-> from the drivers at all.
 
-Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-or I can apply it if that's easier.
+Hi Linus,
+
+Please pull from:
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem. Just a few driver updates
+mostly dealing with recent regressions.
+
+Changelog:
+---------
+
+Anisse Astier (1):
+      Input: i8042 - disable mux on Toshiba C850D
+
+Axel Lin (1):
+      Input: edt-ft5x06 - return -EFAULT on copy_to_user() error
+
+Dmitry Torokhov (1):
+      Revert "input: ab8500-ponkey: Create AB8500 domain IRQ mapping"
+
+Fabio Estevam (1):
+      Input: imx_keypad - fix missing clk conversions
+
+Forest Bond (1):
+      Input: usbtouchscreen - initialize eGalax devices
+
+Pawel Moll (1):
+      Input: ambakmi - [un]prepare clocks when enabling amd disabling
+
+Tai-hwa Liang (1):
+      Input: sentelic - filter out erratic movement when lifting finger
+
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/imx_keypad.c        |  4 +--
+ drivers/input/misc/ab8500-ponkey.c         |  4 +--
+ drivers/input/mouse/sentelic.c             | 11 ++++++++
+ drivers/input/serio/ambakmi.c              |  6 ++---
+ drivers/input/serio/i8042-x86ia64io.h      |  6 +++++
+ drivers/input/touchscreen/edt-ft5x06.c     |  9 ++++---
+ drivers/input/touchscreen/usbtouchscreen.c | 40 ++++++++++++++++++++++++++=
+++++
+ 7 files changed, 70 insertions(+), 10 deletions(-)
+
+--=20
+Dmitry
+
+
+--EVF5PPMfhYS0aIcm
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQWr9JAAoJEH70+W8r6ZYqAY8QALLvNQsCAPw6lkc0bPykMjKe
+xeg0vCnhVTYEZu7RxQYKhKgFtSQ1uTd0CEUo3pNxQHiLuDsOOthU+hzhRZ9ytSB3
+6F0qyl3QIfGqTPsCeWJZyDrYleIYZs8mUQjyW0xefqtJa/A8di4eFCS8s2x06N4u
+qSpu+y2jQq4ghW+BXQbH5RfwuGMBDFTEZSJEQBSCLwvYvjCShOgPT5YIm6fsVwnq
+Oc0X2WXmraYYvTKaDgalvpKWOtlfdYfLBhbRip1gMkWJUC39o6OETDqJ00E4bonn
+YccUSzflDBcY/Th0lcZrK68evMH+kZ3HHfVvacYbBvXKL2TS5vmyFol6IfGoMsOz
+r+UrJbfFtgPMdVff31ug8IN7f1X8M6+31K+ceKOkyV9BNH8ZS4jAKYGObb5a5jm9
+Ht5GYAfvbqCt3ZeAniruI+HD7Sioj8yJzuGvFWKDmeq+XQbgFjL/nb2Xtp5f2Ydf
+zljet8hjJbrUGD6NnsSG3lkKDv5th3rPUIBez4v8bfTf9dRoSDPJrYO1w/KE3FkG
+MkAGJBK3+JvXC77+QJRSnQ4PtEcMB6oXnO0P2L4gqKHC6uEv65NV5QSc5F2wOIyH
+ZQlLrNcnp+rRJ3ssTBMhDPPZjJxNFAcjE/v29HUoAfcX3AMn8xywgLYu9nQPX0al
+P/kYZKuGTgmg8df7BhyR
+=w/yx
+-----END PGP SIGNATURE-----
+
+--EVF5PPMfhYS0aIcm--

@@ -1,174 +1,58 @@
-From: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Subject: [PATCH 1/1] HID: Fix missing Unifying device issue
-Date: Fri, 21 Sep 2012 12:21:34 +0200
-Message-ID: <1348222894-6767-1-git-send-email-nlopezcasad@logitech.com>
+From: David Vrabel <david.vrabel@citrix.com>
+Subject: [PATCH 5/6] xen-kbdfront: handle backend CLOSED without CLOSING
+Date: Fri, 21 Sep 2012 17:04:23 +0100
+Message-ID: <1348243464-15903-6-git-send-email-david.vrabel@citrix.com>
+References: <1348243464-15903-1-git-send-email-david.vrabel@citrix.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog107.obsmtp.com ([74.125.149.197]:44872 "EHLO
-	na3sys009aog107.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753483Ab2IUKWy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Sep 2012 06:22:54 -0400
-Received: by wibhr14 with SMTP id hr14so1871436wib.1
-        for <linux-input@vger.kernel.org>; Fri, 21 Sep 2012 03:22:52 -0700 (PDT)
+Received: from smtp.citrix.com ([66.165.176.89]:64690 "EHLO SMTP.CITRIX.COM"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751604Ab2IUQFT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Sep 2012 12:05:19 -0400
+In-Reply-To: <1348243464-15903-1-git-send-email-david.vrabel@citrix.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 685360@bugs.debian.org, john.ettedgui@gmail.com, barz621@gmail.com, joy@debbugs.entuzijast.net, dh.herrmann@googlemail.com, Nestor Lopez Casado <nlopezcasad@logitech.com>
+To: xen-devel@lists.xensource.com
+Cc: David Vrabel <david.vrabel@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-This patch fixes an issue introduced after commit 4ea5454203d991ec
+From: David Vrabel <david.vrabel@citrix.com>
 
-After that commit, hid-core silently discards any incoming packet
-that arrives while any hid driver's probe function is being executed.
+Backend drivers shouldn't transistion to CLOSED unless the frontend is
+CLOSED.  If a backend does transition to CLOSED too soon then the
+frontend may not see the CLOSING state and will not properly shutdown.
 
-This broke the enumeration process of hid-logitech-dj, that must
-receive control packets in-band with the mouse and keyboard
-packets. Discarding mouse or keyboard data at the very begining is
-usually fine, but it is not the case for control packets.
+So, treat an unexpected backend CLOSED state the same as CLOSING.
 
-This patch forces a re-enumeration of the paired devices when a packet
-arrives that comes from an unknown device.
-
-Based on a patch originally written by Benjamin Tissoires.
-
-Signed-off-by: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Signed-off-by: David Vrabel <david.vrabel@citrix.com>
+Cc: <linux-input@vger.kernel.org>
 ---
+ drivers/input/misc/xen-kbdfront.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-Hello Jiri, David,
-
-      I suggest we include this patch as this solves the issue with the 
-      Unifying devices while we decide the future of the lock in hid-core.
-
-      Cheers,
-      Nestor
-
- drivers/hid/hid-logitech-dj.c |   45 +++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-logitech-dj.h |    1 +
- 2 files changed, 46 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 4d524b5..9500f2f 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -193,6 +193,7 @@ static struct hid_ll_driver logi_dj_ll_driver;
- static int logi_dj_output_hidraw_report(struct hid_device *hid, u8 * buf,
- 					size_t count,
- 					unsigned char report_type);
-+static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev);
- 
- static void logi_dj_recv_destroy_djhid_device(struct dj_receiver_dev *djrcv_dev,
- 						struct dj_report *dj_report)
-@@ -233,6 +234,7 @@ static void logi_dj_recv_add_djhid_device(struct dj_receiver_dev *djrcv_dev,
- 	if (dj_report->report_params[DEVICE_PAIRED_PARAM_SPFUNCTION] &
- 	    SPFUNCTION_DEVICE_LIST_EMPTY) {
- 		dbg_hid("%s: device list is empty\n", __func__);
-+		djrcv_dev->querying_devices = false;
- 		return;
- 	}
- 
-@@ -243,6 +245,12 @@ static void logi_dj_recv_add_djhid_device(struct dj_receiver_dev *djrcv_dev,
- 		return;
- 	}
- 
-+	if (djrcv_dev->paired_dj_devices[dj_report->device_index]) {
-+		/* The device is already known. No need to reallocate it. */
-+		dbg_hid("%s: device is already known\n", __func__);
-+		return;
-+	}
-+
- 	dj_hiddev = hid_allocate_device();
- 	if (IS_ERR(dj_hiddev)) {
- 		dev_err(&djrcv_hdev->dev, "%s: hid_allocate_device failed\n",
-@@ -306,6 +314,7 @@ static void delayedwork_callback(struct work_struct *work)
- 	struct dj_report dj_report;
- 	unsigned long flags;
- 	int count;
-+	int retval;
- 
- 	dbg_hid("%s\n", __func__);
- 
-@@ -338,6 +347,25 @@ static void delayedwork_callback(struct work_struct *work)
- 		logi_dj_recv_destroy_djhid_device(djrcv_dev, &dj_report);
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index 02ca868..6f7d990 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -311,7 +311,6 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
+ 	case XenbusStateReconfiguring:
+ 	case XenbusStateReconfigured:
+ 	case XenbusStateUnknown:
+-	case XenbusStateClosed:
  		break;
- 	default:
-+	/* A normal report (i. e. not belonging to a pair/unpair notification)
-+	 * arriving here, means that the report arrived but we did not have a
-+	 * paired dj_device associated to the report's device_index, this
-+	 * means that the original "device paired" notification corresponding
-+	 * to this dj_device never arrived to this driver. The reason is that
-+	 * hid-core discards all packets coming from a device while probe() is
-+	 * executing. */
-+	if (!djrcv_dev->paired_dj_devices[dj_report.device_index]) {
-+		/* ok, we don't know the device, just re-ask the
-+		 * receiver for the list of connected devices. */
-+		retval = logi_dj_recv_query_paired_devices(djrcv_dev);
-+		if (!retval) {
-+			/* everything went fine, so just leave */
+ 
+ 	case XenbusStateInitWait:
+@@ -350,6 +349,10 @@ InitWait:
+ 
+ 		break;
+ 
++	case XenbusStateClosed:
++		if (dev->state == XenbusStateClosed)
 +			break;
-+		}
-+		dev_err(&djrcv_dev->hdev->dev,
-+			"%s:logi_dj_recv_query_paired_devices "
-+			"error:%d\n", __func__, retval);
-+		}
- 		dbg_hid("%s: unexpected report type\n", __func__);
- 	}
- }
-@@ -368,6 +396,12 @@ static void logi_dj_recv_forward_null_report(struct dj_receiver_dev *djrcv_dev,
- 	if (!djdev) {
- 		dbg_hid("djrcv_dev->paired_dj_devices[dj_report->device_index]"
- 			" is NULL, index %d\n", dj_report->device_index);
-+		kfifo_in(&djrcv_dev->notif_fifo, dj_report, sizeof(struct dj_report));
-+
-+		if (schedule_work(&djrcv_dev->work) == 0) {
-+			dbg_hid("%s: did not schedule the work item, was already "
-+			"queued\n", __func__);
-+		}
- 		return;
- 	}
- 
-@@ -398,6 +432,12 @@ static void logi_dj_recv_forward_report(struct dj_receiver_dev *djrcv_dev,
- 	if (dj_device == NULL) {
- 		dbg_hid("djrcv_dev->paired_dj_devices[dj_report->device_index]"
- 			" is NULL, index %d\n", dj_report->device_index);
-+		kfifo_in(&djrcv_dev->notif_fifo, dj_report, sizeof(struct dj_report));
-+
-+		if (schedule_work(&djrcv_dev->work) == 0) {
-+			dbg_hid("%s: did not schedule the work item, was already "
-+			"queued\n", __func__);
-+		}
- 		return;
- 	}
- 
-@@ -439,6 +479,10 @@ static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
- 	struct dj_report *dj_report;
- 	int retval;
- 
-+	/* no need to protect djrcv_dev->querying_devices */
-+	if (djrcv_dev->querying_devices)
-+		return 0;
-+
- 	dj_report = kzalloc(sizeof(struct dj_report), GFP_KERNEL);
- 	if (!dj_report)
- 		return -ENOMEM;
-@@ -450,6 +494,7 @@ static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
- 	return retval;
- }
- 
-+
- static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
- 					  unsigned timeout)
- {
-diff --git a/drivers/hid/hid-logitech-dj.h b/drivers/hid/hid-logitech-dj.h
-index fd28a5e..4a40003 100644
---- a/drivers/hid/hid-logitech-dj.h
-+++ b/drivers/hid/hid-logitech-dj.h
-@@ -101,6 +101,7 @@ struct dj_receiver_dev {
- 	struct work_struct work;
- 	struct kfifo notif_fifo;
- 	spinlock_t lock;
-+	bool querying_devices;
- };
- 
- struct dj_device {
++		/* Missed the backend's CLOSING state -- fallthrough */
+ 	case XenbusStateClosing:
+ 		xenbus_frontend_closed(dev);
+ 		break;
 -- 
-1.7.5.3
+1.7.2.5
 

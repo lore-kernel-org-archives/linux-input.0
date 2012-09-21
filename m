@@ -1,107 +1,166 @@
-From: Yufeng Shen <miletus@chromium.org>
-Subject: [RFC/PATCH] Input: release MT fingers on device reset/disconnect
-Date: Fri, 21 Sep 2012 15:18:25 -0400
-Message-ID: <1348255105-24558-1-git-send-email-miletus@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f74.google.com ([209.85.216.74]:58275 "EHLO
-	mail-qa0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757657Ab2IUTS2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Sep 2012 15:18:28 -0400
-Received: by qafl39 with SMTP id l39so261835qaf.1
-        for <linux-input@vger.kernel.org>; Fri, 21 Sep 2012 12:18:27 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Subject: Re: [PATCH v2] HID: Add support for Sony PS3 BD Remote Control
+Date: Fri, 21 Sep 2012 22:06:59 +0200
+Message-ID: <20120921220659.1e257048fed597061efb07f9@studenti.unina.it>
+References: <1346378760.7976.2.camel@obelisk.thedillows.org>
+	<CABBYNZJpHkt8CGDsfVwirZ=vecb-fhbpPbrVFKt1UR_rA25mSw@mail.gmail.com>
+	<CABBYNZ+n9obON7iNcv66x2ZVQCeTs_JoJUDXZFwxJJ6C4cb4YQ@mail.gmail.com>
+	<CABBYNZKggzJ7bzQWVmWi30kxOUR8bVCyMLL=SM1=Oe74YPwvKg@mail.gmail.com>
+	<1347394656.1606.10.camel@sirocco.hadess.net>
+	<CABBYNZ+gpheC9sNeTp2uvDFBV-yPs+cY4PUR2omPt_kLTCafKw@mail.gmail.com>
+	<1347456657.23874.29.camel@sirocco.hadess.net>
+	<CABBYNZLwXhF0gixPGKUTJY4sZ7EHynTYmHzGtiZsoRGXgeEFaw@mail.gmail.com>
+	<CANq1E4SDXVHcumBbEA-4xpeuOQ0SjDxxtL_RqAiNYRPj6ccagQ@mail.gmail.com>
+	<20120913003628.ce5babb2a66d09fe17fa15de@studenti.unina.it>
+	<1347591892.6145.14.camel@obelisk.thedillows.org>
+	<20120917120441.a164d2e10bb02aa9a1e8d523@studenti.unina.it>
+	<1347929527.29391.9.camel@obelisk.thedillows.org>
+	<1347932038.29391.17.camel@obelisk.thedillows.org>
+	<20120919184834.8093076c520dba2dc91c2f5d@studenti.unina.it>
+	<1348073986.10827.21.camel@frustration.ornl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1348073986.10827.21.camel-zHLflQxYYDO4Hhoo1DtQwJ9G+ZOsUmrO@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Dillow <dave-i1Mk8JYDVaaSihdK6806/g@public.gmane.org>
+Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Luiz Augusto von Dentz <luiz.dentz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Benson Leung <bleung@chromium.org>
 
-We are already releasing all pressed keys on device reset and
-disconnect. This patch adds the finger release for multi-touch
-device.
+On Wed, 19 Sep 2012 12:59:46 -0400
+David Dillow <dave-i1Mk8JYDVaaSihdK6806/g@public.gmane.org> wrote:
 
-Different than the key release logic that only the pressed keys
-are released, here all the possible fingers are released even
-it is not recorded as touched down in the input_dev's internal
-state. The motivation is that while releasing an alreay released
-finger won't do harm to downstream, it is helpful in the case
-when the downstream is out of sync with input_dev's internal
-state, we are bringing them back to in sync by cleaning up both
-input_dev and downstream's finger states.
+> On Wed, 2012-09-19 at 18:48 +0200, Antonio Ospite wrote:
+> > On Mon, 17 Sep 2012 21:33:58 -0400
+> > David Dillow <dave-i1Mk8JYDVaaSihdK6806/g@public.gmane.org> wrote:
+> 
+> > While on the remote I see:
+> > 
+> > I press '1' and keep it pressed:
+> > Event: time 1348069656.505528, type 1 (EV_KEY), code 2 (KEY_1), value 1
+> > 1111111111...
+> > 
+> > I press '2' and release it ('1' is sent):
+> > Event: time 1348069666.025543, type 1 (EV_KEY), code 2 (KEY_1), value 0
+> > Event: time 1348069668.395531, type 1 (EV_KEY), code 2 (KEY_1), value 1
+> > 1111111111...
+> > 
+> > I release '1':
+> > Event: time 1348069671.625541, type 1 (EV_KEY), code 2 (KEY_1), value 0
+> > 
+> > I don't know at what level this behavior is enforced.
+> > 
+> > I will test later with the old raw_event callback and the fix to the
+> > descriptor you suggested in the other mail.
+> 
+> Please capture the raw reports
+> from /sys/kernel/debug/hid/0005:*:0306:*/events when pressing multiple
+> keys -- and tell me which ones they were. You may need to mount debugfs
+> to get to this path.
+>
 
-Signed-off-by: Yufeng Shen <miletus@chromium.org>
----
- drivers/input/input.c |   34 ++++++++++++++++++++++++++++++++--
- 1 files changed, 32 insertions(+), 2 deletions(-)
+I used hidraw which is equivalent in this case.
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 768e46b..ebdc450 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -584,6 +584,34 @@ void input_close_device(struct input_handle *handle)
- EXPORT_SYMBOL(input_close_device);
- 
- /*
-+ * Simulate finger release events for all possible fingers. It has no harm
-+ * to release an alreay released finger, but has the benefit that if the
-+ * downstream finger states are out of sync with input_dev's finger states,
-+ * we are helping to clean them up.
-+ * The function must be called with dev->event_lock held.
-+ */
-+static void input_dev_release_mt(struct input_dev *dev)
-+{
-+	int i;
-+
-+	if (!dev->mt)
-+		return;
-+
-+	if (!is_event_supported(EV_ABS, dev->evbit, EV_MAX) ||
-+	    !is_event_supported(ABS_MT_SLOT, dev->absbit, ABS_MAX) ||
-+	    !is_event_supported(ABS_MT_TRACKING_ID, dev->absbit, ABS_MAX))
-+		return;
-+
-+	for (i = 0; i < dev->mtsize; i++) {
-+		input_mt_set_value(&dev->mt[i], ABS_MT_TRACKING_ID, -1);
-+		input_pass_event(dev, EV_ABS, ABS_MT_SLOT, i);
-+		input_pass_event(dev, EV_ABS, ABS_MT_TRACKING_ID, -1);
-+	}
-+
-+	input_pass_event(dev, EV_SYN, SYN_REPORT, 1);
-+}
-+
-+/*
-  * Simulate keyup events for all keys that are marked as pressed.
-  * The function must be called with dev->event_lock held.
-  */
-@@ -627,6 +655,7 @@ static void input_disconnect_device(struct input_dev *dev)
- 	 * reach any handlers.
- 	 */
- 	input_dev_release_keys(dev);
-+	input_dev_release_mt(dev);
- 
- 	list_for_each_entry(handle, &dev->h_list, d_node)
- 		handle->open = 0;
-@@ -1569,7 +1598,7 @@ static void input_dev_toggle(struct input_dev *dev, bool activate)
-  * @dev: input device whose state needs to be reset
-  *
-  * This function tries to reset the state of an opened input device and
-- * bring internal state and state if the hardware in sync with each other.
-+ * bring internal state and state of the hardware in sync with each other.
-  * We mark all keys as released, restore LED state, repeat rate, etc.
-  */
- void input_reset_device(struct input_dev *dev)
-@@ -1581,10 +1610,11 @@ void input_reset_device(struct input_dev *dev)
- 
- 		/*
- 		 * Keys that have been pressed at suspend time are unlikely
--		 * to be still pressed when we resume.
-+		 * to be still pressed when we resume. Same logic for MT.
- 		 */
- 		spin_lock_irq(&dev->event_lock);
- 		input_dev_release_keys(dev);
-+		input_dev_release_mt(dev);
- 		spin_unlock_irq(&dev->event_lock);
- 	}
- 
+$ sudo cat /dev/hidraw1 | hexdump -e '12/1 "%02X " "\n"'
+
+I press and release 'Play'
+01 00 00 00 32 FF FF FF FF FF 01 05
+01 00 00 00 FF FF FF FF FF FF 00 05
+
+I press and release 'Stop'
+01 00 00 00 32 FF FF FF FF FF 01 05
+01 00 00 00 FF FF FF FF FF FF 00 05
+
+I press 'Play', keep it pressed and press 'Stop'
+01 00 00 00 32 FF FF FF FF FF 01 05
+01 00 00 00 FF FF FF FF FF FF 01 05
+I release 'Stop' and then release 'Play'
+01 00 00 00 32 FF FF FF FF FF 01 05
+01 00 00 00 FF FF FF FF FF FF 00 05
+
+So this combination cannot be detected at all, but:
+
+I press and release 'Triangle'
+01 00 10 00 5C FF FF FF FF FF 01 05
+01 00 00 00 FF FF FF FF FF FF 00 05
+
+I press and release 'Circle'
+01 00 20 00 5D FF FF FF FF FF 01 05
+01 00 00 00 FF FF FF FF FF FF 00 05
+
+I press 'Triangle', keep it pressed and press 'Circle'
+01 00 10 00 5C FF FF FF FF FF 01 05
+01 00 30 00 FF FF FF FF FF FF 01 05
+I release 'Circle' and then release 'Triangle'
+01 00 10 00 5C FF FF FF FF FF 01 05
+01 00 00 00 FF FF FF FF FF FF 00 05
+
+So using the third byte (actually second, third and fourth right?) this
+combination of multiple key presses can be detected, that happens to be
+true for the "joypad buttons" which makes sense.
+
+We can express the decoding of a bitfield in terms of HID descriptor,
+right? Maybe copying from the Sixaxis report descriptor as the raw
+report data for the first four bytes looks the same as the Sixaxis.
+I'll try modifying the descriptor later.
+
+David D. if you want you could send the version with the raw_event
+callback first and get that merged and we can improve the descriptor
+later, that would be fine to me.
+
+BTW Some three keys combinations also produce a 03 in the one to last
+byte: 01 00 00 00 FF FF FF FF FF FF 03 05
+combinations like "Play+Stop+Next" do but some other do not and I could
+not find a rule about that, so I don't know what the 03 really means.
+
+> It looks like this simple approach isn't going to work when you press
+> multiple keys, so I'll need more information to see if I can do
+> something else -- my Harmony can only do one key press at a time, as it
+> is converting IR to an emulated BD remote.
+> 
+> > > +config HID_PS3REMOTE
+> > > +	tristate "Sony PS3 BD Remote"
+> > 
+> > If you are going for a v3, consider using "Sony PS3 BD Remote Control"
+> > here too, not a big deal but that's the name on the user manual.
+> 
+> Will do, thanks.
+> 
+> > For the note about the association procedure I had in mind something
+> > like this:
+> > 
+> > /* NOTE: in order to associate the Sony PS3 BD Remote with a Bluetooth host
+> >  * the key combination Start+Enter has to be kept pressed for about 7 seconds,
+> >  * with the host BT Controller in discovering mode.
+> >  *
+> >  * Also the pin request should be ignored by the BT Controller (NULL pin).
+> >  */
+> > 
+> > Could someone more into BT please check the terminology here? Thanks.
+> 
+> Will add something along these lines, though I think you mean there is
+> no authentication step rather than a NULL pin, which implies we still
+> need to do auth. Or maybe that's just how the Harmony needed it...
+>
+
+>From a user point of view there is still some "set up" happening,
+the gnome bluetooth-applet tells "Successfully set up new device '%
+s'", so maybe we can just call this "set up" in the comment above too, I
+mentioned the PIN because Gnome bluetooth does something about that[1],
+Bastien in gnome-bt case pin="NULL" means that there will be no
+pin request at all by the device, right?
+
+Thanks,
+   Antonio
+
+[1]
+http://git.gnome.org/browse/gnome-bluetooth/tree/wizard/pin-code-database.xml#n59
+
 -- 
-1.7.7.3
+Antonio Ospite
+http://ao2.it
 
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

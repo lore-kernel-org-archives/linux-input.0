@@ -1,55 +1,61 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v2] HID: Add support for Sony PS3 BD Remote Control
-Date: Fri, 21 Sep 2012 22:45:55 +0200
-Message-ID: <1348260355.705.9.camel@sirocco.hadess.net>
-References: <1346378760.7976.2.camel@obelisk.thedillows.org>
-	 <CABBYNZJpHkt8CGDsfVwirZ=vecb-fhbpPbrVFKt1UR_rA25mSw@mail.gmail.com>
-	 <CABBYNZ+n9obON7iNcv66x2ZVQCeTs_JoJUDXZFwxJJ6C4cb4YQ@mail.gmail.com>
-	 <CABBYNZKggzJ7bzQWVmWi30kxOUR8bVCyMLL=SM1=Oe74YPwvKg@mail.gmail.com>
-	 <1347394656.1606.10.camel@sirocco.hadess.net>
-	 <CABBYNZ+gpheC9sNeTp2uvDFBV-yPs+cY4PUR2omPt_kLTCafKw@mail.gmail.com>
-	 <1347456657.23874.29.camel@sirocco.hadess.net>
-	 <CABBYNZLwXhF0gixPGKUTJY4sZ7EHynTYmHzGtiZsoRGXgeEFaw@mail.gmail.com>
-	 <CANq1E4SDXVHcumBbEA-4xpeuOQ0SjDxxtL_RqAiNYRPj6ccagQ@mail.gmail.com>
-	 <20120913003628.ce5babb2a66d09fe17fa15de@studenti.unina.it>
-	 <1347591892.6145.14.camel@obelisk.thedillows.org>
-	 <20120917120441.a164d2e10bb02aa9a1e8d523@studenti.unina.it>
-	 <1347929527.29391.9.camel@obelisk.thedillows.org>
-	 <1347932038.29391.17.camel@obelisk.thedillows.org>
-	 <20120919184834.8093076c520dba2dc91c2f5d@studenti.unina.it>
-	 <1348073986.10827.21.camel@frustration.ornl.gov>
-	 <20120921220659.1e257048fed597061efb07f9@studenti.unina.it>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 0/3] input: Dynamic Minor Numbers
+Date: Fri, 21 Sep 2012 13:51:30 -0700
+Message-ID: <2737921.JXTsrgJ0N6@dtor-d630.eng.vmware.com>
+References: <1348163523-2062-1-git-send-email-dh.herrmann@googlemail.com> <CANq1E4Q-35oF11Dz6mbNvNYpWYSfOgCXW_E4ZwJ2neZB8p_64w@mail.gmail.com> <CANq1E4Rcj0UsgQr=0sohXn8rXpY92PMnHAYwXNpsPPFULHQsrw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:32964 "EHLO
-	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757828Ab2IUUp7 convert rfc822-to-8bit (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:56194 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932170Ab2IUUvf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Sep 2012 16:45:59 -0400
-In-Reply-To: <20120921220659.1e257048fed597061efb07f9@studenti.unina.it>
+	Fri, 21 Sep 2012 16:51:35 -0400
+In-Reply-To: <CANq1E4Rcj0UsgQr=0sohXn8rXpY92PMnHAYwXNpsPPFULHQsrw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: David Dillow <dave@thedillows.org>, linux-bluetooth@vger.kernel.org, David Herrmann <dh.herrmann@googlemail.com>, Luiz Augusto von Dentz <luiz.dentz@gmail.com>, linux-input@vger.kernel.org, jkosina@suse.cz
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Em Fri, 2012-09-21 =C3=A0s 22:06 +0200, Antonio Ospite escreveu:
-> From a user point of view there is still some "set up" happening,
-> the gnome bluetooth-applet tells "Successfully set up new device '%
-> s'", so maybe we can just call this "set up" in the comment above too=
-,
-> I
-> mentioned the PIN because Gnome bluetooth does something about
-> that[1],
-> Bastien in gnome-bt case pin=3D"NULL" means that there will be no
-> pin request at all by the device, right?
+On Friday, September 21, 2012 09:18:00 PM David Herrmann wrote:
+> Hi Dmitry
+> 
+> On Fri, Sep 21, 2012 at 11:22 AM, David Herrmann
+> 
+> <dh.herrmann@googlemail.com> wrote:
+> > Hi Dmitry
+> > 
+> > On Fri, Sep 21, 2012 at 10:07 AM, Dmitry Torokhov
+> > 
+> > <dmitry.torokhov@gmail.com> wrote:
+> >> Thank you very much for working on this, unfortunately your patch extends
+> >> the existing infrastructure handling of character devices in input core,
+> >> which is quite rigid and sub-optimal.
+> >> 
+> >> For a while now I wanted to stop input core from pre-creating character
+> >> devices and multiplexing file operations and instead push more chardev
+> >> handling tasks into individual input handlers and make they more
+> >> independent from input core. So while I won't be taking your patch as is
+> >> it was a great motivator to finally do something about current
+> >> limitation and I would appreciate if you could take a look at the patch
+> >> below and see if you have any issues with it.
+> > 
+> > I didn't know why we did that, anyway. But I tried to keep that logic,
+> > even though it is really weird. So I am quite glad that you fixed it.
+> 
+> Sorry, compiling a kernel takes 44m here so I haven't had time earlier
+> this day. But I just recompiled with your patch and it works like a
+> charm. I have attached output of "ls -la /dev/input" with 900 uinput
+> devices. Performance does suck but that is definitely another issue.
 
-Yep. That means we don't try to pair, we just connect to it. No
-security, first come first serve.
+Could you elaborate a bit on this?
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> So here's my:
+> Tested-by: David Herrmann <dh.herrmann@googlemail.com>
+
+Thanks for testing!
+
+-- 
+Dmitry

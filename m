@@ -1,45 +1,57 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: [patch] HID: picoLCD: off by one in dump_buff_as_hex()
-Date: Sat, 22 Sep 2012 15:55:12 +0300
-Message-ID: <20120922125512.GG4587@mwanda>
-References: <20120914110414.GA1152@elgon.mountain>
- <20120917225437.6f2847ee@neptune.home>
- <20120919213535.34712fb5@neptune.home>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH] Input: wacom - Mark Intuos5 pad as in-prox when touching buttons
+Date: Sat, 22 Sep 2012 11:35:18 -0500
+Message-ID: <CAGzDe_Zg0ReoAP6hrqBSap2mUFoBW0tvxEC6SnuazcsCpvmuOQ@mail.gmail.com>
+References: <1347665405-2078-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from acsinet15.oracle.com ([141.146.126.227]:24248 "EHLO
-	acsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751329Ab2IVMzv (ORCPT
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:54663 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752420Ab2IVQfU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 Sep 2012 08:55:51 -0400
-Content-Disposition: inline
-In-Reply-To: <20120919213535.34712fb5@neptune.home>
+	Sat, 22 Sep 2012 12:35:20 -0400
+Received: by lbbgj3 with SMTP id gj3so5115343lbb.19
+        for <linux-input@vger.kernel.org>; Sat, 22 Sep 2012 09:35:19 -0700 (PDT)
+In-Reply-To: <1347665405-2078-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bruno =?iso-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, pinglinux@gmail.com
 
-On Wed, Sep 19, 2012 at 09:35:35PM +0200, Bruno Pr=E9mont wrote:
-> Dan,
->=20
-> What's your opinion on below alternative patch?
-> In addition to yours it makes would-overflow visible.
->=20
-> It does not check for output buffer having non-zero size but
-> as callers are local with #defined buffer size I don't think that wou=
-ld
-> be needed.
->=20
+On Fri, Sep 14, 2012 at 6:30 PM, Jason Gerecke <killertofu@gmail.com> wrote:
+> If the ExpressKeys on the Intuos5 are touched, they currently result
+> an out-of-prox packet being sent even if the pad is already out of
+> prox. This can cause some confusion in the X driver. To restore the
+> expected semantics, we make being touched a sufficient condition to
+> signal proximity.
 
-Sorry for the delay.  Looks good to me.
+Seems like easiest solution to prevent invalid event sequencies.
 
-regards,
-dan carpenter
+Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+> https://bugs.freedesktop.org/show_bug.cgi?id=54250
+>
+> Reported-by: Timo Aaltonen <tjaalton@ubuntu.com>
+> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+> ---
+>  drivers/input/tablet/wacom_wac.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+> index 532d067..9317109 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -606,7 +606,7 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+>                                 input_report_abs(input, ABS_WHEEL, 0);
+>                         }
+>
+> -                       if (data[2] | (data[3] & 0x01) | data[4]) {
+> +                       if (data[2] | (data[3] & 0x01) | data[4] | data[5]) {
+>                                 input_report_key(input, wacom->tool[1], 1);
+>                                 input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
+>                         } else {
+> --
+> 1.7.12
+>

@@ -1,45 +1,59 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] HID: Fix missing Unifying device issue
-Date: Sat, 22 Sep 2012 09:50:22 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1209220949380.32086@pobox.suse.cz>
-References: <1348222894-6767-1-git-send-email-nlopezcasad@logitech.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH 1/2] HID: hid-sensor-hub: Remove hdev->claimed setting
+Date: Sat, 22 Sep 2012 10:35:18 +0100
+Message-ID: <505D8656.6020204@kernel.org>
+References: <1348068650-1723-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:44127 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752040Ab2IVHue (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 Sep 2012 03:50:34 -0400
-In-Reply-To: <1348222894-6767-1-git-send-email-nlopezcasad@logitech.com>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:52978 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754400Ab2IVJfR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 22 Sep 2012 05:35:17 -0400
+In-Reply-To: <1348068650-1723-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 685360@bugs.debian.org, john.ettedgui@gmail.com, barz621@gmail.com, joy@debbugs.entuzijast.net, dh.herrmann@googlemail.com
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, Axel Lin <axel.lin@gmail.com>
 
-On Fri, 21 Sep 2012, Nestor Lopez Casado wrote:
+On 09/19/2012 04:30 PM, Srinivas Pandruvada wrote:
+> From: Axel Lin <[mailto:axel.lin@gmail.com]>
+> 
+> Current implementation of hid_hw_start() allows connect_mask to be 0.
+> Setting hdev->claimed = HID_CLAIMED_INPUT before calling hid_hw_start()
+> is not necessary. Remove it.
+> 
+> Signed-off-by: Axel Lin <axel.lin@gmail.com>
+> Acked-by: Jiri Kosina <jkosina@suse.cz>
+> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+added to togreg branch of
 
-> This patch fixes an issue introduced after commit 4ea5454203d991ec
-> 
-> After that commit, hid-core silently discards any incoming packet
-> that arrives while any hid driver's probe function is being executed.
-> 
-> This broke the enumeration process of hid-logitech-dj, that must
-> receive control packets in-band with the mouse and keyboard
-> packets. Discarding mouse or keyboard data at the very begining is
-> usually fine, but it is not the case for control packets.
-> 
-> This patch forces a re-enumeration of the paired devices when a packet
-> arrives that comes from an unknown device.
-> 
-> Based on a patch originally written by Benjamin Tissoires.
-> 
-> Signed-off-by: Nestor Lopez Casado <nlopezcasad@logitech.com>
+git://git.kernel.org/pub/scm/linux/kernel/git/jic23/iio.git
 
-I am now applying it, will be pushing to Linus very soon, and am also 
-marking it for stable 3.2+
-
-Thanks to everyone involved.
-
--- 
-Jiri Kosina
-SUSE Labs
+> ---
+>  drivers/hid/hid-sensor-hub.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index 80033dc..ffa91cf 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -530,7 +530,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
+>  	}
+>  	INIT_LIST_HEAD(&hdev->inputs);
+>  
+> -	hdev->claimed = HID_CLAIMED_INPUT;
+>  	ret = hid_hw_start(hdev, 0);
+>  	if (ret) {
+>  		hid_err(hdev, "hw start failed\n");
+> @@ -618,7 +617,6 @@ static void sensor_hub_remove(struct hid_device *hdev)
+>  	int i;
+>  
+>  	hid_dbg(hdev, " hardware removed\n");
+> -	hdev->claimed &= ~HID_CLAIMED_INPUT;
+>  	hid_hw_stop(hdev);
+>  	hid_hw_close(hdev);
+>  	spin_lock_irqsave(&data->lock, flags);
+> 

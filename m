@@ -1,147 +1,46 @@
-From: Ratan Nalumasu <ratan@google.com>
-Subject: [PATCH] hidraw: don't deallocate memory when it is in use
-Date: Sat, 22 Sep 2012 11:46:30 -0700
-Message-ID: <20120922184630.GA23401@google.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/1] HID: Fix missing Unifying device issue
+Date: Sat, 22 Sep 2012 22:47:33 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1209222246320.32086@pobox.suse.cz>
+References: <1348222894-6767-1-git-send-email-nlopezcasad@logitech.com> <alpine.LNX.2.00.1209220949380.32086@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f202.google.com ([209.85.220.202]:65005 "EHLO
-	mail-vc0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751825Ab2IVSqc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 Sep 2012 14:46:32 -0400
-Received: by vcbfy27 with SMTP id fy27so584126vcb.1
-        for <linux-input@vger.kernel.org>; Sat, 22 Sep 2012 11:46:31 -0700 (PDT)
-Content-Disposition: inline
+Received: from cantor2.suse.de ([195.135.220.15]:49541 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751825Ab2IVUro (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 22 Sep 2012 16:47:44 -0400
+In-Reply-To: <alpine.LNX.2.00.1209220949380.32086@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 685360@bugs.debian.org, john.ettedgui@gmail.com, barz621@gmail.com, joy@debbugs.entuzijast.net, dh.herrmann@googlemail.com
 
-When a device is unplugged, wait for all processes that have opened the device
-to close before deallocating the device.
+On Sat, 22 Sep 2012, Jiri Kosina wrote:
 
-Signed-off-by: Ratan Nalumasu <ratan@google.com>
----
- drivers/hid/hidraw.c |   69 +++++++++++++++++++-------------------------------
- 1 files changed, 26 insertions(+), 43 deletions(-)
+> > This patch fixes an issue introduced after commit 4ea5454203d991ec
+> > 
+> > After that commit, hid-core silently discards any incoming packet
+> > that arrives while any hid driver's probe function is being executed.
+> > 
+> > This broke the enumeration process of hid-logitech-dj, that must
+> > receive control packets in-band with the mouse and keyboard
+> > packets. Discarding mouse or keyboard data at the very begining is
+> > usually fine, but it is not the case for control packets.
+> > 
+> > This patch forces a re-enumeration of the paired devices when a packet
+> > arrives that comes from an unknown device.
+> > 
+> > Based on a patch originally written by Benjamin Tissoires.
+> > 
+> > Signed-off-by: Nestor Lopez Casado <nlopezcasad@logitech.com>
+> 
+> I am now applying it, will be pushing to Linus very soon
 
-diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-index 3b6f7bf..c46c5f1 100644
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -42,6 +42,7 @@ static struct cdev hidraw_cdev;
- static struct class *hidraw_class;
- static struct hidraw *hidraw_table[HIDRAW_MAX_DEVICES];
- static DEFINE_MUTEX(minors_lock);
-+static void drop_ref(struct hidraw *hid, int exists_bit);
- 
- static ssize_t hidraw_read(struct file *file, char __user *buffer, size_t count, loff_t *ppos)
- {
-@@ -113,7 +114,7 @@ static ssize_t hidraw_send_report(struct file *file, const char __user *buffer,
- 	__u8 *buf;
- 	int ret = 0;
- 
--	if (!hidraw_table[minor]) {
-+	if (!hidraw_table[minor] || !hidraw_table[minor]->exist) {
- 		ret = -ENODEV;
- 		goto out;
- 	}
-@@ -261,7 +262,7 @@ static int hidraw_open(struct inode *inode, struct file *file)
- 	}
- 
- 	mutex_lock(&minors_lock);
--	if (!hidraw_table[minor]) {
-+	if (!hidraw_table[minor] || !hidraw_table[minor]->exist) {
- 		err = -ENODEV;
- 		goto out_unlock;
- 	}
-@@ -298,36 +299,12 @@ out:
- static int hidraw_release(struct inode * inode, struct file * file)
- {
- 	unsigned int minor = iminor(inode);
--	struct hidraw *dev;
- 	struct hidraw_list *list = file->private_data;
--	int ret;
--	int i;
--
--	mutex_lock(&minors_lock);
--	if (!hidraw_table[minor]) {
--		ret = -ENODEV;
--		goto unlock;
--	}
- 
-+	drop_ref(hidraw_table[minor], 0);
- 	list_del(&list->node);
--	dev = hidraw_table[minor];
--	if (!--dev->open) {
--		if (list->hidraw->exist) {
--			hid_hw_power(dev->hid, PM_HINT_NORMAL);
--			hid_hw_close(dev->hid);
--		} else {
--			kfree(list->hidraw);
--		}
--	}
--
--	for (i = 0; i < HIDRAW_BUFFER_SIZE; ++i)
--		kfree(list->buffer[i].value);
- 	kfree(list);
--	ret = 0;
--unlock:
--	mutex_unlock(&minors_lock);
--
--	return ret;
-+	return 0;
- }
- 
- static long hidraw_ioctl(struct file *file, unsigned int cmd,
-@@ -529,21 +506,7 @@ EXPORT_SYMBOL_GPL(hidraw_connect);
- void hidraw_disconnect(struct hid_device *hid)
- {
- 	struct hidraw *hidraw = hid->hidraw;
--
--	mutex_lock(&minors_lock);
--	hidraw->exist = 0;
--
--	device_destroy(hidraw_class, MKDEV(hidraw_major, hidraw->minor));
--
--	hidraw_table[hidraw->minor] = NULL;
--
--	if (hidraw->open) {
--		hid_hw_close(hid);
--		wake_up_interruptible(&hidraw->wait);
--	} else {
--		kfree(hidraw);
--	}
--	mutex_unlock(&minors_lock);
-+	drop_ref(hidraw, 1);
- }
- EXPORT_SYMBOL_GPL(hidraw_disconnect);
- 
-@@ -585,3 +548,23 @@ void hidraw_exit(void)
- 	unregister_chrdev_region(dev_id, HIDRAW_MAX_DEVICES);
- 
- }
-+
-+static void drop_ref(struct hidraw *hidraw, int exists_bit)
-+{
-+	mutex_lock(&minors_lock);
-+	if (exists_bit) {
-+		hid_hw_close(hidraw->hid);
-+		hidraw->exist = 0;
-+		if (hidraw->open)
-+			wake_up_interruptible(&hidraw->wait);
-+	} else {
-+		--hidraw->open;
-+	}
-+
-+	if (!hidraw->open && !hidraw->exist) {
-+		device_destroy(hidraw_class, MKDEV(hidraw_major, hidraw->minor));
-+		hidraw_table[hidraw->minor] = NULL;
-+		kfree(hidraw);
-+	}
-+	mutex_unlock(&minors_lock);
-+}
+Now in Linus' tree and marked for stable.
+
+Thanks,
+
 -- 
-1.7.7.3
-
+Jiri Kosina
+SUSE Labs

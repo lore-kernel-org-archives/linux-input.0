@@ -1,73 +1,45 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH v2 0/3] input: Dynamic Minor Numbers
-Date: Fri, 21 Sep 2012 23:32:37 +0200
-Message-ID: <CANq1E4RJk5f0nVWeWvGrGVKzCrK1A3Gue3Z_3fkb91CX_LNj4g@mail.gmail.com>
-References: <1348163523-2062-1-git-send-email-dh.herrmann@googlemail.com>
-	<CANq1E4Q-35oF11Dz6mbNvNYpWYSfOgCXW_E4ZwJ2neZB8p_64w@mail.gmail.com>
-	<CANq1E4Rcj0UsgQr=0sohXn8rXpY92PMnHAYwXNpsPPFULHQsrw@mail.gmail.com>
-	<2737921.JXTsrgJ0N6@dtor-d630.eng.vmware.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/1] HID: Fix missing Unifying device issue
+Date: Sat, 22 Sep 2012 09:50:22 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1209220949380.32086@pobox.suse.cz>
+References: <1348222894-6767-1-git-send-email-nlopezcasad@logitech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:64861 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753854Ab2IUVci (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Sep 2012 17:32:38 -0400
-In-Reply-To: <2737921.JXTsrgJ0N6@dtor-d630.eng.vmware.com>
+Received: from cantor2.suse.de ([195.135.220.15]:44127 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752040Ab2IVHue (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 22 Sep 2012 03:50:34 -0400
+In-Reply-To: <1348222894-6767-1-git-send-email-nlopezcasad@logitech.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 685360@bugs.debian.org, john.ettedgui@gmail.com, barz621@gmail.com, joy@debbugs.entuzijast.net, dh.herrmann@googlemail.com
 
-Hi Dmitry
+On Fri, 21 Sep 2012, Nestor Lopez Casado wrote:
 
-On Fri, Sep 21, 2012 at 10:51 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Friday, September 21, 2012 09:18:00 PM David Herrmann wrote:
->> Hi Dmitry
->>
->> On Fri, Sep 21, 2012 at 11:22 AM, David Herrmann
->>
->> <dh.herrmann@googlemail.com> wrote:
->> > Hi Dmitry
->> >
->> > On Fri, Sep 21, 2012 at 10:07 AM, Dmitry Torokhov
->> >
->> > <dmitry.torokhov@gmail.com> wrote:
->> >> Thank you very much for working on this, unfortunately your patch extends
->> >> the existing infrastructure handling of character devices in input core,
->> >> which is quite rigid and sub-optimal.
->> >>
->> >> For a while now I wanted to stop input core from pre-creating character
->> >> devices and multiplexing file operations and instead push more chardev
->> >> handling tasks into individual input handlers and make they more
->> >> independent from input core. So while I won't be taking your patch as is
->> >> it was a great motivator to finally do something about current
->> >> limitation and I would appreciate if you could take a look at the patch
->> >> below and see if you have any issues with it.
->> >
->> > I didn't know why we did that, anyway. But I tried to keep that logic,
->> > even though it is really weird. So I am quite glad that you fixed it.
->>
->> Sorry, compiling a kernel takes 44m here so I haven't had time earlier
->> this day. But I just recompiled with your patch and it works like a
->> charm. I have attached output of "ls -la /dev/input" with 900 uinput
->> devices. Performance does suck but that is definitely another issue.
->
-> Could you elaborate a bit on this?
+> This patch fixes an issue introduced after commit 4ea5454203d991ec
+> 
+> After that commit, hid-core silently discards any incoming packet
+> that arrives while any hid driver's probe function is being executed.
+> 
+> This broke the enumeration process of hid-logitech-dj, that must
+> receive control packets in-band with the mouse and keyboard
+> packets. Discarding mouse or keyboard data at the very begining is
+> usually fine, but it is not the case for control packets.
+> 
+> This patch forces a re-enumeration of the paired devices when a packet
+> arrives that comes from an unknown device.
+> 
+> Based on a patch originally written by Benjamin Tissoires.
+> 
+> Signed-off-by: Nestor Lopez Casado <nlopezcasad@logitech.com>
 
-It takes like 2s to create 100 devices. Ok, that's about 500 syscalls.
-But still, 2s seemed pretty much to me. But that's probably related to
-uinput. 1000 devices take like 10s here.
-Also the xserver crashes when connecting more than 40 or 50 devices.
-It does print "too many devices; ignoring" but there seems to be some
-error-path bug.
-I haven't noticed any runtime kernel bugs or runtime
-performance-drops, though. So as I said, there are some issues, that
-need to be solved, but they are not related to input-core. (Also,
-creating 1000 uinput devices doesn't seem like a use-case that we
-should try to optimize).
+I am now applying it, will be pushing to Linus very soon, and am also 
+marking it for stable 3.2+
 
-Regards
-David
+Thanks to everyone involved.
+
+-- 
+Jiri Kosina
+SUSE Labs

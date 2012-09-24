@@ -1,123 +1,82 @@
-From: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Subject: Bug#685360: [PATCH 1/1] HID: Fix missing Unifying device issue
-Date: Mon, 24 Sep 2012 11:30:28 +0200
-Message-ID: <CAE7qMroQOxo7kci7roLbS5HXjpkyhRi=cj1WCoYtAPB328xNQg@mail.gmail.com>
-References: <1348222894-6767-1-git-send-email-nlopezcasad@logitech.com> <20120923102318.GA12946@entuzijast.net>
-Reply-To: Nestor Lopez Casado <nlopezcasad@logitech.com>, 685360@bugs.debian.org
+From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@gmail.com>
+Subject: [PATCH v2 3/4] HID: hid-lg4ff: Set absolute axes parametes on DFP
+Date: Mon, 24 Sep 2012 12:13:29 +0200
+Message-ID: <1885758.baRBnYcjrr@qosmio-x300>
 Mime-Version: 1.0
-Content-Type: multipart/alternative; boundary=e89a8fb1ef18488c9b04ca6f3f96
-Return-path: <bounce-debian-bugs-dist=glddb-debian-bugs-dist=m.gmane.org@lists.debian.org>
-Resent-To: debian-bugs-dist@lists.debian.org
-Resent-Message-ID: <handler.685360.B685360.134847906114647@bugs.debian.org>
-In-Reply-To: <20120923102318.GA12946@entuzijast.net>
-List-URL: <http://lists.debian.org/debian-bugs-dist/>
-List-Post: <mailto:debian-bugs-dist@lists.debian.org>
-List-Help: <mailto:debian-bugs-dist-request@lists.debian.org?subject=help>
-List-Subscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=subscribe>
-List-Unsubscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=unsubscribe>
-To: Josip Rodin <joy@debbugs.entuzijast.net>
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 685360@bugs.debian.org, john.ettedgui@gmail.com, barz621@gmail.com, dh.herrmann@googlemail.com
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:49533 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752351Ab2IXKNj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Sep 2012 06:13:39 -0400
+Received: by bkcjk13 with SMTP id jk13so782812bkc.19
+        for <linux-input@vger.kernel.org>; Mon, 24 Sep 2012 03:13:38 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, simon@mungewell.org
 
---e89a8fb1ef18488c9b04ca6f3f96
-Content-Type: text/plain; charset=ISO-8859-1
+Removed a misleading "Should never happen" code comment.
 
-Josip, this is a different issue from the one addressed with the patch.
-
-1) Can you try it on a 3.2 kernel ?
-2) The problem you describe, does it happen all the time ?
-
-Thanks,
-Nestor.
-
-On Sun, Sep 23, 2012 at 12:23 PM, Josip Rodin <joy@debbugs.entuzijast.net>wrote:
-
-> On Fri, Sep 21, 2012 at 12:21:34PM +0200, Nestor Lopez Casado wrote:
-> > This patch fixes an issue introduced after commit 4ea5454203d991ec
-> >
-> > After that commit, hid-core silently discards any incoming packet
-> > that arrives while any hid driver's probe function is being executed.
+Signed-off-by: Michal Mal=FD <madcatxster@gmail.com>
+---
+=46rom a81aa90d4155fd3b223a7149f3774748d7061aba Mon Sep 17 00:00:00 200=
+1
+=46rom: =3D?UTF-8?q?Michal=3D20Mal=3DC3=3DBD?=3D <madcatxster@gmail.com=
 >
-> I managed to test this now, on top of Linux 3.5, but it didn't fix my
-> keyboard. I still get the same sequence of messages with hid.debug=1:
->
-> +usb 5-2: new full-speed USB device number 3 using ohci_hcd
-> +drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 0
-> +drivers/hid/hid-logitech-dj.c: logi_dj_probe called for ifnum 0
-> +drivers/hid/hid-logitech-dj.c: logi_dj_probe: ignoring ifnum 0
-> +drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 1
-> +drivers/hid/hid-logitech-dj.c: logi_dj_probe called for ifnum 1
-> +drivers/hid/hid-logitech-dj.c: logi_dj_probe: ignoring ifnum 1
-> +drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 2
-> +drivers/hid/hid-logitech-dj.c: logi_dj_probe called for ifnum 2
-> +drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report
-> wValue=0x0110 wIndex=0x0002 wLength=7
-> +drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report
-> wValue=0x0111 wIndex=0x0002 wLength=20
-> +drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report
-> wValue=0x0120 wIndex=0x0002 wLength=15
-> +drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report
-> wValue=0x0121 wIndex=0x0002 wLength=32
-> +logitech-djreceiver 0003:046D:C52B.0005: claimed by neither input, hiddev
-> nor hidraw
-> +logitech-djreceiver 0003:046D:C52B.0005: logi_dj_probe:hid_hw_start
-> returned error
->
-> --
->      2. That which causes joy or happiness.
->
+Date: Sun, 23 Sep 2012 23:56:39 +0200
+Subject: [PATCH 3/4] Set absolute axes parameters manually on DFP.
 
---e89a8fb1ef18488c9b04ca6f3f96
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+---
+ drivers/hid/hid-lg4ff.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-Josip, this is a different issue from the one addressed with the patch.<div=
-><br></div><div>1) Can you try it on a 3.2 kernel ?</div><div>2) The proble=
-m you describe, does it happen all the time ?</div><div><br></div><div>Than=
-ks,=A0</div>
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index fe15b3b..4ea7cca 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -43,6 +43,11 @@
+ #define G27_REV_MAJ 0x12
+ #define G27_REV_MIN 0x38
+=20
++#define DFP_X_MIN 0
++#define DFP_X_MAX 16383
++#define DFP_PEDAL_MIN 0
++#define DFP_PEDAL_MAX 255
++
+ #define to_hid_device(pdev) container_of(pdev, struct hid_device, dev)
+=20
+ static void hid_lg4ff_set_range_dfp(struct hid_device *hid, u16 range)=
+;
+@@ -593,6 +598,18 @@ int lg4ff_init(struct hid_device *hid)
+ 		return error;
+ 	dbg_hid("sysfs interface created\n");
+=20
++	/* Set default axes parameters */
++	switch (lg4ff_devices[i].product_id) {
++	case USB_DEVICE_ID_LOGITECH_DFP_WHEEL:
++		dbg_hid("Setting axes parameters for Driving Force Pro\n");
++		input_set_abs_params(dev, ABS_X, DFP_X_MIN, DFP_X_MAX, 0, 0);
++		input_set_abs_params(dev, ABS_Y, DFP_PEDAL_MIN, DFP_PEDAL_MAX, 0, 0)=
+;
++		input_set_abs_params(dev, ABS_RZ, DFP_PEDAL_MIN, DFP_PEDAL_MAX, 0, 0=
+);
++		break;
++	default:
++		break;
++	}
++
+ 	/* Set the maximum range to start with */
+ 	entry->range =3D entry->max_range;
+ 	if (entry->set_range !=3D NULL)
+--=20
+1.7.12.1
 
-<div>Nestor.=A0<br><br><div class=3D"gmail_quote">On Sun, Sep 23, 2012 at 1=
-2:23 PM, Josip Rodin <span dir=3D"ltr">&lt;<a href=3D"mailto:joy@debbugs.en=
-tuzijast.net" target=3D"_blank">joy@debbugs.entuzijast.net</a>&gt;</span> w=
-rote:<br>
 
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex"><div class=3D"im">On Fri, Sep 21, 2012 at 12=
-:21:34PM +0200, Nestor Lopez Casado wrote:<br>
-&gt; This patch fixes an issue introduced after commit 4ea5454203d991ec<br>
-&gt;<br>
-&gt; After that commit, hid-core silently discards any incoming packet<br>
-&gt; that arrives while any hid driver&#39;s probe function is being execut=
-ed.<br>
-<br>
-</div>I managed to test this now, on top of Linux 3.5, but it didn&#39;t fi=
-x my<br>
-keyboard. I still get the same sequence of messages with hid.debug=3D1:<br>
-<br>
-+usb 5-2: new full-speed USB device number 3 using ohci_hcd<br>
-+drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 0<br>
-+drivers/hid/hid-logitech-dj.c: logi_dj_probe called for ifnum 0<br>
-+drivers/hid/hid-logitech-dj.c: logi_dj_probe: ignoring ifnum 0<br>
-+drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 1<br>
-+drivers/hid/hid-logitech-dj.c: logi_dj_probe called for ifnum 1<br>
-+drivers/hid/hid-logitech-dj.c: logi_dj_probe: ignoring ifnum 1<br>
-+drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 2<br>
-+drivers/hid/hid-logitech-dj.c: logi_dj_probe called for ifnum 2<br>
-+drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=3D0x=
-0110 wIndex=3D0x0002 wLength=3D7<br>
-+drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=3D0x=
-0111 wIndex=3D0x0002 wLength=3D20<br>
-+drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=3D0x=
-0120 wIndex=3D0x0002 wLength=3D15<br>
-+drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=3D0x=
-0121 wIndex=3D0x0002 wLength=3D32<br>
-+logitech-djreceiver 0003:046D:C52B.0005: claimed by neither input, hiddev =
-nor hidraw<br>
-+logitech-djreceiver 0003:046D:C52B.0005: logi_dj_probe:hid_hw_start return=
-ed error<br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
---<br>
-=A0 =A0 =A02. That which causes joy or happiness.<br>
-</font></span></blockquote></div><br></div>
-
---e89a8fb1ef18488c9b04ca6f3f96--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

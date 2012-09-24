@@ -1,138 +1,106 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [RFC/PATCH] Input: release MT fingers on device reset/disconnect
-Date: Mon, 24 Sep 2012 18:59:40 +0200
-Message-ID: <20120924165940.GA451@polaris.bitmath.org>
-References: <1348255105-24558-1-git-send-email-miletus@chromium.org>
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [PATCH] input: pwm-beeper: Add devicetree probing support
+Date: Mon, 24 Sep 2012 20:49:38 +0200
+Message-ID: <20120924184938.GQ1322@pengutronix.de>
+References: <1348472258-31519-1-git-send-email-s.hauer@pengutronix.de>
+ <5060584A.80305@gmail.com>
+ <20120924155639.GA1440@core.coreip.homeip.net>
+ <506088C9.8030002@metafoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b11.telenor.se ([62.127.194.20]:44468 "EHLO
-	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757108Ab2IXQ7J (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:55075 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757758Ab2IXSto (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Sep 2012 12:59:09 -0400
+	Mon, 24 Sep 2012 14:49:44 -0400
 Content-Disposition: inline
-In-Reply-To: <1348255105-24558-1-git-send-email-miletus@chromium.org>
+In-Reply-To: <506088C9.8030002@metafoo.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yufeng Shen <miletus@chromium.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Benson Leung <bleung@chromium.org>
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robherring2@gmail.com>, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, kernel@pengutronix.de
 
-Hi Yufeng,
+On Mon, Sep 24, 2012 at 06:22:33PM +0200, Lars-Peter Clausen wrote:
+> On 09/24/2012 05:56 PM, Dmitry Torokhov wrote:
+> > On Mon, Sep 24, 2012 at 07:55:38AM -0500, Rob Herring wrote:
+> >> On 09/24/2012 02:37 AM, Sascha Hauer wrote:
+> >>> A very simple binding, the only property is the phandle to the PWM.
+> >>>
+> >>> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+> >>
+> >> Acked-by: Rob Herring <rob.herring@calxeda.com>
+> >>
+> >>> ---
+> >>>  Documentation/devicetree/bindings/input/pwm-beeper.txt |    7 +++++++
+> >>>  drivers/input/misc/pwm-beeper.c                        |   11 ++++++++++-
+> >>>  2 files changed, 17 insertions(+), 1 deletion(-)
+> >>>  create mode 100644 Documentation/devicetree/bindings/input/pwm-beeper.txt
+> >>>
+> >>> diff --git a/Documentation/devicetree/bindings/input/pwm-beeper.txt b/Documentation/devicetree/bindings/input/pwm-beeper.txt
+> >>> new file mode 100644
+> >>> index 0000000..7388b82
+> >>> --- /dev/null
+> >>> +++ b/Documentation/devicetree/bindings/input/pwm-beeper.txt
+> >>> @@ -0,0 +1,7 @@
+> >>> +* PWM beeper device tree bindings
+> >>> +
+> >>> +Registers a PWM device as beeper.
+> >>> +
+> >>> +Required properties:
+> >>> +- compatible: should be "pwm-beeper"
+> >>> +- pwms: phandle to the physical pwm device
+> >>> diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+> >>> index fc84c8a..a6aa48c 100644
+> >>> --- a/drivers/input/misc/pwm-beeper.c
+> >>> +++ b/drivers/input/misc/pwm-beeper.c
+> >>> @@ -75,7 +75,10 @@ static int __devinit pwm_beeper_probe(struct platform_device *pdev)
+> >>>  	if (!beeper)
+> >>>  		return -ENOMEM;
+> >>>  
+> >>> -	beeper->pwm = pwm_request(pwm_id, "pwm beeper");
+> >>> +	if (pdev->dev.platform_data)
+> >>> +		beeper->pwm = pwm_request(pwm_id, "pwm beeper");
+> >>> +	else
+> >>> +		beeper->pwm = pwm_get(&pdev->dev, NULL);
+> > 
+> > Hmm, pwm_id == 0 is a valid ID I think, but your change makes it go into
+> > DT branch, potentially breaking it.
 
-> We are already releasing all pressed keys on device reset and
-> disconnect. This patch adds the finger release for multi-touch
-> device.
+My bad, I missed that platform_data is casted to an unsigned long. I
+thought I would test for a pointer.
+The obvious clean way would be to use a pointer for platform_data, but
+given that this will vanish anyway soon, I think we could just test for
+existence of dev->of_node instead of dev->platform_data.
+
 > 
-> Different than the key release logic that only the pressed keys
-> are released, here all the possible fingers are released even
-> it is not recorded as touched down in the input_dev's internal
-> state. The motivation is that while releasing an alreay released
-> finger won't do harm to downstream, it is helpful in the case
-> when the downstream is out of sync with input_dev's internal
-> state, we are bringing them back to in sync by cleaning up both
-> input_dev and downstream's finger states.
+> Yes, this a bit tricky, but we only have a single in-tree user of the
+> pwm-beeper which uses a id != 0. And now that all the PWM providers have
+> been converted to the new generic PWM framework the old legacy API will go
+> away soon anyway. So this if () else branch should hopefully only be
+> necessary for a transitional period of 1-2 releases. So I think this change
+> should be OK.
 > 
-> Signed-off-by: Yufeng Shen <miletus@chromium.org>
-> ---
-
-To reset the input state centrally upon disconnect makes some sense;
-upon suspend/resume, less so. It is really up to the driver to
-determine what part of the input state survives a suspend/resume
-cycle
-
->  drivers/input/input.c |   34 ++++++++++++++++++++++++++++++++--
->  1 files changed, 32 insertions(+), 2 deletions(-)
+> But I think the patch is missing a change to the Kconfig entry to allow the
+> driver to be selected if the generic PWM framework is available.
 > 
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index 768e46b..ebdc450 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -584,6 +584,34 @@ void input_close_device(struct input_handle *handle)
->  EXPORT_SYMBOL(input_close_device);
->  
->  /*
-> + * Simulate finger release events for all possible fingers. It has no harm
-> + * to release an alreay released finger, but has the benefit that if the
-> + * downstream finger states are out of sync with input_dev's finger states,
-> + * we are helping to clean them up.
-> + * The function must be called with dev->event_lock held.
-> + */
-> +static void input_dev_release_mt(struct input_dev *dev)
-
-This should be moved to input-mt.c instead.
-
-> +{
-> +	int i;
-> +
-> +	if (!dev->mt)
-> +		return;
-> +
-> +	if (!is_event_supported(EV_ABS, dev->evbit, EV_MAX) ||
-> +	    !is_event_supported(ABS_MT_SLOT, dev->absbit, ABS_MAX) ||
-> +	    !is_event_supported(ABS_MT_TRACKING_ID, dev->absbit, ABS_MAX))
-> +		return;
-
-No need to check those; implied by mtsize != 0.
-
-> +
-> +	for (i = 0; i < dev->mtsize; i++) {
-> +		input_mt_set_value(&dev->mt[i], ABS_MT_TRACKING_ID, -1);
-> +		input_pass_event(dev, EV_ABS, ABS_MT_SLOT, i);
-> +		input_pass_event(dev, EV_ABS, ABS_MT_TRACKING_ID, -1);
-> +	}
-
-Please use the proper api here (see any mt driver for hints).
-
-> +
-> +	input_pass_event(dev, EV_SYN, SYN_REPORT, 1);
-
-input_sync()
-
-> +}
-> +
-> +/*
->   * Simulate keyup events for all keys that are marked as pressed.
->   * The function must be called with dev->event_lock held.
->   */
-> @@ -627,6 +655,7 @@ static void input_disconnect_device(struct input_dev *dev)
->  	 * reach any handlers.
->  	 */
->  	input_dev_release_keys(dev);
-> +	input_dev_release_mt(dev);
->  
->  	list_for_each_entry(handle, &dev->h_list, d_node)
->  		handle->open = 0;
-> @@ -1569,7 +1598,7 @@ static void input_dev_toggle(struct input_dev *dev, bool activate)
->   * @dev: input device whose state needs to be reset
->   *
->   * This function tries to reset the state of an opened input device and
-> - * bring internal state and state if the hardware in sync with each other.
-> + * bring internal state and state of the hardware in sync with each other.
->   * We mark all keys as released, restore LED state, repeat rate, etc.
->   */
->  void input_reset_device(struct input_dev *dev)
-> @@ -1581,10 +1610,11 @@ void input_reset_device(struct input_dev *dev)
->  
->  		/*
->  		 * Keys that have been pressed at suspend time are unlikely
-> -		 * to be still pressed when we resume.
-> +		 * to be still pressed when we resume. Same logic for MT.
->  		 */
->  		spin_lock_irq(&dev->event_lock);
->  		input_dev_release_keys(dev);
-> +		input_dev_release_mt(dev);
-
-Since this is called from input_dev_resume(), I am not so sure this is
-a good idea. Rather, we should be able to rely on the driver's
-suspend/resume implementation here.
-
->  		spin_unlock_irq(&dev->event_lock);
->  	}
->  
-> -- 
-> 1.7.7.3
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -444,7 +444,7 @@ config INPUT_PCF8574
 > 
+>  config INPUT_PWM_BEEPER
+>  	tristate "PWM beeper support"
+> -	depends on HAVE_PWM
+> +	depends on HAVE_PWM || PWM
 
-Thanks,
-Henrik
+Is this the preferred way to do this? Instead of doing the above I added
+a 'select HAVE_PWM' to the pwm framework instead. I found a patch for that,
+but there were comments to it that this is not good
+
+Sascha
+
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

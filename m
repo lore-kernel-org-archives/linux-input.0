@@ -1,56 +1,36 @@
-From: Jesse Sung <jesse.sung@canonical.com>
-Subject: Re: [PATCH resend] N-Trig: change default value of logical/physical
- width/height to 1
-Date: Wed, 26 Sep 2012 00:11:15 +0800
-Message-ID: <CAH10aOg3WUjovL+mH57kSHas09j0UXGuqwNUJ9xBC4_ZohYcAg@mail.gmail.com>
-References: <1347956828-5967-1-git-send-email-jesse.sung@canonical.com>
-	<1348570267-15322-1-git-send-email-jesse.sung@canonical.com>
-	<50619CE4.2020604@seas.upenn.edu>
-	<alpine.LNX.2.00.1209251522590.1391@pobox.suse.cz>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCHv2 1/4] mfd: smsc: Add support for smsc gpio io/keypad
+ driver
+Date: Tue, 25 Sep 2012 18:52:55 +0100
+Message-ID: <20120925175255.GA13823@sirena.org.uk>
+References: <1346844964-24839-1-git-send-email-sourav.poddar@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:41065 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756968Ab2IYQLT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Sep 2012 12:11:19 -0400
-Received: from mail-da0-f46.google.com ([209.85.210.46])
-	by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_ARCFOUR_SHA1:16)
-	(Exim 4.71)
-	(envelope-from <jesse.sung@canonical.com>)
-	id 1TGXjB-0000Zc-L9
-	for linux-input@vger.kernel.org; Tue, 25 Sep 2012 16:11:17 +0000
-Received: by dady13 with SMTP id y13so350156dad.19
-        for <linux-input@vger.kernel.org>; Tue, 25 Sep 2012 09:11:16 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1209251522590.1391@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1346844964-24839-1-git-send-email-sourav.poddar@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sourav Poddar <sourav.poddar@ti.com>
+Cc: devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, b-cousson@ti.com, balbi@ti.com, santosh.shilimkar@ti.com, sameo@linux.intel.com
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Rafi Rubin <rafi@seas.upenn.edu>, linux-input@vger.kernel.org
 
-2012/9/25 Jiri Kosina <jkosina@suse.cz>:
-> On Tue, 25 Sep 2012, Rafi Rubin wrote:
->
->> > Since something will be divided by these variables in
->> > show_min_width()/show_min_height() and show_activate_width()/
->> > show_activate_height(), a divided error would be triggered if they are
->> > zero.
->>
->> Fair point about the divide by zero.  Would it be preferable to use real
->> values.  As far as I know these devices all have logical dimensions of
->> 9600x7200.  Unfortunately both logical and physical are used as denominators,
->> so 1 for the physicals is probably sensible.
+On Wed, Sep 05, 2012 at 05:06:04PM +0530, Sourav Poddar wrote:
 
-Rafi,
+> +static struct regmap_config smsc_regmap_config = {
+> +		.reg_bits = 8,
+> +		.val_bits = 8,
+> +		.max_register = SMSC_MAX_REGISTER - 1;
+> +		.cache_type = REGCACHE_COMPRESSED,
+> +};
 
-Thanks for your reply.
-Should I change the value of logical (width, height) to (9600, 7200)
-instead of (1, 1)?
+That definition of max_register looks wrong - why are we subtracting 1
+from a macro called MAX_REGISTER to get it?
 
-> Applied, thanks.
+Indentation here is a bit odd too.
 
-Thank you Jiri. :)
+> +static int smsc_i2c_remove(struct i2c_client *i2c)
+> +{
+> +	return 0;
+> +}
 
-Regards,
-Jesse
+Remove empty functions.

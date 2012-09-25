@@ -1,50 +1,75 @@
-From: Jesse Sung <jesse.sung@canonical.com>
-Subject: [PATCH resend] N-Trig: change default value of logical/physical width/height to 1
-Date: Tue, 25 Sep 2012 18:51:07 +0800
-Message-ID: <1348570267-15322-1-git-send-email-jesse.sung@canonical.com>
-References: <1347956828-5967-1-git-send-email-jesse.sung@canonical.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:39199 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754545Ab2IYKvx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Sep 2012 06:51:53 -0400
-In-Reply-To: <1347956828-5967-1-git-send-email-jesse.sung@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Subject: Re: [RFC, PATCH] hid-ps3remote: handle multiple keypresses for
+ joypad buttons
+Date: Tue, 25 Sep 2012 13:21:36 +0200
+Message-ID: <20120925132136.985de0b203fd342bce6dc77d@studenti.unina.it>
+References: <20120921220659.1e257048fed597061efb07f9@studenti.unina.it>
+	<1348485938-20510-1-git-send-email-ospite@studenti.unina.it>
+	<1348495002.7637.4.camel@obelisk.thedillows.org>
+	<1348539215.15050.6.camel@obelisk.thedillows.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1348539215.15050.6.camel-1q1vX8mYZiGLUyTwlgNVppKKF0rrzTr+@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Dillow <dave-i1Mk8JYDVaaSihdK6806/g@public.gmane.org>
+Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Luiz Augusto von Dentz <luiz.dentz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Rafi Rubin <rafi@seas.upenn.edu>, Jiri Kosina <jkosina@suse.cz>
 
-From: Wen-chien Jesse Sung <jesse.sung@canonical.com>
+On Mon, 24 Sep 2012 22:13:35 -0400
+David Dillow <dave-i1Mk8JYDVaaSihdK6806/g@public.gmane.org> wrote:
 
-Since something will be divided by these variables in
-show_min_width()/show_min_height() and show_activate_width()/
-show_activate_height(), a divided error would be triggered if
-they are zero.
+> On Mon, 2012-09-24 at 09:56 -0400, David Dillow wrote:
+> > On Mon, 2012-09-24 at 13:25 +0200, Antonio Ospite wrote:
+> > > In order to make this work I have to put joypad buttons only in one of
+> > > the key maps, I don't know if that is compatible with the Harmony
+> > > adapter.
+> > 
+> > I suspect it is, but I'll try to test later tonight. Feel free to merge
+> > my patch and yours and push it upstream under your name/copyright; I'm
+> > not attached to it.
+> 
+> Yep, this works with the Harmony.
+>
 
-Signed-off-by: Wen-chien Jesse Sung <jesse.sung@canonical.com>
----
- drivers/hid/hid-ntrig.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Good.
 
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index 9fae2eb..86a969f 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -882,10 +882,10 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	nd->activate_slack = activate_slack;
- 	nd->act_state = activate_slack;
- 	nd->deactivate_slack = -deactivate_slack;
--	nd->sensor_logical_width = 0;
--	nd->sensor_logical_height = 0;
--	nd->sensor_physical_width = 0;
--	nd->sensor_physical_height = 0;
-+	nd->sensor_logical_width = 1;
-+	nd->sensor_logical_height = 1;
-+	nd->sensor_physical_width = 1;
-+	nd->sensor_physical_height = 1;
- 
- 	hid_set_drvdata(hdev, nd);
- 
+I will send a v3 then, with you as the main author (the From: field) and
+with myself added in the MODULE_AUTHOR section, this looks like the best
+way to me as you are the initial author. I'd like you to take a final
+look at that one tho, and maybe do an actual test too.
+
+I will add the note about the "setup" procedure too.
+
+> I think the logic you are using may result in some combinations being
+> missed -- say Triangle + Play -- but I'm not sure how much it matters.
+
+Yes, when pressing something like Triangle+Play the Play pressure is
+completely ignored as a 0xff is reported in the 5th byte, but it's the
+hardware which behaves that way, the driver is just very adherent to
+what the hardware provides.
+
+> I
+> can rework the first version (building a custom report based on the
+> funky rules of coding) in the next few days, or you can push your
+> version if you'd like. Or perhaps a middle way, that erases the buttons
+> reported in the bitmap from the byte array, but otherwise keeps track of
+> the last press in that area to avoid weirdness when the user presses a
+> button combo that cannot be reported due to the HW limitations.
+>
+
+I'd say we ignore this fact and not try to be too smart here, the
+hardware has the limitation so we can blame someone else.
+Does that make sense to you?
+
+Thanks,
+   Antonio
+
 -- 
-1.7.9.5
+Antonio Ospite
+http://ao2.it
 
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

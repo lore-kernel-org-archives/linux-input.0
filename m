@@ -1,111 +1,40 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH v3] input: wacom: Report correct touch contact size for I5/Bamboo
-Date: Mon, 24 Sep 2012 18:04:46 -0700
-Message-ID: <CAF8JNh+ft5i1m5Y3AU9EVHC9Y0NZfyy73Kg9yYY3uuvtZtJvaQ@mail.gmail.com>
-References: <CAGzDe_Y6RUs7Y29zNEFdf7Oja_wmQtNijY09qSctf9hVzm9pig@mail.gmail.com>
-	<1348515946-1674-1-git-send-email-killertofu@gmail.com>
+From: David Dillow <dave-i1Mk8JYDVaaSihdK6806/g@public.gmane.org>
+Subject: Re: [RFC, PATCH] hid-ps3remote: handle multiple keypresses for
+ joypad buttons
+Date: Mon, 24 Sep 2012 22:13:35 -0400
+Message-ID: <1348539215.15050.6.camel@obelisk.thedillows.org>
+References: <20120921220659.1e257048fed597061efb07f9@studenti.unina.it>
+	 <1348485938-20510-1-git-send-email-ospite@studenti.unina.it>
+	 <1348495002.7637.4.camel@obelisk.thedillows.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:56368 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752070Ab2IYBEs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Sep 2012 21:04:48 -0400
-Received: by lbbgj3 with SMTP id gj3so7623592lbb.19
-        for <linux-input@vger.kernel.org>; Mon, 24 Sep 2012 18:04:46 -0700 (PDT)
-In-Reply-To: <1348515946-1674-1-git-send-email-killertofu@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1348495002.7637.4.camel-1q1vX8mYZiGLUyTwlgNVppKKF0rrzTr+@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Luiz Augusto von Dentz <luiz.dentz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, chris@cnpbagwell.com, dmitry.torokhov@gmail.com
 
-On Mon, Sep 24, 2012 at 12:45 PM, Jason Gerecke <killertofu@gmail.com> wrote:
-> This changes how the touch packets for Intuos5 and 3rd-gen Bamboo
-> are interpreted, so that proper values for the MAJOR and MINOR
-> axes are reported. Instead of using the amplitude field (data[6]),
-> we use the size field (data[5]) and do some calculation to
-> transform it from a scaled-down area into axis lengths.
->
-> Note that even though we assume a circular contact, both MAJOR and
-> MINOR are reported since the resolution of the X and Y axes differ.
->
-> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+On Mon, 2012-09-24 at 09:56 -0400, David Dillow wrote:
+> On Mon, 2012-09-24 at 13:25 +0200, Antonio Ospite wrote:
+> > In order to make this work I have to put joypad buttons only in one of
+> > the key maps, I don't know if that is compatible with the Harmony
+> > adapter.
+> 
+> I suspect it is, but I'll try to test later tonight. Feel free to merge
+> my patch and yours and push it upstream under your name/copyright; I'm
+> not attached to it.
 
-Acked-by: Ping Cheng <pingc@wacom.com>
+Yep, this works with the Harmony.
 
-Ping
+I think the logic you are using may result in some combinations being
+missed -- say Triangle + Play -- but I'm not sure how much it matters. I
+can rework the first version (building a custom report based on the
+funky rules of coding) in the next few days, or you can push your
+version if you'd like. Or perhaps a middle way, that erases the buttons
+reported in the bitmap from the byte array, but otherwise keeps track of
+the last press in that area to avoid weirdness when the user presses a
+button combo that cannot be reported due to the HW limitations.
 
-> ---
-> Changes from v2:
->  * Modified WACOM_CONTACT_AREA_SCALE so that we can calculate the
->    width directly, rather than going through an intermediate
->    logical_diameter and physical_diameter.
->
->  drivers/input/tablet/wacom_wac.c | 26 ++++++++++++++++++++++----
->  1 file changed, 22 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-> index 532d067..2543169 100644
-> --- a/drivers/input/tablet/wacom_wac.c
-> +++ b/drivers/input/tablet/wacom_wac.c
-> @@ -25,6 +25,11 @@
->  #define WACOM_INTUOS_RES       100
->  #define WACOM_INTUOS3_RES      200
->
-> +/* Scale factor relating reported contact size to logical contact area.
-> + * 2^14/pi is a good approximation on Intuos5 and 3rd-gen Bamboo
-> + */
-> +#define WACOM_CONTACT_AREA_SCALE 2607
-> +
->  static int wacom_penpartner_irq(struct wacom_wac *wacom)
->  {
->         unsigned char *data = wacom->data;
-> @@ -1043,11 +1048,19 @@ static void wacom_bpt3_touch_msg(struct wacom_wac *wacom, unsigned char *data)
->         if (touch) {
->                 int x = (data[2] << 4) | (data[4] >> 4);
->                 int y = (data[3] << 4) | (data[4] & 0x0f);
-> -               int w = data[6];
-> +               int a = data[5];
-> +
-> +               // "a" is a scaled-down area which we assume is roughly
-> +               // circular and which can be described as: a=(pi*r^2)/C.
-> +               int x_res  = input_abs_get_res(input, ABS_X);
-> +               int y_res  = input_abs_get_res(input, ABS_Y);
-> +               int width  = 2 * int_sqrt(a * WACOM_CONTACT_AREA_SCALE);
-> +               int height = width * y_res / x_res;
->
->                 input_report_abs(input, ABS_MT_POSITION_X, x);
->                 input_report_abs(input, ABS_MT_POSITION_Y, y);
-> -               input_report_abs(input, ABS_MT_TOUCH_MAJOR, w);
-> +               input_report_abs(input, ABS_MT_TOUCH_MAJOR, width);
-> +               input_report_abs(input, ABS_MT_TOUCH_MINOR, height);
->         }
->  }
->
-> @@ -1533,7 +1546,9 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
->                         input_mt_init_slots(input_dev, features->touch_max);
->
->                         input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
-> -                                            0, 255, 0, 0);
-> +                                            0, features->x_max, 0, 0);
-> +                       input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR,
-> +                                            0, features->y_max, 0, 0);
->
->                         input_set_abs_params(input_dev, ABS_MT_POSITION_X,
->                                              0, features->x_max,
-> @@ -1641,7 +1656,10 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
->
->                                 input_set_abs_params(input_dev,
->                                                      ABS_MT_TOUCH_MAJOR,
-> -                                                    0, 255, 0, 0);
-> +                                                    0, features->x_max, 0, 0);
-> +                               input_set_abs_params(input_dev,
-> +                                                    ABS_MT_TOUCH_MINOR,
-> +                                                    0, features->y_max, 0, 0);
->                         }
->
->                         input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-> --
-> 1.7.12
->
+Dave

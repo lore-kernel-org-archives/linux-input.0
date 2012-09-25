@@ -1,26 +1,26 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
+From: Ping Cheng <pinglinux@gmail.com>
 Subject: Re: [PATCH v3] input: wacom: Report correct touch contact size for I5/Bamboo
-Date: Mon, 24 Sep 2012 19:10:20 -0500
-Message-ID: <CAGzDe_b0F+uRmUt3bcawupdekWDCijz_8NBtqp2T96SaThYptw@mail.gmail.com>
+Date: Mon, 24 Sep 2012 18:04:46 -0700
+Message-ID: <CAF8JNh+ft5i1m5Y3AU9EVHC9Y0NZfyy73Kg9yYY3uuvtZtJvaQ@mail.gmail.com>
 References: <CAGzDe_Y6RUs7Y29zNEFdf7Oja_wmQtNijY09qSctf9hVzm9pig@mail.gmail.com>
 	<1348515946-1674-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:34552 "EHLO
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:56368 "EHLO
 	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750849Ab2IYAKW (ORCPT
+	with ESMTP id S1752070Ab2IYBEs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Sep 2012 20:10:22 -0400
-Received: by lbbgj3 with SMTP id gj3so7582852lbb.19
-        for <linux-input@vger.kernel.org>; Mon, 24 Sep 2012 17:10:21 -0700 (PDT)
+	Mon, 24 Sep 2012 21:04:48 -0400
+Received: by lbbgj3 with SMTP id gj3so7623592lbb.19
+        for <linux-input@vger.kernel.org>; Mon, 24 Sep 2012 18:04:46 -0700 (PDT)
 In-Reply-To: <1348515946-1674-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, pinglinux@gmail.com, dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, chris@cnpbagwell.com, dmitry.torokhov@gmail.com
 
-On Mon, Sep 24, 2012 at 2:45 PM, Jason Gerecke <killertofu@gmail.com> wrote:
+On Mon, Sep 24, 2012 at 12:45 PM, Jason Gerecke <killertofu@gmail.com> wrote:
 > This changes how the touch packets for Intuos5 and 3rd-gen Bamboo
 > are interpreted, so that proper values for the MAJOR and MINOR
 > axes are reported. Instead of using the amplitude field (data[6]),
@@ -31,16 +31,16 @@ On Mon, Sep 24, 2012 at 2:45 PM, Jason Gerecke <killertofu@gmail.com> wrote:
 > MINOR are reported since the resolution of the X and Y axes differ.
 >
 > Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+
+Acked-by: Ping Cheng <pingc@wacom.com>
+
+Ping
+
 > ---
 > Changes from v2:
 >  * Modified WACOM_CONTACT_AREA_SCALE so that we can calculate the
 >    width directly, rather than going through an intermediate
 >    logical_diameter and physical_diameter.
-
-This version does read easier with the simplified steps.
-
-Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
-
 >
 >  drivers/input/tablet/wacom_wac.c | 26 ++++++++++++++++++++++----
 >  1 file changed, 22 insertions(+), 4 deletions(-)

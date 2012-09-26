@@ -1,53 +1,250 @@
-From: "Patil, Rachna" <rachna@ti.com>
-Subject: RE: [PATCH 0/4] input: TSC: ti_tscadc: TI Touchscreen driver updates
-Date: Wed, 26 Sep 2012 09:56:14 +0000
-Message-ID: <4CE347531D4CA947960AF71FF095B9323E95736F@DBDE01.ent.ti.com>
-References: <1345634265-29646-1-git-send-email-rachna@ti.com>
+From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH v4 5/5] MFD: ti_tscadc: add suspend/resume functionality
+Date: Wed, 26 Sep 2012 10:09:03 +0000
+Message-ID: <4CE347531D4CA947960AF71FF095B9323E95738D@DBDE01.ent.ti.com>
+References: <1348636814-14129-1-git-send-email-rachna@ti.com>
+ <1348636814-14129-6-git-send-email-rachna@ti.com> <5062A373.4000707@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:47437 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752119Ab2IZJ4b convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Sep 2012 05:56:31 -0400
-In-Reply-To: <1345634265-29646-1-git-send-email-rachna@ti.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5062A373.4000707-l0cyMroinI0@public.gmane.org>
 Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Datta, Shubhrajyoti" <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, "Patil, Rachna" <rachna@ti.com>
 
-Hi Dmitry,
+Hi Shubhrajyoti,
 
-This is just a gentle reminder for the patch set I had submitted earlier
-viz. "[PATCH 0/4] input: TSC: ti_tscadc: TI Touchscreen driver updates"
-Can you please accept this patch set?
-A lot of other patches that I have submitted and going to submit are dependent on these patches.
-This patch set just improves the driver and does not break anything existing.
+On Wed, Sep 26, 2012 at 12:10:51, Datta, Shubhrajyoti wrote:
+> On Wednesday 26 September 2012 10:50 AM, Patil, Rachna wrote:
+> > This patch adds support for suspend/resume of
+> > TSC/ADC MFDevice.
+> this should be merged with the patch adding support else
+> we may end up in a case where patch a does the runtime calls
+> and the call back  handlers added later.
+
+I am adding both the runtime calls and the handlers in this patch.
+I think maintaining this as a separate patch in better in terms
+of readability as well.
 
 Regards,
 Rachna
 
-On Wed, Aug 22, 2012 at 16:47:45, Patil, Rachna wrote:
-> This patch set is a cumulative work for
-> 1. Correcting resister usage
-> 2. Adding more platform data
-> 3. Making way for converting touchscreen into Multifunctional device
-> 4. Remove usage of End Of Interrupt(EOI) register
+> >
+> > Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
+> > ---
+> > Changes in v2:
+> > 	Added this patch newly in this patch series.
+> >
+> > Changes in v3:
+> > 	No changes.
+> >
+> > Changes in v4:
+> > 	Replaced suspend/resume callbacks with dev_pm_ops.
+> >
+> >  drivers/iio/adc/ti_am335x_adc.c           |   42 +++++++++++++++++++++++++++++
+> >  drivers/input/touchscreen/ti_am335x_tsc.c |   42 +++++++++++++++++++++++++++++
+> >  drivers/mfd/ti_am335x_tscadc.c            |   41 +++++++++++++++++++++++++++-
+> >  include/linux/mfd/ti_am335x_tscadc.h      |    3 ++
+> >  4 files changed, 127 insertions(+), 1 deletions(-)
+> >
+> > diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+> > index 9e1b3ac..b16f944 100644
+> > --- a/drivers/iio/adc/ti_am335x_adc.c
+> > +++ b/drivers/iio/adc/ti_am335x_adc.c
+> > @@ -200,10 +200,52 @@ static int __devexit tiadc_remove(struct platform_device *pdev)
+> >  	return 0;
+> >  }
+> >  
+> > +#ifdef CONFIG_PM
+> > +static int tiadc_suspend(struct device *dev)
+> > +{
+> > +	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+> > +	struct tiadc_device *adc_dev = iio_priv(indio_dev);
+> > +	struct ti_tscadc_dev *tscadc_dev = dev->platform_data;
+> > +	unsigned int idle;
+> > +
+> > +	if (!device_may_wakeup(tscadc_dev->dev)) {
+> > +		idle = adc_readl(adc_dev, REG_CTRL);
+> > +		idle &= ~(CNTRLREG_TSCSSENB);
+> > +		adc_writel(adc_dev, REG_CTRL, (idle |
+> > +				CNTRLREG_POWERDOWN));
+> > +	}
+> > +	return 0;
+> > +}
+> > +
+> > +static int tiadc_resume(struct device *dev)
+> > +{
+> > +	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+> > +	struct tiadc_device *adc_dev = iio_priv(indio_dev);
+> > +	unsigned int restore;
+> > +
+> > +	/* Make sure ADC is powered up */
+> > +	restore = adc_readl(adc_dev, REG_CTRL);
+> > +	restore &= ~(CNTRLREG_POWERDOWN);
+> > +	adc_writel(adc_dev, REG_CTRL, restore);
+> > +
+> > +	adc_step_config(adc_dev);
+> > +	return 0;
+> > +}
+> > +
+> > +static const struct dev_pm_ops tiadc_pm_ops = {
+> > +	.suspend = tiadc_suspend,
+> > +	.resume = tiadc_resume,
+> > +};
+> > +#define TIADC_PM_OPS (&tiadc_pm_ops)
+> > +#else
+> > +#define TIADC_PM_OPS NULL
+> > +#endif
+> > +
+> >  static struct platform_driver tiadc_driver = {
+> >  	.driver = {
+> >  		.name   = "tiadc",
+> >  		.owner = THIS_MODULE,
+> > +		.pm	= TIADC_PM_OPS,
+> >  	},
+> >  	.probe	= tiadc_probe,
+> >  	.remove	= __devexit_p(tiadc_remove),
+> > diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > index 2d9dec1..b17dbe4 100644
+> > --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> > +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > @@ -338,12 +338,54 @@ static int __devexit tscadc_remove(struct platform_device *pdev)
+> >  	return 0;
+> >  }
+> >  
+> > +#ifdef CONFIG_PM
+> > +static int titsc_suspend(struct device *dev)
+> > +{
+> > +	struct ti_tscadc_dev *tscadc_dev = dev->platform_data;
+> > +	struct tscadc *ts_dev = tscadc_dev->tsc;
+> > +	unsigned int idle;
+> > +
+> > +	if (device_may_wakeup(tscadc_dev->dev)) {
+> > +		idle = tscadc_readl(ts_dev, REG_IRQENABLE);
+> > +		tscadc_writel(ts_dev, REG_IRQENABLE,
+> > +				(idle | IRQENB_HW_PEN));
+> > +		tscadc_writel(ts_dev, REG_IRQWAKEUP, IRQWKUP_ENB);
+> > +	}
+> > +	return 0;
+> > +}
+> > +
+> > +static int titsc_resume(struct device *dev)
+> > +{
+> > +	struct ti_tscadc_dev *tscadc_dev = dev->platform_data;
+> > +	struct tscadc *ts_dev = tscadc_dev->tsc;
+> > +
+> > +	if (device_may_wakeup(tscadc_dev->dev)) {
+> > +		tscadc_writel(ts_dev, REG_IRQWAKEUP,
+> > +				0x00);
+> > +		tscadc_writel(ts_dev, REG_IRQCLR, IRQENB_HW_PEN);
+> > +	}
+> > +	tscadc_step_config(ts_dev);
+> > +	tscadc_writel(ts_dev, REG_FIFO0THR,
+> > +			ts_dev->steps_to_configure);
+> > +	return 0;
+> > +}
+> > +
+> > +static const struct dev_pm_ops titsc_pm_ops = {
+> > +	.suspend = titsc_suspend,
+> > +	.resume  = titsc_resume,
+> > +};
+> > +#define TITSC_PM_OPS (&titsc_pm_ops)
+> > +#else
+> > +#define TITSC_PM_OPS NULL
+> > +#endif
+> > +
+> >  static struct platform_driver ti_tsc_driver = {
+> >  	.probe	= tscadc_probe,
+> >  	.remove	= __devexit_p(tscadc_remove),
+> >  	.driver	= {
+> >  		.name   = "tsc",
+> >  		.owner	= THIS_MODULE,
+> > +		.pm	= TITSC_PM_OPS,
+> >  	},
+> >  };
+> >  module_platform_driver(ti_tsc_driver);
+> > diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
+> > index 45d66e5..7e949e8 100644
+> > --- a/drivers/mfd/ti_am335x_tscadc.c
+> > +++ b/drivers/mfd/ti_am335x_tscadc.c
+> > @@ -170,6 +170,7 @@ static	int __devinit ti_tscadc_probe(struct platform_device *pdev)
+> >  	if (err < 0)
+> >  		goto err_disable_clk;
+> >  
+> > +	device_init_wakeup(&pdev->dev, true);
+> >  	platform_set_drvdata(pdev, tscadc);
+> >  	return 0;
+> >  
+> > @@ -203,14 +204,52 @@ static int __devexit ti_tscadc_remove(struct platform_device *pdev)
+> >  	return 0;
+> >  }
+> >  
+> > +#ifdef CONFIG_PM
+> > +static int tscadc_suspend(struct device *dev)
+> > +{
+> > +	struct ti_tscadc_dev	*tscadc_dev = dev_get_drvdata(dev);
+> > +
+> > +	tscadc_writel(tscadc_dev, REG_SE, 0x00);
+> > +	pm_runtime_put_sync(dev);
+> > +	return 0;
+> > +}
+> > +
+> > +static int tscadc_resume(struct device *dev)
+> > +{
+> > +	struct ti_tscadc_dev	*tscadc_dev = dev_get_drvdata(dev);
+> > +	unsigned int restore, ctrl;
+> > +
+> > +	pm_runtime_get_sync(dev);
+> > +
+> > +	/* context restore */
+> > +	ctrl = CNTRLREG_STEPCONFIGWRT | CNTRLREG_TSCENB |
+> > +			CNTRLREG_STEPID | CNTRLREG_4WIRE;
+> > +	tscadc_writel(tscadc_dev, REG_CTRL, ctrl);
+> > +	tscadc_idle_config(tscadc_dev);
+> > +	tscadc_writel(tscadc_dev, REG_SE, STPENB_STEPENB);
+> > +	restore = tscadc_readl(tscadc_dev, REG_CTRL);
+> > +	tscadc_writel(tscadc_dev, REG_CTRL,
+> > +			(restore | CNTRLREG_TSCSSENB));
+> > +	return 0;
+> > +}
+> > +
+> > +static const struct dev_pm_ops tscadc_pm_ops = {
+> > +	.suspend = tscadc_suspend,
+> > +	.resume = tscadc_resume,
+> > +};
+> > +#define TSCADC_PM_OPS (&tscadc_pm_ops)
+> > +#else
+> > +#define TSCADC_PM_OPS NULL
+> > +#endif
+> > +
+> >  static struct platform_driver ti_tscadc_driver = {
+> >  	.driver = {
+> >  		.name   = "ti_tscadc",
+> >  		.owner	= THIS_MODULE,
+> > +		.pm	= TSCADC_PM_OPS,
+> >  	},
+> >  	.probe	= ti_tscadc_probe,
+> >  	.remove	= __devexit_p(ti_tscadc_remove),
+> > -
+> >  };
+> >  
+> >  module_platform_driver(ti_tscadc_driver);
+> > diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
+> > index bd9fe1d..c7facdc 100644
+> > --- a/include/linux/mfd/ti_am335x_tscadc.h
+> > +++ b/include/linux/mfd/ti_am335x_tscadc.h
+> > @@ -40,6 +40,9 @@
+> >  #define REG_FIFO1		0x200
+> >  
+> >  /*	Register Bitfields	*/
+> > +/* IRQ wakeup enable */
+> > +#define IRQWKUP_ENB		BIT(0)
+> > +
+> >  /* Step Enable */
+> >  #define STEPENB_MASK		(0x1FFFF << 0)
+> >  #define STEPENB(val)		((val) << 0)
 > 
-> These patches are tested on AM335x EVM.
 > 
-> Patil, Rachna (4):
->   input: TSC: ti_tscadc: Correct register usage
->   input: TSC: ti_tscadc: Add Step configuration as platform data
->   input: TSC: ti_tscadc: set FIFO0 threshold Interrupt
->   input: TSC: ti_tscadc: Remove definition of End Of Interrupt register
-> 
->  drivers/input/touchscreen/ti_tscadc.c |  164 ++++++++++++++++++++-------------
->  include/linux/input/ti_tscadc.h       |    6 +
->  2 files changed, 106 insertions(+), 64 deletions(-)
-> 
-> 
-

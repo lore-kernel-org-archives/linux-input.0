@@ -1,61 +1,75 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [RFC PATCH 2/17] input: RMI4 core bus and sensor drivers.
-Date: Tue, 25 Sep 2012 16:53:31 -0700
-Message-ID: <506243FB.8010408@synaptics.com>
-References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com> <1345241877-16200-3-git-send-email-cheiny@synaptics.com> <CACRpkdbxJ0=SLuw+av4xxkABWR2MbXrS_T=HYzfCaZdXVLeTjw@mail.gmail.com>
+From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v4 0/5] Support for TSC/ADC MFD driver
+Date: Wed, 26 Sep 2012 10:50:09 +0530
+Message-ID: <1348636814-14129-1-git-send-email-rachna@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx3.synaptics.com ([12.239.217.85]:50458 "EHLO
-	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750898Ab2IYXxe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Sep 2012 19:53:34 -0400
-In-Reply-To: <CACRpkdbxJ0=SLuw+av4xxkABWR2MbXrS_T=HYzfCaZdXVLeTjw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Greg KH <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, Magnus Damm <magnus.damm@gmail.com>
 
-Sorry about the delay in following up on this one - we're going over the 
-feedback, and realized we'd missed this comment.
+This patch set adds a MFD core driver which registers
+touchscreen and ADC as its client drivers.
+The existing touchscreen has been modified to work as
+a MFD client driver and a new ADC driver has been added
+in the IIO subsystem.
 
+There are 8 analog input lines, which can be used as:
+1. 8 general purpose ADC channels
+2. 4 wire TS, with 4 general purpose ADC channels
+3. 5 wire TS, with 3 general purpose ADC channels
 
-On 08/23/2012 01:55 AM, Linus Walleij wrote:
->> +/* Create templates for given types */
->> >+#define simple_show_union_struct_unsigned(regtype, propname)\
->> >+simple_show_union_struct(regtype, propname, "%u\n")
->> >+
->> >+#define simple_show_union_struct_unsigned2(regtype, reg_group, propname)\
->> >+simple_show_union_struct2(regtype, reg_group, propname, "%u\n")
->> >+
->> >+#define show_union_struct_unsigned(regtype, reg_group, propname)\
->> >+show_union_struct(regtype, reg_group, propname, "%u\n")
->> >+
->> >+#define show_store_union_struct_unsigned(regtype, reg_group, propname)\
->> >+show_store_union_struct(regtype, reg_group, propname, "%u\n")
->> >+
->> >+#define show_repeated_union_struct_unsigned(regtype, reg_group, propname)\
->> >+show_repeated_union_struct(regtype, reg_group, propname, "%u")
->> >+
->> >+#define show_store_repeated_union_struct_unsigned(regtype, reg_group, propname)\
->> >+show_store_repeated_union_struct(regtype, reg_group, propname, "%u")
->> >+
->> >+/* Remove access to raw format string versions */
->> >+/*#undef simple_show_union_struct
->> >+#undef show_union_struct_unsigned
->> >+#undef show_store_union_struct
->> >+#undef show_repeated_union_struct
->> >+#undef show_store_repeated_union_struct*/
-> This looks like trying to reimplement ioctl() in sysfs.
->
-> If what you want is to send big structs in/out of the kernel,
-> use either ioctl() on device nodes (should be trivial since input
-> is using real device nodes) or use configfs.
+This patch set has been tested on AM335x EVM.
 
-I'm a little confused.  There's repeated emphasis in the kernel doc that 
-you shouldn't use ioctl() anymore - use sysfs instead.  So we've been 
-using sysfs, though it seems somewhat klutzy.  If it's actually OK to 
-use ioctl(), that could simplify things.  On the other hand, using 
-configfs might be more appropriate.
+These set of patches are based on top of Touchscreen patch
+set submitted.
+Subject: [PATCH 0/4] input: TSC: ti_tscadc: TI Touchscreen driver updates [1]
+
+[1] http://www.spinics.net/lists/linux-input/msg22107.html
+
+Changes in v2:
+	Dropped one patch send in the last version after
+	receiving internal comments. I have merged the changes
+	into existing patches.
+	Also added a new patch to support suspend/resume feature.
+	Fixed review comments by Matthias Kaehlcke.
+
+Changes in v3:
+	Addressed review comments by Jonathan Cameron.
+	Improved ADC driver with more readable labels,
+	spaces and comments.
+
+Changes in v4:
+	Renamed the drivers from ti_xxx to ti_am335x_xxx.
+	For consistency with other drivers renamed idev to indio_dev
+	in IIO ADC driver.
+	Replaced suspend/resume callbacks with dev_pm_ops.
+
+Patil, Rachna (5):
+  input: TSC: ti_tscadc: Rename the existing touchscreen driver
+  MFD: ti_tscadc: Add support for TI's TSC/ADC MFDevice
+  input: TSC: ti_tsc: Convert TSC into a MFDevice
+  IIO : ADC: tiadc: Add support of TI's ADC driver
+  MFD: ti_tscadc: add suspend/resume functionality
+
+ drivers/iio/adc/Kconfig                            |    7 +
+ drivers/iio/adc/Makefile                           |    1 +
+ drivers/iio/adc/ti_am335x_adc.c                    |  258 ++++++++++++++++
+ drivers/input/touchscreen/Kconfig                  |    4 +-
+ drivers/input/touchscreen/Makefile                 |    2 +-
+ .../touchscreen/{ti_tscadc.c => ti_am335x_tsc.c}   |  319 ++++++--------------
+ drivers/mfd/Kconfig                                |    9 +
+ drivers/mfd/Makefile                               |    1 +
+ drivers/mfd/ti_am335x_tscadc.c                     |  259 ++++++++++++++++
+ .../linux/input/{ti_tscadc.h => ti_am335x_tsc.h}   |    4 +-
+ include/linux/mfd/ti_am335x_tscadc.h               |  151 +++++++++
+ include/linux/platform_data/ti_am335x_adc.h        |   14 +
+ 12 files changed, 801 insertions(+), 228 deletions(-)
+ create mode 100644 drivers/iio/adc/ti_am335x_adc.c
+ rename drivers/input/touchscreen/{ti_tscadc.c => ti_am335x_tsc.c} (55%)
+ create mode 100644 drivers/mfd/ti_am335x_tscadc.c
+ rename include/linux/input/{ti_tscadc.h => ti_am335x_tsc.h} (88%)
+ create mode 100644 include/linux/mfd/ti_am335x_tscadc.h
+ create mode 100644 include/linux/platform_data/ti_am335x_adc.h

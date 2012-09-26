@@ -1,47 +1,64 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [RFC PATCH 2/17] input: RMI4 core bus and sensor drivers.
-Date: Wed, 26 Sep 2012 13:39:10 +0200
-Message-ID: <CACRpkdbQ4PMVbLuKT-i1dt2oYUYadJ6iw7X-xvAiXjveHAn-Hw@mail.gmail.com>
-References: <1345241877-16200-1-git-send-email-cheiny@synaptics.com>
-	<1345241877-16200-3-git-send-email-cheiny@synaptics.com>
-	<CACRpkdbxJ0=SLuw+av4xxkABWR2MbXrS_T=HYzfCaZdXVLeTjw@mail.gmail.com>
-	<506243FB.8010408@synaptics.com>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH] atmel_mxt: simplify mxt_dump_message
+Date: Wed, 26 Sep 2012 22:18:20 +0800
+Message-ID: <CAGS+omCi2o0GJzxjEYfuyvBpDLXnomxPgW==u6Hg5etpCSm34A@mail.gmail.com>
+References: <1348657555-8226-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <506243FB.8010408@synaptics.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Peichen Chang <peichen.chang@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Greg KH <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, Magnus Damm <magnus.damm@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qc0-f174.google.com ([209.85.216.174]:42676 "EHLO
+	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753519Ab2IZOSl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Sep 2012 10:18:41 -0400
+Received: by qchd3 with SMTP id d3so147967qch.19
+        for <linux-input@vger.kernel.org>; Wed, 26 Sep 2012 07:18:41 -0700 (PDT)
+In-Reply-To: <1348657555-8226-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Wed, Sep 26, 2012 at 1:53 AM, Christopher Heiny <cheiny@synaptics.com> wrote:
-
->>> >+/* Remove access to raw format string versions */
->>> >+/*#undef simple_show_union_struct
->>> >+#undef show_union_struct_unsigned
->>> >+#undef show_store_union_struct
->>> >+#undef show_repeated_union_struct
->>> >+#undef show_store_repeated_union_struct*/
->>
->> This looks like trying to reimplement ioctl() in sysfs.
->>
->> If what you want is to send big structs in/out of the kernel,
->> use either ioctl() on device nodes (should be trivial since input
->> is using real device nodes) or use configfs.
+On Wed, Sep 26, 2012 at 7:05 PM, Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
 >
-> I'm a little confused.  There's repeated emphasis in the kernel doc that you
-> shouldn't use ioctl() anymore - use sysfs instead.  So we've been using
-> sysfs, though it seems somewhat klutzy.  If it's actually OK to use ioctl(),
-> that could simplify things.  On the other hand, using configfs might be more
-> appropriate.
+> This patch applies %*ph to print small buffer and marks function as inline.
+>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-OK yes configfs is said to be ideal for large configuration chunks,
-I haven't really used it.
+Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
 
-sysfs has this concept of one value per file, and that turns into the
-above serialization/marshalling code if followed, so it doesn't look
-good. Maybe configfs is the silver bullet.
-
-Yours,
-Linus Walleij
+>
+> ---
+>  drivers/input/touchscreen/atmel_mxt_ts.c |   10 ++++------
+>  1 file changed, 4 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index e92615d..211bfb4 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -317,13 +317,11 @@ static bool mxt_object_writable(unsigned int type)
+>         }
+>  }
+>
+> -static void mxt_dump_message(struct device *dev,
+> -                            struct mxt_message *message)
+> +static inline void mxt_dump_message(struct device *dev,
+> +                                   struct mxt_message *message)
+>  {
+> -       dev_dbg(dev, "reportid: %u\tmessage: %02x %02x %02x %02x %02x %02x %02x\n",
+> -               message->reportid, message->message[0], message->message[1],
+> -               message->message[2], message->message[3], message->message[4],
+> -               message->message[5], message->message[6]);
+> +       dev_dbg(dev, "reportid: %u\tmessage: %*ph\n",
+> +               message->reportid, 7, message->message);
+>  }
+>
+>  static int mxt_check_bootloader(struct i2c_client *client,
+> --
+> 1.7.10.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

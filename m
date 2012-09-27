@@ -1,64 +1,85 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH] atmel_mxt: simplify mxt_dump_message
-Date: Wed, 26 Sep 2012 22:18:20 +0800
-Message-ID: <CAGS+omCi2o0GJzxjEYfuyvBpDLXnomxPgW==u6Hg5etpCSm34A@mail.gmail.com>
-References: <1348657555-8226-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: GeneralTouch <aroundight77@gmail.com>
+Subject: [PATCH 1/1] hid:Fix problem on GeneralTouch multi-touchscreen
+Date: Thu, 27 Sep 2012 13:58:45 +0800
+Message-ID: <1348725525-3687-1-git-send-email-aroundight77@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f174.google.com ([209.85.216.174]:42676 "EHLO
-	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753519Ab2IZOSl (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:61713 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754964Ab2I0GAM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Sep 2012 10:18:41 -0400
-Received: by qchd3 with SMTP id d3so147967qch.19
-        for <linux-input@vger.kernel.org>; Wed, 26 Sep 2012 07:18:41 -0700 (PDT)
-In-Reply-To: <1348657555-8226-1-git-send-email-andriy.shevchenko@linux.intel.com>
+	Thu, 27 Sep 2012 02:00:12 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, yxhma <yxhma@163.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Xianhan Yu <aroundight77@gmail.com>
 
-On Wed, Sep 26, 2012 at 7:05 PM, Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
->
-> This patch applies %*ph to print small buffer and marks function as inline.
->
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Xianhan Yu <aroundight77@gmail.com>
 
-Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
+Fix the touch-up no response problem on GeneralTouch twofingers touchscreen and modify the driver for new GeneralTouch PWT touchscreen.
 
->
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c |   10 ++++------
->  1 file changed, 4 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index e92615d..211bfb4 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -317,13 +317,11 @@ static bool mxt_object_writable(unsigned int type)
->         }
->  }
->
-> -static void mxt_dump_message(struct device *dev,
-> -                            struct mxt_message *message)
-> +static inline void mxt_dump_message(struct device *dev,
-> +                                   struct mxt_message *message)
->  {
-> -       dev_dbg(dev, "reportid: %u\tmessage: %02x %02x %02x %02x %02x %02x %02x\n",
-> -               message->reportid, message->message[0], message->message[1],
-> -               message->message[2], message->message[3], message->message[4],
-> -               message->message[5], message->message[6]);
-> +       dev_dbg(dev, "reportid: %u\tmessage: %*ph\n",
-> +               message->reportid, 7, message->message);
->  }
->
->  static int mxt_check_bootloader(struct i2c_client *client,
-> --
-> 1.7.10.4
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Xianhan Yu <aroundight77@gmail.com>
+---
+ drivers/hid/hid-ids.h        |    1 +
+ drivers/hid/hid-multitouch.c |   18 +++++++++++++++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 1dcb76f..1325695 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -305,6 +305,7 @@
+ 
+ #define USB_VENDOR_ID_GENERAL_TOUCH	0x0dfc
+ #define USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS 0x0003
++#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS 0x0100
+ 
+ #define USB_VENDOR_ID_GLAB		0x06c2
+ #define USB_DEVICE_ID_4_PHIDGETSERVO_30	0x0038
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 59c8b5c..959a892 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -115,6 +115,8 @@ struct mt_device {
+ #define MT_CLS_EGALAX_SERIAL			0x0104
+ #define MT_CLS_TOPSEED				0x0105
+ #define MT_CLS_PANASONIC			0x0106
++#define MT_CLS_GENERALTOUCH_TWOFINGERS          0X0107
++#define MT_CLS_GENERALTOUCH_PWT_TENFINGERS      0X0108
+ 
+ #define MT_DEFAULT_MAXCONTACT	10
+ 
+@@ -215,6 +217,17 @@ static struct mt_class mt_classes[] = {
+ 	{ .name = MT_CLS_PANASONIC,
+ 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP,
+ 		.maxcontacts = 4 },
++        { .name = MT_CLS_GENERALTOUCH_TWOFINGERS,
++		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
++                        MT_QUIRK_VALID_IS_INRANGE |
++		        MT_QUIRK_SLOT_IS_CONTACTNUMBER,
++		.maxcontacts = 2 
++        },
++        { .name = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
++		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
++                        MT_QUIRK_SLOT_IS_CONTACTNUMBER,
++		.maxcontacts = 10 
++        },
+ 
+ 	{ }
+ };
+@@ -893,9 +906,12 @@ static const struct hid_device_id mt_devices[] = {
+ 			USB_DEVICE_ID_ELO_TS2515) },
+ 
+ 	/* GeneralTouch panel */
+-	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
++	{ .driver_data = MT_CLS_GENERALTOUCH_TWOFINGERS,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+ 			USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS) },
++        { .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
++		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
++			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS) },
+ 
+ 	/* Gametel game controller */
+ 	{ .driver_data = MT_CLS_DEFAULT,
+-- 
+1.7.9.5
+

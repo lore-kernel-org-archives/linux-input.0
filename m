@@ -1,27 +1,34 @@
-From: NOKIA PROMO <stobgay@bnb.bt>
-Subject: NOKIA UK 2012
-Date: Thu, 27 Sep 2012 16:50:32 +0600 (BTT)
-Message-ID: <930684418.5635.1348743032964.JavaMail.root@mail.bnb.bt>
+From: Josip Rodin <joy@debbugs.entuzijast.net>
+Subject: Re: [PATCH 1/1] HID: Fix missing Unifying device issue
+Date: Thu, 27 Sep 2012 20:56:28 +0200
+Message-ID: <20120927185628.GA30949@entuzijast.net>
+References: <1348222894-6767-1-git-send-email-nlopezcasad@logitech.com>
+ <20120923102318.GA12946@entuzijast.net>
+ <CAE7qMroQOxo7kci7roLbS5HXjpkyhRi=cj1WCoYtAPB328xNQg@mail.gmail.com>
+ <20120927070426.GA27734@entuzijast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.bnb.bt ([202.144.155.248]:47480 "EHLO mail.bnb.bt"
+Received: from orion.CARNet.hr ([161.53.160.90]:34383 "EHLO orion.carnet.hr"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751016Ab2I0LZZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Sep 2012 07:25:25 -0400
+	id S1751013Ab2I0S4e (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Sep 2012 14:56:34 -0400
+Content-Disposition: inline
+In-Reply-To: <20120927070426.GA27734@entuzijast.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 685360@bugs.debian.org, john.ettedgui@gmail.com, barz621@gmail.com, dh.herrmann@googlemail.com
 
-NOKIA UK PROMO
-=20
-Your E-mail has won you 1,000,000 pounds in NOKIA UK PROMO 2012 for cla=
-im send name/mobile/address To email: nokiacordd2012@live.co.uk
-=20
-Copyright =C2=A92012 Nokia. All rights reserved.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Thu, Sep 27, 2012 at 09:04:26AM +0200, Josip Rodin wrote:
+> On Mon, Sep 24, 2012 at 11:30:28AM +0200, Nestor Lopez Casado wrote:
+> > Josip, this is a different issue from the one addressed with the patch.
+> > 
+> > 1) Can you try it on a 3.2 kernel ?
+> 
+> I can try that too, I'll let you know how it went.
+
+Same thing, it doesn't work.
+
+-- 
+     2. That which causes joy or happiness.

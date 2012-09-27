@@ -1,34 +1,84 @@
-From: Josip Rodin <joy@debbugs.entuzijast.net>
-Subject: Re: [PATCH 1/1] HID: Fix missing Unifying device issue
-Date: Thu, 27 Sep 2012 20:56:28 +0200
-Message-ID: <20120927185628.GA30949@entuzijast.net>
-References: <1348222894-6767-1-git-send-email-nlopezcasad@logitech.com>
- <20120923102318.GA12946@entuzijast.net>
- <CAE7qMroQOxo7kci7roLbS5HXjpkyhRi=cj1WCoYtAPB328xNQg@mail.gmail.com>
- <20120927070426.GA27734@entuzijast.net>
+From: Thierry Reding <thierry.reding@avionic-design.de>
+Subject: Re: [PATCH] input: pwm-beeper: Add devicetree probing support
+Date: Thu, 27 Sep 2012 21:39:06 +0200
+Message-ID: <20120927193906.GA5483@avionic-0098.mockup.avionic-design.de>
+References: <1348557351-12599-1-git-send-email-s.hauer@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from orion.CARNet.hr ([161.53.160.90]:34383 "EHLO orion.carnet.hr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751013Ab2I0S4e (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Sep 2012 14:56:34 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:57480 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752320Ab2I0TjR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Sep 2012 15:39:17 -0400
 Content-Disposition: inline
-In-Reply-To: <20120927070426.GA27734@entuzijast.net>
+In-Reply-To: <1348557351-12599-1-git-send-email-s.hauer@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 685360@bugs.debian.org, john.ettedgui@gmail.com, barz621@gmail.com, dh.herrmann@googlemail.com
+To: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lars-Peter Clausen <lars@metafoo.de>, kernel@pengutronix.de
 
-On Thu, Sep 27, 2012 at 09:04:26AM +0200, Josip Rodin wrote:
-> On Mon, Sep 24, 2012 at 11:30:28AM +0200, Nestor Lopez Casado wrote:
-> > Josip, this is a different issue from the one addressed with the patch.
-> > 
-> > 1) Can you try it on a 3.2 kernel ?
-> 
-> I can try that too, I'll let you know how it went.
 
-Same thing, it doesn't work.
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-     2. That which causes joy or happiness.
+On Tue, Sep 25, 2012 at 09:15:51AM +0200, Sascha Hauer wrote:
+[...]
+> diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-bee=
+per.c
+> index fc84c8a..dfb3c50 100644
+> --- a/drivers/input/misc/pwm-beeper.c
+> +++ b/drivers/input/misc/pwm-beeper.c
+[...]
+> @@ -171,6 +175,11 @@ static SIMPLE_DEV_PM_OPS(pwm_beeper_pm_ops,
+>  #define PWM_BEEPER_PM_OPS NULL
+>  #endif
+> =20
+> +static const struct of_device_id pwm_beeper_match[] =3D {
+> +	{ .compatible =3D "pwm-beeper", },
+> +	{ },
+> +};
+> +
+
+This is usually protected by #ifdef CONFIG_OF...
+
+>  static struct platform_driver pwm_beeper_driver =3D {
+>  	.probe	=3D pwm_beeper_probe,
+>  	.remove =3D __devexit_p(pwm_beeper_remove),
+> @@ -178,6 +187,7 @@ static struct platform_driver pwm_beeper_driver =3D {
+>  		.name	=3D "pwm-beeper",
+>  		.owner	=3D THIS_MODULE,
+>  		.pm	=3D PWM_BEEPER_PM_OPS,
+> +		.of_match_table =3D pwm_beeper_match,
+
+=2E.. and this of_match_ptr(pwm_beeper_match). They aren't technically
+necessary but I guess it makes sense to not keep them around for !OF
+configurations in order to save some bytes.
+
+Thierry
+
+--sm4nu43k4a2Rpi4c
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.19 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQZKtaAAoJEN0jrNd/PrOhou4P/j4WkQ/qfgTlCTgDmVoOryu8
+COsRgaKvU89pzym2X4dNPIvaNhczPy25MS2o3vp2pksQlCePLxYw2hGvojBMKaC7
+Bj7iJ9g0WLyZ0PocqIeVszDOEEU7qFgmK6aJgHJuhbOrUtXGiAM4bYl5+Kii/mtf
+lYWiOK+Tvd031yjgf35jqefwr4bcYOGzcsDTUo662Q2dPHOJIeEBuzNeIdYwXda5
+F4b7Yig4y4pV313QJvc9UhMfHHqsm3/y1HdpyrEucD07pykVEugmQvwNvQlsHSap
++/GN0286TypJ6Q4W41JvDwRTzRkcGA+9eprQUJMC7IEq+26uNPOqOTSM1kaPF4ZL
+COTqnEOAMhB6+1oDbtdTHMO49+YdNyQP5xIvBHINv8WWcCOy2g//KIoaIFkC6BQS
+lBEk2PctTswJXo3htl94orN8XE51E10GqVUIUiZia2mXT0YGQEh3S8jjqcaBj8sN
++1K65a3KL+0fhRVrdMCUJzjLHMTx2xDcICMk8MkuvbxNiYnId2vmUDs406qbywei
+L9+6WvaySGQzPMckH5jVYyplPKbv3P1Yqm1yNWLbnitLHVIfICGuBsc9xoCRNwT1
+Nc8MvqL4bAiNv523VHctdU/OT1vvDwh4lOjtOHelnicK2ENSa0AtNA9ssBdPlhvL
+irqlFkM7ymY02yCCSg2R
+=TH2/
+-----END PGP SIGNATURE-----
+
+--sm4nu43k4a2Rpi4c--

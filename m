@@ -1,135 +1,96 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 1/1] hid:Fix problem on GeneralTouch multi-touchscreen
-Date: Fri, 28 Sep 2012 07:12:09 +0200
-Message-ID: <CAN+gG=G6V_O5W6DCuByAmymeLSvyOtDbsaHTZOqbNgNKu+m6cQ@mail.gmail.com>
-References: <1348798739-2950-1-git-send-email-aroundight77@gmail.com>
+From: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Subject: Bug#685360: [PATCH 1/1] HID: Fix missing Unifying device issue
+Date: Fri, 28 Sep 2012 09:57:42 +0200
+Message-ID: <CAE7qMrrjeMBzfofaY+2O4CAh3OSDaK3fDe_c8Hh8Y2web7kUqQ@mail.gmail.com>
+References: <1348222894-6767-1-git-send-email-nlopezcasad@logitech.com>
+ <20120923102318.GA12946@entuzijast.net> <CAE7qMroQOxo7kci7roLbS5HXjpkyhRi=cj1WCoYtAPB328xNQg@mail.gmail.com>
+ <20120927070426.GA27734@entuzijast.net> <20120927185628.GA30949@entuzijast.net>
+Reply-To: Nestor Lopez Casado <nlopezcasad@logitech.com>, 685360@bugs.debian.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1348798739-2950-1-git-send-email-aroundight77@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: GeneralTouch <aroundight77@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, yxhma <yxhma@163.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/alternative; boundary=bcaec517a4c0e0223e04cabe6a38
+Return-path: <bounce-debian-bugs-dist=glddb-debian-bugs-dist=m.gmane.org@lists.debian.org>
+Resent-To: debian-bugs-dist@lists.debian.org
+Resent-Message-ID: <handler.685360.B685360.134881909516714@bugs.debian.org>
+In-Reply-To: <20120927185628.GA30949@entuzijast.net>
+List-URL: <http://lists.debian.org/debian-bugs-dist/>
+List-Post: <mailto:debian-bugs-dist@lists.debian.org>
+List-Help: <mailto:debian-bugs-dist-request@lists.debian.org?subject=help>
+List-Subscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=subscribe>
+List-Unsubscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=unsubscribe>
+To: Josip Rodin <joy@debbugs.entuzijast.net>
+Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 685360@bugs.debian.org, john.ettedgui@gmail.com, barz621@gmail.com, dh.herrmann@googlemail.com
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Sep 28, 2012 at 4:18 AM, GeneralTouch <aroundight77@gmail.com> wrote:
-> From: Xianhan Yu <aroundight77@gmail.com>
->
-> Fix the touch-up no response problem on GeneralTouch twofingers touchscreen and modify the driver for new GeneralTouch PWT touchscreen.
->
-> Signed-off-by: Xianhan Yu <aroundight77@gmail.com>
+--bcaec517a4c0e0223e04cabe6a38
+Content-Type: text/plain; charset=ISO-8859-1
 
-Hi,
+Hello Josip,
 
-Thank you for re-submitting the patch. It's cleaner now.
+This really looks like a different problem from the one addressed with this
+patch.
 
-I have a few questions, but generally speaking, the patch is good in
-its current form.
-
-Jiri: I know that I have not been as reactive as I used to, but I'm
-ending my contract in my current lab now, and I've been pretty busy.
-Please don't put me in the grave, I'm still the maintainer of
-hid-multitouch.... ;-)
-
-
-> ---
->  drivers/hid/hid-ids.h        |    1 +
->  drivers/hid/hid-multitouch.c |   20 ++++++++++++++++++--
->  2 files changed, 19 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 1dcb76f..a6d5890 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -305,6 +305,7 @@
->
->  #define USB_VENDOR_ID_GENERAL_TOUCH    0x0dfc
->  #define USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS 0x0003
-> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS 0x0100
->
->  #define USB_VENDOR_ID_GLAB             0x06c2
->  #define USB_DEVICE_ID_4_PHIDGETSERVO_30        0x0038
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 59c8b5c..7aece16 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -115,6 +115,8 @@ struct mt_device {
->  #define MT_CLS_EGALAX_SERIAL                   0x0104
->  #define MT_CLS_TOPSEED                         0x0105
->  #define MT_CLS_PANASONIC                       0x0106
-> +#define MT_CLS_GENERALTOUCH_TWOFINGERS         0x0107
-> +#define MT_CLS_GENERALTOUCH_PWT_TENFINGERS     0x0108
->
->  #define MT_DEFAULT_MAXCONTACT  10
->
-> @@ -215,7 +217,18 @@ static struct mt_class mt_classes[] = {
->         { .name = MT_CLS_PANASONIC,
->                 .quirks = MT_QUIRK_NOT_SEEN_MEANS_UP,
->                 .maxcontacts = 4 },
-> -
-> +       { .name = MT_CLS_GENERALTOUCH_TWOFINGERS,
-> +               .quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
-> +                       MT_QUIRK_VALID_IS_INRANGE |
-> +                       MT_QUIRK_SLOT_IS_CONTACTNUMBER,
-> +               .maxcontacts = 2
-> +       },
-
-At first, I was a little bit surprised because
-MT_QUIRK_NOT_SEEN_MEANS_UP and MT_QUIRK_VALID_IS_INRANGE were not
-supposed to be used together. Anyway, if it's smoothly working with
-your device, then I'm not against: the code shows that they won't
-interfere.
-
-> +       { .name = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
-
-This is more worrying me. Apparently the 0x0100 device is win8
-compliant. Does'nt it work out of the box with MT_CLS_DEFAULT?
-
-> +               .quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
-> +                       MT_QUIRK_SLOT_IS_CONTACTNUMBER,
-> +               .maxcontacts = 10
-
-Do you really need to set the contact number of your device? Doing so
-will force you to create a new class if you have a device with a
-different maximum contact count.
-
-I'm asking because I'd rather not having this field set on most of the MT_CLS_*.
-However, if it's needed, (because you need to set it into the
-associated feature), them I will be fine with it. But I would
-appreciate to get the report descriptor of this particular device.
-
-So, if you judge that those two device-specific classes are absolutely
-needed (after all, you have the device in your hands), you have my
-reviewed-by:
-Reviewed-by Benjamin Tissoires <benjamin.tissoires@gmail.com>
+I'll try to work on it as soon as I find some time for that.
 
 Thanks,
-Benjamin
+Nestor.
 
+On Thu, Sep 27, 2012 at 8:56 PM, Josip Rodin <joy@debbugs.entuzijast.net>wrote:
 
-> +       },
-> +
->         { }
->  };
+> On Thu, Sep 27, 2012 at 09:04:26AM +0200, Josip Rodin wrote:
+> > On Mon, Sep 24, 2012 at 11:30:28AM +0200, Nestor Lopez Casado wrote:
+> > > Josip, this is a different issue from the one addressed with the patch.
+> > >
+> > > 1) Can you try it on a 3.2 kernel ?
+> >
+> > I can try that too, I'll let you know how it went.
 >
-> @@ -893,9 +906,12 @@ static const struct hid_device_id mt_devices[] = {
->                         USB_DEVICE_ID_ELO_TS2515) },
+> Same thing, it doesn't work.
 >
->         /* GeneralTouch panel */
-> -       { .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
-> +       { .driver_data = MT_CLS_GENERALTOUCH_TWOFINGERS,
->                 MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
->                         USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS) },
-> +       { .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
-> +               MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
-> +                       USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS) },
->
->         /* Gametel game controller */
->         { .driver_data = MT_CLS_DEFAULT,
 > --
-> 1.7.9.5
->
+>      2. That which causes joy or happiness.
 > --
 > To unsubscribe from this list: send the line "unsubscribe linux-input" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+
+--bcaec517a4c0e0223e04cabe6a38
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hello Josip,=A0<div><br></div><div>This really looks like a different probl=
+em from the one addressed with this patch.=A0</div><div><br></div><div>I&#3=
+9;ll try to work on it as soon as I find some time for that.=A0</div><div><=
+br>
+
+</div><div>Thanks,=A0</div><div>Nestor.=A0<br><br><div class=3D"gmail_quote=
+">On Thu, Sep 27, 2012 at 8:56 PM, Josip Rodin <span dir=3D"ltr">&lt;<a hre=
+f=3D"mailto:joy@debbugs.entuzijast.net" target=3D"_blank">joy@debbugs.entuz=
+ijast.net</a>&gt;</span> wrote:<br>
+
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex"><div class=3D"im">On Thu, Sep 27, 2012 at 09=
+:04:26AM +0200, Josip Rodin wrote:<br>
+&gt; On Mon, Sep 24, 2012 at 11:30:28AM +0200, Nestor Lopez Casado wrote:<b=
+r>
+&gt; &gt; Josip, this is a different issue from the one addressed with the =
+patch.<br>
+&gt; &gt;<br>
+&gt; &gt; 1) Can you try it on a 3.2 kernel ?<br>
+&gt;<br>
+&gt; I can try that too, I&#39;ll let you know how it went.<br>
+<br>
+</div>Same thing, it doesn&#39;t work.<br>
+<div class=3D"HOEnZb"><div class=3D"h5"><br>
+--<br>
+=A0 =A0 =A02. That which causes joy or happiness.<br>
+--<br>
+To unsubscribe from this list: send the line &quot;unsubscribe linux-input&=
+quot; in<br>
+the body of a message to <a href=3D"mailto:majordomo@vger.kernel.org">major=
+domo@vger.kernel.org</a><br>
+More majordomo info at =A0<a href=3D"http://vger.kernel.org/majordomo-info.=
+html" target=3D"_blank">http://vger.kernel.org/majordomo-info.html</a><br>
+</div></div></blockquote></div><br></div>
+
+--bcaec517a4c0e0223e04cabe6a38--

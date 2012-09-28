@@ -1,54 +1,69 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [GIT PULL] Input and HID updates for 3.7
-Date: Fri, 28 Sep 2012 22:21:22 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1209282218350.17437@pobox.suse.cz>
-References: <20120919185605.GA778@polaris.bitmath.org> <alpine.LNX.2.00.1209192351120.22959@pobox.suse.cz> <20120928173539.GB6356@core.coreip.homeip.net>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 1/5] Input: wacom - Allow any multi-input Intuos device to
+ set prox
+Date: Fri, 28 Sep 2012 14:18:53 -0700
+Message-ID: <CAF8JNhKrkbLCTLUpsWJVCbgtdaDSYa1S7tdH=KHi=LXXc2Ac7w@mail.gmail.com>
+References: <1346972010-1330-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:52684 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030221Ab2I1UVe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Sep 2012 16:21:34 -0400
-In-Reply-To: <20120928173539.GB6356@core.coreip.homeip.net>
+Received: from mail-la0-f46.google.com ([209.85.215.46]:53952 "EHLO
+	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1033086Ab2I1VSz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 28 Sep 2012 17:18:55 -0400
+Received: by lagh6 with SMTP id h6so1272057lag.19
+        for <linux-input@vger.kernel.org>; Fri, 28 Sep 2012 14:18:53 -0700 (PDT)
+In-Reply-To: <1346972010-1330-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, chris@cnpbagwell.com
 
-On Fri, 28 Sep 2012, Dmitry Torokhov wrote:
+On Thu, Sep 6, 2012 at 3:53 PM, Jason Gerecke <killertofu@gmail.com> wrote:
+> The ability to set the proximity flag should apply to any device
+> that has both pen and touch input. Rather than listing classes of
+> devices known to meet this criteria, simply filter on the quirk
+> defining all such devices.
+>
+> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
 
-> > > Please pull this tree to receive Input and HID updates for 3.7. The
-> > > tree contains input core changes, Acked by Dmitry, which substantially
-> > > reduces the irqsoff latency for all input devices. It also contains MT
-> > > changes which allows further memory reduction, speedup and hardware
-> > > support in the HID Multitouch driver. Lastly, you get the conversion
-> > > of the bcm5974 driver to MT-B, which due to the mixed dependency of
-> > > the tree fits better here than anywhere else.
-> > > 
-> > > Thanks,
-> > > Henrik
-> > > 
-> > > The following changes since commit 4cbe5a555fa58a79b6ecbb6c531b8bab0650778d:
-> > > 
-> > >   Linux 3.6-rc4 (2012-09-01 10:39:58 -0700)
-> > > 
-> > > are available in the git repository at:
-> > > 
-> > >   git://github.com/rydberg/linux.git for-next
-> > 
-> > Pulled. Thanks Henrik, thanks Dmitry.
-> 
-> Hmm, it looks like the work on making evdev using dynamic device numbers
-> will clash with Henrik's changes. I think I will also pull this into my
-> tree and then git should be able to resolve it all properly in -next.
+Tested-by: Ping Cheng <pingc@wacom.com> for the whole set.
 
-That should work. Alternatively you can pull 'from-henrik' branch from my 
-tree in case Henrik has already ditched/rebased his tree.
+Dmitry, do you have questions about this patchset and "input: wacom:
+Report correct touch contact size for I5/Bamboo"? We hope they can be
+merged soon since we have more patches coming.
 
-And when merging to Linus shouldn't really matter, git should handle that 
-as well nicely.
+Thank you.
 
--- 
-Jiri Kosina
-SUSE Labs
+Ping
+
+> ---
+>  drivers/input/tablet/wacom_wac.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+> index 532d067..a8bc6c9 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -326,7 +326,7 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+>
+>         /* Enter report */
+>         if ((data[1] & 0xfc) == 0xc0) {
+> -               if (features->type >= INTUOS5S && features->type <= INTUOS5L)
+> +               if (features->quirks == WACOM_QUIRK_MULTI_INPUT)
+>                         wacom->shared->stylus_in_proximity = true;
+>
+>                 /* serial number of the tool */
+> @@ -414,7 +414,7 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+>
+>         /* Exit report */
+>         if ((data[1] & 0xfe) == 0x80) {
+> -               if (features->type >= INTUOS5S && features->type <= INTUOS5L)
+> +               if (features->quirks == WACOM_QUIRK_MULTI_INPUT)
+>                         wacom->shared->stylus_in_proximity = false;
+>
+>                 /*
+> --
+> 1.7.12
+>

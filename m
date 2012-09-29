@@ -1,267 +1,101 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v4 5/5] MFD: ti_tscadc: add suspend/resume functionality
-Date: Sat, 29 Sep 2012 10:50:19 +0100
-Message-ID: <5066C45B.3000500@kernel.org>
-References: <1348636814-14129-1-git-send-email-rachna@ti.com> <1348636814-14129-6-git-send-email-rachna@ti.com> <5062A373.4000707@ti.com> <4CE347531D4CA947960AF71FF095B9323E95738D@DBDE01.ent.ti.com>
+From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH v4 0/5] Support for TSC/ADC MFD driver
+Date: Sat, 29 Sep 2012 10:06:29 +0000
+Message-ID: <4CE347531D4CA947960AF71FF095B9323E9582F0@DBDE01.ent.ti.com>
+References: <1348636814-14129-1-git-send-email-rachna@ti.com>
+ <5066C29D.7040009@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4CE347531D4CA947960AF71FF095B9323E95738D-Er742YJ7I/eIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
+In-Reply-To: <5066C29D.7040009-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Content-Language: en-US
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
-Cc: "Datta, Shubhrajyoti" <shubhrajyoti-l0cyMroinI0@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On 09/26/2012 11:09 AM, Patil, Rachna wrote:
-> Hi Shubhrajyoti,
-> 
-> On Wed, Sep 26, 2012 at 12:10:51, Datta, Shubhrajyoti wrote:
->> On Wednesday 26 September 2012 10:50 AM, Patil, Rachna wrote:
->>> This patch adds support for suspend/resume of
->>> TSC/ADC MFDevice.
->> this should be merged with the patch adding support else
->> we may end up in a case where patch a does the runtime calls
->> and the call back  handlers added later.
-> 
-> I am adding both the runtime calls and the handlers in this patch.
-> I think maintaining this as a separate patch in better in terms
-> of readability as well.
-I would prefer this merged into patch 4 as it's a simple addition to
-a driver that should arguably have been there in the first place.
+On Sat, Sep 29, 2012 at 15:12:53, Jonathan Cameron wrote:
+> On 09/26/2012 06:20 AM, Patil, Rachna wrote:
+> > This patch set adds a MFD core driver which registers touchscreen and 
+> > ADC as its client drivers.
+> > The existing touchscreen has been modified to work as a MFD client 
+> > driver and a new ADC driver has been added in the IIO subsystem.
+> > 
+> > There are 8 analog input lines, which can be used as:
+> > 1. 8 general purpose ADC channels
+> > 2. 4 wire TS, with 4 general purpose ADC channels 3. 5 wire TS, with 3 
+> > general purpose ADC channels
+> > 
+> > This patch set has been tested on AM335x EVM.
+> > 
+> > These set of patches are based on top of Touchscreen patch set 
+> > submitted.
+> > Subject: [PATCH 0/4] input: TSC: ti_tscadc: TI Touchscreen driver 
+> > updates [1]
+> > 
+> > [1] http://www.spinics.net/lists/linux-input/msg22107.html
+> which tree have these merged in?
 
-Anyhow I don't actually care that much!
-> 
-> Regards,
-> Rachna
-> 
->>>
->>> Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
-Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-(if someone else is picking this series up). I'll happily
-take it through IIO post merge window.
+This patch set includes some changes in the touchscreen driver.
+They have not been acked as yet. I am waiting for a reply from Dmitry.
 
-Sorry Rachna, I know this was ready a week ago, but that's still
-cutting it fine for the end of the cycle.
+Regards,
+Rachna
 
-Now if someone else wants to take it I'll not mind ;)
->>> ---
->>> Changes in v2:
->>> 	Added this patch newly in this patch series.
->>>
->>> Changes in v3:
->>> 	No changes.
->>>
->>> Changes in v4:
->>> 	Replaced suspend/resume callbacks with dev_pm_ops.
->>>
->>>  drivers/iio/adc/ti_am335x_adc.c           |   42 +++++++++++++++++++++++++++++
->>>  drivers/input/touchscreen/ti_am335x_tsc.c |   42 +++++++++++++++++++++++++++++
->>>  drivers/mfd/ti_am335x_tscadc.c            |   41 +++++++++++++++++++++++++++-
->>>  include/linux/mfd/ti_am335x_tscadc.h      |    3 ++
->>>  4 files changed, 127 insertions(+), 1 deletions(-)
->>>
->>> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
->>> index 9e1b3ac..b16f944 100644
->>> --- a/drivers/iio/adc/ti_am335x_adc.c
->>> +++ b/drivers/iio/adc/ti_am335x_adc.c
->>> @@ -200,10 +200,52 @@ static int __devexit tiadc_remove(struct platform_device *pdev)
->>>  	return 0;
->>>  }
->>>  
->>> +#ifdef CONFIG_PM
->>> +static int tiadc_suspend(struct device *dev)
->>> +{
->>> +	struct iio_dev *indio_dev = dev_get_drvdata(dev);
->>> +	struct tiadc_device *adc_dev = iio_priv(indio_dev);
->>> +	struct ti_tscadc_dev *tscadc_dev = dev->platform_data;
->>> +	unsigned int idle;
->>> +
->>> +	if (!device_may_wakeup(tscadc_dev->dev)) {
->>> +		idle = adc_readl(adc_dev, REG_CTRL);
->>> +		idle &= ~(CNTRLREG_TSCSSENB);
->>> +		adc_writel(adc_dev, REG_CTRL, (idle |
->>> +				CNTRLREG_POWERDOWN));
->>> +	}
->>> +	return 0;
->>> +}
->>> +
->>> +static int tiadc_resume(struct device *dev)
->>> +{
->>> +	struct iio_dev *indio_dev = dev_get_drvdata(dev);
->>> +	struct tiadc_device *adc_dev = iio_priv(indio_dev);
->>> +	unsigned int restore;
->>> +
->>> +	/* Make sure ADC is powered up */
->>> +	restore = adc_readl(adc_dev, REG_CTRL);
->>> +	restore &= ~(CNTRLREG_POWERDOWN);
->>> +	adc_writel(adc_dev, REG_CTRL, restore);
->>> +
->>> +	adc_step_config(adc_dev);
->>> +	return 0;
->>> +}
->>> +
->>> +static const struct dev_pm_ops tiadc_pm_ops = {
->>> +	.suspend = tiadc_suspend,
->>> +	.resume = tiadc_resume,
->>> +};
->>> +#define TIADC_PM_OPS (&tiadc_pm_ops)
->>> +#else
->>> +#define TIADC_PM_OPS NULL
->>> +#endif
->>> +
->>>  static struct platform_driver tiadc_driver = {
->>>  	.driver = {
->>>  		.name   = "tiadc",
->>>  		.owner = THIS_MODULE,
->>> +		.pm	= TIADC_PM_OPS,
->>>  	},
->>>  	.probe	= tiadc_probe,
->>>  	.remove	= __devexit_p(tiadc_remove),
->>> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
->>> index 2d9dec1..b17dbe4 100644
->>> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
->>> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
->>> @@ -338,12 +338,54 @@ static int __devexit tscadc_remove(struct platform_device *pdev)
->>>  	return 0;
->>>  }
->>>  
->>> +#ifdef CONFIG_PM
->>> +static int titsc_suspend(struct device *dev)
->>> +{
->>> +	struct ti_tscadc_dev *tscadc_dev = dev->platform_data;
->>> +	struct tscadc *ts_dev = tscadc_dev->tsc;
->>> +	unsigned int idle;
->>> +
->>> +	if (device_may_wakeup(tscadc_dev->dev)) {
->>> +		idle = tscadc_readl(ts_dev, REG_IRQENABLE);
->>> +		tscadc_writel(ts_dev, REG_IRQENABLE,
->>> +				(idle | IRQENB_HW_PEN));
->>> +		tscadc_writel(ts_dev, REG_IRQWAKEUP, IRQWKUP_ENB);
->>> +	}
->>> +	return 0;
->>> +}
->>> +
->>> +static int titsc_resume(struct device *dev)
->>> +{
->>> +	struct ti_tscadc_dev *tscadc_dev = dev->platform_data;
->>> +	struct tscadc *ts_dev = tscadc_dev->tsc;
->>> +
->>> +	if (device_may_wakeup(tscadc_dev->dev)) {
->>> +		tscadc_writel(ts_dev, REG_IRQWAKEUP,
->>> +				0x00);
->>> +		tscadc_writel(ts_dev, REG_IRQCLR, IRQENB_HW_PEN);
->>> +	}
->>> +	tscadc_step_config(ts_dev);
->>> +	tscadc_writel(ts_dev, REG_FIFO0THR,
->>> +			ts_dev->steps_to_configure);
->>> +	return 0;
->>> +}
->>> +
->>> +static const struct dev_pm_ops titsc_pm_ops = {
->>> +	.suspend = titsc_suspend,
->>> +	.resume  = titsc_resume,
->>> +};
->>> +#define TITSC_PM_OPS (&titsc_pm_ops)
->>> +#else
->>> +#define TITSC_PM_OPS NULL
->>> +#endif
->>> +
->>>  static struct platform_driver ti_tsc_driver = {
->>>  	.probe	= tscadc_probe,
->>>  	.remove	= __devexit_p(tscadc_remove),
->>>  	.driver	= {
->>>  		.name   = "tsc",
->>>  		.owner	= THIS_MODULE,
->>> +		.pm	= TITSC_PM_OPS,
->>>  	},
->>>  };
->>>  module_platform_driver(ti_tsc_driver);
->>> diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
->>> index 45d66e5..7e949e8 100644
->>> --- a/drivers/mfd/ti_am335x_tscadc.c
->>> +++ b/drivers/mfd/ti_am335x_tscadc.c
->>> @@ -170,6 +170,7 @@ static	int __devinit ti_tscadc_probe(struct platform_device *pdev)
->>>  	if (err < 0)
->>>  		goto err_disable_clk;
->>>  
->>> +	device_init_wakeup(&pdev->dev, true);
->>>  	platform_set_drvdata(pdev, tscadc);
->>>  	return 0;
->>>  
->>> @@ -203,14 +204,52 @@ static int __devexit ti_tscadc_remove(struct platform_device *pdev)
->>>  	return 0;
->>>  }
->>>  
->>> +#ifdef CONFIG_PM
->>> +static int tscadc_suspend(struct device *dev)
->>> +{
->>> +	struct ti_tscadc_dev	*tscadc_dev = dev_get_drvdata(dev);
->>> +
->>> +	tscadc_writel(tscadc_dev, REG_SE, 0x00);
->>> +	pm_runtime_put_sync(dev);
->>> +	return 0;
->>> +}
->>> +
->>> +static int tscadc_resume(struct device *dev)
->>> +{
->>> +	struct ti_tscadc_dev	*tscadc_dev = dev_get_drvdata(dev);
->>> +	unsigned int restore, ctrl;
->>> +
->>> +	pm_runtime_get_sync(dev);
->>> +
->>> +	/* context restore */
->>> +	ctrl = CNTRLREG_STEPCONFIGWRT | CNTRLREG_TSCENB |
->>> +			CNTRLREG_STEPID | CNTRLREG_4WIRE;
->>> +	tscadc_writel(tscadc_dev, REG_CTRL, ctrl);
->>> +	tscadc_idle_config(tscadc_dev);
->>> +	tscadc_writel(tscadc_dev, REG_SE, STPENB_STEPENB);
->>> +	restore = tscadc_readl(tscadc_dev, REG_CTRL);
->>> +	tscadc_writel(tscadc_dev, REG_CTRL,
->>> +			(restore | CNTRLREG_TSCSSENB));
->>> +	return 0;
->>> +}
->>> +
->>> +static const struct dev_pm_ops tscadc_pm_ops = {
->>> +	.suspend = tscadc_suspend,
->>> +	.resume = tscadc_resume,
->>> +};
->>> +#define TSCADC_PM_OPS (&tscadc_pm_ops)
->>> +#else
->>> +#define TSCADC_PM_OPS NULL
->>> +#endif
->>> +
->>>  static struct platform_driver ti_tscadc_driver = {
->>>  	.driver = {
->>>  		.name   = "ti_tscadc",
->>>  		.owner	= THIS_MODULE,
->>> +		.pm	= TSCADC_PM_OPS,
->>>  	},
->>>  	.probe	= ti_tscadc_probe,
->>>  	.remove	= __devexit_p(ti_tscadc_remove),
->>> -
->>>  };
->>>  
->>>  module_platform_driver(ti_tscadc_driver);
->>> diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
->>> index bd9fe1d..c7facdc 100644
->>> --- a/include/linux/mfd/ti_am335x_tscadc.h
->>> +++ b/include/linux/mfd/ti_am335x_tscadc.h
->>> @@ -40,6 +40,9 @@
->>>  #define REG_FIFO1		0x200
->>>  
->>>  /*	Register Bitfields	*/
->>> +/* IRQ wakeup enable */
->>> +#define IRQWKUP_ENB		BIT(0)
->>> +
->>>  /* Step Enable */
->>>  #define STEPENB_MASK		(0x1FFFF << 0)
->>>  #define STEPENB(val)		((val) << 0)
->>
->>
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> I'll assume the rest of this is going through the same tree and ack rather than signing off and taking it through IIO.
+> 
+> Note that patch 1 does not appear to apply to linux-next which implies some issues somewhere or that the above series has been picked up for any trees feeding linux-next as yet.
+> > 
+> > Changes in v2:
+> > 	Dropped one patch send in the last version after
+> > 	receiving internal comments. I have merged the changes
+> > 	into existing patches.
+> > 	Also added a new patch to support suspend/resume feature.
+> > 	Fixed review comments by Matthias Kaehlcke.
+> > 
+> > Changes in v3:
+> > 	Addressed review comments by Jonathan Cameron.
+> > 	Improved ADC driver with more readable labels,
+> > 	spaces and comments.
+> > 
+> > Changes in v4:
+> > 	Renamed the drivers from ti_xxx to ti_am335x_xxx.
+> > 	For consistency with other drivers renamed idev to indio_dev
+> > 	in IIO ADC driver.
+> > 	Replaced suspend/resume callbacks with dev_pm_ops.
+> > 
+> > Patil, Rachna (5):
+> >   input: TSC: ti_tscadc: Rename the existing touchscreen driver
+> >   MFD: ti_tscadc: Add support for TI's TSC/ADC MFDevice
+> >   input: TSC: ti_tsc: Convert TSC into a MFDevice
+> >   IIO : ADC: tiadc: Add support of TI's ADC driver
+> >   MFD: ti_tscadc: add suspend/resume functionality
+> > 
+> >  drivers/iio/adc/Kconfig                            |    7 +
+> >  drivers/iio/adc/Makefile                           |    1 +
+> >  drivers/iio/adc/ti_am335x_adc.c                    |  258 ++++++++++++++++
+> >  drivers/input/touchscreen/Kconfig                  |    4 +-
+> >  drivers/input/touchscreen/Makefile                 |    2 +-
+> >  .../touchscreen/{ti_tscadc.c => ti_am335x_tsc.c}   |  319 ++++++--------------
+> >  drivers/mfd/Kconfig                                |    9 +
+> >  drivers/mfd/Makefile                               |    1 +
+> >  drivers/mfd/ti_am335x_tscadc.c                     |  259 ++++++++++++++++
+> >  .../linux/input/{ti_tscadc.h => ti_am335x_tsc.h}   |    4 +-
+> >  include/linux/mfd/ti_am335x_tscadc.h               |  151 +++++++++
+> >  include/linux/platform_data/ti_am335x_adc.h        |   14 +
+> >  12 files changed, 801 insertions(+), 228 deletions(-)  create mode 
+> > 100644 drivers/iio/adc/ti_am335x_adc.c  rename 
+> > drivers/input/touchscreen/{ti_tscadc.c => ti_am335x_tsc.c} (55%)  
+> > create mode 100644 drivers/mfd/ti_am335x_tscadc.c  rename 
+> > include/linux/input/{ti_tscadc.h => ti_am335x_tsc.h} (88%)  create 
+> > mode 100644 include/linux/mfd/ti_am335x_tscadc.h
+> >  create mode 100644 include/linux/platform_data/ti_am335x_adc.h
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-iio" 
+> > in the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo 
+> > info at  http://vger.kernel.org/majordomo-info.html
+> > 
 > 

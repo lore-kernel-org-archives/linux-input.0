@@ -1,48 +1,48 @@
-From: Alessandro Rubini <rubini@unipv.it>
-Subject: Re: [PATCH v2] psmouse: mitigate failing-mouse symptoms
-Date: Sun, 30 Sep 2012 20:02:40 +0200
-Message-ID: <20120930180240.GA31164@mail.gnudd.com>
-References: <20120930174353.GA29129@elie.Belkin>
-  <4D2A3008.3000609@gmail.com>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: HID: picoLCD: optimize for inactive debugfs
+Date: Sun, 30 Sep 2012 22:04:19 +0200
+Message-ID: <20120930220419.01408e0e@neptune.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20120930174353.GA29129@elie.Belkin>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jrnieder@gmail.com
-Cc: gjthill@gmail.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 607242@bugs.debian.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay.restena.lu ([158.64.1.62]:48783 "EHLO
+	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750790Ab2I3UFV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 30 Sep 2012 16:05:21 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> I think this would be less controversial if the run-time default were
-> to disable the feature.
+Matthieu CASTET adjusted picolcd_debug_out_report() to only operate whe=
+n
+there is an active listener on debugfs for events.
 
-Yes, that's the common sensible path to new little-tested features.
-As you say, it may become enabled by default over time.
+His change got lost while splitting hid_picolcd.c, restore it.
 
-Then, I think it would be good to have a specific sub-structure for
-this stuff. It would allow this:
+Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+---
 
-  +       psmouse->err_log_base = 0;
-  +       psmouse->interval_base = 0;
-  +       psmouse->hotio_log_base = 0;
-  +       psmouse->err_log_counter = 0;
-  +       psmouse->interval_pkts = 0;
-  +       psmouse->hotio_log_counter = 0;
 
-to be replaced with a memset. I also think it would make it clearer
-what these are:
-
-  +       unsigned long interval_base;
-  +       unsigned long interval_pkts;
-  +       unsigned long hotio_log_base;
-  +       unsigned long hotio_log_counter;
-  +       unsigned long err_log_base;
-  +       unsigned long err_log_counter;
-
-to the casual reader.
-
-This is only a suggestion, though.
-
-thanks
-/alessandro
+diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-picolc=
+d_debugfs.c
+index 6ef03be..4809aa1 100644
+--- a/drivers/hid/hid-picolcd_debugfs.c
++++ b/drivers/hid/hid-picolcd_debugfs.c
+@@ -402,7 +402,7 @@ void picolcd_debug_out_report(struct picolcd_data *=
+data,
+ #define BUFF_SZ 256
+=20
+ 	/* Avoid unnecessary overhead if debugfs is disabled */
+-	if (!hdev->debug_events)
++	if (list_empty(&hdev->debug_list))
+ 		return;
+=20
+ 	buff =3D kmalloc(BUFF_SZ, GFP_ATOMIC);
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

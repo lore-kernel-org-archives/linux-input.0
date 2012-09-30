@@ -1,44 +1,34 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] hid:Fix problem on GeneralTouch multi-touchscreen
-Date: Sat, 29 Sep 2012 17:47:51 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1209291747040.837@pobox.suse.cz>
-References: <1348798739-2950-1-git-send-email-aroundight77@gmail.com> <CAN+gG=G6V_O5W6DCuByAmymeLSvyOtDbsaHTZOqbNgNKu+m6cQ@mail.gmail.com>
+From: dturvene <dturvene@dahetral.com>
+Subject: Re: New Alps protocol in the wild?
+Date: Sun, 30 Sep 2012 13:33:51 -0400
+Message-ID: <5068827F.5090605@dahetral.com>
+References: <20120814103553.GF23370@arianrhod.panaceas.james.local> <87mx1xxy1y.fsf@gmail.com> <20120814160519.GC12473@artemis.panaceas.org> <87ipckwvp4.fsf@gmail.com> <87sjbnzau7.fsf@gmail.com> <502E756C.4080509@dahetral.com> <87zk5ta1qv.fsf@gmail.com> <504B3F49.9020601@dahetral.com> <5054E9CA.3070205@dahetral.com> <CAPtp-N_PbGABwC7PtNtEe7bitc=yg1oV2M6cK6Wb1PkVq6wa9A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAN+gG=G6V_O5W6DCuByAmymeLSvyOtDbsaHTZOqbNgNKu+m6cQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: GeneralTouch <aroundight77@gmail.com>, yxhma <yxhma@163.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from dahetral.com ([128.177.27.153]:34210 "EHLO dahetral.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751032Ab2I3Rd6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 30 Sep 2012 13:33:58 -0400
+In-Reply-To: <CAPtp-N_PbGABwC7PtNtEe7bitc=yg1oV2M6cK6Wb1PkVq6wa9A@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ignacio Casal Quinteiro <nacho.resa@gmail.com>
+Cc: Ben Gamari <bgamari.foss@gmail.com>, James <james@madingley.org>, linux-input@vger.kernel.org
 
-On Fri, 28 Sep 2012, Benjamin Tissoires wrote:
+On 09/29/2012 05:55 AM, Ignacio Casal Quinteiro wrote:
+> Hey hey,
+>
+> any news about this?
+>
+> Regards.
+>
+There's been a good bit of progress on this, and testing is ongoing.  
+For current status see:
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/606238
 
-> > From: Xianhan Yu <aroundight77@gmail.com>
-> >
-> > Fix the touch-up no response problem on GeneralTouch twofingers 
-> > touchscreen and modify the driver for new GeneralTouch PWT 
-> > touchscreen.
-> >
-> > Signed-off-by: Xianhan Yu <aroundight77@gmail.com>
-> 
-> Hi,
-> 
-> Thank you for re-submitting the patch. It's cleaner now.
-> 
-> I have a few questions, but generally speaking, the patch is good in
-> its current form.
+I have something to work on this week but will push the 
+diffs/documentation upstream as soon as I can.
 
-Thanks for the review, Benjamin.
-
-> Jiri: I know that I have not been as reactive as I used to, but I'm 
-> ending my contract in my current lab now, and I've been pretty busy. 
-> Please don't put me in the grave, I'm still the maintainer of 
-> hid-multitouch.... ;-)
-
-Glad to hear that :) Perhaps it'd make sense adding yourself to 
-MAINTAINERS alongside Henrik?
-
--- 
-Jiri Kosina
-SUSE Labs
+Dave

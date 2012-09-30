@@ -1,46 +1,48 @@
-From: Jonathan Nieder <jrnieder@gmail.com>
+From: Alessandro Rubini <rubini@unipv.it>
 Subject: Re: [PATCH v2] psmouse: mitigate failing-mouse symptoms
-Date: Sun, 30 Sep 2012 10:43:53 -0700
-Message-ID: <20120930174353.GA29129@elie.Belkin>
-References: <4D2A3008.3000609@gmail.com>
+Date: Sun, 30 Sep 2012 20:02:40 +0200
+Message-ID: <20120930180240.GA31164@mail.gnudd.com>
+References: <20120930174353.GA29129@elie.Belkin>
+  <4D2A3008.3000609@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:60280 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751032Ab2I3RoC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 Sep 2012 13:44:02 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4D2A3008.3000609@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20120930174353.GA29129@elie.Belkin>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jrnieder@gmail.com
+Cc: gjthill@gmail.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 607242@bugs.debian.org
 List-Id: linux-input@vger.kernel.org
-To: Jim Hill <gjthill@gmail.com>
-Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 607242@bugs.debian.org
 
-Hi Jim,
+> I think this would be less controversial if the run-time default were
+> to disable the feature.
 
-In January, 2011, Jim Hill wrote:
+Yes, that's the common sensible path to new little-tested features.
+As you say, it may become enabled by default over time.
 
-> Keep a failing PS/2 mouse usable until it's convenient to replace it.
-> Filter incoming packets: drop invalid ones and attempt to correct for
-> dropped bytes.
->
-> New parameter 'filter' makes filtering and logging selectable, set to 0
-> to shut off all effects.
-[...]
-> My mouse failed while in XP, but I didn't know it - it seemed it'd need
-> cleaning soon. On booting into Linux, it was dangerous, wild slews and
-> random clicks.  The difference was consistent, making it seem the
-> problem wasn't the mouse.
+Then, I think it would be good to have a specific sub-structure for
+this stuff. It would allow this:
 
-I think this would be less controversial if the run-time default were
-to disable the feature.  Then if lots of people are setting the
-parameter and the idea proves itself, the default could change, and in
-the meantime, people with broken setups would know about the breakage
-and get a chance to look for other problems.
+  +       psmouse->err_log_base = 0;
+  +       psmouse->interval_base = 0;
+  +       psmouse->hotio_log_base = 0;
+  +       psmouse->err_log_counter = 0;
+  +       psmouse->interval_pkts = 0;
+  +       psmouse->hotio_log_counter = 0;
 
-What do you think?
+to be replaced with a memset. I also think it would make it clearer
+what these are:
 
-Thanks for your work,
-Jonathan
+  +       unsigned long interval_base;
+  +       unsigned long interval_pkts;
+  +       unsigned long hotio_log_base;
+  +       unsigned long hotio_log_counter;
+  +       unsigned long err_log_base;
+  +       unsigned long err_log_counter;
+
+to the casual reader.
+
+This is only a suggestion, though.
+
+thanks
+/alessandro

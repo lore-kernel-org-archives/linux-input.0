@@ -1,34 +1,46 @@
-From: dturvene <dturvene@dahetral.com>
-Subject: Re: New Alps protocol in the wild?
-Date: Sun, 30 Sep 2012 13:33:51 -0400
-Message-ID: <5068827F.5090605@dahetral.com>
-References: <20120814103553.GF23370@arianrhod.panaceas.james.local> <87mx1xxy1y.fsf@gmail.com> <20120814160519.GC12473@artemis.panaceas.org> <87ipckwvp4.fsf@gmail.com> <87sjbnzau7.fsf@gmail.com> <502E756C.4080509@dahetral.com> <87zk5ta1qv.fsf@gmail.com> <504B3F49.9020601@dahetral.com> <5054E9CA.3070205@dahetral.com> <CAPtp-N_PbGABwC7PtNtEe7bitc=yg1oV2M6cK6Wb1PkVq6wa9A@mail.gmail.com>
+From: Jonathan Nieder <jrnieder@gmail.com>
+Subject: Re: [PATCH v2] psmouse: mitigate failing-mouse symptoms
+Date: Sun, 30 Sep 2012 10:43:53 -0700
+Message-ID: <20120930174353.GA29129@elie.Belkin>
+References: <4D2A3008.3000609@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from dahetral.com ([128.177.27.153]:34210 "EHLO dahetral.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751032Ab2I3Rd6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 Sep 2012 13:33:58 -0400
-In-Reply-To: <CAPtp-N_PbGABwC7PtNtEe7bitc=yg1oV2M6cK6Wb1PkVq6wa9A@mail.gmail.com>
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:60280 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751032Ab2I3RoC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 30 Sep 2012 13:44:02 -0400
+Content-Disposition: inline
+In-Reply-To: <4D2A3008.3000609@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ignacio Casal Quinteiro <nacho.resa@gmail.com>
-Cc: Ben Gamari <bgamari.foss@gmail.com>, James <james@madingley.org>, linux-input@vger.kernel.org
+To: Jim Hill <gjthill@gmail.com>
+Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 607242@bugs.debian.org
 
-On 09/29/2012 05:55 AM, Ignacio Casal Quinteiro wrote:
-> Hey hey,
->
-> any news about this?
->
-> Regards.
->
-There's been a good bit of progress on this, and testing is ongoing.  
-For current status see:
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/606238
+Hi Jim,
 
-I have something to work on this week but will push the 
-diffs/documentation upstream as soon as I can.
+In January, 2011, Jim Hill wrote:
 
-Dave
+> Keep a failing PS/2 mouse usable until it's convenient to replace it.
+> Filter incoming packets: drop invalid ones and attempt to correct for
+> dropped bytes.
+>
+> New parameter 'filter' makes filtering and logging selectable, set to 0
+> to shut off all effects.
+[...]
+> My mouse failed while in XP, but I didn't know it - it seemed it'd need
+> cleaning soon. On booting into Linux, it was dangerous, wild slews and
+> random clicks.  The difference was consistent, making it seem the
+> problem wasn't the mouse.
+
+I think this would be less controversial if the run-time default were
+to disable the feature.  Then if lots of people are setting the
+parameter and the idea proves itself, the default could change, and in
+the meantime, people with broken setups would know about the breakage
+and get a chance to look for other problems.
+
+What do you think?
+
+Thanks for your work,
+Jonathan

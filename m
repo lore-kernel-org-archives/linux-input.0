@@ -1,48 +1,30 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH v4] HID: Add support for Sony PS3 BD Remote Control
-Date: Mon, 1 Oct 2012 10:40:19 +0200
-Message-ID: <20121001104019.bda0fa40fd0581fb2fce29b9@studenti.unina.it>
-References: <1348584182.27596.28.camel@frustration.ornl.gov>
-	<1348606947-3055-1-git-send-email-ospite@studenti.unina.it>
-	<20121001101938.d7736c5e1faf179cb06dcd9a@studenti.unina.it>
-	<alpine.LNX.2.00.1210011023380.27440@pobox.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hidraw: don't deallocate memory when it is in use
+Date: Mon, 1 Oct 2012 10:48:38 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1210011048300.27440@pobox.suse.cz>
+References: <20120922184630.GA23401@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp208.alice.it ([82.57.200.104]:58144 "EHLO smtp208.alice.it"
+Received: from cantor2.suse.de ([195.135.220.15]:49870 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752088Ab2JAIkh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 1 Oct 2012 04:40:37 -0400
-In-Reply-To: <alpine.LNX.2.00.1210011023380.27440@pobox.suse.cz>
+	id S1751993Ab2JAIsq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 1 Oct 2012 04:48:46 -0400
+In-Reply-To: <20120922184630.GA23401@google.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: David Dillow <dave@thedillows.org>, linux-bluetooth@vger.kernel.org, David Herrmann <dh.herrmann@googlemail.com>, Luiz Augusto von Dentz <luiz.dentz@gmail.com>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org
+To: Ratan Nalumasu <ratan@google.com>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 1 Oct 2012 10:24:01 +0200 (CEST)
-Jiri Kosina <jkosina@suse.cz> wrote:
+On Sat, 22 Sep 2012, Ratan Nalumasu wrote:
 
-> On Mon, 1 Oct 2012, Antonio Ospite wrote:
+> When a device is unplugged, wait for all processes that have opened the device
+> to close before deallocating the device.
 > 
-> > Ping.
-> > 
-> > Jiri, I see that linux-3.6 is out, can we have this in for 3.7-rc1?
-> 
-> As replied earlier today, it's in my for-next branch and I'll be pushing 
-> that for 3.7-rc1.
-> 
+> Signed-off-by: Ratan Nalumasu <ratan@google.com>
 
-Thanks. I've just seen your message, I hadn't got it yet when I wrote
-mine :)
-
-Regards,
-   Antonio
+Applied, thanks.
 
 -- 
-Antonio Ospite
-http://ao2.it
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+Jiri Kosina
+SUSE Labs

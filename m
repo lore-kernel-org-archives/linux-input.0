@@ -1,30 +1,48 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v4] HID: Add support for Sony PS3 BD Remote Control
-Date: Mon, 1 Oct 2012 10:24:01 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1210011023380.27440@pobox.suse.cz>
-References: <1348584182.27596.28.camel@frustration.ornl.gov> <1348606947-3055-1-git-send-email-ospite@studenti.unina.it> <20121001101938.d7736c5e1faf179cb06dcd9a@studenti.unina.it>
+Subject: Re: HID: picoLCD: optimize for inactive debugfs
+Date: Mon, 1 Oct 2012 10:25:53 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1210011025490.27440@pobox.suse.cz>
+References: <20120930220419.01408e0e@neptune.home>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:49070 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751217Ab2JAIYK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 1 Oct 2012 04:24:10 -0400
-In-Reply-To: <20121001101938.d7736c5e1faf179cb06dcd9a@studenti.unina.it>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120930220419.01408e0e@neptune.home>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: David Dillow <dave@thedillows.org>, linux-bluetooth@vger.kernel.org, David Herrmann <dh.herrmann@googlemail.com>, Luiz Augusto von Dentz <luiz.dentz@gmail.com>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org
 
-On Mon, 1 Oct 2012, Antonio Ospite wrote:
+On Sun, 30 Sep 2012, Bruno Pr=C3=A9mont wrote:
 
-> Ping.
-> 
-> Jiri, I see that linux-3.6 is out, can we have this in for 3.7-rc1?
+> Matthieu CASTET adjusted picolcd_debug_out_report() to only operate w=
+hen
+> there is an active listener on debugfs for events.
+>=20
+> His change got lost while splitting hid_picolcd.c, restore it.
+>=20
+> Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+> ---
+>=20
+>=20
+> diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-pico=
+lcd_debugfs.c
+> index 6ef03be..4809aa1 100644
+> --- a/drivers/hid/hid-picolcd_debugfs.c
+> +++ b/drivers/hid/hid-picolcd_debugfs.c
+> @@ -402,7 +402,7 @@ void picolcd_debug_out_report(struct picolcd_data=
+ *data,
+>  #define BUFF_SZ 256
+> =20
+>  	/* Avoid unnecessary overhead if debugfs is disabled */
+> -	if (!hdev->debug_events)
+> +	if (list_empty(&hdev->debug_list))
+>  		return;
+> =20
+>  	buff =3D kmalloc(BUFF_SZ, GFP_ATOMIC);
 
-As replied earlier today, it's in my for-next branch and I'll be pushing 
-that for 3.7-rc1.
+Applied, thanks.
 
--- 
+--=20
 Jiri Kosina
 SUSE Labs

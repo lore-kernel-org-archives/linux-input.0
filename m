@@ -1,58 +1,40 @@
-From: Samuel Ortiz <sameo@linux.intel.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: [PATCHv3 1/4] mfd: smsc: Add support for smsc gpio io/keypad
  driver
-Date: Mon, 1 Oct 2012 14:03:43 +0200
-Message-ID: <20121001120343.GG12231@sortiz-mobl>
+Date: Mon, 1 Oct 2012 13:09:07 +0100
+Message-ID: <20121001120907.GK4360@opensource.wolfsonmicro.com>
 References: <1349089282-22105-1-git-send-email-sourav.poddar@ti.com>
+ <CAAe_U6+zEGuwMC1yn7O=LXE6PhPvPc2i7DCF0EAprkE8s+-iEw@mail.gmail.com>
+ <20121001114454.GA9170@sirena.org.uk>
+ <CAAe_U6JX9QDWvWA3KH7E9sOv0EHGkozVONuXDgn+a2MZ4GTE7Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:29064 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750959Ab2JAMEB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 1 Oct 2012 08:04:01 -0400
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:41519 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750929Ab2JAMJJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 1 Oct 2012 08:09:09 -0400
 Content-Disposition: inline
-In-Reply-To: <1349089282-22105-1-git-send-email-sourav.poddar@ti.com>
+In-Reply-To: <CAAe_U6JX9QDWvWA3KH7E9sOv0EHGkozVONuXDgn+a2MZ4GTE7Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sourav Poddar <sourav.poddar@ti.com>
-Cc: devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, b-cousson@ti.com, balbi@ti.com, santosh.shilimkar@ti.com
+To: "ABRAHAM, KISHON VIJAY" <kishon@ti.com>
+Cc: Sourav Poddar <sourav.poddar@ti.com>, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, b-cousson@ti.com, balbi@ti.com, santosh.shilimkar@ti.com, sameo@linux.intel.com
 
-Hi Sourav,
+On Mon, Oct 01, 2012 at 05:23:15PM +0530, ABRAHAM, KISHON VIJAY wrote:
+> On Mon, Oct 1, 2012 at 5:14 PM, Mark Brown
 
-On Mon, Oct 01, 2012 at 04:31:22PM +0530, Sourav Poddar wrote:
-> smsc ece1099 is a keyboard scan or gpio expansion device.
-> The patch create keypad and gpio expander child for this
-> multi function smsc driver.
-> 
-> Tested on omap5430 evm with 3.6-rc6 custom kernel.
-> 
-> Cc: Samuel Ortiz <sameo@linux.intel.com>
-> Cc: Benoit Cousson <b-cousson@ti.com>
-> Cc: Felipe Balbi <balbi@ti.com>
-> Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>
-> Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
-> ---
-> Changes since v2:
->  - Change the cache type, max register assignment
->  - remove of_device_table, since i2c based device gets 
-> probed according to i2c_device_id through dt.
->  - Modify the remove function
->  - Minor return patch cleanups.
->  Documentation/smsc_ece1099.txt |   56 ++++++++++++++++++++
->  drivers/mfd/Kconfig            |   12 ++++
->  drivers/mfd/Makefile           |    1 +
->  drivers/mfd/smsc-ece1099.c     |  113 ++++++++++++++++++++++++++++++++++++++++
->  include/linux/mfd/smsc.h       |  109 ++++++++++++++++++++++++++++++++++++++
->  5 files changed, 291 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/smsc_ece1099.txt
->  create mode 100644 drivers/mfd/smsc-ece1099.c
->  create mode 100644 include/linux/mfd/smsc.h
-Applied with a warning fix for the !CONFIG_OF case.
+> > No, this is not at all sensible - if there's an mfd_remove_devices()
+> > function we really ought to be able to use it to remove the children.
+> > If we can't do that we should fix the API usability, not open code the
+> > same stuff in every user.
 
-Cheers,
-Samuel.
+> What makes more sense to me is extend mfd_add_devices to create child
+> devices from dt data. Then for removing devices, one can use
+> mfd_remove_devices().
 
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+Why would that be helpful?  Most platforms don't support DT at all, and
+having the API behave differently depending on the platform doesn't seem
+like a step forwards.  I would really expect any usage of DT to be
+totally orthogonal here.

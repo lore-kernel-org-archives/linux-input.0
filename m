@@ -1,423 +1,164 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCHv3 2/4] Input: keypad: Add smsc ece1099 keypad driver
-Date: Mon, 1 Oct 2012 23:18:29 -0700
-Message-ID: <20121002061829.GA3853@core.coreip.homeip.net>
-References: <1349089310-22134-1-git-send-email-sourav.poddar@ti.com>
+Subject: [git pull] Input updates for 3.7-rc0
+Date: Mon, 1 Oct 2012 23:32:04 -0700
+Message-ID: <20121002063204.GB3853@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:34742 "EHLO
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:62872 "EHLO
 	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753048Ab2JBGSe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Oct 2012 02:18:34 -0400
+	with ESMTP id S1753375Ab2JBGcI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Oct 2012 02:32:08 -0400
 Content-Disposition: inline
-In-Reply-To: <1349089310-22134-1-git-send-email-sourav.poddar@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sourav Poddar <sourav.poddar@ti.com>
-Cc: devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, b-cousson@ti.com, balbi@ti.com, santosh.shilimkar@ti.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Sourav,
 
-On Mon, Oct 01, 2012 at 04:31:50PM +0530, Sourav Poddar wrote:
-> From: G, Manjunath Kondaiah <manjugk@ti.com>
-> 
-> SMSC ECE1099 is a keyboard scan or GPIO expansion device.The device
-> supports a keypad scan matrix of 23*8.This driver uses this
-> device as a keypad driver.
-> 
-> Tested on omap5430 evm with 3.6-rc6 custom kernel.
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Benoit Cousson <b-cousson@ti.com>
-> Cc: Felipe Balbi <balbi@ti.com>
-> Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>
-> Signed-off-by: G, Manjunath Kondaiah <manjugk@ti.com>
-> Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
-> Acked-by: Felipe Balbi <balbi@ti.com>
-> ---
-> Changes since v2:
->  - Replace magic numbers through driver variable.
->  - Provide comments for some initialisation done in probe.
->  drivers/input/keyboard/Kconfig               |   11 +
->  drivers/input/keyboard/Makefile              |    1 +
->  drivers/input/keyboard/smsc-ece1099-keypad.c |  304 ++++++++++++++++++++++++++
->  3 files changed, 316 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/keyboard/smsc-ece1099-keypad.c
-> 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index c50fa75..b03a39c 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -593,6 +593,17 @@ config KEYBOARD_TWL4030
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called twl4030_keypad.
->  
-> +config KEYBOARD_SMSC
-> +       tristate "SMSC ECE1099 keypad support"
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Should also select INPUT_MATRIXKMAP.
+Hi Linus,
 
-> +       depends on I2C
-> +       help
-> +         Say Y here if your board use the smsc keypad controller
-> +         for omap5 defconfig. It's safe to say enable this
-> +         even on boards that don't use the keypad controller.
-> +
-> +         To compile this driver as a module, choose M here: the
-> +         module will be called smsc-ece1099-keypad.
-> +
->  config KEYBOARD_XTKBD
->  	tristate "XT keyboard"
->  	select SERIO
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> index 44e7600..0f2aa26 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -52,5 +52,6 @@ obj-$(CONFIG_KEYBOARD_TC3589X)		+= tc3589x-keypad.o
->  obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
->  obj-$(CONFIG_KEYBOARD_TNETV107X)	+= tnetv107x-keypad.o
->  obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
-> +obj-$(CONFIG_KEYBOARD_SMSC)            += smsc-ece1099-keypad.o
->  obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
->  obj-$(CONFIG_KEYBOARD_W90P910)		+= w90p910_keypad.o
-> diff --git a/drivers/input/keyboard/smsc-ece1099-keypad.c b/drivers/input/keyboard/smsc-ece1099-keypad.c
-> new file mode 100644
-> index 0000000..15dc147
-> --- /dev/null
-> +++ b/drivers/input/keyboard/smsc-ece1099-keypad.c
-> @@ -0,0 +1,304 @@
-> +/*
-> + * SMSC_ECE1099 Keypad driver
-> + *
-> + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + */
-> +
-> +#include <linux/i2c.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/input.h>
-> +#include <linux/gpio.h>
-> +#include <linux/slab.h>
-> +#include <linux/jiffies.h>
-> +#include <linux/input/matrix_keypad.h>
-> +#include <linux/delay.h>
-> +#include <linux/mfd/core.h>
-> +#include <linux/mfd/smsc.h>
-> +#include <linux/of_gpio.h>
-> +#include <linux/of.h>
-> +
-> +#define KEYPRESS_TIME          200
-> +
-> +struct smsc_keypad {
-> +	struct smsc *smsc;
-> +	struct matrix_keymap_data *keymap_data;
-> +	unsigned int last_key_state[16];
-> +	unsigned int last_col;
-> +	unsigned int last_key_ms[16];
-> +	unsigned short *keymap;
-> +	struct i2c_client *client;
-> +	struct input_dev *input;
-> +	int rows, cols;
-> +	int row_shift;
-> +	bool no_autorepeat;
-> +	unsigned        irq;
-> +	struct device *dev;
-> +};
-> +
-> +static void smsc_kp_scan(struct smsc_keypad *kp)
-> +{
-> +	struct input_dev *input = kp->input;
-> +	int i, j;
-> +	int row, col;
-> +	int temp, code;
-> +	unsigned int new_state[16];
-> +	unsigned int bits_changed;
-> +	int this_ms;
-> +
-> +	smsc_write(kp->dev, SMSC_KP_INT_MASK, 0x00);
-> +	smsc_write(kp->dev, SMSC_KP_INT_STAT, 0xFF);
-> +
-> +	/* Scan for row and column */
-> +	for (i = 0; i < kp->cols; i++) {
-> +		smsc_write(kp->dev, SMSC_KP_OUT, SMSC_KSO_EVAL + i);
-> +		/* Read Row Status */
-> +		smsc_read(kp->dev, SMSC_KP_IN, &temp);
-> +		if (temp == 0xFF)
-> +			continue;
-> +
-> +		col = i;
-> +		for (j = 0; j < kp->rows; j++) {
-> +			if ((temp & 0x01) != 0x00) {
-> +				temp = temp >> 1;
-> +				continue;
-> +			}
-> +
-> +			row = j;
-> +			new_state[col] =  (1 << row);
-> +			bits_changed = kp->last_key_state[col] ^ new_state[col];
-> +			this_ms = jiffies_to_msecs(jiffies);
-> +			if (bits_changed != 0 || (!bits_changed &&
-> +					((this_ms - kp->last_key_ms[col]) >= KEYPRESS_TIME))) {
-> +				code = MATRIX_SCAN_CODE(row, col, kp->row_shift);
-> +				input_event(input, EV_MSC, MSC_SCAN, code);
-> +				input_report_key(input, kp->keymap[code], 1);
-> +				input_report_key(input, kp->keymap[code], 0);
-> +				kp->last_key_state[col] = new_state[col];
-> +				if (kp->last_col != col)
-> +					kp->last_key_state[kp->last_col] = 0;
-> +				kp->last_key_ms[col] = this_ms;
-> +			}
-> +			temp = temp >> 1;
-> +		}
-> +	}
-> +	input_sync(input);
-> +
-> +	smsc_write(kp->dev, SMSC_KP_INT_MASK, 0xFF);
-> +
-> +	/* Set up Low Power Mode (Wake-up) (0xFB) */
-> +	smsc_write(kp->dev, SMSC_WKUP_CTRL, SMSC_KP_SET_LOW_PWR);
-> +
-> +	/*Enable Keypad Scan (generate interrupt on key press) (0x40)*/
-> +	smsc_write(kp->dev, SMSC_KP_OUT, SMSC_KSO_ALL_LOW);
-> +}
-> +
-> +static irqreturn_t do_kp_irq(int irq, void *_kp)
-> +{
-> +	struct smsc_keypad *kp = _kp;
-> +	int int_status;
-> +
-> +	smsc_read(kp->dev, SMSC_KP_INT_STAT, &int_status);
-> +	if (int_status)
-> +		smsc_kp_scan(kp);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +#ifdef CONFIG_OF
-> +static int __devinit smsc_keypad_parse_dt(struct device *dev,
-> +				struct smsc_keypad *kp)
-> +{
-> +	struct device_node *np = dev->of_node;
-> +
-> +	if (!np) {
-> +		dev_err(dev, "missing DT data");
-> +		return -EINVAL;
-> +	}
-> +
-> +	of_property_read_u32(np, "keypad,num-rows", &kp->rows);
-> +	of_property_read_u32(np, "keypad,num-columns", &kp->cols);
-> +	if (!kp->rows || !kp->cols) {
-> +		dev_err(dev, "number of keypad rows/columns not specified\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	if (of_property_read_bool(np, "linux,input-no-autorepeat"))
-> +		kp->no_autorepeat = true;
-> +
-> +	return 0;
-> +}
-> +#else
-> +static inline int smsc_keypad_parse_dt(struct device *dev,
-> +				struct smsc_keypad *kp)
-> +{
-> +	return -ENOSYS;
-> +}
-> +#endif
-> +
-> +static int __devinit
-> +smsc_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct smsc *smsc = dev_get_drvdata(pdev->dev.parent);
-> +	struct input_dev *input;
-> +	struct smsc_keypad *kp;
-> +	int ret = 0, error;
-> +	int col, i, max_keys, row_shift;
-> +	int irq;
-> +	int addr;
-> +
-> +	kp = devm_kzalloc(dev, sizeof(*kp), GFP_KERNEL);
-> +
-> +	input = input_allocate_device();
-> +	if (!kp || !input) {
-> +		error = -ENOMEM;
-> +		goto err1;
-> +	}
-> +
-> +	error = smsc_keypad_parse_dt(&pdev->dev, kp);
+Please pull from:
 
-It doe snot look like the driver is useful without DT... Should it
-simply depend on OF and not even provide !OF stubs?
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-> +	if (error)
+to receive updates for the input subsystem. A few drivers were updated
+with device tree bindings and others got a few small cleanups and fixes.
 
-You are leaking input device here.
+You will get a conflict in omap-keymap driver (a small formatting
+cleanup clashed with work coming from another tree), please let me know
+if you want me to resolve it.
 
-> +		return error;
-> +
-> +	/* Get the debug Device */
-> +	kp->input = input;
-> +	kp->smsc = smsc;
-> +	kp->irq = platform_get_irq(pdev, 0);
-> +	kp->dev = dev;
-> +
-> +	for (col = 0; col < 16; col++) {
-> +		kp->last_key_state[col] = 0;
-> +		kp->last_key_ms[col] = 0;
+Thanks!
 
-kzalloc should have already taken care of this.
+Changelog:
+---------
 
-> +	}
-> +
-> +	/* setup input device */
-> +	 __set_bit(EV_KEY, input->evbit);
-> +
-> +	/* Enable auto repeat feature of Linux input subsystem */
-> +	if (!(kp->no_autorepeat))
+Alexandre Pereira da Silva (3):
+      Input: gpio_keys - clean up device tree parser
+      Input: gpio_keys_polled - convert to dt
+      Input: gpio_keys_polled - fix dt pdata->nbuttons
 
-No need for extra parenthesis.
+Andy Shevchenko (1):
+      Input: hgpk - use %*ph to dump small buffer
 
-> +		__set_bit(EV_REP, input->evbit);
-> +
-> +	input_set_capability(input, EV_MSC, MSC_SCAN);
-> +	input->name             = "SMSC Keypad";
-> +	input->phys             = "smsc_keypad/input0";
-> +	input->dev.parent       = &pdev->dev;
-> +	input->id.bustype       = BUS_HOST;
-> +	input->id.vendor        = 0x0001;
-> +	input->id.product       = 0x0001;
-> +	input->id.version       = 0x0003;
-> +
-> +	error = input_register_device(input);
-> +	if (error) {
-> +		dev_err(kp->dev,
-> +			"Unable to register twl4030 keypad device\n");
-> +		goto err1;
-> +	}
-> +
-> +	/* Mask all GPIO interrupts (0x37-0x3B) */
-> +	for (addr = SMSC_GPIO_INT_MASK_START;
-> +			addr < SMSC_GPIO_INT_MASK_START + 4; addr++)
-> +		smsc_write(dev, addr, 0);
-> +
-> +	/* Set all outputs high (0x05-0x09) */
-> +	for (addr = SMSC_GPIO_DATA_OUT_START;
-> +			addr < SMSC_GPIO_DATA_OUT_START + 4; addr++)
-> +		smsc_write(dev, addr, 0xff);
-> +
-> +	/* Clear all GPIO interrupts (0x32-0x36) */
-> +	for (addr = SMSC_GPIO_INT_STAT_START;
-> +			addr < SMSC_GPIO_INT_STAT_START + 4; addr++)
-> +		smsc_write(dev, addr, 0xff);
-> +
-> +	/* Configure the smsc pins as Keyboard scan Input */
-> +	for (i = 0; i <= kp->rows; i++) {
-> +		addr = 0x12 + i;
-> +		smsc_write(dev, addr, SMSC_KP_KSI);
-> +	}
-> +
-> +	/* Configure the smsc pins as Keyboard scan output */
-> +	for (i = 0; i <= kp->cols; i++) {
-> +		addr = 0x1A + i;
-> +		smsc_write(dev, addr, SMSC_KP_KSO);
-> +	}
-> +
-> +	smsc_write(dev, SMSC_KP_INT_STAT, SMSC_KP_SET_HIGH);
-> +	smsc_write(dev, SMSC_WKUP_CTRL, SMSC_KP_SET_LOW_PWR);
-> +	smsc_write(dev, SMSC_KP_OUT, SMSC_KSO_ALL_LOW);
-> +
-> +	row_shift = get_count_order(kp->cols);
-> +	max_keys = kp->rows << row_shift;
-> +
-> +	kp->row_shift = row_shift;
-> +	kp->keymap = devm_kzalloc(dev, max_keys * sizeof(kp->keymap[0]),
-> +					GFP_KERNEL);
-> +	if (!kp->keymap) {
-> +		dev_err(&pdev->dev, "Not enough memory for keymap\n");
-> +		error = -ENOMEM;
-> +	}
-> +
-> +	matrix_keypad_build_keymap(NULL, NULL, kp->rows,
-> +			kp->cols, kp->keymap, input);
+Baodong Chen (1):
+      Input: random formatting fixes
 
-Needs error handling I believe.
+Daniel Mack (3):
+      Input: rotary-encoder - defer calls gpio_to_irq()
+      Input: rotary-encoder - use gpio_request_one()
+      Input: rotary-encoder - add DT bindings
 
-> +
-> +	/*
-> +	* This ISR will always execute in kernel thread context because of
-> +	* the need to access the SMSC over the I2C bus.
-> +	*/
-> +	ret = devm_request_threaded_irq(dev, kp->irq, NULL, do_kp_irq,
-> +			IRQF_TRIGGER_FALLING | IRQF_ONESHOT, pdev->name, kp);
-> +	if (ret) {
-> +		dev_dbg(&pdev->dev, "request_irq failed for irq no=%d\n",
-> +			irq);
-> +		goto err2;
-> +	}
-> +
-> +	/* Enable smsc keypad interrupts */
-> +	ret = smsc_write(dev, SMSC_KP_INT_MASK, 0xff);
-> +	if (ret < 0)
-> +		goto err2;
-> +
-> +	return 0;
-> +
-> +err2:
-> +	input_unregister_device(input);
-> +err1:
-> +	input_free_device(input);
+David Herrmann (1):
+      Input: uinput - return -EINVAL when read buffer size is too small
 
-Double free.
+Dmitry Torokhov (8):
+      Input: gpio-keys-polled - constify pointers to platform data
+      Input: rotary-encoder - constify platform data pointers
+      Input: get rid of MATCH_BIT() macro
+      Input: uinput - take event lock when fetching events from buffer
+      Input: uinput - fix race that can block nonblocking read
+      Input: uinput - mark failed submission requests as free
+      Input: uinput - specify exact bit sizes on userspace APIs
+      Input: uinput - fix formatting
 
-> +	return ret;
-> +}
-> +
-> +static int __devexit smsc_remove(struct platform_device *pdev)
-> +{
-> +	struct smsc_keypad *kp = platform_get_drvdata(pdev);
-> +	input_unregister_device(kp->input);
+Jason Gerecke (2):
+      Input: wacom - add support for EMR on Cintiq 24HD touch
+      Input: wacom - mark Intuos5 pad as in-prox when touching buttons
 
-And your kernel goes *BOOM*
+Josh (1):
+      Input: omap-keypad - fixed formatting
 
-> +
-> +	return 0;
-> +}
-> +
-> +#ifdef CONFIG_OF
-> +static const struct of_device_id smsc_keypad_dt_match[] = {
-> +	{ .compatible = "smsc,keypad" },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, smsc_keypad_dt_match);
-> +#endif
-> +
-> +static struct platform_driver smsc_driver = {
-> +	.driver = {
-> +		.name	= "smsc-keypad",
-> +		.of_match_table = of_match_ptr(smsc_keypad_dt_match),
-> +		.owner  = THIS_MODULE,
-> +	},
-> +	.probe		= smsc_probe,
-> +	.remove		= __devexit_p(smsc_remove),
-> +};
-> +
-> +module_platform_driver(smsc_driver);
-> +
-> +MODULE_AUTHOR("G Kondaiah Manjunath <manjugk@ti.com>");
-> +MODULE_DESCRIPTION("SMSC ECE1099 Keypad driver");
-> +MODULE_LICENSE("GPL v2");
-> -- 
-> 1.7.1
-> 
+Michael Schutte (1):
+      Input: Add KD[GS]KBDIACRUC ioctls to the compatible list
 
-Thanks.
+NeilBrown (2):
+      Input: gpio_keys - report a wakeup_event for a button press
+      Input: twl4030-pwrbutton - report a wakeup_event on button press
 
--- 
+Sachin Kamat (1):
+      Input: s3c2410_ts - make s3c_ts_pmops const
+
+Seth Forshee (1):
+      Input: synaptics - adjust threshold for treating position values as n=
+egative
+
+Stephen Warren (1):
+      Input: tegra - move platform data header
+
+Tobias Klauser (2):
+      Input: samsung-keypad - use of_match_ptr()
+      Input: samsung-keypad - use of_get_child_count() helper
+
+
+Diffstat:
+--------
+
+ .../devicetree/bindings/input/gpio-keys-polled.txt |  38 ++++
+ .../devicetree/bindings/input/rotary-encoder.txt   |  36 ++++
+ drivers/input/apm-power.c                          |   2 +-
+ drivers/input/ff-core.c                            |   4 +-
+ drivers/input/ff-memless.c                         |  14 +-
+ drivers/input/input.c                              |  43 +++--
+ drivers/input/joydev.c                             |   2 +-
+ drivers/input/keyboard/gpio_keys.c                 | 169 +++++++++---------
+ drivers/input/keyboard/gpio_keys_polled.c          | 147 +++++++++++++--
+ drivers/input/keyboard/omap-keypad.c               |   8 +-
+ drivers/input/keyboard/samsung-keypad.c            |  10 +-
+ drivers/input/keyboard/tegra-kbc.c                 |   2 +-
+ drivers/input/misc/rotary_encoder.c                | 140 ++++++++++-----
+ drivers/input/misc/twl4030-pwrbutton.c             |   1 +
+ drivers/input/misc/uinput.c                        | 197 +++++++++++++----=
+----
+ drivers/input/mouse/hgpk.c                         |   9 +-
+ drivers/input/mouse/synaptics.c                    |  31 +++-
+ drivers/input/mousedev.c                           |   9 +-
+ drivers/input/sparse-keymap.c                      |   4 +-
+ drivers/input/tablet/wacom_wac.c                   |   2 +-
+ drivers/input/touchscreen/s3c2410_ts.c             |   2 +-
+ fs/compat_ioctl.c                                  |   2 +
+ .../mach/kbc.h =3D> include/linux/input/tegra_kbc.h  |   0
+ include/linux/uinput.h                             |  27 +--
+ 24 files changed, 611 insertions(+), 288 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/gpio-keys-polle=
+d.txt
+ create mode 100644 Documentation/devicetree/bindings/input/rotary-encoder.=
+txt
+ rename arch/arm/mach-tegra/include/mach/kbc.h =3D> include/linux/input/teg=
+ra_kbc.h (100%)
+
+--=20
 Dmitry
+
+
+--DocE+STaALJfprDB
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQaopjAAoJEH70+W8r6ZYqcTkP/iDbJnHz8tpHlBQPdXhYXJdl
+hQEGBagVZeHS1pmmc5saH1twB3EB0p32vJ6C1FUbkUWjeXXzP5BCXImQd7OUhzbS
+KTQoy42O+XHXnISx7Vsqo5OSW1AMhVVp3buT/1BF6425DP2ez62Fhli0xVPawDHG
+rt1I7XZxQWeVzv4uaFc9yiegE5vLODypFSApaSIr7AHqzRfHkbNc8zsMBnseSnPf
+nl9ZPDdW7F3tEvJzJwFzTx4i+bRpb9vah/DIp4Y2sYBZXClEVEpA4vJpHnbcC10n
+iqLs1pSER51ISTWsTEFyMHuwywk8gYdBBG9fRS4dLraDnCyUQypXyhdSMy/pG/Ss
+iBcBKOlBC3F3SKiHdkjW6JYmyENW5cJixk9r91ZMl9eKUyUGbPuMehZxFKad+0ra
+pOzEgUurrzFHo3YUEWu6T1HvN8rUFi+Pys4jhxvywi1DuI0O5Qt73sgUF27qYmXV
+OOGyOAyjszTT8jpsfe04mmHC5ECa2iq7qEvGSaLhvdqPEXYzP/h7stsyBaMEevjK
++qte58aGpFHyXJ2j1HurZ8elOIKo27yaQbG9BQ4PpZ9lKhwIv45n4+0obqtWusgd
+ksLSNTLgeNyl2hGUpsAGlVaEVKInvfF4X39dYvyQo3IQHxwWFygLDE0Xt41ST/bz
+sxz1v3WyJLbnPFnGmjK2
+=zY9q
+-----END PGP SIGNATURE-----
+
+--DocE+STaALJfprDB--

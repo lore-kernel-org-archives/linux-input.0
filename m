@@ -1,158 +1,54 @@
-From: Tomasz Figa <t.figa@samsung.com>
-Subject: [PATCH] input: touchscreen: mms114: Add device tree bindings
-Date: Tue, 02 Oct 2012 11:33:47 +0200
-Message-ID: <1349170427-1625-1-git-send-email-t.figa@samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com, t.figa@samsung.com, jy0922.shim@samsung.com, tomasz.figa@gmail.com
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCHv3 1/4] mfd: smsc: Add support for smsc gpio io/keypad
+ driver
+Date: Tue, 2 Oct 2012 13:38:56 +0100
+Message-ID: <20121002123856.GX4360@opensource.wolfsonmicro.com>
+References: <1349089282-22105-1-git-send-email-sourav.poddar@ti.com>
+ <CAAe_U6+zEGuwMC1yn7O=LXE6PhPvPc2i7DCF0EAprkE8s+-iEw@mail.gmail.com>
+ <20121001114454.GA9170@sirena.org.uk>
+ <CAAe_U6JX9QDWvWA3KH7E9sOv0EHGkozVONuXDgn+a2MZ4GTE7Q@mail.gmail.com>
+ <20121001120907.GK4360@opensource.wolfsonmicro.com>
+ <CAAe_U6K6nAjsZUOk2rBFweWHtJmcLF7EJDpu9O6FXrq3tzv3yg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:41965 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752772Ab2JBMi7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Oct 2012 08:38:59 -0400
+Content-Disposition: inline
+In-Reply-To: <CAAe_U6K6nAjsZUOk2rBFweWHtJmcLF7EJDpu9O6FXrq3tzv3yg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "ABRAHAM, KISHON VIJAY" <kishon@ti.com>
+Cc: Sourav Poddar <sourav.poddar@ti.com>, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, b-cousson@ti.com, balbi@ti.com, santosh.shilimkar@ti.com, sameo@linux.intel.com
 
-This patch adds device tree bindings for mms114 touchscreen.
+On Mon, Oct 01, 2012 at 08:54:23PM +0530, ABRAHAM, KISHON VIJAY wrote:
+> On Mon, Oct 1, 2012 at 5:39 PM, Mark Brown
 
-Signed-off-by: Tomasz Figa <t.figa@samsung.com>
+> > Why would that be helpful?  Most platforms don't support DT at all, and
 
----
- .../bindings/input/touchscreen/mms114.txt          | 34 ++++++++++++++
- drivers/input/touchscreen/mms114.c                 | 52 +++++++++++++++++++++-
- 2 files changed, 84 insertions(+), 2 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/mms114.txt
+> I'm not sure how to put it correctly. All I'm trying to tell is mfd is
+> a framework that exposes a set of API's to create and remove a device
+> among others. If a mfd child device is not created using mfd API,
+> it'll be unfair to expect that child be removed properly using mfd
+> API. Like in this patch, the device is created using
+> of_platform_populate (not a mfd API) but is removed using
+> mfd_remove_devices (mfd API) [which should result in an abort].
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/mms114.txt b/Documentation/devicetree/bindings/input/touchscreen/mms114.txt
-new file mode 100644
-index 0000000..f89d382
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/mms114.txt
-@@ -0,0 +1,34 @@
-+* MELFAS MMS114 touchscreen controller
-+
-+Required properties:
-+- compatible: must be "melfas,mms114"
-+- reg: I2C address of the chip
-+- interrupts: interrupt to which the chip is connected
-+- x-size: horizontal resolution of touchscreen
-+- y-size: vertical resolution of touchscreen
-+
-+Optional properties:
-+- contact-threshold: 
-+- moving-threshold:
-+- x-invert: invert X axis
-+- y-invert: invert Y axis
-+
-+Example:
-+
-+	i2c@00000000 {
-+		/* ... */
-+
-+		touchscreen@48 {
-+			compatible = "melfas,mms114";
-+			reg = <0x48>;
-+			interrupts = <39 0>;
-+			x-size = <720>;
-+			y-size = <1280>;
-+			contact-threshold = <10>;
-+			moving-threshold = <10>;
-+			x-invert;
-+			y-invert;
-+		};
-+
-+		/* ... */
-+	};
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index 49c44bb..fb66f7a 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -10,6 +10,7 @@
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/delay.h>
-+#include <linux/of.h>
- #include <linux/i2c.h>
- #include <linux/i2c/mms114.h>
- #include <linux/input/mt.h>
-@@ -360,14 +361,55 @@ static void mms114_input_close(struct input_dev *dev)
- 	mms114_stop(data);
- }
- 
-+static struct mms114_platform_data *mms114_parse_dt(struct device *dev)
-+{
-+	struct mms114_platform_data *pdata;
-+	struct device_node *np = dev->of_node;
-+
-+	if (!np)
-+		return NULL;
-+
-+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata) {
-+		dev_err(dev, "failed to allocate platform data\n");
-+		return NULL;
-+	}
-+
-+	if (of_property_read_u32(np, "x-size", &pdata->x_size)) {
-+		dev_err(dev, "failed to get x-size property\n");
-+		return NULL;
-+	};
-+
-+	if (of_property_read_u32(np, "y-size", &pdata->y_size)) {
-+		dev_err(dev, "failed to get y-size property\n");
-+		return NULL;
-+	};
-+
-+	of_property_read_u32(np, "contact-threshold",
-+						&pdata->contact_threshold);
-+	of_property_read_u32(np, "moving-threshold",
-+						&pdata->moving_threshold);
-+
-+	if (of_find_property(np, "x-invert", NULL))
-+		pdata->x_invert = true;
-+	if (of_find_property(np, "y-invert", NULL))
-+		pdata->y_invert = true;
-+
-+	return pdata;
-+}
-+
- static int __devinit mms114_probe(struct i2c_client *client,
- 				  const struct i2c_device_id *id)
- {
- 	struct mms114_data *data;
- 	struct input_dev *input_dev;
-+	struct mms114_platform_data *pdata = client->dev.platform_data;
- 	int error;
- 
--	if (!client->dev.platform_data) {
-+	if (!pdata)
-+		pdata = mms114_parse_dt(&client->dev);
-+
-+	if (!pdata) {
- 		dev_err(&client->dev, "Need platform data\n");
- 		return -EINVAL;
- 	}
-@@ -389,7 +431,7 @@ static int __devinit mms114_probe(struct i2c_client *client,
- 
- 	data->client = client;
- 	data->input_dev = input_dev;
--	data->pdata = client->dev.platform_data;
-+	data->pdata = pdata;
- 
- 	input_dev->name = "MELPAS MMS114 Touchscreen";
- 	input_dev->id.bustype = BUS_I2C;
-@@ -525,11 +567,17 @@ static const struct i2c_device_id mms114_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, mms114_id);
- 
-+static struct of_device_id __devinitdata mms114_dt_match[] = {
-+	{ .compatible = "melfas,mms114" },
-+	{ }
-+};
-+
- static struct i2c_driver mms114_driver = {
- 	.driver = {
- 		.name	= "mms114",
- 		.owner	= THIS_MODULE,
- 		.pm	= &mms114_pm_ops,
-+		.of_match_table = mms114_dt_match,
- 	},
- 	.probe		= mms114_probe,
- 	.remove		= __devexit_p(mms114_remove),
--- 
-1.7.12
+That doesn't sound terribly clever, no, though it's not immediately
+clear to me if the non-clever bit is using mfd_remove_devices() or
+of_platform_populate().
+
+> This means mfd framework does not have an API to create a device from
+> dt data or so do I think since of_platform_populate() is used. Thats
+> why I suggested the idea of extending mfd_add_devices() (or adding a
+> new API in mfd framework) to create child devices from dt data so that
+> we'll have API's in mfd framework to both create and delete a device.
+
+The trouble that always exists with representing MFD children in DT is
+that unless you've got a usefully reusable IP block which is clearly
+separate from the chip integration you end up essentially just dumping
+the Linux data structures into DT which often doesn't leave you with
+something which describes the hardware.

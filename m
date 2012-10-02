@@ -1,38 +1,158 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 06/10] Documentation: Detail permitted DT properties for
- the BU21013 Touch Screen
-Date: Tue, 2 Oct 2012 11:21:33 +0200
-Message-ID: <CACRpkdb8gA+wtkzd=wQbp8kHf=j-DJC9QsN16ruWmvwhgD5HZA@mail.gmail.com>
-References: <1349165603-24401-1-git-send-email-lee.jones@linaro.org>
-	<1349165603-24401-7-git-send-email-lee.jones@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:55161 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752738Ab2JBJVf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Oct 2012 05:21:35 -0400
-Received: by weyt9 with SMTP id t9so3477665wey.19
-        for <linux-input@vger.kernel.org>; Tue, 02 Oct 2012 02:21:34 -0700 (PDT)
-In-Reply-To: <1349165603-24401-7-git-send-email-lee.jones@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Tomasz Figa <t.figa@samsung.com>
+Subject: [PATCH] input: touchscreen: mms114: Add device tree bindings
+Date: Tue, 02 Oct 2012 11:33:47 +0200
+Message-ID: <1349170427-1625-1-git-send-email-t.figa@samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-samsung-soc@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com, t.figa@samsung.com, jy0922.shim@samsung.com, tomasz.figa@gmail.com
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, arnd@arndb.de, linus.walleij@stericsson.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Tue, Oct 2, 2012 at 10:13 AM, Lee Jones <lee.jones@linaro.org> wrote:
+This patch adds device tree bindings for mms114 touchscreen.
 
-> Here we apply required documentation for the Rohm BU21013 Touch
-> Screen driver which describe available properties and how to use
-> them.
->
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Tomasz Figa <t.figa@samsung.com>
 
-Should be CC to the devicetree-discuss list right?
-FWIW:
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ .../bindings/input/touchscreen/mms114.txt          | 34 ++++++++++++++
+ drivers/input/touchscreen/mms114.c                 | 52 +++++++++++++++++++++-
+ 2 files changed, 84 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/mms114.txt
 
-Yours,
-Linus Walleij
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/mms114.txt b/Documentation/devicetree/bindings/input/touchscreen/mms114.txt
+new file mode 100644
+index 0000000..f89d382
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/mms114.txt
+@@ -0,0 +1,34 @@
++* MELFAS MMS114 touchscreen controller
++
++Required properties:
++- compatible: must be "melfas,mms114"
++- reg: I2C address of the chip
++- interrupts: interrupt to which the chip is connected
++- x-size: horizontal resolution of touchscreen
++- y-size: vertical resolution of touchscreen
++
++Optional properties:
++- contact-threshold: 
++- moving-threshold:
++- x-invert: invert X axis
++- y-invert: invert Y axis
++
++Example:
++
++	i2c@00000000 {
++		/* ... */
++
++		touchscreen@48 {
++			compatible = "melfas,mms114";
++			reg = <0x48>;
++			interrupts = <39 0>;
++			x-size = <720>;
++			y-size = <1280>;
++			contact-threshold = <10>;
++			moving-threshold = <10>;
++			x-invert;
++			y-invert;
++		};
++
++		/* ... */
++	};
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index 49c44bb..fb66f7a 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -10,6 +10,7 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/delay.h>
++#include <linux/of.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c/mms114.h>
+ #include <linux/input/mt.h>
+@@ -360,14 +361,55 @@ static void mms114_input_close(struct input_dev *dev)
+ 	mms114_stop(data);
+ }
+ 
++static struct mms114_platform_data *mms114_parse_dt(struct device *dev)
++{
++	struct mms114_platform_data *pdata;
++	struct device_node *np = dev->of_node;
++
++	if (!np)
++		return NULL;
++
++	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
++	if (!pdata) {
++		dev_err(dev, "failed to allocate platform data\n");
++		return NULL;
++	}
++
++	if (of_property_read_u32(np, "x-size", &pdata->x_size)) {
++		dev_err(dev, "failed to get x-size property\n");
++		return NULL;
++	};
++
++	if (of_property_read_u32(np, "y-size", &pdata->y_size)) {
++		dev_err(dev, "failed to get y-size property\n");
++		return NULL;
++	};
++
++	of_property_read_u32(np, "contact-threshold",
++						&pdata->contact_threshold);
++	of_property_read_u32(np, "moving-threshold",
++						&pdata->moving_threshold);
++
++	if (of_find_property(np, "x-invert", NULL))
++		pdata->x_invert = true;
++	if (of_find_property(np, "y-invert", NULL))
++		pdata->y_invert = true;
++
++	return pdata;
++}
++
+ static int __devinit mms114_probe(struct i2c_client *client,
+ 				  const struct i2c_device_id *id)
+ {
+ 	struct mms114_data *data;
+ 	struct input_dev *input_dev;
++	struct mms114_platform_data *pdata = client->dev.platform_data;
+ 	int error;
+ 
+-	if (!client->dev.platform_data) {
++	if (!pdata)
++		pdata = mms114_parse_dt(&client->dev);
++
++	if (!pdata) {
+ 		dev_err(&client->dev, "Need platform data\n");
+ 		return -EINVAL;
+ 	}
+@@ -389,7 +431,7 @@ static int __devinit mms114_probe(struct i2c_client *client,
+ 
+ 	data->client = client;
+ 	data->input_dev = input_dev;
+-	data->pdata = client->dev.platform_data;
++	data->pdata = pdata;
+ 
+ 	input_dev->name = "MELPAS MMS114 Touchscreen";
+ 	input_dev->id.bustype = BUS_I2C;
+@@ -525,11 +567,17 @@ static const struct i2c_device_id mms114_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, mms114_id);
+ 
++static struct of_device_id __devinitdata mms114_dt_match[] = {
++	{ .compatible = "melfas,mms114" },
++	{ }
++};
++
+ static struct i2c_driver mms114_driver = {
+ 	.driver = {
+ 		.name	= "mms114",
+ 		.owner	= THIS_MODULE,
+ 		.pm	= &mms114_pm_ops,
++		.of_match_table = mms114_dt_match,
+ 	},
+ 	.probe		= mms114_probe,
+ 	.remove		= __devexit_p(mms114_remove),
+-- 
+1.7.12

@@ -1,60 +1,46 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 06/10] Documentation: Detail permitted DT properties for the BU21013 Touch Screen
-Date: Tue,  2 Oct 2012 09:13:19 +0100
-Message-ID: <1349165603-24401-7-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH 03/10] Input: bu21013_ts - Request a regulator that actually exists
+Date: Tue,  2 Oct 2012 09:13:16 +0100
+Message-ID: <1349165603-24401-4-git-send-email-lee.jones@linaro.org>
 References: <1349165603-24401-1-git-send-email-lee.jones@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:59838 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754177Ab2JBINi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Oct 2012 04:13:38 -0400
+Received: by weyt9 with SMTP id t9so3444258wey.19
+        for <linux-input@vger.kernel.org>; Tue, 02 Oct 2012 01:13:37 -0700 (PDT)
 In-Reply-To: <1349165603-24401-1-git-send-email-lee.jones@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc: arnd@arndb.de, linus.walleij@stericsson.com, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-Here we apply required documentation for the Rohm BU21013 Touch
-Screen driver which describe available properties and how to use
-them.
+Currently the BU21013 Touch Screen driver requests a regulator by the
+name of 'V-TOUCH', which doesn't exist anywhere in the kernel. The
+correct name, as referenced in platform regulator code is 'avdd'. Here,
+when we request a regulator, we use the correct name instead.
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- .../bindings/input/touchscreen/bu21013.txt         |   28 ++++++++++++++++++++
- 1 file changed, 28 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
+ drivers/input/touchscreen/bu21013_ts.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt b/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
-new file mode 100644
-index 0000000..51edc75
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
-@@ -0,0 +1,28 @@
-+* Rohm BU21013 Touch Screen
-+
-+Required properties:
-+ - compatible           : "stericsson,bu21013_tp"
-+ - reg                  :  I2C device address
-+
-+Optional properties:
-+touch-gpio              : GPIO pin registering a touch event
-+<supply_name>-supply	: Phandle to a regulator supply
-+stericsson,touch-max-x 	: Maximum outward permitted limit in the X axis
-+stericsson,touch-max-y	: Maximum outward permitted limit in the Y axis
-+stericsson,flip-x	: Flip touch coordinates on the X axis
-+stericsson,flip-y	: Flip touch coordinates on the Y axis
-+
-+Example:
-+
-+	i2c@80110000 {
-+		bu21013_tp@0x5c {
-+			compatible = "bu21013_tp";
-+			reg = <0x5c>;
-+			touch-gpio = <&gpio2 20 0x4>;
-+			avdd-supply = <&ab8500_ldo_aux1_reg>;
-+
-+			stericsson,touch-max-x = <384>;
-+			stericsson,touch-max-y = <704>;
-+			stricsson,flip-y;
-+		};
-+	};
+diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+index 5c487d2..2fae682 100644
+--- a/drivers/input/touchscreen/bu21013_ts.c
++++ b/drivers/input/touchscreen/bu21013_ts.c
+@@ -461,7 +461,7 @@ static int __devinit bu21013_probe(struct i2c_client *client,
+ 	bu21013_data->chip = pdata;
+ 	bu21013_data->client = client;
+ 
+-	bu21013_data->regulator = regulator_get(&client->dev, "V-TOUCH");
++	bu21013_data->regulator = regulator_get(&client->dev, "avdd");
+ 	if (IS_ERR(bu21013_data->regulator)) {
+ 		dev_err(&client->dev, "regulator_get failed\n");
+ 		error = PTR_ERR(bu21013_data->regulator);
 -- 
 1.7.9.5
+

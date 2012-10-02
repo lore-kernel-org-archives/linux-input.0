@@ -1,35 +1,63 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Communicating tablet mode status to userspace
-Date: Tue, 2 Oct 2012 23:39:56 +0100
-Message-ID: <20121002233956.71b805e4@pyramind.ukuu.org.uk>
-References: <CAMLZHHS80_zdmgVtJ87w+fuQGC05yj+EoJt3C_zBC7hkyhnaoQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:52860 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754197Ab2JBWfF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Oct 2012 18:35:05 -0400
-In-Reply-To: <CAMLZHHS80_zdmgVtJ87w+fuQGC05yj+EoJt3C_zBC7hkyhnaoQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Thomas Abraham <thomas.abraham@linaro.org>
+Subject: [PATCH] input: samsung-keypad: add clk_prepare and clk_unprepare
+Date: Wed,  3 Oct 2012 08:31:52 +0900
+Message-ID: <1349220712-2516-1-git-send-email-thomas.abraham@linaro.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, dtor@mail.ru, kgene.kim@samsung.com, linux-samsung-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Drake <dsd@laptop.org>
-Cc: linux-input@vger.kernel.org, linux-hotplug@vger.kernel.org, hadess@hadess.net, Carlos Garnacho <carlosg@gnome.org>
 
-> The change event would (presumably) trigger libudev's udev_monitor,
-> which would be used by the on-screen keyboard software (maliit) to
-> change its behaviour according to the property value.
-> 
-> Does this sound like a sensible plan, would these udev and kernel
-> changes be acceptable? Or is there a better option that I'm missing?
+Add calls to clk_prepare and clk_unprepare as required by commom clock
+framework.
 
-Seems reasonable to me - but remember that a device can be in both tablet
-and non tablet modes at once to different users once you have a wireless
-display.
+Signed-off-by: Thomas Abraham <thomas.abraham@linaro.org>
+---
+ drivers/input/keyboard/samsung-keypad.c |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletions(-)
 
-ie it's really not "tablet mode" it's "does this particular interface
-have a keyboard"
-
-
-
+diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
+index 277e26d..9d7a111 100644
+--- a/drivers/input/keyboard/samsung-keypad.c
++++ b/drivers/input/keyboard/samsung-keypad.c
+@@ -431,6 +431,12 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
+ 		goto err_unmap_base;
+ 	}
+ 
++	error = clk_prepare(keypad->clk);
++	if (error) {
++		dev_err(&pdev->dev, "keypad clock prepare failed\n");
++		goto err_put_clk;
++	}
++
+ 	keypad->input_dev = input_dev;
+ 	keypad->pdev = pdev;
+ 	keypad->row_shift = row_shift;
+@@ -461,7 +467,7 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
+ 					   keypad->keycodes, input_dev);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed to build keymap\n");
+-		goto err_put_clk;
++		goto err_unprepare_clk;
+ 	}
+ 
+ 	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+@@ -503,6 +509,8 @@ err_free_irq:
+ 	pm_runtime_disable(&pdev->dev);
+ 	device_init_wakeup(&pdev->dev, 0);
+ 	platform_set_drvdata(pdev, NULL);
++err_unprepare_clk:
++	clk_unprepare(keypad->clk);
+ err_put_clk:
+ 	clk_put(keypad->clk);
+ 	samsung_keypad_dt_gpio_free(keypad);
+@@ -531,6 +539,7 @@ static int __devexit samsung_keypad_remove(struct platform_device *pdev)
+ 	 */
+ 	free_irq(keypad->irq, keypad);
+ 
++	clk_unprepare(keypad->clk);
+ 	clk_put(keypad->clk);
+ 	samsung_keypad_dt_gpio_free(keypad);
+ 
+-- 
+1.7.4.1

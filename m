@@ -1,50 +1,35 @@
-From: Daniel Drake <dsd@laptop.org>
-Subject: Communicating tablet mode status to userspace
-Date: Tue, 2 Oct 2012 16:27:07 -0600
-Message-ID: <CAMLZHHS80_zdmgVtJ87w+fuQGC05yj+EoJt3C_zBC7hkyhnaoQ@mail.gmail.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Communicating tablet mode status to userspace
+Date: Tue, 2 Oct 2012 23:39:56 +0100
+Message-ID: <20121002233956.71b805e4@pyramind.ukuu.org.uk>
+References: <CAMLZHHS80_zdmgVtJ87w+fuQGC05yj+EoJt3C_zBC7hkyhnaoQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:55558 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753994Ab2JBW1H (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Oct 2012 18:27:07 -0400
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:52860 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754197Ab2JBWfF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Oct 2012 18:35:05 -0400
+In-Reply-To: <CAMLZHHS80_zdmgVtJ87w+fuQGC05yj+EoJt3C_zBC7hkyhnaoQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-hotplug@vger.kernel.org
-Cc: hadess@hadess.net, Carlos Garnacho <carlosg@gnome.org>
+To: Daniel Drake <dsd@laptop.org>
+Cc: linux-input@vger.kernel.org, linux-hotplug@vger.kernel.org, hadess@hadess.net, Carlos Garnacho <carlosg@gnome.org>
 
-Hi,
+> The change event would (presumably) trigger libudev's udev_monitor,
+> which would be used by the on-screen keyboard software (maliit) to
+> change its behaviour according to the property value.
+> 
+> Does this sound like a sensible plan, would these udev and kernel
+> changes be acceptable? Or is there a better option that I'm missing?
 
-For the upcoming OLPC touchscreen laptop we're trying to solve the
-following problem: we want the on-screen keyboard to only activate
-itself when the laptop is "folded over" into tablet mode where the
-keyboard is physically obscured.
+Seems reasonable to me - but remember that a device can be in both tablet
+and non tablet modes at once to different users once you have a wireless
+display.
 
-We already have an ebook mode switch which detects this, and the
-driver is upstream. Its an input device that exposes this information
-via the SW_TABLET_MODE switch.
+ie it's really not "tablet mode" it's "does this particular interface
+have a keyboard"
 
-The on-screen keyboard runs in the user environment, which means that
-its not root - it can't access /dev/input/event nodes directly. X
-doesn't treat switches as input devices, so this info is not available
-through X.
 
-I'm wondering if anyone has suggestions on the best way to solve this
-problem. The most attractive option I have found would be to do
-something similar to the accelerometer:
-http://git.kernel.org/?p=linux/hotplug/udev.git;a=blob;f=src/accelerometer/accelerometer.c
 
-Modify the kernel input driver to generate a uevent (in addition to
-the evdev event) every time the switch state is changed, then write a
-udev program to expose this info in a udev property.
-
-The change event would (presumably) trigger libudev's udev_monitor,
-which would be used by the on-screen keyboard software (maliit) to
-change its behaviour according to the property value.
-
-Does this sound like a sensible plan, would these udev and kernel
-changes be acceptable? Or is there a better option that I'm missing?
-
-Thanks
-Daniel

@@ -1,46 +1,101 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 03/10] Input: bu21013_ts - Request a regulator that actually exists
-Date: Tue,  2 Oct 2012 09:13:16 +0100
-Message-ID: <1349165603-24401-4-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH 05/10] Input: bu21013_ts - Add support for Device Tree booting
+Date: Tue,  2 Oct 2012 09:13:18 +0100
+Message-ID: <1349165603-24401-6-git-send-email-lee.jones@linaro.org>
 References: <1349165603-24401-1-git-send-email-lee.jones@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:59838 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754177Ab2JBINi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Oct 2012 04:13:38 -0400
-Received: by weyt9 with SMTP id t9so3444258wey.19
-        for <linux-input@vger.kernel.org>; Tue, 02 Oct 2012 01:13:37 -0700 (PDT)
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:39817 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754183Ab2JBINl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Oct 2012 04:13:41 -0400
+Received: by mail-wi0-f172.google.com with SMTP id hq12so550762wib.1
+        for <linux-input@vger.kernel.org>; Tue, 02 Oct 2012 01:13:39 -0700 (PDT)
 In-Reply-To: <1349165603-24401-1-git-send-email-lee.jones@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc: arnd@arndb.de, linus.walleij@stericsson.com, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Currently the BU21013 Touch Screen driver requests a regulator by the
-name of 'V-TOUCH', which doesn't exist anywhere in the kernel. The
-correct name, as referenced in platform regulator code is 'avdd'. Here,
-when we request a regulator, we use the correct name instead.
+Now we can register the BU21013_ts touch screen when booting with
+Device Tree enabled. Here we parse all the necessary components
+previously expected to be passed from platform data.
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/input/touchscreen/bu21013_ts.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/bu21013_ts.c |   39 ++++++++++++++++++++++++++++----
+ 1 file changed, 35 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
-index 5c487d2..2fae682 100644
+index 5d8fc75..3d1bff2 100644
 --- a/drivers/input/touchscreen/bu21013_ts.c
 +++ b/drivers/input/touchscreen/bu21013_ts.c
-@@ -461,7 +461,7 @@ static int __devinit bu21013_probe(struct i2c_client *client,
- 	bu21013_data->chip = pdata;
- 	bu21013_data->client = client;
+@@ -15,6 +15,8 @@
+ #include <linux/regulator/consumer.h>
+ #include <linux/module.h>
+ #include <linux/gpio.h>
++#include <linux/of.h>
++#include <linux/of_gpio.h>
  
--	bu21013_data->regulator = regulator_get(&client->dev, "V-TOUCH");
-+	bu21013_data->regulator = regulator_get(&client->dev, "avdd");
- 	if (IS_ERR(bu21013_data->regulator)) {
- 		dev_err(&client->dev, "regulator_get failed\n");
- 		error = PTR_ERR(bu21013_data->regulator);
+ /* Reference tracking for multiple displays. */
+ static int bu21013_devices = 0;
+@@ -487,13 +489,33 @@ static void bu21013_free_irq(struct bu21013_ts_data *bu21013_data)
+  * This function used to initializes the i2c-client touchscreen
+  * driver and returns integer.
+  */
++static void __devinit bu21013_of_probe(struct device_node *np,
++				struct bu21013_platform_device *pdata)
++{
++	pdata->y_flip = pdata->x_flip = false;
++
++	if (of_get_property(np, "stricsson,flip-x", NULL))
++		pdata->x_flip = true;
++
++	if (of_get_property(np, "stricsson,flip-y", NULL))
++		pdata->y_flip = true;
++
++	of_property_read_u32(np, "stericsson,touch-max-x", &pdata->touch_x_max);
++	of_property_read_u32(np, "stericsson,touch-max-y", &pdata->touch_y_max);
++
++	pdata->touch_pin = of_get_named_gpio(np, "touch-gpio", 0);
++	pdata->cs_pin = of_get_named_gpio(np, "reset-gpio", 0);
++
++	pdata->ext_clk = false;
++}
++
+ static int __devinit bu21013_probe(struct i2c_client *client,
+ 					const struct i2c_device_id *id)
+ {
+ 	struct bu21013_ts_data *bu21013_data;
+ 	struct input_dev *in_dev;
+-	const struct bu21013_platform_device *pdata =
+-					client->dev.platform_data;
++	struct device_node *np = client->dev.of_node;
++	struct bu21013_platform_device *pdata = client->dev.platform_data;
+ 	int error;
+ 
+ 	if (!i2c_check_functionality(client->adapter,
+@@ -503,8 +525,17 @@ static int __devinit bu21013_probe(struct i2c_client *client,
+ 	}
+ 
+ 	if (!pdata) {
+-		dev_err(&client->dev, "platform data not defined\n");
+-		return -EINVAL;
++		if (np) {
++			pdata = devm_kzalloc(&client->dev, sizeof(*pdata),
++					GFP_KERNEL);
++			if (!pdata)
++				return -ENOMEM;
++
++			bu21013_of_probe(np, pdata);
++		} else {
++			dev_err(&client->dev, "no device tree or platform data\n");
++			return -EINVAL;
++		}
+ 	}
+ 
+ 	pdata->irq = gpio_to_irq(pdata->touch_pin);
 -- 
 1.7.9.5
 

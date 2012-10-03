@@ -1,71 +1,67 @@
-From: sebastien.dinot-GANU6spQydw@public.gmane.org
-Subject: Mouse and keyboard freeze on Ivy Bridge platform
-Date: Wed, 3 Oct 2012 09:40:48 +0200 (CEST)
-Message-ID: <181608016.271891744.1349250048886.JavaMail.root@zimbra59-e10.priv.proxad.net>
-References: <551981935.271757401.1349247690620.JavaMail.root@zimbra59-e10.priv.proxad.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <551981935.271757401.1349247690620.JavaMail.root-J/s0bdte1BApj9y2c1zofRh1pbbyJDp15NbjCUgZEJk@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 689368-61a8vm9lEZVf4u+23C9RwQ@public.gmane.org
+From: Tomasz Figa <t.figa@samsung.com>
+Subject: [PATCH] input: keyboard: gpio-keys: Try to parse IRQ from device tree
+Date: Wed, 03 Oct 2012 13:20:00 +0200
+Message-ID: <1349263201-422-1-git-send-email-t.figa@samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com, t.figa@samsung.com, tomasz.figa@gmail.com, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+On modern platforms using device tree and non-legacy IRQ domains there
+is usually no way to perform direct translation between GPIO and IRQ,
+because the IRQ of interest is not mapped yet into sparse IRQ namespace.
 
-I am encountering random keyboard and mouse freezes which can only be r=
-esolved by a hard reset (by pushing the power switch of the computer ca=
-se).
+This patch modifies the gpio_keys driver to parse IRQ from device tree
+and use gpio_to_irq only as a fallback.
 
-I have this frequent and irritating issue with two differents Ivy Bridg=
-e platforms:=20
+Signed-off-by: Tomasz Figa <t.figa@samsung.com>
+---
+ Documentation/devicetree/bindings/gpio/gpio_keys.txt | 2 ++
+ drivers/input/keyboard/gpio_keys.c                   | 4 +++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-1. Processor:   Intel Core i5 3450 (IGP HD 2500)
-   Motherboard: MSI Z77A-G43 (with uptodate BIOS)
-  =20
-2. Processor:   Intel Core i5 3570K (IGP HD 4000)
-   Motherboard: ASUS P8Z77-V LX (with uptodate BIOS)
-
-I use Debian on these platforms and I tried several Linux kernels:
- =20
-  * linux-image-3.2.0-3-amd64   (package from Debian testing)
-  * linux-image-3.4-trunk-amd64 (package from Debian experimental)
-  * linux-image-3.5-trunk-amd64 (package from Debian experimental)
-
-I pointed out this bug to the Debian kernel team:
-
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D689368
-
-The mouse and keyboard are both USB devices and it seems that the bug i=
-s coming from the echci-hcd module:
-
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D689368#24
-
-I attached the dmesg output and the kern.log file to my first message t=
-o Debian:
-
-* http://bugs.debian.org/cgi-bin/bugreport.cgi?msg=3D35;filename=3Ddmes=
-g.20121001-231244;att=3D1;bug=3D689268
-* http://bugs.debian.org/cgi-bin/bugreport.cgi?msg=3D35;filename=3Dkern=
-=2Elog.20121001-232320.gz;att=3D2;bug=3D689268
-
-As mentioned to the Debian maintainers, this bug is very frequent (I ha=
-d up to four freezes in an hour) and my PC are really unusable!
-
-Can I run additional tests or give you additional informations to help =
-you resolve this painful bug?
-
-Sebastien
-
---=20
-S=C3=A9bastien Dinot, sebastien.dinot-GANU6spQydw@public.gmane.org
-http://sebastien.dinot.free.fr/
-Ne go=C3=BBtez pas au logiciel libre, vous ne pourriez plus vous en pas=
-ser !
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/devicetree/bindings/gpio/gpio_keys.txt b/Documentation/devicetree/bindings/gpio/gpio_keys.txt
+index 5c2c021..7f318a5 100644
+--- a/Documentation/devicetree/bindings/gpio/gpio_keys.txt
++++ b/Documentation/devicetree/bindings/gpio/gpio_keys.txt
+@@ -20,6 +20,8 @@ Optional subnode-properties:
+ 	- debounce-interval: Debouncing interval time in milliseconds.
+ 	  If not specified defaults to 5.
+ 	- gpio-key,wakeup: Boolean, button can wake-up the system.
++	- interrupt: Interrupt used for this key (required if no translation
++	  between GPIO and IRQ is available).
+ 
+ Example nodes:
+ 
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 6a68041..a33660c 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -28,6 +28,7 @@
+ #include <linux/gpio.h>
+ #include <linux/of_platform.h>
+ #include <linux/of_gpio.h>
++#include <linux/of_irq.h>
+ #include <linux/spinlock.h>
+ 
+ struct gpio_button_data {
+@@ -464,7 +465,7 @@ static int __devinit gpio_keys_setup_key(struct platform_device *pdev,
+ 						button->debounce_interval;
+ 		}
+ 
+-		irq = gpio_to_irq(button->gpio);
++		irq = (button->irq) ? : gpio_to_irq(button->gpio);
+ 		if (irq < 0) {
+ 			error = irq;
+ 			dev_err(dev,
+@@ -597,6 +598,7 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+ 
+ 		button = &pdata->buttons[i++];
+ 
++		button->irq = irq_of_parse_and_map(pp, 0);
+ 		button->gpio = of_get_gpio_flags(pp, 0, &flags);
+ 		button->active_low = flags & OF_GPIO_ACTIVE_LOW;
+ 
+-- 
+1.7.12

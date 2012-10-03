@@ -1,59 +1,73 @@
-From: =?UTF-8?Q?S=C3=A9bastien?= Dinot <sebastien.dinot@free.fr>
-Subject: Bug#689368: Mouse and keyboard freeze on Ivy Bridge platform
-Date: Thu, 4 Oct 2012 23:36:06 +0200
-Message-ID: <20121004213606.GA8409@dinot.net>
-References: <20121004194347.GB6927@dinot.net>
- <Pine.LNX.4.44L0.1210041654550.1441-100000@iolanthe.rowland.org>
-Reply-To: =?UTF-8?Q?S=C3=83=C2=A9bastien?= Dinot <sebastien.dinot@free.fr>, 689368@bugs.debian.org
+From: "Matt Gumbel" <matthew.k.gumbel@linux.intel.com>
+Subject: [PATCH] HID Sensors: Add USB pid 0x0A01
+Date: Wed, 3 Oct 2012 14:31:50 -0700 (PDT)
+Message-ID: <37862.10.7.199.79.1349299910.squirrel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <bounce-debian-kernel=glddk-debian-kernel=m.gmane.org@lists.debian.org>
-Resent-To: debian-bugs-dist@lists.debian.org
-Resent-Message-ID: <handler.689368.B689368.134938657731904@bugs.debian.org>
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.1210041654550.1441-100000@iolanthe.rowland.org>
-List-URL: <http://lists.debian.org/debian-kernel/>
-List-Post: <mailto:debian-kernel@lists.debian.org>
-List-Help: <mailto:debian-kernel-request@lists.debian.org?subject=help>
-List-Subscribe: <mailto:debian-kernel-request@lists.debian.org?subject=subscribe>
-List-Unsubscribe: <mailto:debian-kernel-request@lists.debian.org?subject=unsubscribe>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, 689368@bugs.debian.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:37445 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756350Ab2JCVcB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Oct 2012 17:32:01 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org
 
-Alan Stern a =C3=A9crit :
-> The log file shows lots and lots of low-level communication errors.
-> They could be caused by bad cabling or by bad USB hardware in your
-> computer. It's unlikely that they were caused by the mouse or
-> keyboard, because the log shows errors for both of them starting at
-> exactly the same times.
+For usb hid sensor hub in recent platform.
 
-In my humble opinion, this issue is not caused by a bad USB hardware
-because I am encountering it with two different motherboards (MSI
-Z77A-G43 and ASUS P8Z77-V LX), both with an uptodate BIOS.
+Signed-off-by: Matt Gumbel <matthew.k.gumbel@linux.intel.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+---
+ drivers/hid/hid-core.c       |    1 +
+ drivers/hid/hid-ids.h        |    1 +
+ drivers/hid/hid-sensor-hub.c |    2 ++
+ 3 files changed, 4 insertions(+)
 
-May be it is caused by a bad cabling but my mouse and my keyboard worked
-fine with my previous PC. They are connected to USB2 ports in both
-cases. But to clear up this point, I will try new mouse and keyboard.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index a9bb940..15cf199 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1562,6 +1562,7 @@ static const struct hid_device_id
+hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8086,
+USB_DEVICE_ID_SENSOR_HUB_09FA) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
+USB_DEVICE_ID_SENSOR_HUB_1020) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
+USB_DEVICE_ID_SENSOR_HUB_09FA) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
+USB_DEVICE_ID_SENSOR_HUB_0A01) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KEYTOUCH, USB_DEVICE_ID_KEYTOUCH_IEC) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index d08a4cf..48c1808 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -432,6 +432,7 @@
+ #define USB_VENDOR_ID_INTEL_8087	0x8087
+ #define USB_DEVICE_ID_SENSOR_HUB_1020	0x1020
+ #define USB_DEVICE_ID_SENSOR_HUB_09FA	0x09FA
++#define USB_DEVICE_ID_SENSOR_HUB_0A01	0x0A01
 
-A last question: if it is a cable failure, why does it disappear
-temporarily when I unload then reload the module? I do not have deep
-experience and knowledge of hardware, may be there is a rational
-explanation to it.
+ #define USB_VENDOR_ID_IRTOUCHSYSTEMS	0x6615
+ #define USB_DEVICE_ID_IRTOUCH_INFRARED_USB	0x0070
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index d9d73e9..b1c40e8 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -638,6 +638,8 @@ static const struct hid_device_id sensor_hub_devices[]
+= {
+ 			USB_DEVICE_ID_SENSOR_HUB_09FA) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
+ 			USB_DEVICE_ID_SENSOR_HUB_09FA) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
++			USB_DEVICE_ID_SENSOR_HUB_0A01) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM,
+ 			USB_DEVICE_ID_SENSOR_HUB_7014) },
+ 	{ }
+-- 
+1.7.9.5
 
-> You could try getting a USB-2 hub and attaching your mouse and
-> keyboard through the hub. That might help ... or it might not.
-
-Sorry, I do not understand the aim of this operation. Could you explain
-me it?
-
-Thanks for your help,
-
-S=C3=A9bastien
-
---=20
-S=C3=A9bastien Dinot, sebastien.dinot@free.fr
-http://sebastien.dinot.free.fr/
-Ne go=C3=BBtez pas au logiciel libre, vous ne pourriez plus vous en passe=
-r !

@@ -1,107 +1,87 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH 4/6] Input: da9052_onkey.c: Convert to the new da9052 interrupt functions.
-Date: Thu,  4 Oct 2012 00:15:07 -0300
-Message-ID: <1349320509-26930-4-git-send-email-festevam@gmail.com>
-References: <1349320509-26930-1-git-send-email-festevam@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 3/4] Input: mousedev - rename mixdev_open to opened_by_mixdev
+Date: Wed,  3 Oct 2012 14:03:01 -0700
+Message-ID: <1349298182-22452-3-git-send-email-dmitry.torokhov@gmail.com>
+References: <1349298182-22452-1-git-send-email-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gh0-f174.google.com ([209.85.160.174]:44594 "EHLO
-	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753053Ab2JDDP4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Oct 2012 23:15:56 -0400
-In-Reply-To: <1349320509-26930-1-git-send-email-festevam@gmail.com>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:36181 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754889Ab2JCVDJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Oct 2012 17:03:09 -0400
+Received: by padhz1 with SMTP id hz1so6733386pad.19
+        for <linux-input@vger.kernel.org>; Wed, 03 Oct 2012 14:03:09 -0700 (PDT)
+In-Reply-To: <1349298182-22452-1-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: sameo@linux.intel.com
-Cc: broonie@opensource.wolfsonmicro.com, ashish.jangam@kpitcummins.com, dchen@diasemi.com, arnd@arndb.de, kernel@pengutronix.de, linux-kernel@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: linux-input@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam@freescale.com>
+Do the rename to make the logic more clear and also change it to bool
+while at it.
 
-Use the new da9052 irq functions and allow the driver to probe successfully.
-
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: <linux-input@vger.kernel.org>
-Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/input/misc/da9052_onkey.c |   22 +++++-----------------
- 1 file changed, 5 insertions(+), 17 deletions(-)
+ drivers/input/mousedev.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/input/misc/da9052_onkey.c b/drivers/input/misc/da9052_onkey.c
-index 3c843cd..3be3acc 100644
---- a/drivers/input/misc/da9052_onkey.c
-+++ b/drivers/input/misc/da9052_onkey.c
-@@ -24,7 +24,6 @@ struct da9052_onkey {
- 	struct da9052 *da9052;
- 	struct input_dev *input;
- 	struct delayed_work work;
--	unsigned int irq;
- };
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index 91f6220..2baf32d 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -68,7 +68,7 @@ struct mousedev {
+ 	bool exist;
  
- static void da9052_onkey_query(struct da9052_onkey *onkey)
-@@ -76,7 +75,6 @@ static int __devinit da9052_onkey_probe(struct platform_device *pdev)
- 	struct da9052 *da9052 = dev_get_drvdata(pdev->dev.parent);
- 	struct da9052_onkey *onkey;
- 	struct input_dev *input_dev;
--	int irq;
- 	int error;
+ 	struct list_head mixdev_node;
+-	int mixdev_open;
++	bool opened_by_mixdev;
  
- 	if (!da9052) {
-@@ -84,13 +82,6 @@ static int __devinit da9052_onkey_probe(struct platform_device *pdev)
- 		return -EINVAL;
+ 	struct mousedev_hw_data packet;
+ 	unsigned int pkt_count;
+@@ -469,11 +469,11 @@ static void mixdev_open_devices(void)
+ 		return;
+ 
+ 	list_for_each_entry(mousedev, &mousedev_mix_list, mixdev_node) {
+-		if (!mousedev->mixdev_open) {
++		if (!mousedev->opened_by_mixdev) {
+ 			if (mousedev_open_device(mousedev))
+ 				continue;
+ 
+-			mousedev->mixdev_open = 1;
++			mousedev->opened_by_mixdev = true;
+ 		}
+ 	}
+ }
+@@ -491,8 +491,8 @@ static void mixdev_close_devices(void)
+ 		return;
+ 
+ 	list_for_each_entry(mousedev, &mousedev_mix_list, mixdev_node) {
+-		if (mousedev->mixdev_open) {
+-			mousedev->mixdev_open = 0;
++		if (mousedev->opened_by_mixdev) {
++			mousedev->opened_by_mixdev = false;
+ 			mousedev_close_device(mousedev);
+ 		}
+ 	}
+@@ -935,7 +935,7 @@ static int mixdev_add_device(struct mousedev *mousedev)
+ 		if (retval)
+ 			goto out;
+ 
+-		mousedev->mixdev_open = 1;
++		mousedev->opened_by_mixdev = true;
  	}
  
--	irq = platform_get_irq_byname(pdev, "ONKEY");
--	if (irq < 0) {
--		dev_err(&pdev->dev,
--			"Failed to get an IRQ for input device, %d\n", irq);
--		return -EINVAL;
--	}
--
- 	onkey = kzalloc(sizeof(*onkey), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!onkey || !input_dev) {
-@@ -101,7 +92,6 @@ static int __devinit da9052_onkey_probe(struct platform_device *pdev)
- 
- 	onkey->input = input_dev;
- 	onkey->da9052 = da9052;
--	onkey->irq = irq;
- 	INIT_DELAYED_WORK(&onkey->work, da9052_onkey_work);
- 
- 	input_dev->name = "da9052-onkey";
-@@ -111,13 +101,11 @@ static int __devinit da9052_onkey_probe(struct platform_device *pdev)
- 	input_dev->evbit[0] = BIT_MASK(EV_KEY);
- 	__set_bit(KEY_POWER, input_dev->keybit);
- 
--	error = request_threaded_irq(onkey->irq, NULL, da9052_onkey_irq,
--				     IRQF_TRIGGER_LOW | IRQF_ONESHOT,
--				     "ONKEY", onkey);
-+	error = da9052_request_irq(onkey->da9052, DA9052_IRQ_NONKEY, "ONKEY",
-+			    da9052_onkey_irq, onkey);
- 	if (error < 0) {
- 		dev_err(onkey->da9052->dev,
--			"Failed to register ONKEY IRQ %d, error = %d\n",
--			onkey->irq, error);
-+			"Failed to register ONKEY IRQ: %d\n", error);
- 		goto err_free_mem;
- 	}
- 
-@@ -132,7 +120,7 @@ static int __devinit da9052_onkey_probe(struct platform_device *pdev)
- 	return 0;
- 
- err_free_irq:
--	free_irq(onkey->irq, onkey);
-+	da9052_free_irq(onkey->da9052, DA9052_IRQ_NONKEY, onkey);
- 	cancel_delayed_work_sync(&onkey->work);
- err_free_mem:
- 	input_free_device(input_dev);
-@@ -145,7 +133,7 @@ static int __devexit da9052_onkey_remove(struct platform_device *pdev)
+ 	get_device(&mousedev->dev);
+@@ -950,8 +950,8 @@ static void mixdev_remove_device(struct mousedev *mousedev)
  {
- 	struct da9052_onkey *onkey = platform_get_drvdata(pdev);
+ 	mutex_lock(&mousedev_mix->mutex);
  
--	free_irq(onkey->irq, onkey);
-+	da9052_free_irq(onkey->da9052, DA9052_IRQ_NONKEY, onkey);
- 	cancel_delayed_work_sync(&onkey->work);
+-	if (mousedev->mixdev_open) {
+-		mousedev->mixdev_open = 0;
++	if (mousedev->opened_by_mixdev) {
++		mousedev->opened_by_mixdev = false;
+ 		mousedev_close_device(mousedev);
+ 	}
  
- 	input_unregister_device(onkey->input);
 -- 
-1.7.9.5
+1.7.11.4
 

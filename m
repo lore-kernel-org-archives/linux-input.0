@@ -1,37 +1,89 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: Communicating tablet mode status to userspace
-Date: Wed, 3 Oct 2012 08:05:42 -0700
-Message-ID: <20121003150542.GA8460@kroah.com>
-References: <CAMLZHHS80_zdmgVtJ87w+fuQGC05yj+EoJt3C_zBC7hkyhnaoQ@mail.gmail.com>
- <20121002233640.GB8542@core.coreip.homeip.net>
- <CAMLZHHQfGuiK6s_d8ya8FUNiDiGDpgh35VFbHcu-mgCH-=TXVw@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v1] i2c-hid: introduce HID over i2c specification implementation
+Date: Wed, 3 Oct 2012 17:13:33 +0200
+Message-ID: <CAN+gG=GmcYpj=V+VMFB4hDapoj9xaapBm9=x5rvaN3nBTx-8Fw@mail.gmail.com>
+References: <1347630103-4105-1-git-send-email-benjamin.tissoires@gmail.com>
+	<87ehlgmevy.fsf@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-hotplug-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMLZHHQfGuiK6s_d8ya8FUNiDiGDpgh35VFbHcu-mgCH-=TXVw@mail.gmail.com>
-Sender: linux-hotplug-owner@vger.kernel.org
-To: Daniel Drake <dsd@laptop.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-hotplug@vger.kernel.org, hadess@hadess.net, Carlos Garnacho <carlosg@gnome.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <87ehlgmevy.fsf@emc.com.tw>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jian-Jhong Ding <jj_ding@emc.com.tw>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, fabien.andre@gmail.com, scott.liu@emc.com.tw, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Oct 03, 2012 at 08:52:31AM -0600, Daniel Drake wrote:
-> On Tue, Oct 2, 2012 at 5:36 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Why can't you change event device ownership to the local user?  Then you
-> > can read and act upon events.
-> 
-> That would work, I guess.
-> 
-> However, it sounds like your suggesting that we add some custom rules
-> in OLPC's own builds and leave it at that. I'm not sure what
-> user/group we could use for a generic rule matching this hardware.
+Hi JJ,
 
-That shouldn't be a custom rule, other distros bind the keyboard / mouse
-to the local user in order to handle the multi-seat situation properly.
-That should all be done already in the console-kit logic (or whatever
-handles it now.)
+On Wed, Oct 3, 2012 at 5:08 AM, Jian-Jhong Ding <jj_ding@emc.com.tw> wrote:
+> Hi Benjamin,
+>
+> I have one little question about __i2chid_command(), please see below.
+>
+> "benjamin.tissoires" <benjamin.tissoires@gmail.com> writes:
+>> From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+>>
+>> Microsoft published the protocol specification of HID over i2c:
+>> http://msdn.microsoft.com/en-us/library/windows/hardware/hh852380.aspx
+>>
+>> This patch introduces an implementation of this protocol.
+>>
+>> This implementation does not includes the ACPI part of the specification.
+>> This will come when ACPI 5.0 devices will be available.
+>>
+>> Once the ACPI part will be done, OEM will not have to declare HID over I2C
+>> devices in their platform specific driver.
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+>> ---
+>>
+[...] snipped
+>> +     if (wait) {
+>> +             spin_lock_irq(&ihid->flock);
+>> +             set_bit(I2C_HID_RESET_PENDING, &ihid->flags);
+>> +             spin_unlock_irq(&ihid->flock);
+>> +     }
+>> +
+>> +     do {
+>> +             ret = i2c_transfer(client->adapter, msg, msg_num);
+>> +             if (ret > 0)
+>> +                     break;
+>> +             tries--;
+>> +             dev_dbg(&client->dev, "retrying i2chid_command:%d (%d)\n",
+>> +                     command, tries);
+>> +     } while (tries > 0);
+>
+> Do we have to do this retry here?  In i2c_transfer() it already does
+> retry automatically on arbitration loss (please see __i2c_transfer() in
+> drivers/i2c/i2c-core.c) that's defined by individual bus driver.  Maybe
+> we don't have to retry here and make the code a bit simpler.
+>
 
-Have you looked into that?
+Indeed, this retry is not necessary. I'll remove it in v2.
+Thanks for the review.
 
-greg k-h
+Cheers,
+Benjamin
+
+>> +     if (wait && ret > 0) {
+>> +             if (debug)
+>> +                     dev_err(&client->dev, "%s: waiting....\n", __func__);
+>> +             if (!wait_event_timeout(ihid->wait,
+>> +                             !test_bit(I2C_HID_RESET_PENDING, &ihid->flags),
+>> +                             msecs_to_jiffies(5000)))
+>> +                     ret = -ENODATA;
+>> +             if (debug)
+>> +                     dev_err(&client->dev, "%s: finished.\n", __func__);
+>> +     }
+>> +
+>> +     kfree(cmd);
+>> +
+>> +     return ret > 0 ? ret != msg_num : ret;
+>> +}
+>> +
+>> +static int i2chid_command(struct i2c_client *client, int command,
+>> +             unsigned char *buf_recv, int data_len)
+>> +{
+>> +     return __i2chid_command(client, command, 0, 0, NULL, 0,
+>> +                             buf_recv, data_len);
+>> +}

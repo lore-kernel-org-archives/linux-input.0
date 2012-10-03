@@ -1,61 +1,71 @@
-From: "Patil, Rachna" <rachna@ti.com>
-Subject: RE: [PATCH v4 5/5] MFD: ti_tscadc: add suspend/resume functionality
-Date: Wed, 3 Oct 2012 06:49:19 +0000
-Message-ID: <4CE347531D4CA947960AF71FF095B9323E959D06@DBDE01.ent.ti.com>
-References: <1348636814-14129-1-git-send-email-rachna@ti.com>
- <1348636814-14129-6-git-send-email-rachna@ti.com> <5062A373.4000707@ti.com>
- <4CE347531D4CA947960AF71FF095B9323E95738D@DBDE01.ent.ti.com>
- <5066C45B.3000500@kernel.org> <20120930232202.GF12231@sortiz-mobl>
+From: sebastien.dinot-GANU6spQydw@public.gmane.org
+Subject: Mouse and keyboard freeze on Ivy Bridge platform
+Date: Wed, 3 Oct 2012 09:40:48 +0200 (CEST)
+Message-ID: <181608016.271891744.1349250048886.JavaMail.root@zimbra59-e10.priv.proxad.net>
+References: <551981935.271757401.1349247690620.JavaMail.root@zimbra59-e10.priv.proxad.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:58077 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755611Ab2JCGtg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Oct 2012 02:49:36 -0400
-In-Reply-To: <20120930232202.GF12231@sortiz-mobl>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <551981935.271757401.1349247690620.JavaMail.root-J/s0bdte1BApj9y2c1zofRh1pbbyJDp15NbjCUgZEJk@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 689368-61a8vm9lEZVf4u+23C9RwQ@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>, Jonathan Cameron <jic23@kernel.org>
-Cc: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Jonathan Cameron <jic23@cam.ac.uk>
 
-Hi Samuel,
+Hi,
 
-Hi On Mon, Oct 01, 2012 at 04:52:02, Samuel Ortiz wrote:
-> Hi Jonathan,
-> 
-> On Sat, Sep 29, 2012 at 10:50:19AM +0100, Jonathan Cameron wrote:
-> > On 09/26/2012 11:09 AM, Patil, Rachna wrote:
-> > > Hi Shubhrajyoti,
-> > > 
-> > > On Wed, Sep 26, 2012 at 12:10:51, Datta, Shubhrajyoti wrote:
-> > >> On Wednesday 26 September 2012 10:50 AM, Patil, Rachna wrote:
-> > >>> This patch adds support for suspend/resume of TSC/ADC MFDevice.
-> > >> this should be merged with the patch adding support else we may end 
-> > >> up in a case where patch a does the runtime calls and the call back  
-> > >> handlers added later.
-> > > 
-> > > I am adding both the runtime calls and the handlers in this patch.
-> > > I think maintaining this as a separate patch in better in terms of 
-> > > readability as well.
-> > I would prefer this merged into patch 4 as it's a simple addition to a 
-> > driver that should arguably have been there in the first place.
-> I agree. And I would even go as far as saying that having all the MFD parts from this patchset merged into patch #2 would make sense.
-> Rachna, could you please re-work this patchset in such way, and adress my comments on patch #2 ? I could then take the MFD parts and then Jonathan and Dmitry take their parts. There are build time dependencies, but neither the input nor the ADC driver could be actually built as long as the MFD one is not merged (provided that the subdevices driver comes with the right Kconfig dependecy).
+I am encountering random keyboard and mouse freezes which can only be r=
+esolved by a hard reset (by pushing the power switch of the computer ca=
+se).
 
-I will re-work the patchset and address all the review comments accordingly.
+I have this frequent and irritating issue with two differents Ivy Bridg=
+e platforms:=20
 
-Thanks & Regards,
-Rachna
+1. Processor:   Intel Core i5 3450 (IGP HD 2500)
+   Motherboard: MSI Z77A-G43 (with uptodate BIOS)
+  =20
+2. Processor:   Intel Core i5 3570K (IGP HD 4000)
+   Motherboard: ASUS P8Z77-V LX (with uptodate BIOS)
 
-> 
-> Cheers,
-> Samuel.
-> 
-> --
-> Intel Open Source Technology Centre
-> http://oss.intel.com/
-> 
+I use Debian on these platforms and I tried several Linux kernels:
+ =20
+  * linux-image-3.2.0-3-amd64   (package from Debian testing)
+  * linux-image-3.4-trunk-amd64 (package from Debian experimental)
+  * linux-image-3.5-trunk-amd64 (package from Debian experimental)
 
+I pointed out this bug to the Debian kernel team:
+
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D689368
+
+The mouse and keyboard are both USB devices and it seems that the bug i=
+s coming from the echci-hcd module:
+
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D689368#24
+
+I attached the dmesg output and the kern.log file to my first message t=
+o Debian:
+
+* http://bugs.debian.org/cgi-bin/bugreport.cgi?msg=3D35;filename=3Ddmes=
+g.20121001-231244;att=3D1;bug=3D689268
+* http://bugs.debian.org/cgi-bin/bugreport.cgi?msg=3D35;filename=3Dkern=
+=2Elog.20121001-232320.gz;att=3D2;bug=3D689268
+
+As mentioned to the Debian maintainers, this bug is very frequent (I ha=
+d up to four freezes in an hour) and my PC are really unusable!
+
+Can I run additional tests or give you additional informations to help =
+you resolve this painful bug?
+
+Sebastien
+
+--=20
+S=C3=A9bastien Dinot, sebastien.dinot-GANU6spQydw@public.gmane.org
+http://sebastien.dinot.free.fr/
+Ne go=C3=BBtez pas au logiciel libre, vous ne pourriez plus vous en pas=
+ser !
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

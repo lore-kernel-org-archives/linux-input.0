@@ -1,323 +1,433 @@
-From: Jim Hill <gjthill@gmail.com>
-Subject: Re: [PATCH v2] psmouse: mitigate failing-mouse symptoms
-Date: Tue, 02 Oct 2012 22:19:42 -0700
-Message-ID: <506BCAEE.3080508@gmail.com>
-References: <20120930174353.GA29129@elie.Belkin>  <4D2A3008.3000609@gmail.com> <20120930180240.GA31164@mail.gnudd.com>
+From: "Poddar, Sourav" <sourav.poddar@ti.com>
+Subject: Re: [PATCHv3 2/4] Input: keypad: Add smsc ece1099 keypad driver
+Date: Wed, 3 Oct 2012 11:26:46 +0530
+Message-ID: <CAKdam55BEQi9tJb1yzKJWNhO7sHrW5NFHfsZjicw2NGYDEFovQ@mail.gmail.com>
+References: <1349089310-22134-1-git-send-email-sourav.poddar@ti.com>
+	<20121002061829.GA3853@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120930180240.GA31164@mail.gnudd.com>
+In-Reply-To: <20121002061829.GA3853@core.coreip.homeip.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alessandro Rubini <rubini@unipv.it>
-Cc: jrnieder@gmail.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 607242@bugs.debian.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, b-cousson@ti.com, balbi@ti.com, santosh.shilimkar@ti.com
 List-Id: linux-input@vger.kernel.org
 
-On 09/30/2012 11:02 AM, Alessandro Rubini wrote:
->> I think this would be less controversial if the run-time default were
->> to disable the feature.
+Hi Dmitry,
+
+On Tue, Oct 2, 2012 at 11:48 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Sourav,
 >
-> Yes, that's the common sensible path
+> On Mon, Oct 01, 2012 at 04:31:50PM +0530, Sourav Poddar wrote:
+>> From: G, Manjunath Kondaiah <manjugk@ti.com>
+>>
+>> SMSC ECE1099 is a keyboard scan or GPIO expansion device.The device
+>> supports a keypad scan matrix of 23*8.This driver uses this
+>> device as a keypad driver.
+>>
+>> Tested on omap5430 evm with 3.6-rc6 custom kernel.
+>>
+>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Cc: Benoit Cousson <b-cousson@ti.com>
+>> Cc: Felipe Balbi <balbi@ti.com>
+>> Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>
+>> Signed-off-by: G, Manjunath Kondaiah <manjugk@ti.com>
+>> Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+>> Acked-by: Felipe Balbi <balbi@ti.com>
+>> ---
+>> Changes since v2:
+>>  - Replace magic numbers through driver variable.
+>>  - Provide comments for some initialisation done in probe.
+>>  drivers/input/keyboard/Kconfig               |   11 +
+>>  drivers/input/keyboard/Makefile              |    1 +
+>>  drivers/input/keyboard/smsc-ece1099-keypad.c |  304 ++++++++++++++++++++++++++
+>>  3 files changed, 316 insertions(+), 0 deletions(-)
+>>  create mode 100644 drivers/input/keyboard/smsc-ece1099-keypad.c
+>>
+>> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+>> index c50fa75..b03a39c 100644
+>> --- a/drivers/input/keyboard/Kconfig
+>> +++ b/drivers/input/keyboard/Kconfig
+>> @@ -593,6 +593,17 @@ config KEYBOARD_TWL4030
+>>         To compile this driver as a module, choose M here: the
+>>         module will be called twl4030_keypad.
+>>
+>> +config KEYBOARD_SMSC
+>> +       tristate "SMSC ECE1099 keypad support"
+>
+> Should also select INPUT_MATRIXKMAP.
+>
+Yes, will include in the next version.
+>> +       depends on I2C
+>> +       help
+>> +         Say Y here if your board use the smsc keypad controller
+>> +         for omap5 defconfig. It's safe to say enable this
+>> +         even on boards that don't use the keypad controller.
+>> +
+>> +         To compile this driver as a module, choose M here: the
+>> +         module will be called smsc-ece1099-keypad.
+>> +
+>>  config KEYBOARD_XTKBD
+>>       tristate "XT keyboard"
+>>       select SERIO
+>> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+>> index 44e7600..0f2aa26 100644
+>> --- a/drivers/input/keyboard/Makefile
+>> +++ b/drivers/input/keyboard/Makefile
+>> @@ -52,5 +52,6 @@ obj-$(CONFIG_KEYBOARD_TC3589X)              += tc3589x-keypad.o
+>>  obj-$(CONFIG_KEYBOARD_TEGRA)         += tegra-kbc.o
+>>  obj-$(CONFIG_KEYBOARD_TNETV107X)     += tnetv107x-keypad.o
+>>  obj-$(CONFIG_KEYBOARD_TWL4030)               += twl4030_keypad.o
+>> +obj-$(CONFIG_KEYBOARD_SMSC)            += smsc-ece1099-keypad.o
+>>  obj-$(CONFIG_KEYBOARD_XTKBD)         += xtkbd.o
+>>  obj-$(CONFIG_KEYBOARD_W90P910)               += w90p910_keypad.o
+>> diff --git a/drivers/input/keyboard/smsc-ece1099-keypad.c b/drivers/input/keyboard/smsc-ece1099-keypad.c
+>> new file mode 100644
+>> index 0000000..15dc147
+>> --- /dev/null
+>> +++ b/drivers/input/keyboard/smsc-ece1099-keypad.c
+>> @@ -0,0 +1,304 @@
+>> +/*
+>> + * SMSC_ECE1099 Keypad driver
+>> + *
+>> + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License version 2 as
+>> + * published by the Free Software Foundation.
+>> + */
+>> +
+>> +#include <linux/i2c.h>
+>> +#include <linux/kernel.h>
+>> +#include <linux/module.h>
+>> +#include <linux/init.h>
+>> +#include <linux/interrupt.h>
+>> +#include <linux/input.h>
+>> +#include <linux/gpio.h>
+>> +#include <linux/slab.h>
+>> +#include <linux/jiffies.h>
+>> +#include <linux/input/matrix_keypad.h>
+>> +#include <linux/delay.h>
+>> +#include <linux/mfd/core.h>
+>> +#include <linux/mfd/smsc.h>
+>> +#include <linux/of_gpio.h>
+>> +#include <linux/of.h>
+>> +
+>> +#define KEYPRESS_TIME          200
+>> +
+>> +struct smsc_keypad {
+>> +     struct smsc *smsc;
+>> +     struct matrix_keymap_data *keymap_data;
+>> +     unsigned int last_key_state[16];
+>> +     unsigned int last_col;
+>> +     unsigned int last_key_ms[16];
+>> +     unsigned short *keymap;
+>> +     struct i2c_client *client;
+>> +     struct input_dev *input;
+>> +     int rows, cols;
+>> +     int row_shift;
+>> +     bool no_autorepeat;
+>> +     unsigned        irq;
+>> +     struct device *dev;
+>> +};
+>> +
+>> +static void smsc_kp_scan(struct smsc_keypad *kp)
+>> +{
+>> +     struct input_dev *input = kp->input;
+>> +     int i, j;
+>> +     int row, col;
+>> +     int temp, code;
+>> +     unsigned int new_state[16];
+>> +     unsigned int bits_changed;
+>> +     int this_ms;
+>> +
+>> +     smsc_write(kp->dev, SMSC_KP_INT_MASK, 0x00);
+>> +     smsc_write(kp->dev, SMSC_KP_INT_STAT, 0xFF);
+>> +
+>> +     /* Scan for row and column */
+>> +     for (i = 0; i < kp->cols; i++) {
+>> +             smsc_write(kp->dev, SMSC_KP_OUT, SMSC_KSO_EVAL + i);
+>> +             /* Read Row Status */
+>> +             smsc_read(kp->dev, SMSC_KP_IN, &temp);
+>> +             if (temp == 0xFF)
+>> +                     continue;
+>> +
+>> +             col = i;
+>> +             for (j = 0; j < kp->rows; j++) {
+>> +                     if ((temp & 0x01) != 0x00) {
+>> +                             temp = temp >> 1;
+>> +                             continue;
+>> +                     }
+>> +
+>> +                     row = j;
+>> +                     new_state[col] =  (1 << row);
+>> +                     bits_changed = kp->last_key_state[col] ^ new_state[col];
+>> +                     this_ms = jiffies_to_msecs(jiffies);
+>> +                     if (bits_changed != 0 || (!bits_changed &&
+>> +                                     ((this_ms - kp->last_key_ms[col]) >= KEYPRESS_TIME))) {
+>> +                             code = MATRIX_SCAN_CODE(row, col, kp->row_shift);
+>> +                             input_event(input, EV_MSC, MSC_SCAN, code);
+>> +                             input_report_key(input, kp->keymap[code], 1);
+>> +                             input_report_key(input, kp->keymap[code], 0);
+>> +                             kp->last_key_state[col] = new_state[col];
+>> +                             if (kp->last_col != col)
+>> +                                     kp->last_key_state[kp->last_col] = 0;
+>> +                             kp->last_key_ms[col] = this_ms;
+>> +                     }
+>> +                     temp = temp >> 1;
+>> +             }
+>> +     }
+>> +     input_sync(input);
+>> +
+>> +     smsc_write(kp->dev, SMSC_KP_INT_MASK, 0xFF);
+>> +
+>> +     /* Set up Low Power Mode (Wake-up) (0xFB) */
+>> +     smsc_write(kp->dev, SMSC_WKUP_CTRL, SMSC_KP_SET_LOW_PWR);
+>> +
+>> +     /*Enable Keypad Scan (generate interrupt on key press) (0x40)*/
+>> +     smsc_write(kp->dev, SMSC_KP_OUT, SMSC_KSO_ALL_LOW);
+>> +}
+>> +
+>> +static irqreturn_t do_kp_irq(int irq, void *_kp)
+>> +{
+>> +     struct smsc_keypad *kp = _kp;
+>> +     int int_status;
+>> +
+>> +     smsc_read(kp->dev, SMSC_KP_INT_STAT, &int_status);
+>> +     if (int_status)
+>> +             smsc_kp_scan(kp);
+>> +
+>> +     return IRQ_HANDLED;
+>> +}
+>> +
+>> +#ifdef CONFIG_OF
+>> +static int __devinit smsc_keypad_parse_dt(struct device *dev,
+>> +                             struct smsc_keypad *kp)
+>> +{
+>> +     struct device_node *np = dev->of_node;
+>> +
+>> +     if (!np) {
+>> +             dev_err(dev, "missing DT data");
+>> +             return -EINVAL;
+>> +     }
+>> +
+>> +     of_property_read_u32(np, "keypad,num-rows", &kp->rows);
+>> +     of_property_read_u32(np, "keypad,num-columns", &kp->cols);
+>> +     if (!kp->rows || !kp->cols) {
+>> +             dev_err(dev, "number of keypad rows/columns not specified\n");
+>> +             return -EINVAL;
+>> +     }
+>> +
+>> +     if (of_property_read_bool(np, "linux,input-no-autorepeat"))
+>> +             kp->no_autorepeat = true;
+>> +
+>> +     return 0;
+>> +}
+>> +#else
+>> +static inline int smsc_keypad_parse_dt(struct device *dev,
+>> +                             struct smsc_keypad *kp)
+>> +{
+>> +     return -ENOSYS;
+>> +}
+>> +#endif
+>> +
+>> +static int __devinit
+>> +smsc_probe(struct platform_device *pdev)
+>> +{
+>> +     struct device *dev = &pdev->dev;
+>> +     struct smsc *smsc = dev_get_drvdata(pdev->dev.parent);
+>> +     struct input_dev *input;
+>> +     struct smsc_keypad *kp;
+>> +     int ret = 0, error;
+>> +     int col, i, max_keys, row_shift;
+>> +     int irq;
+>> +     int addr;
+>> +
+>> +     kp = devm_kzalloc(dev, sizeof(*kp), GFP_KERNEL);
+>> +
+>> +     input = input_allocate_device();
+>> +     if (!kp || !input) {
+>> +             error = -ENOMEM;
+>> +             goto err1;
+>> +     }
+>> +
+>> +     error = smsc_keypad_parse_dt(&pdev->dev, kp);
+>
+> It doe snot look like the driver is useful without DT... Should it
+> simply depend on OF and not even provide !OF stubs?
+>
+Yes, the idea was to make this driver completely dt specific.
 
-Fixed, there's no way I can test it well enough for anything more widespread.
-
-> Then, I think it would be good to have a specific sub-structure for
-> this stuff.
-
-I don't care much either way, though I think I'm missing the point of subbing
-in a memset -- only reason I can think of is efficiency which doesn't make
-sense to me here.  Ask and I'll add one or both.
-
-> I also think it would make it clearer what these are:
-
-I did de-jargonize the names some,  "interval_start" for "base" makes it
-clearer which as you say it could use.
-
-I encountered one other person with this problem and he ran it for a long while
-and was happy to have it.  I'm appending the latest version, which is a good
-bit improved and what I've been running for the last year amended with the name
-and default-filter changes above.
-
-But of course I upgraded a month ago to a box with no PS/2 mouse port, so at
-this point all I can do is hope someone finds it helpful.  The reorg'd code 
-kinda highlights how incomplete it is, there's lots of mouse models out there.
-
-So if it looks good or almost-good to you and there's anything else I can do,
-tell me and I'll be glad to do it.
-
-Thanks,
-Jim
-
->From 2681957a610191cb5d7b7f65be11ea2be06df00f Mon Sep 17 00:00:00 2001
-From: Jim Hill <gjthill@gmail.com>
-Date: Mon, 28 Mar 2011 13:10:36 -0700
-Subject: [PATCH]     Input: psmouse - further improve error handling for
- basic protocols
-
-  Keep a failing PS/2 mouse usable until it's convenient to replace it.
-  Filter incoming packets: drop invalid ones and attempt to correct for
-  dropped bytes.
- 
-  New parameter 'filter' makes filtering and logging selectable, leave at 0
-  to shut off all effects, 3 to work silently.
---
- drivers/input/mouse/psmouse-base.c | 197 +++++++++++++++++++++++++++++++++++++
- drivers/input/mouse/psmouse.h      |   7 ++
- 2 files changed, 204 insertions(+)
-
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mous/psmouse-base.c
-index 22fe254..4a3a95f 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -72,6 +72,25 @@ static unsigned int psmouse_resync_time;
- module_param_named(resync_time, psmouse_resync_time, uint, 0644);
- MODULE_PARM_DESC(resync_time, "How long can mouse stay idle before forcing resync (in seconds, 0 = never).");
-
-+enum {
-+	DROP_BAD_PACKET = 1,
-+	ATTEMPT_SYNC = 2,
-+	LOG_SUMMARIES = 4,
-+	LOG_MALFORMED = 8,
-+	LOG_ALL	 = 16,
-+	REPORT_SYNC_FAILURE = 32,
-+
-+	DEFAULT_FILTER = 0
-+};
-+static int psmouse_filter = DEFAULT_FILTER;
-+module_param_named(filter, psmouse_filter, int, 0644);
-+MODULE_PARM_DESC(filter, "1 = drop invalid or hotio packets"
-+		", +2 = attempt-sync"
-+		", +4 = summary logs"
-+		", +8 = log-malformed"
-+		",+16 = log-all"
-+		",+32 = use hard resets");
-+
- PSMOUSE_DEFINE_ATTR(protocol, S_IWUSR | S_IRUGO,
- 			NULL,
- 			psmouse_attr_show_protocol, psmouse_attr_set_protocol);
-@@ -123,6 +142,169 @@ struct psmouse_protocol {
- };
-
- /*
-+ * psmouse_filter_*: diagnose bad data, recover what we can, drop the rest, log
-+ * selected events. See input_report_*()s in psmouse_process_byte below, and
-+ * <http://www.computer-engineering.org/ps2mouse/>
-+ */
-+
-+static int psmouse_filter_header_byte(enum psmouse_type type, int byte)
-+{
-+	int todo = 0;
-+	if ((byte & 0xc0) &&
-+			type != PSMOUSE_THINKPS &&
-+			type != PSMOUSE_GENPS)
-+		todo |= DROP_BAD_PACKET+ATTEMPT_SYNC;
-+	if ((byte & 0x08) == 0 &&
-+			type != PSMOUSE_THINKPS &&
-+			type != PSMOUSE_CORTRON)
-+		todo |= DROP_BAD_PACKET+ATTEMPT_SYNC;
-+	return todo;
-+}
-+
-+static int psmouse_filter_wheel_byte(enum psmouse_type type, int byte)
-+{
-+	int todo = 0;
-+	if (type == PSMOUSE_IMPS || type == PSMOUSE_GENPS)
-+		if (abs(byte) > 3)
-+			todo = DROP_BAD_PACKET+ATTEMPT_SYNC;
-+	if (type == PSMOUSE_IMEX)
-+		if (((byte&0xC0) == 0) || ((byte&0XC0) == 0xC0))
-+			if (abs((byte&0x08)-(byte&0x07)) > 3)
-+				todo = DROP_BAD_PACKET+ATTEMPT_SYNC;
-+	return todo;
-+}
-+
-+static int psmouse_filter_motion(struct psmouse *m)
-+{	/*
-+	 * Hunt for implausible accelerations here if it ever seems necessary.
-+	 * Header/wheel sniffing seems to detect everything recoverable so far.
-+	 */
-+	return 0;
-+}
-+
-+static int psmouse_filter_hotio(struct psmouse *m)
-+{
-+	int ret = 0;
-+	if (time_after(m->last, m->hotio_interval_start + HZ/m->rate)) {
-+		m->hotio_interval_pkts = 0;
-+		m->hotio_interval_start = m->last;
-+	}
-+	if (m->hotio_interval_pkts++ > m->rate/HZ + 1) {
-+		if (m->hotio_log_counter == 0)
-+			m->hotio_log_interval_start = m->last;
-+		++m->hotio_log_counter;
-+		ret = DROP_BAD_PACKET;
-+	}
-+	return ret;
-+}
-+
-+static void psmouse_filter_packet_logger(struct psmouse *m, int todo,
-+		const char *tag)
-+{
-+	if ((todo & psmouse_filter & LOG_MALFORMED) ||
-+			(psmouse_filter & LOG_ALL)) {
-+		unsigned long long packet = 0;
-+		int p;
-+		for (p = 0; p < m->pktcnt; ++p)
-+			packet = packet<<8 | m->packet[p];
-+		printk(KERN_INFO "psmouse.c: packet %0*llx%s\n", p*2, packet,
-+			tag ? tag : "");
-+	}
-+}
-+
-+static int psmouse_filter_inspect_packet(struct psmouse *m)
-+{
-+	int todo = 0;
-+	todo |= psmouse_filter_header_byte(m->type, m->packet[0]);
-+	todo |= psmouse_filter_motion(m);
-+	todo |= psmouse_filter_wheel_byte(m->type, (signed char)m->packet[3]);
-+	if (todo & DROP_BAD_PACKET) {
-+		todo |= LOG_MALFORMED;
-+		if (m->err_log_counter == 0)
-+			m->err_log_interval_start = m->last;
-+		++m->err_log_counter;
-+	}
-+	return todo;
-+}
-+
-+/*
-+ * find-sync: if the mouse dropped one or more bytes the next packet start
-+ * byte's almost certainly in this buffer. Return its offset if we can find it.
-+ */
-+static unsigned psmouse_filter_find_sync(struct psmouse *m)
-+{
-+	int p;
-+
-+	/* same buttons, same general direction as last report? Seems best */
-+	for (p = m->pktcnt; --p ; )
-+		if (m->packet[p] == m->last_good_packet[0])
-+			return p;
-+
-+	/* same or no buttons, plausible direction from what we can see? */
-+	for (p = m->pktcnt; --p ; ) {
-+		signed char test0 = (signed char)m->packet[p];
-+		signed char last0 = (signed char)m->last_good_packet[0];
-+		signed char test1 = (signed char)m->packet[(p+1)%m->pktcnt];
-+		signed char test2 = (signed char)m->packet[(p+2)%m->pktcnt];
-+		if (((test0&7) == 0 || (test0&7) == (last0&7)) &&
-+				(test0>>4&1) == (test1>>7&1) &&
-+				(test0>>5&1) == (test2>>7&1) &&
-+				!psmouse_filter_header_byte(m->type, test0))
-+			return p;
-+	}
-+	/* nothing looks good */
-+	return 0;
-+}
-+
-+static void psmouse_filter_write_summary_logs(struct psmouse *m)
-+{
-+	if (m->err_log_counter && time_after(m->last, m->err_log_interval_start+HZ)) {
-+		printk(KERN_WARNING "psmouse.c: %s at %s %lu bad packets\n",
-+				m->name, m->phys, m->err_log_counter);
-+		m->err_log_counter = m->err_log_interval_start = 0;
-+	}
-+	if (m->hotio_log_counter && time_after(m->last, m->hotio_log_interval_start+HZ)) {
-+		printk(KERN_WARNING "psmouse.c: %s at %s %lu excess packets\n",
-+				m->name, m->phys, m->hotio_log_counter);
-+		m->hotio_log_counter = m->hotio_log_interval_start = 0;
-+	}
-+}
-+
-+static int psmouse_filter_packet(struct psmouse *m)
-+{
-+	int todo;
-+
-+	if (psmouse_filter < 0)
-+		psmouse_filter = DEFAULT_FILTER;
-+
-+	todo = psmouse_filter_inspect_packet(m);
-+
-+	if (!(todo & DROP_BAD_PACKET))
-+		todo |= psmouse_filter_hotio(m);
-+
-+	psmouse_filter_packet_logger(m, todo, todo&LOG_MALFORMED ? " bad" : 0);
-+	if (psmouse_filter & (LOG_SUMMARIES | LOG_ALL))
-+		psmouse_filter_write_summary_logs(m);
-+
-+	if (todo & psmouse_filter & ATTEMPT_SYNC) {
-+		unsigned p = psmouse_filter_find_sync(m);
-+		if (p) {
-+			m->pktcnt -= p;
-+			memmove(m->packet, m->packet+p, m->pktcnt);
-+			psmouse_filter_packet_logger(m, todo, " sync");
-+		} else {
-+			todo |= REPORT_SYNC_FAILURE;
-+			todo &= ~ATTEMPT_SYNC;
-+		}
-+	}
-+
-+	if (!(todo & DROP_BAD_PACKET))
-+		memcpy(m->last_good_packet, m->packet, sizeof m->packet);
-+
-+	return todo & psmouse_filter;
-+}
-+
-+/*
-  * psmouse_process_byte() analyzes the PS/2 data stream and reports
-  * relevant events to the input module once full packet has arrived.
-  */
-@@ -135,6 +317,15 @@ psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse)
- 	if (psmouse->pktcnt < psmouse->pktsize)
- 		return PSMOUSE_GOOD_DATA;
-
-+	{
-+		int filter = psmouse_filter_packet(psmouse);
-+		if (filter & ATTEMPT_SYNC)
-+			return PSMOUSE_GOOD_DATA;
-+		if (filter & REPORT_SYNC_FAILURE)
-+			return PSMOUSE_BAD_DATA;
-+		if (filter & DROP_BAD_PACKET)
-+			return PSMOUSE_FULL_PACKET;
-+	}
- /*
-  * Full packet accumulated, process it
-  */
-@@ -226,6 +417,12 @@ static inline void __psmouse_set_state(struct psmouse *psmouse, enum psmouse_sta
- 	psmouse->pktcnt = psmouse->out_of_sync_cnt = 0;
- 	psmouse->ps2dev.flags = 0;
- 	psmouse->last = jiffies;
-+	psmouse->err_log_interval_start = 0;
-+	psmouse->err_log_counter = 0;
-+	psmouse->hotio_interval_start = 0;
-+	psmouse->hotio_interval_pkts = 0;
-+	psmouse->hotio_log_interval_start = 0;
-+	psmouse->hotio_log_counter = 0;
- }
-
-
-diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-index fe1df23..7d8817e7 100644
---- a/drivers/input/mouse/psmouse.h
-+++ b/drivers/input/mouse/psmouse.h
-@@ -44,6 +44,7 @@ struct psmouse {
- 	char *vendor;
- 	char *name;
- 	unsigned char packet[8];
-+	unsigned char last_good_packet[8];
- 	unsigned char badbyte;
- 	unsigned char pktcnt;
- 	unsigned char pktsize;
-@@ -54,6 +55,12 @@ struct psmouse {
- 	unsigned long last;
- 	unsigned long out_of_sync_cnt;
- 	unsigned long num_resyncs;
-+	unsigned long hotio_interval_start;
-+	unsigned long hotio_interval_pkts;
-+	unsigned long hotio_log_interval_start;
-+	unsigned long hotio_log_counter;
-+	unsigned long err_log_interval_start;
-+	unsigned long err_log_counter;
- 	enum psmouse_state state;
- 	char devname[64];
- 	char phys[32];
--- 
-1.7.11.rc2.220.g2b5a256
+>> +     if (error)
+>
+> You are leaking input device here.
+>
+True, will include appropriate goto label.
+>> +             return error;
+>> +
+>> +     /* Get the debug Device */
+>> +     kp->input = input;
+>> +     kp->smsc = smsc;
+>> +     kp->irq = platform_get_irq(pdev, 0);
+>> +     kp->dev = dev;
+>> +
+>> +     for (col = 0; col < 16; col++) {
+>> +             kp->last_key_state[col] = 0;
+>> +             kp->last_key_ms[col] = 0;
+>
+> kzalloc should have already taken care of this.
+>
+Ok. Will remove.
+>> +     }
+>> +
+>> +     /* setup input device */
+>> +      __set_bit(EV_KEY, input->evbit);
+>> +
+>> +     /* Enable auto repeat feature of Linux input subsystem */
+>> +     if (!(kp->no_autorepeat))
+>
+> No need for extra parenthesis.
+>
+Will remove.
+>> +             __set_bit(EV_REP, input->evbit);
+>> +
+>> +     input_set_capability(input, EV_MSC, MSC_SCAN);
+>> +     input->name             = "SMSC Keypad";
+>> +     input->phys             = "smsc_keypad/input0";
+>> +     input->dev.parent       = &pdev->dev;
+>> +     input->id.bustype       = BUS_HOST;
+>> +     input->id.vendor        = 0x0001;
+>> +     input->id.product       = 0x0001;
+>> +     input->id.version       = 0x0003;
+>> +
+>> +     error = input_register_device(input);
+>> +     if (error) {
+>> +             dev_err(kp->dev,
+>> +                     "Unable to register twl4030 keypad device\n");
+>> +             goto err1;
+>> +     }
+>> +
+>> +     /* Mask all GPIO interrupts (0x37-0x3B) */
+>> +     for (addr = SMSC_GPIO_INT_MASK_START;
+>> +                     addr < SMSC_GPIO_INT_MASK_START + 4; addr++)
+>> +             smsc_write(dev, addr, 0);
+>> +
+>> +     /* Set all outputs high (0x05-0x09) */
+>> +     for (addr = SMSC_GPIO_DATA_OUT_START;
+>> +                     addr < SMSC_GPIO_DATA_OUT_START + 4; addr++)
+>> +             smsc_write(dev, addr, 0xff);
+>> +
+>> +     /* Clear all GPIO interrupts (0x32-0x36) */
+>> +     for (addr = SMSC_GPIO_INT_STAT_START;
+>> +                     addr < SMSC_GPIO_INT_STAT_START + 4; addr++)
+>> +             smsc_write(dev, addr, 0xff);
+>> +
+>> +     /* Configure the smsc pins as Keyboard scan Input */
+>> +     for (i = 0; i <= kp->rows; i++) {
+>> +             addr = 0x12 + i;
+>> +             smsc_write(dev, addr, SMSC_KP_KSI);
+>> +     }
+>> +
+>> +     /* Configure the smsc pins as Keyboard scan output */
+>> +     for (i = 0; i <= kp->cols; i++) {
+>> +             addr = 0x1A + i;
+>> +             smsc_write(dev, addr, SMSC_KP_KSO);
+>> +     }
+>> +
+>> +     smsc_write(dev, SMSC_KP_INT_STAT, SMSC_KP_SET_HIGH);
+>> +     smsc_write(dev, SMSC_WKUP_CTRL, SMSC_KP_SET_LOW_PWR);
+>> +     smsc_write(dev, SMSC_KP_OUT, SMSC_KSO_ALL_LOW);
+>> +
+>> +     row_shift = get_count_order(kp->cols);
+>> +     max_keys = kp->rows << row_shift;
+>> +
+>> +     kp->row_shift = row_shift;
+>> +     kp->keymap = devm_kzalloc(dev, max_keys * sizeof(kp->keymap[0]),
+>> +                                     GFP_KERNEL);
+>> +     if (!kp->keymap) {
+>> +             dev_err(&pdev->dev, "Not enough memory for keymap\n");
+>> +             error = -ENOMEM;
+>> +     }
+>> +
+>> +     matrix_keypad_build_keymap(NULL, NULL, kp->rows,
+>> +                     kp->cols, kp->keymap, input);
+>
+> Needs error handling I believe.
+>
+True, missed that. Will include.
+>> +
+>> +     /*
+>> +     * This ISR will always execute in kernel thread context because of
+>> +     * the need to access the SMSC over the I2C bus.
+>> +     */
+>> +     ret = devm_request_threaded_irq(dev, kp->irq, NULL, do_kp_irq,
+>> +                     IRQF_TRIGGER_FALLING | IRQF_ONESHOT, pdev->name, kp);
+>> +     if (ret) {
+>> +             dev_dbg(&pdev->dev, "request_irq failed for irq no=%d\n",
+>> +                     irq);
+>> +             goto err2;
+>> +     }
+>> +
+>> +     /* Enable smsc keypad interrupts */
+>> +     ret = smsc_write(dev, SMSC_KP_INT_MASK, 0xff);
+>> +     if (ret < 0)
+>> +             goto err2;
+>> +
+>> +     return 0;
+>> +
+>> +err2:
+>> +     input_unregister_device(input);
+>> +err1:
+>> +     input_free_device(input);
+>
+> Double free.
+>
+I believe what you are trying to say here is that we dont really
+need a " input_unregister_device" (as also I checked in other keypad
+implementations) and do a "unregister_device" in the remove api ??
+>> +     return ret;
+>> +}
+>> +
+>> +static int __devexit smsc_remove(struct platform_device *pdev)
+>> +{
+>> +     struct smsc_keypad *kp = platform_get_drvdata(pdev);
+>> +     input_unregister_device(kp->input);
+>
+> And your kernel goes *BOOM*
+>
+>> +
+>> +     return 0;
+>> +}
+>> +
+>> +#ifdef CONFIG_OF
+>> +static const struct of_device_id smsc_keypad_dt_match[] = {
+>> +     { .compatible = "smsc,keypad" },
+>> +     {},
+>> +};
+>> +MODULE_DEVICE_TABLE(of, smsc_keypad_dt_match);
+>> +#endif
+>> +
+>> +static struct platform_driver smsc_driver = {
+>> +     .driver = {
+>> +             .name   = "smsc-keypad",
+>> +             .of_match_table = of_match_ptr(smsc_keypad_dt_match),
+>> +             .owner  = THIS_MODULE,
+>> +     },
+>> +     .probe          = smsc_probe,
+>> +     .remove         = __devexit_p(smsc_remove),
+>> +};
+>> +
+>> +module_platform_driver(smsc_driver);
+>> +
+>> +MODULE_AUTHOR("G Kondaiah Manjunath <manjugk@ti.com>");
+>> +MODULE_DESCRIPTION("SMSC ECE1099 Keypad driver");
+>> +MODULE_LICENSE("GPL v2");
+>> --
+>> 1.7.1
+>>
+>
+> Thanks.
+>
+> --
+> Dmitry

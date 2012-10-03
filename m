@@ -1,39 +1,41 @@
-From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
-Subject: Re: Mouse and keyboard freeze on Ivy Bridge platform
-Date: Wed, 3 Oct 2012 10:40:36 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1210031028130.1441-100000@iolanthe.rowland.org>
-References: <181608016.271891744.1349250048886.JavaMail.root@zimbra59-e10.priv.proxad.net>
+From: Daniel Drake <dsd@laptop.org>
+Subject: Re: Communicating tablet mode status to userspace
+Date: Wed, 3 Oct 2012 08:52:31 -0600
+Message-ID: <CAMLZHHQfGuiK6s_d8ya8FUNiDiGDpgh35VFbHcu-mgCH-=TXVw@mail.gmail.com>
+References: <CAMLZHHS80_zdmgVtJ87w+fuQGC05yj+EoJt3C_zBC7hkyhnaoQ@mail.gmail.com>
+	<20121002233640.GB8542@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <181608016.271891744.1349250048886.JavaMail.root-J/s0bdte1BApj9y2c1zofRh1pbbyJDp15NbjCUgZEJk@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: sebastien.dinot-GANU6spQydw@public.gmane.org
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 689368-61a8vm9lEZVf4u+23C9RwQ@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-hotplug-owner@vger.kernel.org>
+In-Reply-To: <20121002233640.GB8542@core.coreip.homeip.net>
+Sender: linux-hotplug-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-hotplug@vger.kernel.org, hadess@hadess.net, Carlos Garnacho <carlosg@gnome.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 3 Oct 2012 sebastien.dinot-GANU6spQydw@public.gmane.org wrote:
+On Tue, Oct 2, 2012 at 5:36 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Why can't you change event device ownership to the local user?  Then you
+> can read and act upon events.
 
-> Hi,
-> 
-> I am encountering random keyboard and mouse freezes which can only be
-> resolved by a hard reset (by pushing the power switch of the computer
-> case).
+That would work, I guess.
 
-> The mouse and keyboard are both USB devices and it seems that the bug
-> is coming from the echci-hcd module:
+However, it sounds like your suggesting that we add some custom rules
+in OLPC's own builds and leave it at that. I'm not sure what
+user/group we could use for a generic rule matching this hardware.
 
-> Can I run additional tests or give you additional informations to
-> help you resolve this painful bug?
+The disadvantage here is that it doesn't work as a global solution to
+the problem - every embedded distro in the same situation would have
+to add a custom rule thing, and "generic distros" would have no such
+solution at this time.
 
-Please build a kernel with CONFIG_USB_DEBUG enabled.  When a hang
-occurs, get a list of hang tasks (Alt-SysRq-w probably won't work, but
-"echo w >/proc/sysrq-trigger" from a network login should).  Then send
-the dmesg output
+Maybe not such a big deal while OLPC is the only user. But I did come
+across another request for SW_TABLET_MODE access:
+https://bugs.freedesktop.org/show_bug.cgi?id=43935
 
-Alan Stern
+Or would a udev rule making the OLPC switch device (and potentially
+similar devices on other platforms in future) world-readable on all
+distros be accepted?
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Daniel

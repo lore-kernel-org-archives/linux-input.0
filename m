@@ -1,32 +1,39 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID Sensors: Add USB pid 0x0A01
-Date: Thu, 4 Oct 2012 12:06:18 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1210041205280.9942@pobox.suse.cz>
-References: <37862.10.7.199.79.1349299910.squirrel@linux.intel.com> <20121003215542.GA22413@core.coreip.homeip.net>
+From: =?utf-8?Q?S=C3=A9bastien?= Dinot <sebastien.dinot-GANU6spQydw@public.gmane.org>
+Subject: Re: Mouse and keyboard freeze on Ivy Bridge platform
+Date: Thu, 4 Oct 2012 21:09:16 +0200
+Message-ID: <20121004190916.GA6927@dinot.net>
+References: <181608016.271891744.1349250048886.JavaMail.root@zimbra59-e10.priv.proxad.net>
+ <Pine.LNX.4.44L0.1210031028130.1441-100000@iolanthe.rowland.org>
+ <20121003194402.GB23195@elie.Belkin>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:56426 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752496Ab2JDKG0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Oct 2012 06:06:26 -0400
-In-Reply-To: <20121003215542.GA22413@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20121003194402.GB23195-fcEM2ccDkbL2nhBuCrrZHw@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Nieder <jrnieder-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Matt Gumbel <matthew.k.gumbel@linux.intel.com>, linux-input@vger.kernel.org
 
-On Wed, 3 Oct 2012, Dmitry Torokhov wrote:
+Hi,
 
-> Hi Matt,
-> 
-> This should go to Jiri Kosina (CCed).
+Jonathan Nieder a =C3=A9crit :
+> Sebastien: for reference, here's a way to build a kernel with
+> CONFIG_USB_DEBUG enabled.
 
-Thanks.
+Thank you for these useful instructions, I had not compiled a kernel fo=
+r
+some years.
 
-Matt, the patch has been damaged (linewrapped, whitespaces) by your 
-mailer. Please fix this on your side and resend to me.
+S=C3=A9bastien
 
--- 
-Jiri Kosina
-SUSE Labs
+--=20
+S=C3=A9bastien Dinot, sebastien.dinot-GANU6spQydw@public.gmane.org
+http://sebastien.dinot.free.fr/
+Ne go=C3=BBtez pas au logiciel libre, vous ne pourriez plus vous en pas=
+ser !
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

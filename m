@@ -1,87 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] HID Sensors: Add USB pid 0x0A01
-Date: Wed, 3 Oct 2012 14:55:43 -0700
-Message-ID: <20121003215542.GA22413@core.coreip.homeip.net>
-References: <37862.10.7.199.79.1349299910.squirrel@linux.intel.com>
+From: Alexandra Chin <alexandra.chin@tw.synaptics.com>
+Subject: RE: [PATCH] Input: Add new driver into Input Subsystem for
+ Synaptics DS4 touchscreen I2C devices
+Date: Thu, 4 Oct 2012 05:52:45 +0000
+Message-ID: <CC51EC7B5B7F984AA566DC102237848896F593FA@hkdcw-mail1.synaptics-inc.local>
+References: <CC51EC7B5B7F984AA566DC102237848896F590C0@hkdcw-mail1.synaptics-inc.local>
+ <20121003180121.GA4198@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:43702 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752041Ab2JCVzr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Oct 2012 17:55:47 -0400
-Received: by pbbrr4 with SMTP id rr4so10290902pbb.19
-        for <linux-input@vger.kernel.org>; Wed, 03 Oct 2012 14:55:47 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <37862.10.7.199.79.1349299910.squirrel@linux.intel.com>
+Received: from tw-mx2.synaptics.com.tw ([203.163.83.68]:7099 "EHLO
+	tw-mx2.synaptics.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753833Ab2JDFwr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Oct 2012 01:52:47 -0400
+In-Reply-To: <20121003180121.GA4198@polaris.bitmath.org>
+Content-Language: zh-HK
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matt Gumbel <matthew.k.gumbel@linux.intel.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
 
-Hi Matt,
+From: Henrik Rydberg
+Sent: Thursday, October 04, 2012 2:01 AM
+> It seems this driver is already present in staging. Comments and
+> formatting have been improved in the staging version, but that aside,
+> the two versions look very similar.  Why don't you submit fixes to
+> that driver instead?
 
-This should go to Jiri Kosina (CCed).
+> On a general note, both versions of the driver use MT-A. Please
+> convert to MT-B, using the in-kernel tracking if necessary.
 
-Thanks.
 
-On Wed, Oct 03, 2012 at 02:31:50PM -0700, Matt Gumbel wrote:
-> For usb hid sensor hub in recent platform.
-> 
-> Signed-off-by: Matt Gumbel <matthew.k.gumbel@linux.intel.com>
-> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> ---
->  drivers/hid/hid-core.c       |    1 +
->  drivers/hid/hid-ids.h        |    1 +
->  drivers/hid/hid-sensor-hub.c |    2 ++
->  3 files changed, 4 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index a9bb940..15cf199 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1562,6 +1562,7 @@ static const struct hid_device_id
-> hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8086,
-> USB_DEVICE_ID_SENSOR_HUB_09FA) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
-> USB_DEVICE_ID_SENSOR_HUB_1020) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
-> USB_DEVICE_ID_SENSOR_HUB_09FA) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
-> USB_DEVICE_ID_SENSOR_HUB_0A01) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_KEYTOUCH, USB_DEVICE_ID_KEYTOUCH_IEC) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index d08a4cf..48c1808 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -432,6 +432,7 @@
->  #define USB_VENDOR_ID_INTEL_8087	0x8087
->  #define USB_DEVICE_ID_SENSOR_HUB_1020	0x1020
->  #define USB_DEVICE_ID_SENSOR_HUB_09FA	0x09FA
-> +#define USB_DEVICE_ID_SENSOR_HUB_0A01	0x0A01
-> 
->  #define USB_VENDOR_ID_IRTOUCHSYSTEMS	0x6615
->  #define USB_DEVICE_ID_IRTOUCH_INFRARED_USB	0x0070
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index d9d73e9..b1c40e8 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -638,6 +638,8 @@ static const struct hid_device_id sensor_hub_devices[]
-> = {
->  			USB_DEVICE_ID_SENSOR_HUB_09FA) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
->  			USB_DEVICE_ID_SENSOR_HUB_09FA) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
-> +			USB_DEVICE_ID_SENSOR_HUB_0A01) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM,
->  			USB_DEVICE_ID_SENSOR_HUB_7014) },
->  	{ }
-> -- 
-> 1.7.9.5
-> 
+Hi Henrik,
 
--- 
-Dmitry
+Appreciate your suggestion!
+We are going to update a patch of using MT-B, because Synaptics devices are 
+capable of tracking identifiable contacts (type B).
+Thanks for pointing out this.
+
+You are right, there is already a synaptics_i2c_rmi4 driver in staging 
+state (drivers/staging/ste_rmi4). 
+Actually synaptics_ds4_i2c driver is developed based on synaptics_i2c_rmi4 
+driver. The point is that we would want to make a clear definition that 
+synaptics_ds4_i2c only targets to DS4 family, so that we can keep maintaining 
+driver focusing on DS4 product line (not all Synaptics touchscreen devices are 
+DS4 compatible).
+
+We are open to discuss if it is appropriate to retained DS4 driver, and please 
+let us know if you have any concerns.
+
+Best Regards,
+Alexandra Chin

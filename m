@@ -1,39 +1,76 @@
-From: =?utf-8?Q?S=C3=A9bastien?= Dinot <sebastien.dinot-GANU6spQydw@public.gmane.org>
-Subject: Re: Mouse and keyboard freeze on Ivy Bridge platform
-Date: Thu, 4 Oct 2012 21:09:16 +0200
-Message-ID: <20121004190916.GA6927@dinot.net>
-References: <181608016.271891744.1349250048886.JavaMail.root@zimbra59-e10.priv.proxad.net>
- <Pine.LNX.4.44L0.1210031028130.1441-100000@iolanthe.rowland.org>
- <20121003194402.GB23195@elie.Belkin>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: samsung-keypad: add clk_prepare and clk_unprepare
+Date: Thu, 4 Oct 2012 00:25:45 -0700
+Message-ID: <20121004072545.GF14217@core.coreip.homeip.net>
+References: <1349220712-2516-1-git-send-email-thomas.abraham@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20121003194402.GB23195-fcEM2ccDkbL2nhBuCrrZHw@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Nieder <jrnieder-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1349220712-2516-1-git-send-email-thomas.abraham@linaro.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Thomas Abraham <thomas.abraham@linaro.org>
+Cc: linux-input@vger.kernel.org, kgene.kim@samsung.com, linux-samsung-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+On Wed, Oct 03, 2012 at 08:31:52AM +0900, Thomas Abraham wrote:
+> Add calls to clk_prepare and clk_unprepare as required by commom clock
+> framework.
+> 
+> Signed-off-by: Thomas Abraham <thomas.abraham@linaro.org>
 
-Jonathan Nieder a =C3=A9crit :
-> Sebastien: for reference, here's a way to build a kernel with
-> CONFIG_USB_DEBUG enabled.
+Applied, thank you Thomas. 
 
-Thank you for these useful instructions, I had not compiled a kernel fo=
-r
-some years.
+> ---
+>  drivers/input/keyboard/samsung-keypad.c |   11 ++++++++++-
+>  1 files changed, 10 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
+> index 277e26d..9d7a111 100644
+> --- a/drivers/input/keyboard/samsung-keypad.c
+> +++ b/drivers/input/keyboard/samsung-keypad.c
+> @@ -431,6 +431,12 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
+>  		goto err_unmap_base;
+>  	}
+>  
+> +	error = clk_prepare(keypad->clk);
+> +	if (error) {
+> +		dev_err(&pdev->dev, "keypad clock prepare failed\n");
+> +		goto err_put_clk;
+> +	}
+> +
+>  	keypad->input_dev = input_dev;
+>  	keypad->pdev = pdev;
+>  	keypad->row_shift = row_shift;
+> @@ -461,7 +467,7 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
+>  					   keypad->keycodes, input_dev);
+>  	if (error) {
+>  		dev_err(&pdev->dev, "failed to build keymap\n");
+> -		goto err_put_clk;
+> +		goto err_unprepare_clk;
+>  	}
+>  
+>  	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+> @@ -503,6 +509,8 @@ err_free_irq:
+>  	pm_runtime_disable(&pdev->dev);
+>  	device_init_wakeup(&pdev->dev, 0);
+>  	platform_set_drvdata(pdev, NULL);
+> +err_unprepare_clk:
+> +	clk_unprepare(keypad->clk);
+>  err_put_clk:
+>  	clk_put(keypad->clk);
+>  	samsung_keypad_dt_gpio_free(keypad);
+> @@ -531,6 +539,7 @@ static int __devexit samsung_keypad_remove(struct platform_device *pdev)
+>  	 */
+>  	free_irq(keypad->irq, keypad);
+>  
+> +	clk_unprepare(keypad->clk);
+>  	clk_put(keypad->clk);
+>  	samsung_keypad_dt_gpio_free(keypad);
+>  
+> -- 
+> 1.7.4.1
+> 
 
-S=C3=A9bastien
-
---=20
-S=C3=A9bastien Dinot, sebastien.dinot-GANU6spQydw@public.gmane.org
-http://sebastien.dinot.free.fr/
-Ne go=C3=BBtez pas au logiciel libre, vous ne pourriez plus vous en pas=
-ser !
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

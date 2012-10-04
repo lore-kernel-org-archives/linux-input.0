@@ -1,34 +1,54 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH v1] i2c-hid: introduce HID over i2c specification
- implementation
-Date: Thu, 4 Oct 2012 11:48:31 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1210041145410.9942@pobox.suse.cz>
-References: <1347630103-4105-1-git-send-email-benjamin.tissoires@gmail.com> <20121003164306.GA18529@core.coreip.homeip.net> <CAN+gG=H1BWmA_VW_RrhYWVU7qXrqbzhGCkkY0_41muL=XqJbjA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCHv3 2/4] Input: keypad: Add smsc ece1099 keypad driver
+Date: Thu, 4 Oct 2012 00:24:26 -0700
+Message-ID: <20121004072426.GB14217@core.coreip.homeip.net>
+References: <1349089310-22134-1-git-send-email-sourav.poddar@ti.com>
+ <20121002061829.GA3853@core.coreip.homeip.net>
+ <CAKdam55BEQi9tJb1yzKJWNhO7sHrW5NFHfsZjicw2NGYDEFovQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAN+gG=H1BWmA_VW_RrhYWVU7qXrqbzhGCkkY0_41muL=XqJbjA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAKdam55BEQi9tJb1yzKJWNhO7sHrW5NFHfsZjicw2NGYDEFovQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Poddar, Sourav" <sourav.poddar@ti.com>
+Cc: devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, b-cousson@ti.com, balbi@ti.com, santosh.shilimkar@ti.com
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 4 Oct 2012, Benjamin Tissoires wrote:
-
-> >> +
-> >> +     hid->claimed = 0;
-> >
-> > Should it be here and not in core?
+On Wed, Oct 03, 2012 at 11:26:46AM +0530, Poddar, Sourav wrote:
+> Hi Dmitry,
 > 
-> This is a line that was copied/pasted from usbhid. I'll check how can
-> I do that without interfering with core.
+> On Tue, Oct 2, 2012 at 11:48 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > Hi Sourav,
+> >
+> > On Mon, Oct 01, 2012 at 04:31:50PM +0530, Sourav Poddar wrote:
+> >> From: G, Manjunath Kondaiah <manjugk@ti.com>
+> >>
+> >> +
+> >> +     /* Enable smsc keypad interrupts */
+> >> +     ret = smsc_write(dev, SMSC_KP_INT_MASK, 0xff);
+> >> +     if (ret < 0)
+> >> +             goto err2;
+> >> +
+> >> +     return 0;
+> >> +
+> >> +err2:
+> >> +     input_unregister_device(input);
+> >> +err1:
+> >> +     input_free_device(input);
+> >
+> > Double free.
+> >
+> I believe what you are trying to say here is that we dont really
+> need a " input_unregister_device" (as also I checked in other keypad
+> implementations) and do a "unregister_device" in the remove api ??
 
+What I was trying to say is that if input device has been registered
+then you need to call input_unregister_device() to unregister and free
+it, otherwise you need to call input_free_device(), but not both.
 
-Well, we are calling ll_driver->stop at multiple places, so having this 
-reset in the actual ll driver callback seems to be cleaner.
-
-(if I understand the concern here correctly).
+Thanks.
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

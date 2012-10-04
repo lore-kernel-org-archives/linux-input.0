@@ -1,38 +1,32 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] USB: input: wacom_sys.c: format OLED image in kernel
-Date: Thu, 4 Oct 2012 00:25:28 -0700
-Message-ID: <20121004072528.GD14217@core.coreip.homeip.net>
-References: <1347219438-2598-1-git-send-email-przemo@firszt.eu>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID Sensors: Add USB pid 0x0A01
+Date: Thu, 4 Oct 2012 12:06:18 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1210041205280.9942@pobox.suse.cz>
+References: <37862.10.7.199.79.1349299910.squirrel@linux.intel.com> <20121003215542.GA22413@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1347219438-2598-1-git-send-email-przemo@firszt.eu>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Przemo Firszt <przemo@firszt.eu>
-Cc: rob@landley.net, pinglinux@gmail.com, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:56426 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752496Ab2JDKG0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Oct 2012 06:06:26 -0400
+In-Reply-To: <20121003215542.GA22413@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Matt Gumbel <matthew.k.gumbel@linux.intel.com>, linux-input@vger.kernel.org
 
-Hi Przemo,
+On Wed, 3 Oct 2012, Dmitry Torokhov wrote:
 
-On Sun, Sep 09, 2012 at 03:37:18PM -0400, Przemo Firszt wrote:
-> This patch adds a new way of handling Wacom Intuos4 family OLEDs.
-> Previously the images had to be 'scrambled' by userland application. Now
-> the 'scrambling' is done in the kernel module, so user space can send
-> simple 64x32 pixels 4-bit grayscale (2 pixels per byte) 0,0 in top left corner
-> images straight to a wacom OLED sysfs entry. An example:
+> Hi Matt,
 > 
-> dd bs=1024 if=image_file \
-> of=/sys/bus/usb/drivers/wacom/[DevNo]/wacom_led/button[No]_formattedimg \
-> count=1
-> 
-> This patch greatly simplifies user space preparation of the image.
-> The raw image sysfs enties are still present to avoid breaking API.
+> This should go to Jiri Kosina (CCed).
 
-I do not not believe that we should add code to the kernel for tasks that
-can be just as easily performed in userspace.
+Thanks.
 
-Thanks!
+Matt, the patch has been damaged (linewrapped, whitespaces) by your 
+mailer. Please fix this on your side and resend to me.
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

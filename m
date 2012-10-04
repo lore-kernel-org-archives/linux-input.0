@@ -1,62 +1,57 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Add new driver into Input Subsystem for Synaptics
- DS4 touchscreen I2C devices
-Date: Wed, 3 Oct 2012 23:51:37 -0700
-Message-ID: <20121004065137.GA14217@core.coreip.homeip.net>
-References: <CC51EC7B5B7F984AA566DC102237848896F590C0@hkdcw-mail1.synaptics-inc.local>
- <20121003180121.GA4198@polaris.bitmath.org>
- <CC51EC7B5B7F984AA566DC102237848896F593FA@hkdcw-mail1.synaptics-inc.local>
+From: "Przemo Firszt" <przemo@firszt.eu>
+Subject: Re: [PATCH] USB: input: wacom_sys.c: format OLED image in kernel
+Date: Thu, 4 Oct 2012 09:15:19 +0100
+Message-ID: <3b6f1beb0a048e1d02a7f684447c46b8.squirrel@webmail.firszt.eu>
+References: <1347219438-2598-1-git-send-email-przemo@firszt.eu>
+    <20121004072528.GD14217@core.coreip.homeip.net>
+Reply-To: przemo@firszt.eu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:45809 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752694Ab2JDGvm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Oct 2012 02:51:42 -0400
-Content-Disposition: inline
-In-Reply-To: <CC51EC7B5B7F984AA566DC102237848896F593FA@hkdcw-mail1.synaptics-inc.local>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20121004072528.GD14217@core.coreip.homeip.net>
+Sender: linux-doc-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Przemo Firszt <przemo@firszt.eu>, rob@landley.net, pinglinux@gmail.com, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexandra Chin <alexandra.chin@tw.synaptics.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
 
-Hi Alexandra,
 
-On Thu, Oct 04, 2012 at 05:52:45AM +0000, Alexandra Chin wrote:
-> From: Henrik Rydberg
-> Sent: Thursday, October 04, 2012 2:01 AM
-> > It seems this driver is already present in staging. Comments and
-> > formatting have been improved in the staging version, but that aside,
-> > the two versions look very similar.  Why don't you submit fixes to
-> > that driver instead?
-> 
-> > On a general note, both versions of the driver use MT-A. Please
-> > convert to MT-B, using the in-kernel tracking if necessary.
-> 
-> 
-> Hi Henrik,
-> 
-> Appreciate your suggestion!
-> We are going to update a patch of using MT-B, because Synaptics devices are 
-> capable of tracking identifiable contacts (type B).
-> Thanks for pointing out this.
-> 
-> You are right, there is already a synaptics_i2c_rmi4 driver in staging 
-> state (drivers/staging/ste_rmi4). 
-> Actually synaptics_ds4_i2c driver is developed based on synaptics_i2c_rmi4 
-> driver. The point is that we would want to make a clear definition that 
-> synaptics_ds4_i2c only targets to DS4 family, so that we can keep maintaining 
-> driver focusing on DS4 product line (not all Synaptics touchscreen devices are 
-> DS4 compatible).
+Dnia 4 Pa=BCdziernika 2012, 8:25 am, Cz, Dmitry Torokhov napisa=B3(a):
+> Hi Przemo,
+Hi Dmitry,
+>
+> On Sun, Sep 09, 2012 at 03:37:18PM -0400, Przemo Firszt wrote:
+>> This patch adds a new way of handling Wacom Intuos4 family OLEDs.
+>> Previously the images had to be 'scrambled' by userland application.=
+ Now
+>> the 'scrambling' is done in the kernel module, so user space can sen=
+d
+>> simple 64x32 pixels 4-bit grayscale (2 pixels per byte) 0,0 in top l=
+eft
+>> corner
+>> images straight to a wacom OLED sysfs entry. An example:
+>>
+>> dd bs=3D1024 if=3Dimage_file \
+>> of=3D/sys/bus/usb/drivers/wacom/[DevNo]/wacom_led/button[No]_formatt=
+edimg
+>> \
+>> count=3D1
+>>
+>> This patch greatly simplifies user space preparation of the image.
+>> The raw image sysfs enties are still present to avoid breaking API.
+>
+> I do not not believe that we should add code to the kernel for tasks =
+that
+> can be just as easily performed in userspace.
+>
+> Thanks!
+>
+> --
+> Dmitry
+>
+OK, thanks for the explanation!
 
-Given that the other group at Synaptics works on general version of RMI4
-driver what is the benefit of having separate driver for DS4 line? I can
-understand keeping one copy of older driver in staging so that some
-customers coudl still use hardware while universal implementation is
-being developed, but I do not see why we would want to have 3 separate
-drivers.
+--=20
+Regards,
+Przemo Firszt
 
-Thanks.
-
--- 
-Dmitry

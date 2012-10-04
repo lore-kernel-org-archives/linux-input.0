@@ -1,76 +1,107 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/4] Input: mousedev - reformat structure initializers
-Date: Wed,  3 Oct 2012 14:03:00 -0700
-Message-ID: <1349298182-22452-2-git-send-email-dmitry.torokhov@gmail.com>
-References: <1349298182-22452-1-git-send-email-dmitry.torokhov@gmail.com>
+From: Fabio Estevam <festevam@gmail.com>
+Subject: [PATCH 4/6] Input: da9052_onkey.c: Convert to the new da9052 interrupt functions.
+Date: Thu,  4 Oct 2012 00:15:07 -0300
+Message-ID: <1349320509-26930-4-git-send-email-festevam@gmail.com>
+References: <1349320509-26930-1-git-send-email-festevam@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:60793 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754889Ab2JCVDH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Oct 2012 17:03:07 -0400
-Received: by dakn41 with SMTP id n41so1393563dak.19
-        for <linux-input@vger.kernel.org>; Wed, 03 Oct 2012 14:03:06 -0700 (PDT)
-In-Reply-To: <1349298182-22452-1-git-send-email-dmitry.torokhov@gmail.com>
+Received: from mail-gh0-f174.google.com ([209.85.160.174]:44594 "EHLO
+	mail-gh0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753053Ab2JDDP4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Oct 2012 23:15:56 -0400
+In-Reply-To: <1349320509-26930-1-git-send-email-festevam@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: linux-input@vger.kernel.org
+To: sameo@linux.intel.com
+Cc: broonie@opensource.wolfsonmicro.com, ashish.jangam@kpitcummins.com, dchen@diasemi.com, arnd@arndb.de, kernel@pengutronix.de, linux-kernel@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Reformat structure initializers to match the rest of input handlers
+From: Fabio Estevam <fabio.estevam@freescale.com>
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Use the new da9052 irq functions and allow the driver to probe successfully.
+
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: <linux-input@vger.kernel.org>
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 ---
- drivers/input/mousedev.c | 30 +++++++++++++++---------------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ drivers/input/misc/da9052_onkey.c |   22 +++++-----------------
+ 1 file changed, 5 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-index 8d3942f..91f6220 100644
---- a/drivers/input/mousedev.c
-+++ b/drivers/input/mousedev.c
-@@ -782,14 +782,14 @@ static unsigned int mousedev_poll(struct file *file, poll_table *wait)
- }
- 
- static const struct file_operations mousedev_fops = {
--	.owner =	THIS_MODULE,
--	.read =		mousedev_read,
--	.write =	mousedev_write,
--	.poll =		mousedev_poll,
--	.open =		mousedev_open,
--	.release =	mousedev_release,
--	.fasync =	mousedev_fasync,
--	.llseek = noop_llseek,
-+	.owner		= THIS_MODULE,
-+	.read		= mousedev_read,
-+	.write		= mousedev_write,
-+	.poll		= mousedev_poll,
-+	.open		= mousedev_open,
-+	.release	= mousedev_release,
-+	.fasync		= mousedev_fasync,
-+	.llseek		= noop_llseek,
+diff --git a/drivers/input/misc/da9052_onkey.c b/drivers/input/misc/da9052_onkey.c
+index 3c843cd..3be3acc 100644
+--- a/drivers/input/misc/da9052_onkey.c
++++ b/drivers/input/misc/da9052_onkey.c
+@@ -24,7 +24,6 @@ struct da9052_onkey {
+ 	struct da9052 *da9052;
+ 	struct input_dev *input;
+ 	struct delayed_work work;
+-	unsigned int irq;
  };
  
- static int mousedev_install_chrdev(struct mousedev *mousedev)
-@@ -1051,13 +1051,13 @@ static const struct input_device_id mousedev_ids[] = {
- MODULE_DEVICE_TABLE(input, mousedev_ids);
+ static void da9052_onkey_query(struct da9052_onkey *onkey)
+@@ -76,7 +75,6 @@ static int __devinit da9052_onkey_probe(struct platform_device *pdev)
+ 	struct da9052 *da9052 = dev_get_drvdata(pdev->dev.parent);
+ 	struct da9052_onkey *onkey;
+ 	struct input_dev *input_dev;
+-	int irq;
+ 	int error;
  
- static struct input_handler mousedev_handler = {
--	.event =	mousedev_event,
--	.connect =	mousedev_connect,
--	.disconnect =	mousedev_disconnect,
--	.fops =		&mousedev_fops,
--	.minor =	MOUSEDEV_MINOR_BASE,
--	.name =		"mousedev",
--	.id_table =	mousedev_ids,
-+	.event		= mousedev_event,
-+	.connect	= mousedev_connect,
-+	.disconnect	= mousedev_disconnect,
-+	.fops		= &mousedev_fops,
-+	.minor		= MOUSEDEV_MINOR_BASE,
-+	.name		= "mousedev",
-+	.id_table	= mousedev_ids,
- };
+ 	if (!da9052) {
+@@ -84,13 +82,6 @@ static int __devinit da9052_onkey_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
  
- #ifdef CONFIG_INPUT_MOUSEDEV_PSAUX
+-	irq = platform_get_irq_byname(pdev, "ONKEY");
+-	if (irq < 0) {
+-		dev_err(&pdev->dev,
+-			"Failed to get an IRQ for input device, %d\n", irq);
+-		return -EINVAL;
+-	}
+-
+ 	onkey = kzalloc(sizeof(*onkey), GFP_KERNEL);
+ 	input_dev = input_allocate_device();
+ 	if (!onkey || !input_dev) {
+@@ -101,7 +92,6 @@ static int __devinit da9052_onkey_probe(struct platform_device *pdev)
+ 
+ 	onkey->input = input_dev;
+ 	onkey->da9052 = da9052;
+-	onkey->irq = irq;
+ 	INIT_DELAYED_WORK(&onkey->work, da9052_onkey_work);
+ 
+ 	input_dev->name = "da9052-onkey";
+@@ -111,13 +101,11 @@ static int __devinit da9052_onkey_probe(struct platform_device *pdev)
+ 	input_dev->evbit[0] = BIT_MASK(EV_KEY);
+ 	__set_bit(KEY_POWER, input_dev->keybit);
+ 
+-	error = request_threaded_irq(onkey->irq, NULL, da9052_onkey_irq,
+-				     IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+-				     "ONKEY", onkey);
++	error = da9052_request_irq(onkey->da9052, DA9052_IRQ_NONKEY, "ONKEY",
++			    da9052_onkey_irq, onkey);
+ 	if (error < 0) {
+ 		dev_err(onkey->da9052->dev,
+-			"Failed to register ONKEY IRQ %d, error = %d\n",
+-			onkey->irq, error);
++			"Failed to register ONKEY IRQ: %d\n", error);
+ 		goto err_free_mem;
+ 	}
+ 
+@@ -132,7 +120,7 @@ static int __devinit da9052_onkey_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ err_free_irq:
+-	free_irq(onkey->irq, onkey);
++	da9052_free_irq(onkey->da9052, DA9052_IRQ_NONKEY, onkey);
+ 	cancel_delayed_work_sync(&onkey->work);
+ err_free_mem:
+ 	input_free_device(input_dev);
+@@ -145,7 +133,7 @@ static int __devexit da9052_onkey_remove(struct platform_device *pdev)
+ {
+ 	struct da9052_onkey *onkey = platform_get_drvdata(pdev);
+ 
+-	free_irq(onkey->irq, onkey);
++	da9052_free_irq(onkey->da9052, DA9052_IRQ_NONKEY, onkey);
+ 	cancel_delayed_work_sync(&onkey->work);
+ 
+ 	input_unregister_device(onkey->input);
 -- 
-1.7.11.4
+1.7.9.5
 

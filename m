@@ -1,75 +1,136 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: Mouse and keyboard freeze on Ivy Bridge platform
-Date: Fri, 5 Oct 2012 10:23:02 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1210051011030.1541-100000@iolanthe.rowland.org>
-References: <20121004213606.GA8409@dinot.net>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:57282 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754012Ab2JEOXE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Oct 2012 10:23:04 -0400
-In-Reply-To: <20121004213606.GA8409@dinot.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 07/10] input: Enable STMPE keypad driver for Device Tree
+Date: Fri,  5 Oct 2012 16:31:43 +0100
+Message-ID: <1349451107-8009-8-git-send-email-lee.jones@linaro.org>
+References: <1349451107-8009-1-git-send-email-lee.jones@linaro.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1349451107-8009-1-git-send-email-lee.jones@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: arnd@arndb.de, linus.walleij@stericsson.com, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?Q?S=C3=A9bastien?= Dinot <sebastien.dinot@free.fr>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, 689368@bugs.debian.org
 
-On Thu, 4 Oct 2012, S=C3=A9bastien Dinot wrote:
+This patch allows the STMPE driver to be successfully probed and
+initialised when Device Tree support is enabled. Besides the usual
+platform data changes, we also separate the process of filling in
+the 'in use' pin bitmap, as we have to extract the information from
+Device Tree in the DT boot case.
 
-> Alan Stern a =C3=A9crit :
-> > The log file shows lots and lots of low-level communication errors.
-> > They could be caused by bad cabling or by bad USB hardware in your
-> > computer. It's unlikely that they were caused by the mouse or
-> > keyboard, because the log shows errors for both of them starting at
-> > exactly the same times.
->=20
-> In my humble opinion, this issue is not caused by a bad USB hardware
-> because I am encountering it with two different motherboards (MSI
-> Z77A-G43 and ASUS P8Z77-V LX), both with an uptodate BIOS.
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/input/keyboard/stmpe-keypad.c |   67 ++++++++++++++++++++++++++++-----
+ drivers/mfd/stmpe.c                   |    1 +
+ 2 files changed, 59 insertions(+), 9 deletions(-)
 
-Maybe they have something in common.  I don't know.  All I can do is
-explain to you what your kernel log indicates -- and it strongly
-indicates a hardware error.  Didn't you notice all those "detected=20
-XactErr" lines in the log?  There were more than 70000 of them!
-
-> May be it is caused by a bad cabling but my mouse and my keyboard wor=
-ked
-> fine with my previous PC. They are connected to USB2 ports in both
-> cases. But to clear up this point, I will try new mouse and keyboard.
->=20
-> A last question: if it is a cable failure, why does it disappear
-> temporarily when I unload then reload the module? I do not have deep
-> experience and knowledge of hardware, may be there is a rational
-> explanation to it.
-
-That's a good point, and a cable failure indeed seems less likely than
-some of the other possibilities (such as a failure of the internal
-"rate-matching" hub).
-
-One possible explanation is that an occasional noisy signal (caused by
-a slightly faulty cable) triggers a bug in the internal hub, and that
-bug causes all communication to fail until the hub is reset when you
-reload the module.
-
-> > You could try getting a USB-2 hub and attaching your mouse and
-> > keyboard through the hub. That might help ... or it might not.
->=20
-> Sorry, I do not understand the aim of this operation. Could you expla=
-in
-> me it?
-
-In addition to what Sarah said, it's possible that your problem is
-related to the fact that the keyboard and mouse operate at low speed. =20
-If you connected them through a hub then that hub would communicate
-with the internal hub at high speed, not low speed.
-
-Alan Stern
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/keyboard/stmpe-keypad.c b/drivers/input/keyboard/stmpe-keypad.c
+index 470a877..c722d23 100644
+--- a/drivers/input/keyboard/stmpe-keypad.c
++++ b/drivers/input/keyboard/stmpe-keypad.c
+@@ -257,19 +257,73 @@ static int __devinit stmpe_keypad_chip_init(struct stmpe_keypad *keypad)
+ 			      (plat->debounce_ms << 1));
+ }
+ 
++static int stmpe_keypad_fill_used_pins(struct platform_device *pdev,
++				struct stmpe_keypad *keypad,
++				struct stmpe_keypad_platform_data *plat)
++{
++	struct device_node *np = pdev->dev.of_node;
++	unsigned int proplen;
++	const __be32 *prop;
++	int i;
++
++	if (np) {
++		prop = of_get_property(np, "linux,keymap", &proplen);
++		if (!prop) {
++			dev_err(&pdev->dev,
++				"linux,keymap property not defined\n");
++			return -EINVAL;
++		}
++
++		for (i = 0; i < proplen / sizeof(u32); i++) {
++			unsigned int key = be32_to_cpup(prop + i);
++
++			keypad->cols |= 1 << KEY_COL(key);
++			keypad->rows |= 1 << KEY_ROW(key);
++		}
++	} else {
++		for (i = 0; i < plat->keymap_data->keymap_size; i++) {
++			unsigned int key = plat->keymap_data->keymap[i];
++
++			keypad->cols |= 1 << KEY_COL(key);
++			keypad->rows |= 1 << KEY_ROW(key);
++		}
++	}
++
++	return 0;
++}
++
++static void __devinit stmpe_keypad_of_probe(struct device_node *np,
++				struct stmpe_keypad_platform_data *plat)
++{
++	of_property_read_u32(np, "debounce-interval", &plat->debounce_ms);
++	of_property_read_u32(np, "stericsson,scan-count", &plat->scan_count);
++
++	if (of_get_property(np, "stericsson,no-autorepeat", NULL))
++		plat->no_autorepeat = true;
++}
++
+ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
+ {
+ 	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
+ 	struct stmpe_keypad_platform_data *plat;
++	struct device_node *np = pdev->dev.of_node;
+ 	struct stmpe_keypad *keypad;
+ 	struct input_dev *input;
+ 	int ret;
+ 	int irq;
+-	int i;
+ 
+ 	plat = stmpe->pdata->keypad;
+-	if (!plat)
+-		return -ENODEV;
++	if (!plat) {
++		if (np) {
++			plat = devm_kzalloc(&pdev->dev,
++					sizeof(*plat), GFP_KERNEL);
++			if (!plat)
++				return -ENOMEM;
++
++			stmpe_keypad_of_probe(np, plat);
++		} else
++			return -ENODEV;
++	}
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0)
+@@ -300,12 +354,7 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
+ 	if (!plat->no_autorepeat)
+ 		__set_bit(EV_REP, input->evbit);
+ 
+-	for (i = 0; i < plat->keymap_data->keymap_size; i++) {
+-		unsigned int key = plat->keymap_data->keymap[i];
+-
+-		keypad->cols |= 1 << KEY_COL(key);
+-		keypad->rows |= 1 << KEY_ROW(key);
+-	}
++	stmpe_keypad_fill_used_pins(pdev, keypad, plat);
+ 
+ 	keypad->stmpe = stmpe;
+ 	keypad->plat = plat;
+diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
+index ba157d4..b03cc64 100644
+--- a/drivers/mfd/stmpe.c
++++ b/drivers/mfd/stmpe.c
+@@ -321,6 +321,7 @@ static struct resource stmpe_keypad_resources[] = {
+ 
+ static struct mfd_cell stmpe_keypad_cell = {
+ 	.name		= "stmpe-keypad",
++	.of_compatible  = "st,stmpe-keypad",
+ 	.resources	= stmpe_keypad_resources,
+ 	.num_resources	= ARRAY_SIZE(stmpe_keypad_resources),
+ };
+-- 
+1.7.9.5

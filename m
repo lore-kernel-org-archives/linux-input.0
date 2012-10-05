@@ -1,49 +1,25 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: Communicating tablet mode status to userspace
-Date: Fri, 05 Oct 2012 17:50:48 +0200
-Message-ID: <1349452248.11150.6.camel@novo.hadess.net>
-References: <CAMLZHHS80_zdmgVtJ87w+fuQGC05yj+EoJt3C_zBC7hkyhnaoQ@mail.gmail.com>
-	 <20121002233640.GB8542@core.coreip.homeip.net>
-	 <CAMLZHHQfGuiK6s_d8ya8FUNiDiGDpgh35VFbHcu-mgCH-=TXVw@mail.gmail.com>
-	 <20121003150542.GA8460@kroah.com>
-	 <CAPXgP10+ZzLC98VdaQz19413guR-sKLT47iFLbN-mF_isF0n9A@mail.gmail.com>
-	 <CAMLZHHTnhCjYA8x-=Q9+R3zbjV5ABnQ7D1hYX9qWfQ4Hck9f-Q@mail.gmail.com>
+From: "Cedric Sodhi" <ManDay@gmx.net>
+Subject: HID-USB Touchpad not working again
+Date: Fri, 05 Oct 2012 18:03:12 +0200
+Message-ID: <20121005160312.6710@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:55569 "EHLO
-	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751225Ab2JEPuw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Oct 2012 11:50:52 -0400
-In-Reply-To: <CAMLZHHTnhCjYA8x-=Q9+R3zbjV5ABnQ7D1hYX9qWfQ4Hck9f-Q@mail.gmail.com>
+Received: from mailout-de.gmx.net ([213.165.64.23]:39188 "HELO
+	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752782Ab2JEQDO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Oct 2012 12:03:14 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Drake <dsd@laptop.org>
-Cc: Kay Sievers <kay@vrfy.org>, Greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-hotplug@vger.kernel.org, Carlos Garnacho <carlosg@gnome.org>
+To: linux-input@vger.kernel.org
 
-Hey Daniel,
+Hello, I changed my tablet from an ASUS EEE Slate w/ EEFI eGalax Multitouch device to a SAMSUNG XE700T1A w/ AtmelmaXTouch Digitizer 03eb:211c
 
-On Wed, 2012-10-03 at 10:04 -0600, Daniel Drake wrote:
-> On Wed, Oct 3, 2012 at 9:23 AM, Kay Sievers <kay@vrfy.org> wrote:
-> > The usual model is not uid/gid, it's ACLs dynamically applied for
-> > logged-in users with active sessions:
-> >   http://www.freedesktop.org/software/systemd/man/systemd-logind.service.html
-> >   http://cgit.freedesktop.org/systemd/systemd/tree/src/login/70-uaccess.rules
-> 
-> Thanks, those were the pointers I needed.
-> I'll work with this approach.
+Both evdev and wacom give strange results. In particular, only a percentage of the touches are registered as clicks (all are registered as moves, but only a few of them as clicks).
 
-I think that there's a more generic approach to this, which would also
-work with the tablet Thinkpads.
+I'll submit evtest logs as soon as I can. In the meantime, has anyone heard of this? There have been similar regressions in the past for usb-hid, so perhaps this is another.
 
-I would export the current "tablet mode" status through sysfs (which is
-great if your driver keeps state), and send a uevent when the mode
-changes (in addition to sending out that input event).
+Thank you, I'll get evtest logs as soon as I can.
 
-You'd probably need to tag your device in the udev database so that it
-can be found and acted upon by user-space (probably a
-gnome-settings-daemon plugin in your case).
-
-Cheers
-
+Cedric

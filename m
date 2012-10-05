@@ -1,47 +1,58 @@
-From: Tomasz Figa <t.figa@samsung.com>
-Subject: Re: [PATCH] input: keyboard: gpio-keys: Try to parse IRQ from device
- tree
-Date: Fri, 05 Oct 2012 09:59:57 +0200
-Message-ID: <25463817.uuiAvzsyb8@amdc1227>
-References: <1349263201-422-1-git-send-email-t.figa@samsung.com>
- <20121005062315.GB11112@core.coreip.homeip.net>
+From: Alexandra Chin <alexandra.chin@tw.synaptics.com>
+Subject: RE: [PATCH] Input: Add new driver into Input Subsystem for
+ Synaptics DS4 touchscreen I2C devices
+Date: Fri, 5 Oct 2012 09:44:55 +0000
+Message-ID: <CC51EC7B5B7F984AA566DC102237848896F59949@hkdcw-mail1.synaptics-inc.local>
+References: <CC51EC7B5B7F984AA566DC102237848896F590C0@hkdcw-mail1.synaptics-inc.local>
+ <20121003180121.GA4198@polaris.bitmath.org>
+ <CC51EC7B5B7F984AA566DC102237848896F593FA@hkdcw-mail1.synaptics-inc.local>
+ <20121004065137.GA14217@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <20121005062315.GB11112@core.coreip.homeip.net>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com, tomasz.figa@gmail.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from tw-mx2.synaptics.com.tw ([203.163.83.68]:18472 "EHLO
+	tw-mx2.synaptics.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755168Ab2JEJpE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Oct 2012 05:45:04 -0400
+In-Reply-To: <20121004065137.GA14217@core.coreip.homeip.net>
+Content-Language: zh-HK
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
 
-Hi Dmitry,
+Hi Dmitry/Henrik,
 
-On Thursday 04 of October 2012 23:23:15 Dmitry Torokhov wrote:
-> Hi Tomasz,
-> 
-> On Wed, Oct 03, 2012 at 01:20:00PM +0200, Tomasz Figa wrote:
-> > On modern platforms using device tree and non-legacy IRQ domains there
-> > is usually no way to perform direct translation between GPIO and IRQ,
-> > because the IRQ of interest is not mapped yet into sparse IRQ
-> > namespace.
-> > 
-> > This patch modifies the gpio_keys driver to parse IRQ from device tree
-> > and use gpio_to_irq only as a fallback.
-> 
-> This means that this change would need to be applied to every driver
-> that currently maps gpio to IRQ. Why can't gpio_to_irq() be fixed
-> instead?
-> 
 
-Now when I think of it again, there is a possibility of creating an IRQ 
-mapping in .to_irq callback of GPIO chip, if it does not exist yet. This 
-should be a better solution indeed. I will send a patch for pinctrl-samsung 
-driver adding it.
+From: Dmitry Torokhov
+Sent: Thursday, October 04, 2012 2:52 PM
+> Given that the other group at Synaptics works on general version of RMI4
+> driver what is the benefit of having separate driver for DS4 line? I can
+> understand keeping one copy of older driver in staging so that some
+> customers coudl still use hardware while universal implementation is
+> being developed, but I do not see why we would want to have 3 separate
+> drivers.
 
-Please disregard this patch.
 
-Best regards,
--- 
-Tomasz Figa
-Samsung Poland R&D Center
+Thank you for your suggestions and comments!
+
+We agree with your opinion. We will submit the driver as a patch on top 
+of STE's driver since it is in the staging.
+
+And we would like to state our purpose clearly why we are doing this 
+including the following:
+- We have customers that require a Touch Controller platform specific
+ driver, that is protocol specific, following a single source file structure.
+- There is also a requirement that the platform specific driver has to be 
+ adopted and included into the Linux kernel.
+
+As you are aware, Chris' team is working on general version of RMI4. 
+However customers still require a platform specific driver for Touch 
+Controller platform. We really hope both drivers (general RMI4 driver 
+and STE's driver) being adopted into the kernel. This will allow us to 
+provide the best flexibility possible to customers.
+
+Your opinion will be greatly appreciated.
+
+Alexandra Chin

@@ -1,58 +1,75 @@
-From: Alexandra Chin <alexandra.chin@tw.synaptics.com>
-Subject: RE: [PATCH] Input: Add new driver into Input Subsystem for
- Synaptics DS4 touchscreen I2C devices
-Date: Fri, 5 Oct 2012 09:44:55 +0000
-Message-ID: <CC51EC7B5B7F984AA566DC102237848896F59949@hkdcw-mail1.synaptics-inc.local>
-References: <CC51EC7B5B7F984AA566DC102237848896F590C0@hkdcw-mail1.synaptics-inc.local>
- <20121003180121.GA4198@polaris.bitmath.org>
- <CC51EC7B5B7F984AA566DC102237848896F593FA@hkdcw-mail1.synaptics-inc.local>
- <20121004065137.GA14217@core.coreip.homeip.net>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: Mouse and keyboard freeze on Ivy Bridge platform
+Date: Fri, 5 Oct 2012 10:23:02 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1210051011030.1541-100000@iolanthe.rowland.org>
+References: <20121004213606.GA8409@dinot.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tw-mx2.synaptics.com.tw ([203.163.83.68]:18472 "EHLO
-	tw-mx2.synaptics.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755168Ab2JEJpE convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Oct 2012 05:45:04 -0400
-In-Reply-To: <20121004065137.GA14217@core.coreip.homeip.net>
-Content-Language: zh-HK
+Received: from iolanthe.rowland.org ([192.131.102.54]:57282 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1754012Ab2JEOXE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Oct 2012 10:23:04 -0400
+In-Reply-To: <20121004213606.GA8409@dinot.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
+To: =?utf-8?Q?S=C3=A9bastien?= Dinot <sebastien.dinot@free.fr>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, 689368@bugs.debian.org
 
-Hi Dmitry/Henrik,
+On Thu, 4 Oct 2012, S=C3=A9bastien Dinot wrote:
 
+> Alan Stern a =C3=A9crit :
+> > The log file shows lots and lots of low-level communication errors.
+> > They could be caused by bad cabling or by bad USB hardware in your
+> > computer. It's unlikely that they were caused by the mouse or
+> > keyboard, because the log shows errors for both of them starting at
+> > exactly the same times.
+>=20
+> In my humble opinion, this issue is not caused by a bad USB hardware
+> because I am encountering it with two different motherboards (MSI
+> Z77A-G43 and ASUS P8Z77-V LX), both with an uptodate BIOS.
 
-From: Dmitry Torokhov
-Sent: Thursday, October 04, 2012 2:52 PM
-> Given that the other group at Synaptics works on general version of RMI4
-> driver what is the benefit of having separate driver for DS4 line? I can
-> understand keeping one copy of older driver in staging so that some
-> customers coudl still use hardware while universal implementation is
-> being developed, but I do not see why we would want to have 3 separate
-> drivers.
+Maybe they have something in common.  I don't know.  All I can do is
+explain to you what your kernel log indicates -- and it strongly
+indicates a hardware error.  Didn't you notice all those "detected=20
+XactErr" lines in the log?  There were more than 70000 of them!
 
+> May be it is caused by a bad cabling but my mouse and my keyboard wor=
+ked
+> fine with my previous PC. They are connected to USB2 ports in both
+> cases. But to clear up this point, I will try new mouse and keyboard.
+>=20
+> A last question: if it is a cable failure, why does it disappear
+> temporarily when I unload then reload the module? I do not have deep
+> experience and knowledge of hardware, may be there is a rational
+> explanation to it.
 
-Thank you for your suggestions and comments!
+That's a good point, and a cable failure indeed seems less likely than
+some of the other possibilities (such as a failure of the internal
+"rate-matching" hub).
 
-We agree with your opinion. We will submit the driver as a patch on top 
-of STE's driver since it is in the staging.
+One possible explanation is that an occasional noisy signal (caused by
+a slightly faulty cable) triggers a bug in the internal hub, and that
+bug causes all communication to fail until the hub is reset when you
+reload the module.
 
-And we would like to state our purpose clearly why we are doing this 
-including the following:
-- We have customers that require a Touch Controller platform specific
- driver, that is protocol specific, following a single source file structure.
-- There is also a requirement that the platform specific driver has to be 
- adopted and included into the Linux kernel.
+> > You could try getting a USB-2 hub and attaching your mouse and
+> > keyboard through the hub. That might help ... or it might not.
+>=20
+> Sorry, I do not understand the aim of this operation. Could you expla=
+in
+> me it?
 
-As you are aware, Chris' team is working on general version of RMI4. 
-However customers still require a platform specific driver for Touch 
-Controller platform. We really hope both drivers (general RMI4 driver 
-and STE's driver) being adopted into the kernel. This will allow us to 
-provide the best flexibility possible to customers.
+In addition to what Sarah said, it's possible that your problem is
+related to the fact that the keyboard and mouse operate at low speed. =20
+If you connected them through a hub then that hub would communicate
+with the internal hub at high speed, not low speed.
 
-Your opinion will be greatly appreciated.
+Alan Stern
 
-Alexandra Chin
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

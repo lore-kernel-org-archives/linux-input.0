@@ -1,28 +1,35 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 4/6] Input: da9052_onkey.c: Convert to the new da9052
- interrupt functions.
-Date: Fri, 5 Oct 2012 19:57:26 +0100
-Message-ID: <20121005185726.GG4360@opensource.wolfsonmicro.com>
-References: <1349320509-26930-1-git-send-email-festevam@gmail.com>
- <1349320509-26930-4-git-send-email-festevam@gmail.com>
+From: Cedric Sodhi <manday@gmx.net>
+Subject: Re: HID-USB Touchpad not working again
+Date: Fri, 5 Oct 2012 22:45:38 +0200
+Message-ID: <20121005204538.GA2118@slate>
+References: <20121005160312.6710@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:53002 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750856Ab2JES5i (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 5 Oct 2012 14:57:38 -0400
+Received: from mailout-de.gmx.net ([213.165.64.23]:56444 "HELO
+	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1754939Ab2JETsA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Oct 2012 15:48:00 -0400
 Content-Disposition: inline
-In-Reply-To: <1349320509-26930-4-git-send-email-festevam@gmail.com>
+In-Reply-To: <20121005160312.6710@gmx.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: sameo@linux.intel.com, ashish.jangam@kpitcummins.com, dchen@diasemi.com, arnd@arndb.de, kernel@pengutronix.de, linux-kernel@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Thu, Oct 04, 2012 at 12:15:07AM -0300, Fabio Estevam wrote:
-> From: Fabio Estevam <fabio.estevam@freescale.com>
+In fact it appears that the release is whats not registered in some of
+the cases.
+
+On Fri, Oct 05, 2012 at 06:03:12PM +0200, Cedric Sodhi wrote:
+> Hello, I changed my tablet from an ASUS EEE Slate w/ EEFI eGalax Multitouch device to a SAMSUNG XE700T1A w/ AtmelmaXTouch Digitizer 03eb:211c
 > 
-> Use the new da9052 irq functions and allow the driver to probe successfully.
-
-Reviewed-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+> Both evdev and wacom give strange results. In particular, only a percentage of the touches are registered as clicks (all are registered as moves, but only a few of them as clicks).
+> 
+> I'll submit evtest logs as soon as I can. In the meantime, has anyone heard of this? There have been similar regressions in the past for usb-hid, so perhaps this is another.
+> 
+> Thank you, I'll get evtest logs as soon as I can.
+> 
+> Cedric
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

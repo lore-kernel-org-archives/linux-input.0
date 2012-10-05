@@ -1,72 +1,49 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 08/10] Documentation: Describe bindings for STMPE Keypad driver
-Date: Fri,  5 Oct 2012 16:31:44 +0100
-Message-ID: <1349451107-8009-9-git-send-email-lee.jones@linaro.org>
-References: <1349451107-8009-1-git-send-email-lee.jones@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1349451107-8009-1-git-send-email-lee.jones@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: arnd@arndb.de, linus.walleij@stericsson.com, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: Communicating tablet mode status to userspace
+Date: Fri, 05 Oct 2012 17:50:48 +0200
+Message-ID: <1349452248.11150.6.camel@novo.hadess.net>
+References: <CAMLZHHS80_zdmgVtJ87w+fuQGC05yj+EoJt3C_zBC7hkyhnaoQ@mail.gmail.com>
+	 <20121002233640.GB8542@core.coreip.homeip.net>
+	 <CAMLZHHQfGuiK6s_d8ya8FUNiDiGDpgh35VFbHcu-mgCH-=TXVw@mail.gmail.com>
+	 <20121003150542.GA8460@kroah.com>
+	 <CAPXgP10+ZzLC98VdaQz19413guR-sKLT47iFLbN-mF_isF0n9A@mail.gmail.com>
+	 <CAMLZHHTnhCjYA8x-=Q9+R3zbjV5ABnQ7D1hYX9qWfQ4Hck9f-Q@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:55569 "EHLO
+	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751225Ab2JEPuw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Oct 2012 11:50:52 -0400
+In-Reply-To: <CAMLZHHTnhCjYA8x-=Q9+R3zbjV5ABnQ7D1hYX9qWfQ4Hck9f-Q@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Drake <dsd@laptop.org>
+Cc: Kay Sievers <kay@vrfy.org>, Greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-hotplug@vger.kernel.org, Carlos Garnacho <carlosg@gnome.org>
 
-Here we add the required documentation for the STMPE Device
-Tree bindings. It describes all of the bindings currently
-supported by the driver.
+Hey Daniel,
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- .../devicetree/bindings/input/stmpe-keypad.txt     |   39 ++++++++++++++++++++
- 1 file changed, 39 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/stmpe-keypad.txt
+On Wed, 2012-10-03 at 10:04 -0600, Daniel Drake wrote:
+> On Wed, Oct 3, 2012 at 9:23 AM, Kay Sievers <kay@vrfy.org> wrote:
+> > The usual model is not uid/gid, it's ACLs dynamically applied for
+> > logged-in users with active sessions:
+> >   http://www.freedesktop.org/software/systemd/man/systemd-logind.service.html
+> >   http://cgit.freedesktop.org/systemd/systemd/tree/src/login/70-uaccess.rules
+> 
+> Thanks, those were the pointers I needed.
+> I'll work with this approach.
 
-diff --git a/Documentation/devicetree/bindings/input/stmpe-keypad.txt b/Documentation/devicetree/bindings/input/stmpe-keypad.txt
-new file mode 100644
-index 0000000..e18e2de
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/stmpe-keypad.txt
-@@ -0,0 +1,39 @@
-+* STMPE Keypad
-+
-+Required properties:
-+ - compatible               : "st,stmpe-keypad"
-+ - linux,keymap             : See ./matrix-keymap.txt
-+
-+Optional properties:
-+ - debounce-interval        : Debouncing interval time in milliseconds
-+ - stericsson,scan-count    : Scanning cycles elapsed before key data is updated
-+ - stericsson,no-autorepeat : If specified device will not autorepeat
-+
-+Example:
-+
-+	stmpe_keypad {
-+		compatible = "st,stmpe-keypad";
-+
-+		debounce-interval = <64>;
-+		stericsson,scan-count = <8>;
-+		stericsson,no-autorepeat;
-+
-+		linux,keymap = <0x205006b
-+				0x4010074
-+				0x3050072
-+				0x1030004
-+				0x502006a
-+				0x500000a
-+				0x5008b
-+				0x706001c
-+				0x405000b
-+				0x6070003
-+				0x3040067
-+				0x303006c
-+				0x60400e7
-+				0x602009e
-+				0x4020073
-+				0x5050002
-+				0x4030069
-+				0x3020008>;
-+	};
--- 
-1.7.9.5
+I think that there's a more generic approach to this, which would also
+work with the tablet Thinkpads.
+
+I would export the current "tablet mode" status through sysfs (which is
+great if your driver keeps state), and send a uevent when the mode
+changes (in addition to sending out that input event).
+
+You'd probably need to tag your device in the udev database so that it
+can be found and acted upon by user-space (probably a
+gnome-settings-daemon plugin in your case).
+
+Cheers
+

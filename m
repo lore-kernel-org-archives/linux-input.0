@@ -1,71 +1,97 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH 1/5] Input: wacom - Allow any multi-input Intuos device to
- set prox
-Date: Fri, 5 Oct 2012 15:26:03 -0700
-Message-ID: <CANRwn3TmuTH=QaCmxUeeEUradchZZgsHDo1xMo3t68c2k_gRSQ@mail.gmail.com>
-References: <1346972010-1330-1-git-send-email-killertofu@gmail.com>
-	<CAF8JNhKrkbLCTLUpsWJVCbgtdaDSYa1S7tdH=KHi=LXXc2Ac7w@mail.gmail.com>
-	<CANRwn3Qjx75e5tXu0bSredFOrscYJ2SuWZ+myU=866Aa0tTzmQ@mail.gmail.com>
-	<20121004072519.GC14217@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:33651 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753099Ab2JEW0G (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Oct 2012 18:26:06 -0400
-Received: by mail-wg0-f44.google.com with SMTP id dr13so1873679wgb.1
-        for <linux-input@vger.kernel.org>; Fri, 05 Oct 2012 15:26:03 -0700 (PDT)
-In-Reply-To: <20121004072519.GC14217@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [RFC PATCH 00/06] input: Synaptics RMI4 Touchscreen Driver
+Date: Fri,  5 Oct 2012 21:09:57 -0700
+Message-ID: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, linux-input@vger.kernel.org, chris@cnpbagwell.com
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chen <alexandra.chen@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+List-Id: linux-input@vger.kernel.org
 
-On Thu, Oct 4, 2012 at 12:25 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Jason,
->
-> On Mon, Oct 01, 2012 at 10:09:24AM -0700, Jason Gerecke wrote:
->> On Fri, Sep 28, 2012 at 2:18 PM, Ping Cheng <pinglinux@gmail.com> wrote:
->> > On Thu, Sep 6, 2012 at 3:53 PM, Jason Gerecke <killertofu@gmail.com> wrote:
->> >> The ability to set the proximity flag should apply to any device
->> >> that has both pen and touch input. Rather than listing classes of
->> >> devices known to meet this criteria, simply filter on the quirk
->> >> defining all such devices.
->> >>
->> >> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
->> >
->> > Tested-by: Ping Cheng <pingc@wacom.com> for the whole set.
->> >
->> > Dmitry, do you have questions about this patchset and "input: wacom:
->> > Report correct touch contact size for I5/Bamboo"? We hope they can be
->> > merged soon since we have more patches coming.
->> >
->> > Thank you.
->> >
->> > Ping
->> >
->> The 24HD touch patches from September 6th as well ("Input: wacom - Add
->> touch sensor support for Cintiq 24HD touch"). I was hoping to get them
->> accepted before yesterday's 3.7 merge window opened.
->>
->
-> Could you please take a peek at my 'next' branch and see if anything
-> wacom-related is missing?
->
-> Thanks!
->
-> --
-> Dmitry
+This patch implements a driver supporting Synaptics ClearPad and other
+touchscreen sensors that use the RMI4 protocol, as defined here:
 
-That appears to be everything I had outstanding. I'll rewrite and
-resubmit the two Cintiq patches you had to drop due to merge issues.
+    http://www.synaptics.com/sites/default/files/511-000136-01-Rev-E-RMI4%20Intrfacing%20Guide.pdf
 
-Jason
+as well as successor documents that haven't made their way through to
+publication yet.
+
+This code supersedes the patch submitted on 2012-08-17.  For all files
+included in this patch, we believe that all outstanding issues arising
+from the previous submissions have been addressed, except for looking into
+using irq_chip to manage chip interrupt dispatch - was passed on that mainly
+to limit the amount of major structural change since the previous patch.  We
+will continue to pursue the irq_chip request, however.
+
+Also, at the request of several maintainers, we have reduced the number of
+files included in this patch.  Hopefully this is much less of a patch bomb
+(perhaps just a patch firecracker).  The files provided are sufficient to
+fully drive an RMI4 2D sensor, handling full multifinger reporting and device
+and power management.
+
+
+This patch is against the v3.6 tag of Linus' kernel tree, commit
+a0d271cbfed1dd50278c6b06bead3d00ba0a88f9.  It should work fine with kernels
+back to 3.1.
+
+
+
+Included in this patch are:
+    - full support for an RMI virtual bus as a standard kernel bus
+
+    - physical layer implementation for I2C
+
+    - device driver for general RMI4 sensor functionality
+
+    - function implementations for the following RMI4 functions:
+        * F01 device control
+        * F11 multifinger pointing
+
+The driver supports a system having one or more RMI sensors attached to it.
+Most devices have just a single touch sensor, but some have more than one.
+An example is the Fuse concept phone, which has 4 RMI sensors in it.
+
+Each sensor is presented as a device on the RMI logical bus (/sys/bus/rmi).
+Devices are named/numbered in the order they are discovered on the bus,
+starting with /sys/bus/rmi/devices/sensor00 for the first once, .../sensor01
+for the second one, and so on.
+
+Individual RMI functions are presented as child devices of the sensor device.
+For example, sensor00.fn01, sensor00.fn11, and so on.  Control of an RMI
+function's operating parameters is implemented via sysfs or debugfs (depending
+on whether the parameters are used during normal operation or system
+development/prototyping).
+
+
+
+The amount of feedback received on previous patches precludes addressing each
+item individually.  However, major changes for this patch are:
+    - elimination of ad-hoc bus matching/binding and reliance on standard bus
+      implementation.
+    - elimination of out-of-tree features such as EARLY_SUSPEND
+    - use of devm_kzalloc where appropriate
+    - partition of control parameters between sysfs and debugfs
+    - simplified configuration and control of debugging related features
+    - IRQ management consolidated in once place
+
+
+We've broken this patch into 6 parts, as follows:
+    01 - public header files and documentation
+    02 - core sensor and bus implementation
+    03 - I2C physical layer driver
+    04 - Kconfigs and Makefiles
+    05..06 - drivers for individual RMI functions
+
+
+Comments and other feedback on this driver are welcomed.
+
+Christopher Heiny and the Synaptics RMI4 driver team
+
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+
+Cc: Jean Delvare <khali@linux-fr.org>
+Cc: Linus Walleij <linus.walleij@stericsson.com>
+Cc: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+Cc: Joeri de Gram <j.de.gram@gmail.com>
 
 ---
-When you're rife with devastation / There's a simple explanation:
-You're a toymaker's creation / Trapped inside a crystal ball.
-And whichever way he tilts it / Know that we must be resilient
-We won't let them break our spirits / As we sing our silly song.

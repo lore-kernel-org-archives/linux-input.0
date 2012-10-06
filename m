@@ -1,76 +1,43 @@
-From: Pavel Bludov <pbludov@gmail.com>
-Subject: [PATCHv2] Input: Add Alps touchpad 73 03 0a support
-Date: Sat, 06 Oct 2012 14:37:59 +0900
-Message-ID: <506FC3B7.7050403@gmail.com>
-References: <506BA4FE.509@gmail.com> <20121004072538.GE14217@core.coreip.homeip.net>
+From: Cedric Sodhi <manday@gmx.net>
+Subject: Re: HID-USB Touchpad not working again
+Date: Sat, 6 Oct 2012 10:05:15 +0200
+Message-ID: <20121006080515.GA3208@slate>
+References: <20121005160312.6710@gmx.net>
+ <20121005204538.GA2118@slate>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:38490 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750835Ab2JFFiF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Oct 2012 01:38:05 -0400
-Received: by mail-lb0-f174.google.com with SMTP id n3so1891001lbo.19
-        for <linux-input@vger.kernel.org>; Fri, 05 Oct 2012 22:38:02 -0700 (PDT)
-In-Reply-To: <20121004072538.GE14217@core.coreip.homeip.net>
+Received: from mailout-de.gmx.net ([213.165.64.22]:54315 "HELO
+	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1750955Ab2JFHHY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Oct 2012 03:07:24 -0400
+Content-Disposition: inline
+In-Reply-To: <20121005204538.GA2118@slate>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-04.10.2012 16:25, Dmitry Torokhov wrote:
-> It looks like you mailer mangled the patch by line-wrapping it, and I
-> would also need your "Signed-off-by: ..." to be able to apply the patch.
+Consider the problem solved. A recent kernel seems to fix it.
 
-Thank you for your patience, Dmitry!
-
-I have throughly read
-http://www.kernel.org/doc/Documentation/SubmittingPatches
-http://kb.mozillazine.org/Plain_text_e-mail_%28Thunderbird%29
-and there is a new version:
-
-Support for alps touchpad found in Intel Latexo notebook.
-E7 report is 73 03 0a
-command mode response is 88 08 1c
-absolute mode controlled by register c2c4
-
-Tested on Intel Latexo with 3.6 kernel.
-
-Signed-off-by: Pavel Bludov <pbludov@gmail.com>
-
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index cf5af1f..1b640f2 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -112,6 +112,7 @@ static const struct alps_model_info alps_model_data[] = {
-         { { 0x73, 0x02, 0x64 }, 0x9b, ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT },
-         { { 0x73, 0x02, 0x64 }, 0x9d, ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT },
-         { { 0x73, 0x02, 0x64 }, 0x8a, ALPS_PROTO_V4, 0x8f, 0x8f, 0 },
-+       { { 0x73, 0x03, 0x0a }, 0x1c, ALPS_PROTO_V3, 0x8f, 0x8f, 0 },
-  };
-  
-  /*
-@@ -983,7 +984,7 @@ static int alps_enter_command_mode(struct psmouse *psmouse,
-                 return -1;
-         }
-  
--       if (param[0] != 0x88 && param[1] != 0x07) {
-+       if (param[0] != 0x88 && param[1] != 0x07 && param[1] != 0x08) {
-                 psmouse_dbg(psmouse,
-                             "unknown response while entering command mode: %2.2x %2.2x %2.2x\n",
-                             param[0], param[1], param[2]);
-@@ -1302,6 +1303,12 @@ static int alps_hw_init_v3(struct psmouse *psmouse)
-         if (alps_enter_command_mode(psmouse, NULL))
-                 goto error;
-  
-+       reg_val = alps_command_mode_read_reg(psmouse, 0xc2c8);
-+       if (reg_val == 0) {
-+               if (alps_command_mode_write_reg(psmouse, 0xc2c4, 0x02))
-+                       goto error;
-+       }
-+
-         /* Check for trackstick */
-         reg_val = alps_command_mode_read_reg(psmouse, 0x0008);
-         if (reg_val == -1)
-
+On Fri, Oct 05, 2012 at 10:45:38PM +0200, Cedric Sodhi wrote:
+> In fact it appears that the release is whats not registered in some of
+> the cases.
+> 
+> On Fri, Oct 05, 2012 at 06:03:12PM +0200, Cedric Sodhi wrote:
+> > Hello, I changed my tablet from an ASUS EEE Slate w/ EEFI eGalax Multitouch device to a SAMSUNG XE700T1A w/ AtmelmaXTouch Digitizer 03eb:211c
+> > 
+> > Both evdev and wacom give strange results. In particular, only a percentage of the touches are registered as clicks (all are registered as moves, but only a few of them as clicks).
+> > 
+> > I'll submit evtest logs as soon as I can. In the meantime, has anyone heard of this? There have been similar regressions in the past for usb-hid, so perhaps this is another.
+> > 
+> > Thank you, I'll get evtest logs as soon as I can.
+> > 
+> > Cedric
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

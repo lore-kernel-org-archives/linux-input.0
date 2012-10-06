@@ -1,8 +1,11 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [RFC PATCH 03/06] input/rmi4: I2C physical interface
-Date: Fri,  5 Oct 2012 21:10:00 -0700
-Message-ID: <1349496603-20775-4-git-send-email-cheiny@synaptics.com>
+Subject: =?UTF-8?q?=5BRFC=20PATCH=2005/06=5D=20input/rmi4=3A=20F01=20-=20device=20control?=
+Date: Fri,  5 Oct 2012 21:10:02 -0700
+Message-ID: <1349496603-20775-6-git-send-email-cheiny@synaptics.com>
 References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -10,15 +13,21 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chen <alexandra.chen@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 List-Id: linux-input@vger.kernel.org
 
-The I2C physical driver is not extensively changed in terms of functionality
-since the previous patch.  Management of the attention GPIO has been moved to
-rmi_driver.c (see previous email), and most of the debug related interfaces
-have been moved from sysfs to debugfs.  Control of the debug features has been
-moved from compile-time to runtime switches available via debugfs.
+RMI Function 01 implements basic device control and power management
+behaviors for the RMI4 sensor.  Since the last patch, we've decoupled r=
+mi_f01.c
+implementation from rmi_driver.c, so rmi_f01.c acts as a standard drive=
+r
+module to handle F01 devices on the RMI bus.
 
-The core I2C functionality was previously ACKed by Jean Delvare.  I don't
-believe that portion of the code has changed much since then, but we'd
-appreciate a second glance at this.
+Like other modules, a number of attributes have been moved from sysfs t=
+o
+debugfs, depending on their expected use.
+
+
+rmi_f01.h exports definitions that we expect to be used by other functi=
+onality
+in the future (such as firmware reflash).
 
 
 Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
@@ -27,27 +36,29 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Linus Walleij <linus.walleij@stericsson.com>
 Cc: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 Cc: Joeri de Gram <j.de.gram@gmail.com>
-Cc: Jean Delvare <khali@linux-fr.org>
-
-Acked-by: Jean Delvare <khali@linux-fr.org>
 
 ---
 
- drivers/input/rmi4/rmi_i2c.c |  455 ++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 455 insertions(+), 0 deletions(-)
+ drivers/input/rmi4/rmi_f01.c | 1463 ++++++++++++++++++++++++++++++++++=
+++++++++
+ drivers/input/rmi4/rmi_f01.h |  136 ++++
+ 2 files changed, 1599 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.=
+c
 new file mode 100644
-index 0000000..c21a27c
+index 0000000..d734f46
 --- /dev/null
-+++ b/drivers/input/rmi4/rmi_i2c.c
-@@ -0,0 +1,455 @@
++++ b/drivers/input/rmi4/rmi_f01.c
+@@ -0,0 +1,1463 @@
 +/*
-+ * Copyright (c) 2011, 2012 Synaptics Incorporated
++ * Copyright (c) 2011-2012 Synaptics Incorporated
 + * Copyright (c) 2011 Unixphere
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
++ * This program is free software; you can redistribute it and/or modif=
+y
++ * it under the terms of the GNU General Public License as published b=
+y
 + * the Free Software Foundation; either version 2 of the License, or
 + * (at your option) any later version.
 + *
@@ -62,438 +73,1656 @@ index 0000000..c21a27c
 + */
 +
 +#include <linux/kernel.h>
-+#include <linux/delay.h>
-+#include <linux/gpio.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
++#include <linux/debugfs.h>
 +#include <linux/kconfig.h>
-+#include <linux/lockdep.h>
-+#include <linux/module.h>
-+#include <linux/pm.h>
 +#include <linux/rmi.h>
 +#include <linux/slab.h>
++#include <linux/uaccess.h>
 +#include "rmi_driver.h"
++#include "rmi_f01.h"
 +
-+struct rmi_i2c_data {
-+	struct mutex page_mutex;
-+	int page;
-+	struct rmi_phys_device *phys;
++/**
++ * @reset - set this bit to force a firmware reset of the sensor.
++ */
++union f01_device_commands {
++	struct {
++		bool reset:1;
++		u8 reserved:7;
++	} __attribute__((__packed__));
++	u8 reg;
++};
 +
-+	bool comms_debug;
++/**
++ * @ctrl0 - see documentation in rmi_f01.h.
++ * @interrupt_enable - A mask of per-function interrupts on the touch =
+sensor.
++ * @doze_interval - controls the interval between checks for finger pr=
+esence
++ * when the touch sensor is in doze mode, in units of 10ms.
++ * @wakeup_threshold - controls the capacitance threshold at which the=
+ touch
++ * sensor will decide to wake up from that low power state.
++ * @doze_holdoff - controls how long the touch sensor waits after the =
+last
++ * finger lifts before entering the doze state, in units of 100ms.
++ */
++struct f01_device_control {
++	union f01_device_control_0 ctrl0;
++	u8 *interrupt_enable;
++	u8 doze_interval;
++	u8 wakeup_threshold;
++	u8 doze_holdoff;
++};
++
++/**
++ * @has_ds4_queries - if true, the query registers relating to Design =
+Studio 4
++ * features are present.
++ * @has_multi_phy - if true, multiple physical communications interfac=
+es are
++ * supported.
++ * @has_guest - if true, a "guest" device is supported.
++ */
++union f01_query_42 {
++	struct {
++		bool has_ds4_queries:1;
++		bool has_multi_phy:1;
++		bool has_guest:1;
++		u8 reserved:5;
++	} __attribute__((__packed__));
++	u8 regs[1];
++};
++
++/**
++ * @length - the length of the remaining Query43.* register block, not
++ * including the first register.
++ * @has_package_id_query -  the package ID query data will be accessib=
+le from
++ * inside the ProductID query registers.
++ * @has_packrat_query -  the packrat query data will be accessible fro=
+m inside
++ * the ProductID query registers.
++ * @has_reset_query - the reset pin related registers are valid.
++ * @has_maskrev_query - the silicon mask revision number will be repor=
+ted.
++ * @has_i2c_control - the register F01_RMI_Ctrl6 will exist.
++ * @has_spi_control - the register F01_RMI_Ctrl7 will exist.
++ * @has_attn_control - the register F01_RMI_Ctrl8 will exist.
++ * @reset_enabled - the hardware reset pin functionality has been enab=
+led
++ * for this device.
++ * @reset_polarity - If this bit reports as =E2=80=980=E2=80=99, it me=
+ans that the reset state
++ * is active low. A =E2=80=981=E2=80=99 means that the reset state is =
+active high.
++ * @pullup_enabled - If set, it indicates that a built-in weak pull up=
+ has
++ * been enabled on the Reset pin; clear means that no pull-up is prese=
+nt.
++ * @reset_pin_number - This field represents which GPIO pin number has=
+ been
++ * assigned the reset functionality.
++ */
++union f01_ds4_queries {
++	struct {
++		u8 length:4;
++		u8 reserved_1:4;
++
++		bool has_package_id_query:1;
++		bool has_packrat_query:1;
++		bool has_reset_query:1;
++		bool has_maskrev_query:1;
++		u8 reserved_2:4;
++
++		bool has_i2c_control:1;
++		bool has_spi_control:1;
++		bool has_attn_control:1;
++		u8 reserved_3:5;
++
++		bool reset_enabled:1;
++		bool reset_polarity:1;
++		bool pullup_enabled:1;
++		u8 reserved_4:1;
++		u8 reset_pin_number:4;
++	} __attribute__((__packed__));
++	u8 regs[4];
++};
++
++struct f01_data {
++	struct f01_device_control device_control;
++	union f01_basic_queries basic_queries;
++	union f01_device_status device_status;
++	u8 product_id[RMI_PRODUCT_ID_LENGTH+1];
++
++	u16 interrupt_enable_addr;
++	u16 doze_interval_addr;
++	u16 wakeup_threshold_addr;
++	u16 doze_holdoff_addr;
++
++	int irq_count;
++	int num_of_irq_regs;
++
++#ifdef	CONFIG_PM
++	bool suspended;
++	bool old_nosleep;
++#endif
++
 +#ifdef	CONFIG_RMI4_DEBUG
-+	struct dentry *debugfs_comms;
++	struct dentry *debugfs_interrupt_enable;
 +#endif
 +};
 +
-+#ifdef CONFIG_RMI4_DEBUG
-+
-+#include <linux/debugfs.h>
-+#include <linux/uaccess.h>
-+
-+static int setup_debugfs(struct rmi_device *rmi_dev, struct rmi_i2c_data *data);
-+static void teardown_debugfs(struct rmi_i2c_data *data);
-+
-+struct i2c_debugfs_data {
++#ifdef	CONFIG_RMI4_DEBUG
++struct f01_debugfs_data {
 +	bool done;
-+	struct rmi_i2c_data *i2c_data;
++	struct rmi_function_container *fc;
 +};
 +
-+static int debug_open(struct inode *inodep, struct file *filp)
++static int f01_debug_open(struct inode *inodep, struct file *filp)
 +{
-+	struct i2c_debugfs_data *data;
++	struct f01_debugfs_data *data;
++	struct rmi_function_container *fc =3D inodep->i_private;
 +
-+	data = kzalloc(sizeof(struct i2c_debugfs_data), GFP_KERNEL);
++	data =3D devm_kzalloc(&fc->dev, sizeof(struct f01_debugfs_data),
++		GFP_KERNEL);
 +	if (!data)
 +		return -ENOMEM;
 +
-+	data->i2c_data = inodep->i_private;
-+	filp->private_data = data;
++	data->fc =3D fc;
++	filp->private_data =3D data;
 +	return 0;
 +}
 +
-+static int debug_release(struct inode *inodep, struct file *filp)
-+{
-+	kfree(filp->private_data);
-+	return 0;
-+}
-+
-+static ssize_t comms_debug_read(struct file *filp, char __user *buffer,
-+		size_t size, loff_t *offset) {
-+	int retval;
++static ssize_t interrupt_enable_read(struct file *filp, char __user *b=
+uffer,
++				     size_t size, loff_t *offset) {
++	int i;
++	int len;
++	int total_len =3D 0;
 +	char local_buf[size];
-+	struct i2c_debugfs_data *dfs = filp->private_data;
-+	struct rmi_i2c_data *data = dfs->i2c_data;
++	char *current_buf =3D local_buf;
++	struct f01_debugfs_data *data =3D filp->private_data;
++	struct f01_data *f01 =3D data->fc->data;
 +
-+	if (dfs->done)
++	if (data->done)
 +		return 0;
 +
-+	dfs->done = 1;
++	data->done =3D 1;
 +
-+	retval = snprintf(local_buf, PAGE_SIZE, "%u\n", data->comms_debug);
++	/* loop through each irq value and copy its
++	 * string representation into buf */
++	for (i =3D 0; i < f01->irq_count; i++) {
++		int irq_reg;
++		int irq_shift;
++		int interrupt_enable;
 +
-+	if (retval <= 0 || copy_to_user(buffer, local_buf, retval))
++		irq_reg =3D i / 8;
++		irq_shift =3D i % 8;
++		interrupt_enable =3D
++		    ((f01->device_control.interrupt_enable[irq_reg]
++			>> irq_shift) & 0x01);
++
++		/* get next irq value and write it to buf */
++		len =3D snprintf(current_buf, size - total_len,
++			"%u ", interrupt_enable);
++		/* bump up ptr to next location in buf if the
++		 * snprintf was valid.  Otherwise issue an error
++		 * and return. */
++		if (len > 0) {
++			current_buf +=3D len;
++			total_len +=3D len;
++		} else {
++			dev_err(&data->fc->dev, "Failed to build interrupt_enable buffer, c=
+ode =3D %d.\n",
++						len);
++			return snprintf(local_buf, size, "unknown\n");
++		}
++	}
++	len =3D snprintf(current_buf, size - total_len, "\n");
++	if (len > 0)
++		total_len +=3D len;
++	else
++		dev_warn(&data->fc->dev, "%s: Failed to append carriage return.\n",
++			 __func__);
++
++	if (copy_to_user(buffer, local_buf, total_len))
 +		return -EFAULT;
 +
-+	return retval;
++	return total_len;
 +}
 +
-+static ssize_t comms_debug_write(struct file *filp, const char __user *buffer,
-+			   size_t size, loff_t *offset) {
++static ssize_t interrupt_enable_write(struct file *filp,
++		const char __user *buffer, size_t size, loff_t *offset) {
 +	int retval;
-+	char local_buf[size];
-+	unsigned int new_value;
-+	struct i2c_debugfs_data *dfs = filp->private_data;
-+	struct rmi_i2c_data *data = dfs->i2c_data;
++	char buf[size];
++	char *local_buf =3D buf;
++	int i;
++	int irq_count =3D 0;
++	int irq_reg =3D 0;
++	struct f01_debugfs_data *data =3D filp->private_data;
++	struct f01_data *f01 =3D data->fc->data;
 +
-+	retval = copy_from_user(local_buf, buffer, size);
++	retval =3D copy_from_user(buf, buffer, size);
 +	if (retval)
 +		return -EFAULT;
 +
-+	retval = sscanf(local_buf, "%u", &new_value);
-+	if (retval != 1 || new_value > 1)
-+		return -EINVAL;
++	for (i =3D 0; i < f01->irq_count && *local_buf !=3D 0;
++	     i++, local_buf +=3D 2) {
++		int irq_shift;
++		int interrupt_enable;
++		int result;
 +
-+	data->comms_debug = new_value;
++		irq_reg =3D i / 8;
++		irq_shift =3D i % 8;
++
++		/* get next interrupt mapping value and store and bump up to
++		 * point to next item in local_buf */
++		result =3D sscanf(local_buf, "%u", &interrupt_enable);
++		if ((result !=3D 1) ||
++			(interrupt_enable !=3D 0 && interrupt_enable !=3D 1)) {
++			dev_err(&data->fc->dev, "Interrupt enable[%d] is not a valid value =
+0x%x.\n",
++				i, interrupt_enable);
++			return -EINVAL;
++		}
++		if (interrupt_enable =3D=3D 0) {
++			f01->device_control.interrupt_enable[irq_reg] &=3D
++				(1 << irq_shift) ^ 0xFF;
++		} else
++			f01->device_control.interrupt_enable[irq_reg] |=3D
++				(1 << irq_shift);
++		irq_count++;
++	}
++
++	/* Make sure the irq count matches */
++	if (irq_count !=3D f01->irq_count) {
++		dev_err(&data->fc->dev, "Interrupt enable count of %d doesn't match =
+device count of %d.\n",
++			 irq_count, f01->irq_count);
++		return -EINVAL;
++	}
++
++	/* write back to the control register */
++	retval =3D rmi_write_block(data->fc->rmi_dev, f01->interrupt_enable_a=
+ddr,
++			f01->device_control.interrupt_enable,
++			f01->num_of_irq_regs);
++	if (retval < 0) {
++		dev_err(&data->fc->dev, "Could not write interrupt_enable mask to %#=
+06x\n",
++			f01->interrupt_enable_addr);
++		return retval;
++	}
 +
 +	return size;
 +}
 +
-+
-+static const struct file_operations comms_debug_fops = {
-+	.owner = THIS_MODULE,
-+	.open = debug_open,
-+	.release = debug_release,
-+	.read = comms_debug_read,
-+	.write = comms_debug_write,
++static const struct file_operations interrupt_enable_fops =3D {
++	.owner =3D THIS_MODULE,
++	.open =3D f01_debug_open,
++	.read =3D interrupt_enable_read,
++	.write =3D interrupt_enable_write,
 +};
 +
-+static int setup_debugfs(struct rmi_device *rmi_dev, struct rmi_i2c_data *data)
++static int setup_debugfs(struct rmi_function_container *fc)
 +{
-+	if (!rmi_dev->debugfs_root)
++	struct f01_data *data =3D fc->data;
++
++	if (!fc->debugfs_root)
 +		return -ENODEV;
 +
-+	data->debugfs_comms = debugfs_create_file("comms_debug", RMI_RW_ATTR,
-+			rmi_dev->debugfs_root, data, &comms_debug_fops);
-+	if (!data->debugfs_comms || IS_ERR(data->debugfs_comms)) {
-+		dev_warn(&rmi_dev->dev, "Failed to create debugfs comms_debug.\n");
-+		data->debugfs_comms = NULL;
-+	}
++	data->debugfs_interrupt_enable =3D debugfs_create_file("interrupt_ena=
+ble",
++		RMI_RW_ATTR, fc->debugfs_root, fc, &interrupt_enable_fops);
++	if (!data->debugfs_interrupt_enable)
++		dev_warn(&fc->dev,
++			 "Failed to create debugfs interrupt_enable.\n");
 +
 +	return 0;
 +}
 +
-+static void teardown_debugfs(struct rmi_i2c_data *data)
++static void teardown_debugfs(struct f01_data *f01)
 +{
-+	if (data->debugfs_comms)
-+		debugfs_remove(data->debugfs_comms);
++	if (f01->debugfs_interrupt_enable)
++		debugfs_remove(f01->debugfs_interrupt_enable);
 +}
 +#endif
 +
-+#define COMMS_DEBUG(data) (IS_ENABLED(CONFIG_RMI4_DEBUG) && data->comms_debug)
 +
-+#define RMI_PAGE_SELECT_REGISTER 0xff
-+#define RMI_I2C_PAGE(addr) (((addr) >> 8) & 0xff)
++static ssize_t rmi_fn_01_productinfo_show(struct device *dev,
++					  struct device_attribute *attr,
++					  char *buf);
 +
-+static char *phys_proto_name = "i2c";
++static ssize_t rmi_fn_01_productid_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf);
 +
-+/*
-+ * rmi_set_page - Set RMI page
-+ * @phys: The pointer to the rmi_phys_device struct
-+ * @page: The new page address.
-+ *
-+ * RMI devices have 16-bit addressing, but some of the physical
-+ * implementations (like SMBus) only have 8-bit addressing. So RMI implements
-+ * a page address at 0xff of every page so we can reliable page addresses
-+ * every 256 registers.
-+ *
-+ * The page_mutex lock must be held when this function is entered.
-+ *
-+ * Returns zero on success, non-zero on failure.
-+ */
-+static int rmi_set_page(struct rmi_phys_device *phys, u8 page)
++static ssize_t rmi_fn_01_manufacturer_show(struct device *dev,
++					   struct device_attribute *attr,
++					   char *buf);
++
++static ssize_t rmi_fn_01_datecode_show(struct device *dev,
++				       struct device_attribute *attr,
++				       char *buf);
++
++static ssize_t rmi_fn_01_reportrate_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf);
++
++static ssize_t rmi_fn_01_reportrate_store(struct device *dev,
++					  struct device_attribute *attr,
++					  const char *buf, size_t count);
++
++static ssize_t rmi_fn_01_interrupt_enable_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf);
++
++static ssize_t rmi_fn_01_doze_interval_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf);
++
++static ssize_t rmi_fn_01_doze_interval_store(struct device *dev,
++					  struct device_attribute *attr,
++					  const char *buf, size_t count);
++
++static ssize_t rmi_fn_01_wakeup_threshold_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf);
++
++static ssize_t rmi_fn_01_wakeup_threshold_store(struct device *dev,
++					  struct device_attribute *attr,
++					  const char *buf, size_t count);
++
++static ssize_t rmi_fn_01_doze_holdoff_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf);
++
++static ssize_t rmi_fn_01_doze_holdoff_store(struct device *dev,
++					  struct device_attribute *attr,
++					  const char *buf, size_t count);
++
++static ssize_t rmi_fn_01_reset_store(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count);
++
++static ssize_t rmi_fn_01_sleepmode_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf);
++
++static ssize_t rmi_fn_01_sleepmode_store(struct device *dev,
++					 struct device_attribute *attr,
++					 const char *buf, size_t count);
++
++static ssize_t rmi_fn_01_nosleep_show(struct device *dev,
++				      struct device_attribute *attr,
++				      char *buf);
++
++static ssize_t rmi_fn_01_nosleep_store(struct device *dev,
++				       struct device_attribute *attr,
++				       const char *buf, size_t count);
++
++static ssize_t rmi_fn_01_chargerinput_show(struct device *dev,
++				      struct device_attribute *attr,
++				      char *buf);
++
++static ssize_t rmi_fn_01_chargerinput_store(struct device *dev,
++				       struct device_attribute *attr,
++				       const char *buf, size_t count);
++
++static ssize_t rmi_fn_01_configured_show(struct device *dev,
++				      struct device_attribute *attr,
++				      char *buf);
++
++static ssize_t rmi_fn_01_unconfigured_show(struct device *dev,
++				      struct device_attribute *attr,
++				      char *buf);
++
++static ssize_t rmi_fn_01_flashprog_show(struct device *dev,
++				      struct device_attribute *attr,
++				      char *buf);
++
++static ssize_t rmi_fn_01_statuscode_show(struct device *dev,
++				      struct device_attribute *attr,
++				      char *buf);
++
++static int rmi_f01_alloc_memory(struct rmi_function_container *fc,
++					int num_of_irq_regs);
++
++static int rmi_f01_initialize(struct rmi_function_container *fc);
++
++static int rmi_f01_create_sysfs(struct rmi_function_container *fc);
++
++static int rmi_f01_config(struct rmi_function_container *fc);
++
++
++static struct device_attribute fn_01_attrs[] =3D {
++	__ATTR(productinfo, RMI_RO_ATTR,
++	       rmi_fn_01_productinfo_show, rmi_store_error),
++	__ATTR(productid, RMI_RO_ATTR,
++	       rmi_fn_01_productid_show, rmi_store_error),
++	__ATTR(manufacturer, RMI_RO_ATTR,
++	       rmi_fn_01_manufacturer_show, rmi_store_error),
++	__ATTR(datecode, RMI_RO_ATTR,
++	       rmi_fn_01_datecode_show, rmi_store_error),
++
++	/* control register access */
++	__ATTR(sleepmode, RMI_RW_ATTR,
++	       rmi_fn_01_sleepmode_show, rmi_fn_01_sleepmode_store),
++	__ATTR(nosleep, RMI_RW_ATTR,
++	       rmi_fn_01_nosleep_show, rmi_fn_01_nosleep_store),
++	__ATTR(chargerinput, RMI_RW_ATTR,
++	       rmi_fn_01_chargerinput_show, rmi_fn_01_chargerinput_store),
++	__ATTR(reportrate, RMI_RW_ATTR,
++	       rmi_fn_01_reportrate_show, rmi_fn_01_reportrate_store),
++	/* We don't want arbitrary callers changing the interrupt enable mask=
+,
++	 * so it's read only.
++	 */
++	__ATTR(interrupt_enable, RMI_RO_ATTR,
++	       rmi_fn_01_interrupt_enable_show, rmi_store_error),
++	__ATTR(doze_interval, RMI_RW_ATTR,
++	       rmi_fn_01_doze_interval_show, rmi_fn_01_doze_interval_store),
++	__ATTR(wakeup_threshold, RMI_RW_ATTR,
++	       rmi_fn_01_wakeup_threshold_show,
++		rmi_fn_01_wakeup_threshold_store),
++	__ATTR(doze_holdoff, RMI_RW_ATTR,
++	       rmi_fn_01_doze_holdoff_show, rmi_fn_01_doze_holdoff_store),
++
++	/* We make report rate RO, since the driver uses that to look for
++	 * resets.  We don't want someone faking us out by changing that
++	 * bit.
++	 */
++	__ATTR(configured, RMI_RO_ATTR,
++	       rmi_fn_01_configured_show, rmi_store_error),
++
++	/* Command register access. */
++	__ATTR(reset, RMI_WO_ATTR,
++	       rmi_show_error, rmi_fn_01_reset_store),
++
++	/* STatus register access. */
++	__ATTR(unconfigured, RMI_RO_ATTR,
++	       rmi_fn_01_unconfigured_show, rmi_store_error),
++	__ATTR(flashprog, RMI_RO_ATTR,
++	       rmi_fn_01_flashprog_show, rmi_store_error),
++	__ATTR(statuscode, RMI_RO_ATTR,
++	       rmi_fn_01_statuscode_show, rmi_store_error),
++};
++
++/* Utility routine to set the value of a bit field in a register. */
++int rmi_mask_and_set(struct rmi_device *rmi_dev,
++		      u16 address,
++		      u8 mask,
++		      u8 set)
 +{
-+	struct i2c_client *client = to_i2c_client(phys->dev);
-+	struct rmi_i2c_data *data = phys->data;
-+	u8 txbuf[2] = {RMI_PAGE_SELECT_REGISTER, page};
++	u8 reg_contents;
 +	int retval;
 +
-+	if (COMMS_DEBUG(data))
-+		dev_dbg(&client->dev, "writes 3 bytes: %02x %02x\n",
-+			txbuf[0], txbuf[1]);
-+	phys->info.tx_count++;
-+	phys->info.tx_bytes += sizeof(txbuf);
-+	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
-+	if (retval != sizeof(txbuf)) {
-+		phys->info.tx_errs++;
-+		dev_err(&client->dev,
-+			"%s: set page failed: %d.", __func__, retval);
-+		return (retval < 0) ? retval : -EIO;
++	retval =3D rmi_read(rmi_dev, address, &reg_contents);
++	if (retval < 0)
++		return retval;
++	reg_contents =3D (reg_contents & ~mask) | set;
++	retval =3D rmi_write(rmi_dev, address, reg_contents);
++	if (retval =3D=3D 1)
++		return 0;
++	else if (retval =3D=3D 0)
++		return -EIO;
++	return retval;
++}
++
++static ssize_t rmi_fn_01_productinfo_show(struct device *dev,
++					  struct device_attribute *attr,
++					  char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "0x%02x 0x%02x\n",
++			data->basic_queries.productinfo_1,
++			data->basic_queries.productinfo_2);
++}
++
++static ssize_t rmi_fn_01_productid_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "%s\n", data->product_id);
++}
++
++static ssize_t rmi_fn_01_manufacturer_show(struct device *dev,
++					   struct device_attribute *attr,
++					   char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "0x%02x\n",
++			data->basic_queries.manufacturer_id);
++}
++
++static ssize_t rmi_fn_01_datecode_show(struct device *dev,
++				       struct device_attribute *attr,
++				       char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "20%02u-%02u-%02u\n",
++			data->basic_queries.year,
++			data->basic_queries.month,
++			data->basic_queries.day);
++}
++
++static ssize_t rmi_fn_01_reset_store(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
++{
++	struct rmi_function_container *fc =3D NULL;
++	unsigned int reset;
++	int retval =3D 0;
++	/* Command register always reads as 0, so we can just use a local. */
++	union f01_device_commands commands =3D {};
++
++	fc =3D to_rmi_function_container(dev);
++
++	if (sscanf(buf, "%u", &reset) !=3D 1)
++		return -EINVAL;
++	if (reset < 0 || reset > 1)
++		return -EINVAL;
++
++	/* Per spec, 0 has no effect, so we skip it entirely. */
++	if (reset) {
++		commands.reset =3D 1;
++		retval =3D rmi_write_block(fc->rmi_dev, fc->fd.command_base_addr,
++				&commands.reg, sizeof(commands.reg));
++		if (retval < 0) {
++			dev_err(dev, "Failed to issue reset command, code =3D %d.",
++						retval);
++			return retval;
++		}
 +	}
-+	data->page = page;
++
++	return count;
++}
++
++static ssize_t rmi_fn_01_sleepmode_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE,
++			"%d\n", data->device_control.ctrl0.sleep_mode);
++}
++
++static ssize_t rmi_fn_01_sleepmode_store(struct device *dev,
++					 struct device_attribute *attr,
++					 const char *buf, size_t count)
++{
++	struct f01_data *data =3D NULL;
++	unsigned long new_value;
++	int retval;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	retval =3D strict_strtoul(buf, 10, &new_value);
++	if (retval < 0 || !RMI_IS_VALID_SLEEPMODE(new_value)) {
++		dev_err(dev, "%s: Invalid sleep mode %s.", __func__, buf);
++		return -EINVAL;
++	}
++
++	dev_dbg(dev, "Setting sleep mode to %ld.", new_value);
++	data->device_control.ctrl0.sleep_mode =3D new_value;
++	retval =3D rmi_write_block(fc->rmi_dev, fc->fd.control_base_addr,
++			data->device_control.ctrl0.regs,
++			ARRAY_SIZE(data->device_control.ctrl0.regs));
++	if (retval >=3D 0)
++		retval =3D count;
++	else
++		dev_err(dev, "Failed to write sleep mode, code %d.\n", retval);
++	return retval;
++}
++
++static ssize_t rmi_fn_01_nosleep_show(struct device *dev,
++				      struct device_attribute *attr, char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "%d\n",
++		data->device_control.ctrl0.nosleep);
++}
++
++static ssize_t rmi_fn_01_nosleep_store(struct device *dev,
++				       struct device_attribute *attr,
++				       const char *buf, size_t count)
++{
++	struct f01_data *data =3D NULL;
++	unsigned long new_value;
++	int retval;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	retval =3D strict_strtoul(buf, 10, &new_value);
++	if (retval < 0 || new_value < 0 || new_value > 1) {
++		dev_err(dev, "%s: Invalid nosleep bit %s.", __func__, buf);
++		return -EINVAL;
++	}
++
++	data->device_control.ctrl0.nosleep =3D new_value;
++	retval =3D rmi_write_block(fc->rmi_dev, fc->fd.control_base_addr,
++			data->device_control.ctrl0.regs,
++			ARRAY_SIZE(data->device_control.ctrl0.regs));
++	if (retval >=3D 0)
++		retval =3D count;
++	else
++		dev_err(dev, "Failed to write nosleep bit.\n");
++	return retval;
++}
++
++static ssize_t rmi_fn_01_chargerinput_show(struct device *dev,
++				      struct device_attribute *attr, char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "%d\n",
++			data->device_control.ctrl0.charger_input);
++}
++
++static ssize_t rmi_fn_01_chargerinput_store(struct device *dev,
++				       struct device_attribute *attr,
++				       const char *buf, size_t count)
++{
++	struct f01_data *data =3D NULL;
++	unsigned long new_value;
++	int retval;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	retval =3D strict_strtoul(buf, 10, &new_value);
++	if (retval < 0 || new_value < 0 || new_value > 1) {
++		dev_err(dev, "%s: Invalid chargerinput bit %s.", __func__, buf);
++		return -EINVAL;
++	}
++
++	data->device_control.ctrl0.charger_input =3D new_value;
++	retval =3D rmi_write_block(fc->rmi_dev, fc->fd.control_base_addr,
++			data->device_control.ctrl0.regs,
++			ARRAY_SIZE(data->device_control.ctrl0.regs));
++	if (retval >=3D 0)
++		retval =3D count;
++	else
++		dev_err(dev, "Failed to write chargerinput bit.\n");
++	return retval;
++}
++
++static ssize_t rmi_fn_01_reportrate_show(struct device *dev,
++				      struct device_attribute *attr, char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "%d\n",
++			data->device_control.ctrl0.report_rate);
++}
++
++static ssize_t rmi_fn_01_reportrate_store(struct device *dev,
++				       struct device_attribute *attr,
++				       const char *buf, size_t count)
++{
++	struct f01_data *data =3D NULL;
++	unsigned long new_value;
++	int retval;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	retval =3D strict_strtoul(buf, 10, &new_value);
++	if (retval < 0 || new_value < 0 || new_value > 1) {
++		dev_err(dev, "%s: Invalid reportrate bit %s.", __func__, buf);
++		return -EINVAL;
++	}
++
++	data->device_control.ctrl0.report_rate =3D new_value;
++	retval =3D rmi_write_block(fc->rmi_dev, fc->fd.control_base_addr,
++			data->device_control.ctrl0.regs,
++			ARRAY_SIZE(data->device_control.ctrl0.regs));
++	if (retval >=3D 0)
++		retval =3D count;
++	else
++		dev_err(dev, "Failed to write reportrate bit.\n");
++	return retval;
++}
++
++static ssize_t rmi_fn_01_interrupt_enable_show(struct device *dev,
++				struct device_attribute *attr, char *buf)
++{
++	struct rmi_function_container *fc;
++	struct f01_data *data;
++	int i, len, total_len =3D 0;
++	char *current_buf =3D buf;
++
++	fc =3D to_rmi_function_container(dev);
++	data =3D fc->data;
++	/* loop through each irq value and copy its
++	 * string representation into buf */
++	for (i =3D 0; i < data->irq_count; i++) {
++		int irq_reg;
++		int irq_shift;
++		int interrupt_enable;
++
++		irq_reg =3D i / 8;
++		irq_shift =3D i % 8;
++		interrupt_enable =3D
++		    ((data->device_control.interrupt_enable[irq_reg]
++			>> irq_shift) & 0x01);
++
++		/* get next irq value and write it to buf */
++		len =3D snprintf(current_buf, PAGE_SIZE - total_len,
++			"%u ", interrupt_enable);
++		/* bump up ptr to next location in buf if the
++		 * snprintf was valid.  Otherwise issue an error
++		 * and return. */
++		if (len > 0) {
++			current_buf +=3D len;
++			total_len +=3D len;
++		} else {
++			dev_err(dev, "Failed to build interrupt_enable buffer, code =3D %d.=
+\n",
++						len);
++			return snprintf(buf, PAGE_SIZE, "unknown\n");
++		}
++	}
++	len =3D snprintf(current_buf, PAGE_SIZE - total_len, "\n");
++	if (len > 0)
++		total_len +=3D len;
++	else
++		dev_warn(dev, "%s: Failed to append carriage return.\n",
++			 __func__);
++	return total_len;
++
++}
++
++static ssize_t rmi_fn_01_doze_interval_show(struct device *dev,
++				struct device_attribute *attr, char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "%d\n",
++			data->device_control.doze_interval);
++
++}
++
++static ssize_t rmi_fn_01_doze_interval_store(struct device *dev,
++					  struct device_attribute *attr,
++					  const char *buf, size_t count)
++{
++	struct f01_data *data =3D NULL;
++	unsigned long new_value;
++	int retval;
++	u16 ctrl_base_addr;
++
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	retval =3D strict_strtoul(buf, 10, &new_value);
++	if (retval < 0 || new_value < 0 || new_value > 255) {
++		dev_err(dev, "%s: Invalid doze interval %s.", __func__, buf);
++		return -EINVAL;
++	}
++
++	data->device_control.doze_interval =3D new_value;
++	ctrl_base_addr =3D fc->fd.control_base_addr + sizeof(u8) +
++			(sizeof(u8)*(data->num_of_irq_regs));
++	dev_dbg(dev, "doze_interval store address %x, value %d",
++		ctrl_base_addr, data->device_control.doze_interval);
++
++	retval =3D rmi_write_block(fc->rmi_dev, data->doze_interval_addr,
++			&data->device_control.doze_interval,
++			sizeof(u8));
++	if (retval >=3D 0)
++		retval =3D count;
++	else
++		dev_err(dev, "Failed to write doze interval.\n");
++	return retval;
++
++}
++
++static ssize_t rmi_fn_01_wakeup_threshold_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "%d\n",
++			data->device_control.wakeup_threshold);
++}
++
++static ssize_t rmi_fn_01_wakeup_threshold_store(struct device *dev,
++					  struct device_attribute *attr,
++					  const char *buf, size_t count)
++{
++	struct f01_data *data =3D NULL;
++	unsigned long new_value;
++	int retval;
++
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	retval =3D strict_strtoul(buf, 10, &new_value);
++	if (retval < 0 || new_value < 0 || new_value > 255) {
++		dev_err(dev, "%s: Invalid wakeup threshold %s.", __func__, buf);
++		return -EINVAL;
++	}
++
++	data->device_control.doze_interval =3D new_value;
++	retval =3D rmi_write_block(fc->rmi_dev, data->wakeup_threshold_addr,
++			&data->device_control.wakeup_threshold,
++			sizeof(u8));
++	if (retval >=3D 0)
++		retval =3D count;
++	else
++		dev_err(dev, "Failed to write wakeup threshold.\n");
++	return retval;
++
++}
++
++static ssize_t rmi_fn_01_doze_holdoff_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "%d\n",
++			data->device_control.doze_holdoff);
++
++}
++
++
++static ssize_t rmi_fn_01_doze_holdoff_store(struct device *dev,
++					  struct device_attribute *attr,
++					  const char *buf, size_t count)
++{
++	struct f01_data *data =3D NULL;
++	unsigned long new_value;
++	int retval;
++
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	retval =3D strict_strtoul(buf, 10, &new_value);
++	if (retval < 0 || new_value < 0 || new_value > 255) {
++		dev_err(dev, "%s: Invalid doze holdoff %s.", __func__, buf);
++		return -EINVAL;
++	}
++
++	data->device_control.doze_interval =3D new_value;
++	retval =3D rmi_write_block(fc->rmi_dev, data->doze_holdoff_addr,
++			&data->device_control.doze_holdoff,
++			sizeof(u8));
++	if (retval >=3D 0)
++		retval =3D count;
++	else
++		dev_err(dev, "Failed to write doze holdoff.\n");
++	return retval;
++
++}
++
++static ssize_t rmi_fn_01_configured_show(struct device *dev,
++				      struct device_attribute *attr, char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "%d\n",
++			data->device_control.ctrl0.configured);
++}
++
++static ssize_t rmi_fn_01_unconfigured_show(struct device *dev,
++				      struct device_attribute *attr, char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "%d\n",
++			data->device_status.unconfigured);
++}
++
++static ssize_t rmi_fn_01_flashprog_show(struct device *dev,
++				      struct device_attribute *attr, char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "%d\n",
++			data->device_status.flash_prog);
++}
++
++static ssize_t rmi_fn_01_statuscode_show(struct device *dev,
++				      struct device_attribute *attr, char *buf)
++{
++	struct f01_data *data =3D NULL;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
++
++	data =3D fc->data;
++
++	return snprintf(buf, PAGE_SIZE, "0x%02x\n",
++			data->device_status.status_code);
++}
++
++static int f01_device_init(struct rmi_function_container *fc)
++{
++	struct rmi_driver_data *driver_data =3D
++			dev_get_drvdata(&fc->rmi_dev->dev);
++	int error;
++
++	error =3D rmi_f01_alloc_memory(fc, driver_data->num_of_irq_regs);
++	if (error < 0)
++		return error;
++
++	error =3D rmi_f01_initialize(fc);
++	if (error < 0)
++		return error;
++
++	error =3D rmi_f01_create_sysfs(fc);
++	if (error < 0)
++		return error;
++
 +	return 0;
 +}
 +
-+static int rmi_i2c_write_block(struct rmi_phys_device *phys, u16 addr, u8 *buf,
-+			       int len)
++static int rmi_f01_alloc_memory(struct rmi_function_container *fc,
++	int num_of_irq_regs)
 +{
-+	struct i2c_client *client = to_i2c_client(phys->dev);
-+	struct rmi_i2c_data *data = phys->data;
-+	u8 txbuf[len + 1];
-+	int retval;
++	struct f01_data *f01;
 +
-+	txbuf[0] = addr & 0xff;
-+	memcpy(txbuf + 1, buf, len);
-+
-+	mutex_lock(&data->page_mutex);
-+
-+	if (RMI_I2C_PAGE(addr) != data->page) {
-+		retval = rmi_set_page(phys, RMI_I2C_PAGE(addr));
-+		if (retval < 0)
-+			goto exit;
++	f01 =3D devm_kzalloc(&fc->dev, sizeof(struct f01_data), GFP_KERNEL);
++	if (!f01) {
++		dev_err(&fc->dev, "Failed to allocate fn_01_data.\n");
++		return -ENOMEM;
 +	}
 +
-+	if (COMMS_DEBUG(data)) {
-+		char debug_buf[len*3 + 1];
-+		int i;
-+		int n = 0;
-+		char *temp = debug_buf;
-+
-+		for (i = 0; i < len; i++) {
-+			n = sprintf(temp, " %02x", buf[i]);
-+			temp += n;
-+		}
-+		dev_dbg(&client->dev, "writes %d bytes at %#06x:%s\n",
-+			len, addr, debug_buf);
++	f01->device_control.interrupt_enable =3D devm_kzalloc(&fc->dev,
++			sizeof(u8)*(num_of_irq_regs),
++			GFP_KERNEL);
++	if (!f01->device_control.interrupt_enable) {
++		dev_err(&fc->dev, "Failed to allocate interrupt enable.\n");
++		return -ENOMEM;
 +	}
++	fc->data =3D f01;
 +
-+	phys->info.tx_count++;
-+	phys->info.tx_bytes += sizeof(txbuf);
-+	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
-+	if (retval < 0)
-+		phys->info.tx_errs++;
-+	else
-+		retval--; /* don't count the address byte */
-+
-+exit:
-+	mutex_unlock(&data->page_mutex);
-+	return retval;
++	return 0;
 +}
 +
-+
-+static int rmi_i2c_read_block(struct rmi_phys_device *phys, u16 addr, u8 *buf,
-+			      int len)
++static int rmi_f01_initialize(struct rmi_function_container *fc)
 +{
-+	struct i2c_client *client = to_i2c_client(phys->dev);
-+	struct rmi_i2c_data *data = phys->data;
-+	u8 txbuf[1] = {addr & 0xff};
++	u8 temp;
 +	int retval;
++	u16 ctrl_base_addr;
++	struct rmi_device *rmi_dev =3D fc->rmi_dev;
++	struct rmi_driver_data *driver_data =3D dev_get_drvdata(&rmi_dev->dev=
+);
++	struct f01_data *data =3D fc->data;
++	struct rmi_device_platform_data *pdata =3D to_rmi_platform_data(rmi_d=
+ev);
 +
-+	mutex_lock(&data->page_mutex);
-+
-+	if (RMI_I2C_PAGE(addr) != data->page) {
-+		retval = rmi_set_page(phys, RMI_I2C_PAGE(addr));
-+		if (retval < 0)
-+			goto exit;
++	/* Set the configured bit and (optionally) other important stuff
++	 * in the device control register. */
++	ctrl_base_addr =3D fc->fd.control_base_addr;
++	retval =3D rmi_read_block(rmi_dev, fc->fd.control_base_addr,
++			data->device_control.ctrl0.regs,
++			ARRAY_SIZE(data->device_control.ctrl0.regs));
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to read F01 control.\n");
++		return retval;
++	}
++	switch (pdata->power_management.nosleep) {
++	case RMI_F01_NOSLEEP_DEFAULT:
++		break;
++	case RMI_F01_NOSLEEP_OFF:
++		data->device_control.ctrl0.nosleep =3D 0;
++		break;
++	case RMI_F01_NOSLEEP_ON:
++		data->device_control.ctrl0.nosleep =3D 1;
++		break;
++	}
++	/* Sleep mode might be set as a hangover from a system crash or
++	 * reboot without power cycle.  If so, clear it so the sensor
++	 * is certain to function.
++	 */
++	if (data->device_control.ctrl0.sleep_mode !=3D RMI_SLEEP_MODE_NORMAL)=
+ {
++		dev_warn(&fc->dev,
++			 "WARNING: Non-zero sleep mode found. Clearing...\n");
++		data->device_control.ctrl0.sleep_mode =3D RMI_SLEEP_MODE_NORMAL;
 +	}
 +
-+	if (COMMS_DEBUG(data))
-+		dev_dbg(&client->dev, "writes 1 bytes: %02x\n", txbuf[0]);
-+
-+	phys->info.tx_count++;
-+	phys->info.tx_bytes += sizeof(txbuf);
-+	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
-+	if (retval != sizeof(txbuf)) {
-+		phys->info.tx_errs++;
-+		retval = (retval < 0) ? retval : -EIO;
-+		goto exit;
-+	}
-+
-+	retval = i2c_master_recv(client, buf, len);
-+
-+	phys->info.rx_count++;
-+	phys->info.rx_bytes += len;
-+	if (retval < 0)
-+		phys->info.rx_errs++;
-+	else if (COMMS_DEBUG(data)) {
-+		char debug_buf[len*3 + 1];
-+		char *temp = debug_buf;
-+		int i;
-+		int n = 0;
-+
-+		for (i = 0; i < len; i++) {
-+			n = sprintf(temp, " %02x", buf[i]);
-+			temp += n;
-+		}
-+		dev_dbg(&client->dev, "read %d bytes at %#06x:%s\n",
-+			len, addr, debug_buf);
-+	}
-+
-+exit:
-+	mutex_unlock(&data->page_mutex);
-+	return retval;
-+}
-+
-+static int __devinit rmi_i2c_probe(struct i2c_client *client,
-+				  const struct i2c_device_id *id)
-+{
-+	struct rmi_phys_device *rmi_phys;
-+	struct rmi_i2c_data *data;
-+	struct rmi_device_platform_data *pdata = client->dev.platform_data;
-+	int retval;
-+
-+	if (!pdata) {
-+		dev_err(&client->dev, "no platform data\n");
-+		return -EINVAL;
-+	}
-+	dev_info(&client->dev, "Probing %s at %#02x (IRQ %d).\n",
-+		pdata->sensor_name ? pdata->sensor_name : "-no name-",
-+		client->addr, pdata->attn_gpio);
-+
-+	if (pdata->gpio_config) {
-+		dev_info(&client->dev, "Configuring GPIOs.\n");
-+		retval = pdata->gpio_config(pdata->gpio_data, true);
-+		if (retval < 0) {
-+			dev_err(&client->dev, "Failed to configure GPIOs, code: %d.\n",
-+				retval);
-+			return retval;
-+		}
-+		dev_info(&client->dev, "Done with GPIO configuration.\n");
-+	}
-+
-+	retval = i2c_check_functionality(client->adapter, I2C_FUNC_I2C);
-+	if (!retval) {
-+		dev_err(&client->dev, "i2c_check_functionality error %d.\n",
-+			retval);
++	data->device_control.ctrl0.configured =3D 1;
++	retval =3D rmi_write_block(rmi_dev, fc->fd.control_base_addr,
++			data->device_control.ctrl0.regs,
++			ARRAY_SIZE(data->device_control.ctrl0.regs));
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to write F01 control.\n");
 +		return retval;
 +	}
 +
-+	rmi_phys = kzalloc(sizeof(struct rmi_phys_device), GFP_KERNEL);
-+	if (!rmi_phys)
-+		return -ENOMEM;
++	data->irq_count =3D driver_data->irq_count;
++	data->num_of_irq_regs =3D driver_data->num_of_irq_regs;
++	ctrl_base_addr +=3D sizeof(union f01_device_control_0);
 +
-+	data = kzalloc(sizeof(struct rmi_i2c_data), GFP_KERNEL);
-+	if (!data) {
-+		retval = -ENOMEM;
-+		goto err_phys;
++	data->interrupt_enable_addr =3D ctrl_base_addr;
++	retval =3D rmi_read_block(rmi_dev, ctrl_base_addr,
++			data->device_control.interrupt_enable,
++			sizeof(u8)*(driver_data->num_of_irq_regs));
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to read F01 control interrupt enable regis=
+ter.\n");
++		goto error_exit;
++	}
++	ctrl_base_addr +=3D driver_data->num_of_irq_regs;
++
++	/* dummy read in order to clear irqs */
++	retval =3D rmi_read(rmi_dev, fc->fd.data_base_addr + 1, &temp);
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to read Interrupt Status.\n");
++		return retval;
 +	}
 +
-+	data->phys = rmi_phys;
-+
-+	rmi_phys->data = data;
-+	rmi_phys->dev = &client->dev;
-+
-+	rmi_phys->write_block = rmi_i2c_write_block;
-+	rmi_phys->read_block = rmi_i2c_read_block;
-+	rmi_phys->info.proto = phys_proto_name;
-+
-+	mutex_init(&data->page_mutex);
-+
-+	/* Setting the page to zero will (a) make sure the PSR is in a
-+	 * known state, and (b) make sure we can talk to the device.
-+	 */
-+	retval = rmi_set_page(rmi_phys, 0);
-+	if (retval) {
-+		dev_err(&client->dev, "Failed to set page select to 0.\n");
-+		goto err_data;
++	retval =3D rmi_read_block(rmi_dev, fc->fd.query_base_addr,
++				data->basic_queries.regs,
++				sizeof(data->basic_queries.regs));
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to read device query registers.\n");
++		return retval;
 +	}
 +
-+	retval = rmi_register_phys_device(rmi_phys);
-+	if (retval) {
-+		dev_err(&client->dev,
-+			"failed to register physical driver at 0x%.2X.\n",
-+			client->addr);
-+		goto err_gpio;
++	retval =3D rmi_read_block(rmi_dev,
++		fc->fd.query_base_addr + sizeof(data->basic_queries.regs),
++		data->product_id, RMI_PRODUCT_ID_LENGTH);
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to read product ID.\n");
++		return retval;
 +	}
-+	i2c_set_clientdata(client, rmi_phys);
++	data->product_id[RMI_PRODUCT_ID_LENGTH] =3D '\0';
++	dev_info(&fc->dev, "found RMI device, manufacturer: %s, product: %s\n=
+",
++		 data->basic_queries.manufacturer_id =3D=3D 1 ?
++							"synaptics" : "unknown",
++		 data->product_id);
 +
-+	if (IS_ENABLED(CONFIG_RMI4_DEBUG))
-+		retval = setup_debugfs(rmi_phys->rmi_dev, data);
++	/* read control register */
++	if (data->basic_queries.has_adjustable_doze) {
++		data->doze_interval_addr =3D ctrl_base_addr;
++		ctrl_base_addr++;
 +
-+	if (IS_ENABLED(CONFIG_RMI4_DEV)) {
-+		retval = gpio_export(pdata->attn_gpio, false);
-+		if (retval) {
-+			dev_warn(&client->dev,
-+				"WARNING: Failed to export ATTN gpio!\n");
-+			retval = 0;
++		if (pdata->power_management.doze_interval) {
++			data->device_control.doze_interval =3D
++				pdata->power_management.doze_interval;
++			retval =3D rmi_write(rmi_dev, data->doze_interval_addr,
++					data->device_control.doze_interval);
++			if (retval < 0) {
++				dev_err(&fc->dev, "Failed to configure F01 doze interval register.=
+\n");
++				goto error_exit;
++			}
 +		} else {
-+			retval = gpio_export_link(&client->dev,
-+						  "attn", pdata->attn_gpio);
-+			if (retval) {
-+				dev_warn(&client->dev,
-+					"WARNING: Failed to symlink ATTN gpio!\n");
-+				retval = 0;
-+			} else {
-+				dev_info(&client->dev, "Exported ATTN GPIO %d.",
-+					pdata->attn_gpio);
++			retval =3D rmi_read(rmi_dev, data->doze_interval_addr,
++					&data->device_control.doze_interval);
++			if (retval < 0) {
++				dev_err(&fc->dev, "Failed to read F01 doze interval register.\n");
++				goto error_exit;
++			}
++		}
++
++		data->wakeup_threshold_addr =3D ctrl_base_addr;
++		ctrl_base_addr++;
++
++		if (pdata->power_management.wakeup_threshold) {
++			data->device_control.wakeup_threshold =3D
++				pdata->power_management.wakeup_threshold;
++			retval =3D rmi_write(rmi_dev, data->wakeup_threshold_addr,
++					data->device_control.wakeup_threshold);
++			if (retval < 0) {
++				dev_err(&fc->dev, "Failed to configure F01 wakeup threshold regist=
+er.\n");
++				goto error_exit;
++			}
++		} else {
++			retval =3D rmi_read(rmi_dev, data->wakeup_threshold_addr,
++					&data->device_control.wakeup_threshold);
++			if (retval < 0) {
++				dev_err(&fc->dev, "Failed to read F01 wakeup threshold register.\n=
+");
++				goto error_exit;
 +			}
 +		}
 +	}
 +
-+	dev_info(&client->dev, "registered rmi i2c driver at %#04x.\n",
-+			client->addr);
-+	return 0;
++	if (data->basic_queries.has_adjustable_doze_holdoff) {
++		data->doze_holdoff_addr =3D ctrl_base_addr;
++		ctrl_base_addr++;
 +
-+err_gpio:
-+	if (pdata->gpio_config)
-+		pdata->gpio_config(pdata->gpio_data, false);
-+err_data:
++		if (pdata->power_management.doze_holdoff) {
++			data->device_control.doze_holdoff =3D
++				pdata->power_management.doze_holdoff;
++			retval =3D rmi_write(rmi_dev, data->doze_holdoff_addr,
++					data->device_control.doze_holdoff);
++			if (retval < 0) {
++				dev_err(&fc->dev, "Failed to configure F01 doze holdoff register.\=
+n");
++				goto error_exit;
++			}
++		} else {
++			retval =3D rmi_read(rmi_dev, data->doze_holdoff_addr,
++					&data->device_control.doze_holdoff);
++			if (retval < 0) {
++				dev_err(&fc->dev, "Failed to read F01 doze holdoff register.\n");
++				goto error_exit;
++			}
++		}
++	}
++
++	retval =3D rmi_read_block(rmi_dev, fc->fd.data_base_addr,
++		data->device_status.regs, ARRAY_SIZE(data->device_status.regs));
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to read device status.\n");
++		goto error_exit;
++	}
++
++	if (data->device_status.unconfigured) {
++		dev_err(&fc->dev, "Device reset during configuration process, status=
+: %#02x!\n",
++				data->device_status.status_code);
++		retval =3D -EINVAL;
++		goto error_exit;
++	}
++
++	if (IS_ENABLED(CONFIG_RMI4_DEBUG)) {
++		retval =3D setup_debugfs(fc);
++		if (retval < 0)
++			dev_warn(&fc->dev, "Failed to setup debugfs. Code: %d.\n",
++				retval);
++	}
++
++	return retval;
++
++ error_exit:
 +	kfree(data);
-+err_phys:
-+	kfree(rmi_phys);
 +	return retval;
 +}
 +
-+static int __devexit rmi_i2c_remove(struct i2c_client *client)
++static int rmi_f01_create_sysfs(struct rmi_function_container *fc)
 +{
-+	struct rmi_phys_device *phys = i2c_get_clientdata(client);
-+	struct rmi_device_platform_data *pd = client->dev.platform_data;
++	int attr_count =3D 0;
++	int retval =3D 0;
++	struct f01_data *data =3D fc->data;
 +
-+	/* Can I remove this disable_device */
-+	/*disable_device(phys); */
++	dev_dbg(&fc->dev, "Creating sysfs files.");
++	for (attr_count =3D 0; attr_count < ARRAY_SIZE(fn_01_attrs);
++			attr_count++) {
++		if (!strcmp("doze_interval", fn_01_attrs[attr_count].attr.name)
++			&& !data->basic_queries.has_lts) {
++			continue;
++		}
++		if (!strcmp("wakeup_threshold",
++			fn_01_attrs[attr_count].attr.name)
++			&& !data->basic_queries.has_adjustable_doze) {
++			continue;
++		}
++		if (!strcmp("doze_holdoff", fn_01_attrs[attr_count].attr.name)
++			&& !data->basic_queries.has_adjustable_doze_holdoff) {
++			continue;
++		}
++		retval =3D sysfs_create_file(&fc->dev.kobj,
++				      &fn_01_attrs[attr_count].attr);
++		if (retval < 0) {
++			dev_err(&fc->dev, "Failed to create sysfs file for %s.",
++			       fn_01_attrs[attr_count].attr.name);
++			goto err_remove_sysfs;
++		}
++	}
++
++	return 0;
++
++err_remove_sysfs:
++	for (attr_count--; attr_count >=3D 0; attr_count--)
++		sysfs_remove_file(&fc->dev.kobj,
++				  &fn_01_attrs[attr_count].attr);
++
++	return retval;
++}
++
++static int rmi_f01_config(struct rmi_function_container *fc)
++{
++	struct f01_data *data =3D fc->data;
++	int retval;
++
++	retval =3D rmi_write_block(fc->rmi_dev, fc->fd.control_base_addr,
++			data->device_control.ctrl0.regs,
++			ARRAY_SIZE(data->device_control.ctrl0.regs));
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to write device_control.reg.\n");
++		return retval;
++	}
++
++	retval =3D rmi_write_block(fc->rmi_dev, data->interrupt_enable_addr,
++			data->device_control.interrupt_enable,
++			sizeof(u8)*(data->num_of_irq_regs));
++
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to write interrupt enable.\n");
++		return retval;
++	}
++	if (data->basic_queries.has_lts) {
++		retval =3D rmi_write_block(fc->rmi_dev, data->doze_interval_addr,
++				&data->device_control.doze_interval,
++				sizeof(u8));
++		if (retval < 0) {
++			dev_err(&fc->dev, "Failed to write doze interval.\n");
++			return retval;
++		}
++	}
++
++	if (data->basic_queries.has_adjustable_doze) {
++		retval =3D rmi_write_block(
++				fc->rmi_dev, data->wakeup_threshold_addr,
++				&data->device_control.wakeup_threshold,
++				sizeof(u8));
++		if (retval < 0) {
++			dev_err(&fc->dev, "Failed to write wakeup threshold.\n");
++			return retval;
++		}
++	}
++
++	if (data->basic_queries.has_adjustable_doze_holdoff) {
++		retval =3D rmi_write_block(fc->rmi_dev, data->doze_holdoff_addr,
++				&data->device_control.doze_holdoff,
++				sizeof(u8));
++		if (retval < 0) {
++			dev_err(&fc->dev, "Failed to write doze holdoff.\n");
++			return retval;
++		}
++	}
++	return 0;
++}
++
++#ifdef CONFIG_PM
++static int rmi_f01_suspend(struct rmi_function_container *fc)
++{
++	struct rmi_device *rmi_dev =3D fc->rmi_dev;
++	struct rmi_driver_data *driver_data =3D dev_get_drvdata(&rmi_dev->dev=
+);
++	struct f01_data *data =3D driver_data->f01_container->data;
++	int retval =3D 0;
++
++	if (data->suspended)
++		return 0;
++
++	data->old_nosleep =3D data->device_control.ctrl0.nosleep;
++	data->device_control.ctrl0.nosleep =3D 0;
++	data->device_control.ctrl0.sleep_mode =3D RMI_SLEEP_MODE_SENSOR_SLEEP=
+;
++
++	retval =3D rmi_write_block(rmi_dev,
++			driver_data->f01_container->fd.control_base_addr,
++			data->device_control.ctrl0.regs,
++			ARRAY_SIZE(data->device_control.ctrl0.regs));
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to write sleep mode. Code: %d.\n",
++			retval);
++		data->device_control.ctrl0.nosleep =3D data->old_nosleep;
++		data->device_control.ctrl0.sleep_mode =3D RMI_SLEEP_MODE_NORMAL;
++	} else {
++		data->suspended =3D true;
++		retval =3D 0;
++	}
++
++	return retval;
++}
++
++static int rmi_f01_resume(struct rmi_function_container *fc)
++{
++	struct rmi_device *rmi_dev =3D fc->rmi_dev;
++	struct rmi_driver_data *driver_data =3D dev_get_drvdata(&rmi_dev->dev=
+);
++	struct f01_data *data =3D driver_data->f01_container->data;
++	int retval =3D 0;
++
++	if (!data->suspended)
++		return 0;
++
++	data->device_control.ctrl0.nosleep =3D data->old_nosleep;
++	data->device_control.ctrl0.sleep_mode =3D RMI_SLEEP_MODE_NORMAL;
++
++	retval =3D rmi_write_block(rmi_dev,
++			driver_data->f01_container->fd.control_base_addr,
++			data->device_control.ctrl0.regs,
++			ARRAY_SIZE(data->device_control.ctrl0.regs));
++	if (retval < 0)
++		dev_err(&fc->dev,
++			"Failed to restore normal operation. Code: %d.\n",
++			retval);
++	else {
++		data->suspended =3D false;
++		retval =3D 0;
++	}
++
++	return retval;
++}
++#endif /* CONFIG_PM */
++
++static int f01_remove_device(struct device *dev)
++{
++	int attr_count;
++	struct rmi_function_container *fc =3D to_rmi_function_container(dev);
 +
 +	if (IS_ENABLED(CONFIG_RMI4_DEBUG))
-+		teardown_debugfs(phys->data);
++		teardown_debugfs(fc->data);
 +
-+	rmi_unregister_phys_device(phys);
-+	kfree(phys->data);
-+	kfree(phys);
++	for (attr_count =3D 0; attr_count < ARRAY_SIZE(fn_01_attrs);
++			attr_count++) {
++		sysfs_remove_file(&fc->dev.kobj, &fn_01_attrs[attr_count].attr);
++	}
++	return 0;
++}
 +
-+	if (pd->gpio_config)
-+		pd->gpio_config(&pd->gpio_data, false);
++static int rmi_f01_attention(struct rmi_function_container *fc, u8 *ir=
+q_bits)
++{
++	struct rmi_device *rmi_dev =3D fc->rmi_dev;
++	struct f01_data *data =3D fc->data;
++	int retval;
++
++	retval =3D rmi_read_block(rmi_dev, fc->fd.data_base_addr,
++		data->device_status.regs, ARRAY_SIZE(data->device_status.regs));
++	if (retval < 0) {
++		dev_err(&fc->dev, "Failed to read device status, code: %d.\n",
++			retval);
++		return retval;
++	}
++	if (data->device_status.unconfigured) {
++		dev_warn(&fc->dev, "Device reset detected.\n");
++		retval =3D rmi_dev->driver->reset_handler(rmi_dev);
++		if (retval < 0)
++			return retval;
++	}
++	return 0;
++}
++
++static int f01_probe(struct device *dev);
++
++static struct rmi_function_handler function_handler =3D {
++	.driver =3D {
++		.owner =3D THIS_MODULE,
++		.name =3D "rmi_f01",
++		.bus =3D &rmi_bus_type,
++		.probe =3D f01_probe,
++		.remove =3D f01_remove_device,
++	},
++	.func =3D 0x01,
++	.config =3D rmi_f01_config,
++	.attention =3D rmi_f01_attention,
++
++#ifdef	CONFIG_PM
++	.suspend =3D rmi_f01_suspend,
++	.resume =3D rmi_f01_resume,
++#endif  /* CONFIG_PM */
++};
++
++static __devinit int f01_probe(struct device *dev)
++{
++	struct rmi_function_container *fc;
++
++	if (dev->type !=3D &rmi_function_type) {
++		dev_dbg(dev, "Not a function device.\n");
++		return 1;
++	}
++	fc =3D to_rmi_function_container(dev);
++	if (fc->fd.function_number !=3D function_handler.func) {
++		dev_dbg(dev, "Device is F%02X, not F%02X.\n",
++			fc->fd.function_number, function_handler.func);
++		return 1;
++	}
++
++	dev_dbg(dev, "Yay! It is F01!\n");
++	return f01_device_init(fc);
++}
++
++static int __init rmi_f01_module_init(void)
++{
++	int error;
++
++	error =3D driver_register(&function_handler.driver);
++	if (error < 0) {
++		pr_err("%s: register failed!\n", __func__);
++		return error;
++	}
 +
 +	return 0;
 +}
 +
-+static const struct i2c_device_id rmi_id[] = {
-+	{ "rmi_i2c", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, rmi_id);
-+
-+static struct i2c_driver rmi_i2c_driver = {
-+	.driver = {
-+		.owner	= THIS_MODULE,
-+		.name	= "rmi_i2c"
-+	},
-+	.id_table	= rmi_id,
-+	.probe		= rmi_i2c_probe,
-+	.remove		= __devexit_p(rmi_i2c_remove),
-+};
-+
-+static int __init rmi_i2c_init(void)
++static void __exit rmi_f01_module_exit(void)
 +{
-+	return i2c_add_driver(&rmi_i2c_driver);
++	driver_unregister(&function_handler.driver);
 +}
 +
-+static void __exit rmi_i2c_exit(void)
-+{
-+	i2c_del_driver(&rmi_i2c_driver);
-+}
-+
-+module_init(rmi_i2c_init);
-+module_exit(rmi_i2c_exit);
++module_init(rmi_f01_module_init);
++module_exit(rmi_f01_module_exit);
 +
 +MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com>");
-+MODULE_DESCRIPTION("RMI I2C driver");
++MODULE_DESCRIPTION("RMI F01 module");
 +MODULE_LICENSE("GPL");
 +MODULE_VERSION(RMI_DRIVER_VERSION);
+diff --git a/drivers/input/rmi4/rmi_f01.h b/drivers/input/rmi4/rmi_f01.=
+h
+new file mode 100644
+index 0000000..34db09f
+--- /dev/null
++++ b/drivers/input/rmi4/rmi_f01.h
+@@ -0,0 +1,136 @@
++/*
++ * Copyright (c) 2012 Synaptics Incorporated
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y
++ * it under the terms of the GNU General Public License as published b=
+y
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++
++#ifndef _RMI_F01_H
++#define _RMI_F01_H
++
++#define RMI_PRODUCT_ID_LENGTH    10
++
++/**
++ * @manufacturer_id - reports the identity of the manufacturer of the =
+RMI
++ * device. Synaptics RMI devices report a Manufacturer ID of $01.
++ * @custom_map - at least one custom, non
++ * RMI-compatible register exists in the register address map for this=
+ device.
++ * @non-compliant - the device implements a register map that is not c=
+ompliant
++ * with the RMI specification.
++ * @has_lts - the device uses Synaptics' LTS hardware architecture.
++ * @has_sensor_id - the SensorID query register (F01_RMI_Query22) exis=
+ts.
++ * @has_charger_input - the ChargerConnected bit (F01_RMI_Ctrl0, bit 5=
+) is
++ * meaningful.
++ * @has_adjustable_doze - the doze (power management) control register=
+s exist.
++ * @has_adjustable_doze_holdoff - the doze holdoff register exists.
++ * @has_product_properties - indicates the presence of F01_RMI_Query42=
+,
++ * ProductProperties2.
++ * @productinfo_1 - meaning varies from product to product, consult yo=
+ur
++ * product spec sheet.
++ * @productinfo_2 - meaning varies from product to product, consult yo=
+ur
++ * product spec sheet.
++ * @year - year of manufacture MOD 2000.
++ * @month - month of manufacture
++ * @day - day of manufacture
++ * @wafer_id1_lsb - The wafer-lot ID registers record the lot number o=
+f the
++ * wafer from which the module=E2=80=99s touch controller was produced=
+=2E
++ * @wafer_id1_msb - The wafer-lot ID registers record the lot number o=
+f the
++ * wafer from which the module=E2=80=99s touch controller was produced=
+=2E
++ * @wafer_id2_lsb - The wafer-lot ID registers record the lot number o=
+f the
++ * wafer from which the module=E2=80=99s touch controller was produced=
+=2E
++ * @wafer_id2_msb - The wafer-lot ID registers record the lot number o=
+f the
++ * wafer from which the module=E2=80=99s touch controller was produced=
+=2E
++ * @wafer_id3_lsb - The wafer-lot ID registers record the lot number o=
+f the
++ * wafer from which the module=E2=80=99s touch controller was produced=
+=2E
++ */
++union f01_basic_queries {
++	struct {
++		u8 manufacturer_id:8;
++
++		bool custom_map:1;
++		bool non_compliant:1;
++		bool has_lts:1;
++		bool has_sensor_id:1;
++		bool has_charger_input:1;
++		bool has_adjustable_doze:1;
++		bool has_adjustable_doze_holdoff:1;
++		bool has_product_properties_2:1;
++
++		u8 productinfo_1:7;
++		bool q2_bit_7:1;
++		u8 productinfo_2:7;
++		bool q3_bit_7:1;
++
++		u8 year:5;
++		u8 month:4;
++		u8 day:5;
++		bool cp1:1;
++		bool cp2:1;
++		u8 wafer_id1_lsb:8;
++		u8 wafer_id1_msb:8;
++		u8 wafer_id2_lsb:8;
++		u8 wafer_id2_msb:8;
++		u8 wafer_id3_lsb:8;
++	} __attribute__((__packed__));
++	u8 regs[11];
++};
++
++union f01_device_status {
++	struct {
++		u8 status_code:4;
++		u8 reserved:2;
++		bool flash_prog:1;
++		bool unconfigured:1;
++	} __attribute__((__packed__));
++	u8 regs[1];
++};
++
++/* control register bits */
++#define RMI_SLEEP_MODE_NORMAL (0x00)
++#define RMI_SLEEP_MODE_SENSOR_SLEEP (0x01)
++#define RMI_SLEEP_MODE_RESERVED0 (0x02)
++#define RMI_SLEEP_MODE_RESERVED1 (0x03)
++
++#define RMI_IS_VALID_SLEEPMODE(mode) \
++	(mode >=3D RMI_SLEEP_MODE_NORMAL && mode <=3D RMI_SLEEP_MODE_RESERVED=
+1)
++
++/**
++ * @sleep_mode - This field controls power management on the device. T=
+his
++ * field affects all functions of the device together.
++ * @nosleep - When set to =E2=80=981=E2=80=99, this bit disables whate=
+ver sleep mode may be
++ * selected by the sleep_mode field,and forces the device to run at fu=
+ll power
++ * without sleeping.
++ * @charger_input - When this bit is set to =E2=80=981=E2=80=99, the t=
+ouch controller employs
++ * a noise-filtering algorithm designed for use with a connected batte=
+ry
++ * charger.
++ * @report_rate - sets the report rate for the device.  The effect of =
+this
++ * setting is highly product dependent.  Check the spec sheet for your
++ * particular touch sensor.
++ * @configured - written by the host as an indicator that the device h=
+as been
++ * successfuly configured.
++ */
++union f01_device_control_0 {
++	struct {
++		u8 sleep_mode:2;
++		bool nosleep:1;
++		u8 reserved:2;
++		bool charger_input:1;
++		bool report_rate:1;
++		bool configured:1;
++	} __attribute__((__packed__));
++	u8 regs[1];
++};
++
++#endif

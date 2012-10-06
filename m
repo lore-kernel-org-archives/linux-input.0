@@ -1,68 +1,34 @@
-From: "devendra.aaru" <devendra.aaru@gmail.com>
-Subject: Re: [RFC PATCH 02/06] input/rmi4: Core files
-Date: Sat, 6 Oct 2012 09:08:55 -0400
-Message-ID: <CAHdPZaOAWjqLLP5VAYD78rbUe0WUska-OJZ9YSuRmbBn5E518w@mail.gmail.com>
-References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
-	<1349496603-20775-3-git-send-email-cheiny@synaptics.com>
-	<1349525982.2008.86.camel@joe-AO722>
-	<CAHdPZaOTwAvuhLj6wmUaFnx9CxjwZNM0QEFzu2p+jaC7jAdAig@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Yann Cantin <yann.cantin@laposte.net>
+Subject: [ebeam PATCH v2 0/2] new eBeam input driver
+Date: Sat,  6 Oct 2012 15:14:45 +0200
+Message-ID: <1349529287-23193-1-git-send-email-yann.cantin@laposte.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f174.google.com ([209.85.220.174]:33091 "EHLO
-	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754777Ab2JFNI4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Oct 2012 09:08:56 -0400
-In-Reply-To: <CAHdPZaOTwAvuhLj6wmUaFnx9CxjwZNM0QEFzu2p+jaC7jAdAig@mail.gmail.com>
+Received: from smtp01.smtpout.orange.fr ([80.12.242.123]:37967 "EHLO
+	smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755242Ab2JFNSh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Oct 2012 09:18:37 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Christopher Heiny <cheiny@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chen <alexandra.chen@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-On Sat, Oct 6, 2012 at 9:06 AM, devendra.aaru <devendra.aaru@gmail.com> wrote:
-> On Sat, Oct 6, 2012 at 8:19 AM, Joe Perches <joe@perches.com> wrote:
->> On Fri, 2012-10-05 at 21:09 -0700, Christopher Heiny wrote:
->> []
->>
->> Just some trivial comments:
->>
->>> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
->> []
->>> @@ -0,0 +1,1529 @@
->> []
->>> +static ssize_t delay_write(struct file *filp, const char __user *buffer,
->>> +                        size_t size, loff_t *offset) {
->>> +     struct driver_debugfs_data *data = filp->private_data;
->>> +     struct rmi_device_platform_data *pdata =
->>> +                     data->rmi_dev->phys->dev->platform_data;
->>> +     int retval;
->>> +     char local_buf[size];
->>> +     unsigned int new_read_delay;
->>> +     unsigned int new_write_delay;
->>> +     unsigned int new_block_delay;
->>> +     unsigned int new_pre_delay;
->>> +     unsigned int new_post_delay;
->>> +
->>> +     retval = copy_from_user(local_buf, buffer, size);
->>> +     if (retval)
->>> +             return -EFAULT;
->>> +
->>> +     retval = sscanf(local_buf, "%u %u %u %u %u", &new_read_delay,
->>> +                     &new_write_delay, &new_block_delay,
->>> +                     &new_pre_delay, &new_post_delay);
->>> +     if (retval != 5) {
->>> +             dev_err(&data->rmi_dev->dev,
->>> +                     "Incorrect number of values provided for delay.");
->>> +             return -EINVAL;
->>> +     }
->>> +     if (new_read_delay < 0) {
->>
->> These are unnecessary tests as unsigned values are never < 0.
->>
->
-Oops, i m sorry, i mistakenly took the variable as int, it should be
-unsinged int.
+Hi,
 
-sorry joe, you are right the are never < 0.
+New USB input driver for eBeam devices.
 
- Thanks,
+Currently supported (tested) :
+- Luidia eBeam classic projection and edge projection models
+- Nec "interactive solution" NP01Wi1 & NP01Wi2 accessories.
+
+Patch 1 to blacklist the devices for hid generic-usb.
+
+Patch 2 is the actual driver.
+
+Change from v1 : the driver don't send coordinates outside the specified
+ranges when calibrated.
+
+The module run fine with a 3.3.6 and a 3.5.0 kernel, both x86_32 and 64.
+
+Thanks for your help.
+
+

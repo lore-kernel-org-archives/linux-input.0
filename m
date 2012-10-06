@@ -1,185 +1,76 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [RFC PATCH 04/06] input/rmi4: Config files and makefiles
-Date: Fri,  5 Oct 2012 21:10:01 -0700
-Message-ID: <1349496603-20775-5-git-send-email-cheiny@synaptics.com>
-References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
+From: Pavel Bludov <pbludov@gmail.com>
+Subject: [PATCHv2] Input: Add Alps touchpad 73 03 0a support
+Date: Sat, 06 Oct 2012 14:37:59 +0900
+Message-ID: <506FC3B7.7050403@gmail.com>
+References: <506BA4FE.509@gmail.com> <20121004072538.GE14217@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [12.239.217.82] ([12.239.217.82]:59761 "EHLO
-	brontomerus.synaptics.com" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750899Ab2JFEKm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 6 Oct 2012 00:10:42 -0400
-In-Reply-To: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:38490 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750835Ab2JFFiF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Oct 2012 01:38:05 -0400
+Received: by mail-lb0-f174.google.com with SMTP id n3so1891001lbo.19
+        for <linux-input@vger.kernel.org>; Fri, 05 Oct 2012 22:38:02 -0700 (PDT)
+In-Reply-To: <20121004072538.GE14217@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chen <alexandra.chen@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+Cc: linux-input@vger.kernel.org
 
-Not much to say here, except that we've reduced the number of different
-Kconfig options, which will hopefully make it easier to configure RMI4
-support in kernels.
+04.10.2012 16:25, Dmitry Torokhov wrote:
+> It looks like you mailer mangled the patch by line-wrapping it, and I
+> would also need your "Signed-off-by: ..." to be able to apply the patch.
 
+Thank you for your patience, Dmitry!
 
-Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+I have throughly read
+http://www.kernel.org/doc/Documentation/SubmittingPatches
+http://kb.mozillazine.org/Plain_text_e-mail_%28Thunderbird%29
+and there is a new version:
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Walleij <linus.walleij@stericsson.com>
-Cc: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
-Cc: Joeri de Gram <j.de.gram@gmail.com>
+Support for alps touchpad found in Intel Latexo notebook.
+E7 report is 73 03 0a
+command mode response is 88 08 1c
+absolute mode controlled by register c2c4
 
----
+Tested on Intel Latexo with 3.6 kernel.
 
- drivers/input/Kconfig       |    2 +
- drivers/input/Makefile      |    2 +
- drivers/input/rmi4/Kconfig  |   86 +++++++++++++++++++++++++++++++++++++++++++
- drivers/input/rmi4/Makefile |   26 +++++++++++++
- 4 files changed, 116 insertions(+), 0 deletions(-)
+Signed-off-by: Pavel Bludov <pbludov@gmail.com>
 
-diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
-index 55f7e57..2c543c0 100644
---- a/drivers/input/Kconfig
-+++ b/drivers/input/Kconfig
-@@ -188,6 +188,8 @@ source "drivers/input/touchscreen/Kconfig"
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index cf5af1f..1b640f2 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -112,6 +112,7 @@ static const struct alps_model_info alps_model_data[] = {
+         { { 0x73, 0x02, 0x64 }, 0x9b, ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT },
+         { { 0x73, 0x02, 0x64 }, 0x9d, ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT },
+         { { 0x73, 0x02, 0x64 }, 0x8a, ALPS_PROTO_V4, 0x8f, 0x8f, 0 },
++       { { 0x73, 0x03, 0x0a }, 0x1c, ALPS_PROTO_V3, 0x8f, 0x8f, 0 },
+  };
+  
+  /*
+@@ -983,7 +984,7 @@ static int alps_enter_command_mode(struct psmouse *psmouse,
+                 return -1;
+         }
+  
+-       if (param[0] != 0x88 && param[1] != 0x07) {
++       if (param[0] != 0x88 && param[1] != 0x07 && param[1] != 0x08) {
+                 psmouse_dbg(psmouse,
+                             "unknown response while entering command mode: %2.2x %2.2x %2.2x\n",
+                             param[0], param[1], param[2]);
+@@ -1302,6 +1303,12 @@ static int alps_hw_init_v3(struct psmouse *psmouse)
+         if (alps_enter_command_mode(psmouse, NULL))
+                 goto error;
+  
++       reg_val = alps_command_mode_read_reg(psmouse, 0xc2c8);
++       if (reg_val == 0) {
++               if (alps_command_mode_write_reg(psmouse, 0xc2c4, 0x02))
++                       goto error;
++       }
++
+         /* Check for trackstick */
+         reg_val = alps_command_mode_read_reg(psmouse, 0x0008);
+         if (reg_val == -1)
 
- source "drivers/input/misc/Kconfig"
-
-+source "drivers/input/rmi4/Kconfig"
-+
- endif
-
- menu "Hardware I/O ports"
-diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-index 5ca3f63..571515a 100644
---- a/drivers/input/Makefile
-+++ b/drivers/input/Makefile
-@@ -24,4 +24,6 @@ obj-$(CONFIG_INPUT_TABLET)	+= tablet/
- obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
- obj-$(CONFIG_INPUT_MISC)	+= misc/
-
-+obj-y += rmi4/
-+
- obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-new file mode 100644
-index 0000000..fa12638
---- /dev/null
-+++ b/drivers/input/rmi4/Kconfig
-@@ -0,0 +1,86 @@
-+#
-+# RMI4 configuration
-+#
-+config RMI4_BUS
-+	bool "Synaptics RMI4 bus support"
-+	help
-+	  Say Y here if you want to support the Synaptics RMI4 bus.  This is
-+	  required for all RMI4 device support.
-+
-+	  If unsure, say Y.
-+
-+	  This feature is not currently available as a loadable module.
-+
-+config RMI4_DEBUG
-+	bool "RMI4 Debugging"
-+	depends on RMI4_BUS
-+	help
-+	  Say Y here to enable debug feature in the RMI4 driver.
-+
-+	  Note that the RMI4 driver debug features can generate a lot of
-+	  output (potentially clogging up your dmesg output) and generally
-+	  slow down driver operation.  It's recommended to enable them only
-+	  if you are actively developing/debugging RMI4 features.
-+
-+	  If unsure, say N.
-+
-+config RMI4_I2C
-+	bool "RMI4 I2C Support"
-+	depends on RMI4_BUS && I2C
-+	help
-+	  Say Y here if you want to support RMI4 devices connected to an I2C
-+	  bus.
-+
-+	  If unsure, say Y.
-+
-+	  This feature is not currently available as a loadable module.
-+
-+config RMI4_GENERIC
-+	bool "RMI4 Generic driver"
-+	depends on RMI4_BUS
-+	help
-+	  Say Y here if you want to support generic RMI4 devices.
-+
-+	  This is pretty much required if you want to do anything useful with
-+	  your RMI device.
-+
-+	  This feature is not currently available as a loadable module.
-+
-+config RMI4_F11
-+	tristate "RMI4 Function 11 (2D pointing)"
-+	depends on RMI4_BUS && RMI4_GENERIC
-+	help
-+	  Say Y here if you want to add support for RMI4 function 11.
-+
-+	  Function 11 provides 2D multifinger pointing for touchscreens and
-+	  touchpads.  For sensors that support relative pointing, F11 also
-+	  provides mouse input.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rmi-f11.
-+
-+config RMI4_F11_PEN
-+	bool "RMI4 F11 Pen Support"
-+	depends on RMI4_F11
-+	help
-+	  Say Y here to add support for pen input to RMI4 function 11.
-+
-+	  If this feature is enabled, when pen inputs are detected they
-+	  will be reported to the input stream as MT_TOOL_PEN.  Otherwise,
-+	  pens will be treated the same as fingers.
-+
-+	  Not all UI implementations deal gracefully with pen discrimination.
-+	  If your system is not recognizing pen touches and you know your
-+	  sensor supports pen input, you probably want to turn this feature
-+	  off.
-+
-+config RMI4_VIRTUAL_BUTTON
-+	tristate "RMI4 Vitual Button"
-+	depends on RMI4_F11
-+	help
-+	  Say Y here if you want to add support for RMI4 virtual button to F11.
-+
-+	  The virtual button feature implement the virtual button device in
-+	  certain RMI4 touch sensors.
-+
-+	  This works only if your sensor supports F11 gestures.
-diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-new file mode 100644
-index 0000000..1480689
---- /dev/null
-+++ b/drivers/input/rmi4/Makefile
-@@ -0,0 +1,26 @@
-+obj-$(CONFIG_RMI4_BUS) += rmi_bus.o
-+obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
-+obj-$(CONFIG_RMI4_GENERIC) += rmi_driver.o rmi_f01.o
-+obj-$(CONFIG_RMI4_F11) += rmi_f11.o
-+
-+ccflags-$(CONFIG_RMI4_DEBUG) += -DDEBUG
-+
-+ifeq ($(KERNELRELEASE),)
-+
-+# KERNELDIR ?= /home/<AndroidKernelDirectory>
-+PWD := $(shell pwd)
-+
-+.PHONY: build clean
-+
-+build:
-+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
-+
-+clean:
-+	rm -rf *.o *~ core .depend .*.cmd *.ko *.mod.c
-+else
-+
-+$(info Building with KERNELRELEASE = ${KERNELRELEASE})
-+obj-m +=    rmi_dev.o
-+
-+endif
-+

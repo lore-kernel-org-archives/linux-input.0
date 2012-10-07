@@ -1,42 +1,58 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH 4/4] Input: extend the number of event (and other) devices
-Date: Sun, 7 Oct 2012 16:56:20 +0200
-Message-ID: <CANq1E4Qoxfge6LDr2TOVSo=-=Vxo-L2wnHsCA5sT5yVSV4GD-w@mail.gmail.com>
-References: <1349298182-22452-1-git-send-email-dmitry.torokhov@gmail.com>
-	<1349298182-22452-4-git-send-email-dmitry.torokhov@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v1] i2c-hid: introduce HID over i2c specification implementation
+Date: Sun, 7 Oct 2012 18:00:00 +0200
+Message-ID: <CAN+gG=HOz9DN+x7MQ8RTEKNcbRi9Zq15a7xs6BTCeg2XUj4DCQ@mail.gmail.com>
+References: <1347630103-4105-1-git-send-email-benjamin.tissoires@gmail.com>
+	<20121006220421.47f5fd56@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:51295 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753308Ab2JGO4V (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Oct 2012 10:56:21 -0400
-Received: by mail-we0-f174.google.com with SMTP id t9so2061592wey.19
-        for <linux-input@vger.kernel.org>; Sun, 07 Oct 2012 07:56:20 -0700 (PDT)
-In-Reply-To: <1349298182-22452-4-git-send-email-dmitry.torokhov@gmail.com>
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:59683 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750845Ab2JGQAB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Oct 2012 12:00:01 -0400
+In-Reply-To: <20121006220421.47f5fd56@endymion.delvare>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, fabien.andre@gmail.com, scott.liu@emc.com.tw, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dmitry
+Hi Jean,
 
-On Wed, Oct 3, 2012 at 11:03 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Extend the amount of character devices, such as eventX, mouseX and jsX,
-> from a hard limit of 32 per input handler to about 1024 shared across
-> all handlers.
+Thanks for the comments, the tests and the review. I'm going to try to
+answer most of the remarks, so here is the first:
+
+On Sat, Oct 6, 2012 at 10:04 PM, Jean Delvare <khali@linux-fr.org> wrote:
+> Hi Benjamin,
 >
-> To be compatible with legacy installations input handlers will start
-> creating char devices with minors in their legacy range, however once
-> legacy range is exhausted they will start allocating minors from the
-> dynamic range 256-1024.
+[...]
+>a
+> ERROR: "hiddev_report_event" [drivers/i2c/i2c-hid.ko] undefined!
+> ERROR: "hiddev_disconnect" [drivers/i2c/i2c-hid.ko] undefined!
+> ERROR: "hiddev_connect" [drivers/i2c/i2c-hid.ko] undefined!
+> ERROR: "hid_pidff_init" [drivers/i2c/i2c-hid.ko] undefined!
+> make[1]: *** [__modpost] Erreur 1
+> make: *** [modules] Erreur 2
 >
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
+> This is because these functions aren't exported and I tried to build
+> i2c-hid as a module.BTW I see that these functions are part of the
+> usbhid driver, which looks seriously wrong. If these functions are
+> transport layer-independent, they should be moved to the hid-code or
+> some sub-module. One should be able to enable HID-over-I2C without
+> HID-over-USB.
 
-I just reviewed the other patches 1-3 as well. Thanks for factoring
-them out! Feel free to add my reviewed-by to those as well.
+It looks like I've been mislead by the generic names of these functions.
+By looking at the code, it appears that I can not use them in their
+current state as they are all usb related.
+I think that it will need some work to refactor the general part of
+hiddev so that I2C and bluetooth can use them. For the next version,
+I'll just drop hiddev and pidff support.
+I'm not sure we won't ever find a ff device connected through i2c, but
+the hiddev support will surely be needed.
 
-Regards
-David
+Cheers,
+Benjamin
+
+>
+> --
+> Jean Delvare

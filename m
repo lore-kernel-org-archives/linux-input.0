@@ -1,68 +1,32 @@
-From: Wei Yongjun <weiyj.lk@gmail.com>
-Subject: [PATCH] staging: ste_rmi4: use module_i2c_driver to simplify the code
-Date: Mon, 8 Oct 2012 22:15:44 +0800
-Message-ID: <CAPgLHd_XxaAb-y=qnb0Wf97Uno-U-MUOW1S6J7__S-UzLSgD0w@mail.gmail.com>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH v1] i2c-hid: introduce HID over i2c specification
+ implementation
+Date: Mon, 8 Oct 2012 16:42:42 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1210081642080.28357@pobox.suse.cz>
+References: <1347630103-4105-1-git-send-email-benjamin.tissoires@gmail.com> <20121006220421.47f5fd56@endymion.delvare> <6F756B9E-DC87-4EF6-BB09-8A69A5F8C999@enac.fr> <20121006231111.6350c014@endymion.delvare> <alpine.LNX.2.00.1210062314110.27782@pobox.suse.cz>
+ <alpine.LNX.2.00.1210062326150.27782@pobox.suse.cz> <914C6C58-5A3B-4F7D-94BE-EF6868ED5D9D@enac.fr> <CAN+gG=FOnFDn4BdEQUt0dbQRj-6PrhRzSOqM620xSM3DeTXt_Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f53.google.com ([209.85.216.53]:33895 "EHLO
-	mail-qa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750845Ab2JHOPp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Oct 2012 10:15:45 -0400
-Received: by mail-qa0-f53.google.com with SMTP id s11so1943643qaa.19
-        for <linux-input@vger.kernel.org>; Mon, 08 Oct 2012 07:15:44 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAN+gG=FOnFDn4BdEQUt0dbQRj-6PrhRzSOqM620xSM3DeTXt_Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty-rXV5z7KbLFk@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, =?ISO-8859-15?Q?Fabien_Andr=E9?= <fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, =?ISO-2022-JP?Q?=1B$BN-2E=3DY=1B=28J?= <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, USB list <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: gregkh@linuxfoundation.org, rydberg@euromail.se
-Cc: yongjun_wei@trendmicro.com.cn, devel@driverdev.osuosl.org, linux-input@vger.kernel.org
 
-From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+On Sun, 7 Oct 2012, Benjamin Tissoires wrote:
 
-Use the module_i2c_driver() macro to make the code smaller
-and a bit simpler.
+> It seems that hid transport layers should go in drivers/hid.
+> However, I don't like mixing the transport layer and the final
+> drivers. Maybe this is the time to rework a little bit the tree.
+> To minimize the moves, we could introduce:
+> drivers/hid/busses/usb
+> drivers/hid/busses/i2c
+> drivers/hid/busses/bluetooth
 
-dpatch engine is used to auto generate this patch.
-(https://github.com/weiyj/dpatch)
+Something like that, I would personally like. But I am not going to 
+forcefully take it over without bluetooth guys agreeing on that as well.
 
-Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
----
- drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c | 24 +-----------------------
- 1 file changed, 1 insertion(+), 23 deletions(-)
-
-diff --git a/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c b/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
-index 277491a..37d19c6 100644
---- a/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
-+++ b/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
-@@ -1143,30 +1143,8 @@ static struct i2c_driver synaptics_rmi4_driver = {
- 	.remove		=	__devexit_p(synaptics_rmi4_remove),
- 	.id_table	=	synaptics_rmi4_id_table,
- };
--/**
-- * synaptics_rmi4_init() - Initialize the touchscreen driver
-- *
-- * This function uses to initializes the synaptics
-- * touchscreen driver and returns integer.
-- */
--static int __init synaptics_rmi4_init(void)
--{
--	return i2c_add_driver(&synaptics_rmi4_driver);
--}
--/**
-- * synaptics_rmi4_exit() - De-initialize the touchscreen driver
-- *
-- * This function uses to de-initialize the synaptics
-- * touchscreen driver and returns none.
-- */
--static void __exit synaptics_rmi4_exit(void)
--{
--	i2c_del_driver(&synaptics_rmi4_driver);
--}
--
- 
--module_init(synaptics_rmi4_init);
--module_exit(synaptics_rmi4_exit);
-+module_i2c_driver(synaptics_rmi4_driver);
- 
- MODULE_LICENSE("GPL v2");
- MODULE_AUTHOR("naveen.gaddipati@stericsson.com, js.ha@stericsson.com");
-
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,37 +1,50 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] staging: ste_rmi4: use module_i2c_driver to simplify the code
-Date: Tue, 9 Oct 2012 14:07:59 +0200
-Message-ID: <CACRpkdYnqVgzFkNO7C-SD8E=SR-=59F6Mf3VhK+sVbe_5Q-2dQ@mail.gmail.com>
-References: <CAPgLHd_XxaAb-y=qnb0Wf97Uno-U-MUOW1S6J7__S-UzLSgD0w@mail.gmail.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] sensor-hub: Remove pointless NULL check
+Date: Tue, 09 Oct 2012 15:20:18 +0100
+Message-ID: <20121009142010.16433.64833.stgit@bob.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:58725 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752651Ab2JIMIB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Oct 2012 08:08:01 -0400
-Received: by mail-wi0-f178.google.com with SMTP id hr7so5003452wib.1
-        for <linux-input@vger.kernel.org>; Tue, 09 Oct 2012 05:08:00 -0700 (PDT)
-In-Reply-To: <CAPgLHd_XxaAb-y=qnb0Wf97Uno-U-MUOW1S6J7__S-UzLSgD0w@mail.gmail.com>
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:60895 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752391Ab2JIOSq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Oct 2012 10:18:46 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: gregkh@linuxfoundation.org, rydberg@euromail.se, yongjun_wei@trendmicro.com.cn, devel@driverdev.osuosl.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, srinivas.pandruvada@linux.intel.com
 
-On Mon, Oct 8, 2012 at 4:15 PM, Wei Yongjun <weiyj.lk@gmail.com> wrote:
+From: Alan Cox <alan@linux.intel.com>
 
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
->
-> Use the module_i2c_driver() macro to make the code smaller
-> and a bit simpler.
->
-> dpatch engine is used to auto generate this patch.
-> (https://github.com/weiyj/dpatch)
->
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+report cannot be NULL, fortunately as we use it before we check !
 
-Why not?
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Alan Cox <alan@linux.intel.com>
+---
 
-Yours,
-Linus Walleij
+ drivers/hid/hid-sensor-hub.c |    4 ----
+ 1 file changed, 4 deletions(-)
+
+
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index d9d73e9..4ff2497 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -437,9 +437,6 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+ 	ptr = raw_data;
+ 	ptr++; /*Skip report id*/
+ 
+-	if (!report)
+-		goto err_report;
+-
+ 	spin_lock_irqsave(&pdata->lock, flags);
+ 
+ 	for (i = 0; i < report->maxfield; ++i) {
+@@ -485,7 +482,6 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+ 				callback->pdev);
+ 	spin_unlock_irqrestore(&pdata->lock, flags);
+ 
+-err_report:
+ 	return 1;
+ }
+ 
+

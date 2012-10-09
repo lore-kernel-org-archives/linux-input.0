@@ -1,235 +1,237 @@
-From: Apostolos Bartziokas <barz621@gmail.com>
-Subject: Bug#685360: HID: Fix missing Unifying device issue
-Date: Mon, 08 Oct 2012 22:42:09 +0300
-Message-ID: <50732C91.20005@gmail.com>
-References: <1348222894-6767-1-git-send-email-nlopezcasad@logitech.com> <20120923102318.GA12946@entuzijast.net> <CAE7qMroQOxo7kci7roLbS5HXjpkyhRi=cj1WCoYtAPB328xNQg@mail.gmail.com> <20120927070426.GA27734@entuzijast.net> <20120927185628.GA30949@entuzijast.net> <CAE7qMrrjeMBzfofaY+2O4CAh3OSDaK3fDe_c8Hh8Y2web7kUqQ@mail.gmail.com>
-Reply-To: Apostolos Bartziokas <barz621@gmail.com>, 685360@bugs.debian.org
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [RFC PATCH 01/06] input/rmi4: Public header and documentation
+Date: Tue, 9 Oct 2012 09:43:13 +0200
+Message-ID: <CACRpkdZb+LOk8v0aNZuPhATjS5jv-h1JJCejoh_9eFZ_fdiZQA@mail.gmail.com>
+References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
+	<1349496603-20775-2-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
- boundary="------------050103050904050302000001"
-Return-path: <bounce-debian-bugs-dist=glddb-debian-bugs-dist=m.gmane.org@lists.debian.org>
-Resent-To: debian-bugs-dist@lists.debian.org
-Resent-Message-ID: <handler.685360.B685360.134972534030606@bugs.debian.org>
-In-Reply-To: <CAE7qMrrjeMBzfofaY+2O4CAh3OSDaK3fDe_c8Hh8Y2web7kUqQ@mail.gmail.com>
-List-URL: <http://lists.debian.org/debian-bugs-dist/>
-List-Post: <mailto:debian-bugs-dist@lists.debian.org>
-List-Help: <mailto:debian-bugs-dist-request@lists.debian.org?subject=help>
-List-Subscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=subscribe>
-List-Unsubscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=unsubscribe>
-To: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: Josip Rodin <joy@debbugs.entuzijast.net>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 685360@bugs.debian.org, john.ettedgui@gmail.com, dh.herrmann@googlemail.com
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:49064 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752951Ab2JIHnO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Oct 2012 03:43:14 -0400
+Received: by mail-wi0-f178.google.com with SMTP id hr7so4693038wib.1
+        for <linux-input@vger.kernel.org>; Tue, 09 Oct 2012 00:43:13 -0700 (PDT)
+In-Reply-To: <1349496603-20775-2-git-send-email-cheiny@synaptics.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Christopher Heiny <cheiny@synaptics.com>, Anton Vorontsov <anton.vorontsov@linaro.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chen <alexandra.chen@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-This is a multi-part message in MIME format.
---------------050103050904050302000001
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sat, Oct 6, 2012 at 6:09 AM, Christopher Heiny <cheiny@synaptics.com> wrote:
 
-Nestor hello
+> As requested in the feedback from the previous patch, we've documented the
+> debugfs and sysfs attributes in files in Documentation/ABI/testing.  There's
+> two files, one for debugfs and one for sysfs.
 
-Sorry for bringing this up again but i tested the patch now that it 
-reached the stable kernels and when i connect it to the rear panel of my 
-motherboard i get:
+This is a massive improvement! Atleast as far as I've read... If you fix the
+below remarks I think I'm ready to accept this file, but that's just me and
+doesn't say anything about what Dmitry et al will comment on...
 
-Oct 08 22:11:43 mainland kernel: usb 3-2: >USB disconnect, device number 2
-Oct 08 22:12:04 mainland kernel: usb 1-2: >new full-speed USB device 
-number 3 using xhci_hcd
-Oct 08 22:12:05 mainland kernel: logitech-djreceiver 
-0003:046D:C52B.0009: >hiddev0,hidraw2: USB HID v1.11 Device [Logitech 
-USB Receiver] on usb-0000:00:14.0-2/input2
-Oct 08 22:12:05 mainland kernel: logitech-djreceiver 
-0003:046D:C52B.0009: >logi_dj_probe:logi_dj_recv_query_paired_devices 
-error:-32
-Oct 08 22:12:05 mainland kernel: logitech-djreceiver: probe of 
-0003:046D:C52B.0009 failed with error -32
-Oct 08 22:13:50 mainland kernel: usb 1-2: >USB disconnect, device number 3
-Oct 08 22:13:57 mainland kernel: usb 5-1.6: >new full-speed USB device 
-number 3 using ehci_hcd
-Oct 08 22:13:58 mainland kernel: logitech-djreceiver 
-0003:046D:C52B.000C: >hiddev0,hidraw2: USB HID v1.11 Device [Logitech 
-USB Receiver] on usb-0000:00:1a.0-1.6/input2
-Oct 08 22:14:01 mainland kernel: input: Logitech Unifying Device. 
-Wireless PID:101a as 
-/devices/pci0000:00/0000:00:1a.0/usb5/5-1/5-1.6/5-1.6:1.2/0003:046D:C52B.000C/input/input15
-Oct 08 22:14:01 mainland kernel: logitech-djdevice 0003:046D:C52B.000D: 
- >input,hidraw3: USB HID v1.11 Mouse [Logitech Unifying Device. Wireless 
-PID:101a] on usb-0000:00:1a.0-1.6:1
-Oct 08 22:14:17 mainland kernel: usb 5-1.6: >USB disconnect, device number 3
-Oct 08 22:14:20 mainland kernel: usb 1-2: >new full-speed USB device 
-number 4 using xhci_hcd
-Oct 08 22:14:20 mainland kernel: logitech-djreceiver 
-0003:046D:C52B.0010: >hiddev0,hidraw2: USB HID v1.11 Device [Logitech 
-USB Receiver] on usb-0000:00:14.0-2/input2
-Oct 08 22:14:20 mainland kernel: logitech-djreceiver 
-0003:046D:C52B.0010: >logi_dj_probe:logi_dj_recv_query_paired_devices 
-error:-32
-Oct 08 22:14:20 mainland kernel: logitech-djreceiver: probe of 
-0003:046D:C52B.0010 failed with error -32
+(...)
+> +  The RMI4 driver implementation exposes a set of informational and control
+> +  parameters via debugs.  These parameters are those that typically are only
 
-When i use a usb3 port it doesn't move at all and if i use a usb2 port 
-its slow. When i use the front panel it works flawlessly. Could this be 
-related to my POS Intel motherboard?
+s/debugs/debugfs
 
-Kind regards and apologies if i raise a false alarm.
+(...)
+> +          comms_debug - (rw) Write 1 to this dump information about register
+> +                  reads and writes to the console.  Write 0 to this to turn
+> +                  this feature off.  WARNING: Imposes a major performance
+> +                  penalty when turned on.
+> +          irq_debug - (rw) Write 1 to this dump information about interrupts
+> +                  to the console.  Write 0 to this to turn this feature off.
+> +                  WARNIG: Imposes a major performance penalty when turned on.
 
-Apostolos B.
-On 09/28/2012 10:57 AM, Nestor Lopez Casado wrote:
-> Hello Josip,
->
-> This really looks like a different problem from the one addressed with 
-> this patch.
->
-> I'll try to work on it as soon as I find some time for that.
->
-> Thanks,
-> Nestor.
->
-> On Thu, Sep 27, 2012 at 8:56 PM, Josip Rodin 
-> <joy@debbugs.entuzijast.net <mailto:joy@debbugs.entuzijast.net>> wrote:
->
->     On Thu, Sep 27, 2012 at 09:04:26AM +0200, Josip Rodin wrote:
->     > On Mon, Sep 24, 2012 at 11:30:28AM +0200, Nestor Lopez Casado wrote:
->     > > Josip, this is a different issue from the one addressed with
->     the patch.
->     > >
->     > > 1) Can you try it on a 3.2 kernel ?
->     >
->     > I can try that too, I'll let you know how it went.
->
->     Same thing, it doesn't work.
->
->     --
->          2. That which causes joy or happiness.
->     --
->     To unsubscribe from this list: send the line "unsubscribe
->     linux-input" in
->     the body of a message to majordomo@vger.kernel.org
->     <mailto:majordomo@vger.kernel.org>
->     More majordomo info at http://vger.kernel.org/majordomo-info.html
->
->
+Hm. Usually we control dynamic debug prints by standard kernel
+frameworks, can you tell what is wrong with this and why you need
+a custom mechanism? See the following:
+Documentation/dynamic-debug-howto.txt
+http://lwn.net/Articles/434833/
 
+(...)
+> +++ b/Documentation/ABI/testing/sysfs-rmi4
+(...)
+> +          chargerinput ... (rw) User space programs can use this to tell the
+> +                  sensor that the system is plugged into an external power
+> +                  source (as opposed to running on batteries).  This allows
+> +                  the sensor firmware to make necessary adjustments for the
+> +                  current capacitence regime.  Write 1 to this when the
+> +                  system is using external power, write 0 to this when the
+> +                  system is running on batteries.  See spec for full details.
 
---------------050103050904050302000001
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+I remember discussing in-kernel notifiers for this. I don't
+really see the point in tunnelling a notification from the drivers/power
+subsystem to the drivers/input subsystem through userspace for
+no good.
 
-<html>
-  <head>
-    <meta content="text/html; charset=ISO-8859-1"
-      http-equiv="Content-Type">
-  </head>
-  <body text="#000000" bgcolor="#FFFFFF">
-    Nestor hello<br>
-    <br>
-    Sorry for bringing this up again but i tested the patch now that it
-    reached the stable kernels and when i connect it to the rear panel
-    of my motherboard i get:<br>
-    <br>
-    <small>Oct 08 22:11:43 mainland kernel: usb 3-2: &gt;USB disconnect,
-      device number 2<br>
-      Oct 08 22:12:04 mainland kernel: usb 1-2: &gt;new full-speed USB
-      device number 3 using xhci_hcd<br>
-      Oct 08 22:12:05 mainland kernel: logitech-djreceiver
-      0003:046D:C52B.0009: &gt;hiddev0,hidraw2: USB HID v1.11 Device
-      [Logitech USB Receiver] on usb-0000:00:14.0-2/input2<br>
-      Oct 08 22:12:05 mainland kernel: logitech-djreceiver
-      0003:046D:C52B.0009:
-      &gt;logi_dj_probe:logi_dj_recv_query_paired_devices error:-32<br>
-      Oct 08 22:12:05 mainland kernel: logitech-djreceiver: probe of
-      0003:046D:C52B.0009 failed with error -32<br>
-      Oct 08 22:13:50 mainland kernel: usb 1-2: &gt;USB disconnect,
-      device number 3<br>
-      Oct 08 22:13:57 mainland kernel: usb 5-1.6: &gt;new full-speed USB
-      device number 3 using ehci_hcd<br>
-      Oct 08 22:13:58 mainland kernel: logitech-djreceiver
-      0003:046D:C52B.000C: &gt;hiddev0,hidraw2: USB HID v1.11 Device
-      [Logitech USB Receiver] on usb-0000:00:1a.0-1.6/input2<br>
-      Oct 08 22:14:01 mainland kernel: input: Logitech Unifying Device.
-      Wireless PID:101a as
-/devices/pci0000:00/0000:00:1a.0/usb5/5-1/5-1.6/5-1.6:1.2/0003:046D:C52B.000C/input/input15<br>
-      Oct 08 22:14:01 mainland kernel: logitech-djdevice
-      0003:046D:C52B.000D: &gt;input,hidraw3: USB HID v1.11 Mouse
-      [Logitech Unifying Device. Wireless PID:101a] on
-      usb-0000:00:1a.0-1.6:1<br>
-      Oct 08 22:14:17 mainland kernel: usb 5-1.6: &gt;USB disconnect,
-      device number 3<br>
-      Oct 08 22:14:20 mainland kernel: usb 1-2: &gt;new full-speed USB
-      device number 4 using xhci_hcd<br>
-      Oct 08 22:14:20 mainland kernel: logitech-djreceiver
-      0003:046D:C52B.0010: &gt;hiddev0,hidraw2: USB HID v1.11 Device
-      [Logitech USB Receiver] on usb-0000:00:14.0-2/input2<br>
-      Oct 08 22:14:20 mainland kernel: logitech-djreceiver
-      0003:046D:C52B.0010:
-      &gt;logi_dj_probe:logi_dj_recv_query_paired_devices error:-32<br>
-      Oct 08 22:14:20 mainland kernel: logitech-djreceiver: probe of
-      0003:046D:C52B.0010 failed with error -32</small><br>
-    <br>
-    When i use a usb3 port it doesn't move at all and if i use a usb2
-    port its slow. When i use the front panel it works flawlessly. Could
-    this be related to my POS Intel motherboard? <br>
-    <br>
-    Kind regards and apologies if i raise a false alarm.<br>
-    &nbsp;<br>
-    Apostolos B.<br>
-    <div class="moz-cite-prefix">On 09/28/2012 10:57 AM, Nestor Lopez
-      Casado wrote:<br>
-    </div>
-    <blockquote
-cite="mid:CAE7qMrrjeMBzfofaY+2O4CAh3OSDaK3fDe_c8Hh8Y2web7kUqQ@mail.gmail.com"
-      type="cite">Hello Josip,&nbsp;
-      <div><br>
-      </div>
-      <div>This really looks like a different problem from the one
-        addressed with this patch.&nbsp;</div>
-      <div><br>
-      </div>
-      <div>I'll try to work on it as soon as I find some time for that.&nbsp;</div>
-      <div><br>
-      </div>
-      <div>Thanks,&nbsp;</div>
-      <div>Nestor.&nbsp;<br>
-        <br>
-        <div class="gmail_quote">On Thu, Sep 27, 2012 at 8:56 PM, Josip
-          Rodin <span dir="ltr">&lt;<a moz-do-not-send="true"
-              href="mailto:joy@debbugs.entuzijast.net" target="_blank">joy@debbugs.entuzijast.net</a>&gt;</span>
-          wrote:<br>
-          <blockquote class="gmail_quote" style="margin:0 0 0
-            .8ex;border-left:1px #ccc solid;padding-left:1ex">
-            <div class="im">On Thu, Sep 27, 2012 at 09:04:26AM +0200,
-              Josip Rodin wrote:<br>
-              &gt; On Mon, Sep 24, 2012 at 11:30:28AM +0200, Nestor
-              Lopez Casado wrote:<br>
-              &gt; &gt; Josip, this is a different issue from the one
-              addressed with the patch.<br>
-              &gt; &gt;<br>
-              &gt; &gt; 1) Can you try it on a 3.2 kernel ?<br>
-              &gt;<br>
-              &gt; I can try that too, I'll let you know how it went.<br>
-              <br>
-            </div>
-            Same thing, it doesn't work.<br>
-            <div class="HOEnZb">
-              <div class="h5"><br>
-                --<br>
-                &nbsp; &nbsp; &nbsp;2. That which causes joy or happiness.<br>
-                --<br>
-                To unsubscribe from this list: send the line
-                "unsubscribe linux-input" in<br>
-                the body of a message to <a moz-do-not-send="true"
-                  href="mailto:majordomo@vger.kernel.org">majordomo@vger.kernel.org</a><br>
-                More majordomo info at &nbsp;<a moz-do-not-send="true"
-                  href="http://vger.kernel.org/majordomo-info.html"
-                  target="_blank">http://vger.kernel.org/majordomo-info.html</a><br>
-              </div>
-            </div>
-          </blockquote>
-        </div>
-        <br>
-      </div>
-    </blockquote>
-    <br>
-  </body>
-</html>
+It's no blocker though, I don't expect you to fix this as part of
+this driver submission.
 
---------------050103050904050302000001--
+Maybe Anton can comment?
+
+(...)
+> +          interrupt_enable ... (ro) This represents the current RMI4 interrupt
+> +                  mask (F01_RMI_Ctrl1 registers).  See spec for full details.
+
+What does the userspace have to do with this stuff? Seems way
+too low-level, but whatever.
+
+(...)
+> +          sleepmode ... (rw) Controls power management on the device.  Writing
+> +                  0 to this parameter puts the device into its normal operating
+> +                  mode.  Writing 1 to this parameter fully disables touch
+> +                  sensors and similar inputs - no touch data will be reported
+> +                  from the device in this mode.  Writing 2 or 3 to this device
+> +                  may or may not have an effect, depending on the particular
+> +                  device - see the product specification for your sensor for
+> +                  details.
+
+Usually power management is controlled from kernelspace, but no
+big deal, maybe userspace knows even more details in some
+cases.
+
+> +          unconfigured ... (ro) This is the opposite of the configured bit,
+> +                  described above.
+
+So why is it needed? Isn't it implicit from the "configured" property
+if this is 0 then  it's unconfigured? Seems superfluous.
+
+(...)
+> +++ b/include/linux/rmi.h
+(...)
+> +#ifdef CONFIG_RMI4_DEBUG
+> +#include <linux/debugfs.h>
+> +#endif
+
+Don't include it conditionally, always just include it whether
+you use it or not.
+It doesn't hurt, and doesn't cause compile problems.
+
+(...)
+> +/**
+> + * struct rmi_device_platform_data_spi - provides paramters used in SPI
+
+s/paramters/parameters/
+
+> + * communitcations.  All Synaptics SPI products support a standard SPI
+
+s/communitcations/communications
+
+> + * @cs_assert - For systems where the SPI subsystem does not control the CS/SSB
+> + * line, or where such control is broken, you can provide a custom routine to
+> + * handle a GPIO as CS/SSB.  This routine will be called at the beginning and
+> + * end of each SPI transaction.  The RMI SPI implementation will wait
+> + * pre_delay_us after this routine returns before starting the SPI transfer;
+> + * and post_delay_us after completion of the SPI transfer(s) before calling it
+> + * with assert==FALSE.
+
+Hm hm, can you describe the case where this happens?
+
+Usually we don't avoid fixes for broken drivers by duct-taping
+solutions into other drivers, instead we fix the SPI driver.
+
+I can think of systems where CS is asserted not by using
+GPIO but by poking some special register for example, which
+is a valid reason for including this, but working around broken
+SPI drivers is not a valid reason to include this.
+
+(Paging Mark about it.)
+
+(...)
+> +/**
+> + * struct rmi_device_platform_data - system specific configuration info.
+> + *
+> + * @driver_name
+(...)
+> +struct rmi_device_platform_data {
+> +       char *driver_name;
+
+I don't understand what the driver name is doing in the platform
+data. The driver name should be part of the device driver struct,
+and match on dev_name(struct device *), not be passed in here.
+
+Please explain...
+
+(...)
+> +#ifdef CONFIG_RMI4_DEBUG
+> +       struct dentry *debugfs_root;
+> +#endif
+
+Maybe just use CONFIG_DEBUG_FS instead, it's more to the
+point?
+
+(occurs twice)
+
+(...)
+> +/**
+> + * rmi_register_phys_device - register a physical device connection on the RMI
+> + * bus.  Physical drivers provide communication from the devices on the bus to
+> + * the RMI4 sensor on a bus such as SPI, I2C, and so on.
+> + *
+> + * @phys: the physical device to register
+> + */
+
+Don't put the kerneldoc here in the header, put it in the code.
+
+Only documentation for structs, enums and inline functions
+go into the header files.
+
+(Same comment for all functions.)
+
+> +int rmi_register_phys_device(struct rmi_phys_device *phys);
+
+(...)
+> +/**
+> + * Helper function to convert a 16 bit value (in host processor endianess) to
+> + * a byte array in the RMI endianess for u16s.  See above comment for
+> + * why we dont us htons or something like that.
+> + */
+
+So in this case it's correct to document it here, because this is an
+inline function.
+
+> +static inline void hstoba(u8 *dest, u16 src)
+> +{
+> +       dest[0] = src % 0x100;
+> +       dest[1] = src / 0x100;
+
+But please use arithmetic operators (I think I said this on the last
+review):
+
+dest[0] = src & 0xFF;
+dest[1] = src >> 8;
+
+Doing it the above way makes artithmetic look like maths, and it isn't.
+Besides it's done this way in most parts of the kernel and we're
+familiar with it.
+
+(...)
+> +#ifdef CONFIG_RMI4_DEBUG
+> +/**
+> + * Utility routine to handle writes to read-only attributes.  Hopefully
+> + * this will never happen, but if the user does something stupid, we don't
+> + * want to accept it quietly (which is what can happen if you just put NULL
+> + * for the attribute's store function).
+> + */
+> +static inline ssize_t rmi_store_error(struct device *dev,
+> +                       struct device_attribute *attr,
+> +                       const char *buf, size_t count)
+> +{
+> +       dev_warn(dev,
+> +                "WARNING: Attempt to write %d characters to read-only attribute %s.",
+> +               count, attr->attr.name);
+> +       return -EPERM;
+> +}
+
+Here it looks like you're hiding a lot of stuff that should be dev_warn()?
+Consider my earlier point about dynamic debug.
+
+> +static inline ssize_t rmi_show_error(struct device *dev,
+> +                      struct device_attribute *attr, char *buf)
+
+Dito.
+
+Yours,
+Linus Walleij

@@ -1,62 +1,58 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 1/4] input: Convert struct i2c_msg initialization to C99 format
-Date: Tue, 9 Oct 2012 17:01:17 +0530
-Message-ID: <1349782278-9023-1-git-send-email-shubhrajyoti@ti.com>
+From: Shubhrajyoti D <shubhrajyoti@ti.com>
+Subject: [PATCH 2/4] input: Convert struct i2c_msg initialization to C99 format
+Date: Tue, 9 Oct 2012 17:01:18 +0530
+Message-ID: <1349782278-9023-2-git-send-email-shubhrajyoti@ti.com>
+References: <1349782278-9023-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:44155 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752467Ab2JILbZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Oct 2012 07:31:25 -0400
+In-Reply-To: <1349782278-9023-1-git-send-email-shubhrajyoti@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, dmitry.torokhov@gmail.com, Shubhrajyoti D <shubhrajyoti@ti.com>
 
 Convert the struct i2c_msg initialization to C99 format. This makes
 maintaining and editing the code simpler. Also helps once other fields
 like transferred are added in future.
 
-Thanks to Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>  for automating the conversion
+Thanks to Julia Lawall <julia.lawall@lip6.fr>  for automating the conversion
 
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
 ---
- drivers/input/joystick/as5011.c |   19 ++++++++++++++++---
- 1 files changed, 16 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/cy8ctmg110_ts.c |   14 ++++++++++++--
+ 1 files changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/joystick/as5011.c b/drivers/input/joystick/as5011.c
-index c96653b..9d869e2 100644
---- a/drivers/input/joystick/as5011.c
-+++ b/drivers/input/joystick/as5011.c
-@@ -85,7 +85,10 @@ static int as5011_i2c_write(struct i2c_client *client,
- {
- 	uint8_t data[2] = { aregaddr, avalue };
- 	struct i2c_msg msg = {
--		client->addr, I2C_M_IGNORE_NAK, 2, (uint8_t *)data
-+		.addr = client->addr,
-+		.flags = I2C_M_IGNORE_NAK,
-+		.len = 2,
-+		.buf = (uint8_t *)data
- 	};
- 	int error;
- 
-@@ -98,8 +101,18 @@ static int as5011_i2c_read(struct i2c_client *client,
- {
- 	uint8_t data[2] = { aregaddr };
- 	struct i2c_msg msg_set[2] = {
--		{ client->addr, I2C_M_REV_DIR_ADDR, 1, (uint8_t *)data },
--		{ client->addr, I2C_M_RD | I2C_M_NOSTART, 1, (uint8_t *)data }
+diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
+index 464f1bf..f4cfedf 100644
+--- a/drivers/input/touchscreen/cy8ctmg110_ts.c
++++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
+@@ -99,9 +99,19 @@ static int cy8ctmg110_read_regs(struct cy8ctmg110 *tsc,
+ 	int ret;
+ 	struct i2c_msg msg[2] = {
+ 		/* first write slave position to i2c devices */
+-		{ client->addr, 0, 1, &cmd },
 +		{
 +			.addr = client->addr,
-+			.flags = I2C_M_REV_DIR_ADDR,
++			.flags = 0,
 +			.len = 1,
-+			.buf = (uint8_t *)data
++			.buf = &cmd
 +		},
+ 		/* Second read data from position */
+-		{ client->addr, I2C_M_RD, len, data }
 +		{
 +			.addr = client->addr,
-+			.flags = I2C_M_RD | I2C_M_NOSTART,
-+			.len = 1,
-+			.buf = (uint8_t *)data
++			.flags = I2C_M_RD,
++			.len = len,
++			.buf = data
 +		}
  	};
- 	int error;
  
+ 	ret = i2c_transfer(client->adapter, msg, 2);
 -- 
 1.7.5.4
+

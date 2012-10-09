@@ -1,162 +1,276 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [RFC PATCH 05/06] input/rmi4: F01 - device control
-Date: Tue, 9 Oct 2012 11:31:23 +0200
-Message-ID: <CACRpkdZht7RfL48FjxnCKD9R7tHaKdQjM=hO47coMkoctPH_tw@mail.gmail.com>
+Subject: Re: [RFC PATCH 06/06] input/rmi4: F11 - 2D touch interface
+Date: Tue, 9 Oct 2012 12:02:57 +0200
+Message-ID: <CACRpkdbjgnH=FCyKfQEYo+fNOj0aDM7z+CX6z3SKpRRUGyx3tQ@mail.gmail.com>
 References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
-	<1349496603-20775-6-git-send-email-cheiny@synaptics.com>
+	<1349496603-20775-7-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1349496603-20775-6-git-send-email-cheiny@synaptics.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chen <alexandra.chen@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:35905 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754609Ab2JIKC7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Oct 2012 06:02:59 -0400
+Received: by mail-we0-f174.google.com with SMTP id t9so3118135wey.19
+        for <linux-input@vger.kernel.org>; Tue, 09 Oct 2012 03:02:57 -0700 (PDT)
+In-Reply-To: <1349496603-20775-7-git-send-email-cheiny@synaptics.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chen <alexandra.chen@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Henrik Rydberg <rydberg@euromail.se>
 
 On Sat, Oct 6, 2012 at 6:10 AM, Christopher Heiny <cheiny@synaptics.com> wrote:
 
-> RMI Function 01 implements basic device control and power management
-> behaviors for the RMI4 sensor.  Since the last patch, we've decoupled rmi_f01.c
-> implementation from rmi_driver.c, so rmi_f01.c acts as a standard driver
-> module to handle F01 devices on the RMI bus.
->
-> Like other modules, a number of attributes have been moved from sysfs to
-> debugfs, depending on their expected use.
->
->
-> rmi_f01.h exports definitions that we expect to be used by other functionality
-> in the future (such as firmware reflash).
->
->
-> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
->
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Linus Walleij <linus.walleij@stericsson.com>
-> Cc: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
-> Cc: Joeri de Gram <j.de.gram@gmail.com>
->
-> ---
-
-There is liberal whitespacing above. (No big deal, but anyway.)
+So looking closer at this one since we will use it. Maybe it's in such a
+good shape now that I should be able to actually test it with the hardware?
 
 (...)
-> +/**
-> + * @reset - set this bit to force a firmware reset of the sensor.
-> + */
-> +union f01_device_commands {
-> +       struct {
-> +               bool reset:1;
-> +               u8 reserved:7;
-> +       } __attribute__((__packed__));
-> +       u8 reg;
-> +};
-
-I'm still scared by these unions. I see what you're doing but my
-preferred style of driver writing is to use a simple u8 if you just treat
-it the right way with some |= and &= ...
-
-#include <linux/bitops.h>
-
-#define F01_RESET BIT(0)
-
-u8 my_command = F01_RESET;
-
-send(&my_command);
-
-I will not insist on this because it's a bit about programming style.
-For memory-mapped devices we usually do it my way, but this
-is more like some protocol and I know protocols like to do things
-with structs and stuff so no big deal.
-
+> diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+(...)
 > +#ifdef CONFIG_RMI4_DEBUG
-> +struct f01_debugfs_data {
-> +       bool done;
-> +       struct rmi_function_container *fc;
-> +};
+> +#include <linux/debugfs.h>
+> +#include <linux/fs.h>
+> +#include <linux/uaccess.h>
+> +#endif
+
+Skip the #ifdef
+
+> +#define F11_CTRL_SENSOR_MAX_X_POS_OFFSET       6
+> +#define F11_CTRL_SENSOR_MAX_Y_POS_OFFSET       8
 > +
-> +static int f01_debug_open(struct inode *inodep, struct file *filp)
+> +#define F11_CEIL(x, y) (((x) + ((y)-1)) / (y))
+
+Use existing kernel macros in <linux/kernel.h>
+
+In this case:
+#define F11_CEIL(x, y) DIV_ROUND_UP(x, y)
+
+Or just use DIV_ROUND_UP() directly in the code, your choice.
+
+> +#define MAX_NAME_LENGTH 256
+
+Really? Are you sure there is not a null terminator or length byte
+included so it's actually 255?
+
+(...)
+> +static int sensor_debug_open(struct inode *inodep, struct file *filp)
 > +{
-> +       struct f01_debugfs_data *data;
-> +       struct rmi_function_container *fc = inodep->i_private;
+> +       struct sensor_debugfs_data *data;
+> +       struct f11_2d_sensor *sensor = inodep->i_private;
+> +       struct rmi_function_container *fc = sensor->fc;
 > +
-> +       data = devm_kzalloc(&fc->dev, sizeof(struct f01_debugfs_data),
+> +       data = devm_kzalloc(&fc->dev, sizeof(struct sensor_debugfs_data),
 > +               GFP_KERNEL);
 
-Wait, you probably did this because I requested it, but I was maybe
-wrong?
-
-Will this not re-allocate a chunk every time you look at a debugfs
-file? So it leaks memory?
-
-In that case common kzalloc() and kfree() is the way to go, as it
-is for dynamic buffers. Sorry for screwing things up for you. :-(
-
-> +       for (i = 0; i < f01->irq_count && *local_buf != 0;
-> +            i++, local_buf += 2) {
-> +               int irq_shift;
-> +               int interrupt_enable;
-> +               int result;
-> +
-> +               irq_reg = i / 8;
-> +               irq_shift = i % 8;
-
-Please stop doing these arithmetics-turned-maths things.
-
-irq_reg = i >> 8;
-irq_shift = i & 0xFF;
+Again I may have lead you astray. Check if this leaks memory, in that
+case use kzalloc()/kfree(). Sorry :-(
 
 (...)
-> +static ssize_t rmi_fn_01_interrupt_enable_show(struct device *dev,
-> +                               struct device_attribute *attr, char *buf)
+> +static int f11_debug_open(struct inode *inodep, struct file *filp)
 > +{
-> +       struct rmi_function_container *fc;
-> +       struct f01_data *data;
-> +       int i, len, total_len = 0;
-> +       char *current_buf = buf;
+> +       struct f11_debugfs_data *data;
+> +       struct rmi_function_container *fc = inodep->i_private;
 > +
-> +       fc = to_rmi_function_container(dev);
-> +       data = fc->data;
-> +       /* loop through each irq value and copy its
-> +        * string representation into buf */
-> +       for (i = 0; i < data->irq_count; i++) {
-> +               int irq_reg;
-> +               int irq_shift;
-> +               int interrupt_enable;
-> +
-> +               irq_reg = i / 8;
-> +               irq_shift = i % 8;
+> +       data = devm_kzalloc(&fc->dev, sizeof(struct f11_debugfs_data),
+> +               GFP_KERNEL);
 
-Dito.
+Dito. :-(
 
 (...)
-> +static int f01_probe(struct device *dev);
+> +static void rmi_f11_abs_pos_report(struct f11_data *f11,
+> +                                  struct f11_2d_sensor *sensor,
+> +                                  u8 finger_state, u8 n_finger)
+(...)
+> +               if (axis_align->flip_y)
+> +                       y = max(sensor->max_y - y, 0);
+> +
+> +               /*
+> +               ** here checking if X offset or y offset are specified is
+> +               **  redundant.  We just add the offsets or, clip the values
+> +               **
+> +               ** note: offsets need to be done before clipping occurs,
+> +               ** or we could get funny values that are outside
+> +               ** clipping boundaries.
+> +               */
 
-Do you really need to forward-declare this?
+This is a weird commenting style, what's wrong with a single star?
+(No big deal but it stands out...)
 
 (...)
-> +static struct rmi_function_handler function_handler = {
-> +       .driver = {
-> +               .owner = THIS_MODULE,
-> +               .name = "rmi_f01",
-> +               .bus = &rmi_bus_type,
-> +               .probe = f01_probe,
-> +               .remove = f01_remove_device,
-> +       },
-> +       .func = 0x01,
-> +       .config = rmi_f01_config,
-> +       .attention = rmi_f01_attention,
+> +static int f11_allocate_control_regs(struct rmi_device *rmi_dev,
+> +                               struct f11_2d_device_query *device_query,
+> +                               struct f11_2d_sensor_query *sensor_query,
+> +                               struct f11_2d_ctrl *ctrl,
+> +                               u16 ctrl_base_addr) {
 > +
-> +#ifdef CONFIG_PM
-> +       .suspend = rmi_f01_suspend,
-> +       .resume = rmi_f01_resume,
-> +#endif  /* CONFIG_PM */
-> +};
+> +       struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
+> +       struct rmi_function_container *fc = driver_data->f01_container;
+> +
+> +       ctrl->ctrl0_9 = devm_kzalloc(&fc->dev, sizeof(union f11_2d_ctrl0_9),
+> +                                      GFP_KERNEL);
 
-Just move this block of struct *below* the probe function...
+If this is called from .probe() only, this is correct.
 
-> +static __devinit int f01_probe(struct device *dev)
+So the rule is: use devm_* for anything that is allocated at .probe()
+and released on .remove(). Any other dynamic buffers etc need to
+use common kzalloc()/kfree().
 
-Header file looks OK (if these unions is the way to go...)
+> +       if (!ctrl->ctrl0_9)
+> +               return -ENOMEM;
+> +       if (sensor_query->f11_2d_query7__8[0]) {
+> +               ctrl->ctrl10 = devm_kzalloc(&fc->dev,
+> +                       sizeof(union f11_2d_ctrl10), GFP_KERNEL);
+> +               if (!ctrl->ctrl10)
+> +                       return -ENOMEM;
+> +       }
+> +
+> +       if (sensor_query->f11_2d_query7__8[1]) {
+> +               ctrl->ctrl11 = devm_kzalloc(&fc->dev,
+> +                       sizeof(union f11_2d_ctrl11), GFP_KERNEL);
+> +               if (!ctrl->ctrl11)
+> +                       return -ENOMEM;
+> +       }
+> +
+> +       if (device_query->has_query9 && sensor_query->query9.has_pen) {
+> +               ctrl->ctrl20_21 = devm_kzalloc(&fc->dev,
+> +                       sizeof(union f11_2d_ctrl20_21), GFP_KERNEL);
+> +               if (!ctrl->ctrl20_21)
+> +                       return -ENOMEM;
+> +       }
+> +
+> +       if (device_query->has_query9 && sensor_query->query9.has_proximity) {
+> +               ctrl->ctrl22_26 = devm_kzalloc(&fc->dev,
+> +                       sizeof(union f11_2d_ctrl22_26), GFP_KERNEL);
+> +               if (!ctrl->ctrl22_26)
+> +                       return -ENOMEM;
+> +       }
+> +
+> +       if (device_query->has_query9 &&
+> +               (sensor_query->query9.has_palm_det_sensitivity ||
+> +               sensor_query->query9.has_suppress_on_palm_detect)) {
+> +               ctrl->ctrl27 = devm_kzalloc(&fc->dev,
+> +                       sizeof(union f11_2d_ctrl27), GFP_KERNEL);
+> +               if (!ctrl->ctrl27)
+> +                       return -ENOMEM;
+> +       }
+> +
+> +       if (sensor_query->has_multi_finger_scroll) {
+> +               ctrl->ctrl28 = devm_kzalloc(&fc->dev,
+> +                       sizeof(union f11_2d_ctrl28), GFP_KERNEL);
+> +               if (!ctrl->ctrl28)
+> +                       return -ENOMEM;
+> +       }
+> +
+> +       if (device_query->has_query11 && device_query->has_z_tuning) {
+> +               ctrl->ctrl29_30 = devm_kzalloc(&fc->dev,
+> +                       sizeof(union f11_2d_ctrl29_30), GFP_KERNEL);
+> +               if (!ctrl->ctrl29_30)
+> +                       return -ENOMEM;
+> +       }
+
+All of these are probably correct as well.
+
+> +
+> +       return f11_read_control_regs(rmi_dev, ctrl, ctrl_base_addr);
+
+Hey why are you ending with a call to that function?
+The function name gets misleading.
+
+Instead call both functions in succession at the call site on
+.probe().
+
+(...)
+> +static int f11_device_init(struct rmi_function_container *fc)
+> +{
+> +       int rc;
+> +
+> +       rc = rmi_f11_initialize(fc);
+> +       if (rc < 0)
+> +               goto err_free_data;
+> +
+> +       rc = rmi_f11_register_devices(fc);
+> +       if (rc < 0)
+> +               goto err_free_data;
+> +
+> +       rc = rmi_f11_create_sysfs(fc);
+> +       if (rc < 0)
+> +               goto err_free_data;
+> +
+> +       return 0;
+> +
+> +err_free_data:
+> +       rmi_f11_free_memory(fc);
+> +
+> +       return rc;
+> +}
+> +
+> +static void rmi_f11_free_memory(struct rmi_function_container *fc)
+> +{
+> +       struct f11_data *f11 = fc->data;
+> +       int i;
+> +
+> +       if (f11) {
+> +               for (i = 0; i < f11->dev_query.nbr_of_sensors + 1; i++)
+> +                       kfree(f11->sensors[i].button_map);
+> +       }
+
+This is wrong. The button_map was allocated with devm_kzalloc()
+so it will get automatically freed. Just skip this step.
+
+(...)
+> +static int rmi_f11_initialize(struct rmi_function_container *fc)
+> +{
+(...)
+> +               rc = f11_allocate_control_regs(rmi_dev,
+> +                               &f11->dev_query, &sensor->sens_query,
+> +                               &f11->dev_controls, control_base_addr);
+> +               if (rc < 0) {
+> +                       dev_err(&fc->dev,
+> +                               "Failed to initialize F11 control params.\n");
+
+"failed to allocate F11 control params"
+
+> +                       return rc;
+> +               }
+
+So after this call the read regs explicitly instead as described above.
+
+(...)
+> +static void register_virtual_buttons(struct rmi_function_container *fc,
+> +                                    struct f11_2d_sensor *sensor) {
+> +       int j;
+> +
+> +       if (!sensor->sens_query.has_gestures)
+> +               return;
+> +       if (!sensor->virtual_buttons.buttons) {
+> +               dev_warn(&fc->dev, "No virtual button platform data for 2D sensor %d.\n",
+> +                        sensor->sensor_index);
+> +               return;
+> +       }
+> +       /* call devm_kcalloc when it will be defined in kernel */
+> +       sensor->button_map = devm_kzalloc(&fc->dev,
+> +                       sensor->virtual_buttons.buttons,
+> +                       GFP_KERNEL);
+> +       if (!sensor->button_map) {
+> +               dev_err(&fc->dev, "Failed to allocate the virtual button map.\n");
+> +               return;
+> +       }
+
+So as noted above, since it's using devm_kzalloc(), don't free() it.
+
+(...)
+> +                       sensor->mouse_input = input_dev_mouse;
+> +                       input_dev_mouse->name = "rmi_mouse";
+> +                       input_dev_mouse->phys = "rmi_f11/input0";
+> +
+> +                       input_dev_mouse->id.vendor  = 0x18d1;
+> +                       input_dev_mouse->id.product = 0x0210;
+> +                       input_dev_mouse->id.version = 0x0100;
+
+As noted in previous review, 0x18d1 is Google's vendor ID. Please use
+a Synaptics Vendor ID, Product ID and version!
+
+Hint: synaptics Vendor ID is 0x06cb.
 
 Yours,
 Linus Walleij

@@ -1,276 +1,118 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [RFC PATCH 06/06] input/rmi4: F11 - 2D touch interface
-Date: Tue, 9 Oct 2012 12:02:57 +0200
-Message-ID: <CACRpkdbjgnH=FCyKfQEYo+fNOj0aDM7z+CX6z3SKpRRUGyx3tQ@mail.gmail.com>
-References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
-	<1349496603-20775-7-git-send-email-cheiny@synaptics.com>
+From: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Subject: Re: [PATCH 1/1] HID: Fix missing Unifying device issue
+Date: Tue, 9 Oct 2012 12:15:28 +0200
+Message-ID: <CAE7qMrraUD6-4KWVJfLV5-fDNWHhoGDFOx4r9RuLFG5m1sarwQ@mail.gmail.com>
+References: <1348222894-6767-1-git-send-email-nlopezcasad@logitech.com>
+ <20120923102318.GA12946@entuzijast.net> <CAE7qMroQOxo7kci7roLbS5HXjpkyhRi=cj1WCoYtAPB328xNQg@mail.gmail.com>
+ <20120927070426.GA27734@entuzijast.net> <20120927185628.GA30949@entuzijast.net>
+ <CAE7qMrrjeMBzfofaY+2O4CAh3OSDaK3fDe_c8Hh8Y2web7kUqQ@mail.gmail.com> <50732C91.20005@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:35905 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754609Ab2JIKC7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Oct 2012 06:02:59 -0400
-Received: by mail-we0-f174.google.com with SMTP id t9so3118135wey.19
-        for <linux-input@vger.kernel.org>; Tue, 09 Oct 2012 03:02:57 -0700 (PDT)
-In-Reply-To: <1349496603-20775-7-git-send-email-cheiny@synaptics.com>
+Received: from na3sys009aog114.obsmtp.com ([74.125.149.211]:52232 "EHLO
+	na3sys009aog114.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755059Ab2JIKQA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Oct 2012 06:16:00 -0400
+Received: by mail-ob0-f174.google.com with SMTP id uo13so4507827obb.19
+        for <linux-input@vger.kernel.org>; Tue, 09 Oct 2012 03:15:58 -0700 (PDT)
+In-Reply-To: <50732C91.20005@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chen <alexandra.chen@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Henrik Rydberg <rydberg@euromail.se>
+To: Apostolos Bartziokas <barz621@gmail.com>
+Cc: Josip Rodin <joy@debbugs.entuzijast.net>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 685360@bugs.debian.org, john.ettedgui@gmail.com, dh.herrmann@googlemail.com
 
-On Sat, Oct 6, 2012 at 6:10 AM, Christopher Heiny <cheiny@synaptics.com> wrote:
+Hello Apostolos,
 
-So looking closer at this one since we will use it. Maybe it's in such a
-good shape now that I should be able to actually test it with the hardware?
+Your problem is unrelated to hid-logitech-dj. This seems an usb driver
+issue. It seems that your motherboard has different usb controllers
+for the rear and front ports. There may be an issue with the usb
+drivers for the xhci controllers.
 
-(...)
-> diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-(...)
-> +#ifdef CONFIG_RMI4_DEBUG
-> +#include <linux/debugfs.h>
-> +#include <linux/fs.h>
-> +#include <linux/uaccess.h>
-> +#endif
+Cheers,
+Nestor.
 
-Skip the #ifdef
-
-> +#define F11_CTRL_SENSOR_MAX_X_POS_OFFSET       6
-> +#define F11_CTRL_SENSOR_MAX_Y_POS_OFFSET       8
-> +
-> +#define F11_CEIL(x, y) (((x) + ((y)-1)) / (y))
-
-Use existing kernel macros in <linux/kernel.h>
-
-In this case:
-#define F11_CEIL(x, y) DIV_ROUND_UP(x, y)
-
-Or just use DIV_ROUND_UP() directly in the code, your choice.
-
-> +#define MAX_NAME_LENGTH 256
-
-Really? Are you sure there is not a null terminator or length byte
-included so it's actually 255?
-
-(...)
-> +static int sensor_debug_open(struct inode *inodep, struct file *filp)
-> +{
-> +       struct sensor_debugfs_data *data;
-> +       struct f11_2d_sensor *sensor = inodep->i_private;
-> +       struct rmi_function_container *fc = sensor->fc;
-> +
-> +       data = devm_kzalloc(&fc->dev, sizeof(struct sensor_debugfs_data),
-> +               GFP_KERNEL);
-
-Again I may have lead you astray. Check if this leaks memory, in that
-case use kzalloc()/kfree(). Sorry :-(
-
-(...)
-> +static int f11_debug_open(struct inode *inodep, struct file *filp)
-> +{
-> +       struct f11_debugfs_data *data;
-> +       struct rmi_function_container *fc = inodep->i_private;
-> +
-> +       data = devm_kzalloc(&fc->dev, sizeof(struct f11_debugfs_data),
-> +               GFP_KERNEL);
-
-Dito. :-(
-
-(...)
-> +static void rmi_f11_abs_pos_report(struct f11_data *f11,
-> +                                  struct f11_2d_sensor *sensor,
-> +                                  u8 finger_state, u8 n_finger)
-(...)
-> +               if (axis_align->flip_y)
-> +                       y = max(sensor->max_y - y, 0);
-> +
-> +               /*
-> +               ** here checking if X offset or y offset are specified is
-> +               **  redundant.  We just add the offsets or, clip the values
-> +               **
-> +               ** note: offsets need to be done before clipping occurs,
-> +               ** or we could get funny values that are outside
-> +               ** clipping boundaries.
-> +               */
-
-This is a weird commenting style, what's wrong with a single star?
-(No big deal but it stands out...)
-
-(...)
-> +static int f11_allocate_control_regs(struct rmi_device *rmi_dev,
-> +                               struct f11_2d_device_query *device_query,
-> +                               struct f11_2d_sensor_query *sensor_query,
-> +                               struct f11_2d_ctrl *ctrl,
-> +                               u16 ctrl_base_addr) {
-> +
-> +       struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
-> +       struct rmi_function_container *fc = driver_data->f01_container;
-> +
-> +       ctrl->ctrl0_9 = devm_kzalloc(&fc->dev, sizeof(union f11_2d_ctrl0_9),
-> +                                      GFP_KERNEL);
-
-If this is called from .probe() only, this is correct.
-
-So the rule is: use devm_* for anything that is allocated at .probe()
-and released on .remove(). Any other dynamic buffers etc need to
-use common kzalloc()/kfree().
-
-> +       if (!ctrl->ctrl0_9)
-> +               return -ENOMEM;
-> +       if (sensor_query->f11_2d_query7__8[0]) {
-> +               ctrl->ctrl10 = devm_kzalloc(&fc->dev,
-> +                       sizeof(union f11_2d_ctrl10), GFP_KERNEL);
-> +               if (!ctrl->ctrl10)
-> +                       return -ENOMEM;
-> +       }
-> +
-> +       if (sensor_query->f11_2d_query7__8[1]) {
-> +               ctrl->ctrl11 = devm_kzalloc(&fc->dev,
-> +                       sizeof(union f11_2d_ctrl11), GFP_KERNEL);
-> +               if (!ctrl->ctrl11)
-> +                       return -ENOMEM;
-> +       }
-> +
-> +       if (device_query->has_query9 && sensor_query->query9.has_pen) {
-> +               ctrl->ctrl20_21 = devm_kzalloc(&fc->dev,
-> +                       sizeof(union f11_2d_ctrl20_21), GFP_KERNEL);
-> +               if (!ctrl->ctrl20_21)
-> +                       return -ENOMEM;
-> +       }
-> +
-> +       if (device_query->has_query9 && sensor_query->query9.has_proximity) {
-> +               ctrl->ctrl22_26 = devm_kzalloc(&fc->dev,
-> +                       sizeof(union f11_2d_ctrl22_26), GFP_KERNEL);
-> +               if (!ctrl->ctrl22_26)
-> +                       return -ENOMEM;
-> +       }
-> +
-> +       if (device_query->has_query9 &&
-> +               (sensor_query->query9.has_palm_det_sensitivity ||
-> +               sensor_query->query9.has_suppress_on_palm_detect)) {
-> +               ctrl->ctrl27 = devm_kzalloc(&fc->dev,
-> +                       sizeof(union f11_2d_ctrl27), GFP_KERNEL);
-> +               if (!ctrl->ctrl27)
-> +                       return -ENOMEM;
-> +       }
-> +
-> +       if (sensor_query->has_multi_finger_scroll) {
-> +               ctrl->ctrl28 = devm_kzalloc(&fc->dev,
-> +                       sizeof(union f11_2d_ctrl28), GFP_KERNEL);
-> +               if (!ctrl->ctrl28)
-> +                       return -ENOMEM;
-> +       }
-> +
-> +       if (device_query->has_query11 && device_query->has_z_tuning) {
-> +               ctrl->ctrl29_30 = devm_kzalloc(&fc->dev,
-> +                       sizeof(union f11_2d_ctrl29_30), GFP_KERNEL);
-> +               if (!ctrl->ctrl29_30)
-> +                       return -ENOMEM;
-> +       }
-
-All of these are probably correct as well.
-
-> +
-> +       return f11_read_control_regs(rmi_dev, ctrl, ctrl_base_addr);
-
-Hey why are you ending with a call to that function?
-The function name gets misleading.
-
-Instead call both functions in succession at the call site on
-.probe().
-
-(...)
-> +static int f11_device_init(struct rmi_function_container *fc)
-> +{
-> +       int rc;
-> +
-> +       rc = rmi_f11_initialize(fc);
-> +       if (rc < 0)
-> +               goto err_free_data;
-> +
-> +       rc = rmi_f11_register_devices(fc);
-> +       if (rc < 0)
-> +               goto err_free_data;
-> +
-> +       rc = rmi_f11_create_sysfs(fc);
-> +       if (rc < 0)
-> +               goto err_free_data;
-> +
-> +       return 0;
-> +
-> +err_free_data:
-> +       rmi_f11_free_memory(fc);
-> +
-> +       return rc;
-> +}
-> +
-> +static void rmi_f11_free_memory(struct rmi_function_container *fc)
-> +{
-> +       struct f11_data *f11 = fc->data;
-> +       int i;
-> +
-> +       if (f11) {
-> +               for (i = 0; i < f11->dev_query.nbr_of_sensors + 1; i++)
-> +                       kfree(f11->sensors[i].button_map);
-> +       }
-
-This is wrong. The button_map was allocated with devm_kzalloc()
-so it will get automatically freed. Just skip this step.
-
-(...)
-> +static int rmi_f11_initialize(struct rmi_function_container *fc)
-> +{
-(...)
-> +               rc = f11_allocate_control_regs(rmi_dev,
-> +                               &f11->dev_query, &sensor->sens_query,
-> +                               &f11->dev_controls, control_base_addr);
-> +               if (rc < 0) {
-> +                       dev_err(&fc->dev,
-> +                               "Failed to initialize F11 control params.\n");
-
-"failed to allocate F11 control params"
-
-> +                       return rc;
-> +               }
-
-So after this call the read regs explicitly instead as described above.
-
-(...)
-> +static void register_virtual_buttons(struct rmi_function_container *fc,
-> +                                    struct f11_2d_sensor *sensor) {
-> +       int j;
-> +
-> +       if (!sensor->sens_query.has_gestures)
-> +               return;
-> +       if (!sensor->virtual_buttons.buttons) {
-> +               dev_warn(&fc->dev, "No virtual button platform data for 2D sensor %d.\n",
-> +                        sensor->sensor_index);
-> +               return;
-> +       }
-> +       /* call devm_kcalloc when it will be defined in kernel */
-> +       sensor->button_map = devm_kzalloc(&fc->dev,
-> +                       sensor->virtual_buttons.buttons,
-> +                       GFP_KERNEL);
-> +       if (!sensor->button_map) {
-> +               dev_err(&fc->dev, "Failed to allocate the virtual button map.\n");
-> +               return;
-> +       }
-
-So as noted above, since it's using devm_kzalloc(), don't free() it.
-
-(...)
-> +                       sensor->mouse_input = input_dev_mouse;
-> +                       input_dev_mouse->name = "rmi_mouse";
-> +                       input_dev_mouse->phys = "rmi_f11/input0";
-> +
-> +                       input_dev_mouse->id.vendor  = 0x18d1;
-> +                       input_dev_mouse->id.product = 0x0210;
-> +                       input_dev_mouse->id.version = 0x0100;
-
-As noted in previous review, 0x18d1 is Google's vendor ID. Please use
-a Synaptics Vendor ID, Product ID and version!
-
-Hint: synaptics Vendor ID is 0x06cb.
-
-Yours,
-Linus Walleij
+On Mon, Oct 8, 2012 at 9:42 PM, Apostolos Bartziokas <barz621@gmail.com> wrote:
+>
+> Nestor hello
+>
+> Sorry for bringing this up again but i tested the patch now that it
+> reached the stable kernels and when i connect it to the rear panel of my
+> motherboard i get:
+>
+> Oct 08 22:11:43 mainland kernel: usb 3-2: >USB disconnect, device number 2
+> Oct 08 22:12:04 mainland kernel: usb 1-2: >new full-speed USB device
+> number 3 using xhci_hcd
+> Oct 08 22:12:05 mainland kernel: logitech-djreceiver 0003:046D:C52B.0009:
+> >hiddev0,hidraw2: USB HID v1.11 Device [Logitech USB Receiver] on
+> usb-0000:00:14.0-2/input2
+> Oct 08 22:12:05 mainland kernel: logitech-djreceiver 0003:046D:C52B.0009:
+> >logi_dj_probe:logi_dj_recv_query_paired_devices error:-32
+> Oct 08 22:12:05 mainland kernel: logitech-djreceiver: probe of
+> 0003:046D:C52B.0009 failed with error -32
+> Oct 08 22:13:50 mainland kernel: usb 1-2: >USB disconnect, device number 3
+> Oct 08 22:13:57 mainland kernel: usb 5-1.6: >new full-speed USB device
+> number 3 using ehci_hcd
+> Oct 08 22:13:58 mainland kernel: logitech-djreceiver 0003:046D:C52B.000C:
+> >hiddev0,hidraw2: USB HID v1.11 Device [Logitech USB Receiver] on
+> usb-0000:00:1a.0-1.6/input2
+> Oct 08 22:14:01 mainland kernel: input: Logitech Unifying Device. Wireless
+> PID:101a as
+> /devices/pci0000:00/0000:00:1a.0/usb5/5-1/5-1.6/5-1.6:1.2/0003:046D:C52B.000C/input/input15
+> Oct 08 22:14:01 mainland kernel: logitech-djdevice 0003:046D:C52B.000D:
+> >input,hidraw3: USB HID v1.11 Mouse [Logitech Unifying Device. Wireless
+> PID:101a] on usb-0000:00:1a.0-1.6:1
+> Oct 08 22:14:17 mainland kernel: usb 5-1.6: >USB disconnect, device number
+> 3
+> Oct 08 22:14:20 mainland kernel: usb 1-2: >new full-speed USB device
+> number 4 using xhci_hcd
+> Oct 08 22:14:20 mainland kernel: logitech-djreceiver 0003:046D:C52B.0010:
+> >hiddev0,hidraw2: USB HID v1.11 Device [Logitech USB Receiver] on
+> usb-0000:00:14.0-2/input2
+> Oct 08 22:14:20 mainland kernel: logitech-djreceiver 0003:046D:C52B.0010:
+> >logi_dj_probe:logi_dj_recv_query_paired_devices error:-32
+> Oct 08 22:14:20 mainland kernel: logitech-djreceiver: probe of
+> 0003:046D:C52B.0010 failed with error -32
+>
+> When i use a usb3 port it doesn't move at all and if i use a usb2 port its
+> slow. When i use the front panel it works flawlessly. Could this be related
+> to my POS Intel motherboard?
+>
+> Kind regards and apologies if i raise a false alarm.
+>
+> Apostolos B.
+> On 09/28/2012 10:57 AM, Nestor Lopez Casado wrote:
+>
+> Hello Josip,
+>
+> This really looks like a different problem from the one addressed with
+> this patch.
+>
+> I'll try to work on it as soon as I find some time for that.
+>
+> Thanks,
+> Nestor.
+>
+> On Thu, Sep 27, 2012 at 8:56 PM, Josip Rodin <joy@debbugs.entuzijast.net>
+> wrote:
+>>
+>> On Thu, Sep 27, 2012 at 09:04:26AM +0200, Josip Rodin wrote:
+>> > On Mon, Sep 24, 2012 at 11:30:28AM +0200, Nestor Lopez Casado wrote:
+>> > > Josip, this is a different issue from the one addressed with the
+>> > > patch.
+>> > >
+>> > > 1) Can you try it on a 3.2 kernel ?
+>> >
+>> > I can try that too, I'll let you know how it went.
+>>
+>> Same thing, it doesn't work.
+>>
+>> --
+>>      2. That which causes joy or happiness.
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>
+>

@@ -1,60 +1,159 @@
-From: Hui Wang <jason77.wang@gmail.com>
-Subject: [PATCH v4 RESEND 2/3] Input: add devicetree binding note for
-Date: Wed, 10 Oct 2012 17:12:02 +0800
-Message-ID: <1349860323-12786-3-git-send-email-jason77.wang@gmail.com>
-References: <1349860323-12786-1-git-send-email-jason77.wang@gmail.com>
- <1349860323-12786-2-git-send-email-jason77.wang@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Matthias Brugger <matthias.bgg@googlemail.com>
+Subject: [PATCH] touchscreen/ads7846: Move struct ads7846 to global include.
+Date: Wed, 10 Oct 2012 12:37:23 +0200
+Message-ID: <1349865443-5499-1-git-send-email-matthias.bgg@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:63551 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751329Ab2JJJMR (ORCPT
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:46158 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755138Ab2JJKhn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Oct 2012 05:12:17 -0400
-In-Reply-To: <1349860323-12786-2-git-send-email-jason77.wang@gmail.com>
+	Wed, 10 Oct 2012 06:37:43 -0400
+Received: by mail-wg0-f44.google.com with SMTP id dr13so370286wgb.1
+        for <linux-input@vger.kernel.org>; Wed, 10 Oct 2012 03:37:42 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, jiejing.zhang@freescale.com, shawn.guo@linaro.org
-Cc: linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
 
-The egalax_ts driver needs to get the gpio number of the irq pin,
-and use this gpio to wake up the controller. So add a note
-for this change.
+To implement a custom filter in the board platform code,
+the struct ads7864 might be needed. This patch moves the struct
+to the global include file of the driver.
 
-Ackyed-by Zhang Jiejing <jiejing.zhang@freescale.com>
-Reviewed-by: Shawn Guo <shawn.guo@linaro.org>
-Signed-off-by: Hui Wang <jason77.wang@gmail.com>
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 ---
- .../bindings/input/touchscreen/egalax-ts.txt       |   19 +++++++++++++++++++
- 1 files changed, 19 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
+ drivers/input/touchscreen/ads7846.c |   55 -----------------------------------
+ include/linux/spi/ads7846.h         |   55 +++++++++++++++++++++++++++++++++++
+ 2 files changed, 55 insertions(+), 55 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt b/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
-new file mode 100644
-index 0000000..df70318
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
-@@ -0,0 +1,19 @@
-+* EETI eGalax Multiple Touch Controller
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index f02028e..22e0b4d 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -90,61 +90,6 @@ struct ads7846_packet {
+ 	u8			read_x_cmd[3], read_y_cmd[3], pwrdown_cmd[3];
+ };
+ 
+-struct ads7846 {
+-	struct input_dev	*input;
+-	char			phys[32];
+-	char			name[32];
+-
+-	struct spi_device	*spi;
+-	struct regulator	*reg;
+-
+-#if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
+-	struct attribute_group	*attr_group;
+-	struct device		*hwmon;
+-#endif
+-
+-	u16			model;
+-	u16			vref_mv;
+-	u16			vref_delay_usecs;
+-	u16			x_plate_ohms;
+-	u16			pressure_max;
+-
+-	bool			swap_xy;
+-	bool			use_internal;
+-
+-	struct ads7846_packet	*packet;
+-
+-	struct spi_transfer	xfer[18];
+-	struct spi_message	msg[5];
+-	int			msg_count;
+-	wait_queue_head_t	wait;
+-
+-	bool			pendown;
+-
+-	int			read_cnt;
+-	int			read_rep;
+-	int			last_read;
+-
+-	u16			debounce_max;
+-	u16			debounce_tol;
+-	u16			debounce_rep;
+-
+-	u16			penirq_recheck_delay_usecs;
+-
+-	struct mutex		lock;
+-	bool			stopped;	/* P: lock */
+-	bool			disabled;	/* P: lock */
+-	bool			suspended;	/* P: lock */
+-
+-	int			(*filter)(void *data, int data_idx, int *val);
+-	void			*filter_data;
+-	void			(*filter_cleanup)(void *data);
+-	int			(*get_pendown_state)(void);
+-	int			gpio_pendown;
+-
+-	void			(*wait_for_sync)(void);
+-};
+-
+ /* leave chip selected when we're done, for quicker re-select? */
+ #if	0
+ #define	CS_CHANGE(xfer)	((xfer).cs_change = 1)
+diff --git a/include/linux/spi/ads7846.h b/include/linux/spi/ads7846.h
+index c64de9d..96ca327 100644
+--- a/include/linux/spi/ads7846.h
++++ b/include/linux/spi/ads7846.h
+@@ -58,3 +58,58 @@ struct ads7846_platform_data {
+ 	unsigned long irq_flags;
+ };
+ 
++struct ads7846 {
++	struct input_dev	*input;
++	char			phys[32];
++	char			name[32];
 +
-+Required properties:
-+- compatible: must be "eeti,egalax_ts"
-+- reg: i2c slave address
-+- interrupt-parent: the phandle for the interrupt controller
-+- interrupts: touch controller interrupt
-+- wakeup-gpios: the gpio pin to be used for waking up the controller
-+  as well as uased as irq pin
++	struct spi_device	*spi;
++	struct regulator	*reg;
 +
-+Example:
++#if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
++	struct attribute_group	*attr_group;
++	struct device		*hwmon;
++#endif
 +
-+	egalax_ts@04 {
-+		compatible = "eeti,egalax_ts";
-+		reg = <0x04>;
-+		interrupt-parent = <&gpio1>;
-+		interrupts = <9 2>;
-+		wakeup-gpios = <&gpio1 9 0>;
-+	};
++	u16			model;
++	u16			vref_mv;
++	u16			vref_delay_usecs;
++	u16			x_plate_ohms;
++	u16			pressure_max;
++
++	bool			swap_xy;
++	bool			use_internal;
++
++	struct ads7846_packet	*packet;
++
++	struct spi_transfer	xfer[18];
++	struct spi_message	msg[5];
++	int			msg_count;
++	wait_queue_head_t	wait;
++
++	bool			pendown;
++
++	int			read_cnt;
++	int			read_rep;
++	int			last_read;
++
++	u16			debounce_max;
++	u16			debounce_tol;
++	u16			debounce_rep;
++
++	u16			penirq_recheck_delay_usecs;
++
++	struct mutex		lock;
++	bool			stopped;	/* P: lock */
++	bool			disabled;	/* P: lock */
++	bool			suspended;	/* P: lock */
++
++	int			(*filter)(void *data, int data_idx, int *val);
++	void			*filter_data;
++	void			(*filter_cleanup)(void *data);
++	int			(*get_pendown_state)(void);
++	int			gpio_pendown;
++
++	void			(*wait_for_sync)(void);
++};
++
 -- 
-1.7.6
+1.7.9.5
 

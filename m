@@ -1,45 +1,101 @@
 From: Hui Wang <jason77.wang@gmail.com>
-Subject: [PATCH v4 RESEND 0/3] Input: egalax_ts: parse devicetree to get gpio
-Date: Wed, 10 Oct 2012 17:12:00 +0800
-Message-ID: <1349860323-12786-1-git-send-email-jason77.wang@gmail.com>
+Subject: [PATCH v4 RESEND 1/3] Input: egalax_ts: get gpio from devicetree
+Date: Wed, 10 Oct 2012 17:12:01 +0800
+Message-ID: <1349860323-12786-2-git-send-email-jason77.wang@gmail.com>
+References: <1349860323-12786-1-git-send-email-jason77.wang@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:63543 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751329Ab2JJJMM (ORCPT
+Received: from mail1.windriver.com ([147.11.146.13]:41170 "EHLO
+	mail1.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751329Ab2JJJMO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Oct 2012 05:12:12 -0400
+	Wed, 10 Oct 2012 05:12:14 -0400
+In-Reply-To: <1349860323-12786-1-git-send-email-jason77.wang@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, jiejing.zhang@freescale.com, shawn.guo@linaro.org
 Cc: linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
 
-Hi Dmitry,
+The irq_to_gpio() is old, most platforms use GENERIC_GPIO framework
+and don't support this API anymore.
 
-The patchset was sent out for review during the time you were away
-from the maillist. Now you are back, i rebase the patchset to the latest
-upstream and i resend them to you to catch your notice.
+The i.MX6q sabrelite platform equips an egalax touchscreen controller,
+and this platform already transfered to GENERIC_GPIO framework, to
+support this driver, we use a more generic way to get gpio.
 
-The patchset has been reviewed by JieJing and Shawn, if you are OK
-for the patchset, please apply 0001-xxx.patch and 0002-xxx.patch to
-your tree. Shawn will merge 0003-xxx.patch from his tree.
+Add a return value checking for waking up the controller in the probe
+function, this guarantee only a workable device can pass init.
 
-Thanks,
-Hui.
+Ackyed-by Zhang Jiejing <jiejing.zhang@freescale.com>
+Reviewed-by: Shawn Guo <shawn.guo@linaro.org>
+Signed-off-by: Hui Wang <jason77.wang@gmail.com>
+---
+ drivers/input/touchscreen/egalax_ts.c |   25 ++++++++++++++++++++++---
+ 1 files changed, 22 insertions(+), 3 deletions(-)
 
-Hui Wang (3):
-  Input: egalax_ts: get gpio from devicetree node
-  Input: add devicetree binding note for egalax_ts
-  ARM: dts: imx6q-sabrelite: add eeti egalax touchscreen
-
- .../bindings/input/touchscreen/egalax-ts.txt       |   19 +++++++++++++++
- arch/arm/boot/dts/imx6q-sabrelite.dts              |   16 ++++++++++++
- arch/arm/boot/dts/imx6q.dtsi                       |    9 +++++++
- drivers/input/touchscreen/egalax_ts.c              |   25 +++++++++++++++++--
- 4 files changed, 66 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
-
+diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+index c1e3460..1901f52 100644
+--- a/drivers/input/touchscreen/egalax_ts.c
++++ b/drivers/input/touchscreen/egalax_ts.c
+@@ -28,6 +28,7 @@
+ #include <linux/slab.h>
+ #include <linux/bitops.h>
+ #include <linux/input/mt.h>
++#include <linux/of_gpio.h>
+ 
+ /*
+  * Mouse Mode: some panel may configure the controller to mouse mode,
+@@ -122,8 +123,15 @@ static irqreturn_t egalax_ts_interrupt(int irq, void *dev_id)
+ /* wake up controller by an falling edge of interrupt gpio.  */
+ static int egalax_wake_up_device(struct i2c_client *client)
+ {
+-	int gpio = irq_to_gpio(client->irq);
+-	int ret;
++	struct device_node *np = client->dev.of_node;
++	int gpio, ret;
++
++	if (!np)
++		return -ENODEV;
++
++	gpio = of_get_named_gpio(np, "wakeup-gpios", 0);
++	if (!gpio_is_valid(gpio))
++		return -ENODEV;
+ 
+ 	ret = gpio_request(gpio, "egalax_irq");
+ 	if (ret < 0) {
+@@ -181,7 +189,12 @@ static int __devinit egalax_ts_probe(struct i2c_client *client,
+ 	ts->input_dev = input_dev;
+ 
+ 	/* controller may be in sleep, wake it up. */
+-	egalax_wake_up_device(client);
++	ret = egalax_wake_up_device(client);
++	if (ret < 0) {
++		dev_err(&client->dev, "Failed to wake up the controller\n");
++		error = ret;
++		goto err_free_dev;
++	}
+ 
+ 	ret = egalax_firmware_version(client);
+ 	if (ret < 0) {
+@@ -274,11 +287,17 @@ static int egalax_ts_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(egalax_ts_pm_ops, egalax_ts_suspend, egalax_ts_resume);
+ 
++static struct of_device_id egalax_ts_dt_ids[] = {
++	{ .compatible = "eeti,egalax_ts" },
++	{ /* sentinel */ }
++};
++
+ static struct i2c_driver egalax_ts_driver = {
+ 	.driver = {
+ 		.name	= "egalax_ts",
+ 		.owner	= THIS_MODULE,
+ 		.pm	= &egalax_ts_pm_ops,
++		.of_match_table	= egalax_ts_dt_ids,
+ 	},
+ 	.id_table	= egalax_ts_id,
+ 	.probe		= egalax_ts_probe,
 -- 
 1.7.6
 

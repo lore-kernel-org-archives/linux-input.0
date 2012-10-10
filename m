@@ -1,172 +1,151 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 07/10] input: Enable STMPE keypad driver for Device Tree
-Date: Wed, 10 Oct 2012 09:50:04 -0700
-Message-ID: <20121010165004.GE19335@core.coreip.homeip.net>
-References: <1349451107-8009-1-git-send-email-lee.jones@linaro.org>
- <1349451107-8009-8-git-send-email-lee.jones@linaro.org>
+Subject: Re: [PATCH 4/4] Input: extend the number of event (and other) devices
+Date: Wed, 10 Oct 2012 09:58:16 -0700
+Message-ID: <20121010165816.GF19335@core.coreip.homeip.net>
+References: <1349298182-22452-1-git-send-email-dmitry.torokhov@gmail.com>
+ <1349298182-22452-4-git-send-email-dmitry.torokhov@gmail.com>
+ <CANq1E4SK9poZO7etxYNmKHpK3SX1OM+0JC71HTC0f8h1uYDfBg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:34378 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755467Ab2JJQuJ (ORCPT
+Received: from mail-da0-f46.google.com ([209.85.210.46]:42657 "EHLO
+	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755823Ab2JJQ6V (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Oct 2012 12:50:09 -0400
+	Wed, 10 Oct 2012 12:58:21 -0400
+Received: by mail-da0-f46.google.com with SMTP id n41so271252dak.19
+        for <linux-input@vger.kernel.org>; Wed, 10 Oct 2012 09:58:20 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1349451107-8009-8-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <CANq1E4SK9poZO7etxYNmKHpK3SX1OM+0JC71HTC0f8h1uYDfBg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, arnd@arndb.de, linus.walleij@stericsson.com, linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Lee,
+Hi David,
 
-On Fri, Oct 05, 2012 at 04:31:43PM +0100, Lee Jones wrote:
-> This patch allows the STMPE driver to be successfully probed and
-> initialised when Device Tree support is enabled. Besides the usual
-> platform data changes, we also separate the process of filling in
-> the 'in use' pin bitmap, as we have to extract the information from
-> Device Tree in the DT boot case.
+On Sun, Oct 07, 2012 at 04:52:28PM +0200, David Herrmann wrote:
+> Hi Dmitry
+> 
+> On Wed, Oct 3, 2012 at 11:03 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> 
+> [snip]
+> 
+> > @@ -991,43 +950,47 @@ static void evdev_cleanup(struct evdev *evdev)
+> >
+> >  /*
+> >   * Create new evdev device. Note that input core serializes calls
+> > - * to connect and disconnect so we don't need to lock evdev_table here.
+> > + * to connect and disconnect.
+> >   */
+> >  static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
+> >                          const struct input_device_id *id)
+> >  {
+> >         struct evdev *evdev;
+> >         int minor;
+> > +       int dev_no;
+> >         int error;
+> >
+> > -       for (minor = 0; minor < EVDEV_MINORS; minor++)
+> > -               if (!evdev_table[minor])
+> > -                       break;
+> > -
+> > -       if (minor == EVDEV_MINORS) {
+> > -               pr_err("no more free evdev devices\n");
+> > -               return -ENFILE;
+> > +       minor = input_get_new_minor(EVDEV_MINOR_BASE, EVDEV_MINORS, true);
+> > +       if (minor < 0) {
+> > +               error = minor;
+> > +               pr_err("failed to reserve new minor: %d\n", error);
+> > +               return error;
+> 
+> You could also do:
+>  return minor;
+> So you can drop that "error = minor;" line.
 
-
-This generally looks OK although I wonder if we could not unify DT and
-non-DT case by doing:
-
-	for (row = 0; row < STMPE_KEYPAD_MAX_ROWS; row++) {
-		if (col = 0; col < STMPE_KEYPAD_MAX_COLS; col++) {
-			int code = MATRIX_SCAN_CODE(row, col,
-						STMPE_KEYPAD_ROW_SHIFT);
-			if (keypad->keymap[code] != KEY_RESERVED) {
-				keypad->rows |= 1 << row;
-				keypad->cols |= 1 << col;
-			}
-		}
-	}
-
-BTW, am I supposed to merge it or ack it?
-
-Thanks!
+Right, but I prefer doing this to signify that the value in 'minor' is
+actually an error code.
 
 > 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  drivers/input/keyboard/stmpe-keypad.c |   67 ++++++++++++++++++++++++++++-----
->  drivers/mfd/stmpe.c                   |    1 +
->  2 files changed, 59 insertions(+), 9 deletions(-)
+> [snip]
 > 
-> diff --git a/drivers/input/keyboard/stmpe-keypad.c b/drivers/input/keyboard/stmpe-keypad.c
-> index 470a877..c722d23 100644
-> --- a/drivers/input/keyboard/stmpe-keypad.c
-> +++ b/drivers/input/keyboard/stmpe-keypad.c
-> @@ -257,19 +257,73 @@ static int __devinit stmpe_keypad_chip_init(struct stmpe_keypad *keypad)
->  			      (plat->debounce_ms << 1));
->  }
->  
-> +static int stmpe_keypad_fill_used_pins(struct platform_device *pdev,
-> +				struct stmpe_keypad *keypad,
-> +				struct stmpe_keypad_platform_data *plat)
-> +{
-> +	struct device_node *np = pdev->dev.of_node;
-> +	unsigned int proplen;
-> +	const __be32 *prop;
-> +	int i;
-> +
-> +	if (np) {
-> +		prop = of_get_property(np, "linux,keymap", &proplen);
-> +		if (!prop) {
-> +			dev_err(&pdev->dev,
-> +				"linux,keymap property not defined\n");
-> +			return -EINVAL;
-> +		}
-> +
-> +		for (i = 0; i < proplen / sizeof(u32); i++) {
-> +			unsigned int key = be32_to_cpup(prop + i);
-> +
-> +			keypad->cols |= 1 << KEY_COL(key);
-> +			keypad->rows |= 1 << KEY_ROW(key);
-> +		}
-> +	} else {
-> +		for (i = 0; i < plat->keymap_data->keymap_size; i++) {
-> +			unsigned int key = plat->keymap_data->keymap[i];
-> +
-> +			keypad->cols |= 1 << KEY_COL(key);
-> +			keypad->rows |= 1 << KEY_ROW(key);
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void __devinit stmpe_keypad_of_probe(struct device_node *np,
-> +				struct stmpe_keypad_platform_data *plat)
-> +{
-> +	of_property_read_u32(np, "debounce-interval", &plat->debounce_ms);
-> +	of_property_read_u32(np, "stericsson,scan-count", &plat->scan_count);
-> +
-> +	if (of_get_property(np, "stericsson,no-autorepeat", NULL))
-> +		plat->no_autorepeat = true;
-> +}
-> +
->  static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
->  {
->  	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
->  	struct stmpe_keypad_platform_data *plat;
-> +	struct device_node *np = pdev->dev.of_node;
->  	struct stmpe_keypad *keypad;
->  	struct input_dev *input;
->  	int ret;
->  	int irq;
-> -	int i;
->  
->  	plat = stmpe->pdata->keypad;
-> -	if (!plat)
-> -		return -ENODEV;
-> +	if (!plat) {
-> +		if (np) {
-> +			plat = devm_kzalloc(&pdev->dev,
-> +					sizeof(*plat), GFP_KERNEL);
-> +			if (!plat)
-> +				return -ENOMEM;
-> +
-> +			stmpe_keypad_of_probe(np, plat);
-> +		} else
-> +			return -ENODEV;
-> +	}
->  
->  	irq = platform_get_irq(pdev, 0);
->  	if (irq < 0)
-> @@ -300,12 +354,7 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
->  	if (!plat->no_autorepeat)
->  		__set_bit(EV_REP, input->evbit);
->  
-> -	for (i = 0; i < plat->keymap_data->keymap_size; i++) {
-> -		unsigned int key = plat->keymap_data->keymap[i];
-> -
-> -		keypad->cols |= 1 << KEY_COL(key);
-> -		keypad->rows |= 1 << KEY_ROW(key);
-> -	}
-> +	stmpe_keypad_fill_used_pins(pdev, keypad, plat);
->  
->  	keypad->stmpe = stmpe;
->  	keypad->plat = plat;
-> diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
-> index ba157d4..b03cc64 100644
-> --- a/drivers/mfd/stmpe.c
-> +++ b/drivers/mfd/stmpe.c
-> @@ -321,6 +321,7 @@ static struct resource stmpe_keypad_resources[] = {
->  
->  static struct mfd_cell stmpe_keypad_cell = {
->  	.name		= "stmpe-keypad",
-> +	.of_compatible  = "st,stmpe-keypad",
->  	.resources	= stmpe_keypad_resources,
->  	.num_resources	= ARRAY_SIZE(stmpe_keypad_resources),
->  };
-> -- 
-> 1.7.9.5
+> > @@ -1062,6 +1028,7 @@ static void evdev_disconnect(struct input_handle *handle)
+> >
+> >         device_del(&evdev->dev);
+> >         evdev_cleanup(evdev);
+> > +       input_free_minor(MINOR(evdev->dev.devt));
 > 
+> I was wondering whether we should free the minors in evdev_free()
+> instead. Because if we free them here, we might end up with two
+> user-space applications listening to the same cdev (based on
+> major/minor) but to different input devices that drive the cdev.
+> 
+> The older of both cdevs would be already dead and I don't think this
+> is a big issue, but I just wanted to mention it if others can think of
+> corner cases where this would be bad.
+
+I believe this is OK and how the rest of Unix objects work - they do not
+get freed until all users release them, but new users will get the new
+instance.
+
+> 
+> [snip]
+> 
+> > @@ -2016,22 +2017,14 @@ EXPORT_SYMBOL(input_unregister_device);
+> >  int input_register_handler(struct input_handler *handler)
+> >  {
+> >         struct input_dev *dev;
+> > -       int retval;
+> > +       int error;
+> >
+> > -       retval = mutex_lock_interruptible(&input_mutex);
+> > -       if (retval)
+> > -               return retval;
+> > +       error = mutex_lock_interruptible(&input_mutex);
+> > +       if (error)
+> > +               return error;
+> 
+> Still wondering why you change that variable name here?
+
+My style preference: when the same variable is used to return error
+codes and success/real values I call it retval. If I have separate error
+handling path and explicit success path I use "return error;"/"return 0;".
+Here we transitioned to explicitly returning success, so I changed the
+name.
+
+> 
+> [snip]
+> 
+> > @@ -576,13 +556,14 @@ static int mousedev_open(struct inode *inode, struct file *file)
+> >                 goto err_free_client;
+> >
+> >         file->private_data = client;
+> > +       nonseekable_open(inode, file);
+> 
+> Ouh, seems like we never called this for mousedevs, isn't that a bug
+> that should also go to stable? It just sets some flags but I am not
+> sure what happends if we don't set them.
+> It isn't related to this patch (I think?).
+
+I split it out, but we do not need it for stable. We still were
+installing noop_llseek() fops handler so it should still work even
+without nonseekable_open().
+
+> 
+> [snip]
+> 
+> Sorry for the bikeshedding. The patch looks really good and all I
+> found are just minor optional suggestions (or personal taste).
+
+Thank you very mich for going over the code!
+
+> Thanks a lot for fixing this! It looks much better than my first approach.
+> 
+> Reviewed-by: David Herrmann <dh.herrmann@googlemail.com>
+> 
+> Regards
+> David
 
 -- 
 Dmitry

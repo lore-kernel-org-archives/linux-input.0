@@ -1,82 +1,49 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [RFC PATCH 01/06] input/rmi4: Public header and documentation
-Date: Thu, 11 Oct 2012 17:32:59 +0200
-Message-ID: <CACRpkdY3jctXSBB+SMJ=6k=CcLEsHz4jY8T3db8htcE+zWnJWw@mail.gmail.com>
+Subject: Re: [RFC PATCH 02/06] input/rmi4: Core files
+Date: Thu, 11 Oct 2012 17:37:15 +0200
+Message-ID: <CACRpkdbRiwedVsvYo-8b5T0TVsUt69dFFkRpNwwGUPSuUYYLoQ@mail.gmail.com>
 References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
-	<1349496603-20775-2-git-send-email-cheiny@synaptics.com>
-	<CACRpkdZb+LOk8v0aNZuPhATjS5jv-h1JJCejoh_9eFZ_fdiZQA@mail.gmail.com>
-	<BFABBC009FBA1C43B207B15FD485ABD922C22BC4@USW-MAIL1.synaptics-inc.local>
+	<1349496603-20775-3-git-send-email-cheiny@synaptics.com>
+	<CACRpkdZ0cQPQHDCYiyQb+Qb_8nGh=4rw2CixKgAFvb-3c1LpSg@mail.gmail.com>
+	<BFABBC009FBA1C43B207B15FD485ABD922C22C06@USW-MAIL1.synaptics-inc.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:61941 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758772Ab2JKPdA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Oct 2012 11:33:00 -0400
-Received: by mail-wg0-f44.google.com with SMTP id dr13so1581651wgb.1
-        for <linux-input@vger.kernel.org>; Thu, 11 Oct 2012 08:32:59 -0700 (PDT)
-In-Reply-To: <BFABBC009FBA1C43B207B15FD485ABD922C22BC4@USW-MAIL1.synaptics-inc.local>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <BFABBC009FBA1C43B207B15FD485ABD922C22C06@USW-MAIL1.synaptics-inc.local>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Christopher Heiny <Cheiny@synaptics.com>
-Cc: Anton Vorontsov <anton.vorontsov@linaro.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
+List-Id: linux-input@vger.kernel.org
 
-On Thu, Oct 11, 2012 at 5:41 AM, Christopher Heiny <Cheiny@synaptics.com> wrote:
-> Linus Walleij wrote:
+On Thu, Oct 11, 2012 at 6:15 AM, Christopher Heiny <Cheiny@synaptics.com> wrote:
+> On Thursday, October 11, 2012 02:21:53 AM I wrote:
 
->> But please use arithmetic operators (I think I said this on the last
->> review):
+>> > +union pdt_properties {
+>> > +       struct {
+>> > +               u8 reserved_1:6;
+>> > +               u8 has_bsr:1;
+>> > +               u8 reserved_2:1;
+>> > +       } __attribute__((__packed__));
+>> > +       u8 regs[1];
 >>
->> dest[0] = src & 0xFF;
->> dest[1] = src >> 8;
+>> I don't understand what this union is trying to achieve.
 >>
->> Doing it the above way makes artithmetic look like maths, and it isn't.
->> Besides it's done this way in most parts of the kernel and we're
->> familiar with it.
+>> regs[1] does not look right considering what you're trying to
+>> achieve. Since the above fields require a regs[2] (9 bits!)
+>> to be stored. Maybe write out what you're trying to do here
+>> so I can understand it? (If everyone else in the world gets
+>> it immediately, it's maybe me that need fixing instead...)
+>>
+>> Apart from these remarks it's looking real nice now!
 >
-> Yes, you mentioned it previously.  I'm somewhat paranoid, though, and
-> don't trust the shift/mask method to work correctly on big-endian
-> machines.  If the shifts can be relied on to behave (I'm guessing the
-> answer is "yes", since you say this idiom is used widely in the
-> kernel), then I'll change it.
+> I only count 8 bits there, unless there's something about
+> packing I'm not aware of.  Is there something else you
+> found confusing about the union?
 
-If the behaviour was not consistent across different endianness
-it would not be part of the C language specification...
+I just did bad maths, too many figured in the struct...
 
-<< means shift left in the accumulator or whatever you have.
-It will work the same no matter how bits are laid out in
-memory.
-
->> > +static inline ssize_t rmi_store_error(struct device *dev,
->> > +                       struct device_attribute *attr,
->> > +                       const char *buf, size_t count)
->> > +{
->> > +       dev_warn(dev,
->> > +                "WARNING: Attempt to write %d characters to read-only
->> > attribute %s.", +               count, attr->attr.name);
->> > +       return -EPERM;
->> > +}
->>
->> Here it looks like you're hiding a lot of stuff that should be dev_warn()?
->> Consider my earlier point about dynamic debug.
->
-> In previous patch submissions, we always used these warning functions.
-> But in the feedback on those patches, we were asked to just make
-> sysfs show/store NULL if the attribute is write/read only.  However,
-> during their development process, our customers want to see the
-> warnings if the attributes are accessed incorrectly.  So we made
-> these warnings a debug option.
-
-See Dmitry's comment ...
-
-Basically my stance is that you should not lower yourself to the
-level of others not getting the point of your technical solution
-by making unelegant compromises, what
-you should do is to bring them up to your level so they
-understand that your solution is elegant.
-
-Maybe a bit utopist I know...
+But consider Dmitry's suggestion that you might get rid
+of this unionizing.
 
 Yours,
 Linus Walleij

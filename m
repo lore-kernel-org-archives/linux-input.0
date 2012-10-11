@@ -1,79 +1,63 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 2/2] input: gpio-keys: Add runtime support
-Date: Thu, 11 Oct 2012 16:21:29 +0100
-Message-ID: <20121011152129.GE15428@gmail.com>
-References: <1349964927-18619-1-git-send-email-lee.jones@linaro.org>
- <1349964927-18619-2-git-send-email-lee.jones@linaro.org>
- <CAM=Q2ctwTBAvKs401GgrGfz9NvaLspquje-6YfnuS5TZYeqY4Q@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [RFC PATCH 01/06] input/rmi4: Public header and documentation
+Date: Thu, 11 Oct 2012 17:22:45 +0200
+Message-ID: <CACRpkdY+gWKBbqdPEVPqbZMQABjjJGuejwTBPpZJbkE6k1_Btw@mail.gmail.com>
+References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
+	<1349496603-20775-2-git-send-email-cheiny@synaptics.com>
+	<CACRpkdZb+LOk8v0aNZuPhATjS5jv-h1JJCejoh_9eFZ_fdiZQA@mail.gmail.com>
+	<BFABBC009FBA1C43B207B15FD485ABD922C22BC4@USW-MAIL1.synaptics-inc.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:64336 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751733Ab2JKPVe (ORCPT
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:41246 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752362Ab2JKPWq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Oct 2012 11:21:34 -0400
-Received: by mail-bk0-f46.google.com with SMTP id jk13so1058967bkc.19
-        for <linux-input@vger.kernel.org>; Thu, 11 Oct 2012 08:21:33 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CAM=Q2ctwTBAvKs401GgrGfz9NvaLspquje-6YfnuS5TZYeqY4Q@mail.gmail.com>
+	Thu, 11 Oct 2012 11:22:46 -0400
+Received: by mail-wg0-f44.google.com with SMTP id dr13so1573773wgb.1
+        for <linux-input@vger.kernel.org>; Thu, 11 Oct 2012 08:22:45 -0700 (PDT)
+In-Reply-To: <BFABBC009FBA1C43B207B15FD485ABD922C22BC4@USW-MAIL1.synaptics-inc.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, arnd@arndb.de, linus.walleij@stericsson.com, Jonas Aaberg <jonas.aberg@stericsson.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Philippe Langlais <philippe.langlais@linaro.org>
+To: Christopher Heiny <Cheiny@synaptics.com>, Anton Vorontsov <anton.vorontsov@linaro.org>
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
 
-> > From: Jonas Aaberg <jonas.aberg@stericsson.com>
-> Some change logs would have helped.
+On Thu, Oct 11, 2012 at 5:41 AM, Christopher Heiny <Cheiny@synaptics.com> wrote:
+> Linus Walleij wrote:
+>> On Sat, Oct 6, 2012 at 6:09 AM, Christopher Heiny <cheiny@synaptics.com> wrote:
 
-Granted.
+>> > +          chargerinput ... (rw) User space programs can use this to tell
+>> > the +                  sensor that the system is plugged into an external
+>> > power +                  source (as opposed to running on
+>> > batteries).  This allows +                  the sensor firmware to make
+>> > necessary adjustments for the +                  current capacitence
+>> > regime.  Write 1 to this when the +                  system is using
+>> > external power, write 0 to this when the +                  system is
+>> > running on batteries.  See spec for full details.
+>> I remember discussing in-kernel notifiers for this. I don't
+>> really see the point in tunnelling a notification from the drivers/power
+>> subsystem to the drivers/input subsystem through userspace for
+>> no good.
+>>
+>> It's no blocker though, I don't expect you to fix this as part of
+>> this driver submission.
+>>
+>> Maybe Anton can comment?
+>
+> Hmmm.  I agree that it'd be good to avoid looping through userspace.  But....
+>
+> I found ways to notfiy the kernel that the charger is plugged/unplugged,
+> but that's only useful if you're a battery charger device driver.  I also
+> found ways for userspace to get notification of charger events.  I
+> didn't spot any way for in-kernel drivers to get notification of such
+> events.  Perhaps I'm not looking the right places, though - can you
+> provide a pointer?
 
-Hopefully Jonas will be happy to step forward and answer any of
-your following questions.
+So my point was that there is indeed no such in-kernel
+notification mechanism.
 
-> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Cc: linux-input@vger.kernel.org
-> > Acked-by: Lee Jones <lee.jones@linaro.org>
-> > Signed-off-by: Jonas Aaberg <jonas.aberg@stericsson.com>
-> > Signed-off-by: Philippe Langlais <philippe.langlais@linaro.org>
-> > Reviewed-by: Bengt Jonsson <bengt.g.jonsson@stericsson.com>
-> > ---
-> >  drivers/input/keyboard/gpio_keys.c |   16 ++++++++++++----
-> >  1 file changed, 12 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/key=
-board/gpio_keys.c
-> > index 7947315..78de557 100644
-> > --- a/drivers/input/keyboard/gpio_keys.c
-> > +++ b/drivers/input/keyboard/gpio_keys.c
-> > @@ -29,6 +29,7 @@
-> >  #include <linux/of_platform.h>
-> >  #include <linux/of_gpio.h>
-> >  #include <linux/spinlock.h>
-> > +#include <linux/pm_runtime.h>
-> >
-> >  struct gpio_button_data {
-> >         const struct gpio_keys_button *button;
-> > @@ -526,6 +527,7 @@ static int gpio_keys_open(struct input_dev *inp=
-ut)
-> >  {
-> >         struct gpio_keys_drvdata *ddata =3D input_get_drvdata(input=
-);
-> >
-> > +       pm_runtime_get_sync(input->dev.parent);
-> I am not an expert of the runtime.
->=20
-> However would be grateful if you explain me what it actually do.
->=20
-> Also I did not see any runtime suspend/ resume handlers populated.
+Maybe something engineered similar to this:
+http://www.spinics.net/lists/lm-sensors/msg33834.html
 
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Yours,
+Linus Walleij

@@ -1,61 +1,61 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC PATCH 01/06] input/rmi4: Public header and documentation
-Date: Thu, 11 Oct 2012 01:24:20 -0700
-Message-ID: <20121011082420.GC32175@core.coreip.homeip.net>
-References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
- <1349496603-20775-2-git-send-email-cheiny@synaptics.com>
- <CACRpkdZb+LOk8v0aNZuPhATjS5jv-h1JJCejoh_9eFZ_fdiZQA@mail.gmail.com>
- <BFABBC009FBA1C43B207B15FD485ABD922C22BC4@USW-MAIL1.synaptics-inc.local>
+Subject: Re: [PATCH 2/3] Input: wm831x-ts - Convert to devm_kzalloc()
+Date: Thu, 11 Oct 2012 01:27:49 -0700
+Message-ID: <20121011082749.GD32175@core.coreip.homeip.net>
+References: <1349875236-5707-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+ <1349875236-5707-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+ <20121011073955.GA30395@core.coreip.homeip.net>
+ <20121011080722.GE11726@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:36276 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751261Ab2JKIYY (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:62684 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751234Ab2JKI1w (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Oct 2012 04:24:24 -0400
+	Thu, 11 Oct 2012 04:27:52 -0400
+Received: by mail-pa0-f46.google.com with SMTP id hz1so1510848pad.19
+        for <linux-input@vger.kernel.org>; Thu, 11 Oct 2012 01:27:52 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <BFABBC009FBA1C43B207B15FD485ABD922C22BC4@USW-MAIL1.synaptics-inc.local>
+In-Reply-To: <20121011080722.GE11726@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <Cheiny@synaptics.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Anton Vorontsov <anton.vorontsov@linaro.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Oct 11, 2012 at 03:41:41AM +0000, Christopher Heiny wrote:
-> Linus Walleij wrote:
-> > On Sat, Oct 6, 2012 at 6:09 AM, Christopher Heiny <cheiny@synaptics.com> wrote:
-> > 
-> > > +#ifdef CONFIG_RMI4_DEBUG
-> > > +/**
-> > > + * Utility routine to handle writes to read-only attributes.  Hopefully
-> > > + * this will never happen, but if the user does something stupid, we
-> > > don't
-> > > + * want to accept it quietly (which is what can happen if you just put
-> > > NULL + * for the attribute's store function).
-> > > + */
-> > > +static inline ssize_t rmi_store_error(struct device *dev,
-> > > +                       struct device_attribute *attr,
-> > > +                       const char *buf, size_t count)
-> > > +{
-> > > +       dev_warn(dev,
-> > > +                "WARNING: Attempt to write %d characters to read-only
-> > > attribute %s.", +               count, attr->attr.name);
-> > > +       return -EPERM;
-> > > +}
-> > 
-> > Here it looks like you're hiding a lot of stuff that should be dev_warn()?
-> > Consider my earlier point about dynamic debug.
+On Thu, Oct 11, 2012 at 05:07:24PM +0900, Mark Brown wrote:
+> On Thu, Oct 11, 2012 at 12:39:55AM -0700, Dmitry Torokhov wrote:
+> > On Wed, Oct 10, 2012 at 10:20:35PM +0900, Mark Brown wrote:
+> > > Saves a little code and eliminates the possibility of introducing some
+> > > leaks.
 > 
-> In previous patch submissions, we always used these warning functions.
-> But in the feedback on those patches, we were asked to just make sysfs
-> show/store NULL if the attribute is write/read only.  However, during
-> their development process, our customers want to see the warnings if
-> the attributes are accessed incorrectly.  So we made these warnings a
-> debug option.
+> > *sigh* OK, I guess devm_* is here to stay and I have to get on with the
+> > program. I am still unhappy that half of the patches converting/using
+> > devm_* APIs are wrong (not these ones), but I will apply these 3.
+> 
+> What's the error pattern you're seeing?  I've not noticed much of an
+> issue here, but if there is one perhaps we can do something to make the
+> error more obvious or harder to introduce.
 
-I think it is the case when customer is not always right. Given that
-the attributes are created with S_IRUGO mask how will we even get these
-methods to fire?
+int driver_probe()
+{
+	devm_kzalloc();
+	input_allocate_device();
+	...
+	devm_request_irq();
+	...
+	input_register_device();
+....
+}
+
+void driver_remove()
+{
+	input_unregister_device();
+	/* rely on deves for cleanup */
+}
+
+The problem is that input device is freed but interrupts are still fully
+functional.
 
 -- 
 Dmitry

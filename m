@@ -1,50 +1,112 @@
-From: Yann Cantin <yann.cantin@laposte.net>
-Subject: Re: [ebeam PATCH v2 1/2] hid: Blacklist eBeam devices
-Date: Thu, 11 Oct 2012 00:01:13 +0200
-Message-ID: <5075F029.90807@laposte.net>
-References: <1349529287-23193-1-git-send-email-yann.cantin@laposte.net> <1349529287-23193-2-git-send-email-yann.cantin@laposte.net> <20121010163747.GD19335@core.coreip.homeip.net>
+From: Christopher Heiny <Cheiny@synaptics.com>
+Subject: RE: [RFC PATCH 02/06] input/rmi4: Core files
+Date: Thu, 11 Oct 2012 02:49:02 +0000
+Message-ID: <BFABBC009FBA1C43B207B15FD485ABD922C22B7B@USW-MAIL1.synaptics-inc.local>
+References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
+	 <1349496603-20775-3-git-send-email-cheiny@synaptics.com>,<1349525982.2008.86.camel@joe-AO722>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp09.smtpout.orange.fr ([80.12.242.131]:52803 "EHLO
-	smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756605Ab2JJV4u (ORCPT
+Received: from us-mx3.synaptics.com ([12.239.217.85]:44798 "EHLO
+	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751415Ab2JKCrF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Oct 2012 17:56:50 -0400
-In-Reply-To: <20121010163747.GD19335@core.coreip.homeip.net>
+	Wed, 10 Oct 2012 22:47:05 -0400
+In-Reply-To: <1349525982.2008.86.camel@joe-AO722>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
 
-Hi,
+Joe Perches wrote:
+> On Fri, 2012-10-05 at 21:09 -0700, Christopher Heiny wrote:
+> []
+> 
+> Just some trivial comments:
 
-Le 10/10/2012 18:37, Dmitry Torokhov a =E9crit :
-> Is the device usable at all with generic HID driver? If it isn't then
-> maybe we should blacklist it unconditionally?
+Thanks - see below for responses.
 
-Without the libusb based proprietary stack, the device is unusable unde=
-r linux.
+> > diff --git a/drivers/input/rmi4/rmi_driver.c
+> > b/drivers/input/rmi4/rmi_driver.c
+> []
+> 
+> > @@ -0,0 +1,1529 @@
+> 
+> []
+> 
+> > +static ssize_t delay_write(struct file *filp, const char __user *buffer,
+> > +                        size_t size, loff_t *offset) {
+> > +     struct driver_debugfs_data *data = filp->private_data;
+> > +     struct rmi_device_platform_data *pdata =
+> > +                     data->rmi_dev->phys->dev->platform_data;
+> > +     int retval;
+> > +     char local_buf[size];
+> > +     unsigned int new_read_delay;
+> > +     unsigned int new_write_delay;
+> > +     unsigned int new_block_delay;
+> > +     unsigned int new_pre_delay;
+> > +     unsigned int new_post_delay;
+> > +
+> > +     retval = copy_from_user(local_buf, buffer, size);
+> > +     if (retval)
+> > +             return -EFAULT;
+> > +
+> > +     retval = sscanf(local_buf, "%u %u %u %u %u", &new_read_delay,
+> > +                     &new_write_delay, &new_block_delay,
+> > +                     &new_pre_delay, &new_post_delay);
+> > +     if (retval != 5) {
+> > +             dev_err(&data->rmi_dev->dev,
+> > +                     "Incorrect number of values provided for delay.");
+> > +             return -EINVAL;
+> > +     }
+> > +     if (new_read_delay < 0) {
+> 
+> These are unnecessary tests as unsigned values are never < 0.
 
-If i correctly understand, libusb need a driver to be present in the fi=
-rst place,
-(even a useless generic-usb) to be able to grab the device. If we uncon=
-ditionally
-blacklist the device and the ebeam driver isn't loaded (not compiled fo=
-r example), no way
-for libusb (and the stack) to handle the device.
+Right.  Thought we'd taken care of most of the silliness like that, but obviously missed some.  We'll recheck the codebase.
 
-As stated before, i'm not comfortable with the risk of breaking other h=
-ypothetical support,
-even proprietary.
+[snip]
 
---=20
-Yann Cantin
-A4FEB47F
---
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+> > +static ssize_t phys_read(struct file *filp, char __user *buffer, size_t
+> > size, +                 loff_t *offset) {
+> > +     struct driver_debugfs_data *data = filp->private_data;
+> > +     struct rmi_phys_info *info = &data->rmi_dev->phys->info;
+> > +     int retval;
+> > +     char local_buf[size];
+> 
+> size comes from where?  possible stack overflow?
+
+Hmmmm.  Good point.  We'll look at this.
+
+[snip]
+
+> []
+> 
+> > +     list_for_each_entry(entry, &data->rmi_functions.list, list)
+> > +             if (entry->irq_mask)
+> > +                     process_one_interrupt(entry, irq_status,
+> > +                                           data);
+> 
+> style nit, it'd be nicer with braces.
+
+I agree with you, but checkpatch.pl doesn't. :-(
+
+> 
+> > diff --git a/drivers/input/rmi4/rmi_driver.h
+> > b/drivers/input/rmi4/rmi_driver.h
+> []
+> 
+> > @@ -0,0 +1,438 @@
+> > 
+> > +
+> > +#define tricat(x, y, z) tricat_(x, y, z)
+> > +
+> > +#define tricat_(x, y, z) x##y##z
+> 
+> I think these tricat macros are merely obfuscating
+> and don't need to be used.
+
+tricat is used internally by another collection of macros that helps generate sysfs files.  In particular, it's used to generate the RMI4 register name symbols.

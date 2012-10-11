@@ -1,58 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/3] Input: wm831x-ts - Convert to devm_kzalloc()
-Date: Thu, 11 Oct 2012 09:22:25 -0700
-Message-ID: <20121011162225.GA15588@core.coreip.homeip.net>
-References: <1349875236-5707-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1349875236-5707-2-git-send-email-broonie@opensource.wolfsonmicro.com>
- <20121011073955.GA30395@core.coreip.homeip.net>
- <20121011080722.GE11726@opensource.wolfsonmicro.com>
- <20121011082749.GD32175@core.coreip.homeip.net>
- <20121011083322.GG11726@opensource.wolfsonmicro.com>
+Subject: Re: [Patch v3 7/7] Onkey: DA9055 Onkey driver
+Date: Thu, 11 Oct 2012 09:28:53 -0700
+Message-ID: <20121011162852.GB15588@core.coreip.homeip.net>
+References: <1349952316.9228.7.camel@dhruva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:41839 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757738Ab2JKQWd (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:60369 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755814Ab2JKQ27 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Oct 2012 12:22:33 -0400
-Received: by mail-da0-f46.google.com with SMTP id n41so837844dak.19
-        for <linux-input@vger.kernel.org>; Thu, 11 Oct 2012 09:22:32 -0700 (PDT)
+	Thu, 11 Oct 2012 12:28:59 -0400
 Content-Disposition: inline
-In-Reply-To: <20121011083322.GG11726@opensource.wolfsonmicro.com>
+In-Reply-To: <1349952316.9228.7.camel@dhruva>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: linux-input@vger.kernel.org
+To: Ashish Jangam <ashish.jangam@kpitcummins.com>
+Cc: Liam Girdwood <lrg@slimlogic.co.uk>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org, David Dajun Chen <dchen@diasemi.com>, linux-kernel@vger.kernel.org
 
-On Thu, Oct 11, 2012 at 05:33:24PM +0900, Mark Brown wrote:
-> On Thu, Oct 11, 2012 at 01:27:49AM -0700, Dmitry Torokhov wrote:
-> > On Thu, Oct 11, 2012 at 05:07:24PM +0900, Mark Brown wrote:
-> 
-> > > 
-> > > What's the error pattern you're seeing?  I've not noticed much of an
-> > > issue here, but if there is one perhaps we can do something to make the
-> > > error more obvious or harder to introduce.
-> 
-> > 	devm_request_irq();
-> 
-> > The problem is that input device is freed but interrupts are still fully
-> > functional.
-> 
-> Ah, yes - that one I do spot all the time.  I agree that devm_request_irq()
-> is a menace, that error is far too easy to introduce and it always seems
-> more work to work out if it's safe than the benefit in the cases where
-> it can be used.
+Hi Ashish,
 
-Right. Another one (the IRQ again): have IRQ schedule [delayed] work and
-then use cancel_delayed_work() in ->remove() but rely on devres to free
-IRQ which is the wrong order.
-
+On Thu, Oct 11, 2012 at 04:15:16PM +0530, Ashish Jangam wrote:
+> This is the ONKEY driver of the Dialog DA9055 PMIC and depends on the DA9055 MFD
+> core driver.
 > 
-> The other devm APIs are less problematic, though.
+> This patch is functionally tested on SMDK6410 board.
+> 
+> Signed-off-by: David Dajun Chen <dchen@diasemi.com>
+> Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
+> ---
+> changes since v3:
+> - used of module_platform_driver macro
+> - add regmap virtual irq function
+> changes since v2:
+> - add support for button release
+> - use of devm_request_threaded_irq API
 
-I agree, they are indeed safer. I guess if I add devm_input* the some of
-the devm_request_*irq() will be safe as well, but we are not there yet.
+This API does not make any sense for your driver as you are scheduling
+delayed work from the IRQ handler. In such cases you need _first_ free
+IRQ and _then_ cancel the work but with devm_* you do it in opposite
+order.
+
+Also, I think I mentioned this before - this driver looks like twin
+brother for da9055_onkey.c. How many of such parts do you have (or will
+you have)? Is there way to unify them?
+
+Thanks.
 
 -- 
 Dmitry

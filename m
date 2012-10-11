@@ -1,112 +1,49 @@
-From: Christopher Heiny <Cheiny@synaptics.com>
-Subject: RE: [RFC PATCH 02/06] input/rmi4: Core files
-Date: Thu, 11 Oct 2012 02:49:02 +0000
-Message-ID: <BFABBC009FBA1C43B207B15FD485ABD922C22B7B@USW-MAIL1.synaptics-inc.local>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [RFC PATCH 02/06] input/rmi4: Core files
+Date: Wed, 10 Oct 2012 20:06:11 -0700
+Message-ID: <1349924771.2243.16.camel@joe-AO722>
 References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
-	 <1349496603-20775-3-git-send-email-cheiny@synaptics.com>,<1349525982.2008.86.camel@joe-AO722>
+	 <1349496603-20775-3-git-send-email-cheiny@synaptics.com>
+	 ,<1349525982.2008.86.camel@joe-AO722>
+	 <BFABBC009FBA1C43B207B15FD485ABD922C22B7B@USW-MAIL1.synaptics-inc.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx3.synaptics.com ([12.239.217.85]:44798 "EHLO
-	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751415Ab2JKCrF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Oct 2012 22:47:05 -0400
-In-Reply-To: <1349525982.2008.86.camel@joe-AO722>
-Content-Language: en-US
+Received: from perches-mx.perches.com ([206.117.179.246]:54826 "EHLO
+	labridge.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1754586Ab2JKDGN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Oct 2012 23:06:13 -0400
+In-Reply-To: <BFABBC009FBA1C43B207B15FD485ABD922C22B7B@USW-MAIL1.synaptics-inc.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joe Perches <joe@perches.com>
+To: Christopher Heiny <Cheiny@synaptics.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
 
-Joe Perches wrote:
-> On Fri, 2012-10-05 at 21:09 -0700, Christopher Heiny wrote:
-> []
-> 
-> Just some trivial comments:
-
-Thanks - see below for responses.
-
-> > diff --git a/drivers/input/rmi4/rmi_driver.c
-> > b/drivers/input/rmi4/rmi_driver.c
-> []
-> 
-> > @@ -0,0 +1,1529 @@
-> 
-> []
-> 
-> > +static ssize_t delay_write(struct file *filp, const char __user *buffer,
-> > +                        size_t size, loff_t *offset) {
-> > +     struct driver_debugfs_data *data = filp->private_data;
-> > +     struct rmi_device_platform_data *pdata =
-> > +                     data->rmi_dev->phys->dev->platform_data;
-> > +     int retval;
-> > +     char local_buf[size];
-> > +     unsigned int new_read_delay;
-> > +     unsigned int new_write_delay;
-> > +     unsigned int new_block_delay;
-> > +     unsigned int new_pre_delay;
-> > +     unsigned int new_post_delay;
-> > +
-> > +     retval = copy_from_user(local_buf, buffer, size);
-> > +     if (retval)
-> > +             return -EFAULT;
-> > +
-> > +     retval = sscanf(local_buf, "%u %u %u %u %u", &new_read_delay,
-> > +                     &new_write_delay, &new_block_delay,
-> > +                     &new_pre_delay, &new_post_delay);
-> > +     if (retval != 5) {
-> > +             dev_err(&data->rmi_dev->dev,
-> > +                     "Incorrect number of values provided for delay.");
-> > +             return -EINVAL;
-> > +     }
-> > +     if (new_read_delay < 0) {
-> 
-> These are unnecessary tests as unsigned values are never < 0.
-
-Right.  Thought we'd taken care of most of the silliness like that, but obviously missed some.  We'll recheck the codebase.
-
-[snip]
-
-
-> > +static ssize_t phys_read(struct file *filp, char __user *buffer, size_t
-> > size, +                 loff_t *offset) {
-> > +     struct driver_debugfs_data *data = filp->private_data;
-> > +     struct rmi_phys_info *info = &data->rmi_dev->phys->info;
-> > +     int retval;
-> > +     char local_buf[size];
-> 
-> size comes from where?  possible stack overflow?
-
-Hmmmm.  Good point.  We'll look at this.
-
-[snip]
-
-> []
-> 
-> > +     list_for_each_entry(entry, &data->rmi_functions.list, list)
-> > +             if (entry->irq_mask)
-> > +                     process_one_interrupt(entry, irq_status,
-> > +                                           data);
-> 
-> style nit, it'd be nicer with braces.
-
-I agree with you, but checkpatch.pl doesn't. :-(
-
-> 
-> > diff --git a/drivers/input/rmi4/rmi_driver.h
-> > b/drivers/input/rmi4/rmi_driver.h
-> []
-> 
-> > @@ -0,0 +1,438 @@
+On Thu, 2012-10-11 at 02:49 +0000, Christopher Heiny wrote:
+> Joe Perches wrote:
+[]
+> > > +     list_for_each_entry(entry, &data->rmi_functions.list, list)
+> > > +             if (entry->irq_mask)
+> > > +                     process_one_interrupt(entry, irq_status,
+> > > +                                           data);
 > > 
-> > +
-> > +#define tricat(x, y, z) tricat_(x, y, z)
-> > +
-> > +#define tricat_(x, y, z) x##y##z
+> > style nit, it'd be nicer with braces.
 > 
-> I think these tricat macros are merely obfuscating
-> and don't need to be used.
+> I agree with you, but checkpatch.pl doesn't. :-(
 
-tricat is used internally by another collection of macros that helps generate sysfs files.  In particular, it's used to generate the RMI4 register name symbols.
+Sure it does.
+
+$ cat t.c
+{
+	list_for_each_entry(entry, &data->rmi_functions.list, list) {
+		if (entry->irq_mask)
+			process_one_interrupt(entry, irq_status, data);
+	}
+}
+$ ./scripts/checkpatch.pl --strict -f t.c
+total: 0 errors, 0 warnings, 0 checks, 7 lines checked
+
+t.c has no obvious style problems and is ready for submission.
+
+

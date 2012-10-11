@@ -1,7 +1,7 @@
 From: Linus Walleij <linus.walleij@linaro.org>
 Subject: Re: [RFC PATCH 01/06] input/rmi4: Public header and documentation
-Date: Thu, 11 Oct 2012 17:22:45 +0200
-Message-ID: <CACRpkdY+gWKBbqdPEVPqbZMQABjjJGuejwTBPpZJbkE6k1_Btw@mail.gmail.com>
+Date: Thu, 11 Oct 2012 17:32:59 +0200
+Message-ID: <CACRpkdY3jctXSBB+SMJ=6k=CcLEsHz4jY8T3db8htcE+zWnJWw@mail.gmail.com>
 References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
 	<1349496603-20775-2-git-send-email-cheiny@synaptics.com>
 	<CACRpkdZb+LOk8v0aNZuPhATjS5jv-h1JJCejoh_9eFZ_fdiZQA@mail.gmail.com>
@@ -9,55 +9,74 @@ References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:41246 "EHLO
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:61941 "EHLO
 	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752362Ab2JKPWq (ORCPT
+	with ESMTP id S1758772Ab2JKPdA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Oct 2012 11:22:46 -0400
-Received: by mail-wg0-f44.google.com with SMTP id dr13so1573773wgb.1
-        for <linux-input@vger.kernel.org>; Thu, 11 Oct 2012 08:22:45 -0700 (PDT)
+	Thu, 11 Oct 2012 11:33:00 -0400
+Received: by mail-wg0-f44.google.com with SMTP id dr13so1581651wgb.1
+        for <linux-input@vger.kernel.org>; Thu, 11 Oct 2012 08:32:59 -0700 (PDT)
 In-Reply-To: <BFABBC009FBA1C43B207B15FD485ABD922C22BC4@USW-MAIL1.synaptics-inc.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <Cheiny@synaptics.com>, Anton Vorontsov <anton.vorontsov@linaro.org>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
+To: Christopher Heiny <Cheiny@synaptics.com>
+Cc: Anton Vorontsov <anton.vorontsov@linaro.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
 
 On Thu, Oct 11, 2012 at 5:41 AM, Christopher Heiny <Cheiny@synaptics.com> wrote:
 > Linus Walleij wrote:
->> On Sat, Oct 6, 2012 at 6:09 AM, Christopher Heiny <cheiny@synaptics.com> wrote:
 
->> > +          chargerinput ... (rw) User space programs can use this to tell
->> > the +                  sensor that the system is plugged into an external
->> > power +                  source (as opposed to running on
->> > batteries).  This allows +                  the sensor firmware to make
->> > necessary adjustments for the +                  current capacitence
->> > regime.  Write 1 to this when the +                  system is using
->> > external power, write 0 to this when the +                  system is
->> > running on batteries.  See spec for full details.
->> I remember discussing in-kernel notifiers for this. I don't
->> really see the point in tunnelling a notification from the drivers/power
->> subsystem to the drivers/input subsystem through userspace for
->> no good.
+>> But please use arithmetic operators (I think I said this on the last
+>> review):
 >>
->> It's no blocker though, I don't expect you to fix this as part of
->> this driver submission.
+>> dest[0] = src & 0xFF;
+>> dest[1] = src >> 8;
 >>
->> Maybe Anton can comment?
+>> Doing it the above way makes artithmetic look like maths, and it isn't.
+>> Besides it's done this way in most parts of the kernel and we're
+>> familiar with it.
 >
-> Hmmm.  I agree that it'd be good to avoid looping through userspace.  But....
+> Yes, you mentioned it previously.  I'm somewhat paranoid, though, and
+> don't trust the shift/mask method to work correctly on big-endian
+> machines.  If the shifts can be relied on to behave (I'm guessing the
+> answer is "yes", since you say this idiom is used widely in the
+> kernel), then I'll change it.
+
+If the behaviour was not consistent across different endianness
+it would not be part of the C language specification...
+
+<< means shift left in the accumulator or whatever you have.
+It will work the same no matter how bits are laid out in
+memory.
+
+>> > +static inline ssize_t rmi_store_error(struct device *dev,
+>> > +                       struct device_attribute *attr,
+>> > +                       const char *buf, size_t count)
+>> > +{
+>> > +       dev_warn(dev,
+>> > +                "WARNING: Attempt to write %d characters to read-only
+>> > attribute %s.", +               count, attr->attr.name);
+>> > +       return -EPERM;
+>> > +}
+>>
+>> Here it looks like you're hiding a lot of stuff that should be dev_warn()?
+>> Consider my earlier point about dynamic debug.
 >
-> I found ways to notfiy the kernel that the charger is plugged/unplugged,
-> but that's only useful if you're a battery charger device driver.  I also
-> found ways for userspace to get notification of charger events.  I
-> didn't spot any way for in-kernel drivers to get notification of such
-> events.  Perhaps I'm not looking the right places, though - can you
-> provide a pointer?
+> In previous patch submissions, we always used these warning functions.
+> But in the feedback on those patches, we were asked to just make
+> sysfs show/store NULL if the attribute is write/read only.  However,
+> during their development process, our customers want to see the
+> warnings if the attributes are accessed incorrectly.  So we made
+> these warnings a debug option.
 
-So my point was that there is indeed no such in-kernel
-notification mechanism.
+See Dmitry's comment ...
 
-Maybe something engineered similar to this:
-http://www.spinics.net/lists/lm-sensors/msg33834.html
+Basically my stance is that you should not lower yourself to the
+level of others not getting the point of your technical solution
+by making unelegant compromises, what
+you should do is to bring them up to your level so they
+understand that your solution is elegant.
+
+Maybe a bit utopist I know...
 
 Yours,
 Linus Walleij

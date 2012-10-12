@@ -1,35 +1,60 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [RFC PATCH 01/06] input/rmi4: Public header and documentation
-Date: Fri, 12 Oct 2012 14:16:00 +0900
-Message-ID: <20121012051558.GK11726@opensource.wolfsonmicro.com>
-References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
- <1349496603-20775-2-git-send-email-cheiny@synaptics.com>
- <CACRpkdZb+LOk8v0aNZuPhATjS5jv-h1JJCejoh_9eFZ_fdiZQA@mail.gmail.com>
- <20121009082719.GC8237@opensource.wolfsonmicro.com>
- <BFABBC009FBA1C43B207B15FD485ABD922C22BE7@USW-MAIL1.synaptics-inc.local>
+From: Ashish Jangam <ashish.jangam@kpitcummins.com>
+Subject: Re: [Patch v3 7/7] Onkey: DA9055 Onkey driver
+Date: Fri, 12 Oct 2012 12:16:44 +0530
+Message-ID: <1350024404.11527.3.camel@dhruva>
+References: <1349952316.9228.7.camel@dhruva>
+	 <20121011162852.GB15588@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:36985 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754362Ab2JLFQM (ORCPT
+Received: from [213.199.154.205] ([213.199.154.205]:20570 "EHLO
+	am1outboundpool.messaging.microsoft.com" rhost-flags-FAIL-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1751273Ab2JLGg5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Oct 2012 01:16:12 -0400
-Content-Disposition: inline
-In-Reply-To: <BFABBC009FBA1C43B207B15FD485ABD922C22BE7@USW-MAIL1.synaptics-inc.local>
+	Fri, 12 Oct 2012 02:36:57 -0400
+In-Reply-To: <20121011162852.GB15588@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <Cheiny@synaptics.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Anton Vorontsov <anton.vorontsov@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Liam Girdwood <lrg@slimlogic.co.uk>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org, David Dajun Chen <dchen@diasemi.com>, linux-kernel@vger.kernel.org
 
-On Thu, Oct 11, 2012 at 03:56:22AM +0000, Christopher Heiny wrote:
+On Thu, 2012-10-11 at 09:28 -0700, Dmitry Torokhov wrote:
+> Hi Ashish,
+> 
+> On Thu, Oct 11, 2012 at 04:15:16PM +0530, Ashish Jangam wrote:
+> > This is the ONKEY driver of the Dialog DA9055 PMIC and depends on the DA9055 MFD
+> > core driver.
+> > 
+> > This patch is functionally tested on SMDK6410 board.
+> > 
+> > Signed-off-by: David Dajun Chen <dchen@diasemi.com>
+> > Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
+> > ---
+> > changes since v3:
+> > - used of module_platform_driver macro
+> > - add regmap virtual irq function
+> > changes since v2:
+> > - add support for button release
+> > - use of devm_request_threaded_irq API
+> 
+> This API does not make any sense for your driver as you are scheduling
+> delayed work from the IRQ handler. In such cases you need _first_ free
+> IRQ and _then_ cancel the work but with devm_* you do it in opposite
+> order.
+I miss on this, will correct it.
+> 
+> Also, I think I mentioned this before - this driver looks like twin
+> brother for da9055_onkey.c. How many of such parts do you have (or will
+> you have)? Is there way to unify them?
+Well, DA9052 and DA9055 register sets are entirely different even there
+bit position are different and also few of its components have slight
+different behaviour.  Device components functional difference can be
+managed programmatic but, to unify these two different sets of register
+will be impractical. In case of DA9052 I managed to club the DA9053
+functionality within it but it was not possible for DA9055.
+> 
+> Thanks.
+> 
 
-Fix your mailer to word wrap within paragraphs.
 
-> If this feature is a deal-breaker, we can take it out.  In the absence
-> of a generic GPIO implementation for CS, though, I'd much rather leave
-> it in.  Once generic GPIO CS arrives, we'll remove it pretty quickly.  
-
-Why not just implement this at an appropriate level in the SPI
-subsystem?  One of the great things about Linux is that you can change
-the core code...

@@ -1,59 +1,107 @@
-From: Daniel Mack <zonque@gmail.com>
-Subject: [PATCH] Input: gpio_keys: allocate pins
-Date: Fri, 12 Oct 2012 17:55:46 +0200
-Message-ID: <1350057346-15998-1-git-send-email-zonque@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.7-rc0
+Date: Fri, 12 Oct 2012 13:00:07 -0700
+Message-ID: <20121012200007.GA31768@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from svenfoo.org ([82.94.215.22]:60570 "EHLO mail.zonque.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933028Ab2JLPzy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Oct 2012 11:55:54 -0400
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:42428 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750864Ab2JLUAN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Oct 2012 16:00:13 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Daniel Mack <zonque@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-This allows DT driven boards to allocate and configure the pinmux once
-the driver is probed.
 
-Signed-off-by: Daniel Mack <zonque@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/keyboard/gpio_keys.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 6a68041..53dff7d 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -29,6 +29,7 @@
- #include <linux/of_platform.h>
- #include <linux/of_gpio.h>
- #include <linux/spinlock.h>
-+#include <linux/pinctrl/consumer.h>
- 
- struct gpio_button_data {
- 	const struct gpio_keys_button *button;
-@@ -664,6 +665,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 	const struct gpio_keys_platform_data *pdata = dev_get_platdata(dev);
- 	struct gpio_keys_drvdata *ddata;
- 	struct input_dev *input;
-+	struct pinctrl *pinctrl;
- 	int i, error;
- 	int wakeup = 0;
- 
-@@ -701,6 +703,11 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 	input->id.product = 0x0001;
- 	input->id.version = 0x0100;
- 
-+	/* request pin mux */
-+	pinctrl = devm_pinctrl_get_select_default(dev);
-+	if (IS_ERR(pinctrl))
-+		dev_warn(dev, "pins are not configured from the driver\n");
-+
- 	/* Enable auto repeat feature of Linux input subsystem */
- 	if (pdata->rep)
- 		__set_bit(EV_REP, input->evbit);
--- 
-1.7.11.4
+Hi Linus,
 
+Please pull from:
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive 2nd round of updates for the input subsystem. With it input
+core no longer limits number of character devices per event handler
+(such as evdev) to 32, but switches to dynamic minors once legacy range
+is exhausted. This should get multi-seat installations that currently
+run our of event devices very quickly.
+
+You will also get an update for Wacom driver and a couple of driver fixes.
+
+Thanks!
+
+Changelog:
+---------
+
+Andy Shevchenko (1):
+      Input: atmel_mxt_ts - simplify mxt_dump_message
+
+Dmitry Torokhov (5):
+      Input: mousedev - factor out psaux code to reduce #ifdefery
+      Input: mousedev - reformat structure initializers
+      Input: mousedev - rename mixdev_open to opened_by_mixdev
+      Input: mousedev - mark mousedev interfaces as non-seekable
+      Input: extend the number of event (and other) devices
+
+Jason Gerecke (4):
+      Input: wacom - report correct touch contact size for I5/Bamboo
+      Input: wacom - allow any multi-input Intuos device to set prox
+      Input: wacom - introduce wacom_fix_phy_from_hid
+      Input: wacom - clean up wacom_query_tablet_data
+
+Thomas Abraham (1):
+      Input: samsung-keypad - add clk_prepare and clk_unprepare
+
+
+Diffstat:
+--------
+
+ drivers/input/evdev.c                    |  99 +++++---------
+ drivers/input/input.c                    | 114 ++++++++--------
+ drivers/input/joydev.c                   |  88 +++++-------
+ drivers/input/keyboard/samsung-keypad.c  |  11 +-
+ drivers/input/mousedev.c                 | 224 ++++++++++++++++-----------=
+----
+ drivers/input/tablet/wacom_sys.c         | 145 ++++++++++++++------
+ drivers/input/tablet/wacom_wac.c         |  30 ++++-
+ drivers/input/touchscreen/atmel_mxt_ts.c |   6 +-
+ include/linux/input.h                    |  10 +-
+ 9 files changed, 382 insertions(+), 345 deletions(-)
+
+--=20
+Dmitry
+
+
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQeHbHAAoJEH70+W8r6ZYqNj4QAJb2xTCJCuAPeaa5y4oZUyc8
+H813NVuit990B3NUYXatCEBTf2dd0VyZoOrYyEm77nKipdmz35rR6klXvgyxd5Xs
+Xky9/Z5UxKiFrOhl3E/cyfgqgxXb+sljoT0YqiQmqJdmUE54TqOLybVrA/EmKFOt
+cb12FmRf84wtkX4f2cLJb2lHrn2Xaq4RQo04jCzKfUeOEFuS+NGRy3AIFpa1xe+R
+FaKdoEKL2jwkqwicEI77hsnq6Jdj+/jIqqGDY27LhSkM0KksdXbqJ24UW7EF7MNw
+/YoTnSg4wo+Ty1maNPvbrECV/bV0STOJy9CWWozbrZvvF+mmHrUYunPjDYBUTD+E
+k4DHL7F5IiIP7V59Szq1a3nMIfY0CPfhBF5HQH49rVArd8VUvnQgnkElFSlpG8jr
+34vX3hT+XJvwXPBH2c5osdm6qySZI9pHEhdE9XNyNxjpYjVb0Q96AG3vPMICmJKb
+qsMwBtXS/HXpDjgNq64qqdEnywSZH9E6UTUtsuDNV9QYIMpNJ+T7DqSwcJhvDSfy
+6bJJNer/cadYiIgUIgomRPCiTwrSkVXYttM3PwEg9e3c5Ftvw6lYb/JSbQ6oZrah
+/LRsYQ36yxZwvt427xxMcVnK57UpQHDeCXzUa0LHmSTdRYHfDFjXSPFB7Eq3kybS
+vHdRYlSkf95oPuHEwMyc
+=uS3d
+-----END PGP SIGNATURE-----
+
+--wRRV7LY7NUeQGEoC--

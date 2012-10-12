@@ -1,107 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.7-rc0
-Date: Fri, 12 Oct 2012 13:00:07 -0700
-Message-ID: <20121012200007.GA31768@core.coreip.homeip.net>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 2/2] input: gpio-keys: Add runtime support
+Date: Fri, 12 Oct 2012 23:09:30 +0200
+Message-ID: <CACRpkdb+kWW903VD45i5s_LrZ2BKX=k6enGP2R9v2ptSRkvJ9w@mail.gmail.com>
+References: <1349964927-18619-1-git-send-email-lee.jones@linaro.org>
+	<1349964927-18619-2-git-send-email-lee.jones@linaro.org>
+	<CAM=Q2ctwTBAvKs401GgrGfz9NvaLspquje-6YfnuS5TZYeqY4Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:42428 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750864Ab2JLUAN (ORCPT
+Received: from mail-vc0-f174.google.com ([209.85.220.174]:43462 "EHLO
+	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751962Ab2JLVJb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Oct 2012 16:00:13 -0400
-Content-Disposition: inline
+	Fri, 12 Oct 2012 17:09:31 -0400
+Received: by mail-vc0-f174.google.com with SMTP id fo13so3962190vcb.19
+        for <linux-input@vger.kernel.org>; Fri, 12 Oct 2012 14:09:31 -0700 (PDT)
+In-Reply-To: <CAM=Q2ctwTBAvKs401GgrGfz9NvaLspquje-6YfnuS5TZYeqY4Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Cc: Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, arnd@arndb.de, linus.walleij@stericsson.com, Jonas Aaberg <jonas.aberg@stericsson.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Philippe Langlais <philippe.langlais@linaro.org>
 
+On Thu, Oct 11, 2012 at 4:22 PM, Shubhrajyoti Datta
+<omaplinuxkernel@gmail.com> wrote:
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>> @@ -526,6 +527,7 @@ static int gpio_keys_open(struct input_dev *input)
+>>  {
+>>         struct gpio_keys_drvdata *ddata = input_get_drvdata(input);
+>>
+>> +       pm_runtime_get_sync(input->dev.parent);
+>
+> I am not an expert of the runtime.
+>
+> However would be grateful if you explain me what it actually do.
 
-Hi Linus,
+This increase the reference count of the runtime status container
+for the device. _sync makes sure it happens now.
 
-Please pull from:
+Consult:
+Documentation/power/runtime_pm.txt
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+> Also I did not see any runtime suspend/ resume handlers populated.
 
-to receive 2nd round of updates for the input subsystem. With it input
-core no longer limits number of character devices per event handler
-(such as evdev) to 32, but switches to dynamic minors once legacy range
-is exhausted. This should get multi-seat installations that currently
-run our of event devices very quickly.
+It is not necessary to handle the power state at the driver level,
+it can just as well be handled by the voltage/power domain,
+or at the class, type or bus level.
 
-You will also get an update for Wacom driver and a couple of driver fixes.
+But the individual driver has to notify the system upward if it
+needs to be powered on or when it may or must be relaxed.
 
-Thanks!
-
-Changelog:
----------
-
-Andy Shevchenko (1):
-      Input: atmel_mxt_ts - simplify mxt_dump_message
-
-Dmitry Torokhov (5):
-      Input: mousedev - factor out psaux code to reduce #ifdefery
-      Input: mousedev - reformat structure initializers
-      Input: mousedev - rename mixdev_open to opened_by_mixdev
-      Input: mousedev - mark mousedev interfaces as non-seekable
-      Input: extend the number of event (and other) devices
-
-Jason Gerecke (4):
-      Input: wacom - report correct touch contact size for I5/Bamboo
-      Input: wacom - allow any multi-input Intuos device to set prox
-      Input: wacom - introduce wacom_fix_phy_from_hid
-      Input: wacom - clean up wacom_query_tablet_data
-
-Thomas Abraham (1):
-      Input: samsung-keypad - add clk_prepare and clk_unprepare
-
-
-Diffstat:
---------
-
- drivers/input/evdev.c                    |  99 +++++---------
- drivers/input/input.c                    | 114 ++++++++--------
- drivers/input/joydev.c                   |  88 +++++-------
- drivers/input/keyboard/samsung-keypad.c  |  11 +-
- drivers/input/mousedev.c                 | 224 ++++++++++++++++-----------=
-----
- drivers/input/tablet/wacom_sys.c         | 145 ++++++++++++++------
- drivers/input/tablet/wacom_wac.c         |  30 ++++-
- drivers/input/touchscreen/atmel_mxt_ts.c |   6 +-
- include/linux/input.h                    |  10 +-
- 9 files changed, 382 insertions(+), 345 deletions(-)
-
---=20
-Dmitry
-
-
---wRRV7LY7NUeQGEoC
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQeHbHAAoJEH70+W8r6ZYqNj4QAJb2xTCJCuAPeaa5y4oZUyc8
-H813NVuit990B3NUYXatCEBTf2dd0VyZoOrYyEm77nKipdmz35rR6klXvgyxd5Xs
-Xky9/Z5UxKiFrOhl3E/cyfgqgxXb+sljoT0YqiQmqJdmUE54TqOLybVrA/EmKFOt
-cb12FmRf84wtkX4f2cLJb2lHrn2Xaq4RQo04jCzKfUeOEFuS+NGRy3AIFpa1xe+R
-FaKdoEKL2jwkqwicEI77hsnq6Jdj+/jIqqGDY27LhSkM0KksdXbqJ24UW7EF7MNw
-/YoTnSg4wo+Ty1maNPvbrECV/bV0STOJy9CWWozbrZvvF+mmHrUYunPjDYBUTD+E
-k4DHL7F5IiIP7V59Szq1a3nMIfY0CPfhBF5HQH49rVArd8VUvnQgnkElFSlpG8jr
-34vX3hT+XJvwXPBH2c5osdm6qySZI9pHEhdE9XNyNxjpYjVb0Q96AG3vPMICmJKb
-qsMwBtXS/HXpDjgNq64qqdEnywSZH9E6UTUtsuDNV9QYIMpNJ+T7DqSwcJhvDSfy
-6bJJNer/cadYiIgUIgomRPCiTwrSkVXYttM3PwEg9e3c5Ftvw6lYb/JSbQ6oZrah
-/LRsYQ36yxZwvt427xxMcVnK57UpQHDeCXzUa0LHmSTdRYHfDFjXSPFB7Eq3kybS
-vHdRYlSkf95oPuHEwMyc
-=uS3d
------END PGP SIGNATURE-----
-
---wRRV7LY7NUeQGEoC--
+Yours,
+Linus Walleij

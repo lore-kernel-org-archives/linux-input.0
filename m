@@ -1,103 +1,62 @@
 From: Linus Walleij <linus.walleij@linaro.org>
 Subject: Re: [PATCH] Input: gpio_keys: allocate pins
-Date: Fri, 12 Oct 2012 23:40:54 +0200
-Message-ID: <CACRpkdZeDb4=nfRarENpwJh5vepuQgDRN==kZK637VsYKj8bpg@mail.gmail.com>
+Date: Fri, 12 Oct 2012 23:44:25 +0200
+Message-ID: <CACRpkdb+u2ho3KhRsuE_ykM8arCL7B=SmHNS7qarAwh2mGHsjg@mail.gmail.com>
 References: <1350057346-15998-1-git-send-email-zonque@gmail.com>
 	<CACRpkdayOh=i4Fp6zWCy2yt7ZJU=ETD3x6N3KTAg++QhPOzH-w@mail.gmail.com>
-	<2124185.0mAfDLSa7H@dtor-d630.eng.vmware.com>
+	<50788B53.6040309@gmail.com>
+	<CACRpkda==SXUtS1AExnjaQfnCYssGbfH=LrgqWhBiq85Ln02og@mail.gmail.com>
+	<50788E3D.2060404@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f174.google.com ([209.85.220.174]:35566 "EHLO
-	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752215Ab2JLVk4 (ORCPT
+Received: from mail-vb0-f46.google.com ([209.85.212.46]:56430 "EHLO
+	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752424Ab2JLVo0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Oct 2012 17:40:56 -0400
-Received: by mail-vc0-f174.google.com with SMTP id fo13so3986354vcb.19
-        for <linux-input@vger.kernel.org>; Fri, 12 Oct 2012 14:40:55 -0700 (PDT)
-In-Reply-To: <2124185.0mAfDLSa7H@dtor-d630.eng.vmware.com>
+	Fri, 12 Oct 2012 17:44:26 -0400
+Received: by mail-vb0-f46.google.com with SMTP id ff1so3488596vbb.19
+        for <linux-input@vger.kernel.org>; Fri, 12 Oct 2012 14:44:25 -0700 (PDT)
+In-Reply-To: <50788E3D.2060404@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Mack <zonque@gmail.com>, linux-input@vger.kernel.org, Jonas ABERG <jonas.aberg@stericsson.com>, Lee Jones <lee.jones@linaro.org>, Stephen Warren <swarren@wwwdotorg.org>
+To: Daniel Mack <zonque@gmail.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonas ABERG <jonas.aberg@stericsson.com>, Lee Jones <lee.jones@linaro.org>
 
-On Fri, Oct 12, 2012 at 11:35 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Friday, October 12, 2012 11:26:00 PM Linus Walleij wrote:
->> On Fri, Oct 12, 2012 at 5:55 PM, Daniel Mack <zonque@gmail.com> wrote:
->> > This allows DT driven boards to allocate and configure the pinmux once
->> > the driver is probed.
->> >
->> > Signed-off-by: Daniel Mack <zonque@gmail.com>
->> > Cc: Linus Walleij <linus.walleij@linaro.org>
->> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>
->> (...)
->>
->> > +       /* request pin mux */
+On Fri, Oct 12, 2012 at 11:40 PM, Daniel Mack <zonque@gmail.com> wrote:
 
-That is not good, pinctrl is not just about muxing.
-
->> > +       pinctrl = devm_pinctrl_get_select_default(dev);
->> > +       if (IS_ERR(pinctrl))
->> > +               dev_warn(dev, "pins are not configured from the
->> > driver\n");
->>
->> I think dev_warn() is rather nasty to throw in here, dev_info() is OK.
->>
->> However I suspect this driver could actually handle default, idle and sleep
->> states, especially after the runtime PM patches discussed elsewhere,
->> but that can be patched later.
+>> Because we wrote in Documentation/pinctrl.txt that if GPIO
+>> and pin control handle the same lines, they should be
+>> implemented in the gpio driver by calling out to pinctrl's
+>> extern int pinctrl_request_gpio(unsigned gpio);
+>> extern void pinctrl_free_gpio(unsigned gpio);
+>> extern int pinctrl_gpio_direction_input(unsigned gpio);
+>> extern int pinctrl_gpio_direction_output(unsigned gpio);
 >
-> I take this as Acked-by then?
+> Hmm. So how is a certain pin muxed to its GPIO function then?
 
-Not yet. I want to clarify the use. In the Documentation/pinctrl.txt
-document we say:
+By calling exactly the above functions from the GPIO
+driver.
 
------------8<----------------------8<------------------8<-------------------
-Drivers needing both pin control and GPIOs
-==========================================
+> And how
+> can pullup/pulldown features be selected?
 
-Again, it is discouraged to let drivers lookup and select pin control states
-themselves, but again sometimes this is unavoidable.
+So as stated in:
+"Drivers needing both pin control and GPIOs"
 
-So say that your driver is fetching its resources like this:
+This can be done in several ways, but this way is one option
+indeed, so that is a valid reason for having this pinctrl here.
 
-#include <linux/pinctrl/consumer.h>
-#include <linux/gpio.h>
+Is biasing what you need to do?
 
-struct pinctrl *pinctrl;
-int gpio;
+> I admittedly might lack some background here, and if there's better
+> solution to what I want to do, I'd be happy to hear about it :)
 
-pinctrl = devm_pinctrl_get_select_default(&dev);
-gpio = devm_gpio_request(&dev, 14, "foo");
+Sure, no problem we've even tried to document it :-)
 
-Here we first request a certain pin state and then request GPIO 14 to be
-used. If you're using the subsystems orthogonally like this, you should
-nominally always get your pinctrl handle and select the desired pinctrl
-state BEFORE requesting the GPIO. This is a semantic convention to avoid
-situations that can be electrically unpleasant, you will certainly want to
-mux in and bias pins in a certain way before the GPIO subsystems starts to
-deal with them.
-
-The above can be hidden: using pinctrl hogs, the pin control driver may be
-setting up the config and muxing for the pins when it is probing,
-nevertheless orthogonal to the GPIO subsystem.
-But there are also situations where it makes sense for the GPIO subsystem
-to communicate directly with with the pinctrl subsystem, using the latter
-as a back-end. This is when the GPIO driver may call out to the functions
-described in the section "Pin control interaction with the GPIO subsystem"
-above. This only involves per-pin multiplexing, and will be completely
-hidden behind the gpio_*() function namespace. In this case, the driver
-need not interact with the pin control subsystem at all.
-
-If a pin control driver and a GPIO driver is dealing with the same pins
-and the use cases involve multiplexing, you MUST implement the pin controller
-as a back-end for the GPIO driver like this, unless your hardware design
-is such that the GPIO controller can override the pin controller's
-multiplexing state through hardware without the need to interact with the
-pin control system.
------------8<----------------------8<------------------8<-------------------
+All I really want is that platforms have a clear idea about
+how and where the pins will be handled, and that if GPIO
+and pinctrl handle the same lines, they need to interact.
 
 Yours,
 Linus Walleij

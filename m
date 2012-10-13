@@ -1,62 +1,114 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] Input: gpio_keys: allocate pins
-Date: Fri, 12 Oct 2012 23:44:25 +0200
-Message-ID: <CACRpkdb+u2ho3KhRsuE_ykM8arCL7B=SmHNS7qarAwh2mGHsjg@mail.gmail.com>
-References: <1350057346-15998-1-git-send-email-zonque@gmail.com>
-	<CACRpkdayOh=i4Fp6zWCy2yt7ZJU=ETD3x6N3KTAg++QhPOzH-w@mail.gmail.com>
-	<50788B53.6040309@gmail.com>
-	<CACRpkda==SXUtS1AExnjaQfnCYssGbfH=LrgqWhBiq85Ln02og@mail.gmail.com>
-	<50788E3D.2060404@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] input: gpio-keys: Disable hardware on suspend
+Date: Fri, 12 Oct 2012 23:17:39 -0700
+Message-ID: <20121013061739.GB10969@core.coreip.homeip.net>
+References: <1349964927-18619-1-git-send-email-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vb0-f46.google.com ([209.85.212.46]:56430 "EHLO
-	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752424Ab2JLVo0 (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:57780 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750917Ab2JMGRo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Oct 2012 17:44:26 -0400
-Received: by mail-vb0-f46.google.com with SMTP id ff1so3488596vbb.19
-        for <linux-input@vger.kernel.org>; Fri, 12 Oct 2012 14:44:25 -0700 (PDT)
-In-Reply-To: <50788E3D.2060404@gmail.com>
+	Sat, 13 Oct 2012 02:17:44 -0400
+Content-Disposition: inline
+In-Reply-To: <1349964927-18619-1-git-send-email-lee.jones@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <zonque@gmail.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonas ABERG <jonas.aberg@stericsson.com>, Lee Jones <lee.jones@linaro.org>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, arnd@arndb.de, linus.walleij@stericsson.com, Jonas Aaberg <jonas.aberg@stericsson.com>, linux-input@vger.kernel.org, Philippe Langlais <philippe.langlais@linaro.org>
 
-On Fri, Oct 12, 2012 at 11:40 PM, Daniel Mack <zonque@gmail.com> wrote:
+Hi Lee,
 
->> Because we wrote in Documentation/pinctrl.txt that if GPIO
->> and pin control handle the same lines, they should be
->> implemented in the gpio driver by calling out to pinctrl's
->> extern int pinctrl_request_gpio(unsigned gpio);
->> extern void pinctrl_free_gpio(unsigned gpio);
->> extern int pinctrl_gpio_direction_input(unsigned gpio);
->> extern int pinctrl_gpio_direction_output(unsigned gpio);
->
-> Hmm. So how is a certain pin muxed to its GPIO function then?
+On Thu, Oct 11, 2012 at 03:15:26PM +0100, Lee Jones wrote:
+> From: Jonas Aaberg <jonas.aberg@stericsson.com>
+> 
+> Disable hardware if active when suspending if the hw can not
+> wake the system from suspend.
+> 
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> Acked-by: Lee Jones <lee.jones@linaro.org>
 
-By calling exactly the above functions from the GPIO
-driver.
+If you are sending the patch then it should be signed-off-by, not
+acked-by, and it should be the very last entry.
 
-> And how
-> can pullup/pulldown features be selected?
+> Signed-off-by: Jonas Aaberg <jonas.aberg@stericsson.com>
+> Signed-off-by: Philippe Langlais <philippe.langlais@linaro.org>
+> Reviewed-by: Bengt Jonsson <bengt.g.jonsson@stericsson.com>
+> ---
+>  drivers/input/keyboard/gpio_keys.c |   13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index cbb1add..7947315 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -46,6 +46,8 @@ struct gpio_keys_drvdata {
+>  	struct input_dev *input;
+>  	struct mutex disable_lock;
+>  	unsigned int n_buttons;
+> +	bool enabled;
+> +	bool enable_after_suspend;
+>  	int (*enable)(struct device *dev);
+>  	void (*disable)(struct device *dev);
+>  	struct gpio_button_data data[0];
+> @@ -524,6 +526,7 @@ static int gpio_keys_open(struct input_dev *input)
+>  {
+>  	struct gpio_keys_drvdata *ddata = input_get_drvdata(input);
+>  
+> +	ddata->enabled = true;
+>  	return ddata->enable ? ddata->enable(input->dev.parent) : 0;
+>  }
+>  
+> @@ -533,6 +536,7 @@ static void gpio_keys_close(struct input_dev *input)
+>  
+>  	if (ddata->disable)
+>  		ddata->disable(input->dev.parent);
+> +	ddata->enabled = false;
+>  }
+>  
+>  /*
+> @@ -674,6 +678,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+>  	ddata->n_buttons = pdata->nbuttons;
+>  	ddata->enable = pdata->enable;
+>  	ddata->disable = pdata->disable;
+> +	ddata->enabled = false;
+>  	mutex_init(&ddata->disable_lock);
+>  
+>  	platform_set_drvdata(pdev, ddata);
+> @@ -789,6 +794,10 @@ static int gpio_keys_suspend(struct device *dev)
+>  			if (bdata->button->wakeup)
+>  				enable_irq_wake(bdata->irq);
+>  		}
+> +	} else {
+> +		ddata->enable_after_suspend = ddata->enabled;
+> +		if (ddata->enabled)
+> +			gpio_keys_close(ddata->input);
 
-So as stated in:
-"Drivers needing both pin control and GPIOs"
+I think it should take ddata->input->mutex to avoid races with
+open/close and use ddata->input->users to figure out if device shoudl be
+closed and re-opened later.
 
-This can be done in several ways, but this way is one option
-indeed, so that is a valid reason for having this pinctrl here.
+Thanks.
 
-Is biasing what you need to do?
+>  	}
+>  
+>  	return 0;
+> @@ -807,6 +816,10 @@ static int gpio_keys_resume(struct device *dev)
+>  		if (gpio_is_valid(bdata->button->gpio))
+>  			gpio_keys_gpio_report_event(bdata);
+>  	}
+> +
+> +	if (!device_may_wakeup(dev) && ddata->enable_after_suspend)
+> +		gpio_keys_open(ddata->input);
+> +
+>  	input_sync(ddata->input);
+>  
+>  	return 0;
+> -- 
+> 1.7.9.5
+> 
 
-> I admittedly might lack some background here, and if there's better
-> solution to what I want to do, I'd be happy to hear about it :)
-
-Sure, no problem we've even tried to document it :-)
-
-All I really want is that platforms have a clear idea about
-how and where the pins will be handled, and that if GPIO
-and pinctrl handle the same lines, they need to interact.
-
-Yours,
-Linus Walleij
+-- 
+Dmitry

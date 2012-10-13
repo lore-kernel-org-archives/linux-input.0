@@ -1,114 +1,80 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: gpio-keys: Disable hardware on suspend
-Date: Fri, 12 Oct 2012 23:17:39 -0700
-Message-ID: <20121013061739.GB10969@core.coreip.homeip.net>
-References: <1349964927-18619-1-git-send-email-lee.jones@linaro.org>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/4] input: Convert struct i2c_msg initialization to C99
+ format
+Date: Fri, 12 Oct 2012 23:19:22 -0700
+Message-ID: <20121013061922.GC10969@core.coreip.homeip.net>
+References: <1349782278-9023-1-git-send-email-shubhrajyoti@ti.com>
+ <1349782278-9023-2-git-send-email-shubhrajyoti@ti.com>
+ <20121010110228.3cbccde3@endymion.delvare>
+ <CAM=Q2ctFe29-Dyi+jn6s=-ybQBzXoNERSXeXCQwSCsKUAv8=XA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:57780 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750917Ab2JMGRo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Oct 2012 02:17:44 -0400
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1349964927-18619-1-git-send-email-lee.jones@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <CAM=Q2ctFe29-Dyi+jn6s=-ybQBzXoNERSXeXCQwSCsKUAv8=XA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, arnd@arndb.de, linus.walleij@stericsson.com, Jonas Aaberg <jonas.aberg@stericsson.com>, linux-input@vger.kernel.org, Philippe Langlais <philippe.langlais@linaro.org>
 
-Hi Lee,
-
-On Thu, Oct 11, 2012 at 03:15:26PM +0100, Lee Jones wrote:
-> From: Jonas Aaberg <jonas.aberg@stericsson.com>
+On Wed, Oct 10, 2012 at 05:05:39PM +0530, Shubhrajyoti Datta wrote:
+> On Wed, Oct 10, 2012 at 2:32 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> > On Tue, 9 Oct 2012 17:01:18 +0530, Shubhrajyoti D wrote:
+> [...]
+> >
+> > Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 > 
-> Disable hardware if active when suspending if the hw can not
-> wake the system from suspend.
 > 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Acked-by: Lee Jones <lee.jones@linaro.org>
+> thanks updated patch below
+> From 6638ecfa7982f95815382922c50573712c9626d7 Mon Sep 17 00:00:00 2001
+> From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+> Date: Mon, 17 Sep 2012 19:37:17 +0530
+> Subject: [PATCHv2 1/2] input: Convert struct i2c_msg initialization to C99
+>  format
+> 
+> Convert the struct i2c_msg initialization to C99 format. This makes
+> maintaining and editing the code simpler. Also helps once other fields
+> like transferred are added in future.
+> 
+> Thanks to Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>  for automating the conversion
+> 
+> Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 
-If you are sending the patch then it should be signed-off-by, not
-acked-by, and it should be the very last entry.
+Applied both, thanks Shubhrajyoti.
 
-> Signed-off-by: Jonas Aaberg <jonas.aberg@stericsson.com>
-> Signed-off-by: Philippe Langlais <philippe.langlais@linaro.org>
-> Reviewed-by: Bengt Jonsson <bengt.g.jonsson@stericsson.com>
 > ---
->  drivers/input/keyboard/gpio_keys.c |   13 +++++++++++++
->  1 file changed, 13 insertions(+)
+>  drivers/input/touchscreen/cy8ctmg110_ts.c |   13 +++++++++++--
+>  1 files changed, 11 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index cbb1add..7947315 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -46,6 +46,8 @@ struct gpio_keys_drvdata {
->  	struct input_dev *input;
->  	struct mutex disable_lock;
->  	unsigned int n_buttons;
-> +	bool enabled;
-> +	bool enable_after_suspend;
->  	int (*enable)(struct device *dev);
->  	void (*disable)(struct device *dev);
->  	struct gpio_button_data data[0];
-> @@ -524,6 +526,7 @@ static int gpio_keys_open(struct input_dev *input)
->  {
->  	struct gpio_keys_drvdata *ddata = input_get_drvdata(input);
->  
-> +	ddata->enabled = true;
->  	return ddata->enable ? ddata->enable(input->dev.parent) : 0;
->  }
->  
-> @@ -533,6 +536,7 @@ static void gpio_keys_close(struct input_dev *input)
->  
->  	if (ddata->disable)
->  		ddata->disable(input->dev.parent);
-> +	ddata->enabled = false;
->  }
->  
->  /*
-> @@ -674,6 +678,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
->  	ddata->n_buttons = pdata->nbuttons;
->  	ddata->enable = pdata->enable;
->  	ddata->disable = pdata->disable;
-> +	ddata->enabled = false;
->  	mutex_init(&ddata->disable_lock);
->  
->  	platform_set_drvdata(pdev, ddata);
-> @@ -789,6 +794,10 @@ static int gpio_keys_suspend(struct device *dev)
->  			if (bdata->button->wakeup)
->  				enable_irq_wake(bdata->irq);
->  		}
-> +	} else {
-> +		ddata->enable_after_suspend = ddata->enabled;
-> +		if (ddata->enabled)
-> +			gpio_keys_close(ddata->input);
-
-I think it should take ddata->input->mutex to avoid races with
-open/close and use ddata->input->users to figure out if device shoudl be
-closed and re-opened later.
-
-Thanks.
-
->  	}
->  
->  	return 0;
-> @@ -807,6 +816,10 @@ static int gpio_keys_resume(struct device *dev)
->  		if (gpio_is_valid(bdata->button->gpio))
->  			gpio_keys_gpio_report_event(bdata);
->  	}
-> +
-> +	if (!device_may_wakeup(dev) && ddata->enable_after_suspend)
-> +		gpio_keys_open(ddata->input);
-> +
->  	input_sync(ddata->input);
->  
->  	return 0;
+> diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c
+> b/drivers/input/touchscreen/cy8ctmg110_ts.c
+> index 464f1bf..ad6a664 100644
+> --- a/drivers/input/touchscreen/cy8ctmg110_ts.c
+> +++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
+> @@ -99,9 +99,18 @@ static int cy8ctmg110_read_regs(struct cy8ctmg110 *tsc,
+>  	int ret;
+>  	struct i2c_msg msg[2] = {
+>  		/* first write slave position to i2c devices */
+> -		{ client->addr, 0, 1, &cmd },
+> +		{
+> +			.addr = client->addr,
+> +			.len = 1,
+> +			.buf = &cmd
+> +		},
+>  		/* Second read data from position */
+> -		{ client->addr, I2C_M_RD, len, data }
+> +		{
+> +			.addr = client->addr,
+> +			.flags = I2C_M_RD,
+> +			.len = len,
+> +			.buf = data
+> +		}
+>  	};
+> 
+>  	ret = i2c_transfer(client->adapter, msg, 2);
 > -- 
-> 1.7.9.5
-> 
+> 1.7.5.4
 
 -- 
 Dmitry

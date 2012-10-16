@@ -1,49 +1,47 @@
-From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v1] i2c-hid: introduce HID over i2c specification implementation
-Date: Mon, 15 Oct 2012 22:42:41 +0200
-Message-ID: <CAN+gG=H9OfEyVaOD6r3Q5CZHNY2d1gAUr=kBAgXs-qacUDqsOw@mail.gmail.com>
-References: <1347630103-4105-1-git-send-email-benjamin.tissoires@gmail.com>
-	<20121007162838.01f36b7c@endymion.delvare>
-	<CAN+gG=E3nmXZ9RL3wN2tvKqSOu5hWYLXLf+Z=ag7VvZGJfhQ-w@mail.gmail.com>
-	<20121007210359.29f40ecf@endymion.delvare>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [RFC PATCH 01/06] input/rmi4: Public header and documentation
+Date: Tue, 16 Oct 2012 15:26:05 +0900
+Message-ID: <20121016062603.GG8670@opensource.wolfsonmicro.com>
+References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
+ <1349496603-20775-2-git-send-email-cheiny@synaptics.com>
+ <CACRpkdZb+LOk8v0aNZuPhATjS5jv-h1JJCejoh_9eFZ_fdiZQA@mail.gmail.com>
+ <BFABBC009FBA1C43B207B15FD485ABD922C22BC4@USW-MAIL1.synaptics-inc.local>
+ <CACRpkdY3jctXSBB+SMJ=6k=CcLEsHz4jY8T3db8htcE+zWnJWw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121007210359.29f40ecf-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:49615 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752794Ab2JPG0O (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Oct 2012 02:26:14 -0400
+Content-Disposition: inline
+In-Reply-To: <CACRpkdY3jctXSBB+SMJ=6k=CcLEsHz4jY8T3db8htcE+zWnJWw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Christopher Heiny <Cheiny@synaptics.com>, Anton Vorontsov <anton.vorontsov@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
 
-On Sun, Oct 7, 2012 at 9:03 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> On Sun, 7 Oct 2012 18:57:36 +0200, Benjamin Tissoires wrote:
->> On Sun, Oct 7, 2012 at 4:28 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
->> > On Fri, 14 Sep 2012 15:41:43 +0200, benjamin.tissoires wrote:
->> >> +     u16 readRegister = ihid->hdesc.wDataRegister;
->> >
->> > This is missing le16_to_cpu().
->>
->> I agree this is awful, but not putting it allows me to not have to
->> check the endianness when I'm using it.
->> But I may be totally wrong on this.
->
-> I'm afraid I don't follow you. I want to see:
->
->         u16 readRegister = le16_to_cpu(ihid->hdesc.wDataRegister);
->
-> If you don't do that, your driver is broken on bigendian systems. And
-> there's no need to "check the endianness when you're using it", the
-> above should be enough for things to work just fine.
->
+On Thu, Oct 11, 2012 at 05:32:59PM +0200, Linus Walleij wrote:
+> On Thu, Oct 11, 2012 at 5:41 AM, Christopher Heiny <Cheiny@synaptics.com> wrote:
 
-a little bit late, but yes, you are entirely right. I was confused by
-the fact that I only wanted to use the number coming from the device
-to communicate with it, but as I made bit shifting within the CPU, I
-need to convert it.
-So forget my previous words here, it is fixed in v2.
+> > In previous patch submissions, we always used these warning functions.
+> > But in the feedback on those patches, we were asked to just make
+> > sysfs show/store NULL if the attribute is write/read only.  However,
+> > during their development process, our customers want to see the
+> > warnings if the attributes are accessed incorrectly.  So we made
+> > these warnings a debug option.
 
-Thanks
-Benjamin
+> Basically my stance is that you should not lower yourself to the
+> level of others not getting the point of your technical solution
+> by making unelegant compromises, what
+> you should do is to bring them up to your level so they
+> understand that your solution is elegant.
 
-> --
-> Jean Delvare
+It seems like what you really want to do is add a debug feature to sysfs
+which will optionally complain loudly at bad accesses; obviously it's
+not something that should be there all the time as running then handling
+an error is a perfectly legitimate thing to do.  As with the /CS
+handling it'd mean it was handled at an appropriate level and could be
+reused elsewhere (it might also help make it clear to your customers why
+this is generally bad form).

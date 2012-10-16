@@ -1,61 +1,78 @@
 From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH RESEND 0/8] TI Touchscreen driver updates and Support for TSC/ADC MFD driver
-Date: Tue, 16 Oct 2012 12:55:37 +0530
-Message-ID: <1350372345-27108-1-git-send-email-rachna@ti.com>
+Subject: [PATCH RESEND 3/8] input: TSC: ti_tscadc: set FIFO0 threshold Interrupt
+Date: Tue, 16 Oct 2012 12:55:40 +0530
+Message-ID: <1350372345-27108-4-git-send-email-rachna@ti.com>
+References: <1350372345-27108-1-git-send-email-rachna@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1350372345-27108-1-git-send-email-rachna-l0cyMroinI0@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-This patch set is a cumulative set of [1] and [2] sent earlier.
-I have merged the patch set so that the MFD patches apply without
-any issues.
+Code currently uses FIFO1 threshold interrupt.
+since this is a MFD, Dedicating FIFO0 to touchscreen
+and making way for other devices to use FIFO1 as well.
+The FIFO can be shared between 2 devices but since the
+interrupt used is threshold interrupt on FIFO1, we would
+end up having wrong interrupts. Hence changing the same.
 
-Also Note that there are no code changes in either of the patch set,
-only rebased on top of linux-next to make sure that all the patches
-apply without any conflicts.
+Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
+---
+ drivers/input/touchscreen/ti_tscadc.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
 
-This patch set has been tested on AM335x EVM.
-
-[1] "[PATCH 0/4] input: TSC: ti_tscadc: TI Touchscreen driver updates"
-(http://www.spinics.net/lists/linux-input/msg22107.html)
-
-[2] "[PATCH v5 0/4] Support for TSC/ADC MFD driver"
-(http://www.spinics.net/lists/linux-input/msg22832.html)
-
-Patil, Rachna (8):
-  input: TSC: ti_tscadc: Correct register usage
-  input: TSC: ti_tscadc: Add Step configuration as platform data
-  input: TSC: ti_tscadc: set FIFO0 threshold Interrupt
-  input: TSC: ti_tscadc: Remove definition of End Of Interrupt register
-  input: TSC: ti_tscadc: Rename the existing touchscreen driver
-  MFD: ti_tscadc: Add support for TI's TSC/ADC MFDevice
-  input: TSC: ti_tsc: Convert TSC into a MFDevice
-  IIO : ADC: tiadc: Add support of TI's ADC driver
-
- drivers/iio/adc/Kconfig                     |    7 +
- drivers/iio/adc/Makefile                    |    1 +
- drivers/iio/adc/ti_am335x_adc.c             |  260 ++++++++++++++
- drivers/input/touchscreen/Kconfig           |    6 +-
- drivers/input/touchscreen/Makefile          |    2 +-
- drivers/input/touchscreen/ti_am335x_tsc.c   |  398 ++++++++++++++++++++++
- drivers/input/touchscreen/ti_tscadc.c       |  486 ---------------------------
- drivers/mfd/Kconfig                         |   11 +
- drivers/mfd/Makefile                        |    1 +
- drivers/mfd/ti_am335x_tscadc.c              |  277 +++++++++++++++
- include/linux/input/ti_am335x_tsc.h         |   23 ++
- include/linux/input/ti_tscadc.h             |   17 -
- include/linux/mfd/ti_am335x_tscadc.h        |  152 +++++++++
- include/linux/platform_data/ti_am335x_adc.h |   14 +
- 14 files changed, 1148 insertions(+), 507 deletions(-)
- create mode 100644 drivers/iio/adc/ti_am335x_adc.c
- create mode 100644 drivers/input/touchscreen/ti_am335x_tsc.c
- delete mode 100644 drivers/input/touchscreen/ti_tscadc.c
- create mode 100644 drivers/mfd/ti_am335x_tscadc.c
- create mode 100644 include/linux/input/ti_am335x_tsc.h
- delete mode 100644 include/linux/input/ti_tscadc.h
- create mode 100644 include/linux/mfd/ti_am335x_tscadc.h
- create mode 100644 include/linux/platform_data/ti_am335x_adc.h
+diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
+index c1bd8e5..2cc19b0 100644
+--- a/drivers/input/touchscreen/ti_tscadc.c
++++ b/drivers/input/touchscreen/ti_tscadc.c
+@@ -42,6 +42,7 @@
+ #define REG_STEPCONFIG(n)	(0x64 + ((n - 1) * 8))
+ #define REG_STEPDELAY(n)	(0x68 + ((n - 1) * 8))
+ #define REG_FIFO0CNT		0xE4
++#define REG_FIFO0THR		0xE8
+ #define REG_FIFO1THR		0xF4
+ #define REG_FIFO0		0x100
+ #define REG_FIFO1		0x200
+@@ -55,6 +56,7 @@
+ #define STPENB_STEPENB		STEPENB(0x7FFF)
+ 
+ /* IRQ enable */
++#define IRQENB_FIFO0THRES	BIT(2)
+ #define IRQENB_FIFO1THRES	BIT(5)
+ #define IRQENB_PENUP		BIT(9)
+ 
+@@ -277,7 +279,7 @@ static irqreturn_t tscadc_irq(int irq, void *dev)
+ 	unsigned int fsm;
+ 
+ 	status = tscadc_readl(ts_dev, REG_IRQSTATUS);
+-	if (status & IRQENB_FIFO1THRES) {
++	if (status & IRQENB_FIFO0THRES) {
+ 		tscadc_read_coordinates(ts_dev, &x, &y);
+ 
+ 		z1 = tscadc_readl(ts_dev, REG_FIFO0) & 0xfff;
+@@ -303,7 +305,7 @@ static irqreturn_t tscadc_irq(int irq, void *dev)
+ 				input_sync(input_dev);
+ 			}
+ 		}
+-		irqclr |= IRQENB_FIFO1THRES;
++		irqclr |= IRQENB_FIFO0THRES;
+ 	}
+ 
+ 	/*
+@@ -446,9 +448,9 @@ static int __devinit tscadc_probe(struct platform_device *pdev)
+ 	tscadc_writel(ts_dev, REG_CTRL, ctrl);
+ 
+ 	tscadc_idle_config(ts_dev);
+-	tscadc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO1THRES);
++	tscadc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
+ 	tscadc_step_config(ts_dev);
+-	tscadc_writel(ts_dev, REG_FIFO1THR, ts_dev->steps_to_configure);
++	tscadc_writel(ts_dev, REG_FIFO0THR, ts_dev->steps_to_configure);
+ 
+ 	ctrl |= CNTRLREG_TSCSSENB;
+ 	tscadc_writel(ts_dev, REG_CTRL, ctrl);
+-- 
+1.7.0.4

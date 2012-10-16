@@ -1,80 +1,52 @@
-From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-hid: introduce HID over i2c specification implementation
-Date: Tue, 16 Oct 2012 19:36:20 +0200
-Message-ID: <CAN+gG=E3QhwKeZfJtOhFrOqOnPW=hdbij-U7euvVEQ_MuNaXaQ@mail.gmail.com>
-References: <1350333533-13366-1-git-send-email-benjamin.tissoires@gmail.com>
-	<507D182E.9010902@suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH RESEND 0/8] TI Touchscreen driver updates and Support for
+ TSC/ADC MFD driver
+Date: Tue, 16 Oct 2012 10:42:07 -0700
+Message-ID: <20121016174207.GA1833@core.coreip.homeip.net>
+References: <1350372345-27108-1-git-send-email-rachna@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <507D182E.9010902-AlSwsSmVLrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, JJ Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1350372345-27108-1-git-send-email-rachna@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Patil, Rachna" <rachna@ti.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Jonathan Cameron <jic23@cam.ac.uk>
 List-Id: linux-input@vger.kernel.org
 
-Hi Jiri,
+Hi Rachna,
 
-On Tue, Oct 16, 2012 at 10:17 AM, Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org> wrote:
-> On 10/15/2012 10:38 PM, Benjamin Tissoires wrote:
->> Notes:
->> {1}: I don't have all the informations in the beginning of the probe function to
->> get the real size I need to allocate. So the behavior is to allocate first a
->> buffer by using HID_MIN_BUFFER_SIZE and once I got the information, I can
->> reallocate the buffer to the right size (in i2c_hid_start).
->
-> And there is a bug in this. See below.
->
->> --- /dev/null
->> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> ...
->> +static int i2c_hid_alloc_buffers(struct i2c_hid *ihid)
->> +{
->> +     /* the worst case is computed from the set_report command with a
->> +      * reportID > 15 and the maximum report length */
->> +     int args_len = sizeof(__u8) + /* optional ReportID byte */
->> +                    sizeof(__u16) + /* data register */
->> +                    sizeof(__u16) + /* size of the report */
->> +                    ihid->bufsize; /* report */
->> +
->> +     ihid->inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
->> +
->> +     if (!ihid->inbuf)
->> +             return -ENOMEM;
->> +
->> +     ihid->argsbuf = kzalloc(args_len, GFP_KERNEL);
->> +
->> +     if (!ihid->argsbuf) {
->> +             kfree(ihid->inbuf);
->> +             return -ENOMEM;
->> +     }
->> +
->> +     ihid->cmdbuf = kzalloc(sizeof(union command) + args_len, GFP_KERNEL);
->> +
->> +     if (!ihid->cmdbuf) {
->> +             kfree(ihid->inbuf);
->> +             kfree(ihid->argsbuf);
->> +             return -ENOMEM;
->> +     }
->> +
->> +     return 0;
->
-> If this is called from hid_start and some of the latter allocation fails
-> here, you free the buffers appropriately. However if another start
-> occurs (e.g. by loading another module for that particular device), it
-> will crash, as the buffers will remain unallocated because at this point
-> ihid->bufsize == old_bufsize. You should set ihid->bufsize back to
-> old_bufsize if i2c_hid_alloc_buffers fails and also set the pointers to
-> NULL here.
+On Tue, Oct 16, 2012 at 12:55:37PM +0530, Patil, Rachna wrote:
+> This patch set is a cumulative set of [1] and [2] sent earlier.
+> I have merged the patch set so that the MFD patches apply without
+> any issues.
+> 
+> Also Note that there are no code changes in either of the patch set,
+> only rebased on top of linux-next to make sure that all the patches
+> apply without any conflicts.
+> 
+> This patch set has been tested on AM335x EVM.
+> 
+> [1] "[PATCH 0/4] input: TSC: ti_tscadc: TI Touchscreen driver updates"
+> (http://www.spinics.net/lists/linux-input/msg22107.html)
+> 
+> [2] "[PATCH v5 0/4] Support for TSC/ADC MFD driver"
+> (http://www.spinics.net/lists/linux-input/msg22832.html)
+> 
+> Patil, Rachna (8):
+>   input: TSC: ti_tscadc: Correct register usage
+>   input: TSC: ti_tscadc: Add Step configuration as platform data
+>   input: TSC: ti_tscadc: set FIFO0 threshold Interrupt
+>   input: TSC: ti_tscadc: Remove definition of End Of Interrupt register
+>   input: TSC: ti_tscadc: Rename the existing touchscreen driver
+>   MFD: ti_tscadc: Add support for TI's TSC/ADC MFDevice
+>   input: TSC: ti_tsc: Convert TSC into a MFDevice
+>   IIO : ADC: tiadc: Add support of TI's ADC driver
 
-well spotted, thanks.
-I'll change it in v3 then.
+I am fine with input portion of the patch series, please merge through
+MFD tree.
 
-Cheers,
-Benjamin
+Thanks.
 
->
-> regards,
-> --
-> js
-> suse labs
+-- 
+Dmitry

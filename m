@@ -1,33 +1,80 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: qt2160: Fix I2C write function.
-Date: Tue, 16 Oct 2012 10:31:56 -0700
-Message-ID: <20121016173156.GB412@core.coreip.homeip.net>
-References: <1350400771-7950-1-git-send-email-javier.martin@vista-silicon.com>
+From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-hid: introduce HID over i2c specification implementation
+Date: Tue, 16 Oct 2012 19:36:20 +0200
+Message-ID: <CAN+gG=E3QhwKeZfJtOhFrOqOnPW=hdbij-U7euvVEQ_MuNaXaQ@mail.gmail.com>
+References: <1350333533-13366-1-git-send-email-benjamin.tissoires@gmail.com>
+	<507D182E.9010902@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:54587 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754190Ab2JPRcC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Oct 2012 13:32:02 -0400
-Received: by mail-pa0-f46.google.com with SMTP id hz1so6124934pad.19
-        for <linux-input@vger.kernel.org>; Tue, 16 Oct 2012 10:32:02 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1350400771-7950-1-git-send-email-javier.martin@vista-silicon.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <507D182E.9010902-AlSwsSmVLrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, JJ Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martin <javier.martin@vista-silicon.com>
-Cc: linux-input@vger.kernel.org, axel.lin@gmail.com
 
-On Tue, Oct 16, 2012 at 05:19:30PM +0200, Javier Martin wrote:
-> The previous implementation of qt2160_write() didn't work
-> properly. Use a similar aproach as qt1070 instead.
+Hi Jiri,
 
-I think your editor lost the end of the sentence: "... qt2160_write()
-didn't work properly because ..." :)
+On Tue, Oct 16, 2012 at 10:17 AM, Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org> wrote:
+> On 10/15/2012 10:38 PM, Benjamin Tissoires wrote:
+>> Notes:
+>> {1}: I don't have all the informations in the beginning of the probe function to
+>> get the real size I need to allocate. So the behavior is to allocate first a
+>> buffer by using HID_MIN_BUFFER_SIZE and once I got the information, I can
+>> reallocate the buffer to the right size (in i2c_hid_start).
+>
+> And there is a bug in this. See below.
+>
+>> --- /dev/null
+>> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> ...
+>> +static int i2c_hid_alloc_buffers(struct i2c_hid *ihid)
+>> +{
+>> +     /* the worst case is computed from the set_report command with a
+>> +      * reportID > 15 and the maximum report length */
+>> +     int args_len = sizeof(__u8) + /* optional ReportID byte */
+>> +                    sizeof(__u16) + /* data register */
+>> +                    sizeof(__u16) + /* size of the report */
+>> +                    ihid->bufsize; /* report */
+>> +
+>> +     ihid->inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
+>> +
+>> +     if (!ihid->inbuf)
+>> +             return -ENOMEM;
+>> +
+>> +     ihid->argsbuf = kzalloc(args_len, GFP_KERNEL);
+>> +
+>> +     if (!ihid->argsbuf) {
+>> +             kfree(ihid->inbuf);
+>> +             return -ENOMEM;
+>> +     }
+>> +
+>> +     ihid->cmdbuf = kzalloc(sizeof(union command) + args_len, GFP_KERNEL);
+>> +
+>> +     if (!ihid->cmdbuf) {
+>> +             kfree(ihid->inbuf);
+>> +             kfree(ihid->argsbuf);
+>> +             return -ENOMEM;
+>> +     }
+>> +
+>> +     return 0;
+>
+> If this is called from hid_start and some of the latter allocation fails
+> here, you free the buffers appropriately. However if another start
+> occurs (e.g. by loading another module for that particular device), it
+> will crash, as the buffers will remain unallocated because at this point
+> ihid->bufsize == old_bufsize. You should set ihid->bufsize back to
+> old_bufsize if i2c_hid_alloc_buffers fails and also set the pointers to
+> NULL here.
 
-Thanks!
+well spotted, thanks.
+I'll change it in v3 then.
 
--- 
-Dmitry
+Cheers,
+Benjamin
+
+>
+> regards,
+> --
+> js
+> suse labs

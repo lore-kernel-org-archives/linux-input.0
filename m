@@ -1,149 +1,81 @@
-From: javier Martin <javier.martin@vista-silicon.com>
-Subject: Re: [PATCH 2/2] input: qt2160: Add support for LEDs.
-Date: Wed, 17 Oct 2012 15:09:52 +0200
-Message-ID: <CACKLOr2a-Nje5fj+_uFPRZRCH4qNwwunFwyxokApRMViPLJzQQ@mail.gmail.com>
-References: <1350400771-7950-1-git-send-email-javier.martin@vista-silicon.com>
-	<1350400771-7950-2-git-send-email-javier.martin@vista-silicon.com>
-	<1693540.1O90RJqgga@dtor-d630.eng.vmware.com>
-	<CACKLOr0sbzH4gTvmjcXYp4zYZjKrHnpV1ZDNkcEXBG6c28wLSg@mail.gmail.com>
-	<CACKLOr1h-OrmyOfqwGETZymzcY_DNGODnU_soWCkZmTgN5LxCw@mail.gmail.com>
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: [PATCH] HID: roccat: Made tcu sysfs attr rw to allow readout of
+ koneplus sensor register data
+Date: Wed, 17 Oct 2012 16:35:42 +0200
+Message-ID: <1350484542.12102.2.camel@neuromancer.tessier-ashpool>
+Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:61992 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755859Ab2JQNJx (ORCPT
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:53991 "EHLO
+	mail-in-02.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756179Ab2JQOfo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Oct 2012 09:09:53 -0400
-Received: by mail-ob0-f174.google.com with SMTP id uo13so7313954obb.19
-        for <linux-input@vger.kernel.org>; Wed, 17 Oct 2012 06:09:52 -0700 (PDT)
-In-Reply-To: <CACKLOr1h-OrmyOfqwGETZymzcY_DNGODnU_soWCkZmTgN5LxCw@mail.gmail.com>
+	Wed, 17 Oct 2012 10:35:44 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, axel.lin@gmail.com
+To: Rob Landley <rob@landley.net>, Jiri Kosina <jkosina@suse.cz>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 17 October 2012 10:32, javier Martin <javier.martin@vista-silicon.com> wrote:
-> Hi Dmitry,
-> let me elaborate more on the LED issue.
->
-> On 17 October 2012 09:23, javier Martin <javier.martin@vista-silicon.com> wrote:
->> Hi Dmitry,
->>
->> On 16 October 2012 17:53, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->>> Hi Javier,
->>>
->>> On Tuesday, October 16, 2012 05:19:31 PM Javier Martin wrote:
->>>> Outputs x8..x0 of the qt2160 can have leds attached to it.
->>>> This patch handles those outputs using EV_LED events.
->>>>
->>>> Signed-off-by: Javier Martin <javier.martin@vista-silicon.com>
->>>> ---
->>>>  drivers/input/keyboard/qt2160.c |   38
->>>> ++++++++++++++++++++++++++++++++++++++ 1 file changed, 38 insertions(+)
->>>>
->>>> diff --git a/drivers/input/keyboard/qt2160.c
->>>> b/drivers/input/keyboard/qt2160.c index 73ea4b0..7070372 100644
->>>> --- a/drivers/input/keyboard/qt2160.c
->>>> +++ b/drivers/input/keyboard/qt2160.c
->>>> @@ -39,6 +39,7 @@
->>>>  #define QT2160_CMD_GPIOS      6
->>>>  #define QT2160_CMD_SUBVER     7
->>>>  #define QT2160_CMD_CALIBRATE  10
->>>> +#define QT2160_CMD_LEDS       70
->>>>
->>>>  #define QT2160_CYCLE_INTERVAL        (2*HZ)
->>>>
->>>> @@ -217,6 +218,30 @@ static int __devinit qt2160_write(struct i2c_client
->>>> *client, u8 reg, u8 data) return ret;
->>>>  }
->>>>
->>>> +static int qt2160_event(struct input_dev *dev,
->>>> +                     unsigned int type, unsigned int code, int value)
->>>> +{
->>>> +     struct qt2160_data *qt2160 = input_get_drvdata(dev);
->>>> +     struct i2c_client *client = qt2160->client;
->>>> +     u32 val;
->>>> +
->>>> +     switch (type) {
->>>> +     case EV_LED:
->>>> +             val = qt2160_read(qt2160->client, QT2160_CMD_LEDS);
->>>> +             if (value)
->>>> +                     val |= (1 << code);
->>>> +             else
->>>> +                     val &= ~(1 << code);
->>>
->>> So qt2160 happens to use the same encoding as Linux and the leds
->>> have the same purpose? Or maybe LED subsystem should be used to
->>> register general-purpose leds?
->>
->> Yes, it uses the same encoding as Linux.
->> The second question is more tricky and I expect you kindly give some
->> guidelines about it.
->> It is true that x8...x0 are just output pins in the qt2160, and
->> anything could be attached to them. They could be handled as
->> output-only GPIOs. Is it right to mix GPIO framework with input
->> framework in this driver?
->> On the other hand, with the current approach x8...x0 are fully functional too.
->
-> There are three possible frameworks that could be used to implement
-> this functionality:
-> 1. Using EV_LED events in the input framework.
-> 2. Using LED subsystem and registering general-purpose leds.
-> 3. Using GPIO subsystem to register generic, output only, GPIOs.
->
-> IMHO, option 3 could be discarded since it doesn't make much sense to
-> have output only GPIOs, the flexibility this framework provides
-> wouldn't be used at all.
-> So only options 1 and 2 would be left.
->
-> I chose option 1 because this driver already uses the input framework
-> and I thought this functionality would be more easily integrated this
-> way.
-> As I understand, your concern with option 1 is related with the fact
-> that LED_NUML, LED_CAPSL, etc... don't have that meaning in this chip,
-> because we don't know what the user will be attaching to x7...x0
-> outputs.
-> But this argument could be used for the EV_KEY feature too. The
-> following suggested mapping in the same driver is just arbitrary,
-> isn't it?:
->
-> static unsigned char qt2160_key2code[] = {
->         KEY_0, KEY_1, KEY_2, KEY_3,
->         KEY_4, KEY_5, KEY_6, KEY_7,
->         KEY_8, KEY_9, KEY_A, KEY_B,
->         KEY_C, KEY_D, KEY_E, KEY_F,
-> };
->
-> Anyway I'm totally open to reimplement the feature using option 2, as
-> long as we agree that it's the right way to proceed. If this approach
-> were to be taken, should I add it to the same file or should I create
-> a separate driver inside /drivers/leds ?
+tcu sysfs attr was used to only control calibration process so far. Reverse
+engineering the firmware revealed direct sensor register access. Allowing
+readout of tcu permits usage of this feature.
 
-Please, forgive my multiple e-mails.
-Another argument in favour of using the LED framework (2) is that
-qt2160 has the possibility to enable PWM in x7...x0. This way
-brightness can be controlled. If we use EV_LED, that feature cannot be
-controlled.
+Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+---
+ .../ABI/testing/sysfs-driver-hid-roccat-koneplus   |    6 +++---
+ drivers/hid/hid-roccat-koneplus.c                  |   11 ++++++++++-
+ 2 files changed, 13 insertions(+), 4 deletions(-)
 
-But, in order to provide LED framework support there are, AFAIK, two
-ways to proceed:
-a) Implement the functionality directly in /drivers/input/keyboard/qt2160.c
-b) Create a new multifunction device in /drivers/mfd/ and two
-subdevices: the existing one for keyboard and
-/drivers/leds/qt2160-leds.c for leds.
-
-Option b) seems cleaner to me but LED control is such a simple
-functionality that I don't know if it's worth a separate file.
-
-What do you think?
-
-Regards.
+diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus b/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus
+index 65e6e5d..f9e2a61 100644
+--- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus
++++ b/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus
+@@ -104,9 +104,9 @@ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-
+ Date:		October 2010
+ Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
+ Description:	When written a calibration process for the tracking control unit
+-		can be initiated/cancelled.
+-		The data has to be 3 bytes long.
+-		This file is writeonly.
++		can be initiated/cancelled. Also lets one read/write sensor
++		registers.
++		The data has to be 4 bytes long.
+ Users:		http://roccat.sourceforge.net
+ 
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/tcu_image
+diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
+index f5602fe..c47540a 100644
+--- a/drivers/hid/hid-roccat-koneplus.c
++++ b/drivers/hid/hid-roccat-koneplus.c
+@@ -222,6 +222,14 @@ static ssize_t koneplus_sysfs_write_tcu(struct file *fp,
+ 			sizeof(struct koneplus_tcu), KONEPLUS_COMMAND_TCU);
+ }
+ 
++static ssize_t koneplus_sysfs_read_tcu(struct file *fp,
++		struct kobject *kobj, struct bin_attribute *attr, char *buf,
++		loff_t off, size_t count)
++{
++	return koneplus_sysfs_read(fp, kobj, buf, off, count,
++			sizeof(struct koneplus_tcu), KONEPLUS_COMMAND_TCU);
++}
++
+ static ssize_t koneplus_sysfs_read_tcu_image(struct file *fp,
+ 		struct kobject *kobj, struct bin_attribute *attr, char *buf,
+ 		loff_t off, size_t count)
+@@ -426,8 +434,9 @@ static struct bin_attribute koneplus_bin_attributes[] = {
+ 		.write = koneplus_sysfs_write_sensor
+ 	},
+ 	{
+-		.attr = { .name = "tcu", .mode = 0220 },
++		.attr = { .name = "tcu", .mode = 0660 },
+ 		.size = sizeof(struct koneplus_tcu),
++		.read = koneplus_sysfs_read_tcu,
+ 		.write = koneplus_sysfs_write_tcu
+ 	},
+ 	{
 -- 
-Javier Martin
-Vista Silicon S.L.
-CDTUC - FASE C - Oficina S-345
-Avda de los Castros s/n
-39005- Santander. Cantabria. Spain
-+34 942 25 32 60
-www.vista-silicon.com
+1.7.3.4
+
+
+

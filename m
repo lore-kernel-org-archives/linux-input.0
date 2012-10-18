@@ -1,153 +1,388 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] input: qt2160: Add support for LEDs.
-Date: Wed, 17 Oct 2012 23:32:20 -0700
-Message-ID: <20121018063220.GA12709@core.coreip.homeip.net>
-References: <1350400771-7950-1-git-send-email-javier.martin@vista-silicon.com>
- <1350400771-7950-2-git-send-email-javier.martin@vista-silicon.com>
- <1693540.1O90RJqgga@dtor-d630.eng.vmware.com>
- <CACKLOr0sbzH4gTvmjcXYp4zYZjKrHnpV1ZDNkcEXBG6c28wLSg@mail.gmail.com>
- <CACKLOr1h-OrmyOfqwGETZymzcY_DNGODnU_soWCkZmTgN5LxCw@mail.gmail.com>
- <CACKLOr2a-Nje5fj+_uFPRZRCH4qNwwunFwyxokApRMViPLJzQQ@mail.gmail.com>
+Subject: Re: [PATCH] Input: serio - Add ARC PS/2 driver
+Date: Wed, 17 Oct 2012 23:50:04 -0700
+Message-ID: <20121018065004.GA12838@core.coreip.homeip.net>
+References: <1350468619-4813-1-git-send-email-mischa.jonker@synopsys.com>
+ <1350468619-4813-2-git-send-email-mischa.jonker@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:37349 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751467Ab2JRGc0 (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:41560 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752188Ab2JRGuJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Oct 2012 02:32:26 -0400
-Received: by mail-pa0-f46.google.com with SMTP id hz1so7984139pad.19
-        for <linux-input@vger.kernel.org>; Wed, 17 Oct 2012 23:32:25 -0700 (PDT)
+	Thu, 18 Oct 2012 02:50:09 -0400
 Content-Disposition: inline
-In-Reply-To: <CACKLOr2a-Nje5fj+_uFPRZRCH4qNwwunFwyxokApRMViPLJzQQ@mail.gmail.com>
+In-Reply-To: <1350468619-4813-2-git-send-email-mischa.jonker@synopsys.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: javier Martin <javier.martin@vista-silicon.com>
-Cc: linux-input@vger.kernel.org, axel.lin@gmail.com
+To: Mischa Jonker <mischa.jonker@synopsys.com>
+Cc: m.d.s.x.jonker@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arc-linux-dev@synopsys.com
 
-Hi Javier,
+Hi Mischa,
 
-On Wed, Oct 17, 2012 at 03:09:52PM +0200, javier Martin wrote:
-> On 17 October 2012 10:32, javier Martin <javier.martin@vista-silicon.com> wrote:
-> > Hi Dmitry,
-> > let me elaborate more on the LED issue.
-> >
-> > On 17 October 2012 09:23, javier Martin <javier.martin@vista-silicon.com> wrote:
-> >> Hi Dmitry,
-> >>
-> >> On 16 October 2012 17:53, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> >>> Hi Javier,
-> >>>
-> >>> On Tuesday, October 16, 2012 05:19:31 PM Javier Martin wrote:
-> >>>> Outputs x8..x0 of the qt2160 can have leds attached to it.
-> >>>> This patch handles those outputs using EV_LED events.
-> >>>>
-> >>>> Signed-off-by: Javier Martin <javier.martin@vista-silicon.com>
-> >>>> ---
-> >>>>  drivers/input/keyboard/qt2160.c |   38
-> >>>> ++++++++++++++++++++++++++++++++++++++ 1 file changed, 38 insertions(+)
-> >>>>
-> >>>> diff --git a/drivers/input/keyboard/qt2160.c
-> >>>> b/drivers/input/keyboard/qt2160.c index 73ea4b0..7070372 100644
-> >>>> --- a/drivers/input/keyboard/qt2160.c
-> >>>> +++ b/drivers/input/keyboard/qt2160.c
-> >>>> @@ -39,6 +39,7 @@
-> >>>>  #define QT2160_CMD_GPIOS      6
-> >>>>  #define QT2160_CMD_SUBVER     7
-> >>>>  #define QT2160_CMD_CALIBRATE  10
-> >>>> +#define QT2160_CMD_LEDS       70
-> >>>>
-> >>>>  #define QT2160_CYCLE_INTERVAL        (2*HZ)
-> >>>>
-> >>>> @@ -217,6 +218,30 @@ static int __devinit qt2160_write(struct i2c_client
-> >>>> *client, u8 reg, u8 data) return ret;
-> >>>>  }
-> >>>>
-> >>>> +static int qt2160_event(struct input_dev *dev,
-> >>>> +                     unsigned int type, unsigned int code, int value)
-> >>>> +{
-> >>>> +     struct qt2160_data *qt2160 = input_get_drvdata(dev);
-> >>>> +     struct i2c_client *client = qt2160->client;
-> >>>> +     u32 val;
-> >>>> +
-> >>>> +     switch (type) {
-> >>>> +     case EV_LED:
-> >>>> +             val = qt2160_read(qt2160->client, QT2160_CMD_LEDS);
-> >>>> +             if (value)
-> >>>> +                     val |= (1 << code);
-> >>>> +             else
-> >>>> +                     val &= ~(1 << code);
-> >>>
-> >>> So qt2160 happens to use the same encoding as Linux and the leds
-> >>> have the same purpose? Or maybe LED subsystem should be used to
-> >>> register general-purpose leds?
-> >>
-> >> Yes, it uses the same encoding as Linux.
-> >> The second question is more tricky and I expect you kindly give some
-> >> guidelines about it.
-> >> It is true that x8...x0 are just output pins in the qt2160, and
-> >> anything could be attached to them. They could be handled as
-> >> output-only GPIOs. Is it right to mix GPIO framework with input
-> >> framework in this driver?
-> >> On the other hand, with the current approach x8...x0 are fully functional too.
-> >
-> > There are three possible frameworks that could be used to implement
-> > this functionality:
-> > 1. Using EV_LED events in the input framework.
-> > 2. Using LED subsystem and registering general-purpose leds.
-> > 3. Using GPIO subsystem to register generic, output only, GPIOs.
-> >
-> > IMHO, option 3 could be discarded since it doesn't make much sense to
-> > have output only GPIOs, the flexibility this framework provides
-> > wouldn't be used at all.
-> > So only options 1 and 2 would be left.
-> >
-> > I chose option 1 because this driver already uses the input framework
-> > and I thought this functionality would be more easily integrated this
-> > way.
-> > As I understand, your concern with option 1 is related with the fact
-> > that LED_NUML, LED_CAPSL, etc... don't have that meaning in this chip,
-> > because we don't know what the user will be attaching to x7...x0
-> > outputs.
-> > But this argument could be used for the EV_KEY feature too. The
-> > following suggested mapping in the same driver is just arbitrary,
-> > isn't it?:
-> >
-> > static unsigned char qt2160_key2code[] = {
-> >         KEY_0, KEY_1, KEY_2, KEY_3,
-> >         KEY_4, KEY_5, KEY_6, KEY_7,
-> >         KEY_8, KEY_9, KEY_A, KEY_B,
-> >         KEY_C, KEY_D, KEY_E, KEY_F,
-> > };
-> >
-> > Anyway I'm totally open to reimplement the feature using option 2, as
-> > long as we agree that it's the right way to proceed. If this approach
-> > were to be taken, should I add it to the same file or should I create
-> > a separate driver inside /drivers/leds ?
+On Wed, Oct 17, 2012 at 12:10:19PM +0200, Mischa Jonker wrote:
+> This adds support for the PS/2 block that is used in various ARC FPGA
+> platforms.
 > 
-> Please, forgive my multiple e-mails.
-> Another argument in favour of using the LED framework (2) is that
-> qt2160 has the possibility to enable PWM in x7...x0. This way
-> brightness can be controlled. If we use EV_LED, that feature cannot be
-> controlled.
-> 
-> But, in order to provide LED framework support there are, AFAIK, two
-> ways to proceed:
-> a) Implement the functionality directly in /drivers/input/keyboard/qt2160.c
-> b) Create a new multifunction device in /drivers/mfd/ and two
-> subdevices: the existing one for keyboard and
-> /drivers/leds/qt2160-leds.c for leds.
-> 
-> Option b) seems cleaner to me but LED control is such a simple
-> functionality that I don't know if it's worth a separate file.
-> 
-> What do you think?
 
-We have quite a few input drivers that either also use LED framework or
-export unused gpio pins using gpiolib, so going full MFD route is not
-necessary.
+Thank you for making changes. A few more comments below.
 
-Thanks.
+> Signed-off-by: Mischa Jonker <mischa.jonker@synopsys.com>
+> ---
+>  drivers/input/serio/Kconfig   |    9 ++
+>  drivers/input/serio/Makefile  |    1 +
+>  drivers/input/serio/arc_ps2.c |  275 +++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 285 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/serio/arc_ps2.c
+> 
+> diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+> index 55f2c22..4a4e182 100644
+> --- a/drivers/input/serio/Kconfig
+> +++ b/drivers/input/serio/Kconfig
+> @@ -234,4 +234,13 @@ config SERIO_PS2MULT
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called ps2mult.
+>  
+> +config SERIO_ARC_PS2
+> +	tristate "ARC PS/2 support"
+> +	help
+> +	  Say Y here if you have an ARC FPGA platform with a PS/2
+> +	  controller in it.
+> +
+> +	  To compile this driver as a module, choose M here; the module
+> +	  will be called arc_ps2.
+> +
+>  endif
+> diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
+> index dbbe376..4b0c8f8 100644
+> --- a/drivers/input/serio/Makefile
+> +++ b/drivers/input/serio/Makefile
+> @@ -25,3 +25,4 @@ obj-$(CONFIG_SERIO_RAW)		+= serio_raw.o
+>  obj-$(CONFIG_SERIO_AMS_DELTA)	+= ams_delta_serio.o
+>  obj-$(CONFIG_SERIO_XILINX_XPS_PS2)	+= xilinx_ps2.o
+>  obj-$(CONFIG_SERIO_ALTERA_PS2)	+= altera_ps2.o
+> +obj-$(CONFIG_SERIO_ARC_PS2)	+= arc_ps2.o
+> diff --git a/drivers/input/serio/arc_ps2.c b/drivers/input/serio/arc_ps2.c
+> new file mode 100644
+> index 0000000..c952685
+> --- /dev/null
+> +++ b/drivers/input/serio/arc_ps2.c
+> @@ -0,0 +1,275 @@
+> +/*
+> + * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + *
+> + * Driver is originally developed by Pavel Sokolov <psokolov@synopsys.com>
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/input.h>
+> +#include <linux/serio.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/slab.h>
+> +
+> +#define ARC_PS2_PORTS                   (2)
+> +
+> +#define ARC_ARC_PS2_ID                  (0x0001f609)
+> +
+> +#define STAT_TIMEOUT                    (128)
+> +
+> +#define PS2_STAT_RX_FRM_ERR             (1)
+> +#define PS2_STAT_RX_BUF_OVER            (1 << 1)
+> +#define PS2_STAT_RX_INT_EN              (1 << 2)
+> +#define PS2_STAT_RX_VAL                 (1 << 3)
+> +#define PS2_STAT_TX_ISNOT_FUL           (1 << 4)
+> +#define PS2_STAT_TX_INT_EN              (1 << 5)
+> +
+> +struct arc_ps2_port {
+> +	void *data, *status;
+
+These 2 should be annotated as __iomem. May I also suggest calling them
+data_addt and status_addr?
+
+> +	struct serio *io;
+> +};
+> +
+> +struct arc_ps2_data {
+> +	struct arc_ps2_port port[ARC_PS2_PORTS];
+> +	struct resource *iomem_res;
+> +	int irq;
+> +	void *addr;
+
+void __iomem *
+
+> +	unsigned frame_error;
+
+Prefer "unsigned int".
+
+> +	unsigned buf_overflow;
+> +	unsigned total_int;
+> +};
+> +
+> +static void arc_ps2_check_rx(struct arc_ps2_data *arc_ps2,
+> +			     struct arc_ps2_port *port)
+> +{
+> +	unsigned flag, status;
+> +	unsigned char data;
+> +
+> +	while (1) {
+> +		status = ioread32(port->status);
+> +		if (!(status & PS2_STAT_RX_VAL))
+> +			break;
+> +		flag = 0;
+> +
+> +		arc_ps2->total_int++;
+> +		if (status & PS2_STAT_RX_FRM_ERR) {
+> +			arc_ps2->frame_error++;
+> +			flag |= SERIO_PARITY;
+> +		} else if (status & PS2_STAT_RX_BUF_OVER) {
+> +			arc_ps2->buf_overflow++;
+> +			flag |= SERIO_FRAME;
+> +		}
+> +		data = ioread32(port->data) & 0xff;
+> +
+> +		serio_interrupt(port->io, data, flag);
+> +	}
+> +}
+> +
+> +static irqreturn_t arc_ps2_interrupt(int irq, void *dev)
+> +{
+> +	struct arc_ps2_data *arc_ps2 = dev;
+> +	int i;
+> +
+> +	for (i = 0; i < ARC_PS2_PORTS; i++)
+> +		arc_ps2_check_rx(arc_ps2, &arc_ps2->port[i]);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int arc_ps2_write(struct serio *io, unsigned char val)
+> +{
+> +	unsigned status;
+> +	struct arc_ps2_port *port = io->port_data;
+> +	int timeout = STAT_TIMEOUT;
+> +
+> +	do {
+> +		status = ioread32(port->status);
+> +		cpu_relax();
+> +		timeout--;
+> +	} while (!(status & PS2_STAT_TX_ISNOT_FUL) && timeout);
+> +
+> +	if (timeout)
+
+Curly braces on this branch too please - the rule is that all branches
+should have or not have braces. This overrides the single-statement
+rule.
+
+> +		iowrite32(val & 0xff, port->data);
+> +	else {
+> +		dev_err(&io->dev, "write timeout\n");
+> +		return -ETIMEDOUT;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int arc_ps2_open(struct serio *io)
+> +{
+> +	struct arc_ps2_port *port = io->port_data;
+> +	iowrite32(PS2_STAT_RX_INT_EN, port->status);
+> +	return 0;
+> +}
+> +
+> +static void arc_ps2_close(struct serio *io)
+> +{
+> +	struct arc_ps2_port *port = io->port_data;
+> +
+> +	iowrite32(ioread32(port->status) & ~PS2_STAT_RX_INT_EN, port->status);
+> +}
+> +
+> +static int __devinit arc_ps2_allocate_port(struct platform_device *pdev,
+> +					   struct arc_ps2_port *port,
+> +					   int index, void *base)
+> +{
+> +	struct serio *io;
+> +
+> +	io = kzalloc(sizeof(struct serio), GFP_KERNEL);
+> +	if (!io)
+> +		return -ENOMEM;
+> +
+> +	io->id.type = SERIO_8042;
+> +	io->write = arc_ps2_write;
+> +	io->open = arc_ps2_open;
+> +	io->close = arc_ps2_close;
+> +	snprintf(io->name, sizeof(io->name), "ARC PS/2 port%d", index);
+> +	snprintf(io->phys, sizeof(io->phys), "arc/serio%d", index);
+> +	io->port_data = port;
+> +
+> +	port->io = io;
+> +
+> +	port->data = base + 4 + index * 4;
+> +	port->status = base + 4 + ARC_PS2_PORTS * 4 + index * 4;
+> +
+> +	dev_dbg(&pdev->dev, "port%d is allocated (data = 0x%p, status = 0x%p)\n",
+> +		index, port->data, port->status);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __devinit arc_ps2_probe(struct platform_device *pdev)
+> +{
+> +	struct arc_ps2_data *arc_ps2;
+> +	int ret, id, i;
+> +
+> +	arc_ps2 = kzalloc(sizeof(struct arc_ps2_data), GFP_KERNEL);
+> +	if (!arc_ps2) {
+> +		dev_err(&pdev->dev, "out of memory\n");
+> +		ret = -ENOMEM;
+> +		goto out;
+> +	}
+> +
+> +	arc_ps2->iomem_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!arc_ps2->iomem_res) {
+> +		dev_err(&pdev->dev, "no IO memory defined\n");
+> +		ret = -ENODEV;
+
+-EINVAL
+
+> +		goto out_free;
+> +	}
+> +
+> +	arc_ps2->irq = platform_get_irq_byname(pdev, "arc_ps2_irq");
+> +	if (arc_ps2->irq < 0) {
+> +		dev_err(&pdev->dev, "no IRQ defined\n");
+> +		ret = -ENODEV;
+
+-EINVAL
+
+> +		goto out_free;
+> +	}
+> +
+> +	if (!request_mem_region(arc_ps2->iomem_res->start,
+> +	    resource_size(arc_ps2->iomem_res), pdev->name)) {
+> +		dev_err(&pdev->dev, "memory allocation failed cannot get the I/O addr 0x%x\n",
+> +			(unsigned int)arc_ps2->iomem_res->start);
+
+I think we have a format specifier for resources.
+
+> +
+> +		ret = -EBUSY;
+> +		goto out_free;
+> +	}
+> +
+> +	arc_ps2->addr = ioremap_nocache(arc_ps2->iomem_res->start,
+> +					resource_size(arc_ps2->iomem_res));
+> +	if (!arc_ps2->addr) {
+> +		dev_err(&pdev->dev, "memory mapping failed\n");
+> +		ret = -ENOMEM;
+> +		goto out_release_region;
+> +	}
+> +
+> +	dev_info(&pdev->dev, "irq = %d, address = 0x%p, ports = %i\n",
+> +		 arc_ps2->irq, arc_ps2->addr, ARC_PS2_PORTS);
+> +
+> +	id = ioread32(arc_ps2->addr);
+> +	if (id != ARC_ARC_PS2_ID) {
+> +		dev_err(&pdev->dev, "device id does not match\n");
+> +		ret = ENXIO;
+
+-ENXIO
+
+> +		goto out_unmap;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, arc_ps2);
+> +
+> +	for (i = 0; i < ARC_PS2_PORTS; i++) {
+> +		ret = arc_ps2_allocate_port(pdev, &arc_ps2->port[i], i,
+> +					    arc_ps2->addr);
+> +		if (ret)
+> +			goto release;
+
+Can we rename 'ret' to 'error'?
+
+> +		serio_register_port(arc_ps2->port[i].io);
+> +	}
+> +
+> +	ret = request_irq(arc_ps2->irq, arc_ps2_interrupt, 0,
+> +			  "arc_ps2", arc_ps2);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Could not allocate IRQ\n");
+> +		goto release;
+> +	}
+> +
+> +	return 0;
+> +
+> +release:
+> +	for (i = 0; i < ARC_PS2_PORTS; i++) {
+> +		if (arc_ps2->port[i].io)
+> +			serio_unregister_port(arc_ps2->port[i].io);
+> +	}
+> +out_unmap:
+> +	iounmap((void __iomem *) arc_ps2->addr);
+
+No need to cast to __iomem here.
+
+> +out_release_region:
+> +	release_mem_region(arc_ps2->iomem_res->start,
+> +			   resource_size(arc_ps2->iomem_res));
+> +out_free:
+> +	kfree(arc_ps2);
+> +out:
+> +	return ret;
+> +}
+> +
+> +static int __devexit arc_ps2_remove(struct platform_device *pdev)
+> +{
+> +	struct arc_ps2_data *arc_ps2;
+> +	int i;
+> +
+> +	arc_ps2 = platform_get_drvdata(pdev);
+> +	for (i = 0; i < ARC_PS2_PORTS; i++)
+> +		serio_unregister_port(arc_ps2->port[i].io);
+> +
+> +	free_irq(arc_ps2->irq, arc_ps2);
+> +	iounmap((void __iomem *) arc_ps2->addr);
+
+No need to cast to __iomem here.
+
+> +	release_mem_region(arc_ps2->iomem_res->start,
+> +			   resource_size(arc_ps2->iomem_res));
+> +
+> +	dev_dbg(&pdev->dev, "interrupt count = %i\n", arc_ps2->total_int);
+> +	dev_dbg(&pdev->dev, "frame error count = %i\n", arc_ps2->frame_error);
+> +	dev_dbg(&pdev->dev, "buffer overflow count = %i\n",
+> +		arc_ps2->buf_overflow);
+> +
+> +	kfree(arc_ps2);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver arc_ps2_driver = {
+> +	.driver = {
+> +		   .name = "arc_ps2",
+> +		   .owner = THIS_MODULE,
+> +		   },
+> +	.probe = arc_ps2_probe,
+> +	.remove = __devexit_p(arc_ps2_remove),
+> +};
+> +
+> +module_platform_driver(arc_ps2_driver);
+> +
+> +MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Pavel Sokolov <psokolov@synopsys.com>");
+> +MODULE_DESCRIPTION("ARC PS/2 Driver");
+> -- 
+> 1.7.0.4
+> 
 
 -- 
 Dmitry

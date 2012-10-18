@@ -1,46 +1,37 @@
-From: Mischa Jonker <Mischa.Jonker@synopsys.com>
-Subject: [PATCH] Input: serio - Add ARC PS/2 driver
-Date: Thu, 18 Oct 2012 08:35:17 +0000
-Message-ID: <E6BF041E97966E4DB955F0DF883AD2D6019A2E@DE02WEMBX1.internal.synopsys.com>
-References: <1350468619-4813-1-git-send-email-mischa.jonker@synopsys.com>
- <1350468619-4813-2-git-send-email-mischa.jonker@synopsys.com>
- <20121018065004.GA12838@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Mischa Jonker <mischa.jonker@synopsys.com>
+Subject: [PATCH v3 0/1] Input: serio - Add ARC PS/2 driver
+Date: Thu, 18 Oct 2012 10:36:06 +0200
+Message-ID: <1350549367-11098-1-git-send-email-mischa.jonker@synopsys.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us01smtp2.synopsys.com ([198.182.44.80]:47776 "EHLO
-	kiruna.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752359Ab2JRIfU convert rfc822-to-8bit (ORCPT
+Received: from us01smtp3.synopsys.com ([198.182.44.81]:42419 "EHLO
+	hermes.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752140Ab2JRIoJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Oct 2012 04:35:20 -0400
-In-Reply-To: <20121018065004.GA12838@core.coreip.homeip.net>
-Content-Language: en-US
+	Thu, 18 Oct 2012 04:44:09 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mischa Jonker <mischa.jonker@synopsys.com>
-Cc: "m.d.s.x.jonker@gmail.com" <m.d.s.x.jonker@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "arc-linux-dev@synopsys.com" <arc-linux-dev@synopsys.com>
+To: dmitry.torokhov@gmail.com, m.d.s.x.jonker@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arc-linux-dev@synopsys.com
+Cc: Mischa Jonker <mischa.jonker@synopsys.com>
 
-Hi Dmitry,
+main changes for v3:
+* proper __iomem annotation
+* correct return values in case of error
 
-Thanks again for your quick reply. 
+main changes for v2:
+* dev_* instead of pr_*
+* ioread32/iowrite32 instead of inl/outl
+* use module_platform_driver macro
+* disabling interrupt twice was unnecessary
 
->> +	void *data, *status;
->These 2 should be annotated as __iomem. May I also suggest calling them data_addt and status_addr?
-I assume you meant data_addr.
+New patch has been tested on our own architecture (ARC) and
+builds cleanly on x86-64.
 
->> +		dev_err(&pdev->dev, "memory allocation failed cannot get the I/O addr 0x%x\n",
->> +			(unsigned int)arc_ps2->iomem_res->start);
-> I think we have a format specifier for resources.
-Thanks, didn't know that!
+Mischa Jonker (1):
+  Input: serio - Add ARC PS/2 driver
 
->> +	iounmap((void __iomem *) arc_ps2->addr);
-> No need to cast to __iomem here.
-These are remains from the time that addr was still an 'unsigned' (while using inl/outl). Updated.
+ drivers/input/serio/Kconfig   |    9 ++
+ drivers/input/serio/Makefile  |    1 +
+ drivers/input/serio/arc_ps2.c |  275 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 285 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/serio/arc_ps2.c
 
-Patch v3 will follow in due course.
-
-
-Thanks again,
-
-Mischa

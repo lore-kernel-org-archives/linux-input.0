@@ -1,56 +1,45 @@
-From: David Vrabel <david.vrabel@citrix.com>
-Subject: [PATCH 5/5] xen-kbdfront: handle backend CLOSED without CLOSING
-Date: Thu, 18 Oct 2012 11:03:38 +0100
-Message-ID: <1350554618-14582-5-git-send-email-david.vrabel@citrix.com>
-References: <507FD39F.4060601@citrix.com>
+From: Jian-Jhong Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-hid: introduce HID over i2c specification implementation
+Date: Thu, 18 Oct 2012 18:16:21 +0800
+Message-ID: <87wqyojdai.fsf@emc.com.tw>
+References: <1350333533-13366-1-git-send-email-benjamin.tissoires@gmail.com> <87zk3kjghz.fsf@emc.com.tw> <CAN+gG=HLxXJAwZ8mWzuDFVBht4BeWaSEvXOQZEBgS8akyerQEw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <507FD39F.4060601@citrix.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: xen-devel@lists.xen.org
-Cc: David Vrabel <david.vrabel@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAN+gG=HLxXJAwZ8mWzuDFVBht4BeWaSEvXOQZEBgS8akyerQEw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-From: David Vrabel <david.vrabel@citrix.com>
+Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> writes:
+> Hi JJ,
+>
+> On Thu, Oct 18, 2012 at 11:07 AM, Jian-Jhong Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org> wrote:
+>> Hi Benjamin,
+>>
+>> Some suggestions to make the error messages more "human", and a little
+>> question on the return value of i2c_hid_fetch_hid_descriptor.  Please see below:
+>
+> I fully agree with the more "human" error messages.
+>
+> However, for i2c_hid_fetch_hid_descriptor return values, I'm affraid I
+> can't use -EINVAL.
+>
+> Jean Delvare (one of the i2c maintainers) told in his review of the v1:
+> "
+> These should all be -ENODEV in this function
+> [i2c_hid_fetch_hid_descriptor]: the device isn't what you
+> expected. EINVAL is for invalid argument.
+> "
 
-Backend drivers shouldn't transistion to CLOSED unless the frontend is
-CLOSED.  If a backend does transition to CLOSED too soon then the
-frontend may not see the CLOSING state and will not properly shutdown.
+I must have missed that mail.  Thank you for pointing this out.
 
-So, treat an unexpected backend CLOSED state the same as CLOSING.
+-JJ
 
-Signed-off-by: David Vrabel <david.vrabel@citrix.com>
-Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
----
-Cc: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/misc/xen-kbdfront.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-index 02ca868..6f7d990 100644
---- a/drivers/input/misc/xen-kbdfront.c
-+++ b/drivers/input/misc/xen-kbdfront.c
-@@ -311,7 +311,6 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
- 	case XenbusStateReconfiguring:
- 	case XenbusStateReconfigured:
- 	case XenbusStateUnknown:
--	case XenbusStateClosed:
- 		break;
- 
- 	case XenbusStateInitWait:
-@@ -350,6 +349,10 @@ InitWait:
- 
- 		break;
- 
-+	case XenbusStateClosed:
-+		if (dev->state == XenbusStateClosed)
-+			break;
-+		/* Missed the backend's CLOSING state -- fallthrough */
- 	case XenbusStateClosing:
- 		xenbus_frontend_closed(dev);
- 		break;
--- 
-1.7.2.5
+> So ENODEV is the right return value.
+>
+> Anyway, thanks for the review.
+>
+> Cheers,
+> Benjamin

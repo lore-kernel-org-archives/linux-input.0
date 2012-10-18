@@ -1,73 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: edt-ft5x06 - convert to use simple_open()
-Date: Wed, 17 Oct 2012 23:50:45 -0700
-Message-ID: <20121018065045.GB12838@core.coreip.homeip.net>
-References: <CAPgLHd_P7=SeFYvC8EepyNy7Lm-NUTBokTpMDhFVbS_sfhx+UQ@mail.gmail.com>
+From: Mischa Jonker <Mischa.Jonker@synopsys.com>
+Subject: [PATCH] Input: serio - Add ARC PS/2 driver
+Date: Thu, 18 Oct 2012 08:35:17 +0000
+Message-ID: <E6BF041E97966E4DB955F0DF883AD2D6019A2E@DE02WEMBX1.internal.synopsys.com>
+References: <1350468619-4813-1-git-send-email-mischa.jonker@synopsys.com>
+ <1350468619-4813-2-git-send-email-mischa.jonker@synopsys.com>
+ <20121018065004.GA12838@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:57108 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753575Ab2JRGut (ORCPT
+Received: from us01smtp2.synopsys.com ([198.182.44.80]:47776 "EHLO
+	kiruna.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752359Ab2JRIfU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Oct 2012 02:50:49 -0400
-Received: by mail-pa0-f46.google.com with SMTP id hz1so8000316pad.19
-        for <linux-input@vger.kernel.org>; Wed, 17 Oct 2012 23:50:49 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CAPgLHd_P7=SeFYvC8EepyNy7Lm-NUTBokTpMDhFVbS_sfhx+UQ@mail.gmail.com>
+	Thu, 18 Oct 2012 04:35:20 -0400
+In-Reply-To: <20121018065004.GA12838@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: rydberg@euromail.se, yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mischa Jonker <mischa.jonker@synopsys.com>
+Cc: "m.d.s.x.jonker@gmail.com" <m.d.s.x.jonker@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "arc-linux-dev@synopsys.com" <arc-linux-dev@synopsys.com>
 
-On Wed, Oct 17, 2012 at 04:29:23PM +0800, Wei Yongjun wrote:
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> 
-> This removes an open coded simple_open() function and
-> replaces file operations references to the function
-> with simple_open() instead.
-> 
-> dpatch engine is used to auto generate this patch.
-> (https://github.com/weiyj/dpatch)
+Hi Dmitry,
 
-Applied, thanks Wei.
+Thanks again for your quick reply. 
 
-> 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> ---
->  drivers/input/touchscreen/edt-ft5x06.c | 10 +---------
->  1 file changed, 1 insertion(+), 9 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> index 099d144..d9c6007 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> @@ -491,14 +491,6 @@ static int edt_ft5x06_debugfs_mode_set(void *data, u64 mode)
->  DEFINE_SIMPLE_ATTRIBUTE(debugfs_mode_fops, edt_ft5x06_debugfs_mode_get,
->  			edt_ft5x06_debugfs_mode_set, "%llu\n");
->  
-> -static int edt_ft5x06_debugfs_raw_data_open(struct inode *inode,
-> -					    struct file *file)
-> -{
-> -	file->private_data = inode->i_private;
-> -
-> -	return 0;
-> -}
-> -
->  static ssize_t edt_ft5x06_debugfs_raw_data_read(struct file *file,
->  				char __user *buf, size_t count, loff_t *off)
->  {
-> @@ -579,7 +571,7 @@ out:
->  
->  
->  static const struct file_operations debugfs_raw_data_fops = {
-> -	.open = edt_ft5x06_debugfs_raw_data_open,
-> +	.open = simple_open,
->  	.read = edt_ft5x06_debugfs_raw_data_read,
->  };
->  
-> 
-> 
+>> +	void *data, *status;
+>These 2 should be annotated as __iomem. May I also suggest calling them data_addt and status_addr?
+I assume you meant data_addr.
 
--- 
-Dmitry
+>> +		dev_err(&pdev->dev, "memory allocation failed cannot get the I/O addr 0x%x\n",
+>> +			(unsigned int)arc_ps2->iomem_res->start);
+> I think we have a format specifier for resources.
+Thanks, didn't know that!
+
+>> +	iounmap((void __iomem *) arc_ps2->addr);
+> No need to cast to __iomem here.
+These are remains from the time that addr was still an 'unsigned' (while using inl/outl). Updated.
+
+Patch v3 will follow in due course.
+
+
+Thanks again,
+
+Mischa

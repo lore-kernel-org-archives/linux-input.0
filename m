@@ -1,32 +1,56 @@
 From: David Vrabel <david.vrabel@citrix.com>
-Subject: [PATCH 0/5] drivers: xen frontend devices should handle missed backend
- CLOSING
-Date: Thu, 18 Oct 2012 11:02:07 +0100
-Message-ID: <507FD39F.4060601@citrix.com>
+Subject: [PATCH 5/5] xen-kbdfront: handle backend CLOSED without CLOSING
+Date: Thu, 18 Oct 2012 11:03:38 +0100
+Message-ID: <1350554618-14582-5-git-send-email-david.vrabel@citrix.com>
+References: <507FD39F.4060601@citrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <507FD39F.4060601@citrix.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, Jens Axboe <axboe@kernel.dk>, linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, linux-fbdev@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: David Vrabel <david.vrabel@citrix.com>
+To: xen-devel@lists.xen.org
+Cc: David Vrabel <david.vrabel@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Subsystem maintainers, you can either pick up the relevant driver patch
-or ack it to go via Konrad's Xen tree.
+From: David Vrabel <david.vrabel@citrix.com>
 
-The series makes all the Xen frontend drivers handle the backend
-transitioning to CLOSED without the frontend having previously seen
-the backend in the CLOSING state.
+Backend drivers shouldn't transistion to CLOSED unless the frontend is
+CLOSED.  If a backend does transition to CLOSED too soon then the
+frontend may not see the CLOSING state and will not properly shutdown.
 
-Backends shouldn't do this but some do.  e.g., if the host is
-XenServer and the toolstack decides to do a forced shutdown of a VBD,
-then the blkfront may miss the CLOSING transition and the /dev/xvdX
-device will not be destroyed which prevents it being reused.
+So, treat an unexpected backend CLOSED state the same as CLOSING.
 
-I have seen systems that ended up in this state but it's not clear if
-this was the actual cause.  However, I think in general it's a good
-thing to thing to improve the handling of unexpected state
-transitions.
+Signed-off-by: David Vrabel <david.vrabel@citrix.com>
+Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+---
+Cc: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/misc/xen-kbdfront.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-David
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index 02ca868..6f7d990 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -311,7 +311,6 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
+ 	case XenbusStateReconfiguring:
+ 	case XenbusStateReconfigured:
+ 	case XenbusStateUnknown:
+-	case XenbusStateClosed:
+ 		break;
+ 
+ 	case XenbusStateInitWait:
+@@ -350,6 +349,10 @@ InitWait:
+ 
+ 		break;
+ 
++	case XenbusStateClosed:
++		if (dev->state == XenbusStateClosed)
++			break;
++		/* Missed the backend's CLOSING state -- fallthrough */
+ 	case XenbusStateClosing:
+ 		xenbus_frontend_closed(dev);
+ 		break;
+-- 
+1.7.2.5

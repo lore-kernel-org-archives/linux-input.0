@@ -1,41 +1,83 @@
-From: simon@mungewell.org
-Subject: Multiple clients reading from /dev/input/eventX
-Date: Fri, 19 Oct 2012 11:49:29 -0400
-Message-ID: <e6193392fbe49d7236b39e3b17b8fa81.squirrel@mungewell.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 5/5] xen-kbdfront: handle backend CLOSED without CLOSING
+Date: Fri, 19 Oct 2012 09:34:36 -0700
+Message-ID: <20121019163436.GB2152@core.coreip.homeip.net>
+References: <507FD39F.4060601@citrix.com>
+ <1350554618-14582-5-git-send-email-david.vrabel@citrix.com>
+ <20121019130059.GE26830@phenom.dumpdata.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:39238 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755744Ab2JSPta (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:42747 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754496Ab2JSQek (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Oct 2012 11:49:30 -0400
-Received: from localhost ([127.0.0.1] helo=mungewell.org)
-	by host171.canaca.com with esmtpa (Exim 4.69)
-	(envelope-from <simon@mungewell.org>)
-	id 1TPEpF-00029z-Af
-	for linux-input@vger.kernel.org; Fri, 19 Oct 2012 11:49:29 -0400
+	Fri, 19 Oct 2012 12:34:40 -0400
+Content-Disposition: inline
+In-Reply-To: <20121019130059.GE26830@phenom.dumpdata.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: David Vrabel <david.vrabel@citrix.com>, xen-devel@lists.xen.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi all,
-I'm trying to track down a problem with SDL missing events from a gaming
-wheel. It looks like it's not seeing a 'section' of events and this
-results in an axis from the wheel/joystick being stuck on.
+On Fri, Oct 19, 2012 at 09:00:59AM -0400, Konrad Rzeszutek Wilk wrote:
+> On Thu, Oct 18, 2012 at 11:03:38AM +0100, David Vrabel wrote:
+> > From: David Vrabel <david.vrabel@citrix.com>
+> > 
+> > Backend drivers shouldn't transistion to CLOSED unless the frontend is
+> > CLOSED.  If a backend does transition to CLOSED too soon then the
+> > frontend may not see the CLOSING state and will not properly shutdown.
+> > 
+> > So, treat an unexpected backend CLOSED state the same as CLOSING.
+> > 
+> > Signed-off-by: David Vrabel <david.vrabel@citrix.com>
+> > Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+> > ---
+> > Cc: linux-input@vger.kernel.org
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> Hey Dmitry,
+> 
+> Should I prep a git pull for you for this or are you OK giving
+> an Ack for me to put this patch in my git pull for Linus?
 
-If I simultaneously use evtest to monitor the same /dev/input/eventX I see
-all the events in evtest, but not in SDL.
+Sure, please merge with the rest through your tree.
 
-I suspect that some scheduling (or other business) is causing SDL not to
-check the file handle, and as a result the input system is
-dropping/resyncing the interface.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Can anyone here confirm the behaviour under the situation that one client
-is busy? What is the maximum time it can be 'away' or what is the size of
-the inline buffer?
+Thanks!
 
-Many thanks,
-Simon.
+> 
+> Thx.
+> > ---
+> >  drivers/input/misc/xen-kbdfront.c |    5 ++++-
+> >  1 files changed, 4 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+> > index 02ca868..6f7d990 100644
+> > --- a/drivers/input/misc/xen-kbdfront.c
+> > +++ b/drivers/input/misc/xen-kbdfront.c
+> > @@ -311,7 +311,6 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
+> >  	case XenbusStateReconfiguring:
+> >  	case XenbusStateReconfigured:
+> >  	case XenbusStateUnknown:
+> > -	case XenbusStateClosed:
+> >  		break;
+> >  
+> >  	case XenbusStateInitWait:
+> > @@ -350,6 +349,10 @@ InitWait:
+> >  
+> >  		break;
+> >  
+> > +	case XenbusStateClosed:
+> > +		if (dev->state == XenbusStateClosed)
+> > +			break;
+> > +		/* Missed the backend's CLOSING state -- fallthrough */
+> >  	case XenbusStateClosing:
+> >  		xenbus_frontend_closed(dev);
+> >  		break;
+> > -- 
+> > 1.7.2.5
 
+-- 
+Dmitry

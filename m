@@ -1,83 +1,43 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 5/5] xen-kbdfront: handle backend CLOSED without CLOSING
-Date: Fri, 19 Oct 2012 09:34:36 -0700
-Message-ID: <20121019163436.GB2152@core.coreip.homeip.net>
-References: <507FD39F.4060601@citrix.com>
- <1350554618-14582-5-git-send-email-david.vrabel@citrix.com>
- <20121019130059.GE26830@phenom.dumpdata.com>
+Subject: Re: [PATCH v3 2/2] input: qt2160: Add support for LEDs.
+Date: Fri, 19 Oct 2012 09:37:08 -0700
+Message-ID: <20121019163708.GC2152@core.coreip.homeip.net>
+References: <1350638470-27966-1-git-send-email-javier.martin@vista-silicon.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:42747 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754496Ab2JSQek (ORCPT
+Received: from mail-da0-f46.google.com ([209.85.210.46]:59906 "EHLO
+	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758741Ab2JSQhS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Oct 2012 12:34:40 -0400
+	Fri, 19 Oct 2012 12:37:18 -0400
+Received: by mail-da0-f46.google.com with SMTP id n41so310438dak.19
+        for <linux-input@vger.kernel.org>; Fri, 19 Oct 2012 09:37:17 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20121019130059.GE26830@phenom.dumpdata.com>
+In-Reply-To: <1350638470-27966-1-git-send-email-javier.martin@vista-silicon.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: David Vrabel <david.vrabel@citrix.com>, xen-devel@lists.xen.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Javier Martin <javier.martin@vista-silicon.com>
+Cc: linux-input@vger.kernel.org, axel.lin@gmail.com
 
-On Fri, Oct 19, 2012 at 09:00:59AM -0400, Konrad Rzeszutek Wilk wrote:
-> On Thu, Oct 18, 2012 at 11:03:38AM +0100, David Vrabel wrote:
-> > From: David Vrabel <david.vrabel@citrix.com>
-> > 
-> > Backend drivers shouldn't transistion to CLOSED unless the frontend is
-> > CLOSED.  If a backend does transition to CLOSED too soon then the
-> > frontend may not see the CLOSING state and will not properly shutdown.
-> > 
-> > So, treat an unexpected backend CLOSED state the same as CLOSING.
-> > 
-> > Signed-off-by: David Vrabel <david.vrabel@citrix.com>
-> > Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-> > ---
-> > Cc: linux-input@vger.kernel.org
-> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Fri, Oct 19, 2012 at 11:21:10AM +0200, Javier Martin wrote:
+> Outputs x8..x0 of the qt2160 can have leds attached to it.
+> This patch handles those outputs using the generic LED
+> framework.
 > 
-> Hey Dmitry,
+> The PWM controls available in the chip are used to achieve
+> different levels of brightness.
 > 
-> Should I prep a git pull for you for this or are you OK giving
-> an Ack for me to put this patch in my git pull for Linus?
+> Signed-off-by: Javier Martin <javier.martin@vista-silicon.com>
+> ---
+> Changes since v2:
+>  - Make sure LEDS_CLASS is selected.
 
-Sure, please merge with the rest through your tree.
+I think that if user does not want LEDs the driver shoudl still be
+useful so please just guard LED code with #ifdefs and provide dummy
+stubs when not in use.
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Thanks!
-
-> 
-> Thx.
-> > ---
-> >  drivers/input/misc/xen-kbdfront.c |    5 ++++-
-> >  1 files changed, 4 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-> > index 02ca868..6f7d990 100644
-> > --- a/drivers/input/misc/xen-kbdfront.c
-> > +++ b/drivers/input/misc/xen-kbdfront.c
-> > @@ -311,7 +311,6 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
-> >  	case XenbusStateReconfiguring:
-> >  	case XenbusStateReconfigured:
-> >  	case XenbusStateUnknown:
-> > -	case XenbusStateClosed:
-> >  		break;
-> >  
-> >  	case XenbusStateInitWait:
-> > @@ -350,6 +349,10 @@ InitWait:
-> >  
-> >  		break;
-> >  
-> > +	case XenbusStateClosed:
-> > +		if (dev->state == XenbusStateClosed)
-> > +			break;
-> > +		/* Missed the backend's CLOSING state -- fallthrough */
-> >  	case XenbusStateClosing:
-> >  		xenbus_frontend_closed(dev);
-> >  		break;
-> > -- 
-> > 1.7.2.5
+Thanks.
 
 -- 
 Dmitry

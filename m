@@ -1,62 +1,46 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] sensor-hub: Remove pointless NULL check
-Date: Thu, 18 Oct 2012 11:58:14 -0700
-Message-ID: <50805146.6060904@linux.intel.com>
-References: <20121009142010.16433.64833.stgit@bob.linux.org.uk>
+From: AnilKumar Ch <anilkumar@ti.com>
+Subject: [PATCH 1/2] Input: matrix-keypad - remove const from pointer to array of gpios
+Date: Fri, 19 Oct 2012 12:36:12 +0530
+Message-ID: <1350630373-24279-2-git-send-email-anilkumar@ti.com>
+References: <1350630373-24279-1-git-send-email-anilkumar@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:58257 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751042Ab2JRS5f (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Oct 2012 14:57:35 -0400
-In-Reply-To: <20121009142010.16433.64833.stgit@bob.linux.org.uk>
+Received: from devils.ext.ti.com ([198.47.26.153]:55184 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751242Ab2JSHG0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Oct 2012 03:06:26 -0400
+In-Reply-To: <1350630373-24279-1-git-send-email-anilkumar@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, grant.likely@secretlab.ca
+Cc: rob.herring@calxeda.com, dgdunix@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, AnilKumar Ch <anilkumar@ti.com>
 
+Remove const from pointer to array of gpios in matrix_keypad_platform_data
+struct. This is required if we update row_gpios and col_gpios based on
+device tree data.
 
-Agreed. It was a mistake.
+Signed-off-by: AnilKumar Ch <anilkumar@ti.com>
+---
+ include/linux/input/matrix_keypad.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks,
-Srinivas
-
-On 10/09/2012 07:20 AM, Alan Cox wrote:
-> From: Alan Cox <alan@linux.intel.com>
->
-> report cannot be NULL, fortunately as we use it before we check !
->
-> Signed-off-by: Alan Cox <alan@linux.intel.com>
-> ---
->
->   drivers/hid/hid-sensor-hub.c |    4 ----
->   1 file changed, 4 deletions(-)
->
->
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index d9d73e9..4ff2497 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -437,9 +437,6 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
->   	ptr = raw_data;
->   	ptr++; /*Skip report id*/
->   
-> -	if (!report)
-> -		goto err_report;
-> -
->   	spin_lock_irqsave(&pdata->lock, flags);
->   
->   	for (i = 0; i < report->maxfield; ++i) {
-> @@ -485,7 +482,6 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
->   				callback->pdev);
->   	spin_unlock_irqrestore(&pdata->lock, flags);
->   
-> -err_report:
->   	return 1;
->   }
->   
->
->
+diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
+index 5f3aa6b..866124c 100644
+--- a/include/linux/input/matrix_keypad.h
++++ b/include/linux/input/matrix_keypad.h
+@@ -56,8 +56,8 @@ struct matrix_keymap_data {
+ struct matrix_keypad_platform_data {
+ 	const struct matrix_keymap_data *keymap_data;
+ 
+-	const unsigned int *row_gpios;
+-	const unsigned int *col_gpios;
++	unsigned int *row_gpios;
++	unsigned int *col_gpios;
+ 
+ 	unsigned int	num_row_gpios;
+ 	unsigned int	num_col_gpios;
+-- 
+1.7.9.5
 

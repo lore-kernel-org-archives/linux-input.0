@@ -1,50 +1,33 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Multiple clients reading from /dev/input/eventX
-Date: Fri, 19 Oct 2012 15:32:11 -0700
-Message-ID: <20121019223210.GA10915@core.coreip.homeip.net>
-References: <e6193392fbe49d7236b39e3b17b8fa81.squirrel@mungewell.org>
+Subject: Re: [PATCH 1/2] Input: matrix-keypad - remove const from pointer to
+ array of gpios
+Date: Fri, 19 Oct 2012 16:00:59 -0700
+Message-ID: <20121019230059.GB10915@core.coreip.homeip.net>
+References: <1350630373-24279-1-git-send-email-anilkumar@ti.com>
+ <1350630373-24279-2-git-send-email-anilkumar@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:50300 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751625Ab2JSWcP (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:58717 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755684Ab2JSXBE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Oct 2012 18:32:15 -0400
-Received: by mail-pb0-f46.google.com with SMTP id rr4so742352pbb.19
-        for <linux-input@vger.kernel.org>; Fri, 19 Oct 2012 15:32:15 -0700 (PDT)
+	Fri, 19 Oct 2012 19:01:04 -0400
 Content-Disposition: inline
-In-Reply-To: <e6193392fbe49d7236b39e3b17b8fa81.squirrel@mungewell.org>
+In-Reply-To: <1350630373-24279-2-git-send-email-anilkumar@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: linux-input@vger.kernel.org
+To: AnilKumar Ch <anilkumar@ti.com>
+Cc: grant.likely@secretlab.ca, rob.herring@calxeda.com, dgdunix@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
 
-Hi SImon,
+On Fri, Oct 19, 2012 at 12:36:12PM +0530, AnilKumar Ch wrote:
+> Remove const from pointer to array of gpios in matrix_keypad_platform_data
+> struct. This is required if we update row_gpios and col_gpios based on
+> device tree data.
 
-On Fri, Oct 19, 2012 at 11:49:29AM -0400, simon@mungewell.org wrote:
-> Hi all,
-> I'm trying to track down a problem with SDL missing events from a gaming
-> wheel. It looks like it's not seeing a 'section' of events and this
-> results in an axis from the wheel/joystick being stuck on.
-> 
-> If I simultaneously use evtest to monitor the same /dev/input/eventX I see
-> all the events in evtest, but not in SDL.
-> 
-> I suspect that some scheduling (or other business) is causing SDL not to
-> check the file handle, and as a result the input system is
-> dropping/resyncing the interface.
-> 
-> Can anyone here confirm the behaviour under the situation that one client
-> is busy? What is the maximum time it can be 'away' or what is the size of
-> the inline buffer?
+Then don't. Set them up via non-const aliases instead.
 
-Every user of event device has a buffer that can hold up at least 64
-input events and is completely independent from other users. Newer
-kernels generate EV_SYN/SYN_DROPPED event to indicate that user was too
-slow reading data and there was buffer overrun.
-
-Hope this helps.
+Thanks.
 
 -- 
 Dmitry

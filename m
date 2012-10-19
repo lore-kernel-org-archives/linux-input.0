@@ -1,40 +1,212 @@
-From: AnilKumar Ch <anilkumar-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 0/2] Input: matrix-keypad - Add device tree support
-Date: Fri, 19 Oct 2012 12:36:11 +0530
-Message-ID: <1350630373-24279-1-git-send-email-anilkumar@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, dgdunix-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Javier Martin <javier.martin@vista-silicon.com>
+Subject: [PATCH v3 2/2] input: qt2160: Add support for LEDs.
+Date: Fri, 19 Oct 2012 11:21:10 +0200
+Message-ID: <1350638470-27966-1-git-send-email-javier.martin@vista-silicon.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:39552 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753876Ab2JSJVb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Oct 2012 05:21:31 -0400
+Received: by mail-we0-f174.google.com with SMTP id t9so131161wey.19
+        for <linux-input@vger.kernel.org>; Fri, 19 Oct 2012 02:21:29 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, axel.lin@gmail.com, Javier Martin <javier.martin@vista-silicon.com>
 
-Add device tree support to matrix keypad driver by adding all necessary
-DT parameters. Also added device tree bindings.
+Outputs x8..x0 of the qt2160 can have leds attached to it.
+This patch handles those outputs using the generic LED
+framework.
 
-These patches were tested on AM335x-EVM with DT patches, DT patches
-will be submitted once these are accepted.
+The PWM controls available in the chip are used to achieve
+different levels of brightness.
 
-AnilKumar Ch (2):
-  Input: matrix-keypad - remove const from pointer to array of gpios
-  Input: matrix-keypad - Add device tree support
+Signed-off-by: Javier Martin <javier.martin@vista-silicon.com>
+---
+Changes since v2:
+ - Make sure LEDS_CLASS is selected.
 
- .../devicetree/bindings/input/matrix-keypad.txt    |   52 ++++++++++
- drivers/input/keyboard/matrix_keypad.c             |  104 +++++++++++++++++++-
- include/linux/input/matrix_keypad.h                |    4 +-
- 3 files changed, 157 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/matrix-keypad.txt
+---
+ drivers/input/keyboard/Kconfig  |    2 +-
+ drivers/input/keyboard/qt2160.c |   97 ++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 96 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index c50fa75..89c792c 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -134,7 +134,7 @@ config KEYBOARD_QT1070
+ 
+ config KEYBOARD_QT2160
+ 	tristate "Atmel AT42QT2160 Touch Sensor Chip"
+-	depends on I2C && EXPERIMENTAL
++	depends on I2C && EXPERIMENTAL && LEDS_CLASS
+ 	help
+ 	  If you say yes here you get support for Atmel AT42QT2160 Touch
+ 	  Sensor chip as a keyboard input.
+diff --git a/drivers/input/keyboard/qt2160.c b/drivers/input/keyboard/qt2160.c
+index 73ea4b0..e9ce2c5 100644
+--- a/drivers/input/keyboard/qt2160.c
++++ b/drivers/input/keyboard/qt2160.c
+@@ -20,6 +20,7 @@
+ 
+ #include <linux/kernel.h>
+ #include <linux/init.h>
++#include <linux/leds.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/jiffies.h>
+@@ -39,6 +40,11 @@
+ #define QT2160_CMD_GPIOS      6
+ #define QT2160_CMD_SUBVER     7
+ #define QT2160_CMD_CALIBRATE  10
++#define QT2160_CMD_DRIVE_X    70
++#define QT2160_CMD_PWMEN_X    74
++#define QT2160_CMD_PWM_DUTY   76
++
++#define QT2160_NUM_LEDS_X	8
+ 
+ #define QT2160_CYCLE_INTERVAL	(2*HZ)
+ 
+@@ -49,6 +55,15 @@ static unsigned char qt2160_key2code[] = {
+ 	KEY_C, KEY_D, KEY_E, KEY_F,
+ };
+ 
++struct qt2160_led {
++	struct qt2160_data *qt2160;
++	struct led_classdev cdev;
++	struct work_struct work;
++	char name[32];
++	int id;
++	enum led_brightness new_brightness;
++};
++
+ struct qt2160_data {
+ 	struct i2c_client *client;
+ 	struct input_dev *input;
+@@ -56,8 +71,55 @@ struct qt2160_data {
+ 	spinlock_t lock;        /* Protects canceling/rescheduling of dwork */
+ 	unsigned short keycodes[ARRAY_SIZE(qt2160_key2code)];
+ 	u16 key_matrix;
++	struct qt2160_led leds[QT2160_NUM_LEDS_X];
++	struct mutex led_lock;
+ };
+ 
++static int qt2160_read(struct i2c_client *client, u8 reg);
++static int qt2160_write(struct i2c_client *client, u8 reg, u8 data);
++
++static void qt2160_led_work(struct work_struct *work)
++{
++	struct qt2160_led *led = container_of(work, struct qt2160_led, work);
++	struct qt2160_data *qt2160 = led->qt2160;
++	struct i2c_client *client = qt2160->client;
++	int value = led->new_brightness;
++	u32 drive, pwmen;
++
++	mutex_lock(&qt2160->led_lock);
++
++	drive = qt2160_read(client, QT2160_CMD_DRIVE_X);
++	pwmen = qt2160_read(client, QT2160_CMD_PWMEN_X);
++	if (value != LED_OFF) {
++		drive |= (1 << led->id);
++		pwmen |= (1 << led->id);
++
++	} else {
++		drive &= ~(1 << led->id);
++		pwmen &= ~(1 << led->id);
++	}
++	qt2160_write(client, QT2160_CMD_DRIVE_X, drive);
++	qt2160_write(client, QT2160_CMD_PWMEN_X, pwmen);
++
++	/*
++	 * Changing this register will change the brightness
++	 * of every LED in the qt2160. It's a HW limitation.
++	 */
++	if (value != LED_OFF)
++		qt2160_write(client, QT2160_CMD_PWM_DUTY, value);
++
++	mutex_unlock(&qt2160->led_lock);
++}
++
++static void qt2160_led_set(struct led_classdev *cdev,
++			   enum led_brightness value)
++{
++	struct qt2160_led *led = container_of(cdev, struct qt2160_led, cdev);
++
++	led->new_brightness = value;
++	schedule_work(&led->work);
++}
++
+ static int qt2160_read_block(struct i2c_client *client,
+ 			     u8 inireg, u8 *buffer, unsigned int count)
+ {
+@@ -184,7 +246,7 @@ static void qt2160_worker(struct work_struct *work)
+ 	qt2160_schedule_read(qt2160);
+ }
+ 
+-static int __devinit qt2160_read(struct i2c_client *client, u8 reg)
++static int qt2160_read(struct i2c_client *client, u8 reg)
+ {
+ 	int ret;
+ 
+@@ -205,7 +267,7 @@ static int __devinit qt2160_read(struct i2c_client *client, u8 reg)
+ 	return ret;
+ }
+ 
+-static int __devinit qt2160_write(struct i2c_client *client, u8 reg, u8 data)
++static int qt2160_write(struct i2c_client *client, u8 reg, u8 data)
+ {
+ 	int ret;
+ 
+@@ -324,9 +386,34 @@ static int __devinit qt2160_probe(struct i2c_client *client,
+ 
+ 	i2c_set_clientdata(client, qt2160);
+ 	qt2160_schedule_read(qt2160);
++	mutex_init(&qt2160->led_lock);
++
++	for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
++		struct qt2160_led *led = &qt2160->leds[i];
++
++		snprintf(led->name, sizeof(led->name), "qt2160:x%d", i);
++		led->cdev.name = led->name;
++		led->cdev.brightness_set = qt2160_led_set;
++		led->cdev.brightness = LED_OFF;
++		led->id = i;
++		led->qt2160 = qt2160;
++
++		INIT_WORK(&led->work, qt2160_led_work);
++
++		error = led_classdev_register(&client->dev, &led->cdev);
++		if (error < 0)
++			goto err_unreg_input;
++	}
++
++	/* Tur off LEDs */
++	qt2160_write(client, QT2160_CMD_DRIVE_X, 0);
++	qt2160_write(client, QT2160_CMD_PWMEN_X, 0);
++	qt2160_write(client, QT2160_CMD_PWM_DUTY, 0);
+ 
+ 	return 0;
+ 
++err_unreg_input:
++	input_unregister_device(input);
+ err_free_irq:
+ 	if (client->irq)
+ 		free_irq(client->irq, qt2160);
+@@ -339,6 +426,12 @@ err_free_mem:
+ static int __devexit qt2160_remove(struct i2c_client *client)
+ {
+ 	struct qt2160_data *qt2160 = i2c_get_clientdata(client);
++	int i;
++
++	for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
++		led_classdev_unregister(&qt2160->leds[i].cdev);
++		cancel_work_sync(&qt2160->leds[i].work);
++	}
+ 
+ 	/* Release IRQ so no queue will be scheduled */
+ 	if (client->irq)
 -- 
 1.7.9.5
+

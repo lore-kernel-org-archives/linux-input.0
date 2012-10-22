@@ -1,57 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [BUG] capslock works across all keyboards but LED does not
-Date: Mon, 22 Oct 2012 08:54:46 -0700
-Message-ID: <20121022155446.GB13791@core.coreip.homeip.net>
-References: <CACVXFVM8soazSixttzDBq-zLAxCpVNBDsDoz4Hc9gdsU8WQniA@mail.gmail.com>
- <21783709.sVZtM4k8zF@dtor-d630.eng.vmware.com>
- <CACVXFVN8s52UiSF0Q98sXNZzR9srnZ9aUjNYcZU6hDPfNzRGgA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v1] Support Elan Touchscreen eKTF product.
+Date: Mon, 22 Oct 2012 09:07:05 -0700
+Message-ID: <20121022160705.GC13791@core.coreip.homeip.net>
+References: <1350424679-20725-1-git-send-email-scott.liu@emc.com.tw>
+ <87hapnnp5t.fsf@emc.com.tw>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:36107 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751079Ab2JVPyv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Oct 2012 11:54:51 -0400
-Received: by mail-da0-f46.google.com with SMTP id n41so1442366dak.19
-        for <linux-input@vger.kernel.org>; Mon, 22 Oct 2012 08:54:50 -0700 (PDT)
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CACVXFVN8s52UiSF0Q98sXNZzR9srnZ9aUjNYcZU6hDPfNzRGgA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <87hapnnp5t.fsf-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jian-Jhong Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
+Cc: Scott Liu <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jesse <jesse-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Vincent Wang <vincent.wang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Paul <paul.liang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Ming Lei <ming.lei@canonical.com>
-Cc: linux-input@vger.kernel.org
 
-On Mon, Oct 22, 2012 at 09:42:17AM +0800, Ming Lei wrote:
-> Hi Dmitry,
+On Mon, Oct 22, 2012 at 11:47:42AM +0800, Jian-Jhong Ding wrote:
+> Scott Liu <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org> writes:
+> > +
+> > +struct mt_device {
+> > +	struct mt_slot curdata;	/* placeholder of incoming data */
+> > +	__u8 num_received;	/* how many contacts we received */
+> > +	__u8 num_expected;	/* expected last contact index */
+> > +	__u8 maxcontacts;
+> > +	bool curvalid;		/* is the current contact valid? */
+> > +	struct mt_slot *slots;
+> > +};
 > 
-> On Thu, Oct 18, 2012 at 1:30 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> >
-> > I see it is broken in X, but it works for me if I am using the console.
-> > Does it work for you as well if you switch into the console? If so then
-> > you need to file a bug against X.
-> 
-> Thanks for your reply.
-> 
-> Unluckily, it becomes worse if I switch to console and capslock leds
-> in both keyborads are not changed but the function is OK.
-> 
-> So you mean the led is controlled by user-space totally? and Kernel
-> doesn't handle the case?
+> With Benjamin's i2c-hid implimentation, is it possible to make
+> hid-multitouch not depend on USBHID and reuse it to drive this device?
 
-Keyboard LEDs are controlled by the kernel unless console is in the raw
-mode (X), in which case it is left to userspace. I see it on my box that
-sync between keyboards is broken while I am in X (so it is X problem)
-and works when I am in text console (so I do not see the kernel
-problem).
-
-Since it does not work for you in text console either your setup must be
-different than mine. If you switch to a text console and do
-
-	sudo lsof /dev/input/event*
-
-what do you see?
+Exactly. Before looking any further - is this the same part that Tom Lin
+posted a driver for earlier this summer?
 
 Thanks.
 

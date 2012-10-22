@@ -1,254 +1,71 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4] input: qt2160: Add support for LEDs.
-Date: Mon, 22 Oct 2012 09:17:51 -0700
-Message-ID: <20121022161751.GA14014@core.coreip.homeip.net>
-References: <1350893052-16137-1-git-send-email-javier.martin@vista-silicon.com>
+From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v1] Support Elan Touchscreen eKTF product.
+Date: Mon, 22 Oct 2012 19:12:22 +0200
+Message-ID: <CAN+gG=HyzcRnp_Bd=WRq2Hn_5QKCVCjvFjXCvO1xXbAcyBOJfQ@mail.gmail.com>
+References: <1350424679-20725-1-git-send-email-scott.liu@emc.com.tw>
+	<87hapnnp5t.fsf@emc.com.tw>
+	<20121022160705.GC13791@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:36559 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752780Ab2JVQR4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Oct 2012 12:17:56 -0400
-Received: by mail-da0-f46.google.com with SMTP id n41so1451976dak.19
-        for <linux-input@vger.kernel.org>; Mon, 22 Oct 2012 09:17:56 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1350893052-16137-1-git-send-email-javier.martin@vista-silicon.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20121022160705.GC13791-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jian-Jhong Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Scott Liu <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jesse <jesse-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Vincent Wang <vincent.wang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Paul <paul.liang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Javier Martin <javier.martin@vista-silicon.com>
-Cc: linux-input@vger.kernel.org, axel.lin@gmail.com
 
-Hi Javier,
+On Mon, Oct 22, 2012 at 6:07 PM, Dmitry Torokhov
+<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> On Mon, Oct 22, 2012 at 11:47:42AM +0800, Jian-Jhong Ding wrote:
+>> Scott Liu <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org> writes:
+>> > +
+>> > +struct mt_device {
+>> > +   struct mt_slot curdata; /* placeholder of incoming data */
+>> > +   __u8 num_received;      /* how many contacts we received */
+>> > +   __u8 num_expected;      /* expected last contact index */
+>> > +   __u8 maxcontacts;
+>> > +   bool curvalid;          /* is the current contact valid? */
+>> > +   struct mt_slot *slots;
+>> > +};
+>>
+>> With Benjamin's i2c-hid implimentation, is it possible to make
+>> hid-multitouch not depend on USBHID and reuse it to drive this device?
 
-On Mon, Oct 22, 2012 at 10:04:12AM +0200, Javier Martin wrote:
-> Outputs x8..x0 of the qt2160 can have leds attached to it.
-> This patch handles those outputs using the generic LED
-> framework.
-> 
-> The PWM controls available in the chip are used to achieve
-> different levels of brightness.
-> 
-> Signed-off-by: Javier Martin <javier.martin@vista-silicon.com>
-> ---
-> Changes since v3:
->  - Protect led related code with #ifdefs so that users can decide
->  wether to enable LEDS_CLASS support in the kernel or not.
-> 
-> ---
->  drivers/input/keyboard/qt2160.c |  113 ++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 111 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/qt2160.c b/drivers/input/keyboard/qt2160.c
-> index 73ea4b0..482a7c5 100644
-> --- a/drivers/input/keyboard/qt2160.c
-> +++ b/drivers/input/keyboard/qt2160.c
-> @@ -20,6 +20,7 @@
->  
->  #include <linux/kernel.h>
->  #include <linux/init.h>
-> +#include <linux/leds.h>
->  #include <linux/module.h>
->  #include <linux/slab.h>
->  #include <linux/jiffies.h>
-> @@ -39,6 +40,11 @@
->  #define QT2160_CMD_GPIOS      6
->  #define QT2160_CMD_SUBVER     7
->  #define QT2160_CMD_CALIBRATE  10
-> +#define QT2160_CMD_DRIVE_X    70
-> +#define QT2160_CMD_PWMEN_X    74
-> +#define QT2160_CMD_PWM_DUTY   76
-> +
-> +#define QT2160_NUM_LEDS_X	8
->  
->  #define QT2160_CYCLE_INTERVAL	(2*HZ)
->  
-> @@ -49,6 +55,17 @@ static unsigned char qt2160_key2code[] = {
->  	KEY_C, KEY_D, KEY_E, KEY_F,
->  };
->  
-> +#ifdef CONFIG_LEDS_CLASS
-> +struct qt2160_led {
-> +	struct qt2160_data *qt2160;
-> +	struct led_classdev cdev;
-> +	struct work_struct work;
-> +	char name[32];
-> +	int id;
-> +	enum led_brightness new_brightness;
-> +};
-> +#endif
-> +
->  struct qt2160_data {
->  	struct i2c_client *client;
->  	struct input_dev *input;
-> @@ -56,8 +73,61 @@ struct qt2160_data {
->  	spinlock_t lock;        /* Protects canceling/rescheduling of dwork */
->  	unsigned short keycodes[ARRAY_SIZE(qt2160_key2code)];
->  	u16 key_matrix;
-> +#ifdef CONFIG_LEDS_CLASS
-> +	struct qt2160_led leds[QT2160_NUM_LEDS_X];
-> +	struct mutex led_lock;
-> +#endif
->  };
->  
-> +static int qt2160_read(struct i2c_client *client, u8 reg);
-> +static int qt2160_write(struct i2c_client *client, u8 reg, u8 data);
-> +
-> +#ifdef CONFIG_LEDS_CLASS
-> +
-> +static void qt2160_led_work(struct work_struct *work)
-> +{
-> +	struct qt2160_led *led = container_of(work, struct qt2160_led, work);
-> +	struct qt2160_data *qt2160 = led->qt2160;
-> +	struct i2c_client *client = qt2160->client;
-> +	int value = led->new_brightness;
-> +	u32 drive, pwmen;
-> +
-> +	mutex_lock(&qt2160->led_lock);
+We can already use hid-multitouch with hid over I2C devices (I'm
+testing my i2c devices with this module).
+But it's true that hid-multitouch depends on usbhid, and I the funny
+think is that I was removing this dependency today.
+The fact is that currently, i2c devices do not segfault with
+hid-multitouch  because win8 devices do not require anymore to set
+some feature at plug.
 
-What about accessing I2C from other contexts? Don't we need to take this
-lock there too?
+>
+> Exactly. Before looking any further - is this the same part that Tom Lin
+> posted a driver for earlier this summer?
 
-> +
-> +	drive = qt2160_read(client, QT2160_CMD_DRIVE_X);
-> +	pwmen = qt2160_read(client, QT2160_CMD_PWMEN_X);
-> +	if (value != LED_OFF) {
-> +		drive |= (1 << led->id);
-> +		pwmen |= (1 << led->id);
-> +
-> +	} else {
-> +		drive &= ~(1 << led->id);
-> +		pwmen &= ~(1 << led->id);
-> +	}
-> +	qt2160_write(client, QT2160_CMD_DRIVE_X, drive);
-> +	qt2160_write(client, QT2160_CMD_PWMEN_X, pwmen);
-> +
-> +	/*
-> +	 * Changing this register will change the brightness
-> +	 * of every LED in the qt2160. It's a HW limitation.
-> +	 */
-> +	if (value != LED_OFF)
-> +		qt2160_write(client, QT2160_CMD_PWM_DUTY, value);
-> +
-> +	mutex_unlock(&qt2160->led_lock);
-> +}
-> +
-> +static void qt2160_led_set(struct led_classdev *cdev,
-> +			   enum led_brightness value)
-> +{
-> +	struct qt2160_led *led = container_of(cdev, struct qt2160_led, cdev);
-> +
-> +	led->new_brightness = value;
-> +	schedule_work(&led->work);
-> +}
+I'm not Elan, and I can not be sure, but judging from the "hello
+packets" and the other commands, I doubt this device is an I2C over
+HID one.
 
-static int __devinit qt2160_register_leds(struct qt2160_data *qt2160_data)
-{
-	...
-}
+Anyway, reusing hid-multitouch for this specific case seams to be a
+little bit difficult. You would have first to provide a fake report
+descriptor (or inject commands as if you were hid-core) and then, you
+would have to reformat the incoming data into valid win7 (or 8)
+packets. Judging by the functions elan_touch_parse_fid,
+elan_touch_parse_wid and elants_parse_xy, the data seem to be mixed
+(all the finger ids at the beginning, and not one per touch), so it is
+definitively needed to recreate a valid HID packet.
 
-static void __devexit qt2160_unregister_leds(struct qt2160_data *qt2160_data)
-{
-	...
-}
-#else
-static inline int qt2160_register_leds(struct qt2160_data *qt2160_data)
-{
-	return 0;
-}
+So I'm not surprised with the duplicated code. However, Henrik did a
+big job in kernel 3.7 to factorize mt code, and some part of the
+duplication can be achieve with these functions (look at
+input_mt_sync_frame and input_mt_get_slot_by_key for example).
 
-static inline void qt2160_unregister_leds(struct qt2160_data *qt2160_data)
-{
-}
+Cheers,
+Benjamin
 
-> +
-> +#endif /* CONFIG_LEDS_CLASS */
-> +
->  static int qt2160_read_block(struct i2c_client *client,
->  			     u8 inireg, u8 *buffer, unsigned int count)
->  {
-> @@ -184,7 +254,7 @@ static void qt2160_worker(struct work_struct *work)
->  	qt2160_schedule_read(qt2160);
->  }
->  
-> -static int __devinit qt2160_read(struct i2c_client *client, u8 reg)
-> +static int qt2160_read(struct i2c_client *client, u8 reg)
->  {
->  	int ret;
->  
-> @@ -205,7 +275,7 @@ static int __devinit qt2160_read(struct i2c_client *client, u8 reg)
->  	return ret;
->  }
->  
-> -static int __devinit qt2160_write(struct i2c_client *client, u8 reg, u8 data)
-> +static int qt2160_write(struct i2c_client *client, u8 reg, u8 data)
->  {
->  	int ret;
->  
-> @@ -325,8 +395,38 @@ static int __devinit qt2160_probe(struct i2c_client *client,
->  	i2c_set_clientdata(client, qt2160);
->  	qt2160_schedule_read(qt2160);
->  
-> +#ifdef CONFIG_LEDS_CLASS
-> +	mutex_init(&qt2160->led_lock);
-> +
-> +	for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
-> +		struct qt2160_led *led = &qt2160->leds[i];
-> +
-> +		snprintf(led->name, sizeof(led->name), "qt2160:x%d", i);
-> +		led->cdev.name = led->name;
-> +		led->cdev.brightness_set = qt2160_led_set;
-> +		led->cdev.brightness = LED_OFF;
-> +		led->id = i;
-> +		led->qt2160 = qt2160;
-> +
-> +		INIT_WORK(&led->work, qt2160_led_work);
-> +
-> +		error = led_classdev_register(&client->dev, &led->cdev);
-> +		if (error < 0)
-> +			goto err_unreg_input;
-> +	}
-> +
-> +	/* Tur off LEDs */
-> +	qt2160_write(client, QT2160_CMD_DRIVE_X, 0);
-> +	qt2160_write(client, QT2160_CMD_PWMEN_X, 0);
-> +	qt2160_write(client, QT2160_CMD_PWM_DUTY, 0);
-> +#endif
-> +
->  	return 0;
->  
-> +#ifdef CONFIG_LEDS_CLASS
-> +err_unreg_input:
-> +	input_unregister_device(input);
-> +#endif
->  err_free_irq:
->  	if (client->irq)
->  		free_irq(client->irq, qt2160);
-> @@ -340,6 +440,15 @@ static int __devexit qt2160_remove(struct i2c_client *client)
->  {
->  	struct qt2160_data *qt2160 = i2c_get_clientdata(client);
->  
-> +#ifdef CONFIG_LEDS_CLASS
-> +	int i;
-> +
-> +	for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
-> +		led_classdev_unregister(&qt2160->leds[i].cdev);
-> +		cancel_work_sync(&qt2160->leds[i].work);
-
-This should be the other way around.
-
-> +	}
-> +#endif
-> +
->  	/* Release IRQ so no queue will be scheduled */
->  	if (client->irq)
->  		free_irq(client->irq, qt2160);
-> -- 
-> 1.7.9.5
-> 
-
-Thanks.
-
--- 
-Dmitry
+>
+> Thanks.
+>
+> --
+> Dmitry

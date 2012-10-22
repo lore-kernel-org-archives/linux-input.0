@@ -1,80 +1,59 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
-Date: Mon, 22 Oct 2012 08:50:28 -0700
-Message-ID: <20121022155028.GA13791@core.coreip.homeip.net>
-References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
+Subject: Re: [BUG] capslock works across all keyboards but LED does not
+Date: Mon, 22 Oct 2012 08:54:46 -0700
+Message-ID: <20121022155446.GB13791@core.coreip.homeip.net>
+References: <CACVXFVM8soazSixttzDBq-zLAxCpVNBDsDoz4Hc9gdsU8WQniA@mail.gmail.com>
+ <21783709.sVZtM4k8zF@dtor-d630.eng.vmware.com>
+ <CACVXFVN8s52UiSF0Q98sXNZzR9srnZ9aUjNYcZU6hDPfNzRGgA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-da0-f46.google.com ([209.85.210.46]:36107 "EHLO
+	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751079Ab2JVPyv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 22 Oct 2012 11:54:51 -0400
+Received: by mail-da0-f46.google.com with SMTP id n41so1442366dak.19
+        for <linux-input@vger.kernel.org>; Mon, 22 Oct 2012 08:54:50 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Sourav Poddar <sourav.poddar@ti.com>
-Cc: tony@atomide.com, b-cousson@ti.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Felipe Balbi <balbi@ti.com>, Linus Walleij <linus.walleij@linaro.org>
+In-Reply-To: <CACVXFVN8s52UiSF0Q98sXNZzR9srnZ9aUjNYcZU6hDPfNzRGgA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ming Lei <ming.lei@canonical.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Sourav,
-
-On Mon, Oct 22, 2012 at 06:43:00PM +0530, Sourav Poddar wrote:
-> Adapt keypad to use pinctrl framework.
+On Mon, Oct 22, 2012 at 09:42:17AM +0800, Ming Lei wrote:
+> Hi Dmitry,
 > 
-> Tested on omap4430 sdp with 3.7-rc1 kernel.
+> On Thu, Oct 18, 2012 at 1:30 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> >
+> > I see it is broken in X, but it works for me if I am using the console.
+> > Does it work for you as well if you switch into the console? If so then
+> > you need to file a bug against X.
+> 
+> Thanks for your reply.
+> 
+> Unluckily, it becomes worse if I switch to console and capslock leds
+> in both keyborads are not changed but the function is OK.
+> 
+> So you mean the led is controlled by user-space totally? and Kernel
+> doesn't handle the case?
 
-I do not see anything in the driver that would directly use pinctrl. Is
-there a better place to select default pin configuration; maybe when
-instantiating platform device?
+Keyboard LEDs are controlled by the kernel unless console is in the raw
+mode (X), in which case it is left to userspace. I see it on my box that
+sync between keyboards is broken while I am in X (so it is X problem)
+and works when I am in text console (so I do not see the kernel
+problem).
+
+Since it does not work for you in text console either your setup must be
+different than mine. If you switch to a text console and do
+
+	sudo lsof /dev/input/event*
+
+what do you see?
 
 Thanks.
-
-> 
-> Cc: Felipe Balbi <balbi@ti.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
-> ---
-> v1->v2
-> - Added "PROBE_DEFER" check 
->  drivers/input/keyboard/omap4-keypad.c |   11 +++++++++++
->  1 files changed, 11 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-> index c05f98c..502b832 100644
-> --- a/drivers/input/keyboard/omap4-keypad.c
-> +++ b/drivers/input/keyboard/omap4-keypad.c
-> @@ -31,6 +31,7 @@
->  #include <linux/input.h>
->  #include <linux/slab.h>
->  #include <linux/pm_runtime.h>
-> +#include <linux/pinctrl/consumer.h>
->  
->  #include <linux/platform_data/omap4-keypad.h>
->  
-> @@ -76,6 +77,7 @@ enum {
->  
->  struct omap4_keypad {
->  	struct input_dev *input;
-> +	struct pinctrl	*pins;
->  
->  	void __iomem *base;
->  	unsigned int irq;
-> @@ -298,6 +300,15 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->  		goto err_release_mem;
->  	}
->  
-> +	keypad_data->pins = devm_pinctrl_get_select_default(&pdev->dev);
-> +	if (IS_ERR(keypad_data->pins)) {
-> +		if (PTR_ERR(keypad_data->pins) == -EPROBE_DEFER)
-> +			return -EPROBE_DEFER;
-> +
-> +		dev_warn(&pdev->dev, "did not get pins for keypad error: %li\n",
-> +					PTR_ERR(keypad_data->pins));
-> +		keypad_data->pins = NULL;
-> +	}
->  
->  	/*
->  	 * Enable clocks for the keypad module so that we can read
-> -- 
-> 1.7.1
-> 
 
 -- 
 Dmitry

@@ -1,92 +1,78 @@
 From: "Patil, Rachna" <rachna@ti.com>
-Subject: [PATCH 3/3] input: ti_am335x_tsc: Add variance filters
-Date: Mon, 22 Oct 2012 15:45:18 +0530
-Message-ID: <1350900918-17130-4-git-send-email-rachna@ti.com>
-References: <1350900918-17130-1-git-send-email-rachna@ti.com>
+Subject: RE: [PATCH RESEND 0/8] TI Touchscreen driver updates and Support
+ for TSC/ADC MFD driver
+Date: Mon, 22 Oct 2012 10:46:09 +0000
+Message-ID: <4CE347531D4CA947960AF71FF095B9323E962221@DBDE01.ent.ti.com>
+References: <1350372345-27108-1-git-send-email-rachna@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:59004 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751245Ab2JVKb1 (ORCPT
+Received: from comal.ext.ti.com ([198.47.26.152]:39334 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753122Ab2JVKqX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Oct 2012 06:31:27 -0400
-In-Reply-To: <1350900918-17130-1-git-send-email-rachna@ti.com>
+	Mon, 22 Oct 2012 06:46:23 -0400
+In-Reply-To: <1350372345-27108-1-git-send-email-rachna@ti.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, "Patil, Rachna" <rachna@ti.com>
+To: "Patil, Rachna" <rachna@ti.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Jonathan Cameron <jic23@cam.ac.uk>
 
-Only fine tuning variance present in tslib utility
-does not help in removing all the wanted ADC noise.
-This logic of filtering is necessary to get this
-touchscreen to work finely.
+Hi Samuel,
 
-Signed-off-by: Patil, Rachna <rachna@ti.com>
----
- drivers/input/touchscreen/ti_am335x_tsc.c |   15 ++++++++++++++-
- 1 files changed, 14 insertions(+), 1 deletions(-)
+This is just a gentle reminder for the patch set I had submitted viz.
+"[PATCH RESEND 0/8] TI Touchscreen driver updates and Support for TSC/ADC MFD driver"
+I received an ACK from Jonathan and Dmitry on this patch set.
+Can you please pull in if there are no further comments.
 
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 6a817a8..7a26810 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -32,6 +32,8 @@
- #define ADCFSM_STEPID		0x10
- #define SEQ_SETTLE		275
- #define MAX_12BIT		((1 << 12) - 1)
-+#define TSCADC_DELTA_X		15
-+#define TSCADC_DELTA_Y		15
- 
- /*
-  * Refer to function regbit_map() to
-@@ -51,6 +53,8 @@ struct titsc {
- 	unsigned int		wires;
- 	unsigned int		x_plate_resistance;
- 	unsigned int		enable_bits;
-+	unsigned int		bckup_x;
-+	unsigned int		bckup_y;
- 	bool			pen_down;
- 	int			steps_to_configure;
- 	int			config_inp[20];
-@@ -309,12 +313,18 @@ static irqreturn_t titsc_irq(int irq, void *dev)
- 	unsigned int z1, z2, z;
- 	unsigned int fsm;
- 	unsigned int fifo1count, fifo0count;
-+	unsigned int diffx = 0, diffy = 0;
- 	int i;
- 
- 	status = titsc_readl(ts_dev, REG_IRQSTATUS);
- 	if (status & IRQENB_FIFO0THRES) {
- 		titsc_read_coordinates(ts_dev, &x, &y);
- 
-+		diffx = abs(x - (ts_dev->bckup_x));
-+		diffy = abs(y - (ts_dev->bckup_y));
-+		ts_dev->bckup_x = x;
-+		ts_dev->bckup_y = y;
-+
- 		z1 = titsc_readl(ts_dev, REG_FIFO0) & 0xfff;
- 		z2 = titsc_readl(ts_dev, REG_FIFO1) & 0xfff;
- 
-@@ -338,7 +348,8 @@ static irqreturn_t titsc_irq(int irq, void *dev)
- 			z /= z1;
- 			z = (z + 2047) >> 12;
- 
--			if (z <= MAX_12BIT) {
-+			if ((diffx < TSCADC_DELTA_X) &&
-+			(diffy < TSCADC_DELTA_Y) && (z <= MAX_12BIT)) {
- 				input_report_abs(input_dev, ABS_X, x);
- 				input_report_abs(input_dev, ABS_Y, y);
- 				input_report_abs(input_dev, ABS_PRESSURE, z);
-@@ -361,6 +372,8 @@ static irqreturn_t titsc_irq(int irq, void *dev)
- 		fsm = titsc_readl(ts_dev, REG_ADCFSM);
- 		if (fsm == ADCFSM_STEPID) {
- 			ts_dev->pen_down = false;
-+			ts_dev->bckup_x = 0;
-+			ts_dev->bckup_y = 0;
- 			input_report_key(input_dev, BTN_TOUCH, 0);
- 			input_report_abs(input_dev, ABS_PRESSURE, 0);
- 			input_sync(input_dev);
--- 
-1.7.0.4
+Thanks & Regards,
+Rachna.
+
+On Tue, Oct 16, 2012 at 12:55:37, Patil, Rachna wrote:
+> This patch set is a cumulative set of [1] and [2] sent earlier.
+> I have merged the patch set so that the MFD patches apply without any issues.
+> 
+> Also Note that there are no code changes in either of the patch set, only rebased on top of linux-next to make sure that all the patches apply without any conflicts.
+> 
+> This patch set has been tested on AM335x EVM.
+> 
+> [1] "[PATCH 0/4] input: TSC: ti_tscadc: TI Touchscreen driver updates"
+> (http://www.spinics.net/lists/linux-input/msg22107.html)
+> 
+> [2] "[PATCH v5 0/4] Support for TSC/ADC MFD driver"
+> (http://www.spinics.net/lists/linux-input/msg22832.html)
+> 
+> Patil, Rachna (8):
+>   input: TSC: ti_tscadc: Correct register usage
+>   input: TSC: ti_tscadc: Add Step configuration as platform data
+>   input: TSC: ti_tscadc: set FIFO0 threshold Interrupt
+>   input: TSC: ti_tscadc: Remove definition of End Of Interrupt register
+>   input: TSC: ti_tscadc: Rename the existing touchscreen driver
+>   MFD: ti_tscadc: Add support for TI's TSC/ADC MFDevice
+>   input: TSC: ti_tsc: Convert TSC into a MFDevice
+>   IIO : ADC: tiadc: Add support of TI's ADC driver
+> 
+>  drivers/iio/adc/Kconfig                     |    7 +
+>  drivers/iio/adc/Makefile                    |    1 +
+>  drivers/iio/adc/ti_am335x_adc.c             |  260 ++++++++++++++
+>  drivers/input/touchscreen/Kconfig           |    6 +-
+>  drivers/input/touchscreen/Makefile          |    2 +-
+>  drivers/input/touchscreen/ti_am335x_tsc.c   |  398 ++++++++++++++++++++++
+>  drivers/input/touchscreen/ti_tscadc.c       |  486 ---------------------------
+>  drivers/mfd/Kconfig                         |   11 +
+>  drivers/mfd/Makefile                        |    1 +
+>  drivers/mfd/ti_am335x_tscadc.c              |  277 +++++++++++++++
+>  include/linux/input/ti_am335x_tsc.h         |   23 ++
+>  include/linux/input/ti_tscadc.h             |   17 -
+>  include/linux/mfd/ti_am335x_tscadc.h        |  152 +++++++++
+>  include/linux/platform_data/ti_am335x_adc.h |   14 +
+>  14 files changed, 1148 insertions(+), 507 deletions(-)  create mode 100644 drivers/iio/adc/ti_am335x_adc.c  create mode 100644 drivers/input/touchscreen/ti_am335x_tsc.c
+>  delete mode 100644 drivers/input/touchscreen/ti_tscadc.c
+>  create mode 100644 drivers/mfd/ti_am335x_tscadc.c  create mode 100644 include/linux/input/ti_am335x_tsc.h
+>  delete mode 100644 include/linux/input/ti_tscadc.h  create mode 100644 include/linux/mfd/ti_am335x_tscadc.h
+>  create mode 100644 include/linux/platform_data/ti_am335x_adc.h
+> 
+> 
 

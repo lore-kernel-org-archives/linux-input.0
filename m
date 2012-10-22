@@ -1,71 +1,48 @@
-From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v1] Support Elan Touchscreen eKTF product.
-Date: Mon, 22 Oct 2012 19:12:22 +0200
-Message-ID: <CAN+gG=HyzcRnp_Bd=WRq2Hn_5QKCVCjvFjXCvO1xXbAcyBOJfQ@mail.gmail.com>
-References: <1350424679-20725-1-git-send-email-scott.liu@emc.com.tw>
-	<87hapnnp5t.fsf@emc.com.tw>
-	<20121022160705.GC13791@core.coreip.homeip.net>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [RFC PATCH 02/06] input/rmi4: Core files
+Date: Mon, 22 Oct 2012 14:58:47 -0700
+Message-ID: <5085C197.7020906@synaptics.com>
+References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>  <1349496603-20775-3-git-send-email-cheiny@synaptics.com>  ,<1349525982.2008.86.camel@joe-AO722>  <BFABBC009FBA1C43B207B15FD485ABD922C22B7B@USW-MAIL1.synaptics-inc.local> <1349924771.2243.16.camel@joe-AO722>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121022160705.GC13791-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jian-Jhong Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Scott Liu <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jesse <jesse-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Vincent Wang <vincent.wang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Paul <paul.liang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx3.synaptics.com ([12.239.217.85]:27164 "EHLO
+	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756219Ab2JVV6u (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 22 Oct 2012 17:58:50 -0400
+In-Reply-To: <1349924771.2243.16.camel@joe-AO722>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
 
-On Mon, Oct 22, 2012 at 6:07 PM, Dmitry Torokhov
-<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> On Mon, Oct 22, 2012 at 11:47:42AM +0800, Jian-Jhong Ding wrote:
->> Scott Liu <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org> writes:
->> > +
->> > +struct mt_device {
->> > +   struct mt_slot curdata; /* placeholder of incoming data */
->> > +   __u8 num_received;      /* how many contacts we received */
->> > +   __u8 num_expected;      /* expected last contact index */
->> > +   __u8 maxcontacts;
->> > +   bool curvalid;          /* is the current contact valid? */
->> > +   struct mt_slot *slots;
->> > +};
+On 10/10/2012 08:06 PM, Joe Perches wrote:
+> On Thu, 2012-10-11 at 02:49 +0000, Christopher Heiny wrote:
+>> Joe Perches wrote:
+> []
+>>>> +     list_for_each_entry(entry, &data->rmi_functions.list, list)
+>>>> +             if (entry->irq_mask)
+>>>> +                     process_one_interrupt(entry, irq_status,
+>>>> +                                           data);
+>>>
+>>> style nit, it'd be nicer with braces.
 >>
->> With Benjamin's i2c-hid implimentation, is it possible to make
->> hid-multitouch not depend on USBHID and reuse it to drive this device?
-
-We can already use hid-multitouch with hid over I2C devices (I'm
-testing my i2c devices with this module).
-But it's true that hid-multitouch depends on usbhid, and I the funny
-think is that I was removing this dependency today.
-The fact is that currently, i2c devices do not segfault with
-hid-multitouch  because win8 devices do not require anymore to set
-some feature at plug.
-
+>> I agree with you, but checkpatch.pl doesn't. :-(
 >
-> Exactly. Before looking any further - is this the same part that Tom Lin
-> posted a driver for earlier this summer?
-
-I'm not Elan, and I can not be sure, but judging from the "hello
-packets" and the other commands, I doubt this device is an I2C over
-HID one.
-
-Anyway, reusing hid-multitouch for this specific case seams to be a
-little bit difficult. You would have first to provide a fake report
-descriptor (or inject commands as if you were hid-core) and then, you
-would have to reformat the incoming data into valid win7 (or 8)
-packets. Judging by the functions elan_touch_parse_fid,
-elan_touch_parse_wid and elants_parse_xy, the data seem to be mixed
-(all the finger ids at the beginning, and not one per touch), so it is
-definitively needed to recreate a valid HID packet.
-
-So I'm not surprised with the duplicated code. However, Henrik did a
-big job in kernel 3.7 to factorize mt code, and some part of the
-duplication can be achieve with these functions (look at
-input_mt_sync_frame and input_mt_get_slot_by_key for example).
-
-Cheers,
-Benjamin
-
+> Sure it does.
 >
-> Thanks.
+> $ cat t.c
+> {
+> 	list_for_each_entry(entry, &data->rmi_functions.list, list) {
+> 		if (entry->irq_mask)
+> 			process_one_interrupt(entry, irq_status, data);
+> 	}
+> }
+> $ ./scripts/checkpatch.pl --strict -f t.c
+> total: 0 errors, 0 warnings, 0 checks, 7 lines checked
 >
-> --
-> Dmitry
+> t.c has no obvious style problems and is ready for submission.
+
+I stand corrected.  Thanks!

@@ -1,48 +1,73 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [RFC PATCH 02/06] input/rmi4: Core files
-Date: Mon, 22 Oct 2012 14:58:47 -0700
-Message-ID: <5085C197.7020906@synaptics.com>
-References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>  <1349496603-20775-3-git-send-email-cheiny@synaptics.com>  ,<1349525982.2008.86.camel@joe-AO722>  <BFABBC009FBA1C43B207B15FD485ABD922C22B7B@USW-MAIL1.synaptics-inc.local> <1349924771.2243.16.camel@joe-AO722>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: Re: [BUG] capslock works across all keyboards but LED does not
+Date: Tue, 23 Oct 2012 09:20:17 +0800
+Message-ID: <CACVXFVMbc3eBMj4gcAVDZjB4SJYwbLeVzUi13C62FMVYymgFug@mail.gmail.com>
+References: <CACVXFVM8soazSixttzDBq-zLAxCpVNBDsDoz4Hc9gdsU8WQniA@mail.gmail.com>
+	<21783709.sVZtM4k8zF@dtor-d630.eng.vmware.com>
+	<CACVXFVN8s52UiSF0Q98sXNZzR9srnZ9aUjNYcZU6hDPfNzRGgA@mail.gmail.com>
+	<20121022155446.GB13791@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx3.synaptics.com ([12.239.217.85]:27164 "EHLO
-	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756219Ab2JVV6u (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:44504 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932409Ab2JWBUT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Oct 2012 17:58:50 -0400
-In-Reply-To: <1349924771.2243.16.camel@joe-AO722>
+	Mon, 22 Oct 2012 21:20:19 -0400
+Received: from mail-ea0-f174.google.com ([209.85.215.174])
+	by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_ARCFOUR_SHA1:16)
+	(Exim 4.71)
+	(envelope-from <ming.lei@canonical.com>)
+	id 1TQTAI-0001Mk-9w
+	for linux-input@vger.kernel.org; Tue, 23 Oct 2012 01:20:18 +0000
+Received: by mail-ea0-f174.google.com with SMTP id c13so1004846eaa.19
+        for <linux-input@vger.kernel.org>; Mon, 22 Oct 2012 18:20:18 -0700 (PDT)
+In-Reply-To: <20121022155446.GB13791@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On 10/10/2012 08:06 PM, Joe Perches wrote:
-> On Thu, 2012-10-11 at 02:49 +0000, Christopher Heiny wrote:
->> Joe Perches wrote:
-> []
->>>> +     list_for_each_entry(entry, &data->rmi_functions.list, list)
->>>> +             if (entry->irq_mask)
->>>> +                     process_one_interrupt(entry, irq_status,
->>>> +                                           data);
->>>
->>> style nit, it'd be nicer with braces.
->>
->> I agree with you, but checkpatch.pl doesn't. :-(
+On Mon, Oct 22, 2012 at 11:54 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
 >
-> Sure it does.
+> Keyboard LEDs are controlled by the kernel unless console is in the raw
+> mode (X), in which case it is left to userspace. I see it on my box that
+> sync between keyboards is broken while I am in X (so it is X problem)
+> and works when I am in text console (so I do not see the kernel
+> problem).
 >
-> $ cat t.c
-> {
-> 	list_for_each_entry(entry, &data->rmi_functions.list, list) {
-> 		if (entry->irq_mask)
-> 			process_one_interrupt(entry, irq_status, data);
-> 	}
-> }
-> $ ./scripts/checkpatch.pl --strict -f t.c
-> total: 0 errors, 0 warnings, 0 checks, 7 lines checked
+> Since it does not work for you in text console either your setup must be
+> different than mine. If you switch to a text console and do
 >
-> t.c has no obvious style problems and is ready for submission.
+>         sudo lsof /dev/input/event*
+>
+> what do you see?
 
-I stand corrected.  Thanks!
+- lsof output from text console
+
+lsof: WARNING: can't stat() fuse.gvfs-fuse-daemon file system /home/tom/.gvfs
+      Output information may be incomplete.
+COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+upowerd 2956 root   13r   CHR  13,64      0t0 7050 /dev/input/event0
+
+
+- lsof output from X
+[tom@~]$sudo lsof /dev/input/event*
+[sudo] password for tom:
+lsof: WARNING: can't stat() fuse.gvfs-fuse-daemon file system /home/tom/.gvfs
+      Output information may be incomplete.
+COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF  NODE NAME
+Xorg    2110 root   12u   CHR  13,66      0t0  7052 /dev/input/event2
+Xorg    2110 root   13u   CHR  13,70      0t0 10099 /dev/input/event6
+Xorg    2110 root   14u   CHR  13,65      0t0  7051 /dev/input/event1
+Xorg    2110 root   15u   CHR  13,71      0t0 13213 /dev/input/event7
+Xorg    2110 root   16u   CHR  13,67      0t0  7058 /dev/input/event3
+Xorg    2110 root   19u   CHR  13,69      0t0  7255 /dev/input/event5
+Xorg    2110 root   52u   CHR  13,73      0t0 27009 /dev/input/event9
+upowerd 2956 root   13r   CHR  13,64      0t0  7050 /dev/input/event0
+
+
+Thanks,
+--
+Ming Lei

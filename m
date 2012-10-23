@@ -1,47 +1,119 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [RFC PATCH 01/06] input/rmi4: Public header and documentation
-Date: Tue, 23 Oct 2012 16:19:27 -0700
-Message-ID: <508725FF.50108@synaptics.com>
-References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com> <1349496603-20775-2-git-send-email-cheiny@synaptics.com> <CACRpkdZb+LOk8v0aNZuPhATjS5jv-h1JJCejoh_9eFZ_fdiZQA@mail.gmail.com> <BFABBC009FBA1C43B207B15FD485ABD922C22BC4@USW-MAIL1.synaptics-inc.local> <CACRpkdY3jctXSBB+SMJ=6k=CcLEsHz4jY8T3db8htcE+zWnJWw@mail.gmail.com> <20121016062603.GG8670@opensource.wolfsonmicro.com>
+Subject: Re: [RFC PATCH 02/06] input/rmi4: Core files
+Date: Tue, 23 Oct 2012 16:46:28 -0700
+Message-ID: <50872C54.4090505@synaptics.com>
+References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com> <1349496603-20775-3-git-send-email-cheiny@synaptics.com> <CACRpkdZ0cQPQHDCYiyQb+Qb_8nGh=4rw2CixKgAFvb-3c1LpSg@mail.gmail.com> <BFABBC009FBA1C43B207B15FD485ABD922C22C06@USW-MAIL1.synaptics-inc.local> <20121011081351.GA32175@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx3.synaptics.com ([12.239.217.85]:26344 "EHLO
+Received: from us-mx3.synaptics.com ([12.239.217.85]:65274 "EHLO
 	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964849Ab2JWXTa (ORCPT
+	with ESMTP id S933587Ab2JWXqa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Oct 2012 19:19:30 -0400
-In-Reply-To: <20121016062603.GG8670@opensource.wolfsonmicro.com>
+	Tue, 23 Oct 2012 19:46:30 -0400
+In-Reply-To: <20121011081351.GA32175@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Anton Vorontsov <anton.vorontsov@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Greg KH <gregkh@linuxfoundation.org>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
 
-On 10/15/2012 11:26 PM, Mark Brown wrote:
-> On Thu, Oct 11, 2012 at 05:32:59PM +0200, Linus Walleij wrote:
->> On Thu, Oct 11, 2012 at 5:41 AM, Christopher Heiny <Cheiny@synaptics.com> wrote:
+On 10/11/2012 01:13 AM, Dmitry Torokhov wrote:
+> On Thu, Oct 11, 2012 at 04:15:56AM +0000, Christopher Heiny wrote:
+>> On Thursday, October 11, 2012 02:21:53 AM you wrote:
+>>> On Sat, Oct 6, 2012 at 6:09 AM, Christopher Heiny <cheiny@synaptics.com> wrote:
+>>
+>>>
+>>>> +
+>>>> +/** This is here because all those casts made for some ugly code.
+>>>> + */
+>>>> +static void u8_and(u8 *dest, u8 *target1, u8 *target2, int nbits)
+>>>> +{
+>>>> +       bitmap_and((long unsigned int *) dest,
+>>>> +                  (long unsigned int *) target1,
+>>>> +                  (long unsigned int *) target2,
+>>>> +                  nbits);
+>>>> +}
+>>>
+>>> Hm, getting rid of unreadable casts is a valid case.
+>>>
+>>> I'll be OK with this but maybe the real solution is to introduce such
+>>> helpers into <linux/bitmap.h>?
+>>
+>> Hmmm.  We'll give that some thought.  Thought I'd like to get the RMI4
+>> driver nailed down, just to keep the area of change small.  Once we've
+>> got all the kinks worked out here, we'll look at bitmap.h helpers.
 >
->>> In previous patch submissions, we always used these warning functions.
->>> But in the feedback on those patches, we were asked to just make
->>> sysfs show/store NULL if the attribute is write/read only.  However,
->>> during their development process, our customers want to see the
->>> warnings if the attributes are accessed incorrectly.  So we made
->>> these warnings a debug option.
->
->> Basically my stance is that you should not lower yourself to the
->> level of others not getting the point of your technical solution
->> by making unelegant compromises, what
->> you should do is to bring them up to your level so they
->> understand that your solution is elegant.
->
-> It seems like what you really want to do is add a debug feature to sysfs
-> which will optionally complain loudly at bad accesses; obviously it's
-> not something that should be there all the time as running then handling
-> an error is a perfectly legitimate thing to do.  As with the /CS
-> handling it'd mean it was handled at an appropriate level and could be
-> reused elsewhere (it might also help make it clear to your customers why
-> this is generally bad form).
+> The question is why you are using u8 for bitmaps instead of doing
+> DECALRE_BITMAP() and using it instead? Then you would not need silly
+> wrappers around existing APIs.
 
-See my reply to Dmitry of a bit ago.  These are no longer needed, and 
-we'll be dropping them.
+OK, we'll look into that.  My big concern is whether the bit-order in 
+bitmask.h will be the same as the bit order in the RMI4 sensor 
+registers.  If that works out OK, we'll switch.
+
+
+>>> (...)
+>>>
+>>>> +static int process_interrupt_requests(struct rmi_device *rmi_dev)
+>>>> +{
+>>>> +       struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+>>>> +       struct device *dev = &rmi_dev->dev;
+>>>> +       struct rmi_function_container *entry;
+>>>> +       u8 irq_status[data->num_of_irq_regs];
+>>>
+>>> Looking at this...
+>>>
+>>> What does the data->num_of_irq_regs actually contain?
+>>>
+>>> I just fear that it is something constant like always 2 or always 4,
+>>> so there is actually, in reality, a 16 or 32 bit register hiding in there.
+>>>
+>>> In that case what you should do is to represent it as a u16 or u32 here,
+>>> just or the bits into a status word, and then walk over that status
+>>> word with something like ffs(bitword); ...
+>>
+>> Nope, it's not constant.  In theory, and RMI4 based sensor can have up
+>> to 128 functions (in practice, it's far fewer), and each function can
+>> have as many as 7 interrupts.  So the number of IRQ registers can vary
+>> from RMI4 sensor to RMI4 sensor, and needs to be computed during the
+>> scan of the product descriptor table.
+>
+> Is it a good idea to have it on stack then? Should it be part of
+> rmi_device instead?
+
+It's not coming off the stack.  We're allocating it via devm_kzalloc() 
+in rmi_driver_probe().
+
+
+>>>> +#define simple_show_union_struct(regtype, propname, fmt)\
+>>>> +static ssize_t tricat(rmi_fn_, FNUM, _##propname##_show)(struct device
+>>>> *dev,\ +                               struct device_attribute *attr,
+>>>> char *buf) {\ +       struct rmi_function_container *fc;\
+>>>> +       struct FUNCTION_DATA *data;\
+>>>> +\
+>>>> +       fc = to_rmi_function_container(dev);\
+>>>> +       data = fc->data;\
+>>>> +\
+>>>> +       return snprintf(buf, PAGE_SIZE, fmt,\
+>>>> +                       data->regtype.propname);\
+>>>> +}
+>>>
+>>> OK I see the point, but is there really no other way to do this than
+>>> to #define huge static inlines like these? Is it really not possible to
+>>> create just generic functions instead of going this far?
+>>>
+>>> (same comment for all)
+>>
+>
+>> We tried generic functions previously, and it wound up really really ugly.  We'd be willing to look at it again, though, since this isn't real beautiful either.  If you've got an example implementation in mind. a pointer would help a great deal.
+>
+> You just need to wrap around a custome structure around struct
+> device_attribute and then you shoudl be able to use generics. If you
+> look into trackpoint.c you should gett the idea.
+
+That looks a lot tidier.  We'll work on it for sysfs (and maybe for 
+debugfs, too).  It might not be applicable in all cases, but it promises 
+to make a lot of things tidier.
+
+Thanks!

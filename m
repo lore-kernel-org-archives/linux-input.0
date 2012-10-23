@@ -1,52 +1,55 @@
-From: =?big5?B?vEK5xcJA?= <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
-Subject: RE: [PATCH v1] Support Elan Touchscreen eKTF product.
-Date: Tue, 23 Oct 2012 16:30:18 +0800
-Message-ID: <7BC14E6A36624121B78375F1425F9C32@elan.corp>
-References: <87pq4aq6if.fsf@emc.com.tw>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Tue, 23 Oct 2012 11:13:05 +0200
+Message-ID: <CACRpkdaQ1WfRWrx=RXMVkeFtwdERJsOpVa3DaXBTU2KZdgqhRQ@mail.gmail.com>
+References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
+	<20121022155028.GA13791@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87pq4aq6if.fsf-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Jian-Jhong Ding' <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, 'Dmitry Torokhov' <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Benjamin Tissoires' <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, 'Jesse' <jesse-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, 'Vincent Wang' <vincent.wang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, 'Paul' <paul.liang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20121022155028.GA13791@core.coreip.homeip.net>
+Sender: linux-omap-owner@vger.kernel.org
+To: Sourav Poddar <sourav.poddar@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: tony@atomide.com, b-cousson@ti.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Felipe Balbi <balbi@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry:
-	This driver is not related to Tom's driver. This driver is ELAN
-standard I2C driver for touch panel and its packets is defined by ELAN own
-format and not related to HID over I2C.
+On Mon, Oct 22, 2012 at 5:50 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Sourav,
+>
+> On Mon, Oct 22, 2012 at 06:43:00PM +0530, Sourav Poddar wrote:
+>> Adapt keypad to use pinctrl framework.
+>>
+>> Tested on omap4430 sdp with 3.7-rc1 kernel.
+>
+> I do not see anything in the driver that would directly use pinctrl. Is
+> there a better place to select default pin configuration; maybe when
+> instantiating platform device?
 
-Thanks,
-Scott
+The option is to use pinctrl hogs. Then the pins will be taken,
+muxed and configured by the pin controller itself.
 
-> -----Original Message-----
-> From: Jian-Jhong Ding [mailto:jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org]
-> Sent: Tuesday, October 23, 2012 10:15 AM
-> To: Dmitry Torokhov
-> Cc: Scott Liu; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
-> linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Benjamin Tissoires; Jesse; Vincent Wang;
-Paul
-> Subject: Re: [PATCH v1] Support Elan Touchscreen eKTF product.
-> 
-> Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> writes:
-> > On Mon, Oct 22, 2012 at 11:47:42AM +0800, Jian-Jhong Ding wrote:
-> >> With Benjamin's i2c-hid implimentation, is it possible to make
-> >> hid-multitouch not depend on USBHID and reuse it to drive this device?
-> >
-> > Exactly. Before looking any further - is this the same part that Tom Lin
-> > posted a driver for earlier this summer?
-> 
-> No.  Tom's driver was only for trackpads, this is probably for some
-> touch panel.  The controller ICs may have some similarities, but the
-> firmware is developed independently, though both somewhat conform to the
-> HID over I2C protocol.
-> 
-> Thanks,
-> -JJ
-> > Thanks.
-> >
-> > --
-> > Dmitry
+Another option (not implemented) is to use bus notifiers.
+
+(I wrote about this in some other thread but can't find it now.)
+
+Each approach above come with its own set of problems.
+
+If the driver need to handle multiple states like default/idle/sleep
+it is IMO better to put the handling into the driver, so if that
+is what is going to happen also to this driver it could be a good
+idea to actually implement that code upfront and include in
+this submission so as to show that this driver is really going
+to exercise its pins.
+
+But it's also a question of conformity: if other drivers in the
+system is using different states and this is the only one
+using a single "default" state, then it doesn't make sense
+to have just one driver get its pins using hogs, it's just
+inconsistent.
+
+So Sourav, please tell us a bit about your plans for this
+and other drivers!
+
+Yours,
+Linus Walleij

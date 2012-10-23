@@ -1,71 +1,267 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Subject: [PATCH 1/2] input: qt1070: add pinctrl consumer
-Date: Tue, 23 Oct 2012 15:29:01 +0200
-Message-ID: <1350998942-713-1-git-send-email-plagnioj@jcrosoft.com>
-References: <20121023131627.GE18964@game.jcrosoft.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [Patch v4 7/7] Onkey: DA9055 Onkey driver
+Date: Tue, 23 Oct 2012 08:41:51 -0700
+Message-ID: <20121023154151.GA649@core.coreip.homeip.net>
+References: <1350034350.11527.22.camel@dhruva>
+ <1350986392.23353.0.camel@dhruva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20121023131627.GE18964@game.jcrosoft.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Linus Walleij <linus.walleij@linaro.org>, Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-da0-f46.google.com ([209.85.210.46]:40688 "EHLO
+	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757187Ab2JWPl5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Oct 2012 11:41:57 -0400
+Content-Disposition: inline
+In-Reply-To: <1350986392.23353.0.camel@dhruva>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ashish Jangam <ashish.jangam@kpitcummins.com>
+Cc: Liam Girdwood <lrg@slimlogic.co.uk>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org, David Dajun Chen <dchen@diasemi.com>, linux-kernel@vger.kernel.org
 
-If no pinctrl available just report a warning as some architecture may not
-need to do anything.
+On Tue, Oct 23, 2012 at 03:29:52PM +0530, Ashish Jangam wrote:
+> Does this patch looks good?
 
-Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-input@vger.kernel.org
----
- drivers/input/keyboard/qt1070.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+Yes, I just need to pull mainline to get the DA9055 bits (will happen at
+3.7-rc3) and I will apply it.
 
-diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
-index ca68f29..967734e 100644
---- a/drivers/input/keyboard/qt1070.c
-+++ b/drivers/input/keyboard/qt1070.c
-@@ -33,6 +33,7 @@
- #include <linux/interrupt.h>
- #include <linux/jiffies.h>
- #include <linux/delay.h>
-+#include <linux/pinctrl/consumer.h>
- 
- /* Address for each register */
- #define CHIP_ID            0x00
-@@ -147,6 +148,7 @@ static int __devinit qt1070_probe(struct i2c_client *client,
- 	struct input_dev *input;
- 	int i;
- 	int err;
-+	struct pinctrl *pinctrl;
- 
- 	err = i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE);
- 	if (!err) {
-@@ -155,6 +157,15 @@ static int __devinit qt1070_probe(struct i2c_client *client,
- 		return -ENODEV;
- 	}
- 
-+	pinctrl = devm_pinctrl_get_select_default(&client->dev);
-+	if (IS_ERR(pinctrl)) {
-+		err = PTR_ERR(pinctrl);
-+		if (err == -EPROBE_DEFER)
-+			return err;
-+
-+		dev_warn(&client->dev, "No pinctrl provided\n");
-+	}
-+
- 	if (!client->irq) {
- 		dev_err(&client->dev, "please assign the irq to this device\n");
- 		return -EINVAL;
+Thanks.
+
+> On Fri, 2012-10-12 at 15:02 +0530, Ashish Jangam wrote:
+> > This is the ONKEY driver of the Dialog DA9055 PMIC and depends on the DA9055 MFD
+> > core driver.
+> > 
+> > This patch is functionally tested on SMDK6410 board.
+> > 
+> > Signed-off-by: David Dajun Chen <dchen@diasemi.com>
+> > Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
+> > ---
+> > changes since v4:
+> > - remove of devm_*irq API
+> > changes since v3:
+> > - used of module_platform_driver macro
+> > - add regmap virtual irq function
+> > changes since v2:
+> > - add support for handling the button release case
+> > ---
+> >  drivers/input/misc/Kconfig        |   10 ++
+> >  drivers/input/misc/Makefile       |    1 +
+> >  drivers/input/misc/da9055_onkey.c |  171 +++++++++++++++++++++++++++++++++++++
+> >  3 files changed, 182 insertions(+), 0 deletions(-)
+> >  create mode 100644 drivers/input/misc/da9055_onkey.c
+> > 
+> > diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> > index 7c0f1ec..6a45cb8 100644
+> > --- a/drivers/input/misc/Kconfig
+> > +++ b/drivers/input/misc/Kconfig
+> > @@ -486,6 +486,16 @@ config INPUT_DA9052_ONKEY
+> >  	  To compile this driver as a module, choose M here: the
+> >  	  module will be called da9052_onkey.
+> >  
+> > +config INPUT_DA9055_ONKEY
+> > +	tristate "Dialog Semiconductor DA9055 ONKEY"
+> > +	depends on MFD_DA9055
+> > +	help
+> > +	  Support the ONKEY of DA9055 PMICs as an input device
+> > +	  reporting power button status.
+> > +
+> > +	  To compile this driver as a module, choose M here: the module
+> > +	  will be called da9055_onkey.
+> > +
+> >  config INPUT_DM355EVM
+> >  	tristate "TI DaVinci DM355 EVM Keypad and IR Remote"
+> >  	depends on MFD_DM355EVM_MSP
+> > diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> > index 83fe6f5..23347e3 100644
+> > --- a/drivers/input/misc/Makefile
+> > +++ b/drivers/input/misc/Makefile
+> > @@ -23,6 +23,7 @@ obj-$(CONFIG_INPUT_CMA3000)		+= cma3000_d0x.o
+> >  obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
+> >  obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
+> >  obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
+> > +obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
+> >  obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
+> >  obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
+> >  obj-$(CONFIG_INPUT_GPIO_TILT_POLLED)	+= gpio_tilt_polled.o
+> > diff --git a/drivers/input/misc/da9055_onkey.c b/drivers/input/misc/da9055_onkey.c
+> > new file mode 100644
+> > index 0000000..217b5ee
+> > --- /dev/null
+> > +++ b/drivers/input/misc/da9055_onkey.c
+> > @@ -0,0 +1,171 @@
+> > +/*
+> > + * ON pin driver for Dialog DA9055 PMICs
+> > + *
+> > + * Copyright(c) 2012 Dialog Semiconductor Ltd.
+> > + *
+> > + * Author: David Dajun Chen <dchen@diasemi.com>
+> > + *
+> > + * This program is free software; you can redistribute  it and/or modify it
+> > + * under  the terms of  the GNU General  Public License as published by the
+> > + * Free Software Foundation;  either version 2 of the  License, or (at your
+> > + * option) any later version.
+> > + */
+> > +
+> > +#include <linux/init.h>
+> > +#include <linux/input.h>
+> > +#include <linux/module.h>
+> > +#include <linux/platform_device.h>
+> > +
+> > +#include <linux/mfd/da9055/core.h>
+> > +#include <linux/mfd/da9055/reg.h>
+> > +
+> > +struct da9055_onkey {
+> > +	struct da9055 *da9055;
+> > +	struct input_dev *input;
+> > +	struct delayed_work work;
+> > +};
+> > +
+> > +static void da9055_onkey_query(struct da9055_onkey *onkey)
+> > +{
+> > +	int key_stat;
+> > +
+> > +	key_stat = da9055_reg_read(onkey->da9055, DA9055_REG_STATUS_A);
+> > +	if (key_stat < 0) {
+> > +		dev_err(onkey->da9055->dev,
+> > +			"Failed to read onkey event %d\n", key_stat);
+> > +	} else {
+> > +		key_stat &= DA9055_NOKEY_STS;
+> > +		/*
+> > +		 * Onkey status bit is cleared when onkey button is relased.
+> > +		 */
+> > +		if (!key_stat) {
+> > +			input_report_key(onkey->input, KEY_POWER, 0);
+> > +			input_sync(onkey->input);
+> > +		}
+> > +	}
+> > +
+> > +	/*
+> > +	 * Interrupt is generated only when the ONKEY pin is asserted.
+> > +	 * Hence the deassertion of the pin is simulated through work queue.
+> > +	 */
+> > +	if (key_stat)
+> > +		schedule_delayed_work(&onkey->work, msecs_to_jiffies(10));
+> > +
+> > +}
+> > +
+> > +static void da9055_onkey_work(struct work_struct *work)
+> > +{
+> > +	struct da9055_onkey *onkey = container_of(work, struct da9055_onkey,
+> > +						  work.work);
+> > +
+> > +	da9055_onkey_query(onkey);
+> > +}
+> > +
+> > +static irqreturn_t da9055_onkey_irq(int irq, void *data)
+> > +{
+> > +	struct da9055_onkey *onkey = data;
+> > +
+> > +	input_report_key(onkey->input, KEY_POWER, 1);
+> > +	input_sync(onkey->input);
+> > +
+> > +	da9055_onkey_query(onkey);
+> > +
+> > +	return IRQ_HANDLED;
+> > +}
+> > +
+> > +static int __devinit da9055_onkey_probe(struct platform_device *pdev)
+> > +{
+> > +	struct input_dev *input_dev;
+> > +	struct da9055 *da9055 = dev_get_drvdata(pdev->dev.parent);
+> > +	struct da9055_onkey *onkey;
+> > +	int irq, err;
+> > +
+> > +	irq = platform_get_irq_byname(pdev, "ONKEY");
+> > +	if (irq < 0) {
+> > +		dev_err(&pdev->dev,
+> > +			"Failed to get an IRQ for input device, %d\n", irq);
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	onkey = devm_kzalloc(&pdev->dev, sizeof(*onkey), GFP_KERNEL);
+> > +	if (!onkey) {
+> > +		dev_err(&pdev->dev, "Failed to allocate memory\n");
+> > +		return -ENOMEM;
+> > +	}
+> > +
+> > +	input_dev = input_allocate_device();
+> > +	if (!input_dev) {
+> > +		dev_err(&pdev->dev, "Failed to allocate memory\n");
+> > +		return -ENOMEM;
+> > +	}
+> > +
+> > +	onkey->input = input_dev;
+> > +	onkey->da9055 = da9055;
+> > +	input_dev->name = "da9055-onkey";
+> > +	input_dev->phys = "da9055-onkey/input0";
+> > +	input_dev->dev.parent = &pdev->dev;
+> > +
+> > +	input_dev->evbit[0] = BIT_MASK(EV_KEY);
+> > +	__set_bit(KEY_POWER, input_dev->keybit);
+> > +
+> > +	INIT_DELAYED_WORK(&onkey->work, da9055_onkey_work);
+> > +
+> > +	irq = regmap_irq_get_virq(da9055->irq_data, irq);
+> > +	err = request_threaded_irq(irq, NULL, da9055_onkey_irq,
+> > +				   IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
+> > +				   "ONKEY", onkey);
+> > +	if (err < 0) {
+> > +		dev_err(&pdev->dev,
+> > +			"Failed to register ONKEY IRQ %d, error = %d\n",
+> > +			irq, err);
+> > +		goto free_onkey;
+> > +	}
+> > +
+> > +	err = input_register_device(input_dev);
+> > +	if (err) {
+> > +		dev_err(&pdev->dev, "Unable to register input device, %d\n",
+> > +			err);
+> > +		goto free_irq;
+> > +	}
+> > +
+> > +	platform_set_drvdata(pdev, onkey);
+> > +
+> > +	return 0;
+> > +
+> > +free_irq:
+> > +	free_irq(irq, onkey);
+> > +free_onkey:
+> > +	cancel_delayed_work_sync(&onkey->work);
+> > +	input_free_device(input_dev);
+> > +
+> > +	return err;
+> > +}
+> > +
+> > +static int __devexit da9055_onkey_remove(struct platform_device *pdev)
+> > +{
+> > +	struct da9055_onkey *onkey = platform_get_drvdata(pdev);
+> > +	int irq = platform_get_irq_byname(pdev, "ONKEY");
+> > +
+> > +	irq = regmap_irq_get_virq(onkey->da9055->irq_data, irq);
+> > +	free_irq(irq, onkey);
+> > +	cancel_delayed_work_sync(&onkey->work);
+> > +	input_unregister_device(onkey->input);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static struct platform_driver da9055_onkey_driver = {
+> > +	.probe	= da9055_onkey_probe,
+> > +	.remove	= __devexit_p(da9055_onkey_remove),
+> > +	.driver = {
+> > +		.name	= "da9055-onkey",
+> > +		.owner	= THIS_MODULE,
+> > +	},
+> > +};
+> > +
+> > +module_platform_driver(da9055_onkey_driver);
+> > +
+> > +MODULE_AUTHOR("David Dajun Chen <dchen@diasemi.com>");
+> > +MODULE_DESCRIPTION("Onkey driver for DA9055");
+> > +MODULE_LICENSE("GPL");
+> > +MODULE_ALIAS("platform:da9055-onkey");
+> 
+> 
+
 -- 
-1.7.10.4
+Dmitry

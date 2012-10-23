@@ -1,14 +1,13 @@
 From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Subject: [PATCH 2/2] input: gpio_keys: add pinctrl consumer
-Date: Tue, 23 Oct 2012 15:29:02 +0200
-Message-ID: <1350998942-713-2-git-send-email-plagnioj@jcrosoft.com>
+Subject: [PATCH 1/2] input: qt1070: add pinctrl consumer
+Date: Tue, 23 Oct 2012 15:29:01 +0200
+Message-ID: <1350998942-713-1-git-send-email-plagnioj@jcrosoft.com>
 References: <20121023131627.GE18964@game.jcrosoft.org>
- <1350998942-713-1-git-send-email-plagnioj@jcrosoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1350998942-713-1-git-send-email-plagnioj@jcrosoft.com>
+In-Reply-To: <20121023131627.GE18964@game.jcrosoft.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -29,44 +28,44 @@ Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 Cc: Linus Walleij <linus.walleij@linaro.org>
 Cc: linux-input@vger.kernel.org
 ---
- drivers/input/keyboard/gpio_keys.c |   11 +++++++++++
+ drivers/input/keyboard/qt1070.c |   11 +++++++++++
  1 file changed, 11 insertions(+)
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 6a68041..c0432fe 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -29,6 +29,7 @@
- #include <linux/of_platform.h>
- #include <linux/of_gpio.h>
- #include <linux/spinlock.h>
+diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+index ca68f29..967734e 100644
+--- a/drivers/input/keyboard/qt1070.c
++++ b/drivers/input/keyboard/qt1070.c
+@@ -33,6 +33,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/jiffies.h>
+ #include <linux/delay.h>
 +#include <linux/pinctrl/consumer.h>
  
- struct gpio_button_data {
- 	const struct gpio_keys_button *button;
-@@ -666,6 +667,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ /* Address for each register */
+ #define CHIP_ID            0x00
+@@ -147,6 +148,7 @@ static int __devinit qt1070_probe(struct i2c_client *client,
  	struct input_dev *input;
- 	int i, error;
- 	int wakeup = 0;
+ 	int i;
+ 	int err;
 +	struct pinctrl *pinctrl;
  
- 	if (!pdata) {
- 		pdata = gpio_keys_get_devtree_pdata(dev);
-@@ -673,6 +675,15 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 			return PTR_ERR(pdata);
+ 	err = i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE);
+ 	if (!err) {
+@@ -155,6 +157,15 @@ static int __devinit qt1070_probe(struct i2c_client *client,
+ 		return -ENODEV;
  	}
  
-+	pinctrl = devm_pinctrl_get_select_default(dev);
++	pinctrl = devm_pinctrl_get_select_default(&client->dev);
 +	if (IS_ERR(pinctrl)) {
-+		error = PTR_ERR(pinctrl);
-+		if (error == -EPROBE_DEFER)
-+			return error;
++		err = PTR_ERR(pinctrl);
++		if (err == -EPROBE_DEFER)
++			return err;
 +
-+		dev_warn(dev, "No pinctrl provided\n");
++		dev_warn(&client->dev, "No pinctrl provided\n");
 +	}
 +
- 	ddata = kzalloc(sizeof(struct gpio_keys_drvdata) +
- 			pdata->nbuttons * sizeof(struct gpio_button_data),
- 			GFP_KERNEL);
+ 	if (!client->irq) {
+ 		dev_err(&client->dev, "please assign the irq to this device\n");
+ 		return -EINVAL;
 -- 
 1.7.10.4

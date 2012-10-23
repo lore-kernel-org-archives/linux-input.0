@@ -1,330 +1,238 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: introduce managed input devices (add devres support)
-Date: Mon, 22 Oct 2012 22:35:14 -0700
-Message-ID: <20121023053513.GA15642@core.coreip.homeip.net>
+Subject: Re: [PATCH v4 1/1] Input: serio - Add ARC PS/2 driver
+Date: Tue, 23 Oct 2012 00:30:33 -0700
+Message-ID: <20121023073033.GA19595@core.coreip.homeip.net>
+References: <1350552538-24343-1-git-send-email-mischa.jonker@synopsys.com>
+ <1350552538-24343-2-git-send-email-mischa.jonker@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:46042 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752694Ab2JWFfS (ORCPT
+Received: from mail-da0-f46.google.com ([209.85.210.46]:59591 "EHLO
+	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751954Ab2JWHaj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Oct 2012 01:35:18 -0400
+	Tue, 23 Oct 2012 03:30:39 -0400
 Content-Disposition: inline
+In-Reply-To: <1350552538-24343-2-git-send-email-mischa.jonker@synopsys.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>
+To: Mischa Jonker <mischa.jonker@synopsys.com>
+Cc: m.d.s.x.jonker@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arc-linux-dev@synopsys.com
 
-There is a demand from driver's writers to use managed devices framework
-for their drivers. Unfortunately up to this moment input devices did not
-provide support for managed devices and that lead to mixing two styles
-of resource management which usually introduced more bugs, such as
-manually unregistering input device but relying in devres to free
-interrupt handler which (unless device is properly shut off) can cause
-ISR to reference already freed memory.
+On Thu, Oct 18, 2012 at 11:28:58AM +0200, Mischa Jonker wrote:
+> This adds support for the PS/2 block that is used in various ARC FPGA
+> platforms.
 
-This change introduces devm_input_allocate_device() that will allocate
-managed instance of input device so that driver writers who prefer
-using devm_* framework do not have to mix 2 styles.
+Applied with minor edits, please take a look at my 'next' branch and
+holler if you see something wrong.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/input.c | 175 ++++++++++++++++++++++++++++++++++++++++++--------
- include/linux/input.h |   7 +-
- 2 files changed, 154 insertions(+), 28 deletions(-)
+BTW, does the patch below work for you?
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 53a0dde..7fe74f8 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -1723,7 +1723,7 @@ EXPORT_SYMBOL_GPL(input_class);
- /**
-  * input_allocate_device - allocate memory for new input device
-  *
-- * Returns prepared struct input_dev or NULL.
-+ * Returns prepared struct input_dev or %NULL.
-  *
-  * NOTE: Use input_free_device() to free devices that have not been
-  * registered; input_unregister_device() should be used for already
-@@ -1750,6 +1750,70 @@ struct input_dev *input_allocate_device(void)
- }
- EXPORT_SYMBOL(input_allocate_device);
- 
-+struct input_devres {
-+	struct input_dev *input;
-+};
-+
-+static int devm_input_device_match(struct device *dev, void *res, void *data)
-+{
-+	struct input_devres *devres = res;
-+
-+	return devres->input == data;
-+}
-+
-+static void devm_input_device_release(struct device *dev, void *res)
-+{
-+	struct input_devres *devres = res;
-+	struct input_dev *input = devres->input;
-+
-+	dev_dbg(dev, "%s: dropping reference to %s\n",
-+		__func__, dev_name(&input->dev));
-+	input_put_device(input);
-+}
-+
-+/**
-+ * devm_input_allocate_device - allocate managed input device
-+ * @dev: device owning the input device being created
-+ *
-+ * Returns prepared struct input_dev or %NULL.
-+ *
-+ * Managed input devices do not need to be explicitly unregistered or
-+ * freed as it will be done automatically when owner device unbinds from
-+ * its driver (or binding fails). Once managed input device is allocated,
-+ * it is ready to be set up and registered in the same fashion as regular
-+ * input device. There are no special devm_input_device_[un]register()
-+ * variants, regular ones work with both managed and unmanaged devices.
-+ *
-+ * NOTE: the owner device is set up as parent of input device and users
-+ * should not override it.
-+ */
-+
-+struct input_dev *devm_input_allocate_device(struct device *dev)
-+{
-+	struct input_dev *input;
-+	struct input_devres *devres;
-+
-+	devres = devres_alloc(devm_input_device_release,
-+			      sizeof(struct input_devres), GFP_KERNEL);
-+	if (!devres)
-+		return NULL;
-+
-+	input = input_allocate_device();
-+	if (!input) {
-+		devres_free(devres);
-+		return NULL;
-+	}
-+
-+	input->dev.parent = dev;
-+	input->devres_managed = true;
-+
-+	devres->input = input;
-+	devres_add(dev, devres);
-+
-+	return input;
-+}
-+EXPORT_SYMBOL(devm_input_allocate_device);
-+
- /**
-  * input_free_device - free memory occupied by input_dev structure
-  * @dev: input device to free
-@@ -1766,8 +1830,14 @@ EXPORT_SYMBOL(input_allocate_device);
-  */
- void input_free_device(struct input_dev *dev)
- {
--	if (dev)
-+	if (dev) {
-+		if (dev->devres_managed)
-+			WARN_ON(devres_destroy(dev->dev.parent,
-+						devm_input_device_release,
-+						devm_input_device_match,
-+						dev));
- 		input_put_device(dev);
-+	}
- }
- EXPORT_SYMBOL(input_free_device);
- 
-@@ -1888,6 +1958,38 @@ static void input_cleanse_bitmasks(struct input_dev *dev)
- 	INPUT_CLEANSE_BITMASK(dev, SW, sw);
- }
- 
-+static void __input_unregister_device(struct input_dev *dev)
-+{
-+	struct input_handle *handle, *next;
-+
-+	input_disconnect_device(dev);
-+
-+	mutex_lock(&input_mutex);
-+
-+	list_for_each_entry_safe(handle, next, &dev->h_list, d_node)
-+		handle->handler->disconnect(handle);
-+	WARN_ON(!list_empty(&dev->h_list));
-+
-+	del_timer_sync(&dev->timer);
-+	list_del_init(&dev->node);
-+
-+	input_wakeup_procfs_readers();
-+
-+	mutex_unlock(&input_mutex);
-+
-+	device_del(&dev->dev);
-+}
-+
-+static void devm_input_device_unregister(struct device *dev, void *res)
-+{
-+	struct input_devres *devres = res;
-+	struct input_dev *input = devres->input;
-+
-+	dev_dbg(dev, "%s: unregistering device %s\n",
-+		__func__, dev_name(&input->dev));
-+	__input_unregister_device(input);
-+}
-+
- /**
-  * input_register_device - register device with input core
-  * @dev: device to be registered
-@@ -1903,11 +2005,21 @@ static void input_cleanse_bitmasks(struct input_dev *dev)
- int input_register_device(struct input_dev *dev)
- {
- 	static atomic_t input_no = ATOMIC_INIT(0);
-+	struct input_devres *devres = NULL;
- 	struct input_handler *handler;
- 	unsigned int packet_size;
- 	const char *path;
- 	int error;
- 
-+	if (dev->devres_managed) {
-+		devres = devres_alloc(devm_input_device_unregister,
-+				      sizeof(struct input_devres), GFP_KERNEL);
-+		if (!devres)
-+			return -ENOMEM;
-+
-+		devres->input = dev;
-+	}
-+
- 	/* Every input device generates EV_SYN/SYN_REPORT events. */
- 	__set_bit(EV_SYN, dev->evbit);
- 
-@@ -1923,8 +2035,10 @@ int input_register_device(struct input_dev *dev)
- 
- 	dev->max_vals = max(dev->hint_events_per_packet, packet_size) + 2;
- 	dev->vals = kcalloc(dev->max_vals, sizeof(*dev->vals), GFP_KERNEL);
--	if (!dev->vals)
--		return -ENOMEM;
-+	if (!dev->vals) {
-+		error = -ENOMEM;
-+		goto err_devres_free;
-+	}
- 
- 	/*
- 	 * If delay and period are pre-set by the driver, then autorepeating
-@@ -1949,7 +2063,7 @@ int input_register_device(struct input_dev *dev)
- 
- 	error = device_add(&dev->dev);
- 	if (error)
--		return error;
-+		goto err_free_vals;
- 
- 	path = kobject_get_path(&dev->dev.kobj, GFP_KERNEL);
- 	pr_info("%s as %s\n",
-@@ -1958,10 +2072,8 @@ int input_register_device(struct input_dev *dev)
- 	kfree(path);
- 
- 	error = mutex_lock_interruptible(&input_mutex);
--	if (error) {
--		device_del(&dev->dev);
--		return error;
--	}
-+	if (error)
-+		goto err_device_del;
- 
- 	list_add_tail(&dev->node, &input_dev_list);
- 
-@@ -1972,7 +2084,20 @@ int input_register_device(struct input_dev *dev)
- 
- 	mutex_unlock(&input_mutex);
- 
-+	if (dev->devres_managed) {
-+		dev_info(dev->dev.parent, "%s: registerign %s with devres.\n",
-+			__func__, dev->name ?: "N/A");
-+		devres_add(dev->dev.parent, devres);
-+	}
- 	return 0;
-+
-+err_device_del:
-+	device_del(&dev->dev);
-+err_free_vals:
-+	kfree(dev->vals);
-+err_devres_free:
-+	devres_free(devres);
-+	return error;
- }
- EXPORT_SYMBOL(input_register_device);
- 
-@@ -1985,24 +2110,20 @@ EXPORT_SYMBOL(input_register_device);
-  */
- void input_unregister_device(struct input_dev *dev)
- {
--	struct input_handle *handle, *next;
--
--	input_disconnect_device(dev);
--
--	mutex_lock(&input_mutex);
--
--	list_for_each_entry_safe(handle, next, &dev->h_list, d_node)
--		handle->handler->disconnect(handle);
--	WARN_ON(!list_empty(&dev->h_list));
--
--	del_timer_sync(&dev->timer);
--	list_del_init(&dev->node);
--
--	input_wakeup_procfs_readers();
--
--	mutex_unlock(&input_mutex);
--
--	device_unregister(&dev->dev);
-+	if (dev->devres_managed) {
-+		WARN_ON(devres_destroy(dev->dev.parent,
-+					devm_input_device_unregister,
-+					devm_input_device_match,
-+					dev));
-+		__input_unregister_device(dev);
-+		/*
-+		 * We do not do input_put_device() here because it will be done
-+		 * when 2nd devres fires up.
-+		 */
-+	} else {
-+		__input_unregister_device(dev);
-+		input_put_device(dev);
-+	}
- }
- EXPORT_SYMBOL(input_unregister_device);
- 
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 15464ba..bfc479c 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -1256,6 +1256,8 @@ struct input_value {
-  * @h_list: list of input handles associated with the device. When
-  *	accessing the list dev->mutex must be held
-  * @node: used to place the device onto input_dev_list
-+ * @devres_managed: indicates that devices is managed with devres framework
-+ *	and needs not be explicitly unregistered or freed.
-  */
- struct input_dev {
- 	const char *name;
-@@ -1324,6 +1326,8 @@ struct input_dev {
- 	unsigned int num_vals;
- 	unsigned int max_vals;
- 	struct input_value *vals;
-+
-+	bool devres_managed;
- };
- #define to_input_dev(d) container_of(d, struct input_dev, dev)
- 
-@@ -1467,7 +1471,8 @@ struct input_handle {
- 	struct list_head	h_node;
- };
- 
--struct input_dev *input_allocate_device(void);
-+struct input_dev __must_check *input_allocate_device(void);
-+struct input_dev __must_check *devm_input_allocate_device(struct device *);
- void input_free_device(struct input_dev *dev);
- 
- static inline struct input_dev *input_get_device(struct input_dev *dev)
--- 
-1.7.11.7
-
+Thanks.
 
 -- 
 Dmitry
+
+
+Input: arc_ps2 - switch to using managed resources
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+
+ drivers/input/serio/arc_ps2.c |  123 ++++++++++++++++++++---------------------
+ 1 file changed, 59 insertions(+), 64 deletions(-)
+
+
+diff --git a/drivers/input/serio/arc_ps2.c b/drivers/input/serio/arc_ps2.c
+index f8c026a..89ad763 100644
+--- a/drivers/input/serio/arc_ps2.c
++++ b/drivers/input/serio/arc_ps2.c
+@@ -38,8 +38,6 @@ struct arc_ps2_port {
+ 
+ struct arc_ps2_data {
+ 	struct arc_ps2_port port[ARC_PS2_PORTS];
+-	struct resource *iomem_res;
+-	int irq;
+ 	void __iomem *addr;
+ 	unsigned int frame_error;
+ 	unsigned int buf_overflow;
+@@ -125,6 +123,32 @@ static void arc_ps2_close(struct serio *io)
+ 		  port->status_addr);
+ }
+ 
++static void __iomem * __devinit arc_ps2_calc_addr(struct arc_ps2_data *arc_ps2,
++						  int index, bool status)
++{
++	void __iomem *addr;
++
++	addr = arc_ps2->addr + 4 + 4 * index;
++	if (status)
++		addr += ARC_PS2_PORTS * 4;
++
++	return addr;
++}
++
++static void __devinit arc_ps2_inhibit_ports(struct arc_ps2_data *arc_ps2)
++{
++	void __iomem *addr;
++	u32 val;
++	int i;
++
++	for (i = 0; i < ARC_PS2_PORTS; i++) {
++		addr = arc_ps2_calc_addr(arc_ps2, i, true);
++		val = ioread32(addr);
++		val &= ~(PS2_STAT_RX_INT_EN | PS2_STAT_TX_INT_EN);
++		iowrite32(val, addr);
++	}
++}
++
+ static int __devinit arc_ps2_create_port(struct platform_device *pdev,
+ 					 struct arc_ps2_data *arc_ps2,
+ 					 int index)
+@@ -146,8 +170,8 @@ static int __devinit arc_ps2_create_port(struct platform_device *pdev,
+ 
+ 	port->io = io;
+ 
+-	port->data_addr = arc_ps2->addr + 4 + index * 4;
+-	port->status_addr = arc_ps2->addr + 4 + ARC_PS2_PORTS * 4 + index * 4;
++	port->data_addr = arc_ps2_calc_addr(arc_ps2, index, false);
++	port->status_addr = arc_ps2_calc_addr(arc_ps2, index, true);
+ 
+ 	dev_dbg(&pdev->dev, "port%d is allocated (data = 0x%p, status = 0x%p)\n",
+ 		index, port->data_addr, port->status_addr);
+@@ -159,85 +183,63 @@ static int __devinit arc_ps2_create_port(struct platform_device *pdev,
+ static int __devinit arc_ps2_probe(struct platform_device *pdev)
+ {
+ 	struct arc_ps2_data *arc_ps2;
++	struct resource *res;
++	int irq;
+ 	int error, id, i;
+ 
+-	arc_ps2 = kzalloc(sizeof(struct arc_ps2_data), GFP_KERNEL);
+-	if (!arc_ps2) {
+-		dev_err(&pdev->dev, "out of memory\n");
+-		return -ENOMEM;
+-	}
+-
+-	arc_ps2->iomem_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!arc_ps2->iomem_res) {
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res) {
+ 		dev_err(&pdev->dev, "no IO memory defined\n");
+-		error = -EINVAL;
+-		goto err_free_mem;
++		return -EINVAL;
+ 	}
+ 
+-	arc_ps2->irq = platform_get_irq_byname(pdev, "arc_ps2_irq");
+-	if (arc_ps2->irq < 0) {
++	irq = platform_get_irq_byname(pdev, "arc_ps2_irq");
++	if (irq < 0) {
+ 		dev_err(&pdev->dev, "no IRQ defined\n");
+-		error = -EINVAL;
+-		goto err_free_mem;
++		return -EINVAL;
+ 	}
+ 
+-	if (!request_mem_region(arc_ps2->iomem_res->start,
+-	    resource_size(arc_ps2->iomem_res), pdev->name)) {
+-		dev_err(&pdev->dev, "memory region allocation failed for %pR\n",
+-			arc_ps2->iomem_res);
+-
+-		error = -EBUSY;
+-		goto err_free_mem;
++	arc_ps2 = devm_kzalloc(&pdev->dev, sizeof(struct arc_ps2_data),
++				GFP_KERNEL);
++	if (!arc_ps2) {
++		dev_err(&pdev->dev, "out of memory\n");
++		return -ENOMEM;
+ 	}
+ 
+-	arc_ps2->addr = ioremap_nocache(arc_ps2->iomem_res->start,
+-					resource_size(arc_ps2->iomem_res));
+-	if (!arc_ps2->addr) {
+-		dev_err(&pdev->dev, "memory mapping failed\n");
+-		error = -ENOMEM;
+-		goto err_release_region;
+-	}
++	arc_ps2->addr = devm_request_and_ioremap(&pdev->dev, res);
++	if (!arc_ps2->addr)
++		return -EBUSY;
+ 
+ 	dev_info(&pdev->dev, "irq = %d, address = 0x%p, ports = %i\n",
+-		 arc_ps2->irq, arc_ps2->addr, ARC_PS2_PORTS);
++		 irq, arc_ps2->addr, ARC_PS2_PORTS);
+ 
+ 	id = ioread32(arc_ps2->addr);
+ 	if (id != ARC_ARC_PS2_ID) {
+ 		dev_err(&pdev->dev, "device id does not match\n");
+-		error = -ENXIO;
+-		goto err_unmap;
++		return -ENXIO;
+ 	}
+ 
+-	for (i = 0; i < ARC_PS2_PORTS; i++) {
+-		error = arc_ps2_create_port(pdev, arc_ps2, i);
+-		if (error)
+-			goto err_unregister_ports;
+-	}
++	arc_ps2_inhibit_ports(arc_ps2);
+ 
+-	error = request_irq(arc_ps2->irq, arc_ps2_interrupt, 0,
+-			    "arc_ps2", arc_ps2);
++	error = devm_request_irq(&pdev->dev, irq, arc_ps2_interrupt,
++				 0, "arc_ps2", arc_ps2);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "Could not allocate IRQ\n");
+-		goto err_unregister_ports;
++		return error;
++	}
++
++	for (i = 0; i < ARC_PS2_PORTS; i++) {
++		error = arc_ps2_create_port(pdev, arc_ps2, i);
++		if (error) {
++			while (--i >= 0)
++				serio_unregister_port(arc_ps2->port[i].io);
++			return error;
++		}
+ 	}
+ 
+ 	platform_set_drvdata(pdev, arc_ps2);
+ 
+ 	return 0;
+-
+-err_unregister_ports:
+-	for (i = 0; i < ARC_PS2_PORTS; i++) {
+-		if (arc_ps2->port[i].io)
+-			serio_unregister_port(arc_ps2->port[i].io);
+-	}
+-err_unmap:
+-	iounmap(arc_ps2->addr);
+-err_release_region:
+-	release_mem_region(arc_ps2->iomem_res->start,
+-			   resource_size(arc_ps2->iomem_res));
+-err_free_mem:
+-	kfree(arc_ps2);
+-	return error;
+ }
+ 
+ static int __devexit arc_ps2_remove(struct platform_device *pdev)
+@@ -248,18 +250,11 @@ static int __devexit arc_ps2_remove(struct platform_device *pdev)
+ 	for (i = 0; i < ARC_PS2_PORTS; i++)
+ 		serio_unregister_port(arc_ps2->port[i].io);
+ 
+-	free_irq(arc_ps2->irq, arc_ps2);
+-	iounmap(arc_ps2->addr);
+-	release_mem_region(arc_ps2->iomem_res->start,
+-			   resource_size(arc_ps2->iomem_res));
+-
+ 	dev_dbg(&pdev->dev, "interrupt count = %i\n", arc_ps2->total_int);
+ 	dev_dbg(&pdev->dev, "frame error count = %i\n", arc_ps2->frame_error);
+ 	dev_dbg(&pdev->dev, "buffer overflow count = %i\n",
+ 		arc_ps2->buf_overflow);
+ 
+-	kfree(arc_ps2);
+-
+ 	return 0;
+ }
+ 

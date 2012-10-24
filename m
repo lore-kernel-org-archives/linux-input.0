@@ -1,140 +1,73 @@
-From: Benoit Cousson <b-cousson@ti.com>
-Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
-Date: Wed, 24 Oct 2012 19:46:15 +0200
-Message-ID: <50882967.6040800@ti.com>
-References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com> <20121022155028.GA13791@core.coreip.homeip.net> <508660D4.9030507@ti.com> <20121023200249.GA2712@core.coreip.homeip.net> <20121024083704.GF5665@arwen.pp.htv.fi> <20121024161429.GA16350@core.coreip.homeip.net>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [RFC PATCH 01/06] input/rmi4: Public header and documentation
+Date: Wed, 24 Oct 2012 18:49:08 +0100
+Message-ID: <20121024174908.GI18814@opensource.wolfsonmicro.com>
+References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
+ <1349496603-20775-2-git-send-email-cheiny@synaptics.com>
+ <CACRpkdZb+LOk8v0aNZuPhATjS5jv-h1JJCejoh_9eFZ_fdiZQA@mail.gmail.com>
+ <20121009082719.GC8237@opensource.wolfsonmicro.com>
+ <BFABBC009FBA1C43B207B15FD485ABD922C22BE7@USW-MAIL1.synaptics-inc.local>
+ <20121012051558.GK11726@opensource.wolfsonmicro.com>
+ <508715CC.1000600@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="h22Fi9ANawrtbNPX"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:44738 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756417Ab2JXRqc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Oct 2012 13:46:32 -0400
-In-Reply-To: <20121024161429.GA16350@core.coreip.homeip.net>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:42933 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S935263Ab2JXRtN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Oct 2012 13:49:13 -0400
+Content-Disposition: inline
+In-Reply-To: <508715CC.1000600@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Felipe Balbi <balbi@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Anton Vorontsov <anton.vorontsov@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
 
-Hi Dmitry,
 
-On 10/24/2012 06:14 PM, Dmitry Torokhov wrote:
-> On Wed, Oct 24, 2012 at 11:37:04AM +0300, Felipe Balbi wrote:
->> Hi,
->>
->> On Tue, Oct 23, 2012 at 01:02:49PM -0700, Dmitry Torokhov wrote:
->>> On Tue, Oct 23, 2012 at 11:18:12AM +0200, Benoit Cousson wrote:
->>>> Hi Dimitry,
->>>>
->>>> On 10/22/2012 05:50 PM, Dmitry Torokhov wrote:
->>>>> Hi Sourav,
->>>>>
->>>>> On Mon, Oct 22, 2012 at 06:43:00PM +0530, Sourav Poddar wrote:
->>>>>> Adapt keypad to use pinctrl framework.
->>>>>>
->>>>>> Tested on omap4430 sdp with 3.7-rc1 kernel.
->>>>>
->>>>> I do not see anything in the driver that would directly use pinctrl. Is
->>>>> there a better place to select default pin configuration; maybe when
->>>>> instantiating platform device?
->>>>
->>>> Why?
->>>> The devm_pinctrl_get_select_default is using the pinctrl.
->>>
->>> No, I guess we ihave different understanding of what "directly use" means.
->>> This particular driver does directly use interrupts: it requests it and
->>> performs some actions when interrupt arrives. Same goes for IO memory -
->>> it gets requested, then we access it. With pinctrl we do not do anything
->>> - we just ask another layer to configure it and that is it.
->>
->> this is true for almost anything we do:
->>
->> - we ask another layer to allocate memory for us
->> - we ask another layer to call our ISR once the IRQ line is asserted
->> - we ask another layer to handle the input events we just received
->> - we ask another layer to transfer data through DMA for us
->> - we ask another layer to turn regulators on and off.
-> 
-> But we are _directly_ _using_ all of these. You allocate memory and you
-> (the driver) stuff data into that memory. You ask for DMA and you take
-> the DMAed data and work with it. Not so with pinctrl in omap keypad and
-> other drivers I have seen so far.
+--h22Fi9ANawrtbNPX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-That's not really true. You select a pin mode and thanks to that you get
-the signal from an external pin that goes to your IP.
-And thanks to that the IP is doing what your are expecting it to do.
+On Tue, Oct 23, 2012 at 03:10:20PM -0700, Christopher Heiny wrote:
+> On 10/11/2012 10:16 PM, Mark Brown wrote:
+> >On Thu, Oct 11, 2012 at 03:56:22AM +0000, Christopher Heiny wrote:
 
-Without that your IP will not get any input signal, which will make it a
-little bit useless, isn't it?
+> >Fix your mailer to word wrap within paragraphs.
 
->> and so on. This is just how abstractions work, we group common parts in
->> a framework so that users don't need to know the details, but still need
->> to tell the framework when to fiddle with those resources.
->>
->>> I have seen just in a few days 3 or 4 drivers having exactly the same
->>> change - call to devm_pinctrl_get_select_default(), and I guess I will
->>> receive the same patches for the rest of input drivers shortly.
->>> This suggests that the operation is done at the wrong level. Do the
->>> pin configuration as you parse DT data, the same way you set up i2c
->>> devices registers in of_i2c.c, and leave the individual drivers that do
->>> not care about specifics alone.
->>
->> Makes no sense to hide that from drivers. The idea here is that driver
->> should know when it needs its pins to muxed correctly.
-> 
-> The driver also needs memory controller to be initialized, gpio chip be
-> ready and registered, DMA subsystem ready, input core reade, etc, etc,
-> etc. You however do not have every driver explicitly initialize any of
-> that; you expect certain working environment to be already operable. The
-> driver does manage resources it controls, it has ultimate knowledge
-> about, pin configuration is normally is not it. We just need to know
-> that we wired/muxed properly, otherwise we won't work. So please let
-> parent layers deal with it.
-> 
->> 95% of the time
->> it will be done during probe() but then again, so what ?
->>
->> doing that when parsing DT, or on bus notifiers is just plain wrong.
->> Drivers should be required to handle all of their resources.
-> 
-> All of _their_ resources, exactly. They do not own nor control pins so
-> they should not be bothered with them either. Look, when you see that
-> potentially _every_ driver in the system needs to set up the same object
-> that it doe snot use otherwise you should realize that individual driver
-> is not the proper place to do that.
+> Sorry - I was on the road and had to use a web interface.  It looked
+> OK during composition.  Is this better?
 
-What your are missing as well in that case is the explicit dependency
-that this API is creating with the pinctrl driver that we are going to
-miss otherwise.
+Yes, that's great - thanks.
 
-Hence the following code.
+> However, a general capability in SPI core is a fine idea for future
+> work, once we get the RMI4 driver ironed out.  Can we agree to defer
+> that for now?
 
-+		if (PTR_ERR(keypad_data->pins) == -EPROBE_DEFER)
-+			return -EPROBE_DEFER;
+Obviously there's no pressure to implement the framework feature,
+however it shouldn't be implemented at the driver level.
 
-If the pinctrl is not already there you defer the probe until it is there.
+--h22Fi9ANawrtbNPX
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Moreover, as already said, we are probably at some point going to handle
-as well the low power mode and thus change the pin mode upon idle/suspend.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-And again, selecting a pin mode during probe is doing something with the
-pins when and only when it is useful. It is not different than getting
-an IRQ or DMA request at probe time.
+iQIcBAEBAgAGBQJQiCoMAAoJELSic+t+oim9aI8P/1cSUU9BVfNQIa5BS/St7tcf
+RAJBurEzh76zG/S2HG5GupvjQ3oaAinO9GnBO5K8RG9Z67Qyz8PF40oyKCS6Lxiz
+PDAxxsv3x6OKZQRh6SFspR4u6p6H6cyX8iY0kTrDzqEMZMFOUgkirPFgZF7laqHF
+Q2kMME7U7L2+VJ13LlV1qRbnNy/fTazm7auWEqv3PONrk6W/Si/3p01SV7wEvLsu
+YtAv4z5hvzC9fBqc2pvd2mlcQt3lJxs4uM33W6UGq0WnPJwYZtupJwEIGXZ+bUAV
+3yWU/K8h2oA0KeFnQJPnOs9VCD0VB7siHS99AOl2BtLR0UflNglaKFaA7diBOfGR
+/YfVP8Z2Bm6G0xypOEXzmFDDSrEAfFQvdU4rwKBDzI+hROYhwiIPN9NURIh2UR86
+kS11iXvSFnP9ZO8PZyCgI4Mc/taVpUG83KMD9jL+xbS7W/3ddbmESwbhpF6aio8g
+iorSFeGAh2pyXa6JSDi39PYBHWjDHBNGOaEbKr0zu1B9tWGoCa38aaMaoR7VVB5g
+qfpq84WkI/ez7RdZcn+eJOlWIRkx4bkYcVxWmACf1k+cfk9uptddG2l0w8pBd/Qz
+InLf2DIIgUoSE1CurOh1G6M0SjNKTt+FnMyI0uWsp/R2y4wW1aN1Pp+C7bkQ2Mov
+ueLYfRc753ztWIX1kiIk
+=aYQ3
+-----END PGP SIGNATURE-----
 
-You get it, use it for registration and that all you are doing with it.
-It is no different here.
-
-Doing that during device creation does not make sense, since that device
-might never be used.
-
-Is it like allocating the memory by default for every devices at boot
-time just in case a driver will probe it at some time or registering
-every IRQs at boot time just in case a driver will use it...
-
-That's just pointless. We are wasting resources for nothing and thus
-potentially power and that will not help the Earth getting any better.
-
-Regards,
-Benoit
-
+--h22Fi9ANawrtbNPX--

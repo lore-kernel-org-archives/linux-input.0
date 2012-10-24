@@ -1,113 +1,82 @@
-From: Felipe Balbi <balbi@ti.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
-Date: Wed, 24 Oct 2012 19:57:49 +0300
-Message-ID: <20121024165749.GB32220@arwen.pp.htv.fi>
+Date: Wed, 24 Oct 2012 19:13:57 +0200
+Message-ID: <CACRpkdYVAgO25s2RRYvt-KLS_4=NDJNfxQ+ThJuyWtksg27dhA@mail.gmail.com>
 References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
- <20121022155028.GA13791@core.coreip.homeip.net>
- <508660D4.9030507@ti.com>
- <20121023200249.GA2712@core.coreip.homeip.net>
- <CACRpkdYwA7O8AqB8YFCK-c3e6-7FcbhMOiPEUq-cKJni_PO-Ow@mail.gmail.com>
- <20121024161801.GB16350@core.coreip.homeip.net>
-Reply-To: <balbi@ti.com>
+	<20121022155028.GA13791@core.coreip.homeip.net>
+	<508660D4.9030507@ti.com>
+	<20121023200249.GA2712@core.coreip.homeip.net>
+	<20121024083704.GF5665@arwen.pp.htv.fi>
+	<20121024161429.GA16350@core.coreip.homeip.net>
+	<20121024165215.GA32220@arwen.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5I6of5zJg18YgZEa"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:42563 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756276Ab2JXRFH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Oct 2012 13:05:07 -0400
-Content-Disposition: inline
-In-Reply-To: <20121024161801.GB16350@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121024165215.GA32220@arwen.pp.htv.fi>
+Sender: linux-kernel-owner@vger.kernel.org
+To: balbi@ti.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Felipe Balbi <balbi@ti.com>
 
---5I6of5zJg18YgZEa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, Oct 24, 2012 at 6:52 PM, Felipe Balbi <balbi@ti.com> wrote:
+> On Wed, Oct 24, 2012 at 09:14:29AM -0700, Dmitry Torokhov wrote:
 
-Hi,
+>> All of _their_ resources, exactly. They do not own nor control pins so
+>> they should not be bothered with them either. Look, when you see that
+>
+> except that they *own* the pins. Now that the muxer has been setup
+> properly, this particular IP owns the pins.
 
-On Wed, Oct 24, 2012 at 09:18:01AM -0700, Dmitry Torokhov wrote:
-> On Wed, Oct 24, 2012 at 02:54:23PM +0200, Linus Walleij wrote:
-> > On Tue, Oct 23, 2012 at 10:02 PM, Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> >=20
-> > > I have seen just in a few days 3 or 4 drivers having exactly the same
-> > > change - call to devm_pinctrl_get_select_default(), and I guess I will
-> > > receive the same patches for the rest of input drivers shortly.
-> > > This suggests that the operation is done at the wrong level. Do the
-> > > pin configuration as you parse DT data, the same way you set up i2c
-> > > devices registers in of_i2c.c, and leave the individual drivers that =
-do
-> > > not care about specifics alone.
-> >=20
-> > Exactly this can be done with pinctrl hogs.
-> >=20
-> > The problem with that is that it removes the cross-reference
-> > between the device and it's pinctrl handle (also from the device
-> > tree). Instead the pinctrl handle gets referenced to the pin controller
-> > itself. So from a modelling perpective this looks a bit ugly.
-> >=20
-> > So we have two kinds of ugly:
-> >=20
-> > - Sprinke devm_pinctrl_get_select_default() over all drivers
-> >   which makes pinctrl handles properly reference their devices
-> >=20
-> > - Use hogs and loose coupling between pinctrl handles and their
-> >   devices
-> >=20
-> > A third alternative as outlined is to use notifiers and some
-> > resource core in drivers/base/*
->=20
-> OK, so with drivers/base/, have you considered doing default pinctrl
-> selection in bus's probe() methods? Yo would select the default
-> configuration before starting probing the device and maybe select idle
-> when probe fails or device is unbound? That would still keep the link
-> between device object and pinctrl and there less busses than device
-> drivers out there.
+This is true. It is then also reflected in the device model.
+And in debugfs, which is very helpful when debugging. If I
+cat
+/sys/kernel/debug/pinctrl/pinctrl-db8500/pins
 
-it starts to become confusing after a while. I mean, there's a reason
-why all drivers explictly call pm_runtim_enable(), right ?
+I can see a list of all pins on this ASIC and what device
+is using it. It is all due to the fact that each driver use
+[devm_]pinctrl_get(&dev) ad the struct device * pointer
+is used with dev_name() to print the corresponding
+device name.
 
-=46rom a first thought, one could think of just yanking that into bus'
-probe() as you may suggest, but sometimes the device is already enabled,
-so we need extra tricks:
+When using hogs it just says the name of the pin
+controller and the pins aren't really connected to their
+real consumers :-P
 
-pm_runtime_set_active();
-pm_runtime_enable();
-pm_runtime_get();
+Example:
 
-the same could happen with pinctrl eventually. What if a device needs to
-do something else (an errata fix as an example) before requesting
-pinctrl's default state ?
+Pinmux settings per pin
+Format: pin (name): mux_owner gpio_owner hog?
+pin 0 (GPIO0_AJ5): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 1 (GPIO1_AJ3): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 2 (GPIO2_AH4): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 3 (GPIO3_AH3): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 4 (GPIO4_AH6): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 5 (GPIO5_AG6): (MUX UNCLAIMED) DB8500:5
+pin 6 (GPIO6_AF6): pinctrl-db8500 (GPIO UNCLAIMED) function ipgpio
+group ipgpio0_c_1
+pin 7 (GPIO7_AG5): pinctrl-db8500 (GPIO UNCLAIMED) function ipgpio
+group ipgpio1_c_1
+pin 8 (GPIO8_AD5): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 9 (GPIO9_AE4): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 10 (GPIO10_AF5): nmk-i2c.2 (GPIO UNCLAIMED) function i2c2 group i2c2_b_2
+pin 11 (GPIO11_AG4): nmk-i2c.2 (GPIO UNCLAIMED) function i2c2 group i2c2_b_2
+pin 12 (GPIO12_AC4): pinctrl-db8500 (GPIO UNCLAIMED) function msp0
+group msp0txrx_a_1
+pin 13 (GPIO13_AF3): pinctrl-db8500 (GPIO UNCLAIMED) function msp0
+group msp0tfstck_a_1
+pin 14 (GPIO14_AE3): pinctrl-db8500 (GPIO UNCLAIMED) function msp0
+group msp0tfstck_a_1
+pin 15 (GPIO15_AC3): pinctrl-db8500 (GPIO UNCLAIMED) function msp0
+group msp0txrx_a_1
+pin 16 (GPIO16_AD3): nmk-i2c.1 (GPIO UNCLAIMED) function i2c1 group i2c1_b_2
+pin 17 (GPIO17_AD4): nmk-i2c.1 (GPIO UNCLAIMED) function i2c1 group i2c1_b_2
 
---=20
-balbi
+As you can see pins 6,7,12-15 are using hogs. Sure I can see
+the name of the function but that is just a string albeit
+helpful.
 
---5I6of5zJg18YgZEa
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Pins 10,11,16,17 are requested directly from the i2c driver
+and shows up connected to its device.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQiB4NAAoJEIaOsuA1yqREAMkP/ipXmBlxueN8Im1ahubV0l98
-9BE60/Y1t6w77cJwWhc6A+e22JtRK4k0PutGi/MlU9yu+aVJxToPPOd1HIgoNf7D
-MWoWsvGdG0+zTLQnHRl3lLOeHYQYNHDj5r42+NXVDPxfsbvHbsO6+ehsAZtcjLsR
-g8Kx6fDtCZidOsc7acx5G2mOJOUSR/G11E/hQArM+UlbE8a4qVtq3WAcnrBkjYeF
-QpK/43LHGCP4hLyUiQ016EAJ4E/vUB73FwSv7RYv9Q7ElD9XvvhrPG2z3uPNuq2V
-XX6rK+9p3QQTf31JEZsRoOQcuQ5cwIeyCarH0zprM9lFjvhzS86ApYO/K4g8Y/n8
-yqc/ZlmWDzhhCyHWFfr7K+dGVoO6B3Tc3UdXMWkW0TfeK1P+Aewtbhg6ZLSgT/hg
-jOINksB7sQDxYBFW2aJ0fETRmoAHuU6EaMZINW7mb0+x9Xvu3aRegQ9vNb4oAFzo
-v1Cp21mF4TT0jCAyisRLRl16qqeyyoZsmBhc1hlvPXU+zcgWUbfAu1WB2wYtUdis
-7Bc7H141IWjnBBl2wDbn94n24kF8A2Kzl/WdWaq+aUmdSPsDkcVSyUZ8OKan/q2X
-0cZShIlOM+zaDMwbfjzchn0dOC1fvoFxfAgM50WJadQSQ9ao91dlLiKtRm0AQ9Gx
-tO6YVfnEMDR0P9DtmuvK
-=0MoT
------END PGP SIGNATURE-----
-
---5I6of5zJg18YgZEa--
+Yours,
+Linus Walleij

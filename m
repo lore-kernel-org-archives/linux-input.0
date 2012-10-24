@@ -1,106 +1,93 @@
-From: Matthias Brugger <matthias.bgg@googlemail.com>
-Subject: [PATCH 1/2] touchscreen/ads7846.c: Alloc filter data only when needed.
-Date: Wed, 24 Oct 2012 13:38:55 +0200
-Message-ID: <1351078736-16785-1-git-send-email-matthias.bgg@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:45723 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758496Ab2JXLjN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Oct 2012 07:39:13 -0400
-Received: by mail-we0-f174.google.com with SMTP id t9so200281wey.19
-        for <linux-input@vger.kernel.org>; Wed, 24 Oct 2012 04:39:12 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Wed, 24 Oct 2012 14:54:23 +0200
+Message-ID: <CACRpkdYwA7O8AqB8YFCK-c3e6-7FcbhMOiPEUq-cKJni_PO-Ow@mail.gmail.com>
+References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
+	<20121022155028.GA13791@core.coreip.homeip.net>
+	<508660D4.9030507@ti.com>
+	<20121023200249.GA2712@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121023200249.GA2712@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Felipe Balbi <balbi@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, grinberg@compulab.co.il
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
 
-This patch encapsulates the variables used by the default debounce
-filter in a struct. The values are allocated only if the debounce filter
-is used by the platform.
+On Tue, Oct 23, 2012 at 10:02 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
 
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
----
- drivers/input/touchscreen/ads7846.c |   42 ++++++++++++++++++++++-------------
- 1 file changed, 27 insertions(+), 15 deletions(-)
+> I have seen just in a few days 3 or 4 drivers having exactly the same
+> change - call to devm_pinctrl_get_select_default(), and I guess I will
+> receive the same patches for the rest of input drivers shortly.
+> This suggests that the operation is done at the wrong level. Do the
+> pin configuration as you parse DT data, the same way you set up i2c
+> devices registers in of_i2c.c, and leave the individual drivers that do
+> not care about specifics alone.
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index f02028e..9e61a4b 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -90,6 +90,15 @@ struct ads7846_packet {
- 	u8			read_x_cmd[3], read_y_cmd[3], pwrdown_cmd[3];
- };
- 
-+struct ads7846_filterd {
-+	int			read_cnt;
-+	int			read_rep;
-+	int			last_read;
-+	u16			debounce_max;
-+	u16			debounce_tol;
-+	u16			debounce_rep;
-+};
-+
- struct ads7846 {
- 	struct input_dev	*input;
- 	char			phys[32];
-@@ -121,14 +130,6 @@ struct ads7846 {
- 
- 	bool			pendown;
- 
--	int			read_cnt;
--	int			read_rep;
--	int			last_read;
--
--	u16			debounce_max;
--	u16			debounce_tol;
--	u16			debounce_rep;
--
- 	u16			penirq_recheck_delay_usecs;
- 
- 	struct mutex		lock;
-@@ -643,9 +644,14 @@ static void null_wait_for_sync(void)
- {
- }
- 
-+static void ads7864_filter_cleanup(void *data)
-+{
-+	kfree(data);
-+}
-+
- static int ads7846_debounce_filter(void *ads, int data_idx, int *val)
- {
--	struct ads7846 *ts = ads;
-+	struct ads7846_filterd *ts = (struct ads7846_filterd*) ads;
- 
- 	if (!ts->read_cnt || (abs(ts->last_read - *val) > ts->debounce_tol)) {
- 		/* Start over collecting consistent readings. */
-@@ -1261,13 +1267,19 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 		ts->filter = pdata->filter;
- 		ts->filter_cleanup = pdata->filter_cleanup;
- 	} else if (pdata->debounce_max) {
--		ts->debounce_max = pdata->debounce_max;
--		if (ts->debounce_max < 2)
--			ts->debounce_max = 2;
--		ts->debounce_tol = pdata->debounce_tol;
--		ts->debounce_rep = pdata->debounce_rep;
-+		struct ads7846_filterd *fdata = kmalloc(sizeof(struct ads7846_filterd), GFP_KERNEL);
-+		if (!fdata) {
-+			err = -ENOMEM;
-+			goto err_free_mem;
-+		}
-+		fdata->debounce_max = pdata->debounce_max;
-+		if (fdata->debounce_max < 2)
-+			fdata->debounce_max = 2;
-+		fdata->debounce_tol = pdata->debounce_tol;
-+		fdata->debounce_rep = pdata->debounce_rep;
- 		ts->filter = ads7846_debounce_filter;
--		ts->filter_data = ts;
-+		ts->filter_cleanup = ads7864_filter_cleanup;
-+		ts->filter_data = fdata;
- 	} else {
- 		ts->filter = ads7846_no_filter;
- 	}
--- 
-1.7.9.5
+Exactly this can be done with pinctrl hogs.
 
+The problem with that is that it removes the cross-reference
+between the device and it's pinctrl handle (also from the device
+tree). Instead the pinctrl handle gets referenced to the pin controller
+itself. So from a modelling perpective this looks a bit ugly.
+
+So we have two kinds of ugly:
+
+- Sprinke devm_pinctrl_get_select_default() over all drivers
+  which makes pinctrl handles properly reference their devices
+
+- Use hogs and loose coupling between pinctrl handles and their
+  devices
+
+A third alternative as outlined is to use notifiers and some
+resource core in drivers/base/*
+
+>> That's why it is named "get_select_default" and not "get" only.
+>> This API ensure that the pin will be set to the default state, and this
+>> is all we need to do during the probe.
+>
+> Why during the probe and not by default? Realistically, the driver will
+> be loaded as long as there is a matching device and pins will need to be
+> configured.
+
+Hogs will do it by default but will disassociate the pinctrl from its
+device as described.
+
+>> There is no point to change the mux if the driver is not probed, because
+>> potentially the pin can be use be another driver.
+>
+> What other driver would use it? Who would chose what driver to load?
+
+I don't know about this specific driver, but for the SKE
+keypad driver we have a runtime case switching around the
+pins.
+
+We recently patched the pinctrl core for a specific usecase like
+this, and in that case both drivers are loaded, but one will be
+disabled at runtime and the other become active.
+
+In the ux500, if you need to perform deep debugging on a running
+system (an ordinary cell phone, say) you can at runtime convert
+the SD card output into an STM trace port and start monitoring
+different messages coming out on a MIPI-type bus.
+
+So basically it is not an SD card slot anymore, it turns into
+something else, the silicon core for MMC/SD is decoupled from its
+pins, and they are re-routed to the STM tracer. And you plug
+a special piece of hardware into the SD-card slot and it
+has a USB cord or something collection standard MIPI
+traces.
+
+We have the same for the SKE keypad actually. We can shunt
+the STM tracing signals out on this as well, you "just" unmount
+the physical keypad and start using the lines on the PCB as
+a trace collecting mechanism.
+
+Thus we need - at runtime, in systems produced in the the
+millions, it's not "just for fun" - to recouple pins from one IP
+block to another and turn it into a totally different thing.
+
+Yours,
+Linus Walleij

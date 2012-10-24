@@ -1,173 +1,161 @@
-From: Matthias Brugger <matthias.bgg@googlemail.com>
-Subject: Re: [PATCH] touchscreen/ads7846: Move struct ads7846 to global include.
-Date: Wed, 24 Oct 2012 10:14:02 +0200
-Message-ID: <5087A34A.9020007@gmail.com>
-References: <1349865443-5499-1-git-send-email-matthias.bgg@gmail.com> <50757B94.7060504@compulab.co.il>
+From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Wed, 24 Oct 2012 11:37:04 +0300
+Message-ID: <20121024083704.GF5665@arwen.pp.htv.fi>
+References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
+ <20121022155028.GA13791@core.coreip.homeip.net>
+ <508660D4.9030507@ti.com>
+ <20121023200249.GA2712@core.coreip.homeip.net>
+Reply-To: balbi-l0cyMroinI0@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:48688 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755607Ab2JXION (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Oct 2012 04:14:13 -0400
-Received: by mail-bk0-f46.google.com with SMTP id jk13so82402bkc.19
-        for <linux-input@vger.kernel.org>; Wed, 24 Oct 2012 01:14:11 -0700 (PDT)
-In-Reply-To: <50757B94.7060504@compulab.co.il>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============4077942653443582064=="
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <20121023200249.GA2712-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sourav Poddar <sourav.poddar-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Igor Grinberg <grinberg@compulab.co.il>
-Cc: Matthias Brugger <matthias.bgg@googlemail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On 10/10/2012 03:43 PM, Igor Grinberg wrote:
-> On 10/10/12 12:37, Matthias Brugger wrote:
->> To implement a custom filter in the board platform code,
->> the struct ads7864 might be needed. This patch moves the struct
->> to the global include file of the driver.
->>
->> Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
->
-> NAK. This is a private driver data. No one else should mess with it.
->
+--===============4077942653443582064==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="l+goss899txtYvYf"
+Content-Disposition: inline
 
-You are completely right. Actually I wanted to encapsulate the variables 
-used by the filter, and not the whole driver data. I blame the lack of 
-coffee for my mistake and will send a patch these days.
+--l+goss899txtYvYf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> ---
->>   drivers/input/touchscreen/ads7846.c |   55 -----------------------------------
->>   include/linux/spi/ads7846.h         |   55 +++++++++++++++++++++++++++++++++++
->>   2 files changed, 55 insertions(+), 55 deletions(-)
->>
->> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
->> index f02028e..22e0b4d 100644
->> --- a/drivers/input/touchscreen/ads7846.c
->> +++ b/drivers/input/touchscreen/ads7846.c
->> @@ -90,61 +90,6 @@ struct ads7846_packet {
->>   	u8			read_x_cmd[3], read_y_cmd[3], pwrdown_cmd[3];
->>   };
->>
->> -struct ads7846 {
->> -	struct input_dev	*input;
->> -	char			phys[32];
->> -	char			name[32];
->> -
->> -	struct spi_device	*spi;
->> -	struct regulator	*reg;
->> -
->> -#if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
->> -	struct attribute_group	*attr_group;
->> -	struct device		*hwmon;
->> -#endif
->> -
->> -	u16			model;
->> -	u16			vref_mv;
->> -	u16			vref_delay_usecs;
->> -	u16			x_plate_ohms;
->> -	u16			pressure_max;
->> -
->> -	bool			swap_xy;
->> -	bool			use_internal;
->> -
->> -	struct ads7846_packet	*packet;
->> -
->> -	struct spi_transfer	xfer[18];
->> -	struct spi_message	msg[5];
->> -	int			msg_count;
->> -	wait_queue_head_t	wait;
->> -
->> -	bool			pendown;
->> -
->> -	int			read_cnt;
->> -	int			read_rep;
->> -	int			last_read;
->> -
->> -	u16			debounce_max;
->> -	u16			debounce_tol;
->> -	u16			debounce_rep;
->> -
->> -	u16			penirq_recheck_delay_usecs;
->> -
->> -	struct mutex		lock;
->> -	bool			stopped;	/* P: lock */
->> -	bool			disabled;	/* P: lock */
->> -	bool			suspended;	/* P: lock */
->> -
->> -	int			(*filter)(void *data, int data_idx, int *val);
->> -	void			*filter_data;
->> -	void			(*filter_cleanup)(void *data);
->> -	int			(*get_pendown_state)(void);
->> -	int			gpio_pendown;
->> -
->> -	void			(*wait_for_sync)(void);
->> -};
->> -
->>   /* leave chip selected when we're done, for quicker re-select? */
->>   #if	0
->>   #define	CS_CHANGE(xfer)	((xfer).cs_change = 1)
->> diff --git a/include/linux/spi/ads7846.h b/include/linux/spi/ads7846.h
->> index c64de9d..96ca327 100644
->> --- a/include/linux/spi/ads7846.h
->> +++ b/include/linux/spi/ads7846.h
->> @@ -58,3 +58,58 @@ struct ads7846_platform_data {
->>   	unsigned long irq_flags;
->>   };
->>
->> +struct ads7846 {
->> +	struct input_dev	*input;
->> +	char			phys[32];
->> +	char			name[32];
->> +
->> +	struct spi_device	*spi;
->> +	struct regulator	*reg;
->> +
->> +#if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
->> +	struct attribute_group	*attr_group;
->> +	struct device		*hwmon;
->> +#endif
->> +
->> +	u16			model;
->> +	u16			vref_mv;
->> +	u16			vref_delay_usecs;
->> +	u16			x_plate_ohms;
->> +	u16			pressure_max;
->> +
->> +	bool			swap_xy;
->> +	bool			use_internal;
->> +
->> +	struct ads7846_packet	*packet;
->> +
->> +	struct spi_transfer	xfer[18];
->> +	struct spi_message	msg[5];
->> +	int			msg_count;
->> +	wait_queue_head_t	wait;
->> +
->> +	bool			pendown;
->> +
->> +	int			read_cnt;
->> +	int			read_rep;
->> +	int			last_read;
->> +
->> +	u16			debounce_max;
->> +	u16			debounce_tol;
->> +	u16			debounce_rep;
->> +
->> +	u16			penirq_recheck_delay_usecs;
->> +
->> +	struct mutex		lock;
->> +	bool			stopped;	/* P: lock */
->> +	bool			disabled;	/* P: lock */
->> +	bool			suspended;	/* P: lock */
->> +
->> +	int			(*filter)(void *data, int data_idx, int *val);
->> +	void			*filter_data;
->> +	void			(*filter_cleanup)(void *data);
->> +	int			(*get_pendown_state)(void);
->> +	int			gpio_pendown;
->> +
->> +	void			(*wait_for_sync)(void);
->> +};
->> +
->
+Hi,
 
+On Tue, Oct 23, 2012 at 01:02:49PM -0700, Dmitry Torokhov wrote:
+> On Tue, Oct 23, 2012 at 11:18:12AM +0200, Benoit Cousson wrote:
+> > Hi Dimitry,
+> >=20
+> > On 10/22/2012 05:50 PM, Dmitry Torokhov wrote:
+> > > Hi Sourav,
+> > >=20
+> > > On Mon, Oct 22, 2012 at 06:43:00PM +0530, Sourav Poddar wrote:
+> > >> Adapt keypad to use pinctrl framework.
+> > >>
+> > >> Tested on omap4430 sdp with 3.7-rc1 kernel.
+> > >=20
+> > > I do not see anything in the driver that would directly use pinctrl. =
+Is
+> > > there a better place to select default pin configuration; maybe when
+> > > instantiating platform device?
+> >=20
+> > Why?
+> > The devm_pinctrl_get_select_default is using the pinctrl.
+>=20
+> No, I guess we ihave different understanding of what "directly use" means.
+> This particular driver does directly use interrupts: it requests it and
+> performs some actions when interrupt arrives. Same goes for IO memory -
+> it gets requested, then we access it. With pinctrl we do not do anything
+> - we just ask another layer to configure it and that is it.
+
+this is true for almost anything we do:
+
+- we ask another layer to allocate memory for us
+- we ask another layer to call our ISR once the IRQ line is asserted
+- we ask another layer to handle the input events we just received
+- we ask another layer to transfer data through DMA for us
+- we ask another layer to turn regulators on and off.
+
+and so on. This is just how abstractions work, we group common parts in
+a framework so that users don't need to know the details, but still need
+to tell the framework when to fiddle with those resources.
+
+> I have seen just in a few days 3 or 4 drivers having exactly the same
+> change - call to devm_pinctrl_get_select_default(), and I guess I will
+> receive the same patches for the rest of input drivers shortly.
+> This suggests that the operation is done at the wrong level. Do the
+> pin configuration as you parse DT data, the same way you set up i2c
+> devices registers in of_i2c.c, and leave the individual drivers that do
+> not care about specifics alone.
+
+Makes no sense to hide that from drivers. The idea here is that driver
+should know when it needs its pins to muxed correctly. 95% of the time
+it will be done during probe() but then again, so what ?
+
+doing that when parsing DT, or on bus notifiers is just plain wrong.
+Drivers should be required to handle all of their resources.
+
+> > That's why it is named "get_select_default" and not "get" only.
+> > This API ensure that the pin will be set to the default state, and this
+> > is all we need to do during the probe.
+>=20
+> Why during the probe and not by default? Realistically, the driver will
+> be loaded as long as there is a matching device and pins will need to be
+> configured.
+
+likewise memory will be allocated when matching happens, IRQs will be
+allocated, regulators will be turned on. So why don't we do all that by
+default ? Because it is wrong.
+
+> > There is no point to change the mux if the driver is not probed, because
+> > potentially the pin can be use be another driver.
+>=20
+> What other driver would use it? Who would chose what driver to load?
+
+Well, you _do_ know that on a SoC we have a limited amount of pins
+right ?
+
+Considering the amont of features which are packed inside a single die,
+it's not farfetched to assume we will have a lot less pins then we
+actually need, so we need muxers behind each pin in order to choose
+which functionality we want.
+
+If it happens that keypad's pins are shared with another IP (e.g. GPIO),
+we need to give the final user (a OEM/ODM) the choice of using those
+pins as either keypad or GPIOs, thus the need for pinctrl framework and
+the calls in the drivers.
+
+--=20
+balbi
+
+--l+goss899txtYvYf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQh6iwAAoJEIaOsuA1yqRE3wsQAJDG41hRCAID1+3a4PREBdYF
+cnw4MO0mIP0uZ6FvPskVLhg6v5khTHGJHyRAOJqo7nZG7mBqfRNrYfeoqZ2l1Tnx
+lIOJHOR7HO+XqTh2yTA1NuFK8pxGYnMm96lwg7C1DJK4sdJRKRonAp8uAoM88Ar1
+7uZveWZsGtb7AJBEo6y2lpyv3vlT+IigyA9VY537/kgCJZoW5M16mNEyWo7KEeTJ
+HIliGsWHavWEoxZsSQKiUxq46zT13RAuMKb1lVvHyE087PGerulgLJftHjxBIjlm
+3ErhuUJH48Y7CxhojaLxrV2wGqUmru2gVWaUQQshH/7HiAZ+eCmDhVk/r01M6ffY
+L6euFAp8INWU4ABpDEkEB34KIf9uLI/aZVlO8vGmDTAhdcTFjI7ft1E/TBPC327S
+kwp4m9tRLCmVUNjV0I/zNqE+jbUJ1qatCuzyuWa0tcOMnY26ezahQdmVZhgbHUYr
+VTDmelWTiw69inqa9Tjcj94uEabRSyRqQpsTbBpo72pniRPhCTx3QO3iN9WQw6EU
+YlkH5f46Hbx+NPta+2jJU8vOmD8u6b4l0PaQiXAPdAXbxh5y+LNBAMqHBjq7ceql
+MH0j3muvHGhpliFm+cQJQK/4x9+Yv1iPYUzoCbBrM1Ej9gXVYyfEpDn5ek4PY02b
+NpBjpu3zZX9P5brgrSIw
+=yt0R
+-----END PGP SIGNATURE-----
+
+--l+goss899txtYvYf--
+
+--===============4077942653443582064==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+devicetree-discuss mailing list
+devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+https://lists.ozlabs.org/listinfo/devicetree-discuss
+
+--===============4077942653443582064==--

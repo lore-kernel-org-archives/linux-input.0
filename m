@@ -1,67 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Multiple clients reading from /dev/input/eventX
-Date: Tue, 23 Oct 2012 22:07:10 -0700
-Message-ID: <20121024050710.GA13826@core.coreip.homeip.net>
-References: <e6193392fbe49d7236b39e3b17b8fa81.squirrel@mungewell.org>
- <20121019223210.GA10915@core.coreip.homeip.net>
- <e603df72a1ba52e724eb72802bd93f48.squirrel@mungewell.org>
+Subject: Re: [BUG] capslock works across all keyboards but LED does not
+Date: Tue, 23 Oct 2012 22:24:20 -0700
+Message-ID: <20121024052420.GB13826@core.coreip.homeip.net>
+References: <CACVXFVM8soazSixttzDBq-zLAxCpVNBDsDoz4Hc9gdsU8WQniA@mail.gmail.com>
+ <21783709.sVZtM4k8zF@dtor-d630.eng.vmware.com>
+ <CACVXFVN8s52UiSF0Q98sXNZzR9srnZ9aUjNYcZU6hDPfNzRGgA@mail.gmail.com>
+ <20121022155446.GB13791@core.coreip.homeip.net>
+ <CACVXFVMbc3eBMj4gcAVDZjB4SJYwbLeVzUi13C62FMVYymgFug@mail.gmail.com>
+ <20121023174834.GB649@core.coreip.homeip.net>
+ <CACVXFVNpYrET-2GoLsKEmds2Ua0QnCNwN-q+31hewNDnmdpN9w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:59324 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750827Ab2JXFHP (ORCPT
+Received: from mail-da0-f46.google.com ([209.85.210.46]:56545 "EHLO
+	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751381Ab2JXFYY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Oct 2012 01:07:15 -0400
-Received: by mail-pa0-f46.google.com with SMTP id hz1so111880pad.19
-        for <linux-input@vger.kernel.org>; Tue, 23 Oct 2012 22:07:15 -0700 (PDT)
+	Wed, 24 Oct 2012 01:24:24 -0400
+Received: by mail-da0-f46.google.com with SMTP id n41so84415dak.19
+        for <linux-input@vger.kernel.org>; Tue, 23 Oct 2012 22:24:24 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <e603df72a1ba52e724eb72802bd93f48.squirrel@mungewell.org>
+In-Reply-To: <CACVXFVNpYrET-2GoLsKEmds2Ua0QnCNwN-q+31hewNDnmdpN9w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
+To: Ming Lei <ming.lei@canonical.com>
 Cc: linux-input@vger.kernel.org
 
-On Wed, Oct 24, 2012 at 12:26:17AM -0400, simon@mungewell.org wrote:
-> >> Can anyone here confirm the behaviour under the situation that one
-> >> client
-> >> is busy? What is the maximum time it can be 'away' or what is the size
-> >> of
-> >> the inline buffer?
+On Wed, Oct 24, 2012 at 08:39:51AM +0800, Ming Lei wrote:
+> On Wed, Oct 24, 2012 at 1:48 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
 > >
-> > Every user of event device has a buffer that can hold up at least 64
-> > input events and is completely independent from other users. Newer
-> > kernels generate EV_SYN/SYN_DROPPED event to indicate that user was too
-> > slow reading data and there was buffer overrun.
-> >
-> > Hope this helps.
+> > Hmm, this looks correct. Do you have similar issues on any other boxes
+> > or only your laptop? Does the LED state propagate between 2 USB
 > 
-> Yes, very helpful.... I am seeing 'SYN_DROPPED' on my system, so the next
-> question is how to work around this?
+> I only have one laptop at hand, :-(
 > 
-> In the event of an overflow is there any method of reading/polling the
-> last (correct) event value for each of the axis?
-
-EVIOCGABS() and other ioctls allow to query state of the device.
-
+> > keyboards if you plug in both of them? What does /proc/bus/input/devices
 > 
-> In my case on the G27 wheel when your foot transitions from the brake to
-> accelerator, you get no more 'brake events' to 'refresh' the value.
+> I only have one usb keyboard too, :-(
 > 
-> I see that I could use QUIRK to enlarge the buffer for this device, would
-> that be an acceptable workaround?
-> http://www.spinics.net/lists/linux-input/msg15497.html
-
-With 3.7 Henrik just put in code that would better estimate number of
-events in devices event packet, so hopefully quirk is not needed.
-
+> The LED state becomes off once I switched to console via pressing 'ctrl+alt+F1',
+> and it will keep off even though CAPSLOCK is pressed on either usb keyboard
+> or ps/2 keyboard.
 > 
-> Attached is a little log showing SDL 'missing' 68 events, which are
-> correctly reported by 'evtest'. The time stamps in log will give you an
-> idea about how quickly the events are coming in from this wheel.
+> The above can be observed on 3.6 kernel and several precious kernel.
+> (distribution is Ubuntu 12.04)
 
-You need to figure out why SDL takes such a long time to get around
-reading device data
+Do you have thinkpads platform driver loaded? What happens if you boot
+with it blacklisted?
 
 Thanks.
 

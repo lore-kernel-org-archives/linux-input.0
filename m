@@ -1,161 +1,267 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
-Date: Wed, 24 Oct 2012 11:37:04 +0300
-Message-ID: <20121024083704.GF5665@arwen.pp.htv.fi>
-References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
- <20121022155028.GA13791@core.coreip.homeip.net>
- <508660D4.9030507@ti.com>
- <20121023200249.GA2712@core.coreip.homeip.net>
-Reply-To: balbi-l0cyMroinI0@public.gmane.org
+From: javier Martin <javier.martin@vista-silicon.com>
+Subject: Re: [PATCH v4] input: qt2160: Add support for LEDs.
+Date: Wed, 24 Oct 2012 11:24:12 +0200
+Message-ID: <CACKLOr3emVJGi1xd0qTX3WW-ARoEjaeq8zE26_Zr+NVyaPznJg@mail.gmail.com>
+References: <1350893052-16137-1-git-send-email-javier.martin@vista-silicon.com>
+	<20121022161751.GA14014@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4077942653443582064=="
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <20121023200249.GA2712-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sourav Poddar <sourav.poddar-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:42547 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754405Ab2JXJYO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Oct 2012 05:24:14 -0400
+Received: by mail-we0-f174.google.com with SMTP id t9so143058wey.19
+        for <linux-input@vger.kernel.org>; Wed, 24 Oct 2012 02:24:13 -0700 (PDT)
+In-Reply-To: <20121022161751.GA14014@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, axel.lin@gmail.com
 
---===============4077942653443582064==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="l+goss899txtYvYf"
-Content-Disposition: inline
+Hi Dmitry,
+thank you for your review.
 
---l+goss899txtYvYf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 22 October 2012 18:17, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> Hi Javier,
+>
+> On Mon, Oct 22, 2012 at 10:04:12AM +0200, Javier Martin wrote:
+>> Outputs x8..x0 of the qt2160 can have leds attached to it.
+>> This patch handles those outputs using the generic LED
+>> framework.
+>>
+>> The PWM controls available in the chip are used to achieve
+>> different levels of brightness.
+>>
+>> Signed-off-by: Javier Martin <javier.martin@vista-silicon.com>
+>> ---
+>> Changes since v3:
+>>  - Protect led related code with #ifdefs so that users can decide
+>>  wether to enable LEDS_CLASS support in the kernel or not.
+>>
+>> ---
+>>  drivers/input/keyboard/qt2160.c |  113 ++++++++++++++++++++++++++++++++++++++-
+>>  1 file changed, 111 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/input/keyboard/qt2160.c b/drivers/input/keyboard/qt2160.c
+>> index 73ea4b0..482a7c5 100644
+>> --- a/drivers/input/keyboard/qt2160.c
+>> +++ b/drivers/input/keyboard/qt2160.c
+>> @@ -20,6 +20,7 @@
+>>
+>>  #include <linux/kernel.h>
+>>  #include <linux/init.h>
+>> +#include <linux/leds.h>
+>>  #include <linux/module.h>
+>>  #include <linux/slab.h>
+>>  #include <linux/jiffies.h>
+>> @@ -39,6 +40,11 @@
+>>  #define QT2160_CMD_GPIOS      6
+>>  #define QT2160_CMD_SUBVER     7
+>>  #define QT2160_CMD_CALIBRATE  10
+>> +#define QT2160_CMD_DRIVE_X    70
+>> +#define QT2160_CMD_PWMEN_X    74
+>> +#define QT2160_CMD_PWM_DUTY   76
+>> +
+>> +#define QT2160_NUM_LEDS_X    8
+>>
+>>  #define QT2160_CYCLE_INTERVAL        (2*HZ)
+>>
+>> @@ -49,6 +55,17 @@ static unsigned char qt2160_key2code[] = {
+>>       KEY_C, KEY_D, KEY_E, KEY_F,
+>>  };
+>>
+>> +#ifdef CONFIG_LEDS_CLASS
+>> +struct qt2160_led {
+>> +     struct qt2160_data *qt2160;
+>> +     struct led_classdev cdev;
+>> +     struct work_struct work;
+>> +     char name[32];
+>> +     int id;
+>> +     enum led_brightness new_brightness;
+>> +};
+>> +#endif
+>> +
+>>  struct qt2160_data {
+>>       struct i2c_client *client;
+>>       struct input_dev *input;
+>> @@ -56,8 +73,61 @@ struct qt2160_data {
+>>       spinlock_t lock;        /* Protects canceling/rescheduling of dwork */
+>>       unsigned short keycodes[ARRAY_SIZE(qt2160_key2code)];
+>>       u16 key_matrix;
+>> +#ifdef CONFIG_LEDS_CLASS
+>> +     struct qt2160_led leds[QT2160_NUM_LEDS_X];
+>> +     struct mutex led_lock;
+>> +#endif
+>>  };
+>>
+>> +static int qt2160_read(struct i2c_client *client, u8 reg);
+>> +static int qt2160_write(struct i2c_client *client, u8 reg, u8 data);
+>> +
+>> +#ifdef CONFIG_LEDS_CLASS
+>> +
+>> +static void qt2160_led_work(struct work_struct *work)
+>> +{
+>> +     struct qt2160_led *led = container_of(work, struct qt2160_led, work);
+>> +     struct qt2160_data *qt2160 = led->qt2160;
+>> +     struct i2c_client *client = qt2160->client;
+>> +     int value = led->new_brightness;
+>> +     u32 drive, pwmen;
+>> +
+>> +     mutex_lock(&qt2160->led_lock);
+>
+> What about accessing I2C from other contexts? Don't we need to take this
+> lock there too?
 
-Hi,
+The purpose of this mutex is to avoid races between multiple calls to
+this function which is the only one that access (read/modify/write)
+CMD_DRIVE_X, CMD_PWMEN_X, CMD_PWM_DUTY registers.
+Please, correct me if I am wrong but I don't think we have to take
+this mutex anywhere else.
 
-On Tue, Oct 23, 2012 at 01:02:49PM -0700, Dmitry Torokhov wrote:
-> On Tue, Oct 23, 2012 at 11:18:12AM +0200, Benoit Cousson wrote:
-> > Hi Dimitry,
-> >=20
-> > On 10/22/2012 05:50 PM, Dmitry Torokhov wrote:
-> > > Hi Sourav,
-> > >=20
-> > > On Mon, Oct 22, 2012 at 06:43:00PM +0530, Sourav Poddar wrote:
-> > >> Adapt keypad to use pinctrl framework.
-> > >>
-> > >> Tested on omap4430 sdp with 3.7-rc1 kernel.
-> > >=20
-> > > I do not see anything in the driver that would directly use pinctrl. =
-Is
-> > > there a better place to select default pin configuration; maybe when
-> > > instantiating platform device?
-> >=20
-> > Why?
-> > The devm_pinctrl_get_select_default is using the pinctrl.
->=20
-> No, I guess we ihave different understanding of what "directly use" means.
-> This particular driver does directly use interrupts: it requests it and
-> performs some actions when interrupt arrives. Same goes for IO memory -
-> it gets requested, then we access it. With pinctrl we do not do anything
-> - we just ask another layer to configure it and that is it.
+>> +
+>> +     drive = qt2160_read(client, QT2160_CMD_DRIVE_X);
+>> +     pwmen = qt2160_read(client, QT2160_CMD_PWMEN_X);
+>> +     if (value != LED_OFF) {
+>> +             drive |= (1 << led->id);
+>> +             pwmen |= (1 << led->id);
+>> +
+>> +     } else {
+>> +             drive &= ~(1 << led->id);
+>> +             pwmen &= ~(1 << led->id);
+>> +     }
+>> +     qt2160_write(client, QT2160_CMD_DRIVE_X, drive);
+>> +     qt2160_write(client, QT2160_CMD_PWMEN_X, pwmen);
+>> +
+>> +     /*
+>> +      * Changing this register will change the brightness
+>> +      * of every LED in the qt2160. It's a HW limitation.
+>> +      */
+>> +     if (value != LED_OFF)
+>> +             qt2160_write(client, QT2160_CMD_PWM_DUTY, value);
+>> +
+>> +     mutex_unlock(&qt2160->led_lock);
+>> +}
+>> +
+>> +static void qt2160_led_set(struct led_classdev *cdev,
+>> +                        enum led_brightness value)
+>> +{
+>> +     struct qt2160_led *led = container_of(cdev, struct qt2160_led, cdev);
+>> +
+>> +     led->new_brightness = value;
+>> +     schedule_work(&led->work);
+>> +}
+>
+> static int __devinit qt2160_register_leds(struct qt2160_data *qt2160_data)
+> {
+>         ...
+> }
+>
+> static void __devexit qt2160_unregister_leds(struct qt2160_data *qt2160_data)
+> {
+>         ...
+> }
+> #else
+> static inline int qt2160_register_leds(struct qt2160_data *qt2160_data)
+> {
+>         return 0;
+> }
+>
+> static inline void qt2160_unregister_leds(struct qt2160_data *qt2160_data)
+> {
+> }
+>
 
-this is true for almost anything we do:
+I understand, let me fix that.
 
-- we ask another layer to allocate memory for us
-- we ask another layer to call our ISR once the IRQ line is asserted
-- we ask another layer to handle the input events we just received
-- we ask another layer to transfer data through DMA for us
-- we ask another layer to turn regulators on and off.
+>> +
+>> +#endif /* CONFIG_LEDS_CLASS */
+>> +
+>>  static int qt2160_read_block(struct i2c_client *client,
+>>                            u8 inireg, u8 *buffer, unsigned int count)
+>>  {
+>> @@ -184,7 +254,7 @@ static void qt2160_worker(struct work_struct *work)
+>>       qt2160_schedule_read(qt2160);
+>>  }
+>>
+>> -static int __devinit qt2160_read(struct i2c_client *client, u8 reg)
+>> +static int qt2160_read(struct i2c_client *client, u8 reg)
+>>  {
+>>       int ret;
+>>
+>> @@ -205,7 +275,7 @@ static int __devinit qt2160_read(struct i2c_client *client, u8 reg)
+>>       return ret;
+>>  }
+>>
+>> -static int __devinit qt2160_write(struct i2c_client *client, u8 reg, u8 data)
+>> +static int qt2160_write(struct i2c_client *client, u8 reg, u8 data)
+>>  {
+>>       int ret;
+>>
+>> @@ -325,8 +395,38 @@ static int __devinit qt2160_probe(struct i2c_client *client,
+>>       i2c_set_clientdata(client, qt2160);
+>>       qt2160_schedule_read(qt2160);
+>>
+>> +#ifdef CONFIG_LEDS_CLASS
+>> +     mutex_init(&qt2160->led_lock);
+>> +
+>> +     for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
+>> +             struct qt2160_led *led = &qt2160->leds[i];
+>> +
+>> +             snprintf(led->name, sizeof(led->name), "qt2160:x%d", i);
+>> +             led->cdev.name = led->name;
+>> +             led->cdev.brightness_set = qt2160_led_set;
+>> +             led->cdev.brightness = LED_OFF;
+>> +             led->id = i;
+>> +             led->qt2160 = qt2160;
+>> +
+>> +             INIT_WORK(&led->work, qt2160_led_work);
+>> +
+>> +             error = led_classdev_register(&client->dev, &led->cdev);
+>> +             if (error < 0)
+>> +                     goto err_unreg_input;
+>> +     }
+>> +
+>> +     /* Tur off LEDs */
+>> +     qt2160_write(client, QT2160_CMD_DRIVE_X, 0);
+>> +     qt2160_write(client, QT2160_CMD_PWMEN_X, 0);
+>> +     qt2160_write(client, QT2160_CMD_PWM_DUTY, 0);
+>> +#endif
+>> +
+>>       return 0;
+>>
+>> +#ifdef CONFIG_LEDS_CLASS
+>> +err_unreg_input:
+>> +     input_unregister_device(input);
+>> +#endif
+>>  err_free_irq:
+>>       if (client->irq)
+>>               free_irq(client->irq, qt2160);
+>> @@ -340,6 +440,15 @@ static int __devexit qt2160_remove(struct i2c_client *client)
+>>  {
+>>       struct qt2160_data *qt2160 = i2c_get_clientdata(client);
+>>
+>> +#ifdef CONFIG_LEDS_CLASS
+>> +     int i;
+>> +
+>> +     for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
+>> +             led_classdev_unregister(&qt2160->leds[i].cdev);
+>> +             cancel_work_sync(&qt2160->leds[i].work);
+>
+> This should be the other way around.
 
-and so on. This is just how abstractions work, we group common parts in
-a framework so that users don't need to know the details, but still need
-to tell the framework when to fiddle with those resources.
+Agree.
 
-> I have seen just in a few days 3 or 4 drivers having exactly the same
-> change - call to devm_pinctrl_get_select_default(), and I guess I will
-> receive the same patches for the rest of input drivers shortly.
-> This suggests that the operation is done at the wrong level. Do the
-> pin configuration as you parse DT data, the same way you set up i2c
-> devices registers in of_i2c.c, and leave the individual drivers that do
-> not care about specifics alone.
+I will send a new v5 to address the issues you've pointed out but I'd
+like to wait for your answer on the I2C lock issue first.
 
-Makes no sense to hide that from drivers. The idea here is that driver
-should know when it needs its pins to muxed correctly. 95% of the time
-it will be done during probe() but then again, so what ?
-
-doing that when parsing DT, or on bus notifiers is just plain wrong.
-Drivers should be required to handle all of their resources.
-
-> > That's why it is named "get_select_default" and not "get" only.
-> > This API ensure that the pin will be set to the default state, and this
-> > is all we need to do during the probe.
->=20
-> Why during the probe and not by default? Realistically, the driver will
-> be loaded as long as there is a matching device and pins will need to be
-> configured.
-
-likewise memory will be allocated when matching happens, IRQs will be
-allocated, regulators will be turned on. So why don't we do all that by
-default ? Because it is wrong.
-
-> > There is no point to change the mux if the driver is not probed, because
-> > potentially the pin can be use be another driver.
->=20
-> What other driver would use it? Who would chose what driver to load?
-
-Well, you _do_ know that on a SoC we have a limited amount of pins
-right ?
-
-Considering the amont of features which are packed inside a single die,
-it's not farfetched to assume we will have a lot less pins then we
-actually need, so we need muxers behind each pin in order to choose
-which functionality we want.
-
-If it happens that keypad's pins are shared with another IP (e.g. GPIO),
-we need to give the final user (a OEM/ODM) the choice of using those
-pins as either keypad or GPIOs, thus the need for pinctrl framework and
-the calls in the drivers.
-
---=20
-balbi
-
---l+goss899txtYvYf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQh6iwAAoJEIaOsuA1yqRE3wsQAJDG41hRCAID1+3a4PREBdYF
-cnw4MO0mIP0uZ6FvPskVLhg6v5khTHGJHyRAOJqo7nZG7mBqfRNrYfeoqZ2l1Tnx
-lIOJHOR7HO+XqTh2yTA1NuFK8pxGYnMm96lwg7C1DJK4sdJRKRonAp8uAoM88Ar1
-7uZveWZsGtb7AJBEo6y2lpyv3vlT+IigyA9VY537/kgCJZoW5M16mNEyWo7KEeTJ
-HIliGsWHavWEoxZsSQKiUxq46zT13RAuMKb1lVvHyE087PGerulgLJftHjxBIjlm
-3ErhuUJH48Y7CxhojaLxrV2wGqUmru2gVWaUQQshH/7HiAZ+eCmDhVk/r01M6ffY
-L6euFAp8INWU4ABpDEkEB34KIf9uLI/aZVlO8vGmDTAhdcTFjI7ft1E/TBPC327S
-kwp4m9tRLCmVUNjV0I/zNqE+jbUJ1qatCuzyuWa0tcOMnY26ezahQdmVZhgbHUYr
-VTDmelWTiw69inqa9Tjcj94uEabRSyRqQpsTbBpo72pniRPhCTx3QO3iN9WQw6EU
-YlkH5f46Hbx+NPta+2jJU8vOmD8u6b4l0PaQiXAPdAXbxh5y+LNBAMqHBjq7ceql
-MH0j3muvHGhpliFm+cQJQK/4x9+Yv1iPYUzoCbBrM1Ej9gXVYyfEpDn5ek4PY02b
-NpBjpu3zZX9P5brgrSIw
-=yt0R
------END PGP SIGNATURE-----
-
---l+goss899txtYvYf--
-
---===============4077942653443582064==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-devicetree-discuss mailing list
-devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-https://lists.ozlabs.org/listinfo/devicetree-discuss
-
---===============4077942653443582064==--
+Regards.
+-- 
+Javier Martin
+Vista Silicon S.L.
+CDTUC - FASE C - Oficina S-345
+Avda de los Castros s/n
+39005- Santander. Cantabria. Spain
++34 942 25 32 60
+www.vista-silicon.com

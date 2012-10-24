@@ -1,57 +1,68 @@
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
-Date: Wed, 24 Oct 2012 19:18:53 +0200
-Message-ID: <CACRpkdb3ixJWDhJVOX4ZM-xqk37v5k8zhhFGBH-uxgFHHeVEfA@mail.gmail.com>
-References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
-	<20121022155028.GA13791@core.coreip.homeip.net>
-	<508660D4.9030507@ti.com>
-	<20121023200249.GA2712@core.coreip.homeip.net>
-	<CACRpkdYwA7O8AqB8YFCK-c3e6-7FcbhMOiPEUq-cKJni_PO-Ow@mail.gmail.com>
-	<20121024161801.GB16350@core.coreip.homeip.net>
-	<20121024165749.GB32220@arwen.pp.htv.fi>
+Date: Wed, 24 Oct 2012 10:28:46 -0700
+Message-ID: <4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
+References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com> <20121024161429.GA16350@core.coreip.homeip.net> <CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121024165749.GB32220@arwen.pp.htv.fi>
-Sender: linux-kernel-owner@vger.kernel.org
-To: balbi@ti.com
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:54944 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932947Ab2JXR3B (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Oct 2012 13:29:01 -0400
+In-Reply-To: <CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Felipe Balbi <balbi@ti.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Wed, Oct 24, 2012 at 6:57 PM, Felipe Balbi <balbi@ti.com> wrote:
-> On Wed, Oct 24, 2012 at 09:18:01AM -0700, Dmitry Torokhov wrote:
->> OK, so with drivers/base/, have you considered doing default pinctrl
->> selection in bus's probe() methods? Yo would select the default
->> configuration before starting probing the device and maybe select idle
->> when probe fails or device is unbound? That would still keep the link
->> between device object and pinctrl and there less busses than device
->> drivers out there.
->
-> it starts to become confusing after a while. I mean, there's a reason
-> why all drivers explictly call pm_runtim_enable(), right ?
->
-> From a first thought, one could think of just yanking that into bus'
-> probe() as you may suggest, but sometimes the device is already enabled,
-> so we need extra tricks:
->
-> pm_runtime_set_active();
-> pm_runtime_enable();
-> pm_runtime_get();
->
-> the same could happen with pinctrl eventually. What if a device needs to
-> do something else (an errata fix as an example) before requesting
-> pinctrl's default state ?
+On Wednesday, October 24, 2012 06:51:47 PM Linus Walleij wrote:
+> On Wed, Oct 24, 2012 at 6:14 PM, Dmitry Torokhov
+> 
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Wed, Oct 24, 2012 at 11:37:04AM +0300, Felipe Balbi wrote:
+> >> - we ask another layer to allocate memory for us
+> >> - we ask another layer to call our ISR once the IRQ line is asserted
+> >> - we ask another layer to handle the input events we just received
+> >> - we ask another layer to transfer data through DMA for us
+> >> - we ask another layer to turn regulators on and off.
+> > 
+> > But we are _directly_ _using_ all of these. You allocate memory and you
+> > (the driver) stuff data into that memory. You ask for DMA and you take
+> > the DMAed data and work with it. Not so with pinctrl in omap keypad and
+> > other drivers I have seen so far.
+> 
+> Consult:
+> drivers/tty/serial/amba-pl011.c
 
-I can confirm this. Just the ordering between enabling/disabling
-resources like clock/pins/powerdomain screw things up for us
-and even if we can surely centralize parts of this code as such
-into the drivers/base or pm_* namespace we would still need
-explicit calls from the driver.
+OK.
 
-I'm thinking that maybe the best helpers are actually static
-inline functions in the <linux/pinctrl/consumer.h> header
-rather than moving anything into drivers/base/* if the
-code duplication is the real problem.
+> drivers/spi/spi-pl022.c
 
-Yours,
-Linus Walleij
+Default/sleep transitions could be moved into bus code.
+
+> drivers/i2c/busses/i2c-nomadik.c
+
+Don't see pinctrl in linux-next.
+
+ 
+> for more complex pinctrl use cases. These are my dogfood drivers ...
+> Most of these will request more than one state and switch the driver
+> between these different states at runtime, in these examples for power
+> saving there are states named "default", "sleep" and in the I2C driver
+> also "idle".
+> 
+> These examples are more typical to how the ux500 platform will
+> look, also the SKE input driver will move the devise to sleep/default
+> states but we need to merge PM code before we can do that.
+
+I do not say that no drivers should ever touch pinctrl, just that most
+of them do not have to if you have other layers to the right thing for
+them.
+
+Thanks.
+
+-- 
+Dmitry

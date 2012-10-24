@@ -1,82 +1,57 @@
 From: Linus Walleij <linus.walleij@linaro.org>
 Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
-Date: Wed, 24 Oct 2012 19:13:57 +0200
-Message-ID: <CACRpkdYVAgO25s2RRYvt-KLS_4=NDJNfxQ+ThJuyWtksg27dhA@mail.gmail.com>
+Date: Wed, 24 Oct 2012 19:18:53 +0200
+Message-ID: <CACRpkdb3ixJWDhJVOX4ZM-xqk37v5k8zhhFGBH-uxgFHHeVEfA@mail.gmail.com>
 References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
 	<20121022155028.GA13791@core.coreip.homeip.net>
 	<508660D4.9030507@ti.com>
 	<20121023200249.GA2712@core.coreip.homeip.net>
-	<20121024083704.GF5665@arwen.pp.htv.fi>
-	<20121024161429.GA16350@core.coreip.homeip.net>
-	<20121024165215.GA32220@arwen.pp.htv.fi>
+	<CACRpkdYwA7O8AqB8YFCK-c3e6-7FcbhMOiPEUq-cKJni_PO-Ow@mail.gmail.com>
+	<20121024161801.GB16350@core.coreip.homeip.net>
+	<20121024165749.GB32220@arwen.pp.htv.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121024165215.GA32220@arwen.pp.htv.fi>
+In-Reply-To: <20121024165749.GB32220@arwen.pp.htv.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 To: balbi@ti.com
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Oct 24, 2012 at 6:52 PM, Felipe Balbi <balbi@ti.com> wrote:
-> On Wed, Oct 24, 2012 at 09:14:29AM -0700, Dmitry Torokhov wrote:
-
->> All of _their_ resources, exactly. They do not own nor control pins so
->> they should not be bothered with them either. Look, when you see that
+On Wed, Oct 24, 2012 at 6:57 PM, Felipe Balbi <balbi@ti.com> wrote:
+> On Wed, Oct 24, 2012 at 09:18:01AM -0700, Dmitry Torokhov wrote:
+>> OK, so with drivers/base/, have you considered doing default pinctrl
+>> selection in bus's probe() methods? Yo would select the default
+>> configuration before starting probing the device and maybe select idle
+>> when probe fails or device is unbound? That would still keep the link
+>> between device object and pinctrl and there less busses than device
+>> drivers out there.
 >
-> except that they *own* the pins. Now that the muxer has been setup
-> properly, this particular IP owns the pins.
+> it starts to become confusing after a while. I mean, there's a reason
+> why all drivers explictly call pm_runtim_enable(), right ?
+>
+> From a first thought, one could think of just yanking that into bus'
+> probe() as you may suggest, but sometimes the device is already enabled,
+> so we need extra tricks:
+>
+> pm_runtime_set_active();
+> pm_runtime_enable();
+> pm_runtime_get();
+>
+> the same could happen with pinctrl eventually. What if a device needs to
+> do something else (an errata fix as an example) before requesting
+> pinctrl's default state ?
 
-This is true. It is then also reflected in the device model.
-And in debugfs, which is very helpful when debugging. If I
-cat
-/sys/kernel/debug/pinctrl/pinctrl-db8500/pins
+I can confirm this. Just the ordering between enabling/disabling
+resources like clock/pins/powerdomain screw things up for us
+and even if we can surely centralize parts of this code as such
+into the drivers/base or pm_* namespace we would still need
+explicit calls from the driver.
 
-I can see a list of all pins on this ASIC and what device
-is using it. It is all due to the fact that each driver use
-[devm_]pinctrl_get(&dev) ad the struct device * pointer
-is used with dev_name() to print the corresponding
-device name.
-
-When using hogs it just says the name of the pin
-controller and the pins aren't really connected to their
-real consumers :-P
-
-Example:
-
-Pinmux settings per pin
-Format: pin (name): mux_owner gpio_owner hog?
-pin 0 (GPIO0_AJ5): (MUX UNCLAIMED) (GPIO UNCLAIMED)
-pin 1 (GPIO1_AJ3): (MUX UNCLAIMED) (GPIO UNCLAIMED)
-pin 2 (GPIO2_AH4): (MUX UNCLAIMED) (GPIO UNCLAIMED)
-pin 3 (GPIO3_AH3): (MUX UNCLAIMED) (GPIO UNCLAIMED)
-pin 4 (GPIO4_AH6): (MUX UNCLAIMED) (GPIO UNCLAIMED)
-pin 5 (GPIO5_AG6): (MUX UNCLAIMED) DB8500:5
-pin 6 (GPIO6_AF6): pinctrl-db8500 (GPIO UNCLAIMED) function ipgpio
-group ipgpio0_c_1
-pin 7 (GPIO7_AG5): pinctrl-db8500 (GPIO UNCLAIMED) function ipgpio
-group ipgpio1_c_1
-pin 8 (GPIO8_AD5): (MUX UNCLAIMED) (GPIO UNCLAIMED)
-pin 9 (GPIO9_AE4): (MUX UNCLAIMED) (GPIO UNCLAIMED)
-pin 10 (GPIO10_AF5): nmk-i2c.2 (GPIO UNCLAIMED) function i2c2 group i2c2_b_2
-pin 11 (GPIO11_AG4): nmk-i2c.2 (GPIO UNCLAIMED) function i2c2 group i2c2_b_2
-pin 12 (GPIO12_AC4): pinctrl-db8500 (GPIO UNCLAIMED) function msp0
-group msp0txrx_a_1
-pin 13 (GPIO13_AF3): pinctrl-db8500 (GPIO UNCLAIMED) function msp0
-group msp0tfstck_a_1
-pin 14 (GPIO14_AE3): pinctrl-db8500 (GPIO UNCLAIMED) function msp0
-group msp0tfstck_a_1
-pin 15 (GPIO15_AC3): pinctrl-db8500 (GPIO UNCLAIMED) function msp0
-group msp0txrx_a_1
-pin 16 (GPIO16_AD3): nmk-i2c.1 (GPIO UNCLAIMED) function i2c1 group i2c1_b_2
-pin 17 (GPIO17_AD4): nmk-i2c.1 (GPIO UNCLAIMED) function i2c1 group i2c1_b_2
-
-As you can see pins 6,7,12-15 are using hogs. Sure I can see
-the name of the function but that is just a string albeit
-helpful.
-
-Pins 10,11,16,17 are requested directly from the i2c driver
-and shows up connected to its device.
+I'm thinking that maybe the best helpers are actually static
+inline functions in the <linux/pinctrl/consumer.h> header
+rather than moving anything into drivers/base/* if the
+code duplication is the real problem.
 
 Yours,
 Linus Walleij

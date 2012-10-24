@@ -1,73 +1,94 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [RFC PATCH 01/06] input/rmi4: Public header and documentation
-Date: Wed, 24 Oct 2012 18:49:08 +0100
-Message-ID: <20121024174908.GI18814@opensource.wolfsonmicro.com>
-References: <1349496603-20775-1-git-send-email-cheiny@synaptics.com>
- <1349496603-20775-2-git-send-email-cheiny@synaptics.com>
- <CACRpkdZb+LOk8v0aNZuPhATjS5jv-h1JJCejoh_9eFZ_fdiZQA@mail.gmail.com>
- <20121009082719.GC8237@opensource.wolfsonmicro.com>
- <BFABBC009FBA1C43B207B15FD485ABD922C22BE7@USW-MAIL1.synaptics-inc.local>
- <20121012051558.GK11726@opensource.wolfsonmicro.com>
- <508715CC.1000600@synaptics.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Wed, 24 Oct 2012 10:58:53 -0700
+Message-ID: <64355430.MNHe7H1cg3@dtor-d630.eng.vmware.com>
+References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com> <20121024161801.GB16350@core.coreip.homeip.net> <20121024165749.GB32220@arwen.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="h22Fi9ANawrtbNPX"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:42933 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S935263Ab2JXRtN (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:59525 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935320Ab2JXR7I (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Oct 2012 13:49:13 -0400
-Content-Disposition: inline
-In-Reply-To: <508715CC.1000600@synaptics.com>
+	Wed, 24 Oct 2012 13:59:08 -0400
+In-Reply-To: <20121024165749.GB32220@arwen.pp.htv.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Anton Vorontsov <anton.vorontsov@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>
+To: balbi@ti.com
+Cc: Linus Walleij <linus.walleij@linaro.org>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
+On Wednesday, October 24, 2012 07:57:49 PM Felipe Balbi wrote:
+> Hi,
+> 
+> On Wed, Oct 24, 2012 at 09:18:01AM -0700, Dmitry Torokhov wrote:
+> > On Wed, Oct 24, 2012 at 02:54:23PM +0200, Linus Walleij wrote:
+> > > On Tue, Oct 23, 2012 at 10:02 PM, Dmitry Torokhov
+> > > 
+> > > <dmitry.torokhov@gmail.com> wrote:
+> > > > I have seen just in a few days 3 or 4 drivers having exactly the same
+> > > > change - call to devm_pinctrl_get_select_default(), and I guess I will
+> > > > receive the same patches for the rest of input drivers shortly.
+> > > > This suggests that the operation is done at the wrong level. Do the
+> > > > pin configuration as you parse DT data, the same way you set up i2c
+> > > > devices registers in of_i2c.c, and leave the individual drivers that
+> > > > do
+> > > > not care about specifics alone.
+> > > 
+> > > Exactly this can be done with pinctrl hogs.
+> > > 
+> > > The problem with that is that it removes the cross-reference
+> > > between the device and it's pinctrl handle (also from the device
+> > > tree). Instead the pinctrl handle gets referenced to the pin controller
+> > > itself. So from a modelling perpective this looks a bit ugly.
+> > > 
+> > > So we have two kinds of ugly:
+> > > 
+> > > - Sprinke devm_pinctrl_get_select_default() over all drivers
+> > > 
+> > >   which makes pinctrl handles properly reference their devices
+> > > 
+> > > - Use hogs and loose coupling between pinctrl handles and their
+> > > 
+> > >   devices
+> > > 
+> > > A third alternative as outlined is to use notifiers and some
+> > > resource core in drivers/base/*
+> > 
+> > OK, so with drivers/base/, have you considered doing default pinctrl
+> > selection in bus's probe() methods? Yo would select the default
+> > configuration before starting probing the device and maybe select idle
+> > when probe fails or device is unbound? That would still keep the link
+> > between device object and pinctrl and there less busses than device
+> > drivers out there.
+> 
+> it starts to become confusing after a while. I mean, there's a reason
+> why all drivers explictly call pm_runtim_enable(), right ?
 
---h22Fi9ANawrtbNPX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Right. Because not all of them support runtime PM and quite usually their
+PM methods are not ready to go until initialization is complete. And again,
+the driver here controls its own behavior.
 
-On Tue, Oct 23, 2012 at 03:10:20PM -0700, Christopher Heiny wrote:
-> On 10/11/2012 10:16 PM, Mark Brown wrote:
-> >On Thu, Oct 11, 2012 at 03:56:22AM +0000, Christopher Heiny wrote:
+> 
+> From a first thought, one could think of just yanking that into bus'
+> probe() as you may suggest, but sometimes the device is already enabled,
+> so we need extra tricks:
+> 
+> pm_runtime_set_active();
+> pm_runtime_enable();
+> pm_runtime_get();
+> 
+> the same could happen with pinctrl eventually. What if a device needs to
+> do something else (an errata fix as an example) before requesting
+> pinctrl's default state ?
 
-> >Fix your mailer to word wrap within paragraphs.
+That is a valid concern and we'll need to find a compromise here. As I said,
+I am not saying that no driver should ever touch pinctrl. I can see, for
+example, input drivers actually disabling pins until they are ->open()ed,
+in addition of doing that at [runtime] suspend/resume. But it would be nice
+if we could have "dumb" drivers not care about pins.
 
-> Sorry - I was on the road and had to use a web interface.  It looked
-> OK during composition.  Is this better?
+Thanks.
 
-Yes, that's great - thanks.
-
-> However, a general capability in SPI core is a fine idea for future
-> work, once we get the RMI4 driver ironed out.  Can we agree to defer
-> that for now?
-
-Obviously there's no pressure to implement the framework feature,
-however it shouldn't be implemented at the driver level.
-
---h22Fi9ANawrtbNPX
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQiCoMAAoJELSic+t+oim9aI8P/1cSUU9BVfNQIa5BS/St7tcf
-RAJBurEzh76zG/S2HG5GupvjQ3oaAinO9GnBO5K8RG9Z67Qyz8PF40oyKCS6Lxiz
-PDAxxsv3x6OKZQRh6SFspR4u6p6H6cyX8iY0kTrDzqEMZMFOUgkirPFgZF7laqHF
-Q2kMME7U7L2+VJ13LlV1qRbnNy/fTazm7auWEqv3PONrk6W/Si/3p01SV7wEvLsu
-YtAv4z5hvzC9fBqc2pvd2mlcQt3lJxs4uM33W6UGq0WnPJwYZtupJwEIGXZ+bUAV
-3yWU/K8h2oA0KeFnQJPnOs9VCD0VB7siHS99AOl2BtLR0UflNglaKFaA7diBOfGR
-/YfVP8Z2Bm6G0xypOEXzmFDDSrEAfFQvdU4rwKBDzI+hROYhwiIPN9NURIh2UR86
-kS11iXvSFnP9ZO8PZyCgI4Mc/taVpUG83KMD9jL+xbS7W/3ddbmESwbhpF6aio8g
-iorSFeGAh2pyXa6JSDi39PYBHWjDHBNGOaEbKr0zu1B9tWGoCa38aaMaoR7VVB5g
-qfpq84WkI/ez7RdZcn+eJOlWIRkx4bkYcVxWmACf1k+cfk9uptddG2l0w8pBd/Qz
-InLf2DIIgUoSE1CurOh1G6M0SjNKTt+FnMyI0uWsp/R2y4wW1aN1Pp+C7bkQ2Mov
-ueLYfRc753ztWIX1kiIk
-=aYQ3
------END PGP SIGNATURE-----
-
---h22Fi9ANawrtbNPX--
+-- 
+Dmitry

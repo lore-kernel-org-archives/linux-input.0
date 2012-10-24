@@ -1,52 +1,84 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] Support Elan Touchscreen eKTF product.
-Date: Wed, 24 Oct 2012 11:13:23 -0700
-Message-ID: <20121024181323.GA18122@core.coreip.homeip.net>
-References: <1351042903-27538-1-git-send-email-scott.liu@emc.com.tw>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] touchscreen/ads7846.c: move filter variables to
+ global include
+Date: Wed, 24 Oct 2012 11:17:36 -0700
+Message-ID: <20121024181735.GB18122@core.coreip.homeip.net>
+References: <1351078736-16785-1-git-send-email-matthias.bgg@gmail.com>
+ <1351078736-16785-2-git-send-email-matthias.bgg@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:62066 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756417Ab2JXSRq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Oct 2012 14:17:46 -0400
+Received: by mail-pa0-f46.google.com with SMTP id hz1so541495pad.19
+        for <linux-input@vger.kernel.org>; Wed, 24 Oct 2012 11:17:46 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1351042903-27538-1-git-send-email-scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Scott Liu <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jesse <jesse-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Vincent Wang <vincent.wang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Paul <paul.liang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
+In-Reply-To: <1351078736-16785-2-git-send-email-matthias.bgg@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Matthias Brugger <matthias.bgg@googlemail.com>
+Cc: linux-input@vger.kernel.org, grinberg@compulab.co.il, Matthias Brugger <matthias.bgg@gmail.com>
 
-Hi Scott,
+On Wed, Oct 24, 2012 at 01:38:56PM +0200, Matthias Brugger wrote:
+> To implement a custom filter in the board platform code,
+> the struct ads7846_filterd might be needed. This patch moves the struct
+> to the global include file of the driver.
 
-On Wed, Oct 24, 2012 at 09:41:43AM +0800, Scott Liu wrote:
-> This patch is for Elan eKTF Touchscreen product, I2C adpater module.
-> 
-> Signed-off-by: Scott Liu <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
-> ---
-> 
-> Hi,
->         v2 revision I have fixed some bug as your advise.
->         1. To target the mainline
->         2. No Android dependency
->         3. reuse those duplication code from Henrik's patchset.
->                 (input_mt_sync_frame()  / input_mt_get_slot_by_key())
-
-Just a quick run through the code, so:
-
-- please remove polling support, it is not useful in production;
-- why do you need a separate probe work instead of doing what you
-  need in elants_probe()
-- it is not a good idea to register input device first and then
-  allocating memory for MT handling.
-- I do not understand why kfifo is needed
-- please remove the rest of the custom threads
-- you do not need to call input_mt_destroy_slots() explicitly
-- use request_firmware() instead of special character device to upload
-  firmware.
-- please use standard kernel-doc markup.
-- consider what attributes are there only for debugging and move them to
-  debugfs.
-- I find the use of enums in this driver quite unconventional, just
-  standard #defines would probably be more straightforward.
+Why would a custom filer care about debounce filter's private data?
+Just have it define its very own structure, no need to export.
 
 Thanks.
+
+> 
+> Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+> ---
+>  drivers/input/touchscreen/ads7846.c |    9 ---------
+>  include/linux/spi/ads7846.h         |    9 +++++++++
+>  2 files changed, 9 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+> index 9e61a4b..cc3b048 100644
+> --- a/drivers/input/touchscreen/ads7846.c
+> +++ b/drivers/input/touchscreen/ads7846.c
+> @@ -90,15 +90,6 @@ struct ads7846_packet {
+>  	u8			read_x_cmd[3], read_y_cmd[3], pwrdown_cmd[3];
+>  };
+>  
+> -struct ads7846_filterd {
+> -	int			read_cnt;
+> -	int			read_rep;
+> -	int			last_read;
+> -	u16			debounce_max;
+> -	u16			debounce_tol;
+> -	u16			debounce_rep;
+> -};
+> -
+>  struct ads7846 {
+>  	struct input_dev	*input;
+>  	char			phys[32];
+> diff --git a/include/linux/spi/ads7846.h b/include/linux/spi/ads7846.h
+> index c64de9d..cc7b34d 100644
+> --- a/include/linux/spi/ads7846.h
+> +++ b/include/linux/spi/ads7846.h
+> @@ -58,3 +58,12 @@ struct ads7846_platform_data {
+>  	unsigned long irq_flags;
+>  };
+>  
+> +struct ads7846_filterd {
+> +	int			read_cnt;
+> +	int			read_rep;
+> +	int			last_read;
+> +	u16			debounce_max;
+> +	u16			debounce_tol;
+> +	u16			debounce_rep;
+> +};
+> +
+> -- 
+> 1.7.9.5
+> 
 
 -- 
 Dmitry

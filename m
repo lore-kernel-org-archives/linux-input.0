@@ -1,30 +1,33 @@
 From: Scott Liu <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
-Subject: [PATCH v2] Support Elan Touchscreen eKTF product.
-Date: Wed, 24 Oct 2012 09:41:43 +0800
-Message-ID: <1351042903-27538-1-git-send-email-scott.liu@emc.com.tw>
+Subject: [PATCH v2] upport Elan Touchscreen eKTF product.
+Date: Wed, 24 Oct 2012 10:11:04 +0800
+Message-ID: <1351044664-7247-1-git-send-email-scott.liu@emc.com.tw>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Scott Liu <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jesse <jesse-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Vincent Wang <vincent.wang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Paul <paul.liang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
+Hi Dmitry:
+        Sorry, please ignore my previous patch.
+
 This patch is for Elan eKTF Touchscreen product, I2C adpater module.
 
 Signed-off-by: Scott Liu <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
 ---
-
 Hi,
         v2 revision I have fixed some bug as your advise.
         1. To target the mainline
         2. No Android dependency
         3. reuse those duplication code from Henrik's patchset.
                 (input_mt_sync_frame()  / input_mt_get_slot_by_key())
+        4. some typo and etc...
 
  drivers/input/touchscreen/Kconfig      |    9 +
  drivers/input/touchscreen/Makefile     |    1 +
- drivers/input/touchscreen/elants_i2c.c | 2549 ++++++++++++++++++++++++++++++++
- include/linux/i2c/elants.h             |   61 +
- 4 files changed, 2620 insertions(+)
+ drivers/input/touchscreen/elants_i2c.c | 2533 ++++++++++++++++++++++++++++++++
+ include/linux/i2c/elants.h             |   56 +
+ 4 files changed, 2599 insertions(+)
  create mode 100644 drivers/input/touchscreen/elants_i2c.c
  create mode 100644 include/linux/i2c/elants.h
 
@@ -62,10 +65,10 @@ index 178eb12..428a631 100644
  obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
 diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
 new file mode 100644
-index 0000000..30e135e
+index 0000000..47546be
 --- /dev/null
 +++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -0,0 +1,2549 @@
+@@ -0,0 +1,2533 @@
 +/*
 + * Elan Microelectronics touchpanels with I2C interface
 + *
@@ -185,6 +188,7 @@ index 0000000..30e135e
 +	queue_header_byte_Single = 0x62,
 +	queue_header_byte_normal = 0x63,
 +	queue_header_byte_wait = 0x64,
++	cmd_header_byte_rek = 0x66,
 +	queue_header_size = 4,
 +	queue_packet_max_len = queue_header_size + (IDX_PACKET_SIZE_WIDTH * 3),
 +};
@@ -545,69 +549,51 @@ index 0000000..30e135e
 +}
 +
 +
-+/**
-+ *	@brief __issue_bootcode_cmd	-	hadle bootcode status.
-+ *	@param client : our i2c device
-+ *
-+ *	@return { >0 means success,
-+ *			otherwise fail. }
-+ *
-+ *	Enter Normal mode packet is {0x55, 0x55, 0x55, 0x55}
-+ *	2012/3/1	won't issue bootcmd in normal driver initial flow.
-+ */
-+static int elan_bootcode_cmd(struct i2c_client *client,
-+							 u8 passcode)
++static int elants_cmd_transfer_once(
++	struct i2c_client *client,
++	const u8 *sbuf, const u8 slen,
++	u8 *rbuf, u8 rlen)
 +{
-+	int rc = 0;
-+	struct elants_data *ts = i2c_get_clientdata(client);
-+	u8 command[2][4] = {
-+		{0x45, 0x49, 0x41, 0xFF},	/* normal_command */
-+		{0x45, 0x49, 0x41, 0x50},	/* iap_command */
-+	};
-+
-+	/* Detect old / new FW */
-+	elan_msleep(90);
-+
-+	if (gpio_get_value(ts->intr_gpio) == 0) {
-+		/* Old FW */
-+		pr_warn("detect intr!!!!! OLD BC detect\n");
-+		return -2;
-+	}
-+
-+	if (passcode > E_BOOT_IAP)
-+		return -1;
-+
-+	elan_dbg(client, "passcode = %x:%x:%x:%x\n",
-+			 command[passcode][0],
-+			 command[passcode][1],
-+			 command[passcode][2],
-+			 command[passcode][3]);
++	int ret = 0;
++    struct elants_data *ts =
++			i2c_get_clientdata(client);
 +
 +	mutex_lock(&ts->mutex);
-+
-+	ts->i2caddr = elan_i2c_slave2;
-+	rc = elants_set_data(client, command[passcode], 4);
-+	if (rc < 0)
-+		dev_err(&ts->client->dev,
-+				"[ELAN] set passcode[%d] fail\n", passcode);
-+
-+	ts->i2caddr = elan_i2c_slave1;
-+	rc = elants_set_data(client, command[passcode], 4);
-+	if (rc < 0)
-+		dev_err(&ts->client->dev,
-+				"[ELAN] set passcode[%d] fail\n", passcode);
-+
-+	ts->i2caddr = elan_i2c_master;
-+	rc = elants_set_data(client, command[passcode], 4);
-+	if (rc < 0)
-+		dev_err(&ts->client->dev,
-+				"[ELAN] set passcode[%d] fail\n", passcode);
-+
-+	/* normal communitcat interactives with Master. */
-+	ts->i2caddr = elan_i2c_master;
++	set_bit(idx_cmd_handshake, &ts->flags);
++	elants_set_data(client, sbuf, slen);
 +	mutex_unlock(&ts->mutex);
 +
-+	return rc;
++	if (sbuf[0] == cmd_header_byte_read) {
++		/* We will wait for non O_NONBLOCK handles until a signal or data */
++		mutex_lock(&ts->fifo_mutex);
++
++		while (kfifo_len(&ts->fifo) == 0) {
++			mutex_unlock(&ts->fifo_mutex);
++			ret = wait_event_interruptible_timeout(
++					 ts->wait, kfifo_len(&ts->fifo),
++					 msecs_to_jiffies(3000));
++			if (ret <= 0) {
++				ret = -ETIMEDOUT;
++				dev_err(&client->dev,
++						"timeout!! wake_up(ts->wait)\n");
++				goto err2;
++			}
++			mutex_lock(&ts->fifo_mutex);
++		}
++		if (elan_touch_pull_frame(ts, rbuf) < 0) {
++			ret = -1;
++			goto err1;
++		}
++
++		pr_info("[ELAN] Get Data [%.2x:%.2x:%.2x:%.2x]\n",
++				rbuf[0], rbuf[1], rbuf[2], rbuf[3]);
++err1:
++		mutex_unlock(&ts->fifo_mutex);
++err2:
++		clear_bit(idx_cmd_handshake, &ts->flags);
++	}
++
++	return (ret > 0) ? 1 : ret;
 +}
 +
 +/**
@@ -851,8 +837,9 @@ index 0000000..30e135e
 +	struct device_attribute *attr,
 +	const char *buf, size_t count)
 +{
-+	int ret, i;
-+	u8 cmds[32], recv_buf[32];
++	int ret;
++	unsigned int cmds[32];
++	u8 recv_buf[32];
 +	struct i2c_client *client = to_i2c_client(dev);
 +	struct elants_data *ts = i2c_get_clientdata(client);
 +
@@ -870,7 +857,7 @@ index 0000000..30e135e
 +			cmds[0], cmds[1], cmds[2], cmds[3]);
 +
 +	ret = elants_cmd_transfer_once(client,
-+								   cmds, 4, cmds, 4);
++								   (const u8 *)cmds, 4, recv_buf, 4);
 +
 +	return (ret > 0) ? count : -1;
 +}
@@ -2617,10 +2604,10 @@ index 0000000..30e135e
 +MODULE_LICENSE("GPL");
 diff --git a/include/linux/i2c/elants.h b/include/linux/i2c/elants.h
 new file mode 100644
-index 0000000..5b45a0c
+index 0000000..df46e1e
 --- /dev/null
 +++ b/include/linux/i2c/elants.h
-@@ -0,0 +1,61 @@
+@@ -0,0 +1,56 @@
 +#ifndef _LINUX_I2C_ELANTS_H
 +#define _LINUX_I2C_ELANTS_H
 +
@@ -2646,11 +2633,6 @@ index 0000000..5b45a0c
 +	unsigned int abs_y_max;
 +	int intr_gpio;
 +	int rst_gpio;
-+};
-+
-+struct elan_ioctl_data {
-+	int len;
-+	char buf[32];
 +};
 +
 +/*! @brief \b ioctl command definition.

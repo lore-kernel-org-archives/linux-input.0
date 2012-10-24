@@ -1,111 +1,81 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH] HID: wiimote: add Nintendo-Wii-Remote-Plus IDs
-Date: Wed, 24 Oct 2012 20:42:49 +0200
-Message-ID: <CANq1E4TJPs0nHVmECkQU7pth6a7Dj7G6Pan00w+12FmhiVPpeA@mail.gmail.com>
-References: <1350895071-4017-1-git-send-email-dh.herrmann@googlemail.com>
-	<alpine.LNX.2.00.1210221134580.12268@pobox.suse.cz>
-	<CAEfj2kDDyXbLcJTrhmbrG2MedVcu9u5q6ZmfcRB-86Cc1Rm+Sw@mail.gmail.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Wed, 24 Oct 2012 21:58:19 +0300
+Message-ID: <20121024185818.GB772@arwen.pp.htv.fi>
+References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
+ <20121024161429.GA16350@core.coreip.homeip.net>
+ <CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
+ <4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="61jdw2sOBCFtR2d/"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:59789 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756505Ab2JXSmv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Oct 2012 14:42:51 -0400
-Received: by mail-wi0-f172.google.com with SMTP id hq12so5195269wib.1
-        for <linux-input@vger.kernel.org>; Wed, 24 Oct 2012 11:42:49 -0700 (PDT)
-In-Reply-To: <CAEfj2kDDyXbLcJTrhmbrG2MedVcu9u5q6ZmfcRB-86Cc1Rm+Sw@mail.gmail.com>
+Received: from comal.ext.ti.com ([198.47.26.152]:60169 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756505Ab2JXTEK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Oct 2012 15:04:10 -0400
+Content-Disposition: inline
+In-Reply-To: <4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Olson <peter.olson@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Felipe Balbi <balbi@ti.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-Hi Peter
+--61jdw2sOBCFtR2d/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 23, 2012 at 6:42 AM, Peter Olson <peter.olson@gmail.com> wrote:
-> I didn't feel up to reinstalling my entire kernel, so I just rebuilt
-> the kernel and insmod'd the hid ko files.
->
-> Before the new module was loaded, dmesg gave:
-> [335678.959554] hid-generic 0005:057E:0330.0005: unknown main item tag 0x0
-> [335678.959749] input: Nintendo RVL-CNT-01-TR as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:11/input38
-> [335678.959995] hid-generic 0005:057E:0330.0005: input,hidraw4:
-> BLUETOOTH HID v0.01 Gamepad [Nintendo RVL-CNT-01-TR] on
-> 09:B2:62:50:84:91
-> [335746.899830] hid-generic 0005:057E:0330.0006: unknown main item tag 0x0
-> [335746.899965] input: Nintendo RVL-CNT-01-TR as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:12/input39
-> [335746.900067] hid-generic 0005:057E:0330.0006: input,hidraw4:
-> BLUETOOTH HID v0.01 Gamepad [Nintendo RVL-CNT-01-TR] on
-> 09:B2:62:50:84:91
->
-> Then I reloaded the kernel modules:
-> $ sudo rmmod hid_wiimote
-> $ sudo rmmod usbhid
-> $ sudo rmmod hidp
-> $ sudo rmmod hid_generic
-> $ sudo insmod ./hid.ko
-> $ sudo insmod ./hid-generic.ko
-> $ sudo insmod ./usbhid/usbhid.ko
-> $ sudo insmod ./hid-wiimote.ko
-> $ sudo modprobe hidp
->
-> Afterward dmesg said:
-> [335937.601486] Bluetooth: HIDP (Human Interface Emulation) ver 1.2
-> [335957.615400] wiimote 0005:057E:0330.000B: unknown main item tag 0x0
-> [335957.615525] wiimote 0005:057E:0330.000B: hidraw4: BLUETOOTH HID
-> v0.01 Gamepad [Nintendo RVL-CNT-01-TR] on 09:B2:62:50:84:91
-> [335957.615578] input: Nintendo Wii Remote Accelerometer as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:12/0005:057E:0330.000B/input/input44
-> [335957.615724] input: Nintendo Wii Remote IR as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:12/0005:057E:0330.000B/input/input45
-> [335957.615822] input: Nintendo Wii Remote as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:12/0005:057E:0330.000B/input/input46
-> [335958.612615] power_supply wiimote_battery: driver failed to report
-> `capacity' property: -5
-> [335958.612688] Registered led device: 0005:057E:0330.000B:blue:p0
-> [335958.612713] Registered led device: 0005:057E:0330.000B:blue:p1
-> [335958.612734] Registered led device: 0005:057E:0330.000B:blue:p2
-> [335958.612755] Registered led device: 0005:057E:0330.000B:blue:p3
-> [335958.612812] input: Nintendo Wii Remote Extension as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:12/0005:057E:0330.000B/input/input47
-> [335958.613495] input: Nintendo Wii Remote Motion+ as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:12/0005:057E:0330.000B/input/input48
-> [335958.613648] wiimote 0005:057E:0330.000B: New device registered
-> [335960.612211] power_supply wiimote_battery: driver failed to report
-> `capacity' property: -5
-> [335978.686281] wiimote 0005:057E:0330.000B: Device removed
-> [335980.695131] power_supply wiimote_battery: driver failed to report
-> `capacity' property: -5
+Hi,
 
-This is weird. Why does that patch work for you? Did you add the ID to
-the "hid_have_special_driver[]" array? Because without it this
-shouldn't work at all.
+On Wed, Oct 24, 2012 at 10:28:46AM -0700, Dmitry Torokhov wrote:
+> > for more complex pinctrl use cases. These are my dogfood drivers ...
+> > Most of these will request more than one state and switch the driver
+> > between these different states at runtime, in these examples for power
+> > saving there are states named "default", "sleep" and in the I2C driver
+> > also "idle".
+> >=20
+> > These examples are more typical to how the ux500 platform will
+> > look, also the SKE input driver will move the devise to sleep/default
+> > states but we need to merge PM code before we can do that.
+>=20
+> I do not say that no drivers should ever touch pinctrl, just that most
+> of them do not have to if you have other layers to the right thing for
+> them.
 
-The log shows that the device is properly connected. And it takes 20
-seconds until the device is automatically removed. So if you call
-"xwiishow" in between these 20s then it should show up.
+It will be a much bigger mess. Some drivers don't need to care about
+pinctrl because drivers/base handle it for them, while some others will
+need a way to tell drivers/base "hey, don't touch pinctrl at all because
+I know what I'm doing" and that has to happen before probe() too,
+otherwise it's already too late and, according to what you suggest,
+drivers/base will already have touched pinctrl. The only way I see would
+be to add an extra "dont_touch_my_pins" field to every driver structure
+in the kernel. Clearly what you say is nonsense.
 
-20s is actually the timeout that the Wii Remote uses during discovery.
-Maybe this is really because the device isn't bonded. Can you try the
-bluez patch I posted and connect _with_ bonding/authentication. So
-don't select "without PIN" during connection.
-With the bluez patch bluez will automatically generate the PIN and you
-shouldn't be prompted for PIN input anymore.
+--=20
+balbi
 
-> (Note, This has the motion plus built in, and I had the numchuck connected)
->
-> However, xwiishow still doesn't recognize the device:
-> $ xwiishow list
-> Listing connected Wii Remote devices:
-> End of device list
->
-> Please let me know if you need further testing for the kernel patch.
-> I'll reply to the github post for xwiimote to follow up on that issue.
->
-> Peter
+--61jdw2sOBCFtR2d/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Thanks a lot for testing this!
-David
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQiDpKAAoJEIaOsuA1yqREDIsP/0uhC5y1maA2qGHjnTqaWgxv
+DarRiOqoDKkQfsqIzF4D+Vm0pYzmy4u2zODrTZ/OicBIcoc3jzf9EmxeuR3FjQhZ
+KhUY0sxzii/5xSDKVThx2F4H0Cg8AgUCHKf6yq+3CUrQuxEatm30H0q9jJaYAcN7
+mvPEjgiKnd9U/xZqzKkU3OJX5Sblr1DN2Qg4YmHR0jB8QHVIU4p5FHMT7oV668ks
+SQjcvwDIzUc88rR4YkjpWKvWGTllZZnHK0yMbP1T8XRTyU5Gu3DbXM+NeMN7jUMw
+J/x9BOl20zLIhuCRUymidTCD79JP4rLhFS0fUrQN4ZEqXS5iW6ADoJahUa/6BE6s
+78XCqrj+Cwbpdb0/ROe2VK+gkbzFBQSG6GZ0+tOicwG76gnFTd8LJaoO2E+VOafH
+C3m+abV1MuEoNRNtQ4HgF9hmsPitZPujfGcMxGvT+L/H0iJ7ajKdp7A0btvOhrvg
+M+bk6KKY7I/QB0DifHpkBNo0bUNl+84dFekTcBquuV6I6cnMQMQrHKEh5ezFlW+u
+UNVhJ/LqYRLU8oPNwB8lN/fubc29Yrsndk+Y+k6Y3iXT+WLtPghF9H23NRg1tvp8
+9LIeCrGQQH1do3A4F6MOBR6xQkOictl32IlOkPUpVI0JTp9A4P1asencbYDzrfQV
+GX/RvXQmlTh+jtQp2+5S
+=vJXe
+-----END PGP SIGNATURE-----
+
+--61jdw2sOBCFtR2d/--

@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 05/10] HID: hid-multitouch: support T and C for win8 devices
-Date: Thu, 25 Oct 2012 16:09:44 +0200
-Message-ID: <1351174189-24719-6-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 03/10] HID: hid-multitouch: support arrays for the split of the touches in a report
+Date: Thu, 25 Oct 2012 16:09:42 +0200
+Message-ID: <1351174189-24719-4-git-send-email-benjamin.tissoires@gmail.com>
 References: <1351174189-24719-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1351174189-24719-1-git-send-email-benjamin.tissoires@gmail.com>
@@ -9,121 +9,44 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Win8 input specification clarifies the X and Y sent by devices.
-It distincts the position where the user wants to Touch (T) from
-the center of the ellipsoide (C). This patch enable supports for this
-distinction in hid-multitouch.
+Win8 certification introduced the ability to transmit two X and two Y per
+touch. The specification precises that it must be in an array, with a
+report count == 2.
 
-We recognize Win8 certified devices from their vendor feature 0xff0000c5
-where Microsoft put a signed blob in the report to check if the device
-passed the certification.
+This test guarantees that we split the touches on the last element
+in this array.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 ---
- drivers/hid/hid-multitouch.c | 53 ++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 44 insertions(+), 9 deletions(-)
+ drivers/hid/hid-multitouch.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 38a4feb..ff2354c 100644
+index 1382554..e96ecc3 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -52,9 +52,10 @@ MODULE_LICENSE("GPL");
- #define MT_QUIRK_VALID_IS_CONFIDENCE	(1 << 6)
- #define MT_QUIRK_SLOT_IS_CONTACTID_MINUS_ONE	(1 << 8)
- #define MT_QUIRK_NO_AREA		(1 << 9)
-+#define MT_QUIRK_WIN_8_CERTIFIED	(1 << 10)
+@@ -577,12 +577,16 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 			return 0;
+ 		}
  
- struct mt_slot {
--	__s32 x, y, p, w, h;
-+	__s32 x, y, cx, cy, p, w, h;
- 	__s32 contactid;	/* the device ContactID assigned to this slot */
- 	bool touch_state;	/* is the touch valid? */
- };
-@@ -292,6 +293,10 @@ static void mt_feature_mapping(struct hid_device *hdev,
- 			td->maxcontacts = td->mtclass.maxcontacts;
+-		if (usage->hid == td->last_slot_field)
+-			mt_complete_slot(td, field->hidinput->input);
+-
+-		if (field->index == td->last_field_index
+-			&& td->num_received >= td->num_expected)
+-			mt_sync_frame(td, field->hidinput->input);
++		if (usage_index + 1 == field->report_count) {
++			/* we only take into account the last report
++			 * of a field if report_count > 1 */
++			if (usage->hid == td->last_slot_field)
++				mt_complete_slot(td, field->hidinput->input);
++
++			if (field->index == td->last_field_index
++				&& td->num_received >= td->num_expected)
++				mt_sync_frame(td, field->hidinput->input);
++		}
  
- 		break;
-+	case 0xff0000c5:
-+		if (field->report_count == 256 && field->report_size == 8)
-+			td->mtclass.quirks |= MT_QUIRK_WIN_8_CERTIFIED;
-+		break;
  	}
- }
  
-@@ -350,18 +355,36 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	case HID_UP_GENDESK:
- 		switch (usage->hid) {
- 		case HID_GD_X:
--			hid_map_usage(hi, usage, bit, max,
-+			if (cls->quirks & MT_QUIRK_WIN_8_CERTIFIED &&
-+				usage_index) {
-+				hid_map_usage(hi, usage, bit, max,
-+					EV_ABS, ABS_MT_TOOL_X);
-+				set_abs(hi->input, ABS_MT_TOOL_X, field,
-+					cls->sn_move);
-+			} else {
-+				hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_POSITION_X);
--			set_abs(hi->input, ABS_MT_POSITION_X, field,
--				cls->sn_move);
-+				set_abs(hi->input, ABS_MT_POSITION_X, field,
-+					cls->sn_move);
-+			}
-+
- 			mt_store_field(usage, td, hi);
- 			td->last_field_index = field->index;
- 			return 1;
- 		case HID_GD_Y:
--			hid_map_usage(hi, usage, bit, max,
-+			if (cls->quirks & MT_QUIRK_WIN_8_CERTIFIED &&
-+				usage_index) {
-+				hid_map_usage(hi, usage, bit, max,
-+					EV_ABS, ABS_MT_TOOL_Y);
-+				set_abs(hi->input, ABS_MT_TOOL_Y, field,
-+					cls->sn_move);
-+			} else {
-+				hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_POSITION_Y);
--			set_abs(hi->input, ABS_MT_POSITION_Y, field,
--				cls->sn_move);
-+				set_abs(hi->input, ABS_MT_POSITION_Y, field,
-+					cls->sn_move);
-+			}
-+
- 			mt_store_field(usage, td, hi);
- 			td->last_field_index = field->index;
- 			return 1;
-@@ -502,6 +525,12 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
- 
- 			input_event(input, EV_ABS, ABS_MT_POSITION_X, s->x);
- 			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
-+			if (td->mtclass.quirks & MT_QUIRK_WIN_8_CERTIFIED) {
-+				input_event(input, EV_ABS, ABS_MT_TOOL_X,
-+					s->cx);
-+				input_event(input, EV_ABS, ABS_MT_TOOL_Y,
-+					s->cy);
-+			}
- 			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
- 			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
- 			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
-@@ -553,10 +582,16 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
- 			td->curdata.p = value;
- 			break;
- 		case HID_GD_X:
--			td->curdata.x = value;
-+			if (usage->code == ABS_MT_POSITION_X)
-+				td->curdata.x = value;
-+			else
-+				td->curdata.cx = value;
- 			break;
- 		case HID_GD_Y:
--			td->curdata.y = value;
-+			if (usage->code == ABS_MT_POSITION_Y)
-+				td->curdata.y = value;
-+			else
-+				td->curdata.cy = value;
- 			break;
- 		case HID_DG_WIDTH:
- 			td->curdata.w = value;
 -- 
 1.7.11.7

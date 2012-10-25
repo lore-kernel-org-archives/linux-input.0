@@ -1,75 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFT/PATCH] Input: omap4-keypad - switch to use managed resources
-Date: Thu, 25 Oct 2012 11:24:23 -0700
-Message-ID: <20121025182423.GB24594@core.coreip.homeip.net>
-References: <20121025074559.GA17710@core.coreip.homeip.net>
- <5089382C.2020202@ti.com>
- <20121025140916.GC16564@arwen.pp.htv.fi>
+Subject: Re: ABS_PRESSURE and 0 ranges
+Date: Thu, 25 Oct 2012 11:34:54 -0700
+Message-ID: <20121025183452.GC24594@core.coreip.homeip.net>
+References: <2119530.D54ZbrWB3u@devpool02>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:49158 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759429Ab2JYSY1 (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:55935 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756494Ab2JYSfB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Oct 2012 14:24:27 -0400
-Received: by mail-pb0-f46.google.com with SMTP id rr4so2202156pbb.19
-        for <linux-input@vger.kernel.org>; Thu, 25 Oct 2012 11:24:27 -0700 (PDT)
+	Thu, 25 Oct 2012 14:35:01 -0400
+Received: by mail-pa0-f46.google.com with SMTP id hz1so1362869pad.19
+        for <linux-input@vger.kernel.org>; Thu, 25 Oct 2012 11:35:01 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20121025140916.GC16564@arwen.pp.htv.fi>
+In-Reply-To: <2119530.D54ZbrWB3u@devpool02>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Sourav <sourav.poddar@ti.com>, linux-input@vger.kernel.org
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Oct 25, 2012 at 05:09:16PM +0300, Felipe Balbi wrote:
-> Hi,
+Hi Rolf,
+
+On Thu, Oct 25, 2012 at 02:59:49PM +0200, Rolf Eike Beer wrote:
+> Hi all,
 > 
-> On Thu, Oct 25, 2012 at 06:31:32PM +0530, Sourav wrote:
-> > Hi Dmitry,
-> > 
-> > -       pm_runtime_put_sync(dev);
-> > -
-> >  out:
-> >         pm_runtime_disable(dev);
-> >         return retval;
-> > @@ -387,8 +385,9 @@
-> >                 return error;
-> >         }
-> > 
-> > +       pm_runtime_put_sync(dev);
-> > +
-> >         platform_set_drvdata(pdev, keypad_data);
-> > -       pm_runtime_enable(dev);
-> > 
-> >         return 0;
-> >  }
-> > 
-> > This patch seems to solve the warning and keypad functionality is restored.
+> as I found out the hard way tslib does the detection if a touchscreen has been 
+> "clicked" if the kernel driver says it does not support ABS_PRESSURE. But when 
+> the kernel says it can do ABS_PRESSURE tslib will not do it's emulation and 
+> just pass on whatever pressure value the kernel sends.
 > 
-> the driver looks wrong to me. Why are calling pm_runtime_put_sync()
-> after pm_runtime_disable() ???
+> So far, so good. Sadly there are some drivers that do:
+> 
+> input_set_abs_params(dev, ABS_PRESSURE, 0, 0, 0, 0);
+> 
 
-No, we should not be doing this...
+What drivers are doing this?
 
-OK, so the idea was to do everything via managed resources (devm_*) and
-not having any gotos :) But I guess we had keypad somewhat alive and it
-managed to generate an interrupt while parent(s) was sleeping because we
-did pm_runtime_put_sync()/pm_runtime_disable() after reading register.
-I wonder if we should have something like:
+> Guess what happens: no clicks at all. The question I have is: does the above 
+> line make any sense to be in a kernel driver at all? Or is that some voodoo 
+> that must be there and it's all tslib fault?
+> 
+> Now that I know where the problem is coming from the problem is easily 
+> fixable, I'm just wondering which patch to make.
 
-static void omap4_keypad_inhibit()
-{
-	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
-			 OMAP4_VAL_IRQDISABLE);
-	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
-			 kbd_read_irqreg(keypad_data,
-					 OMAP4_KBD_IRQSTATUS));
-}
-
-and call it after reading the revision register.
-
-Either that or we need devm_pm_runtime_enable().
+Well, the limits are strictly advisory for userspace, input core does
+not perform any clamping or discarding the data that falls outside the
+limits, so tslib probably should not do that either.
 
 Thanks.
 

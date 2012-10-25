@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 09/10] HID: introduce Scan Time
-Date: Thu, 25 Oct 2012 16:09:48 +0200
-Message-ID: <1351174189-24719-10-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 07/10] HID: hid-multitouch: fix Win 8 protocol
+Date: Thu, 25 Oct 2012 16:09:46 +0200
+Message-ID: <1351174189-24719-8-git-send-email-benjamin.tissoires@gmail.com>
 References: <1351174189-24719-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1351174189-24719-1-git-send-email-benjamin.tissoires@gmail.com>
@@ -9,110 +9,57 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Win 8 digitizer devices provides the actual scan time computed by the
-hardware itself. The value is global to the frame and is not specific
-to the multitouch protocol (though only touch, not pen, should use it
-according to the specification).
+Win 8 specification is much more precise than the Win 7 one.
+Moreover devices that need to take certification must be submitted
+to Microsoft.
+
+The result is a better protocol support and we can rely on that to
+skip all the messy tests we used to do.
+
+The protocol specify the fact that each valid touch must be reported
+within a frame, and that the release touch coordinate must be the
+same than the last known touch.
+So we can use the always_valid quirk and dismiss reports when we
+touch coordiante do not follow this rule.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
- Documentation/input/event-codes.txt |  7 +++++++
- drivers/hid/hid-input.c             |  4 ++++
- drivers/hid/hid-multitouch.c        | 13 ++++++++++---
- include/linux/hid.h                 |  1 +
- include/linux/input.h               |  1 +
- 5 files changed, 23 insertions(+), 3 deletions(-)
+ drivers/hid/hid-multitouch.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
-index 53305bd..8f8c908 100644
---- a/Documentation/input/event-codes.txt
-+++ b/Documentation/input/event-codes.txt
-@@ -174,6 +174,13 @@ A few EV_ABS codes have special meanings:
-     the input device may be used freely in three dimensions, consider ABS_Z
-     instead.
- 
-+* ABS_SCAN_TIME:
-+  - Used when the device provides a timestamp for each frame. The unit must be
-+    100us, and may be reset when the device don't send any events for a
-+    period of time. The values increment at each frame and thus, it can roll
-+    back to 0 when reach logical_max. If the device does not provide this
-+    information, the driver must not provide it to the user space.
-+
- * ABS_MT_<name>:
-   - Used to describe multitouch input events. Please see
-     multi-touch-protocol.txt for details.
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 16cc89a..5fe7bd3 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -675,6 +675,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 			map_key_clear(BTN_STYLUS2);
- 			break;
- 
-+		case 0x56: /* Scan Time */
-+			map_abs(ABS_SCAN_TIME);
-+			break;
-+
- 		default:  goto unknown;
- 		}
- 		break;
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 5aebbff..5d7fd39 100644
+index c8290e2..6d4ad30 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -447,19 +447,26 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			mt_store_field(usage, td, hi);
- 			td->last_field_index = field->index;
- 			return 1;
-+		case HID_DG_SCANTIME:
-+			hid_map_usage(hi, usage, bit, max,
-+				EV_ABS, ABS_SCAN_TIME);
-+			set_abs(hi->input, ABS_SCAN_TIME, field, 0);
-+			td->last_field_index = field->index;
-+			return 1;
- 		case HID_DG_CONTACTCOUNT:
- 			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_CONTACTMAX:
--			/* we don't set td->last_slot_field as contactcount and
--			 * contact max are global to the report */
-+			/* we don't set td->last_slot_field as scan time,
-+			 * contactcount and contact max are global to the
-+			 * report */
- 			td->last_field_index = field->index;
- 			return -1;
--		}
- 		case HID_DG_TOUCH:
- 			/* Legacy devices use TIPSWITCH and not TOUCH.
- 			 * Let's just ignore this field. */
- 			return -1;
+@@ -510,6 +510,18 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+ 		int slotnum = mt_compute_slot(td, input);
+ 		struct mt_slot *s = &td->curdata;
+ 
++		if (td->mtclass.quirks & MT_QUIRK_WIN_8_CERTIFIED &&
++		    !s->touch_state) {
++			struct input_mt_slot *slot = &input->mt->slots[slotnum];
++			int prv_x = input_mt_get_value(slot, ABS_MT_POSITION_X);
++			int prv_y = input_mt_get_value(slot, ABS_MT_POSITION_Y);
++			/* valid releases occurs when the last x and y positions
++			 * are the same as the last known touch. */
++			if (!input_mt_is_active(slot) ||
++			    prv_x != s->x || prv_y != s->y)
++				return;
 +		}
- 		/* let hid-input decide for the others */
- 		return 0;
++
+ 		if (slotnum < 0 || slotnum >= td->maxcontacts)
+ 			return;
  
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 6216529..99a6418 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -279,6 +279,7 @@ struct hid_item {
- #define HID_DG_DEVICEINDEX	0x000d0053
- #define HID_DG_CONTACTCOUNT	0x000d0054
- #define HID_DG_CONTACTMAX	0x000d0055
-+#define HID_DG_SCANTIME		0x000d0056
+@@ -681,8 +693,8 @@ static void mt_post_parse_default_settings(struct mt_device *td)
+ {
+ 	__s32 quirks = td->mtclass.quirks;
  
- /*
-  * HID report types --- Ouch! HID spec says 1 2 3!
-diff --git a/include/linux/input.h b/include/linux/input.h
-index ba48743..73c3a96 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -796,6 +796,7 @@ struct input_keymap_entry {
- #define ABS_TILT_X		0x1a
- #define ABS_TILT_Y		0x1b
- #define ABS_TOOL_WIDTH		0x1c
-+#define ABS_SCAN_TIME		0x1d
- 
- #define ABS_VOLUME		0x20
- 
+-	/* unknown serial device needs special quirks */
+-	if (td->touches_by_report == 1) {
++	/* unknown serial devices or win8 ones need special quirks */
++	if (td->touches_by_report == 1 || quirks & MT_QUIRK_WIN_8_CERTIFIED) {
+ 		quirks |= MT_QUIRK_ALWAYS_VALID;
+ 		quirks &= ~MT_QUIRK_NOT_SEEN_MEANS_UP;
+ 		quirks &= ~MT_QUIRK_VALID_IS_INRANGE;
 -- 
 1.7.11.7

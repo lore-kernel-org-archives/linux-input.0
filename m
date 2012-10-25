@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 01/10] HID: core: fix unit exponent parsing
-Date: Thu, 25 Oct 2012 16:09:40 +0200
-Message-ID: <1351174189-24719-2-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 04/10] HID: hid-multitouch: get maxcontacts also from logical_max value
+Date: Thu, 25 Oct 2012 16:09:43 +0200
+Message-ID: <1351174189-24719-5-git-send-email-benjamin.tissoires@gmail.com>
 References: <1351174189-24719-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1351174189-24719-1-git-send-email-benjamin.tissoires@gmail.com>
@@ -9,85 +9,40 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-HID spec details special values for the HID field unit exponent.
-Basically, the range [0x8..0xf] correspond to [-8..-1].
+Win8 devices are required to present the feature "Maximum Contact Number".
+Fortunately all win7 devices I've seen presents this feature.
+If the current value is 0, then, the driver can get the actual supported
+contact count by refering to the logical_max.
+This win8 specification ensures that logical_max may not be above 250.
+This also allows us to detect when devices like irtouch or stantum reports
+an obviously wrong value of 255.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
- drivers/hid/hid-core.c  | 10 +++++++++-
- drivers/hid/hid-input.c | 19 +++++++++++++------
- 2 files changed, 22 insertions(+), 7 deletions(-)
+ drivers/hid/hid-multitouch.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 5de3bb3..b2533f1 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -315,6 +315,7 @@ static s32 item_sdata(struct hid_item *item)
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index e96ecc3..38a4feb 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -121,6 +121,7 @@ struct mt_device {
+ #define MT_CLS_GENERALTOUCH_PWT_TENFINGERS	0x0109
  
- static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
- {
-+	__u32 raw_value;
- 	switch (item->tag) {
- 	case HID_GLOBAL_ITEM_TAG_PUSH:
+ #define MT_DEFAULT_MAXCONTACT	10
++#define MT_MAX_MAXCONTACT	250
  
-@@ -365,7 +366,14 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
- 		return 0;
- 
- 	case HID_GLOBAL_ITEM_TAG_UNIT_EXPONENT:
--		parser->global.unit_exponent = item_sdata(item);
-+		/* Units exponent negative numbers are given through a special
-+		 * table.
-+		 * See "6.2.2.7 Global Items" for more information. */
-+		raw_value = item_udata(item);
-+		if ((raw_value >> 3) == 1)
-+			parser->global.unit_exponent = raw_value - 16;
-+		else
-+			parser->global.unit_exponent = raw_value;
- 		return 0;
- 
- 	case HID_GLOBAL_ITEM_TAG_UNIT:
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 1b0adc3..fc9f2b5 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -215,7 +215,7 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- 					field->logical_minimum;
- 	__s32 physical_extents = field->physical_maximum -
- 					field->physical_minimum;
--	__s32 prev;
-+	__s32 prev, tmp_exponent;
- 
- 	/* Check if the extents are sane */
- 	if (logical_extents <= 0 || physical_extents <= 0)
-@@ -235,17 +235,24 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- 	case ABS_MT_TOOL_Y:
- 	case ABS_MT_TOUCH_MAJOR:
- 	case ABS_MT_TOUCH_MINOR:
--		if (field->unit == 0x11) {		/* If centimeters */
-+		if (field->unit & 0xffffff00)		/* Not a length */
-+			return 0;
-+		tmp_exponent = field->unit >> 4;
-+		if ((tmp_exponent >> 3) == 1)
-+			tmp_exponent -= 16;
-+		switch (field->unit & 0xf) {
-+		case 0x1:				/* If centimeters */
- 			/* Convert to millimeters */
--			unit_exponent += 1;
--		} else if (field->unit == 0x13) {	/* If inches */
-+			unit_exponent += tmp_exponent;
-+			break;
-+		case 0x3:				/* If inches */
- 			/* Convert to millimeters */
- 			prev = physical_extents;
- 			physical_extents *= 254;
- 			if (physical_extents < prev)
- 				return 0;
--			unit_exponent -= 1;
--		} else {
-+			unit_exponent += tmp_exponent - 2;
-+		default:
- 			return 0;
- 		}
- 		break;
+ #define MT_USB_DEVICE(v, p)	HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH, v, p)
+ #define MT_BT_DEVICE(v, p)	HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_MULTITOUCH, v, p)
+@@ -283,6 +284,9 @@ static void mt_feature_mapping(struct hid_device *hdev,
+ 	case HID_DG_CONTACTMAX:
+ 		td->maxcontact_report_id = field->report->id;
+ 		td->maxcontacts = field->value[0];
++		if (!td->maxcontacts &&
++		    field->logical_maximum <= MT_MAX_MAXCONTACT)
++			td->maxcontacts = field->logical_maximum;
+ 		if (td->mtclass.maxcontacts)
+ 			/* check if the maxcontacts is given by the class */
+ 			td->maxcontacts = td->mtclass.maxcontacts;
 -- 
 1.7.11.7

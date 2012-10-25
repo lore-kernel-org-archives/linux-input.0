@@ -1,55 +1,114 @@
-From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] hid: put the case in the right switch statement
-Date: Thu, 25 Oct 2012 19:08:54 +0200
-Message-ID: <CAN+gG=GX8XSnURKpG4HCMU6tL_tVpPBVOwdr3ksyXrzkrsKL_g@mail.gmail.com>
-References: <20121025143512.17155.56181.stgit@localhost.localdomain>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH RESEND] tps6507: remove bogus unreachable code
+Date: Thu, 25 Oct 2012 11:03:48 -0700
+Message-ID: <20121025180348.GA24594@core.coreip.homeip.net>
+References: <20121025142845.16911.4538.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121025143512.17155.56181.stgit-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-da0-f46.google.com ([209.85.210.46]:63019 "EHLO
+	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752513Ab2JYSDx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Oct 2012 14:03:53 -0400
+Received: by mail-da0-f46.google.com with SMTP id n41so899552dak.19
+        for <linux-input@vger.kernel.org>; Thu, 25 Oct 2012 11:03:52 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20121025142845.16911.4538.stgit@localhost.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Todd Fischer <todd.fischer@ridgerun.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Alan,
+On Thu, Oct 25, 2012 at 03:28:51PM +0100, Alan Cox wrote:
+> From: Alan Cox <alan@linux.intel.com>
+> 
+> tsc->polling is write only and the poll local is meaningless
+> 
 
-Yes, I saw that too.
+Alan,
 
-Acked-by: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+I could apply the patch, but a touchscreen driver without interrupt
+support is not too useful...
 
-On Thu, Oct 25, 2012 at 4:35 PM, Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org> wrote:
-> From: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
->
-> Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Todd,
+
+Is there a more mature version of this driver?
+
+Thanks.
+
+> Signed-off-by: Alan Cox <alan@linux.intel.com>
 > ---
->
->  drivers/hid/hid-multitouch.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 3eb02b9..c97011c 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -421,11 +421,11 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->                          * contact max are global to the report */
->                         td->last_field_index = field->index;
->                         return -1;
-> -               }
->                 case HID_DG_TOUCH:
->                         /* Legacy devices use TIPSWITCH and not TOUCH.
->                          * Let's just ignore this field. */
->                         return -1;
-> +               }
->                 /* let hid-input decide for the others */
->                 return 0;
->
->
+> 
+>  drivers/input/touchscreen/tps6507x-ts.c |   25 +++++--------------------
+>  1 file changed, 5 insertions(+), 20 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+> index f7eda3d..27f95ad 100644
+> --- a/drivers/input/touchscreen/tps6507x-ts.c
+> +++ b/drivers/input/touchscreen/tps6507x-ts.c
+> @@ -42,7 +42,6 @@ struct tps6507x_ts {
+>  	struct device		*dev;
+>  	char			phys[32];
+>  	struct delayed_work	work;
+> -	unsigned		polling;	/* polling is active */
+>  	struct ts_event		tc;
+>  	struct tps6507x_dev	*mfd;
+>  	u16			model;
+> @@ -168,7 +167,6 @@ static void tps6507x_ts_handler(struct work_struct *work)
+>  	struct input_dev *input_dev = tsc->input_dev;
+>  	int pendown;
+>  	int schd;
+> -	int poll = 0;
+>  	s32 ret;
+>  
+>  	ret =  tps6507x_adc_conversion(tsc, TPS6507X_TSCMODE_PRESSURE,
+> @@ -209,24 +207,14 @@ static void tps6507x_ts_handler(struct work_struct *work)
+>  		input_report_abs(input_dev, ABS_PRESSURE, tsc->tc.pressure);
+>  		input_sync(input_dev);
+>  		tsc->pendown = 1;
+> -		poll = 1;
+>  	}
+>  
+>  done:
+>  	/* always poll if not using interrupts */
+> -	poll = 1;
+> -
+> -	if (poll) {
+> -		schd = schedule_delayed_work(&tsc->work,
+> -					msecs_to_jiffies(tsc->poll_period));
+> -		if (schd)
+> -			tsc->polling = 1;
+> -		else {
+> -			tsc->polling = 0;
+> -			dev_err(tsc->dev, "re-schedule failed");
+> -		}
+> -	} else
+> -		tsc->polling = 0;
+> +	schd = schedule_delayed_work(&tsc->work,
+> +				msecs_to_jiffies(tsc->poll_period));
+> +	if (!schd)
+> +		dev_err(tsc->dev, "re-schedule failed");
+>  
+>  	ret = tps6507x_adc_standby(tsc);
+>  }
+> @@ -324,10 +312,7 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+>  	schd = schedule_delayed_work(&tsc->work,
+>  				     msecs_to_jiffies(tsc->poll_period));
+>  
+> -	if (schd)
+> -		tsc->polling = 1;
+> -	else {
+> -		tsc->polling = 0;
+> +	if (!schd) {
+>  		dev_err(tsc->dev, "schedule failed");
+>  		goto err2;
+>  	 }
+> 
 > --
 > To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
+Dmitry

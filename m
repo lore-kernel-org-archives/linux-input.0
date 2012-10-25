@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 07/10] HID: hid-multitouch: fix Win 8 protocol
-Date: Thu, 25 Oct 2012 16:09:46 +0200
-Message-ID: <1351174189-24719-8-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 05/10] HID: hid-multitouch: support T and C for win8 devices
+Date: Thu, 25 Oct 2012 16:09:44 +0200
+Message-ID: <1351174189-24719-6-git-send-email-benjamin.tissoires@gmail.com>
 References: <1351174189-24719-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1351174189-24719-1-git-send-email-benjamin.tissoires@gmail.com>
@@ -9,57 +9,121 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Win 8 specification is much more precise than the Win 7 one.
-Moreover devices that need to take certification must be submitted
-to Microsoft.
+Win8 input specification clarifies the X and Y sent by devices.
+It distincts the position where the user wants to Touch (T) from
+the center of the ellipsoide (C). This patch enable supports for this
+distinction in hid-multitouch.
 
-The result is a better protocol support and we can rely on that to
-skip all the messy tests we used to do.
-
-The protocol specify the fact that each valid touch must be reported
-within a frame, and that the release touch coordinate must be the
-same than the last known touch.
-So we can use the always_valid quirk and dismiss reports when we
-touch coordiante do not follow this rule.
+We recognize Win8 certified devices from their vendor feature 0xff0000c5
+where Microsoft put a signed blob in the report to check if the device
+passed the certification.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
- drivers/hid/hid-multitouch.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/hid/hid-multitouch.c | 53 ++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 44 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index c8290e2..6d4ad30 100644
+index 38a4feb..ff2354c 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -510,6 +510,18 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
- 		int slotnum = mt_compute_slot(td, input);
- 		struct mt_slot *s = &td->curdata;
+@@ -52,9 +52,10 @@ MODULE_LICENSE("GPL");
+ #define MT_QUIRK_VALID_IS_CONFIDENCE	(1 << 6)
+ #define MT_QUIRK_SLOT_IS_CONTACTID_MINUS_ONE	(1 << 8)
+ #define MT_QUIRK_NO_AREA		(1 << 9)
++#define MT_QUIRK_WIN_8_CERTIFIED	(1 << 10)
  
-+		if (td->mtclass.quirks & MT_QUIRK_WIN_8_CERTIFIED &&
-+		    !s->touch_state) {
-+			struct input_mt_slot *slot = &input->mt->slots[slotnum];
-+			int prv_x = input_mt_get_value(slot, ABS_MT_POSITION_X);
-+			int prv_y = input_mt_get_value(slot, ABS_MT_POSITION_Y);
-+			/* valid releases occurs when the last x and y positions
-+			 * are the same as the last known touch. */
-+			if (!input_mt_is_active(slot) ||
-+			    prv_x != s->x || prv_y != s->y)
-+				return;
-+		}
+ struct mt_slot {
+-	__s32 x, y, p, w, h;
++	__s32 x, y, cx, cy, p, w, h;
+ 	__s32 contactid;	/* the device ContactID assigned to this slot */
+ 	bool touch_state;	/* is the touch valid? */
+ };
+@@ -292,6 +293,10 @@ static void mt_feature_mapping(struct hid_device *hdev,
+ 			td->maxcontacts = td->mtclass.maxcontacts;
+ 
+ 		break;
++	case 0xff0000c5:
++		if (field->report_count == 256 && field->report_size == 8)
++			td->mtclass.quirks |= MT_QUIRK_WIN_8_CERTIFIED;
++		break;
+ 	}
+ }
+ 
+@@ -350,18 +355,36 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	case HID_UP_GENDESK:
+ 		switch (usage->hid) {
+ 		case HID_GD_X:
+-			hid_map_usage(hi, usage, bit, max,
++			if (cls->quirks & MT_QUIRK_WIN_8_CERTIFIED &&
++				usage_index) {
++				hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_TOOL_X);
++				set_abs(hi->input, ABS_MT_TOOL_X, field,
++					cls->sn_move);
++			} else {
++				hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_POSITION_X);
+-			set_abs(hi->input, ABS_MT_POSITION_X, field,
+-				cls->sn_move);
++				set_abs(hi->input, ABS_MT_POSITION_X, field,
++					cls->sn_move);
++			}
 +
- 		if (slotnum < 0 || slotnum >= td->maxcontacts)
- 			return;
+ 			mt_store_field(usage, td, hi);
+ 			td->last_field_index = field->index;
+ 			return 1;
+ 		case HID_GD_Y:
+-			hid_map_usage(hi, usage, bit, max,
++			if (cls->quirks & MT_QUIRK_WIN_8_CERTIFIED &&
++				usage_index) {
++				hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_TOOL_Y);
++				set_abs(hi->input, ABS_MT_TOOL_Y, field,
++					cls->sn_move);
++			} else {
++				hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_POSITION_Y);
+-			set_abs(hi->input, ABS_MT_POSITION_Y, field,
+-				cls->sn_move);
++				set_abs(hi->input, ABS_MT_POSITION_Y, field,
++					cls->sn_move);
++			}
++
+ 			mt_store_field(usage, td, hi);
+ 			td->last_field_index = field->index;
+ 			return 1;
+@@ -502,6 +525,12 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
  
-@@ -681,8 +693,8 @@ static void mt_post_parse_default_settings(struct mt_device *td)
- {
- 	__s32 quirks = td->mtclass.quirks;
- 
--	/* unknown serial device needs special quirks */
--	if (td->touches_by_report == 1) {
-+	/* unknown serial devices or win8 ones need special quirks */
-+	if (td->touches_by_report == 1 || quirks & MT_QUIRK_WIN_8_CERTIFIED) {
- 		quirks |= MT_QUIRK_ALWAYS_VALID;
- 		quirks &= ~MT_QUIRK_NOT_SEEN_MEANS_UP;
- 		quirks &= ~MT_QUIRK_VALID_IS_INRANGE;
+ 			input_event(input, EV_ABS, ABS_MT_POSITION_X, s->x);
+ 			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
++			if (td->mtclass.quirks & MT_QUIRK_WIN_8_CERTIFIED) {
++				input_event(input, EV_ABS, ABS_MT_TOOL_X,
++					s->cx);
++				input_event(input, EV_ABS, ABS_MT_TOOL_Y,
++					s->cy);
++			}
+ 			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
+ 			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
+ 			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
+@@ -553,10 +582,16 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 			td->curdata.p = value;
+ 			break;
+ 		case HID_GD_X:
+-			td->curdata.x = value;
++			if (usage->code == ABS_MT_POSITION_X)
++				td->curdata.x = value;
++			else
++				td->curdata.cx = value;
+ 			break;
+ 		case HID_GD_Y:
+-			td->curdata.y = value;
++			if (usage->code == ABS_MT_POSITION_Y)
++				td->curdata.y = value;
++			else
++				td->curdata.cy = value;
+ 			break;
+ 		case HID_DG_WIDTH:
+ 			td->curdata.w = value;
 -- 
 1.7.11.7

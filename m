@@ -1,301 +1,452 @@
 From: Sourav <sourav.poddar@ti.com>
-Subject: Re: [RFT/PATCH] Input: omap4-keypad - switch to use managed resources
-Date: Thu, 25 Oct 2012 14:29:34 +0530
-Message-ID: <5088FF76.2020204@ti.com>
-References: <20121025074559.GA17710@core.coreip.homeip.net>
+Subject: Re: [PATCHv4] Input: keypad: Add smsc ece1099 keypad driver
+Date: Thu, 25 Oct 2012 14:47:09 +0530
+Message-ID: <50890395.8070900@ti.com>
+References: <1349421986-12467-1-git-send-email-sourav.poddar@ti.com> <20121024063559.GA14542@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:54398 "EHLO bear.ext.ti.com"
+Received: from bear.ext.ti.com ([192.94.94.41]:55186 "EHLO bear.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964967Ab2JYI7L (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Oct 2012 04:59:11 -0400
-In-Reply-To: <20121025074559.GA17710@core.coreip.homeip.net>
+	id S933743Ab2JYJQ4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Oct 2012 05:16:56 -0400
+In-Reply-To: <20121024063559.GA14542@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, b-cousson@ti.com, balbi@ti.com, santosh.shilimkar@ti.com
 
 Hi Dmitry,
-On Thursday 25 October 2012 01:16 PM, Dmitry Torokhov wrote:
-> Now that input core supports devres-managed input devices we can clean
-> up this driver a bit.
+On Wednesday 24 October 2012 12:05 PM, Dmitry Torokhov wrote:
+> Hi Sourav,
 >
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
+> On Fri, Oct 05, 2012 at 12:56:26PM +0530, Sourav Poddar wrote:
+>> From: G, Manjunath Kondaiah <manjugk@ti.com>
+>>
+>> SMSC ECE1099 is a keyboard scan or GPIO expansion device.The device
+>> supports a keypad scan matrix of 23*8.This driver uses this
+>> device as a keypad driver.
+>>
+>> Tested on omap5430 evm with 3.6-rc6 custom kernel.
+>>
+>> Cc: Benoit Cousson <b-cousson@ti.com>
+>> Cc: Felipe Balbi <balbi@ti.com>
+>> Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>
+>> Signed-off-by: G, Manjunath Kondaiah <manjugk@ti.com>
+>> Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+>> Acked-by: Felipe Balbi <balbi@ti.com>
+>> ---
+>> This patch was posted as a series initially
+>> http://www.spinics.net/lists/linux-omap/msg78772.html
+>>
+>> But the parent mfd driver has beeen already picked by mfd maintainer.
+>> So this patch can now posted as an standalone patch.
+>>
+>> v3->v4:
+>> Fix Dmitry's comments:
+>>   - Error patch(input_free_device/input_unregister_device).
+>>   - Few cleanups.
+>>   - Included INPUT_MATRIXKMAP
+>>   drivers/input/keyboard/Kconfig               |   12 +
+>>   drivers/input/keyboard/Makefile              |    1 +
+>>   drivers/input/keyboard/smsc-ece1099-keypad.c |  303 ++++++++++++++++++++++++++
+>>   3 files changed, 316 insertions(+), 0 deletions(-)
+>>   create mode 100644 drivers/input/keyboard/smsc-ece1099-keypad.c
+>>
+>> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+>> index c50fa75..e370b03 100644
+>> --- a/drivers/input/keyboard/Kconfig
+>> +++ b/drivers/input/keyboard/Kconfig
+>> @@ -593,6 +593,18 @@ config KEYBOARD_TWL4030
+>>   	  To compile this driver as a module, choose M here: the
+>>   	  module will be called twl4030_keypad.
+>>   
+>> +config KEYBOARD_SMSC
+>> +       tristate "SMSC ECE1099 keypad support"
+>> +       depends on I2C
+>> +       select INPUT_MATRIXKMAP
+> While I do not see hard dependencies in the driver itself, should we
+> also depend on MFD_SMSC?
+Ahh, may be yes. This driver will get probed only after parent driver 
+get probed.
+So may be we can follow the same order for building also.
+>> +       help
+>> +         Say Y here if your board use the smsc keypad controller
+>> +         for omap5 defconfig. It's safe to say enable this
+>> +         even on boards that don't use the keypad controller.
+>> +
+>> +         To compile this driver as a module, choose M here: the
+>> +         module will be called smsc-ece1099-keypad.
+>> +
+>>   config KEYBOARD_XTKBD
+>>   	tristate "XT keyboard"
+>>   	select SERIO
+>> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+>> index 44e7600..0f2aa26 100644
+>> --- a/drivers/input/keyboard/Makefile
+>> +++ b/drivers/input/keyboard/Makefile
+>> @@ -52,5 +52,6 @@ obj-$(CONFIG_KEYBOARD_TC3589X)		+= tc3589x-keypad.o
+>>   obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
+>>   obj-$(CONFIG_KEYBOARD_TNETV107X)	+= tnetv107x-keypad.o
+>>   obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
+>> +obj-$(CONFIG_KEYBOARD_SMSC)            += smsc-ece1099-keypad.o
+>>   obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
+>>   obj-$(CONFIG_KEYBOARD_W90P910)		+= w90p910_keypad.o
+>> diff --git a/drivers/input/keyboard/smsc-ece1099-keypad.c b/drivers/input/keyboard/smsc-ece1099-keypad.c
+>> new file mode 100644
+>> index 0000000..a4a0dfe
+>> --- /dev/null
+>> +++ b/drivers/input/keyboard/smsc-ece1099-keypad.c
+>> @@ -0,0 +1,303 @@
+>> +/*
+>> + * SMSC_ECE1099 Keypad driver
+>> + *
+>> + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License version 2 as
+>> + * published by the Free Software Foundation.
+>> + */
+>> +
+>> +#include <linux/i2c.h>
+>> +#include <linux/kernel.h>
+>> +#include <linux/module.h>
+>> +#include <linux/init.h>
+>> +#include <linux/interrupt.h>
+>> +#include <linux/input.h>
+>> +#include <linux/gpio.h>
+>> +#include <linux/slab.h>
+>> +#include <linux/jiffies.h>
+>> +#include <linux/input/matrix_keypad.h>
+>> +#include <linux/delay.h>
+>> +#include <linux/mfd/core.h>
+>> +#include <linux/mfd/smsc.h>
+>> +#include <linux/of_gpio.h>
+>> +#include <linux/of.h>
+>> +
+>> +#define KEYPRESS_TIME          200
+>> +
+>> +struct smsc_keypad {
+>> +	struct smsc *smsc;
+> I do not see this being actually used.
+Yes, will remove.
+>> +	struct matrix_keymap_data *keymap_data;
+> Does not seem to be used.
+Yes, will remove.
+>> +	unsigned int last_key_state[16];
+>> +	unsigned int last_col;
+>> +	unsigned int last_key_ms[16];
+>> +	unsigned short *keymap;
+>> +	struct i2c_client *client;
+>> +	struct input_dev *input;
+>> +	int rows, cols;
+>> +	int row_shift;
+>> +	bool no_autorepeat;
+>> +	unsigned        irq;
+> I do not think you need to store irq if you are using managed resources.
 >
-> Just compiled, no hardware to test.
-Which branch are yout trying it on?
-I applied this on mainline as well as on your next branch, but getting 
-the following
-build error..
-drivers/input/keyboard/omap4-keypad.c: In function 'omap4_keypad_probe':
-drivers/input/keyboard/omap4-keypad.c:340: error: implicit declaration 
-of function 'devm_input_allocate_device'
-drivers/input/keyboard/omap4-keypad.c:340: warning: assignment makes 
-pointer from integer without a cast
-make[3]: *** [drivers/input/keyboard/omap4-keypad.o] Error 1
-
-
-~Sourav
-
->   drivers/input/keyboard/omap4-keypad.c | 182 ++++++++++++++--------------------
->   1 file changed, 76 insertions(+), 106 deletions(-)
+Don't, we need some variable to keep the irq number received after parsing
+the dt data.? This variable is basically used as a parameter in 
+"request_irq" api.
+I saw the patch on omap4_keypad switching to managed resource, and there 
+also we are
+keeping the keypad_data->irq intact??
+>> +	struct device *dev;
+>> +};
+>> +
+>> +static void smsc_kp_scan(struct smsc_keypad *kp)
+>> +{
+>> +	struct input_dev *input = kp->input;
+>> +	int i, j;
+>> +	int row, col;
+>> +	int temp, code;
+>> +	unsigned int new_state[16];
+>> +	unsigned int bits_changed;
+>> +	int this_ms;
+>> +
+>> +	smsc_write(kp->dev, SMSC_KP_INT_MASK, 0x00);
+>> +	smsc_write(kp->dev, SMSC_KP_INT_STAT, 0xFF);
+>> +
+>> +	/* Scan for row and column */
+>> +	for (i = 0; i < kp->cols; i++) {
+>> +		smsc_write(kp->dev, SMSC_KP_OUT, SMSC_KSO_EVAL + i);
+>> +		/* Read Row Status */
+>> +		smsc_read(kp->dev, SMSC_KP_IN, &temp);
+>> +		if (temp == 0xFF)
+>> +			continue;
+>> +
+>> +		col = i;
+>> +		for (j = 0; j < kp->rows; j++) {
+>> +			if ((temp & 0x01) != 0x00) {
+>> +				temp = temp >> 1;
+>> +				continue;
+>> +			}
+>> +
+>> +			row = j;
+>> +			new_state[col] =  (1 << row);
+>> +			bits_changed = kp->last_key_state[col] ^ new_state[col];
+>> +			this_ms = jiffies_to_msecs(jiffies);
+>> +			if (bits_changed != 0 || (!bits_changed &&
+>> +					((this_ms - kp->last_key_ms[col]) >= KEYPRESS_TIME))) {
+>> +				code = MATRIX_SCAN_CODE(row, col, kp->row_shift);
+>> +				input_event(input, EV_MSC, MSC_SCAN, code);
+>> +				input_report_key(input, kp->keymap[code], 1);
+>> +				input_report_key(input, kp->keymap[code], 0);
+>> +				kp->last_key_state[col] = new_state[col];
+>> +				if (kp->last_col != col)
+>> +					kp->last_key_state[kp->last_col] = 0;
+>> +				kp->last_key_ms[col] = this_ms;
+>> +			}
+>> +			temp = temp >> 1;
+>> +		}
 >
-> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-> index c05f98c..327388a 100644
-> --- a/drivers/input/keyboard/omap4-keypad.c
-> +++ b/drivers/input/keyboard/omap4-keypad.c
-> @@ -241,17 +241,60 @@ static inline int omap4_keypad_parse_dt(struct device *dev,
->   }
->   #endif
->   
-> +static int __devinit omap4_keypad_setup_regs(struct device *dev,
-> +					     struct omap4_keypad *keypad_data)
-> +{
-> +	unsigned int rev;
-> +	int retval;
-> +
-> +	/*
-> +	 * Enable clocks for the keypad module so that we can read
-> +	 * revision register.
-> +	 */
-> +	pm_runtime_enable(dev);
-> +
-> +	retval = pm_runtime_get_sync(dev);
-> +	if (retval) {
-> +		dev_err(dev, "%s: pm_runtime_get_sync() failed: %d\n",
-> +			__func__, retval);
-> +		goto out;
-> +	}
-> +
-> +	rev = __raw_readl(keypad_data->base + OMAP4_KBD_REVISION);
-> +	rev &= 0x03 << 30;
-> +	rev >>= 30;
-> +	switch (rev) {
-> +	case KBD_REVISION_OMAP4:
-> +		keypad_data->reg_offset = 0x00;
-> +		keypad_data->irqreg_offset = 0x00;
-> +		break;
-> +	case KBD_REVISION_OMAP5:
-> +		keypad_data->reg_offset = 0x10;
-> +		keypad_data->irqreg_offset = 0x0c;
-> +		break;
-> +	default:
-> +		dev_err(dev, "Keypad reports unsupported revision %d", rev);
-> +		retval = -EINVAL;
-> +		break;
-> +	}
-> +
-> +	pm_runtime_put_sync(dev);
-> +
-> +out:
-> +	pm_runtime_disable(dev);
-> +	return retval;
-> +}
-> +
->   static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->   {
-> -	const struct omap4_keypad_platform_data *pdata =
-> -				dev_get_platdata(&pdev->dev);
-> +	struct device *dev = &pdev->dev;
-> +	const struct omap4_keypad_platform_data *pdata = dev_get_platdata(dev);
->   	const struct matrix_keymap_data *keymap_data =
->   				pdata ? pdata->keymap_data : NULL;
->   	struct omap4_keypad *keypad_data;
->   	struct input_dev *input_dev;
->   	struct resource *res;
-> -	unsigned int max_keys;
-> -	int rev;
-> +	size_t keymap_size;
->   	int irq;
->   	int error;
->   
-> @@ -267,9 +310,10 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->   		return -EINVAL;
->   	}
->   
-> -	keypad_data = kzalloc(sizeof(struct omap4_keypad), GFP_KERNEL);
-> +	keypad_data = devm_kzalloc(dev, sizeof(struct omap4_keypad),
-> +				   GFP_KERNEL);
->   	if (!keypad_data) {
-> -		dev_err(&pdev->dev, "keypad_data memory allocation failed\n");
-> +		dev_err(dev, "keypad_data memory allocation failed\n");
->   		return -ENOMEM;
->   	}
->   
-> @@ -279,64 +323,25 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->   		keypad_data->rows = pdata->rows;
->   		keypad_data->cols = pdata->cols;
->   	} else {
-> -		error = omap4_keypad_parse_dt(&pdev->dev, keypad_data);
-> +		error = omap4_keypad_parse_dt(dev, keypad_data);
->   		if (error)
->   			return error;
->   	}
->   
-> -	res = request_mem_region(res->start, resource_size(res), pdev->name);
-> -	if (!res) {
-> -		dev_err(&pdev->dev, "can't request mem region\n");
-> -		error = -EBUSY;
-> -		goto err_free_keypad;
-> -	}
-> -
-> -	keypad_data->base = ioremap(res->start, resource_size(res));
-> -	if (!keypad_data->base) {
-> -		dev_err(&pdev->dev, "can't ioremap mem resource\n");
-> -		error = -ENOMEM;
-> -		goto err_release_mem;
-> -	}
-> +	keypad_data->base = devm_request_and_ioremap(dev, res);
-> +	if (!keypad_data->base)
-> +		return -EBUSY;
->   
-> -
-> -	/*
-> -	 * Enable clocks for the keypad module so that we can read
-> -	 * revision register.
-> -	 */
-> -	pm_runtime_enable(&pdev->dev);
-> -	error = pm_runtime_get_sync(&pdev->dev);
-> -	if (error) {
-> -		dev_err(&pdev->dev, "pm_runtime_get_sync() failed\n");
-> -		goto err_unmap;
-> -	}
-> -	rev = __raw_readl(keypad_data->base + OMAP4_KBD_REVISION);
-> -	rev &= 0x03 << 30;
-> -	rev >>= 30;
-> -	switch (rev) {
-> -	case KBD_REVISION_OMAP4:
-> -		keypad_data->reg_offset = 0x00;
-> -		keypad_data->irqreg_offset = 0x00;
-> -		break;
-> -	case KBD_REVISION_OMAP5:
-> -		keypad_data->reg_offset = 0x10;
-> -		keypad_data->irqreg_offset = 0x0c;
-> -		break;
-> -	default:
-> -		dev_err(&pdev->dev,
-> -			"Keypad reports unsupported revision %d", rev);
-> -		error = -EINVAL;
-> -		goto err_pm_put_sync;
-> -	}
-> +	error = omap4_keypad_setup_regs(dev, keypad_data);
-> +	if (error)
-> +		return error;
->   
->   	/* input device allocation */
-> -	keypad_data->input = input_dev = input_allocate_device();
-> -	if (!input_dev) {
-> -		error = -ENOMEM;
-> -		goto err_pm_put_sync;
-> -	}
-> +	keypad_data->input = input_dev = devm_input_allocate_device(dev);
-> +	if (!input_dev)
-> +		return -ENOMEM;
->   
->   	input_dev->name = pdev->name;
-> -	input_dev->dev.parent = &pdev->dev;
->   	input_dev->id.bustype = BUS_HOST;
->   	input_dev->id.vendor = 0x0001;
->   	input_dev->id.product = 0x0001;
-> @@ -352,81 +357,46 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->   	input_set_drvdata(input_dev, keypad_data);
->   
->   	keypad_data->row_shift = get_count_order(keypad_data->cols);
-> -	max_keys = keypad_data->rows << keypad_data->row_shift;
-> -	keypad_data->keymap = kzalloc(max_keys * sizeof(keypad_data->keymap[0]),
-> -				      GFP_KERNEL);
-> +	keymap_size = (keypad_data->rows << keypad_data->row_shift) *
-> +			sizeof(keypad_data->keymap[0]);
-> +	keypad_data->keymap = devm_kzalloc(dev, keymap_size, GFP_KERNEL);
->   	if (!keypad_data->keymap) {
-> -		dev_err(&pdev->dev, "Not enough memory for keymap\n");
-> -		error = -ENOMEM;
-> -		goto err_free_input;
-> +		dev_err(dev, "Not enough memory for keymap\n");
-> +		return -ENOMEM;
->   	}
->   
->   	error = matrix_keypad_build_keymap(keymap_data, NULL,
->   					   keypad_data->rows, keypad_data->cols,
->   					   keypad_data->keymap, input_dev);
->   	if (error) {
-> -		dev_err(&pdev->dev, "failed to build keymap\n");
-> -		goto err_free_keymap;
-> +		dev_err(dev, "failed to build keymap\n");
-> +		return error;
->   	}
->   
-> -	error = request_irq(keypad_data->irq, omap4_keypad_interrupt,
-> -			     IRQF_TRIGGER_RISING,
-> -			     "omap4-keypad", keypad_data);
-> +	error = devm_request_irq(dev, keypad_data->irq, omap4_keypad_interrupt,
-> +				 IRQF_TRIGGER_RISING,
-> +				 "omap4-keypad", keypad_data);
->   	if (error) {
-> -		dev_err(&pdev->dev, "failed to register interrupt\n");
-> -		goto err_free_input;
-> +		dev_err(dev, "failed to register interrupt\n");
-> +		return error;
->   	}
->   
-> -	pm_runtime_put_sync(&pdev->dev);
-> -
->   	error = input_register_device(keypad_data->input);
->   	if (error < 0) {
-> -		dev_err(&pdev->dev, "failed to register input device\n");
-> -		goto err_pm_disable;
-> +		dev_err(dev, "failed to register input device\n");
-> +		return error;
->   	}
->   
->   	platform_set_drvdata(pdev, keypad_data);
-> -	return 0;
-> +	pm_runtime_enable(dev);
->   
-> -err_pm_disable:
-> -	pm_runtime_disable(&pdev->dev);
-> -	free_irq(keypad_data->irq, keypad_data);
-> -err_free_keymap:
-> -	kfree(keypad_data->keymap);
-> -err_free_input:
-> -	input_free_device(input_dev);
-> -err_pm_put_sync:
-> -	pm_runtime_put_sync(&pdev->dev);
-> -err_unmap:
-> -	iounmap(keypad_data->base);
-> -err_release_mem:
-> -	release_mem_region(res->start, resource_size(res));
-> -err_free_keypad:
-> -	kfree(keypad_data);
-> -	return error;
-> +	return 0;
->   }
->   
->   static int __devexit omap4_keypad_remove(struct platform_device *pdev)
->   {
-> -	struct omap4_keypad *keypad_data = platform_get_drvdata(pdev);
-> -	struct resource *res;
-> -
-> -	free_irq(keypad_data->irq, keypad_data);
-> -
->   	pm_runtime_disable(&pdev->dev);
->   
-> -	input_unregister_device(keypad_data->input);
-> -
-> -	iounmap(keypad_data->base);
-> -
-> -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	release_mem_region(res->start, resource_size(res));
-> -
-> -	kfree(keypad_data->keymap);
-> -	kfree(keypad_data);
-> -
-> -	platform_set_drvdata(pdev, NULL);
-> -
->   	return 0;
->   }
->   
+> Maybe split inner loop into separate function?
+Ok.
+>> +	}
+>> +	input_sync(input);
+>> +
+>> +	smsc_write(kp->dev, SMSC_KP_INT_MASK, 0xFF);
+>> +
+>> +	/* Set up Low Power Mode (Wake-up) (0xFB) */
+>> +	smsc_write(kp->dev, SMSC_WKUP_CTRL, SMSC_KP_SET_LOW_PWR);
+>> +
+>> +	/*Enable Keypad Scan (generate interrupt on key press) (0x40)*/
+>> +	smsc_write(kp->dev, SMSC_KP_OUT, SMSC_KSO_ALL_LOW);
+>> +}
+>> +
+>> +static irqreturn_t do_kp_irq(int irq, void *_kp)
+>> +{
+>> +	struct smsc_keypad *kp = _kp;
+>> +	int int_status;
+>> +
+>> +	smsc_read(kp->dev, SMSC_KP_INT_STAT, &int_status);
+>> +	if (int_status)
+>> +		smsc_kp_scan(kp);
+>> +
+>> +	return IRQ_HANDLED;
+>> +}
+>> +
+>> +#ifdef CONFIG_OF
+>> +static int __devinit smsc_keypad_parse_dt(struct device *dev,
+>> +				struct smsc_keypad *kp)
+>> +{
+>> +	struct device_node *np = dev->of_node;
+>> +
+>> +	if (!np) {
+>> +		dev_err(dev, "missing DT data");
+>> +		return -EINVAL;
+>> +	}
+>> +
+>> +	of_property_read_u32(np, "keypad,num-rows", &kp->rows);
+>> +	of_property_read_u32(np, "keypad,num-columns", &kp->cols);
+>> +	if (!kp->rows || !kp->cols) {
+>> +		dev_err(dev, "number of keypad rows/columns not specified\n");
+>> +		return -EINVAL;
+>> +	}
+>> +
+>> +	if (of_property_read_bool(np, "linux,input-no-autorepeat"))
+>> +		kp->no_autorepeat = true;
+>> +
+>> +	return 0;
+>> +}
+>> +#else
+>> +static inline int smsc_keypad_parse_dt(struct device *dev,
+>> +				struct smsc_keypad *kp)
+>> +{
+>> +	return -ENOSYS;
+>> +}
+>> +#endif
+>> +
+>> +static int __devinit
+>> +smsc_probe(struct platform_device *pdev)
+>> +{
+>> +	struct device *dev = &pdev->dev;
+>> +	struct smsc *smsc = dev_get_drvdata(pdev->dev.parent);
+>> +	struct input_dev *input;
+>> +	struct smsc_keypad *kp;
+>> +	int ret = 0;
+>> +	int i, max_keys, row_shift;
+>> +	int irq;
+>> +	int addr;
+>> +
+>> +	kp = devm_kzalloc(dev, sizeof(*kp), GFP_KERNEL);
+>> +
+>> +	input = input_allocate_device();
+>> +	if (!kp || !input) {
+>> +		ret = -ENOMEM;
+>> +		goto err1;
+>> +	}
+>> +
+>> +	ret = smsc_keypad_parse_dt(&pdev->dev, kp);
+>> +	if (ret)
+>> +		goto err1;
+> So this is pure-DT driver. Please add Kconfig dependency on OF, drop
+> #ifdef guards and the stub.
+Ok.
+>> +
+>> +	/* Get the debug Device */
+>> +	kp->input = input;
+>> +	kp->smsc = smsc;
+>> +	kp->irq = platform_get_irq(pdev, 0);
+>> +	kp->dev = dev;
+>> +
+>> +	/* setup input device */
+>> +	 __set_bit(EV_KEY, input->evbit);
+>> +
+>> +	/* Enable auto repeat feature of Linux input subsystem */
+>> +	if (!kp->no_autorepeat)
+>> +		__set_bit(EV_REP, input->evbit);
+>> +
+>> +	input_set_capability(input, EV_MSC, MSC_SCAN);
+>> +	input->name             = "SMSC Keypad";
+>> +	input->phys             = "smsc_keypad/input0";
+>> +	input->dev.parent       = &pdev->dev;
+>> +	input->id.bustype       = BUS_HOST;
+>> +	input->id.vendor        = 0x0001;
+>> +	input->id.product       = 0x0001;
+>> +	input->id.version       = 0x0003;
+>> +
+>> +	/* Mask all GPIO interrupts (0x37-0x3B) */
+>> +	for (addr = SMSC_GPIO_INT_MASK_START;
+>> +			addr < SMSC_GPIO_INT_MASK_START + 4; addr++)
+>> +		smsc_write(dev, addr, 0);
+>> +
+>> +	/* Set all outputs high (0x05-0x09) */
+>> +	for (addr = SMSC_GPIO_DATA_OUT_START;
+>> +			addr < SMSC_GPIO_DATA_OUT_START + 4; addr++)
+>> +		smsc_write(dev, addr, 0xff);
+>> +
+>> +	/* Clear all GPIO interrupts (0x32-0x36) */
+>> +	for (addr = SMSC_GPIO_INT_STAT_START;
+>> +			addr < SMSC_GPIO_INT_STAT_START + 4; addr++)
+>> +		smsc_write(dev, addr, 0xff);
+> You use lowercase hex digits here but also uppercase in other parts of
+> the driver. Can we use lowercase throughout please?
+Will do.
+>> +
+>> +	/* Configure the smsc pins as Keyboard scan Input */
+>> +	for (i = 0; i <= kp->rows; i++) {
+> You sure you don't want < instead of <= ?
+>
+Really, "=" should not be there.
+>> +		addr = 0x12 + i;
+>> +		smsc_write(dev, addr, SMSC_KP_KSI);
+>> +	}
+>> +
+>> +	/* Configure the smsc pins as Keyboard scan output */
+>> +	for (i = 0; i <= kp->cols; i++) {
+>> +		addr = 0x1A + i;
+>> +		smsc_write(dev, addr, SMSC_KP_KSO);
+>> +	}
+>> +
+>> +	smsc_write(dev, SMSC_KP_INT_STAT, SMSC_KP_SET_HIGH);
+>> +	smsc_write(dev, SMSC_WKUP_CTRL, SMSC_KP_SET_LOW_PWR);
+>> +	smsc_write(dev, SMSC_KP_OUT, SMSC_KSO_ALL_LOW);
+>> +
+>> +	row_shift = get_count_order(kp->cols);
+>> +	max_keys = kp->rows << row_shift;
+>> +
+>> +	kp->row_shift = row_shift;
+>> +	kp->keymap = devm_kzalloc(dev, max_keys * sizeof(kp->keymap[0]),
+>> +					GFP_KERNEL);
+>> +	if (!kp->keymap) {
+>> +		dev_err(&pdev->dev, "Not enough memory for keymap\n");
+>> +		ret = -ENOMEM;
+>> +	}
+>> +
+>> +	ret = matrix_keypad_build_keymap(NULL, NULL, kp->rows,
+>> +			kp->cols, kp->keymap, input);
+>> +	if (ret) {
+>> +		dev_err(&pdev->dev, "failed to build keymap\n");
+>> +		goto err1;
+>> +	}
+>> +
+>> +	/*
+>> +	* This ISR will always execute in kernel thread context because of
+>> +	* the need to access the SMSC over the I2C bus.
+>> +	*/
+>> +	ret = devm_request_threaded_irq(dev, kp->irq, NULL, do_kp_irq,
+>> +			IRQF_TRIGGER_FALLING | IRQF_ONESHOT, pdev->name, kp);
+>> +	if (ret) {
+>> +		dev_dbg(&pdev->dev, "request_irq failed for irq no=%d\n",
+>> +			irq);
+>> +		goto err1;
+>> +	}
+>> +
+>> +	/* Enable smsc keypad interrupts */
+>> +	ret = smsc_write(dev, SMSC_KP_INT_MASK, 0xff);
+>> +	if (ret < 0)
+>> +		goto err2;
+> Consider implementing ->open() and ->close() and putting the above
+> there.
+Ok.
+>> +
+>> +	ret = input_register_device(input);
+>> +	if (ret) {
+>> +		dev_err(kp->dev,
+>> +			"Unable to register twl4030 keypad device\n");
+>> +		goto err2;
+>> +	}
+>> +
+>> +	return 0;
+>> +
+>> +err2:
+>> +	free_irq(kp->irq, kp);
+> If you allocate IRQ with devm_request_threaded_irq then you should free
+> it with devm_free_irq().
+Ok. Will change.
+>> +err1:
+>> +	input_free_device(input);
+>> +	return ret;
+>> +}
+>> +
+>> +static int __devexit smsc_remove(struct platform_device *pdev)
+>> +{
+>> +	struct smsc_keypad *kp = platform_get_drvdata(pdev);
+>> +	input_unregister_device(kp->input);
+> This is wrong: input device is gone but IRQs are still active. You need
+> to disable or free IRQ first.
+>
+> However I just posted a patch adding support for managed input devices:
+>
+> 	http://www.spinics.net/lists/linux-input/msg23077.html
+>
+> so please either switch over, or go with unmanaged resources
+> throughout.
+Will switch to the managed protocol throughout.
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +#ifdef CONFIG_OF
+> Since we require DT this ifdef is not needed.
+Will remove.
+>> +static const struct of_device_id smsc_keypad_dt_match[] = {
+>> +	{ .compatible = "smsc,keypad" },
+>> +	{},
+>> +};
+>> +MODULE_DEVICE_TABLE(of, smsc_keypad_dt_match);
+>> +#endif
+>> +
+>> +static struct platform_driver smsc_driver = {
+>> +	.driver = {
+>> +		.name	= "smsc-keypad",
+>> +		.of_match_table = of_match_ptr(smsc_keypad_dt_match),
+>> +		.owner  = THIS_MODULE,
+>> +	},
+>> +	.probe		= smsc_probe,
+>> +	.remove		= __devexit_p(smsc_remove),
+>> +};
+>> +
+>> +module_platform_driver(smsc_driver);
+>> +
+>> +MODULE_AUTHOR("G Kondaiah Manjunath <manjugk@ti.com>");
+>> +MODULE_DESCRIPTION("SMSC ECE1099 Keypad driver");
+>> +MODULE_LICENSE("GPL v2");
+>> -- 
+>> 1.7.1
+>>
+> Thanks.
+>
 

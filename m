@@ -1,43 +1,55 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] hid: put the case in the right switch statement
-Date: Thu, 25 Oct 2012 15:35:25 +0100
-Message-ID: <20121025143512.17155.56181.stgit@localhost.localdomain>
+From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] hid: put the case in the right switch statement
+Date: Thu, 25 Oct 2012 19:08:54 +0200
+Message-ID: <CAN+gG=GX8XSnURKpG4HCMU6tL_tVpPBVOwdr3ksyXrzkrsKL_g@mail.gmail.com>
+References: <20121025143512.17155.56181.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:53796 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932450Ab2JYOds (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Oct 2012 10:33:48 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20121025143512.17155.56181.stgit-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-From: Alan Cox <alan@linux.intel.com>
+Hi Alan,
 
-Signed-off-by: Alan Cox <alan@linux.intel.com>
----
+Yes, I saw that too.
 
- drivers/hid/hid-multitouch.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Acked-by: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 3eb02b9..c97011c 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -421,11 +421,11 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			 * contact max are global to the report */
- 			td->last_field_index = field->index;
- 			return -1;
--		}
- 		case HID_DG_TOUCH:
- 			/* Legacy devices use TIPSWITCH and not TOUCH.
- 			 * Let's just ignore this field. */
- 			return -1;
-+		}
- 		/* let hid-input decide for the others */
- 		return 0;
- 
-
+On Thu, Oct 25, 2012 at 4:35 PM, Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org> wrote:
+> From: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>
+> Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>
+>  drivers/hid/hid-multitouch.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 3eb02b9..c97011c 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -421,11 +421,11 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>                          * contact max are global to the report */
+>                         td->last_field_index = field->index;
+>                         return -1;
+> -               }
+>                 case HID_DG_TOUCH:
+>                         /* Legacy devices use TIPSWITCH and not TOUCH.
+>                          * Let's just ignore this field. */
+>                         return -1;
+> +               }
+>                 /* let hid-input decide for the others */
+>                 return 0;
+>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,74 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: ABS_PRESSURE and 0 ranges
-Date: Thu, 25 Oct 2012 13:51:59 -0700
-Message-ID: <2450762.pYR3zhxxMr@dtor-d630.eng.vmware.com>
-References: <2119530.D54ZbrWB3u@devpool02> <20121025183452.GC24594@core.coreip.homeip.net> <2331954.qazEWXyvNO@donald.sf-tec.de>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Thu, 25 Oct 2012 21:59:01 +0100
+Message-ID: <20121025205901.GA3827@sirena.org.uk>
+References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
+ <20121024161429.GA16350@core.coreip.homeip.net>
+ <CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
+ <4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
+ <20121024185818.GB772@arwen.pp.htv.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:43161 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934995Ab2JYUwR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Oct 2012 16:52:17 -0400
-Received: by mail-pb0-f46.google.com with SMTP id rr4so2283250pbb.19
-        for <linux-input@vger.kernel.org>; Thu, 25 Oct 2012 13:52:16 -0700 (PDT)
-In-Reply-To: <2331954.qazEWXyvNO@donald.sf-tec.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20121024185818.GB772-S8G//mZuvNWo5Im9Ml3/Zg@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sourav Poddar <sourav.poddar-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: linux-input@vger.kernel.org
 
-On Thursday, October 25, 2012 10:11:27 PM Rolf Eike Beer wrote:
-> You wrote:
-> > Hi Rolf,
-> > 
-> > On Thu, Oct 25, 2012 at 02:59:49PM +0200, Rolf Eike Beer wrote:
-> > > Hi all,
-> > > 
-> > > as I found out the hard way tslib does the detection if a touchscreen
-> > > has
-> > > been "clicked" if the kernel driver says it does not support
-> > > ABS_PRESSURE. But when the kernel says it can do ABS_PRESSURE tslib will
-> > > not do it's emulation and just pass on whatever pressure value the
-> > > kernel
-> > > sends.
-> > > 
-> > > So far, so good. Sadly there are some drivers that do:
-> > > 
-> > > input_set_abs_params(dev, ABS_PRESSURE, 0, 0, 0, 0);
-> > 
-> > What drivers are doing this?
-> 
-> git grep 'ABS_PRESSURE, 0, 0, 0, 0' drivers/input/
-> 
-> > > Guess what happens: no clicks at all. The question I have is: does the
-> > > above line make any sense to be in a kernel driver at all? Or is that
-> > > some voodoo that must be there and it's all tslib fault?
-> > > 
-> > > Now that I know where the problem is coming from the problem is easily
-> > > fixable, I'm just wondering which patch to make.
-> > 
-> > Well, the limits are strictly advisory for userspace, input core does
-> > not perform any clamping or discarding the data that falls outside the
-> > limits, so tslib probably should not do that either.
-> 
-> My main concern is that if the driver says it will only ever give pressure
-> values from 0 to 0, what useful stuff may that ever be? And since the driver
-> says it supports presure touchscreen will wait for the driver to report it.
-> Since it will never do it (or could at most return a 0), then there is
-> nothing that could ever become a valid click event.
+On Wed, Oct 24, 2012 at 09:58:19PM +0300, Felipe Balbi wrote:
 
-Once again, the limits are simply advisory and can even be adjusted from
-userspace (EVIOCSABS).
+> need a way to tell drivers/base "hey, don't touch pinctrl at all because
+> I know what I'm doing" and that has to happen before probe() too,
+> otherwise it's already too late and, according to what you suggest,
+> drivers/base will already have touched pinctrl. The only way I see would
+> be to add an extra "dont_touch_my_pins" field to every driver structure
+> in the kernel. Clearly what you say is nonsense.
 
-So ucb1400_ts does report true pressure so all is good there, but tsc40 is
-not. I think the claim for ABS_PRESSURE is left over from time when tslib
-did not think that device without ABS_PRESSURE was a touchscreen. I'll
-remove it from the driver.
+I suspect that's not actually a big deal and that if we went down this
+route we'd have the driver take over control from the core code during
+probe() with the core still setting up the default state.
 
-Thanks.
-
--- 
-Dmitry
+Personally I do think we want to be factoring bolierplate out of
+drivers, if they're not doing anything constructive with pinctrl they
+should be able to avoid having code for it.  There definitely are issues
+to work through but it seems like we ought to be able to do something.

@@ -1,252 +1,302 @@
-From: Javier Martin <javier.martin@vista-silicon.com>
-Subject: [PATCH v5] input: qt2160: Add support for LEDs.
-Date: Thu, 25 Oct 2012 11:53:44 +0200
-Message-ID: <1351158824-19432-1-git-send-email-javier.martin@vista-silicon.com>
+From: Sourav <sourav.poddar@ti.com>
+Subject: Re: [RFT/PATCH] Input: omap4-keypad - switch to use managed resources
+Date: Thu, 25 Oct 2012 18:19:55 +0530
+Message-ID: <50893573.5080804@ti.com>
+References: <20121025074559.GA17710@core.coreip.homeip.net> <5088FF76.2020204@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f170.google.com ([209.85.212.170]:50422 "EHLO
-	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422662Ab2JYJx5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Oct 2012 05:53:57 -0400
-Received: by mail-wi0-f170.google.com with SMTP id hm2so5126255wib.1
-        for <linux-input@vger.kernel.org>; Thu, 25 Oct 2012 02:53:55 -0700 (PDT)
+Received: from comal.ext.ti.com ([198.47.26.152]:48366 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757054Ab2JYMt3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Oct 2012 08:49:29 -0400
+In-Reply-To: <5088FF76.2020204@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, axel.lin@gmail.com, Javier Martin <javier.martin@vista-silicon.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Outputs x8..x0 of the qt2160 can have leds attached to it.
-This patch handles those outputs using the generic LED
-framework.
-
-The PWM controls available in the chip are used to achieve
-different levels of brightness.
-
-Signed-off-by: Javier Martin <javier.martin@vista-silicon.com>
----
- drivers/input/keyboard/qt2160.c |  142 ++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 140 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/keyboard/qt2160.c b/drivers/input/keyboard/qt2160.c
-index 73ea4b0..eefa2dd 100644
---- a/drivers/input/keyboard/qt2160.c
-+++ b/drivers/input/keyboard/qt2160.c
-@@ -20,6 +20,7 @@
- 
- #include <linux/kernel.h>
- #include <linux/init.h>
-+#include <linux/leds.h>
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/jiffies.h>
-@@ -39,6 +40,11 @@
- #define QT2160_CMD_GPIOS      6
- #define QT2160_CMD_SUBVER     7
- #define QT2160_CMD_CALIBRATE  10
-+#define QT2160_CMD_DRIVE_X    70
-+#define QT2160_CMD_PWMEN_X    74
-+#define QT2160_CMD_PWM_DUTY   76
-+
-+#define QT2160_NUM_LEDS_X	8
- 
- #define QT2160_CYCLE_INTERVAL	(2*HZ)
- 
-@@ -49,6 +55,17 @@ static unsigned char qt2160_key2code[] = {
- 	KEY_C, KEY_D, KEY_E, KEY_F,
- };
- 
-+#ifdef CONFIG_LEDS_CLASS
-+struct qt2160_led {
-+	struct qt2160_data *qt2160;
-+	struct led_classdev cdev;
-+	struct work_struct work;
-+	char name[32];
-+	int id;
-+	enum led_brightness new_brightness;
-+};
-+#endif
-+
- struct qt2160_data {
- 	struct i2c_client *client;
- 	struct input_dev *input;
-@@ -56,8 +73,61 @@ struct qt2160_data {
- 	spinlock_t lock;        /* Protects canceling/rescheduling of dwork */
- 	unsigned short keycodes[ARRAY_SIZE(qt2160_key2code)];
- 	u16 key_matrix;
-+#ifdef CONFIG_LEDS_CLASS
-+	struct qt2160_led leds[QT2160_NUM_LEDS_X];
-+	struct mutex led_lock;
-+#endif
- };
- 
-+static int qt2160_read(struct i2c_client *client, u8 reg);
-+static int qt2160_write(struct i2c_client *client, u8 reg, u8 data);
-+
-+#ifdef CONFIG_LEDS_CLASS
-+
-+static void qt2160_led_work(struct work_struct *work)
-+{
-+	struct qt2160_led *led = container_of(work, struct qt2160_led, work);
-+	struct qt2160_data *qt2160 = led->qt2160;
-+	struct i2c_client *client = qt2160->client;
-+	int value = led->new_brightness;
-+	u32 drive, pwmen;
-+
-+	mutex_lock(&qt2160->led_lock);
-+
-+	drive = qt2160_read(client, QT2160_CMD_DRIVE_X);
-+	pwmen = qt2160_read(client, QT2160_CMD_PWMEN_X);
-+	if (value != LED_OFF) {
-+		drive |= (1 << led->id);
-+		pwmen |= (1 << led->id);
-+
-+	} else {
-+		drive &= ~(1 << led->id);
-+		pwmen &= ~(1 << led->id);
-+	}
-+	qt2160_write(client, QT2160_CMD_DRIVE_X, drive);
-+	qt2160_write(client, QT2160_CMD_PWMEN_X, pwmen);
-+
-+	/*
-+	 * Changing this register will change the brightness
-+	 * of every LED in the qt2160. It's a HW limitation.
-+	 */
-+	if (value != LED_OFF)
-+		qt2160_write(client, QT2160_CMD_PWM_DUTY, value);
-+
-+	mutex_unlock(&qt2160->led_lock);
-+}
-+
-+static void qt2160_led_set(struct led_classdev *cdev,
-+			   enum led_brightness value)
-+{
-+	struct qt2160_led *led = container_of(cdev, struct qt2160_led, cdev);
-+
-+	led->new_brightness = value;
-+	schedule_work(&led->work);
-+}
-+
-+#endif /* CONFIG_LEDS_CLASS */
-+
- static int qt2160_read_block(struct i2c_client *client,
- 			     u8 inireg, u8 *buffer, unsigned int count)
- {
-@@ -184,7 +254,7 @@ static void qt2160_worker(struct work_struct *work)
- 	qt2160_schedule_read(qt2160);
- }
- 
--static int __devinit qt2160_read(struct i2c_client *client, u8 reg)
-+static int qt2160_read(struct i2c_client *client, u8 reg)
- {
- 	int ret;
- 
-@@ -205,7 +275,7 @@ static int __devinit qt2160_read(struct i2c_client *client, u8 reg)
- 	return ret;
- }
- 
--static int __devinit qt2160_write(struct i2c_client *client, u8 reg, u8 data)
-+static int qt2160_write(struct i2c_client *client, u8 reg, u8 data)
- {
- 	int ret;
- 
-@@ -217,6 +287,63 @@ static int __devinit qt2160_write(struct i2c_client *client, u8 reg, u8 data)
- 	return ret;
- }
- 
-+#ifdef CONFIG_LEDS_CLASS
-+
-+static int __devinit qt2160_register_leds(struct qt2160_data *qt2160)
-+{
-+	struct i2c_client *client = qt2160->client;
-+	int ret;
-+	int i;
-+
-+	mutex_init(&qt2160->led_lock);
-+
-+	for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
-+		struct qt2160_led *led = &qt2160->leds[i];
-+
-+		snprintf(led->name, sizeof(led->name), "qt2160:x%d", i);
-+		led->cdev.name = led->name;
-+		led->cdev.brightness_set = qt2160_led_set;
-+		led->cdev.brightness = LED_OFF;
-+		led->id = i;
-+		led->qt2160 = qt2160;
-+
-+		INIT_WORK(&led->work, qt2160_led_work);
-+
-+		ret = led_classdev_register(&client->dev, &led->cdev);
-+		if (ret < 0)
-+			return ret;
-+	}
-+
-+	/* Tur off LEDs */
-+	qt2160_write(client, QT2160_CMD_DRIVE_X, 0);
-+	qt2160_write(client, QT2160_CMD_PWMEN_X, 0);
-+	qt2160_write(client, QT2160_CMD_PWM_DUTY, 0);
-+
-+	return 0;
-+}
-+
-+static void __devinit qt2160_unregister_leds(struct qt2160_data *qt2160)
-+{
-+	int i;
-+
-+	for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
-+		cancel_work_sync(&qt2160->leds[i].work);
-+		led_classdev_unregister(&qt2160->leds[i].cdev);
-+	}
-+}
-+
-+#else
-+
-+static int __devinit qt2160_register_leds(struct qt2160_data *qt2160)
-+{
-+	return 0;
-+}
-+
-+static void __devinit qt2160_unregister_leds(struct qt2160_data *qt2160)
-+{
-+}
-+
-+#endif
- 
- static bool __devinit qt2160_identify(struct i2c_client *client)
- {
-@@ -249,6 +376,7 @@ static bool __devinit qt2160_identify(struct i2c_client *client)
- 	return true;
- }
- 
-+
- static int __devinit qt2160_probe(struct i2c_client *client,
- 				  const struct i2c_device_id *id)
- {
-@@ -325,8 +453,16 @@ static int __devinit qt2160_probe(struct i2c_client *client,
- 	i2c_set_clientdata(client, qt2160);
- 	qt2160_schedule_read(qt2160);
- 
-+	error = qt2160_register_leds(qt2160);
-+	if (error) {
-+		dev_err(&client->dev, "Failed to register leds\n");
-+		goto err_unreg_input;
-+	}
-+
- 	return 0;
- 
-+err_unreg_input:
-+	input_unregister_device(input);
- err_free_irq:
- 	if (client->irq)
- 		free_irq(client->irq, qt2160);
-@@ -340,6 +476,8 @@ static int __devexit qt2160_remove(struct i2c_client *client)
- {
- 	struct qt2160_data *qt2160 = i2c_get_clientdata(client);
- 
-+	qt2160_unregister_leds(qt2160);
-+
- 	/* Release IRQ so no queue will be scheduled */
- 	if (client->irq)
- 		free_irq(client->irq, qt2160);
--- 
-1.7.9.5
+Hi Dmitry,
+On Thursday 25 October 2012 02:29 PM, Sourav wrote:
+> Hi Dmitry,
+> On Thursday 25 October 2012 01:16 PM, Dmitry Torokhov wrote:
+>> Now that input core supports devres-managed input devices we can clean
+>> up this driver a bit.
+>>
+>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> ---
+>>
+>> Just compiled, no hardware to test.
+> Which branch are yout trying it on?
+> I applied this on mainline as well as on your next branch, but getting 
+> the following
+> build error..
+> drivers/input/keyboard/omap4-keypad.c: In function 'omap4_keypad_probe':
+> drivers/input/keyboard/omap4-keypad.c:340: error: implicit declaration 
+> of function 'devm_input_allocate_device'
+> drivers/input/keyboard/omap4-keypad.c:340: warning: assignment makes 
+> pointer from integer without a cast
+> make[3]: *** [drivers/input/keyboard/omap4-keypad.o] Error 1
+>
+>
+> ~Sourav
+>
+Got the issue, was missing 1 patch[1] posted in the mailing list 
+necessary to use these
+managed resource. Now, the kernel is building fine.
+[1]: http://www.spinics.net/lists/linux-input/msg23077.html
+>>   drivers/input/keyboard/omap4-keypad.c | 182 
+>> ++++++++++++++--------------------
+>>   1 file changed, 76 insertions(+), 106 deletions(-)
+>>
+>> diff --git a/drivers/input/keyboard/omap4-keypad.c 
+>> b/drivers/input/keyboard/omap4-keypad.c
+>> index c05f98c..327388a 100644
+>> --- a/drivers/input/keyboard/omap4-keypad.c
+>> +++ b/drivers/input/keyboard/omap4-keypad.c
+>> @@ -241,17 +241,60 @@ static inline int omap4_keypad_parse_dt(struct 
+>> device *dev,
+>>   }
+>>   #endif
+>>   +static int __devinit omap4_keypad_setup_regs(struct device *dev,
+>> +                         struct omap4_keypad *keypad_data)
+>> +{
+>> +    unsigned int rev;
+>> +    int retval;
+>> +
+>> +    /*
+>> +     * Enable clocks for the keypad module so that we can read
+>> +     * revision register.
+>> +     */
+>> +    pm_runtime_enable(dev);
+>> +
+>> +    retval = pm_runtime_get_sync(dev);
+>> +    if (retval) {
+>> +        dev_err(dev, "%s: pm_runtime_get_sync() failed: %d\n",
+>> +            __func__, retval);
+>> +        goto out;
+>> +    }
+>> +
+>> +    rev = __raw_readl(keypad_data->base + OMAP4_KBD_REVISION);
+>> +    rev &= 0x03 << 30;
+>> +    rev >>= 30;
+>> +    switch (rev) {
+>> +    case KBD_REVISION_OMAP4:
+>> +        keypad_data->reg_offset = 0x00;
+>> +        keypad_data->irqreg_offset = 0x00;
+>> +        break;
+>> +    case KBD_REVISION_OMAP5:
+>> +        keypad_data->reg_offset = 0x10;
+>> +        keypad_data->irqreg_offset = 0x0c;
+>> +        break;
+>> +    default:
+>> +        dev_err(dev, "Keypad reports unsupported revision %d", rev);
+>> +        retval = -EINVAL;
+>> +        break;
+>> +    }
+>> +
+>> +    pm_runtime_put_sync(dev);
+>> +
+>> +out:
+>> +    pm_runtime_disable(dev);
+>> +    return retval;
+>> +}
+>> +
+>>   static int __devinit omap4_keypad_probe(struct platform_device *pdev)
+>>   {
+>> -    const struct omap4_keypad_platform_data *pdata =
+>> -                dev_get_platdata(&pdev->dev);
+>> +    struct device *dev = &pdev->dev;
+>> +    const struct omap4_keypad_platform_data *pdata = 
+>> dev_get_platdata(dev);
+>>       const struct matrix_keymap_data *keymap_data =
+>>                   pdata ? pdata->keymap_data : NULL;
+>>       struct omap4_keypad *keypad_data;
+>>       struct input_dev *input_dev;
+>>       struct resource *res;
+>> -    unsigned int max_keys;
+>> -    int rev;
+>> +    size_t keymap_size;
+>>       int irq;
+>>       int error;
+>>   @@ -267,9 +310,10 @@ static int __devinit omap4_keypad_probe(struct 
+>> platform_device *pdev)
+>>           return -EINVAL;
+>>       }
+>>   -    keypad_data = kzalloc(sizeof(struct omap4_keypad), GFP_KERNEL);
+>> +    keypad_data = devm_kzalloc(dev, sizeof(struct omap4_keypad),
+>> +                   GFP_KERNEL);
+>>       if (!keypad_data) {
+>> -        dev_err(&pdev->dev, "keypad_data memory allocation failed\n");
+>> +        dev_err(dev, "keypad_data memory allocation failed\n");
+>>           return -ENOMEM;
+>>       }
+>>   @@ -279,64 +323,25 @@ static int __devinit 
+>> omap4_keypad_probe(struct platform_device *pdev)
+>>           keypad_data->rows = pdata->rows;
+>>           keypad_data->cols = pdata->cols;
+>>       } else {
+>> -        error = omap4_keypad_parse_dt(&pdev->dev, keypad_data);
+>> +        error = omap4_keypad_parse_dt(dev, keypad_data);
+>>           if (error)
+>>               return error;
+>>       }
+>>   -    res = request_mem_region(res->start, resource_size(res), 
+>> pdev->name);
+>> -    if (!res) {
+>> -        dev_err(&pdev->dev, "can't request mem region\n");
+>> -        error = -EBUSY;
+>> -        goto err_free_keypad;
+>> -    }
+>> -
+>> -    keypad_data->base = ioremap(res->start, resource_size(res));
+>> -    if (!keypad_data->base) {
+>> -        dev_err(&pdev->dev, "can't ioremap mem resource\n");
+>> -        error = -ENOMEM;
+>> -        goto err_release_mem;
+>> -    }
+>> +    keypad_data->base = devm_request_and_ioremap(dev, res);
+>> +    if (!keypad_data->base)
+>> +        return -EBUSY;
+>>   -
+>> -    /*
+>> -     * Enable clocks for the keypad module so that we can read
+>> -     * revision register.
+>> -     */
+>> -    pm_runtime_enable(&pdev->dev);
+>> -    error = pm_runtime_get_sync(&pdev->dev);
+>> -    if (error) {
+>> -        dev_err(&pdev->dev, "pm_runtime_get_sync() failed\n");
+>> -        goto err_unmap;
+>> -    }
+>> -    rev = __raw_readl(keypad_data->base + OMAP4_KBD_REVISION);
+>> -    rev &= 0x03 << 30;
+>> -    rev >>= 30;
+>> -    switch (rev) {
+>> -    case KBD_REVISION_OMAP4:
+>> -        keypad_data->reg_offset = 0x00;
+>> -        keypad_data->irqreg_offset = 0x00;
+>> -        break;
+>> -    case KBD_REVISION_OMAP5:
+>> -        keypad_data->reg_offset = 0x10;
+>> -        keypad_data->irqreg_offset = 0x0c;
+>> -        break;
+>> -    default:
+>> -        dev_err(&pdev->dev,
+>> -            "Keypad reports unsupported revision %d", rev);
+>> -        error = -EINVAL;
+>> -        goto err_pm_put_sync;
+>> -    }
+>> +    error = omap4_keypad_setup_regs(dev, keypad_data);
+>> +    if (error)
+>> +        return error;
+>>         /* input device allocation */
+>> -    keypad_data->input = input_dev = input_allocate_device();
+>> -    if (!input_dev) {
+>> -        error = -ENOMEM;
+>> -        goto err_pm_put_sync;
+>> -    }
+>> +    keypad_data->input = input_dev = devm_input_allocate_device(dev);
+>> +    if (!input_dev)
+>> +        return -ENOMEM;
+>>         input_dev->name = pdev->name;
+>> -    input_dev->dev.parent = &pdev->dev;
+>>       input_dev->id.bustype = BUS_HOST;
+>>       input_dev->id.vendor = 0x0001;
+>>       input_dev->id.product = 0x0001;
+>> @@ -352,81 +357,46 @@ static int __devinit omap4_keypad_probe(struct 
+>> platform_device *pdev)
+>>       input_set_drvdata(input_dev, keypad_data);
+>>         keypad_data->row_shift = get_count_order(keypad_data->cols);
+>> -    max_keys = keypad_data->rows << keypad_data->row_shift;
+>> -    keypad_data->keymap = kzalloc(max_keys * 
+>> sizeof(keypad_data->keymap[0]),
+>> -                      GFP_KERNEL);
+>> +    keymap_size = (keypad_data->rows << keypad_data->row_shift) *
+>> +            sizeof(keypad_data->keymap[0]);
+>> +    keypad_data->keymap = devm_kzalloc(dev, keymap_size, GFP_KERNEL);
+>>       if (!keypad_data->keymap) {
+>> -        dev_err(&pdev->dev, "Not enough memory for keymap\n");
+>> -        error = -ENOMEM;
+>> -        goto err_free_input;
+>> +        dev_err(dev, "Not enough memory for keymap\n");
+>> +        return -ENOMEM;
+>>       }
+>>         error = matrix_keypad_build_keymap(keymap_data, NULL,
+>>                          keypad_data->rows, keypad_data->cols,
+>>                          keypad_data->keymap, input_dev);
+>>       if (error) {
+>> -        dev_err(&pdev->dev, "failed to build keymap\n");
+>> -        goto err_free_keymap;
+>> +        dev_err(dev, "failed to build keymap\n");
+>> +        return error;
+>>       }
+>>   -    error = request_irq(keypad_data->irq, omap4_keypad_interrupt,
+>> -                 IRQF_TRIGGER_RISING,
+>> -                 "omap4-keypad", keypad_data);
+>> +    error = devm_request_irq(dev, keypad_data->irq, 
+>> omap4_keypad_interrupt,
+>> +                 IRQF_TRIGGER_RISING,
+>> +                 "omap4-keypad", keypad_data);
+>>       if (error) {
+>> -        dev_err(&pdev->dev, "failed to register interrupt\n");
+>> -        goto err_free_input;
+>> +        dev_err(dev, "failed to register interrupt\n");
+>> +        return error;
+>>       }
+>>   -    pm_runtime_put_sync(&pdev->dev);
+>> -
+>>       error = input_register_device(keypad_data->input);
+>>       if (error < 0) {
+>> -        dev_err(&pdev->dev, "failed to register input device\n");
+>> -        goto err_pm_disable;
+>> +        dev_err(dev, "failed to register input device\n");
+>> +        return error;
+>>       }
+>>         platform_set_drvdata(pdev, keypad_data);
+>> -    return 0;
+>> +    pm_runtime_enable(dev);
+>>   -err_pm_disable:
+>> -    pm_runtime_disable(&pdev->dev);
+>> -    free_irq(keypad_data->irq, keypad_data);
+>> -err_free_keymap:
+>> -    kfree(keypad_data->keymap);
+>> -err_free_input:
+>> -    input_free_device(input_dev);
+>> -err_pm_put_sync:
+>> -    pm_runtime_put_sync(&pdev->dev);
+>> -err_unmap:
+>> -    iounmap(keypad_data->base);
+>> -err_release_mem:
+>> -    release_mem_region(res->start, resource_size(res));
+>> -err_free_keypad:
+>> -    kfree(keypad_data);
+>> -    return error;
+>> +    return 0;
+>>   }
+>>     static int __devexit omap4_keypad_remove(struct platform_device 
+>> *pdev)
+>>   {
+>> -    struct omap4_keypad *keypad_data = platform_get_drvdata(pdev);
+>> -    struct resource *res;
+>> -
+>> -    free_irq(keypad_data->irq, keypad_data);
+>> -
+>>       pm_runtime_disable(&pdev->dev);
+>>   -    input_unregister_device(keypad_data->input);
+>> -
+>> -    iounmap(keypad_data->base);
+>> -
+>> -    res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> -    release_mem_region(res->start, resource_size(res));
+>> -
+>> -    kfree(keypad_data->keymap);
+>> -    kfree(keypad_data);
+>> -
+>> -    platform_set_drvdata(pdev, NULL);
+>> -
+>>       return 0;
+>>   }
+>
 

@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 04/10] HID: hid-multitouch: get maxcontacts also from logical_max value
-Date: Thu, 25 Oct 2012 16:09:43 +0200
-Message-ID: <1351174189-24719-5-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 06/10] HID: hid-multitouch: move ALWAYS_VALID quirk check
+Date: Thu, 25 Oct 2012 16:09:45 +0200
+Message-ID: <1351174189-24719-7-git-send-email-benjamin.tissoires@gmail.com>
 References: <1351174189-24719-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1351174189-24719-1-git-send-email-benjamin.tissoires@gmail.com>
@@ -9,40 +9,41 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Win8 devices are required to present the feature "Maximum Contact Number".
-Fortunately all win7 devices I've seen presents this feature.
-If the current value is 0, then, the driver can get the actual supported
-contact count by refering to the logical_max.
-This win8 specification ensures that logical_max may not be above 250.
-This also allows us to detect when devices like irtouch or stantum reports
-an obviously wrong value of 255.
+Win 8 device specification changed the requirements for the hid usages
+of the multitouch devices. Now InRange is optional and must be only
+used when the device supports hovering.
+
+This ensures that the quirk ALWAYS_VALID is taken into account and
+also ensures its precedence over the other VALID* quirks.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
- drivers/hid/hid-multitouch.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hid/hid-multitouch.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index e96ecc3..38a4feb 100644
+index ff2354c..c8290e2 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -121,6 +121,7 @@ struct mt_device {
- #define MT_CLS_GENERALTOUCH_PWT_TENFINGERS	0x0109
+@@ -506,7 +506,7 @@ static int mt_compute_slot(struct mt_device *td, struct input_dev *input)
+  */
+ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+ {
+-	if (td->curvalid) {
++	if (td->curvalid || td->mtclass.quirks & MT_QUIRK_ALWAYS_VALID) {
+ 		int slotnum = mt_compute_slot(td, input);
+ 		struct mt_slot *s = &td->curdata;
  
- #define MT_DEFAULT_MAXCONTACT	10
-+#define MT_MAX_MAXCONTACT	250
- 
- #define MT_USB_DEVICE(v, p)	HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH, v, p)
- #define MT_BT_DEVICE(v, p)	HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_MULTITOUCH, v, p)
-@@ -283,6 +284,9 @@ static void mt_feature_mapping(struct hid_device *hdev,
- 	case HID_DG_CONTACTMAX:
- 		td->maxcontact_report_id = field->report->id;
- 		td->maxcontacts = field->value[0];
-+		if (!td->maxcontacts &&
-+		    field->logical_maximum <= MT_MAX_MAXCONTACT)
-+			td->maxcontacts = field->logical_maximum;
- 		if (td->mtclass.maxcontacts)
- 			/* check if the maxcontacts is given by the class */
- 			td->maxcontacts = td->mtclass.maxcontacts;
+@@ -561,9 +561,7 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 	if (hid->claimed & HID_CLAIMED_INPUT) {
+ 		switch (usage->hid) {
+ 		case HID_DG_INRANGE:
+-			if (quirks & MT_QUIRK_ALWAYS_VALID)
+-				td->curvalid = true;
+-			else if (quirks & MT_QUIRK_VALID_IS_INRANGE)
++			if (quirks & MT_QUIRK_VALID_IS_INRANGE)
+ 				td->curvalid = value;
+ 			break;
+ 		case HID_DG_TIPSWITCH:
 -- 
 1.7.11.7

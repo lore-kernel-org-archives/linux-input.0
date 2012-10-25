@@ -1,51 +1,120 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH RESEND] sensor-hub: Remove pointless NULL check
-Date: Thu, 25 Oct 2012 15:13:09 +0100
-Message-ID: <20121025141255.30436.54078.stgit@bob.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: [PATCH 10/10] HID: hid-multitouch: get rid of usbhid depedency for general path
+Date: Thu, 25 Oct 2012 16:09:49 +0200
+Message-ID: <1351174189-24719-11-git-send-email-benjamin.tissoires@gmail.com>
+References: <1351174189-24719-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:53717 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758273Ab2JYOLT (ORCPT
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:50419 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757185Ab2JYOLQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Oct 2012 10:11:19 -0400
+	Thu, 25 Oct 2012 10:11:16 -0400
+In-Reply-To: <1351174189-24719-1-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, srinivas.pandruvada@linux.intel.com
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Alan Cox <alan@linux.intel.com>
+This patch factorizes the hid set_feature command by using
+hid_device->hid_output_raw_report instead of direclty relying on
+usbhid. This makes the driver usb independant.
 
-report cannot be NULL, fortunately as we use it before we check !
+However I still can't remove the 2 usb related headers because the
+function mt_resume has a specific patch for usb devices.
 
-Signed-off-by: Alan Cox <alan@linux.intel.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
+ drivers/hid/hid-multitouch.c | 63 ++++++++++++++++++++++++++------------------
+ 1 file changed, 37 insertions(+), 26 deletions(-)
 
- drivers/hid/hid-sensor-hub.c |    4 ----
- 1 file changed, 4 deletions(-)
-
-
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index d9d73e9..4ff2497 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -437,9 +437,6 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 	ptr = raw_data;
- 	ptr++; /*Skip report id*/
- 
--	if (!report)
--		goto err_report;
--
- 	spin_lock_irqsave(&pdata->lock, flags);
- 
- 	for (i = 0; i < report->maxfield; ++i) {
-@@ -485,7 +482,6 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 				callback->pdev);
- 	spin_unlock_irqrestore(&pdata->lock, flags);
- 
--err_report:
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 5d7fd39..8033a6b 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -670,47 +670,58 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
  	return 1;
  }
  
+-static void mt_set_input_mode(struct hid_device *hdev)
++static void mt_set_feature(struct hid_device *hdev, __s8 feature_id,
++	u8 value, size_t index)
+ {
+-	struct mt_device *td = hid_get_drvdata(hdev);
+ 	struct hid_report *r;
+ 	struct hid_report_enum *re;
++	u8 *data;
++	u8 max_value;
++	int len;
++
++	if (feature_id < 0 || !hdev->hid_output_raw_report)
++		return;
++
++	re = &hdev->report_enum[HID_FEATURE_REPORT];
++	r = re->report_id_hash[feature_id];
++	if (!r)
++		return;
++
++	len = ((r->size - 1) >> 3) + 1 + (r->id > 0);
++	max_value = r->field[0]->logical_maximum;
++	value = min(value, max_value);
+ 
+-	if (td->inputmode < 0)
++	if (r->field[0]->value[index] == value || len < 2 || index + 1 >= len)
+ 		return;
+ 
+-	re = &(hdev->report_enum[HID_FEATURE_REPORT]);
+-	r = re->report_id_hash[td->inputmode];
+-	if (r) {
+-		r->field[0]->value[td->inputmode_index] = 0x02;
+-		usbhid_submit_report(hdev, r, USB_DIR_OUT);
++	data = kmalloc(len, GFP_ATOMIC);
++	if (!data) {
++		hid_warn(hdev, "output queueing failed\n");
++		return;
+ 	}
++
++	data[0] = r->id;
++	data[index + 1] = value;
++	hdev->hid_output_raw_report(hdev, data, len, HID_FEATURE_REPORT);
++	kfree(data);
+ }
+ 
+-static void mt_set_maxcontacts(struct hid_device *hdev)
++static void mt_set_input_mode(struct hid_device *hdev)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hdev);
+-	struct hid_report *r;
+-	struct hid_report_enum *re;
+-	int fieldmax, max;
+ 
+-	if (td->maxcontact_report_id < 0)
+-		return;
++	mt_set_feature(hdev, td->inputmode, 0x02, td->inputmode_index);
++}
+ 
+-	if (!td->mtclass.maxcontacts)
++static void mt_set_maxcontacts(struct hid_device *hdev)
++{
++	struct mt_device *td = hid_get_drvdata(hdev);
++	int max = td->mtclass.maxcontacts;
++
++	if (!max)
+ 		return;
+ 
+-	re = &hdev->report_enum[HID_FEATURE_REPORT];
+-	r = re->report_id_hash[td->maxcontact_report_id];
+-	if (r) {
+-		max = td->mtclass.maxcontacts;
+-		fieldmax = r->field[0]->logical_maximum;
+-		max = min(fieldmax, max);
+-		if (r->field[0]->value[0] != max) {
+-			r->field[0]->value[0] = max;
+-			usbhid_submit_report(hdev, r, USB_DIR_OUT);
+-		}
+-	}
++	mt_set_feature(hdev, td->maxcontact_report_id, max, 0);
+ }
+ 
+ static void mt_post_parse_default_settings(struct mt_device *td)
+-- 
+1.7.11.7
 

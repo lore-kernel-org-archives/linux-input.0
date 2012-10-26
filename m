@@ -1,46 +1,73 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [BUG] capslock works across all keyboards but LED does not
-Date: Fri, 26 Oct 2012 08:56:13 +0800
-Message-ID: <CACVXFVNCyQHExJ9f8=NpdjUJt=zKhCjahQgKajkCgUNh+ifL8Q@mail.gmail.com>
-References: <CACVXFVM8soazSixttzDBq-zLAxCpVNBDsDoz4Hc9gdsU8WQniA@mail.gmail.com>
-	<21783709.sVZtM4k8zF@dtor-d630.eng.vmware.com>
-	<CACVXFVN8s52UiSF0Q98sXNZzR9srnZ9aUjNYcZU6hDPfNzRGgA@mail.gmail.com>
-	<20121022155446.GB13791@core.coreip.homeip.net>
-	<CACVXFVMbc3eBMj4gcAVDZjB4SJYwbLeVzUi13C62FMVYymgFug@mail.gmail.com>
-	<20121023174834.GB649@core.coreip.homeip.net>
-	<CACVXFVNpYrET-2GoLsKEmds2Ua0QnCNwN-q+31hewNDnmdpN9w@mail.gmail.com>
-	<20121024052420.GB13826@core.coreip.homeip.net>
+From: Bo Shen <voice.shen@atmel.com>
+Subject: Re: [PATCH 1/2] input: qt1070: add pinctrl consumer
+Date: Fri, 26 Oct 2012 11:51:22 +0800
+Message-ID: <508A08BA.1070302@atmel.com>
+References: <20121023131627.GE18964@game.jcrosoft.org> <1350998942-713-1-git-send-email-plagnioj@jcrosoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:59924 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751075Ab2JZA4P (ORCPT
+Received: from newsmtp5.atmel.com ([204.2.163.5]:18351 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755886Ab2JZDvi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Oct 2012 20:56:15 -0400
-Received: from mail-ea0-f174.google.com ([209.85.215.174])
-	by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_ARCFOUR_SHA1:16)
-	(Exim 4.71)
-	(envelope-from <ming.lei@canonical.com>)
-	id 1TRYDe-0008UN-7i
-	for linux-input@vger.kernel.org; Fri, 26 Oct 2012 00:56:14 +0000
-Received: by mail-ea0-f174.google.com with SMTP id c13so683086eaa.19
-        for <linux-input@vger.kernel.org>; Thu, 25 Oct 2012 17:56:14 -0700 (PDT)
-In-Reply-To: <20121024052420.GB13826@core.coreip.homeip.net>
+	Thu, 25 Oct 2012 23:51:38 -0400
+In-Reply-To: <1350998942-713-1-git-send-email-plagnioj@jcrosoft.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Cc: linux-arm-kernel@lists.infradead.org, Linus Walleij <linus.walleij@linaro.org>, linux-input@vger.kernel.org
 
-On Wed, Oct 24, 2012 at 1:24 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+On 10/23/2012 21:29, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> If no pinctrl available just report a warning as some architecture may not
+> need to do anything.
+>
+> Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: linux-input@vger.kernel.org
+> ---
+>   drivers/input/keyboard/qt1070.c |   11 +++++++++++
+>   1 file changed, 11 insertions(+)
 
-> Do you have thinkpads platform driver loaded? What happens if you boot
-> with it blacklisted?
+Test it on sam9x5ek board with qt1070. It works well.
 
-Looks no change after blacklisting 'thinkpad_acpi' module.
+Tested-by: Bo Shen <voice.shen@atmel.com>
 
+> diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+> index ca68f29..967734e 100644
+> --- a/drivers/input/keyboard/qt1070.c
+> +++ b/drivers/input/keyboard/qt1070.c
+> @@ -33,6 +33,7 @@
+>   #include <linux/interrupt.h>
+>   #include <linux/jiffies.h>
+>   #include <linux/delay.h>
+> +#include <linux/pinctrl/consumer.h>
+>
+>   /* Address for each register */
+>   #define CHIP_ID            0x00
+> @@ -147,6 +148,7 @@ static int __devinit qt1070_probe(struct i2c_client *client,
+>   	struct input_dev *input;
+>   	int i;
+>   	int err;
+> +	struct pinctrl *pinctrl;
+>
+>   	err = i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE);
+>   	if (!err) {
+> @@ -155,6 +157,15 @@ static int __devinit qt1070_probe(struct i2c_client *client,
+>   		return -ENODEV;
+>   	}
+>
+> +	pinctrl = devm_pinctrl_get_select_default(&client->dev);
+> +	if (IS_ERR(pinctrl)) {
+> +		err = PTR_ERR(pinctrl);
+> +		if (err == -EPROBE_DEFER)
+> +			return err;
+> +
+> +		dev_warn(&client->dev, "No pinctrl provided\n");
+> +	}
+> +
+>   	if (!client->irq) {
+>   		dev_err(&client->dev, "please assign the irq to this device\n");
+>   		return -EINVAL;
+>
 
-Thanks,
---
-Ming Lei

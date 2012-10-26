@@ -1,73 +1,87 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH] hid: put the case in the right switch statement
-Date: Fri, 26 Oct 2012 10:39:24 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1210261038230.19184@pobox.suse.cz>
-References: <20121025143512.17155.56181.stgit@localhost.localdomain> <CAN+gG=GX8XSnURKpG4HCMU6tL_tVpPBVOwdr3ksyXrzkrsKL_g@mail.gmail.com> <CAN+gG=EsrqM745WOoNmU1ai4omEwRUjmUJBkLYG5UOgAFcaKYA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAN+gG=EsrqM745WOoNmU1ai4omEwRUjmUJBkLYG5UOgAFcaKYA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: [PATCH v2 00/11] Win 8 support for digitizers
+Date: Fri, 26 Oct 2012 10:44:16 +0200
+Message-ID: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:62909 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754827Ab2JZIoh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Oct 2012 04:44:37 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 26 Oct 2012, Benjamin Tissoires wrote:
+Hi guys,
 
-> Adding Jiri to the recipient list of the patch, otherwise, the thread
-> may fall in the depth of his mailbox :)
-> 
-> Cheers,
-> Benjamin
-> 
-> On Thu, Oct 25, 2012 at 7:08 PM, Benjamin Tissoires
-> <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> > Hi Alan,
-> >
-> > Yes, I saw that too.
-> >
-> > Acked-by: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> >
-> > On Thu, Oct 25, 2012 at 4:35 PM, Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org> wrote:
-> >> From: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> >>
-> >> Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> >> ---
-> >>
-> >>  drivers/hid/hid-multitouch.c |    2 +-
-> >>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >>
-> >> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> >> index 3eb02b9..c97011c 100644
-> >> --- a/drivers/hid/hid-multitouch.c
-> >> +++ b/drivers/hid/hid-multitouch.c
-> >> @@ -421,11 +421,11 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
-> >>                          * contact max are global to the report */
-> >>                         td->last_field_index = field->index;
-> >>                         return -1;
-> >> -               }
-> >>                 case HID_DG_TOUCH:
-> >>                         /* Legacy devices use TIPSWITCH and not TOUCH.
-> >>                          * Let's just ignore this field. */
-> >>                         return -1;
-> >> +               }
-> >>                 /* let hid-input decide for the others */
-> >>                 return 0;
-> >>
-> >>
+Ok, now, it should work with Jiri's tree.
 
-Good catch, thanks. Applying.
+v1 introduction:
+So, this is an update for supporting Win 8 multitouch devices in the kernel.
+As I wanted to reliably forward the resolution, I noticed a bug in the
+processing of the unit_exponent in the hid core layer.
+Thus the fixes for hid-core and hid-input.
 
-Alan, please don't forget to CC proper maintainers on such patches. 
-Patches tend to often get lost when sent only to mailinglists 
-unfortunately.
+v2 changes:
+* added missing initial patch that prevents the series to be applied on top of Jiri's tree
+* update to include latest hid changes
+* taken into account Alan's patch: "hid: put the case in the right switch statement"
 
-Thanks,
+Sorry for the noise...
+
+Cheers,
+Benjamin
+
+---
+
+Benjamin Tissoires (11):
+  HID: hid-input: export hidinput_calc_abs_res
+  HID: core: fix unit exponent parsing
+  HID: hid-input: add usage_index argument in input_mapping and event.
+  HID: hid-multitouch: support arrays for the split of the touches in a
+    report
+  HID: hid-multitouch: get maxcontacts also from logical_max value
+  HID: hid-multitouch: support T and C for win8 devices
+  HID: hid-multitouch: move ALWAYS_VALID quirk check
+  HID: hid-multitouch: fix Win 8 protocol
+  HID: hid-multitouch: support for hovering devices
+  HID: introduce Scan Time
+  HID: hid-multitouch: get rid of usbhid depedency for general path
+
+ Documentation/input/event-codes.txt |   7 ++
+ drivers/hid/hid-a4tech.c            |   2 +-
+ drivers/hid/hid-apple.c             |   4 +-
+ drivers/hid/hid-belkin.c            |   2 +-
+ drivers/hid/hid-cherry.c            |   2 +-
+ drivers/hid/hid-chicony.c           |   2 +-
+ drivers/hid/hid-core.c              |  26 +++--
+ drivers/hid/hid-cypress.c           |   2 +-
+ drivers/hid/hid-ezkey.c             |   4 +-
+ drivers/hid/hid-gyration.c          |   4 +-
+ drivers/hid/hid-input.c             |  44 ++++++---
+ drivers/hid/hid-kensington.c        |   2 +-
+ drivers/hid/hid-lcpower.c           |   2 +-
+ drivers/hid/hid-lenovo-tpkbd.c      |   3 +-
+ drivers/hid/hid-lg.c                |   4 +-
+ drivers/hid/hid-magicmouse.c        |   3 +-
+ drivers/hid/hid-microsoft.c         |   4 +-
+ drivers/hid/hid-monterey.c          |   2 +-
+ drivers/hid/hid-multitouch.c        | 191 ++++++++++++++++++++++++++----------
+ drivers/hid/hid-ntrig.c             |   4 +-
+ drivers/hid/hid-petalynx.c          |   2 +-
+ drivers/hid/hid-prodikeys.c         |   2 +-
+ drivers/hid/hid-ps3remote.c         |   3 +-
+ drivers/hid/hid-samsung.c           |   2 +-
+ drivers/hid/hid-speedlink.c         |   6 +-
+ drivers/hid/hid-sunplus.c           |   2 +-
+ drivers/hid/hid-tivo.c              |   2 +-
+ drivers/hid/hid-topseed.c           |   2 +-
+ drivers/hid/hid-twinhan.c           |   2 +-
+ drivers/hid/hid-zydacron.c          |   2 +-
+ include/linux/hid.h                 |   8 +-
+ include/linux/input.h               |   1 +
+ 32 files changed, 244 insertions(+), 104 deletions(-)
 
 -- 
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+1.7.11.7
+

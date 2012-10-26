@@ -1,91 +1,54 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH v2 01/11] HID: hid-input: export hidinput_calc_abs_res
-Date: Fri, 26 Oct 2012 10:44:17 +0200
-Message-ID: <1351241067-9521-2-git-send-email-benjamin.tissoires@gmail.com>
-References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH] Input: mouse: alps: print small buffers via %*ph
+Date: Fri, 26 Oct 2012 16:42:58 +0300
+Message-ID: <1351258978-18656-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:36011 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755492Ab2JZIoi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Oct 2012 04:44:38 -0400
-In-Reply-To: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
+Received: from mga09.intel.com ([134.134.136.24]:21660 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932903Ab2JZNnH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Oct 2012 09:43:07 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Exporting this function allows us to calculate the resolution in third
-party drivers like hid-multitouch.
-This patch also complete the function with additional valid axes.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/hid/hid-input.c      | 11 +++++++++--
- drivers/hid/hid-multitouch.c |  1 +
- include/linux/hid.h          |  1 +
- 3 files changed, 11 insertions(+), 2 deletions(-)
+ drivers/input/mouse/alps.c |   14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index d917c0d..1b0adc3 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -208,7 +208,7 @@ static int hidinput_setkeycode(struct input_dev *dev,
-  * Only exponent 1 length units are processed. Centimeters and inches are
-  * converted to millimeters. Degrees are converted to radians.
-  */
--static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
-+__s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- {
- 	__s32 unit_exponent = field->unit_exponent;
- 	__s32 logical_extents = field->logical_maximum -
-@@ -229,6 +229,12 @@ static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- 	case ABS_X:
- 	case ABS_Y:
- 	case ABS_Z:
-+	case ABS_MT_POSITION_X:
-+	case ABS_MT_POSITION_Y:
-+	case ABS_MT_TOOL_X:
-+	case ABS_MT_TOOL_Y:
-+	case ABS_MT_TOUCH_MAJOR:
-+	case ABS_MT_TOUCH_MINOR:
- 		if (field->unit == 0x11) {		/* If centimeters */
- 			/* Convert to millimeters */
- 			unit_exponent += 1;
-@@ -281,8 +287,9 @@ static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- 	}
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index cf5af1f..b4a3faf 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -766,10 +766,9 @@ static psmouse_ret_t alps_handle_interleaved_ps2(struct psmouse *psmouse)
+ 		      psmouse->packet[4] |
+ 		      psmouse->packet[5]) & 0x80) ||
+ 		    (!alps_is_valid_first_byte(priv->i, psmouse->packet[6]))) {
+-			psmouse_dbg(psmouse,
+-				    "refusing packet %x %x %x %x (suspected interleaved ps/2)\n",
+-				    psmouse->packet[3], psmouse->packet[4],
+-				    psmouse->packet[5], psmouse->packet[6]);
++			psmouse_dbg(psmouse, "refusing packet %4ph "
++				    "(suspected interleaved ps/2)\n",
++				    psmouse->packet + 3);
+ 			return PSMOUSE_BAD_DATA;
+ 		}
  
- 	/* Calculate resolution */
--	return logical_extents / physical_extents;
-+	return DIV_ROUND_CLOSEST(logical_extents, physical_extents);
- }
-+EXPORT_SYMBOL_GPL(hidinput_calc_abs_res);
- 
- #ifdef CONFIG_HID_BATTERY_STRENGTH
- static enum power_supply_property hidinput_battery_props[] = {
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index c97011c..375a38d 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -298,6 +298,7 @@ static void set_abs(struct input_dev *input, unsigned int code,
- 	int fmax = field->logical_maximum;
- 	int fuzz = snratio ? (fmax - fmin) / snratio : 0;
- 	input_set_abs_params(input, code, fmin, fmax, fuzz, 0);
-+	input_abs_set_res(input, code, hidinput_calc_abs_res(field, code));
- }
- 
- static void mt_store_field(struct hid_usage *usage, struct mt_device *td,
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 7e1f37d..9edb06c 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -743,6 +743,7 @@ int hid_input_report(struct hid_device *, int type, u8 *, int, int);
- int hidinput_find_field(struct hid_device *hid, unsigned int type, unsigned int code, struct hid_field **field);
- struct hid_field *hidinput_get_led_field(struct hid_device *hid);
- unsigned int hidinput_count_leds(struct hid_device *hid);
-+__s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code);
- void hid_output_report(struct hid_report *report, __u8 *data);
- struct hid_device *hid_allocate_device(void);
- struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id);
+@@ -830,10 +829,9 @@ static void alps_flush_packet(unsigned long data)
+ 		if ((psmouse->packet[3] |
+ 		     psmouse->packet[4] |
+ 		     psmouse->packet[5]) & 0x80) {
+-			psmouse_dbg(psmouse,
+-				    "refusing packet %x %x %x (suspected interleaved ps/2)\n",
+-				    psmouse->packet[3], psmouse->packet[4],
+-				    psmouse->packet[5]);
++			psmouse_dbg(psmouse, "refusing packet %3ph "
++				    "(suspected interleaved ps/2)\n",
++				    psmouse->packet + 3);
+ 		} else {
+ 			alps_process_packet(psmouse);
+ 		}
 -- 
-1.7.11.7
+1.7.10.4
 

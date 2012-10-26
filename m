@@ -1,47 +1,64 @@
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Subject: [PATCH] tsc40: remove wrong announcement of pressure support
-Date: Fri, 26 Oct 2012 09:35:57 +0200
-Message-ID: <3551576.vuikKUmT5K@devpool02>
+From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] hid: put the case in the right switch statement
+Date: Fri, 26 Oct 2012 10:29:19 +0200
+Message-ID: <CAN+gG=EsrqM745WOoNmU1ai4omEwRUjmUJBkLYG5UOgAFcaKYA@mail.gmail.com>
+References: <20121025143512.17155.56181.stgit@localhost.localdomain>
+	<CAN+gG=GX8XSnURKpG4HCMU6tL_tVpPBVOwdr3ksyXrzkrsKL_g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.sf-mail.de ([62.27.20.61]:33196 "EHLO mail.sf-mail.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756554Ab2JZHeq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Oct 2012 03:34:46 -0400
-Received: from unknown ([::ffff:80.150.94.234]:54969 HELO devpool02.localnet) (auth=eike@sf-mail.de)
-	by mail.sf-mail.de (Qsmtpd 0.22svn) with (DHE-RSA-AES256-SHA encrypted) ESMTPSA
-	for <linux-input@vger.kernel.org>; Fri, 26 Oct 2012 09:34:43 +0200
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAN+gG=GX8XSnURKpG4HCMU6tL_tVpPBVOwdr3ksyXrzkrsKL_g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-The tsc40 driver announces it supports the pressure event, but will never send
-one. The announcement will cause tslib to wait for such events and sending all
-touch events with a pressure of 0. Removing the announcement will make tslib
-fall back to emulating the pressure on touch events so everything works as
-expected.
+Adding Jiri to the recipient list of the patch, otherwise, the thread
+may fall in the depth of his mailbox :)
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: stable@vger.kernel.org
----
- drivers/input/touchscreen/tsc40.c | 1 -
- 1 file changed, 1 deletion(-)
+Cheers,
+Benjamin
 
-diff --git a/drivers/input/touchscreen/tsc40.c b/drivers/input/touchscreen/tsc40.c
-index 63209aa..eb96f16 100644
---- a/drivers/input/touchscreen/tsc40.c
-+++ b/drivers/input/touchscreen/tsc40.c
-@@ -107,7 +107,6 @@ static int tsc_connect(struct serio *serio, struct serio_driver *drv)
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 	input_set_abs_params(ptsc->dev, ABS_X, 0, 0x3ff, 0, 0);
- 	input_set_abs_params(ptsc->dev, ABS_Y, 0, 0x3ff, 0, 0);
--	input_set_abs_params(ptsc->dev, ABS_PRESSURE, 0, 0, 0, 0);
- 
- 	serio_set_drvdata(serio, ptsc);
- 
--- 
-1.7.11.5
-
-
+On Thu, Oct 25, 2012 at 7:08 PM, Benjamin Tissoires
+<benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> Hi Alan,
+>
+> Yes, I saw that too.
+>
+> Acked-by: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>
+> On Thu, Oct 25, 2012 at 4:35 PM, Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org> wrote:
+>> From: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>>
+>> Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>> ---
+>>
+>>  drivers/hid/hid-multitouch.c |    2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+>> index 3eb02b9..c97011c 100644
+>> --- a/drivers/hid/hid-multitouch.c
+>> +++ b/drivers/hid/hid-multitouch.c
+>> @@ -421,11 +421,11 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>>                          * contact max are global to the report */
+>>                         td->last_field_index = field->index;
+>>                         return -1;
+>> -               }
+>>                 case HID_DG_TOUCH:
+>>                         /* Legacy devices use TIPSWITCH and not TOUCH.
+>>                          * Let's just ignore this field. */
+>>                         return -1;
+>> +               }
+>>                 /* let hid-input decide for the others */
+>>                 return 0;
+>>
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

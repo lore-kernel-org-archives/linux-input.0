@@ -1,73 +1,95 @@
-From: Bo Shen <voice.shen@atmel.com>
-Subject: Re: [PATCH 1/2] input: qt1070: add pinctrl consumer
-Date: Fri, 26 Oct 2012 11:51:22 +0800
-Message-ID: <508A08BA.1070302@atmel.com>
-References: <20121023131627.GE18964@game.jcrosoft.org> <1350998942-713-1-git-send-email-plagnioj@jcrosoft.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Fri, 26 Oct 2012 09:20:36 +0300
+Message-ID: <20121026062008.GA21734@arwen.pp.htv.fi>
+References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
+ <20121024161429.GA16350@core.coreip.homeip.net>
+ <CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
+ <4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
+ <20121024185818.GB772@arwen.pp.htv.fi>
+ <20121025205901.GA3827@sirena.org.uk>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ADZbWkCsHQ7r3kzd"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:18351 "EHLO
-	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755886Ab2JZDvi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Oct 2012 23:51:38 -0400
-In-Reply-To: <1350998942-713-1-git-send-email-plagnioj@jcrosoft.com>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:36778 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756459Ab2JZG0c (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Oct 2012 02:26:32 -0400
+Content-Disposition: inline
+In-Reply-To: <20121025205901.GA3827@sirena.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Cc: linux-arm-kernel@lists.infradead.org, Linus Walleij <linus.walleij@linaro.org>, linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Felipe Balbi <balbi@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On 10/23/2012 21:29, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> If no pinctrl available just report a warning as some architecture may not
-> need to do anything.
->
-> Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: linux-input@vger.kernel.org
-> ---
->   drivers/input/keyboard/qt1070.c |   11 +++++++++++
->   1 file changed, 11 insertions(+)
+--ADZbWkCsHQ7r3kzd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Test it on sam9x5ek board with qt1070. It works well.
+Hi,
 
-Tested-by: Bo Shen <voice.shen@atmel.com>
+On Thu, Oct 25, 2012 at 09:59:01PM +0100, Mark Brown wrote:
+> On Wed, Oct 24, 2012 at 09:58:19PM +0300, Felipe Balbi wrote:
+>=20
+> > need a way to tell drivers/base "hey, don't touch pinctrl at all because
+> > I know what I'm doing" and that has to happen before probe() too,
+> > otherwise it's already too late and, according to what you suggest,
+> > drivers/base will already have touched pinctrl. The only way I see would
+> > be to add an extra "dont_touch_my_pins" field to every driver structure
+> > in the kernel. Clearly what you say is nonsense.
+>=20
+> I suspect that's not actually a big deal and that if we went down this
+> route we'd have the driver take over control from the core code during
+> probe() with the core still setting up the default state.
+>=20
+> Personally I do think we want to be factoring bolierplate out of
+> drivers, if they're not doing anything constructive with pinctrl they
+> should be able to avoid having code for it.  There definitely are issues
+> to work through but it seems like we ought to be able to do something.
 
-> diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
-> index ca68f29..967734e 100644
-> --- a/drivers/input/keyboard/qt1070.c
-> +++ b/drivers/input/keyboard/qt1070.c
-> @@ -33,6 +33,7 @@
->   #include <linux/interrupt.h>
->   #include <linux/jiffies.h>
->   #include <linux/delay.h>
-> +#include <linux/pinctrl/consumer.h>
->
->   /* Address for each register */
->   #define CHIP_ID            0x00
-> @@ -147,6 +148,7 @@ static int __devinit qt1070_probe(struct i2c_client *client,
->   	struct input_dev *input;
->   	int i;
->   	int err;
-> +	struct pinctrl *pinctrl;
->
->   	err = i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE);
->   	if (!err) {
-> @@ -155,6 +157,15 @@ static int __devinit qt1070_probe(struct i2c_client *client,
->   		return -ENODEV;
->   	}
->
-> +	pinctrl = devm_pinctrl_get_select_default(&client->dev);
-> +	if (IS_ERR(pinctrl)) {
-> +		err = PTR_ERR(pinctrl);
-> +		if (err == -EPROBE_DEFER)
-> +			return err;
-> +
-> +		dev_warn(&client->dev, "No pinctrl provided\n");
-> +	}
-> +
->   	if (!client->irq) {
->   		dev_err(&client->dev, "please assign the irq to this device\n");
->   		return -EINVAL;
->
+IMHO this will come back to bite you in the *ss. Specially when the same
+driver is shared among multiple revisions of the same SoC or multiple
+different SoCs.
 
+Hypothetical situation: OMAP4 has keypad as the default pin mode and low
+power is handled by the HW, so keypad could have pinctlr "boilerplate"
+factored out. Then comes OMAP5 and low power mode has to be handled by
+SW for whatever reason (maybe there are more than one low power mode).
+Then we will need to patch omap4-keypad.c to remove "dont_touch_my_pins"
+flag and add pinctrl support.
+
+When you think of the possibilities of every single driver going
+throught that it sounds a lot nicer to not make that decision IMHO and
+keep pinctrl explicit.
+
+This is not like module_*_driver() macro.
+
+--=20
+balbi
+
+--ADZbWkCsHQ7r3kzd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQiiu0AAoJEIaOsuA1yqRERi4P/25UPM0I00rC+y1mzIxVv9Uv
+QUnLm6YLewXTTH/aEBQnJ7e6VCTuLfc8NXjSbGyvOxu1gESeSRPiBSr/meEwI2Cp
+3aXxW/wt3Q4zSzbCzn6o1cN7Gk+2GQWs75kxVepvwMmgIuIg2b826yPFEzCu1DTo
+YzEQz2oESCAGDk+ilLXxZ7J2Ozf6ZWHc8x2xSPQVLL4QgXUVo1ODIh0RSA95g6/4
+pmjj0XtBoNkCSfZHfSa8PL/NISNok4vIanu8bH9TGCmoYOVJIp3ThWk+H6gnMasW
+RqT6H6jMXc0+gRu+1irtnUXrNYyk/VdVvVomWDoGHQhXUuaMec8szm1CzvJpPY7v
+mGVGZSiZaUrnOLYBtx5dYFlLxdkFDlo4Iaec5daBRBVmdoj27DtyRSdNwGqH3vj0
+bW1sDGgld3ZSL2IbTdJkBdFVzUmPlpdFjWCTHpcQhW1BusL/kF4xM1ItxlXyZW1R
+tVFEbKyt2zWy4OfSqmkzV6gp5/kDwCTSDYJeCgymsvYC4BRev/xU7buS5PZ5kAVx
+6HMQwKWe4sGgFYJOv5Fd6MHAvTgtEU/CR9lbAe4fDnEfU5ro7ec/e3Z8evaNLGg0
+mnsBd4o8wxNjAry1JuRffqrT7P5fcf0iU6DmHQooc1eD5Fq/RElgYp+JzvM7/4q5
+YYJ5aOnic6wz5tKqtwWx
+=oMXy
+-----END PGP SIGNATURE-----
+
+--ADZbWkCsHQ7r3kzd--

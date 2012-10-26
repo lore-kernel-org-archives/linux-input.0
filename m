@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH v2 02/11] HID: core: fix unit exponent parsing
-Date: Fri, 26 Oct 2012 10:44:18 +0200
-Message-ID: <1351241067-9521-3-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH v2 10/11] HID: introduce Scan Time
+Date: Fri, 26 Oct 2012 10:44:26 +0200
+Message-ID: <1351241067-9521-11-git-send-email-benjamin.tissoires@gmail.com>
 References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
@@ -9,85 +9,102 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-HID spec details special values for the HID field unit exponent.
-Basically, the range [0x8..0xf] correspond to [-8..-1].
+Win 8 digitizer devices provides the actual scan time computed by the
+hardware itself. The value is global to the frame and is not specific
+to the multitouch protocol (though only touch, not pen, should use it
+according to the specification).
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
- drivers/hid/hid-core.c  | 10 +++++++++-
- drivers/hid/hid-input.c | 19 +++++++++++++------
- 2 files changed, 22 insertions(+), 7 deletions(-)
+ Documentation/input/event-codes.txt |  7 +++++++
+ drivers/hid/hid-input.c             |  4 ++++
+ drivers/hid/hid-multitouch.c        | 11 +++++++++--
+ include/linux/hid.h                 |  1 +
+ include/linux/input.h               |  1 +
+ 5 files changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 9904776..6bde6e4 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -315,6 +315,7 @@ static s32 item_sdata(struct hid_item *item)
+diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
+index 53305bd..8f8c908 100644
+--- a/Documentation/input/event-codes.txt
++++ b/Documentation/input/event-codes.txt
+@@ -174,6 +174,13 @@ A few EV_ABS codes have special meanings:
+     the input device may be used freely in three dimensions, consider ABS_Z
+     instead.
  
- static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
- {
-+	__u32 raw_value;
- 	switch (item->tag) {
- 	case HID_GLOBAL_ITEM_TAG_PUSH:
- 
-@@ -365,7 +366,14 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
- 		return 0;
- 
- 	case HID_GLOBAL_ITEM_TAG_UNIT_EXPONENT:
--		parser->global.unit_exponent = item_sdata(item);
-+		/* Units exponent negative numbers are given through a special
-+		 * table.
-+		 * See "6.2.2.7 Global Items" for more information. */
-+		raw_value = item_udata(item);
-+		if ((raw_value >> 3) == 1)
-+			parser->global.unit_exponent = raw_value - 16;
-+		else
-+			parser->global.unit_exponent = raw_value;
- 		return 0;
- 
- 	case HID_GLOBAL_ITEM_TAG_UNIT:
++* ABS_SCAN_TIME:
++  - Used when the device provides a timestamp for each frame. The unit must be
++    100us, and may be reset when the device don't send any events for a
++    period of time. The values increment at each frame and thus, it can roll
++    back to 0 when reach logical_max. If the device does not provide this
++    information, the driver must not provide it to the user space.
++
+ * ABS_MT_<name>:
+   - Used to describe multitouch input events. Please see
+     multi-touch-protocol.txt for details.
 diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 1b0adc3..fc9f2b5 100644
+index 16cc89a..5fe7bd3 100644
 --- a/drivers/hid/hid-input.c
 +++ b/drivers/hid/hid-input.c
-@@ -215,7 +215,7 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- 					field->logical_minimum;
- 	__s32 physical_extents = field->physical_maximum -
- 					field->physical_minimum;
--	__s32 prev;
-+	__s32 prev, tmp_exponent;
+@@ -675,6 +675,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 			map_key_clear(BTN_STYLUS2);
+ 			break;
  
- 	/* Check if the extents are sane */
- 	if (logical_extents <= 0 || physical_extents <= 0)
-@@ -235,17 +235,24 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- 	case ABS_MT_TOOL_Y:
- 	case ABS_MT_TOUCH_MAJOR:
- 	case ABS_MT_TOUCH_MINOR:
--		if (field->unit == 0x11) {		/* If centimeters */
-+		if (field->unit & 0xffffff00)		/* Not a length */
-+			return 0;
-+		tmp_exponent = field->unit >> 4;
-+		if ((tmp_exponent >> 3) == 1)
-+			tmp_exponent -= 16;
-+		switch (field->unit & 0xf) {
-+		case 0x1:				/* If centimeters */
- 			/* Convert to millimeters */
--			unit_exponent += 1;
--		} else if (field->unit == 0x13) {	/* If inches */
-+			unit_exponent += tmp_exponent;
++		case 0x56: /* Scan Time */
++			map_abs(ABS_SCAN_TIME);
 +			break;
-+		case 0x3:				/* If inches */
- 			/* Convert to millimeters */
- 			prev = physical_extents;
- 			physical_extents *= 254;
- 			if (physical_extents < prev)
- 				return 0;
--			unit_exponent -= 1;
--		} else {
-+			unit_exponent += tmp_exponent - 2;
-+		default:
- 			return 0;
++
+ 		default:  goto unknown;
  		}
  		break;
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index c0ab1c6..21a120b 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -447,12 +447,19 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			mt_store_field(usage, td, hi);
+ 			td->last_field_index = field->index;
+ 			return 1;
++		case HID_DG_SCANTIME:
++			hid_map_usage(hi, usage, bit, max,
++				EV_ABS, ABS_SCAN_TIME);
++			set_abs(hi->input, ABS_SCAN_TIME, field, 0);
++			td->last_field_index = field->index;
++			return 1;
+ 		case HID_DG_CONTACTCOUNT:
+ 			td->last_field_index = field->index;
+ 			return 1;
+ 		case HID_DG_CONTACTMAX:
+-			/* we don't set td->last_slot_field as contactcount and
+-			 * contact max are global to the report */
++			/* we don't set td->last_slot_field as scan time,
++			 * contactcount and contact max are global to the
++			 * report */
+ 			td->last_field_index = field->index;
+ 			return -1;
+ 		case HID_DG_TOUCH:
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 6216529..99a6418 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -279,6 +279,7 @@ struct hid_item {
+ #define HID_DG_DEVICEINDEX	0x000d0053
+ #define HID_DG_CONTACTCOUNT	0x000d0054
+ #define HID_DG_CONTACTMAX	0x000d0055
++#define HID_DG_SCANTIME		0x000d0056
+ 
+ /*
+  * HID report types --- Ouch! HID spec says 1 2 3!
+diff --git a/include/linux/input.h b/include/linux/input.h
+index ba48743..73c3a96 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -796,6 +796,7 @@ struct input_keymap_entry {
+ #define ABS_TILT_X		0x1a
+ #define ABS_TILT_Y		0x1b
+ #define ABS_TOOL_WIDTH		0x1c
++#define ABS_SCAN_TIME		0x1d
+ 
+ #define ABS_VOLUME		0x20
+ 
 -- 
 1.7.11.7

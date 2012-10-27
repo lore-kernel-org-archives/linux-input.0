@@ -1,90 +1,143 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
-Date: Fri, 26 Oct 2012 17:03:16 +0100
-Message-ID: <20121026160316.GY18814@opensource.wolfsonmicro.com>
-References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
- <20121024161429.GA16350@core.coreip.homeip.net>
- <CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
- <4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
- <20121024185818.GB772@arwen.pp.htv.fi>
- <20121025205901.GA3827@sirena.org.uk>
- <20121026062008.GA21734@arwen.pp.htv.fi>
+From: Chris MacDonald <chris@fourthandvine.com>
+Subject: TPV OpticalTouchScreen (25aa:8883) Support
+Date: Fri, 26 Oct 2012 17:27:03 -0700
+Message-ID: <CAMAQbHANvBz8UBJZjpWX++13wOnF4Mi_33x-EgC_+oVR1kBkig@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yhqQ34TVR4fE8mPU"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20121026062008.GA21734@arwen.pp.htv.fi>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vc0-f174.google.com ([209.85.220.174]:42519 "EHLO
+	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755978Ab2J0A1E (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Oct 2012 20:27:04 -0400
+Received: by mail-vc0-f174.google.com with SMTP id fk26so3659220vcb.19
+        for <linux-input@vger.kernel.org>; Fri, 26 Oct 2012 17:27:03 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
+Hi All -
 
---yhqQ34TVR4fE8mPU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Firstly, apologies if this is the wrong forum for this type of
+problem, (maybe linux-usb?) if this is the case please let me know.
 
-On Fri, Oct 26, 2012 at 09:20:36AM +0300, Felipe Balbi wrote:
-> On Thu, Oct 25, 2012 at 09:59:01PM +0100, Mark Brown wrote:
+I've got an Ubuntu 12.04 install and updated the kernel to 3.6.3 (I
+did this after looking at
+http://lii-enac.fr/en/architecture/linux-input/multitouch-devices.html
+and assuming support for my touchscreen monitor would be better the
+newer the kernel):
 
-> > I suspect that's not actually a big deal and that if we went down this
-> > route we'd have the driver take over control from the core code during
-> > probe() with the core still setting up the default state.
+Linux parsnip 3.6.3-030603-generic #201210211349 SMP Sun Oct 21
+17:57:45 UTC 2012 i686 i686 i386 GNU/Linux
 
-> > Personally I do think we want to be factoring bolierplate out of
-> > drivers, if they're not doing anything constructive with pinctrl they
-> > should be able to avoid having code for it.  There definitely are issues
-> > to work through but it seems like we ought to be able to do something.
+and an HP Compaq L2206tm touchscreen monitor that gets detected like this:
 
-> IMHO this will come back to bite you in the *ss. Specially when the same
-> driver is shared among multiple revisions of the same SoC or multiple
-> different SoCs.
+Oct 26 15:28:12 parsnip kernel: [   98.500012] usb 1-2: new high-speed
+USB device number 5 using ehci_hcd
+Oct 26 15:28:12 parsnip kernel: [   98.632382] usb 1-2: New USB device
+found, idVendor=0424, idProduct=2514
+Oct 26 15:28:12 parsnip kernel: [   98.632386] usb 1-2: New USB device
+strings: Mfr=0, Product=0, SerialNumber=0
+Oct 26 15:28:12 parsnip kernel: [   98.632542] hub 1-2:1.0: USB hub found
+Oct 26 15:28:12 parsnip kernel: [   98.632625] hub 1-2:1.0: 4 ports detected
+Oct 26 15:28:12 parsnip kernel: [   98.904119] usb 1-2.1: new
+full-speed USB device number 6 using ehci_hcd
+Oct 26 15:28:12 parsnip kernel: [   98.997072] usb 1-2.1: New USB
+device found, idVendor=25aa, idProduct=8883
+Oct 26 15:28:12 parsnip kernel: [   98.997075] usb 1-2.1: New USB
+device strings: Mfr=1, Product=2, SerialNumber=4
+Oct 26 15:28:12 parsnip kernel: [   98.997078] usb 1-2.1: Product:
+OpticalTouchScreen
+Oct 26 15:28:12 parsnip kernel: [   98.997080] usb 1-2.1: Manufacturer: TPV
+Oct 26 15:28:12 parsnip kernel: [   98.997083] usb 1-2.1: SerialNumber: 0000
+Oct 26 15:28:22 parsnip kernel: [  109.000075] hid-multitouch
+0003:25AA:8883.0004: usb_submit_urb(ctrl) failed: -1
+Oct 26 15:28:22 parsnip kernel: [  109.000082] hid-multitouch
+0003:25AA:8883.0004: timeout initializing reports
+Oct 26 15:28:22 parsnip kernel: [  109.000183] input: TPV
+OpticalTouchScreen as
+/devices/pci0000:00/0000:00:1d.7/usb1/1-2/1-2.1/1-2.1:1.0/input/input8
+Oct 26 15:28:22 parsnip kernel: [  109.000282] hid-multitouch
+0003:25AA:8883.0004: input,hiddev0,hidraw2: USB HID v1.10 Mouse [TPV
+OpticalTouchScreen] on usb-0000:00:1d.7-2.1/input0
 
-I'm not entirely sure you fully understood the proposal...
+X happily detects the device as well:
 
-> Hypothetical situation: OMAP4 has keypad as the default pin mode and low
-> power is handled by the HW, so keypad could have pinctlr "boilerplate"
-> factored out. Then comes OMAP5 and low power mode has to be handled by
-> SW for whatever reason (maybe there are more than one low power mode).
-> Then we will need to patch omap4-keypad.c to remove "dont_touch_my_pins"
-> flag and add pinctrl support.
+[  5987.987] (II) config/udev: Adding input device TPV
+OpticalTouchScreen (/dev/input/mouse1)
+[  5987.987] (II) No input driver specified, ignoring this device.
+[  5987.987] (II) This device may have been added with another device file.
+[  5987.987] (II) config/udev: Adding input device TPV
+OpticalTouchScreen (/dev/input/event7)
+[  5987.987] (**) TPV OpticalTouchScreen: Applying InputClass "evdev
+touchscreen catchall"
+[  5987.987] (II) Using input driver 'evdev' for 'TPV OpticalTouchScreen'
+[  5987.987] (II) Loading /usr/lib/xorg/modules/input/evdev_drv.so
+[  5987.987] (**) TPV OpticalTouchScreen: always reports core events
+[  5987.987] (**) evdev: TPV OpticalTouchScreen: Device: "/dev/input/event7"
+[  5987.987] (--) evdev: TPV OpticalTouchScreen: Vendor 0x25aa Product 0x8883
+[  5987.987] (--) evdev: TPV OpticalTouchScreen: Found absolute axes
+[  5987.987] (--) evdev: TPV OpticalTouchScreen: Found absolute multitouch axes
+[  5987.987] (--) evdev: TPV OpticalTouchScreen: Found x and y absolute axes
+[  5987.987] (--) evdev: TPV OpticalTouchScreen: Found absolute touchscreen
+[  5987.987] (II) evdev: TPV OpticalTouchScreen: Configuring as touchscreen
+[  5987.987] (**) evdev: TPV OpticalTouchScreen: YAxisMapping: buttons 4 and 5
+[  5987.987] (**) evdev: TPV OpticalTouchScreen: EmulateWheelButton:
+4, EmulateWheelInertia: 10, EmulateWheelTimeout: 200
+[  5987.988] (**) Option "config_info"
+"udev:/sys/devices/pci0000:00/0000:00:1d.7/usb1/1-2/1-2.1/1-2.1:1.0/input/input10/event7"
+[  5987.988] (II) XINPUT: Adding extended input device "TPV
+OpticalTouchScreen" (type: TOUCHSCREEN, id 10)
+[  5987.988] (II) evdev: TPV OpticalTouchScreen: initialized for absolute axes.
+[  5987.988] (**) TPV OpticalTouchScreen: (accel) keeping acceleration scheme 1
+[  5987.988] (**) TPV OpticalTouchScreen: (accel) acceleration profile 0
+[  5987.988] (**) TPV OpticalTouchScreen: (accel) acceleration factor: 2.000
+[  5987.988] (**) TPV OpticalTouchScreen: (accel) acceleration threshold: 4
 
-This isn't going to make any practical difference at all, as soon as the
-driver starts using pinctrl explicitly a flag gets set in the driver and
-the default code does nothing more.  The only difference will be that we
-may get a default configuration applied prior to probe.
+but a test of the touch capability doesn't yield anything useful as a
+run of evtest doesn't show any activity after startup as I tap on the
+display:
 
-You could have the driver explicitly set the flag, it would just be one
-extra line, but it seems marginally nicer to just do it.
+# evtest /dev/input/event7
+Input driver version is 1.0.1
+Input device ID: bus 0x3 vendor 0x25aa product 0x8883 version 0x110
+Input device name: "TPV OpticalTouchScreen"
+Supported events:
+  Event type 0 (EV_SYN)
+  Event type 1 (EV_KEY)
+    Event code 330 (BTN_TOUCH)
+  Event type 3 (EV_ABS)
+    Event code 0 (ABS_X)
+      Value      0
+      Min        0
+      Max     1919
+    Event code 1 (ABS_Y)
+      Value      0
+      Min        0
+      Max     1079
+    Event code 47 (ABS_MT_SLOT)
+      Value      0
+      Min        0
+      Max        9
+    Event code 53 (ABS_MT_POSITION_X)
+      Value      0
+      Min        0
+      Max     1919
+    Event code 54 (ABS_MT_POSITION_Y)
+      Value      0
+      Min        0
+      Max     1079
+    Event code 57 (ABS_MT_TRACKING_ID)
+      Value      0
+      Min        0
+      Max    65535
+Testing ... (interrupt to exit)
 
-> When you think of the possibilities of every single driver going
-> throught that it sounds a lot nicer to not make that decision IMHO and
-> keep pinctrl explicit.
+I'm assuming the error in syslog ("usb_submit_urb(ctrl) failed: -1")
+might be at least part of the issue, but I'm not sure how to
+troubleshoot this further. Any hints or pointers would be greatly
+appreciated.
 
-I'm just not seeing any impact on drivers that do something interesting
-here.
+Thanks!
 
---yhqQ34TVR4fE8mPU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQirM9AAoJELSic+t+oim9c8UP/jleghlFW4jR1AwJdXkaEddQ
-KYZ3Iw5kZ+4YyHOypGWP9inaMG22ru1Z4d5nvSAMbdUnLI+uQc/nK+mMlEKrKIz0
-B4coXcssBZjN0BVOdfMLhdg03edhUZMB8hZfOl6uqj/YnOeUaMKMuOj+APW9qaAp
-SmEvTG/cljfGx6iCZkNIUvXVNvYUaKQk8qXCH835ETtkX3Dh3GVF32imPATYXTWb
-wTpqe30GJe9rD0Q+vS0ik+HfEU4ZunQdlkYCBW+TGLRgOQka1bN9N3GsP5yuzrmU
-YmW4zpx2cuBL8vFPvZJBJF3lurgK+PhT7fx752qzPEkrDp9PV50jvn+ld0hM5rY9
-q8xWo2+JR+anS1dYEzPG7LzSg7tIhPLmrlIBhmU7oUG0ux0VCJ+dfOLsB0uReC9B
-xe48D7XAGOb+5D9Judn9llQ/mckTYSwiGGcr7VKzTGH+5sPDokrifoRvyqa1oQf7
-cWb44IIw5TKMM33S6Qn2/fzq2Z0ntMHjbf5dK1q+xjAH5Vxp5aXcYOUQQh9LwsQN
-1gsfWEwywDr4uegXkmis+0lsJjcwuOHq3vMevduRW8d3QQ24EjIFth530UtyP7Z9
-BXwA4KcRrp8+NEuFKSKQLvZO5+co3A6l9nE7/PsFgmi4MBAHmTgDtjYzHSo+5jR2
-N4dMrcPlO6jeuRqcBqwR
-=f5GG
------END PGP SIGNATURE-----
-
---yhqQ34TVR4fE8mPU--
+Chris

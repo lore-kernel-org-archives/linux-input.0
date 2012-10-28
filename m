@@ -1,43 +1,34 @@
-From: Vasily Khoruzhick <anarsoul@gmail.com>
-Subject: [PATCH RESEND] ARM: pxa27x_keypad: clear pending interrupts on keypad config
-Date: Sun, 28 Oct 2012 18:46:03 +0300
-Message-ID: <1351439163-9575-1-git-send-email-anarsoul@gmail.com>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+Subject: Re: [PATCH RESEND] ARM: pxa27x_keypad: clear pending interrupts on keypad config
+Date: Sun, 28 Oct 2012 18:55:37 +0100
+Message-ID: <87vcduwkfa.fsf@free.fr>
+References: <1351439163-9575-1-git-send-email-anarsoul@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:36364 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751105Ab2J1PqP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Oct 2012 11:46:15 -0400
-Received: by mail-lb0-f174.google.com with SMTP id n3so2548797lbo.19
-        for <linux-input@vger.kernel.org>; Sun, 28 Oct 2012 08:46:13 -0700 (PDT)
+Received: from smtp1-g21.free.fr ([212.27.42.1]:38709 "EHLO smtp1-g21.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752499Ab2J1Rzy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 28 Oct 2012 13:55:54 -0400
+In-Reply-To: <1351439163-9575-1-git-send-email-anarsoul@gmail.com> (Vasily
+	Khoruzhick's message of "Sun, 28 Oct 2012 18:46:03 +0300")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chao Xie <chao.xie@marvell.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Robert Jarzmik <robert.jarzmik@free.fr>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: Vasily Khoruzhick <anarsoul@gmail.com>
+To: Vasily Khoruzhick <anarsoul@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chao Xie <chao.xie@marvell.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Bootloader can leave interrupt bit pending, and it confuses driver.
+Vasily Khoruzhick <anarsoul@gmail.com> writes:
 
-Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
----
-Rebased against v3.7-rc2
+> Bootloader can leave interrupt bit pending, and it confuses driver.
+OK, looks good to me.
+One question though, just to make sure everything is covered :
+  Suppose that the resume is the consequence of keypad press. If anybody relied
+  previously on "reading the keypad" to know which key was pressed to wakeup the
+  SoC, is it still working after your patch ?
 
- drivers/input/keyboard/pxa27x_keypad.c | 3 +++
- 1 file changed, 3 insertions(+)
+And I suppose you can't "convince" your bootloader to behave correctly, can you ?
 
-diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
-index 803ff6f..cad9d5d 100644
---- a/drivers/input/keyboard/pxa27x_keypad.c
-+++ b/drivers/input/keyboard/pxa27x_keypad.c
-@@ -368,6 +368,9 @@ static void pxa27x_keypad_config(struct pxa27x_keypad *keypad)
- 	unsigned int mask = 0, direct_key_num = 0;
- 	unsigned long kpc = 0;
- 
-+	/* clear pending interrupt bit */
-+	keypad_readl(KPC);
-+
- 	/* enable matrix keys with automatic scan */
- 	if (pdata->matrix_key_rows && pdata->matrix_key_cols) {
- 		kpc |= KPC_ASACT | KPC_MIE | KPC_ME | KPC_MS_ALL;
--- 
-1.7.12.4
+Cheers.
 
+--
+Robert

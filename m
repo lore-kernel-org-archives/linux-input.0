@@ -1,74 +1,45 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2 07/11] HID: hid-multitouch: move ALWAYS_VALID quirk
- check
-Date: Mon, 29 Oct 2012 23:16:05 +0100
-Message-ID: <20121029221605.GA15432@polaris.bitmath.org>
-References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
- <1351241067-9521-8-git-send-email-benjamin.tissoires@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: introduce managed input devices (add devres support)
+Date: Mon, 29 Oct 2012 15:12:20 -0700
+Message-ID: <8202410.zO713iQhxO@dtor-d630.eng.vmware.com>
+References: <20121023053513.GA15642@core.coreip.homeip.net> <20121029204023.GB13256@core.coreip.homeip.net> <20121029213254.GA15390@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h31.telenor.se ([213.150.131.4]:57320 "EHLO
-	smtprelay-h31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933452Ab2J2WL2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Oct 2012 18:11:28 -0400
-Content-Disposition: inline
-In-Reply-To: <1351241067-9521-8-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121029213254.GA15390@polaris.bitmath.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
-
-> Win 8 device specification changed the requirements for the hid usages
-> of the multitouch devices. Now InRange is optional and must be only
-> used when the device supports hovering.
+On Monday, October 29, 2012 10:32:54 PM Henrik Rydberg wrote:
+> > > Either way, the code looks functional to me.
+> > 
+> > So is that "reviewed-by"?
 > 
-> This ensures that the quirk ALWAYS_VALID is taken into account and
-> also ensures its precedence over the other VALID* quirks.
+> I was thinking about this hunk:
+> > @@ -1972,7 +2084,20 @@ int input_register_device(struct input_dev *dev)
+> > 
+> >         mutex_unlock(&input_mutex);
+> > 
+> > +       if (dev->devres_managed) {
+> > +               dev_info(dev->dev.parent, "%s: registerign %s with
+> > devres.\n", +                       __func__, dev->name ?: "N/A");
+> > +               devres_add(dev->dev.parent, devres);
+> > +       }
+> > 
+> >         return 0;
+> > 
+> > +
+> > +err_device_del:
+> > +       device_del(&dev->dev);
+> > +err_free_vals:
+> > +       kfree(dev->vals);
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> ---
->  drivers/hid/hid-multitouch.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
+> Won't this yield a double free once we reach release()?
 
-Since we seem to never actually reset td, this seems equivalent,
-unless some device added ALWAYS VALID by mistake, even if INRANGE is
-not part of the report descriptor.
+Nicely spotted, we need "dev->vals = NULL;" here.
 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 000c979..43bd8e8 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -506,7 +506,7 @@ static int mt_compute_slot(struct mt_device *td, struct input_dev *input)
->   */
->  static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->  {
-> -	if (td->curvalid) {
-> +	if (td->curvalid || td->mtclass.quirks & MT_QUIRK_ALWAYS_VALID) {
-
-I found at least one presence of this construct in the kernel, but I
-think the overwhelming majority use parenthesis.
-
->  		int slotnum = mt_compute_slot(td, input);
->  		struct mt_slot *s = &td->curdata;
->  
-> @@ -561,9 +561,7 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->  	if (hid->claimed & HID_CLAIMED_INPUT) {
->  		switch (usage->hid) {
->  		case HID_DG_INRANGE:
-> -			if (quirks & MT_QUIRK_ALWAYS_VALID)
-> -				td->curvalid = true;
-> -			else if (quirks & MT_QUIRK_VALID_IS_INRANGE)
-> +			if (quirks & MT_QUIRK_VALID_IS_INRANGE)
->  				td->curvalid = value;
->  			break;
->  		case HID_DG_TIPSWITCH:
-> -- 
-> 1.7.11.7
-> 
-
-Thanks,
-Henrik
+-- 
+Dmitry

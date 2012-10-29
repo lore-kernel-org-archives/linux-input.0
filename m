@@ -1,113 +1,81 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2 02/11] HID: core: fix unit exponent parsing
-Date: Mon, 29 Oct 2012 20:05:54 +0100
-Message-ID: <20121029190554.GA15015@polaris.bitmath.org>
-References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
- <1351241067-9521-3-git-send-email-benjamin.tissoires@gmail.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCHv5] Input: keypad: Add smsc ece1099 keypad driver
+Date: Mon, 29 Oct 2012 21:05:53 +0200
+Message-ID: <20121029190516.GA29230@arwen.pp.htv.fi>
+References: <1351507129-10229-1-git-send-email-sourav.poddar@ti.com>
+ <20121029162045.GK27566@arwen.pp.htv.fi>
+ <20121029170633.GA11558@core.coreip.homeip.net>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wzJLGUyc3ArbnUjN"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from comal.ext.ti.com ([198.47.26.152]:52876 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750931Ab2J2TLu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Oct 2012 15:11:50 -0400
 Content-Disposition: inline
-In-Reply-To: <1351241067-9521-3-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20121029170633.GA11558@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Felipe Balbi <balbi@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, b-cousson@ti.com, santosh.shilimkar@ti.com, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
+--wzJLGUyc3ArbnUjN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> HID spec details special values for the HID field unit exponent.
-> Basically, the range [0x8..0xf] correspond to [-8..-1].
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> ---
+Hi,
 
-Standard two's complement, in other words?
+On Mon, Oct 29, 2012 at 10:06:33AM -0700, Dmitry Torokhov wrote:
 
->  drivers/hid/hid-core.c  | 10 +++++++++-
->  drivers/hid/hid-input.c | 19 +++++++++++++------
->  2 files changed, 22 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 9904776..6bde6e4 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -315,6 +315,7 @@ static s32 item_sdata(struct hid_item *item)
->  
->  static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
->  {
-> +	__u32 raw_value;
->  	switch (item->tag) {
->  	case HID_GLOBAL_ITEM_TAG_PUSH:
->  
-> @@ -365,7 +366,14 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
->  		return 0;
->  
->  	case HID_GLOBAL_ITEM_TAG_UNIT_EXPONENT:
-> -		parser->global.unit_exponent = item_sdata(item);
-> +		/* Units exponent negative numbers are given through a special
-> +		 * table.
-> +		 * See "6.2.2.7 Global Items" for more information. */
-> +		raw_value = item_udata(item);
-> +		if ((raw_value >> 3) == 1)
-> +			parser->global.unit_exponent = raw_value - 16;
-> +		else
-> +			parser->global.unit_exponent = raw_value;
+[ big snip ]
 
-I beleive the function you want is snto32(value, 4).
+> > > +static int __devexit smsc_remove(struct platform_device *pdev)
+> > > +{
+> >=20
+> > shouldn't you unregister the input device here ??
+>=20
+> And that is why I do not like devm_* interface myself... But no, since
+> input device was allocated with devm_input_allocate_device() it does not
+> need to be explicitly freed or unregistered.
 
->  		return 0;
->  
->  	case HID_GLOBAL_ITEM_TAG_UNIT:
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 1b0adc3..fc9f2b5 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -215,7 +215,7 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
->  					field->logical_minimum;
->  	__s32 physical_extents = field->physical_maximum -
->  					field->physical_minimum;
-> -	__s32 prev;
-> +	__s32 prev, tmp_exponent;
->  
->  	/* Check if the extents are sane */
->  	if (logical_extents <= 0 || physical_extents <= 0)
-> @@ -235,17 +235,24 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
->  	case ABS_MT_TOOL_Y:
->  	case ABS_MT_TOUCH_MAJOR:
->  	case ABS_MT_TOUCH_MINOR:
-> -		if (field->unit == 0x11) {		/* If centimeters */
-> +		if (field->unit & 0xffffff00)		/* Not a length */
-> +			return 0;
-> +		tmp_exponent = field->unit >> 4;
-> +		if ((tmp_exponent >> 3) == 1)
-> +			tmp_exponent -= 16;
+IMHO, that's a fragility on current devm implementation for input
+devices, then.
 
-Ditto.
+devm_input_allocate_device() is *only* allocating the input device (at
+least judging by the name). Looks like you should introduce
+devm_input_register_device() ? What happens if I
+devm_input_allocate_device() but don't go as far as
+input_register_device() (some error happens in-between) ?
 
-> +		switch (field->unit & 0xf) {
-> +		case 0x1:				/* If centimeters */
->  			/* Convert to millimeters */
-> -			unit_exponent += 1;
-> -		} else if (field->unit == 0x13) {	/* If inches */
-> +			unit_exponent += tmp_exponent;
-> +			break;
-> +		case 0x3:				/* If inches */
->  			/* Convert to millimeters */
->  			prev = physical_extents;
->  			physical_extents *= 254;
->  			if (physical_extents < prev)
->  				return 0;
-> -			unit_exponent -= 1;
-> -		} else {
-> +			unit_exponent += tmp_exponent - 2;
-> +		default:
->  			return 0;
->  		}
->  		break;
-> -- 
-> 1.7.11.7
-> 
+I'm sure you have some proper handling for it, but it's quite misleading
+the way this was implemented.
 
-Thanks,
-Henrik
+--=20
+balbi
+
+--wzJLGUyc3ArbnUjN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQjtORAAoJEIaOsuA1yqRERcgQAIleHhFic5QAq+tLZLoguWGQ
+eu71a9MhZomd/tgdKP2KxTNFBHX/XQZQfEZov+D/AV9i+ELNsT9cWppuoJ6w8P6/
+7z2Gmp3QC9LHlr5G4yuIvneo1BmsyIFaRkukY3Jo/TpS2pyfAqgmzl51gzfvxq1p
+458obuS6xrbUpKeWmFAuWUJavBxZuiNFMkcuWPnsYzk0arrOXus4qFUIZf78nJNa
+To67IZm82qjQwCYDjykyeYU52uwNn71pN4PY270YFkbJy24BI8rkbnEYQwjpOVKq
+l7qS1bMJ7PcC2JwRNL3EX3C2e4j7oYe1FKLajVnOJjGf3SfS6ThYDH/4Fqn5rxIM
+DRHU5SsSEpD1DcU2m24VUW4HXob2yP+Ew1GcFR0h2Xl9F3rxDQr6PDhRPwjcbapb
+iMZTL3qYayezUhaxpyWrhQ5o/bcnm3mD2qWrMSz5aAmEfcp6usaq6orDPCyh4KAP
+7YJS9hrH5X5R0sl9/LKBkVPKd5VuXr346E2ZFhb9EvtS/D8dUPv9ZZNXCj2Qi60Y
+LrW+en70U9qvqpUvTtfHr3fPafrdecUoEXfHhob1dta2cYAmMnWI/rdmxFQIFiX8
+LFvOmLUqnyVNUr12XIBWoOlaXYIc4DE/TgKhNw1ZJMOd1fupCySSHQ+ryCYMeyk3
+5hyECXY+eH9hRB/oS0JR
+=BA/E
+-----END PGP SIGNATURE-----
+
+--wzJLGUyc3ArbnUjN--

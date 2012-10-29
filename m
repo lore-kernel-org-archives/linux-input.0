@@ -1,347 +1,103 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH] Input: introduce managed input devices (add devres
- support)
-Date: Mon, 29 Oct 2012 19:22:53 +0100
-Message-ID: <20121029182253.GA8015@polaris.bitmath.org>
-References: <20121023053513.GA15642@core.coreip.homeip.net>
+Subject: Re: [PATCH v2 01/11] HID: hid-input: export hidinput_calc_abs_res
+Date: Mon, 29 Oct 2012 19:57:50 +0100
+Message-ID: <20121029185750.GA12640@polaris.bitmath.org>
+References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
+ <1351241067-9521-2-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20121023053513.GA15642@core.coreip.homeip.net>
+In-Reply-To: <1351241067-9521-2-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry Torokhov wrote:
+Hi Benjamin,
 
-> There is a demand from driver's writers to use managed devices framework
-> for their drivers. Unfortunately up to this moment input devices did not
-> provide support for managed devices and that lead to mixing two styles
-> of resource management which usually introduced more bugs, such as
-> manually unregistering input device but relying in devres to free
-> interrupt handler which (unless device is properly shut off) can cause
-> ISR to reference already freed memory.
+> Exporting this function allows us to calculate the resolution in third
+> party drivers like hid-multitouch.
+> This patch also complete the function with additional valid axes.
 > 
-> This change introduces devm_input_allocate_device() that will allocate
-> managed instance of input device so that driver writers who prefer
-> using devm_* framework do not have to mix 2 styles.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 > ---
 
-It seems devm always operates on the parent device, so strictly
-speaking, the input device is not handled by devm, is that correct?
-For instance, one cannot call devm_release_all() on the input device,
-expecting the device to unregister itself from the input bus.
+Nice, but please see comment below.
 
->  drivers/input/input.c | 175 ++++++++++++++++++++++++++++++++++++++++++--------
->  include/linux/input.h |   7 +-
->  2 files changed, 154 insertions(+), 28 deletions(-)
+>  drivers/hid/hid-input.c      | 11 +++++++++--
+>  drivers/hid/hid-multitouch.c |  1 +
+>  include/linux/hid.h          |  1 +
+>  3 files changed, 11 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index 53a0dde..7fe74f8 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -1723,7 +1723,7 @@ EXPORT_SYMBOL_GPL(input_class);
->  /**
->   * input_allocate_device - allocate memory for new input device
->   *
-> - * Returns prepared struct input_dev or NULL.
-> + * Returns prepared struct input_dev or %NULL.
->   *
->   * NOTE: Use input_free_device() to free devices that have not been
->   * registered; input_unregister_device() should be used for already
-> @@ -1750,6 +1750,70 @@ struct input_dev *input_allocate_device(void)
->  }
->  EXPORT_SYMBOL(input_allocate_device);
->  
-> +struct input_devres {
-> +	struct input_dev *input;
-> +};
-> +
-> +static int devm_input_device_match(struct device *dev, void *res, void *data)
-> +{
-> +	struct input_devres *devres = res;
-> +
-> +	return devres->input == data;
-> +}
-> +
-> +static void devm_input_device_release(struct device *dev, void *res)
-> +{
-> +	struct input_devres *devres = res;
-> +	struct input_dev *input = devres->input;
-> +
-> +	dev_dbg(dev, "%s: dropping reference to %s\n",
-> +		__func__, dev_name(&input->dev));
-> +	input_put_device(input);
-> +}
-> +
-> +/**
-> + * devm_input_allocate_device - allocate managed input device
-> + * @dev: device owning the input device being created
-> + *
-> + * Returns prepared struct input_dev or %NULL.
-> + *
-> + * Managed input devices do not need to be explicitly unregistered or
-> + * freed as it will be done automatically when owner device unbinds from
-> + * its driver (or binding fails). Once managed input device is allocated,
-> + * it is ready to be set up and registered in the same fashion as regular
-> + * input device. There are no special devm_input_device_[un]register()
-> + * variants, regular ones work with both managed and unmanaged devices.
-> + *
-> + * NOTE: the owner device is set up as parent of input device and users
-> + * should not override it.
-> + */
-> +
-> +struct input_dev *devm_input_allocate_device(struct device *dev)
-> +{
-> +	struct input_dev *input;
-> +	struct input_devres *devres;
-> +
-> +	devres = devres_alloc(devm_input_device_release,
-> +			      sizeof(struct input_devres), GFP_KERNEL);
-> +	if (!devres)
-> +		return NULL;
-> +
-> +	input = input_allocate_device();
-> +	if (!input) {
-> +		devres_free(devres);
-> +		return NULL;
-> +	}
-> +
-> +	input->dev.parent = dev;
-> +	input->devres_managed = true;
-> +
-> +	devres->input = input;
-> +	devres_add(dev, devres);
-> +
-> +	return input;
-> +}
-> +EXPORT_SYMBOL(devm_input_allocate_device);
-> +
->  /**
->   * input_free_device - free memory occupied by input_dev structure
->   * @dev: input device to free
-> @@ -1766,8 +1830,14 @@ EXPORT_SYMBOL(input_allocate_device);
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index d917c0d..1b0adc3 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -208,7 +208,7 @@ static int hidinput_setkeycode(struct input_dev *dev,
+>   * Only exponent 1 length units are processed. Centimeters and inches are
+>   * converted to millimeters. Degrees are converted to radians.
 >   */
->  void input_free_device(struct input_dev *dev)
+> -static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
+> +__s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
 >  {
-> -	if (dev)
-> +	if (dev) {
-> +		if (dev->devres_managed)
-> +			WARN_ON(devres_destroy(dev->dev.parent,
-> +						devm_input_device_release,
-> +						devm_input_device_match,
-> +						dev));
->  		input_put_device(dev);
+>  	__s32 unit_exponent = field->unit_exponent;
+>  	__s32 logical_extents = field->logical_maximum -
+> @@ -229,6 +229,12 @@ static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
+>  	case ABS_X:
+>  	case ABS_Y:
+>  	case ABS_Z:
+> +	case ABS_MT_POSITION_X:
+> +	case ABS_MT_POSITION_Y:
+> +	case ABS_MT_TOOL_X:
+> +	case ABS_MT_TOOL_Y:
+> +	case ABS_MT_TOUCH_MAJOR:
+> +	case ABS_MT_TOUCH_MINOR:
+>  		if (field->unit == 0x11) {		/* If centimeters */
+>  			/* Convert to millimeters */
+>  			unit_exponent += 1;
+> @@ -281,8 +287,9 @@ static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
+>  	}
+>  
+>  	/* Calculate resolution */
+> -	return logical_extents / physical_extents;
+> +	return DIV_ROUND_CLOSEST(logical_extents, physical_extents);
 
-Device is put twice?
+This line might be best left alone; if the round-off matters, you now
+risk regressing a carefully tuned userland.
 
-> +	}
 >  }
->  EXPORT_SYMBOL(input_free_device);
+> +EXPORT_SYMBOL_GPL(hidinput_calc_abs_res);
 >  
-> @@ -1888,6 +1958,38 @@ static void input_cleanse_bitmasks(struct input_dev *dev)
->  	INPUT_CLEANSE_BITMASK(dev, SW, sw);
+>  #ifdef CONFIG_HID_BATTERY_STRENGTH
+>  static enum power_supply_property hidinput_battery_props[] = {
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index c97011c..375a38d 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -298,6 +298,7 @@ static void set_abs(struct input_dev *input, unsigned int code,
+>  	int fmax = field->logical_maximum;
+>  	int fuzz = snratio ? (fmax - fmin) / snratio : 0;
+>  	input_set_abs_params(input, code, fmin, fmax, fuzz, 0);
+> +	input_abs_set_res(input, code, hidinput_calc_abs_res(field, code));
 >  }
 >  
-> +static void __input_unregister_device(struct input_dev *dev)
-> +{
-> +	struct input_handle *handle, *next;
-> +
-> +	input_disconnect_device(dev);
-> +
-> +	mutex_lock(&input_mutex);
-> +
-> +	list_for_each_entry_safe(handle, next, &dev->h_list, d_node)
-> +		handle->handler->disconnect(handle);
-> +	WARN_ON(!list_empty(&dev->h_list));
-> +
-> +	del_timer_sync(&dev->timer);
-> +	list_del_init(&dev->node);
-> +
-> +	input_wakeup_procfs_readers();
-> +
-> +	mutex_unlock(&input_mutex);
-> +
-> +	device_del(&dev->dev);
-> +}
-> +
-> +static void devm_input_device_unregister(struct device *dev, void *res)
-> +{
-> +	struct input_devres *devres = res;
-> +	struct input_dev *input = devres->input;
-> +
-> +	dev_dbg(dev, "%s: unregistering device %s\n",
-> +		__func__, dev_name(&input->dev));
-> +	__input_unregister_device(input);
-> +}
-> +
->  /**
->   * input_register_device - register device with input core
->   * @dev: device to be registered
-> @@ -1903,11 +2005,21 @@ static void input_cleanse_bitmasks(struct input_dev *dev)
->  int input_register_device(struct input_dev *dev)
->  {
->  	static atomic_t input_no = ATOMIC_INIT(0);
-> +	struct input_devres *devres = NULL;
->  	struct input_handler *handler;
->  	unsigned int packet_size;
->  	const char *path;
->  	int error;
->  
-> +	if (dev->devres_managed) {
-> +		devres = devres_alloc(devm_input_device_unregister,
-> +				      sizeof(struct input_devres), GFP_KERNEL);
-> +		if (!devres)
-> +			return -ENOMEM;
-> +
-> +		devres->input = dev;
-> +	}
-> +
->  	/* Every input device generates EV_SYN/SYN_REPORT events. */
->  	__set_bit(EV_SYN, dev->evbit);
->  
-> @@ -1923,8 +2035,10 @@ int input_register_device(struct input_dev *dev)
->  
->  	dev->max_vals = max(dev->hint_events_per_packet, packet_size) + 2;
->  	dev->vals = kcalloc(dev->max_vals, sizeof(*dev->vals), GFP_KERNEL);
-> -	if (!dev->vals)
-> -		return -ENOMEM;
-> +	if (!dev->vals) {
-> +		error = -ENOMEM;
-> +		goto err_devres_free;
-> +	}
->  
->  	/*
->  	 * If delay and period are pre-set by the driver, then autorepeating
-> @@ -1949,7 +2063,7 @@ int input_register_device(struct input_dev *dev)
->  
->  	error = device_add(&dev->dev);
->  	if (error)
-> -		return error;
-> +		goto err_free_vals;
->  
->  	path = kobject_get_path(&dev->dev.kobj, GFP_KERNEL);
->  	pr_info("%s as %s\n",
-> @@ -1958,10 +2072,8 @@ int input_register_device(struct input_dev *dev)
->  	kfree(path);
->  
->  	error = mutex_lock_interruptible(&input_mutex);
-> -	if (error) {
-> -		device_del(&dev->dev);
-> -		return error;
-> -	}
-> +	if (error)
-> +		goto err_device_del;
->  
->  	list_add_tail(&dev->node, &input_dev_list);
->  
-> @@ -1972,7 +2084,20 @@ int input_register_device(struct input_dev *dev)
->  
->  	mutex_unlock(&input_mutex);
->  
-> +	if (dev->devres_managed) {
-> +		dev_info(dev->dev.parent, "%s: registerign %s with devres.\n",
-> +			__func__, dev->name ?: "N/A");
-> +		devres_add(dev->dev.parent, devres);
-> +	}
-
-Why not add the resource to the input device instead? For one, it
-would make the order of unregister and release more apparent. Right
-now, the code seems to rely on the reverse for-loop in the devres
-implementation.
-
->  	return 0;
-> +
-> +err_device_del:
-> +	device_del(&dev->dev);
-> +err_free_vals:
-> +	kfree(dev->vals);
-> +err_devres_free:
-> +	devres_free(devres);
-> +	return error;
->  }
->  EXPORT_SYMBOL(input_register_device);
->  
-> @@ -1985,24 +2110,20 @@ EXPORT_SYMBOL(input_register_device);
->   */
->  void input_unregister_device(struct input_dev *dev)
->  {
-> -	struct input_handle *handle, *next;
-> -
-> -	input_disconnect_device(dev);
-> -
-> -	mutex_lock(&input_mutex);
-> -
-> -	list_for_each_entry_safe(handle, next, &dev->h_list, d_node)
-> -		handle->handler->disconnect(handle);
-> -	WARN_ON(!list_empty(&dev->h_list));
-> -
-> -	del_timer_sync(&dev->timer);
-> -	list_del_init(&dev->node);
-> -
-> -	input_wakeup_procfs_readers();
-> -
-> -	mutex_unlock(&input_mutex);
-> -
-> -	device_unregister(&dev->dev);
-> +	if (dev->devres_managed) {
-> +		WARN_ON(devres_destroy(dev->dev.parent,
-> +					devm_input_device_unregister,
-> +					devm_input_device_match,
-> +					dev));
-> +		__input_unregister_device(dev);
-
-Unregistering twice?
-
-> +		/*
-> +		 * We do not do input_put_device() here because it will be done
-> +		 * when 2nd devres fires up.
-> +		 */
-> +	} else {
-> +		__input_unregister_device(dev);
-> +		input_put_device(dev);
-> +	}
->  }
->  EXPORT_SYMBOL(input_unregister_device);
->  
-> diff --git a/include/linux/input.h b/include/linux/input.h
-> index 15464ba..bfc479c 100644
-> --- a/include/linux/input.h
-> +++ b/include/linux/input.h
-> @@ -1256,6 +1256,8 @@ struct input_value {
->   * @h_list: list of input handles associated with the device. When
->   *	accessing the list dev->mutex must be held
->   * @node: used to place the device onto input_dev_list
-> + * @devres_managed: indicates that devices is managed with devres framework
-> + *	and needs not be explicitly unregistered or freed.
->   */
->  struct input_dev {
->  	const char *name;
-> @@ -1324,6 +1326,8 @@ struct input_dev {
->  	unsigned int num_vals;
->  	unsigned int max_vals;
->  	struct input_value *vals;
-> +
-> +	bool devres_managed;
->  };
->  #define to_input_dev(d) container_of(d, struct input_dev, dev)
->  
-> @@ -1467,7 +1471,8 @@ struct input_handle {
->  	struct list_head	h_node;
->  };
->  
-> -struct input_dev *input_allocate_device(void);
-> +struct input_dev __must_check *input_allocate_device(void);
-> +struct input_dev __must_check *devm_input_allocate_device(struct device *);
->  void input_free_device(struct input_dev *dev);
->  
->  static inline struct input_dev *input_get_device(struct input_dev *dev)
+>  static void mt_store_field(struct hid_usage *usage, struct mt_device *td,
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index 7e1f37d..9edb06c 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -743,6 +743,7 @@ int hid_input_report(struct hid_device *, int type, u8 *, int, int);
+>  int hidinput_find_field(struct hid_device *hid, unsigned int type, unsigned int code, struct hid_field **field);
+>  struct hid_field *hidinput_get_led_field(struct hid_device *hid);
+>  unsigned int hidinput_count_leds(struct hid_device *hid);
+> +__s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code);
+>  void hid_output_report(struct hid_report *report, __u8 *data);
+>  struct hid_device *hid_allocate_device(void);
+>  struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id);
 > -- 
 > 1.7.11.7
+> 
 
 Thanks,
 Henrik

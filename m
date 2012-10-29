@@ -1,45 +1,76 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: introduce managed input devices (add devres support)
-Date: Mon, 29 Oct 2012 15:12:20 -0700
-Message-ID: <8202410.zO713iQhxO@dtor-d630.eng.vmware.com>
-References: <20121023053513.GA15642@core.coreip.homeip.net> <20121029204023.GB13256@core.coreip.homeip.net> <20121029213254.GA15390@polaris.bitmath.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v2 08/11] HID: hid-multitouch: fix Win 8 protocol
+Date: Mon, 29 Oct 2012 23:19:05 +0100
+Message-ID: <20121029221905.GA15537@polaris.bitmath.org>
+References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
+ <1351241067-9521-9-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121029213254.GA15390@polaris.bitmath.org>
+Content-Disposition: inline
+In-Reply-To: <1351241067-9521-9-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Monday, October 29, 2012 10:32:54 PM Henrik Rydberg wrote:
-> > > Either way, the code looks functional to me.
-> > 
-> > So is that "reviewed-by"?
+On Fri, Oct 26, 2012 at 10:44:24AM +0200, Benjamin Tissoires wrote:
+> Win 8 specification is much more precise than the Win 7 one.
+> Moreover devices that need to take certification must be submitted
+> to Microsoft.
 > 
-> I was thinking about this hunk:
-> > @@ -1972,7 +2084,20 @@ int input_register_device(struct input_dev *dev)
-> > 
-> >         mutex_unlock(&input_mutex);
-> > 
-> > +       if (dev->devres_managed) {
-> > +               dev_info(dev->dev.parent, "%s: registerign %s with
-> > devres.\n", +                       __func__, dev->name ?: "N/A");
-> > +               devres_add(dev->dev.parent, devres);
-> > +       }
-> > 
-> >         return 0;
-> > 
-> > +
-> > +err_device_del:
-> > +       device_del(&dev->dev);
-> > +err_free_vals:
-> > +       kfree(dev->vals);
+> The result is a better protocol support and we can rely on that to
+> skip all the messy tests we used to do.
 > 
-> Won't this yield a double free once we reach release()?
+> The protocol specify the fact that each valid touch must be reported
+> within a frame, and that the release touch coordinate must be the
+> same than the last known touch.
+> So we can use the always_valid quirk and dismiss reports when we
+> touch coordiante do not follow this rule.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> ---
+>  drivers/hid/hid-multitouch.c | 16 ++++++++++++++--
+>  1 file changed, 14 insertions(+), 2 deletions(-)
 
-Nicely spotted, we need "dev->vals = NULL;" here.
+Why do we need this patch?
 
--- 
-Dmitry
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 43bd8e8..bd23f19 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -510,6 +510,18 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+>  		int slotnum = mt_compute_slot(td, input);
+>  		struct mt_slot *s = &td->curdata;
+>  
+> +		if (td->mtclass.quirks & MT_QUIRK_WIN_8_CERTIFIED &&
+> +		    !s->touch_state) {
+> +			struct input_mt_slot *slot = &input->mt->slots[slotnum];
+> +			int prv_x = input_mt_get_value(slot, ABS_MT_POSITION_X);
+> +			int prv_y = input_mt_get_value(slot, ABS_MT_POSITION_Y);
+> +			/* valid releases occurs when the last x and y positions
+> +			 * are the same as the last known touch. */
+> +			if (!input_mt_is_active(slot) ||
+> +			    prv_x != s->x || prv_y != s->y)
+> +				return;
+> +		}
+> +
+>  		if (slotnum < 0 || slotnum >= td->maxcontacts)
+>  			return;
+>  
+> @@ -681,8 +693,8 @@ static void mt_post_parse_default_settings(struct mt_device *td)
+>  {
+>  	__s32 quirks = td->mtclass.quirks;
+>  
+> -	/* unknown serial device needs special quirks */
+> -	if (td->touches_by_report == 1) {
+> +	/* unknown serial devices or win8 ones need special quirks */
+> +	if (td->touches_by_report == 1 || quirks & MT_QUIRK_WIN_8_CERTIFIED) {
+>  		quirks |= MT_QUIRK_ALWAYS_VALID;
+>  		quirks &= ~MT_QUIRK_NOT_SEEN_MEANS_UP;
+>  		quirks &= ~MT_QUIRK_VALID_IS_INRANGE;
+> -- 
+> 1.7.11.7
+> 
+
+Henrik

@@ -1,39 +1,66 @@
-From: Xianhan Yu <aroundight77@gmail.com>
-Subject: [PATCH 1/1] hid:Fix maxcontacts problem on GeneralTouch multi-touchscreen.
-Date: Mon, 29 Oct 2012 23:04:37 +0800
-Message-ID: <1351523077-2177-1-git-send-email-aroundight77@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:65255 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751113Ab2J2HDQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Oct 2012 03:03:16 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH RESEND 0/8] TI Touchscreen driver updates and Support
+ for TSC/ADC MFD driver
+Date: Mon, 29 Oct 2012 07:13:05 +0000
+Message-ID: <4CE347531D4CA947960AF71FF095B9323E964CB5@DBDE01.ent.ti.com>
+References: <1350372345-27108-1-git-send-email-rachna@ti.com>
+ <20121016174207.GA1833@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20121016174207.GA1833-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Content-Language: en-US
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, yxhma <yxhma@163.com>, Xianhan Yu <aroundight77@gmail.com>
 
-Fix maxcontacts problem for PWT GeneralTouch multi-touchscreen,modify driver for all GeneralTouch PWT touchscreen.
+Hi Samuel,
 
-Signed-off-by: Xianhan Yu <aroundight77@gmail.com>
----
- drivers/hid/hid-multitouch.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+This is just a gentle reminder for the patch set I had submitted viz.
+"[PATCH RESEND 0/8] TI Touchscreen driver updates and Support for TSC/ADC MFD driver"
+I received an ACK from Jonathan and Dmitry on this patch set.
+Can you please pull in if there are no further comments.
+This patch set does not break anything existing, it just adds new driver.
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 3eb02b9..7afeb77 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -210,8 +210,7 @@ static struct mt_class mt_classes[] = {
- 	},
- 	{ .name	= MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
- 		.quirks	= MT_QUIRK_NOT_SEEN_MEANS_UP |
--			MT_QUIRK_SLOT_IS_CONTACTNUMBER,
--		.maxcontacts = 10
-+			MT_QUIRK_SLOT_IS_CONTACTNUMBER
- 	},
- 
- 	{ .name = MT_CLS_FLATFROG,
--- 
-1.7.9.5
+Thanks & Regards,
+Rachna.
 
+On Tue, Oct 16, 2012 at 23:12:07, Dmitry Torokhov wrote:
+> Hi Rachna,
+> 
+> On Tue, Oct 16, 2012 at 12:55:37PM +0530, Patil, Rachna wrote:
+> > This patch set is a cumulative set of [1] and [2] sent earlier.
+> > I have merged the patch set so that the MFD patches apply without any 
+> > issues.
+> > 
+> > Also Note that there are no code changes in either of the patch set, 
+> > only rebased on top of linux-next to make sure that all the patches 
+> > apply without any conflicts.
+> > 
+> > This patch set has been tested on AM335x EVM.
+> > 
+> > [1] "[PATCH 0/4] input: TSC: ti_tscadc: TI Touchscreen driver updates"
+> > (http://www.spinics.net/lists/linux-input/msg22107.html)
+> > 
+> > [2] "[PATCH v5 0/4] Support for TSC/ADC MFD driver"
+> > (http://www.spinics.net/lists/linux-input/msg22832.html)
+> > 
+> > Patil, Rachna (8):
+> >   input: TSC: ti_tscadc: Correct register usage
+> >   input: TSC: ti_tscadc: Add Step configuration as platform data
+> >   input: TSC: ti_tscadc: set FIFO0 threshold Interrupt
+> >   input: TSC: ti_tscadc: Remove definition of End Of Interrupt register
+> >   input: TSC: ti_tscadc: Rename the existing touchscreen driver
+> >   MFD: ti_tscadc: Add support for TI's TSC/ADC MFDevice
+> >   input: TSC: ti_tsc: Convert TSC into a MFDevice
+> >   IIO : ADC: tiadc: Add support of TI's ADC driver
+> 
+> I am fine with input portion of the patch series, please merge through MFD tree.
+> 
+> Thanks.
+> 
+> --
+> Dmitry
+> 

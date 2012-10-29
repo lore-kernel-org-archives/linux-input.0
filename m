@@ -1,20 +1,19 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2 09/11] HID: hid-multitouch: support for hovering
- devices
-Date: Mon, 29 Oct 2012 23:31:09 +0100
-Message-ID: <20121029223109.GA15589@polaris.bitmath.org>
+Subject: Re: [PATCH v2 10/11] HID: introduce Scan Time
+Date: Mon, 29 Oct 2012 23:43:31 +0100
+Message-ID: <20121029224331.GA15608@polaris.bitmath.org>
 References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
- <1351241067-9521-10-git-send-email-benjamin.tissoires@gmail.com>
+ <1351241067-9521-11-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:35922 "EHLO
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:36759 "EHLO
 	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755279Ab2J2W0c (ORCPT
+	with ESMTP id S1761053Ab2J2Wix (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Oct 2012 18:26:32 -0400
+	Mon, 29 Oct 2012 18:38:53 -0400
 Content-Disposition: inline
-In-Reply-To: <1351241067-9521-10-git-send-email-benjamin.tissoires@gmail.com>
+In-Reply-To: <1351241067-9521-11-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
@@ -22,92 +21,117 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, 
 
 Hi Benjamin,
 
-> Win8 devices supporting hovering must provides InRange HID field.
-> The information that the finger is here but is not touching the surface
-> is sent to the user space through ABS_MT_DISTANCE as required by the
-> multitouch protocol.
+> Win 8 digitizer devices provides the actual scan time computed by the
+> hardware itself. The value is global to the frame and is not specific
+> to the multitouch protocol (though only touch, not pen, should use it
+> according to the specification).
 > 
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 > ---
->  drivers/hid/hid-multitouch.c | 21 +++++++++++++++++++--
->  1 file changed, 19 insertions(+), 2 deletions(-)
+>  Documentation/input/event-codes.txt |  7 +++++++
+>  drivers/hid/hid-input.c             |  4 ++++
+>  drivers/hid/hid-multitouch.c        | 11 +++++++++--
+>  include/linux/hid.h                 |  1 +
+>  include/linux/input.h               |  1 +
+>  5 files changed, 22 insertions(+), 2 deletions(-)
 
-I suppose the idea here is to send position and distance values even
-when there is no touch, but the code does not seem to do that?
+This is a nice feature, useful in many other contexts. As such, I
+think it should be defined in the context of the input subsystem, with
+a more specific definition added to the documentation. For instance,
+is 100us suitable? When should it start at zero, at BTN_TOUCH? Or
+should it perhaps wrap around on unsigned integer instead? Or display
+the difference from the last event?
 
-> 
+> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
+> index 53305bd..8f8c908 100644
+> --- a/Documentation/input/event-codes.txt
+> +++ b/Documentation/input/event-codes.txt
+> @@ -174,6 +174,13 @@ A few EV_ABS codes have special meanings:
+>      the input device may be used freely in three dimensions, consider ABS_Z
+>      instead.
+>  
+> +* ABS_SCAN_TIME:
+> +  - Used when the device provides a timestamp for each frame. The unit must be
+> +    100us, and may be reset when the device don't send any events for a
+> +    period of time. The values increment at each frame and thus, it can roll
+> +    back to 0 when reach logical_max. If the device does not provide this
+> +    information, the driver must not provide it to the user space.
+> +
+>  * ABS_MT_<name>:
+>    - Used to describe multitouch input events. Please see
+>      multi-touch-protocol.txt for details.
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index 16cc89a..5fe7bd3 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -675,6 +675,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+>  			map_key_clear(BTN_STYLUS2);
+>  			break;
+>  
+> +		case 0x56: /* Scan Time */
+> +			map_abs(ABS_SCAN_TIME);
+> +			break;
+> +
+
+Is it not enough to map it in the case below? Or you mean this is
+picked up by hid core?
+
+>  		default:  goto unknown;
+>  		}
+>  		break;
 > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index bd23f19..c0ab1c6 100644
+> index c0ab1c6..21a120b 100644
 > --- a/drivers/hid/hid-multitouch.c
 > +++ b/drivers/hid/hid-multitouch.c
-> @@ -55,7 +55,7 @@ MODULE_LICENSE("GPL");
->  #define MT_QUIRK_WIN_8_CERTIFIED	(1 << 10)
->  
->  struct mt_slot {
-> -	__s32 x, y, cx, cy, p, w, h;
-> +	__s32 x, y, cx, cy, z, p, w, h;
->  	__s32 contactid;	/* the device ContactID assigned to this slot */
->  	bool touch_state;	/* is the touch valid? */
->  };
-> @@ -394,6 +394,12 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  	case HID_UP_DIGITIZER:
->  		switch (usage->hid) {
->  		case HID_DG_INRANGE:
-> +			if (cls->quirks & MT_QUIRK_WIN_8_CERTIFIED) {
-> +				hid_map_usage(hi, usage, bit, max,
-> +					EV_ABS, ABS_MT_DISTANCE);
-> +				input_set_abs_params(hi->input,
-> +					ABS_MT_DISTANCE, 0, 1, 0, 0);
-> +			}
+> @@ -447,12 +447,19 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 >  			mt_store_field(usage, td, hi);
 >  			td->last_field_index = field->index;
 >  			return 1;
-> @@ -511,6 +517,11 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->  		struct mt_slot *s = &td->curdata;
+> +		case HID_DG_SCANTIME:
+> +			hid_map_usage(hi, usage, bit, max,
+> +				EV_ABS, ABS_SCAN_TIME);
+> +			set_abs(hi->input, ABS_SCAN_TIME, field, 0);
+> +			td->last_field_index = field->index;
+> +			return 1;
+>  		case HID_DG_CONTACTCOUNT:
+>  			td->last_field_index = field->index;
+>  			return 1;
+>  		case HID_DG_CONTACTMAX:
+> -			/* we don't set td->last_slot_field as contactcount and
+> -			 * contact max are global to the report */
+> +			/* we don't set td->last_slot_field as scan time,
+> +			 * contactcount and contact max are global to the
+> +			 * report */
+>  			td->last_field_index = field->index;
+>  			return -1;
+>  		case HID_DG_TOUCH:
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index 6216529..99a6418 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -279,6 +279,7 @@ struct hid_item {
+>  #define HID_DG_DEVICEINDEX	0x000d0053
+>  #define HID_DG_CONTACTCOUNT	0x000d0054
+>  #define HID_DG_CONTACTMAX	0x000d0055
+> +#define HID_DG_SCANTIME		0x000d0056
 >  
->  		if (td->mtclass.quirks & MT_QUIRK_WIN_8_CERTIFIED &&
-> +		    !test_bit(ABS_MT_DISTANCE, input->absbit))
-> +			/* If InRange is not present, rely on TipSwitch */
-> +			s->touch_state = !s->z;
-> +
-> +		if (td->mtclass.quirks & MT_QUIRK_WIN_8_CERTIFIED &&
->  		    !s->touch_state) {
->  			struct input_mt_slot *slot = &input->mt->slots[slotnum];
->  			int prv_x = input_mt_get_value(slot, ABS_MT_POSITION_X);
-> @@ -543,6 +554,7 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->  				input_event(input, EV_ABS, ABS_MT_TOOL_Y,
->  					s->cy);
->  			}
-> +			input_event(input, EV_ABS, ABS_MT_DISTANCE, s->z);
-
-This only happens if touch_state is true?
-
->  			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
->  			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
->  			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
-> @@ -575,11 +587,16 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->  		case HID_DG_INRANGE:
->  			if (quirks & MT_QUIRK_VALID_IS_INRANGE)
->  				td->curvalid = value;
-> +			if (quirks & MT_QUIRK_WIN_8_CERTIFIED)
-> +				td->curdata.touch_state = value;
->  			break;
->  		case HID_DG_TIPSWITCH:
->  			if (quirks & MT_QUIRK_NOT_SEEN_MEANS_UP)
->  				td->curvalid = value;
-> -			td->curdata.touch_state = value;
-> +			if (quirks & MT_QUIRK_WIN_8_CERTIFIED)
-> +				td->curdata.z = !value;
-
-Here, z is a boolean?
-
-> +			else
-> +				td->curdata.touch_state = value;
->  			break;
->  		case HID_DG_CONFIDENCE:
->  			if (quirks & MT_QUIRK_VALID_IS_CONFIDENCE)
+>  /*
+>   * HID report types --- Ouch! HID spec says 1 2 3!
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index ba48743..73c3a96 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -796,6 +796,7 @@ struct input_keymap_entry {
+>  #define ABS_TILT_X		0x1a
+>  #define ABS_TILT_Y		0x1b
+>  #define ABS_TOOL_WIDTH		0x1c
+> +#define ABS_SCAN_TIME		0x1d
+>  
+>  #define ABS_VOLUME		0x20
+>  
 > -- 
 > 1.7.11.7
 > 
 
+Thanks,
 Henrik

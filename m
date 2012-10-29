@@ -1,19 +1,20 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2 10/11] HID: introduce Scan Time
-Date: Mon, 29 Oct 2012 23:43:31 +0100
-Message-ID: <20121029224331.GA15608@polaris.bitmath.org>
+Subject: Re: [PATCH v2 11/11] HID: hid-multitouch: get rid of usbhid
+ depedency for general path
+Date: Mon, 29 Oct 2012 23:57:48 +0100
+Message-ID: <20121029225748.GA15632@polaris.bitmath.org>
 References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
- <1351241067-9521-11-git-send-email-benjamin.tissoires@gmail.com>
+ <1351241067-9521-12-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:36759 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761053Ab2J2Wix (ORCPT
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:53279 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755257Ab2J2WxK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Oct 2012 18:38:53 -0400
+	Mon, 29 Oct 2012 18:53:10 -0400
 Content-Disposition: inline
-In-Reply-To: <1351241067-9521-11-git-send-email-benjamin.tissoires@gmail.com>
+In-Reply-To: <1351241067-9521-12-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
@@ -21,117 +22,221 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, 
 
 Hi Benjamin,
 
-> Win 8 digitizer devices provides the actual scan time computed by the
-> hardware itself. The value is global to the frame and is not specific
-> to the multitouch protocol (though only touch, not pen, should use it
-> according to the specification).
+> This patch factorizes the hid set_feature command by using
+> hid_device->hid_output_raw_report instead of direclty relying on
+> usbhid. This makes the driver usb independant.
+> 
+> However I still can't remove the 2 usb related headers because the
+> function mt_resume has a specific patch for usb devices.
 > 
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 > ---
->  Documentation/input/event-codes.txt |  7 +++++++
->  drivers/hid/hid-input.c             |  4 ++++
->  drivers/hid/hid-multitouch.c        | 11 +++++++++--
->  include/linux/hid.h                 |  1 +
->  include/linux/input.h               |  1 +
->  5 files changed, 22 insertions(+), 2 deletions(-)
+>  drivers/hid/hid-multitouch.c | 63 ++++++++++++++++++++++++++------------------
+>  1 file changed, 37 insertions(+), 26 deletions(-)
 
-This is a nice feature, useful in many other contexts. As such, I
-think it should be defined in the context of the input subsystem, with
-a more specific definition added to the documentation. For instance,
-is 100us suitable? When should it start at zero, at BTN_TOUCH? Or
-should it perhaps wrap around on unsigned integer instead? Or display
-the difference from the last event?
+In my drawer, I have a patchset that aims to remove all usbhid
+dependence, from all the drivers. Perhaps the attached patch is
+something to consider here?
 
-> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
-> index 53305bd..8f8c908 100644
-> --- a/Documentation/input/event-codes.txt
-> +++ b/Documentation/input/event-codes.txt
-> @@ -174,6 +174,13 @@ A few EV_ABS codes have special meanings:
->      the input device may be used freely in three dimensions, consider ABS_Z
->      instead.
->  
-> +* ABS_SCAN_TIME:
-> +  - Used when the device provides a timestamp for each frame. The unit must be
-> +    100us, and may be reset when the device don't send any events for a
-> +    period of time. The values increment at each frame and thus, it can roll
-> +    back to 0 when reach logical_max. If the device does not provide this
-> +    information, the driver must not provide it to the user space.
-> +
->  * ABS_MT_<name>:
->    - Used to describe multitouch input events. Please see
->      multi-touch-protocol.txt for details.
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 16cc89a..5fe7bd3 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -675,6 +675,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->  			map_key_clear(BTN_STYLUS2);
->  			break;
->  
-> +		case 0x56: /* Scan Time */
-> +			map_abs(ABS_SCAN_TIME);
-> +			break;
-> +
-
-Is it not enough to map it in the case below? Or you mean this is
-picked up by hid core?
-
->  		default:  goto unknown;
->  		}
->  		break;
+> 
 > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index c0ab1c6..21a120b 100644
+> index 21a120b..33038c5 100644
 > --- a/drivers/hid/hid-multitouch.c
 > +++ b/drivers/hid/hid-multitouch.c
-> @@ -447,12 +447,19 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  			mt_store_field(usage, td, hi);
->  			td->last_field_index = field->index;
->  			return 1;
-> +		case HID_DG_SCANTIME:
-> +			hid_map_usage(hi, usage, bit, max,
-> +				EV_ABS, ABS_SCAN_TIME);
-> +			set_abs(hi->input, ABS_SCAN_TIME, field, 0);
-> +			td->last_field_index = field->index;
-> +			return 1;
->  		case HID_DG_CONTACTCOUNT:
->  			td->last_field_index = field->index;
->  			return 1;
->  		case HID_DG_CONTACTMAX:
-> -			/* we don't set td->last_slot_field as contactcount and
-> -			 * contact max are global to the report */
-> +			/* we don't set td->last_slot_field as scan time,
-> +			 * contactcount and contact max are global to the
-> +			 * report */
->  			td->last_field_index = field->index;
->  			return -1;
->  		case HID_DG_TOUCH:
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index 6216529..99a6418 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -279,6 +279,7 @@ struct hid_item {
->  #define HID_DG_DEVICEINDEX	0x000d0053
->  #define HID_DG_CONTACTCOUNT	0x000d0054
->  #define HID_DG_CONTACTMAX	0x000d0055
-> +#define HID_DG_SCANTIME		0x000d0056
+> @@ -670,47 +670,58 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+>  	return 1;
+>  }
 >  
->  /*
->   * HID report types --- Ouch! HID spec says 1 2 3!
-> diff --git a/include/linux/input.h b/include/linux/input.h
-> index ba48743..73c3a96 100644
-> --- a/include/linux/input.h
-> +++ b/include/linux/input.h
-> @@ -796,6 +796,7 @@ struct input_keymap_entry {
->  #define ABS_TILT_X		0x1a
->  #define ABS_TILT_Y		0x1b
->  #define ABS_TOOL_WIDTH		0x1c
-> +#define ABS_SCAN_TIME		0x1d
+> -static void mt_set_input_mode(struct hid_device *hdev)
+> +static void mt_set_feature(struct hid_device *hdev, __s8 feature_id,
+> +	u8 value, size_t index)
+>  {
+> -	struct mt_device *td = hid_get_drvdata(hdev);
+>  	struct hid_report *r;
+>  	struct hid_report_enum *re;
+> +	u8 *data;
+> +	u8 max_value;
+> +	int len;
+> +
+> +	if (feature_id < 0 || !hdev->hid_output_raw_report)
+> +		return;
+> +
+> +	re = &hdev->report_enum[HID_FEATURE_REPORT];
+> +	r = re->report_id_hash[feature_id];
+> +	if (!r)
+> +		return;
+> +
+> +	len = ((r->size - 1) >> 3) + 1 + (r->id > 0);
+> +	max_value = r->field[0]->logical_maximum;
+> +	value = min(value, max_value);
 >  
->  #define ABS_VOLUME		0x20
+> -	if (td->inputmode < 0)
+> +	if (r->field[0]->value[index] == value || len < 2 || index + 1 >= len)
+>  		return;
 >  
+> -	re = &(hdev->report_enum[HID_FEATURE_REPORT]);
+> -	r = re->report_id_hash[td->inputmode];
+> -	if (r) {
+> -		r->field[0]->value[td->inputmode_index] = 0x02;
+> -		usbhid_submit_report(hdev, r, USB_DIR_OUT);
+> +	data = kzalloc(len, GFP_ATOMIC);
+> +	if (!data) {
+> +		hid_warn(hdev, "output queueing failed\n");
+> +		return;
+>  	}
+> +
+> +	data[0] = r->id;
+> +	data[index + 1] = value;
+> +	hdev->hid_output_raw_report(hdev, data, len, HID_FEATURE_REPORT);
+> +	kfree(data);
+>  }
+>  
+> -static void mt_set_maxcontacts(struct hid_device *hdev)
+> +static void mt_set_input_mode(struct hid_device *hdev)
+>  {
+>  	struct mt_device *td = hid_get_drvdata(hdev);
+> -	struct hid_report *r;
+> -	struct hid_report_enum *re;
+> -	int fieldmax, max;
+>  
+> -	if (td->maxcontact_report_id < 0)
+> -		return;
+> +	mt_set_feature(hdev, td->inputmode, 0x02, td->inputmode_index);
+> +}
+>  
+> -	if (!td->mtclass.maxcontacts)
+> +static void mt_set_maxcontacts(struct hid_device *hdev)
+> +{
+> +	struct mt_device *td = hid_get_drvdata(hdev);
+> +	int max = td->mtclass.maxcontacts;
+> +
+> +	if (!max)
+>  		return;
+>  
+> -	re = &hdev->report_enum[HID_FEATURE_REPORT];
+> -	r = re->report_id_hash[td->maxcontact_report_id];
+> -	if (r) {
+> -		max = td->mtclass.maxcontacts;
+> -		fieldmax = r->field[0]->logical_maximum;
+> -		max = min(fieldmax, max);
+> -		if (r->field[0]->value[0] != max) {
+> -			r->field[0]->value[0] = max;
+> -			usbhid_submit_report(hdev, r, USB_DIR_OUT);
+> -		}
+> -	}
+> +	mt_set_feature(hdev, td->maxcontact_report_id, max, 0);
+>  }
+>  
+>  static void mt_post_parse_default_settings(struct mt_device *td)
 > -- 
 > 1.7.11.7
 > 
 
 Thanks,
 Henrik
+
+---
+
+>From 5d9a791e0a9e41bcea0fcb286e2849b403675f37 Mon Sep 17 00:00:00 2001
+From: Henrik Rydberg <rydberg@euromail.se>
+Date: Mon, 2 Jul 2012 20:38:21 +0200
+Subject: [PATCH 3/7] hid: extend interface with report requests
+
+---
+ drivers/hid/usbhid/hid-core.c | 14 ++++++++++++++
+ include/linux/hid.h           | 33 +++++++++++++++++++++++++++++++++
+ 2 files changed, 47 insertions(+)
+
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index de1f9ac..3c618da 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -1251,6 +1251,18 @@ static int usbhid_power(struct hid_device *hid, int lvl)
+ 	return r;
+ }
+ 
++static void usbhid_send(struct hid_device *hid, struct hid_report *rep, int req)
++{
++	switch (req) {
++	case HID_REQ_GET_REPORT:
++		usbhid_submit_report(hid, rep, USB_DIR_IN);
++		break;
++	case HID_REQ_SET_REPORT:
++		usbhid_submit_report(hid, rep, USB_DIR_OUT);
++		break;
++	}
++}
++
+ static struct hid_ll_driver usb_hid_driver = {
+ 	.parse = usbhid_parse,
+ 	.start = usbhid_start,
+@@ -1259,6 +1271,8 @@ static struct hid_ll_driver usb_hid_driver = {
+ 	.close = usbhid_close,
+ 	.power = usbhid_power,
+ 	.hidinput_input_event = usb_hidinput_input_event,
++	.send = usbhid_send,
++	.wait = usbhid_wait_io,
+ };
+ 
+ static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *id)
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 241eb40..5e169c1 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -686,6 +686,8 @@ struct hid_driver {
+  * @hidinput_input_event: event input event (e.g. ff or leds)
+  * @parse: this method is called only once to parse the device data,
+  *	   shouldn't allocate anything to not leak memory
++ * @send: send report request to device (e.g. feature report)
++ * @wait: wait for buffered io to complete (send/recv reports)
+  */
+ struct hid_ll_driver {
+ 	int (*start)(struct hid_device *hdev);
+@@ -700,6 +702,11 @@ struct hid_ll_driver {
+ 			unsigned int code, int value);
+ 
+ 	int (*parse)(struct hid_device *hdev);
++
++	void (*send)(struct hid_device *hdev,
++		     struct hid_report *report, int req);
++	int (*wait)(struct hid_device *hdev);
++
+ };
+ 
+ #define	PM_HINT_FULLON	1<<5
+@@ -892,6 +899,32 @@ static inline int hid_hw_power(struct hid_device *hdev, int level)
+ 	return hdev->ll_driver->power ? hdev->ll_driver->power(hdev, level) : 0;
+ }
+ 
++
++/**
++ * hid_hw_send - send report request to device
++ *
++ * @hdev: hid device
++ * @report: report to send
++ * @req: hid request type
++ */
++static inline void hid_hw_send(struct hid_device *hdev,
++			       struct hid_report *report, int req)
++{
++	if (hdev->ll_driver->send)
++		hdev->ll_driver->send(hdev, report, req);
++}
++
++/**
++ * hid_hw_wait - wait for buffered io to complete
++ *
++ * @hdev: hid device
++ */
++static inline void hid_hw_wait(struct hid_device *hdev)
++{
++	if (hdev->ll_driver->wait)
++		hdev->ll_driver->wait(hdev);
++}
++
+ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
+ 		int interrupt);
+ 
+-- 
+1.7.11.1
+

@@ -1,159 +1,71 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2 06/11] HID: hid-multitouch: support T and C for win8
- devices
-Date: Mon, 29 Oct 2012 23:00:58 +0100
-Message-ID: <20121029220058.GB15413@polaris.bitmath.org>
+Subject: Re: [PATCH v2 07/11] HID: hid-multitouch: move ALWAYS_VALID quirk
+ check
+Date: Mon, 29 Oct 2012 23:16:05 +0100
+Message-ID: <20121029221605.GA15432@polaris.bitmath.org>
 References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
- <1351241067-9521-7-git-send-email-benjamin.tissoires@gmail.com>
+ <1351241067-9521-8-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-h31.telenor.se ([213.150.131.4]:57320 "EHLO
+	smtprelay-h31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933452Ab2J2WL2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Oct 2012 18:11:28 -0400
 Content-Disposition: inline
-In-Reply-To: <1351241067-9521-7-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <1351241067-9521-8-git-send-email-benjamin.tissoires@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
 Hi Benjamin,
 
-> Win8 input specification clarifies the X and Y sent by devices.
-> It distincts the position where the user wants to Touch (T) from
-> the center of the ellipsoide (C). This patch enable supports for this
-> distinction in hid-multitouch.
+> Win 8 device specification changed the requirements for the hid usages
+> of the multitouch devices. Now InRange is optional and must be only
+> used when the device supports hovering.
 > 
-> We recognize Win8 certified devices from their vendor feature 0xff0000c5
-> where Microsoft put a signed blob in the report to check if the device
-> passed the certification.
+> This ensures that the quirk ALWAYS_VALID is taken into account and
+> also ensures its precedence over the other VALID* quirks.
 > 
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 > ---
->  drivers/hid/hid-multitouch.c | 53 ++++++++++++++++++++++++++++++++++++--------
->  1 file changed, 44 insertions(+), 9 deletions(-)
+>  drivers/hid/hid-multitouch.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
 
-This is great, just a few comments below.
+Since we seem to never actually reset td, this seems equivalent,
+unless some device added ALWAYS VALID by mistake, even if INRANGE is
+not part of the report descriptor.
 
-> 
 > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 41f2981..000c979 100644
+> index 000c979..43bd8e8 100644
 > --- a/drivers/hid/hid-multitouch.c
 > +++ b/drivers/hid/hid-multitouch.c
-> @@ -52,9 +52,10 @@ MODULE_LICENSE("GPL");
->  #define MT_QUIRK_VALID_IS_CONFIDENCE	(1 << 6)
->  #define MT_QUIRK_SLOT_IS_CONTACTID_MINUS_ONE	(1 << 8)
->  #define MT_QUIRK_NO_AREA		(1 << 9)
-> +#define MT_QUIRK_WIN_8_CERTIFIED	(1 << 10)
+> @@ -506,7 +506,7 @@ static int mt_compute_slot(struct mt_device *td, struct input_dev *input)
+>   */
+>  static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+>  {
+> -	if (td->curvalid) {
+> +	if (td->curvalid || td->mtclass.quirks & MT_QUIRK_ALWAYS_VALID) {
+
+I found at least one presence of this construct in the kernel, but I
+think the overwhelming majority use parenthesis.
+
+>  		int slotnum = mt_compute_slot(td, input);
+>  		struct mt_slot *s = &td->curdata;
 >  
->  struct mt_slot {
-> -	__s32 x, y, p, w, h;
-> +	__s32 x, y, cx, cy, p, w, h;
->  	__s32 contactid;	/* the device ContactID assigned to this slot */
->  	bool touch_state;	/* is the touch valid? */
->  };
-> @@ -292,6 +293,10 @@ static void mt_feature_mapping(struct hid_device *hdev,
->  			td->maxcontacts = td->mtclass.maxcontacts;
->  
->  		break;
-> +	case 0xff0000c5:
-> +		if (field->report_count == 256 && field->report_size == 8)
-> +			td->mtclass.quirks |= MT_QUIRK_WIN_8_CERTIFIED;
-> +		break;
->  	}
->  }
->  
-> @@ -350,18 +355,36 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  	case HID_UP_GENDESK:
+> @@ -561,9 +561,7 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+>  	if (hid->claimed & HID_CLAIMED_INPUT) {
 >  		switch (usage->hid) {
->  		case HID_GD_X:
-> -			hid_map_usage(hi, usage, bit, max,
-> +			if (cls->quirks & MT_QUIRK_WIN_8_CERTIFIED &&
-
-Parenthesis, please. Precedence is not always enough.
-
-> +				usage_index) {
-> +				hid_map_usage(hi, usage, bit, max,
-> +					EV_ABS, ABS_MT_TOOL_X);
-> +				set_abs(hi->input, ABS_MT_TOOL_X, field,
-> +					cls->sn_move);
-> +			} else {
-> +				hid_map_usage(hi, usage, bit, max,
->  					EV_ABS, ABS_MT_POSITION_X);
-> -			set_abs(hi->input, ABS_MT_POSITION_X, field,
-> -				cls->sn_move);
-> +				set_abs(hi->input, ABS_MT_POSITION_X, field,
-> +					cls->sn_move);
-> +			}
-> +
-
-Do we really want to do the latter several times, even if the device is not a win8 one?
-
->  			mt_store_field(usage, td, hi);
->  			td->last_field_index = field->index;
->  			return 1;
->  		case HID_GD_Y:
-> -			hid_map_usage(hi, usage, bit, max,
-> +			if (cls->quirks & MT_QUIRK_WIN_8_CERTIFIED &&
-
-Ditto.
-
-> +				usage_index) {
-> +				hid_map_usage(hi, usage, bit, max,
-> +					EV_ABS, ABS_MT_TOOL_Y);
-> +				set_abs(hi->input, ABS_MT_TOOL_Y, field,
-> +					cls->sn_move);
-> +			} else {
-> +				hid_map_usage(hi, usage, bit, max,
->  					EV_ABS, ABS_MT_POSITION_Y);
-> -			set_abs(hi->input, ABS_MT_POSITION_Y, field,
-> -				cls->sn_move);
-> +				set_abs(hi->input, ABS_MT_POSITION_Y, field,
-> +					cls->sn_move);
-> +			}
-> +
-
-Ditto.
-
->  			mt_store_field(usage, td, hi);
->  			td->last_field_index = field->index;
->  			return 1;
-> @@ -502,6 +525,12 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->  
->  			input_event(input, EV_ABS, ABS_MT_POSITION_X, s->x);
->  			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
-> +			if (td->mtclass.quirks & MT_QUIRK_WIN_8_CERTIFIED) {
-> +				input_event(input, EV_ABS, ABS_MT_TOOL_X,
-> +					s->cx);
-
-Won't this fit on one line?
-
-> +				input_event(input, EV_ABS, ABS_MT_TOOL_Y,
-> +					s->cy);
-> +			}
->  			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
->  			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
->  			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
-> @@ -553,10 +582,16 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->  			td->curdata.p = value;
+>  		case HID_DG_INRANGE:
+> -			if (quirks & MT_QUIRK_ALWAYS_VALID)
+> -				td->curvalid = true;
+> -			else if (quirks & MT_QUIRK_VALID_IS_INRANGE)
+> +			if (quirks & MT_QUIRK_VALID_IS_INRANGE)
+>  				td->curvalid = value;
 >  			break;
->  		case HID_GD_X:
-> -			td->curdata.x = value;
-> +			if (usage->code == ABS_MT_POSITION_X)
-> +				td->curdata.x = value;
-> +			else
-> +				td->curdata.cx = value;
-
-Since cx is the new value, reversing the logic would make sense here.
-
->  			break;
->  		case HID_GD_Y:
-> -			td->curdata.y = value;
-> +			if (usage->code == ABS_MT_POSITION_Y)
-> +				td->curdata.y = value;
-> +			else
-> +				td->curdata.cy = value;
->  			break;
->  		case HID_DG_WIDTH:
->  			td->curdata.w = value;
+>  		case HID_DG_TIPSWITCH:
 > -- 
 > 1.7.11.7
 > 

@@ -1,396 +1,72 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: Add driver for ION iCade
-Date: Tue, 30 Oct 2012 22:46:28 +0100
-Message-ID: <CAN+gG=GKERUMPtPbyDCk005P1geo6E6wi2Bujspoif2cLFEd8g@mail.gmail.com>
-References: <1351626941.11123.2.camel@sirocco.hadess.net>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Tue, 30 Oct 2012 22:51:11 +0100
+Message-ID: <CACRpkdac=ztY0vXQ8Mu6H8fiAO4aFSSF-A6O1Q==zKOKEsJegw@mail.gmail.com>
+References: <20121025205901.GA3827@sirena.org.uk>
+	<20121026062008.GA21734@arwen.pp.htv.fi>
+	<20121026160316.GY18814@opensource.wolfsonmicro.com>
+	<20121029194901.GA30152@arwen.pp.htv.fi>
+	<20121030112410.GM4511@opensource.wolfsonmicro.com>
+	<20121030114949.GC28722@arwen.pp.htv.fi>
+	<20121030140714.GO4511@opensource.wolfsonmicro.com>
+	<20121030151642.GE29159@arwen.pp.htv.fi>
+	<20121030155821.GU4511@opensource.wolfsonmicro.com>
+	<20121030172513.GA3993@arwen.pp.htv.fi>
+	<20121030183704.GX4511@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:55962 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934165Ab2J3Vqa convert rfc822-to-8bit (ORCPT
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:44962 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757718Ab2J3VvN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Oct 2012 17:46:30 -0400
-Received: by mail-lb0-f174.google.com with SMTP id n3so602993lbo.19
-        for <linux-input@vger.kernel.org>; Tue, 30 Oct 2012 14:46:29 -0700 (PDT)
-In-Reply-To: <1351626941.11123.2.camel@sirocco.hadess.net>
+	Tue, 30 Oct 2012 17:51:13 -0400
+Received: by mail-ee0-f46.google.com with SMTP id b15so422015eek.19
+        for <linux-input@vger.kernel.org>; Tue, 30 Oct 2012 14:51:12 -0700 (PDT)
+In-Reply-To: <20121030183704.GX4511@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>, Magnus Damm <magnus.damm@gmail.com>, "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Felipe Balbi <balbi@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Grant Likely <grant.likely@secretlab.ca>
 
-Hi Bastien,
+On Tue, Oct 30, 2012 at 7:37 PM, Mark Brown
+<broonie@opensource.wolfsonmicro.com> wrote:
 
-a few random comments:
+> More seriously the amount of time we seem to have been spending recently
+> on changes which end up requiring us to go through essentially every
+> driver and add code to them (often several times) doesn't seem like
+> we're doing a good job here.
 
-On Tue, Oct 30, 2012 at 8:55 PM, Bastien Nocera <hadess@hadess.net> wro=
-te:
->
-> Add a driver for the ION iCade mini arcade cabinet [1]. The device
-> generates a key press and release for each joystick movement or
-> button press or release. For example, moving the stick to the
-> left will generate the "A" key being pressed and the released.
->
-> A list of all the combinations is available in the iCade
-> developer guide [2].
->
-> This driver hides all this and makes the device work as a generic
-> joystick.
->
-> [1]: http://www.ionaudio.com/products/details/icade
-> [2]: http://www.ionaudio.com/downloads/iCade_Dev_Resource_v1.3.pdf
+If this is your main concern you should be made aware that there
+are people out there planning to supplant the existing DT probe paths
+that are now being added to each and every ARM-related driver
+with an ACPI probe path as ARM servers come into the picture.
 
-You are missing your Signed-off-by line. Without it Jiri won't be able
-to pick your driver.
+> pinctrl is really noticable because it's
+> new but it's not the only thing.  As a subsystem maintainer this code
+> just makes me want to add new subsystem features to pull the code out of
+> drivers but obviously that's not something that should be being done at
+> the subsystem level.
 
-> ---
->  drivers/hid/Kconfig     |   6 ++
->  drivers/hid/Makefile    |   1 +
->  drivers/hid/hid-core.c  |   1 +
->  drivers/hid/hid-icade.c | 194 ++++++++++++++++++++++++++++++++++++++=
-++++++++++
->  drivers/hid/hid-ids.h   |   3 +
->  5 files changed, 205 insertions(+)
->  create mode 100644 drivers/hid/hid-icade.c
->
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 1630150..750d435 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -265,6 +265,12 @@ config HID_GYRATION
->         ---help---
->         Support for Gyration remote control.
->
-> +config HID_ICADE
-> +       tristate "ION iCade arcade controller"
-> +       depends on (BT_HIDP)
-> +       ---help---
-> +       Support for the ION iCade arcade controller to work as a joys=
-tick.
-> +
->  config HID_TWINHAN
->         tristate "Twinhan IR remote control"
->         depends on USB_HID
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index cef68ca..9860d97 100644
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -59,6 +59,7 @@ obj-$(CONFIG_HID_LCPOWER)       +=3D hid-lcpower.o
->  obj-$(CONFIG_HID_LENOVO_TPKBD) +=3D hid-lenovo-tpkbd.o
->  obj-$(CONFIG_HID_LOGITECH)     +=3D hid-logitech.o
->  obj-$(CONFIG_HID_LOGITECH_DJ)  +=3D hid-logitech-dj.o
-> +obj-$(CONFIG_HID_ICADE)                +=3D hid-icade.o
+We did manage to drag the power/voltage domain per se out
+of the AMBA bus, and recommend that people (like us) do that
+business using the power domains.
 
-mmm.... this should go above between hid-hyperv.o and hid-kensington.o.=
-=2E. :)
+I think most people (including OMAP) have bought
+into the concept of using the runtime PM framework and power
+domains to control the power domain switches.
 
->  obj-$(CONFIG_HID_MAGICMOUSE)    +=3D hid-magicmouse.o
->  obj-$(CONFIG_HID_MICROSOFT)    +=3D hid-microsoft.o
->  obj-$(CONFIG_HID_MONTEREY)     +=3D hid-monterey.o
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index bd3971b..0a6b36f 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1572,6 +1572,7 @@ static const struct hid_device_id hid_have_spec=
-ial_driver[] =3D {
->         { HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8086, USB_DEVICE_ID_SENS=
-OR_HUB_09FA) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087, USB_DEVICE_ID_SENS=
-OR_HUB_1020) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087, USB_DEVICE_ID_SENS=
-OR_HUB_09FA) },
-> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ION, USB_DEVICE_ID_ICADE=
-) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_S=
-LIMBLADE) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_KEYTOUCH, USB_DEVICE_ID_KEYTOU=
-CH_IEC) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_52=
-5V) },
-> diff --git a/drivers/hid/hid-icade.c b/drivers/hid/hid-icade.c
-> new file mode 100644
-> index 0000000..54e1cb9
-> --- /dev/null
-> +++ b/drivers/hid/hid-icade.c
-> @@ -0,0 +1,194 @@
-> +/*
-> + *  USB HID quirks support for Linux
-> + *
-> + *  Copyright (c) 1999 Andreas Gal
-> + *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
-> + *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Co=
-ncept2, Inc
-> + *  Copyright (c) 2006-2007 Jiri Kosina
-> + *  Copyright (c) 2007 Paul Walmsley
-> + *  Copyright (c) 2008 Jiri Slaby <jirislaby@gmail.com>
+It's this wider concept of using the loose concept "PM resource
+domains" to control also clocks and pins that is at stake, and so
+far the runtime PM core people (Rafael and Magnus) has not said
+much so I think we need some kind of indication from them as to
+what is to happen, long-term, with drivers handling their own clocks
+and pins. Should it be centralized or not? If it's to be centralized it
+needs to become a large piece of infrastructure refactoring and
+needs the attention of Linaro and the like to happen.
 
-I'm not sure we should keep these copyrights. Actually, nearly all the
-code is new except the skeleton.
+I've CC:ed a few people into this thread so we get some traction,
+we need more subsystem maintainers in here.
 
-> + *  Copyright (c) 2012 Bastien Nocera <hadess@hadess.net>
-> + *  Copyright (c) 2012 Benjamin Tissoires <benjamin.tissoires@gmail.=
-com>
-> + */
-> +
-> +/*
-> + * This program is free software; you can redistribute it and/or mod=
-ify it
-> + * under the terms of the GNU General Public License as published by=
- the Free
-> + * Software Foundation; either version 2 of the License, or (at your=
- option)
-> + * any later version.
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <linux/hid.h>
-> +#include <linux/module.h>
-> +#include <linux/slab.h>
-> +#include <linux/usb.h>
-
-Not sure usb.h is required here.
-
-> +
-> +#include "hid-ids.h"
-> +
-> +struct icade_key_translation {
-> +       u16 from_key;
-> +       u16 from_usage; /* hid_keyboard[from_usage] =3D=3D from_key *=
-/
-> +       u16 to;
-> +       u8  press : 1;
-
-checkpatch.pl says: ERROR: spaces prohibited around that ':' (ctx:WxW)
-
-> +};
-> +
-> +/*
-> + *   =E2=86=91      A C Y L
-> + *  =E2=86=90 =E2=86=92
-> + *   =E2=86=93      B X Z R
-> + *
-> + *
-> + *  UP ON,OFF  =3D w,e
-> + *  RT ON,OFF  =3D d,c
-> + *  DN ON,OFF  =3D x,z
-> + *  LT ON,OFF  =3D a,q
-> + *  A  ON,OFF  =3D y,t
-> + *  B  ON,OFF  =3D h,r
-> + *  C  ON,OFF  =3D u,f
-> + *  X  ON,OFF  =3D j,n
-> + *  Y  ON,OFF  =3D i,m
-> + *  Z  ON,OFF  =3D k,p
-> + *  L  ON,OFF  =3D o,g
-> + *  R  ON,OFF  =3D l,v
-> + */
-> +static const struct icade_key_translation icade_keys[] =3D {
-> +       { KEY_W,        26,     KEY_UP,         1 },
-> +       { KEY_E,        8,      KEY_UP,         0 },
-> +       { KEY_D,        7,      KEY_RIGHT,      1 },
-> +       { KEY_C,        6,      KEY_RIGHT,      0 },
-> +       { KEY_X,        27,     KEY_DOWN,       1 },
-> +       { KEY_Z,        29,     KEY_DOWN,       0 },
-> +       { KEY_A,        4,      KEY_LEFT,       1 },
-> +       { KEY_Q,        20,     KEY_LEFT,       0 },
-> +       { KEY_Y,        28,     BTN_A,          1 },
-> +       { KEY_T,        23,     BTN_A,          0 },
-> +       { KEY_H,        11,     BTN_B,          1 },
-> +       { KEY_R,        21,     BTN_B,          0 },
-> +       { KEY_U,        24,     BTN_C,          1 },
-> +       { KEY_F,        9,      BTN_C,          0 },
-> +       { KEY_J,        13,     BTN_X,          1 },
-> +       { KEY_N,        17,     BTN_X,          0 },
-> +       { KEY_I,        12,     BTN_Y,          1 },
-> +       { KEY_M,        16,     BTN_Y,          0 },
-> +       { KEY_K,        14,     BTN_Z,          1 },
-> +       { KEY_P,        19,     BTN_Z,          0 },
-> +       { KEY_O,        18,     BTN_THUMBL,     1 },
-> +       { KEY_G,        10,     BTN_THUMBL,     0 },
-> +       { KEY_L,        15,     BTN_THUMBR,     1 },
-> +       { KEY_V,        25,     BTN_THUMBR,     0 },
-> +
-> +       { }
-> +};
-
-As discussed on IRC, using a table with indexes matching from_usage
-will enhance the speed of icade_find_translation.
-
-> +
-> +static const struct icade_key_translation *icade_find_translation(
-> +               u16 from)
-
-this can move on the previous line
-
-> +{
-> +       const struct icade_key_translation *trans;
-> +
-> +       /* Look for the translation */
-> +       for (trans =3D icade_keys; trans->from_key; trans++)
-> +               if (trans->from_usage =3D=3D from)
-> +                       return trans;
-
-this can be replaced by a check on the size and an access in the table.
-
-> +
-> +       return NULL;
-> +}
-> +
-> +static int icade_event(struct hid_device *hdev, struct hid_field *fi=
-eld,
-> +               struct hid_usage *usage, __s32 value)
-> +{
-> +       const struct icade_key_translation *trans;
-> +       unsigned code;
-> +
-> +       if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput =
-||
-> +                       !usage->type)
-
-I don't think it's required to check against field->hidinput and
-usage->type. Anyway, it won't hurt to effectively do the test.
-
-> +               return 0;
-> +
-> +       code =3D usage->hid & HID_USAGE;
-> +
-> +       /* We ignore the fake key up, and act only on key down */
-> +       if (!value)
-> +               return 1;
-> +
-> +       trans =3D icade_find_translation (code);
-
-checkpatch.pl: WARNING: space prohibited between function name and
-open parenthesis '('
-=2E..this must come from me, sorry. My previous job had this style rule
-and I have to fight to forget it...
-
-> +
-> +       if (!trans)
-> +               return 1;
-> +
-> +       input_event(field->hidinput->input, usage->type, trans->to, t=
-rans->press);
-
-line over 80 characters: 82... :)
-
-> +
-> +       return 1;
-> +}
-> +
-> +static int icade_input_mapping(struct hid_device *hdev, struct hid_i=
-nput *hi,
-> +               struct hid_field *field, struct hid_usage *usage,
-> +               unsigned long **bit, int *max)
-> +{
-> +       const struct icade_key_translation *trans;
-> +       unsigned code;
-
-code is not required anymore
-
-> +
-> +       if ((usage->hid & HID_USAGE_PAGE) =3D=3D HID_UP_KEYBOARD) {
-> +               /* find out which KEY_ code is (usage->hid & HID_USAG=
-E)
-> +                * and store it into code */
-> +               code =3D usage->hid & HID_USAGE;
-> +
-> +               trans =3D icade_find_translation (code);
-
-just use usage->hid & HID_USAGE instead of code
-
-checkpatch.pl: WARNING: space prohibited between function name and
-open parenthesis '('
-=2E.. ditto
-
-> +
-> +               if (!trans)
-> +                       return -1;
-> +
-> +               hid_map_usage(hi, usage, bit, max, EV_KEY, trans->to)=
-;
-> +               set_bit(trans->to, hi->input->keybit);
-> +
-> +               return 1;
-> +       }
-> +
-> +       /* ignore others */
-> +       return -1;
-> +
-> +}
-> +
-> +static int icade_input_mapped(struct hid_device *hdev, struct hid_in=
-put *hi,
-> +               struct hid_field *field, struct hid_usage *usage,
-> +               unsigned long **bit, int *max)
-> +{
-> +       if (usage->type =3D=3D EV_KEY)
-> +               set_bit(usage->type, hi->input->evbit);
-> +
-> +       return -1;
-> +}
-> +
-> +static const struct hid_device_id icade_devices[] =3D {
-> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ION, USB_DEVICE_ID_ICADE=
-) },
-> +
-> +       { }
-> +};
-> +MODULE_DEVICE_TABLE(hid, icade_devices);
-> +
-> +static struct hid_driver icade_driver =3D {
-> +       .name =3D "icade",
-> +       .id_table =3D icade_devices,
-> +       .event =3D icade_event,
-> +       .input_mapped =3D icade_input_mapped,
-> +       .input_mapping =3D icade_input_mapping,
-> +};
-> +
-> +static int __init icade_init(void)
-> +{
-> +       int ret;
-> +
-> +       ret =3D hid_register_driver(&icade_driver);
-> +       if (ret)
-> +               pr_err("can't register icade driver\n");
-> +
-> +       return ret;
-> +}
-> +
-> +static void __exit icade_exit(void)
-> +{
-> +       hid_unregister_driver(&icade_driver);
-> +}
-> +
-> +module_init(icade_init);
-> +module_exit(icade_exit);
-> +MODULE_LICENSE("GPL");
-
-you are missing MODULE_AUTHOR and MODULE_DESCRIPTION
-
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 269b509..9bc8d57 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -420,6 +420,9 @@
->  #define USB_VENDOR_ID_ILITEK           0x222a
->  #define USB_DEVICE_ID_ILITEK_MULTITOUCH        0x0001
->
-> +#define USB_VENDOR_ID_ION              0x15e4
-> +#define USB_DEVICE_ID_ICADE            0x0132
-> +
->  #define USB_VENDOR_ID_HOLTEK           0x1241
->  #define USB_DEVICE_ID_HOLTEK_ON_LINE_GRIP      0x5015
->
-> --
-> 1.7.12.1
->
->
-
-Thanks,
-Benjamin
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Yours,
+Linus Walleij

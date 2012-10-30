@@ -1,265 +1,113 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2 11/11] HID: hid-multitouch: get rid of usbhid depedency
- for general path
-Date: Tue, 30 Oct 2012 12:04:40 +0100
-Message-ID: <CAN+gG=GNucfg4-wCBZQtz0yJDjpTD_56Js3d68nm8VFi1UhZAA@mail.gmail.com>
-References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
-	<1351241067-9521-12-git-send-email-benjamin.tissoires@gmail.com>
-	<20121029225748.GA15632@polaris.bitmath.org>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Tue, 30 Oct 2012 11:24:10 +0000
+Message-ID: <20121030112410.GM4511@opensource.wolfsonmicro.com>
+References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
+ <20121024161429.GA16350@core.coreip.homeip.net>
+ <CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
+ <4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
+ <20121024185818.GB772@arwen.pp.htv.fi>
+ <20121025205901.GA3827@sirena.org.uk>
+ <20121026062008.GA21734@arwen.pp.htv.fi>
+ <20121026160316.GY18814@opensource.wolfsonmicro.com>
+ <20121029194901.GA30152@arwen.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eWmFpGZayiNrn4FL"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f46.google.com ([209.85.215.46]:46331 "EHLO
-	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759202Ab2J3LEm (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:54870 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751555Ab2J3LYN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Oct 2012 07:04:42 -0400
-In-Reply-To: <20121029225748.GA15632@polaris.bitmath.org>
+	Tue, 30 Oct 2012 07:24:13 -0400
+Content-Disposition: inline
+In-Reply-To: <20121029194901.GA30152@arwen.pp.htv.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Felipe Balbi <balbi@ti.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-Hi Henrik,
 
-On Mon, Oct 29, 2012 at 11:57 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> Hi Benjamin,
->
->> This patch factorizes the hid set_feature command by using
->> hid_device->hid_output_raw_report instead of direclty relying on
->> usbhid. This makes the driver usb independant.
->>
->> However I still can't remove the 2 usb related headers because the
->> function mt_resume has a specific patch for usb devices.
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
->> ---
->>  drivers/hid/hid-multitouch.c | 63 ++++++++++++++++++++++++++------------------
->>  1 file changed, 37 insertions(+), 26 deletions(-)
->
-> In my drawer, I have a patchset that aims to remove all usbhid
-> dependence, from all the drivers. Perhaps the attached patch is
-> something to consider here?
+--eWmFpGZayiNrn4FL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-yep, removing usbhid dependencies is a good thing.
-See my review below :)
+On Mon, Oct 29, 2012 at 09:49:01PM +0200, Felipe Balbi wrote:
+> On Fri, Oct 26, 2012 at 05:03:16PM +0100, Mark Brown wrote:
 
->
->>
->> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
->> index 21a120b..33038c5 100644
->> --- a/drivers/hid/hid-multitouch.c
->> +++ b/drivers/hid/hid-multitouch.c
->> @@ -670,47 +670,58 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->>       return 1;
->>  }
->>
->> -static void mt_set_input_mode(struct hid_device *hdev)
->> +static void mt_set_feature(struct hid_device *hdev, __s8 feature_id,
->> +     u8 value, size_t index)
->>  {
->> -     struct mt_device *td = hid_get_drvdata(hdev);
->>       struct hid_report *r;
->>       struct hid_report_enum *re;
->> +     u8 *data;
->> +     u8 max_value;
->> +     int len;
->> +
->> +     if (feature_id < 0 || !hdev->hid_output_raw_report)
->> +             return;
->> +
->> +     re = &hdev->report_enum[HID_FEATURE_REPORT];
->> +     r = re->report_id_hash[feature_id];
->> +     if (!r)
->> +             return;
->> +
->> +     len = ((r->size - 1) >> 3) + 1 + (r->id > 0);
->> +     max_value = r->field[0]->logical_maximum;
->> +     value = min(value, max_value);
->>
->> -     if (td->inputmode < 0)
->> +     if (r->field[0]->value[index] == value || len < 2 || index + 1 >= len)
->>               return;
->>
->> -     re = &(hdev->report_enum[HID_FEATURE_REPORT]);
->> -     r = re->report_id_hash[td->inputmode];
->> -     if (r) {
->> -             r->field[0]->value[td->inputmode_index] = 0x02;
->> -             usbhid_submit_report(hdev, r, USB_DIR_OUT);
->> +     data = kzalloc(len, GFP_ATOMIC);
->> +     if (!data) {
->> +             hid_warn(hdev, "output queueing failed\n");
->> +             return;
->>       }
->> +
->> +     data[0] = r->id;
->> +     data[index + 1] = value;
->> +     hdev->hid_output_raw_report(hdev, data, len, HID_FEATURE_REPORT);
->> +     kfree(data);
->>  }
->>
->> -static void mt_set_maxcontacts(struct hid_device *hdev)
->> +static void mt_set_input_mode(struct hid_device *hdev)
->>  {
->>       struct mt_device *td = hid_get_drvdata(hdev);
->> -     struct hid_report *r;
->> -     struct hid_report_enum *re;
->> -     int fieldmax, max;
->>
->> -     if (td->maxcontact_report_id < 0)
->> -             return;
->> +     mt_set_feature(hdev, td->inputmode, 0x02, td->inputmode_index);
->> +}
->>
->> -     if (!td->mtclass.maxcontacts)
->> +static void mt_set_maxcontacts(struct hid_device *hdev)
->> +{
->> +     struct mt_device *td = hid_get_drvdata(hdev);
->> +     int max = td->mtclass.maxcontacts;
->> +
->> +     if (!max)
->>               return;
->>
->> -     re = &hdev->report_enum[HID_FEATURE_REPORT];
->> -     r = re->report_id_hash[td->maxcontact_report_id];
->> -     if (r) {
->> -             max = td->mtclass.maxcontacts;
->> -             fieldmax = r->field[0]->logical_maximum;
->> -             max = min(fieldmax, max);
->> -             if (r->field[0]->value[0] != max) {
->> -                     r->field[0]->value[0] = max;
->> -                     usbhid_submit_report(hdev, r, USB_DIR_OUT);
->> -             }
->> -     }
->> +     mt_set_feature(hdev, td->maxcontact_report_id, max, 0);
->>  }
->>
->>  static void mt_post_parse_default_settings(struct mt_device *td)
->> --
->> 1.7.11.7
->>
->
-> Thanks,
-> Henrik
->
-> ---
->
-> From 5d9a791e0a9e41bcea0fcb286e2849b403675f37 Mon Sep 17 00:00:00 2001
-> From: Henrik Rydberg <rydberg@euromail.se>
-> Date: Mon, 2 Jul 2012 20:38:21 +0200
-> Subject: [PATCH 3/7] hid: extend interface with report requests
->
-> ---
->  drivers/hid/usbhid/hid-core.c | 14 ++++++++++++++
->  include/linux/hid.h           | 33 +++++++++++++++++++++++++++++++++
->  2 files changed, 47 insertions(+)
->
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index de1f9ac..3c618da 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -1251,6 +1251,18 @@ static int usbhid_power(struct hid_device *hid, int lvl)
->         return r;
->  }
->
-> +static void usbhid_send(struct hid_device *hid, struct hid_report *rep, int req)
-> +{
-> +       switch (req) {
-> +       case HID_REQ_GET_REPORT:
-> +               usbhid_submit_report(hid, rep, USB_DIR_IN);
-> +               break;
-> +       case HID_REQ_SET_REPORT:
-> +               usbhid_submit_report(hid, rep, USB_DIR_OUT);
-> +               break;
-> +       }
-> +}
-> +
->  static struct hid_ll_driver usb_hid_driver = {
->         .parse = usbhid_parse,
->         .start = usbhid_start,
-> @@ -1259,6 +1271,8 @@ static struct hid_ll_driver usb_hid_driver = {
->         .close = usbhid_close,
->         .power = usbhid_power,
->         .hidinput_input_event = usb_hidinput_input_event,
-> +       .send = usbhid_send,
+> > You could have the driver explicitly set the flag, it would just be one
+> > extra line, but it seems marginally nicer to just do it.
 
-the name here is a little bit misleading. You are using "send" to also
-"get" reports...
-Maybe "hid_request" is a better name. This will allows us to add the
-missing function:
-Get_Descriptor, Set_Descriptor, Get_Report Request, Set_Report
-Request, Get_Idle, Set_Idle, Get_Protocol, Set_Protocol and maybe
-others - even WAIT for instance :)
+> You didn't get the whole picture I'm afraid. Consider the situation
+> where the same e.g. keypad driver is being used on OMAP4 and OMAP5 and
+> those have different requirements towards pinctrl.
 
-> +       .wait = usbhid_wait_io,
+No, I'm pretty certain that I do.
 
-is it really necessary to wait for IO? (I think it will not be one
-line for hid over i2c...).
+> Now, we need to add OMAP5 support *to the same keypad driver*.
+> Unfortunately, OMAP5 needs to handle pinctrl explicitly for whatever
+> reason (SW-controlled sleep mode, errata fix, whatever).
 
-Cheers,
-Benjamin
+> This will mean that we will have to remove the flag from the keypad
+> driver because that's not valid anymore for OMAP5.
 
->  };
->
->  static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *id)
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index 241eb40..5e169c1 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -686,6 +686,8 @@ struct hid_driver {
->   * @hidinput_input_event: event input event (e.g. ff or leds)
->   * @parse: this method is called only once to parse the device data,
->   *        shouldn't allocate anything to not leak memory
-> + * @send: send report request to device (e.g. feature report)
-> + * @wait: wait for buffered io to complete (send/recv reports)
->   */
->  struct hid_ll_driver {
->         int (*start)(struct hid_device *hdev);
-> @@ -700,6 +702,11 @@ struct hid_ll_driver {
->                         unsigned int code, int value);
->
->         int (*parse)(struct hid_device *hdev);
-> +
-> +       void (*send)(struct hid_device *hdev,
-> +                    struct hid_report *report, int req);
-> +       int (*wait)(struct hid_device *hdev);
-> +
->  };
->
->  #define        PM_HINT_FULLON  1<<5
-> @@ -892,6 +899,32 @@ static inline int hid_hw_power(struct hid_device *hdev, int level)
->         return hdev->ll_driver->power ? hdev->ll_driver->power(hdev, level) : 0;
->  }
->
-> +
-> +/**
-> + * hid_hw_send - send report request to device
-> + *
-> + * @hdev: hid device
-> + * @report: report to send
-> + * @req: hid request type
-> + */
-> +static inline void hid_hw_send(struct hid_device *hdev,
-> +                              struct hid_report *report, int req)
-> +{
-> +       if (hdev->ll_driver->send)
-> +               hdev->ll_driver->send(hdev, report, req);
-> +}
-> +
-> +/**
-> + * hid_hw_wait - wait for buffered io to complete
-> + *
-> + * @hdev: hid device
-> + */
-> +static inline void hid_hw_wait(struct hid_device *hdev)
-> +{
-> +       if (hdev->ll_driver->wait)
-> +               hdev->ll_driver->wait(hdev);
-> +}
-> +
->  int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
->                 int interrupt);
->
-> --
-> 1.7.11.1
->
+This isn't a problem; either the pinctrl code for OMAP5 will do
+something sensible for OMAP4 in which case there's no difference to the
+resulting code or you're going to have to have conditional code for the
+two devices anyway and you're no worse off.
+
+> This is why I think hiding things from drivers makes no sense. Also
+> consider the situations Linus W exposed on another subthread. If you
+> change ordering of certain calls, you will really break the
+> functionality of the IP. Because we can't make sure this won't work
+> automagically in all cases (just like we can't make sure $size memory
+> allocation is enough for all drivers) we don't hide that from the
+> driver. We require driver to manage its resources properly.
+
+We need some place to put the SoC integration; power domains seem like
+the obvious place to me but YMMV.  Nothing about having this out of the
+drivers requires that this be done by individual subsystems in isolation
+=66rom each other.  Half the point here is that for the reusable IPs this
+stuff often isn't driver specific at all, it's often more about the SoC
+integration than it is about the driver and so you'll get a consistent
+pattern for most IPs on the SoC.
+
+> How can you make sure that this will work for at least 50% of the
+> drivers ? You just can't. We don't know the implementation details of
+> every arch/soc/platform supported by Linux today to make that decision.
+
+Well, we've managed to get along for rather a long time with essentially
+all architectures implementing this stuff by doing static setup for the
+pins on boot.  That does suggest we can get a reasonably long way with
+something simple, and it does seem to match up with how things usually
+look at an electrical level too.
+
+It seems fairly obvious that if we need to add identical bolier plate
+code to lots of drivers we're doing something wrong, it's just churn for
+little practical gain and a problem if we ever decide to change how this
+stuff works in the future.
+
+--eWmFpGZayiNrn4FL
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQj7jQAAoJELSic+t+oim9WhwP/2CnMJ92z7eKpVpMjMMZa+yo
+5/P4MYtQFjHlOnsorDey5yLsO1YPbVyGzrHnAElsb0U38wIMQqqH7Z7p5ge00DTM
+fq/8oL8/FDGjZFW9wbsI/GOZyH4e0zAuKIu3G5hIBjZu8kIbmDXcu+tq+Mm1C4nL
+Rv+PZLnCGXQDTbQDrW7d/dip+IHj9y6N1955yLg6J+GEj/Pdr3Ym/p8xl0ul8/SU
+EMh3TfPar73HouozUERH+h20aHF5fMs0EiAGpmRdrflfxAMfN4AgPRT5LxZ6vJOR
+/HZoyJ8nQnlRExOhc0BTGV9PlcO9M/cQvI3P+3l78OFIGlmFaFiWZfgT+ELtp0sk
+DbvsaaW4ilhQDRyqQ8QSkt7GLRlWpiNXY64IDbtVigp5eqwXO5BRI+OpZWGc6W38
+/yXWmol6ewi7Qy8xEWzHV26J5kTWDY1hzbrm+WZr0rT++o4vI0zC1zCod+4yBEqQ
+f5SzJu0kdwDfqrujBiFQUV0tIkJptPmP12o8YRZxbRiIb3J7cFowhyB6gY6L5RCf
+kuFMV/VyoyqaQSX1+rb2EdzufMRdfHeZKTb3Jejkbj95SA+EBucJ7ASiTxbkxuC4
+wYKM/AJePPoFVJHXKmWkBgOk51MKgInrC/r+kId1x3IA3wB0yj8JWEtSvfVhSNiP
+rIeQvDw7ZClCyAB6gV8i
+=9wtN
+-----END PGP SIGNATURE-----
+
+--eWmFpGZayiNrn4FL--

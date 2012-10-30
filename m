@@ -1,70 +1,68 @@
-From: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Subject: Re: [PATCH] ti_tscadc: Match mfd sub devices to regmap interface
-Date: Tue, 30 Oct 2012 19:21:37 +0100
-Message-ID: <50901AB1.6040005@metafoo.de>
-References: <1351698945-3881-1-git-send-email-panto@antoniou-consulting.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH] gpio-keys: Pinctrl-fy
+Date: Tue, 30 Oct 2012 11:25:44 -0700
+Message-ID: <20121030182544.GO11908@atomide.com>
+References: <1351699019-4313-1-git-send-email-panto@antoniou-consulting.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1351698945-3881-1-git-send-email-panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
-Cc: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Matt Porter <mporter-l0cyMroinI0@public.gmane.org>, Russ Dill <Russ.Dill-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1351699019-4313-1-git-send-email-panto@antoniou-consulting.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pantelis Antoniou <panto@antoniou-consulting.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Koen Kooi <koen@dominion.thruhere.net>, Matt Porter <mporter@ti.com>, Russ Dill <Russ.Dill@ti.com>, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 10/31/2012 04:55 PM, Pantelis Antoniou wrote:
-> The MFD parent device now uses a regmap, instead of direct
-> memory access. Use the same method in the sub devices to avoid
-> nasty surprises.
-> 
-> Also rework the channel initialization of tiadc a bit.
+* Pantelis Antoniou <panto@antoniou-consulting.com> [121030 11:23]:
+> Enable pinctrl support for gpio-keys.
 
-Those two bits are not even closely related, they should really go into
-separate patches.
+There's some discussion going on regarding doing the
+pinctrl boilerplate things somewhere else started by
+Dmitry, but meanwhile:
 
-> 
-> Signed-off-by: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+Acked-by: Tony Lindgren <tony@atomide.com>
+ 
+> Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
 > ---
->  drivers/iio/adc/ti_am335x_adc.c           | 27 +++++++++++++++++++--------
->  drivers/input/touchscreen/ti_am335x_tsc.c | 16 +++++++++++++---
->  drivers/mfd/ti_am335x_tscadc.c            |  7 +++++--
->  3 files changed, 37 insertions(+), 13 deletions(-)
+>  drivers/input/keyboard/gpio_keys.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
 > 
-[...]
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index 6a68041..e421082 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -29,6 +29,7 @@
+>  #include <linux/of_platform.h>
+>  #include <linux/of_gpio.h>
+>  #include <linux/spinlock.h>
+> +#include <linux/pinctrl/consumer.h>
 >  
-> @@ -213,6 +222,8 @@ static int __devinit tiadc_probe(struct platform_device *pdev)
+>  struct gpio_button_data {
+>  	const struct gpio_keys_button *button;
+> @@ -666,6 +667,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+>  	struct input_dev *input;
+>  	int i, error;
+>  	int wakeup = 0;
+> +	struct pinctrl *pinctrl;
 >  
->  	platform_set_drvdata(pdev, indio_dev);
+>  	if (!pdata) {
+>  		pdata = gpio_keys_get_devtree_pdata(dev);
+> @@ -731,6 +733,10 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+>  		goto fail3;
+>  	}
 >  
-> +	dev_info(&pdev->dev, "Initialized\n");
-
-That's just noise, please don't add it. Imagine every driver did this you'd
-end up with a lot of noise your debug log.
-
+> +	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
+> +	if (IS_ERR(pinctrl))
+> +		dev_warn(&pdev->dev, "unable to select pin group\n");
 > +
->  	return 0;
->  
->  err_free_channels:
-> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-> index 7a26810..d09e1a7 100644
-> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
-> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-> @@ -26,6 +26,7 @@
-[...]
->  /*
-> @@ -455,10 +460,15 @@ static int __devinit titsc_probe(struct platform_device *pdev)
->  
->  	/* register to the input system */
->  	err = input_register_device(input_dev);
-> -	if (err)
-> +	if (err) {
-> +		dev_err(&pdev->dev, "Failed to register input device\n");
->  		goto err_free_irq;
-> +	}
->  
->  	platform_set_drvdata(pdev, ts_dev);
-> +
-> +	dev_info(&pdev->dev, "Initialized OK\n");
-
-Same here
+>  	/* get current state of buttons that are connected to GPIOs */
+>  	for (i = 0; i < pdata->nbuttons; i++) {
+>  		struct gpio_button_data *bdata = &ddata->data[i];
+> -- 
+> 1.7.12
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

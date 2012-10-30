@@ -1,242 +1,149 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2 11/11] HID: hid-multitouch: get rid of usbhid
- depedency for general path
-Date: Mon, 29 Oct 2012 23:57:48 +0100
-Message-ID: <20121029225748.GA15632@polaris.bitmath.org>
-References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
- <1351241067-9521-12-git-send-email-benjamin.tissoires@gmail.com>
+From: Sourav <sourav.poddar@ti.com>
+Subject: Re: [PATCHv5] Input: keypad: Add smsc ece1099 keypad driver
+Date: Tue, 30 Oct 2012 11:01:05 +0530
+Message-ID: <508F6619.5000109@ti.com>
+References: <1351507129-10229-1-git-send-email-sourav.poddar@ti.com> <20121029162045.GK27566@arwen.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:53279 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755257Ab2J2WxK (ORCPT
+Received: from devils.ext.ti.com ([198.47.26.153]:53525 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753343Ab2J3Fah (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Oct 2012 18:53:10 -0400
-Content-Disposition: inline
-In-Reply-To: <1351241067-9521-12-git-send-email-benjamin.tissoires@gmail.com>
+	Tue, 30 Oct 2012 01:30:37 -0400
+In-Reply-To: <20121029162045.GK27566@arwen.pp.htv.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: balbi@ti.com
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, b-cousson@ti.com, santosh.shilimkar@ti.com, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
-
-> This patch factorizes the hid set_feature command by using
-> hid_device->hid_output_raw_report instead of direclty relying on
-> usbhid. This makes the driver usb independant.
-> 
-> However I still can't remove the 2 usb related headers because the
-> function mt_resume has a specific patch for usb devices.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> ---
->  drivers/hid/hid-multitouch.c | 63 ++++++++++++++++++++++++++------------------
->  1 file changed, 37 insertions(+), 26 deletions(-)
-
-In my drawer, I have a patchset that aims to remove all usbhid
-dependence, from all the drivers. Perhaps the attached patch is
-something to consider here?
-
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 21a120b..33038c5 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -670,47 +670,58 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->  	return 1;
->  }
->  
-> -static void mt_set_input_mode(struct hid_device *hdev)
-> +static void mt_set_feature(struct hid_device *hdev, __s8 feature_id,
-> +	u8 value, size_t index)
->  {
-> -	struct mt_device *td = hid_get_drvdata(hdev);
->  	struct hid_report *r;
->  	struct hid_report_enum *re;
-> +	u8 *data;
-> +	u8 max_value;
-> +	int len;
-> +
-> +	if (feature_id < 0 || !hdev->hid_output_raw_report)
-> +		return;
-> +
-> +	re = &hdev->report_enum[HID_FEATURE_REPORT];
-> +	r = re->report_id_hash[feature_id];
-> +	if (!r)
-> +		return;
-> +
-> +	len = ((r->size - 1) >> 3) + 1 + (r->id > 0);
-> +	max_value = r->field[0]->logical_maximum;
-> +	value = min(value, max_value);
->  
-> -	if (td->inputmode < 0)
-> +	if (r->field[0]->value[index] == value || len < 2 || index + 1 >= len)
->  		return;
->  
-> -	re = &(hdev->report_enum[HID_FEATURE_REPORT]);
-> -	r = re->report_id_hash[td->inputmode];
-> -	if (r) {
-> -		r->field[0]->value[td->inputmode_index] = 0x02;
-> -		usbhid_submit_report(hdev, r, USB_DIR_OUT);
-> +	data = kzalloc(len, GFP_ATOMIC);
-> +	if (!data) {
-> +		hid_warn(hdev, "output queueing failed\n");
-> +		return;
->  	}
-> +
-> +	data[0] = r->id;
-> +	data[index + 1] = value;
-> +	hdev->hid_output_raw_report(hdev, data, len, HID_FEATURE_REPORT);
-> +	kfree(data);
->  }
->  
-> -static void mt_set_maxcontacts(struct hid_device *hdev)
-> +static void mt_set_input_mode(struct hid_device *hdev)
->  {
->  	struct mt_device *td = hid_get_drvdata(hdev);
-> -	struct hid_report *r;
-> -	struct hid_report_enum *re;
-> -	int fieldmax, max;
->  
-> -	if (td->maxcontact_report_id < 0)
-> -		return;
-> +	mt_set_feature(hdev, td->inputmode, 0x02, td->inputmode_index);
-> +}
->  
-> -	if (!td->mtclass.maxcontacts)
-> +static void mt_set_maxcontacts(struct hid_device *hdev)
-> +{
-> +	struct mt_device *td = hid_get_drvdata(hdev);
-> +	int max = td->mtclass.maxcontacts;
-> +
-> +	if (!max)
->  		return;
->  
-> -	re = &hdev->report_enum[HID_FEATURE_REPORT];
-> -	r = re->report_id_hash[td->maxcontact_report_id];
-> -	if (r) {
-> -		max = td->mtclass.maxcontacts;
-> -		fieldmax = r->field[0]->logical_maximum;
-> -		max = min(fieldmax, max);
-> -		if (r->field[0]->value[0] != max) {
-> -			r->field[0]->value[0] = max;
-> -			usbhid_submit_report(hdev, r, USB_DIR_OUT);
-> -		}
-> -	}
-> +	mt_set_feature(hdev, td->maxcontact_report_id, max, 0);
->  }
->  
->  static void mt_post_parse_default_settings(struct mt_device *td)
-> -- 
-> 1.7.11.7
-> 
-
-Thanks,
-Henrik
-
----
-
->From 5d9a791e0a9e41bcea0fcb286e2849b403675f37 Mon Sep 17 00:00:00 2001
-From: Henrik Rydberg <rydberg@euromail.se>
-Date: Mon, 2 Jul 2012 20:38:21 +0200
-Subject: [PATCH 3/7] hid: extend interface with report requests
-
----
- drivers/hid/usbhid/hid-core.c | 14 ++++++++++++++
- include/linux/hid.h           | 33 +++++++++++++++++++++++++++++++++
- 2 files changed, 47 insertions(+)
-
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index de1f9ac..3c618da 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -1251,6 +1251,18 @@ static int usbhid_power(struct hid_device *hid, int lvl)
- 	return r;
- }
- 
-+static void usbhid_send(struct hid_device *hid, struct hid_report *rep, int req)
-+{
-+	switch (req) {
-+	case HID_REQ_GET_REPORT:
-+		usbhid_submit_report(hid, rep, USB_DIR_IN);
-+		break;
-+	case HID_REQ_SET_REPORT:
-+		usbhid_submit_report(hid, rep, USB_DIR_OUT);
-+		break;
-+	}
-+}
-+
- static struct hid_ll_driver usb_hid_driver = {
- 	.parse = usbhid_parse,
- 	.start = usbhid_start,
-@@ -1259,6 +1271,8 @@ static struct hid_ll_driver usb_hid_driver = {
- 	.close = usbhid_close,
- 	.power = usbhid_power,
- 	.hidinput_input_event = usb_hidinput_input_event,
-+	.send = usbhid_send,
-+	.wait = usbhid_wait_io,
- };
- 
- static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *id)
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 241eb40..5e169c1 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -686,6 +686,8 @@ struct hid_driver {
-  * @hidinput_input_event: event input event (e.g. ff or leds)
-  * @parse: this method is called only once to parse the device data,
-  *	   shouldn't allocate anything to not leak memory
-+ * @send: send report request to device (e.g. feature report)
-+ * @wait: wait for buffered io to complete (send/recv reports)
-  */
- struct hid_ll_driver {
- 	int (*start)(struct hid_device *hdev);
-@@ -700,6 +702,11 @@ struct hid_ll_driver {
- 			unsigned int code, int value);
- 
- 	int (*parse)(struct hid_device *hdev);
-+
-+	void (*send)(struct hid_device *hdev,
-+		     struct hid_report *report, int req);
-+	int (*wait)(struct hid_device *hdev);
-+
- };
- 
- #define	PM_HINT_FULLON	1<<5
-@@ -892,6 +899,32 @@ static inline int hid_hw_power(struct hid_device *hdev, int level)
- 	return hdev->ll_driver->power ? hdev->ll_driver->power(hdev, level) : 0;
- }
- 
-+
-+/**
-+ * hid_hw_send - send report request to device
-+ *
-+ * @hdev: hid device
-+ * @report: report to send
-+ * @req: hid request type
-+ */
-+static inline void hid_hw_send(struct hid_device *hdev,
-+			       struct hid_report *report, int req)
-+{
-+	if (hdev->ll_driver->send)
-+		hdev->ll_driver->send(hdev, report, req);
-+}
-+
-+/**
-+ * hid_hw_wait - wait for buffered io to complete
-+ *
-+ * @hdev: hid device
-+ */
-+static inline void hid_hw_wait(struct hid_device *hdev)
-+{
-+	if (hdev->ll_driver->wait)
-+		hdev->ll_driver->wait(hdev);
-+}
-+
- int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
- 		int interrupt);
- 
--- 
-1.7.11.1
-
+Hi Felipe,
+On Monday 29 October 2012 09:50 PM, Felipe Balbi wrote:
+> Hi,
+>
+> On Mon, Oct 29, 2012 at 04:08:49PM +0530, Sourav Poddar wrote:
+>> +static int __devinit
+>> +smsc_probe(struct platform_device *pdev)
+>> +{
+>> +	struct device *dev = &pdev->dev;
+>> +	struct input_dev *input;
+>> +	struct smsc_keypad *kp;
+>> +	int ret = 0;
+>> +	int i, max_keys, row_shift;
+>> +	int irq;
+>> +	int addr;
+>> +
+>> +	kp = devm_kzalloc(dev, sizeof(*kp), GFP_KERNEL);
+>> +
+>> +	input = devm_input_allocate_device(dev);
+>> +	if (!kp || !input)
+>> +		ret = -ENOMEM;
+>> +
+>> +	ret = smsc_keypad_parse_dt(dev, kp);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	/* Get the debug Device */
+>> +	kp->input = input;
+>> +	kp->irq = platform_get_irq(pdev, 0);
+>> +	kp->dev = dev;
+>> +
+>> +	/* setup input device */
+>> +	 __set_bit(EV_KEY, input->evbit);
+>> +
+>> +	/* Enable auto repeat feature of Linux input subsystem */
+>> +	if (!kp->no_autorepeat)
+>> +		__set_bit(EV_REP, input->evbit);
+>> +
+>> +	input_set_capability(input, EV_MSC, MSC_SCAN);
+>> +	input->name             = "SMSC Keypad";
+>> +	input->phys             = "smsc_keypad/input0";
+>> +	input->dev.parent       = &pdev->dev;
+>> +	input->id.bustype       = BUS_HOST;
+>> +	input->id.vendor        = 0x0001;
+>> +	input->id.product       = 0x0001;
+>> +	input->id.version       = 0x0003;
+>> +
+>> +	input->open = smsc_keypad_open;
+>> +	input->close = smsc_keypad_close;
+>> +	input_set_drvdata(input, kp);
+>> +
+>> +	/* Mask all GPIO interrupts (0x37-0x3B) */
+>> +	for (addr = SMSC_GPIO_INT_MASK_START;
+>> +			addr < SMSC_GPIO_INT_MASK_START + 4; addr++)
+>> +		smsc_write(dev, addr, 0);
+>> +
+>> +	/* Set all outputs high (0x05-0x09) */
+>> +	for (addr = SMSC_GPIO_DATA_OUT_START;
+>> +			addr < SMSC_GPIO_DATA_OUT_START + 4; addr++)
+>> +		smsc_write(dev, addr, 0xff);
+>> +
+>> +	/* Clear all GPIO interrupts (0x32-0x36) */
+>> +	for (addr = SMSC_GPIO_INT_STAT_START;
+>> +			addr < SMSC_GPIO_INT_STAT_START + 4; addr++)
+>> +		smsc_write(dev, addr, 0xff);
+>> +
+>> +	/* Configure the smsc pins as Keyboard scan Input */
+>> +	for (i = 0; i < kp->rows; i++) {
+>> +		addr = 0x12 + i;
+>> +		smsc_write(dev, addr, SMSC_KP_KSI);
+>> +	}
+>> +
+>> +	/* Configure the smsc pins as Keyboard scan output */
+>> +	for (i = 0; i < kp->cols; i++) {
+>> +		addr = 0x1a + i;
+>> +		smsc_write(dev, addr, SMSC_KP_KSO);
+>> +	}
+>> +
+>> +	smsc_write(dev, SMSC_KP_INT_STAT, SMSC_KP_SET_HIGH);
+>> +	smsc_write(dev, SMSC_WKUP_CTRL, SMSC_KP_SET_LOW_PWR);
+>> +	smsc_write(dev, SMSC_KP_OUT, SMSC_KSO_ALL_LOW);
+>> +
+>> +	row_shift = get_count_order(kp->cols);
+>> +	max_keys = kp->rows << row_shift;
+>> +
+>> +	kp->row_shift = row_shift;
+>> +	kp->keymap = devm_kzalloc(dev, max_keys * sizeof(kp->keymap[0]),
+>> +					GFP_KERNEL);
+>> +	if (!kp->keymap) {
+>> +		dev_err(dev, "Not enough memory for keymap\n");
+>> +		return -ENOMEM;
+>> +	}
+>> +
+>> +	ret = matrix_keypad_build_keymap(NULL, NULL, kp->rows,
+>> +			kp->cols, kp->keymap, input);
+>> +	if (ret) {
+>> +		dev_err(dev, "failed to build keymap\n");
+>> +		return ret;
+>> +	}
+>> +
+>> +	/*
+>> +	* This ISR will always execute in kernel thread context because of
+>> +	* the need to access the SMSC over the I2C bus.
+>> +	*/
+>> +	ret = devm_request_threaded_irq(dev, kp->irq, NULL, do_kp_irq,
+>> +			IRQF_TRIGGER_FALLING | IRQF_ONESHOT, pdev->name, kp);
+>> +	if (ret) {
+>> +		dev_dbg(dev, "request_irq failed for irq no=%d\n",
+>> +			irq);
+>> +		return ret;
+>> +	}
+>> +
+>> +	ret = input_register_device(input);
+>> +	if (ret) {
+>> +		dev_err(kp->dev,
+>> +			"Unable to register twl4030 keypad device\n");
+>> +		return ret;
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int __devexit smsc_remove(struct platform_device *pdev)
+>> +{
+> shouldn't you unregister the input device here ??
+>
+As Dmitry already pointed out, I was also thinking on the same line that 
+using devm_* variants
+will automatically take care of unregistering your device.

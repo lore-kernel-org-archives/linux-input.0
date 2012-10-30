@@ -1,86 +1,84 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2 03/11] HID: hid-input: add usage_index argument in
- input_mapping and event.
-Date: Tue, 30 Oct 2012 11:09:46 +0100
-Message-ID: <CAN+gG=HLmCszdxgdcmt5AgzNyt08HamCdd2BjzCaTB5k7wYcnQ@mail.gmail.com>
+Subject: Re: [PATCH v2 04/11] HID: hid-multitouch: support arrays for the
+ split of the touches in a report
+Date: Tue, 30 Oct 2012 11:11:04 +0100
+Message-ID: <CAN+gG=EkjM9pi99CxoxEwuLFt_=SL08HLjYYCkVwEnv2Z9gGzw@mail.gmail.com>
 References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
-	<1351241067-9521-4-git-send-email-benjamin.tissoires@gmail.com>
-	<20121029192558.GA15061@polaris.bitmath.org>
+	<1351241067-9521-5-git-send-email-benjamin.tissoires@gmail.com>
+	<20121029214925.GA15400@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f46.google.com ([209.85.215.46]:62038 "EHLO
-	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756683Ab2J3KJr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Oct 2012 06:09:47 -0400
-In-Reply-To: <20121029192558.GA15061@polaris.bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121029214925.GA15400@polaris.bitmath.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Mon, Oct 29, 2012 at 8:25 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+Hi Henrik,
+
+On Mon, Oct 29, 2012 at 10:49 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
 > Hi Benjamin,
 >
->> Currently, there is no way to know the index of the current field
->> in the .input_mapping and .event callbacks  when this field is inside
->> an array of HID fields.
->> This patch forwards this index to the input_mapping and event
->> callbacks.
+>> Win8 certification introduced the ability to transmit two X and two Y per
+>> touch. The specification precises that it must be in an array, with a
+>> report count == 2.
 >
-> I agree with the idea, but the function argument list is becoming
-> ridiculously long... Could we remove the usage pointer argument, at
-> least?
+> The number two never really enters the patch, so maybe it should be
+> dropped to avoid confusion. It probably makes more sense to comment on
+> in a later patch, when the reports are actually used.
 
-yeah, totally agree. Let me just check whether it will not introduce
-more problems than it solves for my driver.
+Yep, it seems that the commit message is not good. I'll rewrite it in v3.
 
 >
->         int (*event)(struct hid_device *hdev, struct hid_field *field,
->                         unsigned int usage_index, __s32 value);
->
->
->> @@ -1071,19 +1072,24 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field,
->>       for (n = 0; n < count; n++) {
 >>
->>               if (HID_MAIN_ITEM_VARIABLE & field->flags) {
->> -                     hid_process_event(hid, field, &field->usage[n], value[n], interrupt);
->> +                     hid_process_event(hid, field, &field->usage[n], n,
->> +                             value[n], interrupt);
->>                       continue;
+>> This test guarantees that we split the touches on the last element
+>> in this array.
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+>> ---
+>>  drivers/hid/hid-multitouch.c | 16 ++++++++++------
+>>  1 file changed, 10 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+>> index 725d155..95562d8 100644
+>> --- a/drivers/hid/hid-multitouch.c
+>> +++ b/drivers/hid/hid-multitouch.c
+>> @@ -577,12 +577,16 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+>>                       return 0;
 >>               }
 >>
->>               if (field->value[n] >= min && field->value[n] <= max
->>                       && field->usage[field->value[n] - min].hid
->>                       && search(value, field->value[n], count))
->> -                             hid_process_event(hid, field, &field->usage[field->value[n] - min], 0, interrupt);
->> +                             hid_process_event(hid, field,
->> +                                     &field->usage[field->value[n] - min], n,
->> +                                     0, interrupt);
+>> -             if (usage->hid == td->last_slot_field)
+>> -                     mt_complete_slot(td, field->hidinput->input);
+>> -
+>> -             if (field->index == td->last_field_index
+>> -                     && td->num_received >= td->num_expected)
+>> -                     mt_sync_frame(td, field->hidinput->input);
+>> +             if (usage_index + 1 == field->report_count) {
+>> +                     /* we only take into account the last report
+>> +                      * of a field if report_count > 1 */
 >
-> Wrong index?
+> Seems we could drop "of a field if report_count > 1" here, and be even
+> more correct.
 
-oops, I'll have to check that.
+oops ;-)
 
-Thanks,
+Cheers,
 Benjamin
 
 >
+>> +                     if (usage->hid == td->last_slot_field)
+>> +                             mt_complete_slot(td, field->hidinput->input);
+>> +
+>> +                     if (field->index == td->last_field_index
+>> +                             && td->num_received >= td->num_expected)
+>> +                             mt_sync_frame(td, field->hidinput->input);
+>> +             }
 >>
->>               if (value[n] >= min && value[n] <= max
->>                       && field->usage[value[n] - min].hid
->>                       && search(field->value, value[n], count))
->> -                             hid_process_event(hid, field, &field->usage[value[n] - min], 1, interrupt);
->> +                             hid_process_event(hid, field,
->> +                                     &field->usage[value[n] - min], n,
->> +                                     1, interrupt);
->
-> Wrong index?
->
 >>       }
 >>
->>       memcpy(field->value, value, count * sizeof(__s32));
+>> --
+>> 1.7.11.7
 >
 > Thanks,
 > Henrik

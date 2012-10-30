@@ -1,107 +1,84 @@
 From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
-Date: Tue, 30 Oct 2012 14:37:16 +0000
-Message-ID: <20121030143715.GP4511@opensource.wolfsonmicro.com>
-References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
- <20121024161429.GA16350@core.coreip.homeip.net>
- <CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
- <4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
- <CACRpkdaiLXVeUg1quuw3XPTenbKOjn+aWbGQezpcyvzQCtCWow@mail.gmail.com>
- <20121030113407.GA24335@sirena.org.uk>
- <CACRpkdapQJY0aoam741O0fb8EeM9BLk_Psq5TaPG84J7wEvCLw@mail.gmail.com>
+Date: Tue, 30 Oct 2012 14:54:21 +0000
+Message-ID: <20121030145420.GQ4511@opensource.wolfsonmicro.com>
+References: <4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
+ <20121024185818.GB772@arwen.pp.htv.fi>
+ <20121025205901.GA3827@sirena.org.uk>
+ <20121026062008.GA21734@arwen.pp.htv.fi>
+ <20121026160316.GY18814@opensource.wolfsonmicro.com>
+ <20121029194901.GA30152@arwen.pp.htv.fi>
+ <20121030112410.GM4511@opensource.wolfsonmicro.com>
+ <20121030114949.GC28722@arwen.pp.htv.fi>
+ <20121030140714.GO4511@opensource.wolfsonmicro.com>
+ <CACRpkdZysB2mxj5wZfE0N+iwTE-_AXbOV0bKRP5kSo=1hieKGg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9zecZT88ylESpiZX"
+	protocol="application/pgp-signature"; boundary="Y9o+fgG4MNl0mnzl"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:39544 "EHLO
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:40883 "EHLO
 	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753110Ab2J3OhS (ORCPT
+	by vger.kernel.org with ESMTP id S1754131Ab2J3OyY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Oct 2012 10:37:18 -0400
+	Tue, 30 Oct 2012 10:54:24 -0400
 Content-Disposition: inline
-In-Reply-To: <CACRpkdapQJY0aoam741O0fb8EeM9BLk_Psq5TaPG84J7wEvCLw@mail.gmail.com>
+In-Reply-To: <CACRpkdZysB2mxj5wZfE0N+iwTE-_AXbOV0bKRP5kSo=1hieKGg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Kevin Hilman <khilman@ti.com>
+Cc: Felipe Balbi <balbi@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
 
---9zecZT88ylESpiZX
+--Y9o+fgG4MNl0mnzl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Tue, Oct 30, 2012 at 03:02:23PM +0100, Linus Walleij wrote:
+On Tue, Oct 30, 2012 at 03:16:02PM +0100, Linus Walleij wrote:
+> On Tue, Oct 30, 2012 at 3:07 PM, Mark Brown
 
-> I worry that we will end up with power/resource domain
-> code that start to look like this:
+> > Essentially all the patches I'm seeing adding pinctrl are totally
+> > mindless, most of them are just doing the initial setup on boot and not
+> > doing any active management at runtime at all.
 
-> suspend()
-> switch (device.id) {
-> case DEV_FOO:
->   clk_disable();
->   pinctrl_set_state();
->   power_domain_off();
-> case DEV_BAR:
+> I concludes in some other mails that all Ux500 drivers
+> will need to handle atleast two states (default and sleep)
+> and some a third state (idle).
 
-Well, if we're doing that then either we'd presumably either get the
-same result if we open code it in the drivers or whoever wrote the
-resource domain code for the platform should be creating multiple
-domains.
+Right, that's the other common option and obviously it's just an
+extension of the simple hogs which maps very nicely onto the existing PM
+states for devices.
 
-> Another effect is that moving all resource handling to
-> power domains is that if we do that for a widely shared
-> device driver like the PL011 that mandates that power
-> domains need to be implemented for U300, Ux500,
-> Nomadik, SPEAr 13xx, 3xx, 6xx, Versatile, Versatile
-> Express, Integrator (AP & CP) and BCM2835. Probably
-> more.
+> And this is what we're doing in our patches.
 
-> Basically power (resource) domains have the side-effect
-> of in this light not doing one thing (power domains) but
-> instead imposing all-or-nothing imperialistic characteristics.
+> Arguably it can all be pushed to power domains, but that
+> will as said mandate all affected systems to implement
+> power domains, and effectively moving code from
+> drivers/* to arch/arm/* in our case atleast.
 
-For me that's happening anyway with explicit control, just in different
-places - for example the Freescale guys have had issues with IPs shared
-between m68k and i.MX requiring that stub clocks be provided on m68k for
-things that are always on there and similarly with all the platforms
-that get affected when some widely used chip acquires regulator support.
+As soon as they start adding clock support and so on, yes.  Obviously if
+they don't want to use any of the features that are offloaded like this
+then they could happily ignore it.
 
-It seems easier to organise things if the platform has responsibility
-for coordinating this stuff than if we add stuff in the drivers.
-
-> I worry that the per-SoC power domain implementation
-> which will live in arch/arm/mach-* as of today will become
-> the new board file problem, overburdening the arch/* tree.
-> Maybe I'm mistaken as to the size of these things,
-> but just doing ls arch/arm/mach-omap2/powerdomain*
-> makes me start worrying.
-
-One thing to remember is that OMAP has some of the most featureful
-hardware out there in terms of software control for power so it's
-unlikely to ever get much more complex than that.  IME most SoCs
-are very much simpler than that and should be able to punt lots of
-stuff to device tree data.
-
---9zecZT88ylESpiZX
+--Y9o+fgG4MNl0mnzl
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJQj+XzAAoJELSic+t+oim9EFkP/1d40L0OYQ8Z9QHLeu5cbNoz
-D0KQtlQOuRA0v5s0ONEWprg+X3kY16breTyNEEANA1p4rpNDBtOS17LHB0th/Muq
-JyI8wxQqm16101sEv6IpB3MWwvi0X8N7iSO6fKAzlRFAnLIc+BGE0oDeQeRYhCN7
-ccx8/wTOQfxgnNGSAeqg/uC6GpjzFuV8zwA/6wxDgHlxoeP/XXP8KkPumD1QXb4w
-IxXnCS9aAzpAaKE8z3yMi25jU6cL7XNwAF7eYFBFawA/90qls/QY4vXjvtqwI7QC
-W3GBcGmW4sekYxhZzTHJIuv+z0BMtSPKgCMTBh5Fzgzvoseg+FpToQ32YeTtt3Lq
-lDbagBM801FI0HaCgffjRHxxm8vf+6URVl/6BRYXgku8O4dRurMXfGpVIdhO75m0
-L2B09Pq5T9ixNXVg2sW7zcK0wtRnBXx0TslCgbFwzZJ4yQzNZrEdcUZHhUBqFxoL
-br3gbr3oFXouLPEskrAg2QVWmotNsuUZgNqLBy9n6tL8F+N8id5Tc9xLLOchVW11
-gHZ6QWFksxx6YTSQsEkRyVn7L6h2m/vse6qbphTNtGp/lZWEqEbh1QYLahA8wWvD
-Ur6OPFXHFiUd9/Ew5ZSG82xLwjdCnz8nvyTQoD3C6q6wxkZmskHiAF1pMPvHi4gf
-eRPGeIdAHg7sxKsY1QI6
-=3pZ7
+iQIcBAEBAgAGBQJQj+oWAAoJELSic+t+oim91XQP/3/AoT73wqFhoXISasrhp7xm
+671tREdtuwwtdcqVRCIMmn+xrnHcYyJN15OTOYlBFFzFGlTv8DSDmffqvYY1U3UQ
+psyzgBjbO0JCF3KNQKugktbYb6M428ryTQLFr6djK2PODF4as2uM26gPZf/TZs5y
+EnH/q7XWzEwLey19MNAhUBxCEU9nif66NQ0vTV1WtU94zjZ8Omt55a3Uoi4K9Nvv
+Lwf94hDTUfe2XDXd4sDtiyVR8JleGOWVWzf9oLm1asfgJjpgK14PtvE5p7CSQXSH
++zFjRlJWg5QYvM7RDrMP6fmeokWlijEdNA1gLHSZB6UkBljpl9E8JppvLj9xsZEU
+ZlD1hBD9EqFXPJaYbIQ1ySS5EHYeAVBDGUloQVtBw/Ey86ERwwli/Vz3LwYOeht9
+h7qqZC3IWxxiNl0eu2u1ZDdmpSQOlXLcrFwolIgLvrdr5nqU5egPUda0v4TQBuUN
+1HfQt+E5pHZIY+6Sr+Mwml0fPxc5SL0ukdSi0GmTpStsqCEyLFkFS5OO+Xa3lUXG
+IHazQYi38WElveranQAh9VEMM2Tu0UeF/R+cZw0phOgyCe5+AUdMSCK+IHCE0uXd
+mhmTAWYxhDRHcZFvMwaZ4UDOcMcxOAInAYdT2kiJ4mtErWC5/+CrrBsY6/uYMNm5
+6r/pqt8yVfhFow5sxoJC
+=P/FU
 -----END PGP SIGNATURE-----
 
---9zecZT88ylESpiZX--
+--Y9o+fgG4MNl0mnzl--

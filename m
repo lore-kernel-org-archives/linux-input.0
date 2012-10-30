@@ -1,9 +1,8 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+From: Felipe Balbi <balbi@ti.com>
 Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
-Date: Tue, 30 Oct 2012 18:37:04 +0000
-Message-ID: <20121030183704.GX4511@opensource.wolfsonmicro.com>
-References: <20121025205901.GA3827@sirena.org.uk>
- <20121026062008.GA21734@arwen.pp.htv.fi>
+Date: Tue, 30 Oct 2012 20:48:28 +0200
+Message-ID: <20121030184828.GB4804@arwen.pp.htv.fi>
+References: <20121026062008.GA21734@arwen.pp.htv.fi>
  <20121026160316.GY18814@opensource.wolfsonmicro.com>
  <20121029194901.GA30152@arwen.pp.htv.fi>
  <20121030112410.GM4511@opensource.wolfsonmicro.com>
@@ -12,74 +11,78 @@ References: <20121025205901.GA3827@sirena.org.uk>
  <20121030151642.GE29159@arwen.pp.htv.fi>
  <20121030155821.GU4511@opensource.wolfsonmicro.com>
  <20121030172513.GA3993@arwen.pp.htv.fi>
+ <20121030182007.GA21851@core.coreip.homeip.net>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DMefDzZywwCHZelG"
+	protocol="application/pgp-signature"; boundary="VrqPEDrXMn8OVzN4"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:33212 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752523Ab2J3ShH (ORCPT
+Received: from devils.ext.ti.com ([198.47.26.153]:37623 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934001Ab2J3Syc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Oct 2012 14:37:07 -0400
+	Tue, 30 Oct 2012 14:54:32 -0400
 Content-Disposition: inline
-In-Reply-To: <20121030172513.GA3993@arwen.pp.htv.fi>
+In-Reply-To: <20121030182007.GA21851@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Felipe Balbi <balbi@ti.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Linus Walleij <linus.walleij@linaro.org>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-
---DMefDzZywwCHZelG
+--VrqPEDrXMn8OVzN4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 30, 2012 at 07:25:13PM +0200, Felipe Balbi wrote:
-> On Tue, Oct 30, 2012 at 03:58:21PM +0000, Mark Brown wrote:
+Hi,
 
-> > But then this comes round to the mindless code that ought to be factored
-> > out :)  Only the more interesting cases that do something unusual really
-> > register here.
+On Tue, Oct 30, 2012 at 11:20:07AM -0700, Dmitry Torokhov wrote:
+> On Tue, Oct 30, 2012 at 07:25:13PM +0200, Felipe Balbi wrote:
+> > On Tue, Oct 30, 2012 at 03:58:21PM +0000, Mark Brown wrote:
+> > >=20
+> > > But then this comes round to the mindless code that ought to be facto=
+red
+> > > out :)  Only the more interesting cases that do something unusual rea=
+lly
+> > > register here.
+> >=20
+> > fair enough. I see your point. Not saying I agree though, just that this
+> > discussion has been flying for far too long, so feel free to provide
+> > patches implementing what you're defending here ;-)
+> >=20
+> > Guess code will speak for itself. On way or another, we need OMAP keypad
+> > driver working in mainline
+>=20
+> Are you saying that introducing pincrtl infrastructure actually _broke_
+> the driver in mainline?
 
-> fair enough. I see your point. Not saying I agree though, just that this
-> discussion has been flying for far too long, so feel free to provide
-> patches implementing what you're defending here ;-)
+no dude, I'm saying we need pinctrl working for this driver because we
+need to remove OMAP-specific MUX settings. One way or another, this has
+to work.
 
-> Guess code will speak for itself. On way or another, we need OMAP keypad
-> driver working in mainline and I don't think your arguments are strong
-> enough to keep $SUBJECT from being merged, unless you can provide
-> something stable/tested for v3.8 merge window.
+--=20
+balbi
 
-Ship me an OMAP5 system and I might see what I can do :)
-
-More seriously the amount of time we seem to have been spending recently
-on changes which end up requiring us to go through essentially every
-driver and add code to them (often several times) doesn't seem like
-we're doing a good job here.  pinctrl is really noticable because it's
-new but it's not the only thing.  As a subsystem maintainer this code
-just makes me want to add new subsystem features to pull the code out of
-drivers but obviously that's not something that should be being done at
-the subsystem level.
-
---DMefDzZywwCHZelG
+--VrqPEDrXMn8OVzN4
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJQkB43AAoJELSic+t+oim9I0wP/1rfBcXfK+YljZUr1hkeCm28
-8C32AJqxiOv6udgo4yLnsJmfJkCXiyrLrg5Xl3mfXL/Jl+CQVYUM3GaqatPsqA08
-0Olfa5KM+Ftsfvb91lxjvqYvYHzmkFBUY4s3Kk5Xtu0ltEeTy9Dxvzb7Sh8Pj+/m
-cwBBqwf+milN3u84ZxHvgpLshzq+prsUMq0ym7gnr8+7VeDooSM+uao5uk/hSblw
-FloanO5OkNk/FSHfc9eAEDaJVHHrxM88bWwTNkR3IvFwdB8WFVwbHpuXHlg3PhLy
-3hoiDDW8yTJxXwYy9ld8jpTg4O36kSTF5+nHYkWTAm0UUocdAEy0z4/cNnj/Wjqp
-v20zhskCYp6O1TWa5Ws34fgeifVgOKTFEYuURox1g7CXJCbnO7coQvY4GAbV5nqQ
-9GCQTIkLomOocctANrABGNEAMcNmU3E5JEhDaPMZhKRHwuMB0X1msaE+E/knwRUi
-DX3XeV70DaiAqBKyVfmKQknzgE9qbyOSuEWzIyVvMFPQw8xYDJhUKxKeMOK2U3uf
-0pKEamahZbQ6heUuyz5K6i6rUu+1zXkx3jqpVJ/DKpSM6keanNWzph0pvbT5RQX2
-ubbVGu5yOe8wZfOWfmqlAK3cztUxMBw/raCM78BMV0CbNoA2eAXoJRrUr5bCHzmZ
-Ea9qpZRWusegfByl1USM
-=V4+A
+iQIcBAEBAgAGBQJQkCD8AAoJEIaOsuA1yqRExbwP/RsiJ0tZ4envXPJkAk9FusHr
+gM3KATpzj8nsaedhnfQU0qA7X0adO6tA/QHJFva869xp071/PnoaGv+tsqiMb8Nv
+7HZAA6p577k7zNdN+FjzNSgtLt0KQrkIt5DatbzXJxbhHhNhCqqlbvYzJ+IGD/Rw
+lUy4feXwn5TRgPXNvSyLaj13Tg8zEYBGRFsrbLijAKHVQKcsAIvp9Si3dd2kod+R
+4GrAxDsCBi6SB+4zHBDoW0kEZBubs5PRO44l3nzeumMMQWk8FfsRbzajd/GtiAdb
+BDWLKr4p4EXjVeTVkbvvTHvH9QbhhWbqHUZINXeflkVTnugLHu7dHDzeBi4VpodX
+d+JLA33ACaXG0CSGnq3znHGqYd7jCFPGh6lPLct5hFrsgZLcgj10aJUGdVdiKvCe
+VNlQ6jAcjBJNuJUC3FiR+bTouxvOrSjHGkF2xjaT3fmsAquZZULC2GXpJbdaAZeB
+e+fRsSl7oSVlUvh+Irzrht8tTiSPVQ8ZAEZgQ5IPaGWL6G8ynibJQ5hncTPtpzsH
+dk+W4ge0xCf/Qvwe+RoYwSb5N1LU3wIhB/W5nyMNovEALhhNxozG51AJ6icULw5w
+8P8jfgMKHUECBHc6BckU+f5TA+D2cqaFAQc+HuYn5JB9fetD91gsjSc79A/5ogTD
+Ns2dQ8ziOK292Tbf0nNu
+=Wytf
 -----END PGP SIGNATURE-----
 
---DMefDzZywwCHZelG--
+--VrqPEDrXMn8OVzN4--

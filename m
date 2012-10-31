@@ -1,47 +1,102 @@
 From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Subject: Re: [PATCH 1/2] input: qt1070: add pinctrl consumer
-Date: Wed, 31 Oct 2012 14:02:07 +0100
-Message-ID: <20121031130207.GE19021@game.jcrosoft.org>
-References: <20121023131627.GE18964@game.jcrosoft.org>
- <1350998942-713-1-git-send-email-plagnioj@jcrosoft.com>
- <CACRpkdaTciRNsG8viz19FQajFExX+ApPNcnnVBneecSe_w-EsA@mail.gmail.com>
+Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Wed, 31 Oct 2012 14:19:03 +0100
+Message-ID: <20121031131903.GF19021@game.jcrosoft.org>
+References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
+ <20121024161429.GA16350@core.coreip.homeip.net>
+ <CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
+ <4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
+ <CACRpkdaiLXVeUg1quuw3XPTenbKOjn+aWbGQezpcyvzQCtCWow@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CACRpkdaTciRNsG8viz19FQajFExX+ApPNcnnVBneecSe_w-EsA@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+In-Reply-To: <CACRpkdaiLXVeUg1quuw3XPTenbKOjn+aWbGQezpcyvzQCtCWow@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, Felipe Balbi <balbi@ti.com>, linux-input@vger.kernel.org, Sourav Poddar <sourav.poddar@ti.com>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On 22:37 Tue 30 Oct     , Linus Walleij wrote:
+On 21:12 Sun 28 Oct     , Linus Walleij wrote:
+> On Wed, Oct 24, 2012 at 7:28 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
 > 
-> On Tue, Oct 23, 2012 at 3:29 PM, Jean-Christophe PLAGNIOL-VILLARD
-> <plagnioj@jcrosoft.com> wrote:
-> 
-> > If no pinctrl available just report a warning as some architecture may not
-> > need to do anything.
+> >> drivers/spi/spi-pl022.c
 > >
-> > Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-> > Cc: Linus Walleij <linus.walleij@linaro.org>
-> > Cc: linux-input@vger.kernel.org
+> > Default/sleep transitions could be moved into bus code.
 > 
-> We're having a discussion on the level of where to impose pinctrl.
+> No that's not a good idea as long as we have both the platform bus
+> and the AMBA bus doing essentially the same thing. We will then be
+> having two copies of the same code in two different busses running
+> out of sync. There may be other busses too.
 > 
-> Jean-Christophe, could you please check the thread
-> "Input: omap4-keypad: Add pinctrl support"
-> and tell us what you think is the best approach?
-ok I check it 
+> But I could prepare static helpers in <linux/pinctrl/consumer.h>
+> that any bus could use. Or any driver. Probably any driver,
+> because of this:
+> 
+> As noted the bus cannot really execute the pinctrl calls to
+> e.g. put a drivers pins into "sleep". Since if e.g. the bus is walking
+> the suspend() ladder, shall it put the pins into sleep *before*
+> or *after* calling the suspend() hook in the driver?
+> 
+> The answer is that it does not know. Because drivers have
+> different needs. Depending on how the hardware and
+> system is done.
+> 
+> I already tried to make this point:
+> 
+> pinctrl_set_state(state_sleep);
+> clk_disable();
+> power_off_voltage_domain();
+> 
+> May for some drivers have to be:
+> 
+> clk_disable();
+> power_off_voltage_domain();
+> pinctrl_set_state(state_sleep);
+> 
+> (etc)
+> 
+> I'm not making this up, it is a very real phenomenon on the
+> Ux500 and I don't think we are unique.
+I agree with Linus
+
+you can not handle pinctrl as bus levell
+
+as each driver need different requirement before enabling the pin
+
+as example you may need to clock the ip before muxing the pin and invertly
+
+on some IP the pinctrl is optionnal, on other mandatory
+
+you can not expect every driver to have the same need and requirement
+
+yes we will have a few code duplication
+
+but today it's few lines and those few lines will be place at different init
+stage on the drivers ditto for remove or sleep/idle
+
+
+> 
+> Moving this handling to bus code or anywhere else
+> invariably implies that resource acquisition/release order
+> does not matter, and my point is that it does.
+
+100% agreed
 
 Best Regards,
 J.
+> 
+> >> drivers/i2c/busses/i2c-nomadik.c
+> >
+> > Don't see pinctrl in linux-next.
+> 
+> This code is here:
+> http://marc.info/?l=linux-i2c&m=134986995731695&w=2
+> 
+> Yours,
+> Linus Walleij
+> _______________________________________________
+> devicetree-discuss mailing list
+> devicetree-discuss@lists.ozlabs.org
+> https://lists.ozlabs.org/listinfo/devicetree-discuss

@@ -1,147 +1,195 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 2/2] input - wacom: Add support to 0x100 and 0x100
-Date: Wed, 31 Oct 2012 10:39:37 -0700
-Message-ID: <1351705177-14397-1-git-send-email-pingc@wacom.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:64618 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934683Ab2JaRjp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Oct 2012 13:39:45 -0400
-Received: by mail-da0-f46.google.com with SMTP id n41so742983dak.19
-        for <linux-input@vger.kernel.org>; Wed, 31 Oct 2012 10:39:45 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: =?UTF-8?q?=5BPATCH=20v2=204/4=5D=20input=3A=20misc=3A=20introduce=20retu-pwrbutton?=
+Date: Wed, 31 Oct 2012 20:03:46 +0200
+Message-ID: <1351706626-32186-5-git-send-email-aaro.koskinen@iki.fi>
+References: <1351706626-32186-1-git-send-email-aaro.koskinen@iki.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1351706626-32186-1-git-send-email-aaro.koskinen@iki.fi>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>, Ping Cheng <pinglinux@gmail.com>
 
-Two new multi-touch tablets.
+Add Retu power button driver.
 
-Signed-off-by: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org
+Acked-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
 ---
- drivers/input/tablet/wacom_sys.c |    5 +++++
- drivers/input/tablet/wacom_wac.c |   22 +++++++++++++++++++---
- drivers/input/tablet/wacom_wac.h |    2 ++
- 3 files changed, 26 insertions(+), 3 deletions(-)
+ drivers/input/misc/Kconfig          |   10 +++
+ drivers/input/misc/Makefile         |    1 +
+ drivers/input/misc/retu-pwrbutton.c |  118 +++++++++++++++++++++++++++=
+++++++++
+ 3 files changed, 129 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/retu-pwrbutton.c
 
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 67442f4..f92d34f 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -397,6 +397,10 @@ static int wacom_parse_hid(struct usb_interface *intf,
- 							features->pktlen = WACOM_PKGLEN_MTOUCH;
- 							break;
- 
-+						case MTTPC:
-+							features->pktlen = WACOM_PKGLEN_MTTPC;
-+							break;
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 7c0f1ec..e5be189 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -367,6 +367,16 @@ config INPUT_CM109
+ 	  To compile this driver as a module, choose M here: the module will =
+be
+ 	  called cm109.
+=20
++config INPUT_RETU_PWRBUTTON
++	tristate "Retu Power button Driver"
++	depends on MFD_RETU
++	help
++	  Say Y here if you want to enable power key reporting via the
++	  Retu chips found in Nokia Internet Tablets (770, N800, N810).
 +
- 						case BAMBOO_PT:
- 							features->pktlen = WACOM_PKGLEN_BBTOUCH;
- 							break;
-@@ -453,6 +457,7 @@ static int wacom_parse_hid(struct usb_interface *intf,
- 						switch (features->type) {
- 						case TABLETPC2FG:
- 						case MTSCREEN:
-+						case MTTPC:
- 							features->y_max =
- 								get_unaligned_le16(&report[i + 3]);
- 							features->y_phy =
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index aa60101..6e567e3 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -877,6 +877,12 @@ static int wacom_mt_touch(struct wacom_wac *wacom)
- 	int i;
- 	int current_num_contacts = data[2];
- 	int contacts_to_send = 0;
-+	int x_offset = 0;
++	  To compile this driver as a module, choose M here. The module will
++	  be called retu-pwrbutton.
 +
-+	/* MTTPC does not support Height and Width */
-+	if (wacom->features.type == MTTPC) {
-+		x_offset = -4;
+ config INPUT_TWL4030_PWRBUTTON
+ 	tristate "TWL4030 Power button Driver"
+ 	depends on TWL4030_CORE
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 83fe6f5..4fbee0d 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -45,6 +45,7 @@ obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+=3D pmic8xxx-pwr=
+key.o
+ obj-$(CONFIG_INPUT_POWERMATE)		+=3D powermate.o
+ obj-$(CONFIG_INPUT_PWM_BEEPER)		+=3D pwm-beeper.o
+ obj-$(CONFIG_INPUT_RB532_BUTTON)	+=3D rb532_button.o
++obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+=3D retu-pwrbutton.o
+ obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+=3D rotary_encoder.o
+ obj-$(CONFIG_INPUT_SGI_BTNS)		+=3D sgi_btns.o
+ obj-$(CONFIG_INPUT_SPARCSPKR)		+=3D sparcspkr.o
+diff --git a/drivers/input/misc/retu-pwrbutton.c b/drivers/input/misc/r=
+etu-pwrbutton.c
+new file mode 100644
+index 0000000..51e94a7
+--- /dev/null
++++ b/drivers/input/misc/retu-pwrbutton.c
+@@ -0,0 +1,118 @@
++/*
++ * Retu power button driver.
++ *
++ * Copyright (C) 2004-2010 Nokia Corporation
++ *
++ * Original code written by Ari Saastamoinen, Juha Yrj=C3=B6l=C3=A4 an=
+d Felipe Balbi.
++ * Rewritten by Aaro Koskinen.
++ *
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License. See the file "COPYING" in the main directory of thi=
+s
++ * archive for more details.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/irq.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/errno.h>
++#include <linux/input.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mfd/retu.h>
++#include <linux/interrupt.h>
++#include <linux/platform_device.h>
++
++#define RETU_STATUS_PWRONX (1 << 5)
++
++struct retu_pwrbutton {
++	struct input_dev	*idev;
++	struct retu_dev		*rdev;
++	struct device		*dev;
++	bool			pressed;
++	int			irq;
++};
++
++static irqreturn_t retu_pwrbutton_irq(int irq, void *_pwr)
++{
++	struct retu_pwrbutton *pwr =3D _pwr;
++	bool state;
++
++	state =3D !(retu_read(pwr->rdev, RETU_REG_STATUS) & RETU_STATUS_PWRON=
+X);
++
++	if (pwr->pressed !=3D state) {
++		input_report_key(pwr->idev, KEY_POWER, state);
++		input_sync(pwr->idev);
++		pwr->pressed =3D state;
 +	}
- 
- 	/*
- 	 * First packet resets the counter since only the first
-@@ -889,7 +895,7 @@ static int wacom_mt_touch(struct wacom_wac *wacom)
- 	contacts_to_send = min(5, wacom->num_contacts_left);
- 
- 	for (i = 0; i < contacts_to_send; i++) {
--		int offset = (WACOM_BYTES_PER_MT_PACKET * i) + 3;
-+		int offset = ((WACOM_BYTES_PER_MT_PACKET + x_offset)* i) + 3;
- 		bool touch = data[offset] & 0x1;
- 		int id = le16_to_cpup((__le16 *)&data[offset + 1]);
- 		int slot = find_slot_from_contactid(wacom, id);
-@@ -900,8 +906,8 @@ static int wacom_mt_touch(struct wacom_wac *wacom)
- 		input_mt_slot(input, slot);
- 		input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
- 		if (touch) {
--			int x = le16_to_cpup((__le16 *)&data[offset + 7]);
--			int y = le16_to_cpup((__le16 *)&data[offset + 9]);
-+			int x = le16_to_cpup((__le16 *)&data[offset + x_offset + 7]);
-+			int y = le16_to_cpup((__le16 *)&data[offset + x_offset + 9]);
- 			input_report_abs(input, ABS_MT_POSITION_X, x);
- 			input_report_abs(input, ABS_MT_POSITION_Y, y);
- 		}
-@@ -1336,6 +1342,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 	case TABLETPCE:
- 	case TABLETPC2FG:
- 	case MTSCREEN:
-+	case MTTPC:
- 		sync = wacom_tpc_irq(wacom_wac, len);
- 		break;
- 
-@@ -1654,6 +1661,7 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 		/* fall through */
- 
- 	case MTSCREEN:
-+	case MTTPC:
- 		if (features->device_type == BTN_TOOL_FINGER) {
- 			wacom_wac->slots = kmalloc(features->touch_max *
- 							sizeof(int),
-@@ -2015,6 +2023,12 @@ static const struct wacom_features wacom_features_0xED =
- static const struct wacom_features wacom_features_0xEF =
- 	{ "Wacom ISDv4 EF",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  255,
- 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+static const struct wacom_features wacom_features_0x100 =
-+	{ "Wacom ISDv4 100",      WACOM_PKGLEN_MTTPC,     26202, 16325,  255,
-+	  0, MTTPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+static const struct wacom_features wacom_features_0x101 =
-+	{ "Wacom ISDv4 101",      WACOM_PKGLEN_MTTPC,     26202, 16325,  255,
-+	  0, MTTPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0x47 =
- 	{ "Wacom Intuos2 6x8",    WACOM_PKGLEN_INTUOS,    20320, 16240, 1023,
- 	  31, INTUOS, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-@@ -2191,6 +2205,8 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0xEC) },
- 	{ USB_DEVICE_WACOM(0xED) },
- 	{ USB_DEVICE_WACOM(0xEF) },
-+	{ USB_DEVICE_WACOM(0x100) },
-+	{ USB_DEVICE_WACOM(0x101) },
- 	{ USB_DEVICE_WACOM(0x47) },
- 	{ USB_DEVICE_WACOM(0xF4) },
- 	{ USB_DEVICE_WACOM(0xF8) },
-diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index 345f1e7..9396d77 100644
---- a/drivers/input/tablet/wacom_wac.h
-+++ b/drivers/input/tablet/wacom_wac.h
-@@ -26,6 +26,7 @@
- #define WACOM_PKGLEN_BBPEN	10
- #define WACOM_PKGLEN_WIRELESS	32
- #define WACOM_PKGLEN_MTOUCH	62
-+#define WACOM_PKGLEN_MTTPC	40
- 
- /* wacom data size per MT contact */
- #define WACOM_BYTES_PER_MT_PACKET	11
-@@ -88,6 +89,7 @@ enum {
- 	TABLETPCE,
- 	TABLETPC2FG,
- 	MTSCREEN,
-+	MTTPC,
- 	MAX_TYPE
- };
- 
--- 
-1.7.9.5
-
++
++	return IRQ_HANDLED;
++}
++
++static int __devinit retu_pwrbutton_probe(struct platform_device *pdev=
+)
++{
++	struct retu_dev *rdev =3D dev_get_drvdata(pdev->dev.parent);
++	struct retu_pwrbutton *pwr;
++	int ret;
++
++	pwr =3D devm_kzalloc(&pdev->dev, sizeof(*pwr), GFP_KERNEL);
++	if (!pwr)
++		return -ENOMEM;
++
++	pwr->rdev =3D rdev;
++	pwr->dev  =3D &pdev->dev;
++	pwr->irq  =3D platform_get_irq(pdev, 0);
++	platform_set_drvdata(pdev, pwr);
++
++	ret =3D devm_request_threaded_irq(&pdev->dev, pwr->irq, NULL,
++					retu_pwrbutton_irq, 0, "retu-pwrbutton",
++					pwr);
++	if (ret < 0)
++		return ret;
++
++	pwr->idev =3D input_allocate_device();
++	if (!pwr->idev)
++		return -ENOMEM;
++
++	pwr->idev->evbit[0]			=3D BIT_MASK(EV_KEY);
++	pwr->idev->keybit[BIT_WORD(KEY_POWER)]	=3D BIT_MASK(KEY_POWER);
++	pwr->idev->name				=3D "retu-pwrbutton";
++
++	ret =3D input_register_device(pwr->idev);
++	if (ret < 0) {
++		input_free_device(pwr->idev);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int __devexit retu_pwrbutton_remove(struct platform_device *pde=
+v)
++{
++	struct retu_pwrbutton *pwr =3D platform_get_drvdata(pdev);
++
++	input_unregister_device(pwr->idev);
++	input_free_device(pwr->idev);
++
++	return 0;
++}
++
++static struct platform_driver retu_pwrbutton_driver =3D {
++	.probe		=3D retu_pwrbutton_probe,
++	.remove		=3D __devexit_p(retu_pwrbutton_remove),
++	.driver		=3D {
++		.name	=3D "retu-pwrbutton",
++	},
++};
++module_platform_driver(retu_pwrbutton_driver);
++
++MODULE_ALIAS("platform:retu-pwrbutton");
++MODULE_DESCRIPTION("Retu Power Button");
++MODULE_AUTHOR("Ari Saastamoinen");
++MODULE_AUTHOR("Felipe Balbi");
++MODULE_AUTHOR("Aaro Koskinen <aaro.koskinen@iki.fi>");
++MODULE_LICENSE("GPL");
+--=20
+1.7.2.5

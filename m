@@ -1,47 +1,133 @@
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Subject: [PATCH] HIL: remove one goto
-Date: Wed, 31 Oct 2012 20:24:34 +0100
-Message-ID: <2837529.xgu9k1gmUb@eto>
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Wed, 31 Oct 2012 21:10:09 +0100
+Message-ID: <87obji8kta.fsf@deeprootsystems.com>
+References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
+	<20121024161429.GA16350@core.coreip.homeip.net>
+	<CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
+	<4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
+	<CACRpkdaiLXVeUg1quuw3XPTenbKOjn+aWbGQezpcyvzQCtCWow@mail.gmail.com>
+	<20121030113407.GA24335@sirena.org.uk>
+	<CACRpkdapQJY0aoam741O0fb8EeM9BLk_Psq5TaPG84J7wEvCLw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-parisc-owner@vger.kernel.org>
-Sender: linux-parisc-owner@vger.kernel.org
-To: linux-parisc@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdapQJY0aoam741O0fb8EeM9BLk_Psq5TaPG84J7wEvCLw@mail.gmail.com>
+	(Linus Walleij's message of "Tue, 30 Oct 2012 15:02:23 +0100")
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This goto is only used to skip the next instruction, which can easily be done
-without a goto.
+Linus Walleij <linus.walleij@linaro.org> writes:
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
----
- drivers/input/serio/hil_mlc.c |   11 +++++------
- 1 files changed, 5 insertions(+), 6 deletions(-)
+> On Tue, Oct 30, 2012 at 12:34 PM, Mark Brown
+> <broonie@opensource.wolfsonmicro.com> wrote:
+>> On Sun, Oct 28, 2012 at 09:12:52PM +0100, Linus Walleij wrote:
+>
+>>> Moving this handling to bus code or anywhere else
+>>> invariably implies that resource acquisition/release order
+>>> does not matter, and my point is that it does.
+>>
+>> Doing this in the buses is definitely wrong, as you say it's not bus
+>> specific.  I do however think we can usefully do this stuff in a SoC
+>> specific place like a power domain, keeping the SoC integration code
+>> together and out of the drivers.  IME the SoCs where you need to do
+>> different things for different IPs shoudl mostly still get some reuse
+>> out of such an approach.
+>
+> Talking to Kevin Hilman today he was also stressing that
+> power domains is a good thing for handling resources, especially
+> when replacing prior hacks in the custom clk code. However
+> he pointed specifically to clocks and voltages, which may
+> be true.
+>
+> What worries me is when knowledge of the hardware which
+> is traditionally a concern for the device driver start to
+> bubble up to the power domain (or better renamed resource
+> domain if use like this, as Felipe points out).
+>
+> I worry that we will end up with power/resource domain
+> code that start to look like this:
+>
+> suspend()
+> switch (device.id) {
+> case DEV_FOO:
+>   clk_disable();
+>   pinctrl_set_state();
+>   power_domain_off();
+> case DEV_BAR:
+>   pinctrl_set_state();
+>   clk_disable();
+>   // Always-on domain
+> case DEV_BAZ:
+>   pinctrl_set_state();
+>   clk_disable();
+>   power_domain_off();
+> case ...
+>
+> Mutate the above with silicon errata, specific tweaks etc that
+> Felipe was mentioning.
 
-diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
-index bfd3865..0280167 100644
---- a/drivers/input/serio/hil_mlc.c
-+++ b/drivers/input/serio/hil_mlc.c
-@@ -686,13 +686,12 @@ static int hilse_donode(hil_mlc *mlc)
- 		write_lock_irqsave(&mlc->lock, flags);
- 		pack = node->object.packet;
- 	out:
--		if (mlc->istarted)
--			goto out2;
--		/* Prepare to receive input */
--		if ((node + 1)->act & HILSE_IN)
--			hilse_setup_input(mlc, node + 1);
-+		if (!mlc->istarted) {
-+			/* Prepare to receive input */
-+			if ((node + 1)->act & HILSE_IN)
-+				hilse_setup_input(mlc, node + 1);
-+		}
- 
--	out2:
- 		write_unlock_irqrestore(&mlc->lock, flags);
- 
- 		if (down_trylock(&mlc->osem)) {
--- 
-1.7.7
 
+like this, as well as a bunch more.  This is why we have a generic
+description of IP blocks (omap_hwmod) which abstracts all of these
+differences and keeps the PM domain layer rather simple.
 
+I agree with Mark.  Either you have to take care of this with
+conditional code in the driver, and the drivers become bloated with a
+mess of SoC integration details, or you hide it away in SoC-specific
+code that can handle this, and keep the drivers portable. 
+
+Now that we have PM domains (PM domains didn't exist when we created
+omap_device/omap_hwmod), I suspect the cleanest way to do this is to
+create separate PM domains for each "class" of devices that have
+different set of behavior.
+
+> What is happening is that device-specific behaviour which
+> traditionally handled in the driver is now inside the
+> power/resource domain.
+>
+> piece of hardware, this would be the right thing to do,
+> and I think the in-kernel examples are all "simple",
+> e.g. arch/arm/mach-omap2/powerdomain* is all about
+> power domains and nothing else, 
+
+FYI... that code isn't the same as PM domain.  That code is for the
+*hardware* powerdomains, not the software concept of "PM domain."  In
+OMAP, PM domain is implmented at the omap_device level.  And omap_device
+is the abstraction of an IP block that knows about all the PM related
+register settings, clocks, HW powerdomain, voltage domain, PM related
+pin-muxing etc. etc.    All of these things are abstracted in an
+omap_device, so that the PM domain implementation for OMAP looks rather
+simple (c.f. omap_device_pm_domain in arch/arm/plat-omap/omap_device.c.)
+
+Note that the callbacks just call omap_device_enable(),
+omap_device_disable() and all the HW ugliness, SoC-specific integration
+mess is hidden away.
+
+[...]
+
+> I think the lesser of two evils is the distributed approach,
+> and then I'm talking about pinctrl only, disregarding the
+> fact that clocks and power domains are basically subject to
+> the same kind of argument. I still buy into the concept of
+> using power domains for exactly power domains only.
+> Arguably this is an elegance opinion...
+
+The pinctrl examples I've seen mentioned so far are all PM related
+(sleep, idle, wakeup, etc.) so to me I think they still belong in
+PM domains (and that's how we handle the PM related pins in OMAP.)
+
+> I worry that the per-SoC power domain implementation
+> which will live in arch/arm/mach-* as of today will become
+> the new board file problem, overburdening the arch/* tree.
+> Maybe I'm mistaken as to the size of these things,
+> but just doing ls arch/arm/mach-omap2/powerdomain*
+> makes me start worrying.
+
+Yes, I agree that this means more code/data in arch/arm/mach-*, but
+IMO, that's really where it belongs.  It really is SoC integration
+details, and driver should really not know about it.
+
+Kevin

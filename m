@@ -1,63 +1,76 @@
-From: Xiaotian Feng <xtfeng@gmail.com>
-Subject: [PATCH 1/3] input: do not use tasklet_disable before tasklet_kill
-Date: Wed, 31 Oct 2012 16:05:59 +0800
-Message-ID: <1351670761-26749-1-git-send-email-xtfeng@gmail.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
+Subject: Re: [PATCH] ti_tscadc: Match mfd sub devices to regmap interface
+Date: Wed, 31 Oct 2012 09:12:54 +0100
+Message-ID: <5090DD86.7090204@metafoo.de>
+References: <1351698945-3881-1-git-send-email-panto@antoniou-consulting.com> <CA+Bv8XbCweGxKg-VsM2=g5KJEbLZhUA8F=iAG2st7c0JRLH58g@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:52205 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934972Ab2JaIFZ (ORCPT
+Received: from mailhost.informatik.uni-hamburg.de ([134.100.9.70]:61500 "EHLO
+	mailhost.informatik.uni-hamburg.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932520Ab2JaIMt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Oct 2012 04:05:25 -0400
+	Wed, 31 Oct 2012 04:12:49 -0400
+In-Reply-To: <CA+Bv8XbCweGxKg-VsM2=g5KJEbLZhUA8F=iAG2st7c0JRLH58g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Xiaotian Feng <xtfeng@gmail.com>, Xiaotian Feng <dannyfeng@tencent.com>, Tony Lindgren <tony@atomide.com>, Sourav Poddar <sourav.poddar@ti.com>, Josh <joshua.taylor0@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org
+To: Russ Dill <Russ.Dill@ti.com>
+Cc: Pantelis Antoniou <panto@antoniou-consulting.com>, Jonathan Cameron <jic23@cam.ac.uk>, "Patil, Rachna" <rachna@ti.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Koen Kooi <koen@dominion.thruhere.net>, Matt Porter <mporter@ti.com>, linux-omap@vger.kernel.org
 
-If tasklet_disable() is called before related tasklet handled,
-tasklet_kill will never be finished. tasklet_kill is enough.
+On 10/31/2012 05:41 AM, Russ Dill wrote:
+> On Wed, Oct 31, 2012 at 8:55 AM, Pantelis Antoniou
+> <panto@antoniou-consulting.com> wrote:
+>> The MFD parent device now uses a regmap, instead of direct
+>> memory access. Use the same method in the sub devices to avoid
+>> nasty surprises.
+>>
+>> Also rework the channel initialization of tiadc a bit.
+>>
+>> Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
+>> ---
+>>  drivers/iio/adc/ti_am335x_adc.c           | 27 +++++++++++++++++++--------
+>>  drivers/input/touchscreen/ti_am335x_tsc.c | 16 +++++++++++++---
+>>  drivers/mfd/ti_am335x_tscadc.c            |  7 +++++--
+>>  3 files changed, 37 insertions(+), 13 deletions(-)
+>>
+>> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+>> index d48fd79..5f325c1 100644
+>> --- a/drivers/iio/adc/ti_am335x_adc.c
+>> +++ b/drivers/iio/adc/ti_am335x_adc.c
+>> @@ -23,7 +23,9 @@
+>>  #include <linux/iio/iio.h>
+>>  #include <linux/iio/machine.h>
+>>  #include <linux/iio/driver.h>
+>> +#include <linux/regmap.h>
+>>
+>> +#include <linux/io.h>
+>>  #include <linux/mfd/ti_am335x_tscadc.h>
+>>  #include <linux/platform_data/ti_am335x_adc.h>
+>>
+>> @@ -36,13 +38,17 @@ struct tiadc_device {
+>>
+>>  static unsigned int tiadc_readl(struct tiadc_device *adc, unsigned int reg)
+>>  {
+>> -       return readl(adc->mfd_tscadc->tscadc_base + reg);
+>> +       unsigned int val;
+>> +
+>> +       val = (unsigned int)-1;
+>> +       regmap_read(adc->mfd_tscadc->regmap_tscadc, reg, &val);
+>> +       return val;
+>>  }
+> 
+> Would it be cleaner to instead do:
+> 
+> static unsigned int tiadc_readl(struct tiadc_device *adc, unsigned int reg)
+> {
+>        unsigned int val;
+> 
+>        return regmap_read(adc->mfd_tscadc->regmap_tscadc, reg, &val) ? : val;
+> }
 
-Signed-off-by: Xiaotian Feng <dannyfeng@tencent.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com> 
-Cc: Tony Lindgren <tony@atomide.com>
-Cc: Sourav Poddar <sourav.poddar@ti.com>
-Cc: Josh <joshua.taylor0@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-input@vger.kernel.org
----
- drivers/input/keyboard/omap-keypad.c |    3 +--
- drivers/input/serio/hil_mlc.c        |    1 -
- 2 files changed, 1 insertion(+), 3 deletions(-)
+In my opinion the best would be to just mimic the regmap interface here. Return
+an error code or 0 and pass the value back through a pointer parameter.
 
-diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
-index 4a5fcc8..6c52447 100644
---- a/drivers/input/keyboard/omap-keypad.c
-+++ b/drivers/input/keyboard/omap-keypad.c
-@@ -362,12 +362,11 @@ static int __devexit omap_kp_remove(struct platform_device *pdev)
- 	struct omap_kp *omap_kp = platform_get_drvdata(pdev);
- 
- 	/* disable keypad interrupt handling */
--	tasklet_disable(&kp_tasklet);
-+	tasklet_kill(&kp_tasklet);
- 	omap_writew(1, OMAP1_MPUIO_BASE + OMAP_MPUIO_KBD_MASKIT);
- 	free_irq(omap_kp->irq, omap_kp);
- 
- 	del_timer_sync(&omap_kp->timer);
--	tasklet_kill(&kp_tasklet);
- 
- 	/* unregister everything */
- 	input_unregister_device(omap_kp->input);
-diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
-index bfd3865..7fc1700 100644
---- a/drivers/input/serio/hil_mlc.c
-+++ b/drivers/input/serio/hil_mlc.c
-@@ -1011,7 +1011,6 @@ static void __exit hil_mlc_exit(void)
- {
- 	del_timer_sync(&hil_mlcs_kicker);
- 
--	tasklet_disable(&hil_mlcs_tasklet);
- 	tasklet_kill(&hil_mlcs_tasklet);
- }
- 
--- 
-1.7.9.5
+
 

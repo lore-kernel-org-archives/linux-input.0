@@ -1,412 +1,238 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: Add driver for ION iCade
-Date: Wed, 31 Oct 2012 12:17:49 +0100
-Message-ID: <CAN+gG=HXfM_JKQQBqmO0nuhfkW+DsS=Ahi97BAaZ5kySKwm0zQ@mail.gmail.com>
-References: <1351681810.14430.1.camel@sirocco.hadess.net>
+From: AnilKumar Ch <anilkumar@ti.com>
+Subject: [PATCH v2] Input: matrix-keypad - Add device tree support
+Date: Wed, 31 Oct 2012 17:24:31 +0530
+Message-ID: <1351684471-29369-1-git-send-email-anilkumar@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:37038 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934387Ab2JaLRv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Oct 2012 07:17:51 -0400
-Received: by mail-lb0-f174.google.com with SMTP id n3so973663lbo.19
-        for <linux-input@vger.kernel.org>; Wed, 31 Oct 2012 04:17:49 -0700 (PDT)
-In-Reply-To: <1351681810.14430.1.camel@sirocco.hadess.net>
+Received: from bear.ext.ti.com ([192.94.94.41]:54552 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932556Ab2JaLy7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 31 Oct 2012 07:54:59 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: dmitry.torokhov@gmail.com, grant.likely@secretlab.ca
+Cc: rob.herring@calxeda.com, dgdunix@gmail.com, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, AnilKumar Ch <anilkumar@ti.com>
 
-Hi Bastien,
+Add device tree support to matrix keypad driver and usage details
+are added to device tree documentation. Driver was tested on AM335x
+EVM.
 
-this v2 is good for me:
+Signed-off-by: AnilKumar Ch <anilkumar@ti.com>
+---
+These patches were tested on AM335x-EVM with DT patches, DT data
+patches will be submitted once this is accepted.
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Changes from v1:
+	- Incorporated Rob's review comments on v1
+	  * Changed matix-keypad compatible to gpio-matrix-keypad
+	  * Removed unnecessary props (num of gpios)
+	  * Used of_match_ptr()
+	- Removed first patch based on Dmitry's comments on v1
 
-Cheers,
-Benjamin
+ .../devicetree/bindings/input/matrix-keypad.txt    |   46 +++++++++
+ drivers/input/keyboard/matrix_keypad.c             |  107 +++++++++++++++++++-
+ 2 files changed, 152 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/input/matrix-keypad.txt
 
-On Wed, Oct 31, 2012 at 12:10 PM, Bastien Nocera <hadess@hadess.net> wr=
-ote:
->
-> Add a driver for the ION iCade mini arcade cabinet [1]. The device
-> generates a key press and release for each joystick movement or
-> button press or release. For example, moving the stick to the
-> left will generate the "A" key being pressed and the released.
->
-> A list of all the combinations is available in the iCade
-> developer guide [2].
->
-> This driver hides all this and makes the device work as a generic
-> joystick.
->
-> [1]: http://www.ionaudio.com/products/details/icade
-> [2]: http://www.ionaudio.com/downloads/iCade_Dev_Resource_v1.3.pdf
->
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> ---
->  drivers/hid/Kconfig     |   9 ++
->  drivers/hid/Makefile    |   1 +
->  drivers/hid/hid-core.c  |   1 +
->  drivers/hid/hid-icade.c | 259 ++++++++++++++++++++++++++++++++++++++=
-++++++++++
->  drivers/hid/hid-ids.h   |   3 +
->  5 files changed, 273 insertions(+)
->  create mode 100644 drivers/hid/hid-icade.c
->
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 1630150..813f0fe 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -265,6 +265,15 @@ config HID_GYRATION
->         ---help---
->         Support for Gyration remote control.
->
-> +config HID_ICADE
-> +       tristate "ION iCade arcade controller"
-> +       depends on (BT_HIDP)
-> +       ---help---
-> +       Support for the ION iCade arcade controller to work as a joys=
-tick.
-> +
-> +       To compile this driver as a module, choose M here: the
-> +       module will be called hid-icade.
-> +
->  config HID_TWINHAN
->         tristate "Twinhan IR remote control"
->         depends on USB_HID
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index cef68ca..85c910c 100644
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -52,6 +52,7 @@ obj-$(CONFIG_HID_GYRATION)    +=3D hid-gyration.o
->  obj-$(CONFIG_HID_HOLTEK)       +=3D hid-holtek-kbd.o
->  obj-$(CONFIG_HID_HOLTEK)       +=3D hid-holtekff.o
->  obj-$(CONFIG_HID_HYPERV_MOUSE) +=3D hid-hyperv.o
-> +obj-$(CONFIG_HID_ICADE)                +=3D hid-icade.o
->  obj-$(CONFIG_HID_KENSINGTON)   +=3D hid-kensington.o
->  obj-$(CONFIG_HID_KEYTOUCH)     +=3D hid-keytouch.o
->  obj-$(CONFIG_HID_KYE)          +=3D hid-kye.o
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index bd3971b..0a6b36f 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1572,6 +1572,7 @@ static const struct hid_device_id hid_have_spec=
-ial_driver[] =3D {
->         { HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8086, USB_DEVICE_ID_SENS=
-OR_HUB_09FA) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087, USB_DEVICE_ID_SENS=
-OR_HUB_1020) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087, USB_DEVICE_ID_SENS=
-OR_HUB_09FA) },
-> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ION, USB_DEVICE_ID_ICADE=
-) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_S=
-LIMBLADE) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_KEYTOUCH, USB_DEVICE_ID_KEYTOU=
-CH_IEC) },
->         { HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_52=
-5V) },
-> diff --git a/drivers/hid/hid-icade.c b/drivers/hid/hid-icade.c
-> new file mode 100644
-> index 0000000..1d6565e
-> --- /dev/null
-> +++ b/drivers/hid/hid-icade.c
-> @@ -0,0 +1,259 @@
-> +/*
-> + *  ION iCade input driver
-> + *
-> + *  Copyright (c) 2012 Bastien Nocera <hadess@hadess.net>
-> + *  Copyright (c) 2012 Benjamin Tissoires <benjamin.tissoires@gmail.=
-com>
-> + */
-> +
-> +/*
-> + * This program is free software; you can redistribute it and/or mod=
-ify it
-> + * under the terms of the GNU General Public License as published by=
- the Free
-> + * Software Foundation; either version 2 of the License, or (at your=
- option)
-> + * any later version.
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <linux/hid.h>
-> +#include <linux/module.h>
-> +
-> +#include "hid-ids.h"
-> +
-> +/*
-> + *   =E2=86=91      A C Y L
-> + *  =E2=86=90 =E2=86=92
-> + *   =E2=86=93      B X Z R
-> + *
-> + *
-> + *  UP ON,OFF  =3D w,e
-> + *  RT ON,OFF  =3D d,c
-> + *  DN ON,OFF  =3D x,z
-> + *  LT ON,OFF  =3D a,q
-> + *  A  ON,OFF  =3D y,t
-> + *  B  ON,OFF  =3D h,r
-> + *  C  ON,OFF  =3D u,f
-> + *  X  ON,OFF  =3D j,n
-> + *  Y  ON,OFF  =3D i,m
-> + *  Z  ON,OFF  =3D k,p
-> + *  L  ON,OFF  =3D o,g
-> + *  R  ON,OFF  =3D l,v
-> + */
-> +
-> +/* The translation code uses HID usage instead of input layer
-> + * keys. This code generates a lookup table that makes
-> + * translation quick.
-> + *
-> + * #include <linux/input.h>
-> + * #include <stdio.h>
-> + * #include <assert.h>
-> + *
-> + * #define unk     KEY_UNKNOWN
-> + *
-> + * < copy of hid_keyboard[] from hid-input.c >
-> + *
-> + * struct icade_key_translation {
-> + *     int         from;
-> + *     const char *to;
-> + *     int         press;
-> + * };
-> + *
-> + * static const struct icade_key_translation icade_keys[] =3D {
-> + *    { KEY_W,        "KEY_UP",         1 },
-> + *    { KEY_E,        "KEY_UP",         0 },
-> + *    { KEY_D,        "KEY_RIGHT",      1 },
-> + *    { KEY_C,        "KEY_RIGHT",      0 },
-> + *    { KEY_X,        "KEY_DOWN",       1 },
-> + *    { KEY_Z,        "KEY_DOWN",       0 },
-> + *    { KEY_A,        "KEY_LEFT",       1 },
-> + *    { KEY_Q,        "KEY_LEFT",       0 },
-> + *    { KEY_Y,        "BTN_A",          1 },
-> + *    { KEY_T,        "BTN_A",          0 },
-> + *    { KEY_H,        "BTN_B",          1 },
-> + *    { KEY_R,        "BTN_B",          0 },
-> + *    { KEY_U,        "BTN_C",          1 },
-> + *    { KEY_F,        "BTN_C",          0 },
-> + *    { KEY_J,        "BTN_X",          1 },
-> + *    { KEY_N,        "BTN_X",          0 },
-> + *    { KEY_I,        "BTN_Y",          1 },
-> + *    { KEY_M,        "BTN_Y",          0 },
-> + *    { KEY_K,        "BTN_Z",          1 },
-> + *    { KEY_P,        "BTN_Z",          0 },
-> + *    { KEY_O,        "BTN_THUMBL",     1 },
-> + *    { KEY_G,        "BTN_THUMBL",     0 },
-> + *    { KEY_L,        "BTN_THUMBR",     1 },
-> + *    { KEY_V,        "BTN_THUMBR",     0 },
-> + *
-> + *    { }
-> + * };
-> + *
-> + * static int
-> + * usage_for_key (int key)
-> + * {
-> + *     int i;
-> + *     for (i =3D 0; i < 256; i++) {
-> + *     if (hid_keyboard[i] =3D=3D key)
-> + *         return i;
-> + *     }
-> + *     assert(0);
-> + * }
-> + *
-> + * int main (int argc, char **argv)
-> + * {
-> + *     const struct icade_key_translation *trans;
-> + *     int max_usage =3D 0;
-> + *
-> + *     for (trans =3D icade_keys; trans->from; trans++) {
-> + *         int usage =3D usage_for_key (trans->from);
-> + *         max_usage =3D usage > max_usage ? usage : max_usage;
-> + *     }
-> + *
-> + *     printf ("#define ICADE_MAX_USAGE %d\n\n", max_usage);
-> + *     printf ("struct icade_key {\n");
-> + *     printf ("\tu16 to;\n");
-> + *     printf ("\tu8 press:1;\n");
-> + *     printf ("};\n\n");
-> + *     printf ("static const struct icade_key "
-> + *             "icade_usage_table[%d] =3D {\n", max_usage + 1);
-> + *     for (trans =3D icade_keys; trans->from; trans++) {
-> + *         printf ("\t[%d] =3D { %s, %d },\n",
-> + *                 usage_for_key (trans->from), trans->to, trans->pr=
-ess);
-> + *     }
-> + *     printf ("};\n");
-> + *
-> + *     return 0;
-> + * }
-> + */
-> +
-> +#define ICADE_MAX_USAGE 29
-> +
-> +struct icade_key {
-> +       u16 to;
-> +       u8 press:1;
-> +};
-> +
-> +static const struct icade_key icade_usage_table[30] =3D {
-> +       [26] =3D { KEY_UP, 1 },
-> +       [8] =3D { KEY_UP, 0 },
-> +       [7] =3D { KEY_RIGHT, 1 },
-> +       [6] =3D { KEY_RIGHT, 0 },
-> +       [27] =3D { KEY_DOWN, 1 },
-> +       [29] =3D { KEY_DOWN, 0 },
-> +       [4] =3D { KEY_LEFT, 1 },
-> +       [20] =3D { KEY_LEFT, 0 },
-> +       [28] =3D { BTN_A, 1 },
-> +       [23] =3D { BTN_A, 0 },
-> +       [11] =3D { BTN_B, 1 },
-> +       [21] =3D { BTN_B, 0 },
-> +       [24] =3D { BTN_C, 1 },
-> +       [9] =3D { BTN_C, 0 },
-> +       [13] =3D { BTN_X, 1 },
-> +       [17] =3D { BTN_X, 0 },
-> +       [12] =3D { BTN_Y, 1 },
-> +       [16] =3D { BTN_Y, 0 },
-> +       [14] =3D { BTN_Z, 1 },
-> +       [19] =3D { BTN_Z, 0 },
-> +       [18] =3D { BTN_THUMBL, 1 },
-> +       [10] =3D { BTN_THUMBL, 0 },
-> +       [15] =3D { BTN_THUMBR, 1 },
-> +       [25] =3D { BTN_THUMBR, 0 },
-> +};
-> +
-> +static const struct icade_key *icade_find_translation(u16 from)
-> +{
-> +       if (from < 0 || from > ICADE_MAX_USAGE)
-> +               return NULL;
-> +       return &icade_usage_table[from];
-> +}
-> +
-> +static int icade_event(struct hid_device *hdev, struct hid_field *fi=
-eld,
-> +               struct hid_usage *usage, __s32 value)
-> +{
-> +       const struct icade_key *trans;
-> +
-> +       if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput =
-||
-> +                       !usage->type)
-> +               return 0;
-> +
-> +       /* We ignore the fake key up, and act only on key down */
-> +       if (!value)
-> +               return 1;
-> +
-> +       trans =3D icade_find_translation(usage->hid & HID_USAGE);
-> +
-> +       if (!trans)
-> +               return 1;
-> +
-> +       input_event(field->hidinput->input, usage->type,
-> +                       trans->to, trans->press);
-> +
-> +       return 1;
-> +}
-> +
-> +static int icade_input_mapping(struct hid_device *hdev, struct hid_i=
-nput *hi,
-> +               struct hid_field *field, struct hid_usage *usage,
-> +               unsigned long **bit, int *max)
-> +{
-> +       const struct icade_key *trans;
-> +
-> +       if ((usage->hid & HID_USAGE_PAGE) =3D=3D HID_UP_KEYBOARD) {
-> +               trans =3D icade_find_translation(usage->hid & HID_USA=
-GE);
-> +
-> +               if (!trans)
-> +                       return -1;
-> +
-> +               hid_map_usage(hi, usage, bit, max, EV_KEY, trans->to)=
-;
-> +               set_bit(trans->to, hi->input->keybit);
-> +
-> +               return 1;
-> +       }
-> +
-> +       /* ignore others */
-> +       return -1;
-> +
-> +}
-> +
-> +static int icade_input_mapped(struct hid_device *hdev, struct hid_in=
-put *hi,
-> +               struct hid_field *field, struct hid_usage *usage,
-> +               unsigned long **bit, int *max)
-> +{
-> +       if (usage->type =3D=3D EV_KEY)
-> +               set_bit(usage->type, hi->input->evbit);
-> +
-> +       return -1;
-> +}
-> +
-> +static const struct hid_device_id icade_devices[] =3D {
-> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ION, USB_DEVICE_ID_ICADE=
-) },
-> +
-> +       { }
-> +};
-> +MODULE_DEVICE_TABLE(hid, icade_devices);
-> +
-> +static struct hid_driver icade_driver =3D {
-> +       .name =3D "icade",
-> +       .id_table =3D icade_devices,
-> +       .event =3D icade_event,
-> +       .input_mapped =3D icade_input_mapped,
-> +       .input_mapping =3D icade_input_mapping,
-> +};
-> +
-> +static int __init icade_init(void)
-> +{
-> +       int ret;
-> +
-> +       ret =3D hid_register_driver(&icade_driver);
-> +       if (ret)
-> +               pr_err("can't register icade driver\n");
-> +
-> +       return ret;
-> +}
-> +
-> +static void __exit icade_exit(void)
-> +{
-> +       hid_unregister_driver(&icade_driver);
-> +}
-> +
-> +module_init(icade_init);
-> +module_exit(icade_exit);
-> +MODULE_LICENSE("GPL");
-> +MODULE_AUTHOR("Bastien Nocera <hadess@hadess.net>");
-> +MODULE_DESCRIPTION("ION iCade input driver");
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 269b509..9bc8d57 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -420,6 +420,9 @@
->  #define USB_VENDOR_ID_ILITEK           0x222a
->  #define USB_DEVICE_ID_ILITEK_MULTITOUCH        0x0001
->
-> +#define USB_VENDOR_ID_ION              0x15e4
-> +#define USB_DEVICE_ID_ICADE            0x0132
-> +
->  #define USB_VENDOR_ID_HOLTEK           0x1241
->  #define USB_DEVICE_ID_HOLTEK_ON_LINE_GRIP      0x5015
->
-> --
-> 1.7.12.1
->
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/devicetree/bindings/input/matrix-keypad.txt b/Documentation/devicetree/bindings/input/matrix-keypad.txt
+new file mode 100644
+index 0000000..199558c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/matrix-keypad.txt
+@@ -0,0 +1,46 @@
++* GPIO driven matrix keypad device tree bindings
++
++GPIO driven matrix keypad is used to interface a SoC with a matrix keypad.
++The matrix keypad supports multiple row and column lines, a key can be
++placed at each intersection of a unique row and a unique column. The matrix
++keypad can sense a key-press and key-release by means of GPIO lines and
++report the event using GPIO interrupts to the cpu.
++
++Required Properties:
++- compatible:		Should be "gpio-matix-keypad"
++- row-gpios:		List of gpios used as row lines. The gpio specifier
++			for this property depends on the gpio controller to
++			which these row lines are connected.
++- col-gpios:		List of gpios used as column lines. The gpio specifier
++			for this property depends on the gpio controller to
++			which these column lines are connected.
++
++Optional Properties:
++- linux,no-autorepeat:	do no enable autorepeat feature.
++- linux,wakeup:		use any event on keypad as wakeup event.
++- debounce-delay-ms:	debounce interval in milliseconds
++- col-scan-delay-us:	delay, measured in microseconds, that is needed
++			before we can scan keypad after activating column gpio
++- clustered-irq:	have clustered irq number
++- clustered-irq-flags:	have clustered irq flags
++
++Example:
++	matrix-keypad {
++		compatible = "gpio-matrix-keypad";
++		debounce-delay-ms = <5>;
++		col-scan-delay-us = <2>;
++
++		row-gpios = <&gpio2 25 0
++			     &gpio2 26 0
++			     &gpio2 27 0>;
++
++		col-gpios = <&gpio2 21 0
++			     &gpio2 22 0>;
++
++		linux,keymap = <0x0000008B
++				0x0100009E
++				0x02000069
++				0x0001006A
++				0x0101001C
++				0x0201006C>;
++	};
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+index 18b7237..960e9b05 100644
+--- a/drivers/input/keyboard/matrix_keypad.c
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -23,6 +23,9 @@
+ #include <linux/gpio.h>
+ #include <linux/input/matrix_keypad.h>
+ #include <linux/slab.h>
++#include <linux/of.h>
++#include <linux/of_gpio.h>
++#include <linux/of_platform.h>
+ 
+ struct matrix_keypad {
+ 	const struct matrix_keypad_platform_data *pdata;
+@@ -394,6 +397,96 @@ static void matrix_keypad_free_gpio(struct matrix_keypad *keypad)
+ 		gpio_free(pdata->col_gpios[i]);
+ }
+ 
++#ifdef CONFIG_OF
++static
++struct matrix_keypad_platform_data *matrix_keypad_parse_dt(struct device *dev)
++{
++	struct matrix_keypad_platform_data *pdata;
++	struct matrix_keymap_data *keymap_data;
++	struct device_node *np = dev->of_node;
++	unsigned int *row_gpios;
++	unsigned int *col_gpios;
++	struct property *prop;
++	int key_count = 0, length, row, col;
++	uint32_t *keymap;
++
++	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
++	if (!pdata) {
++		dev_err(dev, "could not allocate memory for platform data\n");
++		return NULL;
++	}
++
++	pdata->num_row_gpios = of_gpio_named_count(np, "row-gpios");
++	pdata->num_col_gpios = of_gpio_named_count(np, "col-gpios");
++	if (!pdata->num_row_gpios || !pdata->num_col_gpios) {
++		dev_err(dev, "number of keypad rows/columns not specified\n");
++		return NULL;
++	}
++
++	keymap_data = devm_kzalloc(dev, sizeof(*keymap_data), GFP_KERNEL);
++	if (!keymap_data) {
++		dev_err(dev, "could not allocate memory for keymap data\n");
++		return NULL;
++	}
++	pdata->keymap_data = keymap_data;
++
++	prop = of_find_property(np, "linux,keymap", &length);
++	if (!prop)
++		return NULL;
++
++	key_count = length / sizeof(u32);
++	keymap_data->keymap_size = key_count;
++	keymap = devm_kzalloc(dev, sizeof(uint32_t) * key_count, GFP_KERNEL);
++	if (!keymap) {
++		dev_err(dev, "could not allocate memory for keymap\n");
++		return NULL;
++	}
++	keymap_data->keymap = keymap;
++
++	of_property_read_u32_array(np, "linux,keymap", keymap, key_count);
++
++	if (of_get_property(np, "linux,no-autorepeat", NULL))
++		pdata->no_autorepeat = true;
++	if (of_get_property(np, "linux,wakeup", NULL))
++		pdata->wakeup = true;
++	if (of_get_property(np, "gpio-activelow", NULL))
++		pdata->active_low = true;
++
++	of_property_read_u32(np, "debounce-delay-ms", &pdata->debounce_ms);
++	of_property_read_u32(np, "col-scan-delay-us",
++						&pdata->col_scan_delay_us);
++	of_property_read_u32(np, "clustered-irq", &pdata->clustered_irq);
++	of_property_read_u32(np, "clustered-irq-flags",
++						&pdata->clustered_irq_flags);
++
++	row_gpios = devm_kzalloc(dev, sizeof(unsigned int) *
++					pdata->num_row_gpios, GFP_KERNEL);
++	col_gpios = devm_kzalloc(dev, sizeof(unsigned int) *
++					pdata->num_col_gpios, GFP_KERNEL);
++	if (!row_gpios || !col_gpios) {
++		dev_err(dev, "could not allocate memory for gpios\n");
++		return NULL;
++	}
++
++	for (row = 0; row < pdata->num_row_gpios; row++)
++		row_gpios[row] = of_get_named_gpio(np, "row-gpios", row);
++
++	for (col = 0; col < pdata->num_col_gpios; col++)
++		col_gpios[col] = of_get_named_gpio(np, "col-gpios", col);
++
++	pdata->row_gpios = row_gpios;
++	pdata->col_gpios = col_gpios;
++
++	return pdata;
++}
++#else
++static
++struct matrix_keypad_platform_data *matrix_keypad_parse_dt(struct device *dev)
++{
++	return NULL;
++}
++#endif
++
+ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
+ {
+ 	const struct matrix_keypad_platform_data *pdata;
+@@ -404,7 +497,10 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
+ 	size_t keymap_size;
+ 	int err;
+ 
+-	pdata = pdev->dev.platform_data;
++	if (pdev->dev.of_node)
++		pdata = matrix_keypad_parse_dt(&pdev->dev);
++	else
++		pdata = pdev->dev.platform_data;
+ 	if (!pdata) {
+ 		dev_err(&pdev->dev, "no platform data defined\n");
+ 		return -EINVAL;
+@@ -488,6 +584,14 @@ static int __devexit matrix_keypad_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id matrix_keypad_dt_match[] = {
++	{ .compatible = "gpio-matrix-keypad" },
++	{},
++};
++MODULE_DEVICE_TABLE(of, matrix_keypad_dt_match);
++#endif
++
+ static struct platform_driver matrix_keypad_driver = {
+ 	.probe		= matrix_keypad_probe,
+ 	.remove		= __devexit_p(matrix_keypad_remove),
+@@ -495,6 +599,7 @@ static struct platform_driver matrix_keypad_driver = {
+ 		.name	= "matrix-keypad",
+ 		.owner	= THIS_MODULE,
+ 		.pm	= &matrix_keypad_pm_ops,
++		.of_match_table = of_match_ptr(matrix_keypad_dt_match),
+ 	},
+ };
+ module_platform_driver(matrix_keypad_driver);
+-- 
+1.7.9.5
+

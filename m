@@ -1,65 +1,47 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: Add driver for ION iCade
-Date: Wed, 31 Oct 2012 15:54:14 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1210311553300.12781@pobox.suse.cz>
-References: <1351681810.14430.1.camel@sirocco.hadess.net>
+Subject: Re: [PATCH] HID: fix incorrect handling of devices with high button
+ count
+Date: Wed, 31 Oct 2012 16:03:57 +0100 (CET)
+Message-ID: <alpine.LRH.2.00.1210311603430.12320@twin.jikos.cz>
+References: <508e9004.5593cc0a.3323.0a6c@mx.google.com> <20121031063625.GB32539@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53956 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:54684 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422944Ab2JaOyS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Oct 2012 10:54:18 -0400
-In-Reply-To: <1351681810.14430.1.camel@sirocco.hadess.net>
+	id S1757743Ab2JaPEM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 31 Oct 2012 11:04:12 -0400
+In-Reply-To: <20121031063625.GB32539@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Ingo Ruhnke <grumbel@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-On Wed, 31 Oct 2012, Bastien Nocera wrote:
+yOn Tue, 30 Oct 2012, Dmitry Torokhov wrote:
 
+> On Mon, Oct 29, 2012 at 02:29:30PM +0100, Ingo Ruhnke wrote:
+> > Button names for USB gamepads are currently assigned incorrectly, as
+> > the evdev code assigned to buttons is "BTN_GAMEPAD + code", which on
+> > devices with more then 16 buttons bleeds over into button names
+> > reserved for graphic tablets (BTN_TOOL_PEN, etc.). This causes
+> > problems further down the line as the device are now no longer
+> > detected as joystick. This patch fixes that by assigning buttons
+> > outside the range to BTN_TRIGGER_HAPPY (as is already the case for USB
+> > joysticks).
+> > 
+> > Furthermore this patch corrects the assignment to BTN_TRIGGER_HAPPY,
+> > as currently the first button over 16 is assigned to
+> > BTN_TRIGGER_HAPPY17 (i.e. BTN_TRIGGER_HAPPY+0x10) not BTN_TRIGGER_HAPPY.
+> > 
+> > Signed-off-by: Ingo Ruhnke <grumbel@gmail.com>
 > 
-> Add a driver for the ION iCade mini arcade cabinet [1]. The device
-> generates a key press and release for each joystick movement or
-> button press or release. For example, moving the stick to the
-> left will generate the "A" key being pressed and the released.
+> Makes sense.
 > 
-> A list of all the combinations is available in the iCade
-> developer guide [2].
-> 
-> This driver hides all this and makes the device work as a generic
-> joystick.
-> 
-> [1]: http://www.ionaudio.com/products/details/icade
-> [2]: http://www.ionaudio.com/downloads/iCade_Dev_Resource_v1.3.pdf
-> 
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> ---
->  drivers/hid/Kconfig     |   9 ++
->  drivers/hid/Makefile    |   1 +
->  drivers/hid/hid-core.c  |   1 +
->  drivers/hid/hid-icade.c | 259 ++++++++++++++++++++++++++++++++++++++++++++++++
->  drivers/hid/hid-ids.h   |   3 +
->  5 files changed, 273 insertions(+)
->  create mode 100644 drivers/hid/hid-icade.c
-> 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 1630150..813f0fe 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -265,6 +265,15 @@ config HID_GYRATION
->  	---help---
->  	Support for Gyration remote control.
->  
-> +config HID_ICADE
-> +	tristate "ION iCade arcade controller"
-> +	depends on (BT_HIDP)
+> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Why the spurious brackets here?
-
-Otherwise the patch looks good, thanks (and thanks Benjamin for review), I 
-apply and remove the brackets.
+Good catch indeed. Applied, thanks!
 
 -- 
 Jiri Kosina
 SUSE Labs
+

@@ -1,195 +1,252 @@
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: =?UTF-8?q?=5BPATCH=20v2=204/4=5D=20input=3A=20misc=3A=20introduce=20retu-pwrbutton?=
-Date: Wed, 31 Oct 2012 20:03:46 +0200
-Message-ID: <1351706626-32186-5-git-send-email-aaro.koskinen@iki.fi>
-References: <1351706626-32186-1-git-send-email-aaro.koskinen@iki.fi>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH] staging: ste_rmi4: Convert to Type-B support
+Date: Wed, 31 Oct 2012 19:43:47 +0100
+Message-ID: <20121031184347.GA1530@polaris.bitmath.org>
+References: <CC51EC7B5B7F984AA566DC102237848896F590C0@hkdcw-mail1.synaptics-inc.local>
+ <20121003180121.GA4198@polaris.bitmath.org>
+ <CC51EC7B5B7F984AA566DC102237848896F5F20B@hkdcw-mail1.synaptics-inc.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1351706626-32186-1-git-send-email-aaro.koskinen@iki.fi>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:40697 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753210Ab2JaSi4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 31 Oct 2012 14:38:56 -0400
+Content-Disposition: inline
+In-Reply-To: <CC51EC7B5B7F984AA566DC102237848896F5F20B@hkdcw-mail1.synaptics-inc.local>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alexandra Chin <alexandra.chin@tw.synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
 
-Add Retu power button driver.
+Hi Alexandra,
 
-Cc: linux-input@vger.kernel.org
-Acked-by: Felipe Balbi <balbi@ti.com>
-Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
----
- drivers/input/misc/Kconfig          |   10 +++
- drivers/input/misc/Makefile         |    1 +
- drivers/input/misc/retu-pwrbutton.c |  118 +++++++++++++++++++++++++++=
-++++++++
- 3 files changed, 129 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/retu-pwrbutton.c
+> From: Alexandra Chin <alexandra.chin@tw.synaptics.com>
+> Date: Wed, 31 Oct 2012 16:21:12 +0800
+> Subject: [PATCH] staging: ste_rmi4: Convert to Type-B support
+> 
+> This patch:
+> - Convert to MT-B because Synaptics touch devices are capable of
+>   tracking identifiable fingers
+> - Modify maximum supported fingers up to 10
+> - Set INPUT_PROP_POINTER for direct input devices
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 7c0f1ec..e5be189 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -367,6 +367,16 @@ config INPUT_CM109
- 	  To compile this driver as a module, choose M here: the module will =
-be
- 	  called cm109.
-=20
-+config INPUT_RETU_PWRBUTTON
-+	tristate "Retu Power button Driver"
-+	depends on MFD_RETU
-+	help
-+	  Say Y here if you want to enable power key reporting via the
-+	  Retu chips found in Nokia Internet Tablets (770, N800, N810).
-+
-+	  To compile this driver as a module, choose M here. The module will
-+	  be called retu-pwrbutton.
-+
- config INPUT_TWL4030_PWRBUTTON
- 	tristate "TWL4030 Power button Driver"
- 	depends on TWL4030_CORE
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 83fe6f5..4fbee0d 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -45,6 +45,7 @@ obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+=3D pmic8xxx-pwr=
-key.o
- obj-$(CONFIG_INPUT_POWERMATE)		+=3D powermate.o
- obj-$(CONFIG_INPUT_PWM_BEEPER)		+=3D pwm-beeper.o
- obj-$(CONFIG_INPUT_RB532_BUTTON)	+=3D rb532_button.o
-+obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+=3D retu-pwrbutton.o
- obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+=3D rotary_encoder.o
- obj-$(CONFIG_INPUT_SGI_BTNS)		+=3D sgi_btns.o
- obj-$(CONFIG_INPUT_SPARCSPKR)		+=3D sparcspkr.o
-diff --git a/drivers/input/misc/retu-pwrbutton.c b/drivers/input/misc/r=
-etu-pwrbutton.c
-new file mode 100644
-index 0000000..51e94a7
---- /dev/null
-+++ b/drivers/input/misc/retu-pwrbutton.c
-@@ -0,0 +1,118 @@
-+/*
-+ * Retu power button driver.
-+ *
-+ * Copyright (C) 2004-2010 Nokia Corporation
-+ *
-+ * Original code written by Ari Saastamoinen, Juha Yrj=C3=B6l=C3=A4 an=
-d Felipe Balbi.
-+ * Rewritten by Aaro Koskinen.
-+ *
-+ * This file is subject to the terms and conditions of the GNU General
-+ * Public License. See the file "COPYING" in the main directory of thi=
-s
-+ * archive for more details.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/irq.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/errno.h>
-+#include <linux/input.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/mfd/retu.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+
-+#define RETU_STATUS_PWRONX (1 << 5)
-+
-+struct retu_pwrbutton {
-+	struct input_dev	*idev;
-+	struct retu_dev		*rdev;
-+	struct device		*dev;
-+	bool			pressed;
-+	int			irq;
-+};
-+
-+static irqreturn_t retu_pwrbutton_irq(int irq, void *_pwr)
-+{
-+	struct retu_pwrbutton *pwr =3D _pwr;
-+	bool state;
-+
-+	state =3D !(retu_read(pwr->rdev, RETU_REG_STATUS) & RETU_STATUS_PWRON=
-X);
-+
-+	if (pwr->pressed !=3D state) {
-+		input_report_key(pwr->idev, KEY_POWER, state);
-+		input_sync(pwr->idev);
-+		pwr->pressed =3D state;
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int __devinit retu_pwrbutton_probe(struct platform_device *pdev=
-)
-+{
-+	struct retu_dev *rdev =3D dev_get_drvdata(pdev->dev.parent);
-+	struct retu_pwrbutton *pwr;
-+	int ret;
-+
-+	pwr =3D devm_kzalloc(&pdev->dev, sizeof(*pwr), GFP_KERNEL);
-+	if (!pwr)
-+		return -ENOMEM;
-+
-+	pwr->rdev =3D rdev;
-+	pwr->dev  =3D &pdev->dev;
-+	pwr->irq  =3D platform_get_irq(pdev, 0);
-+	platform_set_drvdata(pdev, pwr);
-+
-+	ret =3D devm_request_threaded_irq(&pdev->dev, pwr->irq, NULL,
-+					retu_pwrbutton_irq, 0, "retu-pwrbutton",
-+					pwr);
-+	if (ret < 0)
-+		return ret;
-+
-+	pwr->idev =3D input_allocate_device();
-+	if (!pwr->idev)
-+		return -ENOMEM;
-+
-+	pwr->idev->evbit[0]			=3D BIT_MASK(EV_KEY);
-+	pwr->idev->keybit[BIT_WORD(KEY_POWER)]	=3D BIT_MASK(KEY_POWER);
-+	pwr->idev->name				=3D "retu-pwrbutton";
-+
-+	ret =3D input_register_device(pwr->idev);
-+	if (ret < 0) {
-+		input_free_device(pwr->idev);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int __devexit retu_pwrbutton_remove(struct platform_device *pde=
-v)
-+{
-+	struct retu_pwrbutton *pwr =3D platform_get_drvdata(pdev);
-+
-+	input_unregister_device(pwr->idev);
-+	input_free_device(pwr->idev);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver retu_pwrbutton_driver =3D {
-+	.probe		=3D retu_pwrbutton_probe,
-+	.remove		=3D __devexit_p(retu_pwrbutton_remove),
-+	.driver		=3D {
-+		.name	=3D "retu-pwrbutton",
-+	},
-+};
-+module_platform_driver(retu_pwrbutton_driver);
-+
-+MODULE_ALIAS("platform:retu-pwrbutton");
-+MODULE_DESCRIPTION("Retu Power Button");
-+MODULE_AUTHOR("Ari Saastamoinen");
-+MODULE_AUTHOR("Felipe Balbi");
-+MODULE_AUTHOR("Aaro Koskinen <aaro.koskinen@iki.fi>");
-+MODULE_LICENSE("GPL");
---=20
-1.7.2.5
+Thanks for the patch, looks good overall. Please find some comments
+below. Also, the patch looks word-damaged, possibly mail client
+problems.
+
+> diff --git a/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c b/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
+> index 11728a0..e69ca5ee1 100644
+> --- a/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
+> +++ b/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
+> @@ -31,6 +31,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/regulator/consumer.h>
+>  #include <linux/module.h>
+> +#include <linux/input/mt.h>
+>  #include "synaptics_i2c_rmi4.h"
+>  
+>  /* TODO: for multiple device support will need a per-device mutex */
+> @@ -67,7 +68,7 @@
+>  #define PDT_START_SCAN_LOCATION (0x00E9)
+>  #define PDT_END_SCAN_LOCATION	(0x000A)
+>  #define PDT_ENTRY_SIZE		(0x0006)
+> -#define RMI4_NUMBER_OF_MAX_FINGERS		(8)
+> +#define RMI4_NUMBER_OF_MAX_FINGERS		(10)
+
+It seems this define can be dropped altogether.
+
+>  #define SYNAPTICS_RMI4_TOUCHPAD_FUNC_NUM	(0x11)
+>  #define SYNAPTICS_RMI4_DEVICE_CONTROL_FUNC_NUM	(0x01)
+>  
+> @@ -164,6 +165,8 @@ struct synaptics_rmi4_device_info {
+>   * @regulator: pointer to the regulator structure
+>   * @wait: wait queue structure variable
+>   * @touch_stopped: flag to stop the thread function
+> + * @finger_state: previous state of fingers
+> + * @fingers_supported: maximum supported fingers
+>   *
+>   * This structure gives the device data information.
+>   */
+> @@ -184,6 +187,8 @@ struct synaptics_rmi4_data {
+>  	struct regulator	*regulator;
+>  	wait_queue_head_t	wait;
+>  	bool			touch_stopped;
+> +	unsigned char finger_state[RMI4_NUMBER_OF_MAX_FINGERS];
+
+The finger state is not needed with MT-B.
+
+> +	unsigned char fingers_supported;
+>  };
+>  
+>  /**
+> @@ -303,7 +308,6 @@ static int synpatics_rmi4_touchpad_report(struct synaptics_rmi4_data *pdata,
+>  	/* number of touch points - fingers down in this case */
+>  	int	touch_count = 0;
+>  	int	finger;
+> -	int	fingers_supported;
+>  	int	finger_registers;
+>  	int	reg;
+>  	int	finger_shift;
+> @@ -314,10 +318,8 @@ static int synpatics_rmi4_touchpad_report(struct synaptics_rmi4_data *pdata,
+>  	unsigned char	data_reg_blk_size;
+>  	unsigned char	values[2];
+>  	unsigned char	data[DATA_LEN];
+> -	int	x[RMI4_NUMBER_OF_MAX_FINGERS];
+> -	int	y[RMI4_NUMBER_OF_MAX_FINGERS];
+> -	int	wx[RMI4_NUMBER_OF_MAX_FINGERS];
+> -	int	wy[RMI4_NUMBER_OF_MAX_FINGERS];
+> +	int x, y;
+> +	int wx, wy;
+>  	struct	i2c_client *client = pdata->i2c_client;
+>  
+>  	/* get 2D sensor finger data */
+> @@ -333,8 +335,7 @@ static int synpatics_rmi4_touchpad_report(struct synaptics_rmi4_data *pdata,
+>  	 *	10 = finger present but data may not be accurate,
+>  	 *	11 = reserved for product use.
+>  	 */
+> -	fingers_supported	= rfi->num_of_data_points;
+> -	finger_registers	= (fingers_supported + 3)/4;
+> +	finger_registers	= (pdata->fingers_supported + 3)/4;
+>  	data_base_addr		= rfi->fn_desc.data_base_addr;
+>  	retval = synaptics_rmi4_i2c_block_read(pdata, data_base_addr, values,
+>  							finger_registers);
+> @@ -348,17 +349,26 @@ static int synpatics_rmi4_touchpad_report(struct synaptics_rmi4_data *pdata,
+>  	 * to get absolute data.
+>  	 */
+>  	data_reg_blk_size = rfi->size_of_data_register_block;
+> -	for (finger = 0; finger < fingers_supported; finger++) {
+> +	for (finger = 0; finger < pdata->fingers_supported; finger++) {
+>  		/* determine which data byte the finger status is in */
+>  		reg = finger/4;
+>  		/* bit shift to get finger's status */
+>  		finger_shift	= (finger % 4) * 2;
+> -		finger_status	= (values[reg] >> finger_shift) & 3;
+> +		finger_status	= (values[reg] >> finger_shift) & MASK_2BIT;
+>  		/*
+>  		 * if finger status indicates a finger is present then
+>  		 * read the finger data and report it
+>  		 */
+> -		if (finger_status == 1 || finger_status == 2) {
+> +		if (!finger_status && !pdata->finger_state[finger])
+> +			continue;
+
+This can be dropped - the input core will only emit changes anyways.
+
+> +
+> +		input_mt_slot(pdata->input_dev, finger);
+> +		input_mt_report_slot_state(pdata->input_dev,
+> +						MT_TOOL_FINGER, finger_status);
+> +
+> +		if (!finger_status && pdata->finger_state[finger]) {
+> +			/* release event */
+> +		} else {
+
+A "if (finger_status) {" will do here.
+
+>  			/* Read the finger data */
+>  			data_offset = data_base_addr +
+>  					((finger * data_reg_blk_size) +
+> @@ -371,44 +381,30 @@ static int synpatics_rmi4_touchpad_report(struct synaptics_rmi4_data *pdata,
+>  								__func__);
+>  				return 0;
+>  			} else {
+> -				x[touch_count]	=
+> -					(data[0] << 4) | (data[2] & MASK_4BIT);
+> -				y[touch_count]	=
+> -					(data[1] << 4) |
+> -					((data[2] >> 4) & MASK_4BIT);
+> -				wy[touch_count]	=
+> -						(data[3] >> 4) & MASK_4BIT;
+> -				wx[touch_count]	=
+> -						(data[3] & MASK_4BIT);
+> +				x = (data[0] << 4) | (data[2] & MASK_4BIT);
+> +				y = (data[1] << 4)
+> +						| ((data[2] >> 4) & MASK_4BIT);
+> +				wy = (data[3] >> 4) & MASK_4BIT;
+> +				wx = (data[3] & MASK_4BIT);
+>  
+>  				if (pdata->board->x_flip)
+> -					x[touch_count] =
+> -						pdata->sensor_max_x -
+> -								x[touch_count];
+> +					x = pdata->sensor_max_x - x;
+>  				if (pdata->board->y_flip)
+> -					y[touch_count] =
+> -						pdata->sensor_max_y -
+> -								y[touch_count];
+> +					y = pdata->sensor_max_y - y;
+>  			}
+> +			input_report_abs(pdata->input_dev, ABS_MT_TOUCH_MAJOR,
+> +								max(wx, wy));
+> +			input_report_abs(pdata->input_dev,
+> +							ABS_MT_POSITION_X, x);
+> +			input_report_abs(pdata->input_dev,
+> +							ABS_MT_POSITION_Y, y);
+> +
+
+A local variable for pdata->input_dev might clean up the wrapping here.
+
+>  			/* number of active touch points */
+>  			touch_count++;
+>  		}
+> +		pdata->finger_state[finger] = finger_status;
+
+Not necessary.
+
+>  	}
+>  
+> -	/* report to input subsystem */
+> -	if (touch_count) {
+> -		for (finger = 0; finger < touch_count; finger++) {
+> -			input_report_abs(pdata->input_dev, ABS_MT_TOUCH_MAJOR,
+> -						max(wx[finger] , wy[finger]));
+> -			input_report_abs(pdata->input_dev, ABS_MT_POSITION_X,
+> -								x[finger]);
+> -			input_report_abs(pdata->input_dev, ABS_MT_POSITION_Y,
+> -								y[finger]);
+> -			input_mt_sync(pdata->input_dev);
+> -		}
+> -	} else
+> -		input_mt_sync(pdata->input_dev);
+> -
+>  	/* sync after groups of events */
+>  	input_sync(pdata->input_dev);
+>  	/* return the number of touch points */
+> @@ -575,6 +571,7 @@ static int synpatics_rmi4_touchpad_detect(struct synaptics_rmi4_data *pdata,
+>  		if ((queries[1] & MASK_3BIT) == 5)
+>  			rfi->num_of_data_points = 10;
+>  	}
+> +	pdata->fingers_supported = rfi->num_of_data_points;
+>  	/* Need to get interrupt info for handling interrupts */
+>  	rfi->index_to_intr_reg = (interruptcount + 7)/8;
+>  	if (rfi->index_to_intr_reg != 0)
+> @@ -981,13 +978,16 @@ static int __devinit synaptics_rmi4_probe
+>  	set_bit(EV_SYN, rmi4_data->input_dev->evbit);
+>  	set_bit(EV_KEY, rmi4_data->input_dev->evbit);
+>  	set_bit(EV_ABS, rmi4_data->input_dev->evbit);
+> -
+> +#ifdef INPUT_PROP_DIRECT
+> +	set_bit(INPUT_PROP_DIRECT, rmi4_data->input_dev->propbit);
+> +#endif
+>  	input_set_abs_params(rmi4_data->input_dev, ABS_MT_POSITION_X, 0,
+>  					rmi4_data->sensor_max_x, 0, 0);
+>  	input_set_abs_params(rmi4_data->input_dev, ABS_MT_POSITION_Y, 0,
+>  					rmi4_data->sensor_max_y, 0, 0);
+>  	input_set_abs_params(rmi4_data->input_dev, ABS_MT_TOUCH_MAJOR, 0,
+>  						MAX_TOUCH_MAJOR, 0, 0);
+> +	input_mt_init_slots(rmi4_data->input_dev, rmi4_data->fingers_supported);
+
+Looks like your patch is against a slightly old kernel version;
+Please send patches against 3.7-rcX.
+
+>  
+>  	/* Clear interrupts */
+>  	synaptics_rmi4_i2c_block_read(rmi4_data,
+> -- 
+> 1.7.5.4
+> 
+
+Thanks!
+Henrik

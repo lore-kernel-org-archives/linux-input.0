@@ -1,61 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] tsc40: remove wrong announcement of pressure support
-Date: Tue, 30 Oct 2012 23:41:08 -0700
-Message-ID: <20121031064108.GA7953@core.coreip.homeip.net>
-References: <3551576.vuikKUmT5K@devpool02>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Add support for the MacBook Pro 10,2 keyboard /
+ touchpad
+Date: Wed, 31 Oct 2012 08:41:37 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1210310841210.25394@pobox.suse.cz>
+References: <20121030222211.GA20026@polaris.bitmath.org> <13ab3c9f72c.2202.2747.dirk@hohndel.org> <20121031054854.GA31983@core.coreip.homeip.net> <20121030230228.356490.FMU5080@air.gr8dns.org> <20121031063425.GA32539@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:34409 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753807Ab2JaGlM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Oct 2012 02:41:12 -0400
-Received: by mail-pa0-f46.google.com with SMTP id hz1so740015pad.19
-        for <linux-input@vger.kernel.org>; Tue, 30 Oct 2012 23:41:12 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <3551576.vuikKUmT5K@devpool02>
+Received: from cantor2.suse.de ([195.135.220.15]:60551 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932447Ab2JaHlm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 31 Oct 2012 03:41:42 -0400
+In-Reply-To: <20121031063425.GA32539@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dirk Hohndel <dirk@hohndel.org>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
 
-On Fri, Oct 26, 2012 at 09:35:57AM +0200, Rolf Eike Beer wrote:
-> The tsc40 driver announces it supports the pressure event, but will never send
-> one. The announcement will cause tslib to wait for such events and sending all
-> touch events with a pressure of 0. Removing the announcement will make tslib
-> fall back to emulating the pressure on touch events so everything works as
-> expected.
-> 
-> Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-> Cc: stable@vger.kernel.org
+On Tue, 30 Oct 2012, Dmitry Torokhov wrote:
 
-Applied, thank you Rolf. 
+> > > Pure luck I think as entries for bcm5974 get sorted before entries for
+> > > HID. To be safe and make sure it works if hid is built-in we need to add
+> > > the new devices to hid_mouse_ignore_list.
+> > 
+> > Erm - what makes you think I tested this as a module? Actually, come to
+> > think of, I ONLY tested this built in.
+> > 
+> > > That for devices driven by hid-multitouch, so not applicable to this
+> > > case.
+> > 
+> > Ok, thanks
+> > 
+> > >> The keyboard definitely needs it, though.
+> > >> 
+> > >> Let me phrase it this way: the patch, as submitted, happily works on my rMBP 13
+> > >
+> > > By pure luck.
+> > 
+> > I'll take your word for it. Here's an updated patch
+> 
+> Thanks!
+> 
+> Jiri, do you want me to take it through my tree or yours?
 
-> ---
->  drivers/input/touchscreen/tsc40.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/tsc40.c b/drivers/input/touchscreen/tsc40.c
-> index 63209aa..eb96f16 100644
-> --- a/drivers/input/touchscreen/tsc40.c
-> +++ b/drivers/input/touchscreen/tsc40.c
-> @@ -107,7 +107,6 @@ static int tsc_connect(struct serio *serio, struct serio_driver *drv)
->  	__set_bit(BTN_TOUCH, input_dev->keybit);
->  	input_set_abs_params(ptsc->dev, ABS_X, 0, 0x3ff, 0, 0);
->  	input_set_abs_params(ptsc->dev, ABS_Y, 0, 0x3ff, 0, 0);
-> -	input_set_abs_params(ptsc->dev, ABS_PRESSURE, 0, 0, 0, 0);
->  
->  	serio_set_drvdata(serio, ptsc);
->  
-> -- 
-> 1.7.11.5
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks everybody. I have now applied it.
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

@@ -1,41 +1,31 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] HID: Add driver for ION iCade
-Date: Wed, 31 Oct 2012 16:57:28 +0100
-Message-ID: <1351699048.5172.3.camel@novo.hadess.net>
-References: <1351681810.14430.1.camel@sirocco.hadess.net>
-	  <alpine.LNX.2.00.1210311553300.12781@pobox.suse.cz>
-	 <1351698553.5172.1.camel@novo.hadess.net>
-	 <alpine.LNX.2.00.1210311651340.12781@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 0/2] input - wacom: Add support to two new multi-touch tablets
+Date: Wed, 31 Oct 2012 10:37:50 -0700
+Message-ID: <1351705070-14323-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:48001 "EHLO
-	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935693Ab2JaP5b (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:53752 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932335Ab2JaRir (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Oct 2012 11:57:31 -0400
-In-Reply-To: <alpine.LNX.2.00.1210311651340.12781@pobox.suse.cz>
+	Wed, 31 Oct 2012 13:38:47 -0400
+Received: by mail-pb0-f46.google.com with SMTP id rr4so1137302pbb.19
+        for <linux-input@vger.kernel.org>; Wed, 31 Oct 2012 10:38:47 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
 
-On Wed, 2012-10-31 at 16:52 +0100, Jiri Kosina wrote:
-> On Wed, 31 Oct 2012, Bastien Nocera wrote:
-> 
-> > Probably because whatever I copy/pasted it from had the brackets. 
-> 
-> I don't see any such occurence in hid/Kconfig. Anyway, not important at 
-> all :)
+This patchset is based on the latest WACOM_24HDT check fix.
 
-I wrote the driver nearly a year ago, Benjamin helped me get it working
-yesterday.
+Ping Cheng (2):
+  input - wacom: Clean up device type code
+  input - wacom: Add support to 0x100 and 0x100
 
-> > Did you make the typos changes in the commit message itself as well?
-> 
-> Yup. Thanks,
+ drivers/input/tablet/wacom_sys.c |   58 ++++++++++++++++++++++++++++----------
+ drivers/input/tablet/wacom_wac.c |   22 +++++++++++++--
+ drivers/input/tablet/wacom_wac.h |    2 ++
+ 3 files changed, 64 insertions(+), 18 deletions(-)
 
-Great stuff. Now onto the other HID drivers :)
-
+-- 
+1.7.9.5
 

@@ -1,32 +1,41 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Bastien Nocera <hadess@hadess.net>
 Subject: Re: [PATCH] HID: Add driver for ION iCade
-Date: Wed, 31 Oct 2012 16:52:18 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1210311651340.12781@pobox.suse.cz>
-References: <1351681810.14430.1.camel@sirocco.hadess.net>  <alpine.LNX.2.00.1210311553300.12781@pobox.suse.cz> <1351698553.5172.1.camel@novo.hadess.net>
+Date: Wed, 31 Oct 2012 16:57:28 +0100
+Message-ID: <1351699048.5172.3.camel@novo.hadess.net>
+References: <1351681810.14430.1.camel@sirocco.hadess.net>
+	  <alpine.LNX.2.00.1210311553300.12781@pobox.suse.cz>
+	 <1351698553.5172.1.camel@novo.hadess.net>
+	 <alpine.LNX.2.00.1210311651340.12781@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57015 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934529Ab2JaPwW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Oct 2012 11:52:22 -0400
-In-Reply-To: <1351698553.5172.1.camel@novo.hadess.net>
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:48001 "EHLO
+	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935693Ab2JaP5b (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 31 Oct 2012 11:57:31 -0400
+In-Reply-To: <alpine.LNX.2.00.1210311651340.12781@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
+To: Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com
 
-On Wed, 31 Oct 2012, Bastien Nocera wrote:
+On Wed, 2012-10-31 at 16:52 +0100, Jiri Kosina wrote:
+> On Wed, 31 Oct 2012, Bastien Nocera wrote:
+> 
+> > Probably because whatever I copy/pasted it from had the brackets. 
+> 
+> I don't see any such occurence in hid/Kconfig. Anyway, not important at 
+> all :)
 
-> Probably because whatever I copy/pasted it from had the brackets. 
+I wrote the driver nearly a year ago, Benjamin helped me get it working
+yesterday.
 
-I don't see any such occurence in hid/Kconfig. Anyway, not important at 
-all :)
+> > Did you make the typos changes in the commit message itself as well?
+> 
+> Yup. Thanks,
 
-> Did you make the typos changes in the commit message itself as well?
+Great stuff. Now onto the other HID drivers :)
 
-Yup. Thanks,
 
--- 
-Jiri Kosina
-SUSE Labs

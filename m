@@ -1,102 +1,65 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
-Date: Wed, 31 Oct 2012 14:19:03 +0100
-Message-ID: <20121031131903.GF19021@game.jcrosoft.org>
-References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
- <20121024161429.GA16350@core.coreip.homeip.net>
- <CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
- <4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
- <CACRpkdaiLXVeUg1quuw3XPTenbKOjn+aWbGQezpcyvzQCtCWow@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Add driver for ION iCade
+Date: Wed, 31 Oct 2012 15:54:14 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1210311553300.12781@pobox.suse.cz>
+References: <1351681810.14430.1.camel@sirocco.hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CACRpkdaiLXVeUg1quuw3XPTenbKOjn+aWbGQezpcyvzQCtCWow@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, Felipe Balbi <balbi@ti.com>, linux-input@vger.kernel.org, Sourav Poddar <sourav.poddar@ti.com>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:53956 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422944Ab2JaOyS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 31 Oct 2012 10:54:18 -0400
+In-Reply-To: <1351681810.14430.1.camel@sirocco.hadess.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com
 
-On 21:12 Sun 28 Oct     , Linus Walleij wrote:
-> On Wed, Oct 24, 2012 at 7:28 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> 
-> >> drivers/spi/spi-pl022.c
-> >
-> > Default/sleep transitions could be moved into bus code.
-> 
-> No that's not a good idea as long as we have both the platform bus
-> and the AMBA bus doing essentially the same thing. We will then be
-> having two copies of the same code in two different busses running
-> out of sync. There may be other busses too.
-> 
-> But I could prepare static helpers in <linux/pinctrl/consumer.h>
-> that any bus could use. Or any driver. Probably any driver,
-> because of this:
-> 
-> As noted the bus cannot really execute the pinctrl calls to
-> e.g. put a drivers pins into "sleep". Since if e.g. the bus is walking
-> the suspend() ladder, shall it put the pins into sleep *before*
-> or *after* calling the suspend() hook in the driver?
-> 
-> The answer is that it does not know. Because drivers have
-> different needs. Depending on how the hardware and
-> system is done.
-> 
-> I already tried to make this point:
-> 
-> pinctrl_set_state(state_sleep);
-> clk_disable();
-> power_off_voltage_domain();
-> 
-> May for some drivers have to be:
-> 
-> clk_disable();
-> power_off_voltage_domain();
-> pinctrl_set_state(state_sleep);
-> 
-> (etc)
-> 
-> I'm not making this up, it is a very real phenomenon on the
-> Ux500 and I don't think we are unique.
-I agree with Linus
-
-you can not handle pinctrl as bus levell
-
-as each driver need different requirement before enabling the pin
-
-as example you may need to clock the ip before muxing the pin and invertly
-
-on some IP the pinctrl is optionnal, on other mandatory
-
-you can not expect every driver to have the same need and requirement
-
-yes we will have a few code duplication
-
-but today it's few lines and those few lines will be place at different init
-stage on the drivers ditto for remove or sleep/idle
-
+On Wed, 31 Oct 2012, Bastien Nocera wrote:
 
 > 
-> Moving this handling to bus code or anywhere else
-> invariably implies that resource acquisition/release order
-> does not matter, and my point is that it does.
+> Add a driver for the ION iCade mini arcade cabinet [1]. The device
+> generates a key press and release for each joystick movement or
+> button press or release. For example, moving the stick to the
+> left will generate the "A" key being pressed and the released.
+> 
+> A list of all the combinations is available in the iCade
+> developer guide [2].
+> 
+> This driver hides all this and makes the device work as a generic
+> joystick.
+> 
+> [1]: http://www.ionaudio.com/products/details/icade
+> [2]: http://www.ionaudio.com/downloads/iCade_Dev_Resource_v1.3.pdf
+> 
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> ---
+>  drivers/hid/Kconfig     |   9 ++
+>  drivers/hid/Makefile    |   1 +
+>  drivers/hid/hid-core.c  |   1 +
+>  drivers/hid/hid-icade.c | 259 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  drivers/hid/hid-ids.h   |   3 +
+>  5 files changed, 273 insertions(+)
+>  create mode 100644 drivers/hid/hid-icade.c
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 1630150..813f0fe 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -265,6 +265,15 @@ config HID_GYRATION
+>  	---help---
+>  	Support for Gyration remote control.
+>  
+> +config HID_ICADE
+> +	tristate "ION iCade arcade controller"
+> +	depends on (BT_HIDP)
 
-100% agreed
+Why the spurious brackets here?
 
-Best Regards,
-J.
-> 
-> >> drivers/i2c/busses/i2c-nomadik.c
-> >
-> > Don't see pinctrl in linux-next.
-> 
-> This code is here:
-> http://marc.info/?l=linux-i2c&m=134986995731695&w=2
-> 
-> Yours,
-> Linus Walleij
-> _______________________________________________
-> devicetree-discuss mailing list
-> devicetree-discuss@lists.ozlabs.org
-> https://lists.ozlabs.org/listinfo/devicetree-discuss
+Otherwise the patch looks good, thanks (and thanks Benjamin for review), I 
+apply and remove the brackets.
+
+-- 
+Jiri Kosina
+SUSE Labs

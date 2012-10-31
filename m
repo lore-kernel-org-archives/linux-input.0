@@ -1,68 +1,231 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
-Date: Tue, 30 Oct 2012 23:57:41 +0100
-Message-ID: <2288906.HJczx1g3gj@vostro.rjw.lan>
-References: <20121025205901.GA3827@sirena.org.uk> <20121030183704.GX4511@opensource.wolfsonmicro.com> <CACRpkdac=ztY0vXQ8Mu6H8fiAO4aFSSF-A6O1Q==zKOKEsJegw@mail.gmail.com>
+From: Russ Dill <Russ.Dill@ti.com>
+Subject: Re: [PATCH] ti_tscadc: Match mfd sub devices to regmap interface
+Date: Tue, 30 Oct 2012 21:41:00 -0700
+Message-ID: <CA+Bv8XbCweGxKg-VsM2=g5KJEbLZhUA8F=iAG2st7c0JRLH58g@mail.gmail.com>
+References: <1351698945-3881-1-git-send-email-panto@antoniou-consulting.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ogre.sisk.pl ([193.178.161.156]:47060 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750738Ab2J3Wxj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Oct 2012 18:53:39 -0400
-In-Reply-To: <CACRpkdac=ztY0vXQ8Mu6H8fiAO4aFSSF-A6O1Q==zKOKEsJegw@mail.gmail.com>
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:48009 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750787Ab2JaElC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 31 Oct 2012 00:41:02 -0400
+In-Reply-To: <1351698945-3881-1-git-send-email-panto@antoniou-consulting.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Magnus Damm <magnus.damm@gmail.com>, Felipe Balbi <balbi@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Grant Likely <grant.likely@secretlab.ca>
+To: Pantelis Antoniou <panto@antoniou-consulting.com>
+Cc: Jonathan Cameron <jic23@cam.ac.uk>, "Patil, Rachna" <rachna@ti.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Koen Kooi <koen@dominion.thruhere.net>, Matt Porter <mporter@ti.com>, linux-omap@vger.kernel.org
 
-On Tuesday, October 30, 2012 10:51:11 PM Linus Walleij wrote:
-> On Tue, Oct 30, 2012 at 7:37 PM, Mark Brown
-> <broonie@opensource.wolfsonmicro.com> wrote:
-> 
-> > More seriously the amount of time we seem to have been spending recently
-> > on changes which end up requiring us to go through essentially every
-> > driver and add code to them (often several times) doesn't seem like
-> > we're doing a good job here.
-> 
-> If this is your main concern you should be made aware that there
-> are people out there planning to supplant the existing DT probe paths
-> that are now being added to each and every ARM-related driver
-> with an ACPI probe path as ARM servers come into the picture.
+On Wed, Oct 31, 2012 at 8:55 AM, Pantelis Antoniou
+<panto@antoniou-consulting.com> wrote:
+> The MFD parent device now uses a regmap, instead of direct
+> memory access. Use the same method in the sub devices to avoid
+> nasty surprises.
+>
+> Also rework the channel initialization of tiadc a bit.
+>
+> Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
+> ---
+>  drivers/iio/adc/ti_am335x_adc.c           | 27 +++++++++++++++++++--------
+>  drivers/input/touchscreen/ti_am335x_tsc.c | 16 +++++++++++++---
+>  drivers/mfd/ti_am335x_tscadc.c            |  7 +++++--
+>  3 files changed, 37 insertions(+), 13 deletions(-)
+>
+> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+> index d48fd79..5f325c1 100644
+> --- a/drivers/iio/adc/ti_am335x_adc.c
+> +++ b/drivers/iio/adc/ti_am335x_adc.c
+> @@ -23,7 +23,9 @@
+>  #include <linux/iio/iio.h>
+>  #include <linux/iio/machine.h>
+>  #include <linux/iio/driver.h>
+> +#include <linux/regmap.h>
+>
+> +#include <linux/io.h>
+>  #include <linux/mfd/ti_am335x_tscadc.h>
+>  #include <linux/platform_data/ti_am335x_adc.h>
+>
+> @@ -36,13 +38,17 @@ struct tiadc_device {
+>
+>  static unsigned int tiadc_readl(struct tiadc_device *adc, unsigned int reg)
+>  {
+> -       return readl(adc->mfd_tscadc->tscadc_base + reg);
+> +       unsigned int val;
+> +
+> +       val = (unsigned int)-1;
+> +       regmap_read(adc->mfd_tscadc->regmap_tscadc, reg, &val);
+> +       return val;
+>  }
 
-That's correct.
+Would it be cleaner to instead do:
 
-> > pinctrl is really noticable because it's
-> > new but it's not the only thing.  As a subsystem maintainer this code
-> > just makes me want to add new subsystem features to pull the code out of
-> > drivers but obviously that's not something that should be being done at
-> > the subsystem level.
-> 
-> We did manage to drag the power/voltage domain per se out
-> of the AMBA bus, and recommend that people (like us) do that
-> business using the power domains.
-> 
-> I think most people (including OMAP) have bought
-> into the concept of using the runtime PM framework and power
-> domains to control the power domain switches.
-> 
-> It's this wider concept of using the loose concept "PM resource
-> domains" to control also clocks and pins that is at stake, and so
-> far the runtime PM core people (Rafael and Magnus) has not said
-> much so I think we need some kind of indication from them as to
-> what is to happen, long-term, with drivers handling their own clocks
-> and pins. Should it be centralized or not? If it's to be centralized it
-> needs to become a large piece of infrastructure refactoring and
-> needs the attention of Linaro and the like to happen.
+static unsigned int tiadc_readl(struct tiadc_device *adc, unsigned int reg)
+{
+       unsigned int val;
 
-Well, I personally think it should be centralized somehow.  I'm not quite
-sure how to achieve that, though.
+       return regmap_read(adc->mfd_tscadc->regmap_tscadc, reg, &val) ? : val;
+}
 
-Thanks,
-Rafael
+or
+       int ret;
+
+       ret = regmap_read(adc->mfd_tscadc->regmap_tscadc, reg, &val);
+       return ret < 0 ret ? : val;
 
 
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+
+>  static void tiadc_writel(struct tiadc_device *adc, unsigned int reg,
+>                                         unsigned int val)
+>  {
+> -       writel(val, adc->mfd_tscadc->tscadc_base + reg);
+> +       regmap_write(adc->mfd_tscadc->regmap_tscadc, reg, val);
+>  }
+>
+>  static void tiadc_step_config(struct tiadc_device *adc_dev)
+> @@ -75,22 +81,24 @@ static void tiadc_step_config(struct tiadc_device *adc_dev)
+>         tiadc_writel(adc_dev, REG_SE, STPENB_STEPENB);
+>  }
+>
+> -static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
+> +static int tiadc_channel_init(struct iio_dev *indio_dev,
+> +               struct tiadc_device *adc_dev)
+>  {
+>         struct iio_chan_spec *chan_array;
+>         struct iio_chan_spec *chan;
+>         char *s;
+>         int i, len, size, ret;
+> +       int channels = adc_dev->channels;
+>
+> -       size = indio_dev->num_channels * (sizeof(struct iio_chan_spec) + 6);
+> +       size = channels * (sizeof(struct iio_chan_spec) + 6);
+>         chan_array = kzalloc(size, GFP_KERNEL);
+>         if (chan_array == NULL)
+>                 return -ENOMEM;
+>
+>         /* buffer space is after the array */
+> -       s = (char *)(chan_array + indio_dev->num_channels);
+> +       s = (char *)(chan_array + channels);
+>         chan = chan_array;
+> -       for (i = 0; i < indio_dev->num_channels; i++, chan++, s += len + 1) {
+> +       for (i = 0; i < channels; i++, chan++, s += len + 1) {
+>
+>                 len = sprintf(s, "AIN%d", i);
+>
+> @@ -105,8 +113,9 @@ static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
+>         }
+>
+>         indio_dev->channels = chan_array;
+> +       indio_dev->num_channels = channels;
+>
+> -       size = (indio_dev->num_channels + 1) * sizeof(struct iio_map);
+> +       size = (channels + 1) * sizeof(struct iio_map);
+>         adc_dev->map = kzalloc(size, GFP_KERNEL);
+>         if (adc_dev->map == NULL) {
+>                 kfree(chan_array);
+> @@ -203,7 +212,7 @@ static int __devinit tiadc_probe(struct platform_device *pdev)
+>
+>         tiadc_step_config(adc_dev);
+>
+> -       err = tiadc_channel_init(indio_dev, adc_dev->channels);
+> +       err = tiadc_channel_init(indio_dev, adc_dev);
+>         if (err < 0)
+>                 goto err_free_device;
+>
+> @@ -213,6 +222,8 @@ static int __devinit tiadc_probe(struct platform_device *pdev)
+>
+>         platform_set_drvdata(pdev, indio_dev);
+>
+> +       dev_info(&pdev->dev, "Initialized\n");
+> +
+>         return 0;
+>
+>  err_free_channels:
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> index 7a26810..d09e1a7 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -26,6 +26,7 @@
+>  #include <linux/io.h>
+>  #include <linux/input/ti_am335x_tsc.h>
+>  #include <linux/delay.h>
+> +#include <linux/regmap.h>
+>
+>  #include <linux/mfd/ti_am335x_tscadc.h>
+>
+> @@ -64,13 +65,17 @@ struct titsc {
+>
+>  static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
+>  {
+> -       return readl(ts->mfd_tscadc->tscadc_base + reg);
+> +       unsigned int val;
+> +
+> +       val = (unsigned int)-1;
+> +       regmap_read(ts->mfd_tscadc->regmap_tscadc, reg, &val);
+> +       return val;
+>  }
+>
+>  static void titsc_writel(struct titsc *tsc, unsigned int reg,
+>                                         unsigned int val)
+>  {
+> -       writel(val, tsc->mfd_tscadc->tscadc_base + reg);
+> +       regmap_write(tsc->mfd_tscadc->regmap_tscadc, reg, val);
+>  }
+>
+>  /*
+> @@ -455,10 +460,15 @@ static int __devinit titsc_probe(struct platform_device *pdev)
+>
+>         /* register to the input system */
+>         err = input_register_device(input_dev);
+> -       if (err)
+> +       if (err) {
+> +               dev_err(&pdev->dev, "Failed to register input device\n");
+>                 goto err_free_irq;
+> +       }
+>
+>         platform_set_drvdata(pdev, ts_dev);
+> +
+> +       dev_info(&pdev->dev, "Initialized OK\n");
+> +
+>         return 0;
+>
+>  err_free_irq:
+> diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
+> index cbb8b70c..4a7041c 100644
+> --- a/drivers/mfd/ti_am335x_tscadc.c
+> +++ b/drivers/mfd/ti_am335x_tscadc.c
+> @@ -31,6 +31,7 @@ static unsigned int tscadc_readl(struct ti_tscadc_dev *tsadc, unsigned int reg)
+>  {
+>         unsigned int val;
+>
+> +       val = (unsigned int)-1;
+>         regmap_read(tsadc->regmap_tscadc, reg, &val);
+>         return val;
+>  }
+> @@ -68,7 +69,7 @@ static        int __devinit ti_tscadc_probe(struct platform_device *pdev)
+>         int                     irq;
+>         int                     err, ctrl;
+>         int                     clk_value, clock_rate;
+> -       int                     tsc_wires, adc_channels = 0, total_channels;
+> +       int                     tsc_wires = 0, adc_channels = 0, total_channels;
+>
+>         if (!pdata) {
+>                 dev_err(&pdev->dev, "Could not find platform data\n");
+> @@ -78,7 +79,9 @@ static        int __devinit ti_tscadc_probe(struct platform_device *pdev)
+>         if (pdata->adc_init)
+>                 adc_channels = pdata->adc_init->adc_channels;
+>
+> -       tsc_wires = pdata->tsc_init->wires;
+> +       if (pdata->tsc_init)
+> +               tsc_wires = pdata->tsc_init->wires;
+> +
+>         total_channels = tsc_wires + adc_channels;
+>
+>         if (total_channels > 8) {
+> --
+> 1.7.12
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

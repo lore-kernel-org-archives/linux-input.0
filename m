@@ -1,55 +1,78 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Add support for the MacBook Pro 10,2 keyboard / touchpad
-Date: Tue, 30 Oct 2012 22:48:54 -0700
-Message-ID: <20121031054854.GA31983@core.coreip.homeip.net>
-References: <20121030222211.GA20026@polaris.bitmath.org>
- <13ab3c9f72c.2202.2747.dirk@hohndel.org>
+Subject: Re: [PATCH] ti_tscadc: Match mfd sub devices to regmap interface
+Date: Tue, 30 Oct 2012 22:51:31 -0700
+Message-ID: <20121031055131.GB31983@core.coreip.homeip.net>
+References: <1351698945-3881-1-git-send-email-panto@antoniou-consulting.com>
+ <CA+Bv8XbCweGxKg-VsM2=g5KJEbLZhUA8F=iAG2st7c0JRLH58g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:36344 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752396Ab2JaFs6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Oct 2012 01:48:58 -0400
-Received: by mail-pa0-f46.google.com with SMTP id hz1so711810pad.19
-        for <linux-input@vger.kernel.org>; Tue, 30 Oct 2012 22:48:58 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <13ab3c9f72c.2202.2747.dirk@hohndel.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <CA+Bv8XbCweGxKg-VsM2=g5KJEbLZhUA8F=iAG2st7c0JRLH58g@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Russ Dill <Russ.Dill@ti.com>
+Cc: Pantelis Antoniou <panto@antoniou-consulting.com>, Jonathan Cameron <jic23@cam.ac.uk>, "Patil, Rachna" <rachna@ti.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Koen Kooi <koen@dominion.thruhere.net>, Matt Porter <mporter@ti.com>, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dirk Hohndel <dirk@hohndel.org>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Linus Torvalds <torvalds@linux-foundation.org>
 
-Hi Dirk,
-
-On Tue, Oct 30, 2012 at 03:28:08PM -0700, Dirk Hohndel wrote:
-> On October 30, 2012 3:22:11 PM "Henrik Rydberg" <rydberg@euromail.se> wrote:
-> >Hi Dirk,
+On Tue, Oct 30, 2012 at 09:41:00PM -0700, Russ Dill wrote:
+> On Wed, Oct 31, 2012 at 8:55 AM, Pantelis Antoniou
+> <panto@antoniou-consulting.com> wrote:
+> > The MFD parent device now uses a regmap, instead of direct
+> > memory access. Use the same method in the sub devices to avoid
+> > nasty surprises.
 > >
+> > Also rework the channel initialization of tiadc a bit.
 > >
+> > Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
+> > ---
+> >  drivers/iio/adc/ti_am335x_adc.c           | 27 +++++++++++++++++++--------
+> >  drivers/input/touchscreen/ti_am335x_tsc.c | 16 +++++++++++++---
+> >  drivers/mfd/ti_am335x_tscadc.c            |  7 +++++--
+> >  3 files changed, 37 insertions(+), 13 deletions(-)
 > >
-> >The entry in hid_mouse_ignore_list seems to be missing.
+> > diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+> > index d48fd79..5f325c1 100644
+> > --- a/drivers/iio/adc/ti_am335x_adc.c
+> > +++ b/drivers/iio/adc/ti_am335x_adc.c
+> > @@ -23,7 +23,9 @@
+> >  #include <linux/iio/iio.h>
+> >  #include <linux/iio/machine.h>
+> >  #include <linux/iio/driver.h>
+> > +#include <linux/regmap.h>
+> >
+> > +#include <linux/io.h>
+> >  #include <linux/mfd/ti_am335x_tscadc.h>
+> >  #include <linux/platform_data/ti_am335x_adc.h>
+> >
+> > @@ -36,13 +38,17 @@ struct tiadc_device {
+> >
+> >  static unsigned int tiadc_readl(struct tiadc_device *adc, unsigned int reg)
+> >  {
+> > -       return readl(adc->mfd_tscadc->tscadc_base + reg);
+> > +       unsigned int val;
+> > +
+> > +       val = (unsigned int)-1;
+> > +       regmap_read(adc->mfd_tscadc->regmap_tscadc, reg, &val);
+> > +       return val;
+> >  }
 > 
-> Correct. It works fine without that.
-
-Pure luck I think as entries for bcm5974 get sorted before entries for
-HID. To be safe and make sure it works if hid is built-in we need to add
-the new devices to hid_mouse_ignore_list.
-
+> Would it be cleaner to instead do:
 > 
-> I'm on my phone but I think there's a comment somewhere that for
-> certain multi-touch devices the ignore wasn't needed.
-
-That for devices driven by hid-multitouch, so not applicable to this
-case.
-
+> static unsigned int tiadc_readl(struct tiadc_device *adc, unsigned int reg)
+> {
+>        unsigned int val;
 > 
-> The keyboard definitely needs it, though.
+>        return regmap_read(adc->mfd_tscadc->regmap_tscadc, reg, &val) ? : val;
+> }
 > 
-> Let me phrase it this way: the patch, as submitted, happily works on my rMBP 13
+> or
+>        int ret;
+> 
+>        ret = regmap_read(adc->mfd_tscadc->regmap_tscadc, reg, &val);
+>        return ret < 0 ret ? : val;
 
-By pure luck.
+Also the function should not be returning unsigned int if it returns
+errors.
 
 Thanks.
 

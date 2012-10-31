@@ -1,50 +1,46 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: select INPUT_MATRIXKMAP for lpc32xx-keys
-Date: Tue, 30 Oct 2012 22:55:49 -0700
-Message-ID: <20121031055549.GE31983@core.coreip.homeip.net>
-References: <1351323648-18645-1-git-send-email-stigge@antcom.de>
+Subject: Re: [patch] Input: wacom - fix a check for WACOM_24HDT
+Date: Tue, 30 Oct 2012 22:57:18 -0700
+Message-ID: <20121031055718.GF31983@core.coreip.homeip.net>
+References: <20121029084956.GA7506@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:63911 "EHLO
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:46500 "EHLO
 	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752712Ab2JaFzx (ORCPT
+	with ESMTP id S1753419Ab2JaF5W (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Oct 2012 01:55:53 -0400
+	Wed, 31 Oct 2012 01:57:22 -0400
 Content-Disposition: inline
-In-Reply-To: <1351323648-18645-1-git-send-email-stigge@antcom.de>
+In-Reply-To: <20121029084956.GA7506@elgon.mountain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Roland Stigge <stigge@antcom.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@secretlab.ca
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Jason Gerecke <killertofu@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, Ping Cheng <pingc@wacom.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Sat, Oct 27, 2012 at 09:40:48AM +0200, Roland Stigge wrote:
-> This patch adds a "select" dependency of KEYBOARD_LPC32XX on INPUT_MATRIXKMAP,
-> as the other drivers are doing in this regard. This fixes the following compile
-> error if KEYBOARD_LPC32XX is enabled but INPUT_MATRIXKMAP is not:
+On Mon, Oct 29, 2012 at 11:49:56AM +0300, Dan Carpenter wrote:
+> The current condition is always true.  From the context, it looks like
+> we should be checking if ->type == WACOM_24HDT.
 > 
-> drivers/input/keyboard/lpc32xx-keys.c:230: undefined reference to
-> `matrix_keypad_build_keymap'
-> 
-> Signed-off-by: Roland Stigge <stigge@antcom.de>
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Applied, thank you Roland.
+Thank you Dan, however I already have a patch from Jason Gerecke
+addressing this issue.
 
 > 
-> ---
->  drivers/input/keyboard/Kconfig |    1 +
->  1 file changed, 1 insertion(+)
-> 
-> --- linux-2.6.orig/drivers/input/keyboard/Kconfig
-> +++ linux-2.6/drivers/input/keyboard/Kconfig
-> @@ -335,6 +335,7 @@ config KEYBOARD_LOCOMO
->  config KEYBOARD_LPC32XX
->  	tristate "LPC32XX matrix key scanner support"
->  	depends on ARCH_LPC32XX && OF
-> +	select INPUT_MATRIXKMAP
->  	help
->  	  Say Y here if you want to use NXP LPC32XX SoC key scanner interface,
->  	  connected to a key matrix.
+> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+> index 2c1e12b..858ad44 100644
+> --- a/drivers/input/tablet/wacom_sys.c
+> +++ b/drivers/input/tablet/wacom_sys.c
+> @@ -391,7 +391,7 @@ static int wacom_parse_hid(struct usb_interface *intf,
+>  							features->pktlen = WACOM_PKGLEN_TPC2FG;
+>  						}
+>  
+> -						if (features->type == MTSCREEN || WACOM_24HDT)
+> +						if (features->type == MTSCREEN || features->type == WACOM_24HDT)
+>  							features->pktlen = WACOM_PKGLEN_MTOUCH;
+>  
+>  						if (features->type == BAMBOO_PT) {
 
 -- 
 Dmitry

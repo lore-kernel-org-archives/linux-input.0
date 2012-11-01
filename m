@@ -1,126 +1,103 @@
-From: Kevin Hilman <khilman@deeprootsystems.com>
-Subject: Re: Fwd: [PATCHv2] Input: omap4-keypad: Add pinctrl support
-Date: Thu, 01 Nov 2012 12:42:21 +0100
-Message-ID: <874nl9tuqq.fsf@deeprootsystems.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Thu, 1 Nov 2012 12:07:14 +0000
+Message-ID: <20121101120713.GA4413@opensource.wolfsonmicro.com>
 References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
-	<20121024161429.GA16350@core.coreip.homeip.net>
-	<CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
-	<4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
-	<CACRpkdaiLXVeUg1quuw3XPTenbKOjn+aWbGQezpcyvzQCtCWow@mail.gmail.com>
-	<20121030113407.GA24335@sirena.org.uk>
-	<CACRpkdapQJY0aoam741O0fb8EeM9BLk_Psq5TaPG84J7wEvCLw@mail.gmail.com>
-	<87obji8kta.fsf@deeprootsystems.com>
-	<CACRpkdbCk9+HSBPtfT-1dO8paSRYJ5VXX_0SxiyxgrObnJEvmQ@mail.gmail.com>
-	<CACRpkdaBmg7wtX0WsaxMw=n1sKDN5YphK=y8tzAx_CF=JnUqvw@mail.gmail.com>
+ <20121024161429.GA16350@core.coreip.homeip.net>
+ <CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
+ <4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
+ <CACRpkdaiLXVeUg1quuw3XPTenbKOjn+aWbGQezpcyvzQCtCWow@mail.gmail.com>
+ <20121030113407.GA24335@sirena.org.uk>
+ <CACRpkdapQJY0aoam741O0fb8EeM9BLk_Psq5TaPG84J7wEvCLw@mail.gmail.com>
+ <87obji8kta.fsf@deeprootsystems.com>
+ <CACRpkdbCk9+HSBPtfT-1dO8paSRYJ5VXX_0SxiyxgrObnJEvmQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:59468 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932202Ab2KALm3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Nov 2012 07:42:29 -0400
-Received: by mail-bk0-f46.google.com with SMTP id jk13so1022958bkc.19
-        for <linux-input@vger.kernel.org>; Thu, 01 Nov 2012 04:42:27 -0700 (PDT)
-In-Reply-To: <CACRpkdaBmg7wtX0WsaxMw=n1sKDN5YphK=y8tzAx_CF=JnUqvw@mail.gmail.com>
-	(Linus Walleij's message of "Thu, 1 Nov 2012 09:56:48 +0100")
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:51959 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751165Ab2KAMHR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 1 Nov 2012 08:07:17 -0400
+Content-Disposition: inline
+In-Reply-To: <CACRpkdbCk9+HSBPtfT-1dO8paSRYJ5VXX_0SxiyxgrObnJEvmQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Cc: Kevin Hilman <khilman@deeprootsystems.com>, Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-Linus Walleij <linus.walleij@linaro.org> writes:
 
-> On Wed, Oct 31, 2012 at 9:10 PM, Kevin Hilman
-> <khilman@deeprootsystems.com> wrote:
->
->> Linus Walleij <linus.walleij@linaro.org> writes:
->
->
->>
->> > piece of hardware, this would be the right thing to do,
->> > and I think the in-kernel examples are all "simple",
->> > e.g. arch/arm/mach-omap2/powerdomain* is all about
->> > power domains and nothing else,
->>
->> FYI... that code isn't the same as PM domain.
->
->
-> This sort of points to a core problem here. Our terminologies are
-> ambiguous that we cannot understand each others code. As long
-> as <linux/pm_domain.h> begins:
->
-> /*
->  * pm_domain.h - Definitions and headers related to device power domains.
->  *
->
-> But arguably that should just be patched (I think there are a few
-> remnants in the code still implying that these things are only about
-> power).
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Agreed.  The terminology is confusing, and any situations like this in
-the code/comments/docs should be patched.
+On Thu, Nov 01, 2012 at 09:54:00AM +0100, Linus Walleij wrote:
 
-When PM domains were introduced, I was the first to complain that we
-shouldn't use the term power domain so as not to be confused with HW
-concepts, so we settled on the term 'PM domain.'  Ultimately, it's just
-a configurable grouping of devices whose callbacks happen during PM
-transitions.
-
->>
->>  That code is for the
->> *hardware* powerdomains, not the software concept of "PM domain."  In
->> OMAP, PM domain is implmented at the omap_device level.  And omap_device
->> is the abstraction of an IP block that knows about all the PM related
->> register settings, clocks, HW powerdomain, voltage domain, PM related
->> pin-muxing etc. etc.    All of these things are abstracted in an
->> omap_device, so that the PM domain implementation for OMAP looks rather
->> simple (c.f. omap_device_pm_domain in arch/arm/plat-omap/omap_device.c.)
->
->
-> OK following now...
->
->>
->> > I think the lesser of two evils is the distributed approach,
->>
->> The pinctrl examples I've seen mentioned so far are all PM related
->>
->> (sleep, idle, wakeup, etc.) so to me I think they still belong in
->> PM domains (and that's how we handle the PM related pins in OMAP.)
->
->
 > Well, the pinctrl grabbers in these drivers are using these states also
 > for platforms that do not even select CONFIG_PM.  For example
 > mach-nomadik is quite happy that the PL011 driver is thusly
 > muxing in its pins. And would require refactoring to use PM
 > domains.
 
-If CONFIG_PM is disabled, then is it safe to assume that the pins in
-question are probably only done once at init time.  I assume during
-->probe(). ?
-
->
 > So basically this requirement comes down to:
->
+
 > - When dealing with a SoC IP block driver
->
+
 > - That need to multiplex pins
->
+
 > - Then your SoC must select CONFIG_PM and
->   CONFIG_PM_RUNTIME andb
+>   CONFIG_PM_RUNTIME and
 >   CONFIG_PM_GENERIC_DOMAINS and implement
 >   proper domain handling hooks.
->
-> Is this correct? 
 
-I would say yes.  Currently, PM domains are the way to hook SoC-specific
-integration details into PM transitions.
+> Is this correct? And for Mark, Dmitry, does this correspond to
+> your view?
 
-However, if what we want/need are only ways to introduce SoC-specific
-integration details into non-PM transitions (e.g. probe/remove), maybe
-bus notifiers would suffice here.  e.g. you'd get a bus notifier when
-the device is added/attached and any init-time pinctrl setup could be
-done then.  This still keeps drivers clean of SoC-specific integration
-data/code, and also allows that to happen whether or not PM features are
-enabled.
+For the pin hogging I'd actually been thinking separately that we should
+just have the device core do a devm_pinctrl_get_set_default() prior to
+probing the device and store the result in the struct device.  That
+would immediately remove almost all of the current pinctrl users, users
+that do need to do things with the data or check the result can then
+pick up the pinctrl pointer from the device struct.
 
-Kevin
+> It's actually something that needs to be acknowledged by the
+> ARM SoC maintainers, because they will be the ones telling
+> all subarch maintainers to go implement full PM handling
+> with these three frameworks whenever an SoC driver want
+> to handle pins.
+
+Well, they're going to have to implement it somewhere anyway - either in
+the drivers or in the SoC stuff.
+
+> And IIUC not only pins but also silicon block clocks?
+
+> I can surely fix these for "my" systems, but it really needs
+> to be enforced widely or it will be a mess.
+
+We definitely need to decide if it's something that should be open coded
+everywhere.
+
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQkmXfAAoJELSic+t+oim9lv8P/RcG5AERpmiuXndh99c9UqA0
+SJQ3PWKgXJcYCt18PwEaGeHls72+KOZntEX5FtpGG4g2V3prtkg9PWCAaL8Ae8Ix
+yuo1GRAQai0nRYg1FIDJk/eU7CJPS30HF0XWO8DqH2flTOM9dwWICpX11AYC2Ye3
+4FNUNhEvYB0yMLbjfW3udWbAe9jheEPvVDQu9l83o9/Eo6Mm/trwrWeKKntN2lcZ
+fezka4KfLguIaTUSAP73f1P7+l20T3hQdmjxPrw2mTru3l9WUa/YCkpt4nAW9xn0
+JMxWTN02CAIB8IERChxxe/ZpEiCIE9PYFc8XE5Gop1DMiLv3sZUZOoUjV+QxX/lP
+ADi48Bu40wa5JtKGyrb63GnhlgmJad16JbxjW+EXfqX6iL5QmyYqv5QxhVuHocPD
+BZUoWM0UhWqFbSasXd8BDzzVYqrVzIMXtnDujAyHiJ9BB2yM46rGpzMwsTMyOwHe
+QeB/4tU++q46+SmTJ0RIW2Pe1/HWcL2j5rWfmfbS6x5n95feB8jNG3TV0nd5XpeT
+NFpOsHccqguNItcsZFf40+QfAvTOo4QugmfX4E/Gv0TXlidyYUKsixOAUXDozl/p
+/DeRth8rqDMxMWlKG+eJ1QuEYJsNILdrFjSmFxERVpEQ0LoHH+GVPr5gG8rLnBpd
+Mw4PqP9BsygEMB5b6uWU
+=B8ef
+-----END PGP SIGNATURE-----
+
+--0F1p//8PRICkK4MW--

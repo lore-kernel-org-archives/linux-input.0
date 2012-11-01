@@ -1,154 +1,126 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [BUG v3.6.2, 3.7-rc1] Unable to rmmod any hid special driver
-Date: Thu, 1 Nov 2012 11:52:46 +0100
-Message-ID: <CAN+gG=HKJnbg++hCTY7sLRhTCntY3=1B87=fcAt1nZ_At3g_Yw@mail.gmail.com>
-References: <CAN+gG=HFGMP8yU0PD6Ci-9ppVy4n3wp=SwymzAtp8KTg9Ewa=g@mail.gmail.com>
-	<alpine.LNX.2.00.1211011114150.6606@pobox.suse.cz>
-	<alpine.LNX.2.00.1211011130430.6606@pobox.suse.cz>
-	<CAN+gG=EnRsc=5W-E_HETWDDKxq8weSz_SJ8_Wf3BVbz5nZwe=Q@mail.gmail.com>
-	<alpine.LNX.2.00.1211011142310.6606@pobox.suse.cz>
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: Re: Fwd: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Thu, 01 Nov 2012 12:42:21 +0100
+Message-ID: <874nl9tuqq.fsf@deeprootsystems.com>
+References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
+	<20121024161429.GA16350@core.coreip.homeip.net>
+	<CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
+	<4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
+	<CACRpkdaiLXVeUg1quuw3XPTenbKOjn+aWbGQezpcyvzQCtCWow@mail.gmail.com>
+	<20121030113407.GA24335@sirena.org.uk>
+	<CACRpkdapQJY0aoam741O0fb8EeM9BLk_Psq5TaPG84J7wEvCLw@mail.gmail.com>
+	<87obji8kta.fsf@deeprootsystems.com>
+	<CACRpkdbCk9+HSBPtfT-1dO8paSRYJ5VXX_0SxiyxgrObnJEvmQ@mail.gmail.com>
+	<CACRpkdaBmg7wtX0WsaxMw=n1sKDN5YphK=y8tzAx_CF=JnUqvw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:44923 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757238Ab2KAKws (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Nov 2012 06:52:48 -0400
-Received: by mail-lb0-f174.google.com with SMTP id n3so1763734lbo.19
-        for <linux-input@vger.kernel.org>; Thu, 01 Nov 2012 03:52:46 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1211011142310.6606@pobox.suse.cz>
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:59468 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932202Ab2KALm3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Nov 2012 07:42:29 -0400
+Received: by mail-bk0-f46.google.com with SMTP id jk13so1022958bkc.19
+        for <linux-input@vger.kernel.org>; Thu, 01 Nov 2012 04:42:27 -0700 (PDT)
+In-Reply-To: <CACRpkdaBmg7wtX0WsaxMw=n1sKDN5YphK=y8tzAx_CF=JnUqvw@mail.gmail.com>
+	(Linus Walleij's message of "Thu, 1 Nov 2012 09:56:48 +0100")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Ratan Nalumasu <ratan@google.com>, linux-input <linux-input@vger.kernel.org>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Thu, Nov 1, 2012 at 11:43 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Thu, 1 Nov 2012, Benjamin Tissoires wrote:
+Linus Walleij <linus.walleij@linaro.org> writes:
+
+> On Wed, Oct 31, 2012 at 9:10 PM, Kevin Hilman
+> <khilman@deeprootsystems.com> wrote:
 >
->> >> > hidraw_disconnect, thus, the hidraw device is still there, but the
->> >> > input one not. It leads to the fact that the device is not working
->> >> > anymore even if you call modprobe.
->> >> >
->> >> > Any idea to solve that?
->> >>
->> >> Guys, how about this?
+>> Linus Walleij <linus.walleij@linaro.org> writes:
+>
+>
 >>
->> I tested it against hid-multitouch and hid-logitech-dj and it's
->> working smoothly, thanks!
->
-> Thanks for testing.
->
->> >>  drivers/hid/hidraw.c |    5 +++--
->> >>  1 files changed, 3 insertions(+), 2 deletions(-)
->> >>
->> >> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
->> >> index 17d15bb..fce4256 100644
->> >> --- a/drivers/hid/hidraw.c
->> >> +++ b/drivers/hid/hidraw.c
->> >> @@ -560,10 +560,11 @@ static void drop_ref(struct hidraw *hidraw, int exists_bit)
->> >>  {
->> >>       mutex_lock(&minors_lock);
->> >>       if (exists_bit) {
->> >> -             hid_hw_close(hidraw->hid);
->> >>               hidraw->exist = 0;
->> >> -             if (hidraw->open)
->> >> +             if (hidraw->open) {
->> >> +                     hid_hw_close(hidraw->hid);
->> >>                       wake_up_interruptible(&hidraw->wait);
->> >> +             }
->> >>       } else {
->> >>               --hidraw->open;
->> >>       }
->> >
->> > So this seems to fix the problem with rmmod/modprobe, but the patch has
->> > apparently other problems. rmmoding special driver while reading from
->> > hidraw interface causes this:
->> >
->> >  ------------[ cut here ]------------
->> >  WARNING: at lib/list_debug.c:59 __list_del_entry+0xa4/0xd0()
->> >  Hardware name: 7470BN2
->> >  list_del corruption. prev->next should be ffff880036f97178, but was 6b6b6b6b6b6b6b6b
->> >  Modules linked in: af_packet rfcomm bnep tun iptable_mangle xt_DSCP nf_conntrack_ipv6 nf_defrag_ipv6 ip6table_filter ip6_tables xt
->> > e nf_conntrack iptable_filter ip_tables x_tables cpufreq_conservative cpufreq_userspace cpufreq_powersave acpi_cpufreq mperf dm_mod
->> > m_intel kvm iwldvm mac80211 snd_hda_codec_conexant microcode usbhid sg iwlwifi pcspkr snd_hda_intel cfg80211 lpc_ich i2c_i801 mfd_c
->> > imer snd_page_alloc thinkpad_acpi rfkill wmi snd ac soundcore battery tpm_tis tpm tpm_bios autofs4 uhci_hcd ehci_hcd usbcore usb_co
->> > button edd fan processor ata_generic thermal thermal_sys [last unloaded: hid_cypress]
->> >  Pid: 4725, comm: hexdump Not tainted 3.7.0-rc3-00008-g35fd3dc #157
->> >  Call Trace:
->> >   [<ffffffff812f95c4>] ? __list_del_entry+0xa4/0xd0
->> >   [<ffffffff812f95c4>] ? __list_del_entry+0xa4/0xd0
->> >   [<ffffffff810452fa>] warn_slowpath_common+0x7a/0xb0
->> >   [<ffffffff810453d1>] warn_slowpath_fmt+0x41/0x50
->> >   [<ffffffff812f95c4>] __list_del_entry+0xa4/0xd0
->> >   [<ffffffff812f9601>] list_del+0x11/0x40
->> >   [<ffffffff81454a23>] hidraw_release+0x33/0x50
->> >   [<ffffffff8118cd0a>] __fput+0xca/0x2b0
->> >   [<ffffffff8118cf49>] ____fput+0x9/0x10
->> >   [<ffffffff8106b7a1>] task_work_run+0xb1/0xe0
->> >   [<ffffffff8104c81e>] do_exit+0x1ee/0x4c0
->> >   [<ffffffff810adcad>] ? trace_hardirqs_on_caller+0x12d/0x1b0
->> >   [<ffffffff8104cb37>] do_group_exit+0x47/0xc0
->> >   [<ffffffff8104cbc2>] sys_exit_group+0x12/0x20
->> >   [<ffffffff8158a529>] system_call_fastpath+0x16/0x1b
->> >  ---[ end trace 3bec13493e086171 ]---
->> >
+>> > piece of hardware, this would be the right thing to do,
+>> > and I think the in-kernel examples are all "simple",
+>> > e.g. arch/arm/mach-omap2/powerdomain* is all about
+>> > power domains and nothing else,
 >>
->> This is weird, on my setup (kernel 3.6.2 + Henrik's patches + Ratan's
->> patch + your fix), I don't have this warning.
+>> FYI... that code isn't the same as PM domain.
 >
-> My reproduction scenario was
 >
-> - run hexdump on hidraw device driven by a special driver (hid-cypress in
->   this case)
-> - let the device produce a few events
-> - rmmod hid-cypress while hexdump is still running
+> This sort of points to a core problem here. Our terminologies are
+> ambiguous that we cannot understand each others code. As long
+> as <linux/pm_domain.h> begins:
+>
+> /*
+>  * pm_domain.h - Definitions and headers related to device power domains.
+>  *
+>
+> But arguably that should just be patched (I think there are a few
+> remnants in the code still implying that these things are only about
+> power).
 
-well, with the very same test (except I'm testing against
-hid-multitouch), the warning doesn't show up on my configuration...
+Agreed.  The terminology is confusing, and any situations like this in
+the code/comments/docs should be patched.
+
+When PM domains were introduced, I was the first to complain that we
+shouldn't use the term power domain so as not to be confused with HW
+concepts, so we settled on the term 'PM domain.'  Ultimately, it's just
+a configurable grouping of devices whose callbacks happen during PM
+transitions.
+
+>>
+>>  That code is for the
+>> *hardware* powerdomains, not the software concept of "PM domain."  In
+>> OMAP, PM domain is implmented at the omap_device level.  And omap_device
+>> is the abstraction of an IP block that knows about all the PM related
+>> register settings, clocks, HW powerdomain, voltage domain, PM related
+>> pin-muxing etc. etc.    All of these things are abstracted in an
+>> omap_device, so that the PM domain implementation for OMAP looks rather
+>> simple (c.f. omap_device_pm_domain in arch/arm/plat-omap/omap_device.c.)
+>
+>
+> OK following now...
+>
+>>
+>> > I think the lesser of two evils is the distributed approach,
+>>
+>> The pinctrl examples I've seen mentioned so far are all PM related
+>>
+>> (sleep, idle, wakeup, etc.) so to me I think they still belong in
+>> PM domains (and that's how we handle the PM related pins in OMAP.)
+>
+>
+> Well, the pinctrl grabbers in these drivers are using these states also
+> for platforms that do not even select CONFIG_PM.  For example
+> mach-nomadik is quite happy that the PL011 driver is thusly
+> muxing in its pins. And would require refactoring to use PM
+> domains.
+
+If CONFIG_PM is disabled, then is it safe to assume that the pins in
+question are probably only done once at init time.  I assume during
+->probe(). ?
 
 >
-> This triggers the warning immediately. Do you have list debugging truned
-> on in your .config?
+> So basically this requirement comes down to:
+>
+> - When dealing with a SoC IP block driver
+>
+> - That need to multiplex pins
+>
+> - Then your SoC must select CONFIG_PM and
+>   CONFIG_PM_RUNTIME andb
+>   CONFIG_PM_GENERIC_DOMAINS and implement
+>   proper domain handling hooks.
+>
+> Is this correct? 
 
-I think so:
+I would say yes.  Currently, PM domains are the way to hook SoC-specific
+integration details into PM transitions.
 
-CONFIG_DEBUG_LIST=y
+However, if what we want/need are only ways to introduce SoC-specific
+integration details into non-PM transitions (e.g. probe/remove), maybe
+bus notifiers would suffice here.  e.g. you'd get a bus notifier when
+the device is added/attached and any init-time pinctrl setup could be
+done then.  This still keeps drivers clean of SoC-specific integration
+data/code, and also allows that to happen whether or not PM features are
+enabled.
 
-and here is the debug section:
-
-
-CONFIG_SCHED_DEBUG=y
-CONFIG_SCHEDSTATS=y
-CONFIG_TIMER_STATS=y
-# CONFIG_DEBUG_OBJECTS is not set
-# CONFIG_SLUB_DEBUG_ON is not set
-# CONFIG_SLUB_STATS is not set
-# CONFIG_DEBUG_KMEMLEAK is not set
-# CONFIG_DEBUG_RT_MUTEXES is not set
-# CONFIG_RT_MUTEX_TESTER is not set
-# CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_DEBUG_MUTEXES is not set
-# CONFIG_DEBUG_LOCK_ALLOC is not set
-# CONFIG_PROVE_LOCKING is not set
-CONFIG_SPARSE_RCU_POINTER=y
-# CONFIG_LOCK_STAT is not set
-# CONFIG_DEBUG_ATOMIC_SLEEP is not set
-# CONFIG_DEBUG_LOCKING_API_SELFTESTS is not set
-CONFIG_STACKTRACE=y
-# CONFIG_DEBUG_STACK_USAGE is not set
-# CONFIG_DEBUG_KOBJECT is not set
-CONFIG_DEBUG_BUGVERBOSE=y
-CONFIG_DEBUG_INFO=y
-# CONFIG_DEBUG_INFO_REDUCED is not set
-CONFIG_DEBUG_VM=y
-# CONFIG_DEBUG_VIRTUAL is not set
-# CONFIG_DEBUG_WRITECOUNT is not set
-CONFIG_DEBUG_MEMORY_INIT=y
-CONFIG_DEBUG_LIST=y
-# CONFIG_TEST_LIST_SORT is not set
-# CONFIG_DEBUG_SG is not set
-# CONFIG_DEBUG_NOTIFIERS is not set
-# CONFIG_DEBUG_CREDENTIALS is not set
-
-Cheers,
-Benjamin
+Kevin

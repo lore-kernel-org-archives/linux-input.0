@@ -1,139 +1,237 @@
-From: Peter Olson <peter.olson@gmail.com>
-Subject: Re: [PATCH] HID: wiimote: add Nintendo-Wii-Remote-Plus IDs
-Date: Wed, 31 Oct 2012 21:46:16 -0700
-Message-ID: <CAEfj2kBMzvSF7XswQC7s_AuKJFnhtwAyXeM77wtRmKSM89UR6Q@mail.gmail.com>
-References: <1350895071-4017-1-git-send-email-dh.herrmann@googlemail.com>
- <alpine.LNX.2.00.1210221134580.12268@pobox.suse.cz> <CAEfj2kDDyXbLcJTrhmbrG2MedVcu9u5q6ZmfcRB-86Cc1Rm+Sw@mail.gmail.com>
- <CANq1E4TJPs0nHVmECkQU7pth6a7Dj7G6Pan00w+12FmhiVPpeA@mail.gmail.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
+Date: Thu, 1 Nov 2012 09:54:00 +0100
+Message-ID: <CACRpkdbCk9+HSBPtfT-1dO8paSRYJ5VXX_0SxiyxgrObnJEvmQ@mail.gmail.com>
+References: <1350911580-20307-1-git-send-email-sourav.poddar@ti.com>
+ <20121024161429.GA16350@core.coreip.homeip.net>
+ <CACRpkdai3NocZQnW6YRF+k6GXUSx3P_Ge=F-tkuivrFm6tBbLg@mail.gmail.com>
+ <4099134.xWUIfbbahk@dtor-d630.eng.vmware.com>
+ <CACRpkdaiLXVeUg1quuw3XPTenbKOjn+aWbGQezpcyvzQCtCWow@mail.gmail.com>
+ <20121030113407.GA24335@sirena.org.uk>
+ <CACRpkdapQJY0aoam741O0fb8EeM9BLk_Psq5TaPG84J7wEvCLw@mail.gmail.com>
+ <87obji8kta.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:62445 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751263Ab2KAEqs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Nov 2012 00:46:48 -0400
-Received: by mail-ee0-f46.google.com with SMTP id b15so1082425eek.19
-        for <linux-input@vger.kernel.org>; Wed, 31 Oct 2012 21:46:46 -0700 (PDT)
-In-Reply-To: <CANq1E4TJPs0nHVmECkQU7pth6a7Dj7G6Pan00w+12FmhiVPpeA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============4172150913260462090=="
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <87obji8kta.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sourav Poddar <sourav.poddar-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-Apologies for the long delay and fairly content-less reply here. I am
-planning on continuing testing this, but we're in the middle of a
-sprint/scrum at work, and I've not had much time to play with
-programming outside of work. The sprint should be wrapping up Friday,
-and hopefully this weekend / next week I'll be able to get back to
-this and test it with the BlueZ patch.
+--===============4172150913260462090==
+Content-Type: multipart/alternative; boundary=047d7b62275e180d8404cd6b2995
 
-I did not modify the "hid_have_special_driver[]" array at all, I
-simply changed the two lines in the original patch (files
-drivers/hid/hid-ids.h and drivers/hid/hid-wiimote-core.c). It did not
-identify the bluetooth device when I simply (re)loaded the newly built
-hid-wiimote.ko. But when I reloaded all of the newly built hid*.ko
-files as I indicated before, then it showed that it properly
-identified the Nintendo Wiimote in dmesg.
+--047d7b62275e180d8404cd6b2995
+Content-Type: text/plain; charset=ISO-8859-1
 
-I tried re-connecting the wiimote and running xwiishow immediately
-after blueman said it was connected, but it didn't work then either.
-Looking back at dmesg it appeared that it lost the device quicker then
-that original connection showed.
+On Wed, Oct 31, 2012 at 9:10 PM, Kevin Hilman
+<khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>wrote:
 
-Anyhow, I hope to get you more detailed results in about a week.
-Please let me know if you have any specific logs I should get or tests
-I should perform. Otherwise I'll continue with the plan of
-patching/building/installing BlueZ with your changes.
+> Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> writes:
+>
 
-Peter
 
-On Wed, Oct 24, 2012 at 11:42 AM, David Herrmann
-<dh.herrmann@googlemail.com> wrote:
-> Hi Peter
+> > piece of hardware, this would be the right thing to do,
+> > and I think the in-kernel examples are all "simple",
+> > e.g. arch/arm/mach-omap2/powerdomain* is all about
+> > power domains and nothing else,
 >
-> On Tue, Oct 23, 2012 at 6:42 AM, Peter Olson <peter.olson@gmail.com> wrote:
->> I didn't feel up to reinstalling my entire kernel, so I just rebuilt
->> the kernel and insmod'd the hid ko files.
->>
->> Before the new module was loaded, dmesg gave:
->> [335678.959554] hid-generic 0005:057E:0330.0005: unknown main item tag 0x0
->> [335678.959749] input: Nintendo RVL-CNT-01-TR as
->> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:11/input38
->> [335678.959995] hid-generic 0005:057E:0330.0005: input,hidraw4:
->> BLUETOOTH HID v0.01 Gamepad [Nintendo RVL-CNT-01-TR] on
->> 09:B2:62:50:84:91
->> [335746.899830] hid-generic 0005:057E:0330.0006: unknown main item tag 0x0
->> [335746.899965] input: Nintendo RVL-CNT-01-TR as
->> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:12/input39
->> [335746.900067] hid-generic 0005:057E:0330.0006: input,hidraw4:
->> BLUETOOTH HID v0.01 Gamepad [Nintendo RVL-CNT-01-TR] on
->> 09:B2:62:50:84:91
->>
->> Then I reloaded the kernel modules:
->> $ sudo rmmod hid_wiimote
->> $ sudo rmmod usbhid
->> $ sudo rmmod hidp
->> $ sudo rmmod hid_generic
->> $ sudo insmod ./hid.ko
->> $ sudo insmod ./hid-generic.ko
->> $ sudo insmod ./usbhid/usbhid.ko
->> $ sudo insmod ./hid-wiimote.ko
->> $ sudo modprobe hidp
->>
->> Afterward dmesg said:
->> [335937.601486] Bluetooth: HIDP (Human Interface Emulation) ver 1.2
->> [335957.615400] wiimote 0005:057E:0330.000B: unknown main item tag 0x0
->> [335957.615525] wiimote 0005:057E:0330.000B: hidraw4: BLUETOOTH HID
->> v0.01 Gamepad [Nintendo RVL-CNT-01-TR] on 09:B2:62:50:84:91
->> [335957.615578] input: Nintendo Wii Remote Accelerometer as
->> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:12/0005:057E:0330.000B/input/input44
->> [335957.615724] input: Nintendo Wii Remote IR as
->> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:12/0005:057E:0330.000B/input/input45
->> [335957.615822] input: Nintendo Wii Remote as
->> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:12/0005:057E:0330.000B/input/input46
->> [335958.612615] power_supply wiimote_battery: driver failed to report
->> `capacity' property: -5
->> [335958.612688] Registered led device: 0005:057E:0330.000B:blue:p0
->> [335958.612713] Registered led device: 0005:057E:0330.000B:blue:p1
->> [335958.612734] Registered led device: 0005:057E:0330.000B:blue:p2
->> [335958.612755] Registered led device: 0005:057E:0330.000B:blue:p3
->> [335958.612812] input: Nintendo Wii Remote Extension as
->> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:12/0005:057E:0330.000B/input/input47
->> [335958.613495] input: Nintendo Wii Remote Motion+ as
->> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1.1/3-1.1.1:1.0/bluetooth/hci0/hci0:12/0005:057E:0330.000B/input/input48
->> [335958.613648] wiimote 0005:057E:0330.000B: New device registered
->> [335960.612211] power_supply wiimote_battery: driver failed to report
->> `capacity' property: -5
->> [335978.686281] wiimote 0005:057E:0330.000B: Device removed
->> [335980.695131] power_supply wiimote_battery: driver failed to report
->> `capacity' property: -5
+> FYI... that code isn't the same as PM domain.
+
+
+This sort of points to a core problem here. Our terminologies are
+ambiguous that we cannot understand each others code. As long
+as <linux/pm_domain.h> begins:
+
+/*
+ * pm_domain.h - Definitions and headers related to device power domains.
+ *
+
+But arguably that should just be patched (I think there are a few
+remnants in the code still implying that these things are only about
+power).
+
+
+>  That code is for the
+> *hardware* powerdomains, not the software concept of "PM domain."  In
+> OMAP, PM domain is implmented at the omap_device level.  And omap_device
+> is the abstraction of an IP block that knows about all the PM related
+> register settings, clocks, HW powerdomain, voltage domain, PM related
+> pin-muxing etc. etc.    All of these things are abstracted in an
+> omap_device, so that the PM domain implementation for OMAP looks rather
+> simple (c.f. omap_device_pm_domain in arch/arm/plat-omap/omap_device.c.)
 >
-> This is weird. Why does that patch work for you? Did you add the ID to
-> the "hid_have_special_driver[]" array? Because without it this
-> shouldn't work at all.
+
+OK following now...
+
+
+> > I think the lesser of two evils is the distributed approach,
 >
-> The log shows that the device is properly connected. And it takes 20
-> seconds until the device is automatically removed. So if you call
-> "xwiishow" in between these 20s then it should show up.
+The pinctrl examples I've seen mentioned so far are all PM related
+> (sleep, idle, wakeup, etc.) so to me I think they still belong in
+> PM domains (and that's how we handle the PM related pins in OMAP.)
 >
-> 20s is actually the timeout that the Wii Remote uses during discovery.
-> Maybe this is really because the device isn't bonded. Can you try the
-> bluez patch I posted and connect _with_ bonding/authentication. So
-> don't select "without PIN" during connection.
-> With the bluez patch bluez will automatically generate the PIN and you
-> shouldn't be prompted for PIN input anymore.
+
+Well, the pinctrl grabbers in these drivers are using these states also
+for platforms that do not even select CONFIG_PM.  For example
+mach-nomadik is quite happy that the PL011 driver is thusly
+muxing in its pins. And would require refactoring to use PM
+domains.
+
+So basically this requirement comes down to:
+
+- When dealing with a SoC IP block driver
+
+- That need to multiplex pins
+
+- Then your SoC must select CONFIG_PM and
+  CONFIG_PM_RUNTIME and
+  CONFIG_PM_GENERIC_DOMAINS and implement
+  proper domain handling hooks.
+
+Is this correct? And for Mark, Dmitry, does this correspond to
+your view?
+
+It's actually something that needs to be acknowledged by the
+ARM SoC maintainers, because they will be the ones telling
+all subarch maintainers to go implement full PM handling
+with these three frameworks whenever an SoC driver want
+to handle pins.
+
+Bascially all subsystem maintainers dealing with embedded
+SoCs need to be aligned on this as well...
+
+And IIUC not only pins but also silicon block clocks?
+
+I can surely fix these for "my" systems, but it really needs
+to be enforced widely or it will be a mess.
+
+
+>  > I worry that the per-SoC power domain implementation
+> > which will live in arch/arm/mach-* as of today will become
+> > the new board file problem, overburdening the arch/* tree.
+> > Maybe I'm mistaken as to the size of these things,
+> > but just doing ls arch/arm/mach-omap2/powerdomain*
+> > makes me start worrying.
 >
->> (Note, This has the motion plus built in, and I had the numchuck connected)
->>
->> However, xwiishow still doesn't recognize the device:
->> $ xwiishow list
->> Listing connected Wii Remote devices:
->> End of device list
->>
->> Please let me know if you need further testing for the kernel patch.
->> I'll reply to the github post for xwiimote to follow up on that issue.
->>
->> Peter
+> Yes, I agree that this means more code/data in arch/arm/mach-*, but
+> IMO, that's really where it belongs.  It really is SoC integration
+> details, and driver should really not know about it.
+
+
+OK we need feedback from ARM SoC on this.
+
+Yours,
+Linus Walleij
+
+--047d7b62275e180d8404cd6b2995
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div class=3D"gmail_quote">On Wed, Oct 31, 2012 at 9:10 PM, Kevin Hilman <s=
+pan dir=3D"ltr">&lt;<a href=3D"mailto:khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org" target=
+=3D"_blank">khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org</a>&gt;</span> wrote:<br><blockquot=
+e class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc sol=
+id;padding-left:1ex">
+<div class=3D"HOEnZb"><div class=3D"im">Linus Walleij &lt;<a href=3D"mailto=
+:linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org">linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org</a>&gt; writes:</div></=
+div></blockquote><div>=A0</div><blockquote class=3D"gmail_quote" style=3D"m=
+argin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+<div class=3D"HOEnZb"><div class=3D"im">&gt; piece of hardware, this would =
+be the right thing to do,<br>
+&gt; and I think the in-kernel examples are all &quot;simple&quot;,<br>
+&gt; e.g. arch/arm/mach-omap2/powerdomain* is all about<br>
+&gt; power domains and nothing else,<br>
+<br>
+</div></div>FYI... that code isn&#39;t the same as PM domain.</blockquote><=
+div><br>This sort of points to a core problem here. Our terminologies are<b=
+r>ambiguous that we cannot understand each others code. As long<br>as &lt;l=
+inux/pm_domain.h&gt; begins:<br>
+<br>/*<br>=A0* pm_domain.h - Definitions and headers related to device powe=
+r domains.<br>=A0*<br><br>But arguably that should just be patched (I think=
+ there are a few<br>remnants in the code still implying that these things a=
+re only about<br>
+power).<br>=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0=
+ .8ex;border-left:1px #ccc solid;padding-left:1ex"> =A0That code is for the=
+<br>
+*hardware* powerdomains, not the software concept of &quot;PM domain.&quot;=
+ =A0In<br>
+OMAP, PM domain is implmented at the omap_device level. =A0And omap_device<=
+br>
+is the abstraction of an IP block that knows about all the PM related<br>
+register settings, clocks, HW powerdomain, voltage domain, PM related<br>
+pin-muxing etc. etc. =A0 =A0All of these things are abstracted in an<br>
+omap_device, so that the PM domain implementation for OMAP looks rather<br>
+simple (c.f. omap_device_pm_domain in arch/arm/plat-omap/omap_device.c.)<br=
+></blockquote><div><br>OK following now...<br>=A0</div><blockquote class=3D=
+"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding=
+-left:1ex">
+&gt; I think the lesser of two evils is the distributed approach, <br></blo=
+ckquote><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border=
+-left:1px #ccc solid;padding-left:1ex">The pinctrl examples I&#39;ve seen m=
+entioned so far are all PM related<br>
+
+(sleep, idle, wakeup, etc.) so to me I think they still belong in<br>
+PM domains (and that&#39;s how we handle the PM related pins in OMAP.)<br><=
+/blockquote><div><br>Well, the pinctrl grabbers in these drivers are using =
+these states also<br>for platforms that do not even select CONFIG_PM.=A0 Fo=
+r example<br>
+mach-nomadik is quite happy that the PL011 driver is thusly<br>muxing in it=
+s pins. And would require refactoring to use PM<br>domains.<br><br>So basic=
+ally this requirement comes down to:<br><br>- When dealing with a SoC IP bl=
+ock driver<br>
+<br>- That need to multiplex pins<br><br>- Then your SoC must select CONFIG=
+_PM and<br>=A0 CONFIG_PM_RUNTIME and<br>=A0 CONFIG_PM_GENERIC_DOMAINS and i=
+mplement<br>=A0 proper domain handling hooks.<br><br>Is this correct? And f=
+or Mark, Dmitry, does this correspond to<br>
+your view?<br><br>It&#39;s actually something that needs to be acknowledged=
+ by the<br>ARM SoC maintainers, because they will be the ones telling<br>al=
+l subarch maintainers to go implement full PM handling<br>with these three =
+frameworks whenever an SoC driver want<br>
+to handle pins.<br><br>Bascially all subsystem maintainers dealing with emb=
+edded<br>SoCs need to be aligned on this as well...<br><br>And IIUC not onl=
+y pins but also silicon block clocks?<br><br>I can surely fix these for &qu=
+ot;my&quot; systems, but it really needs<br>
+to be enforced widely or it will be a mess.<br>=A0</div><blockquote class=
+=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padd=
+ing-left:1ex">
+<div class=3D"im">
+&gt; I worry that the per-SoC power domain implementation<br>
+&gt; which will live in arch/arm/mach-* as of today will become<br>
+&gt; the new board file problem, overburdening the arch/* tree.<br>
+&gt; Maybe I&#39;m mistaken as to the size of these things,<br>
+&gt; but just doing ls arch/arm/mach-omap2/powerdomain*<br>
+&gt; makes me start worrying.<br>
+<br>
+</div>Yes, I agree that this means more code/data in arch/arm/mach-*, but<b=
+r>
+IMO, that&#39;s really where it belongs. =A0It really is SoC integration<br=
 >
-> Thanks a lot for testing this!
-> David
+details, and driver should really not know about it.</blockquote><div><br>O=
+K we need feedback from ARM SoC on this.<br><br>Yours,<br>Linus Walleij<br>=
+</div></div>
+
+--047d7b62275e180d8404cd6b2995--
+
+--===============4172150913260462090==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+devicetree-discuss mailing list
+devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+https://lists.ozlabs.org/listinfo/devicetree-discuss
+
+--===============4172150913260462090==--

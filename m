@@ -1,43 +1,66 @@
-From: Haojian Zhuang <haojian.zhuang@gmail.com>
-Subject: Re: [PATCH RESEND] ARM: pxa27x_keypad: clear pending interrupts on
- keypad config
-Date: Thu, 1 Nov 2012 10:35:43 +0100
-Message-ID: <CAN1soZyq6F0G8F-eiA-zX2n8AAzp68URUWdf_4HsJ_OW++8u_g@mail.gmail.com>
-References: <1351439163-9575-1-git-send-email-anarsoul@gmail.com>
-	<87vcduwkfa.fsf@free.fr>
-	<CA+E=qVeETyX+jY+uKS5HAOymGOnF7x+sKGnmrQ0J=3CbnfVTNg@mail.gmail.com>
-	<87r4oiwin8.fsf@free.fr>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [BUG v3.6.2, 3.7-rc1] Unable to rmmod any hid special driver
+Date: Thu, 1 Nov 2012 11:14:52 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211011114150.6606@pobox.suse.cz>
+References: <CAN+gG=HFGMP8yU0PD6Ci-9ppVy4n3wp=SwymzAtp8KTg9Ewa=g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:50396 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752338Ab2KAJfo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Nov 2012 05:35:44 -0400
-Received: by mail-ee0-f46.google.com with SMTP id b15so1170280eek.19
-        for <linux-input@vger.kernel.org>; Thu, 01 Nov 2012 02:35:43 -0700 (PDT)
-In-Reply-To: <87r4oiwin8.fsf@free.fr>
+Received: from cantor2.suse.de ([195.135.220.15]:60579 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932613Ab2KAKOz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 1 Nov 2012 06:14:55 -0400
+In-Reply-To: <CAN+gG=HFGMP8yU0PD6Ci-9ppVy4n3wp=SwymzAtp8KTg9Ewa=g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: Vasily Khoruzhick <anarsoul@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chao Xie <chao.xie@marvell.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-input@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Ratan Nalumasu <ratan@google.com>, linux-input <linux-input@vger.kernel.org>
 
-On Mon, Oct 29, 2012 at 2:34 AM, Robert Jarzmik <robert.jarzmik@free.fr> wrote:
-> Vasily Khoruzhick <anarsoul@gmail.com> writes:
->
->> It behaves correctly, it just can't handle last keypress (because it's
->> booting Linux).
->> Even if it would be possible to fix this issue in bootloader it's
->> always nice to keep driver
->> failure-proof, so it does not fail even if bootloader left something
->> in non-consistent state.
-> True.
-> Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
->
-> --
-> Robert
+On Thu, 18 Oct 2012, Benjamin Tissoires wrote:
 
-Applied
+> Hi Guys,
+> 
+> Commit 4fe9f8e203fdad1524c04beb390f3c6099781ed9 upstream
+> Commit 57a38d925e665fcd729cd9ad4a75c84e11bd95c9 linux-stable
+> 
+> This commit "HID: hidraw: don't deallocate memory when it is in use"
+> prevents users to rmmod then insmod  any hid special driver without
+> either physically unplugging the device or without rmmod-ing the hid
+> bus itself.
+> 
+> When the user does a rmmod, hidinput_disconnect is called before
+> hidraw_disconnect, thus, the hidraw device is still there, but the
+> input one not. It leads to the fact that the device is not working
+> anymore even if you call modprobe.
+> 
+> Any idea to solve that?
 
-Thanks
-Haojian
+Guys, how about this?
+
+
+---
+ drivers/hid/hidraw.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 17d15bb..fce4256 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -560,10 +560,11 @@ static void drop_ref(struct hidraw *hidraw, int exists_bit)
+ {
+ 	mutex_lock(&minors_lock);
+ 	if (exists_bit) {
+-		hid_hw_close(hidraw->hid);
+ 		hidraw->exist = 0;
+-		if (hidraw->open)
++		if (hidraw->open) {
++			hid_hw_close(hidraw->hid);
+ 			wake_up_interruptible(&hidraw->wait);
++		}
+ 	} else {
+ 		--hidraw->open;
+ 	}
+
+-- 
+Jiri Kosina
+SUSE Labs

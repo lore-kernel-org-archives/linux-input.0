@@ -1,69 +1,81 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [BUG v3.6.2, 3.7-rc1] Unable to rmmod any hid special driver
-Date: Thu, 1 Nov 2012 16:49:20 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1211011648570.6606@pobox.suse.cz>
-References: <CAN+gG=HFGMP8yU0PD6Ci-9ppVy4n3wp=SwymzAtp8KTg9Ewa=g@mail.gmail.com> <alpine.LNX.2.00.1211011114150.6606@pobox.suse.cz> <alpine.LNX.2.00.1211011130430.6606@pobox.suse.cz> <CAN+gG=EnRsc=5W-E_HETWDDKxq8weSz_SJ8_Wf3BVbz5nZwe=Q@mail.gmail.com>
- <alpine.LNX.2.00.1211011142310.6606@pobox.suse.cz> <CAN+gG=HKJnbg++hCTY7sLRhTCntY3=1B87=fcAt1nZ_At3g_Yw@mail.gmail.com>
+From: Vojtech Bocek <vbocek@gmail.com>
+Subject: Re: [PATCH 1/1] Input: joydev - fix axes values sent in initial js_event
+Date: Thu, 1 Nov 2012 17:47:07 +0100
+Message-ID: <CAOeGmboymjw=s5Z4DbgC8EzcYoDVeJqxvAqyy40f57AVYSMZ6g@mail.gmail.com>
+References: <1344895914-32127-1-git-send-email-vbocek@gmail.com>
+	<20120905055218.GA24715@core.coreip.homeip.net>
+	<CAOeGmboLCan-fX4sPPxS5jkyepxLTSnRgvdHJ0-edcH8UCQg+w@mail.gmail.com>
+	<20120913045206.GB17105@core.coreip.homeip.net>
+	<CAOeGmbp9MYNnXn0RYdsR4cLSV-3KhDjVzRQnL0mKTrQG1_j9GQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:48493 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933010Ab2KAPtY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 1 Nov 2012 11:49:24 -0400
-In-Reply-To: <CAN+gG=HKJnbg++hCTY7sLRhTCntY3=1B87=fcAt1nZ_At3g_Yw@mail.gmail.com>
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:40767 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934991Ab2KAQrH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Nov 2012 12:47:07 -0400
+In-Reply-To: <CAOeGmbp9MYNnXn0RYdsR4cLSV-3KhDjVzRQnL0mKTrQG1_j9GQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Ratan Nalumasu <ratan@google.com>, linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-On Thu, 1 Nov 2012, Benjamin Tissoires wrote:
+Hi,
+sorry for the impatience, but it's been nearly two months since
+your last response, and I, trying to send patch to Linux for
+the first time, simply don't know if should I just wait more or not.
+Is the patch wrong/ugly, or are you simply too busy?
 
-> >> >  ------------[ cut here ]------------
-> >> >  WARNING: at lib/list_debug.c:59 __list_del_entry+0xa4/0xd0()
-> >> >  Hardware name: 7470BN2
-> >> >  list_del corruption. prev->next should be ffff880036f97178, but was 6b6b6b6b6b6b6b6b
-> >> >  Modules linked in: af_packet rfcomm bnep tun iptable_mangle xt_DSCP nf_conntrack_ipv6 nf_defrag_ipv6 ip6table_filter ip6_tables xt
-> >> > e nf_conntrack iptable_filter ip_tables x_tables cpufreq_conservative cpufreq_userspace cpufreq_powersave acpi_cpufreq mperf dm_mod
-> >> > m_intel kvm iwldvm mac80211 snd_hda_codec_conexant microcode usbhid sg iwlwifi pcspkr snd_hda_intel cfg80211 lpc_ich i2c_i801 mfd_c
-> >> > imer snd_page_alloc thinkpad_acpi rfkill wmi snd ac soundcore battery tpm_tis tpm tpm_bios autofs4 uhci_hcd ehci_hcd usbcore usb_co
-> >> > button edd fan processor ata_generic thermal thermal_sys [last unloaded: hid_cypress]
-> >> >  Pid: 4725, comm: hexdump Not tainted 3.7.0-rc3-00008-g35fd3dc #157
-> >> >  Call Trace:
-> >> >   [<ffffffff812f95c4>] ? __list_del_entry+0xa4/0xd0
-> >> >   [<ffffffff812f95c4>] ? __list_del_entry+0xa4/0xd0
-> >> >   [<ffffffff810452fa>] warn_slowpath_common+0x7a/0xb0
-> >> >   [<ffffffff810453d1>] warn_slowpath_fmt+0x41/0x50
-> >> >   [<ffffffff812f95c4>] __list_del_entry+0xa4/0xd0
-> >> >   [<ffffffff812f9601>] list_del+0x11/0x40
-> >> >   [<ffffffff81454a23>] hidraw_release+0x33/0x50
-> >> >   [<ffffffff8118cd0a>] __fput+0xca/0x2b0
-> >> >   [<ffffffff8118cf49>] ____fput+0x9/0x10
-> >> >   [<ffffffff8106b7a1>] task_work_run+0xb1/0xe0
-> >> >   [<ffffffff8104c81e>] do_exit+0x1ee/0x4c0
-> >> >   [<ffffffff810adcad>] ? trace_hardirqs_on_caller+0x12d/0x1b0
-> >> >   [<ffffffff8104cb37>] do_group_exit+0x47/0xc0
-> >> >   [<ffffffff8104cbc2>] sys_exit_group+0x12/0x20
-> >> >   [<ffffffff8158a529>] system_call_fastpath+0x16/0x1b
-> >> >  ---[ end trace 3bec13493e086171 ]---
-> >> >
-> >>
-> >> This is weird, on my setup (kernel 3.6.2 + Henrik's patches + Ratan's
-> >> patch + your fix), I don't have this warning.
-> >
-> > My reproduction scenario was
-> >
-> > - run hexdump on hidraw device driven by a special driver (hid-cypress in
-> >   this case)
-> > - let the device produce a few events
-> > - rmmod hid-cypress while hexdump is still running
-> 
-> well, with the very same test (except I'm testing against
-> hid-multitouch), the warning doesn't show up on my configuration...
+Patch for current linux-next attached.
 
-Perhaps it happens when the removed hidraw is actually the last one 
-existing in the system?
+=====================
+>From be5bbc627e5c8ccfea240deef6a68b10f7f1ff40 Mon Sep 17 00:00:00 2001
+From: Vojtech Bocek <vbocek@gmail.com>
+Date: Thu, 1 Nov 2012 17:34:34 +0100
+Subject: [PATCH 1/1] Input: joydev - fix axes values sent in initial js_event
+
+Initial input ABS events can't reach joydev because it is not
+opened yet.
+This patch makes joydev reload ABS values on joydev_open_device.
+
+Signed-off-by: Vojtech Bocek <vbocek@gmail.com>
+---
+ drivers/input/joydev.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index f362883..f53a7b1 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -156,6 +156,18 @@ static void joydev_event(struct input_handle *handle,
+ 	wake_up_interruptible(&joydev->wait);
+ }
+
++/* joydev must be locked */
++static void joydev_reload_abs(struct joydev *joydev)
++{
++	int i, abs;
++	struct input_dev *input = joydev->handle.dev;
++
++	for (i = 0; i < joydev->nabs; ++i) {
++		abs = input_abs_get_val(input, joydev->abspam[i]);
++		joydev->abs[i] = joydev_correct(abs, &joydev->corr[i]);
++	}
++}
++
+ static int joydev_fasync(int fd, struct file *file, int on)
+ {
+ 	struct joydev_client *client = file->private_data;
+@@ -200,7 +212,9 @@ static int joydev_open_device(struct joydev *joydev)
+ 		retval = -ENODEV;
+ 	else if (!joydev->open++) {
+ 		retval = input_open_device(&joydev->handle);
+-		if (retval)
++		if (!retval)
++			joydev_reload_abs(joydev);
++		else
+ 			joydev->open--;
+ 	}
 
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.10.4

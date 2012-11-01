@@ -1,208 +1,99 @@
-From: Alexandra Chin <alexandra.chin@tw.synaptics.com>
-Subject: [PATCH v2] staging: ste_rmi4: Convert to Type-B support
-Date: Thu, 1 Nov 2012 10:31:04 +0000
-Message-ID: <CC51EC7B5B7F984AA566DC102237848896F5F3F7@hkdcw-mail1.synaptics-inc.local>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [BUG v3.6.2, 3.7-rc1] Unable to rmmod any hid special driver
+Date: Thu, 1 Nov 2012 11:32:00 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211011130430.6606@pobox.suse.cz>
+References: <CAN+gG=HFGMP8yU0PD6Ci-9ppVy4n3wp=SwymzAtp8KTg9Ewa=g@mail.gmail.com> <alpine.LNX.2.00.1211011114150.6606@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tw-mx2.synaptics.com.tw ([203.163.83.68]:40993 "EHLO
-	tw-mx2.synaptics.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751487Ab2KAKbX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Nov 2012 06:31:23 -0400
-Content-Language: zh-TW
+Received: from cantor2.suse.de ([195.135.220.15]:33247 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752227Ab2KAKcF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 1 Nov 2012 06:32:05 -0400
+In-Reply-To: <alpine.LNX.2.00.1211011114150.6606@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Ratan Nalumasu <ratan@google.com>, linux-input <linux-input@vger.kernel.org>
 
->From 783c14e5978600cc78e11ea078cc413d77a9debd Mon Sep 17 00:00:00 2001
-From: Alexandra Chin <alexandra.chin@tw.synaptics.com>
-Date: Thu, 1 Nov 2012 17:02:14 +0800
-Subject: [PATCH v2] staging: ste_rmi4: Convert to Type-B support
+On Thu, 1 Nov 2012, Jiri Kosina wrote:
 
-This patch:
-- convert to MT-B because Synaptics touch devices are capable of
-  tracking identifiable fingers
-  -- driver straightly reports all fingers' status
-- call input_mt_init_slots with INPUT_MT_DIRECT flag
-- against v3.7-rc3 kernel
+> > Commit 4fe9f8e203fdad1524c04beb390f3c6099781ed9 upstream
+> > Commit 57a38d925e665fcd729cd9ad4a75c84e11bd95c9 linux-stable
+> > 
+> > This commit "HID: hidraw: don't deallocate memory when it is in use"
+> > prevents users to rmmod then insmod  any hid special driver without
+> > either physically unplugging the device or without rmmod-ing the hid
+> > bus itself.
+> > 
+> > When the user does a rmmod, hidinput_disconnect is called before
+> > hidraw_disconnect, thus, the hidraw device is still there, but the
+> > input one not. It leads to the fact that the device is not working
+> > anymore even if you call modprobe.
+> > 
+> > Any idea to solve that?
+> 
+> Guys, how about this?
+> 
+> 
+> ---
+>  drivers/hid/hidraw.c |    5 +++--
+>  1 files changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+> index 17d15bb..fce4256 100644
+> --- a/drivers/hid/hidraw.c
+> +++ b/drivers/hid/hidraw.c
+> @@ -560,10 +560,11 @@ static void drop_ref(struct hidraw *hidraw, int exists_bit)
+>  {
+>  	mutex_lock(&minors_lock);
+>  	if (exists_bit) {
+> -		hid_hw_close(hidraw->hid);
+>  		hidraw->exist = 0;
+> -		if (hidraw->open)
+> +		if (hidraw->open) {
+> +			hid_hw_close(hidraw->hid);
+>  			wake_up_interruptible(&hidraw->wait);
+> +		}
+>  	} else {
+>  		--hidraw->open;
+>  	}
 
-Any comments please let me know. Thank you.
+So this seems to fix the problem with rmmod/modprobe, but the patch has 
+apparently other problems. rmmoding special driver while reading from 
+hidraw interface causes this:
 
-Alexandra Chin
+ ------------[ cut here ]------------
+ WARNING: at lib/list_debug.c:59 __list_del_entry+0xa4/0xd0()
+ Hardware name: 7470BN2
+ list_del corruption. prev->next should be ffff880036f97178, but was 6b6b6b6b6b6b6b6b
+ Modules linked in: af_packet rfcomm bnep tun iptable_mangle xt_DSCP nf_conntrack_ipv6 nf_defrag_ipv6 ip6table_filter ip6_tables xt
+e nf_conntrack iptable_filter ip_tables x_tables cpufreq_conservative cpufreq_userspace cpufreq_powersave acpi_cpufreq mperf dm_mod
+m_intel kvm iwldvm mac80211 snd_hda_codec_conexant microcode usbhid sg iwlwifi pcspkr snd_hda_intel cfg80211 lpc_ich i2c_i801 mfd_c
+imer snd_page_alloc thinkpad_acpi rfkill wmi snd ac soundcore battery tpm_tis tpm tpm_bios autofs4 uhci_hcd ehci_hcd usbcore usb_co
+button edd fan processor ata_generic thermal thermal_sys [last unloaded: hid_cypress]
+ Pid: 4725, comm: hexdump Not tainted 3.7.0-rc3-00008-g35fd3dc #157
+ Call Trace:
+  [<ffffffff812f95c4>] ? __list_del_entry+0xa4/0xd0
+  [<ffffffff812f95c4>] ? __list_del_entry+0xa4/0xd0
+  [<ffffffff810452fa>] warn_slowpath_common+0x7a/0xb0
+  [<ffffffff810453d1>] warn_slowpath_fmt+0x41/0x50
+  [<ffffffff812f95c4>] __list_del_entry+0xa4/0xd0
+  [<ffffffff812f9601>] list_del+0x11/0x40
+  [<ffffffff81454a23>] hidraw_release+0x33/0x50
+  [<ffffffff8118cd0a>] __fput+0xca/0x2b0
+  [<ffffffff8118cf49>] ____fput+0x9/0x10
+  [<ffffffff8106b7a1>] task_work_run+0xb1/0xe0
+  [<ffffffff8104c81e>] do_exit+0x1ee/0x4c0
+  [<ffffffff810adcad>] ? trace_hardirqs_on_caller+0x12d/0x1b0
+  [<ffffffff8104cb37>] do_group_exit+0x47/0xc0
+  [<ffffffff8104cbc2>] sys_exit_group+0x12/0x20
+  [<ffffffff8158a529>] system_call_fastpath+0x16/0x1b
+ ---[ end trace 3bec13493e086171 ]---
 
-Signed-off-by: Alexandra Chin <alexandra.chin@tw.synaptics.com>
----
- drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c |   68 +++++++++++--------------
- 1 files changed, 29 insertions(+), 39 deletions(-)
+As Ratan doesn't seem to be responsive and I don't have time to debug it 
+as the moment, I'll just be reverting Ratan's patch for 3.7 completely.
 
-diff --git a/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c b/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
-index 277491a..0338b1e 100644
---- a/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
-+++ b/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
-@@ -31,6 +31,7 @@
- #include <linux/interrupt.h>
- #include <linux/regulator/consumer.h>
- #include <linux/module.h>
-+#include <linux/input/mt.h>
- #include "synaptics_i2c_rmi4.h"
- 
- /* TODO: for multiple device support will need a per-device mutex */
-@@ -67,7 +68,6 @@
- #define PDT_START_SCAN_LOCATION (0x00E9)
- #define PDT_END_SCAN_LOCATION	(0x000A)
- #define PDT_ENTRY_SIZE		(0x0006)
--#define RMI4_NUMBER_OF_MAX_FINGERS		(8)
- #define SYNAPTICS_RMI4_TOUCHPAD_FUNC_NUM	(0x11)
- #define SYNAPTICS_RMI4_DEVICE_CONTROL_FUNC_NUM	(0x01)
- 
-@@ -164,6 +164,7 @@ struct synaptics_rmi4_device_info {
-  * @regulator: pointer to the regulator structure
-  * @wait: wait queue structure variable
-  * @touch_stopped: flag to stop the thread function
-+ * @fingers_supported: maximum supported fingers
-  *
-  * This structure gives the device data information.
-  */
-@@ -184,6 +185,7 @@ struct synaptics_rmi4_data {
- 	struct regulator	*regulator;
- 	wait_queue_head_t	wait;
- 	bool			touch_stopped;
-+	unsigned char		fingers_supported;
- };
- 
- /**
-@@ -303,22 +305,21 @@ static int synpatics_rmi4_touchpad_report(struct synaptics_rmi4_data *pdata,
- 	/* number of touch points - fingers down in this case */
- 	int	touch_count = 0;
- 	int	finger;
--	int	fingers_supported;
- 	int	finger_registers;
- 	int	reg;
- 	int	finger_shift;
- 	int	finger_status;
- 	int	retval;
-+	int	x, y;
-+	int	wx, wy;
- 	unsigned short	data_base_addr;
- 	unsigned short	data_offset;
- 	unsigned char	data_reg_blk_size;
- 	unsigned char	values[2];
- 	unsigned char	data[DATA_LEN];
--	int	x[RMI4_NUMBER_OF_MAX_FINGERS];
--	int	y[RMI4_NUMBER_OF_MAX_FINGERS];
--	int	wx[RMI4_NUMBER_OF_MAX_FINGERS];
--	int	wy[RMI4_NUMBER_OF_MAX_FINGERS];
-+	unsigned char	fingers_supported = pdata->fingers_supported;
- 	struct	i2c_client *client = pdata->i2c_client;
-+	struct	input_dev *input_dev = pdata->input_dev;
- 
- 	/* get 2D sensor finger data */
- 	/*
-@@ -333,7 +334,6 @@ static int synpatics_rmi4_touchpad_report(struct synaptics_rmi4_data *pdata,
- 	 *	10 = finger present but data may not be accurate,
- 	 *	11 = reserved for product use.
- 	 */
--	fingers_supported	= rfi->num_of_data_points;
- 	finger_registers	= (fingers_supported + 3)/4;
- 	data_base_addr		= rfi->fn_desc.data_base_addr;
- 	retval = synaptics_rmi4_i2c_block_read(pdata, data_base_addr, values,
-@@ -353,12 +353,16 @@ static int synpatics_rmi4_touchpad_report(struct synaptics_rmi4_data *pdata,
- 		reg = finger/4;
- 		/* bit shift to get finger's status */
- 		finger_shift	= (finger % 4) * 2;
--		finger_status	= (values[reg] >> finger_shift) & 3;
-+		finger_status	= (values[reg] >> finger_shift) & MASK_2BIT;
- 		/*
- 		 * if finger status indicates a finger is present then
- 		 * read the finger data and report it
- 		 */
--		if (finger_status == 1 || finger_status == 2) {
-+		input_mt_slot(input_dev, finger);
-+		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
-+							finger_status != 0);
-+
-+		if (finger_status) {
- 			/* Read the finger data */
- 			data_offset = data_base_addr +
- 					((finger * data_reg_blk_size) +
-@@ -371,46 +375,29 @@ static int synpatics_rmi4_touchpad_report(struct synaptics_rmi4_data *pdata,
- 								__func__);
- 				return 0;
- 			} else {
--				x[touch_count]	=
--					(data[0] << 4) | (data[2] & MASK_4BIT);
--				y[touch_count]	=
--					(data[1] << 4) |
--					((data[2] >> 4) & MASK_4BIT);
--				wy[touch_count]	=
--						(data[3] >> 4) & MASK_4BIT;
--				wx[touch_count]	=
--						(data[3] & MASK_4BIT);
-+				x = (data[0] << 4) | (data[2] & MASK_4BIT);
-+				y = (data[1] << 4)
-+						| ((data[2] >> 4) & MASK_4BIT);
-+				wy = (data[3] >> 4) & MASK_4BIT;
-+				wx = (data[3] & MASK_4BIT);
- 
- 				if (pdata->board->x_flip)
--					x[touch_count] =
--						pdata->sensor_max_x -
--								x[touch_count];
-+					x = pdata->sensor_max_x - x;
- 				if (pdata->board->y_flip)
--					y[touch_count] =
--						pdata->sensor_max_y -
--								y[touch_count];
-+					y = pdata->sensor_max_y - y;
- 			}
-+			input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR,
-+								max(wx, wy));
-+			input_report_abs(input_dev, ABS_MT_POSITION_X, x);
-+			input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
-+
- 			/* number of active touch points */
- 			touch_count++;
- 		}
- 	}
- 
--	/* report to input subsystem */
--	if (touch_count) {
--		for (finger = 0; finger < touch_count; finger++) {
--			input_report_abs(pdata->input_dev, ABS_MT_TOUCH_MAJOR,
--						max(wx[finger] , wy[finger]));
--			input_report_abs(pdata->input_dev, ABS_MT_POSITION_X,
--								x[finger]);
--			input_report_abs(pdata->input_dev, ABS_MT_POSITION_Y,
--								y[finger]);
--			input_mt_sync(pdata->input_dev);
--		}
--	} else
--		input_mt_sync(pdata->input_dev);
--
- 	/* sync after groups of events */
--	input_sync(pdata->input_dev);
-+	input_sync(input_dev);
- 	/* return the number of touch points */
- 	return touch_count;
- }
-@@ -575,6 +562,7 @@ static int synpatics_rmi4_touchpad_detect(struct synaptics_rmi4_data *pdata,
- 		if ((queries[1] & MASK_3BIT) == 5)
- 			rfi->num_of_data_points = 10;
- 	}
-+	pdata->fingers_supported = rfi->num_of_data_points;
- 	/* Need to get interrupt info for handling interrupts */
- 	rfi->index_to_intr_reg = (interruptcount + 7)/8;
- 	if (rfi->index_to_intr_reg != 0)
-@@ -988,6 +976,8 @@ static int __devinit synaptics_rmi4_probe
- 					rmi4_data->sensor_max_y, 0, 0);
- 	input_set_abs_params(rmi4_data->input_dev, ABS_MT_TOUCH_MAJOR, 0,
- 						MAX_TOUCH_MAJOR, 0, 0);
-+	input_mt_init_slots(rmi4_data->input_dev,
-+				rmi4_data->fingers_supported, INPUT_MT_DIRECT);
- 
- 	/* Clear interrupts */
- 	synaptics_rmi4_i2c_block_read(rmi4_data,
 -- 
-1.7.5.4
+Jiri Kosina
+SUSE Labs

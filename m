@@ -1,77 +1,94 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCHv2] Input: omap4-keypad: Add pinctrl support
-Date: Fri, 2 Nov 2012 18:26:32 +0000
-Message-ID: <20121102182632.GF4413@opensource.wolfsonmicro.com>
-References: <20121026160316.GY18814@opensource.wolfsonmicro.com>
- <20121029194901.GA30152@arwen.pp.htv.fi>
- <20121030112410.GM4511@opensource.wolfsonmicro.com>
- <20121030114949.GC28722@arwen.pp.htv.fi>
- <20121030140714.GO4511@opensource.wolfsonmicro.com>
- <20121030151642.GE29159@arwen.pp.htv.fi>
- <20121030155821.GU4511@opensource.wolfsonmicro.com>
- <20121030172513.GA3993@arwen.pp.htv.fi>
- <20121030183704.GX4511@opensource.wolfsonmicro.com>
- <CACRpkdac=ztY0vXQ8Mu6H8fiAO4aFSSF-A6O1Q==zKOKEsJegw@mail.gmail.com>
+From: Forest Bond <forest@alittletooquiet.net>
+Subject: Re: [PATCH resend2] Input: usbtouchscreen - initialize eGalax
+ devices
+Date: Fri, 2 Nov 2012 15:51:30 -0400
+Message-ID: <20121102195130.GJ12501@alittletooquiet.net>
+References: <20120903132648.GC11919@newmaster.mivlgu.local>
+ <20120905060704.GC25962@core.coreip.homeip.net>
+ <20120907204232.GA24528@alittletooquiet.net>
+ <3475963.zdirdksHlt@dtor-d630.eng.vmware.com>
+ <alpine.LNX.2.00.1211011137260.6606@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZsxMXj7gRnSZQ7B8"
+	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:52844 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S934474Ab2KBS0g (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 2 Nov 2012 14:26:36 -0400
+Received: from storm.alittletooquiet.net ([67.23.28.199]:32986 "EHLO
+	storm.alittletooquiet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751730Ab2KBUEX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Nov 2012 16:04:23 -0400
 Content-Disposition: inline
-In-Reply-To: <CACRpkdac=ztY0vXQ8Mu6H8fiAO4aFSSF-A6O1Q==zKOKEsJegw@mail.gmail.com>
+In-Reply-To: <alpine.LNX.2.00.1211011137260.6606@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Magnus Damm <magnus.damm@gmail.com>, "Rafael J. Wysocki" <rjw@sisk.pl>, Felipe Balbi <balbi@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benoit Cousson <b-cousson@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Grant Likely <grant.likely@secretlab.ca>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Ritz <daniel.ritz@gmx.ch>, Alan Stern <stern@rowland.harvard.edu>, Sergei Shtylyov <sshtylyov@mvista.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
 
---ZsxMXj7gRnSZQ7B8
+--EeQfGwPcQSOJBaQU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 30, 2012 at 10:51:11PM +0100, Linus Walleij wrote:
-> On Tue, Oct 30, 2012 at 7:37 PM, Mark Brown
+Hi Jiri,
 
-> > More seriously the amount of time we seem to have been spending recently
-> > on changes which end up requiring us to go through essentially every
-> > driver and add code to them (often several times) doesn't seem like
-> > we're doing a good job here.
+Thanks for your message.  Pretty good timing, actually, as I was just about=
+ to
+pick this back up. ;)
 
-> If this is your main concern you should be made aware that there
-> are people out there planning to supplant the existing DT probe paths
-> that are now being added to each and every ARM-related driver
-> with an ACPI probe path as ARM servers come into the picture.
+On Thu, Nov 01, 2012 at 11:38:19AM +0100, Jiri Kosina wrote:
+> On Mon, 10 Sep 2012, Dmitry Torokhov wrote:
+>=20
+> > > The other piece to this puzzle is that usbhid should blacklist these =
+devices
+> > > to avoid binding if it happens to be loaded before usbtouchscreen.  T=
+o do
+> > > this, usbhid needs to be able to blacklist devices based on interface
+> > > protocol (right now it only supports blacklist on VID + PID).
+> > >=20
+> > > Would you accept a patch set that implements this?
+> >=20
+> > Juri, this question is really for you...
+>=20
+> Generally, I am not objecting to this idea in general.
+>=20
+> What is the particular use case here, so that it's needed?
 
-That's different as we're adding support for a new external interface
-which will need per device configuration parsing rather than
-reorganising things within the kernel; I'd expect it won't supplant DT
-but rather sit alongside it as it's more a requirement for the server
-market than for the embedded market.
+We have some eGalax devices with class HID and protocol None that both usbh=
+id
+and usbtouchscreen will bind to, but we only want them bound to usbtouchscr=
+een.
+Some do in fact work with usbhid, but not all of them do.  OTOH they all wo=
+rk
+with usbtouchscreen as of commit 037a833ed05a86d01ea27a2c32043b86c549be1b.
 
---ZsxMXj7gRnSZQ7B8
+We want to blacklist these devices in usbhid to avoid binding to it if it is
+loaded first.  But usbhid should continue to handle eGalax devices with cla=
+ss
+HID and protocol other than None (e.g. Mouse).  They all have the same vend=
+or
+and product IDs, so we need to be able to blacklist on (VID, PID, protocol)
+instead of just (VID, PID).
+
+Does that make sense?
+
+Thanks,
+Forest
+--=20
+Forest Bond
+http://www.alittletooquiet.net
+http://www.rapidrollout.com
+
+--EeQfGwPcQSOJBaQU
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+Version: GnuPG v1.4.10 (GNU/Linux)
 
-iQIcBAEBAgAGBQJQlBBPAAoJELSic+t+oim95a8P/2gQNhkpjfeKtjLN+b7VjGx3
-hS8eHcBUX37fs0Av+wz2BM+d6ySD7tBKsmw6No0KQvZW04JsO7KApQRSVJF+RU4k
-HJfxHj1nse6FNTYwmMlkL6WZcyC1EXMgje4i0jHkbOambdO4pQn4q/sILkvsWgun
-wBeTRDxViHVDAy6lNaHv79RId24cCsyUMPXpdj8PQ9Ci0jO0p6i2hxvHBMkwbMP1
-RIIuGEEt/TWEQc2dq/FkXgazhWEr7KQcb8MyOeE26cRql23DGlRhxhmjAV3e+6HM
-3sAPO0uBT+TPke5V+GOJXQLK7XoWW9zHoHobbRzWhwAOdm03KU7DO3B39/VvmJNl
-4nWPtKWQc0QSA2rfCmBtAfLtyrSMDmlFPHFn41a/oHt82VZR7+JE9UPPi+bGusBo
-tnnv6Gco+/FIVDvmyWg/6lj0CMTb7nLhQ2TOjYVbsIhI1hZ4g0imWDW/pvlX4MEe
-Ea3+tFscm3bCQXI7mZSrgCbCRhoH8JXgcEKDYkBPciTYg5fSXP1FPuNHmhI2O8Jk
-t43LkaZlxF+y0Wsq3/84Vsxt8djl88m4GMlt3ueNNPfyAcjid2UN9uw/kQ+H8lw8
-G+Y8Y3Nk8GBPwh0OKAbl7P6IM1plcV3tXSS6xHKkOFnyAn1zMpBgNq6sCyBjZ66U
-bP0aYlue/RpPa91nWU4L
-=qFjt
+iEYEARECAAYFAlCUJEIACgkQRO4fQQdv5AyryQCfQDrpIZ2HfRk5yKbuR0TE+oeH
+iv4AnA8/GJO0qnf+1BBSLV6lHE+4GqwH
+=mr7h
 -----END PGP SIGNATURE-----
 
---ZsxMXj7gRnSZQ7B8--
+--EeQfGwPcQSOJBaQU--

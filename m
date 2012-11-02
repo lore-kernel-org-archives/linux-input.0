@@ -1,94 +1,96 @@
-From: Forest Bond <forest@alittletooquiet.net>
-Subject: Re: [PATCH resend2] Input: usbtouchscreen - initialize eGalax
- devices
-Date: Fri, 2 Nov 2012 15:51:30 -0400
-Message-ID: <20121102195130.GJ12501@alittletooquiet.net>
-References: <20120903132648.GC11919@newmaster.mivlgu.local>
- <20120905060704.GC25962@core.coreip.homeip.net>
- <20120907204232.GA24528@alittletooquiet.net>
- <3475963.zdirdksHlt@dtor-d630.eng.vmware.com>
- <alpine.LNX.2.00.1211011137260.6606@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.7-rc0
+Date: Fri, 2 Nov 2012 15:49:35 -0700
+Message-ID: <20121102224933.GA7179@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
+	protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from storm.alittletooquiet.net ([67.23.28.199]:32986 "EHLO
-	storm.alittletooquiet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751730Ab2KBUEX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Nov 2012 16:04:23 -0400
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:39436 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758896Ab2KBWuQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Nov 2012 18:50:16 -0400
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1211011137260.6606@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Ritz <daniel.ritz@gmx.ch>, Alan Stern <stern@rowland.harvard.edu>, Sergei Shtylyov <sshtylyov@mvista.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
 
---EeQfGwPcQSOJBaQU
+--7JfCtLOvnd9MIVvH
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Jiri,
+Hi Linus,
 
-Thanks for your message.  Pretty good timing, actually, as I was just about=
- to
-pick this back up. ;)
+Please pull from:
 
-On Thu, Nov 01, 2012 at 11:38:19AM +0100, Jiri Kosina wrote:
-> On Mon, 10 Sep 2012, Dmitry Torokhov wrote:
->=20
-> > > The other piece to this puzzle is that usbhid should blacklist these =
-devices
-> > > to avoid binding if it happens to be loaded before usbtouchscreen.  T=
-o do
-> > > this, usbhid needs to be able to blacklist devices based on interface
-> > > protocol (right now it only supports blacklist on VID + PID).
-> > >=20
-> > > Would you accept a patch set that implements this?
-> >=20
-> > Juri, this question is really for you...
->=20
-> Generally, I am not objecting to this idea in general.
->=20
-> What is the particular use case here, so that it's needed?
-
-We have some eGalax devices with class HID and protocol None that both usbh=
-id
-and usbtouchscreen will bind to, but we only want them bound to usbtouchscr=
-een.
-Some do in fact work with usbhid, but not all of them do.  OTOH they all wo=
-rk
-with usbtouchscreen as of commit 037a833ed05a86d01ea27a2c32043b86c549be1b.
-
-We want to blacklist these devices in usbhid to avoid binding to it if it is
-loaded first.  But usbhid should continue to handle eGalax devices with cla=
-ss
-HID and protocol other than None (e.g. Mouse).  They all have the same vend=
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 or
-and product IDs, so we need to be able to blacklist on (VID, PID, protocol)
-instead of just (VID, PID).
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Does that make sense?
+to receive updates for the input subsystem. Just a few driver fixes.
 
-Thanks,
-Forest
+Changelog:
+---------
+
+Hui Wang (1):
+      Input: egalax_ts - get gpio from devicetree
+
+Jason Gerecke (2):
+      Input: wacom - add INPUT_PROP_DIRECT flag to Cintiq 24HD
+      Input: wacom - correct bad Cintiq 24HD check
+
+Roland Stigge (1):
+      Input: lpc32xx-keys - select INPUT_MATRIXKMAP
+
+Rolf Eike Beer (1):
+      Input: tsc40 - remove wrong announcement of pressure support
+
+Vasily Khoruzhick (1):
+      Input: pxa27x_keypad - clear pending interrupts on keypad config
+
+
+Diffstat:
+--------
+
+ .../bindings/input/touchscreen/egalax-ts.txt       | 19 ++++++++++++++++++
+ drivers/input/keyboard/Kconfig                     |  1 +
+ drivers/input/keyboard/pxa27x_keypad.c             |  3 +++
+ drivers/input/tablet/wacom_sys.c                   |  2 +-
+ drivers/input/tablet/wacom_wac.c                   |  3 +++
+ drivers/input/touchscreen/Kconfig                  |  2 +-
+ drivers/input/touchscreen/egalax_ts.c              | 23 ++++++++++++++++++=
+++--
+ drivers/input/touchscreen/tsc40.c                  |  1 -
+ 8 files changed, 49 insertions(+), 5 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ega=
+lax-ts.txt
+
 --=20
-Forest Bond
-http://www.alittletooquiet.net
-http://www.rapidrollout.com
+Dmitry
 
---EeQfGwPcQSOJBaQU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+
+--7JfCtLOvnd9MIVvH
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAlCUJEIACgkQRO4fQQdv5AyryQCfQDrpIZ2HfRk5yKbuR0TE+oeH
-iv4AnA8/GJO0qnf+1BBSLV6lHE+4GqwH
-=mr7h
+iQIcBAEBAgAGBQJQlE39AAoJEH70+W8r6ZYqMioP/iyLNvR56pGBnE+FV6HSqVGk
+h3D/nYKyJ68FyID5ZBRTh+CSoAzqgQq7KQK46EPsvvavQXikP43JnEx2U/B7ecrM
+47ZOXuu4zk7FBOVRGx1JXkirzyKOIDnxv3AACeE8a+Wces/sofBPRrTxv4lknnIt
+2vhdEN87evO07UsNZ9K7rhLo5ETI9RnjkiRAluH77qOeu7K7Ared9H4F0eg2DARy
+0/S00fJvDDAVO3sujBuEFbbtbHeHVu3skiUk4891H6v4LOOCC8nqAOfk4gHKbftw
+y3/lFSLLAl+msAyLSedXfRpGXvEf8OMDejwSeszC1gMgaCrWp4IiGU7TC+NiSxko
+LGk7QudTUcyLhfc72A4MqhpYNmXXEPbHLxHi6iFbKIaFsl0OLjg8wUV8VpP5cdb2
+aLeh0ab6mu/69ARmd1gbs86FV/rOy8MD0O1fapb85PQ1q6hQWXr/v2JrbU1k81B8
+y73z2qB39fSHih5UMdfgHCSPpwRYaS8YqFdS5RwSRKyVxadSmpefzf3QR32P3SN8
+qokqHd7AgqB0kxB1bvSqxeyNwywJmwCkt5NDN+8IkSqkDt4W2PQojiHKdS+Ra3V+
+03xByUnwXzrid2fEQEkzXiqw8/Go1eRmRQRPohbjtiERW1W64uJcu2IzySh86nHe
+SnYQj4cSdCiFaqmVDGLy
+=Tv1B
 -----END PGP SIGNATURE-----
 
---EeQfGwPcQSOJBaQU--
+--7JfCtLOvnd9MIVvH--

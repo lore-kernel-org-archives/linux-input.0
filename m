@@ -1,248 +1,163 @@
-From: AnilKumar Ch <anilkumar@ti.com>
-Subject: [PATCH v3] Input: matrix-keypad - Add device tree support
-Date: Fri, 2 Nov 2012 16:33:02 +0530
-Message-ID: <1351854182-10978-1-git-send-email-anilkumar@ti.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 08/11] HID: hid-multitouch: fix Win 8 protocol
+Date: Fri, 2 Nov 2012 15:18:15 +0100
+Message-ID: <CAN+gG=E1DOPrxw4PDNVRDf-cPd7qaq5Sbgo2WC5cApTNn8t9Yg@mail.gmail.com>
+References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1351241067-9521-9-git-send-email-benjamin.tissoires@gmail.com>
+	<20121029221905.GA15537@polaris.bitmath.org>
+	<CAN+gG=ESZLHneinkc6kdkazRBfsGP70GaBPfV=jLhnTtZMVrKQ@mail.gmail.com>
+	<20121031185332.GA1745@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:40344 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755096Ab2KBLDP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Nov 2012 07:03:15 -0400
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:55543 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762889Ab2KBOSR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Nov 2012 10:18:17 -0400
+In-Reply-To: <20121031185332.GA1745@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, grant.likely@secretlab.ca
-Cc: rob.herring@calxeda.com, dgdunix@gmail.com, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, AnilKumar Ch <anilkumar@ti.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Add device tree support to matrix keypad driver and usage details
-are added to device tree documentation. Driver was tested on AM335x
-EVM.
+Hi Henrik,
 
-Signed-off-by: AnilKumar Ch <anilkumar@ti.com>
----
-This patch was tested on AM335x-EVM with DT patches, DT data
-patches will be submitted once this is accepted.
+On Wed, Oct 31, 2012 at 7:53 PM, Henrik Rydberg <rydberg@euromail.se> w=
+rote:
+> Hi Benjamin,
+>
+>> On Mon, Oct 29, 2012 at 11:19 PM, Henrik Rydberg <rydberg@euromail.s=
+e> wrote:
+>> > On Fri, Oct 26, 2012 at 10:44:24AM +0200, Benjamin Tissoires wrote=
+:
+>> >> Win 8 specification is much more precise than the Win 7 one.
+>> >> Moreover devices that need to take certification must be submitte=
+d
+>> >> to Microsoft.
+>> >>
+>> >> The result is a better protocol support and we can rely on that t=
+o
+>> >> skip all the messy tests we used to do.
+>> >>
+>> >> The protocol specify the fact that each valid touch must be repor=
+ted
+>> >> within a frame, and that the release touch coordinate must be the
+>> >> same than the last known touch.
+>> >> So we can use the always_valid quirk and dismiss reports when we
+>> >> touch coordiante do not follow this rule.
+>> >>
+>> >> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>> >> ---
+>> >>  drivers/hid/hid-multitouch.c | 16 ++++++++++++++--
+>> >>  1 file changed, 14 insertions(+), 2 deletions(-)
+>> >
+>> > Why do we need this patch?
+>>
+>> This patch prevents a corner case where the device use contactID 0 f=
+or
+>> it's first reported touch.
+>> Once you got the invalid touches, most of the time, contactID will b=
+e
+>> 0, x, y, and other fields too. So this ensures to avoid conflict
+>> between valid values and garbage values. The problem lies in the fac=
+t
+>> that we don't have the whole overview of the frame (with the contact
+>> count) to decide which contacts are good and which are not.
+>
+> I am sorry, but your explanation did not make me any wiser. :-) Are
 
-Changes from v2:
-	- Incorporated Stephen Warren's review comments on v2
-	  * Renamed the bindings file to gpio-matrix-keypad.txt
-	  * Added description to clustered-irq binding
+Sorry, for that. Let's try with other words.
 
-Changes from v1:
-	- Incorporated Rob's review comments on v1
-	  * Changed matix-keypad compatible to gpio-matrix-keypad
-	  * Removed unnecessary props (num of gpios)
-	  * Used of_match_ptr()
-	- Removed first patch based on Dmitry's comments on v1
+> you saying that touch state changes and touch property changes are
+> mutually exclusive? For all win8 devices, or just for the serial
+> protocol ones? For what devices is the current implementation a
+> problem?
 
- .../bindings/input/gpio-matrix-keypad.txt          |   51 ++++++++++
- drivers/input/keyboard/matrix_keypad.c             |  107 +++++++++++++++++++-
- 2 files changed, 157 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
+The goal of this patch is to implement in a reliable way Win 8
+multitouch protocol (to avoid quirking many devices). Thanks to the
+precision they made in the specification, I think it is feasible:
+they add the dynamic part that were missing in Win 7 spec:
+"""
+When sending data in hybrid or parallel mode, a contact that is
+delivered in one report must be delivered in all subsequent reports
+until it is lifted off the screen. If time is needed to adequate
+determine if the contact was lifted off the surface, the device must
+report the last known position of the contact and then deliver the
+=93UP=94 state of the contact in a subsequent report. Devices should no=
+t
+send a report without the information for that contact while trying to
+determine its current state.
+"""
 
-diff --git a/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt b/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
-new file mode 100644
-index 0000000..0a1e81c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
-@@ -0,0 +1,51 @@
-+* GPIO driven matrix keypad device tree bindings
-+
-+GPIO driven matrix keypad is used to interface a SoC with a matrix keypad.
-+The matrix keypad supports multiple row and column lines, a key can be
-+placed at each intersection of a unique row and a unique column. The matrix
-+keypad can sense a key-press and key-release by means of GPIO lines and
-+report the event using GPIO interrupts to the cpu.
-+
-+Required Properties:
-+- compatible:		Should be "gpio-matrix-keypad"
-+- row-gpios:		List of gpios used as row lines. The gpio specifier
-+			for this property depends on the gpio controller to
-+			which these row lines are connected.
-+- col-gpios:		List of gpios used as column lines. The gpio specifier
-+			for this property depends on the gpio controller to
-+			which these column lines are connected.
-+- linux,keymap:		The definition can be found at
-+			bindings/input/matrix-keymap.txt
-+
-+Optional Properties:
-+- linux,no-autorepeat:	do no enable autorepeat feature.
-+- linux,wakeup:		use any event on keypad as wakeup event.
-+- debounce-delay-ms:	debounce interval in milliseconds
-+- col-scan-delay-us:	delay, measured in microseconds, that is needed
-+			before we can scan keypad after activating column gpio
-+- clustered-irq:	have clustered irq number, that is needed if the irq
-+			is a combined irq source for the whole matix keypad.
-+			This is useful if rows and columns of the keypad are
-+			connected to a GPIO expander.
-+- clustered-irq-flags:	clustered irq flags
-+
-+Example:
-+	matrix-keypad {
-+		compatible = "gpio-matrix-keypad";
-+		debounce-delay-ms = <5>;
-+		col-scan-delay-us = <2>;
-+
-+		row-gpios = <&gpio2 25 0
-+			     &gpio2 26 0
-+			     &gpio2 27 0>;
-+
-+		col-gpios = <&gpio2 21 0
-+			     &gpio2 22 0>;
-+
-+		linux,keymap = <0x0000008B
-+				0x0100009E
-+				0x02000069
-+				0x0001006A
-+				0x0101001C
-+				0x0201006C>;
-+	};
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index 18b7237..960e9b05 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -23,6 +23,9 @@
- #include <linux/gpio.h>
- #include <linux/input/matrix_keypad.h>
- #include <linux/slab.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
-+#include <linux/of_platform.h>
- 
- struct matrix_keypad {
- 	const struct matrix_keypad_platform_data *pdata;
-@@ -394,6 +397,96 @@ static void matrix_keypad_free_gpio(struct matrix_keypad *keypad)
- 		gpio_free(pdata->col_gpios[i]);
- }
- 
-+#ifdef CONFIG_OF
-+static
-+struct matrix_keypad_platform_data *matrix_keypad_parse_dt(struct device *dev)
-+{
-+	struct matrix_keypad_platform_data *pdata;
-+	struct matrix_keymap_data *keymap_data;
-+	struct device_node *np = dev->of_node;
-+	unsigned int *row_gpios;
-+	unsigned int *col_gpios;
-+	struct property *prop;
-+	int key_count = 0, length, row, col;
-+	uint32_t *keymap;
-+
-+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata) {
-+		dev_err(dev, "could not allocate memory for platform data\n");
-+		return NULL;
-+	}
-+
-+	pdata->num_row_gpios = of_gpio_named_count(np, "row-gpios");
-+	pdata->num_col_gpios = of_gpio_named_count(np, "col-gpios");
-+	if (!pdata->num_row_gpios || !pdata->num_col_gpios) {
-+		dev_err(dev, "number of keypad rows/columns not specified\n");
-+		return NULL;
-+	}
-+
-+	keymap_data = devm_kzalloc(dev, sizeof(*keymap_data), GFP_KERNEL);
-+	if (!keymap_data) {
-+		dev_err(dev, "could not allocate memory for keymap data\n");
-+		return NULL;
-+	}
-+	pdata->keymap_data = keymap_data;
-+
-+	prop = of_find_property(np, "linux,keymap", &length);
-+	if (!prop)
-+		return NULL;
-+
-+	key_count = length / sizeof(u32);
-+	keymap_data->keymap_size = key_count;
-+	keymap = devm_kzalloc(dev, sizeof(uint32_t) * key_count, GFP_KERNEL);
-+	if (!keymap) {
-+		dev_err(dev, "could not allocate memory for keymap\n");
-+		return NULL;
-+	}
-+	keymap_data->keymap = keymap;
-+
-+	of_property_read_u32_array(np, "linux,keymap", keymap, key_count);
-+
-+	if (of_get_property(np, "linux,no-autorepeat", NULL))
-+		pdata->no_autorepeat = true;
-+	if (of_get_property(np, "linux,wakeup", NULL))
-+		pdata->wakeup = true;
-+	if (of_get_property(np, "gpio-activelow", NULL))
-+		pdata->active_low = true;
-+
-+	of_property_read_u32(np, "debounce-delay-ms", &pdata->debounce_ms);
-+	of_property_read_u32(np, "col-scan-delay-us",
-+						&pdata->col_scan_delay_us);
-+	of_property_read_u32(np, "clustered-irq", &pdata->clustered_irq);
-+	of_property_read_u32(np, "clustered-irq-flags",
-+						&pdata->clustered_irq_flags);
-+
-+	row_gpios = devm_kzalloc(dev, sizeof(unsigned int) *
-+					pdata->num_row_gpios, GFP_KERNEL);
-+	col_gpios = devm_kzalloc(dev, sizeof(unsigned int) *
-+					pdata->num_col_gpios, GFP_KERNEL);
-+	if (!row_gpios || !col_gpios) {
-+		dev_err(dev, "could not allocate memory for gpios\n");
-+		return NULL;
-+	}
-+
-+	for (row = 0; row < pdata->num_row_gpios; row++)
-+		row_gpios[row] = of_get_named_gpio(np, "row-gpios", row);
-+
-+	for (col = 0; col < pdata->num_col_gpios; col++)
-+		col_gpios[col] = of_get_named_gpio(np, "col-gpios", col);
-+
-+	pdata->row_gpios = row_gpios;
-+	pdata->col_gpios = col_gpios;
-+
-+	return pdata;
-+}
-+#else
-+static
-+struct matrix_keypad_platform_data *matrix_keypad_parse_dt(struct device *dev)
-+{
-+	return NULL;
-+}
-+#endif
-+
- static int __devinit matrix_keypad_probe(struct platform_device *pdev)
- {
- 	const struct matrix_keypad_platform_data *pdata;
-@@ -404,7 +497,10 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
- 	size_t keymap_size;
- 	int err;
- 
--	pdata = pdev->dev.platform_data;
-+	if (pdev->dev.of_node)
-+		pdata = matrix_keypad_parse_dt(&pdev->dev);
-+	else
-+		pdata = pdev->dev.platform_data;
- 	if (!pdata) {
- 		dev_err(&pdev->dev, "no platform data defined\n");
- 		return -EINVAL;
-@@ -488,6 +584,14 @@ static int __devexit matrix_keypad_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id matrix_keypad_dt_match[] = {
-+	{ .compatible = "gpio-matrix-keypad" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, matrix_keypad_dt_match);
-+#endif
-+
- static struct platform_driver matrix_keypad_driver = {
- 	.probe		= matrix_keypad_probe,
- 	.remove		= __devexit_p(matrix_keypad_remove),
-@@ -495,6 +599,7 @@ static struct platform_driver matrix_keypad_driver = {
- 		.name	= "matrix-keypad",
- 		.owner	= THIS_MODULE,
- 		.pm	= &matrix_keypad_pm_ops,
-+		.of_match_table = of_match_ptr(matrix_keypad_dt_match),
- 	},
- };
- module_platform_driver(matrix_keypad_driver);
--- 
-1.7.9.5
+Thus, the quirk ALWAYS_VALID fits very well with win 8 devices (the
+device has to send the touch until it is lifted and out of range, and
+the device must send the 'up' state).
 
+The problem lies that some devices may reuse contact id 0 within the
+frame for the end of the report (my Win8 device doesn't has this kind
+of problem):
+
+With the following hid usages:
+I -> contact Id
+T -> tip switch
+X, Y -> X, Y
+S -> scan time
+C -> contact count
+
+a friendly device would report:
+
+I:1 T:1 X:125 X:130 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:0 C:01
+I:1 T:1 X:130 X:135 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:1 C:01
+I:1 T:1 X:135 X:140 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:2 C:01
+I:1 T:1 X:140 X:145 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:3 C:01
+I:1 T:0 X:140 X:145 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:4 C:01
+
+*but*, I've already seen win 7 devices, that do send:
+
+I:0 T:1 X:125 X:130 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:0 C:01
+I:0 T:1 X:130 X:135 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:1 C:01
+I:0 T:1 X:135 X:140 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:2 C:01
+I:0 T:1 X:140 X:145 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:3 C:01
+I:0 T:0 X:140 X:145 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:4 C:01
+
+The difference lies in the first bit, contact id is 0.
+
+So, the quirk always valid is not sufficient because the second touch
+in the frame will override the values of the first (the valid one).
+
+As Microsoft says that "the device must report the last known position
+of the contact and then deliver the =93UP=94 state of the contact", so =
+we
+can safely discard the second touch because X and Y do not match the
+current state of the valid touch.
+
+Then, as exposed in the "How to Design and Test Multitouch Hardware
+Solutions for Windows 8" document here:
+http://msdn.microsoft.com/en-us/library/windows/hardware/hh872968.aspx
+when the device attempt the certification, if the "up" is not valid,
+the error "Last move location different" raises, which, I hope will
+prevent the device to get the certification.
+
+I hope it is clearer now.
+
+>
+> I am asking because this looks more like a device quirk than anything
+> else.
+
+and yes, it looks like a quirk, we could make the "Last move location
+different" presented like a quirk, but it is only followed by win 8
+devices (or it is by luck).
+
+Cheers,
+Benjamin
+
+
+>
+> Thanks,
+> Henrik
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

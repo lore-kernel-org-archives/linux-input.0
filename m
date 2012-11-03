@@ -1,96 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.7-rc0
-Date: Fri, 2 Nov 2012 15:49:35 -0700
-Message-ID: <20121102224933.GA7179@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
+From: Johannes Thumshirn <morbidrsa@gmail.com>
+Subject: [PATCH] hid-apple.c: Set APPLE_ISO_KEYBOARD at USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO
+Date: Sat,  3 Nov 2012 10:43:31 +0100
+Message-ID: <1351935811-4911-1-git-send-email-morbidrsa@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:39436 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758896Ab2KBWuQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Nov 2012 18:50:16 -0400
-Content-Disposition: inline
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:54626 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752800Ab2KCJo0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Nov 2012 05:44:26 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, morbidrsa@googlemail.com
 
+Set APPLE_ISO_KEYBOARD flag on USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO so we get
+the ISO translation on German keyboards for the MacBook4,1 as well.
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Johannes Thumshirn <morbidrsa@googlemail.com>
+---
+ drivers/hid/hid-apple.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Hi Linus,
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 06ebdbb..5df5e20 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -439,7 +439,8 @@ static const struct hid_device_id apple_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO),
+-		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
++			APPLE_ISO_KEYBOARD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
+ 			APPLE_RDESC_JIS },
+-- 
+1.7.9.5
 
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. Just a few driver fixes.
-
-Changelog:
----------
-
-Hui Wang (1):
-      Input: egalax_ts - get gpio from devicetree
-
-Jason Gerecke (2):
-      Input: wacom - add INPUT_PROP_DIRECT flag to Cintiq 24HD
-      Input: wacom - correct bad Cintiq 24HD check
-
-Roland Stigge (1):
-      Input: lpc32xx-keys - select INPUT_MATRIXKMAP
-
-Rolf Eike Beer (1):
-      Input: tsc40 - remove wrong announcement of pressure support
-
-Vasily Khoruzhick (1):
-      Input: pxa27x_keypad - clear pending interrupts on keypad config
-
-
-Diffstat:
---------
-
- .../bindings/input/touchscreen/egalax-ts.txt       | 19 ++++++++++++++++++
- drivers/input/keyboard/Kconfig                     |  1 +
- drivers/input/keyboard/pxa27x_keypad.c             |  3 +++
- drivers/input/tablet/wacom_sys.c                   |  2 +-
- drivers/input/tablet/wacom_wac.c                   |  3 +++
- drivers/input/touchscreen/Kconfig                  |  2 +-
- drivers/input/touchscreen/egalax_ts.c              | 23 ++++++++++++++++++=
-++--
- drivers/input/touchscreen/tsc40.c                  |  1 -
- 8 files changed, 49 insertions(+), 5 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ega=
-lax-ts.txt
-
---=20
-Dmitry
-
-
---7JfCtLOvnd9MIVvH
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQlE39AAoJEH70+W8r6ZYqMioP/iyLNvR56pGBnE+FV6HSqVGk
-h3D/nYKyJ68FyID5ZBRTh+CSoAzqgQq7KQK46EPsvvavQXikP43JnEx2U/B7ecrM
-47ZOXuu4zk7FBOVRGx1JXkirzyKOIDnxv3AACeE8a+Wces/sofBPRrTxv4lknnIt
-2vhdEN87evO07UsNZ9K7rhLo5ETI9RnjkiRAluH77qOeu7K7Ared9H4F0eg2DARy
-0/S00fJvDDAVO3sujBuEFbbtbHeHVu3skiUk4891H6v4LOOCC8nqAOfk4gHKbftw
-y3/lFSLLAl+msAyLSedXfRpGXvEf8OMDejwSeszC1gMgaCrWp4IiGU7TC+NiSxko
-LGk7QudTUcyLhfc72A4MqhpYNmXXEPbHLxHi6iFbKIaFsl0OLjg8wUV8VpP5cdb2
-aLeh0ab6mu/69ARmd1gbs86FV/rOy8MD0O1fapb85PQ1q6hQWXr/v2JrbU1k81B8
-y73z2qB39fSHih5UMdfgHCSPpwRYaS8YqFdS5RwSRKyVxadSmpefzf3QR32P3SN8
-qokqHd7AgqB0kxB1bvSqxeyNwywJmwCkt5NDN+8IkSqkDt4W2PQojiHKdS+Ra3V+
-03xByUnwXzrid2fEQEkzXiqw8/Go1eRmRQRPohbjtiERW1W64uJcu2IzySh86nHe
-SnYQj4cSdCiFaqmVDGLy
-=Tv1B
------END PGP SIGNATURE-----
-
---7JfCtLOvnd9MIVvH--

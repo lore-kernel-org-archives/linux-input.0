@@ -1,45 +1,45 @@
-From: Sascha Hauer <s.hauer@pengutronix.de>
-Subject: Re: [PATCH v3] input: pwm-beeper: Add devicetree probing support
-Date: Sat, 3 Nov 2012 22:33:40 +0100
-Message-ID: <20121103213340.GS1641@pengutronix.de>
-References: <1351845842-15652-1-git-send-email-s.hauer@pengutronix.de>
- <20121103190301.GB11349@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid-apple.c: Set APPLE_ISO_KEYBOARD at
+ USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO
+Date: Sun, 4 Nov 2012 01:43:40 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211040143300.24253@pobox.suse.cz>
+References: <1351935811-4911-1-git-send-email-morbidrsa@googlemail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:35737 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750943Ab2KCVeH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Nov 2012 17:34:07 -0400
-Content-Disposition: inline
-In-Reply-To: <20121103190301.GB11349@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1351935811-4911-1-git-send-email-morbidrsa@googlemail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Johannes Thumshirn <morbidrsa@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, morbidrsa@googlemail.com
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Thierry Reding <thierry.reding@avionic-design.de>, kernel@pengutronix.de
 
-Hi Dmitry,
+On Sat, 3 Nov 2012, Johannes Thumshirn wrote:
 
-On Sat, Nov 03, 2012 at 12:03:01PM -0700, Dmitry Torokhov wrote:
-> Hi Sascha.
+> Set APPLE_ISO_KEYBOARD flag on USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO so we get
+> the ISO translation on German keyboards for the MacBook4,1 as well.
 > 
-> On Fri, Nov 02, 2012 at 09:44:02AM +0100, Sascha Hauer wrote:
-> >  
-> > -	beeper->pwm = pwm_request(pwm_id, "pwm beeper");
-> > +	beeper->pwm = pwm_get(&pdev->dev, NULL);
-> > +	if (IS_ERR(beeper->pwm)) {
-> > +		dev_err(&pdev->dev, "unable to request PWM, trying legacy API\n");
+> Signed-off-by: Johannes Thumshirn <morbidrsa@googlemail.com>
+> ---
+>  drivers/hid/hid-apple.c |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> This is not an error, I'll switch it over to dev_dbg().
+> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+> index 06ebdbb..5df5e20 100644
+> --- a/drivers/hid/hid-apple.c
+> +++ b/drivers/hid/hid-apple.c
+> @@ -439,7 +439,8 @@ static const struct hid_device_id apple_devices[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI),
+>  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO),
+> -		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+> +		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
+> +			APPLE_ISO_KEYBOARD },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS),
+>  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
+>  			APPLE_RDESC_JIS },
 
-This is cut and paste from some other driver. I suppose it's dev_err to
-motivate people to update their boards. Anyway, dev_dbg is fine with me.
-
-Thanks,
- Sascha
+Applied, thanks Johannes.
 
 -- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+Jiri Kosina
+SUSE Labs

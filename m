@@ -1,45 +1,19 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid-apple.c: Set APPLE_ISO_KEYBOARD at
- USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO
-Date: Sun, 4 Nov 2012 01:43:40 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1211040143300.24253@pobox.suse.cz>
-References: <1351935811-4911-1-git-send-email-morbidrsa@googlemail.com>
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: [PATCH 0/4] HID: roccat: New functionalities and cleanup
+Date: Sun, 04 Nov 2012 09:38:46 +0100
+Message-ID: <1352018326.2673.130.camel@neuromancer.tessier-ashpool>
+Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1351935811-4911-1-git-send-email-morbidrsa@googlemail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Johannes Thumshirn <morbidrsa@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, morbidrsa@googlemail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Rob Landley <rob@landley.net>, Jiri Kosina <jkosina@suse.cz>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, 3 Nov 2012, Johannes Thumshirn wrote:
+koneplus driver now supports updated model KoneXTD.
+Added support for device reset for koneplus and savu drivers.
+Removed a lot of unnecessary code for koneplus driver, bringing it
+nearer to the looks of my newer roccat drivers.
 
-> Set APPLE_ISO_KEYBOARD flag on USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO so we get
-> the ISO translation on German keyboards for the MacBook4,1 as well.
-> 
-> Signed-off-by: Johannes Thumshirn <morbidrsa@googlemail.com>
-> ---
->  drivers/hid/hid-apple.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-> index 06ebdbb..5df5e20 100644
-> --- a/drivers/hid/hid-apple.c
-> +++ b/drivers/hid/hid-apple.c
-> @@ -439,7 +439,8 @@ static const struct hid_device_id apple_devices[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO),
-> -		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
-> +		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
-> +			APPLE_ISO_KEYBOARD },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
->  			APPLE_RDESC_JIS },
 
-Applied, thanks Johannes.
-
--- 
-Jiri Kosina
-SUSE Labs

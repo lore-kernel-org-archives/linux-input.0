@@ -1,42 +1,108 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 2/2] Input: nomadik-ske-keypad - start using the apb_pclk
-Date: Sun, 4 Nov 2012 19:12:07 +0100
-Message-ID: <CACRpkdbZB4nhFQtLH-GxBSK99RFk7yhSYMhO5keVjyugrqr7JA@mail.gmail.com>
-References: <1351779602-13818-1-git-send-email-ulf.hansson@stericsson.com>
-	<1351779602-13818-3-git-send-email-ulf.hansson@stericsson.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v2 08/11] HID: hid-multitouch: fix Win 8 protocol
+Date: Sun, 4 Nov 2012 21:54:59 +0100
+Message-ID: <20121104205459.GA777@polaris.bitmath.org>
+References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
+ <1351241067-9521-9-git-send-email-benjamin.tissoires@gmail.com>
+ <20121029221905.GA15537@polaris.bitmath.org>
+ <CAN+gG=ESZLHneinkc6kdkazRBfsGP70GaBPfV=jLhnTtZMVrKQ@mail.gmail.com>
+ <20121031185332.GA1745@polaris.bitmath.org>
+ <CAN+gG=E1DOPrxw4PDNVRDf-cPd7qaq5Sbgo2WC5cApTNn8t9Yg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f174.google.com ([209.85.215.174]:54375 "EHLO
-	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751650Ab2KDSMJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Nov 2012 13:12:09 -0500
-Received: by mail-ea0-f174.google.com with SMTP id c13so1987306eaa.19
-        for <linux-input@vger.kernel.org>; Sun, 04 Nov 2012 10:12:07 -0800 (PST)
-In-Reply-To: <1351779602-13818-3-git-send-email-ulf.hansson@stericsson.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=E1DOPrxw4PDNVRDf-cPd7qaq5Sbgo2WC5cApTNn8t9Yg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@stericsson.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Ulf Hansson <ulf.hansson@linaro.org>
 
-On Thu, Nov 1, 2012 at 3:20 PM, Ulf Hansson <ulf.hansson@stericsson.com> wrote:
+Hi Benjamin,
 
-> From: Ulf Hansson <ulf.hansson@linaro.org>
->
-> Previously this clock was handled internally by the clockdriver,
-> but now this is separate clk. So we need take care of it.
->
-> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+> The goal of this patch is to implement in a reliable way Win 8
+> multitouch protocol (to avoid quirking many devices). Thanks to the
+> precision they made in the specification, I think it is feasible:
+> they add the dynamic part that were missing in Win 7 spec:
+> """
+> When sending data in hybrid or parallel mode, a contact that is
+> delivered in one report must be delivered in all subsequent reports
+> until it is lifted off the screen. If time is needed to adequate
+> determine if the contact was lifted off the surface, the device must
+> report the last known position of the contact and then deliver the
+> =E2=80=9CUP=E2=80=9D state of the contact in a subsequent report. Dev=
+ices should not
+> send a report without the information for that contact while trying t=
+o
+> determine its current state.
+> """
 
-So this is a silicon block clock and falls into the category of things
-we've been discussing...
+The text seems to say that devices are not required to send touch
+state information in a separate frame, but if the device needs time to
+determine the touch state, the touch properties should stay the same
+during that time.
 
-If I understand correctly, the only "real" solution is to
-implement the PM domains and have these enable the clocks.
+> Thus, the quirk ALWAYS_VALID fits very well with win 8 devices (the
+> device has to send the touch until it is lifted and out of range, and
+> the device must send the 'up' state).
 
-An alternative may be to move this driver over to the AMBA bus,
-because I think this device actually has primecell registers.
-Then the bus will take care of the pclk for starters.
+One could simply add another quirk which fits the win8 case exactly
+instead. No need to change the existing one.
 
-Yours,
-Linus Walleij
+> The problem lies that some devices may reuse contact id 0 within the
+> frame for the end of the report (my Win8 device doesn't has this kind
+> of problem):
+>=20
+> With the following hid usages:
+> I -> contact Id
+> T -> tip switch
+> X, Y -> X, Y
+> S -> scan time
+> C -> contact count
+>=20
+> a friendly device would report:
+>=20
+> I:1 T:1 X:125 X:130 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:0 C:01
+> I:1 T:1 X:130 X:135 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:1 C:01
+> I:1 T:1 X:135 X:140 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:2 C:01
+> I:1 T:1 X:140 X:145 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:3 C:01
+> I:1 T:0 X:140 X:145 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:4 C:01
+>=20
+> *but*, I've already seen win 7 devices, that do send:
+>=20
+> I:0 T:1 X:125 X:130 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:0 C:01
+> I:0 T:1 X:130 X:135 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:1 C:01
+> I:0 T:1 X:135 X:140 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:2 C:01
+> I:0 T:1 X:140 X:145 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:3 C:01
+> I:0 T:0 X:140 X:145 Y:750 Y:755 I:0 T:0 X:0 X:0 Y:0 Y:0 S:4 C:01
+
+I see, more brain-damaged usage. :-) Still, there seems to be a
+simpler way to distinguish this case: if there are more than one touch
+with the same id in the frame, use the one with T=3D1.
+
+> The difference lies in the first bit, contact id is 0.
+>=20
+> So, the quirk always valid is not sufficient because the second touch
+> in the frame will override the values of the first (the valid one).
+>=20
+> As Microsoft says that "the device must report the last known positio=
+n
+> of the contact and then deliver the =E2=80=9CUP=E2=80=9D state of the=
+ contact", so we
+> can safely discard the second touch because X and Y do not match the
+> current state of the valid touch.
+>=20
+> Then, as exposed in the "How to Design and Test Multitouch Hardware
+> Solutions for Windows 8" document here:
+> http://msdn.microsoft.com/en-us/library/windows/hardware/hh872968.asp=
+x
+> when the device attempt the certification, if the "up" is not valid,
+> the error "Last move location different" raises, which, I hope will
+> prevent the device to get the certification.
+
+I think it would be too fragile to rely on this assumption. Hopefully
+the suggestion above will work equally well.
+
+Thanks,
+Henrik

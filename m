@@ -1,101 +1,52 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [RFC] HID: uhid: Handle LED input events
-Date: Mon, 5 Nov 2012 13:58:55 +0100
-Message-ID: <CANq1E4Qq3yXFOx0L4aZQHRSDgMOnZjYU4o0oy_EULP=TDMNvmw@mail.gmail.com>
-References: <1351806939-4925-1-git-send-email-andre.guedes@openbossa.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 11/11] HID: hid-multitouch: get rid of usbhid depedency
+ for general path
+Date: Mon, 5 Nov 2012 14:28:52 +0100
+Message-ID: <CAN+gG=H1L6vwvxxAR6t2-Lz4aW0tbvLvDKvY-8f-M-qqm35mMw@mail.gmail.com>
+References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1351241067-9521-12-git-send-email-benjamin.tissoires@gmail.com>
+	<20121029225748.GA15632@polaris.bitmath.org>
+	<CAN+gG=GNucfg4-wCBZQtz0yJDjpTD_56Js3d68nm8VFi1UhZAA@mail.gmail.com>
+	<20121105125731.GA814@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f174.google.com ([209.85.216.174]:58509 "EHLO
-	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752643Ab2KEM64 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Nov 2012 07:58:56 -0500
-Received: by mail-qc0-f174.google.com with SMTP id o22so582441qcr.19
-        for <linux-input@vger.kernel.org>; Mon, 05 Nov 2012 04:58:55 -0800 (PST)
-In-Reply-To: <1351806939-4925-1-git-send-email-andre.guedes@openbossa.org>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121105125731.GA814@polaris.bitmath.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Andre Guedes <andre.guedes@openbossa.org>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-Hi Andre
+Hi Henrik,
 
-On Thu, Nov 1, 2012 at 10:55 PM, Andre Guedes
-<andre.guedes@openbossa.org> wrote:
-> This patches adds support for handling LED input events in uhid
-> driver.
+On Mon, Nov 5, 2012 at 1:57 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> Hi Benjamin,
 >
-> When uhid receives an input LED event, we set the proper field,
-> create the output report and send it to userspace as UHID_OUTPUT
-> event. Others input events are sent to userspace as UHID_OUTPUT_EV
-> events.
+>> >> This patch factorizes the hid set_feature command by using
+>> >> hid_device->hid_output_raw_report instead of direclty relying on
+>> >> usbhid. This makes the driver usb independant.
+>> >>
+>> >> However I still can't remove the 2 usb related headers because the
+>> >> function mt_resume has a specific patch for usb devices.
+>> >>
+>> >> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>> >> ---
+>> >>  drivers/hid/hid-multitouch.c | 63 ++++++++++++++++++++++++++------------------
+>> >>  1 file changed, 37 insertions(+), 26 deletions(-)
+>> >
+>> > In my drawer, I have a patchset that aims to remove all usbhid
+>> > dependence, from all the drivers. Perhaps the attached patch is
+>> > something to consider here?
+>>
+>> yep, removing usbhid dependencies is a good thing.
+>> See my review below :)
 >
-> Signed-off-by: Andre Guedes <andre.guedes@openbossa.org>
-> ---
->  drivers/hid/uhid.c | 33 +++++++++++++++++++++++++++++----
->  1 file changed, 29 insertions(+), 4 deletions(-)
+> I have a tentative patch taking your comments into account, and it is
+> likely that we want to go that way. However, as to not hold up your
+> patchset, perhaps we could do without it for now.
 >
-> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-> index 714cd8c..e7b7cdc 100644
-> --- a/drivers/hid/uhid.c
-> +++ b/drivers/hid/uhid.c
-> @@ -122,15 +122,40 @@ static int uhid_hid_input(struct input_dev *input, unsigned int type,
->         struct uhid_device *uhid = hid->driver_data;
->         unsigned long flags;
->         struct uhid_event *ev;
-> +       struct hid_field *field;
-> +       struct hid_report *report;
-> +       int offset;
+> Regarding the hardwired usbhid dependency, I think the solution is to
+> move that code to usbhid itself.
 >
->         ev = kzalloc(sizeof(*ev), GFP_ATOMIC);
->         if (!ev)
->                 return -ENOMEM;
->
-> -       ev->type = UHID_OUTPUT_EV;
-> -       ev->u.output_ev.type = type;
-> -       ev->u.output_ev.code = code;
-> -       ev->u.output_ev.value = value;
-> +       switch (type) {
-> +       case EV_LED:
-> +               offset = hidinput_find_field(hid, type, code, &field);
-> +               if (offset == -1) {
-> +                       hid_warn(input, "event field not found\n");
-> +                       kfree(ev);
-> +                       return -1;
-> +               }
-> +
-> +               hid_set_field(field, offset, value);
-> +
-> +               report = field->report;
-> +
-> +               ev->type = UHID_OUTPUT;
-> +               ev->u.output.rtype = UHID_OUTPUT_REPORT;
-> +               hid_output_report(report, ev->u.output.data);
-> +               ev->u.output.size = ((report->size - 1) >> 3) + 1 +
-> +                                                       (report->id > 0);
-> +               break;
-> +
-> +       default:
-> +               ev->type = UHID_OUTPUT_EV;
-> +               ev->u.output_ev.type = type;
-> +               ev->u.output_ev.code = code;
-> +               ev->u.output_ev.value = value;
-
-I think kernel-coding-style uses "break" in default rules, too.
-
-> +       }
->
->         spin_lock_irqsave(&uhid->qlock, flags);
->         uhid_queue(uhid, ev);
-
-It looks like this was copied almost verbatim from usbhid/hid-core.c
-usb_hidinput_input_event() and __usbhid_submit_report() so I wonder
-why we do not provide a generic helper in hid-input.c.
-
-The code itself looks good, so how about pushing this into a helper in
-hid-input.c and using hid_output_raw_report(). We use this helper if
-hidinput_input_event is NULL and hid_output_raw_report() is non-NULL.
-Maybe Jiri has some comments on that, too. Adding him to CC.
-
-Regards
-David
+> Thanks,
+> Henrik

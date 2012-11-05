@@ -1,111 +1,49 @@
-From: Andre Guedes <andre.guedes@openbossa.org>
-Subject: Re: [RFC] HID: uhid: Handle LED input events
-Date: Mon, 5 Nov 2012 10:56:23 -0300
-Message-ID: <CACJA=fUe8J_3ecX8q9Znnx0wmr3Rq5OMS0ny4qyc3NyXkVgqrw@mail.gmail.com>
-References: <1351806939-4925-1-git-send-email-andre.guedes@openbossa.org>
-	<CANq1E4Qq3yXFOx0L4aZQHRSDgMOnZjYU4o0oy_EULP=TDMNvmw@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH resend2] Input: usbtouchscreen - initialize eGalax
+ devices
+Date: Mon, 5 Nov 2012 15:19:34 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211051516530.24253@pobox.suse.cz>
+References: <20120903132648.GC11919@newmaster.mivlgu.local> <20120905060704.GC25962@core.coreip.homeip.net> <20120907204232.GA24528@alittletooquiet.net> <3475963.zdirdksHlt@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.1211011137260.6606@pobox.suse.cz>
+ <20121102195130.GJ12501@alittletooquiet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:47040 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751182Ab2KEN4X (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Nov 2012 08:56:23 -0500
-Received: by mail-pa0-f46.google.com with SMTP id hz1so3947081pad.19
-        for <linux-input@vger.kernel.org>; Mon, 05 Nov 2012 05:56:23 -0800 (PST)
-In-Reply-To: <CANq1E4Qq3yXFOx0L4aZQHRSDgMOnZjYU4o0oy_EULP=TDMNvmw@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:54889 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751813Ab2KEOTm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 5 Nov 2012 09:19:42 -0500
+In-Reply-To: <20121102195130.GJ12501@alittletooquiet.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Forest Bond <forest@alittletooquiet.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Ritz <daniel.ritz@gmx.ch>, Alan Stern <stern@rowland.harvard.edu>, Sergei Shtylyov <sshtylyov@mvista.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-Hi David,
+On Fri, 2 Nov 2012, Forest Bond wrote:
 
-On Mon, Nov 5, 2012 at 9:58 AM, David Herrmann
-<dh.herrmann@googlemail.com> wrote:
-> Hi Andre
->
-> On Thu, Nov 1, 2012 at 10:55 PM, Andre Guedes
-> <andre.guedes@openbossa.org> wrote:
->> This patches adds support for handling LED input events in uhid
->> driver.
->>
->> When uhid receives an input LED event, we set the proper field,
->> create the output report and send it to userspace as UHID_OUTPUT
->> event. Others input events are sent to userspace as UHID_OUTPUT_EV
->> events.
->>
->> Signed-off-by: Andre Guedes <andre.guedes@openbossa.org>
->> ---
->>  drivers/hid/uhid.c | 33 +++++++++++++++++++++++++++++----
->>  1 file changed, 29 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
->> index 714cd8c..e7b7cdc 100644
->> --- a/drivers/hid/uhid.c
->> +++ b/drivers/hid/uhid.c
->> @@ -122,15 +122,40 @@ static int uhid_hid_input(struct input_dev *input, unsigned int type,
->>         struct uhid_device *uhid = hid->driver_data;
->>         unsigned long flags;
->>         struct uhid_event *ev;
->> +       struct hid_field *field;
->> +       struct hid_report *report;
->> +       int offset;
->>
->>         ev = kzalloc(sizeof(*ev), GFP_ATOMIC);
->>         if (!ev)
->>                 return -ENOMEM;
->>
->> -       ev->type = UHID_OUTPUT_EV;
->> -       ev->u.output_ev.type = type;
->> -       ev->u.output_ev.code = code;
->> -       ev->u.output_ev.value = value;
->> +       switch (type) {
->> +       case EV_LED:
->> +               offset = hidinput_find_field(hid, type, code, &field);
->> +               if (offset == -1) {
->> +                       hid_warn(input, "event field not found\n");
->> +                       kfree(ev);
->> +                       return -1;
->> +               }
->> +
->> +               hid_set_field(field, offset, value);
->> +
->> +               report = field->report;
->> +
->> +               ev->type = UHID_OUTPUT;
->> +               ev->u.output.rtype = UHID_OUTPUT_REPORT;
->> +               hid_output_report(report, ev->u.output.data);
->> +               ev->u.output.size = ((report->size - 1) >> 3) + 1 +
->> +                                                       (report->id > 0);
->> +               break;
->> +
->> +       default:
->> +               ev->type = UHID_OUTPUT_EV;
->> +               ev->u.output_ev.type = type;
->> +               ev->u.output_ev.code = code;
->> +               ev->u.output_ev.value = value;
->
-> I think kernel-coding-style uses "break" in default rules, too.
+> We have some eGalax devices with class HID and protocol None that both 
+> usbhid and usbtouchscreen will bind to, but we only want them bound to 
+> usbtouchscreen. Some do in fact work with usbhid, but not all of them 
+> do.  OTOH they all work with usbtouchscreen as of commit 
+> 037a833ed05a86d01ea27a2c32043b86c549be1b.
+> 
+> We want to blacklist these devices in usbhid to avoid binding to it if 
+> it is loaded first.  But usbhid should continue to handle eGalax devices 
+> with class HID and protocol other than None (e.g. Mouse).  They all have 
+> the same vendor and product IDs, so we need to be able to blacklist on 
+> (VID, PID, protocol) instead of just (VID, PID).
 
-Ok, I'll check this.
+I see, thanks for the explanation.
 
->> +       }
->>
->>         spin_lock_irqsave(&uhid->qlock, flags);
->>         uhid_queue(uhid, ev);
->
-> It looks like this was copied almost verbatim from usbhid/hid-core.c
-> usb_hidinput_input_event() and __usbhid_submit_report() so I wonder
-> why we do not provide a generic helper in hid-input.c.
->
-> The code itself looks good, so how about pushing this into a helper in
-> hid-input.c and using hid_output_raw_report(). We use this helper if
-> hidinput_input_event is NULL and hid_output_raw_report() is non-NULL.
-> Maybe Jiri has some comments on that, too. Adding him to CC.
+As this is the first time we are having this problem, I'd just propose to 
+put just another switch into hid_ignore() for USB_VENDOR_ID_DWAV, and 
+looking at hdev->type there to see whether we should ignore the device or 
+not.
 
-I can work on that and send a new version. Lets see for Jiri have comments so.
+If it turns, over time, to be a more general problem for multiple devices, 
+we'll just introduce the more general blacklist matching then.
 
-Regards,
+How does that sound?
 
-Andre
+-- 
+Jiri Kosina
+SUSE Labs

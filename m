@@ -1,80 +1,111 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2 11/11] HID: hid-multitouch: get rid of usbhid depedency
- for general path
-Date: Mon, 5 Nov 2012 14:32:34 +0100
-Message-ID: <CAN+gG=H5OVWXY4Dzy04Zj8gqTSWOAsGyV2P3sXS_aztWFYZdbQ@mail.gmail.com>
-References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
-	<1351241067-9521-12-git-send-email-benjamin.tissoires@gmail.com>
-	<20121029225748.GA15632@polaris.bitmath.org>
-	<CAN+gG=GNucfg4-wCBZQtz0yJDjpTD_56Js3d68nm8VFi1UhZAA@mail.gmail.com>
-	<20121105125731.GA814@polaris.bitmath.org>
-	<CAN+gG=H1L6vwvxxAR6t2-Lz4aW0tbvLvDKvY-8f-M-qqm35mMw@mail.gmail.com>
+From: Andre Guedes <andre.guedes@openbossa.org>
+Subject: Re: [RFC] HID: uhid: Handle LED input events
+Date: Mon, 5 Nov 2012 10:56:23 -0300
+Message-ID: <CACJA=fUe8J_3ecX8q9Znnx0wmr3Rq5OMS0ny4qyc3NyXkVgqrw@mail.gmail.com>
+References: <1351806939-4925-1-git-send-email-andre.guedes@openbossa.org>
+	<CANq1E4Qq3yXFOx0L4aZQHRSDgMOnZjYU4o0oy_EULP=TDMNvmw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f46.google.com ([209.85.215.46]:46297 "EHLO
-	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932300Ab2KENcf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Nov 2012 08:32:35 -0500
-In-Reply-To: <CAN+gG=H1L6vwvxxAR6t2-Lz4aW0tbvLvDKvY-8f-M-qqm35mMw@mail.gmail.com>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:47040 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751182Ab2KEN4X (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Nov 2012 08:56:23 -0500
+Received: by mail-pa0-f46.google.com with SMTP id hz1so3947081pad.19
+        for <linux-input@vger.kernel.org>; Mon, 05 Nov 2012 05:56:23 -0800 (PST)
+In-Reply-To: <CANq1E4Qq3yXFOx0L4aZQHRSDgMOnZjYU4o0oy_EULP=TDMNvmw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-Hi Henrik,
+Hi David,
 
-grrr.... damn new gmail interface, I clicked on the wrong button.
-
-sorry for the noise.
-
-On Mon, Nov 5, 2012 at 2:28 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> Hi Henrik,
+On Mon, Nov 5, 2012 at 9:58 AM, David Herrmann
+<dh.herrmann@googlemail.com> wrote:
+> Hi Andre
 >
-> On Mon, Nov 5, 2012 at 1:57 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
->> Hi Benjamin,
+> On Thu, Nov 1, 2012 at 10:55 PM, Andre Guedes
+> <andre.guedes@openbossa.org> wrote:
+>> This patches adds support for handling LED input events in uhid
+>> driver.
 >>
->>> >> This patch factorizes the hid set_feature command by using
->>> >> hid_device->hid_output_raw_report instead of direclty relying on
->>> >> usbhid. This makes the driver usb independant.
->>> >>
->>> >> However I still can't remove the 2 usb related headers because the
->>> >> function mt_resume has a specific patch for usb devices.
->>> >>
->>> >> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
->>> >> ---
->>> >>  drivers/hid/hid-multitouch.c | 63 ++++++++++++++++++++++++++------------------
->>> >>  1 file changed, 37 insertions(+), 26 deletions(-)
->>> >
->>> > In my drawer, I have a patchset that aims to remove all usbhid
->>> > dependence, from all the drivers. Perhaps the attached patch is
->>> > something to consider here?
->>>
->>> yep, removing usbhid dependencies is a good thing.
->>> See my review below :)
+>> When uhid receives an input LED event, we set the proper field,
+>> create the output report and send it to userspace as UHID_OUTPUT
+>> event. Others input events are sent to userspace as UHID_OUTPUT_EV
+>> events.
 >>
->> I have a tentative patch taking your comments into account, and it is
->> likely that we want to go that way. However, as to not hold up your
->> patchset, perhaps we could do without it for now.
-
-so, Yes, this is not my blocking patch that prevents me from sending
-the new patchset. I intend to let you clean this up with your new
-patch.
-The v3 is on it's way!
-
+>> Signed-off-by: Andre Guedes <andre.guedes@openbossa.org>
+>> ---
+>>  drivers/hid/uhid.c | 33 +++++++++++++++++++++++++++++----
+>>  1 file changed, 29 insertions(+), 4 deletions(-)
 >>
->> Regarding the hardwired usbhid dependency, I think the solution is to
->> move that code to usbhid itself.
-
-yes, maybe, but at the beginning, we didn't want to patch it that way
-because it was only specific to one hid-multitouch device (though
-armless for the other multitouch devices).
-So maybe you will have to add a quirk in usbhid or sth like that.
-
-Cheers,
-Benjamin
-
+>> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+>> index 714cd8c..e7b7cdc 100644
+>> --- a/drivers/hid/uhid.c
+>> +++ b/drivers/hid/uhid.c
+>> @@ -122,15 +122,40 @@ static int uhid_hid_input(struct input_dev *input, unsigned int type,
+>>         struct uhid_device *uhid = hid->driver_data;
+>>         unsigned long flags;
+>>         struct uhid_event *ev;
+>> +       struct hid_field *field;
+>> +       struct hid_report *report;
+>> +       int offset;
 >>
->> Thanks,
->> Henrik
+>>         ev = kzalloc(sizeof(*ev), GFP_ATOMIC);
+>>         if (!ev)
+>>                 return -ENOMEM;
+>>
+>> -       ev->type = UHID_OUTPUT_EV;
+>> -       ev->u.output_ev.type = type;
+>> -       ev->u.output_ev.code = code;
+>> -       ev->u.output_ev.value = value;
+>> +       switch (type) {
+>> +       case EV_LED:
+>> +               offset = hidinput_find_field(hid, type, code, &field);
+>> +               if (offset == -1) {
+>> +                       hid_warn(input, "event field not found\n");
+>> +                       kfree(ev);
+>> +                       return -1;
+>> +               }
+>> +
+>> +               hid_set_field(field, offset, value);
+>> +
+>> +               report = field->report;
+>> +
+>> +               ev->type = UHID_OUTPUT;
+>> +               ev->u.output.rtype = UHID_OUTPUT_REPORT;
+>> +               hid_output_report(report, ev->u.output.data);
+>> +               ev->u.output.size = ((report->size - 1) >> 3) + 1 +
+>> +                                                       (report->id > 0);
+>> +               break;
+>> +
+>> +       default:
+>> +               ev->type = UHID_OUTPUT_EV;
+>> +               ev->u.output_ev.type = type;
+>> +               ev->u.output_ev.code = code;
+>> +               ev->u.output_ev.value = value;
+>
+> I think kernel-coding-style uses "break" in default rules, too.
+
+Ok, I'll check this.
+
+>> +       }
+>>
+>>         spin_lock_irqsave(&uhid->qlock, flags);
+>>         uhid_queue(uhid, ev);
+>
+> It looks like this was copied almost verbatim from usbhid/hid-core.c
+> usb_hidinput_input_event() and __usbhid_submit_report() so I wonder
+> why we do not provide a generic helper in hid-input.c.
+>
+> The code itself looks good, so how about pushing this into a helper in
+> hid-input.c and using hid_output_raw_report(). We use this helper if
+> hidinput_input_event is NULL and hid_output_raw_report() is non-NULL.
+> Maybe Jiri has some comments on that, too. Adding him to CC.
+
+I can work on that and send a new version. Lets see for Jiri have comments so.
+
+Regards,
+
+Andre

@@ -1,72 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: tca8418 - Add support for shared interrupt
-Date: Mon, 5 Nov 2012 10:58:06 -0800
-Message-ID: <20121105185806.GA18149@core.coreip.homeip.net>
-References: <1352132052-19771-1-git-send-email-alban.bedel@avionic-design.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Chris J Arges <chris.j.arges@canonical.com>
+Subject: [PATCH] hid: usbhid: add quirk for SB arena headset v2
+Date: Mon,  5 Nov 2012 14:05:45 -0600
+Message-ID: <1352145945-8035-1-git-send-email-chris.j.arges@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:48060 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750915Ab2KES6L (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Nov 2012 13:58:11 -0500
-Received: by mail-da0-f46.google.com with SMTP id n41so2807930dak.19
-        for <linux-input@vger.kernel.org>; Mon, 05 Nov 2012 10:58:10 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1352132052-19771-1-git-send-email-alban.bedel@avionic-design.de>
+Received: from youngberry.canonical.com ([91.189.89.112]:44396 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753164Ab2KEUFg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Nov 2012 15:05:36 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alban Bedel <alban.bedel@avionic-design.de>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, Chris J Arges <chris.j.arges@canonical.com>
 
-Hi Alban,
+When an SB Arena USB headset is plugged in, it registers the volume
+keys on the headset as a keyboard and continually sends events causing
+issues with normal keyboard input. This quirk disables the volume keys.
 
-On Mon, Nov 05, 2012 at 05:14:12PM +0100, Alban Bedel wrote:
-> Signed-off-by: Alban Bedel <alban.bedel@avionic-design.de>
-> ---
->  drivers/input/keyboard/tca8418_keypad.c |   10 +++++++---
->  1 files changed, 7 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
-> index fc9cc94..5adc655 100644
-> --- a/drivers/input/keyboard/tca8418_keypad.c
-> +++ b/drivers/input/keyboard/tca8418_keypad.c
-> @@ -225,16 +225,18 @@ static irqreturn_t tca8418_irq_handler(int irq, void *dev_id)
->  	if (error) {
->  		dev_err(&keypad_data->client->dev,
->  			"unable to read REG_INT_STAT\n");
-> -		goto exit;
-> +		return IRQ_NONE;
->  	}
->  
-> +	if (!reg)
-> +		return IRQ_NONE;
-> +
->  	if (reg & INT_STAT_OVR_FLOW_INT)
->  		dev_warn(&keypad_data->client->dev, "overflow occurred\n");
->  
->  	if (reg & INT_STAT_K_INT)
->  		tca8418_read_keypad(keypad_data);
->  
-> -exit:
->  	/* Clear all interrupts, even IRQs we didn't check (GPI, CAD, LCK) */
->  	reg = 0xff;
->  	error = tca8418_write_byte(keypad_data, REG_INT_STAT, reg);
-> @@ -377,7 +379,9 @@ static int __devinit tca8418_keypad_probe(struct i2c_client *client,
->  		client->irq = gpio_to_irq(client->irq);
->  
->  	error = request_threaded_irq(client->irq, NULL, tca8418_irq_handler,
-> -				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-> +				     IRQF_TRIGGER_FALLING |
-> +				     IRQF_SHARED |
-> +				     IRQF_ONESHOT,
->  				     client->name, keypad_data);
+BugLink: http://bugs.launchpad.net/bugs/1007575
+Signed-off-by: Chris J Arges <chris.j.arges@canonical.com>
+---
+ drivers/hid/hid-ids.h           |    1 +
+ drivers/hid/usbhid/hid-quirks.c |    1 +
+ 2 files changed, 2 insertions(+)
 
-I do not think that using ONESHOT IRQ handlers in shared interrupt
-configuration is a good idea as that interrupt will stay masked until
-the keypad is done processing it, which may take some time.
-
-Thanks.
-
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 269b509..1936414 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -223,6 +223,7 @@
+ 
+ #define USB_VENDOR_ID_CREATIVELABS	0x041e
+ #define USB_DEVICE_ID_PRODIKEYS_PCMIDI	0x2801
++#define USB_DEVICE_ID_SB_ARENA_HEADSET	0x0403
+ 
+ #define USB_VENDOR_ID_CVTOUCH		0x1ff7
+ #define USB_DEVICE_ID_CVTOUCH_SCREEN	0x0013
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 11c7932..4bee3b7 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -68,6 +68,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_PEDALS, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_3AXIS_5BUTTON_STICK, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_AXIS_295, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_CREATIVELABS, USB_DEVICE_ID_SB_ARENA_HEADSET, HID_QUIRK_IGNORE },
+ 	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NOGET },
 -- 
-Dmitry
+1.7.9.5
+

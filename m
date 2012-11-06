@@ -1,167 +1,49 @@
-From: =?UTF-8?B?TWlyb3NsYXYgxaB1bGM=?= <miroslav.sulc@fordfrog.com>
-Subject: usb mouse razer taipan does not work with hid
-Date: Tue, 06 Nov 2012 15:40:42 +0100
-Message-ID: <5099216A.1000006@fordfrog.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2 03/11] HID: hid-input: add usage_index argument in
+ input_mapping and event.
+Date: Tue, 6 Nov 2012 16:24:38 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211061624220.24253@pobox.suse.cz>
+References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com> <1351241067-9521-4-git-send-email-benjamin.tissoires@gmail.com> <20121029192558.GA15061@polaris.bitmath.org> <CAN+gG=HLmCszdxgdcmt5AgzNyt08HamCdd2BjzCaTB5k7wYcnQ@mail.gmail.com>
+ <CAN+gG=GiAsn-5kefjRj_xgFfbuEXxj_PL7PaPES05wiZs+J-Ug@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from thia.startnet.cz ([176.9.43.86]:38768 "EHLO mail.startnet.cz"
+Received: from cantor2.suse.de ([195.135.220.15]:51928 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750905Ab2KFOkr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 6 Nov 2012 09:40:47 -0500
-Received: from shaxer.fordfrog.com (unknown [78.110.211.180])
-	(using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mail.startnet.cz (Postfix) with ESMTPSA id 1ECC816
-	for <linux-input@vger.kernel.org>; Tue,  6 Nov 2012 15:40:43 +0100 (CET)
+	id S1751326Ab2KFPZG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 6 Nov 2012 10:25:06 -0500
+In-Reply-To: <CAN+gG=GiAsn-5kefjRj_xgFfbuEXxj_PL7PaPES05wiZs+J-Ug@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-hi,
+On Tue, 6 Nov 2012, Benjamin Tissoires wrote:
 
-i have two mice in my system, both usb. one is "Microsoft=C2=AE 2.4GHz
-Transceiver v5.0" (that one works fine) and the other is "Razer Taipan"
-(that one does not work). both mice are connected via usb hub in my dis=
-play.
+> >>> Currently, there is no way to know the index of the current field
+> >>> in the .input_mapping and .event callbacks  when this field is inside
+> >>> an array of HID fields.
+> >>> This patch forwards this index to the input_mapping and event
+> >>> callbacks.
+> >>
+> >> I agree with the idea, but the function argument list is becoming
+> >> ridiculously long... Could we remove the usage pointer argument, at
+> >> least?
+> >
+> > yeah, totally agree. Let me just check whether it will not introduce
+> > more problems than it solves for my driver.
+> 
+> Well, after a deeper look, it's a really bad idea. Every drivers that
+> implements input_mapping, input_mapped, event use at least once the
+> struct usage. So this would require change nearly every hid driver.
+> 
+> To solve that, and to minimize the impact on the other drivers, I'm
+> going to add a field in struct usage with the appropriate index.
 
-# uname -a
-Linux shaxer.fordfrog.com 3.6.6-gentoo #1 SMP PREEMPT Tue Nov 6 12:50:2=
-3
-CET 2012 x86_64 Intel(R) Core(TM) i7-3770K CPU @ 3.50GHz GenuineIntel
-GNU/Linux
+Yes please, I like that solution more as well.
 
+Thanks,
 
-dmesg output after boot:
-[ 2.357115] usb 2-1.6.4: new full-speed USB device number 7 using ehci_=
-hcd
-[ 2.430933] usb 2-1.6.4: device descriptor read/64, error -32
-[ 2.618225] usb 2-1.6.4: New USB device found, idVendor=3D1532, idProdu=
-ct=3D0034
-[ 2.618368] usb 2-1.6.4: New USB device strings: Mfr=3D1, Product=3D2,
-SerialNumber=3D0
-[ 2.618563] usb 2-1.6.4: Product: Razer Taipan
-[ 2.618680] usb 2-1.6.4: Manufacturer: Razer
-[ 3.020661] input: Razer Razer Taipan as
-/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.6/2-1.6.4/2-1.6.4:1.0/inp=
-ut/input4
-[ 3.021025] hid-generic 0003:1532:0034.0001: input,hidraw0: USB HID
-v1.11 Mouse [Razer Razer Taipan] on usb-0000:00:1d.0-1.6.4/input0
-[ 3.022561] input: Razer Razer Taipan as
-/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.6/2-1.6.4/2-1.6.4:1.1/inp=
-ut/input5
-[ 3.022854] hid-generic 0003:1532:0034.0002: input,hidraw1: USB HID
-v1.11 Keyboard [Razer Razer Taipan] on usb-0000:00:1d.0-1.6.4/input1
-[ 3.023251] input: Razer Razer Taipan as
-/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.6/2-1.6.4/2-1.6.4:1.2/inp=
-ut/input6
-[ 3.023636] hid-generic 0003:1532:0034.0003: input,hidraw2: USB HID
-v1.11 Keyboard [Razer Razer Taipan] on usb-0000:00:1d.0-1.6.4/input2
-
-
-dmesg output after unplugging and plugging the mouse again:
-[ 1391.995745] usb 2-1.6.4: new full-speed USB device number 10 using
-ehci_hcd
-[ 1392.082377] usb 2-1.6.4: New USB device found, idVendor=3D1532,
-idProduct=3D0034
-[ 1392.082394] usb 2-1.6.4: New USB device strings: Mfr=3D1, Product=3D=
-2,
-SerialNumber=3D0
-[ 1392.082399] usb 2-1.6.4: Product: Razer Taipan
-[ 1392.082403] usb 2-1.6.4: Manufacturer: Razer
-[ 1392.083316] input: Razer Razer Taipan as
-/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.6/2-1.6.4/2-1.6.4:1.0/inp=
-ut/input23
-[ 1392.083711] hid-generic 0003:1532:0034.0007: input,hidraw0: USB HID
-v1.11 Mouse [Razer Razer Taipan] on usb-0000:00:1d.0-1.6.4/input0
-[ 1392.085887] input: Razer Razer Taipan as
-/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.6/2-1.6.4/2-1.6.4:1.1/inp=
-ut/input24
-[ 1392.086136] hid-generic 0003:1532:0034.0008: input,hidraw1: USB HID
-v1.11 Keyboard [Razer Razer Taipan] on usb-0000:00:1d.0-1.6.4/input1
-[ 1392.086951] input: Razer Razer Taipan as
-/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.6/2-1.6.4/2-1.6.4:1.2/inp=
-ut/input25
-[ 1392.100363] input: failed to attach handler kbd to device input25,
-error: -16
-[ 1392.100577] hid-generic 0003:1532:0034.0009: input,hidraw2: USB HID
-v1.11 Keyboard [Razer Razer Taipan] on usb-0000:00:1d.0-1.6.4/input2
-
-
-/proc/bus/input/devices lists this:
-
-I: Bus=3D0003 Vendor=3D1532 Product=3D0034 Version=3D0111
-N: Name=3D"Razer Razer Taipan"
-P: Phys=3Dusb-0000:00:1d.0-1.6.4/input0
-S:
-Sysfs=3D/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.6/2-1.6.4/2-1.6.4=
-:1.0/input/input23
-U: Uniq=3D
-H: Handlers=3Dmouse0 event4
-B: PROP=3D0
-B: EV=3D17
-B: KEY=3D1f0000 0 0 0 0
-B: REL=3D103
-B: MSC=3D10
-
-I: Bus=3D0003 Vendor=3D1532 Product=3D0034 Version=3D0111
-N: Name=3D"Razer Razer Taipan"
-P: Phys=3Dusb-0000:00:1d.0-1.6.4/input1
-S:
-Sysfs=3D/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.6/2-1.6.4/2-1.6.4=
-:1.1/input/input24
-U: Uniq=3D
-H: Handlers=3Dsysrq kbd event5
-B: PROP=3D0
-B: EV=3D10001f
-B: KEY=3D4837fff072ff32d bf54444600000000 1 30c100b17c007 ffbf7bfad941d=
-fff
-febeffdfffefffff fffffffffffffffe
-B: REL=3D40
-B: ABS=3Dffffff0100000000
-B: MSC=3D10
-
-I: Bus=3D0003 Vendor=3D1532 Product=3D0034 Version=3D0111
-N: Name=3D"Razer Razer Taipan"
-P: Phys=3Dusb-0000:00:1d.0-1.6.4/input2
-S:
-Sysfs=3D/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.6/2-1.6.4/2-1.6.4=
-:1.2/input/input25
-U: Uniq=3D
-H: Handlers=3Dsysrq event6
-B: PROP=3D0
-B: EV=3D120013
-B: KEY=3D1000000000007 ff9f207ac14057ff febeffdfffefffff ffffffffffffff=
-fe
-B: MSC=3D10
-B: LED=3D7
-
-
-reading from the event file fails:
-
-# LC_ALL=3DC cat /dev/input/event4
-cat: /dev/input/event4: Device or resource busy
-
-
-my kernel config: http://pastebin.com/1VNKetxz
-complete dmesg output: http://pastebin.com/NX3Z7c6W
-
-
-the mouse used to work in kernel 3.2.x but that used usb-generic module
-instead of hid-generic. i also tried kernel 3.4.11 but the mouse does
-not work there. the mouse works fine under windows and works in gui bio=
-s
-too.
-
-
-can i help somehow to make this mouse work again in linux kernel?
-
-
-miroslav
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs

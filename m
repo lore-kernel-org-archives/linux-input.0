@@ -1,70 +1,66 @@
-From: Forest Bond <forest@alittletooquiet.net>
-Subject: [PATCH] HID: Ignore D-WAV/eGalax devices handled by usbtouchscreen
-Date: Tue, 6 Nov 2012 13:41:22 -0500
-Message-ID: <20121106184122.GT12501@alittletooquiet.net>
+From: =?UTF-8?B?T3phbiDDh2HEn2xheWFu?= <ozancag@gmail.com>
+Subject: Why Cypress does not upstream its trackpad driver?
+Date: Tue, 6 Nov 2012 17:47:12 -0500
+Message-ID: <CAFub=KTf2dWxM9=saG2JaNJpEioJM8rM3UBG9BkyxRN-+j0psQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from storm.alittletooquiet.net ([67.23.28.199]:42210 "EHLO
-	storm.alittletooquiet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751060Ab2KFSop (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Nov 2012 13:44:45 -0500
-Content-Disposition: inline
+Received: from mail-ia0-f174.google.com ([209.85.210.174]:58058 "EHLO
+	mail-ia0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753219Ab2KFWrN convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Nov 2012 17:47:13 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Ritz <daniel.ritz@gmx.ch>, Alan Stern <stern@rowland.harvard.edu>, Sergei Shtylyov <sshtylyov@mvista.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: kamal@canonical.com, dmitry.torokhov@gmail.com, customercare@cypress.com, mario_limonciello@dell.com
 
-From: Forest Bond <forest.bond@rapidrollout.com>
+Hi,
 
-Previously, both usbhid and usbtouchscreen would bind to D-WAV devices
-with class HID and protocol None, so they would be claimed by whichever
-driver was loaded first.  Some of these devices do in fact work with
-usbhid, but not all of them do.  OTOH they all work with usbtouchscreen
-as of commit 037a833ed05a86d01ea27a2c32043b86c549be1b ("Input:
-usbtouchscreen - initialize eGalax devices").  So we ignore them in
-usbhid to prevent getting in the way of usbtouchscreen and claiming an
-interface that we may not be able to do anything useful with.
+This driver [0] was written with a cooperation of Cypress, Dell and
+Canonical Engineers within the last 3-4 months. It is very nice that
+Cypress as a vendor cooperated with Canonical (Because Canonical works
+with Dell for their Project Sputnik and Dell XPS13 is used as the main
+hardware for that project and Dell XPS13 has this type of trackpad,
+Bingo!), and I am also glad that Ubuntu users benefits from this
+driver.
 
-Signed-off-by: Forest Bond <forest.bond@rapidrollout.com>
----
- drivers/hid/hid-core.c |   11 ++++++++++-
- drivers/hid/hid-ids.h  |    1 +
- 2 files changed, 11 insertions(+), 1 deletions(-)
+The driver brings multi-touch scrolling, disable-while-tapping and
+makes Fn+Fx touchpad disable/enable work for not only Dell XPS13 but
+for all laptops having this trackpad (My Lenovo Ultrabook U300s for
+example, I tested the patches on fedora 17's 3.6 kernel and it works
+quiet nice)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index f4109fd..f2d614e 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2188,7 +2188,16 @@ static bool hid_ignore(struct hid_device *hdev)
- 		if (hdev->product == USB_DEVICE_ID_JESS_YUREX &&
- 				hdev->type == HID_TYPE_USBNONE)
- 			return true;
--	break;
-+		break;
-+	case USB_VENDOR_ID_DWAV:
-+		/* These are handled by usbtouchscreen. hdev->type is probably
-+		 * HID_TYPE_USBNONE, but we say !HID_TYPE_USBMOUSE to match
-+		 * usbtouchscreen. */
-+		if ((hdev->product == USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER ||
-+		     hdev->product == USB_DEVICE_ID_DWAV_TOUCHCONTROLLER) &&
-+		    hdev->type != HID_TYPE_USBMOUSE)
-+			return true;
-+		break;
- 	}
- 
- 	if (hdev->type == HID_TYPE_USBMOUSE &&
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9d7a428..3d73774 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -257,6 +257,7 @@
- 
- #define USB_VENDOR_ID_DWAV		0x0eef
- #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER	0x0001
-+#define USB_DEVICE_ID_DWAV_TOUCHCONTROLLER	0x0002
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_480D	0x480d
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_480E	0x480e
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7207	0x7207
--- 
-1.7.0.4
+But what I am not getting that why NOBODY from Cypress/Canonical/Dell
+isn't bothering to push this driver to upstream?
+Is it too hard? I don't think so as the patches are quite non-invasive
+and small.
+
+Is the only distribution around is Ubuntu?
+Is the only laptop sold in the world is Dell XPS13 with an Ubuntu?
+
+I'm not trying to be impolite but it hurts me to see that a vendor
+produces an open-source driver for its device but makes use of it only
+through a specific distribution.
+
+If Cypress is just beginning developing open-source drivers for their
+devices, I hope that after this mail they will be much sensitive about
+the issue and push their drivers even before the release of their
+devices to make user experience flawless.
+
+(I googled and searched the archives of LKML and linux-input but
+couldn't find a discussion or patch series about the driver. If I
+missed it, ignore the whole stuff above)
+
+[0]: http://patchwork.ozlabs.org/patch/178903/
+
+--=20
+Ozan =C3=87a=C4=9Flayan
+Research Assistant
+Galatasaray University - Computer Engineering Dept.
+http://www.ozancaglayan.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,40 +1,95 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: usbhid: add quirk for SB arena headset v2
-Date: Tue, 6 Nov 2012 12:14:45 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1211061214030.24253@pobox.suse.cz>
-References: <1352145945-8035-1-git-send-email-chris.j.arges@canonical.com> <alpine.LNX.2.00.1211052117210.24253@pobox.suse.cz> <50983069.5080404@canonical.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 03/11] HID: hid-input: add usage_index argument in
+ input_mapping and event.
+Date: Tue, 6 Nov 2012 14:56:01 +0100
+Message-ID: <CAN+gG=GiAsn-5kefjRj_xgFfbuEXxj_PL7PaPES05wiZs+J-Ug@mail.gmail.com>
+References: <1351241067-9521-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1351241067-9521-4-git-send-email-benjamin.tissoires@gmail.com>
+	<20121029192558.GA15061@polaris.bitmath.org>
+	<CAN+gG=HLmCszdxgdcmt5AgzNyt08HamCdd2BjzCaTB5k7wYcnQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:41492 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750997Ab2KFLOs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 6 Nov 2012 06:14:48 -0500
-In-Reply-To: <50983069.5080404@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAN+gG=HLmCszdxgdcmt5AgzNyt08HamCdd2BjzCaTB5k7wYcnQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Chris J Arges <chris.j.arges@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Mon, 5 Nov 2012, Chris J Arges wrote:
+On Tue, Oct 30, 2012 at 11:09 AM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Mon, Oct 29, 2012 at 8:25 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+>> Hi Benjamin,
+>>
+>>> Currently, there is no way to know the index of the current field
+>>> in the .input_mapping and .event callbacks  when this field is inside
+>>> an array of HID fields.
+>>> This patch forwards this index to the input_mapping and event
+>>> callbacks.
+>>
+>> I agree with the idea, but the function argument list is becoming
+>> ridiculously long... Could we remove the usage pointer argument, at
+>> least?
+>
+> yeah, totally agree. Let me just check whether it will not introduce
+> more problems than it solves for my driver.
 
-> >> When an SB Arena USB headset is plugged in, it registers the volume
-> >> keys on the headset as a keyboard and continually sends events causing
-> >> issues with normal keyboard input. This quirk disables the volume keys.
-> > 
-> > I don't know how the device looks like, but wouldn't it make more sense to 
-> > actually remap the bogus keys it's sending to produce KEY_VOLUMEUP and 
-> > KEY_VOLUMEDOWN?
-> > 
-> 
-> Yes, if I can track this hardware down or get data I'll fix it like
-> this. This happened to be a do-no harm fix for the following bug:
-> https://bugs.launchpad.net/ubuntu/+source/xorg-server/+bug/1007575
+Well, after a deeper look, it's a really bad idea. Every drivers that
+implements input_mapping, input_mapped, event use at least once the
+struct usage. So this would require change nearly every hid driver.
 
-You should be able to obtain it easily either by running evtest on 
-corresponding /dev/input/eventX node, or by looking into debugfs 
-hid/<device>/events file.
+To solve that, and to minimize the impact on the other drivers, I'm
+going to add a field in struct usage with the appropriate index.
 
--- 
-Jiri Kosina
-SUSE Labs
+Cheers,
+Benjamin
+
+>
+>>
+>>         int (*event)(struct hid_device *hdev, struct hid_field *field,
+>>                         unsigned int usage_index, __s32 value);
+>>
+>>
+>>> @@ -1071,19 +1072,24 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field,
+>>>       for (n = 0; n < count; n++) {
+>>>
+>>>               if (HID_MAIN_ITEM_VARIABLE & field->flags) {
+>>> -                     hid_process_event(hid, field, &field->usage[n], value[n], interrupt);
+>>> +                     hid_process_event(hid, field, &field->usage[n], n,
+>>> +                             value[n], interrupt);
+>>>                       continue;
+>>>               }
+>>>
+>>>               if (field->value[n] >= min && field->value[n] <= max
+>>>                       && field->usage[field->value[n] - min].hid
+>>>                       && search(value, field->value[n], count))
+>>> -                             hid_process_event(hid, field, &field->usage[field->value[n] - min], 0, interrupt);
+>>> +                             hid_process_event(hid, field,
+>>> +                                     &field->usage[field->value[n] - min], n,
+>>> +                                     0, interrupt);
+>>
+>> Wrong index?
+>
+> oops, I'll have to check that.
+>
+> Thanks,
+> Benjamin
+>
+>>
+>>>
+>>>               if (value[n] >= min && value[n] <= max
+>>>                       && field->usage[value[n] - min].hid
+>>>                       && search(field->value, value[n], count))
+>>> -                             hid_process_event(hid, field, &field->usage[value[n] - min], 1, interrupt);
+>>> +                             hid_process_event(hid, field,
+>>> +                                     &field->usage[value[n] - min], n,
+>>> +                                     1, interrupt);
+>>
+>> Wrong index?
+>>
+>>>       }
+>>>
+>>>       memcpy(field->value, value, count * sizeof(__s32));
+>>
+>> Thanks,
+>> Henrik

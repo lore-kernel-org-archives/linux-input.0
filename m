@@ -1,39 +1,32 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH v3 02/13] HID: hid-input: round return value of hidinput_calc_abs_res
-Date: Wed,  7 Nov 2012 17:37:25 +0100
-Message-ID: <1352306256-12180-3-git-send-email-benjamin.tissoires@gmail.com>
-References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH v4] Input: matrix-keypad - Add device tree support
+Date: Wed, 07 Nov 2012 09:57:10 -0700
+Message-ID: <509A92E6.8020905@wwwdotorg.org>
+References: <1352280725-452-1-git-send-email-anilkumar@ti.com> <331ABD5ECB02734CA317220B2BBEABC13EA6620F@DBDE01.ent.ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from avon.wwwdotorg.org ([70.85.31.133]:38758 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753455Ab2KGQ5P (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Nov 2012 11:57:15 -0500
+In-Reply-To: <331ABD5ECB02734CA317220B2BBEABC13EA6620F@DBDE01.ent.ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "AnilKumar, Chimata" <anilkumar@ti.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, "dgdunix@gmail.com" <dgdunix@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>
 
-hidinput_calc_abs_res should return the closest int in the division
-instead of the floor.
-On a device with a logical_max of 3008 and a physical_max of 255mm,
-previous implementation gave a resolution of 11 instead of 12.
-With 11, user-space computes a physical size of 273.5mm and the
-round_closest results gives 250.6mm.
-The old implementation introduced an error of 2cm in this example.
+On 11/07/2012 02:38 AM, AnilKumar, Chimata wrote:
+> On Wed, Nov 07, 2012 at 15:02:05, AnilKumar, Chimata wrote:
+>> Add device tree support to matrix keypad driver and usage details
+>> are added to device tree documentation. Driver was tested on AM335x
+>> EVM.
+> 
+> +Stephen
+> 
+> ACK from the reviewers (Rob Herring and Stephen Warren) of earlier
+> versions will help to get this in.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
----
- drivers/hid/hid-input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index f5b1d57..67044f3 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -287,7 +287,7 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- 	}
- 
- 	/* Calculate resolution */
--	return logical_extents / physical_extents;
-+	return DIV_ROUND_CLOSEST(logical_extents, physical_extents);
- }
- EXPORT_SYMBOL_GPL(hidinput_calc_abs_res);
- 
--- 
-1.7.11.7
+I thought I already asked a question about the clustered IRQ properties,
+which don't make sense.

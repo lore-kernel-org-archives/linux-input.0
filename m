@@ -1,72 +1,82 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH v3 00/13] Win 8 support for digitizers
-Date: Wed,  7 Nov 2012 17:37:23 +0100
-Message-ID: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f174.google.com ([209.85.215.174]:56660 "EHLO
-	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750768Ab2KGQhz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Nov 2012 11:37:55 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v3 01/13] HID: hid-input: export hidinput_calc_abs_res
+Date: Wed,  7 Nov 2012 17:37:24 +0100
+Message-ID: <1352306256-12180-2-git-send-email-benjamin.tissoires@gmail.com>
+References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Hi Guys,
+Exporting the function allows us to calculate the resolution in third
+party drivers like hid-multitouch.
+This patch also complete the function with additional valid axes.
 
-here is the third version of this patchset.
-I think I included most of Henrik's comments.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+---
+ drivers/hid/hid-input.c      | 9 ++++++++-
+ drivers/hid/hid-multitouch.c | 1 +
+ include/linux/hid.h          | 1 +
+ 3 files changed, 10 insertions(+), 1 deletion(-)
 
-Happy reviewing :)
-
-Cheers,
-Benjamin
-
-v1 introduction:
-So, this is an update for supporting Win 8 multitouch devices in the kernel.
-As I wanted to reliably forward the resolution, I noticed a bug in the
-processing of the unit_exponent in the hid core layer.
-Thus the fixes for hid-core and hid-input.
-
-v2 changes:
-* added missing initial patch that prevents the series to be applied on top of Jiri's tree
-* update to include latest hid changes
-* taken into account Alan's patch: "hid: put the case in the right switch statement"
-
-v3 changes:
-* splitted "round return value of hidinput_calc_abs_res" in a separate patch
-* export snto32 in hid.h as we need to use it in hid-input.c
-* didn't change all drivers, but add a field in hid_usage instead
-* add quirk MT_QUIRK_IGNORE_DUPLICATES so that any device can rely on it
-* easier understandable support of hovering devices
-* changed scan time definition
-* applied new definition of scan time in hid-multitouch
-* some other few things.
-
-Benjamin Tissoires (13):
-  HID: hid-input: export hidinput_calc_abs_res
-  HID: hid-input: round return value of hidinput_calc_abs_res
-  HID: core: fix unit exponent parsing
-  HID: hid-input: add usage_index in struct hid_usage.
-  HID: hid-multitouch: support arrays for the split of the touches in a
-    report
-  HID: hid-multitouch: get maxcontacts also from logical_max value
-  HID: hid-multitouch: support T and C for win8 devices
-  HID: hid-multitouch: move ALWAYS_VALID quirk check
-  HID: hid-multitouch: add MT_QUIRK_IGNORE_DUPLICATES
-  HID: hid-multitouch: fix Win 8 protocol
-  HID: hid-multitouch: support for hovering devices
-  HID: introduce Scan Time
-  HID: hid-multitouch: forwards ABS_SCAN_TIME
-
- Documentation/input/event-codes.txt |   9 +++
- drivers/hid/hid-core.c              |  20 ++++-
- drivers/hid/hid-input.c             |  28 +++++--
- drivers/hid/hid-multitouch.c        | 157 ++++++++++++++++++++++++++++++------
- include/linux/hid.h                 |   4 +
- include/linux/input.h               |   1 +
- include/linux/input/mt.h            |   6 ++
- 7 files changed, 192 insertions(+), 33 deletions(-)
-
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 10248cf..f5b1d57 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -208,7 +208,7 @@ static int hidinput_setkeycode(struct input_dev *dev,
+  * Only exponent 1 length units are processed. Centimeters and inches are
+  * converted to millimeters. Degrees are converted to radians.
+  */
+-static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
++__s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
+ {
+ 	__s32 unit_exponent = field->unit_exponent;
+ 	__s32 logical_extents = field->logical_maximum -
+@@ -229,6 +229,12 @@ static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
+ 	case ABS_X:
+ 	case ABS_Y:
+ 	case ABS_Z:
++	case ABS_MT_POSITION_X:
++	case ABS_MT_POSITION_Y:
++	case ABS_MT_TOOL_X:
++	case ABS_MT_TOOL_Y:
++	case ABS_MT_TOUCH_MAJOR:
++	case ABS_MT_TOUCH_MINOR:
+ 		if (field->unit == 0x11) {		/* If centimeters */
+ 			/* Convert to millimeters */
+ 			unit_exponent += 1;
+@@ -283,6 +289,7 @@ static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
+ 	/* Calculate resolution */
+ 	return logical_extents / physical_extents;
+ }
++EXPORT_SYMBOL_GPL(hidinput_calc_abs_res);
+ 
+ #ifdef CONFIG_HID_BATTERY_STRENGTH
+ static enum power_supply_property hidinput_battery_props[] = {
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 3eb02b9..9f64e36 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -298,6 +298,7 @@ static void set_abs(struct input_dev *input, unsigned int code,
+ 	int fmax = field->logical_maximum;
+ 	int fuzz = snratio ? (fmax - fmin) / snratio : 0;
+ 	input_set_abs_params(input, code, fmin, fmax, fuzz, 0);
++	input_abs_set_res(input, code, hidinput_calc_abs_res(field, code));
+ }
+ 
+ static void mt_store_field(struct hid_usage *usage, struct mt_device *td,
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 7e1f37d..9edb06c 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -743,6 +743,7 @@ int hid_input_report(struct hid_device *, int type, u8 *, int, int);
+ int hidinput_find_field(struct hid_device *hid, unsigned int type, unsigned int code, struct hid_field **field);
+ struct hid_field *hidinput_get_led_field(struct hid_device *hid);
+ unsigned int hidinput_count_leds(struct hid_device *hid);
++__s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code);
+ void hid_output_report(struct hid_report *report, __u8 *data);
+ struct hid_device *hid_allocate_device(void);
+ struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id);
 -- 
 1.7.11.7
-

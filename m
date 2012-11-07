@@ -1,7 +1,7 @@
 From: "Patil, Rachna" <rachna@ti.com>
-Subject: [PATCH RESEND 6/7] input: ti_am335x_tsc: Add DT support
-Date: Wed, 7 Nov 2012 12:22:03 +0530
-Message-ID: <1352271124-5513-7-git-send-email-rachna@ti.com>
+Subject: [PATCH RESEND 3/7] input: ti_am335x_tsc: Add variance filter
+Date: Wed, 7 Nov 2012 12:22:00 +0530
+Message-ID: <1352271124-5513-4-git-send-email-rachna@ti.com>
 References: <1352271124-5513-1-git-send-email-rachna@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,98 +12,75 @@ To: linux-doc@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-kernel
 Cc: Rob Landley <rob@landley.net>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Jonathan Cameron <jic23@cam.ac.uk>, "Patil, Rachna" <rachna@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-Add DT support for client touchscreen driver
+Only fine tuning variance parameter present in tslib
+utility does not help in removing all the ADC noise.
+This logic of filtering is necessary to get this
+touchscreen to work finely.
 
 Signed-off-by: Patil, Rachna <rachna@ti.com>
 ---
- drivers/input/touchscreen/ti_am335x_tsc.c |   60 ++++++++++++++++++++++++-----
- 1 files changed, 50 insertions(+), 10 deletions(-)
+ drivers/input/touchscreen/ti_am335x_tsc.c |   15 ++++++++++++++-
+ 1 files changed, 14 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 7a26810..c063cf6 100644
+index 6a817a8..7a26810 100644
 --- a/drivers/input/touchscreen/ti_am335x_tsc.c
 +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -26,6 +26,8 @@
- #include <linux/io.h>
- #include <linux/input/ti_am335x_tsc.h>
- #include <linux/delay.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
+@@ -32,6 +32,8 @@
+ #define ADCFSM_STEPID		0x10
+ #define SEQ_SETTLE		275
+ #define MAX_12BIT		((1 << 12) - 1)
++#define TSCADC_DELTA_X		15
++#define TSCADC_DELTA_Y		15
  
- #include <linux/mfd/ti_am335x_tscadc.h>
+ /*
+  * Refer to function regbit_map() to
+@@ -51,6 +53,8 @@ struct titsc {
+ 	unsigned int		wires;
+ 	unsigned int		x_plate_resistance;
+ 	unsigned int		enable_bits;
++	unsigned int		bckup_x;
++	unsigned int		bckup_y;
+ 	bool			pen_down;
+ 	int			steps_to_configure;
+ 	int			config_inp[20];
+@@ -309,12 +313,18 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+ 	unsigned int z1, z2, z;
+ 	unsigned int fsm;
+ 	unsigned int fifo1count, fifo0count;
++	unsigned int diffx = 0, diffy = 0;
+ 	int i;
  
-@@ -398,12 +400,18 @@ static int __devinit titsc_probe(struct platform_device *pdev)
- 	struct titsc *ts_dev;
- 	struct input_dev *input_dev;
- 	struct ti_tscadc_dev *tscadc_dev = pdev->dev.platform_data;
--	struct mfd_tscadc_board	*pdata;
--	int err;
--
--	pdata = tscadc_dev->dev->platform_data;
--
--	if (!pdata) {
-+	int err, i;
-+	struct mfd_tscadc_board	*pdata = NULL;
-+	struct device_node *node = NULL;
-+	u32 val32, wires_conf[4];
-+
-+	if (tscadc_dev->dev->of_node) {
-+		node = tscadc_dev->dev->of_node;
-+		node = of_find_node_by_name(node, "tsc");
-+	} else
-+		pdata = tscadc_dev->dev->platform_data;
-+
-+	if (!pdata && !node) {
- 		dev_err(&pdev->dev, "Could not find platform data\n");
- 		return -EINVAL;
- 	}
-@@ -421,11 +429,43 @@ static int __devinit titsc_probe(struct platform_device *pdev)
- 	ts_dev->mfd_tscadc = tscadc_dev;
- 	ts_dev->input = input_dev;
- 	ts_dev->irq = tscadc_dev->irq;
--	ts_dev->wires = pdata->tsc_init->wires;
--	ts_dev->x_plate_resistance = pdata->tsc_init->x_plate_resistance;
--	ts_dev->steps_to_configure = pdata->tsc_init->steps_to_configure;
--	memcpy(ts_dev->config_inp, pdata->tsc_init->wire_config,
-+
-+	if (node) {
-+		err = of_property_read_u32(node, "wires", &val32);
-+		if (err < 0)
-+			goto err_free_mem;
-+		else
-+			ts_dev->wires = val32;
-+
-+		err = of_property_read_u32(node, "x-plate-resistance", &val32);
-+		if (err < 0)
-+			goto err_free_mem;
-+		else
-+			ts_dev->x_plate_resistance = val32;
-+
-+		err = of_property_read_u32(node, "steps-to-configure", &val32);
-+		if (err < 0)
-+			goto err_free_mem;
-+		else
-+			ts_dev->steps_to_configure = val32;
-+
-+		err = of_property_read_u32_array(node, "wire-config",
-+				wires_conf, ARRAY_SIZE(wires_conf));
-+		if (err < 0)
-+			goto err_free_mem;
-+		else {
-+			for (i = 0; i < ARRAY_SIZE(wires_conf); i++)
-+				ts_dev->config_inp[i] = wires_conf[i];
-+		}
-+	} else {
-+		ts_dev->wires = pdata->tsc_init->wires;
-+		ts_dev->x_plate_resistance =
-+			pdata->tsc_init->x_plate_resistance;
-+		ts_dev->steps_to_configure =
-+			pdata->tsc_init->steps_to_configure;
-+		memcpy(ts_dev->config_inp, pdata->tsc_init->wire_config,
- 			sizeof(pdata->tsc_init->wire_config));
-+	}
+ 	status = titsc_readl(ts_dev, REG_IRQSTATUS);
+ 	if (status & IRQENB_FIFO0THRES) {
+ 		titsc_read_coordinates(ts_dev, &x, &y);
  
- 	err = request_irq(ts_dev->irq, titsc_irq,
- 			  0, pdev->dev.driver->name, ts_dev);
++		diffx = abs(x - (ts_dev->bckup_x));
++		diffy = abs(y - (ts_dev->bckup_y));
++		ts_dev->bckup_x = x;
++		ts_dev->bckup_y = y;
++
+ 		z1 = titsc_readl(ts_dev, REG_FIFO0) & 0xfff;
+ 		z2 = titsc_readl(ts_dev, REG_FIFO1) & 0xfff;
+ 
+@@ -338,7 +348,8 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+ 			z /= z1;
+ 			z = (z + 2047) >> 12;
+ 
+-			if (z <= MAX_12BIT) {
++			if ((diffx < TSCADC_DELTA_X) &&
++			(diffy < TSCADC_DELTA_Y) && (z <= MAX_12BIT)) {
+ 				input_report_abs(input_dev, ABS_X, x);
+ 				input_report_abs(input_dev, ABS_Y, y);
+ 				input_report_abs(input_dev, ABS_PRESSURE, z);
+@@ -361,6 +372,8 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+ 		fsm = titsc_readl(ts_dev, REG_ADCFSM);
+ 		if (fsm == ADCFSM_STEPID) {
+ 			ts_dev->pen_down = false;
++			ts_dev->bckup_x = 0;
++			ts_dev->bckup_y = 0;
+ 			input_report_key(input_dev, BTN_TOUCH, 0);
+ 			input_report_abs(input_dev, ABS_PRESSURE, 0);
+ 			input_sync(input_dev);
 -- 
 1.7.0.4

@@ -1,83 +1,31 @@
-From: Troy Abercrombia <ta@cypress.com>
-Subject: RE: Why Cypress does not upstream its trackpad driver?
-Date: Wed, 7 Nov 2012 18:13:56 -0500
-Message-ID: <C825ADB6BE8AC2468577BFFCE7DF5B8A1F080FA111@VMBX133.ihostexchange.net>
+From: richard -rw- weinberger <richard.weinberger@gmail.com>
+Subject: Re: Why Cypress does not upstream its trackpad driver?
+Date: Thu, 8 Nov 2012 00:27:37 +0100
+Message-ID: <CAFLxGvy3voev7gm=6sej=tNmWOB31Kgf6gFZf5ew7xh9r1qRGA@mail.gmail.com>
 References: <CAFub=KTf2dWxM9=saG2JaNJpEioJM8rM3UBG9BkyxRN-+j0psQ@mail.gmail.com>
- <1352313131.2751.152.camel@fourier>
+	<1352313131.2751.152.camel@fourier>
+	<C825ADB6BE8AC2468577BFFCE7DF5B8A1F080FA111@VMBX133.ihostexchange.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay.ihostexchange.net ([66.46.182.58]:38385 "EHLO
-	relay.ihostexchange.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751368Ab2KGXTR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Nov 2012 18:19:17 -0500
-In-Reply-To: <1352313131.2751.152.camel@fourier>
-Content-Language: en-US
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:35614 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751661Ab2KGX1j (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Nov 2012 18:27:39 -0500
+In-Reply-To: <C825ADB6BE8AC2468577BFFCE7DF5B8A1F080FA111@VMBX133.ihostexchange.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kamal Mostafa <kamal@canonical.com>, =?utf-8?B?T3phbiDDh2HEn2xheWFu?= <ozancag@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, customercare <customercare@cypress.com>, "mario_limonciello@dell.com" <mario_limonciello@dell.com>, David Solda <dso@cypress.com>
+To: Troy Abercrombia <ta@cypress.com>
+Cc: Kamal Mostafa <kamal@canonical.com>, =?UTF-8?B?T3phbiDDh2HEn2xheWFu?= <ozancag@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, customercare <customercare@cypress.com>, "mario_limonciello@dell.com" <mario_limonciello@dell.com>, David Solda <dso@cypress.com>
 
-SGVsbG8gS2FtYWwNCg0KVW5mb3J0dW5hdGVseSwgV2UncmUgbm90IGFibGUgdG8gdXBzdHJlYW0g
-dGhlIGRyaXZlciBhcyBpdCB3b3VsZCBiZSBkZW5pZWQgYmVjYXVzZSBpdCBjaGFuZ2VzIHRoZSBM
-aW51eCBtb3VzZSBzdHJ1Y3R1cmUgZnJhbWV3b3JrLg0KDQpUaGFua3MNClRyb3kNCi0tLS0tT3Jp
-Z2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBLYW1hbCBNb3N0YWZhIFttYWlsdG86a2FtYWxAY2Fu
-b25pY2FsLmNvbV0NClNlbnQ6IFdlZG5lc2RheSwgTm92ZW1iZXIgMDcsIDIwMTIgMTA6MzIgQU0N
-ClRvOiBPemFuIMOHYcSfbGF5YW4NCkNjOiBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyBs
-aW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb207IGN1
-c3RvbWVyY2FyZTsgbWFyaW9fbGltb25jaWVsbG9AZGVsbC5jb20NClN1YmplY3Q6IFJlOiBXaHkg
-Q3lwcmVzcyBkb2VzIG5vdCB1cHN0cmVhbSBpdHMgdHJhY2twYWQgZHJpdmVyPw0KDQpPbiBUdWUs
-IDIwMTItMTEtMDYgYXQgMTc6NDcgLTA1MDAsIE96YW4gw4dhxJ9sYXlhbiB3cm90ZToNCj4gSGks
-DQo+DQo+IFRoaXMgZHJpdmVyIFswXSB3YXMgd3JpdHRlbiB3aXRoIGEgY29vcGVyYXRpb24gb2Yg
-Q3lwcmVzcywgRGVsbCBhbmQNCj4gQ2Fub25pY2FsIEVuZ2luZWVycyB3aXRoaW4gdGhlIGxhc3Qg
-My00IG1vbnRocy4gSXQgaXMgdmVyeSBuaWNlIHRoYXQNCj4gQ3lwcmVzcyBhcyBhIHZlbmRvciBj
-b29wZXJhdGVkIHdpdGggQ2Fub25pY2FsIChCZWNhdXNlIENhbm9uaWNhbCB3b3Jrcw0KPiB3aXRo
-IERlbGwgZm9yIHRoZWlyIFByb2plY3QgU3B1dG5payBhbmQgRGVsbCBYUFMxMyBpcyB1c2VkIGFz
-IHRoZSBtYWluDQo+IGhhcmR3YXJlIGZvciB0aGF0IHByb2plY3QgYW5kIERlbGwgWFBTMTMgaGFz
-IHRoaXMgdHlwZSBvZiB0cmFja3BhZCwNCj4gQmluZ28hKSwgYW5kIEkgYW0gYWxzbyBnbGFkIHRo
-YXQgVWJ1bnR1IHVzZXJzIGJlbmVmaXRzIGZyb20gdGhpcw0KPiBkcml2ZXIuDQo+DQo+IFRoZSBk
-cml2ZXIgYnJpbmdzIG11bHRpLXRvdWNoIHNjcm9sbGluZywgZGlzYWJsZS13aGlsZS10YXBwaW5n
-IGFuZA0KPiBtYWtlcyBGbitGeCB0b3VjaHBhZCBkaXNhYmxlL2VuYWJsZSB3b3JrIGZvciBub3Qg
-b25seSBEZWxsIFhQUzEzIGJ1dA0KPiBmb3IgYWxsIGxhcHRvcHMgaGF2aW5nIHRoaXMgdHJhY2tw
-YWQgKE15IExlbm92byBVbHRyYWJvb2sgVTMwMHMgZm9yDQo+IGV4YW1wbGUsIEkgdGVzdGVkIHRo
-ZSBwYXRjaGVzIG9uIGZlZG9yYSAxNydzIDMuNiBrZXJuZWwgYW5kIGl0IHdvcmtzDQo+IHF1aWV0
-IG5pY2UpDQo+DQo+IEJ1dCB3aGF0IEkgYW0gbm90IGdldHRpbmcgdGhhdCB3aHkgTk9CT0RZIGZy
-b20gQ3lwcmVzcy9DYW5vbmljYWwvRGVsbA0KPiBpc24ndCBib3RoZXJpbmcgdG8gcHVzaCB0aGlz
-IGRyaXZlciB0byB1cHN0cmVhbT8NCg0KDQpJbiBmYWN0LCBDYW5vbmljYWwgaXMgd29ya2luZyBv
-biBwcmVwYXJpbmcgdGhlIEN5cHJlc3MgUFMvMiB0cmFja3BhZCBkcml2ZXIgZm9yIHN1Ym1pdHRp
-bmcgdXBzdHJlYW0uDQoNCg0KPiBJcyBpdCB0b28gaGFyZD8gSSBkb24ndCB0aGluayBzbyBhcyB0
-aGUgcGF0Y2hlcyBhcmUgcXVpdGUgbm9uLWludmFzaXZlDQo+IGFuZCBzbWFsbC4NCg0KDQpZb3Vy
-IGVzdGltYXRlIG9mIHRoZSB3b3JrL3Jpc2sgaW52b2x2ZWQgbm90IHdpdGhzdGFuZGluZywgSSBj
-aG9zZSB0byBkZXBsb3kgdGhpcyBleHBlcmltZW50YWwgZHJpdmVyIGluIHN0YWdlcyAtLSBmaXJz
-dCBpbiB0aGUgb2VtLXNwZWNpZmljICJTcHV0bmlrIHByb2plY3QiIGtlcm5lbCwgdGhlbiAocmVj
-ZW50bHkpIGluIHRoZSBtYWluIFVidW50dSBrZXJuZWwsIHRoZW4gZmluYWxseSAoc29vbikgdXBz
-dHJlYW0gLS0gc28gYXMgdG8gbWluaW1pemUgcmVncmVzc2lvbnMgd2hpbGUgc2hha2luZyBvdXQg
-dGhlIGJ1Z3MuICBGb3IgZXhhbXBsZSwgdGhlIHZlcnNpb24gdG8gd2hpY2ggeW91IGxpbmtlZCBk
-b2VzIGluY2x1ZGUgYSByZWdyZXNzaW9uIChicmVha3Mgc29tZSBBTFBTIHRvdWNocGFkcykgd2hp
-Y2ggd2UgZGlzY292ZXJlZCBvbmx5IGFmdGVyIGRlcGxveWluZyBpbiBVYnVudHUuDQoNCkkgZXhw
-ZWN0IHRvIHN1Ym1pdCB0aGUgQ3lwcmVzcyBkcml2ZXIgdXBzdHJlYW0gd2l0aGluIHR3byB3ZWVr
-cy4gIE9mIGNvdXJzZSwgbXkgd29yayBvbiB0aGUgZHJpdmVyIGlzIChhbmQgaGFzIGJlZW4pIHB1
-YmxpY2x5IGF2YWlsYWJsZVsxXS4NCg0KIC1LYW1hbCBNb3N0YWZhIDxrYW1hbEBjYW5vbmljYWwu
-Y29tPg0KDQpbMV0gVGhlIGxhdGVzdCB2ZXJzaW9uIG9mIHRoaXMgZHJpdmVyIGlzIHJlcHJlc2Vu
-dGVkIGJ5IHRoZSBwYXRjaCBzZXQ6DQogICAgaHR0cDovL2tlcm5lbC51YnVudHUuY29tL2dpdD9w
-PXVidW50dSUyRnVidW50dS1xdWFudGFsLmdpdCZhPXNlYXJjaCZoPUhFQUQmc3Q9Y29tbWl0JnM9
-Q3lwcmVzcytQUyUyRjINCg0KDQo+DQo+IElzIHRoZSBvbmx5IGRpc3RyaWJ1dGlvbiBhcm91bmQg
-aXMgVWJ1bnR1Pw0KPiBJcyB0aGUgb25seSBsYXB0b3Agc29sZCBpbiB0aGUgd29ybGQgaXMgRGVs
-bCBYUFMxMyB3aXRoIGFuIFVidW50dT8NCj4NCj4gSSdtIG5vdCB0cnlpbmcgdG8gYmUgaW1wb2xp
-dGUgYnV0IGl0IGh1cnRzIG1lIHRvIHNlZSB0aGF0IGEgdmVuZG9yDQo+IHByb2R1Y2VzIGFuIG9w
-ZW4tc291cmNlIGRyaXZlciBmb3IgaXRzIGRldmljZSBidXQgbWFrZXMgdXNlIG9mIGl0IG9ubHkN
-Cj4gdGhyb3VnaCBhIHNwZWNpZmljIGRpc3RyaWJ1dGlvbi4NCj4NCj4gSWYgQ3lwcmVzcyBpcyBq
-dXN0IGJlZ2lubmluZyBkZXZlbG9waW5nIG9wZW4tc291cmNlIGRyaXZlcnMgZm9yIHRoZWlyDQo+
-IGRldmljZXMsIEkgaG9wZSB0aGF0IGFmdGVyIHRoaXMgbWFpbCB0aGV5IHdpbGwgYmUgbXVjaCBz
-ZW5zaXRpdmUgYWJvdXQNCj4gdGhlIGlzc3VlIGFuZCBwdXNoIHRoZWlyIGRyaXZlcnMgZXZlbiBi
-ZWZvcmUgdGhlIHJlbGVhc2Ugb2YgdGhlaXINCj4gZGV2aWNlcyB0byBtYWtlIHVzZXIgZXhwZXJp
-ZW5jZSBmbGF3bGVzcy4NCj4NCj4gKEkgZ29vZ2xlZCBhbmQgc2VhcmNoZWQgdGhlIGFyY2hpdmVz
-IG9mIExLTUwgYW5kIGxpbnV4LWlucHV0IGJ1dA0KPiBjb3VsZG4ndCBmaW5kIGEgZGlzY3Vzc2lv
-biBvciBwYXRjaCBzZXJpZXMgYWJvdXQgdGhlIGRyaXZlci4gSWYgSQ0KPiBtaXNzZWQgaXQsIGln
-bm9yZSB0aGUgd2hvbGUgc3R1ZmYgYWJvdmUpDQo+DQo+IFswXTogaHR0cDovL3BhdGNod29yay5v
-emxhYnMub3JnL3BhdGNoLzE3ODkwMy8NCj4NCg0KDQpUaGlzIG1lc3NhZ2UgYW5kIGFueSBhdHRh
-Y2htZW50cyBtYXkgY29udGFpbiBDeXByZXNzIChvciBpdHMgc3Vic2lkaWFyaWVzKSBjb25maWRl
-bnRpYWwgaW5mb3JtYXRpb24uIElmIGl0IGhhcyBiZWVuIHJlY2VpdmVkIGluIGVycm9yLCBwbGVh
-c2UgYWR2aXNlIHRoZSBzZW5kZXIgYW5kIGltbWVkaWF0ZWx5IGRlbGV0ZSB0aGlzIG1lc3NhZ2Uu
-DQo=
+On Thu, Nov 8, 2012 at 12:13 AM, Troy Abercrombia <ta@cypress.com> wrote:
+> Hello Kamal
+>
+> Unfortunately, We're not able to upstream the driver as it would be denied because it changes the Linux mouse structure framework.
+
+Then write a sane driver or submit patches which add the features you
+need in the Linux input device framework...
+
+-- 
+Thanks,
+//richard

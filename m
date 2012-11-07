@@ -1,78 +1,491 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: Ignore D-WAV/eGalax devices handled by
- usbtouchscreen
-Date: Wed, 7 Nov 2012 11:52:47 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1211071152400.27271@pobox.suse.cz>
-References: <20121106184122.GT12501@alittletooquiet.net>
+From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Subject: [PATCH 02/10] arm: at91: move platfarm_data to
+ include/linux/platform_data/atmel.h
+Date: Wed,  7 Nov 2012 12:22:46 +0100
+Message-ID: <1352287374-25176-2-git-send-email-plagnioj@jcrosoft.com>
+References: <20121107111235.GH20063@game.jcrosoft.org>
+ <1352287374-25176-1-git-send-email-plagnioj@jcrosoft.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59213 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751366Ab2KGKwz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 7 Nov 2012 05:52:55 -0500
-In-Reply-To: <20121106184122.GT12501@alittletooquiet.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1352287374-25176-1-git-send-email-plagnioj@jcrosoft.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: linux-fbdev@vger.kernel.org, linux-usb@vger.kernel.org, rtc-linux@googlegroups.com, linux-mmc@vger.kernel.org, linux-pcmcia@lists.infradead.org, Nicolas Ferre <nicolas.ferre@atmel.com>, linux-can@vger.kernel.org, linux-ide@vger.kernel.org, netdev@vger.kernel.org, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, spi-devel-general@lists.sourceforge.net, Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 List-Id: linux-input@vger.kernel.org
-To: Forest Bond <forest@alittletooquiet.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Ritz <daniel.ritz@gmx.ch>, Alan Stern <stern@rowland.harvard.edu>, Sergei Shtylyov <sshtylyov@mvista.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Tue, 6 Nov 2012, Forest Bond wrote:
+Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: linux-ide@vger.kernel.org
+Cc: linux-input@vger.kernel.org
+Cc: linux-mmc@vger.kernel.org
+Cc: linux-can@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-pcmcia@lists.infradead.org
+Cc: rtc-linux@googlegroups.com
+Cc: spi-devel-general@lists.sourceforge.net
+Cc: linux-serial@vger.kernel.org
+Cc: linux-usb@vger.kernel.org
+Cc: linux-fbdev@vger.kernel.org
+---
+HI all,
 
-> From: Forest Bond <forest.bond@rapidrollout.com>
-> 
-> Previously, both usbhid and usbtouchscreen would bind to D-WAV devices
-> with class HID and protocol None, so they would be claimed by whichever
-> driver was loaded first.  Some of these devices do in fact work with
-> usbhid, but not all of them do.  OTOH they all work with usbtouchscreen
-> as of commit 037a833ed05a86d01ea27a2c32043b86c549be1b ("Input:
-> usbtouchscreen - initialize eGalax devices").  So we ignore them in
-> usbhid to prevent getting in the way of usbtouchscreen and claiming an
-> interface that we may not be able to do anything useful with.
-> 
-> Signed-off-by: Forest Bond <forest.bond@rapidrollout.com>
-> ---
->  drivers/hid/hid-core.c |   11 ++++++++++-
->  drivers/hid/hid-ids.h  |    1 +
->  2 files changed, 11 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index f4109fd..f2d614e 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2188,7 +2188,16 @@ static bool hid_ignore(struct hid_device *hdev)
->  		if (hdev->product == USB_DEVICE_ID_JESS_YUREX &&
->  				hdev->type == HID_TYPE_USBNONE)
->  			return true;
-> -	break;
-> +		break;
-> +	case USB_VENDOR_ID_DWAV:
-> +		/* These are handled by usbtouchscreen. hdev->type is probably
-> +		 * HID_TYPE_USBNONE, but we say !HID_TYPE_USBMOUSE to match
-> +		 * usbtouchscreen. */
-> +		if ((hdev->product == USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER ||
-> +		     hdev->product == USB_DEVICE_ID_DWAV_TOUCHCONTROLLER) &&
-> +		    hdev->type != HID_TYPE_USBMOUSE)
-> +			return true;
-> +		break;
->  	}
->  
->  	if (hdev->type == HID_TYPE_USBMOUSE &&
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 9d7a428..3d73774 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -257,6 +257,7 @@
->  
->  #define USB_VENDOR_ID_DWAV		0x0eef
->  #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER	0x0001
-> +#define USB_DEVICE_ID_DWAV_TOUCHCONTROLLER	0x0002
->  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_480D	0x480d
->  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_480E	0x480e
->  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7207	0x7207
+	If it's ok with everyone this will go via at91
+	with the patch serie than clean up the include/mach
 
-Applied, thanks.
+	For preparation to switch to arm multiarch kernel
 
+Best Regards,
+J.
+ arch/arm/mach-at91/include/mach/board.h     |   55 ----------------------
+ arch/avr32/mach-at32ap/include/mach/board.h |    7 ---
+ drivers/ata/pata_at91.c                     |    2 +-
+ drivers/input/touchscreen/atmel_tsadcc.c    |    2 +-
+ drivers/mmc/host/atmel-mci.c                |    2 +-
+ drivers/net/can/at91_can.c                  |    3 +-
+ drivers/net/ethernet/cadence/at91_ether.c   |    2 +-
+ drivers/pcmcia/at91_cf.c                    |    2 +-
+ drivers/rtc/rtc-at91sam9.c                  |    2 +-
+ drivers/spi/spi-atmel.c                     |    2 +-
+ drivers/tty/serial/atmel_serial.c           |    2 +-
+ drivers/usb/gadget/at91_udc.c               |    2 +-
+ drivers/usb/gadget/atmel_usba_udc.c         |    2 +-
+ drivers/usb/host/ohci-at91.c                |    2 +-
+ drivers/video/atmel_lcdfb.c                 |    2 +-
+ include/linux/platform_data/atmel.h         |   67 +++++++++++++++++++++++++++
+ 16 files changed, 80 insertions(+), 76 deletions(-)
+
+diff --git a/arch/arm/mach-at91/include/mach/board.h b/arch/arm/mach-at91/include/mach/board.h
+index c55a436..662451d 100644
+--- a/arch/arm/mach-at91/include/mach/board.h
++++ b/arch/arm/mach-at91/include/mach/board.h
+@@ -31,42 +31,15 @@
+ #ifndef __ASM_ARCH_BOARD_H
+ #define __ASM_ARCH_BOARD_H
+ 
+-#include <linux/mtd/partitions.h>
+-#include <linux/device.h>
+-#include <linux/i2c.h>
+-#include <linux/leds.h>
+-#include <linux/spi/spi.h>
+-#include <linux/usb/atmel_usba_udc.h>
+-#include <linux/atmel-mci.h>
+-#include <sound/atmel-ac97c.h>
+-#include <linux/serial.h>
+-#include <linux/platform_data/macb.h>
+ #include <linux/platform_data/atmel.h>
+ 
+  /* USB Device */
+-struct at91_udc_data {
+-	int	vbus_pin;		/* high == host powering us */
+-	u8	vbus_active_low;	/* vbus polarity */
+-	u8	vbus_polled;		/* Use polling, not interrupt */
+-	int	pullup_pin;		/* active == D+ pulled up */
+-	u8	pullup_active_low;	/* true == pullup_pin is active low */
+-};
+ extern void __init at91_add_device_udc(struct at91_udc_data *data);
+ 
+  /* USB High Speed Device */
+ extern void __init at91_add_device_usba(struct usba_platform_data *data);
+ 
+  /* Compact Flash */
+-struct at91_cf_data {
+-	int	irq_pin;		/* I/O IRQ */
+-	int	det_pin;		/* Card detect */
+-	int	vcc_pin;		/* power switching */
+-	int	rst_pin;		/* card reset */
+-	u8	chipselect;		/* EBI Chip Select number */
+-	u8	flags;
+-#define AT91_CF_TRUE_IDE	0x01
+-#define AT91_IDE_SWAP_A0_A2	0x02
+-};
+ extern void __init at91_add_device_cf(struct at91_cf_data *data);
+ 
+  /* MMC / SD */
+@@ -86,16 +59,6 @@ extern void __init at91_add_device_mci(short mmc_id, struct mci_platform_data *d
+ extern void __init at91_add_device_eth(struct macb_platform_data *data);
+ 
+  /* USB Host */
+-#define AT91_MAX_USBH_PORTS	3
+-struct at91_usbh_data {
+-	int		vbus_pin[AT91_MAX_USBH_PORTS];	/* port power-control pin */
+-	int             overcurrent_pin[AT91_MAX_USBH_PORTS];
+-	u8		ports;				/* number of ports on root hub */
+-	u8              overcurrent_supported;
+-	u8              vbus_pin_active_low[AT91_MAX_USBH_PORTS];
+-	u8              overcurrent_status[AT91_MAX_USBH_PORTS];
+-	u8              overcurrent_changed[AT91_MAX_USBH_PORTS];
+-};
+ extern void __init at91_add_device_usbh(struct at91_usbh_data *data);
+ extern void __init at91_add_device_usbh_ohci(struct at91_usbh_data *data);
+ extern void __init at91_add_device_usbh_ehci(struct at91_usbh_data *data);
+@@ -124,13 +87,6 @@ extern void __init at91_register_uart(unsigned id, unsigned portnr, unsigned pin
+ 
+ extern struct platform_device *atmel_default_console_device;
+ 
+-struct atmel_uart_data {
+-	int			num;		/* port num */
+-	short			use_dma_tx;	/* use transmit DMA? */
+-	short			use_dma_rx;	/* use receive DMA? */
+-	void __iomem		*regs;		/* virt. base address, if any */
+-	struct serial_rs485	rs485;		/* rs485 settings */
+-};
+ extern void __init at91_add_device_serial(void);
+ 
+ /*
+@@ -173,24 +129,13 @@ extern void __init at91_add_device_isi(struct isi_platform_data *data,
+ 		bool use_pck_as_mck);
+ 
+  /* Touchscreen Controller */
+-struct at91_tsadcc_data {
+-	unsigned int    adc_clock;
+-	u8		pendet_debounce;
+-	u8		ts_sample_hold_time;
+-};
+ extern void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data);
+ 
+ /* CAN */
+-struct at91_can_data {
+-	void (*transceiver_switch)(int on);
+-};
+ extern void __init at91_add_device_can(struct at91_can_data *data);
+ 
+  /* LEDs */
+ extern void __init at91_gpio_leds(struct gpio_led *leds, int nr);
+ extern void __init at91_pwm_leds(struct gpio_led *leds, int nr);
+ 
+-/* FIXME: this needs a better location, but gets stuff building again */
+-extern int at91_suspend_entering_slow_clock(void);
+-
+ #endif
+diff --git a/arch/avr32/mach-at32ap/include/mach/board.h b/arch/avr32/mach-at32ap/include/mach/board.h
+index 70742ec..dca9345 100644
+--- a/arch/avr32/mach-at32ap/include/mach/board.h
++++ b/arch/avr32/mach-at32ap/include/mach/board.h
+@@ -34,13 +34,6 @@ extern struct platform_device *atmel_default_console_device;
+ #define	ATMEL_USART_CTS		0x02
+ #define	ATMEL_USART_CLK		0x04
+ 
+-struct atmel_uart_data {
+-	int		num;		/* port num */
+-	short		use_dma_tx;	/* use transmit DMA? */
+-	short		use_dma_rx;	/* use receive DMA? */
+-	void __iomem	*regs;		/* virtual base address, if any */
+-	struct serial_rs485	rs485;		/* rs485 settings */
+-};
+ void at32_map_usart(unsigned int hw_id, unsigned int line, int flags);
+ struct platform_device *at32_add_device_usart(unsigned int id);
+ 
+diff --git a/drivers/ata/pata_at91.c b/drivers/ata/pata_at91.c
+index 53d3770..2a96bb2 100644
+--- a/drivers/ata/pata_at91.c
++++ b/drivers/ata/pata_at91.c
+@@ -27,9 +27,9 @@
+ #include <linux/libata.h>
+ #include <linux/platform_device.h>
+ #include <linux/ata_platform.h>
++#include <linux/platform_data/atmel.h>
+ 
+ #include <mach/at91sam9_smc.h>
+-#include <mach/board.h>
+ #include <asm/gpio.h>
+ 
+ #define DRV_NAME		"pata_at91"
+diff --git a/drivers/input/touchscreen/atmel_tsadcc.c b/drivers/input/touchscreen/atmel_tsadcc.c
+index 201b2d2..ea392ee 100644
+--- a/drivers/input/touchscreen/atmel_tsadcc.c
++++ b/drivers/input/touchscreen/atmel_tsadcc.c
+@@ -22,7 +22,7 @@
+ #include <linux/clk.h>
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
+-#include <mach/board.h>
++#include <linux/platform_data/atmel.h>
+ #include <mach/cpu.h>
+ 
+ /* Register definitions based on AT91SAM9RL64 preliminary draft datasheet */
+diff --git a/drivers/mmc/host/atmel-mci.c b/drivers/mmc/host/atmel-mci.c
+index ddf096e..8689989 100644
+--- a/drivers/mmc/host/atmel-mci.c
++++ b/drivers/mmc/host/atmel-mci.c
+@@ -28,6 +28,7 @@
+ #include <linux/slab.h>
+ #include <linux/stat.h>
+ #include <linux/types.h>
++#include <linux/platform_data/atmel.h>
+ 
+ #include <linux/mmc/host.h>
+ #include <linux/mmc/sdio.h>
+@@ -40,7 +41,6 @@
+ #include <asm/unaligned.h>
+ 
+ #include <mach/cpu.h>
+-#include <mach/board.h>
+ 
+ #include "atmel-mci-regs.h"
+ 
+diff --git a/drivers/net/can/at91_can.c b/drivers/net/can/at91_can.c
+index fcff73a..994b6ac 100644
+--- a/drivers/net/can/at91_can.c
++++ b/drivers/net/can/at91_can.c
+@@ -33,12 +33,11 @@
+ #include <linux/spinlock.h>
+ #include <linux/string.h>
+ #include <linux/types.h>
++#include <linux/platform_data/atmel.h>
+ 
+ #include <linux/can/dev.h>
+ #include <linux/can/error.h>
+ 
+-#include <mach/board.h>
+-
+ #define AT91_MB_MASK(i)		((1 << (i)) - 1)
+ 
+ /* Common registers */
+diff --git a/drivers/net/ethernet/cadence/at91_ether.c b/drivers/net/ethernet/cadence/at91_ether.c
+index 4e980a7..35fc6edb 100644
+--- a/drivers/net/ethernet/cadence/at91_ether.c
++++ b/drivers/net/ethernet/cadence/at91_ether.c
+@@ -31,6 +31,7 @@
+ #include <linux/clk.h>
+ #include <linux/gfp.h>
+ #include <linux/phy.h>
++#include <linux/platform_data/atmel.h>
+ 
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+@@ -38,7 +39,6 @@
+ 
+ #include <mach/at91rm9200_emac.h>
+ #include <asm/gpio.h>
+-#include <mach/board.h>
+ 
+ #include "at91_ether.h"
+ 
+diff --git a/drivers/pcmcia/at91_cf.c b/drivers/pcmcia/at91_cf.c
+index 9694c1e..01463c7 100644
+--- a/drivers/pcmcia/at91_cf.c
++++ b/drivers/pcmcia/at91_cf.c
+@@ -17,6 +17,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/slab.h>
+ #include <linux/gpio.h>
++#include <linux/platform_data/atmel.h>
+ 
+ #include <pcmcia/ss.h>
+ 
+@@ -24,7 +25,6 @@
+ #include <asm/io.h>
+ #include <asm/sizes.h>
+ 
+-#include <mach/board.h>
+ #include <mach/at91rm9200_mc.h>
+ #include <mach/at91_ramc.h>
+ 
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 2dfe7a2..e981798 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -19,8 +19,8 @@
+ #include <linux/interrupt.h>
+ #include <linux/ioctl.h>
+ #include <linux/slab.h>
++#include <linux/platform_data/atmel.h>
+ 
+-#include <mach/board.h>
+ #include <mach/at91_rtt.h>
+ #include <mach/cpu.h>
+ 
+diff --git a/drivers/spi/spi-atmel.c b/drivers/spi/spi-atmel.c
+index 16d6a83..61fb0ec 100644
+--- a/drivers/spi/spi-atmel.c
++++ b/drivers/spi/spi-atmel.c
+@@ -19,9 +19,9 @@
+ #include <linux/interrupt.h>
+ #include <linux/spi/spi.h>
+ #include <linux/slab.h>
++#include <linux/platform_data/atmel.h>
+ 
+ #include <asm/io.h>
+-#include <mach/board.h>
+ #include <asm/gpio.h>
+ #include <mach/cpu.h>
+ 
+diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
+index 3d7e1ee..5660ec2 100644
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -39,12 +39,12 @@
+ #include <linux/atmel_pdc.h>
+ #include <linux/atmel_serial.h>
+ #include <linux/uaccess.h>
++#include <linux/platform_data/atmel.h>
+ 
+ #include <asm/io.h>
+ #include <asm/ioctls.h>
+ 
+ #include <asm/mach/serial_at91.h>
+-#include <mach/board.h>
+ 
+ #ifdef CONFIG_ARM
+ #include <mach/cpu.h>
+diff --git a/drivers/usb/gadget/at91_udc.c b/drivers/usb/gadget/at91_udc.c
+index 89d90b5..a7b042b 100644
+--- a/drivers/usb/gadget/at91_udc.c
++++ b/drivers/usb/gadget/at91_udc.c
+@@ -31,6 +31,7 @@
+ #include <linux/usb/gadget.h>
+ #include <linux/of.h>
+ #include <linux/of_gpio.h>
++#include <linux/platform_data/atmel.h>
+ 
+ #include <asm/byteorder.h>
+ #include <mach/hardware.h>
+@@ -38,7 +39,6 @@
+ #include <asm/irq.h>
+ #include <asm/gpio.h>
+ 
+-#include <mach/board.h>
+ #include <mach/cpu.h>
+ #include <mach/at91sam9261_matrix.h>
+ #include <mach/at91_matrix.h>
+diff --git a/drivers/usb/gadget/atmel_usba_udc.c b/drivers/usb/gadget/atmel_usba_udc.c
+index 9a9bced..a7aed84 100644
+--- a/drivers/usb/gadget/atmel_usba_udc.c
++++ b/drivers/usb/gadget/atmel_usba_udc.c
+@@ -21,9 +21,9 @@
+ #include <linux/usb/gadget.h>
+ #include <linux/usb/atmel_usba_udc.h>
+ #include <linux/delay.h>
++#include <linux/platform_data/atmel.h>
+ 
+ #include <asm/gpio.h>
+-#include <mach/board.h>
+ 
+ #include "atmel_usba_udc.h"
+ 
+diff --git a/drivers/usb/host/ohci-at91.c b/drivers/usb/host/ohci-at91.c
+index 0bf72f9..8e62f81 100644
+--- a/drivers/usb/host/ohci-at91.c
++++ b/drivers/usb/host/ohci-at91.c
+@@ -16,11 +16,11 @@
+ #include <linux/platform_device.h>
+ #include <linux/of_platform.h>
+ #include <linux/of_gpio.h>
++#include <linux/platform_data/atmel.h>
+ 
+ #include <mach/hardware.h>
+ #include <asm/gpio.h>
+ 
+-#include <mach/board.h>
+ #include <mach/cpu.h>
+ 
+ #ifndef CONFIG_ARCH_AT91
+diff --git a/drivers/video/atmel_lcdfb.c b/drivers/video/atmel_lcdfb.c
+index 94cac9f..12cf5f3 100644
+--- a/drivers/video/atmel_lcdfb.c
++++ b/drivers/video/atmel_lcdfb.c
+@@ -19,8 +19,8 @@
+ #include <linux/backlight.h>
+ #include <linux/gfp.h>
+ #include <linux/module.h>
++#include <linux/platform_data/atmel.h>
+ 
+-#include <mach/board.h>
+ #include <mach/cpu.h>
+ #include <asm/gpio.h>
+ 
+diff --git a/include/linux/platform_data/atmel.h b/include/linux/platform_data/atmel.h
+index b0f2c56..dbd6d53 100644
+--- a/include/linux/platform_data/atmel.h
++++ b/include/linux/platform_data/atmel.h
+@@ -8,6 +8,49 @@
+ #define __ATMEL_H__
+ 
+ #include <linux/mtd/nand.h>
++#include <linux/mtd/partitions.h>
++#include <linux/device.h>
++#include <linux/i2c.h>
++#include <linux/leds.h>
++#include <linux/spi/spi.h>
++#include <linux/usb/atmel_usba_udc.h>
++#include <linux/atmel-mci.h>
++#include <sound/atmel-ac97c.h>
++#include <linux/serial.h>
++#include <linux/platform_data/macb.h>
++
++ /* USB Device */
++struct at91_udc_data {
++	int	vbus_pin;		/* high == host powering us */
++	u8	vbus_active_low;	/* vbus polarity */
++	u8	vbus_polled;		/* Use polling, not interrupt */
++	int	pullup_pin;		/* active == D+ pulled up */
++	u8	pullup_active_low;	/* true == pullup_pin is active low */
++};
++
++ /* Compact Flash */
++struct at91_cf_data {
++	int	irq_pin;		/* I/O IRQ */
++	int	det_pin;		/* Card detect */
++	int	vcc_pin;		/* power switching */
++	int	rst_pin;		/* card reset */
++	u8	chipselect;		/* EBI Chip Select number */
++	u8	flags;
++#define AT91_CF_TRUE_IDE	0x01
++#define AT91_IDE_SWAP_A0_A2	0x02
++};
++
++ /* USB Host */
++#define AT91_MAX_USBH_PORTS	3
++struct at91_usbh_data {
++	int		vbus_pin[AT91_MAX_USBH_PORTS];	/* port power-control pin */
++	int             overcurrent_pin[AT91_MAX_USBH_PORTS];
++	u8		ports;				/* number of ports on root hub */
++	u8              overcurrent_supported;
++	u8              vbus_pin_active_low[AT91_MAX_USBH_PORTS];
++	u8              overcurrent_status[AT91_MAX_USBH_PORTS];
++	u8              overcurrent_changed[AT91_MAX_USBH_PORTS];
++};
+ 
+  /* NAND / SmartMedia */
+ struct atmel_nand_data {
+@@ -24,4 +67,28 @@ struct atmel_nand_data {
+ 	unsigned int	num_parts;
+ };
+ 
++ /* Serial */
++struct atmel_uart_data {
++	int			num;		/* port num */
++	short			use_dma_tx;	/* use transmit DMA? */
++	short			use_dma_rx;	/* use receive DMA? */
++	void __iomem		*regs;		/* virt. base address, if any */
++	struct serial_rs485	rs485;		/* rs485 settings */
++};
++
++ /* Touchscreen Controller */
++struct at91_tsadcc_data {
++	unsigned int    adc_clock;
++	u8		pendet_debounce;
++	u8		ts_sample_hold_time;
++};
++
++/* CAN */
++struct at91_can_data {
++	void (*transceiver_switch)(int on);
++};
++
++/* FIXME: this needs a better location, but gets stuff building again */
++extern int at91_suspend_entering_slow_clock(void);
++
+ #endif /* __ATMEL_H__ */
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.10.4

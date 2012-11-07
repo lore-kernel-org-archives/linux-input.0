@@ -1,74 +1,39 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH] input: fix input-mt kernel-doc warning
-Date: Wed, 7 Nov 2012 20:46:17 +0100
-Message-ID: <20121107194617.GA3738@polaris.bitmath.org>
-References: <5099B45E.8080105@infradead.org>
+Subject: Re: [PATCH v4] staging: ste_rmi4: Convert to Type-B support
+Date: Wed, 7 Nov 2012 20:57:08 +0100
+Message-ID: <20121107195708.GA3754@polaris.bitmath.org>
+References: <20121103013623.0f3a1b28168a9a42881b0b00@tw.synaptics.com>
+ <20121107134934.b37e923588f4a24af146a93b@tw.synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:60476 "EHLO
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:60991 "EHLO
 	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751356Ab2KGTky (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Nov 2012 14:40:54 -0500
+	with ESMTP id S1751149Ab2KGTv1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Nov 2012 14:51:27 -0500
 Content-Disposition: inline
-In-Reply-To: <5099B45E.8080105@infradead.org>
+In-Reply-To: <20121107134934.b37e923588f4a24af146a93b@tw.synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Alexandra Chin <Alexandra.Chin@tw.synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
 
-Hi Randy,
+Hi Alexandra,
 
-> From: Randy Dunlap <rdunlap@infradead.org>
+> Convert to MT-B because Synaptics touch devices are capable of tracking
+> identifiable fingers.
 > 
-> Fix new kernel-doc warning in input-mt.c:
-> 
-> Warning(drivers/input/input-mt.c:38): No description found for parameter 'flags'
+> Signed-off-by: Alexandra Chin <alexandra.chin@tw.synaptics.com>
+> ---
+> Changes from v4:
+>         - Incorporated Henrik's review comments
+>           *split function synpatics_rmi4_touchscreen_report
+>           *split function synaptics_rmi4_i2c_query_device
 
-Thanks for the patch. It seemed reasonable to expand the function
-documentation a bit as well, hope you are alright with the patch
-below, Dmitry, care to pick this up for 3.7? Otherwise I can carry it
-for 3.8.
+Thanks for the changes. The patch looks cleaner, but also much larger,
+containing many changes irrelevant to the commit message (and to what
+has hitherto been reviewed). Please resend a minimum patch, there is
+plenty of room for additional patches after this one. :-)
 
 Thanks,
 Henrik
-
----
-
->From a96b3a67eefba05d7e6de3afa1b51d17728d45d3 Mon Sep 17 00:00:00 2001
-From: Henrik Rydberg <rydberg@euromail.se>
-Date: Wed, 7 Nov 2012 20:40:24 +0100
-Subject: [PATCH] Input: MT - Document undocumented init argument
-
-Fixes new kernel-doc warning in input-mt.c:
-
-Warning(drivers/input/input-mt.c:38): No description found for parameter 'flags'
-
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/input/input-mt.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-index c0ec7d4..1abbc17 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -26,10 +26,14 @@ static void copy_abs(struct input_dev *dev, unsigned int dst, unsigned int src)
-  * input_mt_init_slots() - initialize MT input slots
-  * @dev: input device supporting MT events and finger tracking
-  * @num_slots: number of slots used by the device
-+ * @flags: mt tasks to handle in core
-  *
-  * This function allocates all necessary memory for MT slot handling
-  * in the input device, prepares the ABS_MT_SLOT and
-  * ABS_MT_TRACKING_ID events for use and sets up appropriate buffers.
-+ * Depending on the flags set, it also performs pointer emulation and
-+ * frame synchronization.
-+ *
-  * May be called repeatedly. Returns -EINVAL if attempting to
-  * reinitialize with a different number of slots.
-  */
--- 
-1.8.0
-

@@ -1,70 +1,72 @@
-From: Forest Bond <forest-B/PTSs0AgtP3p6jHtUh95NHuzzzSOjJt@public.gmane.org>
-Subject: Re: [PATCH] HID: Ignore D-WAV/eGalax devices handled by
- usbtouchscreen
-Date: Wed, 7 Nov 2012 09:09:21 -0500
-Message-ID: <20121107140921.GB4834@alittletooquiet.net>
-References: <20121106184122.GT12501@alittletooquiet.net>
- <509A460C.8000401@mvista.com>
- <20121107135718.GA4834@alittletooquiet.net>
- <alpine.LNX.2.00.1211071502190.27271@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rS8CxjVDS/+yyDmU"
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1211071502190.27271-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: [PATCH v3 00/13] Win 8 support for digitizers
+Date: Wed,  7 Nov 2012 17:37:23 +0100
+Message-ID: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ea0-f174.google.com ([209.85.215.174]:56660 "EHLO
+	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750768Ab2KGQhz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Nov 2012 11:37:55 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+Hi Guys,
 
---rS8CxjVDS/+yyDmU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+here is the third version of this patchset.
+I think I included most of Henrik's comments.
 
-On Wed, Nov 07, 2012 at 03:02:39PM +0100, Jiri Kosina wrote:
-> On Wed, 7 Nov 2012, Forest Bond wrote:
->=20
-> > > /*
-> > >  * bla
-> > >  * bla
-> > >  */
-> > >=20
-> > > WBR, Sergei
-> >=20
-> > Thanks for the feedback.  I had scanned the file and saw both styles.  =
-It would
-> > be nice if checkpatch.pl issued a warning for this.
-> >=20
-> > Jiri, would you like me to resend?
->=20
-> Not necessary, minor thing and patch is already applied. Thanks,
+Happy reviewing :)
 
-Thank you.
+Cheers,
+Benjamin
 
--Forest
---=20
-Forest Bond
-http://www.alittletooquiet.net
-http://www.rapidrollout.com
+v1 introduction:
+So, this is an update for supporting Win 8 multitouch devices in the kernel.
+As I wanted to reliably forward the resolution, I noticed a bug in the
+processing of the unit_exponent in the hid core layer.
+Thus the fixes for hid-core and hid-input.
 
---rS8CxjVDS/+yyDmU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+v2 changes:
+* added missing initial patch that prevents the series to be applied on top of Jiri's tree
+* update to include latest hid changes
+* taken into account Alan's patch: "hid: put the case in the right switch statement"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+v3 changes:
+* splitted "round return value of hidinput_calc_abs_res" in a separate patch
+* export snto32 in hid.h as we need to use it in hid-input.c
+* didn't change all drivers, but add a field in hid_usage instead
+* add quirk MT_QUIRK_IGNORE_DUPLICATES so that any device can rely on it
+* easier understandable support of hovering devices
+* changed scan time definition
+* applied new definition of scan time in hid-multitouch
+* some other few things.
 
-iEYEARECAAYFAlCaa5EACgkQRO4fQQdv5AylrgCdHxivtN4XbsNJMCoV0pJonB7r
-bHkAnAur7SZQ421UYYLSTfgS01D1BR7k
-=G4a4
------END PGP SIGNATURE-----
+Benjamin Tissoires (13):
+  HID: hid-input: export hidinput_calc_abs_res
+  HID: hid-input: round return value of hidinput_calc_abs_res
+  HID: core: fix unit exponent parsing
+  HID: hid-input: add usage_index in struct hid_usage.
+  HID: hid-multitouch: support arrays for the split of the touches in a
+    report
+  HID: hid-multitouch: get maxcontacts also from logical_max value
+  HID: hid-multitouch: support T and C for win8 devices
+  HID: hid-multitouch: move ALWAYS_VALID quirk check
+  HID: hid-multitouch: add MT_QUIRK_IGNORE_DUPLICATES
+  HID: hid-multitouch: fix Win 8 protocol
+  HID: hid-multitouch: support for hovering devices
+  HID: introduce Scan Time
+  HID: hid-multitouch: forwards ABS_SCAN_TIME
 
---rS8CxjVDS/+yyDmU--
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ Documentation/input/event-codes.txt |   9 +++
+ drivers/hid/hid-core.c              |  20 ++++-
+ drivers/hid/hid-input.c             |  28 +++++--
+ drivers/hid/hid-multitouch.c        | 157 ++++++++++++++++++++++++++++++------
+ include/linux/hid.h                 |   4 +
+ include/linux/input.h               |   1 +
+ include/linux/input/mt.h            |   6 ++
+ 7 files changed, 192 insertions(+), 33 deletions(-)
+
+-- 
+1.7.11.7
+

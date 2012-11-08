@@ -1,65 +1,134 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Why Cypress does not upstream its trackpad driver?
-Date: Thu, 8 Nov 2012 00:54:31 -0800
-Message-ID: <20121108085431.GA6658@core.coreip.homeip.net>
-References: <CAFub=KTf2dWxM9=saG2JaNJpEioJM8rM3UBG9BkyxRN-+j0psQ@mail.gmail.com>
- <C825ADB6BE8AC2468577BFFCE7DF5B8A1F080FA111@VMBX133.ihostexchange.net>
- <EE629F2C-DD83-403C-AD73-E9ED966EEA91@cypress.com>
- <2208882.BvOrfBvj6F@dtor-d630.eng.vmware.com>
- <C6B11F3154DB7242B32DD96C876EA7847BAFFAFA95@VMBX113.ihostexchange.net>
- <877gpwlpus.fsf@gmail.com>
- <20121108074154.GA4037@core.coreip.homeip.net>
- <C6B11F3154DB7242B32DD96C876EA7847BAFFAFB11@VMBX113.ihostexchange.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 1/3] input: spear-keyboard: Use devm_*() routines
+Date: Thu,  8 Nov 2012 19:10:47 +0530
+Message-ID: <9f07bb7dbf29978970d901bbe89add0a333cc925.1352381962.git.viresh.kumar@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:41901 "EHLO
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:65516 "EHLO
 	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751110Ab2KHIyf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Nov 2012 03:54:35 -0500
-Received: by mail-pb0-f46.google.com with SMTP id rr4so1889386pbb.19
-        for <linux-input@vger.kernel.org>; Thu, 08 Nov 2012 00:54:35 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <C6B11F3154DB7242B32DD96C876EA7847BAFFAFB11@VMBX113.ihostexchange.net>
+	with ESMTP id S1751193Ab2KHNmL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Nov 2012 08:42:11 -0500
+Received: by mail-pb0-f46.google.com with SMTP id rr4so2048886pbb.19
+        for <linux-input@vger.kernel.org>; Thu, 08 Nov 2012 05:42:10 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Solda <dso@cypress.com>
-Cc: Ben Gamari <bgamari.foss@gmail.com>, Troy Abercrombia <ta@cypress.com>, Kamal Mostafa <kamal@canonical.com>, Ozan =?utf-8?B?w4dhxJ9sYXlhbg==?= <ozancag@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, customercare <customercare@cypress.com>, "mario_limonciello@dell.com" <mario_limonciello@dell.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com, Viresh Kumar <viresh.kumar@linaro.org>
 
-David,
+This patch frees spear-keyboard driver from tension of freeing resources :)
+devm_* derivatives of multiple routines are used while allocating resources,
+which would be freed automatically by kernel.
 
-On Thu, Nov 08, 2012 at 03:09:36AM -0500, David Solda wrote:
-> Dmitry,
-> 
-> The change you are referring to is the one that I was mentioning.
-> 
-> The "absolute mode" is the only mode of our module that produces
-> multiple fingers.  We do not communicate relative position for more
-> than one finger.  The 8 byte packet is only used in the Absolute Mode,
-> you are right, however, this packet contains the necessary information
-> for determining the position of 2 fingers on the Trackpad.  Hence the
-> reason why I stated that a Firmware change (complete architectural and
-> protocol rewrite) on our side would be need to comply with the 6 byte
-> maximum limit.
-> 
-> So, the only method that I have available right now to upstream
-> something that wouldn't be rejected (as you stated below) is either an
-> architectural overhaul (which I cannot launch at this time), or single
-> finger position tracking only.
-> 
-> Any other thoughts are appreciated, but the 8 bytes packet is needed
-> for our multi-finger detection and communication scheme that is
-> implemented.
-> 
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+---
+ drivers/input/keyboard/spear-keyboard.c | 37 +++++++++++----------------------
+ 1 file changed, 12 insertions(+), 25 deletions(-)
 
-First of all, please do not top-post.
-
-I thought I was clear that if you need 8-byte packets just change size
-in struct ps2dev to be 8 bytes instead of current 6 and as far as I can
-see that will solve your problem. There is no need to change firmware,
-re-architecture protocol or doing anything else.
-
-Thanks.
-
+diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
+index c7ca97f..1d24fb2 100644
+--- a/drivers/input/keyboard/spear-keyboard.c
++++ b/drivers/input/keyboard/spear-keyboard.c
+@@ -203,7 +203,7 @@ static int __devinit spear_kbd_probe(struct platform_device *pdev)
+ 		return irq;
+ 	}
+ 
+-	kbd = kzalloc(sizeof(*kbd), GFP_KERNEL);
++	kbd = devm_kzalloc(&pdev->dev, sizeof(*kbd), GFP_KERNEL);
+ 	input_dev = input_allocate_device();
+ 	if (!kbd || !input_dev) {
+ 		dev_err(&pdev->dev, "out of memory\n");
+@@ -224,25 +224,25 @@ static int __devinit spear_kbd_probe(struct platform_device *pdev)
+ 		kbd->suspended_rate = pdata->suspended_rate;
+ 	}
+ 
+-	kbd->res = request_mem_region(res->start, resource_size(res),
+-				      pdev->name);
++	kbd->res = devm_request_mem_region(&pdev->dev, res->start,
++			resource_size(res), pdev->name);
+ 	if (!kbd->res) {
+ 		dev_err(&pdev->dev, "keyboard region already claimed\n");
+ 		error = -EBUSY;
+ 		goto err_free_mem;
+ 	}
+ 
+-	kbd->io_base = ioremap(res->start, resource_size(res));
++	kbd->io_base = devm_ioremap(&pdev->dev, res->start, resource_size(res));
+ 	if (!kbd->io_base) {
+ 		dev_err(&pdev->dev, "ioremap failed for kbd_region\n");
+ 		error = -ENOMEM;
+-		goto err_release_mem_region;
++		goto err_free_mem;
+ 	}
+ 
+-	kbd->clk = clk_get(&pdev->dev, NULL);
++	kbd->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(kbd->clk)) {
+ 		error = PTR_ERR(kbd->clk);
+-		goto err_iounmap;
++		goto err_free_mem;
+ 	}
+ 
+ 	input_dev->name = "Spear Keyboard";
+@@ -259,7 +259,7 @@ static int __devinit spear_kbd_probe(struct platform_device *pdev)
+ 					   kbd->keycodes, input_dev);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "Failed to build keymap\n");
+-		goto err_put_clk;
++		goto err_free_mem;
+ 	}
+ 
+ 	if (kbd->rep)
+@@ -268,16 +268,17 @@ static int __devinit spear_kbd_probe(struct platform_device *pdev)
+ 
+ 	input_set_drvdata(input_dev, kbd);
+ 
+-	error = request_irq(irq, spear_kbd_interrupt, 0, "keyboard", kbd);
++	error = devm_request_irq(&pdev->dev, irq, spear_kbd_interrupt, 0,
++			"keyboard", kbd);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "request_irq fail\n");
+-		goto err_put_clk;
++		goto err_free_mem;
+ 	}
+ 
+ 	error = input_register_device(input_dev);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "Unable to register keyboard device\n");
+-		goto err_free_irq;
++		goto err_free_mem;
+ 	}
+ 
+ 	device_init_wakeup(&pdev->dev, 1);
+@@ -285,17 +286,8 @@ static int __devinit spear_kbd_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
+-err_free_irq:
+-	free_irq(kbd->irq, kbd);
+-err_put_clk:
+-	clk_put(kbd->clk);
+-err_iounmap:
+-	iounmap(kbd->io_base);
+-err_release_mem_region:
+-	release_mem_region(res->start, resource_size(res));
+ err_free_mem:
+ 	input_free_device(input_dev);
+-	kfree(kbd);
+ 
+ 	return error;
+ }
+@@ -304,12 +296,7 @@ static int __devexit spear_kbd_remove(struct platform_device *pdev)
+ {
+ 	struct spear_kbd *kbd = platform_get_drvdata(pdev);
+ 
+-	free_irq(kbd->irq, kbd);
+ 	input_unregister_device(kbd->input);
+-	clk_put(kbd->clk);
+-	iounmap(kbd->io_base);
+-	release_mem_region(kbd->res->start, resource_size(kbd->res));
+-	kfree(kbd);
+ 
+ 	device_init_wakeup(&pdev->dev, 0);
+ 	platform_set_drvdata(pdev, NULL);
 -- 
-Dmitry
+1.7.12.rc2.18.g61b472e
+

@@ -1,46 +1,71 @@
-From: Alexandra Chin <alexandra.chin@tw.synaptics.com>
-Subject: RE: [PATCH v4] staging: ste_rmi4: Convert to Type-B support
-Date: Thu, 8 Nov 2012 04:01:32 +0000
-Message-ID: <CC51EC7B5B7F984AA566DC102237848896F61184@hkdcw-mail1.synaptics-inc.local>
-References: <20121103013623.0f3a1b28168a9a42881b0b00@tw.synaptics.com>
- <20121107134934.b37e923588f4a24af146a93b@tw.synaptics.com>
- <20121107195708.GA3754@polaris.bitmath.org>
+From: "AnilKumar, Chimata" <anilkumar@ti.com>
+Subject: RE: [PATCH v4] Input: matrix-keypad - Add device tree support
+Date: Thu, 8 Nov 2012 05:23:47 +0000
+Message-ID: <331ABD5ECB02734CA317220B2BBEABC13EA66B1F@DBDE01.ent.ti.com>
+References: <1352280725-452-1-git-send-email-anilkumar@ti.com>
+ <331ABD5ECB02734CA317220B2BBEABC13EA6620F@DBDE01.ent.ti.com>
+ <509A92E6.8020905@wwwdotorg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121107195708.GA3754@polaris.bitmath.org>
-Content-Language: zh-HK
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bear.ext.ti.com ([192.94.94.41]:56707 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750881Ab2KHFYC convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Nov 2012 00:24:02 -0500
+In-Reply-To: <509A92E6.8020905@wwwdotorg.org>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: 'Stephen Warren' <swarren@wwwdotorg.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, "dgdunix@gmail.com" <dgdunix@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>
 
-Hi Henrik.
-
-> > Convert to MT-B because Synaptics touch devices are capable of tracking
-> > identifiable fingers.
-> >
-> > Signed-off-by: Alexandra Chin <alexandra.chin@tw.synaptics.com>
-> > ---
-> > Changes from v4:
-> >         - Incorporated Henrik's review comments
-> >           *split function synpatics_rmi4_touchscreen_report
-> >           *split function synaptics_rmi4_i2c_query_device
+On Wed, Nov 07, 2012 at 22:27:10, Stephen Warren wrote:
+> On 11/07/2012 02:38 AM, AnilKumar, Chimata wrote:
+> > On Wed, Nov 07, 2012 at 15:02:05, AnilKumar, Chimata wrote:
+> >> Add device tree support to matrix keypad driver and usage details
+> >> are added to device tree documentation. Driver was tested on AM335x
+> >> EVM.
+> > 
+> > +Stephen
+> > 
+> > ACK from the reviewers (Rob Herring and Stephen Warren) of earlier
+> > versions will help to get this in.
 > 
-> Thanks for the changes. The patch looks cleaner, but also much larger,
-> containing many changes irrelevant to the commit message (and to what
-> has hitherto been reviewed). Please resend a minimum patch, there is
-> plenty of room for additional patches after this one. :-)
-> 
-> Thanks,
-> Henrik
+> I thought I already asked a question about the clustered IRQ properties,
+> which don't make sense.
 
-Appreciate your review!
-I think there is not much of change in patch v4, but git diff tool makes it 
-look larger.
-Since patch v4 is considered too large, let me resubmit a minimum patch,
-and update changes of v4 in future patch.
-Thank you for your advice.
+Hi Stephen,
 
-Alexandra
+In v4 I have added the details of clustered-irq properties
+
+clustered-irq: have clustered irq number, that is needed if the irq
+is a combined irq source for the whole matrix keypad. This is useful
+if rows and columns of the keypad are connected to a GPIO expander.
+
+clustered-irq-flags: clustered irq flags to specify the interrupt line
+behavior among IRQF_TRIGGER_*.
+
+These flags might vary depending on the hardware of the IO-expander
+IRQ this flag is either IRQF_TRIGGER_RISING or IRQF_TRIGGER_FALLING or
+IRQF_TRIGGER_HIGH or IRQF_TRIGGER_LOW or combinations.
+
+The current matrix_keypad.c driver uses these parameters in this way
+
+        if (pdata->clustered_irq > 0) {
+                err = request_irq(pdata->clustered_irq,
+                                matrix_keypad_interrupt,
+                                pdata->clustered_irq_flags,
+                                "matrix-keypad", keypad);
+                if (err) {
+                        dev_err(&pdev->dev,
+                                "Unable to acquire clustered interrupt\n");
+                        goto err_free_rows;
+                }
+        }
+
+In my v5 version I will remove these parameters and we can add if actual users
+come into existence. My thought process was if somebody uses these, might affect.
+
+Thanks
+AnilKumar

@@ -1,35 +1,95 @@
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH 3/3] input:stmpe-ts:Initialize the phys field for input device
-Date: Fri,  9 Nov 2012 20:57:50 +0530
-Message-ID: <94587f7ddc4cf5503a1824df4c1fb53e553881b7.1352474824.git.viresh.kumar@linaro.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] input: stmpe-keyboard: Use devm_*() routines
+Date: Fri, 9 Nov 2012 08:45:03 -0800
+Message-ID: <20121109164503.GA17752@core.coreip.homeip.net>
 References: <3d6f34ca5960203a5efb761f4d56b4e10ee24827.1352474824.git.viresh.kumar@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <3d6f34ca5960203a5efb761f4d56b4e10ee24827.1352474824.git.viresh.kumar@linaro.org>
-In-Reply-To: <3d6f34ca5960203a5efb761f4d56b4e10ee24827.1352474824.git.viresh.kumar@linaro.org>
-References: <3d6f34ca5960203a5efb761f4d56b4e10ee24827.1352474824.git.viresh.kumar@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com, Vipul Kumar Samar <vipulkumar.samar@st.com>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com
 List-Id: linux-input@vger.kernel.org
 
-From: Vipul Kumar Samar <vipulkumar.samar@st.com>
+Hi Viresh,
 
-Signed-off-by: Vipul Kumar Samar <vipulkumar.samar@st.com>
----
- drivers/input/touchscreen/stmpe-ts.c | 1 +
- 1 file changed, 1 insertion(+)
+On Fri, Nov 09, 2012 at 08:57:48PM +0530, Viresh Kumar wrote:
+> This patch frees stmpe-keyboard driver from tension of freeing resources :)
+> devm_* derivatives of multiple routines are used while allocating resources,
+> which would be freed automatically by kernel.
+> 
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> ---
+>  drivers/input/keyboard/stmpe-keypad.c | 31 ++++++++++---------------------
+>  1 file changed, 10 insertions(+), 21 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/stmpe-keypad.c b/drivers/input/keyboard/stmpe-keypad.c
+> index 470a877..6e25497 100644
+> --- a/drivers/input/keyboard/stmpe-keypad.c
+> +++ b/drivers/input/keyboard/stmpe-keypad.c
+> @@ -275,15 +275,14 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
+>  	if (irq < 0)
+>  		return irq;
+>  
+> -	keypad = kzalloc(sizeof(struct stmpe_keypad), GFP_KERNEL);
+> +	keypad = devm_kzalloc(&pdev->dev, sizeof(struct stmpe_keypad),
+> +			GFP_KERNEL);
+>  	if (!keypad)
+>  		return -ENOMEM;
+>  
+> -	input = input_allocate_device();
+> -	if (!input) {
+> -		ret = -ENOMEM;
+> -		goto out_freekeypad;
+> -	}
+> +	input = devm_input_allocate_device(&pdev->dev);
+> +	if (!input)
+> +		return -ENOMEM;
+>  
+>  	input->name = "STMPE keypad";
+>  	input->id.bustype = BUS_I2C;
+> @@ -294,7 +293,7 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
+>  					 STMPE_KEYPAD_MAX_COLS,
+>  					 keypad->keymap, input);
+>  	if (ret)
+> -		goto out_freeinput;
+> +		return ret;
+>  
+>  	input_set_capability(input, EV_MSC, MSC_SCAN);
+>  	if (!plat->no_autorepeat)
+> @@ -314,17 +313,17 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
+>  
+>  	ret = stmpe_keypad_chip_init(keypad);
+>  	if (ret < 0)
+> -		goto out_freeinput;
+> +		return ret;
+>  
+>  	ret = input_register_device(input);
+>  	if (ret) {
+>  		dev_err(&pdev->dev,
+>  			"unable to register input device: %d\n", ret);
+> -		goto out_freeinput;
+> +		return ret;
+>  	}
+>  
+> -	ret = request_threaded_irq(irq, NULL, stmpe_keypad_irq, IRQF_ONESHOT,
+> -				   "stmpe-keypad", keypad);
+> +	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL, stmpe_keypad_irq,
+> +			IRQF_ONESHOT, "stmpe-keypad", keypad);
+>  	if (ret) {
+>  		dev_err(&pdev->dev, "unable to get irq: %d\n", ret);
+>  		goto out_unregisterinput;
+> @@ -336,11 +335,6 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
+>  
+>  out_unregisterinput:
+>  	input_unregister_device(input);
 
-diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
-index 66b932e..9896095 100644
---- a/drivers/input/touchscreen/stmpe-ts.c
-+++ b/drivers/input/touchscreen/stmpe-ts.c
-@@ -317,6 +317,7 @@ static int __devinit stmpe_input_probe(struct platform_device *pdev)
- 		return ret;
- 
- 	idev->name = STMPE_TS_NAME;
-+	idev->phys = STMPE_TS_NAME"/input0";
- 	idev->id.bustype = BUS_I2C;
- 	idev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+If input device was alocated with devm_* interface it does not need be
+explicitly unregistered/freed.
+
+Thanks.
+
 -- 
-1.7.12.rc2.18.g61b472e
+Dmitry

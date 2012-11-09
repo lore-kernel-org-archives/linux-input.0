@@ -1,38 +1,58 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] input: spear-keyboard: Use devm_*() routines
-Date: Thu, 8 Nov 2012 21:33:11 -0800
-Message-ID: <20121109053311.GA12105@core.coreip.homeip.net>
-References: <9f07bb7dbf29978970d901bbe89add0a333cc925.1352381962.git.viresh.kumar@linaro.org>
- <20121108163835.GA8877@core.coreip.homeip.net>
- <CAKohpo=PdNoBzpZoHWcHSqh_az2OOGGGegNzCXPxjUDVOHostw@mail.gmail.com>
+Subject: Re: [PATCH v3 12/13] HID: introduce Scan Time
+Date: Fri, 9 Nov 2012 00:45:27 -0800
+Message-ID: <20121109084527.GA15371@core.coreip.homeip.net>
+References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
+ <1352306256-12180-13-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:35565 "EHLO
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:55438 "EHLO
 	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750890Ab2KIFdP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Nov 2012 00:33:15 -0500
+	with ESMTP id S1751126Ab2KIIpd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Nov 2012 03:45:33 -0500
 Content-Disposition: inline
-In-Reply-To: <CAKohpo=PdNoBzpZoHWcHSqh_az2OOGGGegNzCXPxjUDVOHostw@mail.gmail.com>
+In-Reply-To: <1352306256-12180-13-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Nov 09, 2012 at 08:06:29AM +0530, Viresh Kumar wrote:
-> On 8 November 2012 22:08, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > On Thu, Nov 08, 2012 at 07:10:47PM +0530, Viresh Kumar wrote:
-> > It also breaks the error unwinding/removal of the driver as it frees
-> > input device while IRQ handler is still active.
+Hi Benjamin,
+
+On Wed, Nov 07, 2012 at 05:37:35PM +0100, Benjamin Tissoires wrote:
+> Win 8 digitizer devices provides the actual scan time computed by the
+> hardware itself. The value is global to the frame and is not specific
+> to the multitouch protocol (though only touch, not pen, should use it
+> according to the specification).
 > 
-> I have heard of this argument before, probably from you. :)
-> Just need clarification again. How will we get an interrupt when the controller
-> is stopped, unless we have a shared irq.
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> ---
+>  Documentation/input/event-codes.txt | 9 +++++++++
+>  drivers/hid/hid-input.c             | 4 ++++
+>  include/linux/hid.h                 | 1 +
+>  include/linux/input.h               | 1 +
+>  4 files changed, 15 insertions(+)
+> 
+> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
+> index 53305bd..80c06e5 100644
+> --- a/Documentation/input/event-codes.txt
+> +++ b/Documentation/input/event-codes.txt
+> @@ -174,6 +174,15 @@ A few EV_ABS codes have special meanings:
+>      the input device may be used freely in three dimensions, consider ABS_Z
+>      instead.
+>  
+> +* ABS_SCAN_TIME:
+> +  - Used to report the number of microseconds since the last reset. This event
+> +    should be coded as an uint32 value, which is allowed to wrap around with
+> +    no special consequence. It is assumed that the time difference between two
+> +    consecutive events is reliable on a reasonable time scale (hours).
+> +    A reset to zero can happen, in which case the time since the last event is
+> +    unknown.  If the device does not provide this information, the driver must
+> +    not provide it to the user space.
+> +
 
-My bad, I missed that spear-keyboard driver implements open() and
-close() methods and shuts off the device properly. Still, thanks for
-switching everything to devm_*, I think it is much cleaner this way as
-opposed to mixing managed and unmanaged resources.
+This should not be an absolute event but rather EV_MSC/MSC_TIMESTAMP.
 
 Thanks.
 

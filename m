@@ -1,136 +1,110 @@
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [PATCH 1/3] input: spear-keyboard: Use devm_*() routines
-Date: Fri, 9 Nov 2012 08:33:33 +0530
-Message-ID: <CAKohpok4oi2RkRKnNi02bCkKazuWErQBKTfmeJAO4LdHHAawCA@mail.gmail.com>
-References: <9f07bb7dbf29978970d901bbe89add0a333cc925.1352381962.git.viresh.kumar@linaro.org>
-	<20121108163835.GA8877@core.coreip.homeip.net>
-	<CAKohpo=PdNoBzpZoHWcHSqh_az2OOGGGegNzCXPxjUDVOHostw@mail.gmail.com>
+From: Robert Hancock <hancockrwd@gmail.com>
+Subject: Re: Why Cypress does not upstream its trackpad driver?
+Date: Thu, 08 Nov 2012 22:06:23 -0600
+Message-ID: <509C813F.1080905@gmail.com>
+References: <CAFub=KTf2dWxM9=saG2JaNJpEioJM8rM3UBG9BkyxRN-+j0psQ@mail.gmail.com> <C825ADB6BE8AC2468577BFFCE7DF5B8A1F080FA111@VMBX133.ihostexchange.net> <EE629F2C-DD83-403C-AD73-E9ED966EEA91@cypress.com> <2208882.BvOrfBvj6F@dtor-d630.eng.vmware.com> <C6B11F3154DB7242B32DD96C876EA7847BAFFAFA95@VMBX113.ihostexchange.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-9;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ia0-f174.google.com ([209.85.210.174]:62199 "EHLO
+Received: from mail-ia0-f174.google.com ([209.85.210.174]:59637 "EHLO
 	mail-ia0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756523Ab2KIDDd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Nov 2012 22:03:33 -0500
-Received: by mail-ia0-f174.google.com with SMTP id y32so2452301iag.19
-        for <linux-input@vger.kernel.org>; Thu, 08 Nov 2012 19:03:33 -0800 (PST)
-In-Reply-To: <CAKohpo=PdNoBzpZoHWcHSqh_az2OOGGGegNzCXPxjUDVOHostw@mail.gmail.com>
+	with ESMTP id S1751454Ab2KIEG1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Nov 2012 23:06:27 -0500
+In-Reply-To: <C6B11F3154DB7242B32DD96C876EA7847BAFFAFA95@VMBX113.ihostexchange.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com
+To: David Solda <dso@cypress.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Troy Abercrombia <ta@cypress.com>, Kamal Mostafa <kamal@canonical.com>, =?ISO-8859-9?Q?Ozan_=C7a=F0layan?= <ozancag@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, customercare <customercare@cypress.com>, "mario_limonciello@dell.com" <mario_limonciello@dell.com>
 
-On 9 November 2012 08:06, Viresh Kumar <viresh.kumar@linaro.org> wrote:
-> On 8 November 2012 22:08, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->> There is devm_request_and_ioremap() which you can use here.
+On 11/07/2012 06:26 PM, David Solda wrote:
+> Dmitry, all,
 >
-> Should have been done in V1 only.
+> To clarify my comment.  Our protocol utilizes 8 bytes which are neede=
+d in our driver.  In order for the Linux system to accept 8 bytes of da=
+ta, the Linux psmouse system driver is required to be modified.  Withou=
+t this modification, the driver that you are referring to will not work=
+ correctly.  The psmouse system driver change that would be required is=
+ the item that would be rejected.
+>
+> I appreciate your comments and of course, if the driver could be upst=
+reamed, it would (we already have I2C drivers updstreamed for Chrome sy=
+stems), but there is a difference here.
+>
+> I will again look into the possibility of what you are requesting, ho=
+wever, the changes are extremely low if not zero that it will be accept=
+ed.
 
-Hi Dmitry,
+Why? If drivers were kept out of the kernel because the hardware they=20
+are designed to run requires strange things or was badly designed, ther=
+e=20
+would be a lot fewer drivers in the kernel than there are today.=20
+=46irmware and hardware frequently does bizarre or nonsensical things a=
+nd=20
+we just have to deal with it.
 
-Please apply below fixup to original patch:
+>
+> Dave
+>
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: Wednesday, November 07, 2012 4:16 PM
+> To: David Solda
+> Cc: Troy Abercrombia; Kamal Mostafa; Ozan =C7a=F0layan; linux-kernel@=
+vger.kernel.org; linux-input@vger.kernel.org; customercare; mario_limon=
+ciello@dell.com
+> Subject: Re: Why Cypress does not upstream its trackpad driver?
+>
+> Hi David,
+>
+> On Wednesday, November 07, 2012 06:30:11 PM David Solda wrote:
+>> Kamal,
+>>
+>> My name is Dave Solda and I would be happy to answer any other
+>> questions that you have. Troy's response is correct however as in
+>> order to support the default Linux mouse class, our firmware would
+>> also have to be modified to do so, which cannot be done in system. O=
+ur
+>> packet protocol maxes out at an 8 byte packet, which requires a chan=
+ge
+>> to the Linux standard in this case.
+>
+> I am unable to parse this... I do not believe anyone asks you to chan=
+ge your firmware and if your protocol needs 8 bytes to transmit device =
+state - that's fine.
+>
+>> Our goal in working with canonical was to provide something on Linux
+>> that would support multi-touch and not only have default single fing=
+er
+>> movement supported.
+>
+>> If I am mistaken and he Linux kernel would accept this, then we can
+>> proceed to upstream, however all indications we have is that this
+>> patch would be rejected.  If you (or others on from the locus alias)
+>> have any inputs, I would be happy to receive them.
+>
+> This really depends on whether the changes to the psmouse framework m=
+ake sense or not. Please start submitting patches for review/discussion=
+ and we can go from there.
+>
+> Thanks.
+>
+> --
+> Dmitry
+>
+> This message and any attachments may contain Cypress (or its subsidia=
+ries) confidential information. If it has been received in error, pleas=
+e advise the sender and immediately delete this message.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-----------------x-------------------------x--------------------
-
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Date: Fri, 9 Nov 2012 08:22:28 +0530
-Subject: [PATCH] fixup! input: spear-keyboard: Use devm_*() routines
-
----
- drivers/input/keyboard/spear-keyboard.c | 41 ++++++++++++---------------------
- 1 file changed, 15 insertions(+), 26 deletions(-)
-
-diff --git a/drivers/input/keyboard/spear-keyboard.c
-b/drivers/input/keyboard/spear-keyboard.c
-index b8784df..25e0a3b 100644
---- a/drivers/input/keyboard/spear-keyboard.c
-+++ b/drivers/input/keyboard/spear-keyboard.c
-@@ -55,7 +55,6 @@
-
- struct spear_kbd {
- 	struct input_dev *input;
--	struct resource *res;
- 	void __iomem *io_base;
- 	struct clk *clk;
- 	unsigned int irq;
-@@ -205,11 +204,15 @@ static int __devinit spear_kbd_probe(struct
-platform_device *pdev)
- 	}
-
- 	kbd = devm_kzalloc(&pdev->dev, sizeof(*kbd), GFP_KERNEL);
--	input_dev = input_allocate_device();
--	if (!kbd || !input_dev) {
-+	if (!kbd) {
-+		dev_err(&pdev->dev, "out of memory\n");
-+		return -ENOMEM;
-+	}
-+
-+	input_dev = devm_input_allocate_device(&pdev->dev);
-+	if (!input_dev) {
- 		dev_err(&pdev->dev, "out of memory\n");
--		error = -ENOMEM;
--		goto err_free_mem;
-+		return -ENOMEM;
- 	}
-
- 	kbd->input = input_dev;
-@@ -218,41 +221,29 @@ static int __devinit spear_kbd_probe(struct
-platform_device *pdev)
- 	if (!pdata) {
- 		error = spear_kbd_parse_dt(pdev, kbd);
- 		if (error)
--			goto err_free_mem;
-+			return error;
- 	} else {
- 		kbd->mode = pdata->mode;
- 		kbd->rep = pdata->rep;
- 		kbd->suspended_rate = pdata->suspended_rate;
- 	}
-
--	kbd->res = devm_request_mem_region(&pdev->dev, res->start,
--			resource_size(res), pdev->name);
--	if (!kbd->res) {
--		dev_err(&pdev->dev, "keyboard region already claimed\n");
--		error = -EBUSY;
--		goto err_free_mem;
--	}
--
--	kbd->io_base = devm_ioremap(&pdev->dev, res->start, resource_size(res));
-+	kbd->io_base = devm_request_and_ioremap(&pdev->dev, res);
- 	if (!kbd->io_base) {
--		dev_err(&pdev->dev, "ioremap failed for kbd_region\n");
--		error = -ENOMEM;
--		goto err_free_mem;
-+		dev_err(&pdev->dev, "request-ioremap failed for kbd_region\n");
-+		return -ENOMEM;
- 	}
-
- 	kbd->clk = devm_clk_get(&pdev->dev, NULL);
--	if (IS_ERR(kbd->clk)) {
--		error = PTR_ERR(kbd->clk);
--		goto err_free_mem;
--	}
-+	if (IS_ERR(kbd->clk))
-+		return PTR_ERR(kbd->clk);
-
- 	error = clk_prepare(kbd->clk);
- 	if (error)
--		goto err_free_mem;
-+		return error;
-
- 	input_dev->name = "Spear Keyboard";
- 	input_dev->phys = "keyboard/input0";
--	input_dev->dev.parent = &pdev->dev;
- 	input_dev->id.bustype = BUS_HOST;
- 	input_dev->id.vendor = 0x0001;
- 	input_dev->id.product = 0x0001;
-@@ -293,8 +284,6 @@ static int __devinit spear_kbd_probe(struct
-platform_device *pdev)
-
- err_unprepare_clk:
- 	clk_unprepare(kbd->clk);
--err_free_mem:
--	input_free_device(input_dev);
-
- 	return error;
- }
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
